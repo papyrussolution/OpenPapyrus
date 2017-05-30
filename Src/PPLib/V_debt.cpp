@@ -274,7 +274,7 @@ int SLAPI PPViewDebtTrnovr::GetDlvrAddr(PPID billID, PPID * pAddrID)
 		GetDlvrAddrList();
 	}
 	if(IsDlvrAddrListInited) {
-		if(!DlvrAddrList.Search(billID, &addr_id, 0, 1))
+		if(!DlvrAddrList.BSearch(billID, &addr_id, 0))
 			addr_id = 0;
 	}
 	else {
@@ -1486,7 +1486,7 @@ void SLAPI PPViewDebtTrnovr::InitViewItem(const TempSellTrnovrTbl::Rec * pRec, D
 	pItem->IsStop    = BIN(!pRec->NotStop);
 }
 
-int SLAPI PPViewDebtTrnovr::NextIteration(DebtTrnovrViewItem * pItem)
+int FASTCALL PPViewDebtTrnovr::NextIteration(DebtTrnovrViewItem * pItem)
 {
 	int    r;
 	if(NextInnerIteration(0, pItem) > 0)
@@ -2571,7 +2571,7 @@ int PPALDD_DebtTrnovr::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	return BIN(p_v->InitIteration((PPViewDebtTrnovr::IterOrder)SortIdx));
 }
 
-int PPALDD_DebtTrnovr::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_DebtTrnovr::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(DebtTrnovr);
 	I.BillID = item.BillID;
@@ -3515,7 +3515,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 						entry_set.AddEntry(list.Get(0), 0);
 						if(Cfg.HoldingRelTypeID) {
 							PPID holding_ar_id = 0;
-							if(!rel_list.Search(bill_rec.Object, &holding_ar_id, 0, 0)) {
+							if(!rel_list.Search(bill_rec.Object, &holding_ar_id, 0)) {
 								ArObj.GetRelPersonSingle(bill_rec.Object, Cfg.HoldingRelTypeID, 0, &holding_ar_id);
 								rel_list.Add(bill_rec.Object, holding_ar_id, 0);
 							}
@@ -3554,7 +3554,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 			entry_set.AddEntry(list.Get(0), 0);
 			if(Cfg.HoldingRelTypeID) {
 				PPID holding_ar_id = 0;
-				if(!rel_list.Search(bill_rec.Object, &holding_ar_id, 0, 0)) {
+				if(!rel_list.Search(bill_rec.Object, &holding_ar_id, 0)) {
 					ArObj.GetRelPersonSingle(bill_rec.Object, Cfg.HoldingRelTypeID, 0, &holding_ar_id);
 					rel_list.Add(bill_rec.Object, holding_ar_id, 0);
 				}
@@ -4377,7 +4377,7 @@ int SLAPI PPViewDebtorStat::CheckForFilt(const DebtStatTbl::Rec & rRec) const
 		return 1;
 }
 
-int SLAPI PPViewDebtorStat::NextIteration(DebtorStatViewItem * pItem)
+int FASTCALL PPViewDebtorStat::NextIteration(DebtorStatViewItem * pItem)
 {
 	while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		Counter.Increment();
@@ -4821,7 +4821,7 @@ int PPALDD_DebtorStat::InitIteration(long iterId, int sortId, long rsrv)
 	return BIN(p_v->InitIteration((PPViewDebtTrnovr::IterOrder)SortIdx));
 }
 
-int PPALDD_DebtorStat::NextIteration(long iterId, long rsrv)
+int PPALDD_DebtorStat::NextIteration(long iterId)
 {
 	START_PPVIEW_ALDD_ITER(DebtorStat);
 #define FLD(f) I.f = item.f

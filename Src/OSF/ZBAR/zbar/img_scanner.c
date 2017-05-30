@@ -232,7 +232,7 @@ inline zbar_symbol_t* _zbar_image_scanner_alloc_sym(zbar_image_scanner_t * iscn,
 		if((int)sym->data_alloc < datalen) {
 			free(sym->P_Data_);
 			sym->data_alloc = datalen;
-			sym->P_Data_ = (char *)malloc(datalen);
+			sym->P_Data_ = (char *)SAlloc::M(datalen);
 		}
 	}
 	else {

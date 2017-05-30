@@ -690,7 +690,7 @@ int SLAPI PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 		pSCN->Speciality = cn_rec.Speciality;
 		memcpy(pSCN->Port,  cn_rec.Port,  sizeof(pSCN->Port));
 		if(ref->GetPropActualSize(Obj, id, CNPRP_EXTDEVICES, &ed_size) > 0) {
-			THROW_MEM(p_ed = (__PPExtDevices *)malloc(ed_size));
+			THROW_MEM(p_ed = (__PPExtDevices *)SAlloc::M(ed_size));
 			memzero(p_ed, ed_size);
 			if(ref->GetProp(Obj, id, CNPRP_EXTDEVICES, p_ed, ed_size) > 0) {
 				pSCN->TouchScreenID = p_ed->TouchScreenID;
@@ -778,7 +778,7 @@ int SLAPI PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 	else
 		ok = -1;
 	CATCHZOK
-	free(p_ed);
+	SAlloc::F(p_ed);
 	return ok;
 }
 
@@ -958,7 +958,7 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 				p_scn->SetPropString(SCN_SLIPFMTPATH,        p_scn->SlipFmtPath);
 				{
 					const size_t ed_size = ALIGNSIZE(offsetof(__PPExtDevices, ExtStrBuf) + p_scn->ExtString.Len() + 1, 2);
-					THROW_MEM(p_ed = (__PPExtDevices *)malloc(ed_size));
+					THROW_MEM(p_ed = (__PPExtDevices *)SAlloc::M(ed_size));
 					memzero(p_ed, ed_size);
 
 					p_ed->TouchScreenID = p_scn->TouchScreenID;
@@ -1037,7 +1037,7 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 	if(!is_new)
 		Dirty(*pID);
 	CATCHZOK
-	free(p_ed);
+	SAlloc::F(p_ed);
 	return ok;
 }
 //
@@ -3086,7 +3086,7 @@ int PPALDD_LocPrnTest::InitIteration(PPIterID iterId, int sortId, long rsrv)
 
 #define TEST_ITERCOUNT 3
 
-int PPALDD_LocPrnTest::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_LocPrnTest::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	if(I.IterNo < TEST_ITERCOUNT) {

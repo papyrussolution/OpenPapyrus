@@ -183,7 +183,7 @@ int SLAPI PPViewGoodsStruc::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewGoodsStruc::NextIteration(GoodsStrucViewItem * pItem)
+int FASTCALL PPViewGoodsStruc::NextIteration(GoodsStrucViewItem * pItem)
 {
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		Counter.Increment();
@@ -325,7 +325,7 @@ int PPALDD_GoodsStrucList::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(GoodsStruc);
 }
 
-int PPALDD_GoodsStrucList::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsStrucList::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(GoodsStruc); // PPViewGoodsStruc
 	I.GsID = item.StrucID; // @v9.5.0

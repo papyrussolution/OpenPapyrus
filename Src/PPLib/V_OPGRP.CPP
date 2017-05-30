@@ -277,7 +277,7 @@ int SLAPI PPViewOpGrouping::InitIteration()
 	return 1;
 }
 
-int SLAPI PPViewOpGrouping::NextIteration(OpGroupingViewItem * pItem)
+int FASTCALL PPViewOpGrouping::NextIteration(OpGroupingViewItem * pItem)
 {
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0 && P_TempTbl->data.OpID != OPGRPNG_TOTAL_ID) {
 		TempOpGrpngTbl::Rec rec;
@@ -1277,7 +1277,7 @@ int PPALDD_OpGrouping::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	INIT_PPVIEW_ALDD_ITER(OpGrouping);
 }
 
-int PPALDD_OpGrouping::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_OpGrouping::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	PPViewOpGrouping * p_v = (PPViewOpGrouping *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
@@ -1343,7 +1343,7 @@ int PPALDD_OpGrouping::NextIteration(PPIterID iterId, long rsrv)
 			I.BillPriceSum = 0;
 			I.BillDscntSum = 0;
 		}
-		return DlRtm::NextIteration(iterId, rsrv);
+		return DlRtm::NextIteration(iterId);
 	}
 	return -1;
 }

@@ -1595,7 +1595,7 @@ int SLAPI PPViewTech::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewTech::NextIteration(TechViewItem * pItem)
+int FASTCALL PPViewTech::NextIteration(TechViewItem * pItem)
 {
 	while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		Counter.Increment();
@@ -1883,7 +1883,7 @@ int PPALDD_TechView::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(Tech);
 }
 
-int PPALDD_TechView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_TechView::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(Tech);
 	I.TechID = item.ID;

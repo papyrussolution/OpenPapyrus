@@ -59,7 +59,7 @@ static void free_glyph(glyph_t * glyph)
 {
 	pixman_list_unlink(&glyph->mru_link);
 	pixman_image_unref(glyph->image);
-	free(glyph);
+	SAlloc::F(glyph);
 }
 
 static uint hash(const void * font_key, const void * glyph_key)
@@ -142,7 +142,7 @@ static void clear_table(pixman_glyph_cache_t * cache)
 
 PIXMAN_EXPORT pixman_glyph_cache_t * pixman_glyph_cache_create(void)
 {
-	pixman_glyph_cache_t * cache = (pixman_glyph_cache_t *)malloc(sizeof(*cache));
+	pixman_glyph_cache_t * cache = (pixman_glyph_cache_t *)SAlloc::M(sizeof(*cache));
 	if(cache) {
 		memset(cache->glyphs, 0, sizeof(cache->glyphs));
 		cache->n_glyphs = 0;
@@ -157,7 +157,7 @@ PIXMAN_EXPORT void pixman_glyph_cache_destroy(pixman_glyph_cache_t * cache)
 {
 	return_if_fail(cache->freeze_count == 0);
 	clear_table(cache);
-	free(cache);
+	SAlloc::F(cache);
 }
 
 PIXMAN_EXPORT void pixman_glyph_cache_freeze(pixman_glyph_cache_t  * cache)
@@ -198,14 +198,14 @@ PIXMAN_EXPORT const void * pixman_glyph_cache_insert(pixman_glyph_cache_t  * cac
 	height = image->bits.height;
 	if(cache->n_glyphs >= HASH_SIZE)
 		return NULL;
-	if(!(glyph = (glyph_t *)malloc(sizeof *glyph)))
+	if(!(glyph = (glyph_t *)SAlloc::M(sizeof *glyph)))
 		return NULL;
 	glyph->font_key = font_key;
 	glyph->glyph_key = glyph_key;
 	glyph->origin_x = origin_x;
 	glyph->origin_y = origin_y;
 	if(!(glyph->image = pixman_image_create_bits(image->bits.format, width, height, NULL, -1))) {
-		free(glyph);
+		SAlloc::F(glyph);
 		return NULL;
 	}
 	pixman_image_composite32(PIXMAN_OP_SRC, image, NULL, glyph->image, 0, 0, 0, 0, 0, 0, width, height);

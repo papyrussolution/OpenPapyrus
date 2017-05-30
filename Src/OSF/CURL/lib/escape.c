@@ -5,11 +5,11 @@
 *                            | (__| |_| |  _ <| |___
 *                             \___|\___/|_| \_\_____|
 *
-* Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+* Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
 *
 * This software is licensed as described in the file COPYING, which
 * you should have received as part of this distribution. The terms
-* are also available at http://curl.haxx.se/docs/copyright.html.
+* are also available at https://curl.haxx.se/docs/copyright.html.
 *
 * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 * copies of the Software, and permit persons to whom the Software is
@@ -25,23 +25,22 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-#include <curl/curl.h>
-
+//#include <curl/curl.h>
 #include "urldata.h"
 #include "warnless.h"
 #include "non-ascii.h"
 #include "escape.h"
+#include "strdup.h"
+/* The last 3 #include files should be in this order */
 #include "curl_printf.h"
-
-/* The last #include files should be: */
 #include "curl_memory.h"
 #include "memdebug.h"
 
 /* Portable character check (remember EBCDIC). Do not use isalnum() because
    its behavior is altered by the current locale.
-   See http://tools.ietf.org/html/rfc3986#section-2.3
+   See https://tools.ietf.org/html/rfc3986#section-2.3
  */
-static bool Curl_isunreserved(uchar in)
+static bool Curl_isunreserved(unsigned char in)
 {
 	switch(in) {
 		case '0': case '1': case '2': case '3': case '4':
@@ -76,19 +75,24 @@ char * curl_unescape(const char * string, int length)
 	return curl_easy_unescape(NULL, string, length, NULL);
 }
 
-char * curl_easy_escape(CURL * handle, const char * string, int inlength)
+char * curl_easy_escape(struct Curl_easy * data, const char * string,
+    int inlength)
 {
-	size_t alloc = (inlength ? (size_t)inlength : strlen(string))+1;
+	size_t alloc;
+	char * ns;
 	char * testing_ptr = NULL;
-	uchar in; /* we need to treat the characters unsigned */
-	size_t newlen = alloc;
+	unsigned char in; /* we need to treat the characters unsigned */
+	size_t newlen;
 	size_t strindex = 0;
 	size_t length;
 	CURLcode result;
-	char * ns = (char *)malloc(alloc);
+	if(inlength < 0)
+		return NULL;
+	alloc = (inlength ? (size_t)inlength : strlen(string))+1;
+	newlen = alloc;
+	ns = (char *)malloc(alloc);
 	if(!ns)
 		return NULL;
-
 	length = alloc-1;
 	while(length--) {
 		in = *string;
@@ -101,17 +105,13 @@ char * curl_easy_escape(CURL * handle, const char * string, int inlength)
 			newlen += 2; /* the size grows with two, since this'll become a %XX */
 			if(newlen > alloc) {
 				alloc *= 2;
-				testing_ptr = (char *)realloc(ns, alloc);
-				if(!testing_ptr) {
-					free(ns);
+				testing_ptr = (char *)Curl_saferealloc(ns, alloc);
+				if(!testing_ptr)
 					return NULL;
-				}
-				else {
-					ns = testing_ptr;
-				}
+				ns = testing_ptr;
 			}
 
-			result = Curl_convert_to_network(handle, &in, 1);
+			result = Curl_convert_to_network(data, &in, 1);
 			if(result) {
 				/* Curl_convert_to_network calls failf if unsuccessful */
 				free(ns);
@@ -138,25 +138,19 @@ char * curl_easy_escape(CURL * handle, const char * string, int inlength)
  * *olen. If length == 0, the length is assumed to be strlen(string).
  *
  */
-CURLcode Curl_urldecode(struct SessionHandle * data,
-    const char * string, size_t length,
-    char ** ostring, size_t * olen,
-    bool reject_ctrl)
+CURLcode Curl_urldecode(struct Curl_easy * data, const char * string, size_t length, char ** ostring, size_t * olen, bool reject_ctrl)
 {
 	size_t alloc = (length ? length : strlen(string))+1;
 	char * ns = (char *)malloc(alloc);
-	uchar in;
+	unsigned char in;
 	size_t strindex = 0;
-	ulong hex;
+	unsigned long hex;
 	CURLcode result;
-
 	if(!ns)
 		return CURLE_OUT_OF_MEMORY;
-
 	while(--alloc > 0) {
 		in = *string;
-		if(('%' == in) && (alloc > 2) &&
-		    ISXDIGIT(string[1]) && ISXDIGIT(string[2])) {
+		if(('%' == in) && (alloc > 2) && ISXDIGIT(string[1]) && ISXDIGIT(string[2])) {
 			/* this is two hexadecimal digits following a '%' */
 			char hexstr[3];
 			char * ptr;
@@ -205,17 +199,26 @@ CURLcode Curl_urldecode(struct SessionHandle * data,
  * If length == 0, the length is assumed to be strlen(string).
  * If olen == NULL, no output length is stored.
  */
-char * curl_easy_unescape(CURL * handle, const char * string, int length,
-    int * olen)
+char * curl_easy_unescape(struct Curl_easy * data, const char * string,
+    int length, int * olen)
 {
 	char * str = NULL;
-	size_t inputlen = length;
-	size_t outputlen;
-	CURLcode res = Curl_urldecode((SessionHandle *)handle, string, inputlen, &str, &outputlen, FALSE);
-	if(res)
-		return NULL;
-	if(olen)
-		*olen = curlx_uztosi(outputlen);
+	if(length >= 0) {
+		size_t inputlen = length;
+		size_t outputlen;
+		CURLcode res = Curl_urldecode(data, string, inputlen, &str, &outputlen,
+		    FALSE);
+		if(res)
+			return NULL;
+
+		if(olen) {
+			if(outputlen <= (size_t)INT_MAX)
+				*olen = curlx_uztosi(outputlen);
+			else
+				/* too large to return in an int, fail! */
+				Curl_safefree(str);
+		}
+	}
 	return str;
 }
 

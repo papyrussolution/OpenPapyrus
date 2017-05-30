@@ -167,7 +167,7 @@ static void general_composite_rect(pixman_implementation_t * imp, pixman_composi
 	if(dest_iter.fini)
 		dest_iter.fini(&dest_iter);
 	if(scanline_buffer != (uint8_t*)stack_scanline_buffer)
-		free(scanline_buffer);
+		SAlloc::F(scanline_buffer);
 }
 
 static const pixman_fast_path_t general_fast_path[] =

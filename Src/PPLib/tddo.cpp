@@ -752,7 +752,7 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 								THROW(BuiltinOp(&func, &arg_pos_list));
 							}
 							else {
-								THROW(pRtm->EvaluateFunc(&func, &arg_pos_list, S));
+								pRtm->EvaluateFunc(&func, &arg_pos_list, S);
 							}
 							//
 							rT = ret_te.T;

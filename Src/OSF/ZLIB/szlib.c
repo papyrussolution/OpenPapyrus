@@ -1344,11 +1344,11 @@ int errno = 0;
 
 #ifdef __TURBOC__ // Turbo C in 16-bit mode 
 	#define MY_ZCALLOC
-	/* Turbo C malloc() does not allow dynamic allocation of 64K bytes
-	* and farmalloc(64K) returns a pointer with an offset of 8, so we
-	* must fix the pointer. Warning: the pointer must be put back to its
-	* original form in order to free it, use zcfree().
-	*/
+	// Turbo C malloc() does not allow dynamic allocation of 64K bytes
+	// and farmalloc(64K) returns a pointer with an offset of 8, so we
+	// must fix the pointer. Warning: the pointer must be put back to its
+	// original form in order to free it, use zcfree().
+	// 
 	#define MAX_PTR 10 // 10*64K = 640K 
 
 	static int next_ptr = 0;
@@ -1445,13 +1445,13 @@ int errno = 0;
 voidpf ZLIB_INTERNAL zcalloc(voidpf opaque, unsigned items, unsigned size)
 {
 	(void)opaque;
-	return sizeof(uInt) > 2 ? (voidpf)malloc(items * size) : (voidpf)calloc(items, size);
+	return sizeof(uInt) > 2 ? (voidpf)SAlloc::M(items * size) : (voidpf)calloc(items, size);
 }
 
 void ZLIB_INTERNAL zcfree(voidpf opaque, voidpf ptr)
 {
 	(void)opaque;
-	free(ptr);
+	SAlloc::F(ptr);
 }
 
 #endif /* MY_ZCALLOC */
@@ -1882,7 +1882,7 @@ static int gz_init(gz_statep state)
 	int ret;
 	z_streamp strm = &(state->strm);
 	// allocate input buffer (double size for gzprintf) 
-	state->in = (unsigned char*)malloc(state->want << 1);
+	state->in = (unsigned char*)SAlloc::M(state->want << 1);
 	if(state->in == NULL) {
 		gz_error(state, Z_MEM_ERROR, "out of memory");
 		return -1;
@@ -1890,9 +1890,9 @@ static int gz_init(gz_statep state)
 	// only need output buffer and deflate state if compressing 
 	if(!state->direct) {
 		// allocate output buffer 
-		state->out = (unsigned char*)malloc(state->want);
+		state->out = (unsigned char*)SAlloc::M(state->want);
 		if(state->out == NULL) {
-			free(state->in);
+			SAlloc::F(state->in);
 			gz_error(state, Z_MEM_ERROR, "out of memory");
 			return -1;
 		}
@@ -1900,11 +1900,10 @@ static int gz_init(gz_statep state)
 		strm->zalloc = Z_NULL;
 		strm->zfree = Z_NULL;
 		strm->opaque = Z_NULL;
-		ret = deflateInit2(strm, state->level, Z_DEFLATED,
-		    MAX_WBITS + 16, DEF_MEM_LEVEL, state->strategy);
+		ret = deflateInit2(strm, state->level, Z_DEFLATED, MAX_WBITS + 16, DEF_MEM_LEVEL, state->strategy);
 		if(ret != Z_OK) {
-			free(state->out);
-			free(state->in);
+			SAlloc::F(state->out);
+			SAlloc::F(state->in);
 			gz_error(state, Z_MEM_ERROR, "out of memory");
 			return -1;
 		}
@@ -2446,15 +2445,15 @@ int ZEXPORT gzclose_w(gzFile file)
 	if(state->size) {
 		if(!state->direct) {
 			(void)deflateEnd(&(state->strm));
-			free(state->out);
+			SAlloc::F(state->out);
 		}
-		free(state->in);
+		SAlloc::F(state->in);
 	}
 	gz_error(state, Z_OK, NULL);
-	free(state->path);
+	SAlloc::F(state->path);
 	if(close(state->fd) == -1)
 		ret = Z_ERRNO;
-	free(state);
+	SAlloc::F(state);
 	return ret;
 }
 //
@@ -2533,11 +2532,11 @@ static int gz_look(gz_statep state)
 	/* allocate read buffers and inflate memory */
 	if(state->size == 0) {
 		/* allocate buffers */
-		state->in = (unsigned char*)malloc(state->want);
-		state->out = (unsigned char*)malloc(state->want << 1);
+		state->in = (unsigned char*)SAlloc::M(state->want);
+		state->out = (unsigned char*)SAlloc::M(state->want << 1);
 		if(state->in == NULL || state->out == NULL) {
-			free(state->out);
-			free(state->in);
+			SAlloc::F(state->out);
+			SAlloc::F(state->in);
 			gz_error(state, Z_MEM_ERROR, "out of memory");
 			return -1;
 		}
@@ -2550,8 +2549,8 @@ static int gz_look(gz_statep state)
 		state->strm.avail_in = 0;
 		state->strm.next_in = Z_NULL;
 		if(inflateInit2(&(state->strm), 15 + 16) != Z_OK) { /* gunzip */
-			free(state->out);
-			free(state->in);
+			SAlloc::F(state->out);
+			SAlloc::F(state->in);
 			state->size = 0;
 			gz_error(state, Z_MEM_ERROR, "out of memory");
 			return -1;
@@ -2991,14 +2990,14 @@ int ZEXPORT gzclose_r(gzFile file)
 	/* free memory and close file */
 	if(state->size) {
 		inflateEnd(&(state->strm));
-		free(state->out);
-		free(state->in);
+		SAlloc::F(state->out);
+		SAlloc::F(state->in);
 	}
 	err = state->err == Z_BUF_ERROR ? Z_BUF_ERROR : Z_OK;
 	gz_error(state, Z_OK, NULL);
-	free(state->path);
+	SAlloc::F(state->path);
 	ret = close(state->fd);
-	free(state);
+	SAlloc::F(state);
 	return ret ? Z_ERRNO : err;
 }
 //
@@ -3045,8 +3044,7 @@ char ZLIB_INTERNAL * gz_strwinerror(DWORD error)
 	static char buf[1024];
 	wchar_t * msgbuf;
 	DWORD lasterr = GetLastError();
-	DWORD chars = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
-	    NULL, error, 0/* Default language */, (LPVOID)&msgbuf, 0, NULL);
+	DWORD chars = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, error, 0/* Default language */, (LPVOID)&msgbuf, 0, NULL);
 	if(chars != 0) {
 		/* If there is an \r\n appended, zap it.  */
 		if(chars >= 2 && msgbuf[chars - 2] == '\r' && msgbuf[chars - 1] == '\n') {
@@ -3102,7 +3100,7 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 		return NULL;
 
 	/* allocate gzFile structure to return */
-	state = (gz_statep)malloc(sizeof(gz_state));
+	state = (gz_statep)SAlloc::M(sizeof(gz_state));
 	if(state == NULL)
 		return NULL;
 	state->size = 0;        /* no buffers allocated yet */
@@ -3125,7 +3123,7 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 				case 'a': state->mode = GZ_APPEND; break;
 #endif
 				case '+': /* can't read and write at the same time */
-				    free(state);
+				    SAlloc::F(state);
 				    return NULL;
 				case 'b': /* ignore -- will request binary anyway */
 				    break;
@@ -3150,13 +3148,13 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 
 	/* must provide an "r", "w", or "a" */
 	if(state->mode == GZ_NONE) {
-		free(state);
+		SAlloc::F(state);
 		return NULL;
 	}
 	/* can't force transparent read */
 	if(state->mode == GZ_READ) {
 		if(state->direct) {
-			free(state);
+			SAlloc::F(state);
 			return NULL;
 		}
 		state->direct = 1; /* for empty file */
@@ -3171,9 +3169,9 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 	else
 #endif
 	len = strlen((const char*)path);
-	state->path = (char*)malloc(len + 1);
+	state->path = (char*)SAlloc::M(len + 1);
 	if(state->path == NULL) {
-		free(state);
+		SAlloc::F(state);
 		return NULL;
 	}
 #ifdef WIDECHAR
@@ -3214,8 +3212,8 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 #endif
 	    open((const char*)path, oflag, 0666));
 	if(state->fd == -1) {
-		free(state->path);
-		free(state);
+		SAlloc::F(state->path);
+		SAlloc::F(state);
 		return NULL;
 	}
 	if(state->mode == GZ_APPEND) {
@@ -3245,7 +3243,7 @@ gzFile ZEXPORT gzdopen(int fd, const char * mode)
 {
 	char * path;    /* identifier for error messages */
 	gzFile gz;
-	if(fd == -1 || (path = (char*)malloc(7 + 3 * sizeof(int))) == NULL)
+	if(fd == -1 || (path = (char*)SAlloc::M(7 + 3 * sizeof(int))) == NULL)
 		return NULL;
 #if !defined(NO_snprintf) && !defined(NO_vsnprintf)
 	(void)snprintf(path, 7 + 3 * sizeof(int), "<fd:%d>", fd);
@@ -3253,7 +3251,7 @@ gzFile ZEXPORT gzdopen(int fd, const char * mode)
 	sprintf(path, "<fd:%d>", fd); /* for debugging */
 #endif
 	gz = gz_open(path, fd, mode);
-	free(path);
+	SAlloc::F(path);
 	return gz;
 }
 
@@ -3288,14 +3286,14 @@ int ZEXPORT gzbuffer(gzFile file, unsigned size)
 int ZEXPORT gzrewind(gzFile file)
 {
 	gz_statep state;
-	/* get internal structure */
+	// get internal structure 
 	if(file == NULL)
 		return -1;
 	state = (gz_statep)file;
-	/* check that we're reading and that there's no error */
+	// check that we're reading and that there's no error 
 	if(state->mode != GZ_READ || (state->err != Z_OK && state->err != Z_BUF_ERROR))
 		return -1;
-	/* back up and start over */
+	// back up and start over 
 	if(LSEEK(state->fd, state->start, SEEK_SET) == -1)
 		return -1;
 	gz_reset(state);
@@ -3307,28 +3305,23 @@ z_off64_t ZEXPORT gzseek64(gzFile file, z_off64_t offset, int whence)
 	unsigned n;
 	z_off64_t ret;
 	gz_statep state;
-	/* get internal structure and check integrity */
+	// get internal structure and check integrity 
 	if(file == NULL)
 		return -1;
 	state = (gz_statep)file;
 	if(state->mode != GZ_READ && state->mode != GZ_WRITE)
 		return -1;
-	/* check that there's no error */
-	if(state->err != Z_OK && state->err != Z_BUF_ERROR)
+	if(state->err != Z_OK && state->err != Z_BUF_ERROR) // check that there's no error 
 		return -1;
-	/* can only seek from start or relative to current position */
-	if(whence != SEEK_SET && whence != SEEK_CUR)
+	if(whence != SEEK_SET && whence != SEEK_CUR) // can only seek from start or relative to current position 
 		return -1;
-	/* normalize offset to a SEEK_CUR specification */
-	if(whence == SEEK_SET)
+	if(whence == SEEK_SET) // normalize offset to a SEEK_CUR specification 
 		offset -= state->x.pos;
 	else if(state->seek)
 		offset += state->skip;
 	state->seek = 0;
-
-	/* if within raw area while reading, just go there */
-	if(state->mode == GZ_READ && state->how == COPY &&
-	    state->x.pos + offset >= 0) {
+	// if within raw area while reading, just go there 
+	if(state->mode == GZ_READ && state->how == COPY && state->x.pos + offset >= 0) {
 		ret = LSEEK(state->fd, offset - state->x.have, SEEK_CUR);
 		if(ret == -1)
 			return -1;
@@ -3341,7 +3334,7 @@ z_off64_t ZEXPORT gzseek64(gzFile file, z_off64_t offset, int whence)
 		state->x.pos += offset;
 		return state->x.pos;
 	}
-	/* calculate skip amount, rewinding if needed for back seek when reading */
+	// calculate skip amount, rewinding if needed for back seek when reading 
 	if(offset < 0) {
 		if(state->mode != GZ_READ)  /* writing -- can't go backwards */
 			return -1;
@@ -3351,7 +3344,7 @@ z_off64_t ZEXPORT gzseek64(gzFile file, z_off64_t offset, int whence)
 		if(gzrewind(file) == -1)    /* rewind, then skip to offset */
 			return -1;
 	}
-	/* if reading, skip what's in output buffer (one less gzgetc() check) */
+	// if reading, skip what's in output buffer (one less gzgetc() check) 
 	if(state->mode == GZ_READ) {
 		n = GT_OFF(state->x.have) || (z_off64_t)state->x.have > offset ? (unsigned)offset : state->x.have;
 		state->x.have -= n;
@@ -3359,7 +3352,7 @@ z_off64_t ZEXPORT gzseek64(gzFile file, z_off64_t offset, int whence)
 		state->x.pos += n;
 		offset -= n;
 	}
-	/* request skip (if not zero) */
+	// request skip (if not zero) 
 	if(offset) {
 		state->seek = 1;
 		state->skip = offset;
@@ -3376,33 +3369,33 @@ z_off_t ZEXPORT gzseek(gzFile file, z_off_t offset, int whence)
 z_off64_t ZEXPORT gztell64(gzFile file)
 {
 	gz_statep state;
-	/* get internal structure and check integrity */
+	// get internal structure and check integrity 
 	if(file == NULL)
 		return -1;
 	state = (gz_statep)file;
 	if(state->mode != GZ_READ && state->mode != GZ_WRITE)
 		return -1;
-	/* return position */
+	// return position 
 	return state->x.pos + (state->seek ? state->skip : 0);
 }
 
 z_off_t ZEXPORT gztell(gzFile file)
 {
 	z_off64_t ret = gztell64(file);
-	return ret == (z_off_t)ret ? (z_off_t)ret : -1;
+	return (ret == (z_off_t)ret) ? (z_off_t)ret : -1;
 }
 
 z_off64_t ZEXPORT gzoffset64(gzFile file)
 {
 	z_off64_t offset;
 	gz_statep state;
-	/* get internal structure and check integrity */
+	// get internal structure and check integrity 
 	if(file == NULL)
 		return -1;
 	state = (gz_statep)file;
 	if(state->mode != GZ_READ && state->mode != GZ_WRITE)
 		return -1;
-	/* compute and return effective offset in file */
+	// compute and return effective offset in file 
 	offset = LSEEK(state->fd, 0, SEEK_CUR);
 	if(offset == -1)
 		return -1;
@@ -3420,14 +3413,14 @@ z_off_t ZEXPORT gzoffset(gzFile file)
 int ZEXPORT gzeof(gzFile file)
 {
 	gz_statep state;
-	/* get internal structure and check integrity */
+	// get internal structure and check integrity 
 	if(file == NULL)
 		return 0;
 	state = (gz_statep)file;
 	if(state->mode != GZ_READ && state->mode != GZ_WRITE)
 		return 0;
-	/* return end-of-file state */
-	return state->mode == GZ_READ ? state->past : 0;
+	// return end-of-file state 
+	return (state->mode == GZ_READ) ? state->past : 0;
 }
 
 const char * ZEXPORT gzerror(gzFile file, int * errnum)
@@ -3441,7 +3434,7 @@ const char * ZEXPORT gzerror(gzFile file, int * errnum)
 		return NULL;
 	// return error information 
 	ASSIGN_PTR(errnum, state->err);
-	return state->err == Z_MEM_ERROR ? "out of memory" : (state->msg == NULL ? "" : state->msg);
+	return (state->err == Z_MEM_ERROR) ? "out of memory" : (state->msg == NULL ? "" : state->msg);
 }
 
 void ZEXPORT gzclearerr(gzFile file)
@@ -3468,13 +3461,13 @@ void ZEXPORT gzclearerr(gzFile file)
    out of memory. */
 void ZLIB_INTERNAL gz_error(gz_statep state, int err, const char * msg)
 {
-	/* free previously allocated message and clear */
+	// free previously allocated message and clear 
 	if(state->msg != NULL) {
 		if(state->err != Z_MEM_ERROR)
-			free(state->msg);
+			SAlloc::F(state->msg);
 		state->msg = NULL;
 	}
-	/* if fatal, set state->x.have to 0 so that the gzgetc() macro fails */
+	// if fatal, set state->x.have to 0 so that the gzgetc() macro fails 
 	if(err != Z_OK && err != Z_BUF_ERROR)
 		state->x.have = 0;
 	// set error code, and if no message, then done 
@@ -3485,7 +3478,7 @@ void ZLIB_INTERNAL gz_error(gz_statep state, int err, const char * msg)
 	if(err == Z_MEM_ERROR)
 		return;
 	// construct error message with path 
-	if((state->msg = (char*)malloc(strlen(state->path) + strlen(msg) + 3)) == NULL) {
+	if((state->msg = (char*)SAlloc::M(strlen(state->path) + strlen(msg) + 3)) == NULL) {
 		state->err = Z_MEM_ERROR;
 		return;
 	}

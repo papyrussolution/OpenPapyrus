@@ -90,7 +90,7 @@ cairo_status_t _cairo_pen_init(cairo_pen_t    * pen,
 void _cairo_pen_fini(cairo_pen_t * pen)
 {
 	if(pen->vertices != pen->vertices_embedded)
-		free(pen->vertices);
+		SAlloc::F(pen->vertices);
 
 	VG(VALGRIND_MAKE_MEM_NOACCESS(pen, sizeof(cairo_pen_t)));
 }

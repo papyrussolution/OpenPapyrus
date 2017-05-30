@@ -68,14 +68,14 @@ void _freed_pool_put_search(freed_pool_t * pool, void * ptr)
 	}
 	/* full */
 	pool->top = i;
-	free(ptr);
+	SAlloc::F(ptr);
 }
 
 void _freed_pool_reset(freed_pool_t * pool)
 {
 	int i;
 	for(i = 0; i < ARRAY_LENGTH(pool->pool); i++) {
-		free(pool->pool[i]);
+		SAlloc::F(pool->pool[i]);
 		pool->pool[i] = NULL;
 	}
 	pool->top = 0;

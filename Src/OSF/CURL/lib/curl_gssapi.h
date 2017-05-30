@@ -11,7 +11,7 @@
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -28,15 +28,15 @@
 #ifdef HAVE_GSSAPI
 
 #ifdef HAVE_GSSGNU
-#  include <gss.h>
+#include <gss.h>
 #elif defined HAVE_GSSMIT
    /* MIT style */
-#  include <gssapi/gssapi.h>
-#  include <gssapi/gssapi_generic.h>
-#  include <gssapi/gssapi_krb5.h>
+#include <gssapi/gssapi.h>
+#include <gssapi/gssapi_generic.h>
+#include <gssapi/gssapi_krb5.h>
 #else
    /* Heimdal-style */
-#  include <gssapi.h>
+#include <gssapi.h>
 #endif
 
 extern gss_OID_desc Curl_spnego_mech_oid;
@@ -44,7 +44,7 @@ extern gss_OID_desc Curl_krb5_mech_oid;
 
 /* Common method for using GSS-API */
 OM_uint32 Curl_gss_init_sec_context(
-    struct SessionHandle *data,
+    struct Curl_easy *data,
     OM_uint32 *minor_status,
     gss_ctx_id_t *context,
     gss_name_t target_name,
@@ -56,8 +56,8 @@ OM_uint32 Curl_gss_init_sec_context(
     OM_uint32 *ret_flags);
 
 /* Helper to log a GSS-API error status */
-void Curl_gss_log_error(struct SessionHandle *data, OM_uint32 status,
-                        const char *prefix);
+void Curl_gss_log_error(struct Curl_easy *data, const char *prefix,
+                        OM_uint32 major, OM_uint32 minor);
 
 /* Provide some definitions missing in old headers */
 #ifdef HAVE_OLD_GSSMIT

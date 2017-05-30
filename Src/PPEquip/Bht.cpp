@@ -831,7 +831,7 @@ int SLAPI PPObjBHT::GetPacket(PPID id, PPBhtTerminalPacket * pPack)
 				CALLEXCEPT_PP(PPERR_BHTPACKPROPREADFAULT_764);
 			}
 			if(oneof2(_pre764, 1, 2)) {
-				THROW_MEM(p_buf_pre764 = (__StyloBhtIIConfig *)malloc(cfg_indb_size));
+				THROW_MEM(p_buf_pre764 = (__StyloBhtIIConfig *)SAlloc::M(cfg_indb_size));
 				memzero(p_buf_pre764, cfg_indb_size);
 				THROW(ref->GetProp(Obj, id, BHTPRP_SBIICFG, p_buf_pre764, cfg_indb_size) > 0);
 				{
@@ -873,7 +873,7 @@ int SLAPI PPObjBHT::GetPacket(PPID id, PPBhtTerminalPacket * pPack)
 		}
 		else {
 			uint   cfg_rec_size = 4096;
-			THROW_MEM(p_buf = (__StyloBhtConfig2 *)malloc(cfg_rec_size));
+			THROW_MEM(p_buf = (__StyloBhtConfig2 *)SAlloc::M(cfg_rec_size));
 			memzero(p_buf, cfg_rec_size);
 			if(ref->GetProp(Obj, id, BHTPRP_SBIICFG2, p_buf, cfg_rec_size) > 0) {
 				THROW_MEM(pPack->P_SBIICfg = new StyloBhtIIOnHostCfg);
@@ -913,8 +913,8 @@ int SLAPI PPObjBHT::GetPacket(PPID id, PPBhtTerminalPacket * pPack)
 	else
 		ok = -1;
 	CATCHZOK
-	free(p_buf);
-	free(p_buf_pre764);
+	SAlloc::F(p_buf);
+	SAlloc::F(p_buf_pre764);
 	return ok;
 }
 
@@ -950,7 +950,7 @@ int SLAPI PPObjBHT::PutPacket(PPID * pID, PPBhtTerminalPacket * pPack, int use_t
 		const  size_t  buf_size = sizeof(*p_buf) + op_items_count * sizeof(SBIIOpInfo) + ext_str.Len();
 		char * p = 0;
 
-		THROW_MEM(p_buf = (__StyloBhtConfig2 *)malloc(buf_size));
+		THROW_MEM(p_buf = (__StyloBhtConfig2 *)SAlloc::M(buf_size));
 		memzero(p_buf, buf_size);
 
 		p_buf->ObjType = PPOBJ_BHT;
@@ -983,7 +983,7 @@ int SLAPI PPObjBHT::PutPacket(PPID * pID, PPBhtTerminalPacket * pPack, int use_t
 		oneof3(pPack->Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII) ? pPack->ImpExpPath_ : (const char *)0));
 	THROW(tra.Commit());
 	CATCHZOK
-	free(p_buf);
+	SAlloc::F(p_buf);
 	return ok;
 }
 

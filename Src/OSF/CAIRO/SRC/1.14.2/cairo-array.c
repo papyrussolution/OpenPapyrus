@@ -71,7 +71,7 @@ void _cairo_array_init(cairo_array_t * array, uint element_size)
  **/
 void _cairo_array_fini(cairo_array_t * array)
 {
-	free(array->elements);
+	SAlloc::F(array->elements);
 }
 
 /**

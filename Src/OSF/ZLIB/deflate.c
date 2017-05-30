@@ -49,11 +49,9 @@
 
 /* @(#) $Id$ */
 
-//#include "deflate.h"
 #define ZLIB_INTERNAL
 #include "zlib.h"
 #pragma hdrstop
-//#include "deflate.h"
 
 const char deflate_copyright[] = " deflate 1.2.11 Copyright 1995-2017 Jean-loup Gailly and Mark Adler ";
 /*
@@ -225,27 +223,22 @@ static void FASTCALL slide_hash(deflate_state * s)
 /* ========================================================================= */
 int ZEXPORT deflateInit_(z_streamp strm, int level, const char * version, int stream_size)
 {
-	return deflateInit2_(strm, level, Z_DEFLATED, MAX_WBITS, DEF_MEM_LEVEL,
-	    Z_DEFAULT_STRATEGY, version, stream_size);
+	return deflateInit2_(strm, level, Z_DEFLATED, MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, version, stream_size);
 	/* To do: ignore strm->next_in if we use it as window */
 }
 
 /* ========================================================================= */
-int ZEXPORT deflateInit2_(z_streamp strm, int level, int method,
-    int windowBits, int memLevel, int strategy, const char * version,
-    int stream_size)
+int ZEXPORT deflateInit2_(z_streamp strm, int level, int method, int windowBits, int memLevel, int strategy, const char * version, int stream_size)
 {
 	deflate_state * s;
 	int wrap = 1;
 	static const char my_version[] = ZLIB_VERSION;
-
 	ushf * overlay;
 	/* We overlay pending_buf and d_buf+l_buf. This works since the average
 	 * output size for (length,distance) codes is <= 24 bits.
 	 */
 
-	if(version == Z_NULL || version[0] != my_version[0] ||
-	    stream_size != sizeof(z_stream)) {
+	if(version == Z_NULL || version[0] != my_version[0] || stream_size != sizeof(z_stream)) {
 		return Z_VERSION_ERROR;
 	}
 	if(strm == Z_NULL) return Z_STREAM_ERROR;
@@ -825,8 +818,7 @@ int ZEXPORT deflate(z_streamp strm, int flush)
 			uInt left = (s->gzhead->extra_len & 0xffff) - s->gzindex;
 			while(s->pending + left > s->pending_buf_size) {
 				uInt copy = s->pending_buf_size - s->pending;
-				zmemcpy(s->pending_buf + s->pending,
-				    s->gzhead->extra + s->gzindex, copy);
+				zmemcpy(s->pending_buf + s->pending, s->gzhead->extra + s->gzindex, copy);
 				s->pending = s->pending_buf_size;
 				HCRC_UPDATE(beg);
 				s->gzindex += copy;
@@ -838,8 +830,7 @@ int ZEXPORT deflate(z_streamp strm, int flush)
 				beg = 0;
 				left -= copy;
 			}
-			zmemcpy(s->pending_buf + s->pending,
-			    s->gzhead->extra + s->gzindex, left);
+			zmemcpy(s->pending_buf + s->pending, s->gzhead->extra + s->gzindex, left);
 			s->pending += left;
 			HCRC_UPDATE(beg);
 			s->gzindex = 0;
@@ -983,10 +974,11 @@ int ZEXPORT deflate(z_streamp strm, int flush)
 		putShortMSB(s, (uInt)(strm->adler & 0xffff));
 	}
 	flush_pending(strm);
-	/* If avail_out is zero, the application will call deflate again
-	 * to flush the rest.
-	 */
-	if(s->wrap > 0) s->wrap = -s->wrap;  /* write the trailer only once! */
+	//
+	// If avail_out is zero, the application will call deflate again to flush the rest.
+	//
+	if(s->wrap > 0) 
+		s->wrap = -s->wrap; // write the trailer only once! 
 	return s->pending != 0 ? Z_OK : Z_STREAM_END;
 }
 

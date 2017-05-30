@@ -225,7 +225,7 @@ int __qam_new_file(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, con
 	 * (named and unnamed).
 	 *
 	 * For each page being created, there are three parts: 1) a "get page"
-	 * chunk (which either uses malloc'd memory or calls __memp_fget), 2)
+	 * chunk (which either uses SAlloc::M'd memory or calls __memp_fget), 2)
 	 * the initialization, and 3) the "put page" chunk which either does a
 	 * fop write or an __memp_fput.
 	 */

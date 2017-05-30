@@ -31,7 +31,9 @@
    --------------------------------------------------------------------------------
 
  */
-
+#include <slib.h> // @v9.6.8
+#include "wsdlH.h"
+#pragma hdrstop
 #include "types.h"
 
 static char * getline(char * s, size_t n, FILE * fd);

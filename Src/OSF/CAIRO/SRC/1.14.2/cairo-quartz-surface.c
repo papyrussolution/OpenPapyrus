@@ -761,7 +761,7 @@ static void DataProviderReleaseCallback(void * info, const void * data, size_t s
 {
 	quartz_source_image_t * source_img = info;
 	_cairo_surface_release_source_image(source_img->surface, source_img->image_out, source_img->image_extra);
-	free(source_img);
+	SAlloc::F(source_img);
 }
 
 static cairo_status_t _cairo_surface_to_cgimage(cairo_surface_t       * source,
@@ -795,7 +795,7 @@ static cairo_status_t _cairo_surface_to_cgimage(cairo_surface_t       * source,
 		}
 	}
 
-	source_img = malloc(sizeof(quartz_source_image_t));
+	source_img = SAlloc::M(sizeof(quartz_source_image_t));
 	if(unlikely(source_img == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -807,7 +807,7 @@ static cairo_status_t _cairo_surface_to_cgimage(cairo_surface_t       * source,
 		if(unlikely(image_surface->base.status)) {
 			status = image_surface->base.status;
 			cairo_surface_destroy(&image_surface->base);
-			free(source_img);
+			SAlloc::F(source_img);
 			return status;
 		}
 
@@ -817,7 +817,7 @@ static cairo_status_t _cairo_surface_to_cgimage(cairo_surface_t       * source,
 		    NULL);
 		if(unlikely(status)) {
 			cairo_surface_destroy(&image_surface->base);
-			free(source_img);
+			SAlloc::F(source_img);
 			return status;
 		}
 
@@ -831,7 +831,7 @@ static cairo_status_t _cairo_surface_to_cgimage(cairo_surface_t       * source,
 		    &source_img->image_out,
 		    &source_img->image_extra);
 		if(unlikely(status)) {
-			free(source_img);
+			SAlloc::F(source_img);
 			return status;
 		}
 	}
@@ -906,7 +906,7 @@ static void SurfacePatternReleaseInfoFunc(void * ainfo)
 	SurfacePatternDrawInfo * info = (SurfacePatternDrawInfo*)ainfo;
 
 	CGImageRelease(info->image);
-	free(info);
+	SAlloc::F(info);
 }
 
 static cairo_int_status_t _cairo_quartz_cairo_repeating_surface_pattern_to_quartz(cairo_quartz_surface_t * dest,
@@ -951,7 +951,7 @@ static cairo_int_status_t _cairo_quartz_cairo_repeating_surface_pattern_to_quart
 	if(unlikely(status))
 		return status;
 
-	info = malloc(sizeof(SurfacePatternDrawInfo));
+	info = SAlloc::M(sizeof(SurfacePatternDrawInfo));
 	if(unlikely(!info))
 		return CAIRO_STATUS_NO_MEMORY;
 
@@ -1502,7 +1502,7 @@ static cairo_status_t _cairo_quartz_surface_finish(void * abstract_surface)
 		surface->imageSurfaceEquiv = NULL;
 	}
 
-	free(surface->imageData);
+	SAlloc::F(surface->imageData);
 	surface->imageData = NULL;
 
 	return CAIRO_STATUS_SUCCESS;
@@ -1859,7 +1859,7 @@ static cairo_int_status_t _cairo_quartz_cg_stroke(const cairo_compositor_t * com
 
 		CGContextSetLineDash(state.cgMaskContext, style->dash_offset, fdash, max_dashes);
 		if(fdash != sdash)
-			free(fdash);
+			SAlloc::F(fdash);
 	}
 	else
 		CGContextSetLineDash(state.cgMaskContext, 0, NULL, 0);
@@ -2023,7 +2023,7 @@ BAIL:
 	_cairo_quartz_teardown_state(&state, extents);
 
 	if(cg_glyphs != glyphs_static)
-		free(cg_glyphs);
+		SAlloc::F(cg_glyphs);
 
 	return rv;
 }
@@ -2196,7 +2196,7 @@ cairo_quartz_surface_t * _cairo_quartz_surface_create_internal(CGContextRef cgCo
 	quartz_ensure_symbols();
 
 	/* Init the base surface */
-	surface = malloc(sizeof(cairo_quartz_surface_t));
+	surface = SAlloc::M(sizeof(cairo_quartz_surface_t));
 	if(unlikely(surface == NULL))
 		return (cairo_quartz_surface_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
@@ -2343,7 +2343,7 @@ cairo_surface_t * cairo_quartz_surface_create(cairo_format_t format,
 	}
 
 	/* The Apple docs say that for best performance, the stride and the data
-	 * pointer should be 16-byte aligned.  malloc already aligns to 16-bytes,
+	 * pointer should be 16-byte aligned.  SAlloc::M already aligns to 16-bytes,
 	 * so we don't have to anything special on allocation.
 	 */
 	stride = (stride + 15) & ~15;
@@ -2367,7 +2367,7 @@ cairo_surface_t * cairo_quartz_surface_create(cairo_format_t format,
 	CGColorSpaceRelease(cgColorspace);
 
 	if(!cgc) {
-		free(imageData);
+		SAlloc::F(imageData);
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}
 
@@ -2379,7 +2379,7 @@ cairo_surface_t * cairo_quartz_surface_create(cairo_format_t format,
 	    width, height);
 	if(surf->base.status) {
 		CGContextRelease(cgc);
-		free(imageData);
+		SAlloc::F(imageData);
 		// create_internal will have set an error
 		return &surf->base;
 	}

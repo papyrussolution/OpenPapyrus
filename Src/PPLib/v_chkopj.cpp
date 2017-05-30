@@ -247,7 +247,7 @@ int SLAPI PPViewCheckOpJrnl::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewCheckOpJrnl::NextIteration(CheckOpJrnlViewItem * pItem)
+int FASTCALL PPViewCheckOpJrnl::NextIteration(CheckOpJrnlViewItem * pItem)
 {
 	while(pItem && P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		P_Tbl->copyBufTo(pItem);
@@ -382,7 +382,7 @@ int PPALDD_CheckOpJrnl::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/
 	INIT_PPVIEW_ALDD_ITER(CheckOpJrnl);
 }
 
-int PPALDD_CheckOpJrnl::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_CheckOpJrnl::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(CheckOpJrnl);
 	I.UserID   = item.UserID;

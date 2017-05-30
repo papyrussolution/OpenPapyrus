@@ -76,7 +76,7 @@ static HANDLE _win32_create_temp_w(_zip_source_win32_read_file_t * ctx, void ** 
 {
 	int len = (int)wcslen((const wchar_t*)ctx->fname) + 10;
 	if(*temp == NULL) {
-		if((*temp = malloc(sizeof(wchar_t) * len)) == NULL) {
+		if((*temp = SAlloc::M(sizeof(wchar_t) * len)) == NULL) {
 			zip_error_set(&ctx->error, ZIP_ER_MEMORY, 0);
 			return INVALID_HANDLE_VALUE;
 		}

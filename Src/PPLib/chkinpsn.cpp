@@ -511,7 +511,7 @@ int SLAPI PPCheckInPersonArray::InitIteration()
 	return 1;
 }
 
-int SLAPI PPCheckInPersonArray::NextIteration(PPCheckInPersonItem & rItem)
+int FASTCALL PPCheckInPersonArray::NextIteration(PPCheckInPersonItem & rItem)
 {
 	int    ok = 1;
 	if(SArray::getPointer() < SArray::getCount()) {

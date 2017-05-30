@@ -105,7 +105,7 @@ cairo_output_stream_t * _cairo_base85_stream_create(cairo_output_stream_t * outp
 	cairo_base85_stream_t * stream;
 	if(output->status)
 		return _cairo_output_stream_create_in_error(output->status);
-	stream = (cairo_base85_stream_t *)malloc(sizeof(cairo_base85_stream_t));
+	stream = (cairo_base85_stream_t *)SAlloc::M(sizeof(cairo_base85_stream_t));
 	if(unlikely(stream == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;

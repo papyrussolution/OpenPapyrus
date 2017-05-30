@@ -64,7 +64,7 @@ int FASTCALL HashTableBase::Copy(const HashTableBase & rSrc)
 int HashTableBase::InitTab()
 {
 	if(P_Tab == 0) {
-		P_Tab = (Entry *)calloc(Size, sizeof(Entry));
+		P_Tab = (Entry *)SAlloc::C(Size, sizeof(Entry));
 		if(!P_Tab)
 			SLS.SetError(SLERR_NOMEM);
 	}
@@ -131,7 +131,7 @@ int HashTableBase::Entry::SetVal(uint key, uint val)
 		Count = 1;
 	}
 	else {
-		P_Ext = (LAssoc *)realloc(P_Ext, sizeof(LAssoc) * Count);
+		P_Ext = (LAssoc *)SAlloc::R(P_Ext, sizeof(LAssoc) * Count);
 		if(P_Ext == 0)
 			ok = (SLibError = SLERR_NOMEM, 0);
 		else {
@@ -144,7 +144,7 @@ int HashTableBase::Entry::SetVal(uint key, uint val)
 	return ok;
 }
 
-int HashTableBase::Entry::Remove(uint pos)
+int FASTCALL HashTableBase::Entry::Remove(uint pos)
 {
 	int    ok = 0;
 	if(pos < Count) {
@@ -173,7 +173,7 @@ int FASTCALL HashTableBase::Entry::Copy(const SymbHashTable::Entry & rSrc)
 	Val = rSrc.Val;
 	Count = rSrc.Count;
 	if(Count > 1) {
-		P_Ext = (LAssoc *)malloc(sizeof(LAssoc) * Count-1);
+		P_Ext = (LAssoc *)SAlloc::M(sizeof(LAssoc) * Count-1);
 		if(P_Ext == 0) {
 			Count = 1;
 			ok = (SLibError = SLERR_NOMEM, 0);
@@ -404,7 +404,7 @@ int SymbHashTable::GetByAssoc(uint val, SString & rBuf) const
 	rBuf = 0;
 	if(Flags & fUseAssoc) {
 		long   p = 0;
-		if(Assoc.Search((long)val, &p, 0, ORDER_ASSOC))
+		if(Assoc.BSearch((long)val, &p, 0))
 			ok = Get((uint)p, rBuf);
 		else
 			ok = (SLibError = SLERR_NOFOUND, 0);
@@ -468,7 +468,7 @@ int SymbHashTable::Del(const char * pSymb, uint * pVal)
 					}
 				}
 		}
-		if(ok && Flags & fUseAssoc && Assoc.Search((long)val, 0, &(pos = 0), ORDER_ASSOC))
+		if(ok && Flags & fUseAssoc && Assoc.BSearch((long)val, 0, &(pos = 0)))
 			Assoc.atFree(pos);
 	}
 	ASSIGN_PTR(pVal, val);
@@ -617,7 +617,7 @@ int GuidHashTable::Add(const S_GUID & rUuid, uint val, uint * pPos)
 	size_t h = Hash(rUuid);
 	c = P_Tab[h].SetVal(pos, val);
 	if(Flags & fUseAssoc)
-		THROW(Assoc.Add((long)val, (long)pos, 0, ORDER_ASSOC));
+		THROW(Assoc.Add((long)val, (long)pos, 0, 1/*binary*/));
 	AddCount++;
 	if(c > 1) {
 		CollCount++;
@@ -649,7 +649,7 @@ int GuidHashTable::GetByAssoc(uint val, S_GUID & rUuid) const
 	rUuid.SetZero();
 	if(Flags & fUseAssoc) {
 		long   p = 0;
-		if(Assoc.Search((long)val, &p, 0, ORDER_ASSOC))
+		if(Assoc.BSearch((long)val, &p, 0))
 			ok = Get((uint)p, rUuid);
 		else
 			ok = (SLibError = SLERR_NOFOUND, 0);
@@ -712,7 +712,7 @@ int GuidHashTable::Del(const S_GUID & rUuid, uint * pVal)
 					}
 				}
 		}
-		if(ok && Flags & fUseAssoc && Assoc.Search((long)val, 0, &(pos = 0), ORDER_ASSOC))
+		if(ok && Flags & fUseAssoc && Assoc.BSearch((long)val, 0, &(pos = 0)))
 			Assoc.atFree(pos);
 	}
 	ASSIGN_PTR(pVal, val);
@@ -785,7 +785,7 @@ int PtrHashTable::Add(void * ptr, uint val, uint * pPos)
 	size_t h = Hash(ptr);
 	c = P_Tab[h].SetVal(pos, val);
 	if(Flags & fUseAssoc)
-		THROW(Assoc.Add((long)val, (long)pos, 0, ORDER_ASSOC));
+		THROW(Assoc.Add((long)val, (long)pos, 0, 1/*binary*/));
 	AddCount++;
 	if(c > 1) {
 		CollCount++;
@@ -824,7 +824,7 @@ int PtrHashTable::Del(void * ptr, uint * pVal)
 					}
 				}
 		}
-		if(ok && Flags & fUseAssoc && Assoc.Search((long)val, 0, &(pos = 0), ORDER_ASSOC))
+		if(ok && Flags & fUseAssoc && Assoc.BSearch((long)val, 0, &(pos = 0)))
 			Assoc.atFree(pos);
 	}
 	ASSIGN_PTR(pVal, val);
@@ -841,7 +841,7 @@ void * FASTCALL PtrHashTable::GetByAssoc(uint val) const
 	void * p_result = 0;
 	if(Flags & fUseAssoc) {
 		long   p = 0;
-		if(Assoc.Search((long)val, &p, 0, ORDER_ASSOC))
+		if(Assoc.BSearch((long)val, &p, 0))
 			p_result = Get((uint)p);
 		else
 			SLS.SetError(SLERR_NOFOUND);
@@ -1234,7 +1234,7 @@ struct UT_hash_handle {
 	{
 		// HASH_CLEAR
 		if(tbl) {
-			free(tbl->buckets);
+			SAlloc::F(tbl->buckets);
 			HASH_BLOOM_FREE(tbl);
 			ZFREE(tbl);
 		}
@@ -1253,9 +1253,9 @@ struct UT_hash_handle {
 #define HASH_CLEAR(hh, head)							  \
 	do {										 \
 		if(head) {								      \
-			free((head)->hh.tbl->buckets);  \
+			SAlloc::F((head)->hh.tbl->buckets);  \
 			HASH_BLOOM_FREE((head)->hh.tbl);					     \
-			free((head)->hh.tbl);			     \
+			SAlloc::F((head)->hh.tbl);			     \
 			(head) = NULL;								       \
 		}									       \
 	} while(0)
@@ -1336,13 +1336,13 @@ typedef unsigned char uint8_t;
 #define HASH_BLOOM_MAKE(tbl)							 \
 	do {										 \
 		(tbl)->bloom_nbits = HASH_BLOOM;					       \
-		(tbl)->bloom_bv = (uint8_t*)malloc(HASH_BLOOM_BYTELEN);		       \
+		(tbl)->bloom_bv = (uint8_t*)SAlloc::M(HASH_BLOOM_BYTELEN);		       \
 		if(!((tbl)->bloom_bv))  { uthash_fatal("out of memory"); }		     \
 		memzero((tbl)->bloom_bv, HASH_BLOOM_BYTELEN);				       \
 		(tbl)->bloom_sig = HASH_BLOOM_SIGNATURE;				       \
 	} while(0)
 
-#define HASH_BLOOM_FREE(tbl) do { free((tbl)->bloom_bv); } while(0)
+#define HASH_BLOOM_FREE(tbl) do { SAlloc::F((tbl)->bloom_bv); } while(0)
 #define HASH_BLOOM_BITSET(bv, idx)  (bv[(idx)/8] |= (1U << ((idx)%8)))
 #define HASH_BLOOM_BITTEST(bv, idx) (bv[(idx)/8] & (1U << ((idx)%8)))
 #define HASH_BLOOM_ADD(tbl, hashv)  HASH_BLOOM_BITSET((tbl)->bloom_bv, (hashv & (uint32_t)((1ULL << (tbl)->bloom_nbits) - 1)))
@@ -1357,14 +1357,14 @@ typedef unsigned char uint8_t;
 
 #define HASH_MAKE_TABLE(hh, head)						  \
 	do {										 \
-		(head)->hh.tbl = (UT_hash_table*)malloc(sizeof(UT_hash_table)); \
+		(head)->hh.tbl = (UT_hash_table*)SAlloc::M(sizeof(UT_hash_table)); \
 		if(!((head)->hh.tbl))  { uthash_fatal("out of memory"); }		     \
 		memzero((head)->hh.tbl, sizeof(UT_hash_table));			       \
 		(head)->hh.tbl->tail = &((head)->hh);					       \
 		(head)->hh.tbl->num_buckets = HASH_INITIAL_NUM_BUCKETS;			       \
 		(head)->hh.tbl->log2_num_buckets = HASH_INITIAL_NUM_BUCKETS_LOG2;	       \
 		(head)->hh.tbl->hho = (char*)(&(head)->hh) - (char*)(head);		       \
-		(head)->hh.tbl->buckets = (UT_hash_bucket*)malloc(HASH_INITIAL_NUM_BUCKETS*sizeof(struct UT_hash_bucket)); \
+		(head)->hh.tbl->buckets = (UT_hash_bucket*)SAlloc::M(HASH_INITIAL_NUM_BUCKETS*sizeof(struct UT_hash_bucket)); \
 		if(!(head)->hh.tbl->buckets) { uthash_fatal("out of memory"); }		    \
 		memzero((head)->hh.tbl->buckets, HASH_INITIAL_NUM_BUCKETS*sizeof(struct UT_hash_bucket)); \
 		HASH_BLOOM_MAKE((head)->hh.tbl);					       \
@@ -1416,9 +1416,9 @@ typedef unsigned char uint8_t;
 		unsigned _hd_bkt;							     \
 		struct UT_hash_handle * _hd_hh_del;					      \
 		if(((delptr)->hh.prev == NULL) && ((delptr)->hh.next == NULL))  {	    \
-			free((head)->hh.tbl->buckets); \
+			SAlloc::F((head)->hh.tbl->buckets); \
 			HASH_BLOOM_FREE((head)->hh.tbl);					 \
-			free((head)->hh.tbl);			 \
+			SAlloc::F((head)->hh.tbl);			 \
 			head = NULL;								 \
 		} else {								     \
 			_hd_hh_del = &((delptr)->hh);						 \
@@ -1883,7 +1883,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 		unsigned _he_bkt_i;							     \
 		struct UT_hash_handle * _he_thh, * _he_hh_nxt;				       \
 		UT_hash_bucket * _he_new_buckets, * _he_newbkt;				       \
-		_he_new_buckets = (UT_hash_bucket*)malloc(2 * tbl->num_buckets * sizeof(struct UT_hash_bucket)); \
+		_he_new_buckets = (UT_hash_bucket*)SAlloc::M(2 * tbl->num_buckets * sizeof(struct UT_hash_bucket)); \
 		if(!_he_new_buckets) { uthash_fatal("out of memory"); }			   \
 		memzero(_he_new_buckets, 2 * tbl->num_buckets * sizeof(struct UT_hash_bucket));		 \
 		tbl->ideal_chain_maxlen =						     \
@@ -1907,7 +1907,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 				_he_thh = _he_hh_nxt;						      \
 			}									 \
 		}									     \
-		free(tbl->buckets); \
+		SAlloc::F(tbl->buckets); \
 		tbl->num_buckets *= 2;							     \
 		tbl->log2_num_buckets++;						     \
 		tbl->buckets = _he_new_buckets;						     \

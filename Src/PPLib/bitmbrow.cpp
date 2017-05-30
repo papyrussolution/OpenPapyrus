@@ -1757,7 +1757,7 @@ int BillItemBrowser::addItemByOrder(PPBillPacket * pOrderPack, int line)
 			//
 			// @v7.0.0 {
 			// Если данная отгрузка осуществляется по резервирующему заказу, то
-			// не проверяем налииче других резервирующих заказов на этот товар:
+			// не проверяем наличие других резервирующих заказов на этот товар:
 			// действует правило "кто первый встал - того и сапоги".
 			//
 			int    i_am_reserve_order = 0;
@@ -3238,7 +3238,7 @@ public:
 		CmplAryPos = 0;
 		return 1;
 	}
-	int    NextIteration(CompleteItem * pItem);
+	int    FASTCALL NextIteration(CompleteItem * pItem);
 	PPID   GetParentLot() const
 	{
 		return Data.LotID;
@@ -3390,7 +3390,7 @@ int CompleteBrowser::GetSelectedItem(CompleteItem * pItem)
 	return ok;
 }
 
-int CompleteBrowser::NextIteration(CompleteItem * pItem)
+int FASTCALL CompleteBrowser::NextIteration(CompleteItem * pItem)
 {
 	CompleteItem * p_item = 0;
 	int    ok = Data.enumItems(&CmplAryPos, (void **)&p_item);
@@ -3509,7 +3509,7 @@ int PPALDD_Complete::InitIteration(PPIterID iterId, int /*sortId*/, long /*rsrv*
 	return BIN(p_cb->InitIteration());
 }
 
-int PPALDD_Complete::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_Complete::NextIteration(PPIterID iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -3522,7 +3522,7 @@ int PPALDD_Complete::NextIteration(PPIterID iterId, long rsrv)
 		I.Qtty    = item.Qtty;
 		I.Cost    = item.Cost;
 		I.Price   = item.Price;
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }

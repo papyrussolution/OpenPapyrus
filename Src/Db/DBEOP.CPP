@@ -526,12 +526,12 @@ DBE_PROC(_add_ss)
 		RES(IPAR(0)+IPAR(1));
 	else {
 		int len = strlen(SPAR(0))+strlen(SPAR(1));
-		char * s = (char *)malloc(len+1);
+		char * s = (char *)SAlloc::M(len+1);
 		strcpy(stpcpy(s, SPAR(0)), SPAR(1));
 		if(len > 254)
 			s[254] = 0;
 		RES(s);
-		free(s);
+		SAlloc::F(s);
 	}
 }
 

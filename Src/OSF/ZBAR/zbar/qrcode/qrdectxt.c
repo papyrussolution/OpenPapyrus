@@ -153,7 +153,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 				}
 
 			/*Step 2: Convert the entries.*/
-			sa_text = (char*)malloc((sa_ctext+1)*sizeof(*sa_text));
+			sa_text = (char*)SAlloc::M((sa_ctext+1)*sizeof(*sa_text));
 			sa_ntext = 0;
 			/*Add the encoded Application Indicator for FNC1 in the second position.*/
 			if(fnc1==MOD(ZBAR_MOD_AIM)) {

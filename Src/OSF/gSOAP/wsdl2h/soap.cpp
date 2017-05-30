@@ -31,8 +31,9 @@
    --------------------------------------------------------------------------------
 
  */
-
+#include <slib.h> // @v9.6.8
 #include "wsdlH.h"              // cannot include "schemaH.h"
+#pragma hdrstop
 #include "includes.h"
 
 extern const char * qname_token(const char*, const char*);

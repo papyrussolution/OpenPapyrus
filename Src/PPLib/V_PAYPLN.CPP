@@ -369,7 +369,7 @@ int SLAPI PPViewPaymPlan::NextInnerIteration(PaymPlanViewItem * pItem)
 	return 1;
 }
 
-int SLAPI PPViewPaymPlan::NextIteration(PaymPlanViewItem * pItem)
+int FASTCALL PPViewPaymPlan::NextIteration(PaymPlanViewItem * pItem)
 {
 	int    ok = 1;
 	if(P_IterQuery == 0)
@@ -730,7 +730,7 @@ int PPALDD_PaymPlan::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	INIT_PPVIEW_ALDD_ITER(PaymPlan);
 }
 
-int PPALDD_PaymPlan::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_PaymPlan::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(PaymPlan);
 	I.Dt     = item.Dt;

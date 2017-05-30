@@ -11,7 +11,7 @@
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -51,5 +51,7 @@ int ftpfilemethod(struct OperationConfig *config, const char *str);
 int ftpcccmethod(struct OperationConfig *config, const char *str);
 
 long delegation(struct OperationConfig *config, char *str);
+
+ParameterError str2tls_max(long *val, const char *str);
 
 #endif /* HEADER_CURL_TOOL_PARAMHLP_H */

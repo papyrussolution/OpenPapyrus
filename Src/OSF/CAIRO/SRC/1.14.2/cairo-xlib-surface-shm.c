@@ -238,7 +238,7 @@ static inline cairo_status_t _pqueue_init(struct pqueue * pq)
 
 static inline void _pqueue_fini(struct pqueue * pq)
 {
-	free(pq->elements);
+	SAlloc::F(pq->elements);
 }
 
 static cairo_status_t _pqueue_grow(struct pqueue * pq)
@@ -402,7 +402,7 @@ static void _cairo_xlib_display_shm_pool_destroy(cairo_xlib_display_t * display,
 	_cairo_mempool_fini(&pool->mem);
 
 	cairo_list_del(&pool->link);
-	free(pool);
+	SAlloc::F(pool);
 }
 
 static void send_event(cairo_xlib_display_t * display,
@@ -438,7 +438,7 @@ static void _cairo_xlib_display_sync(cairo_xlib_display_t * display)
 	while((info = PQ_TOP(pq))) {
 		_cairo_mempool_free(&info->pool->mem, info->mem);
 		_pqueue_pop(&display->shm->info);
-		free(info);
+		SAlloc::F(info);
 	}
 }
 
@@ -464,7 +464,7 @@ static void _cairo_xlib_shm_info_cleanup(cairo_xlib_display_t * display)
 
 		_cairo_mempool_free(&info->pool->mem, info->mem);
 		_pqueue_pop(&display->shm->info);
-		free(info);
+		SAlloc::F(info);
 	} while((info = PQ_TOP(pq)));
 }
 
@@ -485,7 +485,7 @@ static cairo_xlib_shm_t * _cairo_xlib_shm_info_find(cairo_xlib_display_t * displ
 
 		_pqueue_pop(&display->shm->info);
 		_cairo_mempool_free(&pool->mem, info->mem);
-		free(info);
+		SAlloc::F(info);
 
 		if(pool->mem.free_bytes >= size) {
 			void * mem = _cairo_mempool_alloc(&pool->mem, size);
@@ -543,7 +543,7 @@ static cairo_xlib_shm_t * _cairo_xlib_shm_pool_create(cairo_xlib_display_t * dis
 	size_t bytes, maxbits = 16, minbits = MIN_BITS;
 	Status success;
 
-	pool = malloc(sizeof(cairo_xlib_shm_t));
+	pool = SAlloc::M(sizeof(cairo_xlib_shm_t));
 	if(pool == NULL)
 		return NULL;
 
@@ -594,7 +594,7 @@ cleanup_detach:
 cleanup_shm:
 	shmdt(pool->shm.shmaddr);
 cleanup:
-	free(pool);
+	SAlloc::F(pool);
 	return NULL;
 }
 
@@ -619,7 +619,7 @@ static cairo_xlib_shm_info_t * _cairo_xlib_shm_info_create(cairo_xlib_display_t 
 
 	assert(mem != NULL);
 
-	info = malloc(sizeof(*info));
+	info = SAlloc::M(sizeof(*info));
 	if(info == NULL) {
 		_cairo_mempool_free(&pool->mem, mem);
 		return NULL;
@@ -703,7 +703,7 @@ static cairo_status_t _cairo_xlib_shm_surface_finish(void * abstract_surface)
 	}
 	else {
 		_cairo_mempool_free(&shm->info->pool->mem, shm->info->mem);
-		free(shm->info);
+		SAlloc::F(shm->info);
 
 		_cairo_xlib_shm_pool_cleanup(display);
 	}
@@ -778,7 +778,7 @@ static cairo_xlib_shm_surface_t * _cairo_xlib_shm_surface_create(cairo_xlib_surf
 	if(size < MIN_SIZE)
 		return NULL;
 
-	shm = malloc(sizeof(*shm));
+	shm = SAlloc::M(sizeof(*shm));
 	if(unlikely(shm == NULL))
 		return (cairo_xlib_shm_surface_t*)_cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -824,11 +824,11 @@ static cairo_xlib_shm_surface_t * _cairo_xlib_shm_surface_create(cairo_xlib_surf
 
 cleanup_info:
 	_cairo_mempool_free(&shm->info->pool->mem, shm->info->mem);
-	free(shm->info);
+	SAlloc::F(shm->info);
 cleanup_display:
 	cairo_device_release(&display->base);
 cleanup_shm:
-	free(shm);
+	SAlloc::F(shm);
 	return NULL;
 }
 
@@ -1339,13 +1339,13 @@ void _cairo_xlib_display_init_shm(cairo_xlib_display_t * display)
 	if(!can_use_shm(display->display, &has_pixmap))
 		return;
 
-	shm = malloc(sizeof(*shm));
+	shm = SAlloc::M(sizeof(*shm));
 	if(unlikely(shm == NULL))
 		return;
 
 	codes = XInitExtension(display->display, SHMNAME);
 	if(codes == NULL) {
-		free(shm);
+		SAlloc::F(shm);
 		return;
 	}
 
@@ -1353,7 +1353,7 @@ void _cairo_xlib_display_init_shm(cairo_xlib_display_t * display)
 	shm->event = codes->first_event;
 
 	if(unlikely(_pqueue_init(&shm->info))) {
-		free(shm);
+		SAlloc::F(shm);
 		return;
 	}
 
@@ -1404,7 +1404,7 @@ void _cairo_xlib_display_fini_shm(cairo_xlib_display_t * display)
 	if(display->display)
 		XDestroyWindow(display->display, shm->window);
 
-	free(shm);
+	SAlloc::F(shm);
 	display->shm = NULL;
 }
 

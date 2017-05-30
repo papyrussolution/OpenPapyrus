@@ -133,7 +133,7 @@ SCDBObjToDo::PalmRec * SCDBObjToDo::AllocPalmRec(HostRec * pRec, size_t * pBufLe
 	if((buf_len % 2) != 0)
 		buf_len++;
 	// } @test
-	p_buf = (PalmRec *)calloc(1, buf_len);
+	p_buf = (PalmRec *)SAlloc::C(1, buf_len);
 	if(pRec->DueDate)
 		p_buf->DueDate = ((pRec->DueDate.year() - 1904) << 9) | (pRec->DueDate.month() << 5) | pRec->DueDate.day();
 	else
@@ -303,7 +303,7 @@ int SCDBObjToDo::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 				IdAsscList.Add(host_rec.ID, 0, 0);
 			}
 			else {
-				if(!IdAsscList.Search(host_rec.ID, &temp_long, 0, 0)) {
+				if(!IdAsscList.Search(host_rec.ID, &temp_long, 0)) {
 					THROW(stbl.AddRec(&(rec_id = 0), p_out_buf, buf_len));
    					IdAsscList.Add(host_rec.ID, rec_id, 0);
 				}

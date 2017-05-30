@@ -194,7 +194,7 @@ int SLAPI PPViewBalance::InitIteration()
 	return 1;
 }
 
-int SLAPI PPViewBalance::NextIteration(BalanceViewItem * pItem)
+int FASTCALL PPViewBalance::NextIteration(BalanceViewItem * pItem)
 {
 	if(IterPos < List.getCount()) {
 		ASSIGN_PTR(pItem, List.at(IterPos));
@@ -494,7 +494,7 @@ int PPALDD_Balance::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	INIT_PPVIEW_ALDD_ITER(Balance);
 }
 
-int PPALDD_Balance::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_Balance::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(Balance);
 	I.Dt     = item.Dt;

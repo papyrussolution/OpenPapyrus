@@ -844,7 +844,7 @@ void cairo_surface_destroy(cairo_surface_t * surface)
 	assert(!_cairo_surface_has_snapshots(surface));
 	// paranoid check that nobody took a reference whilst finishing 
 	assert(!CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&surface->ref_count));
-	free(surface);
+	SAlloc::F(surface);
 }
 
 slim_hidden_def(cairo_surface_destroy);
@@ -1037,7 +1037,7 @@ static void _cairo_mime_data_destroy(void * ptr)
 		return;
 	if(mime_data->destroy && mime_data->closure)
 		mime_data->destroy(mime_data->closure);
-	free(mime_data);
+	SAlloc::F(mime_data);
 }
 
 /**
@@ -1173,7 +1173,7 @@ cairo_status_t cairo_surface_set_mime_data(cairo_surface_t            * surface,
 	if(unlikely(status))
 		return _cairo_surface_set_error(surface, status);
 	if(data) {
-		mime_data = (cairo_mime_data_t *)malloc(sizeof(cairo_mime_data_t));
+		mime_data = (cairo_mime_data_t *)SAlloc::M(sizeof(cairo_mime_data_t));
 		if(unlikely(mime_data == NULL))
 			return _cairo_surface_set_error(surface, _cairo_error(CAIRO_STATUS_NO_MEMORY));
 		CAIRO_REFERENCE_COUNT_INIT(&mime_data->ref_count, 1);
@@ -1186,7 +1186,7 @@ cairo_status_t cairo_surface_set_mime_data(cairo_surface_t            * surface,
 		mime_data = NULL;
 	status = _cairo_user_data_array_set_data(&surface->mime_data, (cairo_user_data_key_t*)mime_type, mime_data, _cairo_mime_data_destroy);
 	if(unlikely(status)) {
-		free(mime_data);
+		SAlloc::F(mime_data);
 		return _cairo_surface_set_error(surface, status);
 	}
 	return CAIRO_STATUS_SUCCESS;

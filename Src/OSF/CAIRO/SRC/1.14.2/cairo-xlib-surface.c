@@ -1327,7 +1327,7 @@ BAIL:
 	cairo_device_release(&display->base);
 
 	if(own_data)
-		free(ximage.data);
+		SAlloc::F(ximage.data);
 	if(shm_image)
 		cairo_surface_destroy(shm_image);
 	if(pixman_image)
@@ -1725,13 +1725,13 @@ found:
 		;
 	}
 
-	surface = malloc(sizeof(cairo_xlib_surface_t));
+	surface = SAlloc::M(sizeof(cairo_xlib_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
 	status = _cairo_xlib_display_acquire(screen->device, &display);
 	if(unlikely(status)) {
-		free(surface);
+		SAlloc::F(surface);
 		return _cairo_surface_create_in_error(_cairo_error(status));
 	}
 

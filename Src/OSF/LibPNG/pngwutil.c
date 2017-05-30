@@ -501,7 +501,7 @@ static int png_text_compress(png_structrp png_ptr, png_uint_32 chunk_name,
 					break;
 				}
 
-				/* Need a new (malloc'ed) buffer, but there may be one present
+				/* Need a new (SAlloc::M'ed) buffer, but there may be one present
 				 * already.
 				 */
 				next = *end;

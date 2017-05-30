@@ -266,7 +266,7 @@ int SLAPI PPViewObjSync::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewObjSync::NextIteration(ObjSyncViewItem * pItem)
+int FASTCALL PPViewObjSync::NextIteration(ObjSyncViewItem * pItem)
 {
 	ObjSyncTbl * p_sync_tbl = P_TmpTbl ? P_TmpTbl : P_Tbl;
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
@@ -588,7 +588,7 @@ int SLAPI PPViewObjSyncCmp::InitIteration()
 	return 0;
 }
 
-int SLAPI PPViewObjSyncCmp::NextIteration(ObjSyncCmpViewItem * pItem)
+int FASTCALL PPViewObjSyncCmp::NextIteration(ObjSyncCmpViewItem * pItem)
 {
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		P_TmpTbl->copyBufTo(pItem);
@@ -804,7 +804,7 @@ int PPALDD_ObjSyncCmp::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	INIT_PPVIEW_ALDD_ITER(ObjSyncCmp);
 }
 
-int PPALDD_ObjSyncCmp::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_ObjSyncCmp::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(ObjSyncCmp);
 	I.ObjType   = item.ObjType;

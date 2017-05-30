@@ -65,7 +65,7 @@ zip_source_t * _zip_source_win32_handle_or_name(const void * fname, HANDLE h, ui
 		zip_error_set(error, ZIP_ER_INVAL, 0);
 		return NULL;
 	}
-	if((ctx = (_zip_source_win32_read_file_t*)malloc(sizeof(_zip_source_win32_read_file_t))) == NULL) {
+	if((ctx = (_zip_source_win32_read_file_t*)SAlloc::M(sizeof(_zip_source_win32_read_file_t))) == NULL) {
 		zip_error_set(error, ZIP_ER_MEMORY, 0);
 		return NULL;
 	}
@@ -360,7 +360,7 @@ static int _win32_create_temp_file(_zip_source_win32_read_file_t * ctx)
 		len = 0;
 		success = GetUserObjectSecurity(ctx->h, &si, NULL, len, &len);
 		if(!success && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-			if((psd = (PSECURITY_DESCRIPTOR)malloc(len)) == NULL) {
+			if((psd = (PSECURITY_DESCRIPTOR)SAlloc::M(len)) == NULL) {
 				zip_error_set(&ctx->error, ZIP_ER_MEMORY, 0);
 				return -1;
 			}

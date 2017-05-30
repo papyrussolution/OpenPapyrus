@@ -373,7 +373,7 @@ int PPALDD_JobPool::InitIteration(long iterId, int sortId, long rsrv)
 	return 1;
 }
 
-int PPALDD_JobPool::NextIteration(long iterId, long rsrv)
+int PPALDD_JobPool::NextIteration(long iterId)
 {
 	int ok = -1;
 	IterProlog(iterId, 0);
@@ -388,7 +388,7 @@ int PPALDD_JobPool::NextIteration(long iterId, long rsrv)
 		item.Dtr.Format(0, buf);
 		buf.CopyTo(I.DateTimeRepeating, sizeof(I.DateTimeRepeating));
 		I.nn = n;
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }
@@ -519,7 +519,7 @@ int SLAPI PPViewJob::InitIteration()
 	return 1;
 }
 
-int SLAPI PPViewJob::NextIteration(JobViewItem * pItem)
+int FASTCALL PPViewJob::NextIteration(JobViewItem * pItem)
 {
 	int    ok = -1;
 	if(pItem) {

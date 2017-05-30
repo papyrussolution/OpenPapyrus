@@ -165,7 +165,7 @@ extern "C" {
  *
  * !!!
  * Check for HPPA as a special case, because it requires unusual alignment,
- * and doesn't support semaphores in malloc(3) or shmget(2) memory.
+ * and doesn't support semaphores in SAlloc::M(3) or shmget(2) memory.
  *
  * !!!
  * Do not remove the MSEM_IF_NOWAIT flag.  The problem is that if a single

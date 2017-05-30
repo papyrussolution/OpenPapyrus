@@ -487,7 +487,7 @@ static int __absname(ENV * env, char * pref, char * name, char ** newnamep)
 /*
  * __usermem --
  *	Create a single chunk of memory that holds the returned information.
- *	If the user has their own malloc routine, use it.
+ *	If the user has their own SAlloc::M routine, use it.
  */
 static int __usermem(ENV * env, char *** listp)
 {

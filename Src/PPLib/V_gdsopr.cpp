@@ -1376,7 +1376,7 @@ int SLAPI PPViewGoodsOpAnalyze::NextOuterIteration()
 		return -1;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::NextIteration(GoodsOpAnalyzeViewItem * pItem)
+int FASTCALL PPViewGoodsOpAnalyze::NextIteration(GoodsOpAnalyzeViewItem * pItem)
 {
 	do {
 		while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
@@ -4198,7 +4198,7 @@ int PPALDD_GoodsOpAnlz::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/
 	return 1;
 }
 
-int PPALDD_GoodsOpAnlz::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsOpAnlz::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(GoodsOpAnalyze);
 	PPWaitPercent(p_v->GetCounter());
@@ -4299,7 +4299,7 @@ int PPALDD_GoodsOpAnlzCmp::InitIteration(PPIterID iterId, int sortId, long /*rsr
 	return 1;
 }
 
-int PPALDD_GoodsOpAnlzCmp::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsOpAnlzCmp::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(GoodsOpAnalyze);
 	PPWaitPercent(p_v->GetCounter());

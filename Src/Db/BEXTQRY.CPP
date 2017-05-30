@@ -46,7 +46,7 @@ SLAPI BExtQuery::~BExtQuery()
 		P_Restrict->destroy(1);
 		delete P_Restrict;
 	}
-	free(P_QBuf);
+	SAlloc::F(P_QBuf);
 }
 
 int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pInitKey, int initSpMode) const
@@ -297,12 +297,12 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 		uint   fc = NZOR(fields_count, 1);
 		uint   tailLen = (fc + 1) * sizeof(BExtTailItem);
 		BExtTailItem * p_item = 0;
-		THROW_V(P_QBuf = (char *)realloc(P_QBuf, sizeof(BExtHeader)), BE_NOMEM);
+		THROW_V(P_QBuf = (char *)SAlloc::R(P_QBuf, sizeof(BExtHeader)), BE_NOMEM);
 		memzero(P_QHead, sizeof(BExtHeader));
 		P_QHead->bufLen = sizeof(BExtHeader);
 		P_QHead->maxSkip = MaxReject; // 0xffffU;
 		THROW(add_tree(0, P_Tree ? P_Tree->Root : 0));
-		THROW_V(p_tail = (BExtTail *)malloc(tailLen), BE_NOMEM);
+		THROW_V(p_tail = (BExtTail *)SAlloc::M(tailLen), BE_NOMEM);
 		memzero(p_tail, sizeof(BExtTail));
 		p_tail->numFlds = fc;
 		if(fields_count) {
@@ -321,7 +321,7 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 			RecSize += p_item->fldLen;
 		}
 		TailOfs = P_QHead->bufLen;
-		THROW_V(P_QBuf = (char *)realloc(P_QBuf, P_QHead->bufLen + tailLen), BE_NOMEM);
+		THROW_V(P_QBuf = (char *)SAlloc::R(P_QBuf, P_QHead->bufLen + tailLen), BE_NOMEM);
 		memcpy(P_QBuf + TailOfs, p_tail, tailLen);
 		P_QHead->bufLen += tailLen;
 		//
@@ -344,7 +344,7 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 		}
 	}
 	CATCHZOK
-	free(p_tail);
+	SAlloc::F(p_tail);
 	return ok;
 }
 
@@ -507,7 +507,7 @@ int SLAPI BExtQuery::add_term(int link, int n)
 		t.left.getValue(fld->T, val);
 	}
 	sz = (uint16)fld->size();
-	if((P_QBuf = (char *)realloc(P_QBuf, P_QHead->bufLen + sizeof(BExtTerm) + sz)) != 0) {
+	if((P_QBuf = (char *)SAlloc::R(P_QBuf, P_QHead->bufLen + sizeof(BExtTerm) + sz)) != 0) {
 		BExtTerm * p_term = (BExtTerm *)(P_QBuf + P_QHead->bufLen);
 		p_term->fldType = SLib2BtrType(GETSTYPE(fld->T));
 		p_term->fldLen  = sz;

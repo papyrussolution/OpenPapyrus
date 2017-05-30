@@ -353,6 +353,7 @@
 			ConfigurationType="4">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src"
 				StringPooling="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"/>

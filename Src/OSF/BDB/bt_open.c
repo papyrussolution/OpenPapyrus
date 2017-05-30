@@ -346,7 +346,7 @@ static void __bam_init_meta(DB * dbp, BTMETA * meta, db_pgno_t pgno, DB_LSN * ls
  *
  * This code appears more complex than it is because of the two cases (named
  * and unnamed).  The way to read the code is that for each page being created,
- * there are three parts: 1) a "get page" chunk (which either uses malloc'd
+ * there are three parts: 1) a "get page" chunk (which either uses SAlloc::M'd
  * memory or calls __memp_fget), 2) the initialization, and 3) the "put page"
  * chunk which either does a fop write or an __memp_fput.
  *

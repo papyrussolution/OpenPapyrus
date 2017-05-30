@@ -460,6 +460,7 @@ void * SLAPI PPObjSecur::CreateObjListWin(uint flags, void * extraPtr)
 		{
 			int    update = 0;
 			PPID   cur_id = 0;
+			PPID   preserve_focus_id = 0;
 			if(event.isCmd(cmaInsert) && P_Obj) {
 				getResult(&cur_id);
 				PPID   id = 0;
@@ -482,6 +483,28 @@ void * SLAPI PPObjSecur::CreateObjListWin(uint flags, void * extraPtr)
 				else
 					::SetFocus(H());
 			}
+			else if(event.isCmd(cmaDelete) && P_Obj) {
+				if(Flags & OLW_CANDELETE) {
+					getResult(&cur_id);
+					preserve_focus_id = cur_id;
+					PPID   id = 0;
+					if(cur_id & PPObjSecur::maskUserGroup) {
+						//param.ParentID = (cur_id & ~PPObjSecur::mask);
+						PPObjSecur ug_obj(PPOBJ_USRGRP, 0);
+						if(ug_obj.RemoveObjV((cur_id & ~PPObjSecur::mask), 0, PPObject::rmv_default, ExtraPtr) > 0) {
+							update = 2;
+						}
+					}
+					else if(!(cur_id & PPObjSecur::mask)) {
+						PPObjSecur usr_obj(PPOBJ_USR, 0);
+						if(usr_obj.RemoveObjV(cur_id, 0, PPObject::rmv_default, ExtraPtr) > 0) {
+							update = 2;
+						}
+					}
+					else
+						::SetFocus(H());
+				}
+			}
 			else {
 				PPObjListWindow::handleEvent(event);
 			}
@@ -489,8 +512,12 @@ void * SLAPI PPObjSecur::CreateObjListWin(uint flags, void * extraPtr)
 				P_Obj->UpdateSelector(P_Lb->def, &Param);
 				P_Lb->Draw_();
 				P_Lb->setRange(P_Lb->def->getRecsCount());
-				if(update == 2)
-					P_Lb->search(&cur_id, 0, srchFirst | lbSrchByID);
+				if(update == 2) {
+					if(preserve_focus_id)
+						P_Lb->search(&preserve_focus_id, 0, srchFirst | lbSrchByID);
+					else if(cur_id)
+						P_Lb->search(&cur_id, 0, srchFirst | lbSrchByID);
+				}
 				::SetFocus(H());
 			}
 		}

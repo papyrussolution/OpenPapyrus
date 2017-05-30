@@ -54,7 +54,7 @@ extern char * getenv JPP((const char* name));
 
 /*
  * Many machines require storage alignment: longs must start on 4-byte
- * boundaries, doubles on 8-byte boundaries, etc.  On such machines, malloc()
+ * boundaries, doubles on 8-byte boundaries, etc.  On such machines, SAlloc::M()
  * always returns pointers that are multiples of the worst-case alignment
  * requirement, and we had better do so too.
  * There isn't any really portable way to determine the worst-case alignment
@@ -260,7 +260,7 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
 
 	/* Check for unsatisfiable request (do now to ensure no overflow below) */
 	if(sizeofobject > (size_t)(MAX_ALLOC_CHUNK-SIZEOF(small_pool_hdr)))
-		out_of_memory(cinfo, 1);  /* request exceeds malloc's ability */
+		out_of_memory(cinfo, 1);  /* request exceeds SAlloc::M's ability */
 
 	/* Round up the requested size to a multiple of SIZEOF(ALIGN_TYPE) */
 	odd_bytes = sizeofobject % SIZEOF(ALIGN_TYPE);
@@ -342,7 +342,7 @@ METHODDEF(void FAR *) alloc_large(j_common_ptr cinfo, int pool_id, size_t sizeof
 
 	/* Check for unsatisfiable request (do now to ensure no overflow below) */
 	if(sizeofobject > (size_t)(MAX_ALLOC_CHUNK-SIZEOF(large_pool_hdr)))
-		out_of_memory(cinfo, 3);  /* request exceeds malloc's ability */
+		out_of_memory(cinfo, 3);  /* request exceeds SAlloc::M's ability */
 
 	/* Round up the requested size to a multiple of SIZEOF(ALIGN_TYPE) */
 	odd_bytes = sizeofobject % SIZEOF(ALIGN_TYPE);
@@ -978,7 +978,7 @@ METHODDEF(void) self_destruct(j_common_ptr cinfo)
 
 	/* Close all backing store, release all memory.
 	 * Releasing pools in reverse order might help avoid fragmentation
-	 * with some (brain-damaged) malloc libraries.
+	 * with some (brain-damaged) SAlloc::M libraries.
 	 */
 	for(pool = JPOOL_NUMPOOLS-1; pool >= JPOOL_PERMANENT; pool--) {
 		free_pool(cinfo, pool);

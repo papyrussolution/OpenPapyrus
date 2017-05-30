@@ -57,7 +57,7 @@ int SLAPI PPViewLotOp::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewLotOp::NextIteration(LotOpViewItem * pItem)
+int FASTCALL PPViewLotOp::NextIteration(LotOpViewItem * pItem)
 {
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		if(pItem) {
@@ -448,7 +448,7 @@ int PPALDD_LotOps::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	INIT_PPVIEW_ALDD_ITER(LotOp);
 }
 
-int PPALDD_LotOps::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_LotOps::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(LotOp);
 	I.BillID   = item.BillID;

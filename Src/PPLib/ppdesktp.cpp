@@ -323,7 +323,7 @@ int PPDesktopAssocCmdPool::WriteToProp(int use_ta)
 			const  size_t tail_size = tail_buf.GetAvailableSize();
 			sz += tail_size;
 
-			THROW_MEM(p_strg = (DesktopAssocCmdPool_Strg *)malloc(sz));
+			THROW_MEM(p_strg = (DesktopAssocCmdPool_Strg *)SAlloc::M(sz));
 			memzero(p_strg, sz);
 
 			p_strg->ObjType = PPOBJ_DESKTOP;
@@ -342,7 +342,7 @@ int PPDesktopAssocCmdPool::WriteToProp(int use_ta)
 		}
 	}
 	CATCHZOK
-	free(p_strg);
+	SAlloc::F(p_strg);
 	return ok;
 }
 
@@ -362,7 +362,7 @@ int PPDesktopAssocCmdPool::ReadFromProp(PPID desktopId)
 	THROW_PP(desktop_id >= 0, PPERR_UNDEFDESKTID_READ);
 	SETIFZ(desktop_id, COMMON_DESKCMDASSOC);
 	if(p_ref->GetPropActualSize(PPOBJ_DESKTOP, desktop_id, PPPRP_DESKCMDASSOC, &sz) > 0) {
-		p_strg = (DesktopAssocCmdPool_Strg *)malloc(sz);
+		p_strg = (DesktopAssocCmdPool_Strg *)SAlloc::M(sz);
 		THROW(p_ref->GetProp(PPOBJ_DESKTOP, desktop_id, PPPRP_DESKCMDASSOC, p_strg, sz) > 0);
 		{
 			SSerializeContext sctx;
@@ -392,7 +392,7 @@ int PPDesktopAssocCmdPool::ReadFromProp(PPID desktopId)
 	}
 	DesktopID = desktopId;
 	CATCHZOK
-	free(p_strg);
+	SAlloc::F(p_strg);
 	return ok;
 }
 //

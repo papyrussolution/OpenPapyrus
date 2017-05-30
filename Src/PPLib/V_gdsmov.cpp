@@ -454,7 +454,7 @@ double SLAPI PPViewGoodsMov::GetUnitsPerPack(PPID goodsID)
 	return pack;
 }
 
-int SLAPI PPViewGoodsMov::NextIteration(GoodsMovViewItem * pItem)
+int FASTCALL PPViewGoodsMov::NextIteration(GoodsMovViewItem * pItem)
 {
 	do {
 		if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
@@ -767,7 +767,7 @@ int PPALDD_GoodsMov::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	return p_v->InitIteration((PPViewGoodsMov::IterOrder)SortIdx) ? 1 : 0;
 }
 
-int PPALDD_GoodsMov::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsMov::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	PPViewGoodsMov * p_v = (PPViewGoodsMov*)NZOR(Extra[1].Ptr, Extra[0].Ptr);
@@ -825,7 +825,7 @@ int PPALDD_GoodsMov::NextIteration(PPIterID iterId, long rsrv)
 		I.TRcpt_Cost  = item.TRcpt_Cost;
 		I.TRcpt_Price = item.TRcpt_Price;
 		QttyToStr(item.TRcpt_Qtty, item.UnitsPerPack, qttyf, I.TRcpt_CQtty, 1);
-		return DlRtm::NextIteration(iterId, rsrv);
+		return DlRtm::NextIteration(iterId);
 	}
 	else
 		return -1;

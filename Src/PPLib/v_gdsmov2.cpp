@@ -249,9 +249,9 @@ int SLAPI PPViewGoodsMov2::InitIteration(IterOrder ord)
 	return ok;
 }
 
-int SLAPI PPViewGoodsMov2::NextIteration(GoodsMov2ViewItem * pItem)
+int FASTCALL PPViewGoodsMov2::NextIteration(GoodsMov2ViewItem * pItem)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		if(pItem) {
 			memzero(pItem, sizeof(GoodsMov2ViewItem));
@@ -488,7 +488,7 @@ int PPALDD_GoodsMov2::InitIteration(long iterId, int sortId, long rsrv)
 	return p_v->InitIteration((PPViewGoodsMov2::IterOrder)SortIdx) ? 1 : 0;
 }
 
-int PPALDD_GoodsMov2::NextIteration(long iterId, long rsrv)
+int PPALDD_GoodsMov2::NextIteration(long iterId)
 {
 	IterProlog(iterId, 0);
 	PPViewGoodsMov2 * p_v = (PPViewGoodsMov2*)NZOR(Extra[1].Ptr, Extra[0].Ptr);
@@ -508,7 +508,7 @@ int PPALDD_GoodsMov2::NextIteration(long iterId, long rsrv)
 			p_v->GetTabTitle(item.OpID, op_name);
 			op_name.CopyTo(I.OpName, sizeof(I.OpName));
 		}
-		return DlRtm::NextIteration(iterId, rsrv);
+		return DlRtm::NextIteration(iterId);
 	}
 	else
 		return -1;

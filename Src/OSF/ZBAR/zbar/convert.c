@@ -364,7 +364,7 @@ static void convert_uvp_append(zbar_image_t * dst,
 	zprintf(24, "dst=%dx%d (%lx) %lx src=%dx%d %lx\n",
 	    dst->width, dst->height, n, dst->datalen,
 	    src->width, src->height, src->datalen);
-	dst->P_Data = malloc(dst->datalen);
+	dst->P_Data = SAlloc::M(dst->datalen);
 	if(!dst->P_Data) 
 		return;
 	convert_y_resize(dst, dstfmt, src, srcfmt, n);
@@ -381,7 +381,7 @@ static void convert_yuv_pack(zbar_image_t * dst, const zbar_format_def_t * dstfm
 	uint8 y0 = 0, y1 = 0, u = 0x80, v = 0x80;
 	uv_roundup(dst, dstfmt);
 	dst->datalen = dst->width * dst->height + uvp_size(dst, dstfmt) * 2;
-	dst->P_Data = malloc(dst->datalen);
+	dst->P_Data = SAlloc::M(dst->datalen);
 	if(!dst->P_Data) 
 		return;
 	dstp = (uint8 *)dst->P_Data;
@@ -454,7 +454,7 @@ static void convert_yuv_unpack(zbar_image_t * dst,
 	dstn = dst->width * dst->height;
 	dstm2 = uvp_size(dst, dstfmt) * 2;
 	dst->datalen = dstn + dstm2;
-	dst->P_Data = malloc(dst->datalen);
+	dst->P_Data = SAlloc::M(dst->datalen);
 	if(!dst->P_Data) 
 		return;
 	if(dstm2)
@@ -492,7 +492,7 @@ static void convert_uvp_resample(zbar_image_t * dst, const zbar_format_def_t * d
 	dstn = dst->width * dst->height;
 	dstm2 = uvp_size(dst, dstfmt) * 2;
 	dst->datalen = dstn + dstm2;
-	dst->P_Data = malloc(dst->datalen);
+	dst->P_Data = SAlloc::M(dst->datalen);
 	if(!dst->P_Data) 
 		return;
 	convert_y_resize(dst, dstfmt, src, srcfmt, dstn);
@@ -512,7 +512,7 @@ static void convert_uv_resample(zbar_image_t * dst, const zbar_format_def_t * ds
 	uv_roundup(dst, dstfmt);
 	dstn = dst->width * dst->height;
 	dst->datalen = dstn + uvp_size(dst, dstfmt) * 2;
-	dst->P_Data = malloc(dst->datalen);
+	dst->P_Data = SAlloc::M(dst->datalen);
 	if(!dst->P_Data) 
 		return;
 	dstp = (uint8 *)dst->P_Data;
@@ -562,7 +562,7 @@ static void convert_yuvp_to_rgb(zbar_image_t * dst, const zbar_format_def_t * ds
 	uint32 p = 0;
 
 	dst->datalen = dst->width * dst->height * dstfmt->p.rgb.bpp;
-	dst->P_Data = malloc(dst->datalen);
+	dst->P_Data = SAlloc::M(dst->datalen);
 	if(!dst->P_Data) 
 		return;
 	dstp = (uint8 *)dst->P_Data;
@@ -611,7 +611,7 @@ static void convert_rgb_to_yuvp(zbar_image_t * dst, const zbar_format_def_t * ds
 	dstn = dst->width * dst->height;
 	dstm2 = uvp_size(dst, dstfmt) * 2;
 	dst->datalen = dstn + dstm2;
-	dst->P_Data = malloc(dst->datalen);
+	dst->P_Data = SAlloc::M(dst->datalen);
 	if(!dst->P_Data) 
 		return;
 	if(dstm2)
@@ -658,7 +658,7 @@ static void convert_yuv_to_rgb(zbar_image_t * dst, const zbar_format_def_t * dst
 	uint srcl, x, y;
 	uint32 p = 0;
 	dst->datalen = dstn * dstfmt->p.rgb.bpp;
-	dst->P_Data = malloc(dst->datalen);
+	dst->P_Data = SAlloc::M(dst->datalen);
 	if(!dst->P_Data) 
 		return;
 	dstp = (uint8 *)dst->P_Data;
@@ -715,7 +715,7 @@ static void convert_rgb_to_yuv(zbar_image_t * dst,
 	uint16 y0 = 0;
 	uv_roundup(dst, dstfmt);
 	dst->datalen = dst->width * dst->height + uvp_size(dst, dstfmt) * 2;
-	dst->P_Data = malloc(dst->datalen);
+	dst->P_Data = SAlloc::M(dst->datalen);
 	if(!dst->P_Data) 
 		return;
 	dstp = (uint8 *)dst->P_Data;
@@ -773,7 +773,7 @@ static void convert_rgb_resample(zbar_image_t * dst,
 	uint32 p = 0;
 
 	dst->datalen = dstn * dstfmt->p.rgb.bpp;
-	dst->P_Data = malloc(dst->datalen);
+	dst->P_Data = SAlloc::M(dst->datalen);
 	if(!dst->P_Data) 
 		return;
 	dstp = (uint8 *)dst->P_Data;

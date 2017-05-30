@@ -37,8 +37,8 @@ private:
 	void   SetupSerialWarn();
 	void   SetupInheritedSerial();
 	int    evaluateBasePrice(double curPrice, double * pBasePrice);
-	int    setupCurPrice();
-	int    setupQuotation(int reset, int autoQuot);
+	void   setupCurPrice();
+	void   setupQuotation(int reset, int autoQuot);
 	int    setupGoodsList();
 	int    setupGoodsListByPrice();
 	int    setupManuf();
@@ -125,20 +125,21 @@ private:
 	int    isDiscountInSum() const;
 	int    isAllowZeroPrice();
 	int    setupAllQuantity(int byLot);
-	int    setQuotSign();
+	void   setQuotSign();
 	SArray * SelectGoodsByPrice(PPID loc, double price);
 	int    ProcessRevalOnAllLots(const PPTransferItem *);
 };
 
-static int SLAPI CanUpdateSuppl(PPBillPacket * p, int itemNo)
+static int SLAPI CanUpdateSuppl(const PPBillPacket * pBp, int itemNo)
 {
-	if(p->OpTypeID == PPOPT_GOODSRECEIPT) {
-		if(p->Rec.Object == 0 /*|| (p->AccSheet && p->AccSheet != GetSupplAccSheet())*/)
-			return 1;
-		if(itemNo >= 0 && p->TI(itemNo).Flags & PPTFR_FORCESUPPL)
-			return 1;
+	int   yes = 0;
+	if(pBp->OpTypeID == PPOPT_GOODSRECEIPT) {
+		if(pBp->Rec.Object == 0 /*|| (p->AccSheet && p->AccSheet != GetSupplAccSheet())*/)
+			yes = 1;
+		else if(itemNo >= 0 && pBp->TI(itemNo).Flags & PPTFR_FORCESUPPL)
+			yes = 1;
 	}
-	return 0;
+	return yes;
 }
 
 int SLAPI ViewSpoilList(SpecSeriesCore * pTbl, const char * pSerial, int useText)
@@ -631,9 +632,10 @@ int TrfrItemDialog::setCtrlCost()
 	return setCtrlReal(CTL_LOT_COST, Item.GetOrgCost());
 }
 
-int TrfrItemDialog::setupCurPrice()
+void TrfrItemDialog::setupCurPrice()
 {
-	double cur_price = 0.0, base_price;
+	double cur_price = 0.0;
+	double base_price;
 	if(Item.CurID && getCtrlData(CTL_LOT_CURPRICE, &cur_price)) {
 		uint   ctl_id = 0;
 		evaluateBasePrice(cur_price, &base_price);
@@ -652,7 +654,6 @@ int TrfrItemDialog::setupCurPrice()
 			setupVaPct();
 		}
 	}
-	return 1;
 }
 
 void TrfrItemDialog::recalcUnitsToPhUnits()
@@ -705,7 +706,7 @@ void TrfrItemDialog::editQCertData()
 
 void TrfrItemDialog::GenerateSerial()
 {
-	if(IsTaggedItem()) { // @v7.8.2
+	if(IsTaggedItem()) {
 		SString templt = (GObj.IsAsset(Item.GoodsID) > 0) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
 		SString serial;
 		if(P_BObj->GetSnByTemplate(P_Pack->Rec.Code, labs(Item.GoodsID), &P_Pack->SnL, templt, serial) > 0)
@@ -1110,6 +1111,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 
 int TrfrItemDialog::selectGoodsByBarCode()
 {
+	int    ok = -1;
 	Goods2Tbl::Rec rec;
 	if(GObj.SelectGoodsByBarcode(0, P_Pack->Rec.Object, &rec, 0, 0) > 0) {
 		GoodsGrpID = rec.ParentID;
@@ -1117,9 +1119,9 @@ int TrfrItemDialog::selectGoodsByBarCode()
 		setCtrlData(CTLSEL_LOT_GOODSGRP, &GoodsGrpID);
 		setupGoodsList();
 		replyGoodsSelection();
-		return 1;
+		ok = 1;
 	}
-	return -1;
+	return ok;
 }
 
 int TrfrItemDialog::setupGoodsListByPrice()
@@ -1217,10 +1219,10 @@ int TrfrItemDialog::isAllowZeroPrice()
 int TrfrItemDialog::checkQuantityForIntVal()
 {
 	TView * v = getCtrlView(CTL_LOT_QUANTITY);
-	if(v && !v->IsInState(sfDisabled) && GObj.CheckFlag(Item.GoodsID, GF_INTVAL))
-		if(ffrac(R6(Item.Quantity_)) != 0.0)
-			return PPSetError(PPERR_INTVALUNIT);
-	return 1;
+	if(v && !v->IsInState(sfDisabled) && GObj.CheckFlag(Item.GoodsID, GF_INTVAL) && ffrac(R6(Item.Quantity_)) != 0.0)
+		return PPSetError(PPERR_INTVALUNIT);
+	else
+		return 1;
 }
 
 void TrfrItemDialog::setupCtrlsOnGoodsSelection()
@@ -1251,11 +1253,13 @@ void TrfrItemDialog::setupCtrlsOnGoodsSelection()
 
 int TrfrItemDialog::replyGoodsSelection(int recurse)
 {
+	int    ok = 1;
 	int    r, dir, again = 0;
 	int    all_lots_in_pckg = 0;
 	double quot = 0.0;
 	double suppl_deal_cost = 0.0;
 	int    op_subtype = GetOpSubType(OpID);
+	SString temp_buf;
 	ReceiptTbl::Rec lot_rec;
 	LotArray lot_list;
 	uint   lot_idx = 0;
@@ -1285,7 +1289,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 		}
 	}
 	if(oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
-		QuotIdent qi(Item.LocID, 0, Item.CurID, P_Pack->Rec.Object);
+		const QuotIdent qi(Item.LocID, 0, Item.CurID, P_Pack->Rec.Object);
 		GObj.GetSupplDeal(Item.GoodsID, qi, &Sd, 1);
 		if(Sd.IsDisabled) {
 			again = 1;
@@ -1299,7 +1303,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 		CALLEXCEPT();
 	}
 	if(Item.Flags & PPTFR_UNLIM && !(OpTypeID == PPOPT_GOODSRECEIPT)) {
-		QuotIdent qi(Item.LocID, PPQUOTK_BASE, Item.CurID, P_Pack->Rec.Object);
+		const QuotIdent qi(Item.LocID, PPQUOTK_BASE, Item.CurID, P_Pack->Rec.Object);
 		THROW_PP(!(Item.Flags & PPTFR_REVAL), PPERR_REVALONUNLIM);
 		THROW(r = GObj.GetQuot(Item.GoodsID, qi, 0.0, 0.0, &quot));
 		if(r < 0) {
@@ -1340,16 +1344,15 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 		dir = 2; // Don't enumerate lots
 		Price = 0.0;
 		if(ItemNo < 0 && isModifPlus() && P_BObj->GetConfig().Flags & BCF_AUTOCOMPLOUTBYQUOT) {
-			QuotIdent qi(Item.LocID, PPQUOTK_BASE, Item.CurID, P_Pack->Rec.Object);
+			const QuotIdent qi(Item.LocID, PPQUOTK_BASE, Item.CurID, P_Pack->Rec.Object);
 			THROW(r = GObj.GetQuot(Item.GoodsID, qi, 0.0, 0.0, &quot));
 		}
 		if(ItemNo < 0 && lot_id && OpTypeID == PPOPT_DRAFTEXPEND) {
 			int    ret = 0;
-			SString serial;
 			Item.LotID = lot_id;
-			THROW(ret = P_BObj->GetSerialNumberByLot(Item.LotID, serial, 0));
+			THROW(ret = P_BObj->GetSerialNumberByLot(Item.LotID, temp_buf = 0, 0));
 			if(ret > 0)
-				THROW(P_Pack->SnL.AddNumber(ItemNo, serial));
+				THROW(P_Pack->SnL.AddNumber(ItemNo, temp_buf));
 		}
 		else if(P_Trfr->Rcpt.GetLastLot(Item.GoodsID, -lid, sd, &lot_rec) > 0) {
 			if(OpTypeID == PPOPT_GOODSACK)
@@ -1384,8 +1387,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 				}
 				else {
 					//
-					// При выборе товара по цене останавливаемся на том лоте,
-					// который имеет выбранную цену.
+					// При выборе товара по цене останавливаемся на том лоте, который имеет выбранную цену.
 					//
 					double p = R5(lot_rec.Price);
 					if(St & stGoodsByPrice && p != Item.Price) {
@@ -1394,9 +1396,8 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 					}
 					else {
 						//
-						// Если документ привязан к конкретному поставщику
-						// (кроме прихода), то проверяем чтобы товар был
-						// оприходован от этого поставщика.
+						// Если документ привязан к конкретному поставщику (кроме прихода), 
+						// то проверяем чтобы товар был оприходован от этого поставщика.
 						//
 						if(OpID == _PPOPK_SUPPLRET || (P_Pack->OpTypeID == PPOPT_GOODSREVAL && P_Pack->Rec.Object))
 							if(lot_rec.SupplID != P_Pack->Rec.Object) {
@@ -1422,8 +1423,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 			}
 			else {
 				again = 1;
-				SString msg_buf;
-				CALLEXCEPT_PP_S(PPERR_NOGOODS, GetGoodsName(Item.GoodsID, msg_buf));
+				CALLEXCEPT_PP_S(PPERR_NOGOODS, GetGoodsName(Item.GoodsID, temp_buf));
 			}
 		}
 		Item.Price = quot;
@@ -1541,16 +1541,16 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 	setupBaseQuot();
 	CATCH
 		if(!recurse)
-			return 0;
-		if(PPErrCode || !again)
-			PPError();
-		setCtrlLong(CTLSEL_LOT_GOODS, Item.GoodsID = 0);
-		if(again && !(Item.Flags & PPTFR_ONORDER)) {
-			// Этот вызов приводит к рекурсивному входу в текущую функцию.
-			messageToCtrl(CTLSEL_LOT_GOODS, cmCBActivate, 0);
+			ok = 0;
+		else {
+			if(PPErrCode || !again)
+				PPError();
+			setCtrlLong(CTLSEL_LOT_GOODS, Item.GoodsID = 0);
+			if(again && !(Item.Flags & PPTFR_ONORDER))
+				messageToCtrl(CTLSEL_LOT_GOODS, cmCBActivate, 0); // Этот вызов приводит к рекурсивному входу в текущую функцию.
 		}
 	ENDCATCH
-	return 1;
+	return ok;
 }
 
 int TrfrItemDialog::readQttyFld(uint master, uint ctl, double * val)
@@ -1561,7 +1561,7 @@ int TrfrItemDialog::readQttyFld(uint master, uint ctl, double * val)
 
 void TrfrItemDialog::setupQuantity(uint master, int readFlds)
 {
-	if(!(Item.Flags & PPTFR_REVAL) || (Item.Flags & PPTFR_CORRECTION)) { // @v7.8.10 || (Item.Flags & PPTFR_CORRECTION)
+	if(!(Item.Flags & PPTFR_REVAL) || (Item.Flags & PPTFR_CORRECTION)) {
 		// @v9.4.3 const double prev_qtty = Item.Quantity_;
 		const double prev_qtty = Item.GetEffCorrectionExpQtty();
 		if(readFlds) {
@@ -2064,6 +2064,7 @@ int TrfrItemDialog::CheckPrice()
 
 int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 {
+	int    ok = 1;
 	int    r;
 	int    sel = 0;
 	int    no_err_msg = 0;
@@ -2258,7 +2259,6 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 			}
 		}
 		// } @v9.3.6
-		// @v7.4.5 {
 		if(InheritedLotTagList.GetCount()) {
 			ObjTagList tag_list;
 			const ObjTagList * p_list = P_Pack->LTagL.Get(ItemNo);
@@ -2266,16 +2266,13 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 			tag_list.Merge(InheritedLotTagList, ObjTagList::mumAdd);
 			P_Pack->LTagL.Set(ItemNo, &tag_list);
 		}
-		// } @v7.4.5
 	}
 	else if(IsIntrExpndOp(P_Pack->Rec.OpID)) {
-		// @v7.3.5 {
 		{
 			ObjTagList tag_list;
 			P_BObj->GetTagListByLot(Item.LotID, 1, &tag_list);
 			P_Pack->LTagL.Set(ItemNo, tag_list.GetCount() ? &tag_list : 0);
 		}
-		// } @v7.3.5
 		if(P_BObj->GetSerialNumberByLot(Item.LotID, clb_number, 0) > 0)
 			THROW(P_Pack->SnL.AddNumber(ItemNo, clb_number));
 	}
@@ -2291,9 +2288,9 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 		if(!no_err_msg)
 			PPError();
 		selectCtrl(sel);
-		return 0;
+		ok = 0;
 	ENDCATCH
-	return 1;
+	return ok;
 }
 
 static SString & minus_ord_reserved(double rest, double reserved, SString & rBuf, long fmt)
@@ -2359,7 +2356,7 @@ void TrfrItemDialog::setupRest()
 	}
 }
 
-int TrfrItemDialog::setQuotSign()
+void TrfrItemDialog::setQuotSign()
 {
 	SString text;
 	if(Item.Flags & PPTFR_QUOT)
@@ -2376,7 +2373,6 @@ int TrfrItemDialog::setQuotSign()
 			}
 		}
 	setStaticText(CTL_LOT_QUOTSIGN, text);
-	return 1;
 }
 
 int TrfrItemDialog::setupLot()
@@ -2384,7 +2380,7 @@ int TrfrItemDialog::setupLot()
 	int    ok = 1;
 	uint   fl = 0;
 	if(Item.Flags & PPTFR_CORRECTION && Item.Flags & PPTFR_REVAL) { // @v9.4.3
-		OrgQtty = 0.0; // @v7.8.10
+		OrgQtty = 0.0;
 	}
 	SString temp_buf;
 	if(Item.UnitPerPack == 0.0) {
@@ -2408,24 +2404,24 @@ int TrfrItemDialog::setupLot()
 		if(Item.Flags & PPTFR_RECEIPT) {
 			fl |= (TISL_IGNQCERT|TISL_IGNEXPIRY);
 		}
-		THROW(P_Trfr->Rcpt.Search(Item.LotID, &lot_rec) > 0); // @v7.8.10
-		OrgQtty = lot_rec.Quantity; // @v7.8.10
-		THROW(Item.SetupLot(Item.LotID, &lot_rec, fl)); // @v7.8.10 0-->&lot_rec
+		THROW(P_Trfr->Rcpt.Search(Item.LotID, &lot_rec) > 0);
+		OrgQtty = lot_rec.Quantity;
+		THROW(Item.SetupLot(Item.LotID, &lot_rec, fl));
 		if(!(fl & TISL_IGNPRICE))
 			Price = Item.Price;
 		if(Item.Flags & PPTFR_REVAL) {
-			// @v5.5.5 Предварительная попытка разрешить рекомплектацию лотов, которые не были перед этим
+			// Предварительная попытка разрешить рекомплектацию лотов, которые не были перед этим
 			// скомплектованы. Это оказалось актуально при учете ОС.
-			// @v5.5.5 @test THROW_PP(!Item.IsRecomplete() || P_Trfr->IsCompletedLot(Item.LotID) > 0, PPERR_NONCOMPLETEDLOT);
-			for(uint pos = 0; P_Pack->SearchLot(Item.LotID, &pos) > 0; pos++)
+			for(uint pos = 0; P_Pack->SearchLot(Item.LotID, &pos) > 0; pos++) {
 				THROW_PP(pos == (uint)ItemNo, PPERR_DUPLOTREVAL);
+			}
 			if(Item.RevalCost == 0.0)
 				Item.RevalCost = Item.Cost;
 			if(Item.Discount == 0.0)
 				Item.Discount = Item.Price;
 			setCtrlReal(CTL_LOT_OLDCOST,  Item.RevalCost);
 			setCtrlReal(CTL_LOT_OLDPRICE, Item.Discount);
-			setCtrlReal(CTL_LOT_ORGQTTY, OrgQtty); // @v7.8.10
+			setCtrlReal(CTL_LOT_ORGQTTY, OrgQtty);
 			if(GetOpSubType(OpID) == OPSUBT_ASSETEXPL) {
 				ushort v = 0;
 				PPID   lot_id = Item.LotID;
@@ -2525,7 +2521,7 @@ PPID TrfrItemDialog::GetQuotLocID()
 	return IsIntrExpndOp(OpID) ? PPObjLocation::ObjToWarehouse(P_Pack->Rec.Object) : P_Pack->Rec.LocID;
 }
 
-int TrfrItemDialog::setupQuotation(int reset, int autoQuot)
+void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 {
 	const PPConfig & r_cfg = LConfig;
 	if(reset) {
@@ -2549,8 +2545,6 @@ int TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 		if(loc_id) {
 			quot = Item.Price;
 			if(P_BObj->SelectQuotKind(P_Pack, &Item, (autoQuot && P_Pack->AgtQuotKindID) ? 0 : 1, 0, &quot) > 0) {
-				// @v7.3.12 (1)-->(autoQuot ? 0 : 1)
-				// @v7.4.5 (&& P_Pack->AgtQuotKindID)
 				;
 			}
 			else if(autoQuot) {
@@ -2635,7 +2629,6 @@ int TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 			setCtrlReal(CTL_LOT_PRICE, price);
 	}
 	setQuotSign();
-	return 1;
 }
 //
 //

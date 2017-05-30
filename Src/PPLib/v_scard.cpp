@@ -841,7 +841,7 @@ int SLAPI PPViewSCard::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewSCard::NextIteration(SCardViewItem * pItem)
+int FASTCALL PPViewSCard::NextIteration(SCardViewItem * pItem)
 {
 	while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		Counter.Increment();
@@ -2430,7 +2430,7 @@ int SLAPI PPViewSCardOp::InitIteration()
 	return 1;
 }
 
-int SLAPI PPViewSCardOp::NextIteration(SCardOpViewItem * pItem)
+int FASTCALL PPViewSCardOp::NextIteration(SCardOpViewItem * pItem)
 {
 	return (SCObj.P_Tbl->EnumOpByCard(Filt.SCardID, &IterPos, pItem) > 0 &&
 		(!Filt.Period.upp || IterPos.d <= Filt.Period.upp)) ? 1 : -1;
@@ -2981,7 +2981,7 @@ int PPALDD_SCardSerView::InitIteration(PPIterID iterId, int /*sortId*/, long /*r
 	return (p_v && p_v->InitIteration()) ? 1 : 0;
 }
 
-int PPALDD_SCardSerView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_SCardSerView::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	PPObjSCardSeriesListWindow * p_v = (PPObjSCardSeriesListWindow *)Extra[1].Ptr;
@@ -2996,7 +2996,7 @@ int PPALDD_SCardSerView::NextIteration(PPIterID iterId, long rsrv)
 		I.PDis       = fdiv100i(rec.PDis);
 		I.MaxCredit  = rec.MaxCredit;
 		I.fCredit    = BIN(rec.Flags & SCRDSF_CREDIT);
-		return DlRtm::NextIteration(iterId, rsrv);
+		return DlRtm::NextIteration(iterId);
 	}
 	return -1;
 }
@@ -3093,7 +3093,7 @@ int PPALDD_SCard::InitData(PPFilt & rFilt, long rsrv)
 	return ok;
 }
 
-int PPALDD_SCard::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_SCard::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
 	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
@@ -3103,7 +3103,7 @@ int PPALDD_SCard::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 
 	DL600_SCardExt * p_ext = (DL600_SCardExt *)(Extra[0].Ptr);
 	SysJournalTbl::Rec sj_rec;
-	if(pF->Name.Cmp("?GetCreationEvent", 0) == 0) {
+	if(pF->Name == "?GetCreationEvent") {
 		long   sur_id = 0;
 		if(p_ext) {
 			sur_id = p_ext->CrEventSurID;
@@ -3121,7 +3121,7 @@ int PPALDD_SCard::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 		}
 		_RET_INT = sur_id;
 	}
-	else if(pF->Name.Cmp("?GetActivationEvent", 0) == 0) {
+	else if(pF->Name == "?GetActivationEvent") {
 		long   sur_id = 0;
 		if(p_ext) {
 			sur_id = p_ext->AcEventSurID;
@@ -3142,7 +3142,6 @@ int PPALDD_SCard::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 		}
 		_RET_INT = sur_id;
 	}
-	return 1;
 }
 //
 // Implementation of PPALDD_SCardList
@@ -3183,7 +3182,7 @@ int PPALDD_SCardList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	INIT_PPVIEW_ALDD_ITER(SCard);
 }
 
-int PPALDD_SCardList::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_SCardList::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(SCard);
 	I.SCardID = item.ID;
@@ -3245,7 +3244,7 @@ int PPALDD_SCardOpList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/
 	INIT_PPVIEW_ALDD_ITER(SCardOp);
 }
 
-int PPALDD_SCardOpList::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_SCardOpList::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(SCardOp);
 	I.Dt      = item.Dt;
@@ -3469,7 +3468,7 @@ int SLAPI PPViewUhttSCardOp::InitIteration()
 	return 1;
 }
 
-int SLAPI PPViewUhttSCardOp::NextIteration(UhttSCardOpViewItem * pItem)
+int FASTCALL PPViewUhttSCardOp::NextIteration(UhttSCardOpViewItem * pItem)
 {
 	int    ok = -1;
 	if(pItem && Counter < List.getCount()) {
@@ -3541,7 +3540,7 @@ int PPALDD_UhttSCardOpArray::InitIteration(long iterId, int sortId, long rsrv)
 	return -1;
 }
 
-int PPALDD_UhttSCardOpArray::NextIteration(long iterId, long rsrv)
+int PPALDD_UhttSCardOpArray::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -3559,7 +3558,7 @@ int PPALDD_UhttSCardOpArray::NextIteration(long iterId, long rsrv)
 		I.WithdrawCount = r_item.WithdrawCount;
 		I.WithdrawAmt = r_item.WithdrawAmt;
 		I.SCardRest = r_item.SCardRest;
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 		p_list->incPointer();
 	}
 	return ok;

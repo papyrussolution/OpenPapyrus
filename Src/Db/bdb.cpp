@@ -323,6 +323,15 @@ int BDbDatabase::Helper_Close(void * pH)
 	return 1;
 }
 
+int BDbDatabase::RemoveUnusedLogs()
+{
+	int    ok = 1;
+	THROW(E);
+	THROW(ProcessError(E->log_archive(E, 0, DB_ARCH_REMOVE)));
+	CATCHZOK
+	return ok;
+}
+
 int BDbDatabase::StartTransaction()
 {
 	int    ok = 1;

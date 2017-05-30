@@ -5,11 +5,11 @@
 *                            | (__| |_| |  _ <| |___
 *                             \___|\___/|_| \_\_____|
 *
-* Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+* Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
 *
 * This software is licensed as described in the file COPYING, which
 * you should have received as part of this distribution. The terms
-* are also available at http://curl.haxx.se/docs/copyright.html.
+* are also available at https://curl.haxx.se/docs/copyright.html.
 *
 * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 * copies of the Software, and permit persons to whom the Software is
@@ -45,22 +45,20 @@
 #include <arpa/inet.h>
 #endif
 #ifdef HAVE_UTSNAME_H
-#include <sys/utsname.h>
+	#include <sys/utsname.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+	#include <netdb.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+	#include <in.h>
+	#include <inet.h>
 #endif
-
 #if (defined(NETWARE) && defined(__NOVELL_LIBC__))
-#undef in_addr_t
-#define in_addr_t ulong
+	#undef in_addr_t
+	#define in_addr_t unsigned long
 #endif
-
-#include <curl/curl.h>
+//#include <curl/curl.h>
 #include "urldata.h"
 #include "sendf.h"
 #include "hostip.h"
@@ -70,22 +68,20 @@
 #include "http.h" /* for HTTP proxy tunnel stuff */
 #include "socks.h"
 #include "pop3.h"
-
 #include "strtoofft.h"
-#include "strequal.h"
+#include "strcase.h"
 #include "vtls/vtls.h"
 #include "connect.h"
 #include "strerror.h"
 #include "select.h"
 #include "multiif.h"
 #include "url.h"
-#include "rawstr.h"
 #include "curl_sasl.h"
 #include "curl_md5.h"
 #include "warnless.h"
+/* The last 3 #include files should be in this order */
 #include "curl_printf.h"
 #include "curl_memory.h"
-/* The last #include file should be: */
 #include "memdebug.h"
 
 /* Local API functions */
@@ -106,7 +102,7 @@ static CURLcode pop3_parse_custom_request(struct connectdata * conn);
 static CURLcode pop3_perform_auth(struct connectdata * conn, const char * mech,
     const char * initresp);
 static CURLcode pop3_continue_auth(struct connectdata * conn, const char * resp);
-static void pop3_get_message(char * buffer, char** outptr);
+static void pop3_get_message(char * buffer, char ** outptr);
 
 /*
  * POP3 protocol handler.
@@ -129,7 +125,8 @@ const struct Curl_handler Curl_handler_pop3 = {
 	ZERO_NULL,                  /* readwrite */
 	PORT_POP3,                  /* defport */
 	CURLPROTO_POP3,             /* protocol */
-	PROTOPT_CLOSEACTION | PROTOPT_NOURLQUERY /* flags */
+	PROTOPT_CLOSEACTION | PROTOPT_NOURLQUERY | /* flags */
+	PROTOPT_URLOPTIONS
 };
 
 #ifdef USE_SSL
@@ -155,7 +152,7 @@ const struct Curl_handler Curl_handler_pop3s = {
 	PORT_POP3S,                 /* defport */
 	CURLPROTO_POP3S,            /* protocol */
 	PROTOPT_CLOSEACTION | PROTOPT_SSL
-	| PROTOPT_NOURLQUERY        /* flags */
+	| PROTOPT_NOURLQUERY | PROTOPT_URLOPTIONS /* flags */
 };
 #endif
 
@@ -214,7 +211,7 @@ static const struct Curl_handler Curl_handler_pop3s_proxy = {
 /* SASL parameters for the pop3 protocol */
 static const struct SASLproto saslpop3 = {
 	"pop",                /* The service name */
-	'+',                  /* Code received when continuation is expected */
+	'*',                  /* Code received when continuation is expected */
 	'+',                  /* Code to receive upon authentication success */
 	255 - 8,              /* Maximum initial response length (no max) */
 	pop3_perform_auth,    /* Send authentication command */
@@ -225,7 +222,11 @@ static const struct SASLproto saslpop3 = {
 #ifdef USE_SSL
 static void pop3_to_pop3s(struct connectdata * conn)
 {
+	/* Change the connection handler */
 	conn->handler = &Curl_handler_pop3s;
+
+	/* Set the connection's upgraded to TLS flag */
+	conn->tls_upgraded = TRUE;
 }
 
 #else
@@ -257,17 +258,25 @@ static bool pop3_endofresp(struct connectdata * conn, char * line, size_t len,
 	if(pop3c->state == POP3_CAPA) {
 		/* Do we have the terminating line? */
 		if(len >= 1 && !memcmp(line, ".", 1))
+			/* Treat the response as a success */
 			*resp = '+';
 		else
+			/* Treat the response as an untagged continuation */
 			*resp = '*';
 
 		return TRUE;
 	}
 
-	/* Do we have a command or continuation response? */
-	if((len >= 3 && !memcmp("+OK", line, 3)) ||
-	    (len >= 1 && !memcmp("+", line, 1))) {
+	/* Do we have a success response? */
+	if(len >= 3 && !memcmp("+OK", line, 3)) {
 		*resp = '+';
+
+		return TRUE;
+	}
+
+	/* Do we have a continuation response? */
+	if(len >= 1 && !memcmp("+", line, 1)) {
+		*resp = '*';
 
 		return TRUE;
 	}
@@ -281,10 +290,10 @@ static bool pop3_endofresp(struct connectdata * conn, char * line, size_t len,
  *
  * Gets the authentication message from the response buffer.
  */
-static void pop3_get_message(char * buffer, char** outptr)
+static void pop3_get_message(char * buffer, char ** outptr)
 {
 	size_t len = 0;
-	char* message = NULL;
+	char * message = NULL;
 
 	/* Find the start of the message */
 	for(message = buffer + 2; *message == ' ' || *message == '\t'; message++)
@@ -449,7 +458,7 @@ static CURLcode pop3_perform_apop(struct connectdata * conn)
 	struct pop3_conn * pop3c = &conn->proto.pop3c;
 	size_t i;
 	MD5_context * ctxt;
-	uchar digest[MD5_DIGEST_LEN];
+	unsigned char digest[MD5_DIGEST_LEN];
 	char secret[2 * MD5_DIGEST_LEN + 1];
 
 	/* Check we have a username and password to authenticate with and end the
@@ -465,10 +474,10 @@ static CURLcode pop3_perform_apop(struct connectdata * conn)
 	if(!ctxt)
 		return CURLE_OUT_OF_MEMORY;
 
-	Curl_MD5_update(ctxt, (const uchar*)pop3c->apoptimestamp,
+	Curl_MD5_update(ctxt, (const unsigned char*)pop3c->apoptimestamp,
 	    curlx_uztoui(strlen(pop3c->apoptimestamp)));
 
-	Curl_MD5_update(ctxt, (const uchar*)conn->passwd,
+	Curl_MD5_update(ctxt, (const unsigned char*)conn->passwd,
 	    curlx_uztoui(strlen(conn->passwd)));
 
 	/* Finalise the digest */
@@ -587,34 +596,25 @@ static CURLcode pop3_perform_authentication(struct connectdata * conn)
 static CURLcode pop3_perform_command(struct connectdata * conn)
 {
 	CURLcode result = CURLE_OK;
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 	struct POP3 * pop3 = (struct POP3 *)data->req.protop;
 	const char * command = NULL;
-
 	/* Calculate the default command */
 	if(pop3->id[0] == '\0' || conn->data->set.ftp_list_only) {
 		command = "LIST";
-
 		if(pop3->id[0] != '\0')
 			/* Message specific LIST so skip the BODY transfer */
 			pop3->transfer = FTPTRANSFER_INFO;
 	}
 	else
 		command = "RETR";
-
 	/* Send the command */
 	if(pop3->id[0] != '\0')
-		result = Curl_pp_sendf(&conn->proto.pop3c.pp, "%s %s",
-		    (pop3->custom && pop3->custom[0] != '\0' ?
-			    pop3->custom : command), pop3->id);
+		result = Curl_pp_sendf(&conn->proto.pop3c.pp, "%s %s", (pop3->custom && pop3->custom[0] != '\0' ? pop3->custom : command), pop3->id);
 	else
-		result = Curl_pp_sendf(&conn->proto.pop3c.pp, "%s",
-		    (pop3->custom && pop3->custom[0] != '\0' ?
-			    pop3->custom : command));
-
+		result = Curl_pp_sendf(&conn->proto.pop3c.pp, "%s", (pop3->custom && pop3->custom[0] != '\0' ? pop3->custom : command));
 	if(!result)
 		state(conn, POP3_COMMAND);
-
 	return result;
 }
 
@@ -643,7 +643,7 @@ static CURLcode pop3_state_servergreet_resp(struct connectdata * conn,
     pop3state instate)
 {
 	CURLcode result = CURLE_OK;
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 	struct pop3_conn * pop3c = &conn->proto.pop3c;
 	const char * line = data->state.buffer;
 	size_t len = strlen(line);
@@ -653,7 +653,7 @@ static CURLcode pop3_state_servergreet_resp(struct connectdata * conn,
 
 	if(pop3code != '+') {
 		failf(data, "Got unexpected pop3-server response");
-		result = CURLE_FTP_WEIRD_SERVER_REPLY;
+		result = CURLE_WEIRD_SERVER_REPLY;
 	}
 	else {
 		/* Does the server support APOP authentication? */
@@ -694,7 +694,7 @@ static CURLcode pop3_state_capa_resp(struct connectdata * conn, int pop3code,
     pop3state instate)
 {
 	CURLcode result = CURLE_OK;
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 	struct pop3_conn * pop3c = &conn->proto.pop3c;
 	const char * line = data->state.buffer;
 	size_t len = strlen(line);
@@ -702,7 +702,7 @@ static CURLcode pop3_state_capa_resp(struct connectdata * conn, int pop3code,
 
 	(void)instate; /* no use for this yet */
 
-	/* Do we have a untagged response? */
+	/* Do we have a untagged continuation response? */
 	if(pop3code == '*') {
 		/* Does the server support the STLS capability? */
 		if(len >= 4 && !memcmp(line, "STLS", 4))
@@ -723,7 +723,7 @@ static CURLcode pop3_state_capa_resp(struct connectdata * conn, int pop3code,
 			/* Loop through the data line */
 			for(;; ) {
 				size_t llen;
-				uint mechbit;
+				unsigned int mechbit;
 
 				while(len &&
 				    (*line == ' ' || *line == '\t' ||
@@ -742,8 +742,8 @@ static CURLcode pop3_state_capa_resp(struct connectdata * conn, int pop3code,
 					wordlen++;
 
 				/* Test the word for a matching authentication mechanism */
-				if((mechbit = Curl_sasl_decode_mech(line, wordlen, &llen)) &&
-				    llen == wordlen)
+				mechbit = Curl_sasl_decode_mech(line, wordlen, &llen);
+				if(mechbit && llen == wordlen)
 					pop3c->sasl.authmechs |= mechbit;
 
 				line += wordlen;
@@ -784,13 +784,13 @@ static CURLcode pop3_state_starttls_resp(struct connectdata * conn,
     pop3state instate)
 {
 	CURLcode result = CURLE_OK;
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 
 	(void)instate; /* no use for this yet */
 
 	if(pop3code != '+') {
 		if(data->set.use_ssl != CURLUSESSL_TRY) {
-			failf(data, "STARTTLS denied. %c", pop3code);
+			failf(data, "STARTTLS denied");
 			result = CURLE_USE_SSL_FAILED;
 		}
 		else
@@ -808,7 +808,7 @@ static CURLcode pop3_state_auth_resp(struct connectdata * conn,
     pop3state instate)
 {
 	CURLcode result = CURLE_OK;
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 	struct pop3_conn * pop3c = &conn->proto.pop3c;
 	saslprogress progress;
 
@@ -848,7 +848,7 @@ static CURLcode pop3_state_apop_resp(struct connectdata * conn, int pop3code,
     pop3state instate)
 {
 	CURLcode result = CURLE_OK;
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 
 	(void)instate; /* no use for this yet */
 
@@ -870,7 +870,7 @@ static CURLcode pop3_state_user_resp(struct connectdata * conn, int pop3code,
     pop3state instate)
 {
 	CURLcode result = CURLE_OK;
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 
 	(void)instate; /* no use for this yet */
 
@@ -893,7 +893,7 @@ static CURLcode pop3_state_pass_resp(struct connectdata * conn, int pop3code,
     pop3state instate)
 {
 	CURLcode result = CURLE_OK;
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 
 	(void)instate; /* no use for this yet */
 
@@ -904,64 +904,50 @@ static CURLcode pop3_state_pass_resp(struct connectdata * conn, int pop3code,
 	else
 		/* End of connect phase */
 		state(conn, POP3_STOP);
-
 	return result;
 }
 
 /* For command responses */
-static CURLcode pop3_state_command_resp(struct connectdata * conn,
-    int pop3code,
-    pop3state instate)
+static CURLcode pop3_state_command_resp(struct connectdata * conn, int pop3code, pop3state instate)
 {
 	CURLcode result = CURLE_OK;
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 	struct POP3 * pop3 = (struct POP3 *)data->req.protop;
 	struct pop3_conn * pop3c = &conn->proto.pop3c;
 	struct pingpong * pp = &pop3c->pp;
-
 	(void)instate; /* no use for this yet */
-
 	if(pop3code != '+') {
 		state(conn, POP3_STOP);
 		return CURLE_RECV_ERROR;
 	}
-
 	/* This 'OK' line ends with a CR LF pair which is the two first bytes of the
 	   EOB string so count this is two matching bytes. This is necessary to make
 	   the code detect the EOB if the only data than comes now is %2e CR LF like
 	   when there is no body to return. */
 	pop3c->eob = 2;
-
 	/* But since this initial CR LF pair is not part of the actual body, we set
 	   the strip counter here so that these bytes won't be delivered. */
 	pop3c->strip = 2;
-
 	if(pop3->transfer == FTPTRANSFER_BODY) {
 		/* POP3 download */
 		Curl_setup_transfer(conn, FIRSTSOCKET, -1, FALSE, NULL, -1, NULL);
-
 		if(pp->cache) {
 			/* The header "cache" contains a bunch of data that is actually body
 			   content so send it as such. Note that there may even be additional
 			   "headers" after the body */
-
 			if(!data->set.opt_no_body) {
 				result = Curl_pop3_write(conn, pp->cache, pp->cache_size);
 				if(result)
 					return result;
 			}
-
 			/* Free the cache */
-			ZFREE(pp->cache);
-
+			Curl_safefree(pp->cache);
 			/* Reset the cache size */
 			pp->cache_size = 0;
 		}
 	}
-
 	/* End of DO phase */
 	state(conn, POP3_STOP);
-
 	return result;
 }
 
@@ -1068,23 +1054,21 @@ static CURLcode pop3_block_statemach(struct connectdata * conn)
 	return result;
 }
 
-/* Allocate and initialize the POP3 struct for the current SessionHandle if
+/* Allocate and initialize the POP3 struct for the current Curl_easy if
    required */
 static CURLcode pop3_init(struct connectdata * conn)
 {
 	CURLcode result = CURLE_OK;
-	struct SessionHandle * data = conn->data;
-	struct POP3 * pop3 = (struct POP3 *)calloc(sizeof(struct POP3), 1);
-	data->req.protop = pop3;
+	struct Curl_easy * data = conn->data;
+	struct POP3 * pop3;
+	pop3 = (struct POP3 *)(data->req.protop = calloc(sizeof(struct POP3), 1));
 	if(!pop3)
 		result = CURLE_OUT_OF_MEMORY;
-
 	return result;
 }
 
 /* For the POP3 "protocol connect" and "doing" phases only */
-static int pop3_getsock(struct connectdata * conn, curl_socket_t * socks,
-    int numsocks)
+static int pop3_getsock(struct connectdata * conn, curl_socket_t * socks, int numsocks)
 {
 	return Curl_pp_getsock(&conn->proto.pop3c.pp, socks, numsocks);
 }
@@ -1148,28 +1132,20 @@ static CURLcode pop3_connect(struct connectdata * conn, bool * done)
 static CURLcode pop3_done(struct connectdata * conn, CURLcode status, bool premature)
 {
 	CURLcode result = CURLE_OK;
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 	struct POP3 * pop3 = (struct POP3 *)data->req.protop;
 	(void)premature;
 	if(!pop3)
-		/* When the easy handle is removed from the multi interface while libcurl
-		   is still trying to resolve the host name, the POP3 struct is not yet
-		   initialized. However, the removal action calls Curl_done() which in
-		   turn calls this function, so we simply return success. */
 		return CURLE_OK;
-
 	if(status) {
 		connclose(conn, "POP3 done with bad status");
 		result = status; /* use the already set error code */
 	}
-
 	/* Cleanup our per-request based variables */
-	ZFREE(pop3->id);
-	ZFREE(pop3->custom);
-
+	Curl_safefree(pop3->id);
+	Curl_safefree(pop3->custom);
 	/* Clear the transfer mode for the next request */
 	pop3->transfer = FTPTRANSFER_BODY;
-
 	return result;
 }
 
@@ -1190,22 +1166,16 @@ static CURLcode pop3_perform(struct connectdata * conn, bool * connected, bool *
 		/* Requested no body means no transfer */
 		pop3->transfer = FTPTRANSFER_INFO;
 	}
-
 	*dophase_done = FALSE; /* not done yet */
-
 	/* Start the first command in the DO phase */
 	result = pop3_perform_command(conn);
 	if(result)
 		return result;
-
 	/* Run the state-machine */
 	result = pop3_multi_statemach(conn, dophase_done);
-
 	*connected = conn->bits.tcpconnect[FIRSTSOCKET];
-
 	if(*dophase_done)
 		DEBUGF(infof(conn->data, "DO phase is complete\n"));
-
 	return result;
 }
 
@@ -1267,7 +1237,7 @@ static CURLcode pop3_disconnect(struct connectdata * conn, bool dead_connection)
 	Curl_sasl_cleanup(conn, pop3c->sasl.authused);
 
 	/* Cleanup our connection based variables */
-	ZFREE(pop3c->apoptimestamp);
+	Curl_safefree(pop3c->apoptimestamp);
 
 	return CURLE_OK;
 }
@@ -1311,7 +1281,7 @@ static CURLcode pop3_regular_transfer(struct connectdata * conn,
 {
 	CURLcode result = CURLE_OK;
 	bool connected = FALSE;
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 
 	/* Make sure size is unknown at this point */
 	data->req.size = -1;
@@ -1334,13 +1304,17 @@ static CURLcode pop3_regular_transfer(struct connectdata * conn,
 
 static CURLcode pop3_setup_connection(struct connectdata * conn)
 {
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 
 	/* Initialise the POP3 layer */
 	CURLcode result = pop3_init(conn);
 	if(result)
 		return result;
 
+	/* Clear the TLS upgraded flag */
+	conn->tls_upgraded = FALSE;
+
+	/* Set up the proxy if necessary */
 	if(conn->bits.httpproxy && !data->set.tunnel_thru_httpproxy) {
 		/* Unless we have asked to tunnel POP3 operations through the proxy, we
 		   switch and use HTTP operations only */
@@ -1395,11 +1369,11 @@ static CURLcode pop3_parse_url_options(struct connectdata * conn)
 		while(*ptr && *ptr != ';')
 			ptr++;
 
-		if(strnequal(key, "AUTH=", 5)) {
+		if(strncasecompare(key, "AUTH=", 5)) {
 			result = Curl_sasl_parse_url_auth_option(&pop3c->sasl,
 			    value, ptr - value);
 
-			if(result && strnequal(value, "+APOP", ptr - value)) {
+			if(result && strncasecompare(value, "+APOP", ptr - value)) {
 				pop3c->preftype = POP3_TYPE_APOP;
 				pop3c->sasl.prefmech = SASL_AUTH_NONE;
 				result = CURLE_OK;
@@ -1437,7 +1411,7 @@ static CURLcode pop3_parse_url_options(struct connectdata * conn)
 static CURLcode pop3_parse_url_path(struct connectdata * conn)
 {
 	/* The POP3 struct is already initialised in pop3_connect() */
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 	struct POP3 * pop3 = (struct POP3 *)data->req.protop;
 	const char * path = data->state.path;
 	/* URL decode the path for the message ID */
@@ -1453,7 +1427,7 @@ static CURLcode pop3_parse_url_path(struct connectdata * conn)
 static CURLcode pop3_parse_custom_request(struct connectdata * conn)
 {
 	CURLcode result = CURLE_OK;
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 	struct POP3 * pop3 = (struct POP3 *)data->req.protop;
 	const char * custom = data->set.str[STRING_CUSTOMREQUEST];
 	/* URL decode the custom request */
@@ -1473,7 +1447,7 @@ CURLcode Curl_pop3_write(struct connectdata * conn, char * str, size_t nread)
 {
 	/* This code could be made into a special function in the handler struct */
 	CURLcode result = CURLE_OK;
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 	struct SingleRequest * k = &data->req;
 
 	struct pop3_conn * pop3c = &conn->proto.pop3c;

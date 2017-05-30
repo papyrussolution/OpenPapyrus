@@ -338,7 +338,8 @@
 			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
-				Name="VCCLCompilerTool"/>
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..\include;..\osf\giflib"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool

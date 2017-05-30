@@ -300,7 +300,7 @@ int SLAPI PPViewPersonEvent::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewPersonEvent::NextIteration(PersonEventViewItem * pItem)
+int FASTCALL PPViewPersonEvent::NextIteration(PersonEventViewItem * pItem)
 {
 	SString buf;
 	while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
@@ -747,7 +747,7 @@ int PPALDD_PersonEventBase::InitData(PPFilt & rFilt, long rsrv)
 	return ok;
 }
 
-int PPALDD_PersonEventBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_PersonEventBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
 	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
@@ -756,7 +756,7 @@ int PPALDD_PersonEventBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rt
 	#define _RET_DBL     (*(double *)rS.GetPtr(pApl->Get(0)))
 	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
 	PPObjPersonEvent * p_pe_obj = (PPObjPersonEvent *)Extra[0].Ptr;
-	if(pF->Name.Cmp("?GetPair", 0) == 0) {
+	if(pF->Name == "?GetPair") {
 		PPID   pair_id = 0;
 		if(p_pe_obj) {
 			PersonEventTbl::Rec pair_rec;
@@ -765,7 +765,7 @@ int PPALDD_PersonEventBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rt
 		}
 		_RET_LONG = pair_id;
 	}
-	else if(pF->Name.Cmp("?GetPairDuration", 0) == 0) {
+	else if(pF->Name == "?GetPairDuration") {
 		long   dur = 0;
 		if(p_pe_obj) {
 			PPID   pair_id = 0;
@@ -779,7 +779,6 @@ int PPALDD_PersonEventBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rt
 		}
 		_RET_LONG = dur;
 	}
-	return 1;
 }
 //
 // Implementation of PPALDD_PersonEvent
@@ -816,7 +815,7 @@ int PPALDD_PersonEvent::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(PersonEvent);
 }
 
-int PPALDD_PersonEvent::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_PersonEvent::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(PersonEvent);
 	//const PersonEventFilt * p_filt = (const PersonEventFilt *)p_v->GetBaseFilt();
@@ -881,7 +880,7 @@ int PPALDD_PsnOpKindView::InitIteration(PPIterID iterId, int /*sortId*/, long /*
 	return BIN(p_blk && p_blk->P_En);
 }
 
-int PPALDD_PsnOpKindView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_PsnOpKindView::NextIteration(PPIterID iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -890,7 +889,7 @@ int PPALDD_PsnOpKindView::NextIteration(PPIterID iterId, long rsrv)
 	if(p_blk && p_blk->P_En && p_blk->P_En->Next(&item) > 0) {
 		I.PsnOpKindID = item.ID;
 		I.Level       = p_blk->Obj.GetLevel(item.ID);
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }

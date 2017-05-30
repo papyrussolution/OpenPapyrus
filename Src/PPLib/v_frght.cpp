@@ -392,7 +392,7 @@ int SLAPI PPViewFreight::InitIteration(IterOrder order)
 	return ok;
 }
 
-int SLAPI PPViewFreight::NextIteration(FreightViewItem * pItem)
+int FASTCALL PPViewFreight::NextIteration(FreightViewItem * pItem)
 {
 	while(P_IterQuery->nextIteration() > 0) {
 		Counter.Increment();
@@ -823,7 +823,7 @@ int PPALDD_FreightList::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER_ORD(Freight, (PPViewFreight::IterOrder)sortId);
 }
 
-int PPALDD_FreightList::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_FreightList::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(Freight);
 	I.BillID = item.BillID;

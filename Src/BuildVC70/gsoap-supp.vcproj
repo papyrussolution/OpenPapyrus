@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\osf\openssl\include"
+				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\osf\openssl-cmake\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;WITH_OPENSSL"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -73,7 +73,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\osf\openssl\include"
+				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\osf\openssl-cmake\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;WITH_OPENSSL"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -121,7 +121,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\osf\openssl\include"
+				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\osf\openssl-cmake\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;WITH_OPENSSL"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -174,7 +174,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\osf\openssl\include"
+				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\osf\openssl-cmake\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;WITH_OPENSSL"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -222,7 +222,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\osf\openssl\include"
+				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\osf\openssl-cmake\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;WITH_OPENSSL"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -275,7 +275,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\osf\openssl\include"
+				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\osf\openssl-cmake\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;WITH_OPENSSL"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -320,7 +320,8 @@
 			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4">
 			<Tool
-				Name="VCCLCompilerTool"/>
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\osf\openssl-cmake\include"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool

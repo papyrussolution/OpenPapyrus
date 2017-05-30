@@ -103,7 +103,7 @@ int SLAPI PPViewCurRate::InitIteration()
 	return 1;
 }
 
-int SLAPI PPViewCurRate::NextIteration(CurRateViewItem * pItem)
+int FASTCALL PPViewCurRate::NextIteration(CurRateViewItem * pItem)
 {
 	if(P_IterQuery) {
 		if(P_IterQuery->nextIteration() > 0) {

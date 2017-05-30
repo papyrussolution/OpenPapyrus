@@ -609,7 +609,7 @@ int SLAPI PPMsgLog::InitIteration()
 	return ok;
 }
 
-int SLAPI PPMsgLog::NextIteration(MsgLogItem * pItem)
+int FASTCALL PPMsgLog::NextIteration(MsgLogItem * pItem)
 {
 	int    ok = 1, max_str_len;
 	int16  r, h;
@@ -1313,7 +1313,7 @@ int PPALDD_LogList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	return BIN(p_ml->InitIteration());
 }
 
-int PPALDD_LogList::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_LogList::NextIteration(PPIterID iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -1321,7 +1321,7 @@ int PPALDD_LogList::NextIteration(PPIterID iterId, long rsrv)
 	MsgLogItem item;
 	if(p_ml->NextIteration(&item) > 0) {
 		STRNSCPY(I.LogListStr, item.LogListStr);
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }

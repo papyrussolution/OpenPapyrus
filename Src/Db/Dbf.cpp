@@ -465,7 +465,7 @@ int SLAPI DbfRecord::get(int fldN, TYPEID typ, void * pBuf) const
 int SLAPI DbfTable::initBuffer()
 {
 	BufSize = 1024 * 8;
-	P_Buffer  = (char *)malloc(BufSize);
+	P_Buffer  = (char *)SAlloc::M(BufSize);
 	if(P_Buffer == 0) {
 		BufSize = 0;
 		SLibError = SLERR_NOMEM;

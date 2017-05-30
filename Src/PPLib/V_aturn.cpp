@@ -502,7 +502,7 @@ int SLAPI PPViewAccturn::InitViewItem(TempAccturnGrpngTbl::Rec * pATGRec, Acctur
 	return ok;
 }
 
-int SLAPI PPViewAccturn::NextIteration(AccturnViewItem * pItem)
+int FASTCALL PPViewAccturn::NextIteration(AccturnViewItem * pItem)
 {
 	int    ok = -1;
 	if(P_IterQuery)

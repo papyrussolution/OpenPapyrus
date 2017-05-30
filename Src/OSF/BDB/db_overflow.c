@@ -81,7 +81,7 @@ int __db_goff(DBC * dbc, DBT * dbt, uint32 tlen, db_pgno_t pgno, void ** bpp, ui
 	DB_TXN * txn = dbc->txn;
 	/*
 	 * Check if the buffer is big enough; if it is not and we are
-	 * allowed to malloc space, then we'll malloc it.  If we are
+	 * allowed to SAlloc::M space, then we'll SAlloc::M it.  If we are
 	 * not (DB_DBT_USERMEM), then we'll set the dbt and return
 	 * appropriately.
 	 */

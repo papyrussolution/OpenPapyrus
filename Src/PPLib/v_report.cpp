@@ -485,7 +485,7 @@ int SLAPI PPViewReport::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewReport::NextIteration(ReportViewItem * pItem)
+int FASTCALL PPViewReport::NextIteration(ReportViewItem * pItem)
 {
 	int    ok = -1;
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
@@ -1134,7 +1134,7 @@ int PPALDD_RptInfo::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(Report);
 }
 
-int PPALDD_RptInfo::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_RptInfo::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(Report);
 	I.ModifDt = item.ModifDt;

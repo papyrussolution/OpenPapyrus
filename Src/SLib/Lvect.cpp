@@ -497,7 +497,7 @@ int SLAPI minv(LMatrix & a)
 	LMIDX pa, pd;
 	LMIDX i, j, k, /*m, l,*/ lc;
 	LMIDX N = a.rows();
-	LMIDX * le = (LMIDX *)malloc(N * sizeof(LMIDX));
+	LMIDX * le = (LMIDX *)SAlloc::M(N * sizeof(LMIDX));
 	LVect q0;
 	q0.init(N);
 	/*
@@ -545,7 +545,7 @@ int SLAPI minv(LMatrix & a)
 		}
 		tq = tq > s ? tq : s;
 		if(s < zr * tq) {
-			free(le - j);
+			SAlloc::F(le - j);
 			return -1;
 		}
 
@@ -613,7 +613,7 @@ int SLAPI minv(LMatrix & a)
 			a.set(k, *le, t);
 		}
 	}
-	free(le);
+	SAlloc::F(le);
 	return 0;
 }
 //

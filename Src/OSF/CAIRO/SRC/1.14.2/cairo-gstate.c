@@ -176,7 +176,7 @@ cairo_status_t _cairo_gstate_save(cairo_gstate_t ** gstate, cairo_gstate_t ** fr
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	top = *freelist;
 	if(top == NULL) {
-		top = (cairo_gstate_t *)malloc(sizeof(cairo_gstate_t));
+		top = (cairo_gstate_t *)SAlloc::M(sizeof(cairo_gstate_t));
 		if(unlikely(top == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -407,7 +407,7 @@ cairo_status_t _cairo_gstate_set_dash(cairo_gstate_t * gstate, const double * da
 {
 	double dash_total, on_total, off_total;
 	int i, j;
-	free(gstate->stroke_style.dash);
+	SAlloc::F(gstate->stroke_style.dash);
 	gstate->stroke_style.num_dashes = num_dashes;
 	if(gstate->stroke_style.num_dashes == 0) {
 		gstate->stroke_style.dash = NULL;
@@ -449,7 +449,7 @@ cairo_status_t _cairo_gstate_set_dash(cairo_gstate_t * gstate, const double * da
 	}
 	if(dash_total - on_total < CAIRO_FIXED_ERROR_DOUBLE) {
 		/* Degenerate dash -> solid line */
-		free(gstate->stroke_style.dash);
+		SAlloc::F(gstate->stroke_style.dash);
 		gstate->stroke_style.dash = NULL;
 		gstate->stroke_style.num_dashes = 0;
 		gstate->stroke_style.dash_offset = 0.0;

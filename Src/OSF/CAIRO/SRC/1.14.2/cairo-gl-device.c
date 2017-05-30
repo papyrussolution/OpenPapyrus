@@ -127,7 +127,7 @@ static void _gl_destroy(void * device)
 
 		cairo_list_del(&font->base.link);
 		cairo_list_del(&font->link);
-		free(font);
+		SAlloc::F(font);
 	}
 
 	_cairo_array_fini(&ctx->tristrip_indices);
@@ -135,11 +135,11 @@ static void _gl_destroy(void * device)
 	cairo_region_destroy(ctx->clip_region);
 	_cairo_clip_destroy(ctx->clip);
 
-	free(ctx->vb);
+	SAlloc::F(ctx->vb);
 
 	ctx->destroy(ctx);
 
-	free(ctx);
+	SAlloc::F(ctx);
 }
 
 static const cairo_device_backend_t _cairo_gl_device_backend = {
@@ -291,7 +291,7 @@ cairo_status_t _cairo_gl_context_init(cairo_gl_context_t * ctx)
 
 	ctx->vbo_size = _cairo_gl_get_vbo_size();
 
-	ctx->vb = malloc(ctx->vbo_size);
+	ctx->vb = SAlloc::M(ctx->vbo_size);
 	if(unlikely(ctx->vb == NULL)) {
 		_cairo_cache_fini(&ctx->gradients);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);

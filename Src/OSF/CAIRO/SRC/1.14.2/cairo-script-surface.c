@@ -207,7 +207,7 @@ static void _bitmap_release_id(_cairo_script_context::_bitmap * b, ulong token)
 			b->map[elem] &= ~(1 << bit);
 			if(!--b->count && prev) {
 				*prev = b->next;
-				free(b);
+				SAlloc::F(b);
 			}
 			return;
 		}
@@ -245,7 +245,7 @@ static cairo_status_t _bitmap_next_id(_cairo_script_context::_bitmap * b, ulong 
 		prev = &b->next;
 		b = b->next;
 	} while(b != NULL);
-	bb = (_cairo_script_context::_bitmap *)malloc(sizeof(_cairo_script_context::_bitmap));
+	bb = (_cairo_script_context::_bitmap *)SAlloc::M(sizeof(_cairo_script_context::_bitmap));
 	if(unlikely(bb == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -264,7 +264,7 @@ static void _bitmap_fini(_cairo_script_context::_bitmap * b)
 {
 	while(b != NULL) {
 		_cairo_script_context::_bitmap * next = b->next;
-		free(b);
+		SAlloc::F(b);
 		b = next;
 	}
 }
@@ -764,7 +764,7 @@ static cairo_status_t _emit_dash(cairo_script_surface_t * surface,
 		memcpy(surface->cr.current_style.dash, dash, sizeof(double) * num_dashes);
 	}
 	else {
-		free(surface->cr.current_style.dash);
+		SAlloc::F(surface->cr.current_style.dash);
 		surface->cr.current_style.dash = NULL;
 	}
 
@@ -1036,7 +1036,7 @@ static void attach_snapshot(cairo_script_context_t * ctx, cairo_surface_t * sour
 	struct script_snapshot * surface;
 	if(!ctx->attach_snapshots)
 		return;
-	surface = (struct script_snapshot *)malloc(sizeof(*surface));
+	surface = (struct script_snapshot *)SAlloc::M(sizeof(*surface));
 	if(unlikely(surface == NULL))
 		return;
 	_cairo_surface_init(&surface->base, &script_snapshot_backend, &ctx->base, source->content);
@@ -1174,7 +1174,7 @@ static cairo_status_t _write_image_surface(cairo_output_stream_t * output,
 	}
 #else
 	if(stride > ARRAY_LENGTH(row_stack)) {
-		rowdata = (uint8_t *)malloc(stride);
+		rowdata = (uint8_t *)SAlloc::M(stride);
 		if(unlikely(rowdata == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -1240,7 +1240,7 @@ static cairo_status_t _write_image_surface(cairo_output_stream_t * output,
 		    break;
 	}
 	if(rowdata != row_stack)
-		free(rowdata);
+		SAlloc::F(rowdata);
 #endif
 
 	return CAIRO_STATUS_SUCCESS;
@@ -1955,13 +1955,13 @@ static void _device_destroy(void * abstract_device)
 		cairo_script_font_t * font = cairo_list_first_entry(&ctx->fonts, cairo_script_font_t, link);
 		cairo_list_del(&font->base.link);
 		cairo_list_del(&font->link);
-		free(font);
+		SAlloc::F(font);
 	}
 	_bitmap_fini(ctx->surface_id.next);
 	_bitmap_fini(ctx->font_id.next);
 	if(ctx->owns_stream)
 		status = _cairo_output_stream_destroy(ctx->stream);
-	free(ctx);
+	SAlloc::F(ctx);
 }
 
 static cairo_surface_t * _cairo_script_surface_source(void * abstract_surface,
@@ -2011,7 +2011,7 @@ static cairo_status_t _cairo_script_surface_finish(void * abstract_surface)
 
 	_cairo_surface_wrapper_fini(&surface->wrapper);
 
-	free(surface->cr.current_style.dash);
+	SAlloc::F(surface->cr.current_style.dash);
 	surface->cr.current_style.dash = NULL;
 
 	_cairo_pattern_fini(&surface->cr.current_source.base);
@@ -2046,7 +2046,7 @@ static cairo_status_t _cairo_script_surface_finish(void * abstract_surface)
 				cairo_list_del(&surface->operand.link);
 			}
 			else {
-				struct deferred_finish * link = (struct deferred_finish *)malloc(sizeof(*link));
+				struct deferred_finish * link = (struct deferred_finish *)SAlloc::M(sizeof(*link));
 				if(link == NULL) {
 					status2 = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 					if(status == CAIRO_STATUS_SUCCESS)
@@ -2262,7 +2262,7 @@ static void inactive(cairo_script_surface_t * surface)
 
 		cairo_list_del(&df->operand.link);
 		cairo_list_del(&df->link);
-		free(df);
+		SAlloc::F(df);
 	}
 
 DONE:
@@ -2654,7 +2654,7 @@ static void _cairo_script_scaled_font_fini(cairo_scaled_font_private_t * abstrac
 
 	cairo_list_del(&priv->link);
 	cairo_list_del(&priv->base.link);
-	free(priv);
+	SAlloc::F(priv);
 }
 
 static cairo_script_font_t * _cairo_script_font_get(cairo_script_context_t * ctx, cairo_scaled_font_t * font)
@@ -2667,33 +2667,28 @@ static long unsigned _cairo_script_font_id(cairo_script_context_t * ctx, cairo_s
 	return _cairo_script_font_get(ctx, font)->id;
 }
 
-static cairo_status_t _emit_type42_font(cairo_script_surface_t * surface,
-    cairo_scaled_font_t * scaled_font)
+static cairo_status_t _emit_type42_font(cairo_script_surface_t * surface, cairo_scaled_font_t * scaled_font)
 {
 	cairo_script_context_t * ctx = to_context(surface);
-	const cairo_scaled_font_backend_t * backend;
 	cairo_output_stream_t * base85_stream;
 	cairo_output_stream_t * zlib_stream;
 	cairo_status_t status, status2;
-	ulong size;
+	ulong size = 0;
 	uint load_flags;
 	uint32_t len;
 	uint8_t * buf;
-
-	backend = scaled_font->backend;
+	const cairo_scaled_font_backend_t * backend = scaled_font->backend;
 	if(backend->load_truetype_table == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
-	size = 0;
 	status = backend->load_truetype_table(scaled_font, 0, 0, NULL, &size);
 	if(unlikely(status))
 		return status;
-	buf = (uint8_t *)malloc(size);
+	buf = (uint8_t *)SAlloc::M(size);
 	if(unlikely(buf == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	status = backend->load_truetype_table(scaled_font, 0, 0, buf, &size);
 	if(unlikely(status)) {
-		free(buf);
+		SAlloc::F(buf);
 		return status;
 	}
 
@@ -2713,24 +2708,16 @@ static cairo_status_t _emit_type42_font(cairo_script_surface_t * surface,
 	base85_stream = _cairo_base85_stream_create(ctx->stream);
 	len = to_be32(size);
 	_cairo_output_stream_write(base85_stream, &len, sizeof(len));
-
 	zlib_stream = _cairo_deflate_stream_create(base85_stream);
-
 	_cairo_output_stream_write(zlib_stream, buf, size);
-	free(buf);
-
+	SAlloc::F(buf);
 	status2 = _cairo_output_stream_destroy(zlib_stream);
 	if(status == CAIRO_STATUS_SUCCESS)
 		status = status2;
-
 	status2 = _cairo_output_stream_destroy(base85_stream);
 	if(status == CAIRO_STATUS_SUCCESS)
 		status = status2;
-
-	_cairo_output_stream_printf(ctx->stream,
-	    "~> >> font dup /f%lu exch def set-font-face",
-	    _cairo_script_font_id(ctx, scaled_font));
-
+	_cairo_output_stream_printf(ctx->stream, "~> >> font dup /f%lu exch def set-font-face", _cairo_script_font_id(ctx, scaled_font));
 	return status;
 }
 
@@ -2740,7 +2727,7 @@ static cairo_status_t _emit_scaled_font_init(cairo_script_surface_t * surface,
 {
 	cairo_script_context_t * ctx = to_context(surface);
 	cairo_int_status_t status;
-	cairo_script_font_t * font_private = (cairo_script_font_t *)malloc(sizeof(cairo_script_font_t));
+	cairo_script_font_t * font_private = (cairo_script_font_t *)SAlloc::M(sizeof(cairo_script_font_t));
 	if(unlikely(font_private == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -2756,13 +2743,13 @@ static cairo_status_t _emit_scaled_font_init(cairo_script_surface_t * surface,
 	status = _bitmap_next_id(&ctx->font_id,
 	    &font_private->id);
 	if(unlikely(status)) {
-		free(font_private);
+		SAlloc::F(font_private);
 		return status;
 	}
 
 	status = _emit_context(surface);
 	if(unlikely(status)) {
-		free(font_private);
+		SAlloc::F(font_private);
 		return status;
 	}
 
@@ -3442,7 +3429,7 @@ static void _cairo_script_implicit_context_init(cairo_script_implicit_context_t 
 
 static void _cairo_script_implicit_context_reset(cairo_script_implicit_context_t * cr)
 {
-	free(cr->current_style.dash);
+	SAlloc::F(cr->current_style.dash);
 	cr->current_style.dash = NULL;
 
 	_cairo_pattern_fini(&cr->current_source.base);
@@ -3459,7 +3446,7 @@ static cairo_script_surface_t * _cairo_script_surface_create_internal(cairo_scri
 	cairo_script_surface_t * surface;
 	if(unlikely(ctx == NULL))
 		return (cairo_script_surface_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NULL_POINTER));
-	surface = (cairo_script_surface_t *)malloc(sizeof(cairo_script_surface_t));
+	surface = (cairo_script_surface_t *)SAlloc::M(sizeof(cairo_script_surface_t));
 	if(unlikely(surface == NULL))
 		return (cairo_script_surface_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
@@ -3504,7 +3491,7 @@ static const cairo_device_backend_t _cairo_script_device_backend = {
 
 cairo_device_t * _cairo_script_context_create_internal(cairo_output_stream_t * stream)
 {
-	cairo_script_context_t * ctx = (cairo_script_context_t *)malloc(sizeof(cairo_script_context_t));
+	cairo_script_context_t * ctx = (cairo_script_context_t *)SAlloc::M(sizeof(cairo_script_context_t));
 	if(unlikely(ctx == NULL))
 		return _cairo_device_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	memset(ctx, 0, sizeof(cairo_script_context_t));

@@ -9,7 +9,7 @@
 *
 * This software is licensed as described in the file COPYING, which
 * you should have received as part of this distribution. The terms
-* are also available at http://curl.haxx.se/docs/copyright.html.
+* are also available at https://curl.haxx.se/docs/copyright.html.
 *
 * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 * copies of the Software, and permit persons to whom the Software is
@@ -31,6 +31,8 @@
 struct curl_fileinfo * Curl_fileinfo_alloc(void)
 {
 	struct curl_fileinfo * tmp = (struct curl_fileinfo *)malloc(sizeof(struct curl_fileinfo));
+	if(!tmp)
+		return NULL;
 	memzero(tmp, sizeof(struct curl_fileinfo));
 	return tmp;
 }
@@ -39,9 +41,9 @@ void Curl_fileinfo_dtor(void * user, void * element)
 {
 	struct curl_fileinfo * finfo = (struct curl_fileinfo *)element;
 	(void)user;
-	if(finfo) {
-		ZFREE(finfo->b_data);
-		free(finfo);
-	}
+	if(!finfo)
+		return;
+	Curl_safefree(finfo->b_data);
+	free(finfo);
 }
 

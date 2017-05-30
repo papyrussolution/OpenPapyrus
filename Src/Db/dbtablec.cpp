@@ -163,7 +163,7 @@ int FASTCALL SLob::InitPtr(uint32 sz)
 	DestroyPtr();
 	if(sz) {
 		SetStructured();
-		Buf.H.H = (uint32)malloc(sz);
+		Buf.H.H = (uint32)SAlloc::M(sz);
 		if(!Buf.H.H) {
 			Buf.H.PtrSize = 0;
 			ok = 0;
@@ -187,7 +187,7 @@ int SLob::DestroyPtr()
 	int    ok = -1;
 	if(IsStructured()) {
 		if(Buf.H.Flags & hfPtr) {
-			free((void *)Buf.H.H);
+			SAlloc::F((void *)Buf.H.H);
 			Buf.H.H = 0;
 			Buf.H.PtrSize = 0;
 			Buf.H.Flags &= ~hfPtr;
@@ -598,7 +598,7 @@ int DBTable::allocOwnBuffer(int size)
 	if(buf && State & sOwnDataBuf) {
 		ZFREE(buf);
 	}
-	buf = (char *)calloc(rec_size+1, 1);
+	buf = (char *)SAlloc::C(rec_size+1, 1);
 	if(buf)
 		bufLen = rec_size;
 	else {

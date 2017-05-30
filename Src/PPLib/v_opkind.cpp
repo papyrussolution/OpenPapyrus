@@ -77,7 +77,7 @@ int SLAPI PPViewOprKind::InnerIteration(OprKindViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewOprKind::NextIteration(OprKindViewItem * pItem)
+int FASTCALL PPViewOprKind::NextIteration(OprKindViewItem * pItem)
 {
 	int    ok = -1;
 	if(pItem && OpListIdx < P_OpList->getCount()) {
@@ -667,7 +667,7 @@ int PPALDD_OprKindList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/
 	INIT_PPVIEW_ALDD_ITER(OprKind);
 }
 
-int PPALDD_OprKindList::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_OprKindList::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(OprKind);
 	I.OpID = item.ID;

@@ -32,7 +32,7 @@ int SLAPI ReadSArrayFromFile(SArray * pAry, FILE * pStream)
 	size_t item_size = pAry->getItemSize();
 	long   beg_pos = ftell(pStream);
 	pAry->freeAll();
-	char * p_buf = (char*)malloc(item_size);
+	char * p_buf = (char*)SAlloc::M(item_size);
 	THROW_V(p_buf, SLERR_NOMEM);
 	THROW_V(fread(&c, sizeof(c), 1, pStream) == 1, SLERR_READFAULT);
 	for(i = 0; i < c; i++) {
@@ -45,7 +45,7 @@ int SLAPI ReadSArrayFromFile(SArray * pAry, FILE * pStream)
 			fseek(pStream, beg_pos, SEEK_SET);
 		ok = 0;
 	ENDCATCH
-	free(p_buf);
+	SAlloc::F(p_buf);
 	return ok;
 }
 

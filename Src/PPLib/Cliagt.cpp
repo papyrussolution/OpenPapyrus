@@ -218,8 +218,8 @@ int SLAPI PPObjArticle::PropToClientAgt(const PropertyTbl::Rec * pPropRec, PPCli
 	pAgt->LockPrcBefore  = p_agt->LockPrcBefore;
 	pAgt->PriceRoundDir  = p_agt->PriceRoundDir;
 	pAgt->PriceRoundPrec = p_agt->PriceRoundPrec;
-	pAgt->RetLimPrd  = p_agt->RetLimPrd;  // @v7.1.5
-	pAgt->RetLimPart = p_agt->RetLimPart; // @v7.1.5
+	pAgt->RetLimPrd  = p_agt->RetLimPrd;
+	pAgt->RetLimPart = p_agt->RetLimPart;
 	pAgt->PaymDateBase = p_agt->PaymDateBase; // @v8.4.2
 	if(loadDebtLimList) {
 		Reference * p_ref = PPRef;
@@ -356,8 +356,8 @@ int SLAPI PPObjArticle::PutClientAgreement(PPID id, PPClientAgreement * pAgt, in
 		_agt.LockPrcBefore  = pAgt->LockPrcBefore;
 		_agt.PriceRoundDir  = pAgt->PriceRoundDir;
 		_agt.PriceRoundPrec = pAgt->PriceRoundPrec;
-		_agt.RetLimPrd    = pAgt->RetLimPrd;  // @v7.1.5
-		_agt.RetLimPart   = pAgt->RetLimPart; // @v7.1.5
+		_agt.RetLimPrd    = pAgt->RetLimPrd;
+		_agt.RetLimPart   = pAgt->RetLimPart;
 		_agt.PaymDateBase = pAgt->PaymDateBase; // @v8.4.2
 		STRNSCPY(_agt.Code, pAgt->Code);
 	}

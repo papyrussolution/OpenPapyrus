@@ -788,7 +788,7 @@ static void pqueue_init(pqueue_t * pq)
 static void pqueue_fini(pqueue_t * pq)
 {
 	if(pq->elements != pq->elements_embedded)
-		free(pq->elements);
+		SAlloc::F(pq->elements);
 }
 
 static cairo_bool_t pqueue_grow(pqueue_t * pq)
@@ -1351,7 +1351,7 @@ static void render_rows(cairo_botor_scan_converter_t * self,
 	status = renderer->render_rows(renderer, y, height, spans, num_spans);
 
 	if(unlikely(spans != spans_stack))
-		free(spans);
+		SAlloc::F(spans);
 
 	coverage_reset(&sweep_line->coverage);
 
@@ -1937,7 +1937,7 @@ static cairo_status_t _cairo_botor_scan_converter_generate(void * converter, cai
 	}
 	status = botor_generate(self, event_ptrs, renderer);
 	if(events != stack_events)
-		free(events);
+		SAlloc::F(events);
 
 	return status;
 }
@@ -2019,7 +2019,7 @@ static void _cairo_botor_scan_converter_destroy(void * converter)
 	_cairo_botor_scan_converter::_cairo_botor_scan_converter_chunk * chunk, * next;
 	for(chunk = self->chunks.next; chunk != NULL; chunk = next) {
 		next = chunk->next;
-		free(chunk);
+		SAlloc::F(chunk);
 	}
 }
 

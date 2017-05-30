@@ -67,7 +67,7 @@ cairo_surface_t * _cairo_gl_pattern_to_source(cairo_surface_t * dst,
 	if(pattern == NULL)
 		return _cairo_gl_white_source();
 
-	source = malloc(sizeof(*source));
+	source = SAlloc::M(sizeof(*source));
 	if(unlikely(source == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
@@ -93,7 +93,7 @@ cairo_surface_t * _cairo_gl_white_source(void)
 {
 	cairo_gl_source_t * source;
 
-	source = malloc(sizeof(*source));
+	source = SAlloc::M(sizeof(*source));
 	if(unlikely(source == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 

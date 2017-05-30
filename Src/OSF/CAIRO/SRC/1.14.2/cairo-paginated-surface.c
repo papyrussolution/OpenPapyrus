@@ -90,7 +90,7 @@ cairo_surface_t * _cairo_paginated_surface_create(cairo_surface_t * target, cair
     const cairo_paginated_surface_backend_t        * backend)
 {
 	cairo_status_t status;
-	cairo_paginated_surface_t * surface = (cairo_paginated_surface_t *)malloc(sizeof(cairo_paginated_surface_t));
+	cairo_paginated_surface_t * surface = (cairo_paginated_surface_t *)SAlloc::M(sizeof(cairo_paginated_surface_t));
 	if(unlikely(surface == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto FAIL;
@@ -118,7 +118,7 @@ cairo_surface_t * _cairo_paginated_surface_create(cairo_surface_t * target, cair
 
 FAIL_CLEANUP_SURFACE:
 	cairo_surface_destroy(target);
-	free(surface);
+	SAlloc::F(surface);
 FAIL:
 	return _cairo_surface_create_in_error(status);
 }

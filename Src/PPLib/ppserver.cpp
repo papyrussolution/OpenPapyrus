@@ -2379,7 +2379,7 @@ int PPServerSession::TestingClient(TcpSocket & rSo, StrAssocArray & rStrList)
 	CRC32  crc;
 	ulong  c, clen;
 	uint   max_size = 16*1024;
-	char * p_buf = (char *)malloc(max_size+sizeof(ulong));
+	char * p_buf = (char *)SAlloc::M(max_size+sizeof(ulong));
 	SString msg_buf, line_buf;
 	(line_buf = "TESTPAPYRUSSERVER").CRB();
 	THROW(TestSend(rSo, line_buf.cptr(), line_buf.Len(), &actual_size) > 0);
@@ -2443,7 +2443,7 @@ int PPServerSession::TestingClient(TcpSocket & rSo, StrAssocArray & rStrList)
 	(line_buf = "QUIT").CRB();
 	THROW(TestSend(rSo, line_buf, line_buf.Len(), &actual_size) > 0);
 	CATCHZOK
-	free(p_buf);
+	SAlloc::F(p_buf);
 	return ok;
 }
 
@@ -2517,7 +2517,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::Testing()
 	// со случайным содержимым.
 	// В ответ должны получить CRC32 этих последовательностей.
 	//
-	char * p_buf = (char *)malloc(max_size+sizeof(ulong));
+	char * p_buf = (char *)SAlloc::M(max_size+sizeof(ulong));
 	SRandGenerator & r_rg = SLS.GetTLA().Rg;
 	CRC32  crc;
 	ulong  c = 0;
@@ -2591,7 +2591,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::Testing()
 	CATCH
 		ok = cmdretError;
 	ENDCATCH
-	free(p_buf);
+	SAlloc::F(p_buf);
 	return ok;
 }
 /*

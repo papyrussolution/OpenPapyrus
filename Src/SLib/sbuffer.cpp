@@ -18,18 +18,18 @@ int FASTCALL SBuffer::Alloc(size_t sz)
 		char * p = 0;
 		if((7 * Size) < (8 * WrOffs)) { // Assume probability of a non-moving realloc is 0.125
 			// If L is close to Size in size then use realloc to reduce the memory defragmentation
-			p = (char *)realloc(P_Buf, new_size);
+			p = (char *)SAlloc::R(P_Buf, new_size);
 		}
 		else {
 			// If L is not close to Size then avoid the penalty of copying
 			// the extra bytes that are allocated, but not considered part of the string
-			p = (char *)malloc(new_size);
+			p = (char *)SAlloc::M(new_size);
 			if(!p)
-				p = (char *)realloc(P_Buf, new_size);
+				p = (char *)SAlloc::R(P_Buf, new_size);
 			else {
 				if(WrOffs)
 					memcpy(p, P_Buf, WrOffs);
-				free(P_Buf);
+				SAlloc::F(P_Buf);
 			}
 		}
 		if(p) {
@@ -113,14 +113,14 @@ SBuffer & FASTCALL SBuffer::Reset(int freeBuf)
 	WrOffs = RdOffs = 0;
 	Flags &= ~fError;
 	if(freeBuf)
-		free(P_Buf);
+		SAlloc::F(P_Buf);
 	P_Buf = 0;
 	return *this;
 }
 
 SLAPI SBuffer::~SBuffer()
 {
-	free(P_Buf);
+	SAlloc::F(P_Buf);
 }
 
 void SBuffer::Destroy()
@@ -465,7 +465,7 @@ int FASTCALL SBuffer::Read(SString & rBuf)
 	rBuf = 0;
 	THROW(ReadV(&sz, sizeof(sz)));
 	if(sz > sizeof(shrt_buf)) {
-		THROW_V(p_temp_buf = (char *)malloc(sz), SLERR_NOMEM);
+		THROW_V(p_temp_buf = (char *)SAlloc::M(sz), SLERR_NOMEM);
 	}
 	else
 		p_temp_buf = shrt_buf;
@@ -475,7 +475,7 @@ int FASTCALL SBuffer::Read(SString & rBuf)
 	}
 	CATCHZOK
 	if(p_temp_buf && p_temp_buf != shrt_buf)
-		free(p_temp_buf);
+		SAlloc::F(p_temp_buf);
 	return ok;
 }
 
@@ -568,7 +568,7 @@ int FASTCALL SBaseBuffer::Alloc(size_t sz)
 {
 	int    ok = -1;
 	if(sz > Size) {
-		void * p_temp = realloc(P_Buf, sz);
+		void * p_temp = SAlloc::R(P_Buf, sz);
 		if(p_temp) {
 			P_Buf = (char *)p_temp;
 			Size = sz;
@@ -715,7 +715,7 @@ int FASTCALL STempBuffer::Alloc(size_t sz)
 		return 1;
 	}
 	else {
-		char * p = (char *)realloc(P_Buf, sz);
+		char * p = (char *)SAlloc::R(P_Buf, sz);
 		if(p) {
 			P_Buf = p;
 			Size = sz;
@@ -1013,7 +1013,7 @@ int SLAPI SSerializeContext::Serialize(const char * pDbtName, BNFieldList * pFld
 			//
 			// Страховка от случая, когда количество полей больше, чем 512
 			//
-			THROW_S(p_ind_list = (uint8 *)malloc(ind_len), SLERR_NOMEM);
+			THROW_S(p_ind_list = (uint8 *)SAlloc::M(ind_len), SLERR_NOMEM);
 			own_ind_list = 1;
 		}
 		else
@@ -1028,7 +1028,7 @@ int SLAPI SSerializeContext::Serialize(const char * pDbtName, BNFieldList * pFld
 	}
 	CATCHZOK
 	if(own_ind_list)
-		free(p_ind_list);
+		SAlloc::F(p_ind_list);
 	return ok;
 }
 
@@ -1068,7 +1068,7 @@ int SLAPI SSerializeContext::Unserialize(const BNFieldList * pFldList, void * pD
 			//
 			// Страховка от случая, когда количество полей больше, чем 512
 			//
-			THROW_S(p_ind_list = (uint8 *)malloc(ind_len), SLERR_NOMEM);
+			THROW_S(p_ind_list = (uint8 *)SAlloc::M(ind_len), SLERR_NOMEM);
 			own_ind_list = 1;
 		}
 		else
@@ -1104,7 +1104,7 @@ int SLAPI SSerializeContext::Unserialize(const BNFieldList * pFldList, void * pD
 	}
 	CATCHZOK
 	if(own_ind_list)
-		free(p_ind_list);
+		SAlloc::F(p_ind_list);
 	return ok;
 }
 

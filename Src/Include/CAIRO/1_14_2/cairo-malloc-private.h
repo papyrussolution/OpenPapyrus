@@ -51,16 +51,16 @@
  * _cairo_malloc:
  * @size: size in bytes
  *
- * Allocate @size memory using malloc().
- * The memory should be freed using free().
- * malloc is skipped, if 0 bytes are requested, and %NULL will be returned.
+ * Allocate @size memory using SAlloc::M().
+ * The memory should be freed using SAlloc::F().
+ * SAlloc::M is skipped, if 0 bytes are requested, and %NULL will be returned.
  *
  * Return value: A pointer to the newly allocated memory, or %NULL in
- * case of malloc() failure or size is 0.
+ * case of SAlloc::M() failure or size is 0.
  **/
 
 #define _cairo_malloc(size) \
-   ((size) ? malloc((uint)(size)) : NULL)
+   ((size) ? SAlloc::M((uint)(size)) : NULL)
 
 /**
  * _cairo_malloc_ab:
@@ -70,13 +70,13 @@
  * Allocates @a*@size memory using _cairo_malloc(), taking care to not
  * overflow when doing the multiplication.  Behaves much like
  * calloc(), except that the returned memory is not set to zero.
- * The memory should be freed using free().
+ * The memory should be freed using SAlloc::F().
  *
  * @size should be a constant so that the compiler can optimize
  * out a constant division.
  *
  * Return value: A pointer to the newly allocated memory, or %NULL in
- * case of malloc() failure or overflow.
+ * case of SAlloc::M() failure or overflow.
  **/
 
 #define _cairo_malloc_ab(a, size) \
@@ -91,7 +91,7 @@
  *
  * Reallocates @ptr a block of @a*@size memory using realloc(), taking
  * care to not overflow when doing the multiplication.  The memory
- * should be freed using free().
+ * should be freed using SAlloc::F().
  *
  * @size should be a constant so that the compiler can optimize
  * out a constant division.
@@ -113,13 +113,13 @@
  *
  * Allocates @a*@b*@size memory using _cairo_malloc(), taking care to not
  * overflow when doing the multiplication.  Behaves like
- * _cairo_malloc_ab().  The memory should be freed using free().
+ * _cairo_malloc_ab().  The memory should be freed using SAlloc::F().
  *
  * @size should be a constant so that the compiler can optimize
  * out a constant division.
  *
  * Return value: A pointer to the newly allocated memory, or %NULL in
- * case of malloc() failure or overflow.
+ * case of SAlloc::M() failure or overflow.
  **/
 
 #define _cairo_malloc_abc(a, b, size) \
@@ -135,10 +135,10 @@
  *
  * Allocates @a*@size+@c memory using _cairo_malloc(), taking care to not
  * overflow when doing the arithmetic.  Behaves similar to
- * _cairo_malloc_ab().  The memory should be freed using free().
+ * _cairo_malloc_ab().  The memory should be freed using SAlloc::F().
  *
  * Return value: A pointer to the newly allocated memory, or %NULL in
- * case of malloc() failure or overflow.
+ * case of SAlloc::M() failure or overflow.
  **/
 
 #define _cairo_malloc_ab_plus_c(a, size, c) \

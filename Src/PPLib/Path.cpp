@@ -111,7 +111,7 @@ int SLAPI PPPaths::Resize(size_t sz)
 	else {
 		const size_t prev_size = Size();
 		sz = (sz < sizeof(PathData)) ? sizeof(PathData) : sz;
-		P = (PathData*)realloc(P, sz);
+		P = (PathData*)SAlloc::R(P, sz);
 		if(P) {
 			if(sz > prev_size)
 				memzero(((char*)P) + prev_size, sz - prev_size);

@@ -197,8 +197,8 @@ SSrchPattern::SSrchPattern(const char * pPattern, long flags, int alg)
 
 SSrchPattern::~SSrchPattern()
 {
-	free(P_PatAlloc);
-	free(P_PreprocBuf);
+	SAlloc::F(P_PatAlloc);
+	SAlloc::F(P_PreprocBuf);
 }
 
 size_t FASTCALL SnapUpSize(size_t i); // @prototype
@@ -218,7 +218,7 @@ int SSrchPattern::AllocPreprocBuf()
 	if(Flags & fNoCase)
 		sz += 256; // collation sequence
 	if(sz > PreprocSize) {
-		P_PreprocBuf = (uint16 *)realloc(P_PreprocBuf, sz);
+		P_PreprocBuf = (uint16 *)SAlloc::R(P_PreprocBuf, sz);
 		if(P_PreprocBuf)
 			PreprocSize = sz;
 		else
@@ -291,7 +291,7 @@ int SSrchPattern::Init(const char * pPattern, long flags, int alg)
 	Alg = alg;
 	if((Len+4) > PatSize) {
 		PatSize = SnapUpSize(Len+4);
-		P_PatAlloc = (uint8 *)realloc(P_PatAlloc, PatSize);
+		P_PatAlloc = (uint8 *)SAlloc::R(P_PatAlloc, PatSize);
 		if(!P_PatAlloc) {
 			PatSize = 0;
 			return 0;

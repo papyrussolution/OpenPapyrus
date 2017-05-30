@@ -19,6 +19,7 @@ class  TCanvas2;
 class  WordSelector;
 class  SrDatabase; // @v9.2.0
 struct TDrawItemData;
+class  TWhatman;
 
 #include <slib.h>
 #include <tvdefs.h>

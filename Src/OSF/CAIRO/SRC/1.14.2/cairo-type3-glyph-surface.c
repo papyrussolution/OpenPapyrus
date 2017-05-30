@@ -78,7 +78,7 @@ cairo_surface_t * _cairo_type3_glyph_surface_create(cairo_scaled_font_t         
 	cairo_matrix_t invert_y_axis;
 	if(unlikely(stream != NULL && stream->status))
 		return _cairo_surface_create_in_error(stream->status);
-	surface = (cairo_type3_glyph_surface_t *)malloc(sizeof(cairo_type3_glyph_surface_t));
+	surface = (cairo_type3_glyph_surface_t *)SAlloc::M(sizeof(cairo_type3_glyph_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 

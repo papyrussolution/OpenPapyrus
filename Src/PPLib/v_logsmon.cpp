@@ -214,9 +214,9 @@ int SLAPI PPViewLogsMonitor::InitIteration()
 	return ok;
 }
 //
-int SLAPI PPViewLogsMonitor::NextIteration(LogsMonitorViewItem *pItem)
+int FASTCALL PPViewLogsMonitor::NextIteration(LogsMonitorViewItem * pItem)
 {
-	int ret = 1;
+	int    ret = 1;
 	while(pItem && P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		P_TmpTbl->copyBufTo(pItem);
 		Counter.Increment();

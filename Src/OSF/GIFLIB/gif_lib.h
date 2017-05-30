@@ -52,7 +52,7 @@ typedef struct ColorMapObject {
 	int    ColorCount;
 	int    BitsPerPixel;
 	bool   SortFlag;
-	GifColorType * Colors; /* on malloc(3) heap */
+	GifColorType * Colors; /* on SAlloc::M(3) heap */
 } ColorMapObject;
 
 typedef struct GifImageDesc {
@@ -63,7 +63,7 @@ typedef struct GifImageDesc {
 
 typedef struct ExtensionBlock {
 	int ByteCount;
-	GifByteType * Bytes; /* on malloc(3) heap */
+	GifByteType * Bytes; /* on SAlloc::M(3) heap */
 	int Function;   /* The block function code */
 #define CONTINUE_EXT_FUNC_CODE    0x00    /* continuation subblock */
 #define COMMENT_EXT_FUNC_CODE     0xfe    /* comment */
@@ -74,7 +74,7 @@ typedef struct ExtensionBlock {
 
 typedef struct SavedImage {
 	GifImageDesc ImageDesc;
-	GifByteType * RasterBits;    /* on malloc(3) heap */
+	GifByteType * RasterBits;    /* on SAlloc::M(3) heap */
 	int ExtensionBlockCount;     /* Count of extensions before image */
 	ExtensionBlock * ExtensionBlocks; /* Extensions before image */
 } SavedImage;

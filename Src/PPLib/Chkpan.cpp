@@ -469,7 +469,7 @@ int CPosProcessor::Packet::InitIteration()
 	return 1;
 }
 
-int CPosProcessor::Packet::NextIteration(CCheckItem * pItem)
+int FASTCALL CPosProcessor::Packet::NextIteration(CCheckItem * pItem)
 {
 	int    ok = -1;
 	CCheckItem * p_item;
@@ -1447,7 +1447,7 @@ int CPosProcessor::InitIteration()
 	return P.InitIteration();
 }
 
-int CPosProcessor::NextIteration(CCheckItem * pItem)
+int FASTCALL CPosProcessor::NextIteration(CCheckItem * pItem)
 {
 	return P.NextIteration(pItem);
 }

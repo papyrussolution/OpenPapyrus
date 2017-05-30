@@ -3763,7 +3763,7 @@ public:
 	{
 	}
 	int    InitIteration();
-	int    NextIteration(PPSuprWareAssoc & rSuprWare);
+	int    FASTCALL NextIteration(PPSuprWareAssoc & rSuprWare);
 	int    GetNutrArr(TSArray <PPComps> & rArr);
 	int    GetFoodArr(StrAssocArray & rArr);
 
@@ -3870,7 +3870,7 @@ int ReadDBSR25::InitIteration()
 	return ok;
 }
 
-int ReadDBSR25::NextIteration(PPSuprWareAssoc & rGoodComp)
+int FASTCALL ReadDBSR25::NextIteration(PPSuprWareAssoc & rGoodComp)
 {
 	int    ok = 1;
 	SString str;
@@ -4011,10 +4011,10 @@ int SLAPI ImportSR25()
 			(brc_str = 0).Cat(sw_item.GoodsID);
 			PPID   sw_id = 0;
 			PPID   sw_comp_id = 0;
-			if(goods_ids_assoc.Search(sw_item.GoodsID, &sw_id, 0, 1)) {
+			if(goods_ids_assoc.BSearch(sw_item.GoodsID, &sw_id, 0)) {
 				(brc_str = 0).Cat(sw_item.CompID);
 				uint   key_pos = 0;
-				if(nutrs_ids_assoc.Search(sw_item.CompID, &sw_comp_id, &key_pos, 1)) {
+				if(nutrs_ids_assoc.BSearch(sw_item.CompID, &sw_comp_id, &key_pos)) {
 					//
 					// Теперь в массиве nutr_arr ищем запись с таким ИД и вытаскиваем единицы измерения //
 					//
@@ -4398,7 +4398,7 @@ int FiasImporter::SaxParseFile(xmlSAXHandlerPtr sax, const char * pFileName)
 		ret = -1;
 	else {
 		if(SaxCtx->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
-			free(SaxCtx->sax);
+			SAlloc::F(SaxCtx->sax);
 		SaxCtx->sax = sax;
 		xmlDetectSAX2(SaxCtx);
 		SaxCtx->userData = this;
@@ -5275,10 +5275,13 @@ SLAPI PrcssrOsm::PrcssrOsm(const char * pDbPath) : O(pDbPath), GgtFinder(O.GetGr
 	State = 0;
 	P_LatOutF = 0;
 	P_LonOutF = 0;
+	P_NodeToWayAssocOutF = 0;
+	P_NodeToWayAssocInF = 0;
 	P_TagOutF = 0;
 	P_TagNodeOutF = 0;
 	P_TagWayOutF = 0;
 	P_TagRelOutF = 0;
+	P_SizeOutF = 0;
 	P_TestNodeBinF = 0;
 	P_TestNodeF = 0;
 	P_Ufp = 0;
@@ -5371,13 +5374,19 @@ void SLAPI PrcssrOsm::Reset()
 	LatAccum.clear();
 	LonAccum.clear();
 	NodeAccum.clear();
+	NodeWayAssocAccum.clear();
+	LastNodeToWayAssoc.Key = 0;
+	LastNodeToWayAssoc.Val = 0;
 
 	ZDELETE(P_LatOutF);
 	ZDELETE(P_LonOutF);
+	ZDELETE(P_NodeToWayAssocOutF);
+	ZDELETE(P_NodeToWayAssocInF);
 	ZDELETE(P_TagOutF);
 	ZDELETE(P_TagNodeOutF);
 	ZDELETE(P_TagWayOutF);
 	ZDELETE(P_TagRelOutF);
+	ZDELETE(P_SizeOutF);
 	ZDELETE(P_TestNodeBinF);
 	ZDELETE(P_TestNodeF);
 	ZDELETE(P_Ufp);
@@ -5393,7 +5402,7 @@ int PrcssrOsm::SaxParseFile(xmlSAXHandlerPtr sax, const char * pFileName)
 		ret = -1;
 	else {
 		if(SaxCtx->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
-			free(SaxCtx->sax);
+			SAlloc::F(SaxCtx->sax);
 		SaxCtx->sax = sax;
 		xmlDetectSAX2(SaxCtx);
 		SaxCtx->userData = this;
@@ -5489,6 +5498,11 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 		case PPHS_NODE: // osm/node
 			{
 				Stat.NodeCount++;
+				if((Stat.NodeCount % 1000000) == 0)
+					if(RestoredStat.NodeCount > 0)
+						PPWaitPercent((ulong)(((double)Stat.NodeCount / (double)RestoredStat.NodeCount) * 100.0), "Node");
+					else
+						PPWaitMsg((Pb.TempBuf = 0).Cat("Node").Space().Cat(Stat.NodeCount));
 				PPOsm::Node new_node;
 				ReadCommonAttrSet(ppAttrList, TempCaSet);
 				new_node.ID = TempCaSet.ID;
@@ -5513,6 +5527,11 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 					THROW(FlashNodeAccum(1));
 				}
 				Stat.WayCount++;
+				if((Stat.WayCount % 100000) == 0)
+					if(RestoredStat.WayCount > 0)
+						PPWaitPercent((ulong)(((double)Stat.WayCount / (double)RestoredStat.WayCount) * 100.0), "Way");
+					else
+						PPWaitMsg((Pb.TempBuf = 0).Cat("Way").Space().Cat(Stat.WayCount));
 				PPOsm::Way new_way;
 				ReadCommonAttrSet(ppAttrList, TempCaSet);
 				new_way.ID = TempCaSet.ID;
@@ -5541,6 +5560,11 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 					THROW(FlashNodeAccum(1));
 				}
 				Stat.RelationCount++;
+				if((Stat.RelationCount % 100000) == 0)
+					if(RestoredStat.RelationCount > 0)
+						PPWaitPercent((ulong)(((double)Stat.RelationCount / (double)RestoredStat.RelationCount) * 100.0), "Relation");
+					else
+						PPWaitMsg((Pb.TempBuf = 0).Cat("Relation").Space().Cat(Stat.RelationCount));
 				PPOsm::Relation new_rel;
 				ReadCommonAttrSet(ppAttrList, TempCaSet);
 				new_rel.ID = TempCaSet.ID;
@@ -5631,6 +5655,7 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
     }
 	TokPath.push(tok);
 	CATCH
+		Logger.LogLastError();
 		SaxStop();
 		State |= stError;
 		ok = 0;
@@ -5641,6 +5666,8 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 {
 	int    ok = 1;
+	static const uint nodewayref_accum_limit = 1024*1024;
+	static const uint way_accum_limit = 256 * 1024;
 	if(Phase == phasePreprocess) {
 		static const uint pt_accum_limit = 8192;
 		{
@@ -5677,52 +5704,67 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 					LonAccum.clear();
 			}
 		}
+		{
+			const uint _count = NodeWayAssocAccum.getCount();
+			if(_count && (force || _count >= nodewayref_accum_limit)) {
+				if(P_NodeToWayAssocOutF) {
+					NodeWayAssocAccum.Sort();
+					Pb.LineBuf = 0;
+					for(uint i = 0; i < _count; i++) {
+						const LLAssoc & r_assoc = NodeWayAssocAccum.at(i);
+						Pb.LineBuf.Cat(r_assoc.Key).Tab().Cat(r_assoc.Val).CR();
+					}
+					P_NodeToWayAssocOutF->WriteLine(Pb.LineBuf);
+				}
+				if(force)
+					NodeWayAssocAccum.freeAll();
+				else
+					NodeWayAssocAccum.clear();
+			}
+		}
+		{
+			const uint _count = WayAccum.getCount();
+			if(_count && (force || _count >= way_accum_limit)) {
+				WayAccum.freeAll();
+			}
+		}
 	}
 	else if(Phase == phaseImport) {
 		static const uint node_accum_limit = 1024*1024;
-		static const uint way_accum_limit = 256 * 1024;
-		static const uint nodewayref_accum_limit = 1024*1024;
 		{
 			const uint _count = NodeAccum.getCount();
 			if(_count && (force || _count >= node_accum_limit)) {
 				const PPOsm::Node & r_last_node = NodeAccum.at(_count-1);
 				if(force || (r_last_node.ID & 0x7f) == 0x7f) {
-					PPOsm::NodeCluster cluster;
-					TSArray <PPOsm::Node> test_list;
-					size_t offs = 0;
 					SrDatabase * p_db = O.GetDb();
 					if(p_db) {
-						THROW(p_db->StoreGeoNodeList(NodeAccum, &Stat.NcList));
-					}
-					else {
-						while(offs < _count) {
-							const int do_use_outer_id = 1;
-							uint64 head_id = 0;
-							size_t actual_count = 0;
-							if(do_use_outer_id) {
-								THROW(cluster.Put__(&NodeAccum.at(offs), 0 /*NodeRefs*/, _count - offs, &head_id, &actual_count, 0));
-							}
-							else {
-								THROW(cluster.Put__(&NodeAccum.at(offs), 0 /*NodeRefs*/, _count - offs, 0, &actual_count, 0));
-							}
-							PPOsm::SetNodeClusterStat(cluster, Stat.NcList);
-							// @debug {
-							{
-								test_list.clear();
-								if(do_use_outer_id) {
-									cluster.Get(head_id, test_list, 0);
+                        LLAssocArray node_to_way_assc_list;
+						LLAssocArray * p_node_to_way_assc_list = 0;
+						if(P_NodeToWayAssocInF) {
+							SString _key_buf, _val_buf;
+                            int64 first_node_id = (int64)NodeAccum.at(0).ID;
+                            int64 last_node_id = (int64)NodeAccum.at(_count-1).ID;
+                            if(LastNodeToWayAssoc.Key && LastNodeToWayAssoc.Val) {
+								if(LastNodeToWayAssoc.Key >= first_node_id && LastNodeToWayAssoc.Key <= last_node_id) {
+                                    THROW_SL(node_to_way_assc_list.insert(&LastNodeToWayAssoc));
 								}
-								else {
-									cluster.Get(0, test_list, 0);
+                            }
+                            while(P_NodeToWayAssocInF->ReadLine(Pb.LineBuf)) {
+                            	Pb.LineBuf.Chomp().Strip();
+								if(Pb.LineBuf.Divide('\t', _key_buf, _val_buf) > 0) {
+									LastNodeToWayAssoc.Key = _key_buf.ToInt64();
+									LastNodeToWayAssoc.Val = _val_buf.ToInt64();
+									if(NodeAccum.bsearch(&LastNodeToWayAssoc.Key, 0, CMPF_INT64)) {
+										THROW_SL(node_to_way_assc_list.insert(&LastNodeToWayAssoc));
+									}
+									else if(LastNodeToWayAssoc.Key > last_node_id) {
+										break;
+									}
 								}
-								for(uint i = 0; i < test_list.getCount(); i++) {
-									assert(test_list.at(i) == NodeAccum.at(offs+i));
-								}
-							}
-							// } @debug
-							offs += actual_count;
+                            }
+
 						}
-						assert(offs == _count);
+						THROW(p_db->StoreGeoNodeList(NodeAccum, &node_to_way_assc_list, &Stat.NcList));
 					}
 					OutputStat(0);
 					assert((Stat.GetNcActualCount() + Stat.GetNcProcessedCount()) == Stat.NodeCount);
@@ -5740,35 +5782,50 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 				SrDatabase * p_db = O.GetDb();
 				if(p_db) {
 					THROW(p_db->StoreGeoWayList(WayAccum, &Stat.WayList));
-				}
-				else {
-					PPOsm::WayBuffer wbuf;
-					PPOsm::Way test_way;
-					for(uint i = 0; i < _count; i++) {
-						const int do_use_outer_id = 1;
-						const PPOsm::Way * p_way = WayAccum.at(i);
-						assert(p_way);
-						if(do_use_outer_id) {
-							uint64 outer_id = p_way->ID;
-							THROW(wbuf.Put(p_way, &outer_id));
-						}
-						else {
-							THROW(wbuf.Put(p_way, 0));
-						}
-						PPOsm::SetWayStat(wbuf, Stat.WayList);
-						// @debug {
-						{
-							if(do_use_outer_id) {
-								uint64 outer_id = p_way->ID;
-								assert(wbuf.Get(outer_id, &test_way));
+                    {
+						Pb.LineBuf = 0;
+						const uint max_out_accum_count = 1000;
+						uint  out_accum_count = 0;
+                    	TSArray <PPOsm::Node> way_node_list;
+                    	for(uint i = 0; i < _count; i++) {
+                            const PPOsm::Way * p_way = WayAccum.at(i);
+							p_db->P_GnT->GetWayNodes(*p_way, way_node_list);
+							uint wn_count = way_node_list.getCount();
+							double max_distance = 0.0;
+							if(wn_count > 1) {
+								if(way_node_list.at(0).ID == way_node_list.at(wn_count-1).ID) {
+									//
+									// Для замкнутого контура исключим последнюю точку (равную первой) из расчета расстояний - сэкономим время.
+									//
+									wn_count--;
+								}
+								for(uint j = 0; j < wn_count; j++) {
+									const PPOsm::Node & r_node = way_node_list.at(j);
+									SGeoPosLL p1(r_node.C.GetLat(), r_node.C.GetLon());
+									for(uint j2 = j+1; j2 < wn_count; j2++) {
+										const PPOsm::Node & r_node2 = way_node_list.at(j2);
+										SGeoPosLL p2(r_node2.C.GetLat(), r_node2.C.GetLon());
+										double distance = 0.0;
+										G.Inverse(p1, p2, &distance, 0, 0, 0, 0, 0, 0);
+										SETMAX(max_distance, distance);
+									}
+								}
 							}
-							else {
-								assert(wbuf.Get(0, &test_way));
-							}
-							assert(test_way == *p_way);
-						}
-						// } @debug
-					}
+                            if(P_SizeOutF) {
+								Pb.LineBuf./*Cat(p_way->ID).Tab().*/Cat((uint)R0(max_distance)).CR();
+								out_accum_count++;
+								if(out_accum_count >= max_out_accum_count) {
+									P_SizeOutF->WriteLine(Pb.LineBuf);
+									Pb.LineBuf = 0;
+									out_accum_count = 0;
+								}
+                            }
+                    	}
+                        if(P_SizeOutF) {
+							P_SizeOutF->WriteLine(Pb.LineBuf);
+							Pb.LineBuf = 0;
+                        }
+                    }
 				}
 				OutputStat(0);
 				assert((Stat.GetNcActualCount() + Stat.GetNcProcessedCount()) == Stat.NodeCount);
@@ -5776,6 +5833,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 				WayAccum.freeAll();
 			}
 		}
+#if 0 // Очень медленный участок кода - ищем другие подходы {
 		{
 			const uint _count = NodeWayAssocAccum.getCount();
 			if(_count && (force || _count >= nodewayref_accum_limit)) {
@@ -5790,6 +5848,17 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 					NodeWayAssocAccum.clear();
 			}
 		}
+#else
+		{
+			const uint _count = NodeWayAssocAccum.getCount();
+			if(_count && (force || _count >= nodewayref_accum_limit)) {
+				if(force)
+					NodeWayAssocAccum.freeAll();
+				else
+					NodeWayAssocAccum.clear();
+			}
+		}
+#endif
 	}
 	CATCHZOK
 	return ok;
@@ -5842,8 +5911,12 @@ int PrcssrOsm::EndElement(const char * pName)
         PPOsm::Way * p_new_way = WayAccum.CreateNewItem();
 		THROW_SL(p_new_way);
 		*p_new_way = LastWay;
-		for(uint i = 0; i < p_new_way->NodeRefs.getCount(); i++) {
-			THROW_SL(NodeWayAssocAccum.Add(p_new_way->NodeRefs.get(i), p_new_way->ID, 0));
+		{
+			const int64 way_id = p_new_way->ID;
+			const uint nrc = p_new_way->NodeRefs.getCount();
+			for(uint i = 0; i < nrc; i++) {
+				THROW_SL(NodeWayAssocAccum.Add(p_new_way->NodeRefs.get(i), way_id, 0));
+			}
 		}
 		LastWay.Clear();
 	}
@@ -5859,6 +5932,7 @@ int PrcssrOsm::EndElement(const char * pName)
 		}
 	}
 	CATCH
+		Logger.LogLastError();
 		SaxStop();
 		State |= stError;
 		ok = 0;
@@ -6057,7 +6131,8 @@ int SLAPI PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, ui
 					assert(p_grid);
 					THROW_SL(p_grid->AddThresholdLat(p_last_coord[i]));
 					// Финишная проверка правильности
-					assert(p_grid->GetCountLat() == (1UL << p_grid->GetDim()));
+					// !При построении решетки по ограниченному ареалу может возникнуть ситуация, когда p_grid->GetCountLat() < (1UL << p_grid->GetDim())
+					// assert(p_grid->GetCountLat() == (1UL << p_grid->GetDim()));
 				}
 			}
 			f_lat.Seek64(0);
@@ -6124,7 +6199,8 @@ int SLAPI PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, ui
 					assert(p_grid);
 					THROW_SL(p_grid->AddThresholdLon(p_last_coord[i]));
 					// Финишная проверка правильности
-					assert(p_grid->GetCountLon() == (1UL << p_grid->GetDim()));
+					// !При построении решетки по ограниченному ареалу может возникнуть ситуация, когда p_grid->GetCountLat() < (1UL << p_grid->GetDim())
+					// assert(p_grid->GetCountLon() == (1UL << p_grid->GetDim()));
 				}
 			}
 			f_lat.Seek64(0);
@@ -6232,10 +6308,58 @@ int SLAPI PrcssrOsm::Run()
 	}
 	*/
 	PPWait(1);
+	RestoredStat.Clear();
 	{
 		ps.Split(file_name);
 		ps.Ext = "log";
 		ps.Merge(log_file_name);
+		if(fileExists(log_file_name)) {
+			SFile f_log_pre(log_file_name, SFile::mRead);
+			if(f_log_pre.IsValid()) {
+				uint line_no = 0;
+				SString key_buf, val_buf;
+				int  all_done = 0;
+				while(!all_done && f_log_pre.ReadLine(temp_buf)) {
+					line_no++;
+					temp_buf.Chomp().Strip();
+					if(line_no == 1) {
+						StringSet ss;
+						temp_buf.Tokenize(";", ss);
+						if(ss.getCount() > 1) {
+							for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+								if(temp_buf.Strip().Divide('=', key_buf, val_buf) > 0) {
+									key_buf.Strip();
+									val_buf.Strip();
+									if(key_buf.CmpNC("NodeCount") == 0) 
+										RestoredStat.NodeCount = val_buf.ToInt64();
+									else if(key_buf.CmpNC("NakedNodeCount") == 0)
+										RestoredStat.NakedNodeCount = val_buf.ToInt64();
+									else if(key_buf.CmpNC("WayCount") == 0)
+										RestoredStat.WayCount = val_buf.ToInt64();
+									else if(key_buf.CmpNC("RelationCount") == 0)
+										RestoredStat.RelationCount = val_buf.ToInt64();
+								}
+							}
+							all_done = 1;
+						}
+					}
+					if(!all_done) {
+						if(temp_buf.Strip().Divide('=', key_buf, val_buf) > 0) {
+							key_buf.Strip();
+							val_buf.Strip();
+							if(key_buf.CmpNC("NodeCount") == 0) 
+								RestoredStat.NodeCount = val_buf.ToInt64();
+							else if(key_buf.CmpNC("NakedNodeCount") == 0)
+								RestoredStat.NakedNodeCount = val_buf.ToInt64();
+							else if(key_buf.CmpNC("WayCount") == 0)
+								RestoredStat.WayCount = val_buf.ToInt64();
+							else if(key_buf.CmpNC("RelationCount") == 0)
+								RestoredStat.RelationCount = val_buf.ToInt64();
+						}
+					}
+				}
+			}
+		}
 	}
     O.LoadGeoGrid();
 	if(P.Flags & PrcssrOsmFilt::fPreprocess) {
@@ -6249,31 +6373,13 @@ int SLAPI PrcssrOsm::Run()
 		{
 			{
 				struct __OFE { SFile ** PP_F; const char * P_Sfx; } __OFE_list[] = {
-					{ &P_LatOutF, "lat" }, { &P_LonOutF, "lon" }, { &P_TagOutF, "tag" }, { &P_TagNodeOutF, "tagnode" }, { &P_TagWayOutF, "tagway" }, { &P_TagRelOutF, "tagrel" }
+					{ &P_LatOutF, "lat" }, { &P_LonOutF, "lon" }, { &P_TagOutF, "tag" }, { &P_TagNodeOutF, "tagnode" },
+					{ &P_TagWayOutF, "tagway" }, { &P_TagRelOutF, "tagrel" }/*, { &P_SizeOutF, "distance" }*/, { &P_NodeToWayAssocOutF, "nodewayassoc" }
 				};
 				for(uint i = 0; i < SIZEOFARRAY(__OFE_list); i++) {
 					THROW_MEM(*__OFE_list[i].PP_F = new SFile(MakeSuffixedTxtFileName(file_name, __OFE_list[i].P_Sfx, ps, out_file_name), SFile::mWrite));
 					THROW_SL((*__OFE_list[i].PP_F)->IsValid());
 				}
-				/*
-				THROW_MEM(P_LatOutF = new SFile(MakeSuffixedTxtFileName(file_name, "lat", ps, out_file_name), SFile::mWrite));
-				THROW_SL(P_LatOutF->IsValid());
-				//
-				THROW_MEM(P_LonOutF = new SFile(MakeSuffixedTxtFileName(file_name, "lon", ps, out_file_name), SFile::mWrite));
-				THROW_SL(P_LonOutF->IsValid());
-				//
-				THROW_MEM(P_TagOutF = new SFile(MakeSuffixedTxtFileName(file_name, "tag", ps, out_file_name), SFile::mWrite));
-				THROW_SL(P_TagOutF->IsValid());
-				//
-				THROW_MEM(P_TagNodeOutF = new SFile(MakeSuffixedTxtFileName(file_name, "tagnode", ps, out_file_name), SFile::mWrite));
-				THROW_SL(P_TagNodeOutF->IsValid());
-				//
-				THROW_MEM(P_TagWayOutF = new SFile(MakeSuffixedTxtFileName(file_name, "tagway", ps, out_file_name), SFile::mWrite));
-				THROW_SL(P_TagWayOutF->IsValid());
-				//
-				THROW_MEM(P_TagRelOutF = new SFile(MakeSuffixedTxtFileName(file_name, "tagrel", ps, out_file_name), SFile::mWrite));
-				THROW_SL(P_TagRelOutF->IsValid());
-				*/
 			}
 			THROW_MEM(SETIFZ(P_Ufp, new PPUserFuncProfiler(PPUPRF_OSMXMLPARSETAG)));
 			PROFILE_START
@@ -6283,9 +6389,11 @@ int SLAPI PrcssrOsm::Run()
 				ZDELETE(P_LatOutF);
 				ZDELETE(P_LonOutF);
 				ZDELETE(P_TagOutF);
+				ZDELETE(P_NodeToWayAssocOutF);
 				ZDELETE(P_TagNodeOutF);
 				ZDELETE(P_TagWayOutF);
 				ZDELETE(P_TagRelOutF);
+				ZDELETE(P_SizeOutF);
 			}
 			{
 				if(0) {
@@ -6299,9 +6407,9 @@ int SLAPI PrcssrOsm::Run()
 					SFile f_log(log_file_name, SFile::mWrite);
 					temp_buf = 0;
 					temp_buf.
-						CatEq("NodeCount", Stat.NodeCount).CatDiv(';', 2).
-						CatEq("NakedNodeCount", Stat.NakedNodeCount).CatDiv(';', 2).
-						CatEq("WayCount", Stat.WayCount).CatDiv(';', 2).
+						CatEq("NodeCount", Stat.NodeCount).CR().
+						CatEq("NakedNodeCount", Stat.NakedNodeCount).CR().
+						CatEq("WayCount", Stat.WayCount).CR().
 						CatEq("RelationCount", Stat.RelationCount).CR();
 					f_log.WriteLine(temp_buf);
 					if(0) {
@@ -6322,40 +6430,103 @@ int SLAPI PrcssrOsm::Run()
 		PPLoadText(PPTXT_SORTMERGE, FmtMsg_SortMerge);
 		THROW(SortFile(file_name, "lat", PTR_CMPCFUNC(STRINT64)));
 		THROW(SortFile(file_name, "lon", PTR_CMPCFUNC(STRINT64)));
+		THROW(SortFile(file_name, "nodewayassoc", PTR_CMPCFUNC(STRINT64)));
 		THROW(SortFile(file_name, "tagrel", PTR_CMPCFUNC(STRUTF8NOCASE)));
 		THROW(SortFile(file_name, "tagway", PTR_CMPCFUNC(STRUTF8NOCASE)));
 		THROW(SortFile(file_name, "tagnode", PTR_CMPCFUNC(STRUTF8NOCASE)));
 		THROW(SortFile(file_name, "tag", PTR_CMPCFUNC(STRUTF8NOCASE)));
 	}
 	if(P.Flags & PrcssrOsmFilt::fAnlzPreprcResults) {
-		int   test_result = 1;
-		TSCollection <SGeoGridTab> grid_list;
-		Phase = phaseAnlzPreprcResults;
-		THROW(CreateGeoGridTab(file_name, 8, 16, grid_list));
-		for(uint i = 0; i < grid_list.getCount(); i++) {
-			SGeoGridTab * p_grid = grid_list.at(i);
-			if(p_grid) {
+		{
+			int   test_result = 1;
+			TSCollection <SGeoGridTab> grid_list;
+			Phase = phaseAnlzPreprcResults;
+			THROW(CreateGeoGridTab(file_name, 8, 16, grid_list));
+			for(uint i = 0; i < grid_list.getCount(); i++) {
+				SGeoGridTab * p_grid = grid_list.at(i);
+				if(p_grid) {
+					{
+						ps.Split(file_name);
+						ps.Nam.CatChar('-').Cat("grid").CatChar('-').Cat(p_grid->GetDim());
+						ps.Ext = "txt";
+						ps.Merge(out_file_name);
+					}
+					p_grid->Save(out_file_name);
+					{
+						SGeoGridTab test_tab(16);
+						int lr = test_tab.Load(out_file_name);
+						if(!lr)
+							test_result = 0;
+						else {
+							int cr = test_tab.IsEqual(*p_grid);
+							if(!cr)
+								test_result = 0;
+							else {
+								//PPTXT_GEOGRIDTABWRRDSUCC          "Тест записи/чтения таблицы пропорциональное гео-решетки '@zstr' прошел успешно"
+								PPFormatT(PPTXT_GEOGRIDTABWRRDSUCC, &temp_buf, out_file_name.cptr());
+								PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
+							}
+						}
+					}
+				}
+			}
+		}
+		{
+			{
+				ps.Split(file_name);
+				ps.Nam.CatChar('-').Cat("tag").CatChar('-').Cat("sorted");
+				ps.Ext = "txt";
+				ps.Merge(in_file_name);
+			}
+			if(fileExists(in_file_name)) {
 				{
 					ps.Split(file_name);
-					ps.Nam.CatChar('-').Cat("grid").CatChar('-').Cat(p_grid->GetDim());
+					ps.Nam.CatChar('-').Cat("tag").CatChar('-').Cat("processed");
 					ps.Ext = "txt";
 					ps.Merge(out_file_name);
 				}
-                p_grid->Save(out_file_name);
-				{
-					SGeoGridTab test_tab(16);
-					int lr = test_tab.Load(out_file_name);
-					if(!lr)
-						test_result = 0;
-					else {
-						int cr = test_tab.IsEqual(*p_grid);
-						if(!cr)
-							test_result = 0;
-						else {
-							//PPTXT_GEOGRIDTABWRRDSUCC          "Тест записи/чтения таблицы пропорциональное гео-решетки '@zstr' прошел успешно"
-							PPFormatT(PPTXT_GEOGRIDTABWRRDSUCC, &temp_buf, out_file_name.cptr());
-							PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
+				if(!fileExists(out_file_name)) {
+					const size_t max_out_len = 1024 * 1024;
+                    SFile f_in(in_file_name, SFile::mRead|SFile::mBinary|SFile::mNoStd|SFile::mBuffRd);
+                    SFile f_out(out_file_name, SFile::mWrite|SFile::mBinary|SFile::mNoStd);
+                    SString line_buf;
+                    SString out_buf;
+                    SString tag_key;
+                    SString tag_val;
+                    SString prev_tag_key;
+                    SString prev_tag_val;
+                    uint   key_count = 0;
+                    uint   val_count = 0;
+                    uint64 line_no = 0;
+                    while(f_in.ReadLine(line_buf)) {
+                        line_buf.Chomp().Divide('\t', tag_key, tag_val);
+                        if(line_no) {
+							if(tag_key != prev_tag_key) {
+								out_buf.Cat(prev_tag_key).Tab().Cat(prev_tag_val).Tab().Cat(val_count).CRB();
+								out_buf.Cat(prev_tag_key).Tab(2).Cat(key_count).CRB();
+								key_count = 0;
+								val_count = 0;
+							}
+							else if(tag_val != prev_tag_val) {
+								out_buf.Cat(prev_tag_key).Tab().Cat(prev_tag_val).Tab().Cat(val_count).CRB();
+								val_count = 0;
+							}
+							if(out_buf.Len() >= max_out_len) {
+								f_out.WriteLine(out_buf);
+								out_buf = 0;
+							}
 						}
+						key_count++;
+						val_count++;
+						prev_tag_key = tag_key;
+						prev_tag_val = tag_val;
+						line_no++;
+                    }
+					if(line_no) {
+						out_buf.Cat(prev_tag_key).Tab().Cat(prev_tag_val).Tab().Cat(val_count).CRB();
+						out_buf.Cat(prev_tag_key).Tab(2).Cat(key_count).CRB();
+						f_out.WriteLine(out_buf);
+						out_buf = 0;
 					}
 				}
 			}
@@ -6364,6 +6535,25 @@ int SLAPI PrcssrOsm::Run()
 	if(P.Flags & PrcssrOsmFilt::fImport) {
 		Phase = phaseImport;
 		if(O.CheckStatus(O.stGridLoaded)) {
+			{
+				struct __OFE { SFile ** PP_F; const char * P_Sfx; } __OFE_list[] = {
+					{ &P_SizeOutF, "distance" }
+				};
+				for(uint i = 0; i < SIZEOFARRAY(__OFE_list); i++) {
+					THROW_MEM(*__OFE_list[i].PP_F = new SFile(MakeSuffixedTxtFileName(file_name, __OFE_list[i].P_Sfx, ps, out_file_name), SFile::mWrite));
+					THROW_SL((*__OFE_list[i].PP_F)->IsValid());
+				}
+			}
+			{
+				MakeSuffixedTxtFileName(file_name, "nodewayassoc-sorted", ps, out_file_name);
+				if(fileExists(out_file_name)) {
+					THROW_MEM(P_NodeToWayAssocInF = new SFile(out_file_name, SFile::mRead|SFile::mNoStd|SFile::mBinary|SFile::mBuffRd));
+					THROW_SL(P_NodeToWayAssocInF->IsValid());
+				}
+				else {
+					ZDELETE(P_NodeToWayAssocInF);
+				}
+			}
 			THROW(O.OpenDatabase(p_db_path));
 			{
 				xmlSAXHandler saxh_addr_obj;
@@ -6379,6 +6569,12 @@ int SLAPI PrcssrOsm::Run()
 				THROW(!(State & stError));
 				PROFILE_END
 			}
+			{
+				SrDatabase * p_db = O.GetDb();
+				if(p_db && p_db->P_Db) {
+					p_db->P_Db->RemoveUnusedLogs();
+				}
+			}
 		}
 	}
 	PPWait(0);
@@ -6386,10 +6582,13 @@ int SLAPI PrcssrOsm::Run()
 	{
 		ZDELETE(P_LatOutF);
 		ZDELETE(P_LonOutF);
+		ZDELETE(P_NodeToWayAssocOutF);
+		ZDELETE(P_NodeToWayAssocInF);
 		ZDELETE(P_TagOutF);
 		ZDELETE(P_TagNodeOutF);
 		ZDELETE(P_TagWayOutF);
 		ZDELETE(P_TagRelOutF);
+		ZDELETE(P_SizeOutF);
 	}
 	Phase = phaseUnkn;
 	return ok;

@@ -141,7 +141,7 @@ int SLAPI PPViewPredictSales::InitIteration(int aOrder)
 	return ok;
 }
 
-int SLAPI PPViewPredictSales::NextIteration(PredictSalesViewItem *pItem)
+int FASTCALL PPViewPredictSales::NextIteration(PredictSalesViewItem *pItem)
 {
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		PredictSalesViewItem item;
@@ -636,7 +636,7 @@ int PPALDD_PredictSales::InitIteration(PPIterID iterId, int sortId, long /*rsrv*
 	INIT_PPVIEW_ALDD_ITER(PredictSales);
 }
 
-int PPALDD_PredictSales::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_PredictSales::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(PredictSales);
 	p_v->FormatCycle(item.Dt, I.CycleText, sizeof(I.CycleText));

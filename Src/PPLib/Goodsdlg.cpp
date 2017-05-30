@@ -3029,13 +3029,17 @@ private:
 
 	GoodsFilt Data;
 };
-
+//
 // диалог дополнительных опций фильтра по товарам
+//
+#define GRP_LOC       3
+
 class GoodsFiltAdvDialog : public TDialog {
 public:
 	GoodsFiltAdvDialog(uint rezID, GoodsFilt * pF, int Disable) : TDialog(rezID)
 	{
 		CtlDisableSuppl = Disable;
+		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_GFLTADVOPT_LOC, 0, 0, cmLocList, 0, 0, 0)); // @v9.6.8
 		setDTS(pF);
 		SetupCalCtrl(CTLCAL_GFLTADVOPT_LOTPERIOD, this, CTL_GFLTADVOPT_LOTPERIOD, 1);
 	}
@@ -3068,7 +3072,14 @@ int GoodsFiltAdvDialog::setDTS(const GoodsFilt * pFilt)
 	ushort v = 0;
 	Data = *pFilt;
 	SetPeriodInput(this, CTL_GFLTADVOPT_LOTPERIOD, &Data.LotPeriod);
-	SetupPPObjCombo(this, CTLSEL_GFLTADVOPT_LOC, PPOBJ_LOCATION, Data.LocList.GetSingle(), OLW_LOADDEFONOPEN, 0);
+	
+	// @v9.6.8 SetupPPObjCombo(this, CTLSEL_GFLTADVOPT_LOC, PPOBJ_LOCATION, Data.LocList.GetSingle(), OLW_LOADDEFONOPEN, 0);
+	// @v9.6.8 {
+	{
+		LocationCtrlGroup::Rec l_rec(&Data.LocList);
+		setGroupData(GRP_LOC, &l_rec);
+	}
+	// } @v9.6.8 
 	if(CtlDisableSuppl)
 		disableCtrl(CTLSEL_GFLTADVOPT_SUPPL, 1);
 	else
@@ -3104,7 +3115,14 @@ int GoodsFiltAdvDialog::getDTS(GoodsFilt * pFilt)
 	else {
 		if(!CtlDisableSuppl)
 			getCtrlData(CTLSEL_GFLTADVOPT_SUPPL, &Data.SupplID);
-		Data.LocList.SetSingle(getCtrlLong(CTLSEL_GFLTADVOPT_LOC));
+		// @v9.6.8 Data.LocList.SetSingle(getCtrlLong(CTLSEL_GFLTADVOPT_LOC));
+		// @v9.6.8 {
+		{
+			LocationCtrlGroup::Rec l_rec;
+			getGroupData(GRP_LOC, &l_rec);
+			Data.LocList = l_rec.LocList;
+		}
+		// } @v9.6.8 
 		getCtrlData(CTL_GFLTADVOPT_EXTFLT, &(v = 0));
 		SETFLAG(Data.Flags, GoodsFilt::fPassiveOnly,  v == 1);
 		SETFLAG(Data.Flags, GoodsFilt::fGenGoodsOnly, v == 2);
@@ -3538,13 +3556,12 @@ int GoodsFiltDialog::setDTS(GoodsFilt * pFilt)
 	Data = *pFilt;
 	SString temp_buf;
 	BrandCtrlGroup::Rec brand_grp_rec(Data.BrandList.IsExists() ? &Data.BrandList.Get() : 0);
-	PersonListCtrlGroup::Rec brandowner_grp_rec(PPPRK_MANUF, Data.BrandOwnerList.IsExists() ? &Data.BrandOwnerList.Get() : 0); // @v7.7.9
+	PersonListCtrlGroup::Rec brandowner_grp_rec(PPPRK_MANUF, Data.BrandOwnerList.IsExists() ? &Data.BrandOwnerList.Get() : 0);
 
 	setGroupData(GRP_BRAND, &brand_grp_rec);
 	setGroupData(GRP_BRANDOWNER, &brandowner_grp_rec);
 	SetupPPObjCombo(this, CTLSEL_GOODSFLT_GRP,     PPOBJ_GOODSGROUP, Data.GrpID,       OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
 	SetupPPObjCombo(this, CTLSEL_GOODSFLT_MANUF,   PPOBJ_PERSON,     Data.ManufID,     OLW_LOADDEFONOPEN, (void *)PPPRK_MANUF);
-	// @v7.7.9 SetupPPObjCombo(this, CTLSEL_GOODSFLT_BROWNER, PPOBJ_PERSON,     Data.BrandOwnerID, OLW_LOADDEFONOPEN, PPPRK_MANUF);
 	SetupPPObjCombo(this, CTLSEL_GOODSFLT_COUNTRY, PPOBJ_COUNTRY,    Data.ManufCountryID, OLW_LOADDEFONOPEN, 0);
 	SetupPPObjCombo(this, CTLSEL_GOODSFLT_UNIT,    PPOBJ_UNIT,       Data.UnitID,      0, 0);
 	SetupPPObjCombo(this, CTLSEL_GOODSFLT_PHUNIT,  PPOBJ_UNIT,       Data.PhUnitID,    0, 0);
@@ -3590,7 +3607,6 @@ int GoodsFiltDialog::getDTS(GoodsFilt * pFilt)
 	SString temp_buf;
 	getCtrlData(CTLSEL_GOODSFLT_GRP,    &Data.GrpID);
 	getCtrlData(CTLSEL_GOODSFLT_MANUF,  &Data.ManufID);
-	// @v7.7.9 getCtrlData(CTLSEL_GOODSFLT_BROWNER, &Data.BrandOwnerID);
 	getCtrlData(CTLSEL_GOODSFLT_COUNTRY, &Data.ManufCountryID);
 	getCtrlData(CTLSEL_GOODSFLT_UNIT,   &Data.UnitID);
 	getCtrlData(CTLSEL_GOODSFLT_PHUNIT, &Data.PhUnitID);
@@ -3615,14 +3631,12 @@ int GoodsFiltDialog::getDTS(GoodsFilt * pFilt)
 		getGroupData(GRP_BRAND, &brand_grp_rec);
 		Data.BrandList.Set(&brand_grp_rec.List);
 	}
-	// @v7.7.9 {
 	{
 		PersonListCtrlGroup::Rec brandowner_grp_rec;
 		getGroupData(GRP_BRANDOWNER, &brandowner_grp_rec);
 		Data.BrandOwnerList.Set(&brandowner_grp_rec.List);
 	}
-	// } @v7.7.9
-	getCtrlData(CTLSEL_GOODSFLT_ORDER, &Data.InitOrder); // @v7.3.8
+	getCtrlData(CTLSEL_GOODSFLT_ORDER, &Data.InitOrder);
 	ASSIGN_PTR(pFilt, Data);
 	return 1;
 }

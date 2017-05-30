@@ -331,7 +331,7 @@ int SLAPI PPViewArticle::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewArticle::NextIteration(ArticleViewItem * pItem)
+int FASTCALL PPViewArticle::NextIteration(ArticleViewItem * pItem)
 {
 	int    ok = -1;
 	while(ok < 0 && P_IterQuery && P_IterQuery->nextIteration() > 0) {
@@ -919,7 +919,7 @@ int PPALDD_ArticleView::InitIteration(PPIterID iterId, int sortId, long)
 	INIT_PPVIEW_ALDD_ITER(Article);
 }
 
-int PPALDD_ArticleView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_ArticleView::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(Article);
 	I.ArticleID = item.ID;

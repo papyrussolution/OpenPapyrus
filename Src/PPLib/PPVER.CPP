@@ -117,12 +117,12 @@ int SLAPI PPVersionInfo::Decrypt()
 						SLibError = SLERR_READFAULT;
 						THROW_SL(fread(b, 64, 1, p_file) == 1);
 						struc_size = *(uint16 *)(b+strlen((char*)b)+1);
-						THROW_MEM(p_data_pre9303 = (uchar *)malloc(struc_size));
+						THROW_MEM(p_data_pre9303 = (uchar *)SAlloc::M(struc_size));
 						SLibError = SLERR_READFAULT;
 						fseek(p_file, offs, SEEK_SET);
 						THROW_SL(fread(p_data_pre9303, struc_size, 1, p_file) == 1);
 						//
-						THROW_MEM(P_Info_Pre9303 = malloc(sizeof(__VerInfo)));
+						THROW_MEM(P_Info_Pre9303 = SAlloc::M(sizeof(__VerInfo)));
 						p_info_pre9303 = (__VerInfo*)P_Info_Pre9303;
 
 						memcpy(b, p_data_pre9303, struc_size);
@@ -162,7 +162,7 @@ int SLAPI PPVersionInfo::Decrypt()
 		ok = 0;
 	ENDCATCH
 	if(P_OuterFileName)
-		free(p_data_pre9303);
+		SAlloc::F(p_data_pre9303);
 	SFile::ZClose(&p_file);
 	return ok;
 }

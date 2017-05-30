@@ -323,7 +323,8 @@
 			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4">
 			<Tool
-				Name="VCCLCompilerTool"/>
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;..\OSF\LIBXML\INCLUDE"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool

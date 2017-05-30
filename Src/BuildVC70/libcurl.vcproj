@@ -25,7 +25,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
-				AdditionalIncludeDirectories="..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\openssl\include;..\include"
+				AdditionalIncludeDirectories="..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\openssl-cmake\include;..\include;..\INCLUDE\ZLIB"
 				PreprocessorDefinitions="_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -85,7 +85,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
-				AdditionalIncludeDirectories="..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\openssl\include;..\include"
+				AdditionalIncludeDirectories="..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\openssl-cmake\include;..\include;..\INCLUDE\ZLIB"
 				PreprocessorDefinitions="_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -148,7 +148,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\openssl\include;..\include"
+				AdditionalIncludeDirectories="..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\openssl-cmake\include;..\include;..\INCLUDE\ZLIB"
 				PreprocessorDefinitions="NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -210,7 +210,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\openssl\include;..\include"
+				AdditionalIncludeDirectories="..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\openssl-cmake\include;..\include;..\INCLUDE\ZLIB"
 				PreprocessorDefinitions="NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -269,7 +269,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
-				AdditionalIncludeDirectories="..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\openssl\include;..\include"
+				AdditionalIncludeDirectories="..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\openssl-cmake\include;..\include;..\INCLUDE\ZLIB"
 				PreprocessorDefinitions="_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -332,7 +332,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\openssl\include;..\include"
+				AdditionalIncludeDirectories="..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\openssl-cmake\include;..\include;..\INCLUDE\ZLIB"
 				PreprocessorDefinitions="NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -433,13 +433,7 @@
 				RelativePath="..\osf\curl\lib\curl_multibyte.c">
 			</File>
 			<File
-				RelativePath="..\osf\curl\lib\curl_ntlm.c">
-			</File>
-			<File
 				RelativePath="..\osf\curl\lib\curl_ntlm_core.c">
-			</File>
-			<File
-				RelativePath="..\osf\curl\lib\curl_ntlm_msgs.c">
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\curl_ntlm_wb.c">
@@ -449,12 +443,6 @@
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\curl_sasl.c">
-			</File>
-			<File
-				RelativePath="..\osf\curl\lib\curl_sasl_gssapi.c">
-			</File>
-			<File
-				RelativePath="..\osf\curl\lib\curl_sasl_sspi.c">
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\curl_sspi.c">
@@ -538,7 +526,7 @@
 				RelativePath="..\osf\curl\lib\http_negotiate.c">
 			</File>
 			<File
-				RelativePath="..\osf\curl\lib\http_negotiate_sspi.c">
+				RelativePath="..\Osf\Curl\lib\http_ntlm.c">
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\http_proxy.c">
@@ -649,7 +637,7 @@
 				RelativePath="..\osf\curl\lib\progress.c">
 			</File>
 			<File
-				RelativePath="..\osf\curl\lib\rawstr.c">
+				RelativePath="..\Osf\Curl\lib\rand.c">
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\rtsp.c">
@@ -694,10 +682,10 @@
 				RelativePath="..\osf\curl\lib\ssh.c">
 			</File>
 			<File
-				RelativePath="..\osf\curl\lib\strdup.c">
+				RelativePath="..\Osf\Curl\lib\strcase.c">
 			</File>
 			<File
-				RelativePath="..\osf\curl\lib\strequal.c">
+				RelativePath="..\osf\curl\lib\strdup.c">
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\strerror.c">
@@ -707,6 +695,9 @@
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\strtoofft.c">
+			</File>
+			<File
+				RelativePath="..\Osf\Curl\lib\system_win32.c">
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\telnet.c">
@@ -1096,6 +1087,9 @@
 					RelativePath="..\osf\curl\lib\vtls\gtls.c">
 				</File>
 				<File
+					RelativePath="..\Osf\Curl\lib\vtls\mbedtls.c">
+				</File>
+				<File
 					RelativePath="..\osf\curl\lib\vtls\nss.c">
 				</File>
 				<File
@@ -1149,6 +1143,60 @@
 				</File>
 				<File
 					RelativePath="..\osf\curl\lib\vtls\vtls.h">
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="vauth"
+			Filter="">
+			<Filter
+				Name="Source Files"
+				Filter="">
+				<File
+					RelativePath="..\Osf\Curl\lib\vauth\cleartext.c">
+				</File>
+				<File
+					RelativePath="..\Osf\Curl\lib\vauth\cram.c">
+				</File>
+				<File
+					RelativePath="..\Osf\Curl\lib\vauth\digest.c">
+				</File>
+				<File
+					RelativePath="..\Osf\Curl\lib\vauth\digest_sspi.c">
+				</File>
+				<File
+					RelativePath="..\Osf\Curl\lib\vauth\krb5_gssapi.c">
+				</File>
+				<File
+					RelativePath="..\Osf\Curl\lib\vauth\krb5_sspi.c">
+				</File>
+				<File
+					RelativePath="..\Osf\Curl\lib\vauth\ntlm.c">
+				</File>
+				<File
+					RelativePath="..\Osf\Curl\lib\vauth\ntlm_sspi.c">
+				</File>
+				<File
+					RelativePath="..\Osf\Curl\lib\vauth\oauth2.c">
+				</File>
+				<File
+					RelativePath="..\Osf\Curl\lib\vauth\spnego_gssapi.c">
+				</File>
+				<File
+					RelativePath="..\Osf\Curl\lib\vauth\vauth.c">
+				</File>
+			</Filter>
+			<Filter
+				Name="Header Files"
+				Filter="">
+				<File
+					RelativePath="..\Osf\Curl\lib\vauth\digest.h">
+				</File>
+				<File
+					RelativePath="..\Osf\Curl\lib\vauth\ntlm.h">
+				</File>
+				<File
+					RelativePath="..\Osf\Curl\lib\vauth\vauth.h">
 				</File>
 			</Filter>
 		</Filter>

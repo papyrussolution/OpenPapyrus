@@ -1481,6 +1481,7 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 			rec.PVat = pvat;
 			// @v9.4.10 {
 			if(pExt) {
+				rec.LinkBillID = pExt->LinkBillID; // @v9.6.8
 				rec.LinkQtty  = pExt->LinkQtty;
 				rec.LinkCost  = pExt->LinkCost;
 				rec.LinkPrice = pExt->LinkPrice;
@@ -1809,7 +1810,7 @@ int SLAPI PPViewTrfrAnlz::NextInnerIteration(TrfrAnlzViewItem * pItem)
 	return r;
 }
 
-int SLAPI PPViewTrfrAnlz::NextIteration(TrfrAnlzViewItem * pItem)
+int FASTCALL PPViewTrfrAnlz::NextIteration(TrfrAnlzViewItem * pItem)
 {
 	do {
 		if(NextInnerIteration(pItem) > 0) {
@@ -2738,17 +2739,18 @@ int SLAPI PPViewTrfrAnlz::InitAppData(TrfrAnlzViewItem * pItem)
 	if(P_TrAnlzTbl) {
 		PersonTbl::Rec psn_rec;
 		const TempTrfrAnlzTbl::Rec & r_rec = P_TrAnlzTbl->data;
-		pItem->Dt        = r_rec.Dt;
-		pItem->OprNo     = r_rec.OprNo;
-		pItem->BillID    = r_rec.BillID;
-		pItem->BillCode_ = r_rec.BillCode;
-		pItem->LocID     = r_rec.LocID;
-		pItem->ArticleID = r_rec.ArticleID;
-		pItem->PersonID  = ObjectToPerson(r_rec.ArticleID);
-		pItem->OpID      = r_rec.OpID;
-		pItem->GoodsID   = r_rec.GoodsID;
-		pItem->LotID     = r_rec.LotID;
-		pItem->DlvrLocID = r_rec.DlvrLocID; // @v8.3.2
+		pItem->Dt         = r_rec.Dt;
+		pItem->OprNo      = r_rec.OprNo;
+		pItem->BillID     = r_rec.BillID;
+		pItem->BillCode_  = r_rec.BillCode;
+		pItem->LocID      = r_rec.LocID;
+		pItem->ArticleID  = r_rec.ArticleID;
+		pItem->PersonID   = ObjectToPerson(r_rec.ArticleID);
+		pItem->OpID       = r_rec.OpID;
+		pItem->GoodsID    = r_rec.GoodsID;
+		pItem->LotID      = r_rec.LotID;
+		pItem->LinkBillID = r_rec.LinkBillID; // @v9.6.8
+		pItem->DlvrLocID  = r_rec.DlvrLocID; // @v8.3.2
 
 		GObj.GetSubstText(r_rec.GoodsID, Filt.Sgg, &Gsl, pItem->GoodsText_);
 		pItem->SubGoodsClsID = (IS_SGG_CLSSUBST(Filt.Sgg) && Gsl.GetItem(r_rec.GoodsID, &gsi) > 0) ? gsi.ClsID : 0;
@@ -2762,6 +2764,10 @@ int SLAPI PPViewTrfrAnlz::InitAppData(TrfrAnlzViewItem * pItem)
 		pItem->Price     = r_rec.Price;
 		pItem->Discount  = r_rec.Discount;
 		pItem->PVat      = r_rec.PVat;
+		pItem->Brutto    = r_rec.Brutto;    // @v9.6.8
+		pItem->LinkQtty  = r_rec.LinkQtty;  // @v9.6.8
+		pItem->LinkCost  = r_rec.LinkCost;  // @v9.6.8
+		pItem->LinkPrice = r_rec.LinkPrice; // @v9.6.8
 		pItem->ExtValue[0] = r_rec.ExtVal1; // @v9.3.5
 		if((Flags & fAsGoodsCard) || (Filt.Flags & TrfrAnlzFilt::fGetRest)) { // AHTOXA
 			pItem->Rest   = r_rec.PhQtty;
@@ -2797,6 +2803,10 @@ int SLAPI PPViewTrfrAnlz::InitAppData(TrfrAnlzViewItem * pItem)
 		pItem->Price     = r_tg_rec.Price;
 		pItem->Discount  = r_tg_rec.Discount;
 		pItem->PVat      = r_tg_rec.PVat;
+		pItem->Brutto    = r_tg_rec.Brutto;    // @v9.6.8
+		pItem->LinkQtty  = r_tg_rec.LinkQtty;  // @v9.6.8
+		pItem->LinkCost  = r_tg_rec.LinkCost;  // @v9.6.8
+		pItem->LinkPrice = r_tg_rec.LinkPrice; // @v9.6.8
 		pItem->ExtValue[0] = r_tg_rec.ExtVal1; // @v9.3.5
 		pItem->SaldoQtty = r_tg_rec.SaldoQtty;
 		pItem->SaldoAmt  = r_tg_rec.SaldoAmt;
@@ -3552,7 +3562,7 @@ int PPALDD_TrfrAnlzBase::InitIteration(PPIterID iterId, int sortId, long /*rsrv*
 	return BIN(p_v->InitIteration((PPViewTrfrAnlz::IterOrder)sortId));
 }
 
-int PPALDD_TrfrAnlzBase::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_TrfrAnlzBase::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(TrfrAnlz);
 	if(H.Grp == TrfrAnlzFilt::gDateCntragentAgentGoods)
@@ -3619,22 +3629,39 @@ void PPALDD_TrfrAnlzBase::Destroy()
 	DESTROY_PPVIEW_ALDD(TrfrAnlz);
 }
 
-int PPALDD_TrfrAnlzBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_TrfrAnlzBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
 	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
 	#define _RET_DBL     (*(double *)rS.GetPtr(pApl->Get(0)))
 	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
+	#define _RET_LONG    (*(long *)rS.GetPtr(pApl->Get(0)))
 	PPViewTrfrAnlz * p_v = (PPViewTrfrAnlz*)NZOR(Extra[1].Ptr, Extra[0].Ptr);
-	if(pF->Name.Cmp("?GetExtVal", 0) == 0) {
+	if(pF->Name == "?GetExtVal") {
 		double ext_val = 0.0;
-		if(p_v && p_v->GetInnerIterItem()) {
+		const TrfrAnlzViewItem * p_item = p_v ? p_v->GetInnerIterItem() : 0;
+		if(p_item) {
 			if(_ARG_INT(1) == 1)
-				ext_val = p_v->GetInnerIterItem()->ExtValue[0];
+				ext_val = p_item->ExtValue[0];
 		}
 		_RET_DBL = ext_val;
 	}
-	return 1;
+	else if(pF->Name == "?GetLinkBillID") {
+		const TrfrAnlzViewItem * p_item = p_v ? p_v->GetInnerIterItem() : 0;
+		_RET_LONG = p_item ? p_item->LinkBillID : 0;
+	}
+	else if(pF->Name == "?GetLinkValue") {
+		double val = 0.0;
+		const TrfrAnlzViewItem * p_item = p_v ? p_v->GetInnerIterItem() : 0;
+		if(p_item) {
+			switch(_ARG_INT(1)) {
+				case 1: val = p_item->LinkQtty;  break;
+				case 2: val = p_item->LinkCost;  break;
+				case 3: val = p_item->LinkPrice; break;
+			}
+		}
+		_RET_DBL = val;
+	}
 }
 //
 //

@@ -3936,18 +3936,18 @@ public:
 	public:
 		enum {
 			fMalloc  = 0x0010, // DB_DBT_MALLOC // When this flag is set, Berkeley DB will allocate memory
-				// for the returned key or data item (using malloc(3), or the user-specified malloc function),
+				// for the returned key or data item (using SAlloc::M(3), or the user-specified SAlloc::M function),
 				// and return a pointer to it in the data field of the key or data DBT structure.
 				// Because any allocated memory becomes the responsibility of the calling application, the caller
 				// must determine whether memory was allocated using the returned value of the data field.
 				// It is an error to specify more than one of DB_DBT_MALLOC, DB_DBT_REALLOC, and DB_DBT_USERMEM.
 			fRealloc = 0x0080, // DB_DBT_REALLOC // When this flag is set Berkeley DB will allocate memory for the returned key or
-				// data item (using realloc(3), or the user-specified realloc function), and return a pointer to it in the
+				// data item (using SAlloc::R(3), or the user-specified realloc function), and return a pointer to it in the
 				// data field of the key or data DBT structure. Because any allocated memory becomes the
 				// responsibility of the calling application, the caller must determine whether memory was
 				// allocated using the returned value of the data field. The difference between DB_DBT_MALLOC and DB_DBT_REALLOC
-				// is that the latter will call realloc(3) instead of malloc(3), so the allocated memory will be grown as necessary
-				// instead of the application doing repeated free/malloc calls. It is an error to specify more than
+				// is that the latter will call SAlloc::R(3) instead of SAlloc::M(3), so the allocated memory will be grown as necessary
+				// instead of the application doing repeated free/SAlloc::M calls. It is an error to specify more than
 				// one of DB_DBT_MALLOC, DB_DBT_REALLOC, and DB_DBT_USERMEM.
 			fUserMem = 0x0800, // DB_DBT_USERMEM // The data field of the key or data structure must refer to memory that is at least
 				// ulen bytes in length. If the length of the requested item is less than or equal to that
@@ -3979,8 +3979,8 @@ public:
 				// This flag is ignored when used with the pkey parameter on DB->pget() or DBcursor->pget().
 			fAppMalloc = 0x0001, // DB_DBT_APPMALLOC // After an application-supplied callback routine passed to either DB->associate()
 				// (page 6) or DB->set_append_recno() (page 83) is executed, the data field of a DBT may refer
-				// to memory allocated with malloc(3) or realloc(3). In that case, the callback sets the
-				// DB_DBT_APPMALLOC flag in the DBT so that Berkeley DB will call free(3) to deallocate the
+				// to memory allocated with SAlloc::M(3) or SAlloc::R(3). In that case, the callback sets the
+				// DB_DBT_APPMALLOC flag in the DBT so that Berkeley DB will call SAlloc::F(3) to deallocate the
 				// memory when it is no longer required.
 			fMultiple  = 0x0020, // DB_DBT_MULTIPLE  // Set in a secondary key creation callback routine passed to DB->associate()
 				// (page 6) to indicate that multiple secondary keys should be associated with the given primary key/data pair.
@@ -4179,6 +4179,7 @@ public:
 	int    CreateDataFile(const char * pFileName, int createMode, BDbTable::Config * pCfg);
 	int    Implement_Open(BDbTable * pTbl, const char * pFileName, int openMode, char * pPassword);
 	int    Implement_Close(BDbTable * pTbl);
+	int    RemoveUnusedLogs();
 	int    FASTCALL CheckInTxnTable(BDbTable * pTbl);
 
 	int    StartTransaction();

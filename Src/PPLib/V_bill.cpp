@@ -738,7 +738,7 @@ SLAPI PPViewBill::~PPViewBill()
 	delete P_TempOrd;
 	delete P_BPOX;
 	delete P_Arp;
-	free(P_IterState);
+	SAlloc::F(P_IterState);
 	DBRemoveTempFiles();
 }
 
@@ -1708,7 +1708,7 @@ int SLAPI PPViewBill::InitIteration(IterOrder ord)
 	return ok;
 }
 
-int SLAPI PPViewBill::NextIteration(BillViewItem * pItem)
+int FASTCALL PPViewBill::NextIteration(BillViewItem * pItem)
 {
 	int    r = -1;
 	if(Filt.Count && _IterC >= Filt.Count)
@@ -1745,7 +1745,7 @@ int SLAPI PPViewBill::SetIterState(const void * pSt, size_t sz)
 {
 	ZFREE(P_IterState);
 	if(pSt && sz) {
-		P_IterState = malloc(sz);
+		P_IterState = SAlloc::M(sz);
 		memcpy(P_IterState, pSt, sz);
 		return 1;
 	}
@@ -3723,6 +3723,7 @@ int SLAPI PPViewBill::ChangeFlags()
 		uint   i, p;
 	   	PPID * pid;
 		PPIDArray ary;
+		PPLogger logger;
 		THROW(GetBillIDList(&ary));
 		{
 			PPTransaction tra(1);
@@ -3730,25 +3731,34 @@ int SLAPI PPViewBill::ChangeFlags()
 			for(i = 0; ary.enumItems(&i, (void**)&pid);) {
 				PPBillPacket pack;
 				long   sav;
-				THROW(P_BObj->ExtractPacketWithFlags(*pid, &pack, BPLD_SKIPTRFR));
-				sav = pack.Rec.Flags;
-				for(p = 0; p < 32; p++) {
-					const ulong t = (1UL << p);
-					if(set & t)
-						pack.Rec.Flags |= t;
-					if(reset & t)
-						pack.Rec.Flags &= ~t;
+				// @v9.6.8 THROW(P_BObj->ExtractPacketWithFlags(*pid, &pack, BPLD_SKIPTRFR));
+				if(P_BObj->ExtractPacket(*pid, &pack) > 0) {
+					sav = pack.Rec.Flags;
+					for(p = 0; p < 32; p++) {
+						const ulong t = (1UL << p);
+						if(set & t)
+							pack.Rec.Flags |= t;
+						if(reset & t)
+							pack.Rec.Flags &= ~t;
+					}
+					if(pack.Rec.Flags != sav) {
+						// @v9.6.8 pack.Rec.Flags |= BILLF_NOLOADTRFR;
+						if(P_BObj->UpdatePacket(&pack, 0)) {
+							ok = 1;
+						}
+						else
+							logger.LogLastError();
+					}
+					if(new_status_id && P_BObj->CheckRights(BILLOPRT_MODSTATUS, 1)) {
+						r = P_BObj->SetStatus(*pid, new_status_id, 0);
+						if(r > 0)
+							ok = 1;
+						else if(r == 0)
+							logger.LogLastError();
+					}
 				}
-				if(pack.Rec.Flags != sav) {
-					pack.Rec.Flags |= BILLF_NOLOADTRFR;
-					THROW(P_BObj->UpdatePacket(&pack, 0));
-					ok = 1;
-				}
-				if(new_status_id && P_BObj->CheckRights(BILLOPRT_MODSTATUS, 1)) {
-					THROW(r = P_BObj->SetStatus(*pid, new_status_id, 0));
-					if(r > 0)
-						ok = 1;
-				}
+				else
+					logger.LogLastError();
 			}
 			THROW(tra.Commit());
 		}
@@ -3762,20 +3772,22 @@ int SLAPI PPViewBill::InsertIntoPool(PPID billID, int use_ta)
 	int    ok = 1;
 	BillTbl::Rec br;
 	TempBillTbl::Rec tbrec;
-	PPTransaction tra(use_ta);
-	THROW(tra);
-	THROW(P_BObj->Search(billID, &br) > 0);
-	if(IsMemberOfPool(billID) <= 0) {
-		PPID   assc_id = (Filt.Flags & BillFilt::fEditPoolByType) ? Filt.AssocID : PPASS_OPBILLPOOL;
-		THROW(P_BObj->P_Tbl->UpdatePool(billID, assc_id, Filt.PoolBillID, 0));
-		if(Filt.AssocID == PPASS_OPBILLPOOL)
-			THROW(P_BObj->UpdatePool(Filt.PoolBillID, 0));
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW(P_BObj->Search(billID, &br) > 0);
+		if(IsMemberOfPool(billID) <= 0) {
+			PPID   assc_id = (Filt.Flags & BillFilt::fEditPoolByType) ? Filt.AssocID : PPASS_OPBILLPOOL;
+			THROW(P_BObj->P_Tbl->UpdatePool(billID, assc_id, Filt.PoolBillID, 0));
+			if(Filt.AssocID == PPASS_OPBILLPOOL)
+				THROW(P_BObj->UpdatePool(Filt.PoolBillID, 0));
+		}
+		if(P_TempTbl && SearchByID(P_TempTbl, 0, billID, 0) <= 0) {
+			InitTempRec(&br, &tbrec);
+			THROW_DB(P_TempTbl->insertRecBuf(&tbrec));
+		}
+		THROW(tra.Commit());
 	}
-	if(P_TempTbl && SearchByID(P_TempTbl, 0, billID, 0) <= 0) {
-		InitTempRec(&br, &tbrec);
-		THROW_DB(P_TempTbl->insertRecBuf(&tbrec));
-	}
-	THROW(tra.Commit());
 	CATCHZOK
 	return ok;
 }
@@ -5945,7 +5957,7 @@ PPALDD_DESTRUCTOR(GoodsBillBase)
 	Destroy();
 }
 
-int PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
 	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
@@ -5982,7 +5994,6 @@ int PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmS
 		const PPBillPacket * p_pack = (const PPBillPacket *)Extra[0].Ptr;
 		_RET_INT = BIN(p_pack && p_pack->ProcessFlags & PPBillPacket::pfAllGoodsUnlim);
 	}
-	return 1;
 }
 
 static void SLAPI setupDiscountText(const PPBillPacket * pPack, int enableSTaxText, char * pBuf, size_t bufSize)
@@ -6175,7 +6186,7 @@ int PPALDD_GoodsBillBase::InitIteration(PPIterID iterId, int sortId, long)
 	return 1;
 }
 
-int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	PPBillPacket   * p_pack = (PPBillPacket *)(Extra[0].Ptr);
@@ -6411,7 +6422,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId, long rsrv)
 	}
 	else
 		tiie.Clb.CopyTo(I.CLB, sizeof(I.CLB));
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 }
 //
 // Implementation of PPALDD_GoodsBillDispose
@@ -6575,7 +6586,7 @@ int PPALDD_GoodsBillDispose::InitIteration(long iterId, int sortId, long rsrv)
 	return 1;
 }
 
-int PPALDD_GoodsBillDispose::NextIteration(long iterId, long rsrv)
+int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 {
 	IterProlog(iterId, 0);
 	//
@@ -6670,7 +6681,7 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId, long rsrv)
 	QttyToStr(fabs(p_ti->Qtty()),     upp, ((r_cfg.Flags & CFGFLG_USEPACKAGE) ? MKSFMT(0, QTTYF_COMPLPACK | QTTYF_FRACTION) : QTTYF_FRACTION), I.CQtty);
 	QttyToStr(fabs(tiie.LctRec.Qtty), upp, ((r_cfg.Flags & CFGFLG_USEPACKAGE) ? MKSFMT(0, QTTYF_COMPLPACK | QTTYF_FRACTION) : QTTYF_FRACTION), I.CDispQtty);
 	//
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 }
 //
 // Implementation of PPALDD_Bill
@@ -6875,7 +6886,7 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 	return ok;
 }
 
-int PPALDD_Bill::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_Bill::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
 	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
@@ -6968,7 +6979,6 @@ int PPALDD_Bill::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS
 			_RET_STR = 0;
 	}
 	// } @v8.0.2
-	return 1;
 }
 //
 // Implementation of PPALDD_BillPool
@@ -7032,19 +7042,19 @@ int PPALDD_BillPool::InitIteration(long iterId, int sortId, long rsrv)
 	return -1;
 }
 
-int PPALDD_BillPool::NextIteration(long iterId, long rsrv)
+int PPALDD_BillPool::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
 	PPID   memb_id = I.InnerBillID;
 	if(BillObj->P_Tbl->EnumMembersOfPool(H.AssocType, H.ID, &memb_id) > 0) {
 		I.InnerBillID = memb_id;
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }
 
-int PPALDD_BillPool::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_BillPool::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
 	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
@@ -7066,7 +7076,6 @@ int PPALDD_BillPool::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack 
 			}
 		}
 	}
-	return 1;
 }
 //
 // Implementation of PPALDD_GoodsBillModif
@@ -7170,7 +7179,7 @@ int PPALDD_GoodsBillModif::InitIteration(PPIterID iterId, int sortId, long /*rsr
 	return 1;
 }
 
-int PPALDD_GoodsBillModif::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsBillModif::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	{
@@ -7235,7 +7244,7 @@ int PPALDD_GoodsBillModif::NextIteration(PPIterID iterId, long rsrv)
 		QttyToStr(p_ti->Quantity_, p_ti->UnitPerPack, ((LConfig.Flags & CFGFLG_USEPACKAGE) ?
 			MKSFMT(0, QTTYF_SIMPLPACK | QTTYF_FRACTION) : QTTYF_FRACTION), I.CQtty);
 	}
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 }
 //
 // Implementation of PPALDD_GoodsReval
@@ -7351,7 +7360,7 @@ int PPALDD_GoodsReval::InitIteration(PPIterID iterId, int sortId, long)
 	return 1;
 }
 
-int PPALDD_GoodsReval::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	{
@@ -7449,10 +7458,10 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId, long rsrv)
 		else
 			return -1;
 	}
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 }
 
-int PPALDD_GoodsReval::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_GoodsReval::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
 	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
@@ -7463,7 +7472,6 @@ int PPALDD_GoodsReval::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStac
 		PPBillPacket * p_pack = (PPBillPacket *)Extra[0].Ptr;
 		_RET_INT = BIN(p_pack && p_pack->ProcessFlags & PPBillPacket::pfAllGoodsUnlim);
 	}
-	return 1;
 }
 //
 // Implementation of PPALDD_BillPayPlan
@@ -7501,7 +7509,7 @@ int PPALDD_BillPayPlan::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	return 1;
 }
 
-int PPALDD_BillPayPlan::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_BillPayPlan::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	{
@@ -7519,7 +7527,7 @@ int PPALDD_BillPayPlan::NextIteration(PPIterID iterId, long rsrv)
 		else
 			return -1;
 	}
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 }
 //
 // Implementation of PPALDD_CashOrder
@@ -7718,7 +7726,7 @@ int PPALDD_GoodsBillQCert::InitIteration(PPIterID iterId, int sortId, long)
 	return 1;
 }
 
-int PPALDD_GoodsBillQCert::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsBillQCert::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	{
@@ -7737,7 +7745,7 @@ int PPALDD_GoodsBillQCert::NextIteration(PPIterID iterId, long rsrv)
 		I.Qtty    = fabs(p_ti->Qtty());
 		STRNSCPY(I.LExpiry, qc_rec.SPrDate);
 	}
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 }
 //
 // Implementation PPALDD_BillList
@@ -7788,7 +7796,7 @@ int PPALDD_BillList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	return 1;
 }
 
-int PPALDD_BillList::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_BillList::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(Bill);
 	I.BillID = item.ID;
@@ -7868,7 +7876,7 @@ int PPALDD_ContentBList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*
 	return 1;
 }
 
-int PPALDD_ContentBList::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 {
 	struct VIterState {
 		int    IsDraft;
@@ -7944,7 +7952,7 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId, long rsrv)
 			I.CurPrice = ti.CurPrice;
 			I.Quantity = qtty;
 			I.OldQtty  = old_qtty;
-			return DlRtm::NextIteration(iterId, rsrv);
+			return DlRtm::NextIteration(iterId);
 		}
 		else {
 			I.recNo = 0;
@@ -8041,7 +8049,7 @@ int PPALDD_AdvanceRep::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	return 1;
 }
 
-int PPALDD_AdvanceRep::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_AdvanceRep::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	PPBillPacket * p_pack = (PPBillPacket *)(Extra[0].Ptr);
@@ -8062,7 +8070,7 @@ int PPALDD_AdvanceRep::NextIteration(PPIterID iterId, long rsrv)
 	}
 	else
 		return -1;
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 }
 //
 // Implementation of PPALDD_BnkPaymOrder
@@ -8185,7 +8193,7 @@ int PPALDD_BillTotal::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	return 1;
 }
 
-int PPALDD_BillTotal::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_BillTotal::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	BillTotalPrintData * p_data = (BillTotalPrintData *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
@@ -8205,7 +8213,7 @@ int PPALDD_BillTotal::NextIteration(PPIterID iterId, long rsrv)
 	}
 	else
 		return -1;
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 }
 
 void PPALDD_BillTotal::Destroy()
@@ -8252,7 +8260,7 @@ int PPALDD_AssetReceipt::InitIteration(PPIterID iterId, int sortId, long /*rsrv*
 	return 1;
 }
 
-int PPALDD_AssetReceipt::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_AssetReceipt::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	AssetCard * p_data = (AssetCard *)Extra[1].Ptr;
@@ -8267,7 +8275,7 @@ int PPALDD_AssetReceipt::NextIteration(PPIterID iterId, long rsrv)
 	}
 	else
 		return -1;
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 }
 
 void PPALDD_AssetReceipt::Destroy()
@@ -8317,7 +8325,7 @@ int PPALDD_Warrant::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	return 1;
 }
 
-int PPALDD_Warrant::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_Warrant::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	PPBillPacket * p_pack = (PPBillPacket *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
@@ -8329,7 +8337,7 @@ int PPALDD_Warrant::NextIteration(PPIterID iterId, long rsrv)
 		numbertotext(r_item.Amount, NTTF_NOZERO|NTTF_FIRSTCAP|NTTF_DECCURR, buf); // @v8.3.5 NTTF_DECCURR
 		STRNSCPY(I.Qtty, buf);
 		I.LineNo++;
-		return DlRtm::NextIteration(iterId, rsrv);
+		return DlRtm::NextIteration(iterId);
 	}
 	else
 		return -1;
@@ -8395,7 +8403,7 @@ int PPALDD_BillInfo::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	return 1;
 }
 
-int PPALDD_BillInfo::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_BillInfo::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	uint   n = (uint)I.nn;
@@ -8406,7 +8414,7 @@ int PPALDD_BillInfo::NextIteration(PPIterID iterId, long rsrv)
 		I.AmountID   = r_amt.AmtTypeID;
 		I.CurrencyID = r_amt.CurID;
 		I.Amount     = r_amt.Amt;
-		return DlRtm::NextIteration(iterId, rsrv);
+		return DlRtm::NextIteration(iterId);
 	}
 	else
 		return -1;
@@ -8444,7 +8452,7 @@ int PPALDD_BillInfoList::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	return p_bilpd->P_V->InitIteration(PPViewBill::OrdByDefault);
 }
 
-int PPALDD_BillInfoList::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_BillInfoList::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	int    ok = 1;
@@ -8495,7 +8503,7 @@ int PPALDD_BillInfoList::NextIteration(PPIterID iterId, long rsrv)
 			I.CurrencyID = amt.CurID;
 			I.Amount     = amt.Amt;
 		}
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }
@@ -8571,7 +8579,7 @@ int PPALDD_UhttBill::InitIteration(long iterId, int sortId, long rsrv)
 	return -1;
 }
 
-int PPALDD_UhttBill::NextIteration(long iterId, long rsrv)
+int PPALDD_UhttBill::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -8588,7 +8596,7 @@ int PPALDD_UhttBill::NextIteration(long iterId, long rsrv)
 				I_Items.Discount = p_ti->Discount;
 				I_Items.Amount = p_ti->Quantity_ * p_ti->Price;
 				I_Items.Flags = p_ti->Flags;
-				ok = DlRtm::NextIteration(iterId, rsrv);
+				ok = DlRtm::NextIteration(iterId);
 			}
 		}
 	}
@@ -8626,7 +8634,7 @@ int PPALDD_UhttDraftTransitGoodsRestList::InitIteration(long iterId, int sortId,
 	return -1;
 }
 
-int PPALDD_UhttDraftTransitGoodsRestList::NextIteration(long iterId, long rsrv)
+int PPALDD_UhttDraftTransitGoodsRestList::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -8639,7 +8647,7 @@ int PPALDD_UhttDraftTransitGoodsRestList::NextIteration(long iterId, long rsrv)
 		I.RestBillDt = r_gr_val.RestBillDt;
 		//
 		p_list->incPointer();
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }

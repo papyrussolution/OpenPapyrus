@@ -49,18 +49,18 @@
 #include <string.h>
 
 /* Any 32-bit or wider unsigned integer data type will do */
-typedef uint MD4_u32plus;
+typedef unsigned int MD4_u32plus;
 
 typedef struct {
 	MD4_u32plus lo, hi;
 	MD4_u32plus a, b, c, d;
-	uchar buffer[64];
+	unsigned char buffer[64];
 	MD4_u32plus block[16];
 } MD4_CTX;
 
 static void MD4_Init(MD4_CTX * ctx);
-static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size);
-static void MD4_Final(uchar * result, MD4_CTX * ctx);
+static void MD4_Update(MD4_CTX * ctx, const void * data, unsigned long size);
+static void MD4_Final(unsigned char * result, MD4_CTX * ctx);
 
 /*
  * The basic MD4 functions.
@@ -107,13 +107,13 @@ static void MD4_Final(uchar * result, MD4_CTX * ctx);
  * This processes one or more 64-byte data blocks, but does NOT update
  * the bit counters.  There are no alignment requirements.
  */
-static const void * body(MD4_CTX * ctx, const void * data, ulong size)
+static const void * body(MD4_CTX * ctx, const void * data, unsigned long size)
 {
-	const uchar * ptr;
+	const unsigned char * ptr;
 	MD4_u32plus a, b, c, d;
 	MD4_u32plus saved_a, saved_b, saved_c, saved_d;
 
-	ptr = (const uchar*)data;
+	ptr = (const unsigned char*)data;
 
 	a = ctx->a;
 	b = ctx->b;
@@ -207,13 +207,14 @@ static void MD4_Init(MD4_CTX * ctx)
 	ctx->hi = 0;
 }
 
-static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size)
+static void MD4_Update(MD4_CTX * ctx, const void * data, unsigned long size)
 {
 	MD4_u32plus saved_lo;
-	ulong used, available;
+	unsigned long used, available;
 
 	saved_lo = ctx->lo;
-	if((ctx->lo = (saved_lo + size) & 0x1fffffff) < saved_lo)
+	ctx->lo = (saved_lo + size) & 0x1fffffff;
+	if(ctx->lo < saved_lo)
 		ctx->hi++;
 	ctx->hi += (MD4_u32plus)size >> 29;
 
@@ -228,22 +229,21 @@ static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size)
 		}
 
 		memcpy(&ctx->buffer[used], data, available);
-		data = (const uchar*)data + available;
+		data = (const unsigned char*)data + available;
 		size -= available;
 		body(ctx, ctx->buffer, 64);
 	}
 
 	if(size >= 64) {
-		data = body(ctx, data, size & ~(ulong)0x3f);
+		data = body(ctx, data, size & ~(unsigned long)0x3f);
 		size &= 0x3f;
 	}
-
 	memcpy(ctx->buffer, data, size);
 }
 
-static void MD4_Final(uchar * result, MD4_CTX * ctx)
+static void MD4_Final(unsigned char * result, MD4_CTX * ctx)
 {
-	ulong used, available;
+	unsigned long used, available;
 	used = ctx->lo & 0x3f;
 	ctx->buffer[used++] = 0x80;
 	available = 64 - used;
@@ -287,7 +287,7 @@ static void MD4_Final(uchar * result, MD4_CTX * ctx)
 
 #endif
 
-void Curl_md4it(uchar * output, const uchar * input, size_t len)
+void Curl_md4it(unsigned char * output, const unsigned char * input, size_t len)
 {
 	MD4_CTX ctx;
 	MD4_Init(&ctx);

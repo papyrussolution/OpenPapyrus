@@ -1382,7 +1382,7 @@ int SLAPI PPViewPrjTask::NextOuterIteration()
 	return ok;
 }
 
-int SLAPI PPViewPrjTask::NextIteration(PrjTaskViewItem * pItem)
+int FASTCALL PPViewPrjTask::NextIteration(PrjTaskViewItem * pItem)
 {
 	int    ok = -1;
 	const  int tm_period_valid = BIN((Filt.StartTmPeriodBeg || Filt.StartTmPeriodEnd) && Filt.StartTmPeriodEnd >= Filt.StartTmPeriodBeg);
@@ -2255,7 +2255,7 @@ int PPALDD_PrjTaskView::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(PrjTask);
 }
 
-int PPALDD_PrjTaskView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_PrjTaskView::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(PrjTask);
 	I.TodoID  = item.ID;
@@ -2337,7 +2337,7 @@ int PPALDD_PrjTaskViewCt::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(PrjTask);
 }
 
-int PPALDD_PrjTaskViewCt::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_PrjTaskViewCt::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(PrjTask);
 	const PrjTaskFilt * p_filt = (const PrjTaskFilt *)p_v->GetBaseFilt();

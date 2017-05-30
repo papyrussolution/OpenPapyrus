@@ -45,7 +45,7 @@
 //
 // If the parameters are fixed, some of the statics below can be
 // replaced with constants in the obvious way, and additionally
-// malloc/free can be avoided by using static arrays of a suitable
+// SAlloc::M/free can be avoided by using static arrays of a suitable
 // size.
 
 #include "common.h"
@@ -77,8 +77,8 @@ void rs_init_gf(const int poly)
 	m--;
 	// Calculate the log/alog tables
 	logmod = (1 << m) - 1;
-	logt = (int*)malloc(sizeof(int) * (logmod + 1));
-	alog = (int*)malloc(sizeof(int) * logmod);
+	logt = (int*)SAlloc::M(sizeof(int) * (logmod + 1));
+	alog = (int*)SAlloc::M(sizeof(int) * logmod);
 	for(p = 1, v = 0; v < logmod; v++) {
 		alog[v] = p;
 		logt[p] = v;
@@ -98,7 +98,7 @@ void rs_init_gf(const int poly)
 void rs_init_code(const int nsym, int index)
 {
 	int i, k;
-	rspoly = (int*)malloc(sizeof(int) * (nsym + 1));
+	rspoly = (int*)SAlloc::M(sizeof(int) * (nsym + 1));
 	rlen = nsym;
 	rspoly[0] = 1;
 	for(i = 1; i <= nsym; i++) {

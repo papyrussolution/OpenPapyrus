@@ -493,7 +493,7 @@ int PsnOpKindView::InitIteration()
 	return (P_Items && P_Items->getCount()) ? 1 : -1;
 }
 
-int PsnOpKindView::NextIteration(PPPsnOpKind * pItem)
+int FASTCALL PsnOpKindView::NextIteration(PPPsnOpKind * pItem)
 {
 	int    ok = -1;
 	if(P_Items && IterNo < P_Items->getCount())
@@ -768,7 +768,7 @@ int SLAPI PPObjPsnOpKind::GetPacket(PPID id, PPPsnOpKindPacket * pack)
 	if((r = Search(id, &pack->Rec)) > 0) {
 		size_t extra_sz = 0;
 		if(ref->GetPropActualSize(Obj, id, POKPRP_EXTRA, &extra_sz) > 0) {
-			p_ex = (_POKExtra *)malloc(extra_sz);
+			p_ex = (_POKExtra *)SAlloc::M(extra_sz);
 			THROW(ref->GetProp(Obj, id, POKPRP_EXTRA, p_ex, extra_sz) > 0);
 			if(extra_sz >= sizeof(_POKExtra)) {
 				pack->PCPrmr.PersonKindID = p_ex->PrmrKindID;
@@ -840,7 +840,7 @@ int SLAPI PPObjPsnOpKind::GetPacket(PPID id, PPPsnOpKindPacket * pack)
 	else
 		ok = r;
 	CATCHZOK
-	free(p_ex);
+	SAlloc::F(p_ex);
 	return ok;
 }
 
@@ -862,7 +862,7 @@ void * SLAPI PPPsnOpKindPacket::AllocExtraProp(size_t * pSz) const
 			sz += sizeof(uint32); // PCScnd.RestrictScSerList.getCount()
 			sz += sscsl_c * sizeof(uint32);
 		}
-		p_ex = (_POKExtra *)malloc(sz);
+		p_ex = (_POKExtra *)SAlloc::M(sz);
 		THROW_MEM(p_ex);
 		memzero(p_ex, sz);
 		p_ex->PrmrKindID     = PCPrmr.PersonKindID;
@@ -946,7 +946,7 @@ int SLAPI PPObjPsnOpKind::PutPacket(PPID * pID, PPPsnOpKindPacket * pPack, int u
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	free(p_ex);
+	SAlloc::F(p_ex);
 	return ok;
 }
 

@@ -561,7 +561,7 @@ static uint32_t * dest_get_scanline_narrow(pixman_iter_t * iter, const uint32_t 
 	image->bits.fetch_scanline_32(&image->bits, x, y, width, buffer, mask);
 	if(image->common.alpha_map) {
 		uint32_t * alpha;
-		if((alpha = (uint32_t *)malloc(width * sizeof(uint32_t)))) {
+		if((alpha = (uint32_t *)SAlloc::M(width * sizeof(uint32_t)))) {
 			int i;
 			x -= image->common.alpha_origin_x;
 			y -= image->common.alpha_origin_y;
@@ -570,7 +570,7 @@ static uint32_t * dest_get_scanline_narrow(pixman_iter_t * iter, const uint32_t 
 				buffer[i] &= ~0xff000000;
 				buffer[i] |= (alpha[i] & 0xff000000);
 			}
-			free(alpha);
+			SAlloc::F(alpha);
 		}
 	}
 	return iter->buffer;
@@ -586,13 +586,13 @@ static uint32_t * dest_get_scanline_wide(pixman_iter_t * iter, const uint32_t * 
 	image->fetch_scanline_float(image, x, y, width, (uint32_t*)buffer, mask);
 	if(image->common.alpha_map) {
 		argb_t * alpha;
-		if((alpha = (argb_t *)malloc(width * sizeof(argb_t)))) {
+		if((alpha = (argb_t *)SAlloc::M(width * sizeof(argb_t)))) {
 			x -= image->common.alpha_origin_x;
 			y -= image->common.alpha_origin_y;
 			image->common.alpha_map->fetch_scanline_float(image->common.alpha_map, x, y, width, (uint32_t*)alpha, mask);
 			for(int i = 0; i < width; ++i)
 				buffer[i].a = alpha[i].a;
-			free(alpha);
+			SAlloc::F(alpha);
 		}
 	}
 	return iter->buffer;
@@ -672,7 +672,7 @@ static uint32_t * create_bits(pixman_format_code_t format, int width, int height
 	if(clear)
 		return (uint32_t *)calloc(buf_size, 1);
 	else
-		return (uint32_t *)malloc(buf_size);
+		return (uint32_t *)SAlloc::M(buf_size);
 }
 
 pixman_bool_t _pixman_bits_image_init(pixman_image_t * image, pixman_format_code_t format, int width, int height, uint32_t * bits, int rowstride, pixman_bool_t clear)
@@ -709,7 +709,7 @@ static pixman_image_t * create_bits_image_internal(pixman_format_code_t format, 
 	pixman_image_t * image = _pixman_image_allocate();
 	if(image) {
 		if(!_pixman_bits_image_init(image, format, width, height, bits, rowstride_bytes / (int)sizeof(uint32_t), clear)) {
-			free(image);
+			SAlloc::F(image);
 			return NULL;
 		}
 	}

@@ -150,7 +150,7 @@ int SLAPI PPDutySchedPacket::InitIteration(EnumParam * pEnum, const STimeChunk &
 	return ok;
 }
 
-int SLAPI PPDutySchedPacket::NextIteration(EnumParam * pEnum) const
+int FASTCALL PPDutySchedPacket::NextIteration(EnumParam * pEnum) const
 {
 	LDATETIME next;
 	if(Cp.Start.d) {

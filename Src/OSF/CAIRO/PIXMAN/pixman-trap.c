@@ -473,7 +473,7 @@ PIXMAN_EXPORT void pixman_composite_triangles(pixman_op_t op,
 	pixman_trapezoid_t * traps;
 	if((traps = convert_triangles(n_tris, tris))) {
 		pixman_composite_trapezoids(op, src, dst, mask_format, x_src, y_src, x_dst, y_dst, n_tris * 2, traps);
-		free(traps);
+		SAlloc::F(traps);
 	}
 }
 
@@ -482,7 +482,7 @@ PIXMAN_EXPORT void pixman_add_triangles(pixman_image_t * image, int32_t x_off, i
 	pixman_trapezoid_t * traps;
 	if((traps = convert_triangles(n_tris, tris))) {
 		pixman_add_trapezoids(image, x_off, y_off, n_tris * 2, traps);
-		free(traps);
+		SAlloc::F(traps);
 	}
 }
 

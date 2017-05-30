@@ -217,7 +217,7 @@ cairo_status_t _cairo_hull_compute(cairo_pen_vertex_t * vertices, int * num_vert
 	_cairo_hull_eliminate_concave(hull, num_hull);
 	_cairo_hull_to_pen(hull, vertices, num_vertices);
 	if(hull != hull_stack)
-		free(hull);
+		SAlloc::F(hull);
 	return CAIRO_STATUS_SUCCESS;
 }
 

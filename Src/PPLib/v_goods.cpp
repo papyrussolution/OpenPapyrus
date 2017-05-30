@@ -416,11 +416,11 @@ int SLAPI GoodsFilt::IsEmpty() const
 		return 0;
 	if(!BrandList.IsEmpty())
 		return 0;
-	if(!BrandOwnerList.IsEmpty()) // @v7.7.9
+	if(!BrandOwnerList.IsEmpty())
 		return 0;
 	if(P_SjF && !P_SjF->IsEmpty())
 		return 0;
-	if(P_TagF && !P_TagF->IsEmpty()) // @v7.2.0
+	if(P_TagF && !P_TagF->IsEmpty())
 		return 0;
 	return 1;
 }
@@ -610,7 +610,7 @@ int SLAPI GoodsFilt::WriteToProp(PPID obj, PPID id, PPID prop)
 		// } @v7.2.0 (-22)
 		rec_size += sizeof(PPID) * BrandOwnerList.GetCount(); // @v7.7.9
 		rec_size = MAX(rec_size, PROPRECFIXSIZE);
-		p_buf = (__GoodsFilt*)calloc(1, rec_size);
+		p_buf = (__GoodsFilt*)SAlloc::C(1, rec_size);
 
 		p_buf->ObjType = obj;
 		p_buf->ObjID   = id;
@@ -705,7 +705,7 @@ int SLAPI GoodsFilt::WriteToProp(PPID obj, PPID id, PPID prop)
 		// } @v7.2.0 (-22)
 		p = WriteObjIdListFilt(p, BrandOwnerList); // @v7.7.9
 		ok = PPRef->PutProp(obj, id, prop, p_buf, rec_size);
-		free(p_buf);
+		SAlloc::F(p_buf);
 	}
 	return ok;
 }
@@ -752,7 +752,7 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 	char * p = 0;
 	size_t prop_size = 0;
 	if(PPRef->GetPropActualSize(obj, id, prop, &prop_size) > 0) {
-		THROW_MEM(p_buf = (__GoodsFilt*)calloc(1, prop_size));
+		THROW_MEM(p_buf = (__GoodsFilt*)SAlloc::C(1, prop_size));
 		THROW(PPRef->GetProp(obj, id, prop, p_buf, prop_size) > 0);
 		if(p_buf->VerTag <= -11 && p_buf->VerTag > -100) {
 			GrpID       = p_buf->GrpID;
@@ -926,7 +926,7 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 	else
 		ok = -1;
 	CATCHZOK
-	free(p_buf);
+	SAlloc::F(p_buf);
 	Setup();
 	return ok;
 }
@@ -1700,10 +1700,8 @@ int SLAPI PPViewGoods::IsTempTblNeeded()
 				}
 				if(Filt.P_SjF && !Filt.P_SjF->IsEmpty())
 					return 1;
-				// @v7.2.0 {
 				if(Filt.P_TagF && !Filt.P_TagF->IsEmpty())
 					return 1;
-				// } @v7.2.0
 				else if(Filt.GrpID) {
 					Goods2Tbl::Rec grp_rec;
 					if(GObj.Fetch(Filt.GrpID, &grp_rec) > 0)
@@ -1794,7 +1792,7 @@ int SLAPI PPViewGoods::NextInnerIteration(int initList, GoodsViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewGoods::NextIteration(GoodsViewItem * pItem)
+int FASTCALL PPViewGoods::NextIteration(GoodsViewItem * pItem)
 {
 	int    ok = -1;
 	if(NextInnerIteration(0, &IterCurItem) > 0) {
@@ -3904,7 +3902,7 @@ int PPALDD_GoodsBasket::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/
 	return 1;
 }
 
-int PPALDD_GoodsBasket::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsBasket::NextIteration(PPIterID iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -3920,7 +3918,7 @@ int PPALDD_GoodsBasket::NextIteration(PPIterID iterId, long rsrv)
 		QttyToStr(item.Quantity, item.UnitPerPack, ((LConfig.Flags & CFGFLG_USEPACKAGE) ?
 			MKSFMT(0, QTTYF_COMPLPACK | QTTYF_FRACTION) : QTTYF_FRACTION), I.CQtty);
 		I.SumPerUnit = item.Price * item.Quantity;
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }
@@ -3963,7 +3961,7 @@ int PPALDD_GoodsView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	INIT_PPVIEW_ALDD_ITER(Goods);
 }
 
-int PPALDD_GoodsView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsView::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(Goods);
 	I.GoodsID = item.ID;
@@ -4064,7 +4062,7 @@ int PPALDD_GoodsStruc::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	return ok;
 }
 
-int PPALDD_GoodsStruc::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsStruc::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	{
@@ -4099,7 +4097,7 @@ int PPALDD_GoodsStruc::NextIteration(PPIterID iterId, long rsrv)
 		else
 			return -1;
 	}
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 }
 
 void PPALDD_GoodsStruc::Destroy()
@@ -4194,7 +4192,7 @@ int PPALDD_GoodsGroup::InitData(PPFilt & rFilt, long rsrv)
 	return ok;
 }
 
-int PPALDD_GoodsGroup::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_GoodsGroup::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
 	#define _RET_LONG    (*(long *)rS.GetPtr(pApl->Get(0)))
@@ -4211,7 +4209,6 @@ int PPALDD_GoodsGroup::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStac
 		}
 		_RET_LONG = sur_id;
 	}
-	return 1;
 }
 //
 // Implementation of PPALDD_Goods
@@ -4300,7 +4297,7 @@ int PPALDD_Goods::InitData(PPFilt & rFilt, long rsrv)
 	return ok;
 }
 
-int PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
 	#define _ARG_LONG(n) (*(long *)rS.GetPtr(pApl->Get(n)))
@@ -4401,12 +4398,9 @@ int PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 		}
 		_RET_DBL = val;
 	}
-	// @v7.1.2 {
 	else if(pF->Name == "?GetTag") {
 		_RET_LONG = PPObjTag::Helper_GetTag(PPOBJ_GOODS, H.ID, _ARG_STR(1));
 	}
-	// } @v7.1.2
-	// @v7.1.12 {
 	else if(pF->Name == "?GetManufCountryText") {
 		_RET_STR = 0;
 		long   k = _ARG_LONG(1);
@@ -4438,7 +4432,6 @@ int PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 		}
 		_RET_STR = temp_buf;
 	}
-	// } @v7.1.12
 	// @v9.4.10 {
 	else if(pF->Name == "?GetSingleEgaisCode") {
 		SString temp_buf;
@@ -4557,7 +4550,6 @@ int PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 				gc_pack.GetExtProp(&p_blk->Pack.ExtRec, prop_id, &_i, _RET_STR);
 		}
 	}
-	return 1;
 }
 //
 // Implementation of PPALDD_GoodsFilt
@@ -4716,7 +4708,7 @@ int PPALDD_UhttGoods::InitIteration(long iterId, int sortId, long rsrv)
 	return -1;
 }
 
-int PPALDD_UhttGoods::NextIteration(long iterId, long rsrv)
+int PPALDD_UhttGoods::NextIteration(long iterId)
 {
 	int     ok = -1;
 	SString temp_buf;
@@ -4726,7 +4718,7 @@ int PPALDD_UhttGoods::NextIteration(long iterId, long rsrv)
 		if(r_blk.BarcodeIterCounter < r_blk.Pack.Codes.getCount()) {
 			STRNSCPY(I_BarcodeList.Code, r_blk.Pack.Codes.at(r_blk.BarcodeIterCounter).Code);
 			I_BarcodeList.Package = r_blk.Pack.Codes.at(r_blk.BarcodeIterCounter).Qtty;
-			ok = DlRtm::NextIteration(iterId, rsrv);
+			ok = DlRtm::NextIteration(iterId);
 		}
 		r_blk.BarcodeIterCounter++;
 	}
@@ -4763,7 +4755,7 @@ int PPALDD_UhttGoods::NextIteration(long iterId, long rsrv)
 					p_item->GetDate(&I_TagList.DateVal);
 					break;
 			}
-			ok = DlRtm::NextIteration(iterId, rsrv);
+			ok = DlRtm::NextIteration(iterId);
 		}
 		r_blk.TagIterCounter++;
 	}
@@ -5323,14 +5315,14 @@ int PPALDD_GoodsClassView::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	return 1;
 }
 
-int PPALDD_GoodsClassView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsClassView::NextIteration(PPIterID iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
 	StrAssocArray * p_list = (StrAssocArray *)Extra[0].Ptr;
 	if(p_list && p_list->getPointer() < p_list->getCount()) {
 		I.GcID = p_list->at(p_list->incPointer()).Id;
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }
@@ -5372,7 +5364,7 @@ int PPALDD_GoodsGroupView::InitIteration(PPIterID iterId, int /*sortId*/, long /
 	return BIN(p_v && p_v->InitIteration());
 }
 
-int PPALDD_GoodsGroupView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsGroupView::NextIteration(PPIterID iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -5386,7 +5378,7 @@ int PPALDD_GoodsGroupView::NextIteration(PPIterID iterId, long rsrv)
 			I.fAlt      = BIN(PPObjGoodsGroup::IsAlt(item.ID) > 0);
 			I.fTempAlt  = BIN(PPObjGoodsGroup::IsTempAlt(item.ID) > 0);
 			I.fDynAlt   = BIN(PPObjGoodsGroup::IsDynamicAlt(item.ID) > 0);
-			ok = DlRtm::NextIteration(iterId, rsrv);
+			ok = DlRtm::NextIteration(iterId);
 			break;
 		}
 	}
@@ -5437,7 +5429,7 @@ int PPALDD_GoodsLabel::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	return 1;
 }
 
-int PPALDD_GoodsLabel::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsLabel::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	if(H.nn < H.NumCopies) {
@@ -5465,6 +5457,6 @@ int PPALDD_GoodsLabel::NextIteration(PPIterID iterId, long rsrv)
 	}
 	else
 		return -1;
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 }
 

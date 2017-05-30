@@ -218,7 +218,7 @@ cairo_status_t _cairo_surface_offset_glyphs(cairo_surface_t * surface,
 	    NULL, 0, dev_glyphs, num_glyphs, NULL, 0, CAIRO_TEXT_CLUSTER_FLAG_NONE, scaled_font, dev_clip);
 	if(dev_clip != clip)
 		_cairo_clip_destroy(dev_clip);
-	free(dev_glyphs);
+	SAlloc::F(dev_glyphs);
 	return status;
 }
 

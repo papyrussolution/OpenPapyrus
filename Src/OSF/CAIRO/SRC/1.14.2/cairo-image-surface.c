@@ -161,7 +161,7 @@ void _cairo_image_surface_init(cairo_image_surface_t * surface, pixman_image_t *
 
 cairo_surface_t * _cairo_image_surface_create_for_pixman_image(pixman_image_t * pixman_image, pixman_format_code_t pixman_format)
 {
-	cairo_image_surface_t * surface = (cairo_image_surface_t *)malloc(sizeof(cairo_image_surface_t));
+	cairo_image_surface_t * surface = (cairo_image_surface_t *)SAlloc::M(sizeof(cairo_image_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_image_surface_backend, NULL/* device */, _cairo_content_from_pixman_format(pixman_format));
@@ -364,7 +364,7 @@ cairo_surface_t * _cairo_image_surface_create_with_content(cairo_content_t conte
  * cairo_surface_t *surface;
  *
  * stride = cairo_format_stride_for_width (format, width);
- * data = malloc (stride * height);
+ * data = SAlloc::M (stride * height);
  * surface = cairo_image_surface_create_for_data (data, format,
  *						  width, height,
  *						  stride);
@@ -397,7 +397,7 @@ slim_hidden_def(cairo_format_stride_for_width);
  * cairo_image_surface_create_for_data:
  * @data: a pointer to a buffer supplied by the application in which
  *     to write contents. This pointer must be suitably aligned for any
- *     kind of variable, (for example, a pointer returned by malloc).
+ *     kind of variable, (for example, a pointer returned by SAlloc::M).
  * @format: the format of pixels in the buffer
  * @width: the width of the image to be stored in the buffer
  * @height: the height of the image to be stored in the buffer
@@ -709,7 +709,7 @@ cairo_status_t _cairo_image_surface_finish(void * abstract_surface)
 		surface->pixman_image = NULL;
 	}
 	if(surface->owns_data) {
-		free(surface->data);
+		SAlloc::F(surface->data);
 		surface->data = NULL;
 	}
 	if(surface->parent) {
@@ -926,7 +926,7 @@ cairo_image_surface_t * _cairo_image_surface_create_from_image(cairo_image_surfa
 cleanup_image:
 	pixman_image_unref(image);
 cleanup_mem:
-	free(mem);
+	SAlloc::F(mem);
 cleanup:
 	return (cairo_image_surface_t*)_cairo_surface_create_in_error(status);
 }

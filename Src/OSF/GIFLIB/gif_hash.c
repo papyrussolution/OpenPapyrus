@@ -30,7 +30,7 @@ static int KeyItem(uint32 Item);
 GifHashTableType * _InitHashTable(void)
 {
 	GifHashTableType * HashTable;
-	if((HashTable = (GifHashTableType*)malloc(sizeof(GifHashTableType))) == NULL)
+	if((HashTable = (GifHashTableType*)SAlloc::M(sizeof(GifHashTableType))) == NULL)
 		return NULL;
 	_ClearHashTable(HashTable);
 	return HashTable;

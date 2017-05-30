@@ -662,7 +662,7 @@ static inline void _pqueue_init(pqueue_t * pq)
 static inline void _pqueue_fini(pqueue_t * pq)
 {
 	if(pq->elements != pq->elements_embedded)
-		free(pq->elements);
+		SAlloc::F(pq->elements);
 }
 
 static cairo_status_t _pqueue_grow(pqueue_t * pq)
@@ -1445,7 +1445,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_polygon(cairo_traps_t         *
 				_cairo_bo_event_queue_sort(event_ptrs+j, i-j);
 		}
 		if(event_y != stack_event_y)
-			free(event_y);
+			SAlloc::F(event_y);
 	}
 	else
 		_cairo_bo_event_queue_sort(event_ptrs, i);
@@ -1467,7 +1467,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_polygon(cairo_traps_t         *
 #endif
 
 	if(events != stack_events)
-		free(events);
+		SAlloc::F(events);
 
 	return status;
 }
@@ -1751,7 +1751,7 @@ static int run_test(const char            * test_name,
 		_cairo_array_fini(&intersected_edges);
 		_cairo_array_init(&intersected_edges, sizeof(cairo_bo_edge_t));
 		intersections = _cairo_bentley_ottmann_intersect_edges(edges, num_edges, &intersected_edges);
-		free(edges);
+		SAlloc::F(edges);
 
 		if(intersections) {
 			printf("Pass %d found %d remaining intersections:\n", passes, intersections);

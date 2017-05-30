@@ -686,7 +686,7 @@ int SLAPI PPViewLocTransf::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewLocTransf::NextIteration(LocTransfViewItem * pItem)
+int FASTCALL PPViewLocTransf::NextIteration(LocTransfViewItem * pItem)
 {
 	int    ok = -1;
 	if(P_IterQuery) {
@@ -1198,7 +1198,7 @@ int PPALDD_LocTransfView::InitIteration(long iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(LocTransf);
 }
 
-int PPALDD_LocTransfView::NextIteration(long iterId, long rsrv)
+int PPALDD_LocTransfView::NextIteration(long iterId)
 {
 	START_PPVIEW_ALDD_ITER(LocTransf);
 	I.TempID__ = item.TempID__;

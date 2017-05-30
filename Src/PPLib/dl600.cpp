@@ -325,7 +325,7 @@ int CtmConstList::Read(SBuffer * pBuf)
 	int    ok = 1;
 	pBuf->Read(&DataLen, sizeof(DataLen));
 	if(DataLen > Size) {
-		uint8 * p = (uint8 *)realloc(P_Buf, DataLen);
+		uint8 * p = (uint8 *)SAlloc::R(P_Buf, DataLen);
 		if(p) {
 			P_Buf = (char *)p;
 			Size = DataLen;
@@ -362,7 +362,7 @@ int CtmConstList::Add(CtmExprConst * pC, const void * pBuf, size_t len)
 		else {
 			size_t new_len = DataLen + len;
 			if(new_len > Size) {
-				uint8 * p = (uint8 *)realloc(P_Buf, new_len);
+				uint8 * p = (uint8 *)SAlloc::R(P_Buf, new_len);
 				if(p)
 					Set(p, new_len);
 				else
@@ -810,7 +810,7 @@ RtmStack::~RtmStack()
 int FASTCALL RtmStack::Init(size_t sz)
 {
 	size_t s = ALIGNSIZE(sz, 10);
-	B.P_Buf = (char *)realloc(B.P_Buf, s);
+	B.P_Buf = (char *)SAlloc::R(B.P_Buf, s);
 	if(B.P_Buf) {
 		B.Size = s;
 		return 1;

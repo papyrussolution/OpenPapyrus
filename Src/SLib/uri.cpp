@@ -167,8 +167,8 @@ static int FASTCALL UriMergePath(UriUri * absWork, const UriUri * relAppend)
 		UriPathSegment * destPrev;
 		/* Replace last segment("" if trailing slash) with first of append chain */
 		if(absWork->pathHead == NULL) {
-			UriPathSegment * const dup =(UriPathSegment *)malloc(sizeof(UriPathSegment));
-			THROW(dup); /* Raises malloc error */
+			UriPathSegment * const dup =(UriPathSegment *)SAlloc::M(sizeof(UriPathSegment));
+			THROW(dup); /* Raises SAlloc::M error */
 			dup->next = NULL;
 			absWork->pathHead = dup;
 			absWork->pathTail = dup;
@@ -180,11 +180,11 @@ static int FASTCALL UriMergePath(UriUri * absWork, const UriUri * relAppend)
 		if(sourceWalker) {
 			destPrev = absWork->pathTail;
 			for(; ok; ) {
-				UriPathSegment * const dup =(UriPathSegment *)malloc(sizeof(UriPathSegment));
+				UriPathSegment * const dup =(UriPathSegment *)SAlloc::M(sizeof(UriPathSegment));
 				if(dup == NULL) {
 					destPrev->next = NULL;
 					absWork->pathTail = destPrev;
-					CALLEXCEPT(); // Raises malloc error
+					CALLEXCEPT(); // Raises SAlloc::M error
 				}
 				else {
 					dup->text = sourceWalker->text;
@@ -340,7 +340,7 @@ static int UriAppendSegment(UriUri*uri, const char * first, const char * afterLa
 {
 	int    ok = 1;
 	/* Create segment */
-	UriPathSegment * segment = (UriPathSegment *)malloc(1 * sizeof(UriPathSegment));
+	UriPathSegment * segment = (UriPathSegment *)SAlloc::M(1 * sizeof(UriPathSegment));
 	if(segment == NULL)
 		ok = 0;
 	else {
@@ -610,14 +610,14 @@ int UriComposeQueryMallocEx(char * *dest, const UriQueryList*queryList, int spac
 	}
 	charsRequired++;
 	/* Allocate space */
-	queryString =(char *)malloc(charsRequired*sizeof(char));
+	queryString =(char *)SAlloc::M(charsRequired*sizeof(char));
 	if(queryString == NULL) {
 		return URI_ERROR_MALLOC;
 	}
 	/* Put query in */
 	res = UriComposeQueryEx(queryString, queryList, charsRequired, NULL, spaceToPlus, normalizeBreaks);
 	if(res != URI_SUCCESS) {
-		free(queryString);
+		SAlloc::F(queryString);
 		return res;
 	}
 	*dest = queryString;
@@ -705,18 +705,18 @@ int UriAppendQueryItem(UriQueryList ** prevNext,
 		return TRUE;
 	}
 	/* Append new empty item */
-	*prevNext =(UriQueryList *)malloc(1*sizeof(UriQueryList));
+	*prevNext =(UriQueryList *)SAlloc::M(1*sizeof(UriQueryList));
 	if(*prevNext == NULL) {
-		return FALSE; /* Raises malloc error */
+		return FALSE; /* Raises SAlloc::M error */
 	}
 	(*prevNext)->next = NULL;
 
 	/* Fill key */
-	key =(char *)malloc((keyLen+1)*sizeof(char));
+	key =(char *)SAlloc::M((keyLen+1)*sizeof(char));
 	if(key == NULL) {
-		free(*prevNext);
+		SAlloc::F(*prevNext);
 		*prevNext = NULL;
-		return FALSE; /* Raises malloc error */
+		return FALSE; /* Raises SAlloc::M error */
 	}
 	key[keyLen] = _UT('\0');
 	if(keyLen > 0) {
@@ -729,12 +729,12 @@ int UriAppendQueryItem(UriQueryList ** prevNext,
 	(*prevNext)->key = key;
 	/* Fill value */
 	if(valueFirst != NULL) {
-		value =(char *)malloc((valueLen+1)*sizeof(char));
+		value =(char *)SAlloc::M((valueLen+1)*sizeof(char));
 		if(value == NULL) {
-			free(key);
-			free(*prevNext);
+			SAlloc::F(key);
+			SAlloc::F(*prevNext);
 			*prevNext = NULL;
-			return FALSE; /* Raises malloc error */
+			return FALSE; /* Raises SAlloc::M error */
 		}
 		value[valueLen] = _UT('\0');
 		if(valueLen > 0) {
@@ -758,9 +758,9 @@ int UriAppendQueryItem(UriQueryList ** prevNext,
 void UriFreeQueryList(UriQueryList*queryList) {
 	while(queryList != NULL) {
 		UriQueryList*nextBackup = queryList->next;
-		free((char *)queryList->key); /* const cast */
-		free((char *)queryList->value); /* const cast */
-		free(queryList);
+		SAlloc::F((char *)queryList->key); /* const cast */
+		SAlloc::F((char *)queryList->value); /* const cast */
+		SAlloc::F(queryList);
 		queryList = nextBackup;
 	}
 }
@@ -1465,14 +1465,14 @@ int UriRemoveDotSegmentsEx(UriUri * uri, int relative, int pathOwned)
 								prev->next = walker->next; // Middle segment
 							}
 							if(pathOwned &&(walker->text.first != walker->text.afterLast)) {
-								free((char *)walker->text.first);
+								SAlloc::F((char *)walker->text.first);
 							}
-							free(walker);
+							SAlloc::F(walker);
 						}
 						else {
 							/* Last segment */
 							if(pathOwned &&(walker->text.first != walker->text.afterLast)) {
-								free((char *)walker->text.first);
+								SAlloc::F((char *)walker->text.first);
 							}
 							if(prev == NULL) {
 								/* Last and first */
@@ -1482,7 +1482,7 @@ int UriRemoveDotSegmentsEx(UriUri * uri, int relative, int pathOwned)
 									walker->text.afterLast = UriSafeToPointTo;
 								}
 								else {
-									free(walker);
+									SAlloc::F(walker);
 									uri->pathHead = NULL;
 									uri->pathTail = NULL;
 								}
@@ -1526,17 +1526,17 @@ int UriRemoveDotSegmentsEx(UriUri * uri, int relative, int pathOwned)
 								}
 								else {
 									/* Last segment -> insert "" segment to represent trailing slash, update tail */
-									UriPathSegment * const segment =(UriPathSegment *)malloc(1 * sizeof(UriPathSegment));
+									UriPathSegment * const segment =(UriPathSegment *)SAlloc::M(1 * sizeof(UriPathSegment));
 									if(segment == NULL) {
 										if(pathOwned && (walker->text.first != walker->text.afterLast)) {
-											free((char *)walker->text.first);
+											SAlloc::F((char *)walker->text.first);
 										}
-										free(walker);
+										SAlloc::F(walker);
 										if(pathOwned && (prev->text.first != prev->text.afterLast)) {
-											free((char *)prev->text.first);
+											SAlloc::F((char *)prev->text.first);
 										}
-										free(prev);
-										return FALSE; /* Raises malloc error */
+										SAlloc::F(prev);
+										return FALSE; /* Raises SAlloc::M error */
 									}
 									memzero(segment, sizeof(*segment));
 									segment->text.first = UriSafeToPointTo;
@@ -1545,13 +1545,13 @@ int UriRemoveDotSegmentsEx(UriUri * uri, int relative, int pathOwned)
 									uri->pathTail = segment;
 								}
 								if(pathOwned && (walker->text.first != walker->text.afterLast)) {
-									free((char *)walker->text.first);
+									SAlloc::F((char *)walker->text.first);
 								}
-								free(walker);
+								SAlloc::F(walker);
 								if(pathOwned &&(prev->text.first != prev->text.afterLast)) {
-									free((char *)prev->text.first);
+									SAlloc::F((char *)prev->text.first);
 								}
-								free(prev);
+								SAlloc::F(prev);
 								walker = nextBackup;
 							}
 							else {
@@ -1560,15 +1560,15 @@ int UriRemoveDotSegmentsEx(UriUri * uri, int relative, int pathOwned)
 									uri->pathHead = walker->next;
 									walker->next->reserved = NULL;
 									if(pathOwned && walker->text.first != walker->text.afterLast) {
-										free((char *)walker->text.first);
+										SAlloc::F((char *)walker->text.first);
 									}
-									free(walker);
+									SAlloc::F(walker);
 								}
 								else {
 									/* Re-use segment for "" path segment to represent trailing slash, update tail */
 									UriPathSegment * const segment = walker;
 									if(pathOwned && segment->text.first != segment->text.afterLast) {
-										free((char *)segment->text.first);
+										SAlloc::F((char *)segment->text.first);
 									}
 									segment->text.first = UriSafeToPointTo;
 									segment->text.afterLast = UriSafeToPointTo;
@@ -1576,9 +1576,9 @@ int UriRemoveDotSegmentsEx(UriUri * uri, int relative, int pathOwned)
 									uri->pathTail = segment;
 								}
 								if(pathOwned &&(prev->text.first != prev->text.afterLast)) {
-									free((char *)prev->text.first);
+									SAlloc::F((char *)prev->text.first);
 								}
-								free(prev);
+								SAlloc::F(prev);
 								walker = nextBackup;
 							}
 						}
@@ -1593,9 +1593,9 @@ int UriRemoveDotSegmentsEx(UriUri * uri, int relative, int pathOwned)
 								uri->pathTail = NULL; // Last segment -> update tail
 							}
 							if(pathOwned &&(walker->text.first != walker->text.afterLast)) {
-								free((char *)walker->text.first);
+								SAlloc::F((char *)walker->text.first);
 							}
-							free(walker);
+							SAlloc::F(walker);
 							walker = nextBackup;
 						}
 					}
@@ -1711,13 +1711,13 @@ int UriCopyPath(UriUri*dest,
 		UriPathSegment*sourceWalker = source->pathHead;
 		UriPathSegment*destPrev = NULL;
 		do {
-			UriPathSegment * cur =(UriPathSegment *)malloc(sizeof(UriPathSegment));
+			UriPathSegment * cur =(UriPathSegment *)SAlloc::M(sizeof(UriPathSegment));
 			if(cur == NULL) {
 				/* Fix broken list */
 				if(destPrev != NULL) {
 					destPrev->next = NULL;
 				}
-				return FALSE; /* Raises malloc error */
+				return FALSE; /* Raises SAlloc::M error */
 			}
 			/* From this functions usage we know that *
 			* the dest URI cannot be uri->owner      */
@@ -1751,9 +1751,9 @@ int UriCopyAuthority(UriUri*dest, const UriUri*source)
 	dest->hostText = source->hostText;
 	/* Copy hostData */
 	if(source->hostData.ip4 != NULL) {
-		dest->hostData.ip4 =(UriIp4 *)malloc(sizeof(UriIp4));
+		dest->hostData.ip4 =(UriIp4 *)SAlloc::M(sizeof(UriIp4));
 		if(dest->hostData.ip4 == NULL) {
-			return FALSE; /* Raises malloc error */
+			return FALSE; /* Raises SAlloc::M error */
 		}
 		*(dest->hostData.ip4) = *(source->hostData.ip4);
 		dest->hostData.ip6 = NULL;
@@ -1762,9 +1762,9 @@ int UriCopyAuthority(UriUri*dest, const UriUri*source)
 	}
 	else if(source->hostData.ip6 != NULL) {
 		dest->hostData.ip4 = NULL;
-		dest->hostData.ip6 =(UriIp6 *)malloc(sizeof(UriIp6));
+		dest->hostData.ip6 =(UriIp6 *)SAlloc::M(sizeof(UriIp6));
 		if(dest->hostData.ip6 == NULL) {
-			return FALSE; /* Raises malloc error */
+			return FALSE; /* Raises SAlloc::M error */
 		}
 		*(dest->hostData.ip6) = *(source->hostData.ip6);
 		dest->hostData.ipFuture.first = NULL;
@@ -1795,9 +1795,9 @@ int UriFixAmbiguity(UriUri*uri)
 	else {
 		return TRUE;
 	}
-	segment =(UriPathSegment *)malloc(1 * sizeof(UriPathSegment));
+	segment =(UriPathSegment *)SAlloc::M(1 * sizeof(UriPathSegment));
 	if(segment == NULL) {
-		return FALSE; /* Raises malloc error */
+		return FALSE; /* Raises SAlloc::M error */
 	}
 	/* Insert "." segment in front */
 	segment->next = uri->pathHead;
@@ -1834,19 +1834,19 @@ static void UriPreventLeakage(UriUri*uri, uint revertMask);
 static void UriPreventLeakage(UriUri*uri, uint revertMask)
 {
 	if(revertMask&URI_NORMALIZE_SCHEME) {
-		free((char *)uri->scheme.first);
+		SAlloc::F((char *)uri->scheme.first);
 		uri->scheme.first = NULL;
 		uri->scheme.afterLast = NULL;
 	}
 	if(revertMask&URI_NORMALIZE_USER_INFO) {
-		free((char *)uri->userInfo.first);
+		SAlloc::F((char *)uri->userInfo.first);
 		uri->userInfo.first = NULL;
 		uri->userInfo.afterLast = NULL;
 	}
 	if(revertMask&URI_NORMALIZE_HOST) {
 		if(uri->hostData.ipFuture.first != NULL) {
 			/* IPvFuture */
-			free((char *)uri->hostData.ipFuture.first);
+			SAlloc::F((char *)uri->hostData.ipFuture.first);
 			uri->hostData.ipFuture.first = NULL;
 			uri->hostData.ipFuture.afterLast = NULL;
 			uri->hostText.first = NULL;
@@ -1854,7 +1854,7 @@ static void UriPreventLeakage(UriUri*uri, uint revertMask)
 		}
 		else if((uri->hostText.first != NULL) &&(uri->hostData.ip4 == NULL) &&(uri->hostData.ip6 == NULL)) {
 			/* Regname */
-			free((char *)uri->hostText.first);
+			SAlloc::F((char *)uri->hostText.first);
 			uri->hostText.first = NULL;
 			uri->hostText.afterLast = NULL;
 		}
@@ -1865,21 +1865,21 @@ static void UriPreventLeakage(UriUri*uri, uint revertMask)
 		while(walker != NULL) {
 			UriPathSegment*const next = walker->next;
 			if(walker->text.afterLast > walker->text.first) {
-				free((char *)walker->text.first);
+				SAlloc::F((char *)walker->text.first);
 			}
-			free(walker);
+			SAlloc::F(walker);
 			walker = next;
 		}
 		uri->pathHead = NULL;
 		uri->pathTail = NULL;
 	}
 	if(revertMask&URI_NORMALIZE_QUERY) {
-		free((char *)uri->query.first);
+		SAlloc::F((char *)uri->query.first);
 		uri->query.first = NULL;
 		uri->query.afterLast = NULL;
 	}
 	if(revertMask&URI_NORMALIZE_FRAGMENT) {
-		free((char *)uri->fragment.first);
+		SAlloc::F((char *)uri->fragment.first);
 		uri->fragment.first = NULL;
 		uri->fragment.afterLast = NULL;
 	}
@@ -1955,7 +1955,7 @@ static int FASTCALL UriLowercaseMalloc(const char ** first, const char ** afterL
 			ok = 0;
 		}
 		else if(lenInChars > 0) {
-			buffer =(char *)malloc(lenInChars * sizeof(char));
+			buffer =(char *)SAlloc::M(lenInChars * sizeof(char));
 			if(buffer == NULL) {
 				ok = 0;
 			}
@@ -2044,7 +2044,7 @@ static int FASTCALL UriFixPercentEncodingMalloc(const char ** first, const char 
 		return FALSE;
 	}
 	/* New buffer */
-	buffer =(char *)malloc(lenInChars * sizeof(char));
+	buffer =(char *)SAlloc::M(lenInChars * sizeof(char));
 	if(buffer == NULL) {
 		return FALSE;
 	}
@@ -2059,9 +2059,9 @@ static int UriMakeRangeOwner(uint * doneMask, uint maskTest, UriTextRange*range)
 	if(((*doneMask&maskTest) == 0) &&(range->first != NULL) &&(range->afterLast != NULL) &&(range->afterLast > range->first)) {
 		const int lenInChars =(int)(range->afterLast-range->first);
 		const int lenInBytes = lenInChars*sizeof(char);
-		char * dup =(char *)malloc(lenInBytes);
+		char * dup =(char *)SAlloc::M(lenInBytes);
 		if(dup == NULL) {
-			return FALSE; /* Raises malloc error */
+			return FALSE; /* Raises SAlloc::M error */
 		}
 		memcpy(dup, range->first, lenInBytes);
 		range->first = dup;
@@ -2078,7 +2078,7 @@ static int FASTCALL UriMakeOwner(UriUri * uri, uint * doneMask)
 	   !UriMakeRangeOwner(doneMask, URI_NORMALIZE_USER_INFO, &(uri->userInfo)) ||
 	   !UriMakeRangeOwner(doneMask, URI_NORMALIZE_QUERY, &(uri->query)) ||
 	   !UriMakeRangeOwner(doneMask, URI_NORMALIZE_FRAGMENT, &(uri->fragment))) {
-		return FALSE; /* Raises malloc error */
+		return FALSE; /* Raises SAlloc::M error */
 	}
 	/* Host */
 	if((*doneMask&URI_NORMALIZE_HOST) == 0) {
@@ -2086,7 +2086,7 @@ static int FASTCALL UriMakeOwner(UriUri * uri, uint * doneMask)
 			if(uri->hostData.ipFuture.first != NULL) {
 				/* IPvFuture */
 				if(!UriMakeRangeOwner(doneMask, URI_NORMALIZE_HOST, &(uri->hostData.ipFuture))) {
-					return FALSE; /* Raises malloc error */
+					return FALSE; /* Raises SAlloc::M error */
 				}
 				uri->hostText.first = uri->hostData.ipFuture.first;
 				uri->hostText.afterLast = uri->hostData.ipFuture.afterLast;
@@ -2094,7 +2094,7 @@ static int FASTCALL UriMakeOwner(UriUri * uri, uint * doneMask)
 			else if(uri->hostText.first != NULL) {
 				/* Regname */
 				if(!UriMakeRangeOwner(doneMask, URI_NORMALIZE_HOST, &(uri->hostText))) {
-					return FALSE; /* Raises malloc error */
+					return FALSE; /* Raises SAlloc::M error */
 				}
 			}
 		}
@@ -2108,20 +2108,20 @@ static int FASTCALL UriMakeOwner(UriUri * uri, uint * doneMask)
 				while(ranger->next != walker) {
 					UriPathSegment * const next = ranger->next;
 					if(ranger->text.first && ranger->text.afterLast && (ranger->text.afterLast > ranger->text.first)) {
-						free((char *)ranger->text.first);
-						free(ranger);
+						SAlloc::F((char *)ranger->text.first);
+						SAlloc::F(ranger);
 					}
 					ranger = next;
 				}
 				/* Kill path from walker */
 				while(walker) {
 					UriPathSegment * const next = walker->next;
-					free(walker);
+					SAlloc::F(walker);
 					walker = next;
 				}
 				uri->pathHead = NULL;
 				uri->pathTail = NULL;
-				return FALSE; /* Raises malloc error */
+				return FALSE; /* Raises SAlloc::M error */
 			}
 			walker = walker->next;
 		}
@@ -2131,7 +2131,7 @@ static int FASTCALL UriMakeOwner(UriUri * uri, uint * doneMask)
 	* Otherwise we would need and extra enum flag for it although the port      *
 	* cannot go unnormalized...                                                */
 	if(!UriMakeRangeOwner(doneMask, 0, &(uri->portText))) {
-		return FALSE; /* Raises malloc error */
+		return FALSE; /* Raises SAlloc::M error */
 	}
 	return TRUE;
 }
@@ -3468,7 +3468,7 @@ static const char * UriParseIpLit2(UriParserState * state, const char * first, c
 	    case _UT(':'):
 	    case _UT(']'):
 	    case URI_SET_HEXDIG:
-			state->uri->hostData.ip6 =(UriIp6 *)malloc(1*sizeof(UriIp6));   /* Freed when stopping on parse error */
+			state->uri->hostData.ip6 =(UriIp6 *)SAlloc::M(1*sizeof(UriIp6));   /* Freed when stopping on parse error */
 			if(state->uri->hostData.ip6 == NULL) {
 				UriStopMalloc(state);
 				return NULL;
@@ -3863,14 +3863,14 @@ static int FASTCALL UriOnExitOwnHost2(UriParserState * state, const char * first
 {
 	state->uri->hostText.afterLast = first; /* HOST END */
 	/* Valid IPv4 or just a regname? */
-	state->uri->hostData.ip4 =(UriIp4 *)malloc(1*sizeof(UriIp4));   /* Freed when stopping on parse error */
+	state->uri->hostData.ip4 =(UriIp4 *)SAlloc::M(1*sizeof(UriIp4));   /* Freed when stopping on parse error */
 	if(state->uri->hostData.ip4 == NULL) {
-		return FALSE; /* Raises malloc error */
+		return FALSE; /* Raises SAlloc::M error */
 	}
 	else {
 		if(UriParseIpFourAddress(state->uri->hostData.ip4->data, state->uri->hostText.first, state->uri->hostText.afterLast)) {
 			/* Not IPv4 */
-			free(state->uri->hostData.ip4);
+			SAlloc::F(state->uri->hostData.ip4);
 			state->uri->hostData.ip4 = NULL;
 		}
 		return TRUE; /* Success */
@@ -3932,13 +3932,13 @@ static int FASTCALL UriOnExitOwnHostUserInfo(UriParserState * state, const char 
 	state->uri->userInfo.first = NULL; /* Not a userInfo, reset */
 	state->uri->hostText.afterLast = first; /* HOST END */
 	/* Valid IPv4 or just a regname? */
-	state->uri->hostData.ip4 =(UriIp4 *)malloc(1*sizeof(UriIp4));   /* Freed when stopping on parse error */
+	state->uri->hostData.ip4 =(UriIp4 *)SAlloc::M(1*sizeof(UriIp4));   /* Freed when stopping on parse error */
 	if(state->uri->hostData.ip4 == NULL) {
-		ok = 0; /* Raises malloc error */
+		ok = 0; /* Raises SAlloc::M error */
 	}
 	else if(UriParseIpFourAddress(state->uri->hostData.ip4->data, state->uri->hostText.first, state->uri->hostText.afterLast)) {
 		/* Not IPv4 */
-		free(state->uri->hostData.ip4);
+		SAlloc::F(state->uri->hostData.ip4);
 		state->uri->hostData.ip4 = NULL;
 	}
 	return ok; /* Success */
@@ -4051,13 +4051,13 @@ static int FASTCALL UriOnExitOwnPortUserInfo(UriParserState * state, const char 
 	state->uri->userInfo.first = NULL; /* Not a userInfo, reset */
 	state->uri->portText.afterLast = first; /* PORT END */
 	/* Valid IPv4 or just a regname? */
-	state->uri->hostData.ip4 =(UriIp4 *)malloc(1*sizeof(UriIp4));   /* Freed when stopping on parse error */
+	state->uri->hostData.ip4 =(UriIp4 *)SAlloc::M(1*sizeof(UriIp4));   /* Freed when stopping on parse error */
 	if(state->uri->hostData.ip4 == NULL) {
-		ok = 0; /* Raises malloc error */
+		ok = 0; /* Raises SAlloc::M error */
 	}
 	else if(UriParseIpFourAddress(state->uri->hostData.ip4->data, state->uri->hostText.first, state->uri->hostText.afterLast)) {
 		/* Not IPv4 */
-		free(state->uri->hostData.ip4);
+		SAlloc::F(state->uri->hostData.ip4);
 		state->uri->hostData.ip4 = NULL;
 	}
 	return ok;
@@ -4538,7 +4538,7 @@ static const char * UriParseSegmentNz(UriParserState * state, const char * first
 static int FASTCALL UriOnExitSegmentNzNcOrScheme2(UriParserState * state, const char * first)
 {
 	if(!UriPushPathSegment(state, state->uri->scheme.first, first)) // SEGMENT BOTH
-		return FALSE; /* Raises malloc error*/
+		return FALSE; /* Raises SAlloc::M error*/
 	else {
 		state->uri->scheme.first = NULL; /* Not a scheme, reset */
 		return TRUE; /* Success */
@@ -4793,9 +4793,9 @@ static void FASTCALL UriResetParserState(UriParserState * pState)
 static int UriPushPathSegment(UriParserState * state, const char * first, const char *  afterLast)
 {
 	int    ok = TRUE;
-	UriPathSegment * segment =(UriPathSegment *)malloc(1*sizeof(UriPathSegment));
+	UriPathSegment * segment =(UriPathSegment *)SAlloc::M(1*sizeof(UriPathSegment));
 	if(segment == NULL) {
-		ok = FALSE; // Raises malloc error
+		ok = FALSE; // Raises SAlloc::M error
 	}
 	else {
 		memzero(segment, sizeof(*segment));
@@ -4863,21 +4863,21 @@ void UriFreeUriMembers(UriUri * uri)
 			/* Scheme */
 			if(uri->scheme.first) {
 				if(uri->scheme.first != uri->scheme.afterLast)
-					free((char *)uri->scheme.first);
+					SAlloc::F((char *)uri->scheme.first);
 				uri->scheme.first = NULL;
 				uri->scheme.afterLast = NULL;
 			}
 			/* User info */
 			if(uri->userInfo.first) {
 				if(uri->userInfo.first != uri->userInfo.afterLast)
-					free((char *)uri->userInfo.first);
+					SAlloc::F((char *)uri->userInfo.first);
 				uri->userInfo.first = NULL;
 				uri->userInfo.afterLast = NULL;
 			}
 			/* Host data - IPvFuture */
 			if(uri->hostData.ipFuture.first) {
 				if(uri->hostData.ipFuture.first != uri->hostData.ipFuture.afterLast)
-					free((char *)uri->hostData.ipFuture.first);
+					SAlloc::F((char *)uri->hostData.ipFuture.first);
 				uri->hostData.ipFuture.first = NULL;
 				uri->hostData.ipFuture.afterLast = NULL;
 				uri->hostText.first = NULL;
@@ -4887,7 +4887,7 @@ void UriFreeUriMembers(UriUri * uri)
 			if(uri->hostText.first && !uri->hostData.ip4 && !uri->hostData.ip6) {
 				/* Real regname */
 				if(uri->hostText.first != uri->hostText.afterLast)
-					free((char *)uri->hostText.first);
+					SAlloc::F((char *)uri->hostText.first);
 				uri->hostText.first = NULL;
 				uri->hostText.afterLast = NULL;
 			}
@@ -4897,7 +4897,7 @@ void UriFreeUriMembers(UriUri * uri)
 		/* Port text */
 		if(uri->owner && uri->portText.first) {
 			if(uri->portText.first != uri->portText.afterLast)
-				free((char *)uri->portText.first);
+				SAlloc::F((char *)uri->portText.first);
 			uri->portText.first = NULL;
 			uri->portText.afterLast = NULL;
 		}
@@ -4907,8 +4907,8 @@ void UriFreeUriMembers(UriUri * uri)
 			while(segWalk != NULL) {
 				UriPathSegment*const next = segWalk->next;
 				if(uri->owner && segWalk->text.first && (segWalk->text.first < segWalk->text.afterLast))
-					free((char *)segWalk->text.first);
-				free(segWalk);
+					SAlloc::F((char *)segWalk->text.first);
+				SAlloc::F(segWalk);
 				segWalk = next;
 			}
 			uri->pathHead = NULL;
@@ -4918,14 +4918,14 @@ void UriFreeUriMembers(UriUri * uri)
 			/* Query */
 			if(uri->query.first != NULL) {
 				if(uri->query.first != uri->query.afterLast)
-					free((char *)uri->query.first);
+					SAlloc::F((char *)uri->query.first);
 				uri->query.first = NULL;
 				uri->query.afterLast = NULL;
 			}
 			/* Fragment */
 			if(uri->fragment.first != NULL) {
 				if(uri->fragment.first != uri->fragment.afterLast)
-					free((char *)uri->fragment.first);
+					SAlloc::F((char *)uri->fragment.first);
 				uri->fragment.first = NULL;
 				uri->fragment.afterLast = NULL;
 			}
@@ -4942,7 +4942,7 @@ int Uri_TESTING_ONLY_ParseIpSix(const char * text)
 	UriResetParserState(&parser);
 	UriResetUri(&uri);
 	parser.uri = &uri;
-	parser.uri->hostData.ip6 =(UriIp6 *)malloc(1*sizeof(UriIp6));
+	parser.uri->hostData.ip6 =(UriIp6 *)SAlloc::M(1*sizeof(UriIp6));
 	res = UriParseIPv6address2(&parser, text, afterIpSix);
 	UriFreeUriMembers(&uri);
 	return res == afterIpSix ? TRUE : FALSE;

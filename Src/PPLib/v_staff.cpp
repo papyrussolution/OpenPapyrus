@@ -190,7 +190,7 @@ int SLAPI PPViewStaffList::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewStaffList::NextIteration(StaffListViewItem * pItem)
+int FASTCALL PPViewStaffList::NextIteration(StaffListViewItem * pItem)
 {
 	int    ok = -1;
 	for(; ok < 0 && Counter < Data.getCount(); Counter.Increment()) {
@@ -634,7 +634,7 @@ int SLAPI PPViewStaffPost::InitIteration(int order)
 	return ok;
 }
 
-int SLAPI PPViewStaffPost::NextIteration(StaffPostViewItem * pItem)
+int FASTCALL PPViewStaffPost::NextIteration(StaffPostViewItem * pItem)
 {
 	int    ok = -1;
 	while(ok < 0 && P_IterQuery && P_IterQuery->nextIteration() > 0) {
@@ -1572,7 +1572,7 @@ int PPALDD_StaffListView::InitIteration(long iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(StaffList);
 }
 
-int PPALDD_StaffListView::NextIteration(long iterId, long rsrv)
+int PPALDD_StaffListView::NextIteration(long iterId)
 {
 	START_PPVIEW_ALDD_ITER(StaffList);
 	I.StaffID = item.ID;

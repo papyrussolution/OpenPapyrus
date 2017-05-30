@@ -170,14 +170,14 @@ int __txn_begin(ENV*env, DB_THREAD_INFO * ip, DB_TXN * parent, DB_TXN ** txnpp, 
 	if((ret = __txn_begin_int(txn)) != 0)
 		goto err;
 	td = (TXN_DETAIL *)txn->td;
-	if(parent != NULL) {
+	if(parent) {
 		ptd = (TXN_DETAIL *)parent->td;
 		TAILQ_INSERT_HEAD(&parent->kids, txn, klinks);
 		SH_TAILQ_INSERT_HEAD(&ptd->kids, td, klinks, __txn_detail);
 	}
 	if(LOCKING_ON(env)) {
 		region = (DB_LOCKREGION *)env->lk_handle->reginfo.primary;
-		if(parent != NULL) {
+		if(parent) {
 			ret = __lock_inherit_timeout(env, parent->locker, txn->locker);
 			/* No parent locker set yet. */
 			if(ret == EINVAL) {

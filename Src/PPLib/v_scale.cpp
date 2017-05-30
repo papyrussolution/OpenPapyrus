@@ -187,7 +187,7 @@ int SLAPI PPViewScale::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewScale::NextIteration(ScaleViewItem * pItem)
+int FASTCALL PPViewScale::NextIteration(ScaleViewItem * pItem)
 {
 	while(pItem && P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		PPScale rec;

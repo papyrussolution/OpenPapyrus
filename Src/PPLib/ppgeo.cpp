@@ -146,20 +146,22 @@ uint SLAPI PPOsm::NodeCluster::GetPossiblePackCount(const Node * pN, size_t coun
 	]
 */
 
-int SLAPI PPOsm::NodeCluster::Put__(const Node * pN, const NodeRefs * pNrList, size_t count, uint64 * pOuterID, size_t * pActualCount, uint forceLogicalCount)
+//int SLAPI PPOsm::NodeCluster::Put__(const Node * pN, const NodeRefs * pNrList, size_t count, uint64 * pOuterID, Put__Result * pResult, uint forceLogicalCount)
+int SLAPI PPOsm::NodeCluster::Put__(const Put__Param & rP, uint64 * pOuterID, Put__Result * pResult, uint forceLogicalCount)
 {
 	assert(oneof9(forceLogicalCount, 0, 1, 2, 4, 8, 16, 32, 64, 128));
 	int    ok = 1;
-	uint   actual_count = 0;
+	Put__Result result;
 	uint   possible_count_logic = 0;
-	const  uint possible_count = forceLogicalCount ? count : GetPossiblePackCount(pN, count, &possible_count_logic);
+	const  uint possible_count = forceLogicalCount ? rP.NCount : GetPossiblePackCount(rP.P_N, rP.NCount, &possible_count_logic);
 	if(forceLogicalCount)
 		possible_count_logic = forceLogicalCount;
 	THROW(possible_count);
+	const int64 last_possible_id = rP.P_N[possible_count-1].ID;
 	Clear();
     {
 		Int64Array node_id_list;
-		const Node & r_head = pN[0];
+		const Node & r_head = rP.P_N[0];
 		const int32 head_lat = r_head.C.GetIntLat();
 		const int32 head_lon = r_head.C.GetIntLon();
     	uint8 indicator = 0;
@@ -181,8 +183,63 @@ int SLAPI PPOsm::NodeCluster::Put__(const Node * pN, const NodeRefs * pNrList, s
         else if(r_head.ID <= ULONG_MAX) {
 			indicator |= indfId32;
         }
-		if(pNrList && (pNrList->WayRefs.getCount() || pNrList->RelRefs.getCount())) {
-			indicator |= indfHasRefs;
+		LLAssocArray way_refs;
+		LLAssocArray rel_refs;
+		if(rP.P_NrWayRefs && rP.NrWayRefsCount) {
+			uint last_node_pos = 0;
+			result.NrWayShift = rP.NrWayRefsCount;
+            for(uint nwi = 0; nwi < rP.NrWayRefsCount; nwi++) {
+				const LLAssoc & r_assoc = rP.P_NrWayRefs[nwi];
+				if(r_assoc.Key > last_possible_id) {
+					result.NrWayShift = nwi;
+					break;
+				}
+				else {
+					for(uint i = last_node_pos; i < possible_count; i++) {
+						if((int64)rP.P_N[i].ID == r_assoc.Key) {
+							THROW(way_refs.Add(r_assoc.Key, r_assoc.Val, 0));
+							last_node_pos = i;
+							break;
+						}
+						else if((int64)rP.P_N[i].ID > r_assoc.Key) {
+							last_node_pos = i;
+							break;
+						}
+					}
+				}
+            }
+			if(way_refs.getCount()) {
+				way_refs.Sort();
+				indicator |= indfHasRefs;
+			}
+		}
+		if(rP.P_NrRelRefs && rP.NrRelRefsCount) {
+			uint last_node_pos = 0;
+			result.NrRelShift = rP.NrRelRefsCount;
+            for(uint nwi = 0; nwi < rP.NrRelRefsCount; nwi++) {
+				const LLAssoc & r_assoc = rP.P_NrRelRefs[nwi];
+				if(r_assoc.Key > last_possible_id) {
+					result.NrRelShift = nwi;
+					break;
+				}
+				else {
+					for(uint i = last_node_pos; i < possible_count; i++) {
+						if((int64)rP.P_N[i].ID == r_assoc.Key) {
+							THROW(rel_refs.Add(r_assoc.Key, r_assoc.Val, 0));
+							last_node_pos = i;
+							break;
+						}
+						else if((int64)rP.P_N[i].ID > r_assoc.Key) {
+							last_node_pos = i;
+							break;
+						}
+					}
+				}
+            }
+			if(rel_refs.getCount()) {
+				rel_refs.Sort();
+				indicator |= indfHasRefs;
+			}
 		}
 		THROW_SL(Write(indicator));
 		if(!(indicator & indfOuterId)) {
@@ -203,131 +260,148 @@ int SLAPI PPOsm::NodeCluster::Put__(const Node * pN, const NodeRefs * pNrList, s
 		if(indicator & indfHasRefs) {
 			node_id_list.add((int64)r_head.ID);
 		}
-		actual_count++;
-		if(possible_count_logic > 1) {
-			const uint8 head_level = r_head.T.GetLevel();
-			uint64 prev_id = r_head.ID;
-			int32  prev_lat = head_lat;
-			int32  prev_lon = head_lon;
-			for(uint i = 1, idx = 1; i < possible_count_logic /*&& idx < possible_count*/; i++) {
-				uint8 inf_indicator = 0;
-				if(idx < possible_count) {
-					assert(pN[idx].ID > prev_id);
-					assert(pN[idx].T.GetZValue() == r_head.T.GetZValue());
-					if(pN[idx].ID == (prev_id+1)) {
-						if(indicator & indfHasRefs) {
-							node_id_list.add((int64)pN[idx].ID);
-						}
-						const uint8 _tile_level = pN[idx].T.GetLevel();
-						const int32 _lat = pN[idx].C.GetIntLat();
-						const int32 _lon = pN[idx].C.GetIntLon();
-						const int32 _lat_diff = (_lat - prev_lat);
-						const int32 _lon_diff = (_lon - prev_lon);
-						if(_lat_diff >= SCHAR_MIN && _lat_diff <= SCHAR_MAX)
-							inf_indicator |= infindfPrevLatIncr8;
-						else if(_lat_diff >= SHRT_MIN && _lat_diff <= SHRT_MAX)
-							inf_indicator |= infindfPrevLatIncr16;
-						if(_lon_diff >= SCHAR_MIN && _lon_diff <= SCHAR_MAX)
-							inf_indicator |= infindfPrevLonIncr8;
-						else if(_lon_diff >= SHRT_MIN && _lon_diff <= SHRT_MAX)
-							inf_indicator |= infindfPrevLonIncr16;
-						if(_tile_level != head_level)
-							inf_indicator |= infindfDiffTileLevel;
-						THROW_SL(Write(inf_indicator));
-						if(inf_indicator & infindfPrevLatIncr8) {
-							const int8 _diff = (int8)_lat_diff;
-							THROW_SL(Write(_diff));
-						}
-						else if(inf_indicator & infindfPrevLatIncr16) {
-							const int16 _diff = (int16)_lat_diff;
-							THROW_SL(Write(_diff));
-						}
-						else {
-							THROW_SL(Write(_lat));
-						}
-						if(inf_indicator & infindfPrevLonIncr8) {
-							const int8 _diff = (int8)_lon_diff;
-							THROW_SL(Write(_diff));
-						}
-						else if(inf_indicator & infindfPrevLonIncr16) {
-							const int16 _diff = (int16)_lon_diff;
-							THROW_SL(Write(_diff));
-						}
-						else {
-							THROW_SL(Write(_lon));
-						}
-						if(inf_indicator & infindfDiffTileLevel)
-							THROW_SL(Write(_tile_level));
+		result.ActualCount++;
+		{
+			int64  last_real_id = r_head.ID;
+			if(possible_count_logic > 1) {
+				const uint8 head_level = r_head.T.GetLevel();
+				uint64 prev_id = r_head.ID;
+				int32  prev_lat = head_lat;
+				int32  prev_lon = head_lon;
+				for(uint i = 1, idx = 1; i < possible_count_logic /*&& idx < possible_count*/; i++) {
+					uint8 inf_indicator = 0;
+					if(idx < possible_count) {
+						assert(rP.P_N[idx].ID > prev_id);
+						assert(rP.P_N[idx].T.GetZValue() == r_head.T.GetZValue());
+						if(rP.P_N[idx].ID == (prev_id+1)) {
+							last_real_id = (int64)rP.P_N[idx].ID;
+							if(indicator & indfHasRefs) {
+								node_id_list.add(last_real_id);
+							}
+							const uint8 _tile_level = rP.P_N[idx].T.GetLevel();
+							const int32 _lat = rP.P_N[idx].C.GetIntLat();
+							const int32 _lon = rP.P_N[idx].C.GetIntLon();
+							const int32 _lat_diff = (_lat - prev_lat);
+							const int32 _lon_diff = (_lon - prev_lon);
+							if(_lat_diff >= SCHAR_MIN && _lat_diff <= SCHAR_MAX)
+								inf_indicator |= infindfPrevLatIncr8;
+							else if(_lat_diff >= SHRT_MIN && _lat_diff <= SHRT_MAX)
+								inf_indicator |= infindfPrevLatIncr16;
+							if(_lon_diff >= SCHAR_MIN && _lon_diff <= SCHAR_MAX)
+								inf_indicator |= infindfPrevLonIncr8;
+							else if(_lon_diff >= SHRT_MIN && _lon_diff <= SHRT_MAX)
+								inf_indicator |= infindfPrevLonIncr16;
+							if(_tile_level != head_level)
+								inf_indicator |= infindfDiffTileLevel;
+							THROW_SL(Write(inf_indicator));
+							if(inf_indicator & infindfPrevLatIncr8) {
+								const int8 _diff = (int8)_lat_diff;
+								THROW_SL(Write(_diff));
+							}
+							else if(inf_indicator & infindfPrevLatIncr16) {
+								const int16 _diff = (int16)_lat_diff;
+								THROW_SL(Write(_diff));
+							}
+							else {
+								THROW_SL(Write(_lat));
+							}
+							if(inf_indicator & infindfPrevLonIncr8) {
+								const int8 _diff = (int8)_lon_diff;
+								THROW_SL(Write(_diff));
+							}
+							else if(inf_indicator & infindfPrevLonIncr16) {
+								const int16 _diff = (int16)_lon_diff;
+								THROW_SL(Write(_diff));
+							}
+							else {
+								THROW_SL(Write(_lon));
+							}
+							if(inf_indicator & infindfDiffTileLevel)
+								THROW_SL(Write(_tile_level));
 
-						prev_lat = _lat;
-						prev_lon = _lon;
-						idx++;
-						actual_count++;
+							prev_lat = _lat;
+							prev_lon = _lon;
+							idx++;
+							result.ActualCount++;
+						}
+						else {
+							inf_indicator |= infindfEmpty;
+							THROW_SL(Write(inf_indicator));
+						}
 					}
 					else {
 						inf_indicator |= infindfEmpty;
 						THROW_SL(Write(inf_indicator));
 					}
+					prev_id++;
 				}
-				else {
-					inf_indicator |= infindfEmpty;
-					THROW_SL(Write(inf_indicator));
-				}
-				prev_id++;
 			}
-		}
-		if(indicator & indfHasRefs) {
-			assert(pNrList); // @paranoic
-			uint8  _sid[16];
-			uint   i;
-			for(i = 0; i < pNrList->WayRefs.getCount(); i++) {
-				const  LLAssoc & r_assoc = pNrList->WayRefs.at(i);
-				uint   node_pos = 0;
-				if(node_id_list.lsearch(r_assoc.Key, &node_pos)) {
-					assert(node_pos >= 0 && node_pos < 256);
-					const uint  rs = sshrinkuint64((uint64)r_assoc.Val, _sid);
-					uint8 ref_indicator = 0;
-					assert(rs >= 1 && rs <= 8);
-					ref_indicator = (uint8)(rs - 1);
-					ref_indicator |= refindfWay;
-					THROW_SL(Write(ref_indicator));
-					{
-						uint8  node_pos8 = (uint8)node_pos;
-						THROW_SL(Write(node_pos8));
+			assert(last_real_id == last_possible_id);
+			if(indicator & indfHasRefs) {
+				assert(way_refs.getCount() || rel_refs.getCount()); // @paranoic
+				uint8  _sid[16];
+				{
+					for(uint i = 0; i < way_refs.getCount(); i++) {
+						const  LLAssoc & r_assoc = way_refs.at(i);
+						uint   node_pos = 0;
+						if(node_id_list.lsearch(r_assoc.Key, &node_pos)) {
+							assert(node_pos >= 0 && node_pos < 256);
+							const uint  rs = sshrinkuint64((uint64)r_assoc.Val, _sid);
+							uint8 ref_indicator = 0;
+							assert(rs >= 1 && rs <= 8);
+							ref_indicator = (uint8)(rs - 1);
+							ref_indicator |= refindfWay;
+							THROW_SL(Write(ref_indicator));
+							{
+								uint8  node_pos8 = (uint8)node_pos;
+								THROW_SL(Write(node_pos8));
+							}
+							THROW_SL(Write(_sid, rs));
+							result.ActualNrWayCount++;
+						}
+						else if(r_assoc.Key > last_real_id) {
+							break;
+						}
 					}
-					THROW_SL(Write(_sid, rs));
 				}
-			}
-			for(i = 0; i < pNrList->RelRefs.getCount(); i++) {
-				const  LLAssoc & r_assoc = pNrList->RelRefs.at(i);
-				uint   node_pos = 0;
-				if(node_id_list.lsearch(r_assoc.Key, &node_pos)) {
-					assert(node_pos >= 0 && node_pos < 256);
-					const uint  rs = sshrinkuint64((uint64)r_assoc.Val, _sid);
-					uint8 ref_indicator = 0;
-					assert(rs >= 1 && rs <= 8);
-					ref_indicator = (uint8)(rs - 1);
-					ref_indicator |= refindfRelation;
-					THROW_SL(Write(ref_indicator));
-					{
-						uint8  node_pos8 = (uint8)node_pos;
-						THROW_SL(Write(node_pos8));
+				{
+					for(uint i = 0; i < rel_refs.getCount(); i++) {
+						const  LLAssoc & r_assoc = rel_refs.at(i);
+						uint   node_pos = 0;
+						if(node_id_list.lsearch(r_assoc.Key, &node_pos)) {
+							assert(node_pos >= 0 && node_pos < 256);
+							const uint  rs = sshrinkuint64((uint64)r_assoc.Val, _sid);
+							uint8 ref_indicator = 0;
+							assert(rs >= 1 && rs <= 8);
+							ref_indicator = (uint8)(rs - 1);
+							ref_indicator |= refindfRelation;
+							THROW_SL(Write(ref_indicator));
+							{
+								uint8  node_pos8 = (uint8)node_pos;
+								THROW_SL(Write(node_pos8));
+							}
+							THROW_SL(Write(_sid, rs));
+							result.ActualNrRelCount++;
+						}
+						else if(r_assoc.Key > last_real_id) {
+							break;
+						}
 					}
-					THROW_SL(Write(_sid, rs));
 				}
-			}
-			{
-				//
-				// Терминальный индикатор
-				//
-				uint8 ref_indicator = refindfTerminal;
-				THROW_SL(Write(ref_indicator));
+				{
+					//
+					// Терминальный индикатор
+					//
+					uint8 ref_indicator = refindfTerminal;
+					THROW_SL(Write(ref_indicator));
+				}
 			}
 		}
 		ASSIGN_PTR(pOuterID, r_head.ID);
     }
     CATCHZOK
-	ASSIGN_PTR(pActualCount, actual_count);
+	//ASSIGN_PTR(pActualCount, actual_count);
+	ASSIGN_PTR(pResult, result);
 	return ok;
 }
 
@@ -1454,7 +1528,7 @@ int SLAPI PPViewGeoTracking::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewGeoTracking::NextIteration(GeoTrackingViewItem * pItem)
+int FASTCALL PPViewGeoTracking::NextIteration(GeoTrackingViewItem * pItem)
 {
 	int    ok = -1;
 	if(P_IterQuery) {

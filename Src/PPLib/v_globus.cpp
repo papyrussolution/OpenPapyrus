@@ -131,7 +131,7 @@ int SLAPI PPViewGlobalUserAcc::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewGlobalUserAcc::NextIteration(GlobalUserAccViewItem * pItem)
+int FASTCALL PPViewGlobalUserAcc::NextIteration(GlobalUserAccViewItem * pItem)
 {
 	while(pItem && P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		PPGlobalUserAcc rec;

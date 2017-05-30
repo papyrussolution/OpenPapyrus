@@ -1202,7 +1202,7 @@ int PPALDD_PersonRegister::InitData(PPFilt & rFilt, long rsrv)
 	return ok;
 }
 
-int PPALDD_PersonRegister::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_PersonRegister::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
 	#define _ARG_DATE(n) (*(LDATE *)rS.GetPtr(pApl->Get(n)))
@@ -1216,5 +1216,4 @@ int PPALDD_PersonRegister::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rtm
 			PPObjRegister::Format(p_blk->Rec, 0, _RET_STR);
 		}
 	}
-	return 1;
 }

@@ -1055,7 +1055,7 @@ int SLAPI PPViewBizScTempl::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewBizScTempl::NextIteration(BizScTemplViewItem * pItem)
+int FASTCALL PPViewBizScTempl::NextIteration(BizScTemplViewItem * pItem)
 {
 	int ok = -1;
 	if(P_IterQuery && P_IterQuery->nextIteration()) {
@@ -1295,7 +1295,7 @@ int SLAPI PPViewBizScValByTempl::InitIteration()
 	return 1;
 }
 
-int SLAPI PPViewBizScValByTempl::NextIteration(BizScValByTemplViewItem * pItem)
+int FASTCALL PPViewBizScValByTempl::NextIteration(BizScValByTemplViewItem * pItem)
 {
 	int    ok = -1;
 	if(pItem && Counter < Data.getCount()) {

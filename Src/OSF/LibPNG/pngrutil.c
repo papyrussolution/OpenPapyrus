@@ -543,7 +543,7 @@ static int png_inflate(png_structrp png_ptr, png_uint_32 owner, int finish,
  * points at an allocated area holding the contents of a chunk with a
  * trailing compressed part.  What we get back is an allocated area
  * holding the original prefix part and an uncompressed version of the
- * trailing part (the malloc area passed in is freed).
+ * trailing part (the SAlloc::M area passed in is freed).
  */
 static int png_decompress_chunk(png_structrp png_ptr,
     png_uint_32 chunklength, png_uint_32 prefix_size,
@@ -1287,10 +1287,8 @@ void /* PRIVATE */ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, pn
 			/* We only understand '0' compression - deflate - so if we get a
 			 * different value we can't safely decode the chunk.
 			 */
-			if(keyword_length+1 < read_length &&
-			    keyword[keyword_length+1] == PNG_COMPRESSION_TYPE_BASE) {
+			if(keyword_length+1 < read_length && keyword[keyword_length+1] == PNG_COMPRESSION_TYPE_BASE) {
 				read_length -= keyword_length+2;
-
 				if(png_inflate_claim(png_ptr, png_iCCP) == Z_OK) {
 					Byte profile_header[132];
 					Byte local_buffer[PNG_INFLATE_BUF_SIZE];
@@ -1321,33 +1319,21 @@ void /* PRIVATE */ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, pn
 								 * profile.  The header check has already validated
 								 * that none of these stuff will overflow.
 								 */
-								const png_uint_32 tag_count = png_get_uint_32(
-								    profile_header+128);
-								png_bytep profile = png_read_buffer(png_ptr,
-								    profile_length, 2 /*silent*/);
-
+								const png_uint_32 tag_count = png_get_uint_32(profile_header+128);
+								png_bytep profile = png_read_buffer(png_ptr, profile_length, 2 /*silent*/);
 								if(profile != NULL) {
-									memcpy(profile, profile_header,
-									    (sizeof profile_header));
-
+									memcpy(profile, profile_header, (sizeof profile_header));
 									size = 12 * tag_count;
-
-									(void)png_inflate_read(png_ptr, local_buffer,
-									    (sizeof local_buffer), &length,
-									    profile + (sizeof profile_header), &size, 0);
-
+									(void)png_inflate_read(png_ptr, local_buffer, (sizeof local_buffer), &length, profile + (sizeof profile_header), &size, 0);
 									/* Still expect a buffer error because we expect
 									 * there to be some tag data!
 									 */
 									if(size == 0) {
-										if(png_icc_check_tag_table(png_ptr,
-											    &png_ptr->colorspace, keyword, profile_length,
-											    profile) != 0) {
+										if(png_icc_check_tag_table(png_ptr, &png_ptr->colorspace, keyword, profile_length, profile) != 0) {
 											/* The profile has been validated for basic
 											 * security issues, so read the whole thing in.
 											 */
-											size = profile_length - (sizeof profile_header)
-											    - 12 * tag_count;
+											size = profile_length - (sizeof profile_header) - 12 * tag_count;
 
 											(void)png_inflate_read(png_ptr, local_buffer,
 											    (sizeof local_buffer), &length,

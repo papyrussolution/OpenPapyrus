@@ -203,19 +203,19 @@ cairo_device_t * cairo_egl_device_create(EGLDisplay dpy, EGLContext egl)
 
 		ctx->dummy_surface = eglCreatePbufferSurface(dpy, config, attribs);
 		if(ctx->dummy_surface == NULL) {
-			free(ctx);
+			SAlloc::F(ctx);
 			return _cairo_gl_context_create_in_error(CAIRO_STATUS_NO_MEMORY);
 		}
 
 		if(!eglMakeCurrent(dpy, ctx->dummy_surface, ctx->dummy_surface, egl)) {
-			free(ctx);
+			SAlloc::F(ctx);
 			return _cairo_gl_context_create_in_error(CAIRO_STATUS_NO_MEMORY);
 		}
 	}
 
 	status = _cairo_gl_dispatch_init(&ctx->base.dispatch, eglGetProcAddress);
 	if(unlikely(status)) {
-		free(ctx);
+		SAlloc::F(ctx);
 		return _cairo_gl_context_create_in_error(status);
 	}
 
@@ -223,7 +223,7 @@ cairo_device_t * cairo_egl_device_create(EGLDisplay dpy, EGLContext egl)
 	if(unlikely(status)) {
 		if(ctx->dummy_surface != EGL_NO_SURFACE)
 			eglDestroySurface(dpy, ctx->dummy_surface);
-		free(ctx);
+		SAlloc::F(ctx);
 		return _cairo_gl_context_create_in_error(status);
 	}
 

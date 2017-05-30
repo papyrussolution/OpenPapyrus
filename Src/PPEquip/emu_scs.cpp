@@ -115,12 +115,12 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 				DWORD info_size = 0;
 				GetPrinter(printer, 2, NULL, info_size, &info_size);
 				if(info_size) {
-					p_prn_info = (PRINTER_INFO_2*)malloc(info_size);
+					p_prn_info = (PRINTER_INFO_2*)SAlloc::M(info_size);
 					if(p_prn_info) {
 						memzero(p_prn_info, info_size);
 						if(GetPrinter(printer, 2, (LPBYTE)p_prn_info, info_size, &info_size))
 							GetPort(p_prn_info->pPortName, &port_no); // @unicodeproblem
-						free(p_prn_info);
+						SAlloc::F(p_prn_info);
 					}
 				}
 			}

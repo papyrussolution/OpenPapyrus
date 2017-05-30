@@ -906,17 +906,17 @@ int SLAPI PPObjFormula::GetBefore290(PPID id, char * pName, char * pBuf, size_t 
 		THROW(Search(id, &ref_rec) > 0);
 	}
 	strnzcpy(pName, strip(ref_rec.ObjName), PP_SYMBLEN);
-	THROW_MEM(bform = (char*)calloc(1, sz));
+	THROW_MEM(bform = (char*)SAlloc::C(1, sz));
 	THROW(ref->GetProp(Obj, id, 1, form, sz) > 0);
 	if((PROPRECFIXSIZE + form->TailSize) > sz) {
 		sz = PROPRECFIXSIZE + (size_t)form->TailSize;
-		THROW_MEM(bform = (char*)realloc(bform, sz));
+		THROW_MEM(bform = (char*)SAlloc::R(bform, sz));
 		THROW(ref->GetProp(PPOBJ_FORMULA, id, 1, form, sz));
 	}
 	strnzcpy(pBuf, (char*)(form + 1), buflen);
 	strip(pBuf);
 	CATCHZOK
-	free(bform);
+	SAlloc::F(bform);
 	return ok;
 }
 
@@ -962,11 +962,11 @@ int SLAPI PPObjDBDiv::GetBefore290(PPID id, DBDivPack * pack)
 	THROW(PPRef->GetItem(PPOBJ_DBDIV, id, &pack->Rec) > 0);
 	pack->LocList.freeAll();
 	sz = PROPRECFIXSIZE;
-	THROW_MEM(buf = (LocListBuf*)malloc(sz));
+	THROW_MEM(buf = (LocListBuf*)SAlloc::M(sz));
 	if((r = PPRef->GetProp(PPOBJ_DBDIV, id, DBDPRP_LOCLIST, buf, sz)) > 0) {
 		if(buf->Count > LLC_LIMIT) {
 			sz += (buf->Count - LLC_LIMIT) * sizeof(PPID);
-			THROW_MEM(buf = (LocListBuf*)realloc(buf, sz));
+			THROW_MEM(buf = (LocListBuf*)SAlloc::R(buf, sz));
 			THROW(PPRef->GetProp(PPOBJ_DBDIV, id, DBDPRP_LOCLIST, buf, sz) > 0);
 		}
 		for(i = 0; i < (uint)buf->Count; i++) {
@@ -977,11 +977,11 @@ int SLAPI PPObjDBDiv::GetBefore290(PPID id, DBDivPack * pack)
 	THROW(r);
 	memzero(pack->AccList, sizeof(pack->AccList));
 	sz = PROPRECFIXSIZE;
-	THROW_MEM(alb = (AccListBuf*)malloc(sz));
+	THROW_MEM(alb = (AccListBuf*)SAlloc::M(sz));
 	if((r = PPRef->GetProp(PPOBJ_DBDIV, id, DBDPRP_ACCLIST, alb, sz)) > 0) {
 		if(alb->Size > ALS_LIMIT) {
 			sz += (alb->Size - ALS_LIMIT);
-			THROW_MEM(alb = (AccListBuf*)realloc(alb, sz));
+			THROW_MEM(alb = (AccListBuf*)SAlloc::R(alb, sz));
 			THROW(PPRef->GetProp(PPOBJ_DBDIV, id, DBDPRP_ACCLIST, alb, sz) > 0);
 		}
 		STRNSCPY(pack->AccList, alb->Str);
@@ -993,7 +993,7 @@ int SLAPI PPObjDBDiv::GetBefore290(PPID id, DBDivPack * pack)
 		pack->LocList.freeAll();
 		pack->AccList[0] = 0;
 	ENDCATCH
-	free(buf);
+	SAlloc::F(buf);
 	return ok;
 }
 
@@ -1066,7 +1066,7 @@ int SLAPI Convert300()
 class CounterGrpList {
 public:
 	SLAPI  CounterGrpList() { count = 0; ptr = 0; }
-	SLAPI ~CounterGrpList() { free(ptr); }
+	SLAPI ~CounterGrpList() { SAlloc::F(ptr); }
 	int    SLAPI SearchID(long id, int * pos);
 	int    SLAPI Load();
 private:
@@ -1133,7 +1133,7 @@ int SLAPI CounterGrpList::Load()
 	count = 0;
 	while(PPRef->EnumProps(PPOBJ_COUNTGRP, PPCNT_ONE, &p, &clu, sizeof(clu)) > 0 && p <= 1)
 		if(p == 1 && clu.Count)
-			if((ptr = (long*)realloc(ptr, sizeof(long) * (count + (uint)clu.Count))) != 0) {
+			if((ptr = (long*)SAlloc::R(ptr, sizeof(long) * (count + (uint)clu.Count))) != 0) {
 				memcpy(ptr + count, clu.Items, sizeof(long) * (uint)clu.Count);
 				count += (int)clu.Count;
 			}
@@ -1503,7 +1503,7 @@ public:
 				int    num_seg = 0;
 				DBIdxSpec * p_is = p_tbl->getIndexSpec(4, &num_seg);
 				*pNeedConversion = BIN(p_is && num_seg == 4);
-				free(p_is);
+				SAlloc::F(p_is);
 			}
 		}
 		return p_tbl;
@@ -1749,7 +1749,7 @@ DBTable * SLAPI PPCvtVatBook4402::CreateTableInstance(int * pNeedConversion)
 		RECORDSIZE recsz = 0;
 		if(p_tbl->getRecSize(&recsz))
 			*pNeedConversion = BIN(recsz < sizeof(VATBookTbl::Rec) || (p_is && num_seg == 1));
-		free(p_is);
+		SAlloc::F(p_is);
 	}
 	return p_tbl;
 }
@@ -2270,7 +2270,7 @@ public:
 			int    num_seg = 0;
 			DBIdxSpec * p_is = p_tbl->getIndexSpec(1, &num_seg);
 			*pNeedConversion = BIN(p_is && num_seg != 5);
-			free(p_is);
+			SAlloc::F(p_is);
 		}
 		return p_tbl;
 	}
@@ -3108,7 +3108,7 @@ public:
 			int    num_seg = 0;
 			DBIdxSpec * p_is = p_tbl->getIndexSpec(0, &num_seg);
 			*pNeedConversion = BIN(p_is && num_seg == 2);
-			free(p_is);
+			SAlloc::F(p_is);
 		}
 		return p_tbl;
 	}
@@ -5421,7 +5421,7 @@ public:
 			int    num_seg = 0;
 			DBIdxSpec * p_is = p_tbl->getIndexSpec(1, &num_seg);
 			*pNeedConversion = BIN(num_seg < 5);
-			free(p_is);
+			SAlloc::F(p_is);
 		}
 		return p_tbl;
 	}
@@ -5545,7 +5545,7 @@ public:
 			}
 			else
 				*pNeedConversion = 0;
-			free(p_is);
+			SAlloc::F(p_is);
 		}
 		return p_tbl;
 	}

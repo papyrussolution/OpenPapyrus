@@ -379,7 +379,7 @@ zbar_image_t * zbar_video_next_image(zbar_video_t * vdo)
 				img->Format = vdo->format;
 				zbar_image_set_size(img, vdo->width, vdo->height);
 				img->datalen = vdo->datalen;
-				img->P_Data = malloc(vdo->datalen);
+				img->P_Data = SAlloc::M(vdo->datalen);
 			}
 			img->cleanup = _zbar_video_recycle_shadow;
 			img->seq = frame;

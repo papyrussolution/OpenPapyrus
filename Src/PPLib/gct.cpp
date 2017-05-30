@@ -315,7 +315,7 @@ int SLAPI PPViewGoodsTrnovr::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewGoodsTrnovr::NextIteration(GoodsTrnovrViewItem * pItem)
+int FASTCALL PPViewGoodsTrnovr::NextIteration(GoodsTrnovrViewItem * pItem)
 {
 	int    ok = -1;
 	if(P_Items->getCount() && Cntr < (ulong)((long)P_Items->getCount()-1)) {
@@ -564,7 +564,7 @@ int PPALDD_GoodsTurnovr::InitIteration(PPIterID iterId, int sortId, long /*rsrv*
 	INIT_PPVIEW_ALDD_ITER(GoodsTrnovr);
 }
 
-int PPALDD_GoodsTurnovr::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsTurnovr::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(GoodsTrnovr);
 	I.Dt          = item.Dt;

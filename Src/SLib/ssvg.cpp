@@ -1,5 +1,5 @@
 // SSVG.CPP
-// Copyright (c) A.Sobolev 2010, 2012, 2016
+// Copyright (c) A.Sobolev 2010, 2012, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -194,7 +194,7 @@ int SSvg::GetAttr(xmlNode * pNode, const char * pAttr, SString & rVal)
 	xmlChar * p_val = xmlGetProp(pNode, (const xmlChar *)pAttr);
 	if(p_val) {
 		rVal = (const char *)p_val;
-		free(p_val);
+		SAlloc::F(p_val);
 		ok = 1;
 	}
 	else
@@ -220,7 +220,7 @@ int SSvg::GetAttrList(xmlNode * pNode, StrAssocArray & rList)
 							xmlChar * p_ret = xmlNodeListGetString(p_prop->doc, p_prop->children, 1);
 							if(p_ret) {
 								rList.Add(token, (const char *)p_ret);
-								free(p_ret);
+								SAlloc::F(p_ret);
 							}
 						}
 					}
@@ -1045,7 +1045,7 @@ int SSvg::ParseFile(const char * pFileName, SDraw & rResult)
 		THROW(p_root);
 		P_Result = &rResult;
 		for(p_node = p_root; p_node; p_node = p_node->next) {
-			if(strcmp((const char *)p_node->name, "svg") == 0) {
+			if(sstreqi_ascii((const char *)p_node->name, "svg")) {
 				GetAttrList(p_node, attr_list);
 				{
 					FPoint sz;

@@ -40,7 +40,7 @@
 #include "cairo-list-inline.h"
 
 /* a simple buddy allocator for memory pools
- * XXX fragmentation? use Doug Lea's malloc?
+ * XXX fragmentation? use Doug Lea's SAlloc::M?
  */
 
 #define BITTEST(p, n)  ((p)->map[(n) >> 3] &   (128 >> ((n) & 7)))
@@ -267,9 +267,9 @@ cairo_status_t _cairo_mempool_init(cairo_mempool_t * pool, void * base, size_t b
 	pool->num_sizes = num_sizes;
 	for(i = 0; i < ARRAY_LENGTH(pool->free); i++)
 		cairo_list_init(&pool->free[i]);
-	pool->map = (uchar *)malloc((num_blocks + 7) >> 3);
+	pool->map = (uchar *)SAlloc::M((num_blocks + 7) >> 3);
 	if(pool->map == NULL) {
-		free(pool->blocks);
+		SAlloc::F(pool->blocks);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	memset(pool->map, -1, (num_blocks + 7) >> 3);
@@ -305,7 +305,7 @@ void _cairo_mempool_free(cairo_mempool_t * pool, void * storage)
 
 void _cairo_mempool_fini(cairo_mempool_t * pool)
 {
-	free(pool->map);
-	free(pool->blocks);
+	SAlloc::F(pool->map);
+	SAlloc::F(pool->blocks);
 }
 

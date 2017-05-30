@@ -149,7 +149,7 @@ typedef gz_header  * gz_headerp;
    If zlib is used in a multi-threaded application, zalloc and zfree must be
    thread safe.  In that case, zlib is thread-safe.  When zalloc and zfree are
    Z_NULL on entry to the initialization function, they are set to internal
-   routines that use the standard library functions malloc() and free().
+   routines that use the standard library functions SAlloc::M() and SAlloc::F().
 
      On 16-bit systems, the functions zalloc and zfree must be able to allocate
    exactly 65536 bytes, but will not be required to allocate more than this if
@@ -248,7 +248,7 @@ ZEXTERN const char * ZEXPORT zlibVersion OF((void));
    this will be done by deflate().
  */
 
-ZEXTERN int ZEXPORT deflate OF((z_streamp strm, int flush));
+ZEXTERN int ZEXPORT deflate(z_streamp strm, int flush);
 /*
     deflate compresses as much data as possible, and stops when the input
    buffer becomes empty or the output buffer becomes full.  It may introduce
@@ -759,10 +759,7 @@ ZEXTERN uLong ZEXPORT deflateBound OF((z_streamp strm,
    be larger than the value returned by deflateBound() if flush options other
    than Z_FINISH or Z_NO_FLUSH are used.
  */
-
-ZEXTERN int ZEXPORT deflatePending OF((z_streamp strm,
-	    unsigned * pending,
-	    int * bits));
+ZEXTERN int ZEXPORT deflatePending OF((z_streamp strm, unsigned * pending, int * bits));
 /*
      deflatePending() returns the number of bytes and bits of output that have
    been generated, but not yet provided in the available output.  The bytes not
@@ -774,10 +771,7 @@ ZEXTERN int ZEXPORT deflatePending OF((z_streamp strm,
      deflatePending returns Z_OK if success, or Z_STREAM_ERROR if the source
    stream state was inconsistent.
  */
-
-ZEXTERN int ZEXPORT deflatePrime OF((z_streamp strm,
-	    int bits,
-	    int value));
+ZEXTERN int ZEXPORT deflatePrime OF((z_streamp strm, int bits, int value));
 /*
      deflatePrime() inserts bits in the deflate output stream.  The intent
    is that this function is used to start off the deflate output with the bits
@@ -792,8 +786,7 @@ ZEXTERN int ZEXPORT deflatePrime OF((z_streamp strm,
    source stream state was inconsistent.
  */
 
-ZEXTERN int ZEXPORT deflateSetHeader OF((z_streamp strm,
-	    gz_headerp head));
+ZEXTERN int ZEXPORT deflateSetHeader OF((z_streamp strm, gz_headerp head));
 /*
      deflateSetHeader() provides gzip header information for when a gzip
    stream is requested by deflateInit2().  deflateSetHeader() may be called
@@ -868,10 +861,7 @@ ZEXTERN int ZEXPORT deflateSetHeader OF((z_streamp strm,
    of inflateInit2() does not process any header information -- that is
    deferred until inflate() is called.
  */
-
-ZEXTERN int ZEXPORT inflateSetDictionary OF((z_streamp strm,
-	    const Bytef *dictionary,
-	    uInt dictLength));
+ZEXTERN int ZEXPORT inflateSetDictionary OF((z_streamp strm, const Bytef *dictionary, uInt dictLength));
 /*
      Initializes the decompression dictionary from the given uncompressed byte
    sequence.  This function must be called immediately after a call of inflate,
@@ -891,10 +881,7 @@ ZEXTERN int ZEXPORT inflateSetDictionary OF((z_streamp strm,
    perform any decompression: this will be done by subsequent calls of
    inflate().
  */
-
-ZEXTERN int ZEXPORT inflateGetDictionary OF((z_streamp strm,
-	    Bytef *dictionary,
-	    uInt  *dictLength));
+ZEXTERN int ZEXPORT inflateGetDictionary OF((z_streamp strm, Bytef *dictionary, uInt  *dictLength));
 /*
      Returns the sliding dictionary being maintained by inflate.  dictLength is
    set to the number of bytes in the dictionary, and that many bytes are copied
@@ -925,9 +912,7 @@ ZEXTERN int ZEXPORT inflateSync OF((z_streamp strm));
    error case, the application may repeatedly call inflateSync, providing more
    input each time, until success or end of the input data.
  */
-
-ZEXTERN int ZEXPORT inflateCopy OF((z_streamp dest,
-	    z_streamp source));
+ZEXTERN int ZEXPORT inflateCopy OF((z_streamp dest, z_streamp source));
 /*
      Sets the destination stream as a complete copy of the source stream.
 
@@ -951,9 +936,7 @@ ZEXTERN int ZEXPORT inflateReset OF((z_streamp strm));
      inflateReset returns Z_OK if success, or Z_STREAM_ERROR if the source
    stream state was inconsistent (such as zalloc or state being Z_NULL).
  */
-
-ZEXTERN int ZEXPORT inflateReset2 OF((z_streamp strm,
-	    int windowBits));
+ZEXTERN int ZEXPORT inflateReset2 OF((z_streamp strm, int windowBits));
 /*
      This function is the same as inflateReset, but it also permits changing
    the wrap and window size requests.  The windowBits parameter is interpreted
@@ -965,10 +948,7 @@ ZEXTERN int ZEXPORT inflateReset2 OF((z_streamp strm,
    stream state was inconsistent (such as zalloc or state being Z_NULL), or if
    the windowBits parameter is invalid.
  */
-
-ZEXTERN int ZEXPORT inflatePrime OF((z_streamp strm,
-	    int bits,
-	    int value));
+ZEXTERN int ZEXPORT inflatePrime OF((z_streamp strm, int bits, int value));
 /*
      This function inserts bits in the inflate input stream.  The intent is
    that this function is used to start inflating at a bit position in the
@@ -1014,9 +994,7 @@ ZEXTERN long ZEXPORT inflateMark OF((z_streamp strm));
      inflateMark returns the value noted above, or -65536 if the provided
    source stream state was inconsistent.
  */
-
-ZEXTERN int ZEXPORT inflateGetHeader OF((z_streamp strm,
-	    gz_headerp head));
+ZEXTERN int ZEXPORT inflateGetHeader OF((z_streamp strm, gz_headerp head));
 /*
      inflateGetHeader() requests that gzip header information be stored in the
    provided gz_header structure.  inflateGetHeader() may be called after
@@ -1246,8 +1224,7 @@ ZEXTERN uLong ZEXPORT compressBound OF((uLong sourceLen));
    compress() or compress2() call to allocate the destination buffer.
  */
 
-ZEXTERN int ZEXPORT uncompress OF((Bytef *dest,   uLongf *destLen,
-	    const Bytef *source, uLong sourceLen));
+ZEXTERN int ZEXPORT uncompress OF((Bytef *dest, uLongf *destLen, const Bytef *source, uLong sourceLen));
 /*
      Decompresses the source buffer into the destination buffer.  sourceLen is
    the byte length of the source buffer.  Upon entry, destLen is the total size
@@ -1926,7 +1903,7 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 				#else
 					#include <alloc.h>
 				#endif
-			#else /* MSC or DJGPP */
+			#else // MSC or DJGPP 
 				#include <malloc.h>
 			#endif
 		#endif

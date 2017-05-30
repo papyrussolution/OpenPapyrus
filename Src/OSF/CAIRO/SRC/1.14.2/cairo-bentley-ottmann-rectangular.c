@@ -606,7 +606,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_rectangular_traps(cairo_traps_t
 	traps->is_rectilinear = TRUE;
 	traps->is_rectangular = TRUE;
 	if(rectangles != stack_rectangles)
-		free(rectangles);
+		SAlloc::F(rectangles);
 	dump_traps(traps, "bo-rects-traps-out.txt");
 	return status;
 }
@@ -677,7 +677,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_boxes(const cairo_boxes_t * in,
 		    sizeof(rectangle_t) + sizeof(rectangle_t *), 3*sizeof(rectangle_t *));
 		if(unlikely(rectangles == NULL)) {
 			if(rectangles_chain != stack_rectangles_chain)
-				free(rectangles_chain);
+				SAlloc::F(rectangles_chain);
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
 		rectangles_ptrs = (rectangle_t**)(rectangles + in->num_boxes);
@@ -729,7 +729,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_boxes(const cairo_boxes_t * in,
 				_rectangle_sort(rectangles_ptrs + start, j - start);
 		}
 		if(rectangles_chain != stack_rectangles_chain)
-			free(rectangles_chain);
+			SAlloc::F(rectangles_chain);
 		j -= 2;
 	}
 	else {
@@ -738,7 +738,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_boxes(const cairo_boxes_t * in,
 	_cairo_boxes_clear(out);
 	status = _cairo_bentley_ottmann_tessellate_rectangular(rectangles_ptrs+2, j, fill_rule, FALSE, out);
 	if(rectangles != stack_rectangles)
-		free(rectangles);
+		SAlloc::F(rectangles);
 	return status;
 }
 

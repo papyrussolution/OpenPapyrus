@@ -9,7 +9,7 @@
 *
 * This software is licensed as described in the file COPYING, which
 * you should have received as part of this distribution. The terms
-* are also available at http://curl.haxx.se/docs/copyright.html.
+* are also available at https://curl.haxx.se/docs/copyright.html.
 *
 * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 * copies of the Software, and permit persons to whom the Software is
@@ -22,13 +22,15 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-#include <curl/curl.h>
+//#include <curl/curl.h>
 #include "curl_memory.h"
 #include "memdebug.h"
 
-static char * GetEnv(const char * variable)
+static
+char * GetEnv(const char * variable)
 {
-#ifdef _WIN32_WCE
+#if defined(_WIN32_WCE) || defined(CURL_WINDOWS_APP)
+	(void)variable;
 	return NULL;
 #else
 #ifdef WIN32
@@ -37,10 +39,10 @@ static char * GetEnv(const char * variable)
 	env[0] = '\0';
 	if(temp != NULL)
 		ExpandEnvironmentStringsA(temp, env, sizeof(env));
-	return (env[0] != '\0') ? sstrdup(env) : NULL;
+	return (env[0] != '\0') ? strdup(env) : NULL;
 #else
 	char * env = getenv(variable);
-	return (env && env[0]) ? sstrdup(env) : NULL;
+	return (env && env[0]) ? strdup(env) : NULL;
 #endif
 #endif
 }

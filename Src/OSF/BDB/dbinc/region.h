@@ -19,7 +19,7 @@
  *	REGINFO	   -- per-process information about a REGION
  *
  * There are three types of memory that hold regions:
- *	per-process heap (malloc)
+ *	per-process heap (SAlloc::M)
  *	file mapped into memory (mmap, MapViewOfFile)
  *	system memory (shmget, CreateFileMapping)
  *

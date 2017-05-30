@@ -478,7 +478,7 @@ int SLAPI PPViewCSess::InitIteration(long ord)
 	return ok;
 }
 
-int SLAPI PPViewCSess::NextIteration(CSessViewItem * pItem)
+int FASTCALL PPViewCSess::NextIteration(CSessViewItem * pItem)
 {
 	int    ok = -1;
 	while(ok < 0 && P_IterQuery && P_IterQuery->nextIteration() > 0) {
@@ -2468,7 +2468,7 @@ int SLAPI PPViewCSessExc::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewCSessExc::NextIteration(CSessExcViewItem * pItem)
+int FASTCALL PPViewCSessExc::NextIteration(CSessExcViewItem * pItem)
 {
 	int    ok = -1;
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
@@ -2882,7 +2882,7 @@ int PPALDD_CSessionView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*
 	INIT_PPVIEW_ALDD_ITER_ORD(CSess, sortId);
 }
 
-int PPALDD_CSessionView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_CSessionView::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(CSess);
 	I.SessID          = item.ID;
@@ -2954,7 +2954,7 @@ int PPALDD_CSessExc::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	INIT_PPVIEW_ALDD_ITER(CSessExc);
 }
 
-int PPALDD_CSessExc::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_CSessExc::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(CSessExc);
 	I.GoodsID = item.GoodsID;

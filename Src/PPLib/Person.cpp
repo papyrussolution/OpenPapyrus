@@ -1305,20 +1305,20 @@ int SLAPI PersonCore::GetELinks(PPID id, PPELinkArray * ary)
 	size_t sz = 4096; // @v8.8.1 2048-->4096
 	PropertyTbl::Rec * buf = 0;
 	ary->clear();
-	THROW_MEM(buf = (PropertyTbl::Rec *)malloc(sz));
+	THROW_MEM(buf = (PropertyTbl::Rec *)SAlloc::M(sz));
 	THROW(r = p_ref->GetProp(PPOBJ_PERSON, id, PSNPRP_ELINK, buf, sz));
 	if(r > 0) {
 		size_t i = sz;
 		sz = (size_t)buf->Val2 + PROPRECFIXSIZE;
 		if(i < sz) {
-			THROW_MEM(buf = (PropertyTbl::Rec *)realloc(buf, sz));
+			THROW_MEM(buf = (PropertyTbl::Rec *)SAlloc::R(buf, sz));
 			THROW(p_ref->GetProp(PPOBJ_PERSON, id, PSNPRP_ELINK, buf, sz) > 0);
 		}
 		THROW(Helper_GetELinksFromPropRec(buf, sz, ary));
 	}
 	THROW(r);
 	CATCHZOK
-	free(buf);
+	SAlloc::F(buf);
 	return ok;
 }
 
@@ -1339,7 +1339,7 @@ int SLAPI PersonCore::PutELinks(PPID id, PPELinkArray * ary, int use_ta)
 			for(i = 0; ary->enumItems(&i, (void**)&entry);)
 				if(entry->KindID && *strip(entry->Addr))
 					sz += (sizeof(entry->KindID) + strlen(entry->Addr) + 1);
-			THROW_MEM(b = (PropertyTbl::Rec*)calloc(1, sz));
+			THROW_MEM(b = (PropertyTbl::Rec*)SAlloc::C(1, sz));
 			b->Val2 = (int32)(sz - PROPRECFIXSIZE);
 			for(p = (char*)(PTR8(b)+PROPRECFIXSIZE), i = 0; ary->enumItems(&i, (void**)&entry);)
 				if(entry->KindID && entry->Addr[0]) {
@@ -1352,6 +1352,6 @@ int SLAPI PersonCore::PutELinks(PPID id, PPELinkArray * ary, int use_ta)
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	free(b);
+	SAlloc::F(b);
 	return ok;
 }

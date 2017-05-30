@@ -248,7 +248,7 @@ static void _cairo_ps_surface_emit_header(cairo_ps_surface_t * surface)
 		if(strncmp(comments[i], "%%BoundingBox:", 14) == 0)
 			has_bbox = TRUE;
 
-		free(comments[i]);
+		SAlloc::F(comments[i]);
 		comments[i] = NULL;
 	}
 
@@ -379,7 +379,7 @@ static void _cairo_ps_surface_emit_header(cairo_ps_surface_t * surface)
 		comments = (char **)_cairo_array_index(&surface->dsc_setup_comments, 0);
 		for(i = 0; i < num_comments; i++) {
 			_cairo_output_stream_printf(surface->final_stream, "%s\n", comments[i]);
-			free(comments[i]);
+			SAlloc::F(comments[i]);
 			comments[i] = NULL;
 		}
 	}
@@ -936,7 +936,7 @@ static const char * _cairo_ps_surface_get_page_media(cairo_ps_surface_t     * su
 			break;
 		}
 	}
-	page = (cairo_page_media_t *)malloc(sizeof(cairo_page_media_t));
+	page = (cairo_page_media_t *)SAlloc::M(sizeof(cairo_page_media_t));
 	if(unlikely(page == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return NULL;
@@ -950,7 +950,7 @@ static const char * _cairo_ps_surface_get_page_media(cairo_ps_surface_t     * su
 		page->name = strdup(buf);
 	}
 	if(unlikely(page->name == NULL)) {
-		free(page);
+		SAlloc::F(page);
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return NULL;
 	}
@@ -963,7 +963,7 @@ static const char * _cairo_ps_surface_get_page_media(cairo_ps_surface_t     * su
 static cairo_surface_t * _cairo_ps_surface_create_for_stream_internal(cairo_output_stream_t * stream, double width, double height)
 {
 	cairo_status_t status, status_ignored;
-	cairo_ps_surface_t * surface = (cairo_ps_surface_t *)malloc(sizeof(cairo_ps_surface_t));
+	cairo_ps_surface_t * surface = (cairo_ps_surface_t *)SAlloc::M(sizeof(cairo_ps_surface_t));
 	if(unlikely(surface == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto CLEANUP;
@@ -1046,7 +1046,7 @@ CLEANUP_OUTPUT_STREAM:
 	status_ignored = _cairo_output_stream_destroy(surface->stream);
 	fclose(surface->tmpfile);
 CLEANUP_SURFACE:
-	free(surface);
+	SAlloc::F(surface);
 CLEANUP:
 	/* destroy stream on behalf of caller */
 	status_ignored = _cairo_output_stream_destroy(stream);
@@ -1461,7 +1461,7 @@ void cairo_ps_surface_dsc_comment(cairo_surface_t   * surface,
 
 	status = _cairo_array_append(ps_surface->dsc_comment_target, &comment_copy);
 	if(unlikely(status)) {
-		free(comment_copy);
+		SAlloc::F(comment_copy);
 		status = _cairo_surface_set_error(surface, status);
 		return;
 	}
@@ -1557,23 +1557,23 @@ CLEANUP:
 	while(!cairo_list_is_empty(&surface->document_media)) {
 		cairo_page_media_t * page = cairo_list_first_entry(&surface->document_media, cairo_page_media_t, link);
 		cairo_list_del(&page->link);
-		free(page->name);
-		free(page);
+		SAlloc::F(page->name);
+		SAlloc::F(page);
 	}
 	num_comments = _cairo_array_num_elements(&surface->dsc_header_comments);
 	comments = (char **)_cairo_array_index(&surface->dsc_header_comments, 0);
 	for(i = 0; i < num_comments; i++)
-		free(comments[i]);
+		SAlloc::F(comments[i]);
 	_cairo_array_fini(&surface->dsc_header_comments);
 	num_comments = _cairo_array_num_elements(&surface->dsc_setup_comments);
 	comments = (char **)_cairo_array_index(&surface->dsc_setup_comments, 0);
 	for(i = 0; i < num_comments; i++)
-		free(comments[i]);
+		SAlloc::F(comments[i]);
 	_cairo_array_fini(&surface->dsc_setup_comments);
 	num_comments = _cairo_array_num_elements(&surface->dsc_page_setup_comments);
 	comments = (char **)_cairo_array_index(&surface->dsc_page_setup_comments, 0);
 	for(i = 0; i < num_comments; i++)
-		free(comments[i]);
+		SAlloc::F(comments[i]);
 	_cairo_array_fini(&surface->dsc_page_setup_comments);
 	_cairo_surface_clipper_reset(&surface->clipper);
 	return status;
@@ -2147,7 +2147,7 @@ static cairo_status_t _string_array_stream_close(cairo_output_stream_t * base)
  */
 static cairo_output_stream_t * _string_array_stream_create(cairo_output_stream_t * output)
 {
-	string_array_stream_t * stream = (string_array_stream_t *)malloc(sizeof(string_array_stream_t));
+	string_array_stream_t * stream = (string_array_stream_t *)SAlloc::M(sizeof(string_array_stream_t));
 	if(unlikely(stream == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
@@ -2166,7 +2166,7 @@ static cairo_output_stream_t * _string_array_stream_create(cairo_output_stream_t
  */
 static cairo_output_stream_t * _base85_array_stream_create(cairo_output_stream_t * output)
 {
-	string_array_stream_t * stream = (string_array_stream_t *)malloc(sizeof(string_array_stream_t));
+	string_array_stream_t * stream = (string_array_stream_t *)SAlloc::M(sizeof(string_array_stream_t));
 	if(unlikely(stream == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
@@ -2263,7 +2263,7 @@ static cairo_status_t _cairo_ps_surface_emit_base85_string(cairo_ps_surface_t   
 			    return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		    }
 		    _cairo_output_stream_write(base85_stream, data_compressed, data_compressed_size);
-		    free(data_compressed);
+		    SAlloc::F(data_compressed);
 		    break;
 
 		case CAIRO_PS_COMPRESS_DEFLATE:
@@ -2412,7 +2412,7 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t    * surfa
 	if(use_mask)
 		data_size += (ps_image->width + 7)/8;
 	data_size *= ps_image->height;
-	data = (uchar *)malloc(data_size);
+	data = (uchar *)SAlloc::M(data_size);
 	if(unlikely(data == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto bail1;
@@ -2670,7 +2670,7 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t    * surfa
 	}
 
 bail2:
-	free(data);
+	SAlloc::F(data);
 
 bail1:
 	if(!use_mask && ps_image != image)
@@ -3505,7 +3505,7 @@ static cairo_status_t _cairo_ps_surface_emit_pattern_stops(cairo_ps_surface_t   
 	_cairo_output_stream_printf(surface->stream,
 	    "def\n");
 
-	free(allstops);
+	SAlloc::F(allstops);
 
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -4348,7 +4348,7 @@ static cairo_int_status_t _cairo_ps_surface_set_bounding_box(void * abstract_sur
 		if(strncmp(comments[i], "%%PageBoundingBox:", 18) == 0)
 			has_page_bbox = TRUE;
 
-		free(comments[i]);
+		SAlloc::F(comments[i]);
 		comments[i] = NULL;
 	}
 	_cairo_array_truncate(&surface->dsc_page_setup_comments, 0);

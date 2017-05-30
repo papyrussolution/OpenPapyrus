@@ -72,7 +72,7 @@ cairo_status_t _cairo_stroke_style_init_copy(cairo_stroke_style_t * style, const
 
 void _cairo_stroke_style_fini(cairo_stroke_style_t * style)
 {
-	free(style->dash);
+	SAlloc::F(style->dash);
 	style->dash = NULL;
 	style->num_dashes = 0;
 	VG(VALGRIND_MAKE_MEM_NOACCESS(style, sizeof(cairo_stroke_style_t)));

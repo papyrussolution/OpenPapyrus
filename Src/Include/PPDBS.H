@@ -6651,6 +6651,7 @@ public:
 		int32  LotID;
 		int32  GoodsID;
 		int32  DlvrLocID;
+		int32  LinkBillID;
 		double Qtty;
 		double PhQtty;
 		double Cost;
@@ -6691,6 +6692,7 @@ public:
 	DBField LotID;
 	DBField GoodsID;
 	DBField DlvrLocID;
+	DBField LinkBillID;
 	DBField Qtty;
 	DBField PhQtty;
 	DBField Cost;

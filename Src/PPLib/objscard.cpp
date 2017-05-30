@@ -763,7 +763,7 @@ public:
 		const size_t item_size = pSrc->getItemSize();
 		size_t allocated_count = MAX(pSrc->getCount(), preallocCount);
 		size_t s = sz + item_size * allocated_count;
-		Storage_SCardRule * p = (Storage_SCardRule *)malloc(s);
+		Storage_SCardRule * p = (Storage_SCardRule *)SAlloc::M(s);
 		if(p) {
 			memzero(p, s);
 			p->ObjType = PPOBJ_SCARDSERIES;
@@ -889,13 +889,13 @@ int SLAPI PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 			};
 			const  size_t init_count = 256 / sizeof(Item_);
 			size_t sz = sizeof(long) + sizeof(PropPPIDArray) + init_count * sizeof(Item_);
-			THROW_MEM(p_rec = (PropPPIDArray*)calloc(1, sz));
+			THROW_MEM(p_rec = (PropPPIDArray*)SAlloc::C(1, sz));
 			pack.Rule.freeAll();
 			if((r = p_ref->GetProp(Obj, id, SCARDSERIES_RULE, p_rec, sz)) > 0) {
 				if(p_rec->Count > (long)init_count) {
 					sz = sizeof(long) + sizeof(PropPPIDArray) + (size_t)p_rec->Count * sizeof(Item_);
-					free(p_rec);
-					THROW_MEM(p_rec = (PropPPIDArray *)calloc(1, sz));
+					SAlloc::F(p_rec);
+					THROW_MEM(p_rec = (PropPPIDArray *)SAlloc::C(1, sz));
 					THROW(p_ref->GetProp(Obj, id, SCARDSERIES_RULE, p_rec, sz) > 0);
 				}
 				memcpy(&pack.Rule.TrnovrPeriod, PTR8(p_rec + 1), sizeof(long));
@@ -930,7 +930,7 @@ int SLAPI PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 		pack.Init();
 	ASSIGN_PTR(pPack, pack);
 	CATCHZOK
-	free(p_rec);
+	SAlloc::F(p_rec);
 	delete p_strg;
 	return ok;
 }
@@ -1488,7 +1488,7 @@ int SCardSeriesView::InitIteration()
 	return 1;
 }
 
-int SCardSeriesView::NextIteration(PPSCardSeries * pRec)
+int FASTCALL SCardSeriesView::NextIteration(PPSCardSeries * pRec)
 {
 	int    ok = -1;
 	if(pRec && P_List && P_List->def) {
@@ -1539,7 +1539,7 @@ int SLAPI PPObjSCardSeriesListWindow::InitIteration()
 	return 1;
 }
 
-int SLAPI PPObjSCardSeriesListWindow::NextIteration(PPSCardSeries * pRec)
+int FASTCALL PPObjSCardSeriesListWindow::NextIteration(PPSCardSeries * pRec)
 {
 	int    ok = -1;
 	if(pRec && def) {

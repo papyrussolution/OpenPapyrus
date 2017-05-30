@@ -236,7 +236,7 @@ SLAPI SReport::~SReport()
 		delete bands[i].fields;
 	delete bands;
 	delete P_Prn;
-	free(P_Text);
+	SAlloc::F(P_Text);
 }
 
 int SLAPI SReport::IsValid() const
@@ -296,11 +296,11 @@ int SLAPI SReport::readResource(TVRez * rez, uint resID)
 	TextLen = len = rez->getUINT();
 	if(len)
 		len++;
-	THROW_MEM(P_Text = (char *)realloc(P_Text, len));
+	THROW_MEM(P_Text = (char *)SAlloc::R(P_Text, len));
 	for(i = 0; i < (len / 2); i++)
 		((int16 *)P_Text)[i] = rez->getUINT();
 	fldCount = rez->getUINT();
-	THROW_MEM(fields = (Field *)realloc(fields, sizeof(Field) * fldCount));
+	THROW_MEM(fields = (Field *)SAlloc::R(fields, sizeof(Field) * fldCount));
 	for(i = 0; i < fldCount; i++) {
 		fields[i].id      = rez->getUINT();
 		fields[i].name    = rez->getUINT(); // @
@@ -315,7 +315,7 @@ int SLAPI SReport::readResource(TVRez * rez, uint resID)
 		fields[i].lastval = 0;
 	}
 	if((agrCount = rez->getUINT()) != 0) {
-		THROW_MEM(agrs = (Aggr *) realloc(agrs, sizeof(Aggr) * agrCount));
+		THROW_MEM(agrs = (Aggr *) SAlloc::R(agrs, sizeof(Aggr) * agrCount));
 		for(i = 0; i < agrCount; i++) {
 			Aggr * a = &agrs[i];
 			a->fld   = rez->getUINT();
@@ -328,12 +328,12 @@ int SLAPI SReport::readResource(TVRez * rez, uint resID)
 	else
 		ZFREE(agrs);
 	if((grpCount = rez->getUINT()) != 0) {
-		THROW_MEM(groups = (Group *)realloc(groups, sizeof(Group) * grpCount));
+		THROW_MEM(groups = (Group *)SAlloc::R(groups, sizeof(Group) * grpCount));
 		for(i = 0; i < grpCount; i++) {
 			Group * g = &groups[i];
 			g->band   = rez->getUINT();
 			if((len = rez->getUINT()) != 0) {
-				THROW_MEM(g->fields = (int16 *)malloc(sizeof(int16) * (len + 1)));
+				THROW_MEM(g->fields = (int16 *)SAlloc::M(sizeof(int16) * (len + 1)));
 				g->fields[0] = len;
 				for(j = 1; j <= len; j++)
 					g->fields[j] = (int16)rez->getUINT();
@@ -346,7 +346,7 @@ int SLAPI SReport::readResource(TVRez * rez, uint resID)
 	else
 		ZFREE(groups);
 	if((bandCount = rez->getUINT()) != 0) {
-		THROW_MEM(bands = (Band *) realloc(bands, sizeof(Band) * bandCount));
+		THROW_MEM(bands = (Band *)SAlloc::R(bands, sizeof(Band) * bandCount));
 		for(i = 0; i < bandCount; i++) {
 			Band * b   = &bands[i];
 			b->kind    = rez->getUINT();
@@ -354,7 +354,7 @@ int SLAPI SReport::readResource(TVRez * rez, uint resID)
 			b->group   = rez->getUINT();
 			b->options = rez->getUINT();
 			if((len = rez->getUINT()) != 0) {
-				THROW_MEM(b->fields = (int16 *)malloc(sizeof(int16) * (len + 1)));
+				THROW_MEM(b->fields = (int16 *)SAlloc::M(sizeof(int16) * (len + 1)));
 				b->fields[0] = len;
 				for(j = 1; j <= len; j++)
 					b->fields[j] = (int16)rez->getUINT();
@@ -1190,7 +1190,7 @@ int SLAPI SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)
 	GetTempFileName(BODY_DBF_NAME, dbfname);
 	rFileName = dbfname;
 	DbfTable  * dbf = new DbfTable(dbfname);
-	Field    ** dbf_fields_id=(Field **)malloc(sizeof(void *));
+	Field    ** dbf_fields_id=(Field **)SAlloc::M(sizeof(void *));
 	for(int type = 0; type < (sizeof(row_band_types)/sizeof(int)); type++) {
 		f = 0;
 		for(b = searchBand(row_band_types[type], 0); enumFields(&f, b, &i);) {
@@ -1201,7 +1201,7 @@ int SLAPI SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)
 					if(strcmp(flds[di].Name, p_fld_name) == 0)
 						used = 1;
 				if(!used) {
-					flds = (DBFCreateFld *)realloc(flds, sizeof(DBFCreateFld)*(1+flds_count));
+					flds = (DBFCreateFld *)SAlloc::R(flds, sizeof(DBFCreateFld)*(1+flds_count));
 					fldIDs->insert(f);
 					TYPEID tp = GETSTYPE(f->type);
 					switch(tp) {
@@ -1234,7 +1234,7 @@ int SLAPI SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)
 		}
 	}
 	if(flds_count == 0) {
-		flds = (DBFCreateFld *)realloc(flds, sizeof(DBFCreateFld));
+		flds = (DBFCreateFld *)SAlloc::R(flds, sizeof(DBFCreateFld));
 		flds[flds_count].Init("dummy", 'C', 5, 0);
 		fldIDs->insert(f);
 		flds_count++;
@@ -1251,7 +1251,7 @@ int SLAPI SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)
 					break;
 				}
 			if(!used) {
-				flds = (DBFCreateFld *)realloc(flds, sizeof(DBFCreateFld)*(1+flds_count));
+				flds = (DBFCreateFld *)SAlloc::R(flds, sizeof(DBFCreateFld)*(1+flds_count));
 				flds[flds_count].Init(p_fld_name, 'C', SFMTLEN(f->format), 0);
 				fldIDs->insert(f);
 				flds_count++;
@@ -1291,7 +1291,7 @@ int SLAPI SReport::createVarDataFile(SString & rFileName, SCollection * fldIDs)
 						used = 1;
 				if(!used) {
 					int    fl = 0;
-					flds = (DBFCreateFld *)realloc(flds,sizeof(DBFCreateFld)*(1+flds_count));
+					flds = (DBFCreateFld *)SAlloc::R(flds,sizeof(DBFCreateFld)*(1+flds_count));
 					if(GETSTYPE(f->type) == S_ZSTRING) {
 						fl = GETSSIZE(f->type);
 						fl = (fl > 0 && fl < 256) ? fl : 255;
@@ -1306,7 +1306,7 @@ int SLAPI SReport::createVarDataFile(SString & rFileName, SCollection * fldIDs)
 		}
 	}
 	if(flds_count == 0) {
-		flds = (DBFCreateFld *)realloc(flds, sizeof(DBFCreateFld));
+		flds = (DBFCreateFld *)SAlloc::R(flds, sizeof(DBFCreateFld));
 		flds[flds_count].Init("dummy", 'C', 5, 0);
 		fldIDs->insert(f);
 		flds_count++;
@@ -1447,10 +1447,10 @@ void ReportError(short printJob)
 	short  text_length;
 	short  error_code = PEGetErrorCode(printJob);
 	PEGetErrorText(printJob, &text_handle, &text_length);
-	char * p_error_text = (char *)malloc(text_length);
+	char * p_error_text = (char *)SAlloc::M(text_length);
 	PEGetHandleString(text_handle, p_error_text, text_length);
 	::MessageBox(0, p_error_text, _T("Print Job Failed"), MB_OK|MB_ICONEXCLAMATION); // @unicodeproblem
-	free(p_error_text);
+	SAlloc::F(p_error_text);
 }
 
 static int SLAPI SetupGroupSkipping(short hJob)
@@ -1890,7 +1890,7 @@ int SLAPI SReport::checkval(int16 *flds, char **ptr)
 			s = 0;
 			for(i = 1; i <= flds[0]; i++)
 				s += stsize(fields[flds[i] - 1].type);
-			(*ptr) = (char *)malloc(s);
+			(*ptr) = (char *)SAlloc::M(s);
 		}
 		else
 			r = 0;

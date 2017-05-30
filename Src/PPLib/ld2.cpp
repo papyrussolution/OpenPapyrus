@@ -30,10 +30,10 @@ int PPALDD_CashBook::InitIteration(PPIterID iterId, int /*sortId*/, long /*rsrv*
 	return -1;
 }
 
-int PPALDD_CashBook::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_CashBook::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 }
 //
 // Implementation of PPALDD_TransferBase
@@ -62,8 +62,8 @@ int PPALDD_TransferBase::InitIteration(PPIterID iterId, int /*sortId*/, long /*r
 	return -1;
 }
 
-int PPALDD_TransferBase::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_TransferBase::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 }

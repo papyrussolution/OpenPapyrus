@@ -2040,7 +2040,7 @@ int DlContext::ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr)
 						else {
 							THROW(AddCvtFuncToArgList(func, pExpr, cvt_al[i]));
 							long proc_addr = 0;
-							if(AdjRetTypeProcList.Search(func.ImplID, &proc_addr, 0, 0)) {
+							if(AdjRetTypeProcList.Search(func.ImplID, &proc_addr, 0)) {
 								AdjRetTypeProc proc = (AdjRetTypeProc)proc_addr;
 								DLSYMBID ret_type_id = proc(this, pExpr);
 								THROW(ret_type_id);
@@ -2955,8 +2955,8 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 					gen.Wr_EndDeclFunc(1, 1);
 
 					gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, Generator_CPP::fmVirtual, "int", "NextIteration");
-					gen.Wr_VarDecl("long", 0, 0, ',');
-					gen.Wr_VarDecl("long", "rsrv", "0", 0);
+					gen.Wr_VarDecl("long", 0, 0, 0); // @v9.6.8 ','-->0
+					// @v9.6.8 gen.Wr_VarDecl("long", "rsrv", "0", 0);
 					gen.Wr_EndDeclFunc(1, 1);
 				}
 				if(p_ds->CheckDvFlag(DlScope::declfDestroy)) {
@@ -2971,7 +2971,7 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 				}
 				if(is_func_decl) {
 					// virtual int EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS);
-					gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, Generator_CPP::fmVirtual, "int", "EvaluateFunc");
+					gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, Generator_CPP::fmVirtual, "void", "EvaluateFunc"); // @v9.8.6 "int"-->"void"
 					gen.Wr_VarDecl("const DlFunc *", "pF", 0, ',');
 					gen.Wr_VarDecl("SV_Uint32 *",  "pApl", 0, ',');
 					gen.Wr_VarDecl("RtmStack &",  "rS", 0, 0);

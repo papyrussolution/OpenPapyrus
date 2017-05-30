@@ -657,7 +657,7 @@ DBIdxSpec * SLAPI DBTable::getIndexSpec(int idxNo, int * pNumSeg)
 			i = 0;
 			do {
 				i++;
-				p_idx = (DBIdxSpec *)realloc(p_idx, sizeof(DBIdxSpec) * i);
+				p_idx = (DBIdxSpec *)SAlloc::R(p_idx, sizeof(DBIdxSpec) * i);
 				p_idx[i-1] = *p;
 			} while((p++)->flags & XIF_SEG);
 			ASSIGN_PTR(pNumSeg, i);

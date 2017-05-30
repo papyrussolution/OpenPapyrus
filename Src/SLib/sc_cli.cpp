@@ -84,7 +84,7 @@ int SCDBObjClient::LoadAddrList()
 SCDBObjClient::PalmRec * SCDBObjClient::AllocPalmRec(uint addrCount, size_t * pBufLen)
 {
 	const size_t buf_len = sizeof(PalmRec) + addrCount * sizeof(ClientAddr);
-	PalmRec * p_buf = (PalmRec *)calloc(1, buf_len);
+	PalmRec * p_buf = (PalmRec *)SAlloc::C(1, buf_len);
 	if(p_buf)
 		p_buf->AddrCount = addrCount;
 	ASSIGN_PTR(pBufLen, buf_len);
@@ -94,7 +94,7 @@ SCDBObjClient::PalmRec * SCDBObjClient::AllocPalmRec(uint addrCount, size_t * pB
 SCDBObjClient::PalmRec700 * SCDBObjClient::AllocPalmRec700(uint addrCount, size_t * pBufLen)
 {
 	const size_t buf_len = sizeof(PalmRec700) + addrCount * sizeof(ClientAddr);
-	PalmRec700 * p_buf = (PalmRec700 *)calloc(1, buf_len);
+	PalmRec700 * p_buf = (PalmRec700 *)SAlloc::C(1, buf_len);
 	if(p_buf)
 		p_buf->AddrCount = addrCount;
 	ASSIGN_PTR(pBufLen, buf_len);
@@ -382,7 +382,7 @@ SCDBObjClientDebt::PalmRec * SCDBObjClientDebt::AllocPalmRec(size_t * pBufLen)
 {
 	PalmRec * p_buf = 0;
 	size_t  buf_len = sizeof(PalmRec);
-	p_buf = (PalmRec *)calloc(1, buf_len);
+	p_buf = (PalmRec *)SAlloc::C(1, buf_len);
 	ASSIGN_PTR(pBufLen, buf_len);
 	return p_buf;
 }
@@ -569,7 +569,7 @@ SCDBObjSell::PalmRec * SCDBObjSell::AllocPalmRec(const TSArray <TempRec> * pPool
 	size_t buf_len = 0;
 	if(pPool->getCount()) {
 		buf_len = sizeof(PalmRec) + pPool->getCount() * sizeof(SalesItem);
-		p_buf = (PalmRec *)calloc(1, buf_len);
+		p_buf = (PalmRec *)SAlloc::C(1, buf_len);
 		if(p_buf) {
 			p_buf->ItemsCount = SyncHostToHHWord(pPool->getCount());
 			p_buf->ClientID = SyncHostToHHDWord(pPool->at(0).ClientID);

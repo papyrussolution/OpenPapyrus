@@ -340,7 +340,7 @@ static cairo_output_stream_t * _word_wrap_stream_create(cairo_output_stream_t * 
 	word_wrap_stream_t * stream;
 	if(output->status)
 		return _cairo_output_stream_create_in_error(output->status);
-	stream = (word_wrap_stream_t *)malloc(sizeof(word_wrap_stream_t));
+	stream = (word_wrap_stream_t *)SAlloc::M(sizeof(word_wrap_stream_t));
 	if(unlikely(stream == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
@@ -622,7 +622,7 @@ cairo_int_status_t _cairo_pdf_operators_emit_stroke_style(cairo_pdf_operators_t 
 					double last_two[2];
 
 					if(num_dashes == 2) {
-						free(dash);
+						SAlloc::F(dash);
 						return CAIRO_INT_STATUS_NOTHING_TO_DO;
 					}
 
@@ -683,7 +683,7 @@ cairo_int_status_t _cairo_pdf_operators_emit_stroke_style(cairo_pdf_operators_t 
 		pdf_operators->has_dashes = FALSE;
 	}
 	if(dash != style->dash)
-		free(dash);
+		SAlloc::F(dash);
 
 	if(!pdf_operators->has_line_style || pdf_operators->miter_limit != style->miter_limit) {
 		_cairo_output_stream_printf(pdf_operators->stream,
@@ -1206,7 +1206,7 @@ static cairo_status_t _cairo_pdf_operators_begin_actualtext(cairo_pdf_operators_
 			_cairo_output_stream_printf(pdf_operators->stream,
 			    "%04x", (int)(utf16[i]));
 		}
-		free(utf16);
+		SAlloc::F(utf16);
 	}
 	_cairo_output_stream_printf(pdf_operators->stream, "> >> BDC\n");
 

@@ -170,7 +170,7 @@ int SLAPI PPViewSuprWare::InitIteration()
 	return 1;
 }
 
-int SLAPI PPViewSuprWare::NextIteration(SuprWareViewItem * pItem)
+int FASTCALL PPViewSuprWare::NextIteration(SuprWareViewItem * pItem)
 {
 	int    ok = -1;
 	if(P_IterQuery) {

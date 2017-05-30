@@ -1109,7 +1109,7 @@ int __os_getenv(ENV * env, const char * name, char ** bpp, size_t buflen)
 	 * The declared size of the tbuf buffer limits the maximum environment
 	 * variable size in Berkeley DB on Windows.  If that's too small, or if
 	 * we need to get rid of large allocations on the BDB stack, we should
-	 * malloc the tbuf memory.
+	 * SAlloc::M the tbuf memory.
 	 */
 	ret = GetEnvironmentVariable(tname, tbuf, sizeof(tbuf));
 	FREE_STRING(env, tname);

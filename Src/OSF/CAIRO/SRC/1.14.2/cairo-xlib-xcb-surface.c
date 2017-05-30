@@ -361,7 +361,7 @@ static cairo_device_t * _cairo_xlib_xcb_device_create(Display * dpy, cairo_devic
 			goto unlock;
 		}
 	}
-	display = malloc(sizeof(cairo_xlib_xcb_display_t));
+	display = SAlloc::M(sizeof(cairo_xlib_xcb_display_t));
 	if(unlikely(display == NULL)) {
 		device = _cairo_device_create_in_error(CAIRO_STATUS_NO_MEMORY);
 		goto unlock;
@@ -369,7 +369,7 @@ static cairo_device_t * _cairo_xlib_xcb_device_create(Display * dpy, cairo_devic
 	display->codes = XAddExtension(dpy);
 	if(unlikely(display->codes == NULL)) {
 		device = _cairo_device_create_in_error(CAIRO_STATUS_NO_MEMORY);
-		free(display);
+		SAlloc::F(display);
 		goto unlock;
 	}
 
@@ -406,7 +406,7 @@ static cairo_surface_t * _cairo_xlib_xcb_surface_create(void * dpy,
 	if(unlikely(xcb->status))
 		return xcb;
 
-	surface = malloc(sizeof(*surface));
+	surface = SAlloc::M(sizeof(*surface));
 	if(unlikely(surface == NULL)) {
 		cairo_surface_destroy(xcb);
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);

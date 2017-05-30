@@ -231,7 +231,7 @@ static cairo_status_t _cairo_xcb_surface_finish(void * abstract_surface)
 
 static void _destroy_image(pixman_image_t * image, void * data)
 {
-	free(data);
+	SAlloc::F(data);
 }
 
 #if CAIRO_HAS_XCB_SHM_FUNCTIONS
@@ -440,7 +440,7 @@ static cairo_surface_t * _get_image(cairo_xcb_surface_t          * surface,
 		    PIXMAN_FORMAT_BPP(surface->pixman_format)));
 	status = image->status;
 	if(unlikely(status)) {
-		free(reply);
+		SAlloc::F(reply);
 		goto FAIL;
 	}
 
@@ -1008,7 +1008,7 @@ cairo_surface_t * _cairo_xcb_surface_create_internal(cairo_xcb_screen_t         
 {
 	cairo_xcb_surface_t * surface;
 
-	surface = malloc(sizeof(cairo_xcb_surface_t));
+	surface = SAlloc::M(sizeof(cairo_xcb_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 

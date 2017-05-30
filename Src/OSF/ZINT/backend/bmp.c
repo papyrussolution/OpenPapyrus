@@ -72,7 +72,7 @@ int bmp_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	bitmap_info_header_t info_header;
 	free(symbol->bitmap);
 	row_size = (int)(4 * floor((24.0 * symbol->bitmap_width + 31) / 32));
-	bitmap = (char*)malloc(row_size * symbol->bitmap_height);
+	bitmap = (char*)SAlloc::M(row_size * symbol->bitmap_height);
 	fgred = (16 * ctoi(symbol->fgcolour[0])) + ctoi(symbol->fgcolour[1]);
 	fggrn = (16 * ctoi(symbol->fgcolour[2])) + ctoi(symbol->fgcolour[3]);
 	fgblu = (16 * ctoi(symbol->fgcolour[4])) + ctoi(symbol->fgcolour[5]);
@@ -120,7 +120,7 @@ int bmp_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	info_header.colours = 0;
 	info_header.important_colours = 0;
 
-	bitmap_file_start = (uchar*)malloc(file_header.file_size);
+	bitmap_file_start = (uchar*)SAlloc::M(file_header.file_size);
 	memset(bitmap_file_start, 0xff, file_header.file_size);
 
 	bmp_posn = bitmap_file_start;

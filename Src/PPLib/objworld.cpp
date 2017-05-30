@@ -1797,7 +1797,7 @@ int SLAPI PPObjWorld::Convert()
 					STRNSCPY(wrec.Abbr,  reg_rec.Abbr);
 					STRNSCPY(wrec.Phone, reg_rec.Phone);
 					if(reg_rec.Country)
-						cntry_list.Search(reg_rec.Country, &wrec.ParentID, 0, 1);
+						cntry_list.BSearch(reg_rec.Country, &wrec.ParentID, 0);
 					THROW(AddByID(p_tbl, &(temp_id = 0), &wrec, 0));
 					THROW_SL(reg_list.AddUnique(reg_rec.ID, id, 0));
 				}
@@ -1819,9 +1819,9 @@ int SLAPI PPObjWorld::Convert()
 					STRNSCPY(wrec.Phone, city_rec.Phone);
 					wrec.Status = city_rec.Status;
 					if(city_rec.Country)
-						cntry_list.Search(city_rec.Country, &wrec.CountryID, 0, 1);
+						cntry_list.BSearch(city_rec.Country, &wrec.CountryID, 0);
 					if(city_rec.Region)
-						reg_list.Search(city_rec.Region, &wrec.ParentID, 0, 1);
+						reg_list.BSearch(city_rec.Region, &wrec.ParentID, 0);
 					THROW(AddByID(p_tbl, &(temp_id = 0), &wrec, 0));
 				}
 			}

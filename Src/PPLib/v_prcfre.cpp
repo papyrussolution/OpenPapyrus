@@ -308,7 +308,7 @@ void SLAPI PPViewPrcBusy::RecToViewItem(const TempPrcBusyTbl::Rec * pRec, PrcBus
 	ASSIGN_PTR(pItem, item);
 }
 
-int SLAPI PPViewPrcBusy::NextIteration(PrcBusyViewItem * pItem)
+int FASTCALL PPViewPrcBusy::NextIteration(PrcBusyViewItem * pItem)
 {
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		RecToViewItem(&P_TempTbl->data, pItem);
@@ -758,7 +758,7 @@ int PPALDD_PrcBusyView::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(PrcBusy);
 }
 
-int PPALDD_PrcBusyView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_PrcBusyView::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(PrcBusy);
 	I.PrcID = item.PrcID;

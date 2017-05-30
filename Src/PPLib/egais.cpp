@@ -2468,7 +2468,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							}
 						}
 					}
-					else if(doc_type == PPEDIOP_EGAIS_ACTCHARGEON_V2) { // @v9.3.12 @construction
+					else if(doc_type == PPEDIOP_EGAIS_ACTCHARGEON_V2) { // @v9.3.12
 						const PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
 						{
 							SXml::WNode n_h(_doc, "ainp:Header");

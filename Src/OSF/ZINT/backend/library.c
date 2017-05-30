@@ -36,7 +36,7 @@
 
 struct ZintSymbol * ZBarcode_Create()
 {
-	struct ZintSymbol * symbol = (struct ZintSymbol*)malloc(sizeof(*symbol));
+	struct ZintSymbol * symbol = (struct ZintSymbol*)SAlloc::M(sizeof(*symbol));
 	if(!symbol) 
 		return NULL;
 	memzero(symbol, sizeof(*symbol));
@@ -1217,7 +1217,7 @@ int ZBarcode_Encode_File(struct ZintSymbol * symbol, char * filename)
 	}
 
 	/* Allocate memory */
-	buffer = (uchar*)malloc(fileLen * sizeof(uchar));
+	buffer = (uchar*)SAlloc::M(fileLen * sizeof(uchar));
 	if(!buffer) {
 		strcpy(symbol->errtxt, "Internal memory error (B31)");
 		if(strcmp(filename, "-"))

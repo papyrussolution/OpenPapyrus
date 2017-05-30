@@ -145,7 +145,7 @@ SOAP_FMAC3 struct SOAP_ENV__Fault * SOAP_FMAC4 soap_in_SOAP_ENV__Fault(struct so
 	size_t soap_flag_SOAP_ENV__Detail = 1;
 	if(soap_element_begin_in(soap, tag, 0, type))
 		return NULL;
-	a = (struct SOAP_ENV__Fault *)soap_id_enter(soap, soap->id, a, SOAP_TYPE_SOAP_ENV__Fault, sizeof(struct SOAP_ENV__Fault), 0, NULL, NULL, NULL);
+	a = (struct SOAP_ENV__Fault *)soap_id_enter(soap, soap->id, a, SOAP_TYPE_SOAP_ENV__Fault, sizeof(struct SOAP_ENV__Fault), 0, 0, 0, 0);
 	if(!a)
 		return NULL;
 	soap_default_SOAP_ENV__Fault(soap, a);

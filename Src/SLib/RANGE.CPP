@@ -36,7 +36,7 @@ int SLAPI strtorrng(const char * pBuf, double * pLow, double * pUpp)
 	n = t[0] ? (dot = 1, t + 2) : t;
 	*pLow = atof(p_tmp);
 	*pUpp = (*strip(n) == 0 && !dot) ? *pLow : atof(n);
-	free(p_tmp);
+	SAlloc::F(p_tmp);
 	return 1;
 }
 

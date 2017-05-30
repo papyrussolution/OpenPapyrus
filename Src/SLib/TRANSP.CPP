@@ -35,20 +35,20 @@ Transpos::Transpos()
 
 Transpos::~Transpos()
 {
-	free(List);
-	free(Pattern);
+	SAlloc::F(List);
+	SAlloc::F(Pattern);
 }
 
 int Transpos::Init(long sz, long stop, long pattern[])
 {
 	int    i;
 	Size = sz;
-	List = (long*)malloc((size_t)(sizeof(long) * Size));
+	List = (long*)SAlloc::M((size_t)(sizeof(long) * Size));
 	for(i = 0; i < Size; i++)
 		List[i] = i+1;
 	Pattern = 0;
 	if(pattern) {
-		Pattern = (long*)malloc((size_t)(sizeof(long) * Size));
+		Pattern = (long*)SAlloc::M((size_t)(sizeof(long) * Size));
 		for(i = 0; i < Size; i++)
 			Pattern[i] = pattern[i];
 	}

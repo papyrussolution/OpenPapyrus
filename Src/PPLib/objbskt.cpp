@@ -1155,7 +1155,7 @@ int SLAPI PPViewGoodsBasket::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewGoodsBasket::NextIteration(ILTI * pItem)
+int FASTCALL PPViewGoodsBasket::NextIteration(ILTI * pItem)
 {
 	int    ok = -1;
 	if(P_IterQuery)

@@ -825,7 +825,7 @@ int STestSuite::Run(const char * pIniFileName)
 			FN_SLTEST_FACTORY f = (FN_SLTEST_FACTORY)GetProcAddress(SLS.GetHInst(), ffn);
 			if(f) {
 				CaseBuffer = 0;
-				// @v9.0.8 assert(Mht.CalcStat(&p_entry->HeapBefore));
+				/*// @v9.0.8*/ assert(Mht.CalcStat(&p_entry->HeapBefore));
 				p_case = f(this);
 				if(p_case) {
 					int64 tm_start, tm_finish;
@@ -869,7 +869,7 @@ int STestSuite::Run(const char * pIniFileName)
 						}
 					}
 					ZDELETE(p_case);
-					// @v9.0.8 assert(Mht.CalcStat(&p_entry->HeapAfter));
+					/*// @v9.0.8*/ assert(Mht.CalcStat(&p_entry->HeapAfter));
 				}
 			}
 			else { // @v5.7 ANDREW сообщение о том, что функция теста не найдена {

@@ -282,7 +282,7 @@ static cairo_status_t _tessellate_fan(cairo_stroker_t * stroker,
 		status = stroker->add_triangle_fan(stroker->closure, midpt, points, num_points);
 	}
 	if(points != stack_points)
-		free(points);
+		SAlloc::F(points);
 	return status;
 BEVEL:
 	/* Ensure a leak free connection... */

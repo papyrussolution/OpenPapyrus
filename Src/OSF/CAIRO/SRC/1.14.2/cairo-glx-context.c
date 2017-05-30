@@ -218,7 +218,7 @@ cairo_device_t * cairo_glx_device_create(Display * dpy, GLXContext gl_ctx)
 
 	status = _glx_dummy_window(dpy, gl_ctx, &dummy);
 	if(unlikely(status)) {
-		free(ctx);
+		SAlloc::F(ctx);
 		return _cairo_gl_context_create_in_error(status);
 	}
 
@@ -235,13 +235,13 @@ cairo_device_t * cairo_glx_device_create(Display * dpy, GLXContext gl_ctx)
 	status = _cairo_gl_dispatch_init(&ctx->base.dispatch,
 	    (cairo_gl_get_proc_addr_func_t)glXGetProcAddress);
 	if(unlikely(status)) {
-		free(ctx);
+		SAlloc::F(ctx);
 		return _cairo_gl_context_create_in_error(status);
 	}
 
 	status = _cairo_gl_context_init(&ctx->base);
 	if(unlikely(status)) {
-		free(ctx);
+		SAlloc::F(ctx);
 		return _cairo_gl_context_create_in_error(status);
 	}
 

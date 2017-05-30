@@ -16,8 +16,9 @@ gsoap        2.8.8
 asmlib       okt 2013
 scintilla    3.6.0 // 3.5.5 // 3.3.8
 gperftools   2.4
-curl         7.45
+curl         7.54
 	@v9.1.12 внесены файлы src\slist_wc.h и src\slist_wc.c из версии 7.49.1
+	@v9.6.8  7.45-->7.54
 libzip       1.1.3
 zint         2.5.1 (have pulled from git-repository 2017/01/12)
 libjpeg-turbo 1.5.1 

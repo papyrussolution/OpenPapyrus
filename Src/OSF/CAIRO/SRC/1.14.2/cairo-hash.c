@@ -158,7 +158,7 @@ static cairo_bool_t _cairo_hash_table_uid_keys_equal(const void * key_a, const v
  **/
 cairo_hash_table_t * _cairo_hash_table_create(cairo_hash_keys_equal_func_t keys_equal)
 {
-	cairo_hash_table_t * hash_table = (cairo_hash_table_t *)malloc(sizeof(cairo_hash_table_t));
+	cairo_hash_table_t * hash_table = (cairo_hash_table_t *)SAlloc::M(sizeof(cairo_hash_table_t));
 	if(unlikely(hash_table == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return NULL;
@@ -172,7 +172,7 @@ cairo_hash_table_t * _cairo_hash_table_create(cairo_hash_keys_equal_func_t keys_
 	hash_table->entries = (cairo_hash_entry_t **)calloc(*hash_table->table_size, sizeof(cairo_hash_entry_t *));
 	if(unlikely(hash_table->entries == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
-		free(hash_table);
+		SAlloc::F(hash_table);
 		return NULL;
 	}
 	hash_table->live_entries = 0;
@@ -205,8 +205,8 @@ void _cairo_hash_table_destroy(cairo_hash_table_t * hash_table)
 	/* No iterators can be running. Otherwise, halt. */
 	assert(hash_table->iterating == 0);
 
-	free(hash_table->entries);
-	free(hash_table);
+	SAlloc::F(hash_table->entries);
+	SAlloc::F(hash_table);
 }
 
 static cairo_hash_entry_t ** _cairo_hash_table_lookup_unique_key(cairo_hash_table_t * hash_table,
@@ -294,7 +294,7 @@ static cairo_status_t _cairo_hash_table_manage(cairo_hash_table_t * hash_table)
 				= hash_table->entries[i];
 		}
 	}
-	free(hash_table->entries);
+	SAlloc::F(hash_table->entries);
 	hash_table->entries = tmp.entries;
 	hash_table->table_size = tmp.table_size;
 	hash_table->free_entries = new_size - hash_table->live_entries;

@@ -11,7 +11,7 @@
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -29,7 +29,7 @@
 #define IPV6_SCOPE_SITELOCAL    2       /* Site-local scope (deprecated). */
 #define IPV6_SCOPE_NODELOCAL    3       /* Loopback. */
 
-uint Curl_ipv6_scope(const struct sockaddr *sa);
+unsigned int Curl_ipv6_scope(const struct sockaddr *sa);
 
 bool Curl_if_is_interface_name(const char *interf);
 
@@ -39,8 +39,8 @@ typedef enum {
   IF2IP_FOUND = 2 /* The address has been stored in "buf" */
 } if2ip_result_t;
 
-if2ip_result_t Curl_if2ip(int af, uint remote_scope,
-                          uint remote_scope_id, const char *interf,
+if2ip_result_t Curl_if2ip(int af, unsigned int remote_scope,
+                          unsigned int remote_scope_id, const char *interf,
                           char *buf, int buf_size);
 
 #ifdef __INTERIX

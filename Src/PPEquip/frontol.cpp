@@ -374,12 +374,10 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 				gds_info.QuotList.Add(retail_quot_list.get(i), 0, 1);
 			}
 			while(goods_iter.Next(&gds_info) > 0) {
-				// @v7.4.12 {
 				if(gds_info.GoodsFlags & GF_PASSIV && cn_data.ExtFlags & CASHFX_RMVPASSIVEGOODS && gds_info.Rest <= 0.0) {
 					rmv_goods_list.addUnique(gds_info.ID);
 				}
 				else {
-				// } @v7.4.12
 					size_t bclen;
 	   				if(gds_info.ID != prev_goods_id) {
 						long   level = 0;
@@ -451,8 +449,17 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 							tail.Cat(gds_info.Price, SFMT_MONEY);       // #9 - Min цена товара
 						tail.Semicol();
 						tail.CatCharN(';', 3);                          // #10-#12 - Не используем
-						if(gds_info.NoDis <= 0)                         // @v6.0.1 VADIM
-							tail.Cat(ATOL_OUTER_SCHEME);                // #13 - Код схемы внешней автоматической скидки
+						// @v9.6.8 {
+						if(cn_data.DrvVerMajor > 5 || (cn_data.DrvVerMajor == 5 && cn_data.DrvVerMinor >= 16)) {
+							// Номер поля - 13; Обязательное - нет; Тип поля - целое;
+							// Признак предмета расчёта: 0 – товар, кроме подакцизного; 1 – подакцизный товар; 2 – работа;
+							// 3 – услуга; 4 – товар, состоящий из нескольких признаков; 5 – иной товар.
+                            tail.CatChar('0');                              // #13 - Признак предмета расчёта
+						}
+						else /* } @v9.6.8 */ {
+							if(gds_info.NoDis <= 0)                         // @v6.0.1 VADIM
+								tail.Cat(ATOL_OUTER_SCHEME);                // #13 - Код схемы внешней автоматической скидки
+						}
 						tail.Semicol();
 						tail.CatCharN(';', 2);                          // #14-#15 - Не используем
 						if(cn_data.Flags & CASHF_EXPGOODSGROUPS && gds_info.ParentID && grp_n_level_ary.Search(gds_info.ParentID, &level, 0) > 0)
@@ -1377,15 +1384,16 @@ int SLAPI ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 int SLAPI ACS_FRONTOL::ImportSession(int)
 {
 	int    ok = 1;
-	StringSet ss(";");
-	SString path;
 	THROW(CreateTables());
-	ss.setBuf(ImportedFiles, ImportedFiles.Len() + 1);
-	for(uint i = 0; ss.get(&i, path = 0);) {
-		ZRepList.freeAll();
-		if(fileExists(path)) {
-			THROW(GetZRepList(path, &ZRepList));
-			THROW(ConvertWareList(path));
+	{
+		SString path;
+		StringSet ss(';', ImportedFiles);
+		for(uint i = 0; ss.get(&i, path = 0);) {
+			ZRepList.freeAll();
+			if(fileExists(path)) {
+				THROW(GetZRepList(path, &ZRepList));
+				THROW(ConvertWareList(path));
+			}
 		}
 	}
 	CATCHZOK

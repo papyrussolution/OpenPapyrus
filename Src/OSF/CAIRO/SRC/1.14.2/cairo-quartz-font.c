@@ -175,7 +175,7 @@ static cairo_status_t _cairo_quartz_font_face_create_for_toy(cairo_toy_font_face
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	family = toy_face->family;
-	full_name = malloc(strlen(family) + 64); // give us a bit of room to tack on Bold, Oblique, etc.
+	full_name = SAlloc::M(strlen(family) + 64); // give us a bit of room to tack on Bold, Oblique, etc.
 	/* handle CSS-ish faces */
 	if(!strcmp(family, "serif") || !strcmp(family, "Times Roman"))
 		family = "Times";
@@ -260,7 +260,7 @@ static cairo_status_t _cairo_quartz_font_face_scaled_font_create(void * abstract
 	quartz_font_ensure_symbols();
 	if(!_cairo_quartz_font_symbols_present)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-	font = malloc(sizeof(cairo_quartz_scaled_font_t));
+	font = SAlloc::M(sizeof(cairo_quartz_scaled_font_t));
 	if(font == NULL)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	memzero(font, sizeof(cairo_quartz_scaled_font_t));
@@ -317,7 +317,7 @@ static cairo_status_t _cairo_quartz_font_face_scaled_font_create(void * abstract
 
 FINISH:
 	if(status != CAIRO_STATUS_SUCCESS) {
-		free(font);
+		SAlloc::F(font);
 	}
 	else {
 		*font_out = (cairo_scaled_font_t*)font;
@@ -352,7 +352,7 @@ cairo_font_face_t * cairo_quartz_font_face_create_for_cgfont(CGFontRef font)
 
 	quartz_font_ensure_symbols();
 
-	font_face = malloc(sizeof(cairo_quartz_font_face_t));
+	font_face = SAlloc::M(sizeof(cairo_quartz_font_face_t));
 	if(!font_face) {
 		cairo_status_t ignore_status;
 		ignore_status = _cairo_error(CAIRO_STATUS_NO_MEMORY);

@@ -1210,7 +1210,7 @@ int PPALDD_PUGL::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	return 1;
 }
 
-int PPALDD_PUGL::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_PUGL::NextIteration(PPIterID iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -1223,7 +1223,7 @@ int PPALDD_PUGL::NextIteration(PPIterID iterId, long rsrv)
 		I.LocID    = p_item->LocID;
 		I.NeedQtty = p_item->NeededQty;
 		I.Deficit  = p_item->DeficitQty;
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }

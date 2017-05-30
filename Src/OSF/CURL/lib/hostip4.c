@@ -5,11 +5,11 @@
 *                            | (__| |_| |  _ <| |___
 *                             \___|\___/|_| \_\_____|
 *
-* Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+* Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
 *
 * This software is licensed as described in the file COPYING, which
 * you should have received as part of this distribution. The terms
-* are also available at http://curl.haxx.se/docs/copyright.html.
+* are also available at https://curl.haxx.se/docs/copyright.html.
 *
 * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 * copies of the Software, and permit persons to whom the Software is
@@ -48,9 +48,9 @@
 #include "strerror.h"
 #include "url.h"
 #include "inet_pton.h"
+/* The last 3 #include files should be in this order */
 #include "curl_printf.h"
 #include "curl_memory.h"
-/* The last #include file should be: */
 #include "memdebug.h"
 
 /***********************************************************************
@@ -129,7 +129,9 @@ Curl_addrinfo * Curl_ipv4_resolve_r(const char * hostname,
 	Curl_addrinfo * ai = NULL;
 	struct hostent * h = NULL;
 	struct in_addr in;
+
 	struct hostent * buf = NULL;
+
 	if(Curl_inet_pton(AF_INET, hostname, &in) > 0)
 		/* This is a dotted IP address 123.123.123.123-style */
 		return Curl_ip2addr(AF_INET, &in, hostname, port);
@@ -137,6 +139,7 @@ Curl_addrinfo * Curl_ipv4_resolve_r(const char * hostname,
 #if defined(HAVE_GETADDRINFO_THREADSAFE)
 	else {
 		struct addrinfo hints;
+
 		char sbuf[12];
 		char * sbufptr = NULL;
 		memzero(&hints, sizeof(hints));

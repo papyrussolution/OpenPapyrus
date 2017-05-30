@@ -316,7 +316,7 @@ cairo_surface_t * cairo_quartz_image_surface_create(cairo_surface_t * surface)
 	if(format != CAIRO_FORMAT_ARGB32 && format != CAIRO_FORMAT_RGB24)
 		return SURFACE_ERROR_INVALID_FORMAT;
 
-	qisurf = malloc(sizeof(cairo_quartz_image_surface_t));
+	qisurf = SAlloc::M(sizeof(cairo_quartz_image_surface_t));
 	if(qisurf == NULL)
 		return SURFACE_ERROR_NO_MEMORY;
 
@@ -338,7 +338,7 @@ cairo_surface_t * cairo_quartz_image_surface_create(cairo_surface_t * surface)
 	    image_surface);
 
 	if(!image) {
-		free(qisurf);
+		SAlloc::F(qisurf);
 		return SURFACE_ERROR_NO_MEMORY;
 	}
 

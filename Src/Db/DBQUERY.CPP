@@ -33,16 +33,16 @@ SLAPI DBQuery::~DBQuery()
 			t->key.destroy();
 			delete t->keyBuf;
 		}
-		free(tbls);
+		SAlloc::F(tbls);
 	}
 	if(flds) {
 		i = fldCount;
 		if(i) do {
 			flds[--i].cell.i.destroy();
 		} while(i);
-		free(flds);
+		SAlloc::F(flds);
 	}
-	free(order);
+	SAlloc::F(order);
 }
 
 int SLAPI DBQuery::setDestroyTablesMode(int set)
@@ -210,14 +210,14 @@ int FASTCALL DBQuery::chooseKey(int tblN)
 		int  * p_ka = 0;   // Массив допустимых индексов
 		uint   num_keys = t.tbl->indexes.getNumKeys();
 		if(tblN == 0)
-			if((p_ka = (int *)malloc(num_keys * sizeof(int))) != 0)
+			if((p_ka = (int *)SAlloc::M(num_keys * sizeof(int))) != 0)
 				ka_c = analyzeOrder(p_ka);
 			else
 				return 0;
 		uint   i;
 		uint   tc = (t.tree.Count+1) * sizeof(uint);
-		uint * p_trace      = (uint *)malloc(tc);
-		uint * p_best_trace = (uint *)malloc(tc);
+		uint * p_trace      = (uint *)SAlloc::M(tc);
+		uint * p_best_trace = (uint *)SAlloc::M(tc);
 		if(p_trace == 0 || p_best_trace == 0)
 			return 0;
 		p_best_trace[0] = 0;
@@ -243,8 +243,8 @@ int FASTCALL DBQuery::chooseKey(int tblN)
 				k.destroy();
 			}
 		}
-		free(p_ka);
-		free(p_trace);
+		SAlloc::F(p_ka);
+		SAlloc::F(p_trace);
 		for(i = 1; i <= p_best_trace[0]; i++) {
 			uint * f = &w_restrict->items[p_best_trace[i]].flags;
 			(*f) &= ~DBQ_LOGIC;
@@ -252,7 +252,7 @@ int FASTCALL DBQuery::chooseKey(int tblN)
 			(*f) |=  DBQ_TRUE;
 			*/
 		}
-		free(p_best_trace);
+		SAlloc::F(p_best_trace);
 		t.tbl->setIndex(t.tbl->indexes[t.key.P_h->keyNum].getKeyNumber());
 		if((t.keyBuf = new char[MAXKEYLEN]) == 0)
 			return 0;
@@ -303,7 +303,7 @@ int FASTCALL DBQuery::analyzeOrder(int * pKeyArray)
 
 int SLAPI DBQuery::addField(DBConst & r)
 {
-	flds = (DBQuery::Fld*)realloc(flds, sizeof(DBQuery::Fld) * (fldCount+1));
+	flds = (DBQuery::Fld*)SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1));
 	if(flds) {
 		flds[fldCount].cell.c = r;
 		flds[fldCount].type = ((DBItem *)&r)->stype();
@@ -317,7 +317,7 @@ int SLAPI DBQuery::addField(DBConst & r)
 
 int SLAPI DBQuery::addField(DBE & r)
 {
-	flds = (DBQuery::Fld*)realloc(flds, sizeof(DBQuery::Fld) * (fldCount+1));
+	flds = (DBQuery::Fld*)SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1));
 	if(flds) {
 		flds[fldCount].cell.e = r;
 		flds[fldCount].type = ((DBItem *)&r)->stype();
@@ -331,7 +331,7 @@ int SLAPI DBQuery::addField(DBE & r)
 
 int SLAPI DBQuery::addField(DBField & r)
 {
-	flds = (DBQuery::Fld*)realloc(flds, sizeof(DBQuery::Fld) * (fldCount+1));
+	flds = (DBQuery::Fld*)SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1));
 	if(flds) {
 		flds[fldCount].cell.f = r;
 		flds[fldCount].type = ((DBItem *)&r)->stype();
@@ -347,7 +347,7 @@ DBQuery & SLAPI select(const DBFieldList & list)
 {
 	DBQuery & q = *new DBQuery;
 	if(&q != 0) {
-		if((q.flds = (DBQuery::Fld*)malloc(sizeof(DBQuery::Fld) * list.GetCount())) != 0) {
+		if((q.flds = (DBQuery::Fld*)SAlloc::M(sizeof(DBQuery::Fld) * list.GetCount())) != 0) {
 			for(uint i = 0; i < list.GetCount(); i++) {
 				DBQuery::Fld & fld = q.flds[i];
 				fld.cell.f = list.Get(i);
@@ -369,7 +369,7 @@ DBQuery & SLAPI selectbycell(int count, DBDataCell * pList)
 	DBQuery & q = *new DBQuery;
 	if(&q == 0)
 		return q;
-	if((q.flds = (DBQuery::Fld*)malloc(sizeof(DBQuery::Fld) * count)) != 0)
+	if((q.flds = (DBQuery::Fld*)SAlloc::M(sizeof(DBQuery::Fld) * count)) != 0)
 		for(int i = 0; i < count; i++) {
 			DBQuery::Fld & fld = q.flds[i];
 			fld.cell = pList[i];
@@ -394,7 +394,7 @@ DBQuery & SLAPIV select(DBField first_arg, ...)
 		int  i = 0;
 		size_t delta;
 		while((id = *(int *)list) != 0) {
-			q.flds = (DBQuery::Fld*)realloc(q.flds, sizeof(DBQuery::Fld) * (i+1));
+			q.flds = (DBQuery::Fld*)SAlloc::R(q.flds, sizeof(DBQuery::Fld) * (i+1));
 			if(q.flds == 0) {
 				i = 0;
 				break;
@@ -440,7 +440,7 @@ DBQuery & SLAPIV DBQuery::from(DBTable * first_arg, ...)
 	DBTable * p_tbl;
 	list = (va_list)&first_arg;
 	while((p_tbl = va_arg(list, DBTable*)) != 0)
-		if((tbls = (Tbl*)realloc(tbls, sizeof(Tbl) * (i+1))) != 0) {
+		if((tbls = (Tbl*)SAlloc::R(tbls, sizeof(Tbl) * (i+1))) != 0) {
 			tbls[i].tbl    = p_tbl;
 			tbls[i].tree.init(0);
 			tbls[i].key.P_b  = 0;
@@ -464,7 +464,7 @@ int SLAPI DBQuery::addTable(DBTable * pTbl)
 	int    ok = 1;
 	if(pTbl) {
 		uint   i = tblCount;
-		tbls = (Tbl *)realloc(tbls, sizeof(Tbl) * (i+1));
+		tbls = (Tbl *)SAlloc::R(tbls, sizeof(Tbl) * (i+1));
 		if(tbls != 0) {
 			tbls[i].tbl    = pTbl;
 			tbls[i].tree.init(0);
@@ -488,7 +488,7 @@ int SLAPI DBQuery::addTable(DBTable * pTbl)
 int SLAPI DBQuery::addOrderField(const DBField & rFld)
 {
 	if(&rFld) {
-		order = (DBField *)realloc(order, sizeof(DBField) * (ordCount+1));
+		order = (DBField *)SAlloc::R(order, sizeof(DBField) * (ordCount+1));
 		order[ordCount++] = rFld;
 		return 1;
 	}
@@ -503,7 +503,7 @@ DBQuery & SLAPIV DBQuery::orderBy(DBField first_arg, ...)
 	ordCount = 0;
 	DBField f;
 	while((f = va_arg(list, DBField)).id != 0) {
-		order = (DBField *)realloc(order, sizeof(DBField) * (ordCount+1));
+		order = (DBField *)SAlloc::R(order, sizeof(DBField) * (ordCount+1));
 		if(order == 0) {
 			ordCount = 0;
 			break;
@@ -841,7 +841,7 @@ int SLAPI DBQuery::allocFrame(uint bufSize)
 			}
 			else
 				return 0;
-		frame->buf = (char *)realloc(frame->buf, bufSize * recSize);
+		frame->buf = (char *)SAlloc::R(frame->buf, bufSize * recSize);
 		if(!frame->buf) {
 			delete frame;
 			return 0;
@@ -850,7 +850,7 @@ int SLAPI DBQuery::allocFrame(uint bufSize)
 		frame->size = bufSize;
 		frame->count = MIN(frame->count, bufSize);
 		if(options & save_positions) {
-			frame->posBuf = (ulong *)realloc(frame->posBuf, frame->size * tblCount * sizeof(RECORDNUMBER));
+			frame->posBuf = (ulong *)SAlloc::R(frame->posBuf, frame->size * tblCount * sizeof(RECORDNUMBER));
 			if(!frame->posBuf) {
 				options &= ~save_positions;
 				return 0;
@@ -860,11 +860,11 @@ int SLAPI DBQuery::allocFrame(uint bufSize)
 	else {
 		if(frame) {
 			if(frame->buf) {
-				free(frame->buf);
+				SAlloc::F(frame->buf);
 				frame->buf = 0;
 			}
 			if(frame->posBuf) {
-				free(frame->posBuf);
+				SAlloc::F(frame->posBuf);
 				frame->posBuf = 0;
 			}
 			frame->size = 0;
@@ -1153,8 +1153,8 @@ int FASTCALL DBQuery::step(long delta)
 
 SLAPI DBQuery::Frame::~Frame()
 {
-	free(buf);
-	free(posBuf);
+	SAlloc::F(buf);
+	SAlloc::F(posBuf);
 }
 
 void FASTCALL DBQuery::Frame::topByCur(int dir)

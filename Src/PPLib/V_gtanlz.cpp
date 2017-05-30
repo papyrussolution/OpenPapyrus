@@ -741,7 +741,7 @@ int SLAPI PPViewGoodsTaxAnalyze::NextOuterIteration()
 		return -1;
 }
 
-int SLAPI PPViewGoodsTaxAnalyze::NextIteration(GoodsTaxAnalyzeViewItem * pItem)
+int FASTCALL PPViewGoodsTaxAnalyze::NextIteration(GoodsTaxAnalyzeViewItem * pItem)
 {
 	do {
 		if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
@@ -1155,7 +1155,7 @@ int PPALDD_GoodsTaxAnlz::InitIteration(PPIterID iterId, int sortId, long /*rsrv*
 	return 1;
 }
 
-int PPALDD_GoodsTaxAnlz::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsTaxAnlz::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	{
@@ -1191,7 +1191,7 @@ int PPALDD_GoodsTaxAnlz::NextIteration(PPIterID iterId, long rsrv)
 		else
 			return -1;
 	}
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 }
 
 void PPALDD_GoodsTaxAnlz::Destroy()
@@ -1259,7 +1259,7 @@ int PPALDD_GTaxAnlzTotal::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	return 1;
 }
 
-int PPALDD_GTaxAnlzTotal::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GTaxAnlzTotal::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	GTaxAnlzTotalPrintData * p_data = (GTaxAnlzTotalPrintData *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
@@ -1285,7 +1285,7 @@ int PPALDD_GTaxAnlzTotal::NextIteration(PPIterID iterId, long rsrv)
 	}
 	else
 		return -1;
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 }
 
 void PPALDD_GTaxAnlzTotal::Destroy()

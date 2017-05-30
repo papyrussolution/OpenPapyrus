@@ -376,7 +376,7 @@ int SLAPI PPObjPerson::WriteConfig(const PPPersonConfig * pCfg, int use_ta)
 			if(ext_size)
 				ext_size++; // Нулевая позиция - исключительная //
 			sz += ext_size;
-			p_cfg = (Storage_PPPersonConfig *)malloc(sz);
+			p_cfg = (Storage_PPPersonConfig *)SAlloc::M(sz);
 			memzero(p_cfg, sz);
 			p_cfg->Tag               = PPOBJ_CONFIG;
 			p_cfg->ID                = PPCFG_MAIN;
@@ -411,7 +411,7 @@ int SLAPI PPObjPerson::WriteConfig(const PPPersonConfig * pCfg, int use_ta)
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	free(p_cfg);
+	SAlloc::F(p_cfg);
 	return ok;
 }
 
@@ -423,12 +423,12 @@ int SLAPI PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 	int    ok = -1, r;
 	Reference * p_ref = PPRef;
 	size_t sz = sizeof(Storage_PPPersonConfig) + 256;
-	Storage_PPPersonConfig * p_cfg = (Storage_PPPersonConfig *)malloc(sz);
+	Storage_PPPersonConfig * p_cfg = (Storage_PPPersonConfig *)SAlloc::M(sz);
 	THROW_MEM(p_cfg);
 	THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
 	if(r > 0 && p_cfg->GetSize() > sz) {
 		sz = p_cfg->GetSize();
-		p_cfg = (Storage_PPPersonConfig *)realloc(p_cfg, sz);
+		p_cfg = (Storage_PPPersonConfig *)SAlloc::R(p_cfg, sz);
 		THROW_MEM(p_cfg);
 		THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
 	}
@@ -479,7 +479,7 @@ int SLAPI PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 	THROW(p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, &pCfg->DlvrAddrExtFldList));
 	THROW(p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONDETECTIONLIST, &pCfg->NewClientDetectionList)); // @vmiller
 	CATCHZOK
-	free(p_cfg);
+	SAlloc::F(p_cfg);
 	return ok;
 }
 
@@ -6428,7 +6428,7 @@ int PPALDD_Person::InitData(PPFilt & rFilt, long rsrv)
 	return ok;
 }
 
-int PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_LONG(n) (*(long *)rS.GetPtr(pApl->Get(n)))
 	#define _ARG_DATE(n) (*(LDATE *)rS.GetPtr(pApl->Get(n)))
@@ -6560,7 +6560,6 @@ int PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 			}
 		}
 	}
-	return 1;
 }
 //
 // Implementation of PPALDD_UhttPerson
@@ -6654,7 +6653,7 @@ int PPALDD_UhttPerson::InitIteration(long iterId, int sortId, long rsrv)
 	return -1;
 }
 
-int PPALDD_UhttPerson::NextIteration(long iterId, long rsrv)
+int PPALDD_UhttPerson::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -6670,7 +6669,7 @@ int PPALDD_UhttPerson::NextIteration(long iterId, long rsrv)
 				STRNSCPY(I_KindList.Name, pk_rec.Name);
 			}
 			// } @v8.9.0
-			ok = DlRtm::NextIteration(iterId, rsrv);
+			ok = DlRtm::NextIteration(iterId);
 		}
 		r_blk.Pack.Kinds.incPointer();
 	}
@@ -6680,7 +6679,7 @@ int PPALDD_UhttPerson::NextIteration(long iterId, long rsrv)
 			const PPELink & r_link = r_blk.Pack.ELA.at(r_blk.PhPos++);
 			if(r_blk.ElObj.Fetch(r_link.KindID, &el_rec) > 0 && el_rec.Type == ELNKRT_PHONE) {
 				STRNSCPY(I_PhoneList.Code, r_link.Addr);
-				ok = DlRtm::NextIteration(iterId, rsrv);
+				ok = DlRtm::NextIteration(iterId);
 				break;
 			}
 		}
@@ -6691,7 +6690,7 @@ int PPALDD_UhttPerson::NextIteration(long iterId, long rsrv)
 			const PPELink & r_link = r_blk.Pack.ELA.at(r_blk.EmlPos++);
 			if(r_blk.ElObj.Fetch(r_link.KindID, &el_rec) > 0 && el_rec.Type == ELNKRT_EMAIL) {
 				STRNSCPY(I_EMailList.Code, r_link.Addr);
-				ok = DlRtm::NextIteration(iterId, rsrv);
+				ok = DlRtm::NextIteration(iterId);
 				break;
 			}
 		}
@@ -6702,7 +6701,7 @@ int PPALDD_UhttPerson::NextIteration(long iterId, long rsrv)
 			const PPELink & r_link = r_blk.Pack.ELA.at(r_blk.UrlPos++);
 			if(r_blk.ElObj.Fetch(r_link.KindID, &el_rec) > 0 && el_rec.Type == ELNKRT_WEBADDR) {
 				STRNSCPY(I_UrlList.Code, r_link.Addr);
-				ok = DlRtm::NextIteration(iterId, rsrv);
+				ok = DlRtm::NextIteration(iterId);
 				break;
 			}
 		}
@@ -6719,7 +6718,7 @@ int PPALDD_UhttPerson::NextIteration(long iterId, long rsrv)
 			I_RegisterList.RegExpiry = r_reg_rec.Expiry;
 			STRNSCPY(I_RegisterList.RegSerial, r_reg_rec.Serial);
 			STRNSCPY(I_RegisterList.RegNumber, r_reg_rec.Num);
-			ok = DlRtm::NextIteration(iterId, rsrv);
+			ok = DlRtm::NextIteration(iterId);
 		}
 		r_blk.Pack.Regs.incPointer();
 	}
@@ -6743,7 +6742,7 @@ int PPALDD_UhttPerson::NextIteration(long iterId, long rsrv)
 					I_AddrList.Longitude = r_blk.Pack.Loc.Longitude;
 					I_AddrList.Latitude = r_blk.Pack.Loc.Latitude;
 					I_AddrList.LocKind = 1;
-					ok = DlRtm::NextIteration(iterId, rsrv);
+					ok = DlRtm::NextIteration(iterId);
 					break;
 				}
 			}
@@ -6762,7 +6761,7 @@ int PPALDD_UhttPerson::NextIteration(long iterId, long rsrv)
 					I_AddrList.Longitude = r_blk.Pack.Loc.Longitude;
 					I_AddrList.Latitude = r_blk.Pack.Loc.Latitude;
 					I_AddrList.LocKind = 2;
-					ok = DlRtm::NextIteration(iterId, rsrv);
+					ok = DlRtm::NextIteration(iterId);
 					break;
 				}
 			}
@@ -6782,7 +6781,7 @@ int PPALDD_UhttPerson::NextIteration(long iterId, long rsrv)
 					I_AddrList.Longitude = loc_pack.Longitude;
 					I_AddrList.Latitude = loc_pack.Latitude;
 					I_AddrList.LocKind = 3;
-					ok = DlRtm::NextIteration(iterId, rsrv);
+					ok = DlRtm::NextIteration(iterId);
 				}
 				break;
 			}
@@ -7004,7 +7003,7 @@ int PPALDD_Global::InitData(PPFilt & rFilt, long rsrv)
 	return ok;
 }
 
-int PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
 	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
@@ -7104,7 +7103,6 @@ int PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 		CALLPTRMEMB(p_dict, GetDbUUID(&dbuuid));
 		dbuuid.ToStr(S_GUID::fmtIDL, _RET_STR);
 	}
-	return 1;
 }
 
 // static

@@ -432,7 +432,7 @@ static cairo_surface_t * _cairo_svg_surface_create_for_document(cairo_svg_docume
 {
 	cairo_surface_t * paginated;
 	cairo_status_t status, status_ignored;
-	cairo_svg_surface_t * surface = (cairo_svg_surface_t * )malloc(sizeof(cairo_svg_surface_t));
+	cairo_svg_surface_t * surface = (cairo_svg_surface_t * )SAlloc::M(sizeof(cairo_svg_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &cairo_svg_surface_backend, NULL, /* device */ content);
@@ -478,7 +478,7 @@ CLEANUP:
 	status_ignored = _cairo_output_stream_destroy(surface->xml_node);
 	status_ignored = _cairo_svg_document_destroy(document);
 
-	free(surface);
+	SAlloc::F(surface);
 
 	return _cairo_surface_create_in_error(status);
 }
@@ -1589,7 +1589,7 @@ static cairo_status_t _cairo_svg_surface_emit_pattern_stops(cairo_output_stream_
 	}
 
 	if(reverse_stops || emulate_reflect)
-		free(stops);
+		SAlloc::F(stops);
 
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -2434,7 +2434,7 @@ static cairo_status_t _cairo_svg_document_create(cairo_output_stream_t        * 
 	cairo_status_t status, status_ignored;
 	if(output_stream->status)
 		return output_stream->status;
-	document = (cairo_svg_document_t *)malloc(sizeof(cairo_svg_document_t));
+	document = (cairo_svg_document_t *)SAlloc::M(sizeof(cairo_svg_document_t));
 	if(unlikely(document == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	/* The use of defs for font glyphs imposes no per-subset limit. */
@@ -2480,7 +2480,7 @@ CLEANUP_NODE_DEFS:
 	status_ignored = _cairo_output_stream_destroy(document->xml_node_defs);
 	_cairo_scaled_font_subsets_destroy(document->font_subsets);
 CLEANUP_DOCUMENT:
-	free(document);
+	SAlloc::F(document);
 	return status;
 }
 
@@ -2506,7 +2506,7 @@ static cairo_status_t _cairo_svg_document_destroy(cairo_svg_document_t * documen
 
 	status = _cairo_svg_document_finish(document);
 
-	free(document);
+	SAlloc::F(document);
 
 	return status;
 }

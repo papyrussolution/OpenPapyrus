@@ -34,8 +34,8 @@ void qr_wiener_filter(uchar * _img, int _width, int _height)
 	int y;
 	if(_width<=0||_height<=0) 
 		return;
-	m_buf[0] = (uint*)malloc((_width+4<<3)*sizeof(*m_buf));
-	sn2_buf[0] = (uint*)malloc((_width+4<<3)*sizeof(*sn2_buf));
+	m_buf[0] = (uint*)SAlloc::M((_width+4<<3)*sizeof(*m_buf));
+	sn2_buf[0] = (uint*)SAlloc::M((_width+4<<3)*sizeof(*sn2_buf));
 	for(y = 1; y<8; y++) {
 		m_buf[y] = m_buf[y-1]+_width+4;
 		sn2_buf[y] = sn2_buf[y-1]+_width+4;
@@ -120,8 +120,8 @@ void qr_wiener_filter(uchar * _img, int _width, int _height)
 	int x;
 	int y;
 	if(_width<=0||_height<=0) return;
-	m_buf[0] = (uint*)malloc((_width+2<<2)*sizeof(*m_buf));
-	sn2_buf[0] = (uint*)malloc((_width+2<<2)*sizeof(*sn2_buf));
+	m_buf[0] = (uint*)SAlloc::M((_width+2<<2)*sizeof(*m_buf));
+	sn2_buf[0] = (uint*)SAlloc::M((_width+2<<2)*sizeof(*sn2_buf));
 	for(y = 1; y<4; y++) {
 		m_buf[y] = m_buf[y-1]+_width+2;
 		sn2_buf[y] = sn2_buf[y-1]+_width+2;
@@ -232,8 +232,8 @@ static void qr_sauvola_mask(uchar * _mask, uint * _b, int * _nb,
 		for(logwindh = 4; logwindh<8&&(1<<logwindh)<(_height+7>>3); logwindh++) ;
 		windw = 1<<logwindw;
 		windh = 1<<logwindh;
-		col_sums = (uint*)malloc(_width*sizeof(*col_sums));
-		col2_sums = (uint*)malloc(_width*sizeof(*col2_sums));
+		col_sums = (uint*)SAlloc::M(_width*sizeof(*col_sums));
+		col2_sums = (uint*)SAlloc::M(_width*sizeof(*col2_sums));
 		/*Initialize sums down each column.*/
 		for(x = 0; x<_width; x++) {
 			g = _img[x];
@@ -354,8 +354,8 @@ static void qr_interpolate_background(uchar * _dst,
 		for(logwindh = 4; logwindh<8&&(1<<logwindh)<(_height+15>>4); logwindh++) ;
 		windw = 1<<logwindw;
 		windh = 1<<logwindh;
-		col_sums = (uint*)malloc(_width*sizeof(*col_sums));
-		ncol_sums = (uint*)malloc(_width*sizeof(*ncol_sums));
+		col_sums = (uint*)SAlloc::M(_width*sizeof(*col_sums));
+		ncol_sums = (uint*)SAlloc::M(_width*sizeof(*ncol_sums));
 		/*Initialize sums down each column.*/
 		for(x = 0; x<_width; x++) {
 			if(!_mask[x]) {
@@ -484,7 +484,7 @@ void qr_binarize(uchar * _img, int _width, int _height)
 	   image_write_png(_img,_width,_height,fout);
 	   fclose(fout);
 	   }*/
-	uchar * mask = (uchar*)malloc(_width*_height*sizeof(*mask));
+	uchar * mask = (uchar*)SAlloc::M(_width*_height*sizeof(*mask));
 	qr_sauvola_mask(mask, &b, &nb, _img, _width, _height);
 	/*{
 	   FILE *fout;
@@ -492,7 +492,7 @@ void qr_binarize(uchar * _img, int _width, int _height)
 	   image_write_png(mask,_width,_height,fout);
 	   fclose(fout);
 	   }*/
-	background = (uchar*)malloc(_width*_height*sizeof(*mask));
+	background = (uchar*)SAlloc::M(_width*_height*sizeof(*mask));
 	qr_interpolate_background(background, &delta, &ndelta, _img, mask, _width, _height, b, nb);
 	/*{
 	   FILE *fout;
@@ -539,7 +539,7 @@ uchar * qr_binarize(const uchar * _img, int _width, int _height)
 		uint g;
 		int x;
 		int y;
-		mask = (uchar*)malloc(_width*_height*sizeof(*mask));
+		mask = (uchar*)SAlloc::M(_width*_height*sizeof(*mask));
 		//
 		// We keep the window size fairly large to ensure it doesn't fit completely
 		// inside the center of a finder pattern of a version 1 QR code at full resolution.
@@ -550,7 +550,7 @@ uchar * qr_binarize(const uchar * _img, int _width, int _height)
 			;
 		windw = 1<<logwindw;
 		windh = 1<<logwindh;
-		col_sums = (uint*)malloc(_width*sizeof(*col_sums));
+		col_sums = (uint*)SAlloc::M(_width*sizeof(*col_sums));
 		/*Initialize sums down each column.*/
 		for(x = 0; x<_width; x++) {
 			g = _img[x];
@@ -626,7 +626,7 @@ int main(int _argc, char ** _argv)
 	}
 	/*width=1182;
 	   height=1181;
-	   img=(uchar *)malloc(width*height*sizeof(*img));
+	   img=(uchar *)SAlloc::M(width*height*sizeof(*img));
 	   for(y=0;y<height;y++)for(x=0;x<width;x++){
 	   img[y*width+x]=(uchar)(-((x&1)^(y&1))&0xFF);
 	   }*/

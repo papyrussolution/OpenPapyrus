@@ -452,7 +452,7 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope,
 						THROW(BuiltinOp(&func, &arg_pos_list));
 					}
 					else {
-						THROW(pRtm->EvaluateFunc(&func, &arg_pos_list, S));
+						pRtm->EvaluateFunc(&func, &arg_pos_list, S);
 					}
 				}
 				arg_pos_list.Destroy();
@@ -480,9 +480,8 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope,
 	return ok;
 }
 
-int DlRtm::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void DlRtm::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
-	return -1;
 }
 //
 //
@@ -531,7 +530,7 @@ DlRtm::DlRtm(DlContext * pCtx, DlScope * pScope)
 	DataId = 0;
 	P_Data = 0;
 	P_HdrScope = 0;
-	THROW_MEM(Extra = (ExtData *)calloc((size_t)32, sizeof(ExtData)));
+	THROW_MEM(Extra = (ExtData *)SAlloc::C((size_t)32, sizeof(ExtData)));
 	IterList.Init();
 	if(P_Ctx && pScope) {
 		P_Data = pScope;
@@ -547,7 +546,7 @@ DlRtm::DlRtm(DlContext * pCtx, DlScope * pScope)
 DlRtm::~DlRtm()
 {
 	IterList.Destroy();
-	free(Extra);
+	SAlloc::F(Extra);
 }
 
 long FASTCALL DlRtm::GetIterID(const char * pIterName) const
@@ -649,7 +648,7 @@ int DlRtm::InitIteration(long iterId, int sortId, long rsrv)
 	return -1;
 }
 
-int DlRtm::NextIteration(long iterId, long rsrv)
+int DlRtm::NextIteration(long iterId/*, long rsrv*/)
 {
 	if(iterId) {
 		DLSYMBID scope_id = IterList.Get(iterId-1);
@@ -820,7 +819,7 @@ int DlRtm::SetByJSON_Helper(json_t * pNode, SetScopeBlk & rBlk)
 		}
 	}
 	CATCHZOK
-	free(p_value);
+	SAlloc::F(p_value);
 	return ok;
 }
 
@@ -1447,7 +1446,7 @@ int SLAPI DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags
 	json_tree_to_string(p_root_ary, &temp_buf);
 	(rBuf = 0).Cat(temp_buf);
 	CATCHZOK
-	free(temp_buf);
+	SAlloc::F(temp_buf);
 	json_free_value(&p_root_ary);
 	return ok;
 }
@@ -1465,7 +1464,7 @@ int SLAPI DlRtm::PutToJsonBuffer(void * ptr, SString & rBuf, int flags)
 	json_tree_to_string(p_root_ary, &temp_buf);
 	(rBuf = 0).Cat(temp_buf);
 	CATCHZOK
-	free(temp_buf);
+	SAlloc::F(temp_buf);
 	json_free_value(&p_root_ary);
 	return ok;
 }

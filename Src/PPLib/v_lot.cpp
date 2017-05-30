@@ -2081,10 +2081,8 @@ int SLAPI PPViewLot::AcceptViewItem(const ReceiptTbl::Rec & rLotRec, LotViewItem
 			else
 				item.OrgLotDt = org_rec.Dt;
 		}
-		// @v7.4.5 {
 		if(PPObjTag::CheckForTagFilt(PPOBJ_LOT, rLotRec.ID, Filt.P_TagF) <= 0)
 			return -1;
-		// } @v7.4.5
 		ASSIGN_PTR(pItem, item);
 		ok = 1;
 	}
@@ -2092,7 +2090,7 @@ int SLAPI PPViewLot::AcceptViewItem(const ReceiptTbl::Rec & rLotRec, LotViewItem
 	return ok;
 }
 
-int SLAPI PPViewLot::NextIteration(LotViewItem * pItem)
+int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 {
 	LotViewItem item;
 	if(P_IterQuery) {
@@ -2686,26 +2684,25 @@ int PPALDD_Lot::InitData(PPFilt & rFilt, long rsrv)
 	return ok;
 }
 
-int PPALDD_Lot::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_Lot::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
 	#define _ARG_LONG(n) (*(long *)rS.GetPtr(pApl->Get(n)))
 	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
 
 	_RET_INT = 0;
-	if(pF->Name.Cmp("?GetOrgLotID", 0) == 0) {
+	if(pF->Name == "?GetOrgLotID") {
 		PPID   org_lot_id = 0;
 		BillObj->trfr->Rcpt.SearchOrigin(H.ID, &org_lot_id, 0, 0);
 		SETIFZ(org_lot_id, H.ID);
 		_RET_INT = org_lot_id;
 	}
-	else if(pF->Name.Cmp("?GetTag", 0) == 0) {
+	else if(pF->Name == "?GetTag") {
 		_RET_INT = PPObjTag::Helper_GetTag(PPOBJ_LOT, H.ID, _ARG_STR(1));
 	}
-	else if(pF->Name.Cmp("?GetTagByID", 0) == 0) {
+	else if(pF->Name == "?GetTagByID") {
 		_RET_INT = PPObjTag::Helper_GetTagByID(PPOBJ_LOT, H.ID, _ARG_LONG(1));
 	}
-	return 1;
 }
 //
 // Implementation of PPALDD_Lots
@@ -2755,7 +2752,7 @@ int PPALDD_Lots::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	return BIN(p_v->InitIteration((PPViewLot::IterOrder)SortIdx));
 }
 
-int PPALDD_Lots::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_Lots::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(Lot);
 	long   qtty_to_str_fmt = (H.FltFlags & 1) ? MKSFMT(0, QTTYF_SIMPLPACK|QTTYF_FRACTION) : QTTYF_FRACTION;
@@ -3351,7 +3348,7 @@ int SLAPI PPViewLotExtCode::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewLotExtCode::NextIteration(LotExtCodeViewItem * pItem)
+int FASTCALL PPViewLotExtCode::NextIteration(LotExtCodeViewItem * pItem)
 {
 	int    ok = -1;
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {

@@ -804,7 +804,7 @@ static inline void _pqueue_init(pqueue_t * pq)
 static inline void _pqueue_fini(pqueue_t * pq)
 {
 	if(pq->elements != pq->elements_embedded)
-		free(pq->elements);
+		SAlloc::F(pq->elements);
 }
 
 static cairo_status_t _pqueue_grow(pqueue_t * pq)
@@ -1375,7 +1375,7 @@ cairo_status_t _cairo_polygon_reduce(cairo_polygon_t * polygon,
 	polygon->num_limits = num_limits;
 
 	if(events != stack_events)
-		free(events);
+		SAlloc::F(events);
 
 	if(DEBUG_POLYGON) {
 		FILE * file = fopen("reduce_out.txt", "w");

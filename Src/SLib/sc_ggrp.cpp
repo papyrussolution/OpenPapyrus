@@ -68,7 +68,7 @@ int SCDBObjGoodsGrp::Init(const char * pExpPath, const char * pImpPath)
 SCDBObjGoodsGrp::PalmRec * SCDBObjGoodsGrp::AllocPalmRec(size_t * pBufLen)
 {
 	size_t  buf_len = sizeof(PalmRec);
-	PalmRec * p_buf = (PalmRec *)calloc(1, buf_len);
+	PalmRec * p_buf = (PalmRec *)SAlloc::C(1, buf_len);
 	ASSIGN_PTR(pBufLen, buf_len);
 	return p_buf;
 }
@@ -76,7 +76,7 @@ SCDBObjGoodsGrp::PalmRec * SCDBObjGoodsGrp::AllocPalmRec(size_t * pBufLen)
 SCDBObjGoodsGrp::PalmRec156 * SCDBObjGoodsGrp::AllocPalmRec156(size_t * pBufLen)
 {
 	size_t  buf_len = sizeof(PalmRec156);
-	PalmRec156 * p_buf = (PalmRec156 *)calloc(1, buf_len);
+	PalmRec156 * p_buf = (PalmRec156 *)SAlloc::C(1, buf_len);
 	ASSIGN_PTR(pBufLen, buf_len);
 	return p_buf;
 }

@@ -12,9 +12,6 @@
 #define ZLIB_INTERNAL
 #include "zlib.h"
 #pragma hdrstop
-//#include "inftrees.h"
-//#include "inflate.h"
-//#include "inffast.h"
 
 /* function prototypes */
 static void fixedtables(struct inflate_state  * state);

@@ -210,7 +210,7 @@ void _zbar_convert_jpeg_to_y(zbar_image_t * dst, const zbar_format_def_t * dstfm
 	    src->width, src->height, src->datalen, cinfo->dct_method);
 	if(!dst->P_Data) {
 		dst->datalen = datalen;
-		dst->P_Data = malloc(dst->datalen);
+		dst->P_Data = SAlloc::M(dst->datalen);
 		dst->cleanup = zbar_image_free_data;
 	}
 	else

@@ -5,11 +5,11 @@
 *                            | (__| |_| |  _ <| |___
 *                             \___|\___/|_| \_\_____|
 *
-* Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+* Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
 *
 * This software is licensed as described in the file COPYING, which
 * you should have received as part of this distribution. The terms
-* are also available at http://curl.haxx.se/docs/copyright.html.
+* are also available at https://curl.haxx.se/docs/copyright.html.
 *
 * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 * copies of the Software, and permit persons to whom the Software is
@@ -22,25 +22,28 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-#include <curl/curl.h>
+//#include <curl/curl.h>
 #include "urldata.h"
 #include "getinfo.h"
 #include "vtls/vtls.h"
 #include "connect.h" /* Curl_getconnectinfo() */
 #include "progress.h"
-
 /* The last #include files should be: */
 #include "curl_memory.h"
 #include "memdebug.h"
 
 /*
- * This is supposed to be called in the beginning of a perform() session
- * and should reset all session-info variables
+ * Initialize statistical and informational data.
+ *
+ * This function is called in curl_easy_reset, curl_easy_duphandle and at the
+ * beginning of a perform session. It must reset the session-info variables,
+ * in particular all variables in struct PureInfo.
  */
-CURLcode Curl_initinfo(struct SessionHandle * data)
+CURLcode Curl_initinfo(struct Curl_easy * data)
 {
 	struct Progress * pro = &data->progress;
 	struct PureInfo * info = &data->info;
+
 	pro->t_nslookup = 0;
 	pro->t_connect = 0;
 	pro->t_appconnect = 0;
@@ -48,24 +51,42 @@ CURLcode Curl_initinfo(struct SessionHandle * data)
 	pro->t_starttransfer = 0;
 	pro->timespent = 0;
 	pro->t_redirect = 0;
+
 	info->httpcode = 0;
 	info->httpproxycode = 0;
 	info->httpversion = 0;
 	info->filetime = -1; /* -1 is an illegal time and thus means unknown */
 	info->timecond = FALSE;
-	free(info->contenttype);
-	info->contenttype = NULL;
+
 	info->header_size = 0;
 	info->request_size = 0;
+	info->proxyauthavail = 0;
+	info->httpauthavail = 0;
 	info->numconnects = 0;
+
+	free(info->contenttype);
+	info->contenttype = NULL;
+
+	free(info->wouldredirect);
+	info->wouldredirect = NULL;
+
 	info->conn_primary_ip[0] = '\0';
 	info->conn_local_ip[0] = '\0';
 	info->conn_primary_port = 0;
 	info->conn_local_port = 0;
+
+	info->conn_scheme = 0;
+	info->conn_protocol = 0;
+
+#ifdef USE_SSL
+	Curl_ssl_free_certinfo(data);
+#endif
+
 	return CURLE_OK;
 }
 
-static CURLcode getinfo_char(struct SessionHandle * data, CURLINFO info, char ** param_charp)
+static CURLcode getinfo_char(struct Curl_easy * data, CURLINFO info,
+    const char ** param_charp)
 {
 	switch(info) {
 		case CURLINFO_EFFECTIVE_URL:
@@ -102,6 +123,9 @@ static CURLcode getinfo_char(struct SessionHandle * data, CURLINFO info, char **
 		case CURLINFO_RTSP_SESSION_ID:
 		    *param_charp = data->set.str[STRING_RTSP_SESSION_ID];
 		    break;
+		case CURLINFO_SCHEME:
+		    *param_charp = data->info.conn_scheme;
+		    break;
 
 		default:
 		    return CURLE_UNKNOWN_OPTION;
@@ -110,13 +134,13 @@ static CURLcode getinfo_char(struct SessionHandle * data, CURLINFO info, char **
 	return CURLE_OK;
 }
 
-static CURLcode getinfo_long(struct SessionHandle * data, CURLINFO info,
+static CURLcode getinfo_long(struct Curl_easy * data, CURLINFO info,
     long * param_longp)
 {
 	curl_socket_t sockfd;
 
 	union {
-		ulong * to_ulong;
+		unsigned long * to_ulong;
 		long          * to_long;
 	} lptr;
 
@@ -138,6 +162,9 @@ static CURLcode getinfo_long(struct SessionHandle * data, CURLINFO info,
 		    break;
 		case CURLINFO_SSL_VERIFYRESULT:
 		    *param_longp = data->set.ssl.certverifyresult;
+		    break;
+		case CURLINFO_PROXY_SSL_VERIFYRESULT:
+		    *param_longp = data->set.proxy_ssl.certverifyresult;
 		    break;
 		case CURLINFO_REDIRECT_COUNT:
 		    *param_longp = data->set.followlocation;
@@ -189,6 +216,25 @@ static CURLcode getinfo_long(struct SessionHandle * data, CURLINFO info,
 		case CURLINFO_RTSP_CSEQ_RECV:
 		    *param_longp = data->state.rtsp_CSeq_recv;
 		    break;
+		case CURLINFO_HTTP_VERSION:
+		    switch(data->info.httpversion) {
+			    case 10:
+				*param_longp = CURL_HTTP_VERSION_1_0;
+				break;
+			    case 11:
+				*param_longp = CURL_HTTP_VERSION_1_1;
+				break;
+			    case 20:
+				*param_longp = CURL_HTTP_VERSION_2_0;
+				break;
+			    default:
+				*param_longp = CURL_HTTP_VERSION_NONE;
+				break;
+		    }
+		    break;
+		case CURLINFO_PROTOCOL:
+		    *param_longp = data->info.conn_protocol;
+		    break;
 
 		default:
 		    return CURLE_UNKNOWN_OPTION;
@@ -197,7 +243,7 @@ static CURLcode getinfo_long(struct SessionHandle * data, CURLINFO info,
 	return CURLE_OK;
 }
 
-static CURLcode getinfo_double(struct SessionHandle * data, CURLINFO info,
+static CURLcode getinfo_double(struct Curl_easy * data, CURLINFO info,
     double * param_doublep)
 {
 	switch(info) {
@@ -250,7 +296,7 @@ static CURLcode getinfo_double(struct SessionHandle * data, CURLINFO info,
 	return CURLE_OK;
 }
 
-static CURLcode getinfo_slist(struct SessionHandle * data, CURLINFO info,
+static CURLcode getinfo_slist(struct Curl_easy * data, CURLINFO info,
     struct curl_slist ** param_slistp)
 {
 	union {
@@ -273,48 +319,48 @@ static CURLcode getinfo_slist(struct SessionHandle * data, CURLINFO info,
 		    *param_slistp = ptr.to_slist;
 		    break;
 		case CURLINFO_TLS_SESSION:
+		case CURLINFO_TLS_SSL_PTR:
 	    {
-		    struct curl_tlssessioninfo ** tsip = (struct curl_tlssessioninfo**)
-			    param_slistp;
+		    struct curl_tlssessioninfo ** tsip = (struct curl_tlssessioninfo**)param_slistp;
 		    struct curl_tlssessioninfo * tsi = &data->tsi;
 		    struct connectdata * conn = data->easy_conn;
-		    uint sockindex = 0;
-		    void * internals = NULL;
-
 		    *tsip = tsi;
 		    tsi->backend = (curl_sslbackend)Curl_ssl_backend();
 		    tsi->internals = NULL;
-
-		    if(!conn)
-			    break;
-
-		    /* Find the active ("in use") SSL connection, if any */
-		    while((sockindex < sizeof(conn->ssl) / sizeof(conn->ssl[0])) &&
-			    (!conn->ssl[sockindex].use))
-			    sockindex++;
-
-		    if(sockindex == sizeof(conn->ssl) / sizeof(conn->ssl[0]))
-			    break;  /* no SSL session found */
-
-		    /* Return the TLS session information from the relevant backend */
-#ifdef USE_OPENSSL
-		    internals = conn->ssl[sockindex].ctx;
+		    if(conn && tsi->backend != CURLSSLBACKEND_NONE) {
+			    unsigned int i;
+			    for(i = 0; i < (sizeof(conn->ssl) / sizeof(conn->ssl[0])); ++i) {
+				    if(conn->ssl[i].use) {
+#if defined(USE_AXTLS)
+					    tsi->internals = (void*)conn->ssl[i].ssl;
+#elif defined(USE_CYASSL)
+					    tsi->internals = (void*)conn->ssl[i].handle;
+#elif defined(USE_DARWINSSL)
+					    tsi->internals = (void*)conn->ssl[i].ssl_ctx;
+#elif defined(USE_GNUTLS)
+					    tsi->internals = (void*)conn->ssl[i].session;
+#elif defined(USE_GSKIT)
+					    tsi->internals = (void*)conn->ssl[i].handle;
+#elif defined(USE_MBEDTLS)
+					    tsi->internals = (void*)&conn->ssl[i].ssl;
+#elif defined(USE_NSS)
+					    tsi->internals = (void*)conn->ssl[i].handle;
+#elif defined(USE_OPENSSL)
+					    /* Legacy: CURLINFO_TLS_SESSION must return an SSL_CTX pointer. */
+					    tsi->internals = ((info == CURLINFO_TLS_SESSION) ?
+						    (void*)conn->ssl[i].ctx :
+						    (void*)conn->ssl[i].handle);
+#elif defined(USE_POLARSSL)
+					    tsi->internals = (void*)&conn->ssl[i].ssl;
+#elif defined(USE_SCHANNEL)
+					    tsi->internals = (void*)&conn->ssl[i].ctxt->ctxt_handle;
+#elif defined(USE_SSL)
+#error "SSL backend specific information missing for CURLINFO_TLS_SSL_PTR"
 #endif
-#ifdef USE_GNUTLS
-		    internals = conn->ssl[sockindex].session;
-#endif
-#ifdef USE_NSS
-		    internals = conn->ssl[sockindex].handle;
-#endif
-#ifdef USE_GSKIT
-		    internals = conn->ssl[sockindex].handle;
-#endif
-		    if(internals) {
-			    tsi->internals = internals;
+					    break;
+				    }
+			    }
 		    }
-		    /* NOTE: For other SSL backends, it is not immediately clear what data
-		       to return from 'struct ssl_connect_data'; thus we keep 'internals' to
-		       NULL which should be interpreted as "not supported" */
 	    }
 	    break;
 		default:
@@ -324,51 +370,36 @@ static CURLcode getinfo_slist(struct SessionHandle * data, CURLINFO info,
 	return CURLE_OK;
 }
 
-static CURLcode getinfo_socket(struct SessionHandle * data, CURLINFO info,
+static CURLcode getinfo_socket(struct Curl_easy * data, CURLINFO info,
     curl_socket_t * param_socketp)
 {
-	curl_socket_t sockfd;
-
 	switch(info) {
 		case CURLINFO_ACTIVESOCKET:
-		    sockfd = Curl_getconnectinfo(data, NULL);
-
-		    /* note: this is not a good conversion for systems with 64 bit sockets and
-		       32 bit longs */
-		    if(sockfd != CURL_SOCKET_BAD)
-			    *param_socketp = sockfd;
-		    else
-			    /* this interface is documented to return -1 in case of badness, which
-			       may not be the same as the CURL_SOCKET_BAD value */
-			    *param_socketp = -1;
+		    *param_socketp = Curl_getconnectinfo(data, NULL);
 		    break;
 		default:
 		    return CURLE_UNKNOWN_OPTION;
 	}
-
 	return CURLE_OK;
 }
 
-CURLcode Curl_getinfo(struct SessionHandle * data, CURLINFO info, ...)
+CURLcode Curl_getinfo(struct Curl_easy * data, CURLINFO info, ...)
 {
 	va_list arg;
 	long * param_longp = NULL;
 	double * param_doublep = NULL;
-	char ** param_charp = NULL;
+	const char ** param_charp = NULL;
 	struct curl_slist ** param_slistp = NULL;
 	curl_socket_t * param_socketp = NULL;
 	int type;
 	CURLcode result = CURLE_UNKNOWN_OPTION;
-
 	if(!data)
 		return result;
-
 	va_start(arg, info);
-
 	type = CURLINFO_TYPEMASK & (int)info;
 	switch(type) {
 		case CURLINFO_STRING:
-		    param_charp = va_arg(arg, char **);
+		    param_charp = va_arg(arg, const char **);
 		    if(param_charp)
 			    result = getinfo_char(data, info, param_charp);
 		    break;
@@ -384,7 +415,6 @@ CURLcode Curl_getinfo(struct SessionHandle * data, CURLINFO info, ...)
 		    break;
 		case CURLINFO_SLIST:
 		    param_slistp = va_arg(arg, struct curl_slist **);
-
 		    if(param_slistp)
 			    result = getinfo_slist(data, info, param_slistp);
 		    break;
@@ -396,9 +426,7 @@ CURLcode Curl_getinfo(struct SessionHandle * data, CURLINFO info, ...)
 		default:
 		    break;
 	}
-
 	va_end(arg);
-
 	return result;
 }
 

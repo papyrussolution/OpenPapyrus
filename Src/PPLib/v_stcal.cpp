@@ -447,7 +447,7 @@ int SLAPI PPViewStaffCal::InitIteration(int ord)
 	return ok;
 }
 
-int SLAPI PPViewStaffCal::NextIteration(StaffCalViewItem * pItem)
+int FASTCALL PPViewStaffCal::NextIteration(StaffCalViewItem * pItem)
 {
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		if(pItem) {
@@ -826,7 +826,7 @@ int PPALDD_StaffCalView::InitIteration(long iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER_ORD(StaffCal, sortId);
 }
 
-int PPALDD_StaffCalView::NextIteration(long iterId, long rsrv)
+int PPALDD_StaffCalView::NextIteration(long iterId)
 {
 	START_PPVIEW_ALDD_ITER(StaffCal);
 	SString temp_buf;

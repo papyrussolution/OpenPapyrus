@@ -37,7 +37,6 @@
 #define ZLIB_INTERNAL
 #include "zlib.h"
 #pragma hdrstop
-//#include "deflate.h"
 #ifdef ZLIB_DEBUG
 	#include <ctype.h>
 #endif

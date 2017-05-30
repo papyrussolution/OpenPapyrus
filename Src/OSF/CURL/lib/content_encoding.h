@@ -11,7 +11,7 @@
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -35,14 +35,8 @@ void Curl_unencode_cleanup(struct connectdata *conn);
 #define Curl_unencode_cleanup(x) Curl_nop_stmt
 #endif
 
-CURLcode Curl_unencode_deflate_write(struct connectdata *conn,
-                                     struct SingleRequest *req,
-                                     ssize_t nread);
-
-CURLcode
-Curl_unencode_gzip_write(struct connectdata *conn,
-                         struct SingleRequest *k,
-                         ssize_t nread);
+CURLcode Curl_unencode_deflate_write(struct connectdata *conn, struct SingleRequest *req, ssize_t nread);
+CURLcode Curl_unencode_gzip_write(struct connectdata *conn, struct SingleRequest *k, ssize_t nread);
 
 
 #endif /* HEADER_CURL_CONTENT_ENCODING_H */

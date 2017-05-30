@@ -73,7 +73,7 @@ void _cairo_default_context_fini(cairo_default_context_t * cr)
 	while(cr->gstate_freelist != NULL) {
 		cairo_gstate_t * gstate = cr->gstate_freelist;
 		cr->gstate_freelist = gstate->next;
-		free(gstate);
+		SAlloc::F(gstate);
 	}
 	_cairo_path_fixed_fini(cr->path);
 	_cairo_fini(&cr->base);
@@ -1038,7 +1038,7 @@ cairo_t * _cairo_default_context_create(void * target)
 	cairo_status_t status;
 	cairo_default_context_t * cr = _freed_pool_get(&context_pool);
 	if(unlikely(cr == NULL)) {
-		cr = (cairo_default_context_t *)malloc(sizeof(cairo_default_context_t));
+		cr = (cairo_default_context_t *)SAlloc::M(sizeof(cairo_default_context_t));
 		if(unlikely(cr == NULL))
 			return _cairo_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}

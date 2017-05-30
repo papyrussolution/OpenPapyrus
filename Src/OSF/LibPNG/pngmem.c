@@ -83,7 +83,7 @@ PNG_FUNCTION(png_voidp /* PRIVATE */, png_malloc_base, (png_const_structrp png_p
 
 		else
 #endif
-		return malloc((size_t)size); /* checked for truncation above */
+		return SAlloc::M((size_t)size); /* checked for truncation above */
 	}
 
 	else
@@ -167,7 +167,7 @@ PNG_FUNCTION(png_voidp, PNGAPI
 		return NULL;
 
 	/* Passing 'NULL' here bypasses the application provided memory handler. */
-	ret = png_malloc_base(NULL /*use malloc*/, size);
+	ret = png_malloc_base(NULL /*use SAlloc::M*/, size);
 
 	if(ret == NULL)
 		png_error(png_ptr, "Out of Memory");  /* 'M' means png_malloc_default */

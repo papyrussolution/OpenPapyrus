@@ -195,7 +195,7 @@ int SLAPI PPViewCashNode::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewCashNode::NextIteration(CashNodeViewItem * pItem)
+int FASTCALL PPViewCashNode::NextIteration(CashNodeViewItem * pItem)
 {
 	while(pItem && P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		PPCashNode rec;

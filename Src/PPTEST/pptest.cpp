@@ -654,11 +654,11 @@ uint RngDefaultSeed = 0;
 void RngSet (const Rng * pR, uint seed) {(pR->P_Type->P_Set) (pR->P_State, seed);}
 Rng * RngAlloc (const RngType * pT)
 {
-	Rng * pR = (Rng *) malloc (sizeof (Rng));
+	Rng * pR = (Rng *)malloc(sizeof(Rng));
 	/*if (pR == 0) {
 		ERROR_VAL ("failed to allocate space for rng struct", ENOMEM, 0);
     };*/
-	pR->P_State = malloc (pT->Size);
+	pR->P_State = malloc(pT->Size);
 	if (pR->P_State == 0) {
 		free (pR);		//exception in constructor, avoid memory leak
 		/*ERROR_VAL ("failed to allocate space for rng state", ENOMEM, 0);*/

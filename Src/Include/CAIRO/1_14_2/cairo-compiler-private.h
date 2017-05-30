@@ -46,7 +46,7 @@
 
 /* Size in bytes of buffer to use off the stack per functions.
  * Mostly used by text functions.  For larger allocations, they'll
- * malloc(). */
+ * SAlloc::M(). */
 #ifndef CAIRO_STACK_BUFFER_SIZE
 #define CAIRO_STACK_BUFFER_SIZE (512 * sizeof (int))
 #endif

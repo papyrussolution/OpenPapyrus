@@ -2611,7 +2611,7 @@ int PPALDD_DebtDim::InitData(PPFilt & rFilt, long rsrv)
 	return ok;
 }
 
-int PPALDD_Article::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_Article::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
 	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
@@ -2631,7 +2631,6 @@ int PPALDD_Article::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 		}
 		_RET_INT = dd_id;
 	}
-	return 1;
 }
 
 

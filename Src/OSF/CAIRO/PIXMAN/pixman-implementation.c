@@ -27,7 +27,7 @@ pixman_implementation_t * _pixman_implementation_create(pixman_implementation_t 
 {
 	pixman_implementation_t * imp;
 	assert(fast_paths);
-	if((imp = (pixman_implementation_t *)malloc(sizeof(pixman_implementation_t)))) {
+	if((imp = (pixman_implementation_t *)SAlloc::M(sizeof(pixman_implementation_t)))) {
 		pixman_implementation_t * d;
 		memset(imp, 0, sizeof *imp);
 		imp->fallback = fallback;

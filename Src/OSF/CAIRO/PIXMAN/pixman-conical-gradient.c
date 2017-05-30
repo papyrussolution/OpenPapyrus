@@ -168,7 +168,7 @@ PIXMAN_EXPORT pixman_image_t * pixman_image_create_conical_gradient(const pixman
 	conical = &image->conical;
 
 	if(!_pixman_init_gradient(&conical->common, stops, n_stops)) {
-		free(image);
+		SAlloc::F(image);
 		return NULL;
 	}
 

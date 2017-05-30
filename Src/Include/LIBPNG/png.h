@@ -887,7 +887,7 @@ PNG_FUNCTION(void, (PNGCAPI *png_longjmp_ptr), PNGARG((jmp_buf, int)), typedef);
 
 /* NOTE: prior to 1.5 these functions had no 'API' style declaration,
  * this allowed the zlib default functions to be used on Windows
- * platforms.  In 1.5 the zlib default malloc (which just calls malloc and
+ * platforms.  In 1.5 the zlib default SAlloc::M (which just calls SAlloc::M and
  * ignores the first argument) should be completely compatible with the
  * following.
  */
@@ -1032,7 +1032,7 @@ PNG_EXPORTA(18, png_infop, png_create_info_struct, (png_const_structrp png_ptr),
     PNG_ALLOCATED);
 
 /* DEPRECATED: this function allowed init structures to be created using the
- * default allocation method (typically malloc).  Use is deprecated in 1.6.0 and
+ * default allocation method (typically SAlloc::M).  Use is deprecated in 1.6.0 and
  * the API will be removed in the future.
  */
 PNG_EXPORTA(19, void, png_info_init_3, (png_infopp info_ptr,

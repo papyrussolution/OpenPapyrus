@@ -58,7 +58,7 @@ static void TIDY_CALL defaultPanic(TidyAllocator* ARG_UNUSED(allocator), ctmbstr
 
 static void* TIDY_CALL defaultAlloc(TidyAllocator* allocator, size_t size)
 {
-	void * p = ( g_malloc ? g_malloc(size) : malloc(size));
+	void * p = ( g_malloc ? g_malloc(size) : SAlloc::M(size));
 	if(!p)
 		defaultPanic(allocator, "Out of memory!");
 	return p;

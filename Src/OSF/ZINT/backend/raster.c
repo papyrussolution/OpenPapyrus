@@ -437,7 +437,7 @@ void buffer_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	int fgred, fggrn, fgblu, bgred, bggrn, bgblu;
 	int row, column, i;
 
-	symbol->bitmap = (char*)malloc(symbol->bitmap_width * symbol->bitmap_height * 3);
+	symbol->bitmap = (char*)SAlloc::M(symbol->bitmap_width * symbol->bitmap_height * 3);
 
 	fgred = (16 * ctoi(symbol->fgcolour[0])) + ctoi(symbol->fgcolour[1]);
 	fggrn = (16 * ctoi(symbol->fgcolour[2])) + ctoi(symbol->fgcolour[3]);
@@ -477,7 +477,7 @@ int save_raster_image_to_file(struct ZintSymbol * symbol,
 
 	char * rotated_pixbuf;
 
-	if(!(rotated_pixbuf = (char*)malloc(image_width * image_height))) {
+	if(!(rotated_pixbuf = (char*)SAlloc::M(image_width * image_height))) {
 		printf("Insufficient memory for pixel buffer (F50)");
 		return ZINT_ERROR_ENCODING_PROBLEM;
 	}
@@ -834,7 +834,7 @@ int plot_raster_maxicode(struct ZintSymbol * symbol, int rotate_angle, int data_
 	int    yoffset = symbol->border_width;
 	int    image_width = (int)((300 + (2 * xoffset * 2)) * scaler);
 	int    image_height = (int)((300 + (2 * yoffset * 2)) * scaler);
-	if(!(pixelbuf = (char*)malloc(image_width * image_height))) {
+	if(!(pixelbuf = (char*)SAlloc::M(image_width * image_height))) {
 		printf("Insufficient memory for pixel buffer (F55)");
 		return ZINT_ERROR_ENCODING_PROBLEM;
 	}
@@ -846,7 +846,7 @@ int plot_raster_maxicode(struct ZintSymbol * symbol, int rotate_angle, int data_
 
 	hexagon_size = (int)scaler * 10;
 
-	if(!(scaled_hexagon = (char*)malloc(hexagon_size * hexagon_size))) {
+	if(!(scaled_hexagon = (char*)SAlloc::M(hexagon_size * hexagon_size))) {
 		printf("Insufficient memory for pixel buffer (F56)");
 		free(scaled_hexagon);
 		return ZINT_ERROR_ENCODING_PROBLEM;
@@ -957,7 +957,7 @@ int plot_raster_dotty(struct ZintSymbol * symbol, int rotate_angle, int data_typ
 	scale_width = (int)((image_width * scaler) + 1);
 	scale_height = (int)((image_height * scaler) + 1);
 	// Apply scale options by creating another pixel buffer 
-	if(!(scaled_pixelbuf = (char*)malloc(scale_width * scale_height))) {
+	if(!(scaled_pixelbuf = (char*)SAlloc::M(scale_width * scale_height))) {
 		printf("Insufficient memory for pixel buffer (F57)");
 		return ZINT_ERROR_ENCODING_PROBLEM;
 	}
@@ -1109,7 +1109,7 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 	image_width = 2 * (symbol->width + xoffset + xoffset);
 	image_height = 2 * (symbol->height + textoffset + yoffset + yoffset);
 
-	if(!(pixelbuf = (char*)malloc(image_width * image_height))) {
+	if(!(pixelbuf = (char*)SAlloc::M(image_width * image_height))) {
 		printf("Insufficient memory for pixel buffer (F58)");
 		return ZINT_ERROR_ENCODING_PROBLEM;
 	}
@@ -1419,7 +1419,7 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 	scale_width = (int)(image_width * scaler);
 	scale_height = (int)(image_height * scaler);
 	// Apply scale options by creating another pixel buffer 
-	if(!(scaled_pixelbuf = (char*)malloc(scale_width * scale_height))) {
+	if(!(scaled_pixelbuf = (char*)SAlloc::M(scale_width * scale_height))) {
 		free(pixelbuf);
 		printf("Insufficient memory for pixel buffer (F59)");
 		return ZINT_ERROR_ENCODING_PROBLEM;

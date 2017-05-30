@@ -468,7 +468,7 @@ cairo_status_t _cairo_surface_wrapper_show_text_glyphs(cairo_surface_wrapper_t *
 FINISH:
 	_cairo_clip_destroy(dev_clip);
 	if(dev_glyphs != stack_glyphs)
-		free(dev_glyphs);
+		SAlloc::F(dev_glyphs);
 	if(dev_scaled_font != scaled_font)
 		cairo_scaled_font_destroy(dev_scaled_font);
 	return status;

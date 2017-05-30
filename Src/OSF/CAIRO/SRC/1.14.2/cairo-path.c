@@ -200,7 +200,7 @@ cairo_path_t * _cairo_path_create_in_error(cairo_status_t status)
 	/* special case NO_MEMORY so as to avoid allocations */
 	if(status == CAIRO_STATUS_NO_MEMORY)
 		return (cairo_path_t*)&_cairo_path_nil;
-	path = (cairo_path_t *)malloc(sizeof(cairo_path_t));
+	path = (cairo_path_t *)SAlloc::M(sizeof(cairo_path_t));
 	if(unlikely(path == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_path_t*)&_cairo_path_nil;
@@ -213,20 +213,20 @@ cairo_path_t * _cairo_path_create_in_error(cairo_status_t status)
 
 static cairo_path_t * _cairo_path_create_internal(cairo_path_fixed_t * path_fixed, cairo_t * cr, cairo_bool_t flatten)
 {
-	cairo_path_t * path = (cairo_path_t *)malloc(sizeof(cairo_path_t));
+	cairo_path_t * path = (cairo_path_t *)SAlloc::M(sizeof(cairo_path_t));
 	if(unlikely(path == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_path_t*)&_cairo_path_nil;
 	}
 	path->num_data = _cairo_path_count(path, path_fixed, cairo_get_tolerance(cr), flatten);
 	if(path->num_data < 0) {
-		free(path);
+		SAlloc::F(path);
 		return (cairo_path_t*)&_cairo_path_nil;
 	}
 	if(path->num_data) {
 		path->data = (cairo_path_data_t *)_cairo_malloc_ab(path->num_data, sizeof(cairo_path_data_t));
 		if(unlikely(path->data == NULL)) {
-			free(path);
+			SAlloc::F(path);
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_path_t*)&_cairo_path_nil;
 		}
@@ -258,8 +258,8 @@ static cairo_path_t * _cairo_path_create_internal(cairo_path_fixed_t * path_fixe
 void cairo_path_destroy(cairo_path_t * path)
 {
 	if(path && path != &_cairo_path_nil) {
-		free(path->data);
-		free(path);
+		SAlloc::F(path->data);
+		SAlloc::F(path);
 	}
 }
 

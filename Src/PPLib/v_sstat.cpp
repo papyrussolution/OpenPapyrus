@@ -620,7 +620,7 @@ void SLAPI PPViewSStat::RecToViewItem(const TempGoodsStatTbl::Rec * pRec, SStatV
 	ASSIGN_PTR(pItem, item);
 }
 
-int SLAPI PPViewSStat::NextIteration(SStatViewItem * pItem)
+int FASTCALL PPViewSStat::NextIteration(SStatViewItem * pItem)
 {
 	if(P_TempTbl)
 		while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
@@ -1739,7 +1739,7 @@ int PPALDD_SStatView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	INIT_PPVIEW_ALDD_ITER(SStat);
 }
 
-int PPALDD_SStatView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_SStatView::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(SStat);
 	I.GoodsID   = item.GoodsID;

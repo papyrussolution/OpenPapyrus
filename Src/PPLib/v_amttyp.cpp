@@ -337,7 +337,7 @@ int SLAPI PPViewAmountType::InitIteration()
 	return 1;
 }
 
-int SLAPI PPViewAmountType::NextIteration(AmountTypeViewItem * pItem)
+int FASTCALL PPViewAmountType::NextIteration(AmountTypeViewItem * pItem)
 {
 	int    ok = -1;
 	if(pItem && Counter < Data.getCount()) {

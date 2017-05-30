@@ -1846,7 +1846,7 @@ char * FASTCALL sstrdup(const char * pStr)
 {
 	if(pStr) {
 		size_t len = strlen(pStr) + 1;
-		char * p = (char *)malloc(len);
+		char * p = (char *)SAlloc::M(len);
 		return p ? (char *)memcpy(p, pStr, len) : 0;
 	}
 	else

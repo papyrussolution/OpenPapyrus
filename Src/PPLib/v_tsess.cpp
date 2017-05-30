@@ -510,7 +510,7 @@ int SLAPI PPViewTSession::InitIteration(int order)
 	return ok;
 }
 
-int SLAPI PPViewTSession::NextIteration(TSessionViewItem * pItem)
+int FASTCALL PPViewTSession::NextIteration(TSessionViewItem * pItem)
 {
 	int    ok = -1;
 	if(!(State & stEmpty) && P_IterQuery) {
@@ -1494,7 +1494,7 @@ int SLAPI PPViewTSessLine::InitIteration()
 	return 1;
 }
 
-int SLAPI PPViewTSessLine::NextIteration(TSessLineViewItem * pItem)
+int FASTCALL PPViewTSessLine::NextIteration(TSessLineViewItem * pItem)
 {
 	do {
 		while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
@@ -1989,13 +1989,13 @@ int PPALDD_TSession::InitData(PPFilt & rFilt, long rsrv)
 	return -1;
 }
 
-int PPALDD_TSession::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_TSession::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
 	#define _RET_INT     (*(int *)rS.GetPtr(pApl->Get(0)))
 
 	_RET_INT = 0;
-	if(pF->Name.Cmp("?GetWrOffMemberByOp", 0) == 0) {
+	if(pF->Name == "?GetWrOffMemberByOp") {
 		PPObjBill * p_bobj = BillObj;
 		if(p_bobj) {
 			PPObjOprKind op_obj;
@@ -2011,7 +2011,6 @@ int PPALDD_TSession::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack 
 			}
 		}
 	}
-	return 1;
 }
 //
 // Implementation of PPALDD_TSessionView
@@ -2050,7 +2049,7 @@ int PPALDD_TSessionView::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER_ORD(TSession, sortId);
 }
 
-int PPALDD_TSessionView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_TSessionView::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(TSession);
 	I.SessID = item.ID;
@@ -2096,7 +2095,7 @@ int PPALDD_TSessionCipView::InitIteration(long iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER_ORD(TSession, sortId & PPViewTSession::ordfWithCip);
 }
 
-int PPALDD_TSessionCipView::NextIteration(long iterId, long rsrv)
+int PPALDD_TSessionCipView::NextIteration(long iterId)
 {
 	START_PPVIEW_ALDD_ITER(TSession);
 	I.SessID = item.ID;
@@ -2144,7 +2143,7 @@ int PPALDD_TSessionBillView::InitIteration(long iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER_ORD(TSession, sortId & PPViewTSession::ordfWithBill);
 }
 
-int PPALDD_TSessionBillView::NextIteration(long iterId, long rsrv)
+int PPALDD_TSessionBillView::NextIteration(long iterId)
 {
 	START_PPVIEW_ALDD_ITER(TSession);
 	I.SessID = item.ID;
@@ -2186,7 +2185,7 @@ int PPALDD_TSessLineView::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(TSessLine);
 }
 
-int PPALDD_TSessLineView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_TSessLineView::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(TSessLine);
 	I.SessID  = item.TSessID;

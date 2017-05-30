@@ -381,7 +381,7 @@ int SLAPI PPViewAsset::NextOuterIteration()
 		return -1;
 }
 
-int SLAPI PPViewAsset::NextIteration(AssetViewItem * pItem)
+int FASTCALL PPViewAsset::NextIteration(AssetViewItem * pItem)
 {
 	do {
 		if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
@@ -614,7 +614,7 @@ int PPALDD_AssetView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	INIT_PPVIEW_ALDD_ITER_ORD(Asset, (PPViewAsset::IterOrder)sortId);
 }
 
-int PPALDD_AssetView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_AssetView::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(Asset);
 	I.LotID   = item.LotID;

@@ -1190,7 +1190,7 @@ int SImageBuffer::Palette::Alloc(uint count)
 {
 	int    ok = 1;
 	if(count > Count) {
-		P_Buf = (uint32 *)realloc(P_Buf, count * sizeof(uint32));
+		P_Buf = (uint32 *)SAlloc::R(P_Buf, count * sizeof(uint32));
 		if(P_Buf)
 			Count = count;
 		else {
@@ -2284,7 +2284,7 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 	if(pageIdx < hdr.idCount) {
 		BITMAPINFOHEADER bm_hdr;
 		size_t dir_entry_size = sizeof(IconDirEntry) * hdr.idCount;
-		THROW_S(p_idir = (IconDirEntry *)malloc(dir_entry_size), SLERR_NOMEM);
+		THROW_S(p_idir = (IconDirEntry *)SAlloc::M(dir_entry_size), SLERR_NOMEM);
 		THROW(rF.ReadV(p_idir, dir_entry_size));
 
 		THROW(rF.Seek(p_idir[pageIdx].dwImageOffset));
@@ -2365,7 +2365,7 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 	else
 		ok = -1;
 	CATCHZOK
-	free(p_idir);
+	SAlloc::F(p_idir);
 	return ok;
 }
 
@@ -2438,7 +2438,7 @@ int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 				{
 					const uint max_lines = 1;
 					const size_t line_size = di.output_width * di.output_components;
-					p_row_buf = (uint8 *)malloc(line_size * max_lines);
+					p_row_buf = (uint8 *)SAlloc::M(line_size * max_lines);
 					if(p_row_buf) {
 						// @v9.5.6 {
 						{
@@ -2474,7 +2474,7 @@ int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 		}
 	}
 	CATCHZOK
-	free(p_row_buf);
+	SAlloc::F(p_row_buf);
 	return ok;
 }
 //
@@ -2595,7 +2595,7 @@ int SImageBuffer::LoadPng(SFile & rF)
 		png_set_filler(p_png, 0xff, PNG_FILLER_AFTER);
 		png_read_update_info(p_png, p_info);
 		THROW(Init(width, 0));
-		THROW_S(p_row_buf = (uint8 *)malloc(width*sizeof(uint32)), SLERR_NOMEM);
+		THROW_S(p_row_buf = (uint8 *)SAlloc::M(width*sizeof(uint32)), SLERR_NOMEM);
 		{
 			PixF fmt = PixF::s32ARGB;
 			int  pass_count = png_set_interlace_handling(p_png);
@@ -2628,7 +2628,7 @@ int SImageBuffer::LoadPng(SFile & rF)
 	CATCHZOK
 	if(p_png)
 		png_destroy_read_struct(&p_png, p_info ? &p_info: 0, 0);
-	free(p_row_buf);
+	SAlloc::F(p_row_buf);
 	return ok;
 }
 
@@ -2641,7 +2641,7 @@ int SImageBuffer::StorePng(const StoreParam & rP, SFile & rF)
 	png_byte ** volatile pp_rows = 0;
 	const uint stride = F.GetStride(S.x);
 	THROW(S.x && S.y); // no image
-	THROW_S(pp_rows = (png_byte **)malloc(S.y * sizeof(png_byte*)), SLERR_NOMEM);
+	THROW_S(pp_rows = (png_byte **)SAlloc::M(S.y * sizeof(png_byte*)), SLERR_NOMEM);
 	for(int i = 0; i < S.y; i++) {
 		pp_rows[i] = (png_byte *)P_Buf+i*stride;
 	}
@@ -2677,7 +2677,7 @@ int SImageBuffer::StorePng(const StoreParam & rP, SFile & rF)
 	}
 	CATCHZOK
 	png_destroy_write_struct(&p_png, &p_info);
-	free(pp_rows);
+	SAlloc::F(pp_rows);
 	return ok;
 }
 //
@@ -2720,11 +2720,11 @@ int SImageBuffer::LoadGif(SFile & rF)
 		// GIF file parameters.
 		//
 		size_t size = 0;
-		THROW_S(p_buffer = (GifRowType *)malloc(p_gf->SHeight * sizeof(GifRowType)), SLERR_NOMEM);
+		THROW_S(p_buffer = (GifRowType *)SAlloc::M(p_gf->SHeight * sizeof(GifRowType)), SLERR_NOMEM);
 		size = p_gf->SWidth * sizeof(GifPixelType); // Size in bytes one row
 		for(i = 0; i < p_gf->SHeight; i++) {
 			// Allocate rows, and set their color to background
-			THROW_S(p_buffer[i] = (GifRowType)malloc(size), SLERR_NOMEM);
+			THROW_S(p_buffer[i] = (GifRowType)SAlloc::M(size), SLERR_NOMEM);
 			memset(p_buffer[i], p_gf->SBackGroundColor, size); // Set its color to BackGround
 		}
 	}

@@ -293,7 +293,7 @@ static cairo_status_t write_png(cairo_surface_t      * surface,
 BAIL4:
 	png_destroy_write_struct(&png, &info);
 BAIL3:
-	free(rows);
+	SAlloc::F(rows);
 BAIL2:
 	cairo_surface_destroy(&clone->base);
 BAIL1:
@@ -669,15 +669,15 @@ static cairo_surface_t * read_png(struct png_read_closure_t * png_closure)
 	    free,
 	    mime_data);
 	if(unlikely(status)) {
-		free(mime_data);
+		SAlloc::F(mime_data);
 		cairo_surface_destroy(surface);
 		surface = _cairo_surface_create_in_error(status);
 		goto BAIL;
 	}
 
 BAIL:
-	free(row_pointers);
-	free(data);
+	SAlloc::F(row_pointers);
+	SAlloc::F(data);
 	if(png != NULL)
 		png_destroy_read_struct(&png, &info, NULL);
 	if(png_closure->png_data != NULL) {

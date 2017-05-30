@@ -223,7 +223,7 @@ static void loadLocalMenu(TVRez & rez, TDialog * dlg)
 	int  button_count = 0;
 	LocalMenuItem * m = new LocalMenuItem;
 	while(rez.getUINT() != TV_END) {
-		m = (LocalMenuItem*)realloc(m, (1+button_count)*sizeof(LocalMenuItem));
+		m = (LocalMenuItem*)SAlloc::R(m, (1+button_count)*sizeof(LocalMenuItem));
 		fseek(rez.getStream(), -((long)sizeof(uint16)), SEEK_CUR);
 		m[button_count].KeyCode = rez.getUINT();
 		rez.getString(buf);
@@ -541,7 +541,7 @@ SLAPI TDialog::~TDialog()
 		for(uint i = 0; i < GrpCount; i++)
 			if(PP_Groups[i] && PP_Groups[i]->Id > 0)
 				delete PP_Groups[i];
-		free(PP_Groups);
+		SAlloc::F(PP_Groups);
 	}
 }
 
@@ -573,7 +573,7 @@ int FASTCALL TDialog::addGroup(ushort grpID, CtrlGroup * pGroup)
 		ok = 1;
 	}
 	else if(pGroup) {
-		PP_Groups = (CtrlGroup**)realloc(PP_Groups, sizeof(CtrlGroup*) * (GrpCount+1));
+		PP_Groups = (CtrlGroup**)SAlloc::R(PP_Groups, sizeof(CtrlGroup*) * (GrpCount+1));
 		pGroup->Id = grpID;
 		ok = PP_Groups ? (PP_Groups[GrpCount++] = pGroup, 1) : (GrpCount = 0, 0);
 	}

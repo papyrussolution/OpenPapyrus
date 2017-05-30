@@ -654,7 +654,7 @@ int SLAPI PPViewSalary::InitIteration(int order)
 	return ok;
 }
 
-int SLAPI PPViewSalary::NextIteration(SalaryViewItem * pItem)
+int FASTCALL PPViewSalary::NextIteration(SalaryViewItem * pItem)
 {
 	int    ok = -1;
 	memzero(pItem, sizeof(*pItem));
@@ -2341,7 +2341,7 @@ int PPALDD_Salary::InitIteration(long iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER_ORD(Salary, sortId);
 }
 
-int PPALDD_Salary::NextIteration(long iterId, long rsrv)
+int PPALDD_Salary::NextIteration(long iterId)
 {
 	START_PPVIEW_ALDD_ITER(Salary);
 	I.ID          = item.ID;
@@ -2424,7 +2424,7 @@ int PPALDD_SalaryByPost::InitIteration(long iterId, int sortId, long rsrv)
 	//INIT_PPVIEW_ALDD_ITER_ORD(Salary, sortId);
 }
 
-int PPALDD_SalaryByPost::NextIteration(long iterId, long rsrv)
+int PPALDD_SalaryByPost::NextIteration(long iterId)
 {
 	int    r = 0;
 	IterProlog(iterId, 0);
@@ -2445,12 +2445,12 @@ int PPALDD_SalaryByPost::NextIteration(long iterId, long rsrv)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-int PPALDD_SalaryByPost::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_SalaryByPost::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
 	#define _RET_DBL     (*(double *)rS.GetPtr(pApl->Get(0)))
 
-	if(pF->Name.Cmp("?GetAmount", 0) == 0) {
+	if(pF->Name == "?GetAmount") {
 		double amt = 0.0;
 		PPViewSalary * p_v = (PPViewSalary *)(Extra[1].Ptr ? Extra[1].Ptr : Extra[0].Ptr);
 		if(p_v) {
@@ -2465,7 +2465,6 @@ int PPALDD_SalaryByPost::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmSt
 		}
 		_RET_DBL = amt;
 	}
-	return 1;
 }
 
 void PPALDD_SalaryByPost::Destroy()

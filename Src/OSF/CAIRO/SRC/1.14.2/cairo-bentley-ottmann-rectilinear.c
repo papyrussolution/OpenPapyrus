@@ -472,7 +472,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_rectilinear_polygon_to_boxes(co
 	    fill_rule,
 	    FALSE, boxes);
 	if(events != stack_events)
-		free(events);
+		SAlloc::F(events);
 
 	return status;
 }
@@ -562,7 +562,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_rectilinear_traps(cairo_traps_t
 	traps->is_rectilinear = TRUE;
 
 	if(events != stack_events)
-		free(events);
+		SAlloc::F(events);
 
 	return status;
 }

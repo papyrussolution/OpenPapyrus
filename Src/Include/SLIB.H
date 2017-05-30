@@ -247,6 +247,7 @@ class  SString;
 class  TPoint;
 class  TRect;
 class  RPoint;
+class  LMatrix;
 #ifndef _WIN32_WCE // {
 class  SFile;
 #endif // } _WIN32_WCE
@@ -344,19 +345,19 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 
 	#include <nedmalloc.h>
 
-	inline void * malloc(size_t sz)
+	inline void * SAlloc::M(size_t sz)
 	{
 		return nedmalloc(sz);
 	}
-	inline void * calloc(size_t n, size_t sz)
+	inline void * SAlloc::C(size_t n, size_t sz)
 	{
 		return nedcalloc(n, sz);
 	}
-	inline void * realloc(void * ptr, size_t sz)
+	inline void * SAlloc::R(void * ptr, size_t sz)
 	{
 		return nedrealloc(ptr, sz);
 	}
-	inline void free(void * ptr)
+	inline void SAlloc::F(void * ptr)
 	{
 		return nedfree(ptr);
 	}
@@ -369,6 +370,14 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 		nedfree(ptr);
 	}
 #endif
+
+class SAlloc {
+public:
+	static void * FASTCALL M(size_t sz);
+	static void * FASTCALL C(size_t n, size_t sz);
+	static void * FASTCALL R(void * ptr, size_t sz);
+	static void   FASTCALL F(void * ptr);
+};
 //
 // Экземпляр SCriticalSection::Data создается с признаком
 // DontDestroyOnDestruction который припятствует "преждевременному"
@@ -1849,7 +1858,7 @@ private:
 #define DELETEANDASSIGN(p, n)       ((delete (p)), (p) = (n))
 #define ZDELETE(p)                  DELETEANDASSIGN(p, 0)
 #define ZDELETEFAST(p)              {if(p) ((delete (p)), (p) = 0);}
-#define FREEANDASSIGN(p, n)         (free(p), (p) = (n))
+#define FREEANDASSIGN(p, n)         (SAlloc::F(p), (p) = (n))
 #define ZFREE(p)                    FREEANDASSIGN(p, 0)
 //
 // Exception handling
@@ -5628,34 +5637,6 @@ public:
 	TSArray(const TSArray & src) : SArray(src) {}
 	T &    FASTCALL at(uint pos) const { return *(T *)SArray::at(pos); }
 };
-//
-// Descr: Специализированная функция для сериализации шаблонизщированных массивов, элементы которых
-//   поддерживают невиртуальный метод Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
-//
-template <class T> int TSArray_Serialize(TSArray <T> & rList, int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
-{
-	int    ok = 1;
-	uint32 c = 0;
-	if(dir > 0) {
-		c = rList.getCount();
-		THROW(pSCtx->Serialize(dir, c, rBuf));
-		for(uint i = 0; i < c; i++) {
-			T & r_item = rList.at(i);
-			THROW(r_item.Serialize(dir, rBuf, pSCtx));
-		}
-	}
-	else if(dir < 0) {
-		rList.clear();
-		THROW(pSCtx->Serialize(dir, c, rBuf));
-		for(uint i = 0; i < c; i++) {
-			T  item;
-			THROW(item.Serialize(dir, rBuf, pSCtx));
-			THROW(rList.insert(&item));
-		}
-	}
-	CATCHZOK
-	return ok;
-}
 
 template <class T> class TSCollection : public SCollection {
 public:
@@ -5725,31 +5706,6 @@ template <class T> int TSCollection_Copy(TSCollection <T> & rDest, const TSColle
 		}
 	}
 	return 1;
-}
-
-template <class T> int TSCollection_Serialize(TSCollection <T> & rC, int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
-{
-	int    ok = 1;
-	if(dir > 0) {
-		uint32 c = rC.getCount();
-		THROW(rBuf.Write(&c, sizeof(c)));
-		for(uint i = 0; i < c; i++) {
-			T * p_item = rC.at(i);
-			THROW(p_item->Serialize(dir, rBuf, pSCtx))
-		}
-	}
-	else if(dir < 0) {
-		rC.freeAll();
-		uint32 c = 0;
-		THROW(rBuf.ReadV(&c, sizeof(c)));
-		for(uint i = 0; i < c; i++) {
-            T * p_new_item = rC.CreateNewItem();
-			THROW(p_new_item);
-			THROW(p_new_item->Serialize(dir, rBuf, pSCtx));
-		}
-	}
-	CATCHZOK
-	return ok;
 }
 
 template <class T> int TSDupPtr(T ** ppDest, T * pSrc)
@@ -5899,7 +5855,7 @@ public:
 	long   FASTCALL get(uint) const;
 	long   SLAPI getSingle() const;
 	long   SLAPI getLast() const;
-	int    SLAPI setSingleNZ(long id);
+	int    FASTCALL setSingleNZ(long id);
 	int    SLAPI freeByKey(long, int binarySearch); //
 	int    SLAPI removeByID(long);                  // @warning dup function (see above)
 	void   SLAPI sort();
@@ -5956,7 +5912,7 @@ public:
 	int    FASTCALL IsEqual(const Int64Array * pS) const;
 	int64  FASTCALL get(uint pos) const;
 	int    lsearch(int64 key, uint * pPos) const;
-	int    lsearch(int64 key) const;
+	int    FASTCALL lsearch(int64 key) const;
 	int    FASTCALL add(int64);
 	int    FASTCALL add(int32);
 	int    FASTCALL addUnique(int64);
@@ -6025,7 +5981,11 @@ public:
 	//   >0 - ключ key найден в массиве
 	//   0  - ключ не найден
 	//
-	int    SLAPI Search(long key, long * pVal, uint * pPos, int binary = 0) const;
+	int    SLAPI Search(long key, long * pVal, uint * pPos/*, int binary = 0*/) const;
+	//
+	// Descr: Тоже что и Search, но поиск бинарный (предполагается, что список отсортирован по ключу в возрастающем порядке).
+	//
+	int    SLAPI BSearch(long key, long * pVal, uint * pPos) const;
 	int    SLAPI SearchByVal(long val, long * pKey, uint * pPos) const;
 	int    SLAPI SearchPair(long key, long val, uint * pPos) const;
 	int    SLAPI CheckFlag(long key, long mask, int binary = 0) const;
@@ -6082,7 +6042,11 @@ public:
 	//   >0 - ключ key найден в массиве
 	//   0  - ключ не найден
 	//
-	int    SLAPI Search(int64 key, int64 * pVal, uint * pPos, int binary = 0) const;
+	int    SLAPI Search(int64 key, int64 * pVal, uint * pPos/*, int binary = 0*/) const;
+	//
+	// Descr: Тоже что и Search, но поиск бинарный (предполагается, что список отсортирован по ключу в возрастающем порядке).
+	//
+	int    SLAPI BSearch(int64 key, int64 * pVal, uint * pPos) const;
 	int    SLAPI SearchByVal(int64 val, int64 * pKey, uint * pPos) const;
 	int    SLAPI SearchPair(int64 key, int64 val, uint * pPos) const;
 	void   SLAPI Sort();
@@ -6764,7 +6728,7 @@ protected:
 		int    FASTCALL Copy(const Entry & rSrc);
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 		int    SetVal(uint key, uint val);
-		int    Remove(uint pos);
+		int    FASTCALL Remove(uint pos);
 		LAssoc Val;
 		uint16 Count; // Количество элементов в точке кэша (включая Val)
 			// То есть, если Count == 0, то точка не содержит элементов.
@@ -9736,6 +9700,59 @@ private:
 	SSerializeContext * P_SCtx;
 };
 //
+// Descr: Специализированная функция для сериализации шаблонизщированных массивов, элементы которых
+//   поддерживают невиртуальный метод Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+//
+template <class T> int TSArray_Serialize(TSArray <T> & rList, int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	uint32 c = 0;
+	if(dir > 0) {
+		c = rList.getCount();
+		THROW(pSCtx->Serialize(dir, c, rBuf));
+		for(uint i = 0; i < c; i++) {
+			T & r_item = rList.at(i);
+			THROW(r_item.Serialize(dir, rBuf, pSCtx));
+		}
+	}
+	else if(dir < 0) {
+		rList.clear();
+		THROW(pSCtx->Serialize(dir, c, rBuf));
+		for(uint i = 0; i < c; i++) {
+			T  item;
+			THROW(item.Serialize(dir, rBuf, pSCtx));
+			THROW(rList.insert(&item));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+template <class T> int TSCollection_Serialize(TSCollection <T> & rC, int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	if(dir > 0) {
+		uint32 c = rC.getCount();
+		THROW(rBuf.Write(&c, sizeof(c)));
+		for(uint i = 0; i < c; i++) {
+			T * p_item = rC.at(i);
+			THROW(p_item->Serialize(dir, rBuf, pSCtx))
+		}
+	}
+	else if(dir < 0) {
+		rC.freeAll();
+		uint32 c = 0;
+		THROW(rBuf.ReadV(&c, sizeof(c)));
+		for(uint i = 0; i < c; i++) {
+            T * p_new_item = rC.CreateNewItem();
+			THROW(p_new_item);
+			THROW(p_new_item->Serialize(dir, rBuf, pSCtx));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+//
 // Descr: Управление Ini-файлами
 //
 #ifndef _WIN32_WCE // {
@@ -11747,63 +11764,15 @@ public:
 		CAP_ALL  = 0x001FU,
 		OUT_ALL  = 0x7F80U
 	};
-	//
-	// The struct containing information about a single geodesic.  This must be
-	// initialized by geod_lineinit(), geod_directline(), geod_gendirectline(),
-	// or geod_inverseline() before use.
-	//
-	struct GeodesicLine /*geod_geodesicline*/ {
-		//double lat1; // the starting latitude
-		//double lon1; // the starting longitude
-		SGeoPosLL P1; // The starting point
-		double azi1; // the starting azimuth
-		double a;    // the equatorial radius
-		double f;    // the flattening
-		double salp1; // sine of \e azi1
-		double calp1; // cosine of \e azi1
-		double a13;   // arc length to reference point
-		double s13;   // distance to reference point
-		// @cond SKIP
-		double b;
-		double c2;
-		double f1;
-		double salp0;
-		double calp0;
-		double k2;
-		double ssig1;
-		double csig1;
-		double dn1;
-		double stau1;
-		double ctau1;
-		double somg1;
-		double comg1;
-		double A1m1;
-		double A2m1;
-		double A3c;
-		double B11;
-		double B21;
-		double B31;
-		double A4;
-		double B41;
-		double C1a[6+1];
-		double C1pa[6+1];
-		double C2a[6+1];
-		double C3a[6];
-		double C4a[6];
-		// @endcond
-		uint   caps; // the capabilities
-	};
-
 	SGeo();
 	//
 	// The general direct geodesic problem.
 	//
 	// ARG(rP1 in) latitude and longitude of point 1 (degrees).
 	// ARG(azi1 in) azimuth at point 1 (degrees).
-	// ARG(flags in) bitor'ed combination of geod_flags(); \e flags &
-	//   GEOD_ARCMODE determines the meaning of \e s12_a12 and \e flags &
-	//   GEOD_LONG_UNROLL "unrolls" \e lon2.
-	// ARG(s12_a12 in) if \e flags & GEOD_ARCMODE is 0, this is the distance
+	// ARG(flags in) bitor'ed combination of geod_flags(); flags & GEOD_ARCMODE
+	//   determines the meaning of s12_a12 and flags & GEOD_LONG_UNROLL "unrolls" lon2.
+	// ARG(s12_a12 in) if flags & GEOD_ARCMODE is 0, this is the distance
 	//   from point 1 to point 2 (meters); otherwise it is the arc length
 	//   from point 1 to point 2 (degrees); it can be negative.
 	// ARG(pP2 out) pointer to the latitude and longitude of point 2 (degrees).
@@ -11828,15 +11797,15 @@ public:
 	//
 	// The general inverse geodesic calculation.
 	//
-	// @param[in] rP1 latitude and longitude of point 1 (degrees).
-	// @param[in] rP2 latitude and longitude of point 2 (degrees).
-	// @param[out] ps12 pointer to the distance from point 1 to point 2 (meters).
-	// @param[out] pazi1 pointer to the azimuth at point 1 (degrees).
-	// @param[out] pazi2 pointer to the (forward) azimuth at point 2 (degrees).
-	// @param[out] pm12 pointer to the reduced length of geodesic (meters).
-	// @param[out] pM12 pointer to the geodesic scale of point 2 relative to point 1 (dimensionless).
-	// @param[out] pM21 pointer to the geodesic scale of point 1 relative to point 2 (dimensionless).
-	// @param[out] pS12 pointer to the area under the geodesic (meters<sup>2</sup>).
+	// ARG(rP1    IN): latitude and longitude of point 1 (degrees).
+	// ARG(rP2    IN): latitude and longitude of point 2 (degrees).
+	// ARG(ps12  OUT): pointer to the distance from point 1 to point 2 (meters).
+	// ARG(pAzi1 OUT): pointer to the azimuth at point 1 (degrees).
+	// ARG(pAzi2 OUT): pointer to the (forward) azimuth at point 2 (degrees).
+	// ARG(pm12  OUT): pointer to the reduced length of geodesic (meters).
+	// ARG(pM12  OUT): pointer to the geodesic scale of point 2 relative to point 1 (dimensionless).
+	// ARG(pM21  OUT): pointer to the geodesic scale of point 1 relative to point 2 (dimensionless).
+	// ARG(pS12  OUT): pointer to the area under the geodesic (meters<sup>2</sup>).
 	// @return \e a12 arc length from point 1 to point 2 (degrees).
 	//
 	// \e g must have been initialized with a call to geod_init().  \e lat1 and
@@ -11844,22 +11813,91 @@ public:
 	// "return" arguments \e ps12, etc., may be replaced by 0, if you do not need
 	// some quantities computed.
 	//
-	double Inverse(const SGeoPosLL & rP1, const SGeoPosLL & rP2, double * ps12, double * pazi1, double * pazi2, double * pm12, double * pM12, double * pM21, double * pS12);
+	double Inverse(const SGeoPosLL & rP1, const SGeoPosLL & rP2, double * ps12, double * pAzi1, double * pAzi2, double * pm12, double * pM12, double * pM21, double * pS12);
 private:
+	struct SinCosPair {
+		SinCosPair();
+		SinCosPair(const SinCosPair & rS);
+		SinCosPair(double angle);
+		SinCosPair(double _sin, double _cos);
+		SinCosPair & FASTCALL operator = (const SinCosPair & rS);
+		void   Set(double _sin, double _cos)
+		{
+			S = _sin;
+			C = _cos;
+		}
+		void   SetRad(double angle);
+		void   Set_SinCosDX(double x);
+		SinCosPair & Sum_(const SinCosPair & r1, const SinCosPair & r2);
+		double ATan2() const;
+		void   Norm2();
+
+		double S;
+		double C;
+	};
+	//
+	// The struct containing information about a single geodesic.  This must be
+	// initialized by geod_lineinit(), geod_directline(), geod_gendirectline(),
+	// or geod_inverseline() before use.
+	//
+	struct GeodesicLine /*geod_geodesicline*/ {
+		SGeoPosLL P1; // The starting point
+		double Azi1; // the starting azimuth
+		double A;    // the equatorial radius
+		double F;    // the flattening
+		//double SAlp1; // sine of \e azi1
+		//double CAlp1; // cosine of \e azi1
+		SinCosPair Alp1;
+		double A13;   // arc length to reference point
+		double S13;   // distance to reference point
+		// @cond SKIP
+		double B;
+		double C2;
+		double F1;
+		//double SAlp0;
+		//double CAlp0;
+		SinCosPair Alp0;
+		double K2;
+		//double SSig1;
+		//double CSig1;
+		SinCosPair Sig1;
+		double Dn1;
+		//double STau1;
+		//double CTau1;
+		SinCosPair Tau1;
+		//double SOmg1;
+		//double COmg1;
+		SinCosPair Omg1;
+		double A1m1;
+		double A2m1;
+		double A3c;
+		double B11;
+		double B21;
+		double B31;
+		double A4;
+		double B41;
+		double C1a[6+1];
+		double C1pa[6+1];
+		double C2a[6+1];
+		double C3a[6];
+		double C4a[6];
+		// @endcond
+		uint   Caps; // the capabilities
+	};
+	double SinCosSeries(int sinp, const SinCosPair & rSC/*double sinx, double cosx*/, const double c[], int n);
 	void   LineInit(GeodesicLine * pLine, const SGeoPosLL & rP1, double azi1, uint caps);
 	double GenPosition(const GeodesicLine * l, uint flags, double s12_a12,
 		SGeoPosLL * pP2, double * pazi2, double * ps12, double * pm12, double * pM12, double * pM21, double * pS12);
-	void   LineInit_Int(GeodesicLine * l, const SGeoPosLL & rP1, double azi1, double salp1, double calp1, uint caps);
+	void   LineInit_Int(GeodesicLine * l, const SGeoPosLL & rP1, double azi1, const SinCosPair & rAlp1/*double salp1, double calp1*/, uint caps);
 	double Inverse_Int(SGeoPosLL & rP1, SGeoPosLL & rP2,
-		double* ps12, double * psalp1, double * pcalp1, double * psalp2, double* pcalp2, double* pm12, double* pM12, double* pM21, double* pS12);
-	void   Lengths(double eps, double sig12, double ssig1, double csig1, double dn1,
-		double ssig2, double csig2, double dn2, double cbet1, double cbet2, double* ps12b, double* pm12b, double* pm0, double* pM12, double* pM21,
-			/* Scratch area of the right size */ double Ca[]);
-	double InverseStart(double sbet1, double cbet1, double dn1, double sbet2, double cbet2, double dn2, double lam12, double slam12, double clam12,
-		double* psalp1, double* pcalp1, /* Only updated if return val >= 0 */ double* psalp2, double* pcalp2,
+		double * ps12, SinCosPair * pAlp1/*double * psalp1, double * pcalp1*/, SinCosPair * pAlp2/*double * psalp2, double* pcalp2*/, double* pm12, double* pM12, double* pM21, double* pS12);
+	void   Lengths(double eps, double sig12, const SinCosPair & rSig1, double dn1, const SinCosPair & rSig2, double dn2,
+		double cbet1, double cbet2, double* ps12b, double* pm12b, double* pm0, double* pM12, double* pM21, /* Scratch area of the right size */ double Ca[]);
+	double InverseStart(const SinCosPair & rScBet1, double dn1, const SinCosPair & rScBet2, double dn2, double lam12, const SinCosPair & rLam12/*double slam12, double clam12*/,
+		SinCosPair * pAlp1/*double * psalp1, double * pcalp1*/, /* Only updated if return val >= 0 */ SinCosPair * pAlp2/*double* psalp2, double* pcalp2*/,
 		/* Only updated for short lines */ double* pdnm, /* Scratch area of the right size */ double Ca[]);
-	double Lambda12(double sbet1, double cbet1, double dn1, double sbet2, double cbet2, double dn2,
-		double salp1, double calp1, double slam120, double clam120, double* psalp2, double* pcalp2, double* psig12,
+	double Lambda12(const SinCosPair & rScBet1, double dn1, const SinCosPair & rScBet2, double dn2,
+		SinCosPair scAlp1, double slam120, double clam120, double* psalp2, double* pcalp2, double* psig12,
 		double* pssig1, double* pcsig1, double* pssig2, double* pcsig2, double* peps, double* psomg12, double* pcomg12,
 		int/*bool*/ diffp, double* pdlam12, /* Scratch area of the right size */ double Ca[]);
 	//

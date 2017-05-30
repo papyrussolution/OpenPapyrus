@@ -67,7 +67,7 @@ static void _cairo_win32_device_finish(void * device)
 
 static void _cairo_win32_device_destroy(void * device)
 {
-	free(device);
+	SAlloc::F(device);
 }
 
 static const cairo_device_backend_t _cairo_win32_device_backend = {
@@ -120,7 +120,7 @@ cairo_device_t * _cairo_win32_device_get()
 	if(__cairo_win32_device)
 		p_result = cairo_device_reference(__cairo_win32_device);
 	else {
-		cairo_win32_device_t * device = (cairo_win32_device_t *)malloc(sizeof(*device));
+		cairo_win32_device_t * device = (cairo_win32_device_t *)SAlloc::M(sizeof(*device));
 		_cairo_device_init(&device->base, &_cairo_win32_device_backend);
 		device->compositor = _cairo_win32_gdi_compositor_get();
 		device->msimg32_dll = NULL;

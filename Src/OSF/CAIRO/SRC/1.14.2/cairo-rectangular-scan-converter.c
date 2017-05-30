@@ -115,7 +115,7 @@ static inline void pqueue_init(pqueue_t * pq)
 static inline void pqueue_fini(pqueue_t * pq)
 {
 	if(pq->elements != pq->elements_embedded)
-		free(pq->elements);
+		SAlloc::F(pq->elements);
 }
 
 static cairo_bool_t pqueue_grow(pqueue_t * pq)
@@ -223,7 +223,7 @@ static void sweep_line_fini(sweep_line_t * sweep)
 	pqueue_fini(&sweep->stop);
 
 	if(sweep->spans != sweep->spans_stack)
-		free(sweep->spans);
+		SAlloc::F(sweep->spans);
 }
 
 static inline void add_cell(sweep_line_t * sweep, int x, int covered, int uncovered)
@@ -332,7 +332,7 @@ static inline void _active_edges_to_spans(sweep_line_t * sweep)
 		while(size <= 2*sweep->coverage.count)
 			size <<= 1;
 		if(sweep->spans != sweep->spans_stack)
-			free(sweep->spans);
+			SAlloc::F(sweep->spans);
 		sweep->spans = (cairo_half_open_span_t *)_cairo_malloc_ab(size, sizeof(cairo_half_open_span_t));
 		if(unlikely(sweep->spans == NULL))
 			longjmp(sweep->jmpbuf, _cairo_error(CAIRO_STATUS_NO_MEMORY));
@@ -642,7 +642,7 @@ static cairo_status_t _cairo_rectangular_scan_converter_generate(void * converte
 	rectangles[j] = NULL;
 	status = generate(self, renderer, rectangles);
 	if(rectangles != rectangles_stack)
-		free(rectangles);
+		SAlloc::F(rectangles);
 	return status;
 }
 
@@ -699,7 +699,7 @@ static void _cairo_rectangular_scan_converter_destroy(void * converter)
 	_cairo_rectangular_scan_converter::_cairo_rectangular_scan_converter_chunk * chunk, * next;
 	for(chunk = self->chunks.next; chunk != NULL; chunk = next) {
 		next = chunk->next;
-		free(chunk);
+		SAlloc::F(chunk);
 	}
 }
 

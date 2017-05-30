@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147489097
+LastSignatureCode=2147489110
 LastAutoCodeList=1,10969;102,10161;103,10071;110,10000;111,11602;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10075;120,10005;1001,10000;121,10000;122,10000;123,10247;1002,10000;1003,10000;1004,10000;1005,10000
 
 [SignatureList]
@@ -4305,6 +4305,7 @@ goodsbillcmpfilt_ordbygoodsname=2147487195
 goodsbillcmpfilt_order=2147487196
 goodsbillcmpfilt_rhbilllist=2147487197
 goodsfilt=2147487952
+goodsfilt_addendum=2147489098
 goodsfilt_barcodelen=2147487198
 goodsfilt_brand_=2147487199
 goodsfilt_brandowner=2147487200
@@ -4315,6 +4316,9 @@ goodsfilt_fintunitonly=2147487204
 goodsfilt_fhasimages=2147487205
 goodsfilt_fhidepassive=2147487206
 goodsfilt_fnegation=2147487207
+goodsfilt_fnewlots=2147489099
+goodsfilt_fnozerorestonlotperiod=2147489100
+goodsfilt_factualonly=2147489101
 goodsfilt_foutofmatrix=2147487208
 goodsfilt_frestrictbymatrix=2147487209
 goodsfilt_fshowarcode=2147487210
@@ -4327,6 +4331,12 @@ goodsfilt_fshowwoarcode=2147487216
 goodsfilt_fundeftype=2147487217
 goodsfilt_fuseindepwtonly=2147487218
 goodsfilt_fwotaxgrp=2147487219
+goodsfilt_selbyspecialprop=2147489102
+goodsfilt_selbyspecialprop_nouse=2147489103
+goodsfilt_fpassiveonly=2147489104
+goodsfilt_fgengoodsonly=2147489105
+goodsfilt_fwotaxgdsonly=2147489106
+goodsfilt_fnodisonly=2147489107
 goodsfilt_goodstype=2147487220
 goodsfilt_grp=2147487221
 goodsfilt_manuf=2147487222
@@ -4336,6 +4346,9 @@ goodsfilt_unit=2147487225
 goodsfilt_vat=2147487953
 goodsfilt_vatdate=2147487226
 goodsfilt_vatrate=2147487227
+goodsfilt_loclist=2147489108
+goodsfilt_lotperiod=2147489109
+goodsfilt_suppl=2147489110
 goodsmoveparam=2147488687
 goodsmoveparam_warn=2147488688
 goodsmoveparam_action=2147488689

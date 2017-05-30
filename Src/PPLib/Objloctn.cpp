@@ -1177,7 +1177,7 @@ private:
 			else if(event.isCmd(cmLocGoodsAssoc)) {
 				if(IsWareplaceView) {
 					/* @v8.1.9
-					LocationFilt * p_filt = (LocationFilt *)malloc(sizeof(LocationFilt));
+					LocationFilt * p_filt = (LocationFilt *)SAlloc::M(sizeof(LocationFilt));
 					memzero(p_filt, sizeof(*p_filt));
 					*/
 					LocationFilt loc_filt;
@@ -3490,7 +3490,7 @@ int PPALDD_Location::InitData(PPFilt & rFilt, long rsrv)
 	return ok;
 }
 
-int PPALDD_Location::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_Location::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
 	#define _ARG_DATE(n) (*(LDATE *)rS.GetPtr(pApl->Get(n)))
@@ -3540,7 +3540,6 @@ int PPALDD_Location::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack 
 		_RET_INT = PPObjTag::Helper_GetTag(PPOBJ_LOCATION, H.ID, _ARG_STR(1));
 	}
 	// } @v8.3.7
-	return 1;
 }
 //
 // Implementation of PPALDD_Warehouse
@@ -5713,7 +5712,7 @@ int PPALDD_UhttStore::InitIteration(long iterId, int sortId, long rsrv)
 	return 1;
 }
 
-int PPALDD_UhttStore::NextIteration(long iterId, long rsrv)
+int PPALDD_UhttStore::NextIteration(long iterId)
 {
 	int     ok = -1;
 	SString temp_buf;
@@ -5747,7 +5746,7 @@ int PPALDD_UhttStore::NextIteration(long iterId, long rsrv)
 					p_item->GetDate(&I_TagList.DateVal);
 					break;
 			}
-			ok = DlRtm::NextIteration(iterId, rsrv);
+			ok = DlRtm::NextIteration(iterId);
 		}
 		r_blk.TagPos++;
 	}

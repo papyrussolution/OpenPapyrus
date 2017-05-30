@@ -11,7 +11,7 @@
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -333,10 +333,10 @@ extern PSecurityFunctionTable s_pSecFn;
 
 #ifdef UNICODE
 #  define SECFLAG_WINNT_AUTH_IDENTITY \
-     (ulong)SEC_WINNT_AUTH_IDENTITY_UNICODE
+     (unsigned long)SEC_WINNT_AUTH_IDENTITY_UNICODE
 #else
 #  define SECFLAG_WINNT_AUTH_IDENTITY \
-     (ulong)SEC_WINNT_AUTH_IDENTITY_ANSI
+     (unsigned long)SEC_WINNT_AUTH_IDENTITY_ANSI
 #endif
 
 /*

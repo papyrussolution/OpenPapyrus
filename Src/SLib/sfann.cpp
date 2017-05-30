@@ -829,7 +829,7 @@ int Fann::Copy(const Fann & rS)
 		P_CascadeCandidateScores = NULL;
 	}
 	else {
-		P_CascadeCandidateScores = (ANNTYP*)malloc(GetCascadeNumCandidates() * sizeof(ANNTYP));
+		P_CascadeCandidateScores = (ANNTYP*)SAlloc::M(GetCascadeNumCandidates() * sizeof(ANNTYP));
 		THROW_S(P_CascadeCandidateScores, SLERR_FANN_CANT_ALLOCATE_MEM);
 		memcpy(P_CascadeCandidateScores, rS.P_CascadeCandidateScores, GetCascadeNumCandidates() * sizeof(ANNTYP));
 	}
@@ -886,22 +886,22 @@ int Fann::Copy(const Fann & rS)
 		PP_Connections[i] = p_copy_first_neuron + _input_neuron;
 	}
 	if(rS.P_TrainSlopes) {
-		P_TrainSlopes = (ANNTYP *)malloc(TotalConnectionsAllocated * sizeof(ANNTYP));
+		P_TrainSlopes = (ANNTYP *)SAlloc::M(TotalConnectionsAllocated * sizeof(ANNTYP));
 		THROW_S(P_TrainSlopes, SLERR_FANN_CANT_ALLOCATE_MEM);
 		memcpy(P_TrainSlopes, rS.P_TrainSlopes, TotalConnectionsAllocated * sizeof(ANNTYP));
 	}
 	if(rS.P_PrevSteps) {
-		P_PrevSteps = (ANNTYP*)malloc(TotalConnectionsAllocated * sizeof(ANNTYP));
+		P_PrevSteps = (ANNTYP*)SAlloc::M(TotalConnectionsAllocated * sizeof(ANNTYP));
 		THROW_S(P_PrevSteps, SLERR_FANN_CANT_ALLOCATE_MEM);
 		memcpy(P_PrevSteps, rS.P_PrevSteps, TotalConnectionsAllocated * sizeof(ANNTYP));
 	}
 	if(rS.P_PrevTrainSlopes) {
-		P_PrevTrainSlopes = (ANNTYP *)malloc(TotalConnectionsAllocated * sizeof(ANNTYP));
+		P_PrevTrainSlopes = (ANNTYP *)SAlloc::M(TotalConnectionsAllocated * sizeof(ANNTYP));
 		THROW_S(P_PrevTrainSlopes, SLERR_FANN_CANT_ALLOCATE_MEM);
 		memcpy(P_PrevTrainSlopes, rS.P_PrevTrainSlopes, TotalConnectionsAllocated * sizeof(ANNTYP));
 	}
 	if(rS.P_PrevWeightsDeltas) {
-		P_PrevWeightsDeltas = (ANNTYP *)malloc(TotalConnectionsAllocated * sizeof(ANNTYP));
+		P_PrevWeightsDeltas = (ANNTYP *)SAlloc::M(TotalConnectionsAllocated * sizeof(ANNTYP));
 		THROW_S(P_PrevWeightsDeltas, SLERR_FANN_CANT_ALLOCATE_MEM);
 		memcpy(P_PrevWeightsDeltas, rS.P_PrevWeightsDeltas, TotalConnectionsAllocated * sizeof(ANNTYP));
 	}
@@ -935,7 +935,7 @@ FANN_EXTERNAL void FANN_API fann_print_connections(Fann * ann)
 	uint   i;
 	int    value;
 	uint   num_neurons = ann->GetTotalNeurons() - ann->GetNumOutput();
-	char * neurons = (char*)malloc(num_neurons + 1);
+	char * neurons = (char*)SAlloc::M(num_neurons + 1);
 	if(neurons == NULL) {
 		fann_error(NULL, SLERR_FANN_CANT_ALLOCATE_MEM);
 		return;
@@ -972,7 +972,7 @@ FANN_EXTERNAL void FANN_API fann_print_connections(Fann * ann)
 			printf("L %3d / N %4d %s\n", (int)(layer_it - ann->P_FirstLayer), (int)(neuron_it - ann->P_FirstLayer->P_FirstNeuron), neurons);
 		}
 	}
-	free(neurons);
+	SAlloc::F(neurons);
 }
 //
 // Initialize the weights using Widrow + Nguyen's algorithm.
@@ -1407,7 +1407,7 @@ int Fann::Helper_Construct(int type, float connectionRate, const LongArray & rLa
 	Err.Msg = 0;
 	Err.errno_f = SLERR_SUCCESS;
 	// allocate room for the layers
-	//THROW_S(P_FirstLayer = (Fann::Layer *)calloc(rLayers.getCount(), sizeof(Fann::Layer)), SLERR_NOMEM);
+	//THROW_S(P_FirstLayer = (Fann::Layer *)SAlloc::C(rLayers.getCount(), sizeof(Fann::Layer)), SLERR_NOMEM);
 	THROW(AllocateLayers());
 	//
 	const int multiplier = Multiplier;
@@ -1741,7 +1741,7 @@ FANN_EXTERNAL void FANN_API fann_destroy(Fann * pAnn)
 
 float * Fann::ScaleAllocate(uint c, float defValue)
 {
-	float * p_list = (float *)calloc(c, sizeof(float));
+	float * p_list = (float *)SAlloc::C(c, sizeof(float));
 	if(p_list == NULL) {
 		fann_error(&Err, SLERR_FANN_CANT_ALLOCATE_MEM);
 		//fann_destroy(ann);
@@ -1752,7 +1752,7 @@ float * Fann::ScaleAllocate(uint c, float defValue)
 	}
 	return p_list;
 	/*
-	ann->what ## _ ## where = (float*)calloc(ann->num_ ## where ## put, sizeof( float )); \
+	ann->what ## _ ## where = (float*)SAlloc::C(ann->num_ ## where ## put, sizeof( float )); \
 	if(ann->what ## _ ## where == NULL) { \
 		fann_error(NULL, SLERR_FANN_CANT_ALLOCATE_MEM);				      \
 		fann_destroy(ann);							      \
@@ -1774,7 +1774,7 @@ int Fann::AllocateScale()
 	/*
 	uint i = 0;
 #define SCALE_ALLOCATE(what, where, default_value)				      \
-	ann->what ## _ ## where = (float*)calloc(ann->num_ ## where ## put, sizeof( float )); \
+	ann->what ## _ ## where = (float*)SAlloc::C(ann->num_ ## where ## put, sizeof( float )); \
 	if(ann->what ## _ ## where == NULL) { \
 		fann_error(NULL, SLERR_FANN_CANT_ALLOCATE_MEM);				      \
 		fann_destroy(ann);							      \
@@ -1809,7 +1809,7 @@ int Fann::AllocateNeurons()
 	uint _num_neurons_so_far = 0;
 	uint _num_neurons = 0;
 	// all the neurons is allocated in one long array (calloc clears mem)
-	Fann::Neuron * p_neurons = (Fann::Neuron *)calloc(TotalNeurons, sizeof(Fann::Neuron));
+	Fann::Neuron * p_neurons = (Fann::Neuron *)SAlloc::C(TotalNeurons, sizeof(Fann::Neuron));
 	TotalNeuronsAllocated = TotalNeurons;
 	THROW_V(p_neurons, SLERR_FANN_CANT_ALLOCATE_MEM);
 	for(Fann::Layer * p_layer_it = P_FirstLayer; p_layer_it != P_LastLayer; p_layer_it++) {
@@ -1818,7 +1818,7 @@ int Fann::AllocateNeurons()
 		p_layer_it->P_LastNeuron = p_layer_it->P_FirstNeuron + _num_neurons;
 		_num_neurons_so_far += _num_neurons;
 	}
-	THROW_V(P_Output = (ANNTYP *)calloc(_num_neurons, sizeof(ANNTYP)), SLERR_FANN_CANT_ALLOCATE_MEM);
+	THROW_V(P_Output = (ANNTYP *)SAlloc::C(_num_neurons, sizeof(ANNTYP)), SLERR_FANN_CANT_ALLOCATE_MEM);
 	CATCH
 		fann_error(&Err, Err.errno_f);
 		ok = 0;
@@ -1829,11 +1829,11 @@ int Fann::AllocateNeurons()
 int Fann::AllocateConnections()
 {
 	int    ok = 1;
-	THROW_S(P_Weights = (ANNTYP *)calloc(TotalConnections, sizeof(ANNTYP)), SLERR_NOMEM);
+	THROW_S(P_Weights = (ANNTYP *)SAlloc::C(TotalConnections, sizeof(ANNTYP)), SLERR_NOMEM);
 	TotalConnectionsAllocated = TotalConnections;
 	// TODO make special cases for all places where the connections
 	// is used, so that it is not needed for fully connected networks
-	THROW_S(PP_Connections = (Fann::Neuron **)calloc(TotalConnectionsAllocated, sizeof(Fann::Neuron *)), SLERR_NOMEM);
+	THROW_S(PP_Connections = (Fann::Neuron **)SAlloc::C(TotalConnectionsAllocated, sizeof(Fann::Neuron *)), SLERR_NOMEM);
 	CATCH
 		ok = 0;
 		fann_error(&Err, SLERR_FANN_CANT_ALLOCATE_MEM);
@@ -2053,11 +2053,11 @@ int Fann::ReallocateConnections(uint totalConnections)
 	int   ok = 1;
 	// The connections are allocated, but the pointers inside are
 	// first moved in the end of the cascade training session.
-	THROW_S(PP_Connections = (Fann::Neuron**)realloc(PP_Connections, totalConnections * sizeof(Fann::Neuron *)), SLERR_NOMEM);
-	THROW_S(P_Weights = (ANNTYP*)realloc(P_Weights, totalConnections * sizeof(ANNTYP)), SLERR_NOMEM);
-	THROW_S(P_TrainSlopes = (ANNTYP*)realloc(P_TrainSlopes, totalConnections * sizeof(ANNTYP)), SLERR_NOMEM);
-	THROW_S(P_PrevSteps = (ANNTYP*)realloc(P_PrevSteps, totalConnections * sizeof(ANNTYP)), SLERR_NOMEM);
-	THROW_S(P_PrevTrainSlopes = (ANNTYP*)realloc(P_PrevTrainSlopes, totalConnections * sizeof(ANNTYP)), SLERR_NOMEM);
+	THROW_S(PP_Connections = (Fann::Neuron**)SAlloc::R(PP_Connections, totalConnections * sizeof(Fann::Neuron *)), SLERR_NOMEM);
+	THROW_S(P_Weights = (ANNTYP*)SAlloc::R(P_Weights, totalConnections * sizeof(ANNTYP)), SLERR_NOMEM);
+	THROW_S(P_TrainSlopes = (ANNTYP*)SAlloc::R(P_TrainSlopes, totalConnections * sizeof(ANNTYP)), SLERR_NOMEM);
+	THROW_S(P_PrevSteps = (ANNTYP*)SAlloc::R(P_PrevSteps, totalConnections * sizeof(ANNTYP)), SLERR_NOMEM);
+	THROW_S(P_PrevTrainSlopes = (ANNTYP*)SAlloc::R(P_PrevTrainSlopes, totalConnections * sizeof(ANNTYP)), SLERR_NOMEM);
 	TotalConnectionsAllocated = totalConnections;
 	CATCHZOK
 	return ok;
@@ -2067,11 +2067,11 @@ int Fann::ReallocateConnections(uint totalConnections)
 int Fann::ReallocateNeurons(uint totalNeurons)
 {
 	int    ok = 1;
-	Fann::Neuron * p_neurons = (Fann::Neuron*)realloc(P_FirstLayer->P_FirstNeuron, totalNeurons * sizeof(Fann::Neuron));
+	Fann::Neuron * p_neurons = (Fann::Neuron*)SAlloc::R(P_FirstLayer->P_FirstNeuron, totalNeurons * sizeof(Fann::Neuron));
 	TotalNeuronsAllocated = totalNeurons;
 	THROW_S(p_neurons, SLERR_NOMEM);
 	// Also allocate room for more train_errors
-	THROW_S(P_TrainErrors = (ANNTYP*)realloc(P_TrainErrors, totalNeurons * sizeof(ANNTYP)), SLERR_NOMEM);
+	THROW_S(P_TrainErrors = (ANNTYP*)SAlloc::R(P_TrainErrors, totalNeurons * sizeof(ANNTYP)), SLERR_NOMEM);
 	if(p_neurons != P_FirstLayer->P_FirstNeuron) {
 		// Then the memory has moved, also move the pointers
 		// Move pointers from layers to neurons
@@ -2221,7 +2221,7 @@ int Fann::TrainCandidates(const Fann::TrainData * pData)
 	const uint _min_epochs = CascadeMinCandEpochs;
 	uint _stagnation = _max_epochs;
 	if(P_CascadeCandidateScores == NULL) {
-		P_CascadeCandidateScores = (ANNTYP*)malloc(GetCascadeNumCandidates() * sizeof(ANNTYP));
+		P_CascadeCandidateScores = (ANNTYP*)SAlloc::M(GetCascadeNumCandidates() * sizeof(ANNTYP));
 		if(P_CascadeCandidateScores == NULL) {
 			fann_error(&Err, SLERR_FANN_CANT_ALLOCATE_MEM);
 			return 0;
@@ -2423,7 +2423,7 @@ Fann::Layer * Fann::AddLayer(Fann::Layer * pLayer)
 	const int _layer_pos = (int)(pLayer - P_FirstLayer);
 	const int _num_layers = (int)(GetNumLayers() + 1);
 	// allocate the layer
-	Fann::Layer * p_layers = (Fann::Layer*)realloc(P_FirstLayer, _num_layers * sizeof(Fann::Layer));
+	Fann::Layer * p_layers = (Fann::Layer*)SAlloc::R(P_FirstLayer, _num_layers * sizeof(Fann::Layer));
 	THROW_S(p_layers, SLERR_NOMEM);
 	// copy layers so that the free space is at the right location
 	for(int i = _num_layers - 1; i >= _layer_pos; i--) {
@@ -2536,7 +2536,7 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_activation_functions(Fann * ann, co
 	if(ann->cascade_activation_functions_count != cascade_activation_functions_count) {
 		ann->cascade_activation_functions_count = cascade_activation_functions_count;
 		// reallocate mem
-		ann->P_CascadeActivationFunctions = (fann_activationfunc_enum*)realloc(ann->P_CascadeActivationFunctions,
+		ann->P_CascadeActivationFunctions = (fann_activationfunc_enum*)SAlloc::R(ann->P_CascadeActivationFunctions,
 			ann->cascade_activation_functions_count * sizeof(fann_activationfunc_enum));
 		if(ann->P_CascadeActivationFunctions == NULL) {
 			fann_error(&ann->Err, SLERR_FANN_CANT_ALLOCATE_MEM);
@@ -2554,7 +2554,7 @@ void Fann::SetCascadeActivationFunctions(const Fann::ActivationFunc * pCascadeAc
 	if(ann->cascade_activation_functions_count != cascade_activation_functions_count) {
 		ann->cascade_activation_functions_count = cascade_activation_functions_count;
 		// reallocate mem
-		ann->P_CascadeActivationFunctions = (fann_activationfunc_enum*)realloc(ann->P_CascadeActivationFunctions,
+		ann->P_CascadeActivationFunctions = (fann_activationfunc_enum*)SAlloc::R(ann->P_CascadeActivationFunctions,
 			ann->cascade_activation_functions_count * sizeof(fann_activationfunc_enum));
 		if(ann->P_CascadeActivationFunctions == NULL) {
 			fann_error(&ann->Err, SLERR_FANN_CANT_ALLOCATE_MEM);
@@ -2577,7 +2577,7 @@ void Fann::SetCascadeActivationFunctions(const Fann::ActivationFunc * pCascadeAc
 	if(ann->cascade_activation_steepnesses_count != cascade_activation_steepnesses_count) {
 		ann->cascade_activation_steepnesses_count = cascade_activation_steepnesses_count;
 		// reallocate mem
-		ann->CascadeActivationSteepnesses = (ANNTYP*)realloc(ann->CascadeActivationSteepnesses, ann->cascade_activation_steepnesses_count * sizeof(ANNTYP));
+		ann->CascadeActivationSteepnesses = (ANNTYP*)SAlloc::R(ann->CascadeActivationSteepnesses, ann->cascade_activation_steepnesses_count * sizeof(ANNTYP));
 		if(ann->CascadeActivationSteepnesses == NULL) {
 			fann_error(&ann->Err, SLERR_FANN_CANT_ALLOCATE_MEM);
 			return;
@@ -3058,28 +3058,28 @@ int Fann::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 			THROW(pSCtx->Serialize(dir, _pc, rBuf));
 			if(_pc) {
 				ZDELETE(P_TrainSlopes);
-				THROW_S(P_TrainSlopes = (ANNTYP *)calloc(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
+				THROW_S(P_TrainSlopes = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
 				THROW(pSCtx->SerializeBlock(dir, _pc * sizeof(P_TrainSlopes[0]), P_TrainSlopes, rBuf, 0));
 			}
 			//
 			THROW(pSCtx->Serialize(dir, _pc, rBuf));
 			if(_pc) {
 				ZDELETE(P_PrevSteps);
-				THROW_S(P_PrevSteps = (ANNTYP *)calloc(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
+				THROW_S(P_PrevSteps = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
 				THROW(pSCtx->SerializeBlock(dir, _pc * sizeof(P_PrevSteps[0]), P_PrevSteps, rBuf, 0));
 			}
 			//
 			THROW(pSCtx->Serialize(dir, _pc, rBuf));
 			if(_pc) {
 				ZDELETE(P_PrevTrainSlopes);
-				THROW_S(P_PrevTrainSlopes = (ANNTYP *)calloc(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
+				THROW_S(P_PrevTrainSlopes = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
 				THROW(pSCtx->SerializeBlock(dir, _pc * sizeof(P_PrevTrainSlopes[0]), P_PrevTrainSlopes, rBuf, 0));
 			}
 			//
 			THROW(pSCtx->Serialize(dir, _pc, rBuf));
 			if(_pc) {
 				ZDELETE(P_PrevWeightsDeltas);
-				THROW_S(P_PrevWeightsDeltas = (ANNTYP *)calloc(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
+				THROW_S(P_PrevWeightsDeltas = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
 				THROW(pSCtx->SerializeBlock(dir, _pc * sizeof(P_PrevWeightsDeltas[0]), P_PrevWeightsDeltas, rBuf, 0));
 			}
 		}
@@ -3305,7 +3305,7 @@ Fann * fann_create_from_fd(FILE * conf, const char * configuration_file)
 	ANNTYP * weights;
 	Fann::Layer * layer_it;
 	Fann * ann = NULL;
-	char * read_version = (char *)calloc(strlen(FANN_CONF_VERSION "\n"), 1);
+	char * read_version = (char *)SAlloc::C(strlen(FANN_CONF_VERSION "\n"), 1);
 	if(read_version == NULL) {
 		fann_error(NULL, SLERR_FANN_CANT_ALLOCATE_MEM);
 		return NULL;
@@ -3321,7 +3321,7 @@ Fann * fann_create_from_fd(FILE * conf, const char * configuration_file)
 #else
 		if(strncmp(read_version, "FANN_FLO_1.1\n", strlen("FANN_FLO_1.1\n")) == 0) {
 #endif
-			free(read_version);
+			SAlloc::F(read_version);
 			return 0/*fann_create_from_fd_1_1(conf, configuration_file)*/;
 		}
 
@@ -3334,12 +3334,12 @@ Fann * fann_create_from_fd(FILE * conf, const char * configuration_file)
 		    strncmp(read_version, "FANN_FIX_2.1\n", strlen("FANN_FIX_2.1\n")) != 0)
 #endif
 		{
-			free(read_version);
+			SAlloc::F(read_version);
 			fann_error(NULL, SLERR_FANN_WRONG_CONFIG_VERSION, configuration_file);
 			return NULL;
 		}
 	}
-	free(read_version);
+	SAlloc::F(read_version);
 #ifdef FIXEDFANN
 	fann_scanf("%u", "decimal_point", &decimal_point);
 	multiplier = 1 << decimal_point;
@@ -3393,7 +3393,7 @@ Fann * fann_create_from_fd(FILE * conf, const char * configuration_file)
 		/*
 		fann_scanf("%u", "cascade_activation_functions_count", &ann->cascade_activation_functions_count);
 		// reallocate mem
-		ann->P_CascadeActivationFunctions = (fann_activationfunc_enum*)realloc(ann->P_CascadeActivationFunctions,
+		ann->P_CascadeActivationFunctions = (fann_activationfunc_enum*)SAlloc::R(ann->P_CascadeActivationFunctions,
 			ann->cascade_activation_functions_count * sizeof(fann_activationfunc_enum));
 		if(ann->P_CascadeActivationFunctions == NULL) {
 			fann_error(&ann->Err, SLERR_FANN_CANT_ALLOCATE_MEM);
@@ -3430,7 +3430,7 @@ Fann * fann_create_from_fd(FILE * conf, const char * configuration_file)
 		/*
 		fann_scanf("%u", "cascade_activation_steepnesses_count", &ann->cascade_activation_steepnesses_count);
 		// reallocate mem
-		ann->CascadeActivationSteepnesses = (ANNTYP*)realloc(ann->CascadeActivationSteepnesses, ann->cascade_activation_steepnesses_count * sizeof(ANNTYP));
+		ann->CascadeActivationSteepnesses = (ANNTYP*)SAlloc::R(ann->CascadeActivationSteepnesses, ann->cascade_activation_steepnesses_count * sizeof(ANNTYP));
 		if(ann->CascadeActivationSteepnesses == NULL) {
 			fann_error(&ann->Err, SLERR_FANN_CANT_ALLOCATE_MEM);
 			fann_destroy(ann);
@@ -3692,7 +3692,7 @@ int Fann::ComputeMSE(const ANNTYP * pDesiredOutput)
 	const Fann::Neuron * p_first_neuron = P_FirstLayer->P_FirstNeuron;
 	// if no room allocated for the error variabels, allocate it now
 	if(P_TrainErrors == NULL) {
-		THROW_S(P_TrainErrors = (ANNTYP*)calloc(TotalNeurons, sizeof(ANNTYP)), SLERR_NOMEM);
+		THROW_S(P_TrainErrors = (ANNTYP*)SAlloc::C(TotalNeurons, sizeof(ANNTYP)), SLERR_NOMEM);
 	}
 	else {
 		// clear the error variabels
@@ -3788,7 +3788,7 @@ int Fann::UpdateWeights()
 	ANNTYP * p_deltas_begin;
 	// if no room allocated for the deltas, allocate it now
 	if(P_PrevWeightsDeltas == NULL) {
-		THROW_S(P_PrevWeightsDeltas = (ANNTYP*)calloc(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
+		THROW_S(P_PrevWeightsDeltas = (ANNTYP*)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
 	}
 	p_deltas_begin = P_PrevWeightsDeltas;
 	p_prev_neurons = p_first_neuron;
@@ -3840,7 +3840,7 @@ int Fann::UpdateSlopesBatch(const Fann::Layer * pLayerBegin, const Fann::Layer *
 	const ANNTYP * p_error_begin = P_TrainErrors;
 	// if no room allocated for the slope variabels, allocate it now
 	if(P_TrainSlopes == NULL) {
-		THROW_S(P_TrainSlopes = (ANNTYP *)calloc(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
+		THROW_S(P_TrainSlopes = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
 	}
 	SETIFZ(pLayerBegin, (P_FirstLayer + 1));
 	SETIFZ(pLayerEnd, (P_LastLayer - 1));
@@ -3887,13 +3887,13 @@ int Fann::ClearTrainArrays()
 	int    ok = 1;
 	// if no room allocated for the slope variabels, allocate it now (calloc clears mem)
 	if(P_TrainSlopes == NULL) {
-		THROW_S(P_TrainSlopes = (ANNTYP*)calloc(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
+		THROW_S(P_TrainSlopes = (ANNTYP*)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
 	}
 	else
 		memzero(P_TrainSlopes, TotalConnectionsAllocated * sizeof(ANNTYP));
 	// if no room allocated for the variabels, allocate it now
 	if(P_PrevSteps == NULL) {
-		THROW_S(P_PrevSteps = (ANNTYP *)malloc(TotalConnectionsAllocated * sizeof(ANNTYP)), SLERR_NOMEM);
+		THROW_S(P_PrevSteps = (ANNTYP *)SAlloc::M(TotalConnectionsAllocated * sizeof(ANNTYP)), SLERR_NOMEM);
 	}
 	if(TrainingAlgorithm == FANN_TRAIN_RPROP) {
 		const ANNTYP _delta_zero = RpropDeltaZero;
@@ -3904,7 +3904,7 @@ int Fann::ClearTrainArrays()
 		memzero(P_PrevSteps, TotalConnectionsAllocated * sizeof(ANNTYP));
 	// if no room allocated for the variabels, allocate it now
 	if(P_PrevTrainSlopes == NULL) {
-		THROW_S(P_PrevTrainSlopes = (ANNTYP *)calloc(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
+		THROW_S(P_PrevTrainSlopes = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
 	}
 	else
 		memzero(P_PrevTrainSlopes, TotalConnectionsAllocated * sizeof(ANNTYP));
@@ -4899,7 +4899,7 @@ int Fann::ScaleParam::Load(FILE * pF, uint c, const char * pSuffix)
 
 float * Fann::ScaleParam::Helper_Allocate(uint c, float defValue)
 {
-	float * p_list = (float *)malloc(c * sizeof(float));
+	float * p_list = (float *)SAlloc::M(c * sizeof(float));
 	if(p_list) {
 		for(uint i = 0; i < c; i++)
 			p_list[i] = defValue;
@@ -5401,7 +5401,7 @@ int Fann::DetectOptimal(Fann::DetectOptimalParam & rParam)
 		Fann   test_ann(rParam.NetworkType, rParam.ConnectionRate, rParam.Layers);
 		THROW(test_ann.IsValid());
 		const size_t weights_buffer_size = test_ann.GetWeights(0, 0);
-		THROW_S(p_preserve_weights = (ANNTYP *)malloc(weights_buffer_size), SLERR_NOMEM);
+		THROW_S(p_preserve_weights = (ANNTYP *)SAlloc::M(weights_buffer_size), SLERR_NOMEM);
 		THROW(test_ann.GetWeights(p_preserve_weights, weights_buffer_size));
 		if(rParam.Flags & rParam.fDetectActivationFunc) {
 			uint   best_hi = 0;
@@ -5529,7 +5529,7 @@ int Fann::DetectOptimal(Fann::DetectOptimalParam & rParam)
 FANN_EXTERNAL float FANN_API fann_train_epoch_batch_parallel(Fann * ann, Fann::TrainData * data, const uint threadnumb)
 {
 	/*vector<Fann *> ann_vect(threadnumb);*/
-	Fann** ann_vect = (Fann**)malloc(threadnumb * sizeof(Fann*));
+	Fann** ann_vect = (Fann**)SAlloc::M(threadnumb * sizeof(Fann*));
 	int i = 0, j = 0;
 	ann->ResetMSE();
 	//generate copies of the ann
@@ -5582,13 +5582,13 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_batch_parallel(Fann * ann, Fann::T
 		ann->num_MSE += ann_vect[i]->num_MSE;
 		fann_destroy(ann_vect[i]);
 	}
-	free(ann_vect);
+	SAlloc::F(ann_vect);
 	return ann->GetMSE();
 }
 
 FANN_EXTERNAL float FANN_API fann_train_epoch_irpropm_parallel(Fann * ann, Fann::TrainData * data, const uint threadnumb)
 {
-	Fann** ann_vect = (Fann**)malloc(threadnumb * sizeof(Fann*));
+	Fann** ann_vect = (Fann**)SAlloc::M(threadnumb * sizeof(Fann*));
 	int i = 0, j = 0;
 	if(ann->P_PrevTrainSlopes == NULL) {
 		ann->ClearTrainArrays();
@@ -5671,13 +5671,13 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_irpropm_parallel(Fann * ann, Fann:
 		ann->num_MSE += ann_vect[i]->num_MSE;
 		fann_destroy(ann_vect[i]);
 	}
-	free(ann_vect);
+	SAlloc::F(ann_vect);
 	return ann->GetMSE();
 }
 
 FANN_EXTERNAL float FANN_API fann_train_epoch_quickprop_parallel(Fann * ann, Fann::TrainData * data, const uint threadnumb)
 {
-	Fann** ann_vect = (Fann**)malloc(threadnumb * sizeof(Fann*));
+	Fann** ann_vect = (Fann**)SAlloc::M(threadnumb * sizeof(Fann*));
 	int i = 0, j = 0;
 	if(ann->P_PrevTrainSlopes == NULL) {
 		ann->ClearTrainArrays();
@@ -5780,13 +5780,13 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_quickprop_parallel(Fann * ann, Fan
 		ann->num_MSE += ann_vect[i]->num_MSE;
 		fann_destroy(ann_vect[i]);
 	}
-	free(ann_vect);
+	SAlloc::F(ann_vect);
 	return ann->GetMSE();
 }
 
 FANN_EXTERNAL float FANN_API fann_train_epoch_sarprop_parallel(Fann * ann, Fann::TrainData * data, const uint threadnumb)
 {
-	Fann** ann_vect = (Fann**)malloc(threadnumb * sizeof(Fann*));
+	Fann** ann_vect = (Fann**)SAlloc::M(threadnumb * sizeof(Fann*));
 	int i = 0, j = 0;
 	if(ann->P_PrevTrainSlopes == NULL) {
 		ann->ClearTrainArrays();
@@ -5908,7 +5908,7 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_sarprop_parallel(Fann * ann, Fann:
 	for(i = 0; i<(int)threadnumb; i++) {
 		fann_destroy(ann_vect[i]);
 	}
-	free(ann_vect);
+	SAlloc::F(ann_vect);
 	return ann->GetMSE();
 }
 

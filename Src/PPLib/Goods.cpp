@@ -639,7 +639,7 @@ int SLAPI GoodsCore::PutStockExt(PPID id, const GoodsStockExt * pData, int use_t
 		const uint plt_c = pData->PltList.getCount();
 		if(plt_c > 1)
 			sz += sizeof(GoodsStockExt::Pallet) * (plt_c - 1);
-		THROW_MEM(p_strg = (__GoodsStockExt *)malloc(sz));
+		THROW_MEM(p_strg = (__GoodsStockExt *)SAlloc::M(sz));
 		memzero(p_strg, sizeof(*p_strg));
 		p_strg->ObjType  = PPOBJ_GOODS;
 		p_strg->ObjID    = id;
@@ -660,7 +660,7 @@ int SLAPI GoodsCore::PutStockExt(PPID id, const GoodsStockExt * pData, int use_t
 	THROW(P_Ref->PutProp(PPOBJ_GOODS, id, GDSPRP_STOCKDATA, p_strg, sz, use_ta));
 	THROW(P_Ref->PutPropArray(PPOBJ_GOODS, id, GDSPRP_MINSTOCKBYLOC, p_min_stock_list, use_ta));
 	CATCHZOK
-	free(p_strg);
+	SAlloc::F(p_strg);
 	return ok;
 }
 
@@ -677,14 +677,14 @@ int SLAPI GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*
 		uint   init_plt_c = 4;
 		pData->Init();
 		sz = sizeof(__GoodsStockExt) + (sizeof(GoodsStockExt::Pallet) * init_plt_c);
-		THROW_MEM(p_strg = (__GoodsStockExt *)malloc(sz));
+		THROW_MEM(p_strg = (__GoodsStockExt *)SAlloc::M(sz));
 		memzero(p_strg, sizeof(*p_strg));
 		THROW(ok = P_Ref->GetProp(PPOBJ_GOODS, id, GDSPRP_STOCKDATA, p_strg, sz));
 		if(ok > 0) {
 			if(p_strg->PltList.Count > init_plt_c && p_strg->PltList.Count <= 8) {
 				init_plt_c = p_strg->PltList.Count;
 				sz = sizeof(__GoodsStockExt) + (sizeof(GoodsStockExt::Pallet) * init_plt_c);
-				THROW_MEM(p_strg = (__GoodsStockExt *)realloc(p_strg, sz));
+				THROW_MEM(p_strg = (__GoodsStockExt *)SAlloc::R(p_strg, sz));
 				THROW(P_Ref->GetProp(PPOBJ_GOODS, id, GDSPRP_STOCKDATA, p_strg, sz) > 0);
 			}
 			// «ащита от 'гр€зных' значений в базе данных {
@@ -717,7 +717,7 @@ int SLAPI GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*
 		}
 	}
 	CATCHZOK
-	free(p_strg);
+	SAlloc::F(p_strg);
 	return ok;
 }
 

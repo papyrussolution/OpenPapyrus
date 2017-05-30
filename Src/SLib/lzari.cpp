@@ -11,10 +11,6 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <string.h>
-//#include <ctype.h>
 #include <fcntl.h>
 #include <sys\stat.h>
 //
@@ -41,7 +37,7 @@ struct  LZAriFileHeader { // size = 128
 	long   FileSize;
 	long   CRC;
 	int32  BlockSize;
-	long   Signature; // @v5.0.9
+	long   Signature;
 	char   Reserve[24];
 };
 
@@ -404,7 +400,7 @@ int LZAri::Init(char * pSrc, char * pDest, ulong * pFileSize, int compress, Perc
 		P_Header      = new LZAriFileHeader;
 		P_Src         = new char[MAXPATH];
 		P_Dest        = new char[MAXPATH];
-		SLS.SetAddedMsgString(pSrc); // @v7.7.9
+		SLS.SetAddedMsgString(pSrc);
 		THROW_V(P_SymFreq && P_SymCum && P_PositionCum && P_CharToSym && P_SymToChar && P_Tree && P_Header, SLERR_NOMEM);
 		strnzcpy(P_Src, pSrc, MAXPATH);
 		strnzcpy(P_Dest, pDest, MAXPATH);
@@ -417,7 +413,7 @@ int LZAri::Init(char * pSrc, char * pDest, ulong * pFileSize, int compress, Perc
 		if(compress) {
 			THROW(Encode(&file_size, pf) > 0);
 		}
-		else if(P_Header->Signature == LZARI_SIGNATURE || P_Header->Signature == 0) { // @v5.0.9 AHTOXA
+		else if(oneof2(P_Header->Signature, LZARI_SIGNATURE, 0)) {
 			THROW(Decode(pf) > 0);
 			THROW(CheckCrc() > 0);
 			file_size = P_Header->FileSize;
@@ -437,11 +433,11 @@ int LZAri::Init(char * pSrc, char * pDest, ulong * pFileSize, int compress, Perc
 	CATCHZOK
 	return ok;
 }
-/*
-	If you are not familiar with arithmetic compression, you should read
-	I. E. Witten, R. M. Neal, and J. G. Cleary,
-	Communications of the ACM, Vol. 30, pp. 520-540 (1987), from which much have been borrowed.
-*/
+//
+// If you are not familiar with arithmetic compression, you should read
+// I. E. Witten, R. M. Neal, and J. G. Cleary,
+// Communications of the ACM, Vol. 30, pp. 520-540 (1987), from which much have been borrowed.
+// 
 int LZAri::StartModel()  /* Initialize model */
 {
 	int    ok = 1;
@@ -830,7 +826,7 @@ int LZAri::GetFileInfo(int compress)
 			(filename = ps.Nam).Cat(ps.Ext);
 
 			crc = 0;
-			while((len = fread(p_buf, 1, buf_size, P_InFile)) > 0) // @v5.3.2 AHTOXA
+			while((len = fread(p_buf, 1, buf_size, P_InFile)) > 0)
 				crc = _crc32.Calc(crc, (uint8 *)p_buf, (size_t)len);
 			rewind(P_InFile);
 			P_Header->FileSize          = (long)fs.Size;
@@ -838,7 +834,7 @@ int LZAri::GetFileInfo(int compress)
 			P_Header->FileLAccDateTime  = fs.AccsTime;
 			P_Header->FileLModDateTime  = fs.ModTime;
 			P_Header->CRC               = (long) crc;
-			P_Header->Signature         = LZARI_SIGNATURE; // @v5.0.9 AHTOXA
+			P_Header->Signature         = LZARI_SIGNATURE;
 			filename.CopyTo(P_Header->FileName, sizeof(P_Header->FileName));
 		}
 		else {

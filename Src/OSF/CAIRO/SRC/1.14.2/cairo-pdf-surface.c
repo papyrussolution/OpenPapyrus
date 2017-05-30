@@ -313,7 +313,7 @@ static cairo_status_t _cairo_pdf_surface_clipper_intersect_clip_path(cairo_surfa
 static cairo_surface_t * _cairo_pdf_surface_create_for_stream_internal(cairo_output_stream_t * output, double width, double height)
 {
 	cairo_status_t status, status_ignored;
-	cairo_pdf_surface_t * surface = (cairo_pdf_surface_t *)malloc(sizeof(cairo_pdf_surface_t));
+	cairo_pdf_surface_t * surface = (cairo_pdf_surface_t *)SAlloc::M(sizeof(cairo_pdf_surface_t));
 	if(unlikely(surface == NULL)) {
 		/* destroy stream on behalf of caller */
 		status = _cairo_output_stream_destroy(output);
@@ -409,7 +409,7 @@ BAIL1:
 	_cairo_hash_table_destroy(surface->all_surfaces);
 BAIL0:
 	_cairo_array_fini(&surface->objects);
-	free(surface);
+	SAlloc::F(surface);
 
 	/* destroy stream on behalf of caller */
 	status_ignored = _cairo_output_stream_destroy(output);
@@ -952,7 +952,7 @@ static cairo_pdf_smask_group_t * _cairo_pdf_surface_create_smask_group(cairo_pdf
 	group->group_res = _cairo_pdf_surface_new_object(surface);
 	if(group->group_res.id == 0) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
-		free(group);
+		SAlloc::F(group);
 		return NULL;
 	}
 	group->width = surface->width;
@@ -979,12 +979,12 @@ static void _cairo_pdf_smask_group_destroy(cairo_pdf_smask_group_t * group)
 		cairo_pattern_destroy(group->source);
 	if(group->mask)
 		cairo_pattern_destroy(group->mask);
-	free(group->utf8);
-	free(group->glyphs);
-	free(group->clusters);
+	SAlloc::F(group->utf8);
+	SAlloc::F(group->glyphs);
+	SAlloc::F(group->clusters);
 	if(group->scaled_font)
 		cairo_scaled_font_destroy(group->scaled_font);
-	free(group);
+	SAlloc::F(group);
 }
 
 static cairo_int_status_t _cairo_pdf_surface_add_smask_group(cairo_pdf_surface_t     * surface,
@@ -1309,7 +1309,7 @@ release_source:
 	if(status || surface_entry)
 		return status;
 
-	surface_entry = (cairo_pdf_source_surface_entry_t *)malloc(sizeof(cairo_pdf_source_surface_entry_t));
+	surface_entry = (cairo_pdf_source_surface_entry_t *)SAlloc::M(sizeof(cairo_pdf_source_surface_entry_t));
 	if(surface_entry == NULL) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail1;
@@ -1371,10 +1371,10 @@ fail3:
 		cairo_surface_destroy(src_surface.surface);
 
 fail2:
-	free(surface_entry);
+	SAlloc::F(surface_entry);
 
 fail1:
-	free(unique_id);
+	SAlloc::F(unique_id);
 
 	return status;
 }
@@ -1861,8 +1861,8 @@ static void _cairo_pdf_source_surface_entry_pluck(void * entry, void * closure)
 	cairo_pdf_source_surface_entry_t * surface_entry = (cairo_pdf_source_surface_entry_t *)entry;
 	cairo_hash_table_t * patterns = (cairo_hash_table_t *)closure;
 	_cairo_hash_table_remove(patterns, &surface_entry->base);
-	free(surface_entry->unique_id);
-	free(surface_entry);
+	SAlloc::F(surface_entry->unique_id);
+	SAlloc::F(surface_entry);
 }
 
 static cairo_status_t _cairo_pdf_surface_finish(void * abstract_surface)
@@ -1963,7 +1963,7 @@ static cairo_status_t _cairo_pdf_surface_finish(void * abstract_surface)
 	size = _cairo_array_num_elements(&surface->jbig2_global);
 	for(i = 0; i < size; i++) {
 		global = (cairo_pdf_jbig2_global_t*)_cairo_array_index(&surface->jbig2_global, i);
-		free(global->id);
+		SAlloc::F(global->id);
 		if(!global->emitted)
 			return _cairo_error(CAIRO_STATUS_JBIG2_GLOBAL_MISSING);
 	}
@@ -2255,7 +2255,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_smask(cairo_pdf_surface_t     
 	status = _cairo_pdf_surface_close_stream(surface);
 
 CLEANUP_ALPHA:
-	free(alpha);
+	SAlloc::F(alpha);
 CLEANUP:
 	return status;
 }
@@ -2463,7 +2463,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_image(cairo_pdf_surface_t     
 	status = _cairo_pdf_surface_close_stream(surface);
 
 CLEANUP_RGB:
-	free(data);
+	SAlloc::F(data);
 CLEANUP:
 	if(image != image_surf)
 		cairo_surface_destroy(&image->base);
@@ -2487,7 +2487,7 @@ static cairo_int_status_t _cairo_pdf_surface_lookup_jbig2_global(cairo_pdf_surfa
 			return CAIRO_STATUS_SUCCESS;
 		}
 	}
-	global.id = (uchar *)malloc(global_id_length);
+	global.id = (uchar *)SAlloc::M(global_id_length);
 	if(unlikely(global.id == NULL)) {
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -2495,7 +2495,7 @@ static cairo_int_status_t _cairo_pdf_surface_lookup_jbig2_global(cairo_pdf_surfa
 	global.id_length = global_id_length;
 	global.res = _cairo_pdf_surface_new_object(surface);
 	if(global.res.id == 0) {
-		free(global.id);
+		SAlloc::F(global.id);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 
@@ -3479,7 +3479,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_pattern_stops(cairo_pdf_surfac
 	}
 
 BAIL:
-	free(allstops);
+	SAlloc::F(allstops);
 	return status;
 }
 
@@ -4525,7 +4525,7 @@ static cairo_int_status_t _utf8_to_pdf_string(const char * utf8, char ** str_out
 		}
 	}
 	if(ascii) {
-		str = (char *)malloc(len + 3);
+		str = (char *)SAlloc::M(len + 3);
 		if(str == NULL)
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		str[0] = '(';
@@ -4540,9 +4540,9 @@ static cairo_int_status_t _utf8_to_pdf_string(const char * utf8, char ** str_out
 		status = _cairo_utf8_to_utf16(utf8, -1, &utf16, &utf16_len);
 		if(unlikely(status))
 			return status;
-		str = (char *)malloc(utf16_len*4 + 7);
+		str = (char *)SAlloc::M(utf16_len*4 + 7);
 		if(str == NULL) {
-			free(utf16);
+			SAlloc::F(utf16);
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
 		strcpy(str, "<FEFF");
@@ -4550,7 +4550,7 @@ static cairo_int_status_t _utf8_to_pdf_string(const char * utf8, char ** str_out
 			snprintf(str + 4*i + 5, 5, "%04X", utf16[i]);
 
 		strcat(str, ">");
-		free(utf16);
+		SAlloc::F(utf16);
 	}
 	*str_out = str;
 
@@ -4589,7 +4589,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_unicode_for_glyph(cairo_pdf_su
 	}
 	_cairo_output_stream_printf(surface->output, ">");
 
-	free(utf16);
+	SAlloc::F(utf16);
 
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -4846,7 +4846,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_cff_font(cairo_pdf_surface_t  
 		_cairo_output_stream_printf(surface->output,
 		    "   /FontFamily %s\n",
 		    pdf_str);
-		free(pdf_str);
+		SAlloc::F(pdf_str);
 	}
 
 	_cairo_output_stream_printf(surface->output,
@@ -5289,7 +5289,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_truetype_font_subset(cairo_pdf
 		_cairo_output_stream_printf(surface->output,
 		    "   /FontFamily %s\n",
 		    pdf_str);
-		free(pdf_str);
+		SAlloc::F(pdf_str);
 	}
 
 	_cairo_output_stream_printf(surface->output,
@@ -5531,7 +5531,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_type3_font_subset(cairo_pdf_su
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	widths = (double *)_cairo_malloc_ab(font_subset->num_glyphs, sizeof(double));
 	if(unlikely(widths == NULL)) {
-		free(glyphs);
+		SAlloc::F(glyphs);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 
@@ -5542,8 +5542,8 @@ static cairo_int_status_t _cairo_pdf_surface_emit_type3_font_subset(cairo_pdf_su
 	    surface->font_subsets,
 	    FALSE);
 	if(unlikely(type3_surface->status)) {
-		free(glyphs);
-		free(widths);
+		SAlloc::F(glyphs);
+		SAlloc::F(widths);
 		return type3_surface->status;
 	}
 
@@ -5591,15 +5591,15 @@ static cairo_int_status_t _cairo_pdf_surface_emit_type3_font_subset(cairo_pdf_su
 	}
 	cairo_surface_destroy(type3_surface);
 	if(unlikely(status)) {
-		free(glyphs);
-		free(widths);
+		SAlloc::F(glyphs);
+		SAlloc::F(widths);
 		return status;
 	}
 
 	encoding = _cairo_pdf_surface_new_object(surface);
 	if(encoding.id == 0) {
-		free(glyphs);
-		free(widths);
+		SAlloc::F(glyphs);
+		SAlloc::F(widths);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 
@@ -5617,8 +5617,8 @@ static cairo_int_status_t _cairo_pdf_surface_emit_type3_font_subset(cairo_pdf_su
 
 	char_procs = _cairo_pdf_surface_new_object(surface);
 	if(char_procs.id == 0) {
-		free(glyphs);
-		free(widths);
+		SAlloc::F(glyphs);
+		SAlloc::F(widths);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 
@@ -5633,13 +5633,13 @@ static cairo_int_status_t _cairo_pdf_surface_emit_type3_font_subset(cairo_pdf_su
 	    ">>\n"
 	    "endobj\n");
 
-	free(glyphs);
+	SAlloc::F(glyphs);
 
 	status = _cairo_pdf_surface_emit_to_unicode_stream(surface,
 	    font_subset,
 	    &to_unicode_stream);
 	if(_cairo_int_status_is_error(status)) {
-		free(widths);
+		SAlloc::F(widths);
 		return status;
 	}
 
@@ -5669,7 +5669,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_type3_font_subset(cairo_pdf_su
 		_cairo_output_stream_printf(surface->output, " %f", widths[i]);
 	_cairo_output_stream_printf(surface->output,
 	    "]\n");
-	free(widths);
+	SAlloc::F(widths);
 
 	_cairo_output_stream_printf(surface->output,
 	    "   /Resources\n");
@@ -7489,7 +7489,7 @@ static cairo_int_status_t _cairo_pdf_surface_show_text_glyphs(void * abstract_su
 		group->source_res = pattern_res;
 
 		if(utf8_len) {
-			group->utf8 = (char *)malloc(utf8_len);
+			group->utf8 = (char *)SAlloc::M(utf8_len);
 			if(unlikely(group->utf8 == NULL)) {
 				_cairo_pdf_smask_group_destroy(group);
 				status = _cairo_error(CAIRO_STATUS_NO_MEMORY);

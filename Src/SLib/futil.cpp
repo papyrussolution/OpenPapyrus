@@ -494,7 +494,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SCopy
 		if(flen < buflen)
 			buflen = KB * (1 + (uint)flen / KB);
 		do {
-			p_buf = malloc(buflen);
+			p_buf = SAlloc::M(buflen);
 		} while(!p_buf && (buflen -= KB) >= KB);
 		THROW_V(p_buf, SLERR_NOMEM);
 		do {
@@ -523,7 +523,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SCopy
 	if(cancel)
 		ok = -1;
 	CATCHZOK
-	free(p_buf);
+	SAlloc::F(p_buf);
 	if(desthdl > 0) {
 		SetFileTime(desthdl, &creation_time, &last_access_time, &last_modif_time);
 		CloseHandle(desthdl);
@@ -577,7 +577,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SCopy
 		if(flen < buflen)
 			buflen = KB * (1 + (uint)flen / KB);
 		do
-			p_buf = malloc(buflen);
+			p_buf = SAlloc::M(buflen);
 		while(!p_buf && (buflen -= KB) >= KB);
 		THROW_V(p_buf, SLERR_NOMEM);
 		do {
@@ -597,7 +597,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SCopy
 	if(cancel)
 		ok = -1;
 	CATCHZOK
-	free(p_buf);
+	SAlloc::F(p_buf);
 	if(desthdl >= 0) {
 		setFileTime(desthdl, &creation_time, &last_access_time, &last_modif_time);
 		close(desthdl);

@@ -104,7 +104,7 @@ void _cairo_traps_clear(cairo_traps_t * traps)
 void _cairo_traps_fini(cairo_traps_t * traps)
 {
 	if(traps->traps != traps->traps_embedded)
-		free(traps->traps);
+		SAlloc::F(traps->traps);
 
 	VG(VALGRIND_MAKE_MEM_NOACCESS(traps, sizeof(cairo_traps_t)));
 }
@@ -889,7 +889,7 @@ cairo_int_status_t _cairo_traps_extract_region(cairo_traps_t   * traps,
 	status = (*region)->status;
 
 	if(rects != stack_rects)
-		free(rects);
+		SAlloc::F(rects);
 
 	return status;
 }

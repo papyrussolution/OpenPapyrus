@@ -1481,7 +1481,7 @@ int SLAPI PPViewBudget::InitIteration()
 		return 0;
 }
 
-int SLAPI PPViewBudget::NextIteration(BudgetViewItem * pItem)
+int FASTCALL PPViewBudget::NextIteration(BudgetViewItem * pItem)
 {
 	int    ok = -1;
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
@@ -1915,7 +1915,7 @@ int PPALDD_Budget::InitIteration(long iterId, int sortId, long rsrv)
 	return (p_pack && p_pack->EnumItems(&idx, &item) > 0) ? 1 : 0;
 }
 
-int PPALDD_Budget::NextIteration(long iterId, long rsrv)
+int PPALDD_Budget::NextIteration(long iterId)
 {
 	uint no = (uint)I.No;
 	BudgetItemTbl::Rec item;
@@ -1927,7 +1927,7 @@ int PPALDD_Budget::NextIteration(long iterId, long rsrv)
 	}
 	else
 		return -1;
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 }
 
 //

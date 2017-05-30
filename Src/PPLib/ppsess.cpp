@@ -878,7 +878,7 @@ int SLAPI PPThreadLocalArea::CreatePtr(uint idx, void * ptr)
 {
 	if(idx > PtrVectDim) {
 		uint   new_dim = ALIGNSIZE(idx, 6);
-		PtrEntry * p = (PtrEntry *)realloc(P_PtrVect, sizeof(PtrEntry) * new_dim);
+		PtrEntry * p = (PtrEntry *)SAlloc::R(P_PtrVect, sizeof(PtrEntry) * new_dim);
 		if(p) {
 			memzero(p+PtrVectDim, sizeof(PtrEntry) * (new_dim - PtrVectDim));
 			P_PtrVect = p;
@@ -1411,7 +1411,7 @@ void InitTest()
 		assert(a == 2);
 		{
 			void * ptr = 0;
-			if(SETIFZ(ptr, malloc(128))) {
+			if(SETIFZ(ptr, SAlloc::M(128))) {
 				assert(ptr != 0);
 			}
 			else {
@@ -1421,7 +1421,7 @@ void InitTest()
 			//
 			const char * p_abc = "abc";
 			ptr = (void *)p_abc;
-			if(SETIFZ(ptr, malloc(128))) {
+			if(SETIFZ(ptr, SAlloc::M(128))) {
 				assert(ptr == p_abc);
 			}
 			else {

@@ -1411,7 +1411,7 @@ content_type_t * content_type_new(const char * content_type_str)
 	/* 0: searching ';' 1: process key 2: process value */
 
 	/* Create object */
-	ct = (content_type_t *)malloc(sizeof(content_type_t));
+	ct = (content_type_t *)SAlloc::M(sizeof(content_type_t));
 	ct->params = NULL;
 	len = (int)strlen(content_type_str);
 	while(i <= len) {

@@ -101,7 +101,7 @@ const  char * PPSoapClientSession::GetMsg() const
 //
 void ** FASTCALL PPSoapCreateArray(uint count, int & rArrayCount)
 {
-	void ** pp_list = count ? (void **)calloc(count, sizeof(void *)) : 0;
+	void ** pp_list = count ? (void **)SAlloc::C(count, sizeof(void *)) : 0;
 	rArrayCount = (int)count;
 	return pp_list;
 }

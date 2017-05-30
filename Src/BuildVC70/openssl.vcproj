@@ -86,8 +86,11 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="2"
+				Optimization="4"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="TRUE"
 				AdditionalIncludeDirectories="..\include;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\evp&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\asn1&quot;"
 				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32"
 				StringPooling="TRUE"
@@ -217,8 +220,11 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="2"
+				Optimization="4"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="TRUE"
 				AdditionalIncludeDirectories="..\include;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\evp&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\asn1&quot;"
 				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32"
 				StringPooling="TRUE"
@@ -348,8 +354,11 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="2"
+				Optimization="4"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="TRUE"
 				AdditionalIncludeDirectories="..\include;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\evp&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\asn1&quot;"
 				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32"
 				StringPooling="TRUE"
@@ -421,6 +430,9 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\ssl\d1_srtp.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\ssl\record\dtls1_bitmap.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL-CMake\ssl\methods.c">
@@ -529,6 +541,21 @@
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL-CMake\ssl\ssl_utst.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\ssl\statem\statem.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\ssl\statem\statem_clnt.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\ssl\statem\statem_dtls.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\ssl\statem\statem_lib.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\ssl\statem\statem_srvr.c">
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL-CMake\ssl\t1_enc.c">

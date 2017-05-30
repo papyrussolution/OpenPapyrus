@@ -365,7 +365,8 @@
 			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
-				Name="VCCLCompilerTool"/>
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCLUDE"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool

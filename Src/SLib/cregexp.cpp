@@ -203,7 +203,7 @@ int FASTCALL CRegExp::deep_equal(const CRegExp & rxp) const
 //    counting turned on, and once "for real". This also means that we don't allocate
 //    space until we are sure that the thing really will compile successfully, and we
 //    never have to move the code and thus invalidate pointers into it. (Note that it
-//    has to be in one piece because free() must be able to free it all.) Beware that
+//    has to be in one piece because SAlloc::F() must be able to free it all.) Beware that
 //    the optimization-preparation code in here knows about some of the structure of
 //    the compiled regexp.
 //

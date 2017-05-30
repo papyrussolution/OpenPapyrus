@@ -189,7 +189,7 @@ int SLAPI PPObjTSession::WriteConfig(PPTSessConfig * pCfg, int use_ta)
 			}
 			const size_t ext_size = buf.GetAvailableSize();
 			sz += ext_size;
-			THROW_MEM(p_cfg = (Storage_PPTSessionConfig *)malloc(sz));
+			THROW_MEM(p_cfg = (Storage_PPTSessionConfig *)SAlloc::M(sz));
 			memzero(p_cfg, sz);
 			p_cfg->Tag = PPOBJ_CONFIG;
 			p_cfg->ID = PPCFG_MAIN;
@@ -218,7 +218,7 @@ int SLAPI PPObjTSession::WriteConfig(PPTSessConfig * pCfg, int use_ta)
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	free(p_cfg);
+	SAlloc::F(p_cfg);
 	return ok;
 }
 
@@ -231,12 +231,12 @@ int SLAPI PPObjTSession::ReadConfig(PPTSessConfig * pCfg)
 	size_t sz = 0;
 	Storage_PPTSessionConfig * p_cfg = 0;
 	if(PPRef->GetPropActualSize(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, &sz) > 0) {
-		p_cfg = (Storage_PPTSessionConfig *)malloc(sz);
+		p_cfg = (Storage_PPTSessionConfig *)SAlloc::M(sz);
 		THROW_MEM(p_cfg);
 		THROW(r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
 		if(r > 0 && p_cfg->GetSize() > sz) {
 			sz = p_cfg->GetSize();
-			p_cfg = (Storage_PPTSessionConfig *)realloc(p_cfg, sz);
+			p_cfg = (Storage_PPTSessionConfig *)SAlloc::R(p_cfg, sz);
 			THROW_MEM(p_cfg);
 			THROW(r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
 		}
@@ -281,7 +281,7 @@ int SLAPI PPObjTSession::ReadConfig(PPTSessConfig * pCfg)
 		}
 	}
 	CATCHZOK
-	free(p_cfg);
+	SAlloc::F(p_cfg);
 	return ok;
 }
 
@@ -4969,7 +4969,7 @@ int PPALDD_UhttTSession::InitIteration(long iterId, int sortId, long rsrv)
 	return 1;
 }
 
-int PPALDD_UhttTSession::NextIteration(long iterId, long rsrv)
+int PPALDD_UhttTSession::NextIteration(long iterId)
 {
 	int     ok = -1;
 	LDATETIME dtm;
@@ -4999,7 +4999,7 @@ int PPALDD_UhttTSession::NextIteration(long iterId, long rsrv)
 			(temp_buf = 0).Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0).CopyTo(I_Lines.Expiry, sizeof(I_Lines.Expiry));
 
 			STRNSCPY(I_Lines.Serial, r_item.Serial);
-			ok = DlRtm::NextIteration(iterId, rsrv);
+			ok = DlRtm::NextIteration(iterId);
         }
         r_blk.LinePos++;
 	}
@@ -5027,7 +5027,7 @@ int PPALDD_UhttTSession::NextIteration(long iterId, long rsrv)
 			r_blk.Pack.CiList.GetMemo(r_blk.CipPos, temp_buf = 0);
 			STRNSCPY(I_Cips.Memo, temp_buf);
 			STRNSCPY(I_Cips.PlaceCode, r_item.PlaceCode);
-			ok = DlRtm::NextIteration(iterId, rsrv);
+			ok = DlRtm::NextIteration(iterId);
 		}
 		r_blk.CipPos++;
 	}
@@ -5038,7 +5038,7 @@ int PPALDD_UhttTSession::NextIteration(long iterId, long rsrv)
             I_Places.GoodsID = pd_item.GoodsID;
             STRNSCPY(I_Places.Range, pd_item.Range);
             STRNSCPY(I_Places.Descr, pd_item.Descr);
-			ok = DlRtm::NextIteration(iterId, rsrv);
+			ok = DlRtm::NextIteration(iterId);
 		}
 		// } @v8.8.0
 	}
@@ -5070,7 +5070,7 @@ int PPALDD_UhttTSession::NextIteration(long iterId, long rsrv)
 					p_item->GetDate(&I_TagList.DateVal);
 					break;
 			}
-			ok = DlRtm::NextIteration(iterId, rsrv);
+			ok = DlRtm::NextIteration(iterId);
 		}
 		r_blk.TagPos++;
 	}
@@ -5240,7 +5240,7 @@ int PPALDD_UhttTSessPlaceStatusList::InitIteration(long iterId, int sortId, long
 	return -1;
 }
 
-int PPALDD_UhttTSessPlaceStatusList::NextIteration(long iterId, long rsrv)
+int PPALDD_UhttTSessPlaceStatusList::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -5257,7 +5257,7 @@ int PPALDD_UhttTSessPlaceStatusList::NextIteration(long iterId, long rsrv)
 		STRNSCPY(I.PinCode, p_item->PinCode); // @v8.8.0
 		STRNSCPY(I.Descr, p_item->Descr);
 		p_list->incPointer();
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }

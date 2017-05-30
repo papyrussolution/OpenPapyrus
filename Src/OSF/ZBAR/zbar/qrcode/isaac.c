@@ -19,29 +19,29 @@ static void isaac_update(isaac_ctx * _ctx)
 	for(i = 0; i<ISAAC_SZ/2; i++) {
 		x = m[i];
 		a = (a^a<<13)+m[i+ISAAC_SZ/2]&ISAAC_MASK;
-		m[i] = y = m[(x&ISAAC_SZ-1<<2)>>2]+a+b&ISAAC_MASK;
-		r[i] = b = m[y>>ISAAC_SZ_LOG+2&ISAAC_SZ-1]+x&ISAAC_MASK;
+		m[i] = y = m[(x&(ISAAC_SZ-1)<<2)>>2]+a+b&ISAAC_MASK;
+		r[i] = b = m[y>>(ISAAC_SZ_LOG+2)&(ISAAC_SZ-1)]+x&ISAAC_MASK;
 		x = m[++i];
 		a = (a^a>>6)+m[i+ISAAC_SZ/2]&ISAAC_MASK;
-		m[i] = y = m[(x&ISAAC_SZ-1<<2)>>2]+a+b&ISAAC_MASK;
-		r[i] = b = m[y>>ISAAC_SZ_LOG+2&ISAAC_SZ-1]+x&ISAAC_MASK;
+		m[i] = y = m[(x&(ISAAC_SZ-1)<<2)>>2]+a+b&ISAAC_MASK;
+		r[i] = b = m[y>>(ISAAC_SZ_LOG+2)&(ISAAC_SZ-1)]+x&ISAAC_MASK;
 		x = m[++i];
 		a = (a^a<<2)+m[i+ISAAC_SZ/2]&ISAAC_MASK;
-		m[i] = y = m[(x&ISAAC_SZ-1<<2)>>2]+a+b&ISAAC_MASK;
-		r[i] = b = m[y>>ISAAC_SZ_LOG+2&ISAAC_SZ-1]+x&ISAAC_MASK;
+		m[i] = y = m[(x&(ISAAC_SZ-1)<<2)>>2]+a+b&ISAAC_MASK;
+		r[i] = b = m[y>>(ISAAC_SZ_LOG+2)&(ISAAC_SZ-1)]+x&ISAAC_MASK;
 		x = m[++i];
 		a = (a^a>>16)+m[i+ISAAC_SZ/2]&ISAAC_MASK;
-		m[i] = y = m[(x&ISAAC_SZ-1<<2)>>2]+a+b&ISAAC_MASK;
-		r[i] = b = m[y>>ISAAC_SZ_LOG+2&ISAAC_SZ-1]+x&ISAAC_MASK;
+		m[i] = y = m[(x&(ISAAC_SZ-1)<<2)>>2]+a+b&ISAAC_MASK;
+		r[i] = b = m[y>>(ISAAC_SZ_LOG+2)&(ISAAC_SZ-1)]+x&ISAAC_MASK;
 	}
 	for(i = ISAAC_SZ/2; i<ISAAC_SZ; i++) {
 		x = m[i];
 		a = (a^a<<13)+m[i-ISAAC_SZ/2]&ISAAC_MASK;
-		m[i] = y = m[(x&ISAAC_SZ-1<<2)>>2]+a+b&ISAAC_MASK;
-		r[i] = b = m[y>>ISAAC_SZ_LOG+2&ISAAC_SZ-1]+x&ISAAC_MASK;
+		m[i] = y = m[(x&(ISAAC_SZ-1)<<2)>>2]+a+b&ISAAC_MASK;
+		r[i] = b = m[y>>(ISAAC_SZ_LOG+2)&ISAAC_SZ-1]+x&ISAAC_MASK;
 		x = m[++i];
 		a = (a^a>>6)+m[i-ISAAC_SZ/2]&ISAAC_MASK;
-		m[i] = y = m[(x&ISAAC_SZ-1<<2)>>2]+a+b&ISAAC_MASK;
+		m[i] = y = m[(x&(ISAAC_SZ-1)<<2)>>2]+a+b&ISAAC_MASK;
 		r[i] = b = m[y>>(ISAAC_SZ_LOG+2)&(ISAAC_SZ-1)]+x&ISAAC_MASK;
 		x = m[++i];
 		a = (a^a<<2)+m[i-ISAAC_SZ/2]&ISAAC_MASK;

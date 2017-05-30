@@ -242,7 +242,7 @@ int SLAPI PPViewGoodsBillCmp::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewGoodsBillCmp::NextIteration(GoodsBillCmpViewItem * pItem)
+int FASTCALL PPViewGoodsBillCmp::NextIteration(GoodsBillCmpViewItem * pItem)
 {
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		P_TempTbl->copyBufTo(pItem);
@@ -458,7 +458,7 @@ int PPALDD_GoodsBillCmp::InitIteration(PPIterID iterId, int sortId, long /*rsrv*
 	INIT_PPVIEW_ALDD_ITER(GoodsBillCmp);
 }
 
-int PPALDD_GoodsBillCmp::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsBillCmp::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(GoodsBillCmp);
 	I.GoodsID   = item.GoodsID;

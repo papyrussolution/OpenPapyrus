@@ -1000,24 +1000,24 @@ static int __env_sys_attach(ENV * env, REGINFO * infop, REGION * rp)
 	}
 #endif
 	/*
-	 * If a region is private, malloc the memory.
+	 * If a region is private, SAlloc::M the memory.
 	 *
 	 * !!!
-	 * If this fails because the region is too large to malloc, mmap(2)
+	 * If this fails because the region is too large to SAlloc::M, mmap(2)
 	 * using the MAP_ANON or MAP_ANONYMOUS flags would be an alternative.
-	 * I don't know of any architectures (yet!) where malloc is a problem.
+	 * I don't know of any architectures (yet!) where SAlloc::M is a problem.
 	 */
 	if(F_ISSET(env, ENV_PRIVATE)) {
 #if defined(HAVE_MUTEX_HPPA_MSEM_INIT)
 		/*
 		 * !!!
-		 * There exist spinlocks that don't work in malloc memory, e.g.,
+		 * There exist spinlocks that don't work in SAlloc::M memory, e.g.,
 		 * the HP/UX msemaphore interface.  If we don't have locks that
-		 * will work in malloc memory, we better not be private or not
+		 * will work in SAlloc::M memory, we better not be private or not
 		 * be threaded.
 		 */
 		if(F_ISSET(env, ENV_THREAD)) {
-			__db_errx(env, DB_STR("1550", "architecture does not support locks inside process-local (malloc) memory"));
+			__db_errx(env, DB_STR("1550", "architecture does not support locks inside process-local (SAlloc::M) memory"));
 			__db_errx(env, DB_STR("1551", "application may not specify both DB_PRIVATE and DB_THREAD"));
 			return EINVAL;
 		}

@@ -233,7 +233,7 @@ cairo_clip_t * _cairo_clip_intersect_boxes(cairo_clip_t * clip, const cairo_boxe
 			goto out;
 		}
 		if(clip->boxes != &clip->embedded_box)
-			free(clip->boxes);
+			SAlloc::F(clip->boxes);
 		clip->boxes = NULL;
 		boxes = &clip_boxes;
 	}

@@ -347,7 +347,7 @@ int SLAPI PPViewPersonRel::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewPersonRel::NextIteration(PersonRelViewItem * pItem)
+int FASTCALL PPViewPersonRel::NextIteration(PersonRelViewItem * pItem)
 {
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		TempPersonRelTbl::Key0 k;
@@ -543,7 +543,7 @@ int PPALDD_PsnRelList::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(PersonRel);
 }
 
-int PPALDD_PsnRelList::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_PsnRelList::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(PersonRel);
 	const PersonRelFilt * p_filt = (const PersonRelFilt *)p_v->GetBaseFilt();

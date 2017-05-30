@@ -432,7 +432,7 @@ int SLAPI PPViewPriceAnlz::InitIteration()
 	return 1;
 }
 
-int SLAPI PPViewPriceAnlz::NextIteration(PriceAnlzViewItem * pItem)
+int FASTCALL PPViewPriceAnlz::NextIteration(PriceAnlzViewItem * pItem)
 {
 	int    ok = -1;
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
@@ -629,7 +629,7 @@ int PPALDD_PriceAnlz::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(PriceAnlz);
 }
 
-int PPALDD_PriceAnlz::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_PriceAnlz::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(PriceAnlz);
 	I.LocID        = item.TabID;

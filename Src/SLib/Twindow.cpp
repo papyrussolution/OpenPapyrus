@@ -536,7 +536,7 @@ int FASTCALL TWindow::setCtrlString(uint ctlID, const SString & s)
 			const size_t max_len = ((TInputLine *)p_v)->getMaxLen();
 			if(max_len > temp_len && s.Len() >= temp_len) {
 				temp_len = max_len+32;
-				p_temp = (char *)malloc(temp_len);
+				p_temp = (char *)SAlloc::M(temp_len);
 				if(p_temp) {
 					is_temp_allocated = 1;
 					temp_len = max_len+32;
@@ -574,7 +574,7 @@ int FASTCALL TWindow::getCtrlString(uint ctlID, SString & s)
 	if(p_il && p_il->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
 		const size_t max_len = p_il->getMaxLen();
 		if(max_len > sizeof(temp_buf)) {
-			p_temp = (char *)malloc(max_len+32);
+			p_temp = (char *)SAlloc::M(max_len+32);
 			if(p_temp)
 				is_temp_allocated = 1;
 		}

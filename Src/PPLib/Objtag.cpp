@@ -2936,7 +2936,7 @@ ObjTagCache::ObjTagCache()
 	}
 	assert(MaxItems);
 	MaxTries = 8;
-	P_Items = (Entry *)calloc(MaxItems, sizeof(Entry));
+	P_Items = (Entry *)SAlloc::C(MaxItems, sizeof(Entry));
 	if(P_Items) {
 		long   cookie = 0;
 		PPAdviseBlock adv_blk;
@@ -3524,7 +3524,7 @@ int PPALDD_ObjectTag::InitData(PPFilt & rFilt, long rsrv)
 	return ok;
 }
 
-int PPALDD_ObjectTag::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_ObjectTag::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
 	if(pF->Name == "?GetStr") {
@@ -3537,5 +3537,4 @@ int PPALDD_ObjectTag::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack
 				item.GetStr(_RET_STR);
 		}
 	}
-	return 1;
 }

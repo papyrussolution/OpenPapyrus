@@ -161,7 +161,7 @@ int SLAPI PPViewDBDiv::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewDBDiv::NextIteration(DBDivViewItem * pItem)
+int FASTCALL PPViewDBDiv::NextIteration(DBDivViewItem * pItem)
 {
 	while(pItem && P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		PPDBDiv rec;

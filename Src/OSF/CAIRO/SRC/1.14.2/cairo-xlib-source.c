@@ -106,7 +106,7 @@ static cairo_surface_t * source(cairo_xlib_surface_t * dst, Picture picture, Pix
 	if(picture == None)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
-	source = malloc(sizeof(*source));
+	source = SAlloc::M(sizeof(*source));
 	if(unlikely(source == NULL)) {
 		XRenderFreePicture(dst->display->display, picture);
 		if(pixmap)
@@ -419,7 +419,7 @@ static cairo_surface_t * gradient_source(cairo_xlib_surface_t * dst,
 	}
 
 	if(stops != (XFixed*)buf)
-		free(stops);
+		SAlloc::F(stops);
 
 	*src_x = *src_y = 0;
 	if(!picture_set_properties(display, picture,
@@ -941,7 +941,7 @@ static cairo_surface_t * surface_source(cairo_xlib_surface_t * dst,
 	    _cairo_xlib_shm_surface_get_pixmap(src)) {
 		cairo_xlib_proxy_t * proxy;
 
-		proxy = malloc(sizeof(*proxy));
+		proxy = SAlloc::M(sizeof(*proxy));
 		if(unlikely(proxy == NULL))
 			return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 

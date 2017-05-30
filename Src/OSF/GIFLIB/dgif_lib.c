@@ -55,7 +55,7 @@ GifFileType * DGifOpenFileHandle(int FileHandle, int * Error)
 	char Buf[GIF_STAMP_LEN + 1];
 	GifFilePrivateType * Private;
 	FILE * f;
-	GifFileType * GifFile = (GifFileType*)malloc(sizeof(GifFileType));
+	GifFileType * GifFile = (GifFileType*)SAlloc::M(sizeof(GifFileType));
 	if(GifFile == NULL) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_ENOUGH_MEM);
 		(void)close(FileHandle);
@@ -65,7 +65,7 @@ GifFileType * DGifOpenFileHandle(int FileHandle, int * Error)
 	/* Belt and suspenders, in case the null pointer isn't zero */
 	GifFile->SavedImages = NULL;
 	GifFile->SColorMap = NULL;
-	Private = (GifFilePrivateType*)malloc(sizeof(GifFilePrivateType));
+	Private = (GifFilePrivateType*)SAlloc::M(sizeof(GifFilePrivateType));
 	if(Private == NULL) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_ENOUGH_MEM);
 		(void)close(FileHandle);
@@ -123,7 +123,7 @@ GifFileType * DGifOpen(void * userData, InputFunc readFunc, int * Error)
 {
 	char Buf[GIF_STAMP_LEN + 1];
 	GifFilePrivateType * Private;
-	GifFileType * GifFile = (GifFileType*)malloc(sizeof(GifFileType));
+	GifFileType * GifFile = (GifFileType*)SAlloc::M(sizeof(GifFileType));
 	if(GifFile == NULL) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_ENOUGH_MEM);
 		return NULL;
@@ -132,7 +132,7 @@ GifFileType * DGifOpen(void * userData, InputFunc readFunc, int * Error)
 	/* Belt and suspenders, in case the null pointer isn't zero */
 	GifFile->SavedImages = NULL;
 	GifFile->SColorMap = NULL;
-	Private = (GifFilePrivateType*)malloc(sizeof(GifFilePrivateType));
+	Private = (GifFilePrivateType*)SAlloc::M(sizeof(GifFilePrivateType));
 	if(!Private) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_ENOUGH_MEM);
 		free((char*)GifFile);
@@ -317,7 +317,7 @@ int DGifGetImageDesc(GifFileType * GifFile)
 		}
 	}
 	else {
-		if((GifFile->SavedImages = (SavedImage*)malloc(sizeof(SavedImage))) == NULL) {
+		if((GifFile->SavedImages = (SavedImage*)SAlloc::M(sizeof(SavedImage))) == NULL) {
 			GifFile->Error = D_GIF_ERR_NOT_ENOUGH_MEM;
 			return GIF_ERROR;
 		}
@@ -934,7 +934,7 @@ int DGifSlurp(GifFileType * GifFile)
 			    if(ImageSize > (SIZE_MAX / sizeof(GifPixelType))) {
 				    return GIF_ERROR;
 			    }
-			    sp->RasterBits = (uint8*)malloc(ImageSize * sizeof(GifPixelType));
+			    sp->RasterBits = (uint8*)SAlloc::M(ImageSize * sizeof(GifPixelType));
 			    if(sp->RasterBits == NULL) {
 				    return GIF_ERROR;
 			    }

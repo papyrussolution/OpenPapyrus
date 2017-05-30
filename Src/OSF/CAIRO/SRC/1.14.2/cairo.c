@@ -2707,7 +2707,7 @@ void cairo_text_extents(cairo_t * cr, const char * utf8, cairo_text_extents_t * 
 		return;
 	}
 	cairo_get_current_point(cr, &x, &y);
-	status = cairo_scaled_font_text_to_glyphs(scaled_font, x, y, utf8, -1, &glyphs, &num_glyphs, NULL, NULL, NULL);
+	status = cairo_scaled_font_text_to_glyphs(scaled_font, x, y, utf8, -1, &glyphs, &num_glyphs, 0, 0, 0);
 	if(likely(status == CAIRO_STATUS_SUCCESS)) {
 		status = cr->backend->glyph_extents(cr, glyphs, num_glyphs, extents);
 	}
@@ -3023,7 +3023,7 @@ void cairo_text_path(cairo_t * cr, const char * utf8)
 	}
 	cairo_get_current_point(cr, &x, &y);
 	status = cairo_scaled_font_text_to_glyphs(scaled_font, x, y,
-	    utf8, -1, &glyphs, &num_glyphs, NULL, NULL, NULL);
+	    utf8, -1, &glyphs, &num_glyphs, 0, 0, 0);
 	if(num_glyphs == 0)
 		return;
 	status = cr->backend->glyph_path(cr, glyphs, num_glyphs);

@@ -11,7 +11,7 @@
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -30,11 +30,11 @@ CURLcode Curl_input_digest(struct connectdata *conn,
 /* this is for creating digest header output */
 CURLcode Curl_output_digest(struct connectdata *conn,
                             bool proxy,
-                            const uchar *request,
-                            const uchar *uripath);
+                            const unsigned char *request,
+                            const unsigned char *uripath);
 
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_CRYPTO_AUTH)
-void Curl_digest_cleanup(struct SessionHandle *data);
+void Curl_digest_cleanup(struct Curl_easy *data);
 #else
 #define Curl_digest_cleanup(x) Curl_nop_stmt
 #endif

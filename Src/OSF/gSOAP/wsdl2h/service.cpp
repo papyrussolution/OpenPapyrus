@@ -34,7 +34,9 @@ TODO:	consider adding support for non-SOAP HTTP operations
         add headerfault output definitions
 
 */
-
+#include <slib.h> // @v9.6.8
+#include "wsdlH.h"
+#pragma hdrstop
 #include "types.h"
 #include "service.h"
 

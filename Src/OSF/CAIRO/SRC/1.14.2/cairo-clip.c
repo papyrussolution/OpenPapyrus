@@ -58,7 +58,7 @@ static cairo_clip_path_t * FASTCALL _cairo_clip_path_create(cairo_clip_t * clip)
 {
 	cairo_clip_path_t * clip_path = _freed_pool_get(&clip_path_pool);
 	if(unlikely(clip_path == NULL)) {
-		clip_path = (cairo_clip_path_t *)malloc(sizeof(cairo_clip_path_t));
+		clip_path = (cairo_clip_path_t *)SAlloc::M(sizeof(cairo_clip_path_t));
 		if(unlikely(clip_path == NULL))
 			return NULL;
 	}
@@ -90,7 +90,7 @@ cairo_clip_t * _cairo_clip_create(void)
 {
 	cairo_clip_t * clip = _freed_pool_get(&clip_pool);
 	if(unlikely(clip == NULL)) {
-		clip = (cairo_clip_t *)malloc(sizeof(cairo_clip_t));
+		clip = (cairo_clip_t *)SAlloc::M(sizeof(cairo_clip_t));
 		if(unlikely(clip == NULL))
 			return NULL;
 	}
@@ -115,7 +115,7 @@ void _cairo_clip_destroy(cairo_clip_t * clip)
 		_cairo_clip_path_destroy(clip->path);
 
 	if(clip->boxes != &clip->embedded_box)
-		free(clip->boxes);
+		SAlloc::F(clip->boxes);
 	cairo_region_destroy(clip->region);
 
 	_freed_pool_put(&clip_pool, clip);
@@ -631,7 +631,7 @@ cairo_rectangle_list_t * _cairo_rectangle_list_create_in_error(cairo_status_t st
 		return (cairo_rectangle_list_t*)&_cairo_rectangles_nil;
 	if(status == CAIRO_STATUS_CLIP_NOT_REPRESENTABLE)
 		return (cairo_rectangle_list_t*)&_cairo_rectangles_not_representable;
-	list = (cairo_rectangle_list_t *)malloc(sizeof(*list));
+	list = (cairo_rectangle_list_t *)SAlloc::M(sizeof(*list));
 	if(unlikely(list == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_rectangle_list_t*)&_cairo_rectangles_nil;
@@ -674,16 +674,16 @@ cairo_rectangle_list_t * _cairo_clip_copy_rectangle_list(cairo_clip_t * clip, ca
 			if(!_cairo_clip_int_rect_to_user(gstate,
 				    &clip_rect,
 				    &rectangles[i])) {
-				free(rectangles);
+				SAlloc::F(rectangles);
 				return ERROR_LIST(CAIRO_STATUS_CLIP_NOT_REPRESENTABLE);
 			}
 		}
 	}
 
 DONE:
-	list = (cairo_rectangle_list_t *)malloc(sizeof(cairo_rectangle_list_t));
+	list = (cairo_rectangle_list_t *)SAlloc::M(sizeof(cairo_rectangle_list_t));
 	if(unlikely(list == NULL)) {
-		free(rectangles);
+		SAlloc::F(rectangles);
 		return ERROR_LIST(CAIRO_STATUS_NO_MEMORY);
 	}
 	list->status = CAIRO_STATUS_SUCCESS;
@@ -707,8 +707,8 @@ void cairo_rectangle_list_destroy(cairo_rectangle_list_t * rectangle_list)
 {
 	if(rectangle_list == NULL || rectangle_list == &_cairo_rectangles_nil || rectangle_list == &_cairo_rectangles_not_representable)
 		return;
-	free(rectangle_list->rectangles);
-	free(rectangle_list);
+	SAlloc::F(rectangle_list->rectangles);
+	SAlloc::F(rectangle_list);
 }
 
 void _cairo_clip_reset_static_data(void)

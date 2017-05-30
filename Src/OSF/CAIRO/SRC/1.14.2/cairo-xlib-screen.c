@@ -294,7 +294,7 @@ void _cairo_xlib_screen_destroy(cairo_xlib_display_t * display,
 
 	cairo_list_del(&info->link);
 
-	free(info);
+	SAlloc::F(info);
 }
 
 cairo_status_t _cairo_xlib_screen_get(Display * dpy,
@@ -320,7 +320,7 @@ cairo_status_t _cairo_xlib_screen_get(Display * dpy,
 		*out = info;
 		goto CLEANUP_DISPLAY;
 	}
-	info = malloc(sizeof(cairo_xlib_screen_t));
+	info = SAlloc::M(sizeof(cairo_xlib_screen_t));
 	if(unlikely(info == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto CLEANUP_DISPLAY;

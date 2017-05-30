@@ -2335,7 +2335,7 @@ int SLAPI EltronLabelPrinter::PutDataEntryPrefix(char letter, const BarcodeLabel
 int SLAPI EltronLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 {
 	size_t buf_size = 256;
-	char * p_temp_str = (char *)calloc(buf_size, 1);
+	char * p_temp_str = (char *)SAlloc::C(buf_size, 1);
 	if(!p_temp_str)
 		return PPSetErrorNoMem();
 	if(pEntry->Type == BarcodeLabelEntry::etText) {
@@ -2344,7 +2344,7 @@ int SLAPI EltronLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 		for(size_t i = 0; i < len; i++) {
 			if(p >= buf_size-1) {
 				buf_size += 32;
-				p_temp_str = (char *)realloc(p_temp_str, buf_size);
+				p_temp_str = (char *)SAlloc::R(p_temp_str, buf_size);
 				if(!p_temp_str)
 					return PPSetErrorNoMem();
 			}
@@ -2403,7 +2403,7 @@ int SLAPI EltronLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 		PutChr('N'); // Print human readable code ('B' - yes; 'N' - no)
 	}
 	else {
-		free(p_temp_str);
+		SAlloc::F(p_temp_str);
 		return 0;
 	}
 	PutChr(',');
@@ -2411,7 +2411,7 @@ int SLAPI EltronLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 	PutStr(p_temp_str);
 	PutChr('\"');
 	PutChr('\n');
-	free(p_temp_str);
+	SAlloc::F(p_temp_str);
 	return 1;
 }
 //
@@ -2475,7 +2475,7 @@ int PPALDD_BarcodeLabelList::InitIteration(long iterId, int sortId, long rsrv)
 		return 0;
 }
 
-int PPALDD_BarcodeLabelList::NextIteration(long iterId, long rsrv)
+int PPALDD_BarcodeLabelList::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -2502,7 +2502,7 @@ int PPALDD_BarcodeLabelList::NextIteration(long iterId, long rsrv)
 			p_blk->ExemplarN = 0;
 			H.nn++;
 		}
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }

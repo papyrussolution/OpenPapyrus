@@ -218,7 +218,7 @@ zbar_image_t * zbar_image_copy(const zbar_image_t * src)
 	dst->Format = src->Format;
 	_zbar_image_copy_size(dst, src);
 	dst->datalen = src->datalen;
-	dst->P_Data = malloc(src->datalen);
+	dst->P_Data = SAlloc::M(src->datalen);
 	assert(dst->P_Data);
 	memcpy((void*)dst->P_Data, src->P_Data, src->datalen);
 	dst->cleanup = zbar_image_free_data;
@@ -253,7 +253,7 @@ typedef struct zimg_hdr_s {
 int zbar_image_write(const zbar_image_t * img, const char * filebase)
 {
 	int len = strlen(filebase) + 16;
-	char * filename = (char *)malloc(len);
+	char * filename = (char *)SAlloc::M(len);
 	int n = 0, rc = 0;
 	FILE * f;
 	zimg_hdr_t hdr;
@@ -308,7 +308,7 @@ int zbar_image_write_png(const zbar_image_t * img, const char * filename)
 	png_struct * png = NULL;
 	png_info * info = NULL;
 	const uint8 ** rows = NULL;
-	rows = malloc(img->height * sizeof(*rows));
+	rows = SAlloc::M(img->height * sizeof(*rows));
 	if(!rows)
 		goto done;
 	rows[0] = img->data;
@@ -318,7 +318,7 @@ int zbar_image_write_png(const zbar_image_t * img, const char * filename)
 	file = fopen(filename, "wb");
 	if(!file)
 		goto done;
-	png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	png = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
 	if(!png)
 		goto done;
 	info = png_create_info_struct(png);

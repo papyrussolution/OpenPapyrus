@@ -155,7 +155,7 @@ typedef uint32 db_timeout_t;    /* Type of a timeout. */
 /*
  * Region offsets are the difference between a pointer in a region and the
  * region's base address.  With private environments, both addresses are the
- * result of calling malloc, and we can't assume anything about what malloc
+ * result of calling SAlloc::M, and we can't assume anything about what SAlloc::M
  * will return, so region offsets have to be able to hold differences between
  * arbitrary pointers.
  */
@@ -236,7 +236,7 @@ typedef struct __db_logvrfy_config DB_LOG_VERIFY_CONFIG;
 #define DB_DBT_BULK             0x002  /* Internal: Insert if duplicate. */
 #define DB_DBT_DUPOK            0x004  /* Internal: Insert if duplicate. */
 #define DB_DBT_ISSET            0x008  /* Lower level calls set value. */
-#define DB_DBT_MALLOC           0x010  /* Return in malloc'd memory. */
+#define DB_DBT_MALLOC           0x010  /* Return in SAlloc::M'd memory. */
 #define DB_DBT_MULTIPLE         0x020  /* References multiple records. */
 #define DB_DBT_PARTIAL          0x040  /* Partial put/get. */
 #define DB_DBT_REALLOC          0x080  /* Return in realloc'd memory. */

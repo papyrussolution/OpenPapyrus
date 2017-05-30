@@ -278,7 +278,7 @@ int SLAPI ObjCache::Put(PPID id, uint * p, long extraData)
 	ObjCacheEntry * p_entry = 0;
 	int    new_buf = 0;
 	if(EntrySize > sizeof(temp_buf)) {
-		THROW_MEM(p_entry = (ObjCacheEntry*)malloc(EntrySize));
+		THROW_MEM(p_entry = (ObjCacheEntry*)SAlloc::M(EntrySize));
 		new_buf = 1;
 	}
 	else
@@ -295,7 +295,7 @@ int SLAPI ObjCache::Put(PPID id, uint * p, long extraData)
 	}
 	CATCHZOK
 	if(new_buf)
-		free(p_entry);
+		SAlloc::F(p_entry);
 	return ok;
 }
 
@@ -521,7 +521,7 @@ int SLAPI ObjCacheHash::Init(size_t cacheSize, uint maxTries)
 	MaxTries = (maxTries > 0 && maxTries < MaxItems / 4) ? maxTries : DEF_OBJCACHEHASH_MAXTRIES;
 	const  uint delta = MaxItems / 16;
 	do {
-		P_Items = (ObjCacheEntry *)calloc(MaxItems, EntrySize);
+		P_Items = (ObjCacheEntry *)SAlloc::C(MaxItems, EntrySize);
 	} while(!P_Items && (MaxItems -= delta) > delta);
 	if(P_Items == 0) {
 		MaxItems = 0;

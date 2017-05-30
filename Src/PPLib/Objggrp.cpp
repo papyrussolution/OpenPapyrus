@@ -872,7 +872,7 @@ int GoodsGroupView::InitIteration()
 	return 1;
 }
 
-int GoodsGroupView::NextIteration(GoodsGroupItem * pItem)
+int FASTCALL GoodsGroupView::NextIteration(GoodsGroupItem * pItem)
 {
 	SString temp_buf;
 	while(pItem && P_Iter->Next(&CurIterID, temp_buf) > 0) {
@@ -1217,12 +1217,12 @@ int SLAPI PPObjTransport::ReadConfig(PPTransportConfig * pCfg)
 	int    ok = -1, r;
 	Reference * p_ref = PPRef;
 	size_t sz = sizeof(Storage_PPTranspConfig) + 256;
-	Storage_PPTranspConfig * p_cfg = (Storage_PPTranspConfig *)malloc(sz);
+	Storage_PPTranspConfig * p_cfg = (Storage_PPTranspConfig *)SAlloc::M(sz);
 	THROW_MEM(p_cfg);
 	THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
 	if(r > 0 && p_cfg->GetSize() > sz) {
 		sz = p_cfg->GetSize();
-		p_cfg = (Storage_PPTranspConfig *)realloc(p_cfg, sz);
+		p_cfg = (Storage_PPTranspConfig *)SAlloc::R(p_cfg, sz);
 		THROW_MEM(p_cfg);
 		THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
 	}
@@ -1244,7 +1244,7 @@ int SLAPI PPObjTransport::ReadConfig(PPTransportConfig * pCfg)
 		ok = -1;
 	}
 	CATCHZOK
-	free(p_cfg);
+	SAlloc::F(p_cfg);
 	return ok;
 }
 
@@ -1268,7 +1268,7 @@ int SLAPI PPObjTransport::WriteConfig(const PPTransportConfig * pCfg, int use_ta
 			if(ext_size)
 				ext_size++; // Нулевая позиция - исключительная //
 			sz += ext_size;
-			p_cfg = (Storage_PPTranspConfig *)malloc(sz);
+			p_cfg = (Storage_PPTranspConfig *)SAlloc::M(sz);
 			memzero(p_cfg, sz);
 			p_cfg->Tag   = PPOBJ_CONFIG;
 			p_cfg->ID    = PPCFG_MAIN;
@@ -1292,7 +1292,7 @@ int SLAPI PPObjTransport::WriteConfig(const PPTransportConfig * pCfg, int use_ta
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	free(p_cfg);
+	SAlloc::F(p_cfg);
 	return ok;
 }
 

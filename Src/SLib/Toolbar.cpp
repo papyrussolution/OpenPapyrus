@@ -54,7 +54,7 @@ TToolbar::~TToolbar()
 {
 	// @vadim Приводило к зависанию при выходе из программы
 	// DestroyMenu(H_Menu);
-	//free(m_pitem);
+	//SAlloc::F(m_pitem);
 	HIMAGELIST himl = (HIMAGELIST)SendMessage(H_Toolbar, TB_GETIMAGELIST, 0, 0);
 	if(himl) {
 		ImageList_Destroy(himl);
@@ -682,7 +682,7 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb)
 	P_Toolbar = pTb;
 	uint   cnt = SendMessage(P_Toolbar->H_Toolbar, TB_BUTTONCOUNT, 0, 0);
 	LVITEM lvi;
-	P_Buttons = (TBBUTTON *)calloc(cnt, sizeof(TBBUTTON));
+	P_Buttons = (TBBUTTON *)SAlloc::C(cnt, sizeof(TBBUTTON));
 	if(!P_Buttons) {
 		EndDialog(hWnd, FALSE);
 	}
@@ -750,7 +750,7 @@ TuneToolsDialog::~TuneToolsDialog()
 {
 	//SetWindowLong(H_List, GWLP_WNDPROC, (long)PrevListViewProc);
 	TView::SetWindowProp(H_List, GWLP_WNDPROC, PrevListViewProc);
-	free(P_Buttons);
+	SAlloc::F(P_Buttons);
 }
 
 int TuneToolsDialog::ToggleMarker()

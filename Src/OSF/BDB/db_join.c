@@ -325,7 +325,7 @@ static int __db_join_get(DBC * dbc, DBT * key_arg, DBT * data_arg, uint32 flags)
 	 * we'll appropriately copy and/or allocate the data later.
 	 */
 	if(F_ISSET(key_arg, DB_DBT_MALLOC|DB_DBT_USERCOPY|DB_DBT_USERMEM)) {
-		/* We just use the default buffer;  no need to go malloc. */
+		/* We just use the default buffer;  no need to go SAlloc::M. */
 		key_n = &key_n_mem;
 		memzero(key_n, sizeof(DBT));
 	}
@@ -665,7 +665,7 @@ static int __db_join_getnext(DBC * dbc, DBT * key, DBT * data, uint32 exhausted,
 	    case 0:
 		/*
 		 * We don't want to step on data->data;  use a new
-		 * DBT and malloc so we don't step on dbc's rdata memory.
+		 * DBT and SAlloc::M so we don't step on dbc's rdata memory.
 		 */
 		memzero(&ldata, sizeof(DBT));
 		F_SET(&ldata, DB_DBT_MALLOC);
@@ -675,7 +675,7 @@ static int __db_join_getnext(DBC * dbc, DBT * key, DBT * data, uint32 exhausted,
 		if(cmp == 0) {
 			/*
 			 * We have to return the real data value.  Copy
-			 * it into data, then free the buffer we malloc'ed
+			 * it into data, then free the buffer we SAlloc::M'ed
 			 * above.
 			 */
 			if((ret = __db_retcopy(dbp->env, data, ldata.data, ldata.size, &data->data, &data->size)) != 0)

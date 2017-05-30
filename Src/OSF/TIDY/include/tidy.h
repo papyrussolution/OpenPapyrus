@@ -363,7 +363,7 @@ extern "C" {
 #include <string.h>
 #include <assert.h>
 #ifdef NEEDS_MALLOC_H
-	#include <malloc.h>
+	#include <SAlloc::M.h>
 #endif
 #ifdef SUPPORT_GETPWNAM
 	#include <pwd.h>
@@ -1161,7 +1161,7 @@ typedef struct _TidyBuffer TidyBuffer;
 ** Tidy uses a user provided allocator for all
 ** memory allocations.  If this allocator is
 ** not provided, then a default allocator is
-** used which simply wraps standard C malloc/free
+** used which simply wraps standard C SAlloc::M/free
 ** calls.  These wrappers call the panic function
 ** upon any failure.  The default panic function
 ** prints an out of memory message to stderr, and
@@ -1282,7 +1282,7 @@ struct _TidyAllocator {
 	const TidyAllocatorVtbl * vtbl;
 };
 
-/** Callback for "malloc" replacement */
+/** Callback for "SAlloc::M" replacement */
 typedef void* (TIDY_CALL *TidyMalloc)(size_t len);
 /** Callback for "realloc" replacement */
 typedef void* (TIDY_CALL *TidyRealloc)(void* buf, size_t len);
@@ -1291,7 +1291,7 @@ typedef void (TIDY_CALL *TidyFree)(void* buf);
 /** Callback for "out of memory" panic state */
 typedef void (TIDY_CALL *TidyPanic)(ctmbstr mssg);
 
-/** Give Tidy a malloc() replacement */
+/** Give Tidy a SAlloc::M() replacement */
 TIDY_EXPORT bool TIDY_CALL tidySetMallocCall(TidyMalloc fmalloc);
 /** Give Tidy a realloc() replacement */
 TIDY_EXPORT bool TIDY_CALL tidySetReallocCall(TidyRealloc frealloc);

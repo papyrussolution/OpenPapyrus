@@ -175,7 +175,7 @@ static pixman_fixed_t * create_1d_filter(int * width, pixman_kernel_t reconstruc
 	double step;
 	double size = scale * filters[sample].width + filters[reconstruct].width;
 	*width = (int)ceil(size);
-	p = params = (pixman_fixed_t *)malloc(*width * n_phases * sizeof(pixman_fixed_t));
+	p = params = (pixman_fixed_t *)SAlloc::M(*width * n_phases * sizeof(pixman_fixed_t));
 	if(!params)
 		return NULL;
 	step = 1.0 / n_phases;
@@ -246,7 +246,7 @@ PIXMAN_EXPORT pixman_fixed_t * pixman_filter_create_separable_convolution(int   
 	if(!horz || !vert)
 		goto out;
 	*n_values = 4 + width * subsample_x + height * subsample_y;
-	params = (pixman_fixed_t *)malloc(*n_values * sizeof(pixman_fixed_t));
+	params = (pixman_fixed_t *)SAlloc::M(*n_values * sizeof(pixman_fixed_t));
 	if(!params)
 		goto out;
 	params[0] = pixman_int_to_fixed(width);
@@ -256,8 +256,8 @@ PIXMAN_EXPORT pixman_fixed_t * pixman_filter_create_separable_convolution(int   
 	memcpy(params + 4, horz, width * subsample_x * sizeof(pixman_fixed_t));
 	memcpy(params + 4 + width * subsample_x, vert, height * subsample_y * sizeof(pixman_fixed_t));
 out:
-	free(horz);
-	free(vert);
+	SAlloc::F(horz);
+	SAlloc::F(vert);
 	return params;
 }
 

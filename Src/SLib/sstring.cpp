@@ -1389,18 +1389,18 @@ int FASTCALL SString::Alloc(size_t sz)
 		char * p = 0;
 		if((7 * Size) < (8 * L)) { // Assume probability of a non-moving realloc is 0.125
 			// If L is close to Size in size then use realloc to reduce the memory defragmentation
-			p = (char *)realloc(P_Buf, new_size);
+			p = (char *)SAlloc::R(P_Buf, new_size);
 		}
 		else {
 			// If L is not close to Size then avoid the penalty of copying
 			// the extra bytes that are allocated, but not considered part of the string
-			p = (char *)malloc(new_size);
+			p = (char *)SAlloc::M(new_size);
 			if(!p)
-				p = (char *)realloc(P_Buf, new_size);
+				p = (char *)SAlloc::R(P_Buf, new_size);
 			else {
 				if(L)
 					memcpy(p, P_Buf, L);
-				free(P_Buf);
+				SAlloc::F(P_Buf);
 			}
 		}
 		if(p) {
@@ -1539,7 +1539,7 @@ BSTR FASTCALL SString::CopyToOleStr(BSTR * pBuf) const
 {
 	size_t wbuflen = Len()+1;
 	WCHAR  wname_stk_buf[256];
-	WCHAR * p_wname = (wbuflen > SIZEOFARRAY(wname_stk_buf)) ? (WCHAR *)malloc(wbuflen * sizeof(WCHAR)) : wname_stk_buf;
+	WCHAR * p_wname = (wbuflen > SIZEOFARRAY(wname_stk_buf)) ? (WCHAR *)SAlloc::M(wbuflen * sizeof(WCHAR)) : wname_stk_buf;
 	if(p_wname) {
 		p_wname[0] = 0;
 #ifndef _WIN32_WCE // {
@@ -1551,7 +1551,7 @@ BSTR FASTCALL SString::CopyToOleStr(BSTR * pBuf) const
 #endif // } _WIN32_WCE
 	}
 	if(p_wname != wname_stk_buf)
-		free(p_wname);
+		SAlloc::F(p_wname);
 	return *pBuf;
 }
 
@@ -1862,7 +1862,7 @@ char * json_escape(const char * text)
 
 char * json_unescape(char * text)
 {
-	char * result = (char *)malloc(strlen(text) + 1);
+	char * result = (char *)SAlloc::M(strlen(text) + 1);
 	size_t r; // read cursor
 	size_t w; // write cursor
 	assert(text);
@@ -3576,18 +3576,18 @@ int FASTCALL SStringU::Alloc(size_t sz)
 		wchar_t * p = 0;
 		if((7 * Size) < (8 * L)) { // Assume probability of a non-moving realloc is 0.125
 			// If L is close to Size in size then use realloc to reduce the memory defragmentation
-			p = (wchar_t *)realloc(P_Buf, new_size*sizeof(wchar_t));
+			p = (wchar_t *)SAlloc::R(P_Buf, new_size*sizeof(wchar_t));
 		}
 		else {
 			// If L is not close to Size then avoid the penalty of copying
 			// the extra bytes that are allocated, but not considered part of the string
-			p = (wchar_t *)malloc(new_size*sizeof(wchar_t));
+			p = (wchar_t *)SAlloc::M(new_size*sizeof(wchar_t));
 			if(!p)
-				p = (wchar_t *)realloc(P_Buf, new_size*sizeof(wchar_t));
+				p = (wchar_t *)SAlloc::R(P_Buf, new_size*sizeof(wchar_t));
 			else {
 				if(L)
 					memcpy(p, P_Buf, L*sizeof(wchar_t));
-				free(P_Buf);
+				SAlloc::F(P_Buf);
 			}
 		}
 		if(p) {

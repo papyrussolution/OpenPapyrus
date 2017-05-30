@@ -344,7 +344,8 @@
 			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
-				Name="VCCLCompilerTool"/>
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..\OSF\BDB;..\OSF\BDB\dbinc;..\OSF\BDB\buildinc\windows;..\include"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool

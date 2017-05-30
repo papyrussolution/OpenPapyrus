@@ -146,7 +146,7 @@ static inline void pqueue_init(pqueue_t * pq)
 static inline void pqueue_fini(pqueue_t * pq)
 {
 	if(pq->elements != pq->elements_embedded)
-		free(pq->elements);
+		SAlloc::F(pq->elements);
 }
 
 static cairo_bool_t pqueue_grow(pqueue_t * pq)
@@ -631,7 +631,7 @@ cairo_status_t _cairo_boxes_intersect(const cairo_boxes_t * a, const cairo_boxes
 	_cairo_boxes_clear(out);
 	status = intersect(rectangles_ptrs, j, out);
 	if(rectangles != stack_rectangles)
-		free(rectangles);
+		SAlloc::F(rectangles);
 
 	return status;
 }

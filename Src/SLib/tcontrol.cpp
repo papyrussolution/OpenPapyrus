@@ -254,8 +254,7 @@ int TButton::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void TButton::drawState(bool down)
 {
-	// @v9.1.5 ::SendDlgItemMessage(Parent, Id, WM_SETTEXT, 0, (LPARAM)(const char *)Title);
-	TView::SSetWindowText(GetDlgItem(Parent, Id), Title); // @v9.1.5
+	TView::SSetWindowText(GetDlgItem(Parent, Id), Title);
 }
 
 IMPL_HANDLE_EVENT(TButton)

@@ -237,7 +237,7 @@ int _cairo_utf8_get_char_validated(const char * p, uint32_t * unicode)
  *   If @len is supplied and the string has an embedded nul
  *   byte, only the portion before the nul byte is converted.
  * @result: location to store a pointer to a newly allocated UTF-32
- *   string (always native endian), or %NULL. Free with free(). A 0
+ *   string (always native endian), or %NULL. Free with SAlloc::F(). A 0
  *   word will be written after the last character.
  * @items_written: location to store number of 32-bit words
  *   written. (Not including the trailing 0)
@@ -346,7 +346,7 @@ int _cairo_ucs4_to_utf8(uint32_t unicode, char * utf8)
  *   If @len is supplied and the string has an embedded nul
  *   byte, only the portion before the nul byte is converted.
  * @result: location to store a pointer to a newly allocated UTF-16
- *   string (always native endian). Free with free(). A 0
+ *   string (always native endian). Free with SAlloc::F(). A 0
  *   word will be written after the last character.
  * @items_written: location to store number of 16-bit words
  *   written. (Not including the trailing 0)

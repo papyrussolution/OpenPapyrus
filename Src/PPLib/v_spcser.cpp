@@ -110,7 +110,7 @@ int SLAPI PPViewSpecSeries::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewSpecSeries::NextIteration(SpecSeriesViewItem * pItem)
+int FASTCALL PPViewSpecSeries::NextIteration(SpecSeriesViewItem * pItem)
 {
 	int    ok = -1;
 	if(P_IterQuery->nextIteration() > 0) {

@@ -144,7 +144,7 @@ int SLAPI SDirec::FindClose()
 
 SLAPI SDirec::~SDirec()
 {
-	free(vPosData);
+	SAlloc::F(vPosData);
 }
 
 int SLAPI SDirec::Init(const char * pPathName, int enumDir)
@@ -153,8 +153,8 @@ int SLAPI SDirec::Init(const char * pPathName, int enumDir)
 	STRNSCPY(InitPath, pPathName);
 	InitFlag = 1;
 	EnumDir = enumDir;
-	free(vPosData);
-	vPosData = malloc(PosDataSize = sizeof(FFIND_DATA));
+	SAlloc::F(vPosData);
+	vPosData = SAlloc::M(PosDataSize = sizeof(FFIND_DATA));
 	return 1;
 }
 

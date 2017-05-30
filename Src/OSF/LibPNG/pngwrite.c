@@ -463,10 +463,10 @@ PNG_FUNCTION(png_structp, PNGAPI
 {
 #ifndef PNG_USER_MEM_SUPPORTED
 	png_structrp png_ptr = png_create_png_struct(user_png_ver, error_ptr,
-	    error_fn, warn_fn, NULL, NULL, NULL);
+	    error_fn, warn_fn, 0, 0, 0);
 #else
 	return png_create_write_struct_2(user_png_ver, error_ptr, error_fn,
-	    warn_fn, NULL, NULL, NULL);
+	    warn_fn, 0, 0, 0);
 }
 
 /* Alternate initialize png_ptr structure, and allocate any memory needed */
@@ -525,7 +525,7 @@ PNG_FUNCTION(png_structp, PNGAPI
 		 * do it itself) avoiding setting the default function if it is not
 		 * required.
 		 */
-		png_set_write_fn(png_ptr, NULL, NULL, NULL);
+		png_set_write_fn(png_ptr, 0, 0, 0);
 	}
 
 	return png_ptr;

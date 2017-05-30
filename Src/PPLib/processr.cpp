@@ -890,7 +890,7 @@ int SLAPI PPObjProcessor::PutExtention(PPID id, PPProcessorPacket::ExtBlock * pE
 		SString stub_extsting;
 		const size_t ext_str_len = stub_extsting.NotEmpty() ? (stub_extsting.Len() + 1) : 0;
 		sz = sizeof(Strg_ProcessorExt) + ext_str_len;
-		THROW_MEM(p_strg = (Strg_ProcessorExt *)malloc(sz));
+		THROW_MEM(p_strg = (Strg_ProcessorExt *)SAlloc::M(sz));
 		memzero(p_strg, sz);
 		p_strg->Ver = DS.GetVersion();
 		p_strg->CheckInTime = pExt->CheckInTime;
@@ -937,7 +937,7 @@ int SLAPI PPObjProcessor::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pE
 	else if(PPRef->GetPropActualSize(Obj, id, PRCPRP_EXT, &sz) > 0) {
 		if(pExt) {
 			SString stub_extsting;
-			p_strg = (Strg_ProcessorExt *)malloc(sz);
+			p_strg = (Strg_ProcessorExt *)SAlloc::M(sz);
 			ok = PPRef->GetProp(Obj, id, PRCPRP_EXT, p_strg, sz);
 			assert(ok > 0); // Раз нам удалось считать размер буфера, то последующая ошибка чтения - критична
 			THROW(ok > 0);
@@ -953,7 +953,7 @@ int SLAPI PPObjProcessor::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pE
 		ok = 2;
 	}
 	CATCHZOK
-	free(p_strg);
+	SAlloc::F(p_strg);
 	return ok;
 }
 
@@ -2000,7 +2000,7 @@ int SLAPI PPViewProcessor::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewProcessor::NextIteration(ProcessorViewItem * pItem)
+int FASTCALL PPViewProcessor::NextIteration(ProcessorViewItem * pItem)
 {
 	while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		PrcObj.P_Tbl->copyBufTo(pItem);
@@ -2284,7 +2284,7 @@ int PPALDD_ProcessorView::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(Processor);
 }
 
-int PPALDD_ProcessorView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_ProcessorView::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(Processor);
 	I.PrcID    = item.ID;
@@ -2380,7 +2380,7 @@ int PPALDD_UhttProcessor::InitIteration(long iterId, int sortId, long rsrv)
 	return 1;
 }
 
-int PPALDD_UhttProcessor::NextIteration(long iterId, long rsrv)
+int PPALDD_UhttProcessor::NextIteration(long iterId)
 {
 	int     ok = -1;
 	SString temp_buf;
@@ -2392,7 +2392,7 @@ int PPALDD_UhttProcessor::NextIteration(long iterId, long rsrv)
             I_Places.GoodsID = pd_item.GoodsID;
             STRNSCPY(I_Places.Range, pd_item.Range);
             STRNSCPY(I_Places.Descr, pd_item.Descr);
-			ok = DlRtm::NextIteration(iterId, rsrv);
+			ok = DlRtm::NextIteration(iterId);
 		}
 	}
 	return ok;

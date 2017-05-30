@@ -212,7 +212,7 @@ static cairo_status_t _create_dc_and_bitmap(cairo_win32_display_surface_t * surf
 	if(!surface->saved_dc_bitmap)
 		goto FAIL;
 	if(bitmap_info && num_palette > 2)
-		free(bitmap_info);
+		SAlloc::F(bitmap_info);
 	if(bits_out)
 		*bits_out = (uchar *)bits;
 	if(rowstride_out) {
@@ -239,7 +239,7 @@ static cairo_status_t _create_dc_and_bitmap(cairo_win32_display_surface_t * surf
 FAIL:
 	status = _cairo_win32_print_gdi_error(__FUNCTION__);
 	if(bitmap_info && num_palette > 2)
-		free(bitmap_info);
+		SAlloc::F(bitmap_info);
 	if(surface->saved_dc_bitmap) {
 		SelectObject(surface->win32.dc, surface->saved_dc_bitmap);
 		surface->saved_dc_bitmap = NULL;
@@ -262,7 +262,7 @@ static cairo_surface_t * _cairo_win32_display_surface_create_for_dc(HDC original
 	cairo_device_t * device;
 	uchar * bits;
 	int rowstride;
-	cairo_win32_display_surface_t * surface = (cairo_win32_display_surface_t *)malloc(sizeof(*surface));
+	cairo_win32_display_surface_t * surface = (cairo_win32_display_surface_t *)SAlloc::M(sizeof(*surface));
 	if(surface == NULL)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	surface->fallback = NULL;
@@ -291,7 +291,7 @@ FAIL:
 		DeleteObject(surface->bitmap);
 		DeleteDC(surface->win32.dc);
 	}
-	free(surface);
+	SAlloc::F(surface);
 	return _cairo_surface_create_in_error(status);
 }
 
@@ -540,7 +540,7 @@ cairo_status_t _cairo_win32_display_surface_set_clip(cairo_win32_display_surface
 	 */
 	data_size = sizeof(RGNDATAHEADER) + num_rects * sizeof(RECT);
 	if(data_size > sizeof(stack)) {
-		data = (RGNDATA *)malloc(data_size);
+		data = (RGNDATA *)SAlloc::M(data_size);
 		if(!data)
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -565,7 +565,7 @@ cairo_status_t _cairo_win32_display_surface_set_clip(cairo_win32_display_surface
 	}
 	gdi_region = ExtCreateRegion(NULL, data_size, data);
 	if((char*)data != stack)
-		free(data);
+		SAlloc::F(data);
 	if(!gdi_region)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	// AND the new region into our DC 
@@ -730,12 +730,12 @@ cairo_surface_t * cairo_win32_surface_create(HDC hdc)
 	cairo_device_t * device;
 	// Assume that everything coming in as a HDC is RGB24 
 	cairo_format_t format = CAIRO_FORMAT_RGB24;
-	cairo_win32_display_surface_t * surface = (cairo_win32_display_surface_t * )malloc(sizeof(*surface));
+	cairo_win32_display_surface_t * surface = (cairo_win32_display_surface_t * )SAlloc::M(sizeof(*surface));
 	if(surface == NULL)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	status = _cairo_win32_save_initial_clip(hdc, surface);
 	if(status) {
-		free(surface);
+		SAlloc::F(surface);
 		return _cairo_surface_create_in_error(status);
 	}
 	CAIRO_MUTEX_INITIALIZE(); // @sobolev

@@ -114,7 +114,7 @@ cairo_output_stream_t * _cairo_deflate_stream_create(cairo_output_stream_t * out
 	cairo_deflate_stream_t * stream;
 	if(output->status)
 		return _cairo_output_stream_create_in_error(output->status);
-	stream = (cairo_deflate_stream_t *)malloc(sizeof(cairo_deflate_stream_t));
+	stream = (cairo_deflate_stream_t *)SAlloc::M(sizeof(cairo_deflate_stream_t));
 	if(unlikely(stream == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
@@ -131,7 +131,7 @@ cairo_output_stream_t * _cairo_deflate_stream_create(cairo_output_stream_t * out
 	stream->zlib_stream.opaque  = Z_NULL;
 
 	if(deflateInit(&stream->zlib_stream, Z_DEFAULT_COMPRESSION) != Z_OK) {
-		free(stream);
+		SAlloc::F(stream);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
 	}
 

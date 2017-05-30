@@ -1976,7 +1976,7 @@ int SrDatabase::Open(const char * pDbPath)
 	cfg.MaxLocks    = 128*1024; // @v9.6.4
 	cfg.MaxLockObjs = 128*1024; // @v9.6.4
 	cfg.LogBufSize  = 8*1024*1024;
-	// @v9.6.7 cfg.LogFileSize = 256 * 1024 * 1024;
+	cfg.LogFileSize = 256 * 1024 * 1024;
 	//cfg.LogSubDir = "LOG";
 	cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove/*|cfg.fLogInMemory*/); // @v9.6.6
 	Close();
@@ -3017,6 +3017,74 @@ SrGeoNodeTbl::~SrGeoNodeTbl()
 {
 }
 
+IMPL_CMPCFUNC(PPOsm_Node_ByWay, p1, p2)
+{
+	uint64 id1 = *(uint64 *)p1;
+	uint64 id2 = *(uint64 *)p2;
+	uint   pos1 = 0;
+	uint   pos2 = 0;
+	const PPOsm::Way * p_way = pExtraData ? (const PPOsm::Way *)pExtraData : 0;
+    if(p_way) {
+        if(!p_way->NodeRefs.lsearch(id1, &pos1))
+			pos1 = UINT_MAX;
+        if(!p_way->NodeRefs.lsearch(id2, &pos2))
+			pos2 = UINT_MAX;
+    }
+	else {
+		pos1 = UINT_MAX;
+		pos2 = UINT_MAX;
+	}
+    return CMPSIGN(pos1, pos2);
+}
+
+int SLAPI SrGeoNodeTbl::GetWayNodes(const PPOsm::Way & rWay, TSArray <PPOsm::Node> & rNodeList)
+{
+	int    ok = -1;
+	const  uint _c = rWay.NodeRefs.getCount();
+
+	rNodeList.clear();
+	PPOsm::NodeCluster clu;
+	TSArray <PPOsm::Node> clu_node_list;
+	UintHashTable processed_pos_list;
+	//
+	// Для замкнутого контура последняя точка равна первой - просто добавим ее в список в самом конце функции
+	//
+	const int is_contur = BIN(_c > 1 && rWay.NodeRefs.get(_c-1) == rWay.NodeRefs.get(0));
+	if(is_contur)
+		processed_pos_list.Add(_c-1);
+    for(uint i = 0; i < _c; i++) {
+		if(!processed_pos_list.Has(i)) {
+			const uint64 node_id = (uint64)rWay.NodeRefs.get(i);
+			uint64 logical_id = 0;
+			PPOsm::Node node;
+			if(Helper_Search(node_id, &clu, &node, 0, &logical_id) > 0) {
+				rNodeList.insert(&node);
+				processed_pos_list.Add(i);
+				clu.Get(logical_id, clu_node_list, 0);
+				for(uint k = 0; k < clu_node_list.getCount(); k++) {
+					const PPOsm::Node & r_node = clu_node_list.at(k);
+					uint  w_pos = 0;
+					if(r_node.ID != node.ID && rWay.NodeRefs.lsearch(r_node.ID, &w_pos) && !processed_pos_list.Has(w_pos)) {
+						rNodeList.insert(&r_node);
+						processed_pos_list.Add(w_pos);
+					}
+				}
+			}
+		}
+    }
+    rNodeList.sort(PTR_CMPCFUNC(PPOsm_Node_ByWay), (void *)&rWay); // @badcast
+	//
+	// Последнюю точку контура вставляем после сортировки - иначе сортировка сбойнет (вда одинаковых идентификатора)
+	//
+	if(is_contur) {
+		const PPOsm::Node & r_first_node = clu_node_list.at(0);
+		rNodeList.insert(&r_first_node);
+	}
+    if(rNodeList.getCount() == rWay.NodeRefs.getCount())
+		ok = 1;
+    return ok;
+}
+
 int SLAPI SrGeoNodeTbl::Search(uint64 id, PPOsm::Node * pNode, PPOsm::NodeRefs * pNrList, uint64 * pLogicalID)
 {
 	return Helper_Search(id, 0, pNode, pNrList, pLogicalID);
@@ -4042,11 +4110,11 @@ int SrDatabase::FormatProp(const SrCProp & rCp, long flags, SString & rBuf)
 	return 1;
 }
 
-int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, TSArray <PPOsm::NodeClusterStatEntry> * pStat)
+int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, TSArray <PPOsm::NodeClusterStatEntry> * pStat)
 {
 	const  uint max_cluster_per_tx = 1*1024; // 40-->1
 	const  int  use_transaction = 1;
-	const  int  use_outer_id = 1;
+	//const  int  use_outer_id = 1;
 	int    ok = 1;
 	const  uint _count = rList.getCount();
 	if(_count) {
@@ -4055,27 +4123,22 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, TSArray <P
 		TSArray <PPOsm::Node> test_list;
 		PPOsm::NodeCluster ex_cluster;
 		TSArray <PPOsm::Node> ex_list;
+		uint   next_node_to_way_assc_pos = 0;
 		size_t offs = 0;
 		{
 			while(offs < _count) {
-				size_t actual_count = 0;
-				const PPOsm::Node * p_node = &rList.at(offs);
+				uint   actual_count_ = 0;
+				const  PPOsm::Node * p_node = &rList.at(offs);
                 uint64 fault_logical_id = 0;
                 PPOsm::Node found_node;
 				//int   sr = P_GnT->Search(p_node->ID, &found_node, 0, &fault_logical_id);
 				int   sr = P_GnT->Search(p_node->ID, &ex_cluster, &fault_logical_id);
 				THROW(sr);
 				if(sr > 0) {
-					/*
-					assert(found_node == *p_node);
-					actual_count = 1;
-					if(pStat) {
-						PPOsm::SetProcessedNodeStat((uint)sr, 1, *pStat);
-					}
-					*/
 					{
 						uint   ex_count_logic = 0;
 						uint   ex_count_actual = 0;
+						ex_list.clear();
 						assert(ex_cluster.Get(fault_logical_id, ex_list, 0, 0, &ex_count_logic, &ex_count_actual));
 						for(uint   forward_idx = offs; forward_idx < _count; forward_idx++) {
 							uint64 forward_id = rList.at(forward_idx).ID;
@@ -4085,11 +4148,11 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, TSArray <P
 								if(pStat) {
 									PPOsm::SetProcessedNodeStat((uint)ex_count_logic, 1, *pStat);
 								}
-								actual_count++;
+								actual_count_++;
 							}
 							else {
-								assert(actual_count);
-								if(!actual_count)
+								assert(actual_count_);
+								if(!actual_count_)
 									sr = -1;
 								break;
 							}
@@ -4099,35 +4162,33 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, TSArray <P
 				if(sr < 0) {
 					assert(fault_logical_id == 0);
 					uint64 outer_id = 0;
+					PPOsm::NodeCluster::Put__Param  clu_put_param(p_node, _count - offs);
+					PPOsm::NodeCluster::Put__Result clu_put_result;
 					PPOsm::NodeCluster * p_cluster = cluster_list.CreateNewItem();
 					THROW(p_cluster);
-					if(use_outer_id) {
-						THROW(p_cluster->Put__(p_node, 0 /*NodeRefs*/, _count - offs, &outer_id, &actual_count, 0));
-						THROW(outer_id_list.insert(&outer_id));
-						assert(outer_id_list.getCount() == cluster_list.getCount());
+					if(pNodeToWayAsscList && next_node_to_way_assc_pos < pNodeToWayAsscList->getCount()) {
+						clu_put_param.P_NrWayRefs = &pNodeToWayAsscList->at(next_node_to_way_assc_pos);
+						clu_put_param.NrWayRefsCount = pNodeToWayAsscList->getCount() - next_node_to_way_assc_pos;
 					}
-					else {
-						THROW(p_cluster->Put__(p_node, 0 /*NodeRefs*/, _count - offs, 0, &actual_count, 0));
-					}
+					THROW(p_cluster->Put__(clu_put_param, &outer_id, &clu_put_result, 0));
+					THROW(outer_id_list.insert(&outer_id));
+					actual_count_ = clu_put_result.ActualCount;
+					assert(outer_id_list.getCount() == cluster_list.getCount());
+					next_node_to_way_assc_pos += clu_put_result.NrWayShift;
 					if(pStat) {
 						PPOsm::SetNodeClusterStat(*p_cluster, *pStat);
 					}
 					// @debug {
 					{
 						test_list.clear();
-						if(use_outer_id) {
-							p_cluster->Get(outer_id, test_list, 0 /*NodeRefs*/);
-						}
-						else {
-							p_cluster->Get(0, test_list, 0 /*NodeRefs*/);
-						}
+						p_cluster->Get(outer_id, test_list, 0 /*NodeRefs*/);
 						for(uint i = 0; i < test_list.getCount(); i++) {
 							assert(test_list.at(i) == p_node[i]);
 						}
 					}
 					// } @debug
 				}
-				offs += actual_count;
+				offs += actual_count_;
 				if(cluster_list.getCount() >= max_cluster_per_tx) {
 					assert(outer_id_list.getCount() == cluster_list.getCount());
 					PROFILE_START
@@ -4135,13 +4196,8 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, TSArray <P
 					THROW(tra);
 					for(uint i = 0; i < cluster_list.getCount(); i++) {
 						PPOsm::NodeCluster * p_item = cluster_list.at(i);
-						if(use_outer_id) {
-							uint64 local_outer_id = outer_id_list.at(i);
-							THROW(P_GnT->Add(*p_item, local_outer_id));
-						}
-						else {
-							THROW(P_GnT->Add(*p_item, 0));
-						}
+						uint64 local_outer_id = outer_id_list.at(i);
+						THROW(P_GnT->Add(*p_item, local_outer_id));
 					}
 					THROW(tra.Commit());
 					PROFILE_END
@@ -4157,13 +4213,8 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, TSArray <P
 				THROW(tra);
 				for(uint i = 0; i < cluster_list.getCount(); i++) {
 					PPOsm::NodeCluster * p_item = cluster_list.at(i);
-					if(use_outer_id) {
-						uint64 local_outer_id = outer_id_list.at(i);
-						THROW(P_GnT->Add(*p_item, local_outer_id));
-					}
-					else {
-						THROW(P_GnT->Add(*p_item, 0));
-					}
+					uint64 local_outer_id = outer_id_list.at(i);
+					THROW(P_GnT->Add(*p_item, local_outer_id));
 				}
 				THROW(tra.Commit());
 				PROFILE_END
@@ -4221,11 +4272,16 @@ int SrDatabase::StoreGeoNodeWayRefList(const LLAssocArray & rList)
 					}
 					{
 						uint64 _outer_id = _logical_id;
-						size_t _actual_count = 0;
+						PPOsm::NodeCluster::Put__Param  clu_put_param(&node_list.at(0), node_list.getCount());
+						PPOsm::NodeCluster::Put__Result clu_put_result;
 						ref_list.Sort();
-						THROW(nc.Put__(&node_list.at(0), &ref_list, node_list.getCount(), &_outer_id, &_actual_count, _force_logical_count));
+						clu_put_param.P_NrWayRefs = &ref_list.WayRefs.at(0);
+						clu_put_param.NrWayRefsCount = ref_list.WayRefs.getCount();
+						clu_put_param.P_NrRelRefs = &ref_list.RelRefs.at(0);
+						clu_put_param.NrRelRefsCount = ref_list.RelRefs.getCount();
+						THROW(nc.Put__(clu_put_param, &_outer_id, &clu_put_result, _force_logical_count));
 						assert(_outer_id == _logical_id);
-						assert(_actual_count == node_list.getCount());
+						assert(clu_put_result.ActualCount == node_list.getCount());
 					}
 					{
 						//

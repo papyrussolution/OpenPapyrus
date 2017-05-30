@@ -183,7 +183,7 @@ void main(int argc, char ** argv)
 		(fname = path).SetLastSlash().Cat("cfg.ini");
 		if(cmdl_buf.CmpNC("install") == 0 || cmdl_buf.CmpNC("-install") == 0 || cmdl_buf.CmpNC("/install") == 0) {
 			SIniFile ini_file(fname, (fileExists(fname)) ? 0 : 1, 0);
-			if(ini_file.Valid()) {
+			if(ini_file.IsValid()) {
 				char key_buf[MAXPATH];
 				WinRegKey reg_key(HKEY_LOCAL_MACHINE, p_reg_autostart, 0);
 
@@ -205,7 +205,7 @@ void main(int argc, char ** argv)
 		}
 		else if(cmdl_buf.CmpNC("restore") == 0 || cmdl_buf.CmpNC("-restore") == 0 || cmdl_buf.CmpNC("/restore") == 0) {
 			SIniFile ini_file(fname);
-			if(ini_file.Valid()) {
+			if(ini_file.IsValid()) {
 				WinRegKey reg_key(HKEY_LOCAL_MACHINE, p_reg_autostart, 0);
 				ini_file.GetParam(p_ini_sect, p_ini_param, (fname = 0));
 				reg_key.PutString(p_reg_def_mgr, fname);

@@ -234,7 +234,7 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, PPNaturalTokenArray & rRe
 			if(stat.Len == 36) {
 				uint   pos = 0;
 				long   val = 0;
-				if(chr_list.Search((long)'-', &val, &pos, 1) && val == 4) {
+				if(chr_list.BSearch((long)'-', &val, &pos) && val == 4) {
 					rResultList.Add(PPNTOK_GUID, 1.0f);
 				}
 			}
@@ -243,7 +243,7 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, PPNaturalTokenArray & rRe
 			if(h & hAscii) {
 				uint   pos = 0;
 				long   val = 0;
-                if(chr_list.Search((long)'@', &val, &pos, 1) && val == 1 && InitReEmail() && P_ReEMail->Find((const char *)pToken)) {
+                if(chr_list.BSearch((long)'@', &val, &pos) && val == 1 && InitReEmail() && P_ReEMail->Find((const char *)pToken)) {
 					size_t _offs = P_ReEMail->start();
 					size_t _len = P_ReEMail->end() - P_ReEMail->start();
 					if(_offs == 0 && _len == stat.Len)
@@ -5456,7 +5456,7 @@ int FASTCALL SCodepageMapPool::TranslIndex::Copy(const SCodepageMapPool::TranslI
 	Flags = rS.Flags;
 	Count = rS.Count;
 	const size_t entry_size = GetEntrySize();
-	P_Tab = malloc(Count * entry_size);
+	P_Tab = SAlloc::M(Count * entry_size);
 	if(P_Tab) {
 		memcpy(P_Tab, rS.P_Tab, Count * entry_size);
 	}
@@ -5496,7 +5496,7 @@ int SLAPI SCodepageMapPool::TranslIndex::Setup(const SCodepageMapPool::CMapTrans
 		const size_t maxdlen = DL;
 		Count = 256 - IdenticalCount;
 		assert(rIdx.getCount() <= 256);
-		THROW_MEM(P_Tab = calloc(Count, entry_size));
+		THROW_MEM(P_Tab = SAlloc::C(Count, entry_size));
 		for(uint j = 0; j < rIdx.getCount(); j++) {
 			const CMapTranslEntry & r_tcm_entry = rIdx.at(j);
 			const uint _p = r_tcm_entry.S[0];
@@ -5529,7 +5529,7 @@ int SLAPI SCodepageMapPool::TranslIndex::Setup(const SCodepageMapPool::CMapTrans
 		Count = (rIdx.SuccCount + rIdx.FallbackCount)/* - IdenticalCount*/;
 		size_t tab_ptr = 0;
 		uint   running_count = 0;
-		THROW_MEM(P_Tab = calloc(Count, entry_size));
+		THROW_MEM(P_Tab = SAlloc::C(Count, entry_size));
 		for(uint j = 0; j < rIdx.getCount(); j++) {
 			const CMapTranslEntry & r_tcm_entry = rIdx.at(j);
 			assert(!(r_tcm_entry.F & r_tcm_entry.fEqual) || (j == 0 || rIdx.at(j).F & CMapTranslEntry::fEqual));

@@ -18,7 +18,7 @@ SLAPI CS_1::CS_1(PPID n) : PPAsyncCashSession(n)
 
 SLAPI CS_1::~CS_1()
 {
-	free(P_Entries);
+	SAlloc::F(P_Entries);
 }
 
 int SLAPI CS_1::GetFileSet(char *, uint filesPerSet)
@@ -41,7 +41,7 @@ int SLAPI CS_1::GetFileSet(char *, uint filesPerSet)
 				uint   j = 0;
 				StringSet ss2(',', temp_buf);
 				++NumEntries;
-				THROW_MEM(P_Entries = (InFiles *)realloc(P_Entries, NumEntries * sizeof(InFiles)));
+				THROW_MEM(P_Entries = (InFiles *)SAlloc::R(P_Entries, NumEntries * sizeof(InFiles)));
 				for(uint k = 0; ss2.get(&k, temp_buf);) {
 					THROW_PP(temp_buf.NotEmptyS(), PPERR_INVFILESET);
 					ps.Split(temp_buf);

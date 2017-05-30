@@ -533,6 +533,7 @@ int CCheckFiltDialog::getDTS(CCheckFilt * pFilt)
 		Data.NodeList = cn_rec.List;
 	}
 	getCtrlData(CTL_CCHECKFLT_CASHN, &Data.CashNumber);
+	Data.CodeR.Set(0); // @v9.6.8 при пустой строке диапазон не меняется
 	GetIntRangeInput(this, CTL_CCHECKFLT_CODERANGE, &Data.CodeR);
 	GetClusterData(CTL_CCHECKFLT_FLAGS, &Data.Flags);
 	getGroupData(GRP_GOODSFILT, &grp_rec);
@@ -548,7 +549,7 @@ int CCheckFiltDialog::getDTS(CCheckFilt * pFilt)
 	getCtrlData(CTL_CCHECKFLT_TABLECODE, &Data.TableCode);
 	Data.Grp = (CCheckFilt::Grouping)getCtrlLong(CTLSEL_CCHECKFLT_GRP);
 	if(oneof3(Data.Grp, CCheckFilt::gAmount, CCheckFilt::gQtty, CCheckFilt::gAmountNGoods)) {
-		double min_amt_qtty = (Data.Grp == CCheckFilt::gQtty) ? 0.01 : 0.1;
+		const double min_amt_qtty = (Data.Grp == CCheckFilt::gQtty) ? 0.01 : 0.1;
 		getCtrlData(CTL_CCHECKFLT_AMTQUANT, &Data.AmountQuant);
 		if(Data.AmountQuant < min_amt_qtty)
 			ok = PPErrorByDialog(this, CTL_CCHECKFLT_AMTQUANT, PPERR_USERINPUT);
@@ -1892,7 +1893,7 @@ int SLAPI PPViewCCheck::InitIteration(int order)
 	return ok;
 }
 
-int SLAPI PPViewCCheck::NextIteration(CCheckViewItem * pItem)
+int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 {
 	int    ok = -1;
 	if(pItem) {
@@ -2715,7 +2716,7 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 				p_la_ary = (LAssocArray *)laa_ary[ary_no];
 				p_goods_ary = 0;
 				if(p_la_ary) {
-					if(p_la_ary->Search(goods1, (long *)&p_goods_ary, 0, 1))
+					if(p_la_ary->BSearch(goods1, (long *)&p_goods_ary, 0))
 						ary_is_found = 1;
 				}
 				else {
@@ -2728,7 +2729,7 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 					THROW_SL(p_la_ary->Add(goods1, (long)p_goods_ary, 0, 1));
 					ary_count++;
 				}
-				if(p_goods_ary->Search(goods2, 0, &goods2_pos, 1)) {
+				if(p_goods_ary->BSearch(goods2, 0, &goods2_pos)) {
 					ulong  corr = ++p_goods_ary->at(goods2_pos).Val;
 					max_corr = MAX(max_corr, corr);
 				}
@@ -2738,7 +2739,7 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 				}
 				ins_count++;
 			}
-			if(goods_chk_ary.Search(p_gds_qtty1->Key, 0, &(goods_chk_pos = 0), 1) > 0) // Количество чеков в которых встречается ведомый товар, будем хранить в отдельном массиве
+			if(goods_chk_ary.BSearch(p_gds_qtty1->Key, 0, &(goods_chk_pos = 0)) > 0) // Количество чеков в которых встречается ведомый товар, будем хранить в отдельном массиве
 				goods_chk_ary.at(goods_chk_pos).Val++;
 			else {
 				THROW_SL(goods_chk_ary.Add(p_gds_qtty1->Key, 1, 0, 1));
@@ -2774,7 +2775,7 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 						// @v9.5.5 GetGoodsName(goods1_id, goods1_name);
 						GdsObj.FetchNameR(goods1_id, goods1_name); // @v9.5.5
 					}
-					goods_chk_ary.Search(goods1_id, &goods1_chk_count, 0, 1);
+					goods_chk_ary.BSearch(goods1_id, &goods1_chk_count, 0);
 					for(uint pos1 = 0; pos1 < term_count; pos1++) {
 						long  count = p_goods_ary->at(pos1).Val;
 						if(count >= Filt.GcoMinCount) {
@@ -2796,7 +2797,7 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 							gc_rec.ChecksCountPct = (chk_count) ? ((double)count / (double)goods1_chk_count) * 100 : 0;
 							THROW_DB(bei.insert(&gc_rec));
 
-							goods_chk_ary.Search(goods2_id, &goods2_chk_count, 0, 1);
+							goods_chk_ary.BSearch(goods2_id, &goods2_chk_count, 0);
 							goods2_chk_count = MAX(goods2_chk_count, 1);
 							MEMSZERO(gc_rec);
 							gc_rec.Goods1ID = goods2_id;
@@ -4161,7 +4162,7 @@ int PPALDD_CCheckView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	INIT_PPVIEW_ALDD_ITER_ORD(CCheck, 0);
 }
 
-int PPALDD_CCheckView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_CCheckView::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(CCheck);
 	I.CheckID   = item.ID;
@@ -4222,7 +4223,7 @@ int PPALDD_CCheckViewDetail::InitIteration(long iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER_ORD(CCheck, CCheckFilt::ordIterLines);
 }
 
-int PPALDD_CCheckViewDetail::NextIteration(long iterId, long rsrv)
+int PPALDD_CCheckViewDetail::NextIteration(long iterId)
 {
 	START_PPVIEW_ALDD_ITER(CCheck);
     I.CheckID = item.ID;
@@ -4375,7 +4376,7 @@ int PPALDD_CCheckDetail::InitIteration(PPIterID iterId, int sortId, long /*rsrv*
 	return p_cpp->InitIteration();
 }
 
-int PPALDD_CCheckDetail::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_CCheckDetail::NextIteration(PPIterID iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -4395,12 +4396,12 @@ int PPALDD_CCheckDetail::NextIteration(PPIterID iterId, long rsrv)
 		I.Discount = item.Discount;
 		I.Quantity = item.Quantity;
 		I.Amount   = item.Quantity * item.Price;
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }
 
-int PPALDD_CCheckDetail::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_CCheckDetail::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_INT(n)  (*(int *)rS.GetPtr(pApl->Get(n)))
 	#define _ARG_STR(n)  (**(SString **)rS.GetPtr(pApl->Get(n)))
@@ -4426,7 +4427,6 @@ int PPALDD_CCheckDetail::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmSt
 		PPObjCashNode::GetCafeTableName(H.TableNo, temp_buf);
 		_RET_STR = temp_buf;
 	}
-	return 1;
 }
 
 void PPALDD_CCheckDetail::Destroy()
@@ -4489,7 +4489,7 @@ int PPALDD_CCheckPacket::InitIteration(long iterId, int sortId, long rsrv)
 		return 0;
 }
 
-int PPALDD_CCheckPacket::NextIteration(long iterId, long rsrv)
+int PPALDD_CCheckPacket::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -4504,7 +4504,7 @@ int PPALDD_CCheckPacket::NextIteration(long iterId, long rsrv)
 			I.Discount = item.Dscnt;
 			I.Amount   = intmnytodbl(item.Price) * item.Quantity;
 			serial.CopyTo(I.Serial, sizeof(I.Serial));
-			ok = DlRtm::NextIteration(iterId, rsrv);
+			ok = DlRtm::NextIteration(iterId);
 		}
 	}
 	return ok;

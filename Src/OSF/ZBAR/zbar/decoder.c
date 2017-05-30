@@ -35,7 +35,7 @@ zbar_decoder_t * zbar_decoder_create()
 {
 	zbar_decoder_t * dcode = (zbar_decoder_t *)calloc(1, sizeof(zbar_decoder_t));
 	dcode->buf_alloc = BUFFER_MIN;
-	dcode->buf = (uchar *)malloc(dcode->buf_alloc);
+	dcode->buf = (uchar *)SAlloc::M(dcode->buf_alloc);
 
 	/* initialize default configs */
 #ifdef ENABLE_EAN
@@ -406,7 +406,7 @@ const char * _zbar_decoder_buf_dump(uchar * buf, uint buflen)
 	char * p;
 	if(!decoder_dump || dumplen > decoder_dumplen) {
 		free(decoder_dump);
-		decoder_dump = (char *)malloc(dumplen);
+		decoder_dump = (char *)SAlloc::M(dumplen);
 		decoder_dumplen = dumplen;
 	}
 	p = decoder_dump + _snprintf(decoder_dump, 12, "buf[%04x]=", (buflen > 0xffff) ? 0xffff : buflen);

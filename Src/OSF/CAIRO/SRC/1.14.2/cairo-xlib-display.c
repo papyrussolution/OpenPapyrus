@@ -95,7 +95,7 @@ static void _cairo_xlib_display_destroy(void * abstract_display)
 {
 	cairo_xlib_display_t * display = abstract_display;
 
-	free(display);
+	SAlloc::F(display);
 }
 
 static int _cairo_xlib_close_display(Display * dpy, XExtCodes * codes)
@@ -203,7 +203,7 @@ cairo_device_t * _cairo_xlib_device_create(Display * dpy)
 		}
 	}
 
-	display = malloc(sizeof(cairo_xlib_display_t));
+	display = SAlloc::M(sizeof(cairo_xlib_display_t));
 	if(unlikely(display == NULL)) {
 		device = _cairo_device_create_in_error(CAIRO_STATUS_NO_MEMORY);
 		goto UNLOCK;
@@ -342,7 +342,7 @@ cairo_device_t * _cairo_xlib_device_create(Display * dpy)
 	codes = XAddExtension(dpy);
 	if(unlikely(codes == NULL)) {
 		device = _cairo_device_create_in_error(CAIRO_STATUS_NO_MEMORY);
-		free(display);
+		SAlloc::F(display);
 		goto UNLOCK;
 	}
 

@@ -135,7 +135,7 @@ int __db_vrfy_getpageinfo(VRFY_DBINFO * vdp, db_pgno_t pgno, VRFY_PAGEINFO ** pi
 	 *	(they're never returned to the application), so this is safe.
 	 * 2. The pgdbp.  It's not in memory, but it's in the database, so
 	 *	get it, give it a refcount of 1, and stick it on activepips.
-	 * 3. malloc.  It doesn't exist yet;  create it, then stick it on
+	 * 3. SAlloc::M.  It doesn't exist yet;  create it, then stick it on
 	 *	activepips.  We'll put it in the database when we putpageinfo
 	 *	later.
 	 */

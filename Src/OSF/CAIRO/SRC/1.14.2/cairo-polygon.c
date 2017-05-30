@@ -187,7 +187,7 @@ cairo_status_t _cairo_polygon_init_box_array(cairo_polygon_t * polygon, cairo_bo
 void _cairo_polygon_fini(cairo_polygon_t * polygon)
 {
 	if(polygon->edges != polygon->edges_embedded)
-		free(polygon->edges);
+		SAlloc::F(polygon->edges);
 
 	VG(VALGRIND_MAKE_MEM_NOACCESS(polygon, sizeof(cairo_polygon_t)));
 }

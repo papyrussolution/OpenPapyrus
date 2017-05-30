@@ -1041,7 +1041,7 @@ int __bam_vrfy_structure(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t meta_pgno, void 
 			stflags |= DB_ST_DUPSORT;
 		if(F_ISSET(mip, VRFY_HAS_RECNUMS))
 			stflags |= DB_ST_RECNUM;
-		ret = __bam_vrfy_subtree(dbp, vdp, root, lp, rp, stflags, NULL, NULL, NULL);
+		ret = __bam_vrfy_subtree(dbp, vdp, root, lp, rp, stflags, 0, 0, 0);
 		break;
 	    case P_IRECNO:
 	    case P_LRECNO:

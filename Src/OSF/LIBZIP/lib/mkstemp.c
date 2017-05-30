@@ -33,9 +33,9 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <assert.h>
-#include <ctype.h>
-#include <errno.h>
+//#include <assert.h>
+//#include <ctype.h>
+//#include <errno.h>
 #include <fcntl.h>
 #ifdef _WIN32
 	#include <io.h>
@@ -51,46 +51,33 @@ int _zip_mkstemp(char * path)
 {
 #ifdef _WIN32
 	int ret = _creat(_mktemp(path), _S_IREAD|_S_IWRITE);
-	if(ret == -1) {
-		return 0;
-	}
-	else {
-		return ret;
-	}
+	return (ret == -1) ? 0 : ret;
 #else
 	int fd;
 	char * start, * trv;
 	struct stat sbuf;
-
-	pid_t pid;
-
 	/* To guarantee multiple calls generate unique names even if
 	   the file is not created. 676 different possibilities with 7
 	   or more X's, 26 with 6 or less. */
 	static char xtra[2] = "aa";
 	int xcnt = 0;
-
-	pid = getpid();
-
+	pid_t pid = getpid();
 	/* Move to end of path and count trailing X's. */
 	for(trv = path; *trv; ++trv)
 		if(*trv == 'X')
 			xcnt++;
 		else
 			xcnt = 0;
-
 	/* Use at least one from xtra.  Use 2 if more than 6 X's. */
 	if(*(trv - 1) == 'X')
 		*--trv = xtra[0];
 	if(xcnt > 6 && *(trv - 1) == 'X')
 		*--trv = xtra[1];
-
 	/* Set remaining X's to pid digits with 0's to the left. */
 	while(*--trv == 'X') {
 		*trv = (pid % 10) + '0';
 		pid /= 10;
 	}
-
 	/* update xtra for next call. */
 	if(xtra[0] != 'z')
 		xtra[0]++;
@@ -101,7 +88,6 @@ int _zip_mkstemp(char * path)
 		else
 			xtra[1] = 'a';
 	}
-
 	/*
 	 * check the target directory; if you have six X's and it
 	 * doesn't exist this runs for a *very* long time.
@@ -121,13 +107,11 @@ int _zip_mkstemp(char * path)
 			break;
 		}
 	}
-
 	for(;; ) {
 		if((fd = open(path, O_CREAT|O_EXCL|O_RDWR|O_BINARY, 0600)) >= 0)
 			return (fd);
 		if(errno != EEXIST)
 			return (0);
-
 		/* tricky little algorithm for backward compatibility */
 		for(trv = start;; ) {
 			if(!*trv)

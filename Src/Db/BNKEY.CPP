@@ -46,7 +46,7 @@ void SLAPI BNKey::destroy()
 
 int SLAPI BNKey::reset()
 {
-	if((data = realloc(data, sizeof(BNKeyCell))) != 0) {
+	if((data = SAlloc::R(data, sizeof(BNKeyCell))) != 0) {
 		HEAD.numSeg = HEAD.keyNumber = HEAD.acsNumber = 0;
 		return 1;
 	}
@@ -65,7 +65,7 @@ int SLAPI BNKey::addSegment(int fldID, int flags)
 			return SLS.SetError(SLERR_DUPIDXSEG);
 	cell.s.fldID = fldID;
 	cell.s.flags = flags;
-	if((data = realloc(data, sizeof(BNKeyCell) * (pos + 1))) != 0) {
+	if((data = SAlloc::R(data, sizeof(BNKeyCell) * (pos + 1))) != 0) {
 		memcpy(((char *)data) + sizeof(BNKeyCell) * pos, &cell, sizeof(BNKeyCell));
 		HEAD.numSeg++;
 		return 1;
@@ -161,7 +161,7 @@ int SLAPI BNKey::containsField(int fldID, int * pSeg) const
 */
 SLAPI BNKeyList::BNKeyList()
 {
-	if((data = malloc(sizeof(BNKeyCell))) != 0) {
+	if((data = SAlloc::M(sizeof(BNKeyCell))) != 0) {
 		BNKeyCell * cell = (BNKeyCell *)data;
 		cell->ih.numKeys = 0;
 		cell->ih.tblBackOffset = 0;
@@ -189,7 +189,7 @@ int FASTCALL BNKeyList::copy(const BNKeyList * src)
 	reset();
 	uint   sz = sizeof(BNKeyCell) * src->getNumCells();
 	if(sz)
-		if((data = malloc(sz)) != 0)
+		if((data = SAlloc::M(sz)) != 0)
 			memcpy(data, src->data, sz);
 		else
 			return 0;
@@ -210,7 +210,7 @@ int SLAPI BNKeyList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 		reset();
 		THROW(rBuf.Read(sz));
 		if(sz) {
-			data = realloc(data, sz);
+			data = SAlloc::R(data, sz);
 			THROW(rBuf.Read(data, sz));
 		}
 	}

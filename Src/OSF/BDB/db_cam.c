@@ -2142,7 +2142,7 @@ retry:  /* Step 1. */
 	 *
 	 * !!!
 	 * This assumes that the user must always specify a compatible realloc
-	 * function if a malloc function is specified.  I think this is a
+	 * function if a SAlloc::M function is specified.  I think this is a
 	 * reasonable requirement.
 	 */
 	if(F_ISSET(pkey, DB_DBT_MALLOC)) {

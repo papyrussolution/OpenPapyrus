@@ -10,7 +10,7 @@
 #define HH_INITIALIZE            0x001C  // Initializes the help system.
 #define HH_UNINITIALIZE          0x001D  // Uninitializes the help system.
 // } htmlhelp.h
-//#define USE_OPENSSL_STATIC 
+#define USE_OPENSSL_STATIC 
 //
 //
 //

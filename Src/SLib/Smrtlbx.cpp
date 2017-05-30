@@ -1330,7 +1330,7 @@ BOOL CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 						if(ubuf.Len()) {
 							const uint c = ubuf.Len();
 							const size_t sz = sizeof(INPUT) * c;
-							INPUT * p_inp = (INPUT *)malloc(sz);
+							INPUT * p_inp = (INPUT *)SAlloc::M(sz);
 							if(p_inp) {
 								memzero(p_inp, sz);
 								for(uint i = 0; i < c; i++) {

@@ -40,7 +40,7 @@
 	#include <stdint.h>
 #else
 	//#include "ms_stdint.h"
-	//#include <malloc.h>
+	//#include <SAlloc::M.h>
 #endif
 
 #define GF 113

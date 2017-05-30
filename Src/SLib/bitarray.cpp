@@ -8,7 +8,7 @@
 SLAPI BitArray::BitArray()
 {
 	Size = 64;
-	P_Buf = (char *)malloc(Size);
+	P_Buf = (char *)SAlloc::M(Size);
 	resetbitstring(P_Buf, Size);
 	Count = 0;
 }
@@ -34,7 +34,7 @@ BitArray & FASTCALL BitArray::operator = (const BitArray & s)
 int FASTCALL BitArray::Copy(const BitArray & s)
 {
 	size_t new_size = s.Size;
-	P_Buf = (char *)realloc(P_Buf, new_size);
+	P_Buf = (char *)SAlloc::R(P_Buf, new_size);
 	if(P_Buf) {
 		Size = new_size;
 		memcpy(P_Buf, s.P_Buf, Size);
@@ -51,7 +51,7 @@ int SLAPI BitArray::Init(const void * pBits, size_t count)
 	if(count && pBits) {
 		size_t new_size = ((count + 31) / 32) * 4;
 		if(Size < new_size) {
-			P_Buf = (char *)realloc(P_Buf, new_size);
+			P_Buf = (char *)SAlloc::R(P_Buf, new_size);
 			Size = new_size;
 			resetbitstring(P_Buf, Size);
 		}
@@ -177,7 +177,7 @@ int FASTCALL BitArray::atInsert(size_t pos, int val)
 	if(pos <= Count) {
 		size_t new_size = ((Count + 32) / 32) * 4;
 		if(new_size > Size) {
-			P_Buf = (char *)realloc(P_Buf, new_size);
+			P_Buf = (char *)SAlloc::R(P_Buf, new_size);
 			Size = new_size;
 		}
 		if(pos < Count)
@@ -197,7 +197,7 @@ int FASTCALL BitArray::insertN(int val, size_t N)
 	else {
 		size_t s = (((Count + N - 1) + 32) / 32) * 4;
 		if(s > Size) {
-			P_Buf = (char *)realloc(P_Buf, s);
+			P_Buf = (char *)SAlloc::R(P_Buf, s);
 			Size = s;
 		}
 		s = Count; // prev value of BitArray::Count

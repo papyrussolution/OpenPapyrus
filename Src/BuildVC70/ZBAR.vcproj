@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
+				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;&quot;..\osf\openssl-cmake\include&quot;;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -72,7 +72,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
+				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;&quot;..\osf\openssl-cmake\include&quot;;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -125,7 +125,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
+				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;&quot;..\osf\openssl-cmake\include&quot;;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -174,7 +174,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
+				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;&quot;..\osf\openssl-cmake\include&quot;;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -227,7 +227,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
+				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;&quot;..\osf\openssl-cmake\include&quot;;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -276,7 +276,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
+				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;&quot;..\osf\openssl-cmake\include&quot;;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -1752,10 +1752,10 @@
 				RelativePath="..\Osf\Zbar\zbar\debug.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\decoder.h">
+				RelativePath="..\Osf\Zbar\include\zbar\Decoder.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\include\zbar\Decoder.h">
+				RelativePath="..\Osf\Zbar\zbar\decoder.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\zbar\decoder\ean.h">
@@ -1773,10 +1773,10 @@
 				RelativePath="..\Osf\Zbar\zbar\decoder\i25.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\include\zbar\Image.h">
+				RelativePath="..\Osf\Zbar\zbar\image.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\image.h">
+				RelativePath="..\Osf\Zbar\include\zbar\Image.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\include\zbar\ImageScanner.h">
@@ -1800,10 +1800,10 @@
 				RelativePath="..\Osf\Zbar\zbar\processor\posix.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\processor.h">
+				RelativePath="..\Osf\Zbar\include\zbar\Processor.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\include\zbar\Processor.h">
+				RelativePath="..\Osf\Zbar\zbar\processor.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\zbar\decoder\qr_finder.h">
@@ -1848,19 +1848,19 @@
 				RelativePath="..\Osf\Zbar\zbar\qrcode\util.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\include\zbar\Video.h">
+				RelativePath="..\Osf\Zbar\zbar\video.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\video.h">
+				RelativePath="..\Osf\Zbar\include\zbar\Video.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\zbar\window\win.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\include\zbar\Window.h">
+				RelativePath="..\Osf\Zbar\zbar\window.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\window.h">
+				RelativePath="..\Osf\Zbar\include\zbar\Window.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\zbar\window\x.h">

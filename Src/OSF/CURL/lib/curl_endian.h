@@ -7,11 +7,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -23,47 +23,47 @@
  ***************************************************************************/
 
 /* Converts a 16-bit integer from little endian */
-ushort Curl_read16_le(uchar *buf);
+unsigned short Curl_read16_le(const unsigned char *buf);
 
 /* Converts a 32-bit integer from little endian */
-uint Curl_read32_le(uchar *buf);
+unsigned int Curl_read32_le(const unsigned char *buf);
 
 #if (CURL_SIZEOF_CURL_OFF_T > 4)
 /* Converts a 64-bit integer from little endian */
 #if defined(HAVE_LONGLONG)
-ulonglong Curl_read64_le(uchar *buf);
+unsigned long long Curl_read64_le(const unsigned char *buf);
 #else
-uint64 Curl_read64_le(uchar *buf);
+unsigned __int64 Curl_read64_le(const unsigned char *buf);
 #endif
 #endif
 
 /* Converts a 16-bit integer from big endian */
-ushort Curl_read16_be(uchar *buf);
+unsigned short Curl_read16_be(const unsigned char *buf);
 
 /* Converts a 32-bit integer from big endian */
-uint Curl_read32_be(uchar *buf);
+unsigned int Curl_read32_be(const unsigned char *buf);
 
 #if (CURL_SIZEOF_CURL_OFF_T > 4)
 /* Converts a 64-bit integer from big endian */
 #if defined(HAVE_LONGLONG)
-ulonglong Curl_read64_be(uchar *buf);
+unsigned long long Curl_read64_be(const unsigned char *buf);
 #else
-uint64 Curl_read64_be(uchar *buf);
+unsigned __int64 Curl_read64_be(const unsigned char *buf);
 #endif
 #endif
 
 /* Converts a 16-bit integer to little endian */
-void Curl_write16_le(const short value, uchar *buffer);
+void Curl_write16_le(const short value, unsigned char *buffer);
 
 /* Converts a 32-bit integer to little endian */
-void Curl_write32_le(const int value, uchar *buffer);
+void Curl_write32_le(const int value, unsigned char *buffer);
 
 #if (CURL_SIZEOF_CURL_OFF_T > 4)
 /* Converts a 64-bit integer to little endian */
 #if defined(HAVE_LONGLONG)
-void Curl_write64_le(const long long value, uchar *buffer);
+void Curl_write64_le(const long long value, unsigned char *buffer);
 #else
-void Curl_write64_le(const __int64 value, uchar *buffer);
+void Curl_write64_le(const __int64 value, unsigned char *buffer);
 #endif
 #endif
 

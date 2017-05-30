@@ -249,7 +249,7 @@ int SLAPI GetFirstHostByMACAddr(MACAddr * pItem, InetAddr * pAddr)
 	if(pItem && pAddr) {
 		DWORD  err = GetAdaptersInfo(0, &size);
 		if(!err || err == ERROR_BUFFER_OVERFLOW) {
-			p_info = (IP_ADAPTER_INFO *)calloc(size, 1);
+			p_info = (IP_ADAPTER_INFO *)SAlloc::C(size, 1);
 			err = GetAdaptersInfo(p_info, &size);
 			if(err == 0)
 				for(IP_ADAPTER_INFO * p_iter = p_info; p_iter; p_iter = p_iter->Next) {
@@ -280,7 +280,7 @@ int SLAPI GetFirstHostByMACAddr(MACAddr * pItem, InetAddr * pAddr)
 					}
 				}
 		}
-		free(p_info);
+		SAlloc::F(p_info);
 	}
 	return ok;
 }
@@ -294,7 +294,7 @@ int SLAPI GetMACAddrList(MACAddrArray * pList)
 	ProcPool_IpHlpApi::PtLoad();
 	DWORD  err = ProcPool_IpHlpApi::GetAdaptersInfo(0, &size);
 	if(!err || err == ERROR_BUFFER_OVERFLOW) {
-		p_info = (IP_ADAPTER_INFO *)calloc(size, 1);
+		p_info = (IP_ADAPTER_INFO *)SAlloc::C(size, 1);
 		err = ProcPool_IpHlpApi::GetAdaptersInfo(p_info, &size);
 		if(err == 0)
 			for(IP_ADAPTER_INFO * p_iter = p_info; p_iter; p_iter = p_iter->Next) {
@@ -309,7 +309,7 @@ int SLAPI GetMACAddrList(MACAddrArray * pList)
 				}
 			}
 	}
-	free(p_info);
+	SAlloc::F(p_info);
 	return ok;
 }
 

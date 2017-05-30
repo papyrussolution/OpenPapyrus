@@ -290,7 +290,7 @@ static void _cairo_device_observer_destroy(void * _device)
 {
 	cairo_device_observer_t * device = (cairo_device_observer_t*)_device;
 	cairo_device_destroy(device->target);
-	free(device);
+	SAlloc::F(device);
 }
 
 static const cairo_device_backend_t _cairo_device_observer_backend = {
@@ -307,13 +307,13 @@ static const cairo_device_backend_t _cairo_device_observer_backend = {
 static cairo_device_t * _cairo_device_create_observer_internal(cairo_device_t * target, cairo_bool_t record)
 {
 	cairo_status_t status;
-	cairo_device_observer_t * device = (cairo_device_observer_t *)malloc(sizeof(cairo_device_observer_t));
+	cairo_device_observer_t * device = (cairo_device_observer_t *)SAlloc::M(sizeof(cairo_device_observer_t));
 	if(unlikely(device == NULL))
 		return _cairo_device_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_device_init(&device->base, &_cairo_device_observer_backend);
 	status = log_init(&device->log, record);
 	if(unlikely(status)) {
-		free(device);
+		SAlloc::F(device);
 		return _cairo_device_create_in_error(status);
 	}
 	device->target = cairo_device_reference(target);
@@ -331,7 +331,7 @@ static cairo_surface_t * _cairo_surface_create_observer_internal(cairo_device_t 
     cairo_surface_t * target)
 {
 	cairo_status_t status;
-	cairo_surface_observer_t * surface = (cairo_surface_observer_t *)malloc(sizeof(cairo_surface_observer_t));
+	cairo_surface_observer_t * surface = (cairo_surface_observer_t *)SAlloc::M(sizeof(cairo_surface_observer_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
@@ -342,7 +342,7 @@ static cairo_surface_t * _cairo_surface_create_observer_internal(cairo_device_t 
 	status = log_init(&surface->log,
 	    ((cairo_device_observer_t*)device)->log.record != NULL);
 	if(unlikely(status)) {
-		free(surface);
+		SAlloc::F(surface);
 		return _cairo_surface_create_in_error(status);
 	}
 
@@ -1073,7 +1073,7 @@ static cairo_int_status_t _cairo_surface_observer_glyphs(void * abstract_surface
 	t = _cairo_time_get();
 	status = _cairo_surface_show_text_glyphs(surface->target, op, source,
 	    NULL, 0, dev_glyphs, num_glyphs, NULL, 0, CAIRO_TEXT_CLUSTER_FLAG_NONE, scaled_font, clip);
-	free(dev_glyphs);
+	SAlloc::F(dev_glyphs);
 	if(unlikely(status))
 		return status;
 
@@ -1292,7 +1292,7 @@ cairo_surface_t * cairo_surface_create_observer(cairo_surface_t * target,
 
 static cairo_status_t _cairo_surface_observer_add_callback(cairo_list_t * head, cairo_surface_observer_callback_t func, void * data)
 {
-	struct callback_list * cb = (struct callback_list *)malloc(sizeof(*cb));
+	struct callback_list * cb = (struct callback_list *)SAlloc::M(sizeof(*cb));
 	if(unlikely(cb == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	cairo_list_add(&cb->link, head);

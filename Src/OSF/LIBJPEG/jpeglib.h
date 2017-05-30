@@ -747,7 +747,7 @@ struct jpeg_source_mgr {
  * The memory manager does not allow individual objects to be freed; rather,
  * each created object is assigned to a pool, and whole pools can be freed
  * at once.  This is faster and more convenient than remembering exactly what
- * to free, especially where malloc()/free() are not too speedy.
+ * to free, especially where SAlloc::M()/free() are not too speedy.
  * NB: alloc routines never return NULL.  They exit to error_exit if not
  * successful.
  */

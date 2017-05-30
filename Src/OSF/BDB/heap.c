@@ -2042,7 +2042,7 @@ int __heapc_gsplit(DBC * dbc, DBT * dbt, void ** bpp, uint32 * bpsz)
 	}
 	/*
 	 * Check if the buffer is big enough; if it is not and we are
-	 * allowed to malloc space, then we'll malloc it.  If we are
+	 * allowed to SAlloc::M space, then we'll SAlloc::M it.  If we are
 	 * not (DB_DBT_USERMEM), then we'll set the dbt and return
 	 * appropriately.
 	 */

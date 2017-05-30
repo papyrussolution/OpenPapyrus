@@ -176,7 +176,7 @@ int SLAPI GoodsToObjAssoc::Get(PPID goodsID, PPID * pObjID)
 	for(PPID temp_id = goodsID; ok < 0 && temp_id;) {
 		if(cycle_list.lsearch(temp_id))
 			ok = PPSetError(PPERR_CYCLELINKGOODSGRP, goods_rec.Name);
-		else if(List.Search(temp_id, &obj_id, 0, 1))
+		else if(List.BSearch(temp_id, &obj_id, 0))
 			ok = 1;
 		else if(GObj.Fetch(temp_id, &goods_rec) > 0) {
 			cycle_list.add(temp_id);
@@ -213,7 +213,7 @@ SLAPI PPViewGoodsToObjAssoc::~PPViewGoodsToObjAssoc()
 	delete P_Assoc;
 	delete P_AsscObj;
 	if(Filt.Flags & GoodsToObjAssocFilt::fDestroyExtraParam && Filt.ExtraParam) {
-		free((void *)Filt.ExtraParam);
+		SAlloc::F((void *)Filt.ExtraParam);
 		Filt.ExtraParam = 0;
 	}
 }
@@ -293,7 +293,7 @@ int SLAPI PPViewGoodsToObjAssoc::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewGoodsToObjAssoc::NextIteration(GoodsToObjAssocViewItem * pItem)
+int FASTCALL PPViewGoodsToObjAssoc::NextIteration(GoodsToObjAssocViewItem * pItem)
 {
 	int    ok = -1;
 	if(P_Assoc && IterIdx < P_Assoc->GetCount()) {

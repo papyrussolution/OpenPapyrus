@@ -149,7 +149,7 @@ int SLAPI PPViewQCert::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewQCert::NextIteration(QCertViewItem * pItem)
+int FASTCALL PPViewQCert::NextIteration(QCertViewItem * pItem)
 {
 	if(P_IterQuery) {
 		while(P_IterQuery->nextIteration() > 0) {

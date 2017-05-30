@@ -243,7 +243,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 							long   cmd = 0;
 							KeyDownCommand k;
 							k.SetTvKeyCode(LOWORD(wParam));
-							if(p_view->KeyAccel.Search(*(long *)&k, &cmd, 0, 1)) {
+							if(p_view->KeyAccel.BSearch(*(long *)&k, &cmd, 0)) {
 								p_view->ProcessCommand(cmd, 0, p_view);
 							}
 						}
@@ -521,7 +521,7 @@ LRESULT CALLBACK STextBrowser::ScintillaWindowProc(HWND hwnd, UINT msg, WPARAM w
 					}
 					else if(p_this->KeyAccel.getCount()) {
 						long   cmd = 0;
-						if(p_this->KeyAccel.Search(*(long *)&k, &cmd, 0, 1)) {
+						if(p_this->KeyAccel.BSearch(*(long *)&k, &cmd, 0)) {
 							p_this->SysState |= p_this->sstLastKeyDownConsumed;
 							p_this->ProcessCommand(cmd, 0, p_this);
 							processed = 1;

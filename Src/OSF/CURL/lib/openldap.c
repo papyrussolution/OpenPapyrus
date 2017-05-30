@@ -6,11 +6,11 @@
  *                 \___|\___/|_| \_\_____|
  *
  * Copyright (C) 2010, Howard Chu, <hyc@openldap.org>
- * Copyright (C) 2011 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 2011 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -37,25 +37,22 @@
  */
 
 #include <ldap.h>
-
 #include "urldata.h"
-#include <curl/curl.h>
+//#include <curl/curl.h>
 #include "sendf.h"
 #include "vtls/vtls.h"
 #include "transfer.h"
 #include "curl_ldap.h"
 #include "curl_base64.h"
 #include "connect.h"
+/* The last 3 #include files should be in this order */
 #include "curl_printf.h"
-
-/* The last #include files should be: */
 #include "curl_memory.h"
 #include "memdebug.h"
 
 #ifndef _LDAP_PVT_H
 extern int ldap_pvt_url_scheme2proto(const char *);
-extern int ldap_init_fd(ber_socket_t fd, int proto, const char *url,
-                        LDAP **ld);
+extern int ldap_init_fd(ber_socket_t fd, int proto, const char *url, LDAP **ld);
 #endif
 
 static CURLcode ldap_setup_connection(struct connectdata *conn);
@@ -151,7 +148,7 @@ static CURLcode ldap_setup_connection(struct connectdata *conn)
 {
   ldapconninfo *li;
   LDAPURLDesc *lud;
-  struct SessionHandle *data=conn->data;
+  struct Curl_easy *data=conn->data;
   int rc, proto;
   CURLcode status;
 
@@ -189,7 +186,7 @@ static Sockbuf_IO ldapsb_tls;
 static CURLcode ldap_connect(struct connectdata *conn, bool *done)
 {
   ldapconninfo *li = conn->proto.generic;
-  struct SessionHandle *data = conn->data;
+  struct Curl_easy *data = conn->data;
   int rc, proto = LDAP_VERSION3;
   char hosturl[1024];
   char *ptr;
@@ -227,7 +224,7 @@ static CURLcode ldap_connect(struct connectdata *conn, bool *done)
 static CURLcode ldap_connecting(struct connectdata *conn, bool *done)
 {
   ldapconninfo *li = conn->proto.generic;
-  struct SessionHandle *data = conn->data;
+  struct Curl_easy *data = conn->data;
   LDAPMessage *msg = NULL;
   struct timeval tv = {0, 1}, *tvp;
   int rc, err;
@@ -353,7 +350,7 @@ static CURLcode ldap_do(struct connectdata *conn, bool *done)
   int rc = 0;
   LDAPURLDesc *ludp = NULL;
   int msgid;
-  struct SessionHandle *data=conn->data;
+  struct Curl_easy *data=conn->data;
 
   connkeep(conn, "OpenLDAP do");
 
@@ -416,7 +413,7 @@ static ssize_t ldap_recv(struct connectdata *conn, int sockindex, char *buf,
                          size_t len, CURLcode *err)
 {
   ldapconninfo *li = conn->proto.generic;
-  struct SessionHandle *data = conn->data;
+  struct Curl_easy *data = conn->data;
   ldapreqinfo *lr = data->req.protop;
   int rc, ret;
   LDAPMessage *msg = NULL;
@@ -547,7 +544,7 @@ static ssize_t ldap_recv(struct connectdata *conn, int sockindex, char *buf,
             binval = 1;
           else {
             /* check for unprintable characters */
-            uint j;
+            unsigned int j;
             for(j=0; j<bvals[i].bv_len; j++)
               if(!ISPRINT(bvals[i].bv_val[j])) {
                 binval = 1;

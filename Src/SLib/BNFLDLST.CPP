@@ -79,13 +79,13 @@ SLAPI BNFieldList::BNFieldList(const BNFieldList & rS)
 
 SLAPI BNFieldList::~BNFieldList()
 {
-	free(fields);
+	SAlloc::F(fields);
 }
 
 void SLAPI BNFieldList::reset()
 {
 	if(count) {
-		free(fields);
+		SAlloc::F(fields);
 		count = 0;
 		fields = 0;
 	}
@@ -113,7 +113,7 @@ BNFieldList & FASTCALL BNFieldList::operator = (const BNFieldList & s)
 int FASTCALL BNFieldList::copy(const BNFieldList * pSrc)
 {
 	reset();
-	fields = (BNField *)malloc(sizeof(BNField) * pSrc->count);
+	fields = (BNField *)SAlloc::M(sizeof(BNField) * pSrc->count);
 	if(fields == 0) {
 		count = 0;
 		return (SLibError = SLERR_NOMEM, 0);
@@ -154,7 +154,7 @@ int SLAPI BNFieldList::addField(const char * pName, TYPEID type, int id)
 	}
 	if(ok) {
 		fld.Offs = count ? (fields[count-1].Offs + stsize(fields[count-1].T)) : 0;
-		if((fields = (BNField *)realloc(fields, sizeof(BNField) * (count+1))) != 0) {
+		if((fields = (BNField *)SAlloc::R(fields, sizeof(BNField) * (count+1))) != 0) {
 			memcpy(fields + count, &fld, sizeof(BNField));
 			count++;
 		}

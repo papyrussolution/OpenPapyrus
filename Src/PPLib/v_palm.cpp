@@ -233,7 +233,7 @@ int SLAPI PPViewPalm::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewPalm::NextIteration(PalmViewItem * pItem)
+int FASTCALL PPViewPalm::NextIteration(PalmViewItem * pItem)
 {
 	int    ok = -1;
 	if(P_IterQuery) {

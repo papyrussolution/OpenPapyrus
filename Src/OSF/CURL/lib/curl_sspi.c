@@ -5,11 +5,11 @@
 *                            | (__| |_| |  _ <| |___
 *                             \___|\___/|_| \_\_____|
 *
-* Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+* Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
 *
 * This software is licensed as described in the file COPYING, which
 * you should have received as part of this distribution. The terms
-* are also available at http://curl.haxx.se/docs/copyright.html.
+* are also available at https://curl.haxx.se/docs/copyright.html.
 *
 * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 * copies of the Software, and permit persons to whom the Software is
@@ -22,12 +22,11 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-
 #ifdef USE_WINDOWS_SSPI
-
-#include <curl/curl.h>
+//#include <curl/curl.h>
 #include "curl_sspi.h"
 #include "curl_multibyte.h"
+#include "system_win32.h"
 #include "warnless.h"
 
 /* The last #include files should be: */
@@ -64,10 +63,15 @@ PSecurityFunctionTable s_pSecFn = NULL;
  *
  * Once this function has been executed, Windows SSPI functions can be
  * called through the Security Service Provider Interface dispatch table.
+ *
+ * Parameters:
+ *
+ * None.
+ *
+ * Returns CURLE_OK on success.
  */
 CURLcode Curl_sspi_global_init(void)
 {
-	bool securityDll = FALSE;
 	INITSECURITYINTERFACE_FN pInitSecurityInterface;
 
 	/* If security interface is not yet initialized try to do this */
@@ -75,52 +79,12 @@ CURLcode Curl_sspi_global_init(void)
 		/* Security Service Provider Interface (SSPI) functions are located in
 		* security.dll on WinNT 4.0 and in secur32.dll on Win9x. Win2K and XP
 		* have both these DLLs (security.dll forwards calls to secur32.dll) */
-		DWORD majorVersion = 4;
-		DWORD platformId = VER_PLATFORM_WIN32_NT;
-
-#if !defined(_WIN32_WINNT) || !defined(_WIN32_WINNT_WIN2K) || \
-		(_WIN32_WINNT < _WIN32_WINNT_WIN2K)
-		OSVERSIONINFO osver;
-
-		memzero(&osver, sizeof(osver));
-		osver.dwOSVersionInfoSize = sizeof(osver);
-
-		/* Find out Windows version */
-		if(!GetVersionEx(&osver))
-			return CURLE_FAILED_INIT;
-
-		/* Verify the major version number == 4 and platform id == WIN_NT */
-		if(osver.dwMajorVersion == majorVersion &&
-		    osver.dwPlatformId == platformId)
-			securityDll = TRUE;
-#else
-		ULONGLONG cm;
-		OSVERSIONINFOEX osver;
-
-		memzero(&osver, sizeof(osver));
-		osver.dwOSVersionInfoSize = sizeof(osver);
-		osver.dwMajorVersion = majorVersion;
-		osver.dwPlatformId = platformId;
-
-		cm = VerSetConditionMask(0, VER_MAJORVERSION, VER_EQUAL);
-		cm = VerSetConditionMask(cm, VER_MINORVERSION, VER_GREATER_EQUAL);
-		cm = VerSetConditionMask(cm, VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
-		cm = VerSetConditionMask(cm, VER_SERVICEPACKMINOR, VER_GREATER_EQUAL);
-		cm = VerSetConditionMask(cm, VER_PLATFORMID, VER_EQUAL);
-
-		/* Verify the major version number == 4 and platform id == WIN_NT */
-		if(VerifyVersionInfo(&osver, (VER_MAJORVERSION | VER_MINORVERSION |
-				    VER_SERVICEPACKMAJOR | VER_SERVICEPACKMINOR |
-				    VER_PLATFORMID),
-			    cm))
-			securityDll = TRUE;
-#endif
 
 		/* Load SSPI dll into the address space of the calling process */
-		if(securityDll)
-			s_hSecDll = LoadLibrary(TEXT("security.dll"));
+		if(Curl_verify_windows_version(4, 0, PLATFORM_WINNT, VERSION_EQUAL))
+			s_hSecDll = Curl_load_library(TEXT("security.dll"));
 		else
-			s_hSecDll = LoadLibrary(TEXT("secur32.dll"));
+			s_hSecDll = Curl_load_library(TEXT("secur32.dll"));
 		if(!s_hSecDll)
 			return CURLE_FAILED_INIT;
 
@@ -143,8 +107,11 @@ CURLcode Curl_sspi_global_init(void)
  * Curl_sspi_global_cleanup()
  *
  * This deinitializes the Security Service Provider Interface from libcurl.
+ *
+ * Parameters:
+ *
+ * None.
  */
-
 void Curl_sspi_global_cleanup(void)
 {
 	if(s_hSecDll) {
@@ -168,8 +135,7 @@ void Curl_sspi_global_cleanup(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_create_sspi_identity(const char * userp, const char * passwdp,
-    SEC_WINNT_AUTH_IDENTITY * identity)
+CURLcode Curl_create_sspi_identity(const char * userp, const char * passwdp, SEC_WINNT_AUTH_IDENTITY * identity)
 {
 	xcharp_u useranddomain;
 	xcharp_u user, dup_user;
@@ -243,12 +209,21 @@ CURLcode Curl_create_sspi_identity(const char * userp, const char * passwdp,
 	return CURLE_OK;
 }
 
+/*
+ * Curl_sspi_free_identity()
+ *
+ * This is used to free the contents of a SSPI identifier structure.
+ *
+ * Parameters:
+ *
+ * identity [in/out] - The identity structure.
+ */
 void Curl_sspi_free_identity(SEC_WINNT_AUTH_IDENTITY * identity)
 {
 	if(identity) {
-		ZFREE(identity->User);
-		ZFREE(identity->Password);
-		ZFREE(identity->Domain);
+		Curl_safefree(identity->User);
+		Curl_safefree(identity->Password);
+		Curl_safefree(identity->Domain);
 	}
 }
 

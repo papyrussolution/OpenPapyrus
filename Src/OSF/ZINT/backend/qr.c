@@ -1409,11 +1409,11 @@ static void applyOptimisation(int version, char inputMode[], int inputLength)
 			blockCount++;
 		}
 	}
-	p_block_length = (int*)malloc(sizeof(int)*blockCount);
+	p_block_length = (int*)SAlloc::M(sizeof(int)*blockCount);
 	assert(p_block_length);
 	if(!p_block_length) 
 		return;
-	blockMode = (char*)malloc(sizeof(char)*blockCount);
+	blockMode = (char*)SAlloc::M(sizeof(char)*blockCount);
 	assert(blockMode);
 	if(!blockMode) {
 		free(p_block_length);

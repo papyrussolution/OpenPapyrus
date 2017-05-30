@@ -22,9 +22,9 @@
 //#include "jpeglib.h"
 //#include "jerror.h"
 
-#ifndef HAVE_STDLIB_H           /* <stdlib.h> should declare malloc(),free() */
-extern void * malloc JPP((size_t size));
-extern void free JPP((void* ptr));
+#ifndef HAVE_STDLIB_H           /* <stdlib.h> should declare SAlloc::M(),free() */
+extern void * malloc(size_t size);
+extern void free(void* ptr);
 #endif
 
 /* Expanded data destination object for stdio output */
@@ -119,27 +119,18 @@ METHODDEF(boolean) empty_mem_output_buffer(j_compress_ptr cinfo)
 	size_t nextsize;
 	JOCTET * nextbuffer;
 	my_mem_dest_ptr dest = (my_mem_dest_ptr)cinfo->dest;
-
-	/* Try to allocate new buffer with double size */
+	// Try to allocate new buffer with double size 
 	nextsize = dest->bufsize * 2;
-	nextbuffer = (JOCTET*)malloc(nextsize);
-
+	nextbuffer = (JOCTET*)SAlloc::M(nextsize);
 	if(nextbuffer == NULL)
 		ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 10);
-
 	MEMCOPY(nextbuffer, dest->buffer, dest->bufsize);
-
-	if(dest->newbuffer != NULL)
-		free(dest->newbuffer);
-
+	free(dest->newbuffer);
 	dest->newbuffer = nextbuffer;
-
 	dest->pub.next_output_byte = nextbuffer + dest->bufsize;
 	dest->pub.free_in_buffer = dest->bufsize;
-
 	dest->buffer = nextbuffer;
 	dest->bufsize = nextsize;
-
 	return TRUE;
 }
 
@@ -210,7 +201,7 @@ GLOBAL(void) jpeg_stdio_dest(j_compress_ptr cinfo, FILE * outfile)
  * The caller may supply an own initial buffer with appropriate size.
  * Otherwise, or when the actual data output exceeds the given size,
  * the library adapts the buffer size as necessary.
- * The standard library functions malloc/free are used for allocating
+ * The standard library functions SAlloc::M/free are used for allocating
  * larger memory, so the buffer is available to the application after
  * finishing compression, and then the application is responsible for
  * freeing the requested memory.
@@ -219,21 +210,16 @@ GLOBAL(void) jpeg_stdio_dest(j_compress_ptr cinfo, FILE * outfile)
  * when allocating a larger buffer.
  */
 
-GLOBAL(void) jpeg_mem_dest(j_compress_ptr cinfo,
-    unsigned char ** outbuffer, unsigned long * outsize)
+GLOBAL(void) jpeg_mem_dest(j_compress_ptr cinfo, unsigned char ** outbuffer, unsigned long * outsize)
 {
 	my_mem_dest_ptr dest;
-
 	if(outbuffer == NULL || outsize == NULL) /* sanity check */
 		ERREXIT(cinfo, JERR_BUFFER_SIZE);
-
 	/* The destination object is made permanent so that multiple JPEG images
 	 * can be written to the same buffer without re-executing jpeg_mem_dest.
 	 */
 	if(cinfo->dest == NULL) { /* first time for this JPEG object? */
-		cinfo->dest = (struct jpeg_destination_mgr*)
-		    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT,
-		    SIZEOF(my_mem_destination_mgr));
+		cinfo->dest = (struct jpeg_destination_mgr*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT, SIZEOF(my_mem_destination_mgr));
 	}
 
 	dest = (my_mem_dest_ptr)cinfo->dest;
@@ -246,7 +232,7 @@ GLOBAL(void) jpeg_mem_dest(j_compress_ptr cinfo,
 
 	if(*outbuffer == NULL || *outsize == 0) {
 		/* Allocate initial buffer */
-		dest->newbuffer = *outbuffer = (unsigned char*)malloc(OUTPUT_BUF_SIZE);
+		dest->newbuffer = *outbuffer = (unsigned char*)SAlloc::M(OUTPUT_BUF_SIZE);
 		if(dest->newbuffer == NULL)
 			ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 10);
 		*outsize = OUTPUT_BUF_SIZE;

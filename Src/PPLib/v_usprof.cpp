@@ -109,7 +109,7 @@ int SLAPI PPViewUserProfile::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewUserProfile::NextIteration(UserProfileViewItem * pItem)
+int FASTCALL PPViewUserProfile::NextIteration(UserProfileViewItem * pItem)
 {
 	int    ok = -1;
 	UserProfileViewItem item;

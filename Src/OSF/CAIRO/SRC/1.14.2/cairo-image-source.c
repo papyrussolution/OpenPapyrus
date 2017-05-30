@@ -294,7 +294,7 @@ static pixman_image_t * _pixman_image_for_gradient(const cairo_gradient_pattern_
 	}
 
 	if(pixman_stops != pixman_stops_static)
-		free(pixman_stops);
+		SAlloc::F(pixman_stops);
 
 	if(unlikely(pixman_image == NULL))
 		return NULL;
@@ -375,7 +375,7 @@ static void _acquire_source_cleanup(pixman_image_t * pixman_image, void * closur
 	_cairo_surface_release_source_image(data->surface,
 	    data->image,
 	    data->image_extra);
-	free(data);
+	SAlloc::F(data);
 }
 
 static void _defer_free_cleanup(pixman_image_t * pixman_image, void * closure)
@@ -770,7 +770,7 @@ static pixman_fixed_t * create_separable_convolution(int * n_values,
 	size_y = (1 << ysubsample) * ywidth;
 
 	*n_values = 4 + size_x + size_y;
-	params = (pixman_fixed_t *)malloc(*n_values * sizeof(pixman_fixed_t));
+	params = (pixman_fixed_t *)SAlloc::M(*n_values * sizeof(pixman_fixed_t));
 	if(!params) 
 		return 0;
 	params[0] = pixman_int_to_fixed(xwidth);
@@ -889,7 +889,7 @@ static cairo_bool_t _pixman_image_set_properties(pixman_image_t * pixman_image,
 				    (&n_params, kernel, dx, kernel, dy);
 			pixman_image_set_filter(pixman_image, pixman_filter,
 			    params, n_params);
-			free(params);
+			SAlloc::F(params);
 		}
 		else {
 			pixman_image_set_filter(pixman_image, pixman_filter, NULL, 0);
@@ -967,7 +967,7 @@ static const cairo_surface_backend_t proxy_backend  = {
 
 static cairo_surface_t * attach_proxy(cairo_surface_t * source, cairo_surface_t * image)
 {
-	struct proxy * proxy = (struct proxy *)malloc(sizeof(*proxy));
+	struct proxy * proxy = (struct proxy *)SAlloc::M(sizeof(*proxy));
 	if(unlikely(proxy == NULL))
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	_cairo_surface_init(&proxy->base, &proxy_backend, NULL, image->content);
@@ -1261,7 +1261,7 @@ static pixman_image_t * _pixman_image_for_surface(cairo_image_surface_t * dst,
 			_cairo_surface_release_source_image(pattern->surface, image, extra);
 			return NULL;
 		}
-		cleanup = (struct acquire_source_cleanup *)malloc(sizeof(*cleanup));
+		cleanup = (struct acquire_source_cleanup *)SAlloc::M(sizeof(*cleanup));
 		if(unlikely(cleanup == NULL)) {
 			_cairo_surface_release_source_image(pattern->surface, image, extra);
 			pixman_image_unref(pixman_image);
@@ -1297,7 +1297,7 @@ static void _raster_source_cleanup(pixman_image_t * pixman_image, void * closure
 	struct raster_source_cleanup * data = (struct raster_source_cleanup *)closure;
 	_cairo_surface_release_source_image(data->surface, data->image, data->image_extra);
 	_cairo_raster_source_pattern_release(data->pattern, data->surface);
-	free(data);
+	SAlloc::F(data);
 }
 
 static pixman_image_t * _pixman_image_for_raster(cairo_image_surface_t * dst,
@@ -1332,7 +1332,7 @@ static pixman_image_t * _pixman_image_for_raster(cairo_image_surface_t * dst,
 		_cairo_raster_source_pattern_release(&pattern->base, surface);
 		return NULL;
 	}
-	cleanup = (struct raster_source_cleanup *)malloc(sizeof(*cleanup));
+	cleanup = (struct raster_source_cleanup *)SAlloc::M(sizeof(*cleanup));
 	if(unlikely(cleanup == NULL)) {
 		pixman_image_unref(pixman_image);
 		_cairo_surface_release_source_image(surface, image, extra);
@@ -1422,7 +1422,7 @@ cairo_surface_t * _cairo_image_source_create_for_pattern(cairo_surface_t * dst,
 {
 	cairo_image_source_t * source;
 	TRACE((stderr, "%s\n", __FUNCTION__));
-	source = (cairo_image_source_t *)malloc(sizeof(cairo_image_source_t));
+	source = (cairo_image_source_t *)SAlloc::M(sizeof(cairo_image_source_t));
 	if(unlikely(source == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	source->pixman_image =
@@ -1431,7 +1431,7 @@ cairo_surface_t * _cairo_image_source_create_for_pattern(cairo_surface_t * dst,
 	    extents, sample,
 	    src_x, src_y);
 	if(unlikely(source->pixman_image == NULL)) {
-		free(source);
+		SAlloc::F(source);
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	_cairo_surface_init(&source->base,

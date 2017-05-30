@@ -2327,7 +2327,7 @@ int PPALDD_StrAssocArray::InitIteration(long iterId, int sortId, long rsrv)
 	return -1;
 }
 
-int PPALDD_StrAssocArray::NextIteration(long iterId, long rsrv)
+int PPALDD_StrAssocArray::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -2338,7 +2338,7 @@ int PPALDD_StrAssocArray::NextIteration(long iterId, long rsrv)
 		I.ParentId = item.ParentId;
 		STRNSCPY(I.Txt, item.Txt);
 		p_list->incPointer();
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }
@@ -2371,7 +2371,7 @@ int PPALDD_IntArray::InitIteration(long iterId, int sortId, long rsrv)
 	return -1;
 }
 
-int PPALDD_IntArray::NextIteration(long iterId, long rsrv)
+int PPALDD_IntArray::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -2379,7 +2379,7 @@ int PPALDD_IntArray::NextIteration(long iterId, long rsrv)
 	if(p_list && p_list->getPointer() < p_list->getCount()) {
 		I.Id = p_list->get(p_list->getPointer());
 		p_list->incPointer();
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }
@@ -2412,7 +2412,7 @@ int PPALDD_QuotArray::InitIteration(long iterId, int sortId, long rsrv)
 	return -1;
 }
 
-int PPALDD_QuotArray::NextIteration(long iterId, long rsrv)
+int PPALDD_QuotArray::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -2429,13 +2429,13 @@ int PPALDD_QuotArray::NextIteration(long iterId, long rsrv)
 		I.Flags = r_item.Flags;
 		I.Val = r_item.Val;
 		p_list->incPointer();
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }
 
 /*
-int PPALDD_QuotArray::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+void PPALDD_QuotArray::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_LONG(n) (*(long *)rS.GetPtr(pApl->Get(n)))
 	#define _RET_STR     (**(SString **)rS.GetPtr(pApl->Get(0)))
@@ -2459,7 +2459,6 @@ int PPALDD_QuotArray::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack
 		}
 		_RET_STR = temp_buf;
 	}
-	return 1;
 }
 */
 //
@@ -2491,7 +2490,7 @@ int PPALDD_UhttStoreItemArray::InitIteration(long iterId, int sortId, long rsrv)
 	return -1;
 }
 
-int PPALDD_UhttStoreItemArray::NextIteration(long iterId, long rsrv)
+int PPALDD_UhttStoreItemArray::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
@@ -2516,7 +2515,7 @@ int PPALDD_UhttStoreItemArray::NextIteration(long iterId, long rsrv)
 		}
 		I.Flags = r_item.Flags;
 		p_list->incPointer();
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }
@@ -2549,7 +2548,7 @@ int PPALDD_UhttCurRateArray::InitIteration(long iterId, int sortId, long rsrv)
 	return -1;
 }
 
-int PPALDD_UhttCurRateArray::NextIteration(long iterId, long rsrv)
+int PPALDD_UhttCurRateArray::NextIteration(long iterId)
 {
 	int     ok = -1;
 	SString temp_buf;
@@ -2574,7 +2573,7 @@ int PPALDD_UhttCurRateArray::NextIteration(long iterId, long rsrv)
 		}
 		I.Rate = r_item.Rate;
 		p_list->incPointer();
-		ok = DlRtm::NextIteration(iterId, rsrv);
+		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;
 }

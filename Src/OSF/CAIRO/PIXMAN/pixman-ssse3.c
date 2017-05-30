@@ -226,7 +226,7 @@ static uint32_t * ssse3_fetch_bilinear_cover(pixman_iter_t * iter, const uint32_
 
 static void ssse3_bilinear_cover_iter_fini(pixman_iter_t * iter)
 {
-	free(iter->data);
+	SAlloc::F(iter->data);
 }
 
 static void ssse3_bilinear_cover_iter_init(pixman_iter_t * iter, const pixman_iter_info_t * iter_info)
@@ -240,7 +240,7 @@ static void ssse3_bilinear_cover_iter_init(pixman_iter_t * iter, const pixman_it
 	v.vector[2] = pixman_fixed_1;
 	if(!pixman_transform_point_3d(iter->image->common.transform, &v))
 		goto fail;
-	info = (bilinear_info_t *)malloc(sizeof(*info) + (2 * width - 1) * sizeof(uint64_t) + 64);
+	info = (bilinear_info_t *)SAlloc::M(sizeof(*info) + (2 * width - 1) * sizeof(uint64_t) + 64);
 	if(!info)
 		goto fail;
 	info->x = v.vector[0] - pixman_fixed_1 / 2;

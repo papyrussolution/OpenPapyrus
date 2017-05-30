@@ -68,7 +68,7 @@ static void _lzw_buf_init(lzw_buf_t * buf, int size)
 	buf->num_data = 0;
 	buf->pending = 0;
 	buf->pending_bits = 0;
-	buf->data = (uchar *)malloc(size);
+	buf->data = (uchar *)SAlloc::M(size);
 	if(unlikely(buf->data == NULL)) {
 		buf->data_size = 0;
 		buf->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -92,7 +92,7 @@ static cairo_status_t _lzw_buf_grow(lzw_buf_t * buf)
 		new_data = (uchar *)realloc(buf->data, new_size);
 
 	if(unlikely(new_data == NULL)) {
-		free(buf->data);
+		SAlloc::F(buf->data);
 		buf->data_size = 0;
 		buf->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		return buf->status;

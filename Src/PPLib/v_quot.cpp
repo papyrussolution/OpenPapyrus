@@ -677,15 +677,13 @@ int SLAPI PPViewQuot::InitIteration()
 		t->Quot8, t->Quot9, t->Quot10, t->Quot11, t->Quot12, t->Quot13,
 		t->Quot14, t->Quot15, t->Quot16, 0L);
 	MEMSZERO(k1);
-	// @v7.0.14 k1_ = k1;
-	// @v7.0.14 Counter.Init(P_IterQuery->countIterations(0, &k1_, spFirst));
-	Counter.Init(t); // @v7.0.14
+	Counter.Init(t);
 	P_IterQuery->initIteration(0, &k1, spFirst);
 	CATCHZOK
 	return ok;
 }
 
-int SLAPI PPViewQuot::NextIteration(QuotViewItem * pItem)
+int FASTCALL PPViewQuot::NextIteration(QuotViewItem * pItem)
 {
 	int    ok = -1;
 	if(pItem)
@@ -2074,7 +2072,7 @@ int PPALDD_QuotView::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(Quot);
 }
 
-int PPALDD_QuotView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_QuotView::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(Quot);
 	I.GoodsID  = item.GoodsID;

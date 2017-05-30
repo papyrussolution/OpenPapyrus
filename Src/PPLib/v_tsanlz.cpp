@@ -475,7 +475,7 @@ int SLAPI PPViewTSessAnlz::IsGoodsBelongToGen(PPID goodsID, PPID * pGenID)
 {
 	int    ok = -1;
 	PPID   gen_id = 0;
-	if(GenList.Search(goodsID, &gen_id, 0, 0) > 0) {
+	if(GenList.Search(goodsID, &gen_id, 0) > 0) {
 		ok = gen_id ? 1 : -1;
 	}
 	else if(GObj.P_Tbl->BelongToGen(goodsID, &(gen_id = 0)) > 0) {
@@ -989,7 +989,7 @@ int SLAPI PPViewTSessAnlz::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewTSessAnlz::NextIteration(TSessAnlzViewItem * pItem)
+int FASTCALL PPViewTSessAnlz::NextIteration(TSessAnlzViewItem * pItem)
 {
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		RecToViewItem(&P_TempTbl->data, pItem);
@@ -1304,7 +1304,7 @@ int PPALDD_TSessAnlz::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(TSessAnlz);
 }
 
-int PPALDD_TSessAnlz::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_TSessAnlz::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(TSessAnlz);
 	I.Dt.v        = item.DtVal;

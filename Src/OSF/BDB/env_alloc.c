@@ -187,7 +187,7 @@ int __env_alloc(REGINFO * infop, size_t len, void * retp)
 #endif
 	PERFMON3(env, mpool, env_alloc, len, infop->id, infop->type);
 	/*
-	 * In a heap-backed environment, we call malloc for additional space.
+	 * In a heap-backed environment, we call SAlloc::M for additional space.
 	 * (Malloc must return memory correctly aligned for our use.)
 	 *
 	 * In a heap-backed environment, memory is laid out as follows:

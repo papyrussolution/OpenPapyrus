@@ -201,7 +201,7 @@ static int SLAPI alloc_list(void)
 	int    ok = 1;
 	currentTerm   = 0;
 	numberOfTerms = LIST_DELTA;
-	termList      = (CompareTerm *)calloc(numberOfTerms, sizeof(CompareTerm));
+	termList      = (CompareTerm *)SAlloc::C(numberOfTerms, sizeof(CompareTerm));
 	if(!termList) {
 		numberOfTerms = 0;
 		ok = ((SLibError = SLERR_NOMEM), 0);
@@ -215,7 +215,7 @@ static int SLAPI inc_list()
 	int    itemSize;
 	if(++currentTerm >= numberOfTerms) {
 		itemSize = sizeof(CompareTerm);
-		termList = (CompareTerm *)realloc(termList, (numberOfTerms + LIST_DELTA) * itemSize);
+		termList = (CompareTerm *)SAlloc::R(termList, (numberOfTerms + LIST_DELTA) * itemSize);
 		if(termList == NULL) {
 			currentTerm = 0;
 			numberOfTerms = 0;
@@ -334,7 +334,7 @@ int SLAPI parse_cmp_expression(char * str, int * pNumItems, CompareTerm * vect)
 				memcpy(vect, termList, *pNumItems * sizeof(CompareTerm));
 			}
 		}
-		free(termList);
+		SAlloc::F(termList);
 	}
 	termList = NULL;
 	return ok;
@@ -416,7 +416,7 @@ void main(void)
 {
 	int i;
 	int numItems = 12;
-	pCompareTerm vect = (pCompareTerm)malloc(numItems * sizeof(CompareTerm));
+	pCompareTerm vect = (pCompareTerm)SAlloc::M(numItems * sizeof(CompareTerm));
 	if(vect) {
 		if(!parse_cmp_expression("1,4,6,9,,15..19,30,56..67,100..110",
 			&numItems, vect))

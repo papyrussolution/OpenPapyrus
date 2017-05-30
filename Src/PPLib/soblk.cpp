@@ -1827,7 +1827,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 					ResultText = p_json_buf;
 					THROW(rResult.WriteString(ResultText));
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
-					free(p_json_buf);
+					SAlloc::F(p_json_buf);
 					json_free_value(&p_jpack);
 					ok = 1;
 				}
@@ -2005,7 +2005,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 					ResultText = p_json_buf;
 					THROW(rResult.WriteString(ResultText));
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
-					free(p_json_buf);
+					SAlloc::F(p_json_buf);
 					json_free_value(&p_jpack);
 					ok = 1;
 				}

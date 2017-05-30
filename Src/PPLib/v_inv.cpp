@@ -638,7 +638,7 @@ int SLAPI PPViewInventory::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewInventory::NextIteration(InventoryViewItem * pItem)
+int FASTCALL PPViewInventory::NextIteration(InventoryViewItem * pItem)
 {
 	int    ok = -1;
 	PROFILE_START;
@@ -1853,7 +1853,7 @@ int PPALDD_Invent::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	INIT_PPVIEW_ALDD_ITER(Inventory);
 }
 
-int PPALDD_Invent::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_Invent::NextIteration(PPIterID iterId)
 {
 	long   n = (long)I.LineNo+1;
 	START_PPVIEW_ALDD_ITER(Inventory);

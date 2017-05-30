@@ -619,7 +619,7 @@ static cairo_surface_t * map_qimage_to_image(QImage * qimg, const CairoIRect * e
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	}
 
-	surface = (struct _qimage_surface*)malloc(sizeof(*surface));
+	surface = (struct _qimage_surface*)SAlloc::M(sizeof(*surface));
 	if(unlikely(surface == NULL)) {
 		pixman_image_unref(pixman_image);
 		delete qimg;
@@ -1522,7 +1522,7 @@ static const cairo_surface_backend_t cairo_qt_surface_backend = {
 
 cairo_surface_t * cairo_qt_surface_create(QPainter * painter)
 {
-	cairo_qt_surface_t * qs = (cairo_qt_surface_t*)malloc(sizeof(cairo_qt_surface_t));
+	cairo_qt_surface_t * qs = (cairo_qt_surface_t*)SAlloc::M(sizeof(cairo_qt_surface_t));
 	if(qs == NULL)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	memzero(qs, sizeof(cairo_qt_surface_t));
@@ -1544,7 +1544,7 @@ cairo_surface_t * cairo_qt_surface_create(QPainter * painter)
 
 cairo_surface_t * cairo_qt_surface_create_with_qimage(cairo_format_t format, int width, int height)
 {
-	cairo_qt_surface_t * qs = (cairo_qt_surface_t*)malloc(sizeof(cairo_qt_surface_t));
+	cairo_qt_surface_t * qs = (cairo_qt_surface_t*)SAlloc::M(sizeof(cairo_qt_surface_t));
 	if(qs == NULL)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	memzero(qs, sizeof(cairo_qt_surface_t));
@@ -1569,13 +1569,13 @@ cairo_surface_t * cairo_qt_surface_create_with_qpixmap(cairo_content_t content, 
 	cairo_qt_surface_t * qs;
 	if((content & CAIRO_CONTENT_COLOR) == 0)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_CONTENT));
-	qs = (cairo_qt_surface_t*)malloc(sizeof(cairo_qt_surface_t));
+	qs = (cairo_qt_surface_t*)SAlloc::M(sizeof(cairo_qt_surface_t));
 	if(qs == NULL)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	memzero(qs, sizeof(cairo_qt_surface_t));
 	QPixmap * pixmap = new QPixmap(width, height);
 	if(pixmap == NULL) {
-		free(qs);
+		SAlloc::F(qs);
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}
 	// By default, a QPixmap is opaque; however, if it's filled

@@ -167,7 +167,7 @@ int SLAPI PPViewMrpTab::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewMrpTab::NextIteration(MrpTabViewItem * pItem)
+int FASTCALL PPViewMrpTab::NextIteration(MrpTabViewItem * pItem)
 {
 	while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		Counter.Increment();
@@ -467,7 +467,7 @@ int SLAPI PPViewMrpLine::InitIteration()
 	return 1;
 }
 
-int SLAPI PPViewMrpLine::NextIteration(MrpLineViewItem * pItem)
+int FASTCALL PPViewMrpLine::NextIteration(MrpLineViewItem * pItem)
 {
 	MrpLineTbl & r_lt = MrpObj.P_Tbl->Lines;
 	while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
@@ -877,7 +877,7 @@ int PPALDD_MrpLines::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(MrpLine);
 }
 
-int PPALDD_MrpLines::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_MrpLines::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(MrpLine);
 	const MrpLineFilt * p_filt = (const MrpLineFilt *)p_v->GetBaseFilt();

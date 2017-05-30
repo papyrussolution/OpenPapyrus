@@ -5,9 +5,6 @@
 #define ZLIB_INTERNAL
 #include "zlib.h"
 #pragma hdrstop
-//#include "inftrees.h"
-//#include "inflate.h"
-//#include "inffast.h"
 
 #ifdef ASMINF
 	#pragma message("Assembler code may have bugs -- use at your own risk")

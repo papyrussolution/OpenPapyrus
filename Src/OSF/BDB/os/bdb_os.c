@@ -27,13 +27,13 @@ typedef union {
  * !!!
  * Correct for systems that return NULL when you allocate 0 bytes of memory.
  * There are several places in DB where we allocate the number of bytes held
- * by the key/data item, and it can be 0.  Correct here so that malloc never
+ * by the key/data item, and it can be 0.  Correct here so that SAlloc::M never
  * returns a NULL for that reason (which behavior is permitted by ANSI).  We
  * could make these calls macros on non-Alpha architectures (that's where we
  * saw the problem), but it's probably not worth the autoconf complexity.
  *
  * !!!
- * Correct for systems that don't set errno when malloc and friends fail.
+ * Correct for systems that don't set errno when SAlloc::M and friends fail.
  *
  *	Out of memory.
  *	We wish to hold the whole sky,
@@ -46,7 +46,7 @@ typedef union {
  *
  *	Use, in order of preference, the allocation function specified to the
  *	ENV handle, the allocation function specified as a replacement for
- *	the library malloc, or the library malloc().
+ *	the library SAlloc::M, or the library SAlloc::M().
  *
  * PUBLIC: int __os_umalloc(ENV *, size_t, void *);
  */
@@ -58,7 +58,7 @@ int __os_umalloc(ENV * env, size_t size, void * storep)
 	if(size == 0)
 		++size;
 	if(dbenv == NULL || dbenv->db_malloc == NULL) {
-		*(void **)storep = (DB_GLOBAL(j_malloc) != NULL) ? DB_GLOBAL(j_malloc) (size) : malloc(size);
+		*(void **)storep = (DB_GLOBAL(j_malloc) != NULL) ? DB_GLOBAL(j_malloc) (size) : SAlloc::M(size);
 		if(*(void **)storep == NULL) {
 			/*
 			 *  Correct error return, see __os_malloc.
@@ -67,13 +67,13 @@ int __os_umalloc(ENV * env, size_t size, void * storep)
 				ret = ENOMEM;
 				__os_set_errno(ENOMEM);
 			}
-			__db_err(env, ret, DB_STR_A("0143", "malloc: %lu", "%lu"), (ulong)size);
+			__db_err(env, ret, DB_STR_A("0143", "SAlloc::M: %lu", "%lu"), (ulong)size);
 			return ret;
 		}
 		return 0;
 	}
 	if((*(void **)storep = dbenv->db_malloc(size)) == NULL) {
-		__db_errx(env, DB_STR("0144", "user-specified malloc function returned NULL"));
+		__db_errx(env, DB_STR("0144", "user-specified SAlloc::M function returned NULL"));
 		return ENOMEM;
 	}
 	return 0;
@@ -82,7 +82,7 @@ int __os_umalloc(ENV * env, size_t size, void * storep)
  * __os_urealloc --
  *	Allocate memory to be used by the application.
  *
- *	A realloc(3) counterpart to __os_umalloc's malloc(3).
+ *	A realloc(3) counterpart to __os_umalloc's SAlloc::M(3).
  *
  * PUBLIC: int __os_urealloc(ENV *, size_t, void *);
  */
@@ -121,7 +121,7 @@ int __os_urealloc(ENV * env, size_t size, void * storep)
  * __os_ufree --
  *	Free memory used by the application.
  *
- *	A free(3) counterpart to __os_umalloc's malloc(3).
+ *	A free(3) counterpart to __os_umalloc's SAlloc::M(3).
  *
  * PUBLIC: void __os_ufree __P((ENV *, void *));
  */
@@ -173,7 +173,7 @@ int __os_calloc(ENV * env, size_t num, size_t size, void * storep)
 }
 /*
  * __os_malloc --
- *	The malloc(3) function for DB.
+ *	The SAlloc::M(3) function for DB.
  *
  * PUBLIC: int __os_malloc(ENV *, size_t, void *);
  */
@@ -189,11 +189,11 @@ int __os_malloc(ENV * env, size_t size, void * storep)
 	/* Add room for size and a guard byte. */
 	size += sizeof(db_allocinfo_t)+1;
 #endif
-	p = (DB_GLOBAL(j_malloc) != NULL) ? DB_GLOBAL(j_malloc) (size) : malloc(size);
+	p = (DB_GLOBAL(j_malloc) != NULL) ? DB_GLOBAL(j_malloc)(size) : SAlloc::M(size);
 	if(p == NULL) {
 		/*
-		 * Some C libraries don't correctly set errno when malloc(3)
-		 * fails.  We'd like to 0 out errno before calling malloc,
+		 * Some C libraries don't correctly set errno when SAlloc::M(3)
+		 * fails.  We'd like to 0 out errno before calling SAlloc::M,
 		 * but it turns out that setting errno is quite expensive on
 		 * Windows/NT in an MT environment.
 		 */
@@ -201,7 +201,7 @@ int __os_malloc(ENV * env, size_t size, void * storep)
 			ret = ENOMEM;
 			__os_set_errno(ENOMEM);
 		}
-		__db_err(env, ret, DB_STR_A("0147", "malloc: %lu", "%lu"), (ulong)size);
+		__db_err(env, ret, DB_STR_A("0147", "SAlloc::M: %lu", "%lu"), (ulong)size);
 		return ret;
 	}
 #ifdef DIAGNOSTIC
@@ -230,16 +230,16 @@ int __os_realloc(ENV * env, size_t size, void * storep)
 	int ret;
 	void * p;
 	void * ptr = *(void **)storep;
-	/* Never allocate 0 bytes -- some C libraries don't like it. */
+	// Never allocate 0 bytes -- some C libraries don't like it
 	if(size == 0)
 		++size;
-	/* If we haven't yet allocated anything yet, simply call malloc. */
+	// If we haven't yet allocated anything yet, simply call malloc 
 	if(ptr == NULL)
 		return __os_malloc(env, size, storep);
 #ifdef DIAGNOSTIC
-	/* Add room for size and a guard byte. */
+	// Add room for size and a guard byte. 
 	size += sizeof(db_allocinfo_t)+1;
-	/* Back up to the real beginning */
+	// Back up to the real beginning 
 	ptr = &((db_allocinfo_t *)ptr)[-1];
 	{
 		size_t s = ((db_allocinfo_t *)ptr)->size;
@@ -254,8 +254,8 @@ int __os_realloc(ENV * env, size_t size, void * storep)
 	p = (DB_GLOBAL(j_realloc) != NULL) ? DB_GLOBAL(j_realloc) (ptr, size) : realloc(ptr, size);
 	if(p == NULL) {
 		/*
-		 * Some C libraries don't correctly set errno when malloc(3)
-		 * fails.  We'd like to 0 out errno before calling malloc,
+		 * Some C libraries don't correctly set errno when SAlloc::M(3)
+		 * fails.  We'd like to 0 out errno before calling SAlloc::M,
 		 * but it turns out that setting errno is quite expensive on
 		 * Windows/NT in an MT environment.
 		 */
@@ -286,15 +286,14 @@ void FASTCALL __os_free(ENV * env, void * ptr)
 	if(ptr) {
 #ifdef DIAGNOSTIC
 		size_t size;
-		/*
-		* Check that the guard byte (one past the end of the memory) is
-		* still CLEAR_BYTE.
-		*/
+		//
+		// Check that the guard byte (one past the end of the memory) is still CLEAR_BYTE.
+		//
 		ptr = &((db_allocinfo_t *)ptr)[-1];
 		size = ((db_allocinfo_t *)ptr)->size;
 		if(((uint8 *)ptr)[size-1] != CLEAR_BYTE)
 			__os_guard(env);
-		/* Overwrite memory. */
+		// Overwrite memory
 		if(size != 0)
 			memset(ptr, CLEAR_BYTE, size);
 #else

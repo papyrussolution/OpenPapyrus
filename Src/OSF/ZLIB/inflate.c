@@ -82,9 +82,6 @@
 #define ZLIB_INTERNAL
 #include "zlib.h"
 #pragma hdrstop
-//#include "inftrees.h"
-//#include "inflate.h"
-//#include "inffast.h"
 
 #ifdef MAKEFIXED
 	#ifndef BUILDFIXED

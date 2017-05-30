@@ -498,7 +498,7 @@ int SLAPI PPViewDvcLoadingStat::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewDvcLoadingStat::NextIteration(DvcLoadingStatViewItem * pItem)
+int FASTCALL PPViewDvcLoadingStat::NextIteration(DvcLoadingStatViewItem * pItem)
 {
 	int    ok = -1;
 	memzero(pItem, sizeof(*pItem));

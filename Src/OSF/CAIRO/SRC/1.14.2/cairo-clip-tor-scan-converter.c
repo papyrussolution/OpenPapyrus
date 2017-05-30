@@ -242,7 +242,7 @@ struct _pool_chunk {
 /* A memory pool.  This is supposed to be embedded on the stack or
  * within some other structure.	 It may optionally be followed by an
  * embedded array from which requests are fulfilled until
- * malloc needs to be called to allocate a first real chunk. */
+ * SAlloc::M needs to be called to allocate a first real chunk. */
 struct pool {
 	/* Chunk we're allocating from. */
 	struct _pool_chunk * current;
@@ -435,7 +435,7 @@ static struct _pool_chunk * _pool_chunk_init(struct _pool_chunk * p, struct _poo
 
 static struct _pool_chunk * _pool_chunk_create(struct pool * pool, size_t size)                             
 {
-	struct _pool_chunk * p = (struct _pool_chunk *)malloc(size + sizeof(struct _pool_chunk));
+	struct _pool_chunk * p = (struct _pool_chunk *)SAlloc::M(size + sizeof(struct _pool_chunk));
 	if(unlikely(NULL == p))
 		longjmp(*pool->jmp, _cairo_error(CAIRO_STATUS_NO_MEMORY));
 	return _pool_chunk_init(p, pool->current, size);
@@ -457,7 +457,7 @@ static void pool_fini(struct pool * pool)
 		while(NULL != p) {
 			struct _pool_chunk * prev = p->prev_chunk;
 			if(p != pool->sentinel)
-				free(p);
+				SAlloc::F(p);
 			p = prev;
 		}
 		p = pool->first_free;
@@ -815,7 +815,7 @@ static void polygon_init(struct polygon * polygon, jmp_buf * jmp)
 static void polygon_fini(struct polygon * polygon)
 {
 	if(polygon->y_buckets != polygon->y_buckets_embedded)
-		free(polygon->y_buckets);
+		SAlloc::F(polygon->y_buckets);
 
 	pool_fini(polygon->edge_pool.base);
 }
@@ -832,7 +832,7 @@ static cairo_status_t polygon_reset(struct polygon * polygon, grid_scaled_y_t ym
 		goto bail_no_mem;  /* even if you could, you wouldn't want to. */
 
 	if(polygon->y_buckets != polygon->y_buckets_embedded)
-		free(polygon->y_buckets);
+		SAlloc::F(polygon->y_buckets);
 	polygon->y_buckets =  polygon->y_buckets_embedded;
 	if(num_buckets > ARRAY_LENGTH(polygon->y_buckets_embedded)) {
 		polygon->y_buckets = (struct edge **)_cairo_malloc_ab(num_buckets, sizeof(struct edge *));
@@ -1556,7 +1556,7 @@ static void _cairo_clip_tor_scan_converter_destroy(void * converter)
 	if(self) {
 		_glitter_scan_converter_fini(self->converter);
 		pool_fini(self->span_pool.base);
-		free(self);
+		SAlloc::F(self);
 	}
 }
 

@@ -208,7 +208,7 @@ static void _vg_context_destroy(cairo_vg_context_t * context)
 		vgDestroyPaint(context->paint);
 
 	_cairo_cache_fini(&context->snapshot_cache);
-	free(context);
+	SAlloc::F(context);
 }
 
 static void _vg_context_unlock(cairo_vg_context_t * context)
@@ -713,7 +713,7 @@ static cairo_status_t _vg_setup_gradient_stops(cairo_vg_context_t * context,
 	    VG_PAINT_COLOR_RAMP_STOPS, numstops * 5, stops);
 
 	if(stops != stack_stops)
-		free(stops);
+		SAlloc::F(stops);
 
 	CHECK_VG_ERRORS();
 	return CAIRO_STATUS_SUCCESS;
@@ -1463,7 +1463,7 @@ static cairo_surface_t * _vg_surface_create_internal(cairo_vg_context_t * contex
 {
 	cairo_vg_surface_t * surface;
 
-	surface = malloc(sizeof(cairo_vg_surface_t));
+	surface = SAlloc::M(sizeof(cairo_vg_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
@@ -1646,7 +1646,7 @@ cairo_vg_context_t * cairo_vg_context_create_for_glx(Display * dpy, GLXContext c
 	cairo_vg_context_t * context;
 	cairo_status_t status;
 
-	context = malloc(sizeof(*context));
+	context = SAlloc::M(sizeof(*context));
 	if(unlikely(context == NULL))
 		return (cairo_vg_context_t*)&_vg_context_nil;
 
@@ -1659,7 +1659,7 @@ cairo_vg_context_t * cairo_vg_context_create_for_glx(Display * dpy, GLXContext c
 
 	status = _vg_context_init(context);
 	if(unlikely(status)) {
-		free(context);
+		SAlloc::F(context);
 		return (cairo_vg_context_t*)&_vg_context_nil;
 	}
 
@@ -1746,13 +1746,13 @@ cairo_vg_context_t * cairo_vg_context_create_for_egl(EGLDisplay egl_display,
 	cairo_vg_context_t * context;
 	cairo_status_t status;
 
-	context = malloc(sizeof(*context));
+	context = SAlloc::M(sizeof(*context));
 	if(unlikely(context == NULL))
 		return (cairo_vg_context_t*)&_vg_context_nil;
 
 	status = _vg_context_init(context);
 	if(unlikely(status)) {
-		free(context);
+		SAlloc::F(context);
 		return (cairo_vg_context_t*)&_vg_context_nil;
 	}
 

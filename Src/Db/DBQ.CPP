@@ -295,7 +295,7 @@ int FASTCALL DBE::evaluate(int option, DBConst * r)
 
 int FASTCALL DBE::push(DBE::T * t)
 {
-	P_Terms = (DBE::T*)realloc(P_Terms, sizeof(DBE::T) * (Count+1));
+	P_Terms = (DBE::T*)SAlloc::R(P_Terms, sizeof(DBE::T) * (Count+1));
 	if(P_Terms == 0) {
 		Count = 0;
 		return 0;
@@ -331,7 +331,7 @@ int FASTCALL DBE::push(DBItem & item)
 		for(int i = 0; ok && i < p_e->Count; i++)
 			ok = push(p_e->P_Terms+i);
 		if(!p_e->DontDestroy) {
-			free(p_e->P_Terms);
+			SAlloc::F(p_e->P_Terms);
 			p_e->P_Terms = 0;
 			p_e->Count = 0;
 			delete p_e;
@@ -520,7 +520,7 @@ int FASTCALL DBFieldList::Alloc(uint n)
 	ZFREE(P_Flds);
 	Count = 0;
 	if(n) {
-		P_Flds = (DBField *)malloc(n * sizeof(DBField));
+		P_Flds = (DBField *)SAlloc::M(n * sizeof(DBField));
 		if(P_Flds) {
 			Count = n;
 			memzero(P_Flds, sizeof(DBField) * Count);
@@ -534,7 +534,7 @@ int FASTCALL DBFieldList::Alloc(uint n)
 int FASTCALL DBFieldList::Add(const DBField & rSrc)
 {
 	int    ok = 1;
-	P_Flds = (DBField *)realloc(P_Flds, sizeof(DBField) * (Count + 1));
+	P_Flds = (DBField *)SAlloc::R(P_Flds, sizeof(DBField) * (Count + 1));
 	if(P_Flds)
 		P_Flds[Count++] = rSrc;
 	else {
@@ -866,7 +866,7 @@ void SLAPI DBTree::destroy()
 
 int FASTCALL DBTree::expand(int * pos)
 {
-	P_Items = (T *)realloc(P_Items, sizeof(T) * (Count + 1));
+	P_Items = (T *)SAlloc::R(P_Items, sizeof(T) * (Count + 1));
 	if(P_Items) {
 		*pos = Count;
 		return TRUE;
@@ -942,8 +942,8 @@ int SLAPI DBTree::chooseKey(int n, int tblID, int seg, KR * dest, uint * pTrace)
 				return 0;
 			if(pTrace) {
 				uint tc = (Count+1) * sizeof(int);
-				p_ltrace = (uint *)malloc(tc);
-				p_rtrace = (uint *)malloc(tc);
+				p_ltrace = (uint *)SAlloc::M(tc);
+				p_rtrace = (uint *)SAlloc::M(tc);
 				if(p_ltrace == 0 || p_rtrace == 0) {
 					l.destroy();
 					r.destroy();
@@ -980,8 +980,8 @@ int SLAPI DBTree::chooseKey(int n, int tblID, int seg, KR * dest, uint * pTrace)
 				l.destroy();
 				r.destroy();
 			}
-			free(p_ltrace);
-			free(p_rtrace);
+			SAlloc::F(p_ltrace);
+			SAlloc::F(p_rtrace);
 		}
 	}
 	return result;

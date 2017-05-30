@@ -463,6 +463,7 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
 					SfSortSplitThread(InitBlock * pBlk) : SlThread(pBlk), B(*pBlk)
 					{
 						B = *pBlk;
+						InitStartupSignal();
 					}
 					virtual void Run()
 					{
@@ -479,6 +480,11 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
                         }
 					}
 				private:
+					void SLAPI Startup()
+					{
+						SlThread::Startup();
+						SignalStartup();
+					}
 					InitBlock B;
 				};
 				if(max_thread > 1) {
@@ -515,7 +521,7 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
 							SfSortSplitThread::InitBlock ib(src_file_name, p_chunk_, p_new_ci, &thread_result, &thread_counter);
 							SfSortSplitThread * p_thread = new SfSortSplitThread(&ib);
 							THROW_S(p_thread, SLERR_NOMEM);
-							p_thread->Start(0);
+							p_thread->Start(1/*0*/);
 							//
 							THROW_S(p_chunk_ = new SfSortStringPool(fcmp), SLERR_NOMEM);
 						}
@@ -542,7 +548,7 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
 						SfSortSplitThread::InitBlock ib(src_file_name, p_chunk_, p_new_ci, &thread_result, &thread_counter);
 						SfSortSplitThread * p_thread = new SfSortSplitThread(&ib);
 						THROW_S(p_thread, SLERR_NOMEM);
-						p_thread->Start(0);
+						p_thread->Start(1/*0*/);
 					}
 					else {
 						THROW(p_new_ci->Finish(src_file_name, *p_chunk_));

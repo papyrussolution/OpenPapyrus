@@ -31,8 +31,9 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 --------------------------------------------------------------------------------
 
 */
-
+#include <slib.h> // @v9.6.8
 #include "wsdlH.h"		// cannot include "schemaH.h"
+#pragma hdrstop
 #include "includes.h"
 
 extern struct Namespace namespaces[];

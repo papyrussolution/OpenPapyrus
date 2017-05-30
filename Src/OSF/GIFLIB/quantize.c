@@ -64,7 +64,7 @@ int GifQuantizeBuffer(uint Width, uint Height,
 	long Red, Green, Blue;
 	NewColorMapType NewColorSubdiv[256];
 	QuantizedColorType * ColorArrayEntries, * QuantizedColor;
-	ColorArrayEntries = (QuantizedColorType*)malloc(sizeof(QuantizedColorType) * COLOR_ARRAY_SIZE);
+	ColorArrayEntries = (QuantizedColorType*)SAlloc::M(sizeof(QuantizedColorType) * COLOR_ARRAY_SIZE);
 	if(ColorArrayEntries == NULL) {
 		return GIF_ERROR;
 	}
@@ -196,7 +196,7 @@ static int SubdivColorMap(NewColorMapType * NewColorSubdiv, uint ColorMapSize, u
 
 		/* Sort all elements in that entry along the given axis and split at
 		 * the median.  */
-		SortArray = (QuantizedColorType**)malloc(sizeof(QuantizedColorType *) * NewColorSubdiv[Index].NumEntries);
+		SortArray = (QuantizedColorType**)SAlloc::M(sizeof(QuantizedColorType *) * NewColorSubdiv[Index].NumEntries);
 		if(SortArray == NULL)
 			return GIF_ERROR;
 		for(j = 0, QuantizedColor = NewColorSubdiv[Index].QuantizedColors; j < NewColorSubdiv[Index].NumEntries && QuantizedColor != NULL; j++, QuantizedColor = QuantizedColor->Pnext)

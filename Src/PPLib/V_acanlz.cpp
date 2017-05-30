@@ -1534,7 +1534,7 @@ int SLAPI PPViewAccAnlz::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewAccAnlz::NextIteration(AccAnlzViewItem * pItem)
+int FASTCALL PPViewAccAnlz::NextIteration(AccAnlzViewItem * pItem)
 {
 	int    ok = -1;
 	if(P_IterQuery) {
@@ -2436,7 +2436,7 @@ int PPALDD_AccAnlz::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	INIT_PPVIEW_ALDD_ITER(AccAnlz);
 }
 
-int PPALDD_AccAnlz::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_AccAnlz::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(AccAnlz);
 	p_v->FormatCycle(item.Dt, I.CycleText, sizeof(I.CycleText));
@@ -2510,7 +2510,7 @@ int PPALDD_AccturnList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/
 	INIT_PPVIEW_ALDD_ITER(Accturn);
 }
 
-int PPALDD_AccturnList::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_AccturnList::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(Accturn);
 	p_v->FormatCycle(item.Date, I.CycleText, sizeof(I.CycleText));
@@ -2561,7 +2561,7 @@ int PPALDD_AccountView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/
 	INIT_PPVIEW_ALDD_ITER(Account);
 }
 
-int PPALDD_AccountView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_AccountView::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(Account);
 	I.AccID = item.ID;
@@ -2724,7 +2724,7 @@ int PPALDD_CurRateView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/
 	INIT_PPVIEW_ALDD_ITER(CurRate);
 }
 
-int PPALDD_CurRateView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_CurRateView::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(CurRate);
 	I.CurID      = item.CurID;

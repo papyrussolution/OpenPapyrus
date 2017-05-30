@@ -83,7 +83,7 @@ int PPEds::GetCert(PCCERT_CONTEXT & rCert)
     THROW_PP(CryptGetKeyParam(h_key, KP_CERTIFICATE, NULL, &user_cert_length, 0), PPERR_EDS_GETCERT);
 	BYTE * p_user_cert = 0;
     // Распределение памяти под буфер пользовательского сертификата.
-    THROW_MEM((p_user_cert = (BYTE *)malloc(user_cert_length)));
+    THROW_MEM((p_user_cert = (BYTE *)SAlloc::M(user_cert_length)));
     // Получение пользовательского сертификата.
 	THROW_PP(CryptGetKeyParam(h_key, KP_CERTIFICATE, p_user_cert, &user_cert_length, 0), PPERR_EDS_GETCERT);
     // Формирование контекста сертификата.
@@ -942,7 +942,7 @@ int PPEds::GetSignerNameByNumber(const char * pSignFileName, int signNumber, SSt
 //		}
 //	}
 //	if(ok) {
-		THROW_MEM(pb_signer_cert_info = (PCERT_INFO) malloc(cb_signer_cert_info));
+		THROW_MEM(pb_signer_cert_info = (PCERT_INFO) SAlloc::M(cb_signer_cert_info));
 		memzero(pb_signer_cert_info, cb_signer_cert_info);
 		// Получаем инфу о сертификате
 		THROW_PP(CryptMsgGetParam(h_msg, CMSG_SIGNER_CERT_INFO_PARAM, signNumber - 1, pb_signer_cert_info, &cb_signer_cert_info), PPERR_EDS_GETCERTINFOFAILED);
@@ -1046,7 +1046,7 @@ int PPEds::CashOn(PCCERT_CONTEXT & cert)
 	CRYPT_KEY_PROV_INFO * p_crypt_key_prov_info  = NULL;
 
     THROW(CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, NULL, &c_data));
-    THROW_MEM(p_crypt_key_prov_info = (CRYPT_KEY_PROV_INFO *)malloc(c_data));
+    THROW_MEM(p_crypt_key_prov_info = (CRYPT_KEY_PROV_INFO *)SAlloc::M(c_data));
     THROW(CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, p_crypt_key_prov_info, &c_data));
     // Установим флаг кеширования провайдера
     p_crypt_key_prov_info->dwFlags = CERT_SET_KEY_CONTEXT_PROP_ID;
@@ -1067,8 +1067,8 @@ int PPEds::CashOff(PCCERT_CONTEXT & cert)
 
 	THROW(CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, NULL, &c_data));
     if(p_crypt_key_prov_info)
-        free(p_crypt_key_prov_info);
-    THROW_MEM(p_crypt_key_prov_info = (CRYPT_KEY_PROV_INFO *)malloc(c_data));
+        SAlloc::F(p_crypt_key_prov_info);
+    THROW_MEM(p_crypt_key_prov_info = (CRYPT_KEY_PROV_INFO *)SAlloc::M(c_data));
     THROW(CertGetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, p_crypt_key_prov_info, &c_data));
     /* Убираем флаг кеширования провайдера*/
     p_crypt_key_prov_info->dwFlags = 0;
@@ -1129,7 +1129,7 @@ int PPEds::GetCountersignerNameBySignerNumber(const char * pSignFileName, int si
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_SIGNER_UNAUTH_ATTR_PARAM, signerNumber - 1, NULL, &cb_attr_info), PPERR_EDS_GETSIGNINFOFAILED);
 
 	// Выделим память
-	THROW_MEM(pb_attr_info = (CRYPT_ATTRIBUTES*)malloc(cb_attr_info));
+	THROW_MEM(pb_attr_info = (CRYPT_ATTRIBUTES*)SAlloc::M(cb_attr_info));
 	memzero(pb_attr_info, cb_attr_info);
 
 	// Получаем инфу о заверяющей подписи
@@ -1144,7 +1144,7 @@ int PPEds::GetCountersignerNameBySignerNumber(const char * pSignFileName, int si
 			pb_attr_info->rgAttr[j].rgValue->pbData,
 			pb_attr_info->rgAttr[j].rgValue->cbData, 0, NULL, &cb_countersigner_info)) {
 			// Выделим память
-			THROW_MEM(pb_countersigner_info = (PCMSG_SIGNER_INFO)malloc(cb_countersigner_info));
+			THROW_MEM(pb_countersigner_info = (PCMSG_SIGNER_INFO)SAlloc::M(cb_countersigner_info));
 			memzero(pb_countersigner_info, cb_countersigner_info);
 			THROW_PP(CryptDecodeObject(MY_ENCODING_TYPE, PKCS7_SIGNER_INFO,
 				pb_attr_info->rgAttr[j].rgValue->pbData,
@@ -1333,7 +1333,7 @@ int PPEds::VerifyCountersign(const char * pSignFileName, const int signerNumber)
 	// Получаем размер данных о заверяющей подписи
 	THROW_PP(CryptMsgGetParam(h_msg, CMSG_SIGNER_UNAUTH_ATTR_PARAM, signerNumber - 1, NULL, &cb_countersign_info), PPERR_EDS_GETSIGNINFOFAILED);
 	// Выделим память
-	THROW_MEM(pb_countersign_info = (CRYPT_ATTRIBUTES*)malloc(cb_countersign_info));
+	THROW_MEM(pb_countersign_info = (CRYPT_ATTRIBUTES*)SAlloc::M(cb_countersign_info));
 	memzero(pb_countersign_info, cb_countersign_info);
 
 	// Получаем инфу о заверяющей подписи
@@ -1347,7 +1347,7 @@ int PPEds::VerifyCountersign(const char * pSignFileName, const int signerNumber)
 			pb_countersign_info->rgAttr[i].rgValue->pbData,
 			pb_countersign_info->rgAttr[i].rgValue->cbData, 0, NULL, &cb_countersigner_info), PPERR_EDS_MSGOPENFAILED);
 		// Выделим память
-		THROW_MEM(pb_countersigner_info = (PCMSG_SIGNER_INFO)malloc(cb_countersigner_info));
+		THROW_MEM(pb_countersigner_info = (PCMSG_SIGNER_INFO)SAlloc::M(cb_countersigner_info));
 		memzero(pb_countersigner_info, cb_countersigner_info);
 		THROW_PP(CryptDecodeObject(MY_ENCODING_TYPE, PKCS7_SIGNER_INFO,
 			pb_countersign_info->rgAttr->rgValue->pbData,

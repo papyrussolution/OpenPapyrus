@@ -5,11 +5,11 @@
 *                            | (__| |_| |  _ <| |___
 *                             \___|\___/|_| \_\_____|
 *
-* Copyright (C) 1998 - 2013, Daniel Stenberg, <daniel@haxx.se>, et al.
+* Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
 *
 * This software is licensed as described in the file COPYING, which
 * you should have received as part of this distribution. The terms
-* are also available at http://curl.haxx.se/docs/copyright.html.
+* are also available at https://curl.haxx.se/docs/copyright.html.
 *
 * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 * copies of the Software, and permit persons to whom the Software is
@@ -22,26 +22,27 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
+//#include <curl/curl.h>
 #include "slist.h"
-
 /* The last #include files should be: */
 #include "curl_memory.h"
 #include "memdebug.h"
-//
-// returns last node in linked list
-//
-static struct curl_slist * FASTCALL slist_get_last(struct curl_slist * list)
-								{
-	struct curl_slist * item = 0;
-	if(list) {
-		// loop through to find the last item
-		item = list;
-		while(item->next) {
-			item = item->next;
-		}
+
+/* returns last node in linked list */
+static struct curl_slist * slist_get_last(struct curl_slist * list)
+{
+	struct curl_slist     * item;
+	/* if caller passed us a NULL, return now */
+	if(!list)
+		return NULL;
+	/* loop through to find the last item */
+	item = list;
+	while(item->next) {
+		item = item->next;
 	}
 	return item;
 }
+
 /*
  * Curl_slist_append_nodup() appends a string to the linked list. Rather than
  * copying the string in dynamic storage, it takes its ownership. The string
@@ -53,8 +54,8 @@ static struct curl_slist * FASTCALL slist_get_last(struct curl_slist * list)
  */
 struct curl_slist * Curl_slist_append_nodup(struct curl_slist * list, char * data)
 {
-	struct curl_slist * last;
-	struct curl_slist * new_item;
+	struct curl_slist     * last;
+	struct curl_slist     * new_item;
 	DEBUGASSERT(data);
 	new_item = (struct curl_slist *)malloc(sizeof(struct curl_slist));
 	if(!new_item)
@@ -68,7 +69,6 @@ struct curl_slist * Curl_slist_append_nodup(struct curl_slist * list, char * dat
 	last->next = new_item;
 	return list;
 }
-
 /*
  * curl_slist_append() appends a string to the linked list. It always returns
  * the address of the first record, so that you can use this function as an
@@ -78,7 +78,7 @@ struct curl_slist * Curl_slist_append_nodup(struct curl_slist * list, char * dat
  */
 struct curl_slist * curl_slist_append(struct curl_slist * list, const char * data)
 {
-	char * dupdata = sstrdup(data);
+	char * dupdata = strdup(data);
 	if(!dupdata)
 		return NULL;
 	list = Curl_slist_append_nodup(list, dupdata);
@@ -94,8 +94,9 @@ struct curl_slist * curl_slist_append(struct curl_slist * list, const char * dat
 struct curl_slist * Curl_slist_duplicate(struct curl_slist * inlist)
 {
 	struct curl_slist * outlist = NULL;
+	struct curl_slist * tmp;
 	while(inlist) {
-		struct curl_slist * tmp = curl_slist_append(outlist, inlist->data);
+		tmp = curl_slist_append(outlist, inlist->data);
 		if(!tmp) {
 			curl_slist_free_all(outlist);
 			return NULL;
@@ -105,20 +106,20 @@ struct curl_slist * Curl_slist_duplicate(struct curl_slist * inlist)
 	}
 	return outlist;
 }
-//
-// be nice and clean up resources
-//
+
+/* be nice and clean up resources */
 void curl_slist_free_all(struct curl_slist * list)
 {
-	if(list) {
-		struct curl_slist * item = list;
-		struct curl_slist * next = 0;
-		do {
-			next = item->next;
-			ZFREE(item->data);
-			free(item);
-			item = next;
-		} while(next);
-	}
+	struct curl_slist     * next;
+	struct curl_slist     * item;
+	if(!list)
+		return;
+	item = list;
+	do {
+		next = item->next;
+		Curl_safefree(item->data);
+		free(item);
+		item = next;
+	} while(next);
 }
 

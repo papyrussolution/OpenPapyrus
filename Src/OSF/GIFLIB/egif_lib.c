@@ -84,10 +84,10 @@ GifFileType * EGifOpenFileHandle(const int FileHandle, int * Error)
 {
 	GifFilePrivateType * Private;
 	FILE * f = 0;
-	GifFileType * GifFile = (GifFileType*)malloc(sizeof(GifFileType));
+	GifFileType * GifFile = (GifFileType*)SAlloc::M(sizeof(GifFileType));
 	if(GifFile) {
 		memzero(GifFile, sizeof(GifFileType));
-		Private = (GifFilePrivateType*)malloc(sizeof(GifFilePrivateType));
+		Private = (GifFilePrivateType*)SAlloc::M(sizeof(GifFilePrivateType));
 		if(Private == NULL) {
 			free(GifFile);
 			ASSIGN_PTR(Error, E_GIF_ERR_NOT_ENOUGH_MEM);
@@ -121,14 +121,14 @@ GifFileType * EGifOpenFileHandle(const int FileHandle, int * Error)
 GifFileType * EGifOpen(void * userData, OutputFunc writeFunc, int * Error)
 {
 	GifFilePrivateType * Private;
-	GifFileType * GifFile = (GifFileType*)malloc(sizeof(GifFileType));
+	GifFileType * GifFile = (GifFileType*)SAlloc::M(sizeof(GifFileType));
 	if(GifFile == NULL) {
 		if(Error != NULL)
 			*Error = E_GIF_ERR_NOT_ENOUGH_MEM;
 		return NULL;
 	}
 	memzero(GifFile, sizeof(GifFileType));
-	Private = (GifFilePrivateType*)malloc(sizeof(GifFilePrivateType));
+	Private = (GifFilePrivateType*)SAlloc::M(sizeof(GifFilePrivateType));
 	if(Private == NULL) {
 		free(GifFile);
 		if(Error != NULL)

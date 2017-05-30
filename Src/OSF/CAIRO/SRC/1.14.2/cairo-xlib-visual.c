@@ -80,7 +80,7 @@ cairo_status_t _cairo_xlib_visual_info_create(Display * dpy,
 	for(i = 0; i < RAMP_SIZE; i++)
 		ramp_index_to_short[i] = (0xffff * i + ((RAMP_SIZE-1)>>1)) / (RAMP_SIZE-1);
 
-	info = malloc(sizeof(cairo_xlib_visual_info_t));
+	info = SAlloc::M(sizeof(cairo_xlib_visual_info_t));
 	if(unlikely(info == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -185,7 +185,7 @@ void _cairo_xlib_visual_info_destroy(cairo_xlib_visual_info_t * info)
 {
 	/* No need for XFreeColors() whilst using DefaultColormap */
 	_cairo_list_del(&info->link);
-	free(info);
+	SAlloc::F(info);
 }
 
 #endif /* !CAIRO_HAS_XLIB_XCB_FUNCTIONS */

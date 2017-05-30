@@ -194,7 +194,7 @@ int SLAPI PPViewAccount::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewAccount::NextIteration(AccountViewItem * pItem)
+int FASTCALL PPViewAccount::NextIteration(AccountViewItem * pItem)
 {
 	int    ok = -1;
 	PPObjCurrency cur_obj;

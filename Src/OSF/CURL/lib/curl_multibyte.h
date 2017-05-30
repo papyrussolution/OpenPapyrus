@@ -11,7 +11,7 @@
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -65,10 +65,10 @@ char *Curl_convert_wchar_to_UTF8(const wchar_t *str_w);
   do {if((ptr)) {free((ptr)); (ptr) = NULL;}} WHILE_FALSE
 
 typedef union {
-  ushort       *tchar_ptr;
-  const ushort *const_tchar_ptr;
-  ushort       *tbyte_ptr;
-  const ushort *const_tbyte_ptr;
+  unsigned short       *tchar_ptr;
+  const unsigned short *const_tchar_ptr;
+  unsigned short       *tbyte_ptr;
+  const unsigned short *const_tbyte_ptr;
 } xcharp_u;
 
 #else
@@ -81,8 +81,8 @@ typedef union {
 typedef union {
   char                *tchar_ptr;
   const char          *const_tchar_ptr;
-  uchar       *tbyte_ptr;
-  const uchar *const_tbyte_ptr;
+  unsigned char       *tbyte_ptr;
+  const unsigned char *const_tbyte_ptr;
 } xcharp_u;
 
 #endif /* UNICODE */

@@ -125,7 +125,7 @@ static cairo_bool_t _cairo_rectilinear_stroker_init(cairo_rectilinear_stroker_t 
 static void FASTCALL _cairo_rectilinear_stroker_fini(cairo_rectilinear_stroker_t * stroker)
 {
 	if(stroker->segments != stroker->segments_embedded)
-		free(stroker->segments);
+		SAlloc::F(stroker->segments);
 }
 
 static cairo_status_t _cairo_rectilinear_stroker_add_segment(cairo_rectilinear_stroker_t * stroker,

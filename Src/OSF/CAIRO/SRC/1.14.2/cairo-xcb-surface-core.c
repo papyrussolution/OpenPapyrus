@@ -81,20 +81,12 @@ static const cairo_surface_backend_t _cairo_xcb_pixmap_backend = {
 	_cairo_xcb_pixmap_finish,
 };
 
-static cairo_xcb_pixmap_t * _cairo_xcb_pixmap_create(cairo_xcb_surface_t * target,
-    int width, int height)
+static cairo_xcb_pixmap_t * _cairo_xcb_pixmap_create(cairo_xcb_surface_t * target, int width, int height)
 {
-	cairo_xcb_pixmap_t * surface;
-
-	surface = malloc(sizeof(cairo_xcb_pixmap_t));
+	cairo_xcb_pixmap_t * surface = SAlloc::M(sizeof(cairo_xcb_pixmap_t));
 	if(unlikely(surface == NULL))
-		return (cairo_xcb_pixmap_t*)
-		       _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
-
-	_cairo_surface_init(&surface->base,
-	    &_cairo_xcb_pixmap_backend,
-	    NULL,
-	    target->base.content);
+		return (cairo_xcb_pixmap_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
+	_cairo_surface_init(&surface->base, &_cairo_xcb_pixmap_backend, NULL, target->base.content);
 
 	surface->connection = target->connection;
 	surface->screen = target->screen;
@@ -104,13 +96,7 @@ static cairo_xcb_pixmap_t * _cairo_xcb_pixmap_create(cairo_xcb_surface_t * targe
 	surface->depth = target->depth;
 	surface->x0 = surface->y0 = 0;
 	surface->repeat = FALSE;
-
-	surface->pixmap =
-	    _cairo_xcb_connection_create_pixmap(surface->connection,
-	    surface->depth,
-	    target->drawable,
-	    width, height);
-
+	surface->pixmap = _cairo_xcb_connection_create_pixmap(surface->connection, surface->depth, target->drawable, width, height);
 	return surface;
 }
 
@@ -118,7 +104,7 @@ static cairo_xcb_pixmap_t * _cairo_xcb_pixmap_copy(cairo_xcb_surface_t * target)
 {
 	cairo_xcb_pixmap_t * surface;
 
-	surface = malloc(sizeof(cairo_xcb_pixmap_t));
+	surface = SAlloc::M(sizeof(cairo_xcb_pixmap_t));
 	if(unlikely(surface == NULL))
 		return (cairo_xcb_pixmap_t*)
 		       _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));

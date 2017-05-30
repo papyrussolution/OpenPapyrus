@@ -3976,6 +3976,7 @@ table TempTrfrAnlz {       //
 	long   LotID;          // Receipt.ID
 	long   GoodsID;        // ->Goods2.ID
 	long   DlvrLocID;      // ->Location.ID Адрес доставки
+	long   LinkBillID;     // @v9.6.8 ->Bill.ID ИД связанного документа (e.g. документа списания)
 	double Qtty;           //
 	double PhQtty;         // Rest for GoodsCard
 	double Cost;           //

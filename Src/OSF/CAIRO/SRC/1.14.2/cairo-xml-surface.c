@@ -227,7 +227,7 @@ static void _device_destroy(void * abstract_device)
 
 	status = _cairo_output_stream_destroy(xml->stream);
 
-	free(xml);
+	SAlloc::F(xml);
 }
 
 static const cairo_device_backend_t _cairo_xml_device_backend = {
@@ -242,7 +242,7 @@ static const cairo_device_backend_t _cairo_xml_device_backend = {
 
 static cairo_device_t * _cairo_xml_create_internal(cairo_output_stream_t * stream)
 {
-	cairo_xml_t * xml = malloc(sizeof(cairo_xml_t));
+	cairo_xml_t * xml = SAlloc::M(sizeof(cairo_xml_t));
 	if(unlikely(xml == NULL))
 		return _cairo_device_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	memzero(xml, sizeof(cairo_xml_t));
@@ -875,13 +875,13 @@ static cairo_status_t _cairo_xml_emit_type42_font(cairo_xml_t * xml,
 	if(unlikely(status))
 		return status;
 
-	buf = malloc(size);
+	buf = SAlloc::M(size);
 	if(unlikely(buf == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	status = backend->load_truetype_table(scaled_font, 0, 0, buf, &size);
 	if(unlikely(status)) {
-		free(buf);
+		SAlloc::F(buf);
 		return status;
 	}
 
@@ -895,7 +895,7 @@ static cairo_status_t _cairo_xml_emit_type42_font(cairo_xml_t * xml,
 	zlib_stream = _cairo_deflate_stream_create(base64_stream);
 
 	_cairo_output_stream_write(zlib_stream, buf, size);
-	free(buf);
+	SAlloc::F(buf);
 
 	status2 = _cairo_output_stream_destroy(zlib_stream);
 	if(status == CAIRO_STATUS_SUCCESS)
@@ -1036,7 +1036,7 @@ static cairo_surface_t * _cairo_xml_surface_create_internal(cairo_device_t * dev
 {
 	cairo_xml_surface_t * surface;
 
-	surface = malloc(sizeof(cairo_xml_surface_t));
+	surface = SAlloc::M(sizeof(cairo_xml_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 

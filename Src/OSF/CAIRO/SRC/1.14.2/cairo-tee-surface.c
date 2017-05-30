@@ -364,7 +364,7 @@ static cairo_int_status_t _cairo_tee_surface_show_text_glyphs(void * abstract_su
 	    scaled_font,
 	    clip);
 CLEANUP:
-	free(glyphs_copy);
+	SAlloc::F(glyphs_copy);
 	return status;
 }
 
@@ -409,7 +409,7 @@ cairo_surface_t * cairo_tee_surface_create(cairo_surface_t * master)
 	if(unlikely(master->status))
 		return _cairo_surface_create_in_error(master->status);
 
-	surface = malloc(sizeof(cairo_tee_surface_t));
+	surface = SAlloc::M(sizeof(cairo_tee_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 

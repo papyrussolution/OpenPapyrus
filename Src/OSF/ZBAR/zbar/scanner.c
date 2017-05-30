@@ -65,7 +65,7 @@ struct zbar_scanner_s {
 
 zbar_scanner_t * zbar_scanner_create(zbar_decoder_t * dcode)
 {
-	zbar_scanner_t * scn = (zbar_scanner_t*)malloc(sizeof(zbar_scanner_t));
+	zbar_scanner_t * scn = (zbar_scanner_t*)SAlloc::M(sizeof(zbar_scanner_t));
 	scn->decoder = dcode;
 	scn->y1_min_thresh = ZBAR_SCANNER_THRESH_MIN;
 	zbar_scanner_reset(scn);

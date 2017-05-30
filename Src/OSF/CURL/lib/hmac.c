@@ -5,11 +5,11 @@
 *                            | (__| |_| |  _ <| |___
 *                             \___|\___/|_| \_\_____|
 *
-* Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+* Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
 *
 * This software is licensed as described in the file COPYING, which
 * you should have received as part of this distribution. The terms
-* are also available at http://curl.haxx.se/docs/copyright.html.
+* are also available at https://curl.haxx.se/docs/copyright.html.
 *
 * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 * copies of the Software, and permit persons to whom the Software is
@@ -25,12 +25,10 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifndef CURL_DISABLE_CRYPTO_AUTH
-
+//#include <curl/curl.h>
 #include "curl_hmac.h"
 #include "curl_memory.h"
-/* The last #include file should be: */
-#include "memdebug.h"
-
+#include "memdebug.h" /* The last #include file should be: */
 /*
  * Generic HMAC algorithm.
  *
@@ -39,16 +37,18 @@
  * context initialisation.
  */
 
-static const uchar hmac_ipad = 0x36;
-static const uchar hmac_opad = 0x5C;
+static const unsigned char hmac_ipad = 0x36;
+static const unsigned char hmac_opad = 0x5C;
 
-HMAC_context * Curl_HMAC_init(const HMAC_params * hashparams, const uchar * key, uint keylen)
+HMAC_context * Curl_HMAC_init(const HMAC_params * hashparams, const unsigned char * key, unsigned int keylen)
 {
-	uchar * hkey;
-	uchar b;
+	size_t i;
+	HMAC_context * ctxt;
+	unsigned char * hkey;
+	unsigned char b;
 	/* Create HMAC context. */
-	size_t i = sizeof(HMAC_context) + 2 * hashparams->hmac_ctxtsize + hashparams->hmac_resultlen;
-	HMAC_context * ctxt = (HMAC_context *)malloc(i);
+	i = sizeof *ctxt + 2 * hashparams->hmac_ctxtsize + hashparams->hmac_resultlen;
+	ctxt = (HMAC_context *)malloc(i);
 	if(!ctxt)
 		return ctxt;
 	ctxt->hmac_hash = hashparams;
@@ -60,7 +60,7 @@ HMAC_context * Curl_HMAC_init(const HMAC_params * hashparams, const uchar * key,
 	if(keylen > hashparams->hmac_maxkeylen) {
 		(*hashparams->hmac_hinit)(ctxt->hmac_hashctxt1);
 		(*hashparams->hmac_hupdate)(ctxt->hmac_hashctxt1, key, keylen);
-		hkey = (uchar*)ctxt->hmac_hashctxt2 + hashparams->hmac_ctxtsize;
+		hkey = (unsigned char*)ctxt->hmac_hashctxt2 + hashparams->hmac_ctxtsize;
 		(*hashparams->hmac_hfinal)(hkey, ctxt->hmac_hashctxt1);
 		key = hkey;
 		keylen = hashparams->hmac_resultlen;
@@ -71,9 +71,9 @@ HMAC_context * Curl_HMAC_init(const HMAC_params * hashparams, const uchar * key,
 	(*hashparams->hmac_hinit)(ctxt->hmac_hashctxt2);
 
 	for(i = 0; i < keylen; i++) {
-		b = (uchar)(*key ^ hmac_ipad);
+		b = (unsigned char)(*key ^ hmac_ipad);
 		(*hashparams->hmac_hupdate)(ctxt->hmac_hashctxt1, &b, 1);
-		b = (uchar)(*key++ ^ hmac_opad);
+		b = (unsigned char)(*key++ ^ hmac_opad);
 		(*hashparams->hmac_hupdate)(ctxt->hmac_hashctxt2, &b, 1);
 	}
 
@@ -87,15 +87,15 @@ HMAC_context * Curl_HMAC_init(const HMAC_params * hashparams, const uchar * key,
 }
 
 int Curl_HMAC_update(HMAC_context * ctxt,
-    const uchar * data,
-    uint len)
+    const unsigned char * data,
+    unsigned int len)
 {
 	/* Update first hash calculation. */
 	(*ctxt->hmac_hash->hmac_hupdate)(ctxt->hmac_hashctxt1, data, len);
 	return 0;
 }
 
-int Curl_HMAC_final(HMAC_context * ctxt, uchar * result)
+int Curl_HMAC_final(HMAC_context * ctxt, unsigned char * result)
 {
 	const HMAC_params * hashparams = ctxt->hmac_hash;
 
@@ -103,7 +103,7 @@ int Curl_HMAC_final(HMAC_context * ctxt, uchar * result)
 	   storage. */
 
 	if(!result)
-		result = (uchar*)ctxt->hmac_hashctxt2 +
+		result = (unsigned char*)ctxt->hmac_hashctxt2 +
 		    ctxt->hmac_hash->hmac_ctxtsize;
 
 	(*hashparams->hmac_hfinal)(result, ctxt->hmac_hashctxt1);

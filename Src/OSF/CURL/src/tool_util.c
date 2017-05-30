@@ -9,7 +9,7 @@
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -135,8 +135,7 @@ double tool_tvdiff_secs(struct timeval newer, struct timeval older)
   if(newer.tv_sec != older.tv_sec)
     return (double)(newer.tv_sec-older.tv_sec)+
       (double)(newer.tv_usec-older.tv_usec)/1000000.0;
-  else
-    return (double)(newer.tv_usec-older.tv_usec)/1000000.0;
+  return (double)(newer.tv_usec-older.tv_usec)/1000000.0;
 }
 
 /* return the number of seconds in the given input timeval struct */

@@ -131,10 +131,10 @@ static cairo_status_t polygon_init(struct polygon * polygon, int ymin, int ymax)
 static void polygon_fini(struct polygon * polygon)
 {
 	if(polygon->y_buckets != polygon->y_buckets_embedded)
-		free(polygon->y_buckets);
+		SAlloc::F(polygon->y_buckets);
 
 	if(polygon->edges != polygon->edges_embedded)
-		free(polygon->edges);
+		SAlloc::F(polygon->edges);
 }
 
 static void _polygon_insert_edge_into_its_y_bucket(struct polygon * polygon,
@@ -417,7 +417,7 @@ static cairo_status_t _mono_scan_converter_init(struct mono_scan_converter * c, 
 static void _mono_scan_converter_fini(struct mono_scan_converter * self)
 {
 	if(self->spans != self->spans_embedded)
-		free(self->spans);
+		SAlloc::F(self->spans);
 
 	polygon_fini(self->polygon);
 }
@@ -511,7 +511,7 @@ static void _cairo_mono_scan_converter_destroy(void * converter)
 {
 	cairo_mono_scan_converter_t * self = (cairo_mono_scan_converter_t *)converter;
 	_mono_scan_converter_fini(self->converter);
-	free(self);
+	SAlloc::F(self);
 }
 
 cairo_status_t _cairo_mono_scan_converter_add_polygon(void * converter, const cairo_polygon_t * polygon)
@@ -542,7 +542,7 @@ cairo_scan_converter_t * _cairo_mono_scan_converter_create(int xmin,
     int ymin, int xmax, int ymax, CairoFillRule fill_rule)
 {
 	cairo_status_t status;
-	cairo_mono_scan_converter_t * self = (cairo_mono_scan_converter_t *)malloc(sizeof(struct _cairo_mono_scan_converter));
+	cairo_mono_scan_converter_t * self = (cairo_mono_scan_converter_t *)SAlloc::M(sizeof(struct _cairo_mono_scan_converter));
 	if(unlikely(self == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto bail_nomem;

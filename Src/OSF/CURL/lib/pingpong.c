@@ -5,11 +5,11 @@
 *                            | (__| |_| |  _ <| |___
 *                             \___|\___/|_| \_\_____|
 *
-* Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+* Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
 *
 * This software is licensed as described in the file COPYING, which
 * you should have received as part of this distribution. The terms
-* are also available at http://curl.haxx.se/docs/copyright.html.
+* are also available at https://curl.haxx.se/docs/copyright.html.
 *
 * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 * copies of the Software, and permit persons to whom the Software is
@@ -34,22 +34,22 @@
 #include "multiif.h"
 #include "non-ascii.h"
 #include "vtls/vtls.h"
-#include "curl_printf.h"
 
+/* The last 3 #include files should be in this order */
+#include "curl_printf.h"
 #include "curl_memory.h"
-/* The last #include file should be: */
 #include "memdebug.h"
 
 #ifdef USE_PINGPONG
 
 /* Returns timeout in ms. 0 or negative number means the timeout has already
    triggered */
-long Curl_pp_state_timeout(struct pingpong * pp)
+time_t Curl_pp_state_timeout(struct pingpong * pp)
 {
 	struct connectdata * conn = pp->conn;
-	struct SessionHandle * data = conn->data;
-	long timeout_ms; /* in milliseconds */
-	long timeout2_ms; /* in milliseconds */
+	struct Curl_easy * data = conn->data;
+	time_t timeout_ms; /* in milliseconds */
+	time_t timeout2_ms; /* in milliseconds */
 	long response_time = (data->set.server_response_timeout) ?
 	    data->set.server_response_timeout : pp->response_time;
 
@@ -83,9 +83,9 @@ CURLcode Curl_pp_statemach(struct pingpong * pp, bool block)
 	struct connectdata * conn = pp->conn;
 	curl_socket_t sock = conn->sock[FIRSTSOCKET];
 	int rc;
-	long interval_ms;
-	long timeout_ms = Curl_pp_state_timeout(pp);
-	struct SessionHandle * data = conn->data;
+	time_t interval_ms;
+	time_t timeout_ms = Curl_pp_state_timeout(pp);
+	struct Curl_easy * data = conn->data;
 	CURLcode result = CURLE_OK;
 
 	if(timeout_ms <=0) {
@@ -101,14 +101,17 @@ CURLcode Curl_pp_statemach(struct pingpong * pp, bool block)
 	else
 		interval_ms = 0;  /* immediate */
 
-	if(Curl_pp_moredata(pp))
+	if(Curl_ssl_data_pending(conn, FIRSTSOCKET))
+		rc = 1;
+	else if(Curl_pp_moredata(pp))
 		/* We are receiving and there is data in the cache so just read it */
 		rc = 1;
 	else if(!pp->sendleft && Curl_ssl_data_pending(conn, FIRSTSOCKET))
 		/* We are receiving and there is data ready in the SSL library */
 		rc = 1;
 	else
-		rc = Curl_socket_ready(pp->sendleft ? CURL_SOCKET_BAD : sock, /* reading */
+		rc = Curl_socket_check(pp->sendleft ? CURL_SOCKET_BAD : sock, /* reading */
+		    CURL_SOCKET_BAD,
 		    pp->sendleft ? sock : CURL_SOCKET_BAD,    /* writing */
 		    interval_ms);
 
@@ -147,7 +150,7 @@ void Curl_pp_init(struct pingpong * pp)
  *
  * Curl_pp_vsendf()
  *
- * Send the formated string as a command to a pingpong server. Note that
+ * Send the formatted string as a command to a pingpong server. Note that
  * the string should not have any CRLF appended, as this function will
  * append the necessary things itself.
  *
@@ -163,7 +166,7 @@ CURLcode Curl_pp_vsendf(struct pingpong * pp,
 	char * s;
 	CURLcode result;
 	struct connectdata * conn = pp->conn;
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 
 #ifdef HAVE_GSSAPI
 	enum protection_level data_sec = conn->data_prot;
@@ -233,19 +236,23 @@ CURLcode Curl_pp_vsendf(struct pingpong * pp,
  *
  * Curl_pp_sendf()
  *
- * Send the formated string as a command to a pingpong server. Note that
+ * Send the formatted string as a command to a pingpong server. Note that
  * the string should not have any CRLF appended, as this function will
  * append the necessary things itself.
  *
  * made to never block
  */
-CURLcode Curl_pp_sendf(struct pingpong * pp, const char * fmt, ...)
+CURLcode Curl_pp_sendf(struct pingpong * pp,
+    const char * fmt, ...)
 {
 	CURLcode result;
 	va_list ap;
 	va_start(ap, fmt);
+
 	result = Curl_pp_vsendf(pp, fmt, ap);
+
 	va_end(ap);
+
 	return result;
 }
 
@@ -254,16 +261,17 @@ CURLcode Curl_pp_sendf(struct pingpong * pp, const char * fmt, ...)
  *
  * Reads a piece of a server response.
  */
-CURLcode Curl_pp_readresp(curl_socket_t sockfd, struct pingpong * pp,
-    int * code, /* return the server code if done */
-    size_t * size) /* size of the response */
+CURLcode Curl_pp_readresp(curl_socket_t sockfd,
+    struct pingpong * pp,
+    int * code,                      /* return the server code if done */
+    size_t * size)                      /* size of the response */
 {
 	ssize_t perline; /* count bytes per line */
 	bool keepon = TRUE;
 	ssize_t gotbytes;
 	char * ptr;
 	struct connectdata * conn = pp->conn;
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 	char * const buf = data->state.buffer;
 	CURLcode result = CURLE_OK;
 
@@ -411,7 +419,6 @@ CURLcode Curl_pp_readresp(curl_socket_t sockfd, struct pingpong * pp,
 			}
 			else if(i == gotbytes)
 				restart = TRUE;
-
 			if(clipamount) {
 				pp->cache_size = clipamount;
 				pp->cache = (char *)malloc(pp->cache_size);

@@ -1357,7 +1357,7 @@ FANN_EXTERNAL void FANN_API fann_scale_data_to_range(ANNTYP ** data, uint num_da
 // called MAX, in order to not interferre with predefined versions of max
 // (replaced by MAX) #define fann_max(x, y) (((x) > (y)) ? (x) : (y))
 // (replaced by MIN) #define fann_min(x, y) (((x) < (y)) ? (x) : (y))
-// (replaced by ZFREE) #define fann_safe_free(x) {if(x) { free(x); x = NULL; }}
+// (replaced by ZFREE) #define fann_safe_free(x) {if(x) { SAlloc::F(x); x = NULL; }}
 // (replaced by MINMAX) #define fann_clip(x, lo, hi) (((x) < (lo)) ? (lo) : (((x) > (hi)) ? (hi) : (x)))
 #define fann_exp2(x) exp(0.69314718055994530942*(x))
 //#define fann_clip(x, lo, hi) (x)

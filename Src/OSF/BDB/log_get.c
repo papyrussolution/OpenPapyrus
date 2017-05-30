@@ -954,7 +954,7 @@ static int __logc_ondisk(DB_LOGC * logc, DB_LSN * lsn, DB_LSN * last_lsn, uint32
  * and one made it to disk before a different one that logically precedes
  * it in the log file.
  *
- * Check for impossibly large records.  The malloc should fail later, but we
+ * Check for impossibly large records.  The SAlloc::M should fail later, but we
  * have customers that run mallocs that treat all allocation failures as fatal
  * errors.
  *
@@ -1082,7 +1082,7 @@ static int __logc_set_maxrec(DB_LOGC * logc, char * np)
 	DB_LOG * dblp = env->lg_handle;
 	/*
 	 * We don't want to try and allocate huge chunks of memory because
-	 * applications with error-checking malloc's often consider that a
+	 * applications with error-checking SAlloc::M's often consider that a
 	 * hard failure.  If we're about to look at a corrupted record with
 	 * a bizarre size, we need to know before trying to allocate space
 	 * to hold it.  We could read the persistent data at the beginning

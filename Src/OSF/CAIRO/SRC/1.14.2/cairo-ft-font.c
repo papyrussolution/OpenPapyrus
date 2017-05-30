@@ -266,7 +266,7 @@ static cairo_status_t _cairo_ft_unscaled_font_map_create(void)
 	 * detect some other call path. */
 	assert(cairo_ft_unscaled_font_map == NULL);
 
-	font_map = malloc(sizeof(cairo_ft_unscaled_font_map_t));
+	font_map = SAlloc::M(sizeof(cairo_ft_unscaled_font_map_t));
 	if(unlikely(font_map == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -287,7 +287,7 @@ static cairo_status_t _cairo_ft_unscaled_font_map_create(void)
 FAIL:
 	if(font_map->hash_table)
 		_cairo_hash_table_destroy(font_map->hash_table);
-	free(font_map);
+	SAlloc::F(font_map);
 
 	return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 }
@@ -304,7 +304,7 @@ static void _cairo_ft_unscaled_font_map_pluck_entry(void * entry, void * closure
 		_font_map_release_face_lock_held(font_map, unscaled);
 
 	_cairo_ft_unscaled_font_fini(unscaled);
-	free(unscaled);
+	SAlloc::F(unscaled);
 }
 
 static void _cairo_ft_unscaled_font_map_destroy(void)
@@ -326,7 +326,7 @@ static void _cairo_ft_unscaled_font_map_destroy(void)
 
 		_cairo_hash_table_destroy(font_map->hash_table);
 
-		free(font_map);
+		SAlloc::F(font_map);
 	}
 }
 
@@ -441,7 +441,7 @@ static void _cairo_ft_unscaled_font_fini(cairo_ft_unscaled_font_t * unscaled)
 {
 	assert(unscaled->face == NULL);
 
-	free(unscaled->filename);
+	SAlloc::F(unscaled->filename);
 	unscaled->filename = NULL;
 
 	CAIRO_MUTEX_FINI(unscaled->mutex);
@@ -497,7 +497,7 @@ static cairo_status_t _cairo_ft_unscaled_font_create_internal(cairo_bool_t from_
 	}
 
 	/* Otherwise create it and insert into hash table. */
-	unscaled = malloc(sizeof(cairo_ft_unscaled_font_t));
+	unscaled = SAlloc::M(sizeof(cairo_ft_unscaled_font_t));
 	if(unlikely(unscaled == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto UNWIND_FONT_MAP_LOCK;
@@ -521,7 +521,7 @@ DONE:
 UNWIND_UNSCALED_FONT_INIT:
 	_cairo_ft_unscaled_font_fini(unscaled);
 UNWIND_UNSCALED_MALLOC:
-	free(unscaled);
+	SAlloc::F(unscaled);
 UNWIND_FONT_MAP_LOCK:
 	_cairo_ft_unscaled_font_map_unlock();
 	return status;
@@ -1191,13 +1191,13 @@ convert:
 		/* These could be triggered by very rare types of TrueType fonts */
 		default:
 		    if(own_buffer)
-			    free(bitmap->buffer);
+			    SAlloc::F(bitmap->buffer);
 		    return _cairo_error(CAIRO_STATUS_INVALID_FORMAT); // @v1.14.6 CAIRO_STATUS_NO_MEMORY-->CAIRO_STATUS_INVALID_FORMAT
 	}
 	/* XXX */
 	*surface = image = (cairo_image_surface_t*)cairo_image_surface_create_for_data(data, format, width, height, stride);
 	if(image->base.status) {
-		free(data);
+		SAlloc::F(data);
 		return (*surface)->base.status;
 	}
 	if(component_alpha)
@@ -1801,7 +1801,7 @@ static cairo_status_t _cairo_ft_font_face_scaled_font_create(void * abstract_fon
 	if(unlikely(face == NULL)) /* backend error */
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
-	scaled_font = malloc(sizeof(cairo_ft_scaled_font_t));
+	scaled_font = SAlloc::M(sizeof(cairo_ft_scaled_font_t));
 	if(unlikely(scaled_font == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto FAIL;
@@ -1827,7 +1827,7 @@ static cairo_status_t _cairo_ft_font_face_scaled_font_create(void * abstract_fon
 		 * font, so propagate the error back to the font-face. */
 		_cairo_ft_unscaled_font_unlock_face(unscaled);
 		_cairo_unscaled_font_destroy(&unscaled->base);
-		free(scaled_font);
+		SAlloc::F(scaled_font);
 		return status;
 	}
 
@@ -1894,7 +1894,7 @@ static cairo_status_t _cairo_ft_font_face_scaled_font_create(void * abstract_fon
 
 CLEANUP_SCALED_FONT:
 	_cairo_unscaled_font_destroy(&unscaled->base);
-	free(scaled_font);
+	SAlloc::F(scaled_font);
 FAIL:
 	_cairo_ft_unscaled_font_unlock_face(font_face->unscaled);
 	*font_out = _cairo_scaled_font_create_in_error(status);
@@ -2743,7 +2743,7 @@ const cairo_font_face_backend_t _cairo_ft_font_face_backend = {
 #if CAIRO_HAS_FC_FONT
 static cairo_font_face_t * _cairo_ft_font_face_create_for_pattern(FcPattern * pattern)
 {
-	cairo_ft_font_face_t * font_face = malloc(sizeof(cairo_ft_font_face_t));
+	cairo_ft_font_face_t * font_face = SAlloc::M(sizeof(cairo_ft_font_face_t));
 	if(unlikely(font_face == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_font_face_t*)&_cairo_font_face_nil;
@@ -2752,7 +2752,7 @@ static cairo_font_face_t * _cairo_ft_font_face_create_for_pattern(FcPattern * pa
 	font_face->next = NULL;
 	font_face->pattern = FcPatternDuplicate(pattern);
 	if(unlikely(font_face->pattern == NULL)) {
-		free(font_face);
+		SAlloc::F(font_face);
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_font_face_t*)&_cairo_font_face_nil;
 	}
@@ -2794,7 +2794,7 @@ static cairo_font_face_t * _cairo_ft_font_face_create(cairo_ft_unscaled_font_t *
 	}
 
 	/* No match found, create a new one */
-	font_face = malloc(sizeof(cairo_ft_font_face_t));
+	font_face = SAlloc::M(sizeof(cairo_ft_font_face_t));
 	if(unlikely(!font_face)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_font_face_t*)&_cairo_font_face_nil;

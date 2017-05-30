@@ -114,14 +114,14 @@ pixman_bool_t _pixman_image_fini(pixman_image_t * image)
 		if(image->common.destroy_func)
 			image->common.destroy_func(image, image->common.destroy_data);
 		pixman_region32_fini(&common->clip_region);
-		free(common->transform);
-		free(common->filter_params);
+		SAlloc::F(common->transform);
+		SAlloc::F(common->filter_params);
 		if(common->alpha_map)
 			pixman_image_unref((pixman_image_t*)common->alpha_map);
 		if(image->type == LINEAR || image->type == RADIAL || image->type == CONICAL) {
 			if(image->gradient.stops) {
 				/* See _pixman_init_gradient() for an explanation of the - 1 */
-				free(image->gradient.stops - 1);
+				SAlloc::F(image->gradient.stops - 1);
 			}
 			/* This will trigger if someone adds a property_changed
 			 * method to the linear/radial/conical gradient overwriting
@@ -130,7 +130,7 @@ pixman_bool_t _pixman_image_fini(pixman_image_t * image)
 			assert(image->common.property_changed == gradient_property_changed);
 		}
 		if(image->type == BITS && image->bits.free_me)
-			free(image->bits.free_me);
+			SAlloc::F(image->bits.free_me);
 		return TRUE;
 	}
 	return FALSE;
@@ -138,7 +138,7 @@ pixman_bool_t _pixman_image_fini(pixman_image_t * image)
 
 pixman_image_t * _pixman_image_allocate(void)
 {
-	pixman_image_t * image = (pixman_image_t *)malloc(sizeof(pixman_image_t));
+	pixman_image_t * image = (pixman_image_t *)SAlloc::M(sizeof(pixman_image_t));
 	if(image)
 		_pixman_image_init(image);
 	return image;
@@ -160,7 +160,7 @@ PIXMAN_EXPORT pixman_image_t * pixman_image_ref(pixman_image_t * image)
 PIXMAN_EXPORT pixman_bool_t pixman_image_unref(pixman_image_t * image)
 {
 	if(_pixman_image_fini(image)) {
-		free(image);
+		SAlloc::F(image);
 		return TRUE;
 	}
 	return FALSE;
@@ -471,7 +471,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_image_set_transform(pixman_image_t * image, c
 	if(common->transform == transform)
 		return TRUE;
 	if(!transform || memcmp(&id, transform, sizeof(pixman_transform_t)) == 0) {
-		free(common->transform);
+		SAlloc::F(common->transform);
 		common->transform = NULL;
 		result = TRUE;
 		goto out;
@@ -480,7 +480,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_image_set_transform(pixman_image_t * image, c
 		return TRUE;
 	}
 	if(common->transform == NULL)
-		common->transform = (pixman_transform_t *)malloc(sizeof(pixman_transform_t));
+		common->transform = (pixman_transform_t *)SAlloc::M(sizeof(pixman_transform_t));
 	if(common->transform == NULL) {
 		result = FALSE;
 		goto out;
@@ -524,7 +524,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_image_set_filter(pixman_image_t * image, pixm
 	}
 	common->filter = filter;
 	if(common->filter_params)
-		free(common->filter_params);
+		SAlloc::F(common->filter_params);
 	common->filter_params = new_params;
 	common->n_filter_params = n_params;
 	image_property_changed(image);

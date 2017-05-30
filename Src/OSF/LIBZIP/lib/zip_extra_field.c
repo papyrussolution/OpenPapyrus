@@ -150,7 +150,7 @@ zip_extra_field_t * _zip_ef_merge(zip_extra_field_t * to, zip_extra_field_t * fr
 
 zip_extra_field_t * _zip_ef_new(uint16 id, uint16 size, const uint8 * data, zip_flags_t flags)
 {
-	zip_extra_field_t * ef = (zip_extra_field_t*)malloc(sizeof(*ef));
+	zip_extra_field_t * ef = (zip_extra_field_t*)SAlloc::M(sizeof(*ef));
 	if(ef) {
 		ef->next = NULL;
 		ef->flags = flags;

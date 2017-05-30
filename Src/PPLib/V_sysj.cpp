@@ -381,7 +381,7 @@ int SLAPI PPViewSysJournal::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewSysJournal::NextIteration(SysJournalViewItem * pItem)
+int FASTCALL PPViewSysJournal::NextIteration(SysJournalViewItem * pItem)
 {
 	while(pItem && P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		if(P_SubstTbl) {
@@ -929,7 +929,7 @@ int PPALDD_SysJournal::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	INIT_PPVIEW_ALDD_ITER(SysJournal);
 }
 
-int PPALDD_SysJournal::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_SysJournal::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(SysJournal);
 	I.UserID   = item.UserID;
@@ -1189,7 +1189,7 @@ int SLAPI PPViewGtaJournal::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewGtaJournal::NextIteration(GtaJournalViewItem * pItem)
+int FASTCALL PPViewGtaJournal::NextIteration(GtaJournalViewItem * pItem)
 {
 	while(pItem && P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		GtaJournalTbl * p_t = NZOR(P_TmpTbl, &T);

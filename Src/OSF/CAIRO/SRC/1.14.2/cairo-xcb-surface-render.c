@@ -104,22 +104,12 @@ static const struct xcb_render_transform_t identity_transform = {
 };
 
 static cairo_xcb_picture_t * _cairo_xcb_picture_create(cairo_xcb_screen_t * screen,
-    pixman_format_code_t pixman_format,
-    xcb_render_pictformat_t xrender_format,
-    int width, int height)
+    pixman_format_code_t pixman_format, xcb_render_pictformat_t xrender_format, int width, int height)
 {
-	cairo_xcb_picture_t * surface;
-
-	surface = malloc(sizeof(cairo_xcb_picture_t));
+	cairo_xcb_picture_t * surface = SAlloc::M(sizeof(cairo_xcb_picture_t));
 	if(unlikely(surface == NULL))
-		return (cairo_xcb_picture_t*)
-		       _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
-
-	_cairo_surface_init(&surface->base,
-	    &_cairo_xcb_picture_backend,
-	    &screen->connection->device,
-	    _cairo_content_from_pixman_format(pixman_format));
-
+		return (cairo_xcb_picture_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
+	_cairo_surface_init(&surface->base, &_cairo_xcb_picture_backend, &screen->connection->device, _cairo_content_from_pixman_format(pixman_format));
 	cairo_list_add(&surface->link, &screen->pictures);
 
 	surface->screen = screen;
@@ -238,7 +228,7 @@ static cairo_status_t _cairo_xcb_surface_set_clip_region(cairo_xcb_surface_t * s
 	    num_rects, rects);
 
 	if(rects != stack_rects)
-		free(rects);
+		SAlloc::F(rects);
 
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -821,7 +811,7 @@ static cairo_xcb_picture_t * _cairo_xcb_linear_picture(cairo_xcb_surface_t * tar
 	    -1, -1);
 	if(unlikely(picture->base.status)) {
 		if(stops != (xcb_render_fixed_t*)buf)
-			free(stops);
+			SAlloc::F(stops);
 		return picture;
 	}
 	picture->filter = CAIRO_FILTER_DEFAULT;
@@ -840,7 +830,7 @@ static cairo_xcb_picture_t * _cairo_xcb_linear_picture(cairo_xcb_surface_t * tar
 	    stops, colors);
 
 	if(stops != (xcb_render_fixed_t*)buf)
-		free(stops);
+		SAlloc::F(stops);
 
 	status = _cairo_xcb_screen_store_linear_picture(target->screen,
 	    pattern,
@@ -895,7 +885,7 @@ static cairo_xcb_picture_t * _cairo_xcb_radial_picture(cairo_xcb_surface_t * tar
 	    -1, -1);
 	if(unlikely(picture->base.status)) {
 		if(stops != (xcb_render_fixed_t*)buf)
-			free(stops);
+			SAlloc::F(stops);
 		return picture;
 	}
 	picture->filter = CAIRO_FILTER_DEFAULT;
@@ -917,7 +907,7 @@ static cairo_xcb_picture_t * _cairo_xcb_radial_picture(cairo_xcb_surface_t * tar
 	    stops, colors);
 
 	if(stops != (xcb_render_fixed_t*)buf)
-		free(stops);
+		SAlloc::F(stops);
 
 	status = _cairo_xcb_screen_store_radial_picture(target->screen,
 	    pattern,
@@ -1288,7 +1278,7 @@ static cairo_status_t _render_fill_boxes(void * abstract_dst, cairo_operator_t o
 	}
 
 	if(xrects != stack_xrects)
-		free(xrects);
+		SAlloc::F(xrects);
 
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -1408,7 +1398,7 @@ cleanup_clip:
 cleanup_boxes:
 
 	if(clip_boxes != stack_boxes)
-		free(clip_boxes);
+		SAlloc::F(clip_boxes);
 
 	return status;
 }
@@ -3953,7 +3943,7 @@ static void _cairo_xcb_font_destroy(cairo_xcb_font_t * font)
 		cairo_xcb_font_glyphset_info_t * info;
 
 		info = &font->glyphset_info[i];
-		free(info->pending_free_glyphs);
+		SAlloc::F(info->pending_free_glyphs);
 	}
 
 	cairo_list_del(&font->base.link);
@@ -3961,7 +3951,7 @@ static void _cairo_xcb_font_destroy(cairo_xcb_font_t * font)
 
 	_cairo_xcb_connection_destroy(font->connection);
 
-	free(font);
+	SAlloc::F(font);
 }
 
 static void _cairo_xcb_font_fini(cairo_scaled_font_private_t * abstract_private,
@@ -4000,7 +3990,7 @@ static cairo_xcb_font_t * _cairo_xcb_font_create(cairo_xcb_connection_t * connec
 	cairo_xcb_font_t    * priv;
 	int i;
 
-	priv = malloc(sizeof(cairo_xcb_font_t));
+	priv = SAlloc::M(sizeof(cairo_xcb_font_t));
 	if(unlikely(priv == NULL))
 		return NULL;
 
@@ -4179,7 +4169,7 @@ static void _cairo_xcb_glyph_fini(cairo_scaled_glyph_private_t * glyph_private,
 		}
 
 		if(to_free == NULL) {
-			to_free = malloc(sizeof(cairo_xcb_font_glyphset_free_glyphs_t));
+			to_free = SAlloc::M(sizeof(cairo_xcb_font_glyphset_free_glyphs_t));
 			if(unlikely(to_free == NULL)) {
 				_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 				return; /* XXX cannot propagate failure */
@@ -4195,7 +4185,7 @@ static void _cairo_xcb_glyph_fini(cairo_scaled_glyph_private_t * glyph_private,
 	}
 
 	cairo_list_del(&glyph_private->link);
-	free(glyph_private);
+	SAlloc::F(glyph_private);
 }
 
 static cairo_status_t _cairo_xcb_glyph_attach(cairo_xcb_connection_t  * c,
@@ -4204,7 +4194,7 @@ static cairo_status_t _cairo_xcb_glyph_attach(cairo_xcb_connection_t  * c,
 {
 	cairo_xcb_glyph_private_t * priv;
 
-	priv = malloc(sizeof(*priv));
+	priv = SAlloc::M(sizeof(*priv));
 	if(unlikely(priv == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -4315,7 +4305,7 @@ static cairo_status_t _cairo_xcb_surface_add_glyph(cairo_xcb_connection_t * conn
 			    if(c == 0)
 				    break;
 
-			    new = malloc(c);
+			    new = SAlloc::M(c);
 			    if(unlikely(new == NULL)) {
 				    status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 				    goto BAIL;
@@ -4346,7 +4336,7 @@ static cairo_status_t _cairo_xcb_surface_add_glyph(cairo_xcb_connection_t * conn
 			    if(c == 0)
 				    break;
 
-			    new = malloc(4 * c);
+			    new = SAlloc::M(4 * c);
 			    if(unlikely(new == NULL)) {
 				    status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 				    goto BAIL;
@@ -4375,7 +4365,7 @@ static cairo_status_t _cairo_xcb_surface_add_glyph(cairo_xcb_connection_t * conn
 	    data);
 
 	if(data != glyph_surface->data)
-		free(data);
+		SAlloc::F(data);
 
 	status = _cairo_xcb_glyph_attach(connection, scaled_glyph, info);
 
@@ -4426,7 +4416,7 @@ static cairo_status_t _emit_glyphs_chunk(cairo_xcb_surface_t * dst,
 	int i;
 
 	if(estimated_req_size > ARRAY_LENGTH(stack_buf)) {
-		buf = malloc(estimated_req_size);
+		buf = SAlloc::M(estimated_req_size);
 		if(unlikely(buf == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -4479,7 +4469,7 @@ static cairo_status_t _emit_glyphs_chunk(cairo_xcb_surface_t * dst,
 	    len, buf);
 
 	if(buf != stack_buf)
-		free(buf);
+		SAlloc::F(buf);
 
 	return CAIRO_STATUS_SUCCESS;
 }

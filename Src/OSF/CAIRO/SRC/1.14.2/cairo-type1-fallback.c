@@ -87,7 +87,7 @@ static cairo_status_t cairo_type1_font_create(cairo_scaled_font_subset_t  * scal
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	font->widths = (int *)calloc(scaled_font_subset->num_glyphs, sizeof(int));
 	if(unlikely(font->widths == NULL)) {
-		free(font);
+		SAlloc::F(font);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	font->scaled_font_subset = scaled_font_subset;
@@ -115,8 +115,8 @@ static cairo_status_t cairo_type1_font_create(cairo_scaled_font_subset_t  * scal
 	return CAIRO_STATUS_SUCCESS;
 
 fail:
-	free(font->widths);
-	free(font);
+	SAlloc::F(font->widths);
+	SAlloc::F(font);
 
 	return status;
 }
@@ -653,12 +653,12 @@ static cairo_status_t cairo_type1_font_destroy(cairo_type1_font_t * font)
 {
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 
-	free(font->widths);
+	SAlloc::F(font->widths);
 	cairo_scaled_font_destroy(font->type1_scaled_font);
 	_cairo_array_fini(&font->contents);
 	if(font->output)
 		status = _cairo_output_stream_destroy(font->output);
-	free(font);
+	SAlloc::F(font);
 
 	return status;
 }
@@ -702,7 +702,7 @@ static cairo_status_t _cairo_type1_fallback_init_internal(cairo_type1_subset_t  
 	type1_subset->ascent  = (double)font->y_max/1000;
 	type1_subset->descent = (double)font->y_min/1000;
 	length = font->header_size + font->data_size + font->trailer_size;
-	type1_subset->data = (char *)malloc(length);
+	type1_subset->data = (char *)SAlloc::M(length);
 	if(unlikely(type1_subset->data == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail3;
@@ -725,9 +725,9 @@ static cairo_status_t _cairo_type1_fallback_init_internal(cairo_type1_subset_t  
 
 	return cairo_type1_font_destroy(font);
 fail3:
-	free(type1_subset->widths);
+	SAlloc::F(type1_subset->widths);
 fail2:
-	free(type1_subset->base_font);
+	SAlloc::F(type1_subset->base_font);
 fail1:
 	/* status is already set, ignore further errors */
 	cairo_type1_font_destroy(font);
@@ -746,9 +746,9 @@ cairo_status_t _cairo_type1_fallback_init_hex(cairo_type1_subset_t * type1_subse
 
 void _cairo_type1_fallback_fini(cairo_type1_subset_t * subset)
 {
-	free(subset->base_font);
-	free(subset->widths);
-	free(subset->data);
+	SAlloc::F(subset->base_font);
+	SAlloc::F(subset->widths);
+	SAlloc::F(subset->data);
 }
 
 cairo_status_t _cairo_type2_charstrings_init(cairo_type2_charstrings_t * type2_subset,
@@ -818,7 +818,7 @@ void _cairo_type2_charstrings_fini(cairo_type2_charstrings_t * type2_subset)
 		_cairo_array_fini(charstring);
 	}
 	_cairo_array_fini(&type2_subset->charstrings);
-	free(type2_subset->widths);
+	SAlloc::F(type2_subset->widths);
 }
 
 #endif /* CAIRO_HAS_FONT_SUBSET */

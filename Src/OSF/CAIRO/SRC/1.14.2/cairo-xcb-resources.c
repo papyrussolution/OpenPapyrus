@@ -200,7 +200,7 @@ static void resource_parser_done(struct resource_parser * parser)
 		resource_parse_line(parser->buffer, parser->resources);
 	}
 
-	free(parser->buffer);
+	SAlloc::F(parser->buffer);
 }
 
 static void get_resources(xcb_connection_t * connection, xcb_screen_t * screen, cairo_xcb_resources_t * resources)
@@ -238,7 +238,7 @@ static void get_resources(xcb_connection_t * connection, xcb_screen_t * screen, 
 					has_more_data = FALSE;  /* early exit on error */
 			}
 
-			free(reply);
+			SAlloc::F(reply);
 		}
 	} while(has_more_data);
 

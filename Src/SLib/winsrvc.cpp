@@ -117,7 +117,7 @@ int SLAPI WinService::Create(const char * pDisplayName, const char * pModuleName
 			);
 			*/
 			const size_t buf_sz = 4096;
-			QUERY_SERVICE_CONFIG * p_cfg = (QUERY_SERVICE_CONFIG *)malloc(buf_sz);
+			QUERY_SERVICE_CONFIG * p_cfg = (QUERY_SERVICE_CONFIG *)SAlloc::M(buf_sz);
 			QUERY_SERVICE_CONFIG & cfg = *p_cfg;
 			DWORD  bytes_needed = buf_sz;
 			int    to_upd = 0;
@@ -136,7 +136,7 @@ int SLAPI WinService::Create(const char * pDisplayName, const char * pModuleName
 			}
 			else
 				ok = 0;
-			free(p_cfg);
+			SAlloc::F(p_cfg);
 		}
 	}
 	return ok;

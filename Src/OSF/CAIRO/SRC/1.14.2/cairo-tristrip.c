@@ -49,7 +49,7 @@ void _cairo_tristrip_init(cairo_tristrip_t * strip)
 void _cairo_tristrip_fini(cairo_tristrip_t * strip)
 {
 	if(strip->points != strip->points_embedded)
-		free(strip->points);
+		SAlloc::F(strip->points);
 
 	VG(VALGRIND_MAKE_MEM_NOACCESS(strip, sizeof(cairo_tristrip_t)));
 }

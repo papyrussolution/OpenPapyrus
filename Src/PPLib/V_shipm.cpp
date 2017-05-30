@@ -372,7 +372,7 @@ int SLAPI PPViewShipmAnalyze::InitIteration()
 		return 0;
 }
 
-int SLAPI PPViewShipmAnalyze::NextIteration(ShipmAnalyzeViewItem * pItem)
+int FASTCALL PPViewShipmAnalyze::NextIteration(ShipmAnalyzeViewItem * pItem)
 {
 	while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		Tbl->copyBufTo(pItem);
@@ -514,7 +514,7 @@ int PPALDD_ShipmAnlz::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	INIT_PPVIEW_ALDD_ITER(ShipmAnalyze);
 }
 
-int PPALDD_ShipmAnlz::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_ShipmAnlz::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(ShipmAnalyze);
 	I.BillID         = item.BillID;

@@ -196,7 +196,7 @@ int SCDBObjGoods::LoadQuotKindList()
 SCDBObjGoods::PalmRec * SCDBObjGoods::AllocPalmRec(const TSArray <Quot> * pQuotList, size_t * pBufLen)
 {
 	const size_t buf_len = sizeof(PalmRec) + pQuotList->getCount() * sizeof(Quot);
-	PalmRec * p_buf = (PalmRec *)calloc(1, buf_len);
+	PalmRec * p_buf = (PalmRec *)SAlloc::C(1, buf_len);
 	if(p_buf) {
 		p_buf->QuotCount = SyncHostToHHWord(pQuotList->getCount());
 		for(uint i = 0; i < pQuotList->getCount(); i++) {
@@ -210,7 +210,7 @@ SCDBObjGoods::PalmRec * SCDBObjGoods::AllocPalmRec(const TSArray <Quot> * pQuotL
 SCDBObjGoods::PalmRec156 * SCDBObjGoods::AllocPalmRec156(const TSArray <Quot> * pQuotList, size_t * pBufLen)
 {
 	const size_t buf_len = sizeof(PalmRec156) + pQuotList->getCount() * sizeof(Quot);
-	PalmRec156 * p_buf = (PalmRec156 *)calloc(1, buf_len);
+	PalmRec156 * p_buf = (PalmRec156 *)SAlloc::C(1, buf_len);
 	if(p_buf) {
 		p_buf->QuotCount = SyncHostToHHWord(pQuotList->getCount());
 		for(uint i = 0; i < pQuotList->getCount(); i++) {
@@ -224,7 +224,7 @@ SCDBObjGoods::PalmRec156 * SCDBObjGoods::AllocPalmRec156(const TSArray <Quot> * 
 SCDBObjGoods::PalmRec500 * SCDBObjGoods::AllocPalmRec500(const TSArray <Quot> * pQuotList, size_t * pBufLen)
 {
 	const size_t buf_len = sizeof(PalmRec500) + pQuotList->getCount() * sizeof(Quot);
-	PalmRec500 * p_buf = (PalmRec500 *)calloc(1, buf_len);
+	PalmRec500 * p_buf = (PalmRec500 *)SAlloc::C(1, buf_len);
 	if(p_buf) {
 		p_buf->QuotCount = SyncHostToHHWord(pQuotList->getCount());
 		for(uint i = 0; i < pQuotList->getCount(); i++) {
@@ -238,7 +238,7 @@ SCDBObjGoods::PalmRec500 * SCDBObjGoods::AllocPalmRec500(const TSArray <Quot> * 
 SCDBObjGoods::PalmRec800 * SCDBObjGoods::AllocPalmRec800(const TSArray <Quot> * pQuotList, size_t * pBufLen)
 {
 	size_t  buf_len = sizeof(PalmRec800) + pQuotList->getCount() * sizeof(Quot);
-	PalmRec800 * p_buf = (PalmRec800 *)calloc(1, buf_len);
+	PalmRec800 * p_buf = (PalmRec800 *)SAlloc::C(1, buf_len);
 	p_buf->QuotCount = SyncHostToHHWord(pQuotList->getCount());
 	for(uint i = 0; i < pQuotList->getCount(); i++) {
 		((Quot *)(p_buf+1))[i] = pQuotList->at(i);
@@ -250,7 +250,7 @@ SCDBObjGoods::PalmRec800 * SCDBObjGoods::AllocPalmRec800(const TSArray <Quot> * 
 SCDBObjGoods::PalmRec900 * SCDBObjGoods::AllocPalmRec900(const TSArray <Quot> * pQuotList, size_t * pBufLen)
 {
 	size_t  buf_len = sizeof(PalmRec900) + pQuotList->getCount() * sizeof(Quot);
-	PalmRec900 * p_buf = (PalmRec900 *)calloc(1, buf_len);
+	PalmRec900 * p_buf = (PalmRec900 *)SAlloc::C(1, buf_len);
 	p_buf->QuotCount = SyncHostToHHWord(pQuotList->getCount());
 	for(uint i = 0; i < pQuotList->getCount(); i++) {
 		((Quot *)(p_buf+1))[i] = pQuotList->at(i);
@@ -582,7 +582,7 @@ int SCDBObjBrand::Init(const char * pExpPath, const char * pImpPath)
 SCDBObjBrand::PalmRec * SCDBObjBrand::AllocPalmRec(size_t * pBufLen)
 {
 	size_t  buf_len = sizeof(PalmRec);
-	PalmRec * p_buf = (PalmRec *)calloc(1, buf_len);
+	PalmRec * p_buf = (PalmRec *)SAlloc::C(1, buf_len);
 	ASSIGN_PTR(pBufLen, buf_len);
 	return p_buf;
 }
@@ -699,7 +699,7 @@ int SCDBObjLoc::Init(const char * pExpPath, const char * pImpPath)
 SCDBObjLoc::PalmRec * SCDBObjLoc::AllocPalmRec(size_t * pBufLen)
 {
 	size_t  buf_len = sizeof(PalmRec);
-	PalmRec * p_buf = (PalmRec *)calloc(1, buf_len);
+	PalmRec * p_buf = (PalmRec *)SAlloc::C(1, buf_len);
 	ASSIGN_PTR(pBufLen, buf_len);
 	return p_buf;
 }

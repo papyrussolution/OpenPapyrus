@@ -111,8 +111,8 @@ int SLAPI PPObjProject::EditConfig()
 		}
 		int getDTS(Rec * pData)
 		{
-			int ok = 1;
-			uint sel = 0;
+			int    ok = 1;
+			uint   sel = 0;
 			getCtrlData(CTL_PRJCFG_PRJTEMPL,        Data.PrjCntr.Head.CodeTemplate);
 			getCtrlData(CTL_PRJCFG_PRJCNTR,        &Data.PrjCntr.Head.Counter);
 			getCtrlData(CTL_PRJCFG_PHSTEMPL,        Data.PhsCntr.Head.CodeTemplate);
@@ -127,6 +127,7 @@ int SLAPI PPObjProject::EditConfig()
 			getCtrlData(CTL_PRJCFG_REFRESHTIME,    &Data.Cfg.RefreshTime);
 			GetClusterData(CTL_PRJCFG_FLAGS,       &Data.Cfg.Flags);
 			getCtrlData(CTLSEL_PRJCFG_BILLOP,      &Data.Cfg.BillOpID);
+			Data.Cfg.RemindPrd.Set(0); // @v9.6.8
 			GetIntRangeInput(this, sel = CTL_PRJCFG_REMINDPRD, &Data.Cfg.RemindPrd);
 			if(Data.Cfg.Flags & PRJCFGF_INCOMPLETETASKREMIND)  {
 				THROW_PP(Data.Cfg.RemindPrd.low <= Data.Cfg.RemindPrd.upp && (Data.Cfg.RemindPrd.low != 0 || Data.Cfg.RemindPrd.upp != 0), PPERR_INVPERIODINPUT);
@@ -619,7 +620,7 @@ int SLAPI PPViewProject::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewProject::NextIteration(ProjectViewItem * pItem)
+int FASTCALL PPViewProject::NextIteration(ProjectViewItem * pItem)
 {
 	int    ok = -1;
 	if(pItem) {
@@ -2502,7 +2503,7 @@ int PPALDD_ProjectView::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(Project);
 }
 
-int PPALDD_ProjectView::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_ProjectView::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(Project);
 	I.ProjectID = item.ID;

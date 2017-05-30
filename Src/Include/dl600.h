@@ -1152,7 +1152,7 @@ public:
 	virtual ~DlRtm();
 	virtual int InitData(PPFilt &, long rsrv = 0);
 	virtual int InitIteration(long iterId, int sortId, long rsrv = 0);
-	virtual int NextIteration(long iterId, long rsrv = 0);
+	virtual int NextIteration(long iterId/*, long rsrv = 0*/);
 	//
 	// Descr: Реализует функцию изменения данных, соответствующих структуре,
 	//   в базе данных.
@@ -1168,7 +1168,7 @@ public:
 	//
 	virtual int  Set(long iterId, int commit);
 	virtual void Destroy(); // @v9.6.4 int-->void
-	virtual int  EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS);
+	virtual void EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS);
 	const  DlScope * GetData() const
 	{
 		return P_Data;
@@ -1370,7 +1370,7 @@ extern "C" typedef SCoClass * (*FN_DL6CLS_FACTORY)(const DlContext *, const DlSc
 	if(p_v->NextIteration(&item) <= 0) return -1;
 
 #define FINISH_PPVIEW_ALDD_ITER()                                                                   \
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 
 struct PPReportEnv {
 	PPReportEnv();

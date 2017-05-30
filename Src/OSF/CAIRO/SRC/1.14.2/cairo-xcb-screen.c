@@ -177,7 +177,7 @@ void _cairo_xcb_screen_finish(cairo_xcb_screen_t * screen)
 	_cairo_cache_fini(&screen->radial_pattern_cache);
 	_cairo_freelist_fini(&screen->pattern_cache_entry_freelist);
 
-	free(screen);
+	SAlloc::F(screen);
 }
 
 static cairo_bool_t _linear_pattern_cache_entry_equal(const void * A, const void * B)
@@ -246,7 +246,7 @@ cairo_xcb_screen_t * _cairo_xcb_screen_get(xcb_connection_t * xcb_connection,
 		}
 	}
 
-	screen = malloc(sizeof(cairo_xcb_screen_t));
+	screen = SAlloc::M(sizeof(cairo_xcb_screen_t));
 	if(unlikely(screen == NULL))
 		goto unlock;
 
@@ -297,7 +297,7 @@ error_linear:
 	_cairo_cache_fini(&screen->linear_pattern_cache);
 error_screen:
 	CAIRO_MUTEX_UNLOCK(connection->screens_mutex);
-	free(screen);
+	SAlloc::F(screen);
 
 	return NULL;
 }

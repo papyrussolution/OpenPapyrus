@@ -610,7 +610,7 @@ int SLAPI DbProvider::SetupProtectData(char * pOldPw, char * pNewPw)
 		::decrypt((char*)buf, sizeof(buf));
 	}
 	THROW(stricmp((char*)buf, pOldPw) == 0);
-	p_temp = (char *)malloc(PASZ);
+	p_temp = (char *)SAlloc::M(PASZ);
 	IdeaRandMem(p_temp, PASZ);
 	IdeaRandMem(buf, sizeof(buf));
 	strcpy((char*)buf, pNewPw);

@@ -108,7 +108,7 @@ int SLAPI PPWriteLicData(const char * pFileName, const PPLicData * pData)
 	PPLicData data = *pData;
 	FILE * f = fopen(pFileName, "wb");
 	THROW_PP(f, PPERR_REGFILEWRITEFAULT);
-	THROW_MEM(p_image = (char *)malloc(file_size));
+	THROW_MEM(p_image = (char *)SAlloc::M(file_size));
 	IdeaRandMem(p_image, file_size);
 	offs = (uint32)labs((*(uint32 *)(p_image + 19)) % 3071L) + 37;
 	GetRegDataSign(sign);
@@ -119,7 +119,7 @@ int SLAPI PPWriteLicData(const char * pFileName, const PPLicData * pData)
 	THROW_PP(fwrite(p_image, file_size, 1, f), PPERR_REGFILEWRITEFAULT);
 	CATCHZOK
 	SFile::ZClose(&f);
-	free(p_image);
+	SAlloc::F(p_image);
 	memset(sign, ' ', sizeof(sign));
 	memset(&data, ' ', sizeof(data));
 	return ok;
@@ -147,7 +147,7 @@ int SLAPI PPReadLicData(const char * pFileName, PPLicData * pData)
 	fseek(f, 0L, SEEK_END);
 	file_size = (size_t)ftell(f);
 	rewind(f);
-	THROW_MEM(p_image = (char *)malloc(file_size));
+	THROW_MEM(p_image = (char *)SAlloc::M(file_size));
 	THROW_PP(fread(p_image, file_size, 1, f), PPERR_REGFILEREADFAULT);
 	GetRegDataSign(sign);
 	IdeaDecrypt(sign, p_image, file_size);
@@ -159,7 +159,7 @@ int SLAPI PPReadLicData(const char * pFileName, PPLicData * pData)
 	SFile::ZClose(&f);
 	if(p_image) {
 		memset(p_image, ' ', file_size);
-		free(p_image);
+		SAlloc::F(p_image);
 	}
 	memset(sign, ' ', sizeof(sign));
 	memset(&data, ' ', sizeof(data));

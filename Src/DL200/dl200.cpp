@@ -60,10 +60,10 @@ static DL2_CI * SLAPI _plus2(const DL2_CI * pA1, const DL2_CI * pA2)
 	//
 	if(t1 == DL2CIT_STRING && t2 == DL2CIT_STRING) {
 		size_t len = pA1->Len + pA2->Len;
-		char * p_temp = (char *)calloc(1, len);
+		char * p_temp = (char *)SAlloc::C(1, len);
 		strcat(strcpy(p_temp, pA1->GetStr()), pA2->GetStr());
 		p_result = DL2_CI::MakeStr(p_temp);
-		free(p_temp);
+		SAlloc::F(p_temp);
 	}
 	else if(t1 == DL2CIT_REAL) {
 		if(t2 == DL2CIT_REAL) {
@@ -1834,7 +1834,7 @@ int SLAPI DL2_Formula::Read(FILE * pStream)
 	THROW_SL(fread(&s, sizeof(s), 1, pStream) == 1);
 	THROW_SL(fread(&c, sizeof(c), 1, pStream) == 1);
 	if(s) {
-		THROW_MEM(P_Stack = (uint8 *)malloc((size_t)s));
+		THROW_MEM(P_Stack = (uint8 *)SAlloc::M((size_t)s));
 		SLibError = SLERR_READFAULT;
 		THROW_SL(fread(P_Stack, (size_t)s, 1, pStream) == 1);
 	}
@@ -1855,7 +1855,7 @@ int SLAPI DL2_Formula::Read(FILE * pStream)
 int SLAPI DL2_Formula::Copy(const DL2_Formula * pS)
 {
 	destroy();
-	P_Stack = (uint8 *)malloc(pS->Size);
+	P_Stack = (uint8 *)SAlloc::M(pS->Size);
 	if(P_Stack) {
 		memcpy(P_Stack, pS->P_Stack, pS->Size);
 		Count = pS->Count;
@@ -1870,7 +1870,7 @@ int SLAPI DL2_Formula::Push(const void * pSrc, size_t srcSize)
 {
 	if(srcSize) {
 		SETIFZ(Size, sizeof(dl2_exprsize));
-		uint8 * p = (uint8 *)realloc(P_Stack, Size + srcSize);
+		uint8 * p = (uint8 *)SAlloc::R(P_Stack, Size + srcSize);
 		if(p) {
 			P_Stack = p;
 			dl2_exprsize * p_expr_size = (dl2_exprsize *)P_Stack;
@@ -1913,7 +1913,7 @@ int SLAPI DL2_Formula::AddExpression(const DL2_Formula * pF)
 		if(Size <= sizeof(dl2_exprsize))
 			ok = Copy(pF);
 		else if(pF->Size > sizeof(dl2_exprsize)) {
-			uint8 * p = (uint8 *)realloc(P_Stack, Size + pF->Size);
+			uint8 * p = (uint8 *)SAlloc::R(P_Stack, Size + pF->Size);
 			if(p) {
 				P_Stack = p;
 				memmove(P_Stack+Size, pF->P_Stack, pF->Size);
@@ -1935,7 +1935,7 @@ int SLAPI DL2_Formula::AddItem(const DL2_CI * pItem)
 			ok = PushItem(pItem);
 		else {
 			size_t item_size = pItem->Size();
-			uint8 * p = (uint8 *)realloc(P_Stack, Size + item_size);
+			uint8 * p = (uint8 *)SAlloc::R(P_Stack, Size + item_size);
 			if(p) {
 				P_Stack = p;
 				dl2_exprsize * p_expr_size = (dl2_exprsize *)P_Stack;

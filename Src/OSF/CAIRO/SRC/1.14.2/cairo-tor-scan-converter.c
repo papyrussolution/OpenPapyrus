@@ -286,7 +286,7 @@ struct _pool_chunk {
 /* A memory pool.  This is supposed to be embedded on the stack or
  * within some other structure.	 It may optionally be followed by an
  * embedded array from which requests are fulfilled until
- * malloc needs to be called to allocate a first real chunk. */
+ * SAlloc::M needs to be called to allocate a first real chunk. */
 struct pool {
 	/* Chunk we're allocating from. */
 	struct _pool_chunk * current;
@@ -481,7 +481,7 @@ static struct _pool_chunk * _pool_chunk_init(struct _pool_chunk * p, struct _poo
 
 static struct _pool_chunk * _pool_chunk_create(struct pool * pool, size_t size)                             
 {
-	struct _pool_chunk * p = (struct _pool_chunk *)malloc(SIZEOF_POOL_CHUNK + size);
+	struct _pool_chunk * p = (struct _pool_chunk *)SAlloc::M(SIZEOF_POOL_CHUNK + size);
 	if(unlikely(NULL == p))
 		longjmp(*pool->jmp, _cairo_error(CAIRO_STATUS_NO_MEMORY));
 	return _pool_chunk_init(p, pool->current, size);
@@ -503,7 +503,7 @@ static void pool_fini(struct pool * pool)
 		while(NULL != p) {
 			struct _pool_chunk * prev = p->prev_chunk;
 			if(p != (void*)pool->sentinel)
-				free(p);
+				SAlloc::F(p);
 			p = prev;
 		}
 		p = pool->first_free;
@@ -918,7 +918,7 @@ static void polygon_init(struct polygon * polygon, jmp_buf * jmp)
 static void polygon_fini(struct polygon * polygon)
 {
 	if(polygon->y_buckets != polygon->y_buckets_embedded)
-		free(polygon->y_buckets);
+		SAlloc::F(polygon->y_buckets);
 
 	pool_fini(polygon->edge_pool.base);
 }
@@ -936,7 +936,7 @@ static glitter_status_t polygon_reset(struct polygon * polygon,
 	if(unlikely(h > 0x7FFFFFFFU - GRID_Y))
 		goto bail_no_mem;  /* even if you could, you wouldn't want to. */
 	if(polygon->y_buckets != polygon->y_buckets_embedded)
-		free(polygon->y_buckets);
+		SAlloc::F(polygon->y_buckets);
 	polygon->y_buckets =  polygon->y_buckets_embedded;
 	if(num_buckets > ARRAY_LENGTH(polygon->y_buckets_embedded)) {
 		polygon->y_buckets = (struct edge **)_cairo_malloc_ab(num_buckets, sizeof(struct edge *));
@@ -1332,7 +1332,7 @@ static void _glitter_scan_converter_init(glitter_scan_converter_t * converter, j
 static void _glitter_scan_converter_fini(glitter_scan_converter_t * self)
 {
 	if(self->spans != self->spans_embedded)
-		free(self->spans);
+		SAlloc::F(self->spans);
 
 	polygon_fini(self->polygon);
 	cell_list_fini(self->coverages);
@@ -1759,7 +1759,7 @@ static void _cairo_tor_scan_converter_destroy(void * converter)
 		return;
 	}
 	_glitter_scan_converter_fini(self->converter);
-	free(self);
+	SAlloc::F(self);
 }
 
 cairo_status_t _cairo_tor_scan_converter_add_polygon(void * converter, const cairo_polygon_t * polygon)
@@ -1800,7 +1800,7 @@ cairo_scan_converter_t * _cairo_tor_scan_converter_create(int xmin,
     cairo_antialias_t antialias)
 {
 	cairo_status_t status;
-	cairo_tor_scan_converter_t * self = (cairo_tor_scan_converter_t *)malloc(sizeof(struct _cairo_tor_scan_converter));
+	cairo_tor_scan_converter_t * self = (cairo_tor_scan_converter_t *)SAlloc::M(sizeof(struct _cairo_tor_scan_converter));
 	if(unlikely(self == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto bail_nomem;

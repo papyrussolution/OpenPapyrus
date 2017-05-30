@@ -123,7 +123,7 @@ static cairo_int_status_t set_clip_region(void * _surface,
 		    0, 0,
 		    rects, n_rects);
 		if(rects != stack_rects)
-			free(rects);
+			SAlloc::F(rects);
 	}
 	else {
 		XRenderPictureAttributes pa;
@@ -208,7 +208,7 @@ static cairo_int_status_t copy_image_boxes(void * _dst,
 		XSetClipMask(dst->dpy, gc, None);
 
 		if(rects != stack_rects)
-			free(rects);
+			SAlloc::F(rects);
 	}
 
 	_cairo_xlib_surface_put_gc(dst->display, dst, gc);
@@ -464,7 +464,7 @@ static cairo_int_status_t copy_boxes(void * _dst,
 			XSetClipMask(dst->dpy, gc, None);
 
 			if(rects != stack_rects)
-				free(rects);
+				SAlloc::F(rects);
 		}
 	}
 
@@ -633,7 +633,7 @@ static cairo_int_status_t fill_rectangles(void * abstract_surface,
 		    &render_color, xrects, num_rects);
 
 		if(xrects != stack_xrects)
-			free(xrects);
+			SAlloc::F(xrects);
 	}
 
 	return CAIRO_STATUS_SUCCESS;
@@ -715,7 +715,7 @@ static cairo_int_status_t fill_boxes(void * abstract_surface,
 		    &render_color, xrects, j);
 
 		if(xrects != stack_xrects)
-			free(xrects);
+			SAlloc::F(xrects);
 	}
 
 	return CAIRO_STATUS_SUCCESS;
@@ -878,7 +878,7 @@ static cairo_int_status_t composite_boxes(void * abstract_dst,
 	    0, 0,
 	    rects, j);
 	if(rects != stack_rects)
-		free(rects);
+		SAlloc::F(rects);
 
 	XRenderComposite(dst->dpy, op,
 	    src, mask, dst->picture,
@@ -913,7 +913,7 @@ void _cairo_xlib_font_close(cairo_xlib_font_t * priv)
 	/* XXX locking */
 	cairo_list_del(&priv->link);
 	cairo_list_del(&priv->base.link);
-	free(priv);
+	SAlloc::F(priv);
 }
 
 static void _cairo_xlib_font_fini(cairo_scaled_font_private_t * abstract_private,
@@ -942,7 +942,7 @@ static void _cairo_xlib_font_fini(cairo_scaled_font_private_t * abstract_private
 	cairo_device_release(&display->base);
 BAIL:
 	cairo_device_destroy(&display->base);
-	free(priv);
+	SAlloc::F(priv);
 }
 
 static cairo_xlib_font_t * _cairo_xlib_font_create(cairo_xlib_display_t * display,
@@ -951,7 +951,7 @@ static cairo_xlib_font_t * _cairo_xlib_font_create(cairo_xlib_display_t * displa
 	cairo_xlib_font_t * priv;
 	int i;
 
-	priv = malloc(sizeof(cairo_xlib_font_t));
+	priv = SAlloc::M(sizeof(cairo_xlib_font_t));
 	if(unlikely(priv == NULL))
 		return NULL;
 
@@ -1038,7 +1038,7 @@ static void _cairo_xlib_glyph_fini(cairo_scaled_glyph_private_t * glyph_private,
 	}
 
 	cairo_list_del(&glyph_private->link);
-	free(glyph_private);
+	SAlloc::F(glyph_private);
 }
 
 static cairo_status_t _cairo_xlib_glyph_attach(cairo_xlib_display_t  * display,
@@ -1047,7 +1047,7 @@ static cairo_status_t _cairo_xlib_glyph_attach(cairo_xlib_display_t  * display,
 {
 	cairo_xlib_glyph_private_t * priv;
 
-	priv = malloc(sizeof(*priv));
+	priv = SAlloc::M(sizeof(*priv));
 	if(unlikely(priv == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -1247,7 +1247,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 			    if(c == 0)
 				    break;
 
-			    new = malloc(c);
+			    new = SAlloc::M(c);
 			    if(!new) {
 				    status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 				    goto BAIL;
@@ -1275,7 +1275,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 			    if(c == 0)
 				    break;
 
-			    new = malloc(4 * c);
+			    new = SAlloc::M(4 * c);
 			    if(unlikely(new == NULL)) {
 				    status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 				    goto BAIL;
@@ -1301,7 +1301,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 	    glyph_surface->stride * glyph_surface->height);
 
 	if(data != glyph_surface->data)
-		free(data);
+		SAlloc::F(data);
 
 	status = _cairo_xlib_glyph_attach(display, glyph, info);
 
@@ -1473,7 +1473,7 @@ static cairo_status_t _emit_glyphs_chunk(cairo_xlib_display_t * display,
 	    (XGlyphElt8*)elts, nelt);
 
 	if(elts != stack_elts)
-		free(elts);
+		SAlloc::F(elts);
 
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -1857,7 +1857,7 @@ static cairo_int_status_t composite_traps(void * abstract_dst,
 	    xtraps, traps->num_traps);
 
 	if(xtraps != xtraps_stack)
-		free(xtraps);
+		SAlloc::F(xtraps);
 
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -1916,7 +1916,7 @@ static cairo_int_status_t composite_tristrip(void * abstract_dst,
 	    points, strip->num_points);
 
 	if(points != points_stack)
-		free(points);
+		SAlloc::F(points);
 
 	return CAIRO_STATUS_SUCCESS;
 }

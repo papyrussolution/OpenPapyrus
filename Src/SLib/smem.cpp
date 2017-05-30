@@ -244,7 +244,7 @@ void * SLAPI catmem(void * pDest, size_t destSize, const void * pSrc, size_t src
 {
 	size_t new_size = destSize + srcSize;
 	void * p_tmp = pDest;
-	if(new_size >= destSize && (p_tmp = realloc(pDest, new_size)) != 0)
+	if(new_size >= destSize && (p_tmp = SAlloc::R(pDest, new_size)) != 0)
 		memmove((char *)p_tmp + destSize, pSrc, srcSize);
 	return p_tmp;
 }
@@ -326,6 +326,30 @@ void FASTCALL ExchangeToOrder(double * pA, double * pB)
 	if(*pA > *pB)
 		memswap(pA, pB, sizeof(*pA));
 }
+
+//static
+void * FASTCALL SAlloc::M(size_t sz)
+{
+	return malloc(sz);
+}
+
+//static
+void * FASTCALL SAlloc::C(size_t n, size_t sz)
+{
+	return calloc(n, sz);
+}
+
+//static
+void * FASTCALL SAlloc::R(void * ptr, size_t sz)
+{
+	return realloc(ptr, sz);
+}
+
+//static
+void FASTCALL SAlloc::F(void * ptr)
+{
+	free(ptr);
+}
 //
 // @TEST {
 //
@@ -343,9 +367,9 @@ public:
 	SlTestFixtureMEMMOVO()
 	{
 		assert(BYTES_SIZE % 4 == 0);
-		P_Bytes = (char *)malloc(BYTES_SIZE);
+		P_Bytes = (char *)SAlloc::M(BYTES_SIZE);
 		assert(P_Bytes);
-		P_Pattern = (char *)malloc(BYTES_SIZE);
+		P_Pattern = (char *)SAlloc::M(BYTES_SIZE);
 		assert(P_Pattern);
 		{
 			SRng * p_rng = SRng::CreateInstance(SRng::algMT, 0);
@@ -358,8 +382,8 @@ public:
 	}
 	~SlTestFixtureMEMMOVO()
 	{
-		free(P_Bytes);
-		free(P_Pattern);
+		SAlloc::F(P_Bytes);
+		SAlloc::F(P_Pattern);
 	}
 	char * P_Bytes;
 	char * P_Pattern;

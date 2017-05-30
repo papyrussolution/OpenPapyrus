@@ -10,7 +10,7 @@
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -23,7 +23,6 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-
 #ifdef USE_LIBRTMP
 
 #include "urldata.h"
@@ -31,7 +30,7 @@
 #include "progress.h" /* for Curl_pgrsSetUploadSize */
 #include "transfer.h"
 #include "warnless.h"
-#include <curl/curl.h>
+//#include <curl/curl.h>
 #include <librtmp/rtmp.h>
 #include "curl_memory.h"
 /* The last #include file should be: */
@@ -56,7 +55,7 @@ static Curl_recv rtmp_recv;
 static Curl_send rtmp_send;
 
 /*
- * RTMP protocol handler.h, based on http://rtmpdump.mplayerhq.hu
+ * RTMP protocol handler.h, based on https://rtmpdump.mplayerhq.hu
  */
 
 const struct Curl_handler Curl_handler_rtmp = {

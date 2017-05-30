@@ -219,7 +219,7 @@ uint8 * _zip_cp437_to_utf8(const uint8 * const _cp437buf, uint32 len,
 	buflen = 1;
 	for(i = 0; i<len; i++)
 		buflen += _zip_unicode_to_utf8_len(_cp437_to_unicode[cp437buf[i]]);
-	if((utf8buf = (uint8*)malloc(buflen)) == NULL) {
+	if((utf8buf = (uint8*)SAlloc::M(buflen)) == NULL) {
 		zip_error_set(error, ZIP_ER_MEMORY, 0);
 		return NULL;
 	}

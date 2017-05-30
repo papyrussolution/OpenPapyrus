@@ -18,18 +18,18 @@ int FASTCALL StringSet::Alloc(size_t sz)
 		char * p = 0;
 		if((7 * Size) < (8 * DataLen)) { // Assume probability of a non-moving realloc is 0.125
 			// If L is close to Size in size then use realloc to reduce the memory defragmentation
-			p = (char *)realloc(P_Buf, new_size);
+			p = (char *)SAlloc::R(P_Buf, new_size);
 		}
 		else {
 			// If L is not close to Size then avoid the penalty of copying
 			// the extra bytes that are allocated, but not considered part of the string
-			p = (char *)malloc(new_size);
+			p = (char *)SAlloc::M(new_size);
 			if(!p)
-				p = (char *)realloc(P_Buf, new_size);
+				p = (char *)SAlloc::R(P_Buf, new_size);
 			else {
 				if(DataLen)
 					memcpy(p, P_Buf, DataLen);
-				free(P_Buf);
+				SAlloc::F(P_Buf);
 			}
 		}
 		if(p) {
@@ -82,7 +82,7 @@ SLAPI StringSet::StringSet(const StringSet & rS)
 
 SLAPI StringSet::~StringSet()
 {
-	free(P_Buf);
+	SAlloc::F(P_Buf);
 }
 
 StringSet & FASTCALL StringSet::operator = (const StringSet & rS)

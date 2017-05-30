@@ -2903,7 +2903,7 @@ int SLAPI PPViewGoodsRest::InitAppBuff(const TempGoodsRestTbl::Rec * pRec, Goods
 	return ok;
 }
 
-int SLAPI PPViewGoodsRest::NextIteration(GoodsRestViewItem * pItem)
+int FASTCALL PPViewGoodsRest::NextIteration(GoodsRestViewItem * pItem)
 {
 	SString temp_buf;
 	if(P_Tbl)
@@ -3691,7 +3691,7 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 						const  PPID goods_id = labs(view_item.GoodsID);
 						long   uhtt_goods_id = 0;
 						report_goods_list.add(goods_id);
-						if(ref_list.Search(goods_id, &uhtt_goods_id, 0, 1) && uhtt_goods_id > 0) {
+						if(ref_list.BSearch(goods_id, &uhtt_goods_id, 0) && uhtt_goods_id > 0) {
 							if(exp_options & GoodsRestFilt::uefRest) {
 								UhttBillPacket::BillItem uhtt_bill_item;
 								uhtt_bill_item.BillID = 0;
@@ -4272,7 +4272,7 @@ int PPALDD_GoodsRest::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	return 1;
 }
 
-int PPALDD_GoodsRest::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsRest::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(GoodsRest);
 	I.GoodsID = item.GoodsID;
@@ -4369,7 +4369,7 @@ int PPALDD_GoodsRestTotal::InitIteration(PPIterID iterId, int sortId, long /*rsr
 	return 1;
 }
 
-int PPALDD_GoodsRestTotal::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_GoodsRestTotal::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
 	GoodsRestTotalPrintData * p_data = (GoodsRestTotalPrintData *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
@@ -4387,7 +4387,7 @@ int PPALDD_GoodsRestTotal::NextIteration(PPIterID iterId, long rsrv)
 	}
 	else
 		return -1;
-	return DlRtm::NextIteration(iterId, rsrv);
+	return DlRtm::NextIteration(iterId);
 }
 
 void PPALDD_GoodsRestTotal::Destroy()

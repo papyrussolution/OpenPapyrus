@@ -286,7 +286,7 @@ int FASTCALL GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 	Gdiplus::ImageCodecInfo * p_img_codec_info = 0;
 	GetImageEncodersSize(&num, &size);
 	THROW(size);
-	THROW_S(p_img_codec_info = (Gdiplus::ImageCodecInfo *)malloc(size), SLERR_NOMEM);
+	THROW_S(p_img_codec_info = (Gdiplus::ImageCodecInfo *)SAlloc::M(size), SLERR_NOMEM);
 	GetImageEncoders(num, size, p_img_codec_info);
 	for(uint j = 0; idx < 0 && j < num; ++j) {
 		if(wcscmp(p_img_codec_info[j].MimeType, format) == 0) {
@@ -297,7 +297,7 @@ int FASTCALL GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 	CATCH
 		idx = -1;
 	ENDCATCH
-	free(p_img_codec_info);
+	SAlloc::F(p_img_codec_info);
 	return idx;  // Failure
 }
 

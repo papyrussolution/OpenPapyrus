@@ -2039,7 +2039,7 @@ int PPALDD_PsnEventItem::InitIteration(PPIterID iterId, int sortId, long rsrv)
 	return 1;
 }
 
-int PPALDD_PsnEventItem::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_PsnEventItem::NextIteration(PPIterID iterId)
 {
 	int    r = -1;
 	if(IterProlog(iterId, 0) < 0)
@@ -2058,7 +2058,7 @@ int PPALDD_PsnEventItem::NextIteration(PPIterID iterId, long rsrv)
 		r = 1;
 	}
 	I.nn = n;
-	return (r > 0) ? DlRtm::NextIteration(iterId, rsrv) : r;
+	return (r > 0) ? DlRtm::NextIteration(iterId) : r;
 }
 
 void PPALDD_PsnEventItem::Destroy()
@@ -2225,9 +2225,7 @@ public:
 	}
 	int    setDTS(const AddPersonEventFilt * pData)
 	{
-		if(pData)
-			Data = *pData;
-		else
+		if(!RVALUEPTR(Data, pData))
 			Data.Init(1, 0);
 		setCtrlDate(CTL_FLTADDPSNEV_DATE, Data.Dt);
 		SetupPPObjCombo(this, CTLSEL_FLTADDPSNEV_OP,  PPOBJ_PERSONOPKIND,  Data.OpID, 0);

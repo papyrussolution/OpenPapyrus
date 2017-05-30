@@ -11,7 +11,7 @@
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -49,9 +49,9 @@ typedef enum {
   IMAP_LAST          /* never used */
 } imapstate;
 
-/* This IMAP struct is used in the SessionHandle. All IMAP data that is
+/* This IMAP struct is used in the Curl_easy. All IMAP data that is
    connection-oriented must be in imap_conn to properly deal with the fact that
-   perhaps the SessionHandle is changed between the times the connection is
+   perhaps the Curl_easy is changed between the times the connection is
    used. */
 struct IMAP {
   curl_pp_transfer transfer;
@@ -72,7 +72,7 @@ struct imap_conn {
   imapstate state;            /* Always use imap.c:state() to change state! */
   bool ssldone;               /* Is connect() over SSL done? */
   struct SASL sasl;           /* SASL-related parameters */
-  uint preftype;      /* Preferred authentication type */
+  unsigned int preftype;      /* Preferred authentication type */
   int cmdid;                  /* Last used command ID */
   char resptag[5];            /* Response tag to wait for */
   bool tls_supported;         /* StartTLS capability supported by server */

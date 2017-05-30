@@ -53,11 +53,11 @@ typedef enum rui_string_error_codes rstring_code;
 
 static rcstring * FASTCALL rcs_create(size_t length)
 {
-	rcstring * rcs = (rcstring *)malloc(sizeof(rcstring)); // allocates memory for a struct rcstring
+	rcstring * rcs = (rcstring *)SAlloc::M(sizeof(rcstring)); // allocates memory for a struct rcstring
 	if(rcs) {
 		rcs->max = length;
 		rcs->length = 0;
-		rcs->text = (char *)malloc((rcs->max + 1) * sizeof(char));
+		rcs->text = (char *)SAlloc::M((rcs->max + 1) * sizeof(char));
 		if(rcs->text == NULL) {
 			ZFREE(rcs);
 		}
@@ -76,12 +76,12 @@ static void FASTCALL rcs_free(rcstring ** rcs)
 	}
 }
 
-rstring_code rcs_resize(rcstring * rcs, size_t length)
+static rstring_code FASTCALL rcs_resize(rcstring * rcs, size_t length)
 {
 	assert(rcs != NULL);
-	char * temp = (char *)realloc(rcs->text, sizeof(char) * (length + 1)); // length plus '\0'
+	char * temp = (char *)SAlloc::R(rcs->text, sizeof(char) * (length + 1)); // length plus '\0'
 	if(temp == NULL) {
-		free(rcs);
+		SAlloc::F(rcs);
 		return RS_MEMORY;
 	}
 	else {
@@ -120,8 +120,8 @@ static rstring_code FASTCALL rcs_catc(rcstring * pre, const char c)
 static char * FASTCALL rcs_unwrap(rcstring * rcs)
 {
 	assert(rcs != NULL);
-	char * out = (rcs->text == NULL) ? 0 : (char *)realloc(rcs->text, sizeof(char) * (strlen(rcs->text) + 1));
-	free(rcs);
+	char * out = (rcs->text == NULL) ? 0 : (char *)SAlloc::R(rcs->text, sizeof(char) * (strlen(rcs->text) + 1));
+	SAlloc::F(rcs);
 	return out;
 }
 
@@ -170,7 +170,7 @@ enum json_error json_stream_parse(FILE * file, json_t ** document)
 
 json_t * json_new_value(const enum json_value_type type)
 {
-	json_t * new_object = (json_t *)malloc(sizeof(json_t));
+	json_t * new_object = (json_t *)SAlloc::M(sizeof(json_t));
 	if(new_object) {
 		new_object->text = NULL;
 		new_object->parent = NULL;
@@ -186,10 +186,10 @@ json_t * json_new_value(const enum json_value_type type)
 json_t * json_new_string(const char * text)
 {
 	assert(text != NULL);
-	json_t * new_object = (json_t *)malloc(sizeof(json_t));
+	json_t * new_object = (json_t *)SAlloc::M(sizeof(json_t));
 	if(new_object) {
 		size_t   length = strlen(text) + 1;
-		new_object->text = (char *)malloc(length * sizeof(char));
+		new_object->text = (char *)SAlloc::M(length * sizeof(char));
 		if(new_object->text == NULL) {
 			ZFREE(new_object);
 		}
@@ -209,10 +209,10 @@ json_t * json_new_string(const char * text)
 json_t * json_new_number(const char *text)
 {
 	assert(text != NULL);
-	json_t * new_object = (json_t *)malloc(sizeof(json_t));
+	json_t * new_object = (json_t *)SAlloc::M(sizeof(json_t));
 	if(new_object) {
 		size_t   length = strlen(text) + 1;
-		new_object->text = (char *)malloc(length * sizeof (char));
+		new_object->text = (char *)SAlloc::M(length * sizeof (char));
 		if(new_object->text == NULL) {
 			ZFREE(new_object);
 		}
@@ -288,7 +288,7 @@ static void FASTCALL intern_json_free_value(json_t ** value)
 		}
 	}
 	// finally, freeing the memory allocated for this value
-	free((*value)->text);
+	SAlloc::F((*value)->text);
 	ZFREE(*value); // the json value
 }
 
@@ -644,24 +644,14 @@ state1: // open value
 		goto state2; // close value
 state2: // close value
 	switch(cursor->type) {
-		case JSON_OBJECT:
-			fprintf(file, "}");
-			break;
-		case JSON_ARRAY:
-			fprintf(file, "]");
-			break;
-		case JSON_STRING:
-			break;
-		case JSON_NUMBER:
-			break;
-		case JSON_TRUE:
-			break;
-		case JSON_FALSE:
-			break;
-		case JSON_NULL:
-			break;
-		default:
-			goto error;
+		case JSON_OBJECT: fprintf(file, "}"); break;
+		case JSON_ARRAY:  fprintf(file, "]"); break;
+		case JSON_STRING: break;
+		case JSON_NUMBER: break;
+		case JSON_TRUE:   break;
+		case JSON_FALSE:  break;
+		case JSON_NULL:   break;
+		default:          goto error;
 	}
 	if((cursor->parent == NULL) || (cursor == root))
 		goto end;
@@ -774,9 +764,7 @@ char * json_format_string(const char * text)
 					}
 					else if(text[pos] == '\"') // reached end of string
 						loop = 0;
-
 					rcs_catc(output, text[pos]);
-
 					pos++;
 					if(pos >= text_length)
 						loop = 0;
@@ -835,7 +823,7 @@ char * json_escape(const char * text)
 
 char * json_unescape(char * text)
 {
-	char * result = (char *)malloc(strlen(text) + 1);
+	char * result = (char *)SAlloc::M(strlen(text) + 1);
 	size_t r; // read cursor
 	size_t w; // write cursor
 	assert(text);
@@ -845,25 +833,12 @@ char * json_unescape(char * text)
 				switch(text[++r]) {
 					case '\"':
 					case '\\':
-					case '/':
-						// literal translation
-						result[w++] = text[r];
-						break;
-					case 'b':
-						result[w++] = '\b';
-						break;
-					case 'f':
-						result[w++] = '\f';
-						break;
-					case 'n':
-						result[w++] = '\n';
-						break;
-					case 'r':
-						result[w++] = '\r';
-						break;
-					case 't':
-						result[w++] = '\t';
-						break;
+					case '/': result[w++] = text[r]; break; // literal translation
+					case 'b': result[w++] = '\b'; break;
+					case 'f': result[w++] = '\f'; break;
+					case 'n': result[w++] = '\n'; break;
+					case 'r': result[w++] = '\r'; break;
+					case 't': result[w++] = '\t'; break;
 					case 'u':
 					{
 						char buf[5];
@@ -875,8 +850,7 @@ char * json_unescape(char * text)
 						buf[4] = '\0';
 						unicode = strtol(buf, NULL, 16);
 						if(unicode < 0x80)
-							/* ASCII: map to UTF-8 literally */
-							result[w++] = (char)unicode;
+							result[w++] = (char)unicode; // ASCII: map to UTF-8 literally 
 						else if(unicode < 0x800) {
 							/* two-byte-encoding */
 							char one = (char)0xC0; /* 110 00000 */
@@ -990,33 +964,21 @@ int lexer(const char * buffer, char ** p, uint * state, rcstring ** text)
 					case '\x0A':	/* line feed or new line */
 					case '\x0D':	/* Carriage return */
 						break;
-					case '{':
-						return LEX_BEGIN_OBJECT;
-					case '}':
-						return LEX_END_OBJECT;
-					case '[':
-						return LEX_BEGIN_ARRAY;
-					case ']':
-						return LEX_END_ARRAY;
-					case ':':
-						return LEX_NAME_SEPARATOR;
-					case ',':
-						return LEX_VALUE_SEPARATOR;
+					case '{': return LEX_BEGIN_OBJECT;
+					case '}': return LEX_END_OBJECT;
+					case '[': return LEX_BEGIN_ARRAY;
+					case ']': return LEX_END_ARRAY;
+					case ':': return LEX_NAME_SEPARATOR;
+					case ',': return LEX_VALUE_SEPARATOR;
 					case '\"':
 						*text = rcs_create(RSTRING_DEFAULT);
 						if(*text == NULL)
 							return LEX_MEMORY;
 						*state = 1;	/* inside a JSON string */
 						break;
-					case 't':
-						*state = 7;	/* true: 1 */
-						break;
-					case 'f':
-						*state = 10;	/* false: 1 */
-						break;
-					case 'n':
-						*state = 14;	/* false: 1 */
-						break;
+					case 't': *state =  7; break; // true: 1 
+					case 'f': *state = 10; break; // false: 1 
+					case 'n': *state = 14; break; // false: 1 
 					case '-':
 						*text = rcs_create(RSTRING_DEFAULT);
 						if(*text == NULL)
@@ -1609,15 +1571,9 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 			case 0:	/* starting point */
 				{
 					switch(lexer (buffer, &info->p, &info->lex_state, &info->lex_text)) {
-						case LEX_BEGIN_OBJECT:
-							info->state = 1;	/* begin object */
-							break;
-						case LEX_BEGIN_ARRAY:
-							info->state = 7;	/* begin array */
-							break;
-						case LEX_INVALID_CHARACTER:
-							return JSON_MALFORMED_DOCUMENT;
-							break;
+						case LEX_BEGIN_OBJECT: info->state = 1; break; // begin object 
+						case LEX_BEGIN_ARRAY:  info->state = 7; break; // begin array 
+						case LEX_INVALID_CHARACTER: return JSON_MALFORMED_DOCUMENT; break;
 						default:
 							fprintf (stderr, "JSON: state %d: defaulted\n", info->state);
 							return JSON_MALFORMED_DOCUMENT;
@@ -1754,22 +1710,17 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 								return JSON_MEMORY;
 							temp->text = rcs_unwrap(info->lex_text), info->lex_text = NULL;
 							if(json_insert_child(info->cursor, temp) != JSON_OK)
-							{
 								return JSON_UNKNOWN_PROBLEM;
-							}
 							info->cursor = temp;
 							temp = NULL;
 							info->state = 5;
 							break;
-
 						case LEX_MORE:
 							return JSON_INCOMPLETE_DOCUMENT;
 							break;
-
 						case LEX_INVALID_CHARACTER:
 							return JSON_ILLEGAL_CHARACTER;
 							break;
-
 						default:
 							fprintf (stderr, "JSON: state %d: defaulted\n", info->state);
 							return JSON_MALFORMED_DOCUMENT;
@@ -1783,12 +1734,8 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 					assert(info->cursor != NULL);
 					assert(info->cursor->type == JSON_STRING);
 					switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
-						case LEX_NAME_SEPARATOR:
-							info->state = 6;	/* label, pos label:value separator */
-							break;
-						case LEX_MORE:
-							return JSON_INCOMPLETE_DOCUMENT;
-							break;
+						case LEX_NAME_SEPARATOR: info->state = 6; break; /* label, pos label:value separator */
+						case LEX_MORE: return JSON_INCOMPLETE_DOCUMENT; break;
 						default:
 							fprintf (stderr, "JSON: state %d: defaulted\n", info->state);
 							return JSON_MALFORMED_DOCUMENT;
@@ -1963,18 +1910,18 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 					case LEX_FALSE:
 						if((temp = json_new_value (JSON_FALSE)) == NULL)
 							return JSON_MEMORY;
-						if(json_insert_child(info->cursor, temp) != JSON_OK) {
+						else if(json_insert_child(info->cursor, temp) != JSON_OK)
 							return JSON_UNKNOWN_PROBLEM;
-						}
-						info->state = 9;	/* label, pre label:value separator */
+						else
+							info->state = 9;	/* label, pre label:value separator */
 						break;
 					case LEX_NULL:
 						if((temp = json_new_value (JSON_NULL)) == NULL)
 							return JSON_MEMORY;
-						if(json_insert_child(info->cursor, temp) != JSON_OK) {
+						else if(json_insert_child(info->cursor, temp) != JSON_OK)
 							return JSON_UNKNOWN_PROBLEM;
-						}
-						info->state = 9;	/* label, pre label:value separator */
+						else 
+							info->state = 9;	/* label, pre label:value separator */
 						break;
 					case LEX_BEGIN_ARRAY:
 						info->state = 7;	/* open array */
@@ -2076,15 +2023,9 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 					/* perform tree sanity check */
 					assert(info->cursor->parent == NULL);
 					switch(lexer (buffer, &info->p, &info->lex_state, &info->lex_text)) {
-						case LEX_MORE:
-							return JSON_WAITING_FOR_EOF;
-							break;
-						case LEX_MEMORY:
-							return JSON_MEMORY;
-							break;
-						default:
-							return JSON_MALFORMED_DOCUMENT;
-							break;
+						case LEX_MORE: return JSON_WAITING_FOR_EOF; break;
+						case LEX_MEMORY: return JSON_MEMORY; break;
+						default: return JSON_MALFORMED_DOCUMENT; break;
 					}
 				}
 				break;
@@ -2108,7 +2049,7 @@ enum json_error json_parse_document(json_t ** root, const char *text)
 	assert(*root == NULL);
 	assert(text != NULL);
 	// initialize the parsing structure
-	json_parsing_info * jpi = (json_parsing_info *)malloc(sizeof(json_parsing_info));
+	json_parsing_info * jpi = (json_parsing_info *)SAlloc::M(sizeof(json_parsing_info));
 	if(jpi == NULL) {
 		error = JSON_MEMORY;
 	}
@@ -2117,11 +2058,11 @@ enum json_error json_parse_document(json_t ** root, const char *text)
 		error = json_parse_fragment(jpi, text);
 		if(oneof2(error, JSON_WAITING_FOR_EOF, JSON_OK)) {
 			*root = jpi->cursor;
-			free(jpi);
+			SAlloc::F(jpi);
 			error = JSON_OK;
 		}
 		else
-			free(jpi);
+			SAlloc::F(jpi);
 	}
 	return error;
 }
@@ -2135,92 +2076,35 @@ enum json_error json_saxy_parse(json_saxy_parser_status *jsps, json_saxy_functio
 	assert(jsf != NULL);
 	/* goto where we left off */
 	switch(jsps->state) {
-		case 0: // general state. everything goes.
-			goto state0;
-			break;
-		case 1: // parse string
-			goto state1;
-			break;
-		case 2: // parse string: escaped character
-			goto state2;
-			break;
-		case 3:		/* parse string: escaped unicode 1 */
-			goto state3;
-			break;
-		case 4:		/* parse string: escaped unicode 2 */
-			goto state4;
-			break;
-		case 5:		/* parse string: escaped unicode 3 */
-			goto state5;
-			break;
-		case 6:		/* parse string: escaped unicode 4 */
-			goto state6;
-			break;
-		case 7:		/* parse true: tr */
-			goto state7;
-			break;
-		case 8:		/* parse true: tru */
-			goto state8;
-			break;
-		case 9:		/* parse true: true */
-			goto state9;
-			break;
-		case 10:		/* parse false: fa */
-			goto state10;
-			break;
-		case 11:		/* parse false: fal */
-			goto state11;
-			break;
-		case 12:		/* parse false: fals */
-			goto state12;
-			break;
-		case 13:		/* parse false: false */
-			goto state13;
-			break;
-		case 14:		/* parse null: nu */
-			goto state14;
-			break;
-		case 15:		/* parse null: nul */
-			goto state15;
-			break;
-		case 16:		/* parse null: null */
-			goto state16;
-			break;
-		case 17:		/* parse number: 0 */
-			goto state17;
-			break;
-		case 18:		/* parse number: start fraccional part */
-			goto state18;
-			break;
-		case 19:		/* parse number: fraccional part */
-			goto state19;
-			break;
-		case 20:		/* parse number: start exponent part */
-			goto state20;
-			break;
-		case 21:		/* parse number: exponent part */
-			goto state21;
-			break;
-		case 22:		/* parse number: exponent sign part */
-			goto state22;
-			break;
-		case 23:		/* parse number: start negative */
-			goto state23;
-			break;
-		case 24:		/* parse number: decimal part */
-			goto state24;
-			break;
-		case 25:		/* open object */
-			goto state25;
-			break;
-		case 26:		/* close object/array */
-			goto state26;
-			break;
-		case 27:		/* sibling followup */
-			goto state27;
-			break;
-		default:		/* oops... this should never be reached */
-			return JSON_UNKNOWN_PROBLEM;
+		case 0:  goto state0;  break; // general state. everything goes.
+		case 1:  goto state1;  break; // parse string
+		case 2:  goto state2;  break; // parse string: escaped character
+		case 3:  goto state3;  break; // parse string: escaped unicode 1 
+		case 4:  goto state4;  break; // parse string: escaped unicode 2 
+		case 5:  goto state5;  break; /* parse string: escaped unicode 3 */
+		case 6:  goto state6;  break; /* parse string: escaped unicode 4 */
+		case 7:  goto state7;  break; /* parse true: tr */
+		case 8:  goto state8;  break; /* parse true: tru */
+		case 9:  goto state9;  break; /* parse true: true */
+		case 10: goto state10; break; /* parse false: fa */
+		case 11: goto state11; break; /* parse false: fal */
+		case 12: goto state12; break; /* parse false: fals */
+		case 13: goto state13; break; /* parse false: false */
+		case 14: goto state14; break; /* parse null: nu */
+		case 15: goto state15; break; /* parse null: nul */
+		case 16: goto state16; break; /* parse null: null */
+		case 17: goto state17; break; /* parse number: 0 */
+		case 18: goto state18; break; /* parse number: start fraccional part */
+		case 19: goto state19; break; /* parse number: fraccional part */
+		case 20: goto state20; break; /* parse number: start exponent part */
+		case 21: goto state21; break; /* parse number: exponent part */
+		case 22: goto state22; break; /* parse number: exponent sign part */
+		case 23: goto state23; break; /* parse number: start negative */
+		case 24: goto state24; break; /* parse number: decimal part */
+		case 25: goto state25; break; /* open object */
+		case 26: goto state26; break; /* close object/array */
+		case 27: goto state27; break; /* sibling followup */
+		default: return JSON_UNKNOWN_PROBLEM; /* oops... this should never be reached */
 	}
 	state0: // starting point
 	{
@@ -2235,42 +2119,35 @@ enum json_error json_saxy_parse(json_saxy_parser_status *jsps, json_saxy_functio
 			jsps->state = 1;
 			break;
 		case '{':
-			if(jsf->open_object != NULL)
+			if(jsf->open_object)
 				jsf->open_object();
 			jsps->state = 25;	/*open object */
 			break;
 		case '}':
-			if(jsf->close_object != NULL)
+			if(jsf->close_object)
 				jsf->close_object();
 			jsps->state = 26;	/* close object/array */
 			break;
 		case '[':
-			if(jsf->open_array != NULL)
+			if(jsf->open_array)
 				jsf->open_array();
 			// jsps->state = 0; // redundant
 			break;
 		case ']':
-			if(jsf->close_array != NULL)
+			if(jsf->close_array)
 				jsf->close_array();
 			jsps->state = 26;	/* close object/array */
 			break;
-		case 't':
-			jsps->state = 7;	/* parse true: tr */
-			break;
-		case 'f':
-			jsps->state = 10;	/* parse false: fa */
-			break;
-		case 'n':
-			jsps->state = 14;	/* parse null: nu */
-			break;
+		case 't': jsps->state = 7; break; // parse true: tr
+		case 'f': jsps->state = 10; break; // parse false: fa 
+		case 'n': jsps->state = 14; break; // parse null: nu 
 		case ':':
-			if(jsf->label_value_separator != NULL)
+			if(jsf->label_value_separator)
 				jsf->label_value_separator();
 			// jsps->state = 0; // redundant
 			break;
-
 		case ',':
-			if(jsf->sibling_separator != NULL)
+			if(jsf->sibling_separator)
 				jsf->sibling_separator();
 			jsps->state = 27;	/* sibling followup */
 			break;
@@ -2335,7 +2212,7 @@ enum json_error json_saxy_parse(json_saxy_parser_status *jsps, json_saxy_functio
 		case '\"':	/* end of string */
 			if(jsps->temp) {
 				jsps->state = 0;	/* starting point */
-				if(jsf->new_string != NULL)
+				if(jsf->new_string)
 					jsf->new_string(jsps->temp->text); /*copied or integral? */
 				rcs_free(&jsps->temp);
 			}
@@ -2474,7 +2351,7 @@ enum json_error json_saxy_parse(json_saxy_parser_status *jsps, json_saxy_functio
 			return JSON_ILLEGAL_CHARACTER;
 		else {
 			jsps->state = 0;	/* back to general state. */
-			if(jsf->new_true != NULL)
+			if(jsf->new_true)
 				jsf->new_true();
 			return JSON_OK;
 		}
@@ -2504,7 +2381,7 @@ enum json_error json_saxy_parse(json_saxy_parser_status *jsps, json_saxy_functio
 			return JSON_ILLEGAL_CHARACTER;
 		else {
 			jsps->state = 0;	/* general state. everything goes. */
-			if(jsf->new_false != NULL)
+			if(jsf->new_false)
 				jsf->new_false();
 			return JSON_OK;
 		}
@@ -2527,7 +2404,7 @@ enum json_error json_saxy_parse(json_saxy_parser_status *jsps, json_saxy_functio
 			return JSON_ILLEGAL_CHARACTER;
 		else {
 			jsps->state = 0;	/* general state. everything goes. */
-			if(jsf->new_null != NULL)
+			if(jsf->new_null)
 				jsf->new_null();
 			return JSON_OK;
 		}
@@ -2549,42 +2426,38 @@ enum json_error json_saxy_parse(json_saxy_parser_status *jsps, json_saxy_functio
 		case '\x0D':	/* JSON insignificant white spaces */
 			if((jsps->temp) == NULL)
 				return JSON_MEMORY;
-			if(jsf->new_number != NULL) {
+			if(jsf->new_number)
 				jsf->new_number((jsps->temp)->text);
-			}
 			rcs_free(&jsps->temp);
 			jsps->state = 0;
 			break;
 		case '}':
 			if((jsps->temp) == NULL)
 				return JSON_MEMORY;
-			if(jsf->new_number != NULL) {
+			if(jsf->new_number)
 				jsf->new_number((jsps->temp)->text);
-			}
 			rcs_free(&jsps->temp);
-			if(jsf->open_object != NULL)
+			if(jsf->open_object)
 				jsf->close_object();
 			jsps->state = 26;	/* close object/array */
 			break;
 		case ']':
 			if((jsps->temp) == NULL)
 				return JSON_MEMORY;
-			if(jsf->new_number != NULL) {
+			if(jsf->new_number)
 				jsf->new_number((jsps->temp)->text);
-			}
 			rcs_free(&jsps->temp);
-			if(jsf->open_object != NULL)
+			if(jsf->open_object)
 				jsf->close_array();
 			jsps->state = 26; // close object/array
 			break;
 		case ',':
 			if((jsps->temp) == NULL)
 				return JSON_MEMORY;
-			if(jsf->new_number != NULL) {
+			if(jsf->new_number)
 				jsf->new_number((jsps->temp)->text);
-			}
 			rcs_free(&jsps->temp);
-			if(jsf->open_object != NULL)
+			if(jsf->open_object)
 				jsf->label_value_separator();
 			jsps->state = 27;	/* sibling followup */
 			break;
@@ -2649,25 +2522,23 @@ enum json_error json_saxy_parse(json_saxy_parser_status *jsps, json_saxy_functio
 			case '\x0D':	/* JSON insignificant white spaces */
 				if((jsps->temp) == NULL)
 					return JSON_MEMORY;
-				if(jsf->new_number != NULL) {
+				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->text);
-				}
 				rcs_free(&jsps->temp);
 				jsps->state = 0;
 				break;
 			case '}':
 				if((jsps->temp) == NULL)
 					return JSON_MEMORY;
-				if(jsf->new_number != NULL) {
+				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->text);
-				}
 				rcs_free(&jsps->temp);
-				if(jsf->open_object != NULL)
+				if(jsf->open_object)
 					jsf->close_object();
 				jsps->state = 26;	/* close object/array */
 				break;
 			case ']':
-				if(jsf->new_number != NULL) {
+				if(jsf->new_number) {
 					if((jsps->temp) == NULL)
 						return JSON_MEMORY;
 					jsf->new_number((jsps->temp)->text);
@@ -2677,16 +2548,15 @@ enum json_error json_saxy_parse(json_saxy_parser_status *jsps, json_saxy_functio
 					rcs_free(&jsps->temp);
 					jsps->temp = NULL;
 				}
-				if(jsf->open_object != NULL)
+				if(jsf->open_object)
 					jsf->close_array();
 				jsps->state = 26;	/* close object/array */
 				break;
 			case ',':
 				if((jsps->temp) == NULL)
 					return JSON_MEMORY;
-				if(jsf->new_number != NULL) {
+				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->text);
-				}
 				rcs_free(&jsps->temp);
 				if(jsf->label_value_separator != NULL)
 					jsf->label_value_separator();
@@ -2768,25 +2638,23 @@ enum json_error json_saxy_parse(json_saxy_parser_status *jsps, json_saxy_functio
 			case '\x0D':	/* JSON insignificant white spaces */
 				if((jsps->temp) == NULL)
 					return JSON_MEMORY;
-				if(jsf->new_number != NULL) {
+				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->text);
-				}
 				rcs_free(&jsps->temp);
 				jsps->state = 0;
 				break;
 			case '}':
 				if((jsps->temp) == NULL)
 					return JSON_MEMORY;
-				if(jsf->new_number != NULL) {
+				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->text);
-				}
 				rcs_free(&jsps->temp);
-				if(jsf->open_object != NULL)
+				if(jsf->open_object)
 					jsf->close_object();
 				jsps->state = 26;	/* close object */
 				break;
 			case ']':
-				if(jsf->new_number != NULL) {
+				if(jsf->new_number) {
 					if((jsps->temp) == NULL)
 						return JSON_MEMORY;
 					jsf->new_number((jsps->temp)->text);
@@ -2795,12 +2663,12 @@ enum json_error json_saxy_parse(json_saxy_parser_status *jsps, json_saxy_functio
 				else {
 					ZFREE(jsps->temp);
 				}
-				if(jsf->open_object != NULL)
+				if(jsf->open_object)
 					jsf->close_array();
 				jsps->state = 26;	/* close object/array */
 				break;
 			case ',':
-				if(jsf->new_number != NULL) {
+				if(jsf->new_number) {
 					if((jsps->temp) == NULL)
 						return JSON_MEMORY;
 					jsf->new_number((jsps->temp)->text);
@@ -2925,42 +2793,38 @@ enum json_error json_saxy_parse(json_saxy_parser_status *jsps, json_saxy_functio
 			case '\x0D':	/* JSON insignificant white spaces */
 				if((jsps->temp) == NULL)
 					return JSON_MEMORY;
-				if(jsf->new_number != NULL) {
+				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->text);
-				}
 				rcs_free(&jsps->temp);
 				jsps->state = 0;
 				break;
 			case '}':
 				if((jsps->temp) == NULL)
 					return JSON_MEMORY;
-				if(jsf->new_number != NULL) {
+				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->text);
-				}
 				rcs_free(&jsps->temp);
-				if(jsf->open_object != NULL)
+				if(jsf->open_object)
 					jsf->close_object();
 				jsps->state = 26;	/* close object/array */
 				break;
 			case ']':
 				if((jsps->temp) == NULL)
 					return JSON_MEMORY;
-				if(jsf->new_number != NULL) {
+				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->text);
-				}
 				rcs_free(&jsps->temp);
-				if(jsf->open_object != NULL)
+				if(jsf->open_object)
 					jsf->close_array();
 				jsps->state = 26;	/* close object/array */
 				break;
 			case ',':
 				if((jsps->temp) == NULL)
 					return JSON_MEMORY;
-				if(jsf->new_number != NULL) {
+				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->text);
-				}
 				rcs_free(&jsps->temp);
-				if(jsf->label_value_separator != NULL)
+				if(jsf->label_value_separator)
 					jsf->label_value_separator();
 				jsps->state = 27;	/* sibling followup */
 				break;

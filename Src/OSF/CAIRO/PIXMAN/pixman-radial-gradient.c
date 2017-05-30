@@ -370,7 +370,7 @@ PIXMAN_EXPORT pixman_image_t * pixman_image_create_radial_gradient(const pixman_
 	if(image) {
 		radial_gradient_t * radial = &image->radial;
 		if(!_pixman_init_gradient(&radial->common, stops, n_stops)) {
-			free(image);
+			SAlloc::F(image);
 			image = 0;
 		}
 		else {

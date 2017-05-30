@@ -361,7 +361,8 @@
 			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4">
 			<Tool
-				Name="VCCLCompilerTool"/>
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..\ucl-1.03\include;..\ucl-1.03"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool

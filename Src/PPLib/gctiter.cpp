@@ -1181,6 +1181,7 @@ int SLAPI GCTIterator::NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pB
 							sum_cost += fabs(r_ti.Cost) * aq;
 							sum_price += fabs(r_ti.Price - r_ti.Discount) * aq;
 						}
+						pExt->LinkBillID = Cbb.P_WrOffPack->Rec.ID; // @v9.6.8
 						pExt->LinkQtty = sum_qtty;
 						pExt->LinkCost = fdivnz(sum_cost, sum_qtty_abs);
 						pExt->LinkPrice = fdivnz(sum_price, sum_qtty_abs);

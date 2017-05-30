@@ -729,7 +729,7 @@ static inline void _pqueue_init(pqueue_t * pq)
 static inline void _pqueue_fini(pqueue_t * pq)
 {
 	if(pq->elements != pq->elements_embedded)
-		free(pq->elements);
+		SAlloc::F(pq->elements);
 }
 
 static cairo_status_t _pqueue_grow(pqueue_t * pq)
@@ -1322,7 +1322,7 @@ cairo_status_t _cairo_polygon_intersect(cairo_polygon_t * a, int winding_a, cair
 	a->num_edges = 0;
 	status = intersection_sweep(event_ptrs, num_events, a);
 	if(events != stack_events)
-		free(events);
+		SAlloc::F(events);
 
 #if 0
 	{

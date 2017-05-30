@@ -163,7 +163,7 @@ int SLAPI PPViewRegisterType::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewRegisterType::NextIteration(RegTypeViewItem * pItem)
+int FASTCALL PPViewRegisterType::NextIteration(RegTypeViewItem * pItem)
 {
 	int    ok = -1;
 	if(pItem && Counter < Data.getCount()) {

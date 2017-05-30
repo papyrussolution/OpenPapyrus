@@ -54,7 +54,7 @@ int ps_plot(struct ZintSymbol * symbol)
 #ifndef _MSC_VER
 	uchar local_text[sstrlen(symbol->text) + 1];
 #else
-	uchar* local_text = (uchar*)malloc(sstrlen(symbol->text) + 1);
+	uchar* local_text = (uchar*)SAlloc::M(sstrlen(symbol->text) + 1);
 #endif
 	row_height = 0;
 	textdone = 0;

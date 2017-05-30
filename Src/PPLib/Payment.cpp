@@ -39,7 +39,7 @@ public:
 	SLAPI ~PPViewPaymBill();
 	int    SLAPI Init(const PaymBillFilt *);
 	int    SLAPI InitIteration();
-	int    SLAPI NextIteration(PaymBillViewItem *);
+	int    FASTCALL NextIteration(PaymBillViewItem *);
 	const  PaymBillFilt * SLAPI GetFilt() const { return &Filt; }
 	const  IterCounter & SLAPI GetIterCounter() const { return Counter; }
 private:
@@ -81,7 +81,7 @@ int SLAPI PPViewPaymBill::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewPaymBill::NextIteration(PaymBillViewItem * pItem)
+int FASTCALL PPViewPaymBill::NextIteration(PaymBillViewItem * pItem)
 {
 	int    ok = -1;
 	if(pItem && P_PaymBillList && P_BObj) {
@@ -277,7 +277,7 @@ int SLAPI PPViewLinkedBill::InitIteration()
 	return 1;
 }
 
-int SLAPI PPViewLinkedBill::NextIteration(LinkedBillViewItem * pItem)
+int FASTCALL PPViewLinkedBill::NextIteration(LinkedBillViewItem * pItem)
 {
 	int    ok = -1;
 	if(pItem && P_BObj) {
@@ -2276,7 +2276,7 @@ int PPALDD_PaymBillList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*
 	INIT_PPVIEW_ALDD_ITER(LinkedBill);
 }
 
-int PPALDD_PaymBillList::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_PaymBillList::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(LinkedBill);
 	SString temp_buf;

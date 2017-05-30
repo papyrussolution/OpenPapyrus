@@ -914,7 +914,7 @@ int SLAPI PPViewPriceList::NextIterationByList(PriceListViewItem * pItem)
 }
 // } AHTOXA
 
-int SLAPI PPViewPriceList::NextIteration(PriceListViewItem * pItem)
+int FASTCALL PPViewPriceList::NextIteration(PriceListViewItem * pItem)
 {
 	// AHTOXA { для печати ценников по списку товаров
 	if(Filt.GoodsIDList.GetCount())
@@ -2785,7 +2785,7 @@ int PPALDD_PriceListData::InitIteration(PPIterID iterId, int sortId, long)
 	*/
 }
 
-int PPALDD_PriceListData::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_PriceListData::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(PriceList);
 	I.LN          = item.LN;

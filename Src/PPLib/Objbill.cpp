@@ -7860,7 +7860,7 @@ int SLAPI PPObjBill::UniteReceiptBill(PPID destBillID, PPIDArray * pSrcList, int
 				PPID   goods_id    = ti.GoodsID;
 				int    src_is_derived = 0, dest_is_derived = 0;
 				GetClbNumberByLot(src_lot_id, &src_is_derived, src_clb);
-				if(ary.Search(goods_id, &dest_lot_id, &pos, 1)) {
+				if(ary.BSearch(goods_id, &dest_lot_id, &pos)) {
 					tmlof |= TMLOF_ADDLOTS;
 					GetClbNumberByLot(dest_lot_id, &dest_is_derived, dest_clb);
 					if(dest_clb.Empty() && src_clb.NotEmpty())

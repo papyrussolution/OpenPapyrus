@@ -80,7 +80,7 @@ static void _cairo_clip_extract_region(cairo_clip_t * clip)
 	clip->region = cairo_region_create_rectangles(r, i);
 
 	if(r != stack_rects)
-		free(r);
+		SAlloc::F(r);
 }
 
 cairo_region_t * _cairo_clip_get_region(const cairo_clip_t * clip)

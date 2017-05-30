@@ -46,7 +46,7 @@ cairo_damage_t * _cairo_damage_create_in_error(cairo_status_t status)
 
 cairo_damage_t * _cairo_damage_create(void)
 {
-	cairo_damage_t * damage = (cairo_damage_t *)malloc(sizeof(*damage));
+	cairo_damage_t * damage = (cairo_damage_t *)SAlloc::M(sizeof(*damage));
 	if(unlikely(damage == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_damage_t*)&__cairo_damage__nil;
@@ -70,10 +70,10 @@ void _cairo_damage_destroy(cairo_damage_t * damage)
 		return;
 	for(chunk = damage->chunks.next; chunk != NULL; chunk = next) {
 		next = chunk->next;
-		free(chunk);
+		SAlloc::F(chunk);
 	}
 	cairo_region_destroy(damage->region);
-	free(damage);
+	SAlloc::F(damage);
 }
 
 static cairo_damage_t * _cairo_damage_add_boxes(cairo_damage_t * damage, const cairo_box_t * boxes, int count)
@@ -98,7 +98,7 @@ static cairo_damage_t * _cairo_damage_add_boxes(cairo_damage_t * damage, const c
 	size = 2 * damage->tail->size;
 	if(size < count)
 		size = (count + 64) & ~63;
-	chunk = (_cairo_damage::_cairo_damage_chunk *)malloc(sizeof(*chunk) + sizeof(cairo_box_t) * size);
+	chunk = (_cairo_damage::_cairo_damage_chunk *)SAlloc::M(sizeof(*chunk) + sizeof(cairo_box_t) * size);
 	if(unlikely(chunk == NULL)) {
 		_cairo_damage_destroy(damage);
 		return (cairo_damage_t*)&__cairo_damage__nil;
@@ -182,7 +182,7 @@ cairo_damage_t * _cairo_damage_reduce(cairo_damage_t * damage)
 
 	boxes = damage->tail->base;
 	if(damage->dirty > damage->tail->size) {
-		boxes = free_boxes = (cairo_box_t *)malloc(damage->dirty * sizeof(cairo_box_t));
+		boxes = free_boxes = (cairo_box_t *)SAlloc::M(damage->dirty * sizeof(cairo_box_t));
 		if(unlikely(boxes == NULL)) {
 			_cairo_damage_destroy(damage);
 			return (cairo_damage_t*)&__cairo_damage__nil;
@@ -199,7 +199,7 @@ cairo_damage_t * _cairo_damage_reduce(cairo_damage_t * damage)
 		b += chunk->count;
 	}
 	damage->region = _cairo_region_create_from_boxes(boxes, damage->dirty);
-	free(free_boxes);
+	SAlloc::F(free_boxes);
 	if(unlikely(damage->region->status)) {
 		_cairo_damage_destroy(damage);
 		return (cairo_damage_t*)&__cairo_damage__nil;

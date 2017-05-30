@@ -103,9 +103,9 @@ int SLAPI PPViewObjLikeness::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewObjLikeness::NextIteration(ObjLikenessViewItem * pItem)
+int FASTCALL PPViewObjLikeness::NextIteration(ObjLikenessViewItem * pItem)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(P_IterQuery->nextIteration() > 0) {
 		ASSIGN_PTR(pItem, Tbl.data);
 		Counter.Increment();

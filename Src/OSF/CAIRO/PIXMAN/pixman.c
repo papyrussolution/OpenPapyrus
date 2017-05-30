@@ -748,7 +748,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_image_fill_rectangles(pixman_op_t op,
 	}
 	result = pixman_image_fill_boxes(op, dest, color, n_rects, boxes);
 	if(boxes != stack_boxes)
-		free(boxes);
+		SAlloc::F(boxes);
 	return result;
 }
 

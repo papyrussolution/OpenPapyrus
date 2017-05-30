@@ -231,7 +231,7 @@ static void _cairo_xcb_connection_do_put_subimage(cairo_xcb_connection_t * conne
 	xcb_send_request(connection->xcb_connection, 0, &vec[2], &xcb_req);
 
 	if(vec != vec_stack)
-		free(vec);
+		SAlloc::F(vec);
 }
 
 void _cairo_xcb_connection_put_subimage(cairo_xcb_connection_t * connection,

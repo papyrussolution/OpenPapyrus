@@ -246,7 +246,7 @@ cairo_bool_t _cairo_path_fixed_equal(const cairo_path_fixed_t * a, const cairo_p
 
 cairo_path_fixed_t * _cairo_path_fixed_create(void)
 {
-	cairo_path_fixed_t  * path = (cairo_path_fixed_t  *)malloc(sizeof(cairo_path_fixed_t));
+	cairo_path_fixed_t  * path = (cairo_path_fixed_t  *)SAlloc::M(sizeof(cairo_path_fixed_t));
 	if(!path) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return NULL;
@@ -269,7 +269,7 @@ void _cairo_path_fixed_fini(cairo_path_fixed_t * path)
 void _cairo_path_fixed_destroy(cairo_path_fixed_t * path)
 {
 	_cairo_path_fixed_fini(path);
-	free(path);
+	SAlloc::F(path);
 }
 
 static cairo_path_op_t _cairo_path_fixed_last_op(cairo_path_fixed_t * path)
@@ -586,7 +586,7 @@ static cairo_path_buf_t * _cairo_path_buf_create(int size_ops, int size_points)
 
 static void _cairo_path_buf_destroy(cairo_path_buf_t * buf)
 {
-	free(buf);
+	SAlloc::F(buf);
 }
 
 static void _cairo_path_buf_add_op(cairo_path_buf_t * buf, cairo_path_op_t op)

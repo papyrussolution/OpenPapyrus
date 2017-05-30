@@ -318,8 +318,8 @@ cairo_int_status_t _cairo_win32_surface_emit_glyphs(cairo_win32_surface_t * dst,
 	RestoreDC(dst->dc, -1);
 
 	if(glyph_buf != glyph_buf_stack) {
-		free(glyph_buf);
-		free(dxy_buf);
+		SAlloc::F(glyph_buf);
+		SAlloc::F(dxy_buf);
 	}
 	return (win_result) ? CAIRO_STATUS_SUCCESS : CAIRO_INT_STATUS_UNSUPPORTED;
 #else

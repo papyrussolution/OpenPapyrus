@@ -239,7 +239,7 @@ void _cairo_boxes_clear(cairo_boxes_t * boxes)
 	_cairo_boxes_t::_cairo_boxes_chunk * chunk, * next;
 	for(chunk = boxes->chunks.next; chunk != NULL; chunk = next) {
 		next = chunk->next;
-		free(chunk);
+		SAlloc::F(chunk);
 	}
 	boxes->tail = &boxes->chunks;
 	boxes->chunks.next = 0;
@@ -276,7 +276,7 @@ void _cairo_boxes_fini(cairo_boxes_t * boxes)
 	_cairo_boxes_t::_cairo_boxes_chunk * chunk, * next;
 	for(chunk = boxes->chunks.next; chunk != NULL; chunk = next) {
 		next = chunk->next;
-		free(chunk);
+		SAlloc::F(chunk);
 	}
 }
 

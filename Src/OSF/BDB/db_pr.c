@@ -1276,8 +1276,7 @@ int __db_prheader(DB * dbp, const char * subname, int pflag, int keyflag, void *
 			goto err;
 		if(using_vdp)
 			tmp_int = (int)vdp->re_pad;
-		else
-		if((ret = __ram_get_re_pad(dbp, &tmp_int)) != 0) {
+		else if((ret = __ram_get_re_pad(dbp, &tmp_int)) != 0) {
 			__db_err(env, ret, "DB->get_re_pad");
 			goto err;
 		}
@@ -1288,8 +1287,7 @@ int __db_prheader(DB * dbp, const char * subname, int pflag, int keyflag, void *
 		}
 		if(using_vdp)
 			tmp_u_int32 = vdp->page_ext;
-		else
-		if((ret = __qam_get_extentsize(dbp, &tmp_u_int32)) != 0) {
+		else if((ret = __qam_get_extentsize(dbp, &tmp_u_int32)) != 0) {
 			__db_err(env, ret, "DB->get_q_extentsize");
 			goto err;
 		}
@@ -1319,8 +1317,7 @@ int __db_prheader(DB * dbp, const char * subname, int pflag, int keyflag, void *
 		if(tmp_int) {
 			if(using_vdp)
 				tmp_u_int32 = pip->re_len;
-			else
-			if((ret = __ram_get_re_len(dbp, &tmp_u_int32)) != 0) {
+			else if((ret = __ram_get_re_len(dbp, &tmp_u_int32)) != 0) {
 				__db_err(env, ret, "DB->get_re_len");
 				goto err;
 			}
@@ -1329,8 +1326,7 @@ int __db_prheader(DB * dbp, const char * subname, int pflag, int keyflag, void *
 				goto err;
 			if(using_vdp)
 				tmp_int = (int)pip->re_pad;
-			else
-			if((ret = __ram_get_re_pad(dbp, &tmp_int)) != 0) {
+			else if((ret = __ram_get_re_pad(dbp, &tmp_int)) != 0) {
 				__db_err(env, ret, "DB->get_re_pad");
 				goto err;
 			}

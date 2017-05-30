@@ -18,7 +18,7 @@
 //
 zip_t * _zip_new(zip_error_t * error)
 {
-	zip_t * za = (zip_t*)malloc(sizeof(struct zip));
+	zip_t * za = (zip_t*)SAlloc::M(sizeof(struct zip));
 	if(!za) {
 		zip_error_set(error, ZIP_ER_MEMORY, 0);
 		return NULL;
@@ -182,7 +182,7 @@ ZIP_EXTERN const char * zip_error_strerror(zip_error_t * err)
 	if(ss == NULL)
 		return zs;
 	else {
-		if((s = (char*)malloc(strlen(ss) + (zs ? strlen(zs)+2 : 0) + 1)) == NULL)
+		if((s = (char*)SAlloc::M(strlen(ss) + (zs ? strlen(zs)+2 : 0) + 1)) == NULL)
 			return _zip_err_str[ZIP_ER_MEMORY];
 		sprintf(s, "%s%s%s", (zs ? zs : ""), (zs ? ": " : ""), ss);
 		err->str = s;
@@ -428,11 +428,11 @@ zip_buffer_t * _zip_buffer_new(uint8 * data, size_t size)
 	bool free_data = (data == NULL);
 	zip_buffer_t * buffer;
 	if(data == NULL) {
-		if((data = (uint8*)malloc(size)) == NULL) {
+		if((data = (uint8*)SAlloc::M(size)) == NULL) {
 			return NULL;
 		}
 	}
-	if((buffer = (zip_buffer_t*)malloc(sizeof(*buffer))) == NULL) {
+	if((buffer = (zip_buffer_t*)SAlloc::M(sizeof(*buffer))) == NULL) {
 		if(free_data) {
 			free(data);
 		}
@@ -612,7 +612,7 @@ ZIP_EXTERN int64 zip_dir_add(zip_t * za, const char * name, zip_flags_t flags)
 	s = NULL;
 	len = strlen(name);
 	if(name[len-1] != '/') {
-		if((s = (char*)malloc(len+2)) == NULL) {
+		if((s = (char*)SAlloc::M(len+2)) == NULL) {
 			zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
 			return -1;
 		}
@@ -730,7 +730,7 @@ void * _zip_memdup(const void * mem, size_t len, zip_error_t * error)
 {
 	void * ret = 0;
 	if(len) {
-		ret = malloc(len);
+		ret = SAlloc::M(len);
 		if(!ret) {
 			zip_error_set(error, ZIP_ER_MEMORY, 0);
 			return NULL;
@@ -883,7 +883,7 @@ ZIP_EXTERN void zip_source_keep(zip_source_t * src)
 zip_source_t * _zip_source_new(zip_error_t * error)
 {
 	zip_source_t * src;
-	if((src = (zip_source_t*)malloc(sizeof(*src))) == NULL) {
+	if((src = (zip_source_t*)SAlloc::M(sizeof(*src))) == NULL) {
 		zip_error_set(error, ZIP_ER_MEMORY, 0);
 		return NULL;
 	}
@@ -972,7 +972,7 @@ zip_source_t * _zip_source_window_new(zip_source_t * src, uint64 start, uint64 l
 		zip_error_set(error, ZIP_ER_INVAL, 0);
 		return NULL;
 	}
-	if((ctx = (struct ZipSourceWindow*)malloc(sizeof(*ctx))) == NULL) {
+	if((ctx = (struct ZipSourceWindow*)SAlloc::M(sizeof(*ctx))) == NULL) {
 		zip_error_set(error, ZIP_ER_MEMORY, 0);
 		return NULL;
 	}
@@ -1141,7 +1141,7 @@ zip_source_t * zip_source_pkware(zip_t * za, zip_source_t * src, uint16 em, int 
 		zip_error_set(&za->error, ZIP_ER_ENCRNOTSUPP, 0);
 		return NULL;
 	}
-	if((ctx = (struct trad_pkware*)malloc(sizeof(*ctx))) == NULL) {
+	if((ctx = (struct trad_pkware*)SAlloc::M(sizeof(*ctx))) == NULL) {
 		zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
 		return NULL;
 	}
@@ -1352,7 +1352,7 @@ ZIP_EXTERN zip_file_t * zip_fopen_index_encrypted(zip_t * za, uint64 index, zip_
 
 static zip_file_t * _zip_file_new(zip_t * za)
 {
-	zip_file_t * zf = (zip_file_t*)malloc(sizeof(struct zip_file));
+	zip_file_t * zf = (zip_file_t*)SAlloc::M(sizeof(struct zip_file));
 	if(!zf) {
 		zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
 	}
@@ -1579,7 +1579,7 @@ ZIP_EXTERN zip_source_t * zip_source_buffer_create(const void * data, uint64 len
 		zip_error_set(error, ZIP_ER_INVAL, 0);
 		return NULL;
 	}
-	if((ctx = (struct read_data*)malloc(sizeof(*ctx))) == NULL) {
+	if((ctx = (struct read_data*)SAlloc::M(sizeof(*ctx))) == NULL) {
 		zip_error_set(error, ZIP_ER_MEMORY, 0);
 		return NULL;
 	}
@@ -1735,7 +1735,7 @@ static void buffer_free(ZipSourceBuffer * buffer)
 static ZipSourceBuffer * buffer_new(uint64 fragment_size)
 {
 	ZipSourceBuffer * buffer;
-	if((buffer = (ZipSourceBuffer*)malloc(sizeof(*buffer))) == NULL) {
+	if((buffer = (ZipSourceBuffer*)SAlloc::M(sizeof(*buffer))) == NULL) {
 		return NULL;
 	}
 	buffer->fragment_size = fragment_size;
@@ -1756,7 +1756,7 @@ static ZipSourceBuffer * buffer_new_read(const void * data, uint64 length, int f
 	}
 	buffer->size = length;
 	if(length > 0) {
-		if((buffer->fragments = (uint8**)malloc(sizeof(*(buffer->fragments)))) == NULL) {
+		if((buffer->fragments = (uint8**)SAlloc::M(sizeof(*(buffer->fragments)))) == NULL) {
 			buffer_free(buffer);
 			return NULL;
 		}
@@ -1774,7 +1774,7 @@ static ZipSourceBuffer * buffer_new_write(uint64 fragment_size)
 	if((buffer = buffer_new(fragment_size)) == NULL) {
 		return NULL;
 	}
-	if((buffer->fragments = (uint8**)malloc(sizeof(*(buffer->fragments)))) == NULL) {
+	if((buffer->fragments = (uint8**)SAlloc::M(sizeof(*(buffer->fragments)))) == NULL) {
 		buffer_free(buffer);
 		return NULL;
 	}
@@ -1843,7 +1843,7 @@ static int64 buffer_write(ZipSourceBuffer * buffer, const uint8 * data, uint64 l
 			buffer->fragments_capacity = new_capacity;
 		}
 		while(buffer->nfragments < needed_fragments) {
-			if((buffer->fragments[buffer->nfragments] = (uint8*)malloc((size_t)buffer->fragment_size)) == NULL) {
+			if((buffer->fragments[buffer->nfragments] = (uint8*)SAlloc::M((size_t)buffer->fragment_size)) == NULL) {
 				zip_error_set(error, ZIP_ER_MEMORY, 0);
 				return -1;
 			}
@@ -2560,7 +2560,7 @@ uint8 * _zip_read_data(zip_buffer_t * buffer, zip_source_t * src, size_t length,
 	if(length == 0 && !nulp) {
 		return NULL;
 	}
-	r = (uint8*)malloc(length + (nulp ? 1 : 0));
+	r = (uint8*)SAlloc::M(length + (nulp ? 1 : 0));
 	if(!r) {
 		zip_error_set(error, ZIP_ER_MEMORY, 0);
 		return NULL;
@@ -2738,11 +2738,11 @@ zip_string_t * _zip_string_new(const uint8 * raw, uint16 length, zip_flags_t fla
 		    zip_error_set(error, ZIP_ER_INVAL, 0);
 		    return NULL;
 	}
-	if((s = (zip_string_t*)malloc(sizeof(*s))) == NULL) {
+	if((s = (zip_string_t*)SAlloc::M(sizeof(*s))) == NULL) {
 		zip_error_set(error, ZIP_ER_MEMORY, 0);
 		return NULL;
 	}
-	if((s->raw = (uint8*)malloc((size_t)(length+1))) == NULL) {
+	if((s->raw = (uint8*)SAlloc::M((size_t)(length+1))) == NULL) {
 		free(s);
 		return NULL;
 	}
@@ -2878,13 +2878,13 @@ zip_cdir_t * _zip_cdir_new(uint64 nentry, zip_error_t * error)
 {
 	zip_cdir_t * cd;
 	uint64 i;
-	if((cd = (zip_cdir_t*)malloc(sizeof(*cd))) == NULL) {
+	if((cd = (zip_cdir_t*)SAlloc::M(sizeof(*cd))) == NULL) {
 		zip_error_set(error, ZIP_ER_MEMORY, 0);
 		return NULL;
 	}
 	if(nentry == 0)
 		cd->entry = NULL;
-	else if((nentry > SIZE_MAX/sizeof(*(cd->entry))) || (cd->entry = (zip_entry_t*)malloc(sizeof(*(cd->entry))*(size_t)nentry)) == NULL) {
+	else if((nentry > SIZE_MAX/sizeof(*(cd->entry))) || (cd->entry = (zip_entry_t*)SAlloc::M(sizeof(*(cd->entry))*(size_t)nentry)) == NULL) {
 		zip_error_set(error, ZIP_ER_MEMORY, 0);
 		free(cd);
 		return NULL;
@@ -2976,7 +2976,7 @@ int64 _zip_cdir_write(zip_t * za, const zip_filelist_t * filelist, uint64 surviv
 zip_dirent_t * _zip_dirent_clone(const zip_dirent_t * sde)
 {
 	zip_dirent_t * tde;
-	if((tde = (zip_dirent_t*)malloc(sizeof(*tde))) == NULL)
+	if((tde = (zip_dirent_t*)SAlloc::M(sizeof(*tde))) == NULL)
 		return NULL;
 	if(sde)
 		memcpy(tde, sde, sizeof(*sde));
@@ -3044,7 +3044,7 @@ bool _zip_dirent_needs_zip64(const zip_dirent_t * de, zip_flags_t flags)
 zip_dirent_t * _zip_dirent_new(void)
 {
 	zip_dirent_t * de;
-	if((de = (zip_dirent_t*)malloc(sizeof(*de))) == NULL)
+	if((de = (zip_dirent_t*)SAlloc::M(sizeof(*de))) == NULL)
 		return NULL;
 	_zip_dirent_init(de);
 	return de;
@@ -3637,7 +3637,7 @@ zip_source_t * zip_source_crc(zip_t * za, zip_source_t * src, int validate)
 		zip_error_set(&za->error, ZIP_ER_INVAL, 0);
 		return NULL;
 	}
-	if((ctx = (struct crc_context*)malloc(sizeof(*ctx))) == NULL) {
+	if((ctx = (struct crc_context*)SAlloc::M(sizeof(*ctx))) == NULL) {
 		zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
 		return NULL;
 	}
@@ -3970,7 +3970,7 @@ ZIP_EXTERN int zip_close(zip_t * za)
 		zip_error_set(&za->error, ZIP_ER_INTERNAL, 0);
 		return -1;
 	}
-	if((filelist = (zip_filelist_t*)malloc(sizeof(filelist[0])*(size_t)survivors)) == NULL)
+	if((filelist = (zip_filelist_t*)SAlloc::M(sizeof(filelist[0])*(size_t)survivors)) == NULL)
 		return -1;
 	// create list of files with index into original archive 
 	for(i = j = 0; i<za->nentry; i++) {
@@ -4373,7 +4373,7 @@ zip_source_t * zip_source_deflate(zip_t * za, zip_source_t * src, int32 cm, int 
 		zip_error_set(&za->error, ZIP_ER_INVAL, 0);
 		return NULL;
 	}
-	if((ctx = (ZipDeflate*)malloc(sizeof(*ctx))) == NULL) {
+	if((ctx = (ZipDeflate*)SAlloc::M(sizeof(*ctx))) == NULL) {
 		zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
 		return NULL;
 	}
@@ -4414,7 +4414,7 @@ zip_hash_t * _zip_hash_new(uint16 table_size, zip_error_t * error)
 		zip_error_set(error, ZIP_ER_INTERNAL, 0);
 		return NULL;
 	}
-	if((hash = (zip_hash_t*)malloc(sizeof(zip_hash_t))) == NULL) {
+	if((hash = (zip_hash_t*)SAlloc::M(sizeof(zip_hash_t))) == NULL) {
 		zip_error_set(error, ZIP_ER_MEMORY, 0);
 		return NULL;
 	}
@@ -4485,7 +4485,7 @@ bool _zip_hash_add(zip_hash_t * hash, const uint8 * name, uint64 index, zip_flag
 		}
 	}
 	if(entry == NULL) {
-		if((entry = (zip_hash_entry_t*)malloc(sizeof(zip_hash_entry_t))) == NULL) {
+		if((entry = (zip_hash_entry_t*)SAlloc::M(sizeof(zip_hash_entry_t))) == NULL) {
 			zip_error_set(error, ZIP_ER_MEMORY, 0);
 			return false;
 		}

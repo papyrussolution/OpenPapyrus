@@ -3140,7 +3140,7 @@ static void ShuffleWordList(SString & rText)
 	}
 }
 
-int PPALDD_UhttWorkbook::NextIteration(long iterId, long rsrv)
+int PPALDD_UhttWorkbook::NextIteration(long iterId)
 {
 	int     ok = -1;
 	SString temp_buf;
@@ -3230,7 +3230,7 @@ int PPALDD_UhttWorkbook::NextIteration(long iterId, long rsrv)
 					p_item->GetDate(&I_TagList.DateVal);
 					break;
 			}
-			ok = DlRtm::NextIteration(iterId, rsrv);
+			ok = DlRtm::NextIteration(iterId);
 		}
 		r_blk.TagPos++;
 	}

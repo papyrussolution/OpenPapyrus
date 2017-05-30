@@ -281,8 +281,8 @@ static int qr_finder_find_crossings(qr_finder_center * _centers,
 {
 	int i;
 	int j;
-	qr_finder_cluster ** hneighbors = (qr_finder_cluster**)malloc(_nhclusters*sizeof(*hneighbors));
-	qr_finder_cluster ** vneighbors = (qr_finder_cluster**)malloc(_nvclusters*sizeof(*vneighbors));
+	qr_finder_cluster ** hneighbors = (qr_finder_cluster**)SAlloc::M(_nhclusters*sizeof(*hneighbors));
+	qr_finder_cluster ** vneighbors = (qr_finder_cluster**)SAlloc::M(_nvclusters*sizeof(*vneighbors));
 	uchar * hmark = (uchar*)calloc(_nhclusters, sizeof(*hmark));
 	uchar * vmark = (uchar*)calloc(_nvclusters, sizeof(*vmark));
 	int ncenters = 0;
@@ -392,18 +392,18 @@ static int qr_finder_centers_locate(qr_finder_center ** _centers,
 	int ncenters;
 
 	/*Cluster the detected lines.*/
-	hneighbors = (qr_finder_line**)malloc(nhlines*sizeof(*hneighbors));
+	hneighbors = (qr_finder_line**)SAlloc::M(nhlines*sizeof(*hneighbors));
 	/*We require more than one line per cluster, so there are at most nhlines/2.*/
-	hclusters = (qr_finder_cluster*)malloc((nhlines>>1)*sizeof(*hclusters));
+	hclusters = (qr_finder_cluster*)SAlloc::M((nhlines>>1)*sizeof(*hclusters));
 	nhclusters = qr_finder_cluster_lines(hclusters, hneighbors, hlines, nhlines, 0);
 	/*We need vertical lines to be sorted by X coordinate, with ties broken by Y
 	   coordinate, for clustering purposes.
 	   We scan the image in the opposite order for cache efficiency, so sort the
 	   lines we found here.*/
 	qsort(vlines, nvlines, sizeof(*vlines), qr_finder_vline_cmp);
-	vneighbors = (qr_finder_line**)malloc(nvlines*sizeof(*vneighbors));
+	vneighbors = (qr_finder_line**)SAlloc::M(nvlines*sizeof(*vneighbors));
 	/*We require more than one line per cluster, so there are at most nvlines/2.*/
-	vclusters = (qr_finder_cluster*)malloc((nvlines>>1)*sizeof(*vclusters));
+	vclusters = (qr_finder_cluster*)SAlloc::M((nvlines>>1)*sizeof(*vclusters));
 	nvclusters = qr_finder_cluster_lines(vclusters, vneighbors, vlines, nvlines, 1);
 	/*Find line crossings among the clusters.*/
 	if(nhclusters>=3&&nvclusters>=3) {
@@ -416,8 +416,8 @@ static int qr_finder_centers_locate(qr_finder_center ** _centers,
 		for(i = 0; i<nvclusters; i++) 
 			nedge_pts += vclusters[i].nlines;
 		nedge_pts <<= 1;
-		edge_pts = (qr_finder_edge_pt*)malloc(nedge_pts*sizeof(*edge_pts));
-		centers = (qr_finder_center*)malloc(QR_MINI(nhclusters, nvclusters)*sizeof(*centers));
+		edge_pts = (qr_finder_edge_pt*)SAlloc::M(nedge_pts*sizeof(*edge_pts));
+		centers = (qr_finder_center*)SAlloc::M(QR_MINI(nhclusters, nvclusters)*sizeof(*centers));
 		ncenters = qr_finder_find_crossings(centers, edge_pts, hclusters, nhclusters, vclusters, nvclusters);
 		*_centers = centers;
 		*_edge_pts = edge_pts;
@@ -1057,7 +1057,7 @@ static int qr_line_fit_finder_edge(qr_line _l, const qr_finder * _f, int _e, int
 	/*We could write a custom version of qr_line_fit_points that accesses
 	   edge_pts directly, but this saves on code size and doesn't measurably slow
 	   things down.*/
-	pts = (qr_point*)malloc(npts*sizeof(*pts));
+	pts = (qr_point*)SAlloc::M(npts*sizeof(*pts));
 	edge_pts = _f->edge_pts[_e];
 	for(i = 0; i<npts; i++) {
 		pts[i][0] = edge_pts[i].pos[0];
@@ -1089,7 +1089,7 @@ static void qr_line_fit_finder_pair(qr_line _l, const qr_aff * _aff, const qr_fi
 	   edge_pts directly, but this saves on code size and doesn't measurably slow
 	   things down.*/
 	npts = QR_MAXI(n0, 1)+QR_MAXI(n1, 1);
-	pts = (qr_point*)malloc(npts*sizeof(*pts));
+	pts = (qr_point*)SAlloc::M(npts*sizeof(*pts));
 	if(n0>0) {
 		edge_pts = _f0->edge_pts[_e];
 		for(i = 0; i<n0; i++) {
@@ -1277,7 +1277,7 @@ static void qr_finder_dump_aff_undistorted(qr_finder * _ul, qr_finder * _ur,
 	lpsz = qr_ilog(_ur->size[0]+_ur->size[1]+_dl->size[0]+_dl->size[1])-6;
 	pixel_size = 1<<lpsz;
 	dim = (1<<_aff->res-lpsz)+128;
-	gimg = (uchar*)malloc(dim*dim*sizeof(*gimg));
+	gimg = (uchar*)SAlloc::M(dim*dim*sizeof(*gimg));
 	for(i = 0; i<dim; i++) 
 		for(j = 0; j<dim; j++) {
 			qr_point p;
@@ -1353,7 +1353,7 @@ static void qr_finder_dump_hom_undistorted(qr_finder * _ul, qr_finder * _ur,
 	lpsz = qr_ilog(_ur->size[0]+_ur->size[1]+_dl->size[0]+_dl->size[1])-6;
 	pixel_size = 1<<lpsz;
 	dim = (1<<_hom->res-lpsz)+256;
-	gimg = (uchar*)malloc(dim*dim*sizeof(*gimg));
+	gimg = (uchar*)SAlloc::M(dim*dim*sizeof(*gimg));
 	for(i = 0; i<dim; i++) 
 		for(j = 0; j<dim; j++) {
 			qr_point p;
@@ -1957,13 +1957,13 @@ static int qr_hom_fit(qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
 	/*Set up the initial point lists.*/
 	nr = rlastfit = _ur->ninliers[1];
 	cr = nr+(_dl->o[1]-rv+drv-1)/drv;
-	r = (qr_point*)malloc(cr*sizeof(*r));
+	r = (qr_point*)SAlloc::M(cr*sizeof(*r));
 	for(i = 0; i<_ur->ninliers[1]; i++) {
 		memcpy(r[i], _ur->edge_pts[1][i].pos, sizeof(r[i]));
 	}
 	nb = blastfit = _dl->ninliers[3];
 	cb = nb+(_ur->o[0]-bu+dbu-1)/dbu;
-	b = (qr_point*)malloc(cb*sizeof(*b));
+	b = (qr_point*)SAlloc::M(cb*sizeof(*b));
 	for(i = 0; i<_dl->ninliers[3]; i++) {
 		memcpy(b[i], _dl->edge_pts[3][i].pos, sizeof(b[i]));
 	}
@@ -2532,7 +2532,7 @@ static void qr_sampling_grid_init(qr_sampling_grid * _grid, int _version,
 	    _p[0][0], _p[0][1], _p[1][0], _p[1][1], _p[2][0], _p[2][1], _p[3][0], _p[3][1]);
 	/*Allocate the array of cells.*/
 	_grid->ncells = nalign-1;
-	_grid->cells[0] = (qr_hom_cell*)malloc(
+	_grid->cells[0] = (qr_hom_cell*)SAlloc::M(
 	    (nalign-1)*(nalign-1)*sizeof(*_grid->cells[0]));
 	for(i = 1; i<_grid->ncells; i++) _grid->cells[i] = _grid->cells[i-1]+_grid->ncells;
 	/*Initialize the function pattern mask.*/
@@ -2556,8 +2556,8 @@ static void qr_sampling_grid_init(qr_sampling_grid * _grid, int _version,
 	else {
 		int j;
 		int k;
-		qr_point * q = (qr_point*)malloc(nalign*nalign*sizeof(*q));
-		qr_point * p = (qr_point*)malloc(nalign*nalign*sizeof(*p));
+		qr_point * q = (qr_point*)SAlloc::M(nalign*nalign*sizeof(*q));
+		qr_point * p = (qr_point*)SAlloc::M(nalign*nalign*sizeof(*p));
 		//
 		// Initialize the alignment pattern position list.
 		//
@@ -2695,7 +2695,7 @@ static void qr_sampling_grid_dump(qr_sampling_grid * _grid, int _version,
 	int r;
 	int s;
 	int dim = 17+(_version<<2)+8<<QR_ALIGN_SUBPREC;
-	uchar * gimg = (uchar*)malloc(dim*dim*sizeof(*gimg));
+	uchar * gimg = (uchar*)SAlloc::M(dim*dim*sizeof(*gimg));
 	{
 		for(int i = 0; i<dim; i++) {
 			for(int j = 0; j<dim; j++) {
@@ -3158,7 +3158,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 			    rem = len%3;
 			    if(qr_pack_buf_avail(&qpb)<10*count+7*(rem>>1&1)+4*(rem&1)) 
 					return -1;
-			    entry->payload.data.buf = buf = (uchar*)malloc(len*sizeof(*buf));
+			    entry->payload.data.buf = buf = (uchar*)SAlloc::M(len*sizeof(*buf));
 			    entry->payload.data.len = len;
 			    /*Read groups of 3 digits encoded in 10 bits.*/
 			    while(count-->0) {
@@ -3213,7 +3213,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 			    rem = len&1;
 			    if(qr_pack_buf_avail(&qpb)<11*count+6*rem) 
 					return -1;
-			    entry->payload.data.buf = buf = (uchar*)malloc(len*sizeof(*buf));
+			    entry->payload.data.buf = buf = (uchar*)SAlloc::M(len*sizeof(*buf));
 			    entry->payload.data.len = len;
 			    /*Read groups of two characters encoded in 11 bits.*/
 			    while(count-->0) {
@@ -3264,7 +3264,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 			       in the decode loop.*/
 			    if(qr_pack_buf_avail(&qpb) < (len<<3)) 
 					return -1;
-			    entry->payload.data.buf = buf = (uchar*)malloc(len*sizeof(*buf));
+			    entry->payload.data.buf = buf = (uchar*)SAlloc::M(len*sizeof(*buf));
 			    entry->payload.data.len = len;
 			    while(len-->0) {
 				    c = qr_pack_buf_read(&qpb, 8);
@@ -3317,7 +3317,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 			    /*Check to see if there are enough bits left now, so we don't have to
 			       in the decode loop.*/
 			    if(qr_pack_buf_avail(&qpb)<13*len) return -1;
-			    entry->payload.data.buf = buf = (uchar*)malloc(2*len*sizeof(*buf));
+			    entry->payload.data.buf = buf = (uchar*)SAlloc::M(2*len*sizeof(*buf));
 			    entry->payload.data.len = 2*len;
 			    /*Decode 2-byte SJIS characters encoded in 13 bits.*/
 			    while(len-->0) {
@@ -3511,7 +3511,7 @@ static int qr_code_decode(qr_code_data * _qrdata, const rs_gf256 * _gf,
 	qr_sampling_grid_dump(&grid, _version, _img, _width, _height);
 #endif
 	dim = 17+(_version<<2);
-	data_bits = (uint*)malloc(dim*((dim+QR_INT_BITS-1)>>QR_INT_LOGBITS)*sizeof(*data_bits));
+	data_bits = (uint*)SAlloc::M(dim*((dim+QR_INT_BITS-1)>>QR_INT_LOGBITS)*sizeof(*data_bits));
 	qr_sampling_grid_sample(&grid, data_bits, dim, _fmt_info, _img, _width, _height);
 	/*Group those bits into Reed-Solomon codewords.*/
 	ecc_level = (_fmt_info>>3)^1;
@@ -3520,8 +3520,8 @@ static int qr_code_decode(qr_code_data * _qrdata, const rs_gf256 * _gf,
 	ncodewords = qr_code_ncodewords(_version);
 	block_sz = ncodewords/nblocks;
 	nshort_blocks = nblocks-(ncodewords%nblocks);
-	blocks = (uchar**)malloc(nblocks*sizeof(*blocks));
-	block_data = (uchar*)malloc(ncodewords*sizeof(*block_data));
+	blocks = (uchar**)SAlloc::M(nblocks*sizeof(*blocks));
+	block_data = (uchar*)SAlloc::M(ncodewords*sizeof(*block_data));
 	blocks[0] = block_data;
 	for(i = 1; i<nblocks; i++) 
 		blocks[i] = blocks[i-1]+block_sz+(i>nshort_blocks);
@@ -3857,7 +3857,7 @@ void qr_reader_match_centers(qr_reader * _reader, qr_code_data_list * _qrlist,
 							/*We might have a "Double QR": a code inside a code.
 							   Copy the relevant centers to a new array and do a search confined
 							   to that subset.*/
-							qr_finder_center * inside = (qr_finder_center*)malloc(ninside*sizeof(*inside));
+							qr_finder_center * inside = (qr_finder_center*)SAlloc::M(ninside*sizeof(*inside));
 							for(l = ninside = 0; l<_ncenters; l++) {
 								if(mark[l]==2) 
 									*&inside[ninside++] = *&_centers[l];

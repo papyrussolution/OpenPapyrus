@@ -518,7 +518,7 @@ int FASTCALL TView::SGetWindowText(HWND hWnd, SString & rBuf)
     	uint8  static_buf[1024];
 #ifdef UNICODE
 		if(text_len >= sizeof(static_buf)/sizeof(wchar_t)) {
-			p_text_ptr = malloc(text_len * sizeof(wchar_t) + 1);
+			p_text_ptr = SAlloc::M(text_len * sizeof(wchar_t) + 1);
 			is_allocated = 1;
 		}
 		else
@@ -528,7 +528,7 @@ int FASTCALL TView::SGetWindowText(HWND hWnd, SString & rBuf)
 		rBuf.Transf(CTRANSF_UTF8_TO_OUTER);
 #else
 		if(text_len >= sizeof(static_buf)/sizeof(char)) {
-			p_text_ptr = malloc(text_len * sizeof(char) + 1);
+			p_text_ptr = SAlloc::M(text_len * sizeof(char) + 1);
 			is_allocated = 1;
 		}
 		else
@@ -537,7 +537,7 @@ int FASTCALL TView::SGetWindowText(HWND hWnd, SString & rBuf)
 		rBuf = (const char *)p_text_ptr;
 #endif // UNICODE
 		if(is_allocated)
-			free(p_text_ptr);
+			SAlloc::F(p_text_ptr);
 	}
     return (int)rBuf.Len();
 }

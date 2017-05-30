@@ -198,7 +198,7 @@ int FASTCALL SArray::expand(uint numNewRecs)
 		// @v9.1.1 const uint _delta = (delta > 0) ? (uint)delta : 8;
 		const  uint _delta = CalcArrayDelta(isize); // @v9.1.1
 		uint   new_limit = ((new_count + (_delta - 1)) / _delta) * _delta;
-		void * ptr = realloc(data, new_limit * _is);
+		void * ptr = SAlloc::R(data, new_limit * _is);
 		if(ptr) {
 			data  = (uint8 *)ptr;
 			Limit = new_limit;
@@ -216,7 +216,7 @@ int SLAPI SArray::shrink()
 	uint   newlimit = ((count + (uint)(_delta - 1)) / (uint)_delta) * (uint)_delta;
 	if(newlimit < Limit) {
 		Limit = newlimit;
-		data  = (uint8 *)realloc(data, Limit * isize);
+		data  = (uint8 *)SAlloc::R(data, Limit * isize);
 	}
 	return 1;
 }
@@ -561,10 +561,10 @@ recurse:
 					lostk[stkptr] = lo;
 					histk[stkptr] = higuy;
 					++stkptr;
-				} // save big recursion for later 
+				} // save big recursion for later
 				if(loguy < hi) {
 					lo = loguy;
-					goto recurse; // do small recursion 
+					goto recurse; // do small recursion
 				}
 			}
 			else {
@@ -1050,15 +1050,18 @@ int FASTCALL LAssocArray::operator == (const LAssocArray & s) const
 {
 	if(count != s.count)
 		return 0;
-	for(uint i = 0; i < count; i++)
-		if(!(at(i) == s.at(i)))
-			return 0;
-	return 1;
+	else {
+		for(uint i = 0; i < count; i++)
+			if(!(at(i) == s.at(i)))
+				return 0;
+		return 1;
+	}
 }
 
 int SLAPI LAssocArray::CheckUnique(long key, int binary) const
 {
-	return Search(key, 0, 0, binary) ? 0 : 1;
+	const int is_found = binary ? BSearch(key, 0, 0) : Search(key, 0, 0);
+	return is_found ? 0 : 1;
 }
 
 long FASTCALL LAssocArray::Count(long key) const
@@ -1103,9 +1106,9 @@ int SLAPI LAssocArray::Add(long key, long val, uint * pPos, int inOrder)
 	item.Key = key;
 	item.Val = val;
 	if(inOrder)
-		ok = ordInsert(&item, &pos, CMPF_LONG) ? 1 : 0;
+		ok = BIN(ordInsert(&item, &pos, CMPF_LONG));
 	else {
-		ok = insert(&item) ? 1 : 0;
+		ok = BIN(insert(&item));
 		pos = getCount()-1;
 	}
 	ASSIGN_PTR(pPos, pos);
@@ -1114,13 +1117,15 @@ int SLAPI LAssocArray::Add(long key, long val, uint * pPos, int inOrder)
 
 int SLAPI LAssocArray::AddUnique(long key, long val, uint * pPos, int inOrder)
 {
-	return Search(key, 0, pPos, inOrder) ? 0 : Add(key, val, pPos, inOrder);
+	const int is_found = inOrder ? BSearch(key, 0, pPos) : Search(key, 0, pPos);
+	return is_found ? 0 : Add(key, val, pPos, inOrder);
 }
 
 int SLAPI LAssocArray::Update(long key, long val, int binary)
 {
 	uint   pos = 0;
-	if(Search(key, 0, &pos, binary)) {
+	const  int is_found = binary ? BSearch(key, 0, &pos) : Search(key, 0, &pos);
+	if(is_found) {
 		at(pos).Val = val;
 		return 1;
 	}
@@ -1131,7 +1136,8 @@ int SLAPI LAssocArray::Update(long key, long val, int binary)
 int SLAPI LAssocArray::Remove(long key, int binary)
 {
 	uint   pos = 0;
-	if(Search(key, 0, &pos, binary)) {
+	const  int is_found = binary ? BSearch(key, 0, &pos) : Search(key, 0, &pos);
+	if(is_found) {
 		atFree(pos);
 		return 1;
 	}
@@ -1139,10 +1145,22 @@ int SLAPI LAssocArray::Remove(long key, int binary)
 		return 0;
 }
 
-int SLAPI LAssocArray::Search(long key, long * pVal, uint * pPos, int binary) const
+int SLAPI LAssocArray::Search(long key, long * pVal, uint * pPos/*, int binary*/) const
 {
 	uint   pos = 0;
-	int    ok = binary ? bsearch(&key, &pos, CMPF_LONG) : lsearch(&key, &pos, CMPF_LONG);
+	//int    ok = binary ? bsearch(&key, &pos, CMPF_LONG) : lsearch(&key, &pos, CMPF_LONG);
+	int    ok = lsearch(&key, &pos, CMPF_LONG);
+	if(ok) {
+		ASSIGN_PTR(pVal, at(pos).Val);
+		ASSIGN_PTR(pPos, pos);
+	}
+	return ok;
+}
+
+int SLAPI LAssocArray::BSearch(long key, long * pVal, uint * pPos) const
+{
+	uint   pos = 0;
+	int    ok = bsearch(&key, &pos, CMPF_LONG);
 	if(ok) {
 		ASSIGN_PTR(pVal, at(pos).Val);
 		ASSIGN_PTR(pPos, pos);
@@ -1177,7 +1195,8 @@ void SLAPI LAssocArray::Sort()
 int SLAPI LAssocArray::CheckFlag(long key, long mask, int binary) const
 {
 	long   val = 0;
-	return BIN(Search(key, &val, 0, binary) && (val & mask));
+	const  int is_found = binary ? BSearch(key, &val, 0) : Search(key, &val, 0);
+	return BIN(is_found && (val & mask));
 }
 //
 //
@@ -1216,7 +1235,7 @@ int FASTCALL LLAssocArray::operator == (const LLAssocArray & s) const
 
 int SLAPI LLAssocArray::CheckUnique(int64 key, int binary) const
 {
-	return Search(key, 0, 0, binary) ? 0 : 1;
+	return (binary ? BSearch(key, 0, 0) : Search(key, 0, 0)) ? 0 : 1;
 }
 
 long FASTCALL LLAssocArray::Count(int64 key) const
@@ -1272,13 +1291,15 @@ int SLAPI LLAssocArray::Add(int64 key, int64 val, uint * pPos, int inOrder)
 
 int SLAPI LLAssocArray::AddUnique(int64 key, int64 val, uint * pPos, int inOrder)
 {
-	return Search(key, 0, pPos, inOrder) ? 0 : Add(key, val, pPos, inOrder);
+	const int is_found = inOrder ? BSearch(key, 0, pPos) : Search(key, 0, pPos);
+	return is_found ? 0 : Add(key, val, pPos, inOrder);
 }
 
 int SLAPI LLAssocArray::Update(int64 key, int64 val, int binary)
 {
 	uint   pos = 0;
-	if(Search(key, 0, &pos, binary)) {
+	const  int is_found = binary ? BSearch(key, 0, &pos) : Search(key, 0, &pos);
+	if(is_found) {
 		at(pos).Val = val;
 		return 1;
 	}
@@ -1289,7 +1310,8 @@ int SLAPI LLAssocArray::Update(int64 key, int64 val, int binary)
 int SLAPI LLAssocArray::Remove(int64 key, int binary)
 {
 	uint   pos = 0;
-	if(Search(key, 0, &pos, binary)) {
+	const  int is_found = binary ? BSearch(key, 0, &pos) : Search(key, 0, &pos);
+	if(is_found) {
 		atFree(pos);
 		return 1;
 	}
@@ -1297,10 +1319,23 @@ int SLAPI LLAssocArray::Remove(int64 key, int binary)
 		return 0;
 }
 
-int SLAPI LLAssocArray::Search(int64 key, int64 * pVal, uint * pPos, int binary) const
+int SLAPI LLAssocArray::Search(int64 key, int64 * pVal, uint * pPos/*, int binary*/) const
 {
 	uint   pos = 0;
-	int    ok = binary ? bsearch(&key, &pos, CMPF_INT64) : lsearch(&key, &pos, CMPF_INT64);
+	//int    ok = binary ? bsearch(&key, &pos, CMPF_INT64) : lsearch(&key, &pos, CMPF_INT64);
+	int    ok = lsearch(&key, &pos, CMPF_INT64);
+	if(ok) {
+		ASSIGN_PTR(pVal, at(pos).Val);
+		ASSIGN_PTR(pPos, pos);
+	}
+	return ok;
+}
+
+int SLAPI LLAssocArray::BSearch(int64 key, int64 * pVal, uint * pPos) const
+{
+	uint   pos = 0;
+	//int    ok = binary ? bsearch(&key, &pos, CMPF_INT64) : lsearch(&key, &pos, CMPF_INT64);
+	int    ok = bsearch(&key, &pos, CMPF_INT64);
 	if(ok) {
 		ASSIGN_PTR(pVal, at(pos).Val);
 		ASSIGN_PTR(pPos, pos);
@@ -1704,7 +1739,7 @@ int FASTCALL SV_Uint32::Copy(const SV_Uint32 & s)
 	Init();
 	uint c = s.GetCount();
 	if(c) {
-		P_Data = (uint32 *)calloc((c+1), sizeof(uint32));
+		P_Data = (uint32 *)SAlloc::C((c+1), sizeof(uint32));
 		if(P_Data == 0)
 			return (SLibError = SLERR_NOMEM, 0);
 		else
@@ -1750,7 +1785,7 @@ uint32 FASTCALL SV_Uint32::Get(uint idx) const
 int FASTCALL SV_Uint32::Add(uint32 item)
 {
 	uint   c = GetCount();
-	P_Data = (uint32 *)realloc(P_Data, (c+2) * sizeof(uint32));
+	P_Data = (uint32 *)SAlloc::R(P_Data, (c+2) * sizeof(uint32));
 	if(P_Data) {
 		++c;
 		P_Data[c] = item;
@@ -1764,7 +1799,7 @@ int FASTCALL SV_Uint32::Add(uint32 item)
 int SV_Uint32::Add(uint count, const uint32 * pSrc)
 {
 	uint   c = GetCount();
-	P_Data = (uint32 *)realloc(P_Data, (c+count+1) * sizeof(uint32));
+	P_Data = (uint32 *)SAlloc::R(P_Data, (c+count+1) * sizeof(uint32));
 	if(P_Data) {
 		memcpy(P_Data+c+1, pSrc, count * sizeof(uint32));
 		P_Data[0] = c+count;
@@ -1788,7 +1823,7 @@ int FASTCALL SV_Uint32::Read(SBuffer & rBuf)
 	uint32 c = 0;
 	rBuf.Read(&c, sizeof(c));
 	if(c) {
-		P_Data = (uint32 *)realloc(P_Data, (c+1) * sizeof(uint32));
+		P_Data = (uint32 *)SAlloc::R(P_Data, (c+1) * sizeof(uint32));
 		if(P_Data) {
 			P_Data[0] = c;
 			rBuf.Read(P_Data+1, sizeof(uint32) * c);
@@ -2283,8 +2318,7 @@ int SLAPI StrAssocArray::GetMaxID(long * pId) const
 		long   _max = -MAXLONG;
 		for(uint i = 0; i < c; i++) {
 			long   key = Assoc.at(i).Key;
-			if(key > _max)
-				_max = key;
+			SETMAX(_max, key);
 		}
 		ASSIGN_PTR(pId, _max);
 		return 1;
@@ -2342,8 +2376,8 @@ int SLAPI StrAssocArray::Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const 
 	id[0] = p1->Key;
 	id[1] = p2->Key;
 	par[0] = par[1] = 0;
-	pArray->ParentList.Search(id[0], &par[0], 0, 1);
-	pArray->ParentList.Search(id[1], &par[1], 0, 1);
+	pArray->ParentList.BSearch(id[0], &par[0], 0);
+	pArray->ParentList.BSearch(id[1], &par[1], 0);
 	if(par[0] == par[1]) {
 		uint   pos1 = p1->Val;
 		uint   pos2 = p2->Val;
@@ -2392,8 +2426,8 @@ int SLAPI Helper_CmpFunc_StrAssocByID(long id1, long id2, StrAssocArray * pArray
 {
 	long   par[2];
 	par[0] = par[1] = 0;
-	pArray->ParentList.Search(id1, &par[0], 0, 1);
-	pArray->ParentList.Search(id2, &par[1], 0, 1);
+	pArray->ParentList.BSearch(id1, &par[0], 0);
+	pArray->ParentList.BSearch(id2, &par[1], 0);
 	if(par[0] == par[1])
 		return cmp_long(id1, id2);
 	else {
@@ -2847,9 +2881,9 @@ long SLAPI LongArray::getSingle() const
 	return (count == 1) ? at(0) : 0L;
 }
 
-int SLAPI LongArray::setSingleNZ(long id)
+int FASTCALL LongArray::setSingleNZ(long id)
 {
-	freeAll();
+	clear(); // @v9.6.8 freeAll-->clear
 	return id ? add(id) : -1;
 }
 
@@ -2935,7 +2969,8 @@ int SLAPI LongArray::freeByKey(long key, int binarySearch)
 		atFree(pos);
 		return 1;
 	}
-	return -1;
+	else
+		return -1;
 }
 //
 //
@@ -2985,7 +3020,7 @@ int64 FASTCALL Int64Array::get(uint pos) const
 
 int Int64Array::lsearch(int64 k, uint * pIdx) const
 	{ return SArray::lsearch(&k, pIdx, PTR_CMPFUNC(int64)); }
-int Int64Array::lsearch(int64 k) const
+int FASTCALL Int64Array::lsearch(int64 k) const
 	{ return SArray::lsearch(&k, 0, PTR_CMPFUNC(int64)); }
 
 int FASTCALL Int64Array::add(int64 v)

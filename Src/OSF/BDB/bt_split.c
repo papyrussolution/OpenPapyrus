@@ -311,7 +311,7 @@ static int __bam_page(DBC * dbc, EPG * pp, EPG * cp)
 	 * Create a new right page for the split, and fill in everything
 	 * except its LSN and page number.
 	 *
-	 * We malloc space for both the left and right pages, so we don't get
+	 * We SAlloc::M space for both the left and right pages, so we don't get
 	 * a new page from the underlying buffer pool until we know the split
 	 * is going to succeed.  The reason is that we can't release locks
 	 * acquired during the get-a-new-page process because metadata page
@@ -430,7 +430,7 @@ static int __bam_page(DBC * dbc, EPG * pp, EPG * cp)
 	 * have valid LSNs on lp or rp.  The correct LSNs to use are the
 	 * ones on the page we got from __db_new or the one that was
 	 * originally on cp->page.  In both cases, we save the LSN from the
-	 * real database page (not a malloc'd one) and reapply it after we
+	 * real database page (not a SAlloc::M'd one) and reapply it after we
 	 * do the copy.
 	 */
 	save_lsn = alloc_rp->lsn;

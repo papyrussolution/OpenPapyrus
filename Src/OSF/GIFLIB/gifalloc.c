@@ -40,7 +40,7 @@ ColorMapObject * GifMakeMapObject(int ColorCount, const GifColorType * ColorMap)
 	if(ColorCount != (1 << GifBitSize(ColorCount))) {
 		return ((ColorMapObject*)NULL);
 	}
-	Object = (ColorMapObject*)malloc(sizeof(ColorMapObject));
+	Object = (ColorMapObject*)SAlloc::M(sizeof(ColorMapObject));
 	if(Object == (ColorMapObject*)NULL) {
 		return ((ColorMapObject*)NULL);
 	}
@@ -179,7 +179,7 @@ int GifAddExtensionBlock(int * ExtensionBlockCount, ExtensionBlock ** ExtensionB
 {
 	ExtensionBlock * ep;
 	if(*ExtensionBlocks == NULL)
-		*ExtensionBlocks = (ExtensionBlock*)malloc(sizeof(ExtensionBlock));
+		*ExtensionBlocks = (ExtensionBlock*)SAlloc::M(sizeof(ExtensionBlock));
 	else
 		*ExtensionBlocks = (ExtensionBlock*)realloc(*ExtensionBlocks, sizeof(ExtensionBlock) * (*ExtensionBlockCount + 1));
 	if(*ExtensionBlocks == NULL)
@@ -187,7 +187,7 @@ int GifAddExtensionBlock(int * ExtensionBlockCount, ExtensionBlock ** ExtensionB
 	ep = &(*ExtensionBlocks)[(*ExtensionBlockCount)++];
 	ep->Function = Function;
 	ep->ByteCount = Len;
-	ep->Bytes = (GifByteType*)malloc(ep->ByteCount);
+	ep->Bytes = (GifByteType*)SAlloc::M(ep->ByteCount);
 	if(ep->Bytes == NULL)
 		return (GIF_ERROR);
 	if(ExtData != NULL) {
@@ -251,7 +251,7 @@ SavedImage * GifMakeSavedImage(GifFileType * GifFile, const SavedImage * CopyFro
 {
 	SavedImage * sp;
 	if(GifFile->SavedImages == NULL)
-		GifFile->SavedImages = (SavedImage*)malloc(sizeof(SavedImage));
+		GifFile->SavedImages = (SavedImage*)SAlloc::M(sizeof(SavedImage));
 	else
 		GifFile->SavedImages = (SavedImage*)realloc(GifFile->SavedImages, sizeof(SavedImage) * (GifFile->ImageCount + 1));
 	if(GifFile->SavedImages == NULL)
@@ -277,7 +277,7 @@ SavedImage * GifMakeSavedImage(GifFileType * GifFile, const SavedImage * CopyFro
 			}
 
 			/* next, the raster */
-			sp->RasterBits = (uint8*)malloc(sizeof(GifPixelType) * CopyFrom->ImageDesc.Height * CopyFrom->ImageDesc.Width);
+			sp->RasterBits = (uint8*)SAlloc::M(sizeof(GifPixelType) * CopyFrom->ImageDesc.Height * CopyFrom->ImageDesc.Width);
 			if(sp->RasterBits == NULL) {
 				FreeLastSavedImage(GifFile);
 				return (SavedImage*)(NULL);
@@ -285,7 +285,7 @@ SavedImage * GifMakeSavedImage(GifFileType * GifFile, const SavedImage * CopyFro
 			memcpy(sp->RasterBits, CopyFrom->RasterBits, sizeof(GifPixelType) * CopyFrom->ImageDesc.Height * CopyFrom->ImageDesc.Width);
 			/* finally, the extension blocks */
 			if(sp->ExtensionBlocks != NULL) {
-				sp->ExtensionBlocks = (ExtensionBlock*)malloc(sizeof(ExtensionBlock) * CopyFrom->ExtensionBlockCount);
+				sp->ExtensionBlocks = (ExtensionBlock*)SAlloc::M(sizeof(ExtensionBlock) * CopyFrom->ExtensionBlockCount);
 				if(sp->ExtensionBlocks == NULL) {
 					FreeLastSavedImage(GifFile);
 					return (SavedImage*)(NULL);

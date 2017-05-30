@@ -3416,7 +3416,7 @@ int SLAPI PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess)
 	xmlFreeParserCtxt(RdB.P_SaxCtx);
 	THROW(RdB.P_SaxCtx = xmlCreateURLParserCtxt(pFileName, 0));
 	if(RdB.P_SaxCtx->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
-		free(RdB.P_SaxCtx->sax);
+		SAlloc::F(RdB.P_SaxCtx->sax);
 	RdB.P_SaxCtx->sax = &saxh;
 	xmlDetectSAX2(RdB.P_SaxCtx);
 	RdB.P_SaxCtx->userData = this;

@@ -108,7 +108,7 @@ static cairo_status_t _cairo_xcb_connection_find_visual_formats(cairo_xcb_connec
 				cairo_xcb_xrender_format_t * f;
 				cairo_status_t status;
 
-				f = malloc(sizeof(cairo_xcb_xrender_format_t));
+				f = SAlloc::M(sizeof(cairo_xcb_xrender_format_t));
 				if(unlikely(f == NULL))
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -172,7 +172,7 @@ static cairo_status_t _cairo_xcb_connection_parse_xrender_formats(cairo_xcb_conn
 			if(!_cairo_hash_table_lookup(connection->xrender_formats, &key)) {
 				cairo_xcb_xrender_format_t * f;
 
-				f = malloc(sizeof(cairo_xcb_xrender_format_t));
+				f = SAlloc::M(sizeof(cairo_xcb_xrender_format_t));
 				if(unlikely(f == NULL))
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -266,7 +266,7 @@ static cairo_bool_t pixmap_depths_usable(cairo_xcb_connection_t * connection,
 	for(j = 0; j < i; j++) {
 		xcb_generic_error_t * create_error = xcb_request_check(c, create_cookie[j]);
 		success &= create_error == NULL;
-		free(create_error);
+		SAlloc::F(create_error);
 	}
 
 	_cairo_xcb_connection_put_xid(connection, pixmap);
@@ -324,7 +324,7 @@ static xcb_render_query_version_reply_t * _render_restrict_env(xcb_render_query_
 			max_render_major = max_render_minor = -1;
 
 		if(max_render_major < 0 || max_render_minor < 0) {
-			free(version);
+			SAlloc::F(version);
 			return NULL;
 		}
 
@@ -359,8 +359,8 @@ static cairo_status_t _cairo_xcb_connection_query_render(cairo_xcb_connection_t 
 	version = _render_restrict_env(version);
 
 	if(!present || version == NULL || formats == NULL) {
-		free(version);
-		free(formats);
+		SAlloc::F(version);
+		SAlloc::F(formats);
 		return CAIRO_STATUS_SUCCESS;
 	}
 
@@ -405,10 +405,10 @@ static cairo_status_t _cairo_xcb_connection_query_render(cairo_xcb_connection_t 
 			connection->subpixel_orders[screen] = subpixel[screen];
 	}
 
-	free(version);
+	SAlloc::F(version);
 
 	status = _cairo_xcb_connection_parse_xrender_formats(connection, formats);
-	free(formats);
+	SAlloc::F(formats);
 
 	return status;
 }
@@ -423,7 +423,7 @@ static void _cairo_xcb_connection_query_cairo(cairo_xcb_connection_t * connectio
 	    xcb_cairo_query_version(c, 0, 0),
 	    0);
 
-	free(version);
+	SAlloc::F(version);
 }
 
 #endif
@@ -477,7 +477,7 @@ static void _cairo_xcb_connection_query_shm(cairo_xcb_connection_t * connection)
 	if(version == NULL)
 		return;
 
-	free(version);
+	SAlloc::F(version);
 
 	if(can_use_shm(connection))
 		connection->flags |= CAIRO_XCB_HAS_SHM;
@@ -508,7 +508,7 @@ static void _pluck_xrender_format(void * entry,
     void * closure)
 {
 	_cairo_hash_table_remove(closure, entry);
-	free(entry);
+	SAlloc::F(entry);
 }
 
 static void _device_finish(void * device)
@@ -574,8 +574,8 @@ static void _device_destroy(void * device)
 	CAIRO_MUTEX_FINI(connection->shm_mutex);
 	CAIRO_MUTEX_FINI(connection->screens_mutex);
 
-	free(connection->subpixel_orders);
-	free(connection);
+	SAlloc::F(connection->subpixel_orders);
+	SAlloc::F(connection);
 }
 
 static const cairo_device_backend_t _cairo_xcb_device_backend = {
@@ -616,7 +616,7 @@ cairo_xcb_connection_t * _cairo_xcb_connection_get(xcb_connection_t * xcb_connec
 		}
 	}
 
-	connection = malloc(sizeof(cairo_xcb_connection_t));
+	connection = SAlloc::M(sizeof(cairo_xcb_connection_t));
 	if(unlikely(connection == NULL))
 		goto unlock;
 
@@ -630,7 +630,7 @@ cairo_xcb_connection_t * _cairo_xcb_connection_get(xcb_connection_t * xcb_connec
 	connection->xrender_formats = _cairo_hash_table_create(NULL);
 	if(connection->xrender_formats == NULL) {
 		CAIRO_MUTEX_FINI(connection->device.mutex);
-		free(connection);
+		SAlloc::F(connection);
 		connection = NULL;
 		goto unlock;
 	}
@@ -639,7 +639,7 @@ cairo_xcb_connection_t * _cairo_xcb_connection_get(xcb_connection_t * xcb_connec
 	if(connection->visual_to_xrender_format == NULL) {
 		_cairo_hash_table_destroy(connection->xrender_formats);
 		CAIRO_MUTEX_FINI(connection->device.mutex);
-		free(connection);
+		SAlloc::F(connection);
 		connection = NULL;
 		goto unlock;
 	}

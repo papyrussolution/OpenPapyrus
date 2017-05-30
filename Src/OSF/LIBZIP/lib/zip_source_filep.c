@@ -96,7 +96,7 @@ zip_source_t * _zip_source_file_or_p(const char * fname, FILE * file, uint64 sta
 		zip_error_set(error, ZIP_ER_INVAL, 0);
 		return NULL;
 	}
-	if((ctx = (ZipReadFileBlock *)malloc(sizeof(ZipReadFileBlock))) == NULL) {
+	if((ctx = (ZipReadFileBlock *)SAlloc::M(sizeof(ZipReadFileBlock))) == NULL) {
 		zip_error_set(error, ZIP_ER_MEMORY, 0);
 		return NULL;
 	}
@@ -146,7 +146,7 @@ static int create_temp_output(ZipReadFileBlock * ctx)
 	int tfd;
 	mode_t mask;
 	FILE * tfp;
-	char * temp = (char*)malloc(strlen(ctx->fname)+8);
+	char * temp = (char*)SAlloc::M(strlen(ctx->fname)+8);
 	if(!temp) {
 		zip_error_set(&ctx->error, ZIP_ER_MEMORY, 0);
 		return -1;

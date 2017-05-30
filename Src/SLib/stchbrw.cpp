@@ -1989,7 +1989,7 @@ int STimeChunkBrowser::CalcChunkRect(const Area * pArea, SRectArray & rRectList)
 				if(p_chunk->Chunk.Intersect(view_time_bounds, &sect) > 0) {
 					long   o = 0;
 					srect.a.y = upp_edge + P.PixRowMargin;
-					if(r_rowst.Order > 1 && r_rowst.OrderList.Search((long)(k+1), &o, 0, 1) && o)
+					if(r_rowst.Order > 1 && r_rowst.OrderList.BSearch((long)(k+1), &o, 0) && o)
 						srect.a.y += (int16)(P.PixRow * o);
 					srect.b.y = srect.a.y + P.PixRow;
 					srect.C = *p_chunk;

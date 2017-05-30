@@ -1277,7 +1277,7 @@ int SLAPI PPViewPerson::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewPerson::NextIteration(PersonViewItem * pItem)
+int FASTCALL PPViewPerson::NextIteration(PersonViewItem * pItem)
 {
 	int    ok = -1;
 	PersonViewItem item;
@@ -3167,7 +3167,7 @@ int PPALDD_PersonList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	INIT_PPVIEW_ALDD_ITER(Person);
 }
 
-int PPALDD_PersonList::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_PersonList::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(Person);
 	const  PersonFilt * p_filt = (const PersonFilt *)p_v->GetBaseFilt();

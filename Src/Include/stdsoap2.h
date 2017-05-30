@@ -1376,7 +1376,7 @@ typedef soap_int32 soap_mode;
   #endif
  #endif
 
- #ifndef SOAP_MALLOC                    /* use libc malloc */
+ #ifndef SOAP_MALLOC                    /* use libc SAlloc::M */
   #define SOAP_MALLOC(soap, size) malloc(size)
  #endif
 
@@ -1523,7 +1523,7 @@ struct soap_pblk {
 };
 
  #ifdef SOAP_MEM_DEBUG
-/* malloc/free tracking for debugging */
+/* SAlloc::M/free tracking for debugging */
 struct soap_mlist {
 	struct soap_mlist * next;
   const void * ptr;
@@ -1838,7 +1838,7 @@ struct SOAP_STD_API soap {
 	struct soap_nlist * nlist; /* namespace stack */
 	struct soap_blist * blist; /* block allocation stack */
 	struct soap_clist * clist; /* class instance allocation list */
-	void * alist;           /* memory allocation (malloc) list */
+	void * alist;           /* memory allocation (SAlloc::M) list */
 	struct soap_ilist * iht[SOAP_IDHASH];
 	struct soap_plist * pht[SOAP_PTRHASH];
 	struct soap_pblk * pblk; /* plist block allocation */

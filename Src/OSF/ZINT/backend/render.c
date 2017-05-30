@@ -82,7 +82,7 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 	int upceanflag = 0;
 
 	// Allocate memory for the rendered version
-	render = symbol->rendered = (struct zint_render*)malloc(sizeof(struct zint_render));
+	render = symbol->rendered = (struct zint_render*)SAlloc::M(sizeof(struct zint_render));
 	if(!symbol->rendered) return ZINT_ERROR_MEMORY;
 	render->lines = NULL;
 	render->strings = NULL;
@@ -685,7 +685,7 @@ struct zint_render_line * render_plot_create_line(float x, float y, float width,
 {
 	struct zint_render_line * line;
 
-	line = (struct zint_render_line*)malloc(sizeof(struct zint_render_line));
+	line = (struct zint_render_line*)SAlloc::M(sizeof(struct zint_render_line));
 	if(!line) return NULL;
 
 	line->next = NULL;
@@ -717,7 +717,7 @@ struct zint_render_ring * render_plot_create_ring(float x, float y, float radius
 {
 	struct zint_render_ring * ring;
 
-	ring = (struct zint_render_ring*)malloc(sizeof(struct zint_render_ring));
+	ring = (struct zint_render_ring*)SAlloc::M(sizeof(struct zint_render_ring));
 	if(!ring) return NULL;
 	ring->next = NULL;
 	ring->x = x;
@@ -744,7 +744,7 @@ struct zint_render_hexagon * render_plot_create_hexagon(float x, float y)
 {
 	struct zint_render_hexagon * hexagon;
 
-	hexagon = (struct zint_render_hexagon*)malloc(sizeof(struct zint_render_hexagon));
+	hexagon = (struct zint_render_hexagon*)SAlloc::M(sizeof(struct zint_render_hexagon));
 	if(!hexagon) return NULL;
 	hexagon->next = NULL;
 	hexagon->x = x;
@@ -775,14 +775,14 @@ int render_plot_add_string(struct ZintSymbol * symbol,
 {
 	struct zint_render_string * string;
 
-	string = (struct zint_render_string*)malloc(sizeof(struct zint_render_string));
+	string = (struct zint_render_string*)SAlloc::M(sizeof(struct zint_render_string));
 	string->next = NULL;
 	string->x = x;
 	string->y = y;
 	string->width = width;
 	string->fsize = fsize;
 	string->length = sstrlen(text);
-	string->text = (uchar*)malloc(sizeof(uchar) * (sstrlen(text) + 1));
+	string->text = (uchar*)SAlloc::M(sizeof(uchar) * (sstrlen(text) + 1));
 	ustrcpy(string->text, text);
 
 	if(*last_string)

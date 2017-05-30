@@ -81,13 +81,13 @@ SLAPI WinRegValue::WinRegValue(size_t bufSize)
 
 SLAPI WinRegValue::~WinRegValue()
 {
-	free(P_Buf);
+	SAlloc::F(P_Buf);
 }
 
 int SLAPI WinRegValue::Alloc(size_t bufSize)
 {
 	if(bufSize || P_Buf) {
-		P_Buf = realloc(P_Buf, bufSize);
+		P_Buf = SAlloc::R(P_Buf, bufSize);
 		if(bufSize && P_Buf == 0) {
 			BufSize = DataSize = 0;
 			return (SLibError = SLERR_NOMEM, 0);

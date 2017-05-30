@@ -5,11 +5,11 @@
 *                            | (__| |_| |  _ <| |___
 *                             \___|\___/|_| \_\_____|
 *
-* Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+* Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
 *
 * This software is licensed as described in the file COPYING, which
 * you should have received as part of this distribution. The terms
-* are also available at http://curl.haxx.se/docs/copyright.html.
+* are also available at https://curl.haxx.se/docs/copyright.html.
 *
 * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 * copies of the Software, and permit persons to whom the Software is
@@ -22,7 +22,7 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-#include <curl/curl.h>
+//#include <curl/curl.h>
 #include "urldata.h"
 #include "share.h"
 #include "vtls/vtls.h"
@@ -31,7 +31,7 @@
 /* The last #include file should be: */
 #include "memdebug.h"
 
-CURLSH * curl_share_init(void)
+struct Curl_share * curl_share_init(void)
 {
 	struct Curl_share * share = (struct Curl_share *)calloc(1, sizeof(struct Curl_share));
 	if(share) {
@@ -41,14 +41,12 @@ CURLSH * curl_share_init(void)
 			return NULL;
 		}
 	}
-
 	return share;
 }
 
 #undef curl_share_setopt
-CURLSHcode curl_share_setopt(CURLSH * sh, CURLSHoption option, ...)
+CURLSHcode curl_share_setopt(struct Curl_share * share, CURLSHoption option, ...)
 {
-	struct Curl_share * share = (struct Curl_share*)sh;
 	va_list param;
 	int type;
 	curl_lock_function lockfunc;
@@ -88,8 +86,7 @@ CURLSHcode curl_share_setopt(CURLSH * sh, CURLSHoption option, ...)
 #ifdef USE_SSL
 				if(!share->sslsession) {
 					share->max_ssl_sessions = 8;
-					share->sslsession = (curl_ssl_session *)calloc(share->max_ssl_sessions,
-				    sizeof(struct curl_ssl_session));
+					share->sslsession = (struct curl_ssl_session *)calloc(share->max_ssl_sessions, sizeof(struct curl_ssl_session));
 					share->sessionage = 0;
 					if(!share->sslsession)
 						res = CURLSHE_NOMEM;
@@ -128,7 +125,7 @@ CURLSHcode curl_share_setopt(CURLSH * sh, CURLSHoption option, ...)
 
 			    case CURL_LOCK_DATA_SSL_SESSION:
 #ifdef USE_SSL
-				ZFREE(share->sslsession);
+				Curl_safefree(share->sslsession);
 #else
 				res = CURLSHE_NOT_BUILT_IN;
 #endif
@@ -168,10 +165,8 @@ CURLSHcode curl_share_setopt(CURLSH * sh, CURLSHoption option, ...)
 	return res;
 }
 
-CURLSHcode curl_share_cleanup(CURLSH * sh)
+CURLSHcode curl_share_cleanup(struct Curl_share * share)
 {
-	struct Curl_share * share = (struct Curl_share*)sh;
-
 	if(share == NULL)
 		return CURLSHE_INVALID;
 
@@ -207,7 +202,7 @@ CURLSHcode curl_share_cleanup(CURLSH * sh)
 	return CURLSHE_OK;
 }
 
-CURLSHcode Curl_share_lock(struct SessionHandle * data, curl_lock_data type,
+CURLSHcode Curl_share_lock(struct Curl_easy * data, curl_lock_data type,
     curl_lock_access accesstype)
 {
 	struct Curl_share * share = data->share;
@@ -224,7 +219,7 @@ CURLSHcode Curl_share_lock(struct SessionHandle * data, curl_lock_data type,
 	return CURLSHE_OK;
 }
 
-CURLSHcode Curl_share_unlock(struct SessionHandle * data, curl_lock_data type)
+CURLSHcode Curl_share_unlock(struct Curl_easy * data, curl_lock_data type)
 {
 	struct Curl_share * share = data->share;
 

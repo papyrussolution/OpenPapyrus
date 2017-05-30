@@ -41,9 +41,9 @@
  * sizeof(int) < 4.  sizeof(int) > 4 is fine; all the world's not a VAX.
  */
 
-static int      inet_pton4(const char * src, uchar * dst);
+static int      inet_pton4(const char * src, unsigned char * dst);
 #ifdef ENABLE_IPV6
-static int      inet_pton6(const char * src, uchar * dst);
+static int      inet_pton6(const char * src, unsigned char * dst);
 #endif
 
 /* int
@@ -66,10 +66,10 @@ int Curl_inet_pton(int af, const char * src, void * dst)
 {
 	switch(af) {
 		case AF_INET:
-		    return (inet_pton4(src, (uchar*)dst));
+		    return (inet_pton4(src, (unsigned char*)dst));
 #ifdef ENABLE_IPV6
 		case AF_INET6:
-		    return (inet_pton6(src, (uchar*)dst));
+		    return (inet_pton6(src, (unsigned char*)dst));
 #endif
 		default:
 		    SET_ERRNO(EAFNOSUPPORT);
@@ -88,11 +88,11 @@ int Curl_inet_pton(int af, const char * src, void * dst)
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton4(const char * src, uchar * dst)
+static int inet_pton4(const char * src, unsigned char * dst)
 {
 	static const char digits[] = "0123456789";
 	int saw_digit, octets, ch;
-	uchar tmp[INADDRSZ], * tp;
+	unsigned char tmp[INADDRSZ], * tp;
 
 	saw_digit = 0;
 	octets = 0;
@@ -101,14 +101,15 @@ static int inet_pton4(const char * src, uchar * dst)
 	while((ch = *src++) != '\0') {
 		const char * pch;
 
-		if((pch = strchr(digits, ch)) != NULL) {
-			uint val = *tp * 10 + (uint)(pch - digits);
+		pch = strchr(digits, ch);
+		if(pch) {
+			unsigned int val = *tp * 10 + (unsigned int)(pch - digits);
 
 			if(saw_digit && *tp == 0)
 				return (0);
 			if(val > 255)
 				return (0);
-			*tp = (uchar)val;
+			*tp = (unsigned char)val;
 			if(!saw_digit) {
 				if(++octets > 4)
 					return (0);
@@ -144,10 +145,11 @@ static int inet_pton4(const char * src, uchar * dst)
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton6(const char * src, uchar * dst)
+static int inet_pton6(const char * src, unsigned char * dst)
 {
-	static const char xdigits_l[] = "0123456789abcdef", xdigits_u[] = "0123456789ABCDEF";
-	uchar tmp[IN6ADDRSZ], * tp, * endp, * colonp;
+	static const char xdigits_l[] = "0123456789abcdef";
+	static const char xdigits_u[] = "0123456789ABCDEF";
+	unsigned char tmp[IN6ADDRSZ], * tp, * endp, * colonp;
 	const char * xdigits, * curtok;
 	int ch, saw_xdigit;
 	size_t val;
@@ -164,7 +166,8 @@ static int inet_pton6(const char * src, uchar * dst)
 	while((ch = *src++) != '\0') {
 		const char * pch;
 
-		if((pch = strchr((xdigits = xdigits_l), ch)) == NULL)
+		pch = strchr((xdigits = xdigits_l), ch);
+		if(!pch)
 			pch = strchr((xdigits = xdigits_u), ch);
 		if(pch != NULL) {
 			val <<= 4;
@@ -183,8 +186,8 @@ static int inet_pton6(const char * src, uchar * dst)
 			}
 			if(tp + INT16SZ > endp)
 				return (0);
-			*tp++ = (uchar)(val >> 8) & 0xff;
-			*tp++ = (uchar)(val & 0xff);
+			*tp++ = (unsigned char)((val >> 8) & 0xff);
+			*tp++ = (unsigned char)(val & 0xff);
 			saw_xdigit = 0;
 			val = 0;
 			continue;
@@ -200,8 +203,8 @@ static int inet_pton6(const char * src, uchar * dst)
 	if(saw_xdigit) {
 		if(tp + INT16SZ > endp)
 			return (0);
-		*tp++ = (uchar)(val >> 8) & 0xff;
-		*tp++ = (uchar)(val & 0xff);
+		*tp++ = (unsigned char)((val >> 8) & 0xff);
+		*tp++ = (unsigned char)(val & 0xff);
 	}
 	if(colonp != NULL) {
 		/*

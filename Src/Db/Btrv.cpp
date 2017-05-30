@@ -253,7 +253,7 @@ int SLAPI Btrieve::CreateTable(const char * pFileName, DBFileSpec & rTblDesc, in
 		} while(oneof2(be, BE_INVKEYLEN, BE_INVRECLEN) && (((DBFileSpec *)p_buf)->PageSize += 512) <= 8192);
 		ok = BRet(be);
 		DBTable::InitErrFileName(pFileName);
-		free(p_buf); // @v9.0.7 delete-->free
+		SAlloc::F(p_buf); // @v9.0.7 delete-->free
 	}
 	else
 		ok = BRet(BE_NOMEM);
@@ -652,7 +652,7 @@ int SLAPI DbDict_Btrieve::getFieldList(BTBLID tblID, BNFieldList * fields)
 	THROW(IsValid() && tblID);
 	THROW_V(xfield.search(1, &key, spEq), BE_FNFOUND);
 	makeFldListQuery(tblID, numRecs);
-	THROW_V(q = (char*)malloc(bsize), BE_NOMEM);
+	THROW_V(q = (char*)SAlloc::M(bsize), BE_NOMEM);
 	xfield.setDataBuf(q, bsize);
 	do {
 		memcpy(q, &flq, sizeof(flq));
@@ -671,7 +671,7 @@ int SLAPI DbDict_Btrieve::getFieldList(BTBLID tblID, BNFieldList * fields)
 		r = 0;
 	ENDCATCH
 	xfield.setDataBuf(&fieldBuf, sizeof(fieldBuf));
-	free(q);
+	SAlloc::F(q);
 	return r;
 }
 
@@ -687,7 +687,7 @@ int SLAPI DbDict_Btrieve::getIndexList(BTBLID tblID, BNKeyList * pKeyList)
 	THROW(IsValid() && tblID);
 	THROW_V(xindex.search(0, &key, spEq), BE_FNFOUND);
 	makeIdxListQuery(tblID, num_recs);
-	THROW_V(q = (char*)malloc(bsize), BE_NOMEM);
+	THROW_V(q = (char*)SAlloc::M(bsize), BE_NOMEM);
 	xindex.setDataBuf(q, bsize);
 	do {
 		memcpy(q, &ilq, sizeof(ilq));
@@ -709,7 +709,7 @@ int SLAPI DbDict_Btrieve::getIndexList(BTBLID tblID, BNKeyList * pKeyList)
 		r = 0;
 	ENDCATCH
 	xindex.setDataBuf(&indexBuf, sizeof(indexBuf));
-	free(q);
+	SAlloc::F(q);
 	return r;
 }
 //

@@ -208,7 +208,7 @@ int SLAPI PPObjVATBook::ReadCfgList(PPID kind, VATBCfg * pConfig)
 			}
 			else
 				sz += sizeof(VATBCfg::Item) * delta;
-			THROW_MEM(p_cfg = (PPVATBConfig *)realloc(p_cfg, sz));
+			THROW_MEM(p_cfg = (PPVATBConfig *)SAlloc::R(p_cfg, sz));
 			THROW(r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop, p_cfg, sz));
 		} while(r > 0);
 	}
@@ -238,7 +238,7 @@ int SLAPI PPObjVATBook::ReadCfgList(PPID kind, VATBCfg * pConfig)
 	CATCH
 		r = 0;
 	ENDCATCH
-	free(p_cfg);
+	SAlloc::F(p_cfg);
 	return r;
 }
 
@@ -265,7 +265,7 @@ int SLAPI PPObjVATBook::WriteCfgList(PPID kind, const VATBCfg * pConfig, int use
 	}
 	THROW_INVARG(oneof3(kind, PPVTB_SELL, PPVTB_BUY, PPVTB_SIMPLELEDGER));
 	THROW(CheckCfgRights(cfg_id, PPR_MOD, 0));
-	THROW_MEM(p_cfg = (PPVATBConfig *)malloc(sz));
+	THROW_MEM(p_cfg = (PPVATBConfig *)SAlloc::M(sz));
 	memzero(p_cfg, sz);
 	p_cfg->Ver = __VATBookFormatVer;
 	p_cfg->AccSheetID = pConfig->AccSheetID;
@@ -286,7 +286,7 @@ int SLAPI PPObjVATBook::WriteCfgList(PPID kind, const VATBCfg * pConfig, int use
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	free(p_cfg);
+	SAlloc::F(p_cfg);
 	return ok;
 }
 
@@ -1321,7 +1321,7 @@ int SLAPI PPViewVatBook::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewVatBook::NextIteration(VatBookViewItem * pItem)
+int FASTCALL PPViewVatBook::NextIteration(VatBookViewItem * pItem)
 {
 	char * p, clb_item[64];
 	if(P_IterQuery) {
@@ -2599,7 +2599,7 @@ int PPALDD_VatBook::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 	INIT_PPVIEW_ALDD_ITER(VatBook);
 }
 
-int PPALDD_VatBook::NextIteration(PPIterID iterId, long rsrv)
+int PPALDD_VatBook::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(VatBook);
 	I.ID       = item.ID;
@@ -2723,7 +2723,7 @@ int SLAPI PPViewVatBook::GetNalogRuOpIdent(const VatBookViewItem & rItem, SStrin
 		rBuf = 0;
 		if(rItem.OpID) {
 			long exp_symb_val = 0;
-			if(!TaxOpSymbAssoc.Search(rItem.OpID, &exp_symb_val, 0, 0)) {
+			if(!TaxOpSymbAssoc.Search(rItem.OpID, &exp_symb_val, 0)) {
 				PPObjOprKind op_obj;
 				PPOprKindPacket op_pack;
 				if(op_obj.GetPacket(rItem.OpID, &op_pack) > 0) {

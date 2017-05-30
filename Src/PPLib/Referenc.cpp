@@ -736,7 +736,7 @@ int SLAPI Reference::GetPropVlrString(PPID obj, PPID id, PPID prop, SString & rB
 		Prop.getRecSize(&fix_size);
 		Prop.getLobSize(Prop.VT, &actual_size);
 		actual_size += fix_size;
-		THROW_MEM(pm = (PropVlrString*)malloc(actual_size + 32)); // +32 - страховка
+		THROW_MEM(pm = (PropVlrString*)SAlloc::M(actual_size + 32)); // +32 - страховка
 		ReadPropBuf(pm, actual_size, &test_actual_size);
 		assert(actual_size == test_actual_size);
 		(rBuf = (const char *)(pm + 1)).Strip();
@@ -744,7 +744,7 @@ int SLAPI Reference::GetPropVlrString(PPID obj, PPID id, PPID prop, SString & rB
 	else
 		ok = PPDbSearchError();
 	CATCHZOK
-	free(pm);
+	SAlloc::F(pm);
 	return ok;
 }
 
@@ -756,14 +756,14 @@ int SLAPI Reference::PutPropVlrString(PPID obj, PPID id, PPID prop, const char *
 	if(!isempty(b)) {
 		uint sz = strlen(b) + 1;
 		s = MAX(sizeof(PropVlrString) + sz, PROPRECFIXSIZE);
-		THROW_MEM(pm = (PropVlrString*)malloc(s));
+		THROW_MEM(pm = (PropVlrString*)SAlloc::M(s));
 		memzero(pm, s);
 		strcpy((char*)(pm + 1), b);
 		pm->Size = sz;
 	}
 	THROW(PutProp(obj, id, prop, pm, s, use_ta));
 	CATCHZOK
-	free(pm);
+	SAlloc::F(pm);
 	return ok;
 }
 
@@ -775,14 +775,14 @@ int SLAPI Reference::PutPropSBuffer(PPID obj, PPID id, PPID prop, const SBuffer 
 	uint   sz = rBuf.GetAvailableSize();
 	if(sz) {
 		s = MAX(sizeof(PropVlrString) + sz, PROPRECFIXSIZE);
-		THROW_MEM(pm = (PropVlrString*)malloc(s));
+		THROW_MEM(pm = (PropVlrString*)SAlloc::M(s));
 		memzero(pm, s);
 		THROW_SL(rBuf.ReadStatic((void *)(pm + 1), sz));
 		pm->Size = sz;
 	}
 	THROW(PutProp(obj, id, prop, pm, s, use_ta));
 	CATCHZOK
-	free(pm);
+	SAlloc::F(pm);
 	return ok;
 }
 
@@ -795,7 +795,7 @@ int FASTCALL Reference::GetPropSBuffer_Current(SBuffer & rBuf)
 	Prop.getRecSize(&fix_size);
 	Prop.getLobSize(Prop.VT, &actual_size);
 	actual_size += fix_size;
-	THROW_MEM(pm = (PropVlrString*)malloc(actual_size + 32)); // +32 - страховка
+	THROW_MEM(pm = (PropVlrString*)SAlloc::M(actual_size + 32)); // +32 - страховка
 	ReadPropBuf(pm, actual_size, &test_actual_size);
 	assert(actual_size == test_actual_size);
 	// @v9.1.11 if(actual_size == test_actual_size && actual_size == (pm->Size+sizeof(*pm))) {
@@ -811,7 +811,7 @@ int FASTCALL Reference::GetPropSBuffer_Current(SBuffer & rBuf)
 		ok = -1;
 	}
 	CATCHZOK
-	free(pm);
+	SAlloc::F(pm);
 	return ok;
 }
 
@@ -843,7 +843,7 @@ int SLAPI Reference::GetPropArrayFromRecBuf(SArray * pAry)
 		Prop.getLobSize(Prop.VT, &actual_size);
 		actual_size += fix_size;
 
-		THROW_MEM(p_rec = (PropPPIDArray *)calloc(1, actual_size + 32)); // +32 - страховка
+		THROW_MEM(p_rec = (PropPPIDArray *)SAlloc::C(1, actual_size + 32)); // +32 - страховка
 		ReadPropBuf(p_rec, actual_size, &test_actual_size);
 		assert(actual_size == test_actual_size);
 		for(int i = 0; i < p_rec->Count; i++) {
@@ -860,7 +860,7 @@ int SLAPI Reference::GetPropArrayFromRecBuf(SArray * pAry)
 		ok = 0;
 		pAry->freeAll();
 	ENDCATCH
-	free(p_rec);
+	SAlloc::F(p_rec);
 	return ok;
 }
 
@@ -894,7 +894,7 @@ int SLAPI Reference::PutPropArray(PPID obj, PPID id, PPID prop, const SArray * a
 		const  uint minCount = (PROPRECFIXSIZE - sizeof(PropPPIDArray)) / ary->getItemSize();
 		sz = sizeof(PropPPIDArray) + (MAX(count, minCount) * ary->getItemSize());
 		SETMAX(sz, PROPRECFIXSIZE);
-		THROW_MEM(p_rec = (PropPPIDArray*)calloc(1, sz));
+		THROW_MEM(p_rec = (PropPPIDArray*)SAlloc::C(1, sz));
 		p_rec->Count = count;
 		for(i = 0; i < count; i++) {
 			size_t offs = i*ary->getItemSize();
@@ -903,7 +903,7 @@ int SLAPI Reference::PutPropArray(PPID obj, PPID id, PPID prop, const SArray * a
 	}
 	THROW(PutProp(obj, id, prop, p_rec, sz, use_ta));
 	CATCHZOK
-	free(p_rec);
+	SAlloc::F(p_rec);
 	return ok;
 }
 
@@ -1210,7 +1210,7 @@ int SLAPI PPRights::ReadRights(PPID securType, PPID securID, int ignoreCheckSum)
 			}
 			if(do_convert) {
 				uint8  temp_buffer[128];
-				_PPRights * p_temp_r = (_PPRights *)malloc(Size());
+				_PPRights * p_temp_r = (_PPRights *)SAlloc::M(Size());
 				THROW_MEM(p_temp_r);
 				memcpy(p_temp_r, P_Rt, Size());
 				THROW(Resize(sizeof(_PPRights)));
@@ -1447,7 +1447,7 @@ int SLAPI PPRights::Resize(uint sz)
 	else {
 		size_t prev_size = Size();
 		sz = (sz < sizeof(_PPRights)) ? sizeof(_PPRights) : sz;
-		P_Rt = (_PPRights*)realloc(P_Rt, sz);
+		P_Rt = (_PPRights*)SAlloc::R(P_Rt, sz);
 		if(P_Rt) {
 			if(sz > prev_size)
 				memzero(PTR8(P_Rt) + prev_size, sz - prev_size);

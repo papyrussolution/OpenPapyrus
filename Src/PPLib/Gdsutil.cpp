@@ -3227,7 +3227,7 @@ int SLAPI PPBarcode::RecognizeImage(const char * pInpFileName, TSCollection <PPB
     {
     	const uint src_width = ib.GetWidth();
     	const uint src_height = ib.GetHeight();
-		uint8 * p_zbar_img_buf = (uint8 *)calloc(src_height * src_width, sizeof(uint8));
+		uint8 * p_zbar_img_buf = (uint8 *)SAlloc::C(src_height * src_width, sizeof(uint8));
     	THROW_MEM(p_zbar_img_buf);
     	{
 			const uint32 * p_src_buf = (const uint32 *)ib.GetData();

@@ -26,10 +26,10 @@
 PNG_FUNCTION(png_structp, PNGAPI png_create_read_struct, (png_const_charp user_png_ver, png_voidp error_ptr, png_error_ptr error_fn, png_error_ptr warn_fn), PNG_ALLOCATED)
 {
 #ifndef PNG_USER_MEM_SUPPORTED
-	png_structp png_ptr = png_create_png_struct(user_png_ver, error_ptr, error_fn, warn_fn, NULL, NULL, NULL);
+	png_structp png_ptr = png_create_png_struct(user_png_ver, error_ptr, error_fn, warn_fn, 0, 0, 0);
 #else
 	return png_create_read_struct_2(user_png_ver, error_ptr, error_fn,
-	    warn_fn, NULL, NULL, NULL);
+	    warn_fn, 0, 0, 0);
 }
 
 /* Alternate create PNG structure for reading, and allocate any memory

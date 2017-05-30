@@ -285,7 +285,7 @@ int FASTCALL SUsbDvcIfcData::Get(void * pHandle, SP_DEVICE_INTERFACE_DATA * pDvc
 	devinfo_data.cbSize = sizeof(SP_DEVINFO_DATA);
 	int    ret = SetupDiGetDeviceInterfaceDetail(pHandle, pDvcIfcData, p_dev_ifc_detail, ret_size, &ret_size, &devinfo_data);
 	if(!ret && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-		p_dev_ifc_detail = (SP_DEVICE_INTERFACE_DETAIL_DATA *)malloc(ret_size);
+		p_dev_ifc_detail = (SP_DEVICE_INTERFACE_DETAIL_DATA *)SAlloc::M(ret_size);
 		THROW_S(p_dev_ifc_detail, SLERR_NOMEM);
 		allocated_size = ret_size;
 		memzero(p_dev_ifc_detail, ret_size);
@@ -295,7 +295,7 @@ int FASTCALL SUsbDvcIfcData::Get(void * pHandle, SP_DEVICE_INTERFACE_DATA * pDvc
 		ret = SetupDiGetDeviceInterfaceDetail(pHandle, pDvcIfcData, p_dev_ifc_detail, ret_size, &ret_size, &devinfo_data);
 	}
 	THROW_S(ret, SLERR_WINDOWS);
-	THROW_S(P_DvcInfo = malloc(sizeof(devinfo_data)), SLERR_NOMEM);
+	THROW_S(P_DvcInfo = SAlloc::M(sizeof(devinfo_data)), SLERR_NOMEM);
 	memcpy(P_DvcInfo, &devinfo_data, sizeof(devinfo_data));
 	ClsGuid.Init(devinfo_data.ClassGuid);
 	DevInst = devinfo_data.DevInst;
@@ -330,7 +330,7 @@ int SUsbDvcIfcData::GetPropString(void * pHandle, int prop, SString & rBuf)
 	THROW_S(pHandle != INVALID_HANDLE_VALUE, SLERR_USB);
 	int    ret = SetupDiGetDeviceRegistryProperty(pHandle, (SP_DEVINFO_DATA *)P_DvcInfo, (DWORD)prop, &prop_type, p_data, size, &size);
 	if(!ret && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-		p_data = (uint8 *)malloc(size);
+		p_data = (uint8 *)SAlloc::M(size);
 		THROW_S(p_data, SLERR_NOMEM);
 		allocated_size = size;
 
@@ -852,7 +852,7 @@ int FASTCALL SRawInputData::Get(long rawInputHandle)
 	THROW(InitRawInputProc(0) > 0);
 	GetRawInputDataProc((HRAWINPUT)rawInputHandle, RID_INPUT, NULL, &buf_size, sizeof(RAWINPUTHEADER));
 	if(buf_size > sizeof(FixedBuffer)) {
-		THROW(P_Buf = malloc(buf_size));
+		THROW(P_Buf = SAlloc::M(buf_size));
 		if(P_Buf) {
 			memzero(P_Buf, buf_size);
 			AllocatedSize = buf_size;
@@ -886,7 +886,7 @@ int FASTCALL SRawInputData::GetDeviceName(SString & rBuf)
 		THROW(ret >= 0);
 		if(data_size) {
 			if(data_size > sizeof(__buffer)) {
-				THROW_MEM(p_buf = malloc(data_size));
+				THROW_MEM(p_buf = SAlloc::M(data_size));
 				memzero(p_buf, data_size);
 				alloc_sz = data_size;
 			}
@@ -898,6 +898,6 @@ int FASTCALL SRawInputData::GetDeviceName(SString & rBuf)
 	}
 	CATCHZOK
 	if(alloc_sz)
-		free(p_buf);
+		SAlloc::F(p_buf);
 	return ok;
 }

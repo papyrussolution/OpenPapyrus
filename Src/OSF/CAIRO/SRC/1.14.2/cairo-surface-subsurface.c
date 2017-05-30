@@ -348,7 +348,7 @@ cairo_surface_t * cairo_surface_create_for_rectangle(cairo_surface_t * target, d
 		return _cairo_surface_create_in_error(target->status);
 	if(unlikely(target->finished))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
-	cairo_surface_subsurface_t * surface = (cairo_surface_subsurface_t *)malloc(sizeof(cairo_surface_subsurface_t));
+	cairo_surface_subsurface_t * surface = (cairo_surface_subsurface_t *)SAlloc::M(sizeof(cairo_surface_subsurface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	x *= target->device_transform.xx;
@@ -386,7 +386,7 @@ cairo_surface_t * _cairo_surface_create_for_rectangle_int(cairo_surface_t * targ
 	if(unlikely(target->finished))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 	assert(target->backend->type != CAIRO_SURFACE_TYPE_SUBSURFACE);
-	cairo_surface_subsurface_t * surface = (cairo_surface_subsurface_t *)malloc(sizeof(cairo_surface_subsurface_t));
+	cairo_surface_subsurface_t * surface = (cairo_surface_subsurface_t *)SAlloc::M(sizeof(cairo_surface_subsurface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_surface_subsurface_backend, NULL, /* device */target->content);

@@ -5,11 +5,11 @@
 *                            | (__| |_| |  _ <| |___
 *                             \___|\___/|_| \_\_____|
 *
-* Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+* Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
 *
 * This software is licensed as described in the file COPYING, which
 * you should have received as part of this distribution. The terms
-* are also available at http://curl.haxx.se/docs/copyright.html.
+* are also available at https://curl.haxx.se/docs/copyright.html.
 *
 * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 * copies of the Software, and permit persons to whom the Software is
@@ -22,10 +22,9 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-
-#ifdef HAVE_LIMITS_H
-	#include <limits.h>
-#endif
+//#ifdef HAVE_LIMITS_H
+//#include <limits.h>
+//#endif
 #ifdef HAVE_NETINET_IN_H
 	#include <netinet/in.h>
 #endif
@@ -44,7 +43,7 @@
 #endif
 #if (defined(NETWARE) && defined(__NOVELL_LIBC__))
 	#undef in_addr_t
-	#define in_addr_t ulong
+	#define in_addr_t unsigned long
 #endif
 
 /***********************************************************************
@@ -67,20 +66,23 @@
 #include "connect.h"
 #include "select.h"
 #include "progress.h"
-#include "curl_printf.h"
 
-#if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) && (defined(WIN32) || defined(_WIN32) || defined(__SYMBIAN32__))
-	#define CARES_STATICLIB
-#endif
+#  if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) && \
+	(defined(WIN32) || defined(_WIN32) || defined(__SYMBIAN32__))
+#    define CARES_STATICLIB
+#  endif
 #include <ares.h>
-#include <ares_version.h> /* really old c-ares didn't include this by itself */
+#include <ares_version.h> /* really old c-ares didn't include this by
+                               itself */
 
 #if ARES_VERSION >= 0x010500
 /* c-ares 1.5.0 or later, the callback proto is modified */
-	#define HAVE_CARES_CALLBACK_TIMEOUTS 1
+#define HAVE_CARES_CALLBACK_TIMEOUTS 1
 #endif
+
+/* The last 3 #include files should be in this order */
+#include "curl_printf.h"
 #include "curl_memory.h"
-/* The last #include file should be: */
 #include "memdebug.h"
 
 struct ResolverResults {
@@ -248,7 +250,7 @@ int Curl_resolver_getsock(struct connectdata * conn,
 
 static int waitperform(struct connectdata * conn, int timeout_ms)
 {
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 	int nfds;
 	int bitmask;
 	ares_socket_t socks[ARES_GETSOCK_MAXNUM];
@@ -306,35 +308,27 @@ static int waitperform(struct connectdata * conn, int timeout_ms)
  *
  * Returns normal CURLcode errors.
  */
-CURLcode Curl_resolver_is_resolved(struct connectdata * conn,
-    struct Curl_dns_entry ** dns)
+CURLcode Curl_resolver_is_resolved(struct connectdata * conn, struct Curl_dns_entry ** dns)
 {
-	struct SessionHandle * data = conn->data;
-	struct ResolverResults * res = (struct ResolverResults*)
-	    conn->async.os_specific;
+	struct Curl_easy * data = conn->data;
+	struct ResolverResults * res = (struct ResolverResults*)conn->async.os_specific;
 	CURLcode result = CURLE_OK;
-
 	*dns = NULL;
-
 	waitperform(conn, 0);
-
 	if(res && !res->num_pending) {
 		(void)Curl_addrinfo_callback(conn, res->last_status, res->temp_ai);
 		/* temp_ai ownership is moved to the connection, so we need not free-up
 		   them */
 		res->temp_ai = NULL;
 		if(!conn->async.dns) {
-			failf(data, "Could not resolve: %s (%s)",
-			    conn->async.hostname, ares_strerror(conn->async.status));
-			result = conn->bits.proxy ? CURLE_COULDNT_RESOLVE_PROXY :
-			    CURLE_COULDNT_RESOLVE_HOST;
+			failf(data, "Could not resolve: %s (%s)", conn->async.hostname, ares_strerror(conn->async.status));
+			result = conn->bits.proxy ? CURLE_COULDNT_RESOLVE_PROXY : CURLE_COULDNT_RESOLVE_HOST;
 		}
 		else
 			*dns = conn->async.dns;
 
 		destroy_async_data(&conn->async);
 	}
-
 	return result;
 }
 
@@ -353,17 +347,25 @@ CURLcode Curl_resolver_wait_resolv(struct connectdata * conn,
     struct Curl_dns_entry ** entry)
 {
 	CURLcode result = CURLE_OK;
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 	long timeout;
 	struct timeval now = Curl_tvnow();
 	struct Curl_dns_entry * temp_entry;
 
+	if(entry)
+		*entry = NULL;  /* clear on entry */
+
 	timeout = Curl_timeleft(data, &now, TRUE);
+	if(timeout < 0) {
+		/* already expired! */
+		connclose(conn, "Timed out before name resolve started");
+		return CURLE_OPERATION_TIMEDOUT;
+	}
 	if(!timeout)
 		timeout = CURL_TIMEOUT_RESOLVE * 1000;  /* default name resolve timeout */
 
 	/* Wait for the name resolve query to complete. */
-	for(;; ) {
+	while(!result) {
 		struct timeval * tvp, tv, store;
 
 		long timediff;
@@ -386,28 +388,25 @@ CURLcode Curl_resolver_wait_resolv(struct connectdata * conn,
 			timeout_ms = 1000;
 
 		waitperform(conn, timeout_ms);
-		Curl_resolver_is_resolved(conn, &temp_entry);
+		result = Curl_resolver_is_resolved(conn, &temp_entry);
 
-		if(conn->async.done)
+		if(result || conn->async.done)
 			break;
 
-		if(Curl_pgrsUpdate(conn)) {
+		if(Curl_pgrsUpdate(conn))
 			result = CURLE_ABORTED_BY_CALLBACK;
-			timeout = -1; /* trigger the cancel below */
-		}
 		else {
 			struct timeval now2 = Curl_tvnow();
 			timediff = Curl_tvdiff(now2, now); /* spent time */
 			timeout -= timediff ? timediff : 1; /* always deduct at least 1 */
 			now = now2; /* for next loop */
 		}
-
-		if(timeout < 0) {
-			/* our timeout, so we cancel the ares operation */
-			ares_cancel((ares_channel)data->state.resolver);
-			break;
-		}
+		if(timeout < 0)
+			result = CURLE_OPERATION_TIMEDOUT;
 	}
+	if(result)
+		/* failure, so we cancel the ares operation */
+		ares_cancel((ares_channel)data->state.resolver);
 
 	/* Operation complete, if the lookup was successful we now have the entry
 	   in the cache. */
@@ -487,13 +486,10 @@ static void query_completed_cb(void * arg,  /* (struct connectdata *) */
  * memory we need to free after use. That memory *MUST* be freed with
  * Curl_freeaddrinfo(), nothing else.
  */
-Curl_addrinfo * Curl_resolver_getaddrinfo(struct connectdata * conn,
-    const char * hostname,
-    int port,
-    int * waitp)
+Curl_addrinfo * Curl_resolver_getaddrinfo(struct connectdata * conn, const char * hostname, int port, int * waitp)
 {
 	char * bufp;
-	struct SessionHandle * data = conn->data;
+	struct Curl_easy * data = conn->data;
 	struct in_addr in;
 
 	int family = PF_INET;
@@ -533,7 +529,7 @@ Curl_addrinfo * Curl_resolver_getaddrinfo(struct connectdata * conn,
 	}
 #endif /* CURLRES_IPV6 */
 
-	bufp = sstrdup(hostname);
+	bufp = strdup(hostname);
 	if(bufp) {
 		struct ResolverResults * res = NULL;
 		free(conn->async.hostname);
@@ -586,7 +582,7 @@ Curl_addrinfo * Curl_resolver_getaddrinfo(struct connectdata * conn,
 	return NULL; /* no struct yet */
 }
 
-CURLcode Curl_set_dns_servers(struct SessionHandle * data,
+CURLcode Curl_set_dns_servers(struct Curl_easy * data,
     char * servers)
 {
 	CURLcode result = CURLE_NOT_BUILT_IN;
@@ -624,7 +620,7 @@ CURLcode Curl_set_dns_servers(struct SessionHandle * data,
 	return result;
 }
 
-CURLcode Curl_set_dns_interface(struct SessionHandle * data,
+CURLcode Curl_set_dns_interface(struct Curl_easy * data,
     const char * interf)
 {
 #if (ARES_VERSION >= 0x010704)
@@ -641,7 +637,7 @@ CURLcode Curl_set_dns_interface(struct SessionHandle * data,
 #endif
 }
 
-CURLcode Curl_set_dns_local_ip4(struct SessionHandle * data,
+CURLcode Curl_set_dns_local_ip4(struct Curl_easy * data,
     const char * local_ip4)
 {
 #if (ARES_VERSION >= 0x010704)
@@ -666,10 +662,10 @@ CURLcode Curl_set_dns_local_ip4(struct SessionHandle * data,
 #endif
 }
 
-CURLcode Curl_set_dns_local_ip6(struct SessionHandle * data, const char * local_ip6)
+CURLcode Curl_set_dns_local_ip6(struct Curl_easy * data, const char * local_ip6)
 {
 #if (ARES_VERSION >= 0x010704) && defined(ENABLE_IPV6)
-	uchar a6[INET6_ADDRSTRLEN];
+	unsigned char a6[INET6_ADDRSTRLEN];
 	if((!local_ip6) || (local_ip6[0] == 0)) {
 		/* disabled: do not bind to a specific address */
 		memzero(a6, sizeof(a6));

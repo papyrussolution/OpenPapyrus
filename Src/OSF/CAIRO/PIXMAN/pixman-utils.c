@@ -43,14 +43,14 @@ void * pixman_malloc_ab_plus_c(uint a, uint b, uint c)
 {
 	if(!b || a >= INT32_MAX / b || (a * b) > INT32_MAX - c)
 		return NULL;
-	return malloc(a * b + c);
+	return SAlloc::M(a * b + c);
 }
 
 void * pixman_malloc_ab(uint a, uint b)
 {
 	if(a >= INT32_MAX / b)
 		return NULL;
-	return malloc(a * b);
+	return SAlloc::M(a * b);
 }
 
 void * pixman_malloc_abc(uint a, uint b, uint c)
@@ -60,7 +60,7 @@ void * pixman_malloc_abc(uint a, uint b, uint c)
 	else if(a * b >= INT32_MAX / c)
 		return NULL;
 	else
-		return malloc(a * b * c);
+		return SAlloc::M(a * b * c);
 }
 
 static force_inline uint16_t float_to_unorm(float f, int n_bits)
@@ -211,7 +211,7 @@ pixman_bool_t pixman_region16_copy_from_region32(pixman_region16_t * dst, pixman
 	}
 	pixman_region_fini(dst);
 	retval = pixman_region_init_rects(dst, boxes16, n_boxes);
-	free(boxes16);
+	SAlloc::F(boxes16);
 	return retval;
 }
 
@@ -238,7 +238,7 @@ pixman_bool_t pixman_region32_copy_from_region16(pixman_region32_t * dst, pixman
 	pixman_region32_fini(dst);
 	retval = pixman_region32_init_rects(dst, boxes32, n_boxes);
 	if(boxes32 != tmp_boxes)
-		free(boxes32);
+		SAlloc::F(boxes32);
 	return retval;
 }
 

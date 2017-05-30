@@ -45,7 +45,7 @@
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"
 				SubSystem="1"
-				OptimizeReferences="1"
+				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"/>
 			<Tool
@@ -107,7 +107,7 @@
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
-				OptimizeReferences="1"
+				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"/>
 			<Tool

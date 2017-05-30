@@ -1,0 +1,17 @@
+Each line of the test set gives 10 space delimited numbers
+
+    latitude at point 1, lat1 (degrees, exact)
+    longitude at point 1, lon1 (degrees, always 0)
+    azimuth at point 1, azi1 (clockwise from north in degrees, exact)
+    latitude at point 2, lat2 (degrees, accurate to 10−18 deg)
+    longitude at point 2, lon2 (degrees, accurate to 10−18 deg)
+    azimuth at point 2, azi2 (degrees, accurate to 10−18 deg)
+    geodesic distance from point 1 to point 2, s12 (meters, exact)
+    arc distance on the auxiliary sphere, a12 (degrees, accurate to 10−18 deg)
+    reduced length of the geodesic, m12 (meters, accurate to 0.1 pm)
+    the area under the geodesic, S12 (m2, accurate to 1 mm2)
+
+These are computed using as direct geodesic calculations with the given lat1, lon1, azi1, and s12. The distance s12 always corresponds to 
+an arc length a12 ≤ 180°, so the given geodesics give the shortest paths from point 1 to point 2. For simplicity and without loss of generality, 
+lat1 is chosen in [0°, 90°], lon1 is taken to be zero, azi1 is chosen in [0°, 180°]. Furthermore, lat1 and azi1 are taken to be multiples 
+of 10−12 deg and s12 is a multiple of 0.1 μm in [0 m, 20003931.4586254 m]. This results in lon2 in [0°, 180°] and azi2 in [0°, 180°].

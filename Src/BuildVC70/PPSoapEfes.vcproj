@@ -32,12 +32,12 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="4"/>
+				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib Ws2_32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib ..\OSF\OPENSSL\lib\libeay32.lib ..\OSF\OPENSSL\lib\ssleay32.lib"
+				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
 				OutputFile="..\..\ppy\bin\$(InputName).dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
@@ -74,6 +74,11 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="4"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="TRUE"
 				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\OSF\gsoap\gsoap"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PPSOAPEFES_EXPORTS"
 				StringPooling="TRUE"
@@ -85,12 +90,12 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="3"/>
+				DebugInformationFormat="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib Ws2_32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib ..\OSF\OPENSSL\lib\libeay32.lib ..\OSF\OPENSSL\lib\ssleay32.lib"
+				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
 				OutputFile="..\..\ppy\bin\$(InputName).dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="FALSE"
@@ -142,12 +147,12 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="4"/>
+				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib Ws2_32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib ..\OSF\OPENSSL\lib\libeay32.lib ..\OSF\OPENSSL\lib\ssleay32.lib"
+				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
 				OutputFile="..\..\ppy\bin\$(InputName).dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
@@ -184,6 +189,11 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="4"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="TRUE"
 				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\OSF\gsoap\gsoap"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PPSOAPEFES_EXPORTS"
 				StringPooling="TRUE"
@@ -200,7 +210,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib Ws2_32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib ..\OSF\OPENSSL\lib\libeay32.lib ..\OSF\OPENSSL\lib\ssleay32.lib"
+				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
 				OutputFile="..\..\ppy\bin\$(InputName).dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="FALSE"
@@ -252,12 +262,12 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="4"/>
+				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib Ws2_32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib ..\OSF\OPENSSL\lib\libeay32.lib ..\OSF\OPENSSL\lib\ssleay32.lib"
+				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
 				OutputFile="..\..\ppy\bin\$(InputName).dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
@@ -294,6 +304,11 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="4"
+				InlineFunctionExpansion="1"
+				ImproveFloatingPointConsistency="TRUE"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="TRUE"
 				AdditionalIncludeDirectories="..\include;..\osf\libxml\include;..\OSF\gsoap\gsoap"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PPSOAPEFES_EXPORTS"
 				StringPooling="TRUE"
@@ -305,12 +320,12 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="3"/>
+				DebugInformationFormat="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib Ws2_32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib ..\OSF\OPENSSL\lib\libeay32.lib ..\OSF\OPENSSL\lib\ssleay32.lib"
+				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
 				OutputFile="..\..\ppy\bin\$(InputName).dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="FALSE"

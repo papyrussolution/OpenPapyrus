@@ -317,7 +317,7 @@ void _cairo_contour_simplify(cairo_contour_t * contour, double tolerance)
 		cairo_contour_chain_t * next;
 		for(chain = iter.chain->next; chain; chain = next) {
 			next = chain->next;
-			free(chain);
+			SAlloc::F(chain);
 		}
 		iter.chain->next = NULL;
 		contour->tail = iter.chain;
@@ -335,7 +335,7 @@ void _cairo_contour_fini(cairo_contour_t * contour)
 	cairo_contour_chain_t * chain, * next;
 	for(chain = contour->chain.next; chain; chain = next) {
 		next = chain->next;
-		free(chain);
+		SAlloc::F(chain);
 	}
 }
 
@@ -364,7 +364,7 @@ void __cairo_contour_remove_last_chain(cairo_contour_t * contour)
 		return;
 	for(chain = &contour->chain; chain->next != contour->tail; chain = chain->next)
 		;
-	free(contour->tail);
+	SAlloc::F(contour->tail);
 	contour->tail = chain;
 	chain->next = NULL;
 }

@@ -920,7 +920,7 @@ cairo_status_t _cairo_gl_surface_draw_image(cairo_gl_surface_t * dst,
 		    dst_x, dst_y, width, height,
 		    format, type, data_start);
 
-		free(data_start_gles2);
+		SAlloc::F(data_start_gles2);
 
 		/* If we just treated some rgb-only data as rgba, then we have to
 		 * go back and fix up the alpha channel where we filled in this
@@ -1155,7 +1155,7 @@ static cairo_image_surface_t * _cairo_gl_surface_map_to_image(void * abstract_su
 		uint8_t * bot = image->data + (image->height-1)*image->stride;
 
 		if(image->stride > (int)sizeof(stack)) {
-			row = malloc(image->stride);
+			row = SAlloc::M(image->stride);
 			if(unlikely(row == NULL)) {
 				cairo_surface_destroy(&image->base);
 				return _cairo_image_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
@@ -1171,7 +1171,7 @@ static cairo_image_surface_t * _cairo_gl_surface_map_to_image(void * abstract_su
 		}
 
 		if(row != stack)
-			free(row);
+			SAlloc::F(row);
 	}
 
 	image->base.is_clear = FALSE;

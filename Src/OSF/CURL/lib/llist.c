@@ -5,11 +5,11 @@
 *                            | (__| |_| |  _ <| |___
 *                             \___|\___/|_| \_\_____|
 *
-* Copyright (C) 1998 - 2011, Daniel Stenberg, <daniel@haxx.se>, et al.
+* Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
 *
 * This software is licensed as described in the file COPYING, which
 * you should have received as part of this distribution. The terms
-* are also available at http://curl.haxx.se/docs/copyright.html.
+* are also available at https://curl.haxx.se/docs/copyright.html.
 *
 * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 * copies of the Software, and permit persons to whom the Software is
@@ -22,30 +22,19 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
+//#include <curl/curl.h>
 #include "llist.h"
 #include "curl_memory.h"
-
-/* this must be the last include file */
-#include "memdebug.h"
-
+#include "memdebug.h" /* this must be the last include file */
 /*
  * @unittest: 1300
  */
-static void llist_init(struct curl_llist * l, curl_llist_dtor dtor)
+void Curl_llist_init(struct curl_llist * l, curl_llist_dtor dtor)
 {
 	l->size = 0;
 	l->dtor = dtor;
 	l->head = NULL;
 	l->tail = NULL;
-}
-
-struct curl_llist * Curl_llist_alloc(curl_llist_dtor dtor)                    
-{
-	struct curl_llist * list = (struct curl_llist *)malloc(sizeof(struct curl_llist));
-	if(!list)
-		return NULL;
-	llist_init(list, dtor);
-	return list;
 }
 
 /*
@@ -59,7 +48,8 @@ struct curl_llist * Curl_llist_alloc(curl_llist_dtor dtor)
  *
  * @unittest: 1300
  */
-int Curl_llist_insert_next(struct curl_llist * list, struct curl_llist_element * e, const void * p)
+int Curl_llist_insert_next(struct curl_llist * list, struct curl_llist_element * e,
+    const void * p)
 {
 	struct curl_llist_element * ne = (struct curl_llist_element *)malloc(sizeof(struct curl_llist_element));
 	if(!ne)
@@ -136,8 +126,6 @@ void Curl_llist_destroy(struct curl_llist * list, void * user)
 	if(list) {
 		while(list->size > 0)
 			Curl_llist_remove(list, list->tail, user);
-
-		free(list);
 	}
 }
 
@@ -149,13 +137,17 @@ size_t Curl_llist_count(struct curl_llist * list)
 /*
  * @unittest: 1300
  */
-int Curl_llist_move(struct curl_llist * list, struct curl_llist_element * e, struct curl_llist * to_list, struct curl_llist_element * to_e)
+int Curl_llist_move(struct curl_llist * list, struct curl_llist_element * e,
+    struct curl_llist * to_list,
+    struct curl_llist_element * to_e)
 {
 	/* Remove element from list */
 	if(e == NULL || list->size == 0)
 		return 0;
+
 	if(e == list->head) {
 		list->head = e->next;
+
 		if(list->head == NULL)
 			list->tail = NULL;
 		else
@@ -168,6 +160,7 @@ int Curl_llist_move(struct curl_llist * list, struct curl_llist_element * e, str
 		else
 			e->next->prev = e->prev;
 	}
+
 	--list->size;
 
 	/* Add element to to_list after to_e */

@@ -854,7 +854,7 @@ int SLAPI PPViewBizScore::InitIteration()
 	return -1;
 }
 
-int SLAPI PPViewBizScore::NextIteration(BizScoreViewItem * pItem)
+int FASTCALL PPViewBizScore::NextIteration(BizScoreViewItem * pItem)
 {
 	return -1;
 }
@@ -1502,7 +1502,7 @@ int SLAPI PPViewBizScoreVal::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewBizScoreVal::NextIteration(BizScoreValViewItem * pItem)
+int FASTCALL PPViewBizScoreVal::NextIteration(BizScoreValViewItem * pItem)
 {
 	int    ok = -1;
 	memzero(pItem, sizeof(*pItem));
@@ -2354,7 +2354,7 @@ int PPALDD_BizScoreValView::InitIteration(long iterId, int sortId, long rsrv)
 	INIT_PPVIEW_ALDD_ITER(BizScoreVal);
 }
 
-int PPALDD_BizScoreValView::NextIteration(long iterId, long rsrv)
+int PPALDD_BizScoreValView::NextIteration(long iterId)
 {
 	START_PPVIEW_ALDD_ITER(BizScoreVal);
 	I.ActualDate = item.ActualDate;

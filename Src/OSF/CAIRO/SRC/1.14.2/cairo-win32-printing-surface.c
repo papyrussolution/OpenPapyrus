@@ -764,8 +764,8 @@ static cairo_int_status_t _cairo_win32_printing_surface_paint_linear_pattern(cai
 	num_rects = num_stops - 1;
 
 	/* Add an extra four points and two rectangles for EXTEND_PAD */
-	vert = (TRIVERTEX *)malloc(sizeof(TRIVERTEX) * (num_rects*2*num_ranges + 4));
-	rect = (GRADIENT_RECT *)malloc(sizeof(GRADIENT_RECT) * (num_rects*num_ranges + 2));
+	vert = (TRIVERTEX *)SAlloc::M(sizeof(TRIVERTEX) * (num_rects*2*num_ranges + 4));
+	rect = (GRADIENT_RECT *)SAlloc::M(sizeof(GRADIENT_RECT) * (num_rects*num_ranges + 2));
 
 	for(i = 0; i < num_ranges*num_rects; i++) {
 		vert[i*2].y = (LONG)clip.top;
@@ -838,8 +838,8 @@ static cairo_int_status_t _cairo_win32_printing_surface_paint_linear_pattern(cai
 		    rect, total_rects,
 		    GRADIENT_FILL_RECT_H))
 		return _cairo_win32_print_gdi_error("_win32_printing_surface_paint_linear_pattern:GradientFill");
-	free(rect);
-	free(vert);
+	SAlloc::F(rect);
+	SAlloc::F(vert);
 	RestoreDC(surface->win32.dc, -1);
 	return (cairo_int_status_t)0;
 }
@@ -1186,7 +1186,7 @@ static cairo_int_status_t _cairo_win32_printing_surface_stroke(void * abstract_s
 	}
 	RestoreDC(surface->win32.dc, -1);
 	DeleteObject(pen);
-	free(dash_array);
+	SAlloc::F(dash_array);
 	return status;
 }
 
@@ -1323,7 +1323,7 @@ static cairo_int_status_t _cairo_win32_printing_surface_emit_win32_glyphs(cairo_
 fail:
 	if(surface->has_ctm)
 		cairo_scaled_font_destroy(scaled_font);
-	free(unicode_glyphs);
+	SAlloc::F(unicode_glyphs);
 	return status;
 }
 
@@ -1567,12 +1567,12 @@ cairo_surface_t * cairo_win32_printing_surface_create(HDC hdc)
 {
 	cairo_surface_t * paginated;
 	RECT rect;
-	cairo_win32_printing_surface_t * surface = (cairo_win32_printing_surface_t *)malloc(sizeof(cairo_win32_printing_surface_t));
+	cairo_win32_printing_surface_t * surface = (cairo_win32_printing_surface_t *)SAlloc::M(sizeof(cairo_win32_printing_surface_t));
 	if(surface == NULL)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 #if 0
 	if(_cairo_win32_save_initial_clip(hdc, surface) != CAIRO_STATUS_SUCCESS) {
-		free(surface);
+		SAlloc::F(surface);
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}
 #endif
@@ -1584,7 +1584,7 @@ cairo_surface_t * cairo_win32_printing_surface_create(HDC hdc)
 	surface->old_brush = NULL;
 	surface->font_subsets = _cairo_scaled_font_subsets_create_scaled();
 	if(surface->font_subsets == NULL) {
-		free(surface);
+		SAlloc::F(surface);
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}
 	GetClipBox(hdc, &rect);

@@ -2384,7 +2384,7 @@ int SLAPI GStrucIterator::InitIteration()
 	return 1;
 }
 
-int SLAPI GStrucIterator::NextIteration(GStrucRecurItem * pItem)
+int FASTCALL GStrucIterator::NextIteration(GStrucRecurItem * pItem)
 {
 	int    ok = -1;
 	GStrucRecurItem * p_item = 0;

@@ -553,7 +553,7 @@ int SdRecord::AllocDataBuf()
 		P_DataBuf = 0;
 		OuterDataBufSize = 0;
 	}
-	P_DataBuf = realloc(P_DataBuf, RecSize);
+	P_DataBuf = SAlloc::R(P_DataBuf, RecSize);
 	IsDataBufOwner = 1;
 	if(P_DataBuf == 0 && RecSize > 0)
 		ok = (SLibError = SLERR_NOMEM, 0);
