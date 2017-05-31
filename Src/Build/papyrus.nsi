@@ -334,8 +334,8 @@ Section "Файлы приложения" SEC01
 	;
 	; OpenSSL
 	;
-	File "${SRC_ROOT}\src\osf\openssl\bin\libeay32.dll" ; @v7.6.4
-	File "${SRC_ROOT}\src\osf\openssl\bin\ssleay32.dll" ; @v7.6.4
+	; @v9.6.8 File "${SRC_ROOT}\src\osf\openssl-1.0.1e\bin\libeay32.dll" ; @v7.6.4
+	; @v9.6.8 File "${SRC_ROOT}\src\osf\openssl-1.0.1e\bin\ssleay32.dll" ; @v7.6.4
 	File "${SRC_ROOT}\src\rsrc\data\cacerts.pem"        ; @v7.9.12 
 	;
 	SetOverwrite off

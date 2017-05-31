@@ -80,7 +80,7 @@
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;..\osf\openssl\lib\libeay32.lib;..\osf\openssl\lib\ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\..\ppy\bin\ppdrv-ie-kontur.dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)ImpExpKontur.pdb</ProgramDatabaseFile>
@@ -120,7 +120,7 @@
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;..\osf\openssl\lib\libeay32.lib;..\osf\openssl\lib\ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;shlwapi.lib;mpr.lib;gdiplus.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\..\ppy\bin\ppdrv-ie-kontur.dll</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -138,6 +138,12 @@
     <ProjectReference Include="libxml.vcxproj">
       <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="openssl-crypto.vcxproj">
+      <Project>{519272d1-6ac2-4b29-badf-9f9a7af3383c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl.vcxproj">
+      <Project>{1e4e6bbc-3e70-4f77-9f13-fd9b3242d11e}</Project>
     </ProjectReference>
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>

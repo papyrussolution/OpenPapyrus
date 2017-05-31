@@ -37,7 +37,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib wininet.lib mpr.lib gdiplus.lib shlwapi.lib ..\osf\openssl\lib\libeay32.lib ..\osf\openssl\lib\ssleay32.lib"
+				AdditionalDependencies="Ws2_32.lib wininet.lib mpr.lib gdiplus.lib shlwapi.lib Crypt32.lib"
 				OutputFile="..\..\ppy\bin\ppdrv-dummy.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
@@ -92,7 +92,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib wininet.lib mpr.lib gdiplus.lib shlwapi.lib ..\osf\openssl\lib\libeay32.lib ..\osf\openssl\lib\ssleay32.lib"
+				AdditionalDependencies="Ws2_32.lib wininet.lib mpr.lib gdiplus.lib shlwapi.lib Crypt32.lib"
 				OutputFile="..\..\ppy\bin\ppdrv-dummy.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"

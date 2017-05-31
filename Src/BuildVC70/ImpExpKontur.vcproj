@@ -39,7 +39,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib Ws2_32.lib shlwapi.lib mpr.lib gdiplus.lib ..\osf\openssl\lib\libeay32.lib ..\osf\openssl\lib\ssleay32.lib"
+				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib Ws2_32.lib shlwapi.lib mpr.lib gdiplus.lib Crypt32.lib"
 				OutputFile="..\..\ppy\bin\ppdrv-ie-kontur.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
@@ -97,7 +97,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib Ws2_32.lib shlwapi.lib mpr.lib gdiplus.lib ..\osf\openssl\lib\libeay32.lib ..\osf\openssl\lib\ssleay32.lib"
+				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib Ws2_32.lib shlwapi.lib mpr.lib gdiplus.lib Crypt32.lib"
 				OutputFile="..\..\ppy\bin\ppdrv-ie-kontur.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="FALSE"
