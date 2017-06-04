@@ -329,7 +329,7 @@
 #    define CURL_SUFFIX_CURL_OFF_T     LL
 #    define CURL_SUFFIX_CURL_OFF_TU    ULL
 #  endif
-#  define CURL_TYPEOF_CURL_SOCKLEN_T unsigned int
+#  define CURL_TYPEOF_CURL_SOCKLEN_T uint
 #  define CURL_SIZEOF_CURL_SOCKLEN_T 4
 
 #elif defined(__MWERKS__)
@@ -388,7 +388,7 @@
 #    define CURL_SUFFIX_CURL_OFF_T     LL
 #    define CURL_SUFFIX_CURL_OFF_TU    ULL
 #  endif
-#  define CURL_TYPEOF_CURL_SOCKLEN_T unsigned int
+#  define CURL_TYPEOF_CURL_SOCKLEN_T uint
 #  define CURL_SIZEOF_CURL_SOCKLEN_T 4
 
 #elif defined(__OS400__)

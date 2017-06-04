@@ -9,9 +9,10 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include <string>
-
+#include <vector>
+#include <map>
+#include <algorithm>
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "WordList.h"
@@ -20,7 +21,6 @@
 #include "StyleContext.h"
 #include "CharacterSet.h"
 #include "LexerModule.h"
-
 #include "OptionSet.h"
 #include "SubStyles.h"
 
@@ -662,7 +662,7 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 								while ((startName < restOfLine.length()) && IsSpaceOrTab(restOfLine[startName]))
 									startName++;
 								size_t endName = startName;
-								while ((endName < restOfLine.length()) && setWord.Contains(static_cast<unsigned char>(restOfLine[endName])))
+								while ((endName < restOfLine.length()) && setWord.Contains(static_cast<uchar>(restOfLine[endName])))
 									endName++;
 								std::string key = restOfLine.substr(startName, endName-startName);
 								if ((endName < restOfLine.length()) && (restOfLine.at(endName) == '(')) {
@@ -1032,9 +1032,9 @@ std::vector<std::string> LexerVerilog::Tokenize(const std::string &expr) const {
 	const char *cp = expr.c_str();
 	while (*cp) {
 		std::string word;
-		if (setWord.Contains(static_cast<unsigned char>(*cp))) {
+		if (setWord.Contains(static_cast<uchar>(*cp))) {
 			// Identifiers and numbers
-			while (setWord.Contains(static_cast<unsigned char>(*cp))) {
+			while (setWord.Contains(static_cast<uchar>(*cp))) {
 				word += *cp;
 				cp++;
 			}

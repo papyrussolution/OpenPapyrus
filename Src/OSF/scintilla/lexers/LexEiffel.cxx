@@ -8,7 +8,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "WordList.h"
@@ -22,7 +21,7 @@
 using namespace Scintilla;
 #endif
 
-static inline bool isEiffelOperator(unsigned int ch) {
+static inline bool isEiffelOperator(uint ch) {
 	// '.' left out as it is used to make up numbers
 	return ch == '*' || ch == '/' || ch == '\\' || ch == '-' || ch == '+' ||
 	        ch == '(' || ch == ')' || ch == '=' ||
@@ -33,11 +32,11 @@ static inline bool isEiffelOperator(unsigned int ch) {
 		ch == '!' || ch == '@' || ch == '?';
 }
 
-static inline bool IsAWordChar(unsigned int  ch) {
+static inline bool IsAWordChar(uint  ch) {
 	return (ch < 0x80) && (isalnum(ch) || ch == '_');
 }
 
-static inline bool IsAWordStart(unsigned int ch) {
+static inline bool IsAWordStart(uint ch) {
 	return (ch < 0x80) && (isalnum(ch) || ch == '_');
 }
 

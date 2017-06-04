@@ -412,10 +412,9 @@ static int updatewindow(z_streamp strm, const Bytef * end, unsigned copy)
 
 /* check function to use adler32() for zlib or crc32() for gzip */
 #ifdef GUNZIP
-#  define UPDATE(check, buf, len) \
-	(state->flags ? crc32(check, buf, len) : adler32(check, buf, len))
+	#define UPDATE(check, buf, len) (state->flags ? crc32(check, buf, len) : adler32(check, buf, len))
 #else
-#  define UPDATE(check, buf, len) adler32(check, buf, len)
+	#define UPDATE(check, buf, len) adler32(check, buf, len)
 #endif
 
 /* check macros for header crc */

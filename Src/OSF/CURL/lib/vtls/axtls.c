@@ -188,10 +188,8 @@ static CURLcode connect_prep(struct connectdata * conn, int sockindex)
 
 	/* Load the trusted CA cert bundle file */
 	if(SSL_CONN_CONFIG(CAfile)) {
-		if(ssl_obj_load(ssl_ctx, SSL_OBJ_X509_CACERT,
-			    SSL_CONN_CONFIG(CAfile), NULL) != SSL_OK) {
-			infof(data, "error reading ca cert file %s \n",
-			    SSL_CONN_CONFIG(CAfile));
+		if(ssl_obj_load(ssl_ctx, SSL_OBJ_X509_CACERT, SSL_CONN_CONFIG(CAfile), NULL) != SSL_OK) {
+			infof(data, "error reading ca cert file %s \n", SSL_CONN_CONFIG(CAfile));
 			if(SSL_CONN_CONFIG(verifypeer)) {
 				return CURLE_SSL_CACERT_BADFILE;
 			}
@@ -363,29 +361,24 @@ static CURLcode connect_finish(struct connectdata * conn, int sockindex)
 				if(SSL_CONN_CONFIG(verifyhost)) {
 					/* Break connection ! */
 					Curl_axtls_close(conn, sockindex);
-					failf(data, "\tcommon name \"%s\" does not match \"%s\"\n",
-					    peer_CN, dispname);
+					failf(data, "\tcommon name \"%s\" does not match \"%s\"\n", peer_CN, dispname);
 					return CURLE_PEER_FAILED_VERIFICATION;
 				}
 				else
-					infof(data, "\tcommon name \"%s\" does not match \"%s\"\n",
-					    peer_CN, dispname);
+					infof(data, "\tcommon name \"%s\" does not match \"%s\"\n", peer_CN, dispname);
 			}
 		}
 	}
-
 	/* General housekeeping */
 	conn->ssl[sockindex].state = ssl_connection_complete;
 	conn->recv[sockindex] = axtls_recv;
 	conn->send[sockindex] = axtls_send;
-
 	/* Put our freshly minted SSL session in cache */
 	if(SSL_SET_OPTION(primary.sessionid)) {
 		const uint8_t * ssl_sessionid = ssl_get_session_id(ssl);
 		size_t ssl_idsize = ssl_get_session_id_size(ssl);
 		Curl_ssl_sessionid_lock(conn);
-		if(Curl_ssl_addsessionid(conn, (void*)ssl_sessionid, ssl_idsize,
-			    sockindex) != CURLE_OK)
+		if(Curl_ssl_addsessionid(conn, (void*)ssl_sessionid, ssl_idsize, sockindex) != CURLE_OK)
 			infof(data, "failed to add session to cache\n");
 		Curl_ssl_sessionid_unlock(conn);
 	}
@@ -671,7 +664,7 @@ size_t Curl_axtls_version(char * buffer, size_t size)
 	return snprintf(buffer, size, "axTLS/%s", ssl_version());
 }
 
-CURLcode Curl_axtls_random(struct Curl_easy * data, unsigned char * entropy, size_t length)
+CURLcode Curl_axtls_random(struct Curl_easy * data, uchar * entropy, size_t length)
 {
 	static bool ssl_seeded = FALSE;
 	(void)data;

@@ -133,7 +133,7 @@ krb5_encode(void *app_data, const void *from, int length, int level, void **to)
 
   /* malloc a new buffer, in case gss_release_buffer doesn't work as
      expected */
-  *to = malloc(enc.length);
+  *to = SAlloc::M(enc.length);
   if(!*to)
     return -1;
   memcpy(*to, enc.value, enc.length);
@@ -232,7 +232,7 @@ krb5_auth(void *app_data, struct connectdata *conn)
                                       NULL);
 
       if(gssresp) {
-        free(_gssresp.value);
+        SAlloc::F(_gssresp.value);
         gssresp = NULL;
       }
 
@@ -260,7 +260,7 @@ krb5_auth(void *app_data, struct connectdata *conn)
         else
           result = CURLE_OUT_OF_MEMORY;
 
-        free(p);
+        SAlloc::F(p);
 
         if(result) {
           ret = -2;
@@ -282,7 +282,7 @@ krb5_auth(void *app_data, struct connectdata *conn)
         p = strstr(p, "ADAT=");
         if(p) {
           result = Curl_base64_decode(p + 5,
-                                      (unsigned char **)&_gssresp.value,
+                                      (uchar **)&_gssresp.value,
                                       &_gssresp.length);
           if(result) {
             Curl_failf(data, "base64-decoding: %s",
@@ -300,7 +300,7 @@ krb5_auth(void *app_data, struct connectdata *conn)
     gss_release_buffer(&min, &output_buffer);
 
     if(gssresp)
-      free(_gssresp.value);
+      SAlloc::F(_gssresp.value);
 
     if(ret == AUTH_OK || service == srv_host)
       return ret;

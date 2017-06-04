@@ -9,7 +9,6 @@
  * Copyright 1998-2005 by Neil Hodgson <neilh@scintilla.org>
  * The License.txt file describes the conditions under which this software may be distributed.
  */
-
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
@@ -325,7 +324,7 @@ static bool IsStreamCommentStyle(int style)
  * Code copied from StyleContext and modified to work here. Should go into Accessor as a
  * companion to Match()...
  */
-bool MatchIgnoreCase(Accessor &styler, Sci_Position currentPos, const char *s)
+static bool MatchIgnoreCase(Accessor &styler, Sci_Position currentPos, const char *s)
 {
   for (Sci_Position n = 0; *s; n++)
   {
@@ -356,7 +355,7 @@ static void FoldMySQLDoc(Sci_PositionU startPos, Sci_Position length, int initSt
 	int styleNext = styler.StyleAt(startPos);
 	int style = initStyle;
   int activeState = (style == SCE_MYSQL_HIDDENCOMMAND) ? HIDDENCOMMAND_STATE : style & HIDDENCOMMAND_STATE;
-	
+
   bool endPending = false;
 	bool whenPending = false;
 	bool elseIfPending = false;
@@ -369,11 +368,11 @@ static void FoldMySQLDoc(Sci_PositionU startPos, Sci_Position length, int initSt
 		style = styleNext;
 		styleNext = styler.StyleAt(i + 1);
     activeState = (style == SCE_MYSQL_HIDDENCOMMAND) ? HIDDENCOMMAND_STATE : style & HIDDENCOMMAND_STATE;
-    
+
     char currentChar = nextChar;
     nextChar = styler.SafeGetCharAt(i + 1);
 		bool atEOL = (currentChar == '\r' && nextChar != '\n') || (currentChar == '\n');
-	
+
     switch (MASKACTIVE(style))
     {
       case SCE_MYSQL_COMMENT:
@@ -386,7 +385,7 @@ static void FoldMySQLDoc(Sci_PositionU startPos, Sci_Position length, int initSt
         break;
       case SCE_MYSQL_COMMENTLINE:
         if (foldComment)
-        { 
+        {
           // Not really a standard, but we add support for single line comments
           // with special curly braces syntax as foldable comments too.
           // MySQL needs -- comments to be followed by space or control char
@@ -494,12 +493,12 @@ static void FoldMySQLDoc(Sci_PositionU startPos, Sci_Position length, int initSt
                 }
               }
             }
-          
+
           // Keep the current end state for the next round.
           endPending = endFound;
         }
         break;
-        
+
       default:
         if (!isspacechar(currentChar) && endPending)
         {
@@ -541,7 +540,7 @@ static void FoldMySQLDoc(Sci_PositionU startPos, Sci_Position length, int initSt
         lev |= SC_FOLDLEVELHEADERFLAG;
       if (lev != styler.LevelAt(lineCurrent))
         styler.SetLevel(lineCurrent, lev);
-      
+
       lineCurrent++;
       levelCurrent = levelNext;
       visibleChars = 0;

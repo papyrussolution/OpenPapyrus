@@ -36,19 +36,18 @@
 
 #include "urldata.h"
 #include "sendf.h"
-#include "strcase.h"
+//#include "strcase.h"
 #include "http_ntlm.h"
 #include "curl_ntlm_wb.h"
 #include "vauth/vauth.h"
 #include "url.h"
 
 #if defined(USE_NSS)
-#include "vtls/nssg.h"
+	#include "vtls/nssg.h"
 #elif defined(USE_WINDOWS_SSPI)
-#include "curl_sspi.h"
+	#include "curl_sspi.h"
 #endif
-
-/* The last 3 #include files should be in this order */
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
@@ -179,11 +178,11 @@ CURLcode Curl_output_ntlm(struct connectdata * conn, bool proxy)
 			    return result;
 
 		    if(base64) {
-			    free(*allocuserpwd);
+			    SAlloc::F(*allocuserpwd);
 			    *allocuserpwd = aprintf("%sAuthorization: NTLM %s\r\n",
 			    proxy ? "Proxy-" : "",
 			    base64);
-			    free(base64);
+			    SAlloc::F(base64);
 			    if(!*allocuserpwd)
 				    return CURLE_OUT_OF_MEMORY;
 
@@ -199,11 +198,11 @@ CURLcode Curl_output_ntlm(struct connectdata * conn, bool proxy)
 			    return result;
 
 		    if(base64) {
-			    free(*allocuserpwd);
+			    SAlloc::F(*allocuserpwd);
 			    *allocuserpwd = aprintf("%sAuthorization: NTLM %s\r\n",
 			    proxy ? "Proxy-" : "",
 			    base64);
-			    free(base64);
+			    SAlloc::F(base64);
 			    if(!*allocuserpwd)
 				    return CURLE_OUT_OF_MEMORY;
 
@@ -220,7 +219,7 @@ CURLcode Curl_output_ntlm(struct connectdata * conn, bool proxy)
 		    ntlm->state = NTLMSTATE_LAST;
 		/* fall-through */
 		case NTLMSTATE_LAST:
-		    Curl_safefree(*allocuserpwd);
+		    ZFREE(*allocuserpwd);
 		    authp->done = TRUE;
 		    break;
 	}

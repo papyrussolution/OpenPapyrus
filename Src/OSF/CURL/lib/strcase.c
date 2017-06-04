@@ -23,7 +23,7 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include <curl/curl.h>
-#include "strcase.h"
+//#include "strcase.h"
 
 /* Portable, consistent toupper (remember EBCDIC). Do not use toupper() because
    its behavior is altered by the current locale. */

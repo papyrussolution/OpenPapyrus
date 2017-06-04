@@ -7,7 +7,8 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
+#include <stdexcept>
+#include <algorithm>
 #include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
@@ -158,8 +159,7 @@ bool RunStyles::FillRange(int &position, int value, int &fillLength) {
 	}
 }
 
-void RunStyles::SetValueAt(int position, int value)
-{
+void RunStyles::SetValueAt(int position, int value) {
 	int len = 1;
 	FillRange(position, value, len);
 }

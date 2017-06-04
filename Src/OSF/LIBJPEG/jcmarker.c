@@ -102,12 +102,10 @@ typedef my_marker_writer * my_marker_ptr;
  * points where markers will be written.
  */
 
-LOCAL(void)
-emit_byte(j_compress_ptr cinfo, int val)
+static void FASTCALL emit_byte(j_compress_ptr cinfo, int val)
 /* Emit a byte */
 {
 	struct jpeg_destination_mgr * dest = cinfo->dest;
-
 	*(dest->next_output_byte)++ = (JOCTET)val;
 	if(--dest->free_in_buffer == 0) {
 		if(!(*dest->empty_output_buffer)(cinfo))
@@ -115,52 +113,40 @@ emit_byte(j_compress_ptr cinfo, int val)
 	}
 }
 
-LOCAL(void)
-emit_marker(j_compress_ptr cinfo, JPEG_MARKER mark)
+static void FASTCALL emit_marker(j_compress_ptr cinfo, JPEG_MARKER mark)
 /* Emit a marker code */
 {
 	emit_byte(cinfo, 0xFF);
 	emit_byte(cinfo, (int)mark);
 }
 
-LOCAL(void)
-emit_2bytes(j_compress_ptr cinfo, int value)
+static void FASTCALL emit_2bytes(j_compress_ptr cinfo, int value)
 /* Emit a 2-byte integer; these are always MSB first in JPEG files */
 {
 	emit_byte(cinfo, (value >> 8) & 0xFF);
 	emit_byte(cinfo, value & 0xFF);
 }
-
 /*
  * Routines to write specific marker types.
  */
-
-LOCAL(int)
-emit_dqt(j_compress_ptr cinfo, int index)
+static int FASTCALL emit_dqt(j_compress_ptr cinfo, int index)
 /* Emit a DQT marker */
 /* Returns the precision used (0 = 8bits, 1 = 16bits) for baseline checking */
 {
 	JQUANT_TBL * qtbl = cinfo->quant_tbl_ptrs[index];
 	int prec;
 	int i;
-
 	if(qtbl == NULL)
 		ERREXIT1(cinfo, JERR_NO_QUANT_TABLE, index);
-
 	prec = 0;
 	for(i = 0; i <= cinfo->lim_Se; i++) {
 		if(qtbl->quantval[cinfo->natural_order[i]] > 255)
 			prec = 1;
 	}
-
 	if(!qtbl->sent_table) {
 		emit_marker(cinfo, M_DQT);
-
-		emit_2bytes(cinfo,
-		    prec ? cinfo->lim_Se * 2 + 2 + 1 + 2 : cinfo->lim_Se + 1 + 1 + 2);
-
+		emit_2bytes(cinfo, prec ? cinfo->lim_Se * 2 + 2 + 1 + 2 : cinfo->lim_Se + 1 + 1 + 2);
 		emit_byte(cinfo, index + (prec<<4));
-
 		for(i = 0; i <= cinfo->lim_Se; i++) {
 			/* The table entries must be emitted in zigzag order. */
 			unsigned int qval = qtbl->quantval[cinfo->natural_order[i]];
@@ -168,20 +154,17 @@ emit_dqt(j_compress_ptr cinfo, int index)
 				emit_byte(cinfo, (int)(qval >> 8));
 			emit_byte(cinfo, (int)(qval & 0xFF));
 		}
-
 		qtbl->sent_table = TRUE;
 	}
 
 	return prec;
 }
 
-LOCAL(void)
-emit_dht(j_compress_ptr cinfo, int index, boolean is_ac)
+static void emit_dht(j_compress_ptr cinfo, int index, boolean is_ac)
 /* Emit a DHT marker */
 {
 	JHUFF_TBL * htbl;
 	int length, i;
-
 	if(is_ac) {
 		htbl = cinfo->ac_huff_tbl_ptrs[index];
 		index += 0x10;  /* output index has AC bit set */
@@ -189,17 +172,13 @@ emit_dht(j_compress_ptr cinfo, int index, boolean is_ac)
 	else {
 		htbl = cinfo->dc_huff_tbl_ptrs[index];
 	}
-
 	if(htbl == NULL)
 		ERREXIT1(cinfo, JERR_NO_HUFF_TABLE, index);
-
 	if(!htbl->sent_table) {
 		emit_marker(cinfo, M_DHT);
-
 		length = 0;
 		for(i = 1; i <= 16; i++)
 			length += htbl->bits[i];
-
 		emit_2bytes(cinfo, length + 2 + 1 + 16);
 		emit_byte(cinfo, index);
 
@@ -213,8 +192,7 @@ emit_dht(j_compress_ptr cinfo, int index, boolean is_ac)
 	}
 }
 
-LOCAL(void)
-emit_dac(j_compress_ptr cinfo)
+static void FASTCALL emit_dac(j_compress_ptr cinfo)
 /* Emit a DAC marker */
 /* Since the useful info is so small, we want to emit all the tables in */
 /* one DAC marker.  Therefore this routine does its own scan of the table. */
@@ -261,30 +239,22 @@ emit_dac(j_compress_ptr cinfo)
 #endif /* C_ARITH_CODING_SUPPORTED */
 }
 
-LOCAL(void)
-emit_dri(j_compress_ptr cinfo)
+static void FASTCALL emit_dri(j_compress_ptr cinfo)
 /* Emit a DRI marker */
 {
 	emit_marker(cinfo, M_DRI);
-
 	emit_2bytes(cinfo, 4);  /* fixed length */
-
 	emit_2bytes(cinfo, (int)cinfo->restart_interval);
 }
 
-LOCAL(void)
-emit_lse_ict(j_compress_ptr cinfo)
+static void FASTCALL emit_lse_ict(j_compress_ptr cinfo)
 /* Emit an LSE inverse color transform specification marker */
 {
 	/* Support only 1 transform */
-	if(cinfo->color_transform != JCT_SUBTRACT_GREEN ||
-	    cinfo->num_components < 3)
+	if(cinfo->color_transform != JCT_SUBTRACT_GREEN || cinfo->num_components < 3)
 		ERREXIT(cinfo, JERR_CONVERSION_NOTIMPL);
-
 	emit_marker(cinfo, M_JPG8);
-
 	emit_2bytes(cinfo, 24); /* fixed length */
-
 	emit_byte(cinfo, 0x0D); /* ID inverse transform specification */
 	emit_2bytes(cinfo, MAXJSAMPLE); /* MAXTRANS */
 	emit_byte(cinfo, 3);    /* Nt=3 */
@@ -302,17 +272,13 @@ emit_lse_ict(j_compress_ptr cinfo)
 	emit_2bytes(cinfo, 0);  /* A(3,2)=0 */
 }
 
-LOCAL(void)
-emit_sof(j_compress_ptr cinfo, JPEG_MARKER code)
+static void FASTCALL emit_sof(j_compress_ptr cinfo, JPEG_MARKER code)
 /* Emit a SOF marker */
 {
 	int ci;
 	jpeg_component_info * compptr;
-
 	emit_marker(cinfo, code);
-
 	emit_2bytes(cinfo, 3 * cinfo->num_components + 2 + 5 + 1); /* length */
-
 	/* Make sure image isn't bigger than SOF field can handle */
 	if((long)cinfo->jpeg_height > 65535L ||
 	    (long)cinfo->jpeg_width > 65535L)
@@ -332,57 +298,43 @@ emit_sof(j_compress_ptr cinfo, JPEG_MARKER code)
 	}
 }
 
-LOCAL(void)
-emit_sos(j_compress_ptr cinfo)
+static void emit_sos(j_compress_ptr cinfo)
 /* Emit a SOS marker */
 {
 	int i, td, ta;
 	jpeg_component_info * compptr;
-
 	emit_marker(cinfo, M_SOS);
-
 	emit_2bytes(cinfo, 2 * cinfo->comps_in_scan + 2 + 1 + 3); /* length */
-
 	emit_byte(cinfo, cinfo->comps_in_scan);
-
 	for(i = 0; i < cinfo->comps_in_scan; i++) {
 		compptr = cinfo->cur_comp_info[i];
 		emit_byte(cinfo, compptr->component_id);
-
 		/* We emit 0 for unused field(s); this is recommended by the P&M text
 		 * but does not seem to be specified in the standard.
 		 */
-
 		/* DC needs no table for refinement scan */
 		td = cinfo->Ss == 0 && cinfo->Ah == 0 ? compptr->dc_tbl_no : 0;
 		/* AC needs no table when not present */
 		ta = cinfo->Se ? compptr->ac_tbl_no : 0;
-
 		emit_byte(cinfo, (td << 4) + ta);
 	}
-
 	emit_byte(cinfo, cinfo->Ss);
 	emit_byte(cinfo, cinfo->Se);
 	emit_byte(cinfo, (cinfo->Ah << 4) + cinfo->Al);
 }
 
-LOCAL(void)
-emit_pseudo_sos(j_compress_ptr cinfo)
+static void emit_pseudo_sos(j_compress_ptr cinfo)
 /* Emit a pseudo SOS marker */
 {
 	emit_marker(cinfo, M_SOS);
-
 	emit_2bytes(cinfo, 2 + 1 + 3); /* length */
-
 	emit_byte(cinfo, 0); /* Ns */
-
 	emit_byte(cinfo, 0); /* Ss */
 	emit_byte(cinfo, cinfo->block_size * cinfo->block_size - 1); /* Se */
 	emit_byte(cinfo, 0); /* Ah/Al */
 }
 
-LOCAL(void)
-emit_jfif_app0(j_compress_ptr cinfo)
+static void emit_jfif_app0(j_compress_ptr cinfo)
 /* Emit a JFIF-compliant APP0 marker */
 {
 	/*
@@ -396,11 +348,8 @@ emit_jfif_app0(j_compress_ptr cinfo)
 	 * Thumbnail X size		(1 byte)
 	 * Thumbnail Y size		(1 byte)
 	 */
-
 	emit_marker(cinfo, M_APP0);
-
 	emit_2bytes(cinfo, 2 + 4 + 1 + 2 + 1 + 2 + 2 + 1 + 1); /* length */
-
 	emit_byte(cinfo, 0x4A); /* Identifier: ASCII "JFIF" */
 	emit_byte(cinfo, 0x46);
 	emit_byte(cinfo, 0x49);
@@ -415,8 +364,7 @@ emit_jfif_app0(j_compress_ptr cinfo)
 	emit_byte(cinfo, 0);
 }
 
-LOCAL(void)
-emit_adobe_app14(j_compress_ptr cinfo)
+static void emit_adobe_app14(j_compress_ptr cinfo)
 /* Emit an Adobe APP14 marker */
 {
 	/*
@@ -434,11 +382,8 @@ emit_adobe_app14(j_compress_ptr cinfo)
 	 * YCbCr, 2 if it's YCCK, 0 otherwise.  Adobe's definition has to do with
 	 * whether the encoder performed a transformation, which is pretty useless.
 	 */
-
 	emit_marker(cinfo, M_APP14);
-
 	emit_2bytes(cinfo, 2 + 5 + 2 + 2 + 2 + 1); /* length */
-
 	emit_byte(cinfo, 0x41); /* Identifier: ASCII "Adobe" */
 	emit_byte(cinfo, 0x64);
 	emit_byte(cinfo, 0x6F);
@@ -473,9 +418,7 @@ METHODDEF(void) write_marker_header(j_compress_ptr cinfo, int marker, unsigned i
 {
 	if(datalen > (unsigned int)65533)       /* safety check */
 		ERREXIT(cinfo, JERR_BAD_LENGTH);
-
 	emit_marker(cinfo, (JPEG_MARKER)marker);
-
 	emit_2bytes(cinfo, (int)(datalen + 2)); /* total length */
 }
 
@@ -499,12 +442,9 @@ METHODDEF(void) write_marker_byte(j_compress_ptr cinfo, int val)
 METHODDEF(void) write_file_header(j_compress_ptr cinfo)
 {
 	my_marker_ptr marker = (my_marker_ptr)cinfo->marker;
-
 	emit_marker(cinfo, M_SOI); /* first the SOI */
-
 	/* SOI is defined to reset restart interval to 0 */
 	marker->last_restart_interval = 0;
-
 	if(cinfo->write_JFIF_header) /* next an optional JFIF APP0 */
 		emit_jfif_app0(cinfo);
 	if(cinfo->write_Adobe_marker) /* next an optional Adobe APP14 */
@@ -522,14 +462,13 @@ METHODDEF(void) write_file_header(j_compress_ptr cinfo)
 
 METHODDEF(void) write_frame_header(j_compress_ptr cinfo)
 {
-	int ci, prec;
+	int ci;
 	boolean is_baseline;
 	jpeg_component_info * compptr;
-
 	/* Emit DQT for each quantization table.
 	 * Note that emit_dqt() suppresses any duplicate tables.
 	 */
-	prec = 0;
+	int prec = 0;
 	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components;
 	    ci++, compptr++) {
 		prec += emit_dqt(cinfo, compptr->quant_tbl_no);
@@ -539,14 +478,12 @@ METHODDEF(void) write_frame_header(j_compress_ptr cinfo)
 	/* Check for a non-baseline specification.
 	 * Note we assume that Huffman table numbers won't be changed later.
 	 */
-	if(cinfo->arith_code || cinfo->progressive_mode ||
-	    cinfo->data_precision != 8 || cinfo->block_size != DCTSIZE) {
+	if(cinfo->arith_code || cinfo->progressive_mode || cinfo->data_precision != 8 || cinfo->block_size != DCTSIZE) {
 		is_baseline = FALSE;
 	}
 	else {
 		is_baseline = TRUE;
-		for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components;
-		    ci++, compptr++) {
+		for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components; ci++, compptr++) {
 			if(compptr->dc_tbl_no > 1 || compptr->ac_tbl_no > 1)
 				is_baseline = FALSE;
 		}
@@ -593,7 +530,6 @@ METHODDEF(void) write_scan_header(j_compress_ptr cinfo)
 	my_marker_ptr marker = (my_marker_ptr)cinfo->marker;
 	int i;
 	jpeg_component_info * compptr;
-
 	if(cinfo->arith_code) {
 		/* Emit arith conditioning info.  We may have some duplication
 		 * if the file has multiple scans, but it's so small it's hardly
@@ -646,14 +582,11 @@ METHODDEF(void) write_file_trailer(j_compress_ptr cinfo)
 METHODDEF(void) write_tables_only(j_compress_ptr cinfo)
 {
 	int i;
-
 	emit_marker(cinfo, M_SOI);
-
 	for(i = 0; i < NUM_QUANT_TBLS; i++) {
 		if(cinfo->quant_tbl_ptrs[i] != NULL)
 			(void)emit_dqt(cinfo, i);
 	}
-
 	if(!cinfo->arith_code) {
 		for(i = 0; i < NUM_HUFF_TBLS; i++) {
 			if(cinfo->dc_huff_tbl_ptrs[i] != NULL)
@@ -672,12 +605,8 @@ METHODDEF(void) write_tables_only(j_compress_ptr cinfo)
 
 GLOBAL(void) jinit_marker_writer(j_compress_ptr cinfo)
 {
-	my_marker_ptr marker;
-
 	/* Create the subobject */
-	marker = (my_marker_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    SIZEOF(my_marker_writer));
+	my_marker_ptr marker = (my_marker_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(my_marker_writer));
 	cinfo->marker = &marker->pub;
 	/* Initialize method pointers */
 	marker->pub.write_file_header = write_file_header;

@@ -99,11 +99,11 @@ void term_source(j_decompress_ptr cinfo)
 
 struct jpeg_decompress_struct * _zbar_jpeg_decomp_create(void)
 {
-	j_decompress_ptr cinfo = (j_decompress_ptr)calloc(1, sizeof(struct jpeg_decompress_struct));
+	j_decompress_ptr cinfo = (j_decompress_ptr)SAlloc::C(1, sizeof(struct jpeg_decompress_struct));
 	if(cinfo) {
-		errenv_t * jerr = (errenv_t *)calloc(1, sizeof(errenv_t));
+		errenv_t * jerr = (errenv_t *)SAlloc::C(1, sizeof(errenv_t));
 		if(!jerr) {
-			free(cinfo);
+			SAlloc::F(cinfo);
 			return(NULL);
 		}
 		else {
@@ -114,8 +114,8 @@ struct jpeg_decompress_struct * _zbar_jpeg_decomp_create(void)
 				jpeg_destroy_decompress(cinfo);
 				/* FIXME TBD save error to errinfo_t */
 				(*cinfo->err->output_message)((j_common_ptr)cinfo);
-				free(jerr);
-				free(cinfo);
+				SAlloc::F(jerr);
+				SAlloc::F(cinfo);
 				return(NULL);
 			}
 			jpeg_create_decompress(cinfo);
@@ -131,7 +131,7 @@ void _zbar_jpeg_decomp_destroy(struct jpeg_decompress_struct * cinfo)
 	ZFREE(cinfo->src);
 	// FIXME can this error? 
 	jpeg_destroy_decompress(cinfo);
-	free(cinfo);
+	SAlloc::F(cinfo);
 }
 
 /* invoke libjpeg to decompress JPEG format to luminance plane */
@@ -156,7 +156,7 @@ void _zbar_convert_jpeg_to_y(zbar_image_t * dst, const zbar_format_def_t * dstfm
 		/* FIXME TBD save error to src->src->err */
 		(*cinfo->err->output_message)((j_common_ptr)cinfo);
 		if(dst->P_Data) {
-			free((void*)dst->P_Data);
+			SAlloc::F((void*)dst->P_Data);
 			dst->P_Data = NULL;
 		}
 		dst->datalen = 0;
@@ -165,7 +165,7 @@ void _zbar_convert_jpeg_to_y(zbar_image_t * dst, const zbar_format_def_t * dstfm
 
 	/* setup input image */
 	if(!cinfo->src) {
-		cinfo->src = (jpeg_source_mgr *)calloc(1, sizeof(zbar_src_mgr_t));
+		cinfo->src = (jpeg_source_mgr *)SAlloc::C(1, sizeof(zbar_src_mgr_t));
 		cinfo->src->init_source = init_source;
 		cinfo->src->fill_input_buffer = fill_input_buffer;
 		cinfo->src->skip_input_data = skip_input_data;

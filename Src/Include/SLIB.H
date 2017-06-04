@@ -8907,6 +8907,8 @@ uint64 FASTCALL sexpanduint64(const void * pBuf, uint size);
 //
 //
 //
+int    FASTCALL smax(int a, int b);
+int    FASTCALL smin(int a, int b);
 double SLAPI smax(double a, double b);
 double SLAPI smin(double a, double b);
 float  SLAPI smax(float a, float b);

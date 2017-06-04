@@ -310,10 +310,7 @@ static const int jpeg_zigzag_order2[2][2] = {
  * Compute the derived values for a Huffman table.
  * This routine also performs some validation checks on the table.
  */
-
-LOCAL(void)
-jpeg_make_d_derived_tbl(j_decompress_ptr cinfo, boolean isDC, int tblno,
-    d_derived_tbl **pdtbl)
+static void jpeg_make_d_derived_tbl(j_decompress_ptr cinfo, boolean isDC, int tblno, d_derived_tbl **pdtbl)
 {
 	JHUFF_TBL * htbl;
 	d_derived_tbl * dtbl;
@@ -452,8 +449,7 @@ jpeg_make_d_derived_tbl(j_decompress_ptr cinfo, boolean isDC, int tblno,
 #define MIN_GET_BITS  (BIT_BUF_SIZE-7)
 #endif
 
-LOCAL(boolean)
-jpeg_fill_bit_buffer(bitread_working_state * state,
+LOCAL(boolean) jpeg_fill_bit_buffer(bitread_working_state * state,
     register bit_buf_type get_buffer, register int bits_left,
     int nbits)
 /* Load up the bit buffer to a depth of at least nbits */
@@ -578,9 +574,7 @@ static const int bmask[16] =    /* bmask[n] is mask for n rightmost bits */
 /*
  * Out-of-line code for Huffman code decoding.
  */
-
-LOCAL(int)
-jpeg_huff_decode(bitread_working_state * state,
+static int jpeg_huff_decode(bitread_working_state * state,
     register bit_buf_type get_buffer, register int bits_left,
     d_derived_tbl * htbl, int min_bits)
 {
@@ -635,15 +629,11 @@ METHODDEF(void) finish_pass_huff(j_decompress_ptr cinfo)
  * Check for a restart marker & resynchronize decoder.
  * Returns FALSE if must suspend.
  */
-
-LOCAL(boolean)
-process_restart(j_decompress_ptr cinfo)
+LOCAL(boolean) process_restart(j_decompress_ptr cinfo)
 {
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
 	int ci;
-
 	finish_pass_huff(cinfo);
-
 	/* Advance past the RSTn marker */
 	if(!(*cinfo->marker->read_restart_marker)(cinfo))
 		return FALSE;
@@ -769,7 +759,6 @@ METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 	JBLOCKROW block;
 	BITREAD_STATE_VARS;
 	d_derived_tbl * tbl;
-
 	/* Process restart marker if needed; may have to suspend */
 	if(cinfo->restart_interval) {
 		if(entropy->restarts_to_go == 0)

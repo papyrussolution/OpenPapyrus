@@ -126,9 +126,9 @@ static char * vms_getenv(const char * envvar)
 	result = vms_translate_path(vms_path);
 
 	/* note that if you backport this to use VAX C RTL, that the VAX C RTL */
-	/* may do a malloc(2048) for each call to getenv(), so you will need   */
-	/* to add a free(vms_path) */
-	/* Do not do a free() for DEC C RTL builds, which should be used for */
+	/* may do a SAlloc::M(2048) for each call to getenv(), so you will need   */
+	/* to add a SAlloc::F(vms_path) */
+	/* Do not do a SAlloc::F() for DEC C RTL builds, which should be used for */
 	/* VMS 5.5-2 and later, even if using GCC */
 
 	return result;
@@ -205,7 +205,7 @@ static struct passwd * vms_getpwuid(uid_t uid)
 #    undef CONF_modules_load_file
 static int CONF_modules_load_file(const char * filename,
     const char * appname,
-    unsigned long flags)
+    ulong flags)
 {
 	return 1;
 }

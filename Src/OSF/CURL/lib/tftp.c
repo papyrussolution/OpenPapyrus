@@ -52,7 +52,7 @@
 #include "sockaddr.h" /* required for Curl_sockaddr_storage */
 #include "multiif.h"
 #include "url.h"
-#include "strcase.h"
+//#include "strcase.h"
 #include "speedcheck.h"
 #include "select.h"
 #include "escape.h"
@@ -113,7 +113,7 @@ typedef enum {
 } tftp_error_t;
 
 typedef struct tftp_packet {
-	unsigned char * data;
+	uchar * data;
 } tftp_packet_t;
 
 typedef struct tftp_state_data {
@@ -130,7 +130,7 @@ typedef struct tftp_state_data {
 	time_t start_time;
 	time_t max_time;
 	time_t rx_time;
-	unsigned short block;
+	ushort block;
 	struct Curl_sockaddr_storage local_addr;
 
 	struct Curl_sockaddr_storage remote_addr;
@@ -272,26 +272,26 @@ static CURLcode tftp_set_timeouts(tftp_state_data_t * state)
 *
 **********************************************************/
 
-static void setpacketevent(tftp_packet_t * packet, unsigned short num)
+static void setpacketevent(tftp_packet_t * packet, ushort num)
 {
-	packet->data[0] = (unsigned char)(num >> 8);
-	packet->data[1] = (unsigned char)(num & 0xff);
+	packet->data[0] = (uchar)(num >> 8);
+	packet->data[1] = (uchar)(num & 0xff);
 }
 
-static void setpacketblock(tftp_packet_t * packet, unsigned short num)
+static void setpacketblock(tftp_packet_t * packet, ushort num)
 {
-	packet->data[2] = (unsigned char)(num >> 8);
-	packet->data[3] = (unsigned char)(num & 0xff);
+	packet->data[2] = (uchar)(num >> 8);
+	packet->data[3] = (uchar)(num & 0xff);
 }
 
-static unsigned short getrpacketevent(const tftp_packet_t * packet)
+static ushort getrpacketevent(const tftp_packet_t * packet)
 {
-	return (unsigned short)((packet->data[0] << 8) | packet->data[1]);
+	return (ushort)((packet->data[0] << 8) | packet->data[1]);
 }
 
-static unsigned short getrpacketblock(const tftp_packet_t * packet)
+static ushort getrpacketblock(const tftp_packet_t * packet)
 {
-	return (unsigned short)((packet->data[2] << 8) | packet->data[3]);
+	return (ushort)((packet->data[2] << 8) | packet->data[3]);
 }
 
 static size_t Curl_strnlen(const char * string, size_t maxlen)
@@ -516,7 +516,7 @@ static CURLcode tftp_send_first(tftp_state_data_t * state, tftp_event_t event)
 		    if(senddata != (ssize_t)sbytes) {
 			    failf(data, "%s", Curl_strerror(state->conn, SOCKERRNO));
 		    }
-		    free(filename);
+		    SAlloc::F(filename);
 		    break;
 
 		case TFTP_EVENT_OACK:
@@ -587,7 +587,7 @@ static CURLcode tftp_rx(tftp_state_data_t * state, tftp_event_t event)
 		    }
 
 		    /* ACK this block. */
-		    state->block = (unsigned short)rblock;
+		    state->block = (ushort)rblock;
 		    setpacketevent(&state->spacket, TFTP_EVENT_ACK);
 		    setpacketblock(&state->spacket, state->block);
 		    sbytes = sendto(state->sockfd, (const char *)state->spacket.data, 4, SEND_4TH_ARG, (struct sockaddr*)&state->remote_addr, state->remote_addrlen);
@@ -896,9 +896,9 @@ static CURLcode tftp_disconnect(struct connectdata * conn, bool dead_connection)
 
 	/* done, free dynamically allocated pkt buffers */
 	if(state) {
-		Curl_safefree(state->rpacket.data);
-		Curl_safefree(state->spacket.data);
-		free(state);
+		ZFREE(state->rpacket.data);
+		ZFREE(state->spacket.data);
+		SAlloc::F(state);
 	}
 
 	return CURLE_OK;
@@ -915,7 +915,7 @@ static CURLcode tftp_connect(struct connectdata * conn, bool * done)
 {
 	int rc;
 	int blksize = TFTP_BLKSIZE_DEFAULT;
-	tftp_state_data_t * state = conn->proto.tftpc = (tftp_state_data_t *)calloc(1, sizeof(tftp_state_data_t));
+	tftp_state_data_t * state = conn->proto.tftpc = (tftp_state_data_t *)SAlloc::C(1, sizeof(tftp_state_data_t));
 	if(!state)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -926,12 +926,12 @@ static CURLcode tftp_connect(struct connectdata * conn, bool * done)
 			return CURLE_TFTP_ILLEGAL;
 	}
 	if(!state->rpacket.data) {
-		state->rpacket.data = (unsigned char *)calloc(1, blksize + 2 + 2);
+		state->rpacket.data = (uchar *)SAlloc::C(1, blksize + 2 + 2);
 		if(!state->rpacket.data)
 			return CURLE_OUT_OF_MEMORY;
 	}
 	if(!state->spacket.data) {
-		state->spacket.data = (unsigned char *)calloc(1, blksize + 2 + 2);
+		state->spacket.data = (uchar *)SAlloc::C(1, blksize + 2 + 2);
 		if(!state->spacket.data)
 			return CURLE_OUT_OF_MEMORY;
 	}
@@ -945,7 +945,7 @@ static CURLcode tftp_connect(struct connectdata * conn, bool * done)
 	state->requested_blksize = blksize;
 
 	((struct sockaddr*)&state->local_addr)->sa_family =
-	    (unsigned short)(conn->ip_addr->ai_family);
+	    (ushort)(conn->ip_addr->ai_family);
 
 	tftp_set_timeouts(state);
 

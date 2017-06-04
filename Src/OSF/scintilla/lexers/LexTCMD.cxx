@@ -9,7 +9,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "WordList.h"
@@ -43,11 +42,11 @@ static bool IsBSeparator(char ch) {
 }
 
 // Find length of CMD FOR variable with modifier (%~...) or return 0
-static unsigned int GetBatchVarLen( char *wordBuffer )
+static uint GetBatchVarLen( char *wordBuffer )
 {
 	int nLength = 0;
 	if ( wordBuffer[0] == '%' ) {
-		
+
 		if ( wordBuffer[1] == '~' )
 			nLength = 2;
 		else if (( wordBuffer[1] == '%' ) && ( wordBuffer[2] == '~' ))
@@ -239,7 +238,7 @@ static void ColouriseTCMDLine( char *lineBuffer, Sci_PositionU lengthLine, Sci_P
 			if ((CompareCaseInsensitive(sKeywordBuffer, "echo") == 0) ||
 			  (CompareCaseInsensitive(sKeywordBuffer, "echos") == 0) ||
 			  (CompareCaseInsensitive(sKeywordBuffer, "echoerr") == 0) ||
-			  (CompareCaseInsensitive(sKeywordBuffer, "echoserr") == 0) || 
+			  (CompareCaseInsensitive(sKeywordBuffer, "echoserr") == 0) ||
 			  (CompareCaseInsensitive(sKeywordBuffer, "cd") == 0) ||
 			  (CompareCaseInsensitive(sKeywordBuffer, "path") == 0) ||
 			  (CompareCaseInsensitive(sKeywordBuffer, "prompt") == 0)) {
@@ -270,8 +269,8 @@ static void ColouriseTCMDLine( char *lineBuffer, Sci_PositionU lengthLine, Sci_P
 
 		// Check for Argument  (%n), Environment Variable (%x...%) or Local Variable (%%a)
 		} else if (wordBuffer[0] == '%') {
-			unsigned int varlen;
-			unsigned int n = 1;
+			uint varlen;
+			uint n = 1;
 			// Colorize Default Text
 			styler.ColourTo(startLine + offset - 1 - wbl, SCE_TCMD_DEFAULT);
 			wbo++;

@@ -8,7 +8,7 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
+#include <string>
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "PropSetSimple.h"

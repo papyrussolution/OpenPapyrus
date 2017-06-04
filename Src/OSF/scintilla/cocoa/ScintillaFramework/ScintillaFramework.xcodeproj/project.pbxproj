@@ -125,7 +125,7 @@
 		114B6F9D11FA75BE004FB6AB /* PropSetSimple.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 114B6F9411FA75BE004FB6AB /* PropSetSimple.cxx */; };
 		114B6F9E11FA75BE004FB6AB /* StyleContext.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 114B6F9511FA75BE004FB6AB /* StyleContext.cxx */; };
 		114B6F9F11FA75BE004FB6AB /* WordList.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 114B6F9611FA75BE004FB6AB /* WordList.cxx */; };
-		114B6FA111FA75DB004FB6AB /* ILexer.h in Headers */ = {isa = PBXBuildFile; fileRef = 114B6FA011FA75DB004FB6AB /* ILexer.h */; };
+		114B6FA111FA75DB004FB6AB /* ILexer.h in Headers */ = {isa = PBXBuildFile; fileRef = 114B6FA011FA75DB004FB6AB /* ILexer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		114B6FBD11FA7623004FB6AB /* AutoComplete.h in Headers */ = {isa = PBXBuildFile; fileRef = 114B6FA211FA7623004FB6AB /* AutoComplete.h */; };
 		114B6FBE11FA7623004FB6AB /* CallTip.h in Headers */ = {isa = PBXBuildFile; fileRef = 114B6FA311FA7623004FB6AB /* CallTip.h */; };
 		114B6FBF11FA7623004FB6AB /* Catalogue.h in Headers */ = {isa = PBXBuildFile; fileRef = 114B6FA411FA7623004FB6AB /* Catalogue.h */; };
@@ -214,6 +214,9 @@
 		28B647101B54C0720009DC49 /* LexNull.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 28B6470A1B54C0720009DC49 /* LexNull.cxx */; };
 		28B647111B54C0720009DC49 /* LexProps.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 28B6470B1B54C0720009DC49 /* LexProps.cxx */; };
 		28BC38EC1B74C6AD008BF9EB /* Sci_Position.h in Headers */ = {isa = PBXBuildFile; fileRef = 28BC38EB1B74C6AD008BF9EB /* Sci_Position.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		28C40CA81CB7321200B089F2 /* LexJSON.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 28C40CA71CB7321200B089F2 /* LexJSON.cxx */; };
+		28D191A21DEA72C800159938 /* LexEDIFACT.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 28D191A11DEA72C800159938 /* LexEDIFACT.cxx */; };
+		28D1919E1DE69FC100159938 /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		28D516D81830FFCA0047C93D /* info_bar_bg@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 28D516D51830FFCA0047C93D /* info_bar_bg@2x.png */; };
 		28D516D91830FFCA0047C93D /* mac_cursor_busy@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 28D516D61830FFCA0047C93D /* mac_cursor_busy@2x.png */; };
 		28D516DA1830FFCA0047C93D /* mac_cursor_flipped@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 28D516D71830FFCA0047C93D /* mac_cursor_flipped@2x.png */; };
@@ -434,6 +437,8 @@
 		28B6470A1B54C0720009DC49 /* LexNull.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LexNull.cxx; path = ../../lexers/LexNull.cxx; sourceTree = "<group>"; };
 		28B6470B1B54C0720009DC49 /* LexProps.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LexProps.cxx; path = ../../lexers/LexProps.cxx; sourceTree = "<group>"; };
 		28BC38EB1B74C6AD008BF9EB /* Sci_Position.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sci_Position.h; path = ../../include/Sci_Position.h; sourceTree = "<group>"; };
+		28C40CA71CB7321200B089F2 /* LexJSON.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LexJSON.cxx; path = ../../lexers/LexJSON.cxx; sourceTree = "<group>"; };
+		28D191A11DEA72C800159938 /* LexEDIFACT.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LexEDIFACT.cxx; path = ../../lexers/LexEDIFACT.cxx; sourceTree = "<group>"; };
 		28D516D51830FFCA0047C93D /* info_bar_bg@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info_bar_bg@2x.png"; sourceTree = "<group>"; };
 		28D516D61830FFCA0047C93D /* mac_cursor_busy@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mac_cursor_busy@2x.png"; sourceTree = "<group>"; };
 		28D516D71830FFCA0047C93D /* mac_cursor_flipped@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mac_cursor_flipped@2x.png"; sourceTree = "<group>"; };
@@ -501,6 +506,7 @@
 		08FB77AEFE84172EC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				28D1919E1DE69FC100159938 /* module.modulemap */,
 				2744E4980FC167ED00E85C33 /* Source Files */,
 				2744E4970FC167E400E85C33 /* Header Files */,
 			);
@@ -569,6 +575,7 @@
 				11FF3FE11810EB3900E13F13 /* LexDMAP.cxx */,
 				28064A04190F12E100E6E47F /* LexDMIS.cxx */,
 				11BEB6A114EF189600BDE92A /* LexECL.cxx */,
+				28D191A11DEA72C800159938 /* LexEDIFACT.cxx */,
 				114B6ED411FA7526004FB6AB /* LexEiffel.cxx */,
 				114B6ED511FA7526004FB6AB /* LexErlang.cxx */,
 				28B647081B54C0720009DC49 /* LexErrorList.cxx */,
@@ -582,6 +589,7 @@
 				28A067101A36B42600B4966A /* LexHex.cxx */,
 				114B6EDD11FA7526004FB6AB /* LexHTML.cxx */,
 				114B6EDE11FA7526004FB6AB /* LexInno.cxx */,
+				28C40CA71CB7321200B089F2 /* LexJSON.cxx */,
 				114B6EDF11FA7526004FB6AB /* LexKix.cxx */,
 				11FDD0DF17C480D4001541B9 /* LexKVIrc.cxx */,
 				1102C31B169FB49300DC16AB /* LexLaTeX.cxx */,
@@ -804,6 +812,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				28BC38EC1B74C6AD008BF9EB /* Sci_Position.h in Headers */,
+				114B6FA111FA75DB004FB6AB /* ILexer.h in Headers */,
 				2744E5A40FC168A100E85C33 /* InfoBar.h in Headers */,
 				2744E5AC0FC168B200E85C33 /* InfoBarCommunicator.h in Headers */,
 				2744E5AA0FC168A100E85C33 /* ScintillaView.h in Headers */,
@@ -815,7 +824,6 @@
 				2791F3E00FC1A390009DBCF9 /* ScintillaCocoa.h in Headers */,
 				2791F3C70FC19F71009DBCF9 /* Platform.h in Headers */,
 				2791F3C90FC19F71009DBCF9 /* Scintilla.h in Headers */,
-				114B6FA111FA75DB004FB6AB /* ILexer.h in Headers */,
 				114B6FBD11FA7623004FB6AB /* AutoComplete.h in Headers */,
 				114B6FBE11FA7623004FB6AB /* CallTip.h in Headers */,
 				114B6FBF11FA7623004FB6AB /* Catalogue.h in Headers */,
@@ -894,7 +902,7 @@
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0800;
 			};
 			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "ScintillaFramework" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -942,6 +950,7 @@
 				2744E5B30FC168C500E85C33 /* PlatCocoa.mm in Sources */,
 				2744E5B50FC168C500E85C33 /* ScintillaCocoa.mm in Sources */,
 				2744E5B60FC168C500E85C33 /* ScintillaView.mm in Sources */,
+				28D191A21DEA72C800159938 /* LexEDIFACT.cxx in Sources */,
 				114B6F0D11FA7526004FB6AB /* LexAbaqus.cxx in Sources */,
 				114B6F0E11FA7526004FB6AB /* LexAda.cxx in Sources */,
 				28B6470C1B54C0720009DC49 /* LexBatch.cxx in Sources */,
@@ -959,6 +968,7 @@
 				114B6F1911FA7526004FB6AB /* LexCaml.cxx in Sources */,
 				114B6F1A11FA7526004FB6AB /* LexCLW.cxx in Sources */,
 				114B6F1B11FA7526004FB6AB /* LexCmake.cxx in Sources */,
+				28C40CA81CB7321200B089F2 /* LexJSON.cxx in Sources */,
 				114B6F1C11FA7526004FB6AB /* LexCOBOL.cxx in Sources */,
 				114B6F1D11FA7526004FB6AB /* LexConf.cxx in Sources */,
 				28B647101B54C0720009DC49 /* LexNull.cxx in Sources */,
@@ -1106,6 +1116,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = ".bzr *.nib *.lproj *.framework *.gch (*) CVS .svn *.xcodeproj *.xcode *.pbproj *.pbxproj";
@@ -1126,6 +1137,8 @@
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MODULEMAP_FILE = module.modulemap;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.sun.${PRODUCT_NAME:identifier}";
 				PRODUCT_NAME = Scintilla;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = framework;
@@ -1139,6 +1152,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
@@ -1156,6 +1170,8 @@
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MODULEMAP_FILE = module.modulemap;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.sun.${PRODUCT_NAME:identifier}";
 				PRODUCT_NAME = Scintilla;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = framework;
@@ -1165,10 +1181,27 @@
 		1DEB91B208733DA50010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					../../include,
@@ -1184,9 +1217,25 @@
 		1DEB91B308733DA50010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					../../include,

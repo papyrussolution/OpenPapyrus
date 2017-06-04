@@ -191,7 +191,7 @@ static inline char size_buf(zbar_decoder_t * dcode, uint len)
 			SETMIN(len, BUFFER_MAX);
 		}
 		{
-			uchar * buf = (uchar *)realloc(dcode->buf, len);
+			uchar * buf = (uchar *)SAlloc::R(dcode->buf, len);
 			if(!buf)
 				return 1;
 			else {

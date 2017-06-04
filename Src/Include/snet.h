@@ -288,16 +288,16 @@ private:
 class InetUrl : public InetAddr {
 public:
 	enum { // @persistent
-		protUnkn     = 0,
-		protHttp     = 1,  // http
-		protHttps    = 2,  // https
-		protFtp      = 3,  // ftp
-		protGopher   = 4,  // gopher
-		protMailto   = 5,  // mailto
-		protNews     = 6,
-		protNntp     = 7,
-		protIrc      = 8,
-		protProspero = 9,
+		protUnkn     =  0,
+		protHttp     =  1,  // http
+		protHttps    =  2,  // https
+		protFtp      =  3,  // ftp
+		protGopher   =  4,  // gopher
+		protMailto   =  5,  // mailto
+		protNews     =  6,
+		protNntp     =  7,
+		protIrc      =  8,
+		protProspero =  9,
 		protTelnet   = 10,
 		protWais     = 11,
 		protXmpp     = 12,
@@ -311,7 +311,19 @@ public:
 		protPOP3     = 20, // Протокол получения почты
 		protPOP3S    = 21, // Протокол получения почты (SSL)
 		protIMAP     = 22, // Internet Message Access Protocol
-		protIMAPS    = 23  // Internet Message Access Protocol (SSL)
+		protIMAPS    = 23, // Internet Message Access Protocol (SSL)
+		protFtps     = 24, // ftps
+		protTFtp     = 25,
+		protDict     = 26,
+		protSSH      = 27,
+		protSMB      = 28,
+		protSMBS     = 29,
+		protRTSP     = 30,
+		protRTMP     = 31,
+		protRTMPT    = 32,
+		protRTMPS    = 33,
+		protLDAP     = 34,
+		protLDAPS    = 35
 	};
 	enum {
 		cScheme = 1,
@@ -335,9 +347,9 @@ public:
 		stQuery    = (1 << (cQuery-1)),
 		stRef      = (1 << (cRef-1))
 	};
-	static const char * GetSchemeMnem(int);
-	static int GetSchemeId(const char * pSchemeMnem);
-	static int GetDefProtocolPort(int protocol);
+	static const char * FASTCALL GetSchemeMnem(int);
+	static int FASTCALL GetSchemeId(const char * pSchemeMnem);
+	static int FASTCALL GetDefProtocolPort(int protocol);
 
 	InetUrl(const char * pUrl = 0);
 	InetUrl & Clear();

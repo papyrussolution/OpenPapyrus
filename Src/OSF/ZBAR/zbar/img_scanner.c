@@ -216,7 +216,7 @@ inline zbar_symbol_t* _zbar_image_scanner_alloc_sym(zbar_image_scanner_t * iscn,
 		iscn->recycle[i].nsyms--;
 	}
 	else {
-		sym = (zbar_symbol_t *)calloc(1, sizeof(zbar_symbol_t));
+		sym = (zbar_symbol_t *)SAlloc::C(1, sizeof(zbar_symbol_t));
 		STAT(sym_new);
 	}
 	// init new symbol 
@@ -230,7 +230,7 @@ inline zbar_symbol_t* _zbar_image_scanner_alloc_sym(zbar_image_scanner_t * iscn,
 	if(datalen > 0) {
 		sym->datalen = datalen - 1;
 		if((int)sym->data_alloc < datalen) {
-			free(sym->P_Data_);
+			SAlloc::F(sym->P_Data_);
 			sym->data_alloc = datalen;
 			sym->P_Data_ = (char *)SAlloc::M(datalen);
 		}
@@ -421,7 +421,7 @@ static void symbol_handler(zbar_decoder_t * dcode)
 
 zbar_image_scanner_t * zbar_image_scanner_create()
 {
-	zbar_image_scanner_t * iscn = (zbar_image_scanner_t *)calloc(1, sizeof(zbar_image_scanner_t));
+	zbar_image_scanner_t * iscn = (zbar_image_scanner_t *)SAlloc::C(1, sizeof(zbar_image_scanner_t));
 	if(iscn) {
 		iscn->dcode = zbar_decoder_create();
 		iscn->scn = zbar_scanner_create(iscn->dcode);
@@ -495,7 +495,7 @@ void zbar_image_scanner_destroy(zbar_image_scanner_t * iscn)
 		iscn->qr = NULL;
 	}
 #endif
-	free(iscn);
+	SAlloc::F(iscn);
 }
 
 zbar_image_data_handler_t* zbar_image_scanner_set_data_handler(zbar_image_scanner_t * iscn, zbar_image_data_handler_t * handler, const void * userdata)

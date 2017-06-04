@@ -8241,6 +8241,7 @@
 	#define CTLMNU_EXTDEV_RPTPRNPORT    (20 + WINDOWS_ID_BIAS)
 	#define CTL_EXTDEV_EGAISMODE        (21 + WINDOWS_ID_BIAS)
 	#define CTL_EXTDEV_MANUFSERIAL      (22 + WINDOWS_ID_BIAS)
+	#define CTL_EXTDEV_EXTNODEASALT     (23 + WINDOWS_ID_BIAS)
 
 #define DLG_STAFFCALFLT           991 // F_STCAL Фильтр штатных календарей
 	#define cmStaffCalFiltObjList       101
@@ -9098,6 +9099,7 @@
 	#define CTL_CPPAYM_IMG_BANK       (13 + WINDOWS_ID_BIAS)
 	#define CTL_CPPAYM_IMG_SCARD      (14 + WINDOWS_ID_BIAS)
 	#define CTL_CPPAYM_CCRDLIST       (15 + WINDOWS_ID_BIAS)
+	#define CTL_CPPAYM_ALTCASHREG     (16 + WINDOWS_ID_BIAS)
 // DLG_TAGVGUID                      1150
 #define DLG_QUOTKINDRESTR            1151 // Ограничения применимости вида котировки
 	#define CTL_QKRESTR_PERIOD        (1 + WINDOWS_ID_BIAS)

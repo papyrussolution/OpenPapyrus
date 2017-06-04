@@ -5321,6 +5321,7 @@ public:
 		AddClusterAssoc(CTL_PRCROSM_FLAGS, 1, Data.fSortPreprcResults);
 		AddClusterAssoc(CTL_PRCROSM_FLAGS, 2, Data.fAnlzPreprcResults);
 		AddClusterAssoc(CTL_PRCROSM_FLAGS, 3, Data.fImport);
+		AddClusterAssoc(CTL_PRCROSM_FLAGS, 4, Data.fExtractSizes);
 		SetClusterData(CTL_PRCROSM_FLAGS, Data.Flags);
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_PRCROSM_PATH, CTL_PRCROSM_PATH, 1, 0,
 			PPTXT_FILPAT_OSM, FileBrowseCtrlGroup::fbcgfFile);
@@ -5782,50 +5783,6 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 				SrDatabase * p_db = O.GetDb();
 				if(p_db) {
 					THROW(p_db->StoreGeoWayList(WayAccum, &Stat.WayList));
-                    {
-						Pb.LineBuf = 0;
-						const uint max_out_accum_count = 1000;
-						uint  out_accum_count = 0;
-                    	TSArray <PPOsm::Node> way_node_list;
-                    	for(uint i = 0; i < _count; i++) {
-                            const PPOsm::Way * p_way = WayAccum.at(i);
-							p_db->P_GnT->GetWayNodes(*p_way, way_node_list);
-							uint wn_count = way_node_list.getCount();
-							double max_distance = 0.0;
-							if(wn_count > 1) {
-								if(way_node_list.at(0).ID == way_node_list.at(wn_count-1).ID) {
-									//
-									// Для замкнутого контура исключим последнюю точку (равную первой) из расчета расстояний - сэкономим время.
-									//
-									wn_count--;
-								}
-								for(uint j = 0; j < wn_count; j++) {
-									const PPOsm::Node & r_node = way_node_list.at(j);
-									SGeoPosLL p1(r_node.C.GetLat(), r_node.C.GetLon());
-									for(uint j2 = j+1; j2 < wn_count; j2++) {
-										const PPOsm::Node & r_node2 = way_node_list.at(j2);
-										SGeoPosLL p2(r_node2.C.GetLat(), r_node2.C.GetLon());
-										double distance = 0.0;
-										G.Inverse(p1, p2, &distance, 0, 0, 0, 0, 0, 0);
-										SETMAX(max_distance, distance);
-									}
-								}
-							}
-                            if(P_SizeOutF) {
-								Pb.LineBuf./*Cat(p_way->ID).Tab().*/Cat((uint)R0(max_distance)).CR();
-								out_accum_count++;
-								if(out_accum_count >= max_out_accum_count) {
-									P_SizeOutF->WriteLine(Pb.LineBuf);
-									Pb.LineBuf = 0;
-									out_accum_count = 0;
-								}
-                            }
-                    	}
-                        if(P_SizeOutF) {
-							P_SizeOutF->WriteLine(Pb.LineBuf);
-							Pb.LineBuf = 0;
-                        }
-                    }
 				}
 				OutputStat(0);
 				assert((Stat.GetNcActualCount() + Stat.GetNcProcessedCount()) == Stat.NodeCount);
@@ -5861,6 +5818,73 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 #endif
 	}
 	CATCHZOK
+	return ok;
+}
+
+int SLAPI PrcssrOsm::ProcessWaySizes()
+{
+	int    ok = 1;
+	SrDatabase * p_db = O.GetDb();
+	if(p_db && P_SizeOutF) {
+		const uint max_out_accum_count = 1000;
+		uint  out_accum_count = 0;
+		uint64 way_count = 0;
+		SString line_buf;
+		PPOsm::Way way;
+		PPOsm::WayBuffer way_buf;
+		TSArray <PPOsm::Node> way_node_list;
+		BDbCursor curs(*p_db->P_GwT, 0);
+		BDbTable::Buffer key_buf, data_buf;
+		key_buf.Alloc(32);
+		data_buf.Alloc(8192);
+		if(curs.Search(key_buf, data_buf, spFirst)) do {
+			uint64 way_id = 0;
+			{
+				size_t dbsz = 0;
+				const void * p_dbptr = data_buf.GetPtr(&dbsz);
+				way_buf.SetBuffer(p_dbptr, dbsz);
+			}
+			{
+				size_t dbsz = 0;
+				const void * p_dbptr = key_buf.GetPtr(&dbsz);
+				way_id = sexpanduint64(p_dbptr, dbsz);
+			}
+			if(way_buf.Get(way_id, &way)) {
+				p_db->P_GnT->GetWayNodes(way, way_node_list);
+				uint wn_count = way_node_list.getCount();
+				double max_distance = 0.0;
+				if(wn_count > 1) {
+					if(way_node_list.at(0).ID == way_node_list.at(wn_count-1).ID) {
+						//
+						// Для замкнутого контура исключим последнюю точку (равную первой) из расчета расстояний - сэкономим время.
+						//
+						wn_count--;
+					}
+					for(uint j = 0; j < wn_count; j++) {
+						const PPOsm::Node & r_node = way_node_list.at(j);
+						SGeoPosLL p1(r_node.C.GetLat(), r_node.C.GetLon());
+						for(uint j2 = j+1; j2 < wn_count; j2++) {
+							const PPOsm::Node & r_node2 = way_node_list.at(j2);
+							SGeoPosLL p2(r_node2.C.GetLat(), r_node2.C.GetLon());
+							double distance = 0.0;
+							G.Inverse(p1, p2, &distance, 0, 0, 0, 0, 0, 0);
+							SETMAX(max_distance, distance);
+						}
+					}
+				}
+				line_buf./*Cat(p_way->ID).Tab().*/Cat((uint)R0(max_distance)).CR();
+				out_accum_count++;
+				if(out_accum_count >= max_out_accum_count) {
+					P_SizeOutF->WriteLine(line_buf);
+					line_buf = 0;
+					out_accum_count = 0;
+				}
+			}
+			way_count++;
+			PPWaitPercent((ulong)(((double)way_count / (double)Stat.WayCount) * 100.0), "WaySizes");
+		} while(curs.Search(key_buf, data_buf, spNext));
+		P_SizeOutF->WriteLine(line_buf);
+	}
 	return ok;
 }
 
@@ -6330,7 +6354,7 @@ int SLAPI PrcssrOsm::Run()
 								if(temp_buf.Strip().Divide('=', key_buf, val_buf) > 0) {
 									key_buf.Strip();
 									val_buf.Strip();
-									if(key_buf.CmpNC("NodeCount") == 0) 
+									if(key_buf.CmpNC("NodeCount") == 0)
 										RestoredStat.NodeCount = val_buf.ToInt64();
 									else if(key_buf.CmpNC("NakedNodeCount") == 0)
 										RestoredStat.NakedNodeCount = val_buf.ToInt64();
@@ -6347,7 +6371,7 @@ int SLAPI PrcssrOsm::Run()
 						if(temp_buf.Strip().Divide('=', key_buf, val_buf) > 0) {
 							key_buf.Strip();
 							val_buf.Strip();
-							if(key_buf.CmpNC("NodeCount") == 0) 
+							if(key_buf.CmpNC("NodeCount") == 0)
 								RestoredStat.NodeCount = val_buf.ToInt64();
 							else if(key_buf.CmpNC("NakedNodeCount") == 0)
 								RestoredStat.NakedNodeCount = val_buf.ToInt64();
@@ -6536,15 +6560,6 @@ int SLAPI PrcssrOsm::Run()
 		Phase = phaseImport;
 		if(O.CheckStatus(O.stGridLoaded)) {
 			{
-				struct __OFE { SFile ** PP_F; const char * P_Sfx; } __OFE_list[] = {
-					{ &P_SizeOutF, "distance" }
-				};
-				for(uint i = 0; i < SIZEOFARRAY(__OFE_list); i++) {
-					THROW_MEM(*__OFE_list[i].PP_F = new SFile(MakeSuffixedTxtFileName(file_name, __OFE_list[i].P_Sfx, ps, out_file_name), SFile::mWrite));
-					THROW_SL((*__OFE_list[i].PP_F)->IsValid());
-				}
-			}
-			{
 				MakeSuffixedTxtFileName(file_name, "nodewayassoc-sorted", ps, out_file_name);
 				if(fileExists(out_file_name)) {
 					THROW_MEM(P_NodeToWayAssocInF = new SFile(out_file_name, SFile::mRead|SFile::mNoStd|SFile::mBinary|SFile::mBuffRd));
@@ -6569,12 +6584,22 @@ int SLAPI PrcssrOsm::Run()
 				THROW(!(State & stError));
 				PROFILE_END
 			}
+		}
+	}
+	if(P.Flags & PrcssrOsmFilt::fExtractSizes) {
+		Phase = phaseExtractSizes;
+		if(O.CheckStatus(O.stGridLoaded)) {
 			{
-				SrDatabase * p_db = O.GetDb();
-				if(p_db && p_db->P_Db) {
-					p_db->P_Db->RemoveUnusedLogs();
+				struct __OFE { SFile ** PP_F; const char * P_Sfx; } __OFE_list[] = {
+					{ &P_SizeOutF, "distance" }
+				};
+				for(uint i = 0; i < SIZEOFARRAY(__OFE_list); i++) {
+					THROW_MEM(*__OFE_list[i].PP_F = new SFile(MakeSuffixedTxtFileName(file_name, __OFE_list[i].P_Sfx, ps, out_file_name), SFile::mWrite));
+					THROW_SL((*__OFE_list[i].PP_F)->IsValid());
 				}
 			}
+			PROFILE(THROW(O.OpenDatabase(p_db_path)));
+			PROFILE(ProcessWaySizes());
 		}
 	}
 	PPWait(0);

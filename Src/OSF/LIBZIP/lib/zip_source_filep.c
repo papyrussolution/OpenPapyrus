@@ -105,7 +105,7 @@ zip_source_t * _zip_source_file_or_p(const char * fname, FILE * file, uint64 sta
 		ctx->fname = sstrdup(fname);
 		if(!ctx->fname) {
 			zip_error_set(error, ZIP_ER_MEMORY, 0);
-			free(ctx);
+			SAlloc::F(ctx);
 			return NULL;
 		}
 	}
@@ -134,8 +134,8 @@ zip_source_t * _zip_source_file_or_p(const char * fname, FILE * file, uint64 sta
 		ctx->supports = ZIP_SOURCE_SUPPORTS_SEEKABLE;
 	}
 	if((zs = zip_source_function_create(read_file, ctx, error)) == NULL) {
-		free(ctx->fname);
-		free(ctx);
+		SAlloc::F(ctx->fname);
+		SAlloc::F(ctx);
 		return NULL;
 	}
 	return zs;
@@ -156,7 +156,7 @@ static int create_temp_output(ZipReadFileBlock * ctx)
 	if((tfd = mkstemp(temp)) == -1) {
 		zip_error_set(&ctx->error, ZIP_ER_TMPOPEN, errno);
 		_umask(mask);
-		free(temp);
+		SAlloc::F(temp);
 		return -1;
 	}
 	_umask(mask);
@@ -164,7 +164,7 @@ static int create_temp_output(ZipReadFileBlock * ctx)
 		zip_error_set(&ctx->error, ZIP_ER_TMPOPEN, errno);
 		_close(tfd);
 		remove(temp);
-		free(temp);
+		SAlloc::F(temp);
 		return -1;
 	}
 #ifdef _WIN32
@@ -218,10 +218,10 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 		case ZIP_SOURCE_ERROR:
 		    return zip_error_to_data(&ctx->error, data, len);
 		case ZIP_SOURCE_FREE:
-		    free(ctx->fname);
-		    free(ctx->tmpname);
+		    SAlloc::F(ctx->fname);
+		    SAlloc::F(ctx->tmpname);
 			SFile::ZClose(&ctx->f);
-		    free(ctx);
+		    SAlloc::F(ctx);
 		    return 0;
 		case ZIP_SOURCE_OPEN:
 		    if(ctx->fname) {

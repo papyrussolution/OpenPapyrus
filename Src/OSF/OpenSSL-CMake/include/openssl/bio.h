@@ -16,14 +16,13 @@
 #endif
 #include <stdarg.h>
 #include <openssl/crypto.h>
-
-# ifndef OPENSSL_NO_SCTP
-#  ifndef OPENSSL_SYS_VMS
-#   include <stdint.h>
-#  else
-#   include <inttypes.h>
-#  endif
-# endif
+#ifndef OPENSSL_NO_SCTP
+	#ifndef OPENSSL_SYS_VMS
+		#include <stdint.h>
+	#else
+		#include <inttypes.h>
+	#endif
+#endif
 
 #ifdef  __cplusplus
 extern "C" {
@@ -107,27 +106,17 @@ extern "C" {
 # define BIO_CTRL_DGRAM_MTU_DISCOVER       39/* set DF bit on egress packets */
 /* #endif */
 
-# define BIO_CTRL_DGRAM_QUERY_MTU          40/* as kernel for current MTU */
-# define BIO_CTRL_DGRAM_GET_FALLBACK_MTU   47
-# define BIO_CTRL_DGRAM_GET_MTU            41/* get cached value for MTU */
-# define BIO_CTRL_DGRAM_SET_MTU            42/* set cached value for MTU.
-                                              * want to use this if asking
-                                              * the kernel fails */
-
-# define BIO_CTRL_DGRAM_MTU_EXCEEDED       43/* check whether the MTU was
-                                              * exceed in the previous write
-                                              * operation */
-
-# define BIO_CTRL_DGRAM_GET_PEER           46
-# define BIO_CTRL_DGRAM_SET_PEER           44/* Destination for the data */
-
-# define BIO_CTRL_DGRAM_SET_NEXT_TIMEOUT   45/* Next DTLS handshake timeout
-                                              * to adjust socket timeouts */
-# define BIO_CTRL_DGRAM_SET_DONT_FRAG      48
-
-# define BIO_CTRL_DGRAM_GET_MTU_OVERHEAD   49
-
-# define BIO_CTRL_DGRAM_SET_PEEK_MODE      50
+#define BIO_CTRL_DGRAM_QUERY_MTU          40/* as kernel for current MTU */
+#define BIO_CTRL_DGRAM_GET_FALLBACK_MTU   47
+#define BIO_CTRL_DGRAM_GET_MTU            41/* get cached value for MTU */
+#define BIO_CTRL_DGRAM_SET_MTU            42/* set cached value for MTU. want to use this if asking the kernel fails */
+#define BIO_CTRL_DGRAM_MTU_EXCEEDED       43/* check whether the MTU was exceed in the previous write operation */
+#define BIO_CTRL_DGRAM_GET_PEER           46
+#define BIO_CTRL_DGRAM_SET_PEER           44/* Destination for the data */
+#define BIO_CTRL_DGRAM_SET_NEXT_TIMEOUT   45/* Next DTLS handshake timeout to adjust socket timeouts */
+#define BIO_CTRL_DGRAM_SET_DONT_FRAG      48
+#define BIO_CTRL_DGRAM_GET_MTU_OVERHEAD   49
+#define BIO_CTRL_DGRAM_SET_PEEK_MODE      50
 
 # ifndef OPENSSL_NO_SCTP
 /* SCTP stuff */
@@ -707,18 +696,15 @@ int BIO_new_bio_pair(BIO **bio1, size_t writebuf1,
  * Otherwise returns 0 and sets *bio1 and *bio2 to NULL. Size 0 uses default
  * value.
  */
-
 void BIO_copy_next_retry(BIO *b);
-
 /*
  * long BIO_ghbn_ctrl(int cmd,int iarg,char *parg);
  */
-
-# ifdef __GNUC__
-#  define __bio_h__attr__ __attribute__
-# else
-#  define __bio_h__attr__(x)
-# endif
+#ifdef __GNUC__
+	#define __bio_h__attr__ __attribute__
+#else
+	#define __bio_h__attr__(x)
+#endif
 int BIO_printf(BIO *bio, const char *format, ...)
 __bio_h__attr__((__format__(__printf__, 2, 3)));
 int BIO_vprintf(BIO *bio, const char *format, va_list args)
@@ -733,29 +719,21 @@ __bio_h__attr__((__format__(__printf__, 3, 0)));
 BIO_METHOD *BIO_meth_new(int type, const char *name);
 void BIO_meth_free(BIO_METHOD *biom);
 int (*BIO_meth_get_write(BIO_METHOD *biom)) (BIO *, const char *, int);
-int BIO_meth_set_write(BIO_METHOD *biom,
-                       int (*write) (BIO *, const char *, int));
+int BIO_meth_set_write(BIO_METHOD *biom, int (*write) (BIO *, const char *, int));
 int (*BIO_meth_get_read(BIO_METHOD *biom)) (BIO *, char *, int);
-int BIO_meth_set_read(BIO_METHOD *biom,
-                      int (*read) (BIO *, char *, int));
+int BIO_meth_set_read(BIO_METHOD *biom, int (*read) (BIO *, char *, int));
 int (*BIO_meth_get_puts(BIO_METHOD *biom)) (BIO *, const char *);
-int BIO_meth_set_puts(BIO_METHOD *biom,
-                      int (*puts) (BIO *, const char *));
+int BIO_meth_set_puts(BIO_METHOD *biom, int (*puts) (BIO *, const char *));
 int (*BIO_meth_get_gets(BIO_METHOD *biom)) (BIO *, char *, int);
-int BIO_meth_set_gets(BIO_METHOD *biom,
-                      int (*gets) (BIO *, char *, int));
+int BIO_meth_set_gets(BIO_METHOD *biom, int (*gets) (BIO *, char *, int));
 long (*BIO_meth_get_ctrl(BIO_METHOD *biom)) (BIO *, int, long, void *);
-int BIO_meth_set_ctrl(BIO_METHOD *biom,
-                      long (*ctrl) (BIO *, int, long, void *));
+int BIO_meth_set_ctrl(BIO_METHOD *biom, long (*ctrl) (BIO *, int, long, void *));
 int (*BIO_meth_get_create(BIO_METHOD *bion)) (BIO *);
 int BIO_meth_set_create(BIO_METHOD *biom, int (*create) (BIO *));
 int (*BIO_meth_get_destroy(BIO_METHOD *biom)) (BIO *);
 int BIO_meth_set_destroy(BIO_METHOD *biom, int (*destroy) (BIO *));
-long (*BIO_meth_get_callback_ctrl(BIO_METHOD *biom))
-                                 (BIO *, int, bio_info_cb *);
-int BIO_meth_set_callback_ctrl(BIO_METHOD *biom,
-                               long (*callback_ctrl) (BIO *, int,
-                                                      bio_info_cb *));
+long (*BIO_meth_get_callback_ctrl(BIO_METHOD *biom))(BIO *, int, bio_info_cb *);
+int BIO_meth_set_callback_ctrl(BIO_METHOD *biom, long (*callback_ctrl) (BIO *, int, bio_info_cb *));
 
 /* BEGIN ERROR CODES */
 /*

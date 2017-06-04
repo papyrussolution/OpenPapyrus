@@ -12,13 +12,6 @@
 namespace Scintilla {
 #endif
 
-static inline int MakeLowerCase(int ch) {
-	if (ch < 'A' || ch > 'Z')
-		return ch;
-	else
-		return ch - 'A' + 'a';
-}
-
 // All languages handled so far can treat all characters >= 0x80 as one class
 // which just continues the current token or starts an identifier if in default.
 // DBCS treated specially as the second character can be < 0x80 and hence
@@ -40,7 +33,7 @@ class StyleContext {
 		if (multiByteAccess) {
 			chNext = multiByteAccess->GetCharacterAndWidth(currentPos+width, &widthNext);
 		} else {
-			chNext = static_cast<unsigned char>(styler.SafeGetCharAt(currentPos+width, 0));
+			chNext = static_cast<uchar>(styler.SafeGetCharAt(currentPos+width, 0));
 			widthNext = 1;
 		}
 		// End of line determined from line end position, allowing CR, LF,
@@ -158,7 +151,7 @@ public:
 		return currentPos - styler.GetStartSegment();
 	}
 	int GetRelative(Sci_Position n) {
-		return static_cast<unsigned char>(styler.SafeGetCharAt(currentPos+n, 0));
+		return static_cast<uchar>(styler.SafeGetCharAt(currentPos+n, 0));
 	}
 	int GetRelativeCharacter(Sci_Position n) {
 		if (n == 0)
@@ -179,22 +172,22 @@ public:
 			return chReturn;
 		} else {
 			// fast version for single byte encodings
-			return static_cast<unsigned char>(styler.SafeGetCharAt(currentPos + n, 0));
+			return static_cast<uchar>(styler.SafeGetCharAt(currentPos + n, 0));
 		}
 	}
 	bool Match(char ch0) const {
-		return ch == static_cast<unsigned char>(ch0);
+		return ch == static_cast<uchar>(ch0);
 	}
 	bool Match(char ch0, char ch1) const {
-		return (ch == static_cast<unsigned char>(ch0)) && (chNext == static_cast<unsigned char>(ch1));
+		return (ch == static_cast<uchar>(ch0)) && (chNext == static_cast<uchar>(ch1));
 	}
 	bool Match(const char *s) {
-		if (ch != static_cast<unsigned char>(*s))
+		if (ch != static_cast<uchar>(*s))
 			return false;
 		s++;
 		if (!*s)
 			return true;
-		if (chNext != static_cast<unsigned char>(*s))
+		if (chNext != static_cast<uchar>(*s))
 			return false;
 		s++;
 		for (int n=2; *s; n++) {
@@ -204,22 +197,8 @@ public:
 		}
 		return true;
 	}
-	bool MatchIgnoreCase(const char *s) {
-		if (MakeLowerCase(ch) != static_cast<unsigned char>(*s))
-			return false;
-		s++;
-		if (MakeLowerCase(chNext) != static_cast<unsigned char>(*s))
-			return false;
-		s++;
-		for (int n=2; *s; n++) {
-			if (static_cast<unsigned char>(*s) !=
-				MakeLowerCase(static_cast<unsigned char>(styler.SafeGetCharAt(currentPos+n, 0))))
-				return false;
-			s++;
-		}
-		return true;
-	}
 	// Non-inline
+	bool MatchIgnoreCase(const char *s);
 	void GetCurrent(char *s, Sci_PositionU len);
 	void GetCurrentLowered(char *s, Sci_PositionU len);
 };

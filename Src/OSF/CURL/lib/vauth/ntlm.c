@@ -67,7 +67,7 @@
 
 #if DEBUG_ME
 # define DEBUG_OUT(x) x
-static void ntlm_print_flags(FILE * handle, unsigned long flags)
+static void ntlm_print_flags(FILE * handle, ulong flags)
 {
 	if(flags & NTLMFLAG_NEGOTIATE_UNICODE)
 		fprintf(handle, "NTLMFLAG_NEGOTIATE_UNICODE ");
@@ -143,7 +143,7 @@ static void ntlm_print_hex(FILE * handle, const char * buf, size_t len)
 
 	fprintf(stderr, "0x");
 	while(len-- > 0)
-		fprintf(stderr, "%02.2x", (unsigned int)*p++);
+		fprintf(stderr, "%02.2x", (uint)*p++);
 }
 
 #else
@@ -166,12 +166,12 @@ static void ntlm_print_hex(FILE * handle, const char * buf, size_t len)
  * Returns CURLE_OK on success.
  */
 static CURLcode ntlm_decode_type2_target(struct Curl_easy * data,
-    unsigned char * buffer,
+    uchar * buffer,
     size_t size,
     struct ntlmdata * ntlm)
 {
-	unsigned short target_info_len = 0;
-	unsigned int target_info_offset = 0;
+	ushort target_info_len = 0;
+	uint target_info_offset = 0;
 
 #if defined(CURL_DISABLE_VERBOSE_STRINGS)
 	(void)data;
@@ -188,7 +188,7 @@ static CURLcode ntlm_decode_type2_target(struct Curl_easy * data,
 				return CURLE_BAD_CONTENT_ENCODING;
 			}
 
-			ntlm->target_info = malloc(target_info_len);
+			ntlm->target_info = SAlloc::M(target_info_len);
 			if(!ntlm->target_info)
 				return CURLE_OUT_OF_MEMORY;
 
@@ -270,7 +270,7 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy * data,
 	 */
 
 	CURLcode result = CURLE_OK;
-	unsigned char * type2 = NULL;
+	uchar * type2 = NULL;
 	size_t type2_len = 0;
 
 #if defined(USE_NSS)
@@ -301,7 +301,7 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy * data,
 	    (memcmp(type2, NTLMSSP_SIGNATURE, 8) != 0) ||
 	    (memcmp(type2 + 8, type2_marker, sizeof(type2_marker)) != 0)) {
 		/* This was not a good enough type-2 message */
-		free(type2);
+		SAlloc::F(type2);
 		infof(data, "NTLM handshake failure (bad type-2 message)\n");
 		return CURLE_BAD_CONTENT_ENCODING;
 	}
@@ -312,7 +312,7 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy * data,
 	if(ntlm->flags & NTLMFLAG_NEGOTIATE_TARGET_INFO) {
 		result = ntlm_decode_type2_target(data, type2, type2_len, ntlm);
 		if(result) {
-			free(type2);
+			SAlloc::F(type2);
 			infof(data, "NTLM handshake failure (bad type-2 message)\n");
 			return result;
 		}
@@ -327,18 +327,18 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy * data,
 		    fprintf(stderr, "**** Header %s\n ", header);
 	    });
 
-	free(type2);
+	SAlloc::F(type2);
 
 	return result;
 }
 
 /* copy the source to the destination and fill in zeroes in every
    other destination byte! */
-static void unicodecpy(unsigned char * dest, const char * src, size_t length)
+static void unicodecpy(uchar * dest, const char * src, size_t length)
 {
 	size_t i;
 	for(i = 0; i < length; i++) {
-		dest[2 * i] = (unsigned char)src[i];
+		dest[2 * i] = (uchar)src[i];
 		dest[2 * i + 1] = '\0';
 	}
 }
@@ -381,7 +381,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(const char * userp,
 
 	size_t size;
 
-	unsigned char ntlmbuf[NTLM_BUFSIZE];
+	uchar ntlmbuf[NTLM_BUFSIZE];
 	const char * host = "";       /* empty */
 	const char * domain = "";     /* empty */
 	size_t hostlen = 0;
@@ -507,15 +507,15 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 
 	CURLcode result = CURLE_OK;
 	size_t size;
-	unsigned char ntlmbuf[NTLM_BUFSIZE];
+	uchar ntlmbuf[NTLM_BUFSIZE];
 	int lmrespoff;
-	unsigned char lmresp[24]; /* fixed-size */
+	uchar lmresp[24]; /* fixed-size */
 #ifdef USE_NTRESPONSES
 	int ntrespoff;
-	unsigned int ntresplen = 24;
-	unsigned char ntresp[24]; /* fixed-size */
-	unsigned char * ptr_ntresp = &ntresp[0];
-	unsigned char * ntlmv2resp = NULL;
+	uint ntresplen = 24;
+	uchar ntresp[24]; /* fixed-size */
+	uchar * ptr_ntresp = &ntresp[0];
+	uchar * ntlmv2resp = NULL;
 #endif
 	bool unicode = (ntlm->flags & NTLMFLAG_NEGOTIATE_UNICODE) ? TRUE : FALSE;
 	char host[HOSTNAME_MAX + 1] = "";
@@ -555,9 +555,9 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 
 #if defined(USE_NTRESPONSES) && defined(USE_NTLM_V2)
 	if(ntlm->target_info_len) {
-		unsigned char ntbuffer[0x18];
-		unsigned int entropy[2];
-		unsigned char ntlmv2hash[0x18];
+		uchar ntbuffer[0x18];
+		uint entropy[2];
+		uchar ntlmv2hash[0x18];
 
 		result = Curl_rand(data, &entropy[0], 2);
 		if(result)
@@ -574,14 +574,14 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 
 		/* LMv2 response */
 		result = Curl_ntlm_core_mk_lmv2_resp(ntlmv2hash,
-		    (unsigned char*)&entropy[0],
+		    (uchar*)&entropy[0],
 		    &ntlm->nonce[0], lmresp);
 		if(result)
 			return result;
 
 		/* NTLMv2 response */
 		result = Curl_ntlm_core_mk_ntlmv2_resp(ntlmv2hash,
-		    (unsigned char*)&entropy[0],
+		    (uchar*)&entropy[0],
 		    ntlm, &ntlmv2resp, &ntresplen);
 		if(result)
 			return result;
@@ -594,10 +594,10 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 #if defined(USE_NTRESPONSES) && defined(USE_NTLM2SESSION)
 	/* We don't support NTLM2 if we don't have USE_NTRESPONSES */
 	if(ntlm->flags & NTLMFLAG_NEGOTIATE_NTLM2_KEY) {
-		unsigned char ntbuffer[0x18];
-		unsigned char tmp[0x18];
-		unsigned char md5sum[MD5_DIGEST_LENGTH];
-		unsigned int entropy[2];
+		uchar ntbuffer[0x18];
+		uchar tmp[0x18];
+		uchar md5sum[MD5_DIGEST_LENGTH];
+		uint entropy[2];
 
 		/* Need to create 8 bytes random data */
 		result = Curl_rand(data, &entropy[0], 2);
@@ -630,9 +630,9 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 #endif
 	{
 #ifdef USE_NTRESPONSES
-		unsigned char ntbuffer[0x18];
+		uchar ntbuffer[0x18];
 #endif
-		unsigned char lmbuffer[0x18];
+		uchar lmbuffer[0x18];
 
 #ifdef USE_NTRESPONSES
 		result = Curl_ntlm_core_mk_nt_hash(data, passwdp, ntbuffer);
@@ -779,7 +779,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 		    ntlm_print_hex(stderr, (char*)&ntlmbuf[ntrespoff], ntresplen);
 	    });
 
-	free(ntlmv2resp); /* Free the dynamic buffer allocated for NTLMv2 */
+	SAlloc::F(ntlmv2resp); /* Free the dynamic buffer allocated for NTLMv2 */
 
 #endif
 
@@ -848,7 +848,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 void Curl_auth_ntlm_cleanup(struct ntlmdata * ntlm)
 {
 	/* Free the target info */
-	Curl_safefree(ntlm->target_info);
+	ZFREE(ntlm->target_info);
 
 	/* Reset any variables */
 	ntlm->target_info_len = 0;

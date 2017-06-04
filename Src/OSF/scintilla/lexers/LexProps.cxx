@@ -26,7 +26,7 @@ static inline bool AtEOL(Accessor &styler, Sci_PositionU i) {
 	       ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
 }
 
-static inline bool isassignchar(unsigned char ch) {
+static inline bool isassignchar(uchar ch) {
 	return (ch == '=') || (ch == ':');
 }
 

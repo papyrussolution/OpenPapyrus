@@ -12,7 +12,7 @@
 namespace Scintilla {
 #endif
 
-inline int UnicodeFromUTF8(const unsigned char *us) {
+inline int UnicodeFromUTF8(const uchar *us) {
 	if (us[0] < 0xC2) {
 		return us[0];
 	} else if (us[0] < 0xE0) {

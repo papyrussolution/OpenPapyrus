@@ -23,35 +23,34 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+	#include <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+	#include <arpa/inet.h>
 #endif
 #ifdef HAVE_NET_IF_H
-#include <net/if.h>
+	#include <net/if.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+	#include <sys/ioctl.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+	#include <netdb.h>
 #endif
 #ifdef HAVE_SYS_SOCKIO_H
-#include <sys/sockio.h>
+	#include <sys/sockio.h>
 #endif
 #ifdef HAVE_IFADDRS_H
-#include <ifaddrs.h>
+	#include <ifaddrs.h>
 #endif
 #ifdef HAVE_STROPTS_H
-#include <stropts.h>
+	#include <stropts.h>
 #endif
 #ifdef __VMS
-#include <inet.h>
+	#include <inet.h>
 #endif
-
 #include "inet_ntop.h"
-#include "strcase.h"
+//#include "strcase.h"
 #include "if2ip.h"
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
@@ -61,15 +60,15 @@
 /* ------------------------------------------------------------------ */
 
 /* Return the scope of the given address. */
-unsigned int Curl_ipv6_scope(const struct sockaddr *sa)
+uint Curl_ipv6_scope(const struct sockaddr *sa)
 {
 #ifndef ENABLE_IPV6
   (void) sa;
 #else
   if(sa->sa_family == AF_INET6) {
     const struct sockaddr_in6 * sa6 = (const struct sockaddr_in6 *)(void *) sa;
-    const unsigned char *b = sa6->sin6_addr.s6_addr;
-    unsigned short w = (unsigned short) ((b[0] << 8) | b[1]);
+    const uchar *b = sa6->sin6_addr.s6_addr;
+    ushort w = (ushort) ((b[0] << 8) | b[1]);
 
     switch(w & 0xFFC0) {
     case 0xFE80:
@@ -112,8 +111,8 @@ bool Curl_if_is_interface_name(const char *interf)
   return result;
 }
 
-if2ip_result_t Curl_if2ip(int af, unsigned int remote_scope,
-                          unsigned int remote_scope_id, const char *interf,
+if2ip_result_t Curl_if2ip(int af, uint remote_scope,
+                          uint remote_scope_id, const char *interf,
                           char *buf, int buf_size)
 {
   struct ifaddrs *iface, *head;
@@ -139,8 +138,8 @@ if2ip_result_t Curl_if2ip(int af, unsigned int remote_scope,
             char ipstr[64];
 #ifdef ENABLE_IPV6
             if(af == AF_INET6) {
-              unsigned int scopeid = 0;
-              unsigned int ifscope = Curl_ipv6_scope(iface->ifa_addr);
+              uint scopeid = 0;
+              uint ifscope = Curl_ipv6_scope(iface->ifa_addr);
 
               if(ifscope != remote_scope) {
                 /* We are interested only in interface addresses whose
@@ -203,8 +202,8 @@ bool Curl_if_is_interface_name(const char *interf)
           IF2IP_NOT_FOUND) ? FALSE : TRUE;
 }
 
-if2ip_result_t Curl_if2ip(int af, unsigned int remote_scope,
-                          unsigned int remote_scope_id, const char *interf,
+if2ip_result_t Curl_if2ip(int af, uint remote_scope,
+                          uint remote_scope_id, const char *interf,
                           char *buf, int buf_size)
 {
   struct ifreq req;
@@ -256,8 +255,8 @@ bool Curl_if_is_interface_name(const char *interf)
   return FALSE;
 }
 
-if2ip_result_t Curl_if2ip(int af, unsigned int remote_scope,
-                          unsigned int remote_scope_id, const char *interf,
+if2ip_result_t Curl_if2ip(int af, uint remote_scope,
+                          uint remote_scope_id, const char *interf,
                           char *buf, int buf_size)
 {
     (void) af;

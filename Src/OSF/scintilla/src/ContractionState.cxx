@@ -8,18 +8,20 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
+#include <stdexcept>
+#include <algorithm>
 #include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
+#include "SparseVector.h"
 #include "ContractionState.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
 
-ContractionState::ContractionState() : visible(0), expanded(0), heights(0), displayLines(0), linesInDocument(1) {
+ContractionState::ContractionState() : visible(0), expanded(0), heights(0), foldDisplayTexts(0), displayLines(0), linesInDocument(1) {
 	//InsertLine(0);
 }
 
@@ -32,6 +34,7 @@ void ContractionState::EnsureData() {
 		visible = new RunStyles();
 		expanded = new RunStyles();
 		heights = new RunStyles();
+		foldDisplayTexts = new SparseVector<const char *>();
 		displayLines = new Partitioning(4);
 		InsertLines(0, linesInDocument);
 	}
@@ -44,6 +47,8 @@ void ContractionState::Clear() {
 	expanded = 0;
 	delete heights;
 	heights = 0;
+	delete foldDisplayTexts;
+	foldDisplayTexts = 0;
 	delete displayLines;
 	displayLines = 0;
 	linesInDocument = 1;
@@ -105,6 +110,8 @@ void ContractionState::InsertLine(int lineDoc) {
 		expanded->SetValueAt(lineDoc, 1);
 		heights->InsertSpace(lineDoc, 1);
 		heights->SetValueAt(lineDoc, 1);
+		foldDisplayTexts->InsertSpace(lineDoc, 1);
+		foldDisplayTexts->SetValueAt(lineDoc, NULL);
 		int lineDisplay = DisplayFromDoc(lineDoc);
 		displayLines->InsertPartition(lineDoc, lineDisplay);
 		displayLines->InsertText(lineDoc, 1);
@@ -129,6 +136,7 @@ void ContractionState::DeleteLine(int lineDoc) {
 		visible->DeleteRange(lineDoc, 1);
 		expanded->DeleteRange(lineDoc, 1);
 		heights->DeleteRange(lineDoc, 1);
+		foldDisplayTexts->DeletePosition(lineDoc);
 	}
 }
 
@@ -181,6 +189,24 @@ bool ContractionState::HiddenLines() const {
 	}
 }
 
+const char *ContractionState::GetFoldDisplayText(int lineDoc) const {
+	Check();
+	return foldDisplayTexts->ValueAt(lineDoc);
+}
+
+bool ContractionState::SetFoldDisplayText(int lineDoc, const char *text) {
+	EnsureData();
+	const char *foldText = foldDisplayTexts->ValueAt(lineDoc);
+	if (!foldText || 0 != strcmp(text, foldText)) {
+		foldDisplayTexts->SetValueAt(lineDoc, text);
+		Check();
+		return true;
+	} else {
+		Check();
+		return false;
+	}
+}
+
 bool ContractionState::GetExpanded(int lineDoc) const {
 	if (OneToOne()) {
 		return true;
@@ -204,6 +230,10 @@ bool ContractionState::SetExpanded(int lineDoc, bool isExpanded) {
 			return false;
 		}
 	}
+}
+
+bool ContractionState::GetFoldDisplayTextShown(int lineDoc) const {
+	return !GetExpanded(lineDoc) && GetFoldDisplayText(lineDoc);
 }
 
 int ContractionState::ContractedNext(int lineDocStart) const {

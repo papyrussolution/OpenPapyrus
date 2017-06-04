@@ -22,7 +22,7 @@
  * row_info bit depth should be 8 (one pixel per byte).  The channels
  * should be 1 (this only happens on grayscale and paletted images).
  */
-static void png_do_pack(png_row_infop row_info, png_bytep row, png_uint_32 bit_depth)
+static void png_do_pack(png_row_infop row_info, png_bytep row, uint32 bit_depth)
 {
 	png_debug(1, "in png_do_pack");
 	if(row_info->bit_depth == 8 && row_info->channels == 1) {
@@ -31,8 +31,8 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, png_uint_32 bit_d
 		    {
 			    png_bytep sp, dp;
 			    int mask, v;
-			    png_uint_32 i;
-			    png_uint_32 row_width = row_info->width;
+			    uint32 i;
+			    uint32 row_width = row_info->width;
 
 			    sp = row;
 			    dp = row;
@@ -50,14 +50,14 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, png_uint_32 bit_d
 
 				    else {
 					    mask = 0x80;
-					    *dp = (png_byte)v;
+					    *dp = (uint8)v;
 					    dp++;
 					    v = 0;
 				    }
 			    }
 
 			    if(mask != 0x80)
-				    *dp = (png_byte)v;
+				    *dp = (uint8)v;
 
 			    break;
 		    }
@@ -67,8 +67,8 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, png_uint_32 bit_d
 			    png_bytep sp, dp;
 			    unsigned int shift;
 			    int v;
-			    png_uint_32 i;
-			    png_uint_32 row_width = row_info->width;
+			    uint32 i;
+			    uint32 row_width = row_info->width;
 
 			    sp = row;
 			    dp = row;
@@ -76,14 +76,14 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, png_uint_32 bit_d
 			    v = 0;
 
 			    for(i = 0; i < row_width; i++) {
-				    png_byte value;
+				    uint8 value;
 
-				    value = (png_byte)(*sp & 0x03);
+				    value = (uint8)(*sp & 0x03);
 				    v |= (value << shift);
 
 				    if(shift == 0) {
 					    shift = 6;
-					    *dp = (png_byte)v;
+					    *dp = (uint8)v;
 					    dp++;
 					    v = 0;
 				    }
@@ -95,7 +95,7 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, png_uint_32 bit_d
 			    }
 
 			    if(shift != 6)
-				    *dp = (png_byte)v;
+				    *dp = (uint8)v;
 
 			    break;
 		    }
@@ -105,8 +105,8 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, png_uint_32 bit_d
 			    png_bytep sp, dp;
 			    unsigned int shift;
 			    int v;
-			    png_uint_32 i;
-			    png_uint_32 row_width = row_info->width;
+			    uint32 i;
+			    uint32 row_width = row_info->width;
 
 			    sp = row;
 			    dp = row;
@@ -114,14 +114,14 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, png_uint_32 bit_d
 			    v = 0;
 
 			    for(i = 0; i < row_width; i++) {
-				    png_byte value;
+				    uint8 value;
 
-				    value = (png_byte)(*sp & 0x0f);
+				    value = (uint8)(*sp & 0x0f);
 				    v |= (value << shift);
 
 				    if(shift == 0) {
 					    shift = 4;
-					    *dp = (png_byte)v;
+					    *dp = (uint8)v;
 					    dp++;
 					    v = 0;
 				    }
@@ -133,7 +133,7 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, png_uint_32 bit_d
 			    }
 
 			    if(shift != 4)
-				    *dp = (png_byte)v;
+				    *dp = (uint8)v;
 
 			    break;
 		    }
@@ -142,8 +142,8 @@ static void png_do_pack(png_row_infop row_info, png_bytep row, png_uint_32 bit_d
 			    break;
 		}
 
-		row_info->bit_depth = (png_byte)bit_depth;
-		row_info->pixel_depth = (png_byte)(bit_depth * row_info->channels);
+		row_info->bit_depth = (uint8)bit_depth;
+		row_info->pixel_depth = (uint8)(bit_depth * row_info->channels);
 		row_info->rowbytes = PNG_ROWBYTES(row_info->pixel_depth,
 		    row_info->width);
 	}
@@ -192,9 +192,9 @@ static void png_do_shift(png_row_infop row_info, png_bytep row, png_const_color_
 		/* With low row depths, could only be grayscale, so one channel */
 		if(row_info->bit_depth < 8) {
 			png_bytep bp = row;
-			png_size_t i;
+			size_t i;
 			unsigned int mask;
-			png_size_t row_bytes = row_info->rowbytes;
+			size_t row_bytes = row_info->rowbytes;
 			if(bit_depth->gray == 1 && row_info->bit_depth == 2)
 				mask = 0x55;
 			else if(row_info->bit_depth == 4 && bit_depth->gray == 3)
@@ -210,13 +210,13 @@ static void png_do_shift(png_row_infop row_info, png_bytep row, png_const_color_
 					else
 						out |= (v >> (-j)) & mask;
 				}
-				*bp = (png_byte)(out & 0xff);
+				*bp = (uint8)(out & 0xff);
 			}
 		}
 		else if(row_info->bit_depth == 8) {
 			png_bytep bp = row;
-			png_uint_32 i;
-			png_uint_32 istop = channels * row_info->width;
+			uint32 i;
+			uint32 istop = channels * row_info->width;
 			for(i = 0; i < istop; i++, bp++) {
 				const unsigned int c = i%channels;
 				unsigned int v = *bp;
@@ -227,13 +227,13 @@ static void png_do_shift(png_row_infop row_info, png_bytep row, png_const_color_
 					else
 						out |= v >> (-j);
 				}
-				*bp = (png_byte)(out & 0xff);
+				*bp = (uint8)(out & 0xff);
 			}
 		}
 		else {
 			png_bytep bp;
-			png_uint_32 i;
-			const png_uint_32 istop = channels * row_info->width;
+			uint32 i;
+			const uint32 istop = channels * row_info->width;
 			for(bp = row, i = 0; i < istop; i++) {
 				const unsigned int c = i%channels;
 				int j;
@@ -245,8 +245,8 @@ static void png_do_shift(png_row_infop row_info, png_bytep row, png_const_color_
 					else
 						value |= v >> (-j);
 				}
-				*bp++ = (png_byte)((value >> 8) & 0xff);
-				*bp++ = (png_byte)(value & 0xff);
+				*bp++ = (uint8)((value >> 8) & 0xff);
+				*bp++ = (uint8)(value & 0xff);
 			}
 		}
 	}
@@ -264,11 +264,11 @@ static void png_do_write_swap_alpha(png_row_infop row_info, png_bytep row)
 			if(row_info->bit_depth == 8) {
 				/* This converts from ARGB to RGBA */
 				png_bytep sp, dp;
-				png_uint_32 i;
-				png_uint_32 row_width = row_info->width;
+				uint32 i;
+				uint32 row_width = row_info->width;
 
 				for(i = 0, sp = dp = row; i < row_width; i++) {
-					png_byte save = *(sp++);
+					uint8 save = *(sp++);
 					*(dp++) = *(sp++);
 					*(dp++) = *(sp++);
 					*(dp++) = *(sp++);
@@ -280,11 +280,11 @@ static void png_do_write_swap_alpha(png_row_infop row_info, png_bytep row)
 			else {
 				/* This converts from AARRGGBB to RRGGBBAA */
 				png_bytep sp, dp;
-				png_uint_32 i;
-				png_uint_32 row_width = row_info->width;
+				uint32 i;
+				uint32 row_width = row_info->width;
 
 				for(i = 0, sp = dp = row; i < row_width; i++) {
-					png_byte save[2];
+					uint8 save[2];
 					save[0] = *(sp++);
 					save[1] = *(sp++);
 					*(dp++) = *(sp++);
@@ -304,11 +304,11 @@ static void png_do_write_swap_alpha(png_row_infop row_info, png_bytep row)
 			if(row_info->bit_depth == 8) {
 				/* This converts from AG to GA */
 				png_bytep sp, dp;
-				png_uint_32 i;
-				png_uint_32 row_width = row_info->width;
+				uint32 i;
+				uint32 row_width = row_info->width;
 
 				for(i = 0, sp = dp = row; i < row_width; i++) {
-					png_byte save = *(sp++);
+					uint8 save = *(sp++);
 					*(dp++) = *(sp++);
 					*(dp++) = save;
 				}
@@ -318,11 +318,11 @@ static void png_do_write_swap_alpha(png_row_infop row_info, png_bytep row)
 			else {
 				/* This converts from AAGG to GGAA */
 				png_bytep sp, dp;
-				png_uint_32 i;
-				png_uint_32 row_width = row_info->width;
+				uint32 i;
+				uint32 row_width = row_info->width;
 
 				for(i = 0, sp = dp = row; i < row_width; i++) {
-					png_byte save[2];
+					uint8 save[2];
 					save[0] = *(sp++);
 					save[1] = *(sp++);
 					*(dp++) = *(sp++);
@@ -348,8 +348,8 @@ static void png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
 			if(row_info->bit_depth == 8) {
 				/* This inverts the alpha channel in RGBA */
 				png_bytep sp, dp;
-				png_uint_32 i;
-				png_uint_32 row_width = row_info->width;
+				uint32 i;
+				uint32 row_width = row_info->width;
 
 				for(i = 0, sp = dp = row; i < row_width; i++) {
 					/* Does nothing
@@ -358,7 +358,7 @@ static void png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
 					   *(dp++) = *(sp++);
 					 */
 					sp += 3; dp = sp;
-					*dp = (png_byte)(255 - *(sp++));
+					*dp = (uint8)(255 - *(sp++));
 				}
 			}
 
@@ -366,8 +366,8 @@ static void png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
 			else {
 				/* This inverts the alpha channel in RRGGBBAA */
 				png_bytep sp, dp;
-				png_uint_32 i;
-				png_uint_32 row_width = row_info->width;
+				uint32 i;
+				uint32 row_width = row_info->width;
 
 				for(i = 0, sp = dp = row; i < row_width; i++) {
 					/* Does nothing
@@ -379,8 +379,8 @@ static void png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
 					   *(dp++) = *(sp++);
 					 */
 					sp += 6; dp = sp;
-					*(dp++) = (png_byte)(255 - *(sp++));
-					*dp     = (png_byte)(255 - *(sp++));
+					*(dp++) = (uint8)(255 - *(sp++));
+					*dp     = (uint8)(255 - *(sp++));
 				}
 			}
 #endif /* WRITE_16BIT */
@@ -390,12 +390,12 @@ static void png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
 			if(row_info->bit_depth == 8) {
 				/* This inverts the alpha channel in GA */
 				png_bytep sp, dp;
-				png_uint_32 i;
-				png_uint_32 row_width = row_info->width;
+				uint32 i;
+				uint32 row_width = row_info->width;
 
 				for(i = 0, sp = dp = row; i < row_width; i++) {
 					*(dp++) = *(sp++);
-					*(dp++) = (png_byte)(255 - *(sp++));
+					*(dp++) = (uint8)(255 - *(sp++));
 				}
 			}
 
@@ -403,8 +403,8 @@ static void png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
 			else {
 				/* This inverts the alpha channel in GGAA */
 				png_bytep sp, dp;
-				png_uint_32 i;
-				png_uint_32 row_width = row_info->width;
+				uint32 i;
+				uint32 row_width = row_info->width;
 
 				for(i = 0, sp = dp = row; i < row_width; i++) {
 					/* Does nothing
@@ -412,8 +412,8 @@ static void png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
 					   *(dp++) = *(sp++);
 					 */
 					sp += 2; dp = sp;
-					*(dp++) = (png_byte)(255 - *(sp++));
-					*dp     = (png_byte)(255 - *(sp++));
+					*(dp++) = (uint8)(255 - *(sp++));
+					*dp     = (uint8)(255 - *(sp++));
 				}
 			}
 #endif /* WRITE_16BIT */
@@ -438,12 +438,12 @@ void /* PRIVATE */ png_do_write_transformations(png_structrp png_ptr, png_row_in
 			                                         function */
 				(png_ptr, /* png_ptr */
 			    row_info, /* row_info: */
-			    /*  png_uint_32 width;       width of row */
-			    /*  png_size_t rowbytes;     number of bytes in row */
-			    /*  png_byte color_type;     color type of pixels */
-			    /*  png_byte bit_depth;      bit depth of samples */
-			    /*  png_byte channels;       number of channels (1-4) */
-			    /*  png_byte pixel_depth;    bits per pixel (depth*channels) */
+			    /*  uint32 width;       width of row */
+			    /*  size_t rowbytes;     number of bytes in row */
+			    /*  uint8 color_type;     color type of pixels */
+			    /*  uint8 bit_depth;      bit depth of samples */
+			    /*  uint8 channels;       number of channels (1-4) */
+			    /*  uint8 pixel_depth;    bits per pixel (depth*channels) */
 			    png_ptr->row_buf + 1);  /* start of pixel data for row */
 #endif
 
@@ -457,7 +457,7 @@ void /* PRIVATE */ png_do_write_transformations(png_structrp png_ptr, png_row_in
 #endif
 #ifdef PNG_WRITE_PACK_SUPPORTED
 	if((png_ptr->transformations & PNG_PACK) != 0)
-		png_do_pack(row_info, png_ptr->row_buf + 1, (png_uint_32)png_ptr->bit_depth);
+		png_do_pack(row_info, png_ptr->row_buf + 1, (uint32)png_ptr->bit_depth);
 #endif
 #ifdef PNG_WRITE_SWAP_SUPPORTED
 #  ifdef PNG_16BIT_SUPPORTED

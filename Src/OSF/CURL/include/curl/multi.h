@@ -167,7 +167,7 @@ CURL_EXTERN CURLMcode curl_multi_fdset(CURLM *multi_handle,
  */
 CURL_EXTERN CURLMcode curl_multi_wait(CURLM *multi_handle,
                                       struct curl_waitfd extra_fds[],
-                                      unsigned int extra_nfds,
+                                      uint extra_nfds,
                                       int timeout_ms,
                                       int *ret);
 

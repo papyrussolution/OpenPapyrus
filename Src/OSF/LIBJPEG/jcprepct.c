@@ -94,16 +94,11 @@ METHODDEF(void) start_pass_prep(j_compress_ptr cinfo, J_BUF_MODE pass_mode)
  * Expand an image vertically from height input_rows to height output_rows,
  * by duplicating the bottom row.
  */
-
-LOCAL(void)
-expand_bottom_edge(JSAMPARRAY image_data, JDIMENSION num_cols,
-    int input_rows, int output_rows)
+static void expand_bottom_edge(JSAMPARRAY image_data, JDIMENSION num_cols, int input_rows, int output_rows)
 {
 	register int row;
-
 	for(row = input_rows; row < output_rows; row++) {
-		jcopy_sample_rows(image_data, input_rows-1, image_data, row,
-		    1, num_cols);
+		jcopy_sample_rows(image_data, input_rows-1, image_data, row, 1, num_cols);
 	}
 }
 
@@ -253,9 +248,7 @@ METHODDEF(void) pre_process_context(j_compress_ptr cinfo,
 /*
  * Create the wrapped-around downsampling input buffer needed for context mode.
  */
-
-LOCAL(void)
-create_context_buffer(j_compress_ptr cinfo)
+static void create_context_buffer(j_compress_ptr cinfo)
 {
 	my_prep_ptr prep = (my_prep_ptr)cinfo->prep;
 	int rgroup_height = cinfo->max_v_samp_factor;

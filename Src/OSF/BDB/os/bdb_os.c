@@ -251,7 +251,7 @@ int __os_realloc(ENV * env, size_t size, void * storep)
 	 * Don't overwrite the original pointer, there are places in DB we
 	 * try to continue after realloc fails.
 	 */
-	p = (DB_GLOBAL(j_realloc) != NULL) ? DB_GLOBAL(j_realloc) (ptr, size) : realloc(ptr, size);
+	p = (DB_GLOBAL(j_realloc) != NULL) ? DB_GLOBAL(j_realloc)(ptr, size) : realloc(ptr, size);
 	if(p == NULL) {
 		/*
 		 * Some C libraries don't correctly set errno when SAlloc::M(3)

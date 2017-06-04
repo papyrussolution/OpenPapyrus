@@ -19,7 +19,7 @@
 #pragma hdrstop
 //#include <ctype.h>		/* to declare isdigit(), isspace() */
 
-LOCAL(int) text_getc(FILE * file)
+static int text_getc(FILE * file)
 /* Read next char, skipping over any comments (# to end of line) */
 /* A comment/newline sequence is returned as a newline */
 {
@@ -116,14 +116,12 @@ GLOBAL(boolean) read_quant_tables(j_compress_ptr cinfo, char * filename, boolean
 
 #ifdef C_MULTISCAN_FILES_SUPPORTED
 
-LOCAL(boolean)
-read_scan_integer(FILE * file, long * result, int * termchar)
+LOCAL(boolean) read_scan_integer(FILE * file, long * result, int * termchar)
 /* Variant of read_text_integer that always looks for a non-space termchar;
  * this simplifies parsing of punctuation in scan scripts.
  */
 {
 	register int ch;
-
 	if(!read_text_integer(file, result, termchar))
 		return FALSE;
 	ch = *termchar;

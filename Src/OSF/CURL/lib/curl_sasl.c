@@ -40,7 +40,7 @@
 #include "curl_hmac.h"
 #include "curl_sasl.h"
 #include "warnless.h"
-#include "strtok.h"
+//#include "strtok.h"
 #include "sendf.h"
 #include "non-ascii.h" /* included for Curl_convert_... prototypes */
 /* The last 3 #include files should be in this order */
@@ -52,7 +52,7 @@
 static const struct {
   const char   *name;  /* Name */
   size_t        len;   /* Name length */
-  unsigned int  bit;   /* Flag bit */
+  uint  bit;   /* Flag bit */
 } mechtable[] = {
   { "LOGIN",        5,  SASL_MECH_LOGIN },
   { "PLAIN",        5,  SASL_MECH_PLAIN },
@@ -77,7 +77,7 @@ static const struct {
  * conn     [in]     - The connection data.
  * authused [in]     - The authentication mechanism used.
  */
-void Curl_sasl_cleanup(struct connectdata *conn, unsigned int authused)
+void Curl_sasl_cleanup(struct connectdata *conn, uint authused)
 {
 #if defined(USE_KERBEROS5)
   /* Cleanup the gssapi structure */
@@ -113,9 +113,9 @@ void Curl_sasl_cleanup(struct connectdata *conn, unsigned int authused)
  *
  * Returns the SASL mechanism token or 0 if no match.
  */
-unsigned int Curl_sasl_decode_mech(const char *ptr, size_t maxlen, size_t *len)
+uint Curl_sasl_decode_mech(const char *ptr, size_t maxlen, size_t *len)
 {
-  unsigned int i;
+  uint i;
   char c;
 
   for(i = 0; mechtable[i].name; i++) {
@@ -145,7 +145,7 @@ CURLcode Curl_sasl_parse_url_auth_option(struct SASL *sasl,
                                          const char *value, size_t len)
 {
   CURLcode result = CURLE_OK;
-  unsigned int mechbit;
+  uint mechbit;
   size_t mechlen;
 
   if(!len)
@@ -255,7 +255,7 @@ CURLcode Curl_sasl_start(struct SASL *sasl, struct connectdata *conn,
 {
   CURLcode result = CURLE_OK;
   struct Curl_easy *data = conn->data;
-  unsigned int enabledmechs;
+  uint enabledmechs;
   const char *mech = NULL;
   char *resp = NULL;
   size_t len = 0;
@@ -382,7 +382,7 @@ CURLcode Curl_sasl_start(struct SASL *sasl, struct connectdata *conn,
   if(!result && mech) {
     if(resp && sasl->params->maxirlen &&
        strlen(mech) + len > sasl->params->maxirlen) {
-      free(resp);
+      SAlloc::F(resp);
       resp = NULL;
     }
 
@@ -393,7 +393,7 @@ CURLcode Curl_sasl_start(struct SASL *sasl, struct connectdata *conn,
     }
   }
 
-  free(resp);
+  SAlloc::F(resp);
 
   return result;
 }
@@ -469,7 +469,7 @@ CURLcode Curl_sasl_continue(struct SASL *sasl, struct connectdata *conn,
     if(!result)
       result = Curl_auth_create_cram_md5_message(data, chlg, conn->user,
                                                  conn->passwd, &resp, &len);
-    free(chlg);
+    SAlloc::F(chlg);
     break;
   case SASL_DIGESTMD5:
     sasl->params->getmessage(data->state.buffer, &serverdata);
@@ -480,7 +480,7 @@ CURLcode Curl_sasl_continue(struct SASL *sasl, struct connectdata *conn,
     newstate = SASL_DIGESTMD5_RESP;
     break;
   case SASL_DIGESTMD5_RESP:
-    resp = strdup("");
+    resp = _strdup("");
     if(!resp)
       result = CURLE_OUT_OF_MEMORY;
     break;
@@ -573,7 +573,7 @@ CURLcode Curl_sasl_continue(struct SASL *sasl, struct connectdata *conn,
     else if(code == sasl->params->contcode) {
       /* Acknowledge the continuation by sending a 0x01 response base64
          encoded */
-      resp = strdup("AQ==");
+      resp = _strdup("AQ==");
       if(!resp)
         result = CURLE_OUT_OF_MEMORY;
       break;
@@ -614,7 +614,7 @@ CURLcode Curl_sasl_continue(struct SASL *sasl, struct connectdata *conn,
     break;
   }
 
-  free(resp);
+  SAlloc::F(resp);
 
   state(sasl, conn, newstate);
 

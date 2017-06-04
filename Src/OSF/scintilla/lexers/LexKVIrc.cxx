@@ -11,7 +11,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "WordList.h"
@@ -354,7 +353,7 @@ static void FoldKVIrcDoc(Sci_PositionU startPos, Sci_Position length, int /*init
                       WordList *[], Accessor &styler)
 {
     /* Based on CMake's folder */
-    
+
     /* Exiting if folding isnt enabled */
     if ( styler.GetPropertyInt("fold") == 0 )
         return;

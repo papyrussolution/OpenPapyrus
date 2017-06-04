@@ -212,8 +212,7 @@ GLOBAL(void) jpeg_core_output_dimensions(j_decompress_ptr cinfo)
 #endif /* IDCT_SCALING_SUPPORTED */
 }
 
-LOCAL(void)
-initial_setup(j_decompress_ptr cinfo)
+static void initial_setup(j_decompress_ptr cinfo)
 /* Called once, when first SOS marker is reached */
 {
 	int ci;
@@ -392,8 +391,7 @@ initial_setup(j_decompress_ptr cinfo)
 		cinfo->inputctl->has_multiple_scans = FALSE;
 }
 
-LOCAL(void)
-per_scan_setup(j_decompress_ptr cinfo)
+static void per_scan_setup(j_decompress_ptr cinfo)
 /* Do computations that are needed before processing a JPEG scan */
 /* cinfo->comps_in_scan and cinfo->cur_comp_info[] were set from SOS marker */
 {
@@ -487,13 +485,11 @@ per_scan_setup(j_decompress_ptr cinfo)
  * not at the current Q-table slots.
  */
 
-LOCAL(void)
-latch_quant_tables(j_decompress_ptr cinfo)
+static void latch_quant_tables(j_decompress_ptr cinfo)
 {
 	int ci, qtblno;
 	jpeg_component_info * compptr;
 	JQUANT_TBL * qtbl;
-
 	for(ci = 0; ci < cinfo->comps_in_scan; ci++) {
 		compptr = cinfo->cur_comp_info[ci];
 		/* No work if we already saved Q-table for this component */
@@ -501,13 +497,10 @@ latch_quant_tables(j_decompress_ptr cinfo)
 			continue;
 		/* Make sure specified quantization table is present */
 		qtblno = compptr->quant_tbl_no;
-		if(qtblno < 0 || qtblno >= NUM_QUANT_TBLS ||
-		    cinfo->quant_tbl_ptrs[qtblno] == NULL)
+		if(qtblno < 0 || qtblno >= NUM_QUANT_TBLS || cinfo->quant_tbl_ptrs[qtblno] == NULL)
 			ERREXIT1(cinfo, JERR_NO_QUANT_TABLE, qtblno);
 		/* OK, save away the quantization table */
-		qtbl = (JQUANT_TBL*)
-		    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-		    SIZEOF(JQUANT_TBL));
+		qtbl = (JQUANT_TBL*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(JQUANT_TBL));
 		MEMCOPY(qtbl, cinfo->quant_tbl_ptrs[qtblno], SIZEOF(JQUANT_TBL));
 		compptr->quant_table = qtbl;
 	}

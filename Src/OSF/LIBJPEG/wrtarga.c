@@ -47,7 +47,7 @@ typedef struct {
 
 typedef tga_dest_struct * tga_dest_ptr;
 
-LOCAL(void) write_header(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, int num_colors)
+static void write_header(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, int num_colors)
 /* Create and write a Targa header */
 {
 	char targaheader[18];

@@ -67,7 +67,7 @@ METHODDEF(int) decompress_onepass JPP((j_decompress_ptr cinfo, JSAMPIMAGE output
 	METHODDEF(int) decompress_smooth_data JPP((j_decompress_ptr cinfo, JSAMPIMAGE output_buf));
 #endif
 
-LOCAL(void) start_iMCU_row(j_decompress_ptr cinfo)
+static void start_iMCU_row(j_decompress_ptr cinfo)
 /* Reset within-iMCU-row counters for a new row (input side) */
 {
 	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;

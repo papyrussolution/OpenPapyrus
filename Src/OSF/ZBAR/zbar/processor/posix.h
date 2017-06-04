@@ -53,8 +53,8 @@ struct processor_state_s {
 #ifdef HAVE_POLL_H
 static inline int alloc_polls (volatile poll_desc_t *p)
 {
-    p->fds = realloc(p->fds, p->num * sizeof(struct pollfd));
-    p->handlers = realloc(p->handlers, p->num * sizeof(poll_handler_t*));
+    p->fds = SAlloc::R(p->fds, p->num * sizeof(struct pollfd));
+    p->handlers = SAlloc::R(p->handlers, p->num * sizeof(poll_handler_t*));
     /* FIXME should check for ENOMEM */
     return 0;
 }

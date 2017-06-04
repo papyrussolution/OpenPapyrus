@@ -10,6 +10,7 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
+#include <algorithm>
 #include "StringCopy.h"
 #include "CharacterCategory.h"
 

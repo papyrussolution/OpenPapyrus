@@ -72,7 +72,7 @@ struct imap_conn {
   imapstate state;            /* Always use imap.c:state() to change state! */
   bool ssldone;               /* Is connect() over SSL done? */
   struct SASL sasl;           /* SASL-related parameters */
-  unsigned int preftype;      /* Preferred authentication type */
+  uint preftype;      /* Preferred authentication type */
   int cmdid;                  /* Last used command ID */
   char resptag[5];            /* Response tag to wait for */
   bool tls_supported;         /* StartTLS capability supported by server */

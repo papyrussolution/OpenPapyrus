@@ -58,16 +58,12 @@ typedef struct _tga_source_struct {
 
 	/* Result of read_pixel is delivered here: */
 	U_CHAR tga_pixel[4];
-
 	int pixel_size;         /* Bytes per Targa pixel (1 to 4) */
-
 	/* State info for reading RLE-coded pixels; both counts must be init to 0 */
 	int block_count;        /* # of pixels remaining in RLE block */
 	int dup_pixel_count;    /* # of times to duplicate previous pixel */
-
 	/* This saves the correct pixel-row-expansion method for preload_image */
-	JMETHOD(JDIMENSION, get_pixel_rows, (j_compress_ptr cinfo,
-		    cjpeg_source_ptr sinfo));
+	JMETHOD(JDIMENSION, get_pixel_rows, (j_compress_ptr cinfo, cjpeg_source_ptr sinfo));
 } tga_source_struct;
 
 /* For expanding 5-bit pixel values to 8-bit with best rounding */
@@ -78,26 +74,26 @@ static const UINT8 c5to8bits[32] = {
 	132, 140, 148, 156, 165, 173, 181, 189,
 	197, 206, 214, 222, 230, 239, 247, 255
 };
-
-LOCAL(int)
-read_byte(tga_source_ptr sinfo)
-/* Read next byte from Targa file */
+//
+// Read next byte from Targa file 
+//
+static int FASTCALL read_byte(tga_source_ptr sinfo)
 {
-	register FILE * infile = sinfo->pub.input_file;
+	FILE * infile = sinfo->pub.input_file;
 	register int c;
 	if((c = getc(infile)) == EOF)
 		ERREXIT(sinfo->cinfo, JERR_INPUT_EOF);
 	return c;
 }
-
-LOCAL(void) read_colormap(tga_source_ptr sinfo, int cmaplen, int mapentrysize)
-/* Read the colormap from a Targa file */
+//
+// Read the colormap from a Targa file 
+//
+static void read_colormap(tga_source_ptr sinfo, int cmaplen, int mapentrysize)
 {
-	int i;
-	/* Presently only handles 24-bit BGR format */
+	// Presently only handles 24-bit BGR format 
 	if(mapentrysize != 24)
 		ERREXIT(sinfo->cinfo, JERR_TGA_BADCMAP);
-	for(i = 0; i < cmaplen; i++) {
+	for(int i = 0; i < cmaplen; i++) {
 		sinfo->colormap[2][i] = (JSAMPLE)read_byte(sinfo);
 		sinfo->colormap[1][i] = (JSAMPLE)read_byte(sinfo);
 		sinfo->colormap[0][i] = (JSAMPLE)read_byte(sinfo);
@@ -112,9 +108,7 @@ METHODDEF(void) read_non_rle_pixel(tga_source_ptr sinfo)
 /* Read one Targa pixel from the input file; no RLE expansion */
 {
 	register FILE * infile = sinfo->pub.input_file;
-	register int i;
-
-	for(i = 0; i < sinfo->pixel_size; i++) {
+	for(int i = 0; i < sinfo->pixel_size; i++) {
 		sinfo->tga_pixel[i] = (U_CHAR)getc(infile);
 	}
 }
@@ -124,13 +118,11 @@ METHODDEF(void) read_rle_pixel(tga_source_ptr sinfo)
 {
 	register FILE * infile = sinfo->pub.input_file;
 	register int i;
-
 	/* Duplicate previously read pixel? */
 	if(sinfo->dup_pixel_count > 0) {
 		sinfo->dup_pixel_count--;
 		return;
 	}
-
 	/* Time to read RLE block header? */
 	if(--sinfo->block_count < 0) { /* decrement pixels remaining in block */
 		i = read_byte(sinfo);
@@ -159,11 +151,8 @@ METHODDEF(JDIMENSION) get_8bit_gray_row(j_compress_ptr cinfo, cjpeg_source_ptr s
 /* This version is for reading 8-bit grayscale pixels */
 {
 	tga_source_ptr source = (tga_source_ptr)sinfo;
-	register JSAMPROW ptr;
-	register JDIMENSION col;
-
-	ptr = source->pub.buffer[0];
-	for(col = cinfo->image_width; col > 0; col--) {
+	register JSAMPROW ptr = source->pub.buffer[0];
+	for(JDIMENSION col = cinfo->image_width; col > 0; col--) {
 		(*source->read_pixel)(source); /* Load next pixel into tga_pixel */
 		*ptr++ = (JSAMPLE)UCH(source->tga_pixel[0]);
 	}
@@ -174,15 +163,11 @@ METHODDEF(JDIMENSION) get_8bit_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 /* This version is for reading 8-bit colormap indexes */
 {
 	tga_source_ptr source = (tga_source_ptr)sinfo;
-	register int t;
-	register JSAMPROW ptr;
-	register JDIMENSION col;
 	register JSAMPARRAY colormap = source->colormap;
-
-	ptr = source->pub.buffer[0];
-	for(col = cinfo->image_width; col > 0; col--) {
+	JSAMPROW ptr = source->pub.buffer[0];
+	for(JDIMENSION col = cinfo->image_width; col > 0; col--) {
 		(*source->read_pixel)(source); /* Load next pixel into tga_pixel */
-		t = UCH(source->tga_pixel[0]);
+		int t = UCH(source->tga_pixel[0]);
 		*ptr++ = colormap[0][t];
 		*ptr++ = colormap[1][t];
 		*ptr++ = colormap[2][t];

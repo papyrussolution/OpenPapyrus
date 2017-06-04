@@ -69,7 +69,7 @@ GifFileType * DGifOpenFileHandle(int FileHandle, int * Error)
 	if(Private == NULL) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_ENOUGH_MEM);
 		(void)close(FileHandle);
-		free((char*)GifFile);
+		SAlloc::F((char*)GifFile);
 		return NULL;
 	}
 #ifdef _WIN32
@@ -91,8 +91,8 @@ GifFileType * DGifOpenFileHandle(int FileHandle, int * Error)
 	if(READ(GifFile, (uint8*)Buf, GIF_STAMP_LEN) != GIF_STAMP_LEN) {
 		ASSIGN_PTR(Error, D_GIF_ERR_READ_FAILED);
 		(void)fclose(f);
-		free((char*)Private);
-		free((char*)GifFile);
+		SAlloc::F((char*)Private);
+		SAlloc::F((char*)GifFile);
 		return NULL;
 	}
 	/* Check for GIF prefix at start of file */
@@ -100,14 +100,14 @@ GifFileType * DGifOpenFileHandle(int FileHandle, int * Error)
 	if(strncmp(GIF_STAMP, Buf, GIF_VERSION_POS) != 0) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_GIF_FILE);
 		(void)fclose(f);
-		free((char*)Private);
-		free((char*)GifFile);
+		SAlloc::F((char*)Private);
+		SAlloc::F((char*)GifFile);
 		return NULL;
 	}
 	if(DGifGetScreenDesc(GifFile) == GIF_ERROR) {
 		(void)fclose(f);
-		free((char*)Private);
-		free((char*)GifFile);
+		SAlloc::F((char*)Private);
+		SAlloc::F((char*)GifFile);
 		return NULL;
 	}
 	GifFile->Error = 0;
@@ -135,7 +135,7 @@ GifFileType * DGifOpen(void * userData, InputFunc readFunc, int * Error)
 	Private = (GifFilePrivateType*)SAlloc::M(sizeof(GifFilePrivateType));
 	if(!Private) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_ENOUGH_MEM);
-		free((char*)GifFile);
+		SAlloc::F((char*)GifFile);
 		return NULL;
 	}
 	GifFile->Private = (void*)Private;
@@ -149,21 +149,21 @@ GifFileType * DGifOpen(void * userData, InputFunc readFunc, int * Error)
 	/* Lets see if this is a GIF file: */
 	if(READ(GifFile, (uint8*)Buf, GIF_STAMP_LEN) != GIF_STAMP_LEN) {
 		ASSIGN_PTR(Error, D_GIF_ERR_READ_FAILED);
-		free((char*)Private);
-		free((char*)GifFile);
+		SAlloc::F((char*)Private);
+		SAlloc::F((char*)GifFile);
 		return NULL;
 	}
 	/* Check for GIF prefix at start of file */
 	Buf[GIF_STAMP_LEN] = '\0';
 	if(strncmp(GIF_STAMP, Buf, GIF_VERSION_POS) != 0) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_GIF_FILE);
-		free((char*)Private);
-		free((char*)GifFile);
+		SAlloc::F((char*)Private);
+		SAlloc::F((char*)GifFile);
 		return NULL;
 	}
 	if(DGifGetScreenDesc(GifFile) == GIF_ERROR) {
-		free((char*)Private);
-		free((char*)GifFile);
+		SAlloc::F((char*)Private);
+		SAlloc::F((char*)GifFile);
 		return NULL;
 	}
 	GifFile->Error = 0;
@@ -311,7 +311,7 @@ int DGifGetImageDesc(GifFileType * GifFile)
 		}
 	}
 	if(GifFile->SavedImages) {
-		if((GifFile->SavedImages = (SavedImage*)realloc(GifFile->SavedImages, sizeof(SavedImage) * (GifFile->ImageCount + 1))) == NULL) {
+		if((GifFile->SavedImages = (SavedImage*)SAlloc::R(GifFile->SavedImages, sizeof(SavedImage) * (GifFile->ImageCount + 1))) == NULL) {
 			GifFile->Error = D_GIF_ERR_NOT_ENOUGH_MEM;
 			return GIF_ERROR;
 		}
@@ -533,13 +533,13 @@ int DGifCloseFile(GifFileType * GifFile)
 		GifFile->Error = D_GIF_ERR_CLOSE_FAILED;
 		return GIF_ERROR;
 	}
-	free((char*)GifFile->Private);
+	SAlloc::F((char*)GifFile->Private);
 	//
 	// Without the #ifndef, we get spurious warnings because Coverity mistakenly
 	// thinks the GIF structure is freed on an error return.
 	//
 #ifndef __COVERITY__
-	free(GifFile);
+	SAlloc::F(GifFile);
 #endif /* __COVERITY__ */
 	return GIF_OK;
 }
@@ -776,50 +776,45 @@ static int DGifGetPrefixChar(GifPrefixType * Prefix, int Code, int ClearCode)
 	}
 	return Code;
 }
-
-/******************************************************************************
-   Interface for accessing the LZ codes directly. Set Code to the real code
-   (12bits), or to -1 if EOF code is returned.
-******************************************************************************/
+// 
+// Interface for accessing the LZ codes directly. Set Code to the real code
+// (12bits), or to -1 if EOF code is returned.
+// 
 int DGifGetLZCodes(GifFileType * GifFile, int * Code)
 {
-	GifByteType * CodeBlock;
 	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
-
 	if(!IS_READABLE(Private)) {
-		/* This file was NOT open for reading: */
+		// This file was NOT open for reading: 
 		GifFile->Error = D_GIF_ERR_NOT_READABLE;
 		return GIF_ERROR;
 	}
-
-	if(DGifDecompressInput(GifFile, Code) == GIF_ERROR)
+	else if(DGifDecompressInput(GifFile, Code) == GIF_ERROR)
 		return GIF_ERROR;
-
-	if(*Code == Private->EOFCode) {
-		/* Skip rest of codes (hopefully only NULL terminating block): */
-		do {
-			if(DGifGetCodeNext(GifFile, &CodeBlock) == GIF_ERROR)
-				return GIF_ERROR;
-		} while(CodeBlock != NULL);
-
-		*Code = -1;
+	else {
+		if(*Code == Private->EOFCode) {
+			GifByteType * CodeBlock;
+			// Skip rest of codes (hopefully only NULL terminating block): 
+			do {
+				if(DGifGetCodeNext(GifFile, &CodeBlock) == GIF_ERROR)
+					return GIF_ERROR;
+			} while(CodeBlock != NULL);
+			*Code = -1;
+		}
+		else if(*Code == Private->ClearCode) {
+			// We need to start over again: 
+			Private->RunningCode = Private->EOFCode + 1;
+			Private->RunningBits = Private->BitsPerPixel + 1;
+			Private->MaxCode1 = 1 << Private->RunningBits;
+		}
+		return GIF_OK;
 	}
-	else if(*Code == Private->ClearCode) {
-		/* We need to start over again: */
-		Private->RunningCode = Private->EOFCode + 1;
-		Private->RunningBits = Private->BitsPerPixel + 1;
-		Private->MaxCode1 = 1 << Private->RunningBits;
-	}
-
-	return GIF_OK;
 }
-
-/******************************************************************************
-   The LZ decompression input routine:
-   This routine is responsable for the decompression of the bit stream from
-   8 bits (bytes) packets, into the real codes.
-   Returns GIF_OK if read successfully.
-******************************************************************************/
+// 
+// The LZ decompression input routine:
+// This routine is responsable for the decompression of the bit stream from
+// 8 bits (bytes) packets, into the real codes.
+// Returns GIF_OK if read successfully.
+// 
 static int DGifDecompressInput(GifFileType * GifFile, int * Code)
 {
 	static const ushort CodeMasks[] = {
@@ -858,13 +853,12 @@ static int DGifDecompressInput(GifFileType * GifFile, int * Code)
 	}
 	return GIF_OK;
 }
-
-/******************************************************************************
-   This routines read one GIF data block at a time and buffers it internally
-   so that the decompression routine could access it.
-   The routine returns the next byte from its internal buffer (or read next
-   block in if buffer empty) and returns GIF_OK if succesful.
-******************************************************************************/
+// 
+// This routines read one GIF data block at a time and buffers it internally
+// so that the decompression routine could access it.
+// The routine returns the next byte from its internal buffer (or read next
+// block in if buffer empty) and returns GIF_OK if succesful.
+// 
 static int DGifBufferedInput(GifFileType * GifFile, GifByteType * Buf, GifByteType * NextByte)
 {
 	if(Buf[0] == 0) {
@@ -903,12 +897,11 @@ static int DGifBufferedInput(GifFileType * GifFile, GifByteType * Buf, GifByteTy
 	}
 	return GIF_OK;
 }
-
-/******************************************************************************
-   This routine reads an entire GIF into core, hanging all its state info off
-   the GifFileType pointer.  Call DGifOpenFileName() or DGifOpenFileHandle()
-   first to initialize I/O.  Its inverse is EGifSpew().
- *******************************************************************************/
+// 
+// This routine reads an entire GIF into core, hanging all its state info off
+// the GifFileType pointer.  Call DGifOpenFileName() or DGifOpenFileHandle()
+// first to initialize I/O.  Its inverse is EGifSpew().
+// 
 int DGifSlurp(GifFileType * GifFile)
 {
 	size_t ImageSize;
@@ -926,7 +919,7 @@ int DGifSlurp(GifFileType * GifFile)
 			    if(DGifGetImageDesc(GifFile) == GIF_ERROR)
 				    return (GIF_ERROR);
 			    sp = &GifFile->SavedImages[GifFile->ImageCount - 1];
-			    /* Allocate memory for the image */
+			    // Allocate memory for the image 
 			    if(sp->ImageDesc.Width < 0 && sp->ImageDesc.Height < 0 && sp->ImageDesc.Width > (INT_MAX / sp->ImageDesc.Height)) {
 				    return GIF_ERROR;
 			    }
@@ -940,12 +933,11 @@ int DGifSlurp(GifFileType * GifFile)
 			    }
 			    if(sp->ImageDesc.Interlace) {
 				    int i, j;
-				    /*
-				     * The way an interlaced image should be read -
-				     * offsets and jumps...
-				     */
-				    int InterlacedOffset[] = { 0, 4, 2, 1 };
-				    int InterlacedJumps[] = { 8, 8, 4, 2 };
+				    //
+					// The way an interlaced image should be read - offsets and jumps...
+					//
+				    static const int InterlacedOffset[] = { 0, 4, 2, 1 };
+				    static const int InterlacedJumps[] = { 8, 8, 4, 2 };
 				    /* Need to perform 4 passes on the image */
 				    for(i = 0; i < 4; i++)
 					    for(j = InterlacedOffset[i]; j < sp->ImageDesc.Height; j += InterlacedJumps[i]) {

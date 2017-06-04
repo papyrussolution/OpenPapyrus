@@ -9,7 +9,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "WordList.h"
@@ -78,7 +77,7 @@ static void ColouriseAvsDoc(
 				styler.SetLineState(currentLine, 0);
 			}
 		}
-		
+
 		// Determine if the current state should terminate.
 		if (sc.state == SCE_AVS_OPERATOR) {
 			sc.SetState(SCE_AVS_DEFAULT);

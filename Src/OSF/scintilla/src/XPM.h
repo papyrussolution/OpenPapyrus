@@ -19,11 +19,11 @@ class XPM {
 	int height;
 	int width;
 	int nColours;
-	std::vector<unsigned char> pixels;
+	std::vector<uchar> pixels;
 	ColourDesired colourCodeTable[256];
 	char codeTransparent;
 	ColourDesired ColourFromCode(int ch) const;
-	void FillRun(Surface *surface, int code, int startX, int y, int x);
+	void FillRun(Surface *surface, int code, int startX, int y, int x) const;
 public:
 	explicit XPM(const char *textForm);
 	explicit XPM(const char *const *linesForm);
@@ -49,9 +49,9 @@ class RGBAImage {
 	int height;
 	int width;
 	float scale;
-	std::vector<unsigned char> pixelBytes;
+	std::vector<uchar> pixelBytes;
 public:
-	RGBAImage(int width_, int height_, float scale_, const unsigned char *pixels_);
+	RGBAImage(int width_, int height_, float scale_, const uchar *pixels_);
 	explicit RGBAImage(const XPM &xpm);
 	virtual ~RGBAImage();
 	int GetHeight() const { return height; }
@@ -60,7 +60,7 @@ public:
 	float GetScaledHeight() const { return height / scale; }
 	float GetScaledWidth() const { return width / scale; }
 	int CountBytes() const;
-	const unsigned char *Pixels() const;
+	const uchar *Pixels() const;
 	void SetPixel(int x, int y, ColourDesired colour, int alpha=0xff);
 };
 

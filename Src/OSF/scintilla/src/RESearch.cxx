@@ -199,11 +199,12 @@
  *  compile:    BOT 1 CHR f CHR o CLO ANY END EOT 1 CHR - REF 1 END
  *  matches:    foo-foo fo-fo fob-fob foobar-foobar ...
  */
-
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
+#include <stdexcept>
+#include <string>
+#include <algorithm>
 #include "Position.h"
 #include "CharClassify.h"
 #include "RESearch.h"
@@ -273,37 +274,37 @@ void RESearch::Clear() {
 }
 
 void RESearch::GrabMatches(CharacterIndexer &ci) {
-	for (unsigned int i = 0; i < MAXTAG; i++) {
+	for (uint i = 0; i < MAXTAG; i++) {
 		if ((bopat[i] != NOTFOUND) && (eopat[i] != NOTFOUND)) {
-			unsigned int len = eopat[i] - bopat[i];
+			uint len = eopat[i] - bopat[i];
 			pat[i].resize(len);
-			for (unsigned int j = 0; j < len; j++)
+			for (uint j = 0; j < len; j++)
 				pat[i][j] = ci.CharAt(bopat[i] + j);
 		}
 	}
 }
 
-void RESearch::ChSet(unsigned char c) {
+void RESearch::ChSet(uchar c) {
 	bittab[((c) & BLKIND) >> 3] |= bitarr[(c) & BITIND];
 }
 
-void RESearch::ChSetWithCase(unsigned char c, bool caseSensitive) {
+void RESearch::ChSetWithCase(uchar c, bool caseSensitive) {
 	if (caseSensitive) {
 		ChSet(c);
 	} else {
 		if ((c >= 'a') && (c <= 'z')) {
 			ChSet(c);
-			ChSet(static_cast<unsigned char>(c - 'a' + 'A'));
+			ChSet(static_cast<uchar>(c - 'a' + 'A'));
 		} else if ((c >= 'A') && (c <= 'Z')) {
 			ChSet(c);
-			ChSet(static_cast<unsigned char>(c - 'A' + 'a'));
+			ChSet(static_cast<uchar>(c - 'A' + 'a'));
 		} else {
 			ChSet(c);
 		}
 	}
 }
 
-unsigned char escapeValue(unsigned char ch) {
+static uchar escapeValue(uchar ch) {
 	switch (ch) {
 	case 'a':	return '\a';
 	case 'b':	return '\b';
@@ -316,7 +317,7 @@ unsigned char escapeValue(unsigned char ch) {
 	return 0;
 }
 
-static int GetHexaChar(unsigned char hd1, unsigned char hd2) {
+static int GetHexaChar(uchar hd1, uchar hd2) {
 	int hexValue = 0;
 	if (hd1 >= '0' && hd1 <= '9') {
 		hexValue += 16 * (hd1 - '0');
@@ -356,7 +357,7 @@ int RESearch::GetBackslashExpression(
 	incr = 0;	// Most of the time, will skip the char "naturally".
 	int c;
 	int result = -1;
-	unsigned char bsc = *pattern;
+	uchar bsc = *pattern;
 	if (!bsc) {
 		// Avoid overrun
 		result = '\\';	// \ at end of pattern, take it literally
@@ -374,8 +375,8 @@ int RESearch::GetBackslashExpression(
 		result = escapeValue(bsc);
 		break;
 	case 'x': {
-			unsigned char hd1 = *(pattern + 1);
-			unsigned char hd2 = *(pattern + 2);
+			uchar hd1 = *(pattern + 1);
+			uchar hd2 = *(pattern + 2);
 			int hexValue = GetHexaChar(hd1, hd2);
 			if (hexValue >= 0) {
 				result = hexValue;
@@ -387,13 +388,13 @@ int RESearch::GetBackslashExpression(
 		break;
 	case 'd':
 		for (c = '0'; c <= '9'; c++) {
-			ChSet(static_cast<unsigned char>(c));
+			ChSet(static_cast<uchar>(c));
 		}
 		break;
 	case 'D':
 		for (c = 0; c < MAXCHR; c++) {
 			if (c < '0' || c > '9') {
-				ChSet(static_cast<unsigned char>(c));
+				ChSet(static_cast<uchar>(c));
 			}
 		}
 		break;
@@ -408,21 +409,21 @@ int RESearch::GetBackslashExpression(
 	case 'S':
 		for (c = 0; c < MAXCHR; c++) {
 			if (c != ' ' && !(c >= 0x09 && c <= 0x0D)) {
-				ChSet(static_cast<unsigned char>(c));
+				ChSet(static_cast<uchar>(c));
 			}
 		}
 		break;
 	case 'w':
 		for (c = 0; c < MAXCHR; c++) {
-			if (iswordc(static_cast<unsigned char>(c))) {
-				ChSet(static_cast<unsigned char>(c));
+			if (iswordc(static_cast<uchar>(c))) {
+				ChSet(static_cast<uchar>(c));
 			}
 		}
 		break;
 	case 'W':
 		for (c = 0; c < MAXCHR; c++) {
-			if (!iswordc(static_cast<unsigned char>(c))) {
-				ChSet(static_cast<unsigned char>(c));
+			if (!iswordc(static_cast<uchar>(c))) {
+				ChSet(static_cast<uchar>(c));
 			}
 		}
 		break;
@@ -515,7 +516,7 @@ const char *RESearch::Compile(const char *pattern, int length, bool caseSensitiv
 						if (*(p+1) != ']') {
 							c1 = prevChar + 1;
 							i++;
-							c2 = static_cast<unsigned char>(*++p);
+							c2 = static_cast<uchar>(*++p);
 							if (c2 == '\\') {
 								if (!*(p+1)) {	// End of RE
 									return badpat("Missing ]");
@@ -528,7 +529,7 @@ const char *RESearch::Compile(const char *pattern, int length, bool caseSensitiv
 									p += incr;
 									if (c2 >= 0) {
 										// Convention: \c (c is any char) is case sensitive, whatever the option
-										ChSet(static_cast<unsigned char>(c2));
+										ChSet(static_cast<uchar>(c2));
 										prevChar = c2;
 									} else {
 										// bittab is already changed
@@ -543,7 +544,7 @@ const char *RESearch::Compile(const char *pattern, int length, bool caseSensitiv
 							} else {
 								// Put all chars between c1 and c2 included in the char set
 								while (c1 <= c2) {
-									ChSetWithCase(static_cast<unsigned char>(c1++), caseSensitive);
+									ChSetWithCase(static_cast<uchar>(c1++), caseSensitive);
 								}
 							}
 						} else {
@@ -563,14 +564,14 @@ const char *RESearch::Compile(const char *pattern, int length, bool caseSensitiv
 					p += incr;
 					if (c >= 0) {
 						// Convention: \c (c is any char) is case sensitive, whatever the option
-						ChSet(static_cast<unsigned char>(c));
+						ChSet(static_cast<uchar>(c));
 						prevChar = c;
 					} else {
 						// bittab is already changed
 						prevChar = -1;
 					}
 				} else {
-					prevChar = static_cast<unsigned char>(*p);
+					prevChar = static_cast<uchar>(*p);
 					ChSetWithCase(*p, caseSensitive);
 				}
 				i++;
@@ -677,7 +678,7 @@ const char *RESearch::Compile(const char *pattern, int length, bool caseSensitiv
 					p += incr;
 					if (c >= 0) {
 						*mp++ = CHR;
-						*mp++ = static_cast<unsigned char>(c);
+						*mp++ = static_cast<uchar>(c);
 					} else {
 						*mp++ = CCL;
 						mask = 0;
@@ -707,7 +708,7 @@ const char *RESearch::Compile(const char *pattern, int length, bool caseSensitiv
 					return badpat("Unmatched )");
 				}
 			} else {
-				unsigned char c = *p;
+				uchar c = *p;
 				if (!c)	// End of RE
 					c = '\\';	// We take it as raw backslash
 				if (caseSensitive || !iswordc(c)) {
@@ -754,7 +755,7 @@ const char *RESearch::Compile(const char *pattern, int length, bool caseSensitiv
  *
  */
 int RESearch::Execute(CharacterIndexer &ci, int lp, int endp) {
-	unsigned char c;
+	uchar c;
 	int ep = NOTFOUND;
 	char *ap = nfa;
 
@@ -778,7 +779,7 @@ int RESearch::Execute(CharacterIndexer &ci, int lp, int endp) {
 		}
 	case CHR:			/* ordinary char: locate it fast */
 		c = *(ap+1);
-		while ((lp < endp) && (static_cast<unsigned char>(ci.CharAt(lp)) != c))
+		while ((lp < endp) && (static_cast<uchar>(ci.CharAt(lp)) != c))
 			lp++;
 		if (lp >= endp)	/* if EOS, fail, else fall through. */
 			return 0;

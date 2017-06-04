@@ -29,60 +29,46 @@
 #include "urldata.h"
 
 #ifndef UNISP_NAME_A
-#define UNISP_NAME_A "Microsoft Unified Security Protocol Provider"
+	#define UNISP_NAME_A "Microsoft Unified Security Protocol Provider"
 #endif
-
 #ifndef UNISP_NAME_W
-#define UNISP_NAME_W L"Microsoft Unified Security Protocol Provider"
+	#define UNISP_NAME_W L"Microsoft Unified Security Protocol Provider"
 #endif
-
 #ifndef UNISP_NAME
-#ifdef UNICODE
-#define UNISP_NAME  UNISP_NAME_W
-#else
-#define UNISP_NAME  UNISP_NAME_A
+	#ifdef UNICODE
+		#define UNISP_NAME  UNISP_NAME_W
+	#else
+		#define UNISP_NAME  UNISP_NAME_A
+	#endif
 #endif
-#endif
-
 #ifndef SP_PROT_SSL2_CLIENT
-#define SP_PROT_SSL2_CLIENT             0x00000008
+	#define SP_PROT_SSL2_CLIENT             0x00000008
 #endif
-
 #ifndef SP_PROT_SSL3_CLIENT
-#define SP_PROT_SSL3_CLIENT             0x00000008
+	#define SP_PROT_SSL3_CLIENT             0x00000008
 #endif
-
 #ifndef SP_PROT_TLS1_CLIENT
-#define SP_PROT_TLS1_CLIENT             0x00000080
+	#define SP_PROT_TLS1_CLIENT             0x00000080
 #endif
-
 #ifndef SP_PROT_TLS1_0_CLIENT
-#define SP_PROT_TLS1_0_CLIENT           SP_PROT_TLS1_CLIENT
+	#define SP_PROT_TLS1_0_CLIENT           SP_PROT_TLS1_CLIENT
 #endif
-
 #ifndef SP_PROT_TLS1_1_CLIENT
-#define SP_PROT_TLS1_1_CLIENT           0x00000200
+	#define SP_PROT_TLS1_1_CLIENT           0x00000200
 #endif
-
 #ifndef SP_PROT_TLS1_2_CLIENT
-#define SP_PROT_TLS1_2_CLIENT           0x00000800
+	#define SP_PROT_TLS1_2_CLIENT           0x00000800
 #endif
-
 #ifndef SECBUFFER_ALERT
-#define SECBUFFER_ALERT                 17
+	#define SECBUFFER_ALERT                 17
 #endif
 
 /* Both schannel buffer sizes must be > 0 */
 #define CURL_SCHANNEL_BUFFER_INIT_SIZE   4096
 #define CURL_SCHANNEL_BUFFER_FREE_SIZE   1024
 
-
 CURLcode Curl_schannel_connect(struct connectdata *conn, int sockindex);
-
-CURLcode Curl_schannel_connect_nonblocking(struct connectdata *conn,
-                                           int sockindex,
-                                           bool *done);
-
+CURLcode Curl_schannel_connect_nonblocking(struct connectdata *conn, int sockindex, bool *done);
 bool Curl_schannel_data_pending(const struct connectdata *conn, int sockindex);
 void Curl_schannel_close(struct connectdata *conn, int sockindex);
 int Curl_schannel_shutdown(struct connectdata *conn, int sockindex);
@@ -92,13 +78,10 @@ int Curl_schannel_init(void);
 void Curl_schannel_cleanup(void);
 size_t Curl_schannel_version(char *buffer, size_t size);
 
-CURLcode Curl_schannel_random(unsigned char *entropy, size_t length);
+CURLcode Curl_schannel_random(uchar *entropy, size_t length);
 
-/* Set the API backend definition to Schannel */
-#define CURL_SSL_BACKEND CURLSSLBACKEND_SCHANNEL
-
-/* this backend supports CURLOPT_CERTINFO */
-#define have_curlssl_certinfo 1
+#define CURL_SSL_BACKEND CURLSSLBACKEND_SCHANNEL /* Set the API backend definition to Schannel */
+#define have_curlssl_certinfo 1 /* this backend supports CURLOPT_CERTINFO */
 
 /* API setup for Schannel */
 #define curlssl_init Curl_schannel_init

@@ -1,16 +1,18 @@
 // Scintilla source code edit control
 /** @file Style.cxx
-** Defines the font and colour style for a class of text.
-**/
+ ** Defines the font and colour style for a class of text.
+ **/
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
+#include <stdexcept>
 #include "Style.h"
+
 #ifdef SCI_NAMESPACE
-	using namespace Scintilla;
+using namespace Scintilla;
 #endif
 
 FontAlias::FontAlias() {
@@ -43,17 +45,17 @@ bool FontSpecification::operator==(const FontSpecification &other) const {
 }
 
 bool FontSpecification::operator<(const FontSpecification &other) const {
-	if(fontName != other.fontName)
+	if (fontName != other.fontName)
 		return fontName < other.fontName;
-	if(weight != other.weight)
+	if (weight != other.weight)
 		return weight < other.weight;
-	if(italic != other.italic)
+	if (italic != other.italic)
 		return italic == false;
-	if(size != other.size)
+	if (size != other.size)
 		return size < other.size;
-	if(characterSet != other.characterSet)
+	if (characterSet != other.characterSet)
 		return characterSet < other.characterSet;
-	if(extraFontFlag != other.extraFontFlag)
+	if (extraFontFlag != other.extraFontFlag)
 		return extraFontFlag < other.extraFontFlag;
 	return false;
 }
@@ -72,14 +74,14 @@ void FontMeasurements::Clear() {
 
 Style::Style() : FontSpecification() {
 	Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff),
-	    Platform::DefaultFontSize() * SC_FONT_SIZE_MULTIPLIER, 0, SC_CHARSET_DEFAULT,
-	    SC_WEIGHT_NORMAL, false, false, false, caseMixed, true, true, false);
+	      Platform::DefaultFontSize() * SC_FONT_SIZE_MULTIPLIER, 0, SC_CHARSET_DEFAULT,
+	      SC_WEIGHT_NORMAL, false, false, false, caseMixed, true, true, false);
 }
 
 Style::Style(const Style &source) : FontSpecification(), FontMeasurements() {
 	Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff),
-	    0, 0, 0,
-	    SC_WEIGHT_NORMAL, false, false, false, caseMixed, true, true, false);
+	      0, 0, 0,
+	      SC_WEIGHT_NORMAL, false, false, false, caseMixed, true, true, false);
 	fore = source.fore;
 	back = source.back;
 	characterSet = source.characterSet;
@@ -99,11 +101,11 @@ Style::~Style() {
 }
 
 Style &Style::operator=(const Style &source) {
-	if(this == &source)
-		return *this;
+	if (this == &source)
+		return * this;
 	Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff),
-	    0, 0, SC_CHARSET_DEFAULT,
-	    SC_WEIGHT_NORMAL, false, false, false, caseMixed, true, true, false);
+	      0, 0, SC_CHARSET_DEFAULT,
+	      SC_WEIGHT_NORMAL, false, false, false, caseMixed, true, true, false);
 	fore = source.fore;
 	back = source.back;
 	characterSet = source.characterSet;
@@ -120,10 +122,10 @@ Style &Style::operator=(const Style &source) {
 }
 
 void Style::Clear(ColourDesired fore_, ColourDesired back_, int size_,
-    const char * fontName_, int characterSet_,
-    int weight_, bool italic_, bool eolFilled_,
-    bool underline_, ecaseForced caseForce_,
-    bool visible_, bool changeable_, bool hotspot_) {
+        const char *fontName_, int characterSet_,
+        int weight_, bool italic_, bool eolFilled_,
+        bool underline_, ecaseForced caseForce_,
+        bool visible_, bool changeable_, bool hotspot_) {
 	fore = fore_;
 	back = back_;
 	characterSet = characterSet_;
@@ -162,4 +164,3 @@ void Style::Copy(Font &font_, const FontMeasurements &fm_) {
 	font.MakeAlias(font_);
 	(FontMeasurements &)(*this) = fm_;
 }
-

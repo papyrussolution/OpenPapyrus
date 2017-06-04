@@ -62,7 +62,7 @@ int plessey(struct ZintSymbol * symbol, uchar source[], int length)
 		}
 		else {
 			int    i;
-			uchar * checkptr = (uchar*)calloc(1, length * 4 + 8);
+			uchar * checkptr = (uchar*)SAlloc::C(1, length * 4 + 8);
 			// Start character 
 			strcpy(dest, "31311331");
 			// Data area 
@@ -92,7 +92,7 @@ int plessey(struct ZintSymbol * symbol, uchar source[], int length)
 			strcat(dest, "331311313");
 			expand(symbol, dest);
 			ustrcpy(symbol->text, source);
-			free(checkptr);
+			SAlloc::F(checkptr);
 		}
 	}
 	return error_number;

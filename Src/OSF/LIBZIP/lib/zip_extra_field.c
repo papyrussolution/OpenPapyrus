@@ -91,8 +91,8 @@ void _zip_ef_free(zip_extra_field_t * ef)
 {
 	while(ef) {
 		zip_extra_field_t * ef2 = ef->next;
-		free(ef->data);
-		free(ef);
+		SAlloc::F(ef->data);
+		SAlloc::F(ef);
 		ef = ef2;
 	}
 }
@@ -333,10 +333,10 @@ int _zip_read_local_ef(zip_t * za, uint64 idx)
 		if(ef_raw == NULL)
 			return -1;
 		if(!_zip_ef_parse(ef_raw, ef_len, ZIP_EF_LOCAL, &ef, &za->error)) {
-			free(ef_raw);
+			SAlloc::F(ef_raw);
 			return -1;
 		}
-		free(ef_raw);
+		SAlloc::F(ef_raw);
 		if(ef) {
 			ef = _zip_ef_remove_internal(ef);
 			e->orig->extra_fields = _zip_ef_merge(e->orig->extra_fields, ef);

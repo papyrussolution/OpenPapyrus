@@ -1039,7 +1039,7 @@ static int alloc_segment(databar_decoder_t * db)
 		if(csegs > DATABAR_MAX_SEGMENTS)
 			csegs = DATABAR_MAX_SEGMENTS;
 		if(csegs != db->csegs) {
-			db->segs = (databar_segment_t *)realloc(db->segs, csegs * sizeof(*db->segs));
+			db->segs = (databar_segment_t *)SAlloc::R(db->segs, csegs * sizeof(*db->segs));
 			db->csegs = csegs;
 			databar_segment_t * seg = db->segs + csegs;
 			while(--seg, --csegs >= i) {

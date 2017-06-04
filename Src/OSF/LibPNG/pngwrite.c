@@ -192,7 +192,7 @@ void PNGAPI png_write_info(png_structrp png_ptr, png_const_inforp info_ptr)
 
 	if((info_ptr->valid & PNG_INFO_PLTE) != 0)
 		png_write_PLTE(png_ptr, info_ptr->palette,
-		    (png_uint_32)info_ptr->num_palette);
+		    (uint32)info_ptr->num_palette);
 
 	else if(info_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
 		png_error(png_ptr, "Valid palette required for paletted images");
@@ -211,7 +211,7 @@ void PNGAPI png_write_info(png_structrp png_ptr, png_const_inforp info_ptr)
 
 			for(j = 0; j<jend; ++j)
 				info_ptr->trans_alpha[j] =
-				    (png_byte)(255 - info_ptr->trans_alpha[j]);
+				    (uint8)(255 - info_ptr->trans_alpha[j]);
 		}
 #endif
 		png_write_tRNS(png_ptr, info_ptr->trans_alpha, &(info_ptr->trans_color),
@@ -437,11 +437,11 @@ void PNGAPI png_convert_from_struct_tm(png_timep ptime, PNG_CONST struct tm * tt
 	png_debug(1, "in png_convert_from_struct_tm");
 
 	ptime->year = (png_uint_16)(1900 + ttime->tm_year);
-	ptime->month = (png_byte)(ttime->tm_mon + 1);
-	ptime->day = (png_byte)ttime->tm_mday;
-	ptime->hour = (png_byte)ttime->tm_hour;
-	ptime->minute = (png_byte)ttime->tm_min;
-	ptime->second = (png_byte)ttime->tm_sec;
+	ptime->month = (uint8)(ttime->tm_mon + 1);
+	ptime->day = (uint8)ttime->tm_mday;
+	ptime->hour = (uint8)ttime->tm_hour;
+	ptime->minute = (uint8)ttime->tm_min;
+	ptime->second = (uint8)ttime->tm_sec;
 }
 
 void PNGAPI png_convert_from_time_t(png_timep ptime, time_t ttime)
@@ -458,7 +458,7 @@ void PNGAPI png_convert_from_time_t(png_timep ptime, time_t ttime)
 
 /* Initialize png_ptr structure, and allocate any memory needed */
 PNG_FUNCTION(png_structp, PNGAPI
-    png_create_write_struct, (png_const_charp user_png_ver, png_voidp error_ptr,
+    png_create_write_struct, (const char * user_png_ver, void * error_ptr,
 	    png_error_ptr error_fn, png_error_ptr warn_fn), PNG_ALLOCATED)
 {
 #ifndef PNG_USER_MEM_SUPPORTED
@@ -471,8 +471,8 @@ PNG_FUNCTION(png_structp, PNGAPI
 
 /* Alternate initialize png_ptr structure, and allocate any memory needed */
 PNG_FUNCTION(png_structp, PNGAPI
-    png_create_write_struct_2, (png_const_charp user_png_ver, png_voidp error_ptr,
-	    png_error_ptr error_fn, png_error_ptr warn_fn, png_voidp mem_ptr,
+    png_create_write_struct_2, (const char * user_png_ver, void * error_ptr,
+	    png_error_ptr error_fn, png_error_ptr warn_fn, void * mem_ptr,
 	    png_malloc_ptr malloc_fn, png_free_ptr free_fn), PNG_ALLOCATED)
 {
 	png_structrp png_ptr = png_create_png_struct(user_png_ver, error_ptr,
@@ -537,9 +537,9 @@ PNG_FUNCTION(png_structp, PNGAPI
  * "write" the image seven times.
  */
 void PNGAPI png_write_rows(png_structrp png_ptr, png_bytepp row,
-    png_uint_32 num_rows)
+    uint32 num_rows)
 {
-	png_uint_32 i; /* row counter */
+	uint32 i; /* row counter */
 	png_bytepp rp; /* row pointer */
 
 	png_debug(1, "in png_write_rows");
@@ -558,7 +558,7 @@ void PNGAPI png_write_rows(png_structrp png_ptr, png_bytepp row,
  */
 void PNGAPI png_write_image(png_structrp png_ptr, png_bytepp image)
 {
-	png_uint_32 i; /* row index */
+	uint32 i; /* row index */
 	int pass, num_pass; /* pass variables */
 	png_bytepp rp; /* points to current row */
 
@@ -592,10 +592,10 @@ static void png_do_write_intrapixel(png_row_infop row_info, png_bytep row)
 
 	if((row_info->color_type & PNG_COLOR_MASK_COLOR) != 0) {
 		int bytes_per_pixel;
-		png_uint_32 row_width = row_info->width;
+		uint32 row_width = row_info->width;
 		if(row_info->bit_depth == 8) {
 			png_bytep rp;
-			png_uint_32 i;
+			uint32 i;
 
 			if(row_info->color_type == PNG_COLOR_TYPE_RGB)
 				bytes_per_pixel = 3;
@@ -607,15 +607,15 @@ static void png_do_write_intrapixel(png_row_infop row_info, png_bytep row)
 				return;
 
 			for(i = 0, rp = row; i < row_width; i++, rp += bytes_per_pixel) {
-				*(rp)     = (png_byte)(*rp       - *(rp + 1));
-				*(rp + 2) = (png_byte)(*(rp + 2) - *(rp + 1));
+				*(rp)     = (uint8)(*rp       - *(rp + 1));
+				*(rp + 2) = (uint8)(*(rp + 2) - *(rp + 1));
 			}
 		}
 
 #ifdef PNG_WRITE_16BIT_SUPPORTED
 		else if(row_info->bit_depth == 16) {
 			png_bytep rp;
-			png_uint_32 i;
+			uint32 i;
 
 			if(row_info->color_type == PNG_COLOR_TYPE_RGB)
 				bytes_per_pixel = 6;
@@ -627,15 +627,15 @@ static void png_do_write_intrapixel(png_row_infop row_info, png_bytep row)
 				return;
 
 			for(i = 0, rp = row; i < row_width; i++, rp += bytes_per_pixel) {
-				png_uint_32 s0   = (*(rp    ) << 8) | *(rp + 1);
-				png_uint_32 s1   = (*(rp + 2) << 8) | *(rp + 3);
-				png_uint_32 s2   = (*(rp + 4) << 8) | *(rp + 5);
-				png_uint_32 red  = (png_uint_32)((s0 - s1) & 0xffffL);
-				png_uint_32 blue = (png_uint_32)((s2 - s1) & 0xffffL);
-				*(rp    ) = (png_byte)(red >> 8);
-				*(rp + 1) = (png_byte)red;
-				*(rp + 4) = (png_byte)(blue >> 8);
-				*(rp + 5) = (png_byte)blue;
+				uint32 s0   = (*(rp    ) << 8) | *(rp + 1);
+				uint32 s1   = (*(rp + 2) << 8) | *(rp + 3);
+				uint32 s2   = (*(rp + 4) << 8) | *(rp + 5);
+				uint32 red  = (uint32)((s0 - s1) & 0xffffL);
+				uint32 blue = (uint32)((s2 - s1) & 0xffffL);
+				*(rp    ) = (uint8)(red >> 8);
+				*(rp + 1) = (uint8)red;
+				*(rp + 4) = (uint8)(blue >> 8);
+				*(rp + 5) = (uint8)blue;
 			}
 		}
 #endif /* WRITE_16BIT */
@@ -761,7 +761,7 @@ void PNGAPI png_write_row(png_structrp png_ptr, png_const_bytep row)
 	row_info.width = png_ptr->usr_width;
 	row_info.channels = png_ptr->usr_channels;
 	row_info.bit_depth = png_ptr->usr_bit_depth;
-	row_info.pixel_depth = (png_byte)(row_info.bit_depth * row_info.channels);
+	row_info.pixel_depth = (uint8)(row_info.bit_depth * row_info.channels);
 	row_info.rowbytes = PNG_ROWBYTES(row_info.pixel_depth, row_info.width);
 
 	png_debug1(3, "row_info->color_type = %d", row_info.color_type);
@@ -946,7 +946,7 @@ void PNGAPI png_set_filter(png_structrp png_ptr, int method, int filters)
 			    png_ptr->do_filter = PNG_FILTER_PAETH; break;
 
 			default:
-			    png_ptr->do_filter = (png_byte)filters; break;
+			    png_ptr->do_filter = (uint8)filters; break;
 #else
 			default:
 			    png_app_error(png_ptr, "Unknown row filter for method 0");
@@ -1021,7 +1021,7 @@ void PNGAPI png_set_filter(png_structrp png_ptr, int method, int filters)
 					    png_malloc(png_ptr, buf_size));
 			}
 		}
-		png_ptr->do_filter = (png_byte)filters;
+		png_ptr->do_filter = (uint8)filters;
 #endif
 	}
 	else
@@ -1223,20 +1223,16 @@ void PNGAPI png_set_write_user_transform_fn(png_structrp png_ptr, png_user_trans
 #endif
 
 #ifdef PNG_INFO_IMAGE_SUPPORTED
-void PNGAPI png_write_png(png_structrp png_ptr, png_inforp info_ptr,
-    int transforms, voidp params)
+void PNGAPI png_write_png(png_structrp png_ptr, png_inforp info_ptr, int transforms, voidp params)
 {
 	if(png_ptr == NULL || info_ptr == NULL)
 		return;
-
 	if((info_ptr->valid & PNG_INFO_IDAT) == 0) {
 		png_app_error(png_ptr, "no rows for png_write_image to write");
 		return;
 	}
-
 	/* Write the file header information. */
 	png_write_info(png_ptr, info_ptr);
-
 	/* ------ these transformations don't touch the info structure ------- */
 
 	/* Invert monochrome pixels */
@@ -1278,18 +1274,14 @@ void PNGAPI png_write_png(png_structrp png_ptr, png_inforp info_ptr,
 	 * RGB, note that the code expects the input color type to be G or RGB; no
 	 * alpha channel.
 	 */
-	if((transforms & (PNG_TRANSFORM_STRIP_FILLER_AFTER|
-			    PNG_TRANSFORM_STRIP_FILLER_BEFORE)) != 0) {
+	if((transforms & (PNG_TRANSFORM_STRIP_FILLER_AFTER|PNG_TRANSFORM_STRIP_FILLER_BEFORE)) != 0) {
 #ifdef PNG_WRITE_FILLER_SUPPORTED
 		if((transforms & PNG_TRANSFORM_STRIP_FILLER_AFTER) != 0) {
 			if((transforms & PNG_TRANSFORM_STRIP_FILLER_BEFORE) != 0)
-				png_app_error(png_ptr,
-				    "PNG_TRANSFORM_STRIP_FILLER: BEFORE+AFTER not supported");
-
+				png_app_error(png_ptr, "PNG_TRANSFORM_STRIP_FILLER: BEFORE+AFTER not supported");
 			/* Continue if ignored - this is the pre-1.6.10 behavior */
 			png_set_filler(png_ptr, 0, PNG_FILLER_AFTER);
 		}
-
 		else if((transforms & PNG_TRANSFORM_STRIP_FILLER_BEFORE) != 0)
 			png_set_filler(png_ptr, 0, PNG_FILLER_BEFORE);
 #else
@@ -1371,14 +1363,14 @@ static int png_image_write_init(png_imagep image)
 typedef struct {
 	/* Arguments: */
 	png_imagep image;
-	png_const_voidp buffer;
+	const void * buffer;
 	png_int_32 row_stride;
-	png_const_voidp colormap;
+	const void * colormap;
 	int convert_to_8bit;
 	/* Local variables: */
-	png_const_voidp first_row;
+	const void * first_row;
 	ptrdiff_t row_bytes;
-	png_voidp local_row;
+	void * local_row;
 	/* Byte count for memory writing */
 	png_bytep memory;
 	png_alloc_size_t memory_bytes; /* not used for STDIO */
@@ -1389,7 +1381,7 @@ typedef struct {
  * do any necessary byte swapping.  The component order is defined by the
  * png_image format value.
  */
-static int png_write_image_16bit(png_voidp argument)
+static int png_write_image_16bit(void * argument)
 {
 	png_image_write_control * display = png_voidcast(png_image_write_control*,
 	    argument);
@@ -1402,7 +1394,7 @@ static int png_write_image_16bit(png_voidp argument)
 	png_uint_16p row_end;
 	const int channels = (image->format & PNG_FORMAT_FLAG_COLOR) != 0 ? 3 : 1;
 	int aindex = 0;
-	png_uint_32 y = image->height;
+	uint32 y = image->height;
 
 	if((image->format & PNG_FORMAT_FLAG_ALPHA) != 0) {
 #   ifdef PNG_SIMPLIFIED_WRITE_AFIRST_SUPPORTED
@@ -1433,7 +1425,7 @@ static int png_write_image_16bit(png_voidp argument)
 
 		while(out_ptr < row_end) {
 			const png_uint_16 alpha = in_ptr[aindex];
-			png_uint_32 reciprocal = 0;
+			uint32 reciprocal = 0;
 			int c;
 
 			out_ptr[aindex] = alpha;
@@ -1464,7 +1456,7 @@ static int png_write_image_16bit(png_voidp argument)
 				 * component*reciprocal is less than 2^31.
 				 */
 				else if(component > 0 && alpha < 65535) {
-					png_uint_32 calc = component * reciprocal;
+					uint32 calc = component * reciprocal;
 					calc += 16384; /* round to nearest */
 					component = (png_uint_16)(calc >> 15);
 				}
@@ -1495,8 +1487,8 @@ static int png_write_image_16bit(png_voidp argument)
  */
 #   define UNP_RECIPROCAL(alpha) ((((0xffff*0xff)<<7)+(alpha>>1))/alpha)
 
-static png_byte png_unpremultiply(png_uint_32 component, png_uint_32 alpha,
-    png_uint_32 reciprocal /*from the above macro*/)
+static uint8 png_unpremultiply(uint32 component, uint32 alpha,
+    uint32 reciprocal /*from the above macro*/)
 {
 	/* The following gives 1.0 for an alpha of 0, which is fine, otherwise if 0/0
 	 * is represented as some other value there is more likely to be a
@@ -1528,21 +1520,21 @@ static png_byte png_unpremultiply(png_uint_32 component, png_uint_32 alpha,
 		else
 			component *= 255;
 		/* Convert the component to sRGB. */
-		return (png_byte)PNG_sRGB_FROM_LINEAR(component);
+		return (uint8)PNG_sRGB_FROM_LINEAR(component);
 	}
 
 	else
 		return 0;
 }
 
-static int png_write_image_8bit(png_voidp argument)
+static int png_write_image_8bit(void * argument)
 {
 	png_image_write_control * display = png_voidcast(png_image_write_control*, argument);
 	png_imagep image = display->image;
 	png_structrp png_ptr = image->opaque->png_ptr;
 	png_const_uint_16p input_row = png_voidcast(png_const_uint_16p, display->first_row);
 	png_bytep output_row = png_voidcast(png_bytep, display->local_row);
-	png_uint_32 y = image->height;
+	uint32 y = image->height;
 	const int channels = (image->format & PNG_FORMAT_FLAG_COLOR) != 0 ? 3 : 1;
 	if((image->format & PNG_FORMAT_FLAG_ALPHA) != 0) {
 		png_bytep row_end;
@@ -1563,8 +1555,8 @@ static int png_write_image_8bit(png_voidp argument)
 			png_bytep out_ptr = output_row;
 			while(out_ptr < row_end) {
 				png_uint_16 alpha = in_ptr[aindex];
-				png_byte alphabyte = (png_byte)PNG_DIV257(alpha);
-				png_uint_32 reciprocal = 0;
+				uint8 alphabyte = (uint8)PNG_DIV257(alpha);
+				uint32 reciprocal = 0;
 				int c;
 				/* Scale and write the alpha channel. */
 				out_ptr[aindex] = alphabyte;
@@ -1591,9 +1583,9 @@ static int png_write_image_8bit(png_voidp argument)
 			png_const_uint_16p in_ptr = input_row;
 			png_bytep out_ptr = output_row;
 			while(out_ptr < row_end) {
-				png_uint_32 component = *in_ptr++;
+				uint32 component = *in_ptr++;
 				component *= 255;
-				*out_ptr++ = (png_byte)PNG_sRGB_FROM_LINEAR(component);
+				*out_ptr++ = (uint8)PNG_sRGB_FROM_LINEAR(component);
 			}
 			png_write_row(png_ptr, output_row);
 			input_row += display->row_bytes/(sizeof(png_uint_16));
@@ -1610,7 +1602,7 @@ static void png_image_set_PLTE(png_image_write_control * display)
 	    (int)image->colormap_entries;
 
 	/* NOTE: the caller must check for cmap != NULL and entries != 0 */
-	const png_uint_32 format = image->format;
+	const uint32 format = image->format;
 	const int channels = PNG_IMAGE_SAMPLE_CHANNELS(format);
 
 #   if defined(PNG_FORMAT_BGR_SUPPORTED) && \
@@ -1629,7 +1621,7 @@ static void png_image_set_PLTE(png_image_write_control * display)
 
 	int i, num_trans;
 	png_color palette[256];
-	png_byte tRNS[256];
+	uint8 tRNS[256];
 	memset(tRNS, 255, (sizeof tRNS));
 	memset(palette, 0, (sizeof palette));
 	for(i = num_trans = 0; i<entries; ++i) {
@@ -1641,17 +1633,17 @@ static void png_image_set_PLTE(png_image_write_control * display)
 			entry += i * channels;
 			if((channels & 1) != 0) { /* no alpha */
 				if(channels >= 3) { /* RGB */
-					palette[i].blue = (png_byte)PNG_sRGB_FROM_LINEAR(255 * entry[(2 ^ bgr)]);
-					palette[i].green = (png_byte)PNG_sRGB_FROM_LINEAR(255 * entry[1]);
-					palette[i].red = (png_byte)PNG_sRGB_FROM_LINEAR(255 * entry[bgr]);
+					palette[i].blue = (uint8)PNG_sRGB_FROM_LINEAR(255 * entry[(2 ^ bgr)]);
+					palette[i].green = (uint8)PNG_sRGB_FROM_LINEAR(255 * entry[1]);
+					palette[i].red = (uint8)PNG_sRGB_FROM_LINEAR(255 * entry[bgr]);
 				}
 				else /* Gray */
-					palette[i].blue = palette[i].red = palette[i].green = (png_byte)PNG_sRGB_FROM_LINEAR(255 * *entry);
+					palette[i].blue = palette[i].red = palette[i].green = (uint8)PNG_sRGB_FROM_LINEAR(255 * *entry);
 			}
 			else { /* alpha */
 				png_uint_16 alpha = entry[afirst ? 0 : channels-1];
-				png_byte alphabyte = (png_byte)PNG_DIV257(alpha);
-				png_uint_32 reciprocal = 0;
+				uint8 alphabyte = (uint8)PNG_DIV257(alpha);
+				uint32 reciprocal = 0;
 
 				/* Calculate a reciprocal, as in the png_write_image_8bit code above
 				 * this is designed to produce a value scaled to 255*65535 when
@@ -1727,14 +1719,14 @@ static void png_image_set_PLTE(png_image_write_control * display)
 	image->colormap_entries = entries;
 }
 
-static int png_image_write_main(png_voidp argument)
+static int png_image_write_main(void * argument)
 {
 	png_image_write_control * display = png_voidcast(png_image_write_control*,
 	    argument);
 	png_imagep image = display->image;
 	png_structrp png_ptr = image->opaque->png_ptr;
 	png_inforp info_ptr = image->opaque->info_ptr;
-	png_uint_32 format = image->format;
+	uint32 format = image->format;
 
 	/* The following four ints are actually booleans */
 	int colormap = (format & PNG_FORMAT_FLAG_COLORMAP);
@@ -1754,8 +1746,8 @@ static int png_image_write_main(png_voidp argument)
 		const unsigned int channels = PNG_IMAGE_PIXEL_CHANNELS(image->format);
 
 		if(image->width <= 0x7FFFFFFFU/channels) { /* no overflow */
-			png_uint_32 check;
-			const png_uint_32 png_row_stride = image->width * channels;
+			uint32 check;
+			const uint32 png_row_stride = image->width * channels;
 
 			if(display->row_stride == 0)
 				display->row_stride = (png_int_32)/*SAFE*/ png_row_stride;
@@ -1786,7 +1778,7 @@ static int png_image_write_main(png_voidp argument)
 	/* Set the required transforms then write the rows in the correct order. */
 	if((format & PNG_FORMAT_FLAG_COLORMAP) != 0) {
 		if(display->colormap != NULL && image->colormap_entries > 0) {
-			png_uint_32 entries = image->colormap_entries;
+			uint32 entries = image->colormap_entries;
 			png_set_IHDR(png_ptr, info_ptr, image->width, image->height,
 			    entries > 16 ? 8 : (entries > 4 ? 4 : (entries > 2 ? 2 : 1)),
 			    PNG_COLOR_TYPE_PALETTE, PNG_INTERLACE_NONE,
@@ -1870,7 +1862,7 @@ static int png_image_write_main(png_voidp argument)
 		png_set_packing(png_ptr);
 
 	/* That should have handled all (both) the transforms. */
-	if((format & ~(png_uint_32)(PNG_FORMAT_FLAG_COLOR | PNG_FORMAT_FLAG_LINEAR |
+	if((format & ~(uint32)(PNG_FORMAT_FLAG_COLOR | PNG_FORMAT_FLAG_LINEAR |
 			    PNG_FORMAT_FLAG_ALPHA | PNG_FORMAT_FLAG_COLORMAP)) != 0)
 		png_error(png_ptr, "png_write_image: unsupported transformation");
 
@@ -1931,7 +1923,7 @@ static int png_image_write_main(png_voidp argument)
 	else {
 		png_const_bytep row = png_voidcast(png_const_bytep, display->first_row);
 		ptrdiff_t row_bytes = display->row_bytes;
-		png_uint_32 y = image->height;
+		uint32 y = image->height;
 
 		while(y-- > 0) {
 			png_write_row(png_ptr, row);
@@ -1942,7 +1934,7 @@ static int png_image_write_main(png_voidp argument)
 	return 1;
 }
 
-static void (PNGCBAPI image_memory_write)(png_structp png_ptr, png_bytep /*const*/ data, png_size_t size)
+static void (PNGCBAPI image_memory_write)(png_structp png_ptr, png_bytep /*const*/ data, size_t size)
 {
 	png_image_write_control * display = png_voidcast(png_image_write_control*, png_ptr->io_ptr /*backdoor: png_get_io_ptr(png_ptr)*/);
 	const png_alloc_size_t ob = display->output_bytes;
@@ -1965,7 +1957,7 @@ static void (PNGCBAPI image_memory_flush)(png_structp png_ptr)
 	PNG_UNUSED(png_ptr)
 }
 
-static int png_image_write_memory(png_voidp argument)
+static int png_image_write_memory(void * argument)
 {
 	png_image_write_control * display = png_voidcast(png_image_write_control*, argument);
 	/* The rest of the memory-specific init and write_main in an error protected

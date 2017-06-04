@@ -382,7 +382,7 @@ int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
  *    0 = timeout
  *    N = number of structures with non zero revent fields
  */
-int Curl_poll(struct pollfd ufds[], unsigned int nfds, int timeout_ms)
+int Curl_poll(struct pollfd ufds[], uint nfds, int timeout_ms)
 {
 #ifndef HAVE_POLL_FINE
   struct timeval pending_tv;
@@ -394,7 +394,7 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, int timeout_ms)
 #endif
   struct timeval initial_tv = {0, 0};
   bool fds_none = TRUE;
-  unsigned int i;
+  uint i;
   int pending_ms = 0;
   int error;
   int r;

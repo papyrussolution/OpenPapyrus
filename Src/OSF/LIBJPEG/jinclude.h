@@ -66,7 +66,6 @@
 #define MEMCOPY(dest,src,size)	memcpy((void *)(dest), (const void *)(src), (size_t)(size))
 
 #endif
-
 /*
  * In ANSI C, and indeed any rational implementation, size_t is also the
  * type returned by sizeof().  However, it seems there are some irrational
@@ -74,16 +73,11 @@
  * size_t is defined as long or unsigned long.  To ensure consistent results
  * we always use this SIZEOF() macro in place of using sizeof() directly.
  */
-
-#define SIZEOF(object)	((size_t) sizeof(object))
-
+#define SIZEOF(object)	((size_t)sizeof(object))
 /*
  * The modules that use fread() and fwrite() always invoke them through
  * these macros.  On some systems you may need to twiddle the argument casts.
  * CAUTION: argument order is different from underlying functions!
  */
-
-#define JFREAD(file,buf,sizeofbuf)  \
-  ((size_t) fread((void *) (buf), (size_t) 1, (size_t) (sizeofbuf), (file)))
-#define JFWRITE(file,buf,sizeofbuf)  \
-  ((size_t) fwrite((const void *) (buf), (size_t) 1, (size_t) (sizeofbuf), (file)))
+#define JFREAD(file,buf,sizeofbuf)  ((size_t) fread((void *) (buf), (size_t) 1, (size_t) (sizeofbuf), (file)))
+#define JFWRITE(file,buf,sizeofbuf) ((size_t) fwrite((const void *) (buf), (size_t) 1, (size_t) (sizeofbuf), (file)))

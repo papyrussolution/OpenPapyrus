@@ -283,7 +283,7 @@ int TcpSocket::SslBlock::Accept()
 
 int TcpSocket::SslBlock::Select(int mode /* TcpSocket::mXXX */, int timeout, size_t * pAvailableSize)
 {
-	return P_S ? 1 : 0;
+	return BIN(P_S);
 }
 
 int TcpSocket::SslBlock::Read(void * pBuf, int bufLen)
@@ -800,11 +800,9 @@ int SLAPI TcpServer::Run()
 				ExecSession(cli_sock, cli_addr);
 			}
 			else {
-				// @v7.8.9 {
 				cli_addr.ToStr(InetAddr::fmtAddr|InetAddr::fmtHost|InetAddr::fmtPort, temp_buf);
 				(msg_buf = "TcpServer accept error").Space().Cat(temp_buf);
 				SLS.LogMessage(0, msg_buf);
-				// } @v7.8.9
 			}
 			LEAVE_CRITICAL_SECTION
 		}
@@ -820,7 +818,7 @@ int SLAPI TcpServer::Run()
 //
 //
 //static
-int InetUrl::GetDefProtocolPort(int protocol)
+int FASTCALL InetUrl::GetDefProtocolPort(int protocol)
 {
 	int    port = 0;
 	switch(protocol) {
@@ -835,6 +833,18 @@ int InetUrl::GetDefProtocolPort(int protocol)
 		case protPOP3S:    port = 995; break;
 		case protIMAP:     port = 143; break;
 		case protIMAPS:    port = 993; break;
+		case protFtps:     port = 990; break;
+		case protTFtp:     port = 69; break;
+		case protDict:     port = 2628; break;
+		case protSSH:      port = 22; break;
+		case protSMB:      port = 445; break;
+		case protSMBS:     port = 445; break;
+		case protRTSP:     port = 554; break;
+		case protRTMP:     port = 1935; break;
+		case protRTMPT:    port = 80; break;
+		case protRTMPS:    port = 443; break;
+		case protLDAP:     port = 389; break;
+		case protLDAPS:    port = 636; break;
 	}
 	return port;
 }
@@ -893,20 +903,32 @@ static const char * SchemeMnem[] = {
 	"pop3",
 	"pop3s",
 	"imap",
-	"imaps"
+	"imaps",
+	"ftps",
+	"tftp",
+	"dict",
+	"ssh",
+	"smb",
+	"smbs",
+	"rtsp"
+	"rtmp",
+	"rtmpt",
+	"rtmps",
+	"ldap",
+	"ldaps"
 };
 
 //static
-const char * InetUrl::GetSchemeMnem(int schemeId)
+const char * FASTCALL InetUrl::GetSchemeMnem(int schemeId)
 {
 	return (schemeId >= 0 && schemeId < SIZEOFARRAY(SchemeMnem)) ? SchemeMnem[schemeId] : SchemeMnem[0];
 }
 
 //static
-int InetUrl::GetSchemeId(const char * pSchemeMnem)
+int FASTCALL InetUrl::GetSchemeId(const char * pSchemeMnem)
 {
 	for(uint i = 0; i < SIZEOFARRAY(SchemeMnem); i++) {
-		if(stricmp(SchemeMnem[i], pSchemeMnem) == 0) {
+		if(sstreqi_ascii(pSchemeMnem, SchemeMnem[i])) {
 			return (int)i;
 		}
 	}

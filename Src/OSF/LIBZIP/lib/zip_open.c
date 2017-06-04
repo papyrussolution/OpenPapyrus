@@ -144,7 +144,7 @@ ZIP_EXTERN int zip_archive_set_tempdir(zip_t * za, const char * tempdir)
 			return -1;
 		}
 	}
-	free(za->tempdir);
+	SAlloc::F(za->tempdir);
 	za->tempdir = new_tempdir;
 	return 0;
 }
@@ -187,7 +187,7 @@ zip_t * _zip_open(zip_source_t * src, uint flags, zip_error_t * error)
 	za->nentry = cdir->nentry;
 	za->nentry_alloc = cdir->nentry_alloc;
 	za->comment_orig = cdir->comment;
-	free(cdir);
+	SAlloc::F(cdir);
 	for(idx = 0; idx < za->nentry; idx++) {
 		const uint8 * name = _zip_string_get(za->entry[idx].orig->filename, NULL, 0, error);
 		if(name == NULL) {

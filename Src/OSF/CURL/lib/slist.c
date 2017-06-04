@@ -46,7 +46,7 @@ static struct curl_slist * slist_get_last(struct curl_slist * list)
 /*
  * Curl_slist_append_nodup() appends a string to the linked list. Rather than
  * copying the string in dynamic storage, it takes its ownership. The string
- * should have been malloc()ated. Curl_slist_append_nodup always returns
+ * should have been SAlloc::M()ated. Curl_slist_append_nodup always returns
  * the address of the first record, so that you can use this function as an
  * initialization function as well as an append function.
  * If an error occurs, NULL is returned and the string argument is NOT
@@ -57,7 +57,7 @@ struct curl_slist * Curl_slist_append_nodup(struct curl_slist * list, char * dat
 	struct curl_slist     * last;
 	struct curl_slist     * new_item;
 	DEBUGASSERT(data);
-	new_item = (struct curl_slist *)malloc(sizeof(struct curl_slist));
+	new_item = (struct curl_slist *)SAlloc::M(sizeof(struct curl_slist));
 	if(!new_item)
 		return NULL;
 	new_item->next = NULL;
@@ -78,12 +78,12 @@ struct curl_slist * Curl_slist_append_nodup(struct curl_slist * list, char * dat
  */
 struct curl_slist * curl_slist_append(struct curl_slist * list, const char * data)
 {
-	char * dupdata = strdup(data);
+	char * dupdata = _strdup(data);
 	if(!dupdata)
 		return NULL;
 	list = Curl_slist_append_nodup(list, dupdata);
 	if(!list)
-		free(dupdata);
+		SAlloc::F(dupdata);
 	return list;
 }
 /*
@@ -117,8 +117,8 @@ void curl_slist_free_all(struct curl_slist * list)
 	item = list;
 	do {
 		next = item->next;
-		Curl_safefree(item->data);
-		free(item);
+		ZFREE(item->data);
+		SAlloc::F(item);
 		item = next;
 	} while(next);
 }

@@ -30,14 +30,12 @@
 
 #include "urldata.h" /* for the Curl_easy definition */
 #include "curl_base64.h"
-#include "strtok.h"
+//#include "strtok.h"
 
 #ifdef USE_DARWINSSL
-
 #ifdef HAVE_LIMITS_H
-#include <limits.h>
+	#include <limits.h>
 #endif
-
 #include <Security/Security.h>
 #include <Security/SecureTransport.h>
 #include <CoreFoundation/CoreFoundation.h>
@@ -794,11 +792,11 @@ CF_INLINE void GetDarwinVersionNumber(int * major, int * minor)
 	mib[1] = KERN_OSRELEASE;
 	if(sysctl(mib, 2, NULL, &os_version_len, NULL, 0) == -1)
 		return;
-	os_version = malloc(os_version_len*sizeof(char));
+	os_version = SAlloc::M(os_version_len*sizeof(char));
 	if(!os_version)
 		return;
 	if(sysctl(mib, 2, os_version, &os_version_len, NULL, 0) == -1) {
-		free(os_version);
+		SAlloc::F(os_version);
 		return;
 	}
 
@@ -807,7 +805,7 @@ CF_INLINE void GetDarwinVersionNumber(int * major, int * minor)
 	os_version_minor = strtok_r(NULL, ".", &tok_buf);
 	*major = atoi(os_version_major);
 	*minor = atoi(os_version_minor);
-	free(os_version);
+	SAlloc::F(os_version);
 }
 
 #endif /* CURL_BUILD_MAC */
@@ -1524,8 +1522,8 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 	   to give the user a false sense of security if the server only supports
 	   insecure ciphers. (Note: We don't care about SSLv2-only ciphers.) */
 	(void)SSLGetNumberSupportedCiphers(connssl->ssl_ctx, &all_ciphers_count);
-	all_ciphers = malloc(all_ciphers_count*sizeof(SSLCipherSuite));
-	allowed_ciphers = malloc(all_ciphers_count*sizeof(SSLCipherSuite));
+	all_ciphers = SAlloc::M(all_ciphers_count*sizeof(SSLCipherSuite));
+	allowed_ciphers = SAlloc::M(all_ciphers_count*sizeof(SSLCipherSuite));
 	if(all_ciphers && allowed_ciphers &&
 	    SSLGetSupportedCiphers(connssl->ssl_ctx, all_ciphers,
 		    &all_ciphers_count) == noErr) {
@@ -1617,13 +1615,13 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 		}
 	}
 	else {
-		Curl_safefree(all_ciphers);
-		Curl_safefree(allowed_ciphers);
+		ZFREE(all_ciphers);
+		ZFREE(allowed_ciphers);
 		failf(data, "SSL: Failed to allocate memory for allowed ciphers");
 		return CURLE_OUT_OF_MEMORY;
 	}
-	Curl_safefree(all_ciphers);
-	Curl_safefree(allowed_ciphers);
+	ZFREE(all_ciphers);
+	ZFREE(allowed_ciphers);
 
 #if CURL_BUILD_MAC_10_9 || CURL_BUILD_IOS_7
 	/* We want to enable 1/n-1 when using a CBC cipher unless the user
@@ -1702,12 +1700,12 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 	return CURLE_OK;
 }
 
-static long pem_to_der(const char * in, unsigned char ** out, size_t * outlen)
+static long pem_to_der(const char * in, uchar ** out, size_t * outlen)
 {
 	char * sep_start, * sep_end, * cert_start, * cert_end;
 	size_t i, j, err;
 	size_t len;
-	unsigned char * b64;
+	uchar * b64;
 
 	/* Jump through the separators at the beginning of the certificate. */
 	sep_start = strstr(in, "-----");
@@ -1730,7 +1728,7 @@ static long pem_to_der(const char * in, unsigned char ** out, size_t * outlen)
 	sep_end += 5;
 
 	len = cert_end - cert_start;
-	b64 = malloc(len + 1);
+	b64 = SAlloc::M(len + 1);
 	if(!b64)
 		return -1;
 
@@ -1742,26 +1740,26 @@ static long pem_to_der(const char * in, unsigned char ** out, size_t * outlen)
 	b64[j] = '\0';
 
 	err = Curl_base64_decode((const char*)b64, out, outlen);
-	free(b64);
+	SAlloc::F(b64);
 	if(err) {
-		free(*out);
+		SAlloc::F(*out);
 		return -1;
 	}
 
 	return sep_end - in;
 }
 
-static int read_cert(const char * file, unsigned char ** out, size_t * outlen)
+static int read_cert(const char * file, uchar ** out, size_t * outlen)
 {
 	int fd;
 	ssize_t n, len = 0, cap = 512;
-	unsigned char buf[cap], * data;
+	uchar buf[cap], * data;
 
 	fd = open(file, 0);
 	if(fd < 0)
 		return -1;
 
-	data = malloc(cap);
+	data = SAlloc::M(cap);
 	if(!data) {
 		close(fd);
 		return -1;
@@ -1771,7 +1769,7 @@ static int read_cert(const char * file, unsigned char ** out, size_t * outlen)
 		n = read(fd, buf, sizeof(buf));
 		if(n < 0) {
 			close(fd);
-			free(data);
+			SAlloc::F(data);
 			return -1;
 		}
 		else if(n == 0) {
@@ -1781,7 +1779,7 @@ static int read_cert(const char * file, unsigned char ** out, size_t * outlen)
 
 		if(len + n >= cap) {
 			cap *= 2;
-			data = realloc(data, cap);
+			data = SAlloc::R(data, cap);
 			if(!data) {
 				close(fd);
 				return -1;
@@ -1827,7 +1825,7 @@ static int sslerr_to_curlerr(struct Curl_easy * data, int err)
 }
 
 static int append_cert_to_array(struct Curl_easy * data,
-    unsigned char * buf, size_t buflen,
+    uchar * buf, size_t buflen,
     CFMutableArrayRef array)
 {
 	CFDataRef certdata = CFDataCreate(kCFAllocatorDefault, buf, buflen);
@@ -1873,7 +1871,7 @@ static int verify_cert(const char * cafile, struct Curl_easy * data,
 {
 	int n = 0, rc;
 	long res;
-	unsigned char * certbuf, * der;
+	uchar * certbuf, * der;
 	size_t buflen, derlen, offset = 0;
 
 	if(read_cert(cafile, &certbuf, &buflen) < 0) {
@@ -1893,7 +1891,7 @@ static int verify_cert(const char * cafile, struct Curl_easy * data,
 	CFMutableArrayRef array = CFArrayCreateMutable(kCFAllocatorDefault, 0,
 	    &kCFTypeArrayCallBacks);
 	if(array == NULL) {
-		free(certbuf);
+		SAlloc::F(certbuf);
 		failf(data, "SSL: out of memory creating CA certificate array");
 		return CURLE_OUT_OF_MEMORY;
 	}
@@ -1907,7 +1905,7 @@ static int verify_cert(const char * cafile, struct Curl_easy * data,
 		 */
 		res = pem_to_der((const char*)certbuf + offset, &der, &derlen);
 		if(res < 0) {
-			free(certbuf);
+			SAlloc::F(certbuf);
 			CFRelease(array);
 			failf(data, "SSL: invalid CA certificate #%d (offset %d) in bundle", n, offset);
 			return CURLE_SSL_CACERT;
@@ -1917,7 +1915,7 @@ static int verify_cert(const char * cafile, struct Curl_easy * data,
 		if(res == 0 && offset == 0) {
 			/* This is not a PEM file, probably a certificate in DER format. */
 			rc = append_cert_to_array(data, certbuf, buflen, array);
-			free(certbuf);
+			SAlloc::F(certbuf);
 			if(rc != CURLE_OK) {
 				CFRelease(array);
 				return rc;
@@ -1926,14 +1924,14 @@ static int verify_cert(const char * cafile, struct Curl_easy * data,
 		}
 		else if(res == 0) {
 			/* No more certificates in the bundle. */
-			free(certbuf);
+			SAlloc::F(certbuf);
 			break;
 		}
 
 		rc = append_cert_to_array(data, der, derlen, array);
-		free(der);
+		SAlloc::F(der);
 		if(rc != CURLE_OK) {
-			free(certbuf);
+			SAlloc::F(certbuf);
 			CFRelease(array);
 			return rc;
 		}
@@ -2449,7 +2447,7 @@ void Curl_darwinssl_session_free(void * ptr)
 	   got your application rejected from the App Store due to the use of a
 	   private API, so the best we can do is free up our own char array that we
 	   created way back in darwinssl_connect_step1... */
-	Curl_safefree(ptr);
+	ZFREE(ptr);
 }
 
 size_t Curl_darwinssl_version(char * buffer, size_t size)
@@ -2497,7 +2495,7 @@ bool Curl_darwinssl_data_pending(const struct connectdata * conn,
 		return false;
 }
 
-CURLcode Curl_darwinssl_random(unsigned char * entropy,
+CURLcode Curl_darwinssl_random(uchar * entropy,
     size_t length)
 {
 	/* arc4random_buf() isn't available on cats older than Lion, so let's
@@ -2515,9 +2513,9 @@ CURLcode Curl_darwinssl_random(unsigned char * entropy,
 	return CURLE_OK;
 }
 
-void Curl_darwinssl_md5sum(unsigned char * tmp, /* input */
+void Curl_darwinssl_md5sum(uchar * tmp, /* input */
     size_t tmplen,
-    unsigned char * md5sum,                       /* output */
+    uchar * md5sum,                       /* output */
     size_t md5len)
 {
 	(void)md5len;

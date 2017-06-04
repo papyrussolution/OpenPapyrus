@@ -1416,7 +1416,7 @@ static void applyOptimisation(int version, char inputMode[], int inputLength)
 	blockMode = (char*)SAlloc::M(sizeof(char)*blockCount);
 	assert(blockMode);
 	if(!blockMode) {
-		free(p_block_length);
+		SAlloc::F(p_block_length);
 		return;
 	}
 	j = -1;
@@ -1497,8 +1497,8 @@ static void applyOptimisation(int version, char inputMode[], int inputLength)
 			j++;
 		}
 	}
-	free(p_block_length);
-	free(blockMode);
+	SAlloc::F(p_block_length);
+	SAlloc::F(blockMode);
 }
 
 static int blockLength(int start, char inputMode[], int inputLength)

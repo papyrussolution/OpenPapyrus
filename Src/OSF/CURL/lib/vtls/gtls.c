@@ -51,7 +51,7 @@
 #include "parsedate.h"
 #include "connect.h" /* for the connect timeout */
 #include "select.h"
-#include "strcase.h"
+//#include "strcase.h"
 #include "warnless.h"
 #include "x509asn1.h"
 #include "curl_printf.h"
@@ -250,15 +250,15 @@ static gnutls_datum_t load_file(const char * file)
 	if(fseek(f, 0, SEEK_END) != 0
 	    || (filelen = ftell(f)) < 0
 	    || fseek(f, 0, SEEK_SET) != 0
-	    || !(ptr = malloc((size_t)filelen)))
+	    || !(ptr = SAlloc::M((size_t)filelen)))
 		goto out;
 	if(fread(ptr, 1, (size_t)filelen, f) < (size_t)filelen) {
-		free(ptr);
+		SAlloc::F(ptr);
 		goto out;
 	}
 
 	loaded_file.data = ptr;
-	loaded_file.size = (unsigned int)filelen;
+	loaded_file.size = (uint)filelen;
 out:
 	fclose(f);
 	return loaded_file;
@@ -266,7 +266,7 @@ out:
 
 static void unload_file(gnutls_datum_t data)
 {
-	free(data.data);
+	SAlloc::F(data.data);
 }
 
 /* this function does a SSL/TLS (re-)handshake */
@@ -473,7 +473,7 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
     int sockindex)
 {
 	struct Curl_easy * data = conn->data;
-	unsigned int init_flags;
+	uint init_flags;
 	gnutls_session_t session;
 	int rc;
 	bool sni = TRUE; /* default is SNI enabled */
@@ -736,7 +736,7 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 			/* This GnuTLS was probably compiled without support for SRP.
 			 * Note that fact and try again without it. */
 			int validprioritylen = curlx_uztosi(err - prioritylist);
-			char * prioritycopy = strdup(prioritylist);
+			char * prioritycopy = _strdup(prioritylist);
 			if(!prioritycopy)
 				return CURLE_OUT_OF_MEMORY;
 
@@ -745,7 +745,7 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 				/* Remove the :+SRP */
 				prioritycopy[validprioritylen - 1] = 0;
 			rc = gnutls_priority_set_direct(session, prioritycopy, &err);
-			free(prioritycopy);
+			SAlloc::F(prioritycopy);
 		}
 	}
 	if(rc != GNUTLS_E_SUCCESS) {
@@ -762,14 +762,14 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 
 #ifdef USE_NGHTTP2
 		if(data->set.httpversion >= CURL_HTTP_VERSION_2) {
-			protocols[cur].data = (unsigned char*)NGHTTP2_PROTO_VERSION_ID;
+			protocols[cur].data = (uchar*)NGHTTP2_PROTO_VERSION_ID;
 			protocols[cur].size = NGHTTP2_PROTO_VERSION_ID_LEN;
 			cur++;
 			infof(data, "ALPN, offering %s\n", NGHTTP2_PROTO_VERSION_ID);
 		}
 #endif
 
-		protocols[cur].data = (unsigned char*)ALPN_HTTP_1_1;
+		protocols[cur].data = (uchar*)ALPN_HTTP_1_1;
 		protocols[cur].size = ALPN_HTTP_1_1_LENGTH;
 		cur++;
 		infof(data, "ALPN, offering %s\n", ALPN_HTTP_1_1);
@@ -781,7 +781,7 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 	if(SSL_SET_OPTION(cert)) {
 		if(SSL_SET_OPTION(key_passwd)) {
 #if HAVE_GNUTLS_CERTIFICATE_SET_X509_KEY_FILE2
-			const unsigned int supported_key_encryption_algorithms =
+			const uint supported_key_encryption_algorithms =
 			    GNUTLS_PKCS_USE_PKCS12_3DES | GNUTLS_PKCS_USE_PKCS12_ARCFOUR |
 			    GNUTLS_PKCS_USE_PKCS12_RC2_40 | GNUTLS_PKCS_USE_PBES2_3DES |
 			    GNUTLS_PKCS_USE_PBES2_AES_128 | GNUTLS_PKCS_USE_PBES2_AES_192 |
@@ -898,7 +898,7 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy * data,
 {
 	/* Scratch */
 	size_t len1 = 0, len2 = 0;
-	unsigned char * buff1 = NULL;
+	uchar * buff1 = NULL;
 
 	gnutls_pubkey_t key = NULL;
 
@@ -925,7 +925,7 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy * data,
 		if(ret != GNUTLS_E_SHORT_MEMORY_BUFFER || len1 == 0)
 			break;  /* failed */
 
-		buff1 = malloc(len1);
+		buff1 = SAlloc::M(len1);
 		if(NULL == buff1)
 			break;  /* failed */
 
@@ -944,7 +944,7 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy * data,
 	if(NULL != key)
 		gnutls_pubkey_deinit(key);
 
-	Curl_safefree(buff1);
+	ZFREE(buff1);
 
 	return result;
 }
@@ -955,15 +955,15 @@ static Curl_send gtls_send;
 static CURLcode gtls_connect_step3(struct connectdata * conn,
     int sockindex)
 {
-	unsigned int cert_list_size;
+	uint cert_list_size;
 	const gnutls_datum_t * chainp;
-	unsigned int verify_status = 0;
+	uint verify_status = 0;
 	gnutls_x509_crt_t x509_cert, x509_issuer;
 	gnutls_datum_t issuerp;
 	char certbuf[256] = ""; /* big enough? */
 	size_t size;
-	unsigned int algo;
-	unsigned int bits;
+	uint algo;
+	uint bits;
 	time_t certclock;
 	const char * ptr;
 	struct Curl_easy * data = conn->data;
@@ -1018,7 +1018,7 @@ static CURLcode gtls_connect_step3(struct connectdata * conn,
 	}
 
 	if(data->set.ssl.certinfo && chainp) {
-		unsigned int i;
+		uint i;
 
 		result = Curl_ssl_init_certinfo(data, cert_list_size);
 		if(result)
@@ -1222,8 +1222,8 @@ static CURLcode gtls_connect_step3(struct connectdata * conn,
 #else
     #define use_addr in_addr
 #endif
-		unsigned char addrbuf[sizeof(struct use_addr)];
-		unsigned char certaddr[sizeof(struct use_addr)];
+		uchar addrbuf[sizeof(struct use_addr)];
+		uchar certaddr[sizeof(struct use_addr)];
 		size_t addrlen = 0, certaddrlen;
 		int i;
 		int ret = 0;
@@ -1415,7 +1415,7 @@ static CURLcode gtls_connect_step3(struct connectdata * conn,
 
 		/* get the session ID data size */
 		gnutls_session_get_data(session, NULL, &connect_idsize);
-		connect_sessionid = malloc(connect_idsize); /* get a buffer for it */
+		connect_sessionid = SAlloc::M(connect_idsize); /* get a buffer for it */
 
 		if(connect_sessionid) {
 			/* extract session ID to the allocated buffer */
@@ -1435,7 +1435,7 @@ static CURLcode gtls_connect_step3(struct connectdata * conn,
 			    sockindex);
 			Curl_ssl_sessionid_unlock(conn);
 			if(result) {
-				free(connect_sessionid);
+				SAlloc::F(connect_sessionid);
 				result = CURLE_OUT_OF_MEMORY;
 			}
 		}
@@ -1680,7 +1680,7 @@ static ssize_t gtls_recv(struct connectdata * conn, /* connection data */
 
 void Curl_gtls_session_free(void * ptr)
 {
-	free(ptr);
+	SAlloc::F(ptr);
 }
 
 size_t Curl_gtls_version(char * buffer, size_t size)
@@ -1714,7 +1714,7 @@ static int Curl_gtls_seed(struct Curl_easy * data)
 
 /* data might be NULL! */
 CURLcode Curl_gtls_random(struct Curl_easy * data,
-    unsigned char * entropy,
+    uchar * entropy,
     size_t length)
 {
 #if defined(USE_GNUTLS_NETTLE)
@@ -1730,17 +1730,17 @@ CURLcode Curl_gtls_random(struct Curl_easy * data,
 	return CURLE_OK;
 }
 
-void Curl_gtls_md5sum(unsigned char * tmp, /* input */
+void Curl_gtls_md5sum(uchar * tmp, /* input */
     size_t tmplen,
-    unsigned char * md5sum,                  /* output */
+    uchar * md5sum,                  /* output */
     size_t md5len)
 {
 #if defined(USE_GNUTLS_NETTLE)
 	struct md5_ctx MD5pw;
 
 	md5_init(&MD5pw);
-	md5_update(&MD5pw, (unsigned int)tmplen, tmp);
-	md5_digest(&MD5pw, (unsigned int)md5len, md5sum);
+	md5_update(&MD5pw, (uint)tmplen, tmp);
+	md5_digest(&MD5pw, (uint)md5len, md5sum);
 #elif defined(USE_GNUTLS)
 	gcry_md_hd_t MD5pw;
 	gcry_md_open(&MD5pw, GCRY_MD_MD5, 0);
@@ -1750,17 +1750,17 @@ void Curl_gtls_md5sum(unsigned char * tmp, /* input */
 #endif
 }
 
-void Curl_gtls_sha256sum(const unsigned char * tmp, /* input */
+void Curl_gtls_sha256sum(const uchar * tmp, /* input */
     size_t tmplen,
-    unsigned char * sha256sum,                  /* output */
+    uchar * sha256sum,                  /* output */
     size_t sha256len)
 {
 #if defined(USE_GNUTLS_NETTLE)
 	struct sha256_ctx SHA256pw;
 
 	sha256_init(&SHA256pw);
-	sha256_update(&SHA256pw, (unsigned int)tmplen, tmp);
-	sha256_digest(&SHA256pw, (unsigned int)sha256len, sha256sum);
+	sha256_update(&SHA256pw, (uint)tmplen, tmp);
+	sha256_digest(&SHA256pw, (uint)sha256len, sha256sum);
 #elif defined(USE_GNUTLS)
 	gcry_md_hd_t SHA256pw;
 	gcry_md_open(&SHA256pw, GCRY_MD_SHA256, 0);

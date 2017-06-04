@@ -40,7 +40,7 @@
    its behavior is altered by the current locale.
    See https://tools.ietf.org/html/rfc3986#section-2.3
  */
-static bool Curl_isunreserved(unsigned char in)
+static bool Curl_isunreserved(uchar in)
 {
 	switch(in) {
 		case '0': case '1': case '2': case '3': case '4':
@@ -81,7 +81,7 @@ char * curl_easy_escape(struct Curl_easy * data, const char * string,
 	size_t alloc;
 	char * ns;
 	char * testing_ptr = NULL;
-	unsigned char in; /* we need to treat the characters unsigned */
+	uchar in; /* we need to treat the characters unsigned */
 	size_t newlen;
 	size_t strindex = 0;
 	size_t length;
@@ -90,7 +90,7 @@ char * curl_easy_escape(struct Curl_easy * data, const char * string,
 		return NULL;
 	alloc = (inlength ? (size_t)inlength : strlen(string))+1;
 	newlen = alloc;
-	ns = (char *)malloc(alloc);
+	ns = (char *)SAlloc::M(alloc);
 	if(!ns)
 		return NULL;
 	length = alloc-1;
@@ -114,7 +114,7 @@ char * curl_easy_escape(struct Curl_easy * data, const char * string,
 			result = Curl_convert_to_network(data, &in, 1);
 			if(result) {
 				/* Curl_convert_to_network calls failf if unsuccessful */
-				free(ns);
+				SAlloc::F(ns);
 				return NULL;
 			}
 
@@ -141,10 +141,10 @@ char * curl_easy_escape(struct Curl_easy * data, const char * string,
 CURLcode Curl_urldecode(struct Curl_easy * data, const char * string, size_t length, char ** ostring, size_t * olen, bool reject_ctrl)
 {
 	size_t alloc = (length ? length : strlen(string))+1;
-	char * ns = (char *)malloc(alloc);
-	unsigned char in;
+	char * ns = (char *)SAlloc::M(alloc);
+	uchar in;
 	size_t strindex = 0;
-	unsigned long hex;
+	ulong hex;
 	CURLcode result;
 	if(!ns)
 		return CURLE_OUT_OF_MEMORY;
@@ -165,7 +165,7 @@ CURLcode Curl_urldecode(struct Curl_easy * data, const char * string, size_t len
 			result = Curl_convert_from_network(data, &in, 1);
 			if(result) {
 				/* Curl_convert_from_network calls failf if unsuccessful */
-				free(ns);
+				SAlloc::F(ns);
 				return result;
 			}
 
@@ -174,7 +174,7 @@ CURLcode Curl_urldecode(struct Curl_easy * data, const char * string, size_t len
 		}
 
 		if(reject_ctrl && (in < 0x20)) {
-			free(ns);
+			SAlloc::F(ns);
 			return CURLE_URL_MALFORMAT;
 		}
 
@@ -216,7 +216,7 @@ char * curl_easy_unescape(struct Curl_easy * data, const char * string,
 				*olen = curlx_uztosi(outputlen);
 			else
 				/* too large to return in an int, fail! */
-				Curl_safefree(str);
+				ZFREE(str);
 		}
 	}
 	return str;
@@ -227,6 +227,6 @@ char * curl_easy_unescape(struct Curl_easy * data, const char * string,
    the library's memory system */
 void curl_free(void * p)
 {
-	free(p);
+	SAlloc::F(p);
 }
 

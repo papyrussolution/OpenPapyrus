@@ -46,7 +46,7 @@
 #endif
 #if (defined(NETWARE) && defined(__NOVELL_LIBC__))
 	#undef in_addr_t
-	#define in_addr_t unsigned long
+	#define in_addr_t ulong
 #endif
 #ifdef HAVE_GETADDRINFO
 	#define RESOLVER_ENOMEM  EAI_MEMORY
@@ -162,7 +162,7 @@ struct thread_sync_data {
 
 struct thread_data {
 	curl_thread_t thread_hnd;
-	unsigned int poll_interval;
+	uint poll_interval;
 	time_t interval_end;
 	struct thread_sync_data tsd;
 };
@@ -179,9 +179,9 @@ static void destroy_thread_sync_data(struct thread_sync_data * tsd)
 {
 	if(tsd->mtx) {
 		Curl_mutex_destroy(tsd->mtx);
-		free(tsd->mtx);
+		SAlloc::F(tsd->mtx);
 	}
-	free(tsd->hostname);
+	SAlloc::F(tsd->hostname);
 	if(tsd->res)
 		Curl_freeaddrinfo(tsd->res);
 	memzero(tsd, sizeof(*tsd));
@@ -200,13 +200,13 @@ static int init_thread_sync_data(struct thread_data * td, const char * hostname,
 #else
 	(void)hints;
 #endif
-	tsd->mtx = (curl_mutex_t *)malloc(sizeof(curl_mutex_t));
+	tsd->mtx = (curl_mutex_t *)SAlloc::M(sizeof(curl_mutex_t));
 	if(tsd->mtx == NULL)
 		goto err_exit;
 	Curl_mutex_init(tsd->mtx);
 	tsd->sock_error = CURL_ASYNC_SUCCESS;
 	// Copying hostname string because original can be destroyed by parent thread during gethostbyname execution.
-	tsd->hostname = strdup(hostname);
+	tsd->hostname = _strdup(hostname);
 	if(!tsd->hostname)
 		goto err_exit;
 	return 1;
@@ -238,7 +238,7 @@ static int getaddrinfo_complete(struct connectdata * conn)
  * For builds without ARES, but with ENABLE_IPV6, create a resolver thread
  * and wait on it.
  */
-static unsigned int CURL_STDCALL getaddrinfo_thread(void * arg)
+static uint CURL_STDCALL getaddrinfo_thread(void * arg)
 {
 	struct thread_sync_data * tsd = (struct thread_sync_data*)arg;
 	struct thread_data * td = tsd->td;
@@ -263,7 +263,7 @@ static unsigned int CURL_STDCALL getaddrinfo_thread(void * arg)
 		/* too late, gotta clean up the mess */
 		Curl_mutex_release(tsd->mtx);
 		destroy_thread_sync_data(tsd);
-		free(td);
+		SAlloc::F(td);
 	}
 	else {
 		tsd->done = 1;
@@ -278,7 +278,7 @@ static unsigned int CURL_STDCALL getaddrinfo_thread(void * arg)
 /*
  * gethostbyname_thread() resolves a name and then exits.
  */
-static unsigned int CURL_STDCALL gethostbyname_thread(void * arg)
+static uint CURL_STDCALL gethostbyname_thread(void * arg)
 {
 	struct thread_sync_data * tsd = (struct thread_sync_data*)arg;
 	struct thread_data * td = tsd->td;
@@ -296,7 +296,7 @@ static unsigned int CURL_STDCALL gethostbyname_thread(void * arg)
 		/* too late, gotta clean up the mess */
 		Curl_mutex_release(tsd->mtx);
 		destroy_thread_sync_data(tsd);
-		free(td);
+		SAlloc::F(td);
 	}
 	else {
 		tsd->done = 1;
@@ -335,12 +335,12 @@ static void destroy_async_data(struct Curl_async * async)
 
 			destroy_thread_sync_data(&td->tsd);
 
-			free(async->os_specific);
+			SAlloc::F(async->os_specific);
 		}
 	}
 	async->os_specific = NULL;
 
-	free(async->hostname);
+	SAlloc::F(async->hostname);
 	async->hostname = NULL;
 }
 
@@ -352,7 +352,7 @@ static void destroy_async_data(struct Curl_async * async)
  */
 static bool init_resolve_thread(struct connectdata * conn, const char * hostname, int port, const struct addrinfo * hints)
 {
-	struct thread_data * td = (struct thread_data *)calloc(1, sizeof(struct thread_data));
+	struct thread_data * td = (struct thread_data *)SAlloc::C(1, sizeof(struct thread_data));
 	int err = RESOLVER_ENOMEM;
 	conn->async.os_specific = (void*)td;
 	if(!td)
@@ -364,8 +364,8 @@ static bool init_resolve_thread(struct connectdata * conn, const char * hostname
 	td->thread_hnd = curl_thread_t_null;
 	if(!init_thread_sync_data(td, hostname, port, hints))
 		goto err_exit;
-	free(conn->async.hostname);
-	conn->async.hostname = strdup(hostname);
+	SAlloc::F(conn->async.hostname);
+	conn->async.hostname = _strdup(hostname);
 	if(!conn->async.hostname)
 		goto err_exit;
 #ifdef HAVE_GETADDRINFO

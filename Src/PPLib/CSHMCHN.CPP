@@ -714,7 +714,8 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 			}
 		}
 		THROW(cn_obj.GetSync(NodeID, &scn) > 0);
-		ext_cash_node_id = NZOR(scn.PapyrusNodeID, scn.ExtCashNodeID);
+		// @v9.6.9 ext_cash_node_id = NZOR(scn.PapyrusNodeID, scn.ExtCashNodeID);
+		ext_cash_node_id = scn.ExtCashNodeID; // @v9.6.9
 		if(ext_cash_node_id) {
 			PPCashNode cn_ext;
 			THROW(p_cm_ext = PPCashMachine::CreateInstance(ext_cash_node_id));
@@ -1540,7 +1541,8 @@ int SLAPI ExecCSPanel(const CashNodePaneFilt * pFilt)
 			if(sync) {
 				PPSyncCashNode  scn;
 				if(cn_obj.GetSync(cn_id, &scn) > 0) {
-					ext_cash_node_id = scn.PapyrusNodeID ? scn.PapyrusNodeID : scn.ExtCashNodeID;
+					// @v9.6.9 ext_cash_node_id = NZOR(scn.PapyrusNodeID, scn.ExtCashNodeID);
+					ext_cash_node_id = scn.ExtCashNodeID; // @v9.6.9
 					if(ext_cash_node_id) {
 						THROW(p_cm_ext = PPCashMachine::CreateInstance(ext_cash_node_id));
 						p_cm_ext->SetParentNode(cn_id);

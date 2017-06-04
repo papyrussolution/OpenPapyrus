@@ -43,7 +43,7 @@ size_t Curl_axtls_version(char *buffer, size_t size);
 int Curl_axtls_shutdown(struct connectdata *conn, int sockindex);
 int Curl_axtls_check_cxn(struct connectdata *conn);
 CURLcode Curl_axtls_random(struct Curl_easy *data,
-                           unsigned char *entropy,
+                           uchar *entropy,
                            size_t length);
 
 /* Set the API backend definition to axTLS */

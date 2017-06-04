@@ -34,7 +34,7 @@
 #include "formdata.h" /* for the boundary function */
 #include "url.h" /* for the ssl config check function */
 #include "connect.h"
-#include "strcase.h"
+//#include "strcase.h"
 #include "select.h"
 #include "vtls.h"
 #include "llist.h"
@@ -62,10 +62,9 @@
 #define NSSVERNUM ((NSS_VMAJOR<<16)|(NSS_VMINOR<<8)|NSS_VPATCH)
 
 #if NSSVERNUM >= 0x030f00 /* 3.15.0 */
-#include <ocsp.h>
+	#include <ocsp.h>
 #endif
-
-#include "strcase.h"
+//#include "strcase.h"
 #include "warnless.h"
 #include "x509asn1.h"
 
@@ -225,7 +224,7 @@ static void nss_print_error_message(struct Curl_easy * data, PRUint32 err)
 static SECStatus set_ciphers(struct Curl_easy * data, PRFileDesc * model,
     char * cipher_list)
 {
-	unsigned int i;
+	uint i;
 	PRBool cipher_state[NUM_OF_CIPHERS];
 	PRBool found;
 	char * cipher;
@@ -300,7 +299,7 @@ static SECStatus set_ciphers(struct Curl_easy * data, PRFileDesc * model,
  */
 static bool any_cipher_enabled(void)
 {
-	unsigned int i;
+	uint i;
 
 	for(i = 0; i<NUM_OF_CIPHERS; i++) {
 		PRInt32 policy = 0;
@@ -336,7 +335,7 @@ static int is_file(const char * filename)
 /* Check if the given string is filename or nickname of a certificate.  If the
  * given string is recognized as filename, return NULL.  If the given string is
  * recognized as nickname, return a duplicated string.  The returned string
- * should be later deallocated using free().  If the OOM failure occurs, we
+ * should be later deallocated using SAlloc::F().  If the OOM failure occurs, we
  * return NULL, too.
  */
 static char * dup_nickname(struct Curl_easy * data, const char * str)
@@ -345,14 +344,14 @@ static char * dup_nickname(struct Curl_easy * data, const char * str)
 
 	if(!is_file(str))
 		/* no such file exists, use the string as nickname */
-		return strdup(str);
+		return _strdup(str);
 
 	/* search the first slash; we require at least one slash in a file name */
 	n = strchr(str, '/');
 	if(!n) {
 		infof(data, "warning: certificate file name \"%s\" handled as nickname; "
 		    "please use \"./%s\" to force file name\n", str, str);
-		return strdup(str);
+		return _strdup(str);
 	}
 
 	/* we'll use the PEM reader to read the certificate from file */
@@ -395,13 +394,13 @@ static CURLcode nss_create_object(struct ssl_connect_data * ssl,
 		return CURLE_OUT_OF_MEMORY;
 
 	slot = nss_find_slot_by_name(slot_name);
-	free(slot_name);
+	SAlloc::F(slot_name);
 	if(!slot)
 		return result;
 
 	PK11_SETATTRS(attrs, attr_cnt, CKA_CLASS, &obj_class, sizeof(obj_class));
 	PK11_SETATTRS(attrs, attr_cnt, CKA_TOKEN, &cktrue, sizeof(CK_BBOOL));
-	PK11_SETATTRS(attrs, attr_cnt, CKA_LABEL, (unsigned char*)filename,
+	PK11_SETATTRS(attrs, attr_cnt, CKA_LABEL, (uchar*)filename,
 	    (CK_ULONG)strlen(filename) + 1);
 
 	if(CKO_CERTIFICATE == obj_class) {
@@ -474,7 +473,7 @@ static CURLcode nss_load_cert(struct ssl_connect_data * ssl,
 			if(cert)
 				CERT_DestroyCertificate(cert);
 
-			free(nickname);
+			SAlloc::F(nickname);
 		}
 	}
 
@@ -723,9 +722,9 @@ static SECStatus nss_auth_cert_hook(void * arg, PRFileDesc * fd, PRBool checksig
 static void HandshakeCallback(PRFileDesc * sock, void * arg)
 {
 	struct connectdata * conn = (struct connectdata*)arg;
-	unsigned int buflenmax = 50;
-	unsigned char buf[50];
-	unsigned int buflen;
+	uint buflenmax = 50;
+	uchar buf[50];
+	uint buflen;
 	SSLNextProtoState state;
 
 	if(!conn->bits.tls_enable_npn && !conn->bits.tls_enable_alpn) {
@@ -1193,7 +1192,7 @@ static CURLcode nss_init_core(struct Curl_easy * data, const char * cert_dir)
 			return CURLE_OUT_OF_MEMORY;
 		infof(data, "Initializing NSS with certpath: %s\n", certpath);
 		nss_context = NSS_InitContext(certpath, "", "", "", &initparams, NSS_INIT_READONLY | NSS_INIT_PK11RELOAD);
-		free(certpath);
+		SAlloc::F(certpath);
 		if(nss_context != NULL)
 			return CURLE_OK;
 		infof(data, "Unable to initialize NSS database\n");
@@ -1368,7 +1367,7 @@ static void nss_close(struct ssl_connect_data * connssl)
 	const bool client_cert = (connssl->client_nickname != NULL)
 	    || (connssl->obj_clicert != NULL);
 
-	free(connssl->client_nickname);
+	SAlloc::F(connssl->client_nickname);
 	connssl->client_nickname = NULL;
 
 	/* destroy all NSS objects in order to avoid failure of NSS shutdown */
@@ -1482,7 +1481,7 @@ static CURLcode nss_load_ca_certificates(struct connectdata * conn,
 					 * be in the same directory */
 					infof(data, "failed to load '%s' from CURLOPT_CAPATH\n", fullpath);
 
-				free(fullpath);
+				SAlloc::F(fullpath);
 			}
 
 			PR_CloseDir(dir);
@@ -1682,7 +1681,7 @@ static CURLcode nss_setup_connect(struct connectdata * conn, int sockindex)
 			goto error;
 		}
 		mod = SECMOD_LoadUserModule(configstring, NULL, PR_FALSE);
-		free(configstring);
+		SAlloc::F(configstring);
 
 		if(!mod || !mod->loaded) {
 			if(mod) {
@@ -1891,7 +1890,7 @@ static CURLcode nss_setup_connect(struct connectdata * conn, int sockindex)
 #if defined(SSL_ENABLE_NPN) || defined(SSL_ENABLE_ALPN)
 	if(conn->bits.tls_enable_npn || conn->bits.tls_enable_alpn) {
 		int cur = 0;
-		unsigned char protocols[128];
+		uchar protocols[128];
 
 #ifdef USE_NGHTTP2
 		if(data->set.httpversion >= CURL_HTTP_VERSION_2) {
@@ -1978,7 +1977,7 @@ static CURLcode nss_do_connect(struct connectdata * conn, int sockindex)
 		if(nickname) {
 			/* we support only nicknames in case of issuercert for now */
 			ret = check_issuer_cert(connssl->handle, nickname);
-			free(nickname);
+			SAlloc::F(nickname);
 		}
 
 		if(SECFailure == ret) {
@@ -2152,7 +2151,7 @@ int Curl_nss_seed(struct Curl_easy * data)
 
 /* data might be NULL */
 CURLcode Curl_nss_random(struct Curl_easy * data,
-    unsigned char * entropy,
+    uchar * entropy,
     size_t length)
 {
 	Curl_nss_seed(data); /* Initiate the seed if not already done */
@@ -2164,26 +2163,26 @@ CURLcode Curl_nss_random(struct Curl_easy * data,
 	return CURLE_OK;
 }
 
-void Curl_nss_md5sum(unsigned char * tmp, /* input */
+void Curl_nss_md5sum(uchar * tmp, /* input */
     size_t tmplen,
-    unsigned char * md5sum,                 /* output */
+    uchar * md5sum,                 /* output */
     size_t md5len)
 {
 	PK11Context * MD5pw = PK11_CreateDigestContext(SEC_OID_MD5);
-	unsigned int MD5out;
+	uint MD5out;
 
 	PK11_DigestOp(MD5pw, tmp, curlx_uztoui(tmplen));
 	PK11_DigestFinal(MD5pw, md5sum, &MD5out, curlx_uztoui(md5len));
 	PK11_DestroyContext(MD5pw, PR_TRUE);
 }
 
-void Curl_nss_sha256sum(const unsigned char * tmp, /* input */
+void Curl_nss_sha256sum(const uchar * tmp, /* input */
     size_t tmplen,
-    unsigned char * sha256sum,                 /* output */
+    uchar * sha256sum,                 /* output */
     size_t sha256len)
 {
 	PK11Context * SHA256pw = PK11_CreateDigestContext(SEC_OID_SHA256);
-	unsigned int SHA256out;
+	uint SHA256out;
 
 	PK11_DigestOp(SHA256pw, tmp, curlx_uztoui(tmplen));
 	PK11_DigestFinal(SHA256pw, sha256sum, &SHA256out, curlx_uztoui(sha256len));

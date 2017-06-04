@@ -182,7 +182,7 @@ struct ftp_parselist_data {
 	CURLcode error;
 	struct curl_fileinfo * file_data;
 
-	unsigned int item_length;
+	uint item_length;
 	size_t item_offset;
 	struct {
 		size_t filename;
@@ -196,12 +196,12 @@ struct ftp_parselist_data {
 
 struct ftp_parselist_data * Curl_ftp_parselist_data_alloc(void)
 {
-	return (struct ftp_parselist_data *)calloc(1, sizeof(struct ftp_parselist_data));
+	return (struct ftp_parselist_data *)SAlloc::C(1, sizeof(struct ftp_parselist_data));
 }
 
 void Curl_ftp_parselist_data_free(struct ftp_parselist_data ** pl_data)
 {
-	free(*pl_data);
+	SAlloc::F(*pl_data);
 	*pl_data = NULL;
 }
 
@@ -339,7 +339,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 	struct ftp_wc_tmpdata * tmpdata = (struct ftp_wc_tmpdata *)conn->data->wildcard.tmp;
 	struct ftp_parselist_data * parser = tmpdata->parser;
 	struct curl_fileinfo * finfo;
-	unsigned long i = 0;
+	ulong i = 0;
 	CURLcode result;
 	if(parser->error) { /* error in previous call */
 		/* scenario:
@@ -365,7 +365,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 				parser->error = CURLE_OUT_OF_MEMORY;
 				return bufflen;
 			}
-			parser->file_data->b_data = (char *)malloc(FTP_BUFFER_ALLOCSIZE);
+			parser->file_data->b_data = (char *)SAlloc::M(FTP_BUFFER_ALLOCSIZE);
 			if(!parser->file_data->b_data) {
 				PL_ERROR(conn, CURLE_OUT_OF_MEMORY);
 				return bufflen;
@@ -380,7 +380,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 
 		if(finfo->b_used >= finfo->b_size - 1) {
 			/* if it is important, extend buffer space for file data */
-			char * tmp = (char *)realloc(finfo->b_data, finfo->b_size + FTP_BUFFER_ALLOCSIZE);
+			char * tmp = (char *)SAlloc::R(finfo->b_data, finfo->b_size + FTP_BUFFER_ALLOCSIZE);
 			if(tmp) {
 				finfo->b_size += FTP_BUFFER_ALLOCSIZE;
 				finfo->b_data = tmp;
@@ -484,7 +484,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 						}
 					}
 					else if(parser->item_length == 10) {
-						unsigned int perm;
+						uint perm;
 						if(c != ' ') {
 							PL_ERROR(conn, CURLE_FTP_BAD_FILE_LIST);
 							return bufflen;

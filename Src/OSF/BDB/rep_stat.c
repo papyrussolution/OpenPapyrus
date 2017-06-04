@@ -73,15 +73,17 @@ static const char * __rep_syncstate_to_string(repsync_t);
  */
 int __rep_stat_pp(DB_ENV*dbenv, DB_REP_STAT ** statp, uint32 flags)
 {
-	DB_THREAD_INFO * ip;
 	int ret;
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG_XX(env, rep_handle, "DB_ENV->rep_stat", DB_INIT_REP);
 	if((ret = __db_fchk(env, "DB_ENV->rep_stat", flags, DB_STAT_CLEAR)) != 0)
 		return ret;
-	ENV_ENTER(env, ip);
-	ret = __rep_stat(env, statp, flags);
-	ENV_LEAVE(env, ip);
+	{
+		DB_THREAD_INFO * ip;
+		ENV_ENTER(env, ip);
+		ret = __rep_stat(env, statp, flags);
+		ENV_LEAVE(env, ip);
+	}
 	return ret;
 }
 /*

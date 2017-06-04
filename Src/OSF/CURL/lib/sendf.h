@@ -80,15 +80,9 @@ CURLcode Curl_write(struct connectdata *conn,
                     ssize_t *written);
 
 /* internal write-function, does plain sockets ONLY */
-CURLcode Curl_write_plain(struct connectdata *conn,
-                          curl_socket_t sockfd,
-                          const void *mem, size_t len,
-                          ssize_t *written);
-
+CURLcode Curl_write_plain(struct connectdata *conn, curl_socket_t sockfd, const void *mem, size_t len, ssize_t *written);
 /* the function used to output verbose information */
-int Curl_debug(struct Curl_easy *handle, curl_infotype type,
-               char *data, size_t size,
-               struct connectdata *conn);
+int Curl_debug(struct Curl_easy *handle, curl_infotype type, char *data, size_t size, struct connectdata *conn);
 
 
 #endif /* HEADER_CURL_SENDF_H */

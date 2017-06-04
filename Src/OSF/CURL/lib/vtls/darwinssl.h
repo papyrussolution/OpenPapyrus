@@ -42,11 +42,11 @@ int Curl_darwinssl_check_cxn(struct connectdata *conn);
 bool Curl_darwinssl_data_pending(const struct connectdata *conn,
                                  int connindex);
 
-CURLcode Curl_darwinssl_random(unsigned char *entropy,
+CURLcode Curl_darwinssl_random(uchar *entropy,
                                size_t length);
-void Curl_darwinssl_md5sum(unsigned char *tmp, /* input */
+void Curl_darwinssl_md5sum(uchar *tmp, /* input */
                            size_t tmplen,
-                           unsigned char *md5sum, /* output */
+                           uchar *md5sum, /* output */
                            size_t md5len);
 bool Curl_darwinssl_false_start(void);
 

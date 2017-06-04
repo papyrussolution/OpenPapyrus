@@ -9,7 +9,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "WordList.h"
@@ -29,18 +28,19 @@ using namespace Scintilla;
  * \param  ch The character
  * \return True if ch is a character, False otherwise
  */
-static inline bool IsAlphaCore(int ch) {
-    return (isalpha(ch) || ch == '!' || ch == '?');
+static inline bool IsAlphaCore(int ch)
+{
+	return (isalpha(ch) || ch == '!' || ch == '?');
 }
-
 /**
  * Is it a character (IsAlphaCore() and underscore)
  *
  * \param  ch The character
  * \return True if ch is a character, False otherwise
  */
-static inline bool IsAlpha(int ch) {
-    return (IsAlphaCore(ch) || ch == '_');
+static inline bool IsAlpha(int ch)
+{
+	return (IsAlphaCore(ch) || ch == '_');
 }
 
 /**
@@ -49,8 +49,9 @@ static inline bool IsAlpha(int ch) {
  * \param  ch The character
  * \return True if ch is a character, False otherwise
  */
-static inline bool IsAlphaSym(int ch) {
-    return (IsAlpha(ch) || ch == ':');
+static inline bool IsAlphaSym(int ch)
+{
+	return (IsAlpha(ch) || ch == ':');
 }
 
 /**
@@ -59,8 +60,9 @@ static inline bool IsAlphaSym(int ch) {
  * \param  ch The character
  * \return True if ch is a character, False otherwise
  */
-static inline bool IsAlNum(int ch) {
-    return ((ch >= '0' && ch <= '9') || IsAlpha(ch));
+static inline bool IsAlNum(int ch)
+{
+	return ((ch >= '0' && ch <= '9') || IsAlpha(ch));
 }
 
 /**
@@ -69,8 +71,9 @@ static inline bool IsAlNum(int ch) {
  * \param  ch The character
  * \return True if ch is a character, False otherwise
  */
-static inline bool IsAlNumSym(int ch) {
-    return (IsAlNum(ch) || ch == ':');
+static inline bool IsAlNumSym(int ch)
+{
+	return (IsAlNum(ch) || ch == ':');
 }
 
 /**
@@ -83,223 +86,185 @@ static inline bool IsAlNumSym(int ch) {
  * \param  styler The styler
  */
 static void ColouriseMagikDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-                           WordList *keywordlists[], Accessor &styler) {
-    styler.StartAt(startPos);
+    WordList * keywordlists[], Accessor &styler)
+{
+	styler.StartAt(startPos);
 
-    WordList &keywords = *keywordlists[0];
-    WordList &pragmatics = *keywordlists[1];
-    WordList &containers = *keywordlists[2];
-    WordList &flow = *keywordlists[3];
-    WordList &characters = *keywordlists[4];
+	WordList &keywords = *keywordlists[0];
+	WordList &pragmatics = *keywordlists[1];
+	WordList &containers = *keywordlists[2];
+	WordList &flow = *keywordlists[3];
+	WordList &characters = *keywordlists[4];
 
 	StyleContext sc(startPos, length, initStyle, styler);
 
+	for(; sc.More(); sc.Forward()) {
+repeat:
 
-	for (; sc.More(); sc.Forward()) {
+		if(sc.ch == '#') {
+			if(sc.chNext == '#') sc.SetState(SCE_MAGIK_HYPER_COMMENT);
+			else sc.SetState(SCE_MAGIK_COMMENT);
+			for(; sc.More() && !(sc.atLineEnd); sc.Forward()) ;
+			sc.SetState(SCE_MAGIK_DEFAULT);
+			goto repeat;
+		}
 
-    repeat:
+		if(sc.ch == '"') {
+			sc.SetState(SCE_MAGIK_STRING);
 
-        if(sc.ch == '#') {
-            if (sc.chNext == '#') sc.SetState(SCE_MAGIK_HYPER_COMMENT);
-            else sc.SetState(SCE_MAGIK_COMMENT);
-            for(; sc.More() && !(sc.atLineEnd); sc.Forward());
-            sc.SetState(SCE_MAGIK_DEFAULT);
-            goto repeat;
-        }
+			if(sc.More()) {
+				sc.Forward();
+				for(; sc.More() && sc.ch != '"'; sc.Forward()) ;
+			}
 
-        if(sc.ch == '"') {
-            sc.SetState(SCE_MAGIK_STRING);
+			sc.ForwardSetState(SCE_MAGIK_DEFAULT);
+			goto repeat;
+		}
 
-            if(sc.More())
-            {
-                sc.Forward();
-                for(; sc.More() && sc.ch != '"'; sc.Forward());
-            }
+		// The default state
+		if(sc.state == SCE_MAGIK_DEFAULT) {
+			// A certain keyword has been detected
+			if(sc.ch == '_' && (sc.currentPos == 0 || !IsAlNum(sc.chPrev))) {
+				char keyword[50];
+				memzero(keyword, 50);
+				for(int scanPosition = 0; scanPosition < 50; scanPosition++) {
+					char keywordChar = static_cast<char>(
+					    tolower(styler.SafeGetCharAt(
+							    scanPosition +
+							    static_cast<Sci_Position>(sc.currentPos+1), ' ')));
+					if(IsAlpha(keywordChar)) {
+						keyword[scanPosition] = keywordChar;
+					}
+					else {
+						break;
+					}
+				}
+				// It is a pragma
+				if(pragmatics.InList(keyword)) {
+					sc.SetState(SCE_MAGIK_PRAGMA);
+				}
+				// it is a normal keyword like _local, _self, etc.
+				else if(keywords.InList(keyword)) {
+					sc.SetState(SCE_MAGIK_KEYWORD);
+				}
+				// It is a container keyword, such as _method, _proc, etc.
+				else if(containers.InList(keyword)) {
+					sc.SetState(SCE_MAGIK_CONTAINER);
+				}
+				// It is a flow keyword, such as _for, _if, _try, etc.
+				else if(flow.InList(keyword)) {
+					sc.SetState(SCE_MAGIK_FLOW);
+				}
 
-            sc.ForwardSetState(SCE_MAGIK_DEFAULT);
-            goto repeat;
-        }
+				// Interpret as unknown keyword
+				else {
+					sc.SetState(SCE_MAGIK_UNKNOWN_KEYWORD);
+				}
+			}
 
-	    // The default state
-	    if(sc.state == SCE_MAGIK_DEFAULT) {
+			// Symbolic expression
+			else if(sc.ch == ':' && !IsAlNum(sc.chPrev)) {
+				sc.SetState(SCE_MAGIK_SYMBOL);
+				bool firstTrip = true;
+				for(sc.Forward(); sc.More(); sc.Forward()) {
+					if(firstTrip && IsAlphaSym(sc.ch)) ;
+					else if(!firstTrip && IsAlNumSym(sc.ch)) ;
+					else if(sc.ch == '|') {
+						for(sc.Forward();
+						    sc.More() && sc.ch != '|';
+						    sc.Forward()) ;
+					}
+					else break;
 
-	        // A certain keyword has been detected
-	        if (sc.ch == '_' && (
-                    sc.currentPos == 0 || !IsAlNum(sc.chPrev))) {
-	            char keyword[50];
-	            memset(keyword, '\0', 50);
+					firstTrip = false;
+				}
+				sc.SetState(SCE_MAGIK_DEFAULT);
+				goto repeat;
+			}
 
-	            for(
-                    int scanPosition = 0;
-                    scanPosition < 50;
-                    scanPosition++) {
-	                char keywordChar = static_cast<char>(
-                        tolower(styler.SafeGetCharAt(
-                            scanPosition +
-                                static_cast<Sci_Position>(sc.currentPos+1), ' ')));
-                    if(IsAlpha(keywordChar)) {
-                        keyword[scanPosition] = keywordChar;
-                    } else {
-                        break;
-                    }
-	            }
+			// Identifier (label) expression
+			else if(sc.ch == '@') {
+				sc.SetState(SCE_MAGIK_IDENTIFIER);
+				bool firstTrip = true;
+				for(sc.Forward(); sc.More(); sc.Forward()) {
+					if(firstTrip && IsAlphaCore(sc.ch)) {
+						firstTrip = false;
+					}
+					else if(!firstTrip && IsAlpha(sc.ch)) ;
+					else break;
+				}
+				sc.SetState(SCE_MAGIK_DEFAULT);
+				goto repeat;
+			}
 
-                // It is a pragma
-	            if(pragmatics.InList(keyword)) {
-	                sc.SetState(SCE_MAGIK_PRAGMA);
-	            }
+			// Start of a character
+			else if(sc.ch == '%') {
+				sc.SetState(SCE_MAGIK_CHARACTER);
+				sc.Forward();
+				char keyword[50];
+				memzero(keyword, sizeof(keyword));
+				for(
+				    int scanPosition = 0;
+				    scanPosition < 50;
+				    scanPosition++) {
+					char keywordChar = static_cast<char>(tolower(styler.SafeGetCharAt(scanPosition + static_cast<int>(sc.currentPos), ' ')));
+					if(IsAlpha(keywordChar)) {
+						keyword[scanPosition] = keywordChar;
+					}
+					else {
+						break;
+					}
+				}
+				if(characters.InList(keyword)) {
+					sc.Forward(static_cast<int>(strlen(keyword)));
+				}
+				else {
+					sc.Forward();
+				}
 
-	            // it is a normal keyword like _local, _self, etc.
-	            else if(keywords.InList(keyword)) {
-	                sc.SetState(SCE_MAGIK_KEYWORD);
-	            }
-
-                // It is a container keyword, such as _method, _proc, etc.
-	            else if(containers.InList(keyword)) {
-	                sc.SetState(SCE_MAGIK_CONTAINER);
-	            }
-
-	            // It is a flow keyword, such as _for, _if, _try, etc.
-	            else if(flow.InList(keyword)) {
-	                sc.SetState(SCE_MAGIK_FLOW);
-	            }
-
-	            // Interpret as unknown keyword
-	            else {
-	                sc.SetState(SCE_MAGIK_UNKNOWN_KEYWORD);
-	            }
-	        }
-
-            // Symbolic expression
-	        else if(sc.ch == ':' && !IsAlNum(sc.chPrev)) {
-	            sc.SetState(SCE_MAGIK_SYMBOL);
-	            bool firstTrip = true;
-	            for(sc.Forward(); sc.More(); sc.Forward()) {
-	                if(firstTrip && IsAlphaSym(sc.ch));
-	                else if(!firstTrip && IsAlNumSym(sc.ch));
-	                else if(sc.ch == '|') {
-	                    for(sc.Forward();
-                            sc.More() && sc.ch != '|';
-                            sc.Forward());
-	                }
-	                else break;
-
-	                firstTrip = false;
-	            }
-	            sc.SetState(SCE_MAGIK_DEFAULT);
-	            goto repeat;
-	        }
-
-            // Identifier (label) expression
-	        else if(sc.ch == '@') {
-	            sc.SetState(SCE_MAGIK_IDENTIFIER);
-	            bool firstTrip = true;
-	            for(sc.Forward(); sc.More(); sc.Forward()) {
-	                if(firstTrip && IsAlphaCore(sc.ch)) {
-	                    firstTrip = false;
-	                }
-	                else if(!firstTrip && IsAlpha(sc.ch));
-	                else break;
-	            }
-	            sc.SetState(SCE_MAGIK_DEFAULT);
-	            goto repeat;
-	        }
-
-	        // Start of a character
-            else if(sc.ch == '%') {
-                sc.SetState(SCE_MAGIK_CHARACTER);
-                sc.Forward();
-                char keyword[50];
-	            memset(keyword, '\0', 50);
-
-	            for(
-                    int scanPosition = 0;
-                    scanPosition < 50;
-                    scanPosition++) {
-	                char keywordChar = static_cast<char>(
-                        tolower(styler.SafeGetCharAt(
-                            scanPosition +
-                                static_cast<int>(sc.currentPos), ' ')));
-                    if(IsAlpha(keywordChar)) {
-                        keyword[scanPosition] = keywordChar;
-                    } else {
-                        break;
-                    }
-	            }
-
-	            if(characters.InList(keyword)) {
-	                sc.Forward(static_cast<int>(strlen(keyword)));
-	            } else {
-	                sc.Forward();
-	            }
-
-                sc.SetState(SCE_MAGIK_DEFAULT);
-                goto repeat;
-            }
-
-            // Operators
-	        else if(
-                sc.ch == '>' ||
-                sc.ch == '<' ||
-                sc.ch == '.' ||
-                sc.ch == ',' ||
-                sc.ch == '+' ||
-                sc.ch == '-' ||
-                sc.ch == '/' ||
-                sc.ch == '*' ||
-                sc.ch == '~' ||
-                sc.ch == '$' ||
-                sc.ch == '=') {
-                sc.SetState(SCE_MAGIK_OPERATOR);
-            }
-
-            // Braces
-            else if(sc.ch == '(' || sc.ch == ')') {
-                sc.SetState(SCE_MAGIK_BRACE_BLOCK);
-            }
-
-            // Brackets
-            else if(sc.ch == '{' || sc.ch == '}') {
-                sc.SetState(SCE_MAGIK_BRACKET_BLOCK);
-            }
-
-            // Square Brackets
-            else if(sc.ch == '[' || sc.ch == ']') {
-                sc.SetState(SCE_MAGIK_SQBRACKET_BLOCK);
-            }
-
-
-	    }
-
-	    // It is an operator
-	    else if(
-            sc.state == SCE_MAGIK_OPERATOR ||
-            sc.state == SCE_MAGIK_BRACE_BLOCK ||
-            sc.state == SCE_MAGIK_BRACKET_BLOCK ||
-            sc.state == SCE_MAGIK_SQBRACKET_BLOCK) {
-	        sc.SetState(SCE_MAGIK_DEFAULT);
-	        goto repeat;
-	    }
-
-	    // It is the pragma state
-	    else if(sc.state == SCE_MAGIK_PRAGMA) {
-	        if(!IsAlpha(sc.ch)) {
-	            sc.SetState(SCE_MAGIK_DEFAULT);
-                goto repeat;
-	        }
-	    }
-
-	    // It is the keyword state
-	    else if(
-            sc.state == SCE_MAGIK_KEYWORD ||
-            sc.state == SCE_MAGIK_CONTAINER ||
-            sc.state == SCE_MAGIK_FLOW ||
-            sc.state == SCE_MAGIK_UNKNOWN_KEYWORD) {
-	        if(!IsAlpha(sc.ch)) {
-	            sc.SetState(SCE_MAGIK_DEFAULT);
-	            goto repeat;
-	        }
-	    }
+				sc.SetState(SCE_MAGIK_DEFAULT);
+				goto repeat;
+			}
+			// Operators
+			else if(oneof11(sc.ch, '>', '<', '.', ',', '+', '-', '/', '*', '~', '$', '=')) {
+				sc.SetState(SCE_MAGIK_OPERATOR);
+			}
+			// Braces
+			else if(sc.ch == '(' || sc.ch == ')') {
+				sc.SetState(SCE_MAGIK_BRACE_BLOCK);
+			}
+			// Brackets
+			else if(sc.ch == '{' || sc.ch == '}') {
+				sc.SetState(SCE_MAGIK_BRACKET_BLOCK);
+			}
+			// Square Brackets
+			else if(sc.ch == '[' || sc.ch == ']') {
+				sc.SetState(SCE_MAGIK_SQBRACKET_BLOCK);
+			}
+		}
+		// It is an operator
+		else if(oneof4(sc.state, SCE_MAGIK_OPERATOR, SCE_MAGIK_BRACE_BLOCK, SCE_MAGIK_BRACKET_BLOCK, SCE_MAGIK_SQBRACKET_BLOCK)) {
+			sc.SetState(SCE_MAGIK_DEFAULT);
+			goto repeat;
+		}
+		// It is the pragma state
+		else if(sc.state == SCE_MAGIK_PRAGMA) {
+			if(!IsAlpha(sc.ch)) {
+				sc.SetState(SCE_MAGIK_DEFAULT);
+				goto repeat;
+			}
+		}
+		// It is the keyword state
+		else if(
+		    sc.state == SCE_MAGIK_KEYWORD ||
+		    sc.state == SCE_MAGIK_CONTAINER ||
+		    sc.state == SCE_MAGIK_FLOW ||
+		    sc.state == SCE_MAGIK_UNKNOWN_KEYWORD) {
+			if(!IsAlpha(sc.ch)) {
+				sc.SetState(SCE_MAGIK_DEFAULT);
+				goto repeat;
+			}
+		}
 	}
 
 	sc.Complete();
@@ -309,13 +274,14 @@ static void ColouriseMagikDoc(Sci_PositionU startPos, Sci_Position length, int i
  * The word list description
  */
 static const char * const magikWordListDesc[] = {
-    "Accessors (local, global, self, super, thisthread)",
-    "Pragmatic (pragma, private)",
-    "Containers (method, block, proc)",
-    "Flow (if, then, elif, else)",
-    "Characters (space, tab, newline, return)",
-    "Fold Containers (method, proc, block, if, loop)",
-    0};
+	"Accessors (local, global, self, super, thisthread)",
+	"Pragmatic (pragma, private)",
+	"Containers (method, block, proc)",
+	"Flow (if, then, elif, else)",
+	"Characters (space, tab, newline, return)",
+	"Fold Containers (method, proc, block, if, loop)",
+	0
+};
 
 /**
  * This function detects keywords which are able to have a body. Note that it
@@ -329,21 +295,22 @@ static const char * const magikWordListDesc[] = {
  * \return 1 if it is a folding start-keyword, -1 if it is a folding end-keyword
  *         0 otherwise
  */
-static inline int IsFoldingContainer(WordList &keywordslist, char * keyword) {
-    if(
-        strlen(keyword) > 3 &&
-        keyword[0] == 'e' && keyword[1] == 'n' && keyword[2] == 'd') {
-        if (keywordslist.InList(keyword + 3)) {
-            return -1;
-        }
+static inline int IsFoldingContainer(WordList &keywordslist, char * keyword)
+{
+	if(
+	    strlen(keyword) > 3 &&
+	    keyword[0] == 'e' && keyword[1] == 'n' && keyword[2] == 'd') {
+		if(keywordslist.InList(keyword + 3)) {
+			return -1;
+		}
+	}
+	else {
+		if(keywordslist.InList(keyword)) {
+			return 1;
+		}
+	}
 
-    } else {
-        if(keywordslist.InList(keyword)) {
-            return 1;
-        }
-    }
-
-    return 0;
+	return 0;
 }
 
 /**
@@ -354,85 +321,56 @@ static inline int IsFoldingContainer(WordList &keywordslist, char * keyword) {
  * \param  keywordslists The keywordslists, currently, number 5 is used
  * \param  styler The styler
  */
-static void FoldMagikDoc(Sci_PositionU startPos, Sci_Position length, int,
-    WordList *keywordslists[], Accessor &styler) {
-
-    bool compact = styler.GetPropertyInt("fold.compact") != 0;
-
-    WordList &foldingElements = *keywordslists[5];
-    Sci_Position endPos = startPos + length;
-    Sci_Position line = styler.GetLine(startPos);
-    int level = styler.LevelAt(line) & SC_FOLDLEVELNUMBERMASK;
-    int flags = styler.LevelAt(line) & ~SC_FOLDLEVELNUMBERMASK;
-
-    for(
-        Sci_Position currentPos = startPos;
-        currentPos < endPos;
-        currentPos++) {
-            char currentState = styler.StyleAt(currentPos);
-            char c = styler.SafeGetCharAt(currentPos, ' ');
-            Sci_Position prevLine = styler.GetLine(currentPos - 1);
-            line = styler.GetLine(currentPos);
-
-            // Default situation
-            if(prevLine < line) {
-                styler.SetLevel(line, (level|flags) & ~SC_FOLDLEVELHEADERFLAG);
-                flags = styler.LevelAt(line) & ~SC_FOLDLEVELNUMBERMASK;
-            }
-
-            if(
-                (
-                    currentState == SCE_MAGIK_CONTAINER ||
-                    currentState == SCE_MAGIK_FLOW
-                ) &&
-                c == '_') {
-
-                char keyword[50];
-                memset(keyword, '\0', 50);
-
-                for(
-                    int scanPosition = 0;
-                    scanPosition < 50;
-                    scanPosition++) {
-                    char keywordChar = static_cast<char>(
-                        tolower(styler.SafeGetCharAt(
-                            scanPosition +
-                                currentPos + 1, ' ')));
-                    if(IsAlpha(keywordChar)) {
-                        keyword[scanPosition] = keywordChar;
-                    } else {
-                        break;
-                    }
-                }
-
-                if(IsFoldingContainer(foldingElements, keyword) > 0) {
-                    styler.SetLevel(
-                        line,
-                        styler.LevelAt(line) | SC_FOLDLEVELHEADERFLAG);
-                    level++;
-                } else if(IsFoldingContainer(foldingElements, keyword) < 0) {
-                    styler.SetLevel(line, styler.LevelAt(line));
-                    level--;
-                }
-            }
-
-            if(
-                compact && (
-                    currentState == SCE_MAGIK_BRACE_BLOCK ||
-                    currentState == SCE_MAGIK_BRACKET_BLOCK ||
-                    currentState == SCE_MAGIK_SQBRACKET_BLOCK)) {
-                if(c == '{' || c == '[' || c == '(') {
-                    styler.SetLevel(
-                        line,
-                        styler.LevelAt(line) | SC_FOLDLEVELHEADERFLAG);
-                    level++;
-                } else if(c == '}' || c == ']' || c == ')') {
-                    styler.SetLevel(line, styler.LevelAt(line));
-                    level--;
-                }
-            }
-        }
-
+static void FoldMagikDoc(Sci_PositionU startPos, Sci_Position length, int, WordList * keywordslists[], Accessor &styler)
+{
+	bool compact = styler.GetPropertyInt("fold.compact") != 0;
+	WordList &foldingElements = *keywordslists[5];
+	Sci_Position endPos = startPos + length;
+	Sci_Position line = styler.GetLine(startPos);
+	int level = styler.LevelAt(line) & SC_FOLDLEVELNUMBERMASK;
+	int flags = styler.LevelAt(line) & ~SC_FOLDLEVELNUMBERMASK;
+	for(Sci_Position currentPos = startPos; currentPos < endPos; currentPos++) {
+		char currentState = styler.StyleAt(currentPos);
+		char c = styler.SafeGetCharAt(currentPos, ' ');
+		Sci_Position prevLine = styler.GetLine(currentPos - 1);
+		line = styler.GetLine(currentPos);
+		// Default situation
+		if(prevLine < line) {
+			styler.SetLevel(line, (level|flags) & ~SC_FOLDLEVELHEADERFLAG);
+			flags = styler.LevelAt(line) & ~SC_FOLDLEVELNUMBERMASK;
+		}
+		if(oneof2(currentState, SCE_MAGIK_CONTAINER, SCE_MAGIK_FLOW) && c == '_') {
+			char keyword[50];
+			memzero(keyword, sizeof(keyword));
+			for(int scanPosition = 0; scanPosition < 50; scanPosition++) {
+				char keywordChar = static_cast<char>(tolower(styler.SafeGetCharAt(scanPosition + currentPos + 1, ' ')));
+				if(IsAlpha(keywordChar)) {
+					keyword[scanPosition] = keywordChar;
+				}
+				else {
+					break;
+				}
+			}
+			if(IsFoldingContainer(foldingElements, keyword) > 0) {
+				styler.SetLevel(line, styler.LevelAt(line) | SC_FOLDLEVELHEADERFLAG);
+				level++;
+			}
+			else if(IsFoldingContainer(foldingElements, keyword) < 0) {
+				styler.SetLevel(line, styler.LevelAt(line));
+				level--;
+			}
+		}
+		if(compact && oneof3(currentState, SCE_MAGIK_BRACE_BLOCK, SCE_MAGIK_BRACKET_BLOCK, SCE_MAGIK_SQBRACKET_BLOCK)) {
+			if(c == '{' || c == '[' || c == '(') {
+				styler.SetLevel(line, styler.LevelAt(line) | SC_FOLDLEVELHEADERFLAG);
+				level++;
+			}
+			else if(c == '}' || c == ']' || c == ')') {
+				styler.SetLevel(line, styler.LevelAt(line));
+				level--;
+			}
+		}
+	}
 }
 
 /**

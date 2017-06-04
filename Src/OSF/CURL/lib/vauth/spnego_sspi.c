@@ -90,13 +90,13 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy * data,
 {
 	CURLcode result = CURLE_OK;
 	size_t chlglen = 0;
-	unsigned char * chlg = NULL;
+	uchar * chlg = NULL;
 	PSecPkgInfo SecurityPackage;
 	SecBuffer chlg_buf;
 	SecBuffer resp_buf;
 	SecBufferDesc chlg_desc;
 	SecBufferDesc resp_desc;
-	unsigned long attrs;
+	ulong attrs;
 	TimeStamp expiry; /* For Windows 9x compatibility of SSPI calls */
 
 #if defined(CURL_DISABLE_VERBOSE_STRINGS)
@@ -132,7 +132,7 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy * data,
 		s_pSecFn->FreeContextBuffer(SecurityPackage);
 
 		/* Allocate our output buffer */
-		nego->output_token = malloc(nego->token_max);
+		nego->output_token = SAlloc::M(nego->token_max);
 		if(!nego->output_token)
 			return CURLE_OUT_OF_MEMORY;
 	}
@@ -153,7 +153,7 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy * data,
 			nego->p_identity = NULL;
 
 		/* Allocate our credentials handle */
-		nego->credentials = malloc(sizeof(CredHandle));
+		nego->credentials = SAlloc::M(sizeof(CredHandle));
 		if(!nego->credentials)
 			return CURLE_OUT_OF_MEMORY;
 		memzero(nego->credentials, sizeof(CredHandle));
@@ -163,7 +163,7 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy * data,
 		if(nego->status != SEC_E_OK)
 			return CURLE_LOGIN_DENIED;
 		/* Allocate our new context handle */
-		nego->context = malloc(sizeof(CtxtHandle));
+		nego->context = SAlloc::M(sizeof(CtxtHandle));
 		if(!nego->context)
 			return CURLE_OUT_OF_MEMORY;
 		memzero(nego->context, sizeof(CtxtHandle));
@@ -213,7 +213,7 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy * data,
 	    &expiry);
 
 	/* Free the decoded challenge as it is not required anymore */
-	free(chlg);
+	SAlloc::F(chlg);
 
 	if(GSS_ERROR(nego->status)) {
 		failf(data, "InitializeSecurityContext failed: %s",
@@ -266,7 +266,7 @@ CURLcode Curl_auth_create_spnego_message(struct Curl_easy * data,
 		return result;
 
 	if(!*outptr || !*outlen) {
-		free(*outptr);
+		SAlloc::F(*outptr);
 		return CURLE_REMOTE_ACCESS_DENIED;
 	}
 
@@ -288,14 +288,14 @@ void Curl_auth_spnego_cleanup(struct negotiatedata * nego)
 	/* Free our security context */
 	if(nego->context) {
 		s_pSecFn->DeleteSecurityContext(nego->context);
-		free(nego->context);
+		SAlloc::F(nego->context);
 		nego->context = NULL;
 	}
 
 	/* Free our credentials handle */
 	if(nego->credentials) {
 		s_pSecFn->FreeCredentialsHandle(nego->credentials);
-		free(nego->credentials);
+		SAlloc::F(nego->credentials);
 		nego->credentials = NULL;
 	}
 
@@ -304,8 +304,8 @@ void Curl_auth_spnego_cleanup(struct negotiatedata * nego)
 	nego->p_identity = NULL;
 
 	/* Free the SPN and output token */
-	Curl_safefree(nego->spn);
-	Curl_safefree(nego->output_token);
+	ZFREE(nego->spn);
+	ZFREE(nego->output_token);
 
 	/* Reset any variables */
 	nego->status = 0;

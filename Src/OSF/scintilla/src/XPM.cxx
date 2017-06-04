@@ -4,9 +4,13 @@
  **/
 // Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
+
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
+#include <stdexcept>
+#include <vector>
+#include <map>
 #include "XPM.h"
 
 #ifdef SCI_NAMESPACE
@@ -15,13 +19,13 @@ using namespace Scintilla;
 
 static const char *NextField(const char *s) {
 	// In case there are leading spaces in the string
-	while (*s && *s == ' ') {
+	while (*s == ' ') {
 		s++;
 	}
 	while (*s && *s != ' ') {
 		s++;
 	}
-	while (*s && *s == ' ') {
+	while (*s == ' ') {
 		s++;
 	}
 	return s;
@@ -35,12 +39,11 @@ static size_t MeasureLength(const char *s) {
 	return i;
 }
 
-ColourDesired XPM::ColourFromCode(int ch) const 
-{
+ColourDesired XPM::ColourFromCode(int ch) const {
 	return colourCodeTable[ch];
 }
 
-void XPM::FillRun(Surface *surface, int code, int startX, int y, int x) {
+void XPM::FillRun(Surface *surface, int code, int startX, int y, int x) const {
 	if ((code != codeTransparent) && (startX != x)) {
 		PRectangle rc = PRectangle::FromInts(startX, y, x, y + 1);
 		surface->FillRectangle(rc, ColourFromCode(code));
@@ -98,7 +101,7 @@ void XPM::Init(const char *const *linesForm) {
 
 	for (int c=0; c<nColours; c++) {
 		const char *colourDef = linesForm[c+1];
-		int code = static_cast<unsigned char>(colourDef[0]);
+		int code = static_cast<uchar>(colourDef[0]);
 		colourDef += 4;
 		ColourDesired colour(0xff, 0xff, 0xff);
 		if (*colourDef == '#') {
@@ -113,7 +116,7 @@ void XPM::Init(const char *const *linesForm) {
 		const char *lform = linesForm[y+nColours+1];
 		size_t len = MeasureLength(lform);
 		for (size_t x = 0; x<len; x++)
-			pixels[y * width + x] = static_cast<unsigned char>(lform[x]);
+			pixels[y * width + x] = static_cast<uchar>(lform[x]);
 	}
 }
 
@@ -189,7 +192,7 @@ std::vector<const char *> XPM::LinesFormFromTextForm(const char *textForm) {
 	return linesForm;
 }
 
-RGBAImage::RGBAImage(int width_, int height_, float scale_, const unsigned char *pixels_) :
+RGBAImage::RGBAImage(int width_, int height_, float scale_, const uchar *pixels_) :
 	height(height_), width(width_), scale(scale_) {
 	if (pixels_) {
 		pixelBytes.assign(pixels_, pixels_ + CountBytes());
@@ -220,17 +223,17 @@ int RGBAImage::CountBytes() const {
 	return width * height * 4;
 }
 
-const unsigned char *RGBAImage::Pixels() const {
+const uchar *RGBAImage::Pixels() const {
 	return &pixelBytes[0];
 }
 
 void RGBAImage::SetPixel(int x, int y, ColourDesired colour, int alpha) {
-	unsigned char *pixel = &pixelBytes[0] + (y*width+x) * 4;
+	uchar *pixel = &pixelBytes[0] + (y*width+x) * 4;
 	// RGBA
-	pixel[0] = static_cast<unsigned char>(colour.GetRed());
-	pixel[1] = static_cast<unsigned char>(colour.GetGreen());
-	pixel[2] = static_cast<unsigned char>(colour.GetBlue());
-	pixel[3] = static_cast<unsigned char>(alpha);
+	pixel[0] = static_cast<uchar>(colour.GetRed());
+	pixel[1] = static_cast<uchar>(colour.GetGreen());
+	pixel[2] = static_cast<uchar>(colour.GetBlue());
+	pixel[3] = static_cast<uchar>(alpha);
 }
 
 RGBAImageSet::RGBAImageSet() : height(-1), width(-1) {

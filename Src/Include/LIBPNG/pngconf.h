@@ -343,8 +343,7 @@
 #    if !defined(PNG_PRIVATE)
 #      ifdef __has_extension
 #        if __has_extension(attribute_unavailable_with_message)
-#          define PNG_PRIVATE __attribute__((__unavailable__( \
-			    "This function is not exported by libpng.")))
+#          define PNG_PRIVATE __attribute__((__unavailable__("This function is not exported by libpng.")))
 #        endif
 #      endif
 #    endif
@@ -368,11 +367,9 @@
 #      endif
 #      ifndef PNG_PRIVATE
 #        if 0 /* Doesn't work so we use deprecated instead*/
-#          define PNG_PRIVATE \
-	__attribute__((warning("This function is not exported by libpng.")))
+#          define PNG_PRIVATE __attribute__((warning("This function is not exported by libpng.")))
 #        else
-#          define PNG_PRIVATE \
-	__attribute__((__deprecated__))
+#          define PNG_PRIVATE __attribute__((__deprecated__))
 #        endif
 #      endif
 #      if ((__GNUC__ > 3) || !defined(__GNUC_MINOR__) || (__GNUC_MINOR__ >= 1))
@@ -448,19 +445,19 @@
 /* Some typedefs to get us started.  These should be safe on most of the common
  * platforms.
  *
- * png_uint_32 and png_int_32 may, currently, be larger than required to hold a
+ * uint32 and png_int_32 may, currently, be larger than required to hold a
  * 32-bit value however this is not normally advisable.
  *
  * png_uint_16 and png_int_16 should always be two bytes in size - this is
  * verified at library build time.
  *
- * png_byte must always be one byte in size.
+ * uint8 must always be one byte in size.
  *
  * The checks below use constants from limits.h, as defined by the ISOC90
  * standard.
  */
 #if CHAR_BIT == 8 && UCHAR_MAX == 255
-	typedef unsigned char png_byte;
+	typedef unsigned char png_byte_Removed;
 #else
 	#error "libpng requires 8-bit bytes"
 #endif
@@ -486,9 +483,9 @@
 	#error "libpng requires a signed 32-bit (or more) type"
 #endif
 #if UINT_MAX > 4294967294
-	typedef unsigned int png_uint_32;
+	typedef unsigned int png_uint_32_Removed;
 #elif ULONG_MAX > 4294967294
-	typedef unsigned long int png_uint_32;
+	typedef unsigned long int png_uint_32_Removed;
 #else
 	#error "libpng requires an unsigned 32-bit (or more) type"
 #endif
@@ -496,7 +493,7 @@
 /* Prior to 1.6.0 it was possible to disable the use of size_t, 1.6.0, however,
  * requires an ISOC90 compiler and relies on consistent behavior of sizeof.
  */
-typedef size_t png_size_t;
+typedef size_t png_size_t_Removed;
 typedef ptrdiff_t png_ptrdiff_t;
 
 /* libpng needs to know the maximum value of 'size_t' and this controls the
@@ -512,23 +509,23 @@ typedef ptrdiff_t png_ptrdiff_t;
 	#endif
 #endif
 
-/* png_alloc_size_t is guaranteed to be no smaller than png_size_t, and no
- * smaller than png_uint_32.  Casts from png_size_t or png_uint_32 to
+/* png_alloc_size_t is guaranteed to be no smaller than size_t, and no
+ * smaller than uint32.  Casts from size_t or uint32 to
  * png_alloc_size_t are not necessary; in fact, it is recommended not to use
  * them at all so that the compiler can complain when something turns out to be
  * problematic.
  *
- * Casts in the other direction (from png_alloc_size_t to png_size_t or
- * png_uint_32) should be explicitly applied; however, we do not expect to
+ * Casts in the other direction (from png_alloc_size_t to size_t or
+ * uint32) should be explicitly applied; however, we do not expect to
  * encounter practical situations that require such conversions.
  *
  * PNG_SMALL_SIZE_T must be defined if the maximum value of size_t is less than
- * 4294967295 - i.e. less than the maximum value of png_uint_32.
+ * 4294967295 - i.e. less than the maximum value of uint32.
  */
 #ifdef PNG_SMALL_SIZE_T
-typedef png_uint_32 png_alloc_size_t;
+typedef uint32 png_alloc_size_t;
 #else
-typedef png_size_t png_alloc_size_t;
+typedef size_t png_alloc_size_t;
 #endif
 
 /* Prior to 1.6.0 libpng offered limited support for Microsoft C compiler
@@ -548,41 +545,40 @@ typedef png_size_t png_alloc_size_t;
 typedef png_int_32 png_fixed_point;
 
 /* Add typedefs for pointers */
-typedef void                  * png_voidp;
-typedef const void            * png_const_voidp;
-typedef png_byte              * png_bytep;
-typedef const png_byte        * png_const_bytep;
-typedef png_uint_32           * png_uint_32p;
-typedef const png_uint_32     * png_const_uint_32p;
+typedef void                  * png_voidp_Removed;
+typedef const void            * png_const_voidp_Removed;
+typedef uint8              * png_bytep;
+typedef const uint8        * png_const_bytep;
+typedef uint32           * png_uint_32p;
+typedef const uint32     * png_const_uint_32p;
 typedef png_int_32            * png_int_32p;
 typedef const png_int_32      * png_const_int_32p;
 typedef png_uint_16           * png_uint_16p;
 typedef const png_uint_16     * png_const_uint_16p;
 typedef png_int_16            * png_int_16p;
 typedef const png_int_16      * png_const_int_16p;
-typedef char                  * png_charp;
-typedef const char            * png_const_charp;
+typedef char                  * png_charp_Removed;
+//typedef const char            * png_const_charp_Removed;
 typedef png_fixed_point       * png_fixed_point_p;
 typedef const png_fixed_point * png_const_fixed_point_p;
-typedef png_size_t            * png_size_tp;
-typedef const png_size_t      * png_const_size_tp;
+typedef size_t            * png_size_tp;
+typedef const size_t      * png_const_size_tp;
 
 #ifdef PNG_STDIO_SUPPORTED
-typedef FILE            * png_FILE_p;
+	typedef FILE            * png_FILE_p;
 #endif
-
 #ifdef PNG_FLOATING_POINT_SUPPORTED
-typedef double       * png_doublep;
-typedef const double * png_const_doublep;
+	typedef double       * png_doublep;
+	typedef const double * png_const_doublep;
 #endif
 
 /* Pointers to pointers; i.e. arrays */
-typedef png_byte        ** png_bytepp;
-typedef png_uint_32     ** png_uint_32pp;
+typedef uint8        ** png_bytepp;
+typedef uint32     ** png_uint_32pp;
 typedef png_int_32      ** png_int_32pp;
 typedef png_uint_16     ** png_uint_16pp;
 typedef png_int_16      ** png_int_16pp;
-typedef const char      ** png_const_charpp;
+typedef const char      ** png_const_charpp_Removed;
 typedef char            ** png_charpp;
 typedef png_fixed_point ** png_fixed_point_pp;
 #ifdef PNG_FLOATING_POINT_SUPPORTED

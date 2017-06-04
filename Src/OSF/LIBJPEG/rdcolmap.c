@@ -41,9 +41,7 @@
 /*
  * Add a (potentially) new color to the color map.
  */
-
-LOCAL(void)
-add_map_entry(j_decompress_ptr cinfo, int R, int G, int B)
+static void add_map_entry(j_decompress_ptr cinfo, int R, int G, int B)
 {
 	JSAMPROW colormap0 = cinfo->colormap[0];
 	JSAMPROW colormap1 = cinfo->colormap[1];
@@ -73,9 +71,7 @@ add_map_entry(j_decompress_ptr cinfo, int R, int G, int B)
 /*
  * Extract color map from a GIF file.
  */
-
-LOCAL(void)
-read_gif_map(j_decompress_ptr cinfo, FILE * infile)
+static void read_gif_map(j_decompress_ptr cinfo, FILE * infile)
 {
 	int header[13];
 	int i, colormaplen;
@@ -114,14 +110,11 @@ read_gif_map(j_decompress_ptr cinfo, FILE * infile)
 
 /* Support routines for reading PPM */
 
-LOCAL(int)
-pbm_getc(FILE * infile)
+static int pbm_getc(FILE * infile)
 /* Read next char, skipping over any comments */
 /* A comment/newline sequence is returned as a newline */
 {
-	register int ch;
-
-	ch = getc(infile);
+	register int ch = getc(infile);
 	if(ch == '#') {
 		do {
 			ch = getc(infile);
@@ -130,8 +123,7 @@ pbm_getc(FILE * infile)
 	return ch;
 }
 
-LOCAL(unsigned int)
-read_pbm_integer(j_decompress_ptr cinfo, FILE * infile)
+LOCAL(unsigned int) read_pbm_integer(j_decompress_ptr cinfo, FILE * infile)
 /* Read an unsigned decimal integer from the PPM file */
 /* Swallows one trailing character after the integer */
 /* Note that on a 16-bit-int machine, only values up to 64k can be read. */
@@ -161,9 +153,7 @@ read_pbm_integer(j_decompress_ptr cinfo, FILE * infile)
 /*
  * Extract color map from a PPM file.
  */
-
-LOCAL(void)
-read_ppm_map(j_decompress_ptr cinfo, FILE * infile)
+static void read_ppm_map(j_decompress_ptr cinfo, FILE * infile)
 {
 	int c;
 	unsigned int w, h, maxval, row, col;

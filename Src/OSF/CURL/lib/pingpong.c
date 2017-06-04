@@ -57,24 +57,18 @@ time_t Curl_pp_state_timeout(struct pingpong * pp)
 	   remaining time, or use pp->response because SERVER_RESPONSE_TIMEOUT is
 	   supposed to govern the response for any given server response, not for
 	   the time from connect to the given server response. */
-
 	/* Without a requested timeout, we only wait 'response_time' seconds for the
 	   full response to arrive before we bail out */
 	timeout_ms = response_time -
 	    Curl_tvdiff(Curl_tvnow(), pp->response); /* spent time */
-
 	if(data->set.timeout) {
 		/* if timeout is requested, find out how much remaining time we have */
-		timeout2_ms = data->set.timeout - /* timeout time */
-		    Curl_tvdiff(Curl_tvnow(), conn->now); /* spent time */
-
-		/* pick the lowest number */
-		timeout_ms = CURLMIN(timeout_ms, timeout2_ms);
+		timeout2_ms = data->set.timeout - /* timeout time */ Curl_tvdiff(Curl_tvnow(), conn->now); /* spent time */
+		// pick the lowest number 
+		timeout_ms = MIN(timeout_ms, timeout2_ms);
 	}
-
 	return timeout_ms;
 }
-
 /*
  * Curl_pp_statemach()
  */
@@ -181,7 +175,7 @@ CURLcode Curl_pp_vsendf(struct pingpong * pp,
 		return CURLE_OUT_OF_MEMORY;
 
 	s = vaprintf(fmt_crlf, args); /* trailing CRLF appended */
-	free(fmt_crlf);
+	SAlloc::F(fmt_crlf);
 	if(!s)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -193,29 +187,24 @@ CURLcode Curl_pp_vsendf(struct pingpong * pp,
 	result = Curl_convert_to_network(data, s, write_len);
 	/* Curl_convert_to_network calls failf if unsuccessful */
 	if(result) {
-		free(s);
+		SAlloc::F(s);
 		return result;
 	}
 
 #ifdef HAVE_GSSAPI
 	conn->data_prot = PROT_CMD;
 #endif
-	result = Curl_write(conn, conn->sock[FIRSTSOCKET], s, write_len,
-	    &bytes_written);
+	result = Curl_write(conn, conn->sock[FIRSTSOCKET], s, write_len, &bytes_written);
 #ifdef HAVE_GSSAPI
 	DEBUGASSERT(data_sec > PROT_NONE && data_sec < PROT_LAST);
 	conn->data_prot = data_sec;
 #endif
-
 	if(result) {
-		free(s);
+		SAlloc::F(s);
 		return result;
 	}
-
 	if(conn->data->set.verbose)
-		Curl_debug(conn->data, CURLINFO_HEADER_OUT,
-		    s, (size_t)bytes_written, conn);
-
+		Curl_debug(conn->data, CURLINFO_HEADER_OUT, s, (size_t)bytes_written, conn);
 	if(bytes_written != (ssize_t)write_len) {
 		/* the whole chunk was not sent, keep it around and adjust sizes */
 		pp->sendthis = s;
@@ -223,12 +212,11 @@ CURLcode Curl_pp_vsendf(struct pingpong * pp,
 		pp->sendleft = write_len - bytes_written;
 	}
 	else {
-		free(s);
+		SAlloc::F(s);
 		pp->sendthis = NULL;
 		pp->sendleft = pp->sendsize = 0;
 		pp->response = Curl_tvnow();
 	}
-
 	return CURLE_OK;
 }
 
@@ -295,7 +283,7 @@ CURLcode Curl_pp_readresp(curl_socket_t sockfd,
 			DEBUGASSERT((ptr+pp->cache_size) <= (buf+BUFSIZE+1));
 			memcpy(ptr, pp->cache, pp->cache_size);
 			gotbytes = (ssize_t)pp->cache_size;
-			free(pp->cache); /* free the cache */
+			SAlloc::F(pp->cache); /* free the cache */
 			pp->cache = NULL; /* clear the pointer */
 			pp->cache_size = 0; /* zero the size just in case */
 		}
@@ -353,19 +341,15 @@ CURLcode Curl_pp_readresp(curl_socket_t sockfd,
 					if(!conn->sec_complete)
 #endif
 					if(data->set.verbose)
-						Curl_debug(data, CURLINFO_HEADER_IN,
-						    pp->linestart_resp, (size_t)perline, conn);
-
+						Curl_debug(data, CURLINFO_HEADER_IN, pp->linestart_resp, (size_t)perline, conn);
 					/*
 					 * We pass all response-lines to the callback function registered
 					 * for "headers". The response lines can be seen as a kind of
 					 * headers.
 					 */
-					result = Curl_client_write(conn, CLIENTWRITE_HEADER,
-					    pp->linestart_resp, perline);
+					result = Curl_client_write(conn, CLIENTWRITE_HEADER, pp->linestart_resp, perline);
 					if(result)
 						return result;
-
 					if(pp->endofresp(conn, pp->linestart_resp, perline, code)) {
 						/* This is the end of the last line, copy the last line to the
 						   start of the buffer and zero terminate, for old times sake */
@@ -392,17 +376,14 @@ CURLcode Curl_pp_readresp(curl_socket_t sockfd,
 				   it may actually contain another end of response already! */
 				clipamount = gotbytes - i;
 				restart = TRUE;
-				DEBUGF(infof(data, "Curl_pp_readresp_ %d bytes of trailing "
-					    "server response left\n",
-					    (int)clipamount));
+				DEBUGF(infof(data, "Curl_pp_readresp_ %d bytes of trailing server response left\n", (int)clipamount));
 			}
 			else if(keepon) {
 				if((perline == gotbytes) && (gotbytes > BUFSIZE/2)) {
 					/* We got an excessive line without newlines and we need to deal
 					   with it. We keep the first bytes of the line then we throw
 					   away the rest. */
-					infof(data, "Excessive server response line length received, "
-					    "%zd bytes. Stripping\n", gotbytes);
+					infof(data, "Excessive server response line length received, %zd bytes. Stripping\n", gotbytes);
 					restart = TRUE;
 
 					/* we keep 40 bytes since all our pingpong protocols are only
@@ -421,7 +402,7 @@ CURLcode Curl_pp_readresp(curl_socket_t sockfd,
 				restart = TRUE;
 			if(clipamount) {
 				pp->cache_size = clipamount;
-				pp->cache = (char *)malloc(pp->cache_size);
+				pp->cache = (char *)SAlloc::M(pp->cache_size);
 				if(pp->cache)
 					memcpy(pp->cache, pp->linestart_resp, pp->cache_size);
 				else
@@ -436,28 +417,20 @@ CURLcode Curl_pp_readresp(curl_socket_t sockfd,
 			}
 		} /* there was data */
 	} /* while there's buffer left and loop is requested */
-
 	pp->pending_resp = FALSE;
-
 	return result;
 }
 
-int Curl_pp_getsock(struct pingpong * pp,
-    curl_socket_t * socks,
-    int numsocks)
+int Curl_pp_getsock(struct pingpong * pp, curl_socket_t * socks, int numsocks)
 {
 	struct connectdata * conn = pp->conn;
-
 	if(!numsocks)
 		return GETSOCK_BLANK;
-
 	socks[0] = conn->sock[FIRSTSOCKET];
-
 	if(pp->sendleft) {
 		/* write mode */
 		return GETSOCK_WRITESOCK(0);
 	}
-
 	/* read mode */
 	return GETSOCK_READSOCK(0);
 }
@@ -478,7 +451,7 @@ CURLcode Curl_pp_flushsend(struct pingpong * pp)
 		pp->sendleft -= written;
 	}
 	else {
-		free(pp->sendthis);
+		SAlloc::F(pp->sendthis);
 		pp->sendthis = NULL;
 		pp->sendleft = pp->sendsize = 0;
 		pp->response = Curl_tvnow();
@@ -488,15 +461,14 @@ CURLcode Curl_pp_flushsend(struct pingpong * pp)
 
 CURLcode Curl_pp_disconnect(struct pingpong * pp)
 {
-	free(pp->cache);
+	SAlloc::F(pp->cache);
 	pp->cache = NULL;
 	return CURLE_OK;
 }
 
 bool Curl_pp_moredata(struct pingpong * pp)
 {
-	return (!pp->sendleft && pp->cache && pp->nread_resp < pp->cache_size) ?
-	       TRUE : FALSE;
+	return (!pp->sendleft && pp->cache && pp->nread_resp < pp->cache_size) ? TRUE : FALSE;
 }
 
 #endif

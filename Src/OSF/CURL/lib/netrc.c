@@ -27,8 +27,8 @@
 #endif
 //#include <curl/curl.h>
 #include "netrc.h"
-#include "strtok.h"
-#include "strcase.h"
+//#include "strtok.h"
+//#include "strcase.h"
 
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
@@ -78,7 +78,7 @@ int Curl_parsenetrc(const char *host,
       char pwbuf[1024];
       if(!getpwuid_r(geteuid(), &pw, pwbuf, sizeof(pwbuf), &pw_res)
          && pw_res) {
-        home = strdup(pw.pw_dir);
+        home = _strdup(pw.pw_dir);
         if(!home)
           return CURLE_OUT_OF_MEMORY;
         home_alloc = TRUE;
@@ -99,7 +99,7 @@ int Curl_parsenetrc(const char *host,
 
     netrcfile = curl_maprintf("%s%s%s", home, DIR_CHAR, NETRC);
     if(home_alloc)
-      free(home);
+      SAlloc::F(home);
     if(!netrcfile) {
       return -1;
     }
@@ -108,7 +108,7 @@ int Curl_parsenetrc(const char *host,
 
   file = fopen(netrcfile, FOPEN_READTEXT);
   if(netrc_alloc)
-    free(netrcfile);
+    SAlloc::F(netrcfile);
   if(file) {
     char *tok;
     char *tok_buf;
@@ -156,8 +156,8 @@ int Curl_parsenetrc(const char *host,
               state_our_login = strcasecompare(*loginp, tok);
             }
             else {
-              free(*loginp);
-              *loginp = strdup(tok);
+              SAlloc::F(*loginp);
+              *loginp = _strdup(tok);
               if(!*loginp) {
                 retcode = -1; /* allocation failed */
                 goto out;
@@ -167,8 +167,8 @@ int Curl_parsenetrc(const char *host,
           }
           else if(state_password) {
             if(state_our_login || !specific_login) {
-              free(*passwordp);
-              *passwordp = strdup(tok);
+              SAlloc::F(*passwordp);
+              *passwordp = _strdup(tok);
               if(!*passwordp) {
                 retcode = -1; /* allocation failed */
                 goto out;

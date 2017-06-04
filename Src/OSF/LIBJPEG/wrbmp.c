@@ -56,8 +56,7 @@ typedef struct {
 typedef bmp_dest_struct * bmp_dest_ptr;
 
 /* Forward declarations */
-LOCAL(void) write_colormap JPP((j_decompress_ptr cinfo, bmp_dest_ptr dest,
-	    int map_colors, int map_entry_size));
+static void write_colormap JPP((j_decompress_ptr cinfo, bmp_dest_ptr dest, int map_colors, int map_entry_size));
 
 /*
  * Write some pixel data.
@@ -131,7 +130,7 @@ METHODDEF(void) start_output_bmp(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
  *
  * First, routines to write the Windows and OS/2 variants of the file header.
  */
-LOCAL(void) write_bmp_header(j_decompress_ptr cinfo, bmp_dest_ptr dest)
+static void write_bmp_header(j_decompress_ptr cinfo, bmp_dest_ptr dest)
 /* Write a Windows-style BMP file header, including colormap if needed */
 {
 	char bmpfileheader[14];
@@ -204,8 +203,7 @@ LOCAL(void) write_bmp_header(j_decompress_ptr cinfo, bmp_dest_ptr dest)
 		write_colormap(cinfo, dest, cmap_entries, 4);
 }
 
-LOCAL(void)
-write_os2_header(j_decompress_ptr cinfo, bmp_dest_ptr dest)
+static void write_os2_header(j_decompress_ptr cinfo, bmp_dest_ptr dest)
 /* Write an OS2-style BMP file header, including colormap if needed */
 {
 	char bmpfileheader[14];
@@ -266,10 +264,7 @@ write_os2_header(j_decompress_ptr cinfo, bmp_dest_ptr dest)
  * Write the colormap.
  * Windows uses BGR0 map entries; OS/2 uses BGR entries.
  */
-
-LOCAL(void)
-write_colormap(j_decompress_ptr cinfo, bmp_dest_ptr dest,
-    int map_colors, int map_entry_size)
+static void write_colormap(j_decompress_ptr cinfo, bmp_dest_ptr dest, int map_colors, int map_entry_size)
 {
 	JSAMPARRAY colormap = cinfo->colormap;
 	int num_colors = cinfo->actual_number_of_colors;

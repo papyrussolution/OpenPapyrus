@@ -30,7 +30,7 @@
 
 struct curl_fileinfo * Curl_fileinfo_alloc(void)
 {
-	struct curl_fileinfo * tmp = (struct curl_fileinfo *)malloc(sizeof(struct curl_fileinfo));
+	struct curl_fileinfo * tmp = (struct curl_fileinfo *)SAlloc::M(sizeof(struct curl_fileinfo));
 	if(!tmp)
 		return NULL;
 	memzero(tmp, sizeof(struct curl_fileinfo));
@@ -43,7 +43,7 @@ void Curl_fileinfo_dtor(void * user, void * element)
 	(void)user;
 	if(!finfo)
 		return;
-	Curl_safefree(finfo->b_data);
-	free(finfo);
+	ZFREE(finfo->b_data);
+	SAlloc::F(finfo);
 }
 

@@ -125,7 +125,7 @@ CURLcode Curl_proxy_connect(struct connectdata * conn, int sockindex)
 		conn->data->req.protop = prot_save;
 		if(CURLE_OK != result)
 			return result;
-		Curl_safefree(conn->allocptr.proxyuserpwd);
+		ZFREE(conn->allocptr.proxyuserpwd);
 #else
 		return CURLE_NOT_BUILT_IN;
 #endif
@@ -180,8 +180,8 @@ CURLcode Curl_proxyCONNECT(struct connectdata * conn,
 
 			/* This only happens if we've looped here due to authentication
 			   reasons, and we don't really use the newly cloned URL here
-			   then. Just free() it. */
-			free(data->req.newurl);
+			   then. Just SAlloc::F() it. */
+			SAlloc::F(data->req.newurl);
 			data->req.newurl = NULL;
 
 			/* initialize a dynamic send-buffer */
@@ -199,7 +199,7 @@ CURLcode Curl_proxyCONNECT(struct connectdata * conn,
 			/* Setup the proxy-authorization header, if any */
 			result = Curl_http_output_auth(conn, "CONNECT", host_port, TRUE);
 
-			free(host_port);
+			SAlloc::F(host_port);
 
 			if(!result) {
 				char * host = NULL;
@@ -224,7 +224,7 @@ CURLcode Curl_proxyCONNECT(struct connectdata * conn,
 				if(!Curl_checkProxyheaders(conn, "Host:")) {
 					host = aprintf("Host: %s\r\n", hostheader);
 					if(!host) {
-						free(hostheader);
+						SAlloc::F(hostheader);
 						Curl_add_buffer_free(req_buffer);
 						return CURLE_OUT_OF_MEMORY;
 					}
@@ -252,8 +252,8 @@ CURLcode Curl_proxyCONNECT(struct connectdata * conn,
 				    proxyconn);
 
 				if(host)
-					free(host);
-				free(hostheader);
+					SAlloc::F(host);
+				SAlloc::F(hostheader);
 
 				if(!result)
 					result = Curl_add_custom_headers(conn, TRUE, req_buffer);
@@ -401,24 +401,19 @@ CURLcode Curl_proxyCONNECT(struct connectdata * conn,
 					ptr++;
 					continue;
 				}
-
 				/* convert from the network encoding */
 				result = Curl_convert_from_network(data, line_start, perline);
 				/* Curl_convert_from_network calls failf if unsuccessful */
 				if(result)
 					return result;
-
 				/* output debug if that is requested */
 				if(data->set.verbose)
-					Curl_debug(data, CURLINFO_HEADER_IN,
-					    line_start, (size_t)perline, conn);
-
+					Curl_debug(data, CURLINFO_HEADER_IN, line_start, (size_t)perline, conn);
 				if(!data->set.suppress_connect_headers) {
 					/* send the header to the callback */
 					int writetype = CLIENTWRITE_HEADER;
 					if(data->set.include_header)
 						writetype |= CLIENTWRITE_BODY;
-
 					result = Curl_client_write(conn, writetype, line_start, perline);
 					if(result)
 						return result;
@@ -502,7 +497,7 @@ CURLcode Curl_proxyCONNECT(struct connectdata * conn,
 
 					result = Curl_http_input_auth(conn, proxy, auth);
 
-					free(auth);
+					SAlloc::F(auth);
 
 					if(result)
 						return result;
@@ -597,7 +592,7 @@ CURLcode Curl_proxyCONNECT(struct connectdata * conn,
 			infof(data, "Connect me again please\n");
 		}
 		else {
-			free(data->req.newurl);
+			SAlloc::F(data->req.newurl);
 			data->req.newurl = NULL;
 			/* failure, close this connection to avoid re-use */
 			streamclose(conn, "proxy CONNECT failure");
@@ -621,7 +616,7 @@ CURLcode Curl_proxyCONNECT(struct connectdata * conn,
 	/* If a proxy-authorization header was used for the proxy, then we should
 	   make sure that it isn't accidentally used for the document request
 	   after we've connected. So let's free and clear it here. */
-	Curl_safefree(conn->allocptr.proxyuserpwd);
+	ZFREE(conn->allocptr.proxyuserpwd);
 	conn->allocptr.proxyuserpwd = NULL;
 
 	data->state.authproxy.done = TRUE;

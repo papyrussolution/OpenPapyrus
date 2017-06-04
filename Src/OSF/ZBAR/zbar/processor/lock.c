@@ -46,7 +46,7 @@ static inline proc_waiter_t *proc_waiter_queue (zbar_processor_t *proc)
         waiter->events = 0;
     }
     else {
-        waiter = (proc_waiter_t *)calloc(1, sizeof(proc_waiter_t));
+        waiter = (proc_waiter_t *)SAlloc::C(1, sizeof(proc_waiter_t));
         _zbar_event_init(&waiter->notify);
     }
     waiter->next = NULL;

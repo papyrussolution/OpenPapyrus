@@ -43,11 +43,9 @@
 #endif
 #include <cyassl/options.h>
 #endif
-
 #ifdef HAVE_LIMITS_H
-#include <limits.h>
+	#include <limits.h>
 #endif
-
 #include "urldata.h"
 #include "sendf.h"
 #include "inet_pton.h"
@@ -55,7 +53,7 @@
 #include "parsedate.h"
 #include "connect.h" /* for the connect timeout */
 #include "select.h"
-#include "strcase.h"
+//#include "strcase.h"
 #include "x509asn1.h"
 #include "curl_printf.h"
 
@@ -324,7 +322,7 @@ static CURLcode cyassl_connect_step1(struct connectdata * conn,
 		    (0 == Curl_inet_pton(AF_INET6, hostname, &addr6)) &&
 #endif
 		    (CyaSSL_CTX_UseSNI(conssl->ctx, CYASSL_SNI_HOST_NAME, hostname,
-				    (unsigned short)hostname_len) != 1)) {
+				    (ushort)hostname_len) != 1)) {
 			infof(data, "WARNING: failed to configure server name indication (SNI) "
 			    "TLS extension\n");
 		}
@@ -384,19 +382,14 @@ static CURLcode cyassl_connect_step1(struct connectdata * conn,
 			infof(data, "ALPN, offering %s\n", NGHTTP2_PROTO_VERSION_ID);
 		}
 #endif
-
 		strcpy(protocols + strlen(protocols), ALPN_HTTP_1_1);
 		infof(data, "ALPN, offering %s\n", ALPN_HTTP_1_1);
-
-		if(wolfSSL_UseALPN(conssl->handle, protocols,
-			    (unsigned)strlen(protocols),
-			    WOLFSSL_ALPN_CONTINUE_ON_MISMATCH) != SSL_SUCCESS) {
+		if(wolfSSL_UseALPN(conssl->handle, protocols, (uint)strlen(protocols), WOLFSSL_ALPN_CONTINUE_ON_MISMATCH) != SSL_SUCCESS) {
 			failf(data, "SSL: failed setting ALPN protocols");
 			return CURLE_SSL_CONNECT_ERROR;
 		}
 	}
 #endif /* HAVE_ALPN */
-
 	/* Check if there's a cached ID we can/should use here! */
 	if(SSL_SET_OPTION(primary.sessionid)) {
 		void * ssl_sessionid = NULL;
@@ -522,7 +515,7 @@ static CURLcode cyassl_connect_step2(struct connectdata * conn, int sockindex)
 			failf(data, "SSL: failed retrieving public key from server certificate");
 			return CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 		}
-		result = Curl_pin_peer_pubkey(data, pinnedpubkey, (const unsigned char*)pubkey->header, (size_t)(pubkey->end - pubkey->header));
+		result = Curl_pin_peer_pubkey(data, pinnedpubkey, (const uchar*)pubkey->header, (size_t)(pubkey->end - pubkey->header));
 		if(result) {
 			failf(data, "SSL: public key does not match pinned public key!");
 			return result;
@@ -537,7 +530,7 @@ static CURLcode cyassl_connect_step2(struct connectdata * conn, int sockindex)
 	if(conn->bits.tls_enable_alpn) {
 		int rc;
 		char * protocol = NULL;
-		unsigned short protocol_len = 0;
+		ushort protocol_len = 0;
 
 		rc = wolfSSL_ALPN_GetProtocol(conssl->handle, &protocol, &protocol_len);
 
@@ -861,7 +854,7 @@ CURLcode Curl_cyassl_connect(struct connectdata * conn,
 }
 
 CURLcode Curl_cyassl_random(struct Curl_easy * data,
-    unsigned char * entropy,
+    uchar * entropy,
     size_t length)
 {
 	RNG rng;
@@ -870,14 +863,14 @@ CURLcode Curl_cyassl_random(struct Curl_easy * data,
 		return CURLE_FAILED_INIT;
 	if(length > UINT_MAX)
 		return CURLE_FAILED_INIT;
-	if(RNG_GenerateBlock(&rng, entropy, (unsigned)length))
+	if(RNG_GenerateBlock(&rng, entropy, (uint)length))
 		return CURLE_FAILED_INIT;
 	return CURLE_OK;
 }
 
-void Curl_cyassl_sha256sum(const unsigned char * tmp, /* input */
+void Curl_cyassl_sha256sum(const uchar * tmp, /* input */
     size_t tmplen,
-    unsigned char * sha256sum /* output */,
+    uchar * sha256sum /* output */,
     size_t unused)
 {
 	Sha256 SHA256pw;

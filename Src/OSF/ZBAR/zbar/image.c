@@ -55,7 +55,7 @@ void _zbar_image_copy_size(zbar_image_t * dst, const zbar_image_t * src)
 
 zbar_image_t * zbar_image_create()
 {
-	zbar_image_t * img = (zbar_image_t *)calloc(1, sizeof(zbar_image_t));
+	zbar_image_t * img = (zbar_image_t *)SAlloc::C(1, sizeof(zbar_image_t));
 	_zbar_refcnt_init();
 	_zbar_image_refcnt(img, 1);
 	img->srcidx = -1;
@@ -69,7 +69,7 @@ void _zbar_image_free(zbar_image_t * img)
 			zbar_symbol_set_ref(img->syms, -1);
 			img->syms = NULL;
 		}
-		free(img);
+		SAlloc::F(img);
 	}
 }
 
@@ -188,7 +188,7 @@ void zbar_image_free_data(zbar_image_t * img)
 				cleanup(img);
 			}
 			else
-				free((void*)img->P_Data);
+				SAlloc::F((void*)img->P_Data);
 		}
 		img->P_Data = NULL;
 	}
@@ -294,7 +294,7 @@ int zbar_image_write(const zbar_image_t * img, const char * filebase)
 	rc = fclose(f);
 
 error:
-	free(filename);
+	SAlloc::F(filename);
 	return(rc);
 }
 
@@ -337,7 +337,7 @@ int zbar_image_write_png(const zbar_image_t * img, const char * filename)
 done:
 	if(png)
 		png_destroy_write_struct(&png, &info);
-	free(rows);
+	SAlloc::F(rows);
 	if(file)
 		fclose(file);
 	return(rc);

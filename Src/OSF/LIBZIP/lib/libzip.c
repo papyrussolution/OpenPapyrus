@@ -24,7 +24,7 @@ zip_t * _zip_new(zip_error_t * error)
 		return NULL;
 	}
 	if((za->names = _zip_hash_new(ZIP_HASH_TABLE_SIZE, error)) == NULL) {
-		free(za);
+		SAlloc::F(za);
 		return NULL;
 	}
 	za->src = NULL;
@@ -341,7 +341,7 @@ int64 FASTCALL _zip_add_entry(zip_t * za)
 			zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
 			return -1;
 		}
-		rentries = (zip_entry_t*)realloc(za->entry, sizeof(struct zip_entry) * (size_t)nalloc);
+		rentries = (zip_entry_t*)SAlloc::R(za->entry, sizeof(struct zip_entry) * (size_t)nalloc);
 		if(!rentries) {
 			zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
 			return -1;
@@ -365,9 +365,9 @@ void FASTCALL _zip_buffer_free(zip_buffer_t * buffer)
 {
 	if(buffer) {
 		if(buffer->free_data) {
-			free(buffer->data);
+			SAlloc::F(buffer->data);
 		}
-		free(buffer);
+		SAlloc::F(buffer);
 	}
 }
 
@@ -434,7 +434,7 @@ zip_buffer_t * _zip_buffer_new(uint8 * data, size_t size)
 	}
 	if((buffer = (zip_buffer_t*)SAlloc::M(sizeof(*buffer))) == NULL) {
 		if(free_data) {
-			free(data);
+			SAlloc::F(data);
 		}
 		return NULL;
 	}
@@ -621,11 +621,11 @@ ZIP_EXTERN int64 zip_dir_add(zip_t * za, const char * name, zip_flags_t flags)
 		s[len+1] = '\0';
 	}
 	if((source = zip_source_buffer(za, NULL, 0, 0)) == NULL) {
-		free(s);
+		SAlloc::F(s);
 		return -1;
 	}
 	idx = _zip_file_replace(za, ZIP_UINT64_MAX, s ? s : name, source, flags);
-	free(s);
+	SAlloc::F(s);
 	if(idx < 0)
 		zip_source_free(source);
 	else {
@@ -649,21 +649,21 @@ void zip_discard(zip_t * za)
 			zip_source_close(za->src);
 			zip_source_free(za->src);
 		}
-		free(za->default_password);
+		SAlloc::F(za->default_password);
 		_zip_string_free(za->comment_orig);
 		_zip_string_free(za->comment_changes);
 		_zip_hash_free(za->names);
 		if(za->entry) {
 			for(i = 0; i<za->nentry; i++)
 				_zip_entry_finalize(za->entry+i);
-			free(za->entry);
+			SAlloc::F(za->entry);
 		}
 		for(i = 0; i<za->nopen_source; i++) {
 			_zip_source_invalidate(za->open_source[i]);
 		}
-		free(za->open_source);
+		SAlloc::F(za->open_source);
 		zip_error_fini(&za->error);
-		free(za);
+		SAlloc::F(za);
 	}
 }
 //
@@ -985,7 +985,7 @@ zip_source_t * _zip_source_window_new(zip_source_t * src, uint64 start, uint64 l
 	ctx->needs_seek = (ctx->supports & ZIP_SOURCE_MAKE_COMMAND_BITMASK(ZIP_SOURCE_SEEK)) ? true : false;
 	if(st) {
 		if(_zip_stat_merge(&ctx->stat, st, error) < 0) {
-			free(ctx);
+			SAlloc::F(ctx);
 			return NULL;
 		}
 	}
@@ -1019,7 +1019,7 @@ static int64 window_read(zip_source_t * src, void * _ctx, void * data, uint64 le
 		case ZIP_SOURCE_ERROR:
 		    return zip_error_to_data(&ctx->error, data, len);
 		case ZIP_SOURCE_FREE:
-		    free(ctx);
+		    SAlloc::F(ctx);
 		    return 0;
 		case ZIP_SOURCE_OPEN:
 		    if(!ctx->needs_seek) {
@@ -1100,7 +1100,7 @@ int _zip_register_source(zip_t * za, zip_source_t * src)
 	zip_source_t ** open_source;
 	if(za->nopen_source+1 >= za->nopen_source_alloc) {
 		uint n = za->nopen_source_alloc + 10;
-		open_source = (zip_source_t**)realloc(za->open_source, n*sizeof(zip_source_t *));
+		open_source = (zip_source_t**)SAlloc::R(za->open_source, n*sizeof(zip_source_t *));
 		if(open_source == NULL) {
 			zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
 			return -1;
@@ -1159,14 +1159,11 @@ zip_source_t * zip_source_pkware(zip_t * za, zip_source_t * src, uint16 em, int 
 
 static void decrypt(struct trad_pkware * ctx, uint8 * out, const uint8 * in, uint64 len, int update_only)
 {
-	uint16 tmp;
-	uint64 i;
-	Bytef b;
-	for(i = 0; i<len; i++) {
-		b = in[i];
+	for(uint64 i = 0; i < len; i++) {
+		Bytef b = in[i];
 		if(!update_only) {
-			/* decrypt next byte */
-			tmp = (uint16)(ctx->key[2] | 2);
+			// decrypt next byte 
+			uint16 tmp = (uint16)(ctx->key[2] | 2);
 			tmp = (uint16)(((uint32)tmp * (tmp ^ 1)) >> 8);
 			b ^= (Bytef)tmp;
 		}
@@ -1256,7 +1253,7 @@ static int64 pkware_decrypt(zip_source_t * src, void * ud, void * data, uint64 l
 
 static void pkware_free(struct trad_pkware * ctx)
 {
-	free(ctx);
+	SAlloc::F(ctx);
 }
 //
 //
@@ -1275,7 +1272,7 @@ ZIP_EXTERN int zip_fclose(zip_file_t * zf)
 		if(zf->error.zip_err)
 			ret = zf->error.zip_err;
 		zip_error_fini(&zf->error);
-		free(zf);
+		SAlloc::F(zf);
 	}
 	return ret;
 }
@@ -1585,7 +1582,7 @@ ZIP_EXTERN zip_source_t * zip_source_buffer_create(const void * data, uint64 len
 	}
 	if((ctx->in = buffer_new_read(data, len, freep)) == NULL) {
 		zip_error_set(error, ZIP_ER_MEMORY, 0);
-		free(ctx);
+		SAlloc::F(ctx);
 		return NULL;
 	}
 	ctx->out = NULL;
@@ -1593,7 +1590,7 @@ ZIP_EXTERN zip_source_t * zip_source_buffer_create(const void * data, uint64 len
 	zip_error_init(&ctx->error);
 	if((zs = zip_source_function_create(read_data, ctx, error)) == NULL) {
 		buffer_free(ctx->in);
-		free(ctx);
+		SAlloc::F(ctx);
 		return NULL;
 	}
 	return zs;
@@ -1621,7 +1618,7 @@ static int64 read_data(void * state, void * data, uint64 len, zip_source_cmd_t c
 		case ZIP_SOURCE_FREE:
 		    buffer_free(ctx->in);
 		    buffer_free(ctx->out);
-		    free(ctx);
+		    SAlloc::F(ctx);
 		    return 0;
 
 		case ZIP_SOURCE_OPEN:
@@ -1724,11 +1721,11 @@ static void buffer_free(ZipSourceBuffer * buffer)
 	if(buffer) {
 		if(buffer->free_data) {
 			for(uint64 i = 0; i < buffer->nfragments; i++) {
-				free(buffer->fragments[i]);
+				SAlloc::F(buffer->fragments[i]);
 			}
 		}
-		free(buffer->fragments);
-		free(buffer);
+		SAlloc::F(buffer->fragments);
+		SAlloc::F(buffer);
 	}
 }
 
@@ -1834,7 +1831,7 @@ static int64 buffer_write(ZipSourceBuffer * buffer, const uint8 * data, uint64 l
 			while(new_capacity < needed_fragments) {
 				new_capacity *= 2;
 			}
-			fragments = (uint8**)realloc(buffer->fragments, (size_t)(new_capacity * sizeof(*fragments)));
+			fragments = (uint8**)SAlloc::R(buffer->fragments, (size_t)(new_capacity * sizeof(*fragments)));
 			if(fragments == NULL) {
 				zip_error_set(error, ZIP_ER_MEMORY, 0);
 				return -1;
@@ -1970,7 +1967,7 @@ ZIP_EXTERN void zip_source_free(zip_source_t * src)
 		}
 		(void)_zip_source_call(src, NULL, 0, ZIP_SOURCE_FREE);
 		zip_source_free(src->src);
-		free(src);
+		SAlloc::F(src);
 	}
 }
 
@@ -2329,7 +2326,7 @@ ZIP_EXTERN int zip_set_default_password(zip_t * za, const char * passwd)
 	if(za == NULL)
 		return -1;
 	else {
-		free(za->default_password);
+		SAlloc::F(za->default_password);
 		if(passwd) {
 			za->default_password = sstrdup(passwd);
 			if(!za->default_password) {
@@ -2569,14 +2566,14 @@ uint8 * _zip_read_data(zip_buffer_t * buffer, zip_source_t * src, size_t length,
 		uint8 * data = _zip_buffer_get(buffer, length);
 		if(data == NULL) {
 			zip_error_set(error, ZIP_ER_MEMORY, 0);
-			free(r);
+			SAlloc::F(r);
 			return NULL;
 		}
 		memcpy(r, data, length);
 	}
 	else {
 		if(_zip_read(src, r, length, error) < 0) {
-			free(r);
+			SAlloc::F(r);
 			return NULL;
 		}
 	}
@@ -2598,7 +2595,7 @@ zip_string_t * _zip_read_string(zip_buffer_t * buffer, zip_source_t * src, uint1
 	if((raw = _zip_read_data(buffer, src, len, nulp, error)) == NULL)
 		return NULL;
 	s = _zip_string_new(raw, len, ZIP_FL_ENC_GUESS, error);
-	free(raw);
+	SAlloc::F(raw);
 	return s;
 }
 
@@ -2682,9 +2679,9 @@ int _zip_string_equal(const zip_string_t * a, const zip_string_t * b)
 void _zip_string_free(zip_string_t * s)
 {
 	if(s) {
-		free(s->raw);
-		free(s->converted);
-		free(s);
+		SAlloc::F(s->raw);
+		SAlloc::F(s->converted);
+		SAlloc::F(s);
 	}
 }
 
@@ -2743,7 +2740,7 @@ zip_string_t * _zip_string_new(const uint8 * raw, uint16 length, zip_flags_t fla
 		return NULL;
 	}
 	if((s->raw = (uint8*)SAlloc::M((size_t)(length+1))) == NULL) {
-		free(s);
+		SAlloc::F(s);
 		return NULL;
 	}
 	memcpy(s->raw, raw, length);
@@ -2868,9 +2865,9 @@ void FASTCALL _zip_cdir_free(zip_cdir_t * cd)
 	if(cd) {
 		for(uint64 i = 0; i < cd->nentry; i++)
 			_zip_entry_finalize(cd->entry+i);
-		free(cd->entry);
+		SAlloc::F(cd->entry);
 		_zip_string_free(cd->comment);
-		free(cd);
+		SAlloc::F(cd);
 	}
 }
 
@@ -2886,7 +2883,7 @@ zip_cdir_t * _zip_cdir_new(uint64 nentry, zip_error_t * error)
 		cd->entry = NULL;
 	else if((nentry > SIZE_MAX/sizeof(*(cd->entry))) || (cd->entry = (zip_entry_t*)SAlloc::M(sizeof(*(cd->entry))*(size_t)nentry)) == NULL) {
 		zip_error_set(error, ZIP_ER_MEMORY, 0);
-		free(cd);
+		SAlloc::F(cd);
 		return NULL;
 	}
 	for(i = 0; i<nentry; i++)
@@ -3007,7 +3004,7 @@ void _zip_dirent_free(zip_dirent_t * zde)
 {
 	if(zde) {
 		_zip_dirent_finalize(zde);
-		free(zde);
+		SAlloc::F(zde);
 	}
 }
 
@@ -3171,13 +3168,13 @@ int64 _zip_dirent_read(zip_dirent_t * zde, zip_source_t * src, zip_buffer_t * bu
 			return -1;
 		}
 		if(!_zip_ef_parse(ef, ef_len, local ? ZIP_EF_LOCAL : ZIP_EF_CENTRAL, &zde->extra_fields, error)) {
-			free(ef);
+			SAlloc::F(ef);
 			if(!from_buffer) {
 				_zip_buffer_free(buffer);
 			}
 			return -1;
 		}
-		free(ef);
+		SAlloc::F(ef);
 		if(local)
 			zde->local_extra_fields_read = 1;
 	}
@@ -3714,7 +3711,7 @@ static int64 crc_read(zip_source_t * src, void * _ctx, void * data, uint64 len, 
 		case ZIP_SOURCE_ERROR:
 		    return zip_error_to_data(&ctx->error, data, len);
 		case ZIP_SOURCE_FREE:
-		    free(ctx);
+		    SAlloc::F(ctx);
 		    return 0;
 		case ZIP_SOURCE_SUPPORTS:
 	    {
@@ -3976,7 +3973,7 @@ ZIP_EXTERN int zip_close(zip_t * za)
 	for(i = j = 0; i<za->nentry; i++) {
 		if(!za->entry[i].deleted) {
 			if(j >= survivors) {
-				free(filelist);
+				SAlloc::F(filelist);
 				zip_error_set(&za->error, ZIP_ER_INTERNAL, 0);
 				return -1;
 			}
@@ -3985,13 +3982,13 @@ ZIP_EXTERN int zip_close(zip_t * za)
 		}
 	}
 	if(j < survivors) {
-		free(filelist);
+		SAlloc::F(filelist);
 		zip_error_set(&za->error, ZIP_ER_INTERNAL, 0);
 		return -1;
 	}
 	if(zip_source_begin_write(za->src) < 0) {
 		_zip_error_set_from_source(&za->error, za->src);
-		free(filelist);
+		SAlloc::F(filelist);
 		return -1;
 	}
 	error = 0;
@@ -4063,7 +4060,7 @@ ZIP_EXTERN int zip_close(zip_t * za)
 		if(write_cdir(za, filelist, survivors) < 0)
 			error = 1;
 	}
-	free(filelist);
+	SAlloc::F(filelist);
 	if(!error) {
 		if(zip_source_commit_write(za->src) != 0) {
 			_zip_error_set_from_source(&za->error, za->src);
@@ -4107,7 +4104,7 @@ struct ZipDeflate {
 
 static void FASTCALL deflate_free(ZipDeflate * ctx)
 {
-	free(ctx);
+	SAlloc::F(ctx);
 }
 
 static int64 compress_read(zip_source_t * src, ZipDeflate * ctx, void * data, uint64 len)
@@ -4355,7 +4352,7 @@ static int64 deflate_decompress(zip_source_t * src, void * ud, void * data, uint
 		case ZIP_SOURCE_ERROR:
 		    return zip_error_to_data(&ctx->error, data, len);
 		case ZIP_SOURCE_FREE:
-		    free(ctx);
+		    SAlloc::F(ctx);
 		    return 0;
 		case ZIP_SOURCE_SUPPORTS:
 		    return zip_source_make_command_bitmap(ZIP_SOURCE_OPEN, ZIP_SOURCE_READ, ZIP_SOURCE_CLOSE, ZIP_SOURCE_STAT, ZIP_SOURCE_ERROR, ZIP_SOURCE_FREE, -1);
@@ -4419,8 +4416,8 @@ zip_hash_t * _zip_hash_new(uint16 table_size, zip_error_t * error)
 		return NULL;
 	}
 	hash->table_size = table_size;
-	if((hash->table = (zip_hash_entry_t**)calloc(table_size, sizeof(zip_hash_entry_t *))) == NULL) {
-		free(hash);
+	if((hash->table = (zip_hash_entry_t**)SAlloc::C(table_size, sizeof(zip_hash_entry_t *))) == NULL) {
+		SAlloc::F(hash);
 		zip_error_set(error, ZIP_ER_MEMORY, 0);
 		return NULL;
 	}
@@ -4431,7 +4428,7 @@ static void FASTCALL _free_list(zip_hash_entry_t * entry)
 {
 	do {
 		zip_hash_entry_t * next = entry->next;
-		free(entry);
+		SAlloc::F(entry);
 		entry = next;
 	} while(entry != NULL);
 }
@@ -4444,8 +4441,8 @@ void _zip_hash_free(zip_hash_t * hash)
 				_free_list(hash->table[i]);
 			}
 		}
-		free(hash->table);
-		free(hash);
+		SAlloc::F(hash->table);
+		SAlloc::F(hash);
 	}
 }
 
@@ -4521,7 +4518,7 @@ bool _zip_hash_delete(zip_hash_t * hash, const uint8 * name, zip_error_t * error
 					else {
 						hash->table[hash_value] = entry->next;
 					}
-					free(entry);
+					SAlloc::F(entry);
 				}
 				else {
 					entry->current_index = -1;
@@ -4580,7 +4577,7 @@ void _zip_hash_revert(zip_hash_t * hash)
 				p = entry;
 				entry = entry->next;
 				// previous does not change 
-				free(p);
+				SAlloc::F(p);
 			}
 			else {
 				entry->current_index = entry->orig_index;

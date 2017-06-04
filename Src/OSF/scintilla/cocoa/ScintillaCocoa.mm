@@ -198,6 +198,12 @@ static const KeyToCommand macMapDefault[] =
 
 }
 
+- (void) dealloc {
+	[sFind release];
+	[sFont release];
+	[super dealloc];
+}
+
 const CGFloat paddingHighlightX = 4;
 const CGFloat paddingHighlightY = 2;
 
@@ -334,12 +340,25 @@ const CGFloat paddingHighlightY = 2;
 //--------------------------------------------------------------------------------------------------
 
 /**
+ * Method called by owning ScintillaCocoa object when it is destroyed.
+ */
+- (void) ownerDestroyed
+{
+  mTarget = NULL;
+  [notificationQueue release];
+  notificationQueue = nil;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
  * Method called by a timer installed by ScintillaCocoa. This two step approach is needed because
  * a native Obj-C class is required as target for the timer.
  */
 - (void) timerFired: (NSTimer*) timer
 {
-  reinterpret_cast<ScintillaCocoa*>(mTarget)->TimerFired(timer);
+  if (mTarget)
+    static_cast<ScintillaCocoa*>(mTarget)->TimerFired(timer);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -358,7 +377,7 @@ const CGFloat paddingHighlightY = 2;
   [notificationQueue enqueueNotification: notification
                             postingStyle: NSPostWhenIdle
                             coalesceMask: (NSNotificationCoalescingOnName | NSNotificationCoalescingOnSender)
-                                forModes: nil];
+                                forModes: @[NSDefaultRunLoopMode, NSModalPanelRunLoopMode]];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -370,18 +389,23 @@ const CGFloat paddingHighlightY = 2;
 - (void) idleTriggered: (NSNotification*) notification
 {
 #pragma unused(notification)
-  reinterpret_cast<ScintillaCocoa*>(mTarget)->IdleTimerFired();
+  if (mTarget)
+    static_cast<ScintillaCocoa*>(mTarget)->IdleTimerFired();
 }
 
 @end
 
 //----------------- ScintillaCocoa -----------------------------------------------------------------
 
-ScintillaCocoa::ScintillaCocoa(SCIContentView* view, SCIMarginView* viewMargin)
+ScintillaCocoa::ScintillaCocoa(ScintillaView* sciView_, SCIContentView* viewContent, SCIMarginView* viewMargin)
 {
   vs.marginInside = false;
-  wMain = view; // Don't retain since we're owned by view, which would cause a cycle
+
+  // Don't retain since we're owned by view, which would cause a cycle
+  sciView = sciView_;
+  wMain = viewContent;
   wMargin = viewMargin;
+
   timerTarget = [[TimerTarget alloc] init: this];
   lastMouseEvent = NULL;
   delegate = NULL;
@@ -391,8 +415,6 @@ ScintillaCocoa::ScintillaCocoa(SCIContentView* view, SCIMarginView* viewMargin)
   enteredSetScrollingSize = false;
   scrollSpeed = 1;
   scrollTicks = 2000;
-  tickTimer = NULL;
-  idleTimer = NULL;
   observer = NULL;
   layerFindIndicator = NULL;
   imeInteraction = imeInline;
@@ -408,6 +430,7 @@ ScintillaCocoa::ScintillaCocoa(SCIContentView* view, SCIMarginView* viewMargin)
 ScintillaCocoa::~ScintillaCocoa()
 {
   Finalise();
+  [timerTarget ownerDestroyed];
   [timerTarget release];
 }
 
@@ -450,7 +473,7 @@ void ScintillaCocoa::Finalise()
 //--------------------------------------------------------------------------------------------------
 
 void ScintillaCocoa::UpdateObserver(CFRunLoopObserverRef /* observer */, CFRunLoopActivity /* activity */, void *info) {
-  ScintillaCocoa* sci = reinterpret_cast<ScintillaCocoa*>(info);
+  ScintillaCocoa* sci = static_cast<ScintillaCocoa*>(info);
   sci->IdleWork();
 }
 
@@ -534,7 +557,7 @@ static std::string EncodedBytesString(CFStringRef cfsRef, CFStringEncoding encod
 	CFIndex usedLen = 0;
 	CFStringGetBytes(cfsRef, rangeAll, encoding, '?', false,
                          NULL, 0, &usedLen);
-	
+
 	std::string buffer(usedLen, '\0');
 	if (usedLen > 0) {
 		CFStringGetBytes(cfsRef, rangeAll, encoding, '?', false,
@@ -560,24 +583,24 @@ public:
 			folded[0] = mapping[static_cast<unsigned char>(mixed[0])];
 			return 1;
 		} else {
-            CFStringRef cfsVal = CFStringCreateWithBytes(kCFAllocatorDefault,
-                                                         reinterpret_cast<const UInt8 *>(mixed),
-                                                         lenMixed, encoding, false);
+			CFStringRef cfsVal = CFStringCreateWithBytes(kCFAllocatorDefault,
+								     reinterpret_cast<const UInt8 *>(mixed),
+								     lenMixed, encoding, false);
 
-            NSString *sMapped = [(NSString *)cfsVal stringByFoldingWithOptions:NSCaseInsensitiveSearch
-                                                                        locale:[NSLocale currentLocale]];
+			NSString *sMapped = [(NSString *)cfsVal stringByFoldingWithOptions:NSCaseInsensitiveSearch
+										    locale:[NSLocale currentLocale]];
 
-            char *encoded = EncodedBytes((CFStringRef)sMapped, encoding);
+			char *encoded = EncodedBytes((CFStringRef)sMapped, encoding);
 
 			size_t lenMapped = strlen(encoded);
-            if (lenMapped < sizeFolded) {
-                memcpy(folded, encoded,  lenMapped);
-            } else {
-                folded[0] = '\0';
-                lenMapped = 1;
-            }
-            delete []encoded;
-            CFRelease(cfsVal);
+			if (lenMapped < sizeFolded) {
+				memcpy(folded, encoded,  lenMapped);
+			} else {
+				folded[0] = '\0';
+				lenMapped = 1;
+			}
+			delete []encoded;
+			CFRelease(cfsVal);
 			return lenMapped;
 		}
 	}
@@ -587,38 +610,37 @@ CaseFolder *ScintillaCocoa::CaseFolderForEncoding() {
 	if (pdoc->dbcsCodePage == SC_CP_UTF8) {
 		return new CaseFolderUnicode();
 	} else {
-        CFStringEncoding encoding = EncodingFromCharacterSet(IsUnicodeMode(),
-                                                             vs.styles[STYLE_DEFAULT].characterSet);
-        if (pdoc->dbcsCodePage == 0) {
-            CaseFolderTable *pcf = new CaseFolderTable();
-            pcf->StandardASCII();
-            // Only for single byte encodings
-            for (int i=0x80; i<0x100; i++) {
-                char sCharacter[2] = "A";
-                sCharacter[0] = static_cast<char>(i);
-                CFStringRef cfsVal = CFStringCreateWithBytes(kCFAllocatorDefault,
-                                                             reinterpret_cast<const UInt8 *>(sCharacter),
-                                                             1, encoding, false);
-                if (!cfsVal)
-                        continue;
+		CFStringEncoding encoding = EncodingFromCharacterSet(IsUnicodeMode(),
+								     vs.styles[STYLE_DEFAULT].characterSet);
+		if (pdoc->dbcsCodePage == 0) {
+			CaseFolderTable *pcf = new CaseFolderTable();
+			pcf->StandardASCII();
+			// Only for single byte encodings
+			for (int i=0x80; i<0x100; i++) {
+				char sCharacter[2] = "A";
+				sCharacter[0] = static_cast<char>(i);
+				CFStringRef cfsVal = CFStringCreateWithBytes(kCFAllocatorDefault,
+									     reinterpret_cast<const UInt8 *>(sCharacter),
+									     1, encoding, false);
+				if (!cfsVal)
+					continue;
 
-                NSString *sMapped = [(NSString *)cfsVal stringByFoldingWithOptions:NSCaseInsensitiveSearch
-                                                                            locale:[NSLocale currentLocale]];
+				NSString *sMapped = [(NSString *)cfsVal stringByFoldingWithOptions:NSCaseInsensitiveSearch
+											    locale:[NSLocale currentLocale]];
 
-                char *encoded = EncodedBytes((CFStringRef)sMapped, encoding);
+				char *encoded = EncodedBytes((CFStringRef)sMapped, encoding);
 
-                if (strlen(encoded) == 1) {
-                    pcf->SetTranslation(sCharacter[0], encoded[0]);
-                }
+				if (strlen(encoded) == 1) {
+					pcf->SetTranslation(sCharacter[0], encoded[0]);
+				}
 
-                delete []encoded;
-                CFRelease(cfsVal);
-            }
-            return pcf;
-        } else {
-            return new CaseFolderDBCS(encoding);
-        }
-		return 0;
+				delete []encoded;
+				CFRelease(cfsVal);
+			}
+			return pcf;
+		} else {
+			return new CaseFolderDBCS(encoding);
+		}
 	}
 }
 
@@ -821,7 +843,7 @@ sptr_t ScintillaCocoa::DirectFunction(sptr_t ptr, unsigned int iMessage, uptr_t 
  */
 sptr_t scintilla_send_message(void* sci, unsigned int iMessage, uptr_t wParam, sptr_t lParam)
 {
-  ScintillaView *control = reinterpret_cast<ScintillaView*>(sci);
+  ScintillaView *control = static_cast<ScintillaView*>(sci);
   return [control message:iMessage wParam:wParam lParam:lParam];
 }
 
@@ -842,45 +864,51 @@ sptr_t ScintillaCocoa::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lPar
     {
       case SCI_GETDIRECTFUNCTION:
         return reinterpret_cast<sptr_t>(DirectFunction);
-        
+
       case SCI_GETDIRECTPOINTER:
         return reinterpret_cast<sptr_t>(this);
-        
+
       case SCI_TARGETASUTF8:
         return TargetAsUTF8(reinterpret_cast<char*>(lParam));
-        
+
       case SCI_ENCODEDFROMUTF8:
         return EncodedFromUTF8(reinterpret_cast<char*>(wParam),
                                reinterpret_cast<char*>(lParam));
-        
+
       case SCI_SETIMEINTERACTION:
         // Only inline IME supported on Cocoa
         break;
-        
+
       case SCI_GRABFOCUS:
         [[ContentView() window] makeFirstResponder:ContentView()];
         break;
-        
+
       case SCI_SETBUFFEREDDRAW:
         // Buffered drawing not supported on Cocoa
         view.bufferedDraw = false;
         break;
-        
+
       case SCI_FINDINDICATORSHOW:
         ShowFindIndicatorForRange(NSMakeRange(wParam, lParam-wParam), YES);
         return 0;
-        
+
       case SCI_FINDINDICATORFLASH:
         ShowFindIndicatorForRange(NSMakeRange(wParam, lParam-wParam), NO);
         return 0;
-        
+
       case SCI_FINDINDICATORHIDE:
         HideFindIndicator();
         return 0;
-        
+
+      case SCI_SETPHASESDRAW: {
+          sptr_t r = ScintillaBase::WndProc(iMessage, wParam, lParam);
+          [sciView updateIndicatorIME];
+          return r;
+        }
+
       default:
         sptr_t r = ScintillaBase::WndProc(iMessage, wParam, lParam);
-        
+
         return r;
     }
   } catch (std::bad_alloc &) {
@@ -957,7 +985,8 @@ void ScintillaCocoa::FineTickerStart(TickReason reason, int millis, int toleranc
     [fineTimer setTolerance: tolerance / 1000.0];
   }
   timers[reason] = fineTimer;
-  [[NSRunLoop currentRunLoop] addTimer:fineTimer forMode:NSDefaultRunLoopMode];
+  [NSRunLoop.currentRunLoop addTimer: fineTimer forMode: NSDefaultRunLoopMode];
+  [NSRunLoop.currentRunLoop addTimer: fineTimer forMode: NSModalPanelRunLoopMode];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -984,17 +1013,18 @@ bool ScintillaCocoa::SetIdle(bool on)
     if (idler.state)
     {
       // Scintilla ticks = milliseconds
-      idleTimer = [NSTimer scheduledTimerWithTimeInterval: timer.tickSize / 1000.0
-						   target: timerTarget
-						 selector: @selector(idleTimerFired:)
-						 userInfo: nil
-						  repeats: YES];
-      idler.idlerID = reinterpret_cast<IdlerID>(idleTimer);
+      NSTimer *idleTimer = [NSTimer scheduledTimerWithTimeInterval: timer.tickSize / 1000.0
+                                                            target: timerTarget
+                                                          selector: @selector(idleTimerFired:)
+                                                          userInfo: nil
+                                                           repeats: YES];
+      [NSRunLoop.currentRunLoop addTimer: idleTimer forMode: NSModalPanelRunLoopMode];
+      idler.idlerID = idleTimer;
     }
     else
       if (idler.idlerID != NULL)
       {
-        [reinterpret_cast<NSTimer*>(idler.idlerID) invalidate];
+        [static_cast<NSTimer*>(idler.idlerID) invalidate];
         idler.idlerID = 0;
       }
   }
@@ -1170,7 +1200,7 @@ void ScintillaCocoa::CreateCallTipWindow(PRectangle rc) {
 void ScintillaCocoa::AddToPopUp(const char *label, int cmd, bool enabled)
 {
   NSMenuItem* item;
-  ScintillaContextMenu *menu= reinterpret_cast<ScintillaContextMenu*>(popup.GetID());
+  ScintillaContextMenu *menu = static_cast<ScintillaContextMenu*>(popup.GetID());
   [menu setOwner: this];
   [menu setAutoenablesItems: NO];
 
@@ -1272,16 +1302,17 @@ void ScintillaCocoa::DragScroll()
 - (id)initWithSelectedText:(const SelectionText *)other
 {
   self = [super init];
-  
+
   if (self) {
     selectedText.Copy(*other);
   }
-  
+
   return self;
 }
 
 - (void)pasteboard:(NSPasteboard *)pasteboard item:(NSPasteboardItem *)item provideDataForType:(NSString *)type
 {
+#pragma unused(item)
   if (selectedText.Length() == 0)
     return;
 
@@ -1294,7 +1325,7 @@ void ScintillaCocoa::DragScroll()
   CFStringRef cfsVal = CFStringCreateWithBytes(kCFAllocatorDefault,
                                                reinterpret_cast<const UInt8 *>(selectedText.Data()),
                                                selectedText.Length(), encoding, false);
-  
+
   if ([type compare: NSPasteboardTypeString] == NSOrderedSame)
   {
     [pasteboard setString:(NSString *)cfsVal forType: NSStringPboardType];
@@ -1307,7 +1338,7 @@ void ScintillaCocoa::DragScroll()
   }
 
   if (cfsVal)
-    CFRelease(cfsVal);  
+    CFRelease(cfsVal);
 }
 
 @end
@@ -1455,17 +1486,17 @@ void ScintillaCocoa::StartDrag()
   NSPoint startPoint;
   startPoint.x = selectionRectangle.origin.x + client.left;
   startPoint.y = selectionRectangle.origin.y + selectionRectangle.size.height + client.top;
-  
+
   NSPasteboardItem *pbItem = [NSPasteboardItem new];
   DragProviderSource *dps = [[[DragProviderSource alloc] initWithSelectedText:&selectedText] autorelease];
-  
+
   NSArray *pbTypes = selectedText.rectangular ?
   @[NSPasteboardTypeString, ScintillaRecPboardType] :
   @[NSPasteboardTypeString];
   [pbItem setDataProvider:dps forTypes:pbTypes];
   NSDraggingItem *dragItem = [[NSDraggingItem alloc ]initWithPasteboardWriter:pbItem];
   [pbItem release];
-  
+
   NSScrollView *scrollContainer = ScrollContainer();
   NSRect contentRect = [[scrollContainer contentView] bounds];
   NSRect draggingRect = NSOffsetRect(selectionRectangle, contentRect.origin.x, contentRect.origin.y);
@@ -1657,15 +1688,88 @@ int ScintillaCocoa::TargetAsUTF8(char *text)
     CFStringRef cfsVal = CFStringCreateWithBytes(kCFAllocatorDefault,
                                                  reinterpret_cast<const UInt8 *>(s.c_str()),
                                                  s.length(), encoding, false);
-	  
+
     const std::string tmputf = EncodedBytesString(cfsVal, kCFStringEncodingUTF8);
-    
+
     if (text)
       memcpy(text, tmputf.c_str(), tmputf.length());
     CFRelease(cfsVal);
-    return tmputf.length();
+    return static_cast<int>(tmputf.length());
   }
   return targetLength;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+// Returns the text in the range converted to an NSString.
+NSString *ScintillaCocoa::RangeTextAsString(NSRange rangePositions) const {
+  const std::string text = RangeText(static_cast<int>(rangePositions.location),
+				     static_cast<int>(NSMaxRange(rangePositions)));
+  if (IsUnicodeMode())
+  {
+    return [NSString stringWithUTF8String: text.c_str()];
+  }
+  else
+  {
+    // Need to convert
+    const CFStringEncoding encoding = EncodingFromCharacterSet(IsUnicodeMode(),
+							       vs.styles[STYLE_DEFAULT].characterSet);
+    CFStringRef cfsVal = CFStringCreateWithBytes(kCFAllocatorDefault,
+						 reinterpret_cast<const UInt8 *>(text.c_str()),
+						 text.length(), encoding, false);
+
+    return (NSString *)cfsVal;
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+// Return character range of a line.
+NSRange ScintillaCocoa::RangeForVisibleLine(NSInteger lineVisible) {
+  const Range posRangeLine = RangeDisplayLine(static_cast<int>(lineVisible));
+  return CharactersFromPositions(NSMakeRange(posRangeLine.First(),
+					     posRangeLine.Last() - posRangeLine.First()));
+}
+
+//--------------------------------------------------------------------------------------------------
+
+// Returns visible line number of a text position in characters.
+NSInteger ScintillaCocoa::VisibleLineForIndex(NSInteger index) {
+  const NSRange rangePosition = PositionsFromCharacters(NSMakeRange(index, 0));
+  const int lineVisible = DisplayFromPosition(static_cast<int>(rangePosition.location));
+  return lineVisible;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+// Returns a rectangle that frames the range for use by the VoiceOver cursor.
+NSRect ScintillaCocoa::FrameForRange(NSRange rangeCharacters) {
+  const NSRange posRange = PositionsFromCharacters(rangeCharacters);
+
+  NSUInteger rangeEnd = NSMaxRange(posRange);
+  const bool endsWithLineEnd = rangeCharacters.length &&
+    (pdoc->GetColumn(static_cast<int>(rangeEnd)) == 0);
+
+  Point ptStart = LocationFromPosition(static_cast<int>(posRange.location));
+  const PointEnd peEndRange = static_cast<PointEnd>(peSubLineEnd|peLineEnd);
+  Point ptEnd = LocationFromPosition(static_cast<int>(rangeEnd), peEndRange);
+
+  NSRect rect = NSMakeRect(ptStart.x, ptStart.y,
+			   ptEnd.x - ptStart.x,
+			   ptEnd.y - ptStart.y);
+
+  rect.size.width += 2;	// Shows the last character better
+  if (endsWithLineEnd) {
+    // Add a block to the right to indicate a line end is selected
+    rect.size.width += 20;
+  }
+
+  rect.size.height += vs.lineHeight;
+
+  // Adjust for margin and scroll
+  rect.origin.x = rect.origin.x - vs.textStart + vs.fixedColumnWidth;
+
+  return rect;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1674,7 +1778,7 @@ int ScintillaCocoa::TargetAsUTF8(char *text)
 // Return the length of the result in bytes.
 int ScintillaCocoa::EncodedFromUTF8(char *utf8, char *encoded) const
 {
-  const int inputLength = (lengthForEncode >= 0) ? lengthForEncode : strlen(utf8);
+  const int inputLength = (lengthForEncode >= 0) ? lengthForEncode : static_cast<int>(strlen(utf8));
   if (IsUnicodeMode())
   {
     if (encoded)
@@ -1686,7 +1790,7 @@ int ScintillaCocoa::EncodedFromUTF8(char *utf8, char *encoded) const
     // Need to convert
     const CFStringEncoding encoding = EncodingFromCharacterSet(IsUnicodeMode(),
                                                          vs.styles[STYLE_DEFAULT].characterSet);
-    
+
     CFStringRef cfsVal = CFStringCreateWithBytes(kCFAllocatorDefault,
                                                  reinterpret_cast<const UInt8 *>(utf8),
                                                  inputLength, kCFStringEncodingUTF8, false);
@@ -1694,7 +1798,7 @@ int ScintillaCocoa::EncodedFromUTF8(char *utf8, char *encoded) const
     if (encoded)
       memcpy(encoded, sEncoded.c_str(), sEncoded.length());
     CFRelease(cfsVal);
-    return sEncoded.length();
+    return static_cast<int>(sEncoded.length());
   }
 }
 
@@ -1788,13 +1892,15 @@ void ScintillaCocoa::WillDraw(NSRect rect)
 {
   RefreshStyleData();
   PRectangle rcWillDraw = NSRectToPRectangle(rect);
-  int positionAfterRect = PositionAfterArea(rcWillDraw);
-  pdoc->EnsureStyledTo(positionAfterRect);
+  const int posAfterArea = PositionAfterArea(rcWillDraw);
+  const int posAfterMax = PositionAfterMaxStyling(posAfterArea, true);
+  pdoc->StyleToAdjustingLineDuration(posAfterMax);
+  StartIdleStyling(posAfterMax < posAfterArea);
   NotifyUpdateUI();
   if (WrapLines(wsVisible)) {
     // Wrap may have reduced number of lines so more lines may need to be styled
-    positionAfterRect = PositionAfterArea(rcWillDraw);
-    pdoc->EnsureStyledTo(positionAfterRect);
+    const int posAfterAreaWrapped = PositionAfterArea(rcWillDraw);
+    pdoc->EnsureStyledTo(posAfterAreaWrapped);
     // The wrapping process has changed the height of some lines so redraw all.
     Redraw();
   }
@@ -1899,7 +2005,7 @@ bool ScintillaCocoa::SetScrollingSize(void) {
 		SetVerticalScrollPos();
 		enteredSetScrollingSize = false;
 	}
-	[inner.owner setMarginWidth: vs.fixedColumnWidth];
+	[sciView setMarginWidth: vs.fixedColumnWidth];
 	return changes;
 }
 
@@ -1992,6 +2098,15 @@ void ScintillaCocoa::NotifyParent(SCNotification scn)
     notifyProc(notifyObj, WM_NOTIFY, GetCtrlID(), (uintptr_t) &scn);
   if (delegate)
     [delegate notification:&scn];
+  if (scn.nmhdr.code == SCN_UPDATEUI) {
+    NSView *content = ContentView();
+    if (scn.updated & SC_UPDATE_CONTENT) {
+      NSAccessibilityPostNotification(content, NSAccessibilityValueChangedNotification);
+    }
+    if (scn.updated & SC_UPDATE_SELECTION) {
+      NSAccessibilityPostNotification(content, NSAccessibilitySelectedTextChangedNotification);
+    }
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2066,7 +2181,7 @@ bool ScintillaCocoa::Draw(NSRect rect, CGContextRef gc)
 /**
  * Helper function to translate OS X key codes to Scintilla key codes.
  */
-static inline UniChar KeyTranslate(UniChar unicodeChar)
+static inline UniChar KeyTranslate(UniChar unicodeChar, NSEventModifierFlags modifierFlags)
 {
   switch (unicodeChar)
   {
@@ -2095,6 +2210,21 @@ static inline UniChar KeyTranslate(UniChar unicodeChar)
       return SCK_RETURN;
     case 27:
       return SCK_ESCAPE;
+    case '+':
+      if (modifierFlags & NSNumericPadKeyMask)
+        return SCK_ADD;
+      else
+        return unicodeChar;
+    case '-':
+      if (modifierFlags & NSNumericPadKeyMask)
+        return SCK_SUBTRACT;
+      else
+        return unicodeChar;
+    case '/':
+      if (modifierFlags & NSNumericPadKeyMask)
+        return SCK_DIVIDE;
+      else
+        return unicodeChar;
     case 127:
       return SCK_BACK;
     case '\t':
@@ -2135,7 +2265,7 @@ static int TranslateModifierFlags(NSUInteger modifiers)
 bool ScintillaCocoa::KeyboardInput(NSEvent* event)
 {
   // For now filter out function keys.
-  NSString* input = [event characters];
+  NSString* input = [event charactersIgnoringModifiers];
 
   bool handled = false;
 
@@ -2143,11 +2273,13 @@ bool ScintillaCocoa::KeyboardInput(NSEvent* event)
   for (size_t i = 0; i < input.length; i++)
   {
     const UniChar originalKey = [input characterAtIndex: i];
-    UniChar key = KeyTranslate(originalKey);
+    NSEventModifierFlags modifierFlags = [event modifierFlags];
+      
+    UniChar key = KeyTranslate(originalKey, modifierFlags);
 
     bool consumed = false; // Consumed as command?
 
-    if (KeyDownWithModifiers(key, TranslateModifierFlags([event modifierFlags]), &consumed))
+    if (KeyDownWithModifiers(key, TranslateModifierFlags(modifierFlags), &consumed))
       handled = true;
     if (consumed)
       handled = true;
@@ -2166,7 +2298,7 @@ int ScintillaCocoa::InsertText(NSString* input)
   CFStringEncoding encoding = EncodingFromCharacterSet(IsUnicodeMode(),
                                                        vs.styles[STYLE_DEFAULT].characterSet);
   std::string encoded = EncodedBytesString((CFStringRef)input, encoding);
-  
+
   if (encoded.length() > 0)
   {
     AddCharUTF((char*) encoded.c_str(), static_cast<unsigned int>(encoded.length()), false);
@@ -2179,12 +2311,12 @@ int ScintillaCocoa::InsertText(NSString* input)
 /**
  * Convert from a range of characters to a range of bytes.
  */
-NSRange ScintillaCocoa::PositionsFromCharacters(NSRange range) const
+NSRange ScintillaCocoa::PositionsFromCharacters(NSRange rangeCharacters) const
 {
-  long start = pdoc->GetRelativePositionUTF16(0, range.location);
+  long start = pdoc->GetRelativePositionUTF16(0, static_cast<int>(rangeCharacters.location));
   if (start == INVALID_POSITION)
     start = pdoc->Length();
-  long end = pdoc->GetRelativePositionUTF16(start, range.length);
+  long end = pdoc->GetRelativePositionUTF16(static_cast<int>(start), static_cast<int>(rangeCharacters.length));
   if (end == INVALID_POSITION)
     end = pdoc->Length();
   return NSMakeRange(start, end - start);
@@ -2195,10 +2327,11 @@ NSRange ScintillaCocoa::PositionsFromCharacters(NSRange range) const
 /**
  * Convert from a range of characters from a range of bytes.
  */
-NSRange ScintillaCocoa::CharactersFromPositions(NSRange range) const
+NSRange ScintillaCocoa::CharactersFromPositions(NSRange rangePositions) const
 {
-  const long start = pdoc->CountUTF16(0, range.location);
-  const long len = pdoc->CountUTF16(range.location, NSMaxRange(range));
+  const long start = pdoc->CountUTF16(0, static_cast<int>(rangePositions.location));
+  const long len = pdoc->CountUTF16(static_cast<int>(rangePositions.location),
+				    static_cast<int>(NSMaxRange(rangePositions)));
   return NSMakeRange(start, len);
 }
 
@@ -2324,6 +2457,17 @@ void ScintillaCocoa::MouseDown(NSEvent* event)
   ButtonDown(Point(location.x, location.y), (int) (time * 1000), shift, command, alt);
 }
 
+void ScintillaCocoa::RightMouseDown(NSEvent *event)
+{
+  Point location = ConvertPoint([event locationInWindow]);
+  NSTimeInterval time = [event timestamp];
+  bool command = ([event modifierFlags] & NSCommandKeyMask) != 0;
+  bool shift = ([event modifierFlags] & NSShiftKeyMask) != 0;
+  bool alt = ([event modifierFlags] & NSAlternateKeyMask) != 0;
+
+  RightButtonDownWithModifiers(Point(location.x, location.y), (int) (time * 1000), ModifierFlags(shift, command, alt));
+}
+
 //--------------------------------------------------------------------------------------------------
 
 void ScintillaCocoa::MouseMove(NSEvent* event)
@@ -2402,6 +2546,16 @@ void ScintillaCocoa::Redo()
 
 //--------------------------------------------------------------------------------------------------
 
+bool ScintillaCocoa::ShouldDisplayPopupOnMargin()
+{
+  return displayPopupMenu == SC_POPUP_ALL;
+}
+
+bool ScintillaCocoa::ShouldDisplayPopupOnText()
+{
+  return displayPopupMenu == SC_POPUP_ALL || displayPopupMenu == SC_POPUP_TEXT;
+}
+
 /**
  * Creates and returns a popup menu, which is then displayed by the Cocoa framework.
  */
@@ -2410,7 +2564,7 @@ NSMenu* ScintillaCocoa::CreateContextMenu(NSEvent* /* event */)
   // Call ScintillaBase to create the context menu.
   ContextMenu(Point(0, 0));
 
-  return reinterpret_cast<NSMenu*>(popup.GetID());
+  return static_cast<NSMenu*>(popup.GetID());
 }
 
 //--------------------------------------------------------------------------------------------------

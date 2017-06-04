@@ -25,9 +25,7 @@
 #include <curl/curl.h>
 
 struct curl_fileinfo *Curl_fileinfo_alloc(void);
-
 void Curl_fileinfo_dtor(void *, void *);
-
 struct curl_fileinfo *Curl_fileinfo_dup(const struct curl_fileinfo *src);
 
 #endif /* HEADER_CURL_FILEINFO_H */

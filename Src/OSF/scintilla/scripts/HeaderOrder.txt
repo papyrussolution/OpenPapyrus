@@ -3,16 +3,18 @@
 // and each of these groups are then divided into directory groups.
 
 // C standard library
+#include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <stdio.h>
-#include <stddef.h>
 #include <stdarg.h>
 #include <time.h>
 #include <math.h>
 #include <assert.h>
 #include <ctype.h>
 #include <limits.h>
+#include <sys/time.h>
 
 // C++ wrappers of C standard library
 #include <cstdlib>
@@ -20,6 +22,7 @@
 #include <cstring>
 #include <cctype>
 #include <cstdio>
+#include <cstdarg>
 #include <cmath>
 
 // C++ standard library
@@ -31,8 +34,10 @@
 #include <map>
 #include <set>
 #include <algorithm>
+#include <functional>
 #include <memory>
 #include <regex>
+#include <iostream>
 #include <sstream>
 
 // GTK+ headers
@@ -41,6 +46,8 @@
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+#include <gdk/gdkwayland.h>
+#include <gtk/gtk-a11y.h>
 
 // Windows headers
 #include <windows.h>
@@ -54,6 +61,10 @@
 
 // Cocoa headers
 #include <Cocoa/Cocoa.h>
+#import <Foundation/NSGeometry.h>
+#import <QuartzCore/CAGradientLayer.h>
+#import <QuartzCore/CAAnimation.h>
+#import <QuartzCore/CATransaction.h>
 
 // Scintilla headers
 
@@ -62,6 +73,7 @@
 // include
 #include "Platform.h"
 
+#include "Sci_Position.h"
 #include "ILexer.h"
 #include "Scintilla.h"
 #include "ScintillaWidget.h"
@@ -92,6 +104,7 @@
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
+#include "SparseVector.h"
 #include "ContractionState.h"
 #include "CellBuffer.h"
 #include "PerLine.h"
@@ -106,6 +119,7 @@
 #include "Decoration.h"
 #include "CaseFolder.h"
 #include "Document.h"
+#include "RESearch.h"
 #include "CaseConvert.h"
 #include "UniConversion.h"
 #include "UnicodeFromUTF8.h"
@@ -129,10 +143,21 @@
 #include "HanjaDic.h"
 
 // gtk
+#include "ScintillaGTK.h"
+#include "scintilla-marshal.h"
+#include "ScintillaGTKAccessible.h"
 #include "Converter.h"
 
 // cocoa
 #include "QuartzTextStyle.h"
 #include "QuartzTextStyleAttribute.h"
+#include "QuartzTextLayout.h"
 #import "InfoBarCommunicator.h"
 #include "InfoBar.h"
+#import "ScintillaView.h"
+#import "ScintillaCocoa.h"
+#import "PlatCocoa.h"
+
+// Catch testing framework
+#include "catch.hpp"
+

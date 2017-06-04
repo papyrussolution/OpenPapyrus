@@ -33,11 +33,9 @@
  *  software may be distributed.
  *
  *****************************************************************/
-
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "WordList.h"
@@ -110,7 +108,7 @@ static bool HasPrevLineContent(StyleContext &sc) {
 }
 
 static bool AtTermStart(StyleContext &sc) {
-    return sc.currentPos == 0 || isspacechar(sc.chPrev);
+    return sc.currentPos == 0 || sc.chPrev == 0 || isspacechar(sc.chPrev);
 }
 
 static bool IsValidHrule(const Sci_PositionU endPos, StyleContext &sc) {

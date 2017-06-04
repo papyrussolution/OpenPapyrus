@@ -15,7 +15,7 @@
 #pragma hdrstop
 
 /* Forward declarations */
-LOCAL(void) transdecode_master_selection JPP((j_decompress_ptr cinfo));
+static void transdecode_master_selection JPP((j_decompress_ptr cinfo));
 
 /*
  * Read the coefficient arrays from a JPEG file.
@@ -89,26 +89,20 @@ jpeg_read_coefficients(j_decompress_ptr cinfo)
  * Master selection of decompression modules for transcoding.
  * This substitutes for jdmaster.c's initialization of the full decompressor.
  */
-
-LOCAL(void)
-transdecode_master_selection(j_decompress_ptr cinfo)
+static void transdecode_master_selection(j_decompress_ptr cinfo)
 {
 	/* This is effectively a buffered-image operation. */
 	cinfo->buffered_image = TRUE;
-
 	/* Compute output image dimensions and related values. */
 	jpeg_core_output_dimensions(cinfo);
-
 	/* Entropy decoding: either Huffman or arithmetic coding. */
 	if(cinfo->arith_code)
 		jinit_arith_decoder(cinfo);
 	else {
 		jinit_huff_decoder(cinfo);
 	}
-
 	/* Always get a full-image coefficient buffer. */
 	jinit_d_coef_controller(cinfo, TRUE);
-
 	/* We can now tell the memory manager to allocate virtual arrays. */
 	(*cinfo->mem->realize_virt_arrays)((j_common_ptr)cinfo);
 

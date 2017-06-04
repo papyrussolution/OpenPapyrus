@@ -17172,6 +17172,7 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 #define CASHFX_IGNLOOKBACKPRICES  0x00100000L // @v8.9.10 (async) Игноририровать обратный анализ доступных цены на специальные товары
 #define CASHFX_ABSTRGOODSALLOWED  0x00200000L // @v9.5.10 (sync) Допускается прожажа абстрактного товара по цене (в конфигурации товаров
 	// должен быть указан DefGoodsID).
+#define CASHFX_EXTNODEASALT       0x00400000L // @v9.6.9 (sync) Дополнительный кассовый узел используется как альтернативный принтер
 //
 // Идентификаторы строковых свойств кассоых узлов.
 // Attention: Ни в коем случае не менять значения идентификаторов - @persistent
@@ -17351,7 +17352,7 @@ public:
 	PPID   CurSessID;        // ->Bill.ID Текущая кассовая сессия //
 	PPID   TouchScreenID;    //
 	PPID   ExtCashNodeID;    //
-	PPID   PapyrusNodeID;    // ИД кассового узла Папирус
+	PPID   PapyrusNodeID_unused; // ИД кассового узла Папирус @v9.6.8 unused
 	PPID   ScaleID;          //
 	PPID   CustDispType;     // Тип дисплея покупателя //
 	char   CustDispPort[8];  // Имя порта дисплея покупателя (COM)
@@ -45371,6 +45372,8 @@ public:
 private:
 	Stat   S;
 	long   ExpirySec;
+	int    LastStatusCode;
+	SString LastStatusMessage;
 	LDATETIME AuthTime;
 	SString AuthName;
 	SString AuthSecret;
@@ -45726,10 +45729,11 @@ public:
 	int    SLAPI IsEmpty() const;
 
 	enum {
-		fPreprocess        = 0x0001,
-		fSortPreprcResults = 0x0002,
-		fAnlzPreprcResults = 0x0004,
-		fImport            = 0x0008
+		fPreprocess        = 0x0001, // Предварительная обработка osm-файла с выводом текстовых данных для дальнейшей обработки
+		fSortPreprcResults = 0x0002, // Сортировка файлов, полученных в фазе препроцессинга
+		fAnlzPreprcResults = 0x0004, // Анализ данных, полученных в фазах препроцессинга и сортировки
+		fImport            = 0x0008, // Импорт данных osm во внутреннюю базу данных
+		fExtractSizes      = 0x0010  // Извлечение размеров объектов и вывод их в файл
 	};
 	uint8  ReserveStart[32]; // @ancor
 	long   Flags;
@@ -45785,6 +45789,7 @@ private:
 	int    SLAPI SortFile(const char * pSrcFileName, const char * pSuffix, CompFunc fcmp);
 	int    SLAPI CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint uppDim, TSCollection <SGeoGridTab> & rGridList);
 	int    SLAPI OutputStat(int detail);
+	int    SLAPI ProcessWaySizes();
 	//
 	enum {
 		stError = 0x0001
@@ -45795,7 +45800,8 @@ private:
 		phasePreprocess        = 1,
 		phaseSortPreprcResults = 2,
 		phaseAnlzPreprcResults = 3,
-		phaseImport            = 4
+		phaseImport            = 4,
+		phaseExtractSizes      = 5
 	};
 	long   Phase;
 	PrcssrOsmFilt P;
@@ -48696,6 +48702,8 @@ struct PosPaymentBlock {
 		// платежа сделана (либо на нее начисляются средства).
 	long   DisabledKinds;  // Биты установлены в позициях со смещением, равным
 		// запрещенному виду оплаты.
+	int    AltCashReg;     // @v9.6.9 Признак использования альтернативного кассового регистратора.
+		// -1 - disabled, 0 - не использовать, 1 - использовать
 	//
 	// @v8.0.0 Следующие поля используются новой реализацией
 	//
@@ -49143,6 +49151,7 @@ protected:
 	};
 	const  PPID CashNodeID;  // @*CheckPaneDialog::CheckPaneDialog
 	PPID   ExtCashNodeID;    // @*CheckPaneDialog::CheckPaneDialog
+	PPID   AltRegisterID;    // @v9.6.9 @*CheckPaneDialog::CheckPaneDialog
 	PPID   TouchScreenID;    // @*CheckPaneDialog::CheckPaneDialog
 	PPID   ScaleID;          // @*CheckPaneDialog::CheckPaneDialog
 	long   CnFlags;          // @*CheckPaneDialog::CheckPaneDialog (PPObjCashNode(CashNodeID).Flags & (CASHF_SELALLGOODS | CASHF_USEQUOT | CASHF_NOASKPAYMTYPE))

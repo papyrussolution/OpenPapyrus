@@ -43,13 +43,13 @@ static void MD5_Init(MD5_CTX * ctx)
 }
 
 static void MD5_Update(MD5_CTX * ctx,
-    const unsigned char * input,
-    unsigned int inputLen)
+    const uchar * input,
+    uint inputLen)
 {
 	md5_update(ctx, inputLen, input);
 }
 
-static void MD5_Final(unsigned char digest[16], MD5_CTX * ctx)
+static void MD5_Final(uchar digest[16], MD5_CTX * ctx)
 {
 	md5_digest(ctx, 16, digest);
 }
@@ -69,13 +69,13 @@ static void MD5_Init(MD5_CTX * ctx)
 }
 
 static void MD5_Update(MD5_CTX * ctx,
-    const unsigned char * input,
-    unsigned int inputLen)
+    const uchar * input,
+    uint inputLen)
 {
 	gcry_md_write(*ctx, input, inputLen);
 }
 
-static void MD5_Final(unsigned char digest[16], MD5_CTX * ctx)
+static void MD5_Final(uchar digest[16], MD5_CTX * ctx)
 {
 	memcpy(digest, gcry_md_read(*ctx, 0), 16);
 	gcry_md_close(*ctx);
@@ -111,13 +111,13 @@ static void MD5_Init(MD5_CTX * ctx)
 }
 
 static void MD5_Update(MD5_CTX * ctx,
-    const unsigned char * input,
-    unsigned int inputLen)
+    const uchar * input,
+    uint inputLen)
 {
 	CC_MD5_Update(ctx, input, inputLen);
 }
 
-static void MD5_Final(unsigned char digest[16], MD5_CTX * ctx)
+static void MD5_Final(uchar digest[16], MD5_CTX * ctx)
 {
 	CC_MD5_Final(digest, ctx);
 }
@@ -143,15 +143,15 @@ static void MD5_Init(MD5_CTX * ctx)
 }
 
 static void MD5_Update(MD5_CTX * ctx,
-    const unsigned char * input,
-    unsigned int inputLen)
+    const uchar * input,
+    uint inputLen)
 {
-	CryptHashData(ctx->hHash, (unsigned char*)input, inputLen, 0);
+	CryptHashData(ctx->hHash, (uchar*)input, inputLen, 0);
 }
 
-static void MD5_Final(unsigned char digest[16], MD5_CTX * ctx)
+static void MD5_Final(uchar digest[16], MD5_CTX * ctx)
 {
-	unsigned long length = 0;
+	ulong length = 0;
 	CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
 	if(length == 16)
 		CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
@@ -214,18 +214,18 @@ static void MD5_Final(unsigned char digest[16], MD5_CTX * ctx)
 #include "memdebug.h"
 
 /* Any 32-bit or wider unsigned integer data type will do */
-typedef unsigned int MD5_u32plus;
+typedef uint MD5_u32plus;
 
 typedef struct {
 	MD5_u32plus lo, hi;
 	MD5_u32plus a, b, c, d;
-	unsigned char buffer[64];
+	uchar buffer[64];
 	MD5_u32plus block[16];
 } MD5_CTX;
 
 static void MD5_Init(MD5_CTX * ctx);
-static void MD5_Update(MD5_CTX * ctx, const void * data, unsigned long size);
-static void MD5_Final(unsigned char * result, MD5_CTX * ctx);
+static void MD5_Update(MD5_CTX * ctx, const void * data, ulong size);
+static void MD5_Final(uchar * result, MD5_CTX * ctx);
 
 /*
  * The basic MD5 functions.
@@ -276,13 +276,13 @@ static void MD5_Final(unsigned char * result, MD5_CTX * ctx);
  * This processes one or more 64-byte data blocks, but does NOT update
  * the bit counters.  There are no alignment requirements.
  */
-static const void * body(MD5_CTX * ctx, const void * data, unsigned long size)
+static const void * body(MD5_CTX * ctx, const void * data, ulong size)
 {
-	const unsigned char * ptr;
+	const uchar * ptr;
 	MD5_u32plus a, b, c, d;
 	MD5_u32plus saved_a, saved_b, saved_c, saved_d;
 
-	ptr = (const unsigned char*)data;
+	ptr = (const uchar*)data;
 
 	a = ctx->a;
 	b = ctx->b;
@@ -394,10 +394,10 @@ static void MD5_Init(MD5_CTX * ctx)
 	ctx->hi = 0;
 }
 
-static void MD5_Update(MD5_CTX * ctx, const void * data, unsigned long size)
+static void MD5_Update(MD5_CTX * ctx, const void * data, ulong size)
 {
 	MD5_u32plus saved_lo;
-	unsigned long used, available;
+	ulong used, available;
 
 	saved_lo = ctx->lo;
 	ctx->lo = (saved_lo + size) & 0x1fffffff;
@@ -416,22 +416,22 @@ static void MD5_Update(MD5_CTX * ctx, const void * data, unsigned long size)
 		}
 
 		memcpy(&ctx->buffer[used], data, available);
-		data = (const unsigned char*)data + available;
+		data = (const uchar*)data + available;
 		size -= available;
 		body(ctx, ctx->buffer, 64);
 	}
 
 	if(size >= 64) {
-		data = body(ctx, data, size & ~(unsigned long)0x3f);
+		data = body(ctx, data, size & ~(ulong)0x3f);
 		size &= 0x3f;
 	}
 
 	memcpy(ctx->buffer, data, size);
 }
 
-static void MD5_Final(unsigned char * result, MD5_CTX * ctx)
+static void MD5_Final(uchar * result, MD5_CTX * ctx)
 {
-	unsigned long used, available;
+	ulong used, available;
 	used = ctx->lo & 0x3f;
 	ctx->buffer[used++] = 0x80;
 	available = 64 - used;
@@ -500,8 +500,8 @@ const MD5_params Curl_DIGEST_MD5[] = {
 /*
  * @unittest: 1601
  */
-void Curl_md5it(unsigned char * outbuffer, /* 16 bytes */
-    const unsigned char * input)
+void Curl_md5it(uchar * outbuffer, /* 16 bytes */
+    const uchar * input)
 {
 	MD5_CTX ctx;
 	MD5_Init(&ctx);
@@ -512,12 +512,12 @@ void Curl_md5it(unsigned char * outbuffer, /* 16 bytes */
 MD5_context * Curl_MD5_init(const MD5_params * md5params)
 {
 	/* Create MD5 context */
-	MD5_context * ctxt = (MD5_context *)malloc(sizeof *ctxt);
+	MD5_context * ctxt = (MD5_context *)SAlloc::M(sizeof *ctxt);
 	if(!ctxt)
 		return ctxt;
-	ctxt->md5_hashctx = malloc(md5params->md5_ctxtsize);
+	ctxt->md5_hashctx = SAlloc::M(md5params->md5_ctxtsize);
 	if(!ctxt->md5_hashctx) {
-		free(ctxt);
+		SAlloc::F(ctxt);
 		return NULL;
 	}
 	ctxt->md5_hash = md5params;
@@ -525,17 +525,17 @@ MD5_context * Curl_MD5_init(const MD5_params * md5params)
 	return ctxt;
 }
 
-int Curl_MD5_update(MD5_context * context, const unsigned char * data, unsigned int len)
+int Curl_MD5_update(MD5_context * context, const uchar * data, uint len)
 {
 	(*context->md5_hash->md5_update_func)(context->md5_hashctx, data, len);
 	return 0;
 }
 
-int Curl_MD5_final(MD5_context * context, unsigned char * result)
+int Curl_MD5_final(MD5_context * context, uchar * result)
 {
 	(*context->md5_hash->md5_final_func)(result, context->md5_hashctx);
-	free(context->md5_hashctx);
-	free(context);
+	SAlloc::F(context->md5_hashctx);
+	SAlloc::F(context);
 	return 0;
 }
 

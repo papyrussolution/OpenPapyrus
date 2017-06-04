@@ -49,7 +49,7 @@
 #endif
 #ifdef NETWARE
 #undef in_addr_t
-#define in_addr_t unsigned long
+#define in_addr_t ulong
 #endif
 #ifdef __VMS
 #include <in.h>
@@ -62,7 +62,7 @@
 #include "strerror.h"
 #include "connect.h"
 #include "select.h"
-#include "url.h" /* for Curl_safefree() */
+#include "url.h" /* for ZFREE() */
 #include "multiif.h"
 #include "sockaddr.h" /* required for Curl_sockaddr_storage */
 #include "inet_ntop.h"
@@ -234,7 +234,7 @@ time_t Curl_timeleft(struct Curl_easy * data,
 }
 
 static CURLcode bindlocal(struct connectdata * conn,
-    curl_socket_t sockfd, int af, unsigned int scope)
+    curl_socket_t sockfd, int af, uint scope)
 {
 	struct Curl_easy * data = conn->data;
 
@@ -248,7 +248,7 @@ static CURLcode bindlocal(struct connectdata * conn,
 #endif
 
 	struct Curl_dns_entry * h = NULL;
-	unsigned short port = data->set.localport; /* use this port number, 0 for
+	ushort port = data->set.localport; /* use this port number, 0 for
 	                                              "random" */
 	/* how many port numbers to try to bind to, increasing one at a time */
 	int portnum = data->set.localportrange;
@@ -601,7 +601,7 @@ void Curl_persistconninfo(struct connectdata * conn)
 static bool getaddressinfo(struct sockaddr * sa, char * addr,
     long * port)
 {
-	unsigned short us_port;
+	ushort us_port;
 	struct sockaddr_in * si = NULL;
 #ifdef ENABLE_IPV6
 	struct sockaddr_in6 * si6 = NULL;

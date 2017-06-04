@@ -3697,7 +3697,7 @@ int SLAPI PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPa
 								if(temp_buf == "0")
 									item.P = 10000;
 								else
-									item.P = temp_buf.ToLong();
+									item.P = (temp_buf.ToLong() % 10000); // @v9.6.9 (% 10000)
 							}
 							else if(SXml::GetContentByName(p_pos, "InformBRegId", temp_buf))
                                 STRNSCPY(item.Ident, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
@@ -4159,7 +4159,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 								if(temp_buf == "0")
 									ti.RByBill = 10000; // @v9.2.9
 								else
-									ti.RByBill = (int16)temp_buf.ToLong(); // @v8.8.6
+									ti.RByBill = (int16)(temp_buf.ToLong() % 10000); // @v8.8.6 // @v9.6.9 (% 10000)
 							}
 							else if(SXml::IsName(p_pos, "Product")) {
 								int   rs = 0;
@@ -5685,7 +5685,8 @@ int SLAPI PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, 
 				p_ref->GetPropVlrString(PPOBJ_BILL, bill_id, PPPRP_BILLMEMO, memos);
 				ss_memo.setBuf(memos);
 				for(uint ssp = 0; ss_memo.get(&ssp, temp_buf);) {
-					if(temp_buf.CmpPrefix(p_utm_rej_pfx, 1) == 0 || temp_buf.CmpPrefix(p_egais_rej_pfx, 1) == 0) {
+					// @v9.6.8 if(temp_buf.CmpPrefix(p_utm_rej_pfx, 1) == 0 || temp_buf.CmpPrefix(p_egais_rej_pfx, 1) == 0) {
+					if(temp_buf.Search(p_utm_rej_pfx, 0, 1, 0) || temp_buf.Search(p_egais_rej_pfx, 0, 1, 0)) { // @v9.6.9
 						do_update_memos = 1;
 					}
 					else {

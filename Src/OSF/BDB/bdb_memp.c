@@ -13,7 +13,6 @@ typedef struct {
 } BH_TRACK;
 
 static int __memp_pgwrite(ENV*, DB_MPOOLFILE*, DB_MPOOL_HASH*, BH *);
-
 static int __memp_get_clear_len(DB_MPOOLFILE*, uint32 *);
 static int __memp_get_lsn_offset(DB_MPOOLFILE*, int32 *);
 static int __memp_get_maxsize(DB_MPOOLFILE*, uint32*, uint32 *);
@@ -29,12 +28,8 @@ static int __pgno_cmp(const void *, const void *);
 static int __memp_init_config(ENV*, MPOOL *);
 static void __memp_region_size(ENV*, roff_t*, uint32 *);
 
-static int __memp_add_bucket(DB_MPOOL *);
-static int __memp_add_region(DB_MPOOL *);
-static int __memp_map_regions(DB_MPOOL *);
+static int FASTCALL __memp_map_regions(DB_MPOOL *);
 static int __memp_merge_buckets(DB_MPOOL*, uint32, uint32, uint32);
-static int __memp_remove_bucket(DB_MPOOL *);
-static int __memp_remove_region(DB_MPOOL *);
 
 static int __bhcmp(const void *, const void *);
 static int __memp_close_flush_files(ENV*, int);
@@ -4615,17 +4610,19 @@ int __memp_env_refresh(ENV * env)
 //
 int __memp_register_pp(DB_ENV * dbenv, int ftype, int (*pgin)(DB_ENV*, db_pgno_t, void *, DBT *), int (*pgout)(DB_ENV*, db_pgno_t, void *, DBT *))
 {
-	DB_THREAD_INFO * ip;
 	int ret;
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->mp_handle, "DB_ENV->memp_register", DB_INIT_MPOOL);
 	if(REP_ON(env)) {
 		__db_errx(env, DB_STR_A("3001", "%smethod not permitted when replication is configured", "%s"), "DB_ENV->memp_register: ");
-		return EINVAL;
+		ret = EINVAL;
 	}
-	ENV_ENTER(env, ip);
-	ret = __memp_register(env, ftype, pgin, pgout);
-	ENV_LEAVE(env, ip);
+	else {
+		DB_THREAD_INFO * ip;
+		ENV_ENTER(env, ip);
+		ret = __memp_register(env, ftype, pgin, pgout);
+		ENV_LEAVE(env, ip);
+	}
 	return ret;
 }
 /*
@@ -4679,18 +4676,15 @@ int __memp_register(ENV * env, int ftype, int (*pgin)(DB_ENV*, db_pgno_t, void *
 
 int __memp_get_bucket(ENV * env, MPOOLFILE * mfp, db_pgno_t pgno, REGINFO ** infopp, DB_MPOOL_HASH ** hpp, uint32 * bucketp)
 {
-	DB_MPOOL * dbmp;
 	DB_MPOOL_HASH * hp;
-	MPOOL * c_mp, * mp;
+	MPOOL * c_mp;
 	REGINFO * infop;
-	roff_t mf_offset;
 	uint32 bucket, nbuckets, new_bucket, new_nbuckets, region;
 	uint32 * regids;
-	int ret;
-	dbmp = env->mp_handle;
-	mf_offset = R_OFFSET(dbmp->reginfo, mfp);
-	mp = (MPOOL *)dbmp->reginfo[0].primary;
-	ret = 0;
+	DB_MPOOL * dbmp = env->mp_handle;
+	roff_t mf_offset = R_OFFSET(dbmp->reginfo, mfp);
+	MPOOL * mp = (MPOOL *)dbmp->reginfo[0].primary;
+	int    ret = 0;
 	for(;; ) {
 		nbuckets = mp->nbuckets;
 		MP_BUCKET(mf_offset, pgno, nbuckets, bucket);
@@ -4698,8 +4692,7 @@ int __memp_get_bucket(ENV * env, MPOOLFILE * mfp, db_pgno_t pgno, REGINFO ** inf
 		 * Once we work out which region we are looking in, we have to
 		 * check that we have that region mapped, and that the version
 		 * we have matches the ID in the main mpool region.  Otherwise
-		 * we have to go and map in any regions that don't match and
-		 * retry.
+		 * we have to go and map in any regions that don't match and retry.
 		 */
 		region = NREGION(mp, bucket);
 		regids = (uint32 *)R_ADDR(dbmp->reginfo, mp->regids);
@@ -4747,21 +4740,18 @@ int __memp_get_bucket(ENV * env, MPOOLFILE * mfp, db_pgno_t pgno, REGINFO ** inf
 
 static int __memp_merge_buckets(DB_MPOOL * dbmp, uint32 new_nbuckets, uint32 old_bucket, uint32 new_bucket)
 {
-	BH * alloc_bhp, * bhp, * current_bhp, * new_bhp, * next_bhp;
+	BH * alloc_bhp, * bhp, * current_bhp, * next_bhp;
 	DB_LSN vlsn;
 	DB_MPOOL_HASH * new_hp, * old_hp;
-	ENV * env;
-	MPOOL * mp, * new_mp, * old_mp;
+	MPOOL * new_mp, * old_mp;
 	MPOOLFILE * mfp;
 	REGINFO * new_infop, * old_infop;
 	uint32 bucket, high_mask, new_region, old_region;
-	int ret;
-	env = dbmp->env;
-	mp = (MPOOL *)dbmp->reginfo[0].primary;
-	new_bhp = NULL;
-	ret = 0;
+	ENV * env = dbmp->env;
+	MPOOL * mp = (MPOOL *)dbmp->reginfo[0].primary;
+	BH * new_bhp = NULL;
+	int  ret = 0;
 	MP_MASK(new_nbuckets, high_mask);
-
 	old_region = NREGION(mp, old_bucket);
 	old_infop = &dbmp->reginfo[old_region];
 	old_mp = (MPOOL *)old_infop->primary;
@@ -4803,7 +4793,6 @@ free_old:
 		}
 	}
 	MUTEX_UNLOCK(env, new_hp->mtx_hash);
-
 	/*
 	 * Before we begin, make sure that all of the buffers we care about are
 	 * not in use and not frozen.  We do this because we can't drop the old
@@ -4874,8 +4863,8 @@ err:
 		 */
 		if(bucket != new_bucket || (!F_ISSET(bhp, BH_DIRTY) && SH_CHAIN_SINGLETON(bhp, vc) && !mfp->no_backing_file))
 			continue;
-		for(current_bhp = bhp, next_bhp = NULL; current_bhp != NULL; current_bhp = SH_CHAIN_PREV(current_bhp, vc, __bh), next_bhp = alloc_bhp) {
-			/* Allocate in the new region. */
+		for(current_bhp = bhp, next_bhp = NULL; current_bhp; current_bhp = SH_CHAIN_PREV(current_bhp, vc, __bh), next_bhp = alloc_bhp) {
+			// Allocate in the new region
 			if((ret = __memp_alloc(dbmp, new_infop, mfp, 0, NULL, &alloc_bhp)) != 0)
 				break;
 			alloc_bhp->ref = current_bhp->ref;
@@ -4925,7 +4914,7 @@ err:
 	return ret;
 }
 
-static int __memp_add_bucket(DB_MPOOL * dbmp)
+static int FASTCALL __memp_add_bucket(DB_MPOOL * dbmp)
 {
 	uint32 high_mask, old_bucket;
 	ENV * env = dbmp->env;
@@ -4946,7 +4935,7 @@ static int __memp_add_bucket(DB_MPOOL * dbmp)
 	return __memp_merge_buckets(dbmp, mp->nbuckets+1, old_bucket, new_bucket);
 }
 
-static int __memp_add_region(DB_MPOOL * dbmp)
+static int FASTCALL __memp_add_region(DB_MPOOL * dbmp)
 {
 	int ret = 0;
 	uint i;
@@ -4976,33 +4965,29 @@ static int __memp_add_region(DB_MPOOL * dbmp)
 	return ret;
 }
 
-static int __memp_remove_bucket(DB_MPOOL * dbmp)
+static int FASTCALL __memp_remove_bucket(DB_MPOOL * dbmp)
 {
-	uint32 high_mask, new_bucket, old_bucket;
+	uint32 high_mask, new_bucket;
 	ENV * env = dbmp->env;
 	MPOOL * mp = (MPOOL *)dbmp->reginfo[0].primary;
-	old_bucket = mp->nbuckets-1;
-	/* We should always be removing buckets from the last region. */
+	uint32 old_bucket = mp->nbuckets-1;
+	// We should always be removing buckets from the last region. 
 	DB_ASSERT(env, NREGION(mp, old_bucket) == mp->nreg-1);
 	MP_MASK(mp->nbuckets-1, high_mask);
 	new_bucket = old_bucket&(high_mask>>1);
 	return __memp_merge_buckets(dbmp, mp->nbuckets-1, old_bucket, new_bucket);
 }
 
-static int __memp_remove_region(DB_MPOOL * dbmp)
+static int FASTCALL __memp_remove_region(DB_MPOOL * dbmp)
 {
 	DB_MPOOL_HASH * hp;
-	ENV * env;
-	MPOOL * mp;
 	REGINFO * infop;
-	int ret;
-	roff_t cache_size, reg_size;
 	uint i;
-	env = dbmp->env;
-	mp = (MPOOL *)dbmp->reginfo[0].primary;
-	reg_size = dbmp->reginfo[0].rp->size;
-	cache_size = (roff_t)mp->gbytes*GIGABYTE+mp->bytes;
-	ret = 0;
+	ENV * env = dbmp->env;
+	MPOOL * mp = (MPOOL *)dbmp->reginfo[0].primary;
+	roff_t reg_size = dbmp->reginfo[0].rp->size;
+	roff_t cache_size = (roff_t)mp->gbytes*GIGABYTE+mp->bytes;
+	int ret = 0;
 	if(mp->nreg == 1) {
 		__db_errx(env, DB_STR("3019", "cannot remove the last cache"));
 		return EINVAL;
@@ -5028,7 +5013,7 @@ static int __memp_remove_region(DB_MPOOL * dbmp)
 	return ret;
 }
 
-static int __memp_map_regions(DB_MPOOL * dbmp)
+static int FASTCALL __memp_map_regions(DB_MPOOL * dbmp)
 {
 	uint i;
 	ENV * env = dbmp->env;
@@ -5149,7 +5134,6 @@ static int __memp_stat(ENV * env, DB_MPOOL_STAT ** gspp, DB_MPOOL_FSTAT *** fspp
 			return ret;
 		memzero(*gspp, sizeof(**gspp));
 		sp = *gspp;
-
 		/*
 		 * Initialization and information that is not maintained on
 		 * a per-cache basis.  Note that configuration information
@@ -5163,14 +5147,12 @@ static int __memp_stat(ENV * env, DB_MPOOL_STAT ** gspp, DB_MPOOL_FSTAT *** fspp
 		sp->st_regsize = dbmp->reginfo[0].rp->size;
 		sp->st_regmax = dbmp->reginfo[0].rp->max;
 		sp->st_sync_interrupted = mp->stat.st_sync_interrupted;
-
 		MPOOL_SYSTEM_LOCK(env);
 		sp->st_mmapsize = mp->mp_mmapsize;
 		sp->st_maxopenfd = mp->mp_maxopenfd;
 		sp->st_maxwrite = mp->mp_maxwrite;
 		sp->st_maxwrite_sleep = mp->mp_maxwrite_sleep;
 		MPOOL_SYSTEM_UNLOCK(env);
-
 		/* Walk the cache list and accumulate the global information. */
 		for(i = 0; i < mp->nreg; ++i) {
 			c_mp = (MPOOL *)dbmp->reginfo[i].primary;
@@ -5185,11 +5167,9 @@ static int __memp_stat(ENV * env, DB_MPOOL_STAT ** gspp, DB_MPOOL_FSTAT *** fspp
 			sp->st_page_trickle += c_mp->stat.st_page_trickle;
 			sp->st_pages += c_mp->pages;
 			/*
-			 * st_page_dirty	calculated by __memp_stat_hash
-			 * st_page_clean	calculated here
+			 * st_page_dirty	calculated by __memp_stat_hash st_page_clean	calculated here
 			 */
-			__memp_stat_hash(
-				&dbmp->reginfo[i], c_mp, &sp->st_page_dirty);
+			__memp_stat_hash(&dbmp->reginfo[i], c_mp, &sp->st_page_dirty);
 			sp->st_page_clean = sp->st_pages-sp->st_page_dirty;
 			sp->st_hash_buckets += c_mp->htab_buckets;
 			sp->st_hash_mutexes += c_mp->htab_mutexes;
@@ -5197,26 +5177,19 @@ static int __memp_stat(ENV * env, DB_MPOOL_STAT ** gspp, DB_MPOOL_FSTAT *** fspp
 			sp->st_hash_longest += c_mp->stat.st_hash_longest;
 			sp->st_hash_examined += c_mp->stat.st_hash_examined;
 			/*
-			 * st_hash_nowait	calculated by __memp_stat_wait
-			 * st_hash_wait
+			 * st_hash_nowait	calculated by __memp_stat_wait st_hash_wait
 			 */
-			__memp_stat_wait(
-				env, &dbmp->reginfo[i], c_mp, sp, flags);
-			__mutex_set_wait_info(env,
-				c_mp->mtx_region, &tmp_wait, &tmp_nowait);
+			__memp_stat_wait(env, &dbmp->reginfo[i], c_mp, sp, flags);
+			__mutex_set_wait_info(env, c_mp->mtx_region, &tmp_wait, &tmp_nowait);
 			sp->st_region_nowait += tmp_nowait;
 			sp->st_region_wait += tmp_wait;
 			sp->st_alloc += c_mp->stat.st_alloc;
 			sp->st_alloc_buckets += c_mp->stat.st_alloc_buckets;
-			if(sp->st_alloc_max_buckets <
-			   c_mp->stat.st_alloc_max_buckets)
-				sp->st_alloc_max_buckets =
-				        c_mp->stat.st_alloc_max_buckets;
+			if(sp->st_alloc_max_buckets < c_mp->stat.st_alloc_max_buckets)
+				sp->st_alloc_max_buckets = c_mp->stat.st_alloc_max_buckets;
 			sp->st_alloc_pages += c_mp->stat.st_alloc_pages;
-			if(sp->st_alloc_max_pages <
-			   c_mp->stat.st_alloc_max_pages)
-				sp->st_alloc_max_pages =
-				        c_mp->stat.st_alloc_max_pages;
+			if(sp->st_alloc_max_pages < c_mp->stat.st_alloc_max_pages)
+				sp->st_alloc_max_pages = c_mp->stat.st_alloc_max_pages;
 			if(LF_ISSET(DB_STAT_CLEAR)) {
 				if(!LF_ISSET(DB_STAT_SUBSYSTEM))
 					__mutex_clear(env, c_mp->mtx_region);
@@ -5237,12 +5210,10 @@ static int __memp_stat(ENV * env, DB_MPOOL_STAT ** gspp, DB_MPOOL_FSTAT *** fspp
 	/* Per-file statistics. */
 	if(fspp != NULL) {
 		*fspp = NULL;
-
 		/* Count the MPOOLFILE structures. */
 		i = 0;
 		len = 0;
-		if((ret = __memp_walk_files(env,
-			    mp, __memp_count_files, &len, &i, flags)) != 0)
+		if((ret = __memp_walk_files(env, mp, __memp_count_files, &len, &i, flags)) != 0)
 			return ret;
 		if(i == 0)
 			return 0;
@@ -5304,36 +5275,35 @@ static int __memp_count_files(ENV * env, MPOOLFILE * mfp, void * argp, uint32 * 
  */
 static int __memp_get_files(ENV * env, MPOOLFILE * mfp, void * argp, uint32 * countp, uint32 flags)
 {
-	DB_MPOOL * dbmp;
-	DB_MPOOL_FSTAT ** tfsp, * tstruct;
+	DB_MPOOL_FSTAT * tstruct;
 	char * name, * tname;
 	size_t nlen;
-	if(*countp == 0)
-		return 0;
-	dbmp = env->mp_handle;
-	tfsp = *(DB_MPOOL_FSTAT ***)argp;
-	if(*tfsp == NULL) {
-		/* Add 1 to count because we need to skip over the NULL. */
-		tstruct = (DB_MPOOL_FSTAT *)(tfsp+*countp+1);
-		tname = (char *)(tstruct+*countp);
-		*tfsp = tstruct;
+	if(*countp) {
+		DB_MPOOL * dbmp = env->mp_handle;
+		DB_MPOOL_FSTAT ** tfsp = *(DB_MPOOL_FSTAT ***)argp;
+		if(*tfsp == NULL) {
+			// Add 1 to count because we need to skip over the NULL
+			tstruct = (DB_MPOOL_FSTAT *)(tfsp+*countp+1);
+			tname = (char *)(tstruct+*countp);
+			*tfsp = tstruct;
+		}
+		else {
+			tstruct = *tfsp+1;
+			tname = (*tfsp)->file_name+strlen((*tfsp)->file_name)+1;
+			*++tfsp = tstruct;
+		}
+		name = __memp_fns(dbmp, mfp);
+		nlen = strlen(name)+1;
+		memcpy(tname, name, nlen);
+		memcpy(tstruct, &mfp->stat, sizeof(mfp->stat));
+		tstruct->file_name = tname;
+		// Grab the pagesize from the mfp
+		tstruct->st_pagesize = mfp->pagesize;
+		*(DB_MPOOL_FSTAT ***)argp = tfsp;
+		(*countp)--;
+		if(LF_ISSET(DB_STAT_CLEAR))
+			memzero(&mfp->stat, sizeof(mfp->stat));
 	}
-	else {
-		tstruct = *tfsp+1;
-		tname = (*tfsp)->file_name+strlen((*tfsp)->file_name)+1;
-		*++tfsp = tstruct;
-	}
-	name = __memp_fns(dbmp, mfp);
-	nlen = strlen(name)+1;
-	memcpy(tname, name, nlen);
-	memcpy(tstruct, &mfp->stat, sizeof(mfp->stat));
-	tstruct->file_name = tname;
-	/* Grab the pagesize from the mfp. */
-	tstruct->st_pagesize = mfp->pagesize;
-	*(DB_MPOOL_FSTAT ***)argp = tfsp;
-	(*countp)--;
-	if(LF_ISSET(DB_STAT_CLEAR))
-		memzero(&mfp->stat, sizeof(mfp->stat));
 	return 0;
 }
 /*
@@ -5768,9 +5738,8 @@ int __memp_discard_all_mpfs(ENV * env, MPOOL * mp)
 int __memp_sync_pp(DB_ENV * dbenv, DB_LSN * lsnp)
 {
 	DB_THREAD_INFO * ip;
-	ENV * env;
 	int ret;
-	env = dbenv->env;
+	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->mp_handle, "memp_sync", DB_INIT_MPOOL);
 	/*
 	 * If no LSN is provided, flush the entire cache (reasonable usage
@@ -5887,38 +5856,33 @@ int __memp_sync_int(ENV * env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 
 	MPOOL * c_mp;
 	MPOOLFILE * mfp;
 	db_mutex_t mutex;
-	roff_t last_mf_offset;
-	uint32 ar_cnt, ar_max, i, n_cache, remaining, wrote_total;
+	uint32 ar_cnt, ar_max, i, n_cache, remaining;
 	int32 wrote_cnt;
-	int dirty, filecnt, maxopenfd, required_write, ret, t_ret;
+	int dirty, maxopenfd, required_write, ret, t_ret;
 	DB_MPOOL * dbmp = env->mp_handle;
 	MPOOL * mp = (MPOOL *)dbmp->reginfo[0].primary;
-	last_mf_offset = INVALID_ROFF;
-	filecnt = wrote_total = 0;
-	if(wrote_totalp != NULL)
-		*wrote_totalp = 0;
-	if(interruptedp != NULL)
-		*interruptedp = 0;
+	roff_t last_mf_offset = INVALID_ROFF;
+	int filecnt = 0;
+	uint32 wrote_total = 0;
+	ASSIGN_PTR(wrote_totalp, 0);
+	ASSIGN_PTR(interruptedp, 0);
 	/*
 	 * If we're flushing the cache, it's a checkpoint or we're flushing a
 	 * specific file, we really have to write the blocks and we have to
-	 * confirm they made it to disk.  Otherwise, we can skip a block if
-	 * it's hard to get.
+	 * confirm they made it to disk.  Otherwise, we can skip a block if it's hard to get.
 	 */
 	required_write = LF_ISSET(DB_SYNC_CACHE|DB_SYNC_CHECKPOINT|DB_SYNC_FILE|DB_SYNC_QUEUE_EXTENT);
 	/* Get shared configuration information. */
 	MPOOL_SYSTEM_LOCK(env);
 	maxopenfd = mp->mp_maxopenfd;
 	MPOOL_SYSTEM_UNLOCK(env);
-
 	/* Assume one dirty page per bucket. */
 	ar_max = mp->nreg*mp->htab_buckets;
 	if((ret = __os_malloc(env, ar_max*sizeof(BH_TRACK), &bharray)) != 0)
 		return ret;
 	/*
 	 * Walk each cache's list of buffers and mark all dirty buffers to be
-	 * written and all dirty buffers to be potentially written, depending
-	 * on our flags.
+	 * written and all dirty buffers to be potentially written, depending on our flags.
 	 */
 	for(ar_cnt = 0, n_cache = 0; n_cache < mp->nreg; ++n_cache) {
 		c_mp = (MPOOL *)dbmp->reginfo[n_cache].primary;
@@ -5928,8 +5892,7 @@ int __memp_sync_int(ENV * env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 
 			 * We can check for empty buckets before locking as
 			 * we only care if the pointer is zero or non-zero.
 			 * We can ignore empty or clean buckets because we
-			 * only need write buffers that were dirty before
-			 * we started.
+			 * only need write buffers that were dirty before we started.
 			 */
 #ifdef DIAGNOSTIC
 			if(SH_TAILQ_FIRST(&hp->hash_bucket, __bh) == NULL)
@@ -6000,8 +5963,7 @@ int __memp_sync_int(ENV * env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 
 			/* Check if the call has been interrupted. */
 			if(LF_ISSET(DB_SYNC_INTERRUPT_OK) && FLD_ISSET(mp->config_flags, DB_MEMP_SYNC_INTERRUPT)) {
 				STAT(++mp->stat.st_sync_interrupted);
-				if(interruptedp != NULL)
-					*interruptedp = 1;
+				ASSIGN_PTR(interruptedp, 1);
 				goto err;
 			}
 		}
@@ -6154,18 +6116,14 @@ done:   /*
 	 * we have to walk the files list.
 	 */
 	if(ret == 0 && required_write) {
-		if(dbmfp == NULL)
-			ret = __memp_sync_files(env);
-		else
-			ret = __os_fsync(env, dbmfp->fhp);
+		ret = (dbmfp == NULL) ? __memp_sync_files(env) : __os_fsync(env, dbmfp->fhp);
 	}
-	/* If we've opened files to flush pages, close them. */
+	// If we've opened files to flush pages, close them. 
 	if((t_ret = __memp_close_flush_files(env, 0)) != 0 && ret == 0)
 		ret = t_ret;
 err:
 	__os_free(env, bharray);
-	if(wrote_totalp != NULL)
-		*wrote_totalp = wrote_total;
+	ASSIGN_PTR(wrote_totalp, wrote_total);
 	return ret;
 }
 

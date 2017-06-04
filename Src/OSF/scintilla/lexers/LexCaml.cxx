@@ -17,11 +17,9 @@
 	20051204 Swtich to using StyleContext infrastructure.
 	20090629 Add full Standard ML '97 support.
 */
-
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "PropSetSimple.h"
@@ -95,16 +93,16 @@ bool Platform::IsDBCSLeadByte(int codePage, char ch) {
 	return ::IsDBCSLeadByteEx(codePage, ch) != 0;
 }
 
-long Platform::SendScintilla(WindowID w, unsigned int msg, unsigned long wParam, long lParam) {
+long Platform::SendScintilla(WindowID w, uint msg, ulong wParam, long lParam) {
 	return ::SendMessage(reinterpret_cast<HWND>(w), msg, wParam, lParam);
 }
 
-long Platform::SendScintillaPointer(WindowID w, unsigned int msg, unsigned long wParam, void *lParam) {
+long Platform::SendScintillaPointer(WindowID w, uint msg, ulong wParam, void *lParam) {
 	return ::SendMessage(reinterpret_cast<HWND>(w), msg, wParam,
 		reinterpret_cast<LPARAM>(lParam));
 }
 
-void EXT_LEXER_DECL Fold(unsigned int lexer, Sci_PositionU startPos, Sci_Position length,
+void EXT_LEXER_DECL Fold(uint lexer, Sci_PositionU startPos, Sci_Position length,
 	int initStyle, char *words[], WindowID window, char *props)
 {
 	// below useless evaluation(s) to supress "not used" warnings
@@ -119,7 +117,7 @@ int EXT_LEXER_DECL GetLexerCount()
 	return 1;	// just us [Objective] Caml lexers here!
 }
 
-void EXT_LEXER_DECL GetLexerName(unsigned int Index, char *name, int buflength)
+void EXT_LEXER_DECL GetLexerName(uint Index, char *name, int buflength)
 {
 	// below useless evaluation(s) to supress "not used" warnings
 	Index;
@@ -133,7 +131,7 @@ void EXT_LEXER_DECL GetLexerName(unsigned int Index, char *name, int buflength)
 	}
 }
 
-void EXT_LEXER_DECL Lex(unsigned int lexer, Sci_PositionU startPos, Sci_Position length,
+void EXT_LEXER_DECL Lex(uint lexer, Sci_PositionU startPos, Sci_Position length,
 	int initStyle, char *words[], WindowID window, char *props)
 {
 	// below useless evaluation(s) to supress "not used" warnings

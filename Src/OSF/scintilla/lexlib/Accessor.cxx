@@ -1,15 +1,15 @@
 // Scintilla source code edit control
-/** @file KeyWords.cxx
-** Colourise for particular languages.
-**/
+/** @file Accessor.cxx
+ ** Interfaces between Scintilla and lexers.
+ **/
 // Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include "SciLexer.h"
 #include "ILexer.h"
+#include "SciLexer.h"
 #include "PropSetSimple.h"
 #include "WordList.h"
 #include "LexAccessor.h"
@@ -19,14 +19,14 @@
 using namespace Scintilla;
 #endif
 
-Accessor::Accessor(IDocument * pAccess_, PropSetSimple * pprops_) : LexAccessor(pAccess_), pprops(pprops_) {
+Accessor::Accessor(IDocument *pAccess_, PropSetSimple *pprops_) : LexAccessor(pAccess_), pprops(pprops_) {
 }
 
-int Accessor::GetPropertyInt(const char * key, int defaultValue) const {
+int Accessor::GetPropertyInt(const char *key, int defaultValue) const {
 	return pprops->GetInt(key, defaultValue);
 }
 
-int Accessor::IndentAmount(Sci_Position line, int * flags, PFNIsCommentLeader pfnIsCommentLeader) {
+int Accessor::IndentAmount(Sci_Position line, int *flags, PFNIsCommentLeader pfnIsCommentLeader) {
 	Sci_Position end = Length();
 	int spaceFlags = 0;
 
@@ -40,24 +40,22 @@ int Accessor::IndentAmount(Sci_Position line, int * flags, PFNIsCommentLeader pf
 	int indent = 0;
 	bool inPrevPrefix = line > 0;
 	Sci_Position posPrev = inPrevPrefix ? LineStart(line-1) : 0;
-	while((ch == ' ' || ch == '\t') && (pos < end)) {
-		if(inPrevPrefix) {
+	while ((ch == ' ' || ch == '\t') && (pos < end)) {
+		if (inPrevPrefix) {
 			char chPrev = (*this)[posPrev++];
-			if(chPrev == ' ' || chPrev == '\t') {
-				if(chPrev != ch)
+			if (chPrev == ' ' || chPrev == '\t') {
+				if (chPrev != ch)
 					spaceFlags |= wsInconsistent;
-			}
-			else {
+			} else {
 				inPrevPrefix = false;
 			}
 		}
-		if(ch == ' ') {
+		if (ch == ' ') {
 			spaceFlags |= wsSpace;
 			indent++;
-		}
-		else {          // Tab
+		} else {	// Tab
 			spaceFlags |= wsTab;
-			if(spaceFlags & wsSpace)
+			if (spaceFlags & wsSpace)
 				spaceFlags |= wsSpaceTab;
 			indent = (indent / 8 + 1) * 8;
 		}
@@ -67,10 +65,9 @@ int Accessor::IndentAmount(Sci_Position line, int * flags, PFNIsCommentLeader pf
 	*flags = spaceFlags;
 	indent += SC_FOLDLEVELBASE;
 	// if completely empty line or the start of a comment...
-	if((LineStart(line) == Length()) || (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') ||
-	    (pfnIsCommentLeader && (*pfnIsCommentLeader)(*this, pos, end-pos)))
+	if ((LineStart(line) == Length()) || (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') ||
+			(pfnIsCommentLeader && (*pfnIsCommentLeader)(*this, pos, end-pos)))
 		return indent | SC_FOLDLEVELWHITEFLAG;
 	else
 		return indent;
 }
-

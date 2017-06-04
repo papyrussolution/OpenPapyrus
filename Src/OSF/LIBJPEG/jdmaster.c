@@ -217,16 +217,11 @@ GLOBAL(void) jpeg_calc_output_dimensions(j_decompress_ptr cinfo)
  * enough and used often enough to justify this.
  */
 
-LOCAL(void)
-prepare_range_limit_table(j_decompress_ptr cinfo)
+static void prepare_range_limit_table(j_decompress_ptr cinfo)
 /* Allocate and fill in the sample_range_limit table */
 {
-	JSAMPLE * table;
 	int i;
-
-	table = (JSAMPLE*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    5 * (MAXJSAMPLE+1) * SIZEOF(JSAMPLE));
+	JSAMPLE * table = (JSAMPLE*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, 5 * (MAXJSAMPLE+1) * SIZEOF(JSAMPLE));
 	/* First segment of range limit table: limit[x] = 0 for x < 0 */
 	MEMZERO(table, 2 * (MAXJSAMPLE+1) * SIZEOF(JSAMPLE));
 	table += 2 * (MAXJSAMPLE+1); /* allow negative subscripts of table */
@@ -249,9 +244,7 @@ prepare_range_limit_table(j_decompress_ptr cinfo)
  * and (first) SOS markers.  We also have all the application parameter
  * settings.
  */
-
-LOCAL(void)
-master_selection(j_decompress_ptr cinfo)
+static void master_selection(j_decompress_ptr cinfo)
 {
 	my_master_ptr master = (my_master_ptr)cinfo->master;
 	boolean use_c_buffer;

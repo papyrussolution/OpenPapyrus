@@ -149,20 +149,14 @@ GLOBAL(void) jpeg_set_quality(j_compress_ptr cinfo, int quality, boolean force_b
 /*
  * Huffman table setup routines
  */
-
-LOCAL(void)
-add_huff_table(j_compress_ptr cinfo,
-    JHUFF_TBL **htblptr, const UINT8 *bits, const UINT8 *val)
+static void add_huff_table(j_compress_ptr cinfo, JHUFF_TBL **htblptr, const UINT8 *bits, const UINT8 *val)
 /* Define a Huffman table */
 {
 	int nsymbols, len;
-
 	if(*htblptr == NULL)
 		*htblptr = jpeg_alloc_huff_table((j_common_ptr)cinfo);
-
 	/* Copy the number-of-symbols-of-each-code-length counts */
 	MEMCOPY((*htblptr)->bits, bits, SIZEOF((*htblptr)->bits));
-
 	/* Validate the counts.  We do this here mainly so we can copy the right
 	 * number of symbols from the val[] array, without risking marching off
 	 * the end of memory.  jchuff.c will do a more thorough test later.
@@ -179,8 +173,7 @@ add_huff_table(j_compress_ptr cinfo,
 	(*htblptr)->sent_table = FALSE;
 }
 
-LOCAL(void)
-std_huff_tables(j_compress_ptr cinfo)
+static void std_huff_tables(j_compress_ptr cinfo)
 /* Set up the standard Huffman tables (cf. JPEG standard section K.3) */
 /* IMPORTANT: these are only valid for 8-bit data precision! */
 {
@@ -509,9 +502,7 @@ GLOBAL(void) jpeg_set_colorspace(j_compress_ptr cinfo, J_COLOR_SPACE colorspace)
 
 #ifdef C_PROGRESSIVE_SUPPORTED
 
-LOCAL(jpeg_scan_info *)
-fill_a_scan(jpeg_scan_info * scanptr, int ci,
-    int Ss, int Se, int Ah, int Al)
+LOCAL(jpeg_scan_info *) fill_a_scan(jpeg_scan_info * scanptr, int ci, int Ss, int Se, int Ah, int Al)
 /* Support routine: generate one scan for specified component */
 {
 	scanptr->comps_in_scan = 1;
@@ -524,9 +515,7 @@ fill_a_scan(jpeg_scan_info * scanptr, int ci,
 	return scanptr;
 }
 
-LOCAL(jpeg_scan_info *)
-fill_scans(jpeg_scan_info * scanptr, int ncomps,
-    int Ss, int Se, int Ah, int Al)
+LOCAL(jpeg_scan_info *) fill_scans(jpeg_scan_info * scanptr, int ncomps, int Ss, int Se, int Ah, int Al)
 /* Support routine: generate one scan for each component */
 {
 	int ci;
@@ -543,8 +532,7 @@ fill_scans(jpeg_scan_info * scanptr, int ncomps,
 	return scanptr;
 }
 
-LOCAL(jpeg_scan_info *)
-fill_dc_scans(jpeg_scan_info * scanptr, int ncomps, int Ah, int Al)
+LOCAL(jpeg_scan_info *) fill_dc_scans(jpeg_scan_info * scanptr, int ncomps, int Ah, int Al)
 /* Support routine: generate interleaved DC scan if possible, else N scans */
 {
 	int ci;

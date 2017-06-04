@@ -80,30 +80,27 @@
  * AIX 4.3 and newer needs _THREAD_SAFE defined to build
  * proper reentrant code. Others may also need it.
  */
-
 #ifdef NEED_THREAD_SAFE
-#  ifndef _THREAD_SAFE
-#    define _THREAD_SAFE
-#  endif
+	#ifndef _THREAD_SAFE
+		#define _THREAD_SAFE
+	#endif
 #endif
-
 /*
  * Tru64 needs _REENTRANT set for a few function prototypes and
  * things to appear in the system header files. Unixware needs it
  * to build proper reentrant code. Others may also need it.
  */
-
 #ifdef NEED_REENTRANT
-#  ifndef _REENTRANT
-#    define _REENTRANT
-#  endif
+	#ifndef _REENTRANT
+		#define _REENTRANT
+	#endif
 #endif
 
 /* Solaris needs this to get a POSIX-conformant getpwuid_r */
 #if defined(sun) || defined(__sun)
-#  ifndef _POSIX_PTHREAD_SEMANTICS
-#    define _POSIX_PTHREAD_SEMANTICS 1
-#  endif
+	#ifndef _POSIX_PTHREAD_SEMANTICS
+		#define _POSIX_PTHREAD_SEMANTICS 1
+	#endif
 #endif
 
 /* ================================================================ */
@@ -170,9 +167,8 @@
 /*
  * When http is disabled rtsp is not supported.
  */
-
 #if defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_RTSP)
-#  define CURL_DISABLE_RTSP
+	#define CURL_DISABLE_RTSP
 #endif
 
 /* ================================================================ */
@@ -588,104 +584,76 @@ int netware_init(void);
     defined(USE_DARWINSSL) || defined(USE_GSKIT)
 #define USE_SSL    /* SSL support has been enabled */
 #endif
-
-/* Single point where USE_SPNEGO definition might be defined */
-#if !defined(CURL_DISABLE_CRYPTO_AUTH) && \
-    (defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI))
-#define USE_SPNEGO
+// Single point where USE_SPNEGO definition might be defined 
+#if !defined(CURL_DISABLE_CRYPTO_AUTH) && (defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI))
+	#define USE_SPNEGO
 #endif
-
-/* Single point where USE_KERBEROS5 definition might be defined */
-#if !defined(CURL_DISABLE_CRYPTO_AUTH) && \
-    (defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI))
-#define USE_KERBEROS5
+// Single point where USE_KERBEROS5 definition might be defined 
+#if !defined(CURL_DISABLE_CRYPTO_AUTH) && (defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI))
+	#define USE_KERBEROS5
 #endif
-
-/* Single point where USE_NTLM definition might be defined */
+// Single point where USE_NTLM definition might be defined 
 #if !defined(CURL_DISABLE_NTLM) && !defined(CURL_DISABLE_CRYPTO_AUTH)
-#if defined(USE_OPENSSL) || defined(USE_WINDOWS_SSPI) || \
-    defined(USE_GNUTLS) || defined(USE_NSS) || defined(USE_DARWINSSL) || \
-    defined(USE_OS400CRYPTO) || defined(USE_WIN32_CRYPTO)
-
-#define USE_NTLM
-
-#elif defined(USE_MBEDTLS)
-#include <mbedtls/md4.h>
-#  if defined(MBEDTLS_MD4_C)
-#define USE_NTLM
-#  endif
-
+	#if defined(USE_OPENSSL) || defined(USE_WINDOWS_SSPI) || defined(USE_GNUTLS) || defined(USE_NSS) || defined(USE_DARWINSSL) || defined(USE_OS400CRYPTO) || defined(USE_WIN32_CRYPTO)
+		#define USE_NTLM
+	#elif defined(USE_MBEDTLS)
+		#include <mbedtls/md4.h>
+		#if defined(MBEDTLS_MD4_C)
+			#define USE_NTLM
+		#endif
+	#endif
 #endif
-#endif
-
-/* non-configure builds may define CURL_WANTS_CA_BUNDLE_ENV */
+// non-configure builds may define CURL_WANTS_CA_BUNDLE_ENV 
 #if defined(CURL_WANTS_CA_BUNDLE_ENV) && !defined(CURL_CA_BUNDLE)
-#define CURL_CA_BUNDLE getenv("CURL_CA_BUNDLE")
+	#define CURL_CA_BUNDLE getenv("CURL_CA_BUNDLE")
 #endif
-
 /*
  * Provide a mechanism to silence picky compilers, such as gcc 4.6+.
  * Parameters should of course normally not be unused, but for example when
  * we have multiple implementations of the same interface it may happen.
  */
-
-#if defined(__GNUC__) && ((__GNUC__ >= 3) || \
-  ((__GNUC__ == 2) && defined(__GNUC_MINOR__) && (__GNUC_MINOR__ >= 7)))
-#  define UNUSED_PARAM __attribute__((__unused__))
-#  define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+#if defined(__GNUC__) && ((__GNUC__ >= 3) || ((__GNUC__ == 2) && defined(__GNUC_MINOR__) && (__GNUC_MINOR__ >= 7)))
+	#define UNUSED_PARAM __attribute__((__unused__))
+	#define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
 #else
-#  define UNUSED_PARAM /*NOTHING*/
-#  define WARN_UNUSED_RESULT
+	#define UNUSED_PARAM /*NOTHING*/
+	#define WARN_UNUSED_RESULT
 #endif
-
-/*
- * Include macros and defines that should only be processed once.
- */
-
+//
+// Include macros and defines that should only be processed once.
+//
 #ifndef HEADER_CURL_SETUP_ONCE_H
-#include "curl_setup_once.h"
+	#include "curl_setup_once.h"
 #endif
-
 /*
  * Definition of our NOP statement Object-like macro
  */
-
 #ifndef Curl_nop_stmt
-#  define Curl_nop_stmt do { } WHILE_FALSE
+	#define Curl_nop_stmt do { } WHILE_FALSE
 #endif
-
 /*
  * Ensure that Winsock and lwIP TCP/IP stacks are not mixed.
  */
-
 #if defined(__LWIP_OPT_H__) || defined(LWIP_HDR_OPT_H)
-#  if defined(SOCKET) || \
-     defined(USE_WINSOCK) || \
-     defined(HAVE_WINSOCK_H) || \
-     defined(HAVE_WINSOCK2_H) || \
-     defined(HAVE_WS2TCPIP_H)
-#    error "Winsock and lwIP TCP/IP stack definitions shall not coexist!"
-#  endif
+	#if defined(SOCKET) || defined(USE_WINSOCK) || defined(HAVE_WINSOCK_H) || defined(HAVE_WINSOCK2_H) || defined(HAVE_WS2TCPIP_H)
+		#error "Winsock and lwIP TCP/IP stack definitions shall not coexist!"
+	#endif
 #endif
-
 /*
  * Portable symbolic names for Winsock shutdown() mode flags.
  */
-
 #ifdef USE_WINSOCK
-#  define SHUT_RD   0x00
-#  define SHUT_WR   0x01
-#  define SHUT_RDWR 0x02
+	#define SHUT_RD   0x00
+	#define SHUT_WR   0x01
+	#define SHUT_RDWR 0x02
 #endif
-
-/* Define S_ISREG if not defined by system headers, f.e. MSVC */
+// Define S_ISREG if not defined by system headers, f.e. MSVC 
 #if !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
-#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
+	#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
 #endif
-
-/* Define S_ISDIR if not defined by system headers, f.e. MSVC */
+// Define S_ISDIR if not defined by system headers, f.e. MSVC 
 #if !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
-#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+	#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #endif
 
 /* In Windows the default file mode is text but an application can override it.
@@ -707,30 +675,32 @@ endings either CRLF or LF so 't' is appropriate.
 #define FOPEN_READTEXT "r"
 #define FOPEN_WRITETEXT "w"
 #endif
-
-/* WinSock destroys recv() buffer when send() failed.
- * Enabled automatically for Windows and for Cygwin as Cygwin sockets are
- * wrappers for WinSock sockets. https://github.com/curl/curl/issues/657
- * Define DONT_USE_RECV_BEFORE_SEND_WORKAROUND to force disable workaround.
- */
+//
+// WinSock destroys recv() buffer when send() failed.
+// Enabled automatically for Windows and for Cygwin as Cygwin sockets are
+// wrappers for WinSock sockets. https://github.com/curl/curl/issues/657
+// Define DONT_USE_RECV_BEFORE_SEND_WORKAROUND to force disable workaround.
+// 
 #if !defined(DONT_USE_RECV_BEFORE_SEND_WORKAROUND)
-#  if defined(WIN32) || defined(__CYGWIN__)
-#    define USE_RECV_BEFORE_SEND_WORKAROUND
-#  endif
+	#if defined(WIN32) || defined(__CYGWIN__)
+		#define USE_RECV_BEFORE_SEND_WORKAROUND
+	#endif
 #else  /* DONT_USE_RECV_BEFORE_SEND_WORKAROUNDS */
-#  ifdef USE_RECV_BEFORE_SEND_WORKAROUND
-#    undef USE_RECV_BEFORE_SEND_WORKAROUND
-#  endif
+	#ifdef USE_RECV_BEFORE_SEND_WORKAROUND
+		#undef USE_RECV_BEFORE_SEND_WORKAROUND
+	#endif
 #endif /* DONT_USE_RECV_BEFORE_SEND_WORKAROUNDS */
+//
+// Detect Windows App environment which has a restricted access to the Win32 APIs. 
+//
+#if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)
+	#include <winapifamily.h>
+	#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+		#define CURL_WINDOWS_APP
+	#endif
+#endif
 
-/* Detect Windows App environment which has a restricted access
- * to the Win32 APIs. */
-# if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)
-#include <winapifamily.h>
-#  if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && \
-     !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-#    define CURL_WINDOWS_APP
-#  endif
-# endif
+#include "strtok.h"  // @sobolev
+#include "strcase.h" // @sobolev
 
 #endif /* HEADER_CURL_SETUP_H */

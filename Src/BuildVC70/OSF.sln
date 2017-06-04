@@ -69,6 +69,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libjpeg-turbo", "libjpeg-tu
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bz2", "bzip2.vcproj", "{BD776450-1675-4703-BFD3-2517B5A45DA8}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -277,6 +281,18 @@ Global
 		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerDebug.Build.0 = Debug|Win32
 		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerRelease.ActiveCfg = Release|Win32
 		{49C08919-0A8B-48FA-A4CD-5F616DE2D8DF}.ServerRelease.Build.0 = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Debug.ActiveCfg = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Debug.Build.0 = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.MtDllDebug.ActiveCfg = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.MtDllDebug.Build.0 = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.MtDllRelease.ActiveCfg = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.MtDllRelease.Build.0 = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Release.ActiveCfg = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.Release.Build.0 = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.ServerDebug.ActiveCfg = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.ServerDebug.Build.0 = Debug|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.ServerRelease.ActiveCfg = Release|Win32
+		{BD776450-1675-4703-BFD3-2517B5A45DA8}.ServerRelease.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

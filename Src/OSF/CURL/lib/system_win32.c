@@ -71,8 +71,8 @@ typedef HMODULE (APIENTRY *LOADLIBRARYEX_FN)(LPCTSTR, HANDLE, DWORD);
  *
  * Returns TRUE if matched; otherwise FALSE.
  */
-bool Curl_verify_windows_version(const unsigned int majorVersion,
-    const unsigned int minorVersion,
+bool Curl_verify_windows_version(const uint majorVersion,
+    const uint minorVersion,
     const PlatformIdentifier platform,
     const VersionCondition condition)
 {
@@ -299,7 +299,7 @@ HMODULE Curl_load_library(LPCTSTR filename)
 			/* Allocate space for the full DLL path (Room for the null terminator
 			   is included in systemdirlen) */
 			size_t filenamelen = _tcslen(filename);
-			TCHAR * path = (TCHAR *)malloc(sizeof(TCHAR) * (systemdirlen + 1 + filenamelen));
+			TCHAR * path = (TCHAR *)SAlloc::M(sizeof(TCHAR) * (systemdirlen + 1 + filenamelen));
 			if(path && GetSystemDirectory(path, systemdirlen)) {
 				/* Calculate the full DLL path */
 				_tcscpy(path + _tcslen(path), TEXT("\\"));
@@ -309,7 +309,7 @@ HMODULE Curl_load_library(LPCTSTR filename)
 				/** !checksrc! disable BANNEDFUNC 1 **/
 				hModule = pLoadLibraryEx ? pLoadLibraryEx(path, NULL, LOAD_WITH_ALTERED_SEARCH_PATH) : LoadLibrary(path);
 			}
-			free(path);
+			SAlloc::F(path);
 		}
 	}
 

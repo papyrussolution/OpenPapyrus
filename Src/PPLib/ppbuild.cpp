@@ -469,14 +469,16 @@ int	SLAPI PrcssrBuild::Run()
 		};
 		SolutionEntry sln_list[] = {
 			// P_Name          P_Sln                P_Config         P_Result           Flag
-			{ "client",        "papyrus.sln",       "Release",       "ppw.exe",         Param::fBuildClient },
+			{ "client",        "papyrus.sln",       "Release",       "ppw.exe;ppdrv-pirit.dll;ppdrv-ie-korus.dll;ppdrv-ie-kontur.dll", Param::fBuildClient },
 			{ "mtdll",         "papyrus.sln",       "MtDllRelease",  "ppwmt.dll",       Param::fBuildMtdll },
 			{ "jobsrv",        "papyrus.sln",       "ServerRelease", "ppws.exe",        Param::fBuildServer },
-			{ "equipsolution", "EquipSolution.sln", "Release",       "ppdrv-pirit.dll", Param::fBuildDrv },
+			// @v9.6.9 { "equipsolution", "EquipSolution.sln", "Release",       "ppdrv-pirit.dll", Param::fBuildDrv },
 			// @v8.3.2 { "ppsoapmodules", "PPSoapModules.sln", "Release",       "PPSoapUhtt.dll",  Param::fBuildSoap }
 		};
 		StrAssocArray msvs_ver_list;
 		SString msvs_path;
+		SString name_buf;
+		StringSet result_file_list(";");
 		const char * p_prc_cur_dir = p_config_entry->SlnPath.NotEmpty() ? p_config_entry->SlnPath.cptr() : (const char *)0;
 		logger.Log((msg_buf = "Current dir for child processes").CatDiv(':', 2).Cat(p_prc_cur_dir));
 		THROW(FindMsvs(p_config_entry->PrefMsvsVerMajor, msvs_ver_list, &msvs_path));
@@ -511,13 +513,20 @@ int	SLAPI PrcssrBuild::Run()
 					{
 						GetExitCodeProcess(pi.hProcess, &exit_code);
 						if(exit_code == 0) {
-							(temp_buf = p_config_entry->TargetRootPath).SetLastSlash().Cat("BIN").SetLastSlash().Cat(r_sln_entry.P_Result);
-							if(fileExists(temp_buf)) {
-								msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_SLN_SUCCESS, fmt_buf), r_sln_entry.P_Name);
-								logger.Log(msg_buf);
+                            result_file_list.setBuf(r_sln_entry.P_Result, strlen(r_sln_entry.P_Result)+1);
+                            int    result_files_are_ok = 1;
+							for(uint ssp = 0; result_file_list.get(&ssp, name_buf);) {
+								if(name_buf.NotEmptyS()) {
+									(temp_buf = p_config_entry->TargetRootPath).SetLastSlash().Cat("BIN").SetLastSlash().Cat(name_buf);
+									if(!fileExists(temp_buf)) {
+										result_files_are_ok = 0;
+										msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_SLN_TARGETNFOUND, fmt_buf), r_sln_entry.P_Name, temp_buf.cptr());
+										logger.Log(msg_buf);
+									}
+								}
 							}
-							else {
-								msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_SLN_TARGETNFOUND, fmt_buf), r_sln_entry.P_Name, temp_buf.cptr());
+							if(result_files_are_ok) {
+								msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_SLN_SUCCESS, fmt_buf), r_sln_entry.P_Name);
 								logger.Log(msg_buf);
 							}
 						}
@@ -527,8 +536,8 @@ int	SLAPI PrcssrBuild::Run()
 						}
 					}
 					// Close process and thread handles.
-					CloseHandle(pi.hProcess);
-					CloseHandle(pi.hThread);
+					::CloseHandle(pi.hProcess);
+					::CloseHandle(pi.hThread);
 				}
 			}
 		}

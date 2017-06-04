@@ -8,7 +8,8 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
+#include <stdexcept>
+#include <algorithm>
 #include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
@@ -389,7 +390,7 @@ char CellBuffer::StyleAt(int position) const {
 	return style.ValueAt(position);
 }
 
-void CellBuffer::GetStyleRange(unsigned char *buffer, int position, int lengthRetrieve) const {
+void CellBuffer::GetStyleRange(uchar *buffer, int position, int lengthRetrieve) const {
 	if (lengthRetrieve < 0)
 		return;
 	if (position < 0)
@@ -489,6 +490,25 @@ void CellBuffer::SetLineEndTypes(int utf8LineEnds_) {
 	}
 }
 
+bool CellBuffer::ContainsLineEnd(const char *s, int length) const {
+	uchar chBeforePrev = 0;
+	uchar chPrev = 0;
+	for (int i = 0; i < length; i++) {
+		const uchar ch = s[i];
+		if ((ch == '\r') || (ch == '\n')) {
+			return true;
+		} else if (utf8LineEnds) {
+			uchar back3[3] = { chBeforePrev, chPrev, ch };
+			if (UTF8IsSeparator(back3) || UTF8IsNEL(back3 + 1)) {
+				return true;
+			}
+		}
+		chBeforePrev = chPrev;
+		chPrev = ch;
+	}
+	return false;
+}
+
 void CellBuffer::SetPerLine(PerLine *pl) {
 	lv.SetPerLine(pl);
 }
@@ -549,11 +569,11 @@ void CellBuffer::RemoveLine(int line) {
 }
 
 bool CellBuffer::UTF8LineEndOverlaps(int position) const {
-	unsigned char bytes[] = {
-		static_cast<unsigned char>(substance.ValueAt(position-2)),
-		static_cast<unsigned char>(substance.ValueAt(position-1)),
-		static_cast<unsigned char>(substance.ValueAt(position)),
-		static_cast<unsigned char>(substance.ValueAt(position+1)),
+	uchar bytes[] = {
+		static_cast<uchar>(substance.ValueAt(position-2)),
+		static_cast<uchar>(substance.ValueAt(position-1)),
+		static_cast<uchar>(substance.ValueAt(position)),
+		static_cast<uchar>(substance.ValueAt(position+1)),
 	};
 	return UTF8IsSeparator(bytes) || UTF8IsSeparator(bytes+1) || UTF8IsNEL(bytes+1);
 }
@@ -567,10 +587,10 @@ void CellBuffer::ResetLineEnds() {
 	int lineInsert = 1;
 	bool atLineStart = true;
 	lv.InsertText(lineInsert-1, length);
-	unsigned char chBeforePrev = 0;
-	unsigned char chPrev = 0;
+	uchar chBeforePrev = 0;
+	uchar chPrev = 0;
 	for (int i = 0; i < length; i++) {
-		unsigned char ch = substance.ValueAt(position + i);
+		uchar ch = substance.ValueAt(position + i);
 		if (ch == '\r') {
 			InsertLine(lineInsert, (position + i) + 1, atLineStart);
 			lineInsert++;
@@ -583,7 +603,7 @@ void CellBuffer::ResetLineEnds() {
 				lineInsert++;
 			}
 		} else if (utf8LineEnds) {
-			unsigned char back3[3] = {chBeforePrev, chPrev, ch};
+			uchar back3[3] = {chBeforePrev, chPrev, ch};
 			if (UTF8IsSeparator(back3) || UTF8IsNEL(back3+1)) {
 				InsertLine(lineInsert, (position + i) + 1, atLineStart);
 				lineInsert++;
@@ -599,7 +619,7 @@ void CellBuffer::BasicInsertString(int position, const char *s, int insertLength
 		return;
 	PLATFORM_ASSERT(insertLength > 0);
 
-	unsigned char chAfter = substance.ValueAt(position);
+	uchar chAfter = substance.ValueAt(position);
 	bool breakingUTF8LineEnd = false;
 	if (utf8LineEnds && UTF8IsTrailByte(chAfter)) {
 		breakingUTF8LineEnd = UTF8LineEndOverlaps(position);
@@ -612,8 +632,8 @@ void CellBuffer::BasicInsertString(int position, const char *s, int insertLength
 	bool atLineStart = lv.LineStart(lineInsert-1) == position;
 	// Point all the lines after the insertion point further along in the buffer
 	lv.InsertText(lineInsert-1, insertLength);
-	unsigned char chBeforePrev = substance.ValueAt(position - 2);
-	unsigned char chPrev = substance.ValueAt(position - 1);
+	uchar chBeforePrev = substance.ValueAt(position - 2);
+	uchar chPrev = substance.ValueAt(position - 1);
 	if (chPrev == '\r' && chAfter == '\n') {
 		// Splitting up a crlf pair at position
 		InsertLine(lineInsert, position, false);
@@ -622,7 +642,7 @@ void CellBuffer::BasicInsertString(int position, const char *s, int insertLength
 	if (breakingUTF8LineEnd) {
 		RemoveLine(lineInsert);
 	}
-	unsigned char ch = ' ';
+	uchar ch = ' ';
 	for (int i = 0; i < insertLength; i++) {
 		ch = s[i];
 		if (ch == '\r') {
@@ -637,7 +657,7 @@ void CellBuffer::BasicInsertString(int position, const char *s, int insertLength
 				lineInsert++;
 			}
 		} else if (utf8LineEnds) {
-			unsigned char back3[3] = {chBeforePrev, chPrev, ch};
+			uchar back3[3] = {chBeforePrev, chPrev, ch};
 			if (UTF8IsSeparator(back3) || UTF8IsNEL(back3+1)) {
 				InsertLine(lineInsert, (position + i) + 1, atLineStart);
 				lineInsert++;
@@ -655,8 +675,8 @@ void CellBuffer::BasicInsertString(int position, const char *s, int insertLength
 	} else if (utf8LineEnds && !UTF8IsAscii(chAfter)) {
 		// May have end of UTF-8 line end in buffer and start in insertion
 		for (int j = 0; j < UTF8SeparatorLength-1; j++) {
-			unsigned char chAt = substance.ValueAt(position + insertLength + j);
-			unsigned char back3[3] = {chBeforePrev, chPrev, chAt};
+			uchar chAt = substance.ValueAt(position + insertLength + j);
+			uchar back3[3] = {chBeforePrev, chPrev, chAt};
 			if (UTF8IsSeparator(back3)) {
 				InsertLine(lineInsert, (position + insertLength + j) + 1, atLineStart);
 				lineInsert++;
@@ -685,9 +705,9 @@ void CellBuffer::BasicDeleteChars(int position, int deleteLength) {
 
 		int lineRemove = lv.LineFromPosition(position) + 1;
 		lv.InsertText(lineRemove-1, - (deleteLength));
-		unsigned char chPrev = substance.ValueAt(position - 1);
-		unsigned char chBefore = chPrev;
-		unsigned char chNext = substance.ValueAt(position);
+		uchar chPrev = substance.ValueAt(position - 1);
+		uchar chBefore = chPrev;
+		uchar chNext = substance.ValueAt(position);
 		bool ignoreNL = false;
 		if (chPrev == '\r' && chNext == '\n') {
 			// Move back one
@@ -701,7 +721,7 @@ void CellBuffer::BasicDeleteChars(int position, int deleteLength) {
 			}
 		}
 
-		unsigned char ch = chNext;
+		uchar ch = chNext;
 		for (int i = 0; i < deleteLength; i++) {
 			chNext = substance.ValueAt(position + i + 1);
 			if (ch == '\r') {
@@ -716,8 +736,8 @@ void CellBuffer::BasicDeleteChars(int position, int deleteLength) {
 				}
 			} else if (utf8LineEnds) {
 				if (!UTF8IsAscii(ch)) {
-					unsigned char next3[3] = {ch, chNext,
-						static_cast<unsigned char>(substance.ValueAt(position + i + 2))};
+					uchar next3[3] = {ch, chNext,
+						static_cast<uchar>(substance.ValueAt(position + i + 2))};
 					if (UTF8IsSeparator(next3) || UTF8IsNEL(next3)) {
 						RemoveLine(lineRemove);
 					}

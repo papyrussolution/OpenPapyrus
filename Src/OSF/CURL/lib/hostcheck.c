@@ -24,19 +24,15 @@
 #pragma hdrstop
 #if defined(USE_OPENSSL) || defined(USE_AXTLS) || defined(USE_GSKIT) || (defined(USE_SCHANNEL) && defined(_WIN32_WCE))
 /* these backends use functions from this file */
-
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+	#include <netinet/in.h>
 #endif
-
 #include "hostcheck.h"
-#include "strcase.h"
+//#include "strcase.h"
 #include "inet_pton.h"
-
 #include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
-
 /*
  * Match a hostname against a wildcard pattern.
  * E.g.
@@ -129,15 +125,15 @@ int Curl_cert_hostcheck(const char *match_pattern, const char *hostname)
       !hostname || !*hostname) /* sanity check */
     ;
   else {
-    matchp = strdup(match_pattern);
+    matchp = _strdup(match_pattern);
     if(matchp) {
-      hostp = strdup(hostname);
+      hostp = _strdup(hostname);
       if(hostp) {
         if(hostmatch(hostp, matchp) == CURL_HOST_MATCH)
           res= 1;
-        free(hostp);
+        SAlloc::F(hostp);
       }
-      free(matchp);
+      SAlloc::F(matchp);
     }
   }
 

@@ -248,7 +248,7 @@ private:
 	/// destructor.
 	~Symbol()
 	{
-		free(_xmlbuf);
+		SAlloc::F(_xmlbuf);
 		ref(-1);
 	}
 	/// assignment.

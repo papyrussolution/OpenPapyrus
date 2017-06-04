@@ -8,7 +8,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "WordList.h"
@@ -109,7 +108,7 @@ next:
 			if (!sc.atLineEnd)
 				continue;
 		} else if (sc.state == SCE_TCL_DEFAULT || sc.state ==SCE_TCL_OPERATOR) {
-			expected &= isspacechar(static_cast<unsigned char>(sc.ch)) || IsAWordStart(sc.ch) || sc.ch =='#';
+			expected &= isspacechar(static_cast<uchar>(sc.ch)) || IsAWordStart(sc.ch) || sc.ch =='#';
 		} else if (sc.state == SCE_TCL_SUBSTITUTION) {
 			switch (sc.ch) {
 			case '(':
@@ -238,7 +237,7 @@ next:
 			if (sc.state!=SCE_TCL_IN_QUOTE && !isComment(sc.state))
 			{
 				sc.SetState(SCE_TCL_DEFAULT);
-				expected = IsAWordStart(sc.ch)|| isspacechar(static_cast<unsigned char>(sc.ch));
+				expected = IsAWordStart(sc.ch)|| isspacechar(static_cast<uchar>(sc.ch));
 			}
 		}
 
@@ -277,7 +276,7 @@ next:
 			}
 		}
 
-		if (!isspacechar(static_cast<unsigned char>(sc.ch))) {
+		if (!isspacechar(static_cast<uchar>(sc.ch))) {
 			visibleChars = true;
 		}
 
@@ -329,7 +328,7 @@ next:
 					}
 					break;
 				case '#':
-					if ((isspacechar(static_cast<unsigned char>(sc.chPrev))||
+					if ((isspacechar(static_cast<uchar>(sc.chPrev))||
 					        isoperator(static_cast<char>(sc.chPrev))) && IsADigit(sc.chNext,0x10))
 						sc.SetState(SCE_TCL_NUMBER);
 					break;

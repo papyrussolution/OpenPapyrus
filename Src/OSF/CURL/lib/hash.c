@@ -39,7 +39,7 @@ static void hash_element_dtor(void * user, void * element)
 
 	e->key_len = 0;
 
-	free(e);
+	SAlloc::F(e);
 }
 
 /* Initializes a hash structure.
@@ -59,7 +59,7 @@ int Curl_hash_init(struct curl_hash * h, int slots, hash_function hfunc, comp_fu
 	h->dtor = dtor;
 	h->size = 0;
 	h->slots = slots;
-	h->table = (struct curl_llist *)malloc(slots * sizeof(struct curl_llist));
+	h->table = (struct curl_llist *)SAlloc::M(slots * sizeof(struct curl_llist));
 	if(h->table) {
 		for(i = 0; i < slots; ++i)
 			Curl_llist_init(&h->table[i], (curl_llist_dtor)hash_element_dtor);
@@ -72,7 +72,7 @@ int Curl_hash_init(struct curl_hash * h, int slots, hash_function hfunc, comp_fu
 static struct curl_hash_element * mk_hash_element(const void * key, size_t key_len, const void * p)
 {
 	/* allocate the struct plus memory after it to store the key */
-	struct curl_hash_element * he = (struct curl_hash_element *)malloc(sizeof(struct curl_hash_element) + key_len);
+	struct curl_hash_element * he = (struct curl_hash_element *)SAlloc::M(sizeof(struct curl_hash_element) + key_len);
 	if(he) {
 		/* copy the key */
 		memcpy(he->key, key, key_len);
@@ -120,7 +120,7 @@ void * Curl_hash_add(struct curl_hash * h, void * key, size_t key_len, void * p)
 		 * "destructor" for the actual data 'p'. When we fail, we shall not touch
 		 * that data.
 		 */
-		free(he);
+		SAlloc::F(he);
 	}
 
 	return NULL; /* failure */
@@ -196,7 +196,7 @@ void Curl_hash_destroy(struct curl_hash * h)
 	for(i = 0; i < h->slots; ++i) {
 		Curl_llist_destroy(&h->table[i], (void*)h);
 	}
-	Curl_safefree(h->table);
+	ZFREE(h->table);
 	h->size = 0;
 	h->slots = 0;
 }
@@ -239,10 +239,10 @@ size_t Curl_hash_str(void * key, size_t key_length, size_t slots_num)
 {
 	const char * key_str = (const char*)key;
 	const char * end = key_str + key_length;
-	unsigned long h = 5381;
+	ulong h = 5381;
 	while(key_str < end) {
 		h += h << 5;
-		h ^= (unsigned long)*key_str++;
+		h ^= (ulong)*key_str++;
 	}
 	return (h % slots_num);
 }

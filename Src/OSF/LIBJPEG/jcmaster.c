@@ -215,28 +215,22 @@ GLOBAL(void) jpeg_calc_jpeg_dimensions(j_compress_ptr cinfo)
 #endif /* DCT_SCALING_SUPPORTED */
 }
 
-LOCAL(void)
-jpeg_calc_trans_dimensions(j_compress_ptr cinfo)
+static void jpeg_calc_trans_dimensions(j_compress_ptr cinfo)
 {
 	if(cinfo->min_DCT_h_scaled_size != cinfo->min_DCT_v_scaled_size)
-		ERREXIT2(cinfo, JERR_BAD_DCTSIZE,
-		    cinfo->min_DCT_h_scaled_size, cinfo->min_DCT_v_scaled_size);
-
+		ERREXIT2(cinfo, JERR_BAD_DCTSIZE, cinfo->min_DCT_h_scaled_size, cinfo->min_DCT_v_scaled_size);
 	cinfo->block_size = cinfo->min_DCT_h_scaled_size;
 }
 
-LOCAL(void)
-initial_setup(j_compress_ptr cinfo, boolean transcode_only)
+static void initial_setup(j_compress_ptr cinfo, boolean transcode_only)
 /* Do computations that are needed before master selection phase */
 {
 	int ci, ssize;
 	jpeg_component_info * compptr;
-
 	if(transcode_only)
 		jpeg_calc_trans_dimensions(cinfo);
 	else
 		jpeg_calc_jpeg_dimensions(cinfo);
-
 	/* Sanity check on block_size */
 	if(cinfo->block_size < 1 || cinfo->block_size > 16)
 		ERREXIT2(cinfo, JERR_BAD_DCTSIZE, cinfo->block_size, cinfo->block_size);
@@ -356,8 +350,7 @@ initial_setup(j_compress_ptr cinfo, boolean transcode_only)
 
 #ifdef C_MULTISCAN_FILES_SUPPORTED
 
-LOCAL(void)
-validate_script(j_compress_ptr cinfo)
+static void validate_script(j_compress_ptr cinfo)
 /* Verify that the scan script in cinfo->scan_info[] is valid; also
  * determine whether it uses progressive JPEG, and set cinfo->progressive_mode.
  */
@@ -495,8 +488,7 @@ validate_script(j_compress_ptr cinfo)
 	}
 }
 
-LOCAL(void)
-reduce_script(j_compress_ptr cinfo)
+static void reduce_script(j_compress_ptr cinfo)
 /* Adapt scan script for use with reduced block size;
  * assume that script has been validated before.
  */
@@ -529,8 +521,7 @@ reduce_script(j_compress_ptr cinfo)
 
 #endif /* C_MULTISCAN_FILES_SUPPORTED */
 
-LOCAL(void)
-select_scan_parameters(j_compress_ptr cinfo)
+static void select_scan_parameters(j_compress_ptr cinfo)
 /* Set up the scan parameters for the current scan */
 {
 	int ci;
@@ -572,8 +563,7 @@ select_scan_parameters(j_compress_ptr cinfo)
 	cinfo->Al = 0;
 }
 
-LOCAL(void)
-per_scan_setup(j_compress_ptr cinfo)
+static void per_scan_setup(j_compress_ptr cinfo)
 /* Do computations that are needed before processing a JPEG scan */
 /* cinfo->comps_in_scan and cinfo->cur_comp_info[] are already set */
 {

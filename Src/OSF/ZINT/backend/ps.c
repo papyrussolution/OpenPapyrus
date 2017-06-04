@@ -94,7 +94,7 @@ int ps_plot(struct ZintSymbol * symbol)
 	if(feps == NULL) {
 		strcpy(symbol->errtxt, "Could not open output file (F40)");
 #ifdef _MSC_VER
-		free(local_text);
+		SAlloc::F(local_text);
 #endif
 		return ZINT_ERROR_FILE_ACCESS;
 	}
@@ -105,7 +105,7 @@ int ps_plot(struct ZintSymbol * symbol)
 		strcpy(symbol->errtxt, "Malformed foreground colour target (F41)");
 		fclose(feps);
 #ifdef _MSC_VER
-		free(local_text);
+		SAlloc::F(local_text);
 #endif
 		return ZINT_ERROR_INVALID_OPTION;
 	}
@@ -113,7 +113,7 @@ int ps_plot(struct ZintSymbol * symbol)
 		strcpy(symbol->errtxt, "Malformed background colour target (F42)");
 		fclose(feps);
 #ifdef _MSC_VER
-		free(local_text);
+		SAlloc::F(local_text);
 #endif
 		return ZINT_ERROR_INVALID_OPTION;
 	}
@@ -122,7 +122,7 @@ int ps_plot(struct ZintSymbol * symbol)
 		strcpy(symbol->errtxt, "Malformed foreground colour target (F43)");
 		fclose(feps);
 #ifdef _MSC_VER
-		free(local_text);
+		SAlloc::F(local_text);
 #endif
 		return ZINT_ERROR_INVALID_OPTION;
 	}
@@ -131,7 +131,7 @@ int ps_plot(struct ZintSymbol * symbol)
 		strcpy(symbol->errtxt, "Malformed background colour target (F44)");
 		fclose(feps);
 #ifdef _MSC_VER
-		free(local_text);
+		SAlloc::F(local_text);
 #endif
 		return ZINT_ERROR_INVALID_OPTION;
 	}
@@ -1002,7 +1002,7 @@ int ps_plot(struct ZintSymbol * symbol)
 		setlocale(LC_ALL, locale);
 
 #ifdef _MSC_VER
-	free(local_text);
+	SAlloc::F(local_text);
 #endif
 
 	return error_number;

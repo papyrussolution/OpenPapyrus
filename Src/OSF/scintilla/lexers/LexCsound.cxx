@@ -9,7 +9,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "WordList.h"
@@ -163,7 +162,7 @@ static void FoldCsoundInstruments(Sci_PositionU startPos, Sci_Position length, i
 		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
 		if ((stylePrev != SCE_CSOUND_OPCODE) && (style == SCE_CSOUND_OPCODE)) {
 			char s[20];
-			unsigned int j = 0;
+			uint j = 0;
 			while ((j < (sizeof(s) - 1)) && (iswordchar(styler[i + j]))) {
 				s[j] = styler[i + j];
 				j++;

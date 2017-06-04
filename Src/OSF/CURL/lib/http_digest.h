@@ -30,8 +30,8 @@ CURLcode Curl_input_digest(struct connectdata *conn,
 /* this is for creating digest header output */
 CURLcode Curl_output_digest(struct connectdata *conn,
                             bool proxy,
-                            const unsigned char *request,
-                            const unsigned char *uripath);
+                            const uchar *request,
+                            const uchar *uripath);
 
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_CRYPTO_AUTH)
 void Curl_digest_cleanup(struct Curl_easy *data);

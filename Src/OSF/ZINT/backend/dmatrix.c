@@ -1504,8 +1504,8 @@ int data_matrix_200(struct ZintSymbol * symbol, const uchar source[], const int 
 			}
 			symbol->row_height[(H - y) - 1] = 1;
 		}
-		free(grid);
-		free(places);
+		SAlloc::F(grid);
+		SAlloc::F(places);
 	}
 	symbol->rows = H;
 	symbol->width = W;

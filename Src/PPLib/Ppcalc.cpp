@@ -865,6 +865,7 @@ PosPaymentBlock & PosPaymentBlock::Clear()
 	Kind = cpmCash;
 	DeliveryAmt = NoteAmt - CashAmt;
 	DisabledKinds = 0;
+	AltCashReg = -1;
 	CcPl.freeAll();
 	BonusMaxPart = 0.0;
 	UsableBonus = 0.0;
@@ -948,6 +949,11 @@ int PosPaymentBlock::EditDialog2()
 			}
 			else
 				showCtrl(CTL_CPPAYM_USEBONUS, 0);
+			// @v9.6.9 {
+			showCtrl(CTL_CPPAYM_ALTCASHREG, BIN(Data.AltCashReg >= 0));
+			if(Data.AltCashReg >= 0)
+				setCtrlUInt16(CTL_CPPAYM_ALTCASHREG, BIN(Data.AltCashReg == 1));
+			// } @v9.6.9 
 			updateList(-1);
 			return 1;
 		}
@@ -960,6 +966,12 @@ int PosPaymentBlock::EditDialog2()
 			val = R2(getCtrlReal(CTL_CPPAYM_BNKAMT));
 			Data.CcPl.Set(CCAMTTYP_BANK, val);
 			Data.CcPl.Normalize();
+			// @v9.6.9 {
+			if(Data.AltCashReg >= 0) {
+				uint16 v = getCtrlUInt16(CTL_CPPAYM_ALTCASHREG);
+				Data.AltCashReg = BIN(v == 1);
+			}
+			// } @v9.6.9 
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}

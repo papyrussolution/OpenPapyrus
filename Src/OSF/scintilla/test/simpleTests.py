@@ -493,13 +493,15 @@ class TestSimple(unittest.TestCase):
 		self.ed.AddText(5, b"a1b2c")
 		self.ed.SetSel(1,3)
 		self.ed.Cut()
-		self.xite.DoEvents()
+		# Clipboard = "1b"
+		self.assertEquals(self.ed.Contents(), b"a2c")
 		self.assertEquals(self.ed.CanPaste(), 1)
 		self.ed.SetSel(0, 0)
 		self.ed.Paste()
 		self.assertEquals(self.ed.Contents(), b"1ba2c")
 		self.ed.SetSel(4,5)
 		self.ed.Copy()
+		# Clipboard = "c"
 		self.ed.SetSel(1,3)
 		self.ed.Paste()
 		self.assertEquals(self.ed.Contents(), b"1c2c")
@@ -508,13 +510,12 @@ class TestSimple(unittest.TestCase):
 		self.assertEquals(self.ed.Contents(), b"1c")
 
 	def testCopyAllowLine(self):
-		self.xite.DoEvents()
 		lineEndType = self.ed.EOLMode
 		self.ed.EOLMode = self.ed.SC_EOL_LF
 		self.ed.AddText(5, b"a1\nb2")
 		self.ed.SetSel(1,1)
 		self.ed.CopyAllowLine()
-		self.xite.DoEvents()
+		# Clipboard = "a1\n"
 		self.assertEquals(self.ed.CanPaste(), 1)
 		self.ed.SetSel(0, 0)
 		self.ed.Paste()

@@ -1079,6 +1079,7 @@
     <ClCompile Include="..\SLib\smath.cpp" />
     <ClCompile Include="..\SLib\smem.cpp" />
     <ClCompile Include="..\SLib\Smrtlbx.cpp" />
+    <ClCompile Include="..\SLib\sossl.cpp" />
     <ClCompile Include="..\SLib\spip.cpp" />
     <ClCompile Include="..\SLib\Sprinter.cpp" />
     <ClCompile Include="..\SLib\srng.cpp" />

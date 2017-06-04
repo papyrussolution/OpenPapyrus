@@ -52,7 +52,7 @@ int Curl_polarsslthreadlock_thread_setup(void)
   int i;
   int ret;
 
-  mutex_buf = calloc(NUMT * sizeof(POLARSSL_MUTEX_T), 1);
+  mutex_buf = SAlloc::C(NUMT * sizeof(POLARSSL_MUTEX_T), 1);
   if(!mutex_buf)
     return 0;     /* error, no number of threads defined */
 
@@ -94,7 +94,7 @@ int Curl_polarsslthreadlock_thread_cleanup(void)
       return 0; /* CloseHandle failed */
   }
 #endif /* HAVE_PTHREAD_H */
-  free(mutex_buf);
+  SAlloc::F(mutex_buf);
   mutex_buf = NULL;
 
   return 1; /* OK */

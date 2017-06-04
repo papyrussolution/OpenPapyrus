@@ -9,7 +9,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "CharacterSet.h"
 
 #ifdef SCI_NAMESPACE
@@ -20,12 +19,11 @@ using namespace Scintilla;
 namespace Scintilla {
 #endif
 
-int CompareCaseInsensitive(const char *a, const char *b) 
-{
+int CompareCaseInsensitive(const char *a, const char *b) {
 	while (*a && *b) {
 		if (*a != *b) {
-			char upperA = MakeUpperCase(*a);
-			char upperB = MakeUpperCase(*b);
+			char upperA = static_cast<char>(MakeUpperCase(*a));
+			char upperB = static_cast<char>(MakeUpperCase(*b));
 			if (upperA != upperB)
 				return upperA - upperB;
 		}
@@ -36,12 +34,11 @@ int CompareCaseInsensitive(const char *a, const char *b)
 	return *a - *b;
 }
 
-int CompareNCaseInsensitive(const char *a, const char *b, size_t len) 
-{
+int CompareNCaseInsensitive(const char *a, const char *b, size_t len) {
 	while (*a && *b && len) {
 		if (*a != *b) {
-			char upperA = MakeUpperCase(*a);
-			char upperB = MakeUpperCase(*b);
+			char upperA = static_cast<char>(MakeUpperCase(*a));
+			char upperB = static_cast<char>(MakeUpperCase(*b));
 			if (upperA != upperB)
 				return upperA - upperB;
 		}

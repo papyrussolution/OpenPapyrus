@@ -17,6 +17,7 @@ namespace Scintilla {
 #define SCI_CTRL SCMOD_CTRL
 #define SCI_ALT SCMOD_ALT
 #define SCI_META SCMOD_META
+#define SCI_SUPER SCMOD_SUPER
 #define SCI_CSHIFT (SCI_CTRL | SCI_SHIFT)
 #define SCI_ASHIFT (SCI_ALT | SCI_SHIFT)
 
@@ -42,21 +43,21 @@ class KeyToCommand {
 public:
 	int key;
 	int modifiers;
-	unsigned int msg;
+	uint msg;
 };
 
 /**
  */
 class KeyMap {
-	std::map<KeyModifiers, unsigned int> kmap;
+	std::map<KeyModifiers, uint> kmap;
 	static const KeyToCommand MapDefault[];
 
 public:
 	KeyMap();
 	~KeyMap();
 	void Clear();
-	void AssignCmdKey(int key, int modifiers, unsigned int msg);
-	unsigned int Find(int key, int modifiers) const;	// 0 returned on failure
+	void AssignCmdKey(int key, int modifiers, uint msg);
+	uint Find(int key, int modifiers) const;	// 0 returned on failure
 };
 
 #ifdef SCI_NAMESPACE

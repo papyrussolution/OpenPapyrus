@@ -8,7 +8,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "StringCopy.h"
@@ -605,6 +604,17 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 	}
 	styler.StartAt(startPos);
 
+	/* Nothing handles getting out of these, so we need not start in any of them.
+	 * As we're at line start and they can't span lines, we'll re-detect them anyway */
+	switch (state) {
+		case SCE_H_QUESTION:
+		case SCE_H_XMLSTART:
+		case SCE_H_XMLEND:
+		case SCE_H_ASP:
+			state = SCE_H_DEFAULT;
+			break;
+	}
+
 	Sci_Position lineCurrent = styler.GetLine(startPos);
 	int lineState;
 	if (lineCurrent > 0) {
@@ -699,7 +709,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				break;
 		}
 		if (style == SCE_HJ_SYMBOLS) {
-			chPrevNonWhite = static_cast<unsigned char>(styler.SafeGetCharAt(back));
+			chPrevNonWhite = static_cast<uchar>(styler.SafeGetCharAt(back));
 		}
 	}
 
@@ -711,9 +721,9 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 		if (!IsASpace(ch) && state != SCE_HJ_COMMENT &&
 			state != SCE_HJ_COMMENTLINE && state != SCE_HJ_COMMENTDOC)
 			chPrevNonWhite = ch;
-		ch = static_cast<unsigned char>(styler[i]);
-		int chNext = static_cast<unsigned char>(styler.SafeGetCharAt(i + 1));
-		const int chNext2 = static_cast<unsigned char>(styler.SafeGetCharAt(i + 2));
+		ch = static_cast<uchar>(styler[i]);
+		int chNext = static_cast<uchar>(styler.SafeGetCharAt(i + 1));
+		const int chNext2 = static_cast<uchar>(styler.SafeGetCharAt(i + 2));
 
 		// Handle DBCS codepages
 		if (styler.IsLeadByte(static_cast<char>(ch))) {
@@ -823,7 +833,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 		// handle end of Mako comment line
 		else if (isMako && makoComment && (ch == '\r' || ch == '\n')) {
 			makoComment = 0;
-			styler.ColourTo(i, StateToPrint);
+			styler.ColourTo(i - 1, StateToPrint);
 			if (scriptLanguage == eScriptPython) {
 				state = SCE_HP_DEFAULT;
 			} else {
@@ -893,7 +903,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 		/////////////////////////////////////
 		// handle the start of PHP pre-processor = Non-HTML
 		else if ((state != SCE_H_ASPAT) &&
-		         !isPHPStringState(state) &&
+		         !isStringState(state) &&
 		         (state != SCE_HPHP_COMMENT) &&
 		         (state != SCE_HPHP_COMMENTLINE) &&
 		         (ch == '<') &&
@@ -921,7 +931,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				levelCurrent++;
 			}
 			// should be better
-			ch = static_cast<unsigned char>(styler.SafeGetCharAt(i));
+			ch = static_cast<uchar>(styler.SafeGetCharAt(i));
 			continue;
 		}
 
@@ -966,7 +976,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 					styler.ColourTo(i, SCE_H_TAGUNKNOWN);
 			}
 
-			ch = static_cast<unsigned char>(styler.SafeGetCharAt(i));
+			ch = static_cast<uchar>(styler.SafeGetCharAt(i));
 			continue;
 		}
 
@@ -984,7 +994,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 			scriptLanguage = eScriptComment;
 			state = SCE_H_COMMENT;
 			styler.ColourTo(i, SCE_H_ASP);
-			ch = static_cast<unsigned char>(styler.SafeGetCharAt(i));
+			ch = static_cast<uchar>(styler.SafeGetCharAt(i));
 			continue;
 		} else if (isDjango && state == SCE_H_COMMENT && (ch == '#' && chNext == '}')) {
 			styler.ColourTo(i - 1, StateToPrint);
@@ -1020,7 +1030,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 			scriptLanguage = eScriptPython;
 			styler.ColourTo(i, SCE_H_ASP);
 
-			ch = static_cast<unsigned char>(styler.SafeGetCharAt(i));
+			ch = static_cast<uchar>(styler.SafeGetCharAt(i));
 			continue;
 		}
 
@@ -1059,7 +1069,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 			if (foldHTMLPreprocessor)
 				levelCurrent++;
 			// should be better
-			ch = static_cast<unsigned char>(styler.SafeGetCharAt(i));
+			ch = static_cast<uchar>(styler.SafeGetCharAt(i));
 			continue;
 		}
 
@@ -1296,12 +1306,12 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				}
 				// find the length of the word
 				int size = 1;
-				while (setHTMLWord.Contains(static_cast<unsigned char>(styler.SafeGetCharAt(i + size))))
+				while (setHTMLWord.Contains(static_cast<uchar>(styler.SafeGetCharAt(i + size))))
 					size++;
 				styler.ColourTo(i + size - 1, StateToPrint);
 				i += size - 1;
 				visibleChars += size - 1;
-				ch = static_cast<unsigned char>(styler.SafeGetCharAt(i));
+				ch = static_cast<uchar>(styler.SafeGetCharAt(i));
 				if (scriptLanguage == eScriptSGMLblock) {
 					state = SCE_H_SGML_BLOCK_DEFAULT;
 				} else {
@@ -1709,7 +1719,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 					while (IsASCII(chNext) && islower(chNext)) {   // gobble regex flags
 						i++;
 						ch = chNext;
-						chNext = static_cast<unsigned char>(styler.SafeGetCharAt(i + 1));
+						chNext = static_cast<uchar>(styler.SafeGetCharAt(i + 1));
 					}
 				}
 				styler.ColourTo(i, StateToPrint);
@@ -1719,7 +1729,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				if (chNext == '\\' || chNext == '/') {
 					i++;
 					ch = chNext;
-					chNext = static_cast<unsigned char>(styler.SafeGetCharAt(i + 1));
+					chNext = static_cast<uchar>(styler.SafeGetCharAt(i + 1));
 				}
 			}
 			break;
@@ -1807,7 +1817,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 					state = SCE_HP_TRIPLEDOUBLE;
 					ch = ' ';
 					chPrev = ' ';
-					chNext = static_cast<unsigned char>(styler.SafeGetCharAt(i + 1));
+					chNext = static_cast<uchar>(styler.SafeGetCharAt(i + 1));
 				} else {
 					//					state = statePrintForState(SCE_HP_STRING,inScriptType);
 					state = SCE_HP_STRING;
@@ -1819,7 +1829,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 					state = SCE_HP_TRIPLE;
 					ch = ' ';
 					chPrev = ' ';
-					chNext = static_cast<unsigned char>(styler.SafeGetCharAt(i + 1));
+					chNext = static_cast<uchar>(styler.SafeGetCharAt(i + 1));
 				} else {
 					state = SCE_HP_CHARACTER;
 				}
@@ -1845,7 +1855,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 						state = SCE_HP_TRIPLEDOUBLE;
 						ch = ' ';
 						chPrev = ' ';
-						chNext = static_cast<unsigned char>(styler.SafeGetCharAt(i + 1));
+						chNext = static_cast<uchar>(styler.SafeGetCharAt(i + 1));
 					} else {
 						state = SCE_HP_STRING;
 					}
@@ -1855,7 +1865,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 						state = SCE_HP_TRIPLE;
 						ch = ' ';
 						chPrev = ' ';
-						chNext = static_cast<unsigned char>(styler.SafeGetCharAt(i + 1));
+						chNext = static_cast<uchar>(styler.SafeGetCharAt(i + 1));
 					} else {
 						state = SCE_HP_CHARACTER;
 					}
@@ -1875,7 +1885,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				if (chNext == '\"' || chNext == '\'' || chNext == '\\') {
 					i++;
 					ch = chNext;
-					chNext = static_cast<unsigned char>(styler.SafeGetCharAt(i + 1));
+					chNext = static_cast<uchar>(styler.SafeGetCharAt(i + 1));
 				}
 			} else if (ch == '\"') {
 				styler.ColourTo(i, StateToPrint);
@@ -1887,7 +1897,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				if (chNext == '\"' || chNext == '\'' || chNext == '\\') {
 					i++;
 					ch = chNext;
-					chNext = static_cast<unsigned char>(styler.SafeGetCharAt(i + 1));
+					chNext = static_cast<uchar>(styler.SafeGetCharAt(i + 1));
 				}
 			} else if (ch == '\'') {
 				styler.ColourTo(i, StateToPrint);

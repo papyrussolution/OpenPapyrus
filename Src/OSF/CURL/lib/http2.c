@@ -29,7 +29,7 @@
 #include "http.h"
 #include "sendf.h"
 #include "curl_base64.h"
-#include "strcase.h"
+//#include "strcase.h"
 #include "multiif.h"
 #include "conncache.h"
 #include "url.h"
@@ -127,9 +127,9 @@ static void http2_stream_free(struct HTTP * http)
 		Curl_add_buffer_free(http->trailer_recvbuf);
 		http->trailer_recvbuf = NULL; /* clear the pointer */
 		for(; http->push_headers_used > 0; --http->push_headers_used) {
-			free(http->push_headers[http->push_headers_used - 1]);
+			SAlloc::F(http->push_headers[http->push_headers_used - 1]);
 		}
-		free(http->push_headers);
+		SAlloc::F(http->push_headers);
 		http->push_headers = NULL;
 	}
 }
@@ -143,7 +143,7 @@ static CURLcode http2_disconnect(struct connectdata * conn,
 	DEBUGF(infof(conn->data, "HTTP/2 DISCONNECT starts now\n"));
 
 	nghttp2_session_del(c->h2);
-	Curl_safefree(c->inbuf);
+	ZFREE(c->inbuf);
 	http2_stream_free(conn->data->req.protop);
 
 	DEBUGF(infof(conn->data, "HTTP/2 DISCONNECT done\n"));
@@ -172,8 +172,7 @@ void Curl_http2_setup_req(struct Curl_easy * data)
 /* called from Curl_http_setup_conn */
 void Curl_http2_setup_conn(struct connectdata * conn)
 {
-	conn->proto.httpc.settings.max_concurrent_streams =
-	    DEFAULT_MAX_CONCURRENT_STREAMS;
+	conn->proto.httpc.settings.max_concurrent_streams = DEFAULT_MAX_CONCURRENT_STREAMS;
 }
 
 /*
@@ -355,7 +354,7 @@ static struct Curl_easy * duphandle(struct Curl_easy * data)
 	struct Curl_easy * second = curl_easy_duphandle(data);
 	if(second) {
 		/* setup the request struct */
-		struct HTTP * http = calloc(1, sizeof(struct HTTP));
+		struct HTTP * http = SAlloc::C(1, sizeof(struct HTTP));
 		if(!http) {
 			(void)Curl_close(second);
 			second = NULL;
@@ -364,7 +363,7 @@ static struct Curl_easy * duphandle(struct Curl_easy * data)
 			second->req.protop = http;
 			http->header_recvbuf = Curl_add_buffer_init();
 			if(!http->header_recvbuf) {
-				free(http);
+				SAlloc::F(http);
 				(void)Curl_close(second);
 				second = NULL;
 			}
@@ -422,8 +421,8 @@ static int push_promise(struct Curl_easy * data,
 
 		/* free the headers again */
 		for(i = 0; i<stream->push_headers_used; i++)
-			free(stream->push_headers[i]);
-		free(stream->push_headers);
+			SAlloc::F(stream->push_headers[i]);
+		SAlloc::F(stream->push_headers);
 		stream->push_headers = NULL;
 		stream->push_headers_used = 0;
 
@@ -872,7 +871,7 @@ static int on_header(nghttp2_session * session, const nghttp2_frame * frame,
 
 		if(!stream->push_headers) {
 			stream->push_headers_alloc = 10;
-			stream->push_headers = malloc(stream->push_headers_alloc *
+			stream->push_headers = SAlloc::M(stream->push_headers_alloc *
 			    sizeof(char *));
 			stream->push_headers_used = 0;
 		}
@@ -1048,9 +1047,9 @@ void Curl_http2_done(struct connectdata * conn, bool premature)
 		if(http->push_headers) {
 			/* if they weren't used and then freed before */
 			for(; http->push_headers_used > 0; --http->push_headers_used) {
-				free(http->push_headers[http->push_headers_used - 1]);
+				SAlloc::F(http->push_headers[http->push_headers_used - 1]);
 			}
-			free(http->push_headers);
+			SAlloc::F(http->push_headers);
 			http->push_headers = NULL;
 		}
 	}
@@ -1079,7 +1078,7 @@ CURLcode Curl_http2_init(struct connectdata * conn)
 		int rc;
 		nghttp2_session_callbacks * callbacks;
 
-		conn->proto.httpc.inbuf = malloc(H2_BUFSIZE);
+		conn->proto.httpc.inbuf = SAlloc::M(H2_BUFSIZE);
 		if(conn->proto.httpc.inbuf == NULL)
 			return CURLE_OUT_OF_MEMORY;
 
@@ -1170,7 +1169,7 @@ CURLcode Curl_http2_request_upgrade(Curl_send_buffer * req,
 	    "Upgrade: %s\r\n"
 	    "HTTP2-Settings: %s\r\n",
 	    NGHTTP2_CLEARTEXT_PROTO_VERSION_ID, base64);
-	free(base64);
+	SAlloc::F(base64);
 
 	k->upgr101 = UPGR101_REQUESTED;
 
@@ -1773,7 +1772,7 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 	   new headers: :method, :path and :scheme. Therefore we need one
 	   more space. */
 	nheader += 1;
-	nva = malloc(sizeof(nghttp2_nv) * nheader);
+	nva = SAlloc::M(sizeof(nghttp2_nv) * nheader);
 	if(nva == NULL) {
 		*err = CURLE_OUT_OF_MEMORY;
 		return -1;
@@ -1786,9 +1785,9 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 	end = memchr(hdbuf, ' ', line_end - hdbuf);
 	if(!end || end == hdbuf)
 		goto fail;
-	nva[0].name = (unsigned char*)":method";
+	nva[0].name = (uchar*)":method";
 	nva[0].namelen = strlen((char*)nva[0].name);
-	nva[0].value = (unsigned char*)hdbuf;
+	nva[0].value = (uchar*)hdbuf;
 	nva[0].valuelen = (size_t)(end - hdbuf);
 	nva[0].flags = NGHTTP2_NV_FLAG_NONE;
 	if(HEADER_OVERFLOW(nva[0])) {
@@ -1808,9 +1807,9 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 	}
 	if(!end || end == hdbuf)
 		goto fail;
-	nva[1].name = (unsigned char*)":path";
+	nva[1].name = (uchar*)":path";
 	nva[1].namelen = strlen((char*)nva[1].name);
-	nva[1].value = (unsigned char*)hdbuf;
+	nva[1].value = (uchar*)hdbuf;
 	nva[1].valuelen = (size_t)(end - hdbuf);
 	nva[1].flags = NGHTTP2_NV_FLAG_NONE;
 	if(HEADER_OVERFLOW(nva[1])) {
@@ -1821,12 +1820,12 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 	hdbuf = end + 1;
 
 	end = line_end;
-	nva[2].name = (unsigned char*)":scheme";
+	nva[2].name = (uchar*)":scheme";
 	nva[2].namelen = strlen((char*)nva[2].name);
 	if(conn->handler->flags & PROTOPT_SSL)
-		nva[2].value = (unsigned char*)"https";
+		nva[2].value = (uchar*)"https";
 	else
-		nva[2].value = (unsigned char*)"http";
+		nva[2].value = (uchar*)"http";
 	nva[2].valuelen = strlen((char*)nva[2].value);
 	nva[2].flags = NGHTTP2_NV_FLAG_NONE;
 	if(HEADER_OVERFLOW(nva[2])) {
@@ -1857,11 +1856,11 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 
 		if(hlen == 4 && strncasecompare("host", hdbuf, 4)) {
 			authority_idx = i;
-			nva[i].name = (unsigned char*)":authority";
+			nva[i].name = (uchar*)":authority";
 			nva[i].namelen = strlen((char*)nva[i].name);
 		}
 		else {
-			nva[i].name = (unsigned char*)hdbuf;
+			nva[i].name = (uchar*)hdbuf;
 			nva[i].namelen = (size_t)(end - hdbuf);
 		}
 		hdbuf = end + 1;
@@ -1880,7 +1879,7 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 			    nva[i].valuelen = sizeof("trailers") - 1;
 			    break;
 			default:
-			    nva[i].value = (unsigned char*)hdbuf;
+			    nva[i].value = (uchar*)hdbuf;
 			    nva[i].valuelen = (size_t)(end - hdbuf);
 		}
 
@@ -1944,7 +1943,7 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 		    NULL, conn->data);
 	}
 
-	Curl_safefree(nva);
+	ZFREE(nva);
 
 	if(stream_id < 0) {
 		DEBUGF(infof(conn->data, "http2_send() send error\n"));
@@ -1986,7 +1985,7 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 	return len;
 
 fail:
-	free(nva);
+	SAlloc::F(nva);
 	*err = CURLE_SEND_ERROR;
 	return -1;
 }
@@ -2157,7 +2156,7 @@ void Curl_http2_add_child(struct Curl_easy * parent, struct Curl_easy * child,
 {
 	struct Curl_http2_dep ** tail;
 
-	struct Curl_http2_dep * dep = calloc(1, sizeof(struct Curl_http2_dep));
+	struct Curl_http2_dep * dep = SAlloc::C(1, sizeof(struct Curl_http2_dep));
 	dep->data = child;
 
 	if(parent->set.stream_dependents && exclusive) {
@@ -2209,7 +2208,7 @@ void Curl_http2_remove_child(struct Curl_easy * parent, struct Curl_easy * child
 		else {
 			parent->set.stream_dependents = data->next;
 		}
-		free(data);
+		SAlloc::F(data);
 	}
 
 	child->set.stream_depends_on = 0;

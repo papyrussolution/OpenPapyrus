@@ -3895,6 +3895,7 @@ int SLAPI Test_KeywordListGenerator()
 //
 SLAPI PPAutoTranslSvc_Microsoft::PPAutoTranslSvc_Microsoft()
 {
+	LastStatusCode = 0;
 	P_XpCtx = 0;
 	ExpirySec = 0;
 	AuthTime.SetZero();
@@ -3919,10 +3920,13 @@ int SLAPI PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSec
 	AuthTime.SetZero();
 	AuthName = 0;
 	AuthSecret = 0;
+	LastStatusCode = 0;
+	LastStatusMessage = 0;
 
 	int    ok = 1;
 	SString temp_buf;
-	SString url = "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13";
+	// @v9.6.9 SString url = "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13";
+	SString url = "https://api.cognitive.microsoft.com/sts/v1.0/issueToken"; // @v9.6.9
 	StrStrAssocArray post_fields;
 	ScURL  curl;
 	json_t * p_json_doc = 0;
@@ -3930,11 +3934,15 @@ int SLAPI PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSec
 	{
 		SBuffer result_buf;
 		SFile wr_stream(result_buf, SFile::mWrite);
+		/* @v9.6.9
 		post_fields.Add("grant_type", "client_credentials");
 		post_fields.Add("client_id", pIdent);
 		post_fields.Add("client_secret", pSecret);
 		post_fields.Add("scope", "http://api.microsofttranslator.com");
-		THROW_SL(curl.HttpPost(url, ScURL::mfDontVerifySslPeer, &post_fields, &wr_stream));
+		*/
+		//post_fields.Add(/*"Ocp-Apim-Subscription-Key"*/"Subscription-Key", pSecret);
+		(temp_buf = url).CatChar('?').CatEq("Subscription-Key", pSecret);
+		THROW_SL(curl.HttpPost(/*url*/temp_buf, ScURL::mfDontVerifySslPeer, &post_fields, &wr_stream));
 		{
 			SBuffer * p_result_buf = (SBuffer *)wr_stream;
 			size_t avl_size = p_result_buf ? p_result_buf->GetAvailableSize() : 0;
@@ -3942,6 +3950,41 @@ int SLAPI PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSec
 			result_str.CopyFromN((const char *)p_result_buf->GetBuf(p_result_buf->GetRdOffs()), avl_size);
 		}
 	}
+	{
+		if(result_str.C(0) == '{') {
+			json_t * p_next = 0;
+			THROW(json_parse_document(&p_json_doc, (const char *)result_str) == JSON_OK);
+			for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
+				p_next = p_cur->next;
+				switch(p_cur->type) {
+					case JSON_ARRAY:
+						break;
+					case JSON_OBJECT:
+						p_next = p_cur->child;
+						break;
+					case JSON_STRING:
+						if(p_cur->text && p_cur->child) {
+							if(sstreqi_ascii(p_cur->text, "statusCode")) {
+								LastStatusCode = (temp_buf = p_cur->child->text).Unescape().ToLong();
+							}
+							else if(sstreqi_ascii(p_cur->text, "message")) {
+								LastStatusMessage = (temp_buf = p_cur->child->text).Unescape();
+							}
+						}
+						break;
+					default:
+						break;
+				}
+			}
+			ok = 0;
+		}
+		else {
+			Token = result_str;
+			AuthTime = getcurdatetime_();
+			ExpirySec = 0;
+		}
+	}
+	/* @v9.6.9
 	{
 		json_t * p_next = 0;
 		THROW(json_parse_document(&p_json_doc, (const char *)result_str) == JSON_OK);
@@ -3971,6 +4014,7 @@ int SLAPI PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSec
 			}
 		}
 	}
+	*/
 	CATCHZOK
 	json_free_value(&p_json_doc);
 	return ok;

@@ -3337,8 +3337,7 @@ int SLAPI PPViewCCheck::AddItem()
 								const PPCashNode & r_cn = p_cm_ext->GetNodeData();
 								if(r_cn.Flags & CASHF_DAYCLOSED) {
 									r = cmNo;
-									if((dt != ZERODATE || PPMessage(mfConf|mfYesNo, PPCFM_PREVCASHDAYCLOSED) == cmYes)
-										&& p_cm_ext->SyncOpenSession(&dt) > 0)
+									if((dt || PPMessage(mfConf|mfYesNo, PPCFM_PREVCASHDAYCLOSED) == cmYes) && p_cm_ext->SyncOpenSession(&dt) > 0)
 										r = cmOK;
 								}
 							}

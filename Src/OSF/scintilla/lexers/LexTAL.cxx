@@ -10,7 +10,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "WordList.h"
@@ -59,7 +58,7 @@ static bool IsStreamCommentStyle(int style) {
 		style == SCE_C_COMMENTDOCKEYWORDERROR;
 }
 
-static void ColourTo(Accessor &styler, Sci_PositionU end, unsigned int attr, bool bInAsm) {
+static void ColourTo(Accessor &styler, Sci_PositionU end, uint attr, bool bInAsm) {
 	if ((bInAsm) && (attr == SCE_C_OPERATOR || attr == SCE_C_NUMBER || attr == SCE_C_DEFAULT || attr == SCE_C_WORD || attr == SCE_C_IDENTIFIER)) {
 		styler.ColourTo(end, SCE_C_REGEX);
 	} else

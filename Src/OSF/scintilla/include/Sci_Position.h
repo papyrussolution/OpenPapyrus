@@ -13,7 +13,7 @@
 typedef int Sci_Position;
 
 // Unsigned variant used for ILexer::Lex and ILexer::Fold
-typedef unsigned int Sci_PositionU;
+typedef uint Sci_PositionU;
 
 // For Sci_CharacterRange  which is defined as long to be compatible with Win32 CHARRANGE
 typedef long Sci_PositionCR;

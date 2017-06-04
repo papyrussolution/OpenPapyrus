@@ -8,15 +8,31 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "LexAccessor.h"
 #include "Accessor.h"
 #include "StyleContext.h"
+#include "CharacterSet.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
+
+bool StyleContext::MatchIgnoreCase(const char *s) {
+	if (MakeLowerCase(ch) != static_cast<uchar>(*s))
+		return false;
+	s++;
+	if (MakeLowerCase(chNext) != static_cast<uchar>(*s))
+		return false;
+	s++;
+	for (int n = 2; *s; n++) {
+		if (static_cast<uchar>(*s) !=
+			MakeLowerCase(static_cast<uchar>(styler.SafeGetCharAt(currentPos + n, 0))))
+			return false;
+		s++;
+	}
+	return true;
+}
 
 static void getRange(Sci_PositionU start,
 		Sci_PositionU end,

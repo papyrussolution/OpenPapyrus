@@ -29,14 +29,12 @@
 typedef enum {
   CURLWC_CLEAR = 0,
   CURLWC_INIT = 1,
-  CURLWC_MATCHING, /* library is trying to get list of addresses for
-                      downloading */
+  CURLWC_MATCHING, // library is trying to get list of addresses for downloading 
   CURLWC_DOWNLOADING,
   CURLWC_CLEAN, /* deallocate resources and reset settings */
   CURLWC_SKIP,  /* skip over concrete file */
   CURLWC_ERROR, /* error cases */
-  CURLWC_DONE   /* if is wildcard->state == CURLWC_DONE wildcard loop
-                   will end */
+  CURLWC_DONE   // if is wildcard->state == CURLWC_DONE wildcard loop will end 
 } curl_wildcard_states;
 
 typedef void (*curl_wildcard_tmp_dtor)(void *ptr);

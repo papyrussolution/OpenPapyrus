@@ -46,7 +46,7 @@ static CURLcode bundle_create(struct Curl_easy * data, struct connectbundle ** c
 {
 	(void)data;
 	DEBUGASSERT(*cb_ptr == NULL);
-	*cb_ptr = (struct connectbundle *)malloc(sizeof(struct connectbundle));
+	*cb_ptr = (struct connectbundle *)SAlloc::M(sizeof(struct connectbundle));
 	if(!*cb_ptr)
 		return CURLE_OUT_OF_MEMORY;
 	(*cb_ptr)->num_connections = 0;
@@ -60,7 +60,7 @@ static void bundle_destroy(struct connectbundle * cb_ptr)
 	if(!cb_ptr)
 		return;
 	Curl_llist_destroy(&cb_ptr->conn_list, NULL);
-	free(cb_ptr);
+	SAlloc::F(cb_ptr);
 }
 
 /* Add a connection to a bundle */

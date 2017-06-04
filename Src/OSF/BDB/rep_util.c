@@ -2050,39 +2050,36 @@ void __rep_fire_event(ENV*env, uint32 event, void * info)
 void __rep_msg(const ENV*env, const char * msg)
 {
 	DB_FH * fhp;
-	DB_REP * db_rep;
-	REP * rep;
 	int i;
 	size_t cnt, nlcnt;
 	char nl = '\n';
-	if(PANIC_ISSET(env))
-		return;
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-	DB_ASSERT((ENV *)env, !FLD_ISSET(rep->config, REP_C_INMEM));
-	/*
-	 * We know the only way we get here is with the mutex locked.  So
-	 * we can read, modify and change all the diag related fields.
-	 */
-	i = rep->diag_index;
-	fhp = db_rep->diagfile[i];
-	if(db_rep->diag_off != rep->diag_off)
-		__os_seek((ENV *)env, fhp, 0, 0, rep->diag_off);
-	if(__os_write((ENV *)env, fhp, (void *)msg, strlen(msg), &cnt) != 0)
-		return;
-	if(__os_write((ENV *)env, fhp, &nl, 1, &nlcnt) != 0)
-		return;
-	db_rep->diag_off = rep->diag_off += (cnt+nlcnt);
-	/*
-	 * If writing this message put us over the file size threshold,
-	 * then we reset to the next file.  We don't care if it is
-	 * exactly at the size, some amount over the file size is fine.
-	 */
-	if(rep->diag_off >= REP_DIAGSIZE) {
-		rep->diag_index = (++i%DBREP_DIAG_FILES);
-		rep->diag_off = 0;
+	if(!PANIC_ISSET(env)) {
+		DB_REP * db_rep = env->rep_handle;
+		REP * rep = db_rep->region;
+		DB_ASSERT((ENV *)env, !FLD_ISSET(rep->config, REP_C_INMEM));
+		// 
+		// We know the only way we get here is with the mutex locked.  So
+		// we can read, modify and change all the diag related fields.
+		// 
+		i = rep->diag_index;
+		fhp = db_rep->diagfile[i];
+		if(db_rep->diag_off != rep->diag_off)
+			__os_seek((ENV *)env, fhp, 0, 0, rep->diag_off);
+		if(__os_write((ENV *)env, fhp, (void *)msg, strlen(msg), &cnt) == 0) {
+			if(__os_write((ENV *)env, fhp, &nl, 1, &nlcnt) == 0) {
+				db_rep->diag_off = rep->diag_off += (cnt+nlcnt);
+				/*
+				 * If writing this message put us over the file size threshold,
+				 * then we reset to the next file.  We don't care if it is
+				 * exactly at the size, some amount over the file size is fine.
+				 */
+				if(rep->diag_off >= REP_DIAGSIZE) {
+					rep->diag_index = (++i%DBREP_DIAG_FILES);
+					rep->diag_off = 0;
+				}
+			}
+		}
 	}
-	return;
 }
 
 /*

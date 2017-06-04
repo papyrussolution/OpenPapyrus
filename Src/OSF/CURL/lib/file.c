@@ -112,7 +112,7 @@ const struct Curl_handler Curl_handler_file = {
 static CURLcode file_setup_connection(struct connectdata * conn)
 {
 	/* allocate the FILE specific struct */
-	conn->data->req.protop = calloc(1, sizeof(struct FILEPROTO));
+	conn->data->req.protop = SAlloc::C(1, sizeof(struct FILEPROTO));
 	if(!conn->data->req.protop)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -221,7 +221,7 @@ static CURLcode file_connect(struct connectdata * conn, bool * done)
 		if(actual_path[i] == '/')
 			actual_path[i] = '\\';
 		else if(!actual_path[i]) { /* binary zero */
-			Curl_safefree(real_path);
+			ZFREE(real_path);
 			return CURLE_URL_MALFORMAT;
 		}
 
@@ -230,7 +230,7 @@ static CURLcode file_connect(struct connectdata * conn, bool * done)
 #else
 	if(memchr(real_path, 0, real_path_len)) {
 		/* binary zeroes indicate foul play */
-		Curl_safefree(real_path);
+		ZFREE(real_path);
 		return CURLE_URL_MALFORMAT;
 	}
 
@@ -255,7 +255,7 @@ static CURLcode file_done(struct connectdata * conn, CURLcode status, bool prema
 	(void)status; /* not used */
 	(void)premature; /* not used */
 	if(file) {
-		Curl_safefree(file->freepath);
+		ZFREE(file->freepath);
 		file->path = NULL;
 		if(file->fd != -1)
 			_close(file->fd);
@@ -269,7 +269,7 @@ static CURLcode file_disconnect(struct connectdata * conn, bool dead_connection)
 	struct FILEPROTO * file = (struct FILEPROTO *)conn->data->req.protop;
 	(void)dead_connection; /* not used */
 	if(file) {
-		Curl_safefree(file->freepath);
+		ZFREE(file->freepath);
 		file->path = NULL;
 		if(file->fd != -1)
 			_close(file->fd);

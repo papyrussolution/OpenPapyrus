@@ -1,7 +1,7 @@
 // Scintilla source code edit control
 /** @file Selection.h
- ** Classes maintaining the selection.
- **/
+** Classes maintaining the selection.
+**/
 // Copyright 2009 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -16,42 +16,51 @@ class SelectionPosition {
 	int position;
 	int virtualSpace;
 public:
-	explicit SelectionPosition(int position_=INVALID_POSITION, int virtualSpace_=0) : position(position_), virtualSpace(virtualSpace_) {
+	explicit SelectionPosition(int position_ = INVALID_POSITION, int virtualSpace_ = 0) : position(position_), virtualSpace(virtualSpace_)
+	{
 		PLATFORM_ASSERT(virtualSpace < 800000);
-		if (virtualSpace < 0)
+		if(virtualSpace < 0)
 			virtualSpace = 0;
 	}
-	void Reset() {
+	void Reset()
+	{
 		position = 0;
 		virtualSpace = 0;
 	}
 	void MoveForInsertDelete(bool insertion, int startChange, int length);
-	bool operator ==(const SelectionPosition &other) const {
+	bool operator ==(const SelectionPosition &other) const
+	{
 		return position == other.position && virtualSpace == other.virtualSpace;
 	}
 	bool operator <(const SelectionPosition &other) const;
 	bool operator >(const SelectionPosition &other) const;
 	bool operator <=(const SelectionPosition &other) const;
 	bool operator >=(const SelectionPosition &other) const;
-	int Position() const {
+	int Position() const
+	{
 		return position;
 	}
-	void SetPosition(int position_) {
+	void SetPosition(int position_)
+	{
 		position = position_;
 		virtualSpace = 0;
 	}
-	int VirtualSpace() const {
+	int VirtualSpace() const
+	{
 		return virtualSpace;
 	}
-	void SetVirtualSpace(int virtualSpace_) {
+	void SetVirtualSpace(int virtualSpace_)
+	{
 		PLATFORM_ASSERT(virtualSpace_ < 800000);
-		if (virtualSpace_ >= 0)
+		if(virtualSpace_ >= 0)
 			virtualSpace = virtualSpace_;
 	}
-	void Add(int increment) {
+	void Add(int increment)
+	{
 		position = position + increment;
 	}
-	bool IsValid() const {
+	bool IsValid() const
+	{
 		return position >= 0;
 	}
 };
@@ -60,24 +69,29 @@ public:
 struct SelectionSegment {
 	SelectionPosition start;
 	SelectionPosition end;
-	SelectionSegment() : start(), end() {
+	SelectionSegment() : start(), end()
+	{
 	}
-	SelectionSegment(SelectionPosition a, SelectionPosition b) {
-		if (a < b) {
+	SelectionSegment(SelectionPosition a, SelectionPosition b)
+	{
+		if(a < b) {
 			start = a;
 			end = b;
-		} else {
+		}
+		else {
 			start = b;
 			end = a;
 		}
 	}
-	bool Empty() const {
+	bool Empty() const
+	{
 		return start == end;
 	}
-	void Extend(SelectionPosition p) {
-		if (start > p)
+	void Extend(SelectionPosition p)
+	{
+		if(start > p)
 			start = p;
-		if (end < p)
+		if(end < p)
 			end = p;
 	}
 };
@@ -85,33 +99,42 @@ struct SelectionSegment {
 struct SelectionRange {
 	SelectionPosition caret;
 	SelectionPosition anchor;
-
-	SelectionRange() : caret(), anchor() {
+	SelectionRange() : caret(), anchor()
+	{
 	}
-	explicit SelectionRange(SelectionPosition single) : caret(single), anchor(single) {
+	explicit SelectionRange(SelectionPosition single) : caret(single), anchor(single)
+	{
 	}
-	explicit SelectionRange(int single) : caret(single), anchor(single) {
+	explicit SelectionRange(int single) : caret(single), anchor(single)
+	{
 	}
-	SelectionRange(SelectionPosition caret_, SelectionPosition anchor_) : caret(caret_), anchor(anchor_) {
+	SelectionRange(SelectionPosition caret_, SelectionPosition anchor_) : caret(caret_), anchor(anchor_)
+	{
 	}
-	SelectionRange(int caret_, int anchor_) : caret(caret_), anchor(anchor_) {
+	SelectionRange(int caret_, int anchor_) : caret(caret_), anchor(anchor_)
+	{
 	}
-	bool Empty() const {
+	bool Empty() const
+	{
 		return anchor == caret;
 	}
 	int Length() const;
 	// int Width() const;	// Like Length but takes virtual space into account
-	bool operator ==(const SelectionRange &other) const {
+	bool operator ==(const SelectionRange &other) const
+	{
 		return caret == other.caret && anchor == other.anchor;
 	}
-	bool operator <(const SelectionRange &other) const {
+	bool operator <(const SelectionRange &other) const
+	{
 		return caret < other.caret || ((caret == other.caret) && (anchor < other.anchor));
 	}
-	void Reset() {
+	void Reset()
+	{
 		anchor.Reset();
 		caret.Reset();
 	}
-	void ClearVirtualSpace() {
+	void ClearVirtualSpace()
+	{
 		anchor.SetVirtualSpace(0);
 		caret.SetVirtualSpace(0);
 	}
@@ -120,12 +143,15 @@ struct SelectionRange {
 	bool Contains(SelectionPosition sp) const;
 	bool ContainsCharacter(int posCharacter) const;
 	SelectionSegment Intersect(SelectionSegment check) const;
-	SelectionPosition Start() const {
+	SelectionPosition Start() const
+	{
 		return (anchor < caret) ? anchor : caret;
 	}
-	SelectionPosition End() const {
+	SelectionPosition End() const
+	{
 		return (anchor < caret) ? caret : anchor;
 	}
+	void Swap();
 	bool Trim(SelectionRange range);
 	// If range is all virtual collapse to start of virtual space
 	void MinimizeVirtualSpace();
@@ -140,6 +166,7 @@ class Selection {
 	bool tentativeMain;
 public:
 	enum selTypes { noSel, selStream, selRectangle, selLines, selThin };
+
 	selTypes selType;
 
 	Selection();
@@ -182,8 +209,13 @@ public:
 	void Clear();
 	void RemoveDuplicates();
 	void RotateMain();
-	bool Tentative() const { return tentativeMain; }
-	std::vector<SelectionRange> RangesCopy() const {
+	bool Tentative() const
+	{
+		return tentativeMain;
+	}
+
+	std::vector<SelectionRange> RangesCopy() const
+	{
 		return ranges;
 	}
 };

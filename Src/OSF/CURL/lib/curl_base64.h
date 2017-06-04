@@ -30,6 +30,6 @@ CURLcode Curl_base64url_encode(struct Curl_easy *data,
                                char **outptr, size_t *outlen);
 
 CURLcode Curl_base64_decode(const char *src,
-                            unsigned char **outptr, size_t *outlen);
+                            uchar **outptr, size_t *outlen);
 
 #endif /* HEADER_CURL_BASE64_H */

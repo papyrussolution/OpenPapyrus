@@ -819,7 +819,11 @@ void ListBoxImpl::Create(Window &parent,
 #if defined(Q_OS_WIN)
 	// On Windows, Qt::ToolTip causes a crash when the list is clicked on
 	// so Qt::Tool is used.
-	list->setParent(0, Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+	list->setParent(0, Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+		| Qt::WindowDoesNotAcceptFocus
+#endif
+	);
 #else
 	// On OS X, Qt::Tool takes focus so main window loses focus so
 	// keyboard stops working. Qt::ToolTip works but its only really
@@ -984,7 +988,7 @@ void ListBoxImpl::RegisterQPixmapImage(int type, const QPixmap& pm)
 	if (list != NULL) {
 		QSize iconSize = list->iconSize();
 		if (pm.width() > iconSize.width() || pm.height() > iconSize.height())
-			list->setIconSize(QSize(qMax(pm.width(), iconSize.width()), 
+			list->setIconSize(QSize(qMax(pm.width(), iconSize.width()),
 						 qMax(pm.height(), iconSize.height())));
 	}
 
@@ -1005,7 +1009,7 @@ void ListBoxImpl::RegisterRGBAImage(int type, int width, int height, const unsig
 void ListBoxImpl::ClearRegisteredImages()
 {
 	images.clear();
-	
+
 	ListWidget *list = static_cast<ListWidget *>(wid);
 	if (list != NULL)
 		list->setIconSize(QSize(0, 0));

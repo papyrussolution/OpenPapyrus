@@ -7,11 +7,14 @@
  * @author Sergiu Dotenco
  * @date April 18, 2009
  */
-
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
+#include <cassert>
+#include <cctype>
+#include <string>
+#include <algorithm>
+#include <functional>
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "PropSetSimple.h"
@@ -27,15 +30,13 @@ using namespace Scintilla;
 #endif
 
 namespace {
-	bool IsAlphabetic(unsigned int ch)
+	bool IsAlphabetic(uint ch)
 	{
-		// @sobolev return IsASCII(ch) && std::isalpha(ch) != 0;
-		return IsASCII(ch) && isalpha(ch) != 0; // @sobolev 
+		return IsASCII(ch) && std::isalpha(ch) != 0;
 	}
 	bool IsAlphaNumeric(char ch)
 	{
-	    // @sobolev return IsASCII(ch) && std::isalnum(ch);
-		return IsASCII(ch) && isalnum(ch); // @sobolev
+	    return IsASCII(ch) && std::isalnum(ch);
 	}
 
 	bool EqualCaseInsensitive(const char* a, const char* b)

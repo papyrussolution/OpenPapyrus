@@ -52,11 +52,11 @@ CURLcode Curl_cyassl_connect_nonblocking(struct connectdata *conn,
                                          int sockindex,
                                          bool *done);
 CURLcode Curl_cyassl_random(struct Curl_easy *data,
-                            unsigned char *entropy,
+                            uchar *entropy,
                             size_t length);
-void Curl_cyassl_sha256sum(const unsigned char *tmp, /* input */
+void Curl_cyassl_sha256sum(const uchar *tmp, /* input */
                      size_t tmplen,
-                     unsigned char *sha256sum, /* output */
+                     uchar *sha256sum, /* output */
                      size_t unused);
 
 /* Set the API backend definition to CyaSSL */

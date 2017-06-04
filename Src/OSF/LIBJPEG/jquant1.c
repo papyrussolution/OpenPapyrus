@@ -175,9 +175,7 @@ typedef my_cquantizer * my_cquantize_ptr;
  * Note that the latter two routines may impose different policies for
  * different components, though this is not currently done.
  */
-
-LOCAL(int)
-select_ncolors(j_decompress_ptr cinfo, int Ncolors[])
+static int select_ncolors(j_decompress_ptr cinfo, int Ncolors[])
 /* Determine allocation of desired colors to components, */
 /* and fill in Ncolors[] array to indicate choice. */
 /* Return value is total number of colors (product of Ncolors[] values). */
@@ -234,8 +232,7 @@ select_ncolors(j_decompress_ptr cinfo, int Ncolors[])
 	return total_colors;
 }
 
-LOCAL(int)
-output_value(j_decompress_ptr cinfo, int ci, int j, int maxj)
+static int output_value(j_decompress_ptr cinfo, int ci, int j, int maxj)
 /* Return j'th output value, where j will range from 0 to maxj */
 /* The output values must fall in 0..MAXJSAMPLE in increasing order */
 {
@@ -247,8 +244,7 @@ output_value(j_decompress_ptr cinfo, int ci, int j, int maxj)
 	return (int)(((INT32)j * MAXJSAMPLE + maxj/2) / maxj);
 }
 
-LOCAL(int)
-largest_input_value(j_decompress_ptr cinfo, int ci, int j, int maxj)
+static int largest_input_value(j_decompress_ptr cinfo, int ci, int j, int maxj)
 /* Return largest input value that should map to j'th output value */
 /* Must have largest(j=0) >= 0, and largest(j=maxj) >= MAXJSAMPLE */
 {
@@ -259,38 +255,25 @@ largest_input_value(j_decompress_ptr cinfo, int ci, int j, int maxj)
 /*
  * Create the colormap.
  */
-
-LOCAL(void)
-create_colormap(j_decompress_ptr cinfo)
+static void create_colormap(j_decompress_ptr cinfo)
 {
 	my_cquantize_ptr cquantize = (my_cquantize_ptr)cinfo->cquantize;
 	JSAMPARRAY colormap;    /* Created colormap */
-	int total_colors;       /* Number of distinct output colors */
 	int i, j, k, nci, blksize, blkdist, ptr, val;
-
 	/* Select number of colors for each component */
-	total_colors = select_ncolors(cinfo, cquantize->Ncolors);
-
+	int total_colors = select_ncolors(cinfo, cquantize->Ncolors); /* Number of distinct output colors */
 	/* Report selected color counts */
 	if(cinfo->out_color_components == 3)
-		TRACEMS4(cinfo, 1, JTRC_QUANT_3_NCOLORS,
-		    total_colors, cquantize->Ncolors[0],
-		    cquantize->Ncolors[1], cquantize->Ncolors[2]);
+		TRACEMS4(cinfo, 1, JTRC_QUANT_3_NCOLORS, total_colors, cquantize->Ncolors[0], cquantize->Ncolors[1], cquantize->Ncolors[2]);
 	else
 		TRACEMS1(cinfo, 1, JTRC_QUANT_NCOLORS, total_colors);
-
 	/* Allocate and fill in the colormap. */
 	/* The colors are ordered in the map in standard row-major order, */
 	/* i.e. rightmost (highest-indexed) color changes most rapidly. */
-
-	colormap = (*cinfo->mem->alloc_sarray)
-		    ((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (JDIMENSION)total_colors, (JDIMENSION)cinfo->out_color_components);
-
+	colormap = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, (JDIMENSION)total_colors, (JDIMENSION)cinfo->out_color_components);
 	/* blksize is number of adjacent repeated entries for a component */
 	/* blkdist is distance between groups of identical entries for a component */
 	blkdist = total_colors;
-
 	for(i = 0; i < cinfo->out_color_components; i++) {
 		/* fill in colormap entries for i'th color component */
 		nci = cquantize->Ncolors[i]; /* # of distinct values for this color */
@@ -307,7 +290,6 @@ create_colormap(j_decompress_ptr cinfo)
 		}
 		blkdist = blksize; /* blksize of this color is blkdist of next */
 	}
-
 	/* Save the colormap in private storage,
 	 * where it will survive color quantization mode changes.
 	 */
@@ -318,9 +300,7 @@ create_colormap(j_decompress_ptr cinfo)
 /*
  * Create the color index table.
  */
-
-LOCAL(void)
-create_colorindex(j_decompress_ptr cinfo)
+static void create_colorindex(j_decompress_ptr cinfo)
 {
 	my_cquantize_ptr cquantize = (my_cquantize_ptr)cinfo->cquantize;
 	JSAMPROW indexptr;
@@ -382,8 +362,7 @@ create_colorindex(j_decompress_ptr cinfo)
  * distinct output values.
  */
 
-LOCAL(ODITHER_MATRIX_PTR)
-make_odither_array(j_decompress_ptr cinfo, int ncolors)
+LOCAL(ODITHER_MATRIX_PTR) make_odither_array(j_decompress_ptr cinfo, int ncolors)
 {
 	ODITHER_MATRIX_PTR odither;
 	int j, k;
@@ -416,9 +395,7 @@ make_odither_array(j_decompress_ptr cinfo, int ncolors)
  * Components having the same number of representative colors may
  * share a dither table.
  */
-
-LOCAL(void)
-create_odither_tables(j_decompress_ptr cinfo)
+static void create_odither_tables(j_decompress_ptr cinfo)
 {
 	my_cquantize_ptr cquantize = (my_cquantize_ptr)cinfo->cquantize;
 	ODITHER_MATRIX_PTR odither;
@@ -696,31 +673,23 @@ METHODDEF(void) quantize_fs_dither(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
 /*
  * Allocate workspace for Floyd-Steinberg errors.
  */
-
-LOCAL(void)
-alloc_fs_workspace(j_decompress_ptr cinfo)
+static void alloc_fs_workspace(j_decompress_ptr cinfo)
 {
 	my_cquantize_ptr cquantize = (my_cquantize_ptr)cinfo->cquantize;
-	size_t arraysize;
 	int i;
-
-	arraysize = (size_t)((cinfo->output_width + 2) * SIZEOF(FSERROR));
+	size_t arraysize = (size_t)((cinfo->output_width + 2) * SIZEOF(FSERROR));
 	for(i = 0; i < cinfo->out_color_components; i++) {
-		cquantize->fserrors[i] = (FSERRPTR)
-		    (*cinfo->mem->alloc_large)((j_common_ptr)cinfo, JPOOL_IMAGE, arraysize);
+		cquantize->fserrors[i] = (FSERRPTR)(*cinfo->mem->alloc_large)((j_common_ptr)cinfo, JPOOL_IMAGE, arraysize);
 	}
 }
-
 /*
  * Initialize for one-pass color quantization.
  */
-
 METHODDEF(void) start_pass_1_quant(j_decompress_ptr cinfo, boolean is_pre_scan)
 {
 	my_cquantize_ptr cquantize = (my_cquantize_ptr)cinfo->cquantize;
 	size_t arraysize;
 	int i;
-
 	/* Install my colormap. */
 	cinfo->colormap = cquantize->sv_colormap;
 	cinfo->actual_number_of_colors = cquantize->sv_actual;

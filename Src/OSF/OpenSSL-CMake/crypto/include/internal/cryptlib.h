@@ -219,6 +219,7 @@ void bio_sock_cleanup_int(void);
 #include <openssl/rsa.h>
 #include <openssl/dsa.h>
 #include <openssl/ec.h>
+#include <openssl/cast.h>
 //#include <internal/cryptlib.h>
 #include <internal/engine.h>
 #include <internal/thread_once.h>
@@ -377,8 +378,7 @@ void engine_pkey_asn1_meths_free(ENGINE *e);
 extern CRYPTO_ONCE engine_lock_init;
 DECLARE_RUN_ONCE(do_engine_lock_init)
 /*
- * This is a structure for storing implementations of various crypto
- * algorithms and functions.
+ * This is a structure for storing implementations of various crypto algorithms and functions.
  */
 struct engine_st {
     const char *id;
@@ -401,19 +401,18 @@ struct engine_st {
     ENGINE_SSL_CLIENT_CERT_PTR load_ssl_client_cert;
     const ENGINE_CMD_DEFN *cmd_defns;
     int flags;
-    /* reference count on the structure itself */
-    int struct_ref;
+    int struct_ref; // reference count on the structure itself 
     /*
      * reference count on usability of the engine type. NB: This controls the
      * loading and initialisation of any functionality required by this
      * engine, whereas the previous count is simply to cope with
-     * (de)allocation of this structure. Hence, running_ref <= struct_ref at
-     * all times.
+     * (de)allocation of this structure. Hence, running_ref <= struct_ref at all times.
      */
     int funct_ref;
-    /* A place to store per-ENGINE data */
-    CRYPTO_EX_DATA ex_data;
-    /* Used to maintain the linked-list of engines. */
+    CRYPTO_EX_DATA ex_data; // A place to store per-ENGINE data 
+	//
+    // Used to maintain the linked-list of engines.
+	//
     struct engine_st *prev;
     struct engine_st *next;
 };

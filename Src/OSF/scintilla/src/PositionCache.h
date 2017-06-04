@@ -17,6 +17,32 @@ static inline bool IsEOLChar(char ch) {
 }
 
 /**
+* A point in document space.
+* Uses double for sufficient resolution in large (>20,000,000 line) documents.
+*/
+class PointDocument {
+public:
+	double x;
+	double y;
+
+	explicit PointDocument(double x_ = 0, double y_ = 0) : x(x_), y(y_) {
+	}
+
+	// Conversion from Point.
+	explicit PointDocument(Point pt) : x(pt.x), y(pt.y) {
+	}
+};
+
+// There are two points for some positions and this enumeration
+// can choose between the end of the first line or subline
+// and the start of the next line or subline.
+enum PointEnd {
+	peDefault = 0x0,
+	peLineEnd = 0x1,
+	peSubLineEnd = 0x2
+};
+
+/**
  */
 class LineLayout {
 private:
@@ -28,6 +54,7 @@ private:
 	bool inCache;
 public:
 	enum { wrapWidthInfinite = 0x7ffffff };
+
 	int maxLineLength;
 	int numCharsInLine;
 	int numCharsBeforeEOL;
@@ -37,7 +64,7 @@ public:
 	bool containsCaret;
 	int edgeColumn;
 	char *chars;
-	unsigned char *styles;
+	uchar *styles;
 	XYPOSITION *positions;
 	char bracePreviousStyles[2];
 
@@ -64,7 +91,7 @@ public:
 	void RestoreBracesHighlight(Range rangeLine, const Position braces[], bool ignoreStyle);
 	int FindBefore(XYPOSITION x, int lower, int upper) const;
 	int FindPositionFromX(XYPOSITION x, Range range, bool charPosition) const;
-	Point PointFromPosition(int posInLine, int lineHeight) const;
+	Point PointFromPosition(int posInLine, int lineHeight, PointEnd pe) const;
 	int EndLineStyle() const;
 };
 
@@ -97,17 +124,17 @@ public:
 };
 
 class PositionCacheEntry {
-	unsigned int styleNumber:8;
-	unsigned int len:8;
-	unsigned int clock:16;
+	uint styleNumber:8;
+	uint len:8;
+	uint clock:16;
 	XYPOSITION *positions;
 public:
 	PositionCacheEntry();
 	~PositionCacheEntry();
-	void Set(unsigned int styleNumber_, const char *s_, unsigned int len_, XYPOSITION *positions_, unsigned int clock_);
+	void Set(uint styleNumber_, const char *s_, uint len_, XYPOSITION *positions_, uint clock_);
 	void Clear();
-	bool Retrieve(unsigned int styleNumber_, const char *s_, unsigned int len_, XYPOSITION *positions_) const;
-	static unsigned int Hash(unsigned int styleNumber_, const char *s, unsigned int len);
+	bool Retrieve(uint styleNumber_, const char *s_, uint len_, XYPOSITION *positions_) const;
+	static uint Hash(uint styleNumber_, const char *s, uint len);
 	bool NewerThan(const PositionCacheEntry &other) const;
 	void ResetClock();
 };
@@ -152,7 +179,7 @@ class BreakFinder {
 	int posLineStart;
 	int nextBreak;
 	std::vector<int> selAndEdge;
-	unsigned int saeCurrentPos;
+	uint saeCurrentPos;
 	int saeNext;
 	int subBreak;
 	const Document *pdoc;
@@ -176,7 +203,7 @@ public:
 
 class PositionCache {
 	std::vector<PositionCacheEntry> pces;
-	unsigned int clock;
+	uint clock;
 	bool allClear;
 	// Private so PositionCache objects can not be copied
 	PositionCache(const PositionCache &);
@@ -186,8 +213,8 @@ public:
 	void Clear();
 	void SetSize(size_t size_);
 	size_t GetSize() const { return pces.size(); }
-	void MeasureWidths(Surface *surface, const ViewStyle &vstyle, unsigned int styleNumber,
-		const char *s, unsigned int len, XYPOSITION *positions, Document *pdoc);
+	void MeasureWidths(Surface *surface, const ViewStyle &vstyle, uint styleNumber,
+		const char *s, uint len, XYPOSITION *positions, Document *pdoc);
 };
 
 inline bool IsSpaceOrTab(int ch) {

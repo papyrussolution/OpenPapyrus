@@ -8,10 +8,8 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
-
 #include "WordList.h"
 #include "LexAccessor.h"
 #include "Accessor.h"
@@ -37,7 +35,7 @@ static void ColouriseMakeLine(
 
 	Sci_PositionU i = 0;
 	Sci_Position lastNonSpace = -1;
-	unsigned int state = SCE_MAKE_DEFAULT;
+	uint state = SCE_MAKE_DEFAULT;
 	bool bSpecial = false;
 
 	// check for a tab character in column 0 indicating a command

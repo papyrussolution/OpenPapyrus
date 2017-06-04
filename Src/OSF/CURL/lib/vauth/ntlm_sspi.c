@@ -83,7 +83,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(const char * userp,
 	SecBuffer type_1_buf;
 	SecBufferDesc type_1_desc;
 	SECURITY_STATUS status;
-	unsigned long attrs;
+	ulong attrs;
 	TimeStamp expiry; /* For Windows 9x compatibility of SSPI calls */
 
 	/* Clean up any former leftovers and initialise to defaults */
@@ -101,7 +101,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(const char * userp,
 	s_pSecFn->FreeContextBuffer(SecurityPackage);
 
 	/* Allocate our output buffer */
-	ntlm->output_token = malloc(ntlm->token_max);
+	ntlm->output_token = SAlloc::M(ntlm->token_max);
 	if(!ntlm->output_token)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -121,7 +121,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(const char * userp,
 		ntlm->p_identity = NULL;
 
 	/* Allocate our credentials handle */
-	ntlm->credentials = malloc(sizeof(CredHandle));
+	ntlm->credentials = SAlloc::M(sizeof(CredHandle));
 	if(!ntlm->credentials)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -134,7 +134,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(const char * userp,
 		return CURLE_LOGIN_DENIED;
 
 	/* Allocate our new context handle */
-	ntlm->context = malloc(sizeof(CtxtHandle));
+	ntlm->context = SAlloc::M(sizeof(CtxtHandle));
 	if(!ntlm->context)
 		return CURLE_OUT_OF_MEMORY;
 	memzero(ntlm->context, sizeof(CtxtHandle));
@@ -182,7 +182,7 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy * data,
     struct ntlmdata * ntlm)
 {
 	CURLcode result = CURLE_OK;
-	unsigned char * type2 = NULL;
+	uchar * type2 = NULL;
 	size_t type2_len = 0;
 
 #if defined(CURL_DISABLE_VERBOSE_STRINGS)
@@ -241,7 +241,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 	SecBufferDesc type_2_desc;
 	SecBufferDesc type_3_desc;
 	SECURITY_STATUS status;
-	unsigned long attrs;
+	ulong attrs;
 	TimeStamp expiry; /* For Windows 9x compatibility of SSPI calls */
 
 	(void)passwdp;
@@ -303,14 +303,14 @@ void Curl_auth_ntlm_cleanup(struct ntlmdata * ntlm)
 	/* Free our security context */
 	if(ntlm->context) {
 		s_pSecFn->DeleteSecurityContext(ntlm->context);
-		free(ntlm->context);
+		SAlloc::F(ntlm->context);
 		ntlm->context = NULL;
 	}
 
 	/* Free our credentials handle */
 	if(ntlm->credentials) {
 		s_pSecFn->FreeCredentialsHandle(ntlm->credentials);
-		free(ntlm->credentials);
+		SAlloc::F(ntlm->credentials);
 		ntlm->credentials = NULL;
 	}
 
@@ -319,8 +319,8 @@ void Curl_auth_ntlm_cleanup(struct ntlmdata * ntlm)
 	ntlm->p_identity = NULL;
 
 	/* Free the input and output tokens */
-	Curl_safefree(ntlm->input_token);
-	Curl_safefree(ntlm->output_token);
+	ZFREE(ntlm->input_token);
+	ZFREE(ntlm->output_token);
 
 	/* Reset any variables */
 	ntlm->token_max = 0;

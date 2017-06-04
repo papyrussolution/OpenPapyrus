@@ -13,7 +13,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "WordList.h"
@@ -46,7 +45,7 @@ static inline bool IsAWordStart(const int ch) {
 }
 
 /***************************************/
-static inline bool IsABlank(unsigned int ch) {
+static inline bool IsABlank(uint ch) {
     return (ch == ' ') || (ch == 0x09) || (ch == 0x0b) ;
 }
 

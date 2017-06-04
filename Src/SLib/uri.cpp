@@ -1,10 +1,9 @@
-/*
- * uriparser - RFC 3986 URI parsing library
- *
- * Copyright(C) 2007, Weijia Song <songweijia@gmail.com>
- * Copyright(C) 2007, Sebastian Pipping <webmaster@hartwork.org>
- * All rights reserved.
- */
+// uriparser - RFC 3986 URI parsing library
+// 
+// Copyright(C) 2007, Weijia Song <songweijia@gmail.com>
+// Copyright(C) 2007, Sebastian Pipping <webmaster@hartwork.org>
+// All rights reserved.
+// 
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
@@ -863,7 +862,7 @@ int UriDissectQueryMallocEx(UriQueryList**dest, int * itemCount,
 //
 //
 //
-static inline int UriFilenameToUriString(const char * filename, char * uriString, int fromUnix)
+static int UriFilenameToUriString(const char * filename, char * uriString, int fromUnix)
 {
 	const char * input = filename;
 	const char * lastSep = input-1;
@@ -918,7 +917,7 @@ static inline int UriFilenameToUriString(const char * filename, char * uriString
 	return URI_SUCCESS;
 }
 
-static inline int UriUriStringToFilename(const char * uriString, char * filename, int toUnix)
+static int UriUriStringToFilename(const char * uriString, char * filename, int toUnix)
 {
 	const char * const prefix = toUnix ? _UT("file://") : _UT("file:///");
 	const int prefixLen = toUnix ? 7 : 8;
@@ -1308,16 +1307,13 @@ const char * UriUnescapeInPlaceEx(char * inout, int plusToSpace, UriBreakConvers
 	}
 }
 //
+// Compares two text ranges for equal text content 
 //
-//
-static int UriCompareRange(const UriTextRange*a, const UriTextRange*b);
-
-/* Compares two text ranges for equal text content */
-static inline int UriCompareRange(const UriTextRange*a, const UriTextRange*b)
+static int FASTCALL UriCompareRange(const UriTextRange * a, const UriTextRange * b)
 {
-	/* NOTE: Both NULL means equal! */
+	// NOTE: Both NULL means equal! 
 	if((a == NULL) ||(b == NULL))
-		return((a == NULL) &&(b == NULL)) ? TRUE : FALSE;
+		return ((a == NULL) &&(b == NULL)) ? TRUE : FALSE;
 	else {
 		int    diff =((int)(a->afterLast-a->first)-(int)(b->afterLast-b->first));
 		if(diff > 0)
@@ -1329,9 +1325,9 @@ static inline int UriCompareRange(const UriTextRange*a, const UriTextRange*b)
 	}
 }
 
-int UriEqualsUri(const UriUri*a, const UriUri*b)
+int UriEqualsUri(const UriUri * a, const UriUri * b)
 {
-	/* NOTE: Both NULL means equal! */
+	// NOTE: Both NULL means equal! 
 	if((a == NULL) ||(b == NULL)) {
 		return((a == NULL) &&(b == NULL)) ? TRUE : FALSE;
 	}
@@ -1348,9 +1344,7 @@ int UriEqualsUri(const UriUri*a, const UriUri*b)
 		return FALSE;
 	}
 	/* Host */
-	if(((a->hostData.ip4 == NULL) !=(b->hostData.ip4 == NULL)) ||
-	  ((a->hostData.ip6 == NULL) !=(b->hostData.ip6 == NULL)) ||
-	  ((a->hostData.ipFuture.first == NULL)
+	if(((a->hostData.ip4 == NULL) !=(b->hostData.ip4 == NULL)) || ((a->hostData.ip6 == NULL) !=(b->hostData.ip6 == NULL)) || ((a->hostData.ipFuture.first == NULL)
 	    !=(b->hostData.ipFuture.first == NULL))) {
 		return FALSE;
 	}
@@ -1369,9 +1363,7 @@ int UriEqualsUri(const UriUri*a, const UriUri*b)
 			return FALSE;
 		}
 	}
-	if((a->hostData.ip4 == NULL) &&
-	  (a->hostData.ip6 == NULL) &&
-	  (a->hostData.ipFuture.first == NULL)) {
+	if((a->hostData.ip4 == NULL) && (a->hostData.ip6 == NULL) && (a->hostData.ipFuture.first == NULL)) {
 		if(UriCompareRange(&(a->hostText), &(b->hostText))) {
 			return FALSE;
 		}
@@ -1391,11 +1383,13 @@ int UriEqualsUri(const UriUri*a, const UriUri*b)
 			if(UriCompareRange(&(walkA->text), &(walkB->text))) {
 				return FALSE;
 			}
-			if((walkA->next == NULL) !=(walkB->next == NULL)) {
+			else if((walkA->next == NULL) !=(walkB->next == NULL)) {
 				return FALSE;
 			}
-			walkA = walkA->next;
-			walkB = walkB->next;
+			else {
+				walkA = walkA->next;
+				walkB = walkB->next;
+			}
 		} while(walkA != NULL);
 	}
 	/* query */
@@ -1687,50 +1681,47 @@ char UriHexToLetterEx(uint value, int uppercase) {
 	    default: return(uppercase == TRUE) ? _UT('F') : _UT('f');
 	}
 }
-
-/* Checks if a URI has the host component set. */
-int UriIsHostSet(const UriUri*uri) {
-	return(uri != NULL) &&
-	      ((uri->hostText.first != NULL) ||
-	       (uri->hostData.ip4 != NULL) ||
-	       (uri->hostData.ip6 != NULL) ||
-	       (uri->hostData.ipFuture.first != NULL)
-	       );
+//
+// Checks if a URI has the host component set
+//
+int UriIsHostSet(const UriUri * uri)
+{
+	return (uri && (uri->hostText.first || uri->hostData.ip4 || uri->hostData.ip6 || uri->hostData.ipFuture.first));
 }
-
-/* Copies the path segment list from one URI to another. */
-int UriCopyPath(UriUri*dest,
-	const UriUri*source) {
+//
+// Copies the path segment list from one URI to another.
+//
+int UriCopyPath(UriUri * dest, const UriUri * source)
+{
 	if(source->pathHead == NULL) {
-		/* No path component */
+		// No path component 
 		dest->pathHead = NULL;
 		dest->pathTail = NULL;
 	}
 	else {
 		/* Copy list but not the text contained */
-		UriPathSegment*sourceWalker = source->pathHead;
-		UriPathSegment*destPrev = NULL;
+		UriPathSegment * sourceWalker = source->pathHead;
+		UriPathSegment * destPrev = NULL;
 		do {
 			UriPathSegment * cur =(UriPathSegment *)SAlloc::M(sizeof(UriPathSegment));
 			if(cur == NULL) {
-				/* Fix broken list */
-				if(destPrev != NULL) {
+				// Fix broken list 
+				if(destPrev != NULL)
 					destPrev->next = NULL;
-				}
-				return FALSE; /* Raises SAlloc::M error */
-			}
-			/* From this functions usage we know that *
-			* the dest URI cannot be uri->owner      */
-			cur->text = sourceWalker->text;
-			if(destPrev == NULL) {
-				/* First segment ever */
-				dest->pathHead = cur;
+				return FALSE; // Raises SAlloc::M error 
 			}
 			else {
-				destPrev->next = cur;
+				// From this functions usage we know that the dest URI cannot be uri->owner
+				cur->text = sourceWalker->text;
+				if(destPrev == NULL) {
+					dest->pathHead = cur; // First segment ever 
+				}
+				else {
+					destPrev->next = cur;
+				}
+				destPrev = cur;
+				sourceWalker = sourceWalker->next;
 			}
-			destPrev = cur;
-			sourceWalker = sourceWalker->next;
 		} while(sourceWalker != NULL);
 		dest->pathTail = destPrev;
 		dest->pathTail->next = NULL;
@@ -1823,9 +1814,7 @@ static int UriNormalizeSyntaxEngine(UriUri*uri, uint inMask, uint * outMask);
 static int UriMakeRangeOwner(uint * doneMask, uint maskTest, UriTextRange*range);
 static int FASTCALL UriMakeOwner(UriUri*uri, uint * doneMask);
 static void FASTCALL UriFixPercentEncodingInplace(const char * first, const char ** afterLast);
-static int FASTCALL UriFixPercentEncodingMalloc(const char ** first, const char ** afterLast);
 static void UriFixPercentEncodingEngine(const char * inFirst, const char * inAfterLast, const char * outFirst, const char * *outAfterLast);
-static int UriContainsUppercaseLetters(const char * first, const char * afterLast);
 static int FASTCALL UriContainsUglyPercentEncoding(const char * first, const char * afterLast);
 static void FASTCALL UriLowercaseInplace(const char * first, const char * afterLast);
 static int FASTCALL UriLowercaseMalloc(const char ** first, const char ** afterLast);
@@ -1885,12 +1874,12 @@ static void UriPreventLeakage(UriUri*uri, uint revertMask)
 	}
 }
 
-static inline int UriContainsUppercaseLetters(const char * first, const char * afterLast)
+static int FASTCALL UriContainsUppercaseLetters(const char * first, const char * afterLast)
 {
 	if((first != NULL) &&(afterLast != NULL) &&(afterLast > first)) {
 		const char * i = first;
 		for(; i < afterLast; i++) {
-			/* 6.2.2.1 Case Normalization: uppercase letters in scheme or host */
+			// 6.2.2.1 Case Normalization: uppercase letters in scheme or host 
 			if((*i >= _UT('A')) &&(*i <= _UT('Z'))) {
 				return TRUE;
 			}
@@ -2029,29 +2018,33 @@ static void FASTCALL UriFixPercentEncodingInplace(const char * first, const char
 
 static int FASTCALL UriFixPercentEncodingMalloc(const char ** first, const char ** afterLast)
 {
-	int lenInChars;
-	char * buffer;
-	/* Death checks */
+	// Death checks 
 	if((first == NULL) ||(afterLast == NULL) ||(*first == NULL) ||(*afterLast == NULL)) {
 		return FALSE;
 	}
-	/* Old text length */
-	lenInChars =(int)(*afterLast-*first);
-	if(lenInChars == 0) {
-		return TRUE;
+	else {
+		// Old text length 
+		int lenInChars =(int)(*afterLast-*first);
+		if(lenInChars == 0) {
+			return TRUE;
+		}
+		else if(lenInChars < 0) {
+			return FALSE;
+		}
+		else {
+			// New buffer 
+			char * buffer =(char *)SAlloc::M(lenInChars * sizeof(char));
+			if(buffer == NULL) {
+				return FALSE;
+			}
+			else {
+				// Fix on copy 
+				UriFixPercentEncodingEngine(*first, *afterLast, buffer, afterLast);
+				*first = buffer;
+				return TRUE;
+			}
+		}
 	}
-	else if(lenInChars < 0) {
-		return FALSE;
-	}
-	/* New buffer */
-	buffer =(char *)SAlloc::M(lenInChars * sizeof(char));
-	if(buffer == NULL) {
-		return FALSE;
-	}
-	/* Fix on copy */
-	UriFixPercentEncodingEngine(*first, *afterLast, buffer, afterLast);
-	*first = buffer;
-	return TRUE;
 }
 
 static int UriMakeRangeOwner(uint * doneMask, uint maskTest, UriTextRange*range)
@@ -2127,9 +2120,9 @@ static int FASTCALL UriMakeOwner(UriUri * uri, uint * doneMask)
 		}
 		*doneMask |= URI_NORMALIZE_PATH;
 	}
-	/* Port text, must come last so we don't have to undo that one if it fails. *
-	* Otherwise we would need and extra enum flag for it although the port      *
-	* cannot go unnormalized...                                                */
+	// Port text, must come last so we don't have to undo that one if it fails.
+	// Otherwise we would need and extra enum flag for it although the port      
+	// cannot go unnormalized...  
 	if(!UriMakeRangeOwner(doneMask, 0, &(uri->portText))) {
 		return FALSE; /* Raises SAlloc::M error */
 	}

@@ -11,7 +11,7 @@
 #include <Scintilla.h>
 #pragma hdrstop
 #include <string>
-
+#include <map>
 #include "PropSetSimple.h"
 
 #ifdef SCI_NAMESPACE
@@ -42,7 +42,7 @@ void PropSetSimple::Set(const char *key, const char *val, int lenKey, int lenVal
 	(*props)[std::string(key, lenKey)] = std::string(val, lenVal);
 }
 
-static bool IsASpaceCharacter(unsigned int ch) {
+static bool IsASpaceCharacter(uint ch) {
     return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
 }
 

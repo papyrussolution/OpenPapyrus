@@ -107,14 +107,14 @@ static void _zbar_video_recycle_shadow(zbar_image_t * img)
 
 zbar_video_t * zbar_video_create()
 {
-	zbar_video_t * vdo = (zbar_video_t *)calloc(1, sizeof(zbar_video_t));
+	zbar_video_t * vdo = (zbar_video_t *)SAlloc::C(1, sizeof(zbar_video_t));
 	if(vdo) {
 		err_init(&vdo->err, ZBAR_MOD_VIDEO);
 		vdo->fd = -1;
 		(void)_zbar_mutex_init(&vdo->qlock);
 		/* pre-allocate images */
 		vdo->num_images = ZBAR_VIDEO_IMAGES_MAX;
-		vdo->images = (zbar_image_t **)calloc(ZBAR_VIDEO_IMAGES_MAX, sizeof(zbar_image_t *));
+		vdo->images = (zbar_image_t **)SAlloc::C(ZBAR_VIDEO_IMAGES_MAX, sizeof(zbar_image_t *));
 		if(!vdo->images) {
 			zbar_video_destroy(vdo);
 			return(NULL);
@@ -144,17 +144,17 @@ void zbar_video_destroy(zbar_video_t * vdo)
 		for(int i = 0; i < ZBAR_VIDEO_IMAGES_MAX; i++) {
 			_zbar_image_free(vdo->images[i]);
 		}
-		free(vdo->images);
+		SAlloc::F(vdo->images);
 	}
 	while(vdo->shadow_image) {
 		zbar_image_t * img = vdo->shadow_image;
 		vdo->shadow_image = img->next;
-		free((void *)img->P_Data);
+		SAlloc::F((void *)img->P_Data);
 		img->P_Data = NULL;
-		free(img);
+		SAlloc::F(img);
 	}
-	free(vdo->buf);
-	free(vdo->formats);
+	SAlloc::F(vdo->buf);
+	SAlloc::F(vdo->formats);
 	err_cleanup(&vdo->err);
 	_zbar_mutex_destroy(&vdo->qlock);
 
@@ -168,7 +168,7 @@ void zbar_video_destroy(zbar_video_t * vdo)
 		vdo->jpeg = NULL;
 	}
 #endif
-	free(vdo);
+	SAlloc::F(vdo);
 }
 
 int zbar_video_open(zbar_video_t * vdo,
@@ -196,7 +196,7 @@ int zbar_video_open(zbar_video_t * vdo,
 		ldev[10] = '0' + id;
 	}
 	rc = _zbar_video_open(vdo, dev);
-	free(ldev);
+	SAlloc::F(ldev);
 	return(rc);
 }
 
@@ -261,7 +261,7 @@ static inline int video_init_images(zbar_video_t * vdo)
 	if(vdo->iomode != VIDEO_MMAP) {
 		assert(!vdo->buf);
 		vdo->buflen = vdo->num_images * vdo->datalen;
-		vdo->buf = calloc(1, vdo->buflen);
+		vdo->buf = SAlloc::C(1, vdo->buflen);
 		if(!vdo->buf)
 			return err_capture(vdo, SEV_FATAL, ZBAR_ERR_NOMEM, __func__, "unable to allocate image buffers");
 		zprintf(1, "pre-allocated %d %s buffers size=0x%lx\n", vdo->num_images, (vdo->iomode == VIDEO_READWRITE) ? "READ" : "USERPTR", vdo->buflen);

@@ -339,7 +339,7 @@ static int vfw_probe(zbar_video_t * vdo)
 {
 	video_state_t * state = vdo->state;
 	state->bi_size = capGetVideoFormatSize(state->hwnd);
-	BITMAPINFOHEADER * bih = state->bih = (BITMAPINFOHEADER*)realloc(state->bih, state->bi_size);
+	BITMAPINFOHEADER * bih = state->bih = (BITMAPINFOHEADER*)SAlloc::R(state->bih, state->bi_size);
 	/* FIXME check OOM */
 
 	if(!capSetUserData(state->hwnd, (LONG)vdo) || !state->bi_size || !bih || !capGetVideoFormat(state->hwnd, bih, state->bi_size))
@@ -352,14 +352,14 @@ static int vfw_probe(zbar_video_t * vdo)
 	}
 	vdo->datalen = bih->biSizeImage;
 	zprintf(2, "probing supported formats:\n");
-	vdo->formats = (uint32 *)calloc(VFW_NUM_FORMATS, sizeof(uint32));
+	vdo->formats = (uint32 *)SAlloc::C(VFW_NUM_FORMATS, sizeof(uint32));
 	int n = 0;
 	const uint32 * fmt;
 	for(fmt = vfw_formats; *fmt; fmt++)
 		if(vfw_probe_format(vdo, *fmt))
 			vdo->formats[n++] = *fmt;
 
-	vdo->formats = (uint32 *)realloc(vdo->formats, (n + 1) * sizeof(uint32));
+	vdo->formats = (uint32 *)SAlloc::R(vdo->formats, (n + 1) * sizeof(uint32));
 
 	vdo->width = bih->biWidth;
 	vdo->height = bih->biHeight;
@@ -377,7 +377,7 @@ int _zbar_video_open(zbar_video_t * vdo, const char * dev)
 {
 	video_state_t * state = vdo->state;
 	if(!state)
-		state = vdo->state = (video_state_t *)calloc(1, sizeof(video_state_t));
+		state = vdo->state = (video_state_t *)SAlloc::C(1, sizeof(video_state_t));
 	int reqid = -1;
 	if((!strncmp(dev, "/dev/video", 10) || !strncmp(dev, "\\dev\\video", 10)) && dev[10] >= '0' && dev[10] <= '9' && !dev[11])
 		reqid = dev[10] - '0';

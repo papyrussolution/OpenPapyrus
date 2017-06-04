@@ -29,7 +29,7 @@
  * buffering if you are using unbuffered reads.  This should never be asked
  * to read more than 64K on a 16-bit machine.
  */
-void /* PRIVATE */ png_read_data(png_structrp png_ptr, png_bytep data, png_size_t length)
+void /* PRIVATE */ png_read_data(png_structrp png_ptr, png_bytep data, size_t length)
 {
 	png_debug1(4, "reading %d bytes", (int)length);
 	if(png_ptr->read_data_fn != NULL)
@@ -44,12 +44,12 @@ void /* PRIVATE */ png_read_data(png_structrp png_ptr, png_bytep data, png_size_
  * read_data function and use it at run time with png_set_read_fn(), rather
  * than changing the library.
  */
-void PNGCBAPI png_default_read_data(png_structp png_ptr, png_bytep data, png_size_t length)
+void PNGCBAPI png_default_read_data(png_structp png_ptr, png_bytep data, size_t length)
 {
-	png_size_t check;
+	size_t check;
 	if(png_ptr == NULL)
 		return;
-	/* fread() returns 0 on error, so it is OK to store this in a png_size_t
+	/* fread() returns 0 on error, so it is OK to store this in a size_t
 	 * instead of an int, which is what fread() actually returns.
 	 */
 	check = fread(data, 1, length, png_voidcast(png_FILE_p, png_ptr->io_ptr));
@@ -78,7 +78,7 @@ void PNGCBAPI png_default_read_data(png_structp png_ptr, png_bytep data, png_siz
  *                May be NULL, in which case libpng's default function will
  *                be used.
  */
-void PNGAPI png_set_read_fn(png_structrp png_ptr, png_voidp io_ptr, png_rw_ptr read_data_fn)
+void PNGAPI png_set_read_fn(png_structrp png_ptr, void * io_ptr, png_rw_ptr read_data_fn)
 {
 	if(png_ptr == NULL)
 		return;

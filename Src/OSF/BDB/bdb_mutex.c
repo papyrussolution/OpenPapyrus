@@ -289,8 +289,7 @@ int __mutex_open(ENV * env, int create_ok)
 	 *
 	 * Align mutexes on the byte boundaries specified by the application.
 	 */
-	if(dbenv->mutex_align == 0)
-		dbenv->mutex_align = MUTEX_ALIGN;
+	SETIFZ(dbenv->mutex_align, MUTEX_ALIGN);
 	if(dbenv->mutex_tas_spins == 0) {
 		cpu_count = __os_cpu_count();
 		if((ret = __mutex_set_tas_spins(dbenv, cpu_count == 1 ? cpu_count : cpu_count*MUTEX_SPINS_PER_PROCESSOR)) != 0)
@@ -467,13 +466,10 @@ static int __mutex_region_init(ENV * env, DB_MUTEXMGR * mtxmgr)
  */
 int __mutex_env_refresh(ENV * env)
 {
-	DB_MUTEXMGR * mtxmgr;
-	DB_MUTEXREGION * mtxregion;
-	REGINFO * reginfo;
 	int ret;
-	mtxmgr = env->mutex_handle;
-	reginfo = &mtxmgr->reginfo;
-	mtxregion = (DB_MUTEXREGION *)mtxmgr->reginfo.primary;
+	DB_MUTEXMGR * mtxmgr = env->mutex_handle;
+	REGINFO * reginfo = &mtxmgr->reginfo;
+	DB_MUTEXREGION * mtxregion = (DB_MUTEXREGION *)mtxmgr->reginfo.primary;
 	/*
 	 * If a private region, return the memory to the heap.  Not needed for
 	 * filesystem-backed or system shared memory regions, that memory isn't
@@ -620,15 +616,17 @@ void __mutex_resource_return(ENV * env, REGINFO * infop)
  */
 int __mutex_stat_pp(DB_ENV * dbenv, DB_MUTEX_STAT ** statp, uint32 flags)
 {
-	DB_THREAD_INFO * ip;
 	int ret;
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->mutex_handle, "DB_ENV->mutex_stat", DB_INIT_MUTEX);
 	if((ret = __db_fchk(env, "DB_ENV->mutex_stat", flags, DB_STAT_CLEAR)) != 0)
 		return ret;
-	ENV_ENTER(env, ip);
-	REPLICATION_WRAP(env, (__mutex_stat(env, statp, flags)), 0, ret);
-	ENV_LEAVE(env, ip);
+	{
+		DB_THREAD_INFO * ip;
+		ENV_ENTER(env, ip);
+		REPLICATION_WRAP(env, (__mutex_stat(env, statp, flags)), 0, ret);
+		ENV_LEAVE(env, ip);
+	}
 	return ret;
 }
 /*
@@ -987,17 +985,16 @@ void __mutex_set_wait_info(ENV * env, db_mutex_t mutex, uintmax_t * waitp, uintm
  */
 void __mutex_clear(ENV * env, db_mutex_t mutex)
 {
-	DB_MUTEX * mutexp;
-	if(!MUTEX_ON(env))
-		return;
-	mutexp = MUTEXP_SET(env, mutex);
-	mutexp->mutex_set_wait = mutexp->mutex_set_nowait = 0;
+	if(MUTEX_ON(env)) {
+		DB_MUTEX * mutexp = MUTEXP_SET(env, mutex);
+		mutexp->mutex_set_wait = mutexp->mutex_set_nowait = 0;
  #ifdef HAVE_SHARED_LATCHES
-	mutexp->mutex_set_rd_wait = mutexp->mutex_set_rd_nowait = 0;
+		mutexp->mutex_set_rd_wait = mutexp->mutex_set_rd_nowait = 0;
  #endif
  #ifdef HAVE_MUTEX_HYBRID
-	mutexp->hybrid_wait = mutexp->hybrid_wakeup = 0;
+		mutexp->hybrid_wait = mutexp->hybrid_wakeup = 0;
  #endif
+	}
 }
 
 #else /* !HAVE_STATISTICS */
@@ -1058,7 +1055,6 @@ int __db_tas_mutex_init(ENV*env, db_mutex_t mutex, uint32 flags)
  */
 inline static int __db_tas_mutex_lock_int(ENV*env, db_mutex_t mutex, db_timeout_t timeout, int nowait)
 {
-	DB_ENV * dbenv;
 	DB_MUTEX * mutexp;
 	DB_MUTEXMGR * mtxmgr;
 	DB_MUTEXREGION * mtxregion;
@@ -1072,7 +1068,7 @@ inline static int __db_tas_mutex_lock_int(ENV*env, db_mutex_t mutex, db_timeout_
 	ulong micros, max_micros;
 	db_timeout_t time_left;
 #endif
-	dbenv = env->dbenv;
+	DB_ENV * dbenv = env->dbenv;
 	if(!MUTEX_ON(env) || F_ISSET(dbenv, DB_ENV_NOLOCKING))
 		return 0;
 	mtxmgr = env->mutex_handle;
@@ -1100,17 +1096,14 @@ inline static int __db_tas_mutex_lock_int(ENV*env, db_mutex_t mutex, db_timeout_
 	/*
 	 * Only check the thread state once, by initializing the thread
 	 * control block pointer to null.  If it is not the failchk
-	 * thread, then ip will have a valid value subsequent times
-	 * in the loop.
+	 * thread, then ip will have a valid value subsequent times in the loop.
 	 */
 	ip = NULL;
 
 loop:   /* Attempt to acquire the resource for N spins. */
 	for(nspins = mtxregion->stat.st_mutex_tas_spins; nspins > 0; --nspins) {
 #ifdef HAVE_MUTEX_S390_CC_ASSEMBLY
-		tsl_t zero;
-
-		zero = 0;
+		tsl_t zero = 0;
 #endif
 
 #ifdef HAVE_MUTEX_HPPA_MSEM_INIT
@@ -1184,7 +1177,7 @@ relock:
 	 * check expiration times for the second and subsequent waits.
 	 */
 	if(timeout != 0) {
-		/* Set the expiration time if this is the first sleep . */
+		// Set the expiration time if this is the first sleep
 		if(!timespecisset(&timespec))
 			__clock_set_expires(env, &timespec, timeout);
 		else {
@@ -1195,8 +1188,7 @@ relock:
 			timespecsub(&now, &timespec);
 			DB_TIMESPEC_TO_TIMEOUT(time_left, &now, 0);
 			time_left = timeout-time_left;
-			if(micros > time_left)
-				micros = time_left;
+			SETMIN(micros, time_left);
 #endif
 		}
 	}

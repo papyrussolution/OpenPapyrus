@@ -26,9 +26,8 @@
 #pragma hdrstop
 #if !defined(CURL_DISABLE_CRYPTO_AUTH)
 
-#include <curl/curl.h>
+//#include <curl/curl.h>
 #include "urldata.h"
-
 #include "vauth/vauth.h"
 #include "curl_base64.h"
 #include "curl_hmac.h"
@@ -65,7 +64,7 @@ CURLcode Curl_auth_decode_cram_md5_message(const char * chlg64, char ** outptr,
 
 	/* Decode the challenge if necessary */
 	if(chlg64len && *chlg64 != '=')
-		result = Curl_base64_decode(chlg64, (unsigned char**)outptr, outlen);
+		result = Curl_base64_decode(chlg64, (uchar**)outptr, outlen);
 
 	return result;
 }
@@ -97,7 +96,7 @@ CURLcode Curl_auth_create_cram_md5_message(struct Curl_easy * data,
 	CURLcode result = CURLE_OK;
 	size_t chlglen = 0;
 	HMAC_context * ctxt;
-	unsigned char digest[MD5_DIGEST_LEN];
+	uchar digest[MD5_DIGEST_LEN];
 	char * response;
 
 	if(chlg)
@@ -105,14 +104,14 @@ CURLcode Curl_auth_create_cram_md5_message(struct Curl_easy * data,
 
 	/* Compute the digest using the password as the key */
 	ctxt = Curl_HMAC_init(Curl_HMAC_MD5,
-	    (const unsigned char*)passwdp,
+	    (const uchar*)passwdp,
 	    curlx_uztoui(strlen(passwdp)));
 	if(!ctxt)
 		return CURLE_OUT_OF_MEMORY;
 
 	/* Update the digest with the given challenge */
 	if(chlglen > 0)
-		Curl_HMAC_update(ctxt, (const unsigned char*)chlg,
+		Curl_HMAC_update(ctxt, (const uchar*)chlg,
 		    curlx_uztoui(chlglen));
 
 	/* Finalise the digest */
@@ -130,7 +129,7 @@ CURLcode Curl_auth_create_cram_md5_message(struct Curl_easy * data,
 	/* Base64 encode the response */
 	result = Curl_base64_encode(data, response, 0, outptr, outlen);
 
-	free(response);
+	SAlloc::F(response);
 
 	return result;
 }

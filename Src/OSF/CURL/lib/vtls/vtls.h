@@ -154,16 +154,16 @@ void Curl_ssl_kill_session(struct curl_ssl_session *session);
 void Curl_ssl_delsessionid(struct connectdata *conn, void *ssl_sessionid);
 
 /* get N random bytes into the buffer */
-CURLcode Curl_ssl_random(struct Curl_easy *data, unsigned char *buffer,
+CURLcode Curl_ssl_random(struct Curl_easy *data, uchar *buffer,
                          size_t length);
-CURLcode Curl_ssl_md5sum(unsigned char *tmp, /* input */
+CURLcode Curl_ssl_md5sum(uchar *tmp, /* input */
                          size_t tmplen,
-                         unsigned char *md5sum, /* output */
+                         uchar *md5sum, /* output */
                          size_t md5len);
 /* Check pinned public key. */
 CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
                               const char *pinnedpubkey,
-                              const unsigned char *pubkey, size_t pubkeylen);
+                              const uchar *pubkey, size_t pubkeylen);
 
 bool Curl_ssl_cert_status_request(void);
 

@@ -43,7 +43,7 @@
 #endif
 #if (defined(NETWARE) && defined(__NOVELL_LIBC__))
 	#undef in_addr_t
-	#define in_addr_t unsigned long
+	#define in_addr_t ulong
 #endif
 
 /***********************************************************************
@@ -184,7 +184,7 @@ void Curl_resolver_cancel(struct connectdata * conn)
  */
 static void destroy_async_data(struct Curl_async * async)
 {
-	free(async->hostname);
+	SAlloc::F(async->hostname);
 
 	if(async->os_specific) {
 		struct ResolverResults * res = (struct ResolverResults*)async->os_specific;
@@ -193,7 +193,7 @@ static void destroy_async_data(struct Curl_async * async)
 				Curl_freeaddrinfo(res->temp_ai);
 				res->temp_ai = NULL;
 			}
-			free(res);
+			SAlloc::F(res);
 		}
 		async->os_specific = NULL;
 	}
@@ -529,18 +529,18 @@ Curl_addrinfo * Curl_resolver_getaddrinfo(struct connectdata * conn, const char 
 	}
 #endif /* CURLRES_IPV6 */
 
-	bufp = strdup(hostname);
+	bufp = _strdup(hostname);
 	if(bufp) {
 		struct ResolverResults * res = NULL;
-		free(conn->async.hostname);
+		SAlloc::F(conn->async.hostname);
 		conn->async.hostname = bufp;
 		conn->async.port = port;
 		conn->async.done = FALSE; /* not done */
 		conn->async.status = 0; /* clear */
 		conn->async.dns = NULL; /* clear */
-		res = calloc(sizeof(struct ResolverResults), 1);
+		res = SAlloc::C(sizeof(struct ResolverResults), 1);
 		if(!res) {
-			free(conn->async.hostname);
+			SAlloc::F(conn->async.hostname);
 			conn->async.hostname = NULL;
 			return NULL;
 		}
@@ -665,7 +665,7 @@ CURLcode Curl_set_dns_local_ip4(struct Curl_easy * data,
 CURLcode Curl_set_dns_local_ip6(struct Curl_easy * data, const char * local_ip6)
 {
 #if (ARES_VERSION >= 0x010704) && defined(ENABLE_IPV6)
-	unsigned char a6[INET6_ADDRSTRLEN];
+	uchar a6[INET6_ADDRSTRLEN];
 	if((!local_ip6) || (local_ip6[0] == 0)) {
 		/* disabled: do not bind to a specific address */
 		memzero(a6, sizeof(a6));

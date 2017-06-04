@@ -9,7 +9,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "WordList.h"
@@ -75,7 +74,7 @@ static int calculateFoldCmake(Sci_PositionU start, Sci_PositionU end, int foldle
     int newFoldlevel = foldlevel;
 
     char s[20]; // The key word we are looking for has atmost 13 characters
-    for (unsigned int i = 0; i < end - start + 1 && i < 19; i++) {
+    for (uint i = 0; i < end - start + 1 && i < 19; i++) {
         s[i] = static_cast<char>( styler[ start + i ] );
         s[i + 1] = '\0';
     }
@@ -143,7 +142,7 @@ static int classifyWordCmake(Sci_PositionU start, Sci_PositionU end, WordList *k
     // To check for numbers
     if ( isCmakeNumber( word[0] ) ) {
         bool bHasSimpleCmakeNumber = true;
-        for (unsigned int j = 1; j < end - start + 1 && j < 99; j++) {
+        for (uint j = 1; j < end - start + 1 && j < 99; j++) {
             if ( !isCmakeNumber( word[j] ) ) {
                 bHasSimpleCmakeNumber = false;
                 break;

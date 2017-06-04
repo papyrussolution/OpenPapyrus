@@ -94,7 +94,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
 {
 	CURLcode result = CURLE_OK;
 	size_t chlglen = 0;
-	unsigned char * chlg = NULL;
+	uchar * chlg = NULL;
 	CtxtHandle context;
 	PSecPkgInfo SecurityPackage;
 	SecBuffer chlg_buf;
@@ -102,7 +102,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
 	SecBufferDesc chlg_desc;
 	SecBufferDesc resp_desc;
 	SECURITY_STATUS status;
-	unsigned long attrs;
+	ulong attrs;
 	TimeStamp expiry; /* For Windows 9x compatibility of SSPI calls */
 
 	if(!krb5->spn) {
@@ -127,7 +127,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
 		s_pSecFn->FreeContextBuffer(SecurityPackage);
 
 		/* Allocate our response buffer */
-		krb5->output_token = malloc(krb5->token_max);
+		krb5->output_token = SAlloc::M(krb5->token_max);
 		if(!krb5->output_token)
 			return CURLE_OUT_OF_MEMORY;
 	}
@@ -148,7 +148,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
 			krb5->p_identity = NULL;
 
 		/* Allocate our credentials handle */
-		krb5->credentials = malloc(sizeof(CredHandle));
+		krb5->credentials = SAlloc::M(sizeof(CredHandle));
 		if(!krb5->credentials)
 			return CURLE_OUT_OF_MEMORY;
 		memzero(krb5->credentials, sizeof(CredHandle));
@@ -158,7 +158,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
 		if(status != SEC_E_OK)
 			return CURLE_LOGIN_DENIED;
 		/* Allocate our new context handle */
-		krb5->context = malloc(sizeof(CtxtHandle));
+		krb5->context = SAlloc::M(sizeof(CtxtHandle));
 		if(!krb5->context)
 			return CURLE_OUT_OF_MEMORY;
 		memzero(krb5->context, sizeof(CtxtHandle));
@@ -208,7 +208,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
 	    &expiry);
 
 	/* Free the decoded challenge as it is not required anymore */
-	free(chlg);
+	SAlloc::F(chlg);
 
 	if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED) {
 		return CURLE_RECV_ERROR;
@@ -226,7 +226,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
 		    resp_buf.cbBuffer, outptr, outlen);
 	}
 	else if(mutual_auth) {
-		*outptr = strdup("");
+		*outptr = _strdup("");
 		if(!*outptr)
 			result = CURLE_OUT_OF_MEMORY;
 	}
@@ -262,20 +262,20 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	size_t chlglen = 0;
 	size_t messagelen = 0;
 	size_t appdatalen = 0;
-	unsigned char * chlg = NULL;
-	unsigned char * trailer = NULL;
-	unsigned char * message = NULL;
-	unsigned char * padding = NULL;
-	unsigned char * appdata = NULL;
+	uchar * chlg = NULL;
+	uchar * trailer = NULL;
+	uchar * message = NULL;
+	uchar * padding = NULL;
+	uchar * appdata = NULL;
 	SecBuffer input_buf[2];
 	SecBuffer wrap_buf[3];
 	SecBufferDesc input_desc;
 	SecBufferDesc wrap_desc;
-	unsigned long indata = 0;
-	unsigned long outdata = 0;
-	unsigned long qop = 0;
-	unsigned long sec_layer = 0;
-	unsigned long max_size = 0;
+	ulong indata = 0;
+	ulong outdata = 0;
+	ulong qop = 0;
+	ulong sec_layer = 0;
+	ulong max_size = 0;
 	SecPkgContext_Sizes sizes;
 	SecPkgCredentials_Names names;
 	SECURITY_STATUS status;
@@ -300,7 +300,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	    SECPKG_ATTR_SIZES,
 	    &sizes);
 	if(status != SEC_E_OK) {
-		free(chlg);
+		SAlloc::F(chlg);
 
 		return CURLE_OUT_OF_MEMORY;
 	}
@@ -310,7 +310,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	    SECPKG_CRED_ATTR_NAMES,
 	    &names);
 	if(status != SEC_E_OK) {
-		free(chlg);
+		SAlloc::F(chlg);
 
 		return CURLE_RECV_ERROR;
 	}
@@ -331,7 +331,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	if(status != SEC_E_OK) {
 		infof(data, "GSSAPI handshake failure (empty security message)\n");
 
-		free(chlg);
+		SAlloc::F(chlg);
 
 		return CURLE_BAD_CONTENT_ENCODING;
 	}
@@ -340,7 +340,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	if(input_buf[1].cbBuffer != 4) {
 		infof(data, "GSSAPI handshake failure (invalid security data)\n");
 
-		free(chlg);
+		SAlloc::F(chlg);
 
 		return CURLE_BAD_CONTENT_ENCODING;
 	}
@@ -348,7 +348,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	/* Copy the data out and free the challenge as it is not required anymore */
 	memcpy(&indata, input_buf[1].pvBuffer, 4);
 	s_pSecFn->FreeContextBuffer(input_buf[1].pvBuffer);
-	free(chlg);
+	SAlloc::F(chlg);
 
 	/* Extract the security layer */
 	sec_layer = indata & 0x000000FF;
@@ -368,23 +368,23 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	}
 
 	/* Allocate the trailer */
-	trailer = malloc(sizes.cbSecurityTrailer);
+	trailer = SAlloc::M(sizes.cbSecurityTrailer);
 	if(!trailer)
 		return CURLE_OUT_OF_MEMORY;
 
 	/* Convert the user name to UTF8 when operating with Unicode */
 	user_name = Curl_convert_tchar_to_UTF8(names.sUserName);
 	if(!user_name) {
-		free(trailer);
+		SAlloc::F(trailer);
 
 		return CURLE_OUT_OF_MEMORY;
 	}
 
 	/* Allocate our message */
 	messagelen = sizeof(outdata) + strlen(user_name) + 1;
-	message = malloc(messagelen);
+	message = SAlloc::M(messagelen);
 	if(!message) {
-		free(trailer);
+		SAlloc::F(trailer);
 		Curl_unicodefree(user_name);
 
 		return CURLE_OUT_OF_MEMORY;
@@ -401,10 +401,10 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	Curl_unicodefree(user_name);
 
 	/* Allocate the padding */
-	padding = malloc(sizes.cbBlockSize);
+	padding = SAlloc::M(sizes.cbBlockSize);
 	if(!padding) {
-		free(message);
-		free(trailer);
+		SAlloc::F(message);
+		SAlloc::F(trailer);
 
 		return CURLE_OUT_OF_MEMORY;
 	}
@@ -427,9 +427,9 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	status = s_pSecFn->EncryptMessage(krb5->context, KERB_WRAP_NO_ENCRYPT,
 	    &wrap_desc, 0);
 	if(status != SEC_E_OK) {
-		free(padding);
-		free(message);
-		free(trailer);
+		SAlloc::F(padding);
+		SAlloc::F(message);
+		SAlloc::F(trailer);
 
 		return CURLE_OUT_OF_MEMORY;
 	}
@@ -437,11 +437,11 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	/* Allocate the encryption (wrap) buffer */
 	appdatalen = wrap_buf[0].cbBuffer + wrap_buf[1].cbBuffer +
 	    wrap_buf[2].cbBuffer;
-	appdata = malloc(appdatalen);
+	appdata = SAlloc::M(appdatalen);
 	if(!appdata) {
-		free(padding);
-		free(message);
-		free(trailer);
+		SAlloc::F(padding);
+		SAlloc::F(message);
+		SAlloc::F(trailer);
 
 		return CURLE_OUT_OF_MEMORY;
 	}
@@ -458,10 +458,10 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	    outlen);
 
 	/* Free all of our local buffers */
-	free(appdata);
-	free(padding);
-	free(message);
-	free(trailer);
+	SAlloc::F(appdata);
+	SAlloc::F(padding);
+	SAlloc::F(message);
+	SAlloc::F(trailer);
 
 	return result;
 }
@@ -481,14 +481,14 @@ void Curl_auth_gssapi_cleanup(struct kerberos5data * krb5)
 	/* Free our security context */
 	if(krb5->context) {
 		s_pSecFn->DeleteSecurityContext(krb5->context);
-		free(krb5->context);
+		SAlloc::F(krb5->context);
 		krb5->context = NULL;
 	}
 
 	/* Free our credentials handle */
 	if(krb5->credentials) {
 		s_pSecFn->FreeCredentialsHandle(krb5->credentials);
-		free(krb5->credentials);
+		SAlloc::F(krb5->credentials);
 		krb5->credentials = NULL;
 	}
 
@@ -497,8 +497,8 @@ void Curl_auth_gssapi_cleanup(struct kerberos5data * krb5)
 	krb5->p_identity = NULL;
 
 	/* Free the SPN and output token */
-	Curl_safefree(krb5->spn);
-	Curl_safefree(krb5->output_token);
+	ZFREE(krb5->spn);
+	ZFREE(krb5->output_token);
 
 	/* Reset any variables */
 	krb5->token_max = 0;

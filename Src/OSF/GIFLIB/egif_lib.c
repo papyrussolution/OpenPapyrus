@@ -16,9 +16,7 @@
 
 /* Masks given codes to BitsPerPixel, to make sure all codes are in range: */
 /*@+charint@*/
-static const GifPixelType CodeMask[] = {
-	0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff
-};
+static const GifPixelType CodeMask[] = { 0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff };
 /*@-charint@*/
 
 static int EGifSetupCompress(GifFileType * GifFile);
@@ -89,13 +87,13 @@ GifFileType * EGifOpenFileHandle(const int FileHandle, int * Error)
 		memzero(GifFile, sizeof(GifFileType));
 		Private = (GifFilePrivateType*)SAlloc::M(sizeof(GifFilePrivateType));
 		if(Private == NULL) {
-			free(GifFile);
+			SAlloc::F(GifFile);
 			ASSIGN_PTR(Error, E_GIF_ERR_NOT_ENOUGH_MEM);
 			return NULL;
 		}
 		if((Private->HashTable = _InitHashTable()) == NULL) {
-			free(GifFile);
-			free(Private);
+			SAlloc::F(GifFile);
+			SAlloc::F(Private);
 			ASSIGN_PTR(Error, E_GIF_ERR_NOT_ENOUGH_MEM);
 			return NULL;
 		}
@@ -130,17 +128,15 @@ GifFileType * EGifOpen(void * userData, OutputFunc writeFunc, int * Error)
 	memzero(GifFile, sizeof(GifFileType));
 	Private = (GifFilePrivateType*)SAlloc::M(sizeof(GifFilePrivateType));
 	if(Private == NULL) {
-		free(GifFile);
-		if(Error != NULL)
-			*Error = E_GIF_ERR_NOT_ENOUGH_MEM;
+		SAlloc::F(GifFile);
+		ASSIGN_PTR(Error, E_GIF_ERR_NOT_ENOUGH_MEM);
 		return NULL;
 	}
 	Private->HashTable = _InitHashTable();
 	if(Private->HashTable == NULL) {
-		free(GifFile);
-		free(Private);
-		if(Error != NULL)
-			*Error = E_GIF_ERR_NOT_ENOUGH_MEM;
+		SAlloc::F(GifFile);
+		SAlloc::F(Private);
+		ASSIGN_PTR(Error, E_GIF_ERR_NOT_ENOUGH_MEM);
 		return NULL;
 	}
 	GifFile->Private = (void*)Private;
@@ -179,10 +175,7 @@ char * EGifGetGifVersion(GifFileType * GifFile)
 		if(oneof4(function, COMMENT_EXT_FUNC_CODE, GRAPHICS_EXT_FUNC_CODE, PLAINTEXT_EXT_FUNC_CODE, APPLICATION_EXT_FUNC_CODE))
 			Private->gif89 = true;
 	}
-	if(Private->gif89)
-		return GIF89_STAMP;
-	else
-		return GIF87_STAMP;
+	return Private->gif89 ? GIF89_STAMP : GIF87_STAMP;
 }
 
 /******************************************************************************
@@ -202,12 +195,7 @@ int EGifSetGifVersion(GifFileType * GifFile, const bool gif89)
    This routine should be called before any other EGif calls, immediately
    following the GIF file opening.
 ******************************************************************************/
-int EGifPutScreenDesc(GifFileType * GifFile,
-    const int Width,
-    const int Height,
-    const int ColorRes,
-    const int BackGround,
-    const ColorMapObject * ColorMap)
+int EGifPutScreenDesc(GifFileType * GifFile, const int Width, const int Height, const int ColorRes, const int BackGround, const ColorMapObject * ColorMap)
 {
 	GifByteType Buf[3];
 	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
@@ -228,7 +216,6 @@ int EGifPutScreenDesc(GifFileType * GifFile,
 		GifFile->Error = E_GIF_ERR_WRITE_FAILED;
 		return GIF_ERROR;
 	}
-
 	GifFile->SWidth = Width;
 	GifFile->SHeight = Height;
 	GifFile->SColorResolution = ColorRes;
@@ -256,18 +243,15 @@ int EGifPutScreenDesc(GifFileType * GifFile,
 	 */
 	Buf[0] = (ColorMap ? 0x80 : 0x00) | /* Yes/no global colormap */
 	    ((ColorRes - 1) << 4) |  /* Bits allocated to each primary color */
-	    (ColorMap ? ColorMap->BitsPerPixel - 1 : 0x07 ); /* Actual size of the
-	                                                        color table. */
+	    (ColorMap ? ColorMap->BitsPerPixel - 1 : 0x07 ); /* Actual size of the color table. */
 	if(ColorMap != NULL && ColorMap->SortFlag)
 		Buf[0] |= 0x08;
 	Buf[1] = BackGround; /* Index into the ColorTable for background color */
 	Buf[2] = GifFile->AspectByte; /* Pixel Aspect Ratio */
 	InternalWrite(GifFile, Buf, 3);
-
 	/* If we have Global color map - dump it also: */
 	if(ColorMap != NULL) {
-		int i;
-		for(i = 0; i < ColorMap->ColorCount; i++) {
+		for(int i = 0; i < ColorMap->ColorCount; i++) {
 			/* Put the ColorMap out also: */
 			Buf[0] = ColorMap->Colors[i].Red;
 			Buf[1] = ColorMap->Colors[i].Green;
@@ -278,10 +262,7 @@ int EGifPutScreenDesc(GifFileType * GifFile,
 			}
 		}
 	}
-
-	/* Mark this file as has screen descriptor, and no pixel written yet: */
-	Private->FileState |= FILE_STATE_SCREEN;
-
+	Private->FileState |= FILE_STATE_SCREEN; /* Mark this file as has screen descriptor, and no pixel written yet: */
 	return GIF_OK;
 }
 
@@ -289,17 +270,10 @@ int EGifPutScreenDesc(GifFileType * GifFile,
    This routine should be called before any attempt to dump an image - any
    call to any of the pixel dump routines.
 ******************************************************************************/
-int EGifPutImageDesc(GifFileType * GifFile,
-    const int Left,
-    const int Top,
-    const int Width,
-    const int Height,
-    const bool Interlace,
-    const ColorMapObject * ColorMap)
+int EGifPutImageDesc(GifFileType * GifFile, const int Left, const int Top, const int Width, const int Height, const bool Interlace, ColorMapObject * ColorMap)
 {
 	GifByteType Buf[3];
 	GifFilePrivateType * Private = (GifFilePrivateType*)GifFile->Private;
-
 	if(Private->FileState & FILE_STATE_IMAGE &&
 	    Private->PixelCount > 0xffff0000UL) {
 		/* If already has active image descriptor - something is wrong! */
@@ -462,10 +436,12 @@ int EGifPutExtensionLeader(GifFileType * GifFile, const int ExtCode)
 		GifFile->Error = E_GIF_ERR_NOT_WRITEABLE;
 		return GIF_ERROR;
 	}
-	Buf[0] = EXTENSION_INTRODUCER;
-	Buf[1] = ExtCode;
-	InternalWrite(GifFile, Buf, 2);
-	return GIF_OK;
+	else {
+		Buf[0] = EXTENSION_INTRODUCER;
+		Buf[1] = ExtCode;
+		InternalWrite(GifFile, Buf, 2);
+		return GIF_OK;
+	}
 }
 
 /******************************************************************************
@@ -480,10 +456,12 @@ int EGifPutExtensionBlock(GifFileType * GifFile, const int ExtLen, const void * 
 		GifFile->Error = E_GIF_ERR_NOT_WRITEABLE;
 		return GIF_ERROR;
 	}
-	Buf = ExtLen;
-	InternalWrite(GifFile, &Buf, 1);
-	InternalWrite(GifFile, (const uint8 *)Extension, ExtLen);
-	return GIF_OK;
+	else {
+		Buf = ExtLen;
+		InternalWrite(GifFile, &Buf, 1);
+		InternalWrite(GifFile, (const uint8 *)Extension, ExtLen);
+		return GIF_OK;
+	}
 }
 
 /******************************************************************************
@@ -498,10 +476,12 @@ int EGifPutExtensionTrailer(GifFileType * GifFile)
 		GifFile->Error = E_GIF_ERR_NOT_WRITEABLE;
 		return GIF_ERROR;
 	}
-	/* Write the block terminator */
-	Buf = 0;
-	InternalWrite(GifFile, &Buf, 1);
-	return GIF_OK;
+	else {
+		/* Write the block terminator */
+		Buf = 0;
+		InternalWrite(GifFile, &Buf, 1);
+		return GIF_OK;
+	}
 }
 
 /******************************************************************************
@@ -658,9 +638,9 @@ int EGifCloseFile(GifFileType * GifFile)
 	}
 	if(Private) {
 		if(Private->HashTable) {
-			free((char*)Private->HashTable);
+			SAlloc::F((char*)Private->HashTable);
 		}
-		free((char*)Private);
+		SAlloc::F((char*)Private);
 	}
 	if(File && fclose(File) != 0) {
 		GifFile->Error = E_GIF_ERR_CLOSE_FAILED;
@@ -671,7 +651,7 @@ int EGifCloseFile(GifFileType * GifFile)
 	 * thinks the GIF structure is freed on an error return.
 	 */
 #ifndef __COVERITY__
-	free(GifFile);
+	SAlloc::F(GifFile);
 #endif /* __COVERITY__ */
 	return GIF_OK;
 }
@@ -881,10 +861,8 @@ static int EGifBufferedOutput(GifFileType * GifFile, GifByteType * Buf, int c)
 static int EGifWriteExtensions(GifFileType * GifFileOut, ExtensionBlock * ExtensionBlocks, int ExtensionBlockCount)
 {
 	if(ExtensionBlocks) {
-		ExtensionBlock * ep;
-		int j;
-		for(j = 0; j < ExtensionBlockCount; j++) {
-			ep = &ExtensionBlocks[j];
+		for(int j = 0; j < ExtensionBlockCount; j++) {
+			ExtensionBlock * ep = &ExtensionBlocks[j];
 			if(ep->Function != CONTINUE_EXT_FUNC_CODE)
 				if(EGifPutExtensionLeader(GifFileOut, ep->Function) == GIF_ERROR)
 					return (GIF_ERROR);
@@ -919,8 +897,7 @@ int EGifSpew(GifFileType * GifFileOut)
 			return (GIF_ERROR);
 		if(sp->ImageDesc.Interlace) {
 			/*
-			 * The way an interlaced image should be written -
-			 * offsets and jumps...
+			 * The way an interlaced image should be written - offsets and jumps...
 			 */
 			const int InterlacedOffset[] = { 0, 4, 2, 1 };
 			const int InterlacedJumps[] = { 8, 8, 4, 2 };

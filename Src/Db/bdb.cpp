@@ -233,7 +233,7 @@ BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options)
 	}
 	E->set_timeout(E, 1000000, DB_SET_LOCK_TIMEOUT);
 	{
-		int    opf = DB_CREATE|DB_INIT_MPOOL|DB_INIT_LOCK|DB_USE_ENVIRON|DB_INIT_TXN;
+		int    opf = DB_CREATE|DB_INIT_MPOOL|DB_INIT_LOCK|DB_USE_ENVIRON|DB_INIT_TXN|DB_INIT_LOG;
 		if(options & oRecover)
 			opf |= DB_RECOVER;
 		// @v9.6.4 {

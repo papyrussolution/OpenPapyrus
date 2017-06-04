@@ -126,9 +126,6 @@ struct CrcModel { // cm_t
 	//
 	uint32 cm_reg;          // Context: Context during execution
 };
-
-
-
 //
 //
 //
@@ -388,7 +385,7 @@ int SCalcCheckDigit(int alg, const char * pInput, size_t inputLen)
 //
 //
 //
-#if 0 // @construction {
+#if 1 // @construction {
 
 #define CDTCLS_HASH      1
 #define CDTCLS_CRYPT     2
@@ -415,6 +412,7 @@ struct SDataTransformAlgorithm {
 };
 
 int SDataTransform(int alg, int phase, int inpFormat, int outpFormat, const SBaseBuffer & rIn, SBaseBuffer & rOut);
+int SDataTransform(int alg, int phase, int inpFormat, int outpFormat, const void * pIn, size_t inLen, void * pOut, size_t outLen, size_t * pResultOutOffs);
 uint32 StHash32(int alg, const SBaseBuffer & rIn);
 uint32 StCheckSum(int alg, int phase, const SBaseBuffer & rIn);
 
@@ -458,13 +456,63 @@ public:
 		size_t OutSize;
 		int64  Time;
 	};
+	struct TransformBlock {
+		//
+		// Descr: Конструктор для фаз phaseInit и phaseUpdate
+		//
+		TransformBlock(int phase, const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen) : Phase(phase), InBufLen(inBufLen)
+		{
+			assert(oneof2(phase, phaseInit, phaseUpdate));
+			P_InBuf = pInBuf;
+			P_OutBuf = pOutBuf;
+			OutBufLen = outBufLen;
+			OutBufPos = 0;
+		}
+		//
+		// Descr: Конструктор для фазы phaseFinish
+		//
+		TransformBlock(void * pOutBuf, size_t outBufLen) : Phase(phaseFinish), InBufLen(0)
+		{
+			P_InBuf = 0;
+			P_OutBuf = pOutBuf;
+			OutBufLen = outBufLen;
+			OutBufPos = 0;
+		}
+		//
+		// Descr: Конструктор для получения информации об алгоритме
+		//
+		TransformBlock(SBdtFunct::Info * pInfo) : Phase(phaseGetInfo), InBufLen(0)
+		{
+			P_InBuf = 0;
+			P_OutBuf = pInfo;
+			OutBufLen = pInfo ? sizeof(*pInfo) : 0;
+			OutBufPos = 0;
+		}
+		//
+		// Descr: Конструктор для получения статистики после завершения работы алгоритма
+		//
+		TransformBlock(SBdtFunct::Stat * pStat) : Phase(phaseGetStat), InBufLen(0)
+		{
+			P_InBuf = 0;
+			P_OutBuf = pStat;
+			OutBufLen = pStat ? sizeof(*pStat) : 0;
+			OutBufPos = 0;
+		}
+		const int  Phase;
+		const void * P_InBuf;
+		const size_t InBufLen;
+		void * P_OutBuf;
+		size_t OutBufLen;
+		size_t OutBufPos;
+	};
 	SBdtFunct(int alg);
 	~SBdtFunct();
-	int    GetInfo(Info & rResult) const;
-	int    Init(SBuffer & rOutBuf, const void * pKey, size_t keyLen);
-	int    Update(const void * pInBuf, size_t inBufLen, SBuffer & rOutBuf);
-	int    Finish(SBuffer & rOutBuf);
-	//
+	int    GetInfo(Info & rResult);
+	int    GetStat(Stat & rResult);
+	int    Init(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen);
+	int    Update(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen);
+	int    Finish(void * pOutBuf, size_t outBufLen);
+
 	int    Test(const char * pHexIn, const char * pHexKey, const char * pHexOut);
 private:
 	enum {
@@ -474,7 +522,7 @@ private:
 		phaseGetInfo,
 		phaseGetStat
 	};
-	int    Implement_Transform(int phase, const void * pInBuf, size_t inBufLen, void * pOutBuf);
+	int    FASTCALL Implement_Transform(TransformBlock & rBlk);
 
 	struct State_ {
 		void   Reset();
@@ -505,6 +553,13 @@ void SBdtFunct::State_::Reset()
 
 SBdtFunct::SBdtFunct(int alg) : A(alg)
 {
+	Key.Init();
+	Ste.Reset();
+}
+
+SBdtFunct::~SBdtFunct()
+{
+	Key.Destroy();
 }
 
 int SBdtFunct::Test(const char * pHexIn, const char * pHexKey, const char * pHexOut)
@@ -512,30 +567,50 @@ int SBdtFunct::Test(const char * pHexIn, const char * pHexKey, const char * pHex
 	return 0;
 }
 
-int SBdtFunct::GetInfo(SBdtFunct::Info & rInfo) const
+int SBdtFunct::GetInfo(SBdtFunct::Info & rInfo)
 {
-	switch(A) {
-		case SBdtFunct::Crc32: return sizeof(uint32);
-		case SBdtFunct::Adler32: return sizeof(uint32);
-		case SBdtFunct::MD5: return 16;
-	};
-	return 0;
+	TransformBlock blk(&rInfo);
+	return Implement_Transform(blk);
 }
 
-int SBdtFunct::Implement_Transform(int phase, const void * pInBuf, size_t inBufLen, void * pOutBuf)
+int SBdtFunct::GetStat(Stat & rResult)
+{
+	TransformBlock blk(&rResult);
+	return Implement_Transform(blk);
+}
+
+int SBdtFunct::Init(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen)
+{
+	TransformBlock blk(phaseInit, pInBuf, inBufLen, pOutBuf, outBufLen);
+	return Implement_Transform(blk);
+}
+
+int SBdtFunct::Update(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen)
+{
+	TransformBlock blk(phaseUpdate, pInBuf, inBufLen, pOutBuf, outBufLen);
+	return Implement_Transform(blk);
+}
+
+int SBdtFunct::Finish(void * pOutBuf, size_t outBufLen)
+{
+	TransformBlock blk(pOutBuf, outBufLen);
+	return Implement_Transform(blk);
+}
+
+int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 {
 	static uint _Tab_Crc32_Idx = 0; // SlSession SClassWrapper
 
 	int    ok = 1;
-	if(phase == phaseInit) {
+	if(rBlk.Phase == phaseInit) {
 		Ste.Reset();
 	}
     switch(A) {
 		case SBdtFunct::Crc32:
-			switch(phase) {
+			switch(rBlk.Phase) {
 				case phaseGetInfo:
 					{
-						Info * p_inf = (Info *)pOutBuf;
+						Info * p_inf = (Info *)rBlk.P_OutBuf;
 						if(p_inf) {
 							p_inf->Alg = A;
 							p_inf->Cls = clsHash;
@@ -577,8 +652,8 @@ int SBdtFunct::Implement_Transform(int phase, const void * pInBuf, size_t inBufL
 
 						uint32 crc = Ste.O.B4;
 						crc = crc ^ 0xffffffffL;
-						size_t len = inBufLen;
-						const uint8 * p_buf = PTR8(pInBuf);
+						size_t len = rBlk.InBufLen;
+						const uint8 * p_buf = PTR8(rBlk.P_InBuf);
 						while(len >= 8) {
 							DO8(p_buf);
 							len -= 8;
@@ -588,7 +663,7 @@ int SBdtFunct::Implement_Transform(int phase, const void * pInBuf, size_t inBufL
 								DO1(p_buf);
 							} while(--len);
 						Ste.O.B4 = crc ^ 0xffffffffL;
-						Ste.S.InSize += inBufLen;
+						Ste.S.InSize += rBlk.InBufLen;
 						Ste.S.OutSize = sizeof(crc);
 
 						#undef DO1
@@ -599,23 +674,24 @@ int SBdtFunct::Implement_Transform(int phase, const void * pInBuf, size_t inBufL
 					break;
 				case SBdtFunct::phaseFinish:
 					{
-						SBuffer * p_out_buf = (SBuffer *)pOutBuf;
-						if(p_out_buf) {
-							THROW(p_out_buf->Write(Ste.O.B4));
-							Ste.S.OutSize = sizeof(Ste.O.B4);
+						if(rBlk.P_OutBuf) {
+							THROW(rBlk.OutBufLen >= sizeof(Ste.O.B4));
+							PTR32(rBlk.P_OutBuf)[0] = Ste.O.B4;
+							rBlk.OutBufPos = sizeof(Ste.O.B4);
 						}
 					}
 					break;
 				case SBdtFunct::phaseGetStat:
 					{
-                        Stat * p_stat = (Stat *)pOutBuf;
+                        Stat * p_stat = (Stat *)rBlk.P_OutBuf;
+						assert(!p_stat || rBlk.OutBufLen >= sizeof(Stat));
                         ASSIGN_PTR(p_stat, Ste.S);
 					}
 					break;
 			}
 			break;
 		case SBdtFunct::Crc24:
-			switch(phase) {
+			switch(rBlk.Phase) {
 				case SBdtFunct::phaseInit:
 					break;
 				case SBdtFunct::phaseUpdate:
@@ -625,7 +701,7 @@ int SBdtFunct::Implement_Transform(int phase, const void * pInBuf, size_t inBufL
 			}
 			break;
 		case SBdtFunct::Crc16:
-			switch(phase) {
+			switch(rBlk.Phase) {
 				case SBdtFunct::phaseInit:
 					break;
 				case SBdtFunct::phaseUpdate:
@@ -635,7 +711,7 @@ int SBdtFunct::Implement_Transform(int phase, const void * pInBuf, size_t inBufL
 			}
 			break;
 		case SBdtFunct::Adler32:
-			switch(phase) {
+			switch(rBlk.Phase) {
 				case phaseInit:
 					break;
 				case phaseUpdate:
@@ -645,7 +721,7 @@ int SBdtFunct::Implement_Transform(int phase, const void * pInBuf, size_t inBufL
 			}
 			break;
 		case SBdtFunct::MD2:
-			switch(phase) {
+			switch(rBlk.Phase) {
 				case phaseInit:
 					break;
 				case phaseUpdate:
@@ -655,7 +731,7 @@ int SBdtFunct::Implement_Transform(int phase, const void * pInBuf, size_t inBufL
 			}
 			break;
 		case SBdtFunct::MD4:
-			switch(phase) {
+			switch(rBlk.Phase) {
 				case phaseInit:
 					break;
 				case phaseUpdate:
@@ -665,7 +741,7 @@ int SBdtFunct::Implement_Transform(int phase, const void * pInBuf, size_t inBufL
 			}
 			break;
 		case SBdtFunct::MD5:
-			switch(phase) {
+			switch(rBlk.Phase) {
 				case phaseInit:
 					break;
 				case phaseUpdate:
@@ -675,7 +751,7 @@ int SBdtFunct::Implement_Transform(int phase, const void * pInBuf, size_t inBufL
 			}
 			break;
 		case SBdtFunct::SHA160:
-			switch(phase) {
+			switch(rBlk.Phase) {
 				case phaseInit:
 					break;
 				case phaseUpdate:
@@ -685,7 +761,7 @@ int SBdtFunct::Implement_Transform(int phase, const void * pInBuf, size_t inBufL
 			}
 			break;
 		case SBdtFunct::SHA224:
-			switch(phase) {
+			switch(rBlk.Phase) {
 				case phaseInit:
 					break;
 				case phaseUpdate:
@@ -701,64 +777,280 @@ int SBdtFunct::Implement_Transform(int phase, const void * pInBuf, size_t inBufL
 	return ok;
 }
 
-/*
-int SBdtFunct::Init(SBaseBuffer & rHashBuf)
-{
-	int    ok = 0;
-	THROW(rHashBuf.Size >= GetSize());
-	switch(A) {
-		case Crc32:
-			{
-				int do_init_tab = 0;
-				if(!_Tab_Crc32_Idx) {
-					TSClassWrapper <ulong[256]> cls;
-					_Tab_Crc32_Idx = SLS.CreateGlobalObject(cls);
-					do_init_tab = 1;
+#endif // } 0 @construction
+
+struct BdtTestItem {
+	BdtTestItem()
+	{
+		Flags = 0;
+		OutLen = 0;
+		Seek = 0;
+	}
+	~BdtTestItem()
+	{
+	}
+	enum {
+		fIn         = 0x0001,
+		fOut        = 0x0002,
+		fKey        = 0x0004,
+		fSalt       = 0x0008,
+		fLabel      = 0x0010,
+		fIKM        = 0x0020,
+		fXTS        = 0x0040,
+		fOutLen     = 0x0080,
+		fIterations = 0x0100,
+		fSecret     = 0x0200,
+		fPassphrase = 0x0400,
+		fSeek       = 0x0800,
+		fNonce      = 0x1000
+	};
+	struct Buffer : private SBaseBuffer {
+	public:
+		Buffer()
+		{
+			SBaseBuffer::Init();
+			DataLen = 0;
+		}
+		~Buffer()
+		{
+			SBaseBuffer::Destroy();
+		}
+		size_t GetLen() const
+		{
+			return DataLen;
+		}
+		void * GetBuf()
+		{
+			return P_Buf;
+		}
+		int    Put(const void * pData, size_t dataLen)
+		{
+			int    ok = 1;
+			if(pData) {
+				if(dataLen <= Size || Alloc(dataLen)) {
+					memcpy(P_Buf, pData, dataLen);
+					DataLen = dataLen;
 				}
-				ulong * p_tab = SLS.GetGlobalObject(_Tab_Crc32_Idx);
-				THROW(p_tab);
-				if(do_init_tab) {
+				else
+					ok = 0;
+			}
+			else {
+				DataLen = 0;
+			}
+			return ok;
+		}
+	private:
+		size_t DataLen;
+	};
+	static int _DecodeTestData(const SString & rSrc, BdtTestItem::Buffer & rDest, STempBuffer & rTempBuffer)
+	{
+		int    ok = 1;
+		size_t req_size = rSrc.Len(); // На самом деле Len()/2 но подстрахуемся
+		size_t real_bin_size = 0;
+		if(req_size > rTempBuffer.GetSize())
+			THROW(rTempBuffer.Alloc(req_size));
+		THROW(rSrc.DecodeHex(0, rTempBuffer, rTempBuffer.GetSize(), &real_bin_size));
+		THROW(rDest.Put(rTempBuffer, real_bin_size));
+		CATCHZOK
+		return ok;
+	}
+	long   Flags;
+	size_t OutLen;       // "OutputLen"
+	uint   Iterations;   // "Iterations"
+	uint   Seek;         // "Seek"
+    BdtTestItem::Buffer In;      // "In"
+    BdtTestItem::Buffer Out;     // "Out" || "Output"
+    BdtTestItem::Buffer Key;     // "Key" || "Secret" || "Passphrase"
+    BdtTestItem::Buffer Salt;    // "Salt"
+    BdtTestItem::Buffer Label;   // "Label"
+    BdtTestItem::Buffer IKM;     // "IKM"
+    BdtTestItem::Buffer XTS;     // "XTS"
+    BdtTestItem::Buffer Nonce;   // "Nonce"
+
+//Salt = 000102030405060708090A0B0C
+//Label = F0F1F2F3F4F5F6F7F8F9
+//OutputLen  = 42
+//Secret = 0B0B0B0B0B0B0B0B0B0B0B
+//Output = 085A01EA1B10F36933068B56EFA5AD81A4F14B822F5B091568A9CDD4F155FDA2C22E422478D305F3F896
+//IKM  = 0B0B0B0B0B0B0B0B0B0B0B
+//XTS = 000102030405060708090A0B0C
+
+//Iterations = 6
+//Passphrase = ftlkfbxdtbjbvllvbwiw
+
+
+};
+
+int SLAPI ReadBdtTestData(const char * pFileName, const char * pSetSymb, TSCollection <BdtTestItem> & rData)
+{
+    int    ok = 1;
+	STempBuffer temp_data_buffer(4096);
+    THROW(fileExists(pFileName));
+    THROW(temp_data_buffer.IsValid());
+    {
+    	SString line_buf;
+    	SString hdr_buf, data_buf;
+    	SString set_name;
+    	BdtTestItem * p_current_item = 0;
+    	SFile f_in(pFileName, SFile::mRead);
+		while(f_in.ReadLine(line_buf)) {
+			line_buf.Chomp();
+			if(line_buf.NotEmptyS()) {
+                if(line_buf.C(0) == '#') { // comment
+				}
+				else if(line_buf.C(0) == '[') {
+					uint cpos = 0;
+                    if(line_buf.StrChr(']', &cpos)) {
+						line_buf.Sub(1, cpos-1, set_name);
+                    }
+				}
+				else if(isempty(pSetSymb) || set_name.CmpNC(pSetSymb) == 0) {
+					THROW(SETIFZ(p_current_item, rData.CreateNewItem()));
+                    if(line_buf.Divide('=', hdr_buf, data_buf) > 0) {
+                        hdr_buf.Strip();
+                        data_buf.Strip();
+                        if(hdr_buf.CmpNC("In") == 0) {
+							if(!(p_current_item->Flags & BdtTestItem::fIn)) {
+								THROW(BdtTestItem::_DecodeTestData(data_buf, p_current_item->In, temp_data_buffer));
+								p_current_item->Flags |= BdtTestItem::fIn;
+							}
+                        }
+                        else if(hdr_buf.CmpNC("Out") == 0 || hdr_buf.CmpNC("Output") == 0) {
+							if(!(p_current_item->Flags & BdtTestItem::fOut)) {
+								THROW(BdtTestItem::_DecodeTestData(data_buf, p_current_item->Out, temp_data_buffer));
+								p_current_item->Flags |= BdtTestItem::fOut;
+							}
+                        }
+                        else if(hdr_buf.CmpNC("Key") == 0) {
+							if(!(p_current_item->Flags & (BdtTestItem::fKey|BdtTestItem::fSecret|BdtTestItem::fPassphrase))) {
+								THROW(BdtTestItem::_DecodeTestData(data_buf, p_current_item->Key, temp_data_buffer));
+								p_current_item->Flags |= BdtTestItem::fKey;
+							}
+                        }
+                        else if(hdr_buf.CmpNC("Secret") == 0) {
+							if(!(p_current_item->Flags & (BdtTestItem::fKey|BdtTestItem::fSecret|BdtTestItem::fPassphrase))) {
+								THROW(BdtTestItem::_DecodeTestData(data_buf, p_current_item->Key, temp_data_buffer));
+								p_current_item->Flags |= BdtTestItem::fSecret;
+							}
+                        }
+                        else if(hdr_buf.CmpNC("Passphrase") == 0) {
+							if(!(p_current_item->Flags & (BdtTestItem::fKey|BdtTestItem::fSecret|BdtTestItem::fPassphrase))) {
+								THROW(BdtTestItem::_DecodeTestData(data_buf, p_current_item->Key, temp_data_buffer));
+								p_current_item->Flags |= BdtTestItem::fPassphrase;
+							}
+                        }
+                        else if(hdr_buf.CmpNC("Salt") == 0) {
+							if(!(p_current_item->Flags & BdtTestItem::fSalt)) {
+								THROW(BdtTestItem::_DecodeTestData(data_buf, p_current_item->Salt, temp_data_buffer));
+								p_current_item->Flags |= BdtTestItem::fSalt;
+							}
+                        }
+                        else if(hdr_buf.CmpNC("Label") == 0) {
+							if(!(p_current_item->Flags & BdtTestItem::fLabel)) {
+								THROW(BdtTestItem::_DecodeTestData(data_buf, p_current_item->Label, temp_data_buffer));
+								p_current_item->Flags |= BdtTestItem::fLabel;
+							}
+                        }
+                        else if(hdr_buf.CmpNC("IKM") == 0) {
+							if(!(p_current_item->Flags & BdtTestItem::fIKM)) {
+								THROW(BdtTestItem::_DecodeTestData(data_buf, p_current_item->IKM, temp_data_buffer));
+								p_current_item->Flags |= BdtTestItem::fIKM;
+							}
+                        }
+                        else if(hdr_buf.CmpNC("XTS") == 0) {
+							if(!(p_current_item->Flags & BdtTestItem::fXTS)) {
+								THROW(BdtTestItem::_DecodeTestData(data_buf, p_current_item->XTS, temp_data_buffer));
+								p_current_item->Flags |= BdtTestItem::fXTS;
+							}
+                        }
+                        else if(hdr_buf.CmpNC("Nonce") == 0) {
+							if(!(p_current_item->Flags & BdtTestItem::fNonce)) {
+								THROW(BdtTestItem::_DecodeTestData(data_buf, p_current_item->Nonce, temp_data_buffer));
+								p_current_item->Flags |= BdtTestItem::fNonce;
+							}
+                        }
+                        else if(hdr_buf.CmpNC("OutputLen") == 0) {
+							if(!(p_current_item->Flags & BdtTestItem::fOutLen)) {
+								p_current_item->OutLen = (size_t)data_buf.ToLong();
+								p_current_item->Flags |= BdtTestItem::fOutLen;
+							}
+                        }
+                        else if(hdr_buf.CmpNC("Iterations") == 0) {
+							if(!(p_current_item->Flags & BdtTestItem::fIterations)) {
+								p_current_item->Iterations = (uint)data_buf.ToLong();
+								p_current_item->Flags |= BdtTestItem::fIterations;
+							}
+                        }
+                        else if(hdr_buf.CmpNC("Seek") == 0) {
+							if(!(p_current_item->Flags & BdtTestItem::fSeek)) {
+								p_current_item->Seek = (uint)data_buf.ToLong();
+								p_current_item->Flags |= BdtTestItem::fSeek;
+							}
+                        }
+                    }
+				}
+			}
+			else {
+				p_current_item = 0;
+			}
+		}
+    }
+    CATCHZOK
+    return ok;
+}
+
+#if SLTEST_RUNNING // {
+
+//#include <zlib.h>
+
+SLTEST_R(BDT)
+{
+	int    ok = 1;
+	{
+		// CRC32
+		SString in_file_name = MakeInputFilePath("crc32.vec");
+		TSCollection <BdtTestItem> data_set;
+		THROW(SLTEST_CHECK_NZ(ReadBdtTestData(in_file_name, "CRC32", data_set)));
+		{
+			SBdtFunct fu(SBdtFunct::Crc32);
+			for(uint i = 0; i < data_set.getCount(); i++) {
+				BdtTestItem * p_item = data_set.at(i);
+				if(p_item) {
+					SLTEST_CHECK_EQ(p_item->Out.GetLen(), sizeof(uint32));
+					uint32 pattern_value = PTR32(p_item->Out.GetBuf())[0];
+					PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
+					PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
+					PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
 					//
-					// terms of polynomial defining this crc (except x^32):
-					//
-					const uint8 p[] = {0,1,2,4,5,7,8,10,11,12,16,22,23,26};
-					//
-					// make exclusive-or pattern from polynomial (0xedb88320L)
-					//
-					ulong poly = 0L; // polynomial exclusive-or pattern
-					uint32 n;
-					for(n = 0; n < SIZEOFARRAY(p); ++n)
-						poly |= 1L << (31 - p[n]);
-					for(n = 0; n < 256; ++n) {
-						uint32 c = n;
-						for(uint k = 0; k < 8; ++k)
-							c = (c & 1) ? (poly ^ (c >> 1)) : (c >> 1);
-						p_tab[n] = c;
+					{
+						uint32 result;
+						THROW(SLTEST_CHECK_NZ(fu.Init(p_item->In.GetBuf(), p_item->In.GetLen(), &result, sizeof(result))));
+						THROW(SLTEST_CHECK_NZ(fu.Update(p_item->In.GetBuf(), p_item->In.GetLen(), &result, sizeof(result))));
+						THROW(SLTEST_CHECK_NZ(fu.Finish(&result, sizeof(result))));
+						SLTEST_CHECK_Z(memcmp(&result, &pattern_value, p_item->Out.GetLen()));
+					}
+					{
+						//
+						// Проверка старой реализации (которой всю жизнь пользуемся)
+						//
+						CRC32 cc;
+						uint32 result = cc.Calc(0, (const uint8 *)p_item->In.GetBuf(), p_item->In.GetLen());
+						SLTEST_CHECK_Z(memcmp(&result, &pattern_value, sizeof(result)));
+					}
+					{
+						//
+						// Проверка реализации zlib 
+						//
+						//uint32 result = crc32_z(0, (const uint8 *)p_item->In.GetBuf(), p_item->In.GetLen());
+						//SLTEST_CHECK_Z(memcmp(&result, &pattern_value, sizeof(result)));
 					}
 				}
-				PTR32(rHashBuf.P_Buf)[0] = 0;
-				ok = 1;
 			}
-			break;
-		case Adler32:
-			{
-				PTR32(rHashBuf.P_Buf)[0] = 0;
-				ok = 1;
-			}
-			break;
-		case MD5:
-			{
-			}
-			break;
-	};
+		}
+	}
 	CATCHZOK
 	return ok;
 }
-*/
-
-#endif // } 0 @construction
-
-#if SLTEST_RUNNING // {
 
 SLTEST_R(CalcCheckDigit)
 {

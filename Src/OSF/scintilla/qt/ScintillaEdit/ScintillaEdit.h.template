@@ -71,4 +71,8 @@ public:
 }
 #endif
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
+
 #endif /* SCINTILLAEDIT_H */

@@ -1072,7 +1072,7 @@ extern void zbar_image_set_crop(zbar_image_t * image, uint x, uint y, uint width
  */
 extern void zbar_image_set_data(zbar_image_t * image, const void * data, ulong data_byte_length, zbar_image_cleanup_handler_t cleanup_hndlr);
 /** built-in cleanup handler.
- * passes the image data buffer to free()
+ * passes the image data buffer to SAlloc::F()
  */
 extern void zbar_image_free_data(zbar_image_t * image);
 

@@ -169,7 +169,7 @@
 /*                       TYPEDEF REPLACEMENTS                       */
 /* ---------------------------------------------------------------- */
 
-#define in_addr_t unsigned long /* Define if in_addr_t is not an available 'typedefed' type. */
+#define in_addr_t ulong /* Define if in_addr_t is not an available 'typedefed' type. */
 #define RETSIGTYPE void /* Define to the return type of signal handlers (int or void). */
 
 /* Define if ssize_t is not an available 'typedefed' type. */

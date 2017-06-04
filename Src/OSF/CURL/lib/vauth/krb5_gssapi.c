@@ -89,7 +89,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
 {
 	CURLcode result = CURLE_OK;
 	size_t chlglen = 0;
-	unsigned char * chlg = NULL;
+	uchar * chlg = NULL;
 	OM_uint32 major_status;
 	OM_uint32 minor_status;
 	OM_uint32 unused_status;
@@ -117,12 +117,12 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
 			Curl_gss_log_error(data, "gss_import_name() failed: ",
 			    major_status, minor_status);
 
-			free(spn);
+			SAlloc::F(spn);
 
 			return CURLE_OUT_OF_MEMORY;
 		}
 
-		free(spn);
+		SAlloc::F(spn);
 	}
 
 	if(chlg64 && *chlg64) {
@@ -157,7 +157,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
 	    NULL);
 
 	/* Free the decoded challenge as it is not required anymore */
-	free(input_token.value);
+	SAlloc::F(input_token.value);
 
 	if(GSS_ERROR(major_status)) {
 		if(output_token.value)
@@ -177,7 +177,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
 		gss_release_buffer(&unused_status, &output_token);
 	}
 	else if(mutual_auth) {
-		*outptr = strdup("");
+		*outptr = _strdup("");
 		if(!*outptr)
 			result = CURLE_OUT_OF_MEMORY;
 	}
@@ -211,18 +211,18 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	CURLcode result = CURLE_OK;
 	size_t chlglen = 0;
 	size_t messagelen = 0;
-	unsigned char * chlg = NULL;
-	unsigned char * message = NULL;
+	uchar * chlg = NULL;
+	uchar * message = NULL;
 	OM_uint32 major_status;
 	OM_uint32 minor_status;
 	OM_uint32 unused_status;
 	gss_buffer_desc input_token = GSS_C_EMPTY_BUFFER;
 	gss_buffer_desc output_token = GSS_C_EMPTY_BUFFER;
-	unsigned int indata = 0;
-	unsigned int outdata = 0;
+	uint indata = 0;
+	uint outdata = 0;
 	gss_qop_t qop = GSS_C_QOP_DEFAULT;
-	unsigned int sec_layer = 0;
-	unsigned int max_size = 0;
+	uint sec_layer = 0;
+	uint max_size = 0;
 	gss_name_t username = GSS_C_NO_NAME;
 	gss_buffer_desc username_token;
 
@@ -248,7 +248,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 		Curl_gss_log_error(data, "gss_inquire_context() failed: ",
 		    major_status, minor_status);
 
-		free(chlg);
+		SAlloc::F(chlg);
 
 		return CURLE_OUT_OF_MEMORY;
 	}
@@ -260,7 +260,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 		Curl_gss_log_error(data, "gss_display_name() failed: ",
 		    major_status, minor_status);
 
-		free(chlg);
+		SAlloc::F(chlg);
 
 		return CURLE_OUT_OF_MEMORY;
 	}
@@ -277,7 +277,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 		    major_status, minor_status);
 
 		gss_release_buffer(&unused_status, &username_token);
-		free(chlg);
+		SAlloc::F(chlg);
 
 		return CURLE_BAD_CONTENT_ENCODING;
 	}
@@ -287,7 +287,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 		infof(data, "GSSAPI handshake failure (invalid security data)\n");
 
 		gss_release_buffer(&unused_status, &username_token);
-		free(chlg);
+		SAlloc::F(chlg);
 
 		return CURLE_BAD_CONTENT_ENCODING;
 	}
@@ -295,7 +295,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	/* Copy the data out and free the challenge as it is not required anymore */
 	memcpy(&indata, output_token.value, 4);
 	gss_release_buffer(&unused_status, &output_token);
-	free(chlg);
+	SAlloc::F(chlg);
 
 	/* Extract the security layer */
 	sec_layer = indata & 0x000000FF;
@@ -318,7 +318,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 
 	/* Allocate our message */
 	messagelen = sizeof(outdata) + username_token.length + 1;
-	message = malloc(messagelen);
+	message = SAlloc::M(messagelen);
 	if(!message) {
 		gss_release_buffer(&unused_status, &username_token);
 
@@ -351,7 +351,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 		Curl_gss_log_error(data, "gss_wrap() failed: ",
 		    major_status, minor_status);
 
-		free(message);
+		SAlloc::F(message);
 
 		return CURLE_OUT_OF_MEMORY;
 	}
@@ -364,7 +364,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	gss_release_buffer(&unused_status, &output_token);
 
 	/* Free the message buffer */
-	free(message);
+	SAlloc::F(message);
 
 	return result;
 }

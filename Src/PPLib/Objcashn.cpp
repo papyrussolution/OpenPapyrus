@@ -254,7 +254,7 @@ SLAPI PPSyncCashNode::PPSyncCashNode() : PPGenCashNode()
 	CurSessID = 0;
 	TouchScreenID = 0;
 	ExtCashNodeID = 0;
-	PapyrusNodeID = 0;
+	PapyrusNodeID_unused = 0;
 	ScaleID       = 0;
 	CustDispType  = 0;
 	CustDispFlags = 0;
@@ -695,7 +695,8 @@ int SLAPI PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 			if(ref->GetProp(Obj, id, CNPRP_EXTDEVICES, p_ed, ed_size) > 0) {
 				pSCN->TouchScreenID = p_ed->TouchScreenID;
 				pSCN->ExtCashNodeID = p_ed->ExtCashNodeID;
-				pSCN->PapyrusNodeID = p_ed->PapyrusNodeID;
+				// @v9.6.9 pSCN->PapyrusNodeID = p_ed->PapyrusNodeID;
+				pSCN->PapyrusNodeID_unused = 0; // @v9.6.9
 				pSCN->ScaleID       = p_ed->ScaleID;
 				pSCN->CustDispType  = p_ed->CustDispType;
 				STRNSCPY(pSCN->CustDispPort, p_ed->CustDispPort);
@@ -723,7 +724,7 @@ int SLAPI PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 		else {
 			pSCN->TouchScreenID   = 0;
 			pSCN->ExtCashNodeID   = 0;
-			pSCN->PapyrusNodeID   = 0;
+			pSCN->PapyrusNodeID_unused = 0;
 			pSCN->ScaleID         = 0;
 			pSCN->CustDispType    = 0;
 			pSCN->CustDispPort[0] = 0;
@@ -963,7 +964,7 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 
 					p_ed->TouchScreenID = p_scn->TouchScreenID;
 					p_ed->ExtCashNodeID = p_scn->ExtCashNodeID;
-					p_ed->PapyrusNodeID = p_scn->PapyrusNodeID;
+					p_ed->PapyrusNodeID = 0; // @v9.6.9 p_scn->PapyrusNodeID-->0
 					p_ed->ScaleID       = p_scn->ScaleID;
 					p_ed->CustDispType  = p_scn->CustDispType;
 					STRNSCPY(p_ed->CustDispPort, p_scn->CustDispPort);
@@ -1256,7 +1257,12 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_TCHSCREEN, PPOBJ_TOUCHSCREEN, Data.TouchScreenID, OLW_CANINSERT, 0);
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_LOCTCHSCR, PPOBJ_TOUCHSCREEN, Data.LocalTouchScrID, OLW_CANINSERT, 0);
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_CASHNODE,  PPOBJ_CASHNODE, Data.ExtCashNodeID, 0, 0);
-			SetupPPObjCombo(this, CTLSEL_EXTDEV_PAPYRUS,   PPOBJ_CASHNODE, Data.PapyrusNodeID, 0, 0);
+			// @v9.6.9 {
+			AddClusterAssoc(CTL_EXTDEV_EXTNODEASALT, 0, CASHFX_EXTNODEASALT);
+			SetClusterData(CTL_EXTDEV_EXTNODEASALT, Data.ExtFlags);
+			DisableClusterItem(CTL_EXTDEV_EXTNODEASALT, 0, !Data.ExtCashNodeID);
+			// } @v9.6.9 
+			// @v9.6.9 SetupPPObjCombo(this, CTLSEL_EXTDEV_PAPYRUS,   PPOBJ_CASHNODE, Data.PapyrusNodeID, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_SCALE,     PPOBJ_SCALE, Data.ScaleID, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_PHNSVC,    PPOBJ_PHONESERVICE, Data.PhnSvcID, 0, 0);
 			setCtrlString(CTL_EXTDEV_PRINTER, Data.PrinterPort);
@@ -1295,7 +1301,13 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			getCtrlData(CTLSEL_EXTDEV_TCHSCREEN, &Data.TouchScreenID);
 			getCtrlData(CTLSEL_EXTDEV_LOCTCHSCR, &Data.LocalTouchScrID);
 			getCtrlData(CTLSEL_EXTDEV_CASHNODE,  &Data.ExtCashNodeID);
-			getCtrlData(CTLSEL_EXTDEV_PAPYRUS,   &Data.PapyrusNodeID);
+			// @v9.6.9 {
+			if(Data.ExtCashNodeID)
+				GetClusterData(CTL_EXTDEV_EXTNODEASALT, &Data.ExtFlags); 
+			else
+				Data.ExtFlags &= ~CASHFX_EXTNODEASALT;
+			// } @v9.6.9 
+			// @v9.6.9 getCtrlData(CTLSEL_EXTDEV_PAPYRUS,   &Data.PapyrusNodeID);
 			getCtrlData(CTLSEL_EXTDEV_SCALE,     &Data.ScaleID);
 			getCtrlData(CTLSEL_EXTDEV_PHNSVC,    &Data.PhnSvcID);
 			getCtrlString(CTL_EXTDEV_PRINTER, Data.PrinterPort);
@@ -1308,12 +1320,13 @@ static int EditExtDevices(PPSyncCashNode * pData)
 				sel = CTL_EXTDEV_CASHNODE;
 				THROW_PP(Data.ID != Data.ExtCashNodeID && PPCashMachine::IsSyncCMT(cn_rec.CashType), PPERR_INVCMT);
 			}
+			/* @v9.6.9 
 			if(Data.PapyrusNodeID) {
 				THROW(cn_obj.Search(Data.PapyrusNodeID, &cn_rec) > 0);
 				sel = CTL_EXTDEV_PAPYRUS;
 				THROW_PP(Data.ID != Data.PapyrusNodeID && cn_rec.CashType == PPCMT_PAPYRUS, PPERR_INVCMT);
 			}
-
+			*/
 			getCtrlString(CTL_EXTDEV_DRAWERPORT, temp_buf);
 			Data.SetPropString(SCN_CASHDRAWER_PORT, temp_buf);
 			getCtrlString(CTL_EXTDEV_DRAWERCMD, temp_buf);
@@ -1344,6 +1357,13 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			else if(event.isCmd(cmBnkTerminal)) {
 				EditBnkTerm();
 			}
+			// @v9.6.9 {
+			else if(event.isCbSelected(CTLSEL_EXTDEV_CASHNODE)) {
+				PPID   ext_node_id = 0;
+				getCtrlData(CTLSEL_EXTDEV_CASHNODE,  &ext_node_id);
+				DisableClusterItem(CTL_EXTDEV_EXTNODEASALT, 0, !ext_node_id);
+			}
+			// } @v9.6.9 
 			else if(TVKEYDOWN) {
 				if(TVKEY == kbF2) {
 					SString prn_port;

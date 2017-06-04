@@ -18,13 +18,8 @@ typedef void (*DrawLineMarkerFn)(Surface *surface, PRectangle &rcWhole, Font &fo
  */
 class LineMarker {
 public:
-	enum typeOfFold { 
-		undefined, 
-		head, 
-		body, 
-		tail, 
-		headWithTail 
-	};
+	enum typeOfFold { undefined, head, body, tail, headWithTail };
+
 	int markType;
 	ColourDesired fore;
 	ColourDesired back;
@@ -37,8 +32,7 @@ public:
 	 * it instead of creating a new method(s) in the Surface class that existing
 	 * platforms must implement as empty. */
 	DrawLineMarkerFn customDraw;
-	LineMarker() 
-	{
+	LineMarker() {
 		markType = SC_MARK_CIRCLE;
 		fore = ColourDesired(0,0,0);
 		back = ColourDesired(0xff,0xff,0xff);
@@ -48,8 +42,7 @@ public:
 		image = NULL;
 		customDraw = NULL;
 	}
-	LineMarker(const LineMarker &) 
-	{
+	LineMarker(const LineMarker &) {
 		// Defined to avoid pxpm being blindly copied, not as a complete copy constructor
 		markType = SC_MARK_CIRCLE;
 		fore = ColourDesired(0,0,0);
@@ -60,15 +53,13 @@ public:
 		image = NULL;
 		customDraw = NULL;
 	}
-	~LineMarker() 
-	{
+	~LineMarker() {
 		delete pxpm;
 		delete image;
 	}
-	LineMarker & operator = (const LineMarker &other) 
-	{
+	LineMarker &operator=(const LineMarker &other) {
 		// Defined to avoid pxpm being blindly copied, not as a complete assignment operator
-		if(this != &other) {
+		if (this != &other) {
 			markType = SC_MARK_CIRCLE;
 			fore = ColourDesired(0,0,0);
 			back = ColourDesired(0xff,0xff,0xff);
@@ -84,7 +75,7 @@ public:
 	}
 	void SetXPM(const char *textForm);
 	void SetXPM(const char *const *linesForm);
-	void SetRGBAImage(Point sizeRGBAImage, float scale, const unsigned char *pixelsRGBAImage);
+	void SetRGBAImage(Point sizeRGBAImage, float scale, const uchar *pixelsRGBAImage);
 	void Draw(Surface *surface, PRectangle &rc, Font &fontForCharacter, typeOfFold tFold, int marginStyle) const;
 };
 

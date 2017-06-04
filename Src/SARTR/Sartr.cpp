@@ -1976,7 +1976,7 @@ int SrDatabase::Open(const char * pDbPath)
 	cfg.MaxLocks    = 128*1024; // @v9.6.4
 	cfg.MaxLockObjs = 128*1024; // @v9.6.4
 	cfg.LogBufSize  = 8*1024*1024;
-	cfg.LogFileSize = 256 * 1024 * 1024;
+	//cfg.LogFileSize = 256 * 1024 * 1024;
 	//cfg.LogSubDir = "LOG";
 	cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove/*|cfg.fLogInMemory*/); // @v9.6.6
 	Close();
@@ -2145,7 +2145,9 @@ int SrDatabase::Close()
 	ZDELETE(P_CNgT);
 	ZDELETE(P_GnT);
 	ZDELETE(P_GwT);
-
+	if(P_Db) {
+		P_Db->RemoveUnusedLogs();
+	}
 	ZDELETE(P_Db);
 	return 1;
 }
@@ -4112,7 +4114,7 @@ int SrDatabase::FormatProp(const SrCProp & rCp, long flags, SString & rBuf)
 
 int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, TSArray <PPOsm::NodeClusterStatEntry> * pStat)
 {
-	const  uint max_cluster_per_tx = 1*1024; // 40-->1
+	const  uint max_cluster_per_tx = 256;
 	const  int  use_transaction = 1;
 	//const  int  use_outer_id = 1;
 	int    ok = 1;
@@ -4230,7 +4232,7 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAs
 
 int SrDatabase::StoreGeoNodeWayRefList(const LLAssocArray & rList)
 {
-	const  uint max_entries_per_tx = 1*1024; // 20-->1
+	const  uint max_entries_per_tx = 128;
 	const  int  use_transaction = 1;
 	int    ok = 1;
 	const  uint _count = rList.getCount();
@@ -4313,7 +4315,7 @@ int SrDatabase::StoreGeoNodeWayRefList(const LLAssocArray & rList)
 
 int SrDatabase::StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSArray <PPOsm::WayStatEntry> * pStat)
 {
-	const  uint max_entries_per_tx = 1*1024; // 20-->1
+	const  uint max_entries_per_tx = 256;
 	const  int  use_transaction = 1;
 	int    ok = 1;
 	const  uint _count = rList.getCount();

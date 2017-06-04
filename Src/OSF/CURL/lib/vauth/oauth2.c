@@ -79,7 +79,7 @@ CURLcode Curl_auth_create_oauth_bearer_message(struct Curl_easy * data,
 	/* Base64 encode the reply */
 	result = Curl_base64_encode(data, oauth, strlen(oauth), outptr, outlen);
 
-	free(oauth);
+	SAlloc::F(oauth);
 
 	return result;
 }

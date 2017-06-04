@@ -447,7 +447,6 @@ int ZEXPORT deflateResetKeep(z_streamp strm)
 	s = (deflate_state*)strm->state;
 	s->pending = 0;
 	s->pending_out = s->pending_buf;
-
 	if(s->wrap < 0) {
 		s->wrap = -s->wrap; /* was made negative by deflate(..., Z_FINISH); */
 	}
@@ -462,9 +461,7 @@ int ZEXPORT deflateResetKeep(z_streamp strm)
 #endif
 	    adler32(0L, Z_NULL, 0);
 	s->last_flush = Z_NO_FLUSH;
-
 	_tr_init(s);
-
 	return Z_OK;
 }
 

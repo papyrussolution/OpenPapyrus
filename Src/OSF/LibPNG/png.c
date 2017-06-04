@@ -32,7 +32,7 @@ void PNGAPI png_set_sig_bytes(png_structrp png_ptr, int num_bytes)
 			nb = 0;
 		if(nb > 8)
 			png_error(png_ptr, "Too many bytes for PNG signature");
-		png_ptr->sig_bytes = (png_byte)nb;
+		png_ptr->sig_bytes = (uint8)nb;
 	}
 }
 
@@ -44,9 +44,9 @@ void PNGAPI png_set_sig_bytes(png_structrp png_ptr, int num_bytes)
  * respectively, to be less than, to match, or be greater than the correct
  * PNG signature (this is the same behavior as strcmp, memcmp, etc).
  */
-int PNGAPI png_sig_cmp(png_const_bytep sig, png_size_t start, png_size_t num_to_check)
+int PNGAPI png_sig_cmp(png_const_bytep sig, size_t start, size_t num_to_check)
 {
-	png_byte png_signature[8] = {137, 80, 78, 71, 13, 10, 26, 10};
+	uint8 png_signature[8] = {137, 80, 78, 71, 13, 10, 26, 10};
 	if(num_to_check > 8)
 		num_to_check = 8;
 	else if(num_to_check < 1)
@@ -87,7 +87,7 @@ void /* PRIVATE */ png_zfree(voidpf png_ptr, voidpf ptr)
 void /* PRIVATE */ png_reset_crc(png_structrp png_ptr)
 {
 	/* The cast is safe because the crc is a 32-bit value. */
-	png_ptr->crc = (png_uint_32)crc32(0, Z_NULL, 0);
+	png_ptr->crc = (uint32)crc32(0, Z_NULL, 0);
 }
 
 /* Calculate the CRC over a section of data.  We can only pass as
@@ -95,7 +95,7 @@ void /* PRIVATE */ png_reset_crc(png_structrp png_ptr)
  * also check that this data will actually be used before going to the
  * trouble of calculating it.
  */
-void /* PRIVATE */ png_calculate_crc(png_structrp png_ptr, png_const_bytep ptr, png_size_t length)
+void /* PRIVATE */ png_calculate_crc(png_structrp png_ptr, png_const_bytep ptr, size_t length)
 {
 	int need_crc = 1;
 	if(PNG_CHUNK_ANCILLARY(png_ptr->chunk_name) != 0) {
@@ -113,16 +113,13 @@ void /* PRIVATE */ png_calculate_crc(png_structrp png_ptr, png_const_bytep ptr, 
 	 */
 	if(need_crc != 0 && length > 0) {
 		uLong crc = png_ptr->crc; /* Should never issue a warning */
-
 		do {
 			uInt safe_length = (uInt)length;
 #ifndef __COVERITY__
 			if(safe_length == 0)
 				safe_length = (uInt)-1;  /* evil, but safe */
 #endif
-
 			crc = crc32(crc, ptr, safe_length);
-
 			/* The following should never issue compiler warnings; if they do the
 			 * target system has characteristics that will probably violate other
 			 * assumptions within the libpng code.
@@ -133,14 +130,14 @@ void /* PRIVATE */ png_calculate_crc(png_structrp png_ptr, png_const_bytep ptr, 
 		while(length > 0);
 
 		/* And the following is always safe because the crc is only 32 bits. */
-		png_ptr->crc = (png_uint_32)crc;
+		png_ptr->crc = (uint32)crc;
 	}
 }
 
 /* Check a user supplied version number, called from both read and write
  * functions that create a png_struct.
  */
-int png_user_version_check(png_structrp png_ptr, png_const_charp user_png_ver)
+int png_user_version_check(png_structrp png_ptr, const char * user_png_ver)
 {
 	/* Libpng versions 1.0.0 and later are binary compatible if the version
 	 * string matches through the second '.'; we must recompile any
@@ -157,44 +154,34 @@ int png_user_version_check(png_structrp png_ptr, png_const_charp user_png_ver)
 				png_ptr->flags |= PNG_FLAG_LIBRARY_MISMATCH;
 			if(user_png_ver[i] == '.')
 				found_dots++;
-		} while(found_dots < 2 && user_png_ver[i] != 0 &&
-		    PNG_LIBPNG_VER_STRING[i] != 0);
+		} while(found_dots < 2 && user_png_ver[i] != 0 && PNG_LIBPNG_VER_STRING[i] != 0);
 	}
-
 	else
 		png_ptr->flags |= PNG_FLAG_LIBRARY_MISMATCH;
-
 	if((png_ptr->flags & PNG_FLAG_LIBRARY_MISMATCH) != 0) {
 #ifdef PNG_WARNINGS_SUPPORTED
 		size_t pos = 0;
 		char m[128];
-
-		pos = png_safecat(m, (sizeof m), pos,
-		    "Application built with libpng-");
+		pos = png_safecat(m, (sizeof m), pos, "Application built with libpng-");
 		pos = png_safecat(m, (sizeof m), pos, user_png_ver);
 		pos = png_safecat(m, (sizeof m), pos, " but running with ");
 		pos = png_safecat(m, (sizeof m), pos, PNG_LIBPNG_VER_STRING);
 		PNG_UNUSED(pos)
-
 		png_warning(png_ptr, m);
 #endif
-
 #ifdef PNG_ERROR_NUMBERS_SUPPORTED
 		png_ptr->flags = 0;
 #endif
-
 		return 0;
 	}
-
-	/* Success return. */
-	return 1;
+	return 1; /* Success return. */
 }
 
 /* Generic function to create a png_struct for either read or write - this
  * contains the common initialization.
  */
-PNG_FUNCTION(png_structp /* PRIVATE */, png_create_png_struct, (png_const_charp user_png_ver, png_voidp error_ptr,
-	png_error_ptr error_fn, png_error_ptr warn_fn, png_voidp mem_ptr, png_malloc_ptr malloc_fn, png_free_ptr free_fn), PNG_ALLOCATED)
+PNG_FUNCTION(png_structp /* PRIVATE */, png_create_png_struct, (const char * user_png_ver, void * error_ptr,
+	png_error_ptr error_fn, png_error_ptr warn_fn, void * mem_ptr, png_malloc_ptr malloc_fn, png_free_ptr free_fn), PNG_ALLOCATED)
 {
 	png_struct create_struct;
 #  ifdef PNG_SETJMP_SUPPORTED
@@ -348,7 +335,7 @@ void PNGAPI png_destroy_info_struct(png_const_structrp png_ptr, png_infopp info_
  * the user-memory mechanism and the user error handling/warning mechanisms in
  * those cases where it does anything other than a memset.
  */
-PNG_FUNCTION(void, PNGAPI png_info_init_3, (png_infopp ptr_ptr, png_size_t png_info_struct_size), PNG_DEPRECATED)
+PNG_FUNCTION(void, PNGAPI png_info_init_3, (png_infopp ptr_ptr, size_t png_info_struct_size), PNG_DEPRECATED)
 {
 	png_inforp info_ptr = *ptr_ptr;
 	png_debug(1, "in png_info_init_3");
@@ -368,7 +355,7 @@ PNG_FUNCTION(void, PNGAPI png_info_init_3, (png_infopp ptr_ptr, png_size_t png_i
 }
 
 /* The following API is not called internally */
-void PNGAPI png_data_freer(png_const_structrp png_ptr, png_inforp info_ptr, int freer, png_uint_32 mask)
+void PNGAPI png_data_freer(png_const_structrp png_ptr, png_inforp info_ptr, int freer, uint32 mask)
 {
 	png_debug(1, "in png_data_freer");
 	if(png_ptr == NULL || info_ptr == NULL)
@@ -381,7 +368,7 @@ void PNGAPI png_data_freer(png_const_structrp png_ptr, png_inforp info_ptr, int 
 		png_error(png_ptr, "Unknown freer parameter in png_data_freer");
 }
 
-void PNGAPI png_free_data(png_const_structrp png_ptr, png_inforp info_ptr, png_uint_32 mask, int num)
+void PNGAPI png_free_data(png_const_structrp png_ptr, png_inforp info_ptr, uint32 mask, int num)
 {
 	png_debug(1, "in png_free_data");
 	if(png_ptr == NULL || info_ptr == NULL)
@@ -529,7 +516,7 @@ void PNGAPI png_free_data(png_const_structrp png_ptr, png_inforp info_ptr, png_u
 	/* Free any image bits attached to the info structure */
 	if(((mask & PNG_FREE_ROWS) & info_ptr->free_me) != 0) {
 		if(info_ptr->row_pointers != 0) {
-			png_uint_32 row;
+			uint32 row;
 			for(row = 0; row < info_ptr->height; row++)
 				png_free(png_ptr, info_ptr->row_pointers[row]);
 
@@ -552,7 +539,7 @@ void PNGAPI png_free_data(png_const_structrp png_ptr, png_inforp info_ptr, png_u
  * functions.  The application should free any memory associated with this
  * pointer before png_write_destroy() or png_read_destroy() are called.
  */
-png_voidp PNGAPI png_get_io_ptr(png_const_structrp png_ptr)
+void * PNGAPI png_get_io_ptr(png_const_structrp png_ptr)
 {
 	if(png_ptr == NULL)
 		return (NULL);
@@ -571,7 +558,7 @@ void PNGAPI png_init_io(png_structrp png_ptr, png_FILE_p fp)
 {
 	png_debug(1, "in png_init_io");
 	if(png_ptr)
-		png_ptr->io_ptr = (png_voidp)fp;
+		png_ptr->io_ptr = (void *)fp;
 }
 
 #  endif
@@ -600,20 +587,15 @@ void PNGAPI png_save_int_32(png_bytep buf, png_int_32 i)
  */
 int PNGAPI png_convert_to_rfc1123_buffer(char out[29], png_const_timep ptime)
 {
-	static PNG_CONST char short_months[12][4] =
-	{"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	 "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-
+	static PNG_CONST char short_months[12][4] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 	if(out == NULL)
 		return 0;
-
 	if(ptime->year > 9999 /* RFC1123 limitation */ ||
 	    ptime->month == 0    ||  ptime->month > 12  ||
 	    ptime->day   == 0    ||  ptime->day   > 31  ||
 	    ptime->hour  > 23    ||  ptime->minute > 59 ||
 	    ptime->second > 60)
 		return 0;
-
 	{
 		size_t pos = 0;
 		char number_buf[5]; /* enough for a four-digit year */
@@ -651,7 +633,7 @@ int PNGAPI png_convert_to_rfc1123_buffer(char out[29], png_const_timep ptime)
  * Deprecated because it causes png_struct to carry a spurious temporary
  * buffer (png_struct::time_buffer), better to have the caller pass this in.
  */
-png_const_charp PNGAPI png_convert_to_rfc1123(png_structrp png_ptr, png_const_timep ptime)
+const char * PNGAPI png_convert_to_rfc1123(png_structrp png_ptr, png_const_timep ptime)
 {
 	if(png_ptr != NULL) {
 		/* The only failure above if png_ptr != NULL is from an invalid ptime */
@@ -670,7 +652,7 @@ png_const_charp PNGAPI png_convert_to_rfc1123(png_structrp png_ptr, png_const_ti
 
 #endif /* READ || WRITE */
 
-png_const_charp PNGAPI png_get_copyright(png_const_structrp png_ptr)
+const char * PNGAPI png_get_copyright(png_const_structrp png_ptr)
 {
 	PNG_UNUSED(png_ptr) /* Silence compiler warning about unused png_ptr */
 #ifdef PNG_STRING_COPYRIGHT
@@ -702,20 +684,20 @@ png_const_charp PNGAPI png_get_copyright(png_const_structrp png_ptr)
  * png_get_header_ver().  Due to the version_nn_nn_nn typedef guard,
  * it is guaranteed that png.c uses the correct version of png.h.
  */
-png_const_charp PNGAPI png_get_libpng_ver(png_const_structrp png_ptr)
+const char * PNGAPI png_get_libpng_ver(png_const_structrp png_ptr)
 {
 	/* Version of *.c files used when building libpng */
 	return png_get_header_ver(png_ptr);
 }
 
-png_const_charp PNGAPI png_get_header_ver(png_const_structrp png_ptr)
+const char * PNGAPI png_get_header_ver(png_const_structrp png_ptr)
 {
 	/* Version of *.h files used when building libpng */
 	PNG_UNUSED(png_ptr) /* Silence compiler warning about unused png_ptr */
 	return PNG_LIBPNG_VER_STRING;
 }
 
-png_const_charp PNGAPI png_get_header_version(png_const_structrp png_ptr)
+const char * PNGAPI png_get_header_version(png_const_structrp png_ptr)
 {
 	/* Returns longer string containing both version and date */
 	PNG_UNUSED(png_ptr) /* Silence compiler warning about unused png_ptr */
@@ -751,32 +733,27 @@ void PNGAPI png_build_grayscale_palette(int bit_depth, png_colorp palette)
 		    num_palette = 2;
 		    color_inc = 0xff;
 		    break;
-
 		case 2:
 		    num_palette = 4;
 		    color_inc = 0x55;
 		    break;
-
 		case 4:
 		    num_palette = 16;
 		    color_inc = 0x11;
 		    break;
-
 		case 8:
 		    num_palette = 256;
 		    color_inc = 1;
 		    break;
-
 		default:
 		    num_palette = 0;
 		    color_inc = 0;
 		    break;
 	}
-
 	for(i = 0, v = 0; i < num_palette; i++, v += color_inc) {
-		palette[i].red = (png_byte)(v & 0xff);
-		palette[i].green = (png_byte)(v & 0xff);
-		palette[i].blue = (png_byte)(v & 0xff);
+		palette[i].red = (uint8)(v & 0xff);
+		palette[i].green = (uint8)(v & 0xff);
+		palette[i].blue = (uint8)(v & 0xff);
 	}
 }
 
@@ -813,9 +790,9 @@ int PNGAPI png_handle_as_unknown(png_const_structrp png_ptr, png_const_bytep chu
 }
 
 #if defined(PNG_READ_UNKNOWN_CHUNKS_SUPPORTED) || defined(PNG_HANDLE_AS_UNKNOWN_SUPPORTED)
-int /* PRIVATE */ png_chunk_unknown_handling(png_const_structrp png_ptr, png_uint_32 chunk_name)
+int /* PRIVATE */ png_chunk_unknown_handling(png_const_structrp png_ptr, uint32 chunk_name)
 {
-	png_byte chunk_string[5];
+	uint8 chunk_string[5];
 	PNG_CSTRING_FROM_CHUNK(chunk_string, chunk_name);
 	return png_handle_as_unknown(png_ptr, chunk_string);
 }
@@ -836,10 +813,10 @@ int PNGAPI png_reset_zstream(png_structrp png_ptr)
 #endif /* READ */
 
 /* This function was added to libpng-1.0.7 */
-png_uint_32 PNGAPI png_access_version_number(void)
+uint32 PNGAPI png_access_version_number(void)
 {
 	/* Version of *.c files used when building libpng */
-	return((png_uint_32)PNG_LIBPNG_VER);
+	return((uint32)PNG_LIBPNG_VER);
 }
 
 #if defined(PNG_READ_SUPPORTED) || defined(PNG_WRITE_SUPPORTED)
@@ -971,7 +948,7 @@ void /* PRIVATE */ png_colorspace_set_gamma(png_const_structrp png_ptr, png_colo
 	 * In 1.6.0 this test replaces the ones in pngrutil.c, in the gAMA chunk
 	 * handling code, which only required the value to be >0.
 	 */
-	png_const_charp errmsg;
+	const char * errmsg;
 
 	if(gAMA < 16 || gAMA > 625000000)
 		errmsg = "gamma value out of range";
@@ -1604,7 +1581,7 @@ int /* PRIVATE */ png_colorspace_set_endpoints(png_const_structrp png_ptr,
 
 #if defined(PNG_sRGB_SUPPORTED) || defined(PNG_iCCP_SUPPORTED)
 /* Error message generation */
-static char png_icc_tag_char(png_uint_32 byte)
+static char png_icc_tag_char(uint32 byte)
 {
 	byte &= 0xff;
 	if(byte >= 32 && byte <= 126)
@@ -1613,7 +1590,7 @@ static char png_icc_tag_char(png_uint_32 byte)
 		return '?';
 }
 
-static void png_icc_tag_name(char * name, png_uint_32 tag)
+static void png_icc_tag_name(char * name, uint32 tag)
 {
 	name[0] = '\'';
 	name[1] = png_icc_tag_char(tag >> 24);
@@ -1638,7 +1615,7 @@ static int is_ICC_signature(png_alloc_size_t it)
 }
 
 static int png_icc_profile_error(png_const_structrp png_ptr, png_colorspacerp colorspace,
-    png_const_charp name, png_alloc_size_t value, png_const_charp reason)
+    const char * name, png_alloc_size_t value, const char * reason)
 {
 	size_t pos;
 	char message[196]; /* see below for calculation */
@@ -1651,7 +1628,7 @@ static int png_icc_profile_error(png_const_structrp png_ptr, png_colorspacerp co
 	pos = png_safecat(message, (sizeof message), pos, "': "); /* +2 = 90 */
 	if(is_ICC_signature(value) != 0) {
 		/* So 'value' is at most 4 bytes and the following cast is safe */
-		png_icc_tag_name(message+pos, (png_uint_32)value);
+		png_icc_tag_name(message+pos, (uint32)value);
 		pos += 6; /* total +8; less than the else clause */
 		message[pos++] = ':';
 		message[pos++] = ' ';
@@ -1777,9 +1754,9 @@ int /* PRIVATE */ png_colorspace_set_sRGB(png_const_structrp png_ptr, png_colors
  *
  *    (63189.8112, 65536, 54060.6464)
  */
-static const png_byte D50_nCIEXYZ[12] = { 0x00, 0x00, 0xf6, 0xd6, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0xd3, 0x2d };
+static const uint8 D50_nCIEXYZ[12] = { 0x00, 0x00, 0xf6, 0xd6, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0xd3, 0x2d };
 
-int /* PRIVATE */ png_icc_check_length(png_const_structrp png_ptr, png_colorspacerp colorspace, png_const_charp name, png_uint_32 profile_length)
+int /* PRIVATE */ png_icc_check_length(png_const_structrp png_ptr, png_colorspacerp colorspace, const char * name, uint32 profile_length)
 {
 	if(profile_length < 132)
 		return png_icc_profile_error(png_ptr, colorspace, name, profile_length, "too short");
@@ -1787,10 +1764,10 @@ int /* PRIVATE */ png_icc_check_length(png_const_structrp png_ptr, png_colorspac
 }
 
 int /* PRIVATE */ png_icc_check_header(png_const_structrp png_ptr, png_colorspacerp colorspace,
-    png_const_charp name, png_uint_32 profile_length,
+    const char * name, uint32 profile_length,
     png_const_bytep profile /* first 132 bytes only */, int color_type)
 {
-	png_uint_32 temp;
+	uint32 temp;
 
 	/* Length check; this cannot be ignored in this code because profile_length
 	 * is used later to check the tag table, so even if the profile seems over
@@ -1802,7 +1779,7 @@ int /* PRIVATE */ png_icc_check_header(png_const_structrp png_ptr, png_colorspac
 		return png_icc_profile_error(png_ptr, colorspace, name, temp,
 		    "length does not match profile");
 
-	temp = (png_uint_32)(*(profile+8));
+	temp = (uint32)(*(profile+8));
 	if(temp > 3 && (profile_length & 3))
 		return png_icc_profile_error(png_ptr, colorspace, name, profile_length,
 		    "invalid length");
@@ -1966,20 +1943,20 @@ int /* PRIVATE */ png_icc_check_header(png_const_structrp png_ptr, png_colorspac
 }
 
 int /* PRIVATE */ png_icc_check_tag_table(png_const_structrp png_ptr, png_colorspacerp colorspace,
-    png_const_charp name, png_uint_32 profile_length,
+    const char * name, uint32 profile_length,
     png_const_bytep profile /* header plus whole tag table */)
 {
-	png_uint_32 tag_count = png_get_uint_32(profile+128);
-	png_uint_32 itag;
+	uint32 tag_count = png_get_uint_32(profile+128);
+	uint32 itag;
 	png_const_bytep tag = profile+132; /* The first tag */
 
 	/* First scan all the tags in the table and add bits to the icc_info value
 	 * (temporarily in 'tags').
 	 */
 	for(itag = 0; itag < tag_count; ++itag, tag += 12) {
-		png_uint_32 tag_id = png_get_uint_32(tag+0);
-		png_uint_32 tag_start = png_get_uint_32(tag+4); /* must be aligned */
-		png_uint_32 tag_length = png_get_uint_32(tag+8); /* not padded */
+		uint32 tag_id = png_get_uint_32(tag+0);
+		uint32 tag_start = png_get_uint_32(tag+4); /* must be aligned */
+		uint32 tag_length = png_get_uint_32(tag+8); /* not padded */
 
 		/* The ICC specification does not exclude zero length tags, therefore the
 		 * start might actually be anywhere if there is no data, but this would be
@@ -2011,10 +1988,10 @@ int /* PRIVATE */ png_icc_check_tag_table(png_const_structrp png_ptr, png_colors
 #if PNG_sRGB_PROFILE_CHECKS >= 0
 /* Information about the known ICC sRGB profiles */
 static const struct {
-	png_uint_32 adler, crc, length;
-	png_uint_32 md5[4];
-	png_byte have_md5;
-	png_byte is_broken;
+	uint32 adler, crc, length;
+	uint32 md5[4];
+	uint8 have_md5;
+	uint8 is_broken;
 	png_uint_16 intent;
 
 #  define PNG_MD5(a, b, c, d) { a, b, c, d }, (a!=0)||(b!=0)||(c!=0)||(d!=0)
@@ -2080,8 +2057,8 @@ static int png_compare_ICC_profile_with_sRGB(png_const_structrp png_ptr,
 	 * the profile will fail at that point.
 	 */
 
-	png_uint_32 length = 0;
-	png_uint_32 intent = 0x10000; /* invalid */
+	uint32 length = 0;
+	uint32 intent = 0x10000; /* invalid */
 #if PNG_sRGB_PROFILE_CHECKS > 1
 	uLong crc = 0; /* the value for 0 length data */
 #endif
@@ -2115,8 +2092,8 @@ static int png_compare_ICC_profile_with_sRGB(png_const_structrp png_ptr,
 			}
 
 			/* Length *and* intent must match */
-			if(length == (png_uint_32)png_sRGB_checks[i].length &&
-			    intent == (png_uint_32)png_sRGB_checks[i].intent) {
+			if(length == (uint32)png_sRGB_checks[i].length &&
+			    intent == (uint32)png_sRGB_checks[i].intent) {
 				/* Now calculate the adler32 if not done already. */
 				if(adler == 0) {
 					adler = adler32(0, NULL, 0);
@@ -2197,7 +2174,7 @@ void /* PRIVATE */ png_icc_set_sRGB(png_const_structrp png_ptr, png_colorspacerp
 #endif /* sRGB */
 
 int /* PRIVATE */ png_colorspace_set_ICC(png_const_structrp png_ptr, png_colorspacerp colorspace,
-    png_const_charp name, png_uint_32 profile_length, png_const_bytep profile, int color_type)
+    const char * name, uint32 profile_length, png_const_bytep profile, int color_type)
 {
 	if((colorspace->flags & PNG_COLORSPACE_INVALID) != 0)
 		return 0;
@@ -2292,7 +2269,7 @@ static int /* PRIVATE */ png_gt(size_t a, size_t b)
 #endif
 
 void /* PRIVATE */ png_check_IHDR(png_const_structrp png_ptr,
-    png_uint_32 width, png_uint_32 height, int bit_depth,
+    uint32 width, uint32 height, int bit_depth,
     int color_type, int interlace_type, int compression_type,
     int filter_type)
 {
@@ -2441,10 +2418,10 @@ void /* PRIVATE */ png_check_IHDR(png_const_structrp png_ptr,
 #define png_fp_add(state, flags) ((state) |= (flags))
 #define png_fp_set(state, value) ((state) = (value) | ((state) & PNG_FP_STICKY))
 
-int /* PRIVATE */ png_check_fp_number(png_const_charp string, png_size_t size, int * statep, png_size_tp whereami)
+int /* PRIVATE */ png_check_fp_number(const char * string, size_t size, int * statep, png_size_tp whereami)
 {
 	int state = *statep;
-	png_size_t i = *whereami;
+	size_t i = *whereami;
 	while(i < size) {
 		int type;
 		/* First find the type of the next character */
@@ -2561,10 +2538,10 @@ PNG_FP_End:
 }
 
 /* The same but for a complete string. */
-int png_check_fp_string(png_const_charp string, png_size_t size)
+int png_check_fp_string(const char * string, size_t size)
 {
 	int state = 0;
-	png_size_t char_index = 0;
+	size_t char_index = 0;
 
 	if(png_check_fp_number(string, size, &state, &char_index) != 0 &&
 	    (char_index == size || string[char_index] == 0))
@@ -2613,7 +2590,7 @@ static double png_pow10(int power)
 /* Function to format a floating point value in ASCII with a given
  * precision.
  */
-void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, png_charp ascii, png_size_t size, double fp, unsigned int precision)
+void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, size_t size, double fp, unsigned int precision)
 {
 	/* We use standard functions from math.h, but not printf because
 	 * that would require stdio.  The caller must supply a buffer of
@@ -2901,13 +2878,13 @@ void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, png_charp ascii
 #  ifdef PNG_FIXED_POINT_SUPPORTED
 /* Function to format a fixed point value in ASCII.
  */
-void /* PRIVATE */ png_ascii_from_fixed(png_const_structrp png_ptr, png_charp ascii, png_size_t size, png_fixed_point fp)
+void /* PRIVATE */ png_ascii_from_fixed(png_const_structrp png_ptr, char * ascii, size_t size, png_fixed_point fp)
 {
 	/* Require space for 10 decimal digits, a decimal point, a minus sign and a
 	 * trailing \0, 13 characters:
 	 */
 	if(size > 12) {
-		png_uint_32 num;
+		uint32 num;
 
 		/* Avoid overflow here on the minimum integer. */
 		if(fp < 0)
@@ -2973,7 +2950,7 @@ void /* PRIVATE */ png_ascii_from_fixed(png_const_structrp png_ptr, png_charp as
 	defined(PNG_READ_RGB_TO_GRAY_SUPPORTED)) || \
 	(defined(PNG_sCAL_SUPPORTED) &&	\
 	defined(PNG_FLOATING_ARITHMETIC_SUPPORTED))
-png_fixed_point png_fixed(png_const_structrp png_ptr, double fp, png_const_charp text)
+png_fixed_point png_fixed(png_const_structrp png_ptr, double fp, const char * text)
 {
 	double r = floor(100000 * fp + .5);
 
@@ -3020,8 +2997,8 @@ int png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 times,
 			}
 #else
 			int negative = 0;
-			png_uint_32 A, T, D;
-			png_uint_32 s16, s32, s00;
+			uint32 A, T, D;
+			uint32 s16, s32, s00;
 
 			if(a < 0)
 				negative = 1, A = -a;
@@ -3064,7 +3041,7 @@ int png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 times,
 				png_fixed_point result = 0; /* NOTE: signed */
 
 				while(--bitshift >= 0) {
-					png_uint_32 d32, d00;
+					uint32 d32, d00;
 
 					if(bitshift > 0)
 						d32 = D >> (32-bitshift), d00 = D << bitshift;
@@ -3225,7 +3202,7 @@ png_fixed_point png_reciprocal2(png_fixed_point a, png_fixed_point b)
  *   255, so it's the base 2 logarithm of a normalized 8-bit floating point
  *   mantissa.  The numbers are 32-bit fractions.
  */
-static const png_uint_32
+static const uint32
     png_8bit_l2[128] =
 {
 	4270715492U, 4222494797U, 4174646467U, 4127164793U, 4080044201U, 4033279239U,
@@ -3328,7 +3305,7 @@ static png_int_32 png_log8bit(unsigned int x)
  * End   (258):  23499
  */
 #ifdef PNG_16BIT_SUPPORTED
-static png_int_32 png_log16bit(png_uint_32 x)
+static png_int_32 png_log16bit(uint32 x)
 {
 	unsigned int lg2 = 0;
 
@@ -3394,7 +3371,7 @@ static png_int_32 png_log16bit(png_uint_32 x)
  * frational part of the logarithm by using an accurate 32-bit value from the
  * top four fractional bits then multiplying in the remaining bits.
  */
-static const png_uint_32
+static const uint32
     png_32bit_exp[16] =
 {
 	/* NOTE: the first entry is deliberately set to the maximum 32-bit value. */
@@ -3422,11 +3399,11 @@ for(i = 11; i>=0; --i) {
 0 45425.85339951654943850496
 #endif
 
-static png_uint_32 png_exp(png_fixed_point x)
+static uint32 png_exp(png_fixed_point x)
 {
 	if(x > 0 && x <= 0xfffff) { /* Else overflow or zero (underflow) */
 		/* Obtain a 4-bit approximation */
-		png_uint_32 e = png_32bit_exp[(x >> 12) & 0x0f];
+		uint32 e = png_32bit_exp[(x >> 12) & 0x0f];
 
 		/* Incorporate the low 12 bits - these decrease the returned value by
 		 * multiplying by a number less than 1 if the bit is set.  The multiplier
@@ -3468,24 +3445,24 @@ static png_uint_32 png_exp(png_fixed_point x)
 	return 0;
 }
 
-static png_byte png_exp8bit(png_fixed_point lg2)
+static uint8 png_exp8bit(png_fixed_point lg2)
 {
 	/* Get a 32-bit value: */
-	png_uint_32 x = png_exp(lg2);
+	uint32 x = png_exp(lg2);
 
 	/* Convert the 32-bit value to 0..255 by multiplying by 256-1. Note that the
 	 * second, rounding, step can't overflow because of the first, subtraction,
 	 * step.
 	 */
 	x -= x >> 8;
-	return (png_byte)(((x + 0x7fffffU) >> 24) & 0xff);
+	return (uint8)(((x + 0x7fffffU) >> 24) & 0xff);
 }
 
 #ifdef PNG_16BIT_SUPPORTED
 static png_uint_16 png_exp16bit(png_fixed_point lg2)
 {
 	/* Get a 32-bit value: */
-	png_uint_32 x = png_exp(lg2);
+	uint32 x = png_exp(lg2);
 
 	/* Convert the 32-bit value to 0..65535 by multiplying by 65536-1: */
 	x -= x >> 16;
@@ -3495,7 +3472,7 @@ static png_uint_16 png_exp16bit(png_fixed_point lg2)
 #endif /* 16BIT */
 #endif /* FLOATING_ARITHMETIC */
 
-png_byte png_gamma_8bit_correct(unsigned int value, png_fixed_point gamma_val)
+uint8 png_gamma_8bit_correct(unsigned int value, png_fixed_point gamma_val)
 {
 	if(value > 0 && value < 255) {
 #     ifdef PNG_FLOATING_ARITHMETIC_SUPPORTED
@@ -3524,7 +3501,7 @@ png_byte png_gamma_8bit_correct(unsigned int value, png_fixed_point gamma_val)
 		 * caller if the *argument* ('value') were to be declared (int).
 		 */
 		double r = floor(255*pow((int)/*SAFE*/ value/255., gamma_val*.00001)+.5);
-		return (png_byte)r;
+		return (uint8)r;
 #     else
 		png_int_32 lg2 = png_log8bit(value);
 		png_fixed_point res;
@@ -3537,7 +3514,7 @@ png_byte png_gamma_8bit_correct(unsigned int value, png_fixed_point gamma_val)
 #     endif
 	}
 
-	return (png_byte)(value & 0xff);
+	return (uint8)(value & 0xff);
 }
 
 #ifdef PNG_16BIT_SUPPORTED
@@ -3633,7 +3610,7 @@ static void png_build_16bit_table(png_structrp png_ptr, png_uint_16pp * ptable,
 			 */
 			unsigned int j;
 			for(j = 0; j < 256; j++) {
-				png_uint_32 ig = (j << (8-shift)) + i;
+				uint32 ig = (j << (8-shift)) + i;
 #           ifdef PNG_FLOATING_ARITHMETIC_SUPPORTED
 				/* Inline the 'max' scaling operation: */
 				/* See png_gamma_8bit_correct for why the cast to (int) is
@@ -3654,7 +3631,7 @@ static void png_build_16bit_table(png_structrp png_ptr, png_uint_16pp * ptable,
 			unsigned int j;
 
 			for(j = 0; j < 256; j++) {
-				png_uint_32 ig = (j << (8-shift)) + i;
+				uint32 ig = (j << (8-shift)) + i;
 
 				if(shift != 0)
 					ig = (ig * 65535U + max_by_2)/max;
@@ -3674,7 +3651,7 @@ static void png_build_16to8_table(png_structrp png_ptr, png_uint_16pp * ptable,
 	PNG_CONST unsigned int num = 1U << (8U - shift);
 	PNG_CONST unsigned int max = (1U << (16U - shift))-1U;
 	unsigned int i;
-	png_uint_32 last;
+	uint32 last;
 
 	png_uint_16pp table = *ptable =
 	    (png_uint_16pp)png_calloc(png_ptr, num * (sizeof(png_uint_16p)));
@@ -3709,7 +3686,7 @@ static void png_build_16to8_table(png_structrp png_ptr, png_uint_16pp * ptable,
 		png_uint_16 out = (png_uint_16)(i * 257U); /* 16-bit output value */
 
 		/* Find the boundary value in 16 bits: */
-		png_uint_32 bound = png_gamma_16bit_correct(out+128U, gamma_val);
+		uint32 bound = png_gamma_16bit_correct(out+128U, gamma_val);
 
 		/* Adjust (round) to (16-shift) bits: */
 		bound = (bound * max + 32768U)/65535U + 1U;
@@ -3745,7 +3722,7 @@ static void png_build_8bit_table(png_structrp png_ptr, png_bytepp ptable,
 
 	else
 		for(i = 0; i<256; ++i)
-			table[i] = (png_byte)(i & 0xff);
+			table[i] = (uint8)(i & 0xff);
 }
 //
 // Used from png_read_destroy and below to release the memory used by the gamma tables.
@@ -3827,7 +3804,7 @@ void /* PRIVATE */ png_build_gamma_table(png_structrp png_ptr, int bit_depth)
 	}
 #ifdef PNG_16BIT_SUPPORTED
 	else {
-		png_byte shift, sig_bit;
+		uint8 shift, sig_bit;
 		if((png_ptr->color_type & PNG_COLOR_MASK_COLOR) != 0) {
 			sig_bit = png_ptr->sig_bit.red;
 			if(png_ptr->sig_bit.green > sig_bit)
@@ -3858,7 +3835,7 @@ void /* PRIVATE */ png_build_gamma_table(png_structrp png_ptr, int bit_depth)
 		 */
 		if(sig_bit > 0 && sig_bit < 16U)
 			/* shift == insignificant bits */
-			shift = (png_byte)((16U - sig_bit) & 0xff);
+			shift = (uint8)((16U - sig_bit) & 0xff);
 
 		else
 			shift = 0;  /* keep all 16 bits */
@@ -3924,7 +3901,7 @@ int PNGAPI png_set_option(png_structrp png_ptr, int option, int onoff)
 		int setting = (2 + (onoff != 0)) << option;
 		int current = png_ptr->options;
 
-		png_ptr->options = (png_byte)(((current & ~mask) | setting) & 0xff);
+		png_ptr->options = (uint8)(((current & ~mask) | setting) & 0xff);
 
 		return (current & mask) >> option;
 	}
@@ -4065,7 +4042,7 @@ const png_uint_16 png_sRGB_base[512] =
 	65070, 65126, 65183, 65239, 65296, 65352, 65409, 65465
 };
 
-const png_byte png_sRGB_delta[512] =
+const uint8 png_sRGB_delta[512] =
 {
 	207, 201, 158, 129, 113, 100, 90, 82, 77, 72, 68, 64, 61, 59, 56, 54,
 	52, 50, 49, 47, 46, 45, 43, 42, 41, 40, 39, 39, 38, 37, 36, 36,
@@ -4104,7 +4081,7 @@ const png_byte png_sRGB_delta[512] =
 
 /* SIMPLIFIED READ/WRITE SUPPORT */
 #if defined(PNG_SIMPLIFIED_READ_SUPPORTED) || defined(PNG_SIMPLIFIED_WRITE_SUPPORTED)
-static int png_image_free_function(png_voidp argument)
+static int png_image_free_function(void * argument)
 {
 	png_imagep image = png_voidcast(png_imagep, argument);
 	png_controlp cp = image->opaque;
@@ -4166,7 +4143,7 @@ void PNGAPI png_image_free(png_imagep image)
 	}
 }
 
-int /* PRIVATE */ png_image_error(png_imagep image, png_const_charp error_message)
+int /* PRIVATE */ png_image_error(png_imagep image, const char * error_message)
 {
 	/* Utility to log an error. */
 	png_safecat(image->message, (sizeof image->message), 0, error_message);

@@ -67,7 +67,6 @@ typedef char U_CHAR;
 
 typedef struct {
 	struct cjpeg_source_struct pub; /* public fields */
-
 	U_CHAR * iobuffer;      /* non-FAR pointer to I/O buffer */
 	JSAMPROW pixrow;        /* FAR pointer to same */
 	size_t buffer_width;    /* width of I/O buffer */
@@ -76,14 +75,11 @@ typedef struct {
 
 typedef ppm_source_struct * ppm_source_ptr;
 
-LOCAL(int)
-pbm_getc(FILE * infile)
+static int pbm_getc(FILE * infile)
 /* Read next char, skipping over any comments */
 /* A comment/newline sequence is returned as a newline */
 {
-	register int ch;
-
-	ch = getc(infile);
+	register int ch = getc(infile);
 	if(ch == '#') {
 		do {
 			ch = getc(infile);
@@ -92,8 +88,7 @@ pbm_getc(FILE * infile)
 	return ch;
 }
 
-LOCAL(unsigned int)
-read_pbm_integer(j_compress_ptr cinfo, FILE * infile)
+LOCAL(unsigned int) read_pbm_integer(j_compress_ptr cinfo, FILE * infile)
 /* Read an unsigned decimal integer from the PPM file */
 /* Swallows one trailing character after the integer */
 /* Note that on a 16-bit-int machine, only values up to 64k can be read. */

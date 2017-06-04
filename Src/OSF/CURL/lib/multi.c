@@ -191,14 +191,14 @@ static struct Curl_sh_entry * sh_addentry(struct curl_hash * sh, curl_socket_t s
 	if(there)
 		return there; /* it is present, return fine */
 	/* not present, add it */
-	check = (struct Curl_sh_entry *)calloc(1, sizeof(struct Curl_sh_entry));
+	check = (struct Curl_sh_entry *)SAlloc::C(1, sizeof(struct Curl_sh_entry));
 	if(!check)
 		return NULL;  /* major failure */
 	check->easy = data;
 	check->socket = s;
 	/* make/add new hash entry */
 	if(!Curl_hash_add(sh, (char*)&s, sizeof(curl_socket_t), check)) {
-		free(check);
+		SAlloc::F(check);
 		return NULL; /* major failure */
 	}
 	return check; /* things are good in sockhash land */
@@ -218,7 +218,7 @@ static void sh_freeentry(void * freethis)
 {
 	struct Curl_sh_entry * p = (struct Curl_sh_entry*)freethis;
 
-	free(p);
+	SAlloc::F(p);
 }
 
 static size_t fd_key_compare(void * k1, size_t k1_len, void * k2, size_t k2_len)
@@ -288,7 +288,7 @@ static void multi_freeamsg(void * a, void * b)
 
 struct Curl_multi * Curl_multi_handle(int hashsize/* socket hash */, int chashsize/* connection hash */)
 {
-	struct Curl_multi * multi = (struct Curl_multi *)calloc(1, sizeof(struct Curl_multi));
+	struct Curl_multi * multi = (struct Curl_multi *)SAlloc::C(1, sizeof(struct Curl_multi));
 	if(!multi)
 		return NULL;
 	multi->type = CURL_MULTI_HANDLE;
@@ -323,7 +323,7 @@ error:
 	Curl_llist_destroy(&multi->msglist, NULL);
 	Curl_llist_destroy(&multi->pending, NULL);
 
-	free(multi);
+	SAlloc::F(multi);
 	return NULL;
 }
 
@@ -498,7 +498,7 @@ static CURLcode multi_done(struct connectdata ** connp,
 
 	struct Curl_easy * data;
 
-	unsigned int i;
+	uint i;
 
 	DEBUGASSERT(*connp);
 
@@ -514,9 +514,9 @@ static CURLcode multi_done(struct connectdata ** connp,
 	Curl_getoff_all_pipelines(data, conn);
 
 	/* Cleanup possible redirect junk */
-	free(data->req.newurl);
+	SAlloc::F(data->req.newurl);
 	data->req.newurl = NULL;
-	free(data->req.location);
+	SAlloc::F(data->req.location);
 	data->req.location = NULL;
 
 	switch(status) {
@@ -561,7 +561,7 @@ static CURLcode multi_done(struct connectdata ** connp,
 	/* if the transfer was completed in a paused state there can be buffered
 	   data left to free */
 	for(i = 0; i < data->state.tempcount; i++) {
-		free(data->state.tempwrite[i].buf);
+		SAlloc::F(data->state.tempwrite[i].buf);
 	}
 	data->state.tempcount = 0;
 
@@ -919,7 +919,7 @@ CURLMcode curl_multi_fdset(struct Curl_multi * multi,
 
 CURLMcode curl_multi_wait(struct Curl_multi * multi,
     struct curl_waitfd extra_fds[],
-    unsigned int extra_nfds,
+    uint extra_nfds,
     int timeout_ms,
     int * ret)
 {
@@ -927,9 +927,9 @@ CURLMcode curl_multi_wait(struct Curl_multi * multi,
 
 	curl_socket_t sockbunch[MAX_SOCKSPEREASYHANDLE];
 	int bitmap;
-	unsigned int i;
-	unsigned int nfds = 0;
-	unsigned int curlfds;
+	uint i;
+	uint nfds = 0;
+	uint curlfds;
 	struct pollfd * ufds = NULL;
 	bool ufds_malloc = FALSE;
 	long timeout_internal;
@@ -975,7 +975,7 @@ CURLMcode curl_multi_wait(struct Curl_multi * multi,
 
 	if(nfds || extra_nfds) {
 		if(nfds > NUM_POLLS_ON_STACK) {
-			ufds = (struct pollfd *)malloc(nfds * sizeof(struct pollfd));
+			ufds = (struct pollfd *)SAlloc::M(nfds * sizeof(struct pollfd));
 			if(!ufds)
 				return CURLM_OUT_OF_MEMORY;
 			ufds_malloc = TRUE;
@@ -1044,7 +1044,7 @@ CURLMcode curl_multi_wait(struct Curl_multi * multi,
 			   struct, the bit values of the actual underlying poll() implementation
 			   may not be the same as the ones in the public libcurl API! */
 			for(i = 0; i < extra_nfds; i++) {
-				unsigned short mask = 0;
+				ushort mask = 0;
 				unsigned r = ufds[curlfds + i].revents;
 
 				if(r & POLLIN)
@@ -1060,7 +1060,7 @@ CURLMcode curl_multi_wait(struct Curl_multi * multi,
 	}
 
 	if(ufds_malloc)
-		free(ufds);
+		SAlloc::F(ufds);
 	if(ret)
 		*ret = retcode;
 	return CURLM_OK;
@@ -1678,19 +1678,19 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 							    else {
 								    /* Follow failed */
 								    result = drc;
-								    free(newurl);
+								    SAlloc::F(newurl);
 							    }
 						    }
 						    else {
 							    /* done didn't return OK or SEND_ERROR */
 							    result = drc;
-							    free(newurl);
+							    SAlloc::F(newurl);
 						    }
 					    }
 					    else {
 						    /* Have error handler disconnect conn if we can't retry */
 						    stream_error = TRUE;
-						    free(newurl);
+						    SAlloc::F(newurl);
 					    }
 				    }
 				    else {
@@ -1907,7 +1907,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 					    if(!retry) {
 						    /* if the URL is a follow-location and not just a retried request
 						       then figure out the URL here */
-						    free(newurl);
+						    SAlloc::F(newurl);
 						    newurl = data->req.newurl;
 						    data->req.newurl = NULL;
 						    follow = FOLLOW_REDIR;
@@ -1921,7 +1921,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 							    multistate(data, CURLM_STATE_CONNECT);
 							    rc = CURLM_CALL_MULTI_PERFORM;
 							    newurl = NULL; /* handed over the memory ownership to
-								              Curl_follow(), make sure we don't free() it
+								              Curl_follow(), make sure we don't SAlloc::F() it
 								              here */
 						    }
 					    }
@@ -1932,7 +1932,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 					    /* but first check to see if we got a location info even though we're
 					       not following redirects */
 					    if(data->req.location) {
-						    free(newurl);
+						    SAlloc::F(newurl);
 						    newurl = data->req.location;
 						    data->req.location = NULL;
 						    result = Curl_follow(data, newurl, FOLLOW_FAKE);
@@ -1949,7 +1949,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 			    else if(comeback)
 				    rc = CURLM_CALL_MULTI_PERFORM;
 
-			    free(newurl);
+			    SAlloc::F(newurl);
 			    break;
 		    }
 
@@ -2216,7 +2216,7 @@ CURLMcode curl_multi_cleanup(struct Curl_multi * multi)
 		Curl_pipeline_set_site_blacklist(NULL, &multi->pipelining_site_bl);
 		Curl_pipeline_set_server_blacklist(NULL, &multi->pipelining_server_bl);
 
-		free(multi);
+		SAlloc::F(multi);
 		if(restore_pipe)
 			sigpipe_restore(&pipe_st);
 
@@ -2267,7 +2267,7 @@ static void singlesocket(struct Curl_multi * multi,
 
 	curl_socket_t s;
 	int num;
-	unsigned int curraction;
+	uint curraction;
 
 	for(i = 0; i< MAX_SOCKSPEREASYHANDLE; i++)
 		socks[i] = CURL_SOCKET_BAD;
@@ -2794,8 +2794,8 @@ static void multi_freetimeout(void * user, void * entryptr)
 {
 	(void)user;
 
-	/* the entry was plain malloc()'ed */
-	free(entryptr);
+	/* the entry was plain SAlloc::M()'ed */
+	SAlloc::F(entryptr);
 }
 
 /*
@@ -2809,7 +2809,7 @@ static CURLMcode multi_addtimeout(struct curl_llist * timeoutlist, struct timeva
 {
 	struct curl_llist_element * e;
 	struct curl_llist_element * prev = NULL;
-	struct timeval * timedup = (struct timeval *)malloc(sizeof(*timedup));
+	struct timeval * timedup = (struct timeval *)SAlloc::M(sizeof(*timedup));
 	if(!timedup)
 		return CURLM_OUT_OF_MEMORY;
 
@@ -2830,7 +2830,7 @@ static CURLMcode multi_addtimeout(struct curl_llist * timeoutlist, struct timeva
 	   this is the first timeout on the list */
 
 	if(!Curl_llist_insert_next(timeoutlist, prev, timedup)) {
-		free(timedup);
+		SAlloc::F(timedup);
 		return CURLM_OUT_OF_MEMORY;
 	}
 

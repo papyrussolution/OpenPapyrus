@@ -40,7 +40,7 @@ protected:
 
 	enum { maxLenInputIME = 200 };
 
-	bool displayPopupMenu;
+	int displayPopupMenu;
 	Menu popup;
 	AutoComplete ac;
 
@@ -62,10 +62,10 @@ protected:
 	virtual void Initialise() = 0;
 	virtual void Finalise();
 
-	virtual void AddCharUTF(const char *s, unsigned int len, bool treatAsDBCS=false);
+	virtual void AddCharUTF(const char *s, uint len, bool treatAsDBCS=false);
 	void Command(int cmdId);
 	virtual void CancelModes();
-	virtual int KeyCommand(unsigned int iMessage);
+	virtual int KeyCommand(uint iMessage);
 
 	void AutoCompleteInsert(Position startPos, int removeLen, const char *text, int textLen);
 	void AutoCompleteStart(int lenEntered, const char *list);
@@ -75,7 +75,7 @@ protected:
 	int AutoCompleteGetCurrentText(char *buffer) const;
 	void AutoCompleteCharacterAdded(char ch);
 	void AutoCompleteCharacterDeleted();
-	void AutoCompleteCompleted(char ch, unsigned int completionMethod);
+	void AutoCompleteCompleted(char ch, uint completionMethod);
 	void AutoCompleteMoveToCurrentWord();
 	static void AutoCompleteDoubleClick(void *p);
 
@@ -84,17 +84,19 @@ protected:
 	virtual void CreateCallTipWindow(PRectangle rc) = 0;
 
 	virtual void AddToPopUp(const char *label, int cmd=0, bool enabled=true) = 0;
+	bool ShouldDisplayPopup(Point ptInWindowCoordinates) const;
 	void ContextMenu(Point pt);
 
-	virtual void ButtonDownWithModifiers(Point pt, unsigned int curTime, int modifiers);
-	virtual void ButtonDown(Point pt, unsigned int curTime, bool shift, bool ctrl, bool alt);
+	virtual void ButtonDownWithModifiers(Point pt, uint curTime, int modifiers);
+	virtual void ButtonDown(Point pt, uint curTime, bool shift, bool ctrl, bool alt);
+	virtual void RightButtonDownWithModifiers(Point pt, uint curTime, int modifiers);
 
 	void NotifyStyleToNeeded(int endStyleNeeded);
 	void NotifyLexerChanged(Document *doc, void *userData);
 
 public:
 	// Public so scintilla_send_message can use it
-	virtual sptr_t WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam);
+	virtual sptr_t WndProc(uint iMessage, uptr_t wParam, sptr_t lParam);
 };
 
 #ifdef SCI_NAMESPACE

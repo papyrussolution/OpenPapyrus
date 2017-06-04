@@ -44,9 +44,9 @@ ColorMapObject * GifMakeMapObject(int ColorCount, const GifColorType * ColorMap)
 	if(Object == (ColorMapObject*)NULL) {
 		return ((ColorMapObject*)NULL);
 	}
-	Object->Colors = (GifColorType*)calloc(ColorCount, sizeof(GifColorType));
+	Object->Colors = (GifColorType*)SAlloc::C(ColorCount, sizeof(GifColorType));
 	if(Object->Colors == (GifColorType*)NULL) {
-		free(Object);
+		SAlloc::F(Object);
 		return ((ColorMapObject*)NULL);
 	}
 	Object->ColorCount = ColorCount;
@@ -63,8 +63,8 @@ ColorMapObject * GifMakeMapObject(int ColorCount, const GifColorType * ColorMap)
 void GifFreeMapObject(ColorMapObject * Object)
 {
 	if(Object != NULL) {
-		(void)free(Object->Colors);
-		(void)free(Object);
+		SAlloc::F(Object->Colors);
+		SAlloc::F(Object);
 	}
 }
 
@@ -154,7 +154,7 @@ ColorMapObject * GifUnionColorMap(const ColorMapObject * ColorIn1, const ColorMa
 			Map[j].Red = Map[j].Green = Map[j].Blue = 0;
 		/* perhaps we can shrink the map? */
 		if(RoundUpTo < ColorUnion->ColorCount)
-			ColorUnion->Colors = (GifColorType*)realloc(Map, sizeof(GifColorType) * RoundUpTo);
+			ColorUnion->Colors = (GifColorType*)SAlloc::R(Map, sizeof(GifColorType) * RoundUpTo);
 	}
 	ColorUnion->ColorCount = RoundUpTo;
 	ColorUnion->BitsPerPixel = NewGifBitSize;
@@ -181,7 +181,7 @@ int GifAddExtensionBlock(int * ExtensionBlockCount, ExtensionBlock ** ExtensionB
 	if(*ExtensionBlocks == NULL)
 		*ExtensionBlocks = (ExtensionBlock*)SAlloc::M(sizeof(ExtensionBlock));
 	else
-		*ExtensionBlocks = (ExtensionBlock*)realloc(*ExtensionBlocks, sizeof(ExtensionBlock) * (*ExtensionBlockCount + 1));
+		*ExtensionBlocks = (ExtensionBlock*)SAlloc::R(*ExtensionBlocks, sizeof(ExtensionBlock) * (*ExtensionBlockCount + 1));
 	if(*ExtensionBlocks == NULL)
 		return (GIF_ERROR);
 	ep = &(*ExtensionBlocks)[(*ExtensionBlockCount)++];
@@ -199,13 +199,13 @@ int GifAddExtensionBlock(int * ExtensionBlockCount, ExtensionBlock ** ExtensionB
 void GifFreeExtensions(int * ExtensionBlockCount, ExtensionBlock ** ExtensionBlocks)
 {
 	ExtensionBlock * ep;
-	if(*ExtensionBlocks == NULL)
-		return;
-	for(ep = *ExtensionBlocks; ep < (*ExtensionBlocks + *ExtensionBlockCount); ep++)
-		(void)free((char*)ep->Bytes);
-	(void)free((char*)*ExtensionBlocks);
-	*ExtensionBlocks = NULL;
-	*ExtensionBlockCount = 0;
+	if(*ExtensionBlocks) {
+		for(ep = *ExtensionBlocks; ep < (*ExtensionBlocks + *ExtensionBlockCount); ep++)
+			SAlloc::F((char*)ep->Bytes);
+		SAlloc::F((char*)*ExtensionBlocks);
+		*ExtensionBlocks = NULL;
+		*ExtensionBlockCount = 0;
+	}
 }
 
 /******************************************************************************
@@ -217,31 +217,28 @@ void GifFreeExtensions(int * ExtensionBlockCount, ExtensionBlock ** ExtensionBlo
  */
 void FreeLastSavedImage(GifFileType * GifFile)
 {
-	SavedImage * sp;
-	if((GifFile == NULL) || (GifFile->SavedImages == NULL))
-		return;
-	/* Remove one SavedImage from the GifFile */
-	GifFile->ImageCount--;
-	sp = &GifFile->SavedImages[GifFile->ImageCount];
-	/* Deallocate its Colormap */
-	if(sp->ImageDesc.ColorMap != NULL) {
-		GifFreeMapObject(sp->ImageDesc.ColorMap);
-		sp->ImageDesc.ColorMap = NULL;
+	if(GifFile && GifFile->SavedImages) {
+		/* Remove one SavedImage from the GifFile */
+		GifFile->ImageCount--;
+		SavedImage * sp = &GifFile->SavedImages[GifFile->ImageCount];
+		/* Deallocate its Colormap */
+		if(sp->ImageDesc.ColorMap != NULL) {
+			GifFreeMapObject(sp->ImageDesc.ColorMap);
+			sp->ImageDesc.ColorMap = NULL;
+		}
+		/* Deallocate the image data */
+		if(sp->RasterBits != NULL)
+			SAlloc::F((char*)sp->RasterBits);
+		/* Deallocate any extensions */
+		GifFreeExtensions(&sp->ExtensionBlockCount, &sp->ExtensionBlocks);
+
+		/*** FIXME: We could SAlloc::R the GifFile->SavedImages structure but is
+		 * there a point to it? Saves some memory but we'd have to do it every
+		 * time.  If this is used in GifFreeSavedImages then it would be inefficient
+		 * (The whole array is going to be deallocated.)  If we just use it when
+		 * we want to SAlloc::F the last Image it's convenient to do it here.
+		 */
 	}
-
-	/* Deallocate the image data */
-	if(sp->RasterBits != NULL)
-		free((char*)sp->RasterBits);
-
-	/* Deallocate any extensions */
-	GifFreeExtensions(&sp->ExtensionBlockCount, &sp->ExtensionBlocks);
-
-	/*** FIXME: We could realloc the GifFile->SavedImages structure but is
-	 * there a point to it? Saves some memory but we'd have to do it every
-	 * time.  If this is used in GifFreeSavedImages then it would be inefficient
-	 * (The whole array is going to be deallocated.)  If we just use it when
-	 * we want to free the last Image it's convenient to do it here.
-	 */
 }
 
 /*
@@ -253,7 +250,7 @@ SavedImage * GifMakeSavedImage(GifFileType * GifFile, const SavedImage * CopyFro
 	if(GifFile->SavedImages == NULL)
 		GifFile->SavedImages = (SavedImage*)SAlloc::M(sizeof(SavedImage));
 	else
-		GifFile->SavedImages = (SavedImage*)realloc(GifFile->SavedImages, sizeof(SavedImage) * (GifFile->ImageCount + 1));
+		GifFile->SavedImages = (SavedImage*)SAlloc::R(GifFile->SavedImages, sizeof(SavedImage) * (GifFile->ImageCount + 1));
 	if(GifFile->SavedImages == NULL)
 		return ((SavedImage*)NULL);
 	else {
@@ -307,10 +304,10 @@ void GifFreeSavedImages(GifFileType * GifFile)
 				sp->ImageDesc.ColorMap = NULL;
 			}
 			if(sp->RasterBits != NULL)
-				free((char*)sp->RasterBits);
+				SAlloc::F((char*)sp->RasterBits);
 			GifFreeExtensions(&sp->ExtensionBlockCount, &sp->ExtensionBlocks);
 		}
-		free((char*)GifFile->SavedImages);
+		SAlloc::F((char*)GifFile->SavedImages);
 		GifFile->SavedImages = NULL;
 	}
 }

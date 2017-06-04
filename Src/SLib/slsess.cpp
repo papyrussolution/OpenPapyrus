@@ -5,7 +5,6 @@
 #include <tv.h>
 #pragma hdrstop
 #include <locale.h> // setlocale()
-#include <openssl/ssl.h>
 // htmlhelp.h {
 #define HH_INITIALIZE            0x001C  // Initializes the help system.
 #define HH_UNINITIALIZE          0x001D  // Uninitializes the help system.
@@ -91,9 +90,7 @@ TVRez * SLAPI SlThreadLocalArea::GetRez()
 {
 	if(!P_Rez) {
 		SString name;
-		long   PP  = 0x00005050L; // "PP"
-		long   EXT = 0x00534552L; // "RES"
-		makeExecPathFileName((const char*)&PP, (const char*)&EXT, name);
+		makeExecPathFileName("pp", "res", name);
 		if(fileExists(name))
 			P_Rez = new TVRez(name, 1);
 	}
@@ -320,52 +317,6 @@ int SLAPI SlSession::InitWSA()
 	return ok;
 }
 
-typedef int  (*SSL_LIBRARY_INIT_PROC)();
-typedef void (*SSL_LOAD_ERROR_STRINGS_PROC)();
-
-/* linker
-..\OSF\OPENSSL\lib\libeay32.lib
-..\OSF\OPENSSL\lib\ssleay32.lib
-*/
-
-int SLAPI SlSession::InitSSL()
-{
-	int    ok = -1;
-	if(SslInitCounter == 0) {
-		ENTER_CRITICAL_SECTION
-#ifdef USE_OPENSSL_STATIC
-		{
-			if(SSL_library_init()) {
-				SSL_load_error_strings();
-				SslInitCounter.Incr();
-				ok = 1;
-			}
-			else
-				ok = 0;
-		}
-#else
-		{
-			SDynLibrary ssl_lib("ssleay32.dll");
-			if(ssl_lib.IsValid()) {
-				SSL_LIBRARY_INIT_PROC ssl_init_proc = (SSL_LIBRARY_INIT_PROC)ssl_lib.GetProcAddr("SSL_library_init");
-				SSL_LOAD_ERROR_STRINGS_PROC ssl_les_proc = (SSL_LOAD_ERROR_STRINGS_PROC)ssl_lib.GetProcAddr("SSL_load_error_strings");
-				if(ssl_init_proc && ssl_les_proc && ssl_init_proc()) {
-					ssl_les_proc();
-					SslInitCounter.Incr();
-					ok = 1;
-				}
-				else
-					ok = 0;
-			}
-			else
-				ok = 0;
-		}
-#endif // USE_OPENSSL_STATIC
-		LEAVE_CRITICAL_SECTION
-	}
-	return ok;
-}
-
 int SLAPI SlSession::InitThread()
 {
 	SlThreadLocalArea * p_tla = 0;
@@ -533,7 +484,7 @@ SString & SLAPI SlSession::GetLogPath(SString & rPath) const
 //
 //
 struct GlobalObjectEntry {
-	void   operator = (SClassWrapper & rCls)
+	void   FASTCALL operator = (SClassWrapper & rCls)
 	{
 		VT = *(void **)&rCls;
 	}
@@ -576,8 +527,11 @@ SlSession::GlobalObjectArray::GlobalObjectArray() : SArray(sizeof(GlobalObjectEn
 SlSession::GlobalObjectArray::~GlobalObjectArray()
 {
 	Cs.Enter();
-	for(uint i = 1; i < count; i++)
-		((GlobalObjectEntry *)at(i))->Destroy();
+	for(uint i = 1; i < count; i++) {
+		GlobalObjectEntry * p_entry = (GlobalObjectEntry *)at(i);
+		if(p_entry)
+			p_entry->Destroy();
+	}
 	Cs.Leave();
 }
 

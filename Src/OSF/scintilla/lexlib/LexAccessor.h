@@ -8,8 +8,6 @@
 #ifndef LEXACCESSOR_H
 #define LEXACCESSOR_H
 
-#include <assert.h>
-
 #ifdef SCI_NAMESPACE
 namespace Scintilla {
 #endif

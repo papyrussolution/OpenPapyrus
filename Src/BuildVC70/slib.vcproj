@@ -891,6 +891,9 @@
 				RelativePath="..\SLib\Smrtlbx.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\sossl.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\spip.cpp">
 			</File>
 			<File

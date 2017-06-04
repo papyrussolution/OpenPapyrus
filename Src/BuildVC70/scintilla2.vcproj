@@ -542,6 +542,9 @@
 				RelativePath="..\Osf\scintilla\lexers\LexECL.cxx">
 			</File>
 			<File
+				RelativePath="..\Osf\scintilla\lexers\LexEDIFACT.cxx">
+			</File>
+			<File
 				RelativePath="..\Osf\scintilla\lexers\LexEiffel.cxx">
 			</File>
 			<File
@@ -591,6 +594,9 @@
 			</File>
 			<File
 				RelativePath="..\Osf\scintilla\lexers\LexInno.cxx">
+			</File>
+			<File
+				RelativePath="..\Osf\scintilla\lexers\LexJSON.cxx">
 			</File>
 			<File
 				RelativePath="..\Osf\scintilla\lexers\LexKix.cxx">

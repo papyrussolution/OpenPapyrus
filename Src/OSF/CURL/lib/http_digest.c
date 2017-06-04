@@ -23,9 +23,8 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_CRYPTO_AUTH)
-
 #include "urldata.h"
-#include "strcase.h"
+//#include "strcase.h"
 #include "vauth/vauth.h"
 #include "http_digest.h"
 /* The last 3 #include files should be in this order */
@@ -69,12 +68,12 @@ CURLcode Curl_input_digest(struct connectdata *conn,
 
 CURLcode Curl_output_digest(struct connectdata *conn,
                             bool proxy,
-                            const unsigned char *request,
-                            const unsigned char *uripath)
+                            const uchar *request,
+                            const uchar *uripath)
 {
   CURLcode result;
   struct Curl_easy *data = conn->data;
-  unsigned char *path = NULL;
+  uchar *path = NULL;
   char *tmp = NULL;
   char *response;
   size_t len;
@@ -107,7 +106,7 @@ CURLcode Curl_output_digest(struct connectdata *conn,
     authp = &data->state.authhost;
   }
 
-  Curl_safefree(*allocuserpwd);
+  ZFREE(*allocuserpwd);
 
   /* not set means empty */
   if(!userp)
@@ -144,25 +143,25 @@ CURLcode Curl_output_digest(struct connectdata *conn,
     tmp = strchr((char *)uripath, '?');
     if(tmp) {
       size_t urilen = tmp - (char *)uripath;
-      path = (unsigned char *) aprintf("%.*s", urilen, uripath);
+      path = (uchar *) aprintf("%.*s", urilen, uripath);
     }
   }
   if(!tmp)
-    path = (unsigned char *) strdup((char *) uripath);
+    path = (uchar *) _strdup((char *) uripath);
 
   if(!path)
     return CURLE_OUT_OF_MEMORY;
 
   result = Curl_auth_create_digest_http_message(data, userp, passwdp, request,
                                                 path, digest, &response, &len);
-  free(path);
+  SAlloc::F(path);
   if(result)
     return result;
 
   *allocuserpwd = aprintf("%sAuthorization: Digest %s\r\n",
                           proxy ? "Proxy-" : "",
                           response);
-  free(response);
+  SAlloc::F(response);
   if(!*allocuserpwd)
     return CURLE_OUT_OF_MEMORY;
 

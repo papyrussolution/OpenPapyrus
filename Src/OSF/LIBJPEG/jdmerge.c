@@ -76,28 +76,17 @@ typedef my_upsampler * my_upsample_ptr;
  * Initialize tables for YCbCr->RGB and BG_YCC->RGB colorspace conversion.
  * This is taken directly from jdcolor.c; see that file for more info.
  */
-
-LOCAL(void)
-build_ycc_rgb_table(j_decompress_ptr cinfo)
+static void build_ycc_rgb_table(j_decompress_ptr cinfo)
 /* Normal case, sYCC */
 {
 	my_upsample_ptr upsample = (my_upsample_ptr)cinfo->upsample;
 	int i;
 	INT32 x;
 	SHIFT_TEMPS
-
-	upsample->Cr_r_tab = (int*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (MAXJSAMPLE+1) * SIZEOF(int));
-	upsample->Cb_b_tab = (int*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (MAXJSAMPLE+1) * SIZEOF(int));
-	upsample->Cr_g_tab = (INT32*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (MAXJSAMPLE+1) * SIZEOF(INT32));
-	upsample->Cb_g_tab = (INT32*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (MAXJSAMPLE+1) * SIZEOF(INT32));
+	upsample->Cr_r_tab = (int*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
+	upsample->Cb_b_tab = (int*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
+	upsample->Cr_g_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
+	upsample->Cb_g_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
 
 	for(i = 0, x = -CENTERJSAMPLE; i <= MAXJSAMPLE; i++, x++) {
 		/* i is the actual input pixel value, in the range 0..MAXJSAMPLE */
@@ -116,27 +105,17 @@ build_ycc_rgb_table(j_decompress_ptr cinfo)
 	}
 }
 
-LOCAL(void)
-build_bg_ycc_rgb_table(j_decompress_ptr cinfo)
+static void build_bg_ycc_rgb_table(j_decompress_ptr cinfo)
 /* Wide gamut case, bg-sYCC */
 {
 	my_upsample_ptr upsample = (my_upsample_ptr)cinfo->upsample;
 	int i;
 	INT32 x;
 	SHIFT_TEMPS
-
-	upsample->Cr_r_tab = (int*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (MAXJSAMPLE+1) * SIZEOF(int));
-	upsample->Cb_b_tab = (int*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (MAXJSAMPLE+1) * SIZEOF(int));
-	upsample->Cr_g_tab = (INT32*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (MAXJSAMPLE+1) * SIZEOF(INT32));
-	upsample->Cb_g_tab = (INT32*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (MAXJSAMPLE+1) * SIZEOF(INT32));
+	upsample->Cr_r_tab = (int*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
+	upsample->Cb_b_tab = (int*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
+	upsample->Cr_g_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
+	upsample->Cb_g_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
 
 	for(i = 0, x = -CENTERJSAMPLE; i <= MAXJSAMPLE; i++, x++) {
 		/* i is the actual input pixel value, in the range 0..MAXJSAMPLE */

@@ -391,12 +391,11 @@ int __env_alloc_extend(REGINFO * infop, void * ptr, size_t * lenp)
 {
 	ALLOC_ELEMENT * elp, * elp_tmp;
 	ALLOC_LAYOUT * head;
-	ENV * env;
 	SIZEQ_HEAD * q;
 	size_t len, tlen;
 	uint8 i, * p;
 	int ret;
-	env = infop->env;
+	ENV * env = infop->env;
 	DB_ASSERT(env, !F_ISSET(env, ENV_PRIVATE));
 #ifdef HAVE_MUTEX_SUPPORT
 	MUTEX_REQUIRED(env, infop->mtx_alloc);
@@ -473,9 +472,9 @@ static void __env_size_insert(ALLOC_LAYOUT * head, ALLOC_ELEMENT * elp)
 	SIZEQ_HEAD * q;
 	ALLOC_ELEMENT * elp_tmp;
 	uint i;
-	/* Find the appropriate queue for the chunk. */
+	// Find the appropriate queue for the chunk. 
 	SET_QUEUE_FOR_SIZE(head, q, i, elp->len);
-	/* Find the correct slot in the size queue. */
+	// Find the correct slot in the size queue.
 	SH_TAILQ_FOREACH(elp_tmp, q, sizeq, __alloc_element)
 	if(elp->len >= elp_tmp->len)
 		break;
@@ -490,29 +489,30 @@ static void __env_size_insert(ALLOC_LAYOUT * head, ALLOC_ELEMENT * elp)
  */
 int __env_region_extend(ENV * env, REGINFO * infop)
 {
-	ALLOC_ELEMENT * elp;
 	REGION * rp = infop->rp;
 	int ret = 0;
 	DB_ASSERT(env, !F_ISSET(env, ENV_PRIVATE));
 	if(rp->size >= rp->max)
-		return ENOMEM;
-	elp = (ALLOC_ELEMENT *)((uint8 *)infop->addr+rp->size);
-	if(rp->size+rp->alloc > rp->max)
-		rp->alloc = rp->max-rp->size;
-	rp->size += rp->alloc;
-	rp->size = (size_t)ALIGNP_INC(rp->size, sizeof(size_t));
-	if(infop->fhp && (ret = __db_file_extend(env, infop->fhp, rp->size)) != 0)
-		return ret;
-	elp->len = rp->alloc;
-	elp->ulen = 0;
+		ret = ENOMEM;
+	else {
+		ALLOC_ELEMENT * elp = (ALLOC_ELEMENT *)((uint8 *)infop->addr+rp->size);
+		if(rp->size+rp->alloc > rp->max)
+			rp->alloc = rp->max-rp->size;
+		rp->size += rp->alloc;
+		rp->size = (size_t)ALIGNP_INC(rp->size, sizeof(size_t));
+		if(infop->fhp && (ret = __db_file_extend(env, infop->fhp, rp->size)) != 0)
+			return ret;
+		elp->len = rp->alloc;
+		elp->ulen = 0;
 #ifdef DIAGNOSTIC
-	*(uint8 *)(elp+1) = GUARD_BYTE;
+		*(uint8 *)(elp+1) = GUARD_BYTE;
 #endif
-	SH_TAILQ_INSERT_TAIL(&((ALLOC_LAYOUT *)infop->head)->addrq, elp, addrq);
-	__env_alloc_free(infop, elp+1);
-	if(rp->alloc < MEGABYTE)
-		rp->alloc += rp->size;
-	SETMIN(rp->alloc, MEGABYTE);
+		SH_TAILQ_INSERT_TAIL(&((ALLOC_LAYOUT *)infop->head)->addrq, elp, addrq);
+		__env_alloc_free(infop, elp+1);
+		if(rp->alloc < MEGABYTE)
+			rp->alloc += rp->size;
+		SETMIN(rp->alloc, MEGABYTE);
+	}
 	return ret;
 }
 /*
@@ -567,8 +567,7 @@ void __env_alloc_print(REGINFO * infop, uint32 flags)
 	ALLOC_LAYOUT * head = (ALLOC_LAYOUT *)infop->head;
 	if(F_ISSET(env, ENV_PRIVATE))
 		return;
-	__db_msg(env, "Region allocations: %lu allocations, %lu failures, %lu frees, %lu longest",
-		(ulong)head->success, (ulong)head->failure, (ulong)head->freed, (ulong)head->longest);
+	__db_msg(env, "Region allocations: %lu allocations, %lu failures, %lu frees, %lu longest", (ulong)head->success, (ulong)head->failure, (ulong)head->freed, (ulong)head->longest);
 	if(!LF_ISSET(DB_STAT_ALL))
 		return;
 	__db_msg(env, "%s", "Allocations by power-of-two sizes:");

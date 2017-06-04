@@ -33,8 +33,8 @@ static char classifyWordSQL(Sci_PositionU start,
                             Sci_PositionU end,
                             WordList *keywordlists[],
                             Accessor &styler,
-                            unsigned int actualState,
-							unsigned int prevState) {
+                            uint actualState,
+							uint prevState) {
 	char s[256];
 	bool wordIsNumber = isdigit(styler[start]) || (styler[start] == '.');
 

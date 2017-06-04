@@ -39,8 +39,7 @@ void BZ2_bsInitWrite(EState* s)
 }
 
 /*---------------------------------------------------*/
-static
-void bsFinishWrite(EState* s)
+static void bsFinishWrite(EState* s)
 {
 	while(s->bsLive > 0) {
 		s->zbits[s->numZ] = (uchar)(s->bsBuff >> 24);
@@ -54,8 +53,7 @@ void bsFinishWrite(EState* s)
 #define bsNEEDW(nz)			      \
 	{					      \
 		while(s->bsLive >= 8) {			  \
-			s->zbits[s->numZ]			\
-				= (uchar)(s->bsBuff >> 24);	     \
+			s->zbits[s->numZ] = (uchar)(s->bsBuff >> 24); \
 			s->numZ++;				\
 			s->bsBuff <<= 8;			\
 			s->bsLive -= 8;				\
@@ -63,9 +61,7 @@ void bsFinishWrite(EState* s)
 	}
 
 /*---------------------------------------------------*/
-static
-__inline__
-void bsW(EState* s, int32 n, uint32 v)
+static __inline__ void bsW(EState* s, int32 n, uint32 v)
 {
 	bsNEEDW(n);
 	s->bsBuff |= (v << (32 - s->bsLive - n));
@@ -73,8 +69,7 @@ void bsW(EState* s, int32 n, uint32 v)
 }
 
 /*---------------------------------------------------*/
-static
-void bsPutUInt32(EState* s, uint32 u)
+static void FASTCALL bsPutUInt32(EState* s, uint32 u)
 {
 	bsW(s, 8, (u >> 24) & 0xffL);
 	bsW(s, 8, (u >> 16) & 0xffL);
@@ -83,7 +78,7 @@ void bsPutUInt32(EState* s, uint32 u)
 }
 
 /*---------------------------------------------------*/
-static void bsPutUChar(EState* s, uchar c)
+static void FASTCALL bsPutUChar(EState* s, uchar c)
 {
 	bsW(s, 8, (uint32)c);
 }
@@ -224,8 +219,7 @@ static void generateMTFValues(EState* s)
 #define BZ_LESSER_ICOST  0
 #define BZ_GREATER_ICOST 15
 
-static
-void sendMTFValues(EState* s)
+static void sendMTFValues(EState* s)
 {
 	int32 v, t, i, j, gs, ge, totc, bt, bc, iter;
 	int32 nSelectors, alphaSize, minLen, maxLen, selCtr;
@@ -258,16 +252,21 @@ void sendMTFValues(EState* s)
 
 	/*--- Decide how many coding tables to use ---*/
 	AssertH(s->nMTF > 0, 3001);
-	if(s->nMTF < 200) nGroups = 2; else if(s->nMTF < 600) nGroups = 3; else if(s->nMTF < 1200) nGroups = 4; else if(s->nMTF <
-	    2400) nGroups = 5; else
+	if(s->nMTF < 200) 
+		nGroups = 2; 
+	else if(s->nMTF < 600) 
+		nGroups = 3; 
+	else if(s->nMTF < 1200) 
+		nGroups = 4; 
+	else if(s->nMTF < 2400) 
+		nGroups = 5; 
+	else
 		nGroups = 6;
-
 	/*--- Generate an initial set of coding tables ---*/
 	{
-		int32 nPart, remF, tFreq, aFreq;
-
-		nPart = nGroups;
-		remF  = s->nMTF;
+		int32 tFreq, aFreq;
+		int32 nPart = nGroups;
+		int32 remF  = s->nMTF;
 		gs = 0;
 		while(nPart > 0) {
 			tFreq = remF / nPart;
@@ -277,25 +276,17 @@ void sendMTFValues(EState* s)
 				ge++;
 				aFreq += s->mtfFreq[ge];
 			}
-
-			if(ge > gs
-			    && nPart != nGroups && nPart != 1
-			    && ((nGroups-nPart) % 2 == 1)) {
+			if(ge > gs && nPart != nGroups && nPart != 1 && ((nGroups-nPart) % 2 == 1)) {
 				aFreq -= s->mtfFreq[ge];
 				ge--;
 			}
-
 			if(s->verbosity >= 3)
-				VPrintf5("      initial group %d, [%d .. %d], "
-				    "has %d syms (%4.1f%%)\n",
-				    nPart, gs, ge, aFreq,
-				    (100.0 * (float)aFreq) / (float)(s->nMTF) );
-
+				VPrintf5("      initial group %d, [%d .. %d], has %d syms (%4.1f%%)\n", nPart, gs, ge, aFreq, (100.0 * (float)aFreq) / (float)(s->nMTF) );
 			for(v = 0; v < alphaSize; v++)
 				if(v >= gs && v <= ge)
-					s->len[nPart-1][v] = BZ_LESSER_ICOST; else
+					s->len[nPart-1][v] = BZ_LESSER_ICOST; 
+				else
 					s->len[nPart-1][v] = BZ_GREATER_ICOST;
-
 			nPart--;
 			gs = ge+1;
 			remF -= aFreq;
@@ -306,12 +297,11 @@ void sendMTFValues(EState* s)
 	   Iterate up to BZ_N_ITERS times to improve the tables.
 	   ---*/
 	for(iter = 0; iter < BZ_N_ITERS; iter++) {
-		for(t = 0; t < nGroups; t++) fave[t] = 0;
-
+		for(t = 0; t < nGroups; t++) 
+			fave[t] = 0;
 		for(t = 0; t < nGroups; t++)
 			for(v = 0; v < alphaSize; v++)
 				s->rfreq[t][v] = 0;
-
 		/*---
 		   Set up an auxiliary length table which is used to fast-track
 		   the common case (nGroups == 6).
@@ -329,23 +319,24 @@ void sendMTFValues(EState* s)
 		gs = 0;
 		while(true) {
 			/*--- Set group start & end marks. --*/
-			if(gs >= s->nMTF) break;
+			if(gs >= s->nMTF) 
+				break;
 			ge = gs + BZ_G_SIZE - 1;
-			if(ge >= s->nMTF) ge = s->nMTF-1;
-
+			if(ge >= s->nMTF) 
+				ge = s->nMTF-1;
 			/*--
 			   Calculate the cost of this group as coded
 			   by each of the coding tables.
 			   --*/
-			for(t = 0; t < nGroups; t++) cost[t] = 0;
-
+			for(t = 0; t < nGroups; t++) 
+				cost[t] = 0;
 			if(nGroups == 6 && 50 == ge-gs+1) {
 				/*--- fast track the common case ---*/
 				register uint32 cost01, cost23, cost45;
 				register uint16 icv;
 				cost01 = cost23 = cost45 = 0;
 
-#           define BZ_ITER(nn)		      \
+#define BZ_ITER(nn)		      \
 	icv = mtfv[gs+(nn)];	       \
 	cost01 += s->len_pack[icv][0]; \
 	cost23 += s->len_pack[icv][1]; \
@@ -362,11 +353,11 @@ void sendMTFValues(EState* s)
 				BZ_ITER(40); BZ_ITER(41); BZ_ITER(42); BZ_ITER(43); BZ_ITER(44);
 				BZ_ITER(45); BZ_ITER(46); BZ_ITER(47); BZ_ITER(48); BZ_ITER(49);
 
-#           undef BZ_ITER
+#undef BZ_ITER
 
-				cost[0] = cost01 & 0xffff; cost[1] = cost01 >> 16;
-				cost[2] = cost23 & 0xffff; cost[3] = cost23 >> 16;
-				cost[4] = cost45 & 0xffff; cost[5] = cost45 >> 16;
+				cost[0] = (uint16)(cost01 & 0xffff); cost[1] = (uint16)(cost01 >> 16);
+				cost[2] = (uint16)(cost23 & 0xffff); cost[3] = (uint16)(cost23 >> 16);
+				cost[4] = (uint16)(cost45 & 0xffff); cost[5] = (uint16)(cost45 >> 16);
 			}
 			else {
 				/*--- slow version which correctly handles all situations ---*/
@@ -417,12 +408,10 @@ void sendMTFValues(EState* s)
 				for(i = gs; i <= ge; i++)
 					s->rfreq[bt][ mtfv[i] ]++;
 			}
-
 			gs = ge+1;
 		}
 		if(s->verbosity >= 3) {
-			VPrintf2("      pass %d: size is %d, grp uses are ",
-			    iter+1, totc/8);
+			VPrintf2("      pass %d: size is %d, grp uses are ", iter+1, totc/8);
 			for(t = 0; t < nGroups; t++)
 				VPrintf1("%d ", fave[t]);
 			VPrintf0("\n");
@@ -470,8 +459,7 @@ void sendMTFValues(EState* s)
 		}
 		AssertH(!(maxLen > 17 /*20*/ ), 3004);
 		AssertH(!(minLen < 1),  3005);
-		BZ2_hbAssignCodes(&(s->code[t][0]), &(s->len[t][0]),
-		    minLen, maxLen, alphaSize);
+		BZ2_hbAssignCodes(&(s->code[t][0]), &(s->len[t][0]), minLen, maxLen, alphaSize);
 	}
 
 	/*--- Transmit the mapping table. ---*/
@@ -482,17 +470,20 @@ void sendMTFValues(EState* s)
 			for(j = 0; j < 16; j++)
 				if(s->inUse[i * 16 + j]) inUse16[i] = true;
 		}
-
 		nBytes = s->numZ;
 		for(i = 0; i < 16; i++)
-			if(inUse16[i]) bsW(s, 1, 1); else bsW(s, 1, 0);
-
+			if(inUse16[i]) 
+				bsW(s, 1, 1); 
+			else 
+				bsW(s, 1, 0);
 		for(i = 0; i < 16; i++)
 			if(inUse16[i])
 				for(j = 0; j < 16; j++) {
-					if(s->inUse[i * 16 + j]) bsW(s, 1, 1); else bsW(s, 1, 0);
+					if(s->inUse[i * 16 + j]) 
+						bsW(s, 1, 1); 
+					else 
+						bsW(s, 1, 0);
 				}
-
 		if(s->verbosity >= 3)
 			VPrintf1("      bytes: mapping %d, ", s->numZ-nBytes);
 	}

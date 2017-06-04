@@ -74,7 +74,7 @@ zbar_scanner_t * zbar_scanner_create(zbar_decoder_t * dcode)
 
 void zbar_scanner_destroy(zbar_scanner_t * scn)
 {
-	free(scn);
+	SAlloc::F(scn);
 }
 
 zbar_symbol_type_t zbar_scanner_reset(zbar_scanner_t * scn)

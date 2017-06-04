@@ -1048,6 +1048,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 	CnLocID = cn_rec.LocID;
 	ExtCnLocID     = 0;
 	ExtCashNodeID  = 0;
+	AltRegisterID  = 0; // @v9.6.9
 	P_DivGrpList   = 0;
 	{
 		SArray temp_list(sizeof(PPGenCashNode::DivGrpAssc));
@@ -3126,7 +3127,16 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 				CnSleepTimeout  = scn.SleepTimeout * CLOCKS_PER_SEC;
 				P_BNKTERM       = GetBnkTerm(scn.BnkTermType, scn.BnkTermLogNum, scn.BnkTermPort, scn.BnkTermPath);
 				TouchScreenID   = NZOR(scn.LocalTouchScrID, scn.TouchScreenID);
-				ExtCashNodeID   = scn.ExtCashNodeID;
+				if(scn.ExtCashNodeID) {
+					if(scn.ExtFlags & CASHFX_EXTNODEASALT)
+						AltRegisterID = scn.ExtCashNodeID;
+					else
+						ExtCashNodeID = scn.ExtCashNodeID;
+				}
+				else {
+					AltRegisterID = 0;
+					ExtCashNodeID = 0;
+				}
 				ScaleID         = scn.ScaleID;
 				// @v8.6.12 перенесено в CPosProcessor Scf             = scn.Scf;
 				BonusMaxPart    = (scn.BonusMaxPart > 0 && scn.BonusMaxPart <= 1000) ? R3(((double)scn.BonusMaxPart) / 1000.0) : 1.0;
@@ -4101,6 +4111,10 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 								int    r = 1; // @vmiller
 								paym_blk2.ExclSCardID = CSt.GetID();
 								const double ccpl_total = paym_blk2.CcPl.GetTotal();
+								// @v9.6.9 {
+								if(AltRegisterID)
+									paym_blk2.AltCashReg = 0;
+								// } @v9.6.9 
 								for(int _again = 1; _again && paym_blk2.EditDialog2() > 0;) {
 									assert(feqeps(paym_blk2.CcPl.GetTotal(), ccpl_total, 0.00001));
 									assert(oneof3(paym_blk2.Kind, cpmCash, cpmBank, cpmIncorpCrd));

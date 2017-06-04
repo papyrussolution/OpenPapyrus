@@ -27,11 +27,10 @@
 const char *Curl_strerror (struct connectdata *conn, int err);
 
 #ifdef USE_LIBIDN2
-const char *Curl_idn_strerror (struct connectdata *conn, int err);
+	const char *Curl_idn_strerror (struct connectdata *conn, int err);
 #endif
-
 #ifdef USE_WINDOWS_SSPI
-const char *Curl_sspi_strerror (struct connectdata *conn, int err);
+	const char *Curl_sspi_strerror (struct connectdata *conn, int err);
 #endif
 
 #endif /* HEADER_CURL_STRERROR_H */

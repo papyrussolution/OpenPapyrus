@@ -8,7 +8,7 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
+#include <stdexcept>
 #include "CharClassify.h"
 
 #ifdef SCI_NAMESPACE
@@ -33,17 +33,17 @@ void CharClassify::SetDefaultCharClasses(bool includeWordClass) {
 	}
 }
 
-void CharClassify::SetCharClasses(const unsigned char *chars, cc newCharClass) {
+void CharClassify::SetCharClasses(const uchar *chars, cc newCharClass) {
 	// Apply the newCharClass to the specifed chars
 	if (chars) {
 		while (*chars) {
-			charClass[*chars] = static_cast<unsigned char>(newCharClass);
+			charClass[*chars] = static_cast<uchar>(newCharClass);
 			chars++;
 		}
 	}
 }
 
-int CharClassify::GetCharsOfClass(cc characterClass, unsigned char *buffer) {
+int CharClassify::GetCharsOfClass(cc characterClass, uchar *buffer) const {
 	// Get characters belonging to the given char class; return the number
 	// of characters (if the buffer is NULL, don't write to it).
 	int count = 0;
@@ -51,7 +51,7 @@ int CharClassify::GetCharsOfClass(cc characterClass, unsigned char *buffer) {
 		if (charClass[ch] == characterClass) {
 			++count;
 			if (buffer) {
-				*buffer = static_cast<unsigned char>(ch);
+				*buffer = static_cast<uchar>(ch);
 				buffer++;
 			}
 		}

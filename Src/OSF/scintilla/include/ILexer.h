@@ -8,7 +8,7 @@
 #ifndef ILEXER_H
 #define ILEXER_H
 
-#include "Sci_Position.h"
+// @sobolev #include "Sci_Position.h"
 
 #ifdef SCI_NAMESPACE
 namespace Scintilla {

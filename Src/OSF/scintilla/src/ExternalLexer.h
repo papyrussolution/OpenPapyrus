@@ -18,10 +18,10 @@
 namespace Scintilla {
 #endif
 
-typedef void*(EXT_LEXER_DECL *GetLexerFunction)(unsigned int Index);
+typedef void*(EXT_LEXER_DECL *GetLexerFunction)(uint Index);
 typedef int (EXT_LEXER_DECL *GetLexerCountFn)();
-typedef void (EXT_LEXER_DECL *GetLexerNameFn)(unsigned int Index, char *name, int buflength);
-typedef LexerFactoryFunction(EXT_LEXER_DECL *GetLexerFactoryFunction)(unsigned int Index);
+typedef void (EXT_LEXER_DECL *GetLexerNameFn)(uint Index, char *name, int buflength);
+typedef LexerFactoryFunction(EXT_LEXER_DECL *GetLexerFactoryFunction)(uint Index);
 
 /// Sub-class of LexerModule to use an external lexer.
 class ExternalLexerModule : public LexerModule {

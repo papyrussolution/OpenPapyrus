@@ -273,9 +273,8 @@ err:
  */
 static int __logc_get_int(DB_LOGC * logc, DB_LSN * alsn, DBT * dbt, uint32 flags)
 {
-	DB_LSN last_lsn, nlsn;
+	DB_LSN last_lsn;
 	HDR hdr;
-	RLOCK rlock;
 	logfile_validity status;
 	uint32 cnt;
 	uint8 * rp;
@@ -296,99 +295,99 @@ static int __logc_get_int(DB_LOGC * logc, DB_LSN * alsn, DBT * dbt, uint32 flags
 	//
 	// We don't acquire the log region lock until we need it, and we release it as soon as we're done.
 	//
-	rlock = F_ISSET(logc, DB_LOG_LOCKED) ? L_ALREADY : L_NONE;
+	RLOCK rlock = F_ISSET(logc, DB_LOG_LOCKED) ? L_ALREADY : L_NONE;
 #ifdef HAVE_LOG_CHECKSUM
 nextrec:
 #endif
-	nlsn = logc->lsn;
+	DB_LSN nlsn = logc->lsn;
 	switch(flags) {
 	    case DB_NEXT: // Next log record
-		if(!IS_ZERO_LSN(nlsn)) {
-			// Increment the cursor by the cursor record size.
-			nlsn.Offset_ += logc->len;
-			break;
-		}
-		flags = DB_FIRST;
-	    /* FALLTHROUGH */
-	    case DB_FIRST:                      /* First log record. */
-		/* Find the first log file. */
-		if((ret = __log_find(dblp, 1, &cnt, &status)) != 0)
-			goto err;
-		/*
-		 * DB_LV_INCOMPLETE:
-		 *	Theoretically, the log file we want could be created
-		 *	but not yet written, the "first" log record must be in the log buffer.
-		 * DB_LV_NORMAL:
-		 * DB_LV_OLD_READABLE:
-		 *	We found a log file we can read.
-		 * DB_LV_NONEXISTENT:
-		 *	No log files exist, the "first" log record must be in the log buffer.
-		 * DB_LV_OLD_UNREADABLE:
-		 *	No readable log files exist, we're at the cross-over
-		 *	point between two versions.  The "first" log record must be in the log buffer.
-		 */
-		switch(status) {
-		    case DB_LV_INCOMPLETE:
-				DB_ASSERT(env, lp->lsn.file == cnt);
-				/* FALLTHROUGH */
-		    case DB_LV_NORMAL:
-		    case DB_LV_OLD_READABLE:
-				nlsn.file = cnt;
+			if(!IS_ZERO_LSN(nlsn)) {
+				// Increment the cursor by the cursor record size.
+				nlsn.Offset_ += logc->len;
 				break;
-		    case DB_LV_NONEXISTENT:
-				nlsn.file = 1;
-				DB_ASSERT(env, lp->lsn.file == nlsn.file);
-				break;
-		    case DB_LV_OLD_UNREADABLE:
-				nlsn.file = cnt+1;
-				DB_ASSERT(env, lp->lsn.file == nlsn.file);
-				break;
-		}
-		nlsn.Offset_ = 0;
-		break;
-	    case DB_CURRENT:                    /* Current log record. */
-		break;
-	    case DB_PREV:                       /* Previous log record. */
-		if(!IS_ZERO_LSN(nlsn)) {
-			// If at start-of-file, move to the previous file
-			if(nlsn.Offset_ == 0) {
-				if(nlsn.file == 1) {
-					ret = DB_NOTFOUND;
-					goto err;
-				}
-				if((!lp->db_log_inmemory && (__log_valid(dblp, nlsn.file-1, 0, NULL, 0, &status, NULL) != 0 || !oneof2(status, DB_LV_NORMAL, DB_LV_OLD_READABLE)))) {
-					ret = DB_NOTFOUND;
-					goto err;
-				}
-				--nlsn.file;
 			}
-			nlsn.Offset_ = logc->prev;
+			flags = DB_FIRST;
+			// FALLTHROUGH 
+	    case DB_FIRST: // First log record. 
+			// Find the first log file. 
+			if((ret = __log_find(dblp, 1, &cnt, &status)) != 0)
+				goto err;
+			/*
+			 * DB_LV_INCOMPLETE:
+			 *	Theoretically, the log file we want could be created
+			 *	but not yet written, the "first" log record must be in the log buffer.
+			 * DB_LV_NORMAL:
+			 * DB_LV_OLD_READABLE:
+			 *	We found a log file we can read.
+			 * DB_LV_NONEXISTENT:
+			 *	No log files exist, the "first" log record must be in the log buffer.
+			 * DB_LV_OLD_UNREADABLE:
+			 *	No readable log files exist, we're at the cross-over
+			 *	point between two versions.  The "first" log record must be in the log buffer.
+			 */
+			switch(status) {
+				case DB_LV_INCOMPLETE:
+					DB_ASSERT(env, lp->lsn.file == cnt);
+					// FALLTHROUGH 
+				case DB_LV_NORMAL:
+				case DB_LV_OLD_READABLE:
+					nlsn.file = cnt;
+					break;
+				case DB_LV_NONEXISTENT:
+					nlsn.file = 1;
+					DB_ASSERT(env, lp->lsn.file == nlsn.file);
+					break;
+				case DB_LV_OLD_UNREADABLE:
+					nlsn.file = cnt+1;
+					DB_ASSERT(env, lp->lsn.file == nlsn.file);
+					break;
+			}
+			nlsn.Offset_ = 0;
 			break;
-		}
-	    /* FALLTHROUGH */
-	    case DB_LAST:                       /* Last log record. */
-		if(rlock == L_NONE) {
-			rlock = L_ACQUIRED;
-			LOG_SYSTEM_LOCK(env);
-		}
-		nlsn.file = lp->lsn.file;
-		nlsn.Offset_ = lp->lsn.Offset_ - lp->len;
-		break;
-	    case DB_SET:                        /* Set log record. */
-		nlsn = *alsn;
-		break;
+	    case DB_CURRENT: // Current log record.
+			break;
+	    case DB_PREV: // Previous log record.
+			if(!IS_ZERO_LSN(nlsn)) {
+				// If at start-of-file, move to the previous file
+				if(nlsn.Offset_ == 0) {
+					if(nlsn.file == 1) {
+						ret = DB_NOTFOUND;
+						goto err;
+					}
+					if((!lp->db_log_inmemory && (__log_valid(dblp, nlsn.file-1, 0, NULL, 0, &status, NULL) != 0 || !oneof2(status, DB_LV_NORMAL, DB_LV_OLD_READABLE)))) {
+						ret = DB_NOTFOUND;
+						goto err;
+					}
+					--nlsn.file;
+				}
+				nlsn.Offset_ = logc->prev;
+				break;
+			}
+			// FALLTHROUGH 
+	    case DB_LAST: // Last log record
+			if(rlock == L_NONE) {
+				rlock = L_ACQUIRED;
+				LOG_SYSTEM_LOCK(env);
+			}
+			nlsn.file = lp->lsn.file;
+			nlsn.Offset_ = lp->lsn.Offset_ - lp->len;
+			break;
+	    case DB_SET: // Set log record.
+			nlsn = *alsn;
+			break;
 	    default:
-		ret = __db_unknown_path(env, "__logc_get_int");
-		goto err;
+			ret = __db_unknown_path(env, "__logc_get_int");
+			goto err;
 	}
-	if(0) {                                 /* Move to the next file. */
+	if(0) { // Move to the next file.
 next_file:      
 		++nlsn.file;
 		nlsn.Offset_ = 0;
 	}
-	/*
-	 * The above switch statement should have set nlsn to the lsn of the requested record.
-	 */
+	//
+	// The above switch statement should have set nlsn to the lsn of the requested record.
+	//
 	if(CRYPTO_ON(env)) {
 		hdr.size = HDR_CRYPTO_SZ;
 		is_hmac = 1;
@@ -459,30 +458,29 @@ nohdr:
 		switch(flags) {
 		    case DB_LAST:
 		    case DB_PREV:
-			// 
-			// We should never get here.  If we recover a log file with 0's at the end, we'll treat the 0'd
-			// headers as the end of log and ignore them.  If we're reading backwards from another file, then
-			// the first record in that new file should have its prev field set correctly.
-			// 
-			__db_errx(env, DB_STR("2576", "Encountered zero length records while traversing backwards"));
-			ret = __env_panic(env, DB_RUNRECOVERY);
-			goto err;
+				// 
+				// We should never get here.  If we recover a log file with 0's at the end, we'll treat the 0'd
+				// headers as the end of log and ignore them.  If we're reading backwards from another file, then
+				// the first record in that new file should have its prev field set correctly.
+				// 
+				__db_errx(env, DB_STR("2576", "Encountered zero length records while traversing backwards"));
+				ret = __env_panic(env, DB_RUNRECOVERY);
+				goto err;
 		    case DB_FIRST:
 		    case DB_NEXT:
-			// 
-			// Zero'd records always indicate the end of a file, but only go to the next file once.
-			// 
-			if(nlsn.Offset_)
-				goto next_file;
-			// FALLTHROUGH
+				// 
+				// Zero'd records always indicate the end of a file, but only go to the next file once.
+				// 
+				if(nlsn.Offset_)
+					goto next_file;
+				// FALLTHROUGH
 		    case DB_SET:
 		    default:
-			ret = DB_NOTFOUND;
-			goto err;
+				ret = DB_NOTFOUND;
+				goto err;
 		}
 	}
 	F_SET(logc, DB_LOG_DISK);
-
 cksum:  
 	/*
 	 * Discard the region lock if we're still holding it.  (The path to
@@ -536,7 +534,7 @@ cksum:
 				blen = strlen(chksumbuf);
 				snprintf(chksumbuf+blen, 255-blen, isprint(ch) || ch == 0x0a ? "%c" : "%#x ", ch);
 			}
-			/* Type field is always the first one in the record. */
+			// Type field is always the first one in the record
 			memcpy(&logtype, rp+hdr.size, sizeof(logtype));
 			__db_errx(env, DB_STR_A("2577", "DB_LOGC->get: log record LSN %lu/%lu: checksum mismatch, hdr.chksum: %s, hdr.prev: %u, "
 				"hdr.len: %u, log type: %u. Skipping it and continuing with the %s one", "%lu %lu %s %u %u %u %s"),
@@ -556,7 +554,6 @@ cksum:
 		goto err;
 	}
 #endif
-
 from_memory:
 	/*
 	 * Discard the region lock if we're still holding it.  (The path to

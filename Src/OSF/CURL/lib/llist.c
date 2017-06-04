@@ -51,7 +51,7 @@ void Curl_llist_init(struct curl_llist * l, curl_llist_dtor dtor)
 int Curl_llist_insert_next(struct curl_llist * list, struct curl_llist_element * e,
     const void * p)
 {
-	struct curl_llist_element * ne = (struct curl_llist_element *)malloc(sizeof(struct curl_llist_element));
+	struct curl_llist_element * ne = (struct curl_llist_element *)SAlloc::M(sizeof(struct curl_llist_element));
 	if(!ne)
 		return 0;
 	ne->ptr = (void*)p;
@@ -115,7 +115,7 @@ int Curl_llist_remove(struct curl_llist * list, struct curl_llist_element * e,
 	e->prev = NULL;
 	e->next = NULL;
 
-	free(e);
+	SAlloc::F(e);
 	--list->size;
 
 	return 1;

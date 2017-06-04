@@ -104,9 +104,9 @@ void Curl_ntlm_wb_cleanup(struct connectdata * conn)
 		conn->ntlm_auth_hlpr_pid = 0;
 	}
 
-	free(conn->challenge_header);
+	SAlloc::F(conn->challenge_header);
 	conn->challenge_header = NULL;
-	free(conn->response_header);
+	SAlloc::F(conn->response_header);
 	conn->response_header = NULL;
 }
 
@@ -157,7 +157,7 @@ static CURLcode ntlm_wb_init(struct connectdata * conn, const char * userp)
 	}
 	slash = strpbrk(username, "\\/");
 	if(slash) {
-		domain = strdup(username);
+		domain = _strdup(username);
 		if(!domain)
 			return CURLE_OUT_OF_MEMORY;
 		slash = domain + (slash - username);
@@ -235,19 +235,19 @@ static CURLcode ntlm_wb_init(struct connectdata * conn, const char * userp)
 	sclose(sockfds[1]);
 	conn->ntlm_auth_hlpr_socket = sockfds[0];
 	conn->ntlm_auth_hlpr_pid = child_pid;
-	free(domain);
-	free(ntlm_auth_alloc);
+	SAlloc::F(domain);
+	SAlloc::F(ntlm_auth_alloc);
 	return CURLE_OK;
 done:
-	free(domain);
-	free(ntlm_auth_alloc);
+	SAlloc::F(domain);
+	SAlloc::F(ntlm_auth_alloc);
 	return CURLE_REMOTE_ACCESS_DENIED;
 }
 
 static CURLcode ntlm_wb_response(struct connectdata * conn,
     const char * input, curlntlm state)
 {
-	char * buf = malloc(NTLM_BUFSIZE);
+	char * buf = SAlloc::M(NTLM_BUFSIZE);
 	size_t len_in = strlen(input), len_out = 0;
 
 	if(!buf)
@@ -308,10 +308,10 @@ static CURLcode ntlm_wb_response(struct connectdata * conn,
 		goto done;
 
 	conn->response_header = aprintf("NTLM %.*s", len_out - 4, buf + 3);
-	free(buf);
+	SAlloc::F(buf);
 	return CURLE_OK;
 done:
-	free(buf);
+	SAlloc::F(buf);
 	return CURLE_REMOTE_ACCESS_DENIED;
 }
 
@@ -379,12 +379,12 @@ CURLcode Curl_output_ntlm_wb(struct connectdata * conn,
 		    if(res)
 			    return res;
 
-		    free(*allocuserpwd);
+		    SAlloc::F(*allocuserpwd);
 		    *allocuserpwd = aprintf("%sAuthorization: %s\r\n",
 		    proxy ? "Proxy-" : "",
 		    conn->response_header);
 		    DEBUG_OUT(fprintf(stderr, "**** Header %s\n ", *allocuserpwd));
-		    free(conn->response_header);
+		    SAlloc::F(conn->response_header);
 		    conn->response_header = NULL;
 		    break;
 		case NTLMSTATE_TYPE2:
@@ -392,12 +392,12 @@ CURLcode Curl_output_ntlm_wb(struct connectdata * conn,
 		    if(!input)
 			    return CURLE_OUT_OF_MEMORY;
 		    res = ntlm_wb_response(conn, input, ntlm->state);
-		    free(input);
+		    SAlloc::F(input);
 		    input = NULL;
 		    if(res)
 			    return res;
 
-		    free(*allocuserpwd);
+		    SAlloc::F(*allocuserpwd);
 		    *allocuserpwd = aprintf("%sAuthorization: %s\r\n",
 		    proxy ? "Proxy-" : "",
 		    conn->response_header);
@@ -409,7 +409,7 @@ CURLcode Curl_output_ntlm_wb(struct connectdata * conn,
 		case NTLMSTATE_TYPE3:
 		    /* connection is already authenticated,
 		     * don't send a header in future requests */
-		    free(*allocuserpwd);
+		    SAlloc::F(*allocuserpwd);
 		    *allocuserpwd = NULL;
 		    authp->done = TRUE;
 		    break;

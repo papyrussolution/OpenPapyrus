@@ -116,15 +116,15 @@ CURLcode Curl_output_negotiate(struct connectdata *conn, bool proxy)
                   base64);
 
   if(proxy) {
-    Curl_safefree(conn->allocptr.proxyuserpwd);
+    ZFREE(conn->allocptr.proxyuserpwd);
     conn->allocptr.proxyuserpwd = userp;
   }
   else {
-    Curl_safefree(conn->allocptr.userpwd);
+    ZFREE(conn->allocptr.userpwd);
     conn->allocptr.userpwd = userp;
   }
 
-  free(base64);
+  SAlloc::F(base64);
 
   return (userp == NULL) ? CURLE_OUT_OF_MEMORY : CURLE_OK;
 }

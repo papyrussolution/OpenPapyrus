@@ -47,21 +47,19 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
+	#include <sys/types.h>
 #endif
 #ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
+	#include <sys/stat.h>
 #endif
 #ifdef HAVE_FCNTL_H
-#include <fcntl.h>
+	#include <fcntl.h>
 #endif
-
 #include "urldata.h"
-
 #include "vtls.h" /* generic SSL protos etc */
 #include "slist.h"
 #include "sendf.h"
-#include "strcase.h"
+//#include "strcase.h"
 #include "url.h"
 #include "progress.h"
 #include "share.h"
@@ -83,7 +81,7 @@
 
 #define CLONE_STRING(var)		     \
 	if(source->var) {			   \
-		dest->var = strdup(source->var);	 \
+		dest->var = _strdup(source->var);	 \
 		if(!dest->var)				 \
 			return FALSE;			       \
 	}					   \
@@ -128,12 +126,12 @@ bool Curl_clone_primary_ssl_config(struct ssl_primary_config * source,
 
 void Curl_free_primary_ssl_config(struct ssl_primary_config* sslc)
 {
-	Curl_safefree(sslc->CAfile);
-	Curl_safefree(sslc->CApath);
-	Curl_safefree(sslc->cipher_list);
-	Curl_safefree(sslc->egdsocket);
-	Curl_safefree(sslc->random_file);
-	Curl_safefree(sslc->clientcert);
+	ZFREE(sslc->CAfile);
+	ZFREE(sslc->CApath);
+	ZFREE(sslc->cipher_list);
+	ZFREE(sslc->egdsocket);
+	ZFREE(sslc->random_file);
+	ZFREE(sslc->clientcert);
 }
 
 int Curl_ssl_backend(void)
@@ -352,8 +350,8 @@ void Curl_ssl_kill_session(struct curl_ssl_session * session)
 
 		Curl_free_primary_ssl_config(&session->ssl_config);
 
-		Curl_safefree(session->name);
-		Curl_safefree(session->conn_to_host);
+		ZFREE(session->name);
+		ZFREE(session->conn_to_host);
 	}
 }
 
@@ -395,45 +393,28 @@ CURLcode Curl_ssl_addsessionid(struct connectdata * conn,
 	int conn_to_port;
 	long * general_age;
 	const bool isProxy = CONNECT_PROXY_SSL();
-	struct ssl_primary_config * const ssl_config = isProxy ?
-	    &conn->proxy_ssl_config :
-	    &conn->ssl_config;
-
+	struct ssl_primary_config * const ssl_config = isProxy ? &conn->proxy_ssl_config : &conn->ssl_config;
 	DEBUGASSERT(SSL_SET_OPTION(primary.sessionid));
-
-	clone_host = strdup(isProxy ? conn->http_proxy.host.name : conn->host.name);
+	clone_host = _strdup(isProxy ? conn->http_proxy.host.name : conn->host.name);
 	if(!clone_host)
 		return CURLE_OUT_OF_MEMORY;  /* bail out */
-
 	if(conn->bits.conn_to_host) {
-		clone_conn_to_host = strdup(conn->conn_to_host.name);
+		clone_conn_to_host = _strdup(conn->conn_to_host.name);
 		if(!clone_conn_to_host) {
-			free(clone_host);
+			SAlloc::F(clone_host);
 			return CURLE_OUT_OF_MEMORY; /* bail out */
 		}
 	}
 	else
 		clone_conn_to_host = NULL;
-
-	if(conn->bits.conn_to_port)
-		conn_to_port = conn->conn_to_port;
-	else
-		conn_to_port = -1;
-
+	conn_to_port = conn->bits.conn_to_port ? conn->conn_to_port : -1;
 	/* Now we should add the session ID and the host name to the cache, (remove
 	   the oldest if necessary) */
 
 	/* If using shared SSL session, lock! */
-	if(SSLSESSION_SHARED(data)) {
-		general_age = &data->share->sessionage;
-	}
-	else {
-		general_age = &data->state.sessionage;
-	}
-
+	general_age = SSLSESSION_SHARED(data) ? &data->share->sessionage : &data->state.sessionage;
 	/* find an empty slot for us, or find the oldest */
-	for(i = 1; (i < data->set.general_ssl.max_ssl_sessions) &&
-	    data->state.session[i].sessionid; i++) {
+	for(i = 1; (i < data->set.general_ssl.max_ssl_sessions) && data->state.session[i].sessionid; i++) {
 		if(data->state.session[i].age < oldest_age) {
 			oldest_age = data->state.session[i].age;
 			store = &data->state.session[i];
@@ -450,8 +431,8 @@ CURLcode Curl_ssl_addsessionid(struct connectdata * conn,
 	store->idsize = idsize;
 	store->age = *general_age; /* set current age */
 	/* free it if there's one already present */
-	free(store->name);
-	free(store->conn_to_host);
+	SAlloc::F(store->name);
+	SAlloc::F(store->conn_to_host);
 	store->name = clone_host;         /* clone host name */
 	store->conn_to_host = clone_conn_to_host; /* clone connect to host name */
 	store->conn_to_port = conn_to_port; /* connect to port number */
@@ -461,8 +442,8 @@ CURLcode Curl_ssl_addsessionid(struct connectdata * conn,
 
 	if(!Curl_clone_primary_ssl_config(ssl_config, &store->ssl_config)) {
 		store->sessionid = NULL; /* let caller free sessionid */
-		free(clone_host);
-		free(clone_conn_to_host);
+		SAlloc::F(clone_host);
+		SAlloc::F(clone_conn_to_host);
 		return CURLE_OUT_OF_MEMORY;
 	}
 
@@ -479,7 +460,7 @@ void Curl_ssl_close_all(struct Curl_easy * data)
 			Curl_ssl_kill_session(&data->state.session[i]);
 
 		/* free the cache data */
-		Curl_safefree(data->state.session);
+		ZFREE(data->state.session);
 	}
 
 	curlssl_close_all(data);
@@ -574,7 +555,7 @@ CURLcode Curl_ssl_initsessions(struct Curl_easy * data, size_t amount)
 	if(data->state.session)
 		/* this is just a precaution to prevent multiple inits */
 		return CURLE_OK;
-	session = (struct curl_ssl_session *)calloc(amount, sizeof(struct curl_ssl_session));
+	session = (struct curl_ssl_session *)SAlloc::C(amount, sizeof(struct curl_ssl_session));
 	if(!session)
 		return CURLE_OUT_OF_MEMORY;
 	/* store the info in the SSL section */
@@ -620,7 +601,7 @@ void Curl_ssl_free_certinfo(struct Curl_easy * data)
 			ci->certinfo[i] = NULL;
 		}
 
-		free(ci->certinfo); /* free the actual array too */
+		SAlloc::F(ci->certinfo); /* free the actual array too */
 		ci->certinfo = NULL;
 		ci->num_of_certs = 0;
 	}
@@ -633,7 +614,7 @@ CURLcode Curl_ssl_init_certinfo(struct Curl_easy * data, int num)
 	/* Free any previous certificate information structures */
 	Curl_ssl_free_certinfo(data);
 	/* Allocate the required certificate information structures */
-	table = (struct curl_slist **)calloc((size_t)num, sizeof(struct curl_slist *));
+	table = (struct curl_slist **)SAlloc::C((size_t)num, sizeof(struct curl_slist *));
 	if(!table)
 		return CURLE_OUT_OF_MEMORY;
 	ci->num_of_certs = num;
@@ -652,7 +633,7 @@ CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy * data, int certnum, const 
 	CURLcode result = CURLE_OK;
 	size_t labellen = strlen(label);
 	size_t outlen = labellen + 1 + valuelen + 1; /* label:value\0 */
-	output = (char *)malloc(outlen);
+	output = (char *)SAlloc::M(outlen);
 	if(!output)
 		return CURLE_OUT_OF_MEMORY;
 	/* sprintf the label and colon */
@@ -663,7 +644,7 @@ CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy * data, int certnum, const 
 	output[labellen + 1 + valuelen] = 0;
 	nl = Curl_slist_append_nodup(ci->certinfo[certnum], output);
 	if(!nl) {
-		free(output);
+		SAlloc::F(output);
 		curl_slist_free_all(ci->certinfo[certnum]);
 		result = CURLE_OUT_OF_MEMORY;
 	}
@@ -686,7 +667,7 @@ CURLcode Curl_ssl_push_certinfo(struct Curl_easy * data,
 }
 
 CURLcode Curl_ssl_random(struct Curl_easy * data,
-    unsigned char * entropy,
+    uchar * entropy,
     size_t length)
 {
 	return curlssl_random(data, entropy, length);
@@ -694,7 +675,7 @@ CURLcode Curl_ssl_random(struct Curl_easy * data,
 /*
  * Public key pem to der conversion
  */
-static CURLcode pubkey_pem_to_der(const char * pem, unsigned char ** der, size_t * der_len)
+static CURLcode pubkey_pem_to_der(const char * pem, uchar ** der, size_t * der_len)
 {
 	char * stripped_pem;
 	const char * begin_pos;
@@ -719,7 +700,7 @@ static CURLcode pubkey_pem_to_der(const char * pem, unsigned char ** der, size_t
 	if(!end_pos)
 		return CURLE_BAD_CONTENT_ENCODING;
 	pem_len = end_pos - pem;
-	stripped_pem = (char *)malloc(pem_len - pem_count + 1);
+	stripped_pem = (char *)SAlloc::M(pem_len - pem_count + 1);
 	if(!stripped_pem)
 		return CURLE_OUT_OF_MEMORY;
 	/*
@@ -735,7 +716,7 @@ static CURLcode pubkey_pem_to_der(const char * pem, unsigned char ** der, size_t
 	/* Place the null terminator in the correct place */
 	stripped_pem[stripped_pem_count] = '\0';
 	result = Curl_base64_decode(stripped_pem, der, der_len);
-	Curl_safefree(stripped_pem);
+	ZFREE(stripped_pem);
 	return result;
 }
 
@@ -745,10 +726,10 @@ static CURLcode pubkey_pem_to_der(const char * pem, unsigned char ** der, size_t
 
 CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
     const char * pinnedpubkey,
-    const unsigned char * pubkey, size_t pubkeylen)
+    const uchar * pubkey, size_t pubkeylen)
 {
 	FILE * fp;
-	unsigned char * buf = NULL, * pem_ptr = NULL;
+	uchar * buf = NULL, * pem_ptr = NULL;
 	long filesize;
 	size_t size, pem_len;
 	CURLcode pem_read;
@@ -757,7 +738,7 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 	CURLcode encode;
 	size_t encodedlen, pinkeylen;
 	char * encoded, * pinkeycopy, * begin_pos, * end_pos;
-	unsigned char * sha256sumdigest = NULL;
+	uchar * sha256sumdigest = NULL;
 #endif
 
 	/* if a path wasn't specified, don't pin */
@@ -770,14 +751,14 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 	if(strncmp(pinnedpubkey, "sha256//", 8) == 0) {
 #ifdef curlssl_sha256sum
 		/* compute sha256sum of public key */
-		sha256sumdigest = (unsigned char *)malloc(SHA256_DIGEST_LENGTH);
+		sha256sumdigest = (uchar *)SAlloc::M(SHA256_DIGEST_LENGTH);
 		if(!sha256sumdigest)
 			return CURLE_OUT_OF_MEMORY;
 		curlssl_sha256sum(pubkey, pubkeylen,
 		    sha256sumdigest, SHA256_DIGEST_LENGTH);
 		encode = Curl_base64_encode(data, (char*)sha256sumdigest,
 		    SHA256_DIGEST_LENGTH, &encoded, &encodedlen);
-		Curl_safefree(sha256sumdigest);
+		ZFREE(sha256sumdigest);
 
 		if(encode)
 			return encode;
@@ -786,9 +767,9 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 
 		/* it starts with sha256//, copy so we can modify it */
 		pinkeylen = strlen(pinnedpubkey) + 1;
-		pinkeycopy = (char *)malloc(pinkeylen);
+		pinkeycopy = (char *)SAlloc::M(pinkeylen);
 		if(!pinkeycopy) {
-			Curl_safefree(encoded);
+			ZFREE(encoded);
 			return CURLE_OUT_OF_MEMORY;
 		}
 		memcpy(pinkeycopy, pinnedpubkey, pinkeylen);
@@ -819,8 +800,8 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 				begin_pos = strstr(end_pos, "sha256//");
 			}
 		} while(end_pos && begin_pos);
-		Curl_safefree(encoded);
-		Curl_safefree(pinkeycopy);
+		ZFREE(encoded);
+		ZFREE(pinkeycopy);
 #else
 		/* without sha256 support, this cannot match */
 		(void)data;
@@ -854,7 +835,7 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 		 * Allocate buffer for the pinned key
 		 * With 1 additional byte for null terminator in case of PEM key
 		 */
-		buf = (unsigned char *)malloc(size + 1);
+		buf = (uchar *)SAlloc::M(size + 1);
 		if(!buf)
 			break;
 
@@ -887,17 +868,17 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 			result = CURLE_OK;
 	} while(0);
 
-	Curl_safefree(buf);
-	Curl_safefree(pem_ptr);
+	ZFREE(buf);
+	ZFREE(pem_ptr);
 	fclose(fp);
 
 	return result;
 }
 
 #ifndef CURL_DISABLE_CRYPTO_AUTH
-CURLcode Curl_ssl_md5sum(unsigned char * tmp, /* input */
+CURLcode Curl_ssl_md5sum(uchar * tmp, /* input */
     size_t tmplen,
-    unsigned char * md5sum,                     /* output */
+    uchar * md5sum,                     /* output */
     size_t md5len)
 {
 #ifdef curlssl_md5sum

@@ -64,14 +64,14 @@ typedef enum {
 #define SETCHARSET_OK     1
 #define SETCHARSET_FAIL   0
 
-static int parsekeyword(unsigned char ** pattern, unsigned char * charset)
+static int parsekeyword(uchar ** pattern, uchar * charset)
 {
 	parsekey_state state = CURLFNM_PKW_INIT;
 #define KEYLEN 10
 	char keyword[KEYLEN] = { 0 };
 	int found = FALSE;
 	int i;
-	unsigned char * p = *pattern;
+	uchar * p = *pattern;
 	for(i = 0; !found; i++) {
 		char c = *p++;
 		if(i >= KEYLEN)
@@ -121,13 +121,13 @@ static int parsekeyword(unsigned char ** pattern, unsigned char * charset)
 }
 
 /* returns 1 (true) if pattern is OK, 0 if is bad ("p" is pattern pointer) */
-static int setcharset(unsigned char ** p, unsigned char * charset)
+static int setcharset(uchar ** p, uchar * charset)
 {
 	setcharset_state state = CURLFNM_SCHS_DEFAULT;
-	unsigned char rangestart = 0;
-	unsigned char lastchar   = 0;
+	uchar rangestart = 0;
+	uchar lastchar   = 0;
 	bool something_found = FALSE;
-	unsigned char c;
+	uchar c;
 	for(;; ) {
 		c = **p;
 		switch(state) {
@@ -304,12 +304,12 @@ fail:
 	return SETCHARSET_FAIL;
 }
 
-static int loop(const unsigned char * pattern, const unsigned char * string)
+static int loop(const uchar * pattern, const uchar * string)
 {
 	loop_state state = CURLFNM_LOOP_DEFAULT;
-	unsigned char * p = (unsigned char*)pattern;
-	unsigned char * s = (unsigned char*)string;
-	unsigned char charset[CURLFNM_CHSET_SIZE] = { 0 };
+	uchar * p = (uchar*)pattern;
+	uchar * s = (uchar*)string;
+	uchar charset[CURLFNM_CHSET_SIZE] = { 0 };
 	int rc = 0;
 
 	for(;; ) {
@@ -348,10 +348,10 @@ static int loop(const unsigned char * pattern, const unsigned char * string)
 				    p++;
 			    }
 			    else if(*p == '[') {
-				    unsigned char * pp = p+1; /* cannot handle with pointer to register */
+				    uchar * pp = p+1; /* cannot handle with pointer to register */
 				    if(setcharset(&pp, charset)) {
 					    int found = FALSE;
-					    if(charset[(unsigned int)*s])
+					    if(charset[(uint)*s])
 						    found = TRUE;
 					    else if(charset[CURLFNM_ALNUM])
 						    found = ISALNUM(*s);
@@ -415,6 +415,6 @@ int Curl_fnmatch(void * ptr, const char * pattern, const char * string)
 	if(!pattern || !string) {
 		return CURL_FNMATCH_FAIL;
 	}
-	return loop((unsigned char*)pattern, (unsigned char*)string);
+	return loop((uchar*)pattern, (uchar*)string);
 }
 

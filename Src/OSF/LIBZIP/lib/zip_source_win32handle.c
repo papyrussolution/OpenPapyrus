@@ -73,7 +73,7 @@ zip_source_t * _zip_source_win32_handle_or_name(const void * fname, HANDLE h, ui
 	if(fname) {
 		if((ctx->fname = ops->op_strdup(fname)) == NULL) {
 			zip_error_set(error, ZIP_ER_MEMORY, 0);
-			free(ctx);
+			SAlloc::F(ctx);
 			return NULL;
 		}
 	}
@@ -107,8 +107,8 @@ zip_source_t * _zip_source_win32_handle_or_name(const void * fname, HANDLE h, ui
 		ctx->supports = ZIP_SOURCE_SUPPORTS_SEEKABLE;
 	}
 	if((zs = zip_source_function_create(_win32_read_file, ctx, error)) == NULL) {
-		free(ctx->fname);
-		free(ctx);
+		SAlloc::F(ctx->fname);
+		SAlloc::F(ctx);
 		return NULL;
 	}
 	return zs;
@@ -149,11 +149,11 @@ static int64 _win32_read_file(void * state, void * data, uint64 len, zip_source_
 		case ZIP_SOURCE_ERROR:
 		    return zip_error_to_data(&ctx->error, data, len);
 		case ZIP_SOURCE_FREE:
-		    free(ctx->fname);
-		    free(ctx->tmpname);
+		    SAlloc::F(ctx->fname);
+		    SAlloc::F(ctx->tmpname);
 		    if(ctx->closep && ctx->h != INVALID_HANDLE_VALUE)
 			    CloseHandle(ctx->h);
-		    free(ctx);
+		    SAlloc::F(ctx);
 		    return 0;
 		case ZIP_SOURCE_OPEN:
 		    if(ctx->fname) {
@@ -380,12 +380,12 @@ static int _win32_create_temp_file(_zip_source_win32_read_file_t * ctx)
 			break;
 	}
 	if(th == INVALID_HANDLE_VALUE) {
-		free(temp);
-		free(psd);
+		SAlloc::F(temp);
+		SAlloc::F(psd);
 		zip_error_set(&ctx->error, ZIP_ER_TMPOPEN, _zip_win32_error_to_errno(GetLastError()));
 		return -1;
 	}
-	free(psd);
+	SAlloc::F(psd);
 	ctx->hout = th;
 	ctx->tmpname = temp;
 	return 0;

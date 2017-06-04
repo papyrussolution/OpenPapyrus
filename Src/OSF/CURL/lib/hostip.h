@@ -33,7 +33,7 @@
 
 #ifdef NETWARE
 #undef in_addr_t
-#define in_addr_t unsigned long
+#define in_addr_t ulong
 #endif
 
 /* Allocate enough memory to hold the full name information structs and

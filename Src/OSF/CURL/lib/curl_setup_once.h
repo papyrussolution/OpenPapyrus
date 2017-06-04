@@ -279,21 +279,21 @@ struct timeval {
  * avoid negative number inputs with argument byte codes > 127.
  */
 
-#define ISSPACE(x)  (isspace((int)  ((unsigned char)x)))
-#define ISDIGIT(x)  (isdigit((int)  ((unsigned char)x)))
-#define ISALNUM(x)  (isalnum((int)  ((unsigned char)x)))
-#define ISXDIGIT(x) (isxdigit((int) ((unsigned char)x)))
-#define ISGRAPH(x)  (isgraph((int)  ((unsigned char)x)))
-#define ISALPHA(x)  (isalpha((int)  ((unsigned char)x)))
-#define ISPRINT(x)  (isprint((int)  ((unsigned char)x)))
-#define ISUPPER(x)  (isupper((int)  ((unsigned char)x)))
-#define ISLOWER(x)  (islower((int)  ((unsigned char)x)))
-#define ISASCII(x)  (isascii((int)  ((unsigned char)x)))
+#define ISSPACE(x)  (isspace((int)  ((uchar)x)))
+#define ISDIGIT(x)  (isdigit((int)  ((uchar)x)))
+#define ISALNUM(x)  (isalnum((int)  ((uchar)x)))
+#define ISXDIGIT(x) (isxdigit((int) ((uchar)x)))
+#define ISGRAPH(x)  (isgraph((int)  ((uchar)x)))
+#define ISALPHA(x)  (isalpha((int)  ((uchar)x)))
+#define ISPRINT(x)  (isprint((int)  ((uchar)x)))
+#define ISUPPER(x)  (isupper((int)  ((uchar)x)))
+#define ISLOWER(x)  (islower((int)  ((uchar)x)))
+#define ISASCII(x)  (isascii((int)  ((uchar)x)))
 
-#define ISBLANK(x)  (int)((((unsigned char)x) == ' ') || \
-                          (((unsigned char)x) == '\t'))
+#define ISBLANK(x)  (int)((((uchar)x) == ' ') || \
+                          (((uchar)x) == '\t'))
 
-#define TOLOWER(x)  (tolower((int)  ((unsigned char)x)))
+#define TOLOWER(x)  (tolower((int)  ((uchar)x)))
 
 
 /*

@@ -15,8 +15,8 @@
 #pragma hdrstop
 
 /* Forward declarations */
-LOCAL(void) transencode_master_selection JPP((j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays));
-LOCAL(void) transencode_coef_controller JPP((j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays));
+static void transencode_master_selection JPP((j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays));
+static void transencode_coef_controller JPP((j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays));
 
 /*
  * Compression initialization for writing raw-coefficient data.
@@ -153,9 +153,7 @@ GLOBAL(void) jpeg_copy_critical_parameters(j_decompress_ptr srcinfo,
  * This substitutes for jcinit.c's initialization of the full compressor.
  */
 
-LOCAL(void)
-transencode_master_selection(j_compress_ptr cinfo,
-    jvirt_barray_ptr * coef_arrays)
+static void transencode_master_selection(j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays)
 {
 	/* Initialize master control (includes parameter checking/processing) */
 	jinit_c_master_control(cinfo, TRUE /* transcode only */);
@@ -209,12 +207,10 @@ typedef struct {
 
 typedef my_coef_controller * my_coef_ptr;
 
-LOCAL(void)
-start_iMCU_row(j_compress_ptr cinfo)
+static void start_iMCU_row(j_compress_ptr cinfo)
 /* Reset within-iMCU-row counters for a new row */
 {
 	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
-
 	/* In an interleaved scan, an MCU row is the same as an iMCU row.
 	 * In a noninterleaved scan, an iMCU row has v_samp_factor MCU rows.
 	 * But at the bottom of the image, process only what's left.
@@ -342,17 +338,11 @@ METHODDEF(boolean) compress_output(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
  * with unitheight at least v_samp_factor.
  */
 
-LOCAL(void)
-transencode_coef_controller(j_compress_ptr cinfo,
-    jvirt_barray_ptr * coef_arrays)
+static void transencode_coef_controller(j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays)
 {
-	my_coef_ptr coef;
 	JBLOCKROW buffer;
 	int i;
-
-	coef = (my_coef_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    SIZEOF(my_coef_controller));
+	my_coef_ptr coef = (my_coef_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(my_coef_controller));
 	cinfo->coef = &coef->pub;
 	coef->pub.start_pass = start_pass_coef;
 	coef->pub.compress_data = compress_output;

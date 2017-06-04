@@ -224,9 +224,7 @@ LOCAL(boolean) get_soi(j_decompress_ptr cinfo)
 	return TRUE;
 }
 
-LOCAL(boolean)
-get_sof(j_decompress_ptr cinfo, boolean is_baseline, boolean is_prog,
-    boolean is_arith)
+LOCAL(boolean) get_sof(j_decompress_ptr cinfo, boolean is_baseline, boolean is_prog, boolean is_arith)
 /* Process a SOFn marker */
 {
 	INT32 length;
@@ -305,8 +303,7 @@ get_sof(j_decompress_ptr cinfo, boolean is_baseline, boolean is_prog,
 	return TRUE;
 }
 
-LOCAL(boolean)
-get_sos(j_decompress_ptr cinfo)
+LOCAL(boolean) get_sos(j_decompress_ptr cinfo)
 /* Process a SOS marker */
 {
 	INT32 length;
@@ -395,8 +392,7 @@ id_found:
 
 #ifdef D_ARITH_CODING_SUPPORTED
 
-LOCAL(boolean)
-get_dac(j_decompress_ptr cinfo)
+LOCAL(boolean) get_dac(j_decompress_ptr cinfo)
 /* Process a DAC marker */
 {
 	INT32 length;
@@ -441,8 +437,7 @@ get_dac(j_decompress_ptr cinfo)
 
 #endif /* D_ARITH_CODING_SUPPORTED */
 
-LOCAL(boolean)
-get_dht(j_decompress_ptr cinfo)
+LOCAL(boolean) get_dht(j_decompress_ptr cinfo)
 /* Process a DHT marker */
 {
 	INT32 length;
@@ -514,8 +509,7 @@ get_dht(j_decompress_ptr cinfo)
 	return TRUE;
 }
 
-LOCAL(boolean)
-get_dqt(j_decompress_ptr cinfo)
+LOCAL(boolean) get_dqt(j_decompress_ptr cinfo)
 /* Process a DQT marker */
 {
 	INT32 length, count, i;
@@ -606,8 +600,7 @@ get_dqt(j_decompress_ptr cinfo)
 	return TRUE;
 }
 
-LOCAL(boolean)
-get_dri(j_decompress_ptr cinfo)
+LOCAL(boolean) get_dri(j_decompress_ptr cinfo)
 /* Process a DRI marker */
 {
 	INT32 length;
@@ -629,8 +622,7 @@ get_dri(j_decompress_ptr cinfo)
 	return TRUE;
 }
 
-LOCAL(boolean)
-get_lse(j_decompress_ptr cinfo)
+LOCAL(boolean) get_lse(j_decompress_ptr cinfo)
 /* Process an LSE marker */
 {
 	INT32 length;
@@ -701,9 +693,7 @@ bad:
 #define APP14_DATA_LEN  12      /* Length of interesting data in APP14 */
 #define APPN_DATA_LEN   14      /* Must be the largest of the above!! */
 
-LOCAL(void)
-examine_app0(j_decompress_ptr cinfo, JOCTET FAR * data,
-    unsigned int datalen, INT32 remaining)
+static void examine_app0(j_decompress_ptr cinfo, JOCTET FAR * data, unsigned int datalen, INT32 remaining)
 /* Examine first few bytes from an APP0.
  * Take appropriate action if it is a JFIF marker.
  * datalen is # of bytes at data[], remaining is length of rest of marker data.
@@ -779,9 +769,7 @@ examine_app0(j_decompress_ptr cinfo, JOCTET FAR * data,
 	}
 }
 
-LOCAL(void)
-examine_app14(j_decompress_ptr cinfo, JOCTET FAR * data,
-    unsigned int datalen, INT32 remaining)
+static void examine_app14(j_decompress_ptr cinfo, JOCTET FAR * data, unsigned int datalen, INT32 remaining)
 /* Examine first few bytes from an APP14.
  * Take appropriate action if it is an Adobe marker.
  * datalen is # of bytes at data[], remaining is length of rest of marker data.
@@ -990,13 +978,10 @@ METHODDEF(boolean) skip_variable(j_decompress_ptr cinfo)
  * Note that the result might not be a valid marker code,
  * but it will never be 0 or FF.
  */
-
-LOCAL(boolean)
-next_marker(j_decompress_ptr cinfo)
+LOCAL(boolean) next_marker(j_decompress_ptr cinfo)
 {
 	int c;
 	INPUT_VARS(cinfo);
-
 	for(;; ) {
 		INPUT_BYTE(cinfo, c, return FALSE);
 		/* Skip any non-FF bytes.
@@ -1037,8 +1022,7 @@ next_marker(j_decompress_ptr cinfo)
 	return TRUE;
 }
 
-LOCAL(boolean)
-first_marker(j_decompress_ptr cinfo)
+LOCAL(boolean) first_marker(j_decompress_ptr cinfo)
 /* Like next_marker, but used to obtain the initial SOI marker. */
 /* For this marker, we do not allow preceding garbage or fill; otherwise,
  * we might well scan an entire input file before realizing it ain't JPEG.

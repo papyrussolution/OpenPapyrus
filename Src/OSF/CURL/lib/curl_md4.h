@@ -28,7 +28,7 @@
  * that we have a local implementation of it */
 #if defined(USE_NSS) || defined(USE_OS400CRYPTO)
 
-void Curl_md4it(unsigned char *output, const unsigned char *input, size_t len);
+void Curl_md4it(uchar *output, const uchar *input, size_t len);
 
 #endif /* defined(USE_NSS) || defined(USE_OS400CRYPTO) */
 

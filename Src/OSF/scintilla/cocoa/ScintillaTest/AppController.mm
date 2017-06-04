@@ -77,15 +77,20 @@ const char user_keywords[] = // Definition of own keywords, not used by MySQL.
   NSString* path = [[NSBundle mainBundle] pathForResource: @"TestData" 
                                                    ofType: @"sql" inDirectory: nil];
   
-  NSString* sql = [NSString stringWithContentsOfFile: path
+  sql = [NSString stringWithContentsOfFile: path
                                             encoding: NSUTF8StringEncoding
                                                error: &error];
+
+  [sql retain];
+
   if (error && [[error domain] isEqual: NSCocoaErrorDomain])
     NSLog(@"%@", error);
   
   [mEditor setString: sql];
 
   [self setupEditor];
+  
+  sciExtra = nil;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -269,6 +274,25 @@ static const char * box_xpm[] = {
 
   if ([[searchField stringValue] isEqualToString: @"XX"])
     [self showAutocompletion];
+}
+
+- (IBAction) addRemoveExtra: (id) sender
+{
+	if (sciExtra) {
+		[sciExtra removeFromSuperview];
+		sciExtra = nil;
+	} else {
+		NSRect newFrame = mEditHost.frame;
+		newFrame.origin.x += newFrame.size.width + 5;
+		newFrame.origin.y += 46;
+		newFrame.size.width = 96;
+		newFrame.size.height -= 60;
+
+		sciExtra = [[[ScintillaView alloc] initWithFrame: newFrame] autorelease];
+		[[[mEditHost window]contentView] addSubview: sciExtra];
+		[sciExtra setGeneralProperty: SCI_SETWRAPMODE parameter: SC_WRAP_WORD value: 1];
+		[sciExtra setString: sql];
+	}
 }
 
 -(IBAction) setFontQuality: (id) sender

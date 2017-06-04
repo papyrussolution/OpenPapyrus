@@ -8,7 +8,12 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
+#include <stdexcept>
+#include <string>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <memory>
 #include "ILexer.h"
 #include "StringCopy.h"
 #include "Position.h"
@@ -51,6 +56,7 @@ EditModel::EditModel() {
 	primarySelection = true;
 	imeInteraction = imeWindowed;
 	foldFlags = 0;
+	foldDisplayTextStyle = SC_FOLDDISPLAYTEXT_HIDDEN;
 	hotspot = Range(invalidPosition);
 	hoverIndicatorPos = invalidPosition;
 	wrapWidth = LineLayout::wrapWidthInfinite;

@@ -76,7 +76,7 @@ static void qr_reader_init(qr_reader * reader)
 /*Allocates a client reader handle.*/
 qr_reader * _zbar_qr_create(void)
 {
-	qr_reader * reader = (qr_reader*)calloc(1, sizeof(*reader));
+	qr_reader * reader = (qr_reader*)SAlloc::C(1, sizeof(*reader));
 	qr_reader_init(reader);
 	return(reader);
 }
@@ -85,9 +85,9 @@ qr_reader * _zbar_qr_create(void)
 void _zbar_qr_destroy(qr_reader * reader)
 {
 	zprintf(1, "max finder lines = %dx%d\n", reader->finder_lines[0].clines, reader->finder_lines[1].clines);
-	free(reader->finder_lines[0].lines);
-	free(reader->finder_lines[1].lines);
-	free(reader);
+	SAlloc::F(reader->finder_lines[0].lines);
+	SAlloc::F(reader->finder_lines[1].lines);
+	SAlloc::F(reader);
 }
 
 /* reset finder state between scans */
@@ -155,7 +155,7 @@ static int qr_finder_cluster_lines(qr_finder_cluster * _clusters,
 {
 	int nneighbors;
 	// TODO: Kalman filters!
-	uchar * mark = (uchar*)calloc(_nlines, sizeof(*mark));
+	uchar * mark = (uchar*)SAlloc::C(_nlines, sizeof(*mark));
 	qr_finder_line ** neighbors = _neighbors;
 	int nclusters = 0;
 	for(int i = 0; i<_nlines-1; i++) {
@@ -208,7 +208,7 @@ static int qr_finder_cluster_lines(qr_finder_cluster * _clusters,
 			}
 		}
 	}
-	free(mark);
+	SAlloc::F(mark);
 	return nclusters;
 }
 
@@ -283,8 +283,8 @@ static int qr_finder_find_crossings(qr_finder_center * _centers,
 	int j;
 	qr_finder_cluster ** hneighbors = (qr_finder_cluster**)SAlloc::M(_nhclusters*sizeof(*hneighbors));
 	qr_finder_cluster ** vneighbors = (qr_finder_cluster**)SAlloc::M(_nvclusters*sizeof(*vneighbors));
-	uchar * hmark = (uchar*)calloc(_nhclusters, sizeof(*hmark));
-	uchar * vmark = (uchar*)calloc(_nvclusters, sizeof(*vmark));
+	uchar * hmark = (uchar*)SAlloc::C(_nhclusters, sizeof(*hmark));
+	uchar * vmark = (uchar*)SAlloc::C(_nvclusters, sizeof(*vmark));
 	int ncenters = 0;
 	/*TODO: This may need some re-working.
 	   We should be finding groups of clusters such that _all_ horizontal lines in
@@ -347,10 +347,10 @@ static int qr_finder_find_crossings(qr_finder_center * _centers,
 			}
 		}
 	}
-	free(vmark);
-	free(hmark);
-	free(vneighbors);
-	free(hneighbors);
+	SAlloc::F(vmark);
+	SAlloc::F(hmark);
+	SAlloc::F(vneighbors);
+	SAlloc::F(hneighbors);
 	/*Sort the centers by decreasing numbers of edge points.*/
 	qsort(_centers, ncenters, sizeof(*_centers), qr_finder_center_cmp);
 	return ncenters;
@@ -424,10 +424,10 @@ static int qr_finder_centers_locate(qr_finder_center ** _centers,
 	}
 	else 
 		ncenters = 0;
-	free(vclusters);
-	free(vneighbors);
-	free(hclusters);
-	free(hneighbors);
+	SAlloc::F(vclusters);
+	SAlloc::F(vneighbors);
+	SAlloc::F(hclusters);
+	SAlloc::F(hneighbors);
 	return ncenters;
 }
 
@@ -1067,7 +1067,7 @@ static int qr_line_fit_finder_edge(qr_line _l, const qr_finder * _f, int _e, int
 	/*Make sure the center of the finder pattern lies in the positive halfspace
 	   of the line.*/
 	qr_line_orient(_l, _f->c->pos[0], _f->c->pos[1]);
-	free(pts);
+	SAlloc::F(pts);
 	return 0;
 }
 
@@ -1121,7 +1121,7 @@ static void qr_line_fit_finder_pair(qr_line _l, const qr_aff * _aff, const qr_fi
 	qr_line_fit_points(_l, pts, npts, _aff->res);
 	/*Make sure at least one finder center lies in the positive halfspace.*/
 	qr_line_orient(_l, _f0->c->pos[0], _f0->c->pos[1]);
-	free(pts);
+	SAlloc::F(pts);
 }
 
 static int qr_finder_quick_crossing_check(const uchar * _img,
@@ -1333,7 +1333,7 @@ static void qr_finder_dump_aff_undistorted(qr_finder * _ul, qr_finder * _ur,
 	fout = fopen("undistorted_aff.png", "wb");
 	image_write_png(gimg, dim, dim, fout);
 	fclose(fout);
-	free(gimg);
+	SAlloc::F(gimg);
 }
 
 static void qr_finder_dump_hom_undistorted(qr_finder * _ul, qr_finder * _ur,
@@ -1407,7 +1407,7 @@ static void qr_finder_dump_hom_undistorted(qr_finder * _ul, qr_finder * _ur,
 	fout = fopen("undistorted_hom.png", "wb");
 	image_write_png(gimg, dim, dim, fout);
 	fclose(fout);
-	free(gimg);
+	SAlloc::F(gimg);
 }
 
 #endif
@@ -2007,7 +2007,7 @@ static int qr_hom_fit(qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
 			y1 = (ry-dryj) >> (_aff->res+QR_FINDER_SUBPREC);
 			if(nr>=cr) {
 				cr = cr<<1|1;
-				r = (qr_point*)realloc(r, cr*sizeof(*r));
+				r = (qr_point*)SAlloc::R(r, cr*sizeof(*r));
 			}
 			ret = qr_finder_quick_crossing_check(_img, _width, _height, x0, y0, x1, y1, 1);
 			if(!ret) {
@@ -2054,7 +2054,7 @@ static int qr_hom_fit(qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
 			y1 = (by-dbyj) >> (_aff->res+QR_FINDER_SUBPREC);
 			if(nb>=cb) {
 				cb = cb<<1|1;
-				b = (qr_point*)realloc(b, cb*sizeof(*b));
+				b = (qr_point*)SAlloc::R(b, cb*sizeof(*b));
 			}
 			ret = qr_finder_quick_crossing_check(_img, _width, _height, x0, y0, x1, y1, 1);
 			if(!ret) {
@@ -2112,7 +2112,7 @@ static int qr_hom_fit(qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
 		l[1][1] = (-_aff->fwd[0][1]+round) >> shift;
 		l[1][2] = -(l[1][0]*p[0]+l[1][1]*p[1]);
 	}
-	free(r);
+	SAlloc::F(r);
 	if(nb>1) 
 		qr_line_fit_points(l[3], b, nb, _aff->res);
 	else {
@@ -2123,7 +2123,7 @@ static int qr_hom_fit(qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
 		l[3][1] = (-_aff->fwd[0][0] + round) >> shift;
 		l[3][2] = -(l[1][0] * p[0] + l[1][1] * p[1]);
 	}
-	free(b);
+	SAlloc::F(b);
 	for(i = 0; i<4; i++) {
 		if(qr_line_isect(_p[i], l[i&1], l[2+(i>>1)])<0) 
 			return -1;
@@ -2536,7 +2536,7 @@ static void qr_sampling_grid_init(qr_sampling_grid * _grid, int _version,
 	    (nalign-1)*(nalign-1)*sizeof(*_grid->cells[0]));
 	for(i = 1; i<_grid->ncells; i++) _grid->cells[i] = _grid->cells[i-1]+_grid->ncells;
 	/*Initialize the function pattern mask.*/
-	_grid->fpmask = (uint*)calloc(dim, ((dim + QR_INT_BITS - 1) >> QR_INT_LOGBITS) * sizeof(*_grid->fpmask));
+	_grid->fpmask = (uint*)SAlloc::C(dim, ((dim + QR_INT_BITS - 1) >> QR_INT_LOGBITS) * sizeof(*_grid->fpmask));
 	/*Mask out the finder patterns (and separators and format info bits).*/
 	qr_sampling_grid_fp_mask_rect(_grid, dim, 0, 0, 9, 9);
 	qr_sampling_grid_fp_mask_rect(_grid, dim, 0, dim-8, 9, 8);
@@ -2649,8 +2649,8 @@ static void qr_sampling_grid_init(qr_sampling_grid * _grid, int _version,
 			}
 		}
 		qr_svg_points("align", p, nalign * nalign);
-		free(q);
-		free(p);
+		SAlloc::F(q);
+		SAlloc::F(p);
 	}
 	/*Set the limits over which each cell is used.*/
 	memcpy(_grid->cell_limits, align_pos+1, (_grid->ncells-1)*sizeof(*_grid->cell_limits));
@@ -2679,8 +2679,8 @@ static void qr_sampling_grid_init(qr_sampling_grid * _grid, int _version,
 
 static void qr_sampling_grid_clear(qr_sampling_grid * _grid)
 {
-	free(_grid->fpmask);
-	free(_grid->cells[0]);
+	SAlloc::F(_grid->fpmask);
+	SAlloc::F(_grid->cells[0]);
 }
 
 #if defined(QR_DEBUG)
@@ -2748,7 +2748,7 @@ static void qr_sampling_grid_dump(qr_sampling_grid * _grid, int _version,
 		image_write_png(gimg, dim, dim, fout);
 		fclose(fout);
 	}
-	free(gimg);
+	SAlloc::F(gimg);
 }
 
 #endif
@@ -3129,7 +3129,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 			break;
 		if(_qrdata->nentries>=centries) {
 			centries = centries<<1|1;
-			_qrdata->entries = (qr_code_data_entry*)realloc(_qrdata->entries, centries*sizeof(*_qrdata->entries));
+			_qrdata->entries = (qr_code_data_entry*)SAlloc::R(_qrdata->entries, centries*sizeof(*_qrdata->entries));
 		}
 		entry = _qrdata->entries+_qrdata->nentries++;
 		entry->mode = (qr_mode)mode;
@@ -3361,7 +3361,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 	   because we can just do it here instead.*/
 	_qrdata->self_parity = ((self_parity>>8)^self_parity)&0xFF;
 	/*Success.*/
-	_qrdata->entries = (qr_code_data_entry*)realloc(_qrdata->entries, _qrdata->nentries*sizeof(*_qrdata->entries));
+	_qrdata->entries = (qr_code_data_entry*)SAlloc::R(_qrdata->entries, _qrdata->nentries*sizeof(*_qrdata->entries));
 	return 0;
 }
 
@@ -3369,10 +3369,10 @@ static void qr_code_data_clear(qr_code_data * _qrdata)
 {
 	for(int i = 0; i < _qrdata->nentries; i++) {
 		if(QR_MODE_HAS_DATA(_qrdata->entries[i].mode)) {
-			free(_qrdata->entries[i].payload.data.buf);
+			SAlloc::F(_qrdata->entries[i].payload.data.buf);
 		}
 	}
-	free(_qrdata->entries);
+	SAlloc::F(_qrdata->entries);
 }
 
 void qr_code_data_list_init(qr_code_data_list * _qrlist)
@@ -3385,7 +3385,7 @@ void qr_code_data_list_clear(qr_code_data_list * _qrlist)
 {
 	for(int i = 0; i<_qrlist->nqrdata; i++) 
 		qr_code_data_clear(_qrlist->qrdata+i);
-	free(_qrlist->qrdata);
+	SAlloc::F(_qrlist->qrdata);
 	qr_code_data_list_init(_qrlist);
 }
 
@@ -3393,7 +3393,7 @@ static void qr_code_data_list_add(qr_code_data_list * _qrlist, qr_code_data * _q
 {
 	if(_qrlist->nqrdata>=_qrlist->cqrdata) {
 		_qrlist->cqrdata = _qrlist->cqrdata<<1|1;
-		_qrlist->qrdata = (qr_code_data*)realloc(_qrlist->qrdata,
+		_qrlist->qrdata = (qr_code_data*)SAlloc::R(_qrlist->qrdata,
 		    _qrlist->cqrdata*sizeof(*_qrlist->qrdata));
 	}
 	memcpy(_qrlist->qrdata+_qrlist->nqrdata++, _qrdata, sizeof(*_qrdata));
@@ -3527,8 +3527,8 @@ static int qr_code_decode(qr_code_data * _qrdata, const rs_gf256 * _gf,
 		blocks[i] = blocks[i-1]+block_sz+(i>nshort_blocks);
 	qr_samples_unpack(blocks, nblocks, block_sz-npar, nshort_blocks, data_bits, grid.fpmask, dim);
 	qr_sampling_grid_clear(&grid);
-	free(blocks);
-	free(data_bits);
+	SAlloc::F(blocks);
+	SAlloc::F(data_bits);
 	/*Perform the error correction.*/
 	ndata = 0;
 	ncodewords = 0;
@@ -3564,7 +3564,7 @@ static int qr_code_decode(qr_code_data * _qrdata, const rs_gf256 * _gf,
 		_qrdata->version = _version;
 		_qrdata->ecc_level = ecc_level;
 	}
-	free(block_data);
+	SAlloc::F(block_data);
 	return ret;
 }
 
@@ -3811,7 +3811,7 @@ void qr_reader_match_centers(qr_reader * _reader, qr_code_data_list * _qrlist,
 	int i;
 	int j;
 	int k;
-	uchar * mark = (uchar*)calloc(_ncenters, sizeof(*mark));
+	uchar * mark = (uchar*)SAlloc::C(_ncenters, sizeof(*mark));
 	int nfailures_max = QR_MAXI(8192, _width*_height>>9);
 	int nfailures = 0;
 	for(i = 0; i<_ncenters; i++) {
@@ -3863,7 +3863,7 @@ void qr_reader_match_centers(qr_reader * _reader, qr_code_data_list * _qrlist,
 									*&inside[ninside++] = *&_centers[l];
 							}
 							qr_reader_match_centers(_reader, _qrlist, inside, ninside, _img, _width, _height);
-							free(inside);
+							SAlloc::F(inside);
 						}
 						// Mark _all_ such centers used: codes cannot partially overlap
 						for(l = 0; l<_ncenters; l++) 
@@ -3880,7 +3880,7 @@ void qr_reader_match_centers(qr_reader * _reader, qr_code_data_list * _qrlist,
 			}
 		}
 	}
-	free(mark);
+	SAlloc::F(mark);
 }
 
 int _zbar_qr_found_line(qr_reader * reader, int dir, const qr_finder_line * line)
@@ -3889,7 +3889,7 @@ int _zbar_qr_found_line(qr_reader * reader, int dir, const qr_finder_line * line
 	qr_finder_lines * lines = &reader->finder_lines[dir];
 	if(lines->nlines >= lines->clines) {
 		lines->clines *= 2;
-		lines->lines = (qr_finder_line *)realloc(lines->lines, ++lines->clines * sizeof(*lines->lines));
+		lines->lines = (qr_finder_line *)SAlloc::R(lines->lines, ++lines->clines * sizeof(*lines->lines));
 	}
 	memcpy(lines->lines + lines->nlines++, line, sizeof(*line));
 	return 0;
@@ -3933,11 +3933,11 @@ int _zbar_qr_decode(qr_reader * reader, zbar_image_scanner_t * iscn, zbar_image_
 				nqrdata = 0; // qr_code_data_list_extract_text(&qrlist, iscn, img);
 			}
 			qr_code_data_list_clear(&qrlist);
-			free(bin);
+			SAlloc::F(bin);
 		}
 		svg_group_end();
-		free(centers);
-		free(edge_pts);
+		SAlloc::F(centers);
+		SAlloc::F(edge_pts);
 		return nqrdata;
 	}
 }

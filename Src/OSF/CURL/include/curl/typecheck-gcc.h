@@ -387,7 +387,7 @@ _CURL_WARNING(_curl_easy_getinfo_err_curl_slist,
 #define _curl_is_string(expr)                                                 \
   (_curl_is_arr((expr), char) ||                                              \
    _curl_is_arr((expr), signed char) ||                                       \
-   _curl_is_arr((expr), unsigned char))
+   _curl_is_arr((expr), uchar))
 
 /* evaluates to true if expr is a long (no matter the signedness)
  * XXX: for now, int is also accepted (and therefore short and char, which
@@ -395,16 +395,16 @@ _CURL_WARNING(_curl_easy_getinfo_err_curl_slist,
 #define _curl_is_long(expr)                                                   \
   (__builtin_types_compatible_p(__typeof__(expr), long) ||                    \
    __builtin_types_compatible_p(__typeof__(expr), signed long) ||             \
-   __builtin_types_compatible_p(__typeof__(expr), unsigned long) ||           \
+   __builtin_types_compatible_p(__typeof__(expr), ulong) ||           \
    __builtin_types_compatible_p(__typeof__(expr), int) ||                     \
    __builtin_types_compatible_p(__typeof__(expr), signed int) ||              \
-   __builtin_types_compatible_p(__typeof__(expr), unsigned int) ||            \
+   __builtin_types_compatible_p(__typeof__(expr), uint) ||            \
    __builtin_types_compatible_p(__typeof__(expr), short) ||                   \
    __builtin_types_compatible_p(__typeof__(expr), signed short) ||            \
-   __builtin_types_compatible_p(__typeof__(expr), unsigned short) ||          \
+   __builtin_types_compatible_p(__typeof__(expr), ushort) ||          \
    __builtin_types_compatible_p(__typeof__(expr), char) ||                    \
    __builtin_types_compatible_p(__typeof__(expr), signed char) ||             \
-   __builtin_types_compatible_p(__typeof__(expr), unsigned char))
+   __builtin_types_compatible_p(__typeof__(expr), uchar))
 
 /* evaluates to true if expr is of type curl_off_t */
 #define _curl_is_off_t(expr)                                                  \
@@ -557,13 +557,13 @@ typedef int (_curl_debug_callback3) (CURL *,
 typedef int (_curl_debug_callback4) (CURL *,
     curl_infotype, const char *, size_t, const void *);
 typedef int (_curl_debug_callback5) (CURL *,
-    curl_infotype, unsigned char *, size_t, void *);
+    curl_infotype, uchar *, size_t, void *);
 typedef int (_curl_debug_callback6) (CURL *,
-    curl_infotype, unsigned char *, size_t, const void *);
+    curl_infotype, uchar *, size_t, const void *);
 typedef int (_curl_debug_callback7) (CURL *,
-    curl_infotype, const unsigned char *, size_t, void *);
+    curl_infotype, const uchar *, size_t, void *);
 typedef int (_curl_debug_callback8) (CURL *,
-    curl_infotype, const unsigned char *, size_t, const void *);
+    curl_infotype, const uchar *, size_t, const void *);
 
 /* evaluates to true if expr is of type curl_ssl_ctx_callback or "similar" */
 /* this is getting even messier... */

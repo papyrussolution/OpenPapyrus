@@ -59,7 +59,7 @@ ZIP_EXTERN zip_source_t * zip_source_file_create(const char * fname, uint64 star
 	}
 	MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, fname, -1, wfname, size);
 	source = zip_source_win32w_create(wfname, start, length, error);
-	free(wfname);
+	SAlloc::F(wfname);
 	return source;
 }
 

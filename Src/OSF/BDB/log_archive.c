@@ -9,11 +9,11 @@
 #include "db_int.h"
 #pragma hdrstop
 
-static int __absname __P((ENV*, char *, char *, char **));
-static int __build_data __P((ENV*, char *, char ***));
-static int __cmpfunc __P((const void *, const void *));
-static int __log_archive __P((ENV*, char **[], uint32));
-static int __usermem __P((ENV*, char ***));
+static int __absname(ENV*, char *, char *, char **);
+static int __build_data(ENV*, char *, char ***);
+static int __cmpfunc(const void *, const void *);
+static int __log_archive(ENV*, char **[], uint32);
+static int __usermem(ENV*, char ***);
 /*
  * __log_archive_pp --
  *	ENV->log_archive pre/post processing.
@@ -46,22 +46,20 @@ int __log_archive_pp(DB_ENV * dbenv, char *** listp, uint32 flags)
 static int __log_archive(ENV * env, char *** listp, uint32 flags)
 {
 	DBT rec;
-	DB_LOG * dblp;
 	DB_LOGC * logc;
 	DB_LSN stable_lsn;
-	LOG * lp;
 	uint array_size, n;
 	uint32 fnum;
-	int handle_check, ret, t_ret;
-	char ** array, ** arrayp, * name, * p, * pref;
+	int handle_check, t_ret;
+	char ** arrayp, * p, * pref;
 #ifdef HAVE_GETCWD
 	char path[DB_MAXPATHLEN];
 #endif
-	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
-	array = NULL;
-	name = NULL;
-	ret = 0;
+	DB_LOG * dblp = env->lg_handle;
+	LOG * lp = (LOG *)dblp->reginfo.primary;
+	char ** array = NULL;
+	char * name = NULL;
+	int ret = 0;
 	COMPQUIET(fnum, 0);
 	if(flags != DB_ARCH_REMOVE)
 		*listp = NULL;
@@ -79,15 +77,11 @@ static int __log_archive(ENV * env, char *** listp, uint32 flags)
 	if(!LF_ISSET(DB_ARCH_DATA) && !LF_ISSET(DB_ARCH_LOG)) {
 		/*
 		 * If we're locked out, just return success.  No files
-		 * can be archived right now.  Any other error pass back
-		 * to the caller.
+		 * can be archived right now.  Any other error pass back to the caller.
 		 */
 		handle_check = IS_ENV_REPLICATED(env);
-		if(handle_check && (ret = __archive_rep_enter(env)) != 0) {
-			if(ret == DB_REP_LOCKOUT)
-				ret = 0;
-			return ret;
-		}
+		if(handle_check && (ret = __archive_rep_enter(env)) != 0)
+			return (ret == DB_REP_LOCKOUT) ? 0 : ret;
 	}
 	/*
 	 * Prepend the original absolute pathname if the user wants an
@@ -114,48 +108,46 @@ static int __log_archive(ENV * env, char *** listp, uint32 flags)
 	else
 #endif
 	pref = NULL;
-
 	LF_CLR(DB_ARCH_ABS);
 	switch(flags) {
 	    case DB_ARCH_DATA:
-		ret = __build_data(env, pref, listp);
-		goto err;
+			ret = __build_data(env, pref, listp);
+			goto err;
 	    case DB_ARCH_LOG:
-		memzero(&rec, sizeof(rec));
-		if((ret = __log_cursor(env, &logc)) != 0)
-			goto err;
+			memzero(&rec, sizeof(rec));
+			if((ret = __log_cursor(env, &logc)) != 0)
+				goto err;
 #ifdef UMRW
-		ZERO_LSN(stable_lsn);
+			ZERO_LSN(stable_lsn);
 #endif
-		ret = __logc_get(logc, &stable_lsn, &rec, DB_LAST);
-		if((t_ret = __logc_close(logc)) != 0 && ret == 0)
-			ret = t_ret;
-		if(ret != 0)
-			goto err;
-		fnum = stable_lsn.file;
-		break;
+			ret = __logc_get(logc, &stable_lsn, &rec, DB_LAST);
+			if((t_ret = __logc_close(logc)) != 0 && ret == 0)
+				ret = t_ret;
+			if(ret != 0)
+				goto err;
+			fnum = stable_lsn.file;
+			break;
 	    case DB_ARCH_REMOVE:
-		__log_autoremove(env);
-		goto err;
-	    case 0:
-
-		ret = __log_get_stable_lsn(env, &stable_lsn, 1);
-		/*
-		 * A return of DB_NOTFOUND means the checkpoint LSN
-		 * is before the beginning of the log files we have.
-		 * This is not an error; it just means we're done.
-		 */
-		if(ret != 0) {
-			if(ret == DB_NOTFOUND)
-				ret = 0;
+			__log_autoremove(env);
 			goto err;
-		}
-		/* Remove any log files before the last stable LSN. */
-		fnum = stable_lsn.file-1;
-		break;
+	    case 0:
+			ret = __log_get_stable_lsn(env, &stable_lsn, 1);
+			/*
+			 * A return of DB_NOTFOUND means the checkpoint LSN
+			 * is before the beginning of the log files we have.
+			 * This is not an error; it just means we're done.
+			 */
+			if(ret != 0) {
+				if(ret == DB_NOTFOUND)
+					ret = 0;
+				goto err;
+			}
+			/* Remove any log files before the last stable LSN. */
+			fnum = stable_lsn.file-1;
+			break;
 	    default:
-		ret = __db_unknown_path(env, "__log_archive");
-		goto err;
+			ret = __db_unknown_path(env, "__log_archive");
+			goto err;
 	}
 #define LIST_INCREMENT  64
 	/* Get some initial space. */
@@ -163,7 +155,6 @@ static int __log_archive(ENV * env, char *** listp, uint32 flags)
 	if((ret = __os_malloc(env, sizeof(char *)*array_size, &array)) != 0)
 		goto err;
 	array[0] = NULL;
-
 	/* Build an array of the file names. */
 	for(n = 0; fnum > 0; --fnum) {
 		if((ret = __log_name(dblp, fnum, &name, NULL, 0)) != 0) {
@@ -197,19 +188,18 @@ static int __log_archive(ENV * env, char *** listp, uint32 flags)
 		name = NULL;
 		array[++n] = NULL;
 	}
-	/* If there's nothing to return, we're done. */
+	// If there's nothing to return, we're done
 	if(n == 0)
 		goto err;
-	/* Sort the list. */
+	// Sort the list
 	qsort(array, (size_t)n, sizeof(char *), __cmpfunc);
-	/* Rework the memory. */
+	// Rework the memory. 
 	if((ret = __usermem(env, &array)) != 0)
 		goto err;
-	if(listp != NULL)
-		*listp = array;
+	ASSIGN_PTR(listp, array);
 	if(0) {
 err:
-		if(array != NULL) {
+		if(array) {
 			for(arrayp = array; *arrayp != NULL; ++arrayp)
 				__os_free(env, *arrayp);
 			__os_free(env, array);
@@ -453,7 +443,7 @@ err2:   /*
 			__os_free(env, array[nxt]);
 	/* FALLTHROUGH */
 err1:
-	if(array != NULL) {
+	if(array) {
 		for(arrayp = array; *arrayp != NULL; ++arrayp)
 			__os_free(env, *arrayp);
 		__os_free(env, array);

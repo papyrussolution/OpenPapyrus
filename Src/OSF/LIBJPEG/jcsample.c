@@ -87,9 +87,7 @@ METHODDEF(void) start_pass_downsample(j_compress_ptr cinfo)
  * by duplicating the rightmost samples.
  */
 
-LOCAL(void)
-expand_right_edge(JSAMPARRAY image_data, int num_rows,
-    JDIMENSION input_cols, JDIMENSION output_cols)
+static void expand_right_edge(JSAMPARRAY image_data, int num_rows, JDIMENSION input_cols, JDIMENSION output_cols)
 {
 	register JSAMPROW ptr;
 	register JSAMPLE pixval;

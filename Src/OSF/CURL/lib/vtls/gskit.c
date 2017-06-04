@@ -61,7 +61,7 @@
 #include "vtls.h"
 #include "connect.h" /* for the connect timeout */
 #include "select.h"
-#include "strcase.h"
+//#include "strcase.h"
 #include "x509asn1.h"
 #include "curl_printf.h"
 
@@ -90,7 +90,7 @@
 typedef struct {
 	const char * name;     /* Cipher name. */
 	const char * gsktoken; /* Corresponding token for GSKit String. */
-	unsigned int versions; /* SSL version flags. */
+	uint versions; /* SSL version flags. */
 }  gskit_cipher;
 
 static const gskit_cipher ciphertable[] = {
@@ -274,7 +274,7 @@ static CURLcode set_callback(struct Curl_easy * data,
 }
 
 static CURLcode set_ciphers(struct connectdata * conn,
-    gsk_handle h, unsigned int * protoflags)
+    gsk_handle h, uint * protoflags)
 {
 	struct Curl_easy * data = conn->data;
 	const char * cipherlist = SSL_CONN_CONFIG(cipher_list);
@@ -304,10 +304,10 @@ static CURLcode set_ciphers(struct connectdata * conn,
 	l = strlen(cipherlist) + 1;
 	memzero((char*)ciphers, sizeof ciphers);
 	for(i = 0; i < CURL_GSKPROTO_LAST; i++) {
-		ciphers[i].buf = malloc(l);
+		ciphers[i].buf = SAlloc::M(l);
 		if(!ciphers[i].buf) {
 			while(i--)
-				free(ciphers[i].buf);
+				SAlloc::F(ciphers[i].buf);
 			return CURLE_OUT_OF_MEMORY;
 		}
 		ciphers[i].ptr = ciphers[i].buf;
@@ -401,7 +401,7 @@ static CURLcode set_ciphers(struct connectdata * conn,
 
 	/* Clean-up. */
 	for(i = 0; i < CURL_GSKPROTO_LAST; i++)
-		free(ciphers[i].buf);
+		SAlloc::F(ciphers[i].buf);
 
 	return result;
 }
@@ -720,7 +720,7 @@ static ssize_t gskit_recv(struct connectdata * conn, int num, char * buf,
 	return (ssize_t)nread;
 }
 
-static CURLcode set_ssl_version_min_max(unsigned int * protoflags, struct connectdata * conn)
+static CURLcode set_ssl_version_min_max(uint * protoflags, struct connectdata * conn)
 {
 	struct Curl_easy * data = conn->data;
 	long ssl_version = SSL_CONN_CONFIG(version);
@@ -769,7 +769,7 @@ static CURLcode gskit_connect_step1(struct connectdata * conn, int sockindex)
 	const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name :
 	    conn->host.name;
 	const char * sni;
-	unsigned int protoflags = 0;
+	uint protoflags = 0;
 	long timeout;
 	Qso_OverlappedIO_t commarea;
 	int sockpair[2];
@@ -1285,7 +1285,7 @@ int Curl_gskit_check_cxn(struct connectdata * cxn)
 		return 0;  /* connection has been closed */
 	err = 0;
 	errlen = sizeof err;
-	if(getsockopt(cxn->sock[FIRSTSOCKET], SOL_SOCKET, SO_ERROR, (unsigned char*)&err, &errlen) || errlen != sizeof err || err)
+	if(getsockopt(cxn->sock[FIRSTSOCKET], SOL_SOCKET, SO_ERROR, (uchar*)&err, &errlen) || errlen != sizeof err || err)
 		return 0;  /* connection has been closed */
 	return -1; /* connection status unknown */
 }

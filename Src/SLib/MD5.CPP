@@ -77,8 +77,8 @@ S_MD5::S_MD5()
 	m_big_endian    = *(uint8 *)m_buf == 1;
 }
 
-S_MD5::~S_MD5() 
-{ 
+S_MD5::~S_MD5()
+{
 }
 
 /**
@@ -114,7 +114,6 @@ void S_MD5::Update(const void * data, uint32 len)
 	/* Handle any leading odd-sized chunks */
 	if(t) {
 		uint8 * p = (uint8 *)m_in+t;
-
 		t = 64-t;
 		if(len < t) {
 			memcpy(p, buf, len);

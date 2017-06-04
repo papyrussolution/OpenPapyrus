@@ -23,9 +23,8 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifdef HAVE_LIBZ
-
 #include "urldata.h"
-#include <curl/curl.h>
+//#include <curl/curl.h>
 #include "sendf.h"
 #include "content_encoding.h"
 #include "strdup.h"
@@ -49,17 +48,17 @@
 #define COMMENT      0x10 /* bit 4 set: file comment present */
 #define RESERVED     0xE0 /* bits 5..7: reserved */
 
-static voidpf zalloc_cb(voidpf opaque, unsigned int items, unsigned int size)
+static voidpf zalloc_cb(voidpf opaque, uint items, uint size)
 {
 	(void)opaque;
-	/* not a typo, keep it calloc() */
-	return (voidpf)calloc(items, size);
+	/* not a typo, keep it SAlloc::C() */
+	return (voidpf)SAlloc::C(items, size);
 }
 
 static void zfree_cb(voidpf opaque, voidpf ptr)
 {
 	(void)opaque;
-	free(ptr);
+	SAlloc::F(ptr);
 }
 
 static CURLcode process_zlib_error(struct connectdata * conn, z_stream * z)
@@ -90,7 +89,7 @@ static CURLcode inflate_stream(struct connectdata * conn, struct SingleRequest *
 	char * decomp;          /* Put the decompressed data here. */
 	/* Dynamically allocate a buffer for decompression because it's uncommonly
 	   large to hold on the stack */
-	decomp = (char *)malloc(DSIZ);
+	decomp = (char *)SAlloc::M(DSIZ);
 	if(decomp == NULL) {
 		return exit_zlib(z, &k->zlib_init, CURLE_OUT_OF_MEMORY);
 	}
@@ -107,14 +106,14 @@ static CURLcode inflate_stream(struct connectdata * conn, struct SingleRequest *
 				result = Curl_client_write(conn, CLIENTWRITE_BODY, decomp, DSIZ - z->avail_out);
 				/* if !CURLE_OK, clean up, return */
 				if(result) {
-					free(decomp);
+					SAlloc::F(decomp);
 					return exit_zlib(z, &k->zlib_init, result);
 				}
 			}
 
 			/* Done? clean up, return */
 			if(status == Z_STREAM_END) {
-				free(decomp);
+				SAlloc::F(decomp);
 				if(inflateEnd(z) == Z_OK)
 					return exit_zlib(z, &k->zlib_init, result);
 				return exit_zlib(z, &k->zlib_init, process_zlib_error(conn, z));
@@ -124,7 +123,7 @@ static CURLcode inflate_stream(struct connectdata * conn, struct SingleRequest *
 
 			/* status is always Z_OK at this point! */
 			if(z->avail_in == 0) {
-				free(decomp);
+				SAlloc::F(decomp);
 				return result;
 			}
 		}
@@ -134,7 +133,7 @@ static CURLcode inflate_stream(struct connectdata * conn, struct SingleRequest *
 
 			(void)inflateEnd(z); /* don't care about the return code */
 			if(inflateInit2(z, -MAX_WBITS) != Z_OK) {
-				free(decomp);
+				SAlloc::F(decomp);
 				return exit_zlib(z, &k->zlib_init, process_zlib_error(conn, z));
 			}
 			z->next_in = orig_in;
@@ -143,7 +142,7 @@ static CURLcode inflate_stream(struct connectdata * conn, struct SingleRequest *
 			continue;
 		}
 		else {          /* Error; exit loop, handle below */
-			free(decomp);
+			SAlloc::F(decomp);
 			return exit_zlib(z, &k->zlib_init, process_zlib_error(conn, z));
 		}
 	}
@@ -178,7 +177,7 @@ static enum {
 	GZIP_OK,
 	GZIP_BAD,
 	GZIP_UNDERFLOW
-} check_gzip_header(unsigned char const * data, ssize_t len, ssize_t *headerlen)
+} check_gzip_header(uchar const * data, ssize_t len, ssize_t *headerlen)
 {
 	int method, flags;
 
@@ -314,7 +313,7 @@ CURLcode Curl_unencode_gzip_write(struct connectdata * conn, struct SingleReques
 		    /* Initial call state */
 		    ssize_t hlen;
 
-		    switch(check_gzip_header((unsigned char*)k->str, nread, &hlen)) {
+		    switch(check_gzip_header((uchar*)k->str, nread, &hlen)) {
 			    case GZIP_OK:
 				z->next_in = (Bytef*)k->str + hlen;
 				z->avail_in = (uInt)(nread - hlen);
@@ -330,7 +329,7 @@ CURLcode Curl_unencode_gzip_write(struct connectdata * conn, struct SingleReques
 				 * immediately afterwards, it should seldom be a problem.
 				 */
 				z->avail_in = (uInt)nread;
-				z->next_in = (Bytef *)malloc(z->avail_in);
+				z->next_in = (Bytef *)SAlloc::M(z->avail_in);
 				if(z->next_in == NULL) {
 					return exit_zlib(z, &k->zlib_init, CURLE_OUT_OF_MEMORY);
 				}
@@ -361,7 +360,7 @@ CURLcode Curl_unencode_gzip_write(struct connectdata * conn, struct SingleReques
 		    switch(check_gzip_header(z->next_in, z->avail_in, &hlen)) {
 			    case GZIP_OK:
 				/* This is the zlib stream data */
-				free(z->next_in);
+				SAlloc::F(z->next_in);
 				/* Don't point into the malloced block since we just freed it */
 				z->next_in = (Bytef*)k->str + hlen + nread - z->avail_in;
 				z->avail_in = (uInt)(z->avail_in - hlen);
@@ -374,7 +373,7 @@ CURLcode Curl_unencode_gzip_write(struct connectdata * conn, struct SingleReques
 
 			    case GZIP_BAD:
 			    default:
-				free(z->next_in);
+				SAlloc::F(z->next_in);
 				return exit_zlib(z, &k->zlib_init, process_zlib_error(conn, z));
 		    }
 	    }

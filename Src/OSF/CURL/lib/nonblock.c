@@ -69,7 +69,7 @@ int curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
 #elif defined(HAVE_IOCTLSOCKET_FIONBIO)
 
   /* Windows */
-  unsigned long flags = nonblock ? 1UL : 0UL;
+  ulong flags = nonblock ? 1UL : 0UL;
   return ioctlsocket(sockfd, FIONBIO, &flags);
 
 #elif defined(HAVE_IOCTLSOCKET_CAMEL_FIONBIO)

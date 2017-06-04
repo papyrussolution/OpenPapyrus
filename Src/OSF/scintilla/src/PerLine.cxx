@@ -8,7 +8,9 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
+#include <stdexcept>
+#include <vector>
+#include <algorithm>
 #include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
@@ -44,7 +46,7 @@ int MarkerHandleSet::Length() const {
 }
 
 int MarkerHandleSet::MarkValue() const {
-	unsigned int m = 0;
+	uint m = 0;
 	MarkerHandleNumber *mhn = root;
 	while (mhn) {
 		m |= (1 << mhn->number);
@@ -396,17 +398,16 @@ const char *LineAnnotation::Text(int line) const {
 		return 0;
 }
 
-const unsigned char *LineAnnotation::Styles(int line) const {
+const uchar *LineAnnotation::Styles(int line) const {
 	if (annotations.Length() && (line >= 0) && (line < annotations.Length()) && annotations[line] && MultipleStyles(line))
-		return reinterpret_cast<unsigned char *>(annotations[line] + sizeof(AnnotationHeader) + Length(line));
+		return reinterpret_cast<uchar *>(annotations[line] + sizeof(AnnotationHeader) + Length(line));
 	else
 		return 0;
 }
 
 static char *AllocateAnnotation(int length, int style) {
 	size_t len = sizeof(AnnotationHeader) + length + ((style == IndividualStyles) ? length : 0);
-	char *ret = new char[len];
-	memset(ret, 0, len);
+	char *ret = new char[len]();
 	return ret;
 }
 
@@ -447,7 +448,7 @@ void LineAnnotation::SetStyle(int line, int style) {
 	reinterpret_cast<AnnotationHeader *>(annotations[line])->style = static_cast<short>(style);
 }
 
-void LineAnnotation::SetStyles(int line, const unsigned char *styles) {
+void LineAnnotation::SetStyles(int line, const uchar *styles) {
 	if (line >= 0) {
 		annotations.EnsureLength(line+1);
 		if (!annotations[line]) {

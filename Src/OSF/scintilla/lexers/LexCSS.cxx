@@ -16,7 +16,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "WordList.h"
@@ -31,7 +30,7 @@ using namespace Scintilla;
 #endif
 
 
-static inline bool IsAWordChar(const unsigned int ch) {
+static inline bool IsAWordChar(const uint ch) {
 	/* FIXME:
 	 * The CSS spec allows "ISO 10646 characters U+00A1 and higher" to be treated as word chars.
 	 * Unfortunately, we are only getting string bytes here, and not full unicode characters. We cannot guarantee

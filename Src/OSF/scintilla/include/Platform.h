@@ -9,6 +9,10 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
+#include <slib.h>
+
+#define NO_CXX11_REGEX // @sobolev
+
 // PLAT_GTK = GTK+ on Linux or Win32
 // PLAT_GTK_WIN32 is defined additionally when running PLAT_GTK under Win32
 // PLAT_WIN = Win32 API on Win32 OS
@@ -77,8 +81,7 @@ namespace Scintilla {
 
 typedef float XYPOSITION;
 typedef double XYACCUMULATOR;
-
-inline int RoundXYPosition(XYPOSITION xyPos) 
+inline int RoundXYPosition(XYPOSITION xyPos)
 {
 	return int(xyPos + 0.5);
 }
@@ -102,16 +105,14 @@ class Point {
 public:
 	XYPOSITION x;
 	XYPOSITION y;
-
-	explicit Point(XYPOSITION x_ = 0, XYPOSITION y_ = 0) : x(x_), y(y_) {
+	explicit Point(XYPOSITION x_ = 0, XYPOSITION y_ = 0) : x(x_), y(y_)
+	{
 	}
-
-	static Point FromInts(int x_, int y_) {
+	static Point FromInts(int x_, int y_)
+	{
 		return Point(static_cast<XYPOSITION>(x_), static_cast<XYPOSITION>(y_));
 	}
-
 	// Other automatically defined methods (assignment, copy constructor, destructor) are fine
-
 	static Point FromLong(long lpoint);
 };
 
@@ -128,58 +129,53 @@ public:
 	XYPOSITION bottom;
 
 	explicit PRectangle(XYPOSITION left_ = 0, XYPOSITION top_ = 0, XYPOSITION right_ = 0, XYPOSITION bottom_ = 0) :
-		left(left_), top(top_), right(right_), bottom(bottom_) {
+		left(left_), top(top_), right(right_), bottom(bottom_)
+	{
 	}
-
-	static PRectangle FromInts(int left_, int top_, int right_, int bottom_) {
+	static PRectangle FromInts(int left_, int top_, int right_, int bottom_)
+	{
 		return PRectangle(static_cast<XYPOSITION>(left_), static_cast<XYPOSITION>(top_),
 		    static_cast<XYPOSITION>(right_), static_cast<XYPOSITION>(bottom_));
 	}
-
 	// Other automatically defined methods (assignment, copy constructor, destructor) are fine
-
-	bool operator==(PRectangle &rc) const {
-		return (rc.left == left) && (rc.right == right) &&
-		       (rc.top == top) && (rc.bottom == bottom);
+	bool operator==(PRectangle &rc) const
+	{
+		return (rc.left == left) && (rc.right == right) && (rc.top == top) && (rc.bottom == bottom);
 	}
-
-	bool Contains(Point pt) const {
-		return (pt.x >= left) && (pt.x <= right) &&
-		       (pt.y >= top) && (pt.y <= bottom);
+	bool Contains(Point pt) const
+	{
+		return (pt.x >= left) && (pt.x <= right) && (pt.y >= top) && (pt.y <= bottom);
 	}
-
-	bool ContainsWholePixel(Point pt) const {
+	bool ContainsWholePixel(Point pt) const
+	{
 		// Does the rectangle contain all of the pixel to left/below the point
-		return (pt.x >= left) && ((pt.x+1) <= right) &&
-		       (pt.y >= top) && ((pt.y+1) <= bottom);
+		return (pt.x >= left) && ((pt.x+1) <= right) && (pt.y >= top) && ((pt.y+1) <= bottom);
 	}
-
-	bool Contains(PRectangle rc) const {
-		return (rc.left >= left) && (rc.right <= right) &&
-		       (rc.top >= top) && (rc.bottom <= bottom);
+	bool Contains(PRectangle rc) const
+	{
+		return (rc.left >= left) && (rc.right <= right) && (rc.top >= top) && (rc.bottom <= bottom);
 	}
-
-	bool Intersects(PRectangle other) const {
-		return (right > other.left) && (left < other.right) &&
-		       (bottom > other.top) && (top < other.bottom);
+	bool Intersects(PRectangle other) const
+	{
+		return (right > other.left) && (left < other.right) && (bottom > other.top) && (top < other.bottom);
 	}
-
-	void Move(XYPOSITION xDelta, XYPOSITION yDelta) {
+	void Move(XYPOSITION xDelta, XYPOSITION yDelta)
+	{
 		left += xDelta;
 		top += yDelta;
 		right += xDelta;
 		bottom += yDelta;
 	}
-
-	XYPOSITION Width() const {
+	XYPOSITION Width() const
+	{
 		return right - left;
 	}
-
-	XYPOSITION Height() const {
+	XYPOSITION Height() const
+	{
 		return bottom - top;
 	}
-
-	bool Empty() const {
+	bool Empty() const
+	{
 		return (Height() <= 0) || (Width() <= 0);
 	}
 };
@@ -190,27 +186,33 @@ public:
 class ColourDesired {
 	long co;
 public:
-	ColourDesired(long lcol = 0) {
+	ColourDesired(long lcol = 0)
+	{
 		co = lcol;
 	}
 
-	ColourDesired(unsigned int red, unsigned int green, unsigned int blue) {
+	ColourDesired(uint red, uint green, uint blue)
+	{
 		Set(red, green, blue);
 	}
 
-	bool operator==(const ColourDesired &other) const {
+	bool operator==(const ColourDesired &other) const
+	{
 		return co == other.co;
 	}
 
-	void Set(long lcol) {
+	void Set(long lcol)
+	{
 		co = lcol;
 	}
 
-	void Set(unsigned int red, unsigned int green, unsigned int blue) {
+	void Set(uint red, uint green, uint blue)
+	{
 		co = red | (green << 8) | (blue << 16);
 	}
 
-	static inline unsigned int ValueOfHex(const char ch) {
+	static inline uint ValueOfHex(const char ch)
+	{
 		if(ch >= '0' && ch <= '9')
 			return ch - '0';
 		else if(ch >= 'A' && ch <= 'F')
@@ -221,29 +223,34 @@ public:
 			return 0;
 	}
 
-	void Set(const char * val) {
+	void Set(const char * val)
+	{
 		if(*val == '#') {
 			val++;
 		}
-		unsigned int r = ValueOfHex(val[0]) * 16 + ValueOfHex(val[1]);
-		unsigned int g = ValueOfHex(val[2]) * 16 + ValueOfHex(val[3]);
-		unsigned int b = ValueOfHex(val[4]) * 16 + ValueOfHex(val[5]);
+		uint r = ValueOfHex(val[0]) * 16 + ValueOfHex(val[1]);
+		uint g = ValueOfHex(val[2]) * 16 + ValueOfHex(val[3]);
+		uint b = ValueOfHex(val[4]) * 16 + ValueOfHex(val[5]);
 		Set(r, g, b);
 	}
 
-	long AsLong() const {
+	long AsLong() const
+	{
 		return co;
 	}
 
-	unsigned int GetRed() const {
+	uint GetRed() const
+	{
 		return co & 0xff;
 	}
 
-	unsigned int GetGreen() const {
+	uint GetGreen() const
+	{
 		return (co >> 8) & 0xff;
 	}
 
-	unsigned int GetBlue() const {
+	uint GetBlue() const
+	{
 		return (co >> 16) & 0xff;
 	}
 };
@@ -293,12 +300,14 @@ public:
 	virtual void Create(const FontParameters &fp);
 	virtual void Release();
 
-	FontID GetID() {
+	FontID GetID()
+	{
 		return fid;
 	}
 
 	// Alias another font - caller guarantees not to Release
-	void SetID(FontID fid_) {
+	void SetID(FontID fid_)
+	{
 		fid = fid_;
 	}
 
@@ -312,18 +321,22 @@ public:
 class Surface {
 private:
 	// Private so Surface objects can not be copied
-	Surface(const Surface &) {
+	Surface(const Surface &)
+	{
 	}
 
-	Surface &operator=(const Surface &) {
+	Surface &operator=(const Surface &)
+	{
 		return *this;
 	}
 
 public:
-	Surface() {
+	Surface()
+	{
 	}
 
-	virtual ~Surface() {
+	virtual ~Surface()
+	{
 	}
 
 	static Surface * Allocate(int technology);
@@ -346,7 +359,7 @@ public:
 	virtual void RoundedRectangle(PRectangle rc, ColourDesired fore, ColourDesired back) = 0;
 	virtual void AlphaRectangle(PRectangle rc, int cornerSize, ColourDesired fill, int alphaFill,
 	    ColourDesired outline, int alphaOutline, int flags) = 0;
-	virtual void DrawRGBAImage(PRectangle rc, int width, int height, const unsigned char * pixelsImage) = 0;
+	virtual void DrawRGBAImage(PRectangle rc, int width, int height, const uchar * pixelsImage) = 0;
 	virtual void Ellipse(PRectangle rc, ColourDesired fore, ColourDesired back) = 0;
 	virtual void Copy(PRectangle rc, Point from, Surface &surfaceSource) = 0;
 
@@ -395,23 +408,28 @@ class Window {
 protected:
 	WindowID wid;
 public:
-	Window() : wid(0), cursorLast(cursorInvalid) {
+	Window() : wid(0), cursorLast(cursorInvalid)
+	{
 	}
 
-	Window(const Window &source) : wid(source.wid), cursorLast(cursorInvalid) {
+	Window(const Window &source) : wid(source.wid), cursorLast(cursorInvalid)
+	{
 	}
 
 	virtual ~Window();
-	Window &operator=(WindowID wid_) {
+	Window &operator=(WindowID wid_)
+	{
 		wid = wid_;
 		return *this;
 	}
 
-	WindowID GetID() const {
+	WindowID GetID() const
+	{
 		return wid;
 	}
 
-	bool Created() const {
+	bool Created() const
+	{
 		return wid != 0;
 	}
 
@@ -459,7 +477,7 @@ public:
 	virtual int Find(const char * prefix) = 0;
 	virtual void GetValue(int n, char * value, int len) = 0;
 	virtual void RegisterImage(int type, const char * xpm_data) = 0;
-	virtual void RegisterRGBAImage(int type, int width, int height, const unsigned char * pixelsImage) = 0;
+	virtual void RegisterRGBAImage(int type, int width, int height, const uchar * pixelsImage) = 0;
 	virtual void ClearRegisteredImages() = 0;
 	virtual void SetDoubleClickAction(CallBackAction, void *) = 0;
 	virtual void SetList(const char* list, char separator, char typesep) = 0;
@@ -472,10 +490,10 @@ class Menu {
 	MenuID mid;
 public:
 	Menu();
-	MenuID GetID() {
+	MenuID GetID() const
+	{
 		return mid;
 	}
-
 	void CreatePopUp();
 	void Destroy();
 	void Show(Point pt, Window &w);
@@ -494,7 +512,8 @@ public:
  */
 class DynamicLibrary {
 public:
-	virtual ~DynamicLibrary() {
+	virtual ~DynamicLibrary()
+	{
 	}
 
 	/// @return Pointer to function "name", or NULL on failure.
@@ -523,32 +542,32 @@ public:
  */
 class Platform {
 	// Private so Platform objects can not be copied
-	Platform(const Platform &) {
+	Platform(const Platform &)
+	{
 	}
-
-	Platform &operator=(const Platform &) {
+	Platform & operator=(const Platform &)
+	{
 		return *this;
 	}
-
 public:
 	// Should be private because no new Platforms are ever created
 	// but gcc warns about this
-	Platform() {
+	Platform()
+	{
 	}
-
-	~Platform() {
+	~Platform()
+	{
 	}
-
 	static ColourDesired Chrome();
 	static ColourDesired ChromeHighlight();
 	static const char * DefaultFont();
 	static int DefaultFontSize();
-	static unsigned int DoubleClickTime();
+	static uint DoubleClickTime();
 	static bool MouseButtonBounce();
 	static void DebugDisplay(const char * s);
 	static bool IsKeyDown(int key);
-	static long SendScintilla(WindowID w, unsigned int msg, unsigned long wParam = 0, long lParam = 0);
-	static long SendScintillaPointer(WindowID w, unsigned int msg, unsigned long wParam = 0, void * lParam = 0);
+	static long SendScintilla(WindowID w, uint msg, ulong wParam = 0, long lParam = 0);
+	static long SendScintillaPointer(WindowID w, uint msg, ulong wParam = 0, void * lParam = 0);
 	static bool IsDBCSLeadByte(int codePage, char ch);
 	static int DBCSCharLength(int codePage, const char * s);
 	static int DBCSCharMaxLength();
@@ -557,18 +576,18 @@ public:
 	static int Minimum(int a, int b);
 	static int Maximum(int a, int b);
 	// Next three assume 16 bit shorts and 32 bit longs
-	static long LongFromTwoShorts(short a, short b) {
+	static long LongFromTwoShorts(short a, short b)
+	{
 		return (a) | ((b) << 16);
 	}
-
-	static short HighShortFromLong(long x) {
+	static short HighShortFromLong(long x)
+	{
 		return static_cast<short>(x >> 16);
 	}
-
-	static short LowShortFromLong(long x) {
+	static short LowShortFromLong(long x)
+	{
 		return static_cast<short>(x & 0xffff);
 	}
-
 	static void DebugPrintf(const char * format, ...);
 	static bool ShowAssertionPopUps(bool assertionPopUps_);
 	static void Assert(const char * c, const char * file, int line) CLANG_ANALYZER_NORETURN;
@@ -587,10 +606,6 @@ public:
 
 #ifdef SCI_NAMESPACE
 }
-#endif
-
-#if defined(__GNUC__) && defined(SCINTILLA_QT)
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
 
 #endif

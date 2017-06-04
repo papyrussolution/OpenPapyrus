@@ -53,9 +53,9 @@ void Curl_wildcard_dtor(struct WildcardData *wc)
   Curl_llist_destroy(&wc->filelist, NULL);
 
 
-  free(wc->path);
+  SAlloc::F(wc->path);
   wc->path = NULL;
-  free(wc->pattern);
+  SAlloc::F(wc->pattern);
   wc->pattern = NULL;
 
   wc->customptr = NULL;

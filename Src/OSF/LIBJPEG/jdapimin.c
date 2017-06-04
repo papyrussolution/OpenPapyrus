@@ -88,7 +88,7 @@ GLOBAL(void) jpeg_abort_decompress(j_decompress_ptr cinfo)
 /*
  * Set default decompression parameters.
  */
-LOCAL(void) default_decompress_parms(j_decompress_ptr cinfo)
+static void default_decompress_parms(j_decompress_ptr cinfo)
 {
 	int cid0, cid1, cid2;
 	/* Guess the input colorspace, and set output colorspace accordingly. */

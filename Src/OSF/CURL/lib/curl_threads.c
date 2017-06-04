@@ -39,27 +39,27 @@
 #if defined(USE_THREADS_POSIX)
 
 struct curl_actual_call {
-  unsigned int (*func)(void *);
+  uint (*func)(void *);
   void *arg;
 };
 
 static void *curl_thread_create_thunk(void *arg)
 {
   struct curl_actual_call * ac = arg;
-  unsigned int (*func)(void *) = ac->func;
+  uint (*func)(void *) = ac->func;
   void *real_arg = ac->arg;
 
-  free(ac);
+  SAlloc::F(ac);
 
   (*func)(real_arg);
 
   return 0;
 }
 
-curl_thread_t Curl_thread_create(unsigned int (*func) (void *), void *arg)
+curl_thread_t Curl_thread_create(uint (*func) (void *), void *arg)
 {
-  curl_thread_t t = malloc(sizeof(pthread_t));
-  struct curl_actual_call *ac = malloc(sizeof(struct curl_actual_call));
+  curl_thread_t t = SAlloc::M(sizeof(pthread_t));
+  struct curl_actual_call *ac = SAlloc::M(sizeof(struct curl_actual_call));
   if(!(ac && t))
     goto err;
 
@@ -72,8 +72,8 @@ curl_thread_t Curl_thread_create(unsigned int (*func) (void *), void *arg)
   return t;
 
 err:
-  free(t);
-  free(ac);
+  SAlloc::F(t);
+  SAlloc::F(ac);
   return curl_thread_t_null;
 }
 
@@ -81,7 +81,7 @@ void Curl_thread_destroy(curl_thread_t hnd)
 {
   if(hnd != curl_thread_t_null) {
     pthread_detach(*hnd);
-    free(hnd);
+    SAlloc::F(hnd);
   }
 }
 
@@ -89,7 +89,7 @@ int Curl_thread_join(curl_thread_t *hnd)
 {
   int ret = (pthread_join(**hnd, NULL) == 0);
 
-  free(*hnd);
+  SAlloc::F(*hnd);
   *hnd = curl_thread_t_null;
 
   return ret;
@@ -98,7 +98,7 @@ int Curl_thread_join(curl_thread_t *hnd)
 #elif defined(USE_THREADS_WIN32)
 
 /* !checksrc! disable SPACEBEFOREPAREN 1 */
-curl_thread_t Curl_thread_create(unsigned int (CURL_STDCALL *func) (void *),
+curl_thread_t Curl_thread_create(uint (CURL_STDCALL *func) (void *),
                                  void *arg)
 {
 #ifdef _WIN32_WCE

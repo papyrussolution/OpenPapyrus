@@ -9,9 +9,10 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include <string>
-
+#include <vector>
+#include <map>
+#include <algorithm>
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "WordList.h"
@@ -221,7 +222,7 @@ struct PPDefinition {
 	std::string value;
 	bool isUndef;
 	std::string arguments;
-	PPDefinition(Sci_Position line_, const std::string &key_, const std::string &value_, bool isUndef_ = false, std::string arguments_="") :
+	PPDefinition(Sci_Position line_, const std::string &key_, const std::string &value_, bool isUndef_ = false, const std::string &arguments_="") :
 		line(line_), key(key_), value(value_), isUndef(isUndef_), arguments(arguments_) {
 	}
 };
@@ -312,6 +313,7 @@ struct OptionsCPP {
 	std::string foldExplicitEnd;
 	bool foldExplicitAnywhere;
 	bool foldPreprocessor;
+	bool foldPreprocessorAtElse;
 	bool foldCompact;
 	bool foldAtElse;
 	OptionsCPP() {
@@ -333,6 +335,7 @@ struct OptionsCPP {
 		foldExplicitEnd = "";
 		foldExplicitAnywhere = false;
 		foldPreprocessor = false;
+		foldPreprocessorAtElse = false;
 		foldCompact = false;
 		foldAtElse = false;
 	}
@@ -366,7 +369,7 @@ struct OptionSetCPP : public OptionSet<OptionsCPP> {
 
 		DefineProperty("lexer.cpp.verbatim.strings.allow.escapes", &OptionsCPP::verbatimStringsAllowEscapes,
 			"Set to 1 to allow verbatim strings to contain escape sequences.");
-		
+
 		DefineProperty("lexer.cpp.triplequoted.strings", &OptionsCPP::triplequotedStrings,
 			"Set to 1 to enable highlighting of triple-quoted strings.");
 
@@ -403,6 +406,9 @@ struct OptionSetCPP : public OptionSet<OptionsCPP> {
 
 		DefineProperty("fold.cpp.explicit.anywhere", &OptionsCPP::foldExplicitAnywhere,
 			"Set this property to 1 to enable explicit fold points anywhere, not just in line comments.");
+		
+		DefineProperty("fold.cpp.preprocessor.at.else", &OptionsCPP::foldPreprocessorAtElse,
+			"This option enables folding on a preprocessor #else or #endif line of an #if statement.");
 
 		DefineProperty("fold.preprocessor", &OptionsCPP::foldPreprocessor,
 			"This option enables folding preprocessor directives when using the C++ lexer. "
@@ -679,7 +685,7 @@ void SCI_METHOD LexerCPP::Lex(Sci_PositionU startPos, Sci_Position length, int i
 		}
 	}
 
-	StyleContext sc(startPos, length, initStyle, styler, static_cast<unsigned char>(0xff));
+	StyleContext sc(startPos, length, initStyle, styler);
 	LinePPState preproc = vlls.ForLine(lineCurrent);
 
 	bool definitionsChanged = false;
@@ -753,6 +759,9 @@ void SCI_METHOD LexerCPP::Lex(Sci_PositionU startPos, Sci_Position length, int i
 				lineCurrent++;
 				lineEndNext = styler.LineEnd(lineCurrent);
 				vlls.Add(lineCurrent, preproc);
+				if (rawStringTerminator != "") {
+					rawSTNew.Set(lineCurrent-1, rawStringTerminator);
+				}
 				sc.Forward();
 				if (sc.ch == '\r' && sc.chNext == '\n') {
 					// Even in UTF-8, \r and \n are separate
@@ -1206,7 +1215,7 @@ void SCI_METHOD LexerCPP::Lex(Sci_PositionU startPos, Sci_Position length, int i
 								while ((startName < restOfLine.length()) && IsSpaceOrTab(restOfLine[startName]))
 									startName++;
 								size_t endName = startName;
-								while ((endName < restOfLine.length()) && setWord.Contains(static_cast<unsigned char>(restOfLine[endName])))
+								while ((endName < restOfLine.length()) && setWord.Contains(static_cast<uchar>(restOfLine[endName])))
 									endName++;
 								std::string key = restOfLine.substr(startName, endName-startName);
 								if ((endName < restOfLine.length()) && (restOfLine.at(endName) == '(')) {
@@ -1338,17 +1347,21 @@ void SCI_METHOD LexerCPP::Fold(Sci_PositionU startPos, Sci_Position length, int 
 				} else if (styler.Match(j, "end")) {
 					levelNext--;
 				}
+				
+				if (options.foldPreprocessorAtElse && (styler.Match(j, "else") || styler.Match(j, "elif"))) {
+					levelMinCurrent--;
+				}
 			}
 		}
 		if (options.foldSyntaxBased && (style == SCE_C_OPERATOR)) {
-			if (ch == '{' || ch == '[') {
+			if (ch == '{' || ch == '[' || ch == '(') {
 				// Measure the minimum before a '{' to allow
 				// folding on "} else {"
-				if (levelMinCurrent > levelNext) {
+				if (options.foldAtElse && levelMinCurrent > levelNext) {
 					levelMinCurrent = levelNext;
 				}
 				levelNext++;
-			} else if (ch == '}' || ch == ']') {
+			} else if (ch == '}' || ch == ']' || ch == ')') {
 				levelNext--;
 			}
 		}
@@ -1356,7 +1369,9 @@ void SCI_METHOD LexerCPP::Fold(Sci_PositionU startPos, Sci_Position length, int 
 			visibleChars++;
 		if (atEOL || (i == endPos-1)) {
 			int levelUse = levelCurrent;
-			if (options.foldSyntaxBased && options.foldAtElse) {
+			if ((options.foldSyntaxBased && options.foldAtElse) ||
+				(options.foldPreprocessor && options.foldPreprocessorAtElse)
+			) {
 				levelUse = levelMinCurrent;
 			}
 			int lev = levelUse | levelNext << 16;
@@ -1423,7 +1438,7 @@ void LexerCPP::EvaluateTokens(std::vector<std::string> &tokens, const SymbolTabl
 	size_t iterations = 0;	// Limit number of iterations in case there is a recursive macro.
 	for (size_t i = 0; (i<tokens.size()) && (iterations < maxIterations);) {
 		iterations++;
-		if (setWordStart.Contains(static_cast<unsigned char>(tokens[i][0]))) {
+		if (setWordStart.Contains(static_cast<uchar>(tokens[i][0]))) {
 			SymbolTable::const_iterator it = preprocessorDefinitions.find(tokens[i]);
 			if (it != preprocessorDefinitions.end()) {
 				// Tokenize value
@@ -1450,7 +1465,7 @@ void LexerCPP::EvaluateTokens(std::vector<std::string> &tokens, const SymbolTabl
 						macroTokens.erase(std::remove_if(macroTokens.begin(), macroTokens.end(), OnlySpaceOrTab), macroTokens.end());
 
 						for (size_t iMacro = 0; iMacro < macroTokens.size();) {
-							if (setWordStart.Contains(static_cast<unsigned char>(macroTokens[iMacro][0]))) {
+							if (setWordStart.Contains(static_cast<uchar>(macroTokens[iMacro][0]))) {
 								std::map<std::string, std::string>::const_iterator itFind = arguments.find(macroTokens[iMacro]);
 								if (itFind != arguments.end()) {
 									// TODO: Possible that value will be expression so should insert tokenized form
@@ -1459,7 +1474,7 @@ void LexerCPP::EvaluateTokens(std::vector<std::string> &tokens, const SymbolTabl
 							}
 							iMacro++;
 						}
-								
+
 						// Insert results back into tokens
 						tokens.insert(tokens.begin() + i, macroTokens.begin(), macroTokens.end());
 
@@ -1473,7 +1488,7 @@ void LexerCPP::EvaluateTokens(std::vector<std::string> &tokens, const SymbolTabl
 					tokens.insert(tokens.begin() + i, macroTokens.begin(), macroTokens.end());
 				}
 			} else {
-				// Identifier not found 
+				// Identifier not found
 				tokens.erase(tokens.begin() + i);
 			}
 		} else {
@@ -1568,9 +1583,9 @@ std::vector<std::string> LexerCPP::Tokenize(const std::string &expr) const {
 	const char *cp = expr.c_str();
 	while (*cp) {
 		std::string word;
-		if (setWord.Contains(static_cast<unsigned char>(*cp))) {
+		if (setWord.Contains(static_cast<uchar>(*cp))) {
 			// Identifiers and numbers
-			while (setWord.Contains(static_cast<unsigned char>(*cp))) {
+			while (setWord.Contains(static_cast<uchar>(*cp))) {
 				word += *cp;
 				cp++;
 			}
@@ -1579,17 +1594,17 @@ std::vector<std::string> LexerCPP::Tokenize(const std::string &expr) const {
 				word += *cp;
 				cp++;
 			}
-		} else if (setRelOp.Contains(static_cast<unsigned char>(*cp))) {
+		} else if (setRelOp.Contains(static_cast<uchar>(*cp))) {
 			word += *cp;
 			cp++;
-			if (setRelOp.Contains(static_cast<unsigned char>(*cp))) {
+			if (setRelOp.Contains(static_cast<uchar>(*cp))) {
 				word += *cp;
 				cp++;
 			}
-		} else if (setLogicalOp.Contains(static_cast<unsigned char>(*cp))) {
+		} else if (setLogicalOp.Contains(static_cast<uchar>(*cp))) {
 			word += *cp;
 			cp++;
-			if (setLogicalOp.Contains(static_cast<unsigned char>(*cp))) {
+			if (setLogicalOp.Contains(static_cast<uchar>(*cp))) {
 				word += *cp;
 				cp++;
 			}

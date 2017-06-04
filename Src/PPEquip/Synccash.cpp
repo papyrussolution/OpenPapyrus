@@ -371,11 +371,12 @@ int  SLAPI SCS_SYNCCASH::AnnulateCheck()
 	return ok;
 }
 
-static int DestrStr(const SString & rStr, SString & rParamName, SString & rParamVal)
+static void DestrStr(const SString & rStr, SString & rParamName, SString & rParamVal)
 {
+	rParamName = 0;
+	rParamVal = 0;
 	if(rStr.NotEmpty())
 		rStr.Divide('=', rParamName, rParamVal);
-	return 1;
 }
 
 int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
@@ -1395,12 +1396,14 @@ int SLAPI SCS_SYNCCASH::AllowPrintOper()
 	// SetErrorMessage();
 	// Ожидание окончания операции печати
 	do {
+		status = 0; // @v9.6.9
 		GetStatus(status);
 		wait_prn_err = 1;
 	} while(status & PRNMODE_PRINT);
 	//
 	// Если нет чековой ленты
 	//
+	status = 0; // @v9.6.9
 	GetStatus(status);
 	if(status & NO_PAPER) {
 		if(status & FRMODE_OPEN_CHECK)
@@ -1414,26 +1417,33 @@ int SLAPI SCS_SYNCCASH::AllowPrintOper()
 				Flags |= sfCancelled;
 				ok = 0;
 			}
+			status = 0; // @v9.6.9
 			GetStatus(status);
 		}
 		wait_prn_err = 1;
 		ResCode = RESCODE_NO_ERROR;
 	}
+	//
 	// Проверяем, надо ли завершить печать после заправки ленты
+	//
 	if(status & PRNMODE_AFTER_NO_PAPER) {
 		arr_in.Clear();
 		THROW(ExecPrintOper(DVCCMD_CONTINUEPRINT, arr_in, arr_out));
+		status = 0; // @v9.6.9
 		GetStatus(status);
 		wait_prn_err = 1;
 	}
+	//
 	// Дополнительный запрос, так как не всем ККМ требуется команда на продолжение печати, а ждать завершения печати надо
+	//
 	do {
+		status = 0; // @v9.6.9
 		GetStatus(status);
 	} while(status & PRNMODE_PRINT);
 	//
 	// Ошибки ЭКЛЗ
 	//
-	GetStatus(status);
+	// @v9.6.9 (избыточная команда - выше как минимум один вызов был) GetStatus(status);
 	if(ResCode == RESCODE_GOTOCTO) {
 		SetErrorMessage();
 		SString  err_msg(DS.GetConstTLA().AddedMsgString), added_msg;

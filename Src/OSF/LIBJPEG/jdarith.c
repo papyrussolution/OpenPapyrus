@@ -58,12 +58,10 @@ typedef arith_entropy_decoder * arith_entropy_ptr;
 #define DC_STAT_BINS 64
 #define AC_STAT_BINS 256
 
-LOCAL(int)
-get_byte(j_decompress_ptr cinfo)
+static int get_byte(j_decompress_ptr cinfo)
 /* Read next input byte; we do not support suspension in this module. */
 {
 	struct jpeg_source_mgr * src = cinfo->src;
-
 	if(src->bytes_in_buffer == 0)
 		if(!(*src->fill_input_buffer)(cinfo))
 			ERREXIT(cinfo, JERR_CANT_SUSPEND);
@@ -97,9 +95,7 @@ get_byte(j_decompress_ptr cinfo)
  * the probability estimation state machine table,
  * derived from Markus Kuhn's JBIG implementation.
  */
-
-LOCAL(int)
-arith_decode(j_decompress_ptr cinfo, unsigned char * st)
+static int arith_decode(j_decompress_ptr cinfo, unsigned char * st)
 {
 	register arith_entropy_ptr e = (arith_entropy_ptr)cinfo->entropy;
 	register unsigned char nl, nm;
@@ -176,16 +172,12 @@ arith_decode(j_decompress_ptr cinfo, unsigned char * st)
 			*st = (sv & 0x80) ^ nm; /* Estimate_after_MPS */
 		}
 	}
-
 	return sv >> 7;
 }
-
 /*
  * Check for a restart marker & resynchronize decoder.
  */
-
-LOCAL(void)
-process_restart(j_decompress_ptr cinfo)
+static void process_restart(j_decompress_ptr cinfo)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	int ci;

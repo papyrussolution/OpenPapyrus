@@ -30,29 +30,28 @@
 #include "multiif.h"
 #include "pipeline.h"
 #include "sendf.h"
-#include "strcase.h"
-
+//#include "strcase.h"
 #include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
 
 struct site_blacklist_entry {
 	char * hostname;
-	unsigned short port;
+	ushort port;
 };
 
 static void site_blacklist_llist_dtor(void * user, void * element)
 {
 	struct site_blacklist_entry * entry = (struct site_blacklist_entry *)element;
 	(void)user;
-	Curl_safefree(entry->hostname);
-	free(entry);
+	ZFREE(entry->hostname);
+	SAlloc::F(entry);
 }
 
 static void server_blacklist_llist_dtor(void * user, void * element)
 {
 	(void)user;
-	free(element);
+	SAlloc::F(element);
 }
 
 bool Curl_pipeline_penalized(struct Curl_easy * data, struct connectdata * conn)
@@ -163,14 +162,14 @@ CURLMcode Curl_pipeline_set_site_blacklist(char ** sites, struct curl_llist * li
 		while(*sites) {
 			char * port;
 			struct site_blacklist_entry * entry;
-			char * hostname = strdup(*sites);
+			char * hostname = _strdup(*sites);
 			if(!hostname) {
 				Curl_llist_destroy(list, NULL);
 				return CURLM_OUT_OF_MEMORY;
 			}
-			entry = (struct site_blacklist_entry *)malloc(sizeof(struct site_blacklist_entry));
+			entry = (struct site_blacklist_entry *)SAlloc::M(sizeof(struct site_blacklist_entry));
 			if(!entry) {
-				free(hostname);
+				SAlloc::F(hostname);
 				Curl_llist_destroy(list, NULL);
 				return CURLM_OUT_OF_MEMORY;
 			}
@@ -178,7 +177,7 @@ CURLMcode Curl_pipeline_set_site_blacklist(char ** sites, struct curl_llist * li
 			if(port) {
 				*port = '\0';
 				port++;
-				entry->port = (unsigned short)strtol(port, NULL, 10);
+				entry->port = (ushort)strtol(port, NULL, 10);
 			}
 			else {
 				/* Default port number for HTTP */
@@ -225,14 +224,14 @@ CURLMcode Curl_pipeline_set_server_blacklist(char ** servers, struct curl_llist 
 		Curl_llist_init(list, (curl_llist_dtor)server_blacklist_llist_dtor);
 		/* Parse the URLs and populate the list */
 		while(*servers) {
-			char * server_name = strdup(*servers);
+			char * server_name = _strdup(*servers);
 			if(!server_name) {
 				Curl_llist_destroy(list, NULL);
 				return CURLM_OUT_OF_MEMORY;
 			}
 			if(!Curl_llist_insert_next(list, list->tail, server_name)) {
 				Curl_llist_destroy(list, NULL);
-				Curl_safefree(server_name);
+				ZFREE(server_name);
 				return CURLM_OUT_OF_MEMORY;
 			}
 			servers++;

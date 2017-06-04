@@ -5,11 +5,11 @@
  **/
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
+/***************************************/
 
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "WordList.h"
@@ -33,7 +33,7 @@ static inline bool IsAWordStart(const int ch) {
 	return (ch < 0x80) && (isalnum(ch));
 }
 /***************************************/
-static inline bool IsABlank(unsigned int ch) {
+static inline bool IsABlank(uint ch) {
 	return (ch == ' ') || (ch == 0x09) || (ch == 0x0b) ;
 }
 /***************************************/

@@ -114,10 +114,10 @@ void _zbar_symbol_free(zbar_symbol_t * sym)
 		zbar_symbol_set_ref(sym->syms, -1);
 		sym->syms = NULL;
 	}
-	free(sym->pts);
+	SAlloc::F(sym->pts);
 	if(sym->data_alloc && sym->P_Data_)
-		free(sym->P_Data_);
-	free(sym);
+		SAlloc::F(sym->P_Data_);
+	SAlloc::F(sym);
 }
 
 void zbar_symbol_ref(const zbar_symbol_t * sym,
@@ -297,7 +297,7 @@ char * zbar_symbol_xml(const zbar_symbol_t * sym, char ** buf, uint * len)
 	if(binary)
 		maxlen += MAX_INT_DIGITS;
 	if(!*buf || (*len < maxlen)) {
-		free(*buf);
+		SAlloc::F(*buf);
 		*buf = (char *)SAlloc::M(maxlen);
 		/* FIXME check OOM */
 		*len = maxlen;
@@ -354,7 +354,7 @@ char * zbar_symbol_xml(const zbar_symbol_t * sym, char ** buf, uint * len)
 
 zbar_symbol_set_t * _zbar_symbol_set_create()
 {
-	zbar_symbol_set_t * syms = (zbar_symbol_set_t *)calloc(1, sizeof(*syms));
+	zbar_symbol_set_t * syms = (zbar_symbol_set_t *)SAlloc::C(1, sizeof(*syms));
 	_zbar_refcnt(&syms->refcnt, 1);
 	return(syms);
 }
@@ -368,7 +368,7 @@ inline void _zbar_symbol_set_free(zbar_symbol_set_t * syms)
 		_zbar_symbol_refcnt(sym, -1);
 	}
 	syms->head = NULL;
-	free(syms);
+	SAlloc::F(syms);
 }
 
 void zbar_symbol_set_ref(const zbar_symbol_set_t * syms, int delta)

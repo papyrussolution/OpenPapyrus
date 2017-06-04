@@ -182,8 +182,7 @@ struct jvirt_barray_control {
 
 #ifdef MEM_STATS                /* optional extra stuff for statistics */
 
-LOCAL(void)
-print_mem_stats(j_common_ptr cinfo, int pool_id)
+static void print_mem_stats(j_common_ptr cinfo, int pool_id)
 {
 	my_mem_ptr mem = (my_mem_ptr)cinfo->mem;
 	small_pool_ptr shdr_ptr;
@@ -212,8 +211,7 @@ print_mem_stats(j_common_ptr cinfo, int pool_id)
 
 #endif /* MEM_STATS */
 
-LOCAL(noreturn_t)
-out_of_memory(j_common_ptr cinfo, int which)
+LOCAL(noreturn_t) out_of_memory(j_common_ptr cinfo, int which)
 /* Report an out-of-memory error and stop execution */
 /* If we compiled MEM_STATS support, report alloc requests before dying */
 {
@@ -664,14 +662,12 @@ METHODDEF(void) realize_virt_arrays(j_common_ptr cinfo)
 	}
 }
 
-LOCAL(void)
-do_sarray_io(j_common_ptr cinfo, jvirt_sarray_ptr ptr, boolean writing)
+static void do_sarray_io(j_common_ptr cinfo, jvirt_sarray_ptr ptr, boolean writing)
 /* Do backing store read or write of a virtual sample array */
 {
-	long bytesperrow, file_offset, byte_count, rows, thisrow, i;
-
-	bytesperrow = (long)ptr->samplesperrow * SIZEOF(JSAMPLE);
-	file_offset = ptr->cur_start_row * bytesperrow;
+	long byte_count, rows, thisrow, i;
+	long bytesperrow = (long)ptr->samplesperrow * SIZEOF(JSAMPLE);
+	long file_offset = ptr->cur_start_row * bytesperrow;
 	/* Loop to read or write each allocation chunk in mem_buffer */
 	for(i = 0; i < (long)ptr->rows_in_mem; i += ptr->rowsperchunk) {
 		/* One chunk, but check for short chunk at end of buffer */
@@ -696,8 +692,7 @@ do_sarray_io(j_common_ptr cinfo, jvirt_sarray_ptr ptr, boolean writing)
 	}
 }
 
-LOCAL(void)
-do_barray_io(j_common_ptr cinfo, jvirt_barray_ptr ptr, boolean writing)
+static void do_barray_io(j_common_ptr cinfo, jvirt_barray_ptr ptr, boolean writing)
 /* Do backing store read or write of a virtual coefficient-block array */
 {
 	long bytesperrow, file_offset, byte_count, rows, thisrow, i;

@@ -167,7 +167,7 @@ static CURLcode ldap_setup_connection(struct connectdata *conn)
   proto = ldap_pvt_url_scheme2proto(lud->lud_scheme);
   ldap_free_urldesc(lud);
 
-  li = calloc(1, sizeof(ldapconninfo));
+  li = SAlloc::C(1, sizeof(ldapconninfo));
   if(!li)
     return CURLE_OUT_OF_MEMORY;
   li->proto = proto;
@@ -337,7 +337,7 @@ static CURLcode ldap_disconnect(struct connectdata *conn, bool dead_connection)
       li->ld = NULL;
     }
     conn->proto.generic = NULL;
-    free(li);
+    SAlloc::F(li);
   }
   return CURLE_OK;
 }
@@ -377,7 +377,7 @@ static CURLcode ldap_do(struct connectdata *conn, bool *done)
     failf(data, "LDAP local: ldap_search_ext %s", ldap_err2string(rc));
     return CURLE_LDAP_SEARCH_FAILED;
   }
-  lr = calloc(1, sizeof(ldapreqinfo));
+  lr = SAlloc::C(1, sizeof(ldapreqinfo));
   if(!lr)
     return CURLE_OUT_OF_MEMORY;
   lr->msgid = msgid;
@@ -403,7 +403,7 @@ static CURLcode ldap_done(struct connectdata *conn, CURLcode res,
       lr->msgid = 0;
     }
     conn->data->req.protop = NULL;
-    free(lr);
+    SAlloc::F(lr);
   }
 
   return CURLE_OK;
@@ -544,7 +544,7 @@ static ssize_t ldap_recv(struct connectdata *conn, int sockindex, char *buf,
             binval = 1;
           else {
             /* check for unprintable characters */
-            unsigned int j;
+            uint j;
             for(j=0; j<bvals[i].bv_len; j++)
               if(!ISPRINT(bvals[i].bv_val[j])) {
                 binval = 1;
@@ -583,7 +583,7 @@ static ssize_t ldap_recv(struct connectdata *conn, int sockindex, char *buf,
               *err = writeerr;
               return -1;
             }
-            free(val_b64);
+            SAlloc::F(val_b64);
             data->req.bytecount += val_b64_sz;
           }
         }

@@ -10,20 +10,13 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/hmac.h"
 #ifdef HAVE_CRYPTO_IPP
 	#include <ippcp.h>
 #endif
 
-static void __aes_err __P((ENV*, int));
-static int __aes_derivekeys __P((ENV*, DB_CIPHER*, uint8*, size_t));
+static void __aes_err(ENV*, int);
+static int __aes_derivekeys(ENV*, DB_CIPHER*, uint8*, size_t);
 
 /*
  * __aes_setup --
@@ -147,7 +140,6 @@ int __aes_decrypt(ENV*env, void * aes_data, void * iv, uint8 * cipher, size_t ci
  */
 int __aes_encrypt(ENV*env, void * aes_data, void * iv, uint8 * data, size_t data_len)
 {
-	AES_CIPHER * aes;
 #ifdef  HAVE_CRYPTO_IPP
 	IppStatus ipp_ret;
 #else
@@ -155,7 +147,7 @@ int __aes_encrypt(ENV*env, void * aes_data, void * iv, uint8 * data, size_t data
 #endif
 	uint32 tmp_iv[DB_IV_BYTES/4];
 	int ret;
-	aes = (AES_CIPHER *)aes_data;
+	AES_CIPHER * aes = (AES_CIPHER *)aes_data;
 	if(aes == NULL || data == NULL)
 		return EINVAL;
 	if((data_len%DB_AES_CHUNK) != 0)
@@ -195,7 +187,6 @@ int __aes_encrypt(ENV*env, void * aes_data, void * iv, uint8 * data, size_t data
 	memcpy(iv, tmp_iv, DB_IV_BYTES);
 	return 0;
 }
-
 /*
  * __aes_init --
  *	Initialize the AES encryption instantiation.

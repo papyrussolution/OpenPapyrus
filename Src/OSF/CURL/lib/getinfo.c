@@ -64,10 +64,10 @@ CURLcode Curl_initinfo(struct Curl_easy * data)
 	info->httpauthavail = 0;
 	info->numconnects = 0;
 
-	free(info->contenttype);
+	SAlloc::F(info->contenttype);
 	info->contenttype = NULL;
 
-	free(info->wouldredirect);
+	SAlloc::F(info->wouldredirect);
 	info->wouldredirect = NULL;
 
 	info->conn_primary_ip[0] = '\0';
@@ -101,7 +101,7 @@ static CURLcode getinfo_char(struct Curl_easy * data, CURLINFO info,
 		case CURLINFO_FTP_ENTRY_PATH:
 		    /* Return the entrypath string from the most recent connection.
 		       This pointer was copied from the connectdata structure by FTP.
-		       The actual string may be free()ed by subsequent libcurl calls so
+		       The actual string may be SAlloc::F()ed by subsequent libcurl calls so
 		       it must be copied to a safer area before the next libcurl call.
 		       Callers must never free it themselves. */
 		    *param_charp = data->state.most_recent_ftp_entrypath;
@@ -140,7 +140,7 @@ static CURLcode getinfo_long(struct Curl_easy * data, CURLINFO info,
 	curl_socket_t sockfd;
 
 	union {
-		unsigned long * to_ulong;
+		ulong * to_ulong;
 		long          * to_long;
 	} lptr;
 
@@ -328,7 +328,7 @@ static CURLcode getinfo_slist(struct Curl_easy * data, CURLINFO info,
 		    tsi->backend = (curl_sslbackend)Curl_ssl_backend();
 		    tsi->internals = NULL;
 		    if(conn && tsi->backend != CURLSSLBACKEND_NONE) {
-			    unsigned int i;
+			    uint i;
 			    for(i = 0; i < (sizeof(conn->ssl) / sizeof(conn->ssl[0])); ++i) {
 				    if(conn->ssl[i].use) {
 #if defined(USE_AXTLS)

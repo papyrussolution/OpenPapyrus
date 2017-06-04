@@ -56,7 +56,7 @@
 
 #if (defined(NETWARE) && defined(__NOVELL_LIBC__))
 	#undef in_addr_t
-	#define in_addr_t unsigned long
+	#define in_addr_t ulong
 #endif
 //#include <curl/curl.h>
 #include "urldata.h"
@@ -69,7 +69,7 @@
 #include "socks.h"
 #include "smtp.h"
 #include "strtoofft.h"
-#include "strcase.h"
+//#include "strcase.h"
 #include "vtls/vtls.h"
 #include "connect.h"
 #include "strerror.h"
@@ -545,7 +545,7 @@ static CURLcode smtp_perform_mail(struct connectdata * conn)
 	/* Calculate the FROM parameter */
 	if(!data->set.str[STRING_MAIL_FROM])
 		/* Null reverse-path, RFC-5321, sect. 3.6.3 */
-		from = strdup("<>");
+		from = _strdup("<>");
 	else if(data->set.str[STRING_MAIL_FROM][0] == '<')
 		from = aprintf("%s", data->set.str[STRING_MAIL_FROM]);
 	else
@@ -560,10 +560,10 @@ static CURLcode smtp_perform_mail(struct connectdata * conn)
 			auth = aprintf("%s", data->set.str[STRING_MAIL_AUTH]);
 		else
 			/* Empty AUTH, RFC-2554, sect. 5 */
-			auth = strdup("<>");
+			auth = _strdup("<>");
 
 		if(!auth) {
-			free(from);
+			SAlloc::F(from);
 
 			return CURLE_OUT_OF_MEMORY;
 		}
@@ -574,8 +574,8 @@ static CURLcode smtp_perform_mail(struct connectdata * conn)
 		size = aprintf("%" CURL_FORMAT_CURL_OFF_T, data->state.infilesize);
 
 		if(!size) {
-			free(from);
-			free(auth);
+			SAlloc::F(from);
+			SAlloc::F(auth);
 
 			return CURLE_OUT_OF_MEMORY;
 		}
@@ -595,9 +595,9 @@ static CURLcode smtp_perform_mail(struct connectdata * conn)
 		result = Curl_pp_sendf(&conn->proto.smtpc.pp,
 		    "MAIL FROM:%s SIZE=%s", from, size);
 
-	free(from);
-	free(auth);
-	free(size);
+	SAlloc::F(from);
+	SAlloc::F(auth);
+	SAlloc::F(size);
 
 	if(!result)
 		state(conn, SMTP_MAIL);
@@ -734,7 +734,7 @@ static CURLcode smtp_state_ehlo_resp(struct connectdata * conn, int smtpcode,
 			/* Loop through the data line */
 			for(;; ) {
 				size_t llen;
-				unsigned int mechbit;
+				uint mechbit;
 
 				while(len &&
 				    (*line == ' ' || *line == '\t' ||
@@ -1086,7 +1086,7 @@ static CURLcode smtp_init(struct connectdata * conn)
 	CURLcode result = CURLE_OK;
 	struct Curl_easy * data = conn->data;
 	struct SMTP * smtp;
-	smtp = (struct SMTP *)(data->req.protop = calloc(sizeof(struct SMTP), 1));
+	smtp = (struct SMTP *)(data->req.protop = SAlloc::C(sizeof(struct SMTP), 1));
 	if(!smtp)
 		result = CURLE_OUT_OF_MEMORY;
 	return result;
@@ -1184,11 +1184,11 @@ static CURLcode smtp_done(struct connectdata * conn, CURLcode status, bool prema
 		   returned CURLE_AGAIN, we duplicate the EOB now rather than when the
 		   bytes written doesn't equal len. */
 		if(smtp->trailing_crlf || !conn->data->state.infilesize) {
-			eob = strdup(SMTP_EOB + 2);
+			eob = _strdup(SMTP_EOB + 2);
 			len = SMTP_EOB_LEN - 2;
 		}
 		else {
-			eob = strdup(SMTP_EOB);
+			eob = _strdup(SMTP_EOB);
 			len = SMTP_EOB_LEN;
 		}
 
@@ -1198,7 +1198,7 @@ static CURLcode smtp_done(struct connectdata * conn, CURLcode status, bool prema
 		/* Send the end of block data */
 		result = Curl_write(conn, conn->writesockfd, eob, len, &bytes_written);
 		if(result) {
-			free(eob);
+			SAlloc::F(eob);
 			return result;
 		}
 
@@ -1213,7 +1213,7 @@ static CURLcode smtp_done(struct connectdata * conn, CURLcode status, bool prema
 			/* Successfully sent so adjust the response timeout relative to now */
 			pp->response = Curl_tvnow();
 
-			free(eob);
+			SAlloc::F(eob);
 		}
 
 		state(conn, SMTP_POSTDATA);
@@ -1228,7 +1228,7 @@ static CURLcode smtp_done(struct connectdata * conn, CURLcode status, bool prema
 	}
 
 	/* Cleanup our per-request based variables */
-	Curl_safefree(smtp->custom);
+	ZFREE(smtp->custom);
 
 	/* Clear the transfer mode for the next request */
 	smtp->transfer = FTPTRANSFER_BODY;
@@ -1332,7 +1332,7 @@ static CURLcode smtp_disconnect(struct connectdata * conn, bool dead_connection)
 	Curl_sasl_cleanup(conn, smtpc->sasl.authused);
 
 	/* Cleanup our connection based variables */
-	Curl_safefree(smtpc->domain);
+	ZFREE(smtpc->domain);
 
 	return CURLE_OK;
 }
@@ -1540,7 +1540,7 @@ CURLcode Curl_smtp_escape_eob(struct connectdata * conn, const ssize_t nread)
 	/* Do we need to allocate a scratch buffer? */
 	if(!scratch || data->set.crlf) {
 		oldscratch = scratch;
-		scratch = newscratch = (char *)malloc(2 * BUFSIZE);
+		scratch = newscratch = (char *)SAlloc::M(2 * BUFSIZE);
 		if(!newscratch) {
 			failf(data, "Failed to alloc scratch buffer!");
 			return CURLE_OUT_OF_MEMORY;
@@ -1605,13 +1605,13 @@ CURLcode Curl_smtp_escape_eob(struct connectdata * conn, const ssize_t nread)
 		data->state.scratch = scratch;
 
 		/* Free the old scratch buffer */
-		free(oldscratch);
+		SAlloc::F(oldscratch);
 
 		/* Set the new amount too */
 		data->req.upload_present = si;
 	}
 	else
-		free(newscratch);
+		SAlloc::F(newscratch);
 
 	return CURLE_OK;
 }

@@ -2483,7 +2483,7 @@ int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 #include <libpng/png.h>
 
 struct PngSupport {
-	static void LoadErrFunc(png_structp pPng, png_const_charp pMsg)
+	static void LoadErrFunc(png_structp pPng, const char * pMsg)
 	{
 		int    err_code = 0;
 		if(pPng) {
@@ -2491,7 +2491,7 @@ struct PngSupport {
 			png_longjmp(pPng, err_code);
 		}
 	}
-	static void StoreErrFunc(png_structp pPng, png_const_charp pMsg)
+	static void StoreErrFunc(png_structp pPng, const char * pMsg)
 	{
 		int    err_code = 0;
 		if(pPng) {
@@ -2499,13 +2499,13 @@ struct PngSupport {
 			png_longjmp(pPng, err_code);
 		}
 	}
-	static void PNGAPI ReadFunc(png_structp pPng, png_bytep pData, png_size_t length)
+	static void PNGAPI ReadFunc(png_structp pPng, png_bytep pData, size_t length)
 	{
 		SFile * p_file = (SFile *)png_get_io_ptr(pPng);
 		if(!p_file || !p_file->ReadV(pData, length))
 			png_error(pPng, NULL);
 	}
-	static void PNGAPI WriteFunc(png_structp pPng, png_bytep pData, png_size_t length)
+	static void PNGAPI WriteFunc(png_structp pPng, png_bytep pData, size_t length)
 	{
 		SFile * p_file = (SFile *)png_get_io_ptr(pPng);
 		if(!p_file || !p_file->Write(pData, length))
@@ -2638,12 +2638,12 @@ int SImageBuffer::StorePng(const StoreParam & rP, SFile & rF)
 	int    err_code = 0;
 	png_struct * p_png = 0;
 	png_info * p_info = 0;
-	png_byte ** volatile pp_rows = 0;
+	uint8 ** volatile pp_rows = 0;
 	const uint stride = F.GetStride(S.x);
 	THROW(S.x && S.y); // no image
-	THROW_S(pp_rows = (png_byte **)SAlloc::M(S.y * sizeof(png_byte*)), SLERR_NOMEM);
+	THROW_S(pp_rows = (uint8 **)SAlloc::M(S.y * sizeof(uint8*)), SLERR_NOMEM);
 	for(int i = 0; i < S.y; i++) {
-		pp_rows[i] = (png_byte *)P_Buf+i*stride;
+		pp_rows[i] = (uint8 *)P_Buf+i*stride;
 	}
 	THROW(p_png = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, PngSupport::StoreErrFunc, 0));
 	err_code = setjmp(png_jmpbuf(p_png));

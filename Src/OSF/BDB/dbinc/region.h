@@ -286,18 +286,9 @@ struct __db_reginfo_t {		/* __env_region_attach IN parameters. */
  * PANIC_ISSET, PANIC_CHECK:
  *	Check to see if the DB environment is dead.
  */
-#define	PANIC_ISSET(env)						\
-	((env) != NULL && (env)->reginfo != NULL &&			\
-	    ((REGENV *)(env)->reginfo->primary)->panic != 0 &&		\
-	    !F_ISSET((env)->dbenv, DB_ENV_NOPANIC))
-
-#define	PANIC_CHECK(env)						\
-	if(PANIC_ISSET(env))						\
-		return (__env_panic_msg(env));
-
-#define	PANIC_CHECK_RET(env, ret)			       		\
-	if(PANIC_ISSET(env))						\
-		ret = (__env_panic_msg(env));
+#define	PANIC_ISSET(env)          ((env) && (env)->reginfo && ((REGENV *)(env)->reginfo->primary)->panic != 0 && !F_ISSET((env)->dbenv, DB_ENV_NOPANIC))
+#define	PANIC_CHECK(env)          if(PANIC_ISSET(env)) return (__env_panic_msg(env));
+#define	PANIC_CHECK_RET(env, ret) if(PANIC_ISSET(env)) ret = (__env_panic_msg(env));
 
 #if defined(__cplusplus)
 }

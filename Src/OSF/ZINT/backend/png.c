@@ -45,7 +45,7 @@ struct mainprog_info_type {
 	jmp_buf jmpbuf;
 };
 
-static void writepng_error_handler(png_structp png_ptr, png_const_charp msg)
+static void writepng_error_handler(png_structp png_ptr, const char * msg)
 {
 	struct mainprog_info_type * graphic;
 

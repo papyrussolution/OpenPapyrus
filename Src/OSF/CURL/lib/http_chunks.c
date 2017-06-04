@@ -298,11 +298,11 @@ CHUNKcode Curl_httpchunk_read(struct connectdata * conn,
 					    char * ptr;
 					    if(conn->trlMax) {
 						    conn->trlMax *= 2;
-						    ptr = (char *)realloc(conn->trailer, conn->trlMax + 3);
+						    ptr = (char *)SAlloc::R(conn->trailer, conn->trlMax + 3);
 					    }
 					    else {
 						    conn->trlMax = 128;
-						    ptr = (char *)malloc(conn->trlMax + 3);
+						    ptr = (char *)SAlloc::M(conn->trlMax + 3);
 					    }
 					    if(!ptr)
 						    return CHUNKE_OUT_OF_MEMORY;

@@ -80,7 +80,7 @@ int Curl_socket_check(curl_socket_t readfd, curl_socket_t readfd2,
 #define SOCKET_WRITABLE(x,z) \
   Curl_socket_check(CURL_SOCKET_BAD, CURL_SOCKET_BAD, x, z)
 
-int Curl_poll(struct pollfd ufds[], unsigned int nfds, int timeout_ms);
+int Curl_poll(struct pollfd ufds[], uint nfds, int timeout_ms);
 
 /* On non-DOS and non-Winsock platforms, when Curl_ack_eintr is set,
  * EINTR condition is honored and function might exit early without

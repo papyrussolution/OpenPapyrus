@@ -53,7 +53,7 @@
 
 #if (defined(NETWARE) && defined(__NOVELL_LIBC__))
 #undef in_addr_t
-#define in_addr_t unsigned long
+#define in_addr_t ulong
 #endif
 //#include <curl/curl.h>
 #include "urldata.h"
@@ -68,7 +68,7 @@
 #include "speedcheck.h"
 #include "getinfo.h"
 #include "strdup.h"
-#include "strcase.h"
+//#include "strcase.h"
 #include "vtls/vtls.h"
 #include "connect.h"
 #include "strerror.h"
@@ -224,7 +224,7 @@ static void kbd_callback(const char * name, int name_len, const char * instructi
 	(void)instruction_len;
 #endif  /* CURL_LIBSSH2_DEBUG */
 	if(num_prompts == 1) {
-		responses[0].text = strdup(conn->passwd);
+		responses[0].text = _strdup(conn->passwd);
 		responses[0].length = curlx_uztoui(strlen(conn->passwd));
 	}
 	(void)prompts;
@@ -306,20 +306,20 @@ static CURLcode libssh2_session_error_to_CURLE(int err)
 static LIBSSH2_ALLOC_FUNC(my_libssh2_malloc)
 {
 	(void)abstract; /* arg not used */
-	return malloc(count);
+	return SAlloc::M(count);
 }
 
 static LIBSSH2_REALLOC_FUNC(my_libssh2_realloc)
 {
 	(void)abstract; /* arg not used */
-	return realloc(ptr, count);
+	return SAlloc::R(ptr, count);
 }
 
 static LIBSSH2_FREE_FUNC(my_libssh2_free)
 {
 	(void)abstract; /* arg not used */
 	if(ptr) /* ssh2 agent sometimes call free with null ptr */
-		free(ptr);
+		SAlloc::F(ptr);
 }
 
 /*
@@ -419,9 +419,9 @@ static CURLcode ssh_getworkingpath(struct connectdata * conn,
 
 	/* Check for /~/, indicating relative to the user's home directory */
 	if(conn->handler->protocol & CURLPROTO_SCP) {
-		real_path = malloc(working_path_len+1);
+		real_path = SAlloc::M(working_path_len+1);
 		if(real_path == NULL) {
-			free(working_path);
+			SAlloc::F(working_path);
 			return CURLE_OUT_OF_MEMORY;
 		}
 		if((working_path_len > 3) && (!memcmp(working_path, "/~/", 3)))
@@ -433,9 +433,9 @@ static CURLcode ssh_getworkingpath(struct connectdata * conn,
 	else if(conn->handler->protocol & CURLPROTO_SFTP) {
 		if((working_path_len > 1) && (working_path[1] == '~')) {
 			size_t homelen = strlen(homedir);
-			real_path = malloc(homelen + working_path_len + 1);
+			real_path = SAlloc::M(homelen + working_path_len + 1);
 			if(real_path == NULL) {
-				free(working_path);
+				SAlloc::F(working_path);
 				return CURLE_OUT_OF_MEMORY;
 			}
 			/* It is referenced to the home directory, so strip the
@@ -449,16 +449,16 @@ static CURLcode ssh_getworkingpath(struct connectdata * conn,
 			}
 		}
 		else {
-			real_path = malloc(working_path_len+1);
+			real_path = SAlloc::M(working_path_len+1);
 			if(real_path == NULL) {
-				free(working_path);
+				SAlloc::F(working_path);
 				return CURLE_OUT_OF_MEMORY;
 			}
 			memcpy(real_path, working_path, 1+working_path_len);
 		}
 	}
 
-	free(working_path);
+	SAlloc::F(working_path);
 
 	/* store the pointer for the caller to receive */
 	*path = real_path;
@@ -664,9 +664,9 @@ static CURLcode ssh_check_fingerprint(struct connectdata * conn)
 	    LIBSSH2_HOSTKEY_HASH_MD5);
 
 	if(fingerprint) {
-		/* The fingerprint points to static storage (!), don't free() it. */
+		/* The fingerprint points to static storage (!), don't SAlloc::F() it. */
 		for(i = 0; i < 16; i++)
-			snprintf(&md5buffer[i*2], 3, "%02x", (unsigned char)fingerprint[i]);
+			snprintf(&md5buffer[i*2], 3, "%02x", (uchar)fingerprint[i]);
 		infof(data, "SSH MD5 fingerprint: %s\n", md5buffer);
 	}
 
@@ -810,7 +810,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    home = curl_getenv("HOME");
 
 				    if(data->set.str[STRING_SSH_PRIVATE_KEY])
-					    sshc->rsa = strdup(data->set.str[STRING_SSH_PRIVATE_KEY]);
+					    sshc->rsa = _strdup(data->set.str[STRING_SSH_PRIVATE_KEY]);
 				    else {
 					    /* If no private key file is specified, try some common paths. */
 					    if(home) {
@@ -819,26 +819,26 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 						    if(!sshc->rsa)
 							    out_of_memory = TRUE;
 						    else if(access(sshc->rsa, R_OK) != 0) {
-							    Curl_safefree(sshc->rsa);
+							    ZFREE(sshc->rsa);
 							    sshc->rsa = aprintf("%s/.ssh/id_dsa", home);
 							    if(!sshc->rsa)
 								    out_of_memory = TRUE;
 							    else if(access(sshc->rsa, R_OK) != 0) {
-								    Curl_safefree(sshc->rsa);
+								    ZFREE(sshc->rsa);
 							    }
 						    }
 					    }
 					    if(!out_of_memory && !sshc->rsa) {
 						    /* Nothing found; try the current dir. */
-						    sshc->rsa = strdup("id_rsa");
+						    sshc->rsa = _strdup("id_rsa");
 						    if(sshc->rsa && access(sshc->rsa, R_OK) != 0) {
-							    Curl_safefree(sshc->rsa);
-							    sshc->rsa = strdup("id_dsa");
+							    ZFREE(sshc->rsa);
+							    sshc->rsa = _strdup("id_dsa");
 							    if(sshc->rsa && access(sshc->rsa, R_OK) != 0) {
-								    Curl_safefree(sshc->rsa);
+								    ZFREE(sshc->rsa);
 								    /* Out of guesses. Set to the empty string to avoid
 								     * surprising info messages. */
-								    sshc->rsa = strdup("");
+								    sshc->rsa = _strdup("");
 							    }
 						    }
 					    }
@@ -852,15 +852,15 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    if(data->set.str[STRING_SSH_PUBLIC_KEY]
 				    /* treat empty string the same way as NULL */
 				    && data->set.str[STRING_SSH_PUBLIC_KEY][0]) {
-					    sshc->rsa_pub = strdup(data->set.str[STRING_SSH_PUBLIC_KEY]);
+					    sshc->rsa_pub = _strdup(data->set.str[STRING_SSH_PUBLIC_KEY]);
 					    if(!sshc->rsa_pub)
 						    out_of_memory = TRUE;
 				    }
 
 				    if(out_of_memory || sshc->rsa == NULL) {
-					    free(home);
-					    Curl_safefree(sshc->rsa);
-					    Curl_safefree(sshc->rsa_pub);
+					    SAlloc::F(home);
+					    ZFREE(sshc->rsa);
+					    ZFREE(sshc->rsa_pub);
 					    state(conn, SSH_SESSION_FREE);
 					    sshc->actualcode = CURLE_OUT_OF_MEMORY;
 					    break;
@@ -870,7 +870,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    if(!sshc->passphrase)
 					    sshc->passphrase = "";
 
-				    free(home);
+				    SAlloc::F(home);
 
 				    if(sshc->rsa_pub)
 					    infof(data, "Using SSH public key file '%s'\n", sshc->rsa_pub);
@@ -896,8 +896,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    break;
 			    }
 
-			    Curl_safefree(sshc->rsa_pub);
-			    Curl_safefree(sshc->rsa);
+			    ZFREE(sshc->rsa_pub);
+			    ZFREE(sshc->rsa);
 
 			    if(rc == 0) {
 				    sshc->authed = TRUE;
@@ -1143,7 +1143,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    if(rc > 0) {
 				    /* It seems that this string is not always NULL terminated */
 				    tempHome[rc] = '\0';
-				    sshc->homedir = strdup(tempHome);
+				    sshc->homedir = _strdup(tempHome);
 				    if(!sshc->homedir) {
 					    state(conn, SSH_SFTP_CLOSE);
 					    sshc->actualcode = CURLE_OUT_OF_MEMORY;
@@ -1244,7 +1244,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				       current directory can be read very similar to how it is read when
 				       using ordinary FTP. */
 				    result = Curl_client_write(conn, CLIENTWRITE_HEADER, tmp, strlen(tmp));
-				    free(tmp);
+				    SAlloc::F(tmp);
 				    if(result) {
 					    state(conn, SSH_SFTP_CLOSE);
 					    sshc->nextstate = SSH_NO_STATE;
@@ -1303,7 +1303,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 							    failf(data, "Out of memory");
 						    else
 							    failf(data, "Syntax error in chgrp/chmod/chown: Bad second parameter");
-						    Curl_safefree(sshc->quote_path1);
+						    ZFREE(sshc->quote_path1);
 						    state(conn, SSH_SFTP_CLOSE);
 						    sshc->nextstate = SSH_NO_STATE;
 						    sshc->actualcode = result;
@@ -1324,7 +1324,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 						    else
 							    failf(data,
 								    "Syntax error in ln/symlink: Bad second parameter");
-						    Curl_safefree(sshc->quote_path1);
+						    ZFREE(sshc->quote_path1);
 						    state(conn, SSH_SFTP_CLOSE);
 						    sshc->nextstate = SSH_NO_STATE;
 						    sshc->actualcode = result;
@@ -1348,7 +1348,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 							    failf(data, "Out of memory");
 						    else
 							    failf(data, "Syntax error in rename: Bad second parameter");
-						    Curl_safefree(sshc->quote_path1);
+						    ZFREE(sshc->quote_path1);
 						    state(conn, SSH_SFTP_CLOSE);
 						    sshc->nextstate = SSH_NO_STATE;
 						    sshc->actualcode = result;
@@ -1374,8 +1374,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 #endif
 
 				    failf(data, "Unknown SFTP command");
-				    Curl_safefree(sshc->quote_path1);
-				    Curl_safefree(sshc->quote_path2);
+				    ZFREE(sshc->quote_path1);
+				    ZFREE(sshc->quote_path2);
 				    state(conn, SSH_SFTP_CLOSE);
 				    sshc->nextstate = SSH_NO_STATE;
 				    sshc->actualcode = CURLE_QUOTE_ERROR;
@@ -1388,8 +1388,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    break;
 
 			case SSH_SFTP_NEXT_QUOTE:
-			    Curl_safefree(sshc->quote_path1);
-			    Curl_safefree(sshc->quote_path2);
+			    ZFREE(sshc->quote_path1);
+			    ZFREE(sshc->quote_path2);
 
 			    sshc->quote_item = sshc->quote_item->next;
 
@@ -1436,8 +1436,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    }
 				    if(rc != 0 && !sshc->acceptfail) { /* get those attributes */
 					    err = sftp_libssh2_last_error(sshc->sftp_session);
-					    Curl_safefree(sshc->quote_path1);
-					    Curl_safefree(sshc->quote_path2);
+					    ZFREE(sshc->quote_path1);
+					    ZFREE(sshc->quote_path2);
 					    failf(data, "Attempt to get SFTP stats failed: %s",
 						    sftp_libssh2_strerror(err));
 					    state(conn, SSH_SFTP_CLOSE);
@@ -1453,8 +1453,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    sshc->quote_attrs.flags = LIBSSH2_SFTP_ATTR_UIDGID;
 				    if(sshc->quote_attrs.gid == 0 && !ISDIGIT(sshc->quote_path1[0]) &&
 					    !sshc->acceptfail) {
-					    Curl_safefree(sshc->quote_path1);
-					    Curl_safefree(sshc->quote_path2);
+					    ZFREE(sshc->quote_path1);
+					    ZFREE(sshc->quote_path2);
 					    failf(data, "Syntax error: chgrp gid not a number");
 					    state(conn, SSH_SFTP_CLOSE);
 					    sshc->nextstate = SSH_NO_STATE;
@@ -1468,8 +1468,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    /* permissions are octal */
 				    if(sshc->quote_attrs.permissions == 0 &&
 					    !ISDIGIT(sshc->quote_path1[0])) {
-					    Curl_safefree(sshc->quote_path1);
-					    Curl_safefree(sshc->quote_path2);
+					    ZFREE(sshc->quote_path1);
+					    ZFREE(sshc->quote_path2);
 					    failf(data, "Syntax error: chmod permissions not a number");
 					    state(conn, SSH_SFTP_CLOSE);
 					    sshc->nextstate = SSH_NO_STATE;
@@ -1482,8 +1482,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    sshc->quote_attrs.flags = LIBSSH2_SFTP_ATTR_UIDGID;
 				    if(sshc->quote_attrs.uid == 0 && !ISDIGIT(sshc->quote_path1[0]) &&
 					    !sshc->acceptfail) {
-					    Curl_safefree(sshc->quote_path1);
-					    Curl_safefree(sshc->quote_path2);
+					    ZFREE(sshc->quote_path1);
+					    ZFREE(sshc->quote_path2);
 					    failf(data, "Syntax error: chown uid not a number");
 					    state(conn, SSH_SFTP_CLOSE);
 					    sshc->nextstate = SSH_NO_STATE;
@@ -1507,8 +1507,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    }
 			    if(rc != 0 && !sshc->acceptfail) {
 				    err = sftp_libssh2_last_error(sshc->sftp_session);
-				    Curl_safefree(sshc->quote_path1);
-				    Curl_safefree(sshc->quote_path2);
+				    ZFREE(sshc->quote_path1);
+				    ZFREE(sshc->quote_path2);
 				    failf(data, "Attempt to set SFTP stats failed: %s",
 				    sftp_libssh2_strerror(err));
 				    state(conn, SSH_SFTP_CLOSE);
@@ -1530,8 +1530,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    }
 			    if(rc != 0 && !sshc->acceptfail) {
 				    err = sftp_libssh2_last_error(sshc->sftp_session);
-				    Curl_safefree(sshc->quote_path1);
-				    Curl_safefree(sshc->quote_path2);
+				    ZFREE(sshc->quote_path1);
+				    ZFREE(sshc->quote_path2);
 				    failf(data, "symlink command failed: %s",
 				    sftp_libssh2_strerror(err));
 				    state(conn, SSH_SFTP_CLOSE);
@@ -1551,7 +1551,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    }
 			    if(rc != 0 && !sshc->acceptfail) {
 				    err = sftp_libssh2_last_error(sshc->sftp_session);
-				    Curl_safefree(sshc->quote_path1);
+				    ZFREE(sshc->quote_path1);
 				    failf(data, "mkdir command failed: %s", sftp_libssh2_strerror(err));
 				    state(conn, SSH_SFTP_CLOSE);
 				    sshc->nextstate = SSH_NO_STATE;
@@ -1575,8 +1575,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    }
 			    if(rc != 0 && !sshc->acceptfail) {
 				    err = sftp_libssh2_last_error(sshc->sftp_session);
-				    Curl_safefree(sshc->quote_path1);
-				    Curl_safefree(sshc->quote_path2);
+				    ZFREE(sshc->quote_path1);
+				    ZFREE(sshc->quote_path2);
 				    failf(data, "rename command failed: %s", sftp_libssh2_strerror(err));
 				    state(conn, SSH_SFTP_CLOSE);
 				    sshc->nextstate = SSH_NO_STATE;
@@ -1594,7 +1594,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    }
 			    if(rc != 0 && !sshc->acceptfail) {
 				    err = sftp_libssh2_last_error(sshc->sftp_session);
-				    Curl_safefree(sshc->quote_path1);
+				    ZFREE(sshc->quote_path1);
 				    failf(data, "rmdir command failed: %s", sftp_libssh2_strerror(err));
 				    state(conn, SSH_SFTP_CLOSE);
 				    sshc->nextstate = SSH_NO_STATE;
@@ -1612,7 +1612,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    }
 			    if(rc != 0 && !sshc->acceptfail) {
 				    err = sftp_libssh2_last_error(sshc->sftp_session);
-				    Curl_safefree(sshc->quote_path1);
+				    ZFREE(sshc->quote_path1);
 				    failf(data, "rm command failed: %s", sftp_libssh2_strerror(err));
 				    state(conn, SSH_SFTP_CLOSE);
 				    sshc->nextstate = SSH_NO_STATE;
@@ -1635,7 +1635,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    }
 			    if(rc != 0 && !sshc->acceptfail) {
 				    err = sftp_libssh2_last_error(sshc->sftp_session);
-				    Curl_safefree(sshc->quote_path1);
+				    ZFREE(sshc->quote_path1);
 				    failf(data, "statvfs command failed: %s", sftp_libssh2_strerror(err));
 				    state(conn, SSH_SFTP_CLOSE);
 				    sshc->nextstate = SSH_NO_STATE;
@@ -1664,7 +1664,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    }
 
 				    result = Curl_client_write(conn, CLIENTWRITE_HEADER, tmp, strlen(tmp));
-				    free(tmp);
+				    SAlloc::F(tmp);
 				    if(result) {
 					    state(conn, SSH_SFTP_CLOSE);
 					    sshc->nextstate = SSH_NO_STATE;
@@ -1717,7 +1717,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 
 			case SSH_SFTP_UPLOAD_INIT:
 		    {
-			    unsigned long flags;
+			    ulong flags;
 			    /*
 			     * NOTE!!!  libssh2 requires that the destination path is a full path
 			     *          that includes the destination file and name OR ends in a "/"
@@ -1973,15 +1973,15 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    sshc->actualcode = result ? result : CURLE_SSH;
 				    break;
 			    }
-			    sshc->readdir_filename = malloc(PATH_MAX+1);
+			    sshc->readdir_filename = SAlloc::M(PATH_MAX+1);
 			    if(!sshc->readdir_filename) {
 				    state(conn, SSH_SFTP_CLOSE);
 				    sshc->actualcode = CURLE_OUT_OF_MEMORY;
 				    break;
 			    }
-			    sshc->readdir_longentry = malloc(PATH_MAX+1);
+			    sshc->readdir_longentry = SAlloc::M(PATH_MAX+1);
 			    if(!sshc->readdir_longentry) {
-				    Curl_safefree(sshc->readdir_filename);
+				    ZFREE(sshc->readdir_filename);
 				    state(conn, SSH_SFTP_CLOSE);
 				    sshc->actualcode = CURLE_OUT_OF_MEMORY;
 				    break;
@@ -2014,8 +2014,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 					    }
 					    result = Curl_client_write(conn, CLIENTWRITE_BODY,
 					    tmpLine, sshc->readdir_len+1);
-					    free(tmpLine);
-
+					    SAlloc::F(tmpLine);
 					    if(result) {
 						    state(conn, SSH_STOP);
 						    break;
@@ -2023,20 +2022,18 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 					    /* since this counts what we send to the client, we include the
 					       newline in this counter */
 					    data->req.bytecount += sshc->readdir_len+1;
-
 					    /* output debug output if that is requested */
 					    if(data->set.verbose) {
-						    Curl_debug(data, CURLINFO_DATA_OUT, sshc->readdir_filename,
-						    sshc->readdir_len, conn);
+						    Curl_debug(data, CURLINFO_DATA_OUT, sshc->readdir_filename, sshc->readdir_len, conn);
 					    }
 				    }
 				    else {
 					    sshc->readdir_currLen = (int)strlen(sshc->readdir_longentry);
 					    sshc->readdir_totalLen = 80 + sshc->readdir_currLen;
-					    sshc->readdir_line = calloc(sshc->readdir_totalLen, 1);
+					    sshc->readdir_line = SAlloc::C(sshc->readdir_totalLen, 1);
 					    if(!sshc->readdir_line) {
-						    Curl_safefree(sshc->readdir_filename);
-						    Curl_safefree(sshc->readdir_longentry);
+						    ZFREE(sshc->readdir_filename);
+						    ZFREE(sshc->readdir_longentry);
 						    state(conn, SSH_SFTP_CLOSE);
 						    sshc->actualcode = CURLE_OUT_OF_MEMORY;
 						    break;
@@ -2047,10 +2044,10 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 					    if((sshc->readdir_attrs.flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) &&
 					    ((sshc->readdir_attrs.permissions & LIBSSH2_SFTP_S_IFMT) ==
 						    LIBSSH2_SFTP_S_IFLNK)) {
-						    sshc->readdir_linkPath = malloc(PATH_MAX + 1);
+						    sshc->readdir_linkPath = SAlloc::M(PATH_MAX + 1);
 						    if(sshc->readdir_linkPath == NULL) {
-							    Curl_safefree(sshc->readdir_filename);
-							    Curl_safefree(sshc->readdir_longentry);
+							    ZFREE(sshc->readdir_filename);
+							    ZFREE(sshc->readdir_longentry);
 							    state(conn, SSH_SFTP_CLOSE);
 							    sshc->actualcode = CURLE_OUT_OF_MEMORY;
 							    break;
@@ -2066,8 +2063,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    }
 			    }
 			    else if(sshc->readdir_len == 0) {
-				    Curl_safefree(sshc->readdir_filename);
-				    Curl_safefree(sshc->readdir_longentry);
+				    ZFREE(sshc->readdir_filename);
+				    ZFREE(sshc->readdir_longentry);
 				    state(conn, SSH_SFTP_READDIR_DONE);
 				    break;
 			    }
@@ -2078,8 +2075,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    failf(data, "Could not open remote file for reading: %s :: %d",
 				    sftp_libssh2_strerror(err),
 				    libssh2_session_last_errno(sshc->ssh_session));
-				    Curl_safefree(sshc->readdir_filename);
-				    Curl_safefree(sshc->readdir_longentry);
+				    ZFREE(sshc->readdir_filename);
+				    ZFREE(sshc->readdir_longentry);
 				    state(conn, SSH_SFTP_CLOSE);
 				    break;
 			    }
@@ -2096,7 +2093,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    rc = LIBSSH2_ERROR_EAGAIN;
 				    break;
 			    }
-			    Curl_safefree(sshc->readdir_linkPath);
+			    ZFREE(sshc->readdir_linkPath);
 
 			    /* get room for the filename and extra output */
 			    sshc->readdir_totalLen += 4 + sshc->readdir_len;
@@ -2104,8 +2101,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    sshc->readdir_totalLen);
 			    if(!new_readdir_line) {
 				    sshc->readdir_line = NULL;
-				    Curl_safefree(sshc->readdir_filename);
-				    Curl_safefree(sshc->readdir_longentry);
+				    ZFREE(sshc->readdir_filename);
+				    ZFREE(sshc->readdir_longentry);
 				    state(conn, SSH_SFTP_CLOSE);
 				    sshc->actualcode = CURLE_OUT_OF_MEMORY;
 				    break;
@@ -2134,12 +2131,11 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    if(!result) {
 				    /* output debug output if that is requested */
 				    if(data->set.verbose) {
-					    Curl_debug(data, CURLINFO_DATA_OUT, sshc->readdir_line,
-					    sshc->readdir_currLen, conn);
+					    Curl_debug(data, CURLINFO_DATA_OUT, sshc->readdir_line, sshc->readdir_currLen, conn);
 				    }
 				    data->req.bytecount += sshc->readdir_currLen;
 			    }
-			    Curl_safefree(sshc->readdir_line);
+			    ZFREE(sshc->readdir_line);
 			    if(result) {
 				    state(conn, SSH_STOP);
 			    }
@@ -2148,38 +2144,30 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    break;
 
 			case SSH_SFTP_READDIR_DONE:
-			    if(libssh2_sftp_closedir(sshc->sftp_handle) ==
-			    LIBSSH2_ERROR_EAGAIN) {
+			    if(libssh2_sftp_closedir(sshc->sftp_handle) == LIBSSH2_ERROR_EAGAIN) {
 				    rc = LIBSSH2_ERROR_EAGAIN;
 				    break;
 			    }
 			    sshc->sftp_handle = NULL;
-			    Curl_safefree(sshc->readdir_filename);
-			    Curl_safefree(sshc->readdir_longentry);
-
+			    ZFREE(sshc->readdir_filename);
+			    ZFREE(sshc->readdir_longentry);
 			    /* no data to transfer */
 			    Curl_setup_transfer(conn, -1, -1, FALSE, NULL, -1, NULL);
 			    state(conn, SSH_STOP);
 			    break;
-
 			case SSH_SFTP_DOWNLOAD_INIT:
 			    /*
 			     * Work on getting the specified file
 			     */
-			    sshc->sftp_handle =
-			    libssh2_sftp_open_ex(sshc->sftp_session, sftp_scp->path,
-			    curlx_uztoui(strlen(sftp_scp->path)),
-			    LIBSSH2_FXF_READ, data->set.new_file_perms,
-			    LIBSSH2_SFTP_OPENFILE);
+			    sshc->sftp_handle = libssh2_sftp_open_ex(sshc->sftp_session, sftp_scp->path, curlx_uztoui(strlen(sftp_scp->path)),
+					LIBSSH2_FXF_READ, data->set.new_file_perms, LIBSSH2_SFTP_OPENFILE);
 			    if(!sshc->sftp_handle) {
-				    if(libssh2_session_last_errno(sshc->ssh_session) ==
-				    LIBSSH2_ERROR_EAGAIN) {
+				    if(libssh2_session_last_errno(sshc->ssh_session) == LIBSSH2_ERROR_EAGAIN) {
 					    rc = LIBSSH2_ERROR_EAGAIN;
 					    break;
 				    }
 				    err = sftp_libssh2_last_error(sshc->sftp_session);
-				    failf(data, "Could not open remote file for reading: %s",
-				    sftp_libssh2_strerror(err));
+				    failf(data, "Could not open remote file for reading: %s", sftp_libssh2_strerror(err));
 				    state(conn, SSH_SFTP_CLOSE);
 				    result = sftp_libssh2_error_to_CURLE(err);
 				    sshc->actualcode = result ? result : CURLE_SSH;
@@ -2191,16 +2179,11 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			case SSH_SFTP_DOWNLOAD_STAT:
 		    {
 			    LIBSSH2_SFTP_ATTRIBUTES attrs;
-
-			    rc = libssh2_sftp_stat_ex(sshc->sftp_session, sftp_scp->path,
-				    curlx_uztoui(strlen(sftp_scp->path)),
-				    LIBSSH2_SFTP_STAT, &attrs);
+			    rc = libssh2_sftp_stat_ex(sshc->sftp_session, sftp_scp->path, curlx_uztoui(strlen(sftp_scp->path)), LIBSSH2_SFTP_STAT, &attrs);
 			    if(rc == LIBSSH2_ERROR_EAGAIN) {
 				    break;
 			    }
-			    if(rc ||
-				    !(attrs.flags & LIBSSH2_SFTP_ATTR_SIZE) ||
-				    (attrs.filesize == 0)) {
+			    if(rc || !(attrs.flags & LIBSSH2_SFTP_ATTR_SIZE) || (attrs.filesize == 0)) {
 				    /*
 				     * libssh2_sftp_open() didn't return an error, so maybe the server
 				     * just doesn't support stat()
@@ -2213,22 +2196,19 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    }
 			    else {
 				    curl_off_t size = attrs.filesize;
-
 				    if(size < 0) {
 					    failf(data, "Bad file size (%" CURL_FORMAT_CURL_OFF_T ")", size);
 					    return CURLE_BAD_DOWNLOAD_RESUME;
 				    }
 				    if(conn->data->state.use_range) {
-					    curl_off_t from, to;
+					    curl_off_t to;
 					    char * ptr;
 					    char * ptr2;
-
-					    from = curlx_strtoofft(conn->data->state.range, &ptr, 0);
+					    curl_off_t from = curlx_strtoofft(conn->data->state.range, &ptr, 0);
 					    while(*ptr && (ISSPACE(*ptr) || (*ptr=='-')))
 						    ptr++;
 					    to = curlx_strtoofft(ptr, &ptr2, 0);
-					    if((ptr == ptr2) /* no "to" value given */
-						    || (to >= size)) {
+					    if((ptr == ptr2) /* no "to" value given */ || (to >= size)) {
 						    to = size - 1;
 					    }
 					    if(from < 0) {
@@ -2236,9 +2216,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 						    from += size;
 					    }
 					    if(from > size) {
-						    failf(data, "Offset (%"
-							    CURL_FORMAT_CURL_OFF_T ") was beyond file size (%"
-							    CURL_FORMAT_CURL_OFF_T ")", from, attrs.filesize);
+						    failf(data, "Offset (%" CURL_FORMAT_CURL_OFF_T ") was beyond file size (%" CURL_FORMAT_CURL_OFF_T ")", from, attrs.filesize);
 						    return CURLE_BAD_DOWNLOAD_RESUME;
 					    }
 					    if(from > to) {
@@ -2248,23 +2226,18 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 					    else {
 						    size = to - from + 1;
 					    }
-
 					    SFTP_SEEK(conn->proto.sshc.sftp_handle, from);
 				    }
 				    data->req.size = size;
 				    data->req.maxdownload = size;
 				    Curl_pgrsSetDownloadSize(data, size);
 			    }
-
 			    /* We can resume if we can seek to the resume position */
 			    if(data->state.resume_from) {
 				    if(data->state.resume_from < 0) {
 					    /* We're supposed to download the last abs(from) bytes */
 					    if((curl_off_t)attrs.filesize < -data->state.resume_from) {
-						    failf(data, "Offset (%"
-							    CURL_FORMAT_CURL_OFF_T ") was beyond file size (%"
-							    CURL_FORMAT_CURL_OFF_T ")",
-							    data->state.resume_from, attrs.filesize);
+						    failf(data, "Offset (%" CURL_FORMAT_CURL_OFF_T ") was beyond file size (%" CURL_FORMAT_CURL_OFF_T ")", data->state.resume_from, attrs.filesize);
 						    return CURLE_BAD_DOWNLOAD_RESUME;
 					    }
 					    /* download from where? */
@@ -2272,9 +2245,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    }
 				    else {
 					    if((curl_off_t)attrs.filesize < data->state.resume_from) {
-						    failf(data, "Offset (%" CURL_FORMAT_CURL_OFF_T
-							    ") was beyond file size (%" CURL_FORMAT_CURL_OFF_T ")",
-							    data->state.resume_from, attrs.filesize);
+						    failf(data, "Offset (%" CURL_FORMAT_CURL_OFF_T ") was beyond file size (%" CURL_FORMAT_CURL_OFF_T ")", data->state.resume_from, attrs.filesize);
 						    return CURLE_BAD_DOWNLOAD_RESUME;
 					    }
 				    }
@@ -2282,8 +2253,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    /* Now store the number of bytes we are expected to download */
 				    data->req.size = attrs.filesize - data->state.resume_from;
 				    data->req.maxdownload = attrs.filesize - data->state.resume_from;
-				    Curl_pgrsSetDownloadSize(data,
-					    attrs.filesize - data->state.resume_from);
+				    Curl_pgrsSetDownloadSize(data, attrs.filesize - data->state.resume_from);
 				    SFTP_SEEK(sshc->sftp_handle, data->state.resume_from);
 			    }
 		    }
@@ -2296,20 +2266,15 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    state(conn, SSH_STOP);
 				    break;
 			    }
-			    Curl_setup_transfer(conn, FIRSTSOCKET, data->req.size,
-			    FALSE, NULL, -1, NULL);
-
+			    Curl_setup_transfer(conn, FIRSTSOCKET, data->req.size, FALSE, NULL, -1, NULL);
 			    /* not set by Curl_setup_transfer to preserve keepon bits */
 			    conn->writesockfd = conn->sockfd;
-
 			    /* we want to use the _receiving_ function even when the socket turns
 			       out writableable as the underlying libssh2 recv function will deal
 			       with both accordingly */
 			    conn->cselect_bits = CURL_CSELECT_IN;
-
 			    if(result) {
-				    /* this should never occur; the close state should be entered
-				       at the time the error occurs */
+				    /* this should never occur; the close state should be entered at the time the error occurs */
 				    state(conn, SSH_SFTP_CLOSE);
 				    sshc->actualcode = result;
 			    }
@@ -2330,7 +2295,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    sshc->sftp_handle = NULL;
 			    }
 			    if(sftp_scp)
-				    Curl_safefree(sftp_scp->path);
+				    ZFREE(sftp_scp->path);
 
 			    DEBUGF(infof(data, "SFTP DONE done\n"));
 
@@ -2374,7 +2339,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    sshc->sftp_session = NULL;
 			    }
 
-			    Curl_safefree(sshc->homedir);
+			    ZFREE(sshc->homedir);
 			    conn->data->state.most_recent_ftp_entrypath = NULL;
 
 			    state(conn, SSH_SESSION_DISCONNECT);
@@ -2415,15 +2380,11 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    if(!sshc->ssh_channel) {
 				    int ssh_err;
 				    char * err_msg;
-
-				    if(libssh2_session_last_errno(sshc->ssh_session) ==
-				    LIBSSH2_ERROR_EAGAIN) {
+				    if(libssh2_session_last_errno(sshc->ssh_session) == LIBSSH2_ERROR_EAGAIN) {
 					    rc = LIBSSH2_ERROR_EAGAIN;
 					    break;
 				    }
-
-				    ssh_err = (int)(libssh2_session_last_error(sshc->ssh_session,
-					    &err_msg, NULL, 0));
+				    ssh_err = (int)(libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0));
 				    failf(conn->data, "%s", err_msg);
 				    state(conn, SSH_SCP_CHANNEL_FREE);
 				    sshc->actualcode = libssh2_session_error_to_CURLE(ssh_err);
@@ -2433,10 +2394,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    /* upload data */
 			    Curl_setup_transfer(conn, -1, data->req.size, FALSE, NULL,
 			    FIRSTSOCKET, NULL);
-
 			    /* not set by Curl_setup_transfer to preserve keepon bits */
 			    conn->sockfd = conn->writesockfd;
-
 			    if(result) {
 				    state(conn, SSH_SCP_CHANNEL_FREE);
 				    sshc->actualcode = result;
@@ -2445,12 +2404,10 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    /* store this original bitmask setup to use later on if we can't
 				       figure out a "real" bitmask */
 				    sshc->orig_waitfor = data->req.keepon;
-
 				    /* we want to use the _sending_ function even when the socket turns
 				       out readable as the underlying libssh2 scp send function will deal
 				       with both accordingly */
 				    conn->cselect_bits = CURL_CSELECT_OUT;
-
 				    state(conn, SSH_STOP);
 			    }
 			    break;
@@ -2607,7 +2564,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    }
 			    }
 
-			    Curl_safefree(sshc->homedir);
+			    ZFREE(sshc->homedir);
 			    conn->data->state.most_recent_ftp_entrypath = NULL;
 
 			    state(conn, SSH_SESSION_FREE);
@@ -2664,18 +2621,18 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    DEBUGASSERT(sshc->ssh_agent == NULL);
 #endif
 
-			    Curl_safefree(sshc->rsa_pub);
-			    Curl_safefree(sshc->rsa);
+			    ZFREE(sshc->rsa_pub);
+			    ZFREE(sshc->rsa);
 
-			    Curl_safefree(sshc->quote_path1);
-			    Curl_safefree(sshc->quote_path2);
+			    ZFREE(sshc->quote_path1);
+			    ZFREE(sshc->quote_path2);
 
-			    Curl_safefree(sshc->homedir);
+			    ZFREE(sshc->homedir);
 
-			    Curl_safefree(sshc->readdir_filename);
-			    Curl_safefree(sshc->readdir_longentry);
-			    Curl_safefree(sshc->readdir_line);
-			    Curl_safefree(sshc->readdir_linkPath);
+			    ZFREE(sshc->readdir_filename);
+			    ZFREE(sshc->readdir_longentry);
+			    ZFREE(sshc->readdir_line);
+			    ZFREE(sshc->readdir_linkPath);
 
 			    /* the code we are about to return */
 			    result = sshc->actualcode;
@@ -2855,7 +2812,7 @@ static CURLcode ssh_setup_connection(struct connectdata * conn)
 {
 	struct SSHPROTO * ssh;
 
-	conn->data->req.protop = ssh = calloc(1, sizeof(struct SSHPROTO));
+	conn->data->req.protop = ssh = SAlloc::C(1, sizeof(struct SSHPROTO));
 	if(!ssh)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -3067,7 +3024,7 @@ static CURLcode ssh_done(struct connectdata * conn, CURLcode status)
 		result = status;
 
 	if(sftp_scp)
-		Curl_safefree(sftp_scp->path);
+		ZFREE(sftp_scp->path);
 	if(Curl_pgrsDone(conn))
 		return CURLE_ABORTED_BY_CALLBACK;
 
@@ -3290,7 +3247,7 @@ static CURLcode get_pathname(const char ** cpp, char ** path)
 {
 	const char * cp = *cpp, * end;
 	char quot;
-	unsigned int i, j;
+	uint i, j;
 	static const char WHITESPACE[] = " \t\r\n";
 
 	cp += strspn(cp, WHITESPACE);
@@ -3300,7 +3257,7 @@ static CURLcode get_pathname(const char ** cpp, char ** path)
 		return CURLE_QUOTE_ERROR;
 	}
 
-	*path = malloc(strlen(cp) + 1);
+	*path = SAlloc::M(strlen(cp) + 1);
 	if(*path == NULL)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -3350,7 +3307,7 @@ static CURLcode get_pathname(const char ** cpp, char ** path)
 	return CURLE_OK;
 
 fail:
-	Curl_safefree(*path);
+	ZFREE(*path);
 	return CURLE_QUOTE_ERROR;
 }
 

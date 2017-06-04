@@ -137,7 +137,7 @@ METHODDEF(void) process_data_context_main JPP((j_decompress_ptr cinfo, JSAMPARRA
 METHODDEF(void) process_data_crank_post JPP((j_decompress_ptr cinfo, JSAMPARRAY output_buf, JDIMENSION *out_row_ctr, JDIMENSION out_rows_avail));
 #endif
 
-LOCAL(void) alloc_funny_pointers(j_decompress_ptr cinfo)
+static void alloc_funny_pointers(j_decompress_ptr cinfo)
 /* Allocate space for the funny pointer lists.
  * This is done only once, not once per pass.
  */
@@ -165,7 +165,7 @@ LOCAL(void) alloc_funny_pointers(j_decompress_ptr cinfo)
 	}
 }
 
-LOCAL(void) make_funny_pointers(j_decompress_ptr cinfo)
+static void make_funny_pointers(j_decompress_ptr cinfo)
 /* Create the funny pointer lists discussed in the comments above.
  * The actual workspace is already allocated (in main->buffer),
  * and the space for the pointer lists is allocated too.
@@ -203,7 +203,7 @@ LOCAL(void) make_funny_pointers(j_decompress_ptr cinfo)
 	}
 }
 
-LOCAL(void) set_wraparound_pointers(j_decompress_ptr cinfo)
+static void set_wraparound_pointers(j_decompress_ptr cinfo)
 /* Set up the "wraparound" pointers at top and bottom of the pointer lists.
  * This changes the pointer list state from top-of-image to the normal state.
  */
@@ -227,7 +227,7 @@ LOCAL(void) set_wraparound_pointers(j_decompress_ptr cinfo)
 	}
 }
 
-LOCAL(void) set_bottom_pointers(j_decompress_ptr cinfo)
+static void set_bottom_pointers(j_decompress_ptr cinfo)
 /* Change the pointer lists to duplicate the last sample row at the bottom
  * of the image.  whichptr indicates which xbuffer holds the final iMCU row.
  * Also sets rowgroups_avail to indicate number of nondummy row groups in row.

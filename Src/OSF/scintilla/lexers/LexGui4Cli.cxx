@@ -20,11 +20,9 @@ val SCE_GC_COMMAND=7
 val SCE_GC_STRING=8
 val SCE_GC_OPERATOR=9
 */
-
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "WordList.h"

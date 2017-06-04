@@ -248,12 +248,12 @@ done:
 
 zbar_processor_t * zbar_processor_create(int threaded)
 {
-	zbar_processor_t * proc = (zbar_processor_t *)calloc(1, sizeof(zbar_processor_t));
+	zbar_processor_t * proc = (zbar_processor_t *)SAlloc::C(1, sizeof(zbar_processor_t));
 	if(proc) {
 		err_init(&proc->err, ZBAR_MOD_PROCESSOR);
 		proc->scanner = zbar_image_scanner_create();
 		if(!proc->scanner) {
-			free(proc);
+			SAlloc::F(proc);
 			return(NULL);
 		}
 		proc->threaded = !_zbar_mutex_init(&proc->mutex) && threaded;
@@ -283,10 +283,10 @@ void zbar_processor_destroy(zbar_processor_t * proc)
 	for(w = proc->free_waiter; w; w = next) {
 		next = w->next;
 		_zbar_event_destroy(&w->notify);
-		free(w);
+		SAlloc::F(w);
 	}
 	err_cleanup(&proc->err);
-	free(proc);
+	SAlloc::F(proc);
 }
 
 int zbar_processor_init(zbar_processor_t * proc, const char * dev, int enable_display)

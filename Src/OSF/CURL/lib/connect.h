@@ -87,7 +87,7 @@ struct Curl_sockaddr_ex {
   int family;
   int socktype;
   int protocol;
-  unsigned int addrlen;
+  uint addrlen;
   union {
     struct sockaddr addr;
     struct Curl_sockaddr_storage buff;

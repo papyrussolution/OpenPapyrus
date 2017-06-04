@@ -13,7 +13,7 @@
 //#include "internal/bio.h"
 #include "comp_lcl.h"
 
-COMP_METHOD *COMP_zlib(void);
+COMP_METHOD * COMP_zlib(void);
 
 static COMP_METHOD zlib_method_nozlib = {
     NID_undef,
@@ -32,19 +32,13 @@ static COMP_METHOD zlib_method_nozlib = {
 
 static int zlib_stateful_init(COMP_CTX *ctx);
 static void zlib_stateful_finish(COMP_CTX *ctx);
-static int zlib_stateful_compress_block(COMP_CTX *ctx, uchar *out,
-                                        uint olen, uchar *in,
-                                        uint ilen);
-static int zlib_stateful_expand_block(COMP_CTX *ctx, uchar *out,
-                                      uint olen, uchar *in,
-                                      uint ilen);
+static int zlib_stateful_compress_block(COMP_CTX *ctx, uchar *out, uint olen, uchar *in, uint ilen);
+static int zlib_stateful_expand_block(COMP_CTX *ctx, uchar *out, uint olen, uchar *in, uint ilen);
 
 /* memory allocations functions for zlib initialisation */
 static void *zlib_zalloc(void *opaque, uint no, uint size)
 {
-    void *p;
-
-    p = OPENSSL_zalloc(no * size);
+    void * p = OPENSSL_zalloc(no * size);
     return p;
 }
 
@@ -52,7 +46,6 @@ static void zlib_zfree(void *opaque, void *address)
 {
     OPENSSL_free(address);
 }
-
 
 static COMP_METHOD zlib_stateful_method = {
     NID_zlib_compression,
@@ -78,16 +71,13 @@ static COMP_METHOD zlib_stateful_method = {
 #  include "internal/dso.h"
 
 /* Function pointers */
-typedef int (*compress_ft) (Bytef *dest, uLongf * destLen,
-                            const Bytef *source, uLong sourceLen);
+typedef int (*compress_ft) (Bytef *dest, uLongf * destLen, const Bytef *source, uLong sourceLen);
 typedef int (*inflateEnd_ft) (z_streamp strm);
 typedef int (*inflate_ft) (z_streamp strm, int flush);
-typedef int (*inflateInit__ft) (z_streamp strm,
-                                const char *version, int stream_size);
+typedef int (*inflateInit__ft) (z_streamp strm, const char *version, int stream_size);
 typedef int (*deflateEnd_ft) (z_streamp strm);
 typedef int (*deflate_ft) (z_streamp strm, int flush);
-typedef int (*deflateInit__ft) (z_streamp strm, int level,
-                                const char *version, int stream_size);
+typedef int (*deflateInit__ft) (z_streamp strm, int level, const char *version, int stream_size);
 typedef const char *(*zError__ft) (int err);
 static compress_ft p_compress = NULL;
 static inflateEnd_ft p_inflateEnd = NULL;

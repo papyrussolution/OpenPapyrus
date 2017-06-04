@@ -55,30 +55,30 @@
 struct png_info_def
 {
    /* The following are necessary for every PNG file */
-   png_uint_32 width;  /* width of image in pixels (from IHDR) */
-   png_uint_32 height; /* height of image in pixels (from IHDR) */
-   png_uint_32 valid;  /* valid chunk data (see PNG_INFO_ below) */
-   png_size_t rowbytes; /* bytes needed to hold an untransformed row */
+   uint32 width;  /* width of image in pixels (from IHDR) */
+   uint32 height; /* height of image in pixels (from IHDR) */
+   uint32 valid;  /* valid chunk data (see PNG_INFO_ below) */
+   size_t rowbytes; /* bytes needed to hold an untransformed row */
    png_colorp palette;      /* array of color values (valid & PNG_INFO_PLTE) */
    png_uint_16 num_palette; /* number of color entries in "palette" (PLTE) */
    png_uint_16 num_trans;   /* number of transparent palette color (tRNS) */
-   png_byte bit_depth;      /* 1, 2, 4, 8, or 16 bits/channel (from IHDR) */
-   png_byte color_type;     /* see PNG_COLOR_TYPE_ below (from IHDR) */
+   uint8 bit_depth;      /* 1, 2, 4, 8, or 16 bits/channel (from IHDR) */
+   uint8 color_type;     /* see PNG_COLOR_TYPE_ below (from IHDR) */
    /* The following three should have been named *_method not *_type */
-   png_byte compression_type; /* must be PNG_COMPRESSION_TYPE_BASE (IHDR) */
-   png_byte filter_type;    /* must be PNG_FILTER_TYPE_BASE (from IHDR) */
-   png_byte interlace_type; /* One of PNG_INTERLACE_NONE, PNG_INTERLACE_ADAM7 */
+   uint8 compression_type; /* must be PNG_COMPRESSION_TYPE_BASE (IHDR) */
+   uint8 filter_type;    /* must be PNG_FILTER_TYPE_BASE (from IHDR) */
+   uint8 interlace_type; /* One of PNG_INTERLACE_NONE, PNG_INTERLACE_ADAM7 */
 
    /* The following are set by png_set_IHDR, called from the application on
     * write, but the are never actually used by the write code.
     */
-   png_byte channels;       /* number of data channels per pixel (1, 2, 3, 4) */
-   png_byte pixel_depth;    /* number of bits per pixel */
-   png_byte spare_byte;     /* to align the data, and for future use */
+   uint8 channels;       /* number of data channels per pixel (1, 2, 3, 4) */
+   uint8 pixel_depth;    /* number of bits per pixel */
+   uint8 spare_byte;     /* to align the data, and for future use */
 
 #ifdef PNG_READ_SUPPORTED
    /* This is never set during write */
-   png_byte signature[8];   /* magic bytes read by libpng from start of file */
+   uint8 signature[8];   /* magic bytes read by libpng from start of file */
 #endif
 
    /* The rest of the data is optional.  If you are reading, check the
@@ -103,9 +103,9 @@ struct png_info_def
 
 #ifdef PNG_iCCP_SUPPORTED
    /* iCCP chunk data. */
-   png_charp iccp_name;     /* profile name */
+   char * iccp_name;     /* profile name */
    png_bytep iccp_profile;  /* International Color Consortium profile data */
-   png_uint_32 iccp_proflen;  /* ICC profile data length */
+   uint32 iccp_proflen;  /* ICC profile data length */
 #endif
 
 #ifdef PNG_TEXT_SUPPORTED
@@ -172,7 +172,7 @@ defined(PNG_READ_BACKGROUND_SUPPORTED)
     */
    png_int_32 x_offset; /* x offset on page */
    png_int_32 y_offset; /* y offset on page */
-   png_byte offset_unit_type; /* offset units type */
+   uint8 offset_unit_type; /* offset units type */
 #endif
 
 #ifdef PNG_pHYs_SUPPORTED
@@ -180,9 +180,9 @@ defined(PNG_READ_BACKGROUND_SUPPORTED)
     * display or printing in "phys_unit_type" units (see PNG_RESOLUTION_
     * defines below).  Data is valid if (valid & PNG_INFO_pHYs) is non-zero.
     */
-   png_uint_32 x_pixels_per_unit; /* horizontal pixel density */
-   png_uint_32 y_pixels_per_unit; /* vertical pixel density */
-   png_byte phys_unit_type; /* resolution type (see PNG_RESOLUTION_ below) */
+   uint32 x_pixels_per_unit; /* horizontal pixel density */
+   uint32 y_pixels_per_unit; /* vertical pixel density */
+   uint8 phys_unit_type; /* resolution type (see PNG_RESOLUTION_ below) */
 #endif
 
 #ifdef PNG_hIST_SUPPORTED
@@ -207,17 +207,17 @@ defined(PNG_READ_BACKGROUND_SUPPORTED)
     * implemented, and for a description of the ASCII parameter strings.
     * Data values are valid if (valid & PNG_INFO_pCAL) non-zero.
     */
-   png_charp pcal_purpose;  /* pCAL chunk description string */
+   char * pcal_purpose;  /* pCAL chunk description string */
    png_int_32 pcal_X0;      /* minimum value */
    png_int_32 pcal_X1;      /* maximum value */
-   png_charp pcal_units;    /* Latin-1 string giving physical units */
+   char * pcal_units;    /* Latin-1 string giving physical units */
    png_charpp pcal_params;  /* ASCII strings containing parameter values */
-   png_byte pcal_type;      /* equation type (see PNG_EQUATION_ below) */
-   png_byte pcal_nparams;   /* number of parameters given in pcal_params */
+   uint8 pcal_type;      /* equation type (see PNG_EQUATION_ below) */
+   uint8 pcal_nparams;   /* number of parameters given in pcal_params */
 #endif
 
 /* New members added in libpng-1.0.6 */
-   png_uint_32 free_me;     /* flags items libpng is responsible for freeing */
+   uint32 free_me;     /* flags items libpng is responsible for freeing */
 
 #ifdef PNG_STORE_UNKNOWN_CHUNKS_SUPPORTED
    /* Storage for unknown chunks that the library doesn't recognize. */
@@ -243,9 +243,9 @@ defined(PNG_READ_BACKGROUND_SUPPORTED)
     * in the image.  Data values are valid if (valid & PNG_INFO_sCAL) is
     * non-zero.
     */
-   png_byte scal_unit;         /* unit of physical scale */
-   png_charp scal_s_width;     /* string containing height */
-   png_charp scal_s_height;    /* string containing width */
+   uint8 scal_unit;         /* unit of physical scale */
+   char * scal_s_width;     /* string containing height */
+   char * scal_s_height;    /* string containing width */
 #endif
 
 #ifdef PNG_INFO_IMAGE_SUPPORTED

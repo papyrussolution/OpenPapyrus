@@ -10,10 +10,8 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
-
 #include "WordList.h"
 #include "LexAccessor.h"
 #include "Accessor.h"
@@ -173,7 +171,7 @@ static void FoldAveDoc(Sci_PositionU startPos, Sci_Position length, int /* initS
 		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
 		if (style == SCE_AVE_WORD) {
 			if (ch == 't' || ch == 'f' || ch == 'w' || ch == 'e') {
-				for (unsigned int j = 0; j < 6; j++) {
+				for (uint j = 0; j < 6; j++) {
 					if (!iswordchar(styler[i + j])) {
 						break;
 					}

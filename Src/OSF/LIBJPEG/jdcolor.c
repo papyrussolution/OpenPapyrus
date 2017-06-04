@@ -104,38 +104,24 @@ typedef my_color_deconverter * my_cconvert_ptr;
 /*
  * Initialize tables for YCbCr->RGB and BG_YCC->RGB colorspace conversion.
  */
-
-LOCAL(void)
-build_ycc_rgb_table(j_decompress_ptr cinfo)
+static void build_ycc_rgb_table(j_decompress_ptr cinfo)
 /* Normal case, sYCC */
 {
 	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
 	int i;
 	INT32 x;
 	SHIFT_TEMPS
-
-	cconvert->Cr_r_tab = (int*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (MAXJSAMPLE+1) * SIZEOF(int));
-	cconvert->Cb_b_tab = (int*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (MAXJSAMPLE+1) * SIZEOF(int));
-	cconvert->Cr_g_tab = (INT32*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (MAXJSAMPLE+1) * SIZEOF(INT32));
-	cconvert->Cb_g_tab = (INT32*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (MAXJSAMPLE+1) * SIZEOF(INT32));
-
+	cconvert->Cr_r_tab = (int*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
+	cconvert->Cb_b_tab = (int*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
+	cconvert->Cr_g_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
+	cconvert->Cb_g_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
 	for(i = 0, x = -CENTERJSAMPLE; i <= MAXJSAMPLE; i++, x++) {
 		/* i is the actual input pixel value, in the range 0..MAXJSAMPLE */
 		/* The Cb or Cr value we are thinking of is x = i - CENTERJSAMPLE */
 		/* Cr=>R value is nearest int to 1.402 * x */
-		cconvert->Cr_r_tab[i] = (int)
-		    RIGHT_SHIFT(FIX(1.402) * x + ONE_HALF, SCALEBITS);
+		cconvert->Cr_r_tab[i] = (int)RIGHT_SHIFT(FIX(1.402) * x + ONE_HALF, SCALEBITS);
 		/* Cb=>B value is nearest int to 1.772 * x */
-		cconvert->Cb_b_tab[i] = (int)
-		    RIGHT_SHIFT(FIX(1.772) * x + ONE_HALF, SCALEBITS);
+		cconvert->Cb_b_tab[i] = (int)RIGHT_SHIFT(FIX(1.772) * x + ONE_HALF, SCALEBITS);
 		/* Cr=>G value is scaled-up -0.714136286 * x */
 		cconvert->Cr_g_tab[i] = (-FIX(0.714136286)) * x;
 		/* Cb=>G value is scaled-up -0.344136286 * x */
@@ -144,37 +130,24 @@ build_ycc_rgb_table(j_decompress_ptr cinfo)
 	}
 }
 
-LOCAL(void)
-build_bg_ycc_rgb_table(j_decompress_ptr cinfo)
+static void build_bg_ycc_rgb_table(j_decompress_ptr cinfo)
 /* Wide gamut case, bg-sYCC */
 {
 	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
 	int i;
 	INT32 x;
 	SHIFT_TEMPS
-
-	cconvert->Cr_r_tab = (int*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (MAXJSAMPLE+1) * SIZEOF(int));
-	cconvert->Cb_b_tab = (int*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (MAXJSAMPLE+1) * SIZEOF(int));
-	cconvert->Cr_g_tab = (INT32*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (MAXJSAMPLE+1) * SIZEOF(INT32));
-	cconvert->Cb_g_tab = (INT32*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (MAXJSAMPLE+1) * SIZEOF(INT32));
-
+	cconvert->Cr_r_tab = (int*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
+	cconvert->Cb_b_tab = (int*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(int));
+	cconvert->Cr_g_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
+	cconvert->Cb_g_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (MAXJSAMPLE+1) * SIZEOF(INT32));
 	for(i = 0, x = -CENTERJSAMPLE; i <= MAXJSAMPLE; i++, x++) {
 		/* i is the actual input pixel value, in the range 0..MAXJSAMPLE */
 		/* The Cb or Cr value we are thinking of is x = i - CENTERJSAMPLE */
 		/* Cr=>R value is nearest int to 2.804 * x */
-		cconvert->Cr_r_tab[i] = (int)
-		    RIGHT_SHIFT(FIX(2.804) * x + ONE_HALF, SCALEBITS);
+		cconvert->Cr_r_tab[i] = (int)RIGHT_SHIFT(FIX(2.804) * x + ONE_HALF, SCALEBITS);
 		/* Cb=>B value is nearest int to 3.544 * x */
-		cconvert->Cb_b_tab[i] = (int)
-		    RIGHT_SHIFT(FIX(3.544) * x + ONE_HALF, SCALEBITS);
+		cconvert->Cb_b_tab[i] = (int)RIGHT_SHIFT(FIX(3.544) * x + ONE_HALF, SCALEBITS);
 		/* Cr=>G value is scaled-up -1.428272572 * x */
 		cconvert->Cr_g_tab[i] = (-FIX(1.428272572)) * x;
 		/* Cb=>G value is scaled-up -0.688272572 * x */
@@ -182,7 +155,6 @@ build_bg_ycc_rgb_table(j_decompress_ptr cinfo)
 		cconvert->Cb_g_tab[i] = (-FIX(0.688272572)) * x + ONE_HALF;
 	}
 }
-
 /*
  * Convert some rows of samples to the output colorspace.
  *
@@ -193,10 +165,7 @@ build_bg_ycc_rgb_table(j_decompress_ptr cinfo)
  * can easily adjust the passed output_buf value to accommodate any row
  * offset required on that side.
  */
-
-METHODDEF(void) ycc_rgb_convert(j_decompress_ptr cinfo,
-    JSAMPIMAGE input_buf, JDIMENSION input_row,
-    JSAMPARRAY output_buf, int num_rows)
+METHODDEF(void) ycc_rgb_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows)
 {
 	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
 	register int y, cb, cr;
@@ -240,19 +209,14 @@ METHODDEF(void) ycc_rgb_convert(j_decompress_ptr cinfo,
 /*
  * Initialize for RGB->grayscale colorspace conversion.
  */
-
-LOCAL(void)
-build_rgb_y_table(j_decompress_ptr cinfo)
+static void build_rgb_y_table(j_decompress_ptr cinfo)
 {
 	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
 	INT32 * rgb_y_tab;
 	INT32 i;
 
 	/* Allocate and fill in the conversion tables. */
-	cconvert->rgb_y_tab = rgb_y_tab = (INT32*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (TABLE_SIZE * SIZEOF(INT32)));
-
+	cconvert->rgb_y_tab = rgb_y_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (TABLE_SIZE * SIZEOF(INT32)));
 	for(i = 0; i <= MAXJSAMPLE; i++) {
 		rgb_y_tab[i+R_Y_OFF] = FIX(0.299) * i;
 		rgb_y_tab[i+G_Y_OFF] = FIX(0.587) * i;

@@ -119,7 +119,7 @@ const char * _zbar_error_string(const void * container,
 	else
 		type = err_str[ZBAR_ERR_NUM];
 	len = SEV_MAX + MOD_MAX + ERR_MAX + strlen(func) + sizeof(basefmt);
-	err->buf = (char *)realloc(err->buf, len);
+	err->buf = (char *)SAlloc::R(err->buf, len);
 	len = sprintf(err->buf, basefmt, sev, mod, func, type);
 	if(len <= 0)
 		return("<unknown>");
@@ -129,15 +129,15 @@ const char * _zbar_error_string(const void * container,
 		if(strstr(err->detail, "%s")) {
 			if(!err->arg_str)
 				err->arg_str = _strdup("<?>");
-			err->buf = (char *)realloc(err->buf, newlen + strlen(err->arg_str));
+			err->buf = (char *)SAlloc::R(err->buf, newlen + strlen(err->arg_str));
 			len += sprintf(err->buf + len, err->detail, err->arg_str);
 		}
 		else if(strstr(err->detail, "%d") || strstr(err->detail, "%x")) {
-			err->buf = (char *)realloc(err->buf, newlen + 32);
+			err->buf = (char *)SAlloc::R(err->buf, newlen + 32);
 			len += sprintf(err->buf + len, err->detail, err->arg_int);
 		}
 		else {
-			err->buf = (char *)realloc(err->buf, newlen);
+			err->buf = (char *)SAlloc::R(err->buf, newlen);
 			len += sprintf(err->buf + len, "%s", err->detail);
 		}
 		if(len <= 0)
@@ -148,7 +148,7 @@ const char * _zbar_error_string(const void * container,
 	if(err->type == ZBAR_ERR_SYSTEM) {
 		static const char sysfmt[] = ": %s (%d)\n";
 		const char * syserr = strerror(err->errnum);
-		err->buf = realloc(err->buf, len + strlen(sysfmt) + strlen(syserr));
+		err->buf = SAlloc::R(err->buf, len + strlen(sysfmt) + strlen(syserr));
 		len += sprintf(err->buf + len, sysfmt, syserr, err->errnum);
 	}
 #endif
@@ -158,14 +158,14 @@ const char * _zbar_error_string(const void * container,
 		if(FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, 
 			NULL, err->errnum, 0, (LPTSTR)&syserr, 1, NULL) && syserr) {
 			char sysfmt[] = ": %s (%d)\n";
-			err->buf = (char *)realloc(err->buf, len + strlen(sysfmt) + strlen(syserr));
+			err->buf = (char *)SAlloc::R(err->buf, len + strlen(sysfmt) + strlen(syserr));
 			len += sprintf(err->buf + len, sysfmt, syserr, err->errnum);
 			LocalFree(syserr);
 		}
 	}
 #endif
 	else {
-		err->buf = (char *)realloc(err->buf, len + 2);
+		err->buf = (char *)SAlloc::R(err->buf, len + 2);
 		len += sprintf(err->buf + len, "\n");
 	}
 	return(err->buf);
@@ -225,7 +225,7 @@ int err_capture_str(const void * container, errsev_t sev, zbar_error_t type, con
 {
 	errinfo_t * err = (errinfo_t*)container;
 	assert(err->magic == ERRINFO_MAGIC);
-	free(err->arg_str);
+	SAlloc::F(err->arg_str);
 	err->arg_str = _strdup(arg);
 	return err_capture(container, sev, type, func, detail);
 }

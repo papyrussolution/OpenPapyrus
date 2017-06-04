@@ -90,20 +90,15 @@ typedef struct z_stream_s {
 	z_const Bytef * next_in; /* next input byte */
 	uInt avail_in;  /* number of bytes available at next_in */
 	uLong total_in; /* total number of input bytes read so far */
-
 	Bytef    * next_out; /* next output byte will go here */
 	uInt avail_out; /* remaining free space at next_out */
 	uLong total_out; /* total number of bytes output so far */
-
 	z_const char * msg; /* last error message, NULL if no error */
 	struct internal_state  * state; /* not visible by applications */
-
 	alloc_func zalloc; /* used to allocate the internal state */
 	free_func zfree; /* used to free the internal state */
 	voidpf opaque;  /* private data object passed to zalloc and zfree */
-
-	int data_type;  /* best guess about the data type: binary or text
-	                   for deflate, or the decoding state for inflate */
+	int data_type;  /* best guess about the data type: binary or text for deflate, or the decoding state for inflate */
 	uLong adler;    /* Adler-32 or CRC-32 value of the uncompressed data */
 	uLong reserved; /* reserved for future use */
 } z_stream;
@@ -728,11 +723,7 @@ ZEXTERN int ZEXPORT deflateParams OF((z_streamp strm,
    retried with more output space.
  */
 
-ZEXTERN int ZEXPORT deflateTune OF((z_streamp strm,
-	    int good_length,
-	    int max_lazy,
-	    int nice_length,
-	    int max_chain));
+ZEXTERN int ZEXPORT deflateTune OF((z_streamp strm, int good_length, int max_lazy, int nice_length, int max_chain));
 /*
      Fine tune deflate's internal compression parameters.  This should only be
    used by someone who understands the algorithm used by zlib's deflate for
@@ -744,9 +735,7 @@ ZEXTERN int ZEXPORT deflateTune OF((z_streamp strm,
      deflateTune() can be called after deflateInit() or deflateInit2(), and
    returns Z_OK on success, or Z_STREAM_ERROR for an invalid deflate stream.
  */
-
-ZEXTERN uLong ZEXPORT deflateBound OF((z_streamp strm,
-	    uLong sourceLen));
+ZEXTERN uLong ZEXPORT deflateBound OF((z_streamp strm, uLong sourceLen));
 /*
      deflateBound() returns an upper bound on the compressed size after
    deflation of sourceLen bytes.  It must be called after deflateInit() or
@@ -893,7 +882,6 @@ ZEXTERN int ZEXPORT inflateGetDictionary OF((z_streamp strm, Bytef *dictionary, 
      inflateGetDictionary returns Z_OK on success, or Z_STREAM_ERROR if the
    stream state is inconsistent.
  */
-
 ZEXTERN int ZEXPORT inflateSync OF((z_streamp strm));
 /*
      Skips invalid compressed data until a possible full flush point (see above
@@ -926,7 +914,6 @@ ZEXTERN int ZEXPORT inflateCopy OF((z_streamp dest, z_streamp source));
    (such as zalloc being Z_NULL).  msg is left unchanged in both source and
    destination.
  */
-
 ZEXTERN int ZEXPORT inflateReset OF((z_streamp strm));
 /*
      This function is equivalent to inflateEnd followed by inflateInit,
@@ -1375,19 +1362,19 @@ ZEXTERN int ZEXPORT gzread(gzFile file, voidp buf, unsigned len);
    then nothing is read, -1 is returned, and the error state is set to
    Z_STREAM_ERROR.
  */
-ZEXTERN z_size_t ZEXPORT gzfread(voidp buf, z_size_t size, z_size_t nitems, gzFile file);
+ZEXTERN size_t ZEXPORT gzfread(voidp buf, size_t size, size_t nitems, gzFile file);
 /*
      Read up to nitems items of size size from file to buf, otherwise operating
    as gzread() does.  This duplicates the interface of stdio's fread(), with
    size_t request and return types.  If the library defines size_t, then
-   z_size_t is identical to size_t.  If not, then z_size_t is an unsigned
+   size_t is identical to size_t.  If not, then size_t is an unsigned
    integer type that can contain a pointer.
 
      gzfread() returns the number of full items read of size size, or zero if
    the end of the file was reached and a full item could not be read, or if
    there was an error.  gzerror() must be consulted if zero is returned in
    order to determine if there was an error.  If the multiplication of size and
-   nitems overflows, i.e. the product does not fit in a z_size_t, then nothing
+   nitems overflows, i.e. the product does not fit in a size_t, then nothing
    is read, zero is returned, and the error state is set to Z_STREAM_ERROR.
 
      In the event that the end of file is reached and only a partial item is
@@ -1407,16 +1394,16 @@ ZEXTERN int ZEXPORT gzwrite(gzFile file, voidpc buf, unsigned len);
    error.
  */
 
-ZEXTERN z_size_t ZEXPORT gzfwrite(voidpc buf, z_size_t size, z_size_t nitems, gzFile file);
+ZEXTERN size_t ZEXPORT gzfwrite(voidpc buf, size_t size, size_t nitems, gzFile file);
 /*
      gzfwrite() writes nitems items of size size from buf to file, duplicating
    the interface of stdio's fwrite(), with size_t request and return types.  If
-   the library defines size_t, then z_size_t is identical to size_t.  If not,
-   then z_size_t is an unsigned integer type that can contain a pointer.
+   the library defines size_t, then size_t is identical to size_t.  If not,
+   then size_t is an unsigned integer type that can contain a pointer.
 
      gzfwrite() returns the number of full items written of size size, or zero
    if there was an error.  If the multiplication of size and nitems overflows,
-   i.e. the product does not fit in a z_size_t, then nothing is written, zero
+   i.e. the product does not fit in a size_t, then nothing is written, zero
    is returned, and the error state is set to Z_STREAM_ERROR.
  */
 
@@ -1658,8 +1645,7 @@ ZEXTERN uLong ZEXPORT adler32 OF((uLong adler, const Bytef *buf, uInt len));
      }
      if (adler != original_adler) error();
  */
-
-ZEXTERN uLong ZEXPORT adler32_z OF((uLong adler, const Bytef *buf, z_size_t len));
+ZEXTERN uLong ZEXPORT adler32_z(uLong adler, const Bytef *buf, size_t len);
 /*
      Same as adler32(), but with a size_t length.
  */
@@ -1684,13 +1670,12 @@ ZEXTERN uLong ZEXPORT crc32(uLong crc, const Bytef *buf, uInt len);
    Usage example:
 
      uLong crc = crc32(0L, Z_NULL, 0);
-
      while (read_buffer(buffer, length) != EOF) {
        crc = crc32(crc, buffer, length);
      }
      if (crc != original_crc) error();
  */
-ZEXTERN uLong ZEXPORT crc32_z(uLong adler, const Bytef *buf, z_size_t len);
+ZEXTERN uLong ZEXPORT crc32_z(uLong adler, const Bytef *buf, size_t len);
 /*
      Same as crc32(), but with a size_t length.
  */
@@ -2275,7 +2260,6 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 			ush freq; /* frequency count */
 			ush code; /* bit string */
 		} fc;
-
 		union {
 			ush dad; /* father node in Huffman tree */
 			ush len; /* length of bit string */
@@ -2320,7 +2304,6 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		uInt w_size;     /* LZ77 window size (32K by default) */
 		uInt w_bits;     /* log2(w_size)  (8..16) */
 		uInt w_mask;     /* w_size - 1 */
-
 		Bytef * window;
 		/* Sliding window. Input bytes are read into the second half of the window,
 		 * and move to the first half later to keep a dictionary of at least wSize
@@ -2330,66 +2313,37 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		 * the window size to 64K, which is quite useful on MSDOS.
 		 * To do: use the user input buffer as sliding window.
 		 */
-
-		ulg window_size;
-		/* Actual size of window: 2*wSize, except when the user input buffer
-		 * is directly used as sliding window.
-		 */
-
-		Posf * prev;
-		/* Link to older string with same hash index. To limit the size of this
-		 * array to 64K, this link is maintained only for the last 32K strings.
-		 * An index in this array is thus a window index modulo 32K.
-		 */
-
+		ulg window_size; /* Actual size of window: 2*wSize, except when the user input buffer is directly used as sliding window. */
+		Posf * prev; // Link to older string with same hash index. To limit the size of this
+			// array to 64K, this link is maintained only for the last 32K strings.
+			// An index in this array is thus a window index modulo 32K.
 		Posf * head; /* Heads of the hash chains or NIL. */
-
 		uInt ins_h;       /* hash index of string to be inserted */
 		uInt hash_size;   /* number of elements in hash table */
 		uInt hash_bits;   /* log2(hash_size) */
 		uInt hash_mask;   /* hash_size-1 */
-
-		uInt hash_shift;
-		/* Number of bits by which ins_h must be shifted at each input
-		 * step. It must be such that after MIN_MATCH steps, the oldest
-		 * byte no longer takes part in the hash key, that is:
-		 *   hash_shift * MIN_MATCH >= hash_bits
-		 */
-
-		long block_start;
-		/* Window position at the beginning of the current output block. Gets
-		 * negative when the window is moved backwards.
-		 */
-
+		uInt hash_shift; // Number of bits by which ins_h must be shifted at each input
+			// step. It must be such that after MIN_MATCH steps, the oldest
+			// byte no longer takes part in the hash key, that is: hash_shift * MIN_MATCH >= hash_bits
+		long block_start; // Window position at the beginning of the current output block. Gets
+			// negative when the window is moved backwards.
 		uInt match_length;       /* length of best match */
 		IPos prev_match;         /* previous match */
 		int match_available;     /* set if previous match exists */
 		uInt strstart;           /* start of string to insert */
 		uInt match_start;        /* start of matching string */
 		uInt lookahead;          /* number of valid bytes ahead in window */
-
-		uInt prev_length;
-		/* Length of the best match at previous step. Matches not greater than this
-		 * are discarded. This is used in the lazy match evaluation.
-		 */
-
-		uInt max_chain_length;
-		/* To speed up deflation, hash chains are never searched beyond this
-		 * length.  A higher limit improves compression ratio but degrades the
-		 * speed.
-		 */
-
-		uInt max_lazy_match;
-		/* Attempt to find a better match only when the current match is strictly
-		 * smaller than this value. This mechanism is used only for compression
-		 * levels >= 4.
-		 */
+		uInt prev_length;        // Length of the best match at previous step. Matches not greater than this
+			// are discarded. This is used in the lazy match evaluation.
+		uInt max_chain_length;   // To speed up deflation, hash chains are never searched beyond this
+			// length.  A higher limit improves compression ratio but degrades the speed.
+		uInt max_lazy_match;     // Attempt to find a better match only when the current match is strictly
+			// smaller than this value. This mechanism is used only for compression levels >= 4.
 	#   define max_insert_length  max_lazy_match
 		/* Insert new strings in the hash table only if the match length is not
 		 * greater than this length. This saves time but degrades compression.
 		 * max_insert_length is used only for compression levels <= 3.
 		 */
-
 		int level; /* compression level (1..9) */
 		int strategy; /* favor or force Huffman coding*/
 		uInt good_match; /* Use a faster search when the previous match is longer than this */
@@ -2403,23 +2357,15 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		struct tree_desc_s l_desc;           /* desc. for literal tree */
 		struct tree_desc_s d_desc;           /* desc. for distance tree */
 		struct tree_desc_s bl_desc;          /* desc. for bit length tree */
-
-		ush bl_count[MAX_BITS+1];
-		/* number of codes at each bit length for an optimal tree */
-
+		ush bl_count[MAX_BITS+1]; // number of codes at each bit length for an optimal tree 
 		int heap[2*L_CODES+1];  /* heap used to build the Huffman trees */
 		int heap_len;           /* number of elements in the heap */
 		int heap_max;           /* element of largest frequency */
 		/* The sons of heap[n] are heap[2*n] and heap[2*n+1]. heap[0] is not used.
 		 * The same heap array is used to build all trees.
 		 */
-
-		uch depth[2*L_CODES+1];
-		/* Depth of each subtree used as tie breaker for trees of equal frequency
-		 */
-
+		uch depth[2*L_CODES+1]; // Depth of each subtree used as tie breaker for trees of equal frequency
 		uchf * l_buf;     /* buffer for literals or lengths */
-
 		uInt lit_bufsize;
 		/* Size of match buffer for literals/lengths.  There are 4 reasons for
 		 * limiting lit_bufsize to 64K:
@@ -2439,40 +2385,23 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		 *     trees more frequently.
 		 *   - I can't count above 4
 		 */
-
 		uInt last_lit;  /* running index in l_buf */
-
-		ushf * d_buf;
-		/* Buffer for distances. To simplify the code, d_buf and l_buf have
-		 * the same number of elements. To use different lengths, an extra flag
-		 * array would be necessary.
-		 */
-
+		ushf * d_buf; // Buffer for distances. To simplify the code, d_buf and l_buf have
+			// the same number of elements. To use different lengths, an extra flag
+			// array would be necessary.
 		ulg opt_len;    /* bit length of current block with optimal trees */
 		ulg static_len; /* bit length of current block with static trees */
 		uInt matches;   /* number of string matches in current block */
 		uInt insert;    /* bytes at end of window left to insert */
-
 	#ifdef ZLIB_DEBUG
 		ulg compressed_len; /* total bit length of compressed file mod 2^32 */
 		ulg bits_sent;  /* bit length of compressed data sent mod 2^32 */
 	#endif
-
-		ush bi_buf;
-		/* Output buffer. bits are inserted starting at the bottom (least
-		 * significant bits).
-		 */
-		int bi_valid;
-		/* Number of valid bits in bi_buf.  All bits above the last valid bit
-		 * are always zero.
-		 */
-
-		ulg high_water;
-		/* High water mark offset in window for initialized bytes -- bytes above
-		 * this are set to zero in order to avoid memory check warnings when
-		 * longest match routines access bytes past the input.  This is then
-		 * updated to the new high water mark.
-		 */
+		ush bi_buf; // Output buffer. bits are inserted starting at the bottom (least significant bits).
+		int bi_valid;   // Number of valid bits in bi_buf.  All bits above the last valid bit are always zero.
+		ulg high_water; // High water mark offset in window for initialized bytes -- bytes above
+			// this are set to zero in order to avoid memory check warnings when
+			// longest match routines access bytes past the input.  This is then updated to the new high water mark.
 	} deflate_state;
 
 	/* Output a byte on the stream.
@@ -2497,9 +2426,7 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	 * must not have side effects. _dist_code[256] and _dist_code[257] are never used.
 	 */
 
-	#ifndef ZLIB_DEBUG
-	/* Inline versions of _tr_tally for speed: */
-
+	#ifndef ZLIB_DEBUG // Inline versions of _tr_tally for speed: 
 	#if defined(GEN_TREES_H) || !defined(STDC)
 		extern uch ZLIB_INTERNAL _length_code[];
 		extern uch ZLIB_INTERNAL _dist_code[];
@@ -2507,15 +2434,14 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		extern const uch ZLIB_INTERNAL _length_code[];
 		extern const uch ZLIB_INTERNAL _dist_code[];
 	#endif
-
-	# define _tr_tally_lit(s, c, flush) \
+	#define _tr_tally_lit(s, c, flush) \
 		{ uch cc = (c);	\
 		  s->d_buf[s->last_lit] = 0; \
 		  s->l_buf[s->last_lit++] = cc;	\
 		  s->dyn_ltree[cc].Freq++; \
 		  flush = (s->last_lit == s->lit_bufsize-1); \
 		}
-	# define _tr_tally_dist(s, distance, length, flush) \
+	#define _tr_tally_dist(s, distance, length, flush) \
 		{ uch len = (uch)(length); \
 		  ush dist = (ush)(distance); \
 		  s->d_buf[s->last_lit] = dist;	\

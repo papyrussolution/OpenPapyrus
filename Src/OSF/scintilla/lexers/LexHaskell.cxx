@@ -21,9 +21,8 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include <string>
-
+#include <map>
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "PropSetSimple.h"
@@ -130,7 +129,7 @@ static inline bool IsExternalStyle(int style) {
          || style == SCE_HA_LITERATE_CODEDELIM);
 }
 
-static inline int CommentBlockStyleFromNestLevel(const unsigned int nestLevel) {
+static inline int CommentBlockStyleFromNestLevel(const uint nestLevel) {
    return SCE_HA_COMMENTBLOCK + (nestLevel % 3);
 }
 
@@ -303,8 +302,8 @@ class LexerHaskell : public ILexer {
    };
 
    struct HaskellLineInfo {
-      unsigned int nestLevel; // 22 bits ought to be enough for anybody
-      unsigned int nonexternalStyle; // 5 bits, widen if number of styles goes
+      uint nestLevel; // 22 bits ought to be enough for anybody
+      uint nonexternalStyle; // 5 bits, widen if number of styles goes
                                      // beyond 31.
       bool pragma;
       LiterateMode lmode;

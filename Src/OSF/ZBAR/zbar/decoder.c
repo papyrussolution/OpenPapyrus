@@ -33,7 +33,7 @@
 
 zbar_decoder_t * zbar_decoder_create()
 {
-	zbar_decoder_t * dcode = (zbar_decoder_t *)calloc(1, sizeof(zbar_decoder_t));
+	zbar_decoder_t * dcode = (zbar_decoder_t *)SAlloc::C(1, sizeof(zbar_decoder_t));
 	dcode->buf_alloc = BUFFER_MIN;
 	dcode->buf = (uchar *)SAlloc::M(dcode->buf_alloc);
 
@@ -61,7 +61,7 @@ zbar_decoder_t * zbar_decoder_create()
 	dcode->databar.config = ((1 << ZBAR_CFG_ENABLE) | (1 << ZBAR_CFG_EMIT_CHECK));
 	dcode->databar.config_exp = ((1 << ZBAR_CFG_ENABLE) | (1 << ZBAR_CFG_EMIT_CHECK));
 	dcode->databar.csegs = 4;
-	dcode->databar.segs = (databar_segment_t *)calloc(4, sizeof(*dcode->databar.segs));
+	dcode->databar.segs = (databar_segment_t *)SAlloc::C(4, sizeof(*dcode->databar.segs));
 #endif
 #ifdef ENABLE_CODABAR
 	dcode->codabar.config = 1 << ZBAR_CFG_ENABLE;
@@ -90,10 +90,10 @@ zbar_decoder_t * zbar_decoder_create()
 void zbar_decoder_destroy(zbar_decoder_t * dcode)
 {
 #ifdef ENABLE_DATABAR
-	free(dcode->databar.segs);
+	SAlloc::F(dcode->databar.segs);
 #endif
-	free(dcode->buf);
-	free(dcode);
+	SAlloc::F(dcode->buf);
+	SAlloc::F(dcode);
 }
 
 void zbar_decoder_reset(zbar_decoder_t * dcode)
@@ -405,7 +405,7 @@ const char * _zbar_decoder_buf_dump(uchar * buf, uint buflen)
 	const uint dumplen = (buflen * 3) + 12;
 	char * p;
 	if(!decoder_dump || dumplen > decoder_dumplen) {
-		free(decoder_dump);
+		SAlloc::F(decoder_dump);
 		decoder_dump = (char *)SAlloc::M(dumplen);
 		decoder_dumplen = dumplen;
 	}

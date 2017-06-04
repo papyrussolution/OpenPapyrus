@@ -157,9 +157,9 @@ void rs_encode_long(const int len, const uint * data, uint * res)
 /* Free memory */
 void rs_free(void)
 {
-	free(logt);
-	free(alog);
-	free(rspoly);
+	SAlloc::F(logt);
+	SAlloc::F(alog);
+	SAlloc::F(rspoly);
 	rspoly = NULL;
 }
 

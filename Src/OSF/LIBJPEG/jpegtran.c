@@ -42,8 +42,7 @@ static char * scaleoption;      /* -scale switch */
 static JCOPY_OPTION copyoption; /* -copy switch */
 static jpeg_transform_info transformoption; /* image transformation options */
 
-LOCAL(void)
-usage(void)
+static void usage(void)
 /* complain about bad command line */
 {
 	fprintf(stderr, "usage: %s [switches] ", progname);
@@ -93,8 +92,7 @@ usage(void)
 	exit(EXIT_FAILURE);
 }
 
-LOCAL(void)
-select_transform(JXFORM_CODE transform)
+static void select_transform(JXFORM_CODE transform)
 /* Silly little routine to detect multiple transform options,
  * which we can't handle.
  */
@@ -116,8 +114,7 @@ select_transform(JXFORM_CODE transform)
 #endif
 }
 
-LOCAL(int)
-parse_switches(j_compress_ptr cinfo, int argc, char ** argv,
+static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv,
     int last_file_arg_seen, boolean for_real)
 /* Parse optional switches.
  * Returns argv[] index of first file-name argument (== argc if none).

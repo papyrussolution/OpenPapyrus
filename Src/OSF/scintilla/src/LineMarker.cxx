@@ -8,7 +8,9 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
+#include <stdexcept>
+#include <vector>
+#include <map>
 #include "StringCopy.h"
 #include "XPM.h"
 #include "LineMarker.h"
@@ -29,7 +31,7 @@ void LineMarker::SetXPM(const char *const *linesForm) {
 	markType = SC_MARK_PIXMAP;
 }
 
-void LineMarker::SetRGBAImage(Point sizeRGBAImage, float scale, const unsigned char *pixelsRGBAImage) {
+void LineMarker::SetRGBAImage(Point sizeRGBAImage, float scale, const uchar *pixelsRGBAImage) {
 	delete image;
 	image = new RGBAImage(static_cast<int>(sizeRGBAImage.x), static_cast<int>(sizeRGBAImage.y), scale, pixelsRGBAImage);
 	markType = SC_MARK_RGBAIMAGE;

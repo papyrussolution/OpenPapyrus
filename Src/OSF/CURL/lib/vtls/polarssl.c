@@ -54,7 +54,7 @@
 #include "parsedate.h"
 #include "connect.h" /* for the connect timeout */
 #include "select.h"
-#include "strcase.h"
+//#include "strcase.h"
 #include "polarssl_threadlock.h"
 #include "curl_printf.h"
 #include "curl_memory.h"
@@ -99,7 +99,7 @@ static void entropy_init_mutex(entropy_context * ctx)
 /* end of entropy_init_mutex() */
 
 /* start of entropy_func_mutex() */
-static int entropy_func_mutex(void * data, unsigned char * output, size_t len)
+static int entropy_func_mutex(void * data, uchar * output, size_t len)
 {
 	int ret;
 	/* lock 1 = entropy_func_mutex() */
@@ -486,7 +486,7 @@ static CURLcode polarssl_connect_step2(struct connectdata * conn,
 		int size;
 		CURLcode result;
 		x509_crt * p;
-		unsigned char pubkey[PUB_DER_MAX_BYTES];
+		uchar pubkey[PUB_DER_MAX_BYTES];
 		const x509_crt * peercert;
 
 		peercert = ssl_get_peer_cert(&connssl->ssl);
@@ -496,7 +496,7 @@ static CURLcode polarssl_connect_step2(struct connectdata * conn,
 			return CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 		}
 
-		p = calloc(1, sizeof(*p));
+		p = SAlloc::C(1, sizeof(*p));
 
 		if(!p)
 			return CURLE_OUT_OF_MEMORY;
@@ -509,7 +509,7 @@ static CURLcode polarssl_connect_step2(struct connectdata * conn,
 		if(x509_crt_parse_der(p, peercert->raw.p, peercert->raw.len)) {
 			failf(data, "Failed copying peer certificate");
 			x509_crt_free(p);
-			free(p);
+			SAlloc::F(p);
 			return CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 		}
 
@@ -518,7 +518,7 @@ static CURLcode polarssl_connect_step2(struct connectdata * conn,
 		if(size <= 0) {
 			failf(data, "Failed copying public key from peer certificate");
 			x509_crt_free(p);
-			free(p);
+			SAlloc::F(p);
 			return CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 		}
 
@@ -528,12 +528,12 @@ static CURLcode polarssl_connect_step2(struct connectdata * conn,
 		    &pubkey[PUB_DER_MAX_BYTES - size], size);
 		if(result) {
 			x509_crt_free(p);
-			free(p);
+			SAlloc::F(p);
 			return result;
 		}
 
 		x509_crt_free(p);
-		free(p);
+		SAlloc::F(p);
 	}
 
 #ifdef HAS_ALPN
@@ -575,7 +575,7 @@ static CURLcode polarssl_connect_step3(struct connectdata * conn, int sockindex)
 		int ret;
 		ssl_session * our_ssl_sessionid;
 		void * old_ssl_sessionid = NULL;
-		our_ssl_sessionid = malloc(sizeof(ssl_session));
+		our_ssl_sessionid = SAlloc::M(sizeof(ssl_session));
 		if(!our_ssl_sessionid)
 			return CURLE_OUT_OF_MEMORY;
 		memzero(our_ssl_sessionid, sizeof(ssl_session));
@@ -593,7 +593,7 @@ static CURLcode polarssl_connect_step3(struct connectdata * conn, int sockindex)
 		retcode = Curl_ssl_addsessionid(conn, our_ssl_sessionid, 0, sockindex);
 		Curl_ssl_sessionid_unlock(conn);
 		if(retcode) {
-			free(our_ssl_sessionid);
+			SAlloc::F(our_ssl_sessionid);
 			failf(data, "failed to store ssl session");
 			return retcode;
 		}
@@ -613,7 +613,7 @@ static ssize_t polarssl_send(struct connectdata * conn,
 	int ret = -1;
 
 	ret = ssl_write(&conn->ssl[sockindex].ssl,
-	    (unsigned char*)mem, len);
+	    (uchar*)mem, len);
 
 	if(ret < 0) {
 		*curlcode = (ret == POLARSSL_ERR_NET_WANT_WRITE) ?
@@ -638,7 +638,7 @@ static ssize_t polarssl_recv(struct connectdata * conn, int num, char * buf, siz
 	int ret = -1;
 	ssize_t len = -1;
 	memzero(buf, buffersize);
-	ret = ssl_read(&conn->ssl[num].ssl, (unsigned char*)buf, buffersize);
+	ret = ssl_read(&conn->ssl[num].ssl, (uchar*)buf, buffersize);
 
 	if(ret <= 0) {
 		if(ret == POLARSSL_ERR_SSL_PEER_CLOSE_NOTIFY)
@@ -653,7 +653,7 @@ static ssize_t polarssl_recv(struct connectdata * conn, int num, char * buf, siz
 void Curl_polarssl_session_free(void * ptr)
 {
 	ssl_session_free(ptr);
-	free(ptr);
+	SAlloc::F(ptr);
 }
 
 /* 1.3.10 was the first rebranded version. All new releases (in 1.3 branch and
@@ -661,7 +661,7 @@ void Curl_polarssl_session_free(void * ptr)
 
 size_t Curl_polarssl_version(char * buffer, size_t size)
 {
-	unsigned int version = version_get_number();
+	uint version = version_get_number();
 	return snprintf(buffer, size, "%s/%d.%d.%d",
 	    version >= 0x01030A00 ? "mbedTLS" : "PolarSSL",
 	    version>>24, (version>>16)&0xff, (version>>8)&0xff);

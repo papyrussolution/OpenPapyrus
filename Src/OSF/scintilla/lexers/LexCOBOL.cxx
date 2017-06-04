@@ -7,7 +7,6 @@
  ** Updated by Mathias Rauen <scite@madshi.net> May 2003 (Delphi adjustments)
  ** Updated by Rod Falck, Aug 2006 Converted to COBOL
  **/
-
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
@@ -71,7 +70,7 @@ static void getRange(Sci_PositionU start,
     s[i] = '\0';
 }
 
-static void ColourTo(Accessor &styler, Sci_PositionU end, unsigned int attr) {
+static void ColourTo(Accessor &styler, Sci_PositionU end, uint attr) {
     styler.ColourTo(end, attr);
 }
 

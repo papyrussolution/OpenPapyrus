@@ -113,6 +113,8 @@ double fgetnan()    { return _fdiv(0.0, 0.0); }
 double fgetposinf() { return _fdiv(+1.0, 0.0); }
 double fgetneginf() { return _fdiv(-1.0, 0.0); }
 
+int    FASTCALL smax(int a, int b)       { return MAX(a, b); }
+int    FASTCALL smin(int a, int b)       { return MAX(a, b); }
 double SLAPI smax(double a, double b) { return MAX(a, b); }
 double SLAPI smin(double a, double b) { return MIN(a, b); }
 float  SLAPI smax(float a, float b)   { return MAX(a, b); }

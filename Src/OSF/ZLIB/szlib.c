@@ -230,20 +230,19 @@ static uLong adler32_combine_(uLong adler1, uLong adler2, z_off64_t len2);
 static int gz_init(gz_statep);
 static int gz_comp(gz_statep, int);
 static int gz_zero(gz_statep, z_off64_t);
-static z_size_t gz_write(gz_statep, voidpc, z_size_t);
+static size_t gz_write(gz_statep, voidpc, size_t);
 static int gz_load(gz_statep, unsigned char *, unsigned, unsigned *);
 static int gz_avail(gz_statep);
 static int gz_look(gz_statep);
 static int gz_decomp(gz_statep);
 static int gz_fetch(gz_statep);
 static int gz_skip(gz_statep, z_off64_t);
-static z_size_t gz_read(gz_statep, voidp, z_size_t);
+static size_t gz_read(gz_statep, voidp, size_t);
 static void gz_reset(gz_statep);
 static gzFile gz_open(const void *, int, const char *);
 //
 // ADLER
 //
-
 #define BASE 65521U     /* largest prime smaller than 65536 */
 #define NMAX 5552
 /* NMAX is the largest n such that 255n(n+1)/2 + (n+1)(BASE-1) <= 2^32-1 */
@@ -254,8 +253,8 @@ static gzFile gz_open(const void *, int, const char *);
 #define DO8(buf, i)  DO4(buf, i); DO4(buf, i+4);
 #define DO16(buf)   DO8(buf, 0); DO8(buf, 8);
 
-/* use NO_DIVIDE if your processor does not do division in hardware --
-   try it both ways to see which is faster */
+// use NO_DIVIDE if your processor does not do division in hardware --
+// try it both ways to see which is faster 
 #ifdef NO_DIVIDE
 	// note that this assumes BASE is 65521, where 65536 % 65521 == 15
    // (thank you to John Reiser for pointing this out) 
@@ -287,7 +286,7 @@ static gzFile gz_open(const void *, int, const char *);
 #endif
 
 /* ========================================================================= */
-uLong ZEXPORT adler32_z(uLong adler, const Bytef * buf, z_size_t len)
+uLong ZEXPORT adler32_z(uLong adler, const Bytef * buf, size_t len)
 {
 	unsigned n;
 	// split Adler-32 into component sums 
@@ -303,10 +302,10 @@ uLong ZEXPORT adler32_z(uLong adler, const Bytef * buf, z_size_t len)
 			sum2 -= BASE;
 		return adler | (sum2 << 16);
 	}
-	/* initial Adler-32 value (deferred check for len == 1 speed) */
+	// initial Adler-32 value (deferred check for len == 1 speed) 
 	if(buf == Z_NULL)
 		return 1L;
-	/* in case short lengths are provided, keep it somewhat fast */
+	// in case short lengths are provided, keep it somewhat fast 
 	if(len < 16) {
 		while(len--) {
 			adler += *buf++;
@@ -314,22 +313,22 @@ uLong ZEXPORT adler32_z(uLong adler, const Bytef * buf, z_size_t len)
 		}
 		if(adler >= BASE)
 			adler -= BASE;
-		MOD28(sum2);    /* only added so many BASE's */
+		MOD28(sum2); // only added so many BASE's 
 		return adler | (sum2 << 16);
 	}
-	/* do length NMAX blocks -- requires just one modulo operation */
+	// do length NMAX blocks -- requires just one modulo operation 
 	while(len >= NMAX) {
 		len -= NMAX;
-		n = NMAX / 16;  /* NMAX is divisible by 16 */
+		n = NMAX / 16; // NMAX is divisible by 16 
 		do {
-			DO16(buf); /* 16 sums unrolled */
+			DO16(buf); // 16 sums unrolled 
 			buf += 16;
 		} while(--n);
 		MOD(adler);
 		MOD(sum2);
 	}
-	/* do remaining bytes (less than NMAX, still just one modulo) */
-	if(len) {               /* avoid modulos if none remaining */
+	// do remaining bytes (less than NMAX, still just one modulo) 
+	if(len) { // avoid modulos if none remaining 
 		while(len >= 16) {
 			len -= 16;
 			DO16(buf);
@@ -342,8 +341,7 @@ uLong ZEXPORT adler32_z(uLong adler, const Bytef * buf, z_size_t len)
 		MOD(adler);
 		MOD(sum2);
 	}
-	/* return recombined sums */
-	return adler | (sum2 << 16);
+	return (adler | (sum2 << 16)); // return recombined sums 
 }
 
 uLong ZEXPORT adler32(uLong adler, const Bytef * buf, uInt len)
@@ -356,22 +354,25 @@ static uLong adler32_combine_(uLong adler1, uLong adler2, z_off64_t len2)
 	unsigned long sum1;
 	unsigned long sum2;
 	unsigned rem;
-	/* for negative len, return invalid adler32 as a clue for debugging */
+	// for negative len, return invalid adler32 as a clue for debugging 
 	if(len2 < 0)
 		return 0xffffffffUL;
-
-	/* the derivation of this formula is left as an exercise for the reader */
-	MOD63(len2);            /* assumes len2 >= 0 */
+	// the derivation of this formula is left as an exercise for the reader 
+	MOD63(len2); // assumes len2 >= 0 
 	rem = (unsigned)len2;
 	sum1 = adler1 & 0xffff;
 	sum2 = rem * sum1;
 	MOD(sum2);
 	sum1 += (adler2 & 0xffff) + BASE - 1;
 	sum2 += ((adler1 >> 16) & 0xffff) + ((adler2 >> 16) & 0xffff) + BASE - rem;
-	if(sum1 >= BASE) sum1 -= BASE;
-	if(sum1 >= BASE) sum1 -= BASE;
-	if(sum2 >= ((unsigned long)BASE << 1)) sum2 -= ((unsigned long)BASE << 1);
-	if(sum2 >= BASE) sum2 -= BASE;
+	if(sum1 >= BASE) 
+		sum1 -= BASE;
+	if(sum1 >= BASE) 
+		sum1 -= BASE;
+	if(sum2 >= ((unsigned long)BASE << 1)) 
+		sum2 -= ((unsigned long)BASE << 1);
+	if(sum2 >= BASE) 
+		sum2 -= BASE;
 	return sum1 | (sum2 << 16);
 }
 
@@ -405,8 +406,8 @@ uLong ZEXPORT adler32_combine64(uLong adler1, uLong adler2, z_off64_t len2)
 	#define BYFOUR
 #endif
 #ifdef BYFOUR
-	static unsigned long crc32_little(unsigned long, const unsigned char *, z_size_t);
-	static unsigned long crc32_big(unsigned long, const unsigned char *, z_size_t);
+	static unsigned long crc32_little(unsigned long, const unsigned char *, size_t);
+	static unsigned long crc32_big(unsigned long, const unsigned char *, size_t);
 	#define TBLS 8
 #else
 	#define TBLS 1
@@ -460,23 +461,20 @@ static void make_crc_table()
 	   case the advice about DYNAMIC_CRC_TABLE is ignored) */
 	if(first) {
 		first = 0;
-
-		/* make exclusive-or pattern from polynomial (0xedb88320UL) */
+		// make exclusive-or pattern from polynomial (0xedb88320UL) 
 		poly = 0;
 		for(n = 0; n < (int)(sizeof(p)/sizeof(unsigned char)); n++)
 			poly |= (z_crc_t)1 << (31 - p[n]);
-
-		/* generate a crc for every 8-bit value */
+		// generate a crc for every 8-bit value 
 		for(n = 0; n < 256; n++) {
 			c = (z_crc_t)n;
 			for(k = 0; k < 8; k++)
 				c = c & 1 ? poly ^ (c >> 1) : c >> 1;
 			crc_table[0][n] = c;
 		}
-
 #ifdef BYFOUR
-		/* generate crc for each value followed by one, two, and three zeros,
-		   and then the byte reversal of those as well as the first table */
+		// generate crc for each value followed by one, two, and three zeros,
+		// and then the byte reversal of those as well as the first table 
 		for(n = 0; n < 256; n++) {
 			c = crc_table[0][n];
 			crc_table[4][n] = ZSWAP32(c);
@@ -991,15 +989,14 @@ const z_crc_t  * ZEXPORT get_crc_table()
 #define DO8 DO1; DO1; DO1; DO1; DO1; DO1; DO1; DO1
 
 /* ========================================================================= */
-unsigned long ZEXPORT crc32_z(unsigned long crc, const unsigned char  * buf, z_size_t len)
+unsigned long ZEXPORT crc32_z(unsigned long crc, const unsigned char  * buf, size_t len)
 {
 	if(buf == Z_NULL) 
 		return 0UL;
 #ifdef DYNAMIC_CRC_TABLE
 	if(crc_table_empty)
 		make_crc_table();
-#endif /* DYNAMIC_CRC_TABLE */
-
+#endif
 #ifdef BYFOUR
 	if(sizeof(void *) == sizeof(ptrdiff_t)) {
 		z_crc_t endian = 1;
@@ -1008,7 +1005,7 @@ unsigned long ZEXPORT crc32_z(unsigned long crc, const unsigned char  * buf, z_s
 		else
 			return crc32_big(crc, buf, len);
 	}
-#endif /* BYFOUR */
+#endif
 	crc = crc ^ 0xffffffffUL;
 	while(len >= 8) {
 		DO8;
@@ -1045,11 +1042,10 @@ unsigned long ZEXPORT crc32(unsigned long crc, const unsigned char  * buf, uInt 
 #define DOLIT32 DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4
 
 /* ========================================================================= */
-static unsigned long crc32_little(unsigned long crc, const unsigned char  * buf, z_size_t len)
+static unsigned long crc32_little(unsigned long crc, const unsigned char  * buf, size_t len)
 {
-	register z_crc_t c;
 	register const z_crc_t  * buf4;
-	c = (z_crc_t)crc;
+	register z_crc_t c = (z_crc_t)crc;
 	c = ~c;
 	while(len && ((ptrdiff_t)buf & 3)) {
 		c = crc_table[0][(c ^ *buf++) & 0xff] ^ (c >> 8);
@@ -1078,7 +1074,7 @@ static unsigned long crc32_little(unsigned long crc, const unsigned char  * buf,
 #define DOBIG32 DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4
 
 /* ========================================================================= */
-static unsigned long crc32_big(unsigned long crc, const unsigned char  * buf, z_size_t len)
+static unsigned long crc32_big(unsigned long crc, const unsigned char  * buf, size_t len)
 {
 	register const z_crc_t  * buf4;
 	register z_crc_t c = ZSWAP32((z_crc_t)crc);
@@ -2016,9 +2012,9 @@ static int gz_zero(gz_statep state, z_off64_t len)
 
 /* Write len bytes from buf to file.  Return the number of bytes written.  If
    the returned value is less than len, then there was an error. */
-static z_size_t gz_write(gz_statep state, voidpc buf, z_size_t len)
+static size_t gz_write(gz_statep state, voidpc buf, size_t len)
 {
-	z_size_t put = len;
+	size_t put = len;
 	// if len is zero, avoid unnecessary operations 
 	if(len == 0)
 		return 0;
@@ -2092,9 +2088,9 @@ int ZEXPORT gzwrite(gzFile file, voidpc buf, unsigned len)
 	return (int)gz_write(state, buf, len);
 }
 
-z_size_t ZEXPORT gzfwrite(voidpc buf, z_size_t size, z_size_t nitems, gzFile file)
+size_t ZEXPORT gzfwrite(voidpc buf, size_t size, size_t nitems, gzFile file)
 {
-	z_size_t len;
+	size_t len;
 	gz_statep state;
 	/* get internal structure */
 	if(file == NULL)
@@ -2161,7 +2157,7 @@ int ZEXPORT gzputc(gzFile file, int c)
 int ZEXPORT gzputs(gzFile file, const char * str)
 {
 	int ret;
-	z_size_t len;
+	size_t len;
 	gz_statep state;
 	/* get internal structure */
 	if(file == NULL)
@@ -2706,9 +2702,9 @@ static int gz_skip(gz_statep state, z_off64_t len)
    input.  Return the number of bytes read.  If zero is returned, either the
    end of file was reached, or there was an error.  state->err must be
    consulted in that case to determine which. */
-static z_size_t gz_read(gz_statep state, voidp buf, z_size_t len)
+static size_t gz_read(gz_statep state, voidp buf, size_t len)
 {
-	z_size_t got;
+	size_t got;
 	unsigned n;
 	/* if len is zero, avoid unnecessary operations */
 	if(len == 0)
@@ -2798,9 +2794,9 @@ int ZEXPORT gzread(gzFile file, voidp buf, unsigned len)
 	return (int)len;
 }
 
-z_size_t ZEXPORT gzfread(voidp buf, z_size_t size, z_size_t nitems, gzFile file)
+size_t ZEXPORT gzfread(voidp buf, size_t size, size_t nitems, gzFile file)
 {
-	z_size_t len;
+	size_t len;
 	gz_statep state;
 	/* get internal structure */
 	if(file == NULL)
@@ -3086,7 +3082,7 @@ static void gz_reset(gz_statep state)
 static gzFile gz_open(const void * path, int fd, const char * mode)
 {
 	gz_statep state;
-	z_size_t len;
+	size_t len;
 	int oflag;
 #ifdef O_CLOEXEC
 	int cloexec = 0;
@@ -3163,7 +3159,7 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 #ifdef WIDECHAR
 	if(fd == -2) {
 		len = wcstombs(NULL, path, 0);
-		if(len == (z_size_t)-1)
+		if(len == (size_t)-1)
 			len = 0;
 	}
 	else

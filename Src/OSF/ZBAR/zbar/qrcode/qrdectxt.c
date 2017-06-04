@@ -60,7 +60,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 	int i;
 	qrdata = _qrlist->qrdata;
 	nqrdata = _qrlist->nqrdata;
-	mark = (uchar*)calloc(nqrdata, sizeof(*mark));
+	mark = (uchar*)SAlloc::C(nqrdata, sizeof(*mark));
 	ntext = 0;
 	// This is the encoding the standard says is the default
 	latin1_cd = iconv_open("UTF-8", "ISO8859-1");
@@ -388,7 +388,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 				zbar_symbol_t * sa_sym;
 				sa_text[sa_ntext++] = '\0';
 				if(sa_ctext+1>sa_ntext) {
-					sa_text = (char*)realloc(sa_text, sa_ntext*sizeof(*sa_text));
+					sa_text = (char*)SAlloc::R(sa_text, sa_ntext*sizeof(*sa_text));
 				}
 				if(sa_size == 1)
 					sa_sym = syms;
@@ -437,7 +437,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 			}
 			else {
 				_zbar_image_scanner_recycle_syms(iscn, syms);
-				free(sa_text);
+				SAlloc::F(sa_text);
 			}
 		}
 	if(utf8_cd!=(iconv_t)-1) 
@@ -446,7 +446,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 		iconv_close(sjis_cd);
 	if(latin1_cd!=(iconv_t)-1) 
 		iconv_close(latin1_cd);
-	free(mark);
+	SAlloc::F(mark);
 	return ntext;
 }
 

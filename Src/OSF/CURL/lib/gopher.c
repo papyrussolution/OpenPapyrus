@@ -142,7 +142,7 @@ static CURLcode gopher_do(struct connectdata * conn, bool * done)
 		}
 	}
 
-	free(sel_org);
+	SAlloc::F(sel_org);
 
 	if(!result)
 		/* We can use Curl_sendf to send the terminal \r\n relatively safely and

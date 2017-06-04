@@ -8,7 +8,16 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
+//#include <stdlib.h>
+//#include <string.h>
+//#include <stdio.h>
+//#include <assert.h>
+#include <stdexcept>
+#include <string>
+#include <vector>
+#include <algorithm>
+//#include "Platform.h"
+//#include "Scintilla.h"
 #include "CharacterSet.h"
 #include "Position.h"
 #include "AutoComplete.h"
@@ -32,11 +41,13 @@ AutoComplete::AutoComplete() :
 	ignoreCaseBehaviour(SC_CASEINSENSITIVEBEHAVIOUR_RESPECTCASE),
 	widthLBDefault(100),
 	heightLBDefault(100),
-	autoSort(SC_ORDER_PRESORTED) {
+	autoSort(SC_ORDER_PRESORTED)
+{
 	lb = ListBox::Allocate();
 }
 
-AutoComplete::~AutoComplete() {
+AutoComplete::~AutoComplete()
+{
 	if(lb) {
 		lb->Destroy();
 		delete lb;
@@ -44,13 +55,15 @@ AutoComplete::~AutoComplete() {
 	}
 }
 
-bool AutoComplete::Active() const {
+bool AutoComplete::Active() const
+{
 	return active;
 }
 
 void AutoComplete::Start(Window &parent, int ctrlID,
     int position, Point location, int startLen_,
-    int lineHeight, bool unicodeMode, int technology) {
+    int lineHeight, bool unicodeMode, int technology)
+{
 	if(active) {
 		Cancel();
 	}
@@ -61,35 +74,43 @@ void AutoComplete::Start(Window &parent, int ctrlID,
 	posStart = position;
 }
 
-void AutoComplete::SetStopChars(const char * stopChars_) {
+void AutoComplete::SetStopChars(const char * stopChars_)
+{
 	stopChars = stopChars_;
 }
 
-bool AutoComplete::IsStopChar(char ch) {
+bool AutoComplete::IsStopChar(char ch)
+{
 	return ch && (stopChars.find(ch) != std::string::npos);
 }
 
-void AutoComplete::SetFillUpChars(const char * fillUpChars_) {
+void AutoComplete::SetFillUpChars(const char * fillUpChars_)
+{
 	fillUpChars = fillUpChars_;
 }
 
-bool AutoComplete::IsFillUpChar(char ch) {
+bool AutoComplete::IsFillUpChar(char ch)
+{
 	return ch && (fillUpChars.find(ch) != std::string::npos);
 }
 
-void AutoComplete::SetSeparator(char separator_) {
+void AutoComplete::SetSeparator(char separator_)
+{
 	separator = separator_;
 }
 
-char AutoComplete::GetSeparator() const {
+char AutoComplete::GetSeparator() const
+{
 	return separator;
 }
 
-void AutoComplete::SetTypesep(char separator_) {
+void AutoComplete::SetTypesep(char separator_)
+{
 	typesep = separator_;
 }
 
-char AutoComplete::GetTypesep() const {
+char AutoComplete::GetTypesep() const
+{
 	return typesep;
 }
 
@@ -98,7 +119,8 @@ struct Sorter {
 	const char * list;
 	std::vector<int> indices;
 
-	Sorter(AutoComplete * ac_, const char * list_) : ac(ac_), list(list_) {
+	Sorter(AutoComplete * ac_, const char * list_) : ac(ac_), list(list_)
+	{
 		int i = 0;
 		while(list[i]) {
 			indices.push_back(i); // word start
@@ -121,10 +143,11 @@ struct Sorter {
 		indices.push_back(i); // index of last position
 	}
 
-	bool operator()(int a, int b) {
+	bool operator()(int a, int b)
+	{
 		int lenA = indices[a * 2 + 1] - indices[a * 2];
 		int lenB = indices[b * 2 + 1] - indices[b * 2];
-		int len  = std::min(lenA, lenB);
+		int len  = smin(lenA, lenB);
 		int cmp;
 		if(ac->ignoreCase)
 			cmp = CompareNCaseInsensitive(list + indices[a * 2], list + indices[b * 2], len);
@@ -136,7 +159,8 @@ struct Sorter {
 	}
 };
 
-void AutoComplete::SetList(const char * list) {
+void AutoComplete::SetList(const char * list)
+{
 	if(autoSort == SC_ORDER_PRESORTED) {
 		lb->SetList(list, separator, typesep);
 		sortMatrix.clear();
@@ -183,23 +207,27 @@ void AutoComplete::SetList(const char * list) {
 	lb->SetList(sortedList.c_str(), separator, typesep);
 }
 
-int AutoComplete::GetSelection() const {
+int AutoComplete::GetSelection() const
+{
 	return lb->GetSelection();
 }
 
-std::string AutoComplete::GetValue(int item) const {
+std::string AutoComplete::GetValue(int item) const
+{
 	char value[maxItemLen];
 	lb->GetValue(item, value, sizeof(value));
 	return std::string(value);
 }
 
-void AutoComplete::Show(bool show) {
+void AutoComplete::Show(bool show)
+{
 	lb->Show(show);
 	if(show)
 		lb->Select(0);
 }
 
-void AutoComplete::Cancel() {
+void AutoComplete::Cancel()
+{
 	if(lb->Created()) {
 		lb->Clear();
 		lb->Destroy();
@@ -207,7 +235,8 @@ void AutoComplete::Cancel() {
 	}
 }
 
-void AutoComplete::Move(int delta) {
+void AutoComplete::Move(int delta)
+{
 	int count = lb->Length();
 	int current = lb->GetSelection();
 	current += delta;
@@ -218,7 +247,8 @@ void AutoComplete::Move(int delta) {
 	lb->Select(current);
 }
 
-void AutoComplete::Select(const char * word) {
+void AutoComplete::Select(const char * word)
+{
 	size_t lenWord = strlen(word);
 	int location = -1;
 	int start = 0; // lower bound of the api array block to search

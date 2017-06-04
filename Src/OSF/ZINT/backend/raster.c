@@ -577,7 +577,7 @@ int save_raster_image_to_file(struct ZintSymbol * symbol,
 		    break;
 	}
 
-	free(rotated_pixbuf);
+	SAlloc::F(rotated_pixbuf);
 	return error_number;
 }
 
@@ -848,7 +848,7 @@ int plot_raster_maxicode(struct ZintSymbol * symbol, int rotate_angle, int data_
 
 	if(!(scaled_hexagon = (char*)SAlloc::M(hexagon_size * hexagon_size))) {
 		printf("Insufficient memory for pixel buffer (F56)");
-		free(scaled_hexagon);
+		SAlloc::F(scaled_hexagon);
 		return ZINT_ERROR_ENCODING_PROBLEM;
 	}
 	else {
@@ -897,8 +897,8 @@ int plot_raster_maxicode(struct ZintSymbol * symbol, int rotate_angle, int data_
 	}
 
 	error_number = save_raster_image_to_file(symbol, image_height, image_width, pixelbuf, rotate_angle, data_type);
-	free(scaled_hexagon);
-	free(pixelbuf);
+	SAlloc::F(scaled_hexagon);
+	SAlloc::F(pixelbuf);
 	return error_number;
 }
 
@@ -978,7 +978,7 @@ int plot_raster_dotty(struct ZintSymbol * symbol, int rotate_angle, int data_typ
 		}
 	}
 	error_number = save_raster_image_to_file(symbol, scale_height, scale_width, scaled_pixelbuf, rotate_angle, data_type);
-	free(scaled_pixelbuf);
+	SAlloc::F(scaled_pixelbuf);
 	return error_number;
 }
 
@@ -1420,7 +1420,7 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 	scale_height = (int)(image_height * scaler);
 	// Apply scale options by creating another pixel buffer 
 	if(!(scaled_pixelbuf = (char*)SAlloc::M(scale_width * scale_height))) {
-		free(pixelbuf);
+		SAlloc::F(pixelbuf);
 		printf("Insufficient memory for pixel buffer (F59)");
 		return ZINT_ERROR_ENCODING_PROBLEM;
 	}
@@ -1435,8 +1435,8 @@ int plot_raster_default(struct ZintSymbol * symbol, int rotate_angle, int data_t
 		}
 	}
 	error_number = save_raster_image_to_file(symbol, scale_height, scale_width, scaled_pixelbuf, rotate_angle, data_type);
-	free(scaled_pixelbuf);
-	free(pixelbuf);
+	SAlloc::F(scaled_pixelbuf);
+	SAlloc::F(pixelbuf);
 	return error_number;
 }
 

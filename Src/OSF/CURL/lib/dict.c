@@ -54,7 +54,7 @@
 #include "escape.h"
 #include "progress.h"
 #include "dict.h"
-#include "strcase.h"
+//#include "strcase.h"
 #include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
@@ -100,7 +100,7 @@ static char * unescape_word(struct Curl_easy * data, const char * inputbuff)
 	CURLcode result = Curl_urldecode(data, inputbuff, 0, &newp, &len, FALSE);
 	if(!newp || result)
 		return NULL;
-	dictp = (char *)malloc(((size_t)len)*2 + 1); /* add one for terminating zero */
+	dictp = (char *)SAlloc::M(((size_t)len)*2 + 1); /* add one for terminating zero */
 	if(dictp) {
 		/* According to RFC2229 section 2.2, these letters need to be escaped with
 		 \[letter] */
@@ -115,7 +115,7 @@ static char * unescape_word(struct Curl_easy * data, const char * inputbuff)
 		}
 		dictp[olen] = 0;
 	}
-	free(newp);
+	SAlloc::F(newp);
 	return dictp;
 }
 
@@ -188,7 +188,7 @@ static CURLcode dict_do(struct connectdata * conn, bool * done)
 		    eword
 		    );
 
-		free(eword);
+		SAlloc::F(eword);
 
 		if(result) {
 			failf(data, "Failed sending DICT request");
@@ -234,7 +234,7 @@ static CURLcode dict_do(struct connectdata * conn, bool * done)
 		    database,
 		    eword);
 
-		free(eword);
+		SAlloc::F(eword);
 
 		if(result) {
 			failf(data, "Failed sending DICT request");

@@ -356,11 +356,11 @@ static bool IsCommentLine(Sci_Position line, Accessor &styler) {
 	return false;
 }
 
-static unsigned int GetFoldInPreprocessorLevelFlag(int lineFoldStateCurrent) {
+static uint GetFoldInPreprocessorLevelFlag(int lineFoldStateCurrent) {
 	return lineFoldStateCurrent & stateFoldInPreprocessorLevelMask;
 }
 
-static void SetFoldInPreprocessorLevelFlag(int &lineFoldStateCurrent, unsigned int nestLevel) {
+static void SetFoldInPreprocessorLevelFlag(int &lineFoldStateCurrent, uint nestLevel) {
 	lineFoldStateCurrent &= ~stateFoldInPreprocessorLevelMask;
 	lineFoldStateCurrent |= nestLevel & stateFoldInPreprocessorLevelMask;
 }
@@ -372,7 +372,7 @@ static void ClassifyPascalPreprocessorFoldPoint(int &levelCurrent, int &lineFold
 	char s[11];	// Size of the longest possible keyword + one additional character + null
 	GetForwardRangeLowered(startPos, setWord, styler, s, sizeof(s));
 
-	unsigned int nestLevel = GetFoldInPreprocessorLevelFlag(lineFoldStateCurrent);
+	uint nestLevel = GetFoldInPreprocessorLevelFlag(lineFoldStateCurrent);
 
 	if (strcmp(s, "if") == 0 ||
 		strcmp(s, "ifdef") == 0 ||

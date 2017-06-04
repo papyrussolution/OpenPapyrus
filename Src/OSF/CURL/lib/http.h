@@ -22,31 +22,20 @@
 *
 ***************************************************************************/
 #include "curl_setup.h"
-
 #ifndef CURL_DISABLE_HTTP
-
 #ifdef USE_NGHTTP2
-#include <nghttp2/nghttp2.h>
+	#include <nghttp2/nghttp2.h>
 #endif
-
 extern const struct Curl_handler Curl_handler_http;
-
 #ifdef USE_SSL
-extern const struct Curl_handler Curl_handler_https;
-
+	extern const struct Curl_handler Curl_handler_https;
 #endif
 
 /* Header specific functions */
-bool Curl_compareheader(const char * headerline,  /* line to check */
-    const char * header,                      /* header keyword _with_ colon */
-    const char * content);                    /* content string to find */
-
-char * Curl_checkheaders(const struct connectdata * conn,
-    const char * thisheader);
+bool Curl_compareheader(const char * headerline/* line to check */, const char * header/* header keyword _with_ colon */, const char * content/* content string to find */);
+char * Curl_checkheaders(const struct connectdata * conn, const char * thisheader);
 char * Curl_copy_header_value(const char * header);
-
-char * Curl_checkProxyheaders(const struct connectdata * conn,
-    const char * thisheader);
+char * Curl_checkProxyheaders(const struct connectdata * conn, const char * thisheader);
 /* ------------------------------------------------------------------------- */
 /*
  * The add_buffer series of functions are used to build one large memory chunk
@@ -65,17 +54,10 @@ Curl_send_buffer * Curl_add_buffer_init(void);
 void Curl_add_buffer_free(Curl_send_buffer * buff);
 CURLcode Curl_add_bufferf(Curl_send_buffer * in, const char * fmt, ...);
 CURLcode Curl_add_buffer(Curl_send_buffer * in, const void * inptr, size_t size);
-CURLcode Curl_add_buffer_send(Curl_send_buffer * in,
-    struct connectdata * conn,
-    long * bytes_written,
-    size_t included_body_bytes,
-    int socketindex);
+CURLcode Curl_add_buffer_send(Curl_send_buffer * in, struct connectdata * conn, long * bytes_written, size_t included_body_bytes, int socketindex);
 
-CURLcode Curl_add_timecondition(struct Curl_easy * data,
-    Curl_send_buffer * buf);
-CURLcode Curl_add_custom_headers(struct connectdata * conn,
-    bool is_connect,
-    Curl_send_buffer * req_buffer);
+CURLcode Curl_add_timecondition(struct Curl_easy * data, Curl_send_buffer * buf);
+CURLcode Curl_add_custom_headers(struct connectdata * conn, bool is_connect, Curl_send_buffer * req_buffer);
 
 /* protocol-specific functions set up to be called by the main engine */
 CURLcode Curl_http(struct connectdata * conn, bool * done);
@@ -85,13 +67,10 @@ CURLcode Curl_http_setup_conn(struct connectdata * conn);
 
 /* The following functions are defined in http_chunks.c */
 void Curl_httpchunk_init(struct connectdata * conn);
-CHUNKcode Curl_httpchunk_read(struct connectdata * conn, char * datap,
-    ssize_t length, ssize_t * wrote);
-
+CHUNKcode Curl_httpchunk_read(struct connectdata * conn, char * datap, ssize_t length, ssize_t * wrote);
 /* These functions are in http.c */
 void Curl_http_auth_stage(struct Curl_easy * data, int stage);
-CURLcode Curl_http_input_auth(struct connectdata * conn, bool proxy,
-    const char * auth);
+CURLcode Curl_http_input_auth(struct connectdata * conn, bool proxy, const char * auth);
 CURLcode Curl_http_auth_act(struct connectdata * conn);
 CURLcode Curl_http_perhapsrewind(struct connectdata * conn);
 
@@ -114,11 +93,10 @@ CURLcode Curl_http_perhapsrewind(struct connectdata * conn);
    It must not be greater than 64K to work on VMS.
  */
 #ifndef MAX_INITIAL_POST_SIZE
-#define MAX_INITIAL_POST_SIZE (64*1024)
+	#define MAX_INITIAL_POST_SIZE (64*1024)
 #endif
-
 #ifndef TINY_INITIAL_POST_SIZE
-#define TINY_INITIAL_POST_SIZE 1024
+	#define TINY_INITIAL_POST_SIZE 1024
 #endif
 
 #endif /* CURL_DISABLE_HTTP */

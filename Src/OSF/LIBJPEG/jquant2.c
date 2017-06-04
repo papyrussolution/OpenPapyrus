@@ -260,8 +260,7 @@ typedef struct {
 
 typedef box * boxptr;
 
-LOCAL(boxptr)
-find_biggest_color_pop(boxptr boxlist, int numboxes)
+LOCAL(boxptr) find_biggest_color_pop(boxptr boxlist, int numboxes)
 /* Find the splittable box with the largest color population */
 /* Returns NULL if no splittable boxes remain */
 {
@@ -279,8 +278,7 @@ find_biggest_color_pop(boxptr boxlist, int numboxes)
 	return which;
 }
 
-LOCAL(boxptr)
-find_biggest_volume(boxptr boxlist, int numboxes)
+LOCAL(boxptr) find_biggest_volume(boxptr boxlist, int numboxes)
 /* Find the splittable box with the largest (scaled) volume */
 /* Returns NULL if no splittable boxes remain */
 {
@@ -298,8 +296,7 @@ find_biggest_volume(boxptr boxlist, int numboxes)
 	return which;
 }
 
-LOCAL(void)
-update_box(j_decompress_ptr cinfo, boxptr boxp)
+static void update_box(j_decompress_ptr cinfo, boxptr boxp)
 /* Shrink the min/max bounds of a box to enclose only nonzero elements, */
 /* and recompute its volume and population */
 {
@@ -408,9 +405,7 @@ have_c2max:
 	boxp->colorcount = ccount;
 }
 
-LOCAL(int)
-median_cut(j_decompress_ptr cinfo, boxptr boxlist, int numboxes,
-    int desired_colors)
+static int median_cut(j_decompress_ptr cinfo, boxptr boxlist, int numboxes, int desired_colors)
 /* Repeatedly select and split the largest box until we have enough boxes */
 {
 	int n, lb;
@@ -491,8 +486,7 @@ median_cut(j_decompress_ptr cinfo, boxptr boxlist, int numboxes,
 	return numboxes;
 }
 
-LOCAL(void)
-compute_color(j_decompress_ptr cinfo, boxptr boxp, int icolor)
+static void compute_color(j_decompress_ptr cinfo, boxptr boxp, int icolor)
 /* Compute representative color for a box, put it in colormap[icolor] */
 {
 	/* Current algorithm: mean weighted by pixels (not colors) */
@@ -530,8 +524,7 @@ compute_color(j_decompress_ptr cinfo, boxptr boxp, int icolor)
 	cinfo->colormap[2][icolor] = (JSAMPLE)((c2total + (total>>1)) / total);
 }
 
-LOCAL(void)
-select_colors(j_decompress_ptr cinfo, int desired_colors)
+static void select_colors(j_decompress_ptr cinfo, int desired_colors)
 /* Master routine for color selection */
 {
 	boxptr boxlist;
@@ -633,10 +626,7 @@ select_colors(j_decompress_ptr cinfo, int desired_colors)
  * and may allow some compilers to produce better code by registerizing more
  * inner-loop variables.
  */
-
-LOCAL(int)
-find_nearby_colors(j_decompress_ptr cinfo, int minc0, int minc1, int minc2,
-    JSAMPLE colorlist[])
+static int find_nearby_colors(j_decompress_ptr cinfo, int minc0, int minc1, int minc2, JSAMPLE colorlist[])
 /* Locate the colormap entries close enough to an update box to be candidates
  * for the nearest entry to some cell(s) in the update box.  The update box
  * is specified by the center coordinates of its first cell.  The number of
@@ -771,9 +761,7 @@ find_nearby_colors(j_decompress_ptr cinfo, int minc0, int minc1, int minc2,
 	return ncolors;
 }
 
-LOCAL(void)
-find_best_colors(j_decompress_ptr cinfo, int minc0, int minc1, int minc2,
-    int numcolors, JSAMPLE colorlist[], JSAMPLE bestcolor[])
+static void find_best_colors(j_decompress_ptr cinfo, int minc0, int minc1, int minc2, int numcolors, JSAMPLE colorlist[], JSAMPLE bestcolor[])
 /* Find the closest colormap entry for each cell in the update box,
  * given the list of candidate colors prepared by find_nearby_colors.
  * Return the indexes of the closest entries in the bestcolor[] array.
@@ -850,8 +838,7 @@ find_best_colors(j_decompress_ptr cinfo, int minc0, int minc1, int minc2,
 	}
 }
 
-LOCAL(void)
-fill_inverse_cmap(j_decompress_ptr cinfo, int c0, int c1, int c2)
+static void fill_inverse_cmap(j_decompress_ptr cinfo, int c0, int c1, int c2)
 /* Fill the inverse-colormap entries in the update box that contains */
 /* histogram cell c0/c1/c2.  (Only that one cell MUST be filled, but */
 /* we can fill as many others as we wish.) */
@@ -1098,8 +1085,7 @@ METHODDEF(void) pass2_fs_dither(j_decompress_ptr cinfo,
  * to Aaron Giles for this idea.
  */
 
-LOCAL(void)
-init_error_limit(j_decompress_ptr cinfo)
+static void init_error_limit(j_decompress_ptr cinfo)
 /* Allocate and fill in the error_limiter table */
 {
 	my_cquantize_ptr cquantize = (my_cquantize_ptr)cinfo->cquantize;

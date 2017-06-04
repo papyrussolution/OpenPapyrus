@@ -8,8 +8,6 @@
 #ifndef CHARACTERSET_H
 #define CHARACTERSET_H
 
-#include <assert.h>
-
 #ifdef SCI_NAMESPACE
 namespace Scintilla {
 #endif
@@ -75,7 +73,7 @@ public:
 	}
 	void AddString(const char *setToAdd) {
 		for (const char *cp=setToAdd; *cp; cp++) {
-			int val = static_cast<unsigned char>(*cp);
+			int val = static_cast<uchar>(*cp);
 			assert(val >= 0);
 			assert(val < size);
 			bset[val] = true;
@@ -162,11 +160,18 @@ inline bool isoperator(int ch) {
 
 // Simple case functions for ASCII.
 
-inline char MakeUpperCase(char ch) {
+inline int MakeUpperCase(int ch) {
 	if (ch < 'a' || ch > 'z')
 		return ch;
 	else
 		return static_cast<char>(ch - 'a' + 'A');
+}
+
+inline int MakeLowerCase(int ch) {
+	if (ch < 'A' || ch > 'Z')
+		return ch;
+	else
+		return ch - 'A' + 'a';
 }
 
 int CompareCaseInsensitive(const char *a, const char *b);

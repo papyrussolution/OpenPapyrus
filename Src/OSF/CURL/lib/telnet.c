@@ -58,7 +58,7 @@
 
 #include "arpa_telnet.h"
 #include "select.h"
-#include "strcase.h"
+//#include "strcase.h"
 #include "warnless.h"
 
 /* The last 3 #include files should be in this order */
@@ -96,7 +96,7 @@ static CURLcode check_wsock2(struct Curl_easy * data);
 
 static
 CURLcode telrcv(struct connectdata *,
-    const unsigned char * inbuf,            /* Data received from socket */
+    const uchar * inbuf,            /* Data received from socket */
     ssize_t count);                         /* Number of bytes received */
 
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
@@ -111,7 +111,7 @@ static void set_local_option(struct connectdata *, int cmd, int option);
 static void set_remote_option(struct connectdata *, int cmd, int option);
 
 static void printsub(struct Curl_easy * data,
-    int direction, unsigned char * pointer,
+    int direction, uchar * pointer,
     size_t length);
 static void suboption(struct connectdata *);
 static void sendsuboption(struct connectdata * conn, int option);
@@ -158,13 +158,13 @@ struct TELNET {
 	int subnegotiation[256];
 	char subopt_ttype[32];       /* Set with suboption TTYPE */
 	char subopt_xdisploc[128];   /* Set with suboption XDISPLOC */
-	unsigned short subopt_wsx;   /* Set with suboption NAWS */
-	unsigned short subopt_wsy;   /* Set with suboption NAWS */
+	ushort subopt_wsx;   /* Set with suboption NAWS */
+	ushort subopt_wsy;   /* Set with suboption NAWS */
 	struct curl_slist * telnet_vars; /* Environment variables */
 
 	/* suboptions */
-	unsigned char subbuffer[SUBBUFSIZE];
-	unsigned char * subpointer, * subend; /* buffer for sub-options */
+	uchar subbuffer[SUBBUFSIZE];
+	uchar * subpointer, * subend; /* buffer for sub-options */
 
 	TelnetReceive telrcv_state;
 };
@@ -235,7 +235,7 @@ static CURLcode check_wsock2(struct Curl_easy * data)
 
 static CURLcode init_telnet(struct connectdata * conn)
 {
-	struct TELNET * tn = (struct TELNET *)calloc(1, sizeof(struct TELNET));
+	struct TELNET * tn = (struct TELNET *)SAlloc::C(1, sizeof(struct TELNET));
 	if(!tn)
 		return CURLE_OUT_OF_MEMORY;
 	conn->data->req.protop = tn; /* make us known */
@@ -332,14 +332,14 @@ static void printoption(struct Curl_easy * data,
 
 static void send_negotiation(struct connectdata * conn, int cmd, int option)
 {
-	unsigned char buf[3];
+	uchar buf[3];
 	ssize_t bytes_written;
 	int err;
 	struct Curl_easy * data = conn->data;
 
 	buf[0] = CURL_IAC;
-	buf[1] = (unsigned char)cmd;
-	buf[2] = (unsigned char)option;
+	buf[1] = (uchar)cmd;
+	buf[2] = (uchar)option;
 
 	bytes_written = swrite(conn->sock[FIRSTSOCKET], buf, 3);
 	if(bytes_written < 0) {
@@ -691,10 +691,10 @@ void rec_dont(struct connectdata * conn, int option)
 
 static void printsub(struct Curl_easy * data,
     int direction,                              /* '<' or '>' */
-    unsigned char * pointer,                    /* where suboption data is */
+    uchar * pointer,                    /* where suboption data is */
     size_t length)                              /* length of suboption data */
 {
-	unsigned int i = 0;
+	uint i = 0;
 
 	if(data->set.verbose) {
 		if(direction) {
@@ -911,7 +911,7 @@ static void suboption(struct connectdata * conn)
 {
 	struct curl_slist * v;
 
-	unsigned char temp[2048];
+	uchar temp[2048];
 	ssize_t bytes_written;
 	size_t len;
 	size_t tmplen;
@@ -921,7 +921,7 @@ static void suboption(struct connectdata * conn)
 	struct Curl_easy * data = conn->data;
 	struct TELNET * tn = (struct TELNET*)data->req.protop;
 
-	printsub(data, '<', (unsigned char*)tn->subbuffer, CURL_SB_LEN(tn)+2);
+	printsub(data, '<', (uchar*)tn->subbuffer, CURL_SB_LEN(tn)+2);
 	switch(CURL_SB_GET(tn)) {
 		case CURL_TELOPT_TTYPE:
 		    len = strlen(tn->subopt_ttype) + 4 + 2;
@@ -989,8 +989,8 @@ static void sendsuboption(struct connectdata * conn, int option)
 {
 	ssize_t bytes_written;
 	int err;
-	unsigned short x, y;
-	unsigned char * uc1, * uc2;
+	ushort x, y;
+	uchar * uc1, * uc2;
 
 	struct Curl_easy * data = conn->data;
 	struct TELNET * tn = (struct TELNET*)data->req.protop;
@@ -1006,8 +1006,8 @@ static void sendsuboption(struct connectdata * conn, int option)
 		    /* Window size must be sent according to the 'network order' */
 		    x = htons(tn->subopt_wsx);
 		    y = htons(tn->subopt_wsy);
-		    uc1 = (unsigned char*)&x;
-		    uc2 = (unsigned char*)&y;
+		    uc1 = (uchar*)&x;
+		    uc2 = (uchar*)&y;
 		    CURL_SB_ACCUM(tn, uc1[0]);
 		    CURL_SB_ACCUM(tn, uc1[1]);
 		    CURL_SB_ACCUM(tn, uc2[0]);
@@ -1018,7 +1018,7 @@ static void sendsuboption(struct connectdata * conn, int option)
 		    CURL_SB_TERM(tn);
 		    /* data suboption is now ready */
 
-		    printsub(data, '>', (unsigned char*)tn->subbuffer+2,
+		    printsub(data, '>', (uchar*)tn->subbuffer+2,
 		    CURL_SB_LEN(tn)-2);
 
 		    /* we send the header of the suboption... */
@@ -1042,10 +1042,10 @@ static void sendsuboption(struct connectdata * conn, int option)
 
 static
 CURLcode telrcv(struct connectdata * conn,
-    const unsigned char * inbuf,            /* Data received from socket */
+    const uchar * inbuf,            /* Data received from socket */
     ssize_t count)                          /* Number of bytes received */
 {
-	unsigned char c;
+	uchar c;
 	CURLcode result;
 	int in = 0;
 	int startwrite = -1;
@@ -1208,7 +1208,7 @@ process_iac:
 static CURLcode send_telnet_data(struct connectdata * conn,
     char * buffer, ssize_t nread)
 {
-	unsigned char outbuf[2];
+	uchar outbuf[2];
 	ssize_t bytes_written, total_written;
 	int out_count;
 	CURLcode result = CURLE_OK;
@@ -1258,7 +1258,7 @@ static CURLcode telnet_done(struct connectdata * conn,
 	curl_slist_free_all(tn->telnet_vars);
 	tn->telnet_vars = NULL;
 
-	Curl_safefree(conn->data->req.protop);
+	ZFREE(conn->data->req.protop);
 
 	return CURLE_OK;
 }
@@ -1496,7 +1496,7 @@ static CURLcode telnet_do(struct connectdata * conn, bool * done)
 					    break;
 				    }
 
-				    result = telrcv(conn, (unsigned char*)buf, nread);
+				    result = telrcv(conn, (uchar*)buf, nread);
 				    if(result) {
 					    keepon = FALSE;
 					    break;
@@ -1586,7 +1586,7 @@ static CURLcode telnet_do(struct connectdata * conn, bool * done)
 
 				    total_dl += nread;
 				    Curl_pgrsSetDownloadCounter(data, total_dl);
-				    result = telrcv(conn, (unsigned char*)buf, nread);
+				    result = telrcv(conn, (uchar*)buf, nread);
 				    if(result) {
 					    keepon = FALSE;
 					    break;

@@ -86,8 +86,9 @@ char FS = 0x1C;
 #define PIRIT_PRNTROPENED		509 // 2 Открыта крышка принтера
 #define PIRIT_PRNCUTERR			510 // 3 Ошибка резчика принтера
 #define PIRIT_NOCONCTNWITHPRNTR	511 // 7 Нет связи с принтером
-
+//
 // Значения флагов статуса
+//
 #define NOPRINT					0x00	// Нет печати
 #define NOPAPER					0x01	// В принтере нет бумаги
 #define PRINTAFTERNOPAPER		0x02	// Печатать после окончания ленты
@@ -127,12 +128,13 @@ struct Config
 		DateTm = MAXDATETIME;
 		Flags = 0;
 		ConnPass = "PIRI";
-		ReadCycleCount = 0;
-		ReadCycleDelay = 0;
+		ReadCycleCount = 10; // @v9.6.9 0-->10
+		ReadCycleDelay = 10; // @v9.6.9 0-->10
 	};
 	struct LogoStruct
 	{
-		LogoStruct() {
+		LogoStruct() 
+		{
 			Height = 0;
 			Width = 0;
 			Size = 0;
@@ -243,7 +245,10 @@ public:
 	int    ReturnCheckParam(SString & rInput, char * output, size_t size);
 	int    PutData(const char * pCommand, const char * pData);
 	int    GetData(SString & rData, SString & rError);
-	int    GetWhile(SString & rOutData, SString & rError); // Для получения ответа при выполнении длинных операций (аннулирование, открытие, закрытие, внесение/изъятие наличности, открыть ящик)
+	//
+	// Для получения ответа при выполнении длинных операций (аннулирование, открытие, закрытие, внесение/изъятие наличности, открыть ящик)
+	//
+	int    GetWhile(SString & rOutData, SString & rError); 
 	void   GetGlobalErrCode(); // Сделано для ошибок ЭКЛЗ
 	int    OpenBox();
 	int    GetStatus(SString & rStatus); // Возвращает статус ККМ (состояние принтера, статус документа)
@@ -801,7 +806,8 @@ SString & PiritEquip::LastErrorText(SString & rMsg)
 	}
 	// new {
 	else if(LastError == PIRIT_ERRSTATUSFORFUNC) {
-		GetStatus(status_str);
+		// @v9.6.9 GetStatus(status_str);
+		status_str = "unkn"; // @v9.6.9
 		if(LastStatus == CHECKOPENED)
 			rMsg.CatChar(':').Space().Cat(CHECK_OPENED_STR);
 		else if(LastStatus == CHECKCLOSED)
@@ -853,9 +859,7 @@ int PiritEquip::SetConnection()
 		case 10: port_params.Cbr = cbr256000; break;
 	}
 	THROW(CommPort.SetParams(&port_params));
-
 	THROW(CommPort.InitPort(Cfg.Port));
-
 	// @v9.5.7 delay(200);
 	CommPort.PutChr(ENQ); // Проверка связи с ККМ
 	r = CommPort.GetChr();
@@ -1007,8 +1011,9 @@ int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 		OpLogBlock __oplb(LogFileName, "00", 0);
 		THROWERR(PutData("00", 0), PIRIT_NOTSENT); // Запрос флагов статуса
 		while(out_data.Empty() && count < max_tries) {
-			if(numFlags == 1) // Если запрашиваем флаги фатального состояния, дабы не зациклиться
+			if(numFlags == 1) { // Если запрашиваем флаги фатального состояния, дабы не зациклиться
 				GetData(out_data, r_error);
+			}
 			else {
 				THROW(GetWhile(out_data, r_error));
 			}
@@ -1092,8 +1097,9 @@ int PiritEquip::RunCheck(int opertype)
 				}
 			}
 			// new {
-			else
+			else {
 				THROWERR(0, PIRIT_ERRSTATUSFORFUNC);
+			}
 			// } new
 			break;
 		case 2: // Печать фискальной строки
@@ -1372,10 +1378,10 @@ int PiritEquip::GetWhile(SString & rOutData, SString & rError)
 	int    ok = 1;
 	uint   count = 0;
 	rError = 0;
-	while(rError.Empty() && count < max_tries) {
+	//while(rError.Empty() && count < max_tries) {
 		if(GetData(rOutData, rError) < 0) {
-			//rError = "00";
-			//ok = -1;
+			rError = "00";
+			ok = -1;
 		}
 		else {
 			if(rError.NotEmpty()) {
@@ -1399,7 +1405,7 @@ int PiritEquip::GetWhile(SString & rOutData, SString & rError)
 			}
 			count++;
 		}
-	}
+	//}
 	CATCHZOK
 	return ok;
 }
@@ -1526,16 +1532,16 @@ int PiritEquip::GetStatus(SString & rStatus)
 		status = CHECKCLOSED;
 	if(rStatus.NotEmpty())
 		rStatus.Destroy();
-	if(r_error.Empty()) // Режим печати чека
-		status |= PRINT;
+	/* @v9.6.9 if(r_error.Empty()) // Режим печати чека
+		status |= PRINT;*/
 	LastStatus = status;
-
 	// new {
 	if(status == CHECKCLOSED) // Этот статус не надо передавать во внешнюю программу
 		status = 0;
 	// } new
-	rStatus.CatEq("STATUS", status);
+	// @v9.6.9 rStatus.CatEq("STATUS", status); 
 	CATCHZOK
+	rStatus.CatEq("STATUS", status); // @v9.6.9
 	return ok;
 }
 

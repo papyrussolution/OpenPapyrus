@@ -294,18 +294,16 @@ bool copy_input_until_stop(EState* s)
 }
 
 /*---------------------------------------------------*/
-static
-bool copy_output_until_stop(EState* s)
+static bool copy_output_until_stop(EState* s)
 {
 	bool progress_out = false;
-
 	while(true) {
 		/*-- no output space? --*/
-		if(s->strm->avail_out == 0) break;
-
+		if(s->strm->avail_out == 0) 
+			break;
 		/*-- block done? --*/
-		if(s->state_out_pos >= s->numZ) break;
-
+		if(s->state_out_pos >= s->numZ) 
+			break;
 		progress_out = true;
 		*(s->strm->next_out) = s->zbits[s->state_out_pos];
 		s->state_out_pos++;
@@ -772,16 +770,21 @@ static bool unRLE_obuf_to_output_SMALL(DState* s)
 				continue;
 			}
 			s->state_out_len = 3;
-			BZ_GET_SMALL(k1); s->nblock_used++;
-			if(s->nblock_used == s->save_nblock+1) continue;
+			BZ_GET_SMALL(k1); 
+			s->nblock_used++;
+			if(s->nblock_used == s->save_nblock+1) 
+				continue;
 			if(k1 != s->k0) {
-				s->k0 = k1; continue;
+				s->k0 = k1; 
+				continue;
 			}
 			;
 
-			BZ_GET_SMALL(k1); s->nblock_used++;
+			BZ_GET_SMALL(k1); 
+			s->nblock_used++;
 			s->state_out_len = ((int32)k1) + 4;
-			BZ_GET_SMALL(s->k0); s->nblock_used++;
+			BZ_GET_SMALL(s->k0); 
+			s->nblock_used++;
 		}
 	}
 }
@@ -1274,22 +1277,21 @@ int BZ_API(BZ2_bzBuffToBuffDecompress)(char * dest, uint* destLen, char* source,
 	strm.bzfree = NULL;
 	strm.opaque = NULL;
 	ret = BZ2_bzDecompressInit(&strm, verbosity, small);
-	if(ret != BZ_OK) return ret;
-
+	if(ret != BZ_OK) 
+		return ret;
 	strm.next_in = source;
 	strm.next_out = dest;
 	strm.avail_in = sourceLen;
 	strm.avail_out = *destLen;
-
 	ret = BZ2_bzDecompress(&strm);
-	if(ret == BZ_OK) goto output_overflow_or_eof;
-	if(ret != BZ_STREAM_END) goto errhandler;
-
+	if(ret == BZ_OK) 
+		goto output_overflow_or_eof;
+	if(ret != BZ_STREAM_END) 
+		goto errhandler;
 	/* normal termination */
 	*destLen -= strm.avail_out;
 	BZ2_bzDecompressEnd(&strm);
 	return BZ_OK;
-
 output_overflow_or_eof:
 	if(strm.avail_out > 0) {
 		BZ2_bzDecompressEnd(&strm);
@@ -1299,7 +1301,6 @@ output_overflow_or_eof:
 		BZ2_bzDecompressEnd(&strm);
 		return BZ_OUTBUFF_FULL;
 	};
-
 errhandler:
 	BZ2_bzDecompressEnd(&strm);
 	return ret;
@@ -1336,11 +1337,7 @@ const char * BZ_API(BZ2_bzlibVersion) (void)
 	#define SET_BINARY_MODE(file)
 #endif
 static
-BZFILE * bzopen_or_bzdopen
-	(const char * path,          /* no use when bzdopen */
-    int fd,                          /* no use when bzdopen */
-    const char * mode,
-    int open_mode)                   /* bzopen: 0, bzdopen:1 */
+BZFILE * bzopen_or_bzdopen(const char * path/* no use when bzdopen */, int fd/* no use when bzdopen */, const char * mode, int open_mode/* bzopen: 0, bzdopen:1 */)
 {
 	int bzerr;
 	char unused[BZ_MAX_UNUSED];
@@ -1369,7 +1366,6 @@ BZFILE * bzopen_or_bzdopen
 	}
 	strcat(mode2, writing ? "w" : "r");
 	strcat(mode2, "b"); /* binary mode */
-
 	if(open_mode==0) {
 		if(path==NULL || strcmp(path, "")==0) {
 			fp = (writing ? stdout : stdin);
@@ -1386,18 +1382,18 @@ BZFILE * bzopen_or_bzdopen
 		fp = fdopen(fd, mode2);
 #endif
 	}
-	if(fp == NULL) return NULL;
-
+	if(fp == NULL) 
+		return NULL;
 	if(writing) {
 		/* Guard against total chaos and anarchy -- JRS */
-		if(blockSize100k < 1) blockSize100k = 1;
-		if(blockSize100k > 9) blockSize100k = 9;
-		bzfp = BZ2_bzWriteOpen(&bzerr, fp, blockSize100k,
-		    verbosity, workFactor);
+		if(blockSize100k < 1) 
+			blockSize100k = 1;
+		if(blockSize100k > 9) 
+			blockSize100k = 9;
+		bzfp = BZ2_bzWriteOpen(&bzerr, fp, blockSize100k, verbosity, workFactor);
 	}
 	else {
-		bzfp = BZ2_bzReadOpen(&bzerr, fp, verbosity, smallMode,
-		    unused, nUnused);
+		bzfp = BZ2_bzReadOpen(&bzerr, fp, verbosity, smallMode, unused, nUnused);
 	}
 	if(bzfp == NULL) {
 		if(fp != stdin && fp != stdout) fclose(fp);
@@ -1425,7 +1421,8 @@ BZFILE * BZ_API(BZ2_bzdopen)(int fd, const char * mode)
 int BZ_API(BZ2_bzread) (BZFILE* b, void* buf, int len)
 {
 	int bzerr, nread;
-	if(((bzFile*)b)->lastErr == BZ_STREAM_END) return 0;
+	if(((bzFile*)b)->lastErr == BZ_STREAM_END) 
+		return 0;
 	nread = BZ2_bzRead(&bzerr, b, buf, len);
 	if(bzerr == BZ_OK || bzerr == BZ_STREAM_END) {
 		return nread;

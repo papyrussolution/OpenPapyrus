@@ -36,7 +36,7 @@
 #include "curl_multibyte.h"
 #include "sendf.h"
 #include "strdup.h"
-#include "strcase.h"
+//#include "strcase.h"
 
 /* The last #include files should be: */
 #include "curl_memory.h"
@@ -93,8 +93,8 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 	TCHAR * spn = NULL;
 	size_t chlglen = 0;
 	size_t token_max = 0;
-	unsigned char * input_token = NULL;
-	unsigned char * output_token = NULL;
+	uchar * input_token = NULL;
+	uchar * output_token = NULL;
 	CredHandle credentials;
 	CtxtHandle context;
 	PSecPkgInfo SecurityPackage;
@@ -105,7 +105,7 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 	SecBufferDesc chlg_desc;
 	SecBufferDesc resp_desc;
 	SECURITY_STATUS status;
-	unsigned long attrs;
+	ulong attrs;
 	TimeStamp expiry; /* For Windows 9x compatibility of SSPI calls */
 
 	/* Decode the base-64 encoded challenge message */
@@ -126,7 +126,7 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 	status = s_pSecFn->QuerySecurityPackageInfo((TCHAR*)TEXT(SP_NAME_DIGEST),
 	    &SecurityPackage);
 	if(status != SEC_E_OK) {
-		free(input_token);
+		SAlloc::F(input_token);
 
 		return CURLE_NOT_BUILT_IN;
 	}
@@ -137,9 +137,9 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 	s_pSecFn->FreeContextBuffer(SecurityPackage);
 
 	/* Allocate our response buffer */
-	output_token = malloc(token_max);
+	output_token = SAlloc::M(token_max);
 	if(!output_token) {
-		free(input_token);
+		SAlloc::F(input_token);
 
 		return CURLE_OUT_OF_MEMORY;
 	}
@@ -147,8 +147,8 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 	/* Generate our SPN */
 	spn = Curl_auth_build_spn(service, data->easy_conn->host.name, NULL);
 	if(!spn) {
-		free(output_token);
-		free(input_token);
+		SAlloc::F(output_token);
+		SAlloc::F(input_token);
 
 		return CURLE_OUT_OF_MEMORY;
 	}
@@ -157,9 +157,9 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 		/* Populate our identity structure */
 		result = Curl_create_sspi_identity(userp, passwdp, &identity);
 		if(result) {
-			free(spn);
-			free(output_token);
-			free(input_token);
+			SAlloc::F(spn);
+			SAlloc::F(output_token);
+			SAlloc::F(input_token);
 
 			return result;
 		}
@@ -180,9 +180,9 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 
 	if(status != SEC_E_OK) {
 		Curl_sspi_free_identity(p_identity);
-		free(spn);
-		free(output_token);
-		free(input_token);
+		SAlloc::F(spn);
+		SAlloc::F(output_token);
+		SAlloc::F(input_token);
 
 		return CURLE_LOGIN_DENIED;
 	}
@@ -215,9 +215,9 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 	else if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED) {
 		s_pSecFn->FreeCredentialsHandle(&credentials);
 		Curl_sspi_free_identity(p_identity);
-		free(spn);
-		free(output_token);
-		free(input_token);
+		SAlloc::F(spn);
+		SAlloc::F(output_token);
+		SAlloc::F(input_token);
 
 		return CURLE_RECV_ERROR;
 	}
@@ -234,13 +234,13 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 	Curl_sspi_free_identity(p_identity);
 
 	/* Free the SPN */
-	free(spn);
+	SAlloc::F(spn);
 
 	/* Free the response buffer */
-	free(output_token);
+	SAlloc::F(output_token);
 
 	/* Free the decoded challenge message */
-	free(input_token);
+	SAlloc::F(input_token);
 
 	return result;
 }
@@ -288,7 +288,7 @@ CURLcode Curl_override_sspi_http_realm(const char * chlg,
 						return CURLE_OUT_OF_MEMORY;
 					}
 
-					free(identity->Domain);
+					SAlloc::F(identity->Domain);
 					identity->Domain = dup_domain.tbyte_ptr;
 					identity->DomainLength = curlx_uztoul(_tcslen(dup_domain.tchar_ptr));
 					dup_domain.tchar_ptr = NULL;
@@ -402,8 +402,8 @@ CURLcode Curl_auth_decode_digest_http_message(const char * chlg,
 CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
     const char * userp,
     const char * passwdp,
-    const unsigned char * request,
-    const unsigned char * uripath,
+    const uchar * request,
+    const uchar * uripath,
     struct digestdata * digest,
     char ** outptr, size_t * outlen)
 {
@@ -431,7 +431,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 
 	/* Allocate the output buffer according to the max token size as indicated
 	   by the security package */
-	output_token = malloc(token_max);
+	output_token = SAlloc::M(token_max);
 	if(!output_token) {
 		return CURLE_OUT_OF_MEMORY;
 	}
@@ -463,7 +463,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 			infof(data, "digest_sspi: MakeSignature failed, error 0x%08lx\n",
 			    (long)status);
 			s_pSecFn->DeleteSecurityContext(digest->http_context);
-			Curl_safefree(digest->http_context);
+			ZFREE(digest->http_context);
 		}
 	}
 
@@ -473,21 +473,21 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 		SEC_WINNT_AUTH_IDENTITY * p_identity;
 		SecBuffer resp_buf;
 		SecBufferDesc resp_desc;
-		unsigned long attrs;
+		ulong attrs;
 		TimeStamp expiry; /* For Windows 9x compatibility of SSPI calls */
 		TCHAR * spn;
 
 		if(userp && *userp) {
 			/* Populate our identity structure */
 			if(Curl_create_sspi_identity(userp, passwdp, &identity)) {
-				free(output_token);
+				SAlloc::F(output_token);
 				return CURLE_OUT_OF_MEMORY;
 			}
 
 			/* Populate our identity domain */
 			if(Curl_override_sspi_http_realm((const char*)digest->input_token,
 				    &identity)) {
-				free(output_token);
+				SAlloc::F(output_token);
 				return CURLE_OUT_OF_MEMORY;
 			}
 
@@ -506,7 +506,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 		    &credentials, &expiry);
 		if(status != SEC_E_OK) {
 			Curl_sspi_free_identity(p_identity);
-			free(output_token);
+			SAlloc::F(output_token);
 
 			return CURLE_LOGIN_DENIED;
 		}
@@ -538,13 +538,13 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 			s_pSecFn->FreeCredentialsHandle(&credentials);
 
 			Curl_sspi_free_identity(p_identity);
-			free(output_token);
+			SAlloc::F(output_token);
 
 			return CURLE_OUT_OF_MEMORY;
 		}
 
 		/* Allocate our new context handle */
-		digest->http_context = calloc(1, sizeof(CtxtHandle));
+		digest->http_context = SAlloc::C(1, sizeof(CtxtHandle));
 		if(!digest->http_context)
 			return CURLE_OUT_OF_MEMORY;
 
@@ -564,9 +564,9 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 			s_pSecFn->FreeCredentialsHandle(&credentials);
 
 			Curl_sspi_free_identity(p_identity);
-			free(output_token);
+			SAlloc::F(output_token);
 
-			Curl_safefree(digest->http_context);
+			ZFREE(digest->http_context);
 
 			return CURLE_OUT_OF_MEMORY;
 		}
@@ -577,9 +577,9 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 		Curl_sspi_free_identity(p_identity);
 	}
 
-	resp = malloc(output_token_len + 1);
+	resp = SAlloc::M(output_token_len + 1);
 	if(!resp) {
-		free(output_token);
+		SAlloc::F(output_token);
 
 		return CURLE_OUT_OF_MEMORY;
 	}
@@ -593,7 +593,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 	*outlen = output_token_len;
 
 	/* Free the response buffer */
-	free(output_token);
+	SAlloc::F(output_token);
 
 	return CURLE_OK;
 }
@@ -611,7 +611,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 void Curl_auth_digest_cleanup(struct digestdata * digest)
 {
 	/* Free the input token */
-	Curl_safefree(digest->input_token);
+	ZFREE(digest->input_token);
 
 	/* Reset any variables */
 	digest->input_token_len = 0;
@@ -619,7 +619,7 @@ void Curl_auth_digest_cleanup(struct digestdata * digest)
 	/* Delete security context */
 	if(digest->http_context) {
 		s_pSecFn->DeleteSecurityContext(digest->http_context);
-		Curl_safefree(digest->http_context);
+		ZFREE(digest->http_context);
 	}
 }
 

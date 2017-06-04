@@ -89,7 +89,7 @@
 #  define mp_uintmax_t unsigned LONG_LONG_TYPE
 #else
 #  define mp_intmax_t long
-#  define mp_uintmax_t unsigned long
+#  define mp_uintmax_t ulong
 #endif
 
 #define BUFFSIZE 326 /* buffer for long-to-str and float-to-str calcs, should
@@ -108,7 +108,7 @@ static const char upper_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 #define OUTCHAR(x) \
 	do { \
-		if(stream((unsigned char)(x), (FILE*)data) != -1) \
+		if(stream((uchar)(x), (FILE*)data) != -1) \
 			done++;	\
 		else \
 			return done;  /* return immediately on failure */ \
@@ -527,13 +527,13 @@ static int dprintf_Pass1(const char * format, va_stack_t * vto, char ** endpos,
 			    {
 				    if((vto[i].flags & FLAGS_LONG) && (vto[i].flags & FLAGS_UNSIGNED))
 					    vto[i].data.num.as_unsigned =
-					    (mp_uintmax_t)va_arg(arglist, unsigned long);
+					    (mp_uintmax_t)va_arg(arglist, ulong);
 				    else if(vto[i].flags & FLAGS_LONG)
 					    vto[i].data.num.as_signed =
 					    (mp_intmax_t)va_arg(arglist, long);
 				    else if(vto[i].flags & FLAGS_UNSIGNED)
 					    vto[i].data.num.as_unsigned =
-					    (mp_uintmax_t)va_arg(arglist, unsigned int);
+					    (mp_uintmax_t)va_arg(arglist, uint);
 				    else
 					    vto[i].data.num.as_signed =
 					    (mp_intmax_t)va_arg(arglist, int);
@@ -989,7 +989,7 @@ number:
 static int addbyter(int output, FILE * data)
 {
 	struct nsprintf * infop = (struct nsprintf*)data;
-	unsigned char outc = (unsigned char)output;
+	uchar outc = (uchar)output;
 
 	if(infop->length < infop->max) {
 		/* only do this if we haven't reached max length yet */
@@ -1037,9 +1037,9 @@ int curl_msnprintf(char * buffer, size_t maxlength, const char * format, ...)
 static int alloc_addbyter(int output, FILE * data)
 {
 	struct asprintf * infop = (struct asprintf*)data;
-	unsigned char outc = (unsigned char)output;
+	uchar outc = (uchar)output;
 	if(!infop->buffer) {
-		infop->buffer = (char *)malloc(32);
+		infop->buffer = (char *)SAlloc::M(32);
 		if(!infop->buffer) {
 			infop->fail = 1;
 			return -1; /* fail */
@@ -1052,7 +1052,7 @@ static int alloc_addbyter(int output, FILE * data)
 		size_t newsize = infop->alloc*2;
 		/* detect wrap-around or other overflow problems */
 		if(newsize > infop->alloc)
-			newptr = (char *)realloc(infop->buffer, newsize);
+			newptr = (char *)SAlloc::R(infop->buffer, newsize);
 		if(!newptr) {
 			infop->fail = 1;
 			return -1; /* fail */
@@ -1081,14 +1081,14 @@ char * curl_maprintf(const char * format, ...)
 	va_end(ap_save);
 	if((-1 == retcode) || info.fail) {
 		if(info.alloc)
-			free(info.buffer);
+			SAlloc::F(info.buffer);
 		return NULL;
 	}
 	if(info.alloc) {
 		info.buffer[info.len] = 0; /* we terminate this with a zero byte */
 		return info.buffer;
 	}
-	return strdup("");
+	return _strdup("");
 }
 
 char * curl_mvaprintf(const char * format, va_list ap_save)
@@ -1104,7 +1104,7 @@ char * curl_mvaprintf(const char * format, va_list ap_save)
 	retcode = dprintf_formatf(&info, alloc_addbyter, format, ap_save);
 	if((-1 == retcode) || info.fail) {
 		if(info.alloc)
-			free(info.buffer);
+			SAlloc::F(info.buffer);
 		return NULL;
 	}
 
@@ -1112,13 +1112,13 @@ char * curl_mvaprintf(const char * format, va_list ap_save)
 		info.buffer[info.len] = 0; /* we terminate this with a zero byte */
 		return info.buffer;
 	}
-	return strdup("");
+	return _strdup("");
 }
 
 static int storebuffer(int output, FILE * data)
 {
 	char ** buffer = (char**)data;
-	unsigned char outc = (unsigned char)output;
+	uchar outc = (uchar)output;
 	**buffer = outc;
 	(*buffer)++;
 	return outc; /* act like fputc() ! */

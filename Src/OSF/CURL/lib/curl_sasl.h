@@ -101,9 +101,9 @@ struct SASLproto {
 struct SASL {
   const struct SASLproto *params; /* Protocol dependent parameters */
   saslstate state;         /* Current machine state */
-  unsigned int authmechs;  /* Accepted authentication mechanisms */
-  unsigned int prefmech;   /* Preferred authentication mechanism */
-  unsigned int authused;   /* Auth mechanism used for the connection */
+  uint authmechs;  /* Accepted authentication mechanisms */
+  uint prefmech;   /* Preferred authentication mechanism */
+  uint authused;   /* Auth mechanism used for the connection */
   bool resetprefs;         /* For URL auth option parsing. */
   bool mutual_auth;        /* Mutual authentication enabled (GSSAPI only) */
   bool force_ir;           /* Protocol always supports initial response */
@@ -116,10 +116,10 @@ struct SASL {
 
 /* This is used to cleanup any libraries or curl modules used by the sasl
    functions */
-void Curl_sasl_cleanup(struct connectdata *conn, unsigned int authused);
+void Curl_sasl_cleanup(struct connectdata *conn, uint authused);
 
 /* Convert a mechanism name to a token */
-unsigned int Curl_sasl_decode_mech(const char *ptr,
+uint Curl_sasl_decode_mech(const char *ptr,
                                    size_t maxlen, size_t *len);
 
 /* Parse the URL login options */

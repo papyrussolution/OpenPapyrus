@@ -72,8 +72,7 @@
  *    source buffer it is an undocumented property of jdcoefct.c.
  */
 
-LOCAL(void)
-do_crop(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
+static void do_crop(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
     jvirt_barray_ptr *src_coef_arrays,
     jvirt_barray_ptr *dst_coef_arrays)
@@ -109,8 +108,7 @@ do_crop(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 	}
 }
 
-LOCAL(void)
-do_crop_ext(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
+static void do_crop_ext(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
     jvirt_barray_ptr *src_coef_arrays,
     jvirt_barray_ptr *dst_coef_arrays)
@@ -188,8 +186,7 @@ do_crop_ext(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 	}
 }
 
-LOCAL(void)
-do_wipe(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
+static void do_wipe(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
     jvirt_barray_ptr *src_coef_arrays,
     JDIMENSION drop_width, JDIMENSION drop_height)
@@ -219,8 +216,7 @@ do_wipe(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 	}
 }
 
-LOCAL(void)
-do_flip_h_no_crop(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
+static void do_flip_h_no_crop(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     JDIMENSION x_crop_offset,
     jvirt_barray_ptr *src_coef_arrays)
 /* Horizontal flip; done in-place, so no separate dest array is required.
@@ -285,8 +281,7 @@ do_flip_h_no_crop(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 	}
 }
 
-LOCAL(void)
-do_flip_h(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
+static void do_flip_h(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
     jvirt_barray_ptr *src_coef_arrays,
     jvirt_barray_ptr *dst_coef_arrays)
@@ -347,8 +342,7 @@ do_flip_h(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 	}
 }
 
-LOCAL(void)
-do_flip_v(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
+static void do_flip_v(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
     jvirt_barray_ptr *src_coef_arrays,
     jvirt_barray_ptr *dst_coef_arrays)
@@ -428,8 +422,7 @@ do_flip_v(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 	}
 }
 
-LOCAL(void)
-do_transpose(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
+static void do_transpose(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
     jvirt_barray_ptr *src_coef_arrays,
     jvirt_barray_ptr *dst_coef_arrays)
@@ -475,8 +468,7 @@ do_transpose(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 	}
 }
 
-LOCAL(void)
-do_rot_90(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
+static void do_rot_90(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
     jvirt_barray_ptr *src_coef_arrays,
     jvirt_barray_ptr *dst_coef_arrays)
@@ -557,8 +549,7 @@ do_rot_90(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 	}
 }
 
-LOCAL(void)
-do_rot_270(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
+static void do_rot_270(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
     jvirt_barray_ptr *src_coef_arrays,
     jvirt_barray_ptr *dst_coef_arrays)
@@ -628,8 +619,7 @@ do_rot_270(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 	}
 }
 
-LOCAL(void)
-do_rot_180(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
+static void do_rot_180(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
     jvirt_barray_ptr *src_coef_arrays,
     jvirt_barray_ptr *dst_coef_arrays)
@@ -739,8 +729,7 @@ do_rot_180(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 	}
 }
 
-LOCAL(void)
-do_transverse(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
+static void do_transverse(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
     jvirt_barray_ptr *src_coef_arrays,
     jvirt_barray_ptr *dst_coef_arrays)
@@ -861,13 +850,10 @@ do_transverse(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
  * Returns TRUE if valid integer found, FALSE if not.
  * *strptr is advanced over the digit string, and *result is set to its value.
  */
-
-LOCAL(boolean)
-jt_read_integer(const char ** strptr, JDIMENSION * result)
+LOCAL(boolean) jt_read_integer(const char ** strptr, JDIMENSION * result)
 {
 	const char * ptr = *strptr;
 	JDIMENSION val = 0;
-
 	for(; isdigit(*ptr); ptr++) {
 		val = val * 10 + (JDIMENSION)(*ptr - '0');
 	}
@@ -945,26 +931,18 @@ GLOBAL(boolean) jtransform_parse_crop_spec(jpeg_transform_info *info, const char
 
 /* Trim off any partial iMCUs on the indicated destination edge */
 
-LOCAL(void)
-trim_right_edge(jpeg_transform_info *info, JDIMENSION full_width)
+static void trim_right_edge(jpeg_transform_info *info, JDIMENSION full_width)
 {
-	JDIMENSION MCU_cols;
-
-	MCU_cols = info->output_width / info->iMCU_sample_width;
+	JDIMENSION MCU_cols = info->output_width / info->iMCU_sample_width;
 	if(MCU_cols > 0 && info->x_crop_offset + MCU_cols ==
 	    full_width / info->iMCU_sample_width)
 		info->output_width = MCU_cols * info->iMCU_sample_width;
 }
 
-LOCAL(void)
-trim_bottom_edge(jpeg_transform_info *info, JDIMENSION full_height)
+static void trim_bottom_edge(jpeg_transform_info *info, JDIMENSION full_height)
 {
-	JDIMENSION MCU_rows;
-
-	MCU_rows = info->output_height / info->iMCU_sample_height;
-	if(MCU_rows > 0 && info->y_crop_offset + MCU_rows ==
-	    full_height / info->iMCU_sample_height)
-		info->output_height = MCU_rows * info->iMCU_sample_height;
+	JDIMENSION MCU_rows = info->output_height / info->iMCU_sample_height;
+	if(MCU_rows > 0 && info->y_crop_offset + MCU_rows == full_height / info->iMCU_sample_height)info->output_height = MCU_rows * info->iMCU_sample_height;
 }
 
 /* Request any required workspace.
@@ -1277,8 +1255,7 @@ GLOBAL(boolean) jtransform_request_workspace(j_decompress_ptr srcinfo, jpeg_tran
 
 /* Transpose destination image parameters */
 
-LOCAL(void)
-transpose_critical_parameters(j_compress_ptr dstinfo)
+static void transpose_critical_parameters(j_compress_ptr dstinfo)
 {
 	int tblno, i, j, ci, itemp;
 	jpeg_component_info * compptr;
@@ -1322,8 +1299,7 @@ transpose_critical_parameters(j_compress_ptr dstinfo)
  * We try to adjust the Tags ExifImageWidth and ExifImageHeight if possible.
  */
 
-LOCAL(void)
-adjust_exif_parameters(JOCTET FAR * data, unsigned int length,
+static void adjust_exif_parameters(JOCTET FAR * data, unsigned int length,
     JDIMENSION new_width, JDIMENSION new_height)
 {
 	boolean is_motorola; /* Flag for byte order */

@@ -11,7 +11,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "WordList.h"
@@ -576,14 +575,14 @@ WordList *[], Accessor &styler) {
     for ( Sci_Position ll = beginData; ll < beginComment; ll++ )
         SafeSetLevel(ll, datLevel, styler) ;
 
-	if ( prvKeyLineTp == 5 ) {
-		level += 1 ;
-	}
+    if ( prvKeyLineTp == 5 ) {
+        level += 1 ;
+    }
 
-	if ( prvKeyLineTp == 6 ) {
-		level -= 1 ;
-	}
-	for ( Sci_Position m = beginComment; m <= endLine; m++ )
+    if ( prvKeyLineTp == 6 ) {
+        level -= 1 ;
+    }
+    for ( Sci_Position m = beginComment; m <= endLine; m++ )
         SafeSetLevel(m, level, styler) ;
 }
 

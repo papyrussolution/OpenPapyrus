@@ -86,8 +86,8 @@ static Curl_send schannel_send;
 static CURLcode verify_certificate(struct connectdata * conn, int sockindex);
 #endif
 
-static void InitSecBuffer(SecBuffer * buffer, unsigned long BufType,
-    void * BufDataPtr, unsigned long BufByteSize)
+static void InitSecBuffer(SecBuffer * buffer, ulong BufType,
+    void * BufDataPtr, ulong BufByteSize)
 {
 	buffer->cbBuffer = BufByteSize;
 	buffer->BufferType = BufType;
@@ -95,7 +95,7 @@ static void InitSecBuffer(SecBuffer * buffer, unsigned long BufType,
 }
 
 static void InitSecBufferDesc(SecBufferDesc * desc, SecBuffer * BufArr,
-    unsigned long NumArrElem)
+    ulong NumArrElem)
 {
 	desc->ulVersion = SECBUFFER_VERSION;
 	desc->pBuffers = BufArr;
@@ -146,7 +146,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 	SecBuffer inbuf;
 	SecBufferDesc inbuf_desc;
 #ifdef HAS_ALPN
-	unsigned char alpn_buffer[128];
+	uchar alpn_buffer[128];
 #endif
 	SCHANNEL_CRED schannel_cred;
 	SECURITY_STATUS sspi_status = SEC_E_OK;
@@ -272,7 +272,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 
 		/* allocate memory for the re-usable credential handle */
 		connssl->cred = (struct curl_schannel_cred*)
-		    malloc(sizeof(struct curl_schannel_cred));
+		    SAlloc::M(sizeof(struct curl_schannel_cred));
 		if(!connssl->cred) {
 			failf(data, "schannel: unable to allocate memory");
 			return CURLE_OUT_OF_MEMORY;
@@ -296,7 +296,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 			else
 				failf(data, "schannel: AcquireCredentialsHandle failed: %s",
 				    Curl_sspi_strerror(conn, sspi_status));
-			Curl_safefree(connssl->cred);
+			ZFREE(connssl->cred);
 			return CURLE_SSL_CONNECT_ERROR;
 		}
 	}
@@ -314,24 +314,24 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 	if(connssl->use_alpn) {
 		int cur = 0;
 		int list_start_index = 0;
-		unsigned int * extension_len = NULL;
-		unsigned short* list_len = NULL;
+		uint * extension_len = NULL;
+		ushort* list_len = NULL;
 
-		/* The first four bytes will be an unsigned int indicating number
+		/* The first four bytes will be an uint indicating number
 		   of bytes of data in the rest of the the buffer. */
-		extension_len = (unsigned int*)(&alpn_buffer[cur]);
-		cur += sizeof(unsigned int);
+		extension_len = (uint*)(&alpn_buffer[cur]);
+		cur += sizeof(uint);
 
 		/* The next four bytes are an indicator that this buffer will contain
 		   ALPN data, as opposed to NPN, for example. */
-		*(unsigned int*)&alpn_buffer[cur] =
+		*(uint*)&alpn_buffer[cur] =
 		    SecApplicationProtocolNegotiationExt_ALPN;
-		cur += sizeof(unsigned int);
+		cur += sizeof(uint);
 
-		/* The next two bytes will be an unsigned short indicating the number
+		/* The next two bytes will be an ushort indicating the number
 		   of bytes used to list the preferred protocols. */
-		list_len = (unsigned short*)(&alpn_buffer[cur]);
-		cur += sizeof(unsigned short);
+		list_len = (ushort*)(&alpn_buffer[cur]);
+		cur += sizeof(ushort);
 
 		list_start_index = cur;
 
@@ -349,7 +349,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 		infof(data, "schannel: ALPN, offering %s\n", ALPN_HTTP_1_1);
 
 		*list_len = curlx_uitous(cur - list_start_index);
-		*extension_len = *list_len + sizeof(unsigned int) + sizeof(unsigned short);
+		*extension_len = *list_len + sizeof(uint) + sizeof(ushort);
 
 		InitSecBuffer(&inbuf, SECBUFFER_APPLICATION_PROTOCOLS, alpn_buffer, cur);
 		InitSecBufferDesc(&inbuf_desc, &inbuf, 1);
@@ -374,7 +374,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 
 	/* allocate memory for the security context handle */
 	connssl->ctxt = (struct curl_schannel_ctxt*)
-	    malloc(sizeof(struct curl_schannel_ctxt));
+	    SAlloc::M(sizeof(struct curl_schannel_ctxt));
 	if(!connssl->ctxt) {
 		failf(data, "schannel: unable to allocate memory");
 		return CURLE_OUT_OF_MEMORY;
@@ -407,7 +407,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 		else
 			failf(data, "schannel: initial InitializeSecurityContext failed: %s",
 			    Curl_sspi_strerror(conn, sspi_status));
-		Curl_safefree(connssl->ctxt);
+		ZFREE(connssl->ctxt);
 		return CURLE_SSL_CONNECT_ERROR;
 	}
 
@@ -443,7 +443,7 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 	ssize_t nread = -1, written = -1;
 	struct Curl_easy * data = conn->data;
 	struct ssl_connect_data * connssl = &conn->ssl[sockindex];
-	unsigned char * reallocated_buffer;
+	uchar * reallocated_buffer;
 	size_t reallocated_length;
 	SecBuffer outbuf[3];
 	SecBufferDesc outbuf_desc;
@@ -468,7 +468,7 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 	if(connssl->decdata_buffer == NULL) {
 		connssl->decdata_offset = 0;
 		connssl->decdata_length = CURL_SCHANNEL_BUFFER_INIT_SIZE;
-		connssl->decdata_buffer = malloc(connssl->decdata_length);
+		connssl->decdata_buffer = SAlloc::M(connssl->decdata_length);
 		if(connssl->decdata_buffer == NULL) {
 			failf(data, "schannel: unable to allocate memory");
 			return CURLE_OUT_OF_MEMORY;
@@ -479,7 +479,7 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 	if(connssl->encdata_buffer == NULL) {
 		connssl->encdata_offset = 0;
 		connssl->encdata_length = CURL_SCHANNEL_BUFFER_INIT_SIZE;
-		connssl->encdata_buffer = malloc(connssl->encdata_length);
+		connssl->encdata_buffer = SAlloc::M(connssl->encdata_length);
 		if(connssl->encdata_buffer == NULL) {
 			failf(data, "schannel: unable to allocate memory");
 			return CURLE_OUT_OF_MEMORY;
@@ -492,7 +492,7 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 		/* increase internal encrypted data buffer */
 		reallocated_length = connssl->encdata_offset +
 		    CURL_SCHANNEL_BUFFER_FREE_SIZE;
-		reallocated_buffer = realloc(connssl->encdata_buffer,
+		reallocated_buffer = SAlloc::R(connssl->encdata_buffer,
 		    reallocated_length);
 
 		if(reallocated_buffer == NULL) {
@@ -535,7 +535,7 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 		    connssl->encdata_offset, connssl->encdata_length);
 
 		/* setup input buffers */
-		InitSecBuffer(&inbuf[0], SECBUFFER_TOKEN, malloc(connssl->encdata_offset),
+		InitSecBuffer(&inbuf[0], SECBUFFER_TOKEN, SAlloc::M(connssl->encdata_offset),
 		    curlx_uztoul(connssl->encdata_offset));
 		InitSecBuffer(&inbuf[1], SECBUFFER_EMPTY, NULL, 0);
 		InitSecBufferDesc(&inbuf_desc, inbuf, 2);
@@ -569,7 +569,7 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 		Curl_unicodefree(host_name);
 
 		/* free buffer for received handshake data */
-		Curl_safefree(inbuf[0].pvBuffer);
+		ZFREE(inbuf[0].pvBuffer);
 
 		/* check if the handshake was incomplete */
 		if(sspi_status == SEC_E_INCOMPLETE_MESSAGE) {
@@ -926,7 +926,7 @@ static ssize_t schannel_send(struct connectdata * conn, int sockindex,
 {
 	ssize_t written = -1;
 	size_t data_len = 0;
-	unsigned char * data = NULL;
+	uchar * data = NULL;
 	struct ssl_connect_data * connssl = &conn->ssl[sockindex];
 	SecBuffer outbuf[4];
 	SecBufferDesc outbuf_desc;
@@ -954,7 +954,7 @@ static ssize_t schannel_send(struct connectdata * conn, int sockindex,
 	/* calculate the complete message length and allocate a buffer for it */
 	data_len = connssl->stream_sizes.cbHeader + len +
 	    connssl->stream_sizes.cbTrailer;
-	data = (unsigned char*)malloc(data_len);
+	data = (uchar*)SAlloc::M(data_len);
 	if(data == NULL) {
 		*err = CURLE_OUT_OF_MEMORY;
 		return -1;
@@ -1056,7 +1056,7 @@ static ssize_t schannel_send(struct connectdata * conn, int sockindex,
 		*err = CURLE_SEND_ERROR;
 	}
 
-	Curl_safefree(data);
+	ZFREE(data);
 
 	if(len == (size_t)written)
 		/* Encrypted message including header, data and trailer entirely sent.
@@ -1073,7 +1073,7 @@ static ssize_t schannel_recv(struct connectdata * conn, int sockindex,
 	ssize_t nread = -1;
 	struct Curl_easy * data = conn->data;
 	struct ssl_connect_data * connssl = &conn->ssl[sockindex];
-	unsigned char * reallocated_buffer;
+	uchar * reallocated_buffer;
 	size_t reallocated_length;
 	bool done = FALSE;
 	SecBuffer inbuf[4];
@@ -1127,7 +1127,7 @@ static ssize_t schannel_recv(struct connectdata * conn, int sockindex,
 			if(reallocated_length < min_encdata_length) {
 				reallocated_length = min_encdata_length;
 			}
-			reallocated_buffer = realloc(connssl->encdata_buffer,
+			reallocated_buffer = SAlloc::R(connssl->encdata_buffer,
 			    reallocated_length);
 			if(reallocated_buffer == NULL) {
 				*err = CURLE_OUT_OF_MEMORY;
@@ -1212,7 +1212,7 @@ static ssize_t schannel_recv(struct connectdata * conn, int sockindex,
 					if(reallocated_length < len) {
 						reallocated_length = len;
 					}
-					reallocated_buffer = realloc(connssl->decdata_buffer,
+					reallocated_buffer = SAlloc::R(connssl->decdata_buffer,
 					    reallocated_length);
 					if(reallocated_buffer == NULL) {
 						*err = CURLE_OUT_OF_MEMORY;
@@ -1488,7 +1488,7 @@ int Curl_schannel_shutdown(struct connectdata * conn, int sockindex)
 	if(connssl->ctxt) {
 		infof(data, "schannel: clear security context handle\n");
 		s_pSecFn->DeleteSecurityContext(&connssl->ctxt->ctxt_handle);
-		Curl_safefree(connssl->ctxt);
+		ZFREE(connssl->ctxt);
 	}
 
 	/* free SSPI Schannel API credential handle */
@@ -1501,14 +1501,14 @@ int Curl_schannel_shutdown(struct connectdata * conn, int sockindex)
 
 	/* free internal buffer for received encrypted data */
 	if(connssl->encdata_buffer != NULL) {
-		Curl_safefree(connssl->encdata_buffer);
+		ZFREE(connssl->encdata_buffer);
 		connssl->encdata_length = 0;
 		connssl->encdata_offset = 0;
 	}
 
 	/* free internal buffer for received decrypted data */
 	if(connssl->decdata_buffer != NULL) {
-		Curl_safefree(connssl->decdata_buffer);
+		ZFREE(connssl->decdata_buffer);
 		connssl->decdata_length = 0;
 		connssl->decdata_offset = 0;
 	}
@@ -1524,7 +1524,7 @@ void Curl_schannel_session_free(void * ptr)
 	cred->refcount--;
 	if(cred->refcount == 0) {
 		s_pSecFn->FreeCredentialsHandle(&cred->cred_handle);
-		Curl_safefree(cred);
+		ZFREE(cred);
 	}
 }
 
@@ -1545,7 +1545,7 @@ size_t Curl_schannel_version(char * buffer, size_t size)
 	return size;
 }
 
-CURLcode Curl_schannel_random(unsigned char * entropy, size_t length)
+CURLcode Curl_schannel_random(uchar * entropy, size_t length)
 {
 	HCRYPTPROV hCryptProv = 0;
 

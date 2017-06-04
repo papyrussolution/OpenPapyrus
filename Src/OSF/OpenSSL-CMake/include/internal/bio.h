@@ -12,19 +12,19 @@
 #include <openssl/bio.h>
 
 struct bio_method_st {
-    int type;
-    const char *name;
-    int (*bwrite) (BIO *, const char *, int);
-    int (*bread) (BIO *, char *, int);
-    int (*bputs) (BIO *, const char *);
-    int (*bgets) (BIO *, char *, int);
-    long (*ctrl) (BIO *, int, long, void *);
-    int (*create) (BIO *);
-    int (*destroy) (BIO *);
-    long (*callback_ctrl) (BIO *, int, bio_info_cb *);
+	int type;
+	const char * name;
+	int (* bwrite)(BIO *, const char *, int);
+	int (* bread)(BIO *, char *, int);
+	int (* bputs)(BIO *, const char *);
+	int (* bgets)(BIO *, char *, int);
+	long (* ctrl)(BIO *, int, long, void *);
+	int (* create)(BIO *);
+	int (* destroy)(BIO *);
+	long (* callback_ctrl)(BIO *, int, bio_info_cb *);
 };
 
-void bio_free_ex_data(BIO *bio);
+void bio_free_ex_data(BIO * bio);
 void bio_cleanup(void);
 
 #endif // __BIO_H

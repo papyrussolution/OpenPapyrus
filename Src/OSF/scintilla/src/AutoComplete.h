@@ -34,7 +34,7 @@ public:
 	bool cancelAtStartPos;
 	bool autoHide;
 	bool dropRestOfWord;
-	unsigned int ignoreCaseBehaviour;
+	uint ignoreCaseBehaviour;
 	int widthLBDefault;
 	int heightLBDefault;
 	/** SC_ORDER_PRESORTED:   Assume the list is presorted; selection will fail if it is not alphabetical<br />

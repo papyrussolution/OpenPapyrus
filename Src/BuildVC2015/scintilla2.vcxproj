@@ -196,26 +196,42 @@
     <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
     <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
@@ -699,6 +715,7 @@
     <ClCompile Include="..\Osf\scintilla\lexers\LexDMAP.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexers\LexDMIS.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexers\LexECL.cxx" />
+    <ClCompile Include="..\OSF\scintilla\lexers\LexEDIFACT.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexers\LexEiffel.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexers\LexErlang.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexers\LexErrorList.cxx" />
@@ -712,6 +729,7 @@
     <ClCompile Include="..\Osf\scintilla\lexers\LexHex.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexers\LexHTML.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexers\LexInno.cxx" />
+    <ClCompile Include="..\OSF\scintilla\lexers\LexJSON.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexers\LexKix.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexers\LexKVIrc.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexers\LexLaTeX.cxx" />
@@ -834,6 +852,22 @@
     <ClInclude Include="..\Osf\scintilla\include\SciLexer.h" />
     <ClInclude Include="..\Osf\scintilla\include\Scintilla.h" />
     <ClInclude Include="..\Osf\scintilla\include\ScintillaWidget.h" />
+    <ClInclude Include="..\OSF\scintilla\include\Sci_Position.h" />
+    <ClInclude Include="..\OSF\scintilla\lexlib\Accessor.h" />
+    <ClInclude Include="..\OSF\scintilla\lexlib\CharacterCategory.h" />
+    <ClInclude Include="..\OSF\scintilla\lexlib\CharacterSet.h" />
+    <ClInclude Include="..\OSF\scintilla\lexlib\LexAccessor.h" />
+    <ClInclude Include="..\OSF\scintilla\lexlib\LexerBase.h" />
+    <ClInclude Include="..\OSF\scintilla\lexlib\LexerModule.h" />
+    <ClInclude Include="..\OSF\scintilla\lexlib\LexerNoExceptions.h" />
+    <ClInclude Include="..\OSF\scintilla\lexlib\LexerSimple.h" />
+    <ClInclude Include="..\OSF\scintilla\lexlib\OptionSet.h" />
+    <ClInclude Include="..\OSF\scintilla\lexlib\PropSetSimple.h" />
+    <ClInclude Include="..\OSF\scintilla\lexlib\SparseState.h" />
+    <ClInclude Include="..\OSF\scintilla\lexlib\StringCopy.h" />
+    <ClInclude Include="..\OSF\scintilla\lexlib\StyleContext.h" />
+    <ClInclude Include="..\OSF\scintilla\lexlib\SubStyles.h" />
+    <ClInclude Include="..\OSF\scintilla\lexlib\WordList.h" />
     <ClInclude Include="..\Osf\scintilla\src\AutoComplete.h" />
     <ClInclude Include="..\Osf\scintilla\src\CallTip.h" />
     <ClInclude Include="..\Osf\scintilla\src\CaseConvert.h" />
@@ -861,12 +895,15 @@
     <ClInclude Include="..\Osf\scintilla\src\RunStyles.h" />
     <ClInclude Include="..\Osf\scintilla\src\ScintillaBase.h" />
     <ClInclude Include="..\Osf\scintilla\src\Selection.h" />
+    <ClInclude Include="..\OSF\scintilla\src\SparseVector.h" />
     <ClInclude Include="..\Osf\scintilla\src\SplitVector.h" />
     <ClInclude Include="..\Osf\scintilla\src\Style.h" />
     <ClInclude Include="..\Osf\scintilla\src\UnicodeFromUTF8.h" />
     <ClInclude Include="..\Osf\scintilla\src\UniConversion.h" />
     <ClInclude Include="..\Osf\scintilla\src\ViewStyle.h" />
     <ClInclude Include="..\Osf\scintilla\src\XPM.h" />
+    <ClInclude Include="..\OSF\scintilla\win32\HanjaDic.h" />
+    <ClInclude Include="..\OSF\scintilla\win32\PlatWin.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

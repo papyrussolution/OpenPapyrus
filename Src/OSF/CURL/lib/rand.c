@@ -35,11 +35,11 @@
 #include "curl_memory.h"
 #include "memdebug.h"
 
-static CURLcode randit(struct Curl_easy * data, unsigned int * rnd)
+static CURLcode randit(struct Curl_easy * data, uint * rnd)
 {
-	unsigned int r;
+	uint r;
 	CURLcode result = CURLE_OK;
-	static unsigned int randseed;
+	static uint randseed;
 	static bool seeded = FALSE;
 
 #ifdef CURLDEBUG
@@ -60,7 +60,7 @@ static CURLcode randit(struct Curl_easy * data, unsigned int * rnd)
 #endif
 
 	/* data may be NULL! */
-	result = Curl_ssl_random(data, (unsigned char*)rnd, sizeof(*rnd));
+	result = Curl_ssl_random(data, (uchar*)rnd, sizeof(*rnd));
 	if(result != CURLE_NOT_BUILT_IN)
 		/* only if there is no random function in the TLS backend do the non crypto
 		   version, otherwise return result */
@@ -85,7 +85,7 @@ static CURLcode randit(struct Curl_easy * data, unsigned int * rnd)
 	if(!seeded) {
 		struct timeval now = curlx_tvnow();
 		infof(data, "WARNING: Using weak random seed\n");
-		randseed += (unsigned int)now.tv_usec + (unsigned int)now.tv_sec;
+		randseed += (uint)now.tv_usec + (uint)now.tv_sec;
 		randseed = randseed * 1103515245 + 12345;
 		randseed = randseed * 1103515245 + 12345;
 		randseed = randseed * 1103515245 + 12345;
@@ -114,11 +114,11 @@ static CURLcode randit(struct Curl_easy * data, unsigned int * rnd)
  *
  */
 
-CURLcode Curl_rand(struct Curl_easy * data, unsigned int * rndptr,
-    unsigned int num)
+CURLcode Curl_rand(struct Curl_easy * data, uint * rndptr,
+    uint num)
 {
 	CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-	unsigned int i;
+	uint i;
 
 	assert(num > 0);
 

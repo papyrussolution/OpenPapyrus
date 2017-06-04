@@ -71,12 +71,10 @@ int _ExistsHashTable(GifHashTableType * HashTable, uint32 Key)
 {
 	int HKey = KeyItem(Key);
 	uint32 * HTable = HashTable->HTable, HTKey;
-
 #ifdef DEBUG_HIT_RATE
 	NumberOfTests++;
 	NumberOfMisses++;
 #endif /* DEBUG_HIT_RATE */
-
 	while((HTKey = HT_GET_KEY(HTable[HKey])) != 0xFFFFFL) {
 #ifdef DEBUG_HIT_RATE
 		NumberOfMisses++;
@@ -84,7 +82,6 @@ int _ExistsHashTable(GifHashTableType * HashTable, uint32 Key)
 		if(Key == HTKey) return HT_GET_CODE(HTable[HKey]);
 		HKey = (HKey + 1) & HT_KEY_MASK;
 	}
-
 	return -1;
 }
 

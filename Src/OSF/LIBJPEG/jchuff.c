@@ -152,9 +152,7 @@ typedef struct {
  * This routine also performs some validation checks on the table.
  */
 
-LOCAL(void)
-jpeg_make_c_derived_tbl(j_compress_ptr cinfo, boolean isDC, int tblno,
-    c_derived_tbl **pdtbl)
+static void jpeg_make_c_derived_tbl(j_compress_ptr cinfo, boolean isDC, int tblno, c_derived_tbl **pdtbl)
 {
 	JHUFF_TBL * htbl;
 	c_derived_tbl * dtbl;
@@ -162,7 +160,6 @@ jpeg_make_c_derived_tbl(j_compress_ptr cinfo, boolean isDC, int tblno,
 	char huffsize[257];
 	unsigned int huffcode[257];
 	unsigned int code;
-
 	/* Note that huffsize[] and huffcode[] are filled in code-length order,
 	 * paralleling the order of the symbols themselves in htbl->huffval[].
 	 */
@@ -258,8 +255,7 @@ jpeg_make_c_derived_tbl(j_compress_ptr cinfo, boolean isDC, int tblno,
 	  if(--(entropy)->free_in_buffer == 0)	\
 		  dump_buffer_e(entropy); }
 
-LOCAL(boolean)
-dump_buffer_s(working_state * state)
+LOCAL(boolean) dump_buffer_s(working_state * state)
 /* Empty the output buffer; return TRUE if successful, FALSE if must suspend */
 {
 	struct jpeg_destination_mgr * dest = state->cinfo->dest;
@@ -272,12 +268,10 @@ dump_buffer_s(working_state * state)
 	return TRUE;
 }
 
-LOCAL(void)
-dump_buffer_e(huff_entropy_ptr entropy)
+static void dump_buffer_e(huff_entropy_ptr entropy)
 /* Empty the output buffer; we do not support suspension in this case. */
 {
 	struct jpeg_destination_mgr * dest = entropy->cinfo->dest;
-
 	if(!(*dest->empty_output_buffer)(entropy->cinfo))
 		ERREXIT(entropy->cinfo, JERR_CANT_SUSPEND);
 	/* After a successful buffer dump, must reset buffer pointers */
@@ -293,32 +287,24 @@ dump_buffer_e(huff_entropy_ptr entropy)
  * between calls, so 24 bits are sufficient.
  */
 
-INLINE LOCAL(boolean)
-emit_bits_s(working_state * state, unsigned int code, int size)
+INLINE LOCAL(boolean) emit_bits_s(working_state * state, unsigned int code, int size)
 /* Emit some bits; return TRUE if successful, FALSE if must suspend */
 {
 	/* This routine is heavily used, so it's worth coding tightly. */
 	register INT32 put_buffer;
 	register int put_bits;
-
 	/* if size is 0, caller used an invalid Huffman table entry */
 	if(size == 0)
 		ERREXIT(state->cinfo, JERR_HUFF_MISSING_CODE);
-
 	/* mask off any extra bits in code */
 	put_buffer = ((INT32)code) & ((((INT32)1) << size) - 1);
-
 	/* new number of bits in buffer */
 	put_bits = size + state->cur.put_bits;
-
 	put_buffer <<= 24 - put_bits; /* align incoming bits */
-
 	/* and merge with old buffer contents */
 	put_buffer |= state->cur.put_buffer;
-
 	while(put_bits >= 8) {
 		int c = (int)((put_buffer >> 16) & 0xFF);
-
 		emit_byte_s(state, c, return FALSE);
 		if(c == 0xFF) { /* need to stuff a zero byte? */
 			emit_byte_s(state, 0, return FALSE);
@@ -326,42 +312,31 @@ emit_bits_s(working_state * state, unsigned int code, int size)
 		put_buffer <<= 8;
 		put_bits -= 8;
 	}
-
 	state->cur.put_buffer = put_buffer; /* update state variables */
 	state->cur.put_bits = put_bits;
-
 	return TRUE;
 }
 
-INLINE LOCAL(void)
-emit_bits_e(huff_entropy_ptr entropy, unsigned int code, int size)
+INLINE static void emit_bits_e(huff_entropy_ptr entropy, unsigned int code, int size)
 /* Emit some bits, unless we are in gather mode */
 {
 	/* This routine is heavily used, so it's worth coding tightly. */
 	register INT32 put_buffer;
 	register int put_bits;
-
 	/* if size is 0, caller used an invalid Huffman table entry */
 	if(size == 0)
 		ERREXIT(entropy->cinfo, JERR_HUFF_MISSING_CODE);
-
 	if(entropy->gather_statistics)
 		return;         /* do nothing if we're only getting stats */
-
 	/* mask off any extra bits in code */
 	put_buffer = ((INT32)code) & ((((INT32)1) << size) - 1);
-
 	/* new number of bits in buffer */
 	put_bits = size + entropy->saved.put_bits;
-
 	put_buffer <<= 24 - put_bits; /* align incoming bits */
-
 	/* and merge with old buffer contents */
 	put_buffer |= entropy->saved.put_buffer;
-
 	while(put_bits >= 8) {
 		int c = (int)((put_buffer >> 16) & 0xFF);
-
 		emit_byte_e(entropy, c);
 		if(c == 0xFF) { /* need to stuff a zero byte? */
 			emit_byte_e(entropy, 0);
@@ -369,13 +344,11 @@ emit_bits_e(huff_entropy_ptr entropy, unsigned int code, int size)
 		put_buffer <<= 8;
 		put_bits -= 8;
 	}
-
 	entropy->saved.put_buffer = put_buffer; /* update variables */
 	entropy->saved.put_bits = put_bits;
 }
 
-LOCAL(boolean)
-flush_bits_s(working_state * state)
+LOCAL(boolean) flush_bits_s(working_state * state)
 {
 	if(!emit_bits_s(state, 0x7F, 7)) /* fill any partial byte with ones */
 		return FALSE;
@@ -384,8 +357,7 @@ flush_bits_s(working_state * state)
 	return TRUE;
 }
 
-LOCAL(void)
-flush_bits_e(huff_entropy_ptr entropy)
+static void flush_bits_e(huff_entropy_ptr entropy)
 {
 	emit_bits_e(entropy, 0x7F, 7); /* fill any partial byte with ones */
 	entropy->saved.put_buffer = 0; /* and reset bit-buffer to empty */
@@ -396,8 +368,7 @@ flush_bits_e(huff_entropy_ptr entropy)
  * Emit (or just count) a Huffman symbol.
  */
 
-INLINE LOCAL(void)
-emit_dc_symbol(huff_entropy_ptr entropy, int tbl_no, int symbol)
+INLINE static void emit_dc_symbol(huff_entropy_ptr entropy, int tbl_no, int symbol)
 {
 	if(entropy->gather_statistics)
 		entropy->dc_count_ptrs[tbl_no][symbol]++;
@@ -407,8 +378,7 @@ emit_dc_symbol(huff_entropy_ptr entropy, int tbl_no, int symbol)
 	}
 }
 
-INLINE LOCAL(void)
-emit_ac_symbol(huff_entropy_ptr entropy, int tbl_no, int symbol)
+INLINE static void emit_ac_symbol(huff_entropy_ptr entropy, int tbl_no, int symbol)
 {
 	if(entropy->gather_statistics)
 		entropy->ac_count_ptrs[tbl_no][symbol]++;
@@ -422,29 +392,22 @@ emit_ac_symbol(huff_entropy_ptr entropy, int tbl_no, int symbol)
  * Emit bits from a correction bit buffer.
  */
 
-LOCAL(void)
-emit_buffered_bits(huff_entropy_ptr entropy, char * bufstart,
-    unsigned int nbits)
+static void emit_buffered_bits(huff_entropy_ptr entropy, char * bufstart, unsigned int nbits)
 {
 	if(entropy->gather_statistics)
 		return;         /* no real work */
-
 	while(nbits > 0) {
 		emit_bits_e(entropy, (unsigned int)(*bufstart), 1);
 		bufstart++;
 		nbits--;
 	}
 }
-
 /*
  * Emit any pending EOBRUN symbol.
  */
-
-LOCAL(void)
-emit_eobrun(huff_entropy_ptr entropy)
+static void FASTCALL emit_eobrun(huff_entropy_ptr entropy)
 {
 	register int temp, nbits;
-
 	if(entropy->EOBRUN > 0) { /* if there is any pending EOBRUN */
 		temp = entropy->EOBRUN;
 		nbits = 0;
@@ -469,40 +432,29 @@ emit_eobrun(huff_entropy_ptr entropy)
 /*
  * Emit a restart marker & resynchronize predictions.
  */
-
-LOCAL(boolean)
-emit_restart_s(working_state * state, int restart_num)
+LOCAL(boolean) emit_restart_s(working_state * state, int restart_num)
 {
 	int ci;
-
 	if(!flush_bits_s(state))
 		return FALSE;
-
 	emit_byte_s(state, 0xFF, return FALSE);
 	emit_byte_s(state, JPEG_RST0 + restart_num, return FALSE);
-
 	/* Re-initialize DC predictions to 0 */
 	for(ci = 0; ci < state->cinfo->comps_in_scan; ci++)
 		state->cur.last_dc_val[ci] = 0;
-
 	/* The restart counter is not updated until we successfully write the MCU. */
-
 	return TRUE;
 }
 
-LOCAL(void)
-emit_restart_e(huff_entropy_ptr entropy, int restart_num)
+static void FASTCALL emit_restart_e(huff_entropy_ptr entropy, int restart_num)
 {
 	int ci;
-
 	emit_eobrun(entropy);
-
 	if(!entropy->gather_statistics) {
 		flush_bits_e(entropy);
 		emit_byte_e(entropy, 0xFF);
 		emit_byte_e(entropy, JPEG_RST0 + restart_num);
 	}
-
 	if(entropy->cinfo->Ss == 0) {
 		/* Re-initialize DC predictions to 0 */
 		for(ci = 0; ci < entropy->cinfo->comps_in_scan; ci++)
@@ -715,26 +667,20 @@ METHODDEF(boolean) encode_mcu_DC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 {
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
 	int Al, blkn;
-
 	entropy->next_output_byte = cinfo->dest->next_output_byte;
 	entropy->free_in_buffer = cinfo->dest->free_in_buffer;
-
 	/* Emit restart marker if needed */
 	if(cinfo->restart_interval)
 		if(entropy->restarts_to_go == 0)
 			emit_restart_e(entropy, entropy->next_restart_num);
-
 	Al = cinfo->Al;
-
 	/* Encode the MCU data blocks */
 	for(blkn = 0; blkn < cinfo->blocks_in_MCU; blkn++) {
 		/* We simply emit the Al'th bit of the DC coefficient value. */
 		emit_bits_e(entropy, (unsigned int)(MCU_data[blkn][0][0] >> Al), 1);
 	}
-
 	cinfo->dest->next_output_byte = entropy->next_output_byte;
 	cinfo->dest->free_in_buffer = entropy->free_in_buffer;
-
 	/* Update restart-interval state too */
 	if(cinfo->restart_interval) {
 		if(entropy->restarts_to_go == 0) {
@@ -744,14 +690,11 @@ METHODDEF(boolean) encode_mcu_DC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 		}
 		entropy->restarts_to_go--;
 	}
-
 	return TRUE;
 }
-
 /*
  * MCU encoding for AC successive approximation refinement scan.
  */
-
 METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
@@ -764,7 +707,6 @@ METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 	char * BR_buffer;
 	unsigned int BR;
 	int absvalues[DCTSIZE2];
-
 	entropy->next_output_byte = cinfo->dest->next_output_byte;
 	entropy->free_in_buffer = cinfo->dest->free_in_buffer;
 
@@ -880,8 +822,7 @@ METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 
 /* Encode a single block's worth of coefficients */
 
-LOCAL(boolean)
-encode_one_block(working_state * state, JCOEFPTR block, int last_dc_val,
+LOCAL(boolean) encode_one_block(working_state * state, JCOEFPTR block, int last_dc_val,
     c_derived_tbl *dctbl, c_derived_tbl *actbl)
 {
 	register int temp, temp2;
@@ -1082,8 +1023,7 @@ METHODDEF(void) finish_pass_huff(j_compress_ptr cinfo)
 
 /* Process a single block's worth of coefficients */
 
-LOCAL(void)
-htest_one_block(j_compress_ptr cinfo, JCOEFPTR block, int last_dc_val,
+static void htest_one_block(j_compress_ptr cinfo, JCOEFPTR block, int last_dc_val,
     long dc_counts[], long ac_counts[])
 {
 	register int temp;
@@ -1214,8 +1154,7 @@ METHODDEF(boolean) encode_mcu_gather(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
  * So the extra complexity of an optimal algorithm doesn't seem worthwhile.
  */
 
-LOCAL(void)
-jpeg_gen_optimal_table(j_compress_ptr cinfo, JHUFF_TBL * htbl, long freq[])
+static void jpeg_gen_optimal_table(j_compress_ptr cinfo, JHUFF_TBL * htbl, long freq[])
 {
 #define MAX_CLEN 32             /* assumed maximum initial code length */
 	UINT8 bits[MAX_CLEN+1]; /* bits[k] = # of symbols with code length k */
@@ -1516,21 +1455,15 @@ METHODDEF(void) start_pass_huff(j_compress_ptr cinfo, boolean gather_statistics)
 
 GLOBAL(void) jinit_huff_encoder(j_compress_ptr cinfo)
 {
-	huff_entropy_ptr entropy;
 	int i;
-
-	entropy = (huff_entropy_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    SIZEOF(huff_entropy_encoder));
+	huff_entropy_ptr entropy = (huff_entropy_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(huff_entropy_encoder));
 	cinfo->entropy = &entropy->pub;
 	entropy->pub.start_pass = start_pass_huff;
-
 	/* Mark tables unallocated */
 	for(i = 0; i < NUM_HUFF_TBLS; i++) {
 		entropy->dc_derived_tbls[i] = entropy->ac_derived_tbls[i] = NULL;
 		entropy->dc_count_ptrs[i] = entropy->ac_count_ptrs[i] = NULL;
 	}
-
 	if(cinfo->progressive_mode)
 		entropy->bit_buffer = NULL;  /* needed only in AC refinement scan */
 }

@@ -104,8 +104,8 @@ void qr_wiener_filter(uchar * _img, int _width, int _height)
 				}
 			}
 	}
-	free(sn2_buf[0]);
-	free(m_buf[0]);
+	SAlloc::F(sn2_buf[0]);
+	SAlloc::F(m_buf[0]);
 }
 
 #else
@@ -185,8 +185,8 @@ void qr_wiener_filter(uchar * _img, int _width, int _height)
 				}
 			}
 	}
-	free(sn2_buf[0]);
-	free(m_buf[0]);
+	SAlloc::F(sn2_buf[0]);
+	SAlloc::F(m_buf[0]);
 }
 
 #endif
@@ -315,8 +315,8 @@ static void qr_sauvola_mask(uchar * _mask, uint * _b, int * _nb,
 				}
 			}
 		}
-		free(col2_sums);
-		free(col_sums);
+		SAlloc::F(col2_sums);
+		SAlloc::F(col_sums);
 	}
 	*_b = b;
 	*_nb = nb;
@@ -417,8 +417,8 @@ static void qr_interpolate_background(uchar * _dst,
 				}
 			}
 		}
-		free(ncol_sums);
-		free(col_sums);
+		SAlloc::F(ncol_sums);
+		SAlloc::F(col_sums);
 	}
 	*_delta = delta;
 	*_ndelta = ndelta;
@@ -501,8 +501,8 @@ void qr_binarize(uchar * _img, int _width, int _height)
 	   fclose(fout);
 	   }*/
 	qr_gatos_mask(_img, _img, background, _width, _height, b, nb, delta, ndelta);
-	free(background);
-	free(mask);
+	SAlloc::F(background);
+	SAlloc::F(mask);
 }
 
 #else
@@ -594,7 +594,7 @@ uchar * qr_binarize(const uchar * _img, int _width, int _height)
 				}
 			}
 		}
-		free(col_sums);
+		SAlloc::F(col_sums);
 	}
 #if defined(QR_DEBUG)
 	{
@@ -642,7 +642,7 @@ int main(int _argc, char ** _argv)
 	   image_write_png(img,width,height,fout);
 	   fclose(fout);
 	   }*/
-	free(img);
+	SAlloc::F(img);
 	return EXIT_SUCCESS;
 }
 

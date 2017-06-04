@@ -1,6 +1,6 @@
 // Scintilla source code edit control
-/** @file KeyWords.cxx
- ** Colourise for particular languages.
+/** @file WordList.cxx
+ ** Hold a list of words.
  **/
 // Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
@@ -8,6 +8,7 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
+#include <algorithm>
 #include "StringCopy.h"
 #include "WordList.h"
 
@@ -24,18 +25,15 @@ static char **ArrayFromWordList(char *wordlist, int *len, bool onlyLineEnds = fa
 	int words = 0;
 	// For rapid determination of whether a character is a separator, build
 	// a look up table.
-	bool wordSeparator[256];
-	for (int i=0; i<256; i++) {
-		wordSeparator[i] = false;
-	}
-	wordSeparator[static_cast<unsigned int>('\r')] = true;
-	wordSeparator[static_cast<unsigned int>('\n')] = true;
+	bool wordSeparator[256] = {};	// Initialise all to false.
+	wordSeparator[static_cast<uint>('\r')] = true;
+	wordSeparator[static_cast<uint>('\n')] = true;
 	if (!onlyLineEnds) {
-		wordSeparator[static_cast<unsigned int>(' ')] = true;
-		wordSeparator[static_cast<unsigned int>('\t')] = true;
+		wordSeparator[static_cast<uint>(' ')] = true;
+		wordSeparator[static_cast<uint>('\t')] = true;
 	}
 	for (int j = 0; wordlist[j]; j++) {
-		int curr = static_cast<unsigned char>(wordlist[j]);
+		int curr = static_cast<uchar>(wordlist[j]);
 		if (!wordSeparator[curr] && wordSeparator[prev])
 			words++;
 		prev = curr;
@@ -46,7 +44,7 @@ static char **ArrayFromWordList(char *wordlist, int *len, bool onlyLineEnds = fa
 	if (words) {
 		prev = '\0';
 		for (size_t k = 0; k < slen; k++) {
-			if (!wordSeparator[static_cast<unsigned char>(wordlist[k])]) {
+			if (!wordSeparator[static_cast<uchar>(wordlist[k])]) {
 				if (!prev) {
 					keywords[wordsStore] = &wordlist[k];
 					wordsStore++;
@@ -112,8 +110,8 @@ static int cmpWords(const void *a, const void *b) {
 	return strcmp(*static_cast<const char * const *>(a), *static_cast<const char * const *>(b));
 }
 
-static void SortWordList(char **words, unsigned int len) {
-	qsort(reinterpret_cast<void *>(words), len, sizeof(*words), cmpWords);
+static void SortWordList(char **words, uint len) {
+	qsort(static_cast<void *>(words), len, sizeof(*words), cmpWords);
 }
 
 #endif
@@ -129,10 +127,9 @@ void WordList::Set(const char *s) {
 #else
 	SortWordList(words, len);
 #endif
-	for (unsigned int k = 0; k < ELEMENTS(starts); k++)
-		starts[k] = -1;
+	std::fill(starts, starts + ELEMENTS(starts), -1);
 	for (int l = len - 1; l >= 0; l--) {
-		unsigned char indexChar = words[l][0];
+		uchar indexChar = words[l][0];
 		starts[indexChar] = l;
 	}
 }
@@ -145,10 +142,10 @@ void WordList::Set(const char *s) {
 bool WordList::InList(const char *s) const {
 	if (0 == words)
 		return false;
-	unsigned char firstChar = s[0];
+	uchar firstChar = s[0];
 	int j = starts[firstChar];
 	if (j >= 0) {
-		while (static_cast<unsigned char>(words[j][0]) == firstChar) {
+		while (static_cast<uchar>(words[j][0]) == firstChar) {
 			if (s[1] == words[j][1]) {
 				const char *a = words[j] + 1;
 				const char *b = s + 1;
@@ -162,7 +159,7 @@ bool WordList::InList(const char *s) const {
 			j++;
 		}
 	}
-	j = starts[static_cast<unsigned int>('^')];
+	j = starts[static_cast<uint>('^')];
 	if (j >= 0) {
 		while (words[j][0] == '^') {
 			const char *a = words[j] + 1;
@@ -187,10 +184,10 @@ bool WordList::InList(const char *s) const {
 bool WordList::InListAbbreviated(const char *s, const char marker) const {
 	if (0 == words)
 		return false;
-	unsigned char firstChar = s[0];
+	uchar firstChar = s[0];
 	int j = starts[firstChar];
 	if (j >= 0) {
-		while (static_cast<unsigned char>(words[j][0]) == firstChar) {
+		while (static_cast<uchar>(words[j][0]) == firstChar) {
 			bool isSubword = false;
 			int start = 1;
 			if (words[j][1] == marker) {
@@ -214,7 +211,7 @@ bool WordList::InListAbbreviated(const char *s, const char marker) const {
 			j++;
 		}
 	}
-	j = starts[static_cast<unsigned int>('^')];
+	j = starts[static_cast<uint>('^')];
 	if (j >= 0) {
 		while (words[j][0] == '^') {
 			const char *a = words[j] + 1;
@@ -228,6 +225,66 @@ bool WordList::InListAbbreviated(const char *s, const char marker) const {
 			j++;
 		}
 	}
+	return false;
+}
+
+/** similar to InListAbbreviated, but word s can be a abridged version of a keyword.
+* eg. the keyword is defined as "after.~:". This means the word must have a prefix (begins with) of
+* "after." and suffix (ends with) of ":" to be a keyword, Hence "after.field:" , "after.form.item:" are valid.
+* Similarly "~.is.valid" keyword is suffix only... hence "field.is.valid" , "form.is.valid" are valid.
+* The marker is ~ in this case.
+* No multiple markers check is done and wont work.
+*/
+bool WordList::InListAbridged(const char *s, const char marker) const {
+	if (0 == words)
+		return false;
+	uchar firstChar = s[0];
+	int j = starts[firstChar];
+	if (j >= 0) {
+		while (static_cast<uchar>(words[j][0]) == firstChar) {
+			const char *a = words[j];
+			const char *b = s;
+			while (*a && *a == *b) {
+				a++;
+				if (*a == marker) {
+					a++;
+					const size_t suffixLengthA = strlen(a);
+					const size_t suffixLengthB = strlen(b);
+					if (suffixLengthA >= suffixLengthB)
+						break;
+					b = b + suffixLengthB - suffixLengthA - 1;
+				}
+				b++;
+			}
+			if (!*a  && !*b)
+				return true;
+			j++;
+		}
+	}
+
+	j = starts[static_cast<uint>(marker)];
+	if (j >= 0) {
+		while (words[j][0] == marker) {
+			const char *a = words[j] + 1;
+			const char *b = s;
+			const size_t suffixLengthA = strlen(a);
+			const size_t suffixLengthB = strlen(b);
+			if (suffixLengthA > suffixLengthB) {
+				j++;
+				continue;
+			}
+			b = b + suffixLengthB - suffixLengthA;
+
+			while (*a && *a == *b) {
+				a++;
+				b++;
+			}
+			if (!*a && !*b)
+				return true;
+			j++;
+		}
+	}
+
 	return false;
 }
 

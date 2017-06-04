@@ -123,7 +123,7 @@ static void convert_data_to_bytes(png_structp png, png_row_infop row_info, png_b
  * stderr and rely on the user to check for errors via the #cairo_status_t
  * return.
  */
-static void png_simple_error_callback(png_structp png, png_const_charp error_msg)
+static void png_simple_error_callback(png_structp png, const char * error_msg)
 {
 	cairo_status_t * error = (cairo_status_t *)png_get_error_ptr(png);
 	/* default to the most likely error */
@@ -135,7 +135,7 @@ static void png_simple_error_callback(png_structp png, png_const_charp error_msg
 	/* if we get here, then we have to choice but to abort ... */
 }
 
-static void png_simple_warning_callback(png_structp png, png_const_charp error_msg)
+static void png_simple_warning_callback(png_structp png, const char * error_msg)
 {
 	/* png does not expect to abort and will try to tidy up and continue
 	 * loading the image after a warning. So we also want to return the
@@ -163,7 +163,7 @@ static cairo_status_t write_png(cairo_surface_t      * surface,
 	void * image_extra;
 	png_struct * png;
 	png_info * info;
-	png_byte ** volatile rows = NULL;
+	uint8 ** volatile rows = NULL;
 	png_color_16 white;
 	int png_color_type;
 	int bpc;
@@ -190,14 +190,14 @@ static cairo_status_t write_png(cairo_surface_t      * surface,
 	status = clone->base.status;
 	if(unlikely(status))
 		goto BAIL1;
-	rows = (png_byte **)_cairo_malloc_ab(clone->height, sizeof(png_byte*));
+	rows = (uint8 **)_cairo_malloc_ab(clone->height, sizeof(uint8*));
 	if(unlikely(rows == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto BAIL2;
 	}
 
 	for(i = 0; i < clone->height; i++)
-		rows[i] = (png_byte*)clone->data + i * clone->stride;
+		rows[i] = (uint8*)clone->data + i * clone->stride;
 
 	png = png_create_write_struct(PNG_LIBPNG_VER_STRING, &status,
 	    png_simple_error_callback,
@@ -301,7 +301,7 @@ BAIL1:
 	return status;
 }
 
-static void stdio_write_func(png_structp png, png_bytep data, png_size_t size)
+static void stdio_write_func(png_structp png, png_bytep data, size_t size)
 {
 	FILE * fp = (FILE *)png_get_io_ptr(png);
 	while(size) {
@@ -369,7 +369,7 @@ struct png_write_closure_t {
 	void * closure;
 };
 
-static void stream_write_func(png_structp png, png_bytep data, png_size_t size)
+static void stream_write_func(png_structp png, png_bytep data, size_t size)
 {
 	struct png_write_closure_t * png_closure = (struct png_write_closure_t *)png_get_io_ptr(png);
 	cairo_status_t status = png_closure->write_func(png_closure->closure, data, size);
@@ -485,7 +485,7 @@ static cairo_status_t stdio_read_func(void * closure, uchar * data, uint size)
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static void stream_read_func(png_structp png, png_bytep data, png_size_t size)
+static void stream_read_func(png_structp png, png_bytep data, size_t size)
 {
 	struct png_read_closure_t * png_closure = (struct png_read_closure_t *)png_get_io_ptr(png);
 	cairo_status_t status = png_closure->read_func(png_closure->closure, data, size);
@@ -503,9 +503,9 @@ static cairo_surface_t * read_png(struct png_read_closure_t * png_closure)
 	cairo_surface_t * surface;
 	png_struct * png = NULL;
 	png_info * info;
-	png_byte * data = NULL;
-	png_byte ** row_pointers = NULL;
-	png_uint_32 png_width, png_height;
+	uint8 * data = NULL;
+	uint8 ** row_pointers = NULL;
+	uint32 png_width, png_height;
 	int depth, color_type, interlace, stride;
 	uint i;
 	cairo_format_t format;
@@ -618,13 +618,13 @@ static cairo_surface_t * read_png(struct png_read_closure_t * png_closure)
 		surface = _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_STRIDE));
 		goto BAIL;
 	}
-	data = (png_byte *)_cairo_malloc_ab(png_height, stride);
+	data = (uint8 *)_cairo_malloc_ab(png_height, stride);
 	if(unlikely(data == NULL)) {
 		surface = _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 		goto BAIL;
 	}
 
-	row_pointers = (png_byte **)_cairo_malloc_ab(png_height, sizeof(char *));
+	row_pointers = (uint8 **)_cairo_malloc_ab(png_height, sizeof(char *));
 	if(unlikely(row_pointers == NULL)) {
 		surface = _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 		goto BAIL;

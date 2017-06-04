@@ -1,14 +1,15 @@
 // Scintilla source code edit control
 /** @file Catalogue.cxx
-** Colourise for particular languages.
-**/
+ ** Colourise for particular languages.
+ **/
 // Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-
+#include <stdexcept>
+#include <vector>
 #include "ILexer.h"
 #include "SciLexer.h"
 #include "LexerModule.h"
@@ -21,23 +22,23 @@ using namespace Scintilla;
 static std::vector<LexerModule *> lexerCatalogue;
 static int nextLanguage = SCLEX_AUTOMATIC+1;
 
-const LexerModule * Catalogue::Find(int language) {
+const LexerModule *Catalogue::Find(int language) {
 	Scintilla_LinkLexers();
-	for(std::vector<LexerModule *>::iterator it = lexerCatalogue.begin();
-	    it != lexerCatalogue.end(); ++it) {
-		if((*it)->GetLanguage() == language) {
+	for (std::vector<LexerModule *>::iterator it=lexerCatalogue.begin();
+		it != lexerCatalogue.end(); ++it) {
+		if ((*it)->GetLanguage() == language) {
 			return *it;
 		}
 	}
 	return 0;
 }
 
-const LexerModule * Catalogue::Find(const char * languageName) {
+const LexerModule *Catalogue::Find(const char *languageName) {
 	Scintilla_LinkLexers();
-	if(languageName) {
-		for(std::vector<LexerModule *>::iterator it = lexerCatalogue.begin();
-		    it != lexerCatalogue.end(); ++it) {
-			if((*it)->languageName && (0 == strcmp((*it)->languageName, languageName))) {
+	if (languageName) {
+		for (std::vector<LexerModule *>::iterator it=lexerCatalogue.begin();
+			it != lexerCatalogue.end(); ++it) {
+			if ((*it)->languageName && (0 == strcmp((*it)->languageName, languageName))) {
 				return *it;
 			}
 		}
@@ -45,8 +46,8 @@ const LexerModule * Catalogue::Find(const char * languageName) {
 	return 0;
 }
 
-void Catalogue::AddLexerModule(LexerModule * plm) {
-	if(plm->GetLanguage() == SCLEX_AUTOMATIC) {
+void Catalogue::AddLexerModule(LexerModule *plm) {
+	if (plm->GetLanguage() == SCLEX_AUTOMATIC) {
 		plm->language = nextLanguage;
 		nextLanguage++;
 	}
@@ -58,8 +59,9 @@ void Catalogue::AddLexerModule(LexerModule * plm) {
 // Force a reference to all of the Scintilla lexers so that the linker will
 // not remove the code of the lexers.
 int Scintilla_LinkLexers() {
+
 	static int initialised = 0;
-	if(initialised)
+	if (initialised)
 		return 0;
 	initialised = 1;
 
@@ -101,6 +103,7 @@ int Scintilla_LinkLexers() {
 	LINK_LEXER(lmDMAP);
 	LINK_LEXER(lmDMIS);
 	LINK_LEXER(lmECL);
+	LINK_LEXER(lmEDIFACT);
 	LINK_LEXER(lmEiffel);
 	LINK_LEXER(lmEiffelkw);
 	LINK_LEXER(lmErlang);
@@ -117,6 +120,7 @@ int Scintilla_LinkLexers() {
 	LINK_LEXER(lmHTML);
 	LINK_LEXER(lmIHex);
 	LINK_LEXER(lmInno);
+	LINK_LEXER(lmJSON);
 	LINK_LEXER(lmKix);
 	LINK_LEXER(lmKVIrc);
 	LINK_LEXER(lmLatex);
@@ -189,4 +193,3 @@ int Scintilla_LinkLexers() {
 
 	return 1;
 }
-

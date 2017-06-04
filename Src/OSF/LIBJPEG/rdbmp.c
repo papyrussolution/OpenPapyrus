@@ -50,31 +50,29 @@ typedef struct _bmp_source_struct * bmp_source_ptr;
 
 typedef struct _bmp_source_struct {
 	struct cjpeg_source_struct pub; /* public fields */
-
 	j_compress_ptr cinfo;   /* back link saves passing separate parm */
-
 	JSAMPARRAY colormap;    /* BMP colormap (converted to my format) */
-
 	jvirt_sarray_ptr whole_image; /* Needed to reverse row order */
 	JDIMENSION source_row;  /* Current source row number */
 	JDIMENSION row_width;   /* Physical width of scanlines in file */
 
 	int bits_per_pixel;     /* remembers 8- or 24-bit format */
 } bmp_source_struct;
-
-LOCAL(int)
-read_byte(bmp_source_ptr sinfo)
-/* Read next byte from BMP file */
+//
+// Read next byte from BMP file 
+//
+static int FASTCALL read_byte(bmp_source_ptr sinfo)
 {
-	register FILE * infile = sinfo->pub.input_file;
+	FILE * infile = sinfo->pub.input_file;
 	register int c;
 	if((c = getc(infile)) == EOF)
 		ERREXIT(sinfo->cinfo, JERR_INPUT_EOF);
 	return c;
 }
-
-LOCAL(void) read_colormap(bmp_source_ptr sinfo, int cmaplen, int mapentrysize)
-/* Read the colormap from a BMP file */
+//
+// Read the colormap from a BMP file 
+//
+static void read_colormap(bmp_source_ptr sinfo, int cmaplen, int mapentrysize)
 {
 	int i;
 	switch(mapentrysize) {

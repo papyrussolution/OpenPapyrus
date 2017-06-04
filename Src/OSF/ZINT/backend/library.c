@@ -86,7 +86,7 @@ void ZBarcode_Clear(struct ZintSymbol * symbol)
 
 void ZBarcode_Delete(struct ZintSymbol * symbol)
 {
-	free(symbol->bitmap);
+	SAlloc::F(symbol->bitmap);
 	// If there is a rendered version, ensure its memory is released
 	if(symbol->rendered != NULL) {
 		struct zint_render_line * line, * l;
@@ -98,15 +98,15 @@ void ZBarcode_Delete(struct ZintSymbol * symbol)
 		while(line) {
 			l = line;
 			line = line->next;
-			free(l);
+			SAlloc::F(l);
 		}
 		// Free Strings
 		string = symbol->rendered->strings;
 		while(string) {
 			s = string;
 			string = string->next;
-			free(s->text);
-			free(s);
+			SAlloc::F(s->text);
+			SAlloc::F(s);
 		}
 
 		// Free Rings
@@ -114,7 +114,7 @@ void ZBarcode_Delete(struct ZintSymbol * symbol)
 		while(ring) {
 			r = ring;
 			ring = ring->next;
-			free(r);
+			SAlloc::F(r);
 		}
 
 		// Free Hexagons
@@ -122,13 +122,13 @@ void ZBarcode_Delete(struct ZintSymbol * symbol)
 		while(hexagon) {
 			h = hexagon;
 			hexagon = hexagon->next;
-			free(h);
+			SAlloc::F(h);
 		}
 
 		// Free Render
-		free(symbol->rendered);
+		SAlloc::F(symbol->rendered);
 	}
-	free(symbol);
+	SAlloc::F(symbol);
 }
 
 extern int get_best_eci(uchar source[], int length); /* Calculate suitable ECI mode */
@@ -1238,7 +1238,7 @@ int ZBarcode_Encode_File(struct ZintSymbol * symbol, char * filename)
 
 	fclose(file);
 	ret = ZBarcode_Encode(symbol, buffer, nRead);
-	free(buffer);
+	SAlloc::F(buffer);
 	return ret;
 }
 

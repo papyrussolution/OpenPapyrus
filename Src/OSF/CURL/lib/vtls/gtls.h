@@ -44,15 +44,15 @@ void Curl_gtls_session_free(void *ptr);
 size_t Curl_gtls_version(char *buffer, size_t size);
 int Curl_gtls_shutdown(struct connectdata *conn, int sockindex);
 CURLcode Curl_gtls_random(struct Curl_easy *data,
-                          unsigned char *entropy,
+                          uchar *entropy,
                           size_t length);
-void Curl_gtls_md5sum(unsigned char *tmp, /* input */
+void Curl_gtls_md5sum(uchar *tmp, /* input */
                       size_t tmplen,
-                      unsigned char *md5sum, /* output */
+                      uchar *md5sum, /* output */
                       size_t md5len);
-void Curl_gtls_sha256sum(const unsigned char *tmp, /* input */
+void Curl_gtls_sha256sum(const uchar *tmp, /* input */
                       size_t tmplen,
-                      unsigned char *sha256sum, /* output */
+                      uchar *sha256sum, /* output */
                       size_t sha256len);
 
 bool Curl_gtls_cert_status_request(void);

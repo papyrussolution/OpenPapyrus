@@ -62,13 +62,13 @@ char *Curl_convert_wchar_to_UTF8(const wchar_t *str_w);
 #define Curl_convert_UTF8_to_tchar(ptr) Curl_convert_UTF8_to_wchar((ptr))
 #define Curl_convert_tchar_to_UTF8(ptr) Curl_convert_wchar_to_UTF8((ptr))
 #define Curl_unicodefree(ptr) \
-  do {if((ptr)) {free((ptr)); (ptr) = NULL;}} WHILE_FALSE
+  do {if((ptr)) {SAlloc::F((ptr)); (ptr) = NULL;}} WHILE_FALSE
 
 typedef union {
-  unsigned short       *tchar_ptr;
-  const unsigned short *const_tchar_ptr;
-  unsigned short       *tbyte_ptr;
-  const unsigned short *const_tbyte_ptr;
+  ushort       *tchar_ptr;
+  const ushort *const_tchar_ptr;
+  ushort       *tbyte_ptr;
+  const ushort *const_tbyte_ptr;
 } xcharp_u;
 
 #else
@@ -81,8 +81,8 @@ typedef union {
 typedef union {
   char                *tchar_ptr;
   const char          *const_tchar_ptr;
-  unsigned char       *tbyte_ptr;
-  const unsigned char *const_tbyte_ptr;
+  uchar       *tbyte_ptr;
+  const uchar *const_tbyte_ptr;
 } xcharp_u;
 
 #endif /* UNICODE */

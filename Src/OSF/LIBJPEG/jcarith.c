@@ -109,22 +109,18 @@ typedef arith_entropy_encoder * arith_entropy_ptr;
 #define IRIGHT_SHIFT(x, shft)    ((x) >> (shft))
 #endif
 
-LOCAL(void)
-emit_byte(int val, j_compress_ptr cinfo)
+static void FASTCALL emit_byte(int val, j_compress_ptr cinfo)
 /* Write next output byte; we do not support suspension in this module. */
 {
 	struct jpeg_destination_mgr * dest = cinfo->dest;
-
 	*dest->next_output_byte++ = (JOCTET)val;
 	if(--dest->free_in_buffer == 0)
 		if(!(*dest->empty_output_buffer)(cinfo))
 			ERREXIT(cinfo, JERR_CANT_SUSPEND);
 }
-
 /*
  * Finish up at the end of an arithmetic-compressed scan.
  */
-
 METHODDEF(void) finish_pass(j_compress_ptr cinfo)
 {
 	arith_entropy_ptr e = (arith_entropy_ptr)cinfo->entropy;
@@ -143,9 +139,11 @@ METHODDEF(void) finish_pass(j_compress_ptr cinfo)
 	if(e->c & 0xF8000000L) {
 		/* One final overflow has to be handled */
 		if(e->buffer >= 0) {
-			if(e->zc)
-				do emit_byte(0x00, cinfo);
-				while(--e->zc);
+			if(e->zc) {
+				do {
+					emit_byte(0x00, cinfo);
+				} while(--e->zc);
+			}
 			emit_byte(e->buffer + 1, cinfo);
 			if(e->buffer + 1 == 0xFF)
 				emit_byte(0x00, cinfo);
@@ -210,8 +208,7 @@ METHODDEF(void) finish_pass(j_compress_ptr cinfo)
  * derived from Markus Kuhn's JBIG implementation.
  */
 
-LOCAL(void)
-arith_encode(j_compress_ptr cinfo, unsigned char * st, int val)
+static void arith_encode(j_compress_ptr cinfo, unsigned char * st, int val)
 {
 	register arith_entropy_ptr e = (arith_entropy_ptr)cinfo->entropy;
 	register unsigned char nl, nm;
@@ -312,18 +309,14 @@ arith_encode(j_compress_ptr cinfo, unsigned char * st, int val)
  * Emit a restart marker & resynchronize predictions.
  */
 
-LOCAL(void)
-emit_restart(j_compress_ptr cinfo, int restart_num)
+static void FASTCALL emit_restart(j_compress_ptr cinfo, int restart_num)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	int ci;
 	jpeg_component_info * compptr;
-
 	finish_pass(cinfo);
-
 	emit_byte(0xFF, cinfo);
 	emit_byte(JPEG_RST0 + restart_num, cinfo);
-
 	/* Re-initialize statistics areas */
 	for(ci = 0; ci < cinfo->comps_in_scan; ci++) {
 		compptr = cinfo->cur_comp_info[ci];

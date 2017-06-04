@@ -48,7 +48,7 @@ static inline bool IsStreamCommentStyle(int style) {
 	return style == SCE_POWERPRO_COMMENTBLOCK;
 }
 
-static inline bool IsLineEndChar(unsigned char ch) {
+static inline bool IsLineEndChar(uchar ch) {
 	return 	ch == 0x0a 		//LF
 			|| ch == 0x0c	//FF
 			|| ch == 0x0d;	//CR
@@ -97,7 +97,7 @@ static int GetStyleFirstWord(Sci_Position szLine, Accessor &styler)
 static bool IsFunction(Accessor &styler, Sci_PositionU currentPos) {
 
 	const char function[10] = "function "; //10 includes \0
-	unsigned int numberOfCharacters = sizeof(function) - 1;
+	uint numberOfCharacters = sizeof(function) - 1;
 	Sci_PositionU position = currentPos - numberOfCharacters;
 
 	//compare each character with the letters in the function array
@@ -402,9 +402,9 @@ static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 	bool isFirstWordStarted = false;
 	bool isFirstWordEnded = false;
 
-	const unsigned int FIRST_WORD_MAX_LEN = 10;
+	const uint FIRST_WORD_MAX_LEN = 10;
 	char szFirstWord[FIRST_WORD_MAX_LEN] = "";
-	unsigned int firstWordLen = 0;
+	uint firstWordLen = 0;
 
 	char szDo[3]="";
 	int	 szDolen = 0;
@@ -585,7 +585,7 @@ static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 				isDoLastWord = false;
 
 				//blank out first word
-				for (unsigned int i = 0; i < FIRST_WORD_MAX_LEN; i++)
+				for (uint i = 0; i < FIRST_WORD_MAX_LEN; i++)
 					szFirstWord[i] = '\0';
 			}
 		}

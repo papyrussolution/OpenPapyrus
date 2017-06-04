@@ -3,7 +3,6 @@
  ** Lexer for OPAL (functional language similar to Haskell)
  ** Written by Sebastian Pipping <webmaster@hartwork.org>
  **/
-
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
