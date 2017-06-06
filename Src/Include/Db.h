@@ -4185,6 +4185,7 @@ public:
 	int    StartTransaction();
 	int    RollbackWork();
 	int    CommitWork();
+	int    TransactionCheckPoint();
 
 	int    LockDetect();
 

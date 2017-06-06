@@ -7,20 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_swap.h"
-// @v9.5.5 #include "dbinc/hmac.h"
-// @v9.5.5 #include "dbinc/fop.h"
-// @v9.5.5 #include "dbinc/heap.h"
-// @v9.5.5 #include "dbinc/qam.h"
-// @v9.5.5 #include "dbinc/txn.h"
-
 /*
  * __db_open --
  *	DB->open method.
@@ -114,8 +101,7 @@ int __db_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, c
 				__db_errx(env, DB_STR("0636", "DBTYPE of unknown without existing file"));
 				return EINVAL;
 			}
-			if(dbp->pgsize == 0)
-				dbp->pgsize = DB_DEF_IOSIZE;
+			SETIFZ(dbp->pgsize, DB_DEF_IOSIZE);
 			/*
 			 * If the file is a temporary file and we're
 			 * doing locking, then we have to create a
@@ -148,15 +134,15 @@ int __db_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, c
 		 */
 	}
 	else if(dname == NULL && meta_pgno == PGNO_BASE_MD) {
-		/* Open/create the underlying file.  Acquire locks. */
+		// Open/create the underlying file.  Acquire locks
 		if((ret = __fop_file_setup(dbp, ip, txn, fname, mode, flags, &id)) != 0)
 			return ret;
-		/*
-		 * If we are creating the first sub-db then this is the
-		 * call to create the master db and we tried to open it
-		 * read-only.  The create will force it to be read/write
-		 * So clear the RDONLY flag if we just created it.
-		 */
+		// 
+		// If we are creating the first sub-db then this is the
+		// call to create the master db and we tried to open it
+		// read-only.  The create will force it to be read/write
+		// So clear the RDONLY flag if we just created it.
+		// 
 		if(!F_ISSET(dbp, DB_AM_RDONLY))
 			LF_CLR(DB_RDONLY);
 	}
@@ -169,10 +155,10 @@ int __db_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, c
 			return ret;
 		meta_pgno = dbp->meta_pgno;
 	}
-	/* Set up the underlying environment. */
+	// Set up the underlying environment
 	if((ret = __env_setup(dbp, txn, fname, dname, id, flags)) != 0)
 		return ret;
-	/* For in-memory databases, we now need to open/create the database. */
+	// For in-memory databases, we now need to open/create the database
 	if(F_ISSET(dbp, DB_AM_INMEM)) {
 		if(dname == NULL)
 			ret = __db_new_file(dbp, ip, txn, NULL, NULL);
@@ -205,8 +191,7 @@ int __db_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, c
 	if(!F_ISSET(dbp, DB_AM_RECOVER) && (fname || dname) && LOCK_ISSET(dbp->handle_lock)) {
 		if(IS_REAL_TXN(txn))
 			ret = __txn_lockevent(env, txn, dbp, &dbp->handle_lock, dbp->locker);
-		else if(LOCKING_ON(env))
-			/* Trade write handle lock for read handle lock. */
+		else if(LOCKING_ON(env)) // Trade write handle lock for read handle lock
 			ret = __lock_downgrade(env, &dbp->handle_lock, DB_LOCK_READ, 0);
 	}
 	DB_TEST_RECOVERY_LABEL
@@ -236,10 +221,10 @@ int __db_get_open_flags(DB * dbp, uint32 * flagsp)
 int __db_new_file(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, const char * name)
 {
 	int ret;
-	/*
-	 * For in-memory database, it is created by mpool and doesn't
-	 * take any lock, so temporarily turn off the lock checking here.
-	 */
+	// 
+	// For in-memory database, it is created by mpool and doesn't
+	// take any lock, so temporarily turn off the lock checking here.
+	// 
 	if(F_ISSET(dbp, DB_AM_INMEM))
 		LOCK_CHECK_OFF(ip);
 	switch(dbp->type) {
@@ -255,7 +240,7 @@ int __db_new_file(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, cons
 			break;
 	}
 	DB_TEST_RECOVERY(dbp, DB_TEST_POSTLOGMETA, ret, name);
-	/* Sync the file in preparation for moving it into place. */
+	// Sync the file in preparation for moving it into place
 	if(ret == 0 && fhp != NULL)
 		ret = __os_fsync(dbp->env, fhp);
 	DB_TEST_RECOVERY(dbp, DB_TEST_POSTSYNC, ret, name);
@@ -273,27 +258,26 @@ int __db_new_file(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, cons
  */
 int __db_init_subdb(DB * mdbp, DB * dbp, const char * name, DB_THREAD_INFO * ip, DB_TXN * txn)
 {
-	DBMETA * meta;
-	DB_MPOOLFILE * mpf;
 	int t_ret;
 	int ret = 0;
 	if(!F_ISSET(dbp, DB_AM_CREATED)) {
-		/* Subdb exists; read meta-data page and initialize. */
-		mpf = mdbp->mpf;
+		DBMETA * meta;
+		// Subdb exists; read meta-data page and initialize. 
+		DB_MPOOLFILE * mpf = mdbp->mpf;
 		if((ret = __memp_fget(mpf, &dbp->meta_pgno, ip, txn, 0, &meta)) != 0)
 			goto err;
 		ret = __db_meta_setup(mdbp->env, dbp, name, meta, 0, 0);
 		if((t_ret = __memp_fput(mpf, ip, meta, dbp->priority)) != 0 && ret == 0)
 			ret = t_ret;
-		/*
-		 * If __db_meta_setup found that the meta-page hadn't
-		 * been written out during recovery, we can just return.
-		 */
+		// 
+		// If __db_meta_setup found that the meta-page hadn't
+		// been written out during recovery, we can just return.
+		// 
 		if(ret == ENOENT)
 			ret = 0;
 		goto err;
 	}
-	/* Handle the create case here. */
+	// Handle the create case here. 
 	switch(dbp->type) {
 	    case DB_BTREE:
 	    case DB_RECNO: ret = __bam_new_subdb(mdbp, dbp, ip, txn); break;
@@ -329,16 +313,16 @@ int __db_chk_meta(ENV * env, DB * dbp, DBMETA * meta, uint32 flags)
 			F_SET(dbp, DB_AM_CHKSUM);
 		is_hmac = (meta->encrypt_alg == 0) ? 0 : 1;
 		chksum = ((BTMETA *)meta)->chksum;
-		/*
-		 * If we need to swap, the checksum function overwrites the
-		 * original checksum with 0, so we need to save a copy of the
-		 * original for swapping later.
-		 */
+		// 
+		// If we need to swap, the checksum function overwrites the
+		// original checksum with 0, so we need to save a copy of the
+		// original for swapping later.
+		// 
 		orig_chk = *(uint32 *)chksum;
-		/*
-		 * We cannot add this to __db_metaswap because that gets done
-		 * later after we've verified the checksum or decrypted.
-		 */
+		// 
+		// We cannot add this to __db_metaswap because that gets done
+		// later after we've verified the checksum or decrypted.
+		// 
 		if(LF_ISSET(DB_CHK_META)) {
 			swapped = 0;
 chk_retry:

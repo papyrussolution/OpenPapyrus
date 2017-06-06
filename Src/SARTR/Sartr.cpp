@@ -1976,7 +1976,7 @@ int SrDatabase::Open(const char * pDbPath)
 	cfg.MaxLocks    = 128*1024; // @v9.6.4
 	cfg.MaxLockObjs = 128*1024; // @v9.6.4
 	cfg.LogBufSize  = 8*1024*1024;
-	//cfg.LogFileSize = 256 * 1024 * 1024;
+	cfg.LogFileSize = 256*1024*1024;
 	//cfg.LogSubDir = "LOG";
 	cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove/*|cfg.fLogInMemory*/); // @v9.6.6
 	Close();
@@ -4114,7 +4114,7 @@ int SrDatabase::FormatProp(const SrCProp & rCp, long flags, SString & rBuf)
 
 int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, TSArray <PPOsm::NodeClusterStatEntry> * pStat)
 {
-	const  uint max_cluster_per_tx = 256;
+	const  uint max_cluster_per_tx = 1024;
 	const  int  use_transaction = 1;
 	//const  int  use_outer_id = 1;
 	int    ok = 1;
@@ -4222,6 +4222,7 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAs
 				PROFILE_END
 				PROFILE(cluster_list.freeAll());
 			}
+			PROFILE(THROW(P_Db->TransactionCheckPoint()));
 		}
 	}
 	else
@@ -4232,7 +4233,7 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAs
 
 int SrDatabase::StoreGeoNodeWayRefList(const LLAssocArray & rList)
 {
-	const  uint max_entries_per_tx = 128;
+	const  uint max_entries_per_tx = 1024;
 	const  int  use_transaction = 1;
 	int    ok = 1;
 	const  uint _count = rList.getCount();
@@ -4306,6 +4307,7 @@ int SrDatabase::StoreGeoNodeWayRefList(const LLAssocArray & rList)
 			THROW(tra.Commit());
 			PROFILE_END
 		}
+		PROFILE(THROW(P_Db->TransactionCheckPoint()));
 	}
 	else
 		ok = -1;
@@ -4315,7 +4317,7 @@ int SrDatabase::StoreGeoNodeWayRefList(const LLAssocArray & rList)
 
 int SrDatabase::StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSArray <PPOsm::WayStatEntry> * pStat)
 {
-	const  uint max_entries_per_tx = 256;
+	const  uint max_entries_per_tx = 1024;
 	const  int  use_transaction = 1;
 	int    ok = 1;
 	const  uint _count = rList.getCount();
@@ -4349,6 +4351,7 @@ int SrDatabase::StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSArray
 			THROW(tra.Commit());
 			PROFILE_END
 		}
+		PROFILE(THROW(P_Db->TransactionCheckPoint()));
 	}
 	else
 		ok = -1;

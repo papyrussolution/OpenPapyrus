@@ -319,15 +319,12 @@ cairo_surface_t * cairo_quartz_image_surface_create(cairo_surface_t * surface)
 	qisurf = SAlloc::M(sizeof(cairo_quartz_image_surface_t));
 	if(qisurf == NULL)
 		return SURFACE_ERROR_NO_MEMORY;
-
-	memset(qisurf, 0, sizeof(cairo_quartz_image_surface_t));
-
+	memzero(qisurf, sizeof(cairo_quartz_image_surface_t));
 	/* In case the create_cgimage fails, this ref will
 	 * be released via the callback (which will be called in
 	 * case of failure.)
 	 */
 	cairo_surface_reference(surface);
-
 	image = CairoQuartzCreateCGImage(format,
 	    width, height,
 	    stride,

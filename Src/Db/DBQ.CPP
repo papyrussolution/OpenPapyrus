@@ -220,7 +220,7 @@ int FASTCALL DBConst::fromfld(DBField f)
 	if(tag == BTS_VOID)
 		return 0;
 	else if(tag == BTS_STRING) {
-		char b[4096]; // @v7.3.0 [256]->[2096]
+		char   b[4096];
 		sttobase(t, v, b);
 		return BIN((sptr = newStr(b)) != 0);
 	}

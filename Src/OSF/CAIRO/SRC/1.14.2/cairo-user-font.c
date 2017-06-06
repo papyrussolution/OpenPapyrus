@@ -455,7 +455,7 @@ cairo_font_face_t * cairo_user_font_face_create(void)
 	}
 	_cairo_font_face_init(&font_face->base, &_cairo_user_font_face_backend);
 	font_face->immutable = FALSE;
-	memset(&font_face->scaled_font_methods, 0, sizeof(font_face->scaled_font_methods));
+	memzero(&font_face->scaled_font_methods, sizeof(font_face->scaled_font_methods));
 	return &font_face->base;
 }
 

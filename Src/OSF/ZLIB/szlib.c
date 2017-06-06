@@ -302,11 +302,10 @@ uLong ZEXPORT adler32_z(uLong adler, const Bytef * buf, size_t len)
 			sum2 -= BASE;
 		return adler | (sum2 << 16);
 	}
-	// initial Adler-32 value (deferred check for len == 1 speed) 
-	if(buf == Z_NULL)
+	else if(buf == Z_NULL) { // initial Adler-32 value (deferred check for len == 1 speed) 
 		return 1L;
-	// in case short lengths are provided, keep it somewhat fast 
-	if(len < 16) {
+	}
+	else if(len < 16) { // in case short lengths are provided, keep it somewhat fast 
 		while(len--) {
 			adler += *buf++;
 			sum2 += adler;
@@ -316,32 +315,34 @@ uLong ZEXPORT adler32_z(uLong adler, const Bytef * buf, size_t len)
 		MOD28(sum2); // only added so many BASE's 
 		return adler | (sum2 << 16);
 	}
-	// do length NMAX blocks -- requires just one modulo operation 
-	while(len >= NMAX) {
-		len -= NMAX;
-		n = NMAX / 16; // NMAX is divisible by 16 
-		do {
-			DO16(buf); // 16 sums unrolled 
-			buf += 16;
-		} while(--n);
-		MOD(adler);
-		MOD(sum2);
-	}
-	// do remaining bytes (less than NMAX, still just one modulo) 
-	if(len) { // avoid modulos if none remaining 
-		while(len >= 16) {
-			len -= 16;
-			DO16(buf);
-			buf += 16;
+	else {
+		// do length NMAX blocks -- requires just one modulo operation 
+		while(len >= NMAX) {
+			len -= NMAX;
+			n = NMAX / 16; // NMAX is divisible by 16 
+			do {
+				DO16(buf); // 16 sums unrolled 
+				buf += 16;
+			} while(--n);
+			MOD(adler);
+			MOD(sum2);
 		}
-		while(len--) {
-			adler += *buf++;
-			sum2 += adler;
+		// do remaining bytes (less than NMAX, still just one modulo) 
+		if(len) { // avoid modulos if none remaining 
+			while(len >= 16) {
+				len -= 16;
+				DO16(buf);
+				buf += 16;
+			}
+			while(len--) {
+				adler += *buf++;
+				sum2 += adler;
+			}
+			MOD(adler);
+			MOD(sum2);
 		}
-		MOD(adler);
-		MOD(sum2);
+		return (adler | (sum2 << 16)); // return recombined sums 
 	}
-	return (adler | (sum2 << 16)); // return recombined sums 
 }
 
 uLong ZEXPORT adler32(uLong adler, const Bytef * buf, uInt len)
@@ -1290,10 +1291,9 @@ uLong ZEXPORT zlibCompileFlags()
 		exit(1);
 	}
 #endif
-
-/* exported to allow conversion of error code to string for compress() and
- * uncompress()
- */
+//
+// exported to allow conversion of error code to string for compress() and uncompress()
+//
 const char * ZEXPORT zError(int err)
 {
 	return ERR_MSG(err);
@@ -1308,14 +1308,14 @@ int errno = 0;
 #endif
 
 #ifndef HAVE_MEMCPY
-	void ZLIB_INTERNAL zmemcpy(Bytef* dest, const Bytef* source, uInt len)
+	/*void ZLIB_INTERNAL zmemcpy_Removed(Bytef* dest, const Bytef* source, uInt len)
 	{
 		if(len) {
 			do {
-				*dest++ = *source++; /* ??? to be unrolled */
+				*dest++ = *source++; // ??? to be unrolled 
 			} while(--len != 0);
 		}
-	}
+	}*/
 	int ZLIB_INTERNAL zmemcmp(const Bytef* s1, const Bytef* s2, uInt len)
 	{
 		uInt j;
@@ -1324,14 +1324,14 @@ int errno = 0;
 		}
 		return 0;
 	}
-	void ZLIB_INTERNAL zmemzero(Bytef* dest, uInt len)
+	/* void ZLIB_INTERNAL zmemzero_Removed(Bytef* dest, uInt len)
 	{
 		if(len) {
 			do {
-				*dest++ = 0; /* ??? to be unrolled */
+				*dest++ = 0; // ??? to be unrolled 
 			} while(--len != 0);
 		}
-	}
+	}*/
 #endif
 
 #ifndef Z_SOLO
@@ -1586,7 +1586,6 @@ int ZLIB_INTERNAL inflate_table(codetype type, unsigned short  * lens, unsigned 
 		23, 23, 24, 24, 25, 25, 26, 26, 27, 27,
 		28, 28, 29, 29, 64, 64
 	};
-
 	/*
 	   Process a set of code lengths to create a canonical Huffman code.  The
 	   code lengths are lens[0..codes-1].  Each length corresponds to the
@@ -1608,27 +1607,25 @@ int ZLIB_INTERNAL inflate_table(codetype type, unsigned short  * lens, unsigned 
 	   The codes are sorted by computing a count of codes for each length,
 	   creating from that a table of starting indices for each length in the
 	   sorted table, and then entering the symbols in order in the sorted
-	   table.  The sorted table is work[], with that space being provided by
-	   the caller.
+	   table.  The sorted table is work[], with that space being provided by the caller.
 
 	   The length counts are used for other purposes as well, i.e. finding
 	   the minimum and maximum length codes, determining if there are any
 	   codes at all, checking for a valid set of lengths, and looking ahead
-	   at length counts to determine sub-table sizes when building the
-	   decoding tables.
+	   at length counts to determine sub-table sizes when building the decoding tables.
 	 */
-
-	/* accumulate lengths for codes (assumes lens[] all in 0..MAXBITS) */
+	// accumulate lengths for codes (assumes lens[] all in 0..MAXBITS) 
 	for(len = 0; len <= MAXBITS; len++)
 		count[len] = 0;
 	for(sym = 0; sym < codes; sym++)
 		count[lens[sym]]++;
-
-	/* bound code lengths, force root to be within code lengths */
+	// bound code lengths, force root to be within code lengths 
 	root = *bits;
 	for(max = MAXBITS; max >= 1; max--)
-		if(count[max] != 0) break;
-	if(root > max) root = max;
+		if(count[max] != 0) 
+			break;
+	if(root > max) 
+		root = max;
 	if(max == 0) {                  /* no symbols to code at all */
 		here.op = (unsigned char)64; /* invalid code marker */
 		here.bits = (unsigned char)1;
@@ -1849,7 +1846,6 @@ int ZEXPORT compress2(Bytef * dest, uLongf * destLen, const Bytef * source, uLon
 		}
 		err = deflate(&stream, sourceLen ? Z_NO_FLUSH : Z_FINISH);
 	} while(err == Z_OK);
-
 	*destLen = stream.total_out;
 	deflateEnd(&stream);
 	return err == Z_STREAM_END ? Z_OK : err;
@@ -1974,11 +1970,10 @@ static int gz_comp(gz_statep state, int flush)
 		}
 		have -= strm->avail_out;
 	} while(have);
-	/* if that completed a deflate stream, allow another to start */
+	// if that completed a deflate stream, allow another to start 
 	if(flush == Z_FINISH)
 		deflateReset(strm);
-	/* all done, no errors */
-	return 0;
+	return 0; // all done, no errors 
 }
 //
 // Compress len zeros to output.  Return -1 on a write error or memory

@@ -112,7 +112,7 @@ int BN_lshift(BIGNUM *r, const BIGNUM *a, int n)
             t[nw + i + 1] |= (l >> rb) & BN_MASK2;
             t[nw + i] = (l << lb) & BN_MASK2;
         }
-    memset(t, 0, sizeof(*t) * nw);
+    memzero(t, sizeof(*t) * nw);
     r->top = a->top + nw + 1;
     bn_correct_top(r);
     bn_check_top(r);
@@ -124,10 +124,8 @@ int BN_rshift(BIGNUM *r, const BIGNUM *a, int n)
     int i, j, nw, lb, rb;
     BN_ULONG *t, *f;
     BN_ULONG l, tmp;
-
     bn_check_top(r);
     bn_check_top(a);
-
     if (n < 0) {
         BNerr(BN_F_BN_RSHIFT, BN_R_INVALID_SHIFT);
         return 0;

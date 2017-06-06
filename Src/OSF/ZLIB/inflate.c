@@ -382,7 +382,7 @@ static int updatewindow(z_streamp strm, const Bytef * end, unsigned copy)
 	}
 	/* copy state->wsize or less output bytes into the circular window */
 	if(copy >= state->wsize) {
-		zmemcpy(state->window, end - state->wsize, state->wsize);
+		memcpy(state->window, end - state->wsize, state->wsize);
 		state->wnext = 0;
 		state->whave = state->wsize;
 	}
@@ -390,10 +390,10 @@ static int updatewindow(z_streamp strm, const Bytef * end, unsigned copy)
 		dist = state->wsize - state->wnext;
 		if(dist > copy) 
 			dist = copy;
-		zmemcpy(state->window + state->wnext, end - copy, dist);
+		memcpy(state->window + state->wnext, end - copy, dist);
 		copy -= dist;
 		if(copy) {
-			zmemcpy(state->window, end - copy, copy);
+			memcpy(state->window, end - copy, copy);
 			state->wnext = copy;
 			state->whave = state->wsize;
 		}
@@ -704,7 +704,7 @@ int ZEXPORT inflate(z_streamp strm, int flush)
 					    if(state->head != Z_NULL &&
 					    state->head->extra != Z_NULL) {
 						    len = state->head->extra_len - state->length;
-						    zmemcpy(state->head->extra + len, next,
+						    memcpy(state->head->extra + len, next,
 						    len + copy > state->head->extra_max ?
 						    state->head->extra_max - len : copy);
 					    }
@@ -841,7 +841,7 @@ int ZEXPORT inflate(z_streamp strm, int flush)
 				    if(copy > have) copy = have;
 				    if(copy > left) copy = left;
 				    if(copy == 0) goto inf_leave;
-				    zmemcpy(put, next, copy);
+				    memcpy(put, next, copy);
 				    have -= copy;
 				    next += copy;
 				    left -= copy;
@@ -1230,8 +1230,8 @@ int ZEXPORT inflateGetDictionary(z_streamp strm, Bytef * dictionary, uInt * dict
 	state = (struct inflate_state *)strm->state;
 	/* copy dictionary */
 	if(state->whave && dictionary != Z_NULL) {
-		zmemcpy(dictionary, state->window + state->wnext, state->whave - state->wnext);
-		zmemcpy(dictionary + state->whave - state->wnext, state->window, state->wnext);
+		memcpy(dictionary, state->window + state->wnext, state->whave - state->wnext);
+		memcpy(dictionary + state->whave - state->wnext, state->window, state->wnext);
 	}
 	if(dictLength != Z_NULL)
 		*dictLength = state->whave;
@@ -1393,8 +1393,8 @@ int ZEXPORT inflateCopy(z_streamp dest, z_streamp source)
 		}
 	}
 	/* copy state */
-	zmemcpy((voidpf)dest, (voidpf)source, sizeof(z_stream));
-	zmemcpy((voidpf)copy, (voidpf)state, sizeof(struct inflate_state));
+	memcpy((voidpf)dest, (voidpf)source, sizeof(z_stream));
+	memcpy((voidpf)copy, (voidpf)state, sizeof(struct inflate_state));
 	copy->strm = dest;
 	if(state->lencode >= state->codes && state->lencode <= state->codes + ENOUGH - 1) {
 		copy->lencode = copy->codes + (state->lencode - state->codes);
@@ -1403,7 +1403,7 @@ int ZEXPORT inflateCopy(z_streamp dest, z_streamp source)
 	copy->next = copy->codes + (state->next - state->codes);
 	if(window != Z_NULL) {
 		wsize = 1U << state->wbits;
-		zmemcpy(window, state->window, wsize);
+		memcpy(window, state->window, wsize);
 	}
 	copy->window = window;
 	dest->state = (struct internal_state *)copy;

@@ -176,26 +176,19 @@ cairo_surface_t * _cairo_xcb_surface_create_similar_image(void * abstract_other,
 	cairo_image_surface_t * image;
 	cairo_status_t status;
 	pixman_format_code_t pixman_format;
-
 	if(unlikely(width  > XLIB_COORD_MAX ||
 		    height > XLIB_COORD_MAX ||
 		    width  <= 0 ||
 		    height <= 0))
 		return NULL;
-
 	pixman_format = _cairo_format_to_pixman_format_code(format);
-
-	status = _cairo_xcb_shm_image_create(connection, pixman_format,
-	    width, height, &image,
-	    &shm_info);
+	status = _cairo_xcb_shm_image_create(connection, pixman_format, width, height, &image, &shm_info);
 	if(unlikely(status))
 		return _cairo_surface_create_in_error(status);
-
 	if(!image->base.is_clear) {
-		memset(image->data, 0, image->stride * image->height);
+		memzero(image->data, image->stride * image->height);
 		image->base.is_clear = TRUE;
 	}
-
 	return &image->base;
 }
 

@@ -332,7 +332,7 @@ static cairo_surface_t * _cairo_win32_display_surface_create_similar_image(void 
 	/* And clear in order to comply with our user API semantics */
 	image = (cairo_image_surface_t*)surface->image;
 	if(!image->base.is_clear) {
-		memset(image->data, 0, image->stride * height);
+		memzero(image->data, image->stride * height);
 		image->base.is_clear = TRUE;
 	}
 	return &image->base;

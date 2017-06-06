@@ -311,10 +311,9 @@ static BN_ULONG * bn_expand_internal(const BIGNUM * b, int words)
 		}
 	}
 #else
-	memset(A, 0, sizeof(*A) * words);
+	memzero(A, sizeof(*A) * words);
 	memcpy(A, b->d, sizeof(b->d[0]) * b->top);
 #endif
-
 	return (a);
 }
 
@@ -533,7 +532,7 @@ static int bn2binpad(const BIGNUM * a, uchar * to, int tolen)
 		return -1;
 	/* Add leading zeroes if necessary */
 	if(tolen > i) {
-		memset(to, 0, tolen - i);
+		memzero(to, tolen - i);
 		to += tolen - i;
 	}
 	while(i--) {
@@ -612,7 +611,7 @@ int BN_bn2lebinpad(const BIGNUM * a, uchar * to, int tolen)
 		return -1;
 	/* Add trailing zeroes if necessary */
 	if(tolen > i)
-		memset(to + i, 0, tolen - i);
+		memzero(to + i, tolen - i);
 	to += i;
 	while(i--) {
 		l = a->d[i / BN_BYTES];

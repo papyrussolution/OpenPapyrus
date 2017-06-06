@@ -243,16 +243,12 @@ cairo_device_t * _cairo_xlib_device_create(Display * dpy)
 	_cairo_xlib_display_select_compositor(display);
 
 	display->white = NULL;
-	memset(display->alpha, 0, sizeof(display->alpha));
-	memset(display->solid, 0, sizeof(display->solid));
-	memset(display->solid_cache, 0, sizeof(display->solid_cache));
-	memset(display->last_solid_cache, 0, sizeof(display->last_solid_cache));
-
-	memset(display->cached_xrender_formats, 0,
-	    sizeof(display->cached_xrender_formats));
-
+	memzero(display->alpha, sizeof(display->alpha));
+	memzero(display->solid, sizeof(display->solid));
+	memzero(display->solid_cache, sizeof(display->solid_cache));
+	memzero(display->last_solid_cache, sizeof(display->last_solid_cache));
+	memzero(display->cached_xrender_formats, sizeof(display->cached_xrender_formats));
 	display->force_precision = -1;
-
 	_cairo_xlib_display_init_shm(display);
 
 	/* Prior to Render 0.10, there is no protocol support for gradients and

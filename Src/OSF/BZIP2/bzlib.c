@@ -252,11 +252,9 @@ static void flush_RL(EState* s)
 	}
 
 /*---------------------------------------------------*/
-static
-bool copy_input_until_stop(EState* s)
+static bool copy_input_until_stop(EState* s)
 {
 	bool progress_in = false;
-
 	if(s->mode == BZ_M_RUNNING) {
 		/*-- fast track the common case --*/
 		while(true) {

@@ -331,8 +331,7 @@ static int sh_init(size_t size, int minsize)
 	size_t pgsize;
 	size_t aligned;
 
-	memset(&sh, 0, sizeof sh);
-
+	memzero(&sh, sizeof sh);
 	/* make sure size and minsize are powers of 2 */
 	OPENSSL_assert(size > 0);
 	OPENSSL_assert((size & (size - 1)) == 0);
@@ -443,7 +442,7 @@ static void sh_done()
 	OPENSSL_free(sh.bitmalloc);
 	if(sh.map_result != NULL && sh.map_size)
 		munmap(sh.map_result, sh.map_size);
-	memset(&sh, 0, sizeof sh);
+	memzero(&sh, sizeof sh);
 }
 
 static int sh_allocated(const char * ptr)

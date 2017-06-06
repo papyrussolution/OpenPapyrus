@@ -310,7 +310,11 @@ ZIP_EXTERN int zip_error_code_system(const zip_error_t *);
 ZIP_EXTERN void zip_error_fini(zip_error_t *);
 ZIP_EXTERN void zip_error_init(zip_error_t *);
 ZIP_EXTERN void zip_error_init_with_code(zip_error_t *, int);
-ZIP_EXTERN void zip_error_set(zip_error_t *, int, int);
+//
+// Descr: Устанавливает состояние ошибки в контекст pErr
+// Returns: -1
+//
+ZIP_EXTERN int  zip_error_set(zip_error_t * pErr, int ze, int se);
 ZIP_EXTERN const char *zip_error_strerror(zip_error_t *);
 ZIP_EXTERN int zip_error_system_type(const zip_error_t *);
 ZIP_EXTERN int64 zip_error_to_data(const zip_error_t *, void *, uint64);

@@ -257,14 +257,13 @@ cairo_xcb_screen_t * _cairo_xcb_screen_get(xcb_connection_t * xcb_connection,
 	screen->has_font_options = FALSE;
 	screen->subpixel_order = connection->subpixel_orders[screen_idx];
 
-	_cairo_freelist_init(&screen->pattern_cache_entry_freelist,
-	    sizeof(struct pattern_cache_entry));
+	_cairo_freelist_init(&screen->pattern_cache_entry_freelist, sizeof(struct pattern_cache_entry));
 	cairo_list_init(&screen->link);
 	cairo_list_init(&screen->surfaces);
 	cairo_list_init(&screen->pictures);
 
-	memset(screen->gc_depths, 0, sizeof(screen->gc_depths));
-	memset(screen->gc, 0, sizeof(screen->gc));
+	memzero(screen->gc_depths, sizeof(screen->gc_depths));
+	memzero(screen->gc, sizeof(screen->gc));
 
 	screen->solid_cache_size = 0;
 	for(i = 0; i < ARRAY_LENGTH(screen->stock_colors); i++)

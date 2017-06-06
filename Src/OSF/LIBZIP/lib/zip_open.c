@@ -139,10 +139,8 @@ ZIP_EXTERN int zip_archive_set_tempdir(zip_t * za, const char * tempdir)
 	char * new_tempdir = 0;
 	if(tempdir) {
 		new_tempdir = sstrdup(tempdir);
-		if(!new_tempdir) {
-			zip_error_set(&za->error, ZIP_ER_MEMORY, errno);
-			return -1;
-		}
+		if(!new_tempdir)
+			return zip_error_set(&za->error, ZIP_ER_MEMORY, errno);
 	}
 	SAlloc::F(za->tempdir);
 	za->tempdir = new_tempdir;
@@ -380,17 +378,13 @@ static int64 _zip_checkcons(zip_t * za, zip_cdir_t * cd, zip_error_t * error)
 	for(i = 0; i<cd->nentry; i++) {
 		if(cd->entry[i].orig->offset < min)
 			min = cd->entry[i].orig->offset;
-		if(min > (uint64)cd->offset) {
-			zip_error_set(error, ZIP_ER_NOZIP, 0);
-			return -1;
-		}
+		if(min > (uint64)cd->offset)
+			return zip_error_set(error, ZIP_ER_NOZIP, 0);
 		j = cd->entry[i].orig->offset + cd->entry[i].orig->comp_size + _zip_string_length(cd->entry[i].orig->filename) + LENTRYSIZE;
 		if(j > max)
 			max = j;
-		if(max > (uint64)cd->offset) {
-			zip_error_set(error, ZIP_ER_NOZIP, 0);
-			return -1;
-		}
+		if(max > (uint64)cd->offset)
+			return zip_error_set(error, ZIP_ER_NOZIP, 0);
 		if(zip_source_seek(za->src, (int64)cd->entry[i].orig->offset, SEEK_SET) < 0) {
 			_zip_error_set_from_source(error, za->src);
 			return -1;
@@ -400,9 +394,8 @@ static int64 _zip_checkcons(zip_t * za, zip_cdir_t * cd, zip_error_t * error)
 			return -1;
 		}
 		if(_zip_headercomp(cd->entry[i].orig, &temp) != 0) {
-			zip_error_set(error, ZIP_ER_INCONS, 0);
 			_zip_dirent_finalize(&temp);
-			return -1;
+			return zip_error_set(error, ZIP_ER_INCONS, 0);
 		}
 		cd->entry[i].orig->extra_fields = _zip_ef_merge(cd->entry[i].orig->extra_fields, temp.extra_fields);
 		cd->entry[i].orig->local_extra_fields_read = 1;
@@ -633,16 +626,15 @@ static zip_cdir_t * _zip_read_eocd64(zip_source_t * src, zip_buffer_t * buffer, 
 			_zip_error_set_from_source(error, src);
 			return NULL;
 		}
-		if((buffer = _zip_buffer_new_from_source(src, EOCD64LEN, eocd, error)) == NULL) {
+		else if((buffer = _zip_buffer_new_from_source(src, EOCD64LEN, eocd, error)) == NULL)
 			return NULL;
-		}
-		free_buffer = true;
+		else
+			free_buffer = true;
 	}
 	if(memcmp(_zip_buffer_get(buffer, 4), EOCD64_MAGIC, 4) != 0) {
 		zip_error_set(error, ZIP_ER_INCONS, 0);
-		if(free_buffer) {
+		if(free_buffer)
 			_zip_buffer_free(buffer);
-		}
 		return NULL;
 	}
 	size = _zip_buffer_get_64(buffer);

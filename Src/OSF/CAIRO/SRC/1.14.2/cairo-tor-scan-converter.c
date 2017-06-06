@@ -943,7 +943,7 @@ static glitter_status_t polygon_reset(struct polygon * polygon,
 		if(unlikely(NULL == polygon->y_buckets))
 			goto bail_no_mem;
 	}
-	memset(polygon->y_buckets, 0, num_buckets * sizeof(struct edge *));
+	memzero(polygon->y_buckets, num_buckets * sizeof(struct edge *));
 	polygon->ymin = ymin;
 	polygon->ymax = ymax;
 	return GLITTER_STATUS_SUCCESS;

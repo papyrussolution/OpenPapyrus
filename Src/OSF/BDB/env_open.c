@@ -95,21 +95,19 @@ int __env_open(DB_ENV * dbenv, const char * db_home, uint32 flags, int mode)
 	 * we'll restore the DB_ENV flags to these values.
 	 */
 	orig_flags = dbenv->flags;
-	/* Check open flags. */
+	// Check open flags
 	if((ret = __env_open_arg(dbenv, flags)) != 0)
 		return ret;
-	/*
-	 * If we're going to register with the environment, that's the first
-	 * thing we do.
-	 */
+	// 
+	// If we're going to register with the environment, that's the first thing we do.
+	// 
 	if(LF_ISSET(DB_REGISTER)) {
 		/*
 		 * Through the SQL interface (btree.c) we set
 		 * DB_FAILCHK_ISALIVE.  When set, we want to run failchk
 		 * if a recovery is needed. Set up the infrastructure to run
 		 * it.   SQL applications have no way to specify the thread
-		 * count or an isalive, so force it here. Failchk is run
-		 * inside of register code.
+		 * count or an isalive, so force it here. Failchk is run inside of register code.
 		 */
 		if(LF_ISSET(DB_FAILCHK_ISALIVE)) {
 			__env_set_thread_count(dbenv, 50);
@@ -148,27 +146,25 @@ int __env_open(DB_ENV * dbenv, const char * db_home, uint32 flags, int mode)
 			goto err;
 	if((ret = __env_attach_regions(dbenv, flags, orig_flags, 1)) != 0)
 		goto err;
-	/*
-	 * After attached to env, run failchk if not doing register
-	 * recovery.  Not providing this option with the DB_FAILCHK_ISALIVE
-	 * flag.
-	 */
+	// 
+	// After attached to env, run failchk if not doing register
+	// recovery.  Not providing this option with the DB_FAILCHK_ISALIVE flag.
+	// 
 	if(LF_ISSET(DB_FAILCHK) && !register_recovery) {
 		ENV_ENTER(env, ip);
 		if((ret = __env_failchk_int(dbenv)) != 0)
 			goto err;
 		ENV_LEAVE(env, ip);
 	}
-err:    if(ret != 0)
+err:    
+	if(ret != 0)
 		__env_refresh(dbenv, orig_flags, 0);
 	if(register_recovery) {
-		/*
-		 * If recovery succeeded, release our exclusive lock, other
-		 * processes can now proceed.
-		 *
-		 * If recovery failed, unregister now and let another process
-		 * clean up.
-		 */
+		// 
+		// If recovery succeeded, release our exclusive lock, other processes can now proceed.
+		// 
+		// If recovery failed, unregister now and let another process clean up.
+		// 
 		if(ret == 0 && (t_ret = __envreg_xunlock(env)) != 0)
 			ret = t_ret;
 		if(ret != 0)

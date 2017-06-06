@@ -22,7 +22,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="0"
-				AdditionalIncludeDirectories="..\include;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
+				AdditionalIncludeDirectories="..\include;..\include\zlib;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
 				PreprocessorDefinitions="_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -92,7 +92,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\include;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
+				AdditionalIncludeDirectories="..\include;..\include\zlib;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
 				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -158,7 +158,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="0"
-				AdditionalIncludeDirectories="..\include;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
+				AdditionalIncludeDirectories="..\include;..\include\zlib;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
 				PreprocessorDefinitions="_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -228,7 +228,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\include;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
+				AdditionalIncludeDirectories="..\include;..\include\zlib;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
 				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -294,7 +294,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="0"
-				AdditionalIncludeDirectories="..\include;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
+				AdditionalIncludeDirectories="..\include;..\include\zlib;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
 				PreprocessorDefinitions="_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -364,7 +364,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\include;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
+				AdditionalIncludeDirectories="..\include;..\include\zlib;&quot;..\OSF\OpenSSL-CMake\crypto\include&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\modes&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bn&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\rsa&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\dh&quot;;&quot;..\OSF\OpenSSL-CMake\crypto\bio&quot;;&quot;..\OSF\OpenSSL-CMake&quot;;&quot;..\OSF\OpenSSL-CMake\include&quot;"
 				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -2317,10 +2317,10 @@
 				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\async.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\bio.h">
+				RelativePath="..\Osf\OpenSSL-CMake\include\internal\bio.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-CMake\include\internal\bio.h">
+				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\bio.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\bn.h">

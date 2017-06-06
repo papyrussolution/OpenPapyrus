@@ -254,7 +254,7 @@ public:
 //
 // Функция регистрации встроенных типов
 //
-int SLAPI RegisterBIST()
+void SLAPI RegisterBIST()
 {
 	RegisterSType(S_VOID,     &SVoid());
 	RegisterSType(S_CHAR,     &SChar());
@@ -279,7 +279,6 @@ int SLAPI RegisterBIST()
 	RegisterSType(S_IPOINT2,  &SIPoint2());
 	RegisterSType(S_FPOINT2,  &SFPoint2());
 	RegisterSType(S_UUID_,    &SGuid());     // @v8.0.10
-	return 1;
 }
 //
 // SChar

@@ -218,7 +218,7 @@ typedef struct _lzw_symbol_table {
 /* Initialize the hash table to entirely empty */
 static void _lzw_symbol_table_init(lzw_symbol_table_t * table)
 {
-	memset(table->table, 0, LZW_SYMBOL_TABLE_SIZE * sizeof(lzw_symbol_t));
+	memzero(table->table, LZW_SYMBOL_TABLE_SIZE * sizeof(lzw_symbol_t));
 }
 
 /* Lookup a symbol in the symbol table. The PREV and NEXT fields of

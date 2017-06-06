@@ -38,7 +38,7 @@ int DH_compute_key_padded(uchar * key, const BIGNUM * pub_key, DH * dh)
 	pad = BN_num_bytes(dh->p) - rv;
 	if(pad > 0) {
 		memmove(key + pad, key, rv);
-		memset(key, 0, pad);
+		memzero(key, pad);
 	}
 	return rv + pad;
 }

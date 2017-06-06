@@ -29,6 +29,7 @@ extern "C" {
 #ifndef OPENSSL_NO_RC5
 	// @sobolev #define OPENSSL_NO_RC5
 #endif
+#define ZLIB // @sobolev
 #define OPENSSL_NO_FILENAMES // @sobolev
 #ifndef OPENSSL_THREADS
 	#define OPENSSL_THREADS
@@ -84,14 +85,11 @@ extern "C" {
 #ifndef OPENSSL_NO_AFALGENG
 	#define OPENSSL_NO_AFALGENG
 #endif
-
-
 /*
  * Sometimes OPENSSSL_NO_xxx ends up with an empty file and some compilers
  * don't like that.  This will hopefully silence them.
  */
 #define NON_EMPTY_TRANSLATION_UNIT static void *dummy = &dummy;
-
 /*
  * Applications should use -DOPENSSL_API_COMPAT=<version> to suppress the
  * declarations of functions deprecated in or before <version>. Otherwise, they
@@ -142,21 +140,18 @@ extern "C" {
 
 /* Generate 80386 code? */
 #undef I386_ONLY
-
 #undef OPENSSL_UNISTD
 #define OPENSSL_UNISTD <unistd.h>
-
 #define OPENSSL_EXPORT_VAR_AS_FUNCTION
-
 /*
  * The following are cipher-specific, but are part of the public API.
  */
 #if !defined(OPENSSL_SYS_UEFI)
-# define BN_LLONG
-/* Only one for the following should be defined */
-# undef SIXTY_FOUR_BIT_LONG
-# undef SIXTY_FOUR_BIT
-# define THIRTY_TWO_BIT
+	#define BN_LLONG
+	// Only one for the following should be defined 
+	#undef SIXTY_FOUR_BIT_LONG
+	#undef SIXTY_FOUR_BIT
+	#define THIRTY_TWO_BIT
 #endif
 
 #define RC4_INT uint

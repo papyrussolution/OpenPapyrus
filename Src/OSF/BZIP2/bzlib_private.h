@@ -56,18 +56,12 @@ extern void BZ2_bz__AssertH__fail(int errcode);
 #define AssertD(cond, msg) /* */
 #endif
 
-#define VPrintf0(zf) \
-	fprintf(stderr, zf)
-#define VPrintf1(zf, za1) \
-	fprintf(stderr, zf, za1)
-#define VPrintf2(zf, za1, za2) \
-	fprintf(stderr, zf, za1, za2)
-#define VPrintf3(zf, za1, za2, za3) \
-	fprintf(stderr, zf, za1, za2, za3)
-#define VPrintf4(zf, za1, za2, za3, za4) \
-	fprintf(stderr, zf, za1, za2, za3, za4)
-#define VPrintf5(zf, za1, za2, za3, za4, za5) \
-	fprintf(stderr, zf, za1, za2, za3, za4, za5)
+#define VPrintf0(zf) fprintf(stderr, zf)
+#define VPrintf1(zf, za1) fprintf(stderr, zf, za1)
+#define VPrintf2(zf, za1, za2) fprintf(stderr, zf, za1, za2)
+#define VPrintf3(zf, za1, za2, za3) fprintf(stderr, zf, za1, za2, za3)
+#define VPrintf4(zf, za1, za2, za3, za4) fprintf(stderr, zf, za1, za2, za3, za4)
+#define VPrintf5(zf, za1, za2, za3, za4, za5) fprintf(stderr, zf, za1, za2, za3, za4, za5)
 
 #else
 
@@ -400,12 +394,7 @@ typedef struct {
 	}
 
 #define GET_LL4(i) ((((uint32)(s->ll4[(i) >> 1])) >> (((i) << 2) & 0x4)) & 0xF)
-
-#define SET_LL(i, n)			      \
-	{ s->ll16[i] = (uint16)(n & 0x0000ffff);  \
-	  SET_LL4(i, n >> 16);			  \
-	}
-
+#define SET_LL(i, n) { s->ll16[i] = (uint16)(n & 0x0000ffff); SET_LL4(i, n >> 16); }
 #define GET_LL(i) (((uint32)s->ll16[i]) | (GET_LL4(i) << 16))
 
 #define BZ_GET_SMALL(cccc)			      \

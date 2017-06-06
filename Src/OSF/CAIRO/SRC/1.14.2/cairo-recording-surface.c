@@ -1909,28 +1909,18 @@ static cairo_status_t _recording_surface_get_ink_bbox(cairo_recording_surface_t 
  *
  * Since: 1.10
  **/
-void cairo_recording_surface_ink_extents(cairo_surface_t * surface,
-    double * x0,
-    double * y0,
-    double * width,
-    double * height)
+void cairo_recording_surface_ink_extents(cairo_surface_t * surface, double * x0, double * y0, double * width, double * height)
 {
 	cairo_status_t status;
 	cairo_box_t bbox;
-
-	memset(&bbox, 0, sizeof(bbox));
-
+	memzero(&bbox, sizeof(bbox));
 	if(surface->status || !_cairo_surface_is_recording(surface)) {
 		_cairo_error_throw(CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
 		goto DONE;
 	}
-
-	status = _recording_surface_get_ink_bbox((cairo_recording_surface_t*)surface,
-	    &bbox,
-	    NULL);
+	status = _recording_surface_get_ink_bbox((cairo_recording_surface_t*)surface, &bbox, NULL);
 	if(unlikely(status))
 		status = _cairo_surface_set_error(surface, status);
-
 DONE:
 	if(x0)
 		*x0 = _cairo_fixed_to_double(bbox.p1.x);

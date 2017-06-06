@@ -141,19 +141,104 @@ zip_source_t * _zip_source_file_or_p(const char * fname, FILE * file, uint64 sta
 	return zs;
 }
 
+#ifndef O_BINARY
+	#define O_BINARY 0
+#endif
+
+static int _zip_mkstemp(char * path)
+{
+#ifdef _WIN32
+	int ret = _creat(_mktemp(path), _S_IREAD|_S_IWRITE);
+	return (ret == -1) ? 0 : ret;
+#else
+	int fd;
+	char * start, * trv;
+	struct stat sbuf;
+	// To guarantee multiple calls generate unique names even if
+	// the file is not created. 676 different possibilities with 7 or more X's, 26 with 6 or less.
+	static char xtra[2] = "aa";
+	int xcnt = 0;
+	pid_t pid = getpid();
+	// Move to end of path and count trailing X's
+	for(trv = path; *trv; ++trv)
+		if(*trv == 'X')
+			xcnt++;
+		else
+			xcnt = 0;
+	// Use at least one from xtra.  Use 2 if more than 6 X's
+	if(*(trv - 1) == 'X')
+		*--trv = xtra[0];
+	if(xcnt > 6 && *(trv - 1) == 'X')
+		*--trv = xtra[1];
+	// Set remaining X's to pid digits with 0's to the left
+	while(*--trv == 'X') {
+		*trv = (pid % 10) + '0';
+		pid /= 10;
+	}
+	// update xtra for next call
+	if(xtra[0] != 'z')
+		xtra[0]++;
+	else {
+		xtra[0] = 'a';
+		if(xtra[1] != 'z')
+			xtra[1]++;
+		else
+			xtra[1] = 'a';
+	}
+	// 
+	// check the target directory; if you have six X's and it
+	// doesn't exist this runs for a *very* long time.
+	// 
+	for(start = trv + 1;; --trv) {
+		if(trv <= path)
+			break;
+		if(*trv == '/') {
+			*trv = '\0';
+			if(stat(path, &sbuf))
+				return (0);
+			if(!S_ISDIR(sbuf.st_mode)) {
+				errno = ENOTDIR;
+				return (0);
+			}
+			*trv = '/';
+			break;
+		}
+	}
+	for(;; ) {
+		if((fd = open(path, O_CREAT|O_EXCL|O_RDWR|O_BINARY, 0600)) >= 0)
+			return (fd);
+		if(errno != EEXIST)
+			return (0);
+		// tricky little algorithm for backward compatibility 
+		for(trv = start;; ) {
+			if(!*trv)
+				return (0);
+			if(*trv == 'z')
+				*trv++ = 'a';
+			else {
+				if(isdigit((uchar)*trv))
+					*trv = 'a';
+				else
+					++*trv;
+				break;
+			}
+		}
+	}
+	//NOTREACHED
+#endif
+}
+
 static int create_temp_output(ZipReadFileBlock * ctx)
 {
 	int tfd;
 	mode_t mask;
 	FILE * tfp;
 	char * temp = (char*)SAlloc::M(strlen(ctx->fname)+8);
-	if(!temp) {
-		zip_error_set(&ctx->error, ZIP_ER_MEMORY, 0);
-		return -1;
-	}
+	if(!temp)
+		return zip_error_set(&ctx->error, ZIP_ER_MEMORY, 0);
 	sprintf(temp, "%s.XXXXXX", ctx->fname);
 	mask = _umask(_SAFE_MASK);
-	if((tfd = mkstemp(temp)) == -1) {
+	if((tfd = _zip_mkstemp(temp)) == -1) {
 		zip_error_set(&ctx->error, ZIP_ER_TMPOPEN, errno);
 		_umask(mask);
 		SAlloc::F(temp);
@@ -168,10 +253,8 @@ static int create_temp_output(ZipReadFileBlock * ctx)
 		return -1;
 	}
 #ifdef _WIN32
-	/*
-	   According to Pierre Joye, Windows in some environments per
-	   default creates text files, so force binary mode.
-	 */
+	// According to Pierre Joye, Windows in some environments per
+	// default creates text files, so force binary mode.
 	_setmode(_fileno(tfp), _O_BINARY);
 #endif
 	ctx->fout = tfp;
@@ -187,10 +270,8 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 	char * buf = (char*)data;
 	switch(cmd) {
 		case ZIP_SOURCE_BEGIN_WRITE:
-		    if(ctx->fname == NULL) {
-			    zip_error_set(&ctx->error, ZIP_ER_OPNOTSUPP, 0);
-			    return -1;
-		    }
+		    if(ctx->fname == NULL)
+			    return zip_error_set(&ctx->error, ZIP_ER_OPNOTSUPP, 0);
 			else
 				return create_temp_output(ctx);
 		case ZIP_SOURCE_COMMIT_WRITE: {
@@ -200,16 +281,16 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 			    zip_error_set(&ctx->error, ZIP_ER_WRITE, errno);
 		    }
 		    ctx->fout = NULL;
-		    if(rename(ctx->tmpname, ctx->fname) < 0) {
-			    zip_error_set(&ctx->error, ZIP_ER_RENAME, errno);
-			    return -1;
-		    }
-		    mask = _umask(022);
-		    _umask(mask);
-		    // not much we can do if chmod fails except make the whole commit fail 
-		    _chmod(ctx->fname, 0666&~mask);
-		    ZFREE(ctx->tmpname);
-		    return 0;
+		    if(rename(ctx->tmpname, ctx->fname) < 0)
+			    return zip_error_set(&ctx->error, ZIP_ER_RENAME, errno);
+			else {
+				mask = _umask(022);
+				_umask(mask);
+				// not much we can do if chmod fails except make the whole commit fail 
+				_chmod(ctx->fname, 0666&~mask);
+				ZFREE(ctx->tmpname);
+				return 0;
+			}
 	    }
 		case ZIP_SOURCE_CLOSE:
 		    if(ctx->fname)
@@ -225,10 +306,8 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 		    return 0;
 		case ZIP_SOURCE_OPEN:
 		    if(ctx->fname) {
-			    if((ctx->f = fopen(ctx->fname, "rb")) == NULL) {
-				    zip_error_set(&ctx->error, ZIP_ER_OPEN, errno);
-				    return -1;
-			    }
+			    if((ctx->f = fopen(ctx->fname, "rb")) == NULL)
+				    return zip_error_set(&ctx->error, ZIP_ER_OPEN, errno);
 		    }
 		    if(ctx->start > 0) {
 			    if(_zip_fseek_u(ctx->f, ctx->start, SEEK_SET, &ctx->error) < 0) {
@@ -249,19 +328,16 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 		    }
 		    SETMIN(n, SIZE_MAX);
 		    if((i = fread(buf, 1, (size_t)n, ctx->f)) == 0) {
-			    if(ferror(ctx->f)) {
-				    zip_error_set(&ctx->error, ZIP_ER_READ, errno);
-				    return -1;
-			    }
+			    if(ferror(ctx->f))
+				    return zip_error_set(&ctx->error, ZIP_ER_READ, errno);
 		    }
 		    ctx->current += i;
 		    return (int64)i;
 		case ZIP_SOURCE_REMOVE:
-		    if(remove(ctx->fname) < 0) {
-			    zip_error_set(&ctx->error, ZIP_ER_REMOVE, errno);
-			    return -1;
-		    }
-		    return 0;
+		    if(remove(ctx->fname) < 0)
+			    return zip_error_set(&ctx->error, ZIP_ER_REMOVE, errno);
+			else
+				return 0;
 		case ZIP_SOURCE_ROLLBACK_WRITE:
 			SFile::ZClose(&ctx->fout);
 		    remove(ctx->tmpname);
@@ -277,27 +353,24 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 		    switch(args->whence) {
 			    case SEEK_SET: new_current = args->offset; break;
 			    case SEEK_END:
-				if(ctx->end == 0) {
-					if(_zip_fseek(ctx->f, args->offset, SEEK_END, &ctx->error) < 0) {
-						return -1;
+					if(ctx->end == 0) {
+						if(_zip_fseek(ctx->f, args->offset, SEEK_END, &ctx->error) < 0)
+							return -1;
+						else if((new_current = ftello(ctx->f)) < 0)
+							return zip_error_set(&ctx->error, ZIP_ER_SEEK, errno);
+						else
+							need_seek = 0;
 					}
-					if((new_current = ftello(ctx->f)) < 0) {
-						zip_error_set(&ctx->error, ZIP_ER_SEEK, errno);
-						return -1;
+					else {
+						new_current = (int64)ctx->end + args->offset;
 					}
-					need_seek = 0;
-				}
-				else {
-					new_current = (int64)ctx->end + args->offset;
-				}
-				break;
+					break;
 			    case SEEK_CUR:
-				new_current = (int64)ctx->current + args->offset;
-				break;
-
+					new_current = (int64)ctx->current + args->offset;
+					break;
 			    default:
-				zip_error_set(&ctx->error, ZIP_ER_INVAL, 0);
-				return -1;
+					zip_error_set(&ctx->error, ZIP_ER_INVAL, 0);
+					return -1;
 		    }
 		    if(new_current < 0 || (uint64)new_current < ctx->start || (ctx->end != 0 && (uint64)new_current > ctx->end)) {
 			    zip_error_set(&ctx->error, ZIP_ER_INVAL, 0);
@@ -330,22 +403,22 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 			    zip_stat_t * st;
 			    struct stat fst;
 				int    err = ctx->f ? fstat(_fileno(ctx->f), &fst) : stat(ctx->fname, &fst);
-			    if(err != 0) {
-				    zip_error_set(&ctx->error, ZIP_ER_READ, errno);
-				    return -1;
-			    }
-			    st = (zip_stat_t*)data;
-			    zip_stat_init(st);
-			    st->mtime = fst.st_mtime;
-			    st->valid |= ZIP_STAT_MTIME;
-			    if(ctx->end != 0) {
-				    st->size = ctx->end - ctx->start;
-				    st->valid |= ZIP_STAT_SIZE;
-			    }
-			    else if((fst.st_mode&S_IFMT) == S_IFREG) {
-				    st->size = (uint64)fst.st_size;
-				    st->valid |= ZIP_STAT_SIZE;
-			    }
+			    if(err != 0)
+				    return zip_error_set(&ctx->error, ZIP_ER_READ, errno);
+				else {
+					st = (zip_stat_t*)data;
+					zip_stat_init(st);
+					st->mtime = fst.st_mtime;
+					st->valid |= ZIP_STAT_MTIME;
+					if(ctx->end != 0) {
+						st->size = ctx->end - ctx->start;
+						st->valid |= ZIP_STAT_SIZE;
+					}
+					else if((fst.st_mode&S_IFMT) == S_IFREG) {
+						st->size = (uint64)fst.st_size;
+						st->valid |= ZIP_STAT_SIZE;
+					}
+				}
 		    }
 		    return sizeof(ctx->st);
 	    }
@@ -356,35 +429,30 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 		case ZIP_SOURCE_TELL_WRITE:
 	    {
 		    off_t ret = ftello(ctx->fout);
-		    if(ret < 0) {
-			    zip_error_set(&ctx->error, ZIP_ER_TELL, errno);
-			    return -1;
-		    }
-		    return ret;
+		    if(ret < 0)
+			    return zip_error_set(&ctx->error, ZIP_ER_TELL, errno);
+			else
+				return ret;
 	    }
 		case ZIP_SOURCE_WRITE:
 	    {
 		    size_t ret;
 		    clearerr(ctx->fout);
 		    ret = fwrite(data, 1, (size_t)len, ctx->fout);
-		    if(ret != len || ferror(ctx->fout)) {
-			    zip_error_set(&ctx->error, ZIP_ER_WRITE, errno);
-			    return -1;
-		    }
-		    return (int64)ret;
+		    if(ret != len || ferror(ctx->fout))
+			    return zip_error_set(&ctx->error, ZIP_ER_WRITE, errno);
+			else
+				return (int64)ret;
 	    }
 		default:
-		    zip_error_set(&ctx->error, ZIP_ER_OPNOTSUPP, 0);
-		    return -1;
+		    return zip_error_set(&ctx->error, ZIP_ER_OPNOTSUPP, 0);
 	}
 }
 
 static int _zip_fseek_u(FILE * f, uint64 offset, int whence, zip_error_t * error)
 {
-	if(offset > ZIP_INT64_MAX) {
-		zip_error_set(error, ZIP_ER_SEEK, EOVERFLOW);
-		return -1;
-	}
+	if(offset > ZIP_INT64_MAX)
+		return zip_error_set(error, ZIP_ER_SEEK, EOVERFLOW);
 	else
 		return _zip_fseek(f, (int64)offset, whence, error);
 }
@@ -393,12 +461,10 @@ static int _zip_fseek(FILE * f, int64 offset, int whence, zip_error_t * error)
 {
 	int    result = 0;
 	if(offset > ZIP_FSEEK_MAX || offset < ZIP_FSEEK_MIN) {
-		zip_error_set(error, ZIP_ER_SEEK, EOVERFLOW);
-		result = -1;
+		result = zip_error_set(error, ZIP_ER_SEEK, EOVERFLOW);
 	}
 	else if(fseeko(f, (off_t)offset, whence) < 0) {
-		zip_error_set(error, ZIP_ER_SEEK, errno);
-		result = -1;
+		result = zip_error_set(error, ZIP_ER_SEEK, errno);
 	}
 	return result;
 }

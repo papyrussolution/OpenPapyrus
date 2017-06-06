@@ -253,13 +253,10 @@ static cairo_status_t cairo_type1_font_subset_find_segments(cairo_type1_font_sub
  * ie a key defined as an integer or array of integers.
  *
  */
-static void cairo_type1_font_erase_dict_key(cairo_type1_font_subset_t * font,
-    const char * key)
+static void cairo_type1_font_erase_dict_key(cairo_type1_font_subset_t * font, const char * key)
 {
 	const char * start, * p, * segment_end;
-
 	segment_end = font->header_segment + font->header_segment_size;
-
 	start = font->header_segment;
 	do {
 		start = find_token(start, segment_end, key);

@@ -83,8 +83,7 @@ static HANDLE _win32_create_temp_a(_zip_source_win32_read_file_t * ctx, void ** 
 	if(sprintf((char*)*temp, "%s.%08x", (const char*)ctx->fname, value) != len - 1) {
 		return INVALID_HANDLE_VALUE;
 	}
-	return CreateFileA((const char*)*temp, GENERIC_READ | GENERIC_WRITE,
-	    FILE_SHARE_READ, sa, CREATE_NEW,
+	return CreateFileA((const char*)*temp, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, sa, CREATE_NEW,
 	    FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_TEMPORARY, NULL);
 }
 

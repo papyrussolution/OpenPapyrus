@@ -163,7 +163,7 @@ int RAND_poll(void)
 #  endif
 
 #  ifdef DEVRANDOM
-	memset(randomstats, 0, sizeof(randomstats));
+	memzero(randomstats, sizeof(randomstats));
 	/*
 	 * Use a random entropy pool device. Linux, FreeBSD and OpenBSD have
 	 * this. Use /dev/urandom if you can as /dev/random may block if it runs

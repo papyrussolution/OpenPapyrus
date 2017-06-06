@@ -201,7 +201,6 @@ struct zip_dirent {
     uint32 changed;
     bool local_extra_fields_read;	/*      whether we already read in local header extra fields */
     bool cloned;                        /*      whether this instance is cloned, and thus shares non-changed strings */
-
     uint16 version_madeby;	/* (c)  version of creator */
     uint16 version_needed;	/* (cl) version needed to extract */
     uint16 bitflags;		/* (cl) general purpose bit flag */
@@ -218,24 +217,23 @@ struct zip_dirent {
     uint32 ext_attrib;		/* (c)  external file attributes */
     uint64 offset;		/* (c)  offset of local header */
 };
-
-/* zip archive central directory */
-
+//
+// zip archive central directory 
+//
 struct zip_cdir {
-    zip_entry_t *entry;	 		/* directory entries */
-    uint64 nentry;		/* number of entries */
-    uint64 nentry_alloc;		/* number of entries allocated */
-
-    uint64 size;                  /* size of central directory */
-    uint64 offset;		/* offset of central directory in file */
-    zip_string_t *comment;		/* zip archive comment */
+    zip_entry_t * entry; // directory entries 
+    uint64 nentry;       // number of entries 
+    uint64 nentry_alloc; // number of entries allocated 
+    uint64 size;         // size of central directory 
+    uint64 offset;       // offset of central directory in file 
+    zip_string_t * comment; // zip archive comment 
 };
 
 struct zip_extra_field {
-    zip_extra_field_t *next;
-    zip_flags_t flags;			/* in local/central header */
-    uint16 id;			/* header id */
-    uint16 size;			/* data size */
+    zip_extra_field_t * next;
+    zip_flags_t flags; // in local/central header 
+    uint16 id;         // header id 
+    uint16 size;       // data size 
     uint8 *data;
 };
 

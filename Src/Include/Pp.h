@@ -4842,7 +4842,7 @@ public:
 	int    SLAPI fromstr(void *, long, const char *) const;
 };
 
-int SLAPI RegisterSTAcct();
+void SLAPI RegisterSTAcct();
 
 #define PPAF_DBFORMAT          0x0001L // Формат ACCBIN_DB (иначе ACCBIN_NATURE)
 #define PPAF_TEMPLATE          0x0010L // Шаблон бухгалтерской проводки
@@ -30710,7 +30710,7 @@ public:
 	//   заданным первым параметром. Результатом является массив, группирующий операции по виду.
 	//
 	int    SLAPI ProcessGoodsGrouping(const GCTFilt *, const AdjGdsGrpng * pAgg);
-	int    SLAPI InitOpNames();
+	void   SLAPI InitOpNames();
 	int    SLAPI WasErrDetected() const;
 protected:
 	struct AddEntryBlock {
@@ -39215,7 +39215,7 @@ private:
 	int    SLAPI InitGrpngNames();
 	int    SLAPI NextOuterIteration();
 	int    SLAPI NextInnerIteration(TrfrAnlzViewItem *);
-	int    SLAPI InitAppData(TrfrAnlzViewItem *);
+	void   FASTCALL InitAppData(TrfrAnlzViewItem *);
 	//
 	// If billID != 0 (Filt.Grp == gGoodsBill) then function suppose pBuf
 	// too contains bill.Code and write date format at front of them
@@ -45496,15 +45496,25 @@ public:
 	//
 	// Descr: Представление точки карты
 	//
-    struct Node {
+    struct NPoint {
+    	SLAPI  NPoint();
+		int    FASTCALL IsEqual(const NPoint & rS) const;
+		int    FASTCALL operator == (const NPoint & rS) const;
+		int    FASTCALL operator != (const NPoint & rS) const;
+
+    	uint64 ID;
+		SGeoPosLL_Int C;
+    };
+	//
+	// Descr: Представление точки карты с дополнительным атрибутом - Tile
+	//
+    struct Node : public NPoint {
     	SLAPI  Node();
 		int    FASTCALL IsEqual(const Node & rS) const;
 		int    FASTCALL operator == (const Node & rS) const;
 		int    FASTCALL operator != (const Node & rS) const;
 
-    	uint64 ID;
 		Tile   T;
-		SGeoPosLL_Int C;
     };
     class NodeRefs {
 	public:

@@ -2732,7 +2732,7 @@ int SLAPI PPViewTrfrAnlz::ViewGraph()
 	return ok;
 }
 
-int SLAPI PPViewTrfrAnlz::InitAppData(TrfrAnlzViewItem * pItem)
+void FASTCALL PPViewTrfrAnlz::InitAppData(TrfrAnlzViewItem * pItem)
 {
 	pItem->Clear();
 	GoodsSubstItem gsi;
@@ -2780,18 +2780,16 @@ int SLAPI PPViewTrfrAnlz::InitAppData(TrfrAnlzViewItem * pItem)
 	}
 	else if(P_TrGrpngTbl) {
 		const TempTrfrGrpngTbl::Rec & r_tg_rec = P_TrGrpngTbl->data;
+		BillTbl::Rec bill_rec;
 		pItem->Dt        = r_tg_rec.Dt;
 		pItem->GoodsID   = r_tg_rec.GoodsID;
 		pItem->PersonID  = r_tg_rec.PersonID;
 		pItem->ArticleID = r_tg_rec.ArticleID;
 		pItem->BillID    = r_tg_rec.BillID;
 		pItem->DlvrLocID = r_tg_rec.DlvrLocID;
-		if(r_tg_rec.BillID) {
-			BillTbl::Rec bill_rec;
-			if(P_BObj->Fetch(r_tg_rec.BillID, &bill_rec) > 0) {
-				pItem->BillCode_ = bill_rec.Code;
-				pItem->OpID = bill_rec.OpID;
-			}
+		if(r_tg_rec.BillID && P_BObj->Fetch(r_tg_rec.BillID, &bill_rec) > 0) {
+			pItem->BillCode_ = bill_rec.Code;
+			pItem->OpID = bill_rec.OpID;
 		}
 		pItem->GoodsText_  = r_tg_rec.GoodsText;
 		pItem->PersonText_ = r_tg_rec.PersonText;
@@ -2813,7 +2811,6 @@ int SLAPI PPViewTrfrAnlz::InitAppData(TrfrAnlzViewItem * pItem)
 		pItem->LocCount  = r_tg_rec.LocCount;
 	}
 	ASSIGN_PTR(P_InnerIterItem, *pItem); // @v9.3.5
-	return 1;
 }
 //
 //

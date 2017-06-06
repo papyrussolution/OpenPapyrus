@@ -609,7 +609,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Osf\Libzip\lib\libzip.c" />
-    <ClCompile Include="..\Osf\Libzip\lib\mkstemp.c" />
     <ClCompile Include="..\Osf\Libzip\lib\zip_extra_field.c" />
     <ClCompile Include="..\Osf\Libzip\lib\zip_open.c" />
     <ClCompile Include="..\Osf\Libzip\lib\zip_source_filep.c" />

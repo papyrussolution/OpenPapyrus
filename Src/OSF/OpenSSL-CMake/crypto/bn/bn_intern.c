@@ -157,9 +157,7 @@ int bn_get_dmax(const BIGNUM * a)
 
 void bn_set_all_zero(BIGNUM * a)
 {
-	int i;
-
-	for(i = a->top; i < a->dmax; i++)
+	for(int i = a->top; i < a->dmax; i++)
 		a->d[i] = 0;
 }
 
@@ -167,8 +165,7 @@ int bn_copy_words(BN_ULONG * out, const BIGNUM * in, int size)
 {
 	if(in->top > size)
 		return 0;
-
-	memset(out, 0, sizeof(*out) * size);
+	memzero(out, sizeof(*out) * size);
 	if(in->d != NULL)
 		memcpy(out, in->d, sizeof(*out) * in->top);
 	return 1;

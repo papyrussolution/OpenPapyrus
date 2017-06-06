@@ -61,9 +61,9 @@ int SLAPI STAcct::fromstr(void * a, long fmt, const char * b) const
 	return ((Acct *)a)->FromStr(fmt, b);
 }
 
-int SLAPI RegisterSTAcct()
+void SLAPI RegisterSTAcct()
 {
-	return RegisterSType(S_ACCT, &STAcct());
+	RegisterSType(S_ACCT, &STAcct());
 }
 //
 // Utils

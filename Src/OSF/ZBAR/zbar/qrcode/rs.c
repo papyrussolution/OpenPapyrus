@@ -28,18 +28,17 @@
 
 void rs_gf256_init(rs_gf256 * _gf, uint _ppoly)
 {
-	uint p;
 	int i;
-	/*Initialize the table of powers of a primtive root, alpha=0x02.*/
-	p = 1;
+	// Initialize the table of powers of a primtive root, alpha=0x02
+	uint p = 1;
 	for(i = 0; i < 256; i++) {
 		_gf->exp[i] = _gf->exp[i+255] = p;
 		p = ((p<<1)^(-(p>>7)&_ppoly))&0xFF;
 	}
-	/*Invert the table to recover the logs.*/
+	// Invert the table to recover the logs.
 	for(i = 0; i < 255; i++) 
 		_gf->log[_gf->exp[i]] = i;
-	/*Note that we rely on the fact that _gf->log[0]=0 below.*/
+	// Note that we rely on the fact that _gf->log[0]=0 below.
 	_gf->log[0] = 0;
 }
 
@@ -70,7 +69,7 @@ static uint rs_gsqrt(const rs_gf256 * _gf, uint _a)
 		return 0;
 	else {
 		uint loga = _gf->log[_a];
-		return _gf->exp[loga+(255& -(loga&1))>>1];
+		return _gf->exp[(loga+(255& -(loga&1)))>>1];
 	}
 }
 
@@ -134,7 +133,8 @@ static int rs_quadratic_solve(const rs_gf256 * _gf, uint _b, uint _c, uchar _x[2
 		_c = _gf->exp[logc+253];
 		logc = _gf->log[_c];
 	}
-	else b = _b;
+	else 
+		b = _b;
 	logb2 = _gf->log[_gf->exp[logb<<1]];
 	logb4 = _gf->log[_gf->exp[logb2<<1]];
 	logb8 = _gf->log[_gf->exp[logb4<<1]];
@@ -143,8 +143,7 @@ static int rs_quadratic_solve(const rs_gf256 * _gf, uint _b, uint _c, uchar _x[2
 	logc2 = _gf->log[_gf->exp[logc<<1]];
 	logc4 = _gf->log[_gf->exp[logc2<<1]];
 	c8 = _gf->exp[logc4<<1];
-	g3 = rs_hgmul(_gf,
-	    _gf->exp[logb14+logc]^_gf->exp[logb12+logc2]^_gf->exp[logb8+logc4]^c8, logb);
+	g3 = rs_hgmul(_gf, _gf->exp[logb14+logc]^_gf->exp[logb12+logc2]^_gf->exp[logb8+logc4]^c8, logb);
 	/*If g3 doesn't lie in GF(2**4), then our roots lie in an extension field.
 	   Note that we rely on the fact that _gf->log[0]==0 here.*/
 	if(_gf->log[g3]%(255/15)!=0) return 0;
@@ -155,22 +154,18 @@ static int rs_quadratic_solve(const rs_gf256 * _gf, uint _b, uint _c, uchar _x[2
 	c0 = rs_hgmul(_gf, l3, 255-2*(255/15));
 	/*Construct the corresponding quadratic in GF(2**2):
 	   x**2 + x/alpha**(255/3) + l2/alpha**(2*(255/3))*/
-	g2 = rs_hgmul(_gf,
-	    rs_hgmul(_gf, c0, 255-2*(255/15))^rs_gmul(_gf, c0, c0), 255-255/15);
+	g2 = rs_hgmul(_gf, rs_hgmul(_gf, c0, 255-2*(255/15))^rs_gmul(_gf, c0, c0), 255-255/15);
 	z2 = rs_gdiv(_gf, g2, _gf->exp[255-(255/15)*4]^_gf->exp[255-(255/15)]);
-	l2 = rs_hgmul(_gf,
-	    rs_gmul(_gf, z2, z2)^rs_hgmul(_gf, z2, 255-(255/15))^c0, 2*(255/15));
+	l2 = rs_hgmul(_gf, rs_gmul(_gf, z2, z2)^rs_hgmul(_gf, z2, 255-(255/15))^c0, 2*(255/15));
 	/*Back substitute to the solution in the original field.*/
-	_x[0] = _gf->exp[_gf->log[z3^rs_hgmul(_gf,
-			    rs_hgmul(_gf, l2, 255/3)^rs_hgmul(_gf, z2, 255/15), logb)]+inc];
+	_x[0] = _gf->exp[_gf->log[z3^rs_hgmul(_gf, rs_hgmul(_gf, l2, 255/3)^rs_hgmul(_gf, z2, 255/15), logb)]+inc];
 	_x[1] = _x[0]^_b;
 	return 2;
 }
 
 /*Solve a cubic equation x**3 + _a*x**2 + _b*x + _c in GF(2**8).
    Returns the number of distinct roots.*/
-static int rs_cubic_solve(const rs_gf256 * _gf,
-    uint _a, uint _b, uint _c, uchar _x[3])
+static int rs_cubic_solve(const rs_gf256 * _gf, uint _a, uint _b, uint _c, uchar _x[3])
 {
 	uint k;
 	uint logd;
@@ -181,7 +176,8 @@ static int rs_cubic_solve(const rs_gf256 * _gf,
 	/*If _c is zero, factor out the 0 root.*/
 	if(!_c) {
 		nroots = rs_quadratic_solve(_gf, _a, _b, _x);
-		if(_b) _x[nroots++] = 0;
+		if(_b) 
+			_x[nroots++] = 0;
 		return nroots;
 	}
 	/*Substitute x=_a+y*sqrt(_a**2+_b) to get y**3 + y + k == 0,
@@ -191,12 +187,13 @@ static int rs_cubic_solve(const rs_gf256 * _gf,
 	if(!d2) {
 		int logx;
 		if(!k) {
-			/*We have a triple root.*/
+			// We have a triple root
 			_x[0] = _a;
 			return 1;
 		}
 		logx = _gf->log[k];
-		if(logx%3!=0) return 0;
+		if(logx%3!=0) 
+			return 0;
 		logx /= 3;
 		_x[0] = _a^_gf->exp[logx];
 		_x[1] = _a^_gf->exp[logx+255/3];
@@ -204,11 +201,11 @@ static int rs_cubic_solve(const rs_gf256 * _gf,
 		return 3;
 	}
 	logd2 = _gf->log[d2];
-	logd = logd2+(255& -(logd2&1))>>1;
+	logd = (logd2+(255& -(logd2&1)))>>1;
 	k = rs_gdiv(_gf, k, _gf->exp[logd+logd2]);
-	/*Substitute y=w+1/w and z=w**3 to get z**2 + k*z + 1 == 0.*/
+	// Substitute y=w+1/w and z=w**3 to get z**2 + k*z + 1 == 0
 	nroots = rs_quadratic_solve(_gf, k, 1, _x);
-	if(nroots<1) {
+	if(nroots < 1) {
 		/*The Reed-Solomon code is only valid if we can find 3 distinct roots in
 		   GF(2**8), so if we know there's only one, we don't actually need to find
 		   it.
@@ -218,10 +215,11 @@ static int rs_cubic_solve(const rs_gf256 * _gf,
 		   some work there, also.*/
 		return 0;
 	}
-	/*Recover w from z.*/
+	// Recover w from z.
 	logw = _gf->log[_x[0]];
 	if(logw) {
-		if(logw%3!=0) return 0;
+		if(logw%3!=0) 
+			return 0;
 		logw /= 3;
 		/*Recover x from w.*/
 		_x[0] = _gf->exp[_gf->log[_gf->exp[logw]^_gf->exp[255-logw]]+logd]^_a;
@@ -257,8 +255,7 @@ static int rs_cubic_solve(const rs_gf256 * _gf,
     month=Dec,
     year=1972
    }*/
-static int rs_quartic_solve(const rs_gf256 * _gf,
-    uint _a, uint _b, uint _c, uint _d, uchar _x[3])
+static int rs_quartic_solve(const rs_gf256 * _gf, uint _a, uint _b, uint _c, uint _d, uchar _x[3])
 {
 	uint r;
 	uint s;
@@ -266,26 +263,25 @@ static int rs_quartic_solve(const rs_gf256 * _gf,
 	uint b;
 	int nroots;
 	int i;
-	/*If _d is zero, factor out the 0 root.*/
+	// If _d is zero, factor out the 0 root.
 	if(!_d) {
 		nroots = rs_cubic_solve(_gf, _a, _b, _c, _x);
-		if(_c) _x[nroots++] = 0;
+		if(_c) 
+			_x[nroots++] = 0;
 		return nroots;
 	}
 	if(_a) {
-		uint loga;
-		/*Substitute x=(1/y) + sqrt(_c/_a) to eliminate the cubic term.*/
-		loga = _gf->log[_a];
+		// Substitute x=(1/y) + sqrt(_c/_a) to eliminate the cubic term.
+		uint loga = _gf->log[_a];
 		r = rs_hgmul(_gf, _c, 255-loga);
 		s = rs_gsqrt(_gf, r);
 		t = _d^rs_gmul(_gf, _b, r)^rs_gmul(_gf, r, r);
 		if(t) {
-			uint logti;
-			logti = 255-_gf->log[t];
+			uint logti = 255-_gf->log[t];
 			/*The result is still quartic, but with no cubic term.*/
-			nroots = rs_quartic_solve(_gf, 0, rs_hgmul(_gf, _b^rs_hgmul(_gf, s, loga), logti),
-			    _gf->exp[loga+logti], _gf->exp[logti], _x);
-			for(i = 0; i<nroots; i++) _x[i] = _gf->exp[255-_gf->log[_x[i]]]^s;
+			nroots = rs_quartic_solve(_gf, 0, rs_hgmul(_gf, _b^rs_hgmul(_gf, s, loga), logti), _gf->exp[loga+logti], _gf->exp[logti], _x);
+			for(i = 0; i<nroots; i++) 
+				_x[i] = _gf->exp[255-_gf->log[_x[i]]]^s;
 		}
 		else {
 			/*s must be a root~\cite{LW72}, and is in fact a double-root~\cite{CCO69}.
@@ -303,12 +299,14 @@ static int rs_quartic_solve(const rs_gf256 * _gf,
 			   }*/
 			nroots = rs_quadratic_solve(_gf, _a, _b^r, _x);
 			/*s may be a triple root if s=_b/_a, but not quadruple, since _a!=0.*/
-			if(nroots!=2||_x[0]!=s&&_x[1]!=s) _x[nroots++] = s;
+			if(nroots!=2||_x[0]!=s&&_x[1]!=s) 
+				_x[nroots++] = s;
 		}
 		return nroots;
 	}
 	/*If there are no odd powers, it's really just a quadratic in disguise.*/
-	if(!_c) return rs_quadratic_solve(_gf, rs_gsqrt(_gf, _b), rs_gsqrt(_gf, _d), _x);
+	if(!_c) 
+		return rs_quadratic_solve(_gf, rs_gsqrt(_gf, _b), rs_gsqrt(_gf, _d), _x);
 	/*Factor into (x**2 + r*x + s)*(x**2 + r*x + t) by solving for r, which can
 	   be shown to satisfy r**3 + _b*r + _c == 0.*/
 	nroots = rs_cubic_solve(_gf, 0, _b, _c, _x);
@@ -371,31 +369,27 @@ static void rs_poly_mult(const rs_gf256 * _gf, uchar * _p, int _dp1,
 	int m;
 	int i;
 	rs_poly_zero(_p, _dp1);
-	m = _ep1<_dp1 ? _ep1 : _dp1;
-	for(i = 0; i<m; i++) if(_q[i]!=0) {
-			uint logqi;
-			int n;
-			int j;
-			n = _dp1-i<_fp1 ? _dp1-i : _fp1;
-			logqi = _gf->log[_q[i]];
-			for(j = 0; j<n; j++) _p[i+j] ^= rs_hgmul(_gf, _r[j], logqi);
+	m = (_ep1<_dp1) ? _ep1 : _dp1;
+	for(i = 0; i<m; i++) 
+		if(_q[i]!=0) {
+			const int n = _dp1-i<_fp1 ? _dp1-i : _fp1;
+			uint logqi = _gf->log[_q[i]];
+			for(int j = 0; j < n; j++) 
+				_p[i+j] ^= rs_hgmul(_gf, _r[j], logqi);
 		}
 }
-
-/*Decoding.*/
-
-/*Computes the syndrome of a codeword.*/
-static void rs_calc_syndrome(const rs_gf256 * _gf, int _m0,
-    uchar * _s, int _npar, const uchar * _data, int _ndata)
+//
+// Decoding.
+//
+// Descr: Computes the syndrome of a codeword.
+//
+static void rs_calc_syndrome(const rs_gf256 * _gf, int _m0, uchar * _s, int _npar, const uchar * _data, int _ndata)
 {
-	int i;
-	int j;
-	for(j = 0; j<_npar; j++) {
-		uint alphaj;
-		uint sj;
-		sj = 0;
-		alphaj = _gf->log[_gf->exp[j+_m0]];
-		for(i = 0; i<_ndata; i++) sj = _data[i]^rs_hgmul(_gf, sj, alphaj);
+	for(int j = 0; j<_npar; j++) {
+		uint sj = 0;
+		uint alphaj = _gf->log[_gf->exp[j+_m0]];
+		for(int i = 0; i<_ndata; i++) 
+			sj = _data[i]^rs_hgmul(_gf, sj, alphaj);
 		_s[j] = sj;
 	}
 }
@@ -428,7 +422,8 @@ static void rs_init_lambda(const rs_gf256 * _gf, uchar * _lambda, int _npar,
 	int j;
 	rs_poly_zero(_lambda, (_npar<4 ? 4 : _npar)+1);
 	_lambda[0] = 1;
-	for(i = 0; i<_nerasures; i++) for(j = i+1; j>0; j--) {
+	for(i = 0; i<_nerasures; i++) 
+		for(j = i+1; j>0; j--) {
 			_lambda[j] ^= rs_hgmul(_gf, _lambda[j-1], _ndata-1-_erasures[i]);
 		}
 }
@@ -444,25 +439,22 @@ static int rs_modified_berlekamp_massey(const rs_gf256 * _gf,
 	int l;
 	int k;
 	int i;
-	/*Initialize _lambda, the error locator-polynomial, with the location of
-	   known erasures.*/
+	// Initialize _lambda, the error locator-polynomial, with the location of known erasures.
 	rs_init_lambda(_gf, _lambda, _npar, _erasures, _nerasures, _ndata);
 	rs_poly_copy(tt, _lambda, _npar+1);
 	l = _nerasures;
 	k = 0;
 	for(n = _nerasures+1; n<=_npar; n++) {
-		uint d;
+		uint d = 0;
 		rs_poly_mul_x(tt, tt, n-k+1);
-		d = 0;
-		for(i = 0; i<=l; i++) d ^= rs_gmul(_gf, _lambda[i], _s[n-1-i]);
+		for(i = 0; i<=l; i++) 
+			d ^= rs_gmul(_gf, _lambda[i], _s[n-1-i]);
 		if(d!=0) {
-			uint logd;
-			logd = _gf->log[d];
+			uint logd = _gf->log[d];
 			if(l<n-k) {
 				int t;
 				for(i = 0; i<=n-k; i++) {
-					uint tti;
-					tti = tt[i];
+					uint tti = tt[i];
 					tt[i] = rs_hgmul(_gf, _lambda[i], 255-logd);
 					_lambda[i] = _lambda[i]^rs_hgmul(_gf, tti, logd);
 				}
@@ -470,7 +462,9 @@ static int rs_modified_berlekamp_massey(const rs_gf256 * _gf,
 				k = n-l;
 				l = t;
 			}
-			else for(i = 0; i<=l; i++) _lambda[i] = _lambda[i]^rs_hgmul(_gf, tt[i], logd);
+			else 
+				for(i = 0; i<=l; i++) 
+					_lambda[i] = _lambda[i]^rs_hgmul(_gf, tt[i], logd);
 		}
 	}
 	rs_poly_mult(_gf, _omega, _npar, _lambda, l+1, _s, _npar);
@@ -481,13 +475,11 @@ static int rs_modified_berlekamp_massey(const rs_gf256 * _gf,
    at successive values of alpha, and returns the positions of the associated
    errors in _epos.
    Returns the number of valid roots identified.*/
-static int rs_find_roots(const rs_gf256 * _gf, uchar * _epos,
-    const uchar * _lambda, int _nerrors, int _ndata)
+static int rs_find_roots(const rs_gf256 * _gf, uchar * _epos, const uchar * _lambda, int _nerrors, int _ndata)
 {
 	uint alpha;
-	int nroots;
+	int nroots = 0;
 	int i;
-	nroots = 0;
 	if(_nerrors<=4) {
 		/*Explicit solutions for higher degrees are possible.
 		   Chien uses large lookup tables to solve quintics, and Truong et al. give
@@ -496,25 +488,27 @@ static int rs_find_roots(const rs_gf256 * _gf, uchar * _epos,
 		   Quartics are good enough for reading CDs, and represent a reasonable code
 		   complexity trade-off without requiring any extra tables.
 		   Note that _lambda[0] is always 1.*/
-		_nerrors = rs_quartic_solve(_gf, _lambda[1], _lambda[2], _lambda[3], _lambda[4],
-		    _epos);
-		for(i = 0; i<_nerrors; i++) if(_epos[i]) {
+		_nerrors = rs_quartic_solve(_gf, _lambda[1], _lambda[2], _lambda[3], _lambda[4], _epos);
+		for(i = 0; i<_nerrors; i++) {
+			if(_epos[i]) {
 				alpha = _gf->log[_epos[i]];
-				if((int)alpha<_ndata) _epos[nroots++] = alpha;
+				if((int)alpha<_ndata) 
+					_epos[nroots++] = alpha;
 			}
+		}
 		return nroots;
 	}
-	else for(alpha = 0; (int)alpha<_ndata; alpha++) {
-			uint alphai;
-			uint sum;
-			sum = 0;
-			alphai = 0;
+	else { 
+		for(alpha = 0; (int)alpha<_ndata; alpha++) {
+			uint sum = 0;
+			uint alphai = 0;
 			for(i = 0; i<=_nerrors; i++) {
 				sum ^= rs_hgmul(_gf, _lambda[_nerrors-i], alphai);
 				alphai = _gf->log[_gf->exp[alphai+alpha]];
 			}
 			if(!sum) _epos[nroots++] = alpha;
 		}
+	}
 	return nroots;
 }
 
@@ -528,52 +522,50 @@ static int rs_find_roots(const rs_gf256 * _gf, uchar * _epos,
 int rs_correct(const rs_gf256 * _gf, int _m0, uchar * _data, int _ndata,
     int _npar, const uchar * _erasures, int _nerasures)
 {
-	/*lambda must have storage for at least five entries to avoid special cases
-	   in the low-degree polynomial solver.*/
+	// lambda must have storage for at least five entries to avoid special cases
+	// in the low-degree polynomial solver.
 	uchar lambda[256];
 	uchar omega[256];
 	uchar epos[256];
 	uchar s[256];
 	int i;
-	/*If we already have too many erasures, we can't possibly succeed.*/
-	if(_nerasures>_npar) return -1;
-	/*Compute the syndrome values.*/
+	// If we already have too many erasures, we can't possibly succeed.
+	if(_nerasures>_npar) 
+		return -1;
+	// Compute the syndrome values.
 	rs_calc_syndrome(_gf, _m0, s, _npar, _data, _ndata);
-	/*Check for a non-zero value.*/
-	for(i = 0; i<_npar; i++) if(s[i]) {
+	// Check for a non-zero value.
+	for(i = 0; i < _npar; i++) {
+		if(s[i]) {
 			int nerrors;
 			int j;
-			/*Construct the error locator polynomial.*/
-			nerrors = rs_modified_berlekamp_massey(_gf, lambda, s, omega, _npar,
-			    _erasures, _nerasures, _ndata);
+			// Construct the error locator polynomial.
+			nerrors = rs_modified_berlekamp_massey(_gf, lambda, s, omega, _npar, _erasures, _nerasures, _ndata);
 			/*If we can't locate any errors, we can't force the syndrome values to
 			   zero, and must have a decoding error.
 			   Conversely, if we have too many errors, there's no reason to even attempt
 			   the root search.*/
-			if(nerrors<=0||nerrors-_nerasures>_npar-_nerasures>>1) return -1;
+			if(nerrors <= 0 || (nerrors-_nerasures) > ((_npar-_nerasures)>>1)) 
+				return -1;
 			/*Compute the locations of the errors.
 			   If they are not all distinct, or some of them were outside the valid
 			   range for our block size, we have a decoding error.*/
-			if(rs_find_roots(_gf, epos, lambda, nerrors, _ndata)<nerrors) return -1;
-			/*Now compute the error magnitudes.*/
-			for(i = 0; i<nerrors; i++) {
-				uint a;
+			if(rs_find_roots(_gf, epos, lambda, nerrors, _ndata) < nerrors) 
+				return -1;
+			// Now compute the error magnitudes.
+			for(i = 0; i < nerrors; i++) {
 				uint b;
-				uint alpha;
-				uint alphan1;
 				uint alphan2;
-				uint alphanj;
-				alpha = epos[i];
-				/*Evaluate omega at alpha**-1.*/
-				a = 0;
-				alphan1 = 255-alpha;
-				alphanj = 0;
+				uint alpha = epos[i];
+				// Evaluate omega at alpha**-1.
+				uint a = 0;
+				uint alphan1 = 255-alpha;
+				uint alphanj = 0;
 				for(j = 0; j<_npar; j++) {
 					a ^= rs_hgmul(_gf, omega[j], alphanj);
 					alphanj = _gf->log[_gf->exp[alphanj+alphan1]];
 				}
-				/*Evaluate the derivative of lambda at alpha**-1
-				   All the odd powers vanish.*/
+				// Evaluate the derivative of lambda at alpha**-1 All the odd powers vanish.
 				b = 0;
 				alphan2 = _gf->log[_gf->exp[alphan1<<1]];
 				alphanj = alphan1+_m0*alpha%255;
@@ -581,11 +573,12 @@ int rs_correct(const rs_gf256 * _gf, int _m0, uchar * _data, int _ndata,
 					b ^= rs_hgmul(_gf, lambda[j], alphanj);
 					alphanj = _gf->log[_gf->exp[alphanj+alphan2]];
 				}
-				/*Apply the correction.*/
+				// Apply the correction
 				_data[_ndata-1-alpha] ^= rs_gdiv(_gf, a, b);
 			}
 			return nerrors;
 		}
+	}
 	return 0;
 }
 
@@ -593,48 +586,43 @@ int rs_correct(const rs_gf256 * _gf, int _m0, uchar * _data, int _ndata,
 
 /*Create an _npar-coefficient generator polynomial for a Reed-Solomon code
    with _npar<256 parity bytes.*/
-void rs_compute_genpoly(const rs_gf256 * _gf, int _m0,
-    uchar * _genpoly, int _npar)
+void rs_compute_genpoly(const rs_gf256 * _gf, int _m0, uchar * _genpoly, int _npar)
 {
-	int i;
-	if(_npar<=0) return;
-	rs_poly_zero(_genpoly, _npar);
-	_genpoly[0] = 1;
-	/*Multiply by (x+alpha^i) for i = 1 ... _ndata.*/
-	for(i = 0; i<_npar; i++) {
-		uint alphai;
-		int n;
-		int j;
-		n = i+1<_npar-1 ? i+1 : _npar-1;
-		alphai = _gf->log[_gf->exp[_m0+i]];
-		for(j = n; j>0; j--) _genpoly[j] = _genpoly[j-1]^rs_hgmul(_gf, _genpoly[j], alphai);
-		_genpoly[0] = rs_hgmul(_gf, _genpoly[0], alphai);
+	if(_npar > 0) {
+		rs_poly_zero(_genpoly, _npar);
+		_genpoly[0] = 1;
+		// Multiply by (x+alpha^i) for i = 1 ... _ndata.
+		for(int i = 0; i<_npar; i++) {
+			int j;
+			int n = ((i+1) < (_npar-1)) ? (i+1) : (_npar-1);
+			uint alphai = _gf->log[_gf->exp[_m0+i]];
+			for(j = n; j>0; j--) 
+				_genpoly[j] = _genpoly[j-1] ^ rs_hgmul(_gf, _genpoly[j], alphai);
+			_genpoly[0] = rs_hgmul(_gf, _genpoly[0], alphai);
+		}
 	}
 }
-
-/*Adds _npar<=_ndata parity bytes to an _ndata-_npar byte message.
-   _data must contain room for _ndata<256 bytes.*/
-void rs_encode(const rs_gf256 * _gf, uchar * _data, int _ndata,
-    const uchar * _genpoly, int _npar)
+//
+// Adds _npar<=_ndata parity bytes to an _ndata-_npar byte message.
+// _data must contain room for _ndata<256 bytes.
+//
+void rs_encode(const rs_gf256 * _gf, uchar * _data, int _ndata, const uchar * _genpoly, int _npar)
 {
-	uchar * lfsr;
-	uint d;
-	int i;
-	int j;
-	if(_npar<=0) return;
-	lfsr = _data+_ndata-_npar;
-	rs_poly_zero(lfsr, _npar);
-	for(i = 0; i<_ndata-_npar; i++) {
-		d = _data[i]^lfsr[0];
-		if(d) {
-			uint logd;
-			logd = _gf->log[d];
-			for(j = 0; j<_npar-1; j++) {
-				lfsr[j] = lfsr[j+1]^rs_hgmul(_gf, _genpoly[_npar-1-j], logd);
+	if(_npar > 0) {
+		uchar * lfsr = _data+_ndata-_npar;
+		rs_poly_zero(lfsr, _npar);
+		for(int i = 0; i < (_ndata-_npar); i++) {
+			const uint d = _data[i]^lfsr[0];
+			if(d) {
+				const uint logd = _gf->log[d];
+				for(int j = 0; j<_npar-1; j++) {
+					lfsr[j] = lfsr[j+1]^rs_hgmul(_gf, _genpoly[_npar-1-j], logd);
+				}
+				lfsr[_npar-1] = rs_hgmul(_gf, _genpoly[0], logd);
 			}
-			lfsr[_npar-1] = rs_hgmul(_gf, _genpoly[0], logd);
+			else 
+				rs_poly_div_x(lfsr, lfsr, _npar);
 		}
-		else rs_poly_div_x(lfsr, lfsr, _npar);
 	}
 }
 
@@ -685,8 +673,10 @@ int main(void)
 				}
 				else fprintf(stderr, "Failure.\n");
 				fprintf(stderr, "Success!\n", nerrors);
-				for(i = 0; i<ndata; i++) fprintf(stderr, "%i%s", data[i], i+1<ndata ? " " : "\n");
-				for(i = 0; i<ndata; i++) epos[i] = i;
+				for(i = 0; i<ndata; i++) 
+					fprintf(stderr, "%i%s", data[i], i+1<ndata ? " " : "\n");
+				for(i = 0; i<ndata; i++) 
+					epos[i] = i;
 				for(i = 0; i<nerrors; i++) {
 					uchar e;
 					int ei;
@@ -698,13 +688,16 @@ int main(void)
 				}
 				/*First with no erasure locations.*/
 				printf("%i %i", ndata, npar);
-				for(i = 0; i<ndata; i++) printf(" %i", data[i]);
+				for(i = 0; i<ndata; i++) 
+					printf(" %i", data[i]);
 				printf(" 0\n");
 				/*Now with erasure locations.*/
 				printf("%i %i", ndata, npar);
-				for(i = 0; i<ndata; i++) printf(" %i", data[i]);
+				for(i = 0; i<ndata; i++) 
+					printf(" %i", data[i]);
 				printf(" %i", nerrors);
-				for(i = 0; i<nerrors; i++) printf(" %i", epos[i]);
+				for(i = 0; i<nerrors; i++) 
+					printf(" %i", epos[i]);
 				printf("\n");
 			}
 		}
@@ -775,7 +768,10 @@ int main(void)
 	int c;
 	int d;
 	rs_gf256_init(&gf, QR_PPOLY);
-	for(a = 0; a<256; a++) for(b = 0; b<256; b++) for(c = 0; c<256; c++) for(d = 0; d<256; d++) {
+	for(a = 0; a<256; a++) 
+		for(b = 0; b<256; b++) 
+			for(c = 0; c<256; c++) 
+				for(d = 0; d<256; d++) {
 					uchar x[4];
 					uchar r[4];
 					uint x2;
@@ -787,16 +783,14 @@ int main(void)
 					nroots = rs_quartic_solve(&gf, a, b, c, d, x);
 					for(i = 0; i<nroots; i++) {
 						x2 = rs_gmul(&gf, x[i], x[i]);
-						e[0] = rs_gmul(&gf, x2, x2)^rs_gmul(&gf, a, rs_gmul(&gf, x[i], x2))^
-						    rs_gmul(&gf, b, x2)^rs_gmul(&gf, c, x[i])^d;
+						e[0] = rs_gmul(&gf, x2, x2)^rs_gmul(&gf, a, rs_gmul(&gf, x[i], x2))^rs_gmul(&gf, b, x2)^rs_gmul(&gf, c, x[i])^d;
 						if(e[0]) {
-							printf("Invalid root: (0x%02X)**4 ^ 0x%02X*(0x%02X)**3 ^ "
-							    "0x%02X*(0x%02X)**2 ^ 0x%02X(0x%02X) ^ 0x%02X = 0x%02X\n",
+							printf("Invalid root: (0x%02X)**4 ^ 0x%02X*(0x%02X)**3 ^ 0x%02X*(0x%02X)**2 ^ 0x%02X(0x%02X) ^ 0x%02X = 0x%02X\n",
 							    x[i], a, x[i], b, x[i], c, x[i], d, e[0]);
 						}
-						for(j = 0; j<i; j++) if(x[i]==x[j]) {
-								printf("Repeated root %i=%i: (0x%02X)**4 ^ 0x%02X*(0x%02X)**3 ^ "
-								    "0x%02X*(0x%02X)**2 ^ 0x%02X(0x%02X) ^ 0x%02X = 0x%02X\n",
+						for(j = 0; j<i; j++) 
+							if(x[i]==x[j]) {
+								printf("Repeated root %i=%i: (0x%02X)**4 ^ 0x%02X*(0x%02X)**3 ^ 0x%02X*(0x%02X)**2 ^ 0x%02X(0x%02X) ^ 0x%02X = 0x%02X\n",
 								    i, j, x[i], a, x[i], b, x[i], c, x[i], d, e[0]);
 							}
 					}
@@ -815,8 +809,7 @@ int main(void)
 					if(mroots==4) for(j = 0; j<mroots; j++) {
 							for(i = 0; i<nroots; i++) if(x[i]==r[j]) break;
 							if(i>=nroots) {
-								printf("Missing root: (0x%02X)**4 ^ 0x%02X*(0x%02X)**3 ^ "
-								    "0x%02X*(0x%02X)**2 ^ 0x%02X(0x%02X) ^ 0x%02X = 0x%02X\n",
+								printf("Missing root: (0x%02X)**4 ^ 0x%02X*(0x%02X)**3 ^ 0x%02X*(0x%02X)**2 ^ 0x%02X(0x%02X) ^ 0x%02X = 0x%02X\n",
 								    r[j], a, r[j], b, r[j], c, r[j], d, e[j]);
 							}
 						}

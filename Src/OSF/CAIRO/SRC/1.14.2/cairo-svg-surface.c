@@ -979,7 +979,7 @@ static cairo_int_status_t _cairo_surface_base64_encode_jpeg(cairo_surface_t * su
 	if(unlikely(status))
 		return status;
 	if(info.in_mem > 0) {
-		memset(info.src + info.in_mem, 0, 3 - info.in_mem);
+		memzero(info.src + info.in_mem, 3 - info.in_mem);
 		info.trailing = 3 - info.in_mem;
 		info.in_mem = 3;
 		status = base64_write_func(&info, NULL, 0);
@@ -1006,7 +1006,7 @@ static cairo_int_status_t _cairo_surface_base64_encode_png(cairo_surface_t * sur
 	if(unlikely(status))
 		return status;
 	if(info.in_mem > 0) {
-		memset(info.src + info.in_mem, 0, 3 - info.in_mem);
+		memzero(info.src + info.in_mem, 3 - info.in_mem);
 		info.trailing = 3 - info.in_mem;
 		info.in_mem = 3;
 		status = base64_write_func(&info, NULL, 0);
@@ -1031,7 +1031,7 @@ static cairo_int_status_t _cairo_surface_base64_encode(cairo_surface_t * surface
 	if(unlikely(status))
 		return status;
 	if(info.in_mem > 0) {
-		memset(info.src + info.in_mem, 0, 3 - info.in_mem);
+		memzero(info.src + info.in_mem, 3 - info.in_mem);
 		info.trailing = 3 - info.in_mem;
 		info.in_mem = 3;
 		status = base64_write_func(&info, NULL, 0);

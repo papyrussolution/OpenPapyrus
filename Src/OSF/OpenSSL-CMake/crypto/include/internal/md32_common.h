@@ -101,47 +101,47 @@
 #undef ROTATE
 #ifndef PEDANTIC
 # if defined(_MSC_VER)
-#  define ROTATE(a,n)   _lrotl(a,n)
+#  define ROTATE(a, n)   _lrotl(a, n)
 # elif defined(__ICC)
-#  define ROTATE(a,n)   _rotl(a,n)
+#  define ROTATE(a, n)   _rotl(a, n)
 # elif defined(__GNUC__) && __GNUC__>=2 && !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM)
-  /*
-   * Some GNU C inline assembler templates. Note that these are
-   * rotates by *constant* number of bits! But that's exactly
-   * what we need here...
-   *                                    <appro@fy.chalmers.se>
-   */
+/*
+ * Some GNU C inline assembler templates. Note that these are
+ * rotates by *constant* number of bits! But that's exactly
+ * what we need here...
+ *                                    <appro@fy.chalmers.se>
+ */
 #  if defined(__i386) || defined(__i386__) || defined(__x86_64) || defined(__x86_64__)
-#   define ROTATE(a,n)  ({ register uint ret;   \
-                                asm (                   \
-                                "roll %1,%0"            \
-                                : "=r"(ret)             \
-                                : "I"(n), "0"((uint)(a))        \
-                                : "cc");                \
-                           ret;                         \
-                        })
+#   define ROTATE(a, n)  ({ register uint ret;	 \
+			    asm (		    \
+			    "roll %1,%0"	    \
+			    : "=r" (ret)	     \
+			    : "I" (n), "0" ((uint)(a))	      \
+			    : "cc");		    \
+			    ret;			 \
+	    })
 #  elif defined(_ARCH_PPC) || defined(_ARCH_PPC64) || \
-        defined(__powerpc) || defined(__ppc__) || defined(__powerpc64__)
-#   define ROTATE(a,n)  ({ register uint ret;   \
-                                asm (                   \
-                                "rlwinm %0,%1,%2,0,31"  \
-                                : "=r"(ret)             \
-                                : "r"(a), "I"(n));      \
-                           ret;                         \
-                        })
+	defined(__powerpc) || defined(__ppc__) || defined(__powerpc64__)
+#   define ROTATE(a, n)  ({ register uint ret;	 \
+			    asm (		    \
+			    "rlwinm %0,%1,%2,0,31"  \
+			    : "=r" (ret)	     \
+			    : "r" (a), "I" (n));      \
+			    ret;			 \
+	    })
 #  elif defined(__s390x__)
-#   define ROTATE(a,n) ({ register uint ret;    \
-                                asm ("rll %0,%1,%2"     \
-                                : "=r"(ret)             \
-                                : "r"(a), "I"(n));      \
-                          ret;                          \
-                        })
+#   define ROTATE(a, n) ({ register uint ret;	 \
+			   asm ("rll %0,%1,%2"	   \
+			    : "=r" (ret)	     \
+			    : "r" (a), "I" (n));      \
+			   ret;				 \
+	    })
 #  endif
 # endif
 #endif                          /* PEDANTIC */
 
 #ifndef ROTATE
-# define ROTATE(a,n)     (((a)<<(n))|(((a)&0xffffffff)>>(32-(n))))
+# define ROTATE(a, n)     (((a)<<(n))|(((a)&0xffffffff)>>(32-(n))))
 #endif
 
 #if defined(DATA_ORDER_IS_BIG_ENDIAN)
@@ -149,59 +149,59 @@
 # ifndef PEDANTIC
 #  if defined(__GNUC__) && __GNUC__>=2 && !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM)
 #   if ((defined(__i386) || defined(__i386__)) && !defined(I386_ONLY)) || \
-      (defined(__x86_64) || defined(__x86_64__))
+	(defined(__x86_64) || defined(__x86_64__))
 #    if !defined(B_ENDIAN)
-    /*
-     * This gives ~30-40% performance improvement in SHA-256 compiled
-     * with gcc [on P4]. Well, first macro to be frank. We can pull
-     * this trick on x86* platforms only, because these CPUs can fetch
-     * unaligned data without raising an exception.
-     */
-#     define HOST_c2l(c,l)        ({ uint r=*((const uint *)(c)); \
-                                   asm ("bswapl %0":"=r"(r):"0"(r));    \
-                                   (c)+=4; (l)=r;                       })
-#     define HOST_l2c(l,c)        ({ uint r=(l);                  \
-                                   asm ("bswapl %0":"=r"(r):"0"(r));    \
-                                   *((uint *)(c))=r; (c)+=4; r; })
+/*
+ * This gives ~30-40% performance improvement in SHA-256 compiled
+ * with gcc [on P4]. Well, first macro to be frank. We can pull
+ * this trick on x86* platforms only, because these CPUs can fetch
+ * unaligned data without raising an exception.
+ */
+#     define HOST_c2l(c, l)        ({ uint r = *((const uint*)(c)); \
+				      asm ("bswapl %0" : "=r" (r) : "0" (r));	 \
+				      (c) += 4; (l) = r;                       })
+#     define HOST_l2c(l, c)        ({ uint r = (l);		     \
+				      asm ("bswapl %0" : "=r" (r) : "0" (r));	 \
+				      *((uint*)(c)) = r; (c) += 4; r; })
 #    endif
 #   elif defined(__aarch64__)
 #    if defined(__BYTE_ORDER__)
 #     if defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__==__ORDER_LITTLE_ENDIAN__
-#      define HOST_c2l(c,l)      ({ uint r;              \
-                                   asm ("rev    %w0,%w1"        \
-                                        :"=r"(r)                \
-                                        :"r"(*((const uint *)(c))));\
-                                   (c)+=4; (l)=r;               })
-#      define HOST_l2c(l,c)      ({ uint r;              \
-                                   asm ("rev    %w0,%w1"        \
-                                        :"=r"(r)                \
-                                        :"r"((uint)(l)));\
-                                   *((uint *)(c))=r; (c)+=4; r; })
+#      define HOST_c2l(c, l)      ({ uint r;		  \
+				     asm ("rev    %w0,%w1"	  \
+			    : "=r" (r)		      \
+			    : "r" (*((const uint*)(c)))); \
+				     (c) += 4; (l) = r;               })
+#      define HOST_l2c(l, c)      ({ uint r;		  \
+				     asm ("rev    %w0,%w1"	  \
+			    : "=r" (r)		      \
+			    : "r" ((uint)(l)));	\
+				     *((uint*)(c)) = r; (c) += 4; r; })
 #     elif defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__==__ORDER_BIG_ENDIAN__
-#      define HOST_c2l(c,l)      ((l)=*((const uint *)(c)), (c)+=4, (l))
-#      define HOST_l2c(l,c)      (*((uint *)(c))=(l), (c)+=4, (l))
+#      define HOST_c2l(c, l)      ((l) = *((const uint*)(c)), (c) += 4, (l))
+#      define HOST_l2c(l, c)      (*((uint*)(c)) = (l), (c) += 4, (l))
 #     endif
 #    endif
 #   endif
 #  endif
 #  if defined(__s390__) || defined(__s390x__)
-#   define HOST_c2l(c,l) ((l)=*((const uint *)(c)), (c)+=4, (l))
-#   define HOST_l2c(l,c) (*((uint *)(c))=(l), (c)+=4, (l))
+#   define HOST_c2l(c, l) ((l) = *((const uint*)(c)), (c) += 4, (l))
+#   define HOST_l2c(l, c) (*((uint*)(c)) = (l), (c) += 4, (l))
 #  endif
 # endif
 
 # ifndef HOST_c2l
-#  define HOST_c2l(c,l)   (l =(((ulong)(*((c)++)))<<24),          \
-                         l|=(((ulong)(*((c)++)))<<16),          \
-                         l|=(((ulong)(*((c)++)))<< 8),          \
-                         l|=(((ulong)(*((c)++)))    )           )
+#  define HOST_c2l(c, l)   (l = (((ulong)(*((c)++)))<<24),	    \
+	    l |= (((ulong)(*((c)++)))<<16),	     \
+	    l |= (((ulong)(*((c)++)))<< 8),	     \
+	    l |= (((ulong)(*((c)++)))    )           )
 # endif
 # ifndef HOST_l2c
-#  define HOST_l2c(l,c)   (*((c)++)=(uchar)(((l)>>24)&0xff),      \
-                         *((c)++)=(uchar)(((l)>>16)&0xff),      \
-                         *((c)++)=(uchar)(((l)>> 8)&0xff),      \
-                         *((c)++)=(uchar)(((l)    )&0xff),      \
-                         l)
+#  define HOST_l2c(l, c)   (*((c)++) = (uchar)(((l)>>24)&0xff),	     \
+	    *((c)++) = (uchar)(((l)>>16)&0xff),	     \
+	    *((c)++) = (uchar)(((l)>> 8)&0xff),	     \
+	    *((c)++) = (uchar)(((l)    )&0xff),	     \
+	    l)
 # endif
 
 #elif defined(DATA_ORDER_IS_LITTLE_ENDIAN)
@@ -209,35 +209,35 @@
 # ifndef PEDANTIC
 #  if defined(__GNUC__) && __GNUC__>=2 && !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM)
 #   if defined(__s390x__)
-#    define HOST_c2l(c,l)        ({ asm ("lrv    %0,%1"                  \
-                                   :"=d"(l) :"m"(*(const uint *)(c)));\
-                                   (c)+=4; (l);                         })
-#    define HOST_l2c(l,c)        ({ asm ("strv   %1,%0"                  \
-                                   :"=m"(*(uint *)(c)) :"d"(l));\
-                                   (c)+=4; (l);                         })
+#    define HOST_c2l(c, l)        ({ asm ("lrv    %0,%1"		  \
+			    : "=d" (l) : "m" (*(const uint*)(c))); \
+				     (c) += 4; (l);                         })
+#    define HOST_l2c(l, c)        ({ asm ("strv   %1,%0"		  \
+			    : "=m" (*(uint*)(c)) : "d" (l)); \
+				     (c) += 4; (l);                         })
 #   endif
 #  endif
 #  if defined(__i386) || defined(__i386__) || defined(__x86_64) || defined(__x86_64__)
 #   ifndef B_ENDIAN
-    /* See comment in DATA_ORDER_IS_BIG_ENDIAN section. */
-#    define HOST_c2l(c,l)        ((l)=*((const uint *)(c)), (c)+=4, l)
-#    define HOST_l2c(l,c)        (*((uint *)(c))=(l), (c)+=4, l)
+/* See comment in DATA_ORDER_IS_BIG_ENDIAN section. */
+#    define HOST_c2l(c, l)        ((l) = *((const uint*)(c)), (c) += 4, l)
+#    define HOST_l2c(l, c)        (*((uint*)(c)) = (l), (c) += 4, l)
 #   endif
 #  endif
 # endif
 
 # ifndef HOST_c2l
-#  define HOST_c2l(c,l)   (l =(((ulong)(*((c)++)))    ),          \
-                         l|=(((ulong)(*((c)++)))<< 8),          \
-                         l|=(((ulong)(*((c)++)))<<16),          \
-                         l|=(((ulong)(*((c)++)))<<24)           )
+#  define HOST_c2l(c, l)   (l = (((ulong)(*((c)++)))    ),	    \
+	    l |= (((ulong)(*((c)++)))<< 8),	     \
+	    l |= (((ulong)(*((c)++)))<<16),	     \
+	    l |= (((ulong)(*((c)++)))<<24)           )
 # endif
 # ifndef HOST_l2c
-#  define HOST_l2c(l,c)   (*((c)++)=(uchar)(((l)    )&0xff),      \
-                         *((c)++)=(uchar)(((l)>> 8)&0xff),      \
-                         *((c)++)=(uchar)(((l)>>16)&0xff),      \
-                         *((c)++)=(uchar)(((l)>>24)&0xff),      \
-                         l)
+#  define HOST_l2c(l, c)   (*((c)++) = (uchar)(((l)    )&0xff),	     \
+	    *((c)++) = (uchar)(((l)>> 8)&0xff),	     \
+	    *((c)++) = (uchar)(((l)>>16)&0xff),	     \
+	    *((c)++) = (uchar)(((l)>>24)&0xff),	     \
+	    l)
 # endif
 
 #endif
@@ -246,108 +246,105 @@
  * Time for some action:-)
  */
 
-int HASH_UPDATE(HASH_CTX *c, const void *data_, size_t len)
+int HASH_UPDATE(HASH_CTX * c, const void * data_, size_t len)
 {
-    const uchar *data = (const uchar *)data_;
-    uchar *p;
-    HASH_LONG l;
-    size_t n;
+	const uchar * data = (const uchar*)data_;
+	uchar * p;
+	HASH_LONG l;
+	size_t n;
 
-    if (len == 0)
-        return 1;
+	if(len == 0)
+		return 1;
 
-    l = (c->Nl + (((HASH_LONG) len) << 3)) & 0xffffffffUL;
-    /*
-     * 95-05-24 eay Fixed a bug with the overflow handling, thanks to Wei Dai
-     * <weidai@eskimo.com> for pointing it out.
-     */
-    if (l < c->Nl)              /* overflow */
-        c->Nh++;
-    c->Nh += (HASH_LONG) (len >> 29); /* might cause compiler warning on
-                                       * 16-bit */
-    c->Nl = l;
+	l = (c->Nl + (((HASH_LONG)len) << 3)) & 0xffffffffUL;
+	/*
+	 * 95-05-24 eay Fixed a bug with the overflow handling, thanks to Wei Dai
+	 * <weidai@eskimo.com> for pointing it out.
+	 */
+	if(l < c->Nl)           /* overflow */
+		c->Nh++;
+	c->Nh += (HASH_LONG)(len >> 29); /* might cause compiler warning on
+	                                  * 16-bit */
+	c->Nl = l;
+	n = c->num;
+	if(n != 0) {
+		p = (uchar*)c->data;
+		if(len >= HASH_CBLOCK || len + n >= HASH_CBLOCK) {
+			memcpy(p + n, data, HASH_CBLOCK - n);
+			HASH_BLOCK_DATA_ORDER(c, p, 1);
+			n = HASH_CBLOCK - n;
+			data += n;
+			len -= n;
+			c->num = 0;
+			/*
+			 * We use memset rather than OPENSSL_cleanse() here deliberately.
+			 * Using OPENSSL_cleanse() here could be a performance issue. It
+			 * will get properly cleansed on finalisation so this isn't a
+			 * security problem.
+			 */
+			memzero(p, HASH_CBLOCK); /* keep it zeroed */
+		}
+		else {
+			memcpy(p + n, data, len);
+			c->num += (uint)len;
+			return 1;
+		}
+	}
 
-    n = c->num;
-    if (n != 0) {
-        p = (uchar *)c->data;
+	n = len / HASH_CBLOCK;
+	if(n > 0) {
+		HASH_BLOCK_DATA_ORDER(c, data, n);
+		n *= HASH_CBLOCK;
+		data += n;
+		len -= n;
+	}
 
-        if (len >= HASH_CBLOCK || len + n >= HASH_CBLOCK) {
-            memcpy(p + n, data, HASH_CBLOCK - n);
-            HASH_BLOCK_DATA_ORDER(c, p, 1);
-            n = HASH_CBLOCK - n;
-            data += n;
-            len -= n;
-            c->num = 0;
-            /*
-             * We use memset rather than OPENSSL_cleanse() here deliberately.
-             * Using OPENSSL_cleanse() here could be a performance issue. It
-             * will get properly cleansed on finalisation so this isn't a
-             * security problem.
-             */
-            memset(p, 0, HASH_CBLOCK); /* keep it zeroed */
-        } else {
-            memcpy(p + n, data, len);
-            c->num += (uint)len;
-            return 1;
-        }
-    }
-
-    n = len / HASH_CBLOCK;
-    if (n > 0) {
-        HASH_BLOCK_DATA_ORDER(c, data, n);
-        n *= HASH_CBLOCK;
-        data += n;
-        len -= n;
-    }
-
-    if (len != 0) {
-        p = (uchar *)c->data;
-        c->num = (uint)len;
-        memcpy(p, data, len);
-    }
-    return 1;
+	if(len != 0) {
+		p = (uchar*)c->data;
+		c->num = (uint)len;
+		memcpy(p, data, len);
+	}
+	return 1;
 }
 
-void HASH_TRANSFORM(HASH_CTX *c, const uchar *data)
+void HASH_TRANSFORM(HASH_CTX * c, const uchar * data)
 {
-    HASH_BLOCK_DATA_ORDER(c, data, 1);
+	HASH_BLOCK_DATA_ORDER(c, data, 1);
 }
 
-int HASH_FINAL(uchar *md, HASH_CTX *c)
+int HASH_FINAL(uchar * md, HASH_CTX * c)
 {
-    uchar *p = (uchar *)c->data;
-    size_t n = c->num;
+	uchar * p = (uchar*)c->data;
+	size_t n = c->num;
+	p[n] = 0x80;            /* there is always room for one */
+	n++;
+	if(n > (HASH_CBLOCK - 8)) {
+		memzero(p + n, HASH_CBLOCK - n);
+		n = 0;
+		HASH_BLOCK_DATA_ORDER(c, p, 1);
+	}
+	memzero(p + n, HASH_CBLOCK - 8 - n);
 
-    p[n] = 0x80;                /* there is always room for one */
-    n++;
-
-    if (n > (HASH_CBLOCK - 8)) {
-        memset(p + n, 0, HASH_CBLOCK - n);
-        n = 0;
-        HASH_BLOCK_DATA_ORDER(c, p, 1);
-    }
-    memset(p + n, 0, HASH_CBLOCK - 8 - n);
-
-    p += HASH_CBLOCK - 8;
+	p += HASH_CBLOCK - 8;
 #if   defined(DATA_ORDER_IS_BIG_ENDIAN)
-    (void)HOST_l2c(c->Nh, p);
-    (void)HOST_l2c(c->Nl, p);
+	(void)HOST_l2c(c->Nh, p);
+	(void)HOST_l2c(c->Nl, p);
 #elif defined(DATA_ORDER_IS_LITTLE_ENDIAN)
-    (void)HOST_l2c(c->Nl, p);
-    (void)HOST_l2c(c->Nh, p);
+	(void)HOST_l2c(c->Nl, p);
+	(void)HOST_l2c(c->Nh, p);
 #endif
-    p -= HASH_CBLOCK;
-    HASH_BLOCK_DATA_ORDER(c, p, 1);
-    c->num = 0;
-    OPENSSL_cleanse(p, HASH_CBLOCK);
+	p -= HASH_CBLOCK;
+	HASH_BLOCK_DATA_ORDER(c, p, 1);
+	c->num = 0;
+	OPENSSL_cleanse(p, HASH_CBLOCK);
 
 #ifndef HASH_MAKE_STRING
 # error "HASH_MAKE_STRING must be defined!"
 #else
-    HASH_MAKE_STRING(c, md);
+	HASH_MAKE_STRING(c, md);
 #endif
 
-    return 1;
+	return 1;
 }
 
 #ifndef MD32_REG_T

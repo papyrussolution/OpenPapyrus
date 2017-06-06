@@ -241,22 +241,19 @@ static cairo_status_t _bitmap_next_id(_cairo_script_context::_bitmap * b, ulong 
 			}
 		}
 		min += sizeof(b->map) * CHAR_BIT;
-
 		prev = &b->next;
 		b = b->next;
 	} while(b != NULL);
 	bb = (_cairo_script_context::_bitmap *)SAlloc::M(sizeof(_cairo_script_context::_bitmap));
 	if(unlikely(bb == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	*prev = bb;
 	bb->next = b;
 	bb->min = min;
 	bb->count = 1;
 	bb->map[0] = 0x1;
-	memset(bb->map + 1, 0, sizeof(bb->map) - sizeof(bb->map[0]));
+	memzero(bb->map + 1, sizeof(bb->map) - sizeof(bb->map[0]));
 	*id = min;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -3494,7 +3491,7 @@ cairo_device_t * _cairo_script_context_create_internal(cairo_output_stream_t * s
 	cairo_script_context_t * ctx = (cairo_script_context_t *)SAlloc::M(sizeof(cairo_script_context_t));
 	if(unlikely(ctx == NULL))
 		return _cairo_device_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
-	memset(ctx, 0, sizeof(cairo_script_context_t));
+	memzero(ctx, sizeof(cairo_script_context_t));
 	_cairo_device_init(&ctx->base, &_cairo_script_device_backend);
 	cairo_list_init(&ctx->operands);
 	cairo_list_init(&ctx->deferred);

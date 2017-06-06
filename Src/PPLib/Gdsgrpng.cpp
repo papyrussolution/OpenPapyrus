@@ -355,32 +355,33 @@ int SLAPI GCT_Iterator::TrfrQuery(PPID lotID, TransferTbl::Rec * pOuterRec)
 		TransferTbl::Key3 k3;
 	} k;
 	MEMSZERO(k);
+	Transfer * p_tfr = Trfr;
 	DBQ  * dbq = 0;
-	BExtQuery * q = new BExtQuery(Trfr, lotID ? 2 : (flt.GoodsID ? 3 : 1), 128);
+	BExtQuery * q = new BExtQuery(p_tfr, lotID ? 2 : (flt.GoodsID ? 3 : 1), 128);
 	if(q == 0)
 		return PPSetErrorNoMem();
 	if(lotID) {
-		dbq = &(Trfr->LotID == lotID && daterange(Trfr->Dt, &Period));
+		dbq = &(p_tfr->LotID == lotID && daterange(p_tfr->Dt, &Period));
 		k.k2.LotID = lotID;
 		k.k2.Dt = Period.low;
 	}
 	else if(flt.GoodsID) {
-		dbq = &(Trfr->GoodsID == flt.GoodsID && daterange(Trfr->Dt, &Period));
+		dbq = &(p_tfr->GoodsID == flt.GoodsID && daterange(p_tfr->Dt, &Period));
 		k.k3.GoodsID = flt.GoodsID;
 		k.k3.Dt = Period.low;
 	}
 	else {
-		dbq = & daterange(Trfr->Dt, &flt.Period);
+		dbq = & daterange(p_tfr->Dt, &flt.Period);
 		k.k1.Dt = flt.Period.low;
 	}
 	if(!lotID && !flt.LocList.IsEmpty())
-		dbq = ppcheckfiltidlist(dbq, Trfr->LocID, &flt.LocList.Get());
-	q->select(Trfr->Dt, Trfr->BillID, Trfr->LotID, Trfr->LocID, Trfr->Flags, Trfr->Quantity,
-		Trfr->Rest, Trfr->Cost, Trfr->Price, Trfr->Discount, 0L).where(*dbq);
+		dbq = ppcheckfiltidlist(dbq, p_tfr->LocID, &flt.LocList.Get());
+	q->select(p_tfr->Dt, p_tfr->BillID, p_tfr->LotID, p_tfr->LocID, p_tfr->Flags, p_tfr->Quantity,
+		p_tfr->Rest, p_tfr->Cost, p_tfr->Price, p_tfr->Discount, 0L).where(*dbq);
 	delete trfr_q;
 	trfr_q = q;
 	for(trfr_q->initIteration(0, &k, spGt); trfr_q->nextIteration() > 0;)
-		if(AcceptTrfrRec(&Trfr->data, pOuterRec) > 0)
+		if(AcceptTrfrRec(&p_tfr->data, pOuterRec) > 0)
 			return 1;
 	return -1;
 }
@@ -1166,7 +1167,7 @@ int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt * pFilt, const Adj
 	return ok;
 }
 
-int SLAPI GoodsGrpngArray::InitOpNames()
+void SLAPI GoodsGrpngArray::InitOpNames()
 {
 	GoodsGrpngEntry * p_entry;
 	SString temp_buf;
@@ -1187,5 +1188,4 @@ int SLAPI GoodsGrpngArray::InitOpNames()
 			PPLoadText(strid, temp_buf);
 		temp_buf.CopyTo(p_entry->OpName, sizeof(p_entry->OpName));
 	}
-	return 1;
 }

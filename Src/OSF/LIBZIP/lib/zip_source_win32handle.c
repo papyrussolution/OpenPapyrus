@@ -122,23 +122,22 @@ static int64 _win32_read_file(void * state, void * data, uint64 len, zip_source_
 	char * buf = (char*)data;
 	switch(cmd) {
 		case ZIP_SOURCE_BEGIN_WRITE:
-		    if(ctx->fname == NULL) {
-			    zip_error_set(&ctx->error, ZIP_ER_OPNOTSUPP, 0);
-			    return -1;
-		    }
-		    return _win32_create_temp_file(ctx);
+		    if(ctx->fname == NULL)
+			    return zip_error_set(&ctx->error, ZIP_ER_OPNOTSUPP, 0);
+			else
+				return _win32_create_temp_file(ctx);
 		case ZIP_SOURCE_COMMIT_WRITE: {
 		    if(!CloseHandle(ctx->hout)) {
 			    ctx->hout = INVALID_HANDLE_VALUE;
 			    zip_error_set(&ctx->error, ZIP_ER_WRITE, _zip_win32_error_to_errno(GetLastError()));
 		    }
 		    ctx->hout = INVALID_HANDLE_VALUE;
-		    if(ctx->ops->op_rename_temp(ctx) < 0) {
-			    zip_error_set(&ctx->error, ZIP_ER_RENAME, _zip_win32_error_to_errno(GetLastError()));
-			    return -1;
-		    }
-		    ZFREE(ctx->tmpname);
-		    return 0;
+		    if(ctx->ops->op_rename_temp(ctx) < 0)
+			    return zip_error_set(&ctx->error, ZIP_ER_RENAME, _zip_win32_error_to_errno(GetLastError()));
+			else {
+				ZFREE(ctx->tmpname);
+				return 0;
+			}
 	    }
 		case ZIP_SOURCE_CLOSE:
 		    if(ctx->fname) {
@@ -157,10 +156,8 @@ static int64 _win32_read_file(void * state, void * data, uint64 len, zip_source_
 		    return 0;
 		case ZIP_SOURCE_OPEN:
 		    if(ctx->fname) {
-			    if((ctx->h = ctx->ops->op_open(ctx)) == INVALID_HANDLE_VALUE) {
-				    zip_error_set(&ctx->error, ZIP_ER_OPEN, _zip_win32_error_to_errno(GetLastError()));
-				    return -1;
-			    }
+			    if((ctx->h = ctx->ops->op_open(ctx)) == INVALID_HANDLE_VALUE)
+				    return zip_error_set(&ctx->error, ZIP_ER_OPEN, _zip_win32_error_to_errno(GetLastError()));
 		    }
 		    if(ctx->closep && ctx->start > 0) {
 			    if(_zip_seek_win32_u(ctx->h, ctx->start, SEEK_SET, &ctx->error) < 0) {
@@ -186,18 +183,17 @@ static int64 _win32_read_file(void * state, void * data, uint64 len, zip_source_
 				    return -1;
 			    }
 		    }
-		    if(!ReadFile(ctx->h, buf, (DWORD)n, &i, NULL)) {
-			    zip_error_set(&ctx->error, ZIP_ER_READ, _zip_win32_error_to_errno(GetLastError()));
-			    return -1;
-		    }
-		    ctx->current += i;
-		    return (int64)i;
+		    if(!ReadFile(ctx->h, buf, (DWORD)n, &i, NULL))
+			    return zip_error_set(&ctx->error, ZIP_ER_READ, _zip_win32_error_to_errno(GetLastError()));
+			else {
+				ctx->current += i;
+				return (int64)i;
+			}
 		case ZIP_SOURCE_REMOVE:
-		    if(ctx->ops->op_remove(ctx->fname) < 0) {
-			    zip_error_set(&ctx->error, ZIP_ER_REMOVE, _zip_win32_error_to_errno(GetLastError()));
-			    return -1;
-		    }
-		    return 0;
+		    if(ctx->ops->op_remove(ctx->fname) < 0)
+			    return zip_error_set(&ctx->error, ZIP_ER_REMOVE, _zip_win32_error_to_errno(GetLastError()));
+			else
+				return 0;
 		case ZIP_SOURCE_ROLLBACK_WRITE:
 		    if(ctx->hout) {
 			    CloseHandle(ctx->hout);
@@ -217,56 +213,53 @@ static int64 _win32_read_file(void * state, void * data, uint64 len, zip_source_
 			    case SEEK_SET:
 				new_current = args->offset;
 				break;
-
 			    case SEEK_END:
 				if(ctx->end == 0) {
 					LARGE_INTEGER zero;
 					LARGE_INTEGER new_offset;
-
 					if(_zip_seek_win32(ctx->h, args->offset, SEEK_END, &ctx->error) < 0) {
 						return -1;
 					}
-					zero.QuadPart = 0;
-					if(!SetFilePointerEx(ctx->h, zero, &new_offset, FILE_CURRENT)) {
-						zip_error_set(&ctx->error, ZIP_ER_SEEK, _zip_win32_error_to_errno(GetLastError()));
-						return -1;
+					else {
+						zero.QuadPart = 0;
+						if(!SetFilePointerEx(ctx->h, zero, &new_offset, FILE_CURRENT))
+							return zip_error_set(&ctx->error, ZIP_ER_SEEK, _zip_win32_error_to_errno(GetLastError()));
+						else {
+							new_current = new_offset.QuadPart;
+							need_seek = 0;
+						}
 					}
-					new_current = new_offset.QuadPart;
-					need_seek = 0;
 				}
 				else {
 					new_current = (int64)ctx->end + args->offset;
 				}
 				break;
 			    case SEEK_CUR:
-				new_current = (int64)ctx->current + args->offset;
-				break;
-
+					new_current = (int64)ctx->current + args->offset;
+					break;
 			    default:
-				zip_error_set(&ctx->error, ZIP_ER_INVAL, 0);
-				return -1;
+					return zip_error_set(&ctx->error, ZIP_ER_INVAL, 0);
 		    }
-		    if(new_current < 0 || (uint64)new_current < ctx->start || (ctx->end != 0 && (uint64)new_current > ctx->end)) {
-			    zip_error_set(&ctx->error, ZIP_ER_INVAL, 0);
-			    return -1;
-		    }
-		    ctx->current = (uint64)new_current;
-		    if(need_seek) {
-			    if(_zip_seek_win32_u(ctx->h, ctx->current, SEEK_SET, &ctx->error) < 0) {
-				    return -1;
-			    }
-		    }
-		    return 0;
+		    if(new_current < 0 || (uint64)new_current < ctx->start || (ctx->end != 0 && (uint64)new_current > ctx->end))
+			    return zip_error_set(&ctx->error, ZIP_ER_INVAL, 0);
+			else {
+				ctx->current = (uint64)new_current;
+				if(need_seek) {
+					if(_zip_seek_win32_u(ctx->h, ctx->current, SEEK_SET, &ctx->error) < 0) {
+						return -1;
+					}
+				}
+				return 0;
+			}
 	    }
 		case ZIP_SOURCE_SEEK_WRITE: {
 		    zip_source_args_seek_t * args = ZIP_SOURCE_GET_ARGS(zip_source_args_seek_t, data, len, &ctx->error);
-		    if(args == NULL) {
+		    if(args == NULL)
 			    return -1;
-		    }
-		    if(_zip_seek_win32(ctx->hout, args->offset, args->whence, &ctx->error) < 0) {
+		    else if(_zip_seek_win32(ctx->hout, args->offset, args->whence, &ctx->error) < 0)
 			    return -1;
-		    }
-		    return 0;
+			else
+				return 0;
 	    }
 		case ZIP_SOURCE_STAT: {
 		    if(len < sizeof(ctx->st))
@@ -283,10 +276,8 @@ static int64 _win32_read_file(void * state, void * data, uint64 len, zip_source_
 			    }
 			    else {
 				    h = ctx->ops->op_open(ctx);
-				    if(h == INVALID_HANDLE_VALUE && GetLastError() == ERROR_FILE_NOT_FOUND) {
-					    zip_error_set(&ctx->error, ZIP_ER_READ, ENOENT);
-					    return -1;
-				    }
+				    if(h == INVALID_HANDLE_VALUE && GetLastError() == ERROR_FILE_NOT_FOUND)
+					    return zip_error_set(&ctx->error, ZIP_ER_READ, ENOENT);
 			    }
 			    success = _zip_stat_win32(h, st, ctx);
 			    win32err = GetLastError();
@@ -295,9 +286,8 @@ static int64 _win32_read_file(void * state, void * data, uint64 len, zip_source_
 				    CloseHandle(h);
 			    }
 			    if(success < 0) {
-				    /* TODO: Is this the correct error to return in all cases? */
-				    zip_error_set(&ctx->error, ZIP_ER_READ, _zip_win32_error_to_errno(win32err));
-				    return -1;
+				    // TODO: Is this the correct error to return in all cases? 
+				    return zip_error_set(&ctx->error, ZIP_ER_READ, _zip_win32_error_to_errno(win32err));
 			    }
 		    }
 		    return sizeof(ctx->st);
@@ -311,24 +301,21 @@ static int64 _win32_read_file(void * state, void * data, uint64 len, zip_source_
 		    LARGE_INTEGER zero;
 		    LARGE_INTEGER offset;
 		    zero.QuadPart = 0;
-		    if(!SetFilePointerEx(ctx->hout, zero, &offset, FILE_CURRENT)) {
-			    zip_error_set(&ctx->error, ZIP_ER_TELL, _zip_win32_error_to_errno(GetLastError()));
-			    return -1;
-		    }
-		    return offset.QuadPart;
+		    if(!SetFilePointerEx(ctx->hout, zero, &offset, FILE_CURRENT))
+			    return zip_error_set(&ctx->error, ZIP_ER_TELL, _zip_win32_error_to_errno(GetLastError()));
+			else
+				return offset.QuadPart;
 	    }
 		case ZIP_SOURCE_WRITE:
 	    {
 		    DWORD ret;
-		    if(!WriteFile(ctx->hout, data, (DWORD)len, &ret, NULL) || ret != len) {
-			    zip_error_set(&ctx->error, ZIP_ER_WRITE, _zip_win32_error_to_errno(GetLastError()));
-			    return -1;
-		    }
-		    return (int64)ret;
+		    if(!WriteFile(ctx->hout, data, (DWORD)len, &ret, NULL) || ret != len)
+			    return zip_error_set(&ctx->error, ZIP_ER_WRITE, _zip_win32_error_to_errno(GetLastError()));
+			else
+				return (int64)ret;
 	    }
 		default:
-		    zip_error_set(&ctx->error, ZIP_ER_OPNOTSUPP, 0);
-		    return -1;
+		    return zip_error_set(&ctx->error, ZIP_ER_OPNOTSUPP, 0);
 	}
 }
 
@@ -349,7 +336,6 @@ static int _win32_create_temp_file(_zip_source_win32_read_file_t * ctx)
 	PSECURITY_ATTRIBUTES psa = NULL;
 	DWORD len;
 	BOOL success;
-
 	/*
 	   Read the DACL from the original file, so we can copy it to the temp file.
 	   If there is no original file, or if we can't read the DACL, we'll use the
@@ -360,10 +346,8 @@ static int _win32_create_temp_file(_zip_source_win32_read_file_t * ctx)
 		len = 0;
 		success = GetUserObjectSecurity(ctx->h, &si, NULL, len, &len);
 		if(!success && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-			if((psd = (PSECURITY_DESCRIPTOR)SAlloc::M(len)) == NULL) {
-				zip_error_set(&ctx->error, ZIP_ER_MEMORY, 0);
-				return -1;
-			}
+			if((psd = (PSECURITY_DESCRIPTOR)SAlloc::M(len)) == NULL)
+				return zip_error_set(&ctx->error, ZIP_ER_MEMORY, 0);
 			success = GetUserObjectSecurity(ctx->h, &si, psd, len, &len);
 		}
 		if(success) {
@@ -382,29 +366,28 @@ static int _win32_create_temp_file(_zip_source_win32_read_file_t * ctx)
 	if(th == INVALID_HANDLE_VALUE) {
 		SAlloc::F(temp);
 		SAlloc::F(psd);
-		zip_error_set(&ctx->error, ZIP_ER_TMPOPEN, _zip_win32_error_to_errno(GetLastError()));
-		return -1;
+		return zip_error_set(&ctx->error, ZIP_ER_TMPOPEN, _zip_win32_error_to_errno(GetLastError()));
 	}
-	SAlloc::F(psd);
-	ctx->hout = th;
-	ctx->tmpname = temp;
-	return 0;
+	else {
+		SAlloc::F(psd);
+		ctx->hout = th;
+		ctx->tmpname = temp;
+		return 0;
+	}
 }
 
 static int _zip_seek_win32_u(HANDLE h, uint64 offset, int whence, zip_error_t * error)
 {
-	if(offset > ZIP_INT64_MAX) {
-		zip_error_set(error, ZIP_ER_SEEK, EOVERFLOW);
-		return -1;
-	}
-	return _zip_seek_win32(h, (int64)offset, whence, error);
+	if(offset > ZIP_INT64_MAX)
+		return zip_error_set(error, ZIP_ER_SEEK, EOVERFLOW);
+	else
+		return _zip_seek_win32(h, (int64)offset, whence, error);
 }
 
 static int _zip_seek_win32(HANDLE h, int64 offset, int whence, zip_error_t * error)
 {
 	LARGE_INTEGER li;
 	DWORD method;
-
 	switch(whence) {
 		case SEEK_SET:
 		    method = FILE_BEGIN;
@@ -416,17 +399,13 @@ static int _zip_seek_win32(HANDLE h, int64 offset, int whence, zip_error_t * err
 		    method = FILE_CURRENT;
 		    break;
 		default:
-		    zip_error_set(error, ZIP_ER_SEEK, EINVAL);
-		    return -1;
+		    return zip_error_set(error, ZIP_ER_SEEK, EINVAL);
 	}
-
 	li.QuadPart = (LONGLONG)offset;
-	if(!SetFilePointerEx(h, li, NULL, method)) {
-		zip_error_set(error, ZIP_ER_SEEK, _zip_win32_error_to_errno(GetLastError()));
-		return -1;
-	}
-
-	return 0;
+	if(!SetFilePointerEx(h, li, NULL, method))
+		return zip_error_set(error, ZIP_ER_SEEK, _zip_win32_error_to_errno(GetLastError()));
+	else
+		return 0;
 }
 
 static int _zip_win32_error_to_errno(DWORD win32err)
@@ -435,22 +414,14 @@ static int _zip_win32_error_to_errno(DWORD win32err)
 	   Note: This list isn't exhaustive, but should cover common cases.
 	 */
 	switch(win32err) {
-		case ERROR_INVALID_PARAMETER:
-		    return EINVAL;
-		case ERROR_FILE_NOT_FOUND:
-		    return ENOENT;
-		case ERROR_INVALID_HANDLE:
-		    return EBADF;
-		case ERROR_ACCESS_DENIED:
-		    return EACCES;
-		case ERROR_FILE_EXISTS:
-		    return EEXIST;
-		case ERROR_TOO_MANY_OPEN_FILES:
-		    return EMFILE;
-		case ERROR_DISK_FULL:
-		    return ENOSPC;
-		default:
-		    return 0;
+		case ERROR_INVALID_PARAMETER: return EINVAL;
+		case ERROR_FILE_NOT_FOUND: return ENOENT;
+		case ERROR_INVALID_HANDLE: return EBADF;
+		case ERROR_ACCESS_DENIED: return EACCES;
+		case ERROR_FILE_EXISTS: return EEXIST;
+		case ERROR_TOO_MANY_OPEN_FILES: return EMFILE;
+		case ERROR_DISK_FULL: return ENOSPC;
+		default: return 0;
 	}
 }
 
@@ -460,26 +431,16 @@ static int _zip_stat_win32(HANDLE h, zip_stat_t * st, _zip_source_win32_read_fil
 	time_t mtime;
 	LARGE_INTEGER size;
 	int regularp;
-
-	if(!GetFileTime(h, NULL, NULL, &mtimeft)) {
-		zip_error_set(&ctx->error, ZIP_ER_READ, _zip_win32_error_to_errno(GetLastError()));
-		return -1;
-	}
-	if(_zip_filetime_to_time_t(mtimeft, &mtime) < 0) {
-		zip_error_set(&ctx->error, ZIP_ER_READ, ERANGE);
-		return -1;
-	}
-
+	if(!GetFileTime(h, NULL, NULL, &mtimeft))
+		return zip_error_set(&ctx->error, ZIP_ER_READ, _zip_win32_error_to_errno(GetLastError()));
+	if(_zip_filetime_to_time_t(mtimeft, &mtime) < 0)
+		return zip_error_set(&ctx->error, ZIP_ER_READ, ERANGE);
 	regularp = 0;
 	if(GetFileType(h) == FILE_TYPE_DISK) {
 		regularp = 1;
 	}
-
-	if(!GetFileSizeEx(h, &size)) {
-		zip_error_set(&ctx->error, ZIP_ER_READ, _zip_win32_error_to_errno(GetLastError()));
-		return -1;
-	}
-
+	if(!GetFileSizeEx(h, &size))
+		return zip_error_set(&ctx->error, ZIP_ER_READ, _zip_win32_error_to_errno(GetLastError()));
 	zip_stat_init(st);
 	st->mtime = mtime;
 	st->valid |= ZIP_STAT_MTIME;
@@ -491,7 +452,6 @@ static int _zip_stat_win32(HANDLE h, zip_stat_t * st, _zip_source_win32_read_fil
 		st->size = (uint64)size.QuadPart;
 		st->valid |= ZIP_STAT_SIZE;
 	}
-
 	return 0;
 }
 
@@ -505,16 +465,15 @@ static int _zip_filetime_to_time_t(FILETIME ft, time_t * t)
 	ULARGE_INTEGER li;
 	int64 secs;
 	time_t temp;
-
 	li.LowPart = ft.dwLowDateTime;
 	li.HighPart = ft.dwHighDateTime;
 	secs = (li.QuadPart / WINDOWS_TICK - SEC_TO_UNIX_EPOCH);
-
 	temp = (time_t)secs;
 	if(secs != (int64)temp)
 		return -1;
-
-	*t = temp;
-	return 0;
+	else {
+		*t = temp;
+		return 0;
+	}
 }
 

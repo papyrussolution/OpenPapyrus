@@ -106,8 +106,8 @@ IMPLEMENT_PPFILT_FACTORY(DebtTrnovr); SLAPI DebtTrnovrFilt::DebtTrnovrFilt() : P
 	SetFlatChunk(offsetof(_S_, ReserveStart), offsetof(_S_, LocIDList)-offsetof(_S_, ReserveStart));
 	SetBranchSArray(offsetof(_S_, LocIDList));
 	SetBranchSArray(offsetof(_S_, CliIDList));
-	SetBranchObjIdListFilt(offsetof(_S_, BillList)); // @v7.0.2
-	SetBranchObjIdListFilt(offsetof(_S_, RcknBillList)); // @v7.0.2
+	SetBranchObjIdListFilt(offsetof(_S_, BillList));
+	SetBranchObjIdListFilt(offsetof(_S_, RcknBillList));
 	SetBranchObjIdListFilt(offsetof(_S_, DebtDimList)); // @v9.1.4
 #undef _S_
 	Init(1, 0);
@@ -126,8 +126,8 @@ int SLAPI DebtTrnovrFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 				SetFlatChunk(offsetof(_S_, ReserveStart), offsetof(_S_, LocIDList)-offsetof(_S_, ReserveStart));
 				SetBranchSArray(offsetof(_S_, LocIDList));
 				SetBranchSArray(offsetof(_S_, CliIDList));
-				SetBranchObjIdListFilt(offsetof(_S_, BillList)); // @v7.0.2
-				SetBranchObjIdListFilt(offsetof(_S_, RcknBillList)); // @v7.0.2
+				SetBranchObjIdListFilt(offsetof(_S_, BillList));
+				SetBranchObjIdListFilt(offsetof(_S_, RcknBillList));
 			#undef _S_
 				Init(1, 0);
 			}
@@ -1571,7 +1571,6 @@ public:
 		LocationCtrlGroup::Rec l_rec;
 		l_rec.LocList.Set(&Data.LocIDList);
 		setGroupData(GRP_LOC, &l_rec);
-		// @v7.0.1 SetupSubstPersonCombo(this, CTLSEL_SLLTOFLT_SGP, Data.Sgp);
 		SetupCurrencyCombo(this, CTLSEL_SLLTOFLT_CUR, Data.CurID, 0, 1, 0);
 		setCtrlUInt16(CTL_SLLTOFLT_ALLCUR, BIN(Data.Flags & DebtTrnovrFilt::fAllCurrencies));
 		SetupPPObjCombo(this, CTLSEL_SLLTOFLT_CITY, PPOBJ_WORLD, Data.CityID, OLW_LOADDEFONOPEN, 0);
@@ -1607,7 +1606,7 @@ public:
 		/* if(AdjustPeriodToRights(&pFilt->Period)) { */
 		getCtrlData(sel = CTLSEL_SLLTOFLT_ACCSHEET, &Data.AccSheetID);
 		THROW_PP(Data.AccSheetID, PPERR_ACCSHEETNEEDED);
-		getCtrlData(CTLSEL_SLLTOFLT_OP, &Data.OpID); // @v7.1.7
+		getCtrlData(CTLSEL_SLLTOFLT_OP, &Data.OpID);
 		getCtrlData(CTLSEL_SLLTOFLT_CLIENT, &cli_id);
 		Data.CliIDList.setSingleNZ(cli_id);
 		getGroupData(GRP_LOC, &l_rec);
@@ -3202,66 +3201,66 @@ int SLAPI DebtStatCore::GetList(PPID accSheetID, PPDebtorStatArray & rList)
 
 int SLAPI DebtStatCore::SetList(PPID accSheetID, LDATE date, const PPDebtorStatArray & rList, int use_ta)
 {
-	int    ok = 1, ta = 0;
-	LDATETIME cur = getcurdatetime_();
-	THROW(PPStartTransaction(&ta, use_ta));
-	for(uint i = 0; i < rList.getCount(); i++) {
-		PPDebtorStat * p_item = rList.at(i);
-		DebtStatTbl::Key0 k0;
-		DebtStatTbl::Rec rec;
-		MEMSZERO(k0);
-		k0.Dt = NZOR(date, cur.d);
-		k0.AccSheetID = accSheetID;
-		k0.ArID = p_item->ArID;
-		if(search(0, &k0, spEq)) {
-			copyBufTo(&rec);
-			rec.RelArID = p_item->RelArID;
-			if(!date)
+	int    ok = 1;
+	const  LDATETIME cur = getcurdatetime_();
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		for(uint i = 0; i < rList.getCount(); i++) {
+			PPDebtorStat * p_item = rList.at(i);
+			DebtStatTbl::Key0 k0;
+			DebtStatTbl::Rec rec;
+			MEMSZERO(k0);
+			k0.Dt = NZOR(date, cur.d);
+			k0.AccSheetID = accSheetID;
+			k0.ArID = p_item->ArID;
+			if(search(0, &k0, spEq)) {
+				copyBufTo(&rec);
+				rec.RelArID = p_item->RelArID;
+				if(!date)
+					rec.Tm = cur.t;
+				rec.Flags = p_item->Flags;
+				rec.DelayMean = p_item->DelayMean;
+				rec.DelaySd = sqrt(p_item->DelayVar);
+				rec.DelayTestGamma = p_item->DelayGammaTest;
+				rec.DelayTestChSq = 0.0;
+				rec.PaymPeriod = p_item->PaymPeriod;
+				rec.PaymDensity = p_item->PaymDensity;
+				rec.Limit = p_item->Limit;
+				rec.LimitTerm = (int16)p_item->LimitTerm;
+				rec.DebtCost = p_item->DebtCost;
+				rec.ExpiryMean = p_item->ExpiryMean;
+				rec.SigmFactor = p_item->SigmFactor;
+				STRNSCPY(rec.Rating, p_item->Rating);
+				THROW_DB(updateRecBuf(&rec));
+			}
+			else {
+				MEMSZERO(rec);
+				rec.AccSheetID = accSheetID;
+				rec.ArID = p_item->ArID;
+				rec.RelArID = p_item->RelArID;
+				rec.Dt = NZOR(date, cur.d);
 				rec.Tm = cur.t;
-			rec.Flags = p_item->Flags;
-			rec.DelayMean = p_item->DelayMean;
-			rec.DelaySd = sqrt(p_item->DelayVar);
-			rec.DelayTestGamma = p_item->DelayGammaTest;
-			rec.DelayTestChSq = 0.0;
-			rec.PaymPeriod = p_item->PaymPeriod;
-			rec.PaymDensity = p_item->PaymDensity;
-			rec.Limit = p_item->Limit;
-			rec.LimitTerm = (int16)p_item->LimitTerm;
-			rec.DebtCost = p_item->DebtCost;
-			rec.ExpiryMean = p_item->ExpiryMean;
-			rec.SigmFactor = p_item->SigmFactor;
-			STRNSCPY(rec.Rating, p_item->Rating);
-			THROW_DB(updateRecBuf(&rec));
+				rec.Flags = p_item->Flags;
+				rec.DelayMean = p_item->DelayMean;
+				rec.DelaySd = sqrt(p_item->DelayVar);
+				rec.DelayTestGamma = p_item->DelayGammaTest;
+				rec.DelayTestChSq = 0.0;
+				rec.PaymPeriod = p_item->PaymPeriod;
+				rec.PaymDensity = p_item->PaymDensity;
+				rec.Limit = p_item->Limit;
+				rec.LimitTerm = (int16)p_item->LimitTerm;
+				rec.DebtCost = p_item->DebtCost;
+				rec.ExpiryMean = p_item->ExpiryMean;
+				rec.SigmFactor = p_item->SigmFactor;
+				STRNSCPY(rec.Rating, p_item->Rating);
+				THROW_DB(insertRecBuf(&rec));
+			}
+			PPWaitPercent(i+1, rList.getCount());
 		}
-		else {
-			MEMSZERO(rec);
-			rec.AccSheetID = accSheetID;
-			rec.ArID = p_item->ArID;
-			rec.RelArID = p_item->RelArID;
-			rec.Dt = NZOR(date, cur.d);
-			rec.Tm = cur.t;
-			rec.Flags = p_item->Flags;
-			rec.DelayMean = p_item->DelayMean;
-			rec.DelaySd = sqrt(p_item->DelayVar);
-			rec.DelayTestGamma = p_item->DelayGammaTest;
-			rec.DelayTestChSq = 0.0;
-			rec.PaymPeriod = p_item->PaymPeriod;
-			rec.PaymDensity = p_item->PaymDensity;
-			rec.Limit = p_item->Limit;
-			rec.LimitTerm = (int16)p_item->LimitTerm;
-			rec.DebtCost = p_item->DebtCost;
-			rec.ExpiryMean = p_item->ExpiryMean;
-			rec.SigmFactor = p_item->SigmFactor;
-			STRNSCPY(rec.Rating, p_item->Rating);
-			THROW_DB(insertRecBuf(&rec));
-		}
-		PPWaitPercent(i+1, rList.getCount());
+		THROW(tra.Commit());
 	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 //

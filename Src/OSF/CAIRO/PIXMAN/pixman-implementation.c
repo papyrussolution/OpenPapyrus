@@ -29,7 +29,7 @@ pixman_implementation_t * _pixman_implementation_create(pixman_implementation_t 
 	assert(fast_paths);
 	if((imp = (pixman_implementation_t *)SAlloc::M(sizeof(pixman_implementation_t)))) {
 		pixman_implementation_t * d;
-		memset(imp, 0, sizeof *imp);
+		memzero(imp, sizeof *imp);
 		imp->fallback = fallback;
 		imp->fast_paths = fast_paths;
 		/* Make sure the whole fallback chain has the right toplevel */

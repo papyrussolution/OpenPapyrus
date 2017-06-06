@@ -22,7 +22,7 @@
 
 int MD5_Init(MD5_CTX *c)
 {
-    memset(c, 0, sizeof(*c));
+    memzero(c, sizeof(*c));
     c->A = INIT_DATA_A;
     c->B = INIT_DATA_B;
     c->C = INIT_DATA_C;

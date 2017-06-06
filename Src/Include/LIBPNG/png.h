@@ -815,15 +815,11 @@ typedef PNG_CALLBACK(void, *png_progressive_end_ptr, (png_structp, png_infop));
 typedef PNG_CALLBACK(void, *png_progressive_row_ptr, (png_structp, png_bytep, uint32, int));
 #endif
 
-#if defined(PNG_READ_USER_TRANSFORM_SUPPORTED) || \
-    defined(PNG_WRITE_USER_TRANSFORM_SUPPORTED)
-typedef PNG_CALLBACK(void, *png_user_transform_ptr, (png_structp, png_row_infop,
-    png_bytep));
+#if defined(PNG_READ_USER_TRANSFORM_SUPPORTED) || defined(PNG_WRITE_USER_TRANSFORM_SUPPORTED)
+	typedef PNG_CALLBACK(void, *png_user_transform_ptr, (png_structp, png_row_infop, png_bytep));
 #endif
-
 #ifdef PNG_USER_CHUNKS_SUPPORTED
-typedef PNG_CALLBACK(int, *png_user_chunk_ptr, (png_structp,
-    png_unknown_chunkp));
+typedef PNG_CALLBACK(int, *png_user_chunk_ptr, (png_structp, png_unknown_chunkp));
 #endif
 #ifdef PNG_UNKNOWN_CHUNKS_SUPPORTED
 /* not used anywhere */
@@ -1342,9 +1338,7 @@ PNG_EXPORT(48, void, png_set_strip_16, (png_structrp png_ptr));
 /* Turn on quantizing, and reduce the palette to the number of colors
  * available.
  */
-PNG_EXPORT(49, void, png_set_quantize, (png_structrp png_ptr,
-    png_colorp palette, int num_palette, int maximum_colors,
-    png_const_uint_16p histogram, int full_quantize));
+PNG_EXPORT(49, void, png_set_quantize, (png_structrp png_ptr, png_colorp palette, int num_palette, int maximum_colors, png_const_uint_16p histogram, int full_quantize));
 #endif
 
 #ifdef PNG_READ_GAMMA_SUPPORTED
@@ -1364,10 +1358,8 @@ PNG_EXPORT(49, void, png_set_quantize, (png_structrp png_ptr,
  * API (floating point or fixed.)  Notice, however, that the 'file_gamma' value
  * is the inverse of a 'screen gamma' value.
  */
-PNG_FP_EXPORT(50, void, png_set_gamma, (png_structrp png_ptr,
-    double screen_gamma, double override_file_gamma))
-PNG_FIXED_EXPORT(208, void, png_set_gamma_fixed, (png_structrp png_ptr,
-    png_fixed_point screen_gamma, png_fixed_point override_file_gamma))
+PNG_FP_EXPORT(50, void, png_set_gamma, (png_structrp png_ptr, double screen_gamma, double override_file_gamma))
+PNG_FIXED_EXPORT(208, void, png_set_gamma_fixed, (png_structrp png_ptr, png_fixed_point screen_gamma, png_fixed_point override_file_gamma))
 #endif
 
 #ifdef PNG_WRITE_FLUSH_SUPPORTED
@@ -1376,34 +1368,24 @@ PNG_EXPORT(51, void, png_set_flush, (png_structrp png_ptr, int nrows));
 /* Flush the current PNG output buffer */
 PNG_EXPORT(52, void, png_write_flush, (png_structrp png_ptr));
 #endif
-
 /* Optional update palette with requested transformations */
 PNG_EXPORT(53, void, png_start_read_image, (png_structrp png_ptr));
-
 /* Optional call to update the users info structure */
-PNG_EXPORT(54, void, png_read_update_info, (png_structrp png_ptr,
-    png_inforp info_ptr));
-
+PNG_EXPORT(54, void, png_read_update_info, (png_structrp png_ptr, png_inforp info_ptr));
 #ifdef PNG_SEQUENTIAL_READ_SUPPORTED
 /* Read one or more rows of image data. */
-PNG_EXPORT(55, void, png_read_rows, (png_structrp png_ptr, png_bytepp row,
-    png_bytepp display_row, uint32 num_rows));
+PNG_EXPORT(55, void, png_read_rows, (png_structrp png_ptr, png_bytepp row, png_bytepp display_row, uint32 num_rows));
 #endif
-
 #ifdef PNG_SEQUENTIAL_READ_SUPPORTED
 /* Read a row of data. */
-PNG_EXPORT(56, void, png_read_row, (png_structrp png_ptr, png_bytep row,
-    png_bytep display_row));
+PNG_EXPORT(56, void, png_read_row, (png_structrp png_ptr, png_bytep row, png_bytep display_row));
 #endif
-
 #ifdef PNG_SEQUENTIAL_READ_SUPPORTED
 /* Read the whole image into memory at once. */
 PNG_EXPORT(57, void, png_read_image, (png_structrp png_ptr, png_bytepp image));
 #endif
-
 /* Write a row of image data */
-PNG_EXPORT(58, void, png_write_row, (png_structrp png_ptr,
-    png_const_bytep row));
+PNG_EXPORT(58, void, png_write_row, (png_structrp png_ptr, png_const_bytep row));
 
 /* Write a few rows of image data: (*row) is not written; however, the type
  * is declared as writeable to maintain compatibility with previous versions

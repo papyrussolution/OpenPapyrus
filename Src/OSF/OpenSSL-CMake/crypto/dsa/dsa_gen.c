@@ -401,10 +401,8 @@ int dsa_builtin_paramgen2(DSA * ret, size_t L, size_t N,
 				pmd = md + mdsize - qsize;
 			else
 				pmd = md;
-
 			if(mdsize < qsize)
-				memset(md + mdsize, 0, qsize - mdsize);
-
+				memzero(md + mdsize, qsize - mdsize);
 			/* step 3 */
 			pmd[0] |= 0x80;
 			pmd[qsize - 1] |= 0x01;

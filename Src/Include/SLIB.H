@@ -2246,7 +2246,7 @@ typedef int32 TYPEID;
 
 struct STypEx { // @persistent @size=STYPE_SIZE_4 ? 16 : 12
 	DECL_INVARIANT_C();
-	int    Init();
+	void   Init();
 	int    IsPure() const;
 	int    FASTCALL IsEqual(const STypEx &) const;
 	int    FASTCALL IsZStr(size_t * pLen) const;
@@ -2347,7 +2347,7 @@ int    SLAPI stcast(TYPEID st, TYPEID dt, const void * sd, void * dd, long f);
 //
 // Descr: Register all BUILT-INS SLIB TYPES (BIST)
 //
-int SLAPI RegisterBIST();
+void   SLAPI RegisterBIST();
 //
 // Descr: Заносит в буфер rBuf c++ тип, соответствующий типу typ.
 //   Если pFldName != 0, то строка будет иметь следующий вид "type  pFldName[count]"
@@ -2381,7 +2381,7 @@ TYPEID IsSTypeName(SStrScan & rScan);
 //
 // User-defined types support
 //
-int SLAPI RegisterSType(TYPEID, DataType *);
+void FASTCALL RegisterSType(TYPEID, DataType *);
 
 #endif /* } !RC_INVOKED */
 //

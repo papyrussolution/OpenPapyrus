@@ -371,7 +371,7 @@ static void ecp_nistz256_point_add(P256_POINT * r,
 			return;
 		}
 		else {
-			memset(r, 0, sizeof(*r));
+			memzero(r, sizeof(*r));
 			return;
 		}
 	}

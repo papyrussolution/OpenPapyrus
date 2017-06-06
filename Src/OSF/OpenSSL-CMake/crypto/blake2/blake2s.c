@@ -48,8 +48,7 @@ static ossl_inline void blake2s_set_lastblock(BLAKE2S_CTX * S)
 static ossl_inline void blake2s_init0(BLAKE2S_CTX * S)
 {
 	int i;
-
-	memset(S, 0, sizeof(BLAKE2S_CTX));
+	memzero(S, sizeof(BLAKE2S_CTX));
 	for(i = 0; i < 8; ++i) {
 		S->h[i] = blake2s_IV[i];
 	}
@@ -84,8 +83,8 @@ int BLAKE2s_Init(BLAKE2S_CTX * c)
 	store48(P->node_offset, 0);
 	P->node_depth    = 0;
 	P->inner_length  = 0;
-	memset(P->salt,     0, sizeof(P->salt));
-	memset(P->personal, 0, sizeof(P->personal));
+	memzero(P->salt,     sizeof(P->salt));
+	memzero(P->personal, sizeof(P->personal));
 	blake2s_init_param(c, P);
 	return 1;
 }
@@ -243,17 +242,14 @@ int BLAKE2s_Update(BLAKE2S_CTX * c, const void * data, size_t datalen)
 int BLAKE2s_Final(unsigned char * md, BLAKE2S_CTX * c)
 {
 	int i;
-
 	blake2s_set_lastblock(c);
 	/* Padding */
-	memset(c->buf + c->buflen, 0, sizeof(c->buf) - c->buflen);
+	memzero(c->buf + c->buflen, sizeof(c->buf) - c->buflen);
 	blake2s_compress(c, c->buf, c->buflen);
-
 	/* Output full hash to temp buffer */
 	for(i = 0; i < 8; ++i) {
 		store32(md + sizeof(c->h[i]) * i, c->h[i]);
 	}
-
 	OPENSSL_cleanse(c, sizeof(BLAKE2S_CTX));
 	return 1;
 }

@@ -33,21 +33,15 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-//#include <assert.h>
-//#include <ctype.h>
-//#include <errno.h>
 #include <fcntl.h>
 #ifdef _WIN32
 	#include <io.h>
 #endif
-//#include <stdio.h>
-//#include <stdlib.h>
-
 #ifndef O_BINARY
 	#define O_BINARY 0
 #endif
 
-int _zip_mkstemp(char * path)
+int _zip_mkstemp_MovedToZip_Source_FileP(char * path)
 {
 #ifdef _WIN32
 	int ret = _creat(_mktemp(path), _S_IREAD|_S_IWRITE);

@@ -23,24 +23,24 @@ int __log_open(ENV * env)
 	int ret;
 	DB_ENV * dbenv = env->dbenv;
 	int region_locked = 0;
-	/* Create/initialize the DB_LOG structure. */
+	// Create/initialize the DB_LOG structure
 	if((ret = __os_calloc(env, 1, sizeof(DB_LOG), &dblp)) != 0)
 		return ret;
 	dblp->env = env;
-	/* Join/create the log region. */
+	// Join/create the log region
 	if((ret = __env_region_share(env, &dblp->reginfo)) != 0)
 		goto err;
-	/* If we created the region, initialize it. */
+	// If we created the region, initialize it. 
 	if(F_ISSET(&dblp->reginfo, REGION_CREATE))
 		if((ret = __log_init(env, dblp)) != 0)
 			goto err;
-	/* Set the local addresses. */
+	// Set the local addresses
 	lp = (LOG *)(dblp->reginfo.primary = R_ADDR(&dblp->reginfo, ((REGENV *)env->reginfo->primary)->lg_primary));
 	dblp->bufp = (uint8 *)R_ADDR(&dblp->reginfo, lp->buffer_off);
-	/*
-	 * If the region is threaded, we have to lock the DBREG list, and we
-	 * need to allocate a mutex for that purpose.
-	 */
+	// 
+	// If the region is threaded, we have to lock the DBREG list, and we
+	// need to allocate a mutex for that purpose.
+	// 
 	if((ret = __mutex_alloc(env, MTX_LOG_REGION, DB_MUTEX_PROCESS_ONLY, &dblp->mtx_dbreg)) != 0)
 		goto err;
 	/*
@@ -54,23 +54,22 @@ int __log_open(ENV * env)
 	 */
 	env->lg_handle = dblp;
 	if(F_ISSET(&dblp->reginfo, REGION_CREATE)) {
-		/*
-		 * We first take the log file size from the environment, if
-		 * specified.  If that wasn't set, default it.  Regardless,
-		 * recovery may set it from the persistent information in a log file header.
-		 */
+		// 
+		// We first take the log file size from the environment, if
+		// specified.  If that wasn't set, default it.  Regardless,
+		// recovery may set it from the persistent information in a log file header.
+		// 
 		SETIFZ(lp->log_size, FLD_ISSET(dbenv->lg_flags, DB_LOG_IN_MEMORY) ? LG_MAX_INMEM : LG_MAX_DEFAULT);
 		if((ret = __log_recover(dblp)) != 0)
 			goto err;
-		/*
-		 * If the next log file size hasn't been set yet, default it
-		 * to the current log file size.
-		 */
+		// 
+		// If the next log file size hasn't been set yet, default it to the current log file size.
+		// 
 		SETIFZ(lp->log_nsize, lp->log_size);
-		/*
-		 * If we haven't written any log files, write the first one
-		 * so that checkpoint gets a valid ckp_lsn value.
-		 */
+		// 
+		// If we haven't written any log files, write the first one
+		// so that checkpoint gets a valid ckp_lsn value.
+		// 
 		if(IS_INIT_LSN(lp->lsn) && (ret = __log_newfile(dblp, NULL, 0, 0)) != 0)
 			goto err;
 		/*
@@ -137,11 +136,10 @@ static int __log_init(ENV*env, DB_LOG * dblp)
 	int ret;
 	void * p;
 	DB_ENV * dbenv = env->dbenv;
-	/*
-	 * This is the first point where we can validate the buffer size,
-	 * because we know all three settings have been configured (file size,
-	 * buffer size and the in-memory flag).
-	 */
+	// 
+	// This is the first point where we can validate the buffer size,
+	// because we know all three settings have been configured (file size, buffer size and the in-memory flag).
+	// 
 	if((ret = __log_check_sizes(env, dbenv->lg_size, dbenv->lg_bsize)) != 0)
 		return ret;
 	if((ret = __env_alloc(&dblp->reginfo, sizeof(*lp), &dblp->reginfo.primary)) != 0)
@@ -149,32 +147,31 @@ static int __log_init(ENV*env, DB_LOG * dblp)
 	((REGENV *)env->reginfo->primary)->lg_primary = R_OFFSET(&dblp->reginfo, dblp->reginfo.primary);
 	lp = (LOG *)dblp->reginfo.primary;
 	memzero(lp, sizeof(*lp));
-	/* We share the region so we need the same mutex. */
+	// We share the region so we need the same mutex. 
 	lp->mtx_region = ((REGENV *)env->reginfo->primary)->mtx_regenv;
 	lp->fid_max = 0;
 	SH_TAILQ_INIT(&lp->fq);
 	lp->free_fid_stack = INVALID_ROFF;
 	lp->free_fids = lp->free_fids_alloced = 0;
-	/* Initialize LOG LSNs. */
+	// Initialize LOG LSNs. 
 	INIT_LSN(lp->lsn);
 	INIT_LSN(lp->t_lsn);
-	/*
-	 * It's possible to be waiting for an LSN of [1][0], if a replication
-	 * client gets the first log record out of order.  An LSN of [0][0]
-	 * signifies that we're not waiting.
-	 */
+	// 
+	// It's possible to be waiting for an LSN of [1][0], if a replication
+	// client gets the first log record out of order.  An LSN of [0][0] signifies that we're not waiting.
+	// 
 	ZERO_LSN(lp->waiting_lsn);
-	/*
-	 * Log makes note of the fact that it ran into a checkpoint on
-	 * startup if it did so, as a recovery optimization.  A zero
-	 * LSN signifies that it hasn't found one [yet].
-	 */
+	// 
+	// Log makes note of the fact that it ran into a checkpoint on
+	// startup if it did so, as a recovery optimization.  A zero
+	// LSN signifies that it hasn't found one [yet].
+	// 
 	ZERO_LSN(lp->cached_ckp_lsn);
 	if((ret = __mutex_alloc(env, MTX_LOG_FILENAME, 0, &lp->mtx_filelist)) != 0)
 		return ret;
 	if((ret = __mutex_alloc(env, MTX_LOG_FLUSH, 0, &lp->mtx_flush)) != 0)
 		return ret;
-	/* Initialize the buffer. */
+	// Initialize the buffer. 
 	if((ret = __env_alloc(&dblp->reginfo, dbenv->lg_bsize, &p)) != 0) {
 mem_err:
 		__db_errx( env, DB_STR("2524", "unable to allocate log region memory"));
@@ -186,18 +183,17 @@ mem_err:
 	lp->filemode = dbenv->lg_filemode;
 	lp->log_size = lp->log_nsize = dbenv->lg_size;
 	lp->stat.st_fileid_init = dbenv->lg_fileid_init;
-	/* Initialize the commit Queue. */
+	// Initialize the commit Queue. 
 	SH_TAILQ_INIT(&lp->free_commits);
 	SH_TAILQ_INIT(&lp->commits);
 	lp->ncommit = 0;
-	/* Initialize the logfiles list for in-memory logs. */
+	// Initialize the logfiles list for in-memory logs. 
 	SH_TAILQ_INIT(&lp->logfiles);
 	SH_TAILQ_INIT(&lp->free_logfiles);
-	/*
-	 * Fill in the log's persistent header.  Don't fill in the log file
-	 * sizes, as they may change at any time and so have to be filled in
-	 * as each log file is created.
-	 */
+	// 
+	// Fill in the log's persistent header.  Don't fill in the log file
+	// sizes, as they may change at any time and so have to be filled in as each log file is created.
+	// 
 	lp->persist.magic = DB_LOGMAGIC;
 	//
 	// Don't use __log_set_version because env->dblp isn't set up yet.

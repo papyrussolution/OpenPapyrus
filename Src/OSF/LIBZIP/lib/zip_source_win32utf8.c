@@ -40,26 +40,26 @@ ZIP_EXTERN zip_source_t * zip_source_file(zip_t * za, const char * fname, uint64
 
 ZIP_EXTERN zip_source_t * zip_source_file_create(const char * fname, uint64 start, int64 length, zip_error_t * error)
 {
-	int size;
 	wchar_t * wfname;
-	zip_source_t * source;
+	zip_source_t * source = 0;
 	if(fname == NULL || length < -1) {
 		zip_error_set(error, ZIP_ER_INVAL, 0);
-		return NULL;
 	}
-	/* Convert fname from UTF-8 to Windows-friendly UTF-16. */
-	size = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, fname, -1, NULL, 0);
-	if(size == 0) {
-		zip_error_set(error, ZIP_ER_INVAL, 0);
-		return NULL;
+	else {
+		// Convert fname from UTF-8 to Windows-friendly UTF-16
+		int size = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, fname, -1, NULL, 0);
+		if(size == 0) {
+			zip_error_set(error, ZIP_ER_INVAL, 0);
+		}
+		else if((wfname = (wchar_t*)SAlloc::M(sizeof(wchar_t) * size)) == NULL) {
+			zip_error_set(error, ZIP_ER_MEMORY, 0);
+		}
+		else {
+			MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, fname, -1, wfname, size);
+			source = zip_source_win32w_create(wfname, start, length, error);
+			SAlloc::F(wfname);
+		}
 	}
-	if((wfname = (wchar_t*)SAlloc::M(sizeof(wchar_t) * size)) == NULL) {
-		zip_error_set(error, ZIP_ER_MEMORY, 0);
-		return NULL;
-	}
-	MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, fname, -1, wfname, size);
-	source = zip_source_win32w_create(wfname, start, length, error);
-	SAlloc::F(wfname);
 	return source;
 }
 

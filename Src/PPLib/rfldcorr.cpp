@@ -2192,8 +2192,7 @@ int PPImpExp::ConvertInnerToOuter(int hdr, const void * pInnerBuf, size_t bufLen
 			if(outer_fld.T.Flags & STypEx::fFormula) {
 				THROW(ResolveFormula(outer_fld.Formula, pInnerBuf, bufLen, formula_result));
 				formula_result.Trim(255);
-				stcast(MKSTYPE(S_ZSTRING, formula_result.Len()+1), outer_fld.T.Typ,
-					(void *)(const char *)formula_result, p_outer_fld_buf, 0);
+				stcast(MKSTYPE(S_ZSTRING, formula_result.Len()+1), outer_fld.T.Typ, (void *)(const char *)formula_result, p_outer_fld_buf, 0);
 			}
 			else {
 				uint   inner_pos = 0;

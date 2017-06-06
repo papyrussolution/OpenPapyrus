@@ -85,20 +85,16 @@ static int BN_from_montgomery_word(BIGNUM * ret, BIGNUM * r, BN_MONT_CTX * mont)
 		ret->top = 0;
 		return (1);
 	}
-
 	max = (2 * nl);         /* carry is stored separately */
 	if(bn_wexpand(r, max) == NULL)
 		return (0);
-
 	r->neg ^= n->neg;
 	np = n->d;
 	rp = r->d;
-
 	/* clear the top words of T */
 	i = max - r->top;
 	if(i)
-		memset(&rp[r->top], 0, sizeof(*rp) * i);
-
+		memzero(&rp[r->top], sizeof(*rp) * i);
 	r->top = max;
 	n0 = mont->n0[0];
 

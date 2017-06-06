@@ -1021,12 +1021,22 @@ int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 		}
 		{
 			StringSet fl_pack(FS, out_data);
+			int    fc = 0; // Считанное количество значений
+			// @v9.6.10 {
+			for(uint sp = 0; fl_pack.get(&sp, s_flags);) {
+				if(++fc == numFlags)
+					rFlags = s_flags.ToLong();
+			}
+			ok = fc;
+			// } @v9.6.10
+			/* @v9.6.10
 			for(uint j = 1, i = 0; j < (uint)numFlags+1; j++) {
 				THROW(fl_pack.get(&i, s_flags));
 			}
+			*/
 		}
 	}
-	rFlags = s_flags.ToLong();
+	// @v9.6.10 rFlags = s_flags.ToLong();
 	CATCHZOK
 	return ok;
 }
@@ -1035,8 +1045,9 @@ int PiritEquip::RunCheck(int opertype)
 {
 	int    ok = 1;
 	int    flag = 0;
-	int    halfbyte = 0;
+	int    _halfbyte = 0;
 	int    text_attr = 0;
+	int    gcf_result = 0; // Результат вызова GetCurFlags
 	uint   count = 0;
 	SString in_data;
 	SString out_data;
@@ -1057,9 +1068,11 @@ int PiritEquip::RunCheck(int opertype)
 			break;
 		case 1: // Закрыть документ
 			// Проверяем наличие открытого документа
-			THROW(GetCurFlags(3, flag));
-			if((flag >> 4) != 0) {
-				if((((halfbyte = flag & 0x0F) == 2) || ((halfbyte = flag & 0x0F) == 3)) && ((halfbyte = flag & 0xF0) != 0x40)) { // Если открыт чек и не была произведена оплата, то операция оплаты
+			THROW(gcf_result = GetCurFlags(3, flag));
+			if((flag >> 4) || (gcf_result < 3)) {
+				const uint8 hb1 = (flag & 0x0F);
+				const uint8 hb2 = (flag & 0xF0);
+				if((gcf_result < 3) || (oneof2(hb1, 2, 3) && hb2 != 0x40)) { // Если открыт чек и не была произведена оплата, то операция оплаты
 					in_data = 0;
 					if(Check.PaymCard != 0.0) {
 						CreateStr(1, in_data); // Тип оплаты
@@ -1135,78 +1148,81 @@ int PiritEquip::RunCheck(int opertype)
 			Check.Clear();
 			break;
 		case 3: // Печать текстовой строки
-			in_data = 0;
-			THROW(GetCurFlags(3, flag));
-			if((halfbyte = flag & 0x0F) == 1) { // Текстовая строка для сервисного документа
-				if((Check.FontSize == 1) || (Check.FontSize == 2))
-					text_attr = 0x01;
-				else if(Check.FontSize == 3)
-					text_attr = 0;
-				else if(Check.FontSize == 4)
-					text_attr = 0x10;
-				else if(Check.FontSize > 4)
-					text_attr = 0x20 | 0x10;
-				if(Check.Text.Len() + 1 > 54)
-					Check.Text.Trim(52);
-				CreateStr(Check.Text.ToOem(), in_data);
-				if(text_attr != 0)
-					CreateStr(text_attr, in_data);
-				Check.Clear();
-				{
-					OpLogBlock __oplb(LogFileName, "40", 0);
-					THROWERR(PutData("40", in_data), PIRIT_NOTSENT);
-					{
-						const int do_check_ret = 0;
-						if(do_check_ret) {
-							THROW(GetWhile(out_data, r_error));
-						}
-						else {
-							out_data = 0;
-							r_error = "00";
-						}
-					}
-				}
-			}
-			else if(((halfbyte = flag & 0x0F) == 2) || ((halfbyte = flag & 0x0F) == 3)) { // Текстовая строка для чека
+			{
 				in_data = 0;
-				text_attr = 0;
-				CreateStr(0, in_data);
-				if((Check.FontSize == 1) || (Check.FontSize == 2))
-					text_attr = 0x01;
-				else if(Check.FontSize == 3)
-					text_attr = 0;
-				else if(Check.FontSize == 4)
-					text_attr = 0x10;
-				else if(Check.FontSize > 4)
-					text_attr = 0x20 | 0x10;
-				if(Check.Text.Len() + 1 > 56)
-					Check.Text.Trim(55);
-                CreateStr(text_attr, in_data);
-				Check.Text.ToOem();
-				CreateStr(Check.Text, in_data);
-				CreateStr("", in_data);
-				CreateStr("", in_data);
-				CreateStr("", in_data);
-				{
-					OpLogBlock __oplb(LogFileName, "49", 0);
-					THROWERR(PutData("49", in_data), PIRIT_NOTSENT);
+				THROW(gcf_result = GetCurFlags(3, flag));
+				const uint8 hb1 = (flag & 0x0F);
+				if(hb1 == 1) { // Текстовая строка для сервисного документа
+					if((Check.FontSize == 1) || (Check.FontSize == 2))
+						text_attr = 0x01;
+					else if(Check.FontSize == 3)
+						text_attr = 0;
+					else if(Check.FontSize == 4)
+						text_attr = 0x10;
+					else if(Check.FontSize > 4)
+						text_attr = 0x20 | 0x10;
+					if(Check.Text.Len() + 1 > 54)
+						Check.Text.Trim(52);
+					CreateStr(Check.Text.ToOem(), in_data);
+					if(text_attr != 0)
+						CreateStr(text_attr, in_data);
+					Check.Clear();
 					{
-						const int do_check_ret = 0;
-						if(do_check_ret) {
-							THROW(GetWhile(out_data, r_error));
-						}
-						else {
-							out_data = 0;
-							r_error = "00";
+						OpLogBlock __oplb(LogFileName, "40", 0);
+						THROWERR(PutData("40", in_data), PIRIT_NOTSENT);
+						{
+							const int do_check_ret = 0;
+							if(do_check_ret) {
+								THROW(GetWhile(out_data, r_error));
+							}
+							else {
+								out_data = 0;
+								r_error = "00";
+							}
 						}
 					}
 				}
+				else if((hb1 == 2) || (hb1 == 3)) { // Текстовая строка для чека
+					in_data = 0;
+					text_attr = 0;
+					CreateStr(0, in_data);
+					if((Check.FontSize == 1) || (Check.FontSize == 2))
+						text_attr = 0x01;
+					else if(Check.FontSize == 3)
+						text_attr = 0;
+					else if(Check.FontSize == 4)
+						text_attr = 0x10;
+					else if(Check.FontSize > 4)
+						text_attr = 0x20 | 0x10;
+					if(Check.Text.Len() + 1 > 56)
+						Check.Text.Trim(55);
+					CreateStr(text_attr, in_data);
+					Check.Text.ToOem();
+					CreateStr(Check.Text, in_data);
+					CreateStr("", in_data);
+					CreateStr("", in_data);
+					CreateStr("", in_data);
+					{
+						OpLogBlock __oplb(LogFileName, "49", 0);
+						THROWERR(PutData("49", in_data), PIRIT_NOTSENT);
+						{
+							const int do_check_ret = 0;
+							if(do_check_ret) {
+								THROW(GetWhile(out_data, r_error));
+							}
+							else {
+								out_data = 0;
+								r_error = "00";
+							}
+						}
+					}
+				}
+				// new {
+				else {
+					THROWERR(0, PIRIT_ERRSTATUSFORFUNC);
+				}
+				// } new
 			}
-			// new {
-			else {
-				THROWERR(0, PIRIT_ERRSTATUSFORFUNC);
-			}
-			// } new
 			break;
 		case 4: // Аннулировать чек
 			// Проверяем наличие открытого документа

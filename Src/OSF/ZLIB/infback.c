@@ -323,7 +323,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void  * in_desc, out_func ou
 				    ROOM();
 				    if(copy > have) copy = have;
 				    if(copy > left) copy = left;
-				    zmemcpy(put, next, copy);
+				    memcpy(put, next, copy);
 				    have -= copy;
 				    next += copy;
 				    left -= copy;

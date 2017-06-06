@@ -50,12 +50,9 @@ void CRYPTO_get_mem_functions(void *(**m)(size_t, const char *, int),
     void *(**r)(void *, size_t, const char *, int),
     void(**f) (void *, const char *, int))
 {
-	if(m != NULL)
-		*m = malloc_impl;
-	if(r != NULL)
-		*r = realloc_impl;
-	if(f != NULL)
-		*f = free_impl;
+	ASSIGN_PTR(m, malloc_impl);
+	ASSIGN_PTR(r, realloc_impl);
+	ASSIGN_PTR(f, free_impl);
 }
 
 void * CRYPTO_malloc(size_t num, const char * file, int line)
@@ -143,7 +140,6 @@ void CRYPTO_free(void * str, const char * file, int line)
 		free_impl(str, file, line);
 		return;
 	}
-
 #ifndef OPENSSL_NO_CRYPTO_MDEBUG
 	if(call_malloc_debug) {
 		CRYPTO_mem_debug_free(str, 0, file, line);

@@ -144,7 +144,7 @@ PIXMAN_EXPORT pixman_glyph_cache_t * pixman_glyph_cache_create(void)
 {
 	pixman_glyph_cache_t * cache = (pixman_glyph_cache_t *)SAlloc::M(sizeof(*cache));
 	if(cache) {
-		memset(cache->glyphs, 0, sizeof(cache->glyphs));
+		memzero(cache->glyphs, sizeof(cache->glyphs));
 		cache->n_glyphs = 0;
 		cache->n_tombstones = 0;
 		cache->freeze_count = 0;

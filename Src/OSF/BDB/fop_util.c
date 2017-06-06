@@ -292,7 +292,7 @@ retry:
 reopen:         
 		if(!F_ISSET(dbp, DB_AM_INMEM) && (ret = __os_open(env, real_name, 0, oflags, 0, &fhp)) != 0)
 			goto err;
-		/* Case 2: DB_TRUNCATE: we must do the creation in place. */
+		// Case 2: DB_TRUNCATE: we must do the creation in place. 
 		if(LF_ISSET(DB_TRUNCATE)) {
 			if(LF_ISSET(DB_EXCL)) {
 				// Case 1a: DB_EXCL and DB_TRUNCATE.
@@ -302,7 +302,7 @@ reopen:
 			tmpname = (char *)name;
 			goto creat2;
 		}
-		/* Cases 1,3-5: we need to read the meta-data page. */
+		// Cases 1,3-5: we need to read the meta-data page. 
 		if(F_ISSET(dbp, DB_AM_INMEM)) {
 			if(LOGGING_ON(env) && (ret = __env_dbreg_setup(dbp, txn, NULL, name, TXN_INVALID)) != 0)
 				return ret;
@@ -330,7 +330,7 @@ reopen:
 		// Case 5: Invalid file. 
 		if(ret != 0)
 			goto err;
-		/* Now, get our handle lock. */
+		// Now, get our handle lock. 
 		if((ret = __fop_lock_handle(env, dbp, locker, DB_LOCK_READ, NULL, DB_LOCK_NOWAIT)) == 0) {
 			if((ret = __ENV_LPUT(env, elock)) != 0)
 				goto err;

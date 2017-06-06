@@ -13,14 +13,11 @@
 //#include <openssl/x509v3.h>
 
 /* Extension printing routines */
-
-static int unknown_ext_print(BIO * out, const uchar * ext, int extlen,
-    ulong flag, int indent, int supported);
+static int unknown_ext_print(BIO * out, const uchar * ext, int extlen, ulong flag, int indent, int supported);
 
 /* Print out a name+value stack */
 
-void X509V3_EXT_val_prn(BIO * out, STACK_OF(CONF_VALUE) * val, int indent,
-    int ml)
+void X509V3_EXT_val_prn(BIO * out, STACK_OF(CONF_VALUE) * val, int indent, int ml)
 {
 	int i;
 	CONF_VALUE * nval;
@@ -64,8 +61,7 @@ void X509V3_EXT_val_prn(BIO * out, STACK_OF(CONF_VALUE) * val, int indent,
 
 /* Main routine: print out a general extension */
 
-int X509V3_EXT_print(BIO * out, X509_EXTENSION * ext, ulong flag,
-    int indent)
+int X509V3_EXT_print(BIO * out, X509_EXTENSION * ext, ulong flag, int indent)
 {
 	void * ext_str = NULL;
 	char * value = NULL;
@@ -171,13 +167,11 @@ int X509V3_extensions_print(BIO * bp, const char * title,
 	return 1;
 }
 
-static int unknown_ext_print(BIO * out, const uchar * ext, int extlen,
-    ulong flag, int indent, int supported)
+static int unknown_ext_print(BIO * out, const uchar * ext, int extlen, ulong flag, int indent, int supported)
 {
 	switch(flag & X509V3_EXT_UNKNOWN_MASK) {
 		case X509V3_EXT_DEFAULT:
 		    return 0;
-
 		case X509V3_EXT_ERROR_UNKNOWN:
 		    if(supported)
 			    BIO_printf(out, "%*s<Parse Error>", indent, "");
@@ -200,7 +194,6 @@ int X509V3_EXT_print_fp(FILE * fp, X509_EXTENSION * ext, int flag, int indent)
 {
 	BIO * bio_tmp;
 	int ret;
-
 	if((bio_tmp = BIO_new_fp(fp, BIO_NOCLOSE)) == NULL)
 		return 0;
 	ret = X509V3_EXT_print(bio_tmp, ext, flag, indent);

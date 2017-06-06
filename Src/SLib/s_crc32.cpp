@@ -712,6 +712,18 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 			break;
 		case SBdtFunct::Adler32:
 			switch(rBlk.Phase) {
+				case phaseGetInfo:
+					{
+						Info * p_inf = (Info *)rBlk.P_OutBuf;
+						if(p_inf) {
+							p_inf->Alg = A;
+							p_inf->Cls = clsHash;
+							p_inf->Flags = (fFixedSize|fWriteAtFinish);
+							p_inf->InBufQuant = 0;
+							p_inf->OutSize = 4;
+						}
+					}
+					break;
 				case phaseInit:
 					break;
 				case phaseUpdate:
@@ -1039,7 +1051,7 @@ SLTEST_R(BDT)
 					}
 					{
 						//
-						// Проверка реализации zlib 
+						// Проверка реализации zlib
 						//
 						//uint32 result = crc32_z(0, (const uint8 *)p_item->In.GetBuf(), p_item->In.GetLen());
 						//SLTEST_CHECK_Z(memcmp(&result, &pattern_value, sizeof(result)));

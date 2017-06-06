@@ -11,7 +11,7 @@ static void * type_table[TYPE_TAB_SIZ]; // @global @threadsafe
 
 #define INVALID_TYPEID 0
 
-int SLAPI RegisterSType(TYPEID id, DataType * typ)
+void FASTCALL RegisterSType(TYPEID id, DataType * typ)
 {
 	int    ok = 1;
 	ENTER_CRITICAL_SECTION
@@ -19,7 +19,6 @@ int SLAPI RegisterSType(TYPEID id, DataType * typ)
 	assert(id < TYPE_TAB_SIZ && (!type_table[GETSTYPE(id)] || type_table[GETSTYPE(id)] == vptr));
 	type_table[GETSTYPE(id)] = vptr;
 	LEAVE_CRITICAL_SECTION
-	return ok;
 }
 
 DataType & FASTCALL stype(TYPEID t, DataType * pT)
@@ -146,7 +145,7 @@ int SLAPI stcast(TYPEID st, TYPEID dt, const void * sd, void * dd, long f)
 		double real_base;
 		LDATE  date_base;
 		LTIME  time_base;
-		int    sbt = stype(st, &_t).base();
+		const  int sbt = stype(st, &_t).base();
 		if(GETSTYPE(dt) == S_LOGICAL) {
 			int    cvt = 1;
 			if(sbt == BTS_INT) {
@@ -180,7 +179,7 @@ int SLAPI stcast(TYPEID st, TYPEID dt, const void * sd, void * dd, long f)
 			if(cvt)
 				return stype(dt, &_t).baseto(dd, &int_base);
 		}
-		int    dbt = stype(dt, &_t).base();
+		const int dbt = stype(dt, &_t).base();
 		if(sbt == BTS_STRING) {
 			stype(st, &_t).tobase(sd, str_base);
 			return stype(dt, &_t).fromstr(dd, f, str_base);
@@ -221,15 +220,14 @@ IMPL_INVARIANT_C(STypEx)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-int STypEx::Init()
+void STypEx::Init()
 {
 	THISZERO();
-	return 1;
 }
 
 int STypEx::IsPure() const
 {
-	return (Mod == 0 && !(Flags & (fStruct|fOf))) ? 1 : 0;
+	return BIN(Mod == 0 && !(Flags & (fStruct|fOf)));
 }
 
 int FASTCALL STypEx::IsEqual(const STypEx & s) const
@@ -328,7 +326,7 @@ struct TypeName {
 	const  char * P_NativeName;
 };
 
-static TypeName TypeNameList[] = {
+static const TypeName TypeNameList[] = {
 	{0, "undefined,undef", "Не определенный"},
 	{MKSTYPE(S_ZSTRING, 0), "string,zstring,char,C",  "Строка"},
 	{MKSTYPE(S_INT, 1),     "int8",                   "Целое"},

@@ -47,8 +47,7 @@ zip_extra_field_t * _zip_ef_clone(const zip_extra_field_t * ef, zip_error_t * er
 			return NULL;
 		}
 		else {
-			if(head == NULL)
-				head = def;
+			SETIFZ(head, def);
 			if(prev)
 				prev->next = def;
 			prev = def;
@@ -67,7 +66,7 @@ zip_extra_field_t * _zip_ef_delete_by_id(zip_extra_field_t * ef, uint16 id, uint
 		if((ef->flags & flags & ZIP_EF_BOTH) && ((ef->id == id) || (id == ZIP_EXTRA_FIELD_ALL))) {
 			if(id_idx == ZIP_EXTRA_FIELD_ALL || i == id_idx) {
 				ef->flags &= ~(flags & ZIP_EF_BOTH);
-				if((ef->flags & ZIP_EF_BOTH) == 0) {
+				if(!(ef->flags & ZIP_EF_BOTH)) {
 					if(prev)
 						prev->next = ef->next;
 					else
@@ -97,23 +96,18 @@ void _zip_ef_free(zip_extra_field_t * ef)
 	}
 }
 
-const uint8 * _zip_ef_get_by_id(const zip_extra_field_t * ef,
-    uint16 * lenp, uint16 id, uint16 id_idx, zip_flags_t flags, zip_error_t * error)
+const uint8 * _zip_ef_get_by_id(const zip_extra_field_t * ef, uint16 * lenp, uint16 id, uint16 id_idx, zip_flags_t flags, zip_error_t * error)
 {
 	static const uint8 empty[1] = { '\0' };
 	int i = 0;
 	for(; ef; ef = ef->next) {
 		if(ef->id == id && (ef->flags & flags & ZIP_EF_BOTH)) {
-			if(i < id_idx) {
+			if(i < id_idx)
 				i++;
-				continue;
+			else {
+				ASSIGN_PTR(lenp, ef->size);
+				return (ef->size > 0) ? ef->data : empty;
 			}
-			if(lenp)
-				*lenp = ef->size;
-			if(ef->size > 0)
-				return ef->data;
-			else
-				return empty;
 		}
 	}
 	zip_error_set(error, ZIP_ER_NOENT, 0);
@@ -171,66 +165,70 @@ zip_extra_field_t * _zip_ef_new(uint16 id, uint16 size, const uint8 * data, zip_
 bool _zip_ef_parse(const uint8 * data, uint16 len, zip_flags_t flags, zip_extra_field_t ** ef_head_p, zip_error_t * error)
 {
 	zip_buffer_t * buffer;
-	zip_extra_field_t * ef, * ef2, * ef_head;
+	zip_extra_field_t * ef2;
 	if((buffer = _zip_buffer_new((uint8*)data, len)) == NULL) {
 		zip_error_set(error, ZIP_ER_MEMORY, 0);
 		return false;
 	}
-	ef_head = ef = NULL;
-	while(_zip_buffer_ok(buffer) && _zip_buffer_left(buffer) >= 4) {
-		uint16 fid = _zip_buffer_get_16(buffer);
-		uint16 flen = _zip_buffer_get_16(buffer);
-		uint8 * ef_data = _zip_buffer_get(buffer, flen);
-		if(ef_data == NULL) {
-			zip_error_set(error, ZIP_ER_INCONS, 0);
-			_zip_buffer_free(buffer);
-			_zip_ef_free(ef_head);
-			return false;
-		}
-		if((ef2 = _zip_ef_new(fid, flen, ef_data, flags)) == NULL) {
-			zip_error_set(error, ZIP_ER_MEMORY, 0);
-			_zip_buffer_free(buffer);
-			_zip_ef_free(ef_head);
-			return false;
-		}
-		if(ef_head) {
-			ef->next = ef2;
-			ef = ef2;
-		}
-		else
-			ef_head = ef = ef2;
-	}
-	if(!_zip_buffer_eof(buffer)) {
-		/* Android APK files align stored file data with padding in extra fields; ignore. */
-		/* see https://android.googlesource.com/platform/build/+/master/tools/zipalign/ZipAlign.cpp */
-		size_t glen = (size_t)_zip_buffer_left(buffer);
-		uint8 * garbage;
-		garbage = _zip_buffer_get(buffer, glen);
-		if(glen >= 4 || garbage == NULL || memcmp(garbage, "\0\0\0", glen) != 0) {
-			zip_error_set(error, ZIP_ER_INCONS, 0);
-			_zip_buffer_free(buffer);
-			_zip_ef_free(ef_head);
-			return false;
-		}
-	}
-	_zip_buffer_free(buffer);
-	if(ef_head_p) {
-		*ef_head_p = ef_head;
-	}
 	else {
-		_zip_ef_free(ef_head);
+		zip_extra_field_t * ef_head = 0;
+		zip_extra_field_t * ef = 0;
+		while(_zip_buffer_ok(buffer) && _zip_buffer_left(buffer) >= 4) {
+			uint16 fid = _zip_buffer_get_16(buffer);
+			uint16 flen = _zip_buffer_get_16(buffer);
+			uint8 * ef_data = _zip_buffer_get(buffer, flen);
+			if(ef_data == NULL) {
+				zip_error_set(error, ZIP_ER_INCONS, 0);
+				_zip_buffer_free(buffer);
+				_zip_ef_free(ef_head);
+				return false;
+			}
+			else if((ef2 = _zip_ef_new(fid, flen, ef_data, flags)) == NULL) {
+				zip_error_set(error, ZIP_ER_MEMORY, 0);
+				_zip_buffer_free(buffer);
+				_zip_ef_free(ef_head);
+				return false;
+			}
+			else { 
+				if(ef_head) {
+					ef->next = ef2;
+					ef = ef2;
+				}
+				else
+					ef_head = ef = ef2;
+			}
+		}
+		if(!_zip_buffer_eof(buffer)) {
+			/* Android APK files align stored file data with padding in extra fields; ignore. */
+			/* see https://android.googlesource.com/platform/build/+/master/tools/zipalign/ZipAlign.cpp */
+			size_t glen = (size_t)_zip_buffer_left(buffer);
+			uint8 * garbage;
+			garbage = _zip_buffer_get(buffer, glen);
+			if(glen >= 4 || garbage == NULL || memcmp(garbage, "\0\0\0", glen) != 0) {
+				zip_error_set(error, ZIP_ER_INCONS, 0);
+				_zip_buffer_free(buffer);
+				_zip_ef_free(ef_head);
+				return false;
+			}
+		}
+		_zip_buffer_free(buffer);
+		if(ef_head_p) {
+			*ef_head_p = ef_head;
+		}
+		else {
+			_zip_ef_free(ef_head);
+		}
+		return true;
 	}
-	return true;
 }
 
 zip_extra_field_t * _zip_ef_remove_internal(zip_extra_field_t * ef)
 {
-	zip_extra_field_t * next;
 	zip_extra_field_t * ef_head = ef;
 	zip_extra_field_t * prev = NULL;
 	while(ef) {
 		if(ZIP_EF_IS_INTERNAL(ef->id)) {
-			next = ef->next;
+			zip_extra_field_t * next = ef->next;
 			if(ef_head == ef)
 				ef_head = next;
 			ef->next = NULL;
@@ -292,61 +290,61 @@ int _zip_ef_write(zip_t * za, const zip_extra_field_t * ef, zip_flags_t flags)
 
 int _zip_read_local_ef(zip_t * za, uint64 idx)
 {
-	zip_entry_t * e;
 	uchar b[4];
 	zip_buffer_t * buffer;
-	uint16 fname_len, ef_len;
-	if(idx >= za->nentry) {
-		zip_error_set(&za->error, ZIP_ER_INVAL, 0);
-		return -1;
-	}
-	e = za->entry+idx;
-	if(e->orig == NULL || e->orig->local_extra_fields_read)
-		return 0;
-	if(e->orig->offset + 26 > ZIP_INT64_MAX) {
-		zip_error_set(&za->error, ZIP_ER_SEEK, EFBIG);
-		return -1;
-	}
-	if(zip_source_seek(za->src, (int64)(e->orig->offset + 26), SEEK_SET) < 0) {
-		_zip_error_set_from_source(&za->error, za->src);
-		return -1;
-	}
-	if((buffer = _zip_buffer_new_from_source(za->src, sizeof(b), b, &za->error)) == NULL) {
-		return -1;
-	}
-	fname_len = _zip_buffer_get_16(buffer);
-	ef_len = _zip_buffer_get_16(buffer);
-	if(!_zip_buffer_eof(buffer)) {
-		_zip_buffer_free(buffer);
-		zip_error_set(&za->error, ZIP_ER_INTERNAL, 0);
-		return -1;
-	}
-	_zip_buffer_free(buffer);
-	if(ef_len > 0) {
-		zip_extra_field_t * ef;
-		uint8 * ef_raw;
-		if(zip_source_seek(za->src, fname_len, SEEK_CUR) < 0) {
-			zip_error_set(&za->error, ZIP_ER_SEEK, errno);
+	if(idx >= za->nentry)
+		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+	else {
+		zip_entry_t * e = za->entry+idx;
+		if(e->orig == NULL || e->orig->local_extra_fields_read)
+			return 0;
+		else if(e->orig->offset + 26 > ZIP_INT64_MAX)
+			return zip_error_set(&za->error, ZIP_ER_SEEK, EFBIG);
+		else if(zip_source_seek(za->src, (int64)(e->orig->offset + 26), SEEK_SET) < 0) {
+			_zip_error_set_from_source(&za->error, za->src);
 			return -1;
 		}
-		ef_raw = _zip_read_data(NULL, za->src, ef_len, 0, &za->error);
-		if(ef_raw == NULL)
-			return -1;
-		if(!_zip_ef_parse(ef_raw, ef_len, ZIP_EF_LOCAL, &ef, &za->error)) {
-			SAlloc::F(ef_raw);
+		else if((buffer = _zip_buffer_new_from_source(za->src, sizeof(b), b, &za->error)) == NULL) {
 			return -1;
 		}
-		SAlloc::F(ef_raw);
-		if(ef) {
-			ef = _zip_ef_remove_internal(ef);
-			e->orig->extra_fields = _zip_ef_merge(e->orig->extra_fields, ef);
+		else {
+			uint16 fname_len = _zip_buffer_get_16(buffer);
+			uint16 ef_len = _zip_buffer_get_16(buffer);
+			if(!_zip_buffer_eof(buffer)) {
+				_zip_buffer_free(buffer);
+				return zip_error_set(&za->error, ZIP_ER_INTERNAL, 0);
+			}
+			else {
+				_zip_buffer_free(buffer);
+				if(ef_len > 0) {
+					if(zip_source_seek(za->src, fname_len, SEEK_CUR) < 0)
+						return zip_error_set(&za->error, ZIP_ER_SEEK, errno);
+					else {
+						zip_extra_field_t * ef;
+						uint8 * ef_raw = _zip_read_data(NULL, za->src, ef_len, 0, &za->error);
+						if(ef_raw == NULL)
+							return -1;
+						else if(!_zip_ef_parse(ef_raw, ef_len, ZIP_EF_LOCAL, &ef, &za->error)) {
+							SAlloc::F(ef_raw);
+							return -1;
+						}
+						else {
+							SAlloc::F(ef_raw);
+							if(ef) {
+								ef = _zip_ef_remove_internal(ef);
+								e->orig->extra_fields = _zip_ef_merge(e->orig->extra_fields, ef);
+							}
+						}
+					}
+				}
+				e->orig->local_extra_fields_read = 1;
+				if(e->changes && e->changes->local_extra_fields_read == 0) {
+					e->changes->extra_fields = e->orig->extra_fields;
+					e->changes->local_extra_fields_read = 1;
+				}
+				return 0;
+			}
 		}
 	}
-	e->orig->local_extra_fields_read = 1;
-	if(e->changes && e->changes->local_extra_fields_read == 0) {
-		e->changes->extra_fields = e->orig->extra_fields;
-		e->changes->local_extra_fields_read = 1;
-	}
-	return 0;
 }
 

@@ -59,7 +59,8 @@ ZIP_EXTERN zip_source_t * zip_source_win32w_create(const wchar_t * fname, uint64
 		zip_error_set(error, ZIP_ER_INVAL, 0);
 		return NULL;
 	}
-	return _zip_source_win32_handle_or_name(fname, INVALID_HANDLE_VALUE, start, length, 1, NULL, &win32_ops_w, error);
+	else
+		return _zip_source_win32_handle_or_name(fname, INVALID_HANDLE_VALUE, start, length, 1, NULL, &win32_ops_w, error);
 }
 
 static void * _win32_strdup_w(const void * str)
@@ -90,9 +91,7 @@ static HANDLE _win32_create_temp_w(_zip_source_win32_read_file_t * ctx, void ** 
 
 static int _win32_rename_temp_w(_zip_source_win32_read_file_t * ctx)
 {
-	if(!MoveFileExW((LPCWSTR)ctx->tmpname, (LPCWSTR)ctx->fname, MOVEFILE_REPLACE_EXISTING))
-		return -1;
-	return 0;
+	return MoveFileExW((LPCWSTR)ctx->tmpname, (LPCWSTR)ctx->fname, MOVEFILE_REPLACE_EXISTING) ? 0 : -1;
 }
 
 static int _win32_remove_w(const void * fname)

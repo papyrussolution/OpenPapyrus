@@ -929,13 +929,10 @@ cleanup_damage:
 static void _cairo_xlib_surface_clear_shm(cairo_xlib_surface_t * surface)
 {
 	cairo_xlib_shm_surface_t * shm = (cairo_xlib_shm_surface_t*)surface->shm;
-
 	assert(shm->active == 0);
-
 	_cairo_damage_destroy(surface->base.damage);
 	surface->base.damage = _cairo_damage_create();
-
-	memset(shm->image.data, 0, shm->image.stride * shm->image.height);
+	memzero(shm->image.data, shm->image.stride * shm->image.height);
 	shm->image.base.is_clear = TRUE;
 }
 
@@ -1129,30 +1126,22 @@ cairo_surface_t * _cairo_xlib_surface_create_shm__image(cairo_xlib_surface_t * s
 	if(!has_shm(surface))
 		return NULL;
 
-	return &_cairo_xlib_shm_surface_create(surface, format, width, height,
-	    FALSE, 0)->image.base;
+	return &_cairo_xlib_shm_surface_create(surface, format, width, height, FALSE, 0)->image.base;
 }
 
-cairo_surface_t * _cairo_xlib_surface_create_similar_shm(void * other,
-    cairo_format_t format,
-    int width, int height)
+cairo_surface_t * _cairo_xlib_surface_create_similar_shm(void * other, cairo_format_t format, int width, int height)
 {
-	cairo_surface_t * surface;
-
-	surface = _cairo_xlib_surface_create_shm(other,
-	    _cairo_format_to_pixman_format_code(format),
-	    width, height);
+	cairo_surface_t * surface = _cairo_xlib_surface_create_shm(other, _cairo_format_to_pixman_format_code(format), width, height);
 	if(surface) {
 		if(!surface->is_clear) {
 			cairo_xlib_shm_surface_t * shm = (cairo_xlib_shm_surface_t*)surface;
 			assert(shm->active == 0);
-			memset(shm->image.data, 0, shm->image.stride * shm->image.height);
+			memzero(shm->image.data, shm->image.stride * shm->image.height);
 			shm->image.base.is_clear = TRUE;
 		}
 	}
 	else
 		surface = cairo_image_surface_create(format, width, height);
-
 	return surface;
 }
 
@@ -1160,12 +1149,10 @@ void _cairo_xlib_shm_surface_mark_active(cairo_surface_t * _shm)
 {
 	cairo_xlib_shm_surface_t * shm = (cairo_xlib_shm_surface_t*)_shm;
 	cairo_xlib_display_t * display = (cairo_xlib_display_t*)_shm->device;
-
 	shm->active = NextRequest(display->display);
 }
 
-void _cairo_xlib_shm_surface_get_ximage(cairo_surface_t * surface,
-    XImage * ximage)
+void _cairo_xlib_shm_surface_get_ximage(cairo_surface_t * surface, XImage * ximage)
 {
 	cairo_xlib_shm_surface_t * shm = (cairo_xlib_shm_surface_t*)surface;
 	int native_byte_order = _cairo_is_little_endian() ? LSBFirst : MSBFirst;

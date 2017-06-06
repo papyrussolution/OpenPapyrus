@@ -224,7 +224,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling />
@@ -242,6 +242,7 @@
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -267,7 +268,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -287,6 +288,7 @@
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -313,7 +315,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -333,6 +335,7 @@
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -359,7 +362,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -379,6 +382,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -404,7 +408,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -425,6 +429,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -450,7 +455,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -471,6 +476,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -496,7 +502,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling />
@@ -542,7 +548,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -591,7 +597,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -640,7 +646,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -687,7 +693,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -735,7 +741,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL-CMake;..\OSF\OpenSSL-CMake\ssl;..\OSF\OpenSSL-CMake\include;..\OSF\OpenSSL-CMake\crypto;..\OSF\OpenSSL-CMake\crypto\modes;..\OSF\OpenSSL-CMake\crypto\evp;..\OSF\OpenSSL-CMake\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>

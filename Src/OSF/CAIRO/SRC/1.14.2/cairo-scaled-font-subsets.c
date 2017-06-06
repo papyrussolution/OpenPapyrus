@@ -664,7 +664,7 @@ static void _cairo_sub_font_collect(void * entry, void * closure)
 		collection->subset_id = i;
 		collection->num_glyphs = 0;
 		collection->max_glyph = 0;
-		memset(collection->latin_to_subset_glyph_index, 0, 256*sizeof(ulong));
+		memzero(collection->latin_to_subset_glyph_index, 256*sizeof(ulong));
 		_cairo_hash_table_foreach(sub_font->sub_font_glyphs, _cairo_sub_font_glyph_collect, collection);
 		if(collection->status)
 			break;

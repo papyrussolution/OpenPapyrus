@@ -328,48 +328,34 @@ static void cairo_truetype_font_write_be32(cairo_truetype_font_t * font,
 	cairo_truetype_font_write(font, &be32_value, sizeof be32_value);
 }
 
-static cairo_status_t cairo_truetype_font_align_output(cairo_truetype_font_t     * font,
-    ulong             * aligned)
+static cairo_status_t cairo_truetype_font_align_output(cairo_truetype_font_t * font, ulong * aligned)
 {
-	int length, pad;
+	int pad;
 	uchar * padding;
-
-	length = _cairo_array_num_elements(&font->output);
+	int length = _cairo_array_num_elements(&font->output);
 	*aligned = (length + 3) & ~3;
 	pad = *aligned - length;
-
 	if(pad) {
-		cairo_status_t status;
-
-		status = cairo_truetype_font_allocate_write_buffer(font, pad,
-		    &padding);
+		cairo_status_t status = cairo_truetype_font_allocate_write_buffer(font, pad, &padding);
 		if(unlikely(status))
 			return status;
-
-		memset(padding, 0, pad);
+		memzero(padding, pad);
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t cairo_truetype_font_check_boundary(cairo_truetype_font_t * font,
-    ulong boundary)
+static cairo_status_t cairo_truetype_font_check_boundary(cairo_truetype_font_t * font, ulong boundary)
 {
 	cairo_status_t status;
-
 	if(font->status)
 		return font->status;
-
 	if(boundary - font->last_offset > SFNT_STRING_MAX_LENGTH) {
-		status = _cairo_array_append(&font->string_offsets,
-		    &font->last_boundary);
+		status = _cairo_array_append(&font->string_offsets, &font->last_boundary);
 		if(unlikely(status))
 			return _cairo_truetype_font_set_error(font, status);
-
 		font->last_offset = font->last_boundary;
 	}
 	font->last_boundary = boundary;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

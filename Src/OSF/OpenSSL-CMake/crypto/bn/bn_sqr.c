@@ -190,7 +190,7 @@ void bn_sqr_recursive(BN_ULONG *r, const BN_ULONG *a, int n2, BN_ULONG *t)
     if (!zero)
         bn_sqr_recursive(&(t[n2]), t, n, p);
     else
-        memset(&t[n2], 0, sizeof(*t) * n2);
+        memzero(&t[n2], sizeof(*t) * n2);
     bn_sqr_recursive(r, a, n, p);
     bn_sqr_recursive(&(r[n2]), &(a[n]), n, p);
 

@@ -2243,7 +2243,7 @@ int X509_STORE_CTX_init(X509_STORE_CTX * ctx, X509_STORE * store, X509 * x509,
 	ctx->dane = NULL;
 	ctx->bare_ta_signed = 0;
 	/* Zero ex_data to make sure we're cleanup-safe */
-	memset(&ctx->ex_data, 0, sizeof(ctx->ex_data));
+	memzero(&ctx->ex_data, sizeof(ctx->ex_data));
 
 	/* store->cleanup is always 0 in OpenSSL, if set must be idempotent */
 	if(store)
@@ -2389,7 +2389,7 @@ void X509_STORE_CTX_cleanup(X509_STORE_CTX * ctx)
 	sk_X509_pop_free(ctx->chain, X509_free);
 	ctx->chain = NULL;
 	CRYPTO_free_ex_data(CRYPTO_EX_INDEX_X509_STORE_CTX, ctx, &(ctx->ex_data));
-	memset(&ctx->ex_data, 0, sizeof(ctx->ex_data));
+	memzero(&ctx->ex_data, sizeof(ctx->ex_data));
 }
 
 void X509_STORE_CTX_set_depth(X509_STORE_CTX * ctx, int depth)

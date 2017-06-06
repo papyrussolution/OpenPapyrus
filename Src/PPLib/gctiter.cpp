@@ -938,6 +938,7 @@ int SLAPI GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBi
 	} cpk;
 	const  int opt_for_psales = BIN(Filt.Flags & OPG_OPTIMIZEFORPSALES && (State & stUseGoodsList) && !Filt.SoftRestrict);
 	int    idx;
+	Transfer * p_tfr = Trfr;
 	DBQ  * dbq = 0;
 	MEMSZERO(k);
 	MEMSZERO(cpk);
@@ -945,50 +946,50 @@ int SLAPI GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBi
 		idx = 2;
 		k.k2.LotID = CurrID;
 		k.k2.Dt = Period.low;
-		dbq = & (Trfr->LotID == CurrID);
+		dbq = & (p_tfr->LotID == CurrID);
 	}
 	else if(ByWhat_ == bwBill) {
 		idx = 0;
 		k.k0.BillID = CurrID;
-		dbq = & (Trfr->BillID == CurrID);
+		dbq = & (p_tfr->BillID == CurrID);
 	}
 	else if(ByWhat_ == bwGoods) {
 		idx = 3;
 		PPID   goods_id = GoodsArray.get(GoodsArray.getPointer());
 		k.k3.GoodsID = goods_id;
 		k.k3.Dt = Period.low;
-		dbq = & (Trfr->GoodsID == goods_id);
+		dbq = & (p_tfr->GoodsID == goods_id);
 	}
 	else if(Filt.GoodsID && !(State & stUseGoodsList) && !Filt.SoftRestrict) {
 		idx = 3;
 		k.k3.GoodsID = Filt.GoodsID;
 		k.k3.Dt = Period.low;
-		dbq = & (Trfr->GoodsID == Filt.GoodsID);
+		dbq = & (p_tfr->GoodsID == Filt.GoodsID);
 	}
 	else {
 		idx = 1;
 		k.k1.Dt = Period.low;
 	}
 	if(ByWhat_ != bwBill) {
-		dbq = & (*dbq && daterange(Trfr->Dt, &Period));
+		dbq = & (*dbq && daterange(p_tfr->Dt, &Period));
 		if(ByWhat_ != bwGoods && (State & stUseGoodsList) && GoodsArray.getCount() && !Filt.SoftRestrict) {
-			dbq = &(*dbq && Trfr->GoodsID >= GoodsArray.get(0) && Trfr->GoodsID <= GoodsArray.getLast());
+			dbq = &(*dbq && p_tfr->GoodsID >= GoodsArray.get(0) && p_tfr->GoodsID <= GoodsArray.getLast());
 		}
 	}
 	else if((State & stUseGoodsList) && GoodsArray.getCount() && !Filt.SoftRestrict) {
-		dbq = &(*dbq && Trfr->GoodsID >= GoodsArray.get(0) && Trfr->GoodsID <= GoodsArray.getLast());
+		dbq = &(*dbq && p_tfr->GoodsID >= GoodsArray.get(0) && p_tfr->GoodsID <= GoodsArray.getLast());
 	}
-	dbq = ppcheckfiltidlist(dbq, Trfr->LocID, &Filt.LocList.Get());
-	BExtQuery * q = new BExtQuery(Trfr, idx, 256);
+	dbq = ppcheckfiltidlist(dbq, p_tfr->LocID, &Filt.LocList.Get());
+	BExtQuery * q = new BExtQuery(p_tfr, idx, 256);
 	if(q == 0)
 		return PPSetErrorNoMem();
 	if(opt_for_psales) {
-		q->select(Trfr->Dt, Trfr->BillID, Trfr->GoodsID, Trfr->LocID, Trfr->Flags,
-			Trfr->Quantity, Trfr->Price, Trfr->Discount, 0L).where(*dbq);
+		q->select(p_tfr->Dt, p_tfr->BillID, p_tfr->GoodsID, p_tfr->LocID, p_tfr->Flags,
+			p_tfr->Quantity, p_tfr->Price, p_tfr->Discount, 0L).where(*dbq);
 	}
 	else {
-		q->select(Trfr->Dt, Trfr->OprNo, Trfr->BillID, Trfr->GoodsID, Trfr->LocID, Trfr->LotID, Trfr->Flags,
-			Trfr->Quantity, Trfr->Rest, Trfr->Cost, Trfr->Price, Trfr->Discount, 0L).where(*dbq);
+		q->select(p_tfr->Dt, p_tfr->OprNo, p_tfr->BillID, p_tfr->GoodsID, p_tfr->LocID, p_tfr->LotID, p_tfr->Flags,
+			p_tfr->Quantity, p_tfr->Rest, p_tfr->Cost, p_tfr->Price, p_tfr->Discount, 0L).where(*dbq);
 	}
 	delete trfr_q;
 	trfr_q  = q;
@@ -1017,6 +1018,7 @@ int SLAPI GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * p
 			PPTransferItem ti;
             THROW_MEM(SETIFZ(Cbb.P_Pack, new PPBillPacket));
 			if(p_bobj->ExtractPacket(CurrID, Cbb.P_Pack) > 0) {
+				PPID   single_wroff_bill_id = 0;
 				for(DateIter di; BT->EnumLinks(Cbb.P_Pack->Rec.ID, &di, BLNK_ALL, &bill_rec) > 0;) {
 					PPBillPacket temp_pack;
 					THROW_MEM(SETIFZ(Cbb.P_WrOffPack, new PPBillPacket));
@@ -1024,9 +1026,15 @@ int SLAPI GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * p
 						for(temp_pack.InitExtTIter(ETIEF_UNITEBYGOODS, 0); temp_pack.EnumTItemsExt(0, &ti) > 0;) {
 							THROW(Cbb.P_WrOffPack->LoadTItem(&ti, 0, 0));
 						}
+						if(!single_wroff_bill_id)
+							single_wroff_bill_id = temp_pack.Rec.ID;
+						else if(single_wroff_bill_id > 0 && single_wroff_bill_id != temp_pack.Rec.ID)
+							single_wroff_bill_id = -1;
 					}
 				}
 				if(Cbb.P_WrOffPack) {
+					if(single_wroff_bill_id > 0)
+						Cbb.P_WrOffPack->Rec.ID = single_wroff_bill_id;
 					for(Cbb.P_WrOffPack->InitExtTIter(ETIEF_UNITEBYGOODS, 0); Cbb.P_WrOffPack->EnumTItemsExt(0, &ti) > 0;) {
 						if(!Cbb.P_Pack->SearchGoods(ti.GoodsID, 0)) {
 							ti.Quantity_ = 0.0;

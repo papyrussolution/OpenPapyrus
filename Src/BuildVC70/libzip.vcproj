@@ -304,9 +304,6 @@
 				RelativePath="..\Osf\Libzip\lib\libzip.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Libzip\lib\mkstemp.c">
-			</File>
-			<File
 				RelativePath="..\Osf\Libzip\lib\zip_extra_field.c">
 			</File>
 			<File

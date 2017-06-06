@@ -586,8 +586,7 @@ static void pushsig(void)
 # endif
 # ifdef SIGACTION
 	struct sigaction sa;
-
-	memset(&sa, 0, sizeof(sa));
+	memzero(&sa, sizeof(sa));
 	sa.sa_handler = recsig;
 # endif
 

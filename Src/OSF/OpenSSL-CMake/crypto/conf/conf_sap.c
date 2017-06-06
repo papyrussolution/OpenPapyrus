@@ -25,7 +25,7 @@ static int openssl_configured = 0;
 void OPENSSL_config(const char * appname)
 {
 	OPENSSL_INIT_SETTINGS settings;
-	memset(&settings, 0, sizeof(settings));
+	memzero(&settings, sizeof(settings));
 	if(appname != NULL)
 		settings.appname = strdup(appname);
 	OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CONFIG, &settings);

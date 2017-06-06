@@ -2192,30 +2192,22 @@ cairo_quartz_surface_t * _cairo_quartz_surface_create_internal(CGContextRef cgCo
     uint height)
 {
 	cairo_quartz_surface_t * surface;
-
 	quartz_ensure_symbols();
-
 	/* Init the base surface */
 	surface = SAlloc::M(sizeof(cairo_quartz_surface_t));
 	if(unlikely(surface == NULL))
 		return (cairo_quartz_surface_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
-
-	memset(surface, 0, sizeof(cairo_quartz_surface_t));
-
+	memzero(surface, sizeof(cairo_quartz_surface_t));
 	_cairo_surface_init(&surface->base,
 	    &cairo_quartz_surface_backend,
 	    NULL,              /* device */
 	    content);
-
-	_cairo_surface_clipper_init(&surface->clipper,
-	    _cairo_quartz_surface_clipper_intersect_clip_path);
-
+	_cairo_surface_clipper_init(&surface->clipper, _cairo_quartz_surface_clipper_intersect_clip_path);
 	/* Save our extents */
 	surface->extents.x = surface->extents.y = 0;
 	surface->extents.width = width;
 	surface->extents.height = height;
 	surface->virtual_extents = surface->extents;
-
 	if(IS_EMPTY(surface)) {
 		surface->cgContext = NULL;
 		surface->cgContextBaseCTM = CGAffineTransformIdentity;
@@ -2223,7 +2215,6 @@ cairo_quartz_surface_t * _cairo_quartz_surface_create_internal(CGContextRef cgCo
 		surface->base.is_clear = TRUE;
 		return surface;
 	}
-
 	/* Save so we can always get back to a known-good CGContext -- this is
 	 * required for proper behaviour of intersect_clip_path(NULL)
 	 */
@@ -2353,10 +2344,8 @@ cairo_surface_t * cairo_quartz_surface_create(cairo_format_t format,
 		CGColorSpaceRelease(cgColorspace);
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}
-
 	/* zero the memory to match the image surface behaviour */
-	memset(imageData, 0, height * stride);
-
+	memzero(imageData, height * stride);
 	cgc = CGBitmapContextCreate(imageData,
 	    width,
 	    height,

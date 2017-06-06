@@ -5968,7 +5968,7 @@ int __memp_sync_int(ENV * env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 
 			}
 		}
 	}
-	/* If there no buffers to write, we're done. */
+	// If there no buffers to write, we're done
 	if(ar_cnt == 0)
 		goto done;
 	/*
@@ -5978,10 +5978,9 @@ int __memp_sync_int(ENV * env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 
 	 */
 	if(ar_cnt > 1)
 		qsort(bharray, ar_cnt, sizeof(BH_TRACK), __bhcmp);
-	/*
-	 * If we're trickling buffers, only write enough to reach the correct
-	 * percentage.
-	 */
+	// 
+	// If we're trickling buffers, only write enough to reach the correct percentage.
+	// 
 	if(LF_ISSET(DB_SYNC_TRICKLE) && ar_cnt > trickle_max)
 		ar_cnt = trickle_max;
 	/*
@@ -6069,10 +6068,9 @@ int __memp_sync_int(ENV * env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 
 			}
 			last_mf_offset = bhp->mf_offset;
 		}
-		/*
-		 * If the buffer is dirty, we write it.  We only try to
-		 * write the buffer once.
-		 */
+		// 
+		// If the buffer is dirty, we write it.  We only try to write the buffer once.
+		// 
 		if(F_ISSET(bhp, BH_DIRTY)) {
 			mfp = (MPOOLFILE *)R_ADDR(dbmp->reginfo, bhp->mf_offset);
 			if((t_ret = __memp_bhwrite(dbmp, hp, mfp, bhp, 1)) == 0) {
@@ -6080,35 +6078,33 @@ int __memp_sync_int(ENV * env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 
 				++wrote_total;
 			}
 			else {
-				if(ret == 0)
-					ret = t_ret;
+				SETIFZ(ret, t_ret);
 				__db_errx(env, DB_STR_A("3027", "%s: unable to flush page: %lu", "%s %lu"), __memp_fns(dbmp, mfp), (ulong)bhp->pgno);
 
 			}
 		}
-		/* Discard our buffer reference. */
+		// Discard our buffer reference
 		DB_ASSERT(env, atomic_read(&bhp->ref) > 0);
 		atomic_dec(env, &bhp->ref);
 		MUTEX_UNLOCK(env, bhp->mtx_buf);
-		/* Check if the call has been interrupted. */
+		// Check if the call has been interrupted
 		if(LF_ISSET(DB_SYNC_INTERRUPT_OK) && FLD_ISSET(mp->config_flags, DB_MEMP_SYNC_INTERRUPT)) {
 			STAT(++mp->stat.st_sync_interrupted);
-			if(interruptedp != NULL)
-				*interruptedp = 1;
+			ASSIGN_PTR(interruptedp, 1);
 			goto err;
 		}
-		/*
-		 * Sleep after some number of writes to avoid disk saturation.
-		 * Don't cache the max writes value, an application shutting
-		 * down might reset the value in order to do a fast flush or
-		 * checkpoint.
-		 */
+		// 
+		// Sleep after some number of writes to avoid disk saturation.
+		// Don't cache the max writes value, an application shutting
+		// down might reset the value in order to do a fast flush or checkpoint.
+		// 
 		if(!LF_ISSET(DB_SYNC_SUPPRESS_WRITE) && !FLD_ISSET(mp->config_flags, DB_MEMP_SUPPRESS_WRITE) && mp->mp_maxwrite != 0 && wrote_cnt >= mp->mp_maxwrite) {
 			wrote_cnt = 0;
 			__os_yield(env, 0, (ulong)mp->mp_maxwrite_sleep);
 		}
 	}
-done:   /*
+done:   
+	/*
 	 * If a write is required, we have to force the pages to disk.  We
 	 * don't do this as we go along because we want to give the OS as
 	 * much time as possible to lazily flush, and because we have to flush
@@ -6153,8 +6149,7 @@ static int __memp_sync_file(ENV * env, MPOOLFILE * mfp, void * argp, uint32 * co
 	 * will: hold the MPOOLFILE mutex, set deadfile, drop the
 	 * MPOOLFILE mutex and then acquire the region MUTEX to walk
 	 * the linked list and remove the MPOOLFILE structure.  Make
-	 * sure the MPOOLFILE wasn't marked dead while we waited for
-	 * the mutex.
+	 * sure the MPOOLFILE wasn't marked dead while we waited for the mutex.
 	 */
 	MUTEX_LOCK(env, mfp->mutex);
 	if(!mfp->file_written || mfp->deadfile) {
@@ -6163,7 +6158,6 @@ static int __memp_sync_file(ENV * env, MPOOLFILE * mfp, void * argp, uint32 * co
 	}
 	++mfp->mpf_cnt;
 	MUTEX_UNLOCK(env, mfp->mutex);
-
 	/*
 	 * Look for an already open, writable handle (fsync doesn't
 	 * work on read-only Windows handles).
@@ -6190,10 +6184,9 @@ static int __memp_sync_file(ENV * env, MPOOLFILE * mfp, void * argp, uint32 * co
 	}
 	else
 		ret = __os_fsync(env, dbmfp->fhp);
-	/*
-	 * Re-acquire the MPOOLFILE mutex, we need it to modify the
-	 * reference count.
-	 */
+	//
+	// Re-acquire the MPOOLFILE mutex, we need it to modify the reference count.
+	//
 	MUTEX_LOCK(env, mfp->mutex);
 	/*
 	 * If we wrote the file and there are no other references (or there
@@ -6295,10 +6288,10 @@ int __memp_mf_sync(DB_MPOOL * dbmp, MPOOLFILE * mfp, int locked)
 	char * rpath;
 	COMPQUIET(hp, NULL);
 	env = dbmp->env;
-	/*
-	 * We need to be holding the hash lock: we're using the path name
-	 * and __memp_nameop might try and rename the file.
-	 */
+	// 
+	// We need to be holding the hash lock: we're using the path name
+	// and __memp_nameop might try and rename the file.
+	// 
 	if(!locked) {
 		mp = (MPOOL *)dbmp->reginfo[0].primary;
 		hp = (DB_MPOOL_HASH *)R_ADDR(dbmp->reginfo, mp->ftab);

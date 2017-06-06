@@ -114,12 +114,12 @@ typedef struct gz_header_s {
 	uLong time;     /* modification time */
 	int xflags;     /* extra flags (not used when writing a gzip file) */
 	int os;         /* operating system */
-	Bytef   * extra; /* pointer to extra field or Z_NULL if none */
+	Bytef * extra; /* pointer to extra field or Z_NULL if none */
 	uInt extra_len; /* extra field length (valid if extra != Z_NULL) */
 	uInt extra_max; /* space at extra (only when reading header) */
-	Bytef   * name; /* pointer to zero-terminated file name or Z_NULL */
+	Bytef * name; /* pointer to zero-terminated file name or Z_NULL */
 	uInt name_max;  /* space at name (only when reading header) */
-	Bytef   * comment; /* pointer to zero-terminated comment or Z_NULL */
+	Bytef * comment; /* pointer to zero-terminated comment or Z_NULL */
 	uInt comm_max;  /* space at comment (only when reading header) */
 	int hcrc;       /* true if there was or will be a header crc */
 	int done;       /* true when done reading gzip header (not used
@@ -1997,18 +1997,18 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	#endif
 	#ifdef HAVE_MEMCPY
 		#ifdef SMALL_MEDIUM /* MSDOS small or medium model */
-			#define zmemcpy _fmemcpy
+			//#define zmemcpy_Removed _fmemcpy
 			#define zmemcmp _fmemcmp
-			#define zmemzero(dest, len) _fmemset(dest, 0, len)
+			//#define zmemzero_Removed(dest, len) _fmemset(dest, 0, len)
 		#else
-			#define zmemcpy memcpy
+			//#define zmemcpy_Removed memcpy
 			#define zmemcmp memcmp
-			#define zmemzero(dest, len) memset(dest, 0, len)
+			//#define zmemzero_Removed(dest, len) memset(dest, 0, len)
 		#endif
 	#else
-		void ZLIB_INTERNAL zmemcpy OF((Bytef* dest, const Bytef* source, uInt len));
-		int ZLIB_INTERNAL zmemcmp OF((const Bytef* s1, const Bytef* s2, uInt len));
-		void ZLIB_INTERNAL zmemzero OF((Bytef* dest, uInt len));
+		//void ZLIB_INTERNAL zmemcpy_Removed(Bytef* dest, const Bytef* source, uInt len);
+		int ZLIB_INTERNAL zmemcmp(const Bytef* s1, const Bytef* s2, uInt len);
+		//void ZLIB_INTERNAL zmemzero_Removed(Bytef* dest, uInt len);
 	#endif
 	//
 	// Diagnostic functions 

@@ -113,38 +113,29 @@ static int ts_status_map_print(BIO * bio, const struct status_map_st * a,
 int TS_TST_INFO_print_bio(BIO * bio, TS_TST_INFO * a)
 {
 	int v;
-
 	if(a == NULL)
 		return 0;
-
 	v = ASN1_INTEGER_get(a->version);
 	BIO_printf(bio, "Version: %d\n", v);
-
 	BIO_printf(bio, "Policy OID: ");
 	TS_OBJ_print_bio(bio, a->policy_id);
-
 	TS_MSG_IMPRINT_print_bio(bio, a->msg_imprint);
-
 	BIO_printf(bio, "Serial number: ");
 	if(a->serial == NULL)
 		BIO_printf(bio, "unspecified");
 	else
 		TS_ASN1_INTEGER_print_bio(bio, a->serial);
 	BIO_write(bio, "\n", 1);
-
 	BIO_printf(bio, "Time stamp: ");
 	ASN1_GENERALIZEDTIME_print(bio, a->time);
 	BIO_write(bio, "\n", 1);
-
 	BIO_printf(bio, "Accuracy: ");
 	if(a->accuracy == NULL)
 		BIO_printf(bio, "unspecified");
 	else
 		ts_ACCURACY_print_bio(bio, a->accuracy);
 	BIO_write(bio, "\n", 1);
-
 	BIO_printf(bio, "Ordering: %s\n", a->ordering ? "yes" : "no");
-
 	BIO_printf(bio, "Nonce: ");
 	if(a->nonce == NULL)
 		BIO_printf(bio, "unspecified");
@@ -162,9 +153,7 @@ int TS_TST_INFO_print_bio(BIO * bio, TS_TST_INFO * a)
 		sk_CONF_VALUE_pop_free(nval, X509V3_conf_free);
 	}
 	BIO_write(bio, "\n", 1);
-
 	TS_ext_print_bio(bio, a->extensions);
-
 	return 1;
 }
 

@@ -224,8 +224,7 @@ int BN_generate_dsa_nonce(BIGNUM * out, const BIGNUM * range,
 		goto err;
 	}
 	memcpy(private_bytes, priv->d, todo);
-	memset(private_bytes + todo, 0, sizeof(private_bytes) - todo);
-
+	memzero(private_bytes + todo, sizeof(private_bytes) - todo);
 	for(done = 0; done < num_k_bytes; ) {
 		if(RAND_bytes(random_bytes, sizeof(random_bytes)) != 1)
 			goto err;
@@ -235,7 +234,6 @@ int BN_generate_dsa_nonce(BIGNUM * out, const BIGNUM * range,
 		SHA512_Update(&sha, message, message_len);
 		SHA512_Update(&sha, random_bytes, sizeof(random_bytes));
 		SHA512_Final(digest, &sha);
-
 		todo = num_k_bytes - done;
 		if(todo > SHA512_DIGEST_LENGTH)
 			todo = SHA512_DIGEST_LENGTH;

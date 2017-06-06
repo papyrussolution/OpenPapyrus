@@ -418,19 +418,17 @@ int ZEXPORT deflateSetDictionary(z_streamp strm, const Bytef * dictionary, uInt 
 /* ========================================================================= */
 int ZEXPORT deflateGetDictionary(z_streamp strm, Bytef * dictionary, uInt  * dictLength)
 {
-	deflate_state * s;
-	uInt len;
 	if(deflateStateCheck(strm))
 		return Z_STREAM_ERROR;
-	s = strm->state;
-	len = s->strstart + s->lookahead;
-	if(len > s->w_size)
-		len = s->w_size;
-	if(dictionary != Z_NULL && len)
-		zmemcpy(dictionary, s->window + s->strstart + s->lookahead - len, len);
-	if(dictLength != Z_NULL)
-		*dictLength = len;
-	return Z_OK;
+	else {
+		deflate_state * s = strm->state;
+		uInt len = s->strstart + s->lookahead;
+		SETMIN(len, s->w_size);
+		if(dictionary && len)
+			memcpy(dictionary, s->window + s->strstart + s->lookahead - len, len);
+		ASSIGN_PTR(dictLength, len);
+		return Z_OK;
+	}
 }
 
 /* ========================================================================= */
@@ -479,41 +477,46 @@ int ZEXPORT deflateSetHeader(z_streamp strm, gz_headerp head)
 {
 	if(deflateStateCheck(strm) || strm->state->wrap != 2)
 		return Z_STREAM_ERROR;
-	strm->state->gzhead = head;
-	return Z_OK;
+	else {
+		strm->state->gzhead = head;
+		return Z_OK;
+	}
 }
 
 /* ========================================================================= */
 int ZEXPORT deflatePending(z_streamp strm, unsigned * pending, int * bits)
 {
-	if(deflateStateCheck(strm)) return Z_STREAM_ERROR;
-	if(pending != Z_NULL)
-		*pending = strm->state->pending;
-	if(bits != Z_NULL)
-		*bits = strm->state->bi_valid;
-	return Z_OK;
+	if(deflateStateCheck(strm)) 
+		return Z_STREAM_ERROR;
+	else {
+		ASSIGN_PTR(pending, strm->state->pending);
+		ASSIGN_PTR(bits, strm->state->bi_valid);
+		return Z_OK;
+	}
 }
 
 /* ========================================================================= */
 int ZEXPORT deflatePrime(z_streamp strm, int bits, int value)
 {
-	deflate_state * s;
-	int put;
-	if(deflateStateCheck(strm)) return Z_STREAM_ERROR;
-	s = strm->state;
-	if((Bytef*)(s->d_buf) < s->pending_out + ((Buf_size + 7) >> 3))
-		return Z_BUF_ERROR;
-	do {
-		put = Buf_size - s->bi_valid;
-		if(put > bits)
-			put = bits;
-		s->bi_buf |= (ush)((value & ((1 << put) - 1)) << s->bi_valid);
-		s->bi_valid += put;
-		_tr_flush_bits(s);
-		value >>= put;
-		bits -= put;
-	} while(bits);
-	return Z_OK;
+	if(deflateStateCheck(strm)) 
+		return Z_STREAM_ERROR;
+	else {
+		deflate_state * s = strm->state;
+		if((Bytef*)(s->d_buf) < s->pending_out + ((Buf_size + 7) >> 3))
+			return Z_BUF_ERROR;
+		else {
+			do {
+				int put = Buf_size - s->bi_valid;
+				SETMIN(put, bits);
+				s->bi_buf |= (ush)((value & ((1 << put) - 1)) << s->bi_valid);
+				s->bi_valid += put;
+				_tr_flush_bits(s);
+				value >>= put;
+				bits -= put;
+			} while(bits);
+			return Z_OK;
+		}
+	}
 }
 
 /* ========================================================================= */
@@ -521,7 +524,8 @@ int ZEXPORT deflateParams(z_streamp strm, int level, int strategy)
 {
 	deflate_state * s;
 	compress_func func;
-	if(deflateStateCheck(strm)) return Z_STREAM_ERROR;
+	if(deflateStateCheck(strm)) 
+		return Z_STREAM_ERROR;
 	s = strm->state;
 #ifdef FASTEST
 	if(level != 0) level = 1;
@@ -533,13 +537,12 @@ int ZEXPORT deflateParams(z_streamp strm, int level, int strategy)
 	}
 	func = configuration_table[s->level].func;
 
-	if((strategy != s->strategy || func != configuration_table[level].func) &&
-	    s->high_water) {
-		/* Flush the last buffer: */
+	if((strategy != s->strategy || func != configuration_table[level].func) && s->high_water) {
+		// Flush the last buffer: 
 		int err = deflate(strm, Z_BLOCK);
 		if(err == Z_STREAM_ERROR)
 			return err;
-		if(strm->avail_out == 0)
+		else if(strm->avail_out == 0)
 			return Z_BUF_ERROR;
 	}
 	if(s->level != level) {
@@ -667,7 +670,7 @@ static void FASTCALL flush_pending(z_streamp strm)
 	if(len > strm->avail_out) 
 		len = strm->avail_out;
 	if(len) {
-		zmemcpy(strm->next_out, s->pending_out, len);
+		memcpy(strm->next_out, s->pending_out, len);
 		strm->next_out  += len;
 		s->pending_out  += len;
 		strm->total_out += len;
@@ -815,7 +818,7 @@ int ZEXPORT deflate(z_streamp strm, int flush)
 			uInt left = (s->gzhead->extra_len & 0xffff) - s->gzindex;
 			while(s->pending + left > s->pending_buf_size) {
 				uInt copy = s->pending_buf_size - s->pending;
-				zmemcpy(s->pending_buf + s->pending, s->gzhead->extra + s->gzindex, copy);
+				memcpy(s->pending_buf + s->pending, s->gzhead->extra + s->gzindex, copy);
 				s->pending = s->pending_buf_size;
 				HCRC_UPDATE(beg);
 				s->gzindex += copy;
@@ -827,7 +830,7 @@ int ZEXPORT deflate(z_streamp strm, int flush)
 				beg = 0;
 				left -= copy;
 			}
-			zmemcpy(s->pending_buf + s->pending, s->gzhead->extra + s->gzindex, left);
+			memcpy(s->pending_buf + s->pending, s->gzhead->extra + s->gzindex, left);
 			s->pending += left;
 			HCRC_UPDATE(beg);
 			s->gzindex = 0;
@@ -1012,11 +1015,11 @@ int ZEXPORT deflateCopy(z_streamp dest, z_streamp source)
 		return Z_STREAM_ERROR;
 	}
 	ss = source->state;
-	zmemcpy((voidpf)dest, (voidpf)source, sizeof(z_stream));
+	memcpy((voidpf)dest, (voidpf)source, sizeof(z_stream));
 	ds = (deflate_state*)ZLIB_ALLOC(dest, 1, sizeof(deflate_state));
 	if(ds == Z_NULL) return Z_MEM_ERROR;
 	dest->state = (struct internal_state *)ds;
-	zmemcpy((voidpf)ds, (voidpf)ss, sizeof(deflate_state));
+	memcpy((voidpf)ds, (voidpf)ss, sizeof(deflate_state));
 	ds->strm = dest;
 
 	ds->window = (Bytef*)ZLIB_ALLOC(dest, ds->w_size, 2*sizeof(Byte));
@@ -1029,11 +1032,11 @@ int ZEXPORT deflateCopy(z_streamp dest, z_streamp source)
 		deflateEnd(dest);
 		return Z_MEM_ERROR;
 	}
-	/* following zmemcpy do not work for 16-bit MSDOS */
-	zmemcpy(ds->window, ss->window, ds->w_size * 2 * sizeof(Byte));
-	zmemcpy((voidpf)ds->prev, (voidpf)ss->prev, ds->w_size * sizeof(Pos));
-	zmemcpy((voidpf)ds->head, (voidpf)ss->head, ds->hash_size * sizeof(Pos));
-	zmemcpy(ds->pending_buf, ss->pending_buf, (uInt)ds->pending_buf_size);
+	/* following memcpy do not work for 16-bit MSDOS */
+	memcpy(ds->window, ss->window, ds->w_size * 2 * sizeof(Byte));
+	memcpy((voidpf)ds->prev, (voidpf)ss->prev, ds->w_size * sizeof(Pos));
+	memcpy((voidpf)ds->head, (voidpf)ss->head, ds->hash_size * sizeof(Pos));
+	memcpy(ds->pending_buf, ss->pending_buf, (uInt)ds->pending_buf_size);
 
 	ds->pending_out = ds->pending_buf + (ss->pending_out - ss->pending_buf);
 	ds->d_buf = overlay + ds->lit_bufsize/sizeof(ush);
@@ -1057,20 +1060,21 @@ int ZEXPORT deflateCopy(z_streamp dest, z_streamp source)
 static unsigned read_buf(z_streamp strm, Bytef * buf, unsigned size)
 {
 	unsigned len = strm->avail_in;
-	if(len > size) len = size;
-	if(len == 0) return 0;
-	strm->avail_in  -= len;
-	zmemcpy(buf, strm->next_in, len);
-	if(strm->state->wrap == 1) {
-		strm->adler = adler32(strm->adler, buf, len);
-	}
+	SETMIN(len, size);
+	if(len) {
+		strm->avail_in  -= len;
+		memcpy(buf, strm->next_in, len);
+		if(strm->state->wrap == 1) {
+			strm->adler = adler32(strm->adler, buf, len);
+		}
 #ifdef GZIP
-	else if(strm->state->wrap == 2) {
-		strm->adler = crc32(strm->adler, buf, len);
-	}
+		else if(strm->state->wrap == 2) {
+			strm->adler = crc32(strm->adler, buf, len);
+		}
 #endif
-	strm->next_in  += len;
-	strm->total_in += len;
+		strm->next_in  += len;
+		strm->total_in += len;
+	}
 	return len;
 }
 
@@ -1370,7 +1374,7 @@ static void FASTCALL fill_window(deflate_state * s)
 		 * move the upper half to the lower one to make room in the upper half.
 		 */
 		if(s->strstart >= wsize+MAX_DIST(s)) {
-			zmemcpy(s->window, s->window+wsize, (unsigned)wsize - more);
+			memcpy(s->window, s->window+wsize, (unsigned)wsize - more);
 			s->match_start -= wsize;
 			s->strstart    -= wsize; /* we now have strstart >= MAX_DIST */
 			s->block_start -= (long)wsize;
@@ -1550,7 +1554,7 @@ static block_state deflate_stored(deflate_state * s, int flush)
 		if(left) {
 			if(left > len)
 				left = len;
-			zmemcpy(s->strm->next_out, s->window + s->block_start, left);
+			memcpy(s->strm->next_out, s->window + s->block_start, left);
 			s->strm->next_out += left;
 			s->strm->avail_out -= left;
 			s->strm->total_out += left;
@@ -1582,18 +1586,18 @@ static block_state deflate_stored(deflate_state * s, int flush)
 		 */
 		if(used >= s->w_size) { /* supplant the previous history */
 			s->matches = 2; /* clear hash */
-			zmemcpy(s->window, s->strm->next_in - s->w_size, s->w_size);
+			memcpy(s->window, s->strm->next_in - s->w_size, s->w_size);
 			s->strstart = s->w_size;
 		}
 		else {
 			if(s->window_size - s->strstart <= used) {
 				/* Slide the window down. */
 				s->strstart -= s->w_size;
-				zmemcpy(s->window, s->window + s->w_size, s->strstart);
+				memcpy(s->window, s->window + s->w_size, s->strstart);
 				if(s->matches < 2)
 					s->matches++;  /* add a pending slide_hash() */
 			}
-			zmemcpy(s->window + s->strstart, s->strm->next_in - used, used);
+			memcpy(s->window + s->strstart, s->strm->next_in - used, used);
 			s->strstart += used;
 		}
 		s->block_start = s->strstart;
@@ -1613,7 +1617,7 @@ static block_state deflate_stored(deflate_state * s, int flush)
 		/* Slide the window down. */
 		s->block_start -= s->w_size;
 		s->strstart -= s->w_size;
-		zmemcpy(s->window, s->window + s->w_size, s->strstart);
+		memcpy(s->window, s->window + s->w_size, s->strstart);
 		if(s->matches < 2)
 			s->matches++;  /* add a pending slide_hash() */
 		have += s->w_size;  /* more space now */

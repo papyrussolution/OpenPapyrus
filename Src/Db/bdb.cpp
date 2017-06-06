@@ -391,6 +391,14 @@ int BDbDatabase::CommitWork()
 	return ok;
 }
 
+int BDbDatabase::TransactionCheckPoint()
+{
+	int    ok = 1;
+	THROW(ProcessError(E->txn_checkpoint(E, 0/*kbyte*/, 0/*min*/, 0/*flags*/)));  
+	CATCHZOK
+	return ok;
+}
+
 int BDbDatabase::LockDetect()
 {
 	int    ok = -1;

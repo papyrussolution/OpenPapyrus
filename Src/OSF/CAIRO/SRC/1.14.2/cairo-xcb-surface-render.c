@@ -3831,7 +3831,7 @@ static cairo_status_t _can_composite_glyphs(cairo_xcb_surface_t * dst,
 	 * so we cannot use 0 in glyph_cache[0], but we can use it in all
 	 * other array cells.
 	 */
-	memset(glyph_cache, 0, sizeof(glyph_cache));
+	memzero(glyph_cache, sizeof(glyph_cache));
 	glyph_cache[0] = 1;
 
 	/* Scan for oversized glyphs or glyphs outside the representable
@@ -4493,21 +4493,17 @@ static cairo_int_status_t _composite_glyphs(void * closure,
 
 	ulong max_index = 0;
 	int width = 1;
-
 	uint request_size = 0;
 	int i;
-
 	if(dst->deferred_clear) {
 		status = _cairo_xcb_surface_clear(dst);
 		if(unlikely(status))
 			return status;
 	}
-
 	src = _cairo_xcb_picture_for_pattern(dst, pattern, extents);
 	if(unlikely(src->base.status))
 		return src->base.status;
-
-	memset(glyph_cache, 0, sizeof(glyph_cache));
+	memzero(glyph_cache, sizeof(glyph_cache));
 
 	for(i = 0; i < info->num_glyphs; i++) {
 		cairo_scaled_glyph_t * glyph;

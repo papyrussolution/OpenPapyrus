@@ -891,7 +891,7 @@ static size_t frecv(struct soap * soap, char * s, size_t n)
   #ifndef WITH_LEAN
 				if((soap->omode&SOAP_IO_UDP)) {
 					SOAP_SOCKLEN_T k = (SOAP_SOCKLEN_T)sizeof(soap->peer);
-					memset((void *)&soap->peer, 0, sizeof(soap->peer));
+					memzero((void *)&soap->peer, sizeof(soap->peer));
 					r = recvfrom(soap->socket, s, (SOAP_WINSOCKINT)n, soap->socket_flags, (struct sockaddr *)&soap->peer, &k); /* portability note: see SOAP_SOCKLEN_T definition in stdsoap2.h */
 					soap->peerlen = (size_t)k;
    #ifndef WITH_IPV6
@@ -3615,7 +3615,7 @@ static int tcp_gethost(struct soap * soap, const char * addr, struct in_addr * i
 	if(gethostbyname_r(addr, &hostent, soap->buf, SOAP_BUFLEN, &host, &soap->errnum) < 0)
 		host = NULL;
    #elif defined(_AIX43) || ((defined(TRU64) || defined(HP_UX)) && defined(HAVE_GETHOSTBYNAME_R))
-	memset((void *)&ht_data, 0, sizeof(ht_data));
+	memzero((void *)&ht_data, sizeof(ht_data));
 	if(gethostbyname_r(addr, &hostent, &ht_data) < 0) {
 		host = NULL;
 		soap->errnum = h_errno;
@@ -3687,7 +3687,7 @@ static SOAP_SOCKET tcp_connect(struct soap * soap, const char * endpoint, const 
 	}
 	soap->errmode = 0;
   #ifdef WITH_IPV6
-	memset((void *)&hints, 0, sizeof(hints));
+	memzero((void *)&hints, sizeof(hints));
 	hints.ai_family = PF_UNSPEC;
    #ifndef WITH_LEAN
 	if((soap->omode&SOAP_IO_UDP))
@@ -3746,7 +3746,7 @@ again:
   #ifndef WITH_LEAN
 	if(soap->connect_flags == SO_LINGER) {
 		struct linger linger;
-		memset((void *)&linger, 0, sizeof(linger));
+		memzero((void *)&linger, sizeof(linger));
 		linger.l_onoff = 1;
 		linger.l_linger = soap->linger_time;
 		if(setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(struct linger))) {
@@ -3900,7 +3900,7 @@ again:
 	DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Opening socket %d to host='%s' port=%d\n", fd, host, port));
   #ifndef WITH_IPV6
 	soap->peerlen = sizeof(soap->peer);
-	memset((void *)&soap->peer, 0, sizeof(soap->peer));
+	memzero((void *)&soap->peer, sizeof(soap->peer));
 	soap->peer.sin_family = AF_INET;
 	soap->errmode = 2;
 	if(soap->proxy_host) {
@@ -4610,7 +4610,7 @@ SOAP_FMAC1 SOAP_SOCKET SOAP_FMAC2 soap_bind(struct soap * soap, const char * hos
 		return SOAP_INVALID_SOCKET;
 	}
   #ifdef WITH_IPV6
-	memset((void *)&hints, 0, sizeof(hints));
+	memzero((void *)&hints, sizeof(hints));
 	hints.ai_family = PF_UNSPEC;
    #ifndef WITH_LEAN
 	if((soap->omode&SOAP_IO_UDP))
@@ -4722,7 +4722,7 @@ SOAP_FMAC1 SOAP_SOCKET SOAP_FMAC2 soap_bind(struct soap * soap, const char * hos
 	}
   #else
 	soap->peerlen = sizeof(soap->peer);
-	memset((void *)&soap->peer, 0, sizeof(soap->peer));
+	memzero((void *)&soap->peer, sizeof(soap->peer));
 	soap->peer.sin_family = AF_INET;
 	soap->errmode = 2;
 	if(host) {
@@ -4828,7 +4828,7 @@ SOAP_FMAC2 soap_accept(struct soap * soap)
 	int set = 1;
   #endif
 	soap->error = SOAP_OK;
-	memset((void *)&soap->peer, 0, sizeof(soap->peer));
+	memzero((void *)&soap->peer, sizeof(soap->peer));
 	soap->socket = SOAP_INVALID_SOCKET;
 	soap->errmode = 0;
 	soap->keep_alive = 0;
@@ -4893,7 +4893,7 @@ SOAP_FMAC2 soap_accept(struct soap * soap)
   #ifndef WITH_LEAN
 			if(soap->accept_flags == SO_LINGER) {
 				struct linger linger;
-				memset((void *)&linger, 0, sizeof(linger));
+				memzero((void *)&linger, sizeof(linger));
 				linger.l_onoff = 1;
 				linger.l_linger = soap->linger_time;
 				if(setsockopt(soap->socket, SOL_SOCKET, SO_LINGER, (char *)&linger,
@@ -6474,7 +6474,7 @@ SOAP_FMAC2 soap_getcookies(struct soap * soap, const char * val)
 			static const char mns[] = "anebarprayunulugepctovec";
 			s = soap_decode_val(tmp, sizeof(tmp), s);
 			if(strlen(tmp) > 20) {
-				memset((void *)&T, 0, sizeof(T));
+				memzero((void *)&T, sizeof(T));
 				a[0] = tmp[4];
 				a[1] = tmp[5];
 				a[2] = '\0';
@@ -6686,9 +6686,7 @@ static void soap_init_pht(struct soap * soap)
 
 /******************************************************************************/
 #ifndef PALM_1
-SOAP_FMAC1
-struct soap *
-SOAP_FMAC2 soap_versioning(soap_new) (soap_mode imode, soap_mode omode)
+SOAP_FMAC1 struct soap * SOAP_FMAC2 soap_versioning(soap_new) (soap_mode imode, soap_mode omode)
 {
 	struct soap * soap = (struct soap *)malloc(sizeof(struct soap));
 	if(soap)
@@ -6699,9 +6697,7 @@ SOAP_FMAC2 soap_versioning(soap_new) (soap_mode imode, soap_mode omode)
 
 /******************************************************************************/
 #ifndef PALM_1
-SOAP_FMAC1
-void
-SOAP_FMAC2 soap_free(struct soap * soap)
+SOAP_FMAC1 void SOAP_FMAC2 soap_free(struct soap * soap)
 {
 	soap_done(soap);
 	free(soap);
@@ -6711,9 +6707,7 @@ SOAP_FMAC2 soap_free(struct soap * soap)
 
 /******************************************************************************/
 #ifndef PALM_1
-SOAP_FMAC1
-void
-SOAP_FMAC2 soap_del(struct soap * soap)
+SOAP_FMAC1 void SOAP_FMAC2 soap_del(struct soap * soap)
 {
 	free(soap);
 }
@@ -6744,10 +6738,7 @@ static void soap_free_pht(struct soap * soap)
 /******************************************************************************/
 #ifndef WITH_NOIDREF
  #ifndef PALM_2
-SOAP_FMAC1
-int
-SOAP_FMAC2 soap_embed(struct soap * soap, const void * p, const struct soap_array * a, int n, const char * tag,
-	int type)
+SOAP_FMAC1 int SOAP_FMAC2 soap_embed(struct soap * soap, const void * p, const struct soap_array * a, int n, const char * tag, int type)
 {
 	register int i;
 	struct soap_plist * pp;
@@ -6758,8 +6749,7 @@ SOAP_FMAC2 soap_embed(struct soap * soap, const void * p, const struct soap_arra
 	else
 		i = soap_pointer_lookup(soap, p, type, &pp);
 	if(i) {
-		if(soap_is_embedded(soap, pp)        ||
-		   soap_is_single(soap, pp))
+		if(soap_is_embedded(soap, pp) || soap_is_single(soap, pp))
 			return 0;
 		soap_set_embedded(soap, pp);
 	}
@@ -8279,16 +8269,9 @@ SOAP_FMAC2 soap_end_recv(struct soap * soap)
 				}
 				soap->z_buf[i] = (char)c;
 			}
-			if(soap->z_crc !=
-			   ((uLong)(unsigned char)soap->z_buf[0]|
-			    ((uLong)(unsigned char)soap->z_buf[1]<<
-			     8)|
-			    ((uLong)(unsigned char)soap->z_buf[2]<<
-			     16)|((uLong)(unsigned char)soap->z_buf[3]<<24))) {
-				DBGLOG(TEST,
-					SOAP_MESSAGE(fdebug,
-						"Gzip inflate error: crc check failed, message corrupted? (crc32=%lu)\n",
-						(unsigned long)soap->z_crc));
+			if(soap->z_crc != ((uLong)(unsigned char)soap->z_buf[0]|((uLong)(unsigned char)soap->z_buf[1]<<8)|
+			    ((uLong)(unsigned char)soap->z_buf[2]<<16)|((uLong)(unsigned char)soap->z_buf[3]<<24))) {
+				DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Gzip inflate error: crc check failed, message corrupted? (crc32=%lu)\n", (unsigned long)soap->z_crc));
 				return soap->error = SOAP_ZLIB_ERROR;
 			}
 			if(soap->d_stream->total_out !=
@@ -13186,7 +13169,7 @@ SOAP_FMAC1 const char * SOAP_FMAC2 soap_dateTime2s(struct soap * soap, time_t n)
 		strftime(soap->tmpbuf, sizeof(soap->tmpbuf), "%Y-%m-%dT%H:%M:%SZ", pT);
  #elif defined(HAVE_GETTIMEOFDAY)
 	struct timezone tz;
-	memset((void *)&tz, 0, sizeof(tz));
+	memzero((void *)&tz, sizeof(tz));
   #if defined(HAVE_LOCALTIME_R)
 	if(localtime_r(&n, pT)) {
 		struct timeval tv;
@@ -13204,7 +13187,7 @@ SOAP_FMAC1 const char * SOAP_FMAC2 soap_dateTime2s(struct soap * soap, time_t n)
   #endif
  #elif defined(HAVE_FTIME)
 	struct timeb t;
-	memset((void *)&t, 0, sizeof(t));
+	memzero((void *)&t, sizeof(t));
   #if defined(HAVE_LOCALTIME_R)
 	if(localtime_r(&n, pT)) {
    #ifdef __BORLANDC__
@@ -13260,7 +13243,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_s2dateTime(struct soap * soap, const char * s, ti
 		struct tm T;
 		const char * t;
 		*zone = '\0';
-		memset((void *)&T, 0, sizeof(T));
+		memzero((void *)&T, sizeof(T));
 		if(strchr(s, '-'))
 			t = "%d-%d-%dT%d:%d:%d%31s";
 		else if(strchr(s, ':'))
@@ -14180,7 +14163,7 @@ SOAP_FMAC1 struct soap_multipart * SOAP_FMAC2 soap_get_mime_attachment(struct so
 			      }
 			      if(flag || c == '\r') {
 				      t = soap->msgbuf;
-				      memset(t, 0, sizeof(soap->msgbuf));
+				      memzero(t, sizeof(soap->msgbuf));
 				      strcpy(t, "\n--");
 				      if(soap->mime.boundary)
 					      strncat(t, soap->mime.boundary, sizeof(soap->msgbuf)-4);

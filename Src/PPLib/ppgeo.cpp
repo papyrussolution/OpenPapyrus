@@ -926,14 +926,33 @@ uint32 SLAPI PPOsm::Tile::GetZValue() const
 //
 //
 //
-SLAPI PPOsm::Node::Node()
+SLAPI PPOsm::NPoint::NPoint()
 {
 	ID = 0;
-};
+}
+
+int FASTCALL PPOsm::NPoint::IsEqual(const PPOsm::NPoint & rS) const
+{
+	return BIN(ID == rS.ID && C == rS.C);
+}
+
+int FASTCALL PPOsm::NPoint::operator == (const PPOsm::NPoint & rS) const
+{
+	return IsEqual(rS);
+}
+
+int FASTCALL PPOsm::NPoint::operator != (const PPOsm::NPoint & rS) const
+{
+	return BIN(!IsEqual(rS));
+}
+
+SLAPI PPOsm::Node::Node() : NPoint()
+{
+}
 
 int FASTCALL PPOsm::Node::IsEqual(const Node & rS) const
 {
-	return BIN(ID == rS.ID && T.V == rS.T.V && C == rS.C);
+	return BIN(NPoint::IsEqual(rS) && T.V == rS.T.V);
 }
 
 int FASTCALL PPOsm::Node::operator == (const Node & rS) const
@@ -957,7 +976,7 @@ int FASTCALL PPOsm::NodeRefs::IsEqual(const NodeRefs & rS) const
 
 int SLAPI PPOsm::NodeRefs::AddWayRef(uint64 nodeID, uint64 wayID)
 {
-	if(!WayRefs.SearchPair(nodeID, wayID, 0)) 
+	if(!WayRefs.SearchPair(nodeID, wayID, 0))
 		return WayRefs.Add(nodeID, wayID, 0) ? 1 : PPSetErrorSLib();
 	else
 		return -1;
