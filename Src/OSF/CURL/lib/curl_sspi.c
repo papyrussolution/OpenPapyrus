@@ -28,9 +28,8 @@
 #include "curl_multibyte.h"
 #include "system_win32.h"
 #include "warnless.h"
-
-/* The last #include files should be: */
-#include "curl_memory.h"
+// The last #include files should be: 
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* We use our own typedef here since some headers might lack these */

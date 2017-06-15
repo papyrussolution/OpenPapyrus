@@ -3,6 +3,10 @@
 #pragma hdrstop
 #include <slib.h>
 
+// Адвент - Сортавала:
+// Функция не выполнима при данном статусе ККМ Чек закрыт: печать текстовой строки
+// Анастасия +7 921 527 23 23
+
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 {
 	switch(dwReason) {
@@ -863,10 +867,8 @@ int PiritEquip::SetConnection()
 	// @v9.5.7 delay(200);
 	CommPort.PutChr(ENQ); // Проверка связи с ККМ
 	r = CommPort.GetChr();
-
 	THROW(r == ACK);
-
-	if(Cfg.BaudRate < 8) {
+	if(Cfg.BaudRate < 6) { // @v9.6.12 (<8)-->(<6)
 		CreateStr(5, in_data);
 		{
 			OpLogBlock __oplb(LogFileName, "93", 0);
@@ -1182,7 +1184,7 @@ int PiritEquip::RunCheck(int opertype)
 						}
 					}
 				}
-				else if((hb1 == 2) || (hb1 == 3)) { // Текстовая строка для чека
+				else if((hb1 == 2) || (hb1 == 3) || (gcf_result < 3)) { // Текстовая строка для чека
 					in_data = 0;
 					text_attr = 0;
 					CreateStr(0, in_data);

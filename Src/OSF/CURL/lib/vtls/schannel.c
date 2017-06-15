@@ -41,18 +41,16 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifdef USE_SCHANNEL
-
 #ifndef USE_WINDOWS_SSPI
-#  error "Can't compile SCHANNEL support without SSPI."
+	#error "Can't compile SCHANNEL support without SSPI."
 #endif
-
 #include "curl_sspi.h"
 #include "schannel.h"
 #include "vtls.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "connect.h" /* for the connect timeout */
-#include "strerror.h"
-#include "select.h" /* for the socket readyness */
+//#include "strerror.h"
+//#include "select.h" /* for the socket readyness */
 #include "inet_pton.h" /* for IP addr SNI check */
 #include "curl_multibyte.h"
 #include "warnless.h"
@@ -62,7 +60,7 @@
 #include "hostcheck.h"
 
 /* The last #include file should be: */
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* ALPN requires version 8.1 of the Windows SDK, which was

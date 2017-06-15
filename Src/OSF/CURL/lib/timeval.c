@@ -22,9 +22,8 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
+//#include "timeval.h"
 
-#include "timeval.h"
-//#pragma hdrstop
 #if defined(WIN32) && !defined(MSDOS)
 
 struct timeval curlx_tvnow(void)

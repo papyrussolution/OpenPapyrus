@@ -145,13 +145,13 @@ static int widest_even_ltd[7] = {
     3, 4, 6, 4, 5, 1, 8
 };
 
-static int checksum_weight_ltd[28] = {
+static int8 checksum_weight_ltd[28] = { // @sobolev int-->int8
     /* Table 7 */
     1, 3, 9, 27, 81, 65, 17, 51, 64, 14, 42, 37, 22, 66,
     20, 60, 2, 6, 18, 54, 73, 41, 34, 13, 39, 28, 84, 74
 };
 
-static int finder_pattern_ltd[1246] = {
+static int8 finder_pattern_ltd[1246] = { // @sobolev int-->int8
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1,
     1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 2, 1, 1,
     1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1,
@@ -260,15 +260,15 @@ static int modules_even_exp[5] = {
     5, 7, 9, 11, 13
 };
 
-static int widest_odd_exp[5] = {
+static int8 widest_odd_exp[5] = { // @sobolev int-->int8
     7, 5, 4, 3, 1
 };
 
-static int widest_even_exp[5] = {
+static int8 widest_even_exp[5] = { // @sobolev int-->int8
     2, 4, 5, 6, 8
 };
 
-static int checksum_weight_exp[184] = {
+static int16 checksum_weight_exp[184] = { // @sobolev int-->int16
     /* Table 14 */
     1, 3, 9, 27, 81, 32, 96, 77,
     20, 60, 180, 118, 143, 7, 21, 63,
@@ -295,7 +295,7 @@ static int checksum_weight_exp[184] = {
     45, 135, 194, 160, 58, 174, 100, 89
 };
 
-static int finder_pattern_exp[60] = {
+static int8 finder_pattern_exp[60] = { // @sobolev int-->int8
     /* Table 15 */
     1, 8, 4, 1, 1,
     1, 1, 4, 8, 1,
@@ -311,7 +311,7 @@ static int finder_pattern_exp[60] = {
     1, 1, 9, 2, 2
 };
 
-static int finder_sequence[198] = {
+static int8 finder_sequence[198] = { // @sobolev int-->int8
     /* Table 16 */
     1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     1, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -325,7 +325,7 @@ static int finder_sequence[198] = {
     1, 2, 3, 4, 5, 8, 7, 10, 9, 12, 11
 };
 
-static int weight_rows[210] = {
+static int8 weight_rows[210] = { // @sobolev int-->int8
     0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 5, 6, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 9, 10, 3, 4, 13, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -440,12 +440,12 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 	separator_row = 0;
 
 	if(src_len > 13) {
-		strcpy(symbol->errtxt, "Input too long (C80)");
+		sstrcpy(symbol->errtxt, "Input too long (C80)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	error_number = is_sane(NEON, source, src_len);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data (C81)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (C81)");
 		return error_number;
 	}
 
@@ -472,7 +472,7 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 	}
 
 	binary_load(accum, (char*)source, src_len);
-	strcpy(temp, "10000000000000");
+	sstrcpy(temp, "10000000000000");
 	if(symbol->option_1 == 2) {
 		/* Add symbol linkage flag */
 		binary_load(y_reg, temp, strlen(temp));
@@ -483,13 +483,12 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 	}
 
 	/* Calculate left and right pair values */
-	strcpy(temp, "4537077");
+	sstrcpy(temp, "4537077");
 	binary_load(x_reg, temp, strlen(temp));
 
 	for(i = 0; i < 24; i++) {
 		shiftup(x_reg);
 	}
-
 	for(i = 24; i >= 0; i--) {
 		y_reg[i] = islarger(accum, x_reg);
 		if(y_reg[i] == 1) {
@@ -497,23 +496,19 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 		}
 		shiftdown(x_reg);
 	}
-
 	for(i = 0; i < 112; i++) {
 		left_reg[i] = y_reg[i];
 		right_reg[i] = accum[i];
 	}
-
 	/* Calculate four data characters */
-	strcpy(temp, "1597");
+	sstrcpy(temp, "1597");
 	binary_load(x_reg, temp, strlen(temp));
 	for(i = 0; i < 112; i++) {
 		accum[i] = left_reg[i];
 	}
-
 	for(i = 0; i < 24; i++) {
 		shiftup(x_reg);
 	}
-
 	for(i = 24; i >= 0; i--) {
 		y_reg[i] = islarger(accum, x_reg);
 		if(y_reg[i] == 1) {
@@ -534,7 +529,7 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 		}
 		mask = mask >> 1;
 	}
-	strcpy(temp, "1597");
+	sstrcpy(temp, "1597");
 	binary_load(x_reg, temp, strlen(temp));
 	for(i = 0; i < 112; i++) {
 		accum[i] = right_reg[i];
@@ -764,7 +759,7 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 		check_digit = 0;
 
 		/* Calculate check digit from Annex A and place human readable text */
-		ustrcpy(symbol->text, (uchar*)"(01)");
+		sstrcpy(symbol->text, (uchar*)"(01)");
 		for(i = 0; i < 14; i++) {
 			hrt[i] = '0';
 		}
@@ -774,10 +769,10 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 		hrt[14] = '\0';
 
 		for(i = 0; i < 13; i++) {
-			count += ctoi(hrt[i]);
+			count += hex(hrt[i]);
 
 			if(!(i & 1)) {
-				count += 2 * (ctoi(hrt[i]));
+				count += 2 * (hex(hrt[i]));
 			}
 		}
 
@@ -1007,10 +1002,8 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 			}
 		}
 		symbol->rows = symbol->rows + 1;
-
 		set_minimum_height(symbol, 33);
 	}
-
 	return error_number;
 }
 
@@ -1028,17 +1021,17 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 	separator_row = 0;
 
 	if(src_len > 13) {
-		strcpy(symbol->errtxt, "Input too long (C82)");
+		sstrcpy(symbol->errtxt, "Input too long (C82)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	error_number = is_sane(NEON, source, src_len);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data (C83)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (C83)");
 		return error_number;
 	}
 	if(src_len == 13) {
 		if((source[0] != '0') && (source[0] != '1')) {
-			strcpy(symbol->errtxt, "Input out of range (C84)");
+			sstrcpy(symbol->errtxt, "Input out of range (C84)");
 			return ZINT_ERROR_INVALID_DATA;
 		}
 	}
@@ -1058,7 +1051,7 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 	binary_load(accum, (char*)source, src_len);
 	if(symbol->option_1 == 2) {
 		/* Add symbol linkage flag */
-		strcpy(temp, "2015133531096");
+		sstrcpy(temp, "2015133531096");
 		binary_load(y_reg, temp, strlen(temp));
 		binary_add(accum, y_reg);
 		for(i = 0; i < 112; i++) {
@@ -1067,7 +1060,7 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 	}
 
 	/* Calculate left and right pair values */
-	strcpy(temp, "2013571");
+	sstrcpy(temp, "2013571");
 	binary_load(x_reg, temp, strlen(temp));
 
 	for(i = 0; i < 24; i++) {
@@ -1088,122 +1081,83 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 	}
 
 	left_group = 0;
-	strcpy(temp, "183063");
+	sstrcpy(temp, "183063");
 	binary_load(accum, temp, strlen(temp));
 	if(islarger(left_reg, accum)) {
 		left_group = 1;
 	}
-	strcpy(temp, "820063");
+	sstrcpy(temp, "820063");
 	binary_load(accum, temp, strlen(temp));
 	if(islarger(left_reg, accum)) {
 		left_group = 2;
 	}
-	strcpy(temp, "1000775");
+	sstrcpy(temp, "1000775");
 	binary_load(accum, temp, strlen(temp));
 	if(islarger(left_reg, accum)) {
 		left_group = 3;
 	}
-	strcpy(temp, "1491020");
+	sstrcpy(temp, "1491020");
 	binary_load(accum, temp, strlen(temp));
 	if(islarger(left_reg, accum)) {
 		left_group = 4;
 	}
-	strcpy(temp, "1979844");
+	sstrcpy(temp, "1979844");
 	binary_load(accum, temp, strlen(temp));
 	if(islarger(left_reg, accum)) {
 		left_group = 5;
 	}
-	strcpy(temp, "1996938");
+	sstrcpy(temp, "1996938");
 	binary_load(accum, temp, strlen(temp));
 	if(islarger(left_reg, accum)) {
 		left_group = 6;
 	}
 	right_group = 0;
-	strcpy(temp, "183063");
+	sstrcpy(temp, "183063");
 	binary_load(accum, temp, strlen(temp));
 	if(islarger(right_reg, accum)) {
 		right_group = 1;
 	}
-	strcpy(temp, "820063");
+	sstrcpy(temp, "820063");
 	binary_load(accum, temp, strlen(temp));
 	if(islarger(right_reg, accum)) {
 		right_group = 2;
 	}
-	strcpy(temp, "1000775");
+	sstrcpy(temp, "1000775");
 	binary_load(accum, temp, strlen(temp));
 	if(islarger(right_reg, accum)) {
 		right_group = 3;
 	}
-	strcpy(temp, "1491020");
+	sstrcpy(temp, "1491020");
 	binary_load(accum, temp, strlen(temp));
 	if(islarger(right_reg, accum)) {
 		right_group = 4;
 	}
-	strcpy(temp, "1979844");
+	sstrcpy(temp, "1979844");
 	binary_load(accum, temp, strlen(temp));
 	if(islarger(right_reg, accum)) {
 		right_group = 5;
 	}
-	strcpy(temp, "1996938");
+	sstrcpy(temp, "1996938");
 	binary_load(accum, temp, strlen(temp));
 	if(islarger(right_reg, accum)) {
 		right_group = 6;
 	}
-
 	switch(left_group) {
-		case 1: strcpy(temp, "183064");
-		    binary_load(accum, temp, strlen(temp));
-		    binary_subtract(left_reg, accum);
-		    break;
-		case 2: strcpy(temp, "820064");
-		    binary_load(accum, temp, strlen(temp));
-		    binary_subtract(left_reg, accum);
-		    break;
-		case 3: strcpy(temp, "1000776");
-		    binary_load(accum, temp, strlen(temp));
-		    binary_subtract(left_reg, accum);
-		    break;
-		case 4: strcpy(temp, "1491021");
-		    binary_load(accum, temp, strlen(temp));
-		    binary_subtract(left_reg, accum);
-		    break;
-		case 5: strcpy(temp, "1979845");
-		    binary_load(accum, temp, strlen(temp));
-		    binary_subtract(left_reg, accum);
-		    break;
-		case 6: strcpy(temp, "1996939");
-		    binary_load(accum, temp, strlen(temp));
-		    binary_subtract(left_reg, accum);
-		    break;
+		case 1: sstrcpy(temp, "183064");  binary_load(accum, temp, strlen(temp)); binary_subtract(left_reg, accum); break;
+		case 2: sstrcpy(temp, "820064");  binary_load(accum, temp, strlen(temp)); binary_subtract(left_reg, accum); break;
+		case 3: sstrcpy(temp, "1000776"); binary_load(accum, temp, strlen(temp)); binary_subtract(left_reg, accum); break;
+		case 4: sstrcpy(temp, "1491021"); binary_load(accum, temp, strlen(temp)); binary_subtract(left_reg, accum); break;
+		case 5: sstrcpy(temp, "1979845"); binary_load(accum, temp, strlen(temp)); binary_subtract(left_reg, accum); break;
+		case 6: sstrcpy(temp, "1996939"); binary_load(accum, temp, strlen(temp)); binary_subtract(left_reg, accum); break;
 	}
-
 	switch(right_group) {
-		case 1: strcpy(temp, "183064");
-		    binary_load(accum, temp, strlen(temp));
-		    binary_subtract(right_reg, accum);
-		    break;
-		case 2: strcpy(temp, "820064");
-		    binary_load(accum, temp, strlen(temp));
-		    binary_subtract(right_reg, accum);
-		    break;
-		case 3: strcpy(temp, "1000776");
-		    binary_load(accum, temp, strlen(temp));
-		    binary_subtract(right_reg, accum);
-		    break;
-		case 4: strcpy(temp, "1491021");
-		    binary_load(accum, temp, strlen(temp));
-		    binary_subtract(right_reg, accum);
-		    break;
-		case 5: strcpy(temp, "1979845");
-		    binary_load(accum, temp, strlen(temp));
-		    binary_subtract(right_reg, accum);
-		    break;
-		case 6: strcpy(temp, "1996939");
-		    binary_load(accum, temp, strlen(temp));
-		    binary_subtract(right_reg, accum);
-		    break;
+		case 1: sstrcpy(temp, "183064");  binary_load(accum, temp, strlen(temp)); binary_subtract(right_reg, accum); break;
+		case 2: sstrcpy(temp, "820064");  binary_load(accum, temp, strlen(temp)); binary_subtract(right_reg, accum); break;
+		case 3: sstrcpy(temp, "1000776"); binary_load(accum, temp, strlen(temp)); binary_subtract(right_reg, accum); break;
+		case 4: sstrcpy(temp, "1491021"); binary_load(accum, temp, strlen(temp)); binary_subtract(right_reg, accum); break;
+		case 5: sstrcpy(temp, "1979845"); binary_load(accum, temp, strlen(temp)); binary_subtract(right_reg, accum); break;
+		case 6: sstrcpy(temp, "1996939"); binary_load(accum, temp, strlen(temp)); binary_subtract(right_reg, accum); break;
 	}
-
 	left_character = 0;
 	right_character = 0;
 	mask = 0x800000;
@@ -1256,17 +1210,15 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 	right_widths[13] = widths[6];
 
 	checksum = 0;
-	/* Calculate the checksum */
+	// Calculate the checksum 
 	for(i = 0; i < 14; i++) {
 		checksum += checksum_weight_ltd[i] * left_widths[i];
-		checksum += checksum_weight_ltd[i + 14] * right_widths[i];
+		checksum += checksum_weight_ltd[i+14] * right_widths[i];
 	}
 	checksum %= 89;
-
 	for(i = 0; i < 14; i++) {
 		check_elements[i] = finder_pattern_ltd[i + (checksum * 14)];
 	}
-
 	total_widths[0] = 1;
 	total_widths[1] = 1;
 	total_widths[44] = 1;
@@ -1276,7 +1228,6 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 		total_widths[i + 16] = check_elements[i];
 		total_widths[i + 30] = right_widths[i];
 	}
-
 	writer = 0;
 	latch = '0';
 	for(i = 0; i < 46; i++) {
@@ -1303,40 +1254,30 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 			}
 		}
 	}
-
 	/* Calculate check digit from Annex A and place human readable text */
-
 	check_digit = 0;
 	count = 0;
-
-	ustrcpy(symbol->text, (uchar*)"(01)");
+	sstrcpy(symbol->text, (uchar*)"(01)");
 	for(i = 0; i < 14; i++) {
 		hrt[i] = '0';
 	}
 	for(i = 0; i < src_len; i++) {
 		hrt[12 - i] = source[src_len - i - 1];
 	}
-
 	for(i = 0; i < 13; i++) {
-		count += ctoi(hrt[i]);
-
+		count += hex(hrt[i]);
 		if(!(i & 1)) {
-			count += 2 * (ctoi(hrt[i]));
+			count += 2 * (hex(hrt[i]));
 		}
 	}
-
 	check_digit = 10 - (count % 10);
 	if(check_digit == 10) {
 		check_digit = 0;
 	}
-
 	hrt[13] = itoc(check_digit);
 	hrt[14] = '\0';
-
 	strcat((char*)symbol->text, hrt);
-
 	set_minimum_height(symbol, 10);
-
 	return error_number;
 }
 //
@@ -1436,8 +1377,8 @@ int general_rules(const char field[], char type[])
 		}
 	}
 	if((block[1][block_count - 1] == NUMERIC) && (block[0][block_count - 1] & 1)) {
-		/* If the last block is numeric and an odd size, further
-		   processing needs to be done outside this procedure */
+		// If the last block is numeric and an odd size, further
+		// processing needs to be done outside this procedure 
 		return 1;
 	}
 	else {
@@ -1559,7 +1500,6 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 			if(debug) 
 				printf("Now using method %d\n", encoding_method);
 		}
-
 		if(source[17] == '9') {
 			// Methods 5 and 6 
 			if((source[18] == '2') && ((source[19] >= '0') && (source[19] <= '3'))) // (01) and (392x) 
@@ -1598,7 +1538,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 		if((source[i] < '0') || (source[i] > '9')) {
 			if((source[i] != '[') && (source[i] != ']')) {
 				/* Something is wrong */
-				strcpy(symbol->errtxt, "Invalid characters in input data (C85)");
+				sstrcpy(symbol->errtxt, "Invalid characters in input data (C85)");
 				return ZINT_ERROR_INVALID_DATA;
 			}
 		}
@@ -1677,7 +1617,6 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 				mask = mask >> 1;
 			}
 		}
-
 		for(i = 0; i < 6; i++) {
 			weight_str[i] = source[20 + i];
 		}
@@ -1702,14 +1641,12 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 		int group_val;
 		char weight_str[8];
 		char date_str[4];
-
 		for(i = 1; i < 5; i++) {
 			group[0] = source[(i * 3)];
 			group[1] = source[(i * 3) + 1];
 			group[2] = source[(i * 3) + 2];
 			group[3] = '\0';
 			group_val = atoi(group);
-
 			mask = 0x200;
 			for(j = 0; j < 10; j++) {
 				strcat(binary_string, (group_val & mask) ? "1" : "0");
@@ -1886,7 +1823,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 		printf("General field type: %s\n", general_field_type);
 	if(latch == 1) {
 		// Invalid characters in input data 
-		strcpy(symbol->errtxt, "Invalid characters in input data (C86)");
+		sstrcpy(symbol->errtxt, "Invalid characters in input data (C86)");
 		return ZINT_ERROR_INVALID_DATA;
 	}
 	for(i = 0; i < (int)strlen(general_field); i++) {
@@ -1928,18 +1865,8 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 			    }
 			    if(debug) 
 					printf("  %c%c > ", general_field[i], general_field[i + 1]);
-			    if(general_field[i] != '[') {
-				    d1 = ctoi(general_field[i]);
-			    }
-			    else {
-				    d1 = 10;
-			    }
-			    if(general_field[i + 1] != '[') {
-				    d2 = ctoi(general_field[i + 1]);
-			    }
-			    else {
-				    d2 = 10;
-			    }
+			    d1 = (general_field[i] != '[') ? hex(general_field[i]) : 10;
+			    d2 = (general_field[i+1] != '[') ? hex(general_field[i + 1]) : 10;
 			    value = (11 * d1) + d2 + 8;
 			    mask = 0x40;
 			    for(j = 0; j < 7; j++) {
@@ -2092,7 +2019,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 			printf("Adding extra (odd) numeric digit\n");
 		if(last_mode == NUMERIC) {
 			if((remainder >= 4) && (remainder <= 6)) {
-				value = ctoi(general_field[i]);
+				value = hex(general_field[i]);
 				value++;
 				mask = 0x08;
 				for(j = 0; j < 4; j++) {
@@ -2101,7 +2028,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 				}
 			}
 			else {
-				d1 = ctoi(general_field[i]);
+				d1 = hex(general_field[i]);
 				d2 = 10;
 				value = (11 * d1) + d2 + 8;
 				mask = 0x40;
@@ -2144,17 +2071,17 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 		if(debug) printf("\tLength: %d\n", (int)strlen(binary_string));
 	}
 	if(strlen(binary_string) > 252) {
-		strcpy(symbol->errtxt, "Input too long");
+		sstrcpy(symbol->errtxt, "Input too long");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	/* Now add padding to binary string (7.2.5.5.4) */
 	i = remainder;
 	if((strlen(general_field) != 0) && (last_mode == NUMERIC)) {
-		strcpy(padstring, "0000");
+		sstrcpy(padstring, "0000");
 		i -= 4;
 	}
 	else {
-		strcpy(padstring, "");
+		sstrcpy(padstring, "");
 	}
 	for(; i > 0; i -= 5) {
 		strcat(padstring, "00100");
@@ -2197,10 +2124,8 @@ int rssexpanded(struct ZintSymbol * symbol, uchar source[], int src_len)
 	char* reduced = (char*)_alloca(src_len + 1);
 	char* binary_string = (char*)_alloca((7 * src_len) + 1);
 #endif
-
 	separator_row = 0;
 	reader = 0;
-
 	if(symbol->input_mode != GS1_MODE) {
 		/* GS1 data has not been verified yet */
 		i = gs1_verify(symbol, source, src_len, reduced);
@@ -2214,30 +2139,24 @@ int rssexpanded(struct ZintSymbol * symbol, uchar source[], int src_len)
 		symbol->row_height[separator_row] = 1;
 		symbol->rows += 1;
 	}
-
-	strcpy(binary_string, "");
-
+	sstrcpy(binary_string, "");
 	if(symbol->option_1 == 2) {
 		strcat(binary_string, "1");
 	}
 	else {
 		strcat(binary_string, "0");
 	}
-
 	i = rss_binary_string(symbol, reduced, binary_string);
 	if(i != 0) {
 		return i;
 	}
-
 	data_chars = strlen(binary_string) / 12;
-
 	for(i = 0; i < data_chars; i++) {
 		for(j = 0; j < 12; j++) {
 			substring[i][j] = binary_string[(i * 12) + j];
 		}
 		substring[i][12] = '\0';
 	}
-
 	for(i = 0; i < data_chars; i++) {
 		vs[i] = 0;
 		for(p = 0; p < 12; p++) {
@@ -2246,7 +2165,6 @@ int rssexpanded(struct ZintSymbol * symbol, uchar source[], int src_len)
 			}
 		}
 	}
-
 	for(i = 0; i < data_chars; i++) {
 		if(vs[i] <= 347) {
 			group[i] = 1;
@@ -2277,7 +2195,6 @@ int rssexpanded(struct ZintSymbol * symbol, uchar source[], int src_len)
 		char_widths[i][5] = widths[2];
 		char_widths[i][7] = widths[3];
 	}
-
 	/* 7.2.6 Check character */
 	/* The checksum value is equal to the mod 211 residue of the weighted sum of the widths of the
 	   elements in the data characters. */
@@ -2288,9 +2205,7 @@ int rssexpanded(struct ZintSymbol * symbol, uchar source[], int src_len)
 			checksum += (char_widths[i][j] * checksum_weight_exp[(row * 8) + j]);
 		}
 	}
-
 	check_char = (211 * ((data_chars + 1) - 4)) + (checksum % 211);
-
 	if(check_char <= 347) {
 		c_group = 1;
 	}
@@ -2306,10 +2221,8 @@ int rssexpanded(struct ZintSymbol * symbol, uchar source[], int src_len)
 	if(check_char >= 3988) {
 		c_group = 5;
 	}
-
 	c_odd = (check_char - g_sum_exp[c_group - 1]) / t_even_exp[c_group - 1];
 	c_even = (check_char - g_sum_exp[c_group - 1]) % t_even_exp[c_group - 1];
-
 	getRSSwidths(c_odd, modules_odd_exp[c_group - 1], 4, widest_odd_exp[c_group - 1], 0);
 	check_widths[0] = widths[0];
 	check_widths[2] = widths[1];
@@ -2326,7 +2239,6 @@ int rssexpanded(struct ZintSymbol * symbol, uchar source[], int src_len)
 	for(i = 0; i < pattern_width; i++) {
 		elements[i] = 0;
 	}
-
 	/* Put finder patterns in element array */
 	for(i = 0; i < (((data_chars + 1) / 2) + ((data_chars + 1) & 1)); i++) {
 		k = ((((((data_chars + 1) - 2) / 2) + ((data_chars + 1) & 1)) - 1) * 11) + i;
@@ -2334,19 +2246,16 @@ int rssexpanded(struct ZintSymbol * symbol, uchar source[], int src_len)
 			elements[(21 * i) + j + 10] = finder_pattern_exp[((finder_sequence[k] - 1) * 5) + j];
 		}
 	}
-
 	/* Put check character in element array */
 	for(i = 0; i < 8; i++) {
 		elements[i + 2] = check_widths[i];
 	}
-
 	/* Put forward reading data characters in element array */
 	for(i = 1; i < data_chars; i += 2) {
 		for(j = 0; j < 8; j++) {
 			elements[(((i - 1) / 2) * 21) + 23 + j] = char_widths[i][j];
 		}
 	}
-
 	/* Put reversed data characters in element array */
 	for(i = 0; i < data_chars; i += 2) {
 		for(j = 0; j < 8; j++) {
@@ -2374,12 +2283,7 @@ int rssexpanded(struct ZintSymbol * symbol, uchar source[], int src_len)
 				}
 				writer++;
 			}
-			if(latch == '1') {
-				latch = '0';
-			}
-			else {
-				latch = '1';
-			}
+			latch = (latch == '1') ? '0' : '1';
 		}
 		if(symbol->width < writer) {
 			symbol->width = writer;
@@ -2539,8 +2443,7 @@ int rssexpanded(struct ZintSymbol * symbol, uchar source[], int src_len)
 					k = (49 * j) + 18 + special_case_row;
 					if(left_to_right) {
 						for(i = 0; i < 15; i++) {
-							if((!(module_is_set(symbol, symbol->rows, i + k - 1))) &&
-							    (!(module_is_set(symbol, symbol->rows, i + k))) &&
+							if((!(module_is_set(symbol, symbol->rows, i + k - 1))) && (!(module_is_set(symbol, symbol->rows, i + k))) &&
 							    module_is_set(symbol, symbol->rows - 1, i + k - 1)) {
 								unset_module(symbol, symbol->rows - 1, i + k);
 							}

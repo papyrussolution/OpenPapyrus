@@ -48,7 +48,7 @@ void _cairo_contour_init(cairo_contour_t * contour, int direction)
 	contour->chain.points = contour->embedded_points;
 	contour->chain.next = NULL;
 	contour->chain.num_points = 0;
-	contour->chain.size_points = ARRAY_LENGTH(contour->embedded_points);
+	contour->chain.size_points = SIZEOFARRAY(contour->embedded_points);
 	contour->tail = &contour->chain;
 }
 

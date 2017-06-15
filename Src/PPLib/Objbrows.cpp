@@ -119,21 +119,23 @@ int FASTCALL PPObjListWindow::valid(ushort command)
 	if(command == cmOK) {
 		PPID   id;
 		int    r = 1;
+		PPObject * p_obj = P_Obj;
+		ListWindowSmartListBox * p_lb = P_Lb;
 		if(!getResult(&id))
 			id = 0;
-		if(P_Lb->isTreeList()) {
-			r = ((StdTreeListBoxDef*)P_Lb->def)->HasChild(id);
+		if(p_lb->isTreeList()) {
+			r = ((StdTreeListBoxDef*)p_lb->def)->HasChild(id);
 			r = BIN(r && (Flags & OLW_CANSELUPLEVEL) || !r);
 			if(r)
-				r = P_Obj->ValidateSelection(id, Flags, ExtraPtr);
+				r = p_obj->ValidateSelection(id, Flags, ExtraPtr);
 		}
-		else if(P_Obj)
-			r = P_Obj->ValidateSelection(id, Flags, ExtraPtr);
-		if(r <= 0 && P_Obj) {
+		else if(p_obj)
+			r = p_obj->ValidateSelection(id, Flags, ExtraPtr);
+		if(r <= 0 && p_obj) {
 			if(r < 0) {
-				P_Obj->UpdateSelector(P_Lb->def, ExtraPtr);
-				P_Lb->setRange(P_Lb->def->getRecsCount());
-				P_Lb->Draw_();
+				p_obj->UpdateSelector(p_lb->def, ExtraPtr);
+				p_lb->setRange(p_lb->def->getRecsCount());
+				p_lb->Draw_();
 			}
 			return 0;
 		}
@@ -152,7 +154,8 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 		}
 	}
 	ListWindow::handleEvent(event);
-	if(P_Obj) {
+	PPObject * p_obj = P_Obj;
+	if(p_obj) {
 		int    update = 0; // Если установить указатель на элементе с id, то 2
 		PPID   id = 0;
 		PPID   preserve_focus_id = 0; // В некоторых случаях, при редактировании, идентификатор id может быть изменен.
@@ -163,7 +166,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 					if(!def && (Flags & OLW_LOADDEFONOPEN)) {
 						ListWindowSmartListBox * p_box = listBox();
 						if(p_box) {
-							setDef(P_Obj->Selector(ExtraPtr));
+							setDef(p_obj->Selector(ExtraPtr));
 							p_box->setDef(def);
 							ComboBox * p_combo = p_box->combo;
 							if(p_combo) {
@@ -176,7 +179,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 				case cmaInsert:
 					id = 0;
 					if(Flags & OLW_CANINSERT && !(Flags & OWL_OUTERLIST)) { // @v9.0.1 !(Flags & OWL_OUTERLIST)
-						if(P_Obj->Edit(&id, ExtraPtr) == cmOK) {
+						if(p_obj->Edit(&id, ExtraPtr) == cmOK) {
 							preserve_focus_id = id;
 							update = 2;
 						}
@@ -187,7 +190,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 				case cmaDelete:
 					if(Flags & OLW_CANDELETE && !(Flags & OWL_OUTERLIST) && getResult(&id) && id) { // @9.0.1 !(Flags & OWL_OUTERLIST)
 						preserve_focus_id = id;
-						if(P_Obj->RemoveObjV(id, 0, PPObject::rmv_default, ExtraPtr) > 0)
+						if(p_obj->RemoveObjV(id, 0, PPObject::rmv_default, ExtraPtr) > 0)
 							update = 2;
 					}
 					break;
@@ -198,7 +201,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
                     		SLS.GetTLA().SetNextDialogLuPos(rc.right+1, rc.top);
 						}
 						preserve_focus_id = id;
-						if(P_Obj->Edit(&id, ExtraPtr) == cmOK) {
+						if(p_obj->Edit(&id, ExtraPtr) == cmOK) {
 							if(!(Flags & OWL_OUTERLIST)) // @v9.0.1
 								update = 2;
 							else {
@@ -217,7 +220,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 				case cmSysJournalByObj:
 					if(getResult(&id) && id) {
 						((PPApp*)APPL)->LastCmd = TVCMD;
-						ViewSysJournal(P_Obj->Obj, id, 0);
+						ViewSysJournal(p_obj->Obj, id, 0);
 					}
 					break;
 				default:
@@ -229,7 +232,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 			if(TVKEY == KB_CTRLENTER) {
 				if(Flags & OLW_CANEDIT && getResult(&id) && id) {
 					preserve_focus_id = id;
-					if(P_Obj->Edit(&id, ExtraPtr) == cmOK) {
+					if(p_obj->Edit(&id, ExtraPtr) == cmOK) {
 						if(!(Flags & OWL_OUTERLIST)) // @v9.0.1
 							update = 2;
 						else {
@@ -243,9 +246,9 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 				}
 			}
 			else if(TVKEY == kbAltF2) {
-				if(Flags & OLW_CANINSERT && P_Obj->Obj == PPOBJ_GOODS && getResult(&id) && id) {
+				if(Flags & OLW_CANINSERT && p_obj->Obj == PPOBJ_GOODS && getResult(&id) && id) {
 					PPID   new_id = 0;
-					if(((PPObjGoods*)P_Obj)->AddBySample(&new_id, id) == cmOK) {
+					if(((PPObjGoods*)p_obj)->AddBySample(&new_id, id) == cmOK) {
 						preserve_focus_id = new_id;
 						update = 2;
 					}
@@ -263,11 +266,12 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 void PPObjListWindow::PostProcessHandleEvent(int update, PPID focusID)
 {
 	if(update) {
-		P_Obj->UpdateSelector(P_Lb->def, ExtraPtr);
-		P_Lb->Draw_();
-		P_Lb->setRange(P_Lb->def->getRecsCount());
+		ListWindowSmartListBox * p_lb = P_Lb;
+		P_Obj->UpdateSelector(p_lb->def, ExtraPtr);
+		p_lb->Draw_();
+		p_lb->setRange(p_lb->def->getRecsCount());
 		if(update == 2)
-			P_Lb->search(&focusID, 0, srchFirst | lbSrchByID);
+			p_lb->search(&focusID, 0, srchFirst|lbSrchByID);
 		::SetFocus(H());
 	}
 }
@@ -317,12 +321,13 @@ SLAPI PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : TDialo
 
 IMPL_HANDLE_EVENT(PPListDialog)
 {
+	SmartListBox * p_box = P_Box;
 	long   p, i;
 	TDialog::handleEvent(event);
 	if(TVCOMMAND) {
 		switch(TVCMD) {
 			case cmaInsert:
-				if(P_Box) {
+				if(p_box) {
 					p = i = 0;
 					int    r = addItem(&p, &i);
 					if(r == 2)
@@ -337,7 +342,7 @@ IMPL_HANDLE_EVENT(PPListDialog)
 				break;
 			case cmaEdit:
 				if(getCurItem(&p, &i) && editItem(p, i) > 0) {
-					int is_tree_list = BIN(P_Box && P_Box->isTreeList());
+					int is_tree_list = BIN(p_box && p_box->isTreeList());
 					long id = (is_tree_list) ? i : p;
 					updateList(id, !BIN(is_tree_list));
 				}
@@ -355,13 +360,13 @@ IMPL_HANDLE_EVENT(PPListDialog)
 				}
 				break;
 			case cmLBDblClk:
-				if(P_Box && P_Box->def) {
+				if(p_box && p_box->def) {
 					int    edit = 1, is_tree_list = 0;
 					PPID   cur_id = 0;
-					P_Box->def->getCurID(&cur_id);
-					if(P_Box->isTreeList()) {
+					p_box->def->getCurID(&cur_id);
+					if(p_box->isTreeList()) {
 						is_tree_list = 1;
-						if(((StdTreeListBoxDef*)P_Box->def)->HasChild(cur_id))
+						if(((StdTreeListBoxDef*)p_box->def)->HasChild(cur_id))
 							edit = 0;
 					}
 					if(event.isCtlEvent(ctlList)) {
@@ -385,14 +390,12 @@ IMPL_HANDLE_EVENT(PPListDialog)
 				{
 					SString temp_buf;
 					if(PPLoadTextWin(PPTXT_MENU_LISTBOX, temp_buf)) {
-
 						getCurItem(&p, &i);
-
 						TMenuPopup menu;
 						menu.AddSubstr(temp_buf, 0, cmaInsert);     // Добавить
 						menu.AddSubstr(temp_buf, 1, cmaEdit);       // Редактировать
 						menu.AddSubstr(temp_buf, 2, cmaDelete);     // Удалить
-						if(P_Box && P_Box->def && (P_Box->def->Options & lbtExtMenu))
+						if(p_box && p_box->def && (p_box->def->Options & lbtExtMenu))
 							menu.AddSubstr(temp_buf, 3, cmaSendByMail); // Послать по эл. почте
 						int    cmd = menu.Execute(H(), TMenuPopup::efRet);
 						if(cmd > 0)
@@ -447,16 +450,17 @@ int SLAPI PPListDialog::addStringToList(long itemId, const char * pText)
 
 void SLAPI PPListDialog::updateList(long pos, int byPos /*= 1*/)
 {
-	if(P_Box /* @v7.4.1 && P_Box->def*/) {
+	SmartListBox * p_box = P_Box;
+	if(p_box) {
 		lock();
-		int    sav_pos = P_Box->def ? (int)P_Box->def->_curItem() : 0;
-		P_Box->freeAll();
+		int    sav_pos = p_box->def ? (int)p_box->def->_curItem() : 0;
+		p_box->freeAll();
 		if(setupList()) {
-			P_Box->Draw_();
+			p_box->Draw_();
 			if(byPos)
-		   		P_Box->focusItem((pos < 0) ? sav_pos : pos);
+		   		p_box->focusItem((pos < 0) ? sav_pos : pos);
 			else
-				P_Box->search(&pos, 0, srchFirst|lbSrchByID);
+				p_box->search(&pos, 0, srchFirst|lbSrchByID);
 		}
 		else
 			PPError();
@@ -466,10 +470,11 @@ void SLAPI PPListDialog::updateList(long pos, int byPos /*= 1*/)
 
 int SLAPI PPListDialog::getCurItem(long * pPos, long * pID)
 {
-	if(P_Box && P_Box->def) {
+	SmartListBox * p_box = P_Box;
+	if(p_box && p_box->def) {
 		long   i = 0;
-		P_Box->getCurID(&i);
-		ASSIGN_PTR(pPos, P_Box->def->_curItem());
+		p_box->getCurID(&i);
+		ASSIGN_PTR(pPos, p_box->def->_curItem());
 		ASSIGN_PTR(pID, i);
 		return 1;
 	}
@@ -493,27 +498,27 @@ ObjRestrictListDialog::ObjRestrictListDialog(uint dlgID, uint listCtlID) : PPLis
 	updateList(-1);
 }
 
-int ObjRestrictListDialog::setParams(PPID objType, ObjRestrictArray * pData)
+void ObjRestrictListDialog::setParams(PPID objType, ObjRestrictArray * pData)
 {
 	ObjType = objType;
 	P_ORList = pData;
-	return 1;
 }
 
 IMPL_HANDLE_EVENT(ObjRestrictListDialog)
 {
+	ObjRestrictArray * p_orlist = P_ORList;
 	long   p, i;
 	PPListDialog::handleEvent(event);
-	if(TVCOMMAND && P_ORList) {
+	if(TVCOMMAND && p_orlist) {
 		if(TVCMD == cmaLevelUp || TVCMD == cmUp) {
 			if(getCurItem(&p, &i) && p > 0) {
-				P_ORList->swap(p, p-1);
+				p_orlist->swap(p, p-1);
 				updateList(p-1);
 			}
 		}
 		else if(TVCMD == cmaLevelDown || TVCMD == cmDown) {
-			if(getCurItem(&p, &i) && p < (long)P_ORList->getCount()-1) {
-				P_ORList->swap(p, p+1);
+			if(getCurItem(&p, &i) && p < (long)p_orlist->getCount()-1) {
+				p_orlist->swap(p, p+1);
 				updateList(p+1);
 			}
 		}
@@ -584,12 +589,13 @@ int ObjRestrictListDialog::addItem(long * pPos, long * pID)
 
 int ObjRestrictListDialog::editItem(long pos, long id)
 {
-	if(P_ORList) {
+	ObjRestrictArray * p_orlist = P_ORList;
+	if(p_orlist) {
 		const uint p = (uint)pos;
-		if(p < P_ORList->getCount()) {
-			ObjRestrictItem item = P_ORList->at(p);
+		if(p < p_orlist->getCount()) {
+			ObjRestrictItem item = p_orlist->at(p);
 			if(editItemDialog(&item) > 0) {
-				P_ORList->at(p) = item;
+				p_orlist->at(p) = item;
 				return 1;
 			}
 		}
@@ -599,8 +605,9 @@ int ObjRestrictListDialog::editItem(long pos, long id)
 
 int ObjRestrictListDialog::delItem(long pos, long id)
 {
-	if(P_ORList && ((uint)pos) < P_ORList->getCount()) {
-		P_ORList->atFree((uint)pos);
+	ObjRestrictArray * p_orlist = P_ORList;
+	if(p_orlist && ((uint)pos) < p_orlist->getCount()) {
+		p_orlist->atFree((uint)pos);
 		return 1;
 	}
 	else

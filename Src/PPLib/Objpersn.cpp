@@ -6428,6 +6428,22 @@ int PPALDD_Person::InitData(PPFilt & rFilt, long rsrv)
 	return ok;
 }
 
+static PPID Helper_DL600_GetRegister(PPID psnID, const char * pRegSymb, void * pExtra, int byDate, LDATE actualDate, RegisterTbl::Rec * pRegRec)
+{
+	PPID   reg_type_id = 0;
+	PPObjPerson * p_obj = (PPObjPerson *)pExtra;
+	if(p_obj && PPObjRegisterType::GetByCode(pRegSymb, &reg_type_id) > 0) {
+		RegisterTbl::Rec reg_rec;
+		int r = byDate ? p_obj->GetRegister(psnID, reg_type_id, actualDate, &reg_rec) : p_obj->GetRegister(psnID, reg_type_id, &reg_rec);
+		if(r > 0) {
+			ASSIGN_PTR(pRegRec, reg_rec)
+		}
+		else
+			reg_type_id = 0;
+	}
+	return reg_type_id;
+}
+
 void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
 {
 	#define _ARG_LONG(n) (*(long *)rS.GetPtr(pApl->Get(n)))
@@ -6448,17 +6464,23 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 	SString tag_symb;
 	tag_type = tNone;
 	if(pF->Name == "?GetRegister") {
+		RegisterTbl::Rec reg_rec;
+		_RET_INT = Helper_DL600_GetRegister(H.ID, _ARG_STR(1), Extra[0].Ptr, 0, ZERODATE, &reg_rec) ? reg_rec.ID : 0; // @v9.6.11
+		/* @v9.6.11
 		_RET_INT = 0;
 		PPID   reg_type_id = 0;
 		if(PPObjRegisterType::GetByCode(_ARG_STR(1), &reg_type_id) > 0) {
 			PPObjPerson * p_obj = (PPObjPerson *)Extra[0].Ptr;
-			RegisterTbl::Rec reg_rec;
 			if(p_obj && p_obj->GetRegister(H.ID, reg_type_id, &reg_rec) > 0)
 				_RET_INT = reg_rec.ID;
 		}
+		*/
 	}
 	// @v8.2.8 {
 	else if(pF->Name == "?GetRegisterD") {
+		RegisterTbl::Rec reg_rec;
+		_RET_INT = Helper_DL600_GetRegister(H.ID, _ARG_STR(1), Extra[0].Ptr, 1, _ARG_DATE(2), &reg_rec) ? reg_rec.ID : 0; // @v9.6.11
+		/* @v9.6.11
 		_RET_INT = 0;
 		PPID   reg_type_id = 0;
 		if(PPObjRegisterType::GetByCode(_ARG_STR(1), &reg_type_id) > 0) {
@@ -6467,8 +6489,31 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 			if(p_obj && p_obj->GetRegister(H.ID, reg_type_id, _ARG_DATE(2), &reg_rec) > 0)
 				_RET_INT = reg_rec.ID;
 		}
+		*/
 	}
 	// } @v8.2.8
+	if(pF->Name == "?FormatRegister") {
+		_RET_STR = 0;
+		RegisterTbl::Rec reg_rec;
+		PPID   reg_type_id = Helper_DL600_GetRegister(H.ID, _ARG_STR(1), Extra[0].Ptr, 0, ZERODATE, &reg_rec); 
+		if(reg_type_id) {
+			PPObjRegisterType rt_obj;
+			SString format;
+			if(rt_obj.GetFormat(reg_type_id, format) > 0 && format.NotEmptyS())
+				PPObjRegister::Format(reg_rec, format, _RET_STR);
+		}
+	}
+	if(pF->Name == "?FormatRegisterD") {
+		_RET_STR = 0;
+		RegisterTbl::Rec reg_rec;
+		PPID   reg_type_id = Helper_DL600_GetRegister(H.ID, _ARG_STR(1), Extra[0].Ptr, 1, _ARG_DATE(2), &reg_rec); 
+		if(reg_type_id) {
+			PPObjRegisterType rt_obj;
+			SString format;
+			if(rt_obj.GetFormat(reg_type_id, format) > 0 && format.NotEmptyS())
+				PPObjRegister::Format(reg_rec, format, _RET_STR);
+		}
+	}
 	else if(pF->Name == "?GetBankAccount") {
 		_RET_INT = 0;
 		PPObjPerson * p_obj = (PPObjPerson *)Extra[0].Ptr;

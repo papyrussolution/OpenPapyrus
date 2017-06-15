@@ -23,8 +23,8 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include <curl/curl.h>
-#include "llist.h"
-#include "curl_memory.h"
+//#include "llist.h"
+//#include "curl_memory.h"
 #include "memdebug.h" /* this must be the last include file */
 /*
  * @unittest: 1300

@@ -127,7 +127,7 @@ static cairo_status_t _cairo_gl_gradient_render(const cairo_gl_context_t    * ct
 		gradient_pixman_format = PIXMAN_b8g8r8a8;
 
 	pixman_stops = pixman_stops_stack;
-	if(unlikely(n_stops > ARRAY_LENGTH(pixman_stops_stack))) {
+	if(unlikely(n_stops > SIZEOFARRAY(pixman_stops_stack))) {
 		pixman_stops = _cairo_malloc_ab(n_stops,
 		    sizeof(pixman_gradient_stop_t));
 		if(unlikely(pixman_stops == NULL))

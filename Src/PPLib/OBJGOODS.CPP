@@ -3359,7 +3359,8 @@ int SLAPI PPObjGoods::EditClsdGoods(PPGoodsPacket * pPack, int modifyOnlyExtRec)
 
 int SLAPI PPObjGoods::Helper_Edit(PPID * pID, PPGoodsPacket * pPack, GoodsPacketKind gpk, int isNew, int viewOnly /*=0*/)
 {
-	int    r = cmCancel, use_std_dialog = 1;
+	int    r = cmCancel;
+	int    use_std_dialog = 1;
 	GoodsDialog * dlg = 0;
 	if(gpk == gpkndGoods) {
 		PPAccessRestriction accsr;

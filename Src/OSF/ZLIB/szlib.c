@@ -180,8 +180,8 @@ typedef struct {
 	char * path;        /* path or fd for error messages */
 	unsigned size;      /* buffer size, zero if not allocated yet */
 	unsigned want;      /* requested buffer size, default is GZBUFSIZE */
-	unsigned char * in; /* input buffer (double-sized when writing) */
-	unsigned char * out; /* output buffer (double-sized when reading) */
+	uchar * in; /* input buffer (double-sized when writing) */
+	uchar * out; /* output buffer (double-sized when reading) */
 	int direct;         /* 0 if processing gzip, 1 if transparent */
 	/* just for reading */
 	int how;            /* 0: get header, 1: copy, 2: decompress */
@@ -231,7 +231,7 @@ static int gz_init(gz_statep);
 static int gz_comp(gz_statep, int);
 static int gz_zero(gz_statep, z_off64_t);
 static size_t gz_write(gz_statep, voidpc, size_t);
-static int gz_load(gz_statep, unsigned char *, unsigned, unsigned *);
+static int gz_load(gz_statep, uchar *, unsigned, unsigned *);
 static int gz_avail(gz_statep);
 static int gz_look(gz_statep);
 static int gz_decomp(gz_statep);
@@ -243,9 +243,8 @@ static gzFile gz_open(const void *, int, const char *);
 //
 // ADLER
 //
-#define BASE 65521U     /* largest prime smaller than 65536 */
-#define NMAX 5552
-/* NMAX is the largest n such that 255n(n+1)/2 + (n+1)(BASE-1) <= 2^32-1 */
+#define BASE 65521U     // largest prime smaller than 65536 
+#define NMAX 5552       // NMAX is the largest n such that 255n(n+1)/2 + (n+1)(BASE-1) <= 2^32-1 
 
 #define DO1(buf, i)  {adler += (buf)[i]; sum2 += adler; }
 #define DO2(buf, i)  DO1(buf, i); DO1(buf, i+1);
@@ -267,7 +266,7 @@ static gzFile gz_open(const void *, int, const char *);
 #define MOD28(a) do { CHOP(a); if(a >= BASE) a -= BASE; } while(0)
 #define MOD(a) do { CHOP(a); MOD28(a); } while(0)
 #define MOD63(a) \
-	do { /* this assumes a is not negative */ \
+	do { \ // this assumes a is not negative 
 		z_off64_t tmp = a >> 32; \
 		a &= 0xffffffffL; \
 		a += (tmp << 8) - (tmp << 5) + tmp; \
@@ -284,13 +283,13 @@ static gzFile gz_open(const void *, int, const char *);
 	#define MOD28(a) a %= BASE
 	#define MOD63(a) a %= BASE
 #endif
-
-/* ========================================================================= */
+//
+//
 uLong ZEXPORT adler32_z(uLong adler, const Bytef * buf, size_t len)
 {
-	unsigned n;
+	uint   n;
 	// split Adler-32 into component sums 
-	unsigned long sum2 = (adler >> 16) & 0xffff;
+	ulong  sum2 = (adler >> 16) & 0xffff;
 	adler &= 0xffff;
 	// in case user likes doing a byte at a time, keep it fast 
 	if(len == 1) {
@@ -407,8 +406,8 @@ uLong ZEXPORT adler32_combine64(uLong adler1, uLong adler2, z_off64_t len2)
 	#define BYFOUR
 #endif
 #ifdef BYFOUR
-	static unsigned long crc32_little(unsigned long, const unsigned char *, size_t);
-	static unsigned long crc32_big(unsigned long, const unsigned char *, size_t);
+	static unsigned long crc32_little(unsigned long, const uchar *, size_t);
+	static unsigned long crc32_big(unsigned long, const uchar *, size_t);
 	#define TBLS 8
 #else
 	#define TBLS 1
@@ -455,7 +454,7 @@ static void make_crc_table()
 	z_crc_t poly;                   /* polynomial exclusive-or pattern */
 	/* terms of polynomial defining this crc (except x^32): */
 	static volatile int first = 1;  /* flag to limit concurrent making */
-	static const unsigned char p[] = {0, 1, 2, 4, 5, 7, 8, 10, 11, 12, 16, 22, 23, 26};
+	static const uchar p[] = {0, 1, 2, 4, 5, 7, 8, 10, 11, 12, 16, 22, 23, 26};
 
 	/* See if another task is already doing this (not thread-safe, but better
 	   than nothing -- significantly reduces duration of vulnerability in
@@ -464,7 +463,7 @@ static void make_crc_table()
 		first = 0;
 		// make exclusive-or pattern from polynomial (0xedb88320UL) 
 		poly = 0;
-		for(n = 0; n < (int)(sizeof(p)/sizeof(unsigned char)); n++)
+		for(n = 0; n < (int)(sizeof(p)/sizeof(uchar)); n++)
 			poly |= (z_crc_t)1 << (31 - p[n]);
 		// generate a crc for every 8-bit value 
 		for(n = 0; n < 256; n++) {
@@ -990,7 +989,7 @@ const z_crc_t  * ZEXPORT get_crc_table()
 #define DO8 DO1; DO1; DO1; DO1; DO1; DO1; DO1; DO1
 
 /* ========================================================================= */
-unsigned long ZEXPORT crc32_z(unsigned long crc, const unsigned char  * buf, size_t len)
+unsigned long ZEXPORT crc32_z(unsigned long crc, const uchar  * buf, size_t len)
 {
 	if(buf == Z_NULL) 
 		return 0UL;
@@ -1001,7 +1000,7 @@ unsigned long ZEXPORT crc32_z(unsigned long crc, const unsigned char  * buf, siz
 #ifdef BYFOUR
 	if(sizeof(void *) == sizeof(ptrdiff_t)) {
 		z_crc_t endian = 1;
-		if(*((unsigned char*)(&endian)))
+		if(*((uchar*)(&endian)))
 			return crc32_little(crc, buf, len);
 		else
 			return crc32_big(crc, buf, len);
@@ -1018,7 +1017,7 @@ unsigned long ZEXPORT crc32_z(unsigned long crc, const unsigned char  * buf, siz
 	return crc ^ 0xffffffffUL;
 }
 
-unsigned long ZEXPORT crc32(unsigned long crc, const unsigned char  * buf, uInt len)
+unsigned long ZEXPORT crc32(unsigned long crc, const uchar  * buf, uInt len)
 {
 	return crc32_z(crc, buf, len);
 }
@@ -1026,7 +1025,7 @@ unsigned long ZEXPORT crc32(unsigned long crc, const unsigned char  * buf, uInt 
 #ifdef BYFOUR
 
 /*
-   This BYFOUR code accesses the passed unsigned char * buffer with a 32-bit
+   This BYFOUR code accesses the passed uchar * buffer with a 32-bit
    integer pointer type. This violates the strict aliasing rule, where a
    compiler can assume, for optimization purposes, that two pointers to
    fundamentally different types won't ever point to the same memory. This can
@@ -1043,7 +1042,7 @@ unsigned long ZEXPORT crc32(unsigned long crc, const unsigned char  * buf, uInt 
 #define DOLIT32 DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4
 
 /* ========================================================================= */
-static unsigned long crc32_little(unsigned long crc, const unsigned char  * buf, size_t len)
+static unsigned long crc32_little(unsigned long crc, const uchar  * buf, size_t len)
 {
 	register const z_crc_t  * buf4;
 	register z_crc_t c = (z_crc_t)crc;
@@ -1061,7 +1060,7 @@ static unsigned long crc32_little(unsigned long crc, const unsigned char  * buf,
 		DOLIT4;
 		len -= 4;
 	}
-	buf = (const unsigned char *)buf4;
+	buf = (const uchar *)buf4;
 	if(len) do {
 		c = crc_table[0][(c ^ *buf++) & 0xff] ^ (c >> 8);
 	} while(--len);
@@ -1075,7 +1074,7 @@ static unsigned long crc32_little(unsigned long crc, const unsigned char  * buf,
 #define DOBIG32 DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4
 
 /* ========================================================================= */
-static unsigned long crc32_big(unsigned long crc, const unsigned char  * buf, size_t len)
+static unsigned long crc32_big(unsigned long crc, const uchar  * buf, size_t len)
 {
 	register const z_crc_t  * buf4;
 	register z_crc_t c = ZSWAP32((z_crc_t)crc);
@@ -1093,7 +1092,7 @@ static unsigned long crc32_big(unsigned long crc, const unsigned char  * buf, si
 		DOBIG4;
 		len -= 4;
 	}
-	buf = (const unsigned char *)buf4;
+	buf = (const uchar *)buf4;
 	if(len) do {
 		c = crc_table[4][(c >> 24) ^ *buf++] ^ (c << 8);
 	} while(--len);
@@ -1364,14 +1363,14 @@ int errno = 0;
 	voidpf ZLIB_INTERNAL zcalloc(voidpf opaque, unsigned items, unsigned size)
 	{
 		voidpf buf;
-		ulg bsize = (ulg)items*size;
+		ulong bsize = (ulong)items*size;
 		(void)opaque;
 		/* If we allocate less than 65520 bytes, we assume that farmalloc
 		* will return a usable pointer which doesn't have to be normalized.
 		*/
 		if(bsize < 65520L) {
 			buf = farmalloc(bsize);
-			if(*(ush*)&buf != 0) return buf;
+			if(*(ushort*)&buf != 0) return buf;
 		}
 		else {
 			buf = farmalloc(bsize + 16L);
@@ -1380,8 +1379,8 @@ int errno = 0;
 			return NULL;
 		table[next_ptr].org_ptr = buf;
 		/* Normalize the pointer to seg:0 */
-		*((ush*)&buf+1) += ((ush)((uch*)buf-0) + 15) >> 4;
-		*(ush*)&buf = 0;
+		*((ushort*)&buf+1) += ((ushort)((uchar*)buf-0) + 15) >> 4;
+		*(ushort*)&buf = 0;
 		table[next_ptr++].new_ptr = buf;
 		return buf;
 	}
@@ -1389,7 +1388,7 @@ int errno = 0;
 	{
 		int n;
 		(void)opaque;
-		if(*(ush*)&ptr != 0) { /* object < 64K */
+		if(*(ushort*)&ptr != 0) { /* object < 64K */
 			farfree(ptr);
 			return;
 		}
@@ -1546,7 +1545,7 @@ const char inflate_copyright[] = " inflate 1.2.11 Copyright 1995-2017 Mark Adler
    table index bits.  It will differ if the request is greater than the
    longest code or if it is less than the shortest code.
  */
-int ZLIB_INTERNAL inflate_table(codetype type, unsigned short  * lens, unsigned codes, ZInfTreesCode ** table, unsigned  * bits, unsigned short  * work)
+int ZLIB_INTERNAL inflate_table(codetype type, ushort  * lens, unsigned codes, ZInfTreesCode ** table, unsigned  * bits, ushort  * work)
 {
 	unsigned len;           /* a code's length in bits */
 	unsigned sym;           /* index of code symbols */
@@ -1563,25 +1562,25 @@ int ZLIB_INTERNAL inflate_table(codetype type, unsigned short  * lens, unsigned 
 	unsigned mask;          /* mask for low root bits */
 	ZInfTreesCode here;              /* table entry for duplication */
 	ZInfTreesCode * next;        /* next available space in table */
-	const unsigned short  * base; /* base value table to use */
-	const unsigned short  * extra; /* extra bits table to use */
+	const ushort  * base; /* base value table to use */
+	const ushort  * extra; /* extra bits table to use */
 	unsigned match;         /* use base and extra for symbol >= match */
-	unsigned short count[MAXBITS+1]; /* number of codes of each length */
-	unsigned short offs[MAXBITS+1]; /* offsets in table for each length */
-	static const unsigned short lbase[31] = { /* Length codes 257..285 base */
+	ushort count[MAXBITS+1]; /* number of codes of each length */
+	ushort offs[MAXBITS+1]; /* offsets in table for each length */
+	static const ushort lbase[31] = { /* Length codes 257..285 base */
 		3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31,
 		35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 0, 0
 	};
-	static const unsigned short lext[31] = { /* Length codes 257..285 extra */
+	static const ushort lext[31] = { /* Length codes 257..285 extra */
 		16, 16, 16, 16, 16, 16, 16, 16, 17, 17, 17, 17, 18, 18, 18, 18,
 		19, 19, 19, 19, 20, 20, 20, 20, 21, 21, 21, 21, 16, 77, 202
 	};
-	static const unsigned short dbase[32] = { /* Distance codes 0..29 base */
+	static const ushort dbase[32] = { /* Distance codes 0..29 base */
 		1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193,
 		257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145,
 		8193, 12289, 16385, 24577, 0, 0
 	};
-	static const unsigned short dext[32] = { /* Distance codes 0..29 extra */
+	static const ushort dext[32] = { /* Distance codes 0..29 extra */
 		16, 16, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22,
 		23, 23, 24, 24, 25, 25, 26, 26, 27, 27,
 		28, 28, 29, 29, 64, 64
@@ -1627,9 +1626,9 @@ int ZLIB_INTERNAL inflate_table(codetype type, unsigned short  * lens, unsigned 
 	if(root > max) 
 		root = max;
 	if(max == 0) {                  /* no symbols to code at all */
-		here.op = (unsigned char)64; /* invalid code marker */
-		here.bits = (unsigned char)1;
-		here.val = (unsigned short)0;
+		here.op = (uchar)64; /* invalid code marker */
+		here.bits = (uchar)1;
+		here.val = (ushort)0;
 		*(*table)++ = here;     /* make a table to force an error */
 		*(*table)++ = here;
 		*bits = 1;
@@ -1656,7 +1655,7 @@ int ZLIB_INTERNAL inflate_table(codetype type, unsigned short  * lens, unsigned 
 
 	/* sort symbols by length, by symbol order within each length */
 	for(sym = 0; sym < codes; sym++)
-		if(lens[sym] != 0) work[offs[lens[sym]]++] = (unsigned short)sym;
+		if(lens[sym] != 0) work[offs[lens[sym]]++] = (ushort)sym;
 
 	/*
 	   Create and fill in decoding tables.  In this loop, the table being
@@ -1724,17 +1723,17 @@ int ZLIB_INTERNAL inflate_table(codetype type, unsigned short  * lens, unsigned 
 	/* process all codes and make table entries */
 	for(;; ) {
 		/* create table entry */
-		here.bits = (unsigned char)(len - drop);
+		here.bits = (uchar)(len - drop);
 		if(work[sym] + 1U < match) {
-			here.op = (unsigned char)0;
+			here.op = (uchar)0;
 			here.val = work[sym];
 		}
 		else if(work[sym] >= match) {
-			here.op = (unsigned char)(extra[work[sym] - match]);
+			here.op = (uchar)(extra[work[sym] - match]);
 			here.val = base[work[sym] - match];
 		}
 		else {
-			here.op = (unsigned char)(32 + 64); /* end of block */
+			here.op = (uchar)(32 + 64); /* end of block */
 			here.val = 0;
 		}
 		// replicate for those indices with low len bits equal to huff 
@@ -1784,9 +1783,9 @@ int ZLIB_INTERNAL inflate_table(codetype type, unsigned short  * lens, unsigned 
 				return 1;
 			// point entry in root table to sub-table 
 			low = huff & mask;
-			(*table)[low].op = (unsigned char)curr;
-			(*table)[low].bits = (unsigned char)root;
-			(*table)[low].val = (unsigned short)(next - *table);
+			(*table)[low].op = (uchar)curr;
+			(*table)[low].bits = (uchar)root;
+			(*table)[low].val = (ushort)(next - *table);
 		}
 	}
 
@@ -1794,9 +1793,9 @@ int ZLIB_INTERNAL inflate_table(codetype type, unsigned short  * lens, unsigned 
 	   at most one remaining entry, since if the code is incomplete, the
 	   maximum code length that was allowed to get this far is one bit) */
 	if(huff != 0) {
-		here.op = (unsigned char)64;    /* invalid code marker */
-		here.bits = (unsigned char)(len - drop);
-		here.val = (unsigned short)0;
+		here.op = (uchar)64;    /* invalid code marker */
+		here.bits = (uchar)(len - drop);
+		here.val = (ushort)0;
 		next[huff] = here;
 	}
 	// set return parameters 
@@ -1874,7 +1873,7 @@ static int gz_init(gz_statep state)
 	int ret;
 	z_streamp strm = &(state->strm);
 	// allocate input buffer (double size for gzprintf) 
-	state->in = (unsigned char*)SAlloc::M(state->want << 1);
+	state->in = (uchar*)SAlloc::M(state->want << 1);
 	if(state->in == NULL) {
 		gz_error(state, Z_MEM_ERROR, "out of memory");
 		return -1;
@@ -1882,7 +1881,7 @@ static int gz_init(gz_statep state)
 	// only need output buffer and deflate state if compressing 
 	if(!state->direct) {
 		// allocate output buffer 
-		state->out = (unsigned char*)SAlloc::M(state->want);
+		state->out = (uchar*)SAlloc::M(state->want);
 		if(state->out == NULL) {
 			SAlloc::F(state->in);
 			gz_error(state, Z_MEM_ERROR, "out of memory");
@@ -2109,7 +2108,7 @@ size_t ZEXPORT gzfwrite(voidpc buf, size_t size, size_t nitems, gzFile file)
 int ZEXPORT gzputc(gzFile file, int c)
 {
 	unsigned have;
-	unsigned char buf[1];
+	uchar buf[1];
 	gz_statep state;
 	z_streamp strm;
 
@@ -2136,14 +2135,14 @@ int ZEXPORT gzputc(gzFile file, int c)
 			strm->next_in = state->in;
 		have = (unsigned)((strm->next_in + strm->avail_in) - state->in);
 		if(have < state->size) {
-			state->in[have] = (unsigned char)c;
+			state->in[have] = (uchar)c;
 			strm->avail_in++;
 			state->x.pos++;
 			return c & 0xff;
 		}
 	}
 	/* no room in buffer or not initialized, use gz_write() */
-	buf[0] = (unsigned char)c;
+	buf[0] = (uchar)c;
 	if(gz_write(state, buf, 1) != 1)
 		return -1;
 	return c & 0xff;
@@ -2454,7 +2453,7 @@ int ZEXPORT gzclose_w(gzFile file)
    state->fd, and update state->eof, state->err, and state->msg as appropriate.
    This function needs to loop on read(), since read() is not guaranteed to
    read the number of bytes requested, depending on the type of descriptor. */
-static int gz_load(gz_statep state, unsigned char * buf, unsigned len, unsigned * have)
+static int gz_load(gz_statep state, uchar * buf, unsigned len, unsigned * have)
 {
 	int ret;
 	unsigned get;
@@ -2493,7 +2492,7 @@ static int gz_avail(gz_statep state)
 		return -1;
 	if(state->eof == 0) {
 		if(strm->avail_in) { /* copy what's there to the start */
-			unsigned char * p = state->in;
+			uchar * p = state->in;
 			unsigned const char * q = strm->next_in;
 			unsigned n = strm->avail_in;
 			do {
@@ -2523,8 +2522,8 @@ static int gz_look(gz_statep state)
 	/* allocate read buffers and inflate memory */
 	if(state->size == 0) {
 		/* allocate buffers */
-		state->in = (unsigned char*)SAlloc::M(state->want);
-		state->out = (unsigned char*)SAlloc::M(state->want << 1);
+		state->in = (uchar*)SAlloc::M(state->want);
+		state->out = (uchar*)SAlloc::M(state->want << 1);
 		if(state->in == NULL || state->out == NULL) {
 			SAlloc::F(state->out);
 			SAlloc::F(state->in);
@@ -2741,13 +2740,13 @@ static size_t gz_read(gz_statep state, voidp buf, size_t len)
 		}
 		/* large len -- read directly into user buffer */
 		else if(state->how == COPY) { /* read directly */
-			if(gz_load(state, (unsigned char*)buf, n, &n) == -1)
+			if(gz_load(state, (uchar*)buf, n, &n) == -1)
 				return 0;
 		}
 		/* large len -- decompress directly into user buffer */
 		else { /* state->how == GZIP */
 			state->strm.avail_out = n;
-			state->strm.next_out = (unsigned char*)buf;
+			state->strm.next_out = (uchar*)buf;
 			if(gz_decomp(state) == -1)
 				return 0;
 			n = state->x.have;
@@ -2819,7 +2818,7 @@ size_t ZEXPORT gzfread(voidp buf, size_t size, size_t nitems, gzFile file)
 int ZEXPORT gzgetc(gzFile file)
 {
 	int ret;
-	unsigned char buf[1];
+	uchar buf[1];
 	// get internal structure 
 	if(file == NULL)
 		return -1;
@@ -2872,7 +2871,7 @@ int ZEXPORT gzungetc(int c, gzFile file)
 	if(state->x.have == 0) {
 		state->x.have = 1;
 		state->x.next = state->out + (state->size << 1) - 1;
-		state->x.next[0] = (unsigned char)c;
+		state->x.next[0] = (uchar)c;
 		state->x.pos--;
 		state->past = 0;
 		return c;
@@ -2884,15 +2883,15 @@ int ZEXPORT gzungetc(int c, gzFile file)
 	}
 	// slide output data if needed and insert byte before existing data 
 	if(state->x.next == state->out) {
-		unsigned char * src = state->out + state->x.have;
-		unsigned char * dest = state->out + (state->size << 1);
+		uchar * src = state->out + state->x.have;
+		uchar * dest = state->out + (state->size << 1);
 		while(src > state->out)
 			*--dest = *--src;
 		state->x.next = dest;
 	}
 	state->x.have++;
 	state->x.next--;
-	state->x.next[0] = (unsigned char)c;
+	state->x.next[0] = (uchar)c;
 	state->x.pos--;
 	state->past = 0;
 	return c;
@@ -2903,7 +2902,7 @@ char * ZEXPORT gzgets(gzFile file, char * buf, int len)
 {
 	char * str = 0;
 	unsigned left, n;
-	unsigned char * eol;
+	uchar * eol;
 	gz_statep state;
 	// check parameters and get internal structure 
 	if(file == NULL || buf == NULL || len < 1)
@@ -2933,7 +2932,7 @@ char * ZEXPORT gzgets(gzFile file, char * buf, int len)
 		}
 		/* look for end-of-line in current output buffer */
 		n = state->x.have > left ? left : state->x.have;
-		eol = (unsigned char*)memchr(state->x.next, '\n', n);
+		eol = (uchar*)memchr(state->x.next, '\n', n);
 		if(eol != NULL)
 			n = (unsigned)(eol - state->x.next) + 1;
 		/* copy through end-of-line, or remainder if not found */

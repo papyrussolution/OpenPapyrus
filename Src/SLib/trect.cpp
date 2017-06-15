@@ -1,9 +1,13 @@
 // TRECT.CPP
-// ..2007, 2008, 2010, 2011, 2014, 2015, 2016
+// ..2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
+//
+//
+//
+const SColor ZEROCOLOR(0, 0, 0, 0);
 //
 //
 //
@@ -1428,6 +1432,11 @@ SString & SColorBase::ToStr(SString & rBuf, int format) const
 		long f = (format & ~fmtName);
 		if(f == fmtRGB) {
 			rBuf.Cat("rgb").CatChar('(').Cat((uint)R).Comma().Cat((uint)G).Comma().Cat((uint)B).CatChar(')');
+		}
+		else if(f == fmtRgbHexWithoutPrefix) {
+			rBuf.CatChar(hexdigit(R>>4)).CatChar(hexdigit(R&0x0f));
+			rBuf.CatChar(hexdigit(G>>4)).CatChar(hexdigit(G&0x0f));
+			rBuf.CatChar(hexdigit(B>>4)).CatChar(hexdigit(B&0x0f));
 		}
 		else { // fmtHEX as default
 			rBuf.CatChar('#');

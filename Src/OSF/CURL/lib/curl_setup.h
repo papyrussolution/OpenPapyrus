@@ -240,91 +240,76 @@
  * define USE_WINSOCK to 1 if we have and use WINSOCK  API, else
  * undefine USE_WINSOCK.
  */
-
 #undef USE_WINSOCK
-
 #ifdef HAVE_WINSOCK2_H
-#  define USE_WINSOCK 2
+	#define USE_WINSOCK 2
 #else
-#  ifdef HAVE_WINSOCK_H
-#    define USE_WINSOCK 1
-#  endif
+	#ifdef HAVE_WINSOCK_H
+		#define USE_WINSOCK 1
+	#endif
 #endif
-
 #ifdef USE_LWIPSOCK
-#include <lwip/init.h>
-#include <lwip/sockets.h>
-#include <lwip/netdb.h>
+	#include <lwip/init.h>
+	#include <lwip/sockets.h>
+	#include <lwip/netdb.h>
 #endif
-
 #ifdef HAVE_EXTRA_STRICMP_H
-#include <extra/stricmp.h>
+	#include <extra/stricmp.h>
 #endif
-
 #ifdef HAVE_EXTRA_STRDUP_H
-#include <extra/strdup.h>
+	#include <extra/strdup.h>
 #endif
-
 #ifdef TPF
-#include <strings.h>    /* for bzero, strcasecmp, and strncasecmp */
-#include <string.h>     /* for strcpy and strlen */
-#include <stdlib.h>     /* for rand and srand */
-#include <sys/socket.h> /* for select and ioctl*/
-#include <netdb.h>      /* for in_addr_t definition */
-#include <tpf/sysapi.h> /* for tpf_process_signals */
-   /* change which select is used for libcurl */
-#  define select(a,b,c,d,e) tpf_select_libcurl(a,b,c,d,e)
+	#include <strings.h>    /* for bzero, strcasecmp, and strncasecmp */
+	#include <string.h>     /* for strcpy and strlen */
+	#include <stdlib.h>     /* for rand and srand */
+	#include <sys/socket.h> /* for select and ioctl*/
+	#include <netdb.h>      /* for in_addr_t definition */
+	#include <tpf/sysapi.h> /* for tpf_process_signals */
+	   /* change which select is used for libcurl */
+	#define select(a,b,c,d,e) tpf_select_libcurl(a,b,c,d,e)
 #endif
-
 #ifdef __VXWORKS__
-#include <sockLib.h>    /* for generic BSD socket functions */
-#include <ioLib.h>      /* for basic I/O interface functions */
+	#include <sockLib.h>    /* for generic BSD socket functions */
+	#include <ioLib.h>      /* for basic I/O interface functions */
 #endif
-
 #ifdef __AMIGA__
-#  ifndef __ixemul__
-#    include <exec/types.h>
-#    include <exec/execbase.h>
-#    include <proto/exec.h>
-#    include <proto/dos.h>
-#    define select(a,b,c,d,e) WaitSelect(a,b,c,d,e,0)
-#  endif
+	#ifndef __ixemul__
+		#include <exec/types.h>
+		#include <exec/execbase.h>
+		#include <proto/exec.h>
+		#include <proto/dos.h>
+		#define select(a,b,c,d,e) WaitSelect(a,b,c,d,e,0)
+	#endif
 #endif
-
 #include <stdio.h>
 #ifdef HAVE_ASSERT_H
-#include <assert.h>
+	#include <assert.h>
 #endif
-
 #ifdef __TANDEM /* for nsr-tandem-nsk systems */
-#include <floss.h>
+	#include <floss.h>
 #endif
-
 #ifndef STDC_HEADERS /* no standard C headers! */
-#include <curl/stdcheaders.h>
+	#include <curl/stdcheaders.h>
 #endif
-
 #ifdef __POCC__
-#include <sys/types.h>
-#include <unistd.h>
-#  define sys_nerr EILSEQ
+	#include <sys/types.h>
+	#include <unistd.h>
+	#define sys_nerr EILSEQ
 #endif
-
 /*
  * Salford-C kludge section (mostly borrowed from wxWidgets).
  */
 #ifdef __SALFORDC__
-  #pragma suppress 353             /* Possible nested comments */
-  #pragma suppress 593             /* Define not used */
-  #pragma suppress 61              /* enum has no name */
-  #pragma suppress 106             /* unnamed, unused parameter */
-  #include <clib.h>
+	#pragma suppress 353             /* Possible nested comments */
+	#pragma suppress 593             /* Define not used */
+	#pragma suppress 61              /* enum has no name */
+	#pragma suppress 106             /* unnamed, unused parameter */
+	#include <clib.h>
 #endif
-
 /*
  * Large file (>2Gb) support using WIN32 functions.
  */
-
 #ifdef USE_WIN32_LARGE_FILES
 #include <io.h>
 #include <sys/types.h>
@@ -461,8 +446,7 @@
  */
 
 #if defined(_MSC_VER) && !defined(__POCC__) && !defined(USE_LWIPSOCK)
-#  if !defined(HAVE_WS2TCPIP_H) || \
-     ((_MSC_VER < 1300) && !defined(INET6_ADDRSTRLEN))
+#  if !defined(HAVE_WS2TCPIP_H) || ((_MSC_VER < 1300) && !defined(INET6_ADDRSTRLEN))
 #    undef HAVE_GETADDRINFO_THREADSAFE
 #    undef HAVE_FREEADDRINFO
 #    undef HAVE_GETADDRINFO
@@ -479,44 +463,38 @@
 /*
  * lcc-win32 doesn't have _beginthreadex(), lacks threads support.
  */
-
 #if defined(__LCC__) && defined(WIN32)
-#  undef USE_THREADS_POSIX
-#  undef USE_THREADS_WIN32
+	#undef USE_THREADS_POSIX
+	#undef USE_THREADS_WIN32
 #endif
-
 /*
  * MSVC threads support requires a multi-threaded runtime library.
  * _beginthreadex() is not available in single-threaded ones.
  */
-
 #if defined(_MSC_VER) && !defined(__POCC__) && !defined(_MT)
-#  undef USE_THREADS_POSIX
-#  undef USE_THREADS_WIN32
+	#undef USE_THREADS_POSIX
+	#undef USE_THREADS_WIN32
 #endif
-
 /*
  * Mutually exclusive CURLRES_* definitions.
  */
-
 #ifdef USE_ARES
-#  define CURLRES_ASYNCH
-#  define CURLRES_ARES
-/* now undef the stock libc functions just to avoid them being used */
-#  undef HAVE_GETADDRINFO
-#  undef HAVE_FREEADDRINFO
-#  undef HAVE_GETHOSTBYNAME
+	#define CURLRES_ASYNCH
+	#define CURLRES_ARES
+	// now undef the stock libc functions just to avoid them being used 
+	#undef HAVE_GETADDRINFO
+	#undef HAVE_FREEADDRINFO
+	#undef HAVE_GETHOSTBYNAME
 #elif defined(USE_THREADS_POSIX) || defined(USE_THREADS_WIN32)
-#  define CURLRES_ASYNCH
-#  define CURLRES_THREADED
+	#define CURLRES_ASYNCH
+	#define CURLRES_THREADED
 #else
-#  define CURLRES_SYNCH
+	#define CURLRES_SYNCH
 #endif
-
 #ifdef ENABLE_IPV6
-#  define CURLRES_IPV6
+	#define CURLRES_IPV6
 #else
-#  define CURLRES_IPV4
+	#define CURLRES_IPV4
 #endif
 
 /* ---------------------------------------------------------------- */
@@ -557,32 +535,23 @@
 #    endif
 #  endif
 #endif
-
 #ifdef NETWARE
-int netware_init(void);
-#ifndef __NOVELL_LIBC__
-#include <sys/bsdskt.h>
-#include <sys/timeval.h>
+	int netware_init(void);
+	#ifndef __NOVELL_LIBC__
+		#include <sys/bsdskt.h>
+		#include <sys/timeval.h>
+	#endif
 #endif
-#endif
-
 #if defined(HAVE_LIBIDN2) && defined(HAVE_IDN2_H)
-/* The lib and header are present */
-#define USE_LIBIDN2
+	#define USE_LIBIDN2 // The lib and header are present 
 #endif
-
 #ifndef SIZEOF_TIME_T
-/* assume default size of time_t to be 32 bit */
-#define SIZEOF_TIME_T 4
+	#define SIZEOF_TIME_T 4 // assume default size of time_t to be 32 bit 
 #endif
-
 #define LIBIDN_REQUIRED_VERSION "0.4.1"
-
-#if defined(USE_GNUTLS) || defined(USE_OPENSSL) || defined(USE_NSS) || \
-    defined(USE_POLARSSL) || defined(USE_AXTLS) || defined(USE_MBEDTLS) || \
-    defined(USE_CYASSL) || defined(USE_SCHANNEL) || \
-    defined(USE_DARWINSSL) || defined(USE_GSKIT)
-#define USE_SSL    /* SSL support has been enabled */
+#if defined(USE_GNUTLS) || defined(USE_OPENSSL) || defined(USE_NSS) || defined(USE_POLARSSL) || defined(USE_AXTLS) || defined(USE_MBEDTLS) || \
+    defined(USE_CYASSL) || defined(USE_SCHANNEL) || defined(USE_DARWINSSL) || defined(USE_GSKIT)
+	#define USE_SSL    /* SSL support has been enabled */
 #endif
 // Single point where USE_SPNEGO definition might be defined 
 #if !defined(CURL_DISABLE_CRYPTO_AUTH) && (defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI))
@@ -655,25 +624,23 @@ int netware_init(void);
 #if !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
 	#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #endif
-
-/* In Windows the default file mode is text but an application can override it.
-Therefore we specify it explicitly. https://github.com/curl/curl/pull/258
-*/
+// In Windows the default file mode is text but an application can override it.
+// Therefore we specify it explicitly. https://github.com/curl/curl/pull/258
 #if defined(WIN32) || defined(MSDOS)
-#define FOPEN_READTEXT "rt"
-#define FOPEN_WRITETEXT "wt"
+	#define FOPEN_READTEXT "rt"
+	#define FOPEN_WRITETEXT "wt"
 #elif defined(__CYGWIN__)
-/* Cygwin has specific behavior we need to address when WIN32 is not defined.
-https://cygwin.com/cygwin-ug-net/using-textbinary.html
-For write we want our output to have line endings of LF and be compatible with
-other Cygwin utilities. For read we want to handle input that may have line
-endings either CRLF or LF so 't' is appropriate.
-*/
-#define FOPEN_READTEXT "rt"
-#define FOPEN_WRITETEXT "w"
+	/* Cygwin has specific behavior we need to address when WIN32 is not defined.
+	https://cygwin.com/cygwin-ug-net/using-textbinary.html
+	For write we want our output to have line endings of LF and be compatible with
+	other Cygwin utilities. For read we want to handle input that may have line
+	endings either CRLF or LF so 't' is appropriate.
+	*/
+	#define FOPEN_READTEXT "rt"
+	#define FOPEN_WRITETEXT "w"
 #else
-#define FOPEN_READTEXT "r"
-#define FOPEN_WRITETEXT "w"
+	#define FOPEN_READTEXT "r"
+	#define FOPEN_WRITETEXT "w"
 #endif
 //
 // WinSock destroys recv() buffer when send() failed.
@@ -700,7 +667,32 @@ endings either CRLF or LF so 't' is appropriate.
 	#endif
 #endif
 
-#include "strtok.h"  // @sobolev
-#include "strcase.h" // @sobolev
+// @sobolev {
+#define BUILDING_CURL_SMB_C
+#include "llist.h"
+#include "wildcard.h"
+#include "strtok.h"
+#include "strcase.h"
+#include "strerror.h"
+#include "smb.h"
+#include "urldata.h"
+#include "fileinfo.h"
+#include "getinfo.h"
+#include "curl_gethostname.h"
+#include "transfer.h"
+#include "sendf.h"
+#include "non-ascii.h"
+#include "escape.h"
+#include "strtoofft.h"
+#include "select.h"
+#include "url.h"
+#include "progress.h"
+#include "socks.h"
+#include "timeval.h"   
+#include "slist.h"
+#include "strdup.h"
+#include "curl_base64.h"
+#include "curl_memory.h"
+// } @sobolev 
 
 #endif /* HEADER_CURL_SETUP_H */

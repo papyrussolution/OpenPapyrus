@@ -105,7 +105,7 @@ static inline int rectangle_compare_stop(const rectangle_t * a,
 
 static inline void pqueue_init(pqueue_t * pq)
 {
-	pq->max_size = ARRAY_LENGTH(pq->elements_embedded);
+	pq->max_size = SIZEOFARRAY(pq->elements_embedded);
 	pq->size = 0;
 
 	pq->elements = pq->elements_embedded;
@@ -207,7 +207,7 @@ static void sweep_line_init(sweep_line_t * sweep)
 	_cairo_freepool_init(&sweep->coverage.pool, sizeof(SweepLine::Coverage::Cell));
 
 	sweep->spans = sweep->spans_stack;
-	sweep->size_spans = ARRAY_LENGTH(sweep->spans_stack);
+	sweep->size_spans = SIZEOFARRAY(sweep->spans_stack);
 
 	sweep->coverage.head.prev = NULL;
 	sweep->coverage.head.x = INT_MIN;
@@ -627,7 +627,7 @@ static cairo_status_t _cairo_rectangular_scan_converter_generate(void * converte
 		return generate_box(self, renderer);
 
 	rectangles = rectangles_stack;
-	if(unlikely(self->num_rectangles >= ARRAY_LENGTH(rectangles_stack))) {
+	if(unlikely(self->num_rectangles >= SIZEOFARRAY(rectangles_stack))) {
 		rectangles = (rectangle_t **)_cairo_malloc_ab(self->num_rectangles + 1, sizeof(rectangle_t *));
 		if(unlikely(rectangles == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);

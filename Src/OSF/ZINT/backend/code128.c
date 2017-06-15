@@ -288,7 +288,7 @@ void c128_set_c(uchar source_a, uchar source_b, char dest[], int values[], int *
 {
 	int weight;
 
-	weight = (10 * ctoi(source_a)) + ctoi(source_b);
+	weight = (10 * hex(source_a)) + hex(source_b);
 	strcat(dest, C128Table[weight]);
 	values[(*bar_chars)] = weight;
 	(*bar_chars)++;
@@ -308,11 +308,11 @@ int code_128(struct ZintSymbol * symbol, uchar source[], int length)
 	int    j = 0;
 	int    bar_characters = 0;
 	int    f_state = 0;
-	strcpy(dest, "");
+	sstrcpy(dest, "");
 	if(sourcelen > 160) {
 		/* This only blocks rediculously long input - the actual length of the
 		   resulting barcode depends on the type of data, so this is trapped later */
-		strcpy(symbol->errtxt, "Input too long (C40)");
+		sstrcpy(symbol->errtxt, "Input too long (C40)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	/* Detect extended ASCII characters */
@@ -479,7 +479,7 @@ int code_128(struct ZintSymbol * symbol, uchar source[], int length)
 		}
 	}
 	if(glyph_count > 60.0) {
-		strcpy(symbol->errtxt, "Input too long (C41)");
+		sstrcpy(symbol->errtxt, "Input too long (C41)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 
@@ -698,19 +698,19 @@ int ean_128(struct ZintSymbol * symbol, uchar source[], const size_t length)
 #else
 	char * reduced = (char*)_alloca(length + 1);
 #endif
-	strcpy(dest, "");
+	sstrcpy(dest, "");
 	memzero(values, sizeof(values));
 	memset(set, ' ', sizeof(set));
 	if(length > 160) {
 		// This only blocks rediculously long input - the actual length of the
 		// resulting barcode depends on the type of data, so this is trapped later
-		strcpy(symbol->errtxt, "Input too long (C42)");
+		sstrcpy(symbol->errtxt, "Input too long (C42)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	for(i = 0; i < length; i++) {
 		if(source[i] == '\0') {
 			// Null characters not allowed! 
-			strcpy(symbol->errtxt, "NULL character in input data (C43)");
+			sstrcpy(symbol->errtxt, "NULL character in input data (C43)");
 			return ZINT_ERROR_INVALID_DATA;
 		}
 	}
@@ -827,7 +827,7 @@ int ean_128(struct ZintSymbol * symbol, uchar source[], const size_t length)
 		}
 	}
 	if(glyph_count > 60.0) {
-		strcpy(symbol->errtxt, "Input too long (C44)");
+		sstrcpy(symbol->errtxt, "Input too long (C44)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 
@@ -979,24 +979,24 @@ int nve_18(struct ZintSymbol * symbol, uchar source[], int length)
 	memzero(ean128_equiv, sizeof(ean128_equiv));
 	sourcelen = length;
 	if(sourcelen > 17) {
-		strcpy(symbol->errtxt, "Input too long (C45)");
+		sstrcpy(symbol->errtxt, "Input too long (C45)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data (C46)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (C46)");
 		return error_number;
 	}
 	zeroes = 17 - sourcelen;
-	strcpy((char*)ean128_equiv, "[00]");
+	sstrcpy((char*)ean128_equiv, "[00]");
 	memset(ean128_equiv + 4, '0', zeroes);
-	strcpy((char*)ean128_equiv + 4 + zeroes, (char*)source);
+	sstrcpy((char*)ean128_equiv + 4 + zeroes, (char*)source);
 	total_sum = 0;
 	for(i = sourcelen - 1; i >= 0; i--) {
-		total_sum += ctoi(source[i]);
+		total_sum += hex(source[i]);
 
 		if(!(i & 1)) {
-			total_sum += 2 * ctoi(source[i]);
+			total_sum += 2 * hex(source[i]);
 		}
 	}
 	nve_check = 10 - total_sum % 10;
@@ -1019,27 +1019,27 @@ int ean_14(struct ZintSymbol * symbol, uchar source[], int length)
 	uchar ean128_equiv[20];
 
 	if(length > 13) {
-		strcpy(symbol->errtxt, "Input wrong length (C47)");
+		sstrcpy(symbol->errtxt, "Input wrong length (C47)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid character in data (C48)");
+		sstrcpy(symbol->errtxt, "Invalid character in data (C48)");
 		return error_number;
 	}
 
 	zeroes = 13 - length;
-	strcpy((char*)ean128_equiv, "[01]");
+	sstrcpy((char*)ean128_equiv, "[01]");
 	memset(ean128_equiv + 4, '0', zeroes);
-	ustrcpy(ean128_equiv + 4 + zeroes, source);
+	sstrcpy(ean128_equiv + 4 + zeroes, source);
 
 	count = 0;
 	for(i = length - 1; i >= 0; i--) {
-		count += ctoi(source[i]);
+		count += hex(source[i]);
 
 		if(!(i & 1)) {
-			count += 2 * ctoi(source[i]);
+			count += 2 * hex(source[i]);
 		}
 	}
 	check_digit = 10 - (count % 10);

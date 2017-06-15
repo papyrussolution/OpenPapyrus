@@ -44,22 +44,22 @@
 #ifdef HAVE_FCNTL_H
 	#include <fcntl.h>
 #endif
-#include "strtoofft.h"
-#include "urldata.h"
+//#include "strtoofft.h"
+//#include "urldata.h"
 //#include <curl/curl.h>
-#include "progress.h"
-#include "sendf.h"
-#include "escape.h"
+//#include "progress.h"
+//#include "sendf.h"
+//#include "escape.h"
 #include "file.h"
 #include "speedcheck.h"
-#include "getinfo.h"
-#include "transfer.h"
-#include "url.h"
+//#include "getinfo.h"
+//#include "transfer.h"
+//#include "url.h"
 #include "parsedate.h" /* for the week day and month names */
 #include "warnless.h"
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 #if defined(WIN32) || defined(MSDOS) || defined(__EMX__) || \
@@ -279,9 +279,9 @@ static CURLcode file_disconnect(struct connectdata * conn, bool dead_connection)
 }
 
 #ifdef DOS_FILESYSTEM
-#define DIRSEP '\\'
+	#define DIRSEP '\\'
 #else
-#define DIRSEP '/'
+	#define DIRSEP '/'
 #endif
 
 static CURLcode file_upload(struct connectdata * conn)
@@ -299,28 +299,20 @@ static CURLcode file_upload(struct connectdata * conn)
 	struct timeval now = Curl_tvnow();
 	struct_stat file_stat;
 	const char * buf2;
-
-	/*
-	 * Since FILE: doesn't do the full init, we need to provide some extra
-	 * assignments here.
-	 */
+	//
+	// Since FILE: doesn't do the full init, we need to provide some extra assignments here.
+	//
 	conn->data->req.upload_fromhere = buf;
-
 	if(!dir)
 		return CURLE_FILE_COULDNT_READ_FILE;  /* fix: better error code */
-
 	if(!dir[1])
 		return CURLE_FILE_COULDNT_READ_FILE;  /* fix: better error code */
-
 #ifdef O_BINARY
 #define MODE_DEFAULT O_WRONLY|O_CREAT|O_BINARY
 #else
 #define MODE_DEFAULT O_WRONLY|O_CREAT
 #endif
-	if(data->state.resume_from)
-		mode = MODE_DEFAULT|O_APPEND;
-	else
-		mode = MODE_DEFAULT|O_TRUNC;
+	mode = (data->state.resume_from) ? (MODE_DEFAULT|O_APPEND) : (MODE_DEFAULT|O_TRUNC);
 	fd = _open(file->path, mode, conn->data->set.new_file_perms);
 	if(fd < 0) {
 		failf(data, "Can't open %s for writing", file->path);
@@ -343,10 +335,10 @@ static CURLcode file_upload(struct connectdata * conn)
 		result = Curl_fillreadbuffer(conn, BUFSIZE, &readcount);
 		if(result)
 			break;
-		if(readcount <= 0) /* fix questionable compare error. curlvms */
+		if(readcount <= 0) // fix questionable compare error. curlvms 
 			break;
 		nread = (size_t)readcount;
-		/*skip bytes before resume point*/
+		// skip bytes before resume point
 		if(data->state.resume_from) {
 			if((curl_off_t)nread <= data->state.resume_from) {
 				data->state.resume_from -= nread;
@@ -361,7 +353,7 @@ static CURLcode file_upload(struct connectdata * conn)
 		}
 		else
 			buf2 = buf;
-		/* write the data to the target */
+		// write the data to the target 
 		nwrite = write(fd, buf2, nread);
 		if(nwrite != nread) {
 			result = CURLE_SEND_ERROR;
@@ -369,10 +361,7 @@ static CURLcode file_upload(struct connectdata * conn)
 		}
 		bytecount += nread;
 		Curl_pgrsSetUploadCounter(data, bytecount);
-		if(Curl_pgrsUpdate(conn))
-			result = CURLE_ABORTED_BY_CALLBACK;
-		else
-			result = Curl_speedcheck(data, now);
+		result = Curl_pgrsUpdate(conn) ? CURLE_ABORTED_BY_CALLBACK : Curl_speedcheck(data, now);
 	}
 	if(!result && Curl_pgrsUpdate(conn))
 		result = CURLE_ABORTED_BY_CALLBACK;

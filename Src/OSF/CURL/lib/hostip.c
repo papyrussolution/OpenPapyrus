@@ -23,50 +23,44 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+	#include <netinet/in.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+	#include <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+	#include <arpa/inet.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+	#include <in.h>
+	#include <inet.h>
 #endif
-
 #ifdef HAVE_SETJMP_H
-#include <setjmp.h>
+	#include <setjmp.h>
 #endif
 #ifdef HAVE_SIGNAL_H
-#include <signal.h>
+	#include <signal.h>
 #endif
-
 #ifdef HAVE_PROCESS_H
-#include <process.h>
+	#include <process.h>
 #endif
-
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "hostip.h"
 #include "hash.h"
 #include "share.h"
-#include "strerror.h"
-#include "url.h"
+//#include "strerror.h"
+//#include "url.h"
 #include "inet_ntop.h"
 #include "warnless.h"
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
-#if defined(CURLRES_SYNCH) && \
-	defined(HAVE_ALARM) && defined(SIGALRM) && defined(HAVE_SIGSETJMP)
-/* alarm-based timeouts can only be used with all the dependencies satisfied */
-#define USE_ALARM_TIMEOUT
+#if defined(CURLRES_SYNCH) && defined(HAVE_ALARM) && defined(SIGALRM) && defined(HAVE_SIGSETJMP)
+	#define USE_ALARM_TIMEOUT // alarm-based timeouts can only be used with all the dependencies satisfied 
 #endif
-
 /*
  * hostip.c explained
  * ==================
@@ -108,11 +102,8 @@
 
 /* These two symbols are for the global DNS cache */
 static struct curl_hash hostname_cache;
-
 static int host_cache_initialized;
-
 static void freednsentry(void * freethis);
-
 /*
  * Curl_global_host_cache_init() initializes and sets up a global DNS cache.
  * Global DNS cache is general badness. Do not use. This will be removed in
@@ -124,14 +115,12 @@ struct curl_hash * Curl_global_host_cache_init(void)
 {
 	int rc = 0;
 	if(!host_cache_initialized) {
-		rc = Curl_hash_init(&hostname_cache, 7, Curl_hash_str,
-		    Curl_str_key_compare, freednsentry);
+		rc = Curl_hash_init(&hostname_cache, 7, Curl_hash_str, Curl_str_key_compare, freednsentry);
 		if(!rc)
 			host_cache_initialized = 1;
 	}
 	return rc ? NULL : &hostname_cache;
 }
-
 /*
  * Destroy and cleanup the global DNS cache
  */
@@ -155,7 +144,6 @@ int Curl_num_addresses(const Curl_addrinfo * addr)
 	}
 	return i;
 }
-
 /*
  * Curl_printable_address() returns a printable version of the 1st address
  * given in the 'ai' argument. The result will be stored in the buf that is

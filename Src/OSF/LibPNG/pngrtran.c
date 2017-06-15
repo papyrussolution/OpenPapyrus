@@ -111,30 +111,28 @@ static int png_rtran_ok(png_structrp png_ptr, int need_IHDR)
 #ifdef PNG_READ_BACKGROUND_SUPPORTED
 /* Handle alpha and tRNS via a background color */
 void PNGFAPI png_set_background_fixed(png_structrp png_ptr,
-    png_const_color_16p background_color, int background_gamma_code,
-    int need_expand, png_fixed_point background_gamma)
+    png_const_color_16p background_color, int background_gamma_code, int need_expand, png_fixed_point background_gamma)
 {
 	png_debug(1, "in png_set_background_fixed");
-
 	if(png_rtran_ok(png_ptr, 0) == 0 || background_color == NULL)
 		return;
-
 	if(background_gamma_code == PNG_BACKGROUND_GAMMA_UNKNOWN) {
 		png_warning(png_ptr, "Application must supply a known background gamma");
 		return;
 	}
-
 	png_ptr->transformations |= PNG_COMPOSE | PNG_STRIP_ALPHA;
 	png_ptr->transformations &= ~PNG_ENCODE_ALPHA;
 	png_ptr->flags &= ~PNG_FLAG_OPTIMIZE_ALPHA;
-
 	png_ptr->background = *background_color;
 	png_ptr->background_gamma = background_gamma;
 	png_ptr->background_gamma_type = (uint8)(background_gamma_code);
+	/* @sobolev
 	if(need_expand != 0)
 		png_ptr->transformations |= PNG_BACKGROUND_EXPAND;
 	else
 		png_ptr->transformations &= ~PNG_BACKGROUND_EXPAND;
+	*/
+	SETFLAG(png_ptr->transformations, PNG_BACKGROUND_EXPAND, need_expand); // @sobolev
 }
 
 #  ifdef PNG_FLOATING_POINT_SUPPORTED
@@ -167,69 +165,56 @@ void PNGAPI png_set_scale_16(png_structrp png_ptr)
 #endif
 
 #ifdef PNG_READ_STRIP_16_TO_8_SUPPORTED
-/* Chop 16-bit depth files to 8-bit depth */
+// Chop 16-bit depth files to 8-bit depth 
 void PNGAPI png_set_strip_16(png_structrp png_ptr)
 {
 	png_debug(1, "in png_set_strip_16");
-
-	if(png_rtran_ok(png_ptr, 0) == 0)
-		return;
-
-	png_ptr->transformations |= PNG_16_TO_8;
+	if(png_rtran_ok(png_ptr, 0))
+		png_ptr->transformations |= PNG_16_TO_8;
 }
-
 #endif
 
 #ifdef PNG_READ_STRIP_ALPHA_SUPPORTED
 void PNGAPI png_set_strip_alpha(png_structrp png_ptr)
 {
 	png_debug(1, "in png_set_strip_alpha");
-
-	if(png_rtran_ok(png_ptr, 0) == 0)
-		return;
-
-	png_ptr->transformations |= PNG_STRIP_ALPHA;
+	if(png_rtran_ok(png_ptr, 0))
+		png_ptr->transformations |= PNG_STRIP_ALPHA;
 }
-
 #endif
 
 #if defined(PNG_READ_ALPHA_MODE_SUPPORTED) || defined(PNG_READ_GAMMA_SUPPORTED)
-static png_fixed_point translate_gamma_flags(png_structrp png_ptr, png_fixed_point output_gamma,
-    int is_screen)
+static png_fixed_point translate_gamma_flags(png_structrp png_ptr, png_fixed_point output_gamma, int is_screen)
 {
 	/* Check for flag values.  The main reason for having the old Mac value as a
 	 * flag is that it is pretty near impossible to work out what the correct
 	 * value is from Apple documentation - a working Mac system is needed to
 	 * discover the value!
 	 */
-	if(output_gamma == PNG_DEFAULT_sRGB ||
-	    output_gamma == PNG_FP_1 / PNG_DEFAULT_sRGB) {
+	if(output_gamma == PNG_DEFAULT_sRGB || output_gamma == PNG_FP_1 / PNG_DEFAULT_sRGB) {
 		/* If there is no sRGB support this just sets the gamma to the standard
 		 * sRGB value.  (This is a side effect of using this function!)
 		 */
-#     ifdef PNG_READ_sRGB_SUPPORTED
+#ifdef PNG_READ_sRGB_SUPPORTED
 		png_ptr->flags |= PNG_FLAG_ASSUME_sRGB;
-#     else
+#else
 		PNG_UNUSED(png_ptr)
-#     endif
+#endif
 		if(is_screen != 0)
 			output_gamma = PNG_GAMMA_sRGB;
 		else
 			output_gamma = PNG_GAMMA_sRGB_INVERSE;
 	}
-
-	else if(output_gamma == PNG_GAMMA_MAC_18 ||
-	    output_gamma == PNG_FP_1 / PNG_GAMMA_MAC_18) {
+	else if(output_gamma == PNG_GAMMA_MAC_18 || output_gamma == PNG_FP_1 / PNG_GAMMA_MAC_18) {
 		if(is_screen != 0)
 			output_gamma = PNG_GAMMA_MAC_OLD;
 		else
 			output_gamma = PNG_GAMMA_MAC_INVERSE;
 	}
-
 	return output_gamma;
 }
 
-#  ifdef PNG_FLOATING_POINT_SUPPORTED
+#ifdef PNG_FLOATING_POINT_SUPPORTED
 static png_fixed_point convert_gamma_value(png_structrp png_ptr, double output_gamma)
 {
 	/* The following silently ignores cases where fixed point (times 100,000)
@@ -241,33 +226,25 @@ static png_fixed_point convert_gamma_value(png_structrp png_ptr, double output_g
 	 */
 	if(output_gamma > 0 && output_gamma < 128)
 		output_gamma *= PNG_FP_1;
-
 	/* This preserves -1 and -2 exactly: */
 	output_gamma = floor(output_gamma + .5);
-
 	if(output_gamma > PNG_FP_MAX || output_gamma < PNG_FP_MIN)
 		png_fixed_error(png_ptr, "gamma value");
-
 	return (png_fixed_point)output_gamma;
 }
 
-#  endif
+#endif
 #endif /* READ_ALPHA_MODE || READ_GAMMA */
 
 #ifdef PNG_READ_ALPHA_MODE_SUPPORTED
-void PNGFAPI png_set_alpha_mode_fixed(png_structrp png_ptr, int mode,
-    png_fixed_point output_gamma)
+void PNGFAPI png_set_alpha_mode_fixed(png_structrp png_ptr, int mode, png_fixed_point output_gamma)
 {
 	int compose = 0;
 	png_fixed_point file_gamma;
-
 	png_debug(1, "in png_set_alpha_mode");
-
 	if(png_rtran_ok(png_ptr, 0) == 0)
 		return;
-
 	output_gamma = translate_gamma_flags(png_ptr, output_gamma, 1 /*screen*/);
-
 	/* Validate the value to ensure it is in a reasonable range. The value
 	 * is expected to be 1 or greater, but this range test allows for some
 	 * viewing correction values.  The intent is to weed out users of this API
@@ -279,12 +256,10 @@ void PNGFAPI png_set_alpha_mode_fixed(png_structrp png_ptr, int mode,
 	 */
 	if(output_gamma < 1000 || output_gamma > 10000000)
 		png_error(png_ptr, "output gamma out of expected range");
-
 	/* The default file gamma is the inverse of the output gamma; the output
 	 * gamma may be changed below so get the file value first:
 	 */
 	file_gamma = png_reciprocal(output_gamma);
-
 	/* There are really 8 possibilities here, composed of any combination
 	 * of:
 	 *
@@ -307,7 +282,6 @@ void PNGFAPI png_set_alpha_mode_fixed(png_structrp png_ptr, int mode,
 		    png_ptr->transformations &= ~PNG_ENCODE_ALPHA;
 		    png_ptr->flags &= ~PNG_FLAG_OPTIMIZE_ALPHA;
 		    break;
-
 		case PNG_ALPHA_ASSOCIATED: /* color channels premultiplied */
 		    compose = 1;
 		    png_ptr->transformations &= ~PNG_ENCODE_ALPHA;
@@ -315,41 +289,32 @@ void PNGFAPI png_set_alpha_mode_fixed(png_structrp png_ptr, int mode,
 		    /* The output is linear: */
 		    output_gamma = PNG_FP_1;
 		    break;
-
 		case PNG_ALPHA_OPTIMIZED: /* associated, non-opaque pixels linear */
 		    compose = 1;
 		    png_ptr->transformations &= ~PNG_ENCODE_ALPHA;
 		    png_ptr->flags |= PNG_FLAG_OPTIMIZE_ALPHA;
 		    /* output_gamma records the encoding of opaque pixels! */
 		    break;
-
 		case PNG_ALPHA_BROKEN: /* associated, non-linear, alpha encoded */
 		    compose = 1;
 		    png_ptr->transformations |= PNG_ENCODE_ALPHA;
 		    png_ptr->flags &= ~PNG_FLAG_OPTIMIZE_ALPHA;
 		    break;
-
 		default:
 		    png_error(png_ptr, "invalid alpha mode");
 	}
-
 	/* Only set the default gamma if the file gamma has not been set (this has
-	 * the side effect that the gamma in a second call to png_set_alpha_mode will
-	 * be ignored.)
+	 * the side effect that the gamma in a second call to png_set_alpha_mode will be ignored.)
 	 */
 	if(png_ptr->colorspace.gamma == 0) {
 		png_ptr->colorspace.gamma = file_gamma;
 		png_ptr->colorspace.flags |= PNG_COLORSPACE_HAVE_GAMMA;
 	}
-
-	/* But always set the output gamma: */
+	// But always set the output gamma: 
 	png_ptr->screen_gamma = output_gamma;
-
-	/* Finally, if pre-multiplying, set the background fields to achieve the
-	 * desired result.
-	 */
+	// Finally, if pre-multiplying, set the background fields to achieve the desired result.
 	if(compose != 0) {
-		/* And obtain alpha pre-multiplication by composing on black: */
+		// And obtain alpha pre-multiplication by composing on black: 
 		memzero(&png_ptr->background, (sizeof png_ptr->background));
 		png_ptr->background_gamma = png_ptr->colorspace.gamma; /* just in case */
 		png_ptr->background_gamma_type = PNG_BACKGROUND_GAMMA_FILE;
@@ -360,13 +325,12 @@ void PNGFAPI png_set_alpha_mode_fixed(png_structrp png_ptr, int mode,
 	}
 }
 
-#  ifdef PNG_FLOATING_POINT_SUPPORTED
+#ifdef PNG_FLOATING_POINT_SUPPORTED
 void PNGAPI png_set_alpha_mode(png_structrp png_ptr, int mode, double output_gamma)
 {
 	png_set_alpha_mode_fixed(png_ptr, mode, convert_gamma_value(png_ptr, output_gamma));
 }
-
-#  endif
+#endif
 #endif
 
 #ifdef PNG_READ_QUANTIZE_SUPPORTED
@@ -381,109 +345,80 @@ void PNGAPI png_set_alpha_mode(png_structrp png_ptr, int mode, double output_gam
 
 typedef struct png_dsort_struct {
 	struct png_dsort_struct * next;
-
 	uint8 left;
 	uint8 right;
 } png_dsort;
+
 typedef png_dsort *   png_dsortp;
 typedef png_dsort ** png_dsortpp;
 
-void PNGAPI png_set_quantize(png_structrp png_ptr, png_colorp palette,
-    int num_palette, int maximum_colors, png_const_uint_16p histogram,
-    int full_quantize)
+void PNGAPI png_set_quantize(png_structrp png_ptr, png_colorp palette, int num_palette, int maximum_colors, png_const_uint_16p histogram, int full_quantize)
 {
 	png_debug(1, "in png_set_quantize");
-
 	if(png_rtran_ok(png_ptr, 0) == 0)
 		return;
-
 	png_ptr->transformations |= PNG_QUANTIZE;
-
 	if(full_quantize == 0) {
 		int i;
-
-		png_ptr->quantize_index = (png_bytep)png_malloc(png_ptr,
-		    (uint32)(num_palette * (sizeof(uint8))));
+		png_ptr->quantize_index = (png_bytep)png_malloc(png_ptr, (uint32)(num_palette * (sizeof(uint8))));
 		for(i = 0; i < num_palette; i++)
 			png_ptr->quantize_index[i] = (uint8)i;
 	}
-
 	if(num_palette > maximum_colors) {
 		if(histogram != NULL) {
 			/* This is easy enough, just throw out the least used colors.
 			 * Perhaps not the best solution, but good enough.
 			 */
-
 			int i;
-
 			/* Initialize an array to sort colors */
-			png_ptr->quantize_sort = (png_bytep)png_malloc(png_ptr,
-			    (uint32)(num_palette * (sizeof(uint8))));
-
+			png_ptr->quantize_sort = (png_bytep)png_malloc(png_ptr, (uint32)(num_palette * (sizeof(uint8))));
 			/* Initialize the quantize_sort array */
 			for(i = 0; i < num_palette; i++)
 				png_ptr->quantize_sort[i] = (uint8)i;
-
 			/* Find the least used palette entries by starting a
 			 * bubble sort, and running it until we have sorted
 			 * out enough colors.  Note that we don't care about
-			 * sorting all the colors, just finding which are
-			 * least used.
+			 * sorting all the colors, just finding which are least used.
 			 */
-
 			for(i = num_palette - 1; i >= maximum_colors; i--) {
-				int done; /* To stop early if the list is pre-sorted */
 				int j;
-
-				done = 1;
+				int done = 1; // To stop early if the list is pre-sorted 
 				for(j = 0; j < i; j++) {
-					if(histogram[png_ptr->quantize_sort[j]]
-					    < histogram[png_ptr->quantize_sort[j + 1]]) {
+					if(histogram[png_ptr->quantize_sort[j]] < histogram[png_ptr->quantize_sort[j + 1]]) {
 						uint8 t;
-
 						t = png_ptr->quantize_sort[j];
 						png_ptr->quantize_sort[j] = png_ptr->quantize_sort[j + 1];
 						png_ptr->quantize_sort[j + 1] = t;
 						done = 0;
 					}
 				}
-
 				if(done != 0)
 					break;
 			}
-
-			/* Swap the palette around, and set up a table, if necessary */
+			// Swap the palette around, and set up a table, if necessary 
 			if(full_quantize != 0) {
 				int j = num_palette;
-
-				/* Put all the useful colors within the max, but don't
-				 * move the others.
-				 */
+				// Put all the useful colors within the max, but don't move the others.
 				for(i = 0; i < maximum_colors; i++) {
 					if((int)png_ptr->quantize_sort[i] >= maximum_colors) {
-						do
+						do {
 							j--;
-						while((int)png_ptr->quantize_sort[j] >= maximum_colors);
-
+						} while((int)png_ptr->quantize_sort[j] >= maximum_colors);
 						palette[i] = palette[j];
 					}
 				}
 			}
 			else {
 				int j = num_palette;
-
-				/* Move all the used colors inside the max limit, and
-				 * develop a translation table.
-				 */
+				// Move all the used colors inside the max limit, and
+				// develop a translation table.
 				for(i = 0; i < maximum_colors; i++) {
-					/* Only move the colors we need to */
+					// Only move the colors we need to 
 					if((int)png_ptr->quantize_sort[i] >= maximum_colors) {
-						png_color tmp_color;
-
-						do
+						SColorRGB tmp_color;
+						do {
 							j--;
-						while((int)png_ptr->quantize_sort[j] >= maximum_colors);
-
+						} while((int)png_ptr->quantize_sort[j] >= maximum_colors);
 						tmp_color = palette[j];
 						palette[j] = palette[i];
 						palette[i] = tmp_color;
@@ -688,15 +623,13 @@ void PNGAPI png_set_quantize(png_structrp png_ptr, png_colorp palette,
 		memset(distance, 0xff, num_entries * (sizeof(uint8)));
 		for(i = 0; i < num_palette; i++) {
 			int ir, ig, ib;
-			int r = (palette[i].red >> (8 - PNG_QUANTIZE_RED_BITS));
-			int g = (palette[i].green >> (8 - PNG_QUANTIZE_GREEN_BITS));
-			int b = (palette[i].blue >> (8 - PNG_QUANTIZE_BLUE_BITS));
+			int r = (palette[i].R >> (8 - PNG_QUANTIZE_RED_BITS));
+			int g = (palette[i].G >> (8 - PNG_QUANTIZE_GREEN_BITS));
+			int b = (palette[i].B >> (8 - PNG_QUANTIZE_BLUE_BITS));
 			for(ir = 0; ir < num_red; ir++) {
-				/* int dr = abs(ir - r); */
+				// int dr = abs(ir - r); 
 				int dr = ((ir > r) ? ir - r : r - ir);
-				int index_r = (ir << (PNG_QUANTIZE_BLUE_BITS +
-					    PNG_QUANTIZE_GREEN_BITS));
-
+				int index_r = (ir << (PNG_QUANTIZE_BLUE_BITS + PNG_QUANTIZE_GREEN_BITS));
 				for(ig = 0; ig < num_green; ig++) {
 					/* int dg = abs(ig - g); */
 					int dg = ((ig > g) ? ig - g : g - ig);
@@ -1059,16 +992,11 @@ static void /* PRIVATE */ png_init_palette_transformations(png_structrp png_ptr)
 	/* The following code cannot be entered in the alpha pre-multiplication case
 	 * because PNG_BACKGROUND_EXPAND is cancelled below.
 	 */
-	if((png_ptr->transformations & PNG_BACKGROUND_EXPAND) != 0 &&
-	    (png_ptr->transformations & PNG_EXPAND) != 0) {
+	if((png_ptr->transformations & PNG_BACKGROUND_EXPAND) != 0 && (png_ptr->transformations & PNG_EXPAND) != 0) {
 		{
-			png_ptr->background.red   =
-			    png_ptr->palette[png_ptr->background.index].red;
-			png_ptr->background.green =
-			    png_ptr->palette[png_ptr->background.index].green;
-			png_ptr->background.blue  =
-			    png_ptr->palette[png_ptr->background.index].blue;
-
+			png_ptr->background.red   = png_ptr->palette[png_ptr->background.index].R;
+			png_ptr->background.green = png_ptr->palette[png_ptr->background.index].G;
+			png_ptr->background.blue  = png_ptr->palette[png_ptr->background.index].B;
 #ifdef PNG_READ_INVERT_ALPHA_SUPPORTED
 			if((png_ptr->transformations & PNG_INVERT_ALPHA) != 0) {
 				if((png_ptr->transformations & PNG_EXPAND_tRNS) == 0) {
@@ -1076,10 +1004,8 @@ static void /* PRIVATE */ png_init_palette_transformations(png_structrp png_ptr)
 					 * going to be expanded, in which case leave it for later
 					 */
 					int i, istop = png_ptr->num_trans;
-
 					for(i = 0; i<istop; i++)
-						png_ptr->trans_alpha[i] = (uint8)(255 -
-						    png_ptr->trans_alpha[i]);
+						png_ptr->trans_alpha[i] = (uint8)(255 - png_ptr->trans_alpha[i]);
 				}
 			}
 #endif /* READ_INVERT_ALPHA */
@@ -1470,18 +1396,18 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
 				/* We don't get to here unless there is a tRNS chunk with non-opaque
 				 * entries - see the checking code at the start of this function.
 				 */
-				png_color back, back_1;
-				png_colorp palette = png_ptr->palette;
+				SColorRGB back, back_1;
+				SColorRGB * palette = png_ptr->palette;
 				int num_palette = png_ptr->num_palette;
 				int i;
 				if(png_ptr->background_gamma_type == PNG_BACKGROUND_GAMMA_FILE) {
-					back.red = png_ptr->gamma_table[png_ptr->background.red];
-					back.green = png_ptr->gamma_table[png_ptr->background.green];
-					back.blue = png_ptr->gamma_table[png_ptr->background.blue];
+					back.R = png_ptr->gamma_table[png_ptr->background.red];
+					back.G = png_ptr->gamma_table[png_ptr->background.green];
+					back.B = png_ptr->gamma_table[png_ptr->background.blue];
 
-					back_1.red = png_ptr->gamma_to_1[png_ptr->background.red];
-					back_1.green = png_ptr->gamma_to_1[png_ptr->background.green];
-					back_1.blue = png_ptr->gamma_to_1[png_ptr->background.blue];
+					back_1.R = png_ptr->gamma_to_1[png_ptr->background.red];
+					back_1.G = png_ptr->gamma_to_1[png_ptr->background.green];
+					back_1.B = png_ptr->gamma_to_1[png_ptr->background.blue];
 				}
 				else {
 					png_fixed_point g, gs;
@@ -1490,13 +1416,11 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
 						    g = (png_ptr->screen_gamma);
 						    gs = PNG_FP_1;
 						    break;
-
 						case PNG_BACKGROUND_GAMMA_FILE:
 						    g = png_reciprocal(png_ptr->colorspace.gamma);
 						    gs = png_reciprocal2(png_ptr->colorspace.gamma,
 						    png_ptr->screen_gamma);
 						    break;
-
 						case PNG_BACKGROUND_GAMMA_UNIQUE:
 						    g = png_reciprocal(png_ptr->background_gamma);
 						    gs = png_reciprocal2(png_ptr->background_gamma,
@@ -1509,62 +1433,48 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
 					}
 
 					if(png_gamma_significant(gs) != 0) {
-						back.red = png_gamma_8bit_correct(png_ptr->background.red,
-						    gs);
-						back.green = png_gamma_8bit_correct(png_ptr->background.green,
-						    gs);
-						back.blue = png_gamma_8bit_correct(png_ptr->background.blue,
-						    gs);
+						back.R = png_gamma_8bit_correct(png_ptr->background.red, gs);
+						back.G = png_gamma_8bit_correct(png_ptr->background.green, gs);
+						back.B = png_gamma_8bit_correct(png_ptr->background.blue, gs);
 					}
-
 					else {
-						back.red   = (uint8)png_ptr->background.red;
-						back.green = (uint8)png_ptr->background.green;
-						back.blue  = (uint8)png_ptr->background.blue;
+						back.R   = (uint8)png_ptr->background.red;
+						back.G = (uint8)png_ptr->background.green;
+						back.B  = (uint8)png_ptr->background.blue;
 					}
-
 					if(png_gamma_significant(g) != 0) {
-						back_1.red = png_gamma_8bit_correct(png_ptr->background.red,
-						    g);
-						back_1.green = png_gamma_8bit_correct(
-						    png_ptr->background.green, g);
-						back_1.blue = png_gamma_8bit_correct(png_ptr->background.blue,
-						    g);
+						back_1.R = png_gamma_8bit_correct(png_ptr->background.red, g);
+						back_1.G = png_gamma_8bit_correct(png_ptr->background.green, g);
+						back_1.B = png_gamma_8bit_correct(png_ptr->background.blue, g);
 					}
-
 					else {
-						back_1.red   = (uint8)png_ptr->background.red;
-						back_1.green = (uint8)png_ptr->background.green;
-						back_1.blue  = (uint8)png_ptr->background.blue;
+						back_1.R = (uint8)png_ptr->background.red;
+						back_1.G = (uint8)png_ptr->background.green;
+						back_1.B = (uint8)png_ptr->background.blue;
 					}
 				}
-
 				for(i = 0; i < num_palette; i++) {
-					if(i < (int)png_ptr->num_trans &&
-					    png_ptr->trans_alpha[i] != 0xff) {
+					if(i < (int)png_ptr->num_trans && png_ptr->trans_alpha[i] != 0xff) {
 						if(png_ptr->trans_alpha[i] == 0) {
 							palette[i] = back;
 						}
 						else { /* if (png_ptr->trans_alpha[i] != 0xff) */
 							uint8 v, w;
-
-							v = png_ptr->gamma_to_1[palette[i].red];
-							png_composite(w, v, png_ptr->trans_alpha[i], back_1.red);
-							palette[i].red = png_ptr->gamma_from_1[w];
-
-							v = png_ptr->gamma_to_1[palette[i].green];
-							png_composite(w, v, png_ptr->trans_alpha[i], back_1.green);
-							palette[i].green = png_ptr->gamma_from_1[w];
-
-							v = png_ptr->gamma_to_1[palette[i].blue];
-							png_composite(w, v, png_ptr->trans_alpha[i], back_1.blue);
-							palette[i].blue = png_ptr->gamma_from_1[w];
+							v = png_ptr->gamma_to_1[palette[i].R];
+							png_composite(w, v, png_ptr->trans_alpha[i], back_1.R);
+							palette[i].R = png_ptr->gamma_from_1[w];
+							v = png_ptr->gamma_to_1[palette[i].G];
+							png_composite(w, v, png_ptr->trans_alpha[i], back_1.G);
+							palette[i].G = png_ptr->gamma_from_1[w];
+							v = png_ptr->gamma_to_1[palette[i].B];
+							png_composite(w, v, png_ptr->trans_alpha[i], back_1.B);
+							palette[i].B = png_ptr->gamma_from_1[w];
 						}
 					}
 					else {
-						palette[i].red = png_ptr->gamma_table[palette[i].red];
-						palette[i].green = png_ptr->gamma_table[palette[i].green];
-						palette[i].blue = png_ptr->gamma_table[palette[i].blue];
+						palette[i].R = png_ptr->gamma_table[palette[i].R];
+						palette[i].G = png_ptr->gamma_table[palette[i].G];
+						palette[i].B = png_ptr->gamma_table[palette[i].B];
 					}
 				}
 
@@ -1663,8 +1573,7 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
 		if(png_ptr->color_type == PNG_COLOR_TYPE_PALETTE
 #ifdef PNG_READ_RGB_TO_GRAY_SUPPORTED
 		    /* RGB_TO_GRAY needs to have non-gamma-corrected values! */
-		    && ((png_ptr->transformations & PNG_EXPAND) == 0 ||
-			    (png_ptr->transformations & PNG_RGB_TO_GRAY) == 0)
+		    && ((png_ptr->transformations & PNG_EXPAND) == 0 || (png_ptr->transformations & PNG_RGB_TO_GRAY) == 0)
 #endif
 		    ) {
 			png_colorp palette = png_ptr->palette;
@@ -1675,9 +1584,9 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
 			 * here too.
 			 */
 			for(i = 0; i < num_palette; i++) {
-				palette[i].red = png_ptr->gamma_table[palette[i].red];
-				palette[i].green = png_ptr->gamma_table[palette[i].green];
-				palette[i].blue = png_ptr->gamma_table[palette[i].blue];
+				palette[i].R = png_ptr->gamma_table[palette[i].R];
+				palette[i].G = png_ptr->gamma_table[palette[i].G];
+				palette[i].B = png_ptr->gamma_table[palette[i].B];
 			}
 
 			/* Done the gamma correction. */
@@ -1695,73 +1604,58 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
 	    (png_ptr->color_type == PNG_COLOR_TYPE_PALETTE)) {
 		int i;
 		int istop = (int)png_ptr->num_trans;
-		png_color back;
-		png_colorp palette = png_ptr->palette;
+		SColorRGB back;
+		SColorRGB * palette = png_ptr->palette;
 
-		back.red   = (uint8)png_ptr->background.red;
-		back.green = (uint8)png_ptr->background.green;
-		back.blue  = (uint8)png_ptr->background.blue;
-
+		back.R = (uint8)png_ptr->background.red;
+		back.G = (uint8)png_ptr->background.green;
+		back.B = (uint8)png_ptr->background.blue;
 		for(i = 0; i < istop; i++) {
 			if(png_ptr->trans_alpha[i] == 0) {
 				palette[i] = back;
 			}
-
 			else if(png_ptr->trans_alpha[i] != 0xff) {
-				/* The png_composite() macro is defined in png.h */
-				png_composite(palette[i].red, palette[i].red,
-				    png_ptr->trans_alpha[i], back.red);
-
-				png_composite(palette[i].green, palette[i].green,
-				    png_ptr->trans_alpha[i], back.green);
-
-				png_composite(palette[i].blue, palette[i].blue,
-				    png_ptr->trans_alpha[i], back.blue);
+				// The png_composite() macro is defined in png.h 
+				png_composite(palette[i].R, palette[i].R, png_ptr->trans_alpha[i], back.R);
+				png_composite(palette[i].G, palette[i].G, png_ptr->trans_alpha[i], back.G);
+				png_composite(palette[i].B, palette[i].B, png_ptr->trans_alpha[i], back.B);
 			}
 		}
-
 		png_ptr->transformations &= ~PNG_COMPOSE;
 	}
 #endif /* READ_BACKGROUND */
 
 #ifdef PNG_READ_SHIFT_SUPPORTED
-	if((png_ptr->transformations & PNG_SHIFT) != 0 &&
-	    (png_ptr->transformations & PNG_EXPAND) == 0 &&
-	    (png_ptr->color_type == PNG_COLOR_TYPE_PALETTE)) {
+	if((png_ptr->transformations & PNG_SHIFT) != 0 && (png_ptr->transformations & PNG_EXPAND) == 0 && (png_ptr->color_type == PNG_COLOR_TYPE_PALETTE)) {
 		int i;
 		int istop = png_ptr->num_palette;
 		int shift = 8 - png_ptr->sig_bit.red;
-
 		png_ptr->transformations &= ~PNG_SHIFT;
-
 		/* significant bits can be in the range 1 to 7 for a meaninful result, if
 		 * the number of significant bits is 0 then no shift is done (this is an
 		 * error condition which is silently ignored.)
 		 */
 		if(shift > 0 && shift < 8)
 			for(i = 0; i<istop; ++i) {
-				int component = png_ptr->palette[i].red;
-
+				int component = png_ptr->palette[i].R;
 				component >>= shift;
-				png_ptr->palette[i].red = (uint8)component;
+				png_ptr->palette[i].R = (uint8)component;
 			}
 
 		shift = 8 - png_ptr->sig_bit.green;
 		if(shift > 0 && shift < 8)
 			for(i = 0; i<istop; ++i) {
-				int component = png_ptr->palette[i].green;
-
+				int component = png_ptr->palette[i].G;
 				component >>= shift;
-				png_ptr->palette[i].green = (uint8)component;
+				png_ptr->palette[i].G = (uint8)component;
 			}
 
 		shift = 8 - png_ptr->sig_bit.blue;
 		if(shift > 0 && shift < 8)
 			for(i = 0; i<istop; ++i) {
-				int component = png_ptr->palette[i].blue;
-
+				int component = png_ptr->palette[i].B;
 				component >>= shift;
-				png_ptr->palette[i].blue = (uint8)component;
+				png_ptr->palette[i].B = (uint8)component;
 			}
 	}
 #endif /* READ_SHIFT */
@@ -3901,17 +3795,14 @@ static void png_do_expand_palette(png_row_infop row_info, png_bytep row,
 				if(num_trans > 0) {
 					sp = row + (size_t)row_width - 1;
 					dp = row + (size_t)(row_width << 2) - 1;
-
 					for(i = 0; i < row_width; i++) {
 						if((int)(*sp) >= num_trans)
 							*dp-- = 0xff;
-
 						else
 							*dp-- = trans_alpha[*sp];
-
-						*dp-- = palette[*sp].blue;
-						*dp-- = palette[*sp].green;
-						*dp-- = palette[*sp].red;
+						*dp-- = palette[*sp].B;
+						*dp-- = palette[*sp].G;
+						*dp-- = palette[*sp].R;
 						sp--;
 					}
 					row_info->bit_depth = 8;
@@ -3924,14 +3815,12 @@ static void png_do_expand_palette(png_row_infop row_info, png_bytep row,
 				else {
 					sp = row + (size_t)row_width - 1;
 					dp = row + (size_t)(row_width * 3) - 1;
-
 					for(i = 0; i < row_width; i++) {
-						*dp-- = palette[*sp].blue;
-						*dp-- = palette[*sp].green;
-						*dp-- = palette[*sp].red;
+						*dp-- = palette[*sp].B;
+						*dp-- = palette[*sp].G;
+						*dp-- = palette[*sp].R;
 						sp--;
 					}
-
 					row_info->bit_depth = 8;
 					row_info->pixel_depth = 24;
 					row_info->rowbytes = row_width * 3;
@@ -3946,8 +3835,7 @@ static void png_do_expand_palette(png_row_infop row_info, png_bytep row,
 /* If the bit depth < 8, it is expanded to 8.  Also, if the already
  * expanded transparency value is supplied, an alpha channel is built.
  */
-static void png_do_expand(png_row_infop row_info, png_bytep row,
-    png_const_color_16p trans_color)
+static void png_do_expand(png_row_infop row_info, png_bytep row, png_const_color_16p trans_color)
 {
 	int shift, value;
 	png_bytep sp, dp;

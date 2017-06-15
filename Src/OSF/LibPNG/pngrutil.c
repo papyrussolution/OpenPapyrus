@@ -831,17 +831,14 @@ void /* PRIVATE */ png_handle_IHDR(png_structrp png_ptr, png_inforp info_ptr, ui
 /* Read and check the palette */
 void /* PRIVATE */ png_handle_PLTE(png_structrp png_ptr, png_inforp info_ptr, uint32 length)
 {
-	png_color palette[PNG_MAX_PALETTE_LENGTH];
+	SColorRGB palette[PNG_MAX_PALETTE_LENGTH];
 	int max_palette_length, num, i;
 #ifdef PNG_POINTER_INDEXING_SUPPORTED
 	png_colorp pal_ptr;
 #endif
-
 	png_debug(1, "in png_handle_PLTE");
-
 	if((png_ptr->mode & PNG_HAVE_IHDR) == 0)
 		png_chunk_error(png_ptr, "missing IHDR");
-
 	/* Moved to before the 'after IDAT' check below because otherwise duplicate
 	 * PLTE chunks are potentially ignored (the spec says there shall not be more
 	 * than one PLTE, the error is not treated as benign, so this check trumps
@@ -849,7 +846,6 @@ void /* PRIVATE */ png_handle_PLTE(png_structrp png_ptr, png_inforp info_ptr, ui
 	 */
 	else if((png_ptr->mode & PNG_HAVE_PLTE) != 0)
 		png_chunk_error(png_ptr, "duplicate");
-
 	else if((png_ptr->mode & PNG_HAVE_IDAT) != 0) {
 		/* This is benign because the non-benign error happened before, when an
 		 * IDAT was encountered in a color-mapped image with no PLTE.
@@ -858,37 +854,28 @@ void /* PRIVATE */ png_handle_PLTE(png_structrp png_ptr, png_inforp info_ptr, ui
 		png_chunk_benign_error(png_ptr, "out of place");
 		return;
 	}
-
 	png_ptr->mode |= PNG_HAVE_PLTE;
-
 	if((png_ptr->color_type & PNG_COLOR_MASK_COLOR) == 0) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "ignored in grayscale PNG");
 		return;
 	}
-
 #ifndef PNG_READ_OPT_PLTE_SUPPORTED
 	if(png_ptr->color_type != PNG_COLOR_TYPE_PALETTE) {
 		png_crc_finish(png_ptr, length);
 		return;
 	}
 #endif
-
 	if(length > 3*PNG_MAX_PALETTE_LENGTH || length % 3) {
 		png_crc_finish(png_ptr, length);
-
 		if(png_ptr->color_type != PNG_COLOR_TYPE_PALETTE)
 			png_chunk_benign_error(png_ptr, "invalid");
-
 		else
 			png_chunk_error(png_ptr, "invalid");
-
 		return;
 	}
-
 	/* The cast is safe because 'length' is less than 3*PNG_MAX_PALETTE_LENGTH */
 	num = (int)length / 3;
-
 	/* If the palette has 256 or fewer entries but is too large for the bit
 	 * depth, we don't issue an error, to preserve the behavior of previous
 	 * libpng versions. We silently truncate the unused extra palette entries
@@ -898,31 +885,22 @@ void /* PRIVATE */ png_handle_PLTE(png_structrp png_ptr, png_inforp info_ptr, ui
 		max_palette_length = (1 << png_ptr->bit_depth);
 	else
 		max_palette_length = PNG_MAX_PALETTE_LENGTH;
-
 	if(num > max_palette_length)
 		num = max_palette_length;
-
 #ifdef PNG_POINTER_INDEXING_SUPPORTED
 	for(i = 0, pal_ptr = palette; i < num; i++, pal_ptr++) {
 		uint8 buf[3];
-
 		png_crc_read(png_ptr, buf, 3);
-		pal_ptr->red = buf[0];
-		pal_ptr->green = buf[1];
-		pal_ptr->blue = buf[2];
+		pal_ptr->Set(buf[0], buf[1], buf[2]);
 	}
 #else
 	for(i = 0; i < num; i++) {
 		uint8 buf[3];
-
 		png_crc_read(png_ptr, buf, 3);
-		/* Don't depend upon png_color being any order */
-		palette[i].red = buf[0];
-		palette[i].green = buf[1];
-		palette[i].blue = buf[2];
+		// Don't depend upon png_color being any order 
+		palette[i].Set(buf[0], buf[1], buf[2]);
 	}
 #endif
-
 	/* If we actually need the PLTE chunk (ie for a paletted image), we do
 	 * whatever the normal CRC configuration tells us.  However, if we
 	 * have an RGB image, the PLTE can be considered ancillary, so
@@ -1711,8 +1689,7 @@ void /* PRIVATE */ png_handle_tRNS(png_structrp png_ptr, png_inforp info_ptr, ui
 	 * png_struct ends up with a pointer to the tRNS buffer owned by the
 	 * png_info.  Fix this.
 	 */
-	png_set_tRNS(png_ptr, info_ptr, readbuf, png_ptr->num_trans,
-	    &(png_ptr->trans_color));
+	png_set_tRNS(png_ptr, info_ptr, readbuf, png_ptr->num_trans, &(png_ptr->trans_color));
 }
 
 #endif
@@ -1736,24 +1713,18 @@ void /* PRIVATE */ png_handle_bKGD(png_structrp png_ptr, png_inforp info_ptr, ui
 		png_chunk_benign_error(png_ptr, "duplicate");
 		return;
 	}
-
 	if(png_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
 		truelen = 1;
-
 	else if((png_ptr->color_type & PNG_COLOR_MASK_COLOR) != 0)
 		truelen = 6;
-
 	else
 		truelen = 2;
-
 	if(length != truelen) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "invalid");
 		return;
 	}
-
 	png_crc_read(png_ptr, buf, truelen);
-
 	if(png_crc_finish(png_ptr, 0) != 0)
 		return;
 
@@ -1764,32 +1735,23 @@ void /* PRIVATE */ png_handle_bKGD(png_structrp png_ptr, png_inforp info_ptr, ui
 	 */
 	if(png_ptr->color_type == PNG_COLOR_TYPE_PALETTE) {
 		background.index = buf[0];
-
-		if(info_ptr != NULL && info_ptr->num_palette != 0) {
+		if(info_ptr && info_ptr->num_palette) {
 			if(buf[0] >= info_ptr->num_palette) {
 				png_chunk_benign_error(png_ptr, "invalid index");
 				return;
 			}
-
-			background.red = (png_uint_16)png_ptr->palette[buf[0]].red;
-			background.green = (png_uint_16)png_ptr->palette[buf[0]].green;
-			background.blue = (png_uint_16)png_ptr->palette[buf[0]].blue;
+			background.red = png_ptr->palette[buf[0]].R;
+			background.green = png_ptr->palette[buf[0]].G;
+			background.blue = png_ptr->palette[buf[0]].B;
 		}
-
 		else
 			background.red = background.green = background.blue = 0;
-
 		background.gray = 0;
 	}
-
 	else if((png_ptr->color_type & PNG_COLOR_MASK_COLOR) == 0) { /* GRAY */
 		background.index = 0;
-		background.red =
-		    background.green =
-		    background.blue =
-		    background.gray = png_get_uint_16(buf);
+		background.red = background.green = background.blue = background.gray = png_get_uint_16(buf);
 	}
-
 	else {
 		background.index = 0;
 		background.red = png_get_uint_16(buf);

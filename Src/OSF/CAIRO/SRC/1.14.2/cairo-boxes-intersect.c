@@ -136,7 +136,7 @@ static inline int rectangle_compare_stop(const rectangle_t * a,
 
 static inline void pqueue_init(pqueue_t * pq)
 {
-	pq->max_size = ARRAY_LENGTH(pq->elements_embedded);
+	pq->max_size = SIZEOFARRAY(pq->elements_embedded);
 	pq->size = 0;
 
 	pq->elements = pq->elements_embedded;
@@ -539,7 +539,7 @@ cairo_status_t _cairo_boxes_intersect(const cairo_boxes_t * a, const cairo_boxes
 {
 	rectangle_t stack_rectangles[CAIRO_STACK_ARRAY_LENGTH(rectangle_t)];
 	rectangle_t * rectangles;
-	rectangle_t * stack_rectangles_ptrs[ARRAY_LENGTH(stack_rectangles) + 1];
+	rectangle_t * stack_rectangles_ptrs[SIZEOFARRAY(stack_rectangles) + 1];
 	rectangle_t ** rectangles_ptrs;
 	const _cairo_boxes_t::_cairo_boxes_chunk * chunk;
 	cairo_status_t status;
@@ -559,7 +559,7 @@ cairo_status_t _cairo_boxes_intersect(const cairo_boxes_t * a, const cairo_boxes
 	rectangles = stack_rectangles;
 	rectangles_ptrs = stack_rectangles_ptrs;
 	count = a->num_boxes + b->num_boxes;
-	if(count > ARRAY_LENGTH(stack_rectangles)) {
+	if(count > SIZEOFARRAY(stack_rectangles)) {
 		rectangles = (rectangle_t *)_cairo_malloc_ab_plus_c(count, sizeof(rectangle_t) + sizeof(rectangle_t *), sizeof(rectangle_t *));
 		if(unlikely(rectangles == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);

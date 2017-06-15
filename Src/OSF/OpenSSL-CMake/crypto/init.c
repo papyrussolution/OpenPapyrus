@@ -47,7 +47,6 @@ static struct thread_local_inits_st * ossl_init_get_thread_local(int alloc)
 	if(!alloc) {
 		CRYPTO_THREAD_set_local(&threadstopkey, NULL);
 	}
-
 	return local;
 }
 

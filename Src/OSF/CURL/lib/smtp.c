@@ -38,50 +38,49 @@
 #ifndef CURL_DISABLE_SMTP
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+	#include <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+	#include <arpa/inet.h>
 #endif
 #ifdef HAVE_UTSNAME_H
-#include <sys/utsname.h>
+	#include <sys/utsname.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+	#include <netdb.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+	#include <in.h>
+	#include <inet.h>
 #endif
-
 #if (defined(NETWARE) && defined(__NOVELL_LIBC__))
 	#undef in_addr_t
 	#define in_addr_t ulong
 #endif
 //#include <curl/curl.h>
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "hostip.h"
-#include "progress.h"
-#include "transfer.h"
-#include "escape.h"
+//#include "progress.h"
+//#include "transfer.h"
+//#include "escape.h"
 #include "http.h" /* for HTTP proxy tunnel stuff */
-#include "socks.h"
+//#include "socks.h"
 #include "smtp.h"
-#include "strtoofft.h"
+//#include "strtoofft.h"
 //#include "strcase.h"
 #include "vtls/vtls.h"
 #include "connect.h"
-#include "strerror.h"
-#include "select.h"
+//#include "strerror.h"
+//#include "select.h"
 #include "multiif.h"
-#include "url.h"
-#include "curl_gethostname.h"
+//#include "url.h"
+//#include "curl_gethostname.h"
 #include "curl_sasl.h"
 #include "warnless.h"
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* Local API functions */

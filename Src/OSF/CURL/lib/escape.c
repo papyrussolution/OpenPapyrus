@@ -26,14 +26,14 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include <curl/curl.h>
-#include "urldata.h"
+//#include "urldata.h"
 #include "warnless.h"
-#include "non-ascii.h"
-#include "escape.h"
-#include "strdup.h"
-/* The last 3 #include files should be in this order */
+//#include "non-ascii.h"
+//#include "escape.h"
+//#include "strdup.h"
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* Portable character check (remember EBCDIC). Do not use isalnum() because
@@ -199,23 +199,19 @@ CURLcode Curl_urldecode(struct Curl_easy * data, const char * string, size_t len
  * If length == 0, the length is assumed to be strlen(string).
  * If olen == NULL, no output length is stored.
  */
-char * curl_easy_unescape(struct Curl_easy * data, const char * string,
-    int length, int * olen)
+char * curl_easy_unescape(struct Curl_easy * data, const char * string, int length, int * olen)
 {
 	char * str = NULL;
 	if(length >= 0) {
 		size_t inputlen = length;
 		size_t outputlen;
-		CURLcode res = Curl_urldecode(data, string, inputlen, &str, &outputlen,
-		    FALSE);
+		CURLcode res = Curl_urldecode(data, string, inputlen, &str, &outputlen, FALSE);
 		if(res)
 			return NULL;
-
 		if(olen) {
 			if(outputlen <= (size_t)INT_MAX)
 				*olen = curlx_uztosi(outputlen);
-			else
-				/* too large to return in an int, fail! */
+			else // too large to return in an int, fail! 
 				ZFREE(str);
 		}
 	}

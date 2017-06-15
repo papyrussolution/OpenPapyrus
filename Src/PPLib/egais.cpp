@@ -1026,16 +1026,14 @@ int SLAPI PPEgaisProcessor::operator !() const
 	return BIN(State & stError);
 }
 
-int SLAPI PPEgaisProcessor::SetTestSendingMode(int set)
+void SLAPI PPEgaisProcessor::SetTestSendingMode(int set)
 {
 	SETFLAG(State, stTestSendingMode, set);
-	return 1;
 }
 
-int SLAPI PPEgaisProcessor::SetNonRvmTagMode(int set)
+void SLAPI PPEgaisProcessor::SetNonRvmTagMode(int set)
 {
 	SETFLAG(State, stDontRemoveTags, set);
-	return 1;
 }
 
 int SLAPI PPEgaisProcessor::CheckLic() const
@@ -1592,20 +1590,35 @@ int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * 
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::WriteInformCode(SXml::WDoc & rXmlDoc, const char * pNs, char informKind, SString & rCode)
+int SLAPI PPEgaisProcessor::WriteInformCode(SXml::WDoc & rXmlDoc, const char * pNs, char informKind, SString & rCode, int v2)
 {
 	assert(oneof2(informKind, 'A', 'B'));
     int    ok = 1;
     if(oneof2(informKind, 'A', 'B')) {
 		SString temp_buf;
-		(temp_buf = pNs).CatChar(':').Cat("Inform").CatChar(informKind);
+		(temp_buf = pNs).CatChar(':').Cat("Inform");
+		if(v2) {
+			if(informKind == 'A')
+				temp_buf.Cat("F1");
+			else if(informKind == 'B')
+				temp_buf.Cat("F2");
+		}
+		else {
+			temp_buf.CatChar(informKind);
+		}
 		SXml::WNode w_s(rXmlDoc, temp_buf);
 		if(informKind == 'A') {
 			w_s.PutInner("pref:RegId", EncText(rCode));
 		}
 		else {
-			SXml::WNode w_i(rXmlDoc, "pref:InformBItem");
-			w_i.PutInner("pref:BRegId", EncText(rCode));
+			if(v2) {
+				SXml::WNode w_i(rXmlDoc, "pref:InformF2Item");
+				w_i.PutInner("pref:F2RegId", EncText(rCode));
+			}
+			else {
+				SXml::WNode w_i(rXmlDoc, "pref:InformBItem");
+				w_i.PutInner("pref:BRegId", EncText(rCode));
+			}
 		}
     }
     else
@@ -1613,7 +1626,7 @@ int SLAPI PPEgaisProcessor::WriteInformCode(SXml::WDoc & rXmlDoc, const char * p
     return ok;
 }
 
-int SLAPI PPEgaisProcessor::SetUtmEntry(PPID locID, const UtmEntry * pEntry, const DateRange * pPeriod)
+void SLAPI PPEgaisProcessor::SetUtmEntry(PPID locID, const UtmEntry * pEntry, const DateRange * pPeriod)
 {
 	P_UtmEntry = pEntry;
 	if(P_UtmEntry) {
@@ -1636,7 +1649,6 @@ int SLAPI PPEgaisProcessor::SetUtmEntry(PPID locID, const UtmEntry * pEntry, con
 		}
 		Log(msg_buf);
 	}
-	return 1;
 }
 
 int SLAPI PPEgaisProcessor::GetUtmList(PPID locID, TSArray <UtmEntry> & rList)
@@ -1833,7 +1845,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 					{  2, "c",    "Common"               },
 					{  3, "oref", "ClientRef"            }, // ambiguity
 					{  4, "pref", "ProductRef"           }, // ambiguity
-					{  5, "wb",   "TTNSingle"            },
+					{  5, "wb",   "TTNSingle"            }, // ambiguity
 					{  6, "qp",   "QueryParameters"      }, // ambiguity
 					{  7, "qp",   "RequestRepealWB"      }, // ambiguity
 					{  8, "wa",   "ActTTNSingle"         }, // ambiguity
@@ -1854,6 +1866,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 					{ 23, "iab",  "ActInventoryF1F2Info" }, // ambiguity
 					{ 24, "awr",  "ActWriteOffShop_v2"   }, // ambiguity
 					{ 25, "wa",   "ActTTNSingle_v2"      }, // ambiguity
+					{ 26, "wb",   "TTNSingle_v2"         }, // ambiguity
 				};
 				const SString fsrar_url_prefix = "http://fsrar.ru/WEGAIS/";
 				n_docs.PutAttrib("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
@@ -1864,8 +1877,9 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 					// Разрешение неоднозначностей в namespace'ах
 					//
 					switch(r_entry.Nn) {
-						case  3: skip = BIN(oneof3(doc_type, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTWRITEOFFSHOP)); break; // "oref" "ClientRef"
-						case  4: skip = BIN(oneof5(doc_type, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTWRITEOFFSHOP)); break; // "pref" "ProductRef"
+						case  3: skip = BIN(oneof4(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTWRITEOFFSHOP)); break; // "oref" "ClientRef"
+						case  4: skip = BIN(oneof6(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTWRITEOFFSHOP)); break; // "pref" "ProductRef"
+						case  5: skip = BIN(doc_type == PPEDIOP_EGAIS_WAYBILL_V2); break; // "wb"
 						case  7: skip = BIN(doc_type != PPEDIOP_EGAIS_REQUESTREPEALWB); break;
 						case  6: skip = BIN(doc_type == PPEDIOP_EGAIS_REQUESTREPEALWB); break;
 						case  8: skip = BIN(doc_type == PPEDIOP_EGAIS_WAYBILLACT_V2); break; // "wa"
@@ -1873,13 +1887,14 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						case 11: skip = BIN(doc_type == PPEDIOP_EGAIS_CONFIRMREPEALWB); break; // "wt"
 						case 12: skip = BIN(doc_type != PPEDIOP_EGAIS_CONFIRMREPEALWB); break; // "wt"
 						case 13: skip = BIN(oneof2(doc_type, PPEDIOP_EGAIS_CONFIRMREPEALWB, PPEDIOP_EGAIS_ACTWRITEOFFSHOP)); break; // "awr"
-						case 17: skip = BIN(!oneof5(doc_type, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTWRITEOFFSHOP)); break; // "pref" "ProductRef_v2"
+						case 17: skip = BIN(!oneof6(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTWRITEOFFSHOP)); break; // "pref" "ProductRef_v2"
 						case 19: skip = BIN(doc_type == PPEDIOP_EGAIS_ACTCHARGEON_V2); break; // "ainp"
-						case 20: skip = BIN(!oneof3(doc_type, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTWRITEOFFSHOP)); break; // "oref" "ClientRef_v2"
+						case 20: skip = BIN(!oneof4(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTWRITEOFFSHOP)); break; // "oref" "ClientRef_v2"
 						case 22: skip = BIN(doc_type != PPEDIOP_EGAIS_ACTCHARGEON_V2); break; // "ainp"
 						case 23: skip = BIN(doc_type != PPEDIOP_EGAIS_ACTCHARGEON_V2); break; // "iab"
 						case 24: skip = BIN(doc_type != PPEDIOP_EGAIS_ACTWRITEOFFSHOP); break; // "awr"
 						case 25: skip = BIN(doc_type != PPEDIOP_EGAIS_WAYBILLACT_V2); break; // "wa"
+						case 26: skip = BIN(doc_type != PPEDIOP_EGAIS_WAYBILL_V2); break; // "wb"
 					}
 					if(!skip) {
 						(bill_text = 0).Cat("xmlns").CatChar(':').Cat(r_entry.P_Ns); // bill_text as temporary buffer
@@ -1896,7 +1911,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 				{
 					(temp_buf = "ns").CatChar(':').Cat(p_doc_type_tag);
 					SXml::WNode n_dt(_doc, temp_buf);
-					if(doc_type == PPEDIOP_EGAIS_WAYBILL) {
+					if(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2)) {
 						const  PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
 						int    wb_type = 0;
 						PPOprKind op_rec;
@@ -2007,14 +2022,22 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								n_h.PutInner("wb:Date", (temp_buf = 0).Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 								n_h.PutInner("wb:ShippingDate", (temp_buf = 0).
 									Cat((p_bp->P_Freight && checkdate(p_bp->P_Freight->IssueDate, 0)) ? p_bp->P_Freight->IssueDate : p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY));
-								if(gppf & gppfUnpacked)
-									n_h.PutInner("wb:UnitType", "Unpacked");
-								else
-									n_h.PutInner("wb:UnitType", "Packed");
-								THROW(WriteOrgInfo(_doc, "wb:Shipper", shipper_psn_id, shipper_loc_id, p_bp->Rec.Dt, woifStrict));
-								THROW(WriteOrgInfo(_doc, "wb:Consignee", consignee_psn_id, consignee_loc_id, p_bp->Rec.Dt, woifStrict));
-								if(suppl_psn_id) {
-									THROW(WriteOrgInfo(_doc, "wb:Supplier", suppl_psn_id, suppl_loc_id, p_bp->Rec.Dt, woifStrict));
+								{
+									long woi_flags = woifStrict|woifDontSendWithoutFSRARID;
+									if(doc_type == PPEDIOP_EGAIS_WAYBILL_V2) {
+										woi_flags |= woifVersion2;
+									}
+									else {
+										if(gppf & gppfUnpacked)
+											n_h.PutInner("wb:UnitType", "Unpacked");
+										else
+											n_h.PutInner("wb:UnitType", "Packed");
+									}
+									THROW(WriteOrgInfo(_doc, "wb:Shipper", shipper_psn_id, shipper_loc_id, p_bp->Rec.Dt, woi_flags));
+									THROW(WriteOrgInfo(_doc, "wb:Consignee", consignee_psn_id, consignee_loc_id, p_bp->Rec.Dt, woi_flags));
+									if(suppl_psn_id) {
+										THROW(WriteOrgInfo(_doc, "wb:Supplier", suppl_psn_id, suppl_loc_id, p_bp->Rec.Dt, woi_flags));
+									}
 								}
 								{
 									SXml::WNode n_tr(_doc, "wb:Transport");
@@ -2065,7 +2088,12 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								if(IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, r_ti.LotID, 0, 0, agi) > 0) {
 									SXml::WNode w_p(_doc, "wb:Position");
 									w_p.PutInner("wb:Identity", EncText((temp_buf = 0).Cat(r_ti.RByBill)));
-									THROW(WriteProductInfo(_doc, "wb:Product", r_ti.GoodsID, r_ti.LotID, wpifPutManufInfo, 0))
+									{
+										long wpi_flags = wpifPutManufInfo;
+										if(doc_type == PPEDIOP_EGAIS_WAYBILL_V2)
+											wpi_flags |= wpifVersion2;
+										THROW(WriteProductInfo(_doc, "wb:Product", r_ti.GoodsID, r_ti.LotID, wpi_flags, 0))
+									}
 									w_p.PutInnerSkipEmpty("wb:Pack_ID", "");
 									{
 										double qtty = fabs(r_ti.Qtty());
@@ -2094,10 +2122,10 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										(lot_text = 0).CatChar('[').Cat(r_ti.RByBill).CatChar(']').Space().Cat(temp_buf);
 										//
 										THROW_PP_S(p_bp->LTagL.GetTagStr(tidx, PPTAG_LOT_FSRARINFA, temp_buf) > 0, PPERR_EGAIS_NOINFAIDINLOT, lot_text);
-										WriteInformCode(_doc, "wb", 'A', temp_buf);
+										WriteInformCode(_doc, "wb", 'A', temp_buf, BIN(doc_type == PPEDIOP_EGAIS_WAYBILL_V2));
 										//
 										THROW_PP_S(p_bp->LTagL.GetTagStr(tidx, PPTAG_LOT_FSRARINFB, temp_buf) > 0, PPERR_EGAIS_NOINFBIDINLOT, lot_text);
-										WriteInformCode(_doc, "wb", 'B', temp_buf);
+										WriteInformCode(_doc, "wb", 'B', temp_buf, BIN(doc_type == PPEDIOP_EGAIS_WAYBILL_V2));
 									}
 								}
                         	}
@@ -5462,14 +5490,18 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 											(line_buf = 0).Cat(p_qb->CodeType).Tab().Cat(p_qb->Rank).Tab().Cat(p_qb->Number).Tab().Cat(p_qb->Result).CR();
 											out_file.WriteLine(line_buf);
 											{
+												PPBarcode::BarcodeImageParam bip;
+												bip.Code = p_qb->Result;
+												bip.Std = BARCSTD_PDF417;
+												bip.OutputFormat = SFileFormat::Png;
 												temp_buf = 0;
                                                 if(p_qb->Rank.NotEmpty())
 													temp_buf.CatDivIfNotEmpty('-', 0).Cat(p_qb->Rank);
 												if(p_qb->Number.NotEmpty())
 													temp_buf.CatDivIfNotEmpty('-', 0).Cat(p_qb->Number);
 												temp_buf.CatDivIfNotEmpty('-', 0).Cat(p_qb->Result);
-                                                PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
-												PPBarcode::CreateImage(p_qb->Result, BARCSTD_PDF417, SFileFormat::Png, out_file_name);
+                                                PPGetFilePath(PPPATH_OUT, temp_buf, bip.OutputFileName);
+												PPBarcode::CreateImage(bip);
 											}
 										}
                         			}
@@ -7391,8 +7423,10 @@ int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 		reject_bill_list.clear();
 		GetBillListForTransmission(/*locID, period*/rP, bilstfReadyForAck|bilstfExpend|bilstfIntrExpend, totransm_bill_list, &reject_bill_list);
 		{
+			const int edi_op = (Cfg.E.Flags & Cfg.fEgaisVer2Fmt) ? PPEDIOP_EGAIS_WAYBILL_V2 : PPEDIOP_EGAIS_WAYBILL;
+			const char * p_url_sfx = (Cfg.E.Flags & Cfg.fEgaisVer2Fmt) ? "WayBill_v2" : "WayBill";
 			for(uint i = 0; i < totransm_bill_list.getCount(); i++) {
-				if(Helper_SendBills(totransm_bill_list.get(i), PPEDIOP_EGAIS_WAYBILL, rP.LocID, "WayBill") > 0)
+				if(Helper_SendBills(totransm_bill_list.get(i), edi_op, rP.LocID, p_url_sfx) > 0)
 					ok = 1;
 			}
 		}

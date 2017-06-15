@@ -1847,7 +1847,7 @@ static cairo_int_status_t _cairo_quartz_cg_stroke(const cairo_compositor_t * com
 
 		if(style->num_dashes%2)
 			max_dashes *= 2;
-		if(max_dashes > ARRAY_LENGTH(sdash))
+		if(max_dashes > SIZEOFARRAY(sdash))
 			fdash = _cairo_malloc_ab(max_dashes, sizeof(cairo_quartz_float_t));
 		if(unlikely(fdash == NULL)) {
 			rv = _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -1958,7 +1958,7 @@ static cairo_int_status_t _cairo_quartz_cg_glyphs(const cairo_compositor_t * com
 		    break;
 	}
 
-	if(num_glyphs > ARRAY_LENGTH(glyphs_static)) {
+	if(num_glyphs > SIZEOFARRAY(glyphs_static)) {
 		cg_glyphs = (CGGlyph*)_cairo_malloc_ab(num_glyphs, sizeof(CGGlyph) + sizeof(CGSize));
 		if(unlikely(cg_glyphs == NULL)) {
 			rv = _cairo_error(CAIRO_STATUS_NO_MEMORY);

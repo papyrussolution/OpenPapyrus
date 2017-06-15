@@ -23,76 +23,67 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+	#include <netinet/in.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+	#include <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+	#include <arpa/inet.h>
 #endif
 #ifdef HAVE_NET_IF_H
-#include <net/if.h>
+	#include <net/if.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+	#include <sys/ioctl.h>
 #endif
-
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+	#include <sys/param.h>
 #endif
-
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+	#include <in.h>
+	#include <inet.h>
 #endif
-
 #ifdef HAVE_SYS_UN_H
-#include <sys/un.h>
+	#include <sys/un.h>
 #endif
-
 #ifndef HAVE_SOCKET
-#error "We can't compile without socket() support!"
+	#error "We can't compile without socket() support!"
 #endif
-
 #ifdef HAVE_LIMITS_H
-#include <limits.h>
+	#include <limits.h>
 #endif
-
 #ifdef USE_LIBIDN2
-#include <idn2.h>
-
+	#include <idn2.h>
 #elif defined(USE_WIN32_IDN)
-/* prototype for curl_win32_idn_to_ascii() */
-bool curl_win32_idn_to_ascii(const char * in, char ** out);
+	/* prototype for curl_win32_idn_to_ascii() */
+	bool curl_win32_idn_to_ascii(const char * in, char ** out);
 #endif  /* USE_LIBIDN2 */
-
-#include "urldata.h"
+//#include "urldata.h"
 #include "netrc.h"
-
 #include "formdata.h"
 #include "vtls/vtls.h"
 #include "hostip.h"
-#include "transfer.h"
-#include "sendf.h"
-#include "progress.h"
+//#include "transfer.h"
+//#include "sendf.h"
+//#include "progress.h"
 #include "cookie.h"
 //#include "strcase.h"
-#include "strerror.h"
-#include "escape.h"
+//#include "strerror.h"
+//#include "escape.h"
 //#include "strtok.h"
 #include "share.h"
 #include "content_encoding.h"
 #include "http_digest.h"
 #include "http_negotiate.h"
-#include "select.h"
+//#include "select.h"
 #include "multiif.h"
 #include "easyif.h"
 #include "speedcheck.h"
 #include "warnless.h"
-#include "non-ascii.h"
+//#include "non-ascii.h"
 #include "inet_pton.h"
-#include "getinfo.h"
+//#include "getinfo.h"
 
 /* And now for the protocols */
 #include "ftp.h"
@@ -105,12 +96,12 @@ bool curl_win32_idn_to_ascii(const char * in, char ** out);
 #include "curl_ldap.h"
 #include "ssh.h"
 #include "imap.h"
-#include "url.h"
+//#include "url.h"
 #include "connect.h"
 #include "inet_ntop.h"
 #include "http_ntlm.h"
 #include "curl_ntlm_wb.h"
-#include "socks.h"
+//#include "socks.h"
 #include "curl_rtmp.h"
 #include "gopher.h"
 #include "http_proxy.h"
@@ -118,10 +109,10 @@ bool curl_win32_idn_to_ascii(const char * in, char ** out);
 #include "multihandle.h"
 #include "pipeline.h"
 #include "dotdot.h"
-#include "strdup.h"
-/* The last 3 #include files should be in this order */
+//#include "strdup.h"
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* Local static prototypes */
@@ -615,10 +606,10 @@ CURLcode Curl_init_userdefined(struct UserDefined * set)
 CURLcode Curl_open(struct Curl_easy ** curl)
 {
 	CURLcode result;
-	/* Very simple start-up: alloc the struct, init it with zeroes and return */
+	// Very simple start-up: alloc the struct, init it with zeroes and return 
 	struct Curl_easy * data = (struct Curl_easy *)SAlloc::C(1, sizeof(struct Curl_easy));
 	if(!data) {
-		/* this is a very serious error */
+		// this is a very serious error 
 		DEBUGF(fprintf(stderr, "Error: calloc of Curl_easy failed\n"));
 		return CURLE_OUT_OF_MEMORY;
 	}
@@ -629,7 +620,7 @@ CURLcode Curl_open(struct Curl_easy ** curl)
 		SAlloc::F(data);
 		return result;
 	}
-	/* We do some initial setup here, all those fields that can't be just 0 */
+	// We do some initial setup here, all those fields that can't be just 0 
 	data->state.buffer = (char *)SAlloc::M(BUFSIZE + 1);
 	if(!data->state.buffer) {
 		DEBUGF(fprintf(stderr, "Error: malloc of buffer failed\n"));
@@ -645,7 +636,7 @@ CURLcode Curl_open(struct Curl_easy ** curl)
 		data->state.headersize = HEADERSIZE;
 		Curl_convert_init(data);
 		Curl_initinfo(data);
-		/* most recent connection is not yet defined */
+		// most recent connection is not yet defined 
 		data->state.lastconnect = NULL;
 		data->progress.flags |= PGRS_HIDE;
 		data->state.current_speed = -1; /* init to negative == impossible */
@@ -658,12 +649,10 @@ CURLcode Curl_open(struct Curl_easy ** curl)
 		SAlloc::F(data->state.buffer);
 		SAlloc::F(data->state.headerbuff);
 		Curl_freeset(data);
-		SAlloc::F(data);
-		data = NULL;
+		ZFREE(data);
 	}
 	else
 		*curl = data;
-
 	return result;
 }
 

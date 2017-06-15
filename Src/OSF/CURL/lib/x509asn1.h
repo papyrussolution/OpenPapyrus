@@ -27,7 +27,7 @@
 
 #if defined(USE_GSKIT) || defined(USE_NSS) || defined(USE_GNUTLS) || defined(USE_CYASSL) || defined(USE_SCHANNEL)
 
-#include "urldata.h"
+//#include "urldata.h"
 
 /*
  * Constants.

@@ -231,7 +231,7 @@ void c16k_set_b(uchar source, uint values[], uint * bar_chars)
 
 void c16k_set_c(uchar source_a, uchar source_b, uint values[], uint * bar_chars)
 {
-	const int weight = (10 * ctoi(source_a)) + ctoi(source_b);
+	const int weight = (10 * hex(source_a)) + hex(source_b);
 	values[(*bar_chars)] = weight;
 	(*bar_chars)++;
 }
@@ -250,11 +250,11 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 	int    first_sum, second_sum;
 	int    c_count;
 	int    errornum = 0;
-	strcpy(width_pattern, "");
+	sstrcpy(width_pattern, "");
 	int    input_length = length;
 	int    gs1 = (symbol->input_mode == GS1_MODE) ? 1 : 0;
 	if(input_length > 157) {
-		strcpy(symbol->errtxt, "Input too long (D20)");
+		sstrcpy(symbol->errtxt, "Input too long (D20)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	bar_characters = 0;
@@ -441,7 +441,7 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 		glyph_count--;
 	}
 	if(glyph_count > 77.0f) {
-		strcpy(symbol->errtxt, "Input too long (D21)");
+		sstrcpy(symbol->errtxt, "Input too long (D21)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	// Calculate how tall the symbol will be 
@@ -466,7 +466,7 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 			m = 5;
 		}
 		if(gs1) {
-			strcpy(symbol->errtxt, "Cannot use both GS1 mode and Reader Initialisation (D22)");
+			sstrcpy(symbol->errtxt, "Cannot use both GS1 mode and Reader Initialisation (D22)");
 			return ZINT_ERROR_INVALID_OPTION;
 		}
 		else {
@@ -644,7 +644,7 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 	bar_characters += 2;
 
 	for(current_row = 0; current_row < rows_needed; current_row++) {
-		strcpy(width_pattern, "");
+		sstrcpy(width_pattern, "");
 		strcat(width_pattern, C16KStartStop[C16KStartValues[current_row]]);
 		strcat(width_pattern, "1");
 		for(i = 0; i < 5; i++) {
@@ -655,7 +655,7 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 		writer = 0;
 		flip_flop = 1;
 		for(mx_reader = 0; mx_reader < strlen(width_pattern); mx_reader++) {
-			for(looper = 0; looper < ctoi(width_pattern[mx_reader]); looper++) {
+			for(looper = 0; looper < hex(width_pattern[mx_reader]); looper++) {
 				if(flip_flop == 1) {
 					set_module(symbol, current_row, writer);
 					writer++;

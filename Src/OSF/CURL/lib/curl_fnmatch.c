@@ -24,7 +24,7 @@
 #pragma hdrstop
 //#include <curl/curl.h>
 #include "curl_fnmatch.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h" /* The last #include file should be: */
 
 #define CURLFNM_CHARSET_LEN (sizeof(char) * 256)
@@ -410,11 +410,7 @@ static int loop(const uchar * pattern, const uchar * string)
  */
 int Curl_fnmatch(void * ptr, const char * pattern, const char * string)
 {
-	(void)ptr; /* the argument is specified by the curl_fnmatch_callback
-	              prototype, but not used by Curl_fnmatch() */
-	if(!pattern || !string) {
-		return CURL_FNMATCH_FAIL;
-	}
-	return loop((uchar*)pattern, (uchar*)string);
+	(void)ptr; // the argument is specified by the curl_fnmatch_callback prototype, but not used by Curl_fnmatch() 
+	return (!pattern || !string) ? CURL_FNMATCH_FAIL : loop((uchar*)pattern, (uchar*)string);
 }
 

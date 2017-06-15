@@ -233,7 +233,7 @@ cairo_region_t * cairo_region_create_rectangles(const CairoIRect * rects,
 		return region;
 	}
 
-	if(count > ARRAY_LENGTH(stack_pboxes)) {
+	if(count > SIZEOFARRAY(stack_pboxes)) {
 		pboxes = (pixman_box32_t *)_cairo_malloc_ab(count, sizeof(pixman_box32_t));
 		if(unlikely(pboxes == NULL)) {
 			SAlloc::F(region);

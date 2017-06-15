@@ -858,52 +858,53 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 	}
 	{
 		ZDELETE(P_Ct);
-		if(P_TrGrpngTbl && Filt.CtKind != TrfrAnlzFilt::ctNone) {
+		TempTrfrGrpngTbl * p_tgt = P_TrGrpngTbl;
+		if(p_tgt && Filt.CtKind != TrfrAnlzFilt::ctNone) {
 			int    setup_total = 0;
 			SString temp_buf;
 			DBFieldList total_list;
 			StringSet total_title_list;
 			THROW_MEM(P_Ct = new TrfrAnlzCrosstab(this));
 			if(Filt.CtKind == TrfrAnlzFilt::ctDate)
-				P_Ct->SetTable(P_TrGrpngTbl, P_TrGrpngTbl->Dt);
+				P_Ct->SetTable(p_tgt, p_tgt->Dt);
 			else if(Filt.CtKind == TrfrAnlzFilt::ctCntragent)
-				P_Ct->SetTable(P_TrGrpngTbl, P_TrGrpngTbl->ArticleID);
+				P_Ct->SetTable(p_tgt, p_tgt->ArticleID);
 			/*
 			else if(Filt.CtKind == TrfrAnlzFilt::ctLocation)
-				P_Ct->SetTable(P_TrGrpngTbl, P_TrGrpngTbl->Dt);
+				P_Ct->SetTable(p_tgt, p_tgt->Dt);
 			*/
-			P_Ct->AddIdxField(P_TrGrpngTbl->GoodsID);
-			P_Ct->AddIdxField(P_TrGrpngTbl->PersonID);
+			P_Ct->AddIdxField(p_tgt->GoodsID);
+			P_Ct->AddIdxField(p_tgt->PersonID);
 			if(Filt.Flags & TrfrAnlzFilt::fDiffByDlvrAddr)
-				P_Ct->AddIdxField(P_TrGrpngTbl->DlvrLocID);
-			P_Ct->AddInheritedFixField(P_TrGrpngTbl->GoodsText);
-			P_Ct->AddInheritedFixField(P_TrGrpngTbl->PersonText);
+				P_Ct->AddIdxField(p_tgt->DlvrLocID);
+			P_Ct->AddInheritedFixField(p_tgt->GoodsText);
+			P_Ct->AddInheritedFixField(p_tgt->PersonText);
 			if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvQtty) > 0) {
-				P_Ct->AddAggrField(P_TrGrpngTbl->Qtty);
-				total_list.Add(P_TrGrpngTbl->Qtty);
+				P_Ct->AddAggrField(p_tgt->Qtty);
+				total_list.Add(p_tgt->Qtty);
 				total_title_list.add(GetCtColumnTitle(TrfrAnlzFilt::ctvQtty, temp_buf));
 			}
 			if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvCost) > 0) {
-				P_Ct->AddAggrField(P_TrGrpngTbl->Cost);
-				total_list.Add(P_TrGrpngTbl->Cost);
+				P_Ct->AddAggrField(p_tgt->Cost);
+				total_list.Add(p_tgt->Cost);
 				total_title_list.add(GetCtColumnTitle(TrfrAnlzFilt::ctvCost, temp_buf));
 			}
 			if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvNetPrice) > 0) {
-				P_Ct->AddAggrField(P_TrGrpngTbl->Price);
-				total_list.Add(P_TrGrpngTbl->Price);
+				P_Ct->AddAggrField(p_tgt->Price);
+				total_list.Add(p_tgt->Price);
 				total_title_list.add(GetCtColumnTitle(TrfrAnlzFilt::ctvNetPrice, temp_buf));
 			}
 			if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctMargin) > 0 || Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctIncome) > 0) {
-				P_Ct->AddAggrField(P_TrGrpngTbl->Income);
+				P_Ct->AddAggrField(p_tgt->Income);
 			}
 			else if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvIncome) > 0) {
-				P_Ct->AddAggrField(P_TrGrpngTbl->Income);
-				total_list.Add(P_TrGrpngTbl->Income);
+				P_Ct->AddAggrField(p_tgt->Income);
+				total_list.Add(p_tgt->Income);
 				total_title_list.add(GetCtColumnTitle(TrfrAnlzFilt::ctvIncome, temp_buf));
 			}
 			if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvLocCount) > 0) {
-				P_Ct->AddAggrField(P_TrGrpngTbl->LocCount);
-				total_list.Add(P_TrGrpngTbl->LocCount);
+				P_Ct->AddAggrField(p_tgt->LocCount);
+				total_list.Add(p_tgt->LocCount);
 				total_title_list.add(GetCtColumnTitle(TrfrAnlzFilt::ctvLocCount, temp_buf));
 			}
 			if(Filt.Grp == TrfrAnlzFilt::gGoodsDate)
@@ -1293,6 +1294,7 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 				tg_rec.Dt      = pBillRec->Dt;
 			}
 			{
+				TempTrfrGrpngTbl * p_tgt = P_TrGrpngTbl;
 				TagrCacheItem ctest, citem;
 				uint   pos = 0;
 				int    r = 0;
@@ -1304,8 +1306,8 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 				if(Cache.bsearch(&ctest, &pos, Cf)) {
 					r = 1;
 				}
-				else if(P_TrGrpngTbl->search(1, &k, spEq)) {
-	#define CPY(f) citem.f = P_TrGrpngTbl->data.f
+				else if(p_tgt->search(1, &k, spEq)) {
+	#define CPY(f) citem.f = p_tgt->data.f
 					CPY(ID__);
 					CPY(Dt);
 					CPY(GoodsID);
@@ -1330,7 +1332,7 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 					CPY(ExtVal1);   // @v9.3.5
 	#undef CPY
 					citem.Counter = 0;
-					P_TrGrpngTbl->getPosition(&citem.DbPos);
+					p_tgt->getPosition(&citem.DbPos);
 					if(Cache.getCount() >= MaxCacheItems)
 						THROW(FlashCacheItems(CacheDelta));
 					THROW_SL(Cache.ordInsert(&citem, &pos, Cf));
@@ -1586,27 +1588,28 @@ int SLAPI PPViewTrfrAnlz::InitDateText(LDATE dt, PPID billID, SString & rBuf)
 int SLAPI PPViewTrfrAnlz::InitGrpngNames()
 {
 	int    ok = 1;
-	if(P_TrGrpngTbl) {
+	TempTrfrGrpngTbl * p_tgt = P_TrGrpngTbl;
+	if(p_tgt) {
 		SString msg_buf, temp_buf;
 		IterCounter counter;
-		counter.Init(P_TrGrpngTbl);
+		counter.Init(p_tgt);
 		PPLoadText(PPTXT_TRFRANLZINITGRPNGTEXT, msg_buf);
 		PPObjWorld w_obj;
 		PROFILE_START
-		//for(PPID id = 0; P_TrGrpngTbl->search(0, &id, spGt);) {
+		//for(PPID id = 0; p_tgt->search(0, &id, spGt);) {
 		PPID   id = 0;
-		if(P_TrGrpngTbl->search(0, &id, spFirst)) do {
+		if(p_tgt->search(0, &id, spFirst)) do {
 			TempTrfrGrpngTbl::Rec rec;
-			P_TrGrpngTbl->copyBufTo(&rec);
+			p_tgt->copyBufTo(&rec);
 			PROFILE(GObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, temp_buf));
 			STRNSCPY(rec.GoodsText, temp_buf);
 			PsnObj.GetSubstText(rec.PersonID, (Filt.Flags & TrfrAnlzFilt::fDiffByDlvrAddr) ? rec.DlvrLocID : 0, &Psp, temp_buf);
 			STRNSCPY(rec.PersonText, temp_buf);
 			InitDateText(rec.Dt, rec.BillID, temp_buf);
 			STRNSCPY(rec.DtText, temp_buf);
-			THROW_DB(P_TrGrpngTbl->updateRecBuf(&rec));
+			THROW_DB(p_tgt->updateRecBuf(&rec));
 			PPWaitPercent(counter.Increment(), msg_buf);
-		} while(P_TrGrpngTbl->search(0, &id, spNext));
+		} while(p_tgt->search(0, &id, spNext));
 		PROFILE_END
 	}
 	CATCHZOK
@@ -1674,19 +1677,20 @@ int SLAPI PPViewTrfrAnlz::CreateOrderTable(IterOrder ord)
 				TempTrfrAnlzTbl::Key1 k1;
 				TempTrfrAnlzTbl::Key2 k2;
 			} k;
-			BExtQuery q(P_TrAnlzTbl, idx);
-			q.select(P_TrAnlzTbl->ID__, P_TrAnlzTbl->GoodsID, P_TrAnlzTbl->ArticleID, 0L);
+			TempTrfrAnlzTbl * p_tat = P_TrAnlzTbl;
+			BExtQuery q(p_tat, idx);
+			q.select(p_tat->ID__, p_tat->GoodsID, p_tat->ArticleID, 0L);
 			MEMSZERO(k);
 			memzero(prev_name, sizeof(prev_name));
 			THROW(p_ord_tbl = CreateTempOrderFile());
 			THROW_MEM(p_bei = new BExtInsert(p_ord_tbl));
-			cntr.Init(P_TrAnlzTbl);
+			cntr.Init(p_tat);
 			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0; PPWaitPercent(cntr.Increment(), msg_buf)) {
 				PPID   id = 0;
 				if(ord == PPViewTrfrAnlz::OrdByGoods)
-					id = P_TrAnlzTbl->data.GoodsID;
+					id = p_tat->data.GoodsID;
 				else if(ord == PPViewTrfrAnlz::OrdByArticle)
-					id = P_TrAnlzTbl->data.ArticleID;
+					id = p_tat->data.ArticleID;
 				if(id != prev_id) {
 					switch(obj_type) {
 						case PPOBJ_GOODS:
@@ -1700,7 +1704,7 @@ int SLAPI PPViewTrfrAnlz::CreateOrderTable(IterOrder ord)
 					temp_buf.CopyTo(prev_name, sizeof(prev_name));
 				}
 				p_ord_tbl->clearDataBuf();
-				p_ord_tbl->data.ID = P_TrAnlzTbl->data.ID__;
+				p_ord_tbl->data.ID = p_tat->data.ID__;
 				STRNSCPY(p_ord_tbl->data.Name, prev_name);
 				THROW_DB(p_bei->insert(&p_ord_tbl->data));
 				prev_id = id;
@@ -3993,6 +3997,7 @@ public:
 		// @v9.0.10 {
 		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 0, PrcssrAlcReport::Config::fDetectAlcByClass);
 		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 1, PrcssrAlcReport::Config::fWhToReg2ByLacks); // @v9.3.8
+		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 2, PrcssrAlcReport::Config::fEgaisVer2Fmt); // @v9.6.12
 		SetClusterData(CTL_ALCREPCFG_FLAGS, Data.E.Flags);
 		// } @v9.0.10
 		// @v9.3.10 {
@@ -4135,10 +4140,11 @@ int SLAPI PrcssrAlcReport::SearchPersonByRarCode(const char * pCode, PPID * pPsn
     PPID   psn_id = 0;
     PPID   loc_id = 0;
     if(!isempty(pCode)) {
+		Reference * p_ref = PPRef;
 		PPIDArray psn_id_list;
 		PPIDArray loc_id_list;
-		PPRef->Ot.SearchObjectsByStrExactly(PPOBJ_PERSON, PPTAG_PERSON_FSRARID, pCode, &psn_id_list);
-		PPRef->Ot.SearchObjectsByStrExactly(PPOBJ_LOCATION, PPTAG_LOC_FSRARID, pCode, &loc_id_list);
+		p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_PERSON, PPTAG_PERSON_FSRARID, pCode, &psn_id_list);
+		p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOCATION, PPTAG_LOC_FSRARID, pCode, &loc_id_list);
 		if(loc_id_list.getCount()) {
             for(uint i = 0; i < loc_id_list.getCount(); i++) {
                 const PPID _id = loc_id_list.get(i);
@@ -4368,6 +4374,7 @@ int SLAPI PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const O
 	rItem.Clear();
 
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	SString fmt_buf, msg_buf, temp_buf;
 	GoodsExtTbl::Rec goods_ext_rec;
 	Goods2Tbl::Rec goods_rec;
@@ -4383,7 +4390,7 @@ int SLAPI PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const O
 				rItem.CategoryCode = temp_buf;
 				rItem.StatusFlags |= GoodsItem::stCategoryCodeByLotTag;
 			}
-			else if(lotID && PPRef->Ot.GetTagStr(PPOBJ_LOT, lotID, Cfg.CategoryTagID, temp_buf) > 0) {
+			else if(lotID && p_ref->Ot.GetTagStr(PPOBJ_LOT, lotID, Cfg.CategoryTagID, temp_buf) > 0) {
 				rItem.CategoryCode = temp_buf;
 				rItem.StatusFlags |= GoodsItem::stCategoryCodeByLotTag;
 			}
@@ -4490,7 +4497,7 @@ int SLAPI PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const O
 			rItem.StatusFlags |= rItem.stEgaisCodeByLotTag;
 			p_egais_code = rItem.EgaisCode;
 		}
-		else if(lotID && PPRef->Ot.GetTagStr(PPOBJ_LOT, lotID, PPTAG_LOT_FSRARLOTGOODSCODE, temp_buf) > 0) {
+		else if(lotID && p_ref->Ot.GetTagStr(PPOBJ_LOT, lotID, PPTAG_LOT_FSRARLOTGOODSCODE, temp_buf) > 0) {
 			rItem.EgaisCode = temp_buf;
 			rItem.StatusFlags |= rItem.stEgaisCodeByLotTag;
 			p_egais_code = rItem.EgaisCode;
@@ -4512,7 +4519,7 @@ int SLAPI PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const O
 				if(pTags && pTags->GetItemStr(PPTAG_LOT_FSRARINFA, temp_buf) > 0) {
 					_is_ref_a = 1;
 				}
-				else if(lotID && PPRef->Ot.GetTagStr(PPOBJ_LOT, lotID, PPTAG_LOT_FSRARINFA, temp_buf) > 0) {
+				else if(lotID && p_ref->Ot.GetTagStr(PPOBJ_LOT, lotID, PPTAG_LOT_FSRARINFA, temp_buf) > 0) {
 					_is_ref_a = 1;
 				}
 				if(_is_ref_a) {

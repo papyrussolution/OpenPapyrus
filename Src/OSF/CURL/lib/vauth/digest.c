@@ -30,19 +30,19 @@
 #include "vauth/vauth.h"
 #include "vauth/digest.h"
 //#include "urldata.h"
-#include "curl_base64.h"
+//#include "curl_base64.h"
 #include "curl_hmac.h"
 #include "curl_md5.h"
 #include "vtls/vtls.h"
 #include "warnless.h"
 //#include "strtok.h"
 //#include "strcase.h"
-#include "non-ascii.h" /* included for Curl_convert_... prototypes */
+//#include "non-ascii.h" /* included for Curl_convert_... prototypes */
 #include "curl_printf.h"
 #include "rand.h"
 
 /* The last #include files should be: */
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 #if !defined(USE_WINDOWS_SSPI)

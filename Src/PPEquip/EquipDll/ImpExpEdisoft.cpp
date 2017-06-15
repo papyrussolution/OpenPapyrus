@@ -1949,7 +1949,7 @@ int ImportCls::ParseListMBResp(const char * pResp, SString & rPartnerIln, SStrin
 	SString str;
 	xmlTextReaderPtr p_xml_ptr;
 	xmlNodePtr p_node;
-	xmlParserInputBufferPtr p_input = xmlParserInputBufferCreateMem(pResp, xmlStrlen((const xmlChar *)pResp), XML_CHAR_ENCODING_NONE);
+	xmlParserInputBufferPtr p_input = xmlParserInputBufferCreateMem(pResp, sstrlen(pResp), XML_CHAR_ENCODING_NONE);
 	THROWERR((p_xml_ptr = xmlNewTextReader(p_input, NULL)), IEERR_NULLREADXMLPTR);
 	while(xmlTextReaderRead(p_xml_ptr) && (found != 2)) {
 		p_node = xmlTextReaderCurrentNode(p_xml_ptr);

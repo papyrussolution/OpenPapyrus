@@ -52,19 +52,19 @@ int plessey(struct ZintSymbol * symbol, uchar source[], int length)
 	char dest[1024]; /* 8 + 65 * 8 + 8 * 2 + 9 + 1 ~ 1024 */
 	int error_number = 0;
 	if(length > 65) {
-		strcpy(symbol->errtxt, "Input too long (C70)");
+		sstrcpy(symbol->errtxt, "Input too long (C70)");
 		error_number = ZINT_ERROR_TOO_LONG;
 	}
 	else {
 		error_number = is_sane(SSET, source, length);
 		if(error_number == ZINT_ERROR_INVALID_DATA) {
-			strcpy(symbol->errtxt, "Invalid characters in data (C71)");
+			sstrcpy(symbol->errtxt, "Invalid characters in data (C71)");
 		}
 		else {
 			int    i;
 			uchar * checkptr = (uchar*)SAlloc::C(1, length * 4 + 8);
 			// Start character 
-			strcpy(dest, "31311331");
+			sstrcpy(dest, "31311331");
 			// Data area 
 			for(i = 0; i < length; i++) {
 				const uint check = posn(SSET, source[i]);
@@ -91,7 +91,7 @@ int plessey(struct ZintSymbol * symbol, uchar source[], int length)
 			// Stop character 
 			strcat(dest, "331311313");
 			expand(symbol, dest);
-			ustrcpy(symbol->text, source);
+			sstrcpy(symbol->text, source);
 			SAlloc::F(checkptr);
 		}
 	}
@@ -103,20 +103,20 @@ int plessey(struct ZintSymbol * symbol, uchar source[], int length)
 int msi_plessey(struct ZintSymbol * symbol, uchar source[], int length)
 {
 	if(length > 55) {
-		strcpy(symbol->errtxt, "Input too long (C72)");
+		sstrcpy(symbol->errtxt, "Input too long (C72)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	else {
 		char dest[512]; /* 2 + 55 * 8 + 3 + 1 ~ 512 */
 		// start character 
-		strcpy(dest, "21");
+		sstrcpy(dest, "21");
 		for(int i = 0; i < length; i++) {
 			lookup(NEON, MSITable, source[i], dest);
 		}
 		// Stop character 
 		strcat(dest, "121");
 		expand(symbol, dest);
-		ustrcpy(symbol->text, source);
+		sstrcpy(symbol->text, source);
 		return 0;
 	}
 }
@@ -128,7 +128,7 @@ int msi_plessey_mod10(struct ZintSymbol * symbol, uchar source[], int length)
 {
 	int    error_number = 0;
 	if(length > 18) {
-		strcpy(symbol->errtxt, "Input too long (C73)");
+		sstrcpy(symbol->errtxt, "Input too long (C73)");
 		error_number = ZINT_ERROR_TOO_LONG;
 	}
 	else {
@@ -136,7 +136,7 @@ int msi_plessey_mod10(struct ZintSymbol * symbol, uchar source[], int length)
 		char   un[200], tri[32];
 		char dest[1000];
 		// start character 
-		strcpy(dest, "21");
+		sstrcpy(dest, "21");
 		// draw data section 
 		{
 			int    i;
@@ -160,13 +160,13 @@ int msi_plessey_mod10(struct ZintSymbol * symbol, uchar source[], int length)
 			pedwar = 0;
 			const ulong h = strlen(tri);
 			for(ulong i = 0; i < h; i++) {
-				pedwar += ctoi(tri[i]);
+				pedwar += hex(tri[i]);
 			}
 		}
 		{
 			const int n = (int)(length & 1);
 			for(int i = n; i < length; i += 2) {
-				pedwar += ctoi(source[i]);
+				pedwar += hex(source[i]);
 			}
 		}
 		pump = (10 - pedwar % 10);
@@ -178,7 +178,7 @@ int msi_plessey_mod10(struct ZintSymbol * symbol, uchar source[], int length)
 		// Stop character 
 		strcat(dest, "121");
 		expand(symbol, dest);
-		ustrcpy(symbol->text, source);
+		sstrcpy(symbol->text, source);
 		symbol->text[length] = itoc(pump);
 		symbol->text[length + 1] = '\0';
 	}
@@ -192,7 +192,7 @@ int msi_plessey_mod1010(struct ZintSymbol * symbol, uchar source[], const uint s
 {
 	int    error_number = 0;
 	if(src_len > 18) { // No Entry Stack Smashers! limit because of str->number conversion
-		strcpy(symbol->errtxt, "Input too long (C74)");
+		sstrcpy(symbol->errtxt, "Input too long (C74)");
 		error_number = ZINT_ERROR_TOO_LONG;
 	}
 	else {
@@ -201,7 +201,7 @@ int msi_plessey_mod1010(struct ZintSymbol * symbol, uchar source[], const uint s
 		ulong  h;
 		char   dest[1000];
 		// start character 
-		strcpy(dest, "21");
+		sstrcpy(dest, "21");
 		// draw data section 
 		for(i = 0; i < src_len; i++) {
 			lookup(NEON, MSITable, source[i], dest);
@@ -219,11 +219,11 @@ int msi_plessey_mod1010(struct ZintSymbol * symbol, uchar source[], const uint s
 		pedwar = 0;
 		h = strlen(tri);
 		for(i = 0; i < h; i++) {
-			pedwar += ctoi(tri[i]);
+			pedwar += hex(tri[i]);
 		}
 		n = src_len & 1;
 		for(i = n; i < src_len; i += 2) {
-			pedwar += ctoi(source[i]);
+			pedwar += hex(source[i]);
 		}
 		pump = 10 - pedwar % 10;
 		if(pump == 10) {
@@ -246,11 +246,11 @@ int msi_plessey_mod1010(struct ZintSymbol * symbol, uchar source[], const uint s
 		pedwar = 0;
 		h = strlen(tri);
 		for(i = 0; i < h; i++) {
-			pedwar += ctoi(tri[i]);
+			pedwar += hex(tri[i]);
 		}
 		i = !(src_len & 1);
 		for(; i < src_len; i += 2) {
-			pedwar += ctoi(source[i]);
+			pedwar += hex(source[i]);
 		}
 		chwech = 10 - pedwar % 10;
 		if(chwech == 10) {
@@ -262,7 +262,7 @@ int msi_plessey_mod1010(struct ZintSymbol * symbol, uchar source[], const uint s
 		// Stop character 
 		strcat(dest, "121");
 		expand(symbol, dest);
-		ustrcpy(symbol->text, source);
+		sstrcpy(symbol->text, source);
 		symbol->text[src_len] = itoc(pump);
 		symbol->text[src_len + 1] = itoc(chwech);
 		symbol->text[src_len + 2] = '\0';
@@ -277,13 +277,13 @@ int msi_plessey_mod11(struct ZintSymbol * symbol, uchar source[], const uint src
 	// uses the IBM weight system 
 	int    error_number = 0;
 	if(src_len > 55) {
-		strcpy(symbol->errtxt, "Input too long (C75)");
+		sstrcpy(symbol->errtxt, "Input too long (C75)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	else {
 		char   dest[1000];
 		// start character 
-		strcpy(dest, "21");
+		sstrcpy(dest, "21");
 		// draw data section 
 		{
 			for(uint i = 0; i < src_len; i++) {
@@ -296,7 +296,7 @@ int msi_plessey_mod11(struct ZintSymbol * symbol, uchar source[], const uint src
 			{
 				int    weight = 2;
 				for(int i = src_len - 1; i >= 0; i--) {
-					x += weight * ctoi(source[i]);
+					x += weight * hex(source[i]);
 					weight++;
 					if(weight > 7)
 						weight = 2;
@@ -314,7 +314,7 @@ int msi_plessey_mod11(struct ZintSymbol * symbol, uchar source[], const uint src
 				// stop character 
 				strcat(dest, "121");
 				expand(symbol, dest);
-				ustrcpy(symbol->text, source);
+				sstrcpy(symbol->text, source);
 				if(check == 10) {
 					strcat((char*)symbol->text, "10");
 				}
@@ -341,12 +341,12 @@ int msi_plessey_mod1110(struct ZintSymbol * symbol, uchar source[], const uint s
 	uint temp_len;
 	int error_number = 0;
 	if(src_len > 18) {
-		strcpy(symbol->errtxt, "Input too long (C76)");
+		sstrcpy(symbol->errtxt, "Input too long (C76)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	else {
 		// start character 
-		strcpy(dest, "21");
+		sstrcpy(dest, "21");
 		// draw data section 
 		for(i = 0; i < src_len; i++) {
 			lookup(NEON, MSITable, source[i], dest);
@@ -355,14 +355,14 @@ int msi_plessey_mod1110(struct ZintSymbol * symbol, uchar source[], const uint s
 		x = 0;
 		weight = 2;
 		for(si = src_len - 1; si >= 0; si--) {
-			x += weight * ctoi(source[si]);
+			x += weight * hex(source[si]);
 			weight++;
 			if(weight > 7) {
 				weight = 2;
 			}
 		}
 		check = (11 - (x % 11)) % 11;
-		ustrcpy(temp, source);
+		sstrcpy(temp, source);
 		temp_len = src_len;
 		if(check == 10) {
 			lookup(NEON, MSITable, '1', dest);
@@ -388,11 +388,11 @@ int msi_plessey_mod1110(struct ZintSymbol * symbol, uchar source[], const uint s
 		pedwar = 0;
 		h = strlen(tri);
 		for(i = 0; i < h; i++) {
-			pedwar += ctoi(tri[i]);
+			pedwar += hex(tri[i]);
 		}
 		i = temp_len & 1;
 		for(; i < temp_len; i += 2) {
-			pedwar += ctoi(temp[i]);
+			pedwar += hex(temp[i]);
 		}
 		pump = 10 - pedwar % 10;
 		if(pump == 10) {
@@ -405,7 +405,7 @@ int msi_plessey_mod1110(struct ZintSymbol * symbol, uchar source[], const uint s
 		expand(symbol, dest);
 		temp[temp_len++] = itoc(pump);
 		temp[temp_len] = '\0';
-		ustrcpy(symbol->text, temp);
+		sstrcpy(symbol->text, temp);
 	}
 	return error_number;
 }
@@ -414,7 +414,7 @@ int msi_handle(struct ZintSymbol * symbol, uchar source[], int length)
 {
 	int error_number = is_sane(NEON, source, length);
 	if(error_number != 0) {
-		strcpy(symbol->errtxt, "Invalid characters in input data (C77)");
+		sstrcpy(symbol->errtxt, "Invalid characters in input data (C77)");
 		error_number = ZINT_ERROR_INVALID_DATA;
 	}
 	else {

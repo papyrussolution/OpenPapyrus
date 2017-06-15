@@ -27,7 +27,7 @@
  * This header should only be needed to get included by vtls.c and gskit.c
  */
 
-#include "urldata.h"
+//#include "urldata.h"
 
 #ifdef USE_GSKIT
 int Curl_gskit_init(void);

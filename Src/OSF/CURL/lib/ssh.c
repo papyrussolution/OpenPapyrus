@@ -56,33 +56,33 @@
 #define in_addr_t ulong
 #endif
 //#include <curl/curl.h>
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "hostip.h"
-#include "progress.h"
-#include "transfer.h"
-#include "escape.h"
+//#include "progress.h"
+//#include "transfer.h"
+//#include "escape.h"
 #include "http.h" /* for HTTP proxy tunnel stuff */
 #include "ssh.h"
-#include "url.h"
+//#include "url.h"
 #include "speedcheck.h"
-#include "getinfo.h"
-#include "strdup.h"
+//#include "getinfo.h"
+//#include "strdup.h"
 //#include "strcase.h"
 #include "vtls/vtls.h"
 #include "connect.h"
-#include "strerror.h"
+//#include "strerror.h"
 #include "inet_ntop.h"
 #include "parsedate.h" /* for the week day and month names */
 #include "sockaddr.h" /* required for Curl_sockaddr_storage */
-#include "strtoofft.h"
+//#include "strtoofft.h"
 #include "multiif.h"
-#include "select.h"
+//#include "select.h"
 #include "warnless.h"
 
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 #ifdef WIN32

@@ -55,29 +55,27 @@
 #ifdef HAVE_FCNTL_H
 	#include <fcntl.h>
 #endif
-#include "urldata.h"
+//#include "urldata.h"
 #include "vtls.h" /* generic SSL protos etc */
-#include "slist.h"
-#include "sendf.h"
+//#include "slist.h"
+//#include "sendf.h"
 //#include "strcase.h"
-#include "url.h"
-#include "progress.h"
+//#include "url.h"
+//#include "progress.h"
 #include "share.h"
 #include "multiif.h"
-#include "timeval.h"
+//#include "timeval.h"
 #include "curl_md5.h"
 #include "warnless.h"
-#include "curl_base64.h"
+//#include "curl_base64.h"
 #include "curl_printf.h"
 
 /* The last #include files should be: */
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* convenience macro to check if this handle is using a shared SSL session */
-#define SSLSESSION_SHARED(data) (data->share &&			       \
-	    (data->share->specifier &		  \
-		    (1<<CURL_LOCK_DATA_SSL_SESSION)))
+#define SSLSESSION_SHARED(data) (data->share && (data->share->specifier & (1<<CURL_LOCK_DATA_SSL_SESSION)))
 
 #define CLONE_STRING(var)		     \
 	if(source->var) {			   \
@@ -88,24 +86,17 @@
 	else					   \
 		dest->var = NULL;
 
-bool Curl_ssl_config_matches(struct ssl_primary_config* data,
-    struct ssl_primary_config* needle)
+bool Curl_ssl_config_matches(struct ssl_primary_config * data, struct ssl_primary_config* needle)
 {
-	if((data->version == needle->version) &&
-	    (data->version_max == needle->version_max) &&
-	    (data->verifypeer == needle->verifypeer) &&
-	    (data->verifyhost == needle->verifyhost) &&
-	    Curl_safe_strcasecompare(data->CApath, needle->CApath) &&
-	    Curl_safe_strcasecompare(data->CAfile, needle->CAfile) &&
-	    Curl_safe_strcasecompare(data->clientcert, needle->clientcert) &&
-	    Curl_safe_strcasecompare(data->cipher_list, needle->cipher_list))
+	if((data->version == needle->version) && (data->version_max == needle->version_max) &&
+	    (data->verifypeer == needle->verifypeer) && (data->verifyhost == needle->verifyhost) &&
+	    Curl_safe_strcasecompare(data->CApath, needle->CApath) && Curl_safe_strcasecompare(data->CAfile, needle->CAfile) &&
+	    Curl_safe_strcasecompare(data->clientcert, needle->clientcert) && Curl_safe_strcasecompare(data->cipher_list, needle->cipher_list))
 		return TRUE;
-
 	return FALSE;
 }
 
-bool Curl_clone_primary_ssl_config(struct ssl_primary_config * source,
-    struct ssl_primary_config * dest)
+bool Curl_clone_primary_ssl_config(struct ssl_primary_config * source, struct ssl_primary_config * dest)
 {
 	dest->verifyhost = source->verifyhost;
 	dest->verifypeer = source->verifypeer;
@@ -141,8 +132,8 @@ int Curl_ssl_backend(void)
 
 #ifdef USE_SSL
 
-/* "global" init done? */
-static bool init_ssl = FALSE;
+// "global" init done?
+static bool init_ssl = FALSE; // @global
 
 /**
  * Global SSL init
@@ -156,7 +147,6 @@ int Curl_ssl_init(void)
 	if(init_ssl)
 		return 1;
 	init_ssl = TRUE; /* never again */
-
 	return curlssl_init();
 }
 
@@ -178,12 +168,10 @@ static bool ssl_prefs_check(struct Curl_easy * data)
 		failf(data, "Unrecognized parameter value passed via CURLOPT_SSLVERSION");
 		return FALSE;
 	}
-
 	switch(data->set.ssl.primary.version_max) {
 		case CURL_SSLVERSION_MAX_NONE:
 		case CURL_SSLVERSION_MAX_DEFAULT:
 		    break;
-
 		default:
 		    if((data->set.ssl.primary.version_max >> 16) < sslver) {
 			    failf(data, "CURL_SSLVERSION_MAX incompatible with CURL_SSLVERSION");

@@ -33,12 +33,12 @@
 
 #define DEBUG_ME 0
 
-#include "urldata.h"
-#include "non-ascii.h"
-#include "sendf.h"
-#include "curl_base64.h"
+//#include "urldata.h"
+//#include "non-ascii.h"
+//#include "sendf.h"
+//#include "curl_base64.h"
 #include "curl_ntlm_core.h"
-#include "curl_gethostname.h"
+//#include "curl_gethostname.h"
 #include "curl_multibyte.h"
 #include "warnless.h"
 #include "rand.h"
@@ -53,9 +53,8 @@
 #include "vauth/ntlm.h"
 #include "curl_endian.h"
 #include "curl_printf.h"
-
 /* The last #include files should be: */
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* "NTLMSSP" signature is always in ASCII regardless of the platform */

@@ -23,13 +23,11 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include <curl/curl.h>
-#include "urldata.h"
+//#include "urldata.h"
 #include "share.h"
 #include "vtls/vtls.h"
-#include "curl_memory.h"
-
-/* The last #include file should be: */
-#include "memdebug.h"
+//#include "curl_memory.h"
+#include "memdebug.h" // The last #include file should be
 
 struct Curl_share * curl_share_init(void)
 {

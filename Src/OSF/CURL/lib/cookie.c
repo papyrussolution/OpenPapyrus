@@ -84,23 +84,21 @@
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
 
 #ifdef USE_LIBPSL
-# include <libpsl.h>
+	#include <libpsl.h>
 #endif
-
-#include "urldata.h"
+//#include "urldata.h"
 #include "cookie.h"
 //#include "strtok.h"
-#include "sendf.h"
-#include "slist.h"
+//#include "sendf.h"
+//#include "slist.h"
 #include "share.h"
-#include "strtoofft.h"
+//#include "strtoofft.h"
 //#include "strcase.h"
 #include "curl_memrchr.h"
 #include "inet_pton.h"
-
-/* The last 3 #include files should be in this order */
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 static void FASTCALL freecookie(struct Cookie * co)
@@ -952,28 +950,20 @@ static int cookie_sort(const void * p1, const void * p2)
 {
 	struct Cookie * c1 = *(struct Cookie**)p1;
 	struct Cookie * c2 = *(struct Cookie**)p2;
-	size_t l1, l2;
-
-	/* 1 - compare cookie path lengths */
-	l1 = c1->path ? strlen(c1->path) : 0;
-	l2 = c2->path ? strlen(c2->path) : 0;
-
+	// 1 - compare cookie path lengths 
+	size_t l1 = c1->path ? strlen(c1->path) : 0;
+	size_t l2 = c2->path ? strlen(c2->path) : 0;
 	if(l1 != l2)
 		return (l2 > l1) ? 1 : -1;  /* avoid size_t <=> int conversions */
-
-	/* 2 - compare cookie domain lengths */
+	// 2 - compare cookie domain lengths 
 	l1 = c1->domain ? strlen(c1->domain) : 0;
 	l2 = c2->domain ? strlen(c2->domain) : 0;
-
 	if(l1 != l2)
 		return (l2 > l1) ? 1 : -1;  /* avoid size_t <=> int conversions */
-
-	/* 3 - compare cookie names */
+	// 3 - compare cookie names 
 	if(c1->name && c2->name)
 		return strcmp(c1->name, c2->name);
-
-	/* sorry, can't be more deterministic */
-	return 0;
+	return 0; // sorry, can't be more deterministic 
 }
 
 #define CLONE(field)			 \
@@ -1137,32 +1127,26 @@ void Curl_cookie_freelist(struct Cookie * co)
  ****************************************************************************/
 void Curl_cookie_clearsess(struct CookieInfo * cookies)
 {
-	struct Cookie * first, * curr, * next, * prev = NULL;
-
-	if(!cookies || !cookies->cookies)
-		return;
-
-	first = curr = prev = cookies->cookies;
-
-	for(; curr; curr = next) {
-		next = curr->next;
-		if(!curr->expires) {
-			if(first == curr)
-				first = next;
-
-			if(prev == curr)
-				prev = next;
+	if(cookies && cookies->cookies) {
+		struct Cookie * first, * curr, * next, * prev = NULL;
+		first = curr = prev = cookies->cookies;
+		for(; curr; curr = next) {
+			next = curr->next;
+			if(!curr->expires) {
+				if(first == curr)
+					first = next;
+				if(prev == curr)
+					prev = next;
+				else
+					prev->next = next;
+				freecookie(curr);
+				cookies->numcookies--;
+			}
 			else
-				prev->next = next;
-
-			freecookie(curr);
-			cookies->numcookies--;
+				prev = curr;
 		}
-		else
-			prev = curr;
+		cookies->cookies = first;
 	}
-
-	cookies->cookies = first;
 }
 
 /*****************************************************************************

@@ -29,16 +29,16 @@
 #if defined(HAVE_LIBGEN_H) && defined(HAVE_BASENAME)
 	#include <libgen.h>
 #endif
-#include "urldata.h" /* for struct Curl_easy */
+//#include "urldata.h" /* for struct Curl_easy */
 #include "formdata.h"
 #include "vtls/vtls.h"
 //#include "strcase.h"
-#include "sendf.h"
-#include "strdup.h"
+//#include "sendf.h"
+//#include "strdup.h"
 #include "rand.h"
-/* The last 3 #include files should be in this order */
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 #ifndef HAVE_BASENAME

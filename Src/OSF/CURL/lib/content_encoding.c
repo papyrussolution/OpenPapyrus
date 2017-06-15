@@ -23,20 +23,18 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifdef HAVE_LIBZ
-#include "urldata.h"
+//#include "urldata.h"
 //#include <curl/curl.h>
-#include "sendf.h"
+//#include "sendf.h"
 #include "content_encoding.h"
-#include "strdup.h"
-#include "curl_memory.h"
+//#include "strdup.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* Comment this out if zlib is always going to be at least ver. 1.2.0.4
    (doing so will reduce code size slightly). */
 #define OLD_ZLIB_SUPPORT 1
-
 #define DSIZ CURL_MAX_WRITE_SIZE /* buffer size for decompressed data */
-
 #define GZIP_MAGIC_0 0x1f
 #define GZIP_MAGIC_1 0x8b
 
@@ -110,27 +108,24 @@ static CURLcode inflate_stream(struct connectdata * conn, struct SingleRequest *
 					return exit_zlib(z, &k->zlib_init, result);
 				}
 			}
-
-			/* Done? clean up, return */
+			// Done? clean up, return 
 			if(status == Z_STREAM_END) {
 				SAlloc::F(decomp);
 				if(inflateEnd(z) == Z_OK)
 					return exit_zlib(z, &k->zlib_init, result);
 				return exit_zlib(z, &k->zlib_init, process_zlib_error(conn, z));
 			}
-
-			/* Done with these bytes, exit */
-
-			/* status is always Z_OK at this point! */
+			//
+			// Done with these bytes, exit 
+			//
+			// status is always Z_OK at this point! 
 			if(z->avail_in == 0) {
 				SAlloc::F(decomp);
 				return result;
 			}
 		}
 		else if(allow_restart && status == Z_DATA_ERROR) {
-			/* some servers seem to not generate zlib headers, so this is an attempt
-			   to fix and continue anyway */
-
+			// some servers seem to not generate zlib headers, so this is an attempt to fix and continue anyway 
 			(void)inflateEnd(z); /* don't care about the return code */
 			if(inflateInit2(z, -MAX_WBITS) != Z_OK) {
 				SAlloc::F(decomp);
@@ -152,21 +147,18 @@ static CURLcode inflate_stream(struct connectdata * conn, struct SingleRequest *
 CURLcode Curl_unencode_deflate_write(struct connectdata * conn, struct SingleRequest * k, ssize_t nread)
 {
 	z_stream * z = &k->z;   /* zlib state structure */
-	/* Initialize zlib? */
+	// Initialize zlib? 
 	if(k->zlib_init == ZLIB_UNINIT) {
 		memzero(z, sizeof(z_stream));
 		z->zalloc = (alloc_func)zalloc_cb;
 		z->zfree = (free_func)zfree_cb;
-
 		if(inflateInit(z) != Z_OK)
 			return process_zlib_error(conn, z);
 		k->zlib_init = ZLIB_INIT;
 	}
-
 	/* Set the compressed input when this function is called */
 	z->next_in = (Bytef*)k->str;
 	z->avail_in = (uInt)nread;
-
 	/* Now uncompress the data */
 	return inflate_stream(conn, k);
 }
@@ -180,19 +172,14 @@ static enum {
 } check_gzip_header(uchar const * data, ssize_t len, ssize_t *headerlen)
 {
 	int method, flags;
-
 	const ssize_t totallen = len;
-
 	/* The shortest header is 10 bytes */
 	if(len < 10)
 		return GZIP_UNDERFLOW;
-
 	if((data[0] != GZIP_MAGIC_0) || (data[1] != GZIP_MAGIC_1))
 		return GZIP_BAD;
-
 	method = data[2];
 	flags = data[3];
-
 	if(method != Z_DEFLATED || (flags & RESERVED) != 0) {
 		/* Can't handle this compression method or unknown flag */
 		return GZIP_BAD;

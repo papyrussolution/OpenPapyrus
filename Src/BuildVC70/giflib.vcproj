@@ -31,7 +31,7 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
 				WarningLevel="3"
@@ -86,7 +86,7 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
 				WarningLevel="3"
@@ -141,7 +141,7 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
 				WarningLevel="3"
@@ -193,7 +193,7 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
 				WarningLevel="3"
@@ -248,7 +248,7 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
 				WarningLevel="3"
@@ -300,7 +300,7 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
 				WarningLevel="3"
@@ -339,7 +339,8 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\include;..\osf\giflib"/>
+				AdditionalIncludeDirectories="..\include;..\osf\giflib"
+				UsePrecompiledHeader="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -372,316 +373,7 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\Osf\Giflib\dgif_lib.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\Osf\Giflib\egif_lib.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\Osf\Giflib\gif-pch.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\Osf\Giflib\gif_err.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\Osf\Giflib\gif_font.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\Osf\Giflib\gif_hash.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\Osf\Giflib\gifalloc.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\Osf\Giflib\quantize.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
+				RelativePath="..\Osf\Giflib\sgiflib.cpp">
 			</File>
 		</Filter>
 		<Filter

@@ -180,7 +180,6 @@ METHODDEF(void) ycc_rgb_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JD
 	register INT32 * Crgtab = cconvert->Cr_g_tab;
 	register INT32 * Cbgtab = cconvert->Cb_g_tab;
 	SHIFT_TEMPS
-
 	while(--num_rows >= 0) {
 		inptr0 = input_buf[0][input_row];
 		inptr1 = input_buf[1][input_row];
@@ -195,9 +194,7 @@ METHODDEF(void) ycc_rgb_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JD
 			 * for extended gamut (sYCC) and wide gamut (bg-sYCC) encodings.
 			 */
 			outptr[RGB_RED]   = range_limit[y + Crrtab[cr]];
-			outptr[RGB_GREEN] = range_limit[y +
-			    ((int)RIGHT_SHIFT(Cbgtab[cb] + Crgtab[cr],
-					    SCALEBITS))];
+			outptr[RGB_GREEN] = range_limit[y + ((int)RIGHT_SHIFT(Cbgtab[cb] + Crgtab[cr], SCALEBITS))];
 			outptr[RGB_BLUE]  = range_limit[y + Cbbtab[cb]];
 			outptr += RGB_PIXELSIZE;
 		}
@@ -214,7 +211,6 @@ static void build_rgb_y_table(j_decompress_ptr cinfo)
 	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
 	INT32 * rgb_y_tab;
 	INT32 i;
-
 	/* Allocate and fill in the conversion tables. */
 	cconvert->rgb_y_tab = rgb_y_tab = (INT32*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (TABLE_SIZE * SIZEOF(INT32)));
 	for(i = 0; i <= MAXJSAMPLE; i++) {

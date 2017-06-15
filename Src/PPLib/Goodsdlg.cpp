@@ -539,7 +539,11 @@ static int SLAPI _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 				getCtrlString(CTL_BARCODE_CODE, code);
 				if(code.Len() == 13 || code.Len() == 8) {
 					code.TrimRight();
-					if(!PPBarcode::CreateImage(code, BARCSTD_EAN13, SFileFormat::Png, 0))
+					PPBarcode::BarcodeImageParam bip;
+					bip.Code = code;
+					bip.Std = BARCSTD_EAN13;
+					bip.OutputFormat = SFileFormat::Png;
+					if(!PPBarcode::CreateImage(bip))
 						PPError();
 				}
 			}

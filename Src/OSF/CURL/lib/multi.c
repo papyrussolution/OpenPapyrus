@@ -23,18 +23,18 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include <curl/curl.h>
-#include "urldata.h"
-#include "transfer.h"
-#include "url.h"
+//#include "urldata.h"
+//#include "transfer.h"
+//#include "url.h"
 #include "connect.h"
-#include "progress.h"
+//#include "progress.h"
 #include "easyif.h"
 #include "share.h"
 #include "multiif.h"
-#include "sendf.h"
-#include "timeval.h"
+//#include "sendf.h"
+//#include "timeval.h"
 #include "http.h"
-#include "select.h"
+//#include "select.h"
 #include "warnless.h"
 #include "speedcheck.h"
 #include "conncache.h"
@@ -43,36 +43,26 @@
 #include "sigpipe.h"
 #include "vtls/vtls.h"
 #include "connect.h"
-/* The last 3 #include files should be in this order */
+// The last 3 #include files should be in this order
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
-
 /*
    CURL_SOCKET_HASH_TABLE_SIZE should be a prime number. Increasing it from 97
    to 911 takes on a 32-bit machine 4 x 804 = 3211 more bytes.  Still, every
    CURL handle takes 45-50 K memory, therefore this 3K are not significant.
  */
 #ifndef CURL_SOCKET_HASH_TABLE_SIZE
-#define CURL_SOCKET_HASH_TABLE_SIZE 911
+	#define CURL_SOCKET_HASH_TABLE_SIZE 911
 #endif
-
 #define CURL_CONNECTION_HASH_SIZE 97
-
 #define CURL_MULTI_HANDLE 0x000bab1e
+#define GOOD_MULTI_HANDLE(x) ((x) && (x)->type == CURL_MULTI_HANDLE)
 
-#define GOOD_MULTI_HANDLE(x) \
-	((x) && (x)->type == CURL_MULTI_HANDLE)
-
-static void singlesocket(struct Curl_multi * multi,
-    struct Curl_easy * data);
+static void singlesocket(struct Curl_multi * multi, struct Curl_easy * data);
 static int update_timer(struct Curl_multi * multi);
-
-static CURLMcode add_next_timeout(struct timeval now,
-    struct Curl_multi * multi,
-    struct Curl_easy * d);
-static CURLMcode multi_timeout(struct Curl_multi * multi,
-    long * timeout_ms);
+static CURLMcode add_next_timeout(struct timeval now, struct Curl_multi * multi, struct Curl_easy * d);
+static CURLMcode multi_timeout(struct Curl_multi * multi, long * timeout_ms);
 
 #ifdef DEBUGBUILD
 static const char * const statename[] = {

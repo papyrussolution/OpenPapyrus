@@ -30,16 +30,16 @@
 //#include <curl/curl.h>
 #include "vauth/vauth.h"
 #include "vauth/digest.h"
-#include "urldata.h"
-#include "curl_base64.h"
+//#include "urldata.h"
+//#include "curl_base64.h"
 #include "warnless.h"
 #include "curl_multibyte.h"
-#include "sendf.h"
-#include "strdup.h"
+//#include "sendf.h"
+//#include "strdup.h"
 //#include "strcase.h"
 
 /* The last #include files should be: */
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /*
@@ -328,54 +328,41 @@ CURLcode Curl_override_sspi_http_realm(const char * chlg,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_decode_digest_http_message(const char * chlg,
-    struct digestdata * digest)
+CURLcode Curl_auth_decode_digest_http_message(const char * chlg, struct digestdata * digest)
 {
 	size_t chlglen = strlen(chlg);
-
-	/* We had an input token before so if there's another one now that means we
-	   provided bad credentials in the previous request or it's stale. */
+	// We had an input token before so if there's another one now that means we
+	// provided bad credentials in the previous request or it's stale. 
 	if(digest->input_token) {
 		bool stale = false;
 		const char * p = chlg;
-
 		/* Check for the 'stale' directive */
 		for(;; ) {
 			char value[DIGEST_MAX_VALUE_LENGTH];
 			char content[DIGEST_MAX_CONTENT_LENGTH];
-
 			while(*p && ISSPACE(*p))
 				p++;
-
 			if(!Curl_auth_digest_get_pair(p, value, content, &p))
 				break;
-
-			if(Curl_strcasecompare(value, "stale")
-			    && Curl_strcasecompare(content, "true")) {
+			if(Curl_strcasecompare(value, "stale") && Curl_strcasecompare(content, "true")) {
 				stale = true;
 				break;
 			}
-
 			while(*p && ISSPACE(*p))
 				p++;
-
 			if(',' == *p)
 				p++;
 		}
-
 		if(stale)
 			Curl_auth_digest_cleanup(digest);
 		else
 			return CURLE_LOGIN_DENIED;
 	}
-
 	/* Store the challenge for use later */
 	digest->input_token = (BYTE*)Curl_memdup(chlg, chlglen + 1);
 	if(!digest->input_token)
 		return CURLE_OUT_OF_MEMORY;
-
 	digest->input_token_len = chlglen;
-
 	return CURLE_OK;
 }
 
@@ -415,27 +402,19 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 	SecBuffer chlg_buf[5];
 	SecBufferDesc chlg_desc;
 	SECURITY_STATUS status;
-
 	(void)data;
-
 	/* Query the security package for DigestSSP */
-	status = s_pSecFn->QuerySecurityPackageInfo((TCHAR*)TEXT(SP_NAME_DIGEST),
-	    &SecurityPackage);
+	status = s_pSecFn->QuerySecurityPackageInfo((TCHAR*)TEXT(SP_NAME_DIGEST), &SecurityPackage);
 	if(status != SEC_E_OK)
 		return CURLE_NOT_BUILT_IN;
-
 	token_max = SecurityPackage->cbMaxToken;
-
 	/* Release the package buffer as it is not required anymore */
 	s_pSecFn->FreeContextBuffer(SecurityPackage);
-
-	/* Allocate the output buffer according to the max token size as indicated
-	   by the security package */
+	// Allocate the output buffer according to the max token size as indicated by the security package 
 	output_token = SAlloc::M(token_max);
 	if(!output_token) {
 		return CURLE_OUT_OF_MEMORY;
 	}
-
 	if(digest->http_context) {
 		chlg_desc.ulVersion    = SECBUFFER_VERSION;
 		chlg_desc.cBuffers     = 5;
@@ -455,18 +434,15 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 		chlg_buf[4].BufferType = SECBUFFER_PADDING;
 		chlg_buf[4].pvBuffer   = output_token;
 		chlg_buf[4].cbBuffer   = curlx_uztoul(token_max);
-
 		status = s_pSecFn->MakeSignature(digest->http_context, 0, &chlg_desc, 0);
 		if(status == SEC_E_OK)
 			output_token_len = chlg_buf[4].cbBuffer;
 		else { /* delete the context so a new one can be made */
-			infof(data, "digest_sspi: MakeSignature failed, error 0x%08lx\n",
-			    (long)status);
+			infof(data, "digest_sspi: MakeSignature failed, error 0x%08lx\n", (long)status);
 			s_pSecFn->DeleteSecurityContext(digest->http_context);
 			ZFREE(digest->http_context);
 		}
 	}
-
 	if(!digest->http_context) {
 		CredHandle credentials;
 		SEC_WINNT_AUTH_IDENTITY identity;
@@ -476,41 +452,30 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 		ulong attrs;
 		TimeStamp expiry; /* For Windows 9x compatibility of SSPI calls */
 		TCHAR * spn;
-
 		if(userp && *userp) {
 			/* Populate our identity structure */
 			if(Curl_create_sspi_identity(userp, passwdp, &identity)) {
 				SAlloc::F(output_token);
 				return CURLE_OUT_OF_MEMORY;
 			}
-
 			/* Populate our identity domain */
-			if(Curl_override_sspi_http_realm((const char*)digest->input_token,
-				    &identity)) {
+			if(Curl_override_sspi_http_realm((const char*)digest->input_token, &identity)) {
 				SAlloc::F(output_token);
 				return CURLE_OUT_OF_MEMORY;
 			}
-
 			/* Allow proper cleanup of the identity structure */
 			p_identity = &identity;
 		}
 		else
-			/* Use the current Windows user */
-			p_identity = NULL;
-
+			p_identity = NULL; // Use the current Windows user 
 		/* Acquire our credentials handle */
-		status = s_pSecFn->AcquireCredentialsHandle(NULL,
-		    (TCHAR*)TEXT(SP_NAME_DIGEST),
-		    SECPKG_CRED_OUTBOUND, NULL,
-		    p_identity, NULL, NULL,
-		    &credentials, &expiry);
+		status = s_pSecFn->AcquireCredentialsHandle(NULL, (TCHAR*)TEXT(SP_NAME_DIGEST), SECPKG_CRED_OUTBOUND, NULL,
+		    p_identity, NULL, NULL, &credentials, &expiry);
 		if(status != SEC_E_OK) {
 			Curl_sspi_free_identity(p_identity);
 			SAlloc::F(output_token);
-
 			return CURLE_LOGIN_DENIED;
 		}
-
 		/* Setup the challenge "input" security buffer if present */
 		chlg_desc.ulVersion    = SECBUFFER_VERSION;
 		chlg_desc.cBuffers     = 3;
@@ -532,70 +497,49 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 		resp_buf.BufferType = SECBUFFER_TOKEN;
 		resp_buf.pvBuffer   = output_token;
 		resp_buf.cbBuffer   = curlx_uztoul(token_max);
-
 		spn = Curl_convert_UTF8_to_tchar((char*)uripath);
 		if(!spn) {
 			s_pSecFn->FreeCredentialsHandle(&credentials);
-
 			Curl_sspi_free_identity(p_identity);
 			SAlloc::F(output_token);
-
 			return CURLE_OUT_OF_MEMORY;
 		}
-
 		/* Allocate our new context handle */
 		digest->http_context = SAlloc::C(1, sizeof(CtxtHandle));
 		if(!digest->http_context)
 			return CURLE_OUT_OF_MEMORY;
-
 		/* Generate our response message */
 		status = s_pSecFn->InitializeSecurityContext(&credentials, NULL,
-		    spn,
-		    ISC_REQ_USE_HTTP_STYLE, 0, 0,
-		    &chlg_desc, 0,
-		    digest->http_context,
-		    &resp_desc, &attrs, &expiry);
+		    spn, ISC_REQ_USE_HTTP_STYLE, 0, 0, &chlg_desc, 0, digest->http_context, &resp_desc, &attrs, &expiry);
 		Curl_unicodefree(spn);
-
-		if(status == SEC_I_COMPLETE_NEEDED ||
-		    status == SEC_I_COMPLETE_AND_CONTINUE)
+		if(oneof2(status, SEC_I_COMPLETE_NEEDED, SEC_I_COMPLETE_AND_CONTINUE))
 			s_pSecFn->CompleteAuthToken(&credentials, &resp_desc);
 		else if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED) {
 			s_pSecFn->FreeCredentialsHandle(&credentials);
-
 			Curl_sspi_free_identity(p_identity);
 			SAlloc::F(output_token);
-
 			ZFREE(digest->http_context);
-
 			return CURLE_OUT_OF_MEMORY;
 		}
-
 		output_token_len = resp_buf.cbBuffer;
-
 		s_pSecFn->FreeCredentialsHandle(&credentials);
 		Curl_sspi_free_identity(p_identity);
 	}
-
 	resp = SAlloc::M(output_token_len + 1);
 	if(!resp) {
 		SAlloc::F(output_token);
-
 		return CURLE_OUT_OF_MEMORY;
 	}
-
-	/* Copy the generated response */
-	memcpy(resp, output_token, output_token_len);
-	resp[output_token_len] = 0;
-
-	/* Return the response */
-	*outptr = resp;
-	*outlen = output_token_len;
-
-	/* Free the response buffer */
-	SAlloc::F(output_token);
-
-	return CURLE_OK;
+	else {
+		// Copy the generated response 
+		memcpy(resp, output_token, output_token_len);
+		resp[output_token_len] = 0;
+		// Return the response 
+		*outptr = resp;
+		*outlen = output_token_len;
+		SAlloc::F(output_token); // Free the response buffer 
+		return CURLE_OK;
+	}
 }
 
 /*
@@ -612,10 +556,8 @@ void Curl_auth_digest_cleanup(struct digestdata * digest)
 {
 	/* Free the input token */
 	ZFREE(digest->input_token);
-
 	/* Reset any variables */
 	digest->input_token_len = 0;
-
 	/* Delete security context */
 	if(digest->http_context) {
 		s_pSecFn->DeleteSecurityContext(digest->http_context);

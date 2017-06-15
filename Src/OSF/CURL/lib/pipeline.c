@@ -24,14 +24,14 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include <curl/curl.h>
-#include "urldata.h"
-#include "url.h"
-#include "progress.h"
+//#include "urldata.h"
+//#include "url.h"
+//#include "progress.h"
 #include "multiif.h"
 #include "pipeline.h"
-#include "sendf.h"
+//#include "sendf.h"
 //#include "strcase.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
 

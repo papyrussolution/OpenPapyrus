@@ -45,8 +45,9 @@ struct PPSlipFormatEntry {
 		fFiscal      = 0x0080, // Фискальная строка отчета
 		fWrap        = 0x0100, // Признак разбиения строки (кол-во символов - в Condition)
 		fSignBarcode = 0x0200, // Элемент представляет отображение штрихкода подписи чека (BarcodeId != 0)
-		fItemBarcode = 0x0400  // Элемент представляет отображение штрихкода товара (BarcodeId != 0)
+		fItemBarcode = 0x0400, // Элемент представляет отображение штрихкода товара (BarcodeId != 0)
 			// @#{fSignBarcode^fItemBarcode}
+		fFakeCcQr    = 0x0800  // @v9.6.11 Элемент представляет фейковый QR-код ОФД по чеку
 	};
 	enum {
 		cEq = 1,
@@ -56,11 +57,11 @@ struct PPSlipFormatEntry {
 		cLt,
 		cLe
 	};
-	long    Flags;
-	int     Condition;
-	int     FontId;
-	int     PictId;
-	int     BarcodeId;
+	long   Flags;
+	int    Condition;
+	int    FontId;
+	int    PictId;
+	int    BarcodeId;
 	SString Text;
 	PPSlipFormatZone * P_TrueZone;
 	PPSlipFormatZone * P_FalseZone;
@@ -196,52 +197,53 @@ private:
 	int    WrapText(const char * pText, uint maxLen, SString & rHead, SString & rTail, int * pWrapPos);
 
 	enum {
-		tokEOL = 1,       // Конец строки
-		tokEOF,           // Конец файла
-		tokComment,       // Комментарий (//)
-		tokIdent,         // Символьный идентификатор (abc, _xyz, q200 и т.д.)
-		tokString,        // Строковая константа ("...")
-		tokNumber,        // Числовая константа
-		tokZone,          // Начало зоны (.name)
-		tokLBrace,        // {
-		tokRBrace,        // }
-		tokLPar,          // (
-		tokRPar,          // )
-		tokComma,         // ,
-		tokMetavar,       // Метапеременная (@var)
-		tokEq,            // =
-		tokEq2,           // ==
-		tokNEq,           // !=,<>
-		tokGt,            // >
-		tokGe,            // >=
-		tokLt,            // <
-		tokLe,            // <=
+		tokEOL = 1,         // Конец строки
+		tokEOF,             // Конец файла
+		tokComment,         // Комментарий (//)
+		tokIdent,           // Символьный идентификатор (abc, _xyz, q200 и т.д.)
+		tokString,          // Строковая константа ("...")
+		tokNumber,          // Числовая константа
+		tokZone,            // Начало зоны (.name)
+		tokLBrace,          // {
+		tokRBrace,          // }
+		tokLPar,            // (
+		tokRPar,            // )
+		tokComma,           // ,
+		tokMetavar,         // Метапеременная (@var)
+		tokEq,              // =
+		tokEq2,             // ==
+		tokNEq,             // !=,<>
+		tokGt,              // >
+		tokGe,              // >=
+		tokLt,              // <
+		tokLe,              // <=
 		_tokFirstWordToken, // @anchor
-		tokSlip,          // slip
-		tokIf,            // if
-		tokElse,          // else
-		tokEndif,         // endif
-		tokTitle,         // title
-		tokDocNo,         // number
-		tokPageWidth,     // pagewidth
-		tokPageLength,    // pagelength
-		tokSpace,         // space
-		tokAlign,         // align
-		tokLeft,          // left
-		tokRight,         // right
-		tokCenter,        // center
-		tokPaper,         // paper
-		tokRegular,       // regular
-		tokJournal,       // journal
-		tokFont,          // font
-		tokFiscal,        // fiscal
-		tokHeadLines,     // headlines
-		tokWrap,          // wrap
-		tokPicture,       // picture
-		tokTextOutput,    // textoutput // @vmiller
-		tokBarcode,       // barcode width height [textabove|textbelow|textnone]
-		tokSignBarcode,   // signbarcode std width height [textabove|textbelow|textnone]
-		_tokLastWordToken // @anchor
+		tokSlip,            // slip
+		tokIf,              // if
+		tokElse,            // else
+		tokEndif,           // endif
+		tokTitle,           // title
+		tokDocNo,           // number
+		tokPageWidth,       // pagewidth
+		tokPageLength,      // pagelength
+		tokSpace,           // space
+		tokAlign,           // align
+		tokLeft,            // left
+		tokRight,           // right
+		tokCenter,          // center
+		tokPaper,           // paper
+		tokRegular,         // regular
+		tokJournal,         // journal
+		tokFont,            // font
+		tokFiscal,          // fiscal
+		tokHeadLines,       // headlines
+		tokWrap,            // wrap
+		tokPicture,         // picture
+		tokTextOutput,      // textoutput // @vmiller
+		tokBarcode,         // barcode width height [textabove|textbelow|textnone]
+		tokSignBarcode,     // signbarcode std width height [textabove|textbelow|textnone]
+		tokFakeCcQrCode,    // fakeccqrcode // @v9.6.11
+		_tokLastWordToken   // @anchor
 	};
 
 	uint     LineNo;
@@ -256,6 +258,7 @@ private:
 	uint     RegTo; // SlipLineParam::regtoXXX
 	uint	 TextOutput; // @vmiller
 	int      IsWrap;
+	long     LastPictId;
 	TSCollection <PPSlipFormatZone> ZoneList;
 	SString  VarString;
 	SString  MetavarList;
@@ -315,6 +318,7 @@ PPSlipFormat::PPSlipFormat()
 	LineNo     = 0;
 	PageWidth  = 0;
 	PageLength = 0;
+	LastPictId = 0;
 	Src = 0;
 	P_CcPack = 0;
 	P_Od   = 0;
@@ -392,7 +396,7 @@ int PPSlipFormat::InitIteration(int zoneKind, Iter * pIter)
 			pIter->Amount = P_BillPack->Rec.Amount;
 		else if(Src == srcCSession)
 			pIter->Amount = P_SessInfo->Rec.Amount;
-	return pIter->P_Zone ? 1 : 0;
+	return BIN(pIter->P_Zone);
 }
 
 
@@ -441,53 +445,53 @@ int PPSlipFormat::GetCurBillItem(const Iter * pIter, PPTransferItem * pRec)
 }
 
 enum {
-	symbCurDate = 1,   // DATE
-	symbCurTime,       // TIME
-	symbMainOrg,       // MAINORG
-	symbDate,          // DATE
-	symbTime,          // TIME
-	symbBillNo,        // BILLNO
-	symbClient,        // CLIENT
-	symbAgent,         // AGENT
-	symbCashier,       // CASHIER
-	symbTable,         // TABLE
-	symbAmountWoDis,   // AMOUNTWODIS
-	symbAmount,        // AMOUNT
-	symbDiscount,      // DISCOUNT
-	symbIsCreditSCard, // ISCREDITSCARD 1 если карта является кредитной, 0 - в противном случае
-	symbSCardRest,     // SCARDREST     Остаток на кредитной карте
-	symbSCardOwner,    // SCARDOWNER    Наименование владельца карты
-	symbSCardType,     // SCARDTYPE     Тип карты: 0 - дисконтная, 1 - кредитная, 2 - бонусная //
-	symbSCard,         // SCARD         Номер карты
-	symbPctDis,        // PCTDIS
-	symbWrOffAmount,   // WROFFAMOUNT
-	symbDeficit,       // DEFICIT
-	symbGoodsGroup,    // GOODSGRP
-	symbGoods,         // GOODS
-	symbQtty,          // QTTY
-	symbPriceWoDis,    // PRICEWODIS
-	symbPrice,         // PRICE
-	symbItemDisAmt,    // ITEMDISAMT
-	symbItemDisPct,    // ITEMDISPCT    Процент скидки по строке
-	symbItemDis,       // ITEMDIS
-	symbItemAmtWoDis,  // ITEMAMTWODIS
-	symbItemAmt,       // ITEMAMT
-	symbMemo,          // MEMO
-	symbPosNode,       // POSNODE Имя кассового узла
-	symbPos,           // POS     Имя кассового аппарата
-	symbIsRet,         // ISRET
-	symbReturn,        // RETURN
-	symbRetCashAmount, // RETCASHAMOUNT  @v7.5.0
-	symbRetBankAmount, // RETBANKAMOUNT  @v7.5.0
-	symbCashAmount,    // CASHAMOUNT
-	symbBankAmount,    // BANKAMOUNT
-	symbCheckCount,    // CHECKCOUNT
-	symbCashCount,     // CHECKCASHCOUNT @v7.5.0
-	symbBankCount,     // CHECKBANKCOUNT @v7.5.0
-	symbRetCheckCount, // RETCHECKCOUNT
-	symbRetCashCount,  // RETCASHCOUNT   @v7.5.0
-	symbRetBankCount,  // RETBANKCOUNT   @v7.5.0
-	symbDivision,      // DIVISION
+	symbCurDate = 1,       // DATE
+	symbCurTime,           // TIME
+	symbMainOrg,           // MAINORG
+	symbDate,              // DATE
+	symbTime,              // TIME
+	symbBillNo,            // BILLNO
+	symbClient,            // CLIENT
+	symbAgent,             // AGENT
+	symbCashier,           // CASHIER
+	symbTable,             // TABLE
+	symbAmountWoDis,       // AMOUNTWODIS
+	symbAmount,            // AMOUNT
+	symbDiscount,          // DISCOUNT
+	symbIsCreditSCard,     // ISCREDITSCARD 1 если карта является кредитной, 0 - в противном случае
+	symbSCardRest,         // SCARDREST     Остаток на кредитной карте
+	symbSCardOwner,        // SCARDOWNER    Наименование владельца карты
+	symbSCardType,         // SCARDTYPE     Тип карты: 0 - дисконтная, 1 - кредитная, 2 - бонусная //
+	symbSCard,             // SCARD         Номер карты
+	symbPctDis,            // PCTDIS
+	symbWrOffAmount,       // WROFFAMOUNT
+	symbDeficit,           // DEFICIT
+	symbGoodsGroup,        // GOODSGRP
+	symbGoods,             // GOODS
+	symbQtty,              // QTTY
+	symbPriceWoDis,        // PRICEWODIS
+	symbPrice,             // PRICE
+	symbItemDisAmt,        // ITEMDISAMT
+	symbItemDisPct,        // ITEMDISPCT    Процент скидки по строке
+	symbItemDis,           // ITEMDIS
+	symbItemAmtWoDis,      // ITEMAMTWODIS
+	symbItemAmt,           // ITEMAMT
+	symbMemo,              // MEMO
+	symbPosNode,           // POSNODE Имя кассового узла
+	symbPos,               // POS     Имя кассового аппарата
+	symbIsRet,             // ISRET
+	symbReturn,            // RETURN
+	symbRetCashAmount,     // RETCASHAMOUNT
+	symbRetBankAmount,     // RETBANKAMOUNT
+	symbCashAmount,        // CASHAMOUNT
+	symbBankAmount,        // BANKAMOUNT
+	symbCheckCount,        // CHECKCOUNT
+	symbCashCount,         // CHECKCASHCOUNT
+	symbBankCount,         // CHECKBANKCOUNT
+	symbRetCheckCount,     // RETCHECKCOUNT
+	symbRetCashCount,      // RETCASHCOUNT
+	symbRetBankCount,      // RETBANKCOUNT
+	symbDivision,          // DIVISION
 	symbChecksAmountWoDis, // CAMOUNTWODIS
 	symbChecksAmount,      // CAMOUNT
 	symbChecksDiscount,    // CDISCOUNT
@@ -517,7 +521,8 @@ enum {
 		// быть как номером, так и именем стола, symbTableN - всегда номер
 	symbIsEgais,           // ISEGAIS
 	symbEgaisUrl,          // EGAISURL
-	symbEgaisSign          // EGAISSIGN
+	symbEgaisSign,         // EGAISSIGN
+	symbManufSerial        // MANUFSERIAL
 };
 
 PPID PPSlipFormat::GetSCardID(const Iter * pIter, double * pAdjSum) const
@@ -554,6 +559,9 @@ PPID PPSlipFormat::GetSCardID(const Iter * pIter, double * pAdjSum) const
 
 int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString & rResult, int * pSplitPos, int * pSplitChr)
 {
+	const CCheckPacket * p_ccp = P_CcPack;
+	const PPBillPacket * p_bp = P_BillPack;
+
 	int    ok = -1;
 	CCheckLineTbl::Rec cc_item;
 	CCheckPacket::LineExt ccext_item;
@@ -562,7 +570,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 	rResult = 0;
 	SString temp_buf;
 	SStrScan scan(pExpr);
-	const long cc_flags = P_CcPack ? P_CcPack->Rec.Flags : 0;
+	const long cc_flags = p_ccp ? p_ccp->Rec.Flags : 0;
 	while(*scan) {
 		if(*scan == '@') {
 			int  var_idx = 0;
@@ -575,52 +583,49 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 				}
 			}
 			switch(var_idx) {
-				case symbCurDate:
-					rResult.Cat(getcurdate_()); break;
-				case symbCurTime:
-					rResult.Cat(getcurtime_()); break;
-				case symbMainOrg:
-					rResult.Cat(GetMainOrgName(temp_buf)); break;
+				case symbCurDate: rResult.Cat(getcurdate_()); break;
+				case symbCurTime: rResult.Cat(getcurtime_()); break;
+				case symbMainOrg: rResult.Cat(GetMainOrgName(temp_buf)); break;
 				case symbDate:
 					if(Src == srcCCheck)
-						rResult.Cat(P_CcPack->Rec.Dt);
+						rResult.Cat(p_ccp->Rec.Dt);
 					else if(Src == srcGoodsBill)
-						rResult.Cat(P_BillPack->Rec.Dt);
+						rResult.Cat(p_bp->Rec.Dt);
 					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Rec.Dt);
 					break;
 				case symbTime:
 					if(Src == srcCCheck)
-						rResult.Cat(P_CcPack->Rec.Tm);
+						rResult.Cat(p_ccp->Rec.Tm);
 					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Rec.Tm);
 					break;
 				case symbBillNo:
 					if(Src == srcCCheck)
-						rResult.Cat(P_CcPack->Rec.Code);
+						rResult.Cat(p_ccp->Rec.Code);
 					else if(Src == srcGoodsBill)
-						rResult.Cat(P_BillPack->Rec.Code);
+						rResult.Cat(p_bp->Rec.Code);
 					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Rec.SessNumber);
 					break;
 				case symbClient:
 					if(Src == srcGoodsBill) {
-						GetArticleName(P_BillPack->Rec.Object, temp_buf);
+						GetArticleName(p_bp->Rec.Object, temp_buf);
 						rResult.Cat(temp_buf);
 					}
 					break;
 				case symbAgent:
 					if(Src == srcCCheck)
-						temp_id = P_CcPack->Ext.SalerID;
+						temp_id = p_ccp->Ext.SalerID;
 					else if(Src == srcGoodsBill)
-						temp_id = P_BillPack->Ext.AgentID;
+						temp_id = p_bp->Ext.AgentID;
 					if(temp_id && GetArticleName(temp_id, temp_buf) > 0)
 						rResult.Cat(temp_buf);
 					break;
 				case symbCashier:
-					if(Src == srcCCheck && P_CcPack->Rec.UserID) {
+					if(Src == srcCCheck && p_ccp->Rec.UserID) {
 						PersonTbl::Rec psn_rec;
-						if(P_Od->PsnObj.Fetch(P_CcPack->Rec.UserID, &psn_rec) > 0)
+						if(P_Od->PsnObj.Fetch(p_ccp->Rec.UserID, &psn_rec) > 0)
 							rResult.Cat(psn_rec.Name);
 					}
 					else if(oneof3(Src, srcCCheck, srcGoodsBill, srcCSession)) {
@@ -635,69 +640,69 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				case symbTable:
 					if(Src == srcCCheck) {
-                        PPObjCashNode::GetCafeTableName(P_CcPack->Ext.TableNo, temp_buf);
+                        PPObjCashNode::GetCafeTableName(p_ccp->Ext.TableNo, temp_buf);
 						rResult.Cat(temp_buf);
 					}
 					break;
 				case symbTableN:
 					if(Src == srcCCheck)
-						rResult.Cat(P_CcPack->Ext.TableNo);
+						rResult.Cat(p_ccp->Ext.TableNo);
 					break;
 				case symbAmount:
 					if(Src == srcCCheck)
-						rResult.Cat(fabs(MONEYTOLDBL(P_CcPack->Rec.Amount)), SFMT_MONEY);
+						rResult.Cat(fabs(MONEYTOLDBL(p_ccp->Rec.Amount)), SFMT_MONEY);
 					else if(Src == srcGoodsBill)
-						rResult.Cat(P_BillPack->Rec.Amount, SFMT_MONEY);
+						rResult.Cat(p_bp->Rec.Amount, SFMT_MONEY);
 					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Rec.Amount, SFMT_MONEY);
 					break;
 				case symbChecksAmount:
 					if(Src == srcCCheck)
-						rResult.Cat(fabs(MONEYTOLDBL(P_CcPack->Rec.Amount)), SFMT_MONEY);
+						rResult.Cat(fabs(MONEYTOLDBL(p_ccp->Rec.Amount)), SFMT_MONEY);
 					else if(Src == srcGoodsBill)
-						rResult.Cat(P_BillPack->Rec.Amount, SFMT_MONEY);
+						rResult.Cat(p_bp->Rec.Amount, SFMT_MONEY);
 					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Total.Amount, SFMT_MONEY);
 					break;
 				case symbDiscount:
 					if(Src == srcCCheck)
-						rResult.Cat(fabs(MONEYTOLDBL(P_CcPack->Rec.Discount)), SFMT_MONEY);
+						rResult.Cat(fabs(MONEYTOLDBL(p_ccp->Rec.Discount)), SFMT_MONEY);
 					else if(Src == srcGoodsBill)                               // PPBillPacket AmtList PPBill
-						rResult.Cat(P_BillPack->Amounts.Get(PPAMT_DISCOUNT, 0), SFMT_MONEY);
+						rResult.Cat(p_bp->Amounts.Get(PPAMT_DISCOUNT, 0), SFMT_MONEY);
 					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Rec.Discount, SFMT_MONEY);
 					break;
 				case symbChecksDiscount:
 					if(Src == srcCCheck)
-						rResult.Cat(fabs(MONEYTOLDBL(P_CcPack->Rec.Discount)), SFMT_MONEY);
+						rResult.Cat(fabs(MONEYTOLDBL(p_ccp->Rec.Discount)), SFMT_MONEY);
 					else if(Src == srcGoodsBill)                               // PPBillPacket AmtList PPBill
-						rResult.Cat(P_BillPack->Amounts.Get(PPAMT_DISCOUNT, 0), SFMT_MONEY);
+						rResult.Cat(p_bp->Amounts.Get(PPAMT_DISCOUNT, 0), SFMT_MONEY);
 					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Total.Discount, SFMT_MONEY);
 					break;
 				case symbAmountWoDis:
 					if(Src == srcCCheck)
-						rResult.Cat(fabs(MONEYTOLDBL(P_CcPack->Rec.Amount) + MONEYTOLDBL(P_CcPack->Rec.Discount)), SFMT_MONEY);
+						rResult.Cat(fabs(MONEYTOLDBL(p_ccp->Rec.Amount) + MONEYTOLDBL(p_ccp->Rec.Discount)), SFMT_MONEY);
 					else if(Src == srcGoodsBill)
-						rResult.Cat(P_BillPack->Rec.Amount + P_BillPack->Amounts.Get(PPAMT_DISCOUNT, 0), SFMT_MONEY);
+						rResult.Cat(p_bp->Rec.Amount + p_bp->Amounts.Get(PPAMT_DISCOUNT, 0), SFMT_MONEY);
 					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Rec.Amount + P_SessInfo->Rec.Discount, SFMT_MONEY);
 					break;
 				case symbChecksAmountWoDis:
 					if(Src == srcCCheck)
-						rResult.Cat(fabs(MONEYTOLDBL(P_CcPack->Rec.Amount) + MONEYTOLDBL(P_CcPack->Rec.Discount)), SFMT_MONEY);
+						rResult.Cat(fabs(MONEYTOLDBL(p_ccp->Rec.Amount) + MONEYTOLDBL(p_ccp->Rec.Discount)), SFMT_MONEY);
 					else if(Src == srcGoodsBill)
-						rResult.Cat(P_BillPack->Rec.Amount + P_BillPack->Amounts.Get(PPAMT_DISCOUNT, 0), SFMT_MONEY);
+						rResult.Cat(p_bp->Rec.Amount + p_bp->Amounts.Get(PPAMT_DISCOUNT, 0), SFMT_MONEY);
 					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Total.Amount + P_SessInfo->Total.Discount, SFMT_MONEY);
 					break;
 				case symbReturn:         // RETURN
 					if(Src == srcCCheck) {
-						rResult.Cat(((cc_flags & CCHKF_RETURN) ? fabs(MONEYTOLDBL(P_CcPack->Rec.Amount)) : 0.0), SFMT_MONEY);
+						rResult.Cat(((cc_flags & CCHKF_RETURN) ? fabs(MONEYTOLDBL(p_ccp->Rec.Amount)) : 0.0), SFMT_MONEY);
 					}
 					else if(Src == srcGoodsBill) {
-						if(GetOpType(P_BillPack->Rec.OpID) == PPOPT_GOODSRETURN)
-							rResult.Cat(P_BillPack->Rec.Amount, SFMT_MONEY);
+						if(GetOpType(p_bp->Rec.OpID) == PPOPT_GOODSRETURN)
+							rResult.Cat(p_bp->Rec.Amount, SFMT_MONEY);
 						else
 							rResult.Cat(0.0, SFMT_MONEY);
 					}
@@ -706,58 +711,58 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				case symbCashAmount:     // CASHAMOUNT
 					if(Src == srcCCheck) {
-						rResult.Cat(((cc_flags & CCHKF_BANKING) ? 0.0 : fabs(MONEYTOLDBL(P_CcPack->Rec.Amount))), SFMT_MONEY);
+						rResult.Cat(((cc_flags & CCHKF_BANKING) ? 0.0 : fabs(MONEYTOLDBL(p_ccp->Rec.Amount))), SFMT_MONEY);
 					}
 					else if(Src == srcGoodsBill) {
-						rResult.Cat(P_BillPack->Rec.Amount, SFMT_MONEY);
+						rResult.Cat(p_bp->Rec.Amount, SFMT_MONEY);
 					}
 					else {
 						rResult.Cat(P_SessInfo->Total.Amount - P_SessInfo->Total.BnkAmount, SFMT_MONEY);
 					}
 					break;
-				case symbRetCashAmount: // RETCASHAMOUNT  @v7.5.0
+				case symbRetCashAmount: // RETCASHAMOUNT
 					if(Src == srcCCheck) {
-						rResult.Cat(((!(cc_flags & CCHKF_BANKING) && (cc_flags & CCHKF_RETURN)) ? fabs(MONEYTOLDBL(P_CcPack->Rec.Amount)) : 0.0), SFMT_MONEY);
+						rResult.Cat(((!(cc_flags & CCHKF_BANKING) && (cc_flags & CCHKF_RETURN)) ? fabs(MONEYTOLDBL(p_ccp->Rec.Amount)) : 0.0), SFMT_MONEY);
 					}
 					else if(Src == srcCSession) {
 						rResult.Cat(P_SessInfo->Total.RetAmount - P_SessInfo->Total.RetBnkAmount, SFMT_MONEY);
 					}
 					break;
-				case symbRetBankAmount: // RETBANKAMOUNT  @v7.5.0
+				case symbRetBankAmount: // RETBANKAMOUNT
 					if(Src == srcCCheck) {
-						rResult.Cat((((cc_flags & CCHKF_BANKING) && (cc_flags & CCHKF_RETURN)) ? fabs(MONEYTOLDBL(P_CcPack->Rec.Amount)) : 0.0), SFMT_MONEY);
+						rResult.Cat((((cc_flags & CCHKF_BANKING) && (cc_flags & CCHKF_RETURN)) ? fabs(MONEYTOLDBL(p_ccp->Rec.Amount)) : 0.0), SFMT_MONEY);
 					}
 					else if(Src == srcCSession) {
 						rResult.Cat(P_SessInfo->Total.RetBnkAmount, SFMT_MONEY);
 					}
 					break;
-				case symbCashCount:     // CHECKCASHCOUNT @v7.5.0
+				case symbCashCount:     // CHECKCASHCOUNT
 					if(Src == srcCCheck) {
-						rResult.Cat(((!(cc_flags & CCHKF_BANKING) && !(cc_flags & CCHKF_RETURN)) ? 1 : 0));
+						rResult.Cat(BIN(!(cc_flags & CCHKF_BANKING) && !(cc_flags & CCHKF_RETURN)));
 					}
 					else if(Src == srcCSession) {
 						rResult.Cat(P_SessInfo->Total.SaleCheckCount - P_SessInfo->Total.SaleBnkCount);
 					}
 					break;
-				case symbBankCount:     // CHECKBANKCOUNT @v7.5.0
+				case symbBankCount:     // CHECKBANKCOUNT
 					if(Src == srcCCheck) {
-						rResult.Cat((((cc_flags & CCHKF_BANKING) && !(cc_flags & CCHKF_RETURN)) ? 1 : 0));
+						rResult.Cat(BIN((cc_flags & CCHKF_BANKING) && !(cc_flags & CCHKF_RETURN)));
 					}
 					else if(Src == srcCSession) {
 						rResult.Cat(P_SessInfo->Total.SaleBnkCount);
 					}
 					break;
-				case symbRetCashCount:  // RETCASHCOUNT   @v7.5.0
+				case symbRetCashCount:  // RETCASHCOUNT
 					if(Src == srcCCheck) {
-						rResult.Cat(((!(cc_flags & CCHKF_BANKING) && (cc_flags & CCHKF_RETURN)) ? 1 : 0));
+						rResult.Cat(BIN(!(cc_flags & CCHKF_BANKING) && (cc_flags & CCHKF_RETURN)));
 					}
 					else if(Src == srcCSession) {
 						rResult.Cat(P_SessInfo->Total.RetCheckCount - P_SessInfo->Total.RetBnkCount);
 					}
 					break;
-				case symbRetBankCount:  // RETBANKCOUNT   @v7.5.0
+				case symbRetBankCount:  // RETBANKCOUNT
 					if(Src == srcCCheck) {
-						rResult.Cat((((cc_flags & CCHKF_BANKING) && (cc_flags & CCHKF_RETURN)) ? 1 : 0));
+						rResult.Cat(BIN((cc_flags & CCHKF_BANKING) && (cc_flags & CCHKF_RETURN)));
 					}
 					else if(Src == srcCSession) {
 						rResult.Cat(P_SessInfo->Total.RetBnkCount);
@@ -765,8 +770,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				case symbBankAmount:     // BANKAMOUNT
 					if(Src == srcCCheck) {
-						rResult.Cat(((P_CcPack->Rec.Flags & CCHKF_BANKING) ?
-							fabs(MONEYTOLDBL(P_CcPack->Rec.Amount)) : 0.0), SFMT_MONEY);
+						rResult.Cat(((p_ccp->Rec.Flags & CCHKF_BANKING) ? fabs(MONEYTOLDBL(p_ccp->Rec.Amount)) : 0.0), SFMT_MONEY);
 					}
 					else if(Src == srcGoodsBill) {
 						rResult.Cat(0.0, SFMT_MONEY);
@@ -777,11 +781,11 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 				case symbFiscalAmount: // FISCALAMOUNT
 					if(Src == srcCCheck) {
 						double fiscal, nonfiscal;
-						P_CcPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
+						p_ccp->HasNonFiscalAmount(&fiscal, &nonfiscal);
 						rResult.Cat(fiscal, SFMT_MONEY);
 					}
 					else if(Src == srcGoodsBill) {
-						rResult.Cat(P_BillPack->Rec.Amount, SFMT_MONEY);
+						rResult.Cat(p_bp->Rec.Amount, SFMT_MONEY);
 					}
 					else
 						rResult.Cat(P_SessInfo->Total.FiscalAmount, SFMT_MONEY); // @v7.5.8 WORetAmount-->FiscalAmount
@@ -789,7 +793,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 				case symbNonFiscalAmount: // NONFISCALAMOUNT
 					if(Src == srcCCheck) {
 						double fiscal, nonfiscal;
-						P_CcPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
+						p_ccp->HasNonFiscalAmount(&fiscal, &nonfiscal);
 						rResult.Cat(nonfiscal, SFMT_MONEY);
 					}
 					else if(Src == srcGoodsBill) {
@@ -800,8 +804,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				case symbBringAmount:
 					if(Src == srcCCheck) {
-						rResult.Cat(((P_CcPack->Rec.Flags & CCHKF_BANKING) ?
-							fabs(MONEYTOLDBL(P_CcPack->Rec.Amount)) : P_CcPack->_Cash), SFMT_MONEY);
+						rResult.Cat(((p_ccp->Rec.Flags & CCHKF_BANKING) ? fabs(MONEYTOLDBL(p_ccp->Rec.Amount)) : p_ccp->_Cash), SFMT_MONEY);
 					}
 					else if(Src == srcGoodsBill) {
 						rResult.Cat(0.0);
@@ -811,8 +814,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				case symbDeliveryAmount:
 					if(Src == srcCCheck) {
-						rResult.Cat(((P_CcPack->Rec.Flags & CCHKF_BANKING) ?
-							0.0 : P_CcPack->_Cash - fabs(MONEYTOLDBL(P_CcPack->Rec.Amount))), SFMT_MONEY);
+						rResult.Cat(((p_ccp->Rec.Flags & CCHKF_BANKING) ? 0.0 : p_ccp->_Cash - fabs(MONEYTOLDBL(p_ccp->Rec.Amount))), SFMT_MONEY);
 					}
 					else if(Src == srcGoodsBill) {
 						rResult.Cat(0.0);
@@ -873,15 +875,15 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				case symbUhttScHash:
 					if(Src == srcCCheck)
-						rResult.Cat(P_CcPack->UhttScHash);
+						rResult.Cat(p_ccp->UhttScHash);
 					break;
 				case symbPctDis:
 					if(Src == srcCCheck)
-						rResult.Cat(MONEYTOLDBL(P_CcPack->Rec.Discount) * 100.0 /
-							(MONEYTOLDBL(P_CcPack->Rec.Amount) + MONEYTOLDBL(P_CcPack->Rec.Discount)), MKSFMTD(0, 1, 0));
+						rResult.Cat(MONEYTOLDBL(p_ccp->Rec.Discount) * 100.0 /
+							(MONEYTOLDBL(p_ccp->Rec.Amount) + MONEYTOLDBL(p_ccp->Rec.Discount)), MKSFMTD(0, 1, 0));
 					else if(Src == srcGoodsBill)
-						rResult.Cat(P_BillPack->Amounts.Get(PPAMT_DISCOUNT, 0) * 100.0 /
-							(P_BillPack->Rec.Amount + P_BillPack->Amounts.Get(PPAMT_DISCOUNT, 0)), SFMT_MONEY);
+						rResult.Cat(p_bp->Amounts.Get(PPAMT_DISCOUNT, 0) * 100.0 /
+							(p_bp->Rec.Amount + p_bp->Amounts.Get(PPAMT_DISCOUNT, 0)), SFMT_MONEY);
 					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Rec.Discount * 100.0 / (P_SessInfo->Rec.Amount + P_SessInfo->Rec.Discount), SFMT_MONEY);
 					break;
@@ -1090,13 +1092,13 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				case symbMemo:
 					if(Src == srcGoodsBill)
-						rResult.Cat(P_BillPack->Rec.Memo);
+						rResult.Cat(p_bp->Rec.Memo);
 					else if(Src == srcCCheck)
-						rResult.Cat(P_CcPack->Ext.Memo);
+						rResult.Cat(p_ccp->Ext.Memo);
 					break;
 				case symbPos:
 					if(Src == srcCCheck)
-						rResult.Cat(P_CcPack->Rec.CashID);
+						rResult.Cat(p_ccp->Rec.CashID);
 					/*
 					else if(Src == srcGoodsBill) {
 					}
@@ -1106,9 +1108,9 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				case symbPosNode:
 					if(Src == srcCCheck) {
-						if(P_CcPack->Rec.SessID) {
+						if(p_ccp->Rec.SessID) {
 							CSessionTbl::Rec ses_rec;
-							if(P_Od->CsObj.Search(P_CcPack->Rec.SessID, &ses_rec) > 0) {
+							if(P_Od->CsObj.Search(p_ccp->Rec.SessID, &ses_rec) > 0) {
 								PPObjCashNode cn_obj;
 								PPCashNode cn_rec;
 								if(cn_obj.Fetch(ses_rec.CashNodeID, &cn_rec) > 0)
@@ -1123,17 +1125,35 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					else if(Src == srcCSession) {
 						PPObjCashNode cn_obj;
 						PPCashNode cn_rec;
-						if(cn_obj.Fetch(P_SessInfo->Rec.CashNodeID, &cn_rec) > 0)
+						if(cn_obj.Fetch(P_SessInfo->Rec.CashNodeID, &cn_rec) > 0) {
 							rResult.Cat(cn_rec.Name);
+						}
 					}
 					break;
+				// @v9.6.11 {
+				case symbManufSerial:
+					if(Src == srcCCheck) {
+						if(p_ccp->Rec.SessID) {
+							CSessionTbl::Rec ses_rec;
+							if(P_Od->CsObj.Search(p_ccp->Rec.SessID, &ses_rec) > 0) {
+								PPObjCashNode cn_obj;
+								PPSyncCashNode scn_pack;
+								if(cn_obj.GetSync(P_SessInfo->Rec.CashNodeID, &scn_pack) > 0) {
+									scn_pack.GetPropString(SCN_MANUFSERIAL, temp_buf);
+									rResult.Cat(temp_buf);
+								}
+							}
+						}
+					}
+					break;
+				// } @v9.6.11
 				case symbIsRet:
 					if(Src == srcCCheck) {
-						rResult.Cat((long)((P_CcPack->Rec.Flags & CCHKF_RETURN) ? 1 : 0));
+						rResult.Cat((long)BIN(p_ccp->Rec.Flags & CCHKF_RETURN));
 					}
 					else if(Src == srcGoodsBill) {
 						long is_ret = 0;
-						if(GetOpType(P_BillPack->Rec.OpID) == PPOPT_GOODSRETURN)
+						if(GetOpType(p_bp->Rec.OpID) == PPOPT_GOODSRETURN)
 							is_ret = 1;
 						rResult.Cat(is_ret);
 					}
@@ -1150,59 +1170,55 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				case symbDivision:
 					if(Src == srcCCheck && GetCurCheckItem(pIter, &cc_item))
-						rResult.Cat((long)((cc_item.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ?
-							cc_item.DivID - CHECK_LINE_IS_PRINTED_BIAS : cc_item.DivID));
-				// @v7.1.8 {
+						rResult.Cat((long)((cc_item.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? cc_item.DivID - CHECK_LINE_IS_PRINTED_BIAS : cc_item.DivID));
 				case symbInitTime:          // INITTIME
 					if(Src == srcCCheck)
-						rResult.Cat(P_CcPack->Ext.CreationDtm, DATF_DMY|DATF_NOZERO, TIMF_HMS|TIMF_NOZERO);
+						rResult.Cat(p_ccp->Ext.CreationDtm, DATF_DMY|DATF_NOZERO, TIMF_HMS|TIMF_NOZERO);
 					break;
-				// } @v7.1.8
 				case symbIsOrder:           // ISORDER
 					if(Src == srcCCheck)
-						rResult.Cat((long)(BIN(P_CcPack->Rec.Flags & CCHKF_ORDER)));
+						rResult.Cat((long)(BIN(p_ccp->Rec.Flags & CCHKF_ORDER)));
 					break;
 				case symbOrderDate:         // ORDERDATE
-					if(Src == srcCCheck && P_CcPack->Rec.Flags & CCHKF_ORDER)
-						rResult.Cat(P_CcPack->Ext.StartOrdDtm.d);
+					if(Src == srcCCheck && p_ccp->Rec.Flags & CCHKF_ORDER)
+						rResult.Cat(p_ccp->Ext.StartOrdDtm.d);
 					break;
 				case symbOrderTimeStart:    // ORDERTIMESTART
-					if(Src == srcCCheck && P_CcPack->Rec.Flags & CCHKF_ORDER)
-						rResult.Cat(P_CcPack->Ext.StartOrdDtm.t, TIMF_HM);
+					if(Src == srcCCheck && p_ccp->Rec.Flags & CCHKF_ORDER)
+						rResult.Cat(p_ccp->Ext.StartOrdDtm.t, TIMF_HM);
 					break;
 				case symbOrderTimeEnd:      // ORDERTIMEEND
-					if(Src == srcCCheck && P_CcPack->Rec.Flags & CCHKF_ORDER)
-						rResult.Cat(P_CcPack->Ext.EndOrdDtm.t, TIMF_HM);
+					if(Src == srcCCheck && p_ccp->Rec.Flags & CCHKF_ORDER)
+						rResult.Cat(p_ccp->Ext.EndOrdDtm.t, TIMF_HM);
 					break;
 				case symbOrderDuration:     // ORDERDURATION
-					if(Src == srcCCheck && P_CcPack->Rec.Flags & CCHKF_ORDER) {
-						long sec = diffdatetimesec(P_CcPack->Ext.EndOrdDtm, P_CcPack->Ext.StartOrdDtm);
+					if(Src == srcCCheck && p_ccp->Rec.Flags & CCHKF_ORDER) {
+						long sec = diffdatetimesec(p_ccp->Ext.EndOrdDtm, p_ccp->Ext.StartOrdDtm);
 						LTIME duration;
 						duration.settotalsec(labs(sec));
 						rResult.Cat(duration, TIMF_HM);
 					}
 					break;
 				case symbLinkOrderNo:       // LINKORDERNO          Номер чека заказа, к которому привязан данный чек
-					if(Src == srcCCheck && P_Od && P_CcPack->Ext.LinkCheckID) {
+					if(Src == srcCCheck && P_Od && p_ccp->Ext.LinkCheckID) {
 						CCheckTbl::Rec cc_rec;
-						if(P_Od->ScObj.P_CcTbl->Search(P_CcPack->Ext.LinkCheckID, &cc_rec) > 0)
+						if(P_Od->ScObj.P_CcTbl->Search(p_ccp->Ext.LinkCheckID, &cc_rec) > 0)
 							rResult.Cat(cc_rec.Code);
 					}
 					break;
 				case symbLinkOrderDate:     // LINKORDERDATE        Дата чека заказа, к которому привязан данный чек
-					if(Src == srcCCheck && P_Od && P_CcPack->Ext.LinkCheckID) {
+					if(Src == srcCCheck && P_Od && p_ccp->Ext.LinkCheckID) {
 						CCheckTbl::Rec cc_rec;
-						if(P_Od->ScObj.P_CcTbl->Search(P_CcPack->Ext.LinkCheckID, &cc_rec) > 0)
+						if(P_Od->ScObj.P_CcTbl->Search(p_ccp->Ext.LinkCheckID, &cc_rec) > 0)
 							rResult.Cat(cc_rec.Dt);
 					}
 					break;
-				// @v7.0.8 {
 				case symbDlvrCity:
 					if(Src == srcCCheck) {
-						if(P_CcPack->Rec.Flags & CCHKF_DELIVERY) {
+						if(p_ccp->Rec.Flags & CCHKF_DELIVERY) {
 							if(P_Od) {
 								temp_buf = 0;
-								P_Od->PsnObj.LocObj.GetCity(P_CcPack->Ext.AddrID, 0, &temp_buf, 1);
+								P_Od->PsnObj.LocObj.GetCity(p_ccp->Ext.AddrID, 0, &temp_buf, 1);
 								rResult.Cat(temp_buf);
 							}
 						}
@@ -1210,11 +1226,11 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				case symbDlvrAddr:
 					if(Src == srcCCheck) {
-						if(P_CcPack->Rec.Flags & CCHKF_DELIVERY) {
+						if(p_ccp->Rec.Flags & CCHKF_DELIVERY) {
 							if(P_Od) {
 								LocationTbl::Rec loc_rec;
-								PPID   addr_id = P_CcPack->Ext.AddrID;
-								if(P_Od->PsnObj.LocObj.Search(P_CcPack->Ext.AddrID, &loc_rec) > 0) {
+								PPID   addr_id = p_ccp->Ext.AddrID;
+								if(P_Od->PsnObj.LocObj.Search(p_ccp->Ext.AddrID, &loc_rec) > 0) {
 									LocationCore::GetExField(&loc_rec, LOCEXSTR_SHORTADDR, temp_buf = 0);
 									rResult.Cat(temp_buf);
 								}
@@ -1224,11 +1240,11 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				case symbDlvrPhone:
 					if(Src == srcCCheck) {
-						if(P_CcPack->Rec.Flags & CCHKF_DELIVERY) {
+						if(p_ccp->Rec.Flags & CCHKF_DELIVERY) {
 							if(P_Od) {
 								LocationTbl::Rec loc_rec;
-								PPID   addr_id = P_CcPack->Ext.AddrID;
-								if(P_Od->PsnObj.LocObj.Search(P_CcPack->Ext.AddrID, &loc_rec) > 0) {
+								PPID   addr_id = p_ccp->Ext.AddrID;
+								if(P_Od->PsnObj.LocObj.Search(p_ccp->Ext.AddrID, &loc_rec) > 0) {
 									LocationCore::GetExField(&loc_rec, LOCEXSTR_PHONE, temp_buf = 0);
 									rResult.Cat(temp_buf);
 								}
@@ -1236,27 +1252,26 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 						}
 					}
 					break;
-				// } @v7.0.8
 				case symbIsEgais:           // ISEGAIS
 					{
 						long   _yes = 0;
-						if(Src == srcCCheck && P_CcPack && P_CcPack->GetExtStrData(CCheckPacket::extssEgaisUrl, temp_buf) && temp_buf.NotEmptyS())
+						if(Src == srcCCheck && p_ccp && p_ccp->GetExtStrData(CCheckPacket::extssEgaisUrl, temp_buf) && temp_buf.NotEmptyS())
 							_yes = 1;
 						rResult.Cat(_yes);
 					}
 					break;
 				case symbEgaisUrl:          // EGAISURL
 					if(Src == srcCCheck) {
-						if(P_CcPack) {
-							P_CcPack->GetExtStrData(CCheckPacket::extssEgaisUrl, temp_buf);
+						if(p_ccp) {
+							p_ccp->GetExtStrData(CCheckPacket::extssEgaisUrl, temp_buf);
 							rResult = temp_buf;
 						}
 					}
 					break;
 				case symbEgaisSign:          // EGAISSIGN
 					if(Src == srcCCheck) {
-						if(P_CcPack) {
-							P_CcPack->GetExtStrData(CCheckPacket::extssSign, temp_buf);
+						if(p_ccp) {
+							p_ccp->GetExtStrData(CCheckPacket::extssSign, temp_buf);
 							if(temp_buf.Len() > 32) {
 								rResult = 0;
 								for(uint p = 0; p < temp_buf.Len();) {
@@ -1522,6 +1537,29 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 					pIter->EntryNo++;
 					ok = 1;
 				}
+				else if(p_entry->Flags & PPSlipFormatEntry::fFakeCcQr) {
+					int    split_pos = -1;
+					int    split_chr = ' ';
+					ResolveString(pIter, p_entry->Text, temp_buf, &split_pos, &split_chr);
+					{
+						long   pict_id = p_entry->PictId;
+						uint   pict_pos = 0;
+						if(PictList.lsearch(&pict_id, &pict_pos, CMPF_LONG)) {
+							PictBlock & r_pb = PictList.at(pict_pos);
+							PPBarcode::BarcodeImageParam bip;
+							bip.Std = BARCSTD_QR;
+							bip.Code = temp_buf;
+							bip.OutputFormat = SFileFormat::Png;
+							PPMakeTempFileName("fccqr", "png", 0, bip.OutputFileName);
+							if(PPBarcode::CreateImage(bip)) {
+								STRNSCPY(r_pb.Path, bip.OutputFileName);
+								ok = 1;
+							}
+						}
+						rBuf = 0;
+						pIter->EntryNo++;
+					}
+				}
 				else {
 					int    split_pos = -1;
 					int    split_chr = ' ';
@@ -1730,8 +1768,7 @@ int PPSlipFormat::NextToken(SFile & rFile, SString & rResult)
 				token = Scan.GetIdent(rResult) ? tokIdent : 0;
 				if(token == tokIdent) {
 					int    var_idx = -1;
-					if(PPSearchSubStr(VarString, &var_idx, rResult, 1) &&
-						(var_idx >= 0 && var_idx < (_tokLastWordToken-_tokFirstWordToken-1))) {
+					if(PPSearchSubStr(VarString, &var_idx, rResult, 1) && (var_idx >= 0 && var_idx < (_tokLastWordToken-_tokFirstWordToken-1))) {
 						token = var_idx + _tokFirstWordToken + 1;
 					}
 				}
@@ -1795,7 +1832,7 @@ int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSli
 			if(token == tokEq) {
 				THROW(token = NextToken(rFile, rTokResult));
 				THROW_PP_S(token == tokString, PPERR_TOKENEXPECTED, "string");
-				p_entry->Text   = rTokResult;
+				p_entry->Text = rTokResult;
 				THROW(token = NextToken(rFile, rTokResult));
 			}
 			THROW_PP_S(token == tokEOL, PPERR_TOKENEXPECTED, "EOL");
@@ -1872,16 +1909,44 @@ int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSli
 		else if(token == tokPicture) {
 			THROW_MEM(p_entry = new PPSlipFormatEntry);
 			p_entry->Text = rTokResult;
-			token = NextToken(rFile, rTokResult);
-			THROW_PP_S(token == tokEq, PPERR_TOKENEXPECTED, "=");
-			token = NextToken(rFile, rTokResult);
-			THROW_PP_S(token == tokNumber, PPERR_TOKENEXPECTED, "number");
+			THROW_PP_S(NextToken(rFile, rTokResult) == tokEq, PPERR_TOKENEXPECTED, "=");
+			THROW_PP_S(NextToken(rFile, rTokResult) == tokNumber, PPERR_TOKENEXPECTED, "number");
 			p_entry->PictId = (uint16)rTokResult.ToLong();
+			SETMAX(LastPictId, p_entry->PictId);
 			pZone->insert(p_entry);
+			p_entry = 0;
+		}
+		else if(token == tokFakeCcQrCode) {
+			//https://receipt.taxcom.ru/AE2AAFC4/v01/show/?rnm={RN}&fn={FN}&i={DN}&fp={DH}
+			//fakeccqrcode="https://receipt.taxcom.ru/AE2AAFC4/v01/show/?rnm={RN}&fn={FN}&i={DN}&fp={DH}" 10, 10, 15, 15
+			THROW_MEM(p_entry = new PPSlipFormatEntry);
+			THROW_PP_S(NextToken(rFile, rTokResult) == tokEq, PPERR_TOKENEXPECTED, "=");
+			THROW_PP_S(NextToken(rFile, rTokResult) == tokString, PPERR_TOKENEXPECTED, "string");
+			p_entry->Text = rTokResult;
+			p_entry->Flags |= PPSlipFormatEntry::fFakeCcQr;
+			p_entry->PictId = ++LastPictId;
+			{
+				PictBlock pb;
+				MEMSZERO(pb);
+				pb.Id = p_entry->PictId;
+				THROW_PP_S(NextToken(rFile, rTokResult) == tokNumber, PPERR_TOKENEXPECTED, "number");
+				pb.Coord.top = rTokResult.ToLong();
+				THROW_PP_S(NextToken(rFile, rTokResult) == tokNumber, PPERR_TOKENEXPECTED, "number");
+				pb.Coord.left = rTokResult.ToLong();
+				THROW_PP_S(NextToken(rFile, rTokResult) == tokNumber, PPERR_TOKENEXPECTED, "number");
+				pb.Coord.right = rTokResult.ToLong();
+				THROW_PP_S(NextToken(rFile, rTokResult) == tokNumber, PPERR_TOKENEXPECTED, "number");
+				pb.Coord.bottom = rTokResult.ToLong();
+				THROW_PP_S(NextToken(rFile, rTokResult) == tokEOL, PPERR_TOKENEXPECTED, "EOL");
+				THROW_PP_S(PictList.lsearch(&pb.Id, 0, PTR_CMPFUNC(long)) == 0, PPERR_SLIPFMT_DUPPICTID, pb.Id);
+				THROW_SL(PictList.insert(&pb));
+			}
+			THROW_SL(pZone->insert(p_entry));
 			p_entry = 0;
 		}
 		else if(token == tokBarcode) {
 			//tokBarcode,    // barcode = width height [textabove|textbelow|textnone]
+			THROW_MEM(p_entry = new PPSlipFormatEntry);
 		}
 		else if(token == tokSignBarcode) {
 			//tokSignBarcode // signbarcode = std width height [textabove|textbelow|textnone]

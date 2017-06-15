@@ -215,7 +215,7 @@ static void parse_field(twin_face_properties_t * props,
 		return;
 
 #define FIELD(NAME) \
-	if(find_field(STRINGIFY(NAME), NAME ## _map, ARRAY_LENGTH(NAME ## _map), str, len, \
+	if(find_field(STRINGIFY(NAME), NAME ## _map, SIZEOFARRAY(NAME ## _map), str, len, \
 		    (int*)(void*)&props->NAME))	\
 		return;	\
 
@@ -463,7 +463,7 @@ static cairo_status_t twin_scaled_font_render_glyph(cairo_scaled_font_t  * scale
 		cairo_matrix_t shear = { 1, 0, -.2, 1, 0, 0};
 		cairo_transform(cr, &shear);
 	}
-	b = _cairo_twin_outlines + _cairo_twin_charmap[unlikely(glyph >= ARRAY_LENGTH(_cairo_twin_charmap)) ? 0 : glyph];
+	b = _cairo_twin_outlines + _cairo_twin_charmap[unlikely(glyph >= SIZEOFARRAY(_cairo_twin_charmap)) ? 0 : glyph];
 	g = twin_glyph_draw(b);
 	w = twin_glyph_right(b);
 	gw = F__(w);
@@ -550,7 +550,7 @@ static cairo_status_t twin_scaled_font_unicode_to_glyph(cairo_scaled_font_t * sc
 	 * with no unicode_to_glyph method too.  But we define this
 	 * to map all unknown chars to a single unknown glyph to
 	 * reduce pressure on cache. */
-	if(likely(unicode < ARRAY_LENGTH(_cairo_twin_charmap)))
+	if(likely(unicode < SIZEOFARRAY(_cairo_twin_charmap)))
 		*glyph = unicode;
 	else
 		*glyph = 0;

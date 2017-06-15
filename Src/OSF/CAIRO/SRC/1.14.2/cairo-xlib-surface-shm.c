@@ -873,11 +873,11 @@ static void _cairo_xlib_surface_update_shm(cairo_xlib_surface_t * surface)
 			    r.x, r.y);
 		}
 		else {
-			if(n_rects > ARRAY_LENGTH(stack_rects)) {
+			if(n_rects > SIZEOFARRAY(stack_rects)) {
 				rects = _cairo_malloc_ab(n_rects, sizeof(XRectangle));
 				if(unlikely(rects == NULL)) {
 					rects = stack_rects;
-					n_rects = ARRAY_LENGTH(stack_rects);
+					n_rects = SIZEOFARRAY(stack_rects);
 				}
 			}
 			for(i = 0; i < n_rects; i++) {
@@ -1065,7 +1065,7 @@ cairo_int_status_t _cairo_xlib_surface_put_shm(cairo_xlib_surface_t * surface)
 				    r.x, r.y);
 			}
 			else {
-				if(n_rects > ARRAY_LENGTH(stack_rects)) {
+				if(n_rects > SIZEOFARRAY(stack_rects)) {
 					rects = _cairo_malloc_ab(n_rects, sizeof(XRectangle));
 					if(unlikely(rects == NULL)) {
 						status = _cairo_error(CAIRO_STATUS_NO_MEMORY);

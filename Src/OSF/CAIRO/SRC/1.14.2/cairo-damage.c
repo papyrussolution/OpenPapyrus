@@ -56,7 +56,7 @@ cairo_damage_t * _cairo_damage_create(void)
 	damage->dirty = 0;
 	damage->tail = &damage->chunks;
 	damage->chunks.base = damage->boxes;
-	damage->chunks.size = ARRAY_LENGTH(damage->boxes);
+	damage->chunks.size = SIZEOFARRAY(damage->boxes);
 	damage->chunks.count = 0;
 	damage->chunks.next = NULL;
 	damage->remain = damage->chunks.size;

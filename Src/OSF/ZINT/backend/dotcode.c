@@ -46,7 +46,7 @@
 #define GF 113
 #define PM 3
 
-/* DotCode symbol character dot patterns, from Annex C */
+// DotCode symbol character dot patterns, from Annex C 
 static const int dot_patterns[113] = {
 	0x155, 0x0ab, 0x0ad, 0x0b5, 0x0d5, 0x156, 0x15a, 0x16a, 0x1aa, 0x0ae,
 	0x0b6, 0x0ba, 0x0d6, 0x0da, 0x0ea, 0x12b, 0x12d, 0x135, 0x14b, 0x14d,
@@ -1064,7 +1064,7 @@ int dotcode(struct ZintSymbol * symbol, const uchar source[], int length)
 		}
 	}
 	if((height > 200) || (width > 200)) {
-		strcpy(symbol->errtxt, "Specified symbol size is too large (E20)");
+		sstrcpy(symbol->errtxt, "Specified symbol size is too large (E20)");
 		return ZINT_ERROR_INVALID_OPTION;
 	}
 	{
@@ -1094,7 +1094,7 @@ int dotcode(struct ZintSymbol * symbol, const uchar source[], int length)
 		if(data_length > 450) {
 			// Larger data sets than this cause rsencode() to throw SIGSEGV
 			// This should probably be fixed by somebody who understands what rsencode() does...
-			strcpy(symbol->errtxt, "Input too long (E21)");
+			sstrcpy(symbol->errtxt, "Input too long (E21)");
 			return ZINT_ERROR_TOO_LONG;
 		}
 		ecc_length = 3 + (data_length / 2);

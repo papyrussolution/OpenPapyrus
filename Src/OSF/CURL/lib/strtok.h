@@ -21,8 +21,8 @@
  * KIND, either express or implied.
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include <stddef.h>
+//#include "curl_setup.h"
+//#include <stddef.h>
 
 #ifndef HAVE_STRTOK_R
 	char *Curl_strtok_r(char *s, const char *delim, char **last);

@@ -22,7 +22,7 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-#include "strtoofft.h"
+//#include "strtoofft.h"
 #ifdef HAVE_NETINET_IN_H
 	#include <netinet/in.h>
 #endif
@@ -50,29 +50,27 @@
 #ifndef HAVE_SOCKET
 	#error "We can't compile without socket() support!"
 #endif
-#include "urldata.h"
+//#include "urldata.h"
 //#include <curl/curl.h>
 #include "netrc.h"
-
 #include "content_encoding.h"
 #include "hostip.h"
-#include "transfer.h"
-#include "sendf.h"
+//#include "transfer.h"
+//#include "sendf.h"
 #include "speedcheck.h"
-#include "progress.h"
+//#include "progress.h"
 #include "http.h"
-#include "url.h"
-#include "getinfo.h"
+//#include "url.h"
+//#include "getinfo.h"
 #include "vtls/vtls.h"
-#include "select.h"
+//#include "select.h"
 #include "multiif.h"
 #include "connect.h"
-#include "non-ascii.h"
+//#include "non-ascii.h"
 #include "http2.h"
-
-/* The last 3 #include files should be in this order */
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /*
@@ -1434,10 +1432,8 @@ static char * concat_url(const char * base, const char * relurl)
  * as given by the remote server and set up the new URL to request.
  */
 CURLcode Curl_follow(struct Curl_easy * data,
-    char * newurl,                 /* this 'newurl' is the Location: string,
-                                      and it must be SAlloc::M()ed before passed
-                                      here */
-    followtype type)                  /* see transfer.h */
+    char * newurl, /* this 'newurl' is the Location: string, and it must be SAlloc::M()ed before passed here */
+    followtype type) /* see transfer.h */
 {
 #ifdef CURL_DISABLE_HTTP
 	(void)data;

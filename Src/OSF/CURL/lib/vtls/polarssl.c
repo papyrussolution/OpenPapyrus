@@ -45,19 +45,18 @@
 #include <polarssl/error.h>
 #include <polarssl/entropy.h>
 #include <polarssl/ctr_drbg.h>
-
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "inet_pton.h"
 #include "polarssl.h"
 #include "vtls.h"
 #include "parsedate.h"
 #include "connect.h" /* for the connect timeout */
-#include "select.h"
+//#include "select.h"
 //#include "strcase.h"
 #include "polarssl_threadlock.h"
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
 

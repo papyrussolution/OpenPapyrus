@@ -24,8 +24,8 @@
 #pragma hdrstop
 //#include <curl/curl.h>
 #include "hash.h"
-#include "llist.h"
-#include "curl_memory.h"
+//#include "llist.h"
+//#include "curl_memory.h"
 #include "memdebug.h" /* The last #include file should be: */
 
 static void hash_element_dtor(void * user, void * element)

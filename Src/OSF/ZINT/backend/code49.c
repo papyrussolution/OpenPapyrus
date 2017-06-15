@@ -39,7 +39,7 @@
 // This data set taken from ANSI/AIM-BC6-2000, 4th April 2000 
 //
 static const char *c49_table7[128] = {
-    /* Table 7: Code 49 ASCII Chart */
+    // Table 7: Code 49 ASCII Chart 
     "! ", "!A", "!B", "!C", "!D", "!E", "!F", "!G", "!H", "!I", "!J", "!K", "!L",
     "!M", "!N", "!O", "!P", "!Q", "!R", "!S", "!T", "!U", "!V", "!W", "!X", "!Y",
     "!Z", "!1", "!2", "!3", "!4", "!5", " ", "!6", "!7", "!8", "$", "%", "!9", "!0",
@@ -70,7 +70,7 @@ static const int c49_z_weight[] = {
 };
 
 static const char *c49_table4[8] = {
-    /* Table 4: Row Parity Pattern for Code 49 Symbols */
+    // Table 4: Row Parity Pattern for Code 49 Symbols 
     "OEEO", "EOEO", "OOEE", "EEOO", "OEOE", "EOOE", "OOOO", "EEEE"
 };
 
@@ -1210,19 +1210,19 @@ int code_49(struct ZintSymbol * symbol, uchar source[], const int length)
 	int gs1;
 	size_t h;
 	if(length > 81) {
-		strcpy(symbol->errtxt, "Input too long (D30)");
+		sstrcpy(symbol->errtxt, "Input too long (D30)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	if(symbol->input_mode == GS1_MODE) {
 		gs1 = 1;
-		strcpy(intermediate, "*"); /* FNC1 */
+		sstrcpy(intermediate, "*"); /* FNC1 */
 	}
 	else {
 		gs1 = 0;
 	}
 	for(i = 0; i < length; i++) {
 		if(source[i] > 127) {
-			strcpy(symbol->errtxt, "Invalid characters in input data (D31)");
+			sstrcpy(symbol->errtxt, "Invalid characters in input data (D31)");
 			return ZINT_ERROR_INVALID_DATA;
 		}
 		if(gs1 && (source[i] == '['))
@@ -1236,7 +1236,8 @@ int code_49(struct ZintSymbol * symbol, uchar source[], const int length)
 	do {
 		if((intermediate[i] >= '0') && (intermediate[i] <= '9')) {
 			/* Numeric data */
-			for(j = 0; (intermediate[i + j] >= '0') && (intermediate[i + j] <= '9'); j++) ;
+			for(j = 0; (intermediate[i + j] >= '0') && (intermediate[i + j] <= '9'); j++) 
+				;
 			if(j >= 5) {
 				/* Use Numeric Encodation Method */
 				int block_count, c;
@@ -1253,10 +1254,10 @@ int code_49(struct ZintSymbol * symbol, uchar source[], const int length)
 					if((c == block_count - 1) && (block_remain == 2)) {
 						/* Rule (d) */
 						block_value = 100000;
-						block_value += ctoi(intermediate[i]) * 1000;
-						block_value += ctoi(intermediate[i + 1]) * 100;
-						block_value += ctoi(intermediate[i + 2]) * 10;
-						block_value += ctoi(intermediate[i + 3]);
+						block_value += hex(intermediate[i]) * 1000;
+						block_value += hex(intermediate[i + 1]) * 100;
+						block_value += hex(intermediate[i + 2]) * 10;
+						block_value += hex(intermediate[i + 3]);
 
 						codewords[codeword_count] = block_value / (48 * 48);
 						block_value = block_value - (48 * 48) * codewords[codeword_count];
@@ -1267,9 +1268,9 @@ int code_49(struct ZintSymbol * symbol, uchar source[], const int length)
 						codewords[codeword_count] = block_value;
 						codeword_count++;
 						i += 4;
-						block_value = ctoi(intermediate[i]) * 100;
-						block_value += ctoi(intermediate[i + 1]) * 10;
-						block_value += ctoi(intermediate[i + 2]);
+						block_value = hex(intermediate[i]) * 100;
+						block_value += hex(intermediate[i + 1]) * 10;
+						block_value += hex(intermediate[i + 2]);
 
 						codewords[codeword_count] = block_value / 48;
 						block_value = block_value - 48 * codewords[codeword_count];
@@ -1279,11 +1280,11 @@ int code_49(struct ZintSymbol * symbol, uchar source[], const int length)
 						i += 3;
 					}
 					else {
-						block_value = ctoi(intermediate[i]) * 10000;
-						block_value += ctoi(intermediate[i + 1]) * 1000;
-						block_value += ctoi(intermediate[i + 2]) * 100;
-						block_value += ctoi(intermediate[i + 3]) * 10;
-						block_value += ctoi(intermediate[i + 4]);
+						block_value = hex(intermediate[i]) * 10000;
+						block_value += hex(intermediate[i + 1]) * 1000;
+						block_value += hex(intermediate[i + 2]) * 100;
+						block_value += hex(intermediate[i + 3]) * 10;
+						block_value += hex(intermediate[i + 4]);
 
 						codewords[codeword_count] = block_value / (48 * 48);
 						block_value = block_value - (48 * 48) * codewords[codeword_count];
@@ -1306,9 +1307,9 @@ int code_49(struct ZintSymbol * symbol, uchar source[], const int length)
 					    break;
 					case 3:
 					    /* Rule (b) */
-					    block_value = ctoi(intermediate[i]) * 100;
-					    block_value += ctoi(intermediate[i + 1]) * 10;
-					    block_value += ctoi(intermediate[i + 2]);
+					    block_value = hex(intermediate[i]) * 100;
+					    block_value += hex(intermediate[i + 1]) * 10;
+					    block_value += hex(intermediate[i + 2]);
 
 					    codewords[codeword_count] = block_value / 48;
 					    block_value = block_value - 48 * codewords[codeword_count];
@@ -1320,10 +1321,10 @@ int code_49(struct ZintSymbol * symbol, uchar source[], const int length)
 					case 4:
 					    /* Rule (c) */
 					    block_value = 100000;
-					    block_value += ctoi(intermediate[i]) * 1000;
-					    block_value += ctoi(intermediate[i + 1]) * 100;
-					    block_value += ctoi(intermediate[i + 2]) * 10;
-					    block_value += ctoi(intermediate[i + 3]);
+					    block_value += hex(intermediate[i]) * 1000;
+					    block_value += hex(intermediate[i + 1]) * 100;
+					    block_value += hex(intermediate[i + 2]) * 10;
+					    block_value += hex(intermediate[i + 3]);
 
 					    codewords[codeword_count] = block_value / (48 * 48);
 					    block_value = block_value - (48 * 48) * codewords[codeword_count];
@@ -1368,7 +1369,7 @@ int code_49(struct ZintSymbol * symbol, uchar source[], const int length)
 		}
 	}
 	if(codeword_count > 49) {
-		strcpy(symbol->errtxt, "Input too long (D32)");
+		sstrcpy(symbol->errtxt, "Input too long (D32)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	/* Place codewords in code character array (c grid) */
@@ -1453,7 +1454,7 @@ int code_49(struct ZintSymbol * symbol, uchar source[], const int length)
 		}
 	}
 	for(i = 0; i < rows; i++) {
-		strcpy(pattern, "11"); /* Start character */
+		sstrcpy(pattern, "11"); /* Start character */
 		for(j = 0; j < 4; j++) {
 			if(i != (rows - 1)) {
 				if(c49_table4[i][j] == 'E') {

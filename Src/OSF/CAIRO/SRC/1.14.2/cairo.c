@@ -152,7 +152,7 @@ static const cairo_t _cairo_nil[] = {
 	DEFINE_NIL_CONTEXT(CAIRO_STATUS_DEVICE_FINISHED),
 	DEFINE_NIL_CONTEXT(CAIRO_STATUS_JBIG2_GLOBAL_MISSING)
 };
-COMPILE_TIME_ASSERT(ARRAY_LENGTH(_cairo_nil) == CAIRO_STATUS_LAST_STATUS - 1);
+COMPILE_TIME_ASSERT(SIZEOFARRAY(_cairo_nil) == CAIRO_STATUS_LAST_STATUS - 1);
 
 /**
  * _cairo_set_error:
@@ -2817,10 +2817,10 @@ void cairo_show_text(cairo_t * cr, const char * utf8)
 	utf8_len = strlen(utf8);
 	has_show_text_glyphs = cairo_surface_has_show_text_glyphs(cairo_get_target(cr));
 	glyphs = stack_glyphs;
-	num_glyphs = ARRAY_LENGTH(stack_glyphs);
+	num_glyphs = SIZEOFARRAY(stack_glyphs);
 	if(has_show_text_glyphs) {
 		clusters = stack_clusters;
-		num_clusters = ARRAY_LENGTH(stack_clusters);
+		num_clusters = SIZEOFARRAY(stack_clusters);
 	}
 	else {
 		clusters = NULL;
@@ -3015,7 +3015,7 @@ void cairo_text_path(cairo_t * cr, const char * utf8)
 	if(utf8 == NULL)
 		return;
 	glyphs = stack_glyphs;
-	num_glyphs = ARRAY_LENGTH(stack_glyphs);
+	num_glyphs = SIZEOFARRAY(stack_glyphs);
 	scaled_font = cairo_get_scaled_font(cr);
 	if(unlikely(scaled_font->status)) {
 		_cairo_set_error(cr, scaled_font->status);

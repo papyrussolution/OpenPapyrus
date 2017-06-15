@@ -544,14 +544,13 @@ static void sha512_block_data_order(SHA512_CTX * ctx, const void * in,
 		s1 = X[(j+14)&0x0f];    s1 = sigma1(s1);	\
 		T1 = X[(j)&0x0f] += s0 + s1 + X[(j+9)&0x0f];	\
 		ROUND_00_15(i+j, a, b, c, d, e, f, g, h);               } while(0)
-static void sha512_block_data_order(SHA512_CTX * ctx, const void * in,
-    size_t num)
+
+static void sha512_block_data_order(SHA512_CTX * ctx, const void * in, size_t num)
 {
-	const SHA_LONG64 * W = in;
+	const SHA_LONG64 * W = (const SHA_LONG64 *)in;
 	SHA_LONG64 a, b, c, d, e, f, g, h, s0, s1, T1;
 	SHA_LONG64 X[16];
 	int i;
-
 	while(num--) {
 		a = ctx->h[0];
 		b = ctx->h[1];

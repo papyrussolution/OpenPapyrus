@@ -279,7 +279,7 @@ void _cairo_xlib_screen_destroy(cairo_xlib_display_t * display,
 		cairo_surface_finish(&surface->base);
 	}
 
-	for(i = 0; i < ARRAY_LENGTH(info->gc); i++) {
+	for(i = 0; i < SIZEOFARRAY(info->gc); i++) {
 		if(info->gc_depths[i] != 0) {
 			XFreeGC(dpy, info->gc[i]);
 			info->gc_depths[i] = 0;
@@ -346,7 +346,7 @@ GC _cairo_xlib_screen_get_gc(cairo_xlib_display_t * display, cairo_xlib_screen_t
 {
 	GC gc = NULL;
 	int i;
-	for(i = 0; i < ARRAY_LENGTH(info->gc); i++) {
+	for(i = 0; i < SIZEOFARRAY(info->gc); i++) {
 		if(info->gc_depths[i] == depth) {
 			info->gc_depths[i] = 0;
 			gc = info->gc[i];
@@ -374,14 +374,14 @@ void _cairo_xlib_screen_put_gc(cairo_xlib_display_t * display,
 {
 	int i;
 
-	for(i = 0; i < ARRAY_LENGTH(info->gc); i++) {
+	for(i = 0; i < SIZEOFARRAY(info->gc); i++) {
 		if(info->gc_depths[i] == 0)
 			break;
 	}
 
-	if(i == ARRAY_LENGTH(info->gc)) {
+	if(i == SIZEOFARRAY(info->gc)) {
 		/* perform random substitution to ensure fair caching over depths */
-		i = rand() % ARRAY_LENGTH(info->gc);
+		i = rand() % SIZEOFARRAY(info->gc);
 		XFreeGC(display->display, info->gc[i]);
 	}
 

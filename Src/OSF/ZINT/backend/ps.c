@@ -59,12 +59,12 @@ int ps_plot(struct ZintSymbol * symbol)
 	row_height = 0;
 	textdone = 0;
 	main_width = symbol->width;
-	strcpy(addon, "");
+	sstrcpy(addon, "");
 	comp_offset = 0;
 	addon_text_posn = 0.0;
 	if(symbol->show_hrt != 0) {
 		/* Copy text from symbol */
-		ustrcpy(local_text, symbol->text);
+		sstrcpy(local_text, symbol->text);
 	}
 	else {
 		// No text needed 
@@ -92,17 +92,18 @@ int ps_plot(struct ZintSymbol * symbol)
 	}
 	feps = (symbol->output_options & BARCODE_STDOUT) ? stdout : fopen(symbol->outfile, "w");
 	if(feps == NULL) {
-		strcpy(symbol->errtxt, "Could not open output file (F40)");
+		sstrcpy(symbol->errtxt, "Could not open output file (F40)");
 #ifdef _MSC_VER
 		SAlloc::F(local_text);
 #endif
 		return ZINT_ERROR_FILE_ACCESS;
 	}
-	/* sort out colour options */
+	// sort out colour options 
+	/* @sobolev
 	to_upper((uchar*)symbol->fgcolour);
 	to_upper((uchar*)symbol->bgcolour);
 	if(strlen(symbol->fgcolour) != 6) {
-		strcpy(symbol->errtxt, "Malformed foreground colour target (F41)");
+		sstrcpy(symbol->errtxt, "Malformed foreground colour target (F41)");
 		fclose(feps);
 #ifdef _MSC_VER
 		SAlloc::F(local_text);
@@ -110,7 +111,7 @@ int ps_plot(struct ZintSymbol * symbol)
 		return ZINT_ERROR_INVALID_OPTION;
 	}
 	if(strlen(symbol->bgcolour) != 6) {
-		strcpy(symbol->errtxt, "Malformed background colour target (F42)");
+		sstrcpy(symbol->errtxt, "Malformed background colour target (F42)");
 		fclose(feps);
 #ifdef _MSC_VER
 		SAlloc::F(local_text);
@@ -119,7 +120,7 @@ int ps_plot(struct ZintSymbol * symbol)
 	}
 	error_number = is_sane(SSET, (uchar*)symbol->fgcolour, strlen(symbol->fgcolour));
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Malformed foreground colour target (F43)");
+		sstrcpy(symbol->errtxt, "Malformed foreground colour target (F43)");
 		fclose(feps);
 #ifdef _MSC_VER
 		SAlloc::F(local_text);
@@ -128,20 +129,27 @@ int ps_plot(struct ZintSymbol * symbol)
 	}
 	error_number = is_sane(SSET, (uchar*)symbol->bgcolour, strlen(symbol->bgcolour));
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Malformed background colour target (F44)");
+		sstrcpy(symbol->errtxt, "Malformed background colour target (F44)");
 		fclose(feps);
 #ifdef _MSC_VER
 		SAlloc::F(local_text);
 #endif
 		return ZINT_ERROR_INVALID_OPTION;
 	}
+	*/
 	locale = setlocale(LC_ALL, "C");
-	fgred = (16 * ctoi(symbol->fgcolour[0])) + ctoi(symbol->fgcolour[1]);
-	fggrn = (16 * ctoi(symbol->fgcolour[2])) + ctoi(symbol->fgcolour[3]);
-	fgblu = (16 * ctoi(symbol->fgcolour[4])) + ctoi(symbol->fgcolour[5]);
-	bgred = (16 * ctoi(symbol->bgcolour[0])) + ctoi(symbol->bgcolour[1]);
-	bggrn = (16 * ctoi(symbol->bgcolour[2])) + ctoi(symbol->bgcolour[3]);
-	bgblu = (16 * ctoi(symbol->bgcolour[4])) + ctoi(symbol->bgcolour[5]);
+	//fgred = (16 * hex(symbol->fgcolour[0])) + hex(symbol->fgcolour[1]);
+	//fggrn = (16 * hex(symbol->fgcolour[2])) + hex(symbol->fgcolour[3]);
+	//fgblu = (16 * hex(symbol->fgcolour[4])) + hex(symbol->fgcolour[5]);
+	//bgred = (16 * hex(symbol->bgcolour[0])) + hex(symbol->bgcolour[1]);
+	//bggrn = (16 * hex(symbol->bgcolour[2])) + hex(symbol->bgcolour[3]);
+	//bgblu = (16 * hex(symbol->bgcolour[4])) + hex(symbol->bgcolour[5]);
+	fgred = symbol->ColorFg.R;
+	fggrn = symbol->ColorFg.G;
+	fgblu = symbol->ColorFg.B;
+	bgred = symbol->ColorBg.R;
+	bggrn = symbol->ColorBg.G;
+	bgblu = symbol->ColorBg.B;
 	red_ink = fgred / 256.0f;
 	green_ink = fggrn / 256.0f;
 	blue_ink = fgblu / 256.0f;

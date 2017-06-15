@@ -118,7 +118,6 @@ struct Sorter {
 	AutoComplete * ac;
 	const char * list;
 	std::vector<int> indices;
-
 	Sorter(AutoComplete * ac_, const char * list_) : ac(ac_), list(list_)
 	{
 		int i = 0;
@@ -142,7 +141,6 @@ struct Sorter {
 		}
 		indices.push_back(i); // index of last position
 	}
-
 	bool operator()(int a, int b)
 	{
 		int lenA = indices[a * 2 + 1] - indices[a * 2];
@@ -154,7 +152,7 @@ struct Sorter {
 		else
 			cmp = strncmp(list + indices[a * 2], list + indices[b * 2], len);
 		if(cmp == 0)
-			cmp = lenA - lenB;
+			cmp = (lenA - lenB);
 		return cmp < 0;
 	}
 };

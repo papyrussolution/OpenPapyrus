@@ -37,8 +37,8 @@
 //
 // Handles Maxicode
 //
-static const int MaxiGrid[] = {
-    /* ISO/IEC 16023 Figure 5 - MaxiCode Module Sequence */ /* 30 x 33 data grid */
+static const int16 MaxiGrid[] = { // @sobolev int-->int16
+    // ISO/IEC 16023 Figure 5 - MaxiCode Module Sequence */ /* 30 x 33 data grid 
     122, 121, 128, 127, 134, 133, 140, 139, 146, 145, 152, 151, 158, 157, 164, 163, 170, 169, 176, 175, 182, 181, 188, 187, 194, 193, 200, 199, 0, 0,
     124, 123, 130, 129, 136, 135, 142, 141, 148, 147, 154, 153, 160, 159, 166, 165, 172, 171, 178, 177, 184, 183, 190, 189, 196, 195, 202, 201, 817, 0,
     126, 125, 132, 131, 138, 137, 144, 143, 150, 149, 156, 155, 162, 161, 168, 167, 174, 173, 180, 179, 186, 185, 192, 191, 198, 197, 204, 203, 819, 818,
@@ -74,9 +74,9 @@ static const int MaxiGrid[] = {
     738, 737, 744, 743, 750, 749, 756, 755, 762, 761, 768, 767, 774, 773, 780, 779, 786, 785, 792, 791, 798, 797, 804, 803, 810, 809, 816, 815, 864, 863
 };
 
-static const int maxiCodeSet[256] = {
-    /* from Appendix A - ASCII character to Code Set (e.g. 2 = Set B) */
-    /* set 0 refers to special characters that fit into more than one set (e.g. GS) */
+static const int8 maxiCodeSet[256] = { // @sobolev int-->int8
+    // from Appendix A - ASCII character to Code Set (e.g. 2 = Set B) 
+    // set 0 refers to special characters that fit into more than one set (e.g. GS) 
     5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 5, 5, 5, 5, 5, 5,
     5, 5, 5, 5, 5, 5, 5, 5, 0, 0, 0, 5, 0, 2, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 2,
@@ -92,8 +92,8 @@ static const int maxiCodeSet[256] = {
     4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
 };
 
-static const int maxiSymbolChar[256] = {
-    /* from Appendix A - ASCII character to symbol value */
+static const int8 maxiSymbolChar[256] = { // @sobolev int-->int8
+    // from Appendix A - ASCII character to symbol value 
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
     20, 21, 22, 23, 24, 25, 26, 30, 28, 29, 30, 35, 32, 53, 34, 35, 36, 37, 38, 39,
     40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 37,
@@ -203,38 +203,31 @@ int maxi_text_process(int mode, uchar source[], int length, int eci)
 	   compressing data, but should suffice for most applications */
 
 	int set[144], character[144], i, j, done, count, current_set;
-
 	if(length > 138) {
 		return ZINT_ERROR_TOO_LONG;
 	}
-
 	for(i = 0; i < 144; i++) {
 		set[i] = -1;
 		character[i] = 0;
 	}
-
 	for(i = 0; i < length; i++) {
-		/* Look up characters in table from Appendix A - this gives
-		   value and code set for most characters */
+		// Look up characters in table from Appendix A - this gives value and code set for most characters 
 		set[i] = maxiCodeSet[source[i]];
 		character[i] = maxiSymbolChar[source[i]];
 	}
-
-	/* If a character can be represented in more than one code set,
-	   pick which version to use */
+	// If a character can be represented in more than one code set, pick which version to use 
 	if(set[0] == 0) {
 		if(character[0] == 13) {
 			character[0] = 0;
 		}
 		set[0] = 1;
 	}
-
 	for(i = 1; i < length; i++) {
 		if(set[i] == 0) {
 			done = 0;
-			/* Special character */
+			// Special character 
 			if(character[i] == 13) {
-				/* Carriage Return */
+				// Carriage Return 
 				if(set[i - 1] == 5) {
 					character[i] = 13;
 					set[i] = 5;
@@ -662,9 +655,9 @@ int maxicode(struct ZintSymbol * symbol, uchar local_source[], int length)
 	int bit_pattern[7], internal_error = 0, eclen;
 	char postcode[12], countrystr[4], servicestr[4];
 	int    mode = symbol->option_1;
-	strcpy(postcode, "");
-	strcpy(countrystr, "");
-	strcpy(servicestr, "");
+	sstrcpy(postcode, "");
+	sstrcpy(countrystr, "");
+	sstrcpy(servicestr, "");
 	memzero(maxi_codeword, sizeof(maxi_codeword));
 	if(mode == -1) { /* If mode is unspecified */
 		lp = strlen(symbol->primary);
@@ -683,7 +676,7 @@ int maxicode(struct ZintSymbol * symbol, uchar local_source[], int length)
 	}
 
 	if((mode < 2) || (mode > 6)) { /* Only codes 2 to 6 supported */
-		strcpy(symbol->errtxt, "Invalid Maxicode Mode (E50)");
+		sstrcpy(symbol->errtxt, "Invalid Maxicode Mode (E50)");
 		return ZINT_ERROR_INVALID_OPTION;
 	}
 
@@ -692,13 +685,13 @@ int maxicode(struct ZintSymbol * symbol, uchar local_source[], int length)
 			lp = strlen(symbol->primary);
 		}
 		if(lp != 15) {
-			strcpy(symbol->errtxt, "Invalid Primary String (E51)");
+			sstrcpy(symbol->errtxt, "Invalid Primary String (E51)");
 			return ZINT_ERROR_INVALID_DATA;
 		}
 
 		for(i = 9; i < 15; i++) { /* check that country code and service are numeric */
 			if((symbol->primary[i] < '0') || (symbol->primary[i] > '9')) {
-				strcpy(symbol->errtxt, "Invalid Primary String (E52)");
+				sstrcpy(symbol->errtxt, "Invalid Primary String (E52)");
 				return ZINT_ERROR_INVALID_DATA;
 			}
 		}
@@ -743,27 +736,22 @@ int maxicode(struct ZintSymbol * symbol, uchar local_source[], int length)
 
 	i = maxi_text_process(mode, local_source, length, symbol->eci);
 	if(i == ZINT_ERROR_TOO_LONG) {
-		strcpy(symbol->errtxt, "Input data too long (E53)");
+		sstrcpy(symbol->errtxt, "Input data too long (E53)");
 		return i;
 	}
-
 	/* All the data is sorted - now do error correction */
 	maxi_do_primary_check(); /* always EEC */
-
 	if(mode == 5)
 		eclen = 56;  // 68 data codewords , 56 error corrections
 	else
 		eclen = 40;  // 84 data codewords,  40 error corrections
-
 	maxi_do_secondary_chk_even(eclen / 2); // do error correction of even
 	maxi_do_secondary_chk_odd(eclen / 2); // do error correction of odd
-
-	/* Copy data into symbol grid */
+	// Copy data into symbol grid 
 	for(i = 0; i < 33; i++) {
 		for(j = 0; j < 30; j++) {
 			block = (MaxiGrid[(i * 30) + j] + 5) / 6;
 			bit = (MaxiGrid[(i * 30) + j] + 5) % 6;
-
 			if(block != 0) {
 				bit_pattern[0] = (maxi_codeword[block - 1] & 0x20) >> 5;
 				bit_pattern[1] = (maxi_codeword[block - 1] & 0x10) >> 4;
@@ -771,14 +759,12 @@ int maxicode(struct ZintSymbol * symbol, uchar local_source[], int length)
 				bit_pattern[3] = (maxi_codeword[block - 1] & 0x4) >> 2;
 				bit_pattern[4] = (maxi_codeword[block - 1] & 0x2) >> 1;
 				bit_pattern[5] = (maxi_codeword[block - 1] & 0x1);
-
 				if(bit_pattern[bit] != 0) {
 					set_module(symbol, i, j);
 				}
 			}
 		}
 	}
-
 	/* Add orientation markings */
 	set_module(symbol, 0, 28); // Top right filler
 	set_module(symbol, 0, 29);

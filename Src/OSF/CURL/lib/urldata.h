@@ -24,7 +24,7 @@
 
 /* This file is for lib internal stuff */
 
-#include "curl_setup.h"
+//#include "curl_setup.h"
 
 #define PORT_FTP 21
 #define PORT_FTPS 990
@@ -141,7 +141,7 @@
 #ifdef HAVE_NETINET_IN_H
 	#include <netinet/in.h>
 #endif
-#include "timeval.h"
+//#include "timeval.h"
 #ifdef HAVE_ZLIB_H
 	#include <zlib.h>               /* for content-encoding */
 	#ifdef __SYMBIAN32__
@@ -163,7 +163,7 @@
 #include "http.h"
 #include "rtsp.h"
 #include "smb.h"
-#include "wildcard.h"
+//#include "wildcard.h"
 #include "multihandle.h"
 
 #ifdef HAVE_GSSAPI

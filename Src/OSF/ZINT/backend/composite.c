@@ -66,7 +66,7 @@
 //
 // CC-A component coefficients from ISO/IEC 24728:2006 Annex F 
 //
-static const int ccaCoeffs[30] = {
+static const int16 ccaCoeffs[30] = { // @sobolev int-->int16
     522, 568, 723, 809, /* k = 4 */
     427, 919, 460, 155, 566, /* k = 5 */
     861, 285, 19, 803, 17, 766, /* k = 6 */
@@ -76,7 +76,7 @@ static const int ccaCoeffs[30] = {
 //
 // rows, error codewords, k-offset of valid CC-A sizes from ISO/IEC 24723:2006 Table 9 
 //
-static const int ccaVariants[51] = {
+static const int8 ccaVariants[51] = { // @sobolev int-->int8
     5, 6, 7, 8, 9, 10, 12, 4, 5, 6, 7, 8, 3, 4, 5, 6, 7,
     4, 4, 5, 5, 6, 6, 7, 4, 5, 6, 7, 7, 4, 5, 6, 7, 8,
     0, 0, 4, 4, 9, 9, 15, 0, 4, 9, 15, 15, 0, 4, 9, 15, 22
@@ -84,7 +84,7 @@ static const int ccaVariants[51] = {
 //
 // following is Left RAP, Centre RAP, Right RAP and Start Cluster from ISO/IEC 24723:2006 tables 10 and 11 
 //
-static const int aRAPTable[68] = {
+static const int8 aRAPTable[68] = { // @sobolev int-->int8
     39, 1, 32, 8, 14, 43, 20, 11, 1, 5, 15, 21, 40, 43, 46, 34, 29,
     0, 0, 0, 0, 0, 0, 0, 43, 33, 37, 47, 1, 20, 23, 26, 14, 9,
     19, 33, 12, 40, 46, 23, 52, 23, 13, 17, 27, 33, 52, 3, 6, 46, 41,
@@ -102,7 +102,7 @@ extern int rss14(struct ZintSymbol * symbol, uchar source[], int length);
 extern int rsslimited(struct ZintSymbol * symbol, uchar source[], int length);
 extern int rssexpanded(struct ZintSymbol * symbol, uchar source[], int length);
 
-static ushort pwr928[69][7];
+static ushort pwr928[69][7]; // @global
 
 static int _min(int first, int second)
 {
@@ -273,7 +273,7 @@ static int cc_a(struct ZintSymbol * symbol, char source[], int cc_width)
 	Cluster = StartCluster; /* Cluster can be 0, 1 or 2 for Cluster(0), Cluster(3) and Cluster(6) */
 
 	for(i = 0; i < rows; i++) {
-		strcpy(codebarre, "");
+		sstrcpy(codebarre, "");
 		offset = 929 * Cluster;
 		for(j = 0; j < 5; j++) {
 			dummy[j] = 0;
@@ -314,10 +314,10 @@ static int cc_a(struct ZintSymbol * symbol, char source[], int cc_width)
 
 		writer = 0;
 		flip = 1;
-		strcpy(pattern, "");
+		sstrcpy(pattern, "");
 		for(loop = 0; loop < (int)strlen(codebarre); loop++) {
 			if((codebarre[loop] >= '0') && (codebarre[loop] <= '9')) {
-				for(k = 0; k < ctoi(codebarre[loop]); k++) {
+				for(k = 0; k < hex(codebarre[loop]); k++) {
 					pattern[writer] = (flip == 0) ? '0' : '1';
 					writer++;
 				}
@@ -537,7 +537,7 @@ static int cc_b(struct ZintSymbol * symbol, const char source[], int cc_width)
 	/* Cluster can be 0, 1 or 2 for Cluster(0), Cluster(3) and Cluster(6) */
 
 	for(i = 0; i < symbol->rows; i++) {
-		strcpy(codebarre, "");
+		sstrcpy(codebarre, "");
 		offset = 929 * Cluster;
 		for(j = 0; j < 5; j++) {
 			dummy[j] = 0;
@@ -578,10 +578,10 @@ static int cc_b(struct ZintSymbol * symbol, const char source[], int cc_width)
 
 		writer = 0;
 		flip = 1;
-		strcpy(pattern, "");
+		sstrcpy(pattern, "");
 		for(loop = 0; loop < (int)strlen(codebarre); loop++) {
 			if((codebarre[loop] >= '0') && (codebarre[loop] <= '9')) {
-				for(k = 0; k < ctoi(codebarre[loop]); k++) {
+				for(k = 0; k < hex(codebarre[loop]); k++) {
 					if(flip == 0) {
 						pattern[writer] = '0';
 					}
@@ -731,7 +731,7 @@ static int cc_c(struct ZintSymbol * symbol, const char source[], int cc_width, i
 			    dummy[cc_width + 1] = k + c2;
 			    break;
 		}
-		strcpy(codebarre, "+*"); /* Start with a start char and a separator */
+		sstrcpy(codebarre, "+*"); /* Start with a start char and a separator */
 		for(j = 0; j <= cc_width + 1; j++) {
 			switch(i % 3) {
 				case 1: offset = 929; /* cluster(3) */ break;
@@ -742,7 +742,7 @@ static int cc_c(struct ZintSymbol * symbol, const char source[], int cc_width, i
 			strcat(codebarre, "*");
 		}
 		strcat(codebarre, "-");
-		strcpy(pattern, "");
+		sstrcpy(pattern, "");
 		for(loop = 0; loop < (int)strlen(codebarre); loop++) {
 			lookup(BRSET, PDFttf, codebarre[loop], pattern);
 		}
@@ -1108,7 +1108,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 					if((ninety[i] != '*') && (ninety[i] != ',') && (ninety[i] != '-') && (ninety[i] != '.') &&
 						(ninety[i] != '/')) {
 						/* An Invalid AI 90 character */
-						strcpy(symbol->errtxt, "Invalid AI 90 data (D40)");
+						sstrcpy(symbol->errtxt, "Invalid AI 90 data (D40)");
 						return ZINT_ERROR_INVALID_DATA;
 					}
 				}
@@ -1182,7 +1182,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 				case 2: strcat(binary_string, "11"); break;
 			}
 			if(test1 == 0) {
-				strcpy(numeric_part, "0");
+				sstrcpy(numeric_part, "0");
 			}
 			else {
 				int    i;
@@ -1436,7 +1436,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 		general_field_type[strlen(general_field)] = '\0';
 		if(latch == 1) {
 			// Invalid characters in input data 
-			strcpy(symbol->errtxt, "Invalid characters in input data (D41)");
+			sstrcpy(symbol->errtxt, "Invalid characters in input data (D41)");
 			return ZINT_ERROR_INVALID_DATA;
 		}
 		for(i = 0; i < strlen(general_field); i++) {
@@ -1461,8 +1461,8 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 							strcat(binary_string, "000"); /* Numeric latch */
 						}
 					}
-					d1 = (general_field[i] != '[') ? ctoi(general_field[i]) : 10;
-					d2 = (general_field[i + 1] != '[') ? ctoi(general_field[i + 1]) : 10;
+					d1 = (general_field[i] != '[') ? hex(general_field[i]) : 10;
+					d2 = (general_field[i + 1] != '[') ? hex(general_field[i + 1]) : 10;
 					value = (11 * d1) + d2 + 8;
 					mask = 0x40;
 					for(j = 0; j < 7; j++) {
@@ -1606,7 +1606,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 		case 3: target_bitsize = calc_padding_ccc(binary_length, cc_width, lin_width, ecc); break;
 	}
 	if(target_bitsize == 0) {
-		strcpy(symbol->errtxt, "Input too long for selected 2d component (D42)");
+		sstrcpy(symbol->errtxt, "Input too long for selected 2d component (D42)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	remainder = target_bitsize - binary_length;
@@ -1614,7 +1614,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 		size_t i = 0;
 		// There is still one more numeric digit to encode 
 		if((remainder >= 4) && (remainder <= 6)) {
-			d1 = ctoi(general_field[i]);
+			d1 = hex(general_field[i]);
 			d1++;
 			mask = 0x08;
 			for(j = 0; j < 4; j++) {
@@ -1628,7 +1628,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 			}
 		}
 		else {
-			d1 = ctoi(general_field[i]);
+			d1 = hex(general_field[i]);
 			d2 = 10;
 			value = (11 * d1) + d2 + 8;
 			mask = 0x40;
@@ -1645,7 +1645,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 		}
 	}
 	if(strlen(binary_string) > 11805) { /* (2361 * 5) */
-		strcpy(symbol->errtxt, "Input too long (D43)");
+		sstrcpy(symbol->errtxt, "Input too long (D43)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	binary_length = strlen(binary_string);
@@ -1655,7 +1655,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 		case 3: target_bitsize = calc_padding_ccc(binary_length, cc_width, lin_width, ecc); break;
 	}
 	if(target_bitsize == 0) {
-		strcpy(symbol->errtxt, "Input too long for selected 2d component (D44)");
+		sstrcpy(symbol->errtxt, "Input too long for selected 2d component (D44)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	if(binary_length < target_bitsize) {
@@ -1761,17 +1761,17 @@ int composite(struct ZintSymbol * symbol, uchar source[], int length)
 	error_number = 0;
 	pri_len = strlen(symbol->primary);
 	if(pri_len == 0) {
-		strcpy(symbol->errtxt, "No primary (linear) message in 2D composite (D45)");
+		sstrcpy(symbol->errtxt, "No primary (linear) message in 2D composite (D45)");
 		return ZINT_ERROR_INVALID_OPTION;
 	}
 	if(length > 2990) {
-		strcpy(symbol->errtxt, "2D component input data too long (D46)");
+		sstrcpy(symbol->errtxt, "2D component input data too long (D46)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	cc_mode = symbol->option_1;
 	if((cc_mode == 3) && (symbol->Std != BARCODE_EAN128_CC)) {
 		/* CC-C can only be used with a GS1-128 linear part */
-		strcpy(symbol->errtxt, "Invalid mode (CC-C only valid with GS1-128 linear component) (D47)");
+		sstrcpy(symbol->errtxt, "Invalid mode (CC-C only valid with GS1-128 linear component) (D47)");
 		return ZINT_ERROR_INVALID_OPTION;
 	}
 	error_number = gs1_verify(symbol, source, length, reduced);
@@ -1782,7 +1782,7 @@ int composite(struct ZintSymbol * symbol, uchar source[], int length)
 		/* Do a test run of encoding the linear component to establish its width */
 		linear_width = linear_dummy_run((uchar*)symbol->primary, pri_len);
 		if(linear_width == 0) {
-			strcpy(symbol->errtxt, "Invalid data (D48)");
+			sstrcpy(symbol->errtxt, "Invalid data (D48)");
 			return ZINT_ERROR_INVALID_DATA;
 		}
 	}
@@ -1872,7 +1872,7 @@ int composite(struct ZintSymbol * symbol, uchar source[], int length)
 		case BARCODE_RSS_EXPSTACK_CC: error_number = rssexpanded(linear, (uchar*)symbol->primary, pri_len); break;
 	}
 	if(error_number != 0) {
-		strcpy(symbol->errtxt, linear->errtxt);
+		sstrcpy(symbol->errtxt, linear->errtxt);
 		strcat(symbol->errtxt, " in linear component ");
 		ZBarcode_Delete(linear);
 		return error_number;
@@ -1955,7 +1955,7 @@ int composite(struct ZintSymbol * symbol, uchar source[], int length)
 		symbol->width += top_shift;
 	}
 	symbol->rows += linear->rows;
-	ustrcpy(symbol->text, (uchar*)linear->text);
+	sstrcpy(symbol->text, (uchar*)linear->text);
 	ZBarcode_Delete(linear);
 	return error_number;
 }

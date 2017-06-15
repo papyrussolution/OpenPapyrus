@@ -35,7 +35,7 @@
 #define SSET    "0123456789ABCDEF"
 
 #pragma pack (1)
-   
+
 	typedef struct bitmap_file_header {
 		uint16_t header_field;
 		uint32_t file_size;
@@ -62,7 +62,7 @@
 int bmp_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 {
 	int i, row, column;
-	int fgred, fggrn, fgblu, bgred, bggrn, bgblu;
+	//int fgred, fggrn, fgblu, bgred, bggrn, bgblu;
 	int row_size;
 	uint data_size;
 	uchar * bitmap_file_start, * bmp_posn;
@@ -73,13 +73,20 @@ int bmp_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	SAlloc::F(symbol->bitmap);
 	row_size = (int)(4 * floor((24.0 * symbol->bitmap_width + 31) / 32));
 	bitmap = (char*)SAlloc::M(row_size * symbol->bitmap_height);
-	fgred = (16 * ctoi(symbol->fgcolour[0])) + ctoi(symbol->fgcolour[1]);
-	fggrn = (16 * ctoi(symbol->fgcolour[2])) + ctoi(symbol->fgcolour[3]);
-	fgblu = (16 * ctoi(symbol->fgcolour[4])) + ctoi(symbol->fgcolour[5]);
-	bgred = (16 * ctoi(symbol->bgcolour[0])) + ctoi(symbol->bgcolour[1]);
-	bggrn = (16 * ctoi(symbol->bgcolour[2])) + ctoi(symbol->bgcolour[3]);
-	bgblu = (16 * ctoi(symbol->bgcolour[4])) + ctoi(symbol->bgcolour[5]);
-
+	/*
+	fgred = (16 * hex(symbol->fgcolour[0])) + hex(symbol->fgcolour[1]);
+	fggrn = (16 * hex(symbol->fgcolour[2])) + hex(symbol->fgcolour[3]);
+	fgblu = (16 * hex(symbol->fgcolour[4])) + hex(symbol->fgcolour[5]);
+	bgred = (16 * hex(symbol->bgcolour[0])) + hex(symbol->bgcolour[1]);
+	bggrn = (16 * hex(symbol->bgcolour[2])) + hex(symbol->bgcolour[3]);
+	bgblu = (16 * hex(symbol->bgcolour[4])) + hex(symbol->bgcolour[5]);
+	*/
+	int fgred = symbol->ColorFg.R;
+	int fggrn = symbol->ColorFg.G;
+	int fgblu = symbol->ColorFg.B;
+	int bgred = symbol->ColorBg.R;
+	int bggrn = symbol->ColorBg.G;
+	int bgblu = symbol->ColorBg.B;
 	// Pixel Plotting 
 	i = 0;
 	for(row = 0; row < symbol->bitmap_height; row++) {
@@ -134,7 +141,7 @@ int bmp_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	if((symbol->output_options & BARCODE_STDOUT) != 0) {
 #ifdef _MSC_VER
 		if(-1 == _setmode(_fileno(stdout), _O_BINARY)) {
-			strcpy(symbol->errtxt, "Can't open output file");
+			sstrcpy(symbol->errtxt, "Can't open output file");
 			return ZINT_ERROR_FILE_ACCESS;
 		}
 #endif
@@ -142,14 +149,12 @@ int bmp_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	}
 	else {
 		if(!(bmp_file = fopen(symbol->outfile, "wb"))) {
-			strcpy(symbol->errtxt, "Can't open output file (F00)");
+			sstrcpy(symbol->errtxt, "Can't open output file (F00)");
 			return ZINT_ERROR_FILE_ACCESS;
 		}
 	}
-
 	fwrite(bitmap_file_start, file_header.file_size, 1, bmp_file);
 	fclose(bmp_file);
-
 	SAlloc::F(bitmap_file_start);
 	SAlloc::F(bitmap);
 	return 0;

@@ -23,11 +23,9 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include <curl/curl.h>
-#include "strdup.h"
-#include "curl_memory.h"
-
-/* The last #include file should be: */
-#include "memdebug.h"
+//#include "strdup.h"
+//#include "curl_memory.h"
+#include "memdebug.h" // The last #include file should be
 
 #ifndef HAVE_STRDUP
 char * curlx_strdup(const char * str)
@@ -61,9 +59,8 @@ char * curlx_strdup(const char * str)
 void * Curl_memdup(const void * src, size_t length)
 {
 	void * buffer = SAlloc::M(length);
-	if(!buffer)
-		return NULL;  /* fail */
-	memcpy(buffer, src, length);
+	if(buffer)
+		memcpy(buffer, src, length);
 	return buffer;
 }
 
@@ -85,8 +82,7 @@ void * Curl_saferealloc(void * ptr, size_t size)
 {
 	void * datap = SAlloc::R(ptr, size);
 	if(size && !datap)
-		/* only free 'ptr' if size was non-zero */
-		SAlloc::F(ptr);
+		SAlloc::F(ptr); // only free 'ptr' if size was non-zero 
 	return datap;
 }
 

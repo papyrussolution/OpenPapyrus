@@ -46,19 +46,19 @@
 #include <mbedtls/ctr_drbg.h>
 #include <mbedtls/sha256.h>
 
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "inet_pton.h"
 #include "mbedtls.h"
 #include "vtls.h"
 #include "parsedate.h"
 #include "connect.h" /* for the connect timeout */
-#include "select.h"
+//#include "select.h"
 #include "polarssl_threadlock.h"
 
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* apply threading? */

@@ -1383,13 +1383,13 @@ cairo_status_t _cairo_gstate_show_text_glyphs(cairo_gstate_t * gstate, const cai
 		return status;
 	transformed_glyphs = stack_transformed_glyphs;
 	transformed_clusters = stack_transformed_clusters;
-	if(num_glyphs > ARRAY_LENGTH(stack_transformed_glyphs)) {
+	if(num_glyphs > SIZEOFARRAY(stack_transformed_glyphs)) {
 		transformed_glyphs = cairo_glyph_allocate(num_glyphs);
 		if(unlikely(transformed_glyphs == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	if(info) {
-		if(info->num_clusters > ARRAY_LENGTH(stack_transformed_clusters)) {
+		if(info->num_clusters > SIZEOFARRAY(stack_transformed_clusters)) {
 			transformed_clusters = cairo_text_cluster_allocate(info->num_clusters);
 			if(unlikely(transformed_clusters == NULL)) {
 				status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -1460,7 +1460,7 @@ cairo_status_t _cairo_gstate_glyph_path(cairo_gstate_t * gstate,
 	cairo_status_t status = _cairo_gstate_ensure_scaled_font(gstate);
 	if(unlikely(status))
 		return status;
-	if(num_glyphs < ARRAY_LENGTH(stack_transformed_glyphs)) {
+	if(num_glyphs < SIZEOFARRAY(stack_transformed_glyphs)) {
 		transformed_glyphs = stack_transformed_glyphs;
 	}
 	else {

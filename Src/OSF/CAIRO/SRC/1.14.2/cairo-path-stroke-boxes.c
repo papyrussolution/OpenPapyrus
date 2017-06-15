@@ -114,7 +114,7 @@ static cairo_bool_t _cairo_rectilinear_stroker_init(cairo_rectilinear_stroker_t 
 	stroker->half_line_y = _cairo_fixed_from_double(fabs(ctm->yy) * stroke_style->line_width / 2.0);
 	stroker->open_sub_path = FALSE;
 	stroker->segments = stroker->segments_embedded;
-	stroker->segments_size = ARRAY_LENGTH(stroker->segments_embedded);
+	stroker->segments_size = SIZEOFARRAY(stroker->segments_embedded);
 	stroker->num_segments = 0;
 	_cairo_stroker_dash_init(&stroker->dash, stroke_style);
 	stroker->has_bounds = FALSE;

@@ -22,17 +22,14 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-#include "strdup.h"
-#include "fileinfo.h"
-#include "curl_memory.h"
-/* The last #include file should be: */
-#include "memdebug.h"
+//#include "strdup.h"
+//#include "fileinfo.h"
+//#include "curl_memory.h"
+#include "memdebug.h" // The last #include file should be
 
 struct curl_fileinfo * Curl_fileinfo_alloc(void)
 {
 	struct curl_fileinfo * tmp = (struct curl_fileinfo *)SAlloc::M(sizeof(struct curl_fileinfo));
-	if(!tmp)
-		return NULL;
 	memzero(tmp, sizeof(struct curl_fileinfo));
 	return tmp;
 }
@@ -41,9 +38,9 @@ void Curl_fileinfo_dtor(void * user, void * element)
 {
 	struct curl_fileinfo * finfo = (struct curl_fileinfo *)element;
 	(void)user;
-	if(!finfo)
-		return;
-	ZFREE(finfo->b_data);
-	SAlloc::F(finfo);
+	if(finfo) {
+		ZFREE(finfo->b_data);
+		SAlloc::F(finfo);
+	}
 }
 

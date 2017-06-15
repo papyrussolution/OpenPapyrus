@@ -712,6 +712,8 @@ data Person {
 	//   то возвращаетс€ только первый.
 	//
 	string GetSingleEmail[64](); // @v9.4.1
+	string FormatRegister[256](string regCode[20]); // @v9.6.11
+	string FormatRegisterD[256](string regCode[20], date dt); // @v9.6.11
 }
 //
 // –еквизиты персоналии, необходимые дл€ печати некоторых форм

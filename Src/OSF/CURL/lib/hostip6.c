@@ -23,35 +23,33 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+	#include <netinet/in.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+	#include <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+	#include <arpa/inet.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+	#include <in.h>
+	#include <inet.h>
 #endif
-
 #ifdef HAVE_PROCESS_H
-#include <process.h>
+	#include <process.h>
 #endif
-
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "hostip.h"
 #include "hash.h"
 #include "share.h"
-#include "strerror.h"
-#include "url.h"
+//#include "strerror.h"
+//#include "url.h"
 #include "inet_pton.h"
 #include "connect.h"
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /***********************************************************************

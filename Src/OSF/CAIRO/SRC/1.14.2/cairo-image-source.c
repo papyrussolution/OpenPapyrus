@@ -215,11 +215,11 @@ pixman_image_t * _pixman_image_for_color(const cairo_color_t * cairo_color)
 	if(image == NULL)
 		goto UNLOCK;
 
-	if(n_cached < ARRAY_LENGTH(cache)) {
+	if(n_cached < SIZEOFARRAY(cache)) {
 		i = n_cached++;
 	}
 	else {
-		i = hars_petruska_f54_1_random() % ARRAY_LENGTH(cache);
+		i = hars_petruska_f54_1_random() % SIZEOFARRAY(cache);
 		pixman_image_unref(cache[i].image);
 	}
 	cache[i].image = pixman_image_ref(image);
@@ -267,7 +267,7 @@ static pixman_image_t * _pixman_image_for_gradient(const cairo_gradient_pattern_
 	uint i;
 	cairo_int_status_t status;
 	TRACE((stderr, "%s\n", __FUNCTION__));
-	if(pattern->n_stops > ARRAY_LENGTH(pixman_stops_static)) {
+	if(pattern->n_stops > SIZEOFARRAY(pixman_stops_static)) {
 		pixman_stops = (pixman_gradient_stop_t *)_cairo_malloc_ab(pattern->n_stops, sizeof(pixman_gradient_stop_t));
 		if(unlikely(pixman_stops == NULL))
 			return NULL;

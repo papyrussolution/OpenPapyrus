@@ -3129,14 +3129,26 @@ int SLAPI PPBarcode::RecognizeStdName(const char * pText)
     }
     return bcstd;
 }
+
+SLAPI PPBarcode::BarcodeImageParam::BarcodeImageParam()
+{
+	Std = 0;
+	OutputFormat = 0;
+	Angle = 0;
+	Size.Set(0, 0);
+	ColorFg = ZEROCOLOR;
+	ColorBg = ZEROCOLOR;
+}
+
 //static
-int SLAPI PPBarcode::CreateImage(const char * pCode, int bcstd, int outpFormat, const char * pOutpFileName)
+int SLAPI PPBarcode::CreateImage(/*const char * pCode, int bcstd, int outpFormat, const char * pOutpFileName*/PPBarcode::BarcodeImageParam & rParam)
 {
     int    ok = -1;
     int    zint_barc_std = 0;
+	SString temp_buf;
     ZintSymbol * p_zs = ZBarcode_Create();
     THROW(p_zs);
-	switch(bcstd) {
+	switch(rParam.Std) {
 		case BARCSTD_EAN8:
 		case BARCSTD_EAN13:
 			zint_barc_std = BARCODE_EANX;
@@ -3146,26 +3158,55 @@ int SLAPI PPBarcode::CreateImage(const char * pCode, int bcstd, int outpFormat, 
 		case BARCSTD_CODE128: zint_barc_std = BARCODE_CODE128; break;
 		case BARCSTD_CODE39: zint_barc_std = BARCODE_CODE39; break;
 		case BARCSTD_PDF417: zint_barc_std = BARCODE_PDF417; break;
+		case BARCSTD_QR: zint_barc_std = BARCODE_QRCODE; break; // @v9.6.11
 	}
 	THROW(zint_barc_std);
     p_zs->Std = zint_barc_std;
+	if(rParam.Size.x > 0)
+		p_zs->width = rParam.Size.x;
+	if(rParam.Size.y > 0)
+		p_zs->height = rParam.Size.y;
+	if(!rParam.ColorBg.IsEmpty()) {
+		//rParam.ColorBg.ToStr(temp_buf, SColor::fmtRgbHexWithoutPrefix);
+		//STRNSCPY(p_zs->bgcolour, temp_buf);
+		p_zs->ColorBg = rParam.ColorBg;
+	}
+	if(!rParam.ColorFg.IsEmpty()) {
+		//rParam.ColorFg.ToStr(temp_buf, SColor::fmtRgbHexWithoutPrefix);
+		//STRNSCPY(p_zs->fgcolour, temp_buf);
+		p_zs->ColorFg = rParam.ColorFg;
+	}
     {
-    	SString file_name;
-    	SString temp_buf;
-    	if(isempty(pOutpFileName)) {
-			PPGetFilePath(PPPATH_OUT, (temp_buf = pCode).Dot().Cat("png"), file_name);
+		const int rot_angle = oneof4(rParam.Angle, 0, 90, 180, 270) ? rParam.Angle : 0;
+		THROW(ZBarcode_Encode(p_zs, rParam.Code.ucptr(), rParam.Code.Len()) == 0);
+    	if(rParam.OutputFormat == 0) {
+			THROW(ZBarcode_Buffer(p_zs, rot_angle) == 0);
+			THROW_SL(rParam.Buffer.Init(p_zs->bitmap_width, p_zs->bitmap_height));
+			THROW_SL(rParam.Buffer.AddLines(p_zs->bitmap, SImageBuffer::PixF::s24RGB, p_zs->bitmap_height, 0));
     	}
-    	else
-			file_name = pOutpFileName;
-		if(outpFormat == SFileFormat::Png)
-			SPathStruc::ReplaceExt(file_name, "png", 1);
-		else if(outpFormat == SFileFormat::Svg)
-			SPathStruc::ReplaceExt(file_name, "svg", 1);
-		else if(outpFormat == SFileFormat::Txt)
-			SPathStruc::ReplaceExt(file_name, "txt", 1);
-    	STRNSCPY(p_zs->outfile, file_name);
-		THROW(ZBarcode_Encode(p_zs, (const uchar *)pCode, strlen(pCode)) == 0);
-        THROW(ZBarcode_Print(p_zs, 0) == 0);
+    	else {
+			SString file_name;
+			if(isempty(rParam.OutputFileName)) {
+				PPGetFilePath(PPPATH_OUT, (temp_buf = rParam.Code).Dot().Cat("png"), file_name);
+			}
+			else
+				file_name = rParam.OutputFileName;
+			if(rParam.OutputFormat == SFileFormat::Png)
+				SPathStruc::ReplaceExt(file_name, "png", 1);
+			else if(rParam.OutputFormat == SFileFormat::Svg)
+				SPathStruc::ReplaceExt(file_name, "svg", 1);
+			else if(rParam.OutputFormat == SFileFormat::Txt)
+				SPathStruc::ReplaceExt(file_name, "txt", 1);
+			else if(rParam.OutputFormat == SFileFormat::Gif)
+				SPathStruc::ReplaceExt(file_name, "gif", 1);
+			else if(rParam.OutputFormat == SFileFormat::Bmp)
+				SPathStruc::ReplaceExt(file_name, "bmp", 1);
+			else
+				SPathStruc::ReplaceExt(file_name, "png", 1);
+			STRNSCPY(p_zs->outfile, file_name);
+			THROW(ZBarcode_Print(p_zs, rot_angle) == 0);
+			rParam.OutputFileName = file_name;
+    	}
     }
     CATCHZOK
     ZBarcode_Delete(p_zs);
@@ -3271,31 +3312,34 @@ SLTEST_R(BarcodeOutputAndRecognition)
 	SString line_buf;
 	SString code_buf;
 	SString input_file_path;
-	SString img_path;
+	//SString img_path;
 	(input_file_path = GetSuiteEntry()->InPath).SetLastSlash().Cat("barcode.txt");
     SFile f_in(input_file_path, SFile::mRead);
     while(f_in.ReadLine(line_buf)) {
 		line_buf.Chomp().Strip();
 		if(line_buf.Divide(':', temp_buf, code_buf) > 0) {
-			const int std = PPBarcode::RecognizeStdName(temp_buf.Strip());
-			if(std) {
+			PPBarcode::BarcodeImageParam bip;
+			bip.Code = temp_buf;
+			bip.Std = PPBarcode::RecognizeStdName(temp_buf.Strip());
+			bip.OutputFormat = SFileFormat::Png;
+			if(bip.Std) {
 				code_buf.Strip();
-				(img_path = GetSuiteEntry()->OutPath).SetLastSlash().Cat(code_buf).Dot().Cat("png");
+				(bip.OutputFileName = GetSuiteEntry()->OutPath).SetLastSlash().Cat(code_buf).Dot().Cat("png");
 				temp_buf = code_buf;
-				if(oneof2(std, BARCSTD_EAN13, BARCSTD_EAN8))
+				if(oneof2(bip.Std, BARCSTD_EAN13, BARCSTD_EAN8))
 					temp_buf.TrimRight();
-				else if(std == BARCSTD_UPCE) {
+				else if(bip.Std == BARCSTD_UPCE) {
 					while(temp_buf.C(0) == '0')
 						temp_buf.ShiftLeft();
 					temp_buf.TrimRight();
 				}
-				if(SLTEST_CHECK_NZ(PPBarcode::CreateImage(temp_buf, std, SFileFormat::Png, img_path))) {
+				if(SLTEST_CHECK_NZ(PPBarcode::CreateImage(/*temp_buf, std, SFileFormat::Png, img_path*/bip))) {
 					TSCollection <PPBarcode::Entry> bc_list;
-					if(SLTEST_CHECK_LT(0L, PPBarcode::RecognizeImage(img_path, bc_list))) {
+					if(SLTEST_CHECK_LT(0L, PPBarcode::RecognizeImage(bip.OutputFileName, bc_list))) {
                         SLTEST_CHECK_EQ(bc_list.getCount(), 1);
 						if(bc_list.getCount() > 0) {
                             const PPBarcode::Entry * p_entry = bc_list.at(0);
-                            SLTEST_CHECK_EQ((long)p_entry->BcStd, (long)std);
+                            SLTEST_CHECK_EQ((long)p_entry->BcStd, (long)bip.Std);
                             SLTEST_CHECK_EQ(p_entry->Code, code_buf);
 						}
 					}

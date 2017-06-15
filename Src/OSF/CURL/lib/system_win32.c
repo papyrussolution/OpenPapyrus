@@ -25,9 +25,8 @@
 #if defined(WIN32)
 //#include <curl/curl.h>
 #include "system_win32.h"
-
-/* The last #include files should be: */
-#include "curl_memory.h"
+// The last #include files should be: 
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 #if defined(USE_WINDOWS_SSPI) || (!defined(CURL_DISABLE_TELNET) && defined(USE_WINSOCK))

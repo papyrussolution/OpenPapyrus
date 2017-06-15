@@ -653,6 +653,7 @@ int SLAPI GCTIterator::InitQuery(int cpMode)
 				THROW_MEM(P_GoodsRestList = new GCTIterator::GoodsRestArray);
 		}
 		if(cpMode || (!Filt.GoodsID && ((ArList.GetCount() && !soft_restr) || OpList.GetCount() || Filt.BillList.GetCount()))) {
+			BillCore * p_bt = BT;
 			if(Filt.BillList.GetCount()) {
 				BillList = Filt.BillList.Get();
 			}
@@ -664,12 +665,12 @@ int SLAPI GCTIterator::InitQuery(int cpMode)
 						MEMSZERO(k2);
 						k2.OpID = op_id;
 						k2.Dt = Period.low;
-						BExtQuery q(BT, 2, 256);
-						q.select(BT->ID, BT->Code, BT->Dt, BT->OpID, BT->Object, BT->Flags, BT->LocID, 0L).
-							where(BT->OpID == op_id && daterange(BT->Dt, &Period));
+						BExtQuery q(p_bt, 2, 256);
+						q.select(p_bt->ID, p_bt->Code, p_bt->Dt, p_bt->OpID, p_bt->Object, p_bt->Flags, p_bt->LocID, 0L).
+							where(p_bt->OpID == op_id && daterange(p_bt->Dt, &Period));
 						for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
-							if(CheckBillForFilt(BT->data)) {
-								BillList.add(BT->data.ID);
+							if(CheckBillForFilt(p_bt->data)) {
+								BillList.add(p_bt->data.ID);
 							}
 						}
 					}
@@ -682,12 +683,12 @@ int SLAPI GCTIterator::InitQuery(int cpMode)
 					MEMSZERO(k3);
 					k3.Object = ar_id;
 					k3.Dt = Period.low;
-					BExtQuery q(BT, 3, 256);
-					q.select(BT->ID, BT->Code, BT->Dt, BT->OpID, BT->Object, BT->Flags, BT->LocID, 0L).
-						where(BT->Object == ar_id && daterange(BT->Dt, &Period));
+					BExtQuery q(p_bt, 3, 256);
+					q.select(p_bt->ID, p_bt->Code, p_bt->Dt, p_bt->OpID, p_bt->Object, p_bt->Flags, p_bt->LocID, 0L).
+						where(p_bt->Object == ar_id && daterange(p_bt->Dt, &Period));
 					for(q.initIteration(0, &k3, spGe); q.nextIteration() > 0;) {
-						if(CheckBillForFilt(BT->data)) {
-							BillList.add(BT->data.ID);
+						if(CheckBillForFilt(p_bt->data)) {
+							BillList.add(p_bt->data.ID);
 						}
 					}
 				}
@@ -1058,32 +1059,33 @@ int SLAPI GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * p
 	}
 	// } @v9.4.10
 	if(!done && oneof2(ByWhat_, bwBill, bwGoods)) {
+		CpTransfCore * p_cpt = CpTrfr;
 		if(ByWhat_ == bwBill) {
 			idx = 0;
 			cpk.k0.BillID = CurrID;
-			dbq = & (CpTrfr->BillID == CurrID);
+			dbq = & (p_cpt->BillID == CurrID);
 		}
 		else if(ByWhat_ == bwGoods) {
 			idx = 3;
 			const PPID goods_id = GoodsArray.get(GoodsArray.getPointer());
 			cpk.k1.GoodsID = goods_id;
-			dbq = & (CpTrfr->GoodsID == goods_id);
+			dbq = & (p_cpt->GoodsID == goods_id);
 		}
 		if(ByWhat_ != bwBill) {
 			if(ByWhat_ != bwGoods && (State & stUseGoodsList) && GoodsArray.getCount() && !Filt.SoftRestrict) {
-				dbq = &(*dbq && CpTrfr->GoodsID >= GoodsArray.get(0) && CpTrfr->GoodsID <= GoodsArray.getLast());
+				dbq = &(*dbq && p_cpt->GoodsID >= GoodsArray.get(0) && p_cpt->GoodsID <= GoodsArray.getLast());
 			}
 		}
 		else if((State & stUseGoodsList) && GoodsArray.getCount() && !Filt.SoftRestrict) {
-			dbq = &(*dbq && CpTrfr->GoodsID >= GoodsArray.get(0) && CpTrfr->GoodsID <= GoodsArray.getLast());
+			dbq = &(*dbq && p_cpt->GoodsID >= GoodsArray.get(0) && p_cpt->GoodsID <= GoodsArray.getLast());
 		}
 		else
-			dbq = ppcheckfiltid(dbq, CpTrfr->GoodsID, Filt.GoodsID);
-		dbq = ppcheckfiltidlist(dbq, CpTrfr->LocID, &Filt.LocList.Get());
-		BExtQuery * q = new BExtQuery(CpTrfr, idx, 256);
+			dbq = ppcheckfiltid(dbq, p_cpt->GoodsID, Filt.GoodsID);
+		dbq = ppcheckfiltidlist(dbq, p_cpt->LocID, &Filt.LocList.Get());
+		BExtQuery * q = new BExtQuery(p_cpt, idx, 256);
 		THROW_MEM(q);
-		q->select(CpTrfr->BillID, CpTrfr->GoodsID, CpTrfr->LocID, CpTrfr->Flags,
-			CpTrfr->Qtty, CpTrfr->Rest, CpTrfr->Cost, CpTrfr->Price, CpTrfr->Discount, 0L).where(*dbq);
+		q->select(p_cpt->BillID, p_cpt->GoodsID, p_cpt->LocID, p_cpt->Flags,
+			p_cpt->Qtty, p_cpt->Rest, p_cpt->Cost, p_cpt->Price, p_cpt->Discount, 0L).where(*dbq);
 		delete cptrfr_q;
 		cptrfr_q  = q;
 		cptrfr_q->initIteration(0, &cpk, spGt);

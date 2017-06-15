@@ -25,20 +25,15 @@
 #include "curl_setup.h"
 
 #ifdef HAVE_MEMRCHR
-
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-
+	#ifdef HAVE_STRING_H
+		#include <string.h>
+	#endif
+	#ifdef HAVE_STRINGS_H
+		#include <strings.h>
+	#endif
 #else /* HAVE_MEMRCHR */
-
-void *Curl_memrchr(const void *s, int c, size_t n);
-
-#define memrchr(x,y,z) Curl_memrchr((x),(y),(z))
-
+	void * Curl_memrchr(const void *s, int c, size_t n);
+	#define memrchr(x,y,z) Curl_memrchr((x),(y),(z))
 #endif /* HAVE_MEMRCHR */
 
 #endif /* HEADER_CURL_MEMRCHR_H */

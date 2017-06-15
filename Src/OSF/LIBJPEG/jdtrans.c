@@ -38,9 +38,7 @@ static void transdecode_master_selection JPP((j_decompress_ptr cinfo));
  * Returns NULL if suspended.  This case need be checked only if
  * a suspending data source is used.
  */
-
-GLOBAL(jvirt_barray_ptr *)
-jpeg_read_coefficients(j_decompress_ptr cinfo)
+GLOBAL(jvirt_barray_ptr *) jpeg_read_coefficients(j_decompress_ptr cinfo)
 {
 	if(cinfo->global_state == DSTATE_READY) {
 		/* First call: initialize active modules */
@@ -61,8 +59,7 @@ jpeg_read_coefficients(j_decompress_ptr cinfo)
 			if(retcode == JPEG_REACHED_EOI)
 				break;
 			/* Advance progress counter if appropriate */
-			if(cinfo->progress != NULL &&
-			    (retcode == JPEG_ROW_COMPLETED || retcode == JPEG_REACHED_SOS)) {
+			if(cinfo->progress && oneof2(retcode, JPEG_ROW_COMPLETED, JPEG_REACHED_SOS)) {
 				if(++cinfo->progress->pass_counter >= cinfo->progress->pass_limit) {
 					/* startup underestimated number of scans; ratchet up one scan */
 					cinfo->progress->pass_limit += (long)cinfo->total_iMCU_rows;
@@ -76,8 +73,7 @@ jpeg_read_coefficients(j_decompress_ptr cinfo)
 	 * standalone, or in state DSTATE_BUFIMAGE if being invoked to get access
 	 * to the coefficients during a full buffered-image-mode decompression.
 	 */
-	if((cinfo->global_state == DSTATE_STOPPING ||
-		    cinfo->global_state == DSTATE_BUFIMAGE) && cinfo->buffered_image) {
+	if(oneof2(cinfo->global_state, DSTATE_STOPPING, DSTATE_BUFIMAGE) && cinfo->buffered_image) {
 		return cinfo->coef->coef_arrays;
 	}
 	/* Oops, improper usage */
@@ -105,10 +101,8 @@ static void transdecode_master_selection(j_decompress_ptr cinfo)
 	jinit_d_coef_controller(cinfo, TRUE);
 	/* We can now tell the memory manager to allocate virtual arrays. */
 	(*cinfo->mem->realize_virt_arrays)((j_common_ptr)cinfo);
-
 	/* Initialize input side of decompressor to consume first scan. */
 	(*cinfo->inputctl->start_input_pass)(cinfo);
-
 	/* Initialize progress monitoring. */
 	if(cinfo->progress != NULL) {
 		int nscans;

@@ -63,17 +63,15 @@ GLOBAL(void) jpeg_fdct_float(FAST_FLOAT * data, JSAMPARRAY sample_data, JDIMENSI
 	FAST_FLOAT tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
 	FAST_FLOAT tmp10, tmp11, tmp12, tmp13;
 	FAST_FLOAT z1, z2, z3, z4, z5, z11, z13;
-	FAST_FLOAT * dataptr;
 	JSAMPROW elemptr;
 	int ctr;
-
-	/* Pass 1: process rows. */
-
-	dataptr = data;
+	// Pass 1: process rows
+	FAST_FLOAT * dataptr = data;
 	for(ctr = 0; ctr < DCTSIZE; ctr++) {
 		elemptr = sample_data[ctr] + start_col;
-
-		/* Load data into workspace */
+		//
+		// Load data into workspace 
+		//
 		tmp0 = (FAST_FLOAT)(GETJSAMPLE(elemptr[0]) + GETJSAMPLE(elemptr[7]));
 		tmp7 = (FAST_FLOAT)(GETJSAMPLE(elemptr[0]) - GETJSAMPLE(elemptr[7]));
 		tmp1 = (FAST_FLOAT)(GETJSAMPLE(elemptr[1]) + GETJSAMPLE(elemptr[6]));
@@ -120,9 +118,9 @@ GLOBAL(void) jpeg_fdct_float(FAST_FLOAT * data, JSAMPARRAY sample_data, JDIMENSI
 
 		dataptr += DCTSIZE; /* advance pointer to next row */
 	}
-
-	/* Pass 2: process columns. */
-
+	//
+	// Pass 2: process columns
+	//
 	dataptr = data;
 	for(ctr = DCTSIZE-1; ctr >= 0; ctr--) {
 		tmp0 = dataptr[DCTSIZE*0] + dataptr[DCTSIZE*7];

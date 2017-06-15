@@ -692,7 +692,7 @@ static cairo_status_t _vg_setup_gradient_stops(cairo_vg_context_t * context,
 	VGfloat * stops, stack_stops[CAIRO_STACK_ARRAY_LENGTH(VGfloat)];
 	int i;
 
-	if(numstops*5 < ARRAY_LENGTH(stack_stops)) {
+	if(numstops*5 < SIZEOFARRAY(stack_stops)) {
 		stops = stack_stops;
 	}
 	else {

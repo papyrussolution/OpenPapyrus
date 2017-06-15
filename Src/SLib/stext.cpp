@@ -1853,27 +1853,44 @@ char * FASTCALL sstrdup(const char * pStr)
 		return 0;
 }
 
+uchar * FASTCALL sstrdup(const uchar * pStr)
+{
+	if(pStr) {
+		size_t len = strlen((const char *)pStr) + 1;
+		uchar * p = (uchar *)SAlloc::M(len);
+		return p ? (uchar *)memcpy(p, pStr, len) : 0;
+	}
+	else
+		return 0;
+}
+
 int FASTCALL sstreq(const char * pS1, const char * pS2)
 {
 	if(pS1 != pS2) {
 		if(pS1) {
-            if(pS1[0] == pS2[0]) {
+            if(pS2 && pS1[0] == pS2[0])
 				return BIN(pS1[0] == 0 || strcmp(pS1, pS2) == 0);
-            }
             else
 				return 0;
 		}
 		else
 			return 0;
-		/*
-        const size_t len = sstrlen(pS1);
-        if(len != sstrlen(pS2))
-			return 0;
-		else if(len)
-			return (memcmp(pS1, pS2, len) == 0);
+	}
+	else
+		return 1;
+}
+
+int FASTCALL sstreq(const uchar * pS1, const uchar * pS2)
+{
+	if(pS1 != pS2) {
+		if(pS1) {
+            if(pS2 && pS1[0] == pS2[0])
+				return BIN(pS1[0] == 0 || strcmp((const char *)pS1, (const char *)pS2) == 0);
+            else
+				return 0;
+		}
 		else
-			return 1;
-		*/
+			return 0;
 	}
 	else
 		return 1;
@@ -1944,6 +1961,11 @@ char * SLAPI wstrcpy(char * pDest, char * pSrc, size_t maxlen)
 char * FASTCALL sstrcpy(char * pDest, const char * pSrc)
 {
 	return strcpy(pDest, pSrc);
+}
+
+uchar * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc)
+{
+	return (uchar *)strcpy((char *)pDest, (const char *)pSrc);
 }
 
 wchar_t * FASTCALL sstrcpy(wchar_t * pDest, const wchar_t * pSrc)

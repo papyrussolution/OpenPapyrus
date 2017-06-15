@@ -392,9 +392,7 @@ METHODDEF(void) start_pass_fdctmgr(j_compress_ptr cinfo)
 
 				dtbl = (DCTELEM*)compptr->dct_table;
 			    for(i = 0; i < DCTSIZE2; i++) {
-				    dtbl[i] = (DCTELEM)
-					    DESCALE(MULTIPLY16V16((INT32)qtbl->quantval[i],
-						    (INT32)aanscales[i]),
+				    dtbl[i] = (DCTELEM)DESCALE(MULTIPLY16V16((INT32)qtbl->quantval[i], (INT32)aanscales[i]),
 					    compptr->component_needed ? CONST_BITS-4 : CONST_BITS-3);
 			    }
 		    }
@@ -422,10 +420,8 @@ METHODDEF(void) start_pass_fdctmgr(j_compress_ptr cinfo)
 			    i = 0;
 			    for(row = 0; row < DCTSIZE; row++) {
 				    for(col = 0; col < DCTSIZE; col++) {
-					    fdtbl[i] = (FAST_FLOAT)
-						    (1.0 / ((double)qtbl->quantval[i] *
-							    aanscalefactor[row] * aanscalefactor[col] *
-							    (compptr->component_needed ? 16.0 : 8.0)));
+					    fdtbl[i] = (FAST_FLOAT)(1.0 / ((double)qtbl->quantval[i] *
+							aanscalefactor[row] * aanscalefactor[col] * (compptr->component_needed ? 16.0 : 8.0)));
 					    i++;
 				    }
 			    }
@@ -449,11 +445,8 @@ GLOBAL(void) jinit_forward_dct(j_compress_ptr cinfo)
 	my_fdct_ptr fdct = (my_fdct_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(my_fdct_controller));
 	cinfo->fdct = &fdct->pub;
 	fdct->pub.start_pass = start_pass_fdctmgr;
-	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components;
-	    ci++, compptr++) {
-		/* Allocate a divisor table for each component */
-		compptr->dct_table =
-		    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-		    SIZEOF(divisor_table));
+	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components; ci++, compptr++) {
+		// Allocate a divisor table for each component 
+		compptr->dct_table = (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(divisor_table));
 	}
 }

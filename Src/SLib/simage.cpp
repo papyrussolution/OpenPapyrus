@@ -88,7 +88,7 @@ int SImage::DrawPartUnchanged(HDC hdc, int offsX, int offsY, const RECT * pImgPa
 			rect.X      = (Gdiplus::REAL)offsX;
 			rect.Y      = (Gdiplus::REAL)offsY;
 			ok = (graph.DrawImage(p_image, rect, (Gdiplus::REAL)pImgPart->left, (Gdiplus::REAL)pImgPart->top,
-				(Gdiplus::REAL)pImgPart->right, (Gdiplus::REAL)pImgPart->bottom, Gdiplus::UnitPixel, NULL, NULL, NULL) == Ok) ? 1 : 0;
+				(Gdiplus::REAL)pImgPart->right, (Gdiplus::REAL)pImgPart->bottom, Gdiplus::UnitPixel, 0, 0, 0) == Ok) ? 1 : 0;
 		}
 	}
 	return ok;

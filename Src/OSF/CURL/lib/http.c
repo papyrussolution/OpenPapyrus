@@ -41,13 +41,13 @@
 #ifdef HAVE_SYS_PARAM_H
 	#include <sys/param.h>
 #endif
-#include "urldata.h"
+//#include "urldata.h"
 //#include <curl/curl.h>
-#include "transfer.h"
-#include "sendf.h"
+//#include "transfer.h"
+//#include "sendf.h"
 #include "formdata.h"
-#include "progress.h"
-#include "curl_base64.h"
+//#include "progress.h"
+//#include "curl_base64.h"
 #include "cookie.h"
 #include "vauth/vauth.h"
 #include "vtls/vtls.h"
@@ -55,44 +55,40 @@
 #include "http_ntlm.h"
 #include "curl_ntlm_wb.h"
 #include "http_negotiate.h"
-#include "url.h"
+//#include "url.h"
 #include "share.h"
 #include "hostip.h"
 #include "http.h"
-#include "select.h"
+//#include "select.h"
 #include "parsedate.h" /* for the week day and month names */
-#include "strtoofft.h"
+//#include "strtoofft.h"
 #include "multiif.h"
 //#include "strcase.h"
 #include "content_encoding.h"
 #include "http_proxy.h"
 #include "warnless.h"
-#include "non-ascii.h"
+//#include "non-ascii.h"
 #include "conncache.h"
 #include "pipeline.h"
 #include "http2.h"
 #include "connect.h"
-#include "strdup.h"
-
-/* The last 3 #include files should be in this order */
+//#include "strdup.h"
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
-
 /*
  * Forward declarations.
  */
-
 static int http_getsock_do(struct connectdata * conn, curl_socket_t * socks, int numsocks);
 static int http_should_fail(struct connectdata * conn);
 
 #ifdef USE_SSL
-static CURLcode https_connecting(struct connectdata * conn, bool * done);
-static int https_getsock(struct connectdata * conn, curl_socket_t * socks, int numsocks);
+	static CURLcode https_connecting(struct connectdata * conn, bool * done);
+	static int https_getsock(struct connectdata * conn, curl_socket_t * socks, int numsocks);
 #else
-#define https_connecting(x, y) CURLE_COULDNT_CONNECT
+	#define https_connecting(x, y) CURLE_COULDNT_CONNECT
 #endif
-
 /*
  * HTTP handler interface.
  */

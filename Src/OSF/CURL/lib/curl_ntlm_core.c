@@ -66,45 +66,34 @@
 #  endif
 
 #elif defined(USE_GNUTLS_NETTLE)
-
-#include <nettle/des.h>
-#include <nettle/md4.h>
-
+	#include <nettle/des.h>
+	#include <nettle/md4.h>
 #elif defined(USE_GNUTLS)
-
-#include <gcrypt.h>
-#  define MD5_DIGEST_LENGTH 16
-#  define MD4_DIGEST_LENGTH 16
-
+	#include <gcrypt.h>
+	#define MD5_DIGEST_LENGTH 16
+	#define MD4_DIGEST_LENGTH 16
 #elif defined(USE_MBEDTLS)
-
-#include <mbedtls/des.h>
-#include <mbedtls/md4.h>
-
+	#include <mbedtls/des.h>
+	#include <mbedtls/md4.h>
 #elif defined(USE_NSS)
-
-#include <nss.h>
-#include <pk11pub.h>
-#include <hasht.h>
-#include "curl_md4.h"
-#  define MD5_DIGEST_LENGTH MD5_LENGTH
-
+	#include <nss.h>
+	#include <pk11pub.h>
+	#include <hasht.h>
+	#include "curl_md4.h"
+	#define MD5_DIGEST_LENGTH MD5_LENGTH
 #elif defined(USE_DARWINSSL)
-
-#include <CommonCrypto/CommonCryptor.h>
-#include <CommonCrypto/CommonDigest.h>
-
+	#include <CommonCrypto/CommonCryptor.h>
+	#include <CommonCrypto/CommonDigest.h>
 #elif defined(USE_OS400CRYPTO)
-#include "cipher.mih"  /* mih/cipher */
-#include "curl_md4.h"
+	#include "cipher.mih"  /* mih/cipher */
+	#include "curl_md4.h"
 #elif defined(USE_WIN32_CRYPTO)
-#include <wincrypt.h>
+	#include <wincrypt.h>
 #else
-#  error "Can't compile NTLM support without a crypto library."
+	#error "Can't compile NTLM support without a crypto library."
 #endif
-
-#include "urldata.h"
-#include "non-ascii.h"
+//#include "urldata.h"
+//#include "non-ascii.h"
 //#include "strcase.h"
 #include "curl_ntlm_core.h"
 #include "curl_md5.h"
@@ -114,7 +103,7 @@
 #include "curl_des.h"
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 #define NTLM_HMAC_MD5_LEN     (16)

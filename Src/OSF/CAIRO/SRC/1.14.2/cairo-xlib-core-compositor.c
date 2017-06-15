@@ -147,8 +147,8 @@ static cairo_int_status_t _fill_box_init(struct _fill_box * fb,
 		_cairo_pattern_init_solid(&solid, color);
 		status = _cairo_pattern_acquire_surface(&solid.base, &dst->base,
 		    0, 0,
-		    ARRAY_LENGTH(dither_pattern[0]),
-		    ARRAY_LENGTH(dither_pattern),
+		    SIZEOFARRAY(dither_pattern[0]),
+		    SIZEOFARRAY(dither_pattern),
 		    CAIRO_PATTERN_ACQUIRE_NONE,
 		    &dither,
 		    &attrs);

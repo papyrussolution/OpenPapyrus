@@ -1,9 +1,6 @@
-/******************************************************************************
-
-   gif_lib.h - service library for decoding and encoding GIF images
-
- *****************************************************************************/
-
+// 
+// gif_lib.h - service library for decoding and encoding GIF images
+// 
 #ifndef _GIF_LIB_H_
 #define _GIF_LIB_H_ 1
 
@@ -113,11 +110,9 @@ typedef int (*InputFunc)(GifFileType *, GifByteType *, int);
 // Returns count of bytes written. (MRB)
 //
 typedef int (*OutputFunc)(GifFileType *, const GifByteType *, int);
-
-/******************************************************************************
-   GIF89 structures
-******************************************************************************/
-
+// 
+// GIF89 structures
+// 
 typedef struct GraphicsControlBlock {
 	int DisposalMode;
 #define DISPOSAL_UNSPECIFIED      0       /* No disposal specified. */
@@ -129,12 +124,10 @@ typedef struct GraphicsControlBlock {
 	int TransparentColor; /* Palette index for transparency, -1 if none */
 #define NO_TRANSPARENT_COLOR    -1
 } GraphicsControlBlock;
-
-/******************************************************************************
-   GIF encoding routines
-******************************************************************************/
-
-/* Main entry points */
+// 
+// GIF encoding routines
+// 
+// Main entry points 
 GifFileType * EGifOpenFileName(const char * GifFileName, const bool GifTestExistence, int * Error);
 GifFileType * EGifOpenFileHandle(const int GifFileHandle, int * Error);
 GifFileType * EGifOpen(void * userPtr, OutputFunc writeFunc, int * Error);
@@ -153,7 +146,7 @@ int EGifCloseFile(GifFileType * GifFile);
 #define E_GIF_ERR_CLOSE_FAILED   9
 #define E_GIF_ERR_NOT_WRITEABLE  10
 
-/* These are legacy.  You probably do not want to call them directly */
+// These are legacy.  You probably do not want to call them directly 
 int EGifPutScreenDesc(GifFileType * GifFile,
     const int GifWidth, const int GifHeight, const int GifColorRes, const int GifBackGround, const ColorMapObject * GifColorMap);
 int EGifPutImageDesc(GifFileType * GifFile, const int GifLeft, const int GifTop, const int GifWidth, const int GifHeight, const bool GifInterlace, const ColorMapObject * GifColorMap);
@@ -167,12 +160,10 @@ int EGifPutExtensionTrailer(GifFileType * GifFile);
 int EGifPutExtension(GifFileType * GifFile, const int GifExtCode, const int GifExtLen, const void * GifExtension);
 int EGifPutCode(GifFileType * GifFile, int GifCodeSize, const GifByteType * GifCodeBlock);
 int EGifPutCodeNext(GifFileType * GifFile, const GifByteType * GifCodeBlock);
-
-/******************************************************************************
-   GIF decoding routines
-******************************************************************************/
-
-/* Main entry points */
+// 
+// GIF decoding routines
+// 
+// Main entry points 
 GifFileType * DGifOpenFileName(const char * GifFileName, int * Error);
 GifFileType * DGifOpenFileHandle(int GifFileHandle, int * Error);
 int DGifSlurp(GifFileType * GifFile);
@@ -192,8 +183,9 @@ int DGifCloseFile(GifFileType * GifFile);
 #define D_GIF_ERR_NOT_READABLE   111
 #define D_GIF_ERR_IMAGE_DEFECT   112
 #define D_GIF_ERR_EOF_TOO_SOON   113
-
-/* These are legacy.  You probably do not want to call them directly */
+// 
+// These are legacy.  You probably do not want to call them directly 
+// 
 int DGifGetScreenDesc(GifFileType * GifFile);
 int DGifGetRecordType(GifFileType * GifFile, GifRecordType * GifType);
 int DGifGetImageDesc(GifFileType * GifFile);
@@ -205,58 +197,44 @@ int DGifGetExtensionNext(GifFileType * GifFile, GifByteType ** GifExtension);
 int DGifGetCode(GifFileType * GifFile, int * GifCodeSize, GifByteType ** GifCodeBlock);
 int DGifGetCodeNext(GifFileType * GifFile, GifByteType ** GifCodeBlock);
 int DGifGetLZCodes(GifFileType * GifFile, int * GifCode);
-
-/******************************************************************************
-   Color table quantization (deprecated)
-******************************************************************************/
-int GifQuantizeBuffer(uint Width, uint Height,
-    int * ColorMapSize, GifByteType * RedInput,
-    GifByteType * GreenInput, GifByteType * BlueInput,
-    GifByteType * OutputBuffer,
-    GifColorType * OutputColorMap);
-
-/******************************************************************************
-   Error handling and reporting.
-******************************************************************************/
+// 
+// Color table quantization (deprecated)
+// 
+int GifQuantizeBuffer(uint Width, uint Height, int * ColorMapSize, GifByteType * RedInput,
+    GifByteType * GreenInput, GifByteType * BlueInput, GifByteType * OutputBuffer, GifColorType * OutputColorMap);
+// 
+// Error handling and reporting.
+// 
 extern char * GifErrorString(int ErrorCode);     /* new in 2012 - ESR */
-
-/*****************************************************************************
-   Everything below this point is new after version 1.2, supporting `slurp
-   mode' for doing I/O in two big belts with all the image-bashing in core.
- ******************************************************************************/
-
-/******************************************************************************
-   Color map handling from gif_alloc.c
-******************************************************************************/
-
+// 
+// Everything below this point is new after version 1.2, supporting `slurp
+// mode' for doing I/O in two big belts with all the image-bashing in core.
+// 
+// 
+// Color map handling from gif_alloc.c
+// 
 extern ColorMapObject * GifMakeMapObject(int ColorCount, const GifColorType * ColorMap);
 extern void GifFreeMapObject(ColorMapObject * Object);
 extern ColorMapObject * GifUnionColorMap(const ColorMapObject *ColorIn1, const ColorMapObject *ColorIn2, GifPixelType ColorTransIn2[]);
-extern int GifBitSize(int n);
-
-/******************************************************************************
-   Support for the in-core structures allocation (slurp mode).
-******************************************************************************/
-
+extern int FASTCALL GifBitSize(int n);
+// 
+// Support for the in-core structures allocation (slurp mode).
+// 
 extern void GifApplyTranslation(SavedImage *Image, GifPixelType Translation[]);
 extern int GifAddExtensionBlock(int * ExtensionBlock_Count, ExtensionBlock **ExtensionBlocks, int Function, uint Len, uint8 ExtData[]);
 extern void GifFreeExtensions(int * ExtensionBlock_Count, ExtensionBlock ** ExtensionBlocks);
 extern SavedImage * GifMakeSavedImage(GifFileType * GifFile, const SavedImage * CopyFrom);
 extern void GifFreeSavedImages(GifFileType * GifFile);
-
-/******************************************************************************
-   5.x functions for GIF89 graphics control blocks
-******************************************************************************/
-
+// 
+// 5.x functions for GIF89 graphics control blocks
+// 
 int DGifExtensionToGCB(const size_t GifExtensionLength, const GifByteType * GifExtension, GraphicsControlBlock * GCB);
 size_t EGifGCBToExtension(const GraphicsControlBlock * GCB, GifByteType * GifExtension);
 int DGifSavedExtensionToGCB(GifFileType * GifFile, int ImageIndex, GraphicsControlBlock * GCB);
 int EGifGCBToSavedExtension(const GraphicsControlBlock * GCB, GifFileType * GifFile, int ImageIndex);
-
-/******************************************************************************
-   The library's internal utility font
-******************************************************************************/
-
+// 
+// The library's internal utility font
+// 
 #define GIF_FONT_WIDTH  8
 #define GIF_FONT_HEIGHT 8
 extern const uint8 GifAsciiTable8x8[][GIF_FONT_WIDTH];

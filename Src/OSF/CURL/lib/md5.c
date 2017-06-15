@@ -31,7 +31,7 @@
 #if defined(USE_GNUTLS_NETTLE)
 
 #include <nettle/md5.h>
-#include "curl_memory.h"
+//#include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
 
@@ -57,7 +57,7 @@ static void MD5_Final(uchar digest[16], MD5_CTX * ctx)
 #elif defined(USE_GNUTLS)
 
 #include <gcrypt.h>
-#include "curl_memory.h"
+//#include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
 
@@ -68,9 +68,7 @@ static void MD5_Init(MD5_CTX * ctx)
 	gcry_md_open(ctx, GCRY_MD_MD5, 0);
 }
 
-static void MD5_Update(MD5_CTX * ctx,
-    const uchar * input,
-    uint inputLen)
+static void MD5_Update(MD5_CTX * ctx, const uchar * input, uint inputLen)
 {
 	gcry_md_write(*ctx, input, inputLen);
 }
@@ -84,14 +82,10 @@ static void MD5_Final(uchar digest[16], MD5_CTX * ctx)
 #elif defined(USE_OPENSSL)
 /* When OpenSSL is available we use the MD5-function from OpenSSL */
 #include <openssl/md5.h>
-#include "curl_memory.h"
-/* The last #include file should be: */
-#include "memdebug.h"
+//#include "curl_memory.h"
+#include "memdebug.h" // The last #include file should be
 
-#elif (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
-	(__MAC_OS_X_VERSION_MAX_ALLOWED >= 1040)) || \
-	(defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && \
-	(__IPHONE_OS_VERSION_MAX_ALLOWED >= 20000))
+#elif (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && (__MAC_OS_X_VERSION_MAX_ALLOWED >= 1040)) || (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 20000))
 
 /* For Apple operating systems: CommonCrypto has the functions we need.
    These functions are available on Tiger and later, as well as iOS 2.0
@@ -100,19 +94,16 @@ static void MD5_Final(uchar digest[16], MD5_CTX * ctx)
    Declaring the functions as static like this seems to be a bit more
    reliable than defining COMMON_DIGEST_FOR_OPENSSL on older cats. */
 #include <CommonCrypto/CommonDigest.h>
-#  define MD5_CTX CC_MD5_CTX
-#include "curl_memory.h"
-/* The last #include file should be: */
-#include "memdebug.h"
+#define MD5_CTX CC_MD5_CTX
+//#include "curl_memory.h"
+#include "memdebug.h" // The last #include file should be
 
 static void MD5_Init(MD5_CTX * ctx)
 {
 	CC_MD5_Init(ctx);
 }
 
-static void MD5_Update(MD5_CTX * ctx,
-    const uchar * input,
-    uint inputLen)
+static void MD5_Update(MD5_CTX * ctx, const uchar * input, uint inputLen)
 {
 	CC_MD5_Update(ctx, input, inputLen);
 }
@@ -125,9 +116,8 @@ static void MD5_Final(uchar digest[16], MD5_CTX * ctx)
 #elif defined(_WIN32) && !defined(CURL_WINDOWS_APP)
 
 #include <wincrypt.h>
-#include "curl_memory.h"
-/* The last #include file should be: */
-#include "memdebug.h"
+//#include "curl_memory.h"
+#include "memdebug.h" // The last #include file should be
 
 typedef struct {
 	HCRYPTPROV hCryptProv;
@@ -165,9 +155,8 @@ static void MD5_Final(uchar digest[16], MD5_CTX * ctx)
 #include <axTLS/config.h>
 #include <axTLS/os_int.h>
 #include <axTLS/crypto.h>
-#include "curl_memory.h"
-/* The last #include file should be: */
-#include "memdebug.h"
+//#include "curl_memory.h"
+#include "memdebug.h" // The last #include file should be
 #else
 /* When no other crypto library is available we use this code segment */
 /*
@@ -207,14 +196,12 @@ static void MD5_Final(uchar digest[16], MD5_CTX * ctx)
  * compile-time configuration.
  */
 
-#include <string.h>
-
-/* The last #include files should be: */
-#include "curl_memory.h"
+//#include <string.h>
+// The last #include files should be: 
+//#include "curl_memory.h"
 #include "memdebug.h"
 
-/* Any 32-bit or wider unsigned integer data type will do */
-typedef uint MD5_u32plus;
+typedef uint MD5_u32plus; // Any 32-bit or wider unsigned integer data type will do 
 
 typedef struct {
 	MD5_u32plus lo, hi;
@@ -268,8 +255,7 @@ static void MD5_Final(uchar * result, MD5_CTX * ctx);
 		    ((MD5_u32plus)ptr[(n) * 4 + 1] << 8) | \
 		    ((MD5_u32plus)ptr[(n) * 4 + 2] << 16) | \
 		    ((MD5_u32plus)ptr[(n) * 4 + 3] << 24))
-#define GET(n) \
-	(ctx->block[(n)])
+#define GET(n) (ctx->block[(n)])
 #endif
 
 /*
@@ -278,23 +264,17 @@ static void MD5_Final(uchar * result, MD5_CTX * ctx);
  */
 static const void * body(MD5_CTX * ctx, const void * data, ulong size)
 {
-	const uchar * ptr;
-	MD5_u32plus a, b, c, d;
 	MD5_u32plus saved_a, saved_b, saved_c, saved_d;
-
-	ptr = (const uchar*)data;
-
-	a = ctx->a;
-	b = ctx->b;
-	c = ctx->c;
-	d = ctx->d;
-
+	const uchar * ptr = (const uchar*)data;
+	MD5_u32plus a = ctx->a;
+	MD5_u32plus b = ctx->b;
+	MD5_u32plus c = ctx->c;
+	MD5_u32plus d = ctx->d;
 	do {
 		saved_a = a;
 		saved_b = b;
 		saved_c = c;
 		saved_d = d;
-
 /* Round 1 */
 		STEP(F, a, b, c, d, SET(0), 0xd76aa478, 7)
 		STEP(F, d, a, b, c, SET(1), 0xe8c7b756, 12)
@@ -389,43 +369,34 @@ static void MD5_Init(MD5_CTX * ctx)
 	ctx->b = 0xefcdab89;
 	ctx->c = 0x98badcfe;
 	ctx->d = 0x10325476;
-
 	ctx->lo = 0;
 	ctx->hi = 0;
 }
 
 static void MD5_Update(MD5_CTX * ctx, const void * data, ulong size)
 {
-	MD5_u32plus saved_lo;
 	ulong used, available;
-
-	saved_lo = ctx->lo;
+	MD5_u32plus saved_lo = ctx->lo;
 	ctx->lo = (saved_lo + size) & 0x1fffffff;
 	if(ctx->lo < saved_lo)
 		ctx->hi++;
 	ctx->hi += (MD5_u32plus)size >> 29;
-
 	used = saved_lo & 0x3f;
-
 	if(used) {
 		available = 64 - used;
-
 		if(size < available) {
 			memcpy(&ctx->buffer[used], data, size);
 			return;
 		}
-
 		memcpy(&ctx->buffer[used], data, available);
 		data = (const uchar*)data + available;
 		size -= available;
 		body(ctx, ctx->buffer, 64);
 	}
-
 	if(size >= 64) {
 		data = body(ctx, data, size & ~(ulong)0x3f);
 		size &= 0x3f;
 	}
-
 	memcpy(ctx->buffer, data, size);
 }
 
@@ -500,8 +471,7 @@ const MD5_params Curl_DIGEST_MD5[] = {
 /*
  * @unittest: 1601
  */
-void Curl_md5it(uchar * outbuffer, /* 16 bytes */
-    const uchar * input)
+void Curl_md5it(uchar * outbuffer/* 16 bytes */, const uchar * input)
 {
 	MD5_CTX ctx;
 	MD5_Init(&ctx);

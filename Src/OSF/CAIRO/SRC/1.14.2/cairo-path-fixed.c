@@ -55,8 +55,8 @@ void _cairo_path_fixed_init(cairo_path_fixed_t * path)
 	cairo_list_init(&path->buf.base.link);
 	path->buf.base.num_ops = 0;
 	path->buf.base.num_points = 0;
-	path->buf.base.size_ops = ARRAY_LENGTH(path->buf.op);
-	path->buf.base.size_points = ARRAY_LENGTH(path->buf.points);
+	path->buf.base.size_ops = SIZEOFARRAY(path->buf.op);
+	path->buf.base.size_points = SIZEOFARRAY(path->buf.points);
 	path->buf.base.op = path->buf.op;
 	path->buf.base.points = path->buf.points;
 	path->current_point.x = 0;
@@ -87,8 +87,8 @@ cairo_status_t _cairo_path_fixed_init_copy(cairo_path_fixed_t * path,
 
 	path->buf.base.op = path->buf.op;
 	path->buf.base.points = path->buf.points;
-	path->buf.base.size_ops = ARRAY_LENGTH(path->buf.op);
-	path->buf.base.size_points = ARRAY_LENGTH(path->buf.points);
+	path->buf.base.size_ops = SIZEOFARRAY(path->buf.op);
+	path->buf.base.size_points = SIZEOFARRAY(path->buf.points);
 
 	path->current_point = other->current_point;
 	path->last_move_point = other->last_move_point;

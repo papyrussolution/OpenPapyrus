@@ -950,13 +950,13 @@ static cairo_surface_t * _get_image_surface(cairo_xlib_surface_t    * surface,
 		row = (uint32_t*)data;
 		x0 = extents->x + surface->base.device_transform.x0;
 		y0 = extents->y + surface->base.device_transform.y0;
-		for(y = 0, y_off = y0 % ARRAY_LENGTH(dither_pattern);
+		for(y = 0, y_off = y0 % SIZEOFARRAY(dither_pattern);
 		    y < ximage->height;
-		    y++, y_off = (y_off+1) % ARRAY_LENGTH(dither_pattern)) {
+		    y++, y_off = (y_off+1) % SIZEOFARRAY(dither_pattern)) {
 			const int8_t * dither_row = dither_pattern[y_off];
-			for(x = 0, x_off = x0 % ARRAY_LENGTH(dither_pattern[0]);
+			for(x = 0, x_off = x0 % SIZEOFARRAY(dither_pattern[0]);
 			    x < ximage->width;
-			    x++, x_off = (x_off+1) % ARRAY_LENGTH(dither_pattern[0])) {
+			    x++, x_off = (x_off+1) % SIZEOFARRAY(dither_pattern[0])) {
 				int dither_adjustment = dither_row[x_off];
 
 				in_pixel = XGetPixel(ximage, x, y);
@@ -1251,14 +1251,14 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t   * surface,
 		row = (uint32_t*)image->data;
 		x0 = dst_x + surface->base.device_transform.x0;
 		y0 = dst_y + surface->base.device_transform.y0;
-		for(y = 0, y_off = y0 % ARRAY_LENGTH(dither_pattern);
+		for(y = 0, y_off = y0 % SIZEOFARRAY(dither_pattern);
 		    y < ximage.height;
-		    y++, y_off = (y_off+1) % ARRAY_LENGTH(dither_pattern)) {
+		    y++, y_off = (y_off+1) % SIZEOFARRAY(dither_pattern)) {
 			const int8_t * dither_row = dither_pattern[y_off];
 
-			for(x = 0, x_off = x0 % ARRAY_LENGTH(dither_pattern[0]);
+			for(x = 0, x_off = x0 % SIZEOFARRAY(dither_pattern[0]);
 			    x < ximage.width;
-			    x++, x_off = (x_off+1) % ARRAY_LENGTH(dither_pattern[0])) {
+			    x++, x_off = (x_off+1) % SIZEOFARRAY(dither_pattern[0])) {
 				int dither_adjustment = dither_row[x_off];
 				int a, r, g, b;
 

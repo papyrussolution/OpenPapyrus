@@ -1295,7 +1295,7 @@ int han_xin(struct ZintSymbol * symbol, const uchar source[], int length)
 						j++;
 					} while((j < 6793) && (glyph == 0));
 					if(glyph == 0) {
-						strcpy(symbol->errtxt, "Unknown character in input data (E40)");
+						sstrcpy(symbol->errtxt, "Unknown character in input data (E40)");
 						return ZINT_ERROR_INVALID_DATA;
 					}
 					else {
@@ -1361,7 +1361,7 @@ int han_xin(struct ZintSymbol * symbol, const uchar source[], int length)
 		}
 	}
 	if(version == 85) {
-		strcpy(symbol->errtxt, "Input too long for selected error correction level (E41)");
+		sstrcpy(symbol->errtxt, "Input too long for selected error correction level (E41)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	if((symbol->option_2 < 0) || (symbol->option_2 > 84)) {

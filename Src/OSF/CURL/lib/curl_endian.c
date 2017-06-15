@@ -39,10 +39,8 @@
  */
 ushort Curl_read16_le(const uchar * buf)
 {
-	return (ushort)(((ushort)buf[0]) |
-	    ((ushort)buf[1] << 8));
+	return (ushort)(((ushort)buf[0]) | ((ushort)buf[1] << 8));
 }
-
 /*
  * Curl_read32_le()
  *
@@ -58,8 +56,7 @@ ushort Curl_read16_le(const uchar * buf)
  */
 uint Curl_read32_le(const uchar * buf)
 {
-	return ((uint)buf[0]) | ((uint)buf[1] << 8) |
-	       ((uint)buf[2] << 16) | ((uint)buf[3] << 24);
+	return ((uint)buf[0]) | ((uint)buf[1] << 8) | ((uint)buf[2] << 16) | ((uint)buf[3] << 24);
 }
 
 #if (CURL_SIZEOF_CURL_OFF_T > 4)
@@ -123,8 +120,7 @@ ushort Curl_read16_be(const uchar * buf)
  */
 uint Curl_read32_be(const uchar * buf)
 {
-	return ((uint)buf[0] << 24) | ((uint)buf[1] << 16) |
-	       ((uint)buf[2] << 8) | ((uint)buf[3]);
+	return ((uint)buf[0] << 24) | ((uint)buf[1] << 16) | ((uint)buf[2] << 8) | ((uint)buf[3]);
 }
 
 #if (CURL_SIZEOF_CURL_OFF_T > 4)

@@ -23,11 +23,10 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include <curl/curl.h>
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
-static
-char * GetEnv(const char * variable)
+static char * GetEnv(const char * variable)
 {
 #if defined(_WIN32_WCE) || defined(CURL_WINDOWS_APP)
 	(void)variable;

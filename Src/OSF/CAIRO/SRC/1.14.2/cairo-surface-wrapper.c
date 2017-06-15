@@ -414,7 +414,7 @@ cairo_status_t _cairo_surface_wrapper_show_text_glyphs(cairo_surface_wrapper_t *
 			    &ctm, &options);
 		}
 
-		if(num_glyphs > ARRAY_LENGTH(stack_glyphs)) {
+		if(num_glyphs > SIZEOFARRAY(stack_glyphs)) {
 			dev_glyphs = (cairo_glyph_t *)_cairo_malloc_ab(num_glyphs, sizeof(cairo_glyph_t));
 			if(unlikely(dev_glyphs == NULL)) {
 				status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -447,7 +447,7 @@ cairo_status_t _cairo_surface_wrapper_show_text_glyphs(cairo_surface_wrapper_t *
 		 * to modify the glyph array that's passed in.  We must always
 		 * copy the array before handing it to the backend.
 		 */
-		if(num_glyphs > ARRAY_LENGTH(stack_glyphs)) {
+		if(num_glyphs > SIZEOFARRAY(stack_glyphs)) {
 			dev_glyphs = (cairo_glyph_t *)_cairo_malloc_ab(num_glyphs, sizeof(cairo_glyph_t));
 			if(unlikely(dev_glyphs == NULL)) {
 				status = _cairo_error(CAIRO_STATUS_NO_MEMORY);

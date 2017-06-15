@@ -101,7 +101,7 @@ void _cairo_polygon_init(cairo_polygon_t * polygon, const cairo_box_t * limits, 
 	polygon->status = CAIRO_STATUS_SUCCESS;
 	polygon->num_edges = 0;
 	polygon->edges = polygon->edges_embedded;
-	polygon->edges_size = ARRAY_LENGTH(polygon->edges_embedded);
+	polygon->edges_size = SIZEOFARRAY(polygon->edges_embedded);
 	polygon->extents.p1.x = polygon->extents.p1.y = INT32_MAX;
 	polygon->extents.p2.x = polygon->extents.p2.y = INT32_MIN;
 	_cairo_polygon_limit(polygon, limits, num_limits);
@@ -123,8 +123,8 @@ cairo_status_t _cairo_polygon_init_boxes(cairo_polygon_t * polygon, const cairo_
 	polygon->status = CAIRO_STATUS_SUCCESS;
 	polygon->num_edges = 0;
 	polygon->edges = polygon->edges_embedded;
-	polygon->edges_size = ARRAY_LENGTH(polygon->edges_embedded);
-	if(boxes->num_boxes > ARRAY_LENGTH(polygon->edges_embedded)/2) {
+	polygon->edges_size = SIZEOFARRAY(polygon->edges_embedded);
+	if(boxes->num_boxes > SIZEOFARRAY(polygon->edges_embedded)/2) {
 		polygon->edges_size = 2 * boxes->num_boxes;
 		polygon->edges = (cairo_edge_t *)_cairo_malloc_ab(polygon->edges_size, 2*sizeof(cairo_edge_t));
 		if(unlikely(polygon->edges == NULL))
@@ -157,8 +157,8 @@ cairo_status_t _cairo_polygon_init_box_array(cairo_polygon_t * polygon, cairo_bo
 	polygon->status = CAIRO_STATUS_SUCCESS;
 	polygon->num_edges = 0;
 	polygon->edges = polygon->edges_embedded;
-	polygon->edges_size = ARRAY_LENGTH(polygon->edges_embedded);
-	if(num_boxes > ARRAY_LENGTH(polygon->edges_embedded)/2) {
+	polygon->edges_size = SIZEOFARRAY(polygon->edges_embedded);
+	if(num_boxes > SIZEOFARRAY(polygon->edges_embedded)/2) {
 		polygon->edges_size = 2 * num_boxes;
 		polygon->edges = (cairo_edge_t *)_cairo_malloc_ab(polygon->edges_size, 2*sizeof(cairo_edge_t));
 		if(unlikely(polygon->edges == NULL))

@@ -75,12 +75,18 @@ int pcx_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 #else
 	rle_row = (uchar*)_alloca((symbol->bitmap_width * 6) * sizeof(uchar));
 #endif /* _MSC_VER */
-	const int fgred = (16 * ctoi(symbol->fgcolour[0])) + ctoi(symbol->fgcolour[1]);
-	const int fggrn = (16 * ctoi(symbol->fgcolour[2])) + ctoi(symbol->fgcolour[3]);
-	const int fgblu = (16 * ctoi(symbol->fgcolour[4])) + ctoi(symbol->fgcolour[5]);
-	const int bgred = (16 * ctoi(symbol->bgcolour[0])) + ctoi(symbol->bgcolour[1]);
-	const int bggrn = (16 * ctoi(symbol->bgcolour[2])) + ctoi(symbol->bgcolour[3]);
-	const int bgblu = (16 * ctoi(symbol->bgcolour[4])) + ctoi(symbol->bgcolour[5]);
+	//const int fgred = (16 * hex(symbol->fgcolour[0])) + hex(symbol->fgcolour[1]);
+	//const int fggrn = (16 * hex(symbol->fgcolour[2])) + hex(symbol->fgcolour[3]);
+	//const int fgblu = (16 * hex(symbol->fgcolour[4])) + hex(symbol->fgcolour[5]);
+	//const int bgred = (16 * hex(symbol->bgcolour[0])) + hex(symbol->bgcolour[1]);
+	//const int bggrn = (16 * hex(symbol->bgcolour[2])) + hex(symbol->bgcolour[3]);
+	//const int bgblu = (16 * hex(symbol->bgcolour[4])) + hex(symbol->bgcolour[5]);
+	const int fgred = symbol->ColorFg.R;
+	const int fggrn = symbol->ColorFg.G;
+	const int fgblu = symbol->ColorFg.B;
+	const int bgred = symbol->ColorBg.R;
+	const int bggrn = symbol->ColorBg.G;
+	const int bgblu = symbol->ColorBg.B;
 
 	header.manufacturer = 10; // ZSoft
 	header.version = 5; // Version 3.0
@@ -117,7 +123,7 @@ int pcx_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	if(symbol->output_options & BARCODE_STDOUT) {
 #ifdef _MSC_VER
 		if(-1 == _setmode(_fileno(stdout), _O_BINARY)) {
-			strcpy(symbol->errtxt, "Can't open output file");
+			sstrcpy(symbol->errtxt, "Can't open output file");
 			return ZINT_ERROR_FILE_ACCESS;
 		}
 #endif
@@ -125,7 +131,7 @@ int pcx_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	}
 	else {
 		if(!(pcx_file = fopen(symbol->outfile, "wb"))) {
-			strcpy(symbol->errtxt, "Can't open output file (F20)");
+			sstrcpy(symbol->errtxt, "Can't open output file (F20)");
 			return ZINT_ERROR_FILE_ACCESS;
 		}
 	}

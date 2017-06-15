@@ -271,17 +271,17 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 	short bar_map[130];
 	int    error_number = 0;
 	if(length > 32) {
-		strcpy(symbol->errtxt, "Input too long (D50)");
+		sstrcpy(symbol->errtxt, "Input too long (D50)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	error_number = is_sane(SODIUM, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data (D51)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (D51)");
 		return error_number;
 	}
 
-	strcpy(zip, "");
-	strcpy(tracker, "");
+	sstrcpy(zip, "");
+	sstrcpy(tracker, "");
 
 	/* separate the tracking code from the routing code */
 
@@ -314,11 +314,11 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 
 	if(strlen(tracker) != 20) {
-		strcpy(symbol->errtxt, "Invalid length tracking code (D52)");
+		sstrcpy(symbol->errtxt, "Invalid length tracking code (D52)");
 		return ZINT_ERROR_INVALID_DATA;
 	}
 	if(strlen(zip) > 11) {
-		strcpy(symbol->errtxt, "Invalid ZIP code (D53)");
+		sstrcpy(symbol->errtxt, "Invalid ZIP code (D53)");
 		return ZINT_ERROR_INVALID_DATA;
 	}
 
@@ -335,10 +335,10 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 		for(i = 0; i < 9; i++) {
 			binary_add(accum, x_reg);
 		}
-		x_reg[0] = BCD[ctoi(zip[read]) * 4];
-		x_reg[1] = BCD[(ctoi(zip[read]) * 4) + 1];
-		x_reg[2] = BCD[(ctoi(zip[read]) * 4) + 2];
-		x_reg[3] = BCD[(ctoi(zip[read]) * 4) + 3];
+		x_reg[0] = BCD[hex(zip[read]) * 4];
+		x_reg[1] = BCD[(hex(zip[read]) * 4) + 1];
+		x_reg[2] = BCD[(hex(zip[read]) * 4) + 2];
+		x_reg[3] = BCD[(hex(zip[read]) * 4) + 3];
 		for(i = 4; i < 112; i++) {
 			x_reg[i] = 0;
 		}
@@ -351,18 +351,18 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 		x_reg[i] = accum[i];
 	}
 	if(strlen(zip) > 9) {
-		strcpy(zip_adder, "1000100001");
+		sstrcpy(zip_adder, "1000100001");
 	}
 	else {
 		if(strlen(zip) > 5) {
-			strcpy(zip_adder, "100001");
+			sstrcpy(zip_adder, "100001");
 		}
 		else {
 			if(strlen(zip) > 0) {
-				strcpy(zip_adder, "1");
+				sstrcpy(zip_adder, "1");
 			}
 			else {
-				strcpy(zip_adder, "0");
+				sstrcpy(zip_adder, "0");
 			}
 		}
 	}
@@ -376,10 +376,10 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 		for(i = 0; i < 9; i++) {
 			binary_add(accum, y_reg);
 		}
-		y_reg[0] = BCD[ctoi(zip_adder[read]) * 4];
-		y_reg[1] = BCD[(ctoi(zip_adder[read]) * 4) + 1];
-		y_reg[2] = BCD[(ctoi(zip_adder[read]) * 4) + 2];
-		y_reg[3] = BCD[(ctoi(zip_adder[read]) * 4) + 3];
+		y_reg[0] = BCD[hex(zip_adder[read]) * 4];
+		y_reg[1] = BCD[(hex(zip_adder[read]) * 4) + 1];
+		y_reg[2] = BCD[(hex(zip_adder[read]) * 4) + 2];
+		y_reg[3] = BCD[(hex(zip_adder[read]) * 4) + 3];
 		for(i = 4; i < 112; i++) {
 			y_reg[i] = 0;
 		}
@@ -401,10 +401,10 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 
 	/* add first digit of tracker */
-	y_reg[0] = BCD[ctoi(tracker[0]) * 4];
-	y_reg[1] = BCD[(ctoi(tracker[0]) * 4) + 1];
-	y_reg[2] = BCD[(ctoi(tracker[0]) * 4) + 2];
-	y_reg[3] = BCD[(ctoi(tracker[0]) * 4) + 3];
+	y_reg[0] = BCD[hex(tracker[0]) * 4];
+	y_reg[1] = BCD[(hex(tracker[0]) * 4) + 1];
+	y_reg[2] = BCD[(hex(tracker[0]) * 4) + 2];
+	y_reg[3] = BCD[(hex(tracker[0]) * 4) + 3];
 	for(i = 4; i < 112; i++) {
 		y_reg[i] = 0;
 	}
@@ -421,10 +421,10 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 
 	/* add second digit */
-	y_reg[0] = BCD[ctoi(tracker[1]) * 4];
-	y_reg[1] = BCD[(ctoi(tracker[1]) * 4) + 1];
-	y_reg[2] = BCD[(ctoi(tracker[1]) * 4) + 2];
-	y_reg[3] = BCD[(ctoi(tracker[1]) * 4) + 3];
+	y_reg[0] = BCD[hex(tracker[1]) * 4];
+	y_reg[1] = BCD[(hex(tracker[1]) * 4) + 1];
+	y_reg[2] = BCD[(hex(tracker[1]) * 4) + 2];
+	y_reg[3] = BCD[(hex(tracker[1]) * 4) + 3];
 	for(i = 4; i < 112; i++) {
 		y_reg[i] = 0;
 	}
@@ -439,10 +439,10 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 		for(i = 0; i < 9; i++) {
 			binary_add(accum, y_reg);
 		}
-		y_reg[0] = BCD[ctoi(tracker[read]) * 4];
-		y_reg[1] = BCD[(ctoi(tracker[read]) * 4) + 1];
-		y_reg[2] = BCD[(ctoi(tracker[read]) * 4) + 2];
-		y_reg[3] = BCD[(ctoi(tracker[read]) * 4) + 3];
+		y_reg[0] = BCD[hex(tracker[read]) * 4];
+		y_reg[1] = BCD[(hex(tracker[read]) * 4) + 1];
+		y_reg[2] = BCD[(hex(tracker[read]) * 4) + 2];
+		y_reg[3] = BCD[(hex(tracker[read]) * 4) + 3];
 		for(i = 4; i < 112; i++) {
 			y_reg[i] = 0;
 		}
@@ -567,7 +567,7 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 		}
 	}
 
-	strcpy(data_pattern, "");
+	sstrcpy(data_pattern, "");
 	temp[1] = '\0';
 	for(i = 0; i < 65; i++) {
 		j = 0;

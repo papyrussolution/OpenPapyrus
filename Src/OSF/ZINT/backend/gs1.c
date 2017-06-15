@@ -41,13 +41,11 @@ void itostr(char ai_string[], int ai_value)
 {
 	int thou, hund, ten, unit;
 	char temp[2];
-
-	strcpy(ai_string, "(");
+	sstrcpy(ai_string, "(");
 	thou = ai_value / 1000;
 	hund = (ai_value - (1000 * thou)) / 100;
 	ten = (ai_value - ((1000 * thou) + (100 * hund))) / 10;
 	unit = ai_value - ((1000 * thou) + (100 * hund) + (10 * ten));
-
 	temp[1] = '\0';
 	if(ai_value >= 1000) {
 		temp[0] = itoc(thou);
@@ -74,16 +72,16 @@ int gs1_verify(struct ZintSymbol * symbol, const uchar source[], const size_t sr
 	// Detect extended ASCII characters 
 	for(i = 0; i < (int)src_len; i++) {
 		if(source[i] >= 128) {
-			strcpy(symbol->errtxt, "Extended ASCII characters are not supported by GS1 (B50)");
+			sstrcpy(symbol->errtxt, "Extended ASCII characters are not supported by GS1 (B50)");
 			return ZINT_ERROR_INVALID_DATA;
 		}
 		else if(source[i] < 32) {
-			strcpy(symbol->errtxt, "Control characters are not supported by GS1 (B51)");
+			sstrcpy(symbol->errtxt, "Control characters are not supported by GS1 (B51)");
 			return ZINT_ERROR_INVALID_DATA;
 		}
 	}
 	if(source[0] != '[') {
-		strcpy(symbol->errtxt, "Data does not start with an AI (B52)");
+		sstrcpy(symbol->errtxt, "Data does not start with an AI (B52)");
 		return ZINT_ERROR_INVALID_DATA;
 	}
 	else {
@@ -121,23 +119,23 @@ int gs1_verify(struct ZintSymbol * symbol, const uchar source[], const size_t sr
 		}
 		min_ai_length--;
 		if(bracket_level != 0) { // Not all brackets are closed 
-			strcpy(symbol->errtxt, "Malformed AI in input data (brackets don\'t match) (B53)");
+			sstrcpy(symbol->errtxt, "Malformed AI in input data (brackets don\'t match) (B53)");
 			return ZINT_ERROR_INVALID_DATA;
 		}
 		else if(max_bracket_level > 1) { // Nested brackets 
-			strcpy(symbol->errtxt, "Found nested brackets in input data (B54)");
+			sstrcpy(symbol->errtxt, "Found nested brackets in input data (B54)");
 			return ZINT_ERROR_INVALID_DATA;
 		}
 		else if(max_ai_length > 4) { // AI is too long 
-			strcpy(symbol->errtxt, "Invalid AI in input data (AI too long) (B55)");
+			sstrcpy(symbol->errtxt, "Invalid AI in input data (AI too long) (B55)");
 			return ZINT_ERROR_INVALID_DATA;
 		}
 		else if(min_ai_length <= 1) { // AI is too short 
-			strcpy(symbol->errtxt, "Invalid AI in input data (AI too short) (B56)");
+			sstrcpy(symbol->errtxt, "Invalid AI in input data (AI too short) (B56)");
 			return ZINT_ERROR_INVALID_DATA;
 		}
 		else if(ai_latch == 1) { // Non-numeric data in AI 
-			strcpy(symbol->errtxt, "Invalid AI in input data (non-numeric characters in AI) (B57)");
+			sstrcpy(symbol->errtxt, "Invalid AI in input data (non-numeric characters in AI) (B57)");
 			return ZINT_ERROR_INVALID_DATA;
 		}
 		else {
@@ -171,12 +169,12 @@ int gs1_verify(struct ZintSymbol * symbol, const uchar source[], const size_t sr
 			}
 			for(i = 0; i < ai_count; i++) {
 				if(data_length[i] == 0) { // No data for given AI 
-					strcpy(symbol->errtxt, "Empty data field in input data (B58)");
+					sstrcpy(symbol->errtxt, "Empty data field in input data (B58)");
 					return ZINT_ERROR_INVALID_DATA;
 				}
 			}
 			error_latch = 0;
-			strcpy(ai_string, "");
+			sstrcpy(ai_string, "");
 			for(i = 0; i < ai_count; i++) {
 				switch(ai_value[i]) {
 					case 0: 
@@ -266,12 +264,12 @@ int gs1_verify(struct ZintSymbol * symbol, const uchar source[], const size_t sr
 				}
 			}
 			if(error_latch == 5) {
-				strcpy(symbol->errtxt, "Invalid data length for AI (B59)");
+				sstrcpy(symbol->errtxt, "Invalid data length for AI (B59)");
 				strcat(symbol->errtxt, ai_string);
 				return ZINT_ERROR_INVALID_DATA;
 			}
 			if(error_latch == 6) {
-				strcpy(symbol->errtxt, "Invalid AI value (B60)");
+				sstrcpy(symbol->errtxt, "Invalid AI value (B60)");
 				strcat(symbol->errtxt, ai_string);
 				return ZINT_ERROR_INVALID_DATA;
 			}
@@ -315,24 +313,23 @@ int gs1_verify(struct ZintSymbol * symbol, const uchar source[], const size_t sr
 
 int ugs1_verify(struct ZintSymbol * symbol, const uchar source[], const uint src_len, uchar reduced[])
 {
-	/* Only to keep the compiler happy */
+	// Only to keep the compiler happy 
 #ifndef _MSC_VER
 	char temp[src_len + 5];
 #else
-	char* temp = (char*)_alloca(src_len + 5);
+	char * temp = (char*)_alloca(src_len + 5);
 #endif
-	int error_number;
-
-	error_number = gs1_verify(symbol, source, src_len, temp);
+	int error_number = gs1_verify(symbol, source, src_len, temp);
 	if(error_number != 0) {
 		return error_number;
 	}
-
-	if(strlen(temp) < src_len + 5) {
-		ustrcpy(reduced, (uchar*)temp);
+	else if(strlen(temp) < (src_len + 5)) {
+		sstrcpy(reduced, (uchar*)temp);
 		return 0;
 	}
-	strcpy(symbol->errtxt, "ugs1_verify overflow (B61)");
-	return ZINT_ERROR_INVALID_DATA;
+	else {
+		sstrcpy(symbol->errtxt, "ugs1_verify overflow (B61)");
+		return ZINT_ERROR_INVALID_DATA;
+	}
 }
 

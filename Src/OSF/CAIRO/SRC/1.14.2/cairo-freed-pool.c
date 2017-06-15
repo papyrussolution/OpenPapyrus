@@ -45,7 +45,7 @@ void * _freed_pool_get_search(freed_pool_t * pool)
 {
 	void * ptr;
 	int i;
-	for(i = ARRAY_LENGTH(pool->pool); i--; ) {
+	for(i = SIZEOFARRAY(pool->pool); i--; ) {
 		ptr = _atomic_fetch(&pool->pool[i]);
 		if(ptr != NULL) {
 			pool->top = i;
@@ -60,7 +60,7 @@ void * _freed_pool_get_search(freed_pool_t * pool)
 void _freed_pool_put_search(freed_pool_t * pool, void * ptr)
 {
 	int i;
-	for(i = 0; i < ARRAY_LENGTH(pool->pool); i++) {
+	for(i = 0; i < SIZEOFARRAY(pool->pool); i++) {
 		if(_atomic_store(&pool->pool[i], ptr)) {
 			pool->top = i + 1;
 			return;
@@ -74,7 +74,7 @@ void _freed_pool_put_search(freed_pool_t * pool, void * ptr)
 void _freed_pool_reset(freed_pool_t * pool)
 {
 	int i;
-	for(i = 0; i < ARRAY_LENGTH(pool->pool); i++) {
+	for(i = 0; i < SIZEOFARRAY(pool->pool); i++) {
 		SAlloc::F(pool->pool[i]);
 		pool->pool[i] = NULL;
 	}

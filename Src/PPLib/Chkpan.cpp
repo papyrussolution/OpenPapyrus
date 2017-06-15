@@ -497,8 +497,9 @@ CPosProcessor::AcceptCheckProcessBlock::AcceptCheckProcessBlock()
 	SyncPrnErr = 0;
 	RExt = 1;
 	ExtSyncPrnErr = 0;
-	IsPack = 0;
-	IsExtPack = 0;
+	//IsPack = 0;
+	//IsExtPack = 0;
+	Flags = 0;
 	MEMSZERO(LastChkRec);
 }
 //
@@ -1009,6 +1010,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 	AbstractGoodsID = 0; // @v9.5.10
 	P_CM     = 0;
 	P_CM_EXT = 0;
+	P_CM_ALT = 0; // @v9.6.11
 	P_GTOA   = 0;
 	P_ChkPack  = pOuterPack;
 	SessUUID.SetZero(); // @v8.7.7
@@ -1097,6 +1099,7 @@ CPosProcessor::~CPosProcessor()
 {
 	delete P_CM;
 	delete P_CM_EXT;
+	delete P_CM_ALT; // @v9.6.11
 	delete P_GTOA;
 	delete P_DivGrpList;
 	delete P_TSesObj;
@@ -1106,8 +1109,16 @@ CPosProcessor::~CPosProcessor()
 
 int CPosProcessor::InitCashMachine()
 {
-	return BIN((P_CM || (P_CM = PPCashMachine::CreateInstance(CashNodeID)) != 0) &&
-		(!ExtCashNodeID || P_CM_EXT || (P_CM_EXT = PPCashMachine::CreateInstance(ExtCashNodeID)) != 0));
+	int    ok = 1;
+	/*return BIN(
+		(P_CM || (P_CM = PPCashMachine::CreateInstance(CashNodeID)) != 0) &&
+		(!ExtCashNodeID || P_CM_EXT || (P_CM_EXT = PPCashMachine::CreateInstance(ExtCashNodeID)) != 0)
+	);*/
+	THROW(P_CM || (P_CM = PPCashMachine::CreateInstance(CashNodeID)) != 0);
+	THROW(!ExtCashNodeID || P_CM_EXT || (P_CM_EXT = PPCashMachine::CreateInstance(ExtCashNodeID)) != 0);
+	THROW(ExtCashNodeID || !AltRegisterID || P_CM_ALT || (P_CM_ALT = PPCashMachine::CreateInstance(AltRegisterID)) != 0); // @v9.6.11
+	CATCHZOK
+	return ok;
 }
 
 int CPosProcessor::InitCcView()
@@ -2281,11 +2292,11 @@ int CPosProcessor::AcceptCheckToBeCleared()
 
 int CPosProcessor::AutosaveCheck()
 {
-	return (CsObj.GetEqCfg().Flags & PPEquipConfig::fAutosaveSyncChecks) ? AcceptCheck(0, 0.0, accmJunk) : -1;
+	return (CsObj.GetEqCfg().Flags & PPEquipConfig::fAutosaveSyncChecks) ? AcceptCheck(0, 0, 0.0, accmJunk) : -1;
 }
 
 // virtual
-int CPosProcessor::AcceptCheck(const CcAmountList * pPl, double cash, int mode /* accmXXX */)
+int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode /* accmXXX */)
 {
 	int    ok = 1;
 	const  int turn_check_before_printing = 1;
@@ -2365,8 +2376,9 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, double cash, int mode /
 			THROW(Helper_InitCcPacket(&epb.Pack, ((mode == accmRegular) ? &epb.ExtPack : 0), pPl, 0));
 			if(mode == accmRegular && P_CM_EXT) {
 				epb.Pack._Cash = MONEYTOLDBL(epb.Pack.Rec.Amount);
-				epb.IsExtPack = BIN(epb.ExtPack.GetCount());
-				if(epb.IsExtPack) {
+				// @v9.6.11 epb.IsExtPack = BIN(epb.ExtPack.GetCount());
+				SETFLAG(epb.Flags, epb.fIsExtPack, epb.ExtPack.GetCount()); // @v9.6.11 
+				if(epb.Flags & epb.fIsExtPack) {
 					double amt, dscnt;
 					GetNewCheckCode(ExtCashNodeID, &epb.ExtPack.Rec.Code);
 					epb.ExtPack.Rec.SessID = P_CM_EXT->GetCurSessID(); // @!
@@ -2391,7 +2403,8 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, double cash, int mode /
 				epb.Pack._Cash = cash;
 			}
 		}
-		epb.IsPack = BIN(epb.Pack.GetCount());
+		// @v9.6.11 epb.IsPack = BIN(epb.Pack.GetCount());
+		SETFLAG(epb.Flags, epb.fIsPack, epb.Pack.GetCount()); // @v9.6.11 
 		if(mode == accmJunk) {
 			THROW(StoreCheck(&epb.Pack, 0, mode));
 		}
@@ -2422,7 +2435,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, double cash, int mode /
 						// фискальной памяти будут хранится не те номера, которые были переданы в ЕГАИС.
 						//
 						if(turn_check_before_printing && !was_turned_before_printing && mode != accmAveragePrinting) {
-							THROW(StoreCheck(&epb.Pack, epb.IsExtPack ? &epb.ExtPack : 0, mode));
+							THROW(StoreCheck(&epb.Pack, (epb.Flags & epb.fIsExtPack) ? &epb.ExtPack : 0, mode));
 							CCheckCore::MakeCodeString(&epb.Pack.Rec, before_printing_check_text);
 							was_turned_before_printing = 1;
 						}
@@ -2440,7 +2453,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, double cash, int mode /
                             }
                             // } @v9.1.8
 						}
-						if(epb.IsExtPack) {
+						if(epb.Flags & epb.fIsExtPack) {
 							PPEgaisProcessor::Ack eg_ack;
 							THROW(P_EgPrc->PutCCheck(epb.ExtPack, ExtCnLocID, eg_ack));
                             if(eg_ack.Sign[0] && eg_ack.SignSize) {
@@ -2458,18 +2471,19 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, double cash, int mode /
 			}
 			// } @v9.0.11
 			if(turn_check_before_printing && !was_turned_before_printing && mode != accmAveragePrinting) {
-				THROW(StoreCheck(&epb.Pack, epb.IsExtPack ? &epb.ExtPack : 0, mode));
+				THROW(StoreCheck(&epb.Pack, (epb.Flags & epb.fIsExtPack) ? &epb.ExtPack : 0, mode));
 				CCheckCore::MakeCodeString(&epb.Pack.Rec, before_printing_check_text);
 				was_turned_before_printing = 1;
 			}
 			if(mode != accmSuspended) {
+				SETFLAG(epb.Flags, epb.fAltReg, altPosNodeID && P_CM_ALT); // @v9.6.11
 				if(!Implement_AcceptCheckOnEquipment(pPl, epb))
 					ok = 0;
 			}
 			// @v9.1.10 {
 			if(dont_accept_ccode_from_printer) {
 				epb.Pack.Rec.Code = org_code;
-				if(epb.IsExtPack)
+				if(epb.Flags & epb.fIsExtPack)
 					epb.ExtPack.Rec.Code = org_ext_code;
 			}
 			// } @v9.1.10
@@ -2477,7 +2491,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, double cash, int mode /
 			// По непонятным причинам Viki Print перестал возвращать ненулевой номер чека прежним образом.
 			// Пока, до решения проблемы, будем замещать нулевой номер нашим собственным.
 			SETIFZ(epb.Pack.Rec.Code, org_code);
-			if(epb.IsExtPack) {
+			if(epb.Flags & epb.fIsExtPack) {
 				SETIFZ(epb.ExtPack.Rec.Code, org_ext_code);
 			}
 			// } @v9.5.10
@@ -2499,7 +2513,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, double cash, int mode /
 				THROW(tra.Commit());
 			}
 			else if(mode != accmAveragePrinting) {
-				THROW(StoreCheck(&epb.Pack, epb.IsExtPack ? &epb.ExtPack : 0, mode));
+				THROW(StoreCheck(&epb.Pack, (epb.Flags & epb.fIsExtPack) ? &epb.ExtPack : 0, mode));
 			}
 			//
 			// На ошибки печати чека и др., возникшие в Implement_AcceptCheckOnEquipment(), реагируем уже после
@@ -2558,10 +2572,7 @@ int CPosProcessor::Helper_SetupSessUuidForCheck(PPID checkID)
 	if(checkID) {
 		ObjTagItem tag_item;
 		S_GUID uuid;
-		if(SessUUID.IsZero())
-			uuid = SLS.GetSessUuid();
-		else
-			uuid = SessUUID;
+		uuid = SessUUID.IsZero() ? SLS.GetSessUuid() : SessUUID;
 		if(tag_item.SetGuid(PPTAG_CCHECK_JS_UUID, &uuid))
 			PPRef->Ot.PutTag(PPOBJ_CCHECK, checkID, &tag_item, 0);
 	}
@@ -3406,9 +3417,9 @@ int FASTCALL CheckPaneDialog::valid(ushort command)
 }
 
 // virtual
-int CheckPaneDialog::AcceptCheck(const CcAmountList * pPl, double cash, int mode /* accmXXX */)
+int CheckPaneDialog::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode /* accmXXX */)
 {
-	int    ok = CPosProcessor::AcceptCheck(pPl, cash, mode /*suspended*/);
+	int    ok = CPosProcessor::AcceptCheck(pPl, altPosNodeID, cash, mode /*suspended*/);
 	if(!oneof2(mode, accmJunk, accmAveragePrinting)) {
 		if(ClearCDYTimeout)
 			PrintCheckClock = clock();
@@ -3438,7 +3449,7 @@ int CheckPaneDialog::SuspendCheck()
 			if(discount != 0.0)
 				CDispCommand(cdispcmdTotalDiscount, 0, (discount * 100.0) / (total + discount), discount);
 			//
-			AcceptCheck(0, total, accmSuspended);
+			AcceptCheck(0, 0, total, accmSuspended);
 			ok = 1;
 		}
 	}
@@ -4080,31 +4091,24 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 								}
 								// } @paul
 								CDispCommand(cdispcmdChange, 0, paym_blk2.AmtToPaym + diff, diff);
-								AcceptCheck(&paym_blk2.CcPl, paym_blk2.AmtToPaym + diff, accmRegular);
+								AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + diff, accmRegular);
 							}
 							break;
 						case cpmBank:
-							{
-								// @vmiller comment
-								/*if(yes)
-									AcceptCheck(paym_method, amt_to_paym + diff, accmRegular);*/
-								// @vmiller {
-								if(ConfirmPosPaymBank(paym_blk2.AmtToPaym)) {
-									if(P_BNKTERM) {
-										int    r = (paym_blk2.AmtToPaym < 0) ? P_BNKTERM->Refund(-paym_blk2.AmtToPaym) : P_BNKTERM->Pay(paym_blk2.AmtToPaym);
-										if(r)
-											AcceptCheck(&paym_blk2.CcPl, paym_blk2.AmtToPaym + diff, accmRegular);
-										else
-											PPError();
-									}
+							if(ConfirmPosPaymBank(paym_blk2.AmtToPaym)) {
+								if(P_BNKTERM) {
+									int    r = (paym_blk2.AmtToPaym < 0) ? P_BNKTERM->Refund(-paym_blk2.AmtToPaym) : P_BNKTERM->Pay(paym_blk2.AmtToPaym);
+									if(r)
+										AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + diff, accmRegular);
 									else
-										AcceptCheck(&paym_blk2.CcPl, paym_blk2.AmtToPaym + diff, accmRegular);
+										PPError();
 								}
-								// } @vmiller
+								else
+									AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + diff, accmRegular);
 							}
 							break;
 						case cpmIncorpCrd:
-							AcceptCheck(&paym_blk2.CcPl, paym_blk2.AmtToPaym + diff, accmRegular);
+							AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + diff, accmRegular);
 							break;
 						case cpmUndef:
 							{
@@ -4114,7 +4118,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 								// @v9.6.9 {
 								if(AltRegisterID)
 									paym_blk2.AltCashReg = 0;
-								// } @v9.6.9 
+								// } @v9.6.9
 								for(int _again = 1; _again && paym_blk2.EditDialog2() > 0;) {
 									assert(feqeps(paym_blk2.CcPl.GetTotal(), ccpl_total, 0.00001));
 									assert(oneof3(paym_blk2.Kind, cpmCash, cpmBank, cpmIncorpCrd));
@@ -4146,8 +4150,10 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 											CDispCommand(cdispcmdChange, 0, paym_blk2.NoteAmt, paym_blk2.DeliveryAmt);
 										else
 											CDispCommand(cdispcmdChange, 0, paym_blk2.Amount, 0.0);
-										if(!P_BNKTERM || r)
-											AcceptCheck(&paym_blk2.CcPl, paym_blk2.NoteAmt, accmRegular);
+										if(!P_BNKTERM || r) {
+											const PPID alt_reg_id = (paym_blk2.AltCashReg > 0) ? AltRegisterID : 0; // @v9.6.11
+											AcceptCheck(&paym_blk2.CcPl, alt_reg_id, paym_blk2.NoteAmt, accmRegular);
+										}
 									}
 								}
 							}
@@ -7763,7 +7769,7 @@ int CPosProcessor::Backend_Release()
 	int    ok = 1;
 	ResetCurrentLine();
 	if(P.getCount()) {
-		THROW(AcceptCheck(0, 0, accmSuspended) > 0);
+		THROW(AcceptCheck(0, 0, 0, accmSuspended) > 0);
 	}
 	CATCHZOK
 	return ok;
@@ -10632,33 +10638,47 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 int CheckPaneDialog::Implement_AcceptCheckOnEquipment(const CcAmountList * pPl, AcceptCheckProcessBlock & rB)
 {
 	int    ok = 1;
-	if(/*paymMethod == cpmCash*/pPl && pPl->Get(CCAMTTYP_CASH) != 0.0) {
-		if(P_CM->GetNodeData().Flags & CASHF_OPENBOX)
-			P_CM->SyncOpenBox();
-	}
-	if(rB.IsPack) {
-		THROW(rB.R = P_CM->SyncCheckForSessionOver());
-		if(rB.R > 0) {
+	/* @v9.6.11 {*/
+	if(rB.Flags & rB.fAltReg && P_CM_ALT) {
+		if(rB.Flags & rB.fIsPack) {
 			rB.Pack.Rec.SessID = P_CM->GetCurSessID();
-			if((rB.R = P_CM->SyncPrintCheck(&rB.Pack, 1)) == 0)
-				rB.SyncPrnErr = P_CM->SyncGetPrintErrCode();
+			rB.R = P_CM_ALT->SyncPrintCheck(&rB.Pack, 1);
+			if(rB.R == 0)
+				rB.SyncPrnErr = P_CM_ALT->SyncGetPrintErrCode();
+			THROW(rB.R > 0 || rB.SyncPrnErr == 1);
+			rB.Pack.Rec.Flags |= (CCHKF_PRINTED|CCHKF_ALTREG);
+			CC.WriteCCheckLogFile(&rB.Pack, 0, CCheckCore::logPrinted, 1);
 		}
 	}
-	THROW(rB.R > 0 || rB.SyncPrnErr == 1);
-	if(rB.IsPack) {
-		rB.Pack.Rec.Flags |= CCHKF_PRINTED;
-		CC.WriteCCheckLogFile(&rB.Pack, 0, CCheckCore::logPrinted, 1);
-	}
-	if(rB.IsExtPack) {
-		THROW(rB.RExt = P_CM_EXT->SyncCheckForSessionOver());
-		if(rB.RExt > 0) {
-			rB.ExtPack.Rec.SessID = P_CM_EXT->GetCurSessID();
-			if((rB.RExt = P_CM_EXT->SyncPrintCheck(&rB.ExtPack, 1)) == 0)
-				rB.ExtSyncPrnErr = P_CM_EXT->SyncGetPrintErrCode();
+	else /* }@v9.6.11 */ {
+		if(pPl && pPl->Get(CCAMTTYP_CASH) != 0.0) {
+			if(P_CM->GetNodeData().Flags & CASHF_OPENBOX)
+				P_CM->SyncOpenBox();
 		}
-		THROW(rB.RExt > 0 || rB.ExtSyncPrnErr == 1);
-		rB.ExtPack.Rec.Flags |= CCHKF_PRINTED;
-		CC.WriteCCheckLogFile(&rB.ExtPack, 0, CCheckCore::logPrinted, 1);
+		if(rB.Flags & rB.fIsPack) {
+			THROW(rB.R = P_CM->SyncCheckForSessionOver());
+			if(rB.R > 0) {
+				rB.Pack.Rec.SessID = P_CM->GetCurSessID();
+				if((rB.R = P_CM->SyncPrintCheck(&rB.Pack, 1)) == 0)
+					rB.SyncPrnErr = P_CM->SyncGetPrintErrCode();
+			}
+		}
+		THROW(rB.R > 0 || rB.SyncPrnErr == 1);
+		if(rB.Flags & rB.fIsPack) {
+			rB.Pack.Rec.Flags |= CCHKF_PRINTED;
+			CC.WriteCCheckLogFile(&rB.Pack, 0, CCheckCore::logPrinted, 1);
+		}
+		if(rB.Flags & rB.fIsExtPack) {
+			THROW(rB.RExt = P_CM_EXT->SyncCheckForSessionOver());
+			if(rB.RExt > 0) {
+				rB.ExtPack.Rec.SessID = P_CM_EXT->GetCurSessID();
+				if((rB.RExt = P_CM_EXT->SyncPrintCheck(&rB.ExtPack, 1)) == 0)
+					rB.ExtSyncPrnErr = P_CM_EXT->SyncGetPrintErrCode();
+			}
+			THROW(rB.RExt > 0 || rB.ExtSyncPrnErr == 1);
+			rB.ExtPack.Rec.Flags |= CCHKF_PRINTED;
+			CC.WriteCCheckLogFile(&rB.ExtPack, 0, CCheckCore::logPrinted, 1);
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -12247,7 +12267,7 @@ int SLAPI PrcssrCCheckGenerator::Run()
 			else {
 				pl.Add(CCAMTTYP_CASH, total);
 			}
-			P.P_Pan->AcceptCheck(&pl, total, CPosProcessor::accmRegular);
+			P.P_Pan->AcceptCheck(&pl, 0, total, CPosProcessor::accmRegular);
 			P.P_Pan->ClearCheck();
 		}
 		if(P.MaxCheckDelay) {

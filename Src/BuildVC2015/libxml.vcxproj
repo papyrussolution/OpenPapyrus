@@ -964,12 +964,6 @@
     <ClInclude Include="..\Osf\Libxml\Include\Libxml\xpathInternals.h" />
     <ClInclude Include="..\Osf\Libxml\Include\Libxml\xpointer.h" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="slib.vcxproj">
-      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

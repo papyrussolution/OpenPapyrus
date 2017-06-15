@@ -469,7 +469,7 @@
 	#define HELP_BROWSER_PRJTASKTEMPL                 213
 #define BROWSER_GBILLCMP                     214 // Сравнение документов %s
 	#define HELP_BROWSER_GBILLCMP                     214
-#define BROWSER_OPRKIND                      215 // Виды операций
+#define BROWSER_OPRKIND                      215 // @{view_oprkind}
 	#define HELP_BROWSER_OPRKIND                      215
 #define BROWSER_COMPLETE                     216 // Состав изделия {%s}
 	#define HELP_BROWSER_COMPLETE                     216

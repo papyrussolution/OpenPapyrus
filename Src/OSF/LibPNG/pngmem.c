@@ -90,22 +90,17 @@ PNG_FUNCTION(void * /* PRIVATE */, png_malloc_base, (png_const_structrp png_ptr,
 		return NULL;
 }
 
-#if defined(PNG_TEXT_SUPPORTED) || defined(PNG_sPLT_SUPPORTED) || \
-	defined(PNG_STORE_UNKNOWN_CHUNKS_SUPPORTED)
+#if defined(PNG_TEXT_SUPPORTED) || defined(PNG_sPLT_SUPPORTED) || defined(PNG_STORE_UNKNOWN_CHUNKS_SUPPORTED)
 /* This is really here only to work round a spurious warning in GCC 4.6 and 4.7
  * that arises because of the checks in png_realloc_array that are repeated in
  * png_malloc_array.
  */
-static void * png_malloc_array_checked(png_const_structrp png_ptr, int nelements,
-    size_t element_size)
+static void * png_malloc_array_checked(png_const_structrp png_ptr, int nelements, size_t element_size)
 {
-	png_alloc_size_t req = nelements; /* known to be > 0 */
-
+	png_alloc_size_t req = (png_alloc_size_t)nelements; // known to be > 0 
 	if(req <= PNG_SIZE_MAX/element_size)
 		return png_malloc_base(png_ptr, req * element_size);
-
-	/* The failure case when the request is too large */
-	return NULL;
+	return NULL; // The failure case when the request is too large 
 }
 
 PNG_FUNCTION(void * /* PRIVATE */, png_malloc_array, (png_const_structrp png_ptr, int nelements, size_t element_size), PNG_ALLOCATED)

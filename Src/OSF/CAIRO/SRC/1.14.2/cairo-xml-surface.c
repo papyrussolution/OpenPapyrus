@@ -108,7 +108,7 @@ static const char * _operator_to_string(cairo_operator_t op)
 		"HSL_COLOR", /* CAIRO_OPERATOR_HSL_COLOR */
 		"HSL_LUMINOSITY" /* CAIRO_OPERATOR_HSL_LUMINOSITY */
 	};
-	assert(op < ARRAY_LENGTH(names));
+	assert(op < SIZEOFARRAY(names));
 	return names[op];
 }
 
@@ -120,7 +120,7 @@ static const char * _extend_to_string(cairo_extend_t extend)
 		"EXTEND_REFLECT", /* CAIRO_EXTEND_REFLECT */
 		"EXTEND_PAD"    /* CAIRO_EXTEND_PAD */
 	};
-	assert(extend < ARRAY_LENGTH(names));
+	assert(extend < SIZEOFARRAY(names));
 	return names[extend];
 }
 
@@ -134,7 +134,7 @@ static const char * _filter_to_string(cairo_filter_t filter)
 		"FILTER_BILINEAR", /* CAIRO_FILTER_BILINEAR */
 		"FILTER_GAUSSIAN", /* CAIRO_FILTER_GAUSSIAN */
 	};
-	assert(filter < ARRAY_LENGTH(names));
+	assert(filter < SIZEOFARRAY(names));
 	return names[filter];
 }
 
@@ -144,7 +144,7 @@ static const char * _fill_rule_to_string(CairoFillRule rule)
 		"WINDING", /* CAIRO_FILL_RULE_WINDING */
 		"EVEN_ODD" /* CAIRO_FILL_RILE_EVEN_ODD */
 	};
-	assert(rule < ARRAY_LENGTH(names));
+	assert(rule < SIZEOFARRAY(names));
 	return names[rule];
 }
 
@@ -159,7 +159,7 @@ static const char * _antialias_to_string(cairo_antialias_t antialias)
 		"GOOD", /* CAIRO_ANTIALIAS_GOOD */
 		"BEST", /* CAIRO_ANTIALIAS_BEST */
 	};
-	assert(antialias < ARRAY_LENGTH(names));
+	assert(antialias < SIZEOFARRAY(names));
 	return names[antialias];
 }
 
@@ -170,7 +170,7 @@ static const char * _line_cap_to_string(cairo_line_cap_t line_cap)
 		"LINE_CAP_ROUND", /* CAIRO_LINE_CAP_ROUND */
 		"LINE_CAP_SQUARE" /* CAIRO_LINE_CAP_SQUARE */
 	};
-	assert(line_cap < ARRAY_LENGTH(names));
+	assert(line_cap < SIZEOFARRAY(names));
 	return names[line_cap];
 }
 
@@ -181,7 +181,7 @@ static const char * _line_join_to_string(cairo_line_join_t line_join)
 		"LINE_JOIN_ROUND", /* CAIRO_LINE_JOIN_ROUND */
 		"LINE_JOIN_BEVEL", /* CAIRO_LINE_JOIN_BEVEL */
 	};
-	assert(line_join < ARRAY_LENGTH(names));
+	assert(line_join < SIZEOFARRAY(names));
 	return names[line_join];
 }
 
@@ -263,7 +263,7 @@ _cairo_xml_printf(cairo_xml_t *xml, const char * fmt, ...)
 {
 	va_list ap;
 	char indent[80];
-	int len = MIN(xml->indent, ARRAY_LENGTH(indent));
+	int len = MIN(xml->indent, SIZEOFARRAY(indent));
 	memset(indent, ' ', len);
 	_cairo_output_stream_write(xml->stream, indent, len);
 	va_start(ap, fmt);
@@ -276,7 +276,7 @@ static void CAIRO_PRINTF_FORMAT(2, 3)
 _cairo_xml_printf_start(cairo_xml_t *xml, const char * fmt, ...)
 {
 	char indent[80];
-	int len = MIN(xml->indent, ARRAY_LENGTH(indent));
+	int len = MIN(xml->indent, SIZEOFARRAY(indent));
 	memset(indent, ' ', len);
 	_cairo_output_stream_write(xml->stream, indent, len);
 	if(fmt != NULL) {

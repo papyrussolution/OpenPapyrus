@@ -39,14 +39,14 @@
 #pragma hdrstop
 #ifndef CURL_DISABLE_FTP
 //#include <curl/curl.h>
-#include "urldata.h"
-#include "fileinfo.h"
-#include "llist.h"
-#include "strtoofft.h"
+//#include "urldata.h"
+//#include "fileinfo.h"
+//#include "llist.h"
+//#include "strtoofft.h"
 #include "ftp.h"
 #include "ftplistparser.h"
 #include "curl_fnmatch.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
 

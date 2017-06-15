@@ -28,7 +28,7 @@
  * This header should only be needed to get included by vtls.c and nss.c
  */
 
-#include "urldata.h"
+//#include "urldata.h"
 
 CURLcode Curl_nss_connect(struct connectdata *conn, int sockindex);
 CURLcode Curl_nss_connect_nonblocking(struct connectdata *conn, int sockindex, bool *done);

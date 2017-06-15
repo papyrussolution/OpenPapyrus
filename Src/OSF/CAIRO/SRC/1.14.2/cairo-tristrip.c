@@ -42,7 +42,7 @@ void _cairo_tristrip_init(cairo_tristrip_t * strip)
 	strip->status = CAIRO_STATUS_SUCCESS;
 	strip->num_limits = 0;
 	strip->num_points = 0;
-	strip->size_points = ARRAY_LENGTH(strip->points_embedded);
+	strip->size_points = SIZEOFARRAY(strip->points_embedded);
 	strip->points = strip->points_embedded;
 }
 

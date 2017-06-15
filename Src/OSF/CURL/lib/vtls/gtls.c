@@ -34,28 +34,26 @@
 #include <gnutls/abstract.h>
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
-
 #ifdef USE_GNUTLS_NETTLE
-#include <gnutls/crypto.h>
-#include <nettle/md5.h>
-#include <nettle/sha2.h>
+	#include <gnutls/crypto.h>
+	#include <nettle/md5.h>
+	#include <nettle/sha2.h>
 #else
-#include <gcrypt.h>
+	#include <gcrypt.h>
 #endif
-
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "inet_pton.h"
 #include "gtls.h"
 #include "vtls.h"
 #include "parsedate.h"
 #include "connect.h" /* for the connect timeout */
-#include "select.h"
+//#include "select.h"
 //#include "strcase.h"
 #include "warnless.h"
 #include "x509asn1.h"
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
 

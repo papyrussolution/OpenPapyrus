@@ -38,46 +38,36 @@
 	return strlen((const char*)data);
 }*/
 
-/* Converts a character 0-9 to its equivalent integer value */
-int ctoi(const char source)
+// Converts a character 0-9 to its equivalent integer value 
+/* @sobolev int FASTCALL ctoi_ReplacedWith_hex(const char source)
 {
-	if((source >= '0') && (source <= '9'))
-		return (source - '0');
-	return (source - 'A' + 10);
+	return ((source >= '0') && (source <= '9')) ? (source - '0') : (source - 'A' + 10);
+}*/
+
+// Converts an integer value to its hexadecimal character 
+char FASTCALL itoc(const int source)
+{
+	return ((source >= 0) && (source <= 9)) ? ('0' + source) : ('A' + (source - 10));
 }
 
-/* Converts an integer value to its hexadecimal character */
-char itoc(const int source)
-{
-	if((source >= 0) && (source <= 9)) {
-		return ('0' + source);
-	}
-	else {
-		return ('A' + (source - 10));
-	}
-}
-
-/* Converts lower case characters to upper case in a string source[] */
+// Converts lower case characters to upper case in a string source[] 
 void to_upper(uchar source[])
 {
-	size_t i, src_len = sstrlen(source);
-
-	for(i = 0; i < src_len; i++) {
+	const size_t src_len = sstrlen(source);
+	for(size_t i = 0; i < src_len; i++) {
 		if((source[i] >= 'a') && (source[i] <= 'z')) {
 			source [i] = (source[i] - 'a') + 'A';
 		}
 	}
 }
 
-/* Verifies that a string only uses valid characters */
+// Verifies that a string only uses valid characters 
 int is_sane(const char test_string[], const uchar source[], const size_t length)
 {
-	uint j, latch;
-	size_t i, lt = strlen(test_string);
-
-	for(i = 0; i < length; i++) {
-		latch = FALSE;
-		for(j = 0; j < lt; j++) {
+	const size_t lt = strlen(test_string);
+	for(size_t i = 0; i < length; i++) {
+		uint latch = FALSE;
+		for(size_t j = 0; j < lt; j++) {
 			if(source[i] == test_string[j]) {
 				latch = TRUE;
 				break;
@@ -87,16 +77,14 @@ int is_sane(const char test_string[], const uchar source[], const size_t length)
 			return ZINT_ERROR_INVALID_DATA;
 		}
 	}
-
 	return 0;
 }
 
 /* Returns the position of data in set_string */
 int posn(const char set_string[], const char data)
 {
-	size_t i, n = strlen(set_string);
-
-	for(i = 0; i < n; i++) {
+	const size_t n = strlen(set_string);
+	for(size_t i = 0; i < n; i++) {
 		if(data == set_string[i]) {
 			return i;
 		}
@@ -107,63 +95,60 @@ int posn(const char set_string[], const char data)
 /* Replaces huge switch statements for looking up in tables */
 void lookup(const char set_string[], const char * table[], const char data, char dest[])
 {
-	size_t i, n = strlen(set_string);
-
-	for(i = 0; i < n; i++) {
+	const size_t n = strlen(set_string);
+	for(size_t i = 0; i < n; i++) {
 		if(data == set_string[i]) {
 			strcat(dest, table[i]);
 		}
 	}
 }
-
-/* Return true (1) if a module is dark/black, otherwise false (0) */
+//
+// Return true (1) if a module is dark/black, otherwise false (0) 
+//
 int module_is_set(const struct ZintSymbol * symbol, const int y_coord, const int x_coord)
 {
 	return (symbol->encoded_data[y_coord][x_coord / 7] >> (x_coord % 7)) & 1;
 }
-
-/* Set a module to dark/black */
-void set_module(struct ZintSymbol * symbol, const int y_coord, const int x_coord)
+//
+// Set a module to dark/black 
+//
+void FASTCALL set_module(struct ZintSymbol * symbol, const int y_coord, const int x_coord)
 {
 	symbol->encoded_data[y_coord][x_coord / 7] |= 1 << (x_coord % 7);
 }
-
-/* Set (or unset) a module to white */
-void unset_module(struct ZintSymbol * symbol, const int y_coord, const int x_coord)
+//
+// Set (or unset) a module to white 
+//
+void FASTCALL unset_module(struct ZintSymbol * symbol, const int y_coord, const int x_coord)
 {
 	symbol->encoded_data[y_coord][x_coord / 7] &= ~(1 << (x_coord % 7));
 }
-
-/* Expands from a width pattern to a bit pattern */
-void expand(struct ZintSymbol * symbol, const char data[])
+//
+// Expands from a width pattern to a bit pattern 
+//
+void FASTCALL expand(struct ZintSymbol * symbol, const char data[])
 {
-	size_t reader, n = strlen(data);
-	int writer, i;
-	char latch;
-
-	writer = 0;
-	latch = '1';
-
-	for(reader = 0; reader < n; reader++) {
-		for(i = 0; i < ctoi(data[reader]); i++) {
+	const size_t n = strlen(data);
+	int writer = 0;
+	char latch = '1';
+	for(size_t reader = 0; reader < n; reader++) {
+		for(int i = 0; i < hex(data[reader]); i++) {
 			if(latch == '1') {
 				set_module(symbol, symbol->rows, writer);
 			}
 			writer++;
 		}
-
 		latch = (latch == '1' ? '0' : '1');
 	}
-
 	if(symbol->Std != BARCODE_PHARMA) {
 		if(writer > symbol->width) {
 			symbol->width = writer;
 		}
 	}
 	else {
-		/* Pharmacode One ends with a space - adjust for this */
-		if(writer > symbol->width + 2) {
-			symbol->width = writer - 2;
+		// Pharmacode One ends with a space - adjust for this 
+		if(writer > (symbol->width + 2)) {
+			symbol->width = (writer - 2);
 		}
 	}
 	symbol->rows = symbol->rows + 1;
@@ -253,11 +238,11 @@ int utf8toutf16(struct ZintSymbol * symbol, const uchar source[], int vals[], in
 		}
 		else {
 			if((source[bpos] >= 0x80) && (source[bpos] <= 0xbf)) {
-				strcpy(symbol->errtxt, "Corrupt Unicode data (B40)");
+				sstrcpy(symbol->errtxt, "Corrupt Unicode data (B40)");
 				return ZINT_ERROR_INVALID_DATA;
 			}
 			if((source[bpos] >= 0xc0) && (source[bpos] <= 0xc1)) {
-				strcpy(symbol->errtxt, "Overlong encoding not supported (B41)");
+				sstrcpy(symbol->errtxt, "Overlong encoding not supported (B41)");
 				return ZINT_ERROR_INVALID_DATA;
 			}
 
@@ -274,7 +259,7 @@ int utf8toutf16(struct ZintSymbol * symbol, const uchar source[], int vals[], in
 				jpos++;
 			}
 			else if(source[bpos] >= 0xf0)    {
-				strcpy(symbol->errtxt, "Unicode sequences of more than 3 bytes not supported (B42)");
+				sstrcpy(symbol->errtxt, "Unicode sequences of more than 3 bytes not supported (B42)");
 				return ZINT_ERROR_INVALID_DATA;
 			}
 		}

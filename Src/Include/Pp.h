@@ -3139,7 +3139,7 @@ public:
 	PPCheckInPersonArray & SLAPI Clear();
 	PPCheckInPersonArray & FASTCALL Copy(const PPCheckInPersonArray & rS);
 	PPCheckInPersonArray & FASTCALL operator = (const PPCheckInPersonArray & rS);
-	int    FASTCALL InitItem(PPCheckInPersonItem & rItem) const;
+	void   FASTCALL InitItem(PPCheckInPersonItem & rItem) const;
 	int    SLAPI SearchByID(PPID id, uint * pPos) const;
 	int    SLAPI SearchByNum(long num, uint * pPos) const;
 	int    SLAPI SearchItem(const PPCheckInPersonItem & rItem, uint * pPos) const;
@@ -3148,14 +3148,14 @@ public:
 	int    SLAPI UpdateItem(uint pos, const PPCheckInPersonItem & rItem, const PPCheckInPersonConfig * pCipCfg);
 	int    FASTCALL RemoveItem(uint pos);
 
-	int    SLAPI Normalize(int kind, PPID prmrID);
+	void   SLAPI Normalize(int kind, PPID prmrID);
 	//
 	// Descr: Вспомогательная функция, реализующая разрешение ссылок при синхронизации
 	//   объекта, который содержит 'кземпляр this.
 	//
 	int    SLAPI ProcessObjRefs(PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 
-	int    SLAPI InitIteration();
+	void   SLAPI InitIteration();
 	int    FASTCALL NextIteration(PPCheckInPersonItem & rItem);
 
 	int    SLAPI Count(uint * pRegCount, uint * pCiCount, uint * pCanceledCount) const;
@@ -7377,7 +7377,27 @@ public:
 	};
 	static int SLAPI GetStdName(int bcstd, SString & rBuf);
 	static int SLAPI RecognizeStdName(const char * pText);
-	static int SLAPI CreateImage(const char * pCode, int bcstd, int outpFormat, const char * pOutpFileName);
+
+	struct BarcodeImageParam {
+		SLAPI BarcodeImageParam();
+
+		int   Std;               // BARCSTD_XXX Стандарт штрихкода
+		int   OutputFormat;      // Формат вывода изображения:
+			// 0 - в буфер Buffer, SFileFormat::Png, SFileFormat::Svg, SFileFormat::Gif, SFileFormat::Bmp
+			// Остальные значения считаются инвалидными.
+		int   Angle;             // Угол поворота изображения. Допустимы следующие значения: 0, 90, 180, 270
+		TPoint Size;             // Размеры изображения в пикселах. Если 0, то используются размеры по умолчанию.
+		SColor ColorFg;          // Цвет штрихов. Если ColorFg == ZEROCOLOR, то - черный
+		SColor ColorBg;          // Цвет фона. Если ColorBg == ZROCOLOR, то - белый
+		SString Code;            // Текстовое представление кода, который необходимо отобразить
+		SString OutputFileName;  // Если oneof(OutputFormat, SFileFormat::Png, SFileFormat::Svg,
+			// SFileFormat::Gif, SFileFormat::Bmp),
+			// то изображение формируется в файле с этим именем. Расширение файла форсированно
+			// заменяется на каноническое для соответствующего формата.
+		SImageBuffer Buffer;     // Если OutputFormat == 0, то изображение формируется в этом буфере
+	};
+
+	static int SLAPI CreateImage(/*const char * pCode, int bcstd, int outpFormat, const char * pOutpFileName*/BarcodeImageParam & rParam);
 	static int SLAPI RecognizeImage(const char * pInpFileName, TSCollection <PPBarcode::Entry> & rList);
 	//
 	// Descr: Конвертирует штрихкод в формате UPC-E в формат UPC-A
@@ -13485,6 +13505,7 @@ private:
 #define CCHKF_FIXEDPRICE   0x00000200L // @v8.7.7 Цены по строкам чека зафиксированы. Если этот флаг не установлен,
 	// то строка чека все равно может иметь зафиксированную цену, если в ней установлен флаг CCheckPacket::LineExt::fFixedPrice
 #define CCHKF_ABSTRACTSALE 0x00000400L // @v9.5.10 Абстрактный товар (продажа по цене)
+#define CCHKF_ALTREG       0x00000800L // @v9.6.11 Чек отпечатан на альтернативном регистраторе
 #define CCHKF_NOTICE       0x00001000L // @v9.0.1 Специальный вид чека, используемый только для пометки некоторого события с одним или
 	// несколькими товарами. Чек с таким флагом автоматически получает флаги CCHKF_SKIP, CCHKF_SUSPENDED
 #define CCHKF_SYNC         0x00010000L // Чек сформирован синхронной сессией
@@ -27069,8 +27090,9 @@ public:
 		enum {
 			fDetectAlcByClass = 0x0001, // Идентифицировать алкогольную продукцию по принадлежности классу ExtBlock::AlcGoodsClsID.
 				// Если флаг не установлен или AlcGoodsClsID == 0, то - по принадлежности группе AlcGoodsGrpID
-			fWhToReg2ByLacks  = 0x0002  // Передавать остатки ЕГАИС со склада на регистр 2 по отрицательным значениям в текущих остатках ЕГАИС
+			fWhToReg2ByLacks  = 0x0002, // Передавать остатки ЕГАИС со склада на регистр 2 по отрицательным значениям в текущих остатках ЕГАИС
 				// на регистре 2.
+			fEgaisVer2Fmt     = 0x0004  // @v9.6.12 Применять 2-ю версию форматов ЕГАИС
 		};
 		//
 		// Descr: Варианты списания остатков с регистра 2 ЕГАИС
@@ -27469,7 +27491,7 @@ private:
 
 	GoodsFilt Filt;
 	PPObjGoodsStruc GSObj;
-	PPObjGoods      GObj;
+	PPObjGoods GObj;
 	TempGoodsStrucTbl * P_TempTbl;
 };
 //
@@ -27842,7 +27864,7 @@ private:
 	long   Flags;
 	PPID   CashNodeID;
 	PPAsyncCashNode AcnPack;
-	PPObjGoods  GObj;
+	PPObjGoods GObj;
 	SArray    * P_GrpList;
 	PPQuotArray QuotByQttyList; // Список котировок, применяемых для скидки на кол-во товаров из группы
 	DeviceLoadingStat * P_Dls;  // @notowned
@@ -27954,10 +27976,10 @@ private:
 	SString VerMissMsg;           // Шаблон сообщения для вывода информации о том, что товар,
 		// попавший в загрузку, не соответствует критерию нового алгоритма algUpdBills
 	PPAsyncCashNode AcnPack;      //
-	LAssocArray   BcPrefixList;   // Список весов, ассоциированных с префиксами штрихкодов
-	SysJournal    SJ;             //
-	CCurPriceTbl  CCP;            //
-	PPObjGoods    GObj;           //
+	LAssocArray BcPrefixList;     // Список весов, ассоциированных с префиксами штрихкодов
+	SysJournal SJ;                //
+	CCurPriceTbl CCP;             //
+	PPObjGoods GObj;              //
 	PPObjGoodsClass GcObj;        // @v8.5.4
 	PPObjLocPrinter LpObj;        //
 	PPObjCashNode CnObj;          // @v7.9.7
@@ -30203,8 +30225,8 @@ private:
 	GoodsSaldoCore * P_GsT;  //
 	PPObjSCard  * P_ScObj;   //
 	PPObjLocation LocObj;    //
-	PPObjGoods    GObj;      //
-	PPObjArticle  ArObj;     //
+	PPObjGoods GObj;         //
+	PPObjArticle ArObj;      //
 	TLP_MEMB(HistBillCore, HistBill);
 };
 
@@ -43475,11 +43497,11 @@ public:
 	SLAPI  PPEgaisProcessor(long cflags, PPLogger * pOuterLogger);
 	SLAPI ~PPEgaisProcessor();
 	int    SLAPI operator !() const;
-	int    SLAPI SetTestSendingMode(int set);
-	int    SLAPI SetNonRvmTagMode(int set);
+	void   SLAPI SetTestSendingMode(int set);
+	void   SLAPI SetNonRvmTagMode(int set);
 	int    SLAPI CheckLic() const;
 	int    SLAPI GetUtmList(PPID locID, TSArray <UtmEntry> & rList);
-	int    SLAPI SetUtmEntry(PPID locID, const UtmEntry * pEntry, const DateRange * pPeriod);
+	void   SLAPI SetUtmEntry(PPID locID, const UtmEntry * pEntry, const DateRange * pPeriod);
 	int    SLAPI GetFSRARID(PPID locID, SString & rBuf, PPID * pMainOrgID);
 	int    SLAPI GetURL(PPID locID, SString & rBuf);
 
@@ -43582,7 +43604,7 @@ private:
 	};
 	int    SLAPI WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
 	int    SLAPI WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, const EgaisPersonCore::Item & rRefcItem, long flags);
-	int    SLAPI WriteInformCode(SXml::WDoc & rXmlDoc, const char * pNs, char informKind, SString & rCode);
+	int    SLAPI WriteInformCode(SXml::WDoc & rXmlDoc, const char * pNs, char informKind, SString & rCode, int v2);
 	//
 	// Descr: Разбирает xml-ответ от сервера УТМ (<A></A>)
 	//
@@ -45778,6 +45800,36 @@ private:
 		int64  RefID;
         SString User;
 	};
+	struct StatBlock { // @persistent
+		SLAPI  StatBlock();
+		void   SLAPI Clear();
+		int    SLAPI Serialize(int dir, SBuffer & rBuffer, SSerializeContext * pSCtx);
+		uint64 SLAPI GetNcActualCount() const;
+		uint64 SLAPI GetNcProcessedCount() const;
+		uint64 SLAPI GetNcClusterCount() const;
+		uint64 SLAPI GetNcSize() const;
+
+		uint64 SLAPI GetWsCount() const;
+		uint64 SLAPI GetWsProcessedCount() const;
+		uint64 SLAPI GetWsSize() const;
+
+		uint64 NodeCount;
+		uint64 NakedNodeCount; // Количество узлов без тегов
+		uint64 WayCount;
+		uint64 RelationCount;
+		uint64 TagNodeCount;
+		uint64 TagWayCount;
+		uint64 TagRelCount;
+		TSArray <PPOsm::NodeClusterStatEntry> NcList;
+		TSArray <PPOsm::WayStatEntry> WayList;
+	};
+	struct RoadStone { // @persistent
+		SLAPI  RoadStone();
+		int    SLAPI Serialize(int dir, SBuffer & rBuffer, SSerializeContext * pSCtx);
+		SString SrcFileName;
+		long   Phase;
+		PrcssrOsm::StatBlock Stat;
+	};
 	static void Scb_StartDocument(void * ptr);
 	static void Scb_EndDocument(void * ptr);
 	static void Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList);
@@ -45791,6 +45843,7 @@ private:
 	int    SaxParseFile(xmlSAXHandlerPtr sax, const char * pFileName);
 	int    SaxStop();
 
+	int    SLAPI GetPhaseSymb(long phase, SString & rSymb) const;
 	int    SLAPI ReadCommonAttrSet(const char ** ppAttrList, CommonAttrSet & rSet);
 	int    FASTCALL FlashNodeAccum(int force);
 
@@ -45800,6 +45853,9 @@ private:
 	int    SLAPI CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint uppDim, TSCollection <SGeoGridTab> & rGridList);
 	int    SLAPI OutputStat(int detail);
 	int    SLAPI ProcessWaySizes();
+
+	int    SLAPI WriteRoadStone(RoadStone & rRs);
+	int    SLAPI ReadRoadStone(long phase, RoadStone & rRs);
 	//
 	enum {
 		stError = 0x0001
@@ -45827,30 +45883,9 @@ private:
 	PPOsm::Way  LastWay;
 	PPOsm::Relation LastRel;
 	//
-	struct StatBlock {
-		SLAPI  StatBlock();
-		void   SLAPI Clear();
-		uint64 SLAPI GetNcActualCount() const;
-		uint64 SLAPI GetNcProcessedCount() const;
-		uint64 SLAPI GetNcClusterCount() const;
-		uint64 SLAPI GetNcSize() const;
-
-		uint64 SLAPI GetWsCount() const;
-		uint64 SLAPI GetWsProcessedCount() const;
-		uint64 SLAPI GetWsSize() const;
-
-		uint64 NodeCount;
-		uint64 NakedNodeCount; // Количество узлов без тегов
-		uint64 WayCount;
-		uint64 RelationCount;
-		uint64 TagNodeCount;
-		uint64 TagWayCount;
-		uint64 TagRelCount;
-		TSArray <PPOsm::NodeClusterStatEntry> NcList;
-		TSArray <PPOsm::WayStatEntry> WayList;
-	};
 	StatBlock Stat;
 	StatBlock RestoredStat;
+	RoadStone * P_RoadStoneStat;
 
 	LongArray LatAccum;
 	LongArray LonAccum;
@@ -47419,7 +47454,7 @@ protected:
 class ObjRestrictListDialog : public PPListDialog {
 public:
 	ObjRestrictListDialog(uint dlgID, uint listCtlID);
-	int    setParams(PPID objType, ObjRestrictArray *);
+	void   setParams(PPID objType, ObjRestrictArray *);
 protected:
 	DECL_HANDLE_EVENT;
 	virtual int    setupList();
@@ -48837,7 +48872,7 @@ public:
 		accmJunk            = 3  // Сохранение временной копии чека (с флагами CCHKF_SUSPENDED|CCHKF_JUNK)
 	};
 
-	virtual int    AcceptCheck(const CcAmountList * pPl, double cash, int mode);
+	virtual int    AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode);
 	virtual void   ClearCheck();
 	virtual void   ClearRow();
 	virtual int    OnUpdateList(int goBottom);
@@ -48953,13 +48988,17 @@ protected:
 	//
 	struct AcceptCheckProcessBlock {
 		AcceptCheckProcessBlock();
+		enum {
+			fIsPack    = 0x0001,
+			fIsExtPack = 0x0002,
+			fAltReg    = 0x0004
+		};
 
 		int    R;
 		int    RExt;
 		int    SyncPrnErr;
 		int    ExtSyncPrnErr;
-		int    IsPack;
-		int    IsExtPack;
+		long   Flags;
 		CCheckTbl::Rec LastChkRec;
 		CCheckPacket Pack;
 		CCheckPacket ExtPack;
@@ -49214,6 +49253,7 @@ protected:
 	CardState CSt;
 	PPCashMachine    * P_CM;
 	PPCashMachine    * P_CM_EXT;
+	PPCashMachine    * P_CM_ALT; // @v9.6.11
 	GoodsToObjAssoc  * P_GTOA;
 	PPObjTSession    * P_TSesObj;
 	SArray           * P_DivGrpList;
@@ -49233,7 +49273,7 @@ public:
 	//
 	//
 	//
-	virtual int    AcceptCheck(const CcAmountList * pPl, double cash, int mode);
+	virtual int    AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode);
 	virtual void   ClearCheck();
 	virtual int    OnUpdateList(int goBottom);
 	//int    SetupModifier(PPID modGoodsID);

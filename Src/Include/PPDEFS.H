@@ -10158,6 +10158,10 @@
 	#define CTL_POSNQUERY_SESSL       (5 + WINDOWS_ID_BIAS)
 	#define CTL_POSNQUERY_INFO        (6 + WINDOWS_ID_BIAS)
 #define DLG_IMAGEINFO2            1321
+#define DLG_WOBARCODE             1322 // WhatmanObjectBarcode
+	#define CTL_WOBARCODE_CODE        (1 + WINDOWS_ID_BIAS)
+	#define CTL_WOBARCODE_STD         (2 + WINDOWS_ID_BIAS)
+	#define CTL_WOBARCODE_ANGLE       (3 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

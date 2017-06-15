@@ -1,8 +1,8 @@
 // Scintilla source code edit control
 /** @file CharacterSet.cxx
- ** Simple case functions for ASCII.
- ** Lexer infrastructure.
- **/
+** Simple case functions for ASCII.
+** Lexer infrastructure.
+**/
 // Copyright 1998-2010 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -19,12 +19,13 @@ using namespace Scintilla;
 namespace Scintilla {
 #endif
 
-int CompareCaseInsensitive(const char *a, const char *b) {
-	while (*a && *b) {
-		if (*a != *b) {
+int CompareCaseInsensitive(const char * a, const char * b)
+{
+	while(*a && *b) {
+		if(*a != *b) {
 			char upperA = static_cast<char>(MakeUpperCase(*a));
 			char upperB = static_cast<char>(MakeUpperCase(*b));
-			if (upperA != upperB)
+			if(upperA != upperB)
 				return upperA - upperB;
 		}
 		a++;
@@ -34,19 +35,20 @@ int CompareCaseInsensitive(const char *a, const char *b) {
 	return *a - *b;
 }
 
-int CompareNCaseInsensitive(const char *a, const char *b, size_t len) {
-	while (*a && *b && len) {
-		if (*a != *b) {
+int CompareNCaseInsensitive(const char * a, const char * b, size_t len)
+{
+	while(*a && *b && len) {
+		if(*a != *b) {
 			char upperA = static_cast<char>(MakeUpperCase(*a));
 			char upperB = static_cast<char>(MakeUpperCase(*b));
-			if (upperA != upperB)
+			if(upperA != upperB)
 				return upperA - upperB;
 		}
 		a++;
 		b++;
 		len--;
 	}
-	if (len == 0)
+	if(len == 0)
 		return 0;
 	else
 		// Either *a or *b is nul

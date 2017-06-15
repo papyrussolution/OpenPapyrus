@@ -274,7 +274,7 @@ int gif_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	if((symbol->output_options & BARCODE_STDOUT) != 0) {
 #ifdef _MSC_VER
 		if(-1 == _setmode(_fileno(stdout), _O_BINARY)) {
-			strcpy(symbol->errtxt, "Can't open output file");
+			sstrcpy(symbol->errtxt, "Can't open output file");
 			return ZINT_ERROR_FILE_ACCESS;
 		}
 #endif
@@ -282,7 +282,7 @@ int gif_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	}
 	else {
 		if(!(gif_file = fopen(symbol->outfile, "wb"))) {
-			strcpy(symbol->errtxt, "Can't open output file (F10)");
+			sstrcpy(symbol->errtxt, "Can't open output file (F10)");
 			return ZINT_ERROR_FILE_ACCESS;
 		}
 	}
@@ -312,22 +312,27 @@ int gif_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	 * the Screen Descriptor
 	 */
 	outbuf[4] = (uchar)(0xf0 | (0x7 & (DESTINATION_IMAGE_BITS - 1)));
-	/*  Background color = colortable index 0 */
+	//  Background color = colortable index 0 
 	outbuf[5] = 0x00;
-	/* Byte 7 must be 0x00  */
+	// Byte 7 must be 0x00  
 	outbuf[6] = 0x00;
 	fwrite(outbuf, 7, 1, gif_file);
-	/* Global Color Table (6) */
-	/* RGB 0 color */
-	outbuf[0] = (uchar)(16 * ctoi(symbol->bgcolour[0])) + ctoi(symbol->bgcolour[1]);
-	outbuf[1] = (uchar)(16 * ctoi(symbol->bgcolour[2])) + ctoi(symbol->bgcolour[3]);
-	outbuf[2] = (uchar)(16 * ctoi(symbol->bgcolour[4])) + ctoi(symbol->bgcolour[5]);
-	/* RGB 1 color */
-	outbuf[3] = (uchar)(16 * ctoi(symbol->fgcolour[0])) + ctoi(symbol->fgcolour[1]);
-	outbuf[4] = (uchar)(16 * ctoi(symbol->fgcolour[2])) + ctoi(symbol->fgcolour[3]);
-	outbuf[5] = (uchar)(16 * ctoi(symbol->fgcolour[4])) + ctoi(symbol->fgcolour[5]);
+	// Global Color Table (6) 
+	// RGB 0 color 
+	//outbuf[0] = (uchar)(16 * hex(symbol->bgcolour[0])) + hex(symbol->bgcolour[1]);
+	//outbuf[1] = (uchar)(16 * hex(symbol->bgcolour[2])) + hex(symbol->bgcolour[3]);
+	//outbuf[2] = (uchar)(16 * hex(symbol->bgcolour[4])) + hex(symbol->bgcolour[5]);
+	outbuf[0] = symbol->ColorBg.R;
+	outbuf[1] = symbol->ColorBg.G;
+	outbuf[2] = symbol->ColorBg.B;
+	// RGB 1 color 
+	//outbuf[3] = (uchar)(16 * hex(symbol->fgcolour[0])) + hex(symbol->fgcolour[1]);
+	//outbuf[4] = (uchar)(16 * hex(symbol->fgcolour[2])) + hex(symbol->fgcolour[3]);
+	//outbuf[5] = (uchar)(16 * hex(symbol->fgcolour[4])) + hex(symbol->fgcolour[5]);
+	outbuf[3] = symbol->ColorFg.R;
+	outbuf[4] = symbol->ColorFg.G;
+	outbuf[5] = symbol->ColorFg.B;
 	fwrite(outbuf, 6, 1, gif_file);
-
 	/* Graphic control extension (8) */
 	/* A graphic control extension block is used for overlay gifs.
 	 * This is necessary to define a transparent color.

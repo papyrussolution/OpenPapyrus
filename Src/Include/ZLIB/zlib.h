@@ -1021,7 +1021,7 @@ ZEXTERN int ZEXPORT inflateGetHeader OF((z_streamp strm, gz_headerp head));
  */
 
 /*
-   ZEXTERN int ZEXPORT inflateBackInit OF((z_streamp strm, int windowBits, unsigned char * window));
+   ZEXTERN int ZEXPORT inflateBackInit OF((z_streamp strm, int windowBits, uchar * window));
 
      Initialize the internal stream state for decompression using inflateBack()
    calls.  The fields zalloc, zfree and opaque in strm must be initialized
@@ -1041,8 +1041,8 @@ ZEXTERN int ZEXPORT inflateGetHeader OF((z_streamp strm, gz_headerp head));
    the version of the header file.
  */
 
-typedef unsigned (*in_func) OF ((void *, z_const unsigned char **));
-typedef int (*out_func) OF ((void *, unsigned char *, unsigned));
+typedef unsigned (*in_func) OF ((void *, z_const uchar **));
+typedef int (*out_func) OF ((void *, uchar *, unsigned));
 
 ZEXTERN int ZEXPORT inflateBack OF((z_streamp strm, in_func in, void * in_desc, out_func out, void * out_desc));
 /*
@@ -1173,8 +1173,7 @@ ZEXTERN uLong ZEXPORT zlibCompileFlags OF((void));
    you need special options.
  */
 
-ZEXTERN int ZEXPORT compress OF((Bytef *dest,   uLongf *destLen,
-	    const Bytef *source, uLong sourceLen));
+ZEXTERN int ZEXPORT compress OF((Bytef *dest,   uLongf *destLen, const Bytef *source, uLong sourceLen));
 /*
      Compresses the source buffer into the destination buffer.  sourceLen is
    the byte length of the source buffer.  Upon entry, destLen is the total size
@@ -1445,7 +1444,7 @@ ZEXTERN char * ZEXPORT gzgets OF((gzFile file, char * buf, int len));
 
 ZEXTERN int ZEXPORT gzputc OF((gzFile file, int c));
 /*
-     Writes c, converted to an unsigned char, into the compressed file.  gzputc
+     Writes c, converted to an uchar, into the compressed file.  gzputc
    returns the value that was written, or -1 in case of error.
  */
 
@@ -1699,17 +1698,14 @@ ZEXTERN int ZEXPORT deflateInit_(z_streamp strm, int level, const char * version
 ZEXTERN int ZEXPORT inflateInit_(z_streamp strm, const char * version, int stream_size);
 ZEXTERN int ZEXPORT deflateInit2_(z_streamp strm, int level, int method, int windowBits, int memLevel, int strategy, const char * version, int stream_size);
 ZEXTERN int ZEXPORT inflateInit2_(z_streamp strm, int windowBits, const char * version, int stream_size);
-ZEXTERN int ZEXPORT inflateBackInit_(z_streamp strm, int windowBits, unsigned char * window, const char * version, int stream_size);
+ZEXTERN int ZEXPORT inflateBackInit_(z_streamp strm, int windowBits, uchar * window, const char * version, int stream_size);
 #ifdef Z_PREFIX_SET
-#  define z_deflateInit(strm, level) \
-	deflateInit_((strm), (level), ZLIB_VERSION, (int)sizeof(z_stream))
-#  define z_inflateInit(strm) \
-	inflateInit_((strm), ZLIB_VERSION, (int)sizeof(z_stream))
-#  define z_deflateInit2(strm, level, method, windowBits, memLevel, strategy) \
-	deflateInit2_((strm), (level), (method), (windowBits), (memLevel), \
-	    (strategy), ZLIB_VERSION, (int)sizeof(z_stream))
-#  define z_inflateInit2(strm, windowBits)            inflateInit2_((strm), (windowBits), ZLIB_VERSION, (int)sizeof(z_stream))
-#  define z_inflateBackInit(strm, windowBits, window) inflateBackInit_((strm), (windowBits), (window), ZLIB_VERSION, (int)sizeof(z_stream))
+	#define z_deflateInit(strm, level) deflateInit_((strm), (level), ZLIB_VERSION, (int)sizeof(z_stream))
+	#define z_inflateInit(strm) inflateInit_((strm), ZLIB_VERSION, (int)sizeof(z_stream))
+	#define z_deflateInit2(strm, level, method, windowBits, memLevel, strategy) \
+		deflateInit2_((strm), (level), (method), (windowBits), (memLevel), (strategy), ZLIB_VERSION, (int)sizeof(z_stream))
+	#define z_inflateInit2(strm, windowBits)            inflateInit2_((strm), (windowBits), ZLIB_VERSION, (int)sizeof(z_stream))
+	#define z_inflateBackInit(strm, windowBits, window) inflateBackInit_((strm), (windowBits), (window), ZLIB_VERSION, (int)sizeof(z_stream))
 #else
 	#define deflateInit(strm, level) deflateInit_((strm), (level), ZLIB_VERSION, (int)sizeof(z_stream))
 	#define inflateInit(strm) inflateInit_((strm), ZLIB_VERSION, (int)sizeof(z_stream))
@@ -1729,7 +1725,7 @@ ZEXTERN int ZEXPORT inflateBackInit_(z_streamp strm, int windowBits, unsigned ch
  */
 struct gzFile_s {
 	unsigned have;
-	unsigned char * next;
+	uchar * next;
 	z_off64_t pos;
 };
 
@@ -1835,11 +1831,11 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	   define "local" for the non-static meaning of "static", for readability
 	   (compile with -Dlocal if your debugger can't find static symbols) */
 
-	typedef unsigned char uch;
-	typedef uch uchf;
-	typedef unsigned short ush;
-	typedef ush ushf;
-	typedef unsigned long ulg;
+	//typedef uchar uch_Removed;
+	//typedef uch uchf_Removed;
+	//typedef ushort ush_Removed;
+	//typedef ush ushf_Removed;
+	//typedef unsigned long ulg_Removed;
 
 	extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 	/* (size given to avoid silly warnings with Visual C++) */
@@ -2066,9 +2062,9 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	// the current table to the next table.  Each entry is four bytes. 
 	// 
 	typedef struct {
-		unsigned char op;       /* operation, extra bits, table bits */
-		unsigned char bits;     /* bits in this part of the code */
-		unsigned short val;     /* offset in table or code value */
+		uchar  op;       /* operation, extra bits, table bits */
+		uchar  bits;     /* bits in this part of the code */
+		ushort val;     /* offset in table or code value */
 	} ZInfTreesCode; // code
 	// 
 	// op values as set by inflate_table():
@@ -2101,7 +2097,7 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		DISTS
 	} codetype;
 
-	int ZLIB_INTERNAL inflate_table(codetype type, unsigned short * lens, unsigned codes, ZInfTreesCode ** table, unsigned * bits, unsigned short * work);
+	int ZLIB_INTERNAL inflate_table(codetype type, ushort * lens, unsigned codes, ZInfTreesCode ** table, unsigned * bits, ushort * work);
 	//#include "inflate.h"
 	//
 	// define NO_GZIP when compiling if you want to disable gzip header and
@@ -2192,7 +2188,7 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		unsigned wsize;         /* window size or zero if not using window */
 		unsigned whave;         /* valid bytes in the window */
 		unsigned wnext;         /* window write index */
-		unsigned char  * window; /* allocated sliding window, if needed */
+		uchar  * window; /* allocated sliding window, if needed */
 		/* bit accumulator */
 		unsigned long hold;     /* input bit accumulator */
 		unsigned bits;          /* number of bits in "in" */
@@ -2212,8 +2208,8 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		unsigned ndist;         /* number of distance code lengths */
 		unsigned have;          /* number of code lengths in lens[] */
 		ZInfTreesCode * next;        /* next available space in codes[] */
-		unsigned short lens[320]; /* temporary storage for code lengths */
-		unsigned short work[288]; /* work area for code table building */
+		ushort lens[320]; /* temporary storage for code lengths */
+		ushort work[288]; /* work area for code table building */
 		ZInfTreesCode codes[ENOUGH];     /* space for code tables */
 		int sane;               /* if false, allow invalid distance too far */
 		int back;               /* bits back of last unprocessed length/lit */
@@ -2257,12 +2253,12 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	//
 	typedef struct ct_data_s {
 		union {
-			ush freq; /* frequency count */
-			ush code; /* bit string */
+			ushort freq; /* frequency count */
+			ushort code; /* bit string */
 		} fc;
 		union {
-			ush dad; /* father node in Huffman tree */
-			ush len; /* length of bit string */
+			ushort dad; /* father node in Huffman tree */
+			ushort len; /* length of bit string */
 		} dl;
 	} ct_data;
 
@@ -2279,7 +2275,7 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		const static_tree_desc * stat_desc; /* the corresponding static tree */
 	} tree_desc;
 
-	typedef ush Pos;
+	typedef ushort Pos;
 	typedef Pos Posf;
 	typedef unsigned IPos;
 	//
@@ -2290,12 +2286,12 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		z_streamp strm;  /* pointer back to this zlib stream */
 		int status;      /* as the name implies */
 		Bytef * pending_buf; /* output still pending */
-		ulg pending_buf_size; /* size of pending_buf */
+		ulong pending_buf_size; /* size of pending_buf */
 		Bytef * pending_out; /* next pending byte to output to the stream */
-		ulg pending;     /* nb of bytes in the pending buffer */
+		ulong pending;     /* nb of bytes in the pending buffer */
 		int wrap;        /* bit 0 true for zlib, bit 1 true for gzip */
 		gz_headerp gzhead; /* gzip header information to write */
-		ulg gzindex;     /* where in extra, name, or comment */
+		ulong gzindex;     /* where in extra, name, or comment */
 		Byte method;     /* can only be DEFLATED */
 		int last_flush;  /* value of flush param for previous deflate call */
 
@@ -2313,7 +2309,7 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		 * the window size to 64K, which is quite useful on MSDOS.
 		 * To do: use the user input buffer as sliding window.
 		 */
-		ulg window_size; /* Actual size of window: 2*wSize, except when the user input buffer is directly used as sliding window. */
+		ulong window_size; /* Actual size of window: 2*wSize, except when the user input buffer is directly used as sliding window. */
 		Posf * prev; // Link to older string with same hash index. To limit the size of this
 			// array to 64K, this link is maintained only for the last 32K strings.
 			// An index in this array is thus a window index modulo 32K.
@@ -2357,15 +2353,15 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		struct tree_desc_s l_desc;           /* desc. for literal tree */
 		struct tree_desc_s d_desc;           /* desc. for distance tree */
 		struct tree_desc_s bl_desc;          /* desc. for bit length tree */
-		ush bl_count[MAX_BITS+1]; // number of codes at each bit length for an optimal tree 
+		ushort bl_count[MAX_BITS+1]; // number of codes at each bit length for an optimal tree 
 		int heap[2*L_CODES+1];  /* heap used to build the Huffman trees */
 		int heap_len;           /* number of elements in the heap */
 		int heap_max;           /* element of largest frequency */
 		/* The sons of heap[n] are heap[2*n] and heap[2*n+1]. heap[0] is not used.
 		 * The same heap array is used to build all trees.
 		 */
-		uch depth[2*L_CODES+1]; // Depth of each subtree used as tie breaker for trees of equal frequency
-		uchf * l_buf;     /* buffer for literals or lengths */
+		uchar depth[2*L_CODES+1]; // Depth of each subtree used as tie breaker for trees of equal frequency
+		uchar * l_buf;     /* buffer for literals or lengths */
 		uInt lit_bufsize;
 		/* Size of match buffer for literals/lengths.  There are 4 reasons for
 		 * limiting lit_bufsize to 64K:
@@ -2386,20 +2382,20 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		 *   - I can't count above 4
 		 */
 		uInt last_lit;  /* running index in l_buf */
-		ushf * d_buf; // Buffer for distances. To simplify the code, d_buf and l_buf have
+		ushort * d_buf; // Buffer for distances. To simplify the code, d_buf and l_buf have
 			// the same number of elements. To use different lengths, an extra flag
 			// array would be necessary.
-		ulg opt_len;    /* bit length of current block with optimal trees */
-		ulg static_len; /* bit length of current block with static trees */
+		ulong opt_len;    /* bit length of current block with optimal trees */
+		ulong static_len; /* bit length of current block with static trees */
 		uInt matches;   /* number of string matches in current block */
 		uInt insert;    /* bytes at end of window left to insert */
 	#ifdef ZLIB_DEBUG
-		ulg compressed_len; /* total bit length of compressed file mod 2^32 */
-		ulg bits_sent;  /* bit length of compressed data sent mod 2^32 */
+		ulong compressed_len; /* total bit length of compressed file mod 2^32 */
+		ulong bits_sent;  /* bit length of compressed data sent mod 2^32 */
 	#endif
-		ush bi_buf; // Output buffer. bits are inserted starting at the bottom (least significant bits).
+		ushort bi_buf; // Output buffer. bits are inserted starting at the bottom (least significant bits).
 		int bi_valid;   // Number of valid bits in bi_buf.  All bits above the last valid bit are always zero.
-		ulg high_water; // High water mark offset in window for initialized bytes -- bytes above
+		ulong high_water; // High water mark offset in window for initialized bytes -- bytes above
 			// this are set to zero in order to avoid memory check warnings when
 			// longest match routines access bytes past the input.  This is then updated to the new high water mark.
 	} deflate_state;
@@ -2416,10 +2412,10 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	/* in trees.c */
 	void ZLIB_INTERNAL _tr_init(deflate_state *s);
 	int ZLIB_INTERNAL _tr_tally(deflate_state *s, unsigned dist, unsigned lc);
-	void ZLIB_INTERNAL _tr_flush_block(deflate_state *s, charf *buf, ulg stored_len, int last);
+	void ZLIB_INTERNAL _tr_flush_block(deflate_state *s, charf *buf, ulong stored_len, int last);
 	void ZLIB_INTERNAL _tr_flush_bits(deflate_state *s);
 	void ZLIB_INTERNAL _tr_align(deflate_state *s);
-	void ZLIB_INTERNAL _tr_stored_block(deflate_state *s, charf *buf, ulg stored_len, int last);
+	void ZLIB_INTERNAL _tr_stored_block(deflate_state *s, charf *buf, ulong stored_len, int last);
 
 	#define d_code(dist) ((dist) < 256 ? _dist_code[dist] : _dist_code[256+((dist)>>7)])
 	/* Mapping from a distance to a distance code. dist is the distance - 1 and
@@ -2428,22 +2424,22 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 
 	#ifndef ZLIB_DEBUG // Inline versions of _tr_tally for speed: 
 	#if defined(GEN_TREES_H) || !defined(STDC)
-		extern uch ZLIB_INTERNAL _length_code[];
-		extern uch ZLIB_INTERNAL _dist_code[];
+		extern uchar ZLIB_INTERNAL _length_code[];
+		extern uchar ZLIB_INTERNAL _dist_code[];
 	#else
-		extern const uch ZLIB_INTERNAL _length_code[];
-		extern const uch ZLIB_INTERNAL _dist_code[];
+		extern const uchar ZLIB_INTERNAL _length_code[];
+		extern const uchar ZLIB_INTERNAL _dist_code[];
 	#endif
 	#define _tr_tally_lit(s, c, flush) \
-		{ uch cc = (c);	\
+		{ uchar cc = (c);	\
 		  s->d_buf[s->last_lit] = 0; \
 		  s->l_buf[s->last_lit++] = cc;	\
 		  s->dyn_ltree[cc].Freq++; \
 		  flush = (s->last_lit == s->lit_bufsize-1); \
 		}
 	#define _tr_tally_dist(s, distance, length, flush) \
-		{ uch len = (uch)(length); \
-		  ush dist = (ush)(distance); \
+		{ uchar len = (uchar)(length); \
+		  ushort dist = (ushort)(distance); \
 		  s->d_buf[s->last_lit] = dist;	\
 		  s->l_buf[s->last_lit++] = len; \
 		  dist--; \

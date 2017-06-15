@@ -42,7 +42,7 @@
 
 #if CAIRO_HAS_FT_FONT // {
 
-#define _BSD_SOURCE /* for strdup() */
+#define _BSD_SOURCE /* for sstrdup() */
 
 #include "cairo-image-surface-private.h"
 #include "cairo-ft-private.h"
@@ -410,7 +410,7 @@ static cairo_status_t _cairo_ft_unscaled_font_init(cairo_ft_unscaled_font_t * un
 		unscaled->from_face = FALSE;
 		unscaled->face = NULL;
 
-		filename_copy = strdup(filename);
+		filename_copy = sstrdup(filename);
 		if(unlikely(filename_copy == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 

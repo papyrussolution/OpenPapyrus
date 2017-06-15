@@ -1,5 +1,5 @@
 // WHATMAN.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016
+// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>

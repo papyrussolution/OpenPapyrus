@@ -24,47 +24,42 @@
 #pragma hdrstop
 #ifdef USE_NGHTTP2
 #include <nghttp2/nghttp2.h>
-#include "urldata.h"
+//#include "urldata.h"
 #include "http2.h"
 #include "http.h"
-#include "sendf.h"
-#include "curl_base64.h"
+//#include "sendf.h"
+//#include "curl_base64.h"
 //#include "strcase.h"
 #include "multiif.h"
 #include "conncache.h"
-#include "url.h"
+//#include "url.h"
 #include "connect.h"
-#include "strtoofft.h"
-#include "strdup.h"
-/* The last 3 #include files should be in this order */
+//#include "strtoofft.h"
+//#include "strdup.h"
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 #define MIN(x, y) ((x)<(y) ? (x) : (y))
 
 #if (NGHTTP2_VERSION_NUM < 0x010000)
-#error too old nghttp2 version, upgrade!
+	#error too old nghttp2 version, upgrade!
 #endif
-
 #if (NGHTTP2_VERSION_NUM > 0x010800)
-#define NGHTTP2_HAS_HTTP2_STRERROR 1
+	#define NGHTTP2_HAS_HTTP2_STRERROR 1
 #endif
-
 #if (NGHTTP2_VERSION_NUM >= 0x010900)
-/* nghttp2_session_callbacks_set_error_callback is present in nghttp2 1.9.0 or
-   later */
-#define NGHTTP2_HAS_ERROR_CALLBACK 1
+	// nghttp2_session_callbacks_set_error_callback is present in nghttp2 1.9.0 or later 
+	#define NGHTTP2_HAS_ERROR_CALLBACK 1
 #else
-#define nghttp2_session_callbacks_set_error_callback(x, y)
+	#define nghttp2_session_callbacks_set_error_callback(x, y)
 #endif
-
 #if (NGHTTP2_VERSION_NUM >= 0x010c00)
-#define NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE 1
+	#define NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE 1
 #endif
 
 #define HTTP2_HUGE_WINDOW_SIZE (1 << 30)
-
 /*
  * Curl_http2_init_state() is called when the easy handle is created and
  * allows for HTTP/2 specific init of state.
@@ -73,7 +68,6 @@ void Curl_http2_init_state(struct UrlState * state)
 {
 	state->stream_weight = NGHTTP2_DEFAULT_WEIGHT;
 }
-
 /*
  * Curl_http2_init_userset() is called when the easy handle is created and
  * allows for HTTP/2 specific user-set fields.
@@ -83,39 +77,24 @@ void Curl_http2_init_userset(struct UserDefined * set)
 	set->stream_weight = NGHTTP2_DEFAULT_WEIGHT;
 }
 
-static int http2_perform_getsock(const struct connectdata * conn,
-    curl_socket_t * sock,                             /* points to
-                                                         numsocks
-                                                         number of
-                                                         sockets */
-    int numsocks)
+static int http2_perform_getsock(const struct connectdata * conn, curl_socket_t * sock/* points to numsocks number of sockets */, int numsocks)
 {
 	const struct http_conn * c = &conn->proto.httpc;
 	int bitmap = GETSOCK_BLANK;
 	(void)numsocks;
-
-	/* TODO We should check underlying socket state if it is SSL socket
-	   because of renegotiation. */
+	// TODO We should check underlying socket state if it is SSL socket because of renegotiation. 
 	sock[0] = conn->sock[FIRSTSOCKET];
-
-	/* in a HTTP/2 connection we can basically always get a frame so we should
-	   always be ready for one */
+	// in a HTTP/2 connection we can basically always get a frame so we should always be ready for one 
 	bitmap |= GETSOCK_READSOCK(FIRSTSOCKET);
-
 	if(nghttp2_session_want_write(c->h2))
 		bitmap |= GETSOCK_WRITESOCK(FIRSTSOCKET);
-
 	return bitmap;
 }
 
-static int http2_getsock(struct connectdata * conn,
-    curl_socket_t * sock,                     /* points to numsocks
-                                                 number of sockets */
-    int numsocks)
+static int http2_getsock(struct connectdata * conn, curl_socket_t * sock/* points to numsocks number of sockets */, int numsocks)
 {
 	return http2_perform_getsock(conn, sock, numsocks);
 }
-
 /*
  * http2_stream_free() free HTTP2 stream related data
  */

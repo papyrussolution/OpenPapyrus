@@ -88,13 +88,13 @@ int SLAPI SCS_SYNCSYM::InitChannel()
 	return 1;
 }
 
-#define AXIOHM_CMD_SETCHARTBL_BYTE1	0x1B
-#define AXIOHM_CMD_SETCHARTBL_BYTE2	0x52
-#define AXIOHM_CMD_CODETABL_CP866_ID	0x07 // CP-866
-#define AXIOHM_CMD_LINESPACE_BYTE1	0x1B
-#define AXIOHM_CMD_LINESPACE_BYTE2	0x33
-#define AXIOHM_CMD_PRINTANDFEEDLINE	0x0A
-#define AXIOHM_CMD_FULLCUT			0x19
+#define AXIOHM_CMD_SETCHARTBL_BYTE1  0x1B
+#define AXIOHM_CMD_SETCHARTBL_BYTE2  0x52
+#define AXIOHM_CMD_CODETABL_CP866_ID 0x07 // CP-866
+#define AXIOHM_CMD_LINESPACE_BYTE1   0x1B
+#define AXIOHM_CMD_LINESPACE_BYTE2   0x33
+#define AXIOHM_CMD_PRINTANDFEEDLINE  0x0A
+#define AXIOHM_CMD_FULLCUT           0x19
 
 int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 {
@@ -104,18 +104,16 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 	if(PrinterPort.Len()) {
 		if(TextOutput) {
 			int    port_no = 0;
-			long   s_com = 0x004D4F43L; // "COM"
 			DWORD  sz = 0;
 			SString name;
 			HANDLE h_port = INVALID_HANDLE_VALUE;
 			HANDLE printer = INVALID_HANDLE_VALUE;
-			PRINTER_INFO_2 * p_prn_info = 0;
-			THROW(OpenPrinter((char *)(const char *)PrinterPort, &printer, NULL)); // @unicodeproblem
+			THROW(OpenPrinter((char *)PrinterPort.cptr(), &printer, NULL)); // @unicodeproblem
 			if(printer != INVALID_HANDLE_VALUE) {
 				DWORD info_size = 0;
 				GetPrinter(printer, 2, NULL, info_size, &info_size);
 				if(info_size) {
-					p_prn_info = (PRINTER_INFO_2*)SAlloc::M(info_size);
+					PRINTER_INFO_2 * p_prn_info = (PRINTER_INFO_2*)SAlloc::M(info_size);
 					if(p_prn_info) {
 						memzero(p_prn_info, info_size);
 						if(GetPrinter(printer, 2, (LPBYTE)p_prn_info, info_size, &info_size))
@@ -126,25 +124,22 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 			}
 			ClosePrinter(printer);
 			// ≈сли номер com-порта не определен, то по умолчанию будет com1
-			(name = 0).CatCharN('\\', 2).Dot().CatChar('\\').Cat((char *)&s_com).Cat(port_no+1);
+			(name = 0).CatCharN('\\', 2).Dot().CatChar('\\').Cat("COM").Cat(port_no+1);
 			if(h_port != INVALID_HANDLE_VALUE) {
 				CloseHandle(h_port);
 				h_port = INVALID_HANDLE_VALUE;
 			}
 			h_port = ::CreateFile(name, GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
-
 			// —тавим кодовую таблицу CP-866
 			{
-				const char cmd[3] = { AXIOHM_CMD_SETCHARTBL_BYTE1, AXIOHM_CMD_SETCHARTBL_BYTE2, AXIOHM_CMD_CODETABL_CP866_ID };
+				const char cmd[] = { AXIOHM_CMD_SETCHARTBL_BYTE1, AXIOHM_CMD_SETCHARTBL_BYTE2, AXIOHM_CMD_CODETABL_CP866_ID };
 				THROW(WriteFile(h_port, cmd, sizeof(cmd), &sz, 0));
 			}
-
 			// ”становим меньшее рассто€ние между строками (специально дл€ евреев)
 			{
-				const char cmd[3] = { AXIOHM_CMD_LINESPACE_BYTE1, AXIOHM_CMD_LINESPACE_BYTE2, 1 };
+				const char cmd[] = { AXIOHM_CMD_LINESPACE_BYTE1, AXIOHM_CMD_LINESPACE_BYTE2, 1 };
 				THROW(WriteFile(h_port, cmd, sizeof(cmd), &sz, 0));
 			}
-
 			for(uint i = 0; i < pPrnLines->getCount(); i++) {
 				PrnLineStruc * p_prn_line = pPrnLines->at(i);
 				p_prn_line->PrnBuf.CatChar(AXIOHM_CMD_PRINTANDFEEDLINE).Transf(CTRANSF_OUTER_TO_INNER);
@@ -173,13 +168,15 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 				MEMSZERO(di);
 				di.cbSize = sizeof(DOCINFO);
 				di.lpszDocName = _T("Check");
-				di.lpszOutput = (LPTSTR)NULL;
-				di.lpszDatatype = (LPTSTR)NULL;
+				di.lpszOutput = 0;
+				di.lpszDatatype = 0;
 				di.fwType = 0;
 				THROW(StartDoc(PrinterDC, &di) != SP_ERROR); // @unicodeproblem
 				{
-					int    w = GetDeviceCaps(PrinterDC, HORZRES), h = GetDeviceCaps(PrinterDC, VERTRES);
-					HFONT  font = 0, old_font = 0;
+					const  int w = GetDeviceCaps(PrinterDC, HORZRES);
+					const  int h = GetDeviceCaps(PrinterDC, VERTRES);
+					HFONT  font = 0;
+					HFONT  old_font = 0;
 					RECT   rc;
 					MEMSZERO(rc);
 					rc.top    = 2;

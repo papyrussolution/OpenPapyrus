@@ -29,15 +29,15 @@
 
 #ifdef USE_NSS
 
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "formdata.h" /* for the boundary function */
-#include "url.h" /* for the ssl config check function */
+//#include "url.h" /* for the ssl config check function */
 #include "connect.h"
 //#include "strcase.h"
-#include "select.h"
+//#include "select.h"
 #include "vtls.h"
-#include "llist.h"
+//#include "llist.h"
 #include "curl_printf.h"
 #include "nssg.h"
 #include <nspr.h>
@@ -67,9 +67,8 @@
 //#include "strcase.h"
 #include "warnless.h"
 #include "x509asn1.h"
-
 /* The last #include files should be: */
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 #define SSL_DIR "/etc/pki/nssdb"

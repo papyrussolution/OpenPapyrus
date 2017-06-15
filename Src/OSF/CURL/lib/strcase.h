@@ -22,8 +22,7 @@
  *
  ***************************************************************************/
 
-#include <curl/curl.h>
-
+//#include <curl/curl.h>
 /*
  * Only "raw" case insensitive strings. This is meant to be locale independent
  * and only compare strings we know are safe for this.

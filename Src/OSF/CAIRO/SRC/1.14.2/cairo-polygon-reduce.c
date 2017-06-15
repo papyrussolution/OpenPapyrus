@@ -795,7 +795,7 @@ static inline int cairo_bo_event_compare(const cairo_bo_event_t * a,
 
 static inline void _pqueue_init(pqueue_t * pq)
 {
-	pq->max_size = ARRAY_LENGTH(pq->elements_embedded);
+	pq->max_size = SIZEOFARRAY(pq->elements_embedded);
 	pq->size = 0;
 
 	pq->elements = pq->elements_embedded;
@@ -1327,7 +1327,7 @@ cairo_status_t _cairo_polygon_reduce(cairo_polygon_t * polygon,
 	cairo_status_t status;
 	cairo_bo_start_event_t stack_events[CAIRO_STACK_ARRAY_LENGTH(cairo_bo_start_event_t)];
 	cairo_bo_start_event_t * events;
-	cairo_bo_event_t * stack_event_ptrs[ARRAY_LENGTH(stack_events) + 1];
+	cairo_bo_event_t * stack_event_ptrs[SIZEOFARRAY(stack_events) + 1];
 	cairo_bo_event_t ** event_ptrs;
 	int num_limits;
 	int num_events;
@@ -1345,7 +1345,7 @@ cairo_status_t _cairo_polygon_reduce(cairo_polygon_t * polygon,
 
 	events = stack_events;
 	event_ptrs = stack_event_ptrs;
-	if(num_events > ARRAY_LENGTH(stack_events)) {
+	if(num_events > SIZEOFARRAY(stack_events)) {
 		events = (cairo_bo_start_event_t *)_cairo_malloc_ab_plus_c(num_events,
 		    sizeof(cairo_bo_start_event_t) +
 		    sizeof(cairo_bo_event_t *),

@@ -26,17 +26,16 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include <curl/curl.h>
-#include "urldata.h"
+//#include "urldata.h"
 #include "vauth/vauth.h"
-#include "curl_base64.h"
+//#include "curl_base64.h"
 #include "curl_md5.h"
 #include "warnless.h"
 //#include "strtok.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "curl_printf.h"
-
-/* The last #include files should be: */
-#include "curl_memory.h"
+// The last #include files should be
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /*
@@ -56,10 +55,7 @@
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_plain_message(struct Curl_easy * data,
-    const char * userp,
-    const char * passwdp,
-    char ** outptr, size_t * outlen)
+CURLcode Curl_auth_create_plain_message(struct Curl_easy * data, const char * userp, const char * passwdp, char ** outptr, size_t * outlen)
 {
 	CURLcode result;
 	char * plainauth;
@@ -93,14 +89,11 @@ CURLcode Curl_auth_create_plain_message(struct Curl_easy * data,
 	memcpy(plainauth + ulen + 1, userp, ulen);
 	plainauth[2 * ulen + 1] = '\0';
 	memcpy(plainauth + 2 * ulen + 2, passwdp, plen);
-
 	/* Base64 encode the reply */
 	result = Curl_base64_encode(data, plainauth, plainlen, outptr, outlen);
 	SAlloc::F(plainauth);
-
 	return result;
 }
-
 /*
  * Curl_auth_create_login_message()
  *
@@ -117,12 +110,9 @@ CURLcode Curl_auth_create_plain_message(struct Curl_easy * data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_login_message(struct Curl_easy * data,
-    const char * valuep, char ** outptr,
-    size_t * outlen)
+CURLcode Curl_auth_create_login_message(struct Curl_easy * data, const char * valuep, char ** outptr, size_t * outlen)
 {
 	size_t vlen = strlen(valuep);
-
 	if(!vlen) {
 		/* Calculate an empty reply */
 		*outptr = _strdup("=");
@@ -130,11 +120,9 @@ CURLcode Curl_auth_create_login_message(struct Curl_easy * data,
 			*outlen = (size_t)1;
 			return CURLE_OK;
 		}
-
 		*outlen = 0;
 		return CURLE_OUT_OF_MEMORY;
 	}
-
 	/* Base64 encode the value */
 	return Curl_base64_encode(data, valuep, vlen, outptr, outlen);
 }
@@ -155,9 +143,7 @@ CURLcode Curl_auth_create_login_message(struct Curl_easy * data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_external_message(struct Curl_easy * data,
-    const char * user, char ** outptr,
-    size_t * outlen)
+CURLcode Curl_auth_create_external_message(struct Curl_easy * data, const char * user, char ** outptr, size_t * outlen)
 {
 	/* This is the same formatting as the login message */
 	return Curl_auth_create_login_message(data, user, outptr, outlen);

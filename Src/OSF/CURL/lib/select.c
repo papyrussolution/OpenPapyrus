@@ -39,9 +39,9 @@
 	#include <strings.h>  /* bzero() in FD_SET */
 #endif
 //#include <curl/curl.h>
-#include "urldata.h"
+//#include "urldata.h"
 #include "connect.h"
-#include "select.h"
+//#include "select.h"
 #include "warnless.h"
 
 /* Convenience local macros */

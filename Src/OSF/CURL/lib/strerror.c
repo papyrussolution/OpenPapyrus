@@ -40,10 +40,10 @@
 #ifdef USE_WINDOWS_SSPI
 	#include "curl_sspi.h"
 #endif
-#include "strerror.h"
+//#include "strerror.h"
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 const char * curl_easy_strerror(CURLcode error)

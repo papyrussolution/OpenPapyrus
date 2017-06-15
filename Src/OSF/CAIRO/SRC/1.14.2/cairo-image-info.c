@@ -216,11 +216,11 @@ _cairo_image_info_get_jpx_info (cairo_image_info_t	*info,
     const uchar *end = data + length;
 
     /* First 12 bytes must be the JPEG 2000 signature box. */
-    if (length < ARRAY_LENGTH(_jpx_signature) ||
-	memcmp(p, _jpx_signature, ARRAY_LENGTH(_jpx_signature)) != 0)
+    if (length < SIZEOFARRAY(_jpx_signature) ||
+	memcmp(p, _jpx_signature, SIZEOFARRAY(_jpx_signature)) != 0)
 	return CAIRO_INT_STATUS_UNSUPPORTED;
 
-    p += ARRAY_LENGTH(_jpx_signature);
+    p += SIZEOFARRAY(_jpx_signature);
 
     /* Next box must be a File Type Box */
     if (! _jpx_match_box (p, end, JPX_FILETYPE))

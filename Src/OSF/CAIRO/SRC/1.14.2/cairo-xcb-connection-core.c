@@ -196,10 +196,10 @@ static void _cairo_xcb_connection_do_put_subimage(cairo_xcb_connection_t * conne
 	req.pad0[0] = 0;
 	req.pad0[1] = 0;
 
-	if(entries_needed > ARRAY_LENGTH(vec_stack)) {
+	if(entries_needed > SIZEOFARRAY(vec_stack)) {
 		vec = _cairo_malloc_ab(entries_needed, sizeof(struct iovec));
 		if(unlikely(vec == NULL)) {
-			/* XXX loop over ARRAY_LENGTH (vec_stack) */
+			/* XXX loop over SIZEOFARRAY (vec_stack) */
 			return;
 		}
 	}

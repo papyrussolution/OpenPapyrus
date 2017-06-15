@@ -452,51 +452,39 @@ void PNGAPI png_set_sCAL_fixed(png_const_structrp png_ptr, png_inforp info_ptr, 
 #endif
 
 #ifdef PNG_pHYs_SUPPORTED
-void PNGAPI png_set_pHYs(png_const_structrp png_ptr, png_inforp info_ptr,
-    uint32 res_x, uint32 res_y, int unit_type)
+void PNGAPI png_set_pHYs(png_const_structrp png_ptr, png_inforp info_ptr, uint32 res_x, uint32 res_y, int unit_type)
 {
 	png_debug1(1, "in %s storage function", "pHYs");
-
-	if(png_ptr == NULL || info_ptr == NULL)
-		return;
-
-	info_ptr->x_pixels_per_unit = res_x;
-	info_ptr->y_pixels_per_unit = res_y;
-	info_ptr->phys_unit_type = (uint8)unit_type;
-	info_ptr->valid |= PNG_INFO_pHYs;
+	if(png_ptr && info_ptr) {
+		info_ptr->x_pixels_per_unit = res_x;
+		info_ptr->y_pixels_per_unit = res_y;
+		info_ptr->phys_unit_type = (uint8)unit_type;
+		info_ptr->valid |= PNG_INFO_pHYs;
+	}
 }
 
 #endif
 
-void PNGAPI png_set_PLTE(png_structrp png_ptr, png_inforp info_ptr,
-    png_const_colorp palette, int num_palette)
+void PNGAPI png_set_PLTE(png_structrp png_ptr, png_inforp info_ptr, png_const_colorp palette, int num_palette)
 {
 	uint32 max_palette_length;
-
 	png_debug1(1, "in %s storage function", "PLTE");
-
 	if(png_ptr == NULL || info_ptr == NULL)
 		return;
-
-	max_palette_length = (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE) ?
-	    (1 << info_ptr->bit_depth) : PNG_MAX_PALETTE_LENGTH;
-
+	max_palette_length = (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE) ? (1 << info_ptr->bit_depth) : PNG_MAX_PALETTE_LENGTH;
 	if(num_palette < 0 || num_palette > (int)max_palette_length) {
 		if(info_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
 			png_error(png_ptr, "Invalid palette length");
-
 		else {
 			png_warning(png_ptr, "Invalid palette length");
-
 			return;
 		}
 	}
 
-	if((num_palette > 0 && palette == NULL) ||
-	    (num_palette == 0
-#        ifdef PNG_MNG_FEATURES_SUPPORTED
+	if((num_palette > 0 && palette == NULL) || (num_palette == 0
+#ifdef PNG_MNG_FEATURES_SUPPORTED
 		    && (png_ptr->mng_features_permitted & PNG_FLAG_MNG_EMPTY_PLTE) == 0
-#        endif
+#endif
 	    )) {
 		png_error(png_ptr, "Invalid palette");
 	}
@@ -514,28 +502,21 @@ void PNGAPI png_set_PLTE(png_structrp png_ptr, png_inforp info_ptr,
 	 * of num_palette entries, in case of an invalid PNG file or incorrect
 	 * call to png_set_PLTE() with too-large sample values.
 	 */
-	png_ptr->palette = png_voidcast(png_colorp, png_calloc(png_ptr,
-		    PNG_MAX_PALETTE_LENGTH * (sizeof(png_color))));
-
+	png_ptr->palette = png_voidcast(png_colorp, png_calloc(png_ptr, PNG_MAX_PALETTE_LENGTH * (sizeof(SColorRGB))));
 	if(num_palette > 0)
-		memcpy(png_ptr->palette, palette, num_palette * (sizeof(png_color)));
+		memcpy(png_ptr->palette, palette, num_palette * (sizeof(SColorRGB)));
 	info_ptr->palette = png_ptr->palette;
 	info_ptr->num_palette = png_ptr->num_palette = (png_uint_16)num_palette;
-
 	info_ptr->free_me |= PNG_FREE_PLTE;
-
 	info_ptr->valid |= PNG_INFO_PLTE;
 }
 
 #ifdef PNG_sBIT_SUPPORTED
-void PNGAPI png_set_sBIT(png_const_structrp png_ptr, png_inforp info_ptr,
-    png_const_color_8p sig_bit)
+void PNGAPI png_set_sBIT(png_const_structrp png_ptr, png_inforp info_ptr, png_const_color_8p sig_bit)
 {
 	png_debug1(1, "in %s storage function", "sBIT");
-
 	if(png_ptr == NULL || info_ptr == NULL || sig_bit == NULL)
 		return;
-
 	info_ptr->sig_bit = *sig_bit;
 	info_ptr->valid |= PNG_INFO_sBIT;
 }

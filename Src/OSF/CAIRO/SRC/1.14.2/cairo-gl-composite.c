@@ -337,7 +337,7 @@ static void _cairo_gl_set_operator(cairo_gl_context_t * ctx, cairo_operator_t op
 	};
 	GLenum src_factor, dst_factor;
 
-	assert(op < ARRAY_LENGTH(blend_factors));
+	assert(op < SIZEOFARRAY(blend_factors));
 	/* different dst and component_alpha changes cause flushes elsewhere */
 	if(ctx->current_operator != op)
 		_cairo_gl_composite_flush(ctx);
@@ -828,7 +828,7 @@ void _cairo_gl_composite_flush(cairo_gl_context_t * ctx)
 		assert(ctx->primitive_type == CAIRO_GL_PRIMITIVE_TYPE_TRIANGLES);
 		_cairo_gl_composite_draw_triangles_with_clip_region(ctx, count);
 	}
-	for(i = 0; i < ARRAY_LENGTH(ctx->glyph_cache); i++) // @v1.14.6 @fix &ctx->glyph_cache-->ctx->glyph_cache
+	for(i = 0; i < SIZEOFARRAY(ctx->glyph_cache); i++) // @v1.14.6 @fix &ctx->glyph_cache-->ctx->glyph_cache
 		_cairo_gl_glyph_cache_unlock(&ctx->glyph_cache[i]);
 }
 

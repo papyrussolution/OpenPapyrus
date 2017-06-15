@@ -730,6 +730,204 @@ int WhatmanObjectProcessor::HandleCommand(int cmd, void * pExt)
 //
 //
 //
+class WhatmanObjectBarcode : public WhatmanObjectDrawFigure {
+public:
+	WhatmanObjectBarcode();
+	~WhatmanObjectBarcode();
+private:
+	virtual TWhatmanObject * Dup() const;
+	virtual int Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+	virtual int Draw(TCanvas2 & rCanv);
+	virtual int GetTextLayout(STextLayout & rTl, int options) const;
+	virtual int HandleCommand(int cmd, void * pExt);
+
+	//int    BarcStd;
+	//SString Barcode;
+	PPBarcode::BarcodeImageParam P;
+};
+
+IMPLEMENT_WTMOBJ_FACTORY(Barcode, "@wtmo_barcode");
+
+WhatmanObjectBarcode::WhatmanObjectBarcode() : WhatmanObjectDrawFigure("Barcode")
+{
+	Options |= oSelectable;
+	P.Std = BARCSTD_EAN13;
+	TextParam tp;
+	tp.Side = SIDE_BOTTOM;
+	tp.AlongSize = -1.0f;
+	tp.AcrossSize = 32.0f;
+	SetTextOptions(&tp);
+}
+
+WhatmanObjectBarcode::~WhatmanObjectBarcode()
+{
+}
+
+TWhatmanObject * WhatmanObjectBarcode::Dup() const
+{
+	WhatmanObjectBarcode * p_obj = new WhatmanObjectBarcode;
+	if(p_obj) {
+		p_obj->WhatmanObjectDrawFigure::Copy(*this);
+		p_obj->P = P;
+	}
+	return p_obj;
+}
+
+int WhatmanObjectBarcode::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+{
+	int    ok = 1;
+	THROW(WhatmanObjectDrawFigure::Serialize(dir, rBuf, pCtx));
+	THROW(pCtx->Serialize(dir, P.Std, rBuf));
+	THROW(pCtx->Serialize(dir, P.Code, rBuf));
+	THROW(pCtx->Serialize(dir, P.Size, rBuf));
+	THROW(pCtx->Serialize(dir, P.Angle, rBuf));
+	CATCHZOK
+	return ok;
+}
+
+int WhatmanObjectBarcode::Draw(TCanvas2 & rCanv)
+{
+	int    r = 0;
+	if(P.Code.NotEmpty()) {
+		TRect b = GetBounds();
+		if(oneof4(P.Std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
+			P.Size.Set(0, 0);
+		}
+		else {
+			P.Size.Set(b.width(), b.height());
+		}
+		P.ColorFg = SClrDarkcyan;
+		P.ColorBg = SClrYellow;
+		if(PPBarcode::CreateImage(P)) {
+			{
+				LMatrix2D mtx;
+				rCanv.PushTransform();
+				SViewPort vp;
+				vp.a.SetZero();
+				vp.b = P.Buffer.GetDimF();
+				vp.ParX = SViewPort::parMid;
+				vp.ParY = SViewPort::parMax;
+				vp.Flags &= ~SViewPort::fEmpty;
+
+				rCanv.AddTransform(vp.GetMatrix(GetBounds(), mtx));
+				rCanv.Draw(&P.Buffer);
+				rCanv.PopTransform();
+			}
+			r = 1;
+		}
+	}
+	if(!r)
+		WhatmanObjectDrawFigure::Draw(rCanv);
+	return 1;
+}
+
+int WhatmanObjectBarcode::GetTextLayout(STextLayout & rTlo, int options) const
+{
+	return -1;
+}
+
+class WoBarcodeParamDialog : public TDialog {
+public:
+	WoBarcodeParamDialog() : TDialog(DLG_WOBARCODE)
+	{
+	}
+	int    setDTS(const PPBarcode::BarcodeImageParam * pData)
+	{
+		RVALUEPTR(Data, pData);
+		setCtrlString(CTL_WOBARCODE_CODE, Data.Code);
+		AddClusterAssocDef(CTL_WOBARCODE_STD, 0, 0);
+		AddClusterAssocDef(CTL_WOBARCODE_STD, 1, BARCSTD_EAN13);
+		AddClusterAssocDef(CTL_WOBARCODE_STD, 2, BARCSTD_EAN8);
+		AddClusterAssocDef(CTL_WOBARCODE_STD, 3, BARCSTD_UPCA);
+		AddClusterAssocDef(CTL_WOBARCODE_STD, 4, BARCSTD_UPCE);
+		AddClusterAssocDef(CTL_WOBARCODE_STD, 5, BARCSTD_CODE39);
+		AddClusterAssocDef(CTL_WOBARCODE_STD, 6, BARCSTD_PDF417);
+		AddClusterAssocDef(CTL_WOBARCODE_STD, 7, BARCSTD_QR);
+		SetClusterData(CTL_WOBARCODE_STD, Data.Std);
+		AddClusterAssocDef(CTL_WOBARCODE_ANGLE, 0, 0);
+		AddClusterAssocDef(CTL_WOBARCODE_ANGLE, 1, 90);
+		AddClusterAssocDef(CTL_WOBARCODE_ANGLE, 2, 180);
+		AddClusterAssocDef(CTL_WOBARCODE_ANGLE, 3, 270);
+		SetClusterData(CTL_WOBARCODE_ANGLE, Data.Angle);
+		return 1;
+	}
+	int    getDTS(PPBarcode::BarcodeImageParam * pData)
+	{
+		int    ok = 1;
+		getCtrlString(CTL_WOBARCODE_CODE, Data.Code);
+		Data.Std = GetClusterData(CTL_WOBARCODE_STD);
+		Data.Angle = GetClusterData(CTL_WOBARCODE_ANGLE);
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmInputUpdated)) {
+			if(event.isCtlEvent(CTL_WOBARCODE_CODE)) {
+				getCtrlString(CTL_WOBARCODE_CODE, Data.Code);
+				if(Data.Code.NotEmptyS()) {
+					int    code_std = 0;
+					int    code_diag = 0;
+					SString norm_code;
+					int    dcr = PPObjGoods::DiagBarcode(Data.Code, &code_diag, &code_std, &norm_code);
+					if(dcr > 0 && oneof4(code_std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
+						if(code_std != Data.Std) {
+							Data.Std = code_std;
+							SetClusterData(CTL_WOBARCODE_STD, Data.Std);
+						}
+					}
+					else {
+						if(Data.Code.IsDigit()) {
+							if(Data.Std == 0) {
+								Data.Std = BARCSTD_CODE39;
+								SetClusterData(CTL_WOBARCODE_STD, Data.Std);
+							}
+						}
+						else {
+							if(Data.Std == 0) {
+								Data.Std = BARCSTD_QR;
+								SetClusterData(CTL_WOBARCODE_STD, Data.Std);
+							}
+						}
+					}
+				}
+			}
+			else
+				return;
+		}
+		else
+			return;
+		clearEvent(event);
+	}
+	PPBarcode::BarcodeImageParam Data;
+};
+
+int WhatmanObjectBarcode::HandleCommand(int cmd, void * pExt)
+{
+	int    ok = -1;
+	if(cmd == cmdEdit) {
+		WoBarcodeParamDialog * dlg = new WoBarcodeParamDialog();
+		if(CheckDialogPtrErr(&dlg)) {
+			dlg->setDTS(&P);
+			if(ExecView(dlg) == cmOK) {
+				if(dlg->getDTS(&P)) {
+					ok = 1;
+				}
+			}
+		}
+		else
+			ok = 0;
+		delete dlg;
+	}
+	else
+		ok = WhatmanObjectDrawFigure::HandleCommand(cmd, pExt);
+	return ok;
+}
+//
+//
+//
 class WhatmanObjectCafeTable : public WhatmanObjectDrawFigure {
 public:
 	WhatmanObjectCafeTable();

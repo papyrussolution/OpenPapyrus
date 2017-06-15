@@ -5168,6 +5168,22 @@ void SLAPI PrcssrOsm::StatBlock::Clear()
 	WayList.clear();
 }
 
+int SLAPI PrcssrOsm::StatBlock::Serialize(int dir, SBuffer & rBuffer, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW_SL(pSCtx->Serialize(dir, NodeCount, rBuffer));
+	THROW_SL(pSCtx->Serialize(dir, NakedNodeCount, rBuffer));
+	THROW_SL(pSCtx->Serialize(dir, WayCount, rBuffer));
+	THROW_SL(pSCtx->Serialize(dir, RelationCount, rBuffer));
+	THROW_SL(pSCtx->Serialize(dir, TagNodeCount, rBuffer));
+	THROW_SL(pSCtx->Serialize(dir, TagWayCount, rBuffer));
+	THROW_SL(pSCtx->Serialize(dir, TagRelCount, rBuffer));
+	THROW_SL(pSCtx->Serialize(dir, &NcList, rBuffer));
+	THROW_SL(pSCtx->Serialize(dir, &WayList, rBuffer));
+	CATCHZOK
+	return ok;
+}
+
 uint64 SLAPI PrcssrOsm::StatBlock::GetNcActualCount() const
 {
 	uint64 result = 0;
@@ -5224,6 +5240,21 @@ uint64 SLAPI PrcssrOsm::StatBlock::GetWsSize() const
 	return result;
 }
 
+SLAPI PrcssrOsm::RoadStone::RoadStone()
+{
+	Phase = phaseUnkn;
+}
+
+int SLAPI PrcssrOsm::RoadStone::Serialize(int dir, SBuffer & rBuffer, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW_SL(pSCtx->Serialize(dir, SrcFileName, rBuffer));
+	THROW_SL(pSCtx->Serialize(dir, Phase, rBuffer));
+	THROW(Stat.Serialize(dir, rBuffer, pSCtx));
+	CATCHZOK
+	return ok;
+}
+
 IMPLEMENT_PPFILT_FACTORY(PrcssrOsm); SLAPI PrcssrOsmFilt::PrcssrOsmFilt() : PPBaseFilt(PPFILT_PRCSSROSMPARAM, 0, 0)
 {
 	SetFlatChunk(offsetof(PrcssrOsmFilt, ReserveStart),
@@ -5273,6 +5304,7 @@ SLAPI PrcssrOsm::PrcssrOsm(const char * pDbPath) : O(pDbPath), GgtFinder(O.GetGr
 {
 	SaxCtx = 0;
 	State = 0;
+	P_RoadStoneStat = 0;
 	P_LatOutF = 0;
 	P_LonOutF = 0;
 	P_NodeToWayAssocOutF = 0;
@@ -5379,6 +5411,7 @@ void SLAPI PrcssrOsm::Reset()
 	LastNodeToWayAssoc.Key = 0;
 	LastNodeToWayAssoc.Val = 0;
 
+	ZDELETE(P_RoadStoneStat);
 	ZDELETE(P_LatOutF);
 	ZDELETE(P_LonOutF);
 	ZDELETE(P_NodeToWayAssocOutF);
@@ -5664,9 +5697,80 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 	return ok;
 }
 
+int SLAPI PrcssrOsm::GetPhaseSymb(long phase, SString & rSymb) const
+{
+	rSymb = 0;
+	int    ok = 1;
+	switch(phase) {
+		case phasePreprocess: rSymb = "preprocess"; break;
+		case phaseSortPreprcResults: rSymb = "SortPreprcResults"; break;
+		case phaseAnlzPreprcResults: rSymb = "AnlzPreprcResults"; break;
+		case phaseImport: rSymb = "import"; break;
+		case phaseExtractSizes: rSymb = "extractsizes"; break;
+		default: ok = 0;
+	}
+	return ok;
+}
+
+int SLAPI PrcssrOsm::WriteRoadStone(RoadStone & rRs)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString line_buf;
+	SString file_name;
+	SPathStruc ps;
+	ps.Split(rRs.SrcFileName);
+	ps.Nam.CatChar('-');
+	THROW(GetPhaseSymb(rRs.Phase, temp_buf));
+    ps.Nam.Cat(temp_buf);
+    ps.Ext = "roadstone";
+    ps.Merge(file_name);
+	{
+		SFile f_out(file_name, SFile::mWrite|SFile::mBinary);
+		THROW_SL(f_out.IsValid());
+		{
+			SSerializeContext sctx;
+			SBuffer buffer;
+			THROW(rRs.Serialize(+1, buffer, &sctx));
+			THROW_SL(f_out.Write(buffer));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PrcssrOsm::ReadRoadStone(long phase, RoadStone & rRs)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString file_name;
+	SPathStruc ps;
+	ps.Split(P.SrcFileName);
+	ps.Nam.CatChar('-');
+	THROW(GetPhaseSymb(phase, temp_buf));
+    ps.Nam.Cat(temp_buf);
+    ps.Ext = "roadstone";
+    ps.Merge(file_name);
+    if(fileExists(file_name)) {
+		SFile f_in(file_name, SFile::mRead|SFile::mBinary);
+		THROW_SL(f_in.IsValid());
+		{
+			SSerializeContext sctx;
+			SBuffer buffer;
+			THROW_SL(f_in.Read(buffer));
+			THROW(rRs.Serialize(-1, buffer, &sctx));
+		}
+    }
+    else
+		ok = -1;
+	CATCHZOK
+	return ok;
+}
+
 int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 {
 	int    ok = 1;
+	int    do_store_roadstone = 0;
 	static const uint nodewayref_accum_limit = 1024*1024;
 	static const uint way_accum_limit = 256 * 1024;
 	if(Phase == phasePreprocess) {
@@ -5737,38 +5841,41 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 			if(_count && (force || _count >= node_accum_limit)) {
 				const PPOsm::Node & r_last_node = NodeAccum.at(_count-1);
 				if(force || (r_last_node.ID & 0x7f) == 0x7f) {
-					SrDatabase * p_db = O.GetDb();
-					if(p_db) {
-                        LLAssocArray node_to_way_assc_list;
-						LLAssocArray * p_node_to_way_assc_list = 0;
-						if(P_NodeToWayAssocInF) {
-							SString _key_buf, _val_buf;
-                            int64 first_node_id = (int64)NodeAccum.at(0).ID;
-                            int64 last_node_id = (int64)NodeAccum.at(_count-1).ID;
-                            if(LastNodeToWayAssoc.Key && LastNodeToWayAssoc.Val) {
-								if(LastNodeToWayAssoc.Key >= first_node_id && LastNodeToWayAssoc.Key <= last_node_id) {
-                                    THROW_SL(node_to_way_assc_list.insert(&LastNodeToWayAssoc));
-								}
-                            }
-                            while(P_NodeToWayAssocInF->ReadLine(Pb.LineBuf)) {
-                            	Pb.LineBuf.Chomp().Strip();
-								if(Pb.LineBuf.Divide('\t', _key_buf, _val_buf) > 0) {
-									LastNodeToWayAssoc.Key = _key_buf.ToInt64();
-									LastNodeToWayAssoc.Val = _val_buf.ToInt64();
-									if(NodeAccum.bsearch(&LastNodeToWayAssoc.Key, 0, CMPF_INT64)) {
+					if(!P_RoadStoneStat || Stat.NodeCount > P_RoadStoneStat->Stat.NodeCount) {
+						SrDatabase * p_db = O.GetDb();
+						if(p_db) {
+							LLAssocArray node_to_way_assc_list;
+							LLAssocArray * p_node_to_way_assc_list = 0;
+							if(P_NodeToWayAssocInF) {
+								SString _key_buf, _val_buf;
+								int64 first_node_id = (int64)NodeAccum.at(0).ID;
+								int64 last_node_id = (int64)NodeAccum.at(_count-1).ID;
+								if(LastNodeToWayAssoc.Key && LastNodeToWayAssoc.Val) {
+									if(LastNodeToWayAssoc.Key >= first_node_id && LastNodeToWayAssoc.Key <= last_node_id) {
 										THROW_SL(node_to_way_assc_list.insert(&LastNodeToWayAssoc));
 									}
-									else if(LastNodeToWayAssoc.Key > last_node_id) {
-										break;
+								}
+								while(P_NodeToWayAssocInF->ReadLine(Pb.LineBuf)) {
+									Pb.LineBuf.Chomp().Strip();
+									if(Pb.LineBuf.Divide('\t', _key_buf, _val_buf) > 0) {
+										LastNodeToWayAssoc.Key = _key_buf.ToInt64();
+										LastNodeToWayAssoc.Val = _val_buf.ToInt64();
+										if(NodeAccum.bsearch(&LastNodeToWayAssoc.Key, 0, CMPF_INT64)) {
+											THROW_SL(node_to_way_assc_list.insert(&LastNodeToWayAssoc));
+										}
+										else if(LastNodeToWayAssoc.Key > last_node_id) {
+											break;
+										}
 									}
 								}
-                            }
 
+							}
+							THROW(p_db->StoreGeoNodeList(NodeAccum, &node_to_way_assc_list, &Stat.NcList));
 						}
-						THROW(p_db->StoreGeoNodeList(NodeAccum, &node_to_way_assc_list, &Stat.NcList));
+						OutputStat(0);
+						// (При работе с RoadSton'ом - не катит) assert((Stat.GetNcActualCount() + Stat.GetNcProcessedCount()) == Stat.NodeCount);
+						do_store_roadstone = 1;
 					}
-					OutputStat(0);
-					assert((Stat.GetNcActualCount() + Stat.GetNcProcessedCount()) == Stat.NodeCount);
 					if(force)
 						NodeAccum.freeAll();
 					else
@@ -5779,14 +5886,17 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 		{
 			const uint _count = WayAccum.getCount();
 			if(_count && (force || _count >= way_accum_limit)) {
-				size_t offs = 0;
-				SrDatabase * p_db = O.GetDb();
-				if(p_db) {
-					THROW(p_db->StoreGeoWayList(WayAccum, &Stat.WayList));
+				if(!P_RoadStoneStat || Stat.WayCount > P_RoadStoneStat->Stat.WayCount) {
+					size_t offs = 0;
+					SrDatabase * p_db = O.GetDb();
+					if(p_db) {
+						THROW(p_db->StoreGeoWayList(WayAccum, &Stat.WayList));
+					}
+					OutputStat(0);
+					// (При работе с RoadSton'ом - не катит) assert((Stat.GetNcActualCount() + Stat.GetNcProcessedCount()) == Stat.NodeCount);
+					// (При работе с RoadSton'ом - не катит) assert(Stat.GetWsCount() + Stat.GetWsProcessedCount() == Stat.WayCount);
+					do_store_roadstone = 1;
 				}
-				OutputStat(0);
-				assert((Stat.GetNcActualCount() + Stat.GetNcProcessedCount()) == Stat.NodeCount);
-				assert(Stat.GetWsCount() + Stat.GetWsProcessedCount() == Stat.WayCount);
 				WayAccum.freeAll();
 			}
 		}
@@ -5803,6 +5913,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 					NodeWayAssocAccum.freeAll();
 				else
 					NodeWayAssocAccum.clear();
+				do_store_roadstone = 1;
 			}
 		}
 #else
@@ -5816,6 +5927,14 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 			}
 		}
 #endif
+		if(do_store_roadstone) {
+			ZDELETE(P_RoadStoneStat);
+			RoadStone rs;
+			rs.SrcFileName = P.SrcFileName;
+			rs.Phase = Phase;
+			rs.Stat = Stat;
+			THROW(WriteRoadStone(rs));
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -6559,6 +6678,15 @@ int SLAPI PrcssrOsm::Run()
 	if(P.Flags & PrcssrOsmFilt::fImport) {
 		Phase = phaseImport;
 		if(O.CheckStatus(O.stGridLoaded)) {
+			{
+				int   rrsr = 0;
+				ZDELETE(P_RoadStoneStat);
+				THROW_MEM(P_RoadStoneStat = new RoadStone);
+				THROW(rrsr = ReadRoadStone(Phase, *P_RoadStoneStat));
+				if(rrsr < 0) {
+					ZDELETE(P_RoadStoneStat);
+				}
+			}
 			{
 				MakeSuffixedTxtFileName(file_name, "nodewayassoc-sorted", ps, out_file_name);
 				if(fileExists(out_file_name)) {

@@ -23,138 +23,110 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifndef CURL_DISABLE_FTP
-
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+	#include <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+	#include <arpa/inet.h>
 #endif
 #ifdef HAVE_UTSNAME_H
-#include <sys/utsname.h>
+	#include <sys/utsname.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+	#include <netdb.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+	#include <in.h>
+	#include <inet.h>
 #endif
 #if (defined(NETWARE) && defined(__NOVELL_LIBC__))
 	#undef in_addr_t
 	#define in_addr_t ulong
 #endif
 //#include <curl/curl.h>
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "if2ip.h"
 #include "hostip.h"
-#include "progress.h"
-#include "transfer.h"
-#include "escape.h"
+//#include "progress.h"
+//#include "transfer.h"
+//#include "escape.h"
 #include "http.h" /* for HTTP proxy tunnel stuff */
-#include "socks.h"
+//#include "socks.h"
 #include "ftp.h"
-#include "fileinfo.h"
+//#include "fileinfo.h"
 #include "ftplistparser.h"
 #include "curl_sec.h"
-#include "strtoofft.h"
+//#include "strtoofft.h"
 //#include "strcase.h"
 #include "vtls/vtls.h"
 #include "connect.h"
-#include "strerror.h"
+//#include "strerror.h"
 #include "inet_ntop.h"
 #include "inet_pton.h"
-#include "select.h"
+//#include "select.h"
 #include "parsedate.h" /* for the week day and month names */
 #include "sockaddr.h" /* required for Curl_sockaddr_storage */
 #include "multiif.h"
-#include "url.h"
+//#include "url.h"
 //#include "strcase.h"
 #include "speedcheck.h"
 #include "warnless.h"
 #include "http_proxy.h"
-#include "non-ascii.h"
-/* The last 3 #include files should be in this order */
+//#include "non-ascii.h"
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 #ifndef NI_MAXHOST
-#define NI_MAXHOST 1025
+	#define NI_MAXHOST 1025
 #endif
 #ifndef INET_ADDRSTRLEN
-#define INET_ADDRSTRLEN 16
+	#define INET_ADDRSTRLEN 16
 #endif
-
 #ifdef CURL_DISABLE_VERBOSE_STRINGS
-#define ftp_pasv_verbose(a, b, c, d)  Curl_nop_stmt
+	#define ftp_pasv_verbose(a, b, c, d)  Curl_nop_stmt
 #endif
-
-/* Local API functions */
+// Local API functions 
 #ifndef DEBUGBUILD
-static void _state(struct connectdata * conn,
-    ftpstate newstate);
-#define state(x, y) _state(x, y)
+	static void _state(struct connectdata * conn, ftpstate newstate);
+	#define state(x, y) _state(x, y)
 #else
-static void _state(struct connectdata * conn,
-    ftpstate newstate,
-    int lineno);
-#define state(x, y) _state(x, y, __LINE__)
+	static void _state(struct connectdata * conn, ftpstate newstate, int lineno);
+	#define state(x, y) _state(x, y, __LINE__)
 #endif
-
-static CURLcode ftp_sendquote(struct connectdata * conn,
-    struct curl_slist * quote);
+static CURLcode ftp_sendquote(struct connectdata * conn, struct curl_slist * quote);
 static CURLcode ftp_quit(struct connectdata * conn);
 static CURLcode ftp_parse_url_path(struct connectdata * conn);
 static CURLcode ftp_regular_transfer(struct connectdata * conn, bool * done);
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
-static void ftp_pasv_verbose(struct connectdata * conn,
-    Curl_addrinfo * ai,
-    char * newhost,                         /* ascii version */
-    int port);
+	static void ftp_pasv_verbose(struct connectdata * conn, Curl_addrinfo * ai, char * newhost/* ascii version */, int port);
 #endif
 static CURLcode ftp_state_prepare_transfer(struct connectdata * conn);
 static CURLcode ftp_state_mdtm(struct connectdata * conn);
-static CURLcode ftp_state_quote(struct connectdata * conn,
-    bool init, ftpstate instate);
-static CURLcode ftp_nb_type(struct connectdata * conn,
-    bool ascii, ftpstate newstate);
-static int ftp_need_type(struct connectdata * conn,
-    bool ascii);
+static CURLcode ftp_state_quote(struct connectdata * conn, bool init, ftpstate instate);
+static CURLcode ftp_nb_type(struct connectdata * conn, bool ascii, ftpstate newstate);
+static int ftp_need_type(struct connectdata * conn, bool ascii);
 static CURLcode ftp_do(struct connectdata * conn, bool * done);
-static CURLcode ftp_done(struct connectdata * conn,
-    CURLcode, bool premature);
+static CURLcode ftp_done(struct connectdata * conn, CURLcode, bool premature);
 static CURLcode ftp_connect(struct connectdata * conn, bool * done);
 static CURLcode ftp_disconnect(struct connectdata * conn, bool dead_connection);
 static CURLcode ftp_do_more(struct connectdata * conn, int * completed);
 static CURLcode ftp_multi_statemach(struct connectdata * conn, bool * done);
-static int ftp_getsock(struct connectdata * conn, curl_socket_t * socks,
-    int numsocks);
-static int ftp_domore_getsock(struct connectdata * conn, curl_socket_t * socks,
-    int numsocks);
-static CURLcode ftp_doing(struct connectdata * conn,
-    bool * dophase_done);
+static int ftp_getsock(struct connectdata * conn, curl_socket_t * socks, int numsocks);
+static int ftp_domore_getsock(struct connectdata * conn, curl_socket_t * socks, int numsocks);
+static CURLcode ftp_doing(struct connectdata * conn, bool * dophase_done);
 static CURLcode ftp_setup_connection(struct connectdata * conn);
-
 static CURLcode init_wc_data(struct connectdata * conn);
 static CURLcode wc_statemach(struct connectdata * conn);
-
 static void wc_data_dtor(void * ptr);
-
 static CURLcode ftp_state_retr(struct connectdata * conn, curl_off_t filesize);
-
-static CURLcode ftp_readresp(curl_socket_t sockfd,
-    struct pingpong * pp,
-    int * ftpcode,
-    size_t * size);
-static CURLcode ftp_dophase_done(struct connectdata * conn,
-    bool connected);
+static CURLcode ftp_readresp(curl_socket_t sockfd, struct pingpong * pp, int * ftpcode, size_t * size);
+static CURLcode ftp_dophase_done(struct connectdata * conn, bool connected);
 
 /* easy-to-use macro: */
-#define PPSENDF(x, y, z)  result = Curl_pp_sendf(x, y, z); \
-	if(result)		       \
-		return result
+#define PPSENDF(x, y, z)  result = Curl_pp_sendf(x, y, z); if(result) return result
 
 /*
  * FTP protocol handler.

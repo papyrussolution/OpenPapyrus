@@ -1,24 +1,24 @@
 /***************************************************************************
- *                                  _   _ ____  _
- *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
- *
- * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
- *
- * This software is licensed as described in the file COPYING, which
- * you should have received as part of this distribution. The terms
- * are also available at https://curl.haxx.se/docs/copyright.html.
- *
- * You may opt to use, copy, modify, merge, publish, distribute and/or sell
- * copies of the Software, and permit persons to whom the Software is
- * furnished to do so, under the terms of the COPYING file.
- *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
- * KIND, either express or implied.
- *
- ***************************************************************************/
+*                                  _   _ ____  _
+*  Project                     ___| | | |  _ \| |
+*                             / __| | | | |_) | |
+*                            | (__| |_| |  _ <| |___
+*                             \___|\___/|_| \_\_____|
+*
+* Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
+*
+* This software is licensed as described in the file COPYING, which
+* you should have received as part of this distribution. The terms
+* are also available at https://curl.haxx.se/docs/copyright.html.
+*
+* You may opt to use, copy, modify, merge, publish, distribute and/or sell
+* copies of the Software, and permit persons to whom the Software is
+* furnished to do so, under the terms of the COPYING file.
+*
+* This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
+* KIND, either express or implied.
+*
+***************************************************************************/
 
 #include "curl_setup.h"
 #pragma hdrstop
@@ -30,9 +30,8 @@
 #include "hostcheck.h"
 //#include "strcase.h"
 #include "inet_pton.h"
-#include "curl_memory.h"
-/* The last #include file should be: */
-#include "memdebug.h"
+//#include "curl_memory.h"
+#include "memdebug.h" // The last #include file should be
 /*
  * Match a hostname against a wildcard pattern.
  * E.g.
@@ -53,91 +52,72 @@
  * contents at will.
  */
 
-static int hostmatch(char *hostname, char *pattern)
+static int hostmatch(char * hostname, char * pattern)
 {
-  const char *pattern_label_end, *pattern_wildcard, *hostname_label_end;
-  int wildcard_enabled;
-  size_t prefixlen, suffixlen;
-  struct in_addr ignored;
+	const char * pattern_label_end, * pattern_wildcard, * hostname_label_end;
+	int wildcard_enabled;
+	size_t prefixlen, suffixlen;
+	struct in_addr ignored;
 #ifdef ENABLE_IPV6
-  struct sockaddr_in6 si6;
+	struct sockaddr_in6 si6;
 #endif
-
-  /* normalize pattern and hostname by stripping off trailing dots */
-  size_t len = strlen(hostname);
-  if(hostname[len-1]=='.')
-    hostname[len-1]=0;
-  len = strlen(pattern);
-  if(pattern[len-1]=='.')
-    pattern[len-1]=0;
-
-  pattern_wildcard = strchr(pattern, '*');
-  if(pattern_wildcard == NULL)
-    return strcasecompare(pattern, hostname) ?
-      CURL_HOST_MATCH : CURL_HOST_NOMATCH;
-
-  /* detect IP address as hostname and fail the match if so */
-  if(Curl_inet_pton(AF_INET, hostname, &ignored) > 0)
-    return CURL_HOST_NOMATCH;
+	// normalize pattern and hostname by stripping off trailing dots 
+	size_t len = strlen(hostname);
+	if(hostname[len-1]=='.')
+		hostname[len-1] = 0;
+	len = strlen(pattern);
+	if(pattern[len-1]=='.')
+		pattern[len-1] = 0;
+	pattern_wildcard = strchr(pattern, '*');
+	if(pattern_wildcard == NULL)
+		return strcasecompare(pattern, hostname) ? CURL_HOST_MATCH : CURL_HOST_NOMATCH;
+	// detect IP address as hostname and fail the match if so 
+	if(Curl_inet_pton(AF_INET, hostname, &ignored) > 0)
+		return CURL_HOST_NOMATCH;
 #ifdef ENABLE_IPV6
-  if(Curl_inet_pton(AF_INET6, hostname, &si6.sin6_addr) > 0)
-    return CURL_HOST_NOMATCH;
+	if(Curl_inet_pton(AF_INET6, hostname, &si6.sin6_addr) > 0)
+		return CURL_HOST_NOMATCH;
 #endif
-
-  /* We require at least 2 dots in pattern to avoid too wide wildcard
-     match. */
-  wildcard_enabled = 1;
-  pattern_label_end = strchr(pattern, '.');
-  if(pattern_label_end == NULL || strchr(pattern_label_end+1, '.') == NULL ||
-     pattern_wildcard > pattern_label_end ||
-     strncasecompare(pattern, "xn--", 4)) {
-    wildcard_enabled = 0;
-  }
-  if(!wildcard_enabled)
-    return strcasecompare(pattern, hostname) ?
-      CURL_HOST_MATCH : CURL_HOST_NOMATCH;
-
-  hostname_label_end = strchr(hostname, '.');
-  if(hostname_label_end == NULL ||
-     !strcasecompare(pattern_label_end, hostname_label_end))
-    return CURL_HOST_NOMATCH;
-
-  /* The wildcard must match at least one character, so the left-most
-     label of the hostname is at least as large as the left-most label
-     of the pattern. */
-  if(hostname_label_end - hostname < pattern_label_end - pattern)
-    return CURL_HOST_NOMATCH;
-
-  prefixlen = pattern_wildcard - pattern;
-  suffixlen = pattern_label_end - (pattern_wildcard+1);
-  return strncasecompare(pattern, hostname, prefixlen) &&
-    strncasecompare(pattern_wildcard+1, hostname_label_end - suffixlen,
-                    suffixlen) ?
-    CURL_HOST_MATCH : CURL_HOST_NOMATCH;
+	// We require at least 2 dots in pattern to avoid too wide wildcard match
+	wildcard_enabled = 1;
+	pattern_label_end = strchr(pattern, '.');
+	if(pattern_label_end == NULL || strchr(pattern_label_end+1, '.') == NULL || pattern_wildcard > pattern_label_end || strncasecompare(pattern, "xn--", 4)) {
+		wildcard_enabled = 0;
+	}
+	if(!wildcard_enabled)
+		return strcasecompare(pattern, hostname) ? CURL_HOST_MATCH : CURL_HOST_NOMATCH;
+	hostname_label_end = strchr(hostname, '.');
+	if(hostname_label_end == NULL || !strcasecompare(pattern_label_end, hostname_label_end))
+		return CURL_HOST_NOMATCH;
+	// The wildcard must match at least one character, so the left-most
+	// label of the hostname is at least as large as the left-most label of the pattern
+	if(hostname_label_end - hostname < pattern_label_end - pattern)
+		return CURL_HOST_NOMATCH;
+	prefixlen = pattern_wildcard - pattern;
+	suffixlen = pattern_label_end - (pattern_wildcard+1);
+	return strncasecompare(pattern, hostname, prefixlen) && strncasecompare(pattern_wildcard+1, hostname_label_end - suffixlen, suffixlen) ? CURL_HOST_MATCH : CURL_HOST_NOMATCH;
 }
 
-int Curl_cert_hostcheck(const char *match_pattern, const char *hostname)
+int Curl_cert_hostcheck(const char * match_pattern, const char * hostname)
 {
-  char *matchp;
-  char *hostp;
-  int res = 0;
-  if(!match_pattern || !*match_pattern ||
-      !hostname || !*hostname) /* sanity check */
-    ;
-  else {
-    matchp = _strdup(match_pattern);
-    if(matchp) {
-      hostp = _strdup(hostname);
-      if(hostp) {
-        if(hostmatch(hostp, matchp) == CURL_HOST_MATCH)
-          res= 1;
-        SAlloc::F(hostp);
-      }
-      SAlloc::F(matchp);
-    }
-  }
-
-  return res;
+	char * matchp;
+	char * hostp;
+	int res = 0;
+	if(!match_pattern || !*match_pattern || !hostname || !*hostname) /* sanity check */
+		;
+	else {
+		matchp = _strdup(match_pattern);
+		if(matchp) {
+			hostp = _strdup(hostname);
+			if(hostp) {
+				if(hostmatch(hostp, matchp) == CURL_HOST_MATCH)
+					res = 1;
+				SAlloc::F(hostp);
+			}
+			SAlloc::F(matchp);
+		}
+	}
+	return res;
 }
 
 #endif /* OPENSSL, AXTLS, GSKIT or schannel+wince */

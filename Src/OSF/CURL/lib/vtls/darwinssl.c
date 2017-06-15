@@ -27,9 +27,8 @@
  */
 #include "curl_setup.h"
 #pragma hdrstop
-
-#include "urldata.h" /* for the Curl_easy definition */
-#include "curl_base64.h"
+//#include "urldata.h" /* for the Curl_easy definition */
+//#include "curl_base64.h"
 //#include "strtok.h"
 
 #ifdef USE_DARWINSSL
@@ -48,64 +47,56 @@
    IMPORTANT: If TLS 1.1 and 1.2 support are important for you on OS X, then
    you must build this project against the 10.8 SDK or later. */
 #if (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE))
-
-#if MAC_OS_X_VERSION_MAX_ALLOWED < 1050
-#error "The darwinssl back-end requires Leopard or later."
-#endif /* MAC_OS_X_VERSION_MAX_ALLOWED < 1050 */
-
-#define CURL_BUILD_IOS 0
-#define CURL_BUILD_IOS_7 0
-#define CURL_BUILD_MAC 1
-/* This is the maximum API level we are allowed to use when building: */
-#define CURL_BUILD_MAC_10_5 MAC_OS_X_VERSION_MAX_ALLOWED >= 1050
-#define CURL_BUILD_MAC_10_6 MAC_OS_X_VERSION_MAX_ALLOWED >= 1060
-#define CURL_BUILD_MAC_10_7 MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
-#define CURL_BUILD_MAC_10_8 MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
-#define CURL_BUILD_MAC_10_9 MAC_OS_X_VERSION_MAX_ALLOWED >= 1090
-/* These macros mean "the following code is present to allow runtime backward
-   compatibility with at least this cat or earlier":
-   (You set this at build-time by setting the MACOSX_DEPLOYMENT_TARGET
-   environmental variable.) */
-#define CURL_SUPPORT_MAC_10_5 MAC_OS_X_VERSION_MIN_REQUIRED <= 1050
-#define CURL_SUPPORT_MAC_10_6 MAC_OS_X_VERSION_MIN_REQUIRED <= 1060
-#define CURL_SUPPORT_MAC_10_7 MAC_OS_X_VERSION_MIN_REQUIRED <= 1070
-#define CURL_SUPPORT_MAC_10_8 MAC_OS_X_VERSION_MIN_REQUIRED <= 1080
-#define CURL_SUPPORT_MAC_10_9 MAC_OS_X_VERSION_MIN_REQUIRED <= 1090
-
+	#if MAC_OS_X_VERSION_MAX_ALLOWED < 1050
+		#error "The darwinssl back-end requires Leopard or later."
+	#endif /* MAC_OS_X_VERSION_MAX_ALLOWED < 1050 */
+	#define CURL_BUILD_IOS 0
+	#define CURL_BUILD_IOS_7 0
+	#define CURL_BUILD_MAC 1
+	/* This is the maximum API level we are allowed to use when building: */
+	#define CURL_BUILD_MAC_10_5 MAC_OS_X_VERSION_MAX_ALLOWED >= 1050
+	#define CURL_BUILD_MAC_10_6 MAC_OS_X_VERSION_MAX_ALLOWED >= 1060
+	#define CURL_BUILD_MAC_10_7 MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
+	#define CURL_BUILD_MAC_10_8 MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
+	#define CURL_BUILD_MAC_10_9 MAC_OS_X_VERSION_MAX_ALLOWED >= 1090
+	/* These macros mean "the following code is present to allow runtime backward
+	   compatibility with at least this cat or earlier":
+	   (You set this at build-time by setting the MACOSX_DEPLOYMENT_TARGET
+	   environmental variable.) */
+	#define CURL_SUPPORT_MAC_10_5 MAC_OS_X_VERSION_MIN_REQUIRED <= 1050
+	#define CURL_SUPPORT_MAC_10_6 MAC_OS_X_VERSION_MIN_REQUIRED <= 1060
+	#define CURL_SUPPORT_MAC_10_7 MAC_OS_X_VERSION_MIN_REQUIRED <= 1070
+	#define CURL_SUPPORT_MAC_10_8 MAC_OS_X_VERSION_MIN_REQUIRED <= 1080
+	#define CURL_SUPPORT_MAC_10_9 MAC_OS_X_VERSION_MIN_REQUIRED <= 1090
 #elif TARGET_OS_EMBEDDED || TARGET_OS_IPHONE
-#define CURL_BUILD_IOS 1
-#define CURL_BUILD_IOS_7 __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
-#define CURL_BUILD_MAC 0
-#define CURL_BUILD_MAC_10_5 0
-#define CURL_BUILD_MAC_10_6 0
-#define CURL_BUILD_MAC_10_7 0
-#define CURL_BUILD_MAC_10_8 0
-#define CURL_SUPPORT_MAC_10_5 0
-#define CURL_SUPPORT_MAC_10_6 0
-#define CURL_SUPPORT_MAC_10_7 0
-#define CURL_SUPPORT_MAC_10_8 0
-#define CURL_SUPPORT_MAC_10_9 0
-
+	#define CURL_BUILD_IOS 1
+	#define CURL_BUILD_IOS_7 __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
+	#define CURL_BUILD_MAC 0
+	#define CURL_BUILD_MAC_10_5 0
+	#define CURL_BUILD_MAC_10_6 0
+	#define CURL_BUILD_MAC_10_7 0
+	#define CURL_BUILD_MAC_10_8 0
+	#define CURL_SUPPORT_MAC_10_5 0
+	#define CURL_SUPPORT_MAC_10_6 0
+	#define CURL_SUPPORT_MAC_10_7 0
+	#define CURL_SUPPORT_MAC_10_8 0
+	#define CURL_SUPPORT_MAC_10_9 0
 #else
-#error "The darwinssl back-end requires iOS or OS X."
+	#error "The darwinssl back-end requires iOS or OS X."
 #endif /* (TARGET_OS_MAC && !(TARGET_OS_EMBEDDED || TARGET_OS_IPHONE)) */
-
 #if CURL_BUILD_MAC
-#include <sys/sysctl.h>
+	#include <sys/sysctl.h>
 #endif /* CURL_BUILD_MAC */
-
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "inet_pton.h"
 #include "connect.h"
-#include "select.h"
+//#include "select.h"
 #include "vtls.h"
 #include "darwinssl.h"
 #include "curl_printf.h"
-
-#include "curl_memory.h"
-/* The last #include file should be: */
-#include "memdebug.h"
+//#include "curl_memory.h"
+#include "memdebug.h" // The last #include file should be
 
 /* From MacTypes.h (which we can't include because it isn't present in iOS: */
 #define ioErr -36

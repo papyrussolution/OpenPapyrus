@@ -697,6 +697,15 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 						const double _p = fabs(sl_param.Price); // @v8.5.9 fabs
 						running_total += (_q * _p);
 						{
+							(temp_buf = sl_param.Text).Strip();
+							if(!temp_buf.NotEmptyS())
+								temp_buf = "WARE";
+							else
+								temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+							temp_buf.Trim(CheckStrLen);
+							THROW(SetProp(Name, temp_buf)); // Наименование товара
+						}
+						{
 							const double pq = R3(_q);
 							const double pp = R2(_p);
 							debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp).CatChar(']');
@@ -801,7 +810,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 					SString fmt_buf, msg_buf, added_buf;
 					PPLoadText(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf);
 					(added_buf = 0).Cat(running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('>').Cat(amt, MKSFMTD(0, 20, NMBF_NOTRAILZ));
-					msg_buf.Printf(fmt_buf, (const char *)added_buf);
+					msg_buf.Printf(fmt_buf, added_buf.cptr());
 					PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 				}
 				debug_log_buf.CatChar('}');

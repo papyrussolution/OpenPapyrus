@@ -60,17 +60,17 @@ int telepen(struct ZintSymbol * symbol, uchar source[], int src_len)
 	char   dest[512]; /*14 + 30 * 14 + 14 + 14 + 1 ~ 512 */
 	uint   count = 0;
 	if(src_len > 30) {
-		strcpy(symbol->errtxt, "Input too long (C90)");
+		sstrcpy(symbol->errtxt, "Input too long (C90)");
 		error_number = ZINT_ERROR_TOO_LONG;
 	}
 	else {
 		int    i;
 		/* Start character */
-		strcpy(dest, TeleTable['_']);
+		sstrcpy(dest, TeleTable['_']);
 		for(i = 0; i < src_len; i++) {
 			if(source[i] > 126) {
 				/* Cannot encode extended ASCII */
-				strcpy(symbol->errtxt, "Invalid characters in input data (C91)");
+				sstrcpy(symbol->errtxt, "Invalid characters in input data (C91)");
 				return ZINT_ERROR_INVALID_DATA;
 			}
 			strcat(dest, TeleTable[source[i]]);
@@ -106,15 +106,15 @@ int telepen_num(struct ZintSymbol * symbol, uchar source[], int src_len)
 	uchar  temp[64];
 	uint   count = 0;
 	if(temp_length > 60) {
-		strcpy(symbol->errtxt, "Input too long (C92)");
+		sstrcpy(symbol->errtxt, "Input too long (C92)");
 		error_number = ZINT_ERROR_TOO_LONG;
 	}
 	else {
-		ustrcpy(temp, source);
+		sstrcpy(temp, source);
 		to_upper(temp);
 		error_number = is_sane(NEON, temp, temp_length);
 		if(error_number == ZINT_ERROR_INVALID_DATA) {
-			strcpy(symbol->errtxt, "Invalid characters in data (C93)");
+			sstrcpy(symbol->errtxt, "Invalid characters in data (C93)");
 		}
 		else {
 			/* Add a leading zero if required */
@@ -124,19 +124,19 @@ int telepen_num(struct ZintSymbol * symbol, uchar source[], int src_len)
 				temp[++temp_length] = '\0';
 			}
 			/* Start character */
-			strcpy(dest, TeleTable['_']);
+			sstrcpy(dest, TeleTable['_']);
 			{
 				for(int i = 0; i < temp_length; i += 2) {
 					if(temp[i] == 'X') {
-						strcpy(symbol->errtxt, "Invalid position of X in Telepen data (C94)");
+						sstrcpy(symbol->errtxt, "Invalid position of X in Telepen data (C94)");
 						return ZINT_ERROR_INVALID_DATA;
 					}
 					if(temp[i + 1] == 'X') {
-						glyph = ctoi(temp[i]) + 17;
+						glyph = hex(temp[i]) + 17;
 						count += glyph;
 					}
 					else {
-						glyph = (10 * ctoi(temp[i])) + ctoi(temp[i + 1]);
+						glyph = (10 * hex(temp[i])) + hex(temp[i + 1]);
 						glyph += 27;
 						count += glyph;
 					}
@@ -150,7 +150,7 @@ int telepen_num(struct ZintSymbol * symbol, uchar source[], int src_len)
 			/* Stop character */
 			strcat(dest, TeleTable['z']);
 			expand(symbol, dest);
-			ustrcpy(symbol->text, temp);
+			sstrcpy(symbol->text, temp);
 		}
 	}
 	return error_number;

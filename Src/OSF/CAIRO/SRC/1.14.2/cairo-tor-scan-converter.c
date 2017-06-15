@@ -938,7 +938,7 @@ static glitter_status_t polygon_reset(struct polygon * polygon,
 	if(polygon->y_buckets != polygon->y_buckets_embedded)
 		SAlloc::F(polygon->y_buckets);
 	polygon->y_buckets =  polygon->y_buckets_embedded;
-	if(num_buckets > ARRAY_LENGTH(polygon->y_buckets_embedded)) {
+	if(num_buckets > SIZEOFARRAY(polygon->y_buckets_embedded)) {
 		polygon->y_buckets = (struct edge **)_cairo_malloc_ab(num_buckets, sizeof(struct edge *));
 		if(unlikely(NULL == polygon->y_buckets))
 			goto bail_no_mem;
@@ -1368,7 +1368,7 @@ I glitter_status_t glitter_scan_converter_reset(glitter_scan_converter_t * conve
 	converter->xmin = 0; converter->xmax = 0;
 	converter->ymin = 0; converter->ymax = 0;
 	max_num_spans = xmax - xmin + 1;
-	if(max_num_spans > ARRAY_LENGTH(converter->spans_embedded)) {
+	if(max_num_spans > SIZEOFARRAY(converter->spans_embedded)) {
 		converter->spans = (cairo_half_open_span_t *)_cairo_malloc_ab(max_num_spans, sizeof(cairo_half_open_span_t));
 		if(unlikely(converter->spans == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);

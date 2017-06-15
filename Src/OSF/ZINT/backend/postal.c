@@ -84,21 +84,21 @@ int postnet(struct ZintSymbol * symbol, uchar source[], char dest[], int length)
 	uint   sum, check_digit;
 	int    error_number = 0;
 	if(length > 38) {
-		strcpy(symbol->errtxt, "Input too long (D80)");
+		sstrcpy(symbol->errtxt, "Input too long (D80)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data (D81)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (D81)");
 		return error_number;
 	}
 	sum = 0;
 	/* start character */
-	strcpy(dest, "L");
+	sstrcpy(dest, "L");
 	{
 		for(int i = 0; i < length; i++) {
 			lookup(NEON, PNTable, source[i], dest);
-			sum += ctoi(source[i]);
+			sum += hex(source[i]);
 		}
 	}
 	check_digit = (10 - (sum % 10)) % 10;
@@ -146,21 +146,21 @@ int planet(struct ZintSymbol * symbol, uchar source[], char dest[], int length)
 	uint sum, check_digit;
 	int error_number = 0;
 	if(length > 38) {
-		strcpy(symbol->errtxt, "Input too long (D82)");
+		sstrcpy(symbol->errtxt, "Input too long (D82)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data (D83)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (D83)");
 		return error_number;
 	}
 	sum = 0;
 	// start character 
-	strcpy(dest, "L");
+	sstrcpy(dest, "L");
 	{
 		for(int i = 0; i < length; i++) {
 			lookup(NEON, PLTable, source[i], dest);
-			sum += ctoi(source[i]);
+			sum += hex(source[i]);
 		}
 	}
 	check_digit = (10 - (sum % 10)) % 10;
@@ -209,21 +209,21 @@ int korea_post(struct ZintSymbol * symbol, uchar source[], int length)
 
 	error_number = 0;
 	if(length > 6) {
-		strcpy(symbol->errtxt, "Input too long (D84)");
+		sstrcpy(symbol->errtxt, "Input too long (D84)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data (D85)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (D85)");
 		return error_number;
 	}
 	zeroes = 6 - length;
 	memset(localstr, '0', zeroes);
-	strcpy(localstr + zeroes, (char*)source);
+	sstrcpy(localstr + zeroes, (char*)source);
 
 	total = 0;
 	for(loop = 0; loop < 6; loop++) {
-		total += ctoi(localstr[loop]);
+		total += hex(localstr[loop]);
 	}
 	check = 10 - (total % 10);
 	if(check == 10) {
@@ -237,7 +237,7 @@ int korea_post(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	lookup(NEON, KoreaTable, localstr[6], dest);
 	expand(symbol, dest);
-	ustrcpy(symbol->text, (uchar*)localstr);
+	sstrcpy(symbol->text, (uchar*)localstr);
 	return error_number;
 }
 
@@ -248,29 +248,29 @@ int fim(struct ZintSymbol * symbol, uchar source[], int length)
 	char dest[16] = {0};
 
 	if(length > 1) {
-		strcpy(symbol->errtxt, "Input too long (D86)");
+		sstrcpy(symbol->errtxt, "Input too long (D86)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 
 	switch((char)source[0]) {
 		case 'a':
 		case 'A':
-		    strcpy(dest, "111515111");
+		    sstrcpy(dest, "111515111");
 		    break;
 		case 'b':
 		case 'B':
-		    strcpy(dest, "13111311131");
+		    sstrcpy(dest, "13111311131");
 		    break;
 		case 'c':
 		case 'C':
-		    strcpy(dest, "11131313111");
+		    sstrcpy(dest, "11131313111");
 		    break;
 		case 'd':
 		case 'D':
-		    strcpy(dest, "1111131311111");
+		    sstrcpy(dest, "1111131311111");
 		    break;
 		default:
-		    strcpy(symbol->errtxt, "Invalid characters in data (D87)");
+		    sstrcpy(symbol->errtxt, "Invalid characters in data (D87)");
 		    return ZINT_ERROR_INVALID_DATA;
 		    break;
 	}
@@ -287,13 +287,13 @@ char rm4scc(char source[], uchar dest[], int length)
 	int    top = 0;
 	int    bottom = 0;
 	// start character 
-	strcpy((char*)dest, "1");
+	sstrcpy((char*)dest, "1");
 	{
 		for(int i = 0; i < length; i++) {
 			lookup(KRSET, RoyalTable, source[i], (char*)dest);
-			strcpy(values, RoyalValues[posn(KRSET, source[i])]);
-			top += ctoi(values[0]);
-			bottom += ctoi(values[1]);
+			sstrcpy(values, RoyalValues[posn(KRSET, source[i])]);
+			top += hex(values[0]);
+			bottom += hex(values[1]);
 		}
 	}
 	// Calculate the check digit 
@@ -319,18 +319,18 @@ int royal_plot(struct ZintSymbol * symbol, uchar source[], int length)
 	uint loopey, h;
 	int writer;
 	int error_number;
-	strcpy(height_pattern, "");
+	sstrcpy(height_pattern, "");
 
 	error_number = 0;
 
 	if(length > 50) {
-		strcpy(symbol->errtxt, "Input too long (D88)");
+		sstrcpy(symbol->errtxt, "Input too long (D88)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	to_upper(source);
 	error_number = is_sane(KRSET, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data (D89)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (D89)");
 		return error_number;
 	}
 	/*check = */ rm4scc((char*)source, (uchar*)height_pattern, length);
@@ -365,18 +365,18 @@ int kix_code(struct ZintSymbol * symbol, uchar source[], int length)
 	char height_pattern[75], localstr[20];
 	int writer, i;
 	int error_number = 0; /* zeroes; */
-	strcpy(height_pattern, "");
+	sstrcpy(height_pattern, "");
 	if(length > 18) {
-		strcpy(symbol->errtxt, "Input too long (D8A)");
+		sstrcpy(symbol->errtxt, "Input too long (D8A)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	to_upper(source);
 	error_number = is_sane(KRSET, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data (D8B)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (D8B)");
 		return error_number;
 	}
-	strcpy(localstr, (char*)source);
+	sstrcpy(localstr, (char*)source);
 	// Encode data 
 	for(i = 0; i < length; i++) {
 		lookup(KRSET, RoyalTable, localstr[i], height_pattern);
@@ -409,18 +409,18 @@ int daft_code(struct ZintSymbol * symbol, uchar source[], int length)
 	char height_pattern[100];
 	uint loopey, h;
 	int writer, i, error_number;
-	strcpy(height_pattern, "");
+	sstrcpy(height_pattern, "");
 
 	error_number = 0;
 	if(length > 50) {
-		strcpy(symbol->errtxt, "Input too long (D8C)");
+		sstrcpy(symbol->errtxt, "Input too long (D8C)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	to_upper((uchar*)source);
 	error_number = is_sane(DAFTSET, (uchar*)source, length);
 
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data (D8D)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (D8D)");
 		return error_number;
 	}
 
@@ -470,12 +470,12 @@ int flattermarken(struct ZintSymbol * symbol, uchar source[], int length)
 	error_number = 0;
 
 	if(length > 90) {
-		strcpy(symbol->errtxt, "Input too long (D8E)");
+		sstrcpy(symbol->errtxt, "Input too long (D8E)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data (D8F)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (D8F)");
 		return error_number;
 	}
 	*dest = '\0';
@@ -503,14 +503,14 @@ int japan_post(struct ZintSymbol * symbol, uchar source[], int length)
 #endif
 
 	if(length > 20) {
-		strcpy(symbol->errtxt, "Input too long (D8G)");
+		sstrcpy(symbol->errtxt, "Input too long (D8G)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 
 	inter_posn = 0;
 	error_number = 0;
 
-	strcpy(local_source, (char*)source);
+	sstrcpy(local_source, (char*)source);
 	for(i = 0; i < length; i++) {
 		local_source[i] = source[i];
 	}
@@ -518,7 +518,7 @@ int japan_post(struct ZintSymbol * symbol, uchar source[], int length)
 	error_number = is_sane(SHKASUTSET, (uchar*)local_source, length);
 
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data (D8H)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (D8H)");
 		return error_number;
 	}
 	memset(inter, 'd', 20); /* Pad character CC4 */
@@ -552,7 +552,7 @@ int japan_post(struct ZintSymbol * symbol, uchar source[], int length)
 	} while((i < length) && (inter_posn < 20));
 	inter[20] = '\0';
 
-	strcpy(pattern, "13"); /* Start */
+	sstrcpy(pattern, "13"); /* Start */
 
 	sum = 0;
 	for(i = 0; i < 20; i++) {

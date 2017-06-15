@@ -27,12 +27,11 @@
 #endif
 //#include <curl/curl.h>
 #include "vtls/vtls.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "rand.h"
-
-/* The last 3 #include files should be in this order */
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 static CURLcode randit(struct Curl_easy * data, uint * rnd)
@@ -41,7 +40,6 @@ static CURLcode randit(struct Curl_easy * data, uint * rnd)
 	CURLcode result = CURLE_OK;
 	static uint randseed;
 	static bool seeded = FALSE;
-
 #ifdef CURLDEBUG
 	char * force_entropy = getenv("CURL_ENTROPY");
 	if(force_entropy) {
@@ -58,12 +56,10 @@ static CURLcode randit(struct Curl_easy * data, uint * rnd)
 		return CURLE_OK;
 	}
 #endif
-
-	/* data may be NULL! */
+	// data may be NULL! 
 	result = Curl_ssl_random(data, (uchar*)rnd, sizeof(*rnd));
 	if(result != CURLE_NOT_BUILT_IN)
-		/* only if there is no random function in the TLS backend do the non crypto
-		   version, otherwise return result */
+		// only if there is no random function in the TLS backend do the non crypto version, otherwise return result 
 		return result;
 
 	/* ---- non-cryptographic version following ---- */
@@ -81,7 +77,6 @@ static CURLcode randit(struct Curl_easy * data, uint * rnd)
 		}
 	}
 #endif
-
 	if(!seeded) {
 		struct timeval now = curlx_tvnow();
 		infof(data, "WARNING: Using weak random seed\n");
@@ -91,13 +86,11 @@ static CURLcode randit(struct Curl_easy * data, uint * rnd)
 		randseed = randseed * 1103515245 + 12345;
 		seeded = TRUE;
 	}
-
-	/* Return an unsigned 32-bit pseudo-random number. */
+	// Return an unsigned 32-bit pseudo-random number. 
 	r = randseed = randseed * 1103515245 + 12345;
 	*rnd = (r << 16) | ((r >> 16) & 0xFFFF);
 	return CURLE_OK;
 }
-
 /*
  * Curl_rand() stores 'num' number of random unsigned integers in the buffer
  * 'rndptr' points to.
@@ -113,16 +106,11 @@ static CURLcode randit(struct Curl_easy * data, uint * rnd)
  * easy handle!
  *
  */
-
-CURLcode Curl_rand(struct Curl_easy * data, uint * rndptr,
-    uint num)
+CURLcode Curl_rand(struct Curl_easy * data, uint * rndptr, uint num)
 {
 	CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-	uint i;
-
 	assert(num > 0);
-
-	for(i = 0; i < num; i++) {
+	for(uint i = 0; i < num; i++) {
 		result = randit(data, rndptr++);
 		if(result)
 			return result;

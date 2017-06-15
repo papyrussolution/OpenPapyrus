@@ -23,17 +23,17 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifndef CURL_DISABLE_GOPHER
-#include "urldata.h"
+//#include "urldata.h"
 //#include <curl/curl.h>
-#include "transfer.h"
-#include "sendf.h"
-#include "progress.h"
+//#include "transfer.h"
+//#include "sendf.h"
+//#include "progress.h"
 #include "gopher.h"
-#include "select.h"
-#include "url.h"
-#include "escape.h"
+//#include "select.h"
+//#include "url.h"
+//#include "escape.h"
 #include "warnless.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h" /* The last #include file should be: */
 /*
  * Forward declarations.

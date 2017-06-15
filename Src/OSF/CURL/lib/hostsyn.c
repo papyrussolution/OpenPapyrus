@@ -35,19 +35,17 @@
 #include <in.h>
 #include <inet.h>
 #endif
-
 #ifdef HAVE_PROCESS_H
-#include <process.h>
+	#include <process.h>
 #endif
-
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "hostip.h"
 #include "hash.h"
 #include "share.h"
-#include "strerror.h"
-#include "url.h"
-#include "curl_memory.h"
+//#include "strerror.h"
+//#include "url.h"
+//#include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
 

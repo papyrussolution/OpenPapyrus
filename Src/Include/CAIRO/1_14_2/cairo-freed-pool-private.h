@@ -104,7 +104,7 @@ _freed_pool_put (freed_pool_t *pool, void *ptr)
     int i;
 
     i = pool->top;
-    if (likely (i < ARRAY_LENGTH (pool->pool) &&
+    if (likely (i < SIZEOFARRAY (pool->pool) &&
 		_atomic_store (&pool->pool[i], ptr)))
     {
 	pool->top = i + 1;

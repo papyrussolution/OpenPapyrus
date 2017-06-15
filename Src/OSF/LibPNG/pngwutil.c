@@ -776,7 +776,6 @@ void /* PRIVATE */ png_write_PLTE(png_structrp png_ptr, png_const_colorp palette
 	uint8 buf[3];
 	png_debug(1, "in png_write_PLTE");
 	max_palette_length = (png_ptr->color_type == PNG_COLOR_TYPE_PALETTE) ? (1 << png_ptr->bit_depth) : PNG_MAX_PALETTE_LENGTH;
-
 	if((
 #ifdef PNG_MNG_FEATURES_SUPPORTED
 		    (png_ptr->mng_features_permitted & PNG_FLAG_MNG_EMPTY_PLTE) == 0 &&
@@ -785,46 +784,34 @@ void /* PRIVATE */ png_write_PLTE(png_structrp png_ptr, png_const_colorp palette
 		if(png_ptr->color_type == PNG_COLOR_TYPE_PALETTE) {
 			png_error(png_ptr, "Invalid number of colors in palette");
 		}
-
 		else {
 			png_warning(png_ptr, "Invalid number of colors in palette");
 			return;
 		}
 	}
-
 	if((png_ptr->color_type & PNG_COLOR_MASK_COLOR) == 0) {
-		png_warning(png_ptr,
-		    "Ignoring request to write a PLTE chunk in grayscale PNG");
-
+		png_warning(png_ptr, "Ignoring request to write a PLTE chunk in grayscale PNG");
 		return;
 	}
-
 	png_ptr->num_palette = (png_uint_16)num_pal;
 	png_debug1(3, "num_palette = %d", png_ptr->num_palette);
-
 	png_write_chunk_header(png_ptr, png_PLTE, (uint32)(num_pal * 3));
 #ifdef PNG_POINTER_INDEXING_SUPPORTED
-
 	for(i = 0, pal_ptr = palette; i < num_pal; i++, pal_ptr++) {
-		buf[0] = pal_ptr->red;
-		buf[1] = pal_ptr->green;
-		buf[2] = pal_ptr->blue;
+		buf[0] = pal_ptr->R;
+		buf[1] = pal_ptr->G;
+		buf[2] = pal_ptr->B;
 		png_write_chunk_data(png_ptr, buf, (size_t)3);
 	}
-
 #else
-	/* This is a little slower but some buggy compilers need to do this
-	 * instead
-	 */
+	// This is a little slower but some buggy compilers need to do this instead
 	pal_ptr = palette;
-
 	for(i = 0; i < num_pal; i++) {
-		buf[0] = pal_ptr[i].red;
-		buf[1] = pal_ptr[i].green;
-		buf[2] = pal_ptr[i].blue;
+		buf[0] = pal_ptr[i].R;
+		buf[1] = pal_ptr[i].G;
+		buf[2] = pal_ptr[i].B;
 		png_write_chunk_data(png_ptr, buf, (size_t)3);
 	}
-
 #endif
 	png_write_chunk_end(png_ptr);
 	png_ptr->mode |= PNG_HAVE_PLTE;

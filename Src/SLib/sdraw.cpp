@@ -1269,7 +1269,10 @@ uint FASTCALL SImageBuffer::PixF::GetStride(uint width) const
 	const  uint bpp = GetBpp();
 	if(bpp) {
 		const  uint m = (bpp * width);
-		const  uint junk = ((~(m-1)>>3) & 3); // неиспользуемый "хвост" строки
+		/*const*/  uint junk = ((~(m-1)>>3) & 3); // неиспользуемый "хвост" строки
+		if(S == s24RGB) {
+			junk = 0; // @v9.6.11 Что-то не понятное с этим "хвостиком"
+		}
 		return (ALIGNSIZE(m, 3) >> 3) + junk;
 	}
 	else
@@ -1704,6 +1707,13 @@ SImageBuffer::SImageBuffer()
 	S = 0;
 }
 
+SImageBuffer::SImageBuffer(const SImageBuffer & rS)
+{
+	SBaseBuffer::Init();
+	S = 0;
+	Copy(rS);
+}
+
 SImageBuffer::SImageBuffer(uint w, uint h, PixF f)
 {
 	SBaseBuffer::Init();
@@ -1722,12 +1732,17 @@ void SImageBuffer::Destroy()
 	SBaseBuffer::Destroy();
 }
 
+SImageBuffer & FASTCALL SImageBuffer::operator = (const SImageBuffer & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
 void * SImageBuffer::CreateSurface(SDrawSystem sys) const
 {
 	void * p_result = 0;
 	if(sys == dsysCairo) {
-		p_result = cairo_image_surface_create_for_data(
-			(uchar *)P_Buf, CAIRO_FORMAT_ARGB32, GetDim().x, GetDim().y, F.GetStride(GetDim().x));
+		p_result = cairo_image_surface_create_for_data((uchar *)P_Buf, CAIRO_FORMAT_ARGB32, GetDim().x, GetDim().y, F.GetStride(GetDim().x));
 	}
 	return p_result;
 }
@@ -1802,14 +1817,14 @@ int SImageBuffer::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	return ok;
 }
 
-int SImageBuffer::Copy(const SImageBuffer & rS)
+int FASTCALL SImageBuffer::Copy(const SImageBuffer & rS)
 {
 	S = rS.S;
 	F = rS.F;
 	return SBaseBuffer::Copy(rS);
 }
 
-int SImageBuffer::IsEqual(const SImageBuffer & rS) const
+int FASTCALL SImageBuffer::IsEqual(const SImageBuffer & rS) const
 {
 	if(F.S != rS.F.S)
 		return 0;
@@ -2103,32 +2118,14 @@ int SImageBuffer::Helper_LoadBmp(SBuffer & rBuf, const char * pAddedErrorInfo)
 	THROW(rBuf.Read(PTR8(&ih)+sizeof(ih.biSize), sizeof(ih)-sizeof(ih.biSize)));
 	THROW_S(ih.biCompression == 0, SLERR_BMPCOMPRNSUPPORTED);
 	switch(ih.biBitCount) {
-		case 0:
-			break;
-		case 1:
-			map_entry_size = 4;
-			ff.S = PixF::s1Idx;
-			break;
-		case 4:
-			map_entry_size = 4;
-			ff.S = PixF::s4Idx;
-			break;
-		case 8:
-			map_entry_size = 4;
-			ff.S = PixF::s8Idx;
-			break;
-		case 16:
-			ff.S = PixF::s16RGB555;
-			break;
-		case 24:
-			ff.S = PixF::s24RGB;
-			break;
-		case 32:
-			ff.S = PixF::s32RGB;
-			break;
-		default:
-			CALLEXCEPT_S_S(SLERR_INVBMPHEADER, pAddedErrorInfo);
-			break;
+		case  0: break;
+		case  1: map_entry_size = 4; ff.S = PixF::s1Idx; break;
+		case  4: map_entry_size = 4; ff.S = PixF::s4Idx; break;
+		case  8: map_entry_size = 4; ff.S = PixF::s8Idx; break;
+		case 16: ff.S = PixF::s16RGB555; break;
+		case 24: ff.S = PixF::s24RGB; break;
+		case 32: ff.S = PixF::s32RGB; break;
+		default: CALLEXCEPT_S_S(SLERR_INVBMPHEADER, pAddedErrorInfo); break;
 	}
 	{
 		Palette palette;
@@ -2683,7 +2680,8 @@ int SImageBuffer::StorePng(const StoreParam & rP, SFile & rF)
 //
 //
 //
-#include <..\osf\giflib\gif_lib.h>
+//#include <..\osf\giflib\gif_lib.h>
+#include <gif_lib.h>
 
 static int GifReadFunc(GifFileType * pF, GifByteType * pData, int size)
 {
@@ -2696,8 +2694,8 @@ static int GifReadFunc(GifFileType * pF, GifByteType * pData, int size)
 
 int SImageBuffer::LoadGif(SFile & rF)
 {
-    const int InterlacedOffset[] = { 0, 4, 2, 1 }; // The way Interlaced image should.
-	const int InterlacedJumps[] = { 8, 8, 4, 2 };  // be read - offsets and jumps...
+    static const int8 InterlacedOffset[] = { 0, 4, 2, 1 }; // The way Interlaced image should.
+	static const int8 InterlacedJumps[] = { 8, 8, 4, 2 };  // be read - offsets and jumps...
 
 	int    ok = 1;
 	int    gif_err_code = 0;
@@ -2776,9 +2774,16 @@ int SImageBuffer::LoadGif(SFile & rF)
 		palette.Alloc(256);
 		THROW(Init(p_gf->SWidth, 0));
 		for(i = 0; i < 256; i++) {
-            const GifColorType & r_entry = p_color_map->Colors[i];
-			palette.SetRGB(i, r_entry.Red, r_entry.Green, r_entry.Blue);
+            const SColorRGB & r_entry = p_color_map->Colors[i];
+			palette.SetRGB(i, r_entry.R, r_entry.G, r_entry.B);
 		}
+		// @v9.6.11 {
+		{
+			const uint _stride = F.GetStride(S.x);
+			THROW(_stride);
+			THROW(Alloc(_stride * p_gf->SHeight));
+		}
+		// } @v9.6.11
 		for(i = 0; i < p_gf->SHeight; i++)
 			THROW(AddLines(p_buffer[i], fmt, 1, &palette));
 	}

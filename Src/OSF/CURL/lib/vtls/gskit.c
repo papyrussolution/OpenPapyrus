@@ -55,17 +55,16 @@
 	#include <limits.h>
 #endif
 //#include <curl/curl.h>
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "gskit.h"
 #include "vtls.h"
 #include "connect.h" /* for the connect timeout */
-#include "select.h"
+//#include "select.h"
 //#include "strcase.h"
 #include "x509asn1.h"
 #include "curl_printf.h"
-
-#include "curl_memory.h"
+//#include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
 

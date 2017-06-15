@@ -106,7 +106,7 @@ static void _gl_finish(void * device)
 
 	_cairo_gl_context_fini_shaders(ctx);
 
-	for(n = 0; n < ARRAY_LENGTH(ctx->glyph_cache); n++)
+	for(n = 0; n < SIZEOFARRAY(ctx->glyph_cache); n++)
 		_cairo_gl_glyph_cache_fini(ctx, &ctx->glyph_cache[n]);
 
 	_gl_unlock(device);
@@ -310,7 +310,7 @@ cairo_status_t _cairo_gl_context_init(cairo_gl_context_t * ctx)
 	ctx->max_textures = 0;
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &ctx->max_textures);
 
-	for(n = 0; n < ARRAY_LENGTH(ctx->glyph_cache); n++)
+	for(n = 0; n < SIZEOFARRAY(ctx->glyph_cache); n++)
 		_cairo_gl_glyph_cache_init(&ctx->glyph_cache[n]);
 
 	return CAIRO_STATUS_SUCCESS;

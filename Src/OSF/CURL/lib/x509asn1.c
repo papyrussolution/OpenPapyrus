@@ -24,18 +24,18 @@
 #pragma hdrstop
 #if defined(USE_GSKIT) || defined(USE_NSS) || defined(USE_GNUTLS) || defined(USE_CYASSL) || defined(USE_SCHANNEL)
 //#include <curl/curl.h>
-#include "urldata.h"
+//#include "urldata.h"
 //#include "strcase.h"
 #include "hostcheck.h"
 #include "vtls/vtls.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "inet_pton.h"
-#include "curl_base64.h"
+//#include "curl_base64.h"
 #include "x509asn1.h"
 
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* For overflow checks. */

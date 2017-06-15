@@ -23,13 +23,13 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include <curl/curl.h>
-#include "urldata.h"
-#include "getinfo.h"
+//#include "urldata.h"
+//#include "getinfo.h"
 #include "vtls/vtls.h"
 #include "connect.h" /* Curl_getconnectinfo() */
-#include "progress.h"
+//#include "progress.h"
 /* The last #include files should be: */
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /*

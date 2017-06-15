@@ -34,7 +34,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#define _BSD_SOURCE /* for snprintf(), strdup() */
+#define _BSD_SOURCE /* for snprintf(), sstrdup() */
 #include "cairo-array-private.h"
 
 #if CAIRO_HAS_FONT_SUBSET
@@ -681,7 +681,7 @@ static cairo_status_t _cairo_type1_fallback_init_internal(cairo_type1_subset_t  
 	if(unlikely(status))
 		goto fail1;
 
-	type1_subset->base_font = strdup(name);
+	type1_subset->base_font = sstrdup(name);
 	if(unlikely(type1_subset->base_font == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail1;

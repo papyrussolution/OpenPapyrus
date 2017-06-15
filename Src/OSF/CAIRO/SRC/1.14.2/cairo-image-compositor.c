@@ -700,7 +700,7 @@ static cairo_int_status_t composite_glyphs(void * _dst,
 
 	pixman_glyph_cache_freeze(glyph_cache);
 
-	if(info->num_glyphs > ARRAY_LENGTH(pglyphs_stack)) {
+	if(info->num_glyphs > SIZEOFARRAY(pglyphs_stack)) {
 		pglyphs = _cairo_malloc_ab(info->num_glyphs, sizeof(pixman_glyph_t));
 		if(unlikely(pglyphs == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -865,7 +865,7 @@ static cairo_int_status_t composite_glyphs_via_mask(void * _dst,
 		return status;
 	}
 	memzero(glyph_cache, sizeof(glyph_cache));
-	glyph_cache[info->glyphs[0].index % ARRAY_LENGTH(glyph_cache)] = scaled_glyph;
+	glyph_cache[info->glyphs[0].index % SIZEOFARRAY(glyph_cache)] = scaled_glyph;
 	format = PIXMAN_a8;
 	i = (info->extents.width + 3) & ~3;
 	if(scaled_glyph->surface->base.content & CAIRO_CONTENT_COLOR) {
@@ -887,7 +887,7 @@ static cairo_int_status_t composite_glyphs_via_mask(void * _dst,
 	status = CAIRO_STATUS_SUCCESS;
 	for(i = 0; i < info->num_glyphs; i++) {
 		ulong glyph_index = info->glyphs[i].index;
-		int cache_index = glyph_index % ARRAY_LENGTH(glyph_cache);
+		int cache_index = glyph_index % SIZEOFARRAY(glyph_cache);
 		cairo_image_surface_t * glyph_surface;
 		int x, y;
 		scaled_glyph = glyph_cache[cache_index];
@@ -970,7 +970,7 @@ static cairo_int_status_t composite_glyphs(void * _dst,
 		cairo_image_surface_t * glyph_surface;
 		cairo_scaled_glyph_t * scaled_glyph;
 		ulong glyph_index = info->glyphs[i].index;
-		int cache_index = glyph_index % ARRAY_LENGTH(glyph_cache);
+		int cache_index = glyph_index % SIZEOFARRAY(glyph_cache);
 		scaled_glyph = glyph_cache[cache_index];
 		if(scaled_glyph == NULL || _cairo_scaled_glyph_index(scaled_glyph) != glyph_index) {
 			status = _cairo_scaled_glyph_lookup(info->font, glyph_index, CAIRO_SCALED_GLYPH_INFO_SURFACE, &scaled_glyph);

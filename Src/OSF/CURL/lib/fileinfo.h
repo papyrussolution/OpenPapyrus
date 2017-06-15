@@ -22,7 +22,7 @@
  *
  ***************************************************************************/
 
-#include <curl/curl.h>
+//#include <curl/curl.h>
 
 struct curl_fileinfo *Curl_fileinfo_alloc(void);
 void Curl_fileinfo_dtor(void *, void *);

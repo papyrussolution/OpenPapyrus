@@ -25,42 +25,35 @@
 #pragma hdrstop
 #if defined(USE_WINDOWS_SSPI) && !defined(CURL_DISABLE_PROXY)
 
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "connect.h"
-#include "strerror.h"
-#include "timeval.h"
-#include "socks.h"
+//#include "strerror.h"
+//#include "timeval.h"
+//#include "socks.h"
 #include "curl_sspi.h"
 #include "curl_multibyte.h"
 #include "warnless.h"
-#include "strdup.h"
-/* The last 3 #include files should be in this order */
+//#include "strdup.h"
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
-
 /*
  * Helper sspi error functions.
  */
-static int check_sspi_err(struct connectdata * conn,
-    SECURITY_STATUS status,
-    const char * function)
+static int check_sspi_err(struct connectdata * conn, SECURITY_STATUS status, const char * function)
 {
-	if(status != SEC_E_OK &&
-	    status != SEC_I_COMPLETE_AND_CONTINUE &&
-	    status != SEC_I_COMPLETE_NEEDED &&
-	    status != SEC_I_CONTINUE_NEEDED) {
-		failf(conn->data, "SSPI error: %s failed: %s", function,
-		    Curl_sspi_strerror(conn, status));
+	if(status != SEC_E_OK && status != SEC_I_COMPLETE_AND_CONTINUE && status != SEC_I_COMPLETE_NEEDED && status != SEC_I_CONTINUE_NEEDED) {
+		failf(conn->data, "SSPI error: %s failed: %s", function, Curl_sspi_strerror(conn, status));
 		return 1;
 	}
 	return 0;
 }
-
-/* This is the SSPI-using version of this function */
-CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex,
-    struct connectdata * conn)
+//
+// This is the SSPI-using version of this function 
+//
+CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex, struct connectdata * conn)
 {
 	struct Curl_easy * data = conn->data;
 	curl_socket_t sock = conn->sock[sockindex];
@@ -68,7 +61,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex,
 	ssize_t actualread;
 	ssize_t written;
 	int result;
-	/* Needs GSS-API authentication */
+	// Needs GSS-API authentication 
 	SECURITY_STATUS status;
 	ulong sspi_ret_flags = 0;
 	uchar gss_enc;
@@ -84,10 +77,8 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex,
 	ushort us_length;
 	ulong qop;
 	uchar socksreq[4]; /* room for GSS-API exchange header only */
-	const char * service = data->set.str[STRING_PROXY_SERVICE_NAME] ?
-	    data->set.str[STRING_PROXY_SERVICE_NAME]  : "rcmd";
+	const char * service = data->set.str[STRING_PROXY_SERVICE_NAME] ? data->set.str[STRING_PROXY_SERVICE_NAME]  : "rcmd";
 	const size_t service_length = strlen(service);
-
 	/*   GSS-API request looks like
 	 * +----+------+-----+----------------+
 	 * |VER | MTYP | LEN |     TOKEN      |
@@ -103,19 +94,14 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex,
 			return CURLE_OUT_OF_MEMORY;
 	}
 	else {
-		service_name = SAlloc::M(service_length +
-		    strlen(conn->socks_proxy.host.name) + 2);
+		service_name = SAlloc::M(service_length + strlen(conn->socks_proxy.host.name) + 2);
 		if(!service_name)
 			return CURLE_OUT_OF_MEMORY;
-		snprintf(service_name, service_length +
-		    strlen(conn->socks_proxy.host.name)+2, "%s/%s",
-		    service, conn->socks_proxy.host.name);
+		snprintf(service_name, service_length + strlen(conn->socks_proxy.host.name)+2, "%s/%s", service, conn->socks_proxy.host.name);
 	}
-
 	input_desc.cBuffers = 1;
 	input_desc.pBuffers = &sspi_recv_token;
 	input_desc.ulVersion = SECBUFFER_VERSION;
-
 	sspi_recv_token.BufferType = SECBUFFER_TOKEN;
 	sspi_recv_token.cbBuffer = 0;
 	sspi_recv_token.pvBuffer = NULL;
@@ -135,56 +121,28 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex,
 	cred_handle.dwLower = 0;
 	cred_handle.dwUpper = 0;
 
-	status = s_pSecFn->AcquireCredentialsHandle(NULL,
-	    (TCHAR*)TEXT("Kerberos"),
-	    SECPKG_CRED_OUTBOUND,
-	    NULL,
-	    NULL,
-	    NULL,
-	    NULL,
-	    &cred_handle,
-	    &expiry);
-
+	status = s_pSecFn->AcquireCredentialsHandle(NULL, (TCHAR*)TEXT("Kerberos"), SECPKG_CRED_OUTBOUND, NULL, NULL, NULL, NULL, &cred_handle, &expiry);
 	if(check_sspi_err(conn, status, "AcquireCredentialsHandle")) {
 		failf(data, "Failed to acquire credentials.");
 		SAlloc::F(service_name);
 		s_pSecFn->FreeCredentialsHandle(&cred_handle);
 		return CURLE_COULDNT_CONNECT;
 	}
-
 	/* As long as we need to keep sending some context info, and there's no  */
 	/* errors, keep sending it...                                            */
 	for(;; ) {
-		TCHAR * sname;
-
-		sname = Curl_convert_UTF8_to_tchar(service_name);
+		TCHAR * sname = Curl_convert_UTF8_to_tchar(service_name);
 		if(!sname)
 			return CURLE_OUT_OF_MEMORY;
-
-		status = s_pSecFn->InitializeSecurityContext(&cred_handle,
-		    context_handle,
-		    sname,
-		    ISC_REQ_MUTUAL_AUTH |
-		    ISC_REQ_ALLOCATE_MEMORY |
-		    ISC_REQ_CONFIDENTIALITY |
-		    ISC_REQ_REPLAY_DETECT,
-		    0,
-		    SECURITY_NATIVE_DREP,
-		    &input_desc,
-		    0,
-		    &sspi_context,
-		    &output_desc,
-		    &sspi_ret_flags,
-		    &expiry);
-
+		status = s_pSecFn->InitializeSecurityContext(&cred_handle, context_handle, sname,
+		    ISC_REQ_MUTUAL_AUTH|ISC_REQ_ALLOCATE_MEMORY|ISC_REQ_CONFIDENTIALITY|ISC_REQ_REPLAY_DETECT,
+		    0, SECURITY_NATIVE_DREP, &input_desc, 0, &sspi_context, &output_desc, &sspi_ret_flags, &expiry);
 		Curl_unicodefree(sname);
-
 		if(sspi_recv_token.pvBuffer) {
 			s_pSecFn->FreeContextBuffer(sspi_recv_token.pvBuffer);
 			sspi_recv_token.pvBuffer = NULL;
 			sspi_recv_token.cbBuffer = 0;
 		}
-
 		if(check_sspi_err(conn, status, "InitializeSecurityContext")) {
 			SAlloc::F(service_name);
 			s_pSecFn->FreeCredentialsHandle(&cred_handle);
@@ -582,7 +540,6 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex,
 		memcpy(socksreq, sspi_w_token[0].pvBuffer, sspi_w_token[0].cbBuffer);
 		s_pSecFn->FreeContextBuffer(sspi_w_token[0].pvBuffer);
 	}
-
 	infof(data, "SOCKS5 access with%s protection granted.\n",
 	    (socksreq[0]==0) ? "out GSS-API data" :
 	    ((socksreq[0]==1) ? " GSS-API integrity" : " GSS-API confidentiality"));

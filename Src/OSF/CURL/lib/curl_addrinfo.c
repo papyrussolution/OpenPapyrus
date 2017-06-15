@@ -45,15 +45,13 @@
 #  undef  in_addr_t
 #  define in_addr_t ulong
 #endif
-
 #include <stddef.h>
-
 #include "curl_addrinfo.h"
 #include "inet_pton.h"
 #include "warnless.h"
-/* The last 3 #include files should be in this order */
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /*
@@ -77,12 +75,10 @@ void Curl_freeaddrinfo(Curl_addrinfo * cahead)
 {
 	Curl_addrinfo * vqualifier canext;
 	Curl_addrinfo * ca;
-
 	for(ca = cahead; ca != NULL; ca = canext) {
 		SAlloc::F(ca->ai_addr);
 		SAlloc::F(ca->ai_canonname);
 		canext = ca->ai_next;
-
 		SAlloc::F(ca);
 	}
 }
@@ -102,29 +98,20 @@ void Curl_freeaddrinfo(Curl_addrinfo * cahead)
  * whole library, any such call should be 'routed' through this one.
  */
 
-int Curl_getaddrinfo_ex(const char * nodename,
-    const char * servname,
-    const struct addrinfo * hints,
-    Curl_addrinfo ** result)
+int Curl_getaddrinfo_ex(const char * nodename, const char * servname, const struct addrinfo * hints, Curl_addrinfo ** result)
 {
 	const struct addrinfo * ai;
-
 	struct addrinfo * aihead;
-
 	Curl_addrinfo * cafirst = NULL;
 	Curl_addrinfo * calast = NULL;
 	Curl_addrinfo * ca;
 	size_t ss_size;
 	int error;
-
 	*result = NULL; /* assume failure */
-
 	error = getaddrinfo(nodename, servname, hints, &aihead);
 	if(error)
 		return error;
-
 	/* traverse the addrinfo list */
-
 	for(ai = aihead; ai != NULL; ai = ai->ai_next) {
 		/* ignore elements with unsupported address family, */
 		/* settle family-specific sockaddr structure size.  */
@@ -164,7 +151,6 @@ int Curl_getaddrinfo_ex(const char * nodename,
 			break;
 		}
 		memcpy(ca->ai_addr, ai->ai_addr, ss_size);
-
 		if(ai->ai_canonname != NULL) {
 			ca->ai_canonname = _strdup(ai->ai_canonname);
 			if(!ca->ai_canonname) {
@@ -188,29 +174,23 @@ int Curl_getaddrinfo_ex(const char * nodename,
 	/* destroy the addrinfo list */
 	if(aihead)
 		freeaddrinfo(aihead);
-
-	/* if we failed, also destroy the Curl_addrinfo list */
+	// if we failed, also destroy the Curl_addrinfo list 
 	if(error) {
 		Curl_freeaddrinfo(cafirst);
 		cafirst = NULL;
 	}
 	else if(!cafirst) {
 #ifdef EAI_NONAME
-		/* rfc3493 conformant */
-		error = EAI_NONAME;
+		error = EAI_NONAME; // rfc3493 conformant 
 #else
-		/* rfc3493 obsoleted */
-		error = EAI_NODATA;
+		error = EAI_NODATA; // rfc3493 obsoleted 
 #endif
 #ifdef USE_WINSOCK
 		SET_SOCKERRNO(error);
 #endif
 	}
-
 	*result = cafirst;
-
-	/* This is not a CURLcode */
-	return error;
+	return error; // This is not a CURLcode 
 }
 
 #endif /* HAVE_GETADDRINFO */
@@ -262,21 +242,15 @@ Curl_addrinfo * Curl_he2ai(const struct hostent * he, int port)
 	Curl_addrinfo * prevai = NULL;
 	Curl_addrinfo * firstai = NULL;
 	struct sockaddr_in * addr;
-
 #ifdef ENABLE_IPV6
 	struct sockaddr_in6 * addr6;
-
 #endif
 	CURLcode result = CURLE_OK;
 	int i;
 	char * curr;
-
-	if(!he)
-		/* no input == no output! */
+	if(!he) // no input == no output! 
 		return NULL;
-
 	DEBUGASSERT((he->h_name != NULL) && (he->h_addr_list != NULL));
-
 	for(i = 0; (curr = he->h_addr_list[i]) != NULL; i++) {
 		size_t ss_size;
 #ifdef ENABLE_IPV6
@@ -303,16 +277,13 @@ Curl_addrinfo * Curl_he2ai(const struct hostent * he, int port)
 			SAlloc::F(ai);
 			break;
 		}
-
 		if(!firstai)
-			/* store the pointer we want to return from this function */
-			firstai = ai;
+			firstai = ai; // store the pointer we want to return from this function 
 		if(prevai)
-			/* make the previous entry point to this */
-			prevai->ai_next = ai;
+			prevai->ai_next = ai; // make the previous entry point to this 
 		ai->ai_family = he->h_addrtype;
-		/* we return all names as STREAM, so when using this address for TFTP
-		   the type must be ignored and conn->socktype be used instead! */
+		// we return all names as STREAM, so when using this address for TFTP
+		// the type must be ignored and conn->socktype be used instead! 
 		ai->ai_socktype = SOCK_STREAM;
 		ai->ai_addrlen = (curl_socklen_t)ss_size;
 		/* leave the rest of the struct filled with zero */
@@ -323,11 +294,9 @@ Curl_addrinfo * Curl_he2ai(const struct hostent * he, int port)
 			    addr->sin_family = (ushort)(he->h_addrtype);
 			    addr->sin_port = htons((ushort)port);
 			    break;
-
 #ifdef ENABLE_IPV6
 			case AF_INET6:
 			    addr6 = (void*)ai->ai_addr; /* storage area for this info */
-
 			    memcpy(&addr6->sin6_addr, curr, sizeof(struct in6_addr));
 			    addr6->sin6_family = (ushort)(he->h_addrtype);
 			    addr6->sin6_port = htons((ushort)port);
@@ -337,27 +306,21 @@ Curl_addrinfo * Curl_he2ai(const struct hostent * he, int port)
 
 		prevai = ai;
 	}
-
 	if(result) {
 		Curl_freeaddrinfo(firstai);
 		firstai = NULL;
 	}
-
 	return firstai;
 }
 
 struct namebuff {
 	struct hostent hostentry;
-
 	union {
 		struct in_addr ina4;
-
 #ifdef ENABLE_IPV6
 		struct in6_addr ina6;
-
 #endif
 	} addrentry;
-
 	char * h_addr_list[2];
 };
 
@@ -419,18 +382,13 @@ Curl_addrinfo * Curl_ip2addr(int af, const void * inaddr, const char * hostname,
 	h->h_addr_list = &buf->h_addr_list[0];
 	h->h_addr_list[0] = addrentry;
 	h->h_addr_list[1] = NULL; /* terminate list of entries */
-
-#if defined(__VMS) && \
-	defined(__INITIAL_POINTER_SIZE) && (__INITIAL_POINTER_SIZE == 64)
-#pragma pointer_size restore
-#pragma message enable PTRMISMATCH
+#if defined(__VMS) && defined(__INITIAL_POINTER_SIZE) && (__INITIAL_POINTER_SIZE == 64)
+	#pragma pointer_size restore
+	#pragma message enable PTRMISMATCH
 #endif
-
 	ai = Curl_he2ai(h, port);
-
 	SAlloc::F(hoststr);
 	SAlloc::F(buf);
-
 	return ai;
 }
 
@@ -441,7 +399,6 @@ Curl_addrinfo * Curl_ip2addr(int af, const void * inaddr, const char * hostname,
 Curl_addrinfo * Curl_str2addr(char * address, int port)
 {
 	struct in_addr in;
-
 	if(Curl_inet_pton(AF_INET, address, &in) > 0)
 		/* This is a dotted IP address 123.123.123.123-style */
 		return Curl_ip2addr(AF_INET, &in, address, port);
@@ -467,11 +424,8 @@ Curl_addrinfo * Curl_unix2addr(const char * path, bool * longpath, bool abstract
 {
 	Curl_addrinfo * ai;
 	struct sockaddr_un * sa_un;
-
 	size_t path_len;
-
 	*longpath = FALSE;
-
 	ai = SAlloc::C(1, sizeof(Curl_addrinfo));
 	if(!ai)
 		return NULL;
@@ -480,10 +434,8 @@ Curl_addrinfo * Curl_unix2addr(const char * path, bool * longpath, bool abstract
 		SAlloc::F(ai);
 		return NULL;
 	}
-
 	sa_un = (void*)ai->ai_addr;
 	sa_un->sun_family = AF_UNIX;
-
 	/* sun_path must be able to store the NUL-terminated path */
 	path_len = strlen(path) + 1;
 	if(path_len > sizeof(sa_un->sun_path)) {
@@ -552,13 +504,10 @@ int curl_dogetaddrinfo(const char * hostname,
 #else
 	int res = (getaddrinfo)(hostname, service, hints, result);
 #endif
-	if(0 == res)
-		/* success */
-		curl_memlog("ADDR %s:%d getaddrinfo() = %p\n",
-		    source, line, (void*)*result);
+	if(0 == res) // success 
+		curl_memlog("ADDR %s:%d getaddrinfo() = %p\n", source, line, (void*)*result);
 	else
-		curl_memlog("ADDR %s:%d getaddrinfo() failed\n",
-		    source, line);
+		curl_memlog("ADDR %s:%d getaddrinfo() failed\n", source, line);
 	return res;
 }
 

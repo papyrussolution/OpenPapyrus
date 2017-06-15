@@ -218,7 +218,7 @@ static cairo_status_t _tessellate_fan(cairo_stroker_t * stroker,
 			if(num_points < 0)
 				num_points += pen->num_vertices;
 			num_points += 2;
-			if(num_points > ARRAY_LENGTH(stack_points)) {
+			if(num_points > SIZEOFARRAY(stack_points)) {
 				points = (cairo_point_t *)_cairo_malloc_ab(num_points, sizeof(cairo_point_t));
 				if(unlikely(points == NULL))
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -260,7 +260,7 @@ static cairo_status_t _tessellate_fan(cairo_stroker_t * stroker,
 			if(num_points < 0)
 				num_points += pen->num_vertices;
 			num_points += 2;
-			if(num_points > ARRAY_LENGTH(stack_points)) {
+			if(num_points > SIZEOFARRAY(stack_points)) {
 				points = (cairo_point_t *)_cairo_malloc_ab(num_points, sizeof(cairo_point_t));
 				if(unlikely(points == NULL))
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);

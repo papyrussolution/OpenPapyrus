@@ -100,19 +100,11 @@ void binary_subtract(short accumulator[], short input_buffer[])
 	/* take input_buffer from accumulator and put answer in accumulator */
 	int i;
 	short sub_buffer[112];
-
 	for(i = 0; i < 112; i++) {
-		if(input_buffer[i] == 0) {
-			sub_buffer[i] = 1;
-		}
-		else {
-			sub_buffer[i] = 0;
-		}
+		sub_buffer[i] = (input_buffer[i] == 0) ? 1 : 0;
 	}
 	binary_add(accumulator, sub_buffer);
-
 	sub_buffer[0] = 1;
-
 	for(i = 1; i < 112; i++) {
 		sub_buffer[i] = 0;
 	}
@@ -122,10 +114,8 @@ void binary_subtract(short accumulator[], short input_buffer[])
 void shiftdown(short buffer[])
 {
 	int i;
-
 	buffer[102] = 0;
 	buffer[103] = 0;
-
 	for(i = 0; i < 102; i++) {
 		buffer[i] = buffer[i + 1];
 	}
@@ -134,11 +124,9 @@ void shiftdown(short buffer[])
 void shiftup(short buffer[])
 {
 	int i;
-
 	for(i = 102; i > 0; i--) {
 		buffer[i] = buffer[i - 1];
 	}
-
 	buffer[0] = 0;
 }
 
@@ -172,10 +160,10 @@ void binary_load(short reg[], char data[], const uint src_len)
 		for(int i = 0; i < 9; i++) {
 			binary_add(reg, temp);
 		}
-		temp[0] = BCD[ctoi(data[read]) * 4];
-		temp[1] = BCD[(ctoi(data[read]) * 4) + 1];
-		temp[2] = BCD[(ctoi(data[read]) * 4) + 2];
-		temp[3] = BCD[(ctoi(data[read]) * 4) + 3];
+		temp[0] = BCD[hex(data[read]) * 4];
+		temp[1] = BCD[(hex(data[read]) * 4) + 1];
+		temp[2] = BCD[(hex(data[read]) * 4) + 2];
+		temp[3] = BCD[(hex(data[read]) * 4) + 3];
 		memzero(temp+4, sizeof(temp) - 4 * sizeof(temp[0]));
 		binary_add(reg, temp);
 	}

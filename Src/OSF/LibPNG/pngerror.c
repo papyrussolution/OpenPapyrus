@@ -514,12 +514,11 @@ void /* PRIVATE */ png_chunk_report(png_const_structrp png_ptr, const char * mes
 
 #ifdef PNG_ERROR_TEXT_SUPPORTED
 #ifdef PNG_FLOATING_POINT_SUPPORTED
-PNG_FUNCTION(void,
-    png_fixed_error, (png_const_structrp png_ptr, const char * name), PNG_NORETURN)
+PNG_FUNCTION(void, png_fixed_error, (png_const_structrp png_ptr, const char * name), PNG_NORETURN)
 {
-#  define fixed_message "fixed point overflow in "
-#  define fixed_message_ln ((sizeof fixed_message)-1)
-	int iin;
+	#define fixed_message "fixed point overflow in "
+	#define fixed_message_ln ((sizeof fixed_message)-1)
+	uint iin;
 	char msg[fixed_message_ln+PNG_MAX_ERROR_TEXT];
 	memcpy(msg, fixed_message, fixed_message_ln);
 	iin = 0;

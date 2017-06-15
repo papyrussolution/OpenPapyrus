@@ -11,21 +11,20 @@
 /*
  * the following pointers may be changed as long as 'allow_customize' is set
  */
-static int allow_customize = 1;
+static int allow_customize = 1; // @global
 
 static void *(*malloc_impl)(size_t, const char *, int) = CRYPTO_malloc;
 static void *(*realloc_impl)(void *, size_t, const char *, int) = CRYPTO_realloc;
 static void (* free_impl)(void *, const char *, int) = CRYPTO_free;
 
 #ifndef OPENSSL_NO_CRYPTO_MDEBUG
-static int call_malloc_debug = 1;
+	static int call_malloc_debug = 1;
 #else
-static int call_malloc_debug = 0;
+	static int call_malloc_debug = 0;
 #endif
 
 int CRYPTO_set_mem_functions(void *(*m)(size_t, const char *, int),
-    void *(*r)(void *, size_t, const char *, int),
-    void (* f)(void *, const char *, int))
+    void *(*r)(void *, size_t, const char *, int), void (* f)(void *, const char *, int))
 {
 	if(!allow_customize)
 		return 0;
@@ -42,13 +41,14 @@ int CRYPTO_set_mem_debug(int flag)
 {
 	if(!allow_customize)
 		return 0;
-	call_malloc_debug = flag;
-	return 1;
+	else {
+		call_malloc_debug = flag;
+		return 1;
+	}
 }
 
 void CRYPTO_get_mem_functions(void *(**m)(size_t, const char *, int),
-    void *(**r)(void *, size_t, const char *, int),
-    void(**f) (void *, const char *, int))
+    void *(**r)(void *, size_t, const char *, int), void(**f) (void *, const char *, int))
 {
 	ASSIGN_PTR(m, malloc_impl);
 	ASSIGN_PTR(r, realloc_impl);
@@ -58,25 +58,25 @@ void CRYPTO_get_mem_functions(void *(**m)(size_t, const char *, int),
 void * CRYPTO_malloc(size_t num, const char * file, int line)
 {
 	void * ret = NULL;
-	if(malloc_impl != NULL && malloc_impl != CRYPTO_malloc)
-		return malloc_impl(num, file, line);
-	if(num <= 0)
-		return NULL;
-	allow_customize = 0;
+	if(malloc_impl && malloc_impl != CRYPTO_malloc)
+		ret = malloc_impl(num, file, line);
+	else if(num > 0) {
+		allow_customize = 0;
 #ifndef OPENSSL_NO_CRYPTO_MDEBUG
-	if(call_malloc_debug) {
-		CRYPTO_mem_debug_malloc(NULL, num, 0, file, line);
-		ret = malloc(num);
-		CRYPTO_mem_debug_malloc(ret, num, 1, file, line);
-	}
-	else {
-		ret = malloc(num);
-	}
+		if(call_malloc_debug) {
+			CRYPTO_mem_debug_malloc(NULL, num, 0, file, line);
+			ret = malloc(num);
+			CRYPTO_mem_debug_malloc(ret, num, 1, file, line);
+		}
+		else {
+			ret = malloc(num);
+		}
 #else
-	osslargused(file); 
-	osslargused(line);
-	ret = malloc(num);
+		osslargused(file); 
+		osslargused(line);
+		ret = malloc(num);
 #endif
+	}
 	return ret;
 }
 

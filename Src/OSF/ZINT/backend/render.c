@@ -48,13 +48,7 @@ int render_plot_add_ring(struct ZintSymbol * symbol, struct zint_render_ring * r
 struct zint_render_hexagon * render_plot_create_hexagon(float x, float y);
 int render_plot_add_hexagon(struct ZintSymbol * symbol, struct zint_render_hexagon * ring, struct zint_render_hexagon ** last_hexagon);
 
-int render_plot_add_string(struct ZintSymbol * symbol,
-    uchar * text,
-    float x,
-    float y,
-    float fsize,
-    float width,
-    struct zint_render_string ** last_string);
+int render_plot_add_string(struct ZintSymbol * symbol, uchar * text, float x, float y, float fsize, float width, struct zint_render_string ** last_string);
 
 int render_plot(struct ZintSymbol * symbol, const float width, const float height)
 {
@@ -95,7 +89,7 @@ int render_plot(struct ZintSymbol * symbol, const float width, const float heigh
 	textdone = 0;
 	textpos = 0.0;
 	main_symbol_width_x = symbol->width;
-	strcpy(addon, "");
+	sstrcpy(addon, "");
 	symbol_lead_in = 0;
 	addon_text_posn = 0.0;
 	addon_width_x = 0;
@@ -783,7 +777,7 @@ int render_plot_add_string(struct ZintSymbol * symbol,
 	string->fsize = fsize;
 	string->length = sstrlen(text);
 	string->text = (uchar*)SAlloc::M(sizeof(uchar) * (sstrlen(text) + 1));
-	ustrcpy(string->text, text);
+	sstrcpy(string->text, text);
 
 	if(*last_string)
 		(*last_string)->next = string;

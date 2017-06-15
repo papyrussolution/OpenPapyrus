@@ -54,18 +54,18 @@
 
 #ifdef CURLRES_ARES
 
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "hostip.h"
 #include "hash.h"
 #include "share.h"
-#include "strerror.h"
-#include "url.h"
+//#include "strerror.h"
+//#include "url.h"
 #include "multiif.h"
 #include "inet_pton.h"
 #include "connect.h"
-#include "select.h"
-#include "progress.h"
+//#include "select.h"
+//#include "progress.h"
 
 #  if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) && \
 	(defined(WIN32) || defined(_WIN32) || defined(__SYMBIAN32__))
@@ -80,9 +80,9 @@
 #define HAVE_CARES_CALLBACK_TIMEOUTS 1
 #endif
 
-/* The last 3 #include files should be in this order */
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 struct ResolverResults {
@@ -209,32 +209,20 @@ static void destroy_async_data(struct Curl_async * async)
  *
  * Returns: sockets-in-use-bitmap
  */
-
-int Curl_resolver_getsock(struct connectdata * conn,
-    curl_socket_t * socks,
-    int numsocks)
-
+int Curl_resolver_getsock(struct connectdata * conn, curl_socket_t * socks, int numsocks)
 {
 	struct timeval maxtime;
-
 	struct timeval timebuf;
-
 	struct timeval * timeout;
-
 	long milli;
-	int max = ares_getsock((ares_channel)conn->data->state.resolver,
-	    (ares_socket_t*)socks, numsocks);
-
+	int max = ares_getsock((ares_channel)conn->data->state.resolver, (ares_socket_t*)socks, numsocks);
 	maxtime.tv_sec = CURL_TIMEOUT_RESOLVE;
 	maxtime.tv_usec = 0;
-
-	timeout = ares_timeout((ares_channel)conn->data->state.resolver, &maxtime,
-	    &timebuf);
+	timeout = ares_timeout((ares_channel)conn->data->state.resolver, &maxtime, &timebuf);
 	milli = (timeout->tv_sec * 1000) + (timeout->tv_usec/1000);
 	if(milli == 0)
 		milli += 10;
 	Curl_expire_latest(conn->data, milli);
-
 	return max;
 }
 
@@ -255,13 +243,9 @@ static int waitperform(struct connectdata * conn, int timeout_ms)
 	int bitmask;
 	ares_socket_t socks[ARES_GETSOCK_MAXNUM];
 	struct pollfd pfd[ARES_GETSOCK_MAXNUM];
-
 	int i;
 	int num = 0;
-
-	bitmask = ares_getsock((ares_channel)data->state.resolver, socks,
-	    ARES_GETSOCK_MAXNUM);
-
+	bitmask = ares_getsock((ares_channel)data->state.resolver, socks, ARES_GETSOCK_MAXNUM);
 	for(i = 0; i < ARES_GETSOCK_MAXNUM; i++) {
 		pfd[i].events = 0;
 		pfd[i].revents = 0;
@@ -278,17 +262,14 @@ static int waitperform(struct connectdata * conn, int timeout_ms)
 		else
 			break;
 	}
-
 	if(num)
 		nfds = Curl_poll(pfd, num, timeout_ms);
 	else
 		nfds = 0;
-
 	if(!nfds)
 		/* Call ares_process() unconditonally here, even if we simply timed out
 		   above, as otherwise the ares name resolve won't timeout! */
-		ares_process_fd((ares_channel)data->state.resolver, ARES_SOCKET_BAD,
-		    ARES_SOCKET_BAD);
+		ares_process_fd((ares_channel)data->state.resolver, ARES_SOCKET_BAD, ARES_SOCKET_BAD);
 	else {
 		/* move through the descriptors and ask for processing on them */
 		for(i = 0; i < num; i++)
@@ -317,8 +298,7 @@ CURLcode Curl_resolver_is_resolved(struct connectdata * conn, struct Curl_dns_en
 	waitperform(conn, 0);
 	if(res && !res->num_pending) {
 		(void)Curl_addrinfo_callback(conn, res->last_status, res->temp_ai);
-		/* temp_ai ownership is moved to the connection, so we need not free-up
-		   them */
+		// temp_ai ownership is moved to the connection, so we need not free-up them 
 		res->temp_ai = NULL;
 		if(!conn->async.dns) {
 			failf(data, "Could not resolve: %s (%s)", conn->async.hostname, ares_strerror(conn->async.status));
@@ -326,12 +306,10 @@ CURLcode Curl_resolver_is_resolved(struct connectdata * conn, struct Curl_dns_en
 		}
 		else
 			*dns = conn->async.dns;
-
 		destroy_async_data(&conn->async);
 	}
 	return result;
 }
-
 /*
  * Curl_resolver_wait_resolv()
  *
@@ -343,18 +321,14 @@ CURLcode Curl_resolver_is_resolved(struct connectdata * conn, struct Curl_dns_en
  * Returns CURLE_COULDNT_RESOLVE_HOST if the host was not resolved, and
  * CURLE_OPERATION_TIMEDOUT if a time-out occurred.
  */
-CURLcode Curl_resolver_wait_resolv(struct connectdata * conn,
-    struct Curl_dns_entry ** entry)
+CURLcode Curl_resolver_wait_resolv(struct connectdata * conn, struct Curl_dns_entry ** entry)
 {
 	CURLcode result = CURLE_OK;
 	struct Curl_easy * data = conn->data;
 	long timeout;
 	struct timeval now = Curl_tvnow();
 	struct Curl_dns_entry * temp_entry;
-
-	if(entry)
-		*entry = NULL;  /* clear on entry */
-
+	ASSIGN_PTR(entry, NULL);  /* clear on entry */
 	timeout = Curl_timeleft(data, &now, TRUE);
 	if(timeout < 0) {
 		/* already expired! */
@@ -363,22 +337,16 @@ CURLcode Curl_resolver_wait_resolv(struct connectdata * conn,
 	}
 	if(!timeout)
 		timeout = CURL_TIMEOUT_RESOLVE * 1000;  /* default name resolve timeout */
-
 	/* Wait for the name resolve query to complete. */
 	while(!result) {
 		struct timeval * tvp, tv, store;
-
 		long timediff;
 		int itimeout;
 		int timeout_ms;
-
 		itimeout = (timeout > (long)INT_MAX) ? INT_MAX : (int)timeout;
-
 		store.tv_sec = itimeout/1000;
 		store.tv_usec = (itimeout%1000)*1000;
-
 		tvp = ares_timeout((ares_channel)data->state.resolver, &store, &tv);
-
 		/* use the timeout period ares returned to us above if less than one
 		   second is left, otherwise just use 1000ms to make sure the progress
 		   callback gets called frequent enough */

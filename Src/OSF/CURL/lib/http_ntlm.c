@@ -34,13 +34,13 @@
 
 #define DEBUG_ME 0
 
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 //#include "strcase.h"
 #include "http_ntlm.h"
 #include "curl_ntlm_wb.h"
 #include "vauth/vauth.h"
-#include "url.h"
+//#include "url.h"
 
 #if defined(USE_NSS)
 	#include "vtls/nssg.h"
@@ -49,7 +49,7 @@
 #endif
 // The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 #if DEBUG_ME
@@ -72,15 +72,12 @@ CURLcode Curl_input_ntlm(struct connectdata * conn,
 
 	if(checkprefix("NTLM", header)) {
 		header += strlen("NTLM");
-
 		while(*header && ISSPACE(*header))
 			header++;
-
 		if(*header) {
 			result = Curl_auth_decode_ntlm_type2_message(conn->data, header, ntlm);
 			if(result)
 				return result;
-
 			ntlm->state = NTLMSTATE_TYPE2; /* We got a type-2 message */
 		}
 		else {
@@ -102,10 +99,8 @@ CURLcode Curl_input_ntlm(struct connectdata * conn,
 			ntlm->state = NTLMSTATE_TYPE1; /* We should send away a type-1 */
 		}
 	}
-
 	return result;
 }
-
 /*
  * This is for creating ntlm header output
  */
@@ -114,28 +109,21 @@ CURLcode Curl_output_ntlm(struct connectdata * conn, bool proxy)
 	char * base64 = NULL;
 	size_t len = 0;
 	CURLcode result;
-
-	/* point to the address of the pointer that holds the string to send to the
-	   server, which is for a plain host or for a HTTP proxy */
+	// point to the address of the pointer that holds the string to send to the
+	// server, which is for a plain host or for a HTTP proxy 
 	char ** allocuserpwd;
-
-	/* point to the name and password for this */
+	// point to the name and password for this 
 	const char * userp;
 	const char * passwdp;
-
-	/* point to the correct struct with this */
+	// point to the correct struct with this 
 	struct ntlmdata * ntlm;
-
 	struct auth * authp;
-
 	DEBUGASSERT(conn);
 	DEBUGASSERT(conn->data);
-
 #ifdef USE_NSS
 	if(CURLE_OK != Curl_nss_force_init(conn->data))
 		return CURLE_OUT_OF_MEMORY;
 #endif
-
 	if(proxy) {
 		allocuserpwd = &conn->allocptr.proxyuserpwd;
 		userp = conn->http_proxy.user;
@@ -151,14 +139,8 @@ CURLcode Curl_output_ntlm(struct connectdata * conn, bool proxy)
 		authp = &conn->data->state.authhost;
 	}
 	authp->done = FALSE;
-
-	/* not set means empty */
-	if(!userp)
-		userp = "";
-
-	if(!passwdp)
-		passwdp = "";
-
+	SETIFZ(userp, ""); // not set means empty 
+	SETIFZ(passwdp, "");
 #ifdef USE_WINDOWS_SSPI
 	if(s_hSecDll == NULL) {
 		/* not thread safe and leaks - use curl_global_init() to avoid */
@@ -167,16 +149,13 @@ CURLcode Curl_output_ntlm(struct connectdata * conn, bool proxy)
 			return err;
 	}
 #endif
-
 	switch(ntlm->state) {
 		case NTLMSTATE_TYPE1:
 		default: /* for the weird cases we (re)start here */
 		    /* Create a type-1 message */
-		    result = Curl_auth_create_ntlm_type1_message(userp, passwdp, ntlm, &base64,
-		    &len);
+		    result = Curl_auth_create_ntlm_type1_message(userp, passwdp, ntlm, &base64, &len);
 		    if(result)
 			    return result;
-
 		    if(base64) {
 			    SAlloc::F(*allocuserpwd);
 			    *allocuserpwd = aprintf("%sAuthorization: NTLM %s\r\n",
@@ -185,29 +164,22 @@ CURLcode Curl_output_ntlm(struct connectdata * conn, bool proxy)
 			    SAlloc::F(base64);
 			    if(!*allocuserpwd)
 				    return CURLE_OUT_OF_MEMORY;
-
 			    DEBUG_OUT(fprintf(stderr, "**** Header %s\n ", *allocuserpwd));
 		    }
 		    break;
-
 		case NTLMSTATE_TYPE2:
 		    /* We already received the type-2 message, create a type-3 message */
 		    result = Curl_auth_create_ntlm_type3_message(conn->data, userp, passwdp,
 		    ntlm, &base64, &len);
 		    if(result)
 			    return result;
-
 		    if(base64) {
 			    SAlloc::F(*allocuserpwd);
-			    *allocuserpwd = aprintf("%sAuthorization: NTLM %s\r\n",
-			    proxy ? "Proxy-" : "",
-			    base64);
+			    *allocuserpwd = aprintf("%sAuthorization: NTLM %s\r\n", proxy ? "Proxy-" : "", base64);
 			    SAlloc::F(base64);
 			    if(!*allocuserpwd)
 				    return CURLE_OUT_OF_MEMORY;
-
 			    DEBUG_OUT(fprintf(stderr, "**** %s\n ", *allocuserpwd));
-
 			    ntlm->state = NTLMSTATE_TYPE3; /* we send a type-3 */
 			    authp->done = TRUE;
 		    }

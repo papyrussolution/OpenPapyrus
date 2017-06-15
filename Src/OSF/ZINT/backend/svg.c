@@ -48,23 +48,22 @@ int svg_plot(struct ZintSymbol * symbol)
 	float addon_text_posn;
 	float scaler = symbol->scale;
 	float default_text_posn;
+	SString temp_buf;
 	const char * locale = NULL;
 #ifndef _MSC_VER
 	uchar local_text[sstrlen(symbol->text) + 1];
 #else
 	uchar* local_text = (uchar*)_alloca(sstrlen(symbol->text) + 1);
 #endif
-
 	row_height = 0;
 	textdone = 0;
 	main_width = symbol->width;
-	strcpy(addon, "");
+	sstrcpy(addon, "");
 	comp_offset = 0;
 	addon_text_posn = 0.0;
-
 	if(symbol->show_hrt != 0) {
 		/* Copy text from symbol */
-		ustrcpy(local_text, symbol->text);
+		sstrcpy(local_text, symbol->text);
 	}
 	else {
 		/* No text needed */
@@ -96,34 +95,36 @@ int svg_plot(struct ZintSymbol * symbol)
 	}
 	fsvg = (symbol->output_options & BARCODE_STDOUT) ? stdout : fopen(symbol->outfile, "w");
 	if(fsvg == NULL) {
-		strcpy(symbol->errtxt, "Could not open output file (F60)");
+		sstrcpy(symbol->errtxt, "Could not open output file (F60)");
 		return ZINT_ERROR_FILE_ACCESS;
 	}
-	/* sort out colour options */
+	/* @sobolev
+	// sort out colour options 
 	to_upper((uchar*)symbol->fgcolour);
 	to_upper((uchar*)symbol->bgcolour);
 	if(strlen(symbol->fgcolour) != 6) {
-		strcpy(symbol->errtxt, "Malformed foreground colour target (F61)");
+		sstrcpy(symbol->errtxt, "Malformed foreground colour target (F61)");
 		fclose(fsvg);
 		return ZINT_ERROR_INVALID_OPTION;
 	}
 	if(strlen(symbol->bgcolour) != 6) {
-		strcpy(symbol->errtxt, "Malformed background colour target (F62)");
+		sstrcpy(symbol->errtxt, "Malformed background colour target (F62)");
 		fclose(fsvg);
 		return ZINT_ERROR_INVALID_OPTION;
 	}
 	error_number = is_sane(SSET, (uchar*)symbol->fgcolour, strlen(symbol->fgcolour));
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Malformed foreground colour target (F63)");
+		sstrcpy(symbol->errtxt, "Malformed foreground colour target (F63)");
 		fclose(fsvg);
 		return ZINT_ERROR_INVALID_OPTION;
 	}
 	error_number = is_sane(SSET, (uchar*)symbol->bgcolour, strlen(symbol->bgcolour));
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Malformed background colour target (F64)");
+		sstrcpy(symbol->errtxt, "Malformed background colour target (F64)");
 		fclose(fsvg);
 		return ZINT_ERROR_INVALID_OPTION;
 	}
+	*/
 	locale = setlocale(LC_ALL, "C");
 	SETIFZ(symbol->height, 50);
 	large_bar_count = 0;
@@ -180,15 +181,10 @@ int svg_plot(struct ZintSymbol * symbol)
 		}
 	}
 	addon[r] = '\0';
-	if(sstrlen(local_text) != 0) {
-		textoffset = 9;
-	}
-	else {
-		textoffset = 0;
-	}
+	textoffset = (sstrlen(local_text) != 0) ? 9 : 0;
 	xoffset = symbol->border_width + symbol->whitespace_width;
 	yoffset = symbol->border_width;
-	/* Start writing the header */
+	// Start writing the header 
 	fprintf(fsvg, "<?xml version=\"1.0\" standalone=\"no\"?>\n");
 	fprintf(fsvg, "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n");
 	fprintf(fsvg, "   \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n");
@@ -198,7 +194,7 @@ int svg_plot(struct ZintSymbol * symbol)
 	}
 	else {
 		fprintf(fsvg, "<svg width=\"%d\" height=\"%d\" version=\"1.1\"\n", (int)ceil(
-			    (74.0f + xoffset + xoffset) * scaler), (int)ceil((72.0f + yoffset + yoffset) * scaler));
+		    (74.0f + xoffset + xoffset) * scaler), (int)ceil((72.0f + yoffset + yoffset) * scaler));
 	}
 	fprintf(fsvg, "   xmlns=\"http://www.w3.org/2000/svg\">\n");
 	if((sstrlen(local_text) != 0) && (symbol->show_hrt != 0)) {
@@ -208,15 +204,15 @@ int svg_plot(struct ZintSymbol * symbol)
 		fprintf(fsvg, "   <desc>Zint Generated Symbol\n");
 	}
 	fprintf(fsvg, "   </desc>\n");
-	fprintf(fsvg, "\n   <g id=\"barcode\" fill=\"#%s\">\n", symbol->fgcolour);
+	fprintf(fsvg, "\n   <g id=\"barcode\" fill=\"%s\">\n", /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 	if(symbol->Std != BARCODE_MAXICODE) {
-		fprintf(fsvg, "      <rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"#%s\" />\n",
+		fprintf(fsvg, "      <rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"%s\" />\n",
 		    (int)ceil((symbol->width + xoffset + xoffset) * scaler),
-		    (int)ceil((symbol->height + textoffset + yoffset + yoffset) * scaler), symbol->bgcolour);
+		    (int)ceil((symbol->height + textoffset + yoffset + yoffset) * scaler), /*symbol->bgcolour*/symbol->ColorBg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 	}
 	else {
-		fprintf(fsvg, "      <rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"#%s\" />\n",
-		    (int)ceil((74.0F + xoffset + xoffset) * scaler), (int)ceil((72.0F + yoffset + yoffset) * scaler), symbol->bgcolour);
+		fprintf(fsvg, "      <rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"%s\" />\n",
+		    (int)ceil((74.0F + xoffset + xoffset) * scaler), (int)ceil((72.0F + yoffset + yoffset) * scaler), /*symbol->bgcolour*/symbol->ColorBg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 	}
 	if((symbol->output_options & BARCODE_BOX) || (symbol->output_options & BARCODE_BIND)) {
 		default_text_posn = (symbol->height + textoffset + symbol->border_width + symbol->border_width) * scaler;
@@ -225,7 +221,7 @@ int svg_plot(struct ZintSymbol * symbol)
 		default_text_posn = (symbol->height + textoffset + symbol->border_width) * scaler;
 	}
 	if(symbol->Std == BARCODE_MAXICODE) {
-		/* Maxicode uses hexagons */
+		// Maxicode uses hexagons 
 		float ax, ay, bx, by, cx, cy, dx, dy, ex, ey, fx, fy, mx, my;
 		textoffset = 0;
 		if((symbol->output_options & BARCODE_BOX) || (symbol->output_options & BARCODE_BIND)) {
@@ -234,34 +230,29 @@ int svg_plot(struct ZintSymbol * symbol)
 			fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", 0.0,
 			    (72.0 + symbol->border_width) * scaler, (74.0 + xoffset + xoffset) * scaler, symbol->border_width * scaler);
 		}
-		if(symbol->output_options & BARCODE_BOX) {
-			/* side bars */
-			fprintf(fsvg,
-			    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-			    0.0,
-			    0.0,
-			    symbol->border_width * scaler,
-			    (72.0 + (2 * symbol->border_width)) * scaler);
+		if(symbol->output_options & BARCODE_BOX) { // side bars 
+			fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+			    0.0, 0.0, symbol->border_width * scaler, (72.0 + (2 * symbol->border_width)) * scaler);
 			fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
 			    (74.0 + xoffset + xoffset - symbol->border_width) * scaler, 0.0, symbol->border_width * scaler,
 			    (72.0 + (2 * symbol->border_width)) * scaler);
 		}
-		fprintf(fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" />\n", (35.76 + xoffset) * scaler,
-		    (35.60 + yoffset) * scaler, 10.85 * scaler, symbol->fgcolour);
-		fprintf(fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" />\n", (35.76 + xoffset) * scaler,
-		    (35.60 + yoffset) * scaler, 8.97 * scaler, symbol->bgcolour);
-		fprintf(fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" />\n", (35.76 + xoffset) * scaler,
-		    (35.60 + yoffset) * scaler, 7.10 * scaler, symbol->fgcolour);
-		fprintf(fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" />\n", (35.76 + xoffset) * scaler,
-		    (35.60 + yoffset) * scaler, 5.22 * scaler, symbol->bgcolour);
-		fprintf(fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" />\n", (35.76 + xoffset) * scaler,
-		    (35.60 + yoffset) * scaler, 3.31 * scaler, symbol->fgcolour);
-		fprintf(fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" />\n", (35.76 + xoffset) * scaler,
-		    (35.60 + yoffset) * scaler, 1.43 * scaler, symbol->bgcolour);
+		fprintf(fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"%s\" />\n", (35.76 + xoffset) * scaler,
+		    (35.60 + yoffset) * scaler, 10.85 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+		fprintf(fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"%s\" />\n", (35.76 + xoffset) * scaler,
+		    (35.60 + yoffset) * scaler, 8.97 * scaler, /*symbol->bgcolour*/symbol->ColorBg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+		fprintf(fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"%s\" />\n", (35.76 + xoffset) * scaler,
+		    (35.60 + yoffset) * scaler, 7.10 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+		fprintf(fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"%s\" />\n", (35.76 + xoffset) * scaler,
+		    (35.60 + yoffset) * scaler, 5.22 * scaler, /*symbol->bgcolour*/symbol->ColorBg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+		fprintf(fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"%s\" />\n", (35.76 + xoffset) * scaler,
+		    (35.60 + yoffset) * scaler, 3.31 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+		fprintf(fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"%s\" />\n", (35.76 + xoffset) * scaler,
+		    (35.60 + yoffset) * scaler, 1.43 * scaler, /*symbol->bgcolour*/symbol->ColorBg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 		for(r = 0; r < symbol->rows; r++) {
 			for(i = 0; i < (uint)symbol->width; i++) {
 				if(module_is_set(symbol, r, i)) {
-					/* Dump a hexagon */
+					// Dump a hexagon 
 					my = r * 2.135f + 1.43f;
 					ay = my + 1.0f + yoffset;
 					by = my + 0.5f + yoffset;
@@ -269,12 +260,7 @@ int svg_plot(struct ZintSymbol * symbol)
 					dy = my - 1.0f + yoffset;
 					ey = my - 0.5f + yoffset;
 					fy = my + 0.5f + yoffset;
-					if(r & 1) {
-						mx = (2.46f * i) + 1.23f + 1.23f;
-					}
-					else {
-						mx = (2.46f * i) + 1.23f;
-					}
+					mx = (r & 1) ? ((2.46f * i) + 1.23f + 1.23f) : ((2.46f * i) + 1.23f);
 					ax = mx + xoffset;
 					bx = mx + 0.86f + xoffset;
 					cx = mx + 0.86f + xoffset;
@@ -315,9 +301,9 @@ int svg_plot(struct ZintSymbol * symbol)
 				/* Use (currently undocumented) dot mode - see SF ticket #29 */
 				for(i = 0; i < (uint)symbol->width; i++) {
 					if(module_is_set(symbol, this_row, i)) {
-						fprintf(fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" />\n",
+						fprintf(fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"%s\" />\n",
 						    ((i + xoffset) * scaler) + (scaler / 2.0), (row_posn * scaler) + (scaler / 2.0),
-						    (symbol->dot_size / 2.0) * scaler, symbol->fgcolour);
+						    (symbol->dot_size / 2.0) * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 					}
 				}
 			}
@@ -340,8 +326,7 @@ int svg_plot(struct ZintSymbol * symbol)
 						addon_text_posn = (row_posn + 8.0f) * scaler;
 						addon_latch = 1;
 					}
-					if(latch == 1) {
-						/* a bar */
+					if(latch == 1) { // a bar 
 						if(addon_latch == 0) {
 							fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
 							    (i + xoffset) * scaler, row_posn * scaler, block_width * scaler, row_height * scaler);
@@ -352,8 +337,7 @@ int svg_plot(struct ZintSymbol * symbol)
 						}
 						latch = 0;
 					}
-					else {
-						/* a space */
+					else { // a space 
 						latch = 1;
 					}
 					i += block_width;
@@ -364,62 +348,33 @@ int svg_plot(struct ZintSymbol * symbol)
 	/* That's done the actual data area, everything else is human-friendly */
 	xoffset += comp_offset;
 	row_posn = (row_posn + large_bar_height) * scaler;
-	if((((symbol->Std == BARCODE_EANX) &&
-			    (symbol->rows == 1)) || (symbol->Std == BARCODE_EANX_CC)) || (symbol->Std == BARCODE_ISBNX)) {
+	if((((symbol->Std == BARCODE_EANX) && (symbol->rows == 1)) || (symbol->Std == BARCODE_EANX_CC)) || (symbol->Std == BARCODE_ISBNX)) {
 		/* guard bar extensions and text formatting for EAN8 and EAN13 */
 		switch(sstrlen(local_text)) {
 			case 8: /* EAN-8 */
 			case 11:
 			case 14:
-			    fprintf(fsvg,
-			    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-			    (0 + xoffset) * scaler,
-			    row_posn,
-			    scaler,
-			    5.0 * scaler);
-			    fprintf(fsvg,
-			    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-			    (2 + xoffset) * scaler,
-			    row_posn,
-			    scaler,
-			    5.0 * scaler);
-			    fprintf(fsvg,
-			    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-			    (32 + xoffset) * scaler,
-			    row_posn,
-			    scaler,
-			    5.0 * scaler);
-			    fprintf(fsvg,
-			    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-			    (34 + xoffset) * scaler,
-			    row_posn,
-			    scaler,
-			    5.0 * scaler);
-			    fprintf(fsvg,
-			    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-			    (64 + xoffset) * scaler,
-			    row_posn,
-			    scaler,
-			    5.0 * scaler);
-			    fprintf(fsvg,
-			    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-			    (66 + xoffset) * scaler,
-			    row_posn,
-			    scaler,
-			    5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+					(0 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+					(2 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+					(32 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+					(34 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+					(64 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+					(66 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
 			    for(i = 0; i < 4; i++) {
 				    textpart[i] = local_text[i];
 			    }
 			    textpart[4] = '\0';
 			    textpos = 17;
-			    fprintf(fsvg,
-			    "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
-			    (textpos + xoffset) * scaler,
-			    default_text_posn);
-			    fprintf(fsvg,
-			    "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n",
-			    11.0 * scaler,
-			    symbol->fgcolour);
+			    fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
+					(textpos + xoffset) * scaler, default_text_posn);
+			    fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n",
+					11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 			    fprintf(fsvg, "         %s\n", textpart);
 			    fprintf(fsvg, "      </text>\n");
 			    for(i = 0; i < 4; i++) {
@@ -427,14 +382,10 @@ int svg_plot(struct ZintSymbol * symbol)
 			    }
 			    textpart[4] = '\0';
 			    textpos = 50;
-			    fprintf(fsvg,
-			    "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
-			    (textpos + xoffset) * scaler,
-			    default_text_posn);
-			    fprintf(fsvg,
-			    "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n",
-			    11.0 * scaler,
-			    symbol->fgcolour);
+			    fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
+					(textpos + xoffset) * scaler, default_text_posn);
+			    fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n",
+					11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 			    fprintf(fsvg, "         %s\n", textpart);
 			    fprintf(fsvg, "      </text>\n");
 			    textdone = 1;
@@ -443,8 +394,8 @@ int svg_plot(struct ZintSymbol * symbol)
 					textpos = (float)(xoffset + 86);
 					fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
 						textpos * scaler, addon_text_posn * scaler);
-					fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n",
-						11.0 * scaler, symbol->fgcolour);
+					fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n",
+						11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 					fprintf(fsvg, "         %s\n", addon);
 					fprintf(fsvg, "      </text>\n");
 					break;
@@ -452,8 +403,8 @@ int svg_plot(struct ZintSymbol * symbol)
 					textpos = (float)(xoffset + 100);
 					fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
 						textpos * scaler,	addon_text_posn * scaler);
-					fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n",
-						11.0 * scaler, symbol->fgcolour);
+					fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n",
+						11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 					fprintf(fsvg, "         %s\n", addon);
 					fprintf(fsvg, "      </text>\n");
 					break;
@@ -462,53 +413,24 @@ int svg_plot(struct ZintSymbol * symbol)
 			case 13: /* EAN 13 */
 			case 16:
 			case 19:
-			    fprintf(fsvg,
-			    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-			    (0 + xoffset) * scaler,
-			    row_posn,
-			    scaler,
-			    5.0 * scaler);
-			    fprintf(fsvg,
-			    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-			    (2 + xoffset) * scaler,
-			    row_posn,
-			    scaler,
-			    5.0 * scaler);
-			    fprintf(fsvg,
-			    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-			    (46 + xoffset) * scaler,
-			    row_posn,
-			    scaler,
-			    5.0 * scaler);
-			    fprintf(fsvg,
-			    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-			    (48 + xoffset) * scaler,
-			    row_posn,
-			    scaler,
-			    5.0 * scaler);
-			    fprintf(fsvg,
-			    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-			    (92 + xoffset) * scaler,
-			    row_posn,
-			    scaler,
-			    5.0 * scaler);
-			    fprintf(fsvg,
-			    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-			    (94 + xoffset) * scaler,
-			    row_posn,
-			    scaler,
-			    5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+					(0 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+					(2 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+					(46 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+					(48 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+					(92 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+					(94 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
 			    textpart[0] = local_text[0];
 			    textpart[1] = '\0';
 			    textpos = -7;
-			    fprintf(fsvg,
-			    "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
-			    (textpos + xoffset) * scaler,
-			    default_text_posn);
-			    fprintf(fsvg,
-			    "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n",
-			    11.0 * scaler,
-			    symbol->fgcolour);
+			    fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n", (textpos + xoffset) * scaler, default_text_posn);
+			    fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n",
+					11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 			    fprintf(fsvg, "         %s\n", textpart);
 			    fprintf(fsvg, "      </text>\n");
 			    for(i = 0; i < 6; i++) {
@@ -516,14 +438,10 @@ int svg_plot(struct ZintSymbol * symbol)
 			    }
 			    textpart[6] = '\0';
 			    textpos = 24;
-			    fprintf(fsvg,
-			    "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
-			    (textpos + xoffset) * scaler,
+			    fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n", (textpos + xoffset) * scaler,
 			    default_text_posn);
-			    fprintf(fsvg,
-			    "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n",
-			    11.0 * scaler,
-			    symbol->fgcolour);
+			    fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n",
+			    11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 			    fprintf(fsvg, "         %s\n", textpart);
 			    fprintf(fsvg, "      </text>\n");
 			    for(i = 0; i < 6; i++) {
@@ -531,14 +449,11 @@ int svg_plot(struct ZintSymbol * symbol)
 			    }
 			    textpart[6] = '\0';
 			    textpos = 71;
-			    fprintf(fsvg,
-			    "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
+			    fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
 			    (textpos + xoffset) * scaler,
 			    default_text_posn);
-			    fprintf(fsvg,
-			    "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n",
-			    11.0 * scaler,
-			    symbol->fgcolour);
+			    fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n",
+			    11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 			    fprintf(fsvg, "         %s\n", textpart);
 			    fprintf(fsvg, "      </text>\n");
 			    textdone = 1;
@@ -547,8 +462,8 @@ int svg_plot(struct ZintSymbol * symbol)
 					textpos = (float)(xoffset + 114);
 					fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
 						textpos * scaler, addon_text_posn * scaler);
-					fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n",
-						11.0 * scaler, symbol->fgcolour);
+					fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n",
+						11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 					fprintf(fsvg, "         %s\n", addon);
 					fprintf(fsvg, "      </text>\n");
 					break;
@@ -556,8 +471,8 @@ int svg_plot(struct ZintSymbol * symbol)
 					textpos = (float)(xoffset + 128);
 					fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
 						textpos * scaler, addon_text_posn * scaler);
-					fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n",
-						11.0 * scaler, symbol->fgcolour);
+					fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n",
+						11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 					fprintf(fsvg, "         %s\n", addon);
 					fprintf(fsvg, "      </text>\n");
 					break;
@@ -566,7 +481,7 @@ int svg_plot(struct ZintSymbol * symbol)
 		}
 	}
 	if(((symbol->Std == BARCODE_UPCA) && (symbol->rows == 1)) || (symbol->Std == BARCODE_UPCA_CC)) {
-		/* guard bar extensions and text formatting for UPCA */
+		// guard bar extensions and text formatting for UPCA 
 		latch = 1;
 		i = 0 + comp_offset;
 		do {
@@ -574,14 +489,12 @@ int svg_plot(struct ZintSymbol * symbol)
 			do {
 				block_width++;
 			} while(module_is_set(symbol, symbol->rows - 1, i + block_width) == module_is_set(symbol, symbol->rows - 1, i));
-			if(latch == 1) {
-				/* a bar */
+			if(latch == 1) { // a bar 
 				fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
 				    (i + xoffset - comp_offset) * scaler, row_posn, block_width * scaler, 5.0 * scaler);
 				latch = 0;
 			}
-			else {
-				/* a space */
+			else { // a space 
 				latch = 1;
 			}
 			i += block_width;
@@ -597,14 +510,12 @@ int svg_plot(struct ZintSymbol * symbol)
 			do {
 				block_width++;
 			} while(module_is_set(symbol, symbol->rows - 1, i + block_width) == module_is_set(symbol, symbol->rows - 1, i));
-			if(latch == 1) {
-				/* a bar */
+			if(latch == 1) { // a bar 
 				fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
 				    (i + xoffset - comp_offset) * scaler, row_posn, block_width * scaler, 5.0 * scaler);
 				latch = 0;
 			}
-			else {
-				/* a space */
+			else { // a space 
 				latch = 1;
 			}
 			i += block_width;
@@ -613,7 +524,7 @@ int svg_plot(struct ZintSymbol * symbol)
 		textpart[1] = '\0';
 		textpos = -5;
 		fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n", (textpos + xoffset) * scaler, default_text_posn);
-		fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n", 8.0 * scaler, symbol->fgcolour);
+		fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n", 8.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 		fprintf(fsvg, "         %s\n", textpart);
 		fprintf(fsvg, "      </text>\n");
 		for(i = 0; i < 5; i++) {
@@ -622,7 +533,7 @@ int svg_plot(struct ZintSymbol * symbol)
 		textpart[5] = '\0';
 		textpos = 27;
 		fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n", (textpos + xoffset) * scaler, default_text_posn);
-		fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n", 11.0 * scaler, symbol->fgcolour);
+		fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n", 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 		fprintf(fsvg, "         %s\n", textpart);
 		fprintf(fsvg, "      </text>\n");
 		for(i = 0; i < 5; i++) {
@@ -631,14 +542,14 @@ int svg_plot(struct ZintSymbol * symbol)
 		textpart[6] = '\0';
 		textpos = 68;
 		fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n", (textpos + xoffset) * scaler, default_text_posn);
-		fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n", 11.0 * scaler, symbol->fgcolour);
+		fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n", 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 		fprintf(fsvg, "         %s\n", textpart);
 		fprintf(fsvg, "      </text>\n");
 		textpart[0] = local_text[11];
 		textpart[1] = '\0';
 		textpos = 100;
 		fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n", (textpos + xoffset) * scaler, default_text_posn);
-		fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n", 8.0 * scaler, symbol->fgcolour);
+		fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n", 8.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 		fprintf(fsvg, "         %s\n", textpart);
 		fprintf(fsvg, "      </text>\n");
 		textdone = 1;
@@ -647,59 +558,38 @@ int svg_plot(struct ZintSymbol * symbol)
 			    textpos = (float)(xoffset + 116);
 			    fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
 					textpos * scaler, addon_text_posn * scaler);
-			    fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n",
-					11.0 * scaler, symbol->fgcolour);
+			    fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n",
+					11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 			    fprintf(fsvg, "         %s\n", addon);
 			    fprintf(fsvg, "      </text>\n");
 			    break;
 			case 5:
 			    textpos = (float)(xoffset + 130);
-			    fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
-					textpos * scaler, addon_text_posn * scaler);
-			    fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n",
-					11.0 * scaler, symbol->fgcolour);
+			    fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n", textpos * scaler, addon_text_posn * scaler);
+			    fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n",
+					11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 			    fprintf(fsvg, "         %s\n", addon);
 			    fprintf(fsvg, "      </text>\n");
 			    break;
 		}
 	}
 	if(((symbol->Std == BARCODE_UPCE) && (symbol->rows == 1)) || (symbol->Std == BARCODE_UPCE_CC)) {
-		/* guard bar extensions and text formatting for UPCE */
-		fprintf(fsvg,
-		    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-		    (0 + xoffset) * scaler,
-		    row_posn,
-		    scaler,
-		    5.0 * scaler);
-		fprintf(fsvg,
-		    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-		    (2 + xoffset) * scaler,
-		    row_posn,
-		    scaler,
-		    5.0 * scaler);
-		fprintf(fsvg,
-		    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-		    (46 + xoffset) * scaler,
-		    row_posn,
-		    scaler,
-		    5.0 * scaler);
-		fprintf(fsvg,
-		    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-		    (48 + xoffset) * scaler,
-		    row_posn,
-		    scaler,
-		    5.0 * scaler);
-		fprintf(fsvg,
-		    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-		    (50 + xoffset) * scaler,
-		    row_posn,
-		    scaler,
-		    5.0 * scaler);
+		// guard bar extensions and text formatting for UPCE 
+		fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+		    (0 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+		fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+		    (2 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+		fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+		    (46 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+		fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+		    (48 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+		fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+		    (50 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
 		textpart[0] = local_text[0];
 		textpart[1] = '\0';
 		textpos = -5;
 		fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n", (textpos + xoffset) * scaler, default_text_posn);
-		fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n", 8.0 * scaler, symbol->fgcolour);
+		fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n", 8.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 		fprintf(fsvg, "         %s\n", textpart);
 		fprintf(fsvg, "      </text>\n");
 		for(i = 0; i < 6; i++) {
@@ -708,14 +598,14 @@ int svg_plot(struct ZintSymbol * symbol)
 		textpart[6] = '\0';
 		textpos = 24;
 		fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n", (textpos + xoffset) * scaler, default_text_posn);
-		fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n", 11.0 * scaler, symbol->fgcolour);
+		fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n", 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 		fprintf(fsvg, "         %s\n", textpart);
 		fprintf(fsvg, "      </text>\n");
 		textpart[0] = local_text[7];
 		textpart[1] = '\0';
 		textpos = 55;
 		fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n", (textpos + xoffset) * scaler, default_text_posn);
-		fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n", 8.0 * scaler, symbol->fgcolour);
+		fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n", 8.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 		fprintf(fsvg, "         %s\n", textpart);
 		fprintf(fsvg, "      </text>\n");
 		textdone = 1;
@@ -724,8 +614,8 @@ int svg_plot(struct ZintSymbol * symbol)
 			    textpos = (float)(xoffset + 70);
 			    fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
 					textpos * scaler, addon_text_posn * scaler);
-			    fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n",
-					11.0 * scaler, symbol->fgcolour);
+			    fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n",
+					11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 			    fprintf(fsvg, "         %s\n", addon);
 			    fprintf(fsvg, "      </text>\n");
 			    break;
@@ -733,8 +623,8 @@ int svg_plot(struct ZintSymbol * symbol)
 			    textpos = (float)(xoffset + 84);
 			    fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
 					textpos * scaler, addon_text_posn * scaler);
-			    fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n",
-					11.0 * scaler, symbol->fgcolour);
+			    fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n",
+					11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 			    fprintf(fsvg, "         %s\n", addon);
 			    fprintf(fsvg, "      </text>\n");
 			    break;
@@ -743,27 +633,22 @@ int svg_plot(struct ZintSymbol * symbol)
 	xoffset -= comp_offset;
 	switch(symbol->Std) {
 		case BARCODE_MAXICODE:
-		    /* Do nothing! (It's already been done) */
+		    // Do nothing! (It's already been done) 
 		    break;
 		default:
 		    if(symbol->output_options & BARCODE_BIND) {
 			    if((symbol->rows > 1) && (is_stackable(symbol->Std) == 1)) {
-				    /* row binding */
+				    // row binding 
 				    if(symbol->Std != BARCODE_CODABLOCKF) {
 					    for(r = 1; r < symbol->rows; r++) {
-						    fprintf(fsvg,
-						    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-						    xoffset * scaler,
-						    ((r * row_height) + yoffset - 1) * scaler,
-						    symbol->width * scaler,
-						    2.0 * scaler);
+						    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+								xoffset * scaler, ((r * row_height) + yoffset - 1) * scaler, symbol->width * scaler, 2.0 * scaler);
 					    }
 				    }
 				    else {
 					    for(r = 1; r < symbol->rows; r++) {
 						    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-						    (xoffset + 11) * scaler, ((r * row_height) + yoffset - 1) * scaler,
-						    (symbol->width - 25) * scaler, 2.0 * scaler);
+								(xoffset + 11) * scaler, ((r * row_height) + yoffset - 1) * scaler, (symbol->width - 25) * scaler, 2.0 * scaler);
 					    }
 				    }
 			    }
@@ -771,61 +656,45 @@ int svg_plot(struct ZintSymbol * symbol)
 		    if((symbol->output_options & BARCODE_BOX) || (symbol->output_options & BARCODE_BIND)) {
 			    if(symbol->Std != BARCODE_CODABLOCKF) {
 				    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", 0.0, 0.0,
-				    (symbol->width + xoffset + xoffset) * scaler, symbol->border_width * scaler);
-				    fprintf(fsvg,
-				    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-				    0.0,
-				    (symbol->height + symbol->border_width) * scaler,
-				    (symbol->width + xoffset + xoffset) * scaler,
-				    symbol->border_width * scaler);
+						(symbol->width + xoffset + xoffset) * scaler, symbol->border_width * scaler);
+				    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+						0.0, (symbol->height + symbol->border_width) * scaler, (symbol->width + xoffset + xoffset) * scaler, symbol->border_width * scaler);
 			    }
 			    else {
-				    fprintf(fsvg,
-				    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-				    xoffset * scaler,
-				    0.0,
-				    symbol->width * scaler,
-				    symbol->border_width * scaler);
+				    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+						xoffset * scaler, 0.0, symbol->width * scaler, symbol->border_width * scaler);
 				    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", xoffset * scaler,
-				    (symbol->height + symbol->border_width) * scaler, symbol->width * scaler, symbol->border_width * scaler);
+						(symbol->height + symbol->border_width) * scaler, symbol->width * scaler, symbol->border_width * scaler);
 			    }
 		    }
 		    if(symbol->output_options & BARCODE_BOX) {
 			    /* side bars */
-			    fprintf(fsvg,
-			    "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-			    0.0,
-			    0.0,
-			    symbol->border_width * scaler,
-			    (symbol->height + (2 * symbol->border_width)) * scaler);
 			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-			    (symbol->width + xoffset + xoffset - symbol->border_width) * scaler, 0.0, symbol->border_width * scaler,
-			    (symbol->height + (2 * symbol->border_width)) * scaler);
+					0.0, 0.0, symbol->border_width * scaler, (symbol->height + (2 * symbol->border_width)) * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
+					(symbol->width + xoffset + xoffset - symbol->border_width) * scaler, 0.0, symbol->border_width * scaler,
+					(symbol->height + (2 * symbol->border_width)) * scaler);
 		    }
 		    break;
 	}
-
 	/* Put the human readable text at the bottom */
 	if((textdone == 0) && sstrlen(local_text)) {
 		textpos = symbol->width / 2.0f;
 		fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n", (textpos + xoffset) * scaler, default_text_posn);
-		fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n", 8.0 * scaler, symbol->fgcolour);
+		fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n", 8.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 		fprintf(fsvg, "         %s\n", local_text);
 		fprintf(fsvg, "      </text>\n");
 	}
 	fprintf(fsvg, "   </g>\n");
 	fprintf(fsvg, "</svg>\n");
-
 	if(symbol->output_options & BARCODE_STDOUT) {
 		fflush(fsvg);
 	}
 	else {
 		fclose(fsvg);
 	}
-
 	if(locale)
 		setlocale(LC_ALL, locale);
-
 	return error_number;
 }
 

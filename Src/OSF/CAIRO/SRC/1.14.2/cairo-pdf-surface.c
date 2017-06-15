@@ -164,7 +164,7 @@ static const cairo_pdf_version_t _cairo_pdf_versions[] =
 	CAIRO_PDF_VERSION_1_5
 };
 
-#define CAIRO_PDF_VERSION_LAST ARRAY_LENGTH(_cairo_pdf_versions)
+#define CAIRO_PDF_VERSION_LAST SIZEOFARRAY(_cairo_pdf_versions)
 
 static const char * _cairo_pdf_version_strings[CAIRO_PDF_VERSION_LAST] =
 {

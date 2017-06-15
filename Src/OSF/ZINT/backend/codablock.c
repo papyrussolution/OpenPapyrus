@@ -55,7 +55,7 @@
 #define aShift (uchar)(135)
 
 static const char * C128Table[107] = {
-	/* Code 128 character encodation - Table 1 */
+	// Code 128 character encodation - Table 1 
 	"212222", "222122", "222221", "121223", "121322", "131222", "122213",
 	"122312", "132212", "221213", "221312", "231212", "112232", "122132", "122231", "113222",
 	"123122", "123221", "223211", "221132", "221231", "213212", "223112", "312131", "311222",
@@ -610,18 +610,18 @@ int codablock(struct ZintSymbol * symbol, uchar source[], int length)
 	/* option1: rows 0: automatic, 1..44 */
 	rows = symbol->option_1;
 	if(rows > 44) {
-		strcpy(symbol->errtxt, "Row parameter not in 0..44 (D10)");
+		sstrcpy(symbol->errtxt, "Row parameter not in 0..44 (D10)");
 		return ZINT_ERROR_INVALID_OPTION;
 	}
 	/* option_2: (usable data) columns: 0: automatic, 6..66 */
 	columns = symbol->option_2;
 	if(!(columns <= 0 || (columns >= 6 && columns <=66)) ) {
-		strcpy(symbol->errtxt, "Columns parameter not in 0,6..66 (D11)");
+		sstrcpy(symbol->errtxt, "Columns parameter not in 0,6..66 (D11)");
 		return ZINT_ERROR_INVALID_OPTION;
 	}
 	/* GS1 not implemented */
 	if(symbol->input_mode == GS1_MODE) {
-		strcpy(symbol->errtxt, "GS1 mode not supported (D12)");
+		sstrcpy(symbol->errtxt, "GS1 mode not supported (D12)");
 		return ZINT_ERROR_INVALID_OPTION;
 	}
 #ifndef _MSC_VER
@@ -685,7 +685,7 @@ int codablock(struct ZintSymbol * symbol, uchar source[], int length)
 		Error = Columns2Rows(T, data, dataLength, &rows, &useColumns, pSet, &fillings);
 	}
 	if(Error != 0) {
-		strcpy(symbol->errtxt, "data string to long (D13)");
+		sstrcpy(symbol->errtxt, "data string to long (D13)");
 		return Error;
 	}
 	/* Checksum */
@@ -938,7 +938,7 @@ int codablock(struct ZintSymbol * symbol, uchar source[], int length)
 
 	/* Paint the C128 patterns */
 	for(r = 0; r < rows; r++) {
-		strcpy(dest, "");
+		sstrcpy(dest, "");
 		for(c = 0; c < columns; c++) {
 			strcat(dest, C128Table[pOutput[r * columns + c]]);
 		}

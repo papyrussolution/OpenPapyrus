@@ -259,8 +259,9 @@
       <OmitFramePointers>false</OmitFramePointers>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>$(OutDir)$(ProjectName)d.lib</OutputFile>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
@@ -308,8 +309,9 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>$(OutDir)$(ProjectName)d.lib</OutputFile>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <ResourceCompile>
@@ -356,8 +358,9 @@
       <OmitFramePointers>false</OmitFramePointers>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>$(OutDir)$(ProjectName)d.lib</OutputFile>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
@@ -401,8 +404,9 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>$(OutDir)$(ProjectName)d.lib</OutputFile>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <ResourceCompile>
@@ -447,7 +451,8 @@
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>
+      </AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetMachine>MachineX86</TargetMachine>
@@ -489,7 +494,8 @@
       <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>
+      </AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
@@ -533,7 +539,8 @@
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>
+      </AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetMachine>MachineX86</TargetMachine>
@@ -575,7 +582,8 @@
       <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>
+      </AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
@@ -620,8 +628,9 @@
       <OmitFramePointers>false</OmitFramePointers>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>$(OutDir)$(ProjectName)d.lib</OutputFile>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
@@ -665,8 +674,9 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>$(OutDir)$(ProjectName)d.lib</OutputFile>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <ResourceCompile>
@@ -709,7 +719,8 @@
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>
+      </AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetMachine>MachineX86</TargetMachine>
@@ -751,7 +762,8 @@
       <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/machine:I386  %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>
+      </AdditionalOptions>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>

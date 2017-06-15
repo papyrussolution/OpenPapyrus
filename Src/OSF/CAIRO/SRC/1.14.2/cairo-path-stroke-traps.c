@@ -1018,51 +1018,35 @@ static cairo_status_t curve_to(void * closure,
 	return status;
 }
 
-static cairo_status_t curve_to_dashed(void * closure,
-    const cairo_point_t * b,
-    const cairo_point_t * c,
-    const cairo_point_t * d)
+static cairo_status_t curve_to_dashed(void * closure, const cairo_point_t * b, const cairo_point_t * c, const cairo_point_t * d)
 {
 	struct stroker * stroker = (struct stroker *)closure;
 	cairo_spline_t spline;
 	cairo_line_join_t line_join_save;
-	cairo_spline_add_point_func_t func;
 	cairo_status_t status;
-
-	func = (cairo_spline_add_point_func_t)line_to_dashed;
-
-	if(stroker->has_bounds &&
-	    !_cairo_spline_intersects(&stroker->current_face.point, b, c, d,
-		    &stroker->line_bounds))
+	cairo_spline_add_point_func_t func = (cairo_spline_add_point_func_t)line_to_dashed;
+	if(stroker->has_bounds && !_cairo_spline_intersects(&stroker->current_face.point, b, c, d, &stroker->line_bounds))
 		return func(closure, d, NULL);
-
-	if(!_cairo_spline_init(&spline, func, stroker,
-		    &stroker->current_face.point, b, c, d))
+	if(!_cairo_spline_init(&spline, func, stroker, &stroker->current_face.point, b, c, d))
 		return func(closure, d, NULL);
-
-	/* Temporarily modify the stroker to use round joins to guarantee
-	 * smooth stroked curves. */
+	// Temporarily modify the stroker to use round joins to guarantee smooth stroked curves.
 	line_join_save = stroker->line_join;
 	stroker->line_join = CAIRO_LINE_JOIN_ROUND;
-
 	status = _cairo_spline_decompose(&spline, stroker->tolerance);
-
 	stroker->line_join = line_join_save;
-
 	return status;
 }
 
 static cairo_status_t _close_path(struct stroker * stroker)
 {
 	if(stroker->has_first_face && stroker->has_current_face) {
-		/* Join first and final faces of sub path */
+		// Join first and final faces of sub path 
 		join(stroker, &stroker->current_face, &stroker->first_face);
 	}
 	else {
-		/* Cap the start and end of the sub path as needed */
+		// Cap the start and end of the sub path as needed 
 		add_caps(stroker);
 	}
-
 	stroker->has_initial_sub_path = FALSE;
 	stroker->has_first_face = FALSE;
 	stroker->has_current_face = FALSE;
@@ -1072,63 +1056,35 @@ static cairo_status_t _close_path(struct stroker * stroker)
 static cairo_status_t close_path(void * closure)
 {
 	struct stroker * stroker = (struct stroker *)closure;
-	cairo_status_t status;
-
-	status = line_to(stroker, &stroker->first_point);
+	cairo_status_t status = line_to(stroker, &stroker->first_point);
 	if(unlikely(status))
 		return status;
-
 	return _close_path(stroker);
 }
 
 static cairo_status_t close_path_dashed(void * closure)
 {
 	struct stroker * stroker = (struct stroker *)closure;
-	cairo_status_t status;
-
-	status = line_to_dashed(stroker, &stroker->first_point);
+	cairo_status_t status = line_to_dashed(stroker, &stroker->first_point);
 	if(unlikely(status))
 		return status;
-
 	return _close_path(stroker);
 }
 
-cairo_int_status_t _cairo_path_fixed_stroke_to_traps(const cairo_path_fixed_t     * path,
-    const cairo_stroke_style_t   * style,
-    const cairo_matrix_t         * ctm,
-    const cairo_matrix_t         * ctm_inverse,
-    double tolerance,
-    cairo_traps_t                * traps)
+cairo_int_status_t _cairo_path_fixed_stroke_to_traps(const cairo_path_fixed_t * path, const cairo_stroke_style_t * style,
+    const cairo_matrix_t * ctm, const cairo_matrix_t * ctm_inverse, double tolerance, cairo_traps_t * traps)
 {
 	struct stroker stroker;
-
-	cairo_status_t status;
-
-	status = stroker_init(&stroker, path, style,
-	    ctm, ctm_inverse, tolerance,
-	    traps);
+	cairo_status_t status = stroker_init(&stroker, path, style, ctm, ctm_inverse, tolerance, traps);
 	if(unlikely(status))
 		return status;
-
 	if(stroker.dash.dashed)
-		status = _cairo_path_fixed_interpret(path,
-		    move_to_dashed,
-		    line_to_dashed,
-		    curve_to_dashed,
-		    close_path_dashed,
-		    &stroker);
+		status = _cairo_path_fixed_interpret(path, move_to_dashed, line_to_dashed, curve_to_dashed, close_path_dashed, &stroker);
 	else
-		status = _cairo_path_fixed_interpret(path,
-		    move_to,
-		    line_to,
-		    curve_to,
-		    close_path,
-		    &stroker);
+		status = _cairo_path_fixed_interpret(path, move_to, line_to, curve_to, close_path, &stroker);
 	assert(status == CAIRO_STATUS_SUCCESS);
 	add_caps(&stroker);
-
 	stroker_fini(&stroker);
-
 	return traps->status;
 }
 

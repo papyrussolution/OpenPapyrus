@@ -39,17 +39,15 @@
 #ifdef HAVE_PROCESS_H
 #include <process.h>
 #endif
-
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "hostip.h"
 #include "hash.h"
 #include "share.h"
-#include "strerror.h"
-#include "url.h"
-#include "curl_memory.h"
-/* The last #include file should be: */
-#include "memdebug.h"
+//#include "strerror.h"
+//#include "url.h"
+//#include "curl_memory.h"
+#include "memdebug.h" // The last #include file should be
 
 /***********************************************************************
  * Only for builds using asynchronous name resolves

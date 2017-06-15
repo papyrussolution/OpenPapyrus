@@ -26,8 +26,7 @@
 
 #ifdef USE_SCHANNEL
 
-#include "urldata.h"
-
+//#include "urldata.h"
 #ifndef UNISP_NAME_A
 	#define UNISP_NAME_A "Microsoft Unified Security Protocol Provider"
 #endif

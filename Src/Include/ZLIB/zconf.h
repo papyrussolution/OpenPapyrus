@@ -400,7 +400,7 @@ typedef uLong uLongf;
 	#elif (ULONG_MAX == 0xffffffffUL)
 		#define Z_U4 unsigned long
 	#elif (USHRT_MAX == 0xffffffffUL)
-		#define Z_U4 unsigned short
+		#define Z_U4 ushort
 	#endif
 #endif
 #ifdef Z_U4

@@ -48,8 +48,7 @@ void Curl_amiga_cleanup()
 
 bool Curl_amiga_init()
 {
-	if(!SocketBase)
-		SocketBase = OpenLibrary("bsdsocket.library", 4);
+	SETIFZ(SocketBase, OpenLibrary("bsdsocket.library", 4));
 	if(!SocketBase) {
 		__request("No TCP/IP Stack running!");
 		return FALSE;

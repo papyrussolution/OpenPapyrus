@@ -4917,7 +4917,7 @@ browser GBILLCMP north(100), 3, 1, "Сравнение документов %s", OWNER|GRID, 0
 	}
 }
 
-browser OPRKIND north(100), 1, 1, "Виды операций", OWNER|GRID, 0
+browser OPRKIND north(100), 1, 1, "@{view_oprkind}", OWNER|GRID, 0
 {
 	"@id",              -1, long, 0, 6
 	"@appellation",     -1, zstring(48), 0, 20

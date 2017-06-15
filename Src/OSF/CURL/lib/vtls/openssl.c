@@ -36,18 +36,17 @@
 #ifdef USE_OPENSSL
 
 #ifdef HAVE_LIMITS_H
-#include <limits.h>
+	#include <limits.h>
 #endif
-
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "formdata.h" /* for the boundary function */
-#include "url.h" /* for the ssl config check function */
+//#include "url.h" /* for the ssl config check function */
 #include "inet_pton.h"
 #include "openssl.h"
 #include "connect.h"
-#include "slist.h"
-#include "select.h"
+//#include "slist.h"
+//#include "select.h"
 #include "vtls.h"
 //#include "strcase.h"
 #include "hostcheck.h"
@@ -71,12 +70,10 @@
 #if (OPENSSL_VERSION_NUMBER >= 0x0090808fL) && !defined(OPENSSL_NO_OCSP)
 	#include <openssl/ocsp.h>
 #endif
-
 #include "warnless.h"
-#include "non-ascii.h" /* for Curl_convert_from_utf8 prototype */
-
+//#include "non-ascii.h" /* for Curl_convert_from_utf8 prototype */
 /* The last #include files should be: */
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 #ifndef OPENSSL_VERSION_NUMBER
@@ -1146,13 +1143,11 @@ static CURLcode verifyhost(struct connectdata * conn, X509 * server_cert)
 				dNSName = TRUE;
 			else if(check->type == GEN_IPADD)
 				iPAddress = TRUE;
-
 			/* only check alternatives of the same type the target is */
 			if(check->type == target) {
 				/* get data and length */
 				const char * altptr = (char*)ASN1_STRING_get0_data(check->d.ia5);
 				size_t altlen = (size_t)ASN1_STRING_length(check->d.ia5);
-
 				switch(target) {
 					case GEN_DNS: /* name/pattern comparison */
 					    /* The OpenSSL man page explicitly says: "In general it cannot be
@@ -1166,67 +1161,50 @@ static CURLcode verifyhost(struct connectdata * conn, X509 * server_cert)
 					       it always 0-terminates an IA5String."
 					     */
 					    if((altlen == strlen(altptr)) &&
-					    /* if this isn't true, there was an embedded zero in the name
-					       string and we cannot match it. */
+					    // if this isn't true, there was an embedded zero in the name string and we cannot match it.
 					    Curl_cert_hostcheck(altptr, hostname)) {
 						    dnsmatched = TRUE;
-						    infof(data,
-						    " subjectAltName: host \"%s\" matched cert's \"%s\"\n",
-						    dispname, altptr);
+						    infof(data, " subjectAltName: host \"%s\" matched cert's \"%s\"\n", dispname, altptr);
 					    }
 					    break;
-
 					case GEN_IPADD: /* IP address comparison */
 					    /* compare alternative IP address if the data chunk is the same size
 					       our server IP address is */
 					    if((altlen == addrlen) && !memcmp(altptr, &addr, altlen)) {
 						    ipmatched = TRUE;
-						    infof(data,
-						    " subjectAltName: host \"%s\" matched cert's IP address!\n",
-						    dispname);
+						    infof(data, " subjectAltName: host \"%s\" matched cert's IP address!\n", dispname);
 					    }
 					    break;
 				}
 			}
 		}
 		GENERAL_NAMES_free(altnames);
-
 		if(dnsmatched || ipmatched)
 			matched = TRUE;
 	}
-
 	if(matched)
-		/* an alternative name matched */
-		;
+		; // an alternative name matched 
 	else if(dNSName || iPAddress) {
 		infof(data, " subjectAltName does not match %s\n", dispname);
-		failf(data, "SSL: no alternative certificate subject name matches "
-		    "target host name '%s'", dispname);
+		failf(data, "SSL: no alternative certificate subject name matches target host name '%s'", dispname);
 		result = CURLE_PEER_FAILED_VERIFICATION;
 	}
 	else {
 		/* we have to look to the last occurrence of a commonName in the
 		   distinguished one to get the most significant one. */
 		int j, i = -1;
-
 		/* The following is done because of a bug in 0.9.6b */
-
 		uchar * nulstr = (uchar*)"";
 		uchar * peer_CN = nulstr;
-
 		X509_NAME * name = X509_get_subject_name(server_cert);
 		if(name)
 			while((j = X509_NAME_get_index_by_NID(name, NID_commonName, i))>=0)
 				i = j;
-
 		/* we have the name entry and we will now convert this to a string
 		   that we can use for comparison. Doing this we support BMPstring,
 		   UTF8 etc. */
-
 		if(i>=0) {
-			ASN1_STRING * tmp =
-			    X509_NAME_ENTRY_get_data(X509_NAME_get_entry(name, i));
-
+			ASN1_STRING * tmp = X509_NAME_ENTRY_get_data(X509_NAME_get_entry(name, i));
 			/* In OpenSSL 0.9.7d and earlier, ASN1_STRING_to_UTF8 fails if the input
 			   is already UTF-8 encoded. We check for this case and copy the raw
 			   string manually to avoid the problem. This code can be made
@@ -1245,10 +1223,8 @@ static CURLcode verifyhost(struct connectdata * conn, X509 * server_cert)
 				}
 				else /* not a UTF8 name */
 					j = ASN1_STRING_to_UTF8(&peer_CN, tmp);
-
 				if(peer_CN && (curlx_uztosi(strlen((char*)peer_CN)) != j)) {
-					/* there was a terminating zero before the end of string, this
-					   cannot match and we return failure! */
+					// there was a terminating zero before the end of string, this cannot match and we return failure! 
 					failf(data, "SSL: illegal cert name field");
 					result = CURLE_PEER_FAILED_VERIFICATION;
 				}
@@ -1258,26 +1234,22 @@ static CURLcode verifyhost(struct connectdata * conn, X509 * server_cert)
 		if(peer_CN == nulstr)
 			peer_CN = NULL;
 		else {
-			/* convert peer_CN from UTF8 */
+			// convert peer_CN from UTF8 
 			CURLcode rc = Curl_convert_from_utf8(data, peer_CN, strlen(peer_CN));
-			/* Curl_convert_from_utf8 calls failf if unsuccessful */
+			// Curl_convert_from_utf8 calls failf if unsuccessful 
 			if(rc) {
 				OPENSSL_free(peer_CN);
 				return rc;
 			}
 		}
-
 		if(result)
-			/* error already detected, pass through */
-			;
+			; // error already detected, pass through 
 		else if(!peer_CN) {
-			failf(data,
-			    "SSL: unable to obtain common name from peer certificate");
+			failf(data, "SSL: unable to obtain common name from peer certificate");
 			result = CURLE_PEER_FAILED_VERIFICATION;
 		}
 		else if(!Curl_cert_hostcheck((const char*)peer_CN, hostname)) {
-			failf(data, "SSL: certificate subject name '%s' does not match "
-			    "target host name '%s'", peer_CN, dispname);
+			failf(data, "SSL: certificate subject name '%s' does not match target host name '%s'", peer_CN, dispname);
 			result = CURLE_PEER_FAILED_VERIFICATION;
 		}
 		else {
@@ -1286,14 +1258,11 @@ static CURLcode verifyhost(struct connectdata * conn, X509 * server_cert)
 		if(peer_CN)
 			OPENSSL_free(peer_CN);
 	}
-
 	return result;
 }
 
-#if (OPENSSL_VERSION_NUMBER >= 0x0090808fL) && !defined(OPENSSL_NO_TLSEXT) && \
-	!defined(OPENSSL_NO_OCSP)
-static CURLcode verifystatus(struct connectdata * conn,
-    struct ssl_connect_data * connssl)
+#if (OPENSSL_VERSION_NUMBER >= 0x0090808fL) && !defined(OPENSSL_NO_TLSEXT) && !defined(OPENSSL_NO_OCSP)
+static CURLcode verifystatus(struct connectdata * conn, struct ssl_connect_data * connssl)
 {
 	int i, ocsp_status;
 	const uchar * p;

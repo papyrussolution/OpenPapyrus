@@ -22,9 +22,9 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-#include "urldata.h"
-#include "sendf.h"
-#include "progress.h"
+//#include "urldata.h"
+//#include "sendf.h"
+//#include "progress.h"
 #include "curl_printf.h"
 
 /* Provide a string that is 2 + 1 + 2 + 1 + 2 = 8 letters long (plus the zero

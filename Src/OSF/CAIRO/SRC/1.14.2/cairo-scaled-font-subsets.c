@@ -42,7 +42,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 
-#define _BSD_SOURCE /* for snprintf(), strdup() */
+#define _BSD_SOURCE /* for snprintf(), sstrdup() */
 
 #if CAIRO_HAS_FONT_SUBSET
 
@@ -1099,7 +1099,7 @@ cairo_int_status_t _cairo_scaled_font_subset_create_glyph_names(cairo_scaled_fon
 	}
 	i = 0;
 	if(!subset->is_scaled) {
-		subset->glyph_names[0] = strdup(".notdef");
+		subset->glyph_names[0] = sstrdup(".notdef");
 		if(unlikely(subset->glyph_names[0] == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto CLEANUP_HASH;
@@ -1140,7 +1140,7 @@ cairo_int_status_t _cairo_scaled_font_subset_create_glyph_names(cairo_scaled_fon
 			snprintf(buf, sizeof(buf), "g%d", i);
 		}
 		SAlloc::F(utf16);
-		subset->glyph_names[i] = strdup(buf);
+		subset->glyph_names[i] = sstrdup(buf);
 		if(unlikely(subset->glyph_names[i] == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto CLEANUP_HASH;
@@ -1200,7 +1200,7 @@ cairo_int_status_t _cairo_escape_ps_name(char ** ps_name)
 		}
 		*dst = 0;
 		SAlloc::F(*ps_name);
-		*ps_name = strdup(buf);
+		*ps_name = sstrdup(buf);
 		if(*ps_name == NULL) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}

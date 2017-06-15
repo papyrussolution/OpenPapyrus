@@ -1458,7 +1458,7 @@ public:
 				case PPSCMD_POS_SUSPENDCCHECK:
 					{
 						THROW(P_Prcssr->GetAuthAgentID());
-						THROW(P_Prcssr->AcceptCheck(0, 0, CPosProcessor::accmSuspended) > 0);
+						THROW(P_Prcssr->AcceptCheck(0, 0, 0, CPosProcessor::accmSuspended) > 0);
 						THROW(P_Prcssr->SetupAgent(P_Prcssr->GetAuthAgentID(), 0));
 						PPLogMessage(PPFILNAM_STYLOWAITER_LOG, "Check suspended", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_THREADID);
 					}

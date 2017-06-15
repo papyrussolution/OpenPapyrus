@@ -653,7 +653,7 @@ static inline int cairo_bo_event_compare(const cairo_bo_event_t * a,
 
 static inline void _pqueue_init(pqueue_t * pq)
 {
-	pq->max_size = ARRAY_LENGTH(pq->elements_embedded);
+	pq->max_size = SIZEOFARRAY(pq->elements_embedded);
 	pq->size = 0;
 
 	pq->elements = pq->elements_embedded;
@@ -1386,7 +1386,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_polygon(cairo_traps_t         *
 	int intersections;
 	cairo_bo_start_event_t stack_events[CAIRO_STACK_ARRAY_LENGTH(cairo_bo_start_event_t)];
 	cairo_bo_start_event_t * events;
-	cairo_bo_event_t * stack_event_ptrs[ARRAY_LENGTH(stack_events) + 1];
+	cairo_bo_event_t * stack_event_ptrs[SIZEOFARRAY(stack_events) + 1];
 	cairo_bo_event_t ** event_ptrs;
 	cairo_bo_start_event_t * stack_event_y[64];
 	cairo_bo_start_event_t ** event_y = NULL;
@@ -1406,7 +1406,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_polygon(cairo_traps_t         *
 	}
 	events = stack_events;
 	event_ptrs = stack_event_ptrs;
-	if(num_events > ARRAY_LENGTH(stack_events)) {
+	if(num_events > SIZEOFARRAY(stack_events)) {
 		events = (cairo_bo_start_event_t *)_cairo_malloc_ab_plus_c(num_events,
 		    sizeof(cairo_bo_start_event_t) + sizeof(cairo_bo_event_t *), sizeof(cairo_bo_event_t *));
 		if(unlikely(events == NULL))
@@ -1784,7 +1784,7 @@ int main(void)
 	uint i, num_random;
 	test_t * test;
 
-	for(i = 0; i < ARRAY_LENGTH(tests); i++) {
+	for(i = 0; i < SIZEOFARRAY(tests); i++) {
 		test = &tests[i];
 		run_test(test->name, test->edges, test->num_edges);
 	}

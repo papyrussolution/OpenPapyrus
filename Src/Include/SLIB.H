@@ -1579,6 +1579,11 @@ struct LDATETIME {
 	LTIME  t;
 };
 
+int FASTCALL cmp(const LDATETIME & t1, const LDATETIME & t2);
+int FASTCALL cmp(const LDATETIME & t1, LDATE dt, LTIME tm);
+//
+// Globals
+//
 extern const LDATE ZERODATE;
 extern const LDATE MAXDATE;
 extern const LDATE MAXDATEVALID; // 1/1/3000 Используется для хранения в базах данных, поскольку MAXDATE не проходит проверку на правильную дату.
@@ -1587,9 +1592,6 @@ extern const LTIME MAXTIME;
 extern const LTIME MAXDAYTIME;
 extern const LDATETIME ZERODATETIME;
 extern const LDATETIME MAXDATETIME;
-
-int FASTCALL cmp(const LDATETIME & t1, const LDATETIME & t2);
-int FASTCALL cmp(const LDATETIME & t1, LDATE dt, LTIME tm);
 //
 // Descr: Отрезок времени. Используется для планирования, расчетов занятости и т.д.
 //   Обеспечивает базовые примитивы для работы с временными отрезками.
@@ -2876,6 +2878,8 @@ public:
 	float  Y;
 };
 
+extern const FPoint ZEROFPOINT; // @global
+
 int    SLAPI operator == (FPoint p1, FPoint p2);
 int    SLAPI operator <  (FPoint p1, FPoint p2);
 int    SLAPI operator >  (FPoint p1, FPoint p2);
@@ -2897,8 +2901,6 @@ float  SLAPI atan2(FPoint p1, FPoint p2);
 // Descr: X = p.X + radius.X * sinf(angle), Y = p.Y - radius.Y * cosf(angle)
 //
 FPoint SLAPI trans01(FPoint p, FPoint radius, float angle);
-
-extern const FPoint ZEROFPOINT;
 //
 // Complex compare struct and parse functions
 //
@@ -3741,7 +3743,8 @@ char * FASTCALL strnzcpy(char * pDest, const uchar * pSrc, size_t maxlen);
 char * FASTCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen);
 wchar_t * FASTCALL strnzcpy(wchar_t * pDest, const wchar_t * pSrc, size_t maxlen);
 char * SLAPI    wstrcpy(char * pDest, const char * pSrc, size_t maxlen);
-char * FASTCALL sstrcpy(char * pDest, const char * pSrc);
+char    * FASTCALL sstrcpy(char * pDest, const char * pSrc);
+uchar   * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc);
 wchar_t * FASTCALL sstrcpy(wchar_t * pDest, const wchar_t * pSrc);
 char * FASTCALL trimleft(char * pStr);
 char * FASTCALL trimright(char * pStr);
@@ -3752,6 +3755,7 @@ size_t FASTCALL sstrlen(const char * pStr);
 size_t FASTCALL sstrlen(const uchar * pStr);
 size_t FASTCALL sstrlen(const wchar_t * pStr);
 char * FASTCALL sstrdup(const char * pStr);
+uchar * FASTCALL sstrdup(const uchar * pStr);
 //
 // Descr: определяет эквивалентность строк pS1 и pS2.
 //   Если pS1 == pS2, то результат !0
@@ -3760,6 +3764,7 @@ char * FASTCALL sstrdup(const char * pStr);
 //   0  - строки не эквивалентны
 //
 int    FASTCALL sstreq(const char * pS1, const char * pS2);
+int    FASTCALL sstreq(const uchar * pS1, const uchar * pS2);
 //
 // Descr: определяет эквивалентность строк pS1 и pS2
 //   без учета регистра, но только для ascii-символов.
@@ -3901,7 +3906,6 @@ char * FASTCALL SCharToOem(char * pStr);
 #define PRD_ANNUAL        360
 
 #define PRD_PRECDAYSMASK  0x7000
-
 #define NUM_MONTHES        12
 
 extern const char   daysPerMonth[NUM_MONTHES];
@@ -9510,6 +9514,32 @@ enum SColourCollection { // 0x00rrggbb
 	SClrYellowgreen   = 0x009acd32
 };
 //
+// Descr: Структура для унификации сторонних библиотек
+//
+struct SColorRGB {
+	int    IsZero() const
+	{
+		return (!R && !G && !B);
+	}
+	SColorRGB Set(uint r, uint g, uint b)
+	{
+		R = r;
+		G = g;
+		B = b;
+		return *this;
+	}
+	SColorRGB FASTCALL Set(uint v)
+	{
+		R = v;
+		G = v;
+		B = v;
+		return *this;
+	}
+	uint8  R;
+	uint8  G;
+	uint8  B;
+};
+//
 // Descr: Представление цвета.
 //   Эта структура не должна иметь конструкторов и деструктора из-за того,
 //   что используется в объединениях.
@@ -9535,9 +9565,10 @@ struct SColorBase { // @persistent
 	SColorBase FASTCALL Set(uint v);
 	SColorBase PremultiplyAlpha();
 	enum {
-		fmtHEX = 1,
-		fmtRGB = 2,
-		fmtName = 0x1000
+		fmtHEX                 = 1, // #rrggbb
+		fmtRGB                 = 2, // rgb(rr, gg, bb)
+		fmtRgbHexWithoutPrefix = 3, // rrggbb
+		fmtName                = 0x1000
 	};
 	int    FASTCALL FromStr(const char *);
 	SString & ToStr(SString & rBuf, int format = fmtHEX) const;
@@ -9551,6 +9582,10 @@ struct SColorBase { // @persistent
 };
 
 struct SColor : public SColorBase {
+	//
+	// Descr: @ctr Создает экземпляр черного непрозрачного цвета (Alpha = 0xff, RGB = 0x000000)
+	// Note: Специальная глобальная константа ZEROCOLOR содержит неопределенное значение цвета (Alpha = 0x00, RGB = 0x000000)
+	//
 	SColor();
 	SColor(const SColorBase & rS);
 	//
@@ -9566,6 +9601,8 @@ struct SColor : public SColorBase {
 	SColor FASTCALL Lighten(float factor) const;
 	SColor FASTCALL Darken(float factor) const;
 };
+
+extern const SColor ZEROCOLOR;
 
 COLORREF FASTCALL GetColorRef(SColourCollection);
 COLORREF GetGrayColorRef(float whitePart);
@@ -11135,14 +11172,16 @@ public:
 	static int IsSupportedFormat(int fm);
 
 	SImageBuffer();
+	SImageBuffer(const SImageBuffer & rS);
 	SImageBuffer(uint w, uint h, PixF f = PixF::s32ARGB);
 	~SImageBuffer();
+	SImageBuffer & FASTCALL operator = (const SImageBuffer & rS);
 	void   Destroy();
 	int    Init(uint w, uint h, PixF f = PixF::s32ARGB);
-	int    Copy(const SImageBuffer & rS);
+	int    FASTCALL IsEqual(const SImageBuffer & rS) const;
+	int    FASTCALL Copy(const SImageBuffer & rS);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    AddLines(const void * pSrc, PixF s, uint count, const Palette * pPalette);
-	int    IsEqual(const SImageBuffer & rS) const;
 	PixF   GetFormat() const;
 	uint   GetWidth() const;
 	uint   GetHeight() const;

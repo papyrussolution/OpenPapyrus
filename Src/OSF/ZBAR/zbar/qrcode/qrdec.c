@@ -17,16 +17,12 @@
 #include "svg.h"
 
 typedef int qr_line[3];
-
 typedef struct qr_finder_cluster qr_finder_cluster;
 typedef struct qr_finder_edge_pt qr_finder_edge_pt;
 typedef struct qr_finder_center qr_finder_center;
-
 typedef struct qr_aff qr_aff;
 typedef struct qr_hom qr_hom;
-
 typedef struct qr_finder qr_finder;
-
 typedef struct qr_hom_cell qr_hom_cell;
 typedef struct qr_sampling_grid qr_sampling_grid;
 typedef struct qr_pack_buf qr_pack_buf;

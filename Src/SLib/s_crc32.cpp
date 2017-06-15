@@ -597,6 +597,76 @@ int SBdtFunct::Finish(void * pOutBuf, size_t outBufLen)
 	return Implement_Transform(blk);
 }
 
+static ulong __adler32(ulong value, const uint8 * pBuf, size_t len)
+{
+#define DO1(buf, i)  { value += (pBuf)[i]; sum2 += value; }
+#define DO2(buf, i)  DO1(pBuf, i); DO1(pBuf, i+1);
+#define DO4(buf, i)  DO2(pBuf, i); DO2(pBuf, i+2);
+#define DO8(buf, i)  DO4(pBuf, i); DO4(pBuf, i+4);
+#define DO16(buf)    DO8(pBuf, 0); DO8(pBuf, 8);
+	const uint _base_ = 65521U; // largest prime smaller than 65536 
+	const uint _nmax_ = 5552;   // _nmax_ is the largest n such that 255n(n+1)/2 + (n+1)(BASE-1) <= 2^32-1 
+	ulong  result = 1;
+	uint   n;
+	ulong  sum2 = (value >> 16) & 0xffff; // split Adler-32 into component sums
+	value &= 0xffff;
+	if(len == 1) { // in case user likes doing a byte at a time, keep it fast
+		value += pBuf[0];
+		if(value >= _base_)
+			value -= _base_;
+		sum2 += value;
+		if(sum2 >= _base_)
+			sum2 -= _base_;
+		result = (value | (sum2 << 16));
+	}
+	else if(pBuf) { // initial Adler-32 value (deferred check for len == 1 speed)
+		if(len < 16) { // in case short lengths are provided, keep it somewhat fast
+			while(len--) {
+				value += *pBuf++;
+				sum2 += value;
+			}
+			if(value >= _base_)
+				value -= _base_;
+			sum2 %= _base_; // only added so many _base_'s
+			result = (value | (sum2 << 16));
+		}
+		else {
+			// do length NMAX blocks -- requires just one modulo operation
+			while(len >= _nmax_) {
+				len -= _nmax_;
+				n = _nmax_ / 16; // NMAX is divisible by 16
+				do {
+					DO16(pBuf); // 16 sums unrolled
+					pBuf += 16;
+				} while(--n);
+				value %= _base_;
+				sum2 %= _base_;
+			}
+			// do remaining bytes (less than NMAX, still just one modulo)
+			if(len) { // avoid modulos if none remaining
+				while(len >= 16) {
+					len -= 16;
+					DO16(pBuf);
+					pBuf += 16;
+				}
+				while(len--) {
+					value += *pBuf++;
+					sum2 += value;
+				}
+				value %= _base_;
+				sum2 %= _base_;
+			}
+			result = (value | (sum2 << 16)); // return recombined sums
+		}
+	}
+	return result;
+#undef DO1
+#undef DO2
+#undef DO4
+#undef DO8
+#undef DO16
+}
+
 int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 {
 	static uint _Tab_Crc32_Idx = 0; // SlSession SClassWrapper
@@ -638,6 +708,7 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 								p_tab[i] = cm.Tab(i);
 						}
 						Ste.P_Tab = p_tab;
+						Ste.O.B4 = 0;
 					}
 					break;
 				case SBdtFunct::phaseUpdate:
@@ -725,10 +796,29 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 					}
 					break;
 				case phaseInit:
+					{
+						Ste.P_Tab = 0;
+						Ste.O.B4 = __adler32(0, 0, 0);
+					}
 					break;
 				case phaseUpdate:
+					Ste.O.B4 = __adler32(Ste.O.B4, PTR8(rBlk.P_InBuf), rBlk.InBufLen);
+					Ste.S.InSize += rBlk.InBufLen;
+					Ste.S.OutSize = sizeof(Ste.O.B4);
 					break;
 				case phaseFinish:
+					if(rBlk.P_OutBuf) {
+						THROW(rBlk.OutBufLen >= sizeof(Ste.O.B4));
+						PTR32(rBlk.P_OutBuf)[0] = Ste.O.B4;
+						rBlk.OutBufPos = sizeof(Ste.O.B4);
+					}
+					break;
+				case SBdtFunct::phaseGetStat:
+					{
+                        Stat * p_stat = (Stat *)rBlk.P_OutBuf;
+						assert(!p_stat || rBlk.OutBufLen >= sizeof(Stat));
+                        ASSIGN_PTR(p_stat, Ste.S);
+					}
 					break;
 			}
 			break;
@@ -911,7 +1001,7 @@ int SLAPI ReadBdtTestData(const char * pFileName, const char * pSetSymb, TSColle
                 if(line_buf.C(0) == '#') { // comment
 				}
 				else if(line_buf.C(0) == '[') {
-					uint cpos = 0;
+					size_t cpos = 0;
                     if(line_buf.StrChr(']', &cpos)) {
 						line_buf.Sub(1, cpos-1, set_name);
                     }
@@ -1013,7 +1103,12 @@ int SLAPI ReadBdtTestData(const char * pFileName, const char * pSetSymb, TSColle
 
 #if SLTEST_RUNNING // {
 
-//#include <zlib.h>
+//#define TEST_ZLIB_IMPLEMENTATION
+
+#ifdef TEST_ZLIB_IMPLEMENTATION
+	#include <zlib.h>
+#endif
+
 
 SLTEST_R(BDT)
 {
@@ -1049,13 +1144,52 @@ SLTEST_R(BDT)
 						uint32 result = cc.Calc(0, (const uint8 *)p_item->In.GetBuf(), p_item->In.GetLen());
 						SLTEST_CHECK_Z(memcmp(&result, &pattern_value, sizeof(result)));
 					}
+#ifdef TEST_ZLIB_IMPLEMENTATION
 					{
 						//
 						// Проверка реализации zlib
 						//
-						//uint32 result = crc32_z(0, (const uint8 *)p_item->In.GetBuf(), p_item->In.GetLen());
-						//SLTEST_CHECK_Z(memcmp(&result, &pattern_value, sizeof(result)));
+						uint32 result = crc32_z(0, (const uint8 *)p_item->In.GetBuf(), p_item->In.GetLen());
+						SLTEST_CHECK_Z(memcmp(&result, &pattern_value, sizeof(result)));
 					}
+#endif
+				}
+			}
+		}
+	}
+	{
+		// ADLER32
+		SString in_file_name = MakeInputFilePath("adler32.vec");
+		TSCollection <BdtTestItem> data_set;
+		THROW(SLTEST_CHECK_NZ(ReadBdtTestData(in_file_name, "Adler32", data_set)));
+		{
+			SBdtFunct fu(SBdtFunct::Adler32);
+			for(uint i = 0; i < data_set.getCount(); i++) {
+				BdtTestItem * p_item = data_set.at(i);
+				if(p_item) {
+					SLTEST_CHECK_EQ(p_item->Out.GetLen(), sizeof(uint32));
+					uint32 pattern_value = PTR32(p_item->Out.GetBuf())[0];
+					PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
+					PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
+					PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
+					//
+					{
+						uint32 result;
+						THROW(SLTEST_CHECK_NZ(fu.Init(p_item->In.GetBuf(), p_item->In.GetLen(), &result, sizeof(result))));
+						THROW(SLTEST_CHECK_NZ(fu.Update(p_item->In.GetBuf(), p_item->In.GetLen(), &result, sizeof(result))));
+						THROW(SLTEST_CHECK_NZ(fu.Finish(&result, sizeof(result))));
+						SLTEST_CHECK_Z(memcmp(&result, &pattern_value, p_item->Out.GetLen()));
+					}
+#ifdef TEST_ZLIB_IMPLEMENTATION
+					{
+						//
+						// Проверка реализации zlib
+						//
+						uint32 result = adler32_z(0, 0, 0);
+						result = adler32_z(result, (const uint8 *)p_item->In.GetBuf(), p_item->In.GetLen());
+						SLTEST_CHECK_Z(memcmp(&result, &pattern_value, sizeof(result)));
+					}
+#endif
 				}
 			}
 		}

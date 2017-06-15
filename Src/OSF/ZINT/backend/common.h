@@ -54,26 +54,26 @@
 	#define inline _inline
 #endif
 
-#define ustrcpy(target,source) strcpy((char*)target,(const char*)source)
+//#define ustrcpy_Removed(target,source) strcpy((char*)target,(const char*)source)
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
     //extern size_t ustrlen_(const uchar source[]);
-    extern int ctoi(const char source);
-    extern char itoc(const int source);
+    extern int FASTCALL ctoi_ReplacedWith_hex(const char source);
+    extern char FASTCALL itoc(const int source);
     extern void to_upper(uchar source[]);
     extern int is_sane(const char test_string[], const uchar source[], const size_t length);
     extern void lookup(const char set_string[], const char *table[], const char data, char dest[]);
     extern int posn(const char set_string[], const char data);
-    extern void expand(struct ZintSymbol *symbol, const char data[]);
+    extern void FASTCALL expand(struct ZintSymbol *symbol, const char data[]);
     extern int is_stackable(const int symbology);
     extern int is_extendable(const int symbology);
     extern int roundup(const float input);
     extern int module_is_set(const struct ZintSymbol *symbol, const int y_coord, const int x_coord);
-    extern void set_module(struct ZintSymbol *symbol, const int y_coord, const int x_coord);
-    extern void unset_module(struct ZintSymbol *symbol, const int y_coord, const int x_coord);
+    extern void FASTCALL set_module(struct ZintSymbol *symbol, const int y_coord, const int x_coord);
+    extern void FASTCALL unset_module(struct ZintSymbol *symbol, const int y_coord, const int x_coord);
     extern int istwodigits(const uchar source[], const int position);
     extern double froundup(const double input);
     extern int parunmodd(const uchar llyth);

@@ -57,7 +57,7 @@
 
 #if CAIRO_HAS_PS_SURFACE // {
 
-#define _BSD_SOURCE /* for ctime_r(), snprintf(), strdup() */
+#define _BSD_SOURCE /* for ctime_r(), snprintf(), sstrdup() */
 
 #include "cairo-ps.h"
 #include "cairo-ps-surface-private.h"
@@ -132,7 +132,7 @@ static const cairo_ps_level_t _cairo_ps_levels[] =
 	CAIRO_PS_LEVEL_3
 };
 
-#define CAIRO_PS_LEVEL_LAST ARRAY_LENGTH(_cairo_ps_levels)
+#define CAIRO_PS_LEVEL_LAST SIZEOFARRAY(_cairo_ps_levels)
 
 static const char * _cairo_ps_level_strings[CAIRO_PS_LEVEL_LAST] =
 {
@@ -927,7 +927,7 @@ static const char * _cairo_ps_surface_get_page_media(cairo_ps_surface_t     * su
 
 	/* search list of standard page sizes */
 	page_name = NULL;
-	for(i = 0; i < ARRAY_LENGTH(_cairo_page_standard_media); i++) {
+	for(i = 0; i < SIZEOFARRAY(_cairo_page_standard_media); i++) {
 		if(_ps_page_dimension_equal(width, _cairo_page_standard_media[i].width) &&
 		    _ps_page_dimension_equal(height, _cairo_page_standard_media[i].height)) {
 			page_name = _cairo_page_standard_media[i].name;
@@ -942,12 +942,12 @@ static const char * _cairo_ps_surface_get_page_media(cairo_ps_surface_t     * su
 		return NULL;
 	}
 	if(page_name) {
-		page->name = strdup(page_name);
+		page->name = sstrdup(page_name);
 	}
 	else {
 		snprintf(buf, sizeof(buf), "%dx%dmm", (int)_cairo_lround(surface->width * 25.4/72),
 		    (int)_cairo_lround(surface->height * 25.4/72));
-		page->name = strdup(buf);
+		page->name = sstrdup(buf);
 	}
 	if(unlikely(page->name == NULL)) {
 		SAlloc::F(page);
@@ -1431,39 +1431,32 @@ void cairo_ps_surface_set_size(cairo_surface_t * surface, double width_in_points
  *
  * Since: 1.2
  **/
-void cairo_ps_surface_dsc_comment(cairo_surface_t   * surface,
-    const char        * comment)
+void cairo_ps_surface_dsc_comment(cairo_surface_t   * surface, const char * comment)
 {
 	cairo_ps_surface_t * ps_surface = NULL;
 	cairo_status_t status;
 	char * comment_copy;
-
-	if(!_extract_ps_surface(surface, TRUE, &ps_surface))
-		return;
-
-	/* A couple of sanity checks on the comment value. */
-	if(comment == NULL) {
-		status = _cairo_surface_set_error(surface, CAIRO_STATUS_NULL_POINTER);
-		return;
-	}
-
-	if(comment[0] != '%' || strlen(comment) > 255) {
-		status = _cairo_surface_set_error(surface, CAIRO_STATUS_INVALID_DSC_COMMENT);
-		return;
-	}
-
-	/* Then, copy the comment and store it in the appropriate array. */
-	comment_copy = strdup(comment);
-	if(unlikely(comment_copy == NULL)) {
-		status = _cairo_surface_set_error(surface, CAIRO_STATUS_NO_MEMORY);
-		return;
-	}
-
-	status = _cairo_array_append(ps_surface->dsc_comment_target, &comment_copy);
-	if(unlikely(status)) {
-		SAlloc::F(comment_copy);
-		status = _cairo_surface_set_error(surface, status);
-		return;
+	if(_extract_ps_surface(surface, TRUE, &ps_surface)) {
+		if(comment == NULL) { // A couple of sanity checks on the comment value. 
+			status = _cairo_surface_set_error(surface, CAIRO_STATUS_NULL_POINTER);
+		}
+		else if(comment[0] != '%' || strlen(comment) > 255) {
+			status = _cairo_surface_set_error(surface, CAIRO_STATUS_INVALID_DSC_COMMENT);
+		}
+		else {
+			// Then, copy the comment and store it in the appropriate array. 
+			comment_copy = sstrdup(comment);
+			if(unlikely(comment_copy == NULL)) {
+				status = _cairo_surface_set_error(surface, CAIRO_STATUS_NO_MEMORY);
+			}
+			else {
+				status = _cairo_array_append(ps_surface->dsc_comment_target, &comment_copy);
+				if(unlikely(status)) {
+					SAlloc::F(comment_copy);
+					status = _cairo_surface_set_error(surface, status);
+				}
+			}
+		}
 	}
 }
 

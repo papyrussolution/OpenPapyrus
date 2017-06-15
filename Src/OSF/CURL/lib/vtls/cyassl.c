@@ -46,13 +46,13 @@
 #ifdef HAVE_LIMITS_H
 	#include <limits.h>
 #endif
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "inet_pton.h"
 #include "vtls.h"
 #include "parsedate.h"
 #include "connect.h" /* for the connect timeout */
-#include "select.h"
+//#include "select.h"
 //#include "strcase.h"
 #include "x509asn1.h"
 #include "curl_printf.h"
@@ -65,11 +65,9 @@
 #endif
 #include <cyassl/ctaocrypt/random.h>
 #include <cyassl/ctaocrypt/sha256.h>
-
 #include "cyassl.h"
-
-/* The last #include files should be: */
-#include "curl_memory.h"
+// The last #include files should be: 
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 #if LIBCYASSL_VERSION_HEX < 0x02007002 /* < 2.7.2 */

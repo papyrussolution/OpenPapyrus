@@ -24,15 +24,15 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include <curl/curl.h>
-#include "urldata.h"
-#include "url.h"
-#include "progress.h"
+//#include "urldata.h"
+//#include "url.h"
+//#include "progress.h"
 #include "multiif.h"
-#include "sendf.h"
+//#include "sendf.h"
 #include "conncache.h"
-/* The last 3 #include files should be in this order */
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 static void conn_llist_dtor(void * user, void * element)

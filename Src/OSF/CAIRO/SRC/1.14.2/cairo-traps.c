@@ -60,7 +60,7 @@ void _cairo_traps_init(cairo_traps_t * traps)
 
 	traps->num_traps = 0;
 
-	traps->traps_size = ARRAY_LENGTH(traps->traps_embedded);
+	traps->traps_size = SIZEOFARRAY(traps->traps_embedded);
 	traps->traps = traps->traps_embedded;
 
 	traps->num_limits = 0;
@@ -856,7 +856,7 @@ cairo_int_status_t _cairo_traps_extract_region(cairo_traps_t   * traps,
 		traps->maybe_region = FALSE;
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	}
-	if(traps->num_traps > ARRAY_LENGTH(stack_rects)) {
+	if(traps->num_traps > SIZEOFARRAY(stack_rects)) {
 		rects = (CairoIRect *)_cairo_malloc_ab(traps->num_traps, sizeof(CairoIRect));
 		if(unlikely(rects == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);

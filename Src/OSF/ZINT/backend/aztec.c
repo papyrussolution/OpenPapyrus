@@ -40,8 +40,8 @@
 #define DIGIT	16
 #define BINARY	32
 
-static const int CompactAztecMap[] = {
-    /* 27 x 27 data grid */
+static const int16 CompactAztecMap[] = { // @sobolev int-->int16
+    // 27 x 27 data grid 
     609, 608, 411, 413, 415, 417, 419, 421, 423, 425, 427, 429, 431, 433, 435, 437, 439, 441, 443, 445, 447, 449, 451, 453, 455, 457, 459,
     607, 606, 410, 412, 414, 416, 418, 420, 422, 424, 426, 428, 430, 432, 434, 436, 438, 440, 442, 444, 446, 448, 450, 452, 454, 456, 458,
     605, 604, 409, 408, 243, 245, 247, 249, 251, 253, 255, 257, 259, 261, 263, 265, 267, 269, 271, 273, 275, 277, 279, 281, 283, 460, 461,
@@ -71,8 +71,8 @@ static const int CompactAztecMap[] = {
     559, 557, 555, 553, 551, 549, 547, 545, 543, 541, 539, 537, 535, 533, 531, 529, 527, 525, 523, 521, 519, 517, 515, 513, 511, 508, 509
 };
 
-const int AztecCodeSet[128] = {
-    /* From Table 2 */
+const int8 AztecCodeSet[128] = { // @sobolev int-->int8
+    // From Table 2 
     32, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 12, 32, 32, 32, 32, 32, 32,
     32, 32, 32, 32, 32, 32, 32, 4, 4, 4, 4, 4, 23, 8, 8, 8, 8, 8, 8, 8,
     8, 8, 8, 8, 24, 8, 24, 8, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 8, 8,
@@ -82,8 +82,8 @@ const int AztecCodeSet[128] = {
     2, 2, 2, 8, 4, 8, 4, 4
 };
 
-const int AztecSymbolChar[128] = {
-    /* From Table 2 */
+const int16 AztecSymbolChar[128] = { // @sobolev int-->int16
+    // From Table 2 
     0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 300, 14, 15, 16, 17, 18, 19,
     20, 21, 22, 23, 24, 25, 26, 15, 16, 17, 18, 19, 1, 6, 7, 8, 9, 10, 11, 12,
     13, 14, 15, 16, 301, 18, 302, 20, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 21, 22,
@@ -115,7 +115,7 @@ static const char *tribit[8] = {
 };
 
 static const int AztecSizes[32] = {
-    /* Codewords per symbol */
+    // Codewords per symbol 
     21, 48, 60, 88, 120, 156, 196, 240, 230, 272, 316, 364, 416, 470, 528, 588, 652, 720, 790,
     864, 940, 1020, 920, 992, 1066, 1144, 1224, 1306, 1392, 1480, 1570, 1664
 };
@@ -125,58 +125,44 @@ static const int AztecCompactSizes[4] = {
 };
 
 static const int Aztec10DataSizes[32] = {
-    /* Data bits per symbol maximum with 10% error correction */
+    // Data bits per symbol maximum with 10% error correction 
     96, 246, 408, 616, 840, 1104, 1392, 1704, 2040, 2420, 2820, 3250, 3720, 4200, 4730,
     5270, 5840, 6450, 7080, 7750, 8430, 9150, 9900, 10680, 11484, 12324, 13188, 14076,
     15000, 15948, 16920, 17940
 };
 
 static const int Aztec23DataSizes[32] = {
-    /* Data bits per symbol maximum with 23% error correction */
+    // Data bits per symbol maximum with 23% error correction 
     84, 204, 352, 520, 720, 944, 1184, 1456, 1750, 2070, 2410, 2780, 3180, 3590, 4040,
     4500, 5000, 5520, 6060, 6630, 7210, 7830, 8472, 9132, 9816, 10536, 11280, 12036,
     12828, 13644, 14472, 15348
 };
 
 static const int Aztec36DataSizes[32] = {
-    /* Data bits per symbol maximum with 36% error correction */
+    // Data bits per symbol maximum with 36% error correction 
     66, 168, 288, 432, 592, 776, 984, 1208, 1450, 1720, 2000, 2300, 2640, 2980, 3350,
     3740, 4150, 4580, 5030, 5500, 5990, 6500, 7032, 7584, 8160, 8760, 9372, 9996, 10656,
     11340, 12024, 12744
 };
 
 static const int Aztec50DataSizes[32] = {
-    /* Data bits per symbol maximum with 50% error correction */
+    // Data bits per symbol maximum with 50% error correction 
     48, 126, 216, 328, 456, 600, 760, 936, 1120, 1330, 1550, 1790, 2050, 2320, 2610,
     2910, 3230, 3570, 3920, 4290, 4670, 5070, 5484, 5916, 6360, 6828, 7308, 7800, 8316,
     8844, 9384, 9948
 };
 
-static const int AztecCompact10DataSizes [4] = {
-    78, 198, 336, 520
-};
-
-static const int AztecCompact23DataSizes [4] = {
-    66, 168, 288, 440
-};
-
-static const int AztecCompact36DataSizes [4] = {
-    48, 138, 232, 360
-};
-
-static const int AztecCompact50DataSizes [4] = {
-    36, 102, 176, 280
-};
+static const int AztecCompact10DataSizes [4] = { 78, 198, 336, 520 };
+static const int AztecCompact23DataSizes [4] = { 66, 168, 288, 440 };
+static const int AztecCompact36DataSizes [4] = { 48, 138, 232, 360 };
+static const int AztecCompact50DataSizes [4] = { 36, 102, 176, 280 };
 
 static const int AztecOffset[32] = {
     66, 64, 62, 60, 57, 55, 53, 51, 49, 47, 45, 42, 40, 38, 36, 34, 32, 30, 28, 25, 23, 21,
     19, 17, 15, 13, 10, 8, 6, 4, 2, 0
 };
 
-static const int AztecCompactOffset[4] = {
-    6, 4, 2, 0
-};
-
+static const int AztecCompactOffset[4] = { 6, 4, 2, 0 };
 static int AztecMap[22801]; // @global
 //
 // Shorten the string by one character
@@ -1042,17 +1028,17 @@ int aztec(struct ZintSymbol * symbol, uchar source[], int length)
 		comp_loop = 1;
 	}
 	if(gs1 && reader) {
-		strcpy(symbol->errtxt, "Cannot encode in GS1 and Reader Initialisation mode at the same time (E01)");
+		sstrcpy(symbol->errtxt, "Cannot encode in GS1 and Reader Initialisation mode at the same time (E01)");
 		return ZINT_ERROR_INVALID_OPTION;
 	}
 	populate_map();
 	err_code = aztec_text_process(source, length, binary_string, gs1, symbol->eci);
 	if(err_code != 0) {
-		strcpy(symbol->errtxt, "Input too long or too many extended ASCII characters (E02)");
+		sstrcpy(symbol->errtxt, "Input too long or too many extended ASCII characters (E02)");
 		return err_code;
 	}
 	if(!((symbol->option_1 >= -1) && (symbol->option_1 <= 4))) {
-		strcpy(symbol->errtxt, "Invalid error correction level - using default instead (E03)");
+		sstrcpy(symbol->errtxt, "Invalid error correction level - using default instead (E03)");
 		err_code = ZINT_WARN_INVALID_OPTION;
 		symbol->option_1 = -1;
 	}
@@ -1137,7 +1123,7 @@ int aztec(struct ZintSymbol * symbol, uchar source[], int length)
 			}
 
 			if(layers == 0) { /* Couldn't find a symbol which fits the data */
-				strcpy(symbol->errtxt, "Input too long (too many bits for selected ECC) (E04)");
+				sstrcpy(symbol->errtxt, "Input too long (too many bits for selected ECC) (E04)");
 				return ZINT_ERROR_TOO_LONG;
 			}
 			// Determine codeword bitlength - Table 3 
@@ -1231,7 +1217,7 @@ int aztec(struct ZintSymbol * symbol, uchar source[], int length)
 			layers = symbol->option_2 - 4;
 		}
 		if((symbol->option_2 < 0) || (symbol->option_2 > 36)) {
-			strcpy(symbol->errtxt, "Invalid Aztec Code size");
+			sstrcpy(symbol->errtxt, "Invalid Aztec Code size");
 			return ZINT_ERROR_INVALID_OPTION;
 		}
 		// Determine codeword bitlength - Table 3 
@@ -1314,7 +1300,7 @@ int aztec(struct ZintSymbol * symbol, uchar source[], int length)
 			data_maxsize = codeword_size * (AztecSizes[layers - 1] - 3);
 		}
 		if(adjusted_length > data_maxsize) {
-			strcpy(symbol->errtxt, "Data too long for specified Aztec Code symbol size (E05)");
+			sstrcpy(symbol->errtxt, "Data too long for specified Aztec Code symbol size (E05)");
 			return ZINT_ERROR_TOO_LONG;
 		}
 		if(debug) {
@@ -1328,7 +1314,7 @@ int aztec(struct ZintSymbol * symbol, uchar source[], int length)
 		}
 	}
 	if(reader && (layers > 22)) {
-		strcpy(symbol->errtxt, "Data too long for reader initialisation symbol (E06)");
+		sstrcpy(symbol->errtxt, "Data too long for reader initialisation symbol (E06)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	data_blocks = adjusted_length / codeword_size;
@@ -1679,31 +1665,31 @@ int aztec_runes(struct ZintSymbol * symbol, uchar source[], int length)
 	int error_number = 0;
 	int input_value = 0;
 	if(length > 3) {
-		strcpy(symbol->errtxt, "Input too large (E07)");
+		sstrcpy(symbol->errtxt, "Input too large (E07)");
 		return ZINT_ERROR_INVALID_DATA;
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number != 0) {
-		strcpy(symbol->errtxt, "Invalid characters in input (E08)");
+		sstrcpy(symbol->errtxt, "Invalid characters in input (E08)");
 		return ZINT_ERROR_INVALID_DATA;
 	}
 	switch(length) {
-		case 3: input_value = 100 * ctoi(source[0]);
-		    input_value += 10 * ctoi(source[1]);
-		    input_value += ctoi(source[2]);
+		case 3: input_value = 100 * hex(source[0]);
+		    input_value += 10 * hex(source[1]);
+		    input_value += hex(source[2]);
 		    break;
-		case 2: input_value = 10 * ctoi(source[0]);
-		    input_value += ctoi(source[1]);
+		case 2: input_value = 10 * hex(source[0]);
+		    input_value += hex(source[1]);
 		    break;
-		case 1: input_value = ctoi(source[0]);
+		case 1: input_value = hex(source[0]);
 		    break;
 	}
 	if(input_value > 255) {
-		strcpy(symbol->errtxt, "Input too large (E09)");
+		sstrcpy(symbol->errtxt, "Input too large (E09)");
 		return ZINT_ERROR_INVALID_DATA;
 	}
 	else {
-		strcpy(binary_string, "");
+		sstrcpy(binary_string, "");
 		for(p = 0; p < 8; p++) {
 			if(input_value & (0x80 >> p)) {
 				strcat(binary_string, "1");
@@ -1732,7 +1718,7 @@ int aztec_runes(struct ZintSymbol * symbol, uchar source[], int length)
 		rs_init_code(5, 1);
 		rs_encode(2, data_codewords, ecc_codewords);
 		rs_free();
-		strcpy(binary_string, "");
+		sstrcpy(binary_string, "");
 		for(i = 0; i < 5; i++) {
 			if(ecc_codewords[4 - i] & 0x08) {
 				binary_string[(i * 4) + 8] = '1';

@@ -43,7 +43,7 @@ void _cairo_boxes_init(cairo_boxes_t * boxes)
 	boxes->tail = &boxes->chunks;
 	boxes->chunks.next = NULL;
 	boxes->chunks.base = boxes->boxes_embedded;
-	boxes->chunks.size = ARRAY_LENGTH(boxes->boxes_embedded);
+	boxes->chunks.size = SIZEOFARRAY(boxes->boxes_embedded);
 	boxes->chunks.count = 0;
 	boxes->is_pixel_aligned = TRUE;
 }
@@ -245,7 +245,7 @@ void _cairo_boxes_clear(cairo_boxes_t * boxes)
 	boxes->chunks.next = 0;
 	boxes->chunks.count = 0;
 	boxes->chunks.base = boxes->boxes_embedded;
-	boxes->chunks.size = ARRAY_LENGTH(boxes->boxes_embedded);
+	boxes->chunks.size = SIZEOFARRAY(boxes->boxes_embedded);
 	boxes->num_boxes = 0;
 	boxes->is_pixel_aligned = TRUE;
 }

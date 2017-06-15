@@ -48,18 +48,18 @@
 void ZLIB_INTERNAL inflate_fast(z_streamp strm, unsigned start)
 {
 	struct inflate_state  * state;
-	z_const unsigned char  * in; /* local strm->next_in */
-	z_const unsigned char  * last; /* have enough input while in < last */
-	unsigned char  * out; /* local strm->next_out */
-	unsigned char  * beg; /* inflate()'s initial strm->next_out */
-	unsigned char  * end; /* while out < end, enough space available */
+	z_const uchar  * in; /* local strm->next_in */
+	z_const uchar  * last; /* have enough input while in < last */
+	uchar  * out; /* local strm->next_out */
+	uchar  * beg; /* inflate()'s initial strm->next_out */
+	uchar  * end; /* while out < end, enough space available */
 #ifdef INFLATE_STRICT
 	unsigned dmax;          /* maximum distance from zlib header */
 #endif
 	unsigned wsize;         /* window size or zero if not using window */
 	unsigned whave;         /* valid bytes in the window */
 	unsigned wnext;         /* window write index */
-	unsigned char  * window; /* allocated sliding window, if wsize != 0 */
+	uchar  * window; /* allocated sliding window, if wsize != 0 */
 	unsigned long hold;     /* local strm->hold */
 	unsigned bits;          /* local strm->bits */
 	ZInfTreesCode const  * lcode; /* local strm->lencode */
@@ -67,11 +67,10 @@ void ZLIB_INTERNAL inflate_fast(z_streamp strm, unsigned start)
 	unsigned lmask;         /* mask for first level of length codes */
 	unsigned dmask;         /* mask for first level of distance codes */
 	ZInfTreesCode here;              /* retrieved table entry */
-	unsigned op;            /* code bits, operation, extra bits, or */
-	                        /*  window position, window bytes to copy */
+	unsigned op;            /* code bits, operation, extra bits, or  window position, window bytes to copy */
 	unsigned len;           /* match length, unused bytes */
 	unsigned dist;          /* match distance */
-	unsigned char  * from; /* where to copy match from */
+	uchar  * from; /* where to copy match from */
 
 	/* copy state to local variables */
 	state = (struct inflate_state *)strm->state;
@@ -93,9 +92,8 @@ void ZLIB_INTERNAL inflate_fast(z_streamp strm, unsigned start)
 	dcode = state->distcode;
 	lmask = (1U << state->lenbits) - 1;
 	dmask = (1U << state->distbits) - 1;
-
-	/* decode literals and length/distances until end-of-block or not enough
-	   input data or output space */
+	// decode literals and length/distances until end-of-block or not enough
+	// input data or output space 
 	do {
 		if(bits < 15) {
 			hold += (unsigned long)(*in++) << bits;
@@ -113,7 +111,7 @@ dolen:
 			Tracevv((stderr, here.val >= 0x20 && here.val < 0x7f ?
 				    "inflate:         literal '%c'\n" :
 				    "inflate:         literal 0x%02x\n", here.val));
-			*out++ = (unsigned char)(here.val);
+			*out++ = (uchar)(here.val);
 		}
 		else if(op & 16) {              /* length base */
 			len = (unsigned)(here.val);
@@ -283,13 +281,12 @@ dodist:
 			break;
 		}
 	} while(in < last && out < end);
-
-	/* return unused bytes (on entry, bits < 8, so in won't go too far back) */
+	// return unused bytes (on entry, bits < 8, so in won't go too far back)
 	len = bits >> 3;
 	in -= len;
 	bits -= len << 3;
 	hold &= (1U << bits) - 1;
-	/* update state and return */
+	// update state and return 
 	strm->next_in = in;
 	strm->next_out = out;
 	strm->avail_in = (unsigned)(in < last ? 5 + (last - in) : 5 - (in - last));

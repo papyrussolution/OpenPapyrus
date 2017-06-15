@@ -13,7 +13,7 @@
 #include "zlib.h"
 #pragma hdrstop
 
-/* function prototypes */
+// function prototypes 
 static void fixedtables(struct inflate_state  * state);
 /*
    strm provides memory allocation functions in zalloc and zfree, or
@@ -22,7 +22,7 @@ static void fixedtables(struct inflate_state  * state);
    windowBits is in the range 8..15, and window is a user-supplied
    window and output buffer that is 2**windowBits bytes.
  */
-int ZEXPORT inflateBackInit_(z_streamp strm, int windowBits, unsigned char  * window, const char * version, int stream_size)
+int ZEXPORT inflateBackInit_(z_streamp strm, int windowBits, uchar  * window, const char * version, int stream_size)
 {
 	struct inflate_state  * state;
 	if(version == Z_NULL || version[0] != ZLIB_VERSION[0] || stream_size != (int)(sizeof(z_stream)))
@@ -74,31 +74,32 @@ static void fixedtables(struct inflate_state  * state)
 	static int virgin = 1;
 	static code * lenfix, * distfix;
 	static code fixed[544];
-
-	/* build fixed huffman tables if first call (may not be thread safe) */
+	// build fixed huffman tables if first call (may not be thread safe) 
 	if(virgin) {
-		unsigned sym, bits;
+		unsigned bits;
 		static code * next;
-
-		/* literal/length table */
-		sym = 0;
-		while(sym < 144) state->lens[sym++] = 8;
-		while(sym < 256) state->lens[sym++] = 9;
-		while(sym < 280) state->lens[sym++] = 7;
-		while(sym < 288) state->lens[sym++] = 8;
+		// literal/length table 
+		uint sym = 0;
+		while(sym < 144) 
+			state->lens[sym++] = 8;
+		while(sym < 256) 
+			state->lens[sym++] = 9;
+		while(sym < 280) 
+			state->lens[sym++] = 7;
+		while(sym < 288) 
+			state->lens[sym++] = 8;
 		next = fixed;
 		lenfix = next;
 		bits = 9;
 		inflate_table(LENS, state->lens, 288, &(next), &(bits), state->work);
-
-		/* distance table */
+		// distance table 
 		sym = 0;
-		while(sym < 32) state->lens[sym++] = 5;
+		while(sym < 32) 
+			state->lens[sym++] = 5;
 		distfix = next;
 		bits = 5;
 		inflate_table(DISTS, state->lens, 32, &(next), &(bits), state->work);
-
-		/* do this just once */
+		// do this just once 
 		virgin = 0;
 	}
 #else /* !BUILDFIXED */
@@ -238,18 +239,18 @@ static void fixedtables(struct inflate_state  * state)
 int ZEXPORT inflateBack(z_streamp strm, in_func in, void  * in_desc, out_func out, void  * out_desc)
 {
 	struct inflate_state  * state;
-	z_const unsigned char  * next; /* next input */
-	unsigned char  * put; /* next output */
+	z_const uchar  * next; /* next input */
+	uchar  * put; /* next output */
 	unsigned have, left;    /* available input and output */
 	unsigned long hold;     /* bit buffer */
 	unsigned bits;          /* bits in bit buffer */
 	unsigned copy;          /* number of stored or match bytes to copy */
-	unsigned char  * from; /* where to copy match bytes from */
+	uchar  * from; /* where to copy match bytes from */
 	ZInfTreesCode here; // current decoding table entry 
 	ZInfTreesCode last; // parent table entry 
 	unsigned len;           /* length to copy for repeats, bits to drop */
 	int ret;                /* return code */
-	static const unsigned short order[19] = /* permutation of code lengths */
+	static const ushort order[19] = /* permutation of code lengths */
 	{16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
 
 	/* Check that the strm exists and that the state was initialized */
@@ -356,7 +357,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void  * in_desc, out_func ou
 			    state->have = 0;
 			    while(state->have < state->ncode) {
 				    NEEDBITS(3);
-				    state->lens[order[state->have++]] = (unsigned short)BITS(3);
+				    state->lens[order[state->have++]] = (ushort)BITS(3);
 				    DROPBITS(3);
 			    }
 			    while(state->have < 19)
@@ -364,8 +365,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void  * in_desc, out_func ou
 			    state->next = state->codes;
 			    state->lencode = (ZInfTreesCode const *)(state->next);
 			    state->lenbits = 7;
-			    ret = inflate_table(CODES, state->lens, 19, &(state->next),
-			    &(state->lenbits), state->work);
+			    ret = inflate_table(CODES, state->lens, 19, &(state->next), &(state->lenbits), state->work);
 			    if(ret) {
 				    strm->msg = (char*)"invalid code lengths set";
 				    state->mode = BAD;
@@ -418,13 +418,12 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void  * in_desc, out_func ou
 						    break;
 					    }
 					    while(copy--)
-						    state->lens[state->have++] = (unsigned short)len;
+						    state->lens[state->have++] = (ushort)len;
 				    }
 			    }
-
 			    /* handle error breaks in while */
-			    if(state->mode == BAD) break;
-
+			    if(state->mode == BAD) 
+					break;
 			    /* check for end-of-block code (better have one) */
 			    if(state->lens[256] == 0) {
 				    strm->msg = (char*)"invalid code -- missing end-of-block";
@@ -489,7 +488,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void  * in_desc, out_func ou
 			    if(here.op == 0) {
 				    Tracevv((stderr, here.val >= 0x20 && here.val < 0x7f ? "inflate:         literal '%c'\n" : "inflate:         literal 0x%02x\n", here.val));
 				    ROOM();
-				    *put++ = (unsigned char)(state->length);
+				    *put++ = (uchar)(state->length);
 				    left--;
 				    state->mode = LEN;
 				    break;

@@ -86,7 +86,7 @@ static const cairo_svg_version_t _cairo_svg_versions[] =
 	CAIRO_SVG_VERSION_1_2
 };
 
-#define CAIRO_SVG_VERSION_LAST ARRAY_LENGTH(_cairo_svg_versions)
+#define CAIRO_SVG_VERSION_LAST SIZEOFARRAY(_cairo_svg_versions)
 
 static const char * _cairo_svg_supported_mime_types[] =
 {
@@ -822,7 +822,7 @@ _cairo_svg_surface_operators[] = {
 static cairo_bool_t _cairo_svg_surface_analyze_operator(cairo_svg_surface_t * surface, cairo_operator_t op)
 {
 	/* guard against newly added operators */
-	if(op >= ARRAY_LENGTH(_cairo_svg_surface_operators))
+	if(op >= SIZEOFARRAY(_cairo_svg_surface_operators))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	/* allow operators being NULL if they are unsupported */
 	if(_cairo_svg_surface_operators[op] == NULL)

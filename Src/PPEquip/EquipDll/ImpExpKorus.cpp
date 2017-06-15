@@ -567,7 +567,7 @@ int ImportExportCls::ParseRlnResponse(const char * pResp)
 	xmlNodePtr p_node;
 	RlnCfgList.freeAll();
 	if(pResp) {
-		p_input = xmlParserInputBufferCreateMem(pResp, xmlStrlen((const xmlChar *)pResp), XML_CHAR_ENCODING_NONE);
+		p_input = xmlParserInputBufferCreateMem(pResp, sstrlen(pResp), XML_CHAR_ENCODING_NONE);
 		THROWERR((p_xml_ptr = xmlNewTextReader(p_input, NULL)), IEERR_NULLREADXMLPTR);
 		//
 		// xmlTextReaderSetup нужен, потому что через определенное количество элементов (скорее всего) для элемента p_node->children
@@ -2160,7 +2160,7 @@ int ImportCls::ListMessageBox(uint messageType)
 					if(strcmp(resp.ListMBExResult->Cnt, EMPTY_LISTMB_RESP) != 0) {
 						SString xml_input = resp.ListMBExResult->Cnt;
 						SString str, cname;
-						p_input = xmlParserInputBufferCreateMem(xml_input, xmlStrlen(xml_input.ucptr()), XML_CHAR_ENCODING_NONE);
+						p_input = xmlParserInputBufferCreateMem(xml_input, xml_input.Len(), XML_CHAR_ENCODING_NONE);
 						THROWERR((p_xml_ptr = xmlNewTextReader(p_input, NULL)), IEERR_NULLREADXMLPTR);
 						while(xmlTextReaderRead(p_xml_ptr)) {
 							xmlNodePtr p_node = xmlTextReaderCurrentNode(p_xml_ptr);
@@ -2629,7 +2629,7 @@ int ImportCls::ParseAperakResp(const char * pResp)
 	xmlNodePtr p_node;
 	AperakInfo.Clear();
 	if(pResp) {
-		p_input = xmlParserInputBufferCreateMem(pResp, xmlStrlen((const xmlChar *)pResp), XML_CHAR_ENCODING_NONE);
+		p_input = xmlParserInputBufferCreateMem(pResp, sstrlen(pResp), XML_CHAR_ENCODING_NONE);
 		THROWERR((p_xml_ptr = xmlNewTextReader(p_input, NULL)), IEERR_NULLREADXMLPTR);
 		while(xmlTextReaderRead(p_xml_ptr)) {
 			p_node = xmlTextReaderCurrentNode(p_xml_ptr);

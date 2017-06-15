@@ -204,7 +204,7 @@ static cairo_status_t _cairo_xcb_surface_set_clip_region(cairo_xcb_surface_t * s
 
 	num_rects = cairo_region_num_rectangles(region);
 
-	if(num_rects > ARRAY_LENGTH(stack_rects)) {
+	if(num_rects > SIZEOFARRAY(stack_rects)) {
 		rects = _cairo_malloc_ab(num_rects, sizeof(xcb_rectangle_t));
 		if(unlikely(rects == NULL)) {
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -670,11 +670,11 @@ static cairo_xcb_picture_t * _cairo_xcb_solid_picture(cairo_xcb_surface_t * targ
 	if(unlikely(picture->base.status))
 		return picture;
 
-	if(screen->solid_cache_size < ARRAY_LENGTH(screen->solid_cache)) {
+	if(screen->solid_cache_size < SIZEOFARRAY(screen->solid_cache)) {
 		i = screen->solid_cache_size++;
 	}
 	else {
-		i = hars_petruska_f54_1_random() % ARRAY_LENGTH(screen->solid_cache);
+		i = hars_petruska_f54_1_random() % SIZEOFARRAY(screen->solid_cache);
 		cairo_surface_destroy(screen->solid_cache[i].picture);
 	}
 	screen->solid_cache[i].picture = cairo_surface_reference(&picture->base);
@@ -1245,7 +1245,7 @@ static cairo_status_t _render_fill_boxes(void * abstract_dst, cairo_operator_t o
 		if(chunk->count > max_count)
 			max_count = chunk->count;
 	}
-	if(max_count > ARRAY_LENGTH(stack_xrects)) {
+	if(max_count > SIZEOFARRAY(stack_xrects)) {
 		xrects = _cairo_malloc_ab(max_count, sizeof(xcb_rectangle_t));
 		if(unlikely(xrects == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -1309,7 +1309,7 @@ static cairo_int_status_t _render_composite_boxes(cairo_xcb_surface_t    * dst,
 
 	/* amalgamate into a single Composite call by setting a clip region */
 	clip_boxes = stack_boxes;
-	if(boxes->num_boxes > ARRAY_LENGTH(stack_boxes)) {
+	if(boxes->num_boxes > SIZEOFARRAY(stack_boxes)) {
 		clip_boxes = _cairo_malloc_ab(boxes->num_boxes, sizeof(xcb_rectangle_t));
 		if(unlikely(clip_boxes == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -3846,7 +3846,7 @@ static cairo_status_t _can_composite_glyphs(cairo_xcb_surface_t * dst,
 		int width, height, len;
 		int g;
 
-		g = glyphs->index % ARRAY_LENGTH(glyph_cache);
+		g = glyphs->index % SIZEOFARRAY(glyph_cache);
 		if(glyph_cache[g] != glyphs->index) {
 			status = _cairo_scaled_glyph_lookup(scaled_font,
 			    glyphs->index,
@@ -4163,7 +4163,7 @@ static void _cairo_xcb_glyph_fini(cairo_scaled_glyph_private_t * glyph_private,
 
 		to_free = info->pending_free_glyphs;
 		if(to_free != NULL &&
-		    to_free->glyph_count == ARRAY_LENGTH(to_free->glyph_indices)) {
+		    to_free->glyph_count == SIZEOFARRAY(to_free->glyph_indices)) {
 			_cairo_xcb_render_free_glyphs(font_private->connection, to_free);
 			to_free = info->pending_free_glyphs = NULL;
 		}
@@ -4415,7 +4415,7 @@ static cairo_status_t _emit_glyphs_chunk(cairo_xcb_surface_t * dst,
 	uint32_t len;
 	int i;
 
-	if(estimated_req_size > ARRAY_LENGTH(stack_buf)) {
+	if(estimated_req_size > SIZEOFARRAY(stack_buf)) {
 		buf = SAlloc::M(estimated_req_size);
 		if(unlikely(buf == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -4508,7 +4508,7 @@ static cairo_int_status_t _composite_glyphs(void * closure,
 	for(i = 0; i < info->num_glyphs; i++) {
 		cairo_scaled_glyph_t * glyph;
 		ulong glyph_index = info->glyphs[i].index;
-		int cache_index = glyph_index % ARRAY_LENGTH(glyph_cache);
+		int cache_index = glyph_index % SIZEOFARRAY(glyph_cache);
 		int old_width = width;
 		int this_x, this_y;
 

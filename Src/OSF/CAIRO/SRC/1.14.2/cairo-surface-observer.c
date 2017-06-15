@@ -1440,7 +1440,7 @@ static void print_array(cairo_output_stream_t * stream,
 	int order[64];
 	int i, j;
 
-	assert(count < ARRAY_LENGTH(order));
+	assert(count < SIZEOFARRAY(order));
 	for(i = j = 0; i < count; i++) {
 		if(array[i] != 0)
 			order[j++] = i;
@@ -1502,7 +1502,7 @@ static const char * fill_rule_names[] = {
 static void print_fill_rule(cairo_output_stream_t * stream, uint * array)
 {
 	_cairo_output_stream_printf(stream, "  fill rule:");
-	print_array(stream, array, fill_rule_names, ARRAY_LENGTH(fill_rule_names));
+	print_array(stream, array, fill_rule_names, SIZEOFARRAY(fill_rule_names));
 	_cairo_output_stream_printf(stream, "\n");
 }
 
@@ -1561,7 +1561,7 @@ static void print_pattern(cairo_output_stream_t * stream,
     const struct pattern * p)
 {
 	_cairo_output_stream_printf(stream, "  %s:", name);
-	print_array(stream, p->type, pattern_names, ARRAY_LENGTH(pattern_names));
+	print_array(stream, p->type, pattern_names, SIZEOFARRAY(pattern_names));
 	_cairo_output_stream_printf(stream, "\n");
 }
 
@@ -1576,7 +1576,7 @@ static void print_path(cairo_output_stream_t * stream,
     const struct path * p)
 {
 	_cairo_output_stream_printf(stream, "  path:");
-	print_array(stream, p->type, path_names, ARRAY_LENGTH(path_names));
+	print_array(stream, p->type, path_names, SIZEOFARRAY(path_names));
 	_cairo_output_stream_printf(stream, "\n");
 }
 
@@ -1591,7 +1591,7 @@ static const char * clip_names[] = {
 static void print_clip(cairo_output_stream_t * stream, const struct clip * c)
 {
 	_cairo_output_stream_printf(stream, "  clip:");
-	print_array(stream, c->type, clip_names, ARRAY_LENGTH(clip_names));
+	print_array(stream, c->type, clip_names, SIZEOFARRAY(clip_names));
 	_cairo_output_stream_printf(stream, "\n");
 }
 

@@ -245,46 +245,29 @@ int SLAPI PPCheckInPersonItem::SetStatus(int status)
 
 int FASTCALL PPCheckInPersonItem::IsEqual(const PPCheckInPersonItem & rS, long options) const
 {
+	int    ok = 1;
 	#define FLDEQ(f) (f==rS.f)
-	if(!FLDEQ(Kind))
-		return 0;
-	else if(!FLDEQ(PrmrID))
-		return 0;
-	else if((Flags & fAnonym) != (rS.Flags & fAnonym))
-		return 0;
-	else if(!FLDEQ(PersonID))
-		return 0;
+	THROW(FLDEQ(Kind));
+	THROW(FLDEQ(PrmrID));
+	THROW((Flags & fAnonym) == (rS.Flags & fAnonym));
+	THROW(FLDEQ(PersonID));
 	if(!(options & eqoKeyOnly)) {
-		if(!(options & eqoNoID) && !FLDEQ(ID))
-			return 0;
-		else if(!(options & eqoNoNum) && !FLDEQ(Num))
-			return 0;
-		else if(!FLDEQ(RegCount))
-			return 0;
-		else if(!FLDEQ(CiCount))
-			return 0;
-		else if(!FLDEQ(Flags))
-			return 0;
-		else if(!FLDEQ(RegDtm))
-			return 0;
-		else if(!FLDEQ(CiDtm))
-			return 0;
-		else if(!FLDEQ(Amount))
-			return 0;
-		else if(!FLDEQ(CCheckID))
-			return 0;
-		else if(!FLDEQ(SCardID))
-			return 0;
-		else if(!FLDEQ(MemoPos))
-			return 0;
-		else if(stricmp(PlaceCode, rS.PlaceCode) != 0) // @v8.6.5
-			return 0;
-		else
-			return 1;
+		THROW((options & eqoNoID) || FLDEQ(ID));
+		THROW((options & eqoNoNum) || FLDEQ(Num));
+		THROW(FLDEQ(RegCount));
+		THROW(FLDEQ(CiCount));
+		THROW(FLDEQ(Flags));
+		THROW(FLDEQ(RegDtm));
+		THROW(FLDEQ(CiDtm));
+		THROW(FLDEQ(Amount));
+		THROW(FLDEQ(CCheckID));
+		THROW(FLDEQ(SCardID));
+		THROW(FLDEQ(MemoPos));
+		THROW(stricmp(PlaceCode, rS.PlaceCode) == 0); // @v8.6.5
 	}
-	else
-		return 1;
 	#undef FLDEQ
+	CATCHZOK
+	return ok;
 }
 
 int FASTCALL PPCheckInPersonItem::operator == (const PPCheckInPersonItem & rS) const
@@ -347,13 +330,12 @@ PPCheckInPersonArray & SLAPI PPCheckInPersonArray::Init(int kind, PPID prmrID)
 	return *this;
 }
 
-int FASTCALL PPCheckInPersonArray::InitItem(PPCheckInPersonItem & rItem) const
+void FASTCALL PPCheckInPersonArray::InitItem(PPCheckInPersonItem & rItem) const
 {
 	rItem.Clear();
 	rItem.Kind = Kind;
 	rItem.PrmrID = PrmrID;
 	rItem.RegDtm = getcurdatetime_();
-	return 1;
 }
 
 PPCheckInPersonArray & SLAPI PPCheckInPersonArray::Clear()
@@ -460,7 +442,7 @@ int FASTCALL PPCheckInPersonArray::RemoveItem(uint pos)
 	return ok;
 }
 
-int SLAPI PPCheckInPersonArray::Normalize(int kind, PPID prmrID)
+void SLAPI PPCheckInPersonArray::Normalize(int kind, PPID prmrID)
 {
 	Kind = kind;
 	PrmrID = prmrID;
@@ -477,7 +459,6 @@ int SLAPI PPCheckInPersonArray::Normalize(int kind, PPID prmrID)
 		}
 	}
 	MemoPool = temp_memo_pool;
-	return 1;
 }
 
 int SLAPI PPCheckInPersonArray::ProcessObjRefs(PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
@@ -505,10 +486,9 @@ const  PPCheckInPersonItem & PPCheckInPersonArray::Get(uint pos) const
 	return at(pos);
 }
 
-int SLAPI PPCheckInPersonArray::InitIteration()
+void SLAPI PPCheckInPersonArray::InitIteration()
 {
 	SArray::setPointer(0);
-	return 1;
 }
 
 int FASTCALL PPCheckInPersonArray::NextIteration(PPCheckInPersonItem & rItem)

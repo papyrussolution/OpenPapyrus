@@ -49,29 +49,29 @@
 #endif
 //#include "urldata.h"
 //#include <curl/curl.h>
-#include "transfer.h"
+//#include "transfer.h"
 #include "vtls/vtls.h"
-#include "url.h"
-#include "getinfo.h"
+//#include "url.h"
+//#include "getinfo.h"
 #include "hostip.h"
 #include "share.h"
-#include "strdup.h"
-#include "progress.h"
+//#include "strdup.h"
+//#include "progress.h"
 #include "easyif.h"
-#include "select.h"
-#include "sendf.h" /* for failf function prototype */
+//#include "select.h"
+//#include "sendf.h" /* for failf function prototype */
 #include "connect.h" /* for Curl_getconnectinfo */
-#include "slist.h"
+//#include "slist.h"
 #include "amigaos.h"
-#include "non-ascii.h"
+//#include "non-ascii.h"
 #include "warnless.h"
 #include "conncache.h"
 #include "multiif.h"
 #include "sigpipe.h"
 #include "ssh.h"
-/* The last 3 #include files should be in this order */
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 void Curl_version_init(void);
@@ -325,13 +325,15 @@ struct Curl_easy * curl_easy_init(void)
 #undef curl_easy_setopt
 CURLcode curl_easy_setopt(struct Curl_easy * data, CURLoption tag, ...)
 {
-	va_list arg;
 	CURLcode result;
 	if(!data)
-		return CURLE_BAD_FUNCTION_ARGUMENT;
-	va_start(arg, tag);
-	result = Curl_setopt(data, tag, arg);
-	va_end(arg);
+		result = CURLE_BAD_FUNCTION_ARGUMENT;
+	else {
+		va_list arg;
+		va_start(arg, tag);
+		result = Curl_setopt(data, tag, arg);
+		va_end(arg);
+	}
 	return result;
 }
 
@@ -404,10 +406,8 @@ static short socketcb2poll(int pollmask)
 static int events_socket(struct Curl_easy * easy,      /* easy handle */
     curl_socket_t s,                      /* socket */
     int what,                             /* see above */
-    void * userp,                         /* private callback
-                                             pointer */
-    void * socketp)                       /* private socket
-                                             pointer */
+    void * userp,                         /* private callback pointer */
+    void * socketp)                       /* private socket pointer */
 {
 	struct events * ev = userp;
 	struct socketmonitor * m;
@@ -434,9 +434,7 @@ static int events_socket(struct Curl_easy * easy,      /* easy handle */
 				/* The socket 's' is already being monitored, update the activity
 				   mask. Convert from libcurl bitmask to the poll one. */
 				m->socket.events = socketcb2poll(what);
-				infof(easy, "socket cb: socket %d UPDATED as %s%s\n", s,
-				    what&CURL_POLL_IN ? "IN" : "",
-				    what&CURL_POLL_OUT ? "OUT" : "");
+				infof(easy, "socket cb: socket %d UPDATED as %s%s\n", s, what&CURL_POLL_IN ? "IN" : "", what&CURL_POLL_OUT ? "OUT" : "");
 			}
 			break;
 		}
@@ -509,9 +507,7 @@ static CURLcode wait_or_timeout(struct Curl_multi * multi, struct events * ev)
 		int pollrc;
 		int i;
 		struct timeval before;
-
 		struct timeval after;
-
 		/* populate the fds[] array */
 		for(m = ev->list, f = &fds[0]; m; m = m->next) {
 			f->fd = m->socket.fd;
@@ -521,17 +517,12 @@ static CURLcode wait_or_timeout(struct Curl_multi * multi, struct events * ev)
 			f++;
 			numfds++;
 		}
-
 		/* get the time stamp to use to figure out how long poll takes */
 		before = curlx_tvnow();
-
 		/* wait for activity or timeout */
 		pollrc = Curl_poll(fds, numfds, (int)ev->ms);
-
 		after = curlx_tvnow();
-
 		ev->msbump = FALSE; /* reset here */
-
 		if(0 == pollrc) {
 			/* timeout! */
 			ev->ms = 0;
@@ -560,7 +551,6 @@ static CURLcode wait_or_timeout(struct Curl_multi * multi, struct events * ev)
 		}
 		else
 			return CURLE_RECV_ERROR;
-
 		if(mcode)
 			return CURLE_URL_MALFORMAT;  /* TODO: return a proper error! */
 

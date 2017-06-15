@@ -23,20 +23,19 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include <curl/curl.h>
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "connect.h"
 #include "vtls/vtls.h"
 #include "ssh.h"
 #include "multiif.h"
-#include "non-ascii.h"
-#include "strerror.h"
-#include "select.h"
-#include "strdup.h"
-
-/* The last 3 #include files should be in this order */
+//#include "non-ascii.h"
+//#include "strerror.h"
+//#include "select.h"
+//#include "strdup.h"
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 #ifdef CURL_DO_LINEEND_CONV

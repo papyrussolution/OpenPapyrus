@@ -22,8 +22,7 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-#include "curl_gethostname.h"
-
+//#include "curl_gethostname.h"
 /*
  * Curl_gethostname() is a wrapper around gethostname() which allows
  * overriding the host name that the function would normally return.

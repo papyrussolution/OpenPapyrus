@@ -986,7 +986,7 @@ void cairo_pattern_destroy(cairo_pattern_t * pattern)
 	type = pattern->type;
 	_cairo_pattern_fini(pattern);
 	/* maintain a small cache of freed patterns */
-	if(type < ARRAY_LENGTH(freed_pattern_pool))
+	if(type < SIZEOFARRAY(freed_pattern_pool))
 		_freed_pool_put(&freed_pattern_pool[type], pattern);
 	else
 		SAlloc::F(pattern);
@@ -1447,7 +1447,7 @@ static cairo_status_t _cairo_pattern_gradient_grow(cairo_gradient_pattern_t * pa
 {
 	cairo_gradient_stop_t * new_stops;
 	int old_size = pattern->stops_size;
-	int embedded_size = ARRAY_LENGTH(pattern->stops_embedded);
+	int embedded_size = SIZEOFARRAY(pattern->stops_embedded);
 	int new_size = 2 * MAX(old_size, 4);
 	/* we have a local buffer at pattern->stops_embedded.  try to fulfill the request
 	 * from there. */
@@ -4007,7 +4007,7 @@ slim_hidden_def(cairo_mesh_pattern_get_control_point);
 
 void _cairo_pattern_reset_static_data(void)
 {
-	for(int i = 0; i < ARRAY_LENGTH(freed_pattern_pool); i++)
+	for(int i = 0; i < SIZEOFARRAY(freed_pattern_pool); i++)
 		_freed_pool_reset(&freed_pattern_pool[i]);
 }
 

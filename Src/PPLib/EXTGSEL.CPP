@@ -608,13 +608,13 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 	else if(event.isCbSelected(CTLSEL_EXTGSEL_GGRP) || event.isCbSelected(CTLSEL_EXTGSEL_BRAND) || event.isCbSelected(CTLSEL_EXTGSEL_MODIFMODE))
 		updateList(0);
 	else if(event.isCmd(cmaInsert)) {
-		if(IsCurrCtl(P_List)) {
+		// @v9.6.12 if(IsCurrCtl(P_List)) {
 			grp_id = getCtrlLong(CTLSEL_EXTGSEL_GGRP);
 			if(GObj.Edit(&(c = 0), (void *)grp_id) == cmOK)
 				selectGoods(grp_id, c);
-		}
-		else
-			return;
+		// @v9.6.12 }
+		// @v9.6.12 else
+			// @v9.6.12 return;
 	}
 	else if(event.isCmd(cmSearchUHTT) || event.isKeyDown(kbCtrlF6)) { // @v8.0.11 || event.isKeyDown(kbCtrlF6)
 		const PPID goods_id = getSelectedItem();

@@ -63,19 +63,19 @@ int pharma_one(struct ZintSymbol * symbol, uchar source[], int length)
 	char dest[64]; /* 17 * 2 + 1 */
 
 	if(length > 6) {
-		strcpy(symbol->errtxt, "Input too long (C50)");
+		sstrcpy(symbol->errtxt, "Input too long (C50)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data (C51)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (C51)");
 		return error_number;
 	}
 
 	tester = atoi((char*)source);
 
 	if((tester < 3) || (tester > 131070)) {
-		strcpy(symbol->errtxt, "Data out of range (C52)");
+		sstrcpy(symbol->errtxt, "Data out of range (C52)");
 		return ZINT_ERROR_INVALID_DATA;
 	}
 
@@ -119,11 +119,11 @@ int pharma_two_calc(struct ZintSymbol * symbol, uchar source[], char dest[])
 	tester = atoi((char*)source);
 
 	if((tester < 4) || (tester > 64570080)) {
-		strcpy(symbol->errtxt, "Data out of range (C53)");
+		sstrcpy(symbol->errtxt, "Data out of range (C53)");
 		return ZINT_ERROR_INVALID_DATA;
 	}
 	error_number = 0;
-	strcpy(inter, "");
+	sstrcpy(inter, "");
 	do {
 		switch(tester % 3) {
 			case 0:
@@ -157,15 +157,15 @@ int pharma_two(struct ZintSymbol * symbol, uchar source[], int length)
 	uint loopey, h;
 	int writer;
 	int error_number = 0;
-	strcpy(height_pattern, "");
+	sstrcpy(height_pattern, "");
 
 	if(length > 8) {
-		strcpy(symbol->errtxt, "Input too long (C54)");
+		sstrcpy(symbol->errtxt, "Input too long (C54)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data (C55)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (C55)");
 		return error_number;
 	}
 	error_number = pharma_two_calc(symbol, source, height_pattern);
@@ -186,7 +186,6 @@ int pharma_two(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	symbol->rows = 2;
 	symbol->width = writer - 1;
-
 	return error_number;
 }
 
@@ -195,38 +194,33 @@ int codabar(struct ZintSymbol * symbol, uchar source[], int length)
 {
 	int i, error_number;
 	char dest[512];
-
-	strcpy(dest, "");
-
+	sstrcpy(dest, "");
 	if(length > 60) { /* No stack smashing please */
-		strcpy(symbol->errtxt, "Input too long (C56)");
+		sstrcpy(symbol->errtxt, "Input too long (C56)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	to_upper(source);
 	error_number = is_sane(CALCIUM, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data (C57)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (C57)");
 		return error_number;
 	}
 	/* Codabar must begin and end with the characters A, B, C or D */
 	if((source[0] != 'A') && (source[0] != 'B') && (source[0] != 'C')
 	    && (source[0] != 'D')) {
-		strcpy(symbol->errtxt, "Invalid characters in data (C58)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (C58)");
 		return ZINT_ERROR_INVALID_DATA;
 	}
-
 	if((source[length - 1] != 'A') && (source[length - 1] != 'B') &&
 	    (source[length - 1] != 'C') && (source[length - 1] != 'D')) {
-		strcpy(symbol->errtxt, "Invalid characters in data (C59)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (C59)");
 		return ZINT_ERROR_INVALID_DATA;
 	}
-
 	for(i = 0; i < length; i++) {
 		lookup(CALCIUM, CodaTable, source[i], dest);
 	}
-
 	expand(symbol, dest);
-	ustrcpy(symbol->text, source);
+	sstrcpy(symbol->text, source);
 	return error_number;
 }
 
@@ -238,30 +232,27 @@ int code32(struct ZintSymbol * symbol, uchar source[], int length)
 	long int pharmacode, remainder, devisor;
 	int codeword[6];
 	char tabella[34];
-
 	/* Validate the input */
 	if(length > 8) {
-		strcpy(symbol->errtxt, "Input too long (C5A)");
+		sstrcpy(symbol->errtxt, "Input too long (C5A)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data (C5B)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (C5B)");
 		return error_number;
 	}
-
 	/* Add leading zeros as required */
 	zeroes = 8 - length;
 	memset(localstr, '0', zeroes);
-	strcpy(localstr + zeroes, (char*)source);
-
+	sstrcpy(localstr + zeroes, (char*)source);
 	/* Calculate the check digit */
 	checksum = 0;
 	checkpart = 0;
 	for(i = 0; i < 4; i++) {
-		checkpart = ctoi(localstr[i * 2]);
+		checkpart = hex(localstr[i * 2]);
 		checksum += checkpart;
-		checkpart = 2 * (ctoi(localstr[(i * 2) + 1]));
+		checkpart = 2 * (hex(localstr[(i * 2) + 1]));
 		if(checkpart >= 10) {
 			checksum += (checkpart - 10) + 1;
 		}
@@ -269,15 +260,12 @@ int code32(struct ZintSymbol * symbol, uchar source[], int length)
 			checksum += checkpart;
 		}
 	}
-
 	/* Add check digit to data string */
 	checkdigit = checksum % 10;
 	localstr[8] = itoc(checkdigit);
 	localstr[9] = '\0';
-
 	/* Convert string into an integer value */
 	pharmacode = atoi(localstr);
-
 	/* Convert from decimal to base-32 */
 	devisor = 33554432;
 	for(i = 5; i >= 0; i--) {
@@ -286,9 +274,8 @@ int code32(struct ZintSymbol * symbol, uchar source[], int length)
 		pharmacode = remainder;
 		devisor /= 32;
 	}
-
 	/* Look up values in 'Tabella di conversione' */
-	strcpy(tabella, "0123456789BCDFGHJKLMNPQRSTUVWXYZ");
+	sstrcpy(tabella, "0123456789BCDFGHJKLMNPQRSTUVWXYZ");
 	for(i = 5; i >= 0; i--) {
 		risultante[5 - i] = tabella[codeword[i]];
 	}
@@ -298,11 +285,9 @@ int code32(struct ZintSymbol * symbol, uchar source[], int length)
 	if(error_number != 0) {
 		return error_number;
 	}
-
 	/* Override the normal text output with the Pharmacode number */
-	strcpy((char*)symbol->text, "A");
+	sstrcpy((char*)symbol->text, "A");
 	strcat((char*)symbol->text, (char*)localstr);
-
 	return error_number;
 }
 

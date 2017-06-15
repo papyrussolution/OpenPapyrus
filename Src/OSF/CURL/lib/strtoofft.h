@@ -22,7 +22,7 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+//#include "curl_setup.h"
 
 /*
  * Determine which string to integral data type conversion function we use

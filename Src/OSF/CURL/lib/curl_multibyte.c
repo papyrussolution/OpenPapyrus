@@ -29,12 +29,9 @@
 /*
  * MultiByte conversions using Windows kernel32 library.
  */
-
 #include "curl_multibyte.h"
-#include "curl_memory.h"
-
-/* The last #include file should be: */
-#include "memdebug.h"
+//#include "curl_memory.h"
+#include "memdebug.h" // The last #include file should be
 
 wchar_t * Curl_convert_UTF8_to_wchar(const char * str_utf8)
 {

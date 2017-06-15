@@ -6057,7 +6057,7 @@ SLTEST_R(SString)
 			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("email-list.txt");
 			SFile inf(in_buf, SFile::mRead);
 			line_no = 0;
-			SLTEST_CHECK_NZ(sstreq(0, 0));
+			SLTEST_CHECK_NZ(sstreq((const char *)0, (const char *)0));
 			SLTEST_CHECK_NZ(sstreqi_ascii(0, 0));
 			while(inf.ReadLine(str)) {
 				line_no++;

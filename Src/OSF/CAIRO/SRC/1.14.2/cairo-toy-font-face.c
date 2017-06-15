@@ -41,7 +41,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 
-#define _BSD_SOURCE /* for strdup() */
+#define _BSD_SOURCE /* for sstrdup() */
 
 static const cairo_font_face_t _cairo_font_face_null_pointer = {
 	{ 0 },                          /* hash_entry */
@@ -172,7 +172,7 @@ static cairo_status_t _cairo_toy_font_face_init(cairo_toy_font_face_t * font_fac
 	char * family_copy;
 	cairo_status_t status;
 
-	family_copy = strdup(family);
+	family_copy = sstrdup(family);
 	if(unlikely(family_copy == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 

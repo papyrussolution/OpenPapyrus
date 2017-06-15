@@ -24,17 +24,15 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifdef USE_LIBRTMP
-
-#include "urldata.h"
+//#include "urldata.h"
 #include "nonblock.h" /* for curlx_nonblock */
-#include "progress.h" /* for Curl_pgrsSetUploadSize */
-#include "transfer.h"
+//#include "progress.h" /* for Curl_pgrsSetUploadSize */
+//#include "transfer.h"
 #include "warnless.h"
 //#include <curl/curl.h>
 #include <librtmp/rtmp.h>
-#include "curl_memory.h"
-/* The last #include file should be: */
-#include "memdebug.h"
+//#include "curl_memory.h"
+#include "memdebug.h" // The last #include file should be
 
 #ifdef _WIN32
 #define setsockopt(a,b,c,d,e) (setsockopt)(a,b,c,(const char *)d,(int)e)

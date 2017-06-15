@@ -53,13 +53,13 @@
 #else
 	#define RESOLVER_ENOMEM  ENOMEM
 #endif
-#include "urldata.h"
-#include "sendf.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "hostip.h"
 #include "hash.h"
 #include "share.h"
-#include "strerror.h"
-#include "url.h"
+//#include "strerror.h"
+//#include "url.h"
 #include "multiif.h"
 #include "inet_pton.h"
 #include "inet_ntop.h"
@@ -67,7 +67,7 @@
 #include "connect.h"
 // The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /***********************************************************************

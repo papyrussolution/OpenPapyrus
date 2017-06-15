@@ -1364,7 +1364,6 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(Rcpt.Search(lotID, &lot_rec) > 0);
-		// @v7.3.0 {
 		if(flags & TLRF_ADJUNUQSERIAL) {
 			if(pFaultList->HasFault(PPLotFault::NonUniqSerial, &fault, &fault_pos)) {
 				p_bobj->GetSerialNumberByLot(lotID, serial_buf, 0);
@@ -1373,7 +1372,6 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 				}
 			}
 		}
-		// } @v7.3.0
 		// @v9.3.1 {
 		if(flags & TLRF_SETALCCODETOGOODS) {
 			if(pFaultList->HasFault(PPLotFault::EgaisCodeAlone, &fault, &fault_pos)) {

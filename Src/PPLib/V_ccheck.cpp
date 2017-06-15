@@ -3544,7 +3544,7 @@ private:
 			if(FiscalPrintintgEnabled()) {
 				CheckPaneDialog * cc_dlg = new CheckPaneDialog(Data.Rec.CashID, Data.Rec.ID, &Data);
                 if(cc_dlg) {
-					int r = cc_dlg->AcceptCheck(0, 0.0, CPosProcessor::accmAveragePrinting);
+					int r = cc_dlg->AcceptCheck(0, 0, 0.0, CPosProcessor::accmAveragePrinting);
 					ZDELETE(cc_dlg);
 					if(r > 0) {
 						CCheckPacket new_pack;

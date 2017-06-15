@@ -1363,11 +1363,10 @@ void OprKindDialog::setup()
 	SetupPPObjCombo(this, CTLSEL_OPRKIND_TYPE, PPOBJ_OPRTYPE, P_Data->Rec.OpTypeID, OLW_CANINSERT, 0);
 	SetupPPObjCombo(this, CTLSEL_OPRKIND_ACCSHEET, PPOBJ_ACCSHEET, P_Data->Rec.AccSheetID, OLW_CANINSERT, 0);
 	SetupPPObjCombo(this, CTLSEL_OPRKIND_ACCSHEET2, PPOBJ_ACCSHEET, P_Data->Rec.AccSheet2ID, OLW_CANINSERT, 0);
-	// @v7.8.10 {
 	if(P_Data->Rec.OpTypeID == PPOPT_CORRECTION) {
 		types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, 0L); // @v9.4.3 PPOPT_GOODSEXPEND
 	}
-	else { // } @v7.8.10
+	else {
 		types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, 0L);
 		if(P_Data->Rec.OpTypeID == PPOPT_PAYMENT) {
 			types.addzlist(PPOPT_ACCTURN, PPOPT_CHARGE, PPOPT_GOODSACK, PPOPT_POOL, PPOPT_GOODSORDER,
@@ -2043,7 +2042,7 @@ void OprKindDialog::moreDialog()
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_PROFITABLE, OPKF_CALCSTAXES, OPKF_AUTOWL, OPKF_USEPAYER,
 					OPKF_FREIGHT, OPKF_ATTACHFILES, OPKF_RESTRICTBYMTX, 0L);
 				ext_options_list.addzlist(OPKFX_ALLOWPARTSTR, OPKFX_RESTRICTPRICE, OPKFX_USESUPPLDEAL, OPKFX_CANBEDECLINED, OPKFX_DLVRLOCASWH, OPKFX_SOURCESERIAL, 0L);
-					// @v7.2.11 // @v8.3.3 OPKFX_CANBEDECLINED // @v9.1.10 OPKFX_DLVRLOCASWH // @v9.3.6 OPKFX_SOURCESERIAL
+					// @v8.3.3 OPKFX_CANBEDECLINED // @v9.1.10 OPKFX_DLVRLOCASWH // @v9.3.6 OPKFX_SOURCESERIAL
 				editOptions2(DLG_OPKMORE_DRC, 1, &subtypelist, &options_list, &ext_options_list);
 				break;
 			case PPOPT_DRAFTEXPEND:
@@ -2233,6 +2232,7 @@ int OpListDialog::setupList()
 
 int OpListDialog::addItem(long * pPos, long * pID)
 {
+	int    ok = -1;
 	if(P_Box) {
 		PPID   op_id = SelectOpKind(0L, &OpTypesList, 0);
 		if(op_id > 0) {
@@ -2244,11 +2244,11 @@ int OpListDialog::addItem(long * pPos, long * pID)
 				OpListData.add(op_id);
 				ASSIGN_PTR(pPos, OpListData.getCount());
 				ASSIGN_PTR(pID, op_id);
-				return 1;
+				ok = 1;
 			}
 		}
 	}
-	return -1;
+	return ok;
 }
 
 int OpListDialog::editItem(long /*pos*/, long id)
@@ -2271,11 +2271,12 @@ int OpListDialog::editItem(long /*pos*/, long id)
 
 int OpListDialog::delItem(long pos, long /*id*/)
 {
+	int    ok = 0;
 	if(pos >= 0 && pos < (long)OpListData.getCount()) {
 		OpListData.atFree((uint)pos);
-		return 1;
+		ok = 1;
 	}
-	return 0;
+	return ok;
 }
 //
 //

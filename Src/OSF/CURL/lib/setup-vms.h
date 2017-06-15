@@ -108,38 +108,32 @@ static char * vms_translate_path(const char * path)
 #endif
 
 #ifdef __DECC
-#   if __INITIAL_POINTER_SIZE
-#       pragma __pointer_size __restore
-#   endif
+	#if __INITIAL_POINTER_SIZE
+		#pragma __pointer_size __restore
+	#endif
 #endif
 
 static char * vms_getenv(const char * envvar)
 {
-	char * result;
-	char * vms_path;
-	/* first use the DECC getenv() function */
-	result = decc$getenv(envvar);
-	if(result == NULL) {
-		return result;
+	// first use the DECC getenv() function 
+	char * result = decc$getenv(envvar);
+	if(result) {
+		char * vms_path = result;
+		result = vms_translate_path(vms_path);
+		// note that if you backport this to use VAX C RTL, that the VAX C RTL 
+		// may do a SAlloc::M(2048) for each call to getenv(), so you will need   
+		// to add a SAlloc::F(vms_path) 
+		// Do not do a SAlloc::F() for DEC C RTL builds, which should be used for 
+		// VMS 5.5-2 and later, even if using GCC 
 	}
-	vms_path = result;
-	result = vms_translate_path(vms_path);
-
-	/* note that if you backport this to use VAX C RTL, that the VAX C RTL */
-	/* may do a SAlloc::M(2048) for each call to getenv(), so you will need   */
-	/* to add a SAlloc::F(vms_path) */
-	/* Do not do a SAlloc::F() for DEC C RTL builds, which should be used for */
-	/* VMS 5.5-2 and later, even if using GCC */
-
 	return result;
 }
 
-static struct passwd vms_passwd_cache;
+static struct passwd vms_passwd_cache; // @global
 
 static struct passwd * vms_getpwuid(uid_t uid)
 {
 	struct passwd * my_passwd;
-
 /* Hack needed to support 64 bit builds, decc_getpwnam is 32 bit only */
 #ifdef __DECC
 #   if __INITIAL_POINTER_SIZE

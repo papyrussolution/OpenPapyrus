@@ -1618,12 +1618,11 @@ static void png_image_set_PLTE(png_image_write_control * display)
 #   else
 #     define bgr 0
 #   endif
-
 	int i, num_trans;
-	png_color palette[256];
+	SColorRGB palette[256];
 	uint8 tRNS[256];
 	memset(tRNS, 255, (sizeof tRNS));
-	memset(palette, 0, (sizeof palette));
+	memzero(palette, sizeof(palette));
 	for(i = num_trans = 0; i<entries; ++i) {
 		/* This gets automatically converted to sRGB with reversal of the
 		 * pre-multiplication if the color-map has an alpha channel.
@@ -1633,44 +1632,35 @@ static void png_image_set_PLTE(png_image_write_control * display)
 			entry += i * channels;
 			if((channels & 1) != 0) { /* no alpha */
 				if(channels >= 3) { /* RGB */
-					palette[i].blue = (uint8)PNG_sRGB_FROM_LINEAR(255 * entry[(2 ^ bgr)]);
-					palette[i].green = (uint8)PNG_sRGB_FROM_LINEAR(255 * entry[1]);
-					palette[i].red = (uint8)PNG_sRGB_FROM_LINEAR(255 * entry[bgr]);
+					palette[i].B = (uint8)PNG_sRGB_FROM_LINEAR(255 * entry[(2 ^ bgr)]);
+					palette[i].G = (uint8)PNG_sRGB_FROM_LINEAR(255 * entry[1]);
+					palette[i].R = (uint8)PNG_sRGB_FROM_LINEAR(255 * entry[bgr]);
 				}
 				else /* Gray */
-					palette[i].blue = palette[i].red = palette[i].green = (uint8)PNG_sRGB_FROM_LINEAR(255 * *entry);
+					palette[i].Set((uint8)PNG_sRGB_FROM_LINEAR(255 * *entry));
 			}
 			else { /* alpha */
 				png_uint_16 alpha = entry[afirst ? 0 : channels-1];
 				uint8 alphabyte = (uint8)PNG_DIV257(alpha);
 				uint32 reciprocal = 0;
-
 				/* Calculate a reciprocal, as in the png_write_image_8bit code above
 				 * this is designed to produce a value scaled to 255*65535 when
 				 * divided by 128 (i.e. asr 7).
 				 */
 				if(alphabyte > 0 && alphabyte < 255)
 					reciprocal = (((0xffff*0xff)<<7)+(alpha>>1))/alpha;
-
 				tRNS[i] = alphabyte;
 				if(alphabyte < 255)
 					num_trans = i+1;
-
 				if(channels >= 3) { /* RGB */
-					palette[i].blue = png_unpremultiply(entry[afirst + (2 ^ bgr)],
-					    alpha, reciprocal);
-					palette[i].green = png_unpremultiply(entry[afirst + 1], alpha,
-					    reciprocal);
-					palette[i].red = png_unpremultiply(entry[afirst + bgr], alpha,
-					    reciprocal);
+					palette[i].B = png_unpremultiply(entry[afirst + (2 ^ bgr)], alpha, reciprocal);
+					palette[i].G = png_unpremultiply(entry[afirst + 1], alpha, reciprocal);
+					palette[i].R = png_unpremultiply(entry[afirst + bgr], alpha, reciprocal);
 				}
-
 				else /* gray */
-					palette[i].blue = palette[i].red = palette[i].green =
-					    png_unpremultiply(entry[afirst], alpha, reciprocal);
+					palette[i].Set(png_unpremultiply(entry[afirst], alpha, reciprocal));
 			}
 		}
-
 		else { /* Color-map has sRGB values */
 			png_const_bytep entry = png_voidcast(png_const_bytep, cmap);
 			entry += i * channels;
@@ -1681,21 +1671,18 @@ static void png_image_set_PLTE(png_image_write_control * display)
 					    num_trans = i+1;
 				/* FALL THROUGH */
 				case 3:
-				    palette[i].blue = entry[afirst + (2 ^ bgr)];
-				    palette[i].green = entry[afirst + 1];
-				    palette[i].red = entry[afirst + bgr];
+				    palette[i].B = entry[afirst + (2 ^ bgr)];
+				    palette[i].G = entry[afirst + 1];
+				    palette[i].R = entry[afirst + bgr];
 				    break;
-
 				case 2:
 				    tRNS[i] = entry[1 ^ afirst];
 				    if(tRNS[i] < 255)
 					    num_trans = i+1;
 				/* FALL THROUGH */
 				case 1:
-				    palette[i].blue = palette[i].red = palette[i].green =
-				    entry[afirst];
+				    palette[i].Set(entry[afirst]);
 				    break;
-
 				default:
 				    break;
 			}

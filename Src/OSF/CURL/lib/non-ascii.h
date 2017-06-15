@@ -21,10 +21,10 @@
  * KIND, either express or implied.
  *
  ***************************************************************************/
-#include "curl_setup.h"
+//#include "curl_setup.h"
 
 #ifdef CURL_DOES_CONVERSIONS
-	#include "urldata.h"
+	//#include "urldata.h"
 	/*
 	 * Curl_convert_clone() returns a malloced copy of the source string (if
 	 * returning CURLE_OK), with the data converted to network format.

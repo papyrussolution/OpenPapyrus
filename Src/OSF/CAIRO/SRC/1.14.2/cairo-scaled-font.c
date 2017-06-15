@@ -1424,7 +1424,7 @@ static cairo_status_t cairo_scaled_font_text_to_glyphs_internal_cached(cairo_sca
 		glyphs[i].x = x;
 		glyphs[i].y = y;
 
-		idx = unicode % ARRAY_LENGTH(glyph_lut);
+		idx = unicode % SIZEOFARRAY(glyph_lut);
 		glyph_slot = &glyph_lut[idx];
 		if(glyph_lut_unicode[idx] == unicode) {
 			glyphs[i].index = glyph_slot->index;
@@ -1875,7 +1875,7 @@ cairo_status_t _cairo_scaled_font_glyph_device_extents(cairo_scaled_font_t * sca
 	_cairo_scaled_font_freeze_cache(scaled_font);
 	memzero(glyph_cache, sizeof(glyph_cache));
 	for(i = 0; i < num_glyphs; i++) {
-		const int cache_index = glyphs[i].index % ARRAY_LENGTH(glyph_cache);
+		const int cache_index = glyphs[i].index % SIZEOFARRAY(glyph_cache);
 		cairo_scaled_glyph_t * scaled_glyph = glyph_cache[cache_index];
 		if(!scaled_glyph || _cairo_scaled_glyph_index(scaled_glyph) != glyphs[i].index) {
 			status = _cairo_scaled_glyph_lookup(scaled_font, glyphs[i].index, CAIRO_SCALED_GLYPH_INFO_METRICS, &scaled_glyph);

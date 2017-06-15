@@ -115,9 +115,9 @@ cairo_status_t _cairo_xlib_visual_info_create(Display * dpy,
 	}
 DONE_ALLOCATE:
 
-	for(i = 0; i < ARRAY_LENGTH(colors); i++)
+	for(i = 0; i < SIZEOFARRAY(colors); i++)
 		colors[i].pixel = i;
-	XQueryColors(dpy, colormap, colors, ARRAY_LENGTH(colors));
+	XQueryColors(dpy, colormap, colors, SIZEOFARRAY(colors));
 
 	/* Search for nearest colors within allocated colormap. */
 	for(gray = 0; gray < RAMP_SIZE; gray++) {

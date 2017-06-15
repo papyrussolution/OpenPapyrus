@@ -52,15 +52,15 @@
 #ifdef HAVE_LIMITS_H
 	#include <limits.h>
 #endif
-#include "urldata.h"
-#include "curl_base64.h"
-#include "curl_memory.h"
+//#include "urldata.h"
+//#include "curl_base64.h"
+//#include "curl_memory.h"
 #include "curl_sec.h"
 #include "ftp.h"
-#include "sendf.h"
+//#include "sendf.h"
 //#include "strcase.h"
 #include "warnless.h"
-#include "strdup.h"
+//#include "strdup.h"
 /* The last #include file should be: */
 #include "memdebug.h"
 

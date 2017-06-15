@@ -22,11 +22,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 #if defined(_WIN32)
-/* Return false on failure: */
-int Scintilla_RegisterClasses(void *hInstance);
-int Scintilla_ReleaseResources(void);
+	// Return false on failure: 
+	int Scintilla_RegisterClasses(void *hInstance);
+	int Scintilla_ReleaseResources(void);
 #endif
 int Scintilla_LinkLexers(void);
 
@@ -36,12 +35,11 @@ int Scintilla_LinkLexers(void);
 
 // Include header that defines basic numeric types.
 #if defined(_MSC_VER)
-// Older releases of MSVC did not have stdint.h.
-#include <stddef.h>
+	// Older releases of MSVC did not have stdint.h.
+	#include <stddef.h>
 #else
-#include <stdint.h>
+	#include <stdint.h>
 #endif
-
 // Define uptr_t, an unsigned integer type large enough to hold a pointer.
 typedef uintptr_t uptr_t;
 // Define sptr_t, a signed integer large enough to hold a pointer.
@@ -1146,16 +1144,16 @@ struct Sci_RangeToFormat {
 };
 
 #ifndef __cplusplus
-/* For the GTK+ platform, g-ir-scanner needs to have these typedefs. This
- * is not required in C++ code and actually seems to break ScintillaEditPy */
-typedef struct Sci_NotifyHeader Sci_NotifyHeader;
-typedef struct SCNotification SCNotification;
+	// For the GTK+ platform, g-ir-scanner needs to have these typedefs. This
+	// is not required in C++ code and actually seems to break ScintillaEditPy */
+	typedef struct Sci_NotifyHeader Sci_NotifyHeader;
+	typedef struct SCNotification SCNotification;
 #endif
 
 struct Sci_NotifyHeader {
-	/* Compatible with Windows NMHDR.
-	 * hwndFrom is really an environment specific window handle or pointer
-	 * but most clients of Scintilla.h do not have this type visible. */
+	// Compatible with Windows NMHDR.
+	// hwndFrom is really an environment specific window handle or pointer
+	// but most clients of Scintilla.h do not have this type visible. 
 	void *hwndFrom;
 	uptr_t idFrom;
 	uint code;
@@ -1201,16 +1199,13 @@ struct SCNotification {
 };
 
 #ifdef INCLUDE_DEPRECATED_FEATURES
-
-#define SCI_SETKEYSUNICODE 2521
-#define SCI_GETKEYSUNICODE 2522
-
-#define CharacterRange Sci_CharacterRange
-#define TextRange Sci_TextRange
-#define TextToFind Sci_TextToFind
-#define RangeToFormat Sci_RangeToFormat
-#define NotifyHeader Sci_NotifyHeader
-
+	#define SCI_SETKEYSUNICODE 2521
+	#define SCI_GETKEYSUNICODE 2522
+	#define CharacterRange Sci_CharacterRange
+	#define TextRange Sci_TextRange
+	#define TextToFind Sci_TextToFind
+	#define RangeToFormat Sci_RangeToFormat
+	#define NotifyHeader Sci_NotifyHeader
 #endif
 
 #endif

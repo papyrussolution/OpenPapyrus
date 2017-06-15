@@ -427,9 +427,9 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_rectilinear_polygon_to_boxes(co
 	cairo_status_t status;
 	cairo_bo_event_t stack_events[CAIRO_STACK_ARRAY_LENGTH(cairo_bo_event_t)];
 	cairo_bo_event_t * events;
-	cairo_bo_event_t * stack_event_ptrs[ARRAY_LENGTH(stack_events) + 1];
+	cairo_bo_event_t * stack_event_ptrs[SIZEOFARRAY(stack_events) + 1];
 	cairo_bo_event_t ** event_ptrs;
-	cairo_bo_edge_t stack_edges[ARRAY_LENGTH(stack_events)];
+	cairo_bo_edge_t stack_edges[SIZEOFARRAY(stack_events)];
 	cairo_bo_edge_t * edges;
 	int num_events;
 	int i, j;
@@ -439,7 +439,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_rectilinear_polygon_to_boxes(co
 	events = stack_events;
 	event_ptrs = stack_event_ptrs;
 	edges = stack_edges;
-	if(num_events > ARRAY_LENGTH(stack_events)) {
+	if(num_events > SIZEOFARRAY(stack_events)) {
 		events = (cairo_bo_event_t *)_cairo_malloc_ab_plus_c(num_events,
 		    sizeof(cairo_bo_event_t) + sizeof(cairo_bo_edge_t) + sizeof(cairo_bo_event_t *), sizeof(cairo_bo_event_t *));
 		if(unlikely(events == NULL))
@@ -482,9 +482,9 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_rectilinear_traps(cairo_traps_t
 {
 	cairo_bo_event_t stack_events[CAIRO_STACK_ARRAY_LENGTH(cairo_bo_event_t)];
 	cairo_bo_event_t * events;
-	cairo_bo_event_t * stack_event_ptrs[ARRAY_LENGTH(stack_events) + 1];
+	cairo_bo_event_t * stack_event_ptrs[SIZEOFARRAY(stack_events) + 1];
 	cairo_bo_event_t ** event_ptrs;
-	cairo_bo_edge_t stack_edges[ARRAY_LENGTH(stack_events)];
+	cairo_bo_edge_t stack_edges[SIZEOFARRAY(stack_events)];
 	cairo_bo_edge_t * edges;
 	cairo_status_t status;
 	int i, j, k;
@@ -499,7 +499,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_rectilinear_traps(cairo_traps_t
 	events = stack_events;
 	event_ptrs = stack_event_ptrs;
 	edges = stack_edges;
-	if(i > ARRAY_LENGTH(stack_events)) {
+	if(i > SIZEOFARRAY(stack_events)) {
 		events = (cairo_bo_event_t *)_cairo_malloc_ab_plus_c(i,
 		    sizeof(cairo_bo_event_t) + sizeof(cairo_bo_edge_t) + sizeof(cairo_bo_event_t *), sizeof(cairo_bo_event_t *));
 		if(unlikely(events == NULL))

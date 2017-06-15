@@ -41,7 +41,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#define _BSD_SOURCE /* for snprintf(), strdup() */
+#define _BSD_SOURCE /* for snprintf(), sstrdup() */
 #include "cairo-array-private.h"
 
 #if CAIRO_HAS_FONT_SUBSET
@@ -391,7 +391,7 @@ static cairo_status_t cairo_truetype_font_write_cmap_table(cairo_truetype_font_t
 	int entry_selector;
 	int length;
 
-	num_ranges = ARRAY_LENGTH(winansi_unicode_ranges);
+	num_ranges = SIZEOFARRAY(winansi_unicode_ranges);
 
 	length = 16 + (num_ranges + 1)*8;
 	for(i = 0; i < num_ranges; i++)
@@ -1041,14 +1041,14 @@ static cairo_status_t cairo_truetype_subset_init_internal(cairo_truetype_subset_
 	if(unlikely(status))
 		goto fail1;
 
-	truetype_subset->ps_name = strdup(font->base.ps_name);
+	truetype_subset->ps_name = sstrdup(font->base.ps_name);
 	if(unlikely(truetype_subset->ps_name == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail1;
 	}
 
 	if(font->base.font_name != NULL) {
-		truetype_subset->family_name_utf8 = strdup(font->base.font_name);
+		truetype_subset->family_name_utf8 = sstrdup(font->base.font_name);
 		if(unlikely(truetype_subset->family_name_utf8 == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto fail2;

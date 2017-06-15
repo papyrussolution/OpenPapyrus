@@ -779,7 +779,7 @@ static inline int event_compare(const event_t * a, const event_t * b)
 
 static void pqueue_init(pqueue_t * pq)
 {
-	pq->max_size = ARRAY_LENGTH(pq->elements_embedded);
+	pq->max_size = SIZEOFARRAY(pq->elements_embedded);
 	pq->size = 0;
 
 	pq->elements = pq->elements_embedded;
@@ -1300,7 +1300,7 @@ static void render_rows(cairo_botor_scan_converter_t * self,
 	/* Allocate enough spans for the row. */
 
 	num_spans = 2*sweep_line->coverage.count+2;
-	if(unlikely(num_spans > ARRAY_LENGTH(spans_stack))) {
+	if(unlikely(num_spans > SIZEOFARRAY(spans_stack))) {
 		spans = (cairo_half_open_span_t *)_cairo_malloc_ab(num_spans, sizeof(cairo_half_open_span_t));
 		if(unlikely(spans == NULL)) {
 			longjmp(sweep_line->unwind,
@@ -1899,7 +1899,7 @@ static cairo_status_t _cairo_botor_scan_converter_generate(void * converter, cai
 	cairo_botor_scan_converter_t * self = (cairo_botor_scan_converter_t *)converter;
 	start_event_t stack_events[CAIRO_STACK_ARRAY_LENGTH(start_event_t)];
 	start_event_t * events;
-	event_t * stack_event_ptrs[ARRAY_LENGTH(stack_events) + 1];
+	event_t * stack_event_ptrs[SIZEOFARRAY(stack_events) + 1];
 	event_t ** event_ptrs;
 	_cairo_botor_scan_converter::_cairo_botor_scan_converter_chunk * chunk;
 
@@ -1918,7 +1918,7 @@ static cairo_status_t _cairo_botor_scan_converter_generate(void * converter, cai
 
 	events = stack_events;
 	event_ptrs = stack_event_ptrs;
-	if(unlikely(num_events >= ARRAY_LENGTH(stack_events))) {
+	if(unlikely(num_events >= SIZEOFARRAY(stack_events))) {
 		events = (start_event_t *)_cairo_malloc_ab_plus_c(num_events, sizeof(start_event_t) + sizeof(event_t *), sizeof(event_t *));
 		if(unlikely(events == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);

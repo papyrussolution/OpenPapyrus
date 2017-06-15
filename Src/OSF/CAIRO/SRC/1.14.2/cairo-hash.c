@@ -267,7 +267,7 @@ static cairo_status_t _cairo_hash_table_manage(cairo_hash_table_t * hash_table)
 		tmp.table_size = hash_table->table_size + 1;
 		/* This code is being abused if we can't make a table big enough. */
 		assert(tmp.table_size - hash_table_sizes <
-		    ARRAY_LENGTH(hash_table_sizes));
+		    SIZEOFARRAY(hash_table_sizes));
 	}
 	else if(hash_table->live_entries < live_low) {
 		/* Can't shrink if we're at the smallest size */

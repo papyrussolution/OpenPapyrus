@@ -24,13 +24,13 @@
 #pragma hdrstop
 #ifdef CURLDEBUG
 //#include <curl/curl.h>
-#include "urldata.h"
+//#include "urldata.h"
 
 #define MEMDEBUG_NODEFINES /* don't redefine the standard functions */
 
-/* The last 3 #include files should be in this order */
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 #ifndef HAVE_ASSERT_H

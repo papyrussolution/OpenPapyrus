@@ -62,11 +62,8 @@ struct zint_render_hexagon {
 struct zint_render {
 	float width, height;
 	struct zint_render_line * lines; /* Pointer to first line */
-
 	struct zint_render_string * strings; /* Pointer to first string */
-
 	struct zint_render_ring * rings; /* Pointer to first ring */
-
 	struct zint_render_hexagon * hexagons; /* Pointer to first hexagon */
 };
 
@@ -76,8 +73,10 @@ struct ZintSymbol {
 	int    whitespace_width;
 	int    border_width;
 	int    output_options;
-	char   fgcolour[10];
-	char   bgcolour[10];
+	//char   fgcolour[10];
+	//char   bgcolour[10];
+	SColor ColorFg;
+	SColor ColorBg;
 	char   outfile[256];
 	float  scale;
 	int    option_1;
@@ -86,17 +85,17 @@ struct ZintSymbol {
 	int    show_hrt;
 	int    input_mode;
 	int    eci;
-	uchar text[128];
+	uchar  text[128];
 	int    rows;
 	int    width;
 	char   primary[128];
-	uchar encoded_data[200][143];
-	int    row_height[200]; /* Largest symbol is 189 x 189 Han Xin */
+	uchar  encoded_data[200][143];
+	int    row_height[200]; // Largest symbol is 189 x 189 Han Xin 
 	char   errtxt[100];
 	char * bitmap;
 	int    bitmap_width;
 	int    bitmap_height;
-	uint bitmap_byte_length;
+	uint   bitmap_byte_length;
 	float  dot_size;
 	struct zint_render * rendered;
 };

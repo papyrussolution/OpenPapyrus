@@ -24,14 +24,13 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-#include "urldata.h" /* for the Curl_easy definition */
+//#include "urldata.h" /* for the Curl_easy definition */
 #include "warnless.h"
-#include "curl_base64.h"
-#include "non-ascii.h"
-
-/* The last 3 #include files should be in this order */
+//#include "curl_base64.h"
+//#include "non-ascii.h"
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* ---- Base64 Encoding/Decoding Table --- */

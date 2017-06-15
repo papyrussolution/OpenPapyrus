@@ -165,10 +165,10 @@ void _cairo_xcb_screen_finish(cairo_xcb_screen_t * screen)
 	for(i = 0; i < screen->solid_cache_size; i++)
 		cairo_surface_destroy(screen->solid_cache[i].picture);
 
-	for(i = 0; i < ARRAY_LENGTH(screen->stock_colors); i++)
+	for(i = 0; i < SIZEOFARRAY(screen->stock_colors); i++)
 		cairo_surface_destroy(screen->stock_colors[i]);
 
-	for(i = 0; i < ARRAY_LENGTH(screen->gc); i++) {
+	for(i = 0; i < SIZEOFARRAY(screen->gc); i++) {
 		if(screen->gc_depths[i] != 0)
 			_cairo_xcb_connection_free_gc(screen->connection, screen->gc[i]);
 	}
@@ -266,7 +266,7 @@ cairo_xcb_screen_t * _cairo_xcb_screen_get(xcb_connection_t * xcb_connection,
 	memzero(screen->gc, sizeof(screen->gc));
 
 	screen->solid_cache_size = 0;
-	for(i = 0; i < ARRAY_LENGTH(screen->stock_colors); i++)
+	for(i = 0; i < SIZEOFARRAY(screen->stock_colors); i++)
 		screen->stock_colors[i] = NULL;
 
 	status = _cairo_cache_init(&screen->linear_pattern_cache,
@@ -319,7 +319,7 @@ xcb_gcontext_t _cairo_xcb_screen_get_gc(cairo_xcb_screen_t * screen,
 
 	assert(CAIRO_MUTEX_IS_LOCKED(screen->connection->device.mutex));
 
-	for(i = 0; i < ARRAY_LENGTH(screen->gc); i++) {
+	for(i = 0; i < SIZEOFARRAY(screen->gc); i++) {
 		if(screen->gc_depths[i] == depth) {
 			screen->gc_depths[i] = 0;
 			return screen->gc[i];
@@ -335,14 +335,14 @@ void _cairo_xcb_screen_put_gc(cairo_xcb_screen_t * screen, int depth, xcb_gconte
 
 	assert(CAIRO_MUTEX_IS_LOCKED(screen->connection->device.mutex));
 
-	for(i = 0; i < ARRAY_LENGTH(screen->gc); i++) {
+	for(i = 0; i < SIZEOFARRAY(screen->gc); i++) {
 		if(screen->gc_depths[i] == 0)
 			break;
 	}
 
-	if(i == ARRAY_LENGTH(screen->gc)) {
+	if(i == SIZEOFARRAY(screen->gc)) {
 		/* perform random substitution to ensure fair caching over depths */
-		i = rand() % ARRAY_LENGTH(screen->gc);
+		i = rand() % SIZEOFARRAY(screen->gc);
 		_cairo_xcb_connection_free_gc(screen->connection, screen->gc[i]);
 	}
 

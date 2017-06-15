@@ -43,7 +43,7 @@
 
 #include "cairoint.h"
 #pragma hdrstop
-#define _BSD_SOURCE /* for snprintf(), strdup() */
+#define _BSD_SOURCE /* for snprintf(), sstrdup() */
 #include "cairo-array-private.h"
 
 #if CAIRO_HAS_FONT_SUBSET
@@ -1247,7 +1247,7 @@ static cairo_int_status_t cairo_cff_font_read_font(cairo_cff_font_t * font)
 	cairo_int_status_t status;
 	uint i;
 
-	for(i = 0; i < ARRAY_LENGTH(font_read_funcs); i++) {
+	for(i = 0; i < SIZEOFARRAY(font_read_funcs); i++) {
 		status = font_read_funcs[i] (font);
 		if(unlikely(status))
 			return status;
@@ -1345,7 +1345,7 @@ static cairo_status_t cairo_cff_font_subset_dict_strings(cairo_cff_font_t   * fo
 	cairo_status_t status;
 	uint i;
 
-	for(i = 0; i < ARRAY_LENGTH(dict_strings); i++) {
+	for(i = 0; i < SIZEOFARRAY(dict_strings); i++) {
 		status = cairo_cff_font_subset_dict_string(font, dict, dict_strings[i]);
 		if(unlikely(status))
 			return status;
@@ -2418,14 +2418,14 @@ static cairo_status_t cairo_cff_font_write_subset(cairo_cff_font_t * font)
 	uint i;
 
 	if(font->scaled_font_subset->is_latin) {
-		for(i = 0; i < ARRAY_LENGTH(font_write_type1_funcs); i++) {
+		for(i = 0; i < SIZEOFARRAY(font_write_type1_funcs); i++) {
 			status = font_write_type1_funcs[i] (font);
 			if(unlikely(status))
 				return status;
 		}
 	}
 	else {
-		for(i = 0; i < ARRAY_LENGTH(font_write_cid_funcs); i++) {
+		for(i = 0; i < SIZEOFARRAY(font_write_cid_funcs); i++) {
 			status = font_write_cid_funcs[i] (font);
 			if(unlikely(status))
 				return status;
@@ -2663,7 +2663,7 @@ static cairo_int_status_t _cairo_cff_font_create(cairo_scaled_font_subset_t  * s
 	status = _cairo_array_grow_by(&font->output, 4096);
 	if(unlikely(status))
 		goto fail2;
-	font->subset_font_name = strdup(subset_name);
+	font->subset_font_name = sstrdup(subset_name);
 	if(unlikely(font->subset_font_name == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail2;
@@ -2805,14 +2805,14 @@ cairo_status_t _cairo_cff_subset_init(cairo_cff_subset_t          * cff_subset,
 	if(unlikely(status))
 		goto fail1;
 
-	cff_subset->ps_name = strdup(font->ps_name);
+	cff_subset->ps_name = sstrdup(font->ps_name);
 	if(unlikely(cff_subset->ps_name == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail1;
 	}
 
 	if(font->font_name) {
-		cff_subset->family_name_utf8 = strdup(font->font_name);
+		cff_subset->family_name_utf8 = sstrdup(font->font_name);
 		if(cff_subset->family_name_utf8 == NULL) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto fail2;
@@ -2976,12 +2976,12 @@ static cairo_int_status_t _cairo_cff_font_fallback_create(cairo_scaled_font_subs
 	status = _cairo_array_grow_by(&font->output, 4096);
 	if(unlikely(status))
 		goto fail1;
-	font->subset_font_name = strdup(subset_name);
+	font->subset_font_name = sstrdup(subset_name);
 	if(unlikely(font->subset_font_name == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail1;
 	}
-	font->ps_name = strdup(subset_name);
+	font->ps_name = sstrdup(subset_name);
 	if(unlikely(font->ps_name == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail2;
@@ -3174,7 +3174,6 @@ cairo_status_t _cairo_cff_fallback_init(cairo_cff_subset_t          * cff_subset
 	ulong length = 0; /* squelch bogus compiler warning */
 	uint i;
 	cairo_type2_charstrings_t type2_subset;
-
 	status = _cairo_cff_font_fallback_create(font_subset, &font, subset_name);
 	if(unlikely(status))
 		return status;
@@ -3188,7 +3187,7 @@ cairo_status_t _cairo_cff_fallback_init(cairo_cff_subset_t          * cff_subset
 		goto fail2;
 
 	cff_subset->family_name_utf8 = NULL;
-	cff_subset->ps_name = strdup(font->ps_name);
+	cff_subset->ps_name = sstrdup(font->ps_name);
 	if(unlikely(cff_subset->ps_name == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail2;

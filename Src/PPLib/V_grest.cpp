@@ -3043,16 +3043,17 @@ int SLAPI PPViewGoodsRest::GetTotal(GoodsRestTotal * pTotal)
 int SLAPI PPViewGoodsRest::CalcTotal(GoodsRestTotal * pTotal)
 {
 	int    ok = 1;
-	if(P_Tbl) {
+	TempGoodsRestTbl * p_tbl = P_Tbl;
+	if(p_tbl) {
 		PPObjGoodsType gtobj;
 		TempGoodsRestTbl::Key3 k3;
 		PROFILE_START
-		BExtQuery q(P_Tbl, 3);
-		q.select(P_Tbl->GoodsID, P_Tbl->Quantity, P_Tbl->PhQtty, P_Tbl->Cost,
-			P_Tbl->Price, P_Tbl->SumCVat, P_Tbl->SumPVat, P_Tbl->Ord, P_Tbl->Deficit, P_Tbl->DraftRcpt, 0L);
+		BExtQuery q(p_tbl, 3);
+		q.select(p_tbl->GoodsID, p_tbl->Quantity, p_tbl->PhQtty, p_tbl->Cost,
+			p_tbl->Price, p_tbl->SumCVat, p_tbl->SumPVat, p_tbl->Ord, p_tbl->Deficit, p_tbl->DraftRcpt, 0L);
 		k3.GoodsID = 0;
 		for(q.initIteration(0, &k3, spFirst); q.nextIteration() > 0;) {
-			const TempGoodsRestTbl::Rec & r_rec = P_Tbl->data;
+			const TempGoodsRestTbl::Rec & r_rec = p_tbl->data;
 			double phuperu = 0.0;
 			Goods2Tbl::Rec goods_rec;
 			PPID   amt_type_cost  = PPAMT_BUYING;

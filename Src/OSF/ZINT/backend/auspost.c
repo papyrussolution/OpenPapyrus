@@ -107,40 +107,40 @@ int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
 	char data_pattern[200];
 	char fcc[3] = {0, 0, 0}, dpid[10];
 	char localstr[30];
-	strcpy(localstr, "");
+	sstrcpy(localstr, "");
 	// Do all of the length checking first to avoid stack smashing 
 	if(symbol->Std == BARCODE_AUSPOST) {
 		// Format control code (FCC) 
 		switch(length) {
-			case 8: strcpy(fcc, "11"); break;
-			case 13: strcpy(fcc, "59"); break;
+			case 8: sstrcpy(fcc, "11"); break;
+			case 13: sstrcpy(fcc, "59"); break;
 			case 16: 
-				strcpy(fcc, "59"); 
+				sstrcpy(fcc, "59"); 
 				error_number = is_sane(NEON, source, length);
 			    break;
-			case 18: strcpy(fcc, "62"); break;
+			case 18: sstrcpy(fcc, "62"); break;
 			case 23:
-			    strcpy(fcc, "62");
+			    sstrcpy(fcc, "62");
 			    error_number = is_sane(NEON, source, length);
 			    break;
 			default:
-			    strcpy(symbol->errtxt, "Auspost input is wrong length (D01)");
+			    sstrcpy(symbol->errtxt, "Auspost input is wrong length (D01)");
 			    return ZINT_ERROR_TOO_LONG;
 		}
 		if(error_number == ZINT_ERROR_INVALID_DATA) {
-			strcpy(symbol->errtxt, "Invalid characters in data (D02)");
+			sstrcpy(symbol->errtxt, "Invalid characters in data (D02)");
 			return error_number;
 		}
 	}
 	else {
 		if(length > 8) {
-			strcpy(symbol->errtxt, "Auspost input is too long (D03)");
+			sstrcpy(symbol->errtxt, "Auspost input is too long (D03)");
 			return ZINT_ERROR_TOO_LONG;
 		}
 		switch(symbol->Std) {
-			case BARCODE_AUSREPLY: strcpy(fcc, "45"); break;
-			case BARCODE_AUSROUTE: strcpy(fcc, "87"); break;
-			case BARCODE_AUSREDIRECT: strcpy(fcc, "92"); break;
+			case BARCODE_AUSREPLY: sstrcpy(fcc, "45"); break;
+			case BARCODE_AUSROUTE: sstrcpy(fcc, "87"); break;
+			case BARCODE_AUSREDIRECT: sstrcpy(fcc, "92"); break;
 		}
 		/* Add leading zeros as required */
 		zeroes = 8 - length;
@@ -151,7 +151,7 @@ int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
 	h = strlen(localstr);
 	error_number = is_sane(GDSET, (uchar*)localstr, h);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in data (D04)");
+		sstrcpy(symbol->errtxt, "Invalid characters in data (D04)");
 		return error_number;
 	}
 	/* Verifiy that the first 8 characters are numbers */
@@ -159,11 +159,11 @@ int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
 	dpid[8] = '\0';
 	error_number = is_sane(NEON, (uchar*)dpid, strlen(dpid));
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		strcpy(symbol->errtxt, "Invalid characters in DPID (D05)");
+		sstrcpy(symbol->errtxt, "Invalid characters in DPID (D05)");
 		return error_number;
 	}
 	/* Start character */
-	strcpy(data_pattern, "13");
+	sstrcpy(data_pattern, "13");
 	/* Encode the FCC */
 	for(reader = 0; reader < 2; reader++) {
 		lookup(NEON, AusNTable, fcc[reader], data_pattern);

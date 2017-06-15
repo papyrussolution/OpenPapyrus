@@ -253,7 +253,7 @@ cairo_status_t _cairo_mempool_init(cairo_mempool_t * pool, void * base, size_t b
 		bytes -= tmp;
 	}
 	assert((((ulong)base) & ((1 << min_bits) - 1)) == 0);
-	assert(num_sizes < ARRAY_LENGTH(pool->free));
+	assert(num_sizes < SIZEOFARRAY(pool->free));
 	pool->base = (char *)base;
 	pool->free_bytes = 0;
 	pool->max_bytes = bytes;
@@ -265,7 +265,7 @@ cairo_status_t _cairo_mempool_init(cairo_mempool_t * pool, void * base, size_t b
 	pool->num_blocks = num_blocks;
 	pool->min_bits = min_bits;
 	pool->num_sizes = num_sizes;
-	for(i = 0; i < ARRAY_LENGTH(pool->free); i++)
+	for(i = 0; i < SIZEOFARRAY(pool->free); i++)
 		cairo_list_init(&pool->free[i]);
 	pool->map = (uchar *)SAlloc::M((num_blocks + 7) >> 3);
 	if(pool->map == NULL) {

@@ -56,7 +56,7 @@ static void _cairo_clip_extract_region(cairo_clip_t * clip)
 	int i;
 	if(clip->num_boxes == 0)
 		return;
-	if(clip->num_boxes > ARRAY_LENGTH(stack_rects)) {
+	if(clip->num_boxes > SIZEOFARRAY(stack_rects)) {
 		r = (CairoIRect *)_cairo_malloc_ab(clip->num_boxes, sizeof(CairoIRect));
 		if(r == NULL) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);

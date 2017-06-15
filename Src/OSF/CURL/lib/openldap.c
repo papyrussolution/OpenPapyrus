@@ -37,17 +37,17 @@
  */
 
 #include <ldap.h>
-#include "urldata.h"
+//#include "urldata.h"
 //#include <curl/curl.h>
-#include "sendf.h"
+//#include "sendf.h"
 #include "vtls/vtls.h"
-#include "transfer.h"
+//#include "transfer.h"
 #include "curl_ldap.h"
-#include "curl_base64.h"
+//#include "curl_base64.h"
 #include "connect.h"
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
-#include "curl_memory.h"
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 #ifndef _LDAP_PVT_H

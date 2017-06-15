@@ -23,7 +23,7 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include <curl/curl.h>
-#include "urldata.h"
+//#include "urldata.h"
 #include "vtls/vtls.h"
 #include "http2.h"
 #include "curl_printf.h"

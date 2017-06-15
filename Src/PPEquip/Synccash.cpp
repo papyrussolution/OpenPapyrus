@@ -1343,7 +1343,6 @@ int SLAPI SCS_SYNCCASH::OpenBox()
 	THROW(ArrAdd(Arr_In, DVCPARAM_DRAWERNUM, DEF_DRAWER_NUMBER));
 	THROW(ExecPrintOper(DVCCMD_OPENBOX, Arr_In, Arr_Out));
 	ok = 1;
-
 	CATCH
 		if(Flags & sfCancelled) {
 			Flags &= ~sfCancelled;
@@ -1511,10 +1510,11 @@ int SLAPI SCS_SYNCCASH::ExecOper(int cmd, StrAssocArray & rIn, StrAssocArray & r
 		ResCode = buf.ToLong();
 		ok = 0;
 	}
-	else if((ok == 1) && (ResCode == RESCODE_NO_CONNECTION)) // ѕри подборе скорости обмена порта в прошлый раз мог вернутьс€ этот код ошибки и
-													// он сохран€лс€, даже когда соединени€ успешно устанавливалось
-													// “еперь же сокрость подобрана и соединение установлено, а значит и нет теперь ошибки
+	else if((ok == 1) && (ResCode == RESCODE_NO_CONNECTION)) { // ѕри подборе скорости обмена порта в прошлый раз мог вернутьс€ этот код ошибки и
+		// он сохран€лс€, даже когда соединени€ успешно устанавливалось
+		// “еперь же сокрость подобрана и соединение установлено, а значит и нет теперь ошибки
 		ResCode = RESCODE_NO_ERROR;
+	}
 	CATCHZOK
 	return ok;
 }
@@ -1529,7 +1529,6 @@ int SCS_SYNCCASH::SetLogotype()
 	SlipDocCommonParam sdc_param;
 	SlipLineParam sl_param;
 	CCheckPacket p_pack;
-
 	THROW(P_SlipFmt->Init("CCheck", &sdc_param));
 	P_SlipFmt->InitIteration(&p_pack);
 	P_SlipFmt->NextIteration(str, &sl_param);

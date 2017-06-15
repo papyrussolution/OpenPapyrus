@@ -103,7 +103,7 @@ static cairo_int_status_t set_clip_region(void * _surface,
 		int n_rects, i;
 
 		n_rects = cairo_region_num_rectangles(region);
-		if(n_rects > ARRAY_LENGTH(stack_rects)) {
+		if(n_rects > SIZEOFARRAY(stack_rects)) {
 			rects = _cairo_malloc_ab(n_rects, sizeof(XRectangle));
 			if(unlikely(rects == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -177,7 +177,7 @@ static cairo_int_status_t copy_image_boxes(void * _dst,
 		XRectangle stack_rects[CAIRO_STACK_ARRAY_LENGTH(XRectangle)];
 		XRectangle * rects = stack_rects;
 
-		if(boxes->num_boxes > ARRAY_LENGTH(stack_rects)) {
+		if(boxes->num_boxes > SIZEOFARRAY(stack_rects)) {
 			rects = _cairo_malloc_ab(boxes->num_boxes, sizeof(XRectangle));
 			if(unlikely(rects == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -431,7 +431,7 @@ static cairo_int_status_t copy_boxes(void * _dst,
 			XRectangle stack_rects[CAIRO_STACK_ARRAY_LENGTH(XRectangle)];
 			XRectangle * rects = stack_rects;
 
-			if(boxes->num_boxes > ARRAY_LENGTH(stack_rects)) {
+			if(boxes->num_boxes > SIZEOFARRAY(stack_rects)) {
 				rects = _cairo_malloc_ab(boxes->num_boxes, sizeof(XRectangle));
 				if(unlikely(rects == NULL))
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -614,7 +614,7 @@ static cairo_int_status_t fill_rectangles(void * abstract_surface,
 		XRectangle stack_xrects[CAIRO_STACK_ARRAY_LENGTH(XRectangle)];
 		XRectangle * xrects = stack_xrects;
 
-		if(num_rects > ARRAY_LENGTH(stack_xrects)) {
+		if(num_rects > SIZEOFARRAY(stack_xrects)) {
 			xrects = _cairo_malloc_ab(num_rects, sizeof(XRectangle));
 			if(unlikely(xrects == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -687,7 +687,7 @@ static cairo_int_status_t fill_boxes(void * abstract_surface,
 		_cairo_boxes_t::_cairo_boxes_chunk * chunk;
 		int i, j;
 
-		if(boxes->num_boxes > ARRAY_LENGTH(stack_xrects)) {
+		if(boxes->num_boxes > SIZEOFARRAY(stack_xrects)) {
 			xrects = _cairo_malloc_ab(boxes->num_boxes, sizeof(XRectangle));
 			if(unlikely(xrects == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -850,7 +850,7 @@ static cairo_int_status_t composite_boxes(void * abstract_dst,
 		return CAIRO_STATUS_SUCCESS;
 	}
 
-	if(boxes->num_boxes > ARRAY_LENGTH(stack_rects)) {
+	if(boxes->num_boxes > SIZEOFARRAY(stack_rects)) {
 		rects = _cairo_malloc_ab(boxes->num_boxes, sizeof(XRectangle));
 		if(unlikely(rects == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -1018,7 +1018,7 @@ static void _cairo_xlib_glyph_fini(cairo_scaled_glyph_private_t * glyph_private,
 
 		info = priv->glyphset;
 		to_free = &info->to_free;
-		if(to_free->count == ARRAY_LENGTH(to_free->indices)) {
+		if(to_free->count == SIZEOFARRAY(to_free->indices)) {
 			cairo_xlib_display_t * display;
 
 			if(_cairo_xlib_display_acquire(font_private->device,
@@ -1411,7 +1411,7 @@ static cairo_status_t _emit_glyphs_chunk(cairo_xlib_display_t * display,
 	}
 
 	/* Allocate element array */
-	if(num_elts <= ARRAY_LENGTH(stack_elts)) {
+	if(num_elts <= SIZEOFARRAY(stack_elts)) {
 		elts = stack_elts;
 	}
 	else {
@@ -1786,7 +1786,7 @@ static cairo_int_status_t composite_traps(void * abstract_dst,
 	    _cairo_xlib_display_get_xrender_format(display,
 	    antialias == CAIRO_ANTIALIAS_NONE ?  CAIRO_FORMAT_A1 : CAIRO_FORMAT_A8);
 
-	if(traps->num_traps > ARRAY_LENGTH(xtraps_stack)) {
+	if(traps->num_traps > SIZEOFARRAY(xtraps_stack)) {
 		xtraps = _cairo_malloc_ab(traps->num_traps, sizeof(XTrapezoid));
 		if(unlikely(xtraps == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -1888,7 +1888,7 @@ static cairo_int_status_t composite_tristrip(void * abstract_dst,
 	    _cairo_xlib_display_get_xrender_format(display,
 	    antialias == CAIRO_ANTIALIAS_NONE ?  CAIRO_FORMAT_A1 : CAIRO_FORMAT_A8);
 
-	if(strip->num_points > ARRAY_LENGTH(points_stack)) {
+	if(strip->num_points > SIZEOFARRAY(points_stack)) {
 		points = _cairo_malloc_ab(strip->num_points, sizeof(XPointFixed));
 		if(unlikely(points == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);

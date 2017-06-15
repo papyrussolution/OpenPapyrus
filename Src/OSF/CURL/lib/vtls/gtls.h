@@ -26,7 +26,7 @@
 
 #ifdef USE_GNUTLS
 
-#include "urldata.h"
+//#include "urldata.h"
 
 int Curl_gtls_init(void);
 int Curl_gtls_cleanup(void);

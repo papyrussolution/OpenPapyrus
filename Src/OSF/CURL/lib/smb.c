@@ -28,30 +28,27 @@
 #if !defined(USE_WINDOWS_SSPI) || defined(USE_WIN32_CRYPTO)
 
 #define BUILDING_CURL_SMB_C
-
 #ifdef HAVE_PROCESS_H
-#include <process.h>
-#ifdef CURL_WINDOWS_APP
-#define getpid GetCurrentProcessId
-#else
-#define getpid _getpid
+	#include <process.h>
+	#ifdef CURL_WINDOWS_APP
+		#define getpid GetCurrentProcessId
+	#else
+		#define getpid _getpid
+	#endif
 #endif
-#endif
-
-#include "smb.h"
-#include "urldata.h"
-#include "sendf.h"
+//#include "smb.h"
+//#include "urldata.h"
+//#include "sendf.h"
 #include "multiif.h"
 #include "connect.h"
-#include "progress.h"
-#include "transfer.h"
+//#include "progress.h"
+//#include "transfer.h"
 #include "vtls/vtls.h"
 #include "curl_ntlm_core.h"
-#include "escape.h"
+//#include "escape.h"
 #include "curl_endian.h"
-
-/* The last #include files should be: */
-#include "curl_memory.h"
+// The last #include files should be:
+//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* Local API functions */

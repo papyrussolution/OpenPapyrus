@@ -417,39 +417,32 @@ static void ecc200(uchar * binary, const int bytes, const int datablock, const i
 	}
 	rs_free();
 }
-
-/* Return true (1) if a character is valid in X12 set */
-static int isX12(const int source)
+//
+// Return true (1) if a character is valid in X12 set 
+//
+static int FASTCALL isX12(const int source)
 {
-	if(source == 13) {
+	if(source == 13)
 		return 1;
-	}
-	if(source == 42) {
+	else if(source == 42)
 		return 1;
-	}
-	if(source == 62) {
+	else if(source == 62)
 		return 1;
-	}
-	if(source == 32) {
+	else if(source == 32)
 		return 1;
-	}
-	if((source >= '0') && (source <= '9')) {
+	else if((source >= '0') && (source <= '9'))
 		return 1;
-	}
-	if((source >= 'A') && (source <= 'Z')) {
+	else if((source >= 'A') && (source <= 'Z'))
 		return 1;
-	}
-
-	return 0;
+	else
+		return 0;
 }
 
 /* Insert a character into the middle of a string at position posn */
 static void dminsert(char binary_string[], const int posn, const char newbit)
 {
-	int i, end;
-
-	end = (int)strlen(binary_string);
-	for(i = end + 1; i > posn; i--) {
+	const int end = (int)strlen(binary_string);
+	for(int i = end + 1; i > posn; i--) {
 		binary_string[i] = binary_string[i - 1];
 	}
 	binary_string[posn] = newbit;
@@ -457,9 +450,7 @@ static void dminsert(char binary_string[], const int posn, const char newbit)
 
 static void insert_value(uchar binary_stream[], const int posn, const int streamlen, const int newbit)
 {
-	int i;
-
-	for(i = streamlen; i > posn; i--) {
+	for(int i = streamlen; i > posn; i--) {
 		binary_stream[i] = binary_stream[i - 1];
 	}
 	binary_stream[posn] = (uchar)newbit;
@@ -476,29 +467,23 @@ static int p_r_6_2_1(const uchar inputData[], const int position, const int sour
 	int nonX12Position = 0;
 	int specialX12Position = 0;
 	int retval = 0;
-
 	for(i = position; i < sourcelen; i++) {
 		if(nonX12Position == 0) {
 			if(isX12(inputData[i]) != 1) {
 				nonX12Position = i;
 			}
 		}
-
 		if(specialX12Position == 0) {
-			if((inputData[i] == (char)13) ||
-			    (inputData[i] == '*') ||
-			    (inputData[i] == '>')) {
+			if((inputData[i] == (char)13) || (inputData[i] == '*') || (inputData[i] == '>')) {
 				specialX12Position = i;
 			}
 		}
 	}
-
 	if((nonX12Position != 0) && (specialX12Position != 0)) {
 		if(specialX12Position < nonX12Position) {
 			retval = 1;
 		}
 	}
-
 	return retval;
 }
 
@@ -507,10 +492,8 @@ static int look_ahead_test(const uchar inputData[], const int sourcelen, const i
 {
 	float ascii_count, c40_count, text_count, x12_count, edf_count, b256_count, best_count;
 	const float stiction = (1.0F / 24.0F); // smallest change to act on, to get around floating point inaccuracies
-	int sp, best_scheme;
-
-	best_scheme = DM_NULL;
-
+	int sp;
+	int best_scheme = DM_NULL;
 	/* step (j) */
 	if(current_mode == DM_ASCII) {
 		ascii_count = 0.0F;
@@ -530,20 +513,13 @@ static int look_ahead_test(const uchar inputData[], const int sourcelen, const i
 	}
 
 	switch(current_mode) {
-		case DM_C40: c40_count = 0.0F;
-		    break;
-		case DM_TEXT: text_count = 0.0F;
-		    break;
-		case DM_X12: x12_count = 0.0F;
-		    break;
-		case DM_EDIFACT: edf_count = 0.0F;
-		    break;
-		case DM_BASE256: b256_count = 0.0F;
-		    break;
+		case DM_C40: c40_count = 0.0F; break;
+		case DM_TEXT: text_count = 0.0F; break;
+		case DM_X12: x12_count = 0.0F; break;
+		case DM_EDIFACT: edf_count = 0.0F; break;
+		case DM_BASE256: b256_count = 0.0F; break;
 	}
-
 	sp = position;
-
 	do {
 		if(sp == sourcelen) {
 			/* At the end of data ... step (k) */
@@ -611,9 +587,7 @@ static int look_ahead_test(const uchar inputData[], const int sourcelen, const i
 			}
 
 			/* text ... step (n) */
-			if((inputData[sp] == ' ') ||
-			    (((inputData[sp] >= '0') && (inputData[sp] <= '9')) ||
-				    ((inputData[sp] >= 'a') && (inputData[sp] <= 'z')))) {
+			if((inputData[sp] == ' ') || (((inputData[sp] >= '0') && (inputData[sp] <= '9')) || ((inputData[sp] >= 'a') && (inputData[sp] <= 'z')))) {
 				text_count += (2.0F / 3.0F); // (n)(1)
 			}
 			else {
@@ -624,7 +598,6 @@ static int look_ahead_test(const uchar inputData[], const int sourcelen, const i
 					text_count += (4.0F / 3.0F); // (n)(3)
 				}
 			}
-
 			/* x12 ... step (o) */
 			if(isX12(inputData[sp])) {
 				x12_count += (2.0F / 3.0F); // (o)(1)
@@ -760,7 +733,7 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 	tp = 0;
 	memzero(process_buffer, 8);
 	*process_p = 0;
-	strcpy(binary, "");
+	sstrcpy(binary, "");
 	/* step (a) */
 	current_mode = DM_ASCII;
 	next_mode = DM_ASCII;
@@ -781,7 +754,7 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 
 	if(symbol->output_options & READER_INIT) {
 		if(gs1) {
-			strcpy(symbol->errtxt, "Cannot encode in GS1 mode and Reader Initialisation at the same time (E10)");
+			sstrcpy(symbol->errtxt, "Cannot encode in GS1 mode and Reader Initialisation at the same time (E10)");
 			return ZINT_ERROR_INVALID_OPTION;
 		}
 		else {
@@ -834,7 +807,7 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 			next_mode = DM_ASCII;
 
 			if(istwodigits(source, sp) && ((sp + 1) != inputlen)) {
-				target[tp] = (uchar)((10 * ctoi(source[sp])) + ctoi(source[sp + 1]) + 130);
+				target[tp] = (uchar)((10 * hex(source[sp])) + hex(source[sp + 1]) + 130);
 				if(debug) printf("N%d ", target[tp] - 130);
 				tp++;
 				strcat(binary, " ");
@@ -967,15 +940,12 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 		/* step (d) Text encodation */
 		if(current_mode == DM_TEXT) {
 			int shift_set, value;
-
 			next_mode = DM_TEXT;
 			if(*process_p == 0) {
 				next_mode = look_ahead_test(source, inputlen, sp, current_mode, gs1);
 			}
-
 			if(next_mode != DM_TEXT) {
-				target[tp] = 254;
-				tp++;
+				target[tp++] = 254;
 				strcat(binary, " "); /* Unlatch */
 				next_mode = DM_ASCII;
 				if(debug) printf("ASC ");
@@ -993,12 +963,10 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 					shift_set = text_shift[source[sp]];
 					value = text_value[source[sp]];
 				}
-
 				if(gs1 && (source[sp] == '[')) {
 					shift_set = 2;
 					value = 27; /* FNC1 */
 				}
-
 				if(shift_set != 0) {
 					process_buffer[*process_p] = shift_set - 1;
 					(*process_p)++;
@@ -1007,13 +975,9 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 				(*process_p)++;
 
 				if(*process_p >= 3) {
-					int iv;
-
-					iv = (1600 * process_buffer[0]) + (40 * process_buffer[1]) + (process_buffer[2]) + 1;
-					target[tp] = (uchar)(iv / 256);
-					tp++;
-					target[tp] = iv % 256;
-					tp++;
+					int iv = (1600 * process_buffer[0]) + (40 * process_buffer[1]) + (process_buffer[2]) + 1;
+					target[tp++] = (uchar)(iv / 256);
+					target[tp++] = iv % 256;
 					strcat(binary, "  ");
 					if(debug) printf("[%d %d %d] ", process_buffer[0], process_buffer[1], process_buffer[2]);
 
@@ -1032,15 +996,12 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 		/* step (e) X12 encodation */
 		if(current_mode == DM_X12) {
 			int value = 0;
-
 			next_mode = DM_X12;
 			if(*process_p == 0) {
 				next_mode = look_ahead_test(source, inputlen, sp, current_mode, gs1);
 			}
-
 			if(next_mode != DM_X12) {
-				target[tp] = 254;
-				tp++;
+				target[tp++] = 254;
 				strcat(binary, " "); /* Unlatch */
 				next_mode = DM_ASCII;
 				if(debug) printf("ASC ");
@@ -1064,18 +1025,12 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 				if((source[sp] >= 'A') && (source[sp] <= 'Z')) {
 					value = (source[sp] - 'A') + 14;
 				}
-
 				process_buffer[*process_p] = value;
 				(*process_p)++;
-
 				if(*process_p >= 3) {
-					int iv;
-
-					iv = (1600 * process_buffer[0]) + (40 * process_buffer[1]) + (process_buffer[2]) + 1;
-					target[tp] = (uchar)(iv / 256);
-					tp++;
-					target[tp] = iv % 256;
-					tp++;
+					int iv = (1600 * process_buffer[0]) + (40 * process_buffer[1]) + (process_buffer[2]) + 1;
+					target[tp++] = (uchar)(iv / 256);
+					target[tp++] = iv % 256;
 					strcat(binary, "  ");
 					if(debug) printf("[%d %d %d] ", process_buffer[0], process_buffer[1], process_buffer[2]);
 
@@ -1094,7 +1049,6 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 		/* step (f) EDIFACT encodation */
 		if(current_mode == DM_EDIFACT) {
 			int value = 0;
-
 			next_mode = DM_EDIFACT;
 			if(*process_p == 3) {
 				next_mode = look_ahead_test(source, inputlen, sp, current_mode, gs1);
@@ -1113,17 +1067,12 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 				(*process_p)++;
 				sp++;
 			}
-
 			if(*process_p >= 4) {
-				target[tp] = (uchar)((process_buffer[0] << 2) + ((process_buffer[1] & 0x30) >> 4));
-				tp++;
-				target[tp] = ((process_buffer[1] & 0x0f) << 4) + ((process_buffer[2] & 0x3c) >> 2);
-				tp++;
-				target[tp] = (uchar)(((process_buffer[2] & 0x03) << 6) + process_buffer[3]);
-				tp++;
+				target[tp++] = (uchar)((process_buffer[0] << 2) + ((process_buffer[1] & 0x30) >> 4));
+				target[tp++] = ((process_buffer[1] & 0x0f) << 4) + ((process_buffer[2] & 0x3c) >> 2);
+				target[tp++] = (uchar)(((process_buffer[2] & 0x03) << 6) + process_buffer[3]);
 				strcat(binary, "   ");
-				if(debug) printf("[%d %d %d %d] ", process_buffer[0], process_buffer[1], process_buffer[2],
-					    process_buffer[3]);
+				if(debug) printf("[%d %d %d %d] ", process_buffer[0], process_buffer[1], process_buffer[2], process_buffer[3]);
 
 				process_buffer[0] = process_buffer[4];
 				process_buffer[1] = process_buffer[5];
@@ -1140,7 +1089,6 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 		/* step (g) Base 256 encodation */
 		if(current_mode == DM_BASE256) {
 			next_mode = look_ahead_test(source, inputlen, sp, current_mode, gs1);
-
 			if(next_mode == DM_BASE256) {
 				target[tp] = source[sp];
 				if(debug) printf("B%02X ", target[tp]);
@@ -1153,7 +1101,6 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 				if(debug) printf("ASC ");
 			}
 		}
-
 		if(tp > 1558) {
 			return 0;
 		}
@@ -1166,9 +1113,8 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 			if((i == 0) || ((i != 0) && (binary[i - 1] != 'b'))) {
 				/* start of binary data */
 				int binary_count; /* length of b256 data */
-
-				for(binary_count = 0; binary_count + i < tp && binary[binary_count + i] == 'b'; binary_count++) ;
-
+				for(binary_count = 0; binary_count + i < tp && binary[binary_count + i] == 'b'; binary_count++) 
+					;
 				if(binary_count <= 249) {
 					dminsert(binary, i, 'b');
 					insert_value(target, i, tp, binary_count);
@@ -1190,15 +1136,9 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 		if(binary[i] == 'b') {
 			int prn = ((149 * (i + 1)) % 255) + 1;
 			int temp = target[i] + prn;
-			if(temp <= 255) {
-				target[i] = (uchar)(temp);
-			}
-			else {
-				target[i] = (uchar)(temp - 256);
-			}
+			target[i] = (temp <= 255) ? (uchar)(temp) : (uchar)(temp - 256);
 		}
 	}
-
 	*(last_mode) = current_mode;
 	return tp;
 }
@@ -1213,7 +1153,6 @@ static int dm200encode_remainder(uchar target[],
     const int symbols_left)
 {
 	int debug = 0;
-
 	switch(last_mode) {
 		case DM_C40:
 		case DM_TEXT:
@@ -1256,15 +1195,11 @@ static int dm200encode_remainder(uchar target[],
 			    target_length++; // Unlatch.
 
 			    if(process_p == 1) {
-				    target[target_length] = source[inputlen - 1] + 1;
-				    target_length++;
+				    target[target_length++] = source[inputlen - 1] + 1;
 			    }
-
 			    if(process_p == 2) {
-				    target[target_length] = source[inputlen - 2] + 1;
-				    target_length++;
-				    target[target_length] = source[inputlen - 1] + 1;
-				    target_length++;
+				    target[target_length++] = source[inputlen - 2] + 1;
+				    target[target_length++] = source[inputlen - 1] + 1;
 			    }
 		    }
 		    break;
@@ -1272,59 +1207,38 @@ static int dm200encode_remainder(uchar target[],
 		case DM_EDIFACT:
 		    if(symbols_left <= 2) { // Unlatch not required!
 			    if(process_p == 1) {
-				    target[target_length] = source[inputlen - 1] + 1;
-				    target_length++;
+				    target[target_length++] = source[inputlen - 1] + 1;
 			    }
-
 			    if(process_p == 2) {
-				    target[target_length] = source[inputlen - 2] + 1;
-				    target_length++;
-				    target[target_length] = source[inputlen - 1] + 1;
-				    target_length++;
+				    target[target_length++] = source[inputlen - 2] + 1;
+				    target[target_length++] = source[inputlen - 1] + 1;
 			    }
 		    }
 		    else {
 			    // Append edifact unlatch value (31) and encode as triple
-
 			    if(process_p == 0) {
-				    target[target_length] = (uchar)(31 << 2);
-				    target_length++;
-				    target[target_length] = 0;
-				    target_length++;
-				    target[target_length] = 0;
-				    target_length++;
+				    target[target_length++] = (uchar)(31 << 2);
+				    target[target_length++] = 0;
+				    target[target_length++] = 0;
 			    }
-
 			    if(process_p == 1) {
-				    target[target_length] = (uchar)((process_buffer[0] << 2) + ((31 & 0x30) >> 4));
-				    target_length++;
-				    target[target_length] = (uchar)((31 & 0x0f) << 4);
-				    target_length++;
-				    target[target_length] = (uchar)0;
-				    target_length++;
+				    target[target_length++] = (uchar)((process_buffer[0] << 2) + ((31 & 0x30) >> 4));
+				    target[target_length++] = (uchar)((31 & 0x0f) << 4);
+				    target[target_length++] = (uchar)0;
 			    }
-
 			    if(process_p == 2) {
-				    target[target_length] = (uchar)((process_buffer[0] << 2) + ((process_buffer[1] & 0x30) >> 4));
-				    target_length++;
-				    target[target_length] = (uchar)(((process_buffer[1] & 0x0f) << 4) + ((31 & 0x3c) >> 2));
-				    target_length++;
-				    target[target_length] = (uchar)(((31 & 0x03) << 6));
-				    target_length++;
+				    target[target_length++] = (uchar)((process_buffer[0] << 2) + ((process_buffer[1] & 0x30) >> 4));
+				    target[target_length++] = (uchar)(((process_buffer[1] & 0x0f) << 4) + ((31 & 0x3c) >> 2));
+				    target[target_length++] = (uchar)(((31 & 0x03) << 6));
 			    }
-
 			    if(process_p == 3) {
-				    target[target_length] = (uchar)((process_buffer[0] << 2) + ((process_buffer[1] & 0x30) >> 4));
-				    target_length++;
-				    target[target_length] = (uchar)(((process_buffer[1] & 0x0f) << 4) + ((process_buffer[2] & 0x3c) >> 2));
-				    target_length++;
-				    target[target_length] = (uchar)(((process_buffer[2] & 0x03) << 6) + 31);
-				    target_length++;
+				    target[target_length++] = (uchar)((process_buffer[0] << 2) + ((process_buffer[1] & 0x30) >> 4));
+				    target[target_length++] = (uchar)(((process_buffer[1] & 0x0f) << 4) + ((process_buffer[2] & 0x3c) >> 2));
+				    target[target_length++] = (uchar)(((process_buffer[2] & 0x03) << 6) + 31);
 			    }
 		    }
 		    break;
 	}
-
 	if(debug) {
 		int i;
 		printf("\n\n");
@@ -1339,23 +1253,17 @@ static int dm200encode_remainder(uchar target[],
 //
 static void add_tail(uchar target[], int tp, const int tail_length)
 {
-	int i, prn, temp;
-	for(i = tail_length; i > 0; i--) {
+	for(int i = tail_length; i > 0; i--) {
 		if(i == tail_length) {
-			target[tp] = 129;
-			tp++; /* Pad */
+			target[tp++] = 129; // Pad 
 		}
 		else {
-			prn = ((149 * (tp + 1)) % 253) + 1;
-			temp = 129 + prn;
-			if(temp <= 254) {
-				target[tp] = (uchar)(temp);
-				tp++;
-			}
-			else {
-				target[tp] = (uchar)(temp - 254);
-				tp++;
-			}
+			int prn = ((149 * (tp + 1)) % 253) + 1;
+			int temp = 129 + prn;
+			if(temp <= 254)
+				target[tp++] = (uchar)(temp);
+			else
+				target[tp++] = (uchar)(temp - 254);
 		}
 	}
 }
@@ -1376,7 +1284,7 @@ int data_matrix_200(struct ZintSymbol * symbol, const uchar source[], const int 
 	/* inputlen may be decremented by 2 if macro character is used */
 	binlen = dm200encode(symbol, source, binary, &last_mode, &inputlen, process_buffer, &process_p);
 	if(binlen == 0) {
-		strcpy(symbol->errtxt, "Data too long to fit in symbol (E11)");
+		sstrcpy(symbol->errtxt, "Data too long to fit in symbol (E11)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	if((symbol->option_2 >= 1) && (symbol->option_2 <= DMSIZESCOUNT)) {
@@ -1405,21 +1313,20 @@ int data_matrix_200(struct ZintSymbol * symbol, const uchar source[], const int 
 			calcsize++;
 		}
 	}
-
 	symbolsize = optionsize;
 	if(calcsize > optionsize) {
 		symbolsize = calcsize;
 		if(optionsize != -1) {
 			/* flag an error */
 			error_number = ZINT_WARN_INVALID_OPTION;
-			strcpy(symbol->errtxt, "Data does not fit in selected symbol size (E12)");
+			sstrcpy(symbol->errtxt, "Data does not fit in selected symbol size (E12)");
 		}
 	}
 	// Now we know the symbol size we can handle the remaining data in the process buffer.
 	symbols_left = matrixbytes[symbolsize] - binlen;
 	binlen = dm200encode_remainder(binary, binlen, source, inputlen, last_mode, process_buffer, process_p, symbols_left);
 	if(binlen > matrixbytes[symbolsize]) {
-		strcpy(symbol->errtxt, "Data too long to fit in symbol (E12A)");
+		sstrcpy(symbol->errtxt, "Data too long to fit in symbol (E12A)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	H = matrixH[symbolsize];
@@ -1519,7 +1426,7 @@ int dmatrix(struct ZintSymbol * symbol, const uchar source[], const int in_lengt
 		error_number = data_matrix_200(symbol, source, in_length);
 	}
 	else { /* ECC 000 - 140 */
-		strcpy(symbol->errtxt, "Older Data Matrix standards are no longer supported (E13)");
+		sstrcpy(symbol->errtxt, "Older Data Matrix standards are no longer supported (E13)");
 		error_number = ZINT_ERROR_INVALID_OPTION;
 	}
 	return error_number;

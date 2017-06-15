@@ -111,8 +111,8 @@ CAIRO_BEGIN_DECLS
 	#define M_SQRT1_2 0.707106781186547524400844362104849039
 #endif */
 
-#undef  ARRAY_LENGTH
-#define ARRAY_LENGTH(__array) ((int)(sizeof(__array) / sizeof(__array[0])))
+// @sobolev #undef  ARRAY_LENGTH_Removed
+// @sobolev #define ARRAY_LENGTH_Removed(__array) ((int)(sizeof(__array) / sizeof(__array[0])))
 
 #undef STRINGIFY
 #undef STRINGIFY_ARG
@@ -274,32 +274,21 @@ cairo_private_no_warn cairo_bool_t _cairo_rectangle_intersect(CairoIRect * dst, 
 
 static inline cairo_bool_t _cairo_rectangle_intersects(const CairoIRect * dst, const CairoIRect * src)
 {
-	return !(src->x >= dst->x + (int)dst->width ||
-	    src->x + (int)src->width <= dst->x ||
-	    src->y >= dst->y + (int)dst->height ||
-	    src->y + (int)src->height <= dst->y);
+	return !(src->x >= dst->x + (int)dst->width || src->x + (int)src->width <= dst->x || src->y >= dst->y + (int)dst->height || src->y + (int)src->height <= dst->y);
 }
 
-static inline cairo_bool_t _cairo_rectangle_contains_rectangle(const CairoIRect * a,
-    const CairoIRect * b)
+static inline cairo_bool_t _cairo_rectangle_contains_rectangle(const CairoIRect * a, const CairoIRect * b)
 {
-	return (a->x <= b->x &&
-	    a->x + (int)a->width >= b->x + (int)b->width &&
-	    a->y <= b->y &&
-	    a->y + (int)a->height >= b->y + (int)b->height);
+	return (a->x <= b->x && a->x + (int)a->width >= b->x + (int)b->width && a->y <= b->y && a->y + (int)a->height >= b->y + (int)b->height);
 }
 
-cairo_private void _cairo_rectangle_int_from_double(CairoIRect * recti,
-    const cairo_rectangle_t * rectf);
-
-/* Extends the dst rectangle to also contain src.
- * If one of the rectangles is empty, the result is undefined
- */
-cairo_private void _cairo_rectangle_union(CairoIRect * dst,
-    const CairoIRect * src);
-
-cairo_private cairo_bool_t _cairo_box_intersects_line_segment(const cairo_box_t * box,
-    cairo_line_t * line) cairo_pure;
+cairo_private void _cairo_rectangle_int_from_double(CairoIRect * recti, const cairo_rectangle_t * rectf);
+// 
+// Extends the dst rectangle to also contain src.
+// If one of the rectangles is empty, the result is undefined
+// 
+cairo_private void _cairo_rectangle_union(CairoIRect * dst, const CairoIRect * src);
+cairo_private cairo_bool_t _cairo_box_intersects_line_segment(const cairo_box_t * box, cairo_line_t * line) cairo_pure;
 
 cairo_private cairo_bool_t _cairo_spline_intersects(const cairo_point_t * a,
     const cairo_point_t * b,
@@ -438,22 +427,12 @@ struct _cairo_scaled_font_backend {
 	 *
 	 * Returns CAIRO_INT_STATUS_UNSUPPORTED if not a sfnt style font or table not found.
 	 */
-	cairo_warn cairo_int_status_t
-	(* load_truetype_table)(void * scaled_font,
-	    ulong tag,
-	    long offset,
-	    uchar        * buffer,
-	    ulong        * length);
+	cairo_warn cairo_int_status_t (* load_truetype_table)(void * scaled_font, ulong tag, long offset, uchar * buffer, ulong * length);
 
 	/* ucs4 is set to -1 if the unicode character could not be found
 	 * for the glyph */
-	cairo_warn cairo_int_status_t
-	(* index_to_ucs4)(void * scaled_font,
-	    ulong index,
-	    uint32_t                   * ucs4);
-
-	cairo_warn cairo_bool_t
-	(* is_synthetic)(void * scaled_font);
+	cairo_warn cairo_int_status_t (* index_to_ucs4)(void * scaled_font, ulong index, uint32_t * ucs4);
+	cairo_warn cairo_bool_t (* is_synthetic)(void * scaled_font);
 
 	/* For type 1 fonts, return the glyph name for a given glyph index.
 	 * A glyph index and list of glyph names in the Type 1 fonts is provided.
@@ -467,12 +446,7 @@ struct _cairo_scaled_font_backend {
 	 *  to the glyph_index
 	 */
 
-	cairo_warn cairo_int_status_t
-	(* index_to_glyph_name)(void * scaled_font,
-	    char                ** glyph_names,
-	    int num_glyph_names,
-	    ulong glyph_index,
-	    ulong        * glyph_array_index);
+	cairo_warn cairo_int_status_t (* index_to_glyph_name)(void * scaled_font, char ** glyph_names, int num_glyph_names, ulong glyph_index, ulong * glyph_array_index);
 
 	/* Read data from a PostScript font.
 	 * @scaled_font: font
@@ -488,35 +462,23 @@ struct _cairo_scaled_font_backend {
 	 *
 	 * Returns CAIRO_INT_STATUS_UNSUPPORTED if not a Type 1 font.
 	 */
-	cairo_warn cairo_int_status_t
-	(* load_type1_data)(void * scaled_font,
-	    long offset,
-	    uchar        * buffer,
-	    ulong        * length);
+	cairo_warn cairo_int_status_t (* load_type1_data)(void * scaled_font, long offset, uchar * buffer, ulong * length);
 };
 
 struct _cairo_font_face_backend {
 	cairo_font_type_t type;
-
-	cairo_warn cairo_status_t
-	(* create_for_toy)(cairo_toy_font_face_t   * toy_face,
-	    cairo_font_face_t      ** font_face);
-
-	/* The destroy() function is allowed to resurrect the font face
-	 * by re-referencing. This is needed for the FreeType backend.
-	 */
-	cairo_bool_t
-	(* destroy)(void * font_face);
-
-	cairo_warn cairo_status_t
-	(* scaled_font_create)(void * font_face,
+	cairo_warn cairo_status_t (* create_for_toy)(cairo_toy_font_face_t * toy_face, cairo_font_face_t ** font_face);
+	//
+	// The destroy() function is allowed to resurrect the font face
+	// by re-referencing. This is needed for the FreeType backend.
+	//
+	cairo_bool_t (* destroy)(void * font_face);
+	cairo_warn cairo_status_t (* scaled_font_create)(void * font_face,
 	    const cairo_matrix_t         * font_matrix,
 	    const cairo_matrix_t         * ctm,
 	    const cairo_font_options_t   * options,
 	    cairo_scaled_font_t         ** scaled_font);
-
-	cairo_font_face_t *
-	(*get_implementation)(void * font_face,
+	cairo_font_face_t * (*get_implementation)(void * font_face,
 	    const cairo_matrix_t         *font_matrix,
 	    const cairo_matrix_t         *ctm,
 	    const cairo_font_options_t   *options);
@@ -731,12 +693,9 @@ typedef cairo_status_t (cairo_path_fixed_line_to_func_t)(void * closure, const c
 typedef cairo_status_t (cairo_path_fixed_curve_to_func_t)(void * closure, const cairo_point_t * p0,
     const cairo_point_t * p1, const cairo_point_t * p2);
 typedef cairo_status_t (cairo_path_fixed_close_path_func_t)(void * closure);
-cairo_private cairo_status_t _cairo_path_fixed_interpret(const cairo_path_fixed_t     * path,
-    cairo_path_fixed_move_to_func_t    * move_to,
-    cairo_path_fixed_line_to_func_t    * line_to,
-    cairo_path_fixed_curve_to_func_t   * curve_to,
-    cairo_path_fixed_close_path_func_t * close_path,
-    void * closure);
+cairo_private cairo_status_t _cairo_path_fixed_interpret(const cairo_path_fixed_t * path,
+    cairo_path_fixed_move_to_func_t * move_to, cairo_path_fixed_line_to_func_t * line_to,
+    cairo_path_fixed_curve_to_func_t * curve_to, cairo_path_fixed_close_path_func_t * close_path, void * closure);
 
 cairo_private cairo_status_t _cairo_path_fixed_interpret_flat(const cairo_path_fixed_t * path,
     cairo_path_fixed_move_to_func_t    * move_to,
@@ -1031,15 +990,13 @@ cairo_private cairo_format_t _cairo_format_from_content(cairo_content_t content)
 cairo_private cairo_format_t _cairo_format_from_pixman_format(pixman_format_code_t pixman_format);
 cairo_private cairo_content_t _cairo_content_from_format(cairo_format_t format) cairo_const;
 cairo_private cairo_content_t _cairo_content_from_pixman_format(pixman_format_code_t pixman_format);
-cairo_private cairo_surface_t * _cairo_image_surface_create_for_pixman_image(pixman_image_t * pixman_image,
-    pixman_format_code_t pixman_format);
+cairo_private cairo_surface_t * _cairo_image_surface_create_for_pixman_image(pixman_image_t * pixman_image, pixman_format_code_t pixman_format);
 cairo_private pixman_format_code_t _cairo_format_to_pixman_format_code(cairo_format_t format);
 cairo_private cairo_bool_t _pixman_format_from_masks(cairo_format_masks_t * masks, pixman_format_code_t * format_ret);
 cairo_private cairo_bool_t _pixman_format_to_masks(pixman_format_code_t pixman_format, cairo_format_masks_t   * masks);
 cairo_private void _cairo_image_scaled_glyph_fini(cairo_scaled_font_t * scaled_font, cairo_scaled_glyph_t * scaled_glyph);
 cairo_private void _cairo_image_reset_static_data(void);
-cairo_private cairo_surface_t * _cairo_image_surface_create_with_pixman_format(uchar           * data,
-    pixman_format_code_t pixman_format, int width, int height, int stride);
+cairo_private cairo_surface_t * _cairo_image_surface_create_with_pixman_format(uchar * data, pixman_format_code_t pixman_format, int width, int height, int stride);
 cairo_private cairo_surface_t * _cairo_image_surface_create_with_content(cairo_content_t content, int width, int height);
 cairo_private void _cairo_image_surface_assume_ownership_of_data(cairo_image_surface_t * surface);
 cairo_private cairo_image_surface_t * _cairo_image_surface_coerce(cairo_image_surface_t * surface);
@@ -1047,10 +1004,8 @@ cairo_private cairo_image_surface_t * _cairo_image_surface_coerce_to_format(cair
 cairo_private cairo_image_transparency_t _cairo_image_analyze_transparency(cairo_image_surface_t  * image);
 cairo_private cairo_image_color_t _cairo_image_analyze_color(cairo_image_surface_t * image);
 /* cairo-pen.c */
-cairo_private int _cairo_pen_vertices_needed(double tolerance,
-    double radius, const cairo_matrix_t  * matrix);
-cairo_private cairo_status_t _cairo_pen_init(cairo_pen_t * pen,
-    double radius, double tolerance, const cairo_matrix_t   * ctm);
+cairo_private int _cairo_pen_vertices_needed(double tolerance, double radius, const cairo_matrix_t  * matrix);
+cairo_private cairo_status_t _cairo_pen_init(cairo_pen_t * pen, double radius, double tolerance, const cairo_matrix_t   * ctm);
 
 cairo_private void _cairo_pen_init_empty(cairo_pen_t * pen);
 cairo_private cairo_status_t _cairo_pen_init_copy(cairo_pen_t * pen, const cairo_pen_t * other);
@@ -1125,13 +1080,9 @@ cairo_private cairo_bool_t _cairo_matrix_is_pixel_exact(const cairo_matrix_t * m
 cairo_private double _cairo_matrix_transformed_circle_major_axis(const cairo_matrix_t * matrix, double radius) cairo_pure;
 cairo_private cairo_bool_t _cairo_matrix_is_pixman_translation(const cairo_matrix_t * matrix,
     cairo_filter_t filter, int * out_x_offset, int * out_y_offset);
-cairo_private cairo_status_t _cairo_matrix_to_pixman_matrix_offset(const cairo_matrix_t     * matrix,
-    cairo_filter_t filter,
-    double xc,
-    double yc,
-    pixman_transform_t       * out_transform,
-    int                      * out_x_offset,
-    int                      * out_y_offset);
+cairo_private cairo_status_t _cairo_matrix_to_pixman_matrix_offset(const cairo_matrix_t * matrix,
+    cairo_filter_t filter, double xc, double yc, pixman_transform_t * out_transform,
+    int * out_x_offset, int * out_y_offset);
 
 cairo_private cairo_status_t _cairo_bentley_ottmann_tessellate_rectilinear_polygon(cairo_traps_t     * traps,
     const cairo_polygon_t * polygon, CairoFillRule fill_rule);

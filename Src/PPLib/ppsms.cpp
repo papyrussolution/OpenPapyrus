@@ -2331,56 +2331,60 @@ int SLAPI SmsClient::SmsInit_(PPID accID, const char * pFrom)
 {
 	int    ok = 1;
 	SString msg_buf;
-	PPSmsAccPacket pack;
-	PPObjSmsAccount mobj;
-	StConfig local_config;
-	//
-	// Получаем конфигурацию sms-аккаунта
-	//
-	THROW(mobj.GetPacket(accID, &pack));
-	THROW(pack.Verify(0));
-	local_config.Clear();
-	THROW(GetSmsConfig(pack, local_config));
-	if(!isempty(pFrom))
-		local_config.From = pFrom;
-	Config = local_config;
-	if(pack.Rec.Flags & PPSmsAccount::smacfUseUHTT) {
-		THROW_MEM(SETIFZ(P_UhttCli, new PPUhttClient()));
-	}
-	else {
+	if(accID) {
+		PPSmsAccPacket pack;
+		PPObjSmsAccount mobj;
+		StConfig local_config;
 		//
-		// Устанавливаем соединение с СМСЦ
+		// Получаем конфигурацию sms-аккаунта
 		//
-		if(P_Logger) {
-			PPLoadText(PPTXT_SMSACCPARAMRECEIVED, msg_buf);
-			msg_buf.CatDiv(':', 2).
-				CatEq("Name", pack.Rec.Name).CatDiv(',', 2).
-				CatEq("Host", local_config.Host).CatDiv(',', 2).
-				CatEq("Port", (ulong)local_config.Port).CatDiv(',', 2).
-				CatEq("SystemID", local_config.SystemId).CatDiv(',', 2).
-				CatEq("From", local_config.From);
-			P_Logger->Log(msg_buf);
-			//
-			PPLoadText(PPTXT_SMS_CONNECTING, msg_buf);
-			P_Logger->Log(msg_buf);
+		THROW(mobj.GetPacket(accID, &pack));
+		THROW(pack.Verify(0));
+		local_config.Clear();
+		THROW(GetSmsConfig(pack, local_config));
+		if(!isempty(pFrom))
+			local_config.From = pFrom;
+		Config = local_config;
+		if(pack.Rec.Flags & PPSmsAccount::smacfUseUHTT) {
+			THROW_MEM(SETIFZ(P_UhttCli, new PPUhttClient()));
 		}
-		//THROW(Connect_(config));
-		//int SmsClient::Connect_(const StConfig & rConfig)
-		{
-			uint   reconnection_try_nums = 0;
-			if((ok = ConnectToSMSC()) != 1) {
-				while(ok != 1 && reconnection_try_nums < Config.ReconnectTriesNum) {
-					ok = TryToReconnect(reconnection_try_nums);
-				}
-			}
-			THROW(ok == 1);
+		else {
+			//
+			// Устанавливаем соединение с СМСЦ
+			//
 			if(P_Logger) {
-				SString msg_buf;
-				PPLoadText(PPTXT_SMSSRVCONNECTED, msg_buf);
+				PPLoadText(PPTXT_SMSACCPARAMRECEIVED, msg_buf);
+				msg_buf.CatDiv(':', 2).
+					CatEq("Name", pack.Rec.Name).CatDiv(',', 2).
+					CatEq("Host", local_config.Host).CatDiv(',', 2).
+					CatEq("Port", (ulong)local_config.Port).CatDiv(',', 2).
+					CatEq("SystemID", local_config.SystemId).CatDiv(',', 2).
+					CatEq("From", local_config.From);
+				P_Logger->Log(msg_buf);
+				//
+				PPLoadText(PPTXT_SMS_CONNECTING, msg_buf);
 				P_Logger->Log(msg_buf);
 			}
+			//THROW(Connect_(config));
+			//int SmsClient::Connect_(const StConfig & rConfig)
+			{
+				uint   reconnection_try_nums = 0;
+				if((ok = ConnectToSMSC()) != 1) {
+					while(ok != 1 && reconnection_try_nums < Config.ReconnectTriesNum) {
+						ok = TryToReconnect(reconnection_try_nums);
+					}
+				}
+				THROW(ok == 1);
+				if(P_Logger) {
+					SString msg_buf;
+					PPLoadText(PPTXT_SMSSRVCONNECTED, msg_buf);
+					P_Logger->Log(msg_buf);
+				}
+			}
 		}
 	}
+	else
+		ok = -1;
 	CATCH
 		ok = 0;
 		if(P_Logger) {
