@@ -6064,7 +6064,7 @@ int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 	H.LinkBillID = p_pack->Rec.LinkBillID;
 	H.CurID      = p_pack->Rec.CurID;
 	H.fShortMainOrg = BIN(op_rec.PrnFlags & OPKF_PRT_SHRTORG);
-	p_pack->GetMainOrgID_(&main_org_id); // @v7.0.0 ::GetMainOrgID --> p_pack->GetMainOrgID_
+	p_pack->GetMainOrgID_(&main_org_id);
 	H.Flags      = bill_f;
 	H.ExpendFlag = 0;
 	H.fMergeSameGoods = BIN(op_rec.PrnFlags & OPKF_PRT_MERGETI);
@@ -7437,7 +7437,7 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 			}
 			I.nn       = nn;
 			I.GoodsID  = p_ti->GoodsID;
-			I.LotID    = p_ti->LotID; // @v7.5.8
+			I.LotID    = p_ti->LotID;
 			I.NewPrice = new_price;
 			I.NewCost  = new_cost;
 			I.OldPrice = old_price;
@@ -7587,7 +7587,7 @@ int PPALDD_CashOrder::InitData(PPFilt & rFilt, long rsrv)
 	int    is_vat_exempt = 0;
 	PPID   main_org_id = 0;
 	double coeff = 1.0;
-	if(pack->GetMainOrgID_(&main_org_id)) { // @v7.0.0 ::GetMainOrgID --> p_pack->GetMainOrgID_
+	if(pack->GetMainOrgID_(&main_org_id)) {
 		PersonTbl::Rec prec;
 		if(SearchObject(PPOBJ_PERSON, main_org_id, &prec) > 0 && prec.Flags & PSNF_NOVATAX)
 			is_vat_exempt = 1;
@@ -8092,6 +8092,7 @@ int PPALDD_BnkPaymOrder::InitData(PPFilt & rFilt, long rsrv)
 	PPObjPerson psn_obj;
 	PPBillPacket * pack = (PPBillPacket *)rFilt.Ptr;
 	if(pack && pack->P_PaymOrder) {
+		SString temp_buf;
 		H.PayerID = pack->P_PaymOrder->PayerID;
 		H.RcvrID  = pack->P_PaymOrder->RcvrID;
 		H.BillID  = pack->P_PaymOrder->BillID;
@@ -8119,20 +8120,21 @@ int PPALDD_BnkPaymOrder::InitData(PPFilt & rFilt, long rsrv)
 		H.BnkPaymMethod = pack->P_PaymOrder->BnkPaymMethod;
 		H.BnkQueueing   = pack->P_PaymOrder->BnkQueueing;
 		H.PayerStatus   = pack->P_PaymOrder->PayerStatus;
-		if(pack->P_PaymOrder->PayerStatus == 0)
-			H.TxtPayerStatus[0] = 0;
-		else
-			longfmtz(pack->P_PaymOrder->PayerStatus, 2, H.TxtPayerStatus, sizeof(H.TxtPayerStatus));
+		{
+			temp_buf = 0;
+			if(pack->P_PaymOrder->PayerStatus) {
+				// @v9.7.0 longfmtz(pack->P_PaymOrder->PayerStatus, 2, H.TxtPayerStatus, sizeof(H.TxtPayerStatus));
+				(temp_buf = 0).CatLongZ(pack->P_PaymOrder->PayerStatus, 2); // @v9.7.0
+			}
+			STRNSCPY(H.TxtPayerStatus, temp_buf);
+		}
 		H.Amount        = pack->P_PaymOrder->Amount;
 		H.VATRate       = pack->P_PaymOrder->VATRate;
 		H.VATSum        = pack->P_PaymOrder->VATSum;
 		STRNSCPY(H.TxmClass, pack->P_PaymOrder->Txm.TaxClass2);
 		STRNSCPY(H.TxmOKATO, pack->P_PaymOrder->Txm.OKATO);
 		STRNSCPY(H.TxmReason, pack->P_PaymOrder->Txm.Reason);
-		{
-			SString temp_buf;
-			pack->P_PaymOrder->Txm.Period.Format(temp_buf).CopyTo(H.TxmPeriod, sizeof(H.TxmPeriod));
-		}
+		pack->P_PaymOrder->Txm.Period.Format(temp_buf).CopyTo(H.TxmPeriod, sizeof(H.TxmPeriod));
 		STRNSCPY(H.TxmDocNumber, pack->P_PaymOrder->Txm.DocNumber);
 		H.TxmDocDate = pack->P_PaymOrder->Txm.DocDate;
 		STRNSCPY(H.TxmPaymType, pack->P_PaymOrder->Txm.PaymType);

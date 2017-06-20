@@ -27,7 +27,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 #include "cairo-composite-rectangles-private.h"
-#include "cairo-clip-private.h"
+//#include "cairo-clip-private.h"
 #include "cairo-fixed-private.h"
 #include "cairo-types-private.h"
 

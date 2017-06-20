@@ -1092,7 +1092,7 @@ cairo_int_status_t _cairo_scaled_font_subset_create_glyph_names(cairo_scaled_fon
 	names = _cairo_hash_table_create(_cairo_string_equal);
 	if(unlikely(names == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-	subset->glyph_names = (char **)calloc(subset->num_glyphs, sizeof(char *));
+	subset->glyph_names = (char **)SAlloc::C(subset->num_glyphs, sizeof(char *));
 	if(unlikely(subset->glyph_names == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto CLEANUP_HASH;

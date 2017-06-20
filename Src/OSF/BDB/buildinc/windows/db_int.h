@@ -616,7 +616,8 @@ typedef struct __env_thread_info {
 } while (0)
 
 typedef struct __flag_map {
-	uint32 inflag, outflag;
+	uint32 inflag;
+	uint32 outflag;
 } FLAG_MAP;
 
 /*

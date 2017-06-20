@@ -354,25 +354,18 @@ int svg_plot(struct ZintSymbol * symbol)
 			case 8: /* EAN-8 */
 			case 11:
 			case 14:
-			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-					(0 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
-			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-					(2 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
-			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-					(32 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
-			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-					(34 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
-			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-					(64 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
-			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-					(66 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", (0 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", (2 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", (32 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", (34 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", (64 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", (66 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
 			    for(i = 0; i < 4; i++) {
 				    textpart[i] = local_text[i];
 			    }
 			    textpart[4] = '\0';
 			    textpos = 17;
-			    fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
-					(textpos + xoffset) * scaler, default_text_posn);
+			    fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n", (textpos + xoffset) * scaler, default_text_posn);
 			    fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n",
 					11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 			    fprintf(fsvg, "         %s\n", textpart);
@@ -413,18 +406,12 @@ int svg_plot(struct ZintSymbol * symbol)
 			case 13: /* EAN 13 */
 			case 16:
 			case 19:
-			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-					(0 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
-			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-					(2 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
-			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-					(46 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
-			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-					(48 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
-			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-					(92 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
-			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n",
-					(94 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", (0 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", (2 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", (46 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", (48 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", (92 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
+			    fprintf(fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", (94 + xoffset) * scaler, row_posn, scaler, 5.0 * scaler);
 			    textpart[0] = local_text[0];
 			    textpart[1] = '\0';
 			    textpos = -7;
@@ -449,11 +436,10 @@ int svg_plot(struct ZintSymbol * symbol)
 			    }
 			    textpart[6] = '\0';
 			    textpos = 71;
-			    fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n",
-			    (textpos + xoffset) * scaler,
+			    fprintf(fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n", (textpos + xoffset) * scaler,
 			    default_text_posn);
 			    fprintf(fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"%s\" >\n",
-			    11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+					11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
 			    fprintf(fsvg, "         %s\n", textpart);
 			    fprintf(fsvg, "      </text>\n");
 			    textdone = 1;
@@ -697,4 +683,3 @@ int svg_plot(struct ZintSymbol * symbol)
 		setlocale(LC_ALL, locale);
 	return error_number;
 }
-

@@ -182,7 +182,7 @@ static int isedi(uchar input)
 	return result;
 }
 
-static int dq4bi(uchar source[], int sourcelen, int position)
+static int dq4bi(const uchar source[], int sourcelen, int position)
 {
 	int i;
 	for(i = position; isedi(source[position + i]) && ((position + i) < sourcelen); i++) 
@@ -203,7 +203,7 @@ static int dq4bi(uchar source[], int sourcelen, int position)
 	return 0;
 }
 
-static int c1_look_ahead_test(uchar source[], int sourcelen, int position, int current_mode, int gs1)
+static int c1_look_ahead_test(const uchar source[], int sourcelen, int position, int current_mode, int gs1)
 {
 	float ascii_count, c40_count, text_count, edi_count, byte_count;
 	char reduced_char;
@@ -403,7 +403,7 @@ static int c1_look_ahead_test(uchar source[], int sourcelen, int position, int c
 	return best_scheme;
 }
 
-static int c1_encode(struct ZintSymbol * symbol, uchar source[], uint target[], int length)
+static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint target[], int length)
 {
 	int current_mode, next_mode;
 	int gs1, i, j, p;
@@ -422,60 +422,38 @@ static int c1_encode(struct ZintSymbol * symbol, uchar source[], uint target[], 
 	memzero(edi_buffer, sizeof(edi_buffer));
 	edi_p = 0;
 	sstrcpy(decimal_binary, "");
-	if(symbol->input_mode == GS1_MODE) {
-		gs1 = 1;
+	gs1 = (symbol->input_mode == GS1_MODE) ? 1 : 0;
+	if(gs1) { /* FNC1 */
+		target[tp++] = 232;
 	}
-	else {
-		gs1 = 0;
-	}
-	if(gs1) {
-		/* FNC1 */
-		target[tp] = 232;
-		tp++;
-	}
-
 	/* Step A */
 	current_mode = C1_ASCII;
 	next_mode = C1_ASCII;
-
 	do {
 		if(current_mode != next_mode) {
 			/* Change mode */
 			switch(next_mode) {
-				case C1_C40: target[tp] = 230;
-				    tp++;
-				    break;
-				case C1_TEXT: target[tp] = 239;
-				    tp++;
-				    break;
-				case C1_EDI: target[tp] = 238;
-				    tp++;
-				    break;
-				case C1_BYTE: target[tp] = 231;
-				    tp++;
-				    break;
+				case C1_C40: target[tp++] = 230; break;
+				case C1_TEXT: target[tp++] = 239; break;
+				case C1_EDI: target[tp++] = 238; break;
+				case C1_BYTE: target[tp++] = 231; break;
 			}
 		}
-
 		if((current_mode != C1_BYTE) && (next_mode == C1_BYTE)) {
 			byte_start = tp;
 		}
 		current_mode = next_mode;
-
 		if(current_mode == C1_ASCII) {
 			/* Step B - ASCII encodation */
 			next_mode = C1_ASCII;
-
 			if((length - sp) >= 21) {
 				/* Step B1 */
 				j = 0;
-
 				for(i = 0; i < 21; i++) {
 					if((source[sp + i] >= '0') && (source[sp + i] <= '9')) {
 						j++;
 					}
 				}
-
 				if(j == 21) {
 					next_mode = C1_DECIMAL;
 					sstrcpy(decimal_binary, "1111");
@@ -1162,7 +1140,7 @@ void block_copy(struct ZintSymbol * symbol, char grid[][120], int start_row, int
 	}
 }
 
-int code_one(struct ZintSymbol * symbol, uchar source[], int length)
+int code_one(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	int size = 1, i, j, data_blocks;
 	char datagrid[136][120];
@@ -1204,14 +1182,11 @@ int code_one(struct ZintSymbol * symbol, uchar source[], int length)
 			codewords = 4;
 			block_width = 2;
 		}
-
-		binary_load(elreg, (char*)source, length);
-
+		binary_load(elreg, (const char*)source, length);
 		for(i = 0; i < 15; i++) {
 			data[i] = 0;
 			ecc[i] = 0;
 		}
-
 		for(i = 0; i < codewords; i++) {
 			data[codewords - i - 1] += 1 * elreg[(i * 5)];
 			data[codewords - i - 1] += 2 * elreg[(i * 5) + 1];
@@ -1219,23 +1194,19 @@ int code_one(struct ZintSymbol * symbol, uchar source[], int length)
 			data[codewords - i - 1] += 8 * elreg[(i * 5) + 3];
 			data[codewords - i - 1] += 16 * elreg[(i * 5) + 4];
 		}
-
 		rs_init_gf(0x25);
 		rs_init_code(codewords, 1);
 		rs_encode_long(codewords, data, ecc);
 		rs_free();
-
 		for(i = 0; i < codewords; i++) {
 			stream[i] = data[i];
 			stream[i + codewords] = ecc[codewords - i - 1];
 		}
-
 		for(i = 0; i < 136; i++) {
 			for(j = 0; j < 120; j++) {
 				datagrid[i][j] = '0';
 			}
 		}
-
 		i = 0;
 		for(row = 0; row < 2; row++) {
 			for(col = 0; col < block_width; col++) {

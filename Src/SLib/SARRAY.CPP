@@ -899,7 +899,7 @@ void SLAPI SArray::clear()
 {
 	if(data && flags & aryEachItem) {
 		uint8 * p_org = data;
-		uint   lim = count * isize;
+		const uint lim = count * isize;
 		for(uint i = 0; i < lim; i += isize)
 			freeItem(_USERPTR(p_org + i));
 	}
@@ -910,7 +910,7 @@ void SLAPI SArray::freeAll()
 {
 	if(data) {
 		uint8 * p_org = data;
-		uint   lim = count * isize;
+		const uint lim = count * isize;
 		if(flags & aryEachItem) {
 			for(uint i = 0; i < lim; i += isize)
 				freeItem(_USERPTR(p_org + i));

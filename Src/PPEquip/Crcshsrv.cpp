@@ -359,7 +359,8 @@ static void SLAPI AddTimeToFileName(SString & fName)
 	const LTIME cur_time = getcurtime_();
 	SPathStruc ps;
 	ps.Split(fName);
-	ps.Nam.CatLongZ(cur_time.hour(), 2).CatLongZ(cur_time.minut(), 2).CatLongZ(cur_time.sec(), 2);
+	// @v9.7.0 ps.Nam.CatLongZ(cur_time.hour(), 2).CatLongZ(cur_time.minut(), 2).CatLongZ(cur_time.sec(), 2);
+	ps.Nam.Cat(cur_time, TIMF_HMS|TIMF_NODIV); // @v9.7.0
 	ps.Merge(fName);
 }
 
@@ -1116,8 +1117,8 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		getcurdatetime(&cur_dtm);
 		// @v9.0.9 name.Printf("%s_%02d-%02d-%04d_%02d-%02d-%02d", (const char*)sp.Nam, cur_dtm.d.day(), cur_dtm.d.month(), cur_dtm.d.year(), cur_dtm.t.hour(), cur_dtm.t.minut(), cur_dtm.t.sec());
 		// @v9.0.9 {
-		(name = sp.Nam).CatChar('_').CatLongZ(cur_dtm.d.day(), 2).CatChar('-').CatLongZ(cur_dtm.d.month(), 2).CatChar('-').CatLongZ(cur_dtm.d.year(), 4).
-			CatChar('_').CatLongZ(cur_dtm.t.hour(), 2).CatChar('-').CatLongZ(cur_dtm.t.minut(), 2).CatChar('-').CatLongZ(cur_dtm.t.sec(), 2);
+		(name = sp.Nam).CatChar('_').CatLongZ((long)cur_dtm.d.day(), 2).CatChar('-').CatLongZ((long)cur_dtm.d.month(), 2).CatChar('-').CatLongZ((long)cur_dtm.d.year(), 4).
+			CatChar('_').CatLongZ((long)cur_dtm.t.hour(), 2).CatChar('-').CatLongZ((long)cur_dtm.t.minut(), 2).CatChar('-').CatLongZ((long)cur_dtm.t.sec(), 2);
 		// } @v9.0.9
 		sp.Nam = name;
 		sp.Merge(path_cards);
@@ -4194,7 +4195,7 @@ int SLAPI ACS_CRCSHSRV::QueryFile(int filTyp, const char * pQueryBuf, LDATE quer
 
 SString & SLAPI ACS_CRCSHSRV::MakeQueryBuf(LDATE dt, SString & rBuf) const
 {
-	return (rBuf = 0).CatLongZ(dt.year(), 4).CatLongZ(dt.month(), 2).CatLongZ(dt.day(), 2);
+	return (rBuf = 0).CatLongZ((long)dt.year(), 4).CatLongZ((long)dt.month(), 2).CatLongZ((long)dt.day(), 2);
 }
 
 SString & SLAPI ACS_CRCSHSRV::MakeQueryBufV10(LDATE dt, SString & rBuf, int isZRep) const
@@ -4446,10 +4447,9 @@ int SLAPI ACS_CRCSHSRV::ImportZRepList(SArray * pZRepList, int isLocalFiles)
 	return ok;
 }
 
-#define MAX_COPIES 10
-
 int SLAPI ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 {
+	const long _max_copies = 10L; //#define MAX_COPIES 10L
 	long   start = 1L;
 	SString backup_dir, dest_path, ext;
 	SPathStruc sp;
@@ -4464,16 +4464,16 @@ int SLAPI ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 	backup_dir.Cat("backup").SetLastSlash();
 	createDir(backup_dir);
 	dest_path = MakeTempFileName(backup_dir, prefix, ext, &start, dest_path);
-	if(start > MAX_COPIES + 1) {
+	if(start > (_max_copies + 1)) {
 		const size_t pfx_len = prefix.Len();
 		SString prev_path, path;
-		for(long i = 1; i < MAX_COPIES; i++) {
+		for(long i = 1; i < _max_copies; i++) {
 			(path = backup_dir).Cat(prefix).CatLongZ(i, (int)(8 - pfx_len)).Dot().Cat(ext);
 			(prev_path = backup_dir).Cat(prefix).CatLongZ(i + 1, int(8 - pfx_len)).Dot().Cat(ext);
 			SFile::Remove(path);
 			SCopyFile(prev_path, path, 0, FILE_SHARE_READ, 0);
 		}
-		(dest_path = backup_dir).Cat(prefix).CatLongZ(MAX_COPIES, (int)(8 - pfx_len)).Dot().Cat(ext);
+		(dest_path = backup_dir).Cat(prefix).CatLongZ(_max_copies, (int)(8 - pfx_len)).Dot().Cat(ext);
 		SFile::Remove(dest_path);
 		dest_path = MakeTempFileName(backup_dir, prefix, ext, &(start = 10), dest_path);
 	}

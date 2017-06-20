@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Type 42 font parser (body).                                          */
 /*                                                                         */
-/*  Copyright 2002-2015 by                                                 */
+/*  Copyright 2002-2017 by                                                 */
 /*  Roberto Alameda.                                                       */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -899,8 +899,13 @@
 
     for (;;)
     {
-      /* The format is simple:                   */
-      /*   `/glyphname' + index [+ def]          */
+      /* We support two formats.                     */
+      /*                                             */
+      /*   `/glyphname' + index [+ `def']            */
+      /*   `(glyphname)' [+ `cvn'] + index [+ `def'] */
+      /*                                             */
+      /* The latter format gets created by the       */
+      /* LilyPond typesetting program.               */
 
       T1_Skip_Spaces( parser );
 
@@ -928,12 +933,13 @@
       if ( parser->root.error )
         return;
 
-      if ( *cur == '/' )
+      if ( *cur == '/' || *cur == '(' )
       {
         FT_UInt  len;
+        FT_Bool  have_literal = FT_BOOL( *cur == '(' );
 
 
-        if ( cur + 2 >= limit )
+        if ( cur + ( have_literal ? 3 : 2 ) >= limit )
         {
           FT_ERROR(( "t42_parse_charstrings: out of bounds\n" ));
           error = FT_THROW( Invalid_File_Format );
@@ -942,6 +948,8 @@
 
         cur++;                              /* skip `/' */
         len = (FT_UInt)( parser->root.cursor - cur );
+        if ( have_literal )
+          len--;
 
         error = T1_Add_Table( name_table, n, cur, len + 1 );
         if ( error )
@@ -960,6 +968,9 @@
         }
 
         T1_Skip_Spaces( parser );
+
+        if ( have_literal )
+          T1_Skip_PS_Token( parser );
 
         cur = parser->root.cursor;
 
@@ -1257,7 +1268,7 @@
   {
     FT_UNUSED( face );
 
-    FT_MEM_ZERO( loader, sizeof ( *loader ) );
+    FT_ZERO( loader );
     loader->num_glyphs = 0;
     loader->num_chars  = 0;
 

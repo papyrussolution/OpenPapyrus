@@ -23,14 +23,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-
-
-#define FT_MAKE_OPTION_SINGLE_OBJECT
-
-
+#define  FT_MAKE_OPTION_SINGLE_OBJECT
 #include <ft2build.h>
-#include "pcfutil.c"
-#include "pcfread.c"
+#pragma hdrstop
+
 #include "pcfdrivr.c"
+#include "pcfread.c"
+#include "pcfutil.c"
+
 
 /* END */

@@ -4112,7 +4112,7 @@ int SrDatabase::FormatProp(const SrCProp & rCp, long flags, SString & rBuf)
 	return 1;
 }
 
-int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, TSArray <PPOsm::NodeClusterStatEntry> * pStat)
+int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, int dontCheckExist, TSArray <PPOsm::NodeClusterStatEntry> * pStat)
 {
 	const  uint max_cluster_per_tx = 1024;
 	const  int  use_transaction = 1;
@@ -4134,7 +4134,7 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAs
                 uint64 fault_logical_id = 0;
                 PPOsm::Node found_node;
 				//int   sr = P_GnT->Search(p_node->ID, &found_node, 0, &fault_logical_id);
-				int   sr = P_GnT->Search(p_node->ID, &ex_cluster, &fault_logical_id);
+				int   sr = dontCheckExist ? -1 : P_GnT->Search(p_node->ID, &ex_cluster, &fault_logical_id);
 				THROW(sr);
 				if(sr > 0) {
 					{
@@ -4180,15 +4180,13 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAs
 					if(pStat) {
 						PPOsm::SetNodeClusterStat(*p_cluster, *pStat);
 					}
-					// @debug {
-					{
+					if(0) { // @debug 
 						test_list.clear();
 						p_cluster->Get(outer_id, test_list, 0 /*NodeRefs*/);
 						for(uint i = 0; i < test_list.getCount(); i++) {
 							assert(test_list.at(i) == p_node[i]);
 						}
 					}
-					// } @debug
 				}
 				offs += actual_count_;
 				if(cluster_list.getCount() >= max_cluster_per_tx) {
@@ -4203,7 +4201,7 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAs
 					}
 					THROW(tra.Commit());
 					PROFILE_END
-					PROFILE(cluster_list.freeAll());
+					PROFILE(cluster_list.clear());
 					outer_id_list.clear();
 				}
 			}

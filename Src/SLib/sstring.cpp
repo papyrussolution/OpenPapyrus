@@ -2952,10 +2952,52 @@ SString & FASTCALL SString::Cat(uint i)
 	return Cat(ultoa(i, temp_buf, 10));
 }
 
-SString & FASTCALL SString::CatLongZ(long val, int numDigits)
+char * SLAPI longfmtz(long val, int numDigits, char * pBuf, size_t bufLen)
 {
-	char   temp_buf[512];
-	return Cat(longfmtz(val, numDigits, temp_buf, sizeof(temp_buf)));
+	SString temp_buf;
+	temp_buf.CatLongZ(val, numDigits);
+	return strnzcpy(pBuf, temp_buf, bufLen);
+	/*
+	SString fmt_buf;
+	fmt_buf.CatChar('%');
+	if(numDigits > 0) {
+		fmt_buf.CatChar('0');
+		fmt_buf.Cat(numDigits);
+	}
+	char temp_buf[64];
+	fmt_buf.CatChar('l').CatChar('d');
+	sprintf(temp_buf, fmt_buf, val);
+	return strnzcpy(pBuf, temp_buf, bufLen);
+	*/
+}
+
+SString & FASTCALL SString::CatLongZ(long val, uint numDigits)
+{
+	if(numDigits > 0 && numDigits <= 512) {
+		SString temp_buf;
+		const size_t _slen = temp_buf.Cat(val).Len();
+		if(_slen < numDigits)
+			temp_buf.PadLeft(numDigits - _slen, '0');
+		Cat(temp_buf);
+	}
+	else
+		Cat(val);
+	return *this;
+	//return Cat(__longfmtz(val, numDigits, temp_buf, sizeof(temp_buf)));
+}
+
+SString & FASTCALL SString::CatLongZ(int64 val, uint numDigits)
+{
+	if(numDigits > 0 && numDigits <= 512) {
+		SString temp_buf;
+		const size_t _slen = temp_buf.Cat(val).Len();
+		if(_slen < numDigits)
+			temp_buf.PadLeft(numDigits - _slen, '0');
+		Cat(temp_buf);
+	}
+	else
+		Cat(val);
+	return *this;
 }
 
 SString & FASTCALL SString::CatHex(long val)
@@ -6102,6 +6144,55 @@ SLTEST_R(SString)
 			SLTEST_CHECK_EQ((str = "\t 0x1ABCDEF234567890").ToInt64(), 0x1ABCDEF234567890LL);
 			SLTEST_CHECK_EQ((str = "\t\t123000012878963").ToInt64(), 123000012878963LL);
 			SLTEST_CHECK_EQ((str = "-123000012878963").ToInt64(), -123000012878963LL);
+		}
+		{
+			LDATETIME dtm;
+			dtm.d.encode(29, 2, 2016);
+			dtm.t.encode(21, 17, 2, 250);
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_DMY), "29/02/16");
+			SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY), dtm.d);
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_DMY|DATF_CENTURY), "29/02/2016");
+			SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY), dtm.d);
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_GERMAN|DATF_CENTURY), "29.02.2016");
+			SLTEST_CHECK_EQ(strtodate_(str, DATF_GERMAN), dtm.d);
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_AMERICAN|DATF_CENTURY), "02/29/2016");
+			SLTEST_CHECK_EQ(strtodate_(str, DATF_AMERICAN), dtm.d);
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_ANSI|DATF_CENTURY), "2016.02.29");
+			SLTEST_CHECK_EQ(strtodate_(str, DATF_ANSI), dtm.d);
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_ITALIAN|DATF_CENTURY), "29-02-2016");
+			SLTEST_CHECK_EQ(strtodate_(str, DATF_ITALIAN), dtm.d);
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_ITALIAN), "29-02-16");
+			SLTEST_CHECK_EQ(strtodate_(str, DATF_ITALIAN), dtm.d);
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_JAPAN), "16/02/29");
+			SLTEST_CHECK_EQ(strtodate_(str, DATF_JAPAN), dtm.d);
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_ISO8601|DATF_CENTURY), "2016-02-29");
+			SLTEST_CHECK_EQ(strtodate_(str, DATF_ISO8601), dtm.d);
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_ISO8601), "16-02-29");
+			SLTEST_CHECK_EQ(strtodate_(str, DATF_ISO8601), dtm.d);
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_AMERICAN|DATF_CENTURY|DATF_NODIV), "02292016");
+			SLTEST_CHECK_EQ(strtodate_(str, DATF_AMERICAN|DATF_CENTURY|DATF_NODIV), dtm.d);
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_DMY|DATF_NODIV), "290216");
+			SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY|DATF_NODIV), dtm.d);
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_SQL), "DATE '2016-02-29'");
+			SLTEST_CHECK_EQ(strtodate_(str, DATF_SQL), dtm.d);
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_INTERNET), "Mon, 29 Feb 2016");
+			// (Такой формат не распознается) SLTEST_CHECK_EQ(strtodate_(str, DATF_INTERNET), dtm.d);
+			SLTEST_CHECK_EQ((str = 0).Cat(ZERODATE, DATF_DMY), "");
+			SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY), ZERODATE);
+			SLTEST_CHECK_EQ((str = 0).Cat(ZERODATE, DATF_DMY|DATF_NOZERO), "");
+			SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY|DATF_NOZERO), ZERODATE);
+
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.t, TIMF_HMS), "21:17:02");
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.t, TIMF_HMS|TIMF_NODIV), "211702");
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.t, TIMF_HM), "21:17");
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.t, TIMF_HM|TIMF_NODIV), "2117");
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.t, TIMF_MS), "17:02");
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.t, TIMF_MS|TIMF_NODIV), "1702");
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm.t, TIMF_HMS|TIMF_MSEC), "21:17:02.250");
+
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), "2016-02-29T21:17:02");
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm, DATF_ISO8601, 0), "16-02-29T21:17:02");
+			SLTEST_CHECK_EQ((str = 0).Cat(dtm, DATF_MDY|DATF_CENTURY, TIMF_HMS|TIMF_MSEC), "02/29/2016 21:17:02.250");
 		}
 		{
 			IntRange ir;

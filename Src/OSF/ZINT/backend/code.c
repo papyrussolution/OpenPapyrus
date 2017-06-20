@@ -340,21 +340,18 @@ int ec39(struct ZintSymbol * symbol, uchar source[], int length)
 }
 
 /* Code 93 is an advancement on Code 39 and the definition is a lot tighter */
-int c93(struct ZintSymbol * symbol, uchar source[], int length)
+int c93(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	/* SILVER includes the extra characters a, b, c and d to represent Code 93 specific
 	   shift characters 1, 2, 3 and 4 respectively. These characters are never used by
 	   c39() and ec39() */
-
 	int i;
-	int h, weight, c, k, values[128], error_number;
+	int  h, weight, c, k, values[128];
 	char buffer[220];
 	char dest[670];
 	char set_copy[] = SILVER;
-
-	error_number = 0;
+	int  error_number = 0;
 	sstrcpy(buffer, "");
-
 	if(length > 107) {
 		sstrcpy(symbol->errtxt, "Input too long (C2A)");
 		return ZINT_ERROR_TOO_LONG;
@@ -477,9 +474,10 @@ void NextS(int Chan, int i, int MaxS, int MaxB)
 		NextB(Chan, i, MaxB, MaxS + 1 - s);
 	}
 }
-
-/* Channel Code - According to ANSI/AIM BC12-1998 */
-int channel_code(struct ZintSymbol * symbol, uchar source[], int length)
+//
+// Channel Code - According to ANSI/AIM BC12-1998 
+//
+int channel_code(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	int channels, i;
 	int error_number = 0, range = 0, zeroes;

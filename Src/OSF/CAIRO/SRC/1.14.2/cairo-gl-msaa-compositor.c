@@ -40,7 +40,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-clip-inline.h"
+//#include "cairo-clip-inline.h"
 #include "cairo-composite-rectangles-private.h"
 #include "cairo-compositor-private.h"
 #include "cairo-path-private.h"

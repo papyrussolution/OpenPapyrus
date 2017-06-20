@@ -327,8 +327,7 @@ void _cairo_gl_solid_operand_init(cairo_gl_operand_t * operand,
 	operand->constant.color[3] = color->alpha;
 }
 
-void _cairo_gl_operand_translate(cairo_gl_operand_t * operand,
-    double tx, double ty)
+void _cairo_gl_operand_translate(cairo_gl_operand_t * operand, double tx, double ty)
 {
 	switch(operand->type) {
 		case CAIRO_GL_OPERAND_TEXTURE:
@@ -360,15 +359,11 @@ static cairo_status_t _cairo_gl_gradient_operand_init(cairo_gl_operand_t * opera
 	const cairo_gradient_pattern_t * gradient = (const cairo_gradient_pattern_t*)pattern;
 	cairo_status_t status;
 
-	assert(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR ||
-	    gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL);
-
+	assert(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR || gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL);
 	if(!_cairo_gl_device_has_glsl(dst->base.device))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
-	status = _cairo_gl_create_gradient_texture(dst,
-	    gradient,
-	    &operand->gradient.gradient);
+	status = _cairo_gl_create_gradient_texture(dst, gradient, &operand->gradient.gradient);
 	if(unlikely(status))
 		return status;
 

@@ -1864,6 +1864,16 @@ int SLAPI GetCommConfig(PPCommConfig * pCfg)
 		pCfg->SellAcct.ac  = DEFAC_SELL;
 		pCfg->CashAcct.ac  = DEFAC_CASH;
 	}
+	// @v9.7.0 { Теперь вместо кода товара хранится его идентификатора.
+	// Для прозрачной обратной совместимости, сформируем значение идентификатора из кода, если таковой задан.
+	if(!pCfg->PrepayInvoiceGoodsID && pCfg->PrepayInvoiceGoodsCode_obsolete[0]) {
+		PPObjGoods goods_obj;
+		Goods2Tbl::Rec goods_rec;
+		if(goods_obj.SearchByBarcode(pCfg->PrepayInvoiceGoodsCode_obsolete, 0, &goods_rec) > 0) {
+			pCfg->PrepayInvoiceGoodsID = goods_rec.ID;
+		}
+	}
+	// } @v9.7.0 
 	if(pCfg->MainOrgID == 0) {
 		PPObjPerson psn_obj;
 		PersonTbl::Rec psn_rec;

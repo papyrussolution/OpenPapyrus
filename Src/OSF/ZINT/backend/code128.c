@@ -293,9 +293,10 @@ void c128_set_c(uchar source_a, uchar source_b, char dest[], int values[], int *
 	values[(*bar_chars)] = weight;
 	(*bar_chars)++;
 }
-
-/* Handle Code 128 and NVE-18 */
-int code_128(struct ZintSymbol * symbol, uchar source[], int length)
+//
+// Handle Code 128 and NVE-18 
+//
+int code_128(struct ZintSymbol * symbol, const uchar source[], int length)
 {
 	int    i, k, values[170] = {0};
 	int    read, total_sum;

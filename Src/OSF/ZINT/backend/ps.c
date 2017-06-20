@@ -998,21 +998,17 @@ int ps_plot(struct ZintSymbol * symbol)
 		fprintf(feps, "setmatrix\n");
 	}
 	fprintf(feps, "\nshowpage\n");
-
 	if(symbol->output_options & BARCODE_STDOUT) {
 		fflush(feps);
 	}
 	else {
 		fclose(feps);
 	}
-
 	if(locale)
 		setlocale(LC_ALL, locale);
-
 #ifdef _MSC_VER
 	SAlloc::F(local_text);
 #endif
-
 	return error_number;
 }
 

@@ -40,15 +40,15 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-clip-private.h"
+//#include "cairo-clip-private.h"
 #include "cairo-freed-pool-private.h"
 #include "cairo-gstate-private.h"
 #include "cairo-path-fixed-private.h"
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 #include "cairo-composite-rectangles-private.h"
 #include "cairo-region-private.h"
 
-static void _cairo_clip_extract_region(cairo_clip_t * clip)
+static void FASTCALL _cairo_clip_extract_region(cairo_clip_t * clip)
 {
 	CairoIRect stack_rects[CAIRO_STACK_ARRAY_LENGTH(CairoIRect)];
 	CairoIRect * r = stack_rects;
@@ -63,56 +63,44 @@ static void _cairo_clip_extract_region(cairo_clip_t * clip)
 			return;
 		}
 	}
-
 	is_region = clip->path == NULL;
 	for(i = 0; i < clip->num_boxes; i++) {
 		cairo_box_t * b = &clip->boxes[i];
 		if(is_region)
-			is_region =
-			    _cairo_fixed_is_integer(b->p1.x | b->p1.y |  b->p2.x | b->p2.y);
+			is_region = _cairo_fixed_is_integer(b->p1.x | b->p1.y |  b->p2.x | b->p2.y);
 		r[i].x = _cairo_fixed_integer_floor(b->p1.x);
 		r[i].y = _cairo_fixed_integer_floor(b->p1.y);
 		r[i].width  = _cairo_fixed_integer_ceil(b->p2.x) - r[i].x;
 		r[i].height = _cairo_fixed_integer_ceil(b->p2.y) - r[i].y;
 	}
 	clip->is_region = is_region;
-
 	clip->region = cairo_region_create_rectangles(r, i);
-
 	if(r != stack_rects)
 		SAlloc::F(r);
 }
 
-cairo_region_t * _cairo_clip_get_region(const cairo_clip_t * clip)
+cairo_region_t * FASTCALL _cairo_clip_get_region(const cairo_clip_t * clip)
 {
 	if(clip == NULL)
 		return NULL;
-
 	if(clip->region == NULL)
 		_cairo_clip_extract_region((cairo_clip_t*)clip);
-
 	return clip->region;
 }
 
-cairo_bool_t _cairo_clip_is_region(const cairo_clip_t * clip)
+cairo_bool_t FASTCALL _cairo_clip_is_region(const cairo_clip_t * clip)
 {
 	if(clip == NULL)
 		return TRUE;
-
 	if(clip->is_region)
 		return TRUE;
-
 	/* XXX Geometric reduction? */
-
 	if(clip->path)
 		return FALSE;
-
 	if(clip->num_boxes == 0)
 		return TRUE;
-
 	if(clip->region == NULL)
 		_cairo_clip_extract_region((cairo_clip_t*)clip);
-
 	return clip->is_region;
 }
 

@@ -1003,7 +1003,7 @@ static void qr_finder_ransac(qr_finder * _f, const qr_aff * _hom, isaac_ctx * _i
 			   We grossly approximate the standard deviation as 1 pixel in one
 			   direction, and 0.5 pixels in the other (because we average two
 			   coordinates).*/
-			thresh = qr_isqrt(qr_point_distance2(p0, p1)<<2*QR_FINDER_SUBPREC+1);
+			thresh = qr_isqrt(qr_point_distance2(p0, p1)<<(2*QR_FINDER_SUBPREC+1));
 			ninliers = 0;
 			for(j = 0; j<n; j++) {
 				if(abs(qr_point_ccw(p0, p1, edge_pts[j].pos))<=thresh) {
@@ -3074,7 +3074,7 @@ static int qr_pack_buf_read(qr_pack_buf * _b, int _bits)
 			return 0;
 	}
 	p = _b->buf+_b->endbyte;
-	ret = p[0]<<8+_b->endbit;
+	ret = p[0]<<(8+_b->endbit);
 	if(_bits>8) {
 		ret |= p[1]<<_b->endbit;
 		if(_bits > 16) 

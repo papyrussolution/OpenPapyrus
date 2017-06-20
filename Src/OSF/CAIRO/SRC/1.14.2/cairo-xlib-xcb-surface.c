@@ -42,10 +42,8 @@
 
 #include "cairo-xlib.h"
 #include "cairo-xcb.h"
-
 #include "cairo-xcb-private.h"
 #include "cairo-xlib-xrender-private.h"
-
 #include "cairo-default-context-private.h"
 #include "cairo-list-inline.h"
 #include "cairo-image-surface-private.h"

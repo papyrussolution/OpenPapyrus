@@ -409,7 +409,7 @@ static cairo_surface_t * _cairo_gl_surface_create_scratch_for_texture(cairo_gl_c
 {
 	cairo_gl_surface_t * surface;
 
-	surface = calloc(1, sizeof(cairo_gl_surface_t));
+	surface = SAlloc::C(1, sizeof(cairo_gl_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 

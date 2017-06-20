@@ -64,19 +64,15 @@ struct _cairo_xcb_shm_mem_pool {
 	int shmid;
 	uint32_t shmseg;
 	void * shm;
-
 	cairo_mempool_t mem;
-
 	cairo_list_t link;
 };
 
 static void _cairo_xcb_shm_mem_pool_destroy(cairo_xcb_shm_mem_pool_t * pool)
 {
 	cairo_list_del(&pool->link);
-
 	shmdt(pool->shm);
 	_cairo_mempool_fini(&pool->mem);
-
 	free(pool);
 }
 

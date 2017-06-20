@@ -10,15 +10,15 @@
 #pragma hdrstop
 #include "dbinc_auto/db_ext.h"
 
-static int __log_encrypt_record __P((ENV*, DBT*, HDR*, uint32));
-static int __log_file __P((ENV*, const DB_LSN*, char *, size_t));
-static int __log_fill __P((DB_LOG*, DB_LSN*, void *, uint32));
-static int __log_flush_commit __P((ENV*, const DB_LSN*, uint32));
-static int __log_newfh __P((DB_LOG*, int));
-static int __log_put_next __P((ENV*, DB_LSN*, const DBT*, HDR*, DB_LSN *));
-static int __log_put_record_int __P((ENV*, DB*, DB_TXN*, DB_LSN*, uint32, uint32, uint32, uint32, DB_LOG_RECSPEC*, va_list));
-static int __log_putr __P((DB_LOG*, DB_LSN*, const DBT*, uint32, HDR *));
-static int __log_write __P((DB_LOG*, void *, uint32));
+static int __log_encrypt_record(ENV*, DBT*, HDR*, uint32);
+static int __log_file(ENV*, const DB_LSN*, char *, size_t);
+static int __log_fill(DB_LOG*, DB_LSN*, void *, uint32);
+static int __log_flush_commit(ENV*, const DB_LSN*, uint32);
+static int __log_newfh(DB_LOG*, int);
+static int __log_put_next(ENV*, DB_LSN*, const DBT*, HDR*, DB_LSN *);
+static int __log_put_record_int(ENV*, DB*, DB_TXN*, DB_LSN*, uint32, uint32, uint32, uint32, DB_LOG_RECSPEC*, va_list);
+static int __log_putr(DB_LOG*, DB_LSN*, const DBT*, uint32, HDR *);
+static int __log_write(DB_LOG*, void *, uint32);
 /*
  * __log_put_pp --
  *	ENV->log_put pre/post processing.
@@ -53,28 +53,21 @@ int __log_put_pp(DB_ENV * dbenv, DB_LSN * lsnp, const DBT * udbt, uint32 flags)
  */
 int __log_put(ENV * env, DB_LSN * lsnp, const DBT * udbt, uint32 flags)
 {
-	DBT * dbt, t;
-	DB_CIPHER * db_cipher;
 	DB_LSN lsn, old_lsn;
-	DB_REP * db_rep;
-	HDR hdr;
-	REP * rep;
-	int lock_held, need_free, ret;
+	HDR    hdr;
+	int    ret;
 	uint8 * key;
 	DB_LOG * dblp = env->lg_handle;
 	LOG * lp = (LOG *)dblp->reginfo.primary;
-	db_cipher = env->crypto_handle;
-	db_rep = env->rep_handle;
-	if(db_rep != NULL)
-		rep = db_rep->region;
-	else
-		rep = NULL;
-	dbt = &t;
-	t = *udbt;
-	lock_held = need_free = 0;
+	DB_CIPHER * db_cipher = env->crypto_handle;
+	DB_REP * db_rep = env->rep_handle;
+	REP  * rep = db_rep ? db_rep->region : NULL;
+	DBT    t = *udbt;
+	DBT  * dbt = &t;
+	int    lock_held = 0;
+	int    need_free = 0;
 	ZERO_LSN(old_lsn);
 	hdr.len = hdr.prev = 0;
-
 	/*
 	 * In general, if we are not a rep application, but are sharing a master
 	 * rep env, we should not be writing log records.  However, we can allow
@@ -137,7 +130,6 @@ int __log_put(ENV * env, DB_LSN * lsnp, const DBT * udbt, uint32 flags)
 	 */
 	lsnp->file = lsn.file;
 	lsnp->Offset_ = lsn.Offset_;
-
 #ifdef HAVE_REPLICATION
 	if(IS_REP_MASTER(env)) {
 		__rep_newfile_args nf_args;
@@ -146,13 +138,11 @@ int __log_put(ENV * env, DB_LSN * lsnp, const DBT * udbt, uint32 flags)
 		size_t len;
 		uint32 ctlflags;
 		uint8 buf[__REP_NEWFILE_SIZE];
-
 		/*
 		 * Replication masters need to drop the lock to send messages,
 		 * but want to drop and reacquire it a minimal number of times.
 		 */
-		ctlflags = LF_ISSET(DB_LOG_COMMIT|DB_LOG_CHKPNT) ?
-		           REPCTL_PERM : 0;
+		ctlflags = LF_ISSET(DB_LOG_COMMIT|DB_LOG_CHKPNT) ? REPCTL_PERM : 0;
 		LOG_SYSTEM_UNLOCK(env);
 		lock_held = 0;
 		if(LF_ISSET(DB_FLUSH))
@@ -170,11 +160,9 @@ int __log_put(ENV * env, DB_LSN * lsnp, const DBT * udbt, uint32 flags)
 		if(!IS_ZERO_LSN(old_lsn)) {
 			memzero(&newfiledbt, sizeof(newfiledbt));
 			nf_args.version = lp->persist.version;
-			__rep_newfile_marshal(env, &nf_args,
-				buf, __REP_NEWFILE_SIZE, &len);
+			__rep_newfile_marshal(env, &nf_args, buf, __REP_NEWFILE_SIZE, &len);
 			DB_INIT_DBT(newfiledbt, buf, len);
-			__rep_send_message(env, DB_EID_BROADCAST,
-				REP_NEWFILE, &old_lsn, &newfiledbt, 0, 0);
+			__rep_send_message(env, DB_EID_BROADCAST, REP_NEWFILE, &old_lsn, &newfiledbt, 0, 0);
 		}
 		/*
 		 * If we're doing bulk processing put it in the bulk buffer.
@@ -185,8 +173,7 @@ int __log_put(ENV * env, DB_LSN * lsnp, const DBT * udbt, uint32 flags)
 			 * Bulk could have been turned on by another process.
 			 * If so, set the address into the bulk region now.
 			 */
-			if(db_rep->bulk == NULL)
-				db_rep->bulk = (uint8 *)R_ADDR(&dblp->reginfo, lp->bulk_buf);
+			SETIFZ(db_rep->bulk, (uint8 *)R_ADDR(&dblp->reginfo, lp->bulk_buf));
 			memzero(&bulk, sizeof(bulk));
 			bulk.addr = db_rep->bulk;
 			bulk.offp = &lp->bulk_off;
@@ -195,11 +182,9 @@ int __log_put(ENV * env, DB_LSN * lsnp, const DBT * udbt, uint32 flags)
 			bulk.type = REP_BULK_LOG;
 			bulk.eid = DB_EID_BROADCAST;
 			bulk.flagsp = &lp->bulk_flags;
-			ret = __rep_bulk_message(env, &bulk, NULL,
-				&lsn, udbt, ctlflags);
+			ret = __rep_bulk_message(env, &bulk, NULL, &lsn, udbt, ctlflags);
 		}
-		if(!FLD_ISSET(rep->config, REP_C_BULK) ||
-		   ret == DB_REP_BULKOVF) {
+		if(!FLD_ISSET(rep->config, REP_C_BULK) || ret == DB_REP_BULKOVF) {
 			/*
 			 * Then send the log record itself on to our clients.
 			 */
@@ -209,8 +194,7 @@ int __log_put(ENV * env, DB_LSN * lsnp, const DBT * udbt, uint32 flags)
 			 * now-encrypted dbt.  Clients have no way to decrypt
 			 * without the header.
 			 */
-			ret = __rep_send_message(env, DB_EID_BROADCAST,
-				REP_LOG, &lsn, udbt, ctlflags, 0);
+			ret = __rep_send_message(env, DB_EID_BROADCAST, REP_LOG, &lsn, udbt, ctlflags, 0);
 		}
 		if(FLD_ISSET(ctlflags, REPCTL_PERM)) {
 			LOG_SYSTEM_LOCK(env);
@@ -570,7 +554,6 @@ int __log_newfile(DB_LOG * dblp, DB_LSN * lsnp, uint32 logfile, uint32 version)
 	 */
 	memzero(&t, sizeof(t));
 	memzero(&hdr, sizeof(HDR));
-
 	need_free = 0;
 	tsize = sizeof(LOGP);
 	db_cipher = env->crypto_handle;
@@ -593,8 +576,7 @@ int __log_newfile(DB_LOG * dblp, DB_LSN * lsnp, uint32 logfile, uint32 version)
 	DB_SET_DBT(t, tpersist, tsize);
 	if(LOG_SWAPPED(env))
 		__log_persistswap(tpersist);
-	if((ret =
-	            __log_encrypt_record(env, &t, &hdr, (uint32)tsize)) != 0)
+	if((ret = __log_encrypt_record(env, &t, &hdr, (uint32)tsize)) != 0)
 		goto err;
 #ifdef HAVE_LOG_CHECKSUM
 	if(lp->persist.version != DB_LOGVERSION)
@@ -604,9 +586,7 @@ int __log_newfile(DB_LOG * dblp, DB_LSN * lsnp, uint32 logfile, uint32 version)
 #endif
 	if((ret = __log_putr(dblp, &lsn, &t, lastoff == 0 ? 0 : lastoff-lp->len, &hdr)) != 0)
 		goto err;
-	/* Update the LSN information returned to the caller. */
-	if(lsnp != NULL)
-		*lsnp = lp->lsn;
+	ASSIGN_PTR(lsnp, lp->lsn); // Update the LSN information returned to the caller
 err:
 	if(need_free)
 		__os_free(env, tpersist);
@@ -633,10 +613,7 @@ static int __log_putr(DB_LOG * dblp, DB_LSN * lsn, const DBT * dbt, uint32 prev,
 	if(h == NULL) {
 		hdr = &tmp;
 		memzero(hdr, sizeof(HDR));
-		if(CRYPTO_ON(env))
-			hdr->size = HDR_CRYPTO_SZ;
-		else
-			hdr->size = HDR_NORMAL_SZ;
+		hdr->size = CRYPTO_ON(env) ? HDR_CRYPTO_SZ : HDR_NORMAL_SZ;
 	}
 	else
 		hdr = h;
@@ -1333,8 +1310,7 @@ int __log_put_record(ENV * env, DB * dbp, DB_TXN * txnp, DB_LSN * ret_lsnp, uint
 	va_list argp;
 	int ret;
 	va_start(argp, spec);
-	ret = __log_put_record_int(env, dbp, txnp, ret_lsnp, flags,
-		rectype, has_data, size, spec, argp);
+	ret = __log_put_record_int(env, dbp, txnp, ret_lsnp, flags, rectype, has_data, size, spec, argp);
 	va_end(argp);
 	return ret;
 }
@@ -1353,7 +1329,6 @@ static int __log_put_record_int(ENV * env, DB * dbp, DB_TXN * txnp, DB_LSN * ret
 	uint8 * bp;
 	int is_durable, ret;
 	void * hdrstart;
-
 	COMPQUIET(lr, NULL);
 	COMPQUIET(hdrsize, 0);
 	COMPQUIET(op, 0);
@@ -1367,10 +1342,7 @@ static int __log_put_record_int(ENV * env, DB * dbp, DB_TXN * txnp, DB_LSN * ret
 	 * may be the lsn of a page and we do not want to set it if
 	 * the log_put fails after writing the record (due to an I/O error).
 	 */
-	if(LF_ISSET(DB_LOG_COMMIT))
-		rlsnp = ret_lsnp;
-	else
-		rlsnp = &lsn;
+	rlsnp = LF_ISSET(DB_LOG_COMMIT) ? ret_lsnp : &lsn;
 	npad = 0;
 	ret = 0;
 	data = NULL;
@@ -1477,7 +1449,7 @@ static int __log_put_record_int(ENV * env, DB * dbp, DB_TXN * txnp, DB_LSN * ret
 					__db_recordswap(op, dbt->size, bp, NULL, 0);
 				else if(sp->type == LOGREC_HDR) {
 					hdrstart = bp;
-					hdrsize = dbt == NULL ? 0 : dbt->size;
+					hdrsize = dbt ? dbt->size : 0;
 				}
 				else if(sp->type == LOGREC_DATA) {
 					__db_recordswap(op, hdrsize, hdrstart, bp, 0);

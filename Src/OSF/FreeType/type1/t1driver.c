@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Type 1 driver interface (body).                                      */
 /*                                                                         */
-/*  Copyright 1996-2015 by                                                 */
+/*  Copyright 1996-2017 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -29,6 +29,7 @@
 
 #include FT_INTERNAL_DEBUG_H
 #include FT_INTERNAL_STREAM_H
+#include FT_INTERNAL_HASH_H
 
 #include FT_SERVICE_MULTIPLE_MASTERS_H
 #include FT_SERVICE_GLYPH_DICT_H
@@ -121,8 +122,13 @@
     (FT_Get_MM_Func)        T1_Get_Multi_Master,   /* get_mm         */
     (FT_Set_MM_Design_Func) T1_Set_MM_Design,      /* set_mm_design  */
     (FT_Set_MM_Blend_Func)  T1_Set_MM_Blend,       /* set_mm_blend   */
+    (FT_Get_MM_Blend_Func)  T1_Get_MM_Blend,       /* get_mm_blend   */
     (FT_Get_MM_Var_Func)    T1_Get_MM_Var,         /* get_mm_var     */
-    (FT_Set_Var_Design_Func)T1_Set_Var_Design      /* set_var_design */
+    (FT_Set_Var_Design_Func)T1_Set_Var_Design,     /* set_var_design */
+    (FT_Get_Var_Design_Func)T1_Get_Var_Design,     /* get_var_design */
+
+    (FT_Get_Var_Blend_Func) NULL,                  /* get_var_blend  */
+    (FT_Done_Blend_Func)    T1_Done_Blend          /* done_blend     */
   };
 #endif
 
@@ -329,13 +335,37 @@
       break;
 
     case PS_DICT_SUBR:
-      if ( idx < (FT_UInt)type1->num_subrs )
       {
-        retval = type1->subrs_len[idx] + 1;
-        if ( value && value_len >= retval )
+        FT_Bool  ok = 0;
+
+
+        if ( type1->subrs_hash )
         {
-          ft_memcpy( value, (void *)( type1->subrs[idx] ), retval - 1 );
-          ((FT_Char *)value)[retval - 1] = (FT_Char)'\0';
+          /* convert subr index to array index */
+          size_t*  val = ft_hash_num_lookup( (FT_Int)idx,
+                                             type1->subrs_hash );
+
+
+          if ( val )
+          {
+            idx = *val;
+            ok  = 1;
+          }
+        }
+        else
+        {
+          if ( idx < (FT_UInt)type1->num_subrs )
+            ok = 1;
+        }
+
+        if ( ok )
+        {
+          retval = type1->subrs_len[idx] + 1;
+          if ( value && value_len >= retval )
+          {
+            ft_memcpy( value, (void *)( type1->subrs[idx] ), retval - 1 );
+            ((FT_Char *)value)[retval - 1] = (FT_Char)'\0';
+          }
         }
       }
       break;
@@ -689,7 +719,7 @@
       0x10000L,
       0x20000L,
 
-      0,    /* module-specific interface */
+      NULL,    /* module-specific interface */
 
       T1_Driver_Init,           /* FT_Module_Constructor  module_init   */
       T1_Driver_Done,           /* FT_Module_Destructor   module_done   */
@@ -710,8 +740,8 @@
     T1_Load_Glyph,              /* FT_Slot_LoadFunc  load_glyph */
 
 #ifdef T1_CONFIG_OPTION_NO_AFM
-    0,                          /* FT_Face_GetKerningFunc   get_kerning  */
-    0,                          /* FT_Face_AttachFunc       attach_file  */
+    NULL,                       /* FT_Face_GetKerningFunc   get_kerning  */
+    NULL,                       /* FT_Face_AttachFunc       attach_file  */
 #else
     Get_Kerning,                /* FT_Face_GetKerningFunc   get_kerning  */
     T1_Read_Metrics,            /* FT_Face_AttachFunc       attach_file  */
@@ -719,7 +749,7 @@
     T1_Get_Advances,            /* FT_Face_GetAdvancesFunc  get_advances */
 
     T1_Size_Request,            /* FT_Size_RequestFunc  request_size */
-    0                           /* FT_Size_SelectFunc   select_size  */
+    NULL                        /* FT_Size_SelectFunc   select_size  */
   };
 
 

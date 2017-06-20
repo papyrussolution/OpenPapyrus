@@ -772,6 +772,8 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 		if(CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_CHECK)) {
 			if(!(pack.Rec.Flags & BILLF_CHECK) || (PPMaster && PPMessage(mfConf|mfYesNo, PPCFM_BILLCHECKED) == cmYes)) {
 				int    sync_prn_err = 0;
+				Goods2Tbl::Rec goods_rec;
+				const  PPID prepay_goods_id = (CConfig.PrepayInvoiceGoodsID && GObj.Fetch(CConfig.PrepayInvoiceGoodsID, &goods_rec) > 0) ? goods_rec.ID : 0;
 				_CcByBillParam param; // @v9.5.7
 				param.PosNodeID = node_id;
 				param.DivisionN = 0;
@@ -781,31 +783,33 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 				THROW(p_cm->SyncAllowPrint());
 				if(_EditCcByBillParam(param) > 0) {
 					PPWait(1);
-					if(CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_CHECKTI) &&
-						(oneof3(pack.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN) || pack.IsDraft())) {
-						//CheckPaymMethod paym_method = cpmCash;
-						//uint   v = 0;
-						/*if(SelectorDialog(DLG_CHKPAYM, CTL_CHKPAYM_METHOD, &v) > 0) {
-							if(v == 0)
-								paym_method = cpmCash;
-							else if(v == 1)
-								paym_method = cpmBank;
-							*/
-						{
-							double dscnt = 0.0;
-							PPTransferItem * ti;
-							CCheckPacket cp;
-							cp.Init();
+					if(oneof3(pack.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN) || pack.IsDraft()) {
+						double cc_amount = 0.0;
+						double dscnt = 0.0;
+						PPTransferItem * ti;
+						CCheckPacket cp;
+						cp.Init();
+						if(pack.Rec.Memo[0])
+							STRNSCPY(cp.Ext.Memo, pack.Rec.Memo);
+						if(CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_CHECKTI)) {
 							for(uint i = 0; pack.EnumTItems(&i, &ti);) {
 								double qtty = fabs(ti->Quantity_);
 								double n_pr = ti->NetPrice();
 								THROW(cp.InsertItem(ti->GoodsID, qtty, n_pr, 0.0, param.DivisionN));
-								amt   += R2(n_pr * qtty);
+								cc_amount += R2(n_pr * qtty);
 								dscnt += R2(ti->Discount * qtty);
 							}
-							LDBLTOMONEY(amt,   cp.Rec.Amount);
+						}
+						else if(prepay_goods_id) {
+							double qtty = 1.0;
+							double n_pr = pack.GetAmount();
+							THROW(cp.InsertItem(prepay_goods_id, qtty, n_pr, 0.0, param.DivisionN));
+							cc_amount += R2(n_pr * qtty);
+						}
+						if(cp.GetCount()) {
+							LDBLTOMONEY(cc_amount, cp.Rec.Amount);
 							LDBLTOMONEY(dscnt, cp.Rec.Discount);
-							cp._Cash = amt;
+							cp._Cash = cc_amount;
 							if(oneof3(pack.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN, PPOPT_DRAFTRECEIPT))
 								cp.Rec.Flags |= CCHKF_RETURN;
 							if(param.PaymType == cpmBank)
@@ -814,21 +818,77 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 						}
 					}
 					else {
-						double mult = 1.0;
-						PPBillPacket link_pack, * p_pack = 0;
-						if(oneof4(pack.OpTypeID, PPOPT_ACCTURN, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN)) {
-							p_pack = &pack;
-							amt    = p_pack->GetAmount();
-						}
-						else if(pack.OpTypeID == PPOPT_PAYMENT) {
+						if(pack.OpTypeID == PPOPT_PAYMENT) {
+							PPBillPacket link_pack; //, * p_pack = 0;
+							double mult = 1.0;
 							THROW(ExtractPacket(pack.Rec.LinkBillID, &link_pack) > 0);
-							p_pack = &link_pack;
+							//p_pack = &link_pack;
 							amt = link_pack.GetAmount();
-							if(amt != 0.0)
+							if(amt != 0.0) {
 								mult = pack.GetAmount() / amt;
+								{
+									double cc_amount = 0.0;
+									double dscnt = 0.0;
+									PPTransferItem * ti;
+									CCheckPacket cp;
+									cp.Init();
+									if(pack.Rec.Memo[0])
+										STRNSCPY(cp.Ext.Memo, pack.Rec.Memo);
+									if(CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_CHECKTI)) {
+										for(uint i = 0; link_pack.EnumTItems(&i, &ti);) {
+											double qtty = R6(fabs(ti->Quantity_) * mult);
+											double n_pr = ti->NetPrice();
+											THROW(cp.InsertItem(ti->GoodsID, qtty, n_pr, 0.0, param.DivisionN));
+											cc_amount += R2(n_pr * qtty);
+											dscnt += R2(ti->Discount * qtty);
+										}
+									}
+									else if(prepay_goods_id) {
+										double qtty = 1.0;
+										double n_pr = pack.GetAmount();
+										THROW(cp.InsertItem(prepay_goods_id, qtty, n_pr, 0.0, param.DivisionN));
+										cc_amount += R2(n_pr * qtty);
+									}
+									if(cp.GetCount()) {
+										LDBLTOMONEY(cc_amount, cp.Rec.Amount);
+										LDBLTOMONEY(dscnt, cp.Rec.Discount);
+										cp._Cash = cc_amount;
+										if(oneof3(link_pack.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN, PPOPT_DRAFTRECEIPT))
+											cp.Rec.Flags |= CCHKF_RETURN;
+										if(param.PaymType == cpmBank)
+											cp.Rec.Flags |= CCHKF_BANKING;
+										ok = p_cm->SyncPrintCheck(&cp, 1);
+									}
+								}
+							}
 						}
-						if(amt != 0.0)
+						else if(pack.OpTypeID == PPOPT_ACCTURN) {
+							double cc_amount = 0.0;
+							double dscnt = 0.0;
+							CCheckPacket cp;
+							cp.Init();
+							if(pack.Rec.Memo[0])
+								STRNSCPY(cp.Ext.Memo, pack.Rec.Memo);
+							if(prepay_goods_id) {
+								double qtty = 1.0;
+								double n_pr = pack.GetAmount();
+								THROW(cp.InsertItem(prepay_goods_id, qtty, n_pr, 0.0, param.DivisionN));
+								cc_amount += R2(n_pr * qtty);
+							}
+							if(cp.GetCount()) {
+								LDBLTOMONEY(cc_amount, cp.Rec.Amount);
+								LDBLTOMONEY(dscnt, cp.Rec.Discount);
+								cp._Cash = cc_amount;
+								if(param.PaymType == cpmBank)
+									cp.Rec.Flags |= CCHKF_BANKING;
+								ok = p_cm->SyncPrintCheck(&cp, 1);
+							}
+						}
+						/*
+						if(amt != 0.0) {
 							ok = p_cm->SyncPrintCheckByBill(p_pack, mult, param.DivisionN);
+						}
+						*/
 					}
 					PPWait(0);
 					if(ok == 0)

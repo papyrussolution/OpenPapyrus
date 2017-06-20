@@ -44,7 +44,7 @@
 #define _BSD_SOURCE /* for snprintf() */
 #include "cairo-svg.h"
 #include "cairo-array-private.h"
-#include "cairo-analysis-surface-private.h"
+//#include "cairo-analysis-surface-private.h"
 #include "cairo-default-context-private.h"
 #include "cairo-image-info-private.h"
 #include "cairo-image-surface-private.h"
@@ -1039,24 +1039,18 @@ static cairo_int_status_t _cairo_surface_base64_encode(cairo_surface_t * surface
 	return status;
 }
 
-static void _cairo_svg_surface_emit_operator(cairo_output_stream_t * output,
-    cairo_svg_surface_t   * surface,
-    cairo_operator_t op)
+static void _cairo_svg_surface_emit_operator(cairo_output_stream_t * output, cairo_svg_surface_t * surface, cairo_operator_t op)
 {
-	if(surface->document->svg_version >= CAIRO_SVG_VERSION_1_2 &&
-	    op != CAIRO_OPERATOR_OVER) {
+	if(surface->document->svg_version >= CAIRO_SVG_VERSION_1_2 && op != CAIRO_OPERATOR_OVER) {
 		_cairo_output_stream_printf(output, " comp-op=\"%s\"", _cairo_svg_surface_operators[op]);
 		if(!_cairo_operator_bounded_by_source(op))
 			_cairo_output_stream_printf(output, " clip-to-self=\"true\"");
 	}
 }
 
-static void _cairo_svg_surface_emit_operator_for_style(cairo_output_stream_t * output,
-    cairo_svg_surface_t   * surface,
-    cairo_operator_t op)
+static void _cairo_svg_surface_emit_operator_for_style(cairo_output_stream_t * output, cairo_svg_surface_t * surface, cairo_operator_t op)
 {
-	if(surface->document->svg_version >= CAIRO_SVG_VERSION_1_2 &&
-	    op != CAIRO_OPERATOR_OVER) {
+	if(surface->document->svg_version >= CAIRO_SVG_VERSION_1_2 && op != CAIRO_OPERATOR_OVER) {
 		_cairo_output_stream_printf(output, "comp-op:%s;", _cairo_svg_surface_operators[op]);
 		if(!_cairo_operator_bounded_by_source(op))
 			_cairo_output_stream_printf(output, "clip-to-self:true;");

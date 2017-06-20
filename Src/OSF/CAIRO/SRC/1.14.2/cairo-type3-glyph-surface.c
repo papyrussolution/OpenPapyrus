@@ -41,7 +41,7 @@
 #include "cairo-type3-glyph-surface-private.h"
 #include "cairo-output-stream-private.h"
 #include "cairo-recording-surface-private.h"
-#include "cairo-analysis-surface-private.h"
+//#include "cairo-analysis-surface-private.h"
 #include "cairo-default-context-private.h"
 #include "cairo-image-surface-private.h"
 #include "cairo-surface-clipper-private.h"

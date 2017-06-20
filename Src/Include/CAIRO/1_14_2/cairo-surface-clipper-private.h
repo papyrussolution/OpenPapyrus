@@ -53,8 +53,8 @@ struct _cairo_surface_clipper {
 };
 
 cairo_private cairo_status_t _cairo_surface_clipper_set_clip(cairo_surface_clipper_t * clipper, const cairo_clip_t * clip);
-cairo_private void _cairo_surface_clipper_init(cairo_surface_clipper_t * clipper, cairo_surface_clipper_intersect_clip_path_func_t intersect);
-cairo_private void _cairo_surface_clipper_reset(cairo_surface_clipper_t * clipper);
+cairo_private void FASTCALL _cairo_surface_clipper_init(cairo_surface_clipper_t * clipper, cairo_surface_clipper_intersect_clip_path_func_t intersect);
+cairo_private void FASTCALL _cairo_surface_clipper_reset(cairo_surface_clipper_t * clipper);
 
 CAIRO_END_DECLS
 

@@ -208,7 +208,7 @@ cairo_device_t * cairo_glx_device_create(Display * dpy, GLXContext gl_ctx)
 	Window dummy = None;
 	const char * glx_extensions;
 
-	ctx = calloc(1, sizeof(cairo_glx_context_t));
+	ctx = SAlloc::C(1, sizeof(cairo_glx_context_t));
 	if(unlikely(ctx == NULL))
 		return _cairo_gl_context_create_in_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -299,7 +299,7 @@ cairo_surface_t * cairo_gl_surface_create_for_window(cairo_device_t      * devic
 	if(width <= 0 || height <= 0)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
 
-	surface = calloc(1, sizeof(cairo_glx_surface_t));
+	surface = SAlloc::C(1, sizeof(cairo_glx_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 

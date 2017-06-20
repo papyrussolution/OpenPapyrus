@@ -1580,19 +1580,18 @@ int SLAPI GoodsCore::GetArCode(PPID arID, PPID goodsID, SString & rCode, int32 *
 	return ok;
 }
 
-static SString & FormatBarcode(const char * pPrfx, const char * pSfx, int len, long n, SString & rBuf)
+static SString & FormatBarcode(const char * pPrfx, const char * pSfx, uint len, int64 n, SString & rBuf)
 {
-	rBuf = 0;
-	return rBuf.Cat(pPrfx).CatLongZ(n, len).Cat(pSfx);
+	return (rBuf = 0).Cat(pPrfx).CatLongZ(n, len).Cat(pSfx);
 }
 
-int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const char * pPrfx, const char * pSfx, int len,
-	long low, long upp, int addChkDig, SString & rBarcode)
+//int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const char * pPrfx, const char * pSfx, int len, long low, long upp, int addChkDig, SString & rBarcode)
+int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const char * pPrfx, const char * pSfx, uint len, int64 low, int64 upp, int addChkDig, SString & rBarcode)
 {
 	int    ok = 0;
 	SString buffer;
 	if(DS.CheckExtFlag(ECF_433OLDGENBARCODEMETHOD)) {
-		for(long n = low; !ok && n <= upp; n++) {
+		for(int64 n = low; !ok && n <= upp; n++) {
 			FormatBarcode(pPrfx, pSfx, (int)len, n, buffer);
 			if(addChkDig)
 				AddBarcodeCheckDigit(buffer);
@@ -1602,15 +1601,15 @@ int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const char * pPrfx, const char * p
 	}
 	else {
 		SString bound_buf, val_str;
-		const  size_t code_len = (pPrfx ? strlen(pPrfx) : 0) + (pSfx ? strlen(pSfx) : 0) + len;
-		long   prev_val = (low > 0) ? (low-1) : 0;
-		long   using_val = 0;
+		const  size_t code_len = sstrlen(pPrfx) + sstrlen(pSfx) + len;
+		int64  prev_val = (low > 0) ? (low-1) : 0;
+		int64  using_val = 0;
 		BarcodeTbl::Key0 k0, k_low, k_upp;
-		FormatBarcode(pPrfx, pSfx, (int)len, low, bound_buf);
+		FormatBarcode(pPrfx, pSfx, len, low, bound_buf);
 		if(addChkDig)
 			bound_buf.CatChar('0');
 		STRNSCPY(k_low.Code, bound_buf);
-		FormatBarcode(pPrfx, pSfx, (int)len, upp, bound_buf);
+		FormatBarcode(pPrfx, pSfx, len, upp, bound_buf);
 		if(addChkDig)
 			bound_buf.CatChar('9');
 		STRNSCPY(k_upp.Code, bound_buf);
@@ -1621,9 +1620,9 @@ int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const char * pPrfx, const char * p
 			char   temp_buf[32];
 			STRNSCPY(temp_buf, BCTbl.data.Code);
 			if(strlen(temp_buf) == (code_len+BIN(addChkDig))) {
-				val_str = temp_buf+strlen(pPrfx);
+				val_str = temp_buf + sstrlen(pPrfx);
 				val_str.Trim(len);
-				long   cur_val = val_str.ToLong();
+				int64  cur_val = val_str.ToInt64();
 			  	if(prev_val && cur_val > (prev_val+1)) {
 					using_val = prev_val+1;
 					ok = 1;

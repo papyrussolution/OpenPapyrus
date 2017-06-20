@@ -208,7 +208,7 @@ int STimeChunkGrid::MoveChunk(int mode, long id, long rowId, const STimeChunk & 
 const char * STimeChunkBrowser::WndClsName = "STimeChunkBrowser"; // @global
 
 // static
-int STimeChunkBrowser::RegisterClass(HINSTANCE hInst)
+int STimeChunkBrowser::RegWindowClass(HINSTANCE hInst)
 {
 	WNDCLASSEX wc;
 	MEMSZERO(wc);

@@ -132,7 +132,7 @@ void FASTCALL expand(struct ZintSymbol * symbol, const char data[])
 	int writer = 0;
 	char latch = '1';
 	for(size_t reader = 0; reader < n; reader++) {
-		for(int i = 0; i < hex(data[reader]); i++) {
+		for(uint i = 0; i < hex(data[reader]); i++) {
 			if(latch == '1') {
 				set_module(symbol, symbol->rows, writer);
 			}
@@ -153,16 +153,15 @@ void FASTCALL expand(struct ZintSymbol * symbol, const char data[])
 	}
 	symbol->rows = symbol->rows + 1;
 }
-
-/* Indicates which symbologies can have row binding */
+//
+// Indicates which symbologies can have row binding 
+//
 int is_stackable(const int symbology)
 {
 	int retval = 0;
-
 	if(symbology < BARCODE_PDF417) {
 		retval = 1;
 	}
-
 	switch(symbology) {
 		case BARCODE_CODE128B:
 		case BARCODE_ISBNX:
@@ -176,36 +175,14 @@ int is_stackable(const int symbology)
 		case BARCODE_CODABLOCKF:
 		    retval = 1;
 	}
-
 	return retval;
 }
-
-/* Indicates which symbols can have addon (EAN-2 and EAN-5) */
+//
+// Indicates which symbols can have addon (EAN-2 and EAN-5)
+//
 int is_extendable(const int symbology)
 {
-	if(symbology == BARCODE_EANX) {
-		return 1;
-	}
-	if(symbology == BARCODE_UPCA) {
-		return 1;
-	}
-	if(symbology == BARCODE_UPCE) {
-		return 1;
-	}
-	if(symbology == BARCODE_ISBNX) {
-		return 1;
-	}
-	if(symbology == BARCODE_UPCA_CC) {
-		return 1;
-	}
-	if(symbology == BARCODE_UPCE_CC) {
-		return 1;
-	}
-	if(symbology == BARCODE_EANX_CC) {
-		return 1;
-	}
-
-	return 0;
+	return BIN(oneof7(symbology, BARCODE_EANX, BARCODE_UPCA, BARCODE_UPCE, BARCODE_ISBNX, BARCODE_UPCA_CC, BARCODE_UPCE_CC, BARCODE_EANX_CC));
 }
 
 int istwodigits(const uchar source[], const int position)
@@ -215,20 +192,15 @@ int istwodigits(const uchar source[], const int position)
 			return 1;
 		}
 	}
-
 	return 0;
 }
 
 int utf8toutf16(struct ZintSymbol * symbol, const uchar source[], int vals[], int * length)
 {
-	int bpos, jpos, error_number;
-	int next;
-
-	bpos = 0;
-	jpos = 0;
-	error_number = 0;
-	next = 0;
-
+	int bpos = 0;
+	int jpos = 0;
+	int error_number = 0;
+	int next = 0;
 	do {
 		if(source[bpos] <= 0x7f) {
 			/* 1 byte mode (7-bit ASCII) */
@@ -245,7 +217,6 @@ int utf8toutf16(struct ZintSymbol * symbol, const uchar source[], int vals[], in
 				sstrcpy(symbol->errtxt, "Overlong encoding not supported (B41)");
 				return ZINT_ERROR_INVALID_DATA;
 			}
-
 			if((source[bpos] >= 0xc2) && (source[bpos] <= 0xdf)) {
 				/* 2 byte mode */
 				vals[jpos] = ((source[bpos] & 0x1f) << 6) + (source[bpos + 1] & 0x3f);
@@ -263,11 +234,9 @@ int utf8toutf16(struct ZintSymbol * symbol, const uchar source[], int vals[], in
 				return ZINT_ERROR_INVALID_DATA;
 			}
 		}
-
 		bpos = next;
 	} while(bpos < *length);
 	*length = jpos;
-
 	return error_number;
 }
 
@@ -277,7 +246,6 @@ void set_minimum_height(struct ZintSymbol * symbol, int min_height)
 	int fixed_height = 0;
 	int zero_count = 0;
 	int i;
-
 	for(i = 0; i < symbol->rows; i++) {
 		fixed_height += symbol->row_height[i];
 
@@ -285,7 +253,6 @@ void set_minimum_height(struct ZintSymbol * symbol, int min_height)
 			zero_count++;
 		}
 	}
-
 	if(zero_count > 0) {
 		if(((symbol->height - fixed_height) / zero_count) < min_height) {
 			for(i = 0; i < symbol->rows; i++) {

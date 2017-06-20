@@ -78,8 +78,8 @@
 #include "cairoint.h"
 #pragma hdrstop
 #include "cairo-array-private.h"
-#include "cairo-analysis-surface-private.h"
-#include "cairo-clip-private.h"
+//#include "cairo-analysis-surface-private.h"
+//#include "cairo-clip-private.h"
 #include "cairo-combsort-inline.h"
 #include "cairo-composite-rectangles-private.h"
 #include "cairo-default-context-private.h"

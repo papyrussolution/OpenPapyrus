@@ -100,13 +100,15 @@ static unsigned syncsearch(unsigned * have, const uchar * buf, unsigned len);
 
 static int FASTCALL inflateStateCheck(z_streamp strm)
 {
-	struct inflate_state  * state;
 	if(strm == Z_NULL || strm->zalloc == (alloc_func)0 || strm->zfree == (free_func)0)
 		return 1;
-	state = (struct inflate_state *)strm->state;
-	if(state == Z_NULL || state->strm != strm || state->mode < HEAD || state->mode > SYNC)
-		return 1;
-	return 0;
+	else {
+		struct inflate_state * state = (struct inflate_state *)strm->state;
+		if(state == Z_NULL || state->strm != strm || state->mode < HEAD || state->mode > SYNC)
+			return 1;
+		else
+			return 0;
+	}
 }
 
 int ZEXPORT inflateResetKeep(z_streamp strm)

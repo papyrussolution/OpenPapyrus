@@ -42,12 +42,6 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 /*
  * __ham_func2 --
@@ -119,14 +113,9 @@ uint32 __ham_func3(DB * dbp, const void * key, uint32 len)
 	}
 	return n;
 }
-
 /*
- * __ham_func4 --
  *	Chris Torek's hash function.  Although this function performs only
- *	slightly worse than __ham_func5 on strings, it performs horribly on
- *	numbers.
- *
- * PUBLIC: uint32 __ham_func4 __P((DB *, const void *, uint32));
+ *	slightly worse than __ham_func5 on strings, it performs horribly on numbers.
  */
 uint32 __ham_func4(DB * dbp, const void * key, uint32 len)
 {
@@ -177,8 +166,6 @@ uint32 __ham_func4(DB * dbp, const void * key, uint32 len)
  *
  * This hash produces the fewest collisions of any function that we've seen so
  * far, and works well on both numbers and strings.
- *
- * PUBLIC: uint32 __ham_func5 __P((DB *, const void *, uint32));
  */
 uint32 __ham_func5(DB * dbp, const void * key, uint32 len)
 {

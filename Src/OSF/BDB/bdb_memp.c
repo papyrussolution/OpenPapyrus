@@ -3137,8 +3137,7 @@ int __memp_fclose(DB_MPOOLFILE * dbmfp, uint32 flags)
 			ret = t_ret;
 		if((t_ret = __os_closehandle(env, dbmfp->fhp)) != 0) {
 			__db_err(env, t_ret, "%s", __memp_fn(dbmfp));
-			if(ret == 0)
-				ret = t_ret;
+			SETIFZ(ret, t_ret);
 		}
 		dbmfp->fhp = NULL;
 	}
@@ -3915,8 +3914,7 @@ err:
 		}
 		if(h_locked)
 			MUTEX_UNLOCK(env, hp->mtx_hash);
-		if(ret == 0)
-			ret = EIO;
+		SETIFZ(ret, EIO);
 		if(frozen_bhp != NULL) {
 			MPOOL_REGION_LOCK(env, infop);
 			SH_TAILQ_INSERT_TAIL(&c_mp->free_frozen, frozen_bhp, hq);
@@ -4733,8 +4731,7 @@ int __memp_get_bucket(ENV * env, MPOOLFILE * mfp, db_pgno_t pgno, REGINFO ** inf
 		}
 		break;
 	}
-	if(bucketp != NULL)
-		*bucketp = bucket-region*mp->htab_buckets;
+	ASSIGN_PTR(bucketp, bucket-region*mp->htab_buckets);
 	return ret;
 }
 
@@ -5903,48 +5900,36 @@ int __memp_sync_int(ENV * env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 
 			dirty = 0;
 			MUTEX_LOCK(env, hp->mtx_hash);
 			SH_TAILQ_FOREACH(bhp, &hp->hash_bucket, hq, __bh) {
-				/* Always ignore clean pages. */
+				// Always ignore clean pages
 				if(!F_ISSET(bhp, BH_DIRTY))
 					continue;
 				dirty++;
 				mfp = (MPOOLFILE *)R_ADDR(dbmp->reginfo, bhp->mf_offset);
-				/*
-				 * Ignore in-memory files, unless the file is
-				 * specifically being flushed.
-				 */
+				// Ignore in-memory files, unless the file is specifically being flushed.
 				if(mfp->no_backing_file)
 					continue;
 				if(!LF_ISSET(DB_SYNC_FILE) && F_ISSET(mfp, MP_TEMP))
 					continue;
-				/*
-				 * Ignore files that aren't involved in DB's
-				 * transactional operations during checkpoints.
-				 */
+				// Ignore files that aren't involved in DB's transactional operations during checkpoints.
 				if(LF_ISSET(DB_SYNC_CHECKPOINT) && mfp->lsn_off == DB_LSN_OFF_NOTSET)
 					continue;
-				/*
-				 * Ignore files that aren't Queue extent files
-				 * if we're flushing a Queue file with extents.
-				 */
+				// Ignore files that aren't Queue extent files if we're flushing a Queue file with extents.
 				if(LF_ISSET(DB_SYNC_QUEUE_EXTENT) && !F_ISSET(mfp, MP_EXTENT))
 					continue;
-				/*
-				 * If we're flushing a specific file, see if
-				 * this page is from that file.
-				 */
+				// If we're flushing a specific file, see if this page is from that file.
 				if(dbmfp != NULL && mfp != dbmfp->mfp)
 					continue;
-				/* Track the buffer, we want it. */
+				// Track the buffer, we want it. 
 				bharray[ar_cnt].track_hp = hp;
 				bharray[ar_cnt].track_pgno = bhp->pgno;
 				bharray[ar_cnt].track_off = bhp->mf_offset;
 				ar_cnt++;
-				/*
-				 * If we run out of space, double and continue.
-				 * Don't stop at trickle_max, we want to sort
-				 * as large a sample set as possible in order
-				 * to minimize disk seeks.
-				 */
+				// 
+				// If we run out of space, double and continue.
+				// Don't stop at trickle_max, we want to sort
+				// as large a sample set as possible in order
+				// to minimize disk seeks.
+				// 
 				if(ar_cnt >= ar_max) {
 					if((ret = __os_realloc(env, (ar_max*2)*sizeof(BH_TRACK), &bharray)) != 0)
 						break;

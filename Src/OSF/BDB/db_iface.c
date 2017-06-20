@@ -1982,12 +1982,9 @@ static int __dbc_pget_arg(DBC * dbc, DBT * pkey, uint32 flags)
 	}
 	return 0;
 }
-/*
- * __dbc_put_pp --
- *	DBC->put pre/post processing.
- *
- * PUBLIC: int __dbc_put_pp __P((DBC *, DBT *, DBT *, uint32));
- */
+// 
+// DBC->put pre/post processing.
+// 
 int __dbc_put_pp(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 {
 	DB_THREAD_INFO * ip;
@@ -1999,11 +1996,10 @@ int __dbc_put_pp(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 		return ret;
 	}
 	ENV_ENTER(env, ip);
-	/* Check for consistent transaction usage. */
+	// Check for consistent transaction usage
 	if((ret = __db_check_txn(dbp, dbc->txn, dbc->locker, 0)) != 0)
 		goto err;
-	DEBUG_LWRITE(dbc, dbc->txn, "DBcursor->put", flags == DB_KEYFIRST || flags == DB_KEYLAST ||
-		flags == DB_NODUPDATA || flags == DB_UPDATE_SECONDARY ? key : NULL, data, flags);
+	DEBUG_LWRITE(dbc, dbc->txn, "DBcursor->put", oneof4(flags, DB_KEYFIRST, DB_KEYLAST, DB_NODUPDATA, DB_UPDATE_SECONDARY) ? key : NULL, data, flags);
 	ret = __dbc_put(dbc, key, data, flags);
 err:
 	ENV_LEAVE(env, ip);

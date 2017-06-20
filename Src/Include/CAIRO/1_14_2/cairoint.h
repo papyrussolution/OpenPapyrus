@@ -576,7 +576,7 @@ static inline double cairo_const _cairo_restrict_value(double value, double min,
  * This matches the rounding behaviour of _cairo_lround. */
 static inline double cairo_const _cairo_round(double r)
 {
-	return floor(r + .5);
+	return floor(r + 0.5);
 }
 
 #if DISABLE_SOME_FLOATING_POINT
@@ -1309,6 +1309,13 @@ CAIRO_END_DECLS
 #include "cairo-wideint-private.h"
 #include "cairo-malloc-private.h"
 #include "cairo-hash-private.h"
+
+#include "cairo-analysis-surface-private.h"
+#include "cairo-clip-private.h"
+#include "cairo-clip-inline.h"
+#include "cairo-pattern-private.h"
+#include "cairo-list-inline.h"
+#include "cairo-pattern-inline.h"
 
 #if HAVE_VALGRIND
 	#include <memcheck.h>

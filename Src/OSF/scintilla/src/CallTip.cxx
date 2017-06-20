@@ -86,8 +86,7 @@ int CallTip::NextTabPos(int x) const
 // Draw a section of the call tip that does not include \n in one colour.
 // The text may include up to numEnds tabs or arrow characters.
 void CallTip::DrawChunk(Surface * surface, int &x, const char * s,
-    int posStart, int posEnd, int ytext, PRectangle rcClient,
-    bool highlight, bool draw)
+    int posStart, int posEnd, int ytext, PRectangle rcClient, bool highlight, bool draw)
 {
 	s += posStart;
 	int len = posEnd - posStart;
@@ -98,8 +97,7 @@ void CallTip::DrawChunk(Surface * surface, int &x, const char * s,
 	const int numEnds = 10;
 	int ends[numEnds + 2];
 	for(int i = 0; i<len; i++) {
-		if((maxEnd < numEnds) &&
-		    (IsArrowCharacter(s[i]) || IsTabCharacter(s[i]))) {
+		if((maxEnd < numEnds) && (IsArrowCharacter(s[i]) || IsTabCharacter(s[i]))) {
 			if(i > 0)
 				ends[maxEnd++] = i;
 			ends[maxEnd++] = i+1;
@@ -122,10 +120,8 @@ void CallTip::DrawChunk(Surface * surface, int &x, const char * s,
 					const int centreX = x + widthArrow / 2 - 1;
 					const int centreY = static_cast<int>(rcClient.top + rcClient.bottom) / 2;
 					surface->FillRectangle(rcClient, colourBG);
-					PRectangle rcClientInner(rcClient.left + 1, rcClient.top + 1,
-					    rcClient.right - 2, rcClient.bottom - 1);
+					PRectangle rcClientInner(rcClient.left + 1, rcClient.top + 1, rcClient.right - 2, rcClient.bottom - 1);
 					surface->FillRectangle(rcClientInner, colourUnSel);
-
 					if(upArrow) {       // Up arrow
 						Point pts[] = {
 							Point::FromInts(centreX - halfWidth, centreY + quarterWidth),

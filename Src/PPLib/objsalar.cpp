@@ -1270,12 +1270,10 @@ int StaffCalDialog::setupList()
 		LTIME tm;
 		tm.settotalsec(rrec.TmVal);
 		ss.add((sub = 0).Cat(tm, MKSFMT(0, TIMF_HMS)));
-		// @v6.1.5 {
 		sub = 0;
 		if(rrec.Flags & STCALEF_SKIP)
 			sub.CatChar('X');
 		ss.add(sub);
-		// } @v6.1.5
 		if(!addStringToList(i + 1, ss.getBuf()))
 			PPError();
 	}

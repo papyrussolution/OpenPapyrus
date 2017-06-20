@@ -1489,6 +1489,7 @@ struct LTIME {
 	operator OleDate() const;
 	LTIME  operator = (OleDate);
 	LTIME  operator = (double); // OleDate
+	LTIME  SLAPI encode(int h, int m, int s, int ms);
 	int    SLAPI hour()  const { return (int)(((uint8 *)&v)[3]); }
 	int    SLAPI minut() const { return (int)(((uint8 *)&v)[2]); }
 	int    SLAPI sec()   const { return (int)(((uint8 *)&v)[1]); }
@@ -3355,13 +3356,26 @@ public:
 	SString & FASTCALL Cat(uint);
 	//
 	// Descr: форматирует длинное целое число val в строку
-	//   Если numDigits > 0, то форматирутся с количеством символов равным numDigits
+	//   Если numDigits > 0 && numDigits <= 512, то форматирутся с количеством символов равным numDigits
 	//   с набивкой слева нулями (например: CatLongZ(5, 4) --> buf="0005")
-	//   Если numDigits <= 0, то просто переводит val в строку форматом %ld.
+	//   Если (numDigits == 0 || numDigits > 512), то просто переводит val в строку форматом %ld.
 	// Returns:
-	//   pBuf
+	//   *this
 	//
-	SString & FASTCALL CatLongZ(long val, int numDigits); // @>>longfmtz
+	SString & FASTCALL CatLongZ(long val, uint numDigits);
+	SString & FASTCALL CatLongZ(int val, uint numDigits) 
+	{
+		return CatLongZ((long)val, numDigits);
+	}
+	SString & FASTCALL CatLongZ(uint val, uint numDigits) 
+	{
+		return CatLongZ((long)val, numDigits);
+	}
+	SString & FASTCALL CatLongZ(uint32 val, uint numDigits) 
+	{
+		return CatLongZ((long)val, numDigits);
+	}
+	SString & FASTCALL CatLongZ(int64 val, uint numDigits);
 	SString & FASTCALL CatHex(long val);
 	SString & FASTCALL CatHex(ulong val);
 	SString & FASTCALL CatHex(int64 val);

@@ -1,8 +1,8 @@
 // Scintilla source code edit control
 /** @file LexSTTXT.cxx
- ** Lexer for Structured Text language.
- ** Written by Pavel Bulochkin
- **/
+** Lexer for Structured Text language.
+** Written by Pavel Bulochkin
+**/
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <Platform.h>
@@ -21,162 +21,148 @@
 using namespace Scintilla;
 #endif
 
-static void ClassifySTTXTWord(WordList *keywordlists[], StyleContext &sc)
+static void ClassifySTTXTWord(WordList * keywordlists[], StyleContext &sc)
 {
 	char s[256] = { 0 };
 	sc.GetCurrentLowered(s, sizeof(s));
-
- 	if ((*keywordlists[0]).InList(s)) {
- 		sc.ChangeState(SCE_STTXT_KEYWORD);
- 	}
-
-	else if ((*keywordlists[1]).InList(s)) {
+	if((*keywordlists[0]).InList(s)) {
+		sc.ChangeState(SCE_STTXT_KEYWORD);
+	}
+	else if((*keywordlists[1]).InList(s)) {
 		sc.ChangeState(SCE_STTXT_TYPE);
 	}
-
-	else if ((*keywordlists[2]).InList(s)) {
+	else if((*keywordlists[2]).InList(s)) {
 		sc.ChangeState(SCE_STTXT_FUNCTION);
 	}
-
-	else if ((*keywordlists[3]).InList(s)) {
+	else if((*keywordlists[3]).InList(s)) {
 		sc.ChangeState(SCE_STTXT_FB);
 	}
-
-	else if ((*keywordlists[4]).InList(s)) {
+	else if((*keywordlists[4]).InList(s)) {
 		sc.ChangeState(SCE_STTXT_VARS);
 	}
-
-	else if ((*keywordlists[5]).InList(s)) {
+	else if((*keywordlists[5]).InList(s)) {
 		sc.ChangeState(SCE_STTXT_PRAGMAS);
 	}
-
 	sc.SetState(SCE_STTXT_DEFAULT);
 }
 
-static void ColouriseSTTXTDoc (Sci_PositionU startPos, Sci_Position length, int initStyle,
-							  WordList *keywordlists[], Accessor &styler)
+static void ColouriseSTTXTDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
+    WordList * keywordlists[], Accessor &styler)
 {
 	StyleContext sc(startPos, length, initStyle, styler);
-
 	CharacterSet setWord(CharacterSet::setAlphaNum, "_", 0x80, true);
 	CharacterSet setWordStart(CharacterSet::setAlpha, "_", 0x80, true);
 	CharacterSet setNumber(CharacterSet::setDigits, "_.eE");
 	CharacterSet setHexNumber(CharacterSet::setDigits, "_abcdefABCDEF");
-	CharacterSet setOperator(CharacterSet::setNone,",.+-*/:;<=>[]()%&");
-	CharacterSet setDataTime(CharacterSet::setDigits,"_.-:dmshDMSH");
-
- 	for ( ; sc.More() ; sc.Forward())
- 	{
+	CharacterSet setOperator(CharacterSet::setNone, ",.+-*/:;<=>[]()%&");
+	CharacterSet setDataTime(CharacterSet::setDigits, "_.-:dmshDMSH");
+	for(; sc.More(); sc.Forward()) {
 		if(sc.atLineStart && sc.state != SCE_STTXT_COMMENT)
 			sc.SetState(SCE_STTXT_DEFAULT);
-
-		switch(sc.state)
-		{
+		switch(sc.state) {
 			case SCE_STTXT_NUMBER: {
-				if(!setNumber.Contains(sc.ch))
-					sc.SetState(SCE_STTXT_DEFAULT);
-				break;
-			}
+			    if(!setNumber.Contains(sc.ch))
+				    sc.SetState(SCE_STTXT_DEFAULT);
+			    break;
+		    }
 			case SCE_STTXT_HEXNUMBER: {
-				if (setHexNumber.Contains(sc.ch))
-					continue;
-				else if(setDataTime.Contains(sc.ch))
-					sc.ChangeState(SCE_STTXT_DATETIME);
-				else if(setWord.Contains(sc.ch))
-					sc.ChangeState(SCE_STTXT_DEFAULT);
-				else
-					sc.SetState(SCE_STTXT_DEFAULT);
-				break;
-			}
+			    if(setHexNumber.Contains(sc.ch))
+				    continue;
+			    else if(setDataTime.Contains(sc.ch))
+				    sc.ChangeState(SCE_STTXT_DATETIME);
+			    else if(setWord.Contains(sc.ch))
+				    sc.ChangeState(SCE_STTXT_DEFAULT);
+			    else
+				    sc.SetState(SCE_STTXT_DEFAULT);
+			    break;
+		    }
 			case SCE_STTXT_DATETIME: {
-				if (setDataTime.Contains(sc.ch))
-					continue;
-				else if(setWord.Contains(sc.ch))
-					sc.ChangeState(SCE_STTXT_DEFAULT);
-				else
-					sc.SetState(SCE_STTXT_DEFAULT);
-				break;
-			}
+			    if(setDataTime.Contains(sc.ch))
+				    continue;
+			    else if(setWord.Contains(sc.ch))
+				    sc.ChangeState(SCE_STTXT_DEFAULT);
+			    else
+				    sc.SetState(SCE_STTXT_DEFAULT);
+			    break;
+		    }
 			case SCE_STTXT_OPERATOR: {
-				sc.SetState(SCE_STTXT_DEFAULT);
-				break;
-			}
+			    sc.SetState(SCE_STTXT_DEFAULT);
+			    break;
+		    }
 			case SCE_STTXT_PRAGMA: {
-				if (sc.ch == '}')
-					sc.ForwardSetState(SCE_STTXT_DEFAULT);
-				break;
-			}
+			    if(sc.ch == '}')
+				    sc.ForwardSetState(SCE_STTXT_DEFAULT);
+			    break;
+		    }
 			case SCE_STTXT_COMMENTLINE: {
-				if (sc.atLineStart)
-					sc.SetState(SCE_STTXT_DEFAULT);
-				break;
-			}
+			    if(sc.atLineStart)
+				    sc.SetState(SCE_STTXT_DEFAULT);
+			    break;
+		    }
 			case SCE_STTXT_COMMENT: {
-				if(sc.Match('*',')'))
-				{
-					sc.Forward();
-					sc.ForwardSetState(SCE_STTXT_DEFAULT);
-				}
-				break;
-			}
+			    if(sc.Match('*', ')')) {
+				    sc.Forward();
+				    sc.ForwardSetState(SCE_STTXT_DEFAULT);
+			    }
+			    break;
+		    }
 			case SCE_STTXT_STRING1: {
-				if(sc.atLineEnd)
-					sc.SetState(SCE_STTXT_STRINGEOL);
-				else if(sc.ch == '\'' && sc.chPrev != '$')
-					sc.ForwardSetState(SCE_STTXT_DEFAULT);
-				break;
-			}
+			    if(sc.atLineEnd)
+				    sc.SetState(SCE_STTXT_STRINGEOL);
+			    else if(sc.ch == '\'' && sc.chPrev != '$')
+				    sc.ForwardSetState(SCE_STTXT_DEFAULT);
+			    break;
+		    }
 			case SCE_STTXT_STRING2: {
-				if (sc.atLineEnd)
-					sc.SetState(SCE_STTXT_STRINGEOL);
-				else if(sc.ch == '\"' && sc.chPrev != '$')
-					sc.ForwardSetState(SCE_STTXT_DEFAULT);
-				break;
-			}
+			    if(sc.atLineEnd)
+				    sc.SetState(SCE_STTXT_STRINGEOL);
+			    else if(sc.ch == '\"' && sc.chPrev != '$')
+				    sc.ForwardSetState(SCE_STTXT_DEFAULT);
+			    break;
+		    }
 			case SCE_STTXT_STRINGEOL: {
-				if(sc.atLineStart)
-					sc.SetState(SCE_STTXT_DEFAULT);
-				break;
-			}
+			    if(sc.atLineStart)
+				    sc.SetState(SCE_STTXT_DEFAULT);
+			    break;
+		    }
 			case SCE_STTXT_CHARACTER: {
-				if(setHexNumber.Contains(sc.ch))
-					sc.SetState(SCE_STTXT_HEXNUMBER);
-				else if(setDataTime.Contains(sc.ch))
-					sc.SetState(SCE_STTXT_DATETIME);
-				else sc.SetState(SCE_STTXT_DEFAULT);
-				break;
-			}
+			    if(setHexNumber.Contains(sc.ch))
+				    sc.SetState(SCE_STTXT_HEXNUMBER);
+			    else if(setDataTime.Contains(sc.ch))
+				    sc.SetState(SCE_STTXT_DATETIME);
+			    else sc.SetState(SCE_STTXT_DEFAULT);
+			    break;
+		    }
 			case SCE_STTXT_IDENTIFIER: {
-				if(!setWord.Contains(sc.ch))
-					ClassifySTTXTWord(keywordlists, sc);
-				break;
-			}
+			    if(!setWord.Contains(sc.ch))
+				    ClassifySTTXTWord(keywordlists, sc);
+			    break;
+		    }
 		}
 
-		if(sc.state == SCE_STTXT_DEFAULT)
-		{
+		if(sc.state == SCE_STTXT_DEFAULT) {
 			if(IsADigit(sc.ch))
 				sc.SetState(SCE_STTXT_NUMBER);
-			else if (setWordStart.Contains(sc.ch))
+			else if(setWordStart.Contains(sc.ch))
 				sc.SetState(SCE_STTXT_IDENTIFIER);
-			else if (sc.Match('/', '/'))
+			else if(sc.Match('/', '/'))
 				sc.SetState(SCE_STTXT_COMMENTLINE);
 			else if(sc.Match('(', '*'))
 				sc.SetState(SCE_STTXT_COMMENT);
-			else if (sc.ch == '{')
+			else if(sc.ch == '{')
 				sc.SetState(SCE_STTXT_PRAGMA);
-			else if (sc.ch == '\'')
+			else if(sc.ch == '\'')
 				sc.SetState(SCE_STTXT_STRING1);
-			else if (sc.ch == '\"')
+			else if(sc.ch == '\"')
 				sc.SetState(SCE_STTXT_STRING2);
 			else if(sc.ch == '#')
 				sc.SetState(SCE_STTXT_CHARACTER);
-			else if (setOperator.Contains(sc.ch))
+			else if(setOperator.Contains(sc.ch))
 				sc.SetState(SCE_STTXT_OPERATOR);
 		}
- 	}
+	}
 
-	if (sc.state == SCE_STTXT_IDENTIFIER && setWord.Contains(sc.chPrev))
+	if(sc.state == SCE_STTXT_IDENTIFIER && setWord.Contains(sc.chPrev))
 		ClassifySTTXTWord(keywordlists, sc);
 
 	sc.Complete();
@@ -197,25 +183,23 @@ static bool IsCommentLine(Sci_Position line, Accessor &styler, bool type)
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eolPos = styler.LineStart(line + 1) - 1;
 
-	for (Sci_Position i = pos; i < eolPos; i++)
-	{
+	for(Sci_Position i = pos; i < eolPos; i++) {
 		char ch = styler[i];
 		char chNext = styler.SafeGetCharAt(i + 1);
 		int style = styler.StyleAt(i);
 
 		if(type) {
-			 if (ch == '/' && chNext == '/' && style == SCE_STTXT_COMMENTLINE)
+			if(ch == '/' && chNext == '/' && style == SCE_STTXT_COMMENTLINE)
 				return true;
 		}
-		else if (ch == '(' && chNext == '*' && style == SCE_STTXT_COMMENT)
+		else if(ch == '(' && chNext == '*' && style == SCE_STTXT_COMMENT)
 			break;
 
-		if (!IsASpaceOrTab(ch))
+		if(!IsASpaceOrTab(ch))
 			return false;
 	}
 
-	for (Sci_Position i = eolPos-2; i>pos; i--)
-	{
+	for(Sci_Position i = eolPos-2; i>pos; i--) {
 		char ch = styler[i];
 		char chPrev = styler.SafeGetCharAt(i-1);
 		int style = styler.StyleAt(i);
@@ -234,87 +218,54 @@ static bool IsPragmaLine(Sci_Position line, Accessor &styler)
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eolPos = styler.LineStart(line+1) - 1;
 
-	for (Sci_Position i = pos ; i < eolPos ; i++)
-	{
+	for(Sci_Position i = pos; i < eolPos; i++) {
 		char ch = styler[i];
 		int style = styler.StyleAt(i);
 
 		if(ch == '{' && style == SCE_STTXT_PRAGMA)
 			return true;
-		else if (!IsASpaceOrTab(ch))
+		else if(!IsASpaceOrTab(ch))
 			return false;
 	}
 	return false;
 }
 
-static void GetRangeUpper(Sci_PositionU start,Sci_PositionU end,Accessor &styler,char *s,Sci_PositionU len)
+static void GetRangeUpper(Sci_PositionU start, Sci_PositionU end, Accessor &styler, char * s, Sci_PositionU len)
 {
 	Sci_PositionU i = 0;
-	while ((i < end - start + 1) && (i < len-1)) {
+	while((i < end - start + 1) && (i < len-1)) {
 		s[i] = static_cast<char>(toupper(styler[start + i]));
 		i++;
 	}
 	s[i] = '\0';
 }
 
-static void ClassifySTTXTWordFoldPoint(int &levelCurrent,Sci_PositionU lastStart,
-									 Sci_PositionU currentPos, Accessor &styler)
+static void ClassifySTTXTWordFoldPoint(int &levelCurrent, Sci_PositionU lastStart,
+    Sci_PositionU currentPos, Accessor &styler)
 {
 	char s[256];
 	GetRangeUpper(lastStart, currentPos, styler, s, sizeof(s));
-
 	// See Table C.2 - Keywords
-	if (!strcmp(s, "ACTION") ||
-		!strcmp(s, "CASE") ||
-		!strcmp(s, "CONFIGURATION") ||
-		!strcmp(s, "FOR") ||
-		!strcmp(s, "FUNCTION") ||
-		!strcmp(s, "FUNCTION_BLOCK") ||
-		!strcmp(s, "IF") ||
-		!strcmp(s, "INITIAL_STEP") ||
-		!strcmp(s, "REPEAT") ||
-		!strcmp(s, "RESOURCE") ||
-		!strcmp(s, "STEP") ||
-		!strcmp(s, "STRUCT") ||
-		!strcmp(s, "TRANSITION") ||
-		!strcmp(s, "TYPE") ||
-		!strcmp(s, "VAR") ||
-		!strcmp(s, "VAR_INPUT") ||
-		!strcmp(s, "VAR_OUTPUT") ||
-		!strcmp(s, "VAR_IN_OUT") ||
-		!strcmp(s, "VAR_TEMP") ||
-		!strcmp(s, "VAR_EXTERNAL") ||
-		!strcmp(s, "VAR_ACCESS") ||
-		!strcmp(s, "VAR_CONFIG") ||
-		!strcmp(s, "VAR_GLOBAL") ||
-		!strcmp(s, "WHILE"))
-	{
+	if(sstreq(s, "ACTION") || sstreq(s, "CASE") || sstreq(s, "CONFIGURATION") || sstreq(s, "FOR") ||
+	    sstreq(s, "FUNCTION") || sstreq(s, "FUNCTION_BLOCK") || sstreq(s, "IF") || sstreq(s, "INITIAL_STEP") ||
+	    sstreq(s, "REPEAT") || sstreq(s, "RESOURCE") || sstreq(s, "STEP") || sstreq(s, "STRUCT") ||
+	    sstreq(s, "TRANSITION") || sstreq(s, "TYPE") || sstreq(s, "VAR") || sstreq(s, "VAR_INPUT") ||
+	    sstreq(s, "VAR_OUTPUT") || sstreq(s, "VAR_IN_OUT") || sstreq(s, "VAR_TEMP") || sstreq(s, "VAR_EXTERNAL") ||
+	    sstreq(s, "VAR_ACCESS") || sstreq(s, "VAR_CONFIG") || sstreq(s, "VAR_GLOBAL") || sstreq(s, "WHILE")) {
 		levelCurrent++;
 	}
-	else if (!strcmp(s, "END_ACTION") ||
-		!strcmp(s, "END_CASE") ||
-		!strcmp(s, "END_CONFIGURATION") ||
-		!strcmp(s, "END_FOR") ||
-		!strcmp(s, "END_FUNCTION") ||
-		!strcmp(s, "END_FUNCTION_BLOCK") ||
-		!strcmp(s, "END_IF") ||
-		!strcmp(s, "END_REPEAT") ||
-		!strcmp(s, "END_RESOURCE") ||
-		!strcmp(s, "END_STEP") ||
-		!strcmp(s, "END_STRUCT") ||
-		!strcmp(s, "END_TRANSITION") ||
-		!strcmp(s, "END_TYPE") ||
-		!strcmp(s, "END_VAR") ||
-		!strcmp(s, "END_WHILE"))
-	{
+	else if(sstreq(s, "END_ACTION") || sstreq(s, "END_CASE") || sstreq(s, "END_CONFIGURATION") || sstreq(s, "END_FOR") || 
+		sstreq(s, "END_FUNCTION") || sstreq(s, "END_FUNCTION_BLOCK") || sstreq(s, "END_IF") || sstreq(s, "END_REPEAT") || 
+		sstreq(s, "END_RESOURCE") || sstreq(s, "END_STEP") || sstreq(s, "END_STRUCT") || sstreq(s, "END_TRANSITION") || 
+		sstreq(s, "END_TYPE") || sstreq(s, "END_VAR") || sstreq(s, "END_WHILE")) {
 		levelCurrent--;
-		if (levelCurrent < SC_FOLDLEVELBASE) {
+		if(levelCurrent < SC_FOLDLEVELBASE) {
 			levelCurrent = SC_FOLDLEVELBASE;
 		}
 	}
 }
 
-static void FoldSTTXTDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[],Accessor &styler)
+static void FoldSTTXTDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor &styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldPreprocessor = styler.GetPropertyInt("fold.preprocessor") != 0;
@@ -331,8 +282,7 @@ static void FoldSTTXTDoc(Sci_PositionU startPos, Sci_Position length, int initSt
 
 	CharacterSet setWord(CharacterSet::setAlphaNum, "_", 0x80, true);
 
-	for (Sci_PositionU i = startPos; i < endPos; i++)
-	{
+	for(Sci_PositionU i = startPos; i < endPos; i++) {
 		char ch = chNext;
 		chNext = styler.SafeGetCharAt(i + 1);
 		int stylePrev = style;
@@ -340,46 +290,46 @@ static void FoldSTTXTDoc(Sci_PositionU startPos, Sci_Position length, int initSt
 		styleNext = styler.StyleAt(i + 1);
 		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
 
-		if (foldComment && style == SCE_STTXT_COMMENT) {
+		if(foldComment && style == SCE_STTXT_COMMENT) {
 			if(stylePrev != SCE_STTXT_COMMENT)
 				levelCurrent++;
 			else if(styleNext != SCE_STTXT_COMMENT && !atEOL)
 				levelCurrent--;
 		}
-		if ( foldComment && atEOL && ( IsCommentLine(lineCurrent, styler,false)
-			|| IsCommentLine(lineCurrent,styler,true))) {
- 			if(!IsCommentLine(lineCurrent-1, styler,true) && IsCommentLine(lineCurrent+1, styler,true))
+		if(foldComment && atEOL && ( IsCommentLine(lineCurrent, styler, false)
+			    || IsCommentLine(lineCurrent, styler, true))) {
+			if(!IsCommentLine(lineCurrent-1, styler, true) && IsCommentLine(lineCurrent+1, styler, true))
 				levelCurrent++;
-			if (IsCommentLine(lineCurrent-1, styler,true) && !IsCommentLine(lineCurrent+1, styler,true))
+			if(IsCommentLine(lineCurrent-1, styler, true) && !IsCommentLine(lineCurrent+1, styler, true))
 				levelCurrent--;
-			if (!IsCommentLine(lineCurrent-1, styler,false) && IsCommentLine(lineCurrent+1, styler,false))
+			if(!IsCommentLine(lineCurrent-1, styler, false) && IsCommentLine(lineCurrent+1, styler, false))
 				levelCurrent++;
-			if (IsCommentLine(lineCurrent-1, styler,false) && !IsCommentLine(lineCurrent+1, styler,false))
+			if(IsCommentLine(lineCurrent-1, styler, false) && !IsCommentLine(lineCurrent+1, styler, false))
 				levelCurrent--;
 		}
 		if(foldPreprocessor && atEOL && IsPragmaLine(lineCurrent, styler)) {
-			if(!IsPragmaLine(lineCurrent-1, styler) && IsPragmaLine(lineCurrent+1, styler ))
+			if(!IsPragmaLine(lineCurrent-1, styler) && IsPragmaLine(lineCurrent+1, styler))
 				levelCurrent++;
 			else if(IsPragmaLine(lineCurrent-1, styler) && !IsPragmaLine(lineCurrent+1, styler))
 				levelCurrent--;
 		}
-		if (stylePrev != SCE_STTXT_KEYWORD && style == SCE_STTXT_KEYWORD) {
-				lastStart = i;
+		if(stylePrev != SCE_STTXT_KEYWORD && style == SCE_STTXT_KEYWORD) {
+			lastStart = i;
 		}
 		if(stylePrev == SCE_STTXT_KEYWORD) {
 			if(setWord.Contains(ch) && !setWord.Contains(chNext))
-				ClassifySTTXTWordFoldPoint(levelCurrent,lastStart, i, styler);
+				ClassifySTTXTWordFoldPoint(levelCurrent, lastStart, i, styler);
 		}
-		if (!IsASpace(ch)) {
+		if(!IsASpace(ch)) {
 			visibleChars++;
 		}
-		if (atEOL) {
+		if(atEOL) {
 			int lev = levelPrev;
-			if (visibleChars == 0 && foldCompact)
+			if(visibleChars == 0 && foldCompact)
 				lev |= SC_FOLDLEVELWHITEFLAG;
-			if ((levelCurrent > levelPrev) && (visibleChars > 0))
+			if((levelCurrent > levelPrev) && (visibleChars > 0))
 				lev |= SC_FOLDLEVELHEADERFLAG;
-			if (lev != styler.LevelAt(lineCurrent))
+			if(lev != styler.LevelAt(lineCurrent))
 				styler.SetLevel(lineCurrent, lev);
 
 			lineCurrent++;
@@ -390,7 +340,7 @@ static void FoldSTTXTDoc(Sci_PositionU startPos, Sci_Position length, int initSt
 		// If we didn't reach the EOL in previous loop, store line level and whitespace information.
 		// The rest will be filled in later...
 		int lev = levelPrev;
-		if (visibleChars == 0 && foldCompact)
+		if(visibleChars == 0 && foldCompact)
 			lev |= SC_FOLDLEVELWHITEFLAG;
 		styler.SetLevel(lineCurrent, lev);
 	}

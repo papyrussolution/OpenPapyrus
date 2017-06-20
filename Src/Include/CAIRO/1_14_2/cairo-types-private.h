@@ -223,13 +223,13 @@ struct _cairo_color {
 };
 
 struct _cairo_color_stop {
-    /* unpremultiplied */
+    // unpremultiplied 
     double red;
     double green;
     double blue;
     double alpha;
 
-    /* unpremultipled, for convenience */
+    // unpremultipled, for convenience 
     uint16_t red_short;
     uint16_t green_short;
     uint16_t blue_short;
@@ -295,8 +295,10 @@ typedef struct _cairo_line {
 } cairo_line_t, cairo_box_t;
 
 typedef struct _cairo_trapezoid {
-    cairo_fixed_t top, bottom;
-    cairo_line_t left, right;
+    cairo_fixed_t top;
+	cairo_fixed_t bottom;
+    cairo_line_t left;
+	cairo_line_t right;
 } cairo_trapezoid_t;
 
 typedef struct _cairo_point_int {
@@ -313,28 +315,24 @@ typedef enum _cairo_direction {
 
 typedef struct _cairo_edge {
     cairo_line_t line;
-    int top, bottom;
+    int top;
+	int bottom;
     int dir;
 } cairo_edge_t;
 
 typedef struct _cairo_polygon {
     cairo_status_t status;
-
     cairo_box_t extents;
     cairo_box_t limit;
     const cairo_box_t *limits;
     int num_limits;
-
     int num_edges;
     int edges_size;
     cairo_edge_t *edges;
     cairo_edge_t  edges_embedded[32];
 } cairo_polygon_t;
 
-typedef cairo_warn cairo_status_t
-(*cairo_spline_add_point_func_t) (void *closure,
-				  const cairo_point_t *point,
-				  const cairo_slope_t *tangent);
+typedef cairo_warn cairo_status_t (*cairo_spline_add_point_func_t) (void *closure, const cairo_point_t *point, const cairo_slope_t *tangent);
 
 typedef struct _cairo_spline_knots {
     cairo_point_t a, b, c, d;
@@ -343,19 +341,15 @@ typedef struct _cairo_spline_knots {
 typedef struct _cairo_spline {
     cairo_spline_add_point_func_t add_point_func;
     void *closure;
-
     cairo_spline_knots_t knots;
-
     cairo_slope_t initial_slope;
     cairo_slope_t final_slope;
-
     cairo_bool_t has_point;
     cairo_point_t last_point;
 } cairo_spline_t;
 
 typedef struct _cairo_pen_vertex {
     cairo_point_t point;
-
     cairo_slope_t slope_ccw;
     cairo_slope_t slope_cw;
 } cairo_pen_vertex_t;
@@ -363,7 +357,6 @@ typedef struct _cairo_pen_vertex {
 typedef struct _cairo_pen {
     double radius;
     double tolerance;
-
     int num_vertices;
     cairo_pen_vertex_t *vertices;
     cairo_pen_vertex_t  vertices_embedded[32];
@@ -416,7 +409,6 @@ struct _cairo_mime_data {
     cairo_destroy_func_t destroy;
     void *closure;
 };
-
 /*
  * A #cairo_unscaled_font_t is just an opaque handle we use in the
  * glyph cache.

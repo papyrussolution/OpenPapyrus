@@ -175,13 +175,16 @@ int SLAPI PPTransferItem::Init(const BillTbl::Rec * pBillRec, int zeroRByBill, i
 
 int SLAPI PPTransferItem::InitAccturnInvoice(const PPBillPacket * pPack)
 {
-	if(oneof2(pPack->OpTypeID, PPOPT_ACCTURN, PPOPT_PAYMENT) || (
-		pPack->OpTypeID == PPOPT_GOODSEXPEND && pPack->Rec.Flags & BILLF_FIXEDAMOUNTS && pPack->GetTCount() == 0)) {
+	int    ok = -1;
+	if(oneof2(pPack->OpTypeID, PPOPT_ACCTURN, PPOPT_PAYMENT) ||
+		(pPack->OpTypeID == PPOPT_GOODSEXPEND && pPack->Rec.Flags & BILLF_FIXEDAMOUNTS && pPack->GetTCount() == 0)) {
 		PPObjGoods gobj;
-		BarcodeTbl::Rec bc_rec;
-		if(gobj.SearchByBarcode(CConfig.PrepayInvoiceGoodsCode, &bc_rec, 0, 0) > 0) {
+		// @v9.7.0 BarcodeTbl::Rec bc_rec;
+		// @v9.7.0 if(gobj.SearchByBarcode(CConfig.PrepayInvoiceGoodsCode, &bc_rec, 0, 0) > 0) {
+		Goods2Tbl::Rec goods_rec; // @v9.7.0
+		if(gobj.Fetch(CConfig.PrepayInvoiceGoodsID, &goods_rec) > 0) { // @v9.7.0
 			Init(&pPack->Rec, 0);
-			SetupGoods(bc_rec.GoodsID);
+			SetupGoods(/*bc_rec.GoodsID*/goods_rec.ID); // @v9.7.0 bc_rec.GoodsID-->goods_rec.ID
 			SETFLAG(Flags, PPTFR_RMVEXCISE, pPack->Rec.Flags & BILLF_RMVEXCISE);
 			Quantity_ = 1.0;
 			if(CurID)
@@ -189,10 +192,10 @@ int SLAPI PPTransferItem::InitAccturnInvoice(const PPBillPacket * pPack)
 			Cost  = pPack->GetBaseAmount();
 			Price = pPack->GetBaseAmount();
 			LotDate = pPack->Rec.Dt;
-			return 1;
+			ok = 1;
 		}
 	}
-	return -1;
+	return ok;
 }
 
 int SLAPI PPTransferItem::SetSignFlags(PPID op, int forceSign)

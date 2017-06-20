@@ -2735,7 +2735,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 }
 
 // static
-int BrowserWindow::RegisterClass(HINSTANCE hInst)
+int BrowserWindow::RegWindowClass(HINSTANCE hInst)
 {
 	WNDCLASSEX wc;
 	MEMSZERO(wc);

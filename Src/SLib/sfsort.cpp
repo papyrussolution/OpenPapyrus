@@ -318,7 +318,7 @@ public:
 					SPathStruc ps;
 					SString temp_buf;
 					ps.Split(SrcFileName);
-					ps.Nam.CatChar('-').Cat("temp").CatLongZ(p_result_chunk->ChunkNo, 8);
+					ps.Nam.CatChar('-').Cat("temp").CatLongZ((long)p_result_chunk->ChunkNo, 8);
 					ps.Merge(p_result_chunk->FileName);
 					{
 						SFile f_out(p_result_chunk->FileName, SFile::mWrite|SFile::mBinary|SFile::mNoStd);

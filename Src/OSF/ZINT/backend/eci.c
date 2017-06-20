@@ -242,235 +242,222 @@ static const int windows_1256[] = {
     0x064b, 0x064c, 0x064d, 0x064e, 0x00f4, 0x064f, 0x0650, 0x00f7, 0x0651, 0x00f9, 0x0652, 0x00fb, 0x00fc, 0x200e, 0x200f, 0x06d2
 };
 
-/* Convert Unicode to other character encodings */
+// Convert Unicode to other character encodings 
 int utf_to_eci(int eci, const uchar source[], uchar dest[], int * length)
 {
-	int glyph;
-	int bytelen;
-	int in_posn;
-	int out_posn;
-	int ext;
-	int done;
-	if(eci == 26) {
-		/* Unicode mode, do not process - just copy data across */
-		for(in_posn = 0; in_posn < *length; in_posn++) {
+	//int ext;
+	//int done;
+	if(eci == 26) { // Unicode mode, do not process - just copy data across
+		for(int in_posn = 0; in_posn < *length; in_posn++) {
 			dest[in_posn] = source[in_posn];
 		}
 		dest[*length] = '\0';
-		return 0;
 	}
-	in_posn = 0;
-	out_posn = 0;
-	do {
-		/* Single byte (ASCII) character */
-		bytelen = 1;
-		glyph = (int)source[in_posn];
-		if((source[in_posn] >= 0x80) && (source[in_posn] < 0xc0)) {
-			/* Something has gone wrong, abort */
-			return ZINT_ERROR_INVALID_DATA;
-		}
-		if((source[in_posn] >= 0xc0) && (source[in_posn] < 0xe0)) {
-			/* Two-byte character */
-			bytelen = 2;
-			glyph = (source[in_posn] & 0x1f) << 6;
-			if(*length < (in_posn + 2)) {
-				return ZINT_ERROR_INVALID_DATA;
-			}
-			if(source[in_posn + 1] > 0xc0) {
-				return ZINT_ERROR_INVALID_DATA;
-			}
-			glyph += (source[in_posn + 1] & 0x3f);
-		}
-		if((source[in_posn] >= 0xe0) && (source[in_posn] < 0xf0)) {
-			/* Three-byte character */
-			bytelen = 3;
-			glyph = (source[in_posn] & 0x0f) << 12;
-			if(*length < (in_posn + 2)) {
-				return ZINT_ERROR_INVALID_DATA;
-			}
-			if(*length < (in_posn + 3)) {
-				return ZINT_ERROR_INVALID_DATA;
-			}
-			if(source[in_posn + 1] > 0xc0) {
-				return ZINT_ERROR_INVALID_DATA;
-			}
-			if(source[in_posn + 2] > 0xc0) {
-				return ZINT_ERROR_INVALID_DATA;
-			}
-			glyph += (source[in_posn + 1] & 0x3f) << 6;
-			glyph += (source[in_posn + 2] & 0x3f);
-		}
-		if((source[in_posn] >= 0xf0) && (source[in_posn] < 0xf7)) {
-			/* Four-byte character */
-			bytelen = 4;
-			glyph = (source[in_posn] & 0x07) << 18;
-			if(*length < (in_posn + 2)) {
-				return ZINT_ERROR_INVALID_DATA;
-			}
-			if(*length < (in_posn + 3)) {
-				return ZINT_ERROR_INVALID_DATA;
-			}
-			if(*length < (in_posn + 4)) {
-				return ZINT_ERROR_INVALID_DATA;
-			}
-			if(source[in_posn + 1] > 0xc0) {
-				return ZINT_ERROR_INVALID_DATA;
-			}
-			if(source[in_posn + 2] > 0xc0) {
-				return ZINT_ERROR_INVALID_DATA;
-			}
-			if(source[in_posn + 3] > 0xc0) {
-				return ZINT_ERROR_INVALID_DATA;
-			}
-			glyph += (source[in_posn + 1] & 0x3f) << 12;
-			glyph += (source[in_posn + 2] & 0x3f) << 6;
-			glyph += (source[in_posn + 3] & 0x3f);
-		}
-		if(source[in_posn] >= 0xf7) {
-			/* More than 4 bytes not supported */
-			return ZINT_ERROR_INVALID_DATA;
-		}
-		if(glyph < 128) {
-			dest[out_posn] = glyph;
-		}
-		else {
-			done = 0;
-			for(ext = 0; ext < 128; ext++) {
-				switch(eci) {
-					case 3: // Latin-1
-					    if(glyph == iso_8859_1[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 4: // Latin-2
-					    if(glyph == iso_8859_2[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 5: // Latin-3
-					    if(glyph == iso_8859_3[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 6: // Latin-4
-					    if(glyph == iso_8859_4[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 7: // Latin/Cyrillic
-					    if(glyph == iso_8859_5[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 8: // Latin/Arabic
-					    if(glyph == iso_8859_6[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 9: // Latin/Greek
-					    if(glyph == iso_8859_7[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 10: // Latin/Hebrew
-					    if(glyph == iso_8859_8[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 11: // Latin-5
-					    if(glyph == iso_8859_9[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 12: // Latin-6
-					    if(glyph == iso_8859_10[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 13: // Latin/Thai
-					    if(glyph == iso_8859_11[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 15: // Latin-7
-					    if(glyph == iso_8859_13[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 16: // Latin-8
-					    if(glyph == iso_8859_14[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 17: // Latin-9
-					    if(glyph == iso_8859_15[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 18: // Latin-10
-					    if(glyph == iso_8859_16[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 21: // Windows-1250
-					    if(glyph == windows_1250[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 22: // Windows-1251
-					    if(glyph == windows_1251[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 23: // Windows-1252
-					    if(glyph == windows_1252[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					case 24: // Windows-1256
-					    if(glyph == windows_1256[ext]) {
-						    dest[out_posn] = ext + 128;
-						    done = 1;
-					    }
-					    break;
-					default:
-					    break;
+	else {
+		int in_posn = 0;
+		int out_posn = 0;
+		do {
+			// Single byte (ASCII) character 
+			int bytelen = 1;
+			int glyph = (int)source[in_posn];
+			if((source[in_posn] >= 0x80) && (source[in_posn] < 0xc0)) // Something has gone wrong, abort 
+				return ZINT_ERROR_INVALID_DATA; 
+			else {
+				if((source[in_posn] >= 0xc0) && (source[in_posn] < 0xe0)) {
+					// Two-byte character 
+					bytelen = 2;
+					glyph = (source[in_posn] & 0x1f) << 6;
+					if(*length < (in_posn + 2))
+						return ZINT_ERROR_INVALID_DATA;
+					else if(source[in_posn + 1] > 0xc0)
+						return ZINT_ERROR_INVALID_DATA;
+					else 
+						glyph += (source[in_posn + 1] & 0x3f);
+				}
+				if((source[in_posn] >= 0xe0) && (source[in_posn] < 0xf0)) {
+					// Three-byte character 
+					bytelen = 3;
+					glyph = (source[in_posn] & 0x0f) << 12;
+					if(*length < (in_posn + 2))
+						return ZINT_ERROR_INVALID_DATA;
+					else if(*length < (in_posn + 3))
+						return ZINT_ERROR_INVALID_DATA;
+					else if(source[in_posn + 1] > 0xc0)
+						return ZINT_ERROR_INVALID_DATA;
+					else if(source[in_posn + 2] > 0xc0)
+						return ZINT_ERROR_INVALID_DATA;
+					else {
+						glyph += (source[in_posn + 1] & 0x3f) << 6;
+						glyph += (source[in_posn + 2] & 0x3f);
+					}
+				}
+				if((source[in_posn] >= 0xf0) && (source[in_posn] < 0xf7)) {
+					// Four-byte character 
+					bytelen = 4;
+					glyph = (source[in_posn] & 0x07) << 18;
+					if(*length < (in_posn + 2))
+						return ZINT_ERROR_INVALID_DATA;
+					else if(*length < (in_posn + 3))
+						return ZINT_ERROR_INVALID_DATA;
+					else if(*length < (in_posn + 4))
+						return ZINT_ERROR_INVALID_DATA;
+					else if(source[in_posn + 1] > 0xc0)
+						return ZINT_ERROR_INVALID_DATA;
+					else if(source[in_posn + 2] > 0xc0)
+						return ZINT_ERROR_INVALID_DATA;
+					else if(source[in_posn + 3] > 0xc0)
+						return ZINT_ERROR_INVALID_DATA;
+					else {
+						glyph += (source[in_posn + 1] & 0x3f) << 12;
+						glyph += (source[in_posn + 2] & 0x3f) << 6;
+						glyph += (source[in_posn + 3] & 0x3f);
+					}
+				}
+				if(source[in_posn] >= 0xf7) { // More than 4 bytes not supported 
+					return ZINT_ERROR_INVALID_DATA;
+				}
+				else {
+					if(glyph < 128) {
+						dest[out_posn] = glyph;
+					}
+					else {
+						int done = 0;
+						for(int ext = 0; ext < 128; ext++) {
+							switch(eci) {
+								case 3: // Latin-1
+									if(glyph == iso_8859_1[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 4: // Latin-2
+									if(glyph == iso_8859_2[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 5: // Latin-3
+									if(glyph == iso_8859_3[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 6: // Latin-4
+									if(glyph == iso_8859_4[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 7: // Latin/Cyrillic
+									if(glyph == iso_8859_5[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 8: // Latin/Arabic
+									if(glyph == iso_8859_6[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 9: // Latin/Greek
+									if(glyph == iso_8859_7[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 10: // Latin/Hebrew
+									if(glyph == iso_8859_8[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 11: // Latin-5
+									if(glyph == iso_8859_9[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 12: // Latin-6
+									if(glyph == iso_8859_10[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 13: // Latin/Thai
+									if(glyph == iso_8859_11[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 15: // Latin-7
+									if(glyph == iso_8859_13[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 16: // Latin-8
+									if(glyph == iso_8859_14[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 17: // Latin-9
+									if(glyph == iso_8859_15[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 18: // Latin-10
+									if(glyph == iso_8859_16[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 21: // Windows-1250
+									if(glyph == windows_1250[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 22: // Windows-1251
+									if(glyph == windows_1251[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 23: // Windows-1252
+									if(glyph == windows_1252[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								case 24: // Windows-1256
+									if(glyph == windows_1256[ext]) {
+										dest[out_posn] = ext + 128;
+										done = 1;
+									}
+									break;
+								default:
+									break;
+							}
+						}
+						if(!done)
+							return ZINT_ERROR_INVALID_DATA;
+					}
+					in_posn += bytelen;
+					out_posn++;
 				}
 			}
-
-			if(!(done)) {
-				return ZINT_ERROR_INVALID_DATA;
-			}
-		}
-
-		in_posn += bytelen;
-		out_posn++;
-	} while(in_posn < *length);
-	dest[out_posn] = '\0';
-	*length = out_posn;
-
+		} while(in_posn < *length);
+		dest[out_posn] = '\0';
+		*length = out_posn;
+	}
 	return 0;
 }
-
-/* Find the lowest ECI mode which will encode a given set of Unicode text */
+//
+// Find the lowest ECI mode which will encode a given set of Unicode text 
+//
 int get_best_eci(uchar source[], int length)
 {
 	int eci = 3;

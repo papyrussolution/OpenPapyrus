@@ -739,7 +739,7 @@ int SLAPI DBBackup::RemoveCopy(BCopyData * pData, BackupLogFunc fnLog, long init
 int SLAPI DBBackup::MakeCopyPath(BCopyData * data, SString & rDestPath)
 {
 	int    ok = 1;
-	ulong  count = 1L;
+	long   count = 1;
 	SString path, subdir;
 	rDestPath = 0;
 	(path = data->CopyPath).RmvLastSlash();
@@ -748,7 +748,7 @@ int SLAPI DBBackup::MakeCopyPath(BCopyData * data, SString & rDestPath)
 			ok = (DBErrCode = SDBERR_SLIB, 0);
 	}
 	if(ok) {
-		ulong set_sum = 0L;
+		long   set_sum = 0;
 		for(int n = 0; n < sizeof(data->Set) && data->Set[n] != 0; n++)
 			set_sum += (long)data->Set[n];
 		set_sum %= 10000L;

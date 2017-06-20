@@ -259,7 +259,7 @@ cairo_status_t _cairo_mempool_init(cairo_mempool_t * pool, void * base, size_t b
 	pool->max_bytes = bytes;
 	pool->max_free_bits = -1;
 	num_blocks = bytes >> min_bits;
-	pool->blocks = (_cairo_mempool::_cairo_memblock *)calloc(num_blocks, sizeof(_cairo_mempool::_cairo_memblock));
+	pool->blocks = (_cairo_mempool::_cairo_memblock *)SAlloc::C(num_blocks, sizeof(_cairo_mempool::_cairo_memblock));
 	if(pool->blocks == NULL)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	pool->num_blocks = num_blocks;

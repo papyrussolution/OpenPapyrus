@@ -49,7 +49,7 @@
 #include "cairo-xlib-surface-private.h"
 #include "cairo-image-surface-inline.h"
 #include "cairo-paginated-private.h"
-#include "cairo-pattern-inline.h"
+//#include "cairo-pattern-inline.h"
 #include "cairo-recording-surface-private.h"
 #include "cairo-surface-backend-private.h"
 #include "cairo-surface-offset-private.h"

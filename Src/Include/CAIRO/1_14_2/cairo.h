@@ -1857,7 +1857,7 @@ cairo_public double cairo_device_observer_stroke_elapsed(cairo_device_t * device
 cairo_public double cairo_device_observer_glyphs_elapsed(cairo_device_t * device);
 cairo_public cairo_surface_t * cairo_surface_reference(cairo_surface_t * surface);
 cairo_public void cairo_surface_finish(cairo_surface_t * surface);
-cairo_public void cairo_surface_destroy(cairo_surface_t * surface);
+cairo_public void FASTCALL cairo_surface_destroy(cairo_surface_t * surface);
 cairo_public cairo_device_t * cairo_surface_get_device(cairo_surface_t * surface);
 cairo_public uint cairo_surface_get_reference_count(cairo_surface_t * surface);
 cairo_public cairo_status_t cairo_surface_status(cairo_surface_t * surface);
@@ -2319,7 +2319,7 @@ typedef enum _cairo_region_overlap {
 
 cairo_public cairo_region_t * cairo_region_create(void);
 cairo_public cairo_region_t * cairo_region_create_rectangle(const CairoIRect * rectangle);
-cairo_public cairo_region_t * cairo_region_create_rectangles(const CairoIRect * rects, int count);
+cairo_public cairo_region_t * FASTCALL cairo_region_create_rectangles(const CairoIRect * rects, int count);
 cairo_public cairo_region_t * cairo_region_copy(const cairo_region_t * original);
 cairo_public cairo_region_t * cairo_region_reference(cairo_region_t * region);
 cairo_public void cairo_region_destroy(cairo_region_t * region);

@@ -169,7 +169,7 @@ cairo_hash_table_t * _cairo_hash_table_create(cairo_hash_keys_equal_func_t keys_
 		hash_table->keys_equal = keys_equal;
 	memzero(&hash_table->cache, sizeof(hash_table->cache));
 	hash_table->table_size = &hash_table_sizes[0];
-	hash_table->entries = (cairo_hash_entry_t **)calloc(*hash_table->table_size, sizeof(cairo_hash_entry_t *));
+	hash_table->entries = (cairo_hash_entry_t **)SAlloc::C(*hash_table->table_size, sizeof(cairo_hash_entry_t *));
 	if(unlikely(hash_table->entries == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		SAlloc::F(hash_table);
@@ -285,7 +285,7 @@ static cairo_status_t _cairo_hash_table_manage(cairo_hash_table_t * hash_table)
 		return CAIRO_STATUS_SUCCESS;
 	}
 	new_size = *tmp.table_size;
-	tmp.entries = (cairo_hash_entry_t **)calloc(new_size, sizeof(cairo_hash_entry_t*));
+	tmp.entries = (cairo_hash_entry_t **)SAlloc::C(new_size, sizeof(cairo_hash_entry_t*));
 	if(unlikely(tmp.entries == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	for(i = 0; i < *hash_table->table_size; ++i) {

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType outline management (body).                                  */
 /*                                                                         */
-/*  Copyright 1996-2015 by                                                 */
+/*  Copyright 1996-2017 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -42,7 +42,7 @@
 
 
   static
-  const FT_Outline  null_outline = { 0, 0, 0, 0, 0, 0 };
+  const FT_Outline  null_outline = { 0, 0, NULL, NULL, NULL, 0 };
 
 
   /* documentation is in ftoutln.h */
@@ -287,7 +287,7 @@
     return FT_Err_Ok;
 
   Exit:
-    FT_TRACE5(( "FT_Outline_Decompose: Error %d\n", error ));
+    FT_TRACE5(( "FT_Outline_Decompose: Error 0x%x\n", error ));
     return error;
 
   Invalid_Outline:
@@ -415,11 +415,14 @@
     if ( source == target )
       return FT_Err_Ok;
 
-    FT_ARRAY_COPY( target->points, source->points, source->n_points );
+    if ( source->n_points )
+    {
+      FT_ARRAY_COPY( target->points, source->points, source->n_points );
+      FT_ARRAY_COPY( target->tags,   source->tags,   source->n_points );
+    }
 
-    FT_ARRAY_COPY( target->tags, source->tags, source->n_points );
-
-    FT_ARRAY_COPY( target->contours, source->contours, source->n_contours );
+    if ( source->n_contours )
+      FT_ARRAY_COPY( target->contours, source->contours, source->n_contours );
 
     /* copy all flags, except the `FT_OUTLINE_OWNER' one */
     is_owner      = target->flags & FT_OUTLINE_OWNER;

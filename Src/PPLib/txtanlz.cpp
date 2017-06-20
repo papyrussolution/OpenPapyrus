@@ -4165,7 +4165,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 				if(ffr > 0) {
                     SFileFormat::GetExt(ff, file_type_symb);
 				}
-				(temp_buf = 0).CatLongZ(ff, 3).Tab().CatLongZ(ffr, 3).Tab().Cat(file_type_symb).Tab().Cat(dest_path).CR();
+				(temp_buf = 0).CatLongZ((long)ff, 3).Tab().CatLongZ((long)ffr, 3).Tab().Cat(file_type_symb).Tab().Cat(dest_path).CR();
 				pDetectTypeOutFile->WriteLine(temp_buf);
 			}
 			aa.Clear();
@@ -4225,7 +4225,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 					pOutFile->WriteLine(temp_buf.CR());
 				}
 				if(ffr > 0 && pFileTypeToFreqOrderOutFile) {
-					(temp_buf = 0).CatLongZ(ff, 3).Tab().CatLongZ(ffr, 3).Tab().Cat(file_type_symb).Tab();
+					(temp_buf = 0).CatLongZ((long)ff, 3).Tab().CatLongZ((long)ffr, 3).Tab().Cat(file_type_symb).Tab();
 					for(uint i = 0; i < freq_list.getCount(); i++) {
 						const RAssoc item = freq_list.at(i);
 						uchar c = (uchar)item.Key;

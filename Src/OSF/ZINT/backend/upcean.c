@@ -66,19 +66,19 @@ static const char * EANsetB[10] = { // Representation set B (EN Table 1)
 // Calculate the correct check digit for a UPC barcode 
 char upc_check(char source[])
 {
-	uint   i, check_digit;
 	uint   count = 0;
-	for(i = 0; i < strlen(source); i++) {
+	const  uint _src_len = strlen(source);
+	for(uint i = 0; i < _src_len; i++) {
 		count += hex(source[i]);
-		if(!(i & 1)) {
+		if(!(i & 1))
 			count += 2 * (hex(source[i]));
-		}
 	}
-	check_digit = 10 - (count % 10);
-	if(check_digit == 10) {
-		check_digit = 0;
+	{
+		uint   check_digit = 10 - (count % 10);
+		if(check_digit == 10)
+			check_digit = 0;
+		return itoc(check_digit);
 	}
-	return itoc(check_digit);
 }
 //
 // UPC A is usually used for 12 digit numbers, but this function takes a source of any length 
@@ -652,7 +652,9 @@ void ean_leading_zeroes(struct ZintSymbol * symbol, uchar source[], uchar local_
 //
 int eanx(struct ZintSymbol * symbol, uchar source[], int src_len)
 {
-	uchar  first_part[20] = {0}, second_part[20] = {0}, dest[1000] = {0};
+	uchar  first_part[20] = {0};
+	uchar  second_part[20] = {0};
+	uchar  dest[1000] = {0};
 	uchar  local_source[20] = {0};
 	uint   reader;
 	int    error_number, i;

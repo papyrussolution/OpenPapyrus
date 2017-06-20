@@ -82,10 +82,10 @@ static cairo_status_t cairo_type1_font_create(cairo_scaled_font_subset_t  * scal
 	cairo_matrix_t ctm;
 	cairo_font_options_t font_options;
 	cairo_status_t status;
-	cairo_type1_font_t * font = (cairo_type1_font_t *)calloc(1, sizeof(cairo_type1_font_t));
+	cairo_type1_font_t * font = (cairo_type1_font_t *)SAlloc::C(1, sizeof(cairo_type1_font_t));
 	if(unlikely(font == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-	font->widths = (int *)calloc(scaled_font_subset->num_glyphs, sizeof(int));
+	font->widths = (int *)SAlloc::C(scaled_font_subset->num_glyphs, sizeof(int));
 	if(unlikely(font->widths == NULL)) {
 		SAlloc::F(font);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -687,7 +687,7 @@ static cairo_status_t _cairo_type1_fallback_init_internal(cairo_type1_subset_t  
 		goto fail1;
 	}
 
-	type1_subset->widths = (double *)calloc(sizeof(double), font->scaled_font_subset->num_glyphs);
+	type1_subset->widths = (double *)SAlloc::C(sizeof(double), font->scaled_font_subset->num_glyphs);
 	if(unlikely(type1_subset->widths == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail2;
@@ -761,7 +761,7 @@ cairo_status_t _cairo_type2_charstrings_init(cairo_type2_charstrings_t * type2_s
 	if(unlikely(status))
 		return status;
 	_cairo_array_init(&type2_subset->charstrings, sizeof(cairo_array_t));
-	type2_subset->widths = (int *)calloc(sizeof(int), font->scaled_font_subset->num_glyphs);
+	type2_subset->widths = (int *)SAlloc::C(sizeof(int), font->scaled_font_subset->num_glyphs);
 	if(unlikely(type2_subset->widths == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail1;

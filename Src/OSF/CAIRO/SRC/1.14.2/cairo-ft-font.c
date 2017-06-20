@@ -46,13 +46,10 @@
 
 #include "cairo-image-surface-private.h"
 #include "cairo-ft-private.h"
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 #include "cairo-pixman-private.h"
-
 #include <float.h>
-
 #include "cairo-fontconfig-private.h"
-
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_OUTLINE_H
@@ -1351,7 +1348,7 @@ static cairo_status_t _render_glyph_outline(FT_Face face, cairo_font_options_t *
 		bitmap_size = _compute_xrender_bitmap_size(&bitmap, face->glyph, render_mode);
 		if(bitmap_size < 0)
 			return _cairo_error(CAIRO_STATUS_INVALID_FORMAT); // @v1.14.6 CAIRO_STATUS_NO_MEMORY-->CAIRO_STATUS_INVALID_FORMAT
-		bitmap.buffer = calloc(1, bitmap_size);
+		bitmap.buffer = SAlloc::C(1, bitmap_size);
 		if(bitmap.buffer == NULL)
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		_fill_xrender_bitmap(&bitmap, face->glyph, render_mode, (rgba == FC_RGBA_BGR || rgba == FC_RGBA_VBGR));

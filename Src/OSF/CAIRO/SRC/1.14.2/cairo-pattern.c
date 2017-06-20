@@ -34,7 +34,7 @@
 #include "cairo-image-surface-private.h"
 #include "cairo-list-inline.h"
 #include "cairo-path-private.h"
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 #include "cairo-recording-surface-inline.h"
 #include "cairo-surface-snapshot-inline.h"
 
@@ -2385,24 +2385,17 @@ void _cairo_gradient_pattern_interpolate(const cairo_gradient_pattern_t * gradie
  * gradient is the same and the result is stored in out_matrix.
  *
  **/
-void _cairo_gradient_pattern_fit_to_range(const cairo_gradient_pattern_t * gradient,
-    double max_value,
-    cairo_matrix_t                 * out_matrix,
-    cairo_circle_double_t out_circle[2])
+void _cairo_gradient_pattern_fit_to_range(const cairo_gradient_pattern_t * gradient, double max_value,
+    cairo_matrix_t * out_matrix, cairo_circle_double_t out_circle[2])
 {
 	double dim;
-
-	assert(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR ||
-	    gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL);
-
+	assert(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR || gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL);
 	if(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR) {
 		cairo_linear_pattern_t * linear = (cairo_linear_pattern_t*)gradient;
-
 		out_circle[0].center = linear->pd1;
 		out_circle[0].radius = 0;
 		out_circle[1].center = linear->pd2;
 		out_circle[1].radius = 0;
-
 		dim = fabs(linear->pd1.x);
 		dim = MAX(dim, fabs(linear->pd1.y));
 		dim = MAX(dim, fabs(linear->pd2.x));
@@ -2412,10 +2405,8 @@ void _cairo_gradient_pattern_fit_to_range(const cairo_gradient_pattern_t * gradi
 	}
 	else {
 		cairo_radial_pattern_t * radial = (cairo_radial_pattern_t*)gradient;
-
 		out_circle[0] = radial->cd1;
 		out_circle[1] = radial->cd2;
-
 		dim = fabs(radial->cd1.center.x);
 		dim = MAX(dim, fabs(radial->cd1.center.y));
 		dim = MAX(dim, fabs(radial->cd1.radius));
@@ -2426,19 +2417,15 @@ void _cairo_gradient_pattern_fit_to_range(const cairo_gradient_pattern_t * gradi
 		dim = MAX(dim, fabs(radial->cd1.center.y - radial->cd2.center.y));
 		dim = MAX(dim, fabs(radial->cd1.radius   - radial->cd2.radius));
 	}
-
 	if(unlikely(dim > max_value)) {
 		cairo_matrix_t scale;
-
 		dim = max_value / dim;
-
 		out_circle[0].center.x *= dim;
 		out_circle[0].center.y *= dim;
 		out_circle[0].radius   *= dim;
 		out_circle[1].center.x *= dim;
 		out_circle[1].center.y *= dim;
 		out_circle[1].radius   *= dim;
-
 		cairo_matrix_init_scale(&scale, dim, dim);
 		cairo_matrix_multiply(out_matrix, &gradient->base.matrix, &scale);
 	}
@@ -2447,63 +2434,41 @@ void _cairo_gradient_pattern_fit_to_range(const cairo_gradient_pattern_t * gradi
 	}
 }
 
-static cairo_bool_t _gradient_is_clear(const cairo_gradient_pattern_t * gradient,
-    const CairoIRect * extents)
+static cairo_bool_t _gradient_is_clear(const cairo_gradient_pattern_t * gradient, const CairoIRect * extents)
 {
 	uint i;
-
-	assert(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR ||
-	    gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL);
-
-	if(gradient->n_stops == 0 ||
-	    (gradient->base.extend == CAIRO_EXTEND_NONE &&
+	assert(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR || gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL);
+	if(gradient->n_stops == 0 || (gradient->base.extend == CAIRO_EXTEND_NONE &&
 		    gradient->stops[0].offset == gradient->stops[gradient->n_stops - 1].offset))
 		return TRUE;
-
 	if(gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL) {
-		/* degenerate radial gradients are clear */
+		// degenerate radial gradients are clear 
 		if(_radial_pattern_is_degenerate((cairo_radial_pattern_t*)gradient))
 			return TRUE;
 	}
 	else if(gradient->base.extend == CAIRO_EXTEND_NONE) {
-		/* EXTEND_NONE degenerate linear gradients are clear */
+		// EXTEND_NONE degenerate linear gradients are clear 
 		if(_linear_pattern_is_degenerate((cairo_linear_pattern_t*)gradient))
 			return TRUE;
 	}
-
-	/* Check if the extents intersect the drawn part of the pattern. */
-	if(extents != NULL &&
-	    (gradient->base.extend == CAIRO_EXTEND_NONE ||
-		    gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL)) {
+	// Check if the extents intersect the drawn part of the pattern
+	if(extents && (gradient->base.extend == CAIRO_EXTEND_NONE || gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL)) {
 		double t[2];
-
-		_cairo_gradient_pattern_box_to_parameter(gradient,
-		    extents->x,
-		    extents->y,
-		    extents->x + extents->width,
-		    extents->y + extents->height,
-		    DBL_EPSILON,
-		    t);
-
-		if(gradient->base.extend == CAIRO_EXTEND_NONE &&
-		    (t[0] >= gradient->stops[gradient->n_stops - 1].offset ||
-			    t[1] <= gradient->stops[0].offset)) {
+		_cairo_gradient_pattern_box_to_parameter(gradient, extents->x, extents->y, extents->x + extents->width,
+		    extents->y + extents->height, DBL_EPSILON, t);
+		if(gradient->base.extend == CAIRO_EXTEND_NONE && (t[0] >= gradient->stops[gradient->n_stops - 1].offset || t[1] <= gradient->stops[0].offset)) {
 			return TRUE;
 		}
-
 		if(t[0] == t[1])
 			return TRUE;
 	}
-
 	for(i = 0; i < gradient->n_stops; i++)
 		if(!CAIRO_COLOR_IS_CLEAR(&gradient->stops[i].color))
 			return FALSE;
-
 	return TRUE;
 }
 
-static void _gradient_color_average(const cairo_gradient_pattern_t * gradient,
-    cairo_color_t * color)
+static void _gradient_color_average(const cairo_gradient_pattern_t * gradient, cairo_color_t * color)
 {
 	double delta0, delta1;
 	double r, g, b, a;
@@ -3996,10 +3961,8 @@ cairo_status_t cairo_mesh_pattern_get_control_point(cairo_pattern_t * pattern, u
 	patch = (const cairo_mesh_patch_t *)_cairo_array_index_const(&mesh->patches, patch_num);
 	i = mesh_control_point_i[point_num];
 	j = mesh_control_point_j[point_num];
-	if(x)
-		*x = patch->points[i][j].x;
-	if(y)
-		*y = patch->points[i][j].y;
+	ASSIGN_PTR(x, patch->points[i][j].x);
+	ASSIGN_PTR(y, patch->points[i][j].y);
 	return CAIRO_STATUS_SUCCESS;
 }
 

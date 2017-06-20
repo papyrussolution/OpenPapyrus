@@ -4387,6 +4387,8 @@
 	#define CTLSEL_CCFGOP_DRAFTRCPT      (18 + WINDOWS_ID_BIAS)
 	#define CTL_CCFGOP_DYNGTYPESA        (19 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CCFGOP_DYNGTYPESA     (20 + WINDOWS_ID_BIAS)
+	#define CTL_CCFGOP_PREPAYWARE        (21 + WINDOWS_ID_BIAS)
+	#define CTLSEL_CCFGOP_PREPAYWARE     (22 + WINDOWS_ID_BIAS)
 #define DLG_TDEFICIT              392 // Приходование дефицита при приеме документов
 	#define CTL_TDEFICIT_DATE            (1 + WINDOWS_ID_BIAS)
 	#define CTL_TDEFICIT_PCTADD          (2 + WINDOWS_ID_BIAS)

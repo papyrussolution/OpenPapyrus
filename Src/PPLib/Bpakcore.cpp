@@ -3523,7 +3523,8 @@ int SLAPI PPBillPacket::RemoveVirtualTItems()
 			RemoveRow((uint)0);
 		return 1;
 	}
-	return -1;
+	else
+		return -1;
 }
 
 int SLAPI PPBillPacket::GetMainOrgID_(PPID * pID) const

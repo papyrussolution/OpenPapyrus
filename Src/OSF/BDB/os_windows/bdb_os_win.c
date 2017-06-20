@@ -1225,7 +1225,8 @@ int __os_openhandle(ENV * env, const char * name, int flags, int mode, DB_FH ** 
 		*fhpp = fhp;
 		return 0;
 	}
-err:    __os_closehandle(env, fhp);
+err:    
+	__os_closehandle(env, fhp);
 	return ret;
 #endif
 }
@@ -1914,8 +1915,7 @@ int __os_exists(ENV * env, const char * path, int * isdirp)
 		__db_msg(env, DB_STR_A("0033", "fileops: stat %s", "%s"), path);
 	RETRY_CHK(((attrs = GetFileAttributes(tpath)) == (DWORD)-1 ? 1 : 0), ret);
 	if(ret == 0) {
-		if(isdirp != NULL)
-			*isdirp = (attrs&FILE_ATTRIBUTE_DIRECTORY);
+		ASSIGN_PTR(isdirp, (attrs&FILE_ATTRIBUTE_DIRECTORY));
 	}
 	else
 		ret = __os_posix_err(ret);

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType utility file for PS names support (body).                   */
 /*                                                                         */
-/*  Copyright 2002-2015 by                                                 */
+/*  Copyright 2002-2017 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -15,113 +15,103 @@
 /*                                                                         */
 /***************************************************************************/
 
-
+#define  FT_MAKE_OPTION_SINGLE_OBJECT
 #include <ft2build.h>
+#pragma hdrstop
 #include FT_INTERNAL_DEBUG_H
 #include FT_INTERNAL_OBJECTS_H
 #include FT_INTERNAL_SERVICE_H
 #include FT_SERVICE_POSTSCRIPT_INFO_H
 
+/* documentation is in t1tables.h */
 
-  /* documentation is in t1tables.h */
+FT_EXPORT_DEF(FT_Error)
+FT_Get_PS_Font_Info(FT_Face face,
+    PS_FontInfoRec*  afont_info)
+{
+	FT_Error error;
+	FT_Service_PsInfo service;
 
-  FT_EXPORT_DEF( FT_Error )
-  FT_Get_PS_Font_Info( FT_Face          face,
-                       PS_FontInfoRec*  afont_info )
-  {
-    FT_Error           error;
-    FT_Service_PsInfo  service;
+	if(!face)
+		return FT_THROW(Invalid_Face_Handle);
 
+	if(!afont_info)
+		return FT_THROW(Invalid_Argument);
 
-    if ( !face )
-      return FT_THROW( Invalid_Face_Handle );
+	FT_FACE_FIND_SERVICE(face, service, POSTSCRIPT_INFO);
 
-    if ( !afont_info )
-      return FT_THROW( Invalid_Argument );
+	if(service && service->ps_get_font_info)
+		error = service->ps_get_font_info(face, afont_info);
+	else
+		error = FT_THROW(Invalid_Argument);
 
-    FT_FACE_FIND_SERVICE( face, service, POSTSCRIPT_INFO );
+	return error;
+}
 
-    if ( service && service->ps_get_font_info )
-      error = service->ps_get_font_info( face, afont_info );
-    else
-      error = FT_THROW( Invalid_Argument );
+/* documentation is in t1tables.h */
 
-    return error;
-  }
+FT_EXPORT_DEF(FT_Int)
+FT_Has_PS_Glyph_Names(FT_Face face)
+{
+	FT_Int result = 0;
+	FT_Service_PsInfo service;
 
+	if(face) {
+		FT_FACE_FIND_SERVICE(face, service, POSTSCRIPT_INFO);
 
-  /* documentation is in t1tables.h */
+		if(service && service->ps_has_glyph_names)
+			result = service->ps_has_glyph_names(face);
+	}
 
-  FT_EXPORT_DEF( FT_Int )
-  FT_Has_PS_Glyph_Names( FT_Face  face )
-  {
-    FT_Int             result = 0;
-    FT_Service_PsInfo  service;
+	return result;
+}
 
+/* documentation is in t1tables.h */
 
-    if ( face )
-    {
-      FT_FACE_FIND_SERVICE( face, service, POSTSCRIPT_INFO );
+FT_EXPORT_DEF(FT_Error)
+FT_Get_PS_Font_Private(FT_Face face,
+    PS_PrivateRec*  afont_private)
+{
+	FT_Error error;
+	FT_Service_PsInfo service;
 
-      if ( service && service->ps_has_glyph_names )
-        result = service->ps_has_glyph_names( face );
-    }
+	if(!face)
+		return FT_THROW(Invalid_Face_Handle);
 
-    return result;
-  }
+	if(!afont_private)
+		return FT_THROW(Invalid_Argument);
 
+	FT_FACE_FIND_SERVICE(face, service, POSTSCRIPT_INFO);
 
-  /* documentation is in t1tables.h */
+	if(service && service->ps_get_font_private)
+		error = service->ps_get_font_private(face, afont_private);
+	else
+		error = FT_THROW(Invalid_Argument);
 
-  FT_EXPORT_DEF( FT_Error )
-  FT_Get_PS_Font_Private( FT_Face         face,
-                          PS_PrivateRec*  afont_private )
-  {
-    FT_Error           error;
-    FT_Service_PsInfo  service;
+	return error;
+}
 
+/* documentation is in t1tables.h */
 
-    if ( !face )
-      return FT_THROW( Invalid_Face_Handle );
+FT_EXPORT_DEF(FT_Long)
+FT_Get_PS_Font_Value(FT_Face face,
+    PS_Dict_Keys key,
+    FT_UInt idx,
+    void         * value,
+    FT_Long value_len)
+{
+	FT_Int result  = 0;
+	FT_Service_PsInfo service = NULL;
 
-    if ( !afont_private )
-      return FT_THROW( Invalid_Argument );
+	if(face) {
+		FT_FACE_FIND_SERVICE(face, service, POSTSCRIPT_INFO);
 
-    FT_FACE_FIND_SERVICE( face, service, POSTSCRIPT_INFO );
+		if(service && service->ps_get_font_value)
+			result = service->ps_get_font_value(face, key, idx,
+			    value, value_len);
+	}
 
-    if ( service && service->ps_get_font_private )
-      error = service->ps_get_font_private( face, afont_private );
-    else
-      error = FT_THROW( Invalid_Argument );
-
-    return error;
-  }
-
-
-  /* documentation is in t1tables.h */
-
-  FT_EXPORT_DEF( FT_Long )
-  FT_Get_PS_Font_Value( FT_Face       face,
-                        PS_Dict_Keys  key,
-                        FT_UInt       idx,
-                        void         *value,
-                        FT_Long       value_len )
-  {
-    FT_Int             result  = 0;
-    FT_Service_PsInfo  service = NULL;
-
-
-    if ( face )
-    {
-      FT_FACE_FIND_SERVICE( face, service, POSTSCRIPT_INFO );
-
-      if ( service && service->ps_get_font_value )
-        result = service->ps_get_font_value( face, key, idx,
-                                             value, value_len );
-    }
-
-    return result;
-  }
-
+	return result;
+}
 
 /* END */

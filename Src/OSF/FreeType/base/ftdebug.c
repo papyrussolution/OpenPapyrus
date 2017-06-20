@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Debugging and logging component (body).                              */
 /*                                                                         */
-/*  Copyright 1996-2015 by                                                 */
+/*  Copyright 1996-2017 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -40,8 +40,9 @@
   /*                                                                       */
   /*************************************************************************/
 
-
+#define  FT_MAKE_OPTION_SINGLE_OBJECT
 #include <ft2build.h>
+#pragma hdrstop
 #include FT_FREETYPE_H
 #include FT_INTERNAL_DEBUG_H
 

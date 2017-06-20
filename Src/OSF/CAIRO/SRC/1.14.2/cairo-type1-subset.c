@@ -1267,7 +1267,7 @@ static cairo_status_t cairo_type1_font_subset_write_private_dict(cairo_type1_fon
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	if(font->num_subrs <= 0)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-	font->subrs = (_cairo_type1_font_subset::Subrs *)calloc(font->num_subrs, sizeof(font->subrs[0]));
+	font->subrs = (_cairo_type1_font_subset::Subrs *)SAlloc::C(font->num_subrs, sizeof(font->subrs[0]));
 	if(unlikely(font->subrs == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -1322,7 +1322,7 @@ skip_subrs:
 	font->glyphs = (glyph_data_t *)_cairo_array_index(&font->glyphs_array, 0);
 	font->glyph_names = (char **)_cairo_array_index(&font->glyph_names_array, 0);
 	font->base.num_glyphs = _cairo_array_num_elements(&font->glyphs_array);
-	font->subset_index_to_glyphs = (int *)calloc(font->base.num_glyphs, sizeof font->subset_index_to_glyphs[0]);
+	font->subset_index_to_glyphs = (int *)SAlloc::C(font->base.num_glyphs, sizeof font->subset_index_to_glyphs[0]);
 	if(unlikely(font->subset_index_to_glyphs == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -1657,7 +1657,7 @@ cairo_status_t _cairo_type1_subset_init(cairo_type1_subset_t          * type1_su
 	}
 	if(unlikely(type1_subset->base_font == NULL))
 		goto fail1;
-	type1_subset->widths = (double *)calloc(sizeof(double), font.num_glyphs);
+	type1_subset->widths = (double *)SAlloc::C(sizeof(double), font.num_glyphs);
 	if(unlikely(type1_subset->widths == NULL))
 		goto fail2;
 	for(i = 0; i < font.base.num_glyphs; i++) {

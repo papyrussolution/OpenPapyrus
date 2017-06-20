@@ -49,7 +49,7 @@
 #define CANDB 98
 #define CANDBB 99
 
-static int list[2][170];
+static int Code16List[2][170]; // @global @sobolev list-->Code16List
 
 static const char * C16KTable[107] = {
 	/* EN 12323 Table 1 - "Code 16K" character encodations */
@@ -69,35 +69,28 @@ static const char * C16KTable[107] = {
 };
 
 static const char * C16KStartStop[8] = {
-	/* EN 12323 Table 3 and Table 4 - Start patterns and stop patterns */
+	// EN 12323 Table 3 and Table 4 - Start patterns and stop patterns 
 	"3211", "2221", "2122", "1411", "1132", "1231", "1114", "3112"
 };
 
-/* EN 12323 Table 5 - Start and stop values defining row numbers */
-static const int C16KStartValues[16] = {
-	0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7
-};
-
-static const int C16KStopValues[16] = {
-	0, 1, 2, 3, 4, 5, 6, 7, 4, 5, 6, 7, 0, 1, 2, 3
-};
+// EN 12323 Table 5 - Start and stop values defining row numbers 
+static const int8 C16KStartValues[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7 }; // @sobolev int-->int8
+static const int8 C16KStopValues[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 4, 5, 6, 7, 0, 1, 2, 3 }; // @sobolev int-->int8
 
 void grwp16(int * indexliste)
 {
 	int i, j;
-
-	/* bring together same type blocks */
+	// bring together same type blocks 
 	if(*(indexliste) > 1) {
 		i = 1;
 		while(i < *(indexliste)) {
-			if(list[1][i - 1] == list[1][i]) {
-				/* bring together */
-				list[0][i - 1] = list[0][i - 1] + list[0][i];
+			if(Code16List[1][i-1] == Code16List[1][i]) {
+				// bring together 
+				Code16List[0][i-1] = Code16List[0][i-1] + Code16List[0][i];
 				j = i + 1;
-				/* decreace the list */
-				while(j < *(indexliste)) {
-					list[0][j - 1] = list[0][j];
-					list[1][j - 1] = list[1][j];
+				while(j < *(indexliste)) { // decreace the Code16List 
+					Code16List[0][j-1] = Code16List[0][j];
+					Code16List[1][j-1] = Code16List[1][j];
 					j++;
 				}
 				*(indexliste) = *(indexliste) - 1;
@@ -107,99 +100,100 @@ void grwp16(int * indexliste)
 		}
 	}
 }
-
-/* Implements rules from ISO 15417 Annex E */
+//
+// Implements rules from ISO 15417 Annex E 
+//
 void dxsmooth16(int * indexliste)
 {
 	for(int i = 0; i < *(indexliste); i++) {
-		const int length = list[0][i];
-		const int last = (i != 0) ? list[1][i - 1] : FALSE;
-		const int next = (i != *(indexliste) - 1) ? list[1][i + 1] : FALSE;
-		int current = list[1][i];
+		const int length = Code16List[0][i];
+		const int last = (i != 0) ? Code16List[1][i-1] : FALSE;
+		const int next = (i != *(indexliste) - 1) ? Code16List[1][i+1] : FALSE;
+		int current = Code16List[1][i];
 		if(i == 0) {
 			// first block 
 			if((*(indexliste) == 1) && ((length == 2) && (current == ABORC))) {
 				/* Rule 1a */
-				list[1][i] = LATCHC;
+				Code16List[1][i] = LATCHC;
 			}
 			if(current == ABORC) {
 				if(length >= 4) {
 					/* Rule 1b */
-					list[1][i] = LATCHC;
+					Code16List[1][i] = LATCHC;
 				}
 				else {
-					list[1][i] = AORB;
+					Code16List[1][i] = AORB;
 					current = AORB;
 				}
 			}
 			if(current == SHIFTA) {
 				/* Rule 1c */
-				list[1][i] = LATCHA;
+				Code16List[1][i] = LATCHA;
 			}
 			if((current == AORB) && (next == SHIFTA)) {
 				/* Rule 1c */
-				list[1][i] = LATCHA;
+				Code16List[1][i] = LATCHA;
 				current = LATCHA;
 			}
 			if(current == AORB) {
 				/* Rule 1d */
-				list[1][i] = LATCHB;
+				Code16List[1][i] = LATCHB;
 			}
 		}
 		else {
 			if((current == ABORC) && (length >= 4)) {
 				/* Rule 3 */
-				list[1][i] = LATCHC;
+				Code16List[1][i] = LATCHC;
 				current = LATCHC;
 			}
 			if(current == ABORC) {
-				list[1][i] = AORB;
+				Code16List[1][i] = AORB;
 				current = AORB;
 			}
 			if((current == AORB) && (last == LATCHA)) {
-				list[1][i] = LATCHA;
+				Code16List[1][i] = LATCHA;
 				current = LATCHA;
 			}
 			if((current == AORB) && (last == LATCHB)) {
-				list[1][i] = LATCHB;
+				Code16List[1][i] = LATCHB;
 				current = LATCHB;
 			}
 			if((current == AORB) && (next == SHIFTA)) {
-				list[1][i] = LATCHA;
+				Code16List[1][i] = LATCHA;
 				current = LATCHA;
 			}
 			if((current == AORB) && (next == SHIFTB)) {
-				list[1][i] = LATCHB;
+				Code16List[1][i] = LATCHB;
 				current = LATCHB;
 			}
 			if(current == AORB) {
-				list[1][i] = LATCHB;
+				Code16List[1][i] = LATCHB;
 				current = LATCHB;
 			}
 			if((current == SHIFTA) && (length > 1)) {
 				/* Rule 4 */
-				list[1][i] = LATCHA;
+				Code16List[1][i] = LATCHA;
 				current = LATCHA;
 			}
 			if((current == SHIFTB) && (length > 1)) {
 				/* Rule 5 */
-				list[1][i] = LATCHB;
+				Code16List[1][i] = LATCHB;
 				current = LATCHB;
 			}
 			if((current == SHIFTA) && (last == LATCHA)) {
-				list[1][i] = LATCHA;
+				Code16List[1][i] = LATCHA;
 				current = LATCHA;
 			}
 			if((current == SHIFTB) && (last == LATCHB)) {
-				list[1][i] = LATCHB;
+				Code16List[1][i] = LATCHB;
 				current = LATCHB;
 			}
 			if((current == SHIFTA) && (last == LATCHC)) {
-				list[1][i] = LATCHA;
+				Code16List[1][i] = LATCHA;
 				current = LATCHA;
 			}
 			if((current == SHIFTB) && (last == LATCHC)) {
-				list[1][i] = LATCHB;
+				Code16List[1][i] = LATCHB;
 				current = LATCHB;
 			}
 		} /* Rule 2 is implimented elsewhere, Rule 6 is implied */
@@ -303,12 +297,12 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 		mode = ABORC;
 	} /* FNC1 */
 	for(i = 0; i < 160; i++) {
-		list[0][i] = 0;
+		Code16List[0][i] = 0;
 	}
 	do {
-		list[1][indexliste] = mode;
-		while((list[1][indexliste] == mode) && (indexchaine < input_length)) {
-			list[0][indexliste]++;
+		Code16List[1][indexliste] = mode;
+		while((Code16List[1][indexliste] == mode) && (indexchaine < input_length)) {
+			Code16List[0][indexliste]++;
 			indexchaine++;
 			mode = parunmodd(source[indexchaine]);
 			if((gs1) && (source[indexchaine] == '[')) {
@@ -321,8 +315,8 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 	// Put set data into set[] 
 	read = 0;
 	for(i = 0; (int)i < indexliste; i++) {
-		for(j = 0; (int)j < list[0][i]; j++) {
-			switch(list[1][i]) {
+		for(j = 0; (int)j < Code16List[0][i]; j++) {
+			switch(Code16List[1][i]) {
 				case SHIFTA: set[read] = 'a'; break;
 				case LATCHA: set[read] = 'A'; break;
 				case SHIFTB: set[read] = 'b'; break;
@@ -336,15 +330,13 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 	if(set[0] == 'a') {
 		i = 0;
 		do {
-			set[i] = 'A';
-			i++;
+			set[i++] = 'A';
 		} while(set[i] == 'a');
 	}
 	if(set[0] == 'b') {
 		i = 0;
 		do {
-			set[i] = 'B';
-			i++;
+			set[i++] = 'B';
 		} while(set[i] == 'b');
 	}
 	// Watch out for odd-length Mode C blocks 
@@ -354,10 +346,10 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 			if(source[i] == '[') {
 				if(c_count & 1) {
 					if((i - c_count) != 0) {
-						set[i - c_count] = 'B';
+						set[i-c_count] = 'B';
 					}
 					else {
-						set[i - 1] = 'B';
+						set[i-1] = 'B';
 					}
 				}
 				c_count = 0;
@@ -369,10 +361,10 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 		else {
 			if(c_count & 1) {
 				if((i - c_count) != 0) {
-					set[i - c_count] = 'B';
+					set[i-c_count] = 'B';
 				}
 				else {
-					set[i - 1] = 'B';
+					set[i-1] = 'B';
 				}
 			}
 			c_count = 0;
@@ -387,7 +379,7 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 		}
 	}
 	for(i = 1; i < read - 1; i++) {
-		if((set[i] == 'C') && ((set[i - 1] == 'B') && (set[i + 1] == 'B'))) {
+		if((set[i] == 'C') && ((set[i-1] == 'B') && (set[i + 1] == 'B'))) {
 			set[i] = 'B';
 		}
 	}
@@ -395,23 +387,24 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 	last_set = ' ';
 	glyph_count = 0.0;
 	for(i = 0; (int)i < input_length; i++) {
-		if((set[i] == 'a') || (set[i] == 'b')) {
+		const char set_i = set[i];
+		if((set_i == 'a') || (set_i == 'b')) {
 			glyph_count = glyph_count + 1.0f;
 		}
 		if((fset[i] == 'f') || (fset[i] == 'n')) {
 			glyph_count = glyph_count + 1.0f;
 		}
-		if(((set[i] == 'A') || (set[i] == 'B')) || (set[i] == 'C')) {
-			if(set[i] != last_set) {
-				last_set = set[i];
+		if(((set_i == 'A') || (set_i == 'B')) || (set_i == 'C')) {
+			if(set_i != last_set) {
+				last_set = set_i;
 				glyph_count = glyph_count + 1.0f;
 			}
 		}
 		if(i == 0) {
-			if((set[i] == 'B') && (set[1] == 'C')) {
+			if((set_i == 'B') && (set[1] == 'C')) {
 				glyph_count = glyph_count - 1.0f;
 			}
-			if((set[i] == 'B') && (set[1] == 'B')) {
+			if((set_i == 'B') && (set[1] == 'B')) {
 				if(set[2] == 'C') {
 					glyph_count = glyph_count - 1.0f;
 				}
@@ -421,20 +414,14 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 			}
 		}
 		else {
-			if((fset[i] == 'F') && (fset[i - 1] != 'F')) {
+			if((fset[i] == 'F') && (fset[i-1] != 'F')) {
 				glyph_count = glyph_count + 2.0f;
 			}
-			if((fset[i] != 'F') && (fset[i - 1] == 'F')) {
+			if((fset[i] != 'F') && (fset[i-1] == 'F')) {
 				glyph_count = glyph_count + 2.0f;
 			}
 		}
-
-		if((set[i] == 'C') && (!((gs1) && (source[i] == '[')))) {
-			glyph_count = glyph_count + 0.5f;
-		}
-		else {
-			glyph_count = glyph_count + 1.0f;
-		}
+		glyph_count = ((set_i == 'C') && (!((gs1) && (source[i] == '[')))) ? (glyph_count + 0.5f) :  (glyph_count + 1.0f);
 	}
 	if((gs1) && (set[0] != 'A')) {
 		// FNC1 can be integrated with mode character 
@@ -474,9 +461,8 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 				m = 6;
 			}
 		}
-		values[bar_characters] = (7 * (rows_needed - 2)) + m; /* see 4.3.4.2 */
-		values[bar_characters + 1] = 96; /* FNC3 */
-		bar_characters += 2;
+		values[bar_characters++] = (7 * (rows_needed - 2)) + m; // see 4.3.4.2 
+		values[bar_characters++] = 96; // FNC3 
 	}
 	else {
 		if(gs1) {
@@ -494,22 +480,20 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 				m = 6;
 			}
 		}
-		values[bar_characters] = (7 * (rows_needed - 2)) + m; /* see 4.3.4.2 */
-		bar_characters++;
+		values[bar_characters++] = (7 * (rows_needed - 2)) + m; // see 4.3.4.2 
 	}
 	current_set = set[0];
 	f_state = 0;
-	/* f_state remembers if we are in Extended ASCII mode (value 1) or
-	    in ISO/IEC 646 mode (value 0) */
+	// f_state remembers if we are in Extended ASCII mode (value 1) or in ISO/IEC 646 mode (value 0) 
 	if(fset[0] == 'F') {
 		switch(current_set) {
 			case 'A':
 			    values[bar_characters] = 101;
-			    values[bar_characters + 1] = 101;
+			    values[bar_characters+1] = 101;
 			    break;
 			case 'B':
 			    values[bar_characters] = 100;
-			    values[bar_characters + 1] = 100;
+			    values[bar_characters+1] = 100;
 			    break;
 		}
 		bar_characters += 2;
@@ -522,22 +506,18 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 			// Latch different code set 
 			switch(set[read]) {
 				case 'A':
-				    values[bar_characters] = 101;
-				    bar_characters++;
+				    values[bar_characters++] = 101;
 				    current_set = 'A';
 				    break;
 				case 'B':
-				    values[bar_characters] = 100;
-				    bar_characters++;
+				    values[bar_characters++] = 100;
 				    current_set = 'B';
 				    break;
 				case 'C':
 				    if(!((read == 1) && (set[0] == 'B'))) {
-					    /* Not Mode C/Shift B */
+					    // Not Mode C/Shift B 
 					    if(!((read == 2) && ((set[0] == 'B') && (set[1] == 'B')))) {
-						    /* Not Mode C/Double Shift B */
-						    values[bar_characters] = 99;
-						    bar_characters++;
+						    values[bar_characters++] = 99; // Not Mode C/Double Shift B 
 					    }
 				    }
 				    current_set = 'C';
@@ -550,11 +530,11 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 				switch(current_set) {
 					case 'A':
 					    values[bar_characters] = 101;
-					    values[bar_characters + 1] = 101;
+					    values[bar_characters+1] = 101;
 					    break;
 					case 'B':
 					    values[bar_characters] = 100;
-					    values[bar_characters + 1] = 100;
+					    values[bar_characters+1] = 100;
 					    break;
 				}
 				bar_characters += 2;
@@ -565,18 +545,17 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 				switch(current_set) {
 					case 'A':
 					    values[bar_characters] = 101;
-					    values[bar_characters + 1] = 101;
+					    values[bar_characters+1] = 101;
 					    break;
 					case 'B':
 					    values[bar_characters] = 100;
-					    values[bar_characters + 1] = 100;
+					    values[bar_characters+1] = 100;
 					    break;
 				}
 				bar_characters += 2;
 				f_state = 0;
 			}
 		}
-
 		if((fset[i] == 'f') || (fset[i] == 'n')) {
 			/* Shift extended mode */
 			switch(current_set) {
@@ -590,11 +569,8 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 			bar_characters++;
 		}
 		if((set[i] == 'a') || (set[i] == 'b')) {
-			/* Insert shift character */
-			values[bar_characters] = 98;
-			bar_characters++;
+			values[bar_characters++] = 98; // Insert shift character 
 		}
-
 		if(!((gs1) && (source[read] == '['))) {
 			switch(set[read]) { /* Encode data characters */
 				case 'A':
@@ -607,14 +583,13 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 				    c16k_set_b(source[read], values, &bar_characters);
 				    read++;
 				    break;
-				case 'C': c16k_set_c(source[read], source[read + 1], values, &bar_characters);
+				case 'C': c16k_set_c(source[read], source[read+1], values, &bar_characters);
 				    read += 2;
 				    break;
 			}
 		}
 		else {
-			values[bar_characters] = 102;
-			bar_characters++;
+			values[bar_characters++] = 102;
 			read++;
 		}
 	} while(read < sstrlen(source));
@@ -626,8 +601,7 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 		pads_needed += 8 - (bar_characters + pads_needed);
 	}
 	for(i = 0; (int)i < pads_needed; i++) {
-		values[bar_characters] = 106;
-		bar_characters++;
+		values[bar_characters++] = 106;
 	}
 	// Calculate check digits 
 	first_sum = 0;
@@ -639,10 +613,8 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 	first_check = first_sum % 107;
 	second_sum += first_check * (bar_characters + 1);
 	second_check = second_sum % 107;
-	values[bar_characters] = first_check;
-	values[bar_characters + 1] = second_check;
-	bar_characters += 2;
-
+	values[bar_characters++] = first_check;
+	values[bar_characters++] = second_check;
 	for(current_row = 0; current_row < rows_needed; current_row++) {
 		sstrcpy(width_pattern, "");
 		strcat(width_pattern, C16KStartStop[C16KStartValues[current_row]]);
@@ -651,11 +623,11 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 			strcat(width_pattern, C16KTable[values[(current_row * 5) + i]]);
 		}
 		strcat(width_pattern, C16KStartStop[C16KStopValues[current_row]]);
-		/* Write the information into the symbol */
+		// Write the information into the symbol 
 		writer = 0;
 		flip_flop = 1;
 		for(mx_reader = 0; mx_reader < strlen(width_pattern); mx_reader++) {
-			for(looper = 0; looper < hex(width_pattern[mx_reader]); looper++) {
+			for(looper = 0; looper < (int)hex(width_pattern[mx_reader]); looper++) {
 				if(flip_flop == 1) {
 					set_module(symbol, current_row, writer);
 					writer++;
@@ -664,12 +636,7 @@ int code16k(struct ZintSymbol * symbol, uchar source[], int length)
 					writer++;
 				}
 			}
-			if(flip_flop == 0) {
-				flip_flop = 1;
-			}
-			else {
-				flip_flop = 0;
-			}
+			flip_flop = (flip_flop == 0) ? 1 : 0;
 		}
 		symbol->row_height[current_row] = 10;
 	}

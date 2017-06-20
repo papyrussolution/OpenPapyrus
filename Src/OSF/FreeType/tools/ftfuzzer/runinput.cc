@@ -1,8 +1,8 @@
 // runinput.cc
 //
-//   A `main' function for `ftfuzzer.cc'.
+//   A `main' function for fuzzers like `ftfuzzer.cc'.
 //
-// Copyright 2015 by
+// Copyright 2015-2017 by
 // David Turner, Robert Wilhelm, and Werner Lemberg.
 //
 // This file is part of the FreeType project, and may only be used,

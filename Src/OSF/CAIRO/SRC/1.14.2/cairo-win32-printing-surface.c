@@ -47,7 +47,7 @@
 #endif
 #include "cairo-default-context-private.h"
 #include "cairo-paginated-private.h"
-#include "cairo-clip-private.h"
+//#include "cairo-clip-private.h"
 #include "cairo-win32-private.h"
 #include "cairo-recording-surface-inline.h"
 #include "cairo-scaled-font-subsets-private.h"
@@ -1128,7 +1128,7 @@ static cairo_int_status_t _cairo_win32_printing_surface_stroke(void * abstract_s
 	dash_array = NULL;
 	if(style->num_dashes) {
 		pen_style |= PS_USERSTYLE;
-		dash_array = (DWORD *)calloc(sizeof(DWORD), style->num_dashes);
+		dash_array = (DWORD *)SAlloc::C(sizeof(DWORD), style->num_dashes);
 		for(i = 0; i < style->num_dashes; i++) {
 			dash_array[i] = (DWORD)(scale * style->dash[i]);
 		}

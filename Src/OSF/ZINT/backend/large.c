@@ -113,31 +113,27 @@ void binary_subtract(short accumulator[], short input_buffer[])
 
 void shiftdown(short buffer[])
 {
-	int i;
 	buffer[102] = 0;
 	buffer[103] = 0;
-	for(i = 0; i < 102; i++) {
+	for(int i = 0; i < 102; i++) {
 		buffer[i] = buffer[i + 1];
 	}
 }
 
 void shiftup(short buffer[])
 {
-	int i;
-	for(i = 102; i > 0; i--) {
-		buffer[i] = buffer[i - 1];
+	for(int i = 102; i > 0; i--) {
+		buffer[i] = buffer[i-1];
 	}
 	buffer[0] = 0;
 }
 
 short islarger(short accum[], short reg[])
 {
-	/* Returns 1 if accum[] is larger than reg[], else 0 */
-	int i, latch, larger;
-	latch = 0;
-	i = 103;
-	larger = 0;
-
+	// Returns 1 if accum[] is larger than reg[], else 0 
+	int latch = 0;
+	int i = 103;
+	int larger = 0;
 	do {
 		if((accum[i] == 1) && (reg[i] == 0)) {
 			latch = 1;
@@ -151,19 +147,19 @@ short islarger(short accum[], short reg[])
 	return larger;
 }
 
-void binary_load(short reg[], char data[], const uint src_len)
+void binary_load(short reg[], const char pData[], const uint srcLen)
 {
 	short  temp[112] = {0};
 	memzero(reg, sizeof(reg[0]) * 112);
-	for(uint read = 0; read < src_len; read++) {
+	for(uint read = 0; read < srcLen; read++) {
 		memcpy(temp, reg, sizeof(temp));
 		for(int i = 0; i < 9; i++) {
 			binary_add(reg, temp);
 		}
-		temp[0] = BCD[hex(data[read]) * 4];
-		temp[1] = BCD[(hex(data[read]) * 4) + 1];
-		temp[2] = BCD[(hex(data[read]) * 4) + 2];
-		temp[3] = BCD[(hex(data[read]) * 4) + 3];
+		temp[0] = BCD[hex(pData[read]) * 4];
+		temp[1] = BCD[(hex(pData[read]) * 4) + 1];
+		temp[2] = BCD[(hex(pData[read]) * 4) + 2];
+		temp[3] = BCD[(hex(pData[read]) * 4) + 3];
 		memzero(temp+4, sizeof(temp) - 4 * sizeof(temp[0]));
 		binary_add(reg, temp);
 	}

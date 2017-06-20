@@ -84,7 +84,7 @@ struct __db_foreign_info {
 	dbc = NULL;							\
 	file_dbp = NULL;						\
 	COMPQUIET(mpf, NULL);	/* Not all recovery routines use mpf. */\
-	if((ret = func(env, &file_dbp, (info != NULL) ? ((DB_TXNHEAD *)info)->td : NULL, dbtp->data, &argp)) != 0) {					\
+	if((ret = func(env, &file_dbp, (info ? ((DB_TXNHEAD *)info)->td : NULL), dbtp->data, &argp)) != 0) {					\
 		if(ret	== DB_DELETED) {				\
 			ret = 0;					\
 			goto done;					\

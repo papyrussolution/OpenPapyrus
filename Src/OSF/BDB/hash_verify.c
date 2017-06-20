@@ -7,14 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_verify.h"
 
 static int __ham_dups_unsorted(DB*, uint8*, uint32);
 static int __ham_vrfy_bucket(DB*, VRFY_DBINFO*, HMETA*, uint32, uint32);
@@ -242,16 +235,13 @@ static int __ham_vrfy_item(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, PAGE * h
 		databuf = HKEYDATA_DATA(P_ENTRY(dbp, h, i));
 		for(offset = 0; offset < len; offset += DUP_SIZE(dlen)) {
 			memcpy(&dlen, databuf+offset, sizeof(db_indx_t));
-			/* Make sure the length is plausible. */
+			// Make sure the length is plausible. 
 			if(offset+DUP_SIZE(dlen) > len) {
 				EPRINT((dbp->env, DB_STR_A("1105", "Page %lu: duplicate item %lu has bad length", "%lu %lu"), (ulong)pip->pgno, (ulong)i));
 				ret = DB_VERIFY_BAD;
 				goto err;
 			}
-			/*
-			 * Make sure the second copy of the length is the
-			 * same as the first.
-			 */
+			// Make sure the second copy of the length is the same as the first.
 			memcpy(&elen, databuf+offset+dlen+sizeof(db_indx_t), sizeof(db_indx_t));
 			if(elen != dlen) {
 				EPRINT((dbp->env, DB_STR_A("1106", "Page %lu: duplicate item %lu has two different lengths", "%lu %lu"), (ulong)pip->pgno, (ulong)i));
@@ -260,12 +250,11 @@ static int __ham_vrfy_item(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, PAGE * h
 			}
 		}
 		F_SET(pip, VRFY_HAS_DUPS);
-		if(!LF_ISSET(DB_NOORDERCHK) &&
-		   __ham_dups_unsorted(dbp, databuf, len))
+		if(!LF_ISSET(DB_NOORDERCHK) && __ham_dups_unsorted(dbp, databuf, len))
 			F_SET(pip, VRFY_DUPS_UNSORTED);
 		break;
 	    case H_OFFPAGE:
-		/* Offpage item.  Make sure pgno is sane, save off. */
+		// Offpage item.  Make sure pgno is sane, save off
 		memcpy(&hop, P_ENTRY(dbp, h, i), HOFFPAGE_SIZE);
 		if(!IS_VALID_PGNO(hop.pgno) || hop.pgno == pip->pgno || hop.pgno == PGNO_INVALID) {
 			EPRINT((dbp->env, DB_STR_A("1107", "Page %lu: offpage item %lu has bad pgno %lu", "%lu %lu %lu"), (ulong)pip->pgno, (ulong)i, (ulong)hop.pgno));
@@ -407,23 +396,16 @@ err:
  */
 static int __ham_vrfy_bucket(DB * dbp, VRFY_DBINFO * vdp, HMETA * m, uint32 bucket, uint32 flags)
 {
-	ENV * env;
-	HASH * hashp;
 	VRFY_CHILDINFO * child;
-	VRFY_PAGEINFO * mip, * pip;
-	int ret, t_ret, isbad, p;
+	VRFY_PAGEINFO * mip;
+	int ret, t_ret, p;
 	db_pgno_t pgno, next_pgno;
-	DBC * cc;
-	uint32(*hfunc) __P((DB*, const void *, uint32));
-	env = dbp->env;
-	isbad = 0;
-	pip = NULL;
-	cc = NULL;
-	hashp = (HASH *)dbp->h_internal;
-	if(hashp != NULL && hashp->h_hash != NULL)
-		hfunc = hashp->h_hash;
-	else
-		hfunc = __ham_func5;
+	ENV * env = dbp->env;
+	int isbad = 0;
+	VRFY_PAGEINFO * pip = NULL;
+	DBC * cc = NULL;
+	HASH * hashp = (HASH *)dbp->h_internal;
+	uint32 (*hfunc)(DB*, const void *, uint32) = (hashp != NULL && hashp->h_hash != NULL) ? hashp->h_hash : __ham_func5;
 	if((ret = __db_vrfy_getpageinfo(vdp, PGNO(m), &mip)) != 0)
 		return ret;
 	/* Calculate the first pgno for this bucket. */

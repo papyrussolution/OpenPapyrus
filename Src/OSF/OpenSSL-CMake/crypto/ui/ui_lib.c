@@ -606,8 +606,7 @@ int UI_method_set_flusher(UI_METHOD * method, int (* flusher)(UI * ui))
 	return -1;
 }
 
-int UI_method_set_reader(UI_METHOD * method,
-    int (* reader)(UI * ui, UI_STRING * uis))
+int UI_method_set_reader(UI_METHOD * method, int (* reader)(UI * ui, UI_STRING * uis))
 {
 	if(method != NULL) {
 		method->ui_read_string = reader;
@@ -625,12 +624,8 @@ int UI_method_set_closer(UI_METHOD * method, int (* closer)(UI * ui))
 	return -1;
 }
 
-int UI_method_set_prompt_constructor(UI_METHOD * method,
-    char *(*prompt_constructor)(UI *ui,
-	    const char
-	    * object_desc,
-	    const char
-	    * object_name))
+int UI_method_set_prompt_constructor(UI_METHOD * method, char *(*prompt_constructor)(UI *ui,
+	const char * object_desc, const char * object_name))
 {
 	if(method != NULL) {
 		method->ui_construct_prompt = prompt_constructor;
@@ -641,46 +636,32 @@ int UI_method_set_prompt_constructor(UI_METHOD * method,
 
 int(*UI_method_get_opener(UI_METHOD *method)) (UI *)
 {
-	if(method != NULL)
-		return method->ui_open_session;
-	return NULL;
+	return (method != NULL) ? method->ui_open_session : NULL;
 }
 
 int(*UI_method_get_writer(UI_METHOD *method)) (UI *, UI_STRING *)
 {
-	if(method != NULL)
-		return method->ui_write_string;
-	return NULL;
+	return (method != NULL) ? method->ui_write_string : NULL;
 }
 
 int(*UI_method_get_flusher(UI_METHOD *method)) (UI *)
 {
-	if(method != NULL)
-		return method->ui_flush;
-	return NULL;
+	return (method != NULL) ? method->ui_flush : NULL;
 }
 
 int(*UI_method_get_reader(UI_METHOD *method)) (UI *, UI_STRING *)
 {
-	if(method != NULL)
-		return method->ui_read_string;
-	return NULL;
+	return (method != NULL) ? method->ui_read_string : NULL;
 }
 
 int(*UI_method_get_closer(UI_METHOD *method)) (UI *)
 {
-	if(method != NULL)
-		return method->ui_close_session;
-	return NULL;
+	return (method != NULL) ? method->ui_close_session : NULL;
 }
 
-char *(*UI_method_get_prompt_constructor(UI_METHOD *method))(UI *,
-    const char *,
-    const char *)
+char *(*UI_method_get_prompt_constructor(UI_METHOD *method))(UI *, const char *, const char *)
 {
-	if(method != NULL)
-		return method->ui_construct_prompt;
-	return NULL;
+	return (method != NULL) ? method->ui_construct_prompt : NULL;
 }
 
 enum UI_string_types UI_get_string_type(UI_STRING * uis)
@@ -755,54 +736,42 @@ int UI_get_result_maxsize(UI_STRING * uis)
 int UI_set_result(UI * ui, UI_STRING * uis, const char * result)
 {
 	int l = strlen(result);
-
 	ui->flags &= ~UI_FLAG_REDOABLE;
-
 	switch(uis->type) {
 		case UIT_PROMPT:
 		case UIT_VERIFY:
 	    {
 		    char number1[DECIMAL_SIZE(uis->_.string_data.result_minsize) + 1];
 		    char number2[DECIMAL_SIZE(uis->_.string_data.result_maxsize) + 1];
-
-		    BIO_snprintf(number1, sizeof(number1), "%d",
-			    uis->_.string_data.result_minsize);
-		    BIO_snprintf(number2, sizeof(number2), "%d",
-			    uis->_.string_data.result_maxsize);
-
+		    BIO_snprintf(number1, sizeof(number1), "%d", uis->_.string_data.result_minsize);
+		    BIO_snprintf(number2, sizeof(number2), "%d", uis->_.string_data.result_maxsize);
 		    if(l < uis->_.string_data.result_minsize) {
 			    ui->flags |= UI_FLAG_REDOABLE;
 			    UIerr(UI_F_UI_SET_RESULT, UI_R_RESULT_TOO_SMALL);
-			    ERR_add_error_data(5, "You must type in ",
-				    number1, " to ", number2, " characters");
+			    ERR_add_error_data(5, "You must type in ", number1, " to ", number2, " characters");
 			    return -1;
 		    }
 		    if(l > uis->_.string_data.result_maxsize) {
 			    ui->flags |= UI_FLAG_REDOABLE;
 			    UIerr(UI_F_UI_SET_RESULT, UI_R_RESULT_TOO_LARGE);
-			    ERR_add_error_data(5, "You must type in ",
-				    number1, " to ", number2, " characters");
+			    ERR_add_error_data(5, "You must type in ", number1, " to ", number2, " characters");
 			    return -1;
 		    }
 	    }
-
 		    if(uis->result_buf == NULL) {
 			    UIerr(UI_F_UI_SET_RESULT, UI_R_NO_RESULT_BUFFER);
 			    return -1;
 		    }
-
 		    OPENSSL_strlcpy(uis->result_buf, result,
 		    uis->_.string_data.result_maxsize + 1);
 		    break;
 		case UIT_BOOLEAN:
 	    {
 		    const char * p;
-
 		    if(uis->result_buf == NULL) {
 			    UIerr(UI_F_UI_SET_RESULT, UI_R_NO_RESULT_BUFFER);
 			    return -1;
 		    }
-
 		    uis->result_buf[0] = '\0';
 		    for(p = result; *p; p++) {
 			    if(strchr(uis->_.boolean_data.ok_chars, *p)) {

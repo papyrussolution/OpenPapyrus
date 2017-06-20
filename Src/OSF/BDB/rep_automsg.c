@@ -381,8 +381,7 @@ int __rep_newfile_unmarshal(ENV * env, __rep_newfile_args * argp, uint8 * bp, si
 	if(max < __REP_NEWFILE_SIZE)
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->version, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	return 0;
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __rep_newfile message"));
@@ -465,8 +464,7 @@ int __rep_update_unmarshal(ENV * env, uint32 version, __rep_update_args ** argpp
 	}
 	else
 		DB_NTOHL_COPYIN(env, argp->num_files, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	*argpp = argp;
 	return 0;
 too_few:

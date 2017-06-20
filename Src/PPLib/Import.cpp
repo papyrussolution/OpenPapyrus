@@ -5842,8 +5842,14 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 				const PPOsm::Node & r_last_node = NodeAccum.at(_count-1);
 				if(force || (r_last_node.ID & 0x7f) == 0x7f) {
 					if(!P_RoadStoneStat || Stat.NodeCount > P_RoadStoneStat->Stat.NodeCount) {
+						if(P_RoadStoneStat) {
+							Stat.WayList = P_RoadStoneStat->Stat.WayList;
+							Stat.NcList = P_RoadStoneStat->Stat.NcList;
+							ZDELETE(P_RoadStoneStat);
+						}
 						SrDatabase * p_db = O.GetDb();
 						if(p_db) {
+							const int dont_check_existance = 1;
 							LLAssocArray node_to_way_assc_list;
 							LLAssocArray * p_node_to_way_assc_list = 0;
 							if(P_NodeToWayAssocInF) {
@@ -5870,7 +5876,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 								}
 
 							}
-							THROW(p_db->StoreGeoNodeList(NodeAccum, &node_to_way_assc_list, &Stat.NcList));
+							THROW(p_db->StoreGeoNodeList(NodeAccum, &node_to_way_assc_list, dont_check_existance, &Stat.NcList));
 						}
 						OutputStat(0);
 						// (При работе с RoadSton'ом - не катит) assert((Stat.GetNcActualCount() + Stat.GetNcProcessedCount()) == Stat.NodeCount);
@@ -5887,14 +5893,19 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 			const uint _count = WayAccum.getCount();
 			if(_count && (force || _count >= way_accum_limit)) {
 				if(!P_RoadStoneStat || Stat.WayCount > P_RoadStoneStat->Stat.WayCount) {
+					if(P_RoadStoneStat) {
+						Stat.WayList = P_RoadStoneStat->Stat.WayList;
+						Stat.NcList = P_RoadStoneStat->Stat.NcList;
+						ZDELETE(P_RoadStoneStat);
+					}
 					size_t offs = 0;
 					SrDatabase * p_db = O.GetDb();
 					if(p_db) {
 						THROW(p_db->StoreGeoWayList(WayAccum, &Stat.WayList));
 					}
 					OutputStat(0);
-					// (При работе с RoadSton'ом - не катит) assert((Stat.GetNcActualCount() + Stat.GetNcProcessedCount()) == Stat.NodeCount);
-					// (При работе с RoadSton'ом - не катит) assert(Stat.GetWsCount() + Stat.GetWsProcessedCount() == Stat.WayCount);
+					assert((Stat.GetNcActualCount() + Stat.GetNcProcessedCount()) == Stat.NodeCount);
+					assert(Stat.GetWsCount() + Stat.GetWsProcessedCount() == Stat.WayCount);
 					do_store_roadstone = 1;
 				}
 				WayAccum.freeAll();

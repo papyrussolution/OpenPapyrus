@@ -45,7 +45,7 @@
 #if CAIRO_HAS_XML_SURFACE // {
 
 #include "cairo-xml.h"
-#include "cairo-clip-private.h"
+//#include "cairo-clip-private.h"
 #include "cairo-device-private.h"
 #include "cairo-default-context-private.h"
 #include "cairo-image-surface-private.h"

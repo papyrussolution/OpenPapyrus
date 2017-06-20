@@ -59,13 +59,11 @@
  *
  * Return value: the error status.
  **/
-cairo_status_t
-_cairo_error (cairo_status_t status)
+cairo_status_t FASTCALL _cairo_error(cairo_status_t status)
 {
-    CAIRO_ENSURE_UNIQUE;
-    assert (_cairo_status_is_error (status));
-
-    return status;
+	CAIRO_ENSURE_UNIQUE;
+	assert(_cairo_status_is_error(status));
+	return status;
 }
 
-COMPILE_TIME_ASSERT ((int)CAIRO_INT_STATUS_LAST_STATUS == (int)CAIRO_STATUS_LAST_STATUS);
+COMPILE_TIME_ASSERT((int)CAIRO_INT_STATUS_LAST_STATUS == (int)CAIRO_STATUS_LAST_STATUS);

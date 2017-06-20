@@ -271,13 +271,15 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <PrecompiledHeaderOutputFile>.\..\..\..\objs\release/freetype.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\..\..\..\objs\release/</AssemblerListingLocation>
       <ObjectFileName>.\..\..\..\objs\release/</ObjectFileName>
       <ProgramDataBaseFileName>.\..\..\..\objs\release/</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
     </ClCompile>
     <Lib>
       <OutputFile>..\..\..\objs\freetype242.lib</OutputFile>
@@ -304,13 +306,15 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <PrecompiledHeaderOutputFile>.\..\..\..\objs\release/freetype.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\..\..\..\objs\release/</AssemblerListingLocation>
       <ObjectFileName>.\..\..\..\objs\release/</ObjectFileName>
       <ProgramDataBaseFileName>.\..\..\..\objs\release/</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
     </ClCompile>
     <Lib>
       <OutputFile>..\..\..\objs\freetype242.lib</OutputFile>
@@ -335,14 +339,16 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <PrecompiledHeaderOutputFile>.\..\..\..\objs\debug/freetype.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\..\..\..\objs\debug/</AssemblerListingLocation>
       <ObjectFileName>.\..\..\..\objs\debug/</ObjectFileName>
       <ProgramDataBaseFileName>.\..\..\..\objs\debug/</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
     </ClCompile>
     <Lib>
       <OutputFile>..\..\..\objs\freetype242_D.lib</OutputFile>
@@ -368,14 +374,16 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <PrecompiledHeaderOutputFile>.\..\..\..\objs\debug/freetype.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\..\..\..\objs\debug/</AssemblerListingLocation>
       <ObjectFileName>.\..\..\..\objs\debug/</ObjectFileName>
       <ProgramDataBaseFileName>.\..\..\..\objs\debug/</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
     </ClCompile>
     <Lib>
       <OutputFile>..\..\..\objs\freetype242_D.lib</OutputFile>
@@ -400,13 +408,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <PrecompiledHeaderOutputFile>.\..\..\..\objs\debug_mt/freetype.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\..\..\..\objs\debug_mt/</AssemblerListingLocation>
       <ObjectFileName>.\..\..\..\objs\debug_mt/</ObjectFileName>
       <ProgramDataBaseFileName>.\..\..\..\objs\debug_mt/</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
     </ClCompile>
     <Lib>
       <OutputFile>..\..\..\objs\freetype242MT_D.lib</OutputFile>
@@ -432,13 +442,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <PrecompiledHeaderOutputFile>.\..\..\..\objs\debug_mt/freetype.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\..\..\..\objs\debug_mt/</AssemblerListingLocation>
       <ObjectFileName>.\..\..\..\objs\debug_mt/</ObjectFileName>
       <ProgramDataBaseFileName>.\..\..\..\objs\debug_mt/</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
     </ClCompile>
     <Lib>
       <OutputFile>..\..\..\objs\freetype242MT_D.lib</OutputFile>
@@ -464,12 +476,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <PrecompiledHeaderOutputFile>.\..\..\..\objs\release_mt/freetype.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\..\..\..\objs\release_mt/</AssemblerListingLocation>
       <ObjectFileName>.\..\..\..\objs\release_mt/</ObjectFileName>
       <ProgramDataBaseFileName>.\..\..\..\objs\release_mt/</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
     </ClCompile>
     <Lib>
       <OutputFile>..\..\..\objs\freetype242MT.lib</OutputFile>
@@ -496,12 +510,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <PrecompiledHeaderOutputFile>.\..\..\..\objs\release_mt/freetype.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\..\..\..\objs\release_mt/</AssemblerListingLocation>
       <ObjectFileName>.\..\..\..\objs\release_mt/</ObjectFileName>
       <ProgramDataBaseFileName>.\..\..\..\objs\release_mt/</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
     </ClCompile>
     <Lib>
       <OutputFile>..\..\..\objs\freetype242MT.lib</OutputFile>
@@ -526,13 +542,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <PrecompiledHeaderOutputFile>.\..\..\..\objs\debug_mt/freetype.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\..\..\..\objs\debug_mt/</AssemblerListingLocation>
       <ObjectFileName>.\..\..\..\objs\debug_mt/</ObjectFileName>
       <ProgramDataBaseFileName>.\..\..\..\objs\debug_mt/</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
     </ClCompile>
     <Lib>
       <OutputFile>..\..\..\objs\freetype242MT_D.lib</OutputFile>
@@ -558,13 +576,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <PrecompiledHeaderOutputFile>.\..\..\..\objs\debug_mt/freetype.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\..\..\..\objs\debug_mt/</AssemblerListingLocation>
       <ObjectFileName>.\..\..\..\objs\debug_mt/</ObjectFileName>
       <ProgramDataBaseFileName>.\..\..\..\objs\debug_mt/</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
     </ClCompile>
     <Lib>
       <OutputFile>..\..\..\objs\freetype242MT_D.lib</OutputFile>
@@ -590,12 +610,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <PrecompiledHeaderOutputFile>.\..\..\..\objs\release_mt/freetype.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\..\..\..\objs\release_mt/</AssemblerListingLocation>
       <ObjectFileName>.\..\..\..\objs\release_mt/</ObjectFileName>
       <ProgramDataBaseFileName>.\..\..\..\objs\release_mt/</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
     </ClCompile>
     <Lib>
       <OutputFile>..\..\..\objs\freetype242MT.lib</OutputFile>
@@ -622,12 +644,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <PrecompiledHeaderOutputFile>.\..\..\..\objs\release_mt/freetype.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\..\..\..\objs\release_mt/</AssemblerListingLocation>
       <ObjectFileName>.\..\..\..\objs\release_mt/</ObjectFileName>
       <ProgramDataBaseFileName>.\..\..\..\objs\release_mt/</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
     </ClCompile>
     <Lib>
       <OutputFile>..\..\..\objs\freetype242MT.lib</OutputFile>
@@ -659,9 +683,24 @@
     <ClCompile Include="..\Osf\FreeType\base\fttype1.c" />
     <ClCompile Include="..\Osf\FreeType\base\ftwinfnt.c" />
     <ClCompile Include="..\Osf\FreeType\bdf\bdf.c" />
+    <ClCompile Include="..\OSF\FreeType\bzip2\ftbzip2.c" />
     <ClCompile Include="..\Osf\FreeType\cache\ftcache.c" />
     <ClCompile Include="..\Osf\FreeType\cff\cff.c" />
     <ClCompile Include="..\Osf\FreeType\cid\type1cid.c" />
+    <ClCompile Include="..\OSF\FreeType\freetype-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\Osf\FreeType\gzip\ftgzip.c" />
     <ClCompile Include="..\Osf\FreeType\lzw\ftlzw.c" />
     <ClCompile Include="..\Osf\FreeType\pcf\pcf.c" />

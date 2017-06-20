@@ -269,6 +269,7 @@ struct GoaAddingBlock;
 struct GoaCacheItem;
 struct ProfileEntry;
 class  LogListWindow;
+class  LogListWindowSCI;
 struct PPCheckInPersonConfig;
 class  PPCheckInPersonArray;
 struct _PPRights;
@@ -1634,7 +1635,7 @@ public:
 	int    SLAPI LogLastError();
 	int    SLAPI Save(const char * pFileName, long options); // @>>PPMsgLog::SaveLogFile
 	int    SLAPI Save(uint fileId, long options); // @>>PPMsgLog::SaveLogFile
-	int    SLAPI Clear();
+	void   SLAPI Clear();
 private:
 	long   Flags;
 	PPMsgLog * P_Log;
@@ -4744,7 +4745,8 @@ private:
 	int    SLAPI InitQc();
 	DBQ  & SLAPI SetupDimDBQ(const PPGdsClsPacket *, int dim, const RealRange *);
 		// @<<GoodsCore::GetListByExtFilt
-	int    SLAPI Helper_GetBarcodeByTempl(const char * pPrfx, const char * pSfx, int, long, long, int addChkDig, SString &);
+	//int    SLAPI Helper_GetBarcodeByTempl(const char * pPrfx, const char * pSfx, int, long, long, int addChkDig, SString &);
+	int    SLAPI Helper_GetBarcodeByTempl(const char * pPrfx, const char * pSfx, uint len, int64 low, int64 upp, int addChkDig, SString & rBarcode);
 	int    SLAPI SearchAnyDynObjRef(PPID objType, PPID objID, PPID * pID);
 		// @<<GoodsCore::SearchAnyRef
 	int    SLAPI FetchStockExt(PPID id, GoodsStockExt * pExt);
@@ -5117,8 +5119,7 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 		// Если (LConfig.OperDate - BillDate) >= FRRL_Days, то включается FRRL.
 	int16  MaxGoodsBillLines;           // @def=300 Максимальное количество товарных строк в документе.
 	int16  GRestCalcThreshold;          // @def=10  Порог расчета остатков товаров по группе, промилле
-	char   PrepayInvoiceGoodsCode[16];  // Код товара для печати
-		// счета-фактуры на предоплату по бухгалтерскому документу
+	char   PrepayInvoiceGoodsCode_obsolete[16];  // Код товара для печати счета-фактуры на предоплату по бухгалтерскому документу
 	int16  CSessUnitingPeriod;          // @def=720=(12*60) Период объединения кассовых сессий в
 		// суперсессии (минут). Если две сессии различаются по времени закрытия //
 		// менее чем на это значение, то они объединяются в одну суперсессию.
@@ -5146,6 +5147,8 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 	int16  Reserve3;                    // @v7.6.3 @alignment
 	LDATE  _InvcMergeTaxCalcAlg2Since;  // @v8.6.0 Дата, начиная с которой применяется алгорим 2 для расчета налогов по
 		// объединенным строкам счет-фактуры (для печати).
+	PPID   PrepayInvoiceGoodsID;        // @v9.7.0 Товара для печати счета-фактуры на предоплату по бухгалтерскому документу
+		// Так же применяется для печати чеков без подробного содержания.
 };
 //
 // Extra config flags (from pp.ini)
@@ -7380,8 +7383,11 @@ public:
 
 	struct BarcodeImageParam {
 		SLAPI BarcodeImageParam();
-
+		enum {
+			fWithCheckDigit = 0x0001 // Код содержит контрольную цифру
+		};
 		int   Std;               // BARCSTD_XXX Стандарт штрихкода
+		long  Flags;
 		int   OutputFormat;      // Формат вывода изображения:
 			// 0 - в буфер Buffer, SFileFormat::Png, SFileFormat::Svg, SFileFormat::Gif, SFileFormat::Bmp
 			// Остальные значения считаются инвалидными.
@@ -26979,6 +26985,7 @@ public:
 	SLAPI  EgaisPersonCore();
     int    SLAPI Search(PPID id, EgaisPersonCore::Item &);
     int    SLAPI SearchByCode(const char * pRarCode, TSArray <EgaisPersonTbl::Rec> & rList);
+    //int    SLAPI SearchByInn
     //
     // Descr: Если для контрагента с ФСРАР-кодом pRarCode существует запись и
     //   эта запись имеет флаг rolefVerified, то функция возвращает (>0).
@@ -28288,7 +28295,7 @@ typedef TSArray <SBIIOpInfo> SBIIOpInfoArray;
 struct StyloBhtIIOnHostCfg {
 	SLAPI  StyloBhtIIOnHostCfg();
 	SLAPI ~StyloBhtIIOnHostCfg();
-	int    SLAPI Init();
+	void   SLAPI Init();
 	StyloBhtIIOnHostCfg & FASTCALL operator = (const StyloBhtIIOnHostCfg & rSrc);
 	int    SLAPI IsEmpty() const;
 	PPID   SLAPI GetOpID(PPID opID) const;
@@ -28417,8 +28424,8 @@ private:
 	int    SLAPI PrepareSupplData(const char * pPath, PPBhtTerminalPacket * pPack = 0);
 	int    SLAPI PrepareLocData(const char * pPath, PPID bhtTypeID);
 	int    SLAPI PrepareTechSessData(const char * pPath, PPID bhtTypeID);
-	int    SLAPI InitGoodsBhtRec(BhtRecord *) const;
-	int    SLAPI InitSupplBhtRec(BhtRecord *) const;
+	void   SLAPI InitGoodsBhtRec(BhtRecord *) const;
+	void   SLAPI InitSupplBhtRec(BhtRecord *) const;
 
 	PPObjGoods GObj;
 	PPObjGoodsGroup GGObj;
@@ -47657,6 +47664,8 @@ struct EmailToBlock {
 //
 //
 //
+#define USE_LOGLISTWINDOWSCI
+
 class TVMsgLog : public PPMsgLog {
 public:
 	// only for dos, for windows do nothing if winDestroy = 0
@@ -47664,12 +47673,17 @@ public:
 
 	SLAPI  TVMsgLog();
 	virtual SLAPI ~TVMsgLog();
-	virtual long SLAPI ImplPutMsg(const char * text, long flags);
+	virtual long SLAPI ImplPutMsg(const char * pText, long flags);
 	virtual int  SLAPI ShowLogWnd(const char * pTitle = 0);
 	void   SLAPI RefreshList();
-	LogListWindow * lwnd; // Private. Don't use !
 protected:
-	long   horzRange;
+	friend class LogListWindow;
+#ifdef USE_LOGLISTWINDOWSCI
+	LogListWindowSCI * P_LWnd;
+#else
+	LogListWindow * P_LWnd;
+#endif
+	long   HorzRange;
 };
 //
 // LotQCertDialog (Defined in V_LOT2.CPP)
@@ -48193,7 +48207,7 @@ int     SLAPI SetupStaffListCombo(TDialog *, uint, PPID, uint flags, PPID orgID,
 int     SLAPI SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID);
 int     SLAPI SetupSubstBillCombo(TDialog * pDlg, uint ctlID, SubstGrpBill sgb);
 int     SLAPI SetupPersonCombo(TDialog *, uint ctlID, PPID id, uint flags, PPID personKindID, int disableIfZeroPersonKind);
-int     SLAPI SetupGoodsGroupCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, void * extraPtr);
+// @v9.7.0 int     SLAPI SetupGoodsGroupCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, void * extraPtr);
 int     SLAPI MessagePersonBirthDay(TDialog * pDlg, PPID psnID);
 int     SLAPI SetupSubstPersonCombo(TDialog * pDlg, uint ctlID, SubstGrpPerson sgp);
 int     SLAPI SetupSubstDateCombo(TDialog * dlg, uint ctlID, long initID);
@@ -49550,7 +49564,7 @@ public:
 	static const char * WndClsName;
 	static int   Open(long desktopID, int createIfZero = 0);
    	static LRESULT CALLBACK DesktopWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-	static int   RegisterClass(HINSTANCE hInst);
+	static int   RegWindowClass(HINSTANCE hInst);
 	static int   EditAssocCmdList(long desktopID);
 	static int   CreateDefault(long * pID);
 	static PPCommandMngr * LoadDeskList(int readOnly, PPCommandGroup * pDesktopList);

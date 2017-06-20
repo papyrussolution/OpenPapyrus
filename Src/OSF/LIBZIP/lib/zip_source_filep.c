@@ -319,9 +319,7 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 		case ZIP_SOURCE_READ:
 		    if(ctx->end > 0) {
 			    n = ctx->end-ctx->current;
-			    if(n > len) {
-				    n = len;
-			    }
+				SETMIN(n, len);
 		    }
 		    else {
 			    n = len;
@@ -386,41 +384,42 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 	    }
 		case ZIP_SOURCE_SEEK_WRITE: {
 		    zip_source_args_seek_t * args = ZIP_SOURCE_GET_ARGS(zip_source_args_seek_t, data, len, &ctx->error);
-		    if(args == NULL) {
+		    if(args == NULL)
 			    return -1;
-		    }
-		    if(_zip_fseek(ctx->fout, args->offset, args->whence, &ctx->error) < 0) {
+		    else if(_zip_fseek(ctx->fout, args->offset, args->whence, &ctx->error) < 0)
 			    return -1;
-		    }
-		    return 0;
+			else
+				return 0;
 	    }
 		case ZIP_SOURCE_STAT: {
 		    if(len < sizeof(ctx->st))
 			    return -1;
-		    if(ctx->st.valid != 0)
-			    memcpy(data, &ctx->st, sizeof(ctx->st));
-		    else {
-			    zip_stat_t * st;
-			    struct stat fst;
-				int    err = ctx->f ? fstat(_fileno(ctx->f), &fst) : stat(ctx->fname, &fst);
-			    if(err != 0)
-				    return zip_error_set(&ctx->error, ZIP_ER_READ, errno);
+			else {
+				if(ctx->st.valid != 0)
+					memcpy(data, &ctx->st, sizeof(ctx->st));
 				else {
-					st = (zip_stat_t*)data;
-					zip_stat_init(st);
-					st->mtime = fst.st_mtime;
-					st->valid |= ZIP_STAT_MTIME;
-					if(ctx->end != 0) {
-						st->size = ctx->end - ctx->start;
-						st->valid |= ZIP_STAT_SIZE;
-					}
-					else if((fst.st_mode&S_IFMT) == S_IFREG) {
-						st->size = (uint64)fst.st_size;
-						st->valid |= ZIP_STAT_SIZE;
+					zip_stat_t * st;
+					struct stat fst;
+					int    err = ctx->f ? fstat(_fileno(ctx->f), &fst) : stat(ctx->fname, &fst);
+					if(err != 0)
+						return zip_error_set(&ctx->error, ZIP_ER_READ, errno);
+					else {
+						st = (zip_stat_t*)data;
+						zip_stat_init(st);
+						st->mtime = fst.st_mtime;
+						st->valid |= ZIP_STAT_MTIME;
+						if(ctx->end != 0) {
+							st->size = ctx->end - ctx->start;
+							st->valid |= ZIP_STAT_SIZE;
+						}
+						else if((fst.st_mode&S_IFMT) == S_IFREG) {
+							st->size = (uint64)fst.st_size;
+							st->valid |= ZIP_STAT_SIZE;
+						}
 					}
 				}
-		    }
-		    return sizeof(ctx->st);
+				return sizeof(ctx->st);
+			}
 	    }
 		case ZIP_SOURCE_SUPPORTS:
 		    return ctx->supports;

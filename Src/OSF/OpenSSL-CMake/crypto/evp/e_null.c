@@ -8,42 +8,40 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/evp.h>
-#include <openssl/objects.h>
+//#include <openssl/evp.h>
+//#include <openssl/objects.h>
 #include <internal/evp_int.h>
 
-static int null_init_key(EVP_CIPHER_CTX *ctx, const uchar *key,
-                         const uchar *iv, int enc);
-static int null_cipher(EVP_CIPHER_CTX *ctx, uchar *out,
-                       const uchar *in, size_t inl);
+static int null_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc);
+static int null_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl);
+
 static const EVP_CIPHER n_cipher = {
-    NID_undef,
-    1, 0, 0, 0,
-    null_init_key,
-    null_cipher,
-    NULL,
-    0,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+	NID_undef,
+	1, 0, 0, 0,
+	null_init_key,
+	null_cipher,
+	NULL,
+	0,
+	NULL,
+	NULL,
+	NULL,
+	NULL
 };
 
-const EVP_CIPHER *EVP_enc_null(void)
+const EVP_CIPHER * EVP_enc_null(void)
 {
-    return (&n_cipher);
+	return (&n_cipher);
 }
 
-static int null_init_key(EVP_CIPHER_CTX *ctx, const uchar *key,
-                         const uchar *iv, int enc)
+static int null_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc)
 {
-    return 1;
+	return 1;
 }
 
-static int null_cipher(EVP_CIPHER_CTX *ctx, uchar *out,
-                       const uchar *in, size_t inl)
+static int null_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl)
 {
-    if (in != out)
-        memcpy(out, in, inl);
-    return 1;
+	if(in != out)
+		memcpy(out, in, inl);
+	return 1;
 }
+

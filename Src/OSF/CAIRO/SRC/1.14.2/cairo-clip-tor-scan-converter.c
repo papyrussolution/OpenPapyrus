@@ -1576,7 +1576,7 @@ cairo_scan_converter_t * _cairo_clip_tor_scan_converter_create(cairo_clip_t * cl
 	cairo_polygon_t clipper;
 	cairo_status_t status;
 	int i;
-	cairo_clip_tor_scan_converter_t * self = (cairo_clip_tor_scan_converter_t *)calloc(1, sizeof(struct _cairo_clip_tor_scan_converter));
+	cairo_clip_tor_scan_converter_t * self = (cairo_clip_tor_scan_converter_t *)SAlloc::C(1, sizeof(struct _cairo_clip_tor_scan_converter));
 	if(unlikely(self == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto bail_nomem;

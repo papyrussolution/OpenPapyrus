@@ -11,48 +11,47 @@
 //#include <openssl/x509.h>
 #include <internal/evp_int.h>
 
-int EVP_SignFinal(EVP_MD_CTX *ctx, uchar *sigret,
-                  uint *siglen, EVP_PKEY *pkey)
+int EVP_SignFinal(EVP_MD_CTX * ctx, uchar * sigret, uint * siglen, EVP_PKEY * pkey)
 {
-    uchar m[EVP_MAX_MD_SIZE];
-    uint m_len = 0;
-    int i = 0;
-    size_t sltmp;
-    EVP_PKEY_CTX *pkctx = NULL;
-
-    *siglen = 0;
-    if (EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_FINALISE)) {
-        if (!EVP_DigestFinal_ex(ctx, m, &m_len))
-            goto err;
-    } else {
-        int rv = 0;
-        EVP_MD_CTX *tmp_ctx = EVP_MD_CTX_new();
-        if (tmp_ctx == NULL) {
-            EVPerr(EVP_F_EVP_SIGNFINAL, ERR_R_MALLOC_FAILURE);
-            return 0;
-        }
-        rv = EVP_MD_CTX_copy_ex(tmp_ctx, ctx);
-        if (rv)
-            rv = EVP_DigestFinal_ex(tmp_ctx, m, &m_len);
-        EVP_MD_CTX_free(tmp_ctx);
-        if (!rv)
-            return 0;
-    }
-
-    sltmp = (size_t)EVP_PKEY_size(pkey);
-    i = 0;
-    pkctx = EVP_PKEY_CTX_new(pkey, NULL);
-    if (pkctx == NULL)
-        goto err;
-    if (EVP_PKEY_sign_init(pkctx) <= 0)
-        goto err;
-    if (EVP_PKEY_CTX_set_signature_md(pkctx, EVP_MD_CTX_md(ctx)) <= 0)
-        goto err;
-    if (EVP_PKEY_sign(pkctx, sigret, &sltmp, m, m_len) <= 0)
-        goto err;
-    *siglen = sltmp;
-    i = 1;
- err:
-    EVP_PKEY_CTX_free(pkctx);
-    return i;
+	uchar m[EVP_MAX_MD_SIZE];
+	uint m_len = 0;
+	int i = 0;
+	size_t sltmp;
+	EVP_PKEY_CTX * pkctx = NULL;
+	*siglen = 0;
+	if(EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_FINALISE)) {
+		if(!EVP_DigestFinal_ex(ctx, m, &m_len))
+			goto err;
+	}
+	else {
+		int rv = 0;
+		EVP_MD_CTX * tmp_ctx = EVP_MD_CTX_new();
+		if(tmp_ctx == NULL) {
+			EVPerr(EVP_F_EVP_SIGNFINAL, ERR_R_MALLOC_FAILURE);
+			return 0;
+		}
+		rv = EVP_MD_CTX_copy_ex(tmp_ctx, ctx);
+		if(rv)
+			rv = EVP_DigestFinal_ex(tmp_ctx, m, &m_len);
+		EVP_MD_CTX_free(tmp_ctx);
+		if(!rv)
+			return 0;
+	}
+	sltmp = (size_t)EVP_PKEY_size(pkey);
+	i = 0;
+	pkctx = EVP_PKEY_CTX_new(pkey, NULL);
+	if(pkctx == NULL)
+		goto err;
+	if(EVP_PKEY_sign_init(pkctx) <= 0)
+		goto err;
+	if(EVP_PKEY_CTX_set_signature_md(pkctx, EVP_MD_CTX_md(ctx)) <= 0)
+		goto err;
+	if(EVP_PKEY_sign(pkctx, sigret, &sltmp, m, m_len) <= 0)
+		goto err;
+	*siglen = sltmp;
+	i = 1;
+err:
+	EVP_PKEY_CTX_free(pkctx);
+	return i;
 }
+

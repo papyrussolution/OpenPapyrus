@@ -46,7 +46,7 @@
 #include "cairo-paginated-private.h"
 #include "cairo-paginated-surface-private.h"
 #include "cairo-recording-surface-private.h"
-#include "cairo-analysis-surface-private.h"
+//#include "cairo-analysis-surface-private.h"
 #include "cairo-image-surface-private.h"
 #include "cairo-surface-subsurface-inline.h"
 

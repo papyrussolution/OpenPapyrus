@@ -1593,38 +1593,35 @@ err:
  */
 int __dbc_put(DBC*dbc, DBT * key, DBT * data, uint32 flags)
 {
-	DB * dbp = dbc->dbp;
-	int ret = 0;
+	DB   * dbp = dbc->dbp;
+	int    ret = 0;
 	F_CLR(dbc, DBC_ERROR);
-	/*
-	 * Putting to secondary indices is forbidden;  when we need to
-	 * internally update one, we're called with a private flag,
-	 * DB_UPDATE_SECONDARY, which does the right thing but won't return an
-	 * error during flag checking.
-	 *
-	 * As a convenience, many places that want the default DB_KEYLAST
-	 * behavior call DBC->put with flags == 0.  Protect lower-level code
-	 * here by translating that.
-	 *
-	 * Lastly, the DB_OVERWRITE_DUP flag is equivalent to DB_KEYLAST unless
-	 * there are sorted duplicates.  Limit the number of places that need
-	 * to test for it explicitly.
-	 */
+	// 
+	// Putting to secondary indices is forbidden;  when we need to
+	// internally update one, we're called with a private flag,
+	// DB_UPDATE_SECONDARY, which does the right thing but won't return an error during flag checking.
+	// 
+	// As a convenience, many places that want the default DB_KEYLAST
+	// behavior call DBC->put with flags == 0.  Protect lower-level code here by translating that.
+	// 
+	// Lastly, the DB_OVERWRITE_DUP flag is equivalent to DB_KEYLAST unless
+	// there are sorted duplicates.  Limit the number of places that need to test for it explicitly.
+	// 
 	if(flags == DB_UPDATE_SECONDARY || flags == 0 || (flags == DB_OVERWRITE_DUP && !F_ISSET(dbp, DB_AM_DUPSORT)))
 		flags = DB_KEYLAST;
 	CDB_LOCKING_INIT(dbc->env, dbc);
-	PERFMON6(env, db, put, dbp->fname, dbp->dname, dbc->txn == NULL ? 0 : dbc->txn->txnid, key, data, flags);
-	/*
-	 * Check to see if we are a primary and have secondary indices.
-	 * If we are not, we save ourselves a good bit of trouble and
-	 * just skip to the "normal" put.
-	 */
+	PERFMON6(env, db, put, dbp->fname, dbp->dname, (dbc->txn ? dbc->txn->txnid : 0), key, data, flags);
+	// 
+	// Check to see if we are a primary and have secondary indices.
+	// If we are not, we save ourselves a good bit of trouble and
+	// just skip to the "normal" put.
+	// 
 	if(DB_IS_PRIMARY(dbp) && ((ret = __dbc_put_primary(dbc, key, data, flags)) != 0))
 		return ret;
-	/*
-	 * If this is an append operation, the insert was done prior to the
-	 * secondary updates, so we are finished.
-	 */
+	// 
+	// If this is an append operation, the insert was done prior to the
+	// secondary updates, so we are finished.
+	// 
 	if(flags == DB_APPEND)
 		return ret;
 #ifdef HAVE_COMPRESSION

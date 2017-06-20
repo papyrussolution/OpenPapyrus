@@ -2145,7 +2145,7 @@ int PPDesktop::ProcessRawInput(long rawInputHandle)
 }
 
 // static
-int PPDesktop::RegisterClass(HINSTANCE hInst)
+int PPDesktop::RegWindowClass(HINSTANCE hInst)
 {
 	WNDCLASSEX wc;
 	MEMSZERO(wc);

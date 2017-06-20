@@ -1447,7 +1447,6 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 				long chk_count = 0;
 				ObjIdListFilt chk_list_, sess_list_;
 				PPIDArray chk_list;
-
 				sess_list_.Set(&sess_list);
 				THROW(CC.LoadChecksByList(&sess_list_, &cash_list, &chk_list_, &last_check_dtm));
 				chk_list_.Sort();
@@ -1507,9 +1506,11 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 				}
 				else {
 					Goods2Tbl::Rec goods_rec;
-					if(g_obj.Fetch(p_crec->GoodsID, &goods_rec) <= 0)
-						if(g_obj.SearchByBarcode(CConfig.PrepayInvoiceGoodsCode, 0, &goods_rec) > 0)
+					if(g_obj.Fetch(p_crec->GoodsID, &goods_rec) <= 0) {
+						// @v9.7.0 if(g_obj.SearchByBarcode(CConfig.PrepayInvoiceGoodsCode, 0, &goods_rec) > 0)
+						if(g_obj.Search(CConfig.PrepayInvoiceGoodsID, &goods_rec) > 0) // @v9.7.0
 							p_crec->GoodsID = goods_rec.ID;
+					}
 					int    excl_ggrp = BIN(rule.Rec.Flags & PPDraftCreateRule::fExclGoodsGrp);
 					int    grp_ok = BIN(g_obj.BelongToGroup(p_crec->GoodsID, rule.Rec.GoodsGrpID, 0));
 					if(!rule.Rec.GoodsGrpID || ((grp_ok && !excl_ggrp) || (!grp_ok && excl_ggrp))) {

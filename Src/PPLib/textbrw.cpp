@@ -1,5 +1,5 @@
 // TEXTBRW.CPP
-// Copyright (c) A.Starodub 2013, 2014, 2015, 2016
+// Copyright (c) A.Starodub 2013, 2014, 2015, 2016, 2017
 // STextBrowser
 //
 #include <pp.h>
@@ -180,7 +180,7 @@ int STextBrowser::Init(const char * pFileName, int toolbarId)
 LPCTSTR STextBrowser::WndClsName = _T("STextBrowser"); // @global
 
 // static
-int STextBrowser::RegisterClass(HINSTANCE hInst)
+int STextBrowser::RegWindowClass(HINSTANCE hInst)
 {
 	WNDCLASSEX wc;
 	wc.cbSize        = sizeof(wc);
@@ -328,7 +328,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 					switch(p_scn->nmhdr.code) {
 						case SCN_CHARADDED:
 						case SCN_MODIFIED:
-							p_view->Doc.SetState(stDirty, 1);
+							p_view->Doc.SetState(Document::stDirty, 1);
 							break;
 						case SCN_DWELLSTART:
 							{
@@ -923,7 +923,7 @@ int STextBrowser::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw)
 int STextBrowser::SaveChanges()
 {
 	int    ok = 1;
-	if(Doc.State & stDirty) {
+	if(Doc.State & Document::stDirty) {
 		if(CONFIRM(PPCFM_DATACHANGED))
 			ok = FileSave(0, 0);
 		else
@@ -1048,7 +1048,7 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 				if(ro) {
 					CallFunc(SCI_SETREADONLY, 1, 0);
 				}
-				Doc.SetState(stDirty, 0);
+				Doc.SetState(Document::stDirty, 0);
 				//CallFunc(SCI_SETDOCPOINTER, 0, _scratchDocDefault);
 			}
 		}
@@ -1089,7 +1089,7 @@ int STextBrowser::FileSave(const char * pFileName, long flags)
 			THROW_SL(file.Write(p_buf, len));
 		}
 		Doc.FileName = path;
-		Doc.SetState(stDirty, 0);
+		Doc.SetState(Document::stDirty, 0);
 		ok = 1;
 	}
 	CATCHZOK

@@ -27,7 +27,7 @@ EXPORT int RunCommand(const char * pCmd, const char * pInputData, char * pOutput
 	THROW(pCmd && pOutputData && outSize);
 	if(sstreqi_ascii(pCmd, "INIT"))
 		THROWERR(Init(), CUSTDISP_NOTINITED)
-	else if(stricmp(pCmd, "RELEASE") == 0)
+	else if(sstreqi_ascii(pCmd, "RELEASE"))
 		THROW(Release())
 	else if(P_FlyTechVfdDisp) {
 		ok = P_FlyTechVfdDisp->RunOneCommand(pCmd, pInputData, pOutputData, outSize);
@@ -43,7 +43,7 @@ EXPORT int RunCommand(const char * pCmd, const char * pInputData, char * pOutput
 	}
 	CATCH
 		ok = 1;
-		itoa(ErrorCode, pOutputData, 10);
+		_itoa(ErrorCode, pOutputData, 10);
 		P_FlyTechVfdDisp->LastError = ErrorCode;
 		ErrorCode = 0;
 	ENDCATCH;

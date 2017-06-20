@@ -35,7 +35,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-analysis-surface-private.h"
+//#include "cairo-analysis-surface-private.h"
 #include "cairo-box-inline.h"
 #include "cairo-default-context-private.h"
 #include "cairo-paginated-private.h"

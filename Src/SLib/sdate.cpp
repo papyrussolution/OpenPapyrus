@@ -709,6 +709,12 @@ LTIME LTIME::operator = (double od)
 	return (*this = dtm.t);
 }
 
+LTIME SLAPI LTIME::encode(int h, int m, int s, int ms)
+{
+	*this = encodetime(h, m, s, ms / 10);
+	return *this;
+}
+
 #endif // }
 
 long FASTCALL LTIME::settotalsec(long s)

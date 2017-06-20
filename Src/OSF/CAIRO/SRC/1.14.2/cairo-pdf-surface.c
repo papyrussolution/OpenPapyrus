@@ -46,7 +46,7 @@
 #include "cairo-pdf-operators-private.h"
 #include "cairo-pdf-shading-private.h"
 #include "cairo-array-private.h"
-#include "cairo-analysis-surface-private.h"
+//#include "cairo-analysis-surface-private.h"
 #include "cairo-composite-rectangles-private.h"
 #include "cairo-default-context-private.h"
 #include "cairo-image-surface-inline.h"
@@ -944,7 +944,7 @@ static void _cairo_pdf_surface_emit_group_resources(cairo_pdf_surface_t * surfac
 
 static cairo_pdf_smask_group_t * _cairo_pdf_surface_create_smask_group(cairo_pdf_surface_t * surface, const CairoIRect  * extents)
 {
-	cairo_pdf_smask_group_t * group = (cairo_pdf_smask_group_t *)calloc(1, sizeof(cairo_pdf_smask_group_t));
+	cairo_pdf_smask_group_t * group = (cairo_pdf_smask_group_t *)SAlloc::C(1, sizeof(cairo_pdf_smask_group_t));
 	if(unlikely(group == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return NULL;

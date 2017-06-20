@@ -59,7 +59,7 @@ SString & SLAPI DateToStr(LDATE dt, SString & rBuf)
 		SString txt_month;
 		SGetMonthText(dt.month(), MONF_CASEGEN, txt_month);
 		//sprintf(temp, "%02d %s %d £.", dt.day(), /*getMonthText(dt.month(), MONF_CASEGEN|MONF_OEM, txt_month)*/txt_month.cptr(), dt.year());
-		rBuf.CatLongZ(dt.day(), 2).Space().Cat(txt_month).Space().Cat(dt.year()).Space().Cat("ã.");
+		rBuf.CatLongZ((long)dt.day(), 2).Space().Cat(txt_month).Space().Cat(dt.year()).Space().Cat("ã.");
 		rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 	}
 	return rBuf;

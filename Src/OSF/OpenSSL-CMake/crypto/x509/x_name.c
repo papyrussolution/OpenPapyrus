@@ -470,10 +470,8 @@ static int i2d_name_canon(STACK_OF(STACK_OF_X509_NAME_ENTRY) * _intname,
 int X509_NAME_set(X509_NAME ** xn, X509_NAME * name)
 {
 	X509_NAME * in;
-
 	if(!xn || !name)
 		return (0);
-
 	if(*xn != name) {
 		in = X509_NAME_dup(name);
 		if(in != NULL) {
@@ -488,9 +486,7 @@ int X509_NAME_print(BIO * bp, const X509_NAME * name, int obase)
 {
 	char * s, * c, * b;
 	int l, i;
-
 	l = 80 - 2 - obase;
-
 	b = X509_NAME_oneline(name, NULL, 0);
 	if(!b)
 		return 0;
@@ -499,7 +495,6 @@ int X509_NAME_print(BIO * bp, const X509_NAME * name, int obase)
 		return 1;
 	}
 	s = b + 1;              /* skip the first slash */
-
 	c = s;
 	for(;; ) {
 #ifndef CHARSET_EBCDIC

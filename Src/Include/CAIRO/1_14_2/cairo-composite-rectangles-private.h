@@ -39,7 +39,7 @@
 
 #include "cairo-types-private.h"
 #include "cairo-error-private.h"
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 
 CAIRO_BEGIN_DECLS
 

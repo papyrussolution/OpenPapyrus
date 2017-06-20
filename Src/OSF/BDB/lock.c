@@ -244,8 +244,7 @@ up_done:
 			/* Remove all the locks associated with an object. */
 			OBJECT_LOCK(lt, region, list[i].obj, ndx);
 			if((ret = __lock_getobj(lt, list[i].obj, ndx, 0, &sh_obj)) != 0 || sh_obj == NULL) {
-				if(ret == 0)
-					ret = EINVAL;
+				SETIFZ(ret, EINVAL);
 				OBJECT_UNLOCK(lt, region, ndx);
 				break;
 			}

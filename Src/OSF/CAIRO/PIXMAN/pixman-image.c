@@ -665,8 +665,7 @@ otherwise:
 			iter.fini(&iter);
 	}
 	/* If necessary, convert RGB <--> BGR. */
-	if(PIXMAN_FORMAT_TYPE(format) != PIXMAN_TYPE_ARGB
-	    && PIXMAN_FORMAT_TYPE(format) != PIXMAN_TYPE_ARGB_SRGB) {
+	if(PIXMAN_FORMAT_TYPE(format) != PIXMAN_TYPE_ARGB && PIXMAN_FORMAT_TYPE(format) != PIXMAN_TYPE_ARGB_SRGB) {
 		result = (((result & 0xff000000) >>  0) |
 		    ((result & 0x00ff0000) >> 16) |
 		    ((result & 0x0000ff00) >>  0) |

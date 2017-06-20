@@ -7,14 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/heap.h"
 
 static int __heap_bulk(DBC*, DBT*, uint32);
 static int __heap_getpage(DBC*, uint32, uint8 *);
@@ -1716,8 +1709,7 @@ err:
 		ret = t_ret;
 	if(cp->page != NULL) {
 		DISCARD(dbc, cp->page, cp->lock, 1, t_ret);
-		if(ret == 0)
-			ret = t_ret;
+		SETIFZ(ret, t_ret);
 	}
 	if(ret == 0 && key != NULL)
 		ret = __db_retcopy(dbp->env, key, &rid, DB_HEAP_RID_SZ, &dbc->rkey->data, &dbc->rkey->ulen);
@@ -1883,8 +1875,7 @@ err:
 		ret = t_ret;
 	if(cp->page != NULL) {
 		DISCARD(dbc, cp->page, cp->lock, 1, t_ret);
-		if(ret == 0)
-			ret = t_ret;
+		SETIFZ(ret, t_ret);
 	}
 	__os_free(dbp->env, buf);
 	if(ret == 0 && key != NULL)

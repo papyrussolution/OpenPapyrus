@@ -1975,7 +1975,7 @@ struct TScrollBlock {
 //
 class TWindowBase : public TWindow {
 public:
-	static int RegisterClass(int iconId);
+	static int RegWindowClass(int iconId);
 
 	//
 	// Descr: Структура, указатель на которую передается с сообщением cmInit
@@ -4547,7 +4547,7 @@ public:
 
 	typedef int (* CellStyleFunc)(const void * pData, long col, int paintAction, CellStyle *, void * extraPtr);
 
-	static int RegisterClass(HINSTANCE hInst);
+	static int RegWindowClass(HINSTANCE hInst);
 	static LRESULT CALLBACK BrowserWndProc(HWND, UINT, WPARAM, LPARAM);
 
 	static LPCTSTR WndClsName;
@@ -4777,7 +4777,7 @@ public:
 		long   Pos;          // pXXX Особенность позиционирования точки в пределах отрезка
 		long   Flags;        //
 	};
-	static int RegisterClass(HINSTANCE hInst);
+	static int RegWindowClass(HINSTANCE hInst);
 	static const char * WndClsName;
 
 	STimeChunkBrowser();
@@ -5010,7 +5010,7 @@ public:
 class STextBrowser : public TBaseBrowserWindow {
 public:
 	typedef void * SciDocument;
-	static int RegisterClass(HINSTANCE hInst);
+	static int RegWindowClass(HINSTANCE hInst);
 	static LPCTSTR WndClsName;
 	//
 	// Descr: Флаги загрузки файла и сохранения файлов
@@ -5046,6 +5046,27 @@ public:
 	int    FileClose();
 
 	int    SetKeybAccelerator(KeyDownCommand & rK, int cmd);
+
+	class Document {
+	public:
+		enum {
+			stInit     = 0x0001,
+			stDirty    = 0x0002,
+			stReadOnly = 0x0004,
+			stUtf8Mode = 0x0008,
+			stNewFile  = 0x0010
+		};
+		Document();
+		Document & Reset();
+		long   SetState(long st, int set);
+
+		SCodepageIdent OrgCp;
+		SCodepageIdent Cp;
+		SEOLFormat Eolf;
+		long   State;
+		STextBrowser::SciDocument SciDoc;
+		SString FileName;
+	};
 private:
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK ScintillaWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -5070,27 +5091,6 @@ private:
 		srfUseDialog = 0x0001
 	};
 	int    SearchAndReplace(long flags);
-
-	enum {
-		stInit     = 0x0001,
-		stDirty    = 0x0002,
-		stReadOnly = 0x0004,
-		stUtf8Mode = 0x0008,
-		stNewFile  = 0x0010
-	};
-	class Document {
-	public:
-		Document();
-		Document & Reset();
-		long   SetState(long st, int set);
-
-		SCodepageIdent OrgCp;
-		SCodepageIdent Cp;
-		SEOLFormat Eolf;
-		long   State;
-		STextBrowser::SciDocument SciDoc;
-		SString FileName;
-	};
 
 	Document Doc;
 	enum {

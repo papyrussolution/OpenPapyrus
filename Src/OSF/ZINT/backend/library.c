@@ -145,8 +145,8 @@ extern int logic_two_of_five(struct ZintSymbol * symbol, uchar source[], int len
 extern int itf14(struct ZintSymbol * symbol, uchar source[], int length); /* ITF-14 */
 extern int dpleit(struct ZintSymbol * symbol, uchar source[], int length); /* Deutsche Post Leitcode */
 extern int dpident(struct ZintSymbol * symbol, uchar source[], int length); /* Deutsche Post Identcode */
-extern int c93(struct ZintSymbol * symbol, uchar source[], int length); /* Code 93 - a re-working of Code 39+, generates 2 check digits */
-extern int code_128(struct ZintSymbol * symbol, uchar source[], int length); /* Code 128 and NVE-18 */
+extern int c93(struct ZintSymbol * symbol, const uchar source[], int length); /* Code 93 - a re-working of Code 39+, generates 2 check digits */
+extern int code_128(struct ZintSymbol * symbol, const uchar source[], int length); /* Code 128 and NVE-18 */
 extern int ean_128(struct ZintSymbol * symbol, uchar source[], const size_t length); /* EAN-128 (GS1-128) */
 extern int code_11(struct ZintSymbol * symbol, uchar source[], int length); /* Code 11 */
 extern int msi_handle(struct ZintSymbol * symbol, uchar source[], int length); /* MSI Plessey */
@@ -183,8 +183,8 @@ extern int aztec_runes(struct ZintSymbol * symbol, uchar source[], int length); 
 extern int korea_post(struct ZintSymbol * symbol, uchar source[], int length); /* Korea Post */
 extern int japan_post(struct ZintSymbol * symbol, uchar source[], int length); /* Japanese Post */
 extern int code_49(struct ZintSymbol * symbol, uchar source[], const int length); /* Code 49 */
-extern int channel_code(struct ZintSymbol * symbol, uchar source[], int length); /* Channel Code */
-extern int code_one(struct ZintSymbol * symbol, uchar source[], int length); /* Code One */
+extern int channel_code(struct ZintSymbol * symbol, const uchar source[], int length); /* Channel Code */
+extern int code_one(struct ZintSymbol * symbol, const uchar source[], int length); /* Code One */
 extern int grid_matrix(struct ZintSymbol * symbol, const uchar source[], int length); /* Grid Matrix */
 extern int han_xin(struct ZintSymbol * symbol, const uchar source[], int length); /* Han Xin */
 extern int dotcode(struct ZintSymbol * symbol, const uchar source[], int length); /* DotCode */

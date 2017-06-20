@@ -157,7 +157,7 @@ nomem:
  *
  * PUBLIC: int __mutex_free __P((ENV *, db_mutex_t *));
  */
-int __mutex_free(ENV * env, db_mutex_t * indxp)
+int FASTCALL __mutex_free(ENV * env, db_mutex_t * indxp)
 {
 	/*
 	 * There is no explicit ordering in how the regions are cleaned up
@@ -172,9 +172,7 @@ int __mutex_free(ENV * env, db_mutex_t * indxp)
 	 *
 	 * If the mutex has never been configured, we're done.
 	 */
-	if(!MUTEX_ON(env) || *indxp == MUTEX_INVALID)
-		return 0;
-	return __mutex_free_int(env, 1, indxp);
+	return (!MUTEX_ON(env) || *indxp == MUTEX_INVALID) ? 0 : __mutex_free_int(env, 1, indxp);
 }
 /*
  * __mutex_free_int --
@@ -267,7 +265,6 @@ int __mut_failchk(ENV * env)
 	return ret;
 }
 //
-// __mutex_open --
 // Open a mutex region.
 //
 int __mutex_open(ENV * env, int create_ok)
@@ -494,7 +491,6 @@ int __mutex_env_refresh(ENV * env)
 	return ret;
 }
 /*
- * __mutex_align_size --
  *	Return how much memory each mutex will take up if an array of them
  *	are to be properly aligned, individually, within the array.
  */
@@ -504,7 +500,6 @@ static db_size_t __mutex_align_size(ENV * env)
 	return (db_size_t)DB_ALIGN(sizeof(DB_MUTEX), dbenv->mutex_align);
 }
 /*
- * __mutex_region_size --
  *	 Return the amount of space needed for the mutex region.
  */
 static size_t __mutex_region_size(ENV * env)
@@ -516,7 +511,6 @@ static size_t __mutex_region_size(ENV * env)
 	return s;
 }
 /*
- * __mutex_region_max --
  *	 Return the amount of space needed to reach the maximum size.
  */
 static size_t __mutex_region_max(ENV * env)

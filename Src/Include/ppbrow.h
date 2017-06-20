@@ -1418,6 +1418,7 @@
 #define PPCMD_WORKBOOKINTERCHANGE         1324
 #define PPCMD_ALCREPORTCFG                1325
 #define PPCMD_PROCESSOSM                  1326
+#define PPCMD_TESTLOGWINDOW               1327
 //
 // PPJOB definitions
 //

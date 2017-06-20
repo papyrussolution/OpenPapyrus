@@ -36,7 +36,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 #include "cairo-array-private.h"
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 
 /*
  * Rasterizer for mesh patterns.

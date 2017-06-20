@@ -638,7 +638,8 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 					_dtm.Set(rPack.Rec.Dt, rPack.Rec.Tm);
 				else
 					_dtm = getcurdatetime_();
-				(temp_buf = 0).Cat(_dtm.d, DATF_DMY|DATF_NODIV).CatLongZ(_dtm.t.hour(), 2).CatLongZ(_dtm.t.minut(), 2);
+				// @v9.7.0 (temp_buf = 0).Cat(_dtm.d, DATF_DMY|DATF_NODIV).CatLongZ(_dtm.t.hour(), 2).CatLongZ(_dtm.t.minut(), 2);
+				(temp_buf = 0).Cat(_dtm.d, DATF_DMY|DATF_NODIV).Cat(_dtm.t, TIMF_HM|TIMF_NODIV); // @v9.7.0
 				n_doc.PutAttrib("datetime", temp_buf);
 			}
 			{
@@ -1224,8 +1225,12 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 	SString temp_buf;
 	SString inn, kpp;
 	SString rar_id;
+	SString info_org_name; // Наименование организации для вывода информации
 	RegisterTbl::Rec reg_rec;
+	int   j_status = 0; // 1 - росс юр, 2 - росс ип, 3 - иностранец (не ТС), 4 - иностранец (таможенный союз)
+	const char * p_j_scope = 0;
 	THROW(PsnObj.GetPacket(personID, &psn_pack, PGETPCKF_USEINHERITENCE) > 0); // @v9.3.6 PGETPCKF_USEINHERITENCE
+	info_org_name = psn_pack.Rec.Name;
 	{
 		ObjTagItem tag_item;
 		if(addrLocID)
@@ -1233,79 +1238,175 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 		if(!rar_id.NotEmptyS())
 			p_ref->Ot.GetTagStr(PPOBJ_PERSON, personID, PPTAG_PERSON_FSRARID, rar_id);
 		if(flags & woifStrict) {
-			THROW_PP_S(rar_id.NotEmptyS(), PPERR_EGAIS_PERSONFSRARIDUNDEF, psn_pack.Rec.Name);
+			THROW_PP_S(rar_id.NotEmptyS(), PPERR_EGAIS_PERSONFSRARIDUNDEF, info_org_name);
 		}
 		else if(flags & woifDontSendWithoutFSRARID) {
 			if(!rar_id.NotEmptyS()) {
-				LogTextWithAddendum(PPTXT_EGAIS_PERSONHASNTRARID, temp_buf = psn_pack.Rec.Name);
+				LogTextWithAddendum(PPTXT_EGAIS_PERSONHASNTRARID, info_org_name);
                 ok = -1;
 			}
 		}
 	}
 	if(ok > 0) {
-		SXml::WNode w_s(rXmlDoc, pScopeXmlTag);
-		// oref:
-		w_s.PutInner("oref:Identity", (temp_buf = 0).Cat(personID));
-		w_s.PutInnerSkipEmpty("oref:ClientRegId", EncText(rar_id));
-		if(psn_pack.GetExtName(temp_buf = 0) <= 0)
-			temp_buf = psn_pack.Rec.Name;
-		w_s.PutInner("oref:FullName", EncText(temp_buf));
-		w_s.PutInner("oref:ShortName", EncText((temp_buf = psn_pack.Rec.Name).Trim(64)));
-		{
-			// PPPersonPack
-			if(psn_pack.Regs.GetRegister(PPREGT_TPID, actualDate, 0, &reg_rec) > 0) {
+		EgaisPersonCore::Item epr_item;
+		LocationTbl::Rec __loc_rec;
+		PPID   __loc_id = 0;
+		SString __full_addr_buf;
+		if(P_RefC && rar_id.NotEmpty()) {
+			TSArray <EgaisPersonTbl::Rec> epr_list;
+			const int psc_idx = P_RefC->PsC.SearchByCode(rar_id, epr_list);
+			if(psc_idx > 0) {
+                const EgaisPersonTbl::Rec & r_rec = epr_list.at(psc_idx-1);
+                P_RefC->PsC.RecToItem(r_rec, epr_item);
+			}
+		}
+		if(epr_item.ID) {
+			if(epr_item.CountryCode == 643 && inn.Len() == 10) {
+				j_status = 1;
+				p_j_scope = "oref:UL";
+			}
+			else if(epr_item.CountryCode == 643 && inn.Len() == 12) {
+				j_status = 2;
+				p_j_scope = "oref:FL";
+			}
+			else if(epr_item.RNN[0] || epr_item.UNP[0]) {
+				j_status = 4;
+				p_j_scope = "oref:TS";
+			}
+			else {
+				j_status = 3;
+				p_j_scope = "oref:FO";
+			}
+			inn = epr_item.INN;
+			kpp = epr_item.KPP;
+		}
+		else {
+			j_status = 1;
+			p_j_scope = "oref:UL";
+			//
+			if(psn_pack.Regs.GetRegister(PPREGT_TPID, actualDate, 0, &reg_rec) > 0)
 				(inn = reg_rec.Num).Strip();
-			}
-			else
-				inn = 0;
-			if(flags & woifStrict) {
-				THROW_PP_S(inn.NotEmptyS(), PPERR_EGAIS_PERSONINNUNDEF, psn_pack.Rec.Name);
-			}
-			w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
-		}
-		{
-			if(GetWkrRegister(wkrKPP, personID, addrLocID, actualDate, &reg_rec) > 0) {
+			if(GetWkrRegister(wkrKPP, personID, addrLocID, actualDate, &reg_rec) > 0)
 				kpp = reg_rec.Num;
-			}
-			else
-				kpp = 0;
-			if(flags & woifStrict) {
-				THROW_PP_S(kpp.NotEmptyS() || inn.Len() == 12, PPERR_EGAIS_PERSONKPPUNDEF, psn_pack.Rec.Name);
-			}
-			w_s.PutInnerSkipEmpty("oref:KPP", EncText(kpp));
 		}
-		w_s.PutInnerSkipEmpty("oref:UNP", ""); // Для Белоруси
-		w_s.PutInnerSkipEmpty("oref:RNN", ""); // Для Казахстана
-		{
-			LocationTbl::Rec loc_rec;
-			PPID   loc_id = 0;
-			SString full_addr_buf;
-			if(addrLocID && PsnObj.LocObj.Search(addrLocID, &loc_rec) > 0)
-				loc_id = addrLocID;
-			else if(psn_pack.Rec.RLoc) {
-				loc_id = psn_pack.RLoc.ID;
-				loc_rec = psn_pack.RLoc;
+		if(flags & woifStrict && oneof2(j_status, 1, 2)) {
+			THROW_PP_S(inn.NotEmptyS(), PPERR_EGAIS_PERSONINNUNDEF, info_org_name);
+			THROW_PP_S(kpp.NotEmptyS() || inn.Len() == 12, PPERR_EGAIS_PERSONKPPUNDEF, info_org_name);
+		}
+		//
+		if(addrLocID && PsnObj.LocObj.Search(addrLocID, &__loc_rec) > 0)
+			__loc_id = addrLocID;
+		else if(psn_pack.Rec.RLoc) {
+			__loc_id = psn_pack.RLoc.ID;
+			__loc_rec = psn_pack.RLoc;
+		}
+		else if(psn_pack.Rec.MainLoc) {
+			__loc_id = psn_pack.Loc.ID;
+			__loc_rec = psn_pack.Loc;
+		}
+		if(__loc_id)
+			PsnObj.LocObj.P_Tbl->GetAddress(__loc_rec, 0, __full_addr_buf);
+		else
+			__full_addr_buf = 0;
+		P_Las->Recognize((temp_buf = __full_addr_buf).Transf(CTRANSF_INNER_TO_OUTER));
+		//
+		SXml::WNode w_s(rXmlDoc, pScopeXmlTag);
+		if(flags & woifVersion2) {
+			SXml::WNode w_j(rXmlDoc, p_j_scope);
+			w_s.PutInnerSkipEmpty("oref:ClientRegId", EncText(rar_id));
+			if(epr_item.ID) {
+				w_s.PutInner("oref:FullName", EncText(epr_item.FullName));
+				w_s.PutInner("oref:ShortName", EncText((temp_buf = epr_item.Name).Trim(64)));
+				if(j_status == 1) {
+					w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
+					w_s.PutInnerSkipEmpty("oref:KPP", EncText(kpp));
+				}
+				else if(j_status == 2) {
+					w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
+				}
+				else if(j_status == 3) {
+					if(epr_item.RNN[0])
+						w_s.PutInnerSkipEmpty("oref:TSNUM", EncText(epr_item.RNN));
+					else if(epr_item.UNP[0])
+						w_s.PutInnerSkipEmpty("oref:TSNUM", EncText(epr_item.UNP));
+				}
+				{
+					SXml::WNode w_a(rXmlDoc, "oref:address");
+					w_a.PutInner("oref:Country", EncText((temp_buf = 0).CatLongZ(epr_item.CountryCode, 3)));
+					if(epr_item.RegionCode)
+						w_a.PutInnerSkipEmpty("oref:RegionCode", EncText((temp_buf = 0).CatLongZ(epr_item.RegionCode, 2)));
+					else if(oneof2(j_status, 1, 2)) {
+						LogTextWithAddendum(PPTXT_EGAIS_PERSONHASNTREGCODE, temp_buf = epr_item.Name);
+					}
+					w_a.PutInnerSkipEmpty("oref:area", "");
+					w_a.PutInner("oref:description", EncText(temp_buf = epr_item.AddressDescr));
+				}
 			}
-			else if(psn_pack.Rec.MainLoc) {
-				loc_id = psn_pack.Loc.ID;
-				loc_rec = psn_pack.Loc;
+			else {
+				if(psn_pack.GetExtName(temp_buf = 0) <= 0)
+					temp_buf = psn_pack.Rec.Name;
+				w_s.PutInner("oref:FullName", EncText(temp_buf));
+				w_s.PutInner("oref:ShortName", EncText((temp_buf = psn_pack.Rec.Name).Trim(64)));
+				//
+				if(j_status == 1) {
+					w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
+					w_s.PutInnerSkipEmpty("oref:KPP", EncText(kpp));
+				}
+				else if(j_status == 2) {
+					w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
+				}
+				{
+					SXml::WNode w_a(rXmlDoc, "oref:address");
+					{
+						PPCountryBlock cntryb;
+						PsnObj.LocObj.GetCountry(&__loc_rec, 0, &cntryb);
+						{
+							const long country_code = (temp_buf = cntryb.Code.NotEmptyS() ? cntryb.Code.cptr() : "643").ToLong();
+							(temp_buf = 0).CatLongZ(country_code, 3);
+							w_a.PutInner("oref:Country", EncText(temp_buf)); // По умолчанию 643 (Россия)
+						}
+					}
+					{
+						//
+						// ИНН и КПП для России всегда содержать в виде префикса код региона.
+						// Поэтому не будем пытаться получить этот год из адреса, а используем КПП (с приоритетом) или,
+						// если КПП пустой - ИНН.
+						//
+						if(kpp.Len() > 2)
+							kpp.Sub(0, 2, temp_buf);
+						else if(inn.Len() > 2)
+							inn.Sub(0, 2, temp_buf);
+						else
+							temp_buf = 0;
+						w_a.PutInnerSkipEmpty("oref:RegionCode", EncText(temp_buf));
+					}
+					w_a.PutInnerSkipEmpty("oref:area", "");
+					w_a.PutInner("oref:description", EncText(__full_addr_buf));
+				}
 			}
-			if(loc_id)
-				PsnObj.LocObj.P_Tbl->GetAddress(loc_rec, 0, full_addr_buf);
-			else
-				full_addr_buf = 0;
-			P_Las->Recognize((temp_buf = full_addr_buf).Transf(CTRANSF_INNER_TO_OUTER));
+		}
+		else {
+			// oref:
+			w_s.PutInner("oref:Identity", (temp_buf = 0).Cat(personID));
+			w_s.PutInnerSkipEmpty("oref:ClientRegId", EncText(rar_id));
+			if(psn_pack.GetExtName(temp_buf = 0) <= 0)
+				temp_buf = psn_pack.Rec.Name;
+			w_s.PutInner("oref:FullName", EncText(temp_buf));
+			w_s.PutInner("oref:ShortName", EncText((temp_buf = psn_pack.Rec.Name).Trim(64)));
+			w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
+			w_s.PutInnerSkipEmpty("oref:KPP", EncText(kpp));
+			w_s.PutInnerSkipEmpty("oref:UNP", ""); // Для Белоруси
+			w_s.PutInnerSkipEmpty("oref:RNN", ""); // Для Казахстана
 			{
 				SXml::WNode w_a(rXmlDoc, "oref:address");
 				PPCountryBlock cntryb;
-				PsnObj.LocObj.GetCountry(&loc_rec, 0, &cntryb);
+				PsnObj.LocObj.GetCountry(&__loc_rec, 0, &cntryb);
 				{
-					temp_buf = cntryb.Code.NotEmptyS() ? cntryb.Code.cptr() : "643";
-					long country_id = temp_buf.ToLong();
-					(temp_buf = 0).CatLongZ(country_id, 3);
+					long country_code = (temp_buf = cntryb.Code.NotEmptyS() ? cntryb.Code.cptr() : "643").ToLong();
+					(temp_buf = 0).CatLongZ(country_code, 3);
 					w_a.PutInner("oref:Country", EncText(temp_buf)); // По умолчанию 643 (Россия)
 				}
-				LocationCore::GetExField(&loc_rec, LOCEXSTR_ZIP, temp_buf);
+				LocationCore::GetExField(&__loc_rec, LOCEXSTR_ZIP, temp_buf);
 				if(!temp_buf.IsDigit() || temp_buf.Len() != 6) // Проверка на "битый" почтовый индекс
 					temp_buf = 0;
 				w_a.PutInnerSkipEmpty("oref:Index", EncText(temp_buf));
@@ -1322,7 +1423,7 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 					temp_buf = 0;
 				w_a.PutInnerSkipEmpty("oref:RegionCode", EncText(temp_buf));
 				w_a.PutInnerSkipEmpty("oref:area", "");
-				PsnObj.LocObj.GetCity(loc_id, 0, &temp_buf, 1);
+				PsnObj.LocObj.GetCity(__loc_id, 0, &temp_buf, 1);
 				w_a.PutInnerSkipEmpty("oref:city", EncText(temp_buf));
 				w_a.PutInnerSkipEmpty("oref:place", "");
 				if(P_Las) {
@@ -1347,7 +1448,7 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 					temp_buf = 0;
 				w_a.PutInnerSkipEmpty("oref:building", EncText(temp_buf));
 				w_a.PutInnerSkipEmpty("oref:liter", "");
-				w_a.PutInner("oref:description", EncText(full_addr_buf));
+				w_a.PutInner("oref:description", EncText(__full_addr_buf));
 			}
 		}
 	}
@@ -1400,19 +1501,13 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 			w_s.PutInner("oref:FullName", EncText(rRefcItem.FullName));
 			w_s.PutInner("oref:ShortName", EncText((temp_buf = rRefcItem.Name).Trim(64)));
 			if(j_status == 1) {
-				if(flags & woifStrict) {
-					THROW_PP_S(inn.NotEmptyS(), PPERR_EGAIS_PERSONINNUNDEF, rRefcItem.Name);
-				}
+				THROW_PP_S(!(flags & woifStrict) || inn.NotEmptyS(), PPERR_EGAIS_PERSONINNUNDEF, rRefcItem.Name);
 				w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
-				if(flags & woifStrict) {
-					THROW_PP_S(kpp.NotEmptyS() || inn.Len() == 12, PPERR_EGAIS_PERSONKPPUNDEF, rRefcItem.Name);
-				}
+				THROW_PP_S(!(flags & woifStrict) || (kpp.NotEmptyS() || inn.Len() == 12), PPERR_EGAIS_PERSONKPPUNDEF, rRefcItem.Name);
 				w_s.PutInnerSkipEmpty("oref:KPP", EncText(kpp));
 			}
 			else if(j_status == 2) {
-				if(flags & woifStrict) {
-					THROW_PP_S(inn.NotEmptyS(), PPERR_EGAIS_PERSONINNUNDEF, rRefcItem.Name);
-				}
+				THROW_PP_S(!(flags & woifStrict) || inn.NotEmptyS(), PPERR_EGAIS_PERSONINNUNDEF, rRefcItem.Name);
 				w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
 			}
 			else if(j_status == 3) {
@@ -1443,15 +1538,11 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 			w_s.PutInner("oref:FullName", EncText(rRefcItem.FullName));
 			w_s.PutInner("oref:ShortName", EncText((temp_buf = rRefcItem.Name).Trim(64)));
 			{
-				if(flags & woifStrict) {
-					THROW_PP_S(inn.NotEmptyS(), PPERR_EGAIS_PERSONINNUNDEF, rRefcItem.Name);
-				}
+				THROW_PP_S(!(flags & woifStrict) || inn.NotEmptyS(), PPERR_EGAIS_PERSONINNUNDEF, rRefcItem.Name);
 				w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
 			}
 			{
-				if(flags & woifStrict) {
-					THROW_PP_S(kpp.NotEmptyS() || inn.Len() == 12, PPERR_EGAIS_PERSONKPPUNDEF, rRefcItem.Name);
-				}
+				THROW_PP_S(!(flags & woifStrict) || (kpp.NotEmptyS() || inn.Len() == 12), PPERR_EGAIS_PERSONKPPUNDEF, rRefcItem.Name);
 				w_s.PutInnerSkipEmpty("oref:KPP", EncText(kpp));
 			}
 			w_s.PutInnerSkipEmpty("oref:UNP", EncText(rRefcItem.UNP)); // Для Белоруси

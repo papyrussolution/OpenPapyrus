@@ -38,14 +38,14 @@
 #ifdef HAS_ATOMIC_OPS
 COMPILE_TIME_ASSERT(sizeof(void*) == sizeof(int) || sizeof(void*) == sizeof(long) || sizeof(void*) == sizeof(long long));
 #else
-void _cairo_atomic_int_inc(cairo_atomic_intptr_t * x)
+void FASTCALL _cairo_atomic_int_inc(cairo_atomic_intptr_t * x)
 {
 	CAIRO_MUTEX_LOCK(_cairo_atomic_mutex);
 	*x += 1;
 	CAIRO_MUTEX_UNLOCK(_cairo_atomic_mutex);
 }
 
-cairo_bool_t _cairo_atomic_int_dec_and_test(cairo_atomic_intptr_t * x)
+cairo_bool_t FASTCALL _cairo_atomic_int_dec_and_test(cairo_atomic_intptr_t * x)
 {
 	cairo_bool_t ret;
 	CAIRO_MUTEX_LOCK(_cairo_atomic_mutex);
@@ -85,7 +85,6 @@ cairo_atomic_intptr_t _cairo_atomic_int_get(cairo_atomic_intptr_t * x)
 	CAIRO_MUTEX_UNLOCK(_cairo_atomic_mutex);
 	return ret;
 }
-
 #endif
 
 #endif

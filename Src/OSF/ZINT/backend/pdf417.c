@@ -1118,7 +1118,7 @@ int micro_pdf417(struct ZintSymbol * symbol, uchar chaine[], int length)
 		sstrcpy(pattern, "");
 		for(loop = 0; loop < (int)strlen(codebarre); loop++) {
 			if((codebarre[loop] >= '0') && (codebarre[loop] <= '9')) {
-				for(k = 0; k < hex(codebarre[loop]); k++) {
+				for(k = 0; k < (int)hex(codebarre[loop]); k++) {
 					pattern[writer++] = (flip == 0) ? '0' : '1';
 				}
 				pattern[writer] = '\0';

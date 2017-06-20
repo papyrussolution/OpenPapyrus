@@ -79,31 +79,15 @@
 #define ALPHA_OR_ISO	121
 
 /* RSS-14 Tables */
-static int g_sum_table[9] = {
-    0, 161, 961, 2015, 2715, 0, 336, 1036, 1516
-};
-
-static int t_table[9] = {
-    1, 10, 34, 70, 126, 4, 20, 48, 81
-};
-
-static int modules_odd[9] = {
-    12, 10, 8, 6, 4, 5, 7, 9, 11
-};
-
-static int modules_even[9] = {
-    4, 6, 8, 10, 12, 10, 8, 6, 4
-};
-
-static int widest_odd[9] = {
-    8, 6, 4, 3, 1, 2, 4, 6, 8
-};
-
-static int widest_even[9] = {
-    1, 3, 5, 6, 8, 7, 5, 3, 1
-};
+static int g_sum_table[9] = { 0, 161, 961, 2015, 2715, 0, 336, 1036, 1516 };
+static int t_table[9] = { 1, 10, 34, 70, 126, 4, 20, 48, 81 };
+static int modules_odd[9] = { 12, 10, 8, 6, 4, 5, 7, 9, 11 };
+static int modules_even[9] = { 4, 6, 8, 10, 12, 10, 8, 6, 4 };
+static int widest_odd[9] = { 8, 6, 4, 3, 1, 2, 4, 6, 8 };
+static int widest_even[9] = { 1, 3, 5, 6, 8, 7, 5, 3, 1 };
 
 static int widths[8];
+
 static int finder_pattern[45] = {
     3, 8, 2, 1, 1,
     3, 5, 5, 1, 1,
@@ -125,25 +109,11 @@ static int checksum_weight[32] = {
 };
 
 /* RSS Limited Tables */
-static int t_even_ltd[7] = {
-    28, 728, 6454, 203, 2408, 1, 16632
-};
-
-static int modules_odd_ltd[7] = {
-    17, 13, 9, 15, 11, 19, 7
-};
-
-static int modules_even_ltd[7] = {
-    9, 13, 17, 11, 15, 7, 19
-};
-
-static int widest_odd_ltd[7] = {
-    6, 5, 3, 5, 4, 8, 1
-};
-
-static int widest_even_ltd[7] = {
-    3, 4, 6, 4, 5, 1, 8
-};
+static int t_even_ltd[7] = { 28, 728, 6454, 203, 2408, 1, 16632 };
+static int modules_odd_ltd[7] = { 17, 13, 9, 15, 11, 19, 7 };
+static int modules_even_ltd[7] = { 9, 13, 17, 11, 15, 7, 19 };
+static int widest_odd_ltd[7] = { 6, 5, 3, 5, 4, 8, 1 };
+static int widest_even_ltd[7] = { 3, 4, 6, 4, 5, 1, 8 };
 
 static int8 checksum_weight_ltd[28] = { // @sobolev int-->int8
     /* Table 7 */
@@ -244,30 +214,13 @@ static int8 finder_pattern_ltd[1246] = { // @sobolev int-->int8
 };
 
 /* RSS Expanded Tables */
-static int g_sum_exp[5] = {
-    0, 348, 1388, 2948, 3988
-};
+static int g_sum_exp[5] = { 0, 348, 1388, 2948, 3988 };
+static int t_even_exp[5] = { 4, 20, 52, 104, 204 };
+static int modules_odd_exp[5] = { 12, 10, 8, 6, 4 };
+static int modules_even_exp[5] = { 5, 7, 9, 11, 13 };
 
-static int t_even_exp[5] = {
-    4, 20, 52, 104, 204
-};
-
-static int modules_odd_exp[5] = {
-    12, 10, 8, 6, 4
-};
-
-static int modules_even_exp[5] = {
-    5, 7, 9, 11, 13
-};
-
-static int8 widest_odd_exp[5] = { // @sobolev int-->int8
-    7, 5, 4, 3, 1
-};
-
-static int8 widest_even_exp[5] = { // @sobolev int-->int8
-    2, 4, 5, 6, 8
-};
-
+static int8 widest_odd_exp[5] = { 7, 5, 4, 3, 1 }; // @sobolev int-->int8
+static int8 widest_even_exp[5] = { 2, 4, 5, 6, 8 }; // @sobolev int-->int8
 static int16 checksum_weight_exp[184] = { // @sobolev int-->int16
     /* Table 14 */
     1, 3, 9, 27, 81, 32, 96, 77,
@@ -348,7 +301,7 @@ int combins(int n, int r)
 	int i, j;
 	int maxDenom, minDenom;
 	int val;
-	if(n - r > r) {
+	if((n - r) > r) {
 		minDenom = r;
 		maxDenom = n - r;
 	}
@@ -393,9 +346,7 @@ void getRSSwidths(int val, int n, int elements, int maxWidth, int noNarrow)
 	int subVal, lessVal;
 	int narrowMask = 0;
 	for(bar = 0; bar < elements - 1; bar++) {
-		for(elmWidth = 1, narrowMask |= (1 << bar);
-		    ;
-		    elmWidth++, narrowMask &= ~(1 << bar)) {
+		for(elmWidth = 1, narrowMask |= (1 << bar); ; elmWidth++, narrowMask &= ~(1 << bar)) {
 			/* get all combinations */
 			subVal = combins(n - elmWidth - 1, elements - bar - 2);
 			/* less combinations with no single-module element */
@@ -417,14 +368,14 @@ void getRSSwidths(int val, int n, int elements, int maxWidth, int noNarrow)
 				subVal--;
 			}
 			val -= subVal;
-			if(val < 0) break;
+			if(val < 0) 
+				break;
 		}
 		val += subVal;
 		n -= elmWidth;
 		widths[bar] = elmWidth;
 	}
 	widths[bar] = n;
-	return;
 }
 
 /* GS1 DataBar-14 */
@@ -435,10 +386,8 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 	int data_character[4], data_group[4], v_odd[4], v_even[4];
 	int data_widths[8][4], checksum, c_left, c_right, total_widths[46], writer;
 	char latch, hrt[15], temp[32];
-	int check_digit, count, separator_row;
-
-	separator_row = 0;
-
+	int check_digit, count;
+	int separator_row = 0;
 	if(src_len > 13) {
 		sstrcpy(symbol->errtxt, "Input too long (C80)");
 		return ZINT_ERROR_TOO_LONG;
@@ -448,7 +397,6 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 		sstrcpy(symbol->errtxt, "Invalid characters in data (C81)");
 		return error_number;
 	}
-
 	/* make some room for a separator row for composite symbols */
 	switch(symbol->Std) {
 		case BARCODE_RSS14_CC:
@@ -459,7 +407,6 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 		    symbol->rows += 1;
 		    break;
 	}
-
 	for(i = 0; i < 112; i++) {
 		accum[i] = 0;
 		x_reg[i] = 0;
@@ -470,8 +417,7 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 		data_character[i] = 0;
 		data_group[i] = 0;
 	}
-
-	binary_load(accum, (char*)source, src_len);
+	binary_load(accum, (const char*)source, src_len);
 	sstrcpy(temp, "10000000000000");
 	if(symbol->option_1 == 2) {
 		/* Add symbol linkage flag */
@@ -481,11 +427,9 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 			y_reg[i] = 0;
 		}
 	}
-
 	/* Calculate left and right pair values */
 	sstrcpy(temp, "4537077");
 	binary_load(x_reg, temp, strlen(temp));
-
 	for(i = 0; i < 24; i++) {
 		shiftup(x_reg);
 	}
@@ -534,11 +478,9 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 	for(i = 0; i < 112; i++) {
 		accum[i] = right_reg[i];
 	}
-
 	for(i = 0; i < 24; i++) {
 		shiftup(x_reg);
 	}
-
 	for(i = 24; i >= 0; i--) {
 		y_reg[i] = islarger(accum, x_reg);
 		if(y_reg[i] == 1) {
@@ -546,7 +488,6 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 		}
 		shiftdown(x_reg);
 	}
-
 	data_character[2] = 0;
 	data_character[3] = 0;
 	mask = 0x2000;
@@ -757,7 +698,6 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 
 		count = 0;
 		check_digit = 0;
-
 		/* Calculate check digit from Annex A and place human readable text */
 		sstrcpy(symbol->text, (uchar*)"(01)");
 		for(i = 0; i < 14; i++) {
@@ -767,26 +707,20 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 			hrt[12 - i] = source[src_len - i - 1];
 		}
 		hrt[14] = '\0';
-
 		for(i = 0; i < 13; i++) {
 			count += hex(hrt[i]);
-
 			if(!(i & 1)) {
 				count += 2 * (hex(hrt[i]));
 			}
 		}
-
 		check_digit = 10 - (count % 10);
 		if(check_digit == 10) {
 			check_digit = 0;
 		}
 		hrt[13] = itoc(check_digit);
-
 		strcat((char*)symbol->text, hrt);
-
 		set_minimum_height(symbol, 14); // Minimum height is 14X for truncated symbol
 	}
-
 	if((symbol->Std == BARCODE_RSS14STACK) || (symbol->Std == BARCODE_RSS14STACK_CC)) {
 		/* top row */
 		writer = 0;
@@ -801,12 +735,7 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 				}
 				writer++;
 			}
-			if(latch == '1') {
-				latch = '0';
-			}
-			else {
-				latch = '1';
-			}
+			latch = (latch == '1') ? '0' : '1';
 		}
 		set_module(symbol, symbol->rows, writer);
 		unset_module(symbol, symbol->rows, writer + 1);
@@ -827,12 +756,7 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 				}
 				writer++;
 			}
-			if(latch == '1') {
-				latch = '0';
-			}
-			else {
-				latch = '1';
-			}
+			latch = (latch == '1') ? '0' : '1';
 		}
 		symbol->row_height[symbol->rows] = 7;
 		/* separator pattern */
@@ -875,9 +799,7 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 			}
 		}
 		symbol->rows = symbol->rows + 1;
-		if(symbol->width < 50) {
-			symbol->width = 50;
-		}
+		SETMAX(symbol->width, 50);
 	}
 	if((symbol->Std == BARCODE_RSS14STACK_OMNI) || (symbol->Std == BARCODE_RSS14_OMNI_CC)) {
 		/* top row */
@@ -913,12 +835,7 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 				}
 				writer++;
 			}
-			if(latch == '1') {
-				latch = '0';
-			}
-			else {
-				latch = '1';
-			}
+			latch = (latch == '1') ? '0' : '1';
 		}
 		/* middle separator */
 		for(i = 5; i < 46; i += 2) {
@@ -1016,10 +933,7 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 	int left_character, right_character, left_widths[14], right_widths[14];
 	int checksum, check_elements[14], total_widths[46], writer, j, check_digit, count;
 	char latch, hrt[15], temp[32];
-	int separator_row;
-
-	separator_row = 0;
-
+	int separator_row = 0;
 	if(src_len > 13) {
 		sstrcpy(symbol->errtxt, "Input too long (C82)");
 		return ZINT_ERROR_TOO_LONG;
@@ -1041,14 +955,12 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 		symbol->row_height[separator_row] = 1;
 		symbol->rows += 1;
 	}
-
 	for(i = 0; i < 112; i++) {
 		accum[i] = 0;
 		x_reg[i] = 0;
 		y_reg[i] = 0;
 	}
-
-	binary_load(accum, (char*)source, src_len);
+	binary_load(accum, (const char*)source, src_len);
 	if(symbol->option_1 == 2) {
 		/* Add symbol linkage flag */
 		sstrcpy(temp, "2015133531096");
@@ -1058,15 +970,12 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 			y_reg[i] = 0;
 		}
 	}
-
 	/* Calculate left and right pair values */
 	sstrcpy(temp, "2013571");
 	binary_load(x_reg, temp, strlen(temp));
-
 	for(i = 0; i < 24; i++) {
 		shiftup(x_reg);
 	}
-
 	for(i = 24; i >= 0; i--) {
 		y_reg[i] = islarger(accum, x_reg);
 		if(y_reg[i] == 1) {
@@ -1074,12 +983,10 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 		}
 		shiftdown(x_reg);
 	}
-
 	for(i = 0; i < 112; i++) {
 		left_reg[i] = y_reg[i];
 		right_reg[i] = accum[i];
 	}
-
 	left_group = 0;
 	sstrcpy(temp, "183063");
 	binary_load(accum, temp, strlen(temp));
@@ -1794,21 +1701,16 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 			if((general_field[i] >= 'A') && (general_field[i] <= 'Z')) {
 				general_field_type[i] = ALPHA_OR_ISO;
 			}
-			if(general_field[i] == '*') {
+			if(general_field[i] == '*')
 				general_field_type[i] = ALPHA_OR_ISO;
-			}
-			if(general_field[i] == ',') {
+			if(general_field[i] == ',')
 				general_field_type[i] = ALPHA_OR_ISO;
-			}
-			if(general_field[i] == '-') {
+			if(general_field[i] == '-')
 				general_field_type[i] = ALPHA_OR_ISO;
-			}
-			if(general_field[i] == '.') {
+			if(general_field[i] == '.')
 				general_field_type[i] = ALPHA_OR_ISO;
-			}
-			if(general_field[i] == '/') {
+			if(general_field[i] == '/')
 				general_field_type[i] = ALPHA_OR_ISO;
-			}
 			// Numeric encodation 
 			if((general_field[i] >= '0') && (general_field[i] <= '9')) {
 				general_field_type[i] = ANY_ENC;
@@ -2302,8 +2204,7 @@ int rssexpanded(struct ZintSymbol * symbol, uchar source[], int src_len)
 			for(j = 0; j < (writer / 49); j++) {
 				k = (49 * j) + 18;
 				for(i = 0; i < 15; i++) {
-					if((!(module_is_set(symbol, separator_row + 1, i + k - 1))) &&
-					    (!(module_is_set(symbol, separator_row + 1, i + k))) &&
+					if((!(module_is_set(symbol, separator_row + 1, i + k - 1))) && (!(module_is_set(symbol, separator_row + 1, i + k))) &&
 					    module_is_set(symbol, separator_row, i + k - 1)) {
 						unset_module(symbol, separator_row, i + k);
 					}
@@ -2348,7 +2249,6 @@ int rssexpanded(struct ZintSymbol * symbol, uchar source[], int src_len)
 		if(codeblocks % symbol->option_2 > 0) {
 			stack_rows++;
 		}
-
 		current_block = 0;
 		for(current_row = 1; current_row <= stack_rows; current_row++) {
 			for(i = 0; i < 235; i++) {
@@ -2412,12 +2312,7 @@ int rssexpanded(struct ZintSymbol * symbol, uchar source[], int src_len)
 					}
 					writer++;
 				}
-				if(latch == '1') {
-					latch = '0';
-				}
-				else {
-					latch = '1';
-				}
+				latch = (latch == '1') ? '0' : '1';
 			}
 			if(symbol->width < writer) {
 				symbol->width = writer;

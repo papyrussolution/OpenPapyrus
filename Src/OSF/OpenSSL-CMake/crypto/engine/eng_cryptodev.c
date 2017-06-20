@@ -36,9 +36,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/objects.h>
-#include <internal/engine.h>
-#include <openssl/evp.h>
+//#include <openssl/objects.h>
+//#include <internal/engine.h>
+//#include <openssl/evp.h>
 //#include <openssl/bn.h>
 //#include <openssl/crypto.h>
 

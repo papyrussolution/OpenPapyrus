@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    ANSI-specific FreeType low-level system interface (body).            */
 /*                                                                         */
-/*  Copyright 1996-2015 by                                                 */
+/*  Copyright 1996-2017 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -24,7 +24,9 @@
 /*                                                                       */
 /*************************************************************************/
 
+#define  FT_MAKE_OPTION_SINGLE_OBJECT
 #include <ft2build.h>
+#pragma hdrstop
 #include FT_CONFIG_CONFIG_H
 #include FT_INTERNAL_DEBUG_H
 #include FT_INTERNAL_STREAM_H
@@ -213,10 +215,8 @@ ft_ansi_stream_io(FT_Stream stream,
 FT_BASE_DEF(FT_Error) FT_Stream_Open(FT_Stream stream, const char*  filepathname)
 {
 	FT_FILE*  file;
-
 	if(!stream)
 		return FT_THROW(Invalid_Stream_Handle);
-
 	stream->descriptor.pointer = NULL;
 	stream->pathname.pointer   = (char*)filepathname;
 	stream->base               = NULL;
@@ -226,12 +226,9 @@ FT_BASE_DEF(FT_Error) FT_Stream_Open(FT_Stream stream, const char*  filepathname
 
 	file = ft_fopen(filepathname, "rb");
 	if(!file) {
-		FT_ERROR(( "FT_Stream_Open:"
-			    " could not open `%s'\n", filepathname ));
-
+		FT_ERROR(( "FT_Stream_Open: could not open `%s'\n", filepathname ));
 		return FT_THROW(Cannot_Open_Resource);
 	}
-
 	ft_fseek(file, 0, SEEK_END);
 	stream->size = (unsigned long)ft_ftell(file);
 	if(!stream->size) {

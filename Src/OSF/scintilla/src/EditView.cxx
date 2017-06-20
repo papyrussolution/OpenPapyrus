@@ -866,10 +866,8 @@ static ColourDesired TextBackground(const EditModel &model, const ViewStyle &vsD
 void EditView::DrawIndentGuide(Surface * surface, int lineVisible, int lineHeight, int start, PRectangle rcSegment, bool highlight)
 {
 	Point from = Point::FromInts(0, ((lineVisible & 1) && (lineHeight & 1)) ? 1 : 0);
-	PRectangle rcCopyArea =
-	    PRectangle::FromInts(start + 1, static_cast<int>(rcSegment.top), start + 2, static_cast<int>(rcSegment.bottom));
-	surface->Copy(rcCopyArea, from,
-	    highlight ? *pixmapIndentGuideHighlight : *pixmapIndentGuide);
+	PRectangle rcCopyArea = PRectangle::FromInts(start + 1, static_cast<int>(rcSegment.top), start + 2, static_cast<int>(rcSegment.bottom));
+	surface->Copy(rcCopyArea, from, highlight ? *pixmapIndentGuideHighlight : *pixmapIndentGuide);
 }
 
 static void SimpleAlphaRectangle(Surface * surface, PRectangle rc, ColourDesired fill, int alpha)
@@ -882,28 +880,25 @@ static void SimpleAlphaRectangle(Surface * surface, PRectangle rc, ColourDesired
 static void DrawTextBlob(Surface * surface, const ViewStyle &vsDraw, PRectangle rcSegment,
     const char * s, ColourDesired textBack, ColourDesired textFore, bool fillBackground)
 {
-	if(rcSegment.Empty())
-		return;
-	if(fillBackground) {
-		surface->FillRectangle(rcSegment, textBack);
+	if(!rcSegment.Empty()) {
+		if(fillBackground) {
+			surface->FillRectangle(rcSegment, textBack);
+		}
+		FontAlias ctrlCharsFont = vsDraw.styles[STYLE_CONTROLCHAR].font;
+		int normalCharHeight = static_cast<int>(surface->Ascent(ctrlCharsFont) - surface->InternalLeading(ctrlCharsFont));
+		PRectangle rcCChar = rcSegment;
+		rcCChar.left = rcCChar.left + 1;
+		rcCChar.top = rcSegment.top + vsDraw.maxAscent - normalCharHeight;
+		rcCChar.bottom = rcSegment.top + vsDraw.maxAscent + 1;
+		PRectangle rcCentral = rcCChar;
+		rcCentral.top++;
+		rcCentral.bottom--;
+		surface->FillRectangle(rcCentral, textFore);
+		PRectangle rcChar = rcCChar;
+		rcChar.left++;
+		rcChar.right--;
+		surface->DrawTextClipped(rcChar, ctrlCharsFont, rcSegment.top + vsDraw.maxAscent, s, static_cast<int>(sstrlen(s)), textBack, textFore);
 	}
-	FontAlias ctrlCharsFont = vsDraw.styles[STYLE_CONTROLCHAR].font;
-	int normalCharHeight = static_cast<int>(surface->Ascent(ctrlCharsFont) -
-	    surface->InternalLeading(ctrlCharsFont));
-	PRectangle rcCChar = rcSegment;
-	rcCChar.left = rcCChar.left + 1;
-	rcCChar.top = rcSegment.top + vsDraw.maxAscent - normalCharHeight;
-	rcCChar.bottom = rcSegment.top + vsDraw.maxAscent + 1;
-	PRectangle rcCentral = rcCChar;
-	rcCentral.top++;
-	rcCentral.bottom--;
-	surface->FillRectangle(rcCentral, textFore);
-	PRectangle rcChar = rcCChar;
-	rcChar.left++;
-	rcChar.right--;
-	surface->DrawTextClipped(rcChar, ctrlCharsFont,
-	    rcSegment.top + vsDraw.maxAscent, s, static_cast<int>(s ? strlen(s) : 0),
-	    textBack, textFore);
 }
 
 void EditView::DrawEOL(Surface * surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout * ll,
@@ -912,7 +907,6 @@ void EditView::DrawEOL(Surface * surface, const EditModel &model, const ViewStyl
 {
 	const int posLineStart = model.pdoc->LineStart(line);
 	PRectangle rcSegment = rcLine;
-
 	const bool lastSubLine = subLine == (ll->lines - 1);
 	XYPOSITION virtualSpace = 0;
 	if(lastSubLine) {
@@ -920,7 +914,6 @@ void EditView::DrawEOL(Surface * surface, const EditModel &model, const ViewStyl
 		virtualSpace = model.sel.VirtualSpaceFor(model.pdoc->LineEnd(line)) * spaceWidth;
 	}
 	XYPOSITION xEol = static_cast<XYPOSITION>(ll->positions[lineEnd] - subLineStart);
-
 	// Fill the virtual space and show selections within it
 	if(virtualSpace > 0.0f) {
 		rcSegment.left = xEol + xStart;
@@ -2323,10 +2316,12 @@ static ColourDesired InvertedLight(ColourDesired orig)
 	uint il = 0xff - l;
 	if(l == 0)
 		return ColourDesired(0xff, 0xff, 0xff);
-	r = r * il / l;
-	g = g * il / l;
-	b = b * il / l;
-	return ColourDesired(Platform::Minimum(r, 0xff), Platform::Minimum(g, 0xff), Platform::Minimum(b, 0xff));
+	else {
+		r = r * il / l;
+		g = g * il / l;
+		b = b * il / l;
+		return ColourDesired(Platform::Minimum(r, 0xff), Platform::Minimum(g, 0xff), Platform::Minimum(b, 0xff));
+	}
 }
 
 long EditView::FormatRange(bool draw, Sci_RangeToFormat * pfr, Surface * surface, Surface * surfaceMeasure,
@@ -2334,10 +2329,8 @@ long EditView::FormatRange(bool draw, Sci_RangeToFormat * pfr, Surface * surface
 {
 	// Can't use measurements cached for screen
 	posCache.Clear();
-
 	ViewStyle vsPrint(vs);
 	vsPrint.technology = SC_TECHNOLOGY_DEFAULT;
-
 	// Modify the view style for printing as do not normally want any of the transient features to be printed
 	// Printing supports only the line number margin.
 	int lineNumberIndex = -1;
@@ -2416,41 +2409,28 @@ long EditView::FormatRange(bool draw, Sci_RangeToFormat * pfr, Surface * surface
 	int endPosPrint = model.pdoc->Length();
 	if(linePrintLast < model.pdoc->LinesTotal())
 		endPosPrint = model.pdoc->LineStart(linePrintLast + 1);
-
 	// Ensure we are styled to where we are formatting.
 	model.pdoc->EnsureStyledTo(endPosPrint);
-
 	int xStart = vsPrint.fixedColumnWidth + pfr->rc.left;
 	int ypos = pfr->rc.top;
-
 	int lineDoc = linePrintStart;
-
 	int nPrintPos = static_cast<int>(pfr->chrg.cpMin);
 	int visibleLine = 0;
 	int widthPrint = pfr->rc.right - pfr->rc.left - vsPrint.fixedColumnWidth;
 	if(printParameters.wrapState == eWrapNone)
 		widthPrint = LineLayout::wrapWidthInfinite;
-
 	while(lineDoc <= linePrintLast && ypos < pfr->rc.bottom) {
 		// When printing, the hdc and hdcTarget may be the same, so
 		// changing the state of surfaceMeasure may change the underlying
 		// state of surface. Therefore, any cached state is discarded before
 		// using each surface.
 		surfaceMeasure->FlushCachedState();
-
 		// Copy this line and its styles from the document into local arrays
 		// and determine the x position at which each character starts.
 		LineLayout ll(model.pdoc->LineStart(lineDoc + 1) - model.pdoc->LineStart(lineDoc) + 1);
 		LayoutLine(model, lineDoc, surfaceMeasure, vsPrint, &ll, widthPrint);
-
 		ll.containsCaret = false;
-
-		PRectangle rcLine = PRectangle::FromInts(
-		    pfr->rc.left,
-		    ypos,
-		    pfr->rc.right - 1,
-		    ypos + vsPrint.lineHeight);
-
+		PRectangle rcLine = PRectangle::FromInts(pfr->rc.left, ypos, pfr->rc.right - 1, ypos + vsPrint.lineHeight);
 		// When document line is wrapped over multiple display lines, find where
 		// to start printing from to ensure a particular position is on the first
 		// line of the page.
@@ -2461,15 +2441,11 @@ long EditView::FormatRange(bool draw, Sci_RangeToFormat * pfr, Surface * surface
 					visibleLine = -iwl;
 				}
 			}
-
 			if(ll.lines > 1 && startWithinLine >= ll.LineStart(ll.lines - 1)) {
 				visibleLine = -(ll.lines - 1);
 			}
 		}
-
-		if(draw && lineNumberWidth &&
-		    (ypos + vsPrint.lineHeight <= pfr->rc.bottom) &&
-		    (visibleLine >= 0)) {
+		if(draw && lineNumberWidth && (ypos + vsPrint.lineHeight <= pfr->rc.bottom) && (visibleLine >= 0)) {
 			char number[100];
 			sprintf(number, "%d" lineNumberPrintSpace, lineDoc + 1);
 			PRectangle rcNumber = rcLine;
@@ -2483,10 +2459,8 @@ long EditView::FormatRange(bool draw, Sci_RangeToFormat * pfr, Surface * surface
 			    vsPrint.styles[STYLE_LINENUMBER].fore,
 			    vsPrint.styles[STYLE_LINENUMBER].back);
 		}
-
 		// Draw the line
 		surface->FlushCachedState();
-
 		for(int iwl = 0; iwl < ll.lines; iwl++) {
 			if(ypos + vsPrint.lineHeight <= pfr->rc.bottom) {
 				if(visibleLine >= 0) {
@@ -2504,13 +2478,10 @@ long EditView::FormatRange(bool draw, Sci_RangeToFormat * pfr, Surface * surface
 					nPrintPos += ll.LineStart(iwl + 1) - ll.LineStart(iwl);
 			}
 		}
-
 		++lineDoc;
 	}
-
 	// Clear cache so measurements are not used for screen
 	posCache.Clear();
-
 	return nPrintPos;
 }
 

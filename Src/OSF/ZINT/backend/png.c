@@ -47,17 +47,16 @@ struct mainprog_info_type {
 
 static void writepng_error_handler(png_structp png_ptr, const char * msg)
 {
-	struct mainprog_info_type * graphic;
 	fprintf(stderr, "writepng libpng error: %s (F30)\n", msg);
 	fflush(stderr);
-	graphic = (struct mainprog_info_type*)png_get_error_ptr(png_ptr);
+	struct mainprog_info_type * graphic = (struct mainprog_info_type*)png_get_error_ptr(png_ptr);
 	if(graphic == NULL) {
 		// we are completely hosed now 
 		fprintf(stderr, "writepng severe error:  jmpbuf not recoverable; terminating. (F31)\n");
 		fflush(stderr);
-		return;
 	}
-	longjmp(graphic->jmpbuf, 1);
+	else 
+		longjmp(graphic->jmpbuf, 1);
 }
 
 int png_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)

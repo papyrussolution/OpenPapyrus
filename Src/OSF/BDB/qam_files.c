@@ -295,33 +295,24 @@ err:
 int __qam_fclose(DB * dbp, db_pgno_t pgnoaddr)
 {
 	DB_MPOOLFILE * mpf;
-	ENV * env;
 	MPFARRAY * array;
-	QUEUE * qp;
 	uint32 extid, offset;
-	int ret;
-
-	ret = 0;
-	env = dbp->env;
-	qp = (QUEUE *)dbp->q_internal;
-
+	int ret = 0;
+	ENV * env = dbp->env;
+	QUEUE * qp = (QUEUE *)dbp->q_internal;
 	MUTEX_LOCK(env, dbp->mutex);
-
 	extid = QAM_PAGE_EXTENT(dbp, pgnoaddr);
 	array = &qp->array1;
 	if(array->low_extent > extid || array->hi_extent < extid)
 		array = &qp->array2;
 	offset = extid-array->low_extent;
-
-	DB_ASSERT(env,
-		extid >= array->low_extent && offset < array->n_extent);
+	DB_ASSERT(env, extid >= array->low_extent && offset < array->n_extent);
 	/* If other threads are still using this file, leave it. */
 	if(array->mpfarray[offset].pinref != 0)
 		goto done;
 	mpf = array->mpfarray[offset].mpf;
 	array->mpfarray[offset].mpf = NULL;
 	ret = __memp_fclose(mpf, 0);
-
 done:
 	MUTEX_UNLOCK(env, dbp->mutex);
 	return ret;

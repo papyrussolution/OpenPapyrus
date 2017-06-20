@@ -190,27 +190,22 @@ public:
 	{
 		co = lcol;
 	}
-
 	ColourDesired(uint red, uint green, uint blue)
 	{
 		Set(red, green, blue);
 	}
-
 	bool operator==(const ColourDesired &other) const
 	{
 		return co == other.co;
 	}
-
 	void Set(long lcol)
 	{
 		co = lcol;
 	}
-
 	void Set(uint red, uint green, uint blue)
 	{
 		co = red | (green << 8) | (blue << 16);
 	}
-
 	static inline uint ValueOfHex(const char ch)
 	{
 		if(ch >= '0' && ch <= '9')
@@ -222,7 +217,6 @@ public:
 		else
 			return 0;
 	}
-
 	void Set(const char * val)
 	{
 		if(*val == '#') {
@@ -233,22 +227,18 @@ public:
 		uint b = ValueOfHex(val[4]) * 16 + ValueOfHex(val[5]);
 		Set(r, g, b);
 	}
-
 	long AsLong() const
 	{
 		return co;
 	}
-
 	uint GetRed() const
 	{
 		return co & 0xff;
 	}
-
 	uint GetGreen() const
 	{
 		return (co >> 8) & 0xff;
 	}
-
 	uint GetBlue() const
 	{
 		return (co >> 16) & 0xff;
@@ -296,15 +286,12 @@ protected:
 public:
 	Font();
 	virtual ~Font();
-
 	virtual void Create(const FontParameters &fp);
 	virtual void Release();
-
 	FontID GetID()
 	{
 		return fid;
 	}
-
 	// Alias another font - caller guarantees not to Release
 	void SetID(FontID fid_)
 	{
@@ -324,21 +311,17 @@ private:
 	Surface(const Surface &)
 	{
 	}
-
 	Surface &operator=(const Surface &)
 	{
 		return *this;
 	}
-
 public:
 	Surface()
 	{
 	}
-
 	virtual ~Surface()
 	{
 	}
-
 	static Surface * Allocate(int technology);
 
 	virtual void Init(WindowID wid) = 0;
@@ -363,20 +346,10 @@ public:
 	virtual void Ellipse(PRectangle rc, ColourDesired fore, ColourDesired back) = 0;
 	virtual void Copy(PRectangle rc, Point from, Surface &surfaceSource) = 0;
 
-	virtual void DrawTextNoClip(PRectangle rc,
-	    Font &font_,
-	    XYPOSITION ybase,
-	    const char * s,
-	    int len,
-	    ColourDesired fore,
-	    ColourDesired back) = 0;
-	virtual void DrawTextClipped(PRectangle rc,
-	    Font &font_,
-	    XYPOSITION ybase,
-	    const char * s,
-	    int len,
-	    ColourDesired fore,
-	    ColourDesired back) = 0;
+	virtual void DrawTextNoClip(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len,
+	    ColourDesired fore, ColourDesired back) = 0;
+	virtual void DrawTextClipped(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len,
+	    ColourDesired fore, ColourDesired back) = 0;
 	virtual void DrawTextTransparent(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore) = 0;
 	virtual void MeasureWidths(Font &font_, const char * s, int len, XYPOSITION * positions) = 0;
 	virtual XYPOSITION WidthText(Font &font_, const char * s, int len) = 0;
@@ -411,28 +384,23 @@ public:
 	Window() : wid(0), cursorLast(cursorInvalid)
 	{
 	}
-
 	Window(const Window &source) : wid(source.wid), cursorLast(cursorInvalid)
 	{
 	}
-
 	virtual ~Window();
 	Window &operator=(WindowID wid_)
 	{
 		wid = wid_;
 		return *this;
 	}
-
 	WindowID GetID() const
 	{
 		return wid;
 	}
-
 	bool Created() const
 	{
 		return wid != 0;
 	}
-
 	void Destroy();
 	bool HasFocus();
 	PRectangle GetPosition();

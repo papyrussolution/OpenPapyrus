@@ -50,7 +50,7 @@
 
 #include "cairo-gl-private.h"
 #include "cairo-composite-rectangles-private.h"
-#include "cairo-clip-private.h"
+//#include "cairo-clip-private.h"
 #include "cairo-image-surface-private.h"
 
 cairo_int_status_t _cairo_gl_composite_set_source(cairo_gl_composite_t * setup,

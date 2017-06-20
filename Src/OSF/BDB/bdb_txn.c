@@ -2773,8 +2773,7 @@ int __txn_env_refresh(ENV * env)
 		}
 		if(aborted) {
 			__db_errx(env, DB_STR("4511", "Error: closing the transaction region with active transactions"));
-			if(ret == 0)
-				ret = EINVAL;
+			SETIFZ(ret, EINVAL);
 		}
 	}
 	/* Discard the per-thread lock. */

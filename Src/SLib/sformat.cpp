@@ -398,24 +398,25 @@ char * SLAPI timefmt(LTIME t, long fmt, char * pBuf)
 		sprintf(pBuf, "TIMESTAMP '%04d-%02d-%02d %02d:%02d:%02d.%02d'", 2000, 1, 1, t.hour(), t.minut(), t.sec(), t.hs());
 	}
 	else {
-		if(fmt & TIMF_NODIV)
+		const int _no_div = BIN(fmt & TIMF_NODIV);
+		if(_no_div)
 			strcpy(fs, "%02d%02d%02d");
 		else
 			strcpy(fs, "%02d:%02d:%02d");
 		switch(fmt & 7) {
-			case 2:
-				fs[9] = 0;
+			case 2: // TIMF_HM
+				fs[_no_div ? 8 : 9] = 0;
 				sprintf(pBuf, fs, t.hour(), t.minut());
 				break;
-			case 3:
-				fs[9] = 0;
+			case 3: // TIMF_MS
+				fs[_no_div ? 8 : 9] = 0;
 				sprintf(pBuf, fs, t.minut(), t.sec());
 				break;
-			case 4:
+			case 4: // TIMF_S
 				fs[4] = 0;
 				sprintf(pBuf, fs, t.sec());
 				break;
-			default: /* include 1 */
+			default: // include 1 
 				sprintf(pBuf, fs, t.hour(), t.minut(), t.sec());
 				break;
 		}
@@ -425,10 +426,7 @@ char * SLAPI timefmt(LTIME t, long fmt, char * pBuf)
 			int    tz = gettimezone();
 			char * p = pBuf + strlen(pBuf);
 			*p++ = ' ';
-			if(tz < 0)
-				*p++ = '+';
-			else
-				*p++ = '-';
+			*p++ = ((tz < 0) ? '+' : '-');
 			tz = abs(tz);
 			sprintf(p, "%02d%02d", tz / 60, tz % 60);
 		}
@@ -606,20 +604,6 @@ char * SLAPI int64fmt(int64 val, long fmt, char * pBuf)
 	char   s[64];
 	_i64toa(_abs64(val), s, 10);
 	return fmtnumber(s, strlen(s), val < 0, fmt, pBuf);
-}
-
-char * SLAPI longfmtz(long val, int numDigits, char * pBuf, size_t bufLen)
-{
-	SString fmt_buf;
-	fmt_buf.CatChar('%');
-	if(numDigits > 0) {
-		fmt_buf.CatChar('0');
-		fmt_buf.Cat(numDigits);
-	}
-	char temp_buf[64];
-	fmt_buf.CatChar('l').CatChar('d');
-	sprintf(temp_buf, fmt_buf, val);
-	return strnzcpy(pBuf, temp_buf, bufLen);
 }
 
 char * SLAPI uintfmt(ulong val, long fmt, char * pBuf)

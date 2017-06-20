@@ -36,11 +36,11 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-clip-inline.h"
-#include "cairo-clip-private.h"
-#include "cairo-list-inline.h"
+//#include "cairo-clip-inline.h"
+//#include "cairo-clip-private.h"
+//#include "cairo-list-inline.h"
 #include "cairo-gstate-private.h"
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 #include "cairo-traps-private.h"
 
 #if _XOPEN_SOURCE >= 600 || defined (_ISOC99_SOURCE)

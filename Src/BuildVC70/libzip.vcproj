@@ -304,6 +304,9 @@
 				RelativePath="..\Osf\Libzip\lib\libzip.c">
 			</File>
 			<File
+				RelativePath="..\Osf\Libzip\lib\szip_win32.c">
+			</File>
+			<File
 				RelativePath="..\Osf\Libzip\lib\zip_extra_field.c">
 			</File>
 			<File
@@ -311,18 +314,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\Libzip\lib\zip_source_filep.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Libzip\lib\zip_source_win32a.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Libzip\lib\zip_source_win32handle.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Libzip\lib\zip_source_win32utf8.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Libzip\lib\zip_source_win32w.c">
 			</File>
 			<File
 				RelativePath="..\Osf\Libzip\lib\zip_utf-8.c">

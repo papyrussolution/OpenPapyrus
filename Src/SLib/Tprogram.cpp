@@ -720,12 +720,12 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 					SString child_text_buf;
 					TView::SGetWindowText(hb, child_text_buf);
 					main_text_buf.CatDiv(':', 1).Cat(child_text_buf);
-					ShowWindow(hWnd, SW_SHOWNA);
-					UpdateWindow(hWnd);
+					::ShowWindow(hWnd, SW_SHOWNA);
+					::UpdateWindow(hWnd);
 				}
 				else {
-					ShowWindow(hWnd, SW_HIDE);
-					SetFocus(APPL->H_MainWnd);
+					::ShowWindow(hWnd, SW_HIDE);
+					::SetFocus(APPL->H_MainWnd);
 				}
 				TView::SSetWindowText(APPL->H_MainWnd, main_text_buf);
 				// } @v9.1.5
@@ -792,9 +792,9 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_pgm);
 				p_pgm->H_TopOfStack = hWnd;
 				p_pgm->H_MainWnd = hWnd;
-				BrowserWindow::RegisterClass(TProgram::GetInst());
-				STimeChunkBrowser::RegisterClass(TProgram::GetInst());
-				// @v9.1.3 (перенесено в PPApp::PPApp()) STextBrowser::RegisterClass(TProgram::GetInst());
+				BrowserWindow::RegWindowClass(TProgram::GetInst());
+				STimeChunkBrowser::RegWindowClass(TProgram::GetInst());
+				// @v9.1.3 (перенесено в PPApp::PPApp()) STextBrowser::RegWindowClass(TProgram::GetInst());
 				SetTimer(hWnd, 1, 500, 0);
 				p_pgm->P_TreeWnd = new TreeWindow(hWnd);
 				p_pgm->H_FrameWnd = APPL->CreateDlg(4101, hWnd, FrameWndProc, 0);

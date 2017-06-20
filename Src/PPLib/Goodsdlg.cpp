@@ -2341,6 +2341,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 //
 //
 //
+#if 0 // @v9.7.0 {
 int SLAPI SetupGoodsGroupCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, void * extraPtr)
 {
 	int    ok = 0;
@@ -2360,6 +2361,7 @@ int SLAPI SetupGoodsGroupCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, v
 		ok = -1;
 	return ok;
 }
+#endif // } @v9.7.0 
 //
 // GoodsCtrlGroup
 //
@@ -2439,7 +2441,7 @@ int GoodsCtrlGroup::setFilt(TDialog * pDlg, const GoodsFilt * pFilt)
 
 int GoodsCtrlGroup::setData(TDialog * dlg, void * pData)
 {
-	PPID   save_loc_id = LConfig.Location;
+	const PPID save_loc_id = LConfig.Location;
 	Rec  * p_rec = (Rec*)pData;
 	PPID   grp_id = 0, prev_grp_level = 0;
 	int    disable_group_selection = 0;

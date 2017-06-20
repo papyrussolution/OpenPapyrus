@@ -667,12 +667,8 @@ static uint32_t * create_bits(pixman_format_code_t format, int width, int height
 	if(_pixman_multiply_overflows_size(height, stride))
 		return NULL;
 	buf_size = (size_t)(height * stride); // (size_t) @pixman-v0.32.6
-	if(rowstride_bytes)
-		*rowstride_bytes = stride;
-	if(clear)
-		return (uint32_t *)calloc(buf_size, 1);
-	else
-		return (uint32_t *)SAlloc::M(buf_size);
+	ASSIGN_PTR(rowstride_bytes, stride);
+	return clear ? (uint32_t *)SAlloc::C(buf_size, 1) : (uint32_t *)SAlloc::M(buf_size);
 }
 
 pixman_bool_t _pixman_bits_image_init(pixman_image_t * image, pixman_format_code_t format, int width, int height, uint32_t * bits, int rowstride, pixman_bool_t clear)

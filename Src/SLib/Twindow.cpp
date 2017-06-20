@@ -1176,7 +1176,7 @@ int TScrollBlock::SetupWindow(HWND hWnd) const
 const char * TWindowBase::P_ClsName = "SLibWindowBase";
 
 //static
-int TWindowBase::RegisterClass(int iconId)
+int TWindowBase::RegWindowClass(int iconId)
 {
 	WNDCLASSEX wc;
 	const HINSTANCE h_inst = TProgram::GetInst();
@@ -1221,7 +1221,7 @@ TWindowBase::~TWindowBase()
 int TWindowBase::Create(long parent, long createOptions)
 {
 	const HINSTANCE h_inst = TProgram::GetInst();
-	TWindowBase::RegisterClass(102);
+	TWindowBase::RegWindowClass(102);
 
 	SString title_buf = getTitle();
 	if(title_buf.Empty())

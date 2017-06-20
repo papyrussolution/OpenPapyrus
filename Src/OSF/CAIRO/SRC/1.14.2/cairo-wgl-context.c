@@ -156,7 +156,7 @@ cairo_device_t * cairo_wgl_device_create(HGLRC rc)
 	cairo_wgl_context_t * ctx;
 	cairo_status_t status;
 
-	ctx = calloc(1, sizeof(cairo_wgl_context_t));
+	ctx = SAlloc::C(1, sizeof(cairo_wgl_context_t));
 	if(unlikely(ctx == NULL))
 		return _cairo_gl_context_create_in_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -215,7 +215,7 @@ cairo_surface_t * cairo_gl_surface_create_for_dc(cairo_device_t  * device,
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
 	if(width <= 0 || height <= 0)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
-	surface = calloc(1, sizeof(cairo_wgl_surface_t));
+	surface = SAlloc::C(1, sizeof(cairo_wgl_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_gl_surface_init(device, &surface->base, CAIRO_CONTENT_COLOR_ALPHA, width, height);

@@ -734,7 +734,7 @@ public:
 	int    FormatProp(const SrCProp & rCp, long flags, SString & rBuf);
 
 	int    ImportFlexiaModel(const SrImportParam & rParam);
-	int    StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, TSArray <PPOsm::NodeClusterStatEntry> * pStat);
+	int    StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, int dontCheckExist, TSArray <PPOsm::NodeClusterStatEntry> * pStat);
 	int    StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSArray <PPOsm::WayStatEntry> * pStat);
 	int    StoreGeoNodeWayRefList(const LLAssocArray & rList);
 //private:

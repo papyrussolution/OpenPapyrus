@@ -8,14 +8,7 @@
 
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_swap.h"
 /*
  * __ham_pgin --
  *	Convert host-specific page layout from the host-independent format
@@ -49,12 +42,13 @@ int __ham_pgin(DB * dbp, db_pgno_t pg, void * pp, DBT * cookie)
  */
 int __ham_pgout(DB * dbp, db_pgno_t pg, void * pp, DBT * cookie)
 {
-	PAGE * h;
 	DB_PGINFO * pginfo = (DB_PGINFO *)cookie->data;
 	if(!F_ISSET(pginfo, DB_AM_SWAP))
 		return 0;
-	h = (PAGE *)pp;
-	return h->type == P_HASHMETA ?  __ham_mswap(dbp->env, pp) : __db_byteswap(dbp, pg, (PAGE *)pp, pginfo->db_pagesize, 0);
+	else {
+		PAGE * h = (PAGE *)pp;
+		return h->type == P_HASHMETA ?  __ham_mswap(dbp->env, pp) : __db_byteswap(dbp, pg, (PAGE *)pp, pginfo->db_pagesize, 0);
+	}
 }
 /*
  * __ham_mswap --

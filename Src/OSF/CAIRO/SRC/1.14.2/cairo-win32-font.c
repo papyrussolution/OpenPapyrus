@@ -46,9 +46,8 @@
 #include "cairo-win32-private.h"
 #include "cairo-array-private.h"
 #include "cairo-image-surface-private.h"
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 #include "cairo-scaled-font-subsets-private.h"
-
 #include <wchar.h>
 
 #ifndef SPI_GETFONTSMOOTHINGTYPE

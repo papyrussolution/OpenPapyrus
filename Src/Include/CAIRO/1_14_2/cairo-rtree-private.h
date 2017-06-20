@@ -40,7 +40,6 @@
 #include "cairo-compiler-private.h"
 #include "cairo-error-private.h"
 #include "cairo-types-private.h"
-
 #include "cairo-freelist-private.h"
 #include "cairo-list-inline.h"
 

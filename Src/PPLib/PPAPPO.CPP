@@ -44,7 +44,7 @@ PPApp::PPApp(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle) : T
 {
 	LocalState = 0;
 	SPrinter::HandlePrintError = PPHandlePrintError;
-	STextBrowser::RegisterClass(hInst); // @v9.1.3
+	STextBrowser::RegWindowClass(hInst); // @v9.1.3
 	InitUiToolBox(); // @v9.5.6
 	InitDeskTop();
 	TEvent event;
@@ -364,6 +364,7 @@ int SLAPI TestFias(); // @prototype objloctn.cpp
 int SLAPI TestCURL(); // @prototype pputil.cpp
 int SLAPI TestEGAIS(PPEgaisProcessor::TestParam *); // @prototype egais.cpp
 int SLAPI BuildLocalDL600(); // @prototype ppbuild.cpp
+int SLAPI TestLogWindow(); // @prototype pplog.cpp
 
 static void ShowTags_(PPID objType)
 {
@@ -858,6 +859,7 @@ int PPApp::processCommand(uint cmd)
 		case cmTestCURL:                TestCURL(); break; // @v8.8.0
 		case cmTestEGAIS:               TestEGAIS(0); break; // @v8.8.0
 		case cmTestSearchEmail:         PPObjPerson::TestSearchEmail(); break; // @v8.8.9
+		case cmTestLogWindow:           TestLogWindow(); break; // @v9.7.0
 		case cmConvertLatexToHtml:      PPTex2Html(); break; // @v8.1.12
 		case cmConvertVersionToHtml:    PPVer2Html(); break; // @v8.3.12 // @construction
 		// @underconstruction case cmGenerateGoodsBills:   GenerateGoodsBills(); break;
@@ -1813,7 +1815,7 @@ void PPApp::login(int processCmdLine)
 		if(valid && !prot && !recover) {
 			DS.SetOperDate(dt);
 			StatusWinChange(1);
-			PPDesktop::RegisterClass(TProgram::GetInst());
+			PPDesktop::RegWindowClass(TProgram::GetInst());
 			PPDesktop::Open(LConfig.DesktopID, 1); // @todo должна вызываться после того, как будут созданы основные окна.
 			if(!no_login)
 				RemoveMenu(GetMenu(H_MainWnd), (UINT)cmDBExit, MF_BYCOMMAND);

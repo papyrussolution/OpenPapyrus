@@ -49,7 +49,7 @@ cairo_private void _cairo_freelist_fini(cairo_freelist_t * freelist);
 cairo_private void * _cairo_freelist_alloc(cairo_freelist_t * freelist);
 
 /* Allocate a new node from the freelist.  If the freelist contains no
- * nodes, a new one will be allocated using calloc().  The caller is
+ * nodes, a new one will be allocated using SAlloc::C().  The caller is
  * responsible for calling _cairo_freelist_free() or SAlloc::F() on the
  * returned node.  Returns %NULL on memory allocation error. */
 cairo_private void * _cairo_freelist_calloc(cairo_freelist_t * freelist);

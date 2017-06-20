@@ -233,7 +233,7 @@ done:
  #endif
 		if(!isdone)
 			ret = __bam_truncate_ipages(dbp, ip, txn_orig, c_data);
-		/* Clean up the free list. */
+		// Clean up the free list
 		__os_free(env, list);
 		if((t_ret = __memp_fget(dbp->mpf, &pgno, ip, txn, 0, &meta)) == 0) {
 			c_data->compact_pages_truncated = truncated+last_pgno-meta->last_pgno;
@@ -252,10 +252,9 @@ done:
 #ifdef HAVE_FTRUNCATE
 static int __db_setup_freelist(DB * dbp, db_pglist_t * list, uint32 nelems)
 {
-	DB_MPOOLFILE * mpf;
 	db_pgno_t * plist;
 	int ret;
-	mpf = dbp->mpf;
+	DB_MPOOLFILE * mpf = dbp->mpf;
 	if((ret = __memp_alloc_freelist(mpf, nelems, &plist)) != 0)
 		return ret;
 	while(nelems-- != 0)
@@ -265,17 +264,16 @@ static int __db_setup_freelist(DB * dbp, db_pglist_t * list, uint32 nelems)
 
 static int __db_free_freelist(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn)
 {
-	DBC * dbc;
+	DBC * dbc = 0;
 	DB_LOCK lock;
-	int auto_commit, ret, t_ret;
+	int t_ret;
 	LOCK_INIT(lock);
-	auto_commit = ret = 0;
-	/*
-	 * If we are not in a transaction then we need to get
-	 * a lock on the meta page, otherwise we should already
-	 * have the lock.
-	 */
-	dbc = NULL;
+	int auto_commit = 0;
+	int ret = 0;
+	// 
+	// If we are not in a transaction then we need to get
+	// a lock on the meta page, otherwise we should already have the lock.
+	// 
 	if(IS_DB_AUTO_COMMIT(dbp, txn)) {
 		/*
 		 * We must not timeout the lock or we will not free the list.
@@ -322,7 +320,6 @@ int __db_exchange_page(DBC * dbc, PAGE ** pgp, PAGE * opg, db_pgno_t newpgno, in
 	PAGE * newpage;
 	db_pgno_t oldpgno, * pgnop;
 	int ret;
-
 	DB_ASSERT(NULL, dbc != NULL);
 	dbp = dbc->dbp;
 	LOCK_INIT(lock);
@@ -337,13 +334,10 @@ int __db_exchange_page(DBC * dbc, PAGE ** pgp, PAGE * opg, db_pgno_t newpgno, in
 	 * is the lowest numbered free page.
 	 */
 	if(newpgno != PGNO_INVALID) {
-		if((ret = __memp_fget(dbp->mpf, &newpgno,
-			    dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &newpage)) != 0)
+		if((ret = __memp_fget(dbp->mpf, &newpgno, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &newpage)) != 0)
 			return ret;
 	}
-	else if((ret = __db_new(dbc, P_DONTEXTEND|TYPE(*pgp),
-			 STD_LOCKING(dbc) && TYPE(*pgp) != P_OVERFLOW ? &lock : NULL,
-			 &newpage)) != 0)
+	else if((ret = __db_new(dbc, P_DONTEXTEND|TYPE(*pgp), STD_LOCKING(dbc) && TYPE(*pgp) != P_OVERFLOW ? &lock : NULL, &newpage)) != 0)
 		return ret;
 	/*
 	 * If newpage is null then __db_new would have had to allocate
@@ -373,25 +367,23 @@ int __db_exchange_page(DBC * dbc, PAGE ** pgp, PAGE * opg, db_pgno_t newpgno, in
 		dp = &data;
 		switch(TYPE(*pgp)) {
 		    case P_OVERFLOW:
-			data.data = (uint8 *)*pgp+P_OVERHEAD(dbp);
-			data.size = OV_LEN(*pgp);
-			break;
+				data.data = (uint8 *)*pgp+P_OVERHEAD(dbp);
+				data.size = OV_LEN(*pgp);
+				break;
 		    case P_BTREEMETA:
-			hdr.size = sizeof(BTMETA);
-			dp = NULL;
-			break;
+				hdr.size = sizeof(BTMETA);
+				dp = NULL;
+				break;
 		    case P_HASHMETA:
-			hdr.size = sizeof(HMETA);
-			dp = NULL;
-			break;
+				hdr.size = sizeof(HMETA);
+				dp = NULL;
+				break;
 		    default:
-			data.data = (uint8 *)*pgp+HOFFSET(*pgp);
-			data.size = dbp->pgsize-HOFFSET(*pgp);
-			hdr.size += NUM_ENT(*pgp)*sizeof(db_indx_t);
+				data.data = (uint8 *)*pgp+HOFFSET(*pgp);
+				data.size = dbp->pgsize-HOFFSET(*pgp);
+				hdr.size += NUM_ENT(*pgp)*sizeof(db_indx_t);
 		}
-		if((ret = __db_merge_log(dbp, dbc->txn,
-			    &LSN(newpage), 0, PGNO(newpage), &LSN(newpage),
-			    PGNO(*pgp), &LSN(*pgp), &hdr, dp, 1)) != 0)
+		if((ret = __db_merge_log(dbp, dbc->txn, &LSN(newpage), 0, PGNO(newpage), &LSN(newpage), PGNO(*pgp), &LSN(*pgp), &hdr, dp, 1)) != 0)
 			goto err;
 	}
 	else
@@ -403,8 +395,7 @@ int __db_exchange_page(DBC * dbc, PAGE ** pgp, PAGE * opg, db_pgno_t newpgno, in
 	PGNO(newpage) = newpgno;
 	LSN(newpage) = lsn;
 	/* Empty the old page. */
-	if((ret = __memp_dirty(dbp->mpf,
-		    pgp, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
+	if((ret = __memp_dirty(dbp->mpf, pgp, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
 		goto err;
 	if(TYPE(*pgp) == P_OVERFLOW)
 		OV_LEN(*pgp) = 0;
@@ -447,21 +438,20 @@ int __db_exchange_page(DBC * dbc, PAGE ** pgp, PAGE * opg, db_pgno_t newpgno, in
 	/* Update the parent. */
 	cp = (BTREE_CURSOR *)dbc->internal;
 	epg = &cp->csp[-1];
-
 	switch(TYPE(epg->page)) {
 	    case P_IBTREE:
-		pgnop = &GET_BINTERNAL(dbp, epg->page, epg->indx)->pgno;
-		break;
+			pgnop = &GET_BINTERNAL(dbp, epg->page, epg->indx)->pgno;
+			break;
 	    case P_IRECNO:
-		pgnop = &GET_RINTERNAL(dbp, epg->page, epg->indx)->pgno;
-		break;
+			pgnop = &GET_RINTERNAL(dbp, epg->page, epg->indx)->pgno;
+			break;
 	    case P_LBTREE:
 	    case P_LRECNO:
 	    case P_LDUP:
-		pgnop = &GET_BOVERFLOW(dbp, epg->page, epg->indx)->pgno;
-		break;
+			pgnop = &GET_BOVERFLOW(dbp, epg->page, epg->indx)->pgno;
+			break;
 	    default:
-		return __db_pgfmt(dbp->env, PGNO(epg->page));
+			return __db_pgfmt(dbp->env, PGNO(epg->page));
 	}
 	DB_ASSERT(dbp->env, oldpgno == *pgnop);
 	if(DBC_LOGGING(dbc)) {
@@ -538,12 +528,11 @@ err:
  */
 int __db_truncate_root(DBC * dbc, PAGE * ppg, uint32 indx, db_pgno_t * pgnop, uint32 tlen)
 {
-	DB * dbp;
 	DBT orig;
 	PAGE * page;
 	int ret, t_ret;
 	db_pgno_t newpgno;
-	dbp = dbc->dbp;
+	DB * dbp = dbc->dbp;
 	if((ret = __memp_fget(dbp->mpf, pgnop, dbc->thread_info, dbc->txn, 0, &page)) != 0)
 		goto err;
 	/*
@@ -598,27 +587,22 @@ err:
  */
 int __db_find_free(DBC * dbc, uint32 type, uint32 size, db_pgno_t bstart, db_pgno_t * freep)
 {
-	DB * dbp;
-	DBMETA * meta;
 	DBT listdbt;
 	DB_LOCK metalock;
 	DB_LSN lsn;
-	DB_MPOOLFILE * mpf;
-	PAGE * page, * freepg;
-	uint32 i, j, start, nelems;
+	PAGE * freepg;
+	uint32 i, j, start;
 	db_pgno_t * list, next_free, pgno;
-	db_pglist_t * lp, * pglist;
-	int hash, ret, t_ret;
-
-	dbp = dbc->dbp;
-	mpf = dbp->mpf;
-	nelems = 0;
-	hash = 0;
-	page = NULL;
-	pglist = NULL;
-	meta = NULL;
+	db_pglist_t * lp;
+	int ret, t_ret;
+	DB * dbp = dbc->dbp;
+	DB_MPOOLFILE * mpf = dbp->mpf;
+	uint32 nelems = 0;
+	int hash = 0;
+	PAGE * page = NULL;
+	db_pglist_t * pglist = NULL;
+	DBMETA * meta = NULL;
 	LOCK_INIT(metalock);
-
  #ifdef HAVE_HASH
 	if(dbp->type == DB_HASH) {
 		if((ret = __ham_return_meta(dbc, DB_MPOOL_DIRTY, &meta)) != 0)
@@ -824,11 +808,11 @@ err:
 int __db_move_metadata(DBC * dbc, DBMETA ** metap, DB_COMPACT * c_data)
 {
 	BTREE * bt;
-	DB * dbp, * mdbp;
+	DB * mdbp;
 	DB_LOCK handle_lock;
 	HASH * ht;
 	int ret, t_ret;
-	dbp = dbc->dbp;
+	DB * dbp = dbc->dbp;
 	c_data->compact_pages_examine++;
 	if((ret = __db_exchange_page(dbc, (PAGE **)metap, NULL, PGNO_INVALID, DB_EXCH_FREE)) != 0)
 		return ret;

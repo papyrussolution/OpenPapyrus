@@ -191,12 +191,10 @@ err_noalloc:
  */
 static int __rep_find_dbs(ENV*env, FILE_LIST_CTX * context)
 {
-	DB_ENV * dbenv;
-	int ret;
-	char ** ddir, * real_dir;
-	dbenv = env->dbenv;
-	ret = 0;
-	real_dir = NULL;
+	int ret = 0;
+	char ** ddir;
+	DB_ENV * dbenv = env->dbenv;
+	char * real_dir = NULL;
 	/*
 	 * If we have a data directory, walk it get a list of the
 	 * replicated user databases.
@@ -472,30 +470,24 @@ err:
 
 static int __rep_page_sendpages(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_control_args * rp, __rep_fileinfo_args * msgfp, DB_MPOOLFILE * mpf, DB * dbp)
 {
-	DB * qdbp;
-	DBC * qdbc;
+	DB * qdbp = 0;
+	DBC * qdbc = 0;
 	DBT msgdbt;
-	DB_LOG * dblp;
 	DB_LSN lsn;
-	DB_REP * db_rep;
 	PAGE * pagep;
-	REP * rep;
 	REP_BULK bulk;
 	REP_THROTTLE repth;
 	db_pgno_t p;
 	uintptr_t bulkoff;
 	size_t len, msgsz;
 	uint32 bulkflags, use_bulk;
-	int opened, ret, t_ret;
-	uint8 * buf;
-	dblp = env->lg_handle;
-	db_rep = env->rep_handle;
-	rep = db_rep->region;
-	opened = 0;
-	t_ret = 0;
-	qdbp = NULL;
-	qdbc = NULL;
-	buf = NULL;
+	int ret;
+	uint8 * buf = 0;
+	DB_LOG * dblp = env->lg_handle;
+	DB_REP * db_rep = env->rep_handle;
+	REP * rep = db_rep->region;
+	int opened = 0;
+	int t_ret = 0;
 	bulk.addr = NULL;
 	use_bulk = FLD_ISSET(rep->config, REP_C_BULK);
 	if(msgfp->type == (uint32)DB_QUEUE) {
@@ -1959,8 +1951,7 @@ static int __rep_nextfile(ENV*env, int eid, REP * rep)
 	 * before we clear SYNC_PAGE so that we do not
 	 * try to flush the log.
 	 */
-	if((ret = __memp_sync_int(env, NULL, 0,
-		    DB_SYNC_CACHE|DB_SYNC_INTERRUPT_OK, NULL, NULL)) != 0)
+	if((ret = __memp_sync_int(env, NULL, 0, DB_SYNC_CACHE|DB_SYNC_INTERRUPT_OK, NULL, NULL)) != 0)
 		return ret;
 	rep->sync_state = SYNC_LOG;
 	memzero(&dbt, sizeof(dbt));
@@ -2029,8 +2020,7 @@ static int __rep_rollback(ENV*env, DB_LSN * lsnp)
 	lp->wait_ts = rep->request_gap;
 	__os_gettime(env, &lp->rcvd_ts, 1);
 	ZERO_LSN(lp->verify_lsn);
-	if(db_rep->rep_db == NULL &&
-	   (ret = __rep_client_dbinit(env, 0, REP_DB)) != 0) {
+	if(db_rep->rep_db == NULL && (ret = __rep_client_dbinit(env, 0, REP_DB)) != 0) {
 		MUTEX_UNLOCK(env, rep->mtx_clientdb);
 		goto errlock;
 	}
@@ -2073,12 +2063,9 @@ static int __rep_mpf_open(ENV * env, DB_MPOOLFILE ** mpfp, __rep_fileinfo_args *
 	 * byte order.  If so, set the swap bit so that the necessary swapping
 	 * will be done during file I/O.
 	 */
-	if((F_ISSET(env, ENV_LITTLEENDIAN) &&
-	    !FLD_ISSET(rfp->finfo_flags, REPINFO_DB_LITTLEENDIAN)) ||
-	   (!F_ISSET(env, ENV_LITTLEENDIAN) &&
-	    FLD_ISSET(rfp->finfo_flags, REPINFO_DB_LITTLEENDIAN))) {
-		RPRINT(env, (env, DB_VERB_REP_SYNC,
-			     "rep_mpf_open: Different endian database.  Set swap bit."));
+	if((F_ISSET(env, ENV_LITTLEENDIAN) && !FLD_ISSET(rfp->finfo_flags, REPINFO_DB_LITTLEENDIAN)) || 
+		(!F_ISSET(env, ENV_LITTLEENDIAN) && FLD_ISSET(rfp->finfo_flags, REPINFO_DB_LITTLEENDIAN))) {
+		RPRINT(env, (env, DB_VERB_REP_SYNC, "rep_mpf_open: Different endian database.  Set swap bit."));
 		F_SET(&db, DB_AM_SWAP);
 	}
 	else
@@ -2102,16 +2089,14 @@ static int __rep_mpf_open(ENV * env, DB_MPOOLFILE ** mpfp, __rep_fileinfo_args *
 int __rep_pggap_req(ENV * env, REP * rep, __rep_fileinfo_args * reqfp, uint32 gapflags)
 {
 	DBT max_pg_dbt;
-	REGINFO * infop;
 	__rep_fileinfo_args * curinfo, * tmpfp, t;
 	size_t len, msgsz;
 	uint32 flags;
-	int alloc, master, ret;
+	int master;
 	uint8 * buf;
-
-	infop = env->reginfo;
-	ret = 0;
-	alloc = 0;
+	REGINFO * infop = env->reginfo;
+	int ret = 0;
+	int alloc = 0;
 	/*
 	 * There is a window where we have to set REP_RECOVER_PAGE when
 	 * we receive the update information to transition from getting
@@ -2157,10 +2142,7 @@ int __rep_pggap_req(ENV * env, REP * rep, __rep_fileinfo_args * reqfp, uint32 ga
 		 * there is no waiting_pg, just ask for one.
 		 */
 		if(rep->waiting_pg == PGNO_INVALID) {
-			if(FLD_ISSET(gapflags, REP_GAP_FORCE|REP_GAP_REREQUEST))
-				rep->max_wait_pg = curinfo->max_pgno;
-			else
-				rep->max_wait_pg = rep->ready_pg;
+			rep->max_wait_pg = (FLD_ISSET(gapflags, REP_GAP_FORCE|REP_GAP_REREQUEST)) ? curinfo->max_pgno : rep->ready_pg;
 		}
 		else {
 			/*
@@ -2168,20 +2150,13 @@ int __rep_pggap_req(ENV * env, REP * rep, __rep_fileinfo_args * reqfp, uint32 ga
 			 * the page we want to start this request at, then
 			 * we set max_wait_pg to the max pgno in the file.
 			 */
-			if(FLD_ISSET(gapflags, REP_GAP_FORCE) &&
-			   rep->waiting_pg < tmpfp->pgno)
-				rep->max_wait_pg = curinfo->max_pgno;
-			else
-				rep->max_wait_pg = rep->waiting_pg-1;
+			rep->max_wait_pg = (FLD_ISSET(gapflags, REP_GAP_FORCE) && rep->waiting_pg < tmpfp->pgno) ? curinfo->max_pgno : rep->waiting_pg-1;
 		}
 		tmpfp->max_pgno = rep->max_wait_pg;
 		/*
 		 * Gap requests are "new" and can go anywhere.
 		 */
-		if(FLD_ISSET(gapflags, REP_GAP_REREQUEST))
-			flags = DB_REP_REREQUEST;
-		else
-			flags = DB_REP_ANYWHERE;
+		flags = FLD_ISSET(gapflags, REP_GAP_REREQUEST) ? DB_REP_REREQUEST : DB_REP_ANYWHERE;
 	}
 	else {
 		/*
@@ -2227,13 +2202,12 @@ err:
 int __rep_finfo_alloc(ENV * env, __rep_fileinfo_args * rfpsrc, __rep_fileinfo_args ** rfpp)
 {
 	__rep_fileinfo_args * rfp;
-	size_t size;
 	int ret;
 	void * uidp, * infop;
 	/*
 	 * Allocate enough for the structure and the two DBT data areas.
 	 */
-	size = sizeof(__rep_fileinfo_args)+rfpsrc->uid.size+rfpsrc->info.size;
+	size_t size = sizeof(__rep_fileinfo_args)+rfpsrc->uid.size+rfpsrc->info.size;
 	if((ret = __os_malloc(env, size, &rfp)) != 0)
 		return ret;
 	/*
@@ -2314,15 +2288,12 @@ static int __rep_queue_filedone(ENV * env, DB_THREAD_INFO * ip, REP * rep, __rep
 	COMPQUIET(rfp, NULL);
 	return __db_no_queue_am(env);
 #else
-	DB * queue_dbp;
-	DB_REP * db_rep;
 	db_pgno_t first, last;
 	uint32 flags;
-	int empty, ret, t_ret;
-
-	db_rep = env->rep_handle;
-	ret = 0;
-	queue_dbp = NULL;
+	int empty, t_ret;
+	DB_REP * db_rep = env->rep_handle;
+	int ret = 0;
+	DB * queue_dbp = NULL;
 	if(db_rep->queue_dbc == NULL) {
 		/*
 		 * We need to do a sync here so that the open
@@ -2510,8 +2481,7 @@ int __rep_reset_init(ENV * env)
 		goto rm;
 	ret = __rep_get_file_list(env, fhp, fvers, &dbtvers, &dbt);
 	if((t_ret = __os_closehandle(env, fhp)) != 0 || ret != 0) {
-		if(ret == 0)
-			ret = t_ret;
+		SETIFZ(ret, t_ret);
 		goto out;
 	}
 	if(dbt.data == NULL) {
@@ -2570,7 +2540,6 @@ static int __rep_get_file_list(ENV * env, DB_FH * fhp, uint32 fvers, uint32 * db
 	uint32 length, mvers;
 	size_t cnt;
 	int i, ret;
-
 	/* At most 2 file lists: old and new. */
 	dbt->data = NULL;
 	mvers = DB_REPVERSION_46;

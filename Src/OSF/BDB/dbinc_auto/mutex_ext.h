@@ -8,7 +8,7 @@ extern "C" {
 
 int __mutex_alloc(ENV *, int, uint32, db_mutex_t *);
 int __mutex_alloc_int(ENV *, int, int, uint32, db_mutex_t *);
-int __mutex_free(ENV *, db_mutex_t *);
+int FASTCALL __mutex_free(ENV *, db_mutex_t *);
 int __mutex_free_int(ENV *, int, db_mutex_t *);
 int __mutex_refresh(ENV *, db_mutex_t);
 int __mut_failchk(ENV *);

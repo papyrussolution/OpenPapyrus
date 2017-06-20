@@ -37,47 +37,40 @@
 #ifndef CAIRO_CLIP_INLINE_H
 #define CAIRO_CLIP_INLINE_H
 
-#include "cairo-clip-private.h"
+//#include "cairo-clip-private.h"
 
-static inline cairo_bool_t _cairo_clip_is_all_clipped(const cairo_clip_t *clip)
+static inline cairo_bool_t _cairo_clip_is_all_clipped(const cairo_clip_t * clip)
 {
-    return clip == &__cairo_clip_all;
+	return clip == &__cairo_clip_all;
 }
 
-static inline cairo_clip_t *
-_cairo_clip_set_all_clipped (cairo_clip_t *clip)
+static inline cairo_clip_t * _cairo_clip_set_all_clipped(cairo_clip_t * clip)
 {
-    _cairo_clip_destroy (clip);
-    return (cairo_clip_t *) &__cairo_clip_all;
+	_cairo_clip_destroy(clip);
+	return (cairo_clip_t*)&__cairo_clip_all;
 }
 
-static inline cairo_clip_t *
-_cairo_clip_copy_intersect_rectangle (const cairo_clip_t       *clip,
-				      const CairoIRect *r)
+static inline cairo_clip_t * _cairo_clip_copy_intersect_rectangle(const cairo_clip_t * clip, const CairoIRect * r)
 {
-    return _cairo_clip_intersect_rectangle (_cairo_clip_copy (clip), r);
+	return _cairo_clip_intersect_rectangle(_cairo_clip_copy(clip), r);
 }
 
-static inline cairo_clip_t *
-_cairo_clip_copy_intersect_clip (const cairo_clip_t *clip,
-				 const cairo_clip_t *other)
+static inline cairo_clip_t * _cairo_clip_copy_intersect_clip(const cairo_clip_t * clip, const cairo_clip_t * other)
 {
-    return _cairo_clip_intersect_clip (_cairo_clip_copy (clip), other);
+	return _cairo_clip_intersect_clip(_cairo_clip_copy(clip), other);
 }
 
-static inline void
-_cairo_clip_steal_boxes (cairo_clip_t *clip, cairo_boxes_t *boxes)
+static inline void _cairo_clip_steal_boxes(cairo_clip_t * clip, cairo_boxes_t * boxes)
 {
-    _cairo_boxes_init_for_array (boxes, clip->boxes, clip->num_boxes);
-    clip->boxes = NULL;
-    clip->num_boxes = 0;
+	_cairo_boxes_init_for_array(boxes, clip->boxes, clip->num_boxes);
+	clip->boxes = NULL;
+	clip->num_boxes = 0;
 }
 
-static inline void
-_cairo_clip_unsteal_boxes (cairo_clip_t *clip, cairo_boxes_t *boxes)
+static inline void _cairo_clip_unsteal_boxes(cairo_clip_t * clip, cairo_boxes_t * boxes)
 {
-    clip->boxes = boxes->chunks.base;
-    clip->num_boxes = boxes->num_boxes;
+	clip->boxes = boxes->chunks.base;
+	clip->num_boxes = boxes->num_boxes;
 }
 
 #endif /* CAIRO_CLIP_INLINE_H */

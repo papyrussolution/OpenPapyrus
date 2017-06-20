@@ -1,5 +1,5 @@
 // COMMCFG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017
 // @codepage windows-1251
 //
 // Диалог редактирования общих параметров настройки
@@ -79,11 +79,9 @@ int CommCfgDialog::editSysParams()
 			setCtrlData(CTL_CCFGSYS_MAXGBLINES, &Data.MaxGoodsBillLines);
 			setCtrlData(CTL_CCFGSYS_FRRLDAYS,   &Data.FRRL_Days);
 			setCtrlData(CTL_CCFGSYS_GRESTTHR,   &Data.GRestCalcThreshold);
-			setCtrlData(CTL_CCFGSYS_ICQTTYEPS,  &Data.IltiCvtQttyEpsilon); // @v7.6.3
+			setCtrlData(CTL_CCFGSYS_ICQTTYEPS,  &Data.IltiCvtQttyEpsilon);
 			setCtrlData(CTL_CCFGSYS_CSUNITPRD,  &Data.CSessUnitingPeriod);
 			setCtrlData(CTL_CCFGSYS_CSFWPRD,    &Data.CSessFwAsscPeriod);
-			// @v6.6.2 AddClusterAssoc(CTL_CCFGSYS_FLAGS,  0, CCFLG_EXCLUSIVETA);
-			// @v6.6.2 AddClusterAssoc(CTL_CCFGSYS_FLAGS,  1, CCFLG_DISABLENWMUTEX);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  0, CCFLG_USEGDSCLS);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  1, CCFLG_USEGOODSPCKG);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  2, CCFLG_USEDRAFTBILL);
@@ -103,14 +101,12 @@ int CommCfgDialog::editSysParams()
 			AddClusterAssoc(CTL_CCFGSYS_LCRUSAGE, 1, 1);
 			AddClusterAssoc(CTL_CCFGSYS_LCRUSAGE, 2, 2);
 			SetClusterData(CTL_CCFGSYS_LCRUSAGE, Data.LcrUsage);
-			// @v7.1.11 {
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 0, CCFLG2_QUOT2);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 1, CCFLG2_INDEXEADDR);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 2, CCFLG2_SYNCLOT);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 3, CCFLG2_USECCHECKEXTPAYM); // @v8.0.0
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 4, CCFLG2_USEOMTPAYMAMT); // @v8.5.8
 			SetClusterData(CTL_CCFGSYS_FLAGS2, Data.Flags2);
-			// } @v7.1.11
 			return 1;
 		}
 		int    getDTS(PPCommConfig * pData)
@@ -118,12 +114,12 @@ int CommCfgDialog::editSysParams()
 			getCtrlData(CTL_CCFGSYS_MAXGBLINES, &Data.MaxGoodsBillLines);
 			getCtrlData(CTL_CCFGSYS_FRRLDAYS,   &Data.FRRL_Days);
 			getCtrlData(CTL_CCFGSYS_GRESTTHR,   &Data.GRestCalcThreshold);
-			getCtrlData(CTL_CCFGSYS_ICQTTYEPS,  &Data.IltiCvtQttyEpsilon); // @v7.6.3
+			getCtrlData(CTL_CCFGSYS_ICQTTYEPS,  &Data.IltiCvtQttyEpsilon);
 			getCtrlData(CTL_CCFGSYS_CSUNITPRD,  &Data.CSessUnitingPeriod);
 			getCtrlData(CTL_CCFGSYS_CSFWPRD,    &Data.CSessFwAsscPeriod);
 			GetClusterData(CTL_CCFGSYS_FLAGS, &Data.Flags);
 			Data.LcrUsage = (int16)GetClusterData(CTL_CCFGSYS_LCRUSAGE);
-			GetClusterData(CTL_CCFGSYS_FLAGS2, &Data.Flags2); // @v7.1.11
+			GetClusterData(CTL_CCFGSYS_FLAGS2, &Data.Flags2);
 			ASSIGN_PTR(pData, Data);
 			return 1;
 		}
@@ -185,7 +181,8 @@ IMPL_HANDLE_EVENT(CommCfgDialog)
 						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_ACOP,       PPOBJ_OPRKIND,   cfg.AutoComplOp,   OLW_CANINSERT, (void *)PPOPT_GOODSMODIF);
 						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_DRAFTRCPT,  PPOBJ_OPRKIND,   cfg.DraftRcptOp,   OLW_CANINSERT, (void *)PPOPT_DRAFTRECEIPT);
 						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_DYNGTYPESA, PPOBJ_GOODSTYPE, cfg.DynGoodsTypeForSupplAgent, OLW_CANINSERT);
-						dlg->setCtrlData(CTL_CCFGOP_PREPAYGOODS, cfg.PrepayInvoiceGoodsCode);
+						// @v9.7.0 dlg->setCtrlData(CTL_CCFGOP_PREPAYGOODS, cfg.PrepayInvoiceGoodsCode);
+						SetupPPObjCombo(dlg, CTLSEL_CCFGOP_PREPAYWARE, PPOBJ_GOODS, cfg.PrepayInvoiceGoodsID, OLW_CANINSERT|OLW_LOADDEFONOPEN, 0); // @v9.7.0
 						dlg->AddClusterAssoc(CTL_CCFGOP_FLAGS, 0, CCFLG_USENOUPDRESTOPFLAG);
 						dlg->AddClusterAssoc(CTL_CCFGOP_FLAGS, 1, CCFLG_DISABLEACCTURN);
 						dlg->AddClusterAssoc(CTL_CCFGOP_FLAGS, 2, CCFLG_IGNOREORDERSDEBT);
@@ -202,7 +199,8 @@ IMPL_HANDLE_EVENT(CommCfgDialog)
 							dlg->getCtrlData(CTLSEL_CCFGOP_ACOP,      &cfg.AutoComplOp);
 							dlg->getCtrlData(CTLSEL_CCFGOP_DRAFTRCPT, &cfg.DraftRcptOp);
 							dlg->getCtrlData(CTLSEL_CCFGOP_DYNGTYPESA, &cfg.DynGoodsTypeForSupplAgent);
-							dlg->getCtrlData(CTL_CCFGOP_PREPAYGOODS,  cfg.PrepayInvoiceGoodsCode);
+							// @v9.7.0 dlg->getCtrlData(CTL_CCFGOP_PREPAYGOODS,  cfg.PrepayInvoiceGoodsCode);
+							dlg->getCtrlData(CTLSEL_CCFGOP_PREPAYWARE, &cfg.PrepayInvoiceGoodsID); // @v9.7.0
 							dlg->GetClusterData(CTL_CCFGOP_FLAGS, &cfg.Flags);
 						}
 					}

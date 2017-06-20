@@ -317,7 +317,7 @@ static int cc_a(struct ZintSymbol * symbol, char source[], int cc_width)
 		sstrcpy(pattern, "");
 		for(loop = 0; loop < (int)strlen(codebarre); loop++) {
 			if((codebarre[loop] >= '0') && (codebarre[loop] <= '9')) {
-				for(k = 0; k < hex(codebarre[loop]); k++) {
+				for(k = 0; k < (int)hex(codebarre[loop]); k++) {
 					pattern[writer] = (flip == 0) ? '0' : '1';
 					writer++;
 				}
@@ -581,22 +581,11 @@ static int cc_b(struct ZintSymbol * symbol, const char source[], int cc_width)
 		sstrcpy(pattern, "");
 		for(loop = 0; loop < (int)strlen(codebarre); loop++) {
 			if((codebarre[loop] >= '0') && (codebarre[loop] <= '9')) {
-				for(k = 0; k < hex(codebarre[loop]); k++) {
-					if(flip == 0) {
-						pattern[writer] = '0';
-					}
-					else {
-						pattern[writer] = '1';
-					}
-					writer++;
+				for(k = 0; k < (int)hex(codebarre[loop]); k++) {
+					pattern[writer++] = (flip == 0) ? '0' : '1';
 				}
 				pattern[writer] = '\0';
-				if(flip == 0) {
-					flip = 1;
-				}
-				else {
-					flip = 0;
-				}
+				flip = (flip == 0) ? 1 : 0;
 			}
 			else {
 				lookup(BRSET, PDFttf, codebarre[loop], pattern);
@@ -1077,7 +1066,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 		{
 			size_t i = 0;
 			do {
-				ninety[i] = source[i + 2];
+				ninety[i] = source[i+2];
 				i++;
 			} while((src_len > (i + 2)) && ('[' != source[i + 2]));
 			ninety[i] = '\0';
@@ -1101,8 +1090,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 					case ',':
 					case '-':
 					case '.':
-					case '/': alphanum += 1;
-						break;
+					case '/': alphanum += 1; break;
 				}
 				if(!(((ninety[i] >= '0') && (ninety[i] <= '9')) || ((ninety[i] >= 'A') && (ninety[i] <= 'Z')))) {
 					if((ninety[i] != '*') && (ninety[i] != ',') && (ninety[i] != '-') && (ninety[i] != '.') &&

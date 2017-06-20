@@ -1,5 +1,5 @@
 // DBF.CPP
-// Copyright (c) A. Sobolev 1993-2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016
+// Copyright (c) A. Sobolev 1993-2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017
 //
 #include <db.h>
 #pragma hdrstop
@@ -274,7 +274,7 @@ int SLAPI DbfRecord::put(int fld, const DBFDate * data)
 	//sprintf(tmp, "%04d%02d%02d", data->year, data->month, data->day);
 	//return put(fld, tmp);
 	SString temp_buf;
-	return put(fld, temp_buf.CatLongZ(data->year, 4).CatLongZ(data->month, 2).CatLongZ(data->day, 2));
+	return put(fld, temp_buf.CatLongZ((long)data->year, 4).CatLongZ((long)data->month, 2).CatLongZ((long)data->day, 2));
 }
 
 int SLAPI DbfRecord::put(int fld, LDATE dt)

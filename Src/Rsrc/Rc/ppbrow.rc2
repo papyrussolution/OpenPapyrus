@@ -6458,6 +6458,7 @@ cmd SupplInterchange      { "@{cmd_supplinterchange}"                      none 
 cmd WorkbookInterchange   { "@{cmd_workbookinterchange}"                   none                   none cmWorkbookInterchange } // @v9.3.10
 cmd AlcReportCfg          { "@{cmd_alcreportcfg}"                          none                   none cmAlcReportCfg } // @v9.4.5
 cmd ProcessOsm            { "@{prcssrosm}"                                 none                   none cmProcessOsm }   // @v9.5.9
+cmd TestLogWindow         { "Тестирование окна вывода сообщений"           ICON_TEST              none cmTestLogWindow } // @v9.7.0
 //
 // -------------- Описания серверных задач
 //

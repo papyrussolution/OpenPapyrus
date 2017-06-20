@@ -422,6 +422,8 @@ static void ecc200(uchar * binary, const int bytes, const int datablock, const i
 //
 static int FASTCALL isX12(const int source)
 {
+	return BIN(oneof4(source, 13, 42, 62, 32) || ((source >= '0') && (source <= '9')) || ((source >= 'A') && (source <= 'Z')));
+	/*
 	if(source == 13)
 		return 1;
 	else if(source == 42)
@@ -436,6 +438,7 @@ static int FASTCALL isX12(const int source)
 		return 1;
 	else
 		return 0;
+	*/
 }
 
 /* Insert a character into the middle of a string at position posn */

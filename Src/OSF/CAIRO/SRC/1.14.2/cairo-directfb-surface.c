@@ -37,11 +37,11 @@
 
 #if CAIRO_HAS_DIRECTFB_SURFACE // {
 #include "cairo-directfb.h"
-#include "cairo-clip-private.h"
+//#include "cairo-clip-private.h"
 #include "cairo-compositor-private.h"
 #include "cairo-default-context-private.h"
 #include "cairo-image-surface-inline.h"
-#include "cairo-pattern-private.h"
+//#include "cairo-pattern-private.h"
 #include "cairo-surface-backend-private.h"
 #include "cairo-surface-fallback-private.h"
 #include <pixman.h>
@@ -503,7 +503,7 @@ cairo_surface_t * cairo_directfb_surface_create(IDirectFB * dfb, IDirectFBSurfac
 	if(!pixman_format_supported_destination(pixman_format))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_FORMAT));
 
-	surface = calloc(1, sizeof(cairo_dfb_surface_t));
+	surface = SAlloc::C(1, sizeof(cairo_dfb_surface_t));
 	if(surface == NULL)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 

@@ -53,6 +53,15 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 	}
 	while(*c == ' ' || *c == '\t')
 		c++;
+	// @v9.7.0 {
+	if(strnicmp(c, "date", 4) == 0) {
+		c += 4;
+		while(*c == ' ' || *c == '\t')
+			c++;
+		if(*c == '\'')
+			c++;
+	}
+	// } @v9.7.0 
 	if(*c) {
 		if(*c == '^') {
             c++;

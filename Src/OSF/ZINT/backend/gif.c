@@ -175,7 +175,6 @@ int gif_lzw(uchar * pOut, int OutLength, uchar * pIn, int InLen)
 	uchar CodeBits;
 	unsigned short Pos;
 	statestruct State;
-
 	State.pIn = pIn;
 	State.InLen = InLen;
 	State.pOut = pOut;
@@ -183,7 +182,6 @@ int gif_lzw(uchar * pOut, int OutLength, uchar * pIn, int InLen)
 	// > Get first data byte
 	if(State.InLen == 0)
 		return 0;
-
 	PixelValueCur = (uchar)((*(State.pIn)) - '0');
 	(State.pIn)++;
 	(State.InLen)--;
@@ -193,15 +191,11 @@ int gif_lzw(uchar * pOut, int OutLength, uchar * pIn, int InLen)
 	State.OutBitsFree = 8;
 	State.OutPosCur = -1;
 	State.fByteCountByteSet = 0;
-
 	if(BufferNextByte(&State))
 		return 0;
-
 	for(Pos = 0; Pos < State.ClearCode; Pos++)
 		State.NodePix[Pos] = (uchar)Pos;
-
 	FlushStringTable(&State);
-
 	/* Write what the GIF specification calls the "code size". */
 	(State.pOut)[State.OutPosCur] = 2;
 	/* Reserve first bytecount byte */
@@ -214,7 +208,6 @@ int gif_lzw(uchar * pOut, int OutLength, uchar * pIn, int InLen)
 	/* Submit one 'ClearCode' as the first code */
 	if(AddCodeToBuffer(&State, State.ClearCode, CodeBits))
 		return 0;
-
 	for(;; ) {
 		char Res;
 		/* generate and save the next code, which may consist of multiple input pixels. */
@@ -247,7 +240,6 @@ int gif_lzw(uchar * pOut, int OutLength, uchar * pIn, int InLen)
 			FlushStringTable(&State);
 			if(AddCodeToBuffer(&State, State.ClearCode, CodeBits))
 				return 0;
-
 			CodeBits = (uchar)(1 + 2);
 			State.FreeCode = (unsigned short)(State.ClearCode + 2);
 		}
@@ -382,22 +374,15 @@ int gif_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	 */
 	outbuf[9] = (uchar)(0 | (0x7 & (DESTINATION_IMAGE_BITS - 1)));
 	fwrite(outbuf, 10, 1, gif_file);
-
 	/* call lzw encoding */
-	byte_out = gif_lzw(
-	    (uchar*)lzwoutbuf,
-	    symbol->bitmap_height * symbol->bitmap_width,
-	    (uchar*)pixelbuf,
-	    symbol->bitmap_height * symbol->bitmap_width);
+	byte_out = gif_lzw((uchar*)lzwoutbuf, symbol->bitmap_height * symbol->bitmap_width, (uchar*)pixelbuf, symbol->bitmap_height * symbol->bitmap_width);
 	if(byte_out <= 0) {
 		fclose(gif_file);
 		return ZINT_ERROR_MEMORY;
 	}
 	fwrite(lzwoutbuf, byte_out, 1, gif_file);
-
 	/* GIF terminator */
 	fputc('\x3b', gif_file);
 	fclose(gif_file);
-
 	return 0;
 }

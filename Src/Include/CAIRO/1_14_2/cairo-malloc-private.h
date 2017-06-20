@@ -69,7 +69,7 @@
  *
  * Allocates @a*@size memory using _cairo_malloc(), taking care to not
  * overflow when doing the multiplication.  Behaves much like
- * calloc(), except that the returned memory is not set to zero.
+ * SAlloc::C(), except that the returned memory is not set to zero.
  * The memory should be freed using SAlloc::F().
  *
  * @size should be a constant so that the compiler can optimize

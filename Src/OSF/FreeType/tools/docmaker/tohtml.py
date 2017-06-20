@@ -3,7 +3,7 @@
 #
 #    A sub-class container of the `Formatter' class to produce HTML.
 #
-#  Copyright 2002-2015 by
+#  Copyright 2002-2017 by
 #  David Turner.
 #
 #  This file is part of the FreeType project, and may only be used,
@@ -390,7 +390,7 @@ class  HtmlFormatter( Formatter ):
         """Convert a code sequence to HTML."""
         line = code_header + '\n'
         for l in lines:
-            line = line + html_quote( l ) + '\n'
+            line = line + html_quote( l ).rstrip() + '\n'
 
         return line + code_footer
 
