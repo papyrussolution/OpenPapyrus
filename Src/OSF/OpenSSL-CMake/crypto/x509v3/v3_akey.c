@@ -96,16 +96,13 @@ static AUTHORITY_KEYID * v2i_AUTHORITY_KEYID(X509V3_EXT_METHOD * method,
 			return NULL;
 		}
 	}
-
 	if(!ctx || !ctx->issuer_cert) {
 		if(ctx && (ctx->flags == CTX_TEST))
 			return AUTHORITY_KEYID_new();
 		X509V3err(X509V3_F_V2I_AUTHORITY_KEYID, X509V3_R_NO_ISSUER_CERTIFICATE);
 		return NULL;
 	}
-
 	cert = ctx->issuer_cert;
-
 	if(keyid) {
 		i = X509_get_ext_by_NID(cert, NID_subject_key_identifier, -1);
 		if((i >= 0) && (ext = X509_get_ext(cert, i)))
@@ -115,7 +112,6 @@ static AUTHORITY_KEYID * v2i_AUTHORITY_KEYID(X509V3_EXT_METHOD * method,
 			return NULL;
 		}
 	}
-
 	if((issuer && !ikeyid) || (issuer == 2)) {
 		isname = X509_NAME_dup(X509_get_issuer_name(cert));
 		serial = ASN1_INTEGER_dup(X509_get_serialNumber(cert));
@@ -124,10 +120,8 @@ static AUTHORITY_KEYID * v2i_AUTHORITY_KEYID(X509V3_EXT_METHOD * method,
 			goto err;
 		}
 	}
-
 	if((akeyid = AUTHORITY_KEYID_new()) == NULL)
 		goto err;
-
 	if(isname) {
 		if((gens = sk_GENERAL_NAME_new_null()) == NULL || (gen = GENERAL_NAME_new()) == NULL || !sk_GENERAL_NAME_push(gens, gen)) {
 			X509V3err(X509V3_F_V2I_AUTHORITY_KEYID, ERR_R_MALLOC_FAILURE);
@@ -136,15 +130,12 @@ static AUTHORITY_KEYID * v2i_AUTHORITY_KEYID(X509V3_EXT_METHOD * method,
 		gen->type = GEN_DIRNAME;
 		gen->d.dirn = isname;
 	}
-
 	akeyid->issuer = gens;
 	gen = NULL;
 	gens = NULL;
 	akeyid->serial = serial;
 	akeyid->keyid = ikeyid;
-
 	return akeyid;
-
 err:
 	sk_GENERAL_NAME_free(gens);
 	GENERAL_NAME_free(gen);

@@ -68,7 +68,6 @@ void engine_set_all_null(ENGINE * e)
 int engine_free_util(ENGINE * e, int locked)
 {
 	int i;
-
 	if(e == NULL)
 		return 1;
 	if(locked)

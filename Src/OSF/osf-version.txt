@@ -22,5 +22,6 @@ curl         7.54
 libzip       1.1.3
 zint         2.5.1 (have pulled from git-repository 2017/01/12)
 libjpeg-turbo 1.5.1 
+openssl      1.1.0e
 
 @v9.6.12 giflib encapsulated in slib

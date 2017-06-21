@@ -21,8 +21,7 @@ typedef struct {
 	IDEA_KEY_SCHEDULE ks;
 } EVP_IDEA_KEY;
 
-static int idea_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
-    const uchar * iv, int enc);
+static int idea_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc);
 
 /*
  * NB IDEA_ecb_encrypt doesn't take an 'encrypt' argument so we treat it as a

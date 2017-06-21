@@ -1,15 +1,16 @@
-/*
-	crc32.cpp
-	-- compute the CRC-32 of a data stream
-	Copyright (C) 1995-1998 Mark Adler
-	For conditions of distribution and use, see copyright notice in zlib.h
-
-	Modified by Anton Sobolev, 2001, 2003, 2007, 2015
-	@threadsafe
-*/
+// S_CRC32.CPP
+// Copyright (c) A.Sobolev 2001, 2003, 2007, 2015, 2016, 2017
+//
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
+
+//#define TEST_ZLIB_IMPLEMENTATION
+//#define _LOCAL_USE_SSL
+
+#ifdef _LOCAL_USE_SSL
+	#include <openssl/evp.h>
+#endif
 //
 // CRC model
 //
@@ -429,27 +430,42 @@ public:
 	};
 	enum {
 		Unkn = 0,
-		Crc32,
-		Crc24,
-		Crc16,
-		Adler32,
-		MD2,
-		MD4,
-		MD5,
-		SHA160,
-		SHA224
+		Crc32,      // Check sum
+		Crc24,      // Check sum
+		Crc16,      // Check sum
+		Adler32,    // Check sum
+		MD2,        // Hash
+		MD4,        // Hash
+		MD5,        // Hash
+		SHA160,     // Hash
+		SHA224,     // Hash
+		IdeaCrypt,  // Crypt
+		IdeaDecrypt // Crypt
 	};
 	enum {
 		fFixedSize     = 0x0001, // Результат операции имеет фиксированных конечный размер
 		fKey           = 0x0002, // Операция требует ключа
-		fWriteAtFinish = 0x0004  // Результат операции записывается в буфер во время вызова метода Finish()
+		fWriteAtFinish = 0x0004, // Результат операции записывается в буфер во время вызова метода Finish()
+		fReversible    = 0x0008  // Обратимая функция  
 	};
 	struct Info {
+		void   Set(int alg, int cls, uint flags, int inverseAlg, uint inBufQuant, uint outSize, uint keyLen)
+		{
+			Alg = alg;
+			Cls = cls;
+			InverseAlg = inverseAlg;
+			Flags = flags;
+			InBufQuant = inBufQuant;
+			OutSize = outSize;
+			KeyLen = keyLen;
+		}
         int    Alg;
         int    Cls;
+		int    InverseAlg;  // Обратная функция
         uint   Flags;
-        size_t InBufQuant; // Требование к квантованию входящего потока
-        size_t OutSize;
+        uint   InBufQuant;  // Требование к квантованию входящего потока (byte)
+        uint   OutSize;     // !0 если результат имеет фиксированный размер (byte)
+		uint   KeyLen;      // !0 если требуется ключ фиксированной длины (byte)
 	};
 	struct Stat {
 		size_t InSize;
@@ -458,11 +474,22 @@ public:
 	};
 	struct TransformBlock {
 		//
-		// Descr: Конструктор для фаз phaseInit и phaseUpdate
+		// Descr: Конструктор для фазы phaseInit
 		//
-		TransformBlock(int phase, const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen) : Phase(phase), InBufLen(inBufLen)
+		TransformBlock() : Phase(phaseInit), InBufLen(0)
 		{
-			assert(oneof2(phase, phaseInit, phaseUpdate));
+			assert(Phase == phaseInit);
+			P_InBuf = 0;
+			P_OutBuf = 0;
+			OutBufLen = 0;
+			OutBufPos = 0;
+		}
+		//
+		// Descr: Конструктор для фазы phaseUpdate
+		//
+		TransformBlock(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen) : Phase(phaseUpdate), InBufLen(inBufLen)
+		{
+			assert(Phase == phaseUpdate);
 			P_InBuf = pInBuf;
 			P_OutBuf = pOutBuf;
 			OutBufLen = outBufLen;
@@ -505,15 +532,17 @@ public:
 		size_t OutBufLen;
 		size_t OutBufPos;
 	};
+	enum {
+		paramKey = 1
+	};
 	SBdtFunct(int alg);
 	~SBdtFunct();
 	int    GetInfo(Info & rResult);
 	int    GetStat(Stat & rResult);
-	int    Init(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen);
-	int    Update(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen);
-	int    Finish(void * pOutBuf, size_t outBufLen);
-
-	int    Test(const char * pHexIn, const char * pHexKey, const char * pHexOut);
+	int    Init();
+	int    SetParam(int param, const void * pData, size_t dataLen);
+	int    Update(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen, size_t * pOutOffs);
+	int    Finish(void * pOutBuf, size_t outBufLen, size_t * pOutOffs);
 private:
 	enum {
 		phaseInit,
@@ -525,9 +554,18 @@ private:
 	int    FASTCALL Implement_Transform(TransformBlock & rBlk);
 
 	struct State_ {
+		State_()
+		{
+			P_Tab = 0;
+			P_Ext = 0;
+			P_Ctx = 0;
+			Reset();
+		}
 		void   Reset();
 
         const void * P_Tab;
+		void * P_Ctx; // EVP_CIPHER_CTX
+        void * P_Ext;
         union {
         	uint8  B256[256];
         	uint16 B2;
@@ -547,6 +585,8 @@ private:
 void SBdtFunct::State_::Reset()
 {
 	P_Tab = 0;
+	P_Ext = 0;
+	P_Ctx = 0;
 	MEMSZERO(O);
 	MEMSZERO(S);
 }
@@ -562,11 +602,6 @@ SBdtFunct::~SBdtFunct()
 	Key.Destroy();
 }
 
-int SBdtFunct::Test(const char * pHexIn, const char * pHexKey, const char * pHexOut)
-{
-	return 0;
-}
-
 int SBdtFunct::GetInfo(SBdtFunct::Info & rInfo)
 {
 	TransformBlock blk(&rInfo);
@@ -579,92 +614,45 @@ int SBdtFunct::GetStat(Stat & rResult)
 	return Implement_Transform(blk);
 }
 
-int SBdtFunct::Init(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen)
+int SBdtFunct::Init()
 {
-	TransformBlock blk(phaseInit, pInBuf, inBufLen, pOutBuf, outBufLen);
+	TransformBlock blk;
 	return Implement_Transform(blk);
 }
 
-int SBdtFunct::Update(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen)
+int SBdtFunct::SetParam(int param, const void * pData, size_t dataLen)
 {
-	TransformBlock blk(phaseUpdate, pInBuf, inBufLen, pOutBuf, outBufLen);
-	return Implement_Transform(blk);
+	int    ok = 0;
+	if(param == paramKey) {
+		Key.Destroy();
+		if(dataLen) {
+			if(Key.Alloc(dataLen)) {
+				memcpy(Key.P_Buf, pData, dataLen);
+				ok = 1;
+			}
+			else
+				ok = 0;
+		}
+		else
+			ok = 1;
+	}
+	return ok;
 }
 
-int SBdtFunct::Finish(void * pOutBuf, size_t outBufLen)
+int SBdtFunct::Update(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen, size_t * pOutOffs)
+{
+	TransformBlock blk(pInBuf, inBufLen, pOutBuf, outBufLen);
+	int ok = Implement_Transform(blk);
+	ASSIGN_PTR(pOutOffs, blk.OutBufPos);
+	return ok;
+}
+
+int SBdtFunct::Finish(void * pOutBuf, size_t outBufLen, size_t * pOutOffs)
 {
 	TransformBlock blk(pOutBuf, outBufLen);
-	return Implement_Transform(blk);
-}
-
-static ulong __adler32(ulong value, const uint8 * pBuf, size_t len)
-{
-#define DO1(buf, i)  { value += (pBuf)[i]; sum2 += value; }
-#define DO2(buf, i)  DO1(pBuf, i); DO1(pBuf, i+1);
-#define DO4(buf, i)  DO2(pBuf, i); DO2(pBuf, i+2);
-#define DO8(buf, i)  DO4(pBuf, i); DO4(pBuf, i+4);
-#define DO16(buf)    DO8(pBuf, 0); DO8(pBuf, 8);
-	const uint _base_ = 65521U; // largest prime smaller than 65536 
-	const uint _nmax_ = 5552;   // _nmax_ is the largest n such that 255n(n+1)/2 + (n+1)(BASE-1) <= 2^32-1 
-	ulong  result = 1;
-	uint   n;
-	ulong  sum2 = (value >> 16) & 0xffff; // split Adler-32 into component sums
-	value &= 0xffff;
-	if(len == 1) { // in case user likes doing a byte at a time, keep it fast
-		value += pBuf[0];
-		if(value >= _base_)
-			value -= _base_;
-		sum2 += value;
-		if(sum2 >= _base_)
-			sum2 -= _base_;
-		result = (value | (sum2 << 16));
-	}
-	else if(pBuf) { // initial Adler-32 value (deferred check for len == 1 speed)
-		if(len < 16) { // in case short lengths are provided, keep it somewhat fast
-			while(len--) {
-				value += *pBuf++;
-				sum2 += value;
-			}
-			if(value >= _base_)
-				value -= _base_;
-			sum2 %= _base_; // only added so many _base_'s
-			result = (value | (sum2 << 16));
-		}
-		else {
-			// do length NMAX blocks -- requires just one modulo operation
-			while(len >= _nmax_) {
-				len -= _nmax_;
-				n = _nmax_ / 16; // NMAX is divisible by 16
-				do {
-					DO16(pBuf); // 16 sums unrolled
-					pBuf += 16;
-				} while(--n);
-				value %= _base_;
-				sum2 %= _base_;
-			}
-			// do remaining bytes (less than NMAX, still just one modulo)
-			if(len) { // avoid modulos if none remaining
-				while(len >= 16) {
-					len -= 16;
-					DO16(pBuf);
-					pBuf += 16;
-				}
-				while(len--) {
-					value += *pBuf++;
-					sum2 += value;
-				}
-				value %= _base_;
-				sum2 %= _base_;
-			}
-			result = (value | (sum2 << 16)); // return recombined sums
-		}
-	}
-	return result;
-#undef DO1
-#undef DO2
-#undef DO4
-#undef DO8
-#undef DO16
+	int ok = Implement_Transform(blk);
+	ASSIGN_PTR(pOutOffs, blk.OutBufPos);
+	return ok;
 }
 
 int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
@@ -681,13 +669,8 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 				case phaseGetInfo:
 					{
 						Info * p_inf = (Info *)rBlk.P_OutBuf;
-						if(p_inf) {
-							p_inf->Alg = A;
-							p_inf->Cls = clsHash;
-							p_inf->Flags = (fFixedSize|fWriteAtFinish);
-							p_inf->InBufQuant = 0;
-							p_inf->OutSize = 4;
-						}
+						if(p_inf)
+							p_inf->Set(A, clsHash, fFixedSize|fWriteAtFinish, 0, 0, 4, 0);
 					}
 					break;
 				case SBdtFunct::phaseInit:
@@ -786,23 +769,90 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 				case phaseGetInfo:
 					{
 						Info * p_inf = (Info *)rBlk.P_OutBuf;
-						if(p_inf) {
-							p_inf->Alg = A;
-							p_inf->Cls = clsHash;
-							p_inf->Flags = (fFixedSize|fWriteAtFinish);
-							p_inf->InBufQuant = 0;
-							p_inf->OutSize = 4;
-						}
+						if(p_inf)
+							p_inf->Set(A, clsHash, fFixedSize|fWriteAtFinish, 0, 0, 4, 0);
 					}
 					break;
 				case phaseInit:
 					{
 						Ste.P_Tab = 0;
-						Ste.O.B4 = __adler32(0, 0, 0);
+						Ste.O.B4 = 1/*__adler32(0, 0, 0)*/;
 					}
 					break;
 				case phaseUpdate:
-					Ste.O.B4 = __adler32(Ste.O.B4, PTR8(rBlk.P_InBuf), rBlk.InBufLen);
+					//Ste.O.B4 = __adler32(Ste.O.B4, PTR8(rBlk.P_InBuf), rBlk.InBufLen);
+					//static ulong __adler32(ulong value, const uint8 * pBuf, size_t len)
+					{
+						#define DO1(buf, i)  { value += (buf)[i]; sum2 += value; }
+						#define DO2(buf, i)  DO1(buf, i); DO1(buf, i+1);
+						#define DO4(buf, i)  DO2(buf, i); DO2(buf, i+2);
+						#define DO8(buf, i)  DO4(buf, i); DO4(buf, i+4);
+						#define DO16(buf)    DO8(buf, 0); DO8(buf, 8);
+						ulong value = Ste.O.B4;
+						const uint8 * p_buf = PTR8(rBlk.P_InBuf);
+						size_t len = rBlk.InBufLen;
+						const uint _base_ = 65521U; // largest prime smaller than 65536
+						const uint _nmax_ = 5552;   // _nmax_ is the largest n such that 255n(n+1)/2 + (n+1)(BASE-1) <= 2^32-1
+						ulong  result = 1;
+						uint   n;
+						ulong  sum2 = (value >> 16) & 0xffff; // split Adler-32 into component sums
+						value &= 0xffff;
+						if(len == 1) { // in case user likes doing a byte at a time, keep it fast
+							value += p_buf[0];
+							if(value >= _base_)
+								value -= _base_;
+							sum2 += value;
+							if(sum2 >= _base_)
+								sum2 -= _base_;
+							result = (value | (sum2 << 16));
+						}
+						else if(p_buf) { // initial Adler-32 value (deferred check for len == 1 speed)
+							if(len < 16) { // in case short lengths are provided, keep it somewhat fast
+								while(len--) {
+									value += *p_buf++;
+									sum2 += value;
+								}
+								if(value >= _base_)
+									value -= _base_;
+								sum2 %= _base_; // only added so many _base_'s
+								result = (value | (sum2 << 16));
+							}
+							else {
+								// do length NMAX blocks -- requires just one modulo operation
+								while(len >= _nmax_) {
+									len -= _nmax_;
+									n = _nmax_ / 16; // NMAX is divisible by 16
+									do {
+										DO16(p_buf); // 16 sums unrolled
+										p_buf += 16;
+									} while(--n);
+									value %= _base_;
+									sum2 %= _base_;
+								}
+								// do remaining bytes (less than NMAX, still just one modulo)
+								if(len) { // avoid modulos if none remaining
+									while(len >= 16) {
+										len -= 16;
+										DO16(p_buf);
+										p_buf += 16;
+									}
+									while(len--) {
+										value += *p_buf++;
+										sum2 += value;
+									}
+									value %= _base_;
+									sum2 %= _base_;
+								}
+								result = (value | (sum2 << 16)); // return recombined sums
+							}
+						}
+						Ste.O.B4 = result;
+						#undef DO1
+						#undef DO2
+						#undef DO4
+						#undef DO8
+						#undef DO16
+					}
 					Ste.S.InSize += rBlk.InBufLen;
 					Ste.S.OutSize = sizeof(Ste.O.B4);
 					break;
@@ -872,6 +922,75 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 					break;
 			}
 			break;
+#ifdef _LOCAL_USE_SSL // {
+		case SBdtFunct::IdeaCrypt:
+		case SBdtFunct::IdeaDecrypt:
+			switch(rBlk.Phase) {
+				case phaseGetInfo:
+					{
+						Info * p_inf = (Info *)rBlk.P_OutBuf;
+						if(p_inf) {
+							p_inf->Set(A, clsCrypt, fKey|fReversible, 
+								((A == SBdtFunct::IdeaDecrypt) ? SBdtFunct::IdeaCrypt : SBdtFunct::IdeaDecrypt), 0, 0, 16);
+						}
+					}
+					break;
+				case phaseInit:
+					{
+						uint16 iv[4];
+						uint8  key[16];
+						memzero(iv, sizeof(iv));
+						THROW(Key.Size == 16 && Key.P_Buf);
+						memcpy(key, Key.P_Buf, Key.Size);
+						Ste.P_Ctx = EVP_CIPHER_CTX_new();
+						Ste.P_Tab = EVP_idea_cbc(); // EVP_idea_cfb();
+						if(A == SBdtFunct::IdeaCrypt) {
+							THROW(EVP_EncryptInit((EVP_CIPHER_CTX *)Ste.P_Ctx, (const EVP_CIPHER *)Ste.P_Tab, key, PTR8(iv)));
+						}
+						else {
+							THROW(EVP_DecryptInit((EVP_CIPHER_CTX *)Ste.P_Ctx, (const EVP_CIPHER *)Ste.P_Tab, key, PTR8(iv)));
+						}
+						//Ste.P_Ext = new IDEACFB(iv, key, BIN(A == SBdtFunct::IdeaDecrypt)); 
+					}
+					break;
+				case phaseUpdate:
+					THROW(Ste.P_Ctx);
+					THROW(Ste.P_Tab);
+					if(rBlk.InBufLen > 0) {
+						THROW(rBlk.OutBufLen >= rBlk.InBufLen);
+						THROW(rBlk.P_InBuf && rBlk.P_OutBuf);
+						//memcpy(rBlk.P_OutBuf, rBlk.P_InBuf, rBlk.InBufLen);
+						//((IDEACFB *)Ste.P_Ext)->run(PTR8(rBlk.P_OutBuf), rBlk.InBufLen);
+						//rBlk.OutBufPos = rBlk.InBufLen;
+
+						int    out_len = (int)rBlk.OutBufLen;
+						if(A == SBdtFunct::IdeaCrypt) {
+							THROW(EVP_EncryptUpdate((EVP_CIPHER_CTX *)Ste.P_Ctx, PTR8(rBlk.P_OutBuf), &out_len, PTR8(rBlk.P_InBuf), rBlk.InBufLen));
+						}
+						else {
+							THROW(EVP_DecryptUpdate((EVP_CIPHER_CTX *)Ste.P_Ctx, PTR8(rBlk.P_OutBuf), &out_len, PTR8(rBlk.P_InBuf), rBlk.InBufLen));
+						}
+						rBlk.OutBufPos = (size_t)out_len;
+					}
+					break;
+				case phaseFinish:
+					//delete (IDEACFB *)Ste.P_Ext;
+					//Ste.P_Ext = 0;
+
+					THROW(Ste.P_Ctx);
+					int    out_len = (int)rBlk.OutBufLen;
+					if(A == SBdtFunct::IdeaCrypt) {
+						THROW(EVP_EncryptFinal((EVP_CIPHER_CTX *)Ste.P_Ctx, PTR8(rBlk.P_OutBuf), &out_len));
+					}
+					else {
+						THROW(EVP_DecryptFinal((EVP_CIPHER_CTX *)Ste.P_Ctx, PTR8(rBlk.P_OutBuf), &out_len));
+					}
+					rBlk.OutBufPos = (size_t)out_len;
+					EVP_CIPHER_CTX_free((EVP_CIPHER_CTX *)Ste.P_Ctx);
+					break;
+			}
+			break;
+#endif // } _LOCAL_USE_SSL 
 		default:
 			break;
     }
@@ -1103,16 +1222,16 @@ int SLAPI ReadBdtTestData(const char * pFileName, const char * pSetSymb, TSColle
 
 #if SLTEST_RUNNING // {
 
-//#define TEST_ZLIB_IMPLEMENTATION
-
 #ifdef TEST_ZLIB_IMPLEMENTATION
 	#include <zlib.h>
 #endif
 
-
 SLTEST_R(BDT)
 {
 	int    ok = 1;
+#ifdef _LOCAL_USE_SSL // {
+	OpenSSL_add_all_ciphers();
+#endif
 	{
 		// CRC32
 		SString in_file_name = MakeInputFilePath("crc32.vec");
@@ -1131,9 +1250,14 @@ SLTEST_R(BDT)
 					//
 					{
 						uint32 result;
-						THROW(SLTEST_CHECK_NZ(fu.Init(p_item->In.GetBuf(), p_item->In.GetLen(), &result, sizeof(result))));
-						THROW(SLTEST_CHECK_NZ(fu.Update(p_item->In.GetBuf(), p_item->In.GetLen(), &result, sizeof(result))));
-						THROW(SLTEST_CHECK_NZ(fu.Finish(&result, sizeof(result))));
+						size_t out_offs = 0;
+						size_t _o;
+						THROW(SLTEST_CHECK_NZ(fu.Init()));
+						THROW(SLTEST_CHECK_NZ(fu.Update(p_item->In.GetBuf(), p_item->In.GetLen(), &result, sizeof(result), &_o)));
+						out_offs += _o;
+						THROW(SLTEST_CHECK_NZ(fu.Finish(&result, sizeof(result), &_o)));
+						out_offs += _o;
+						THROW(SLTEST_CHECK_EQ(out_offs, sizeof(result)));
 						SLTEST_CHECK_Z(memcmp(&result, &pattern_value, p_item->Out.GetLen()));
 					}
 					{
@@ -1175,9 +1299,14 @@ SLTEST_R(BDT)
 					//
 					{
 						uint32 result;
-						THROW(SLTEST_CHECK_NZ(fu.Init(p_item->In.GetBuf(), p_item->In.GetLen(), &result, sizeof(result))));
-						THROW(SLTEST_CHECK_NZ(fu.Update(p_item->In.GetBuf(), p_item->In.GetLen(), &result, sizeof(result))));
-						THROW(SLTEST_CHECK_NZ(fu.Finish(&result, sizeof(result))));
+						size_t out_offs = 0;
+						size_t _o;
+						THROW(SLTEST_CHECK_NZ(fu.Init()));
+						THROW(SLTEST_CHECK_NZ(fu.Update(p_item->In.GetBuf(), p_item->In.GetLen(), &result, sizeof(result), &_o)));
+						out_offs += _o;
+						THROW(SLTEST_CHECK_NZ(fu.Finish(&result, sizeof(result), &_o)));
+						out_offs += _o;
+						THROW(SLTEST_CHECK_EQ(out_offs, sizeof(result)));
 						SLTEST_CHECK_Z(memcmp(&result, &pattern_value, p_item->Out.GetLen()));
 					}
 #ifdef TEST_ZLIB_IMPLEMENTATION
@@ -1193,6 +1322,61 @@ SLTEST_R(BDT)
 				}
 			}
 		}
+	}
+	{
+#ifdef _LOCAL_USE_SSL // {
+		// IDEA
+		SString in_file_name = MakeInputFilePath("idea.vec");
+		TSCollection <BdtTestItem> data_set;
+		THROW(SLTEST_CHECK_NZ(ReadBdtTestData(in_file_name, "IDEA", data_set)));
+		{
+			SBdtFunct fu_direct(SBdtFunct::IdeaCrypt);
+			SBdtFunct fu_inverse(SBdtFunct::IdeaDecrypt);
+			for(uint i = 0; i < data_set.getCount(); i++) {
+				BdtTestItem * p_item = data_set.at(i);
+				if(p_item && (p_item->Flags & p_item->fIn) && (p_item->Flags & p_item->fOut) && (p_item->Flags & p_item->fKey)) {
+					THROW(SLTEST_CHECK_EQ(p_item->Key.GetLen(), 16));
+					THROW(SLTEST_CHECK_EQ(p_item->In.GetLen(), p_item->Out.GetLen()));
+					//
+					{
+						STempBuffer result(MAX(p_item->Out.GetLen(), 1024)+16);
+						STempBuffer result_decrypt(MAX(p_item->Out.GetLen(), 1024)+16);
+						size_t out_offs = 0;
+						size_t _o;
+						size_t crypt_size = 0;
+						THROW(SLTEST_CHECK_NZ(result.IsValid()));
+						THROW(SLTEST_CHECK_NZ(result_decrypt.IsValid()));
+						memzero(result, result.GetSize());
+						THROW(SLTEST_CHECK_NZ(fu_direct.SetParam(SBdtFunct::paramKey, p_item->Key.GetBuf(), p_item->Key.GetLen())));
+						THROW(SLTEST_CHECK_NZ(fu_direct.Init()));
+						THROW(SLTEST_CHECK_NZ(fu_direct.Update(p_item->In.GetBuf(), p_item->In.GetLen(), result, result.GetSize(), &_o)));
+						out_offs += _o;
+						THROW(SLTEST_CHECK_NZ(fu_direct.Finish(result+out_offs, result.GetSize()-out_offs, &_o)));
+						out_offs += _o;
+						crypt_size = out_offs;
+						//THROW(SLTEST_CHECK_EQ(out_offs, p_item->In.GetLen()));
+						{
+							int   lr = 0;
+							SLTEST_CHECK_Z(lr = memcmp(result, p_item->Out.GetBuf(), p_item->Out.GetLen()));
+							SLTEST_CHECK_Z(lr);
+						}
+						//
+						out_offs = 0;
+						memzero(result_decrypt, result.GetSize());
+						THROW(SLTEST_CHECK_NZ(fu_inverse.SetParam(SBdtFunct::paramKey, p_item->Key.GetBuf(), p_item->Key.GetLen())));
+						THROW(SLTEST_CHECK_NZ(fu_inverse.Init()));
+						THROW(SLTEST_CHECK_NZ(fu_inverse.Update(result, crypt_size, result_decrypt, result_decrypt.GetSize(), &_o)));
+						out_offs += _o;
+						// Для финализации здесь надо подложить последний блок
+						THROW(SLTEST_CHECK_NZ(fu_inverse.Finish(result_decrypt+out_offs-_o, _o, &_o)));
+						out_offs += _o;
+						//THROW(SLTEST_CHECK_EQ(out_offs, p_item->In.GetLen()));
+						SLTEST_CHECK_Z(memcmp(result_decrypt, p_item->In.GetBuf(), p_item->In.GetLen()));
+					}
+				}
+			}
+		}
+#endif // } _LOCAL_USE_SSL 
 	}
 	CATCHZOK
 	return ok;

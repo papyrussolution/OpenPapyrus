@@ -13,7 +13,7 @@
 
 #if defined(__OpenBSD__) || (defined(__FreeBSD__) && __FreeBSD__ > 2)
 
-# include OPENSSL_UNISTD
+#include OPENSSL_UNISTD
 
 int OPENSSL_issetugid(void)
 {
@@ -29,16 +29,17 @@ int OPENSSL_issetugid(void)
 
 #else
 
-# include OPENSSL_UNISTD
-# include <sys/types.h>
+#include OPENSSL_UNISTD
+#include <sys/types.h>
 
 int OPENSSL_issetugid(void)
 {
 	if(getuid() != geteuid())
 		return 1;
-	if(getgid() != getegid())
+	else if(getgid() != getegid())
 		return 1;
-	return 0;
+	else
+		return 0;
 }
 
 #endif

@@ -18,20 +18,20 @@
 
 int EVP_CIPHER_CTX_reset(EVP_CIPHER_CTX * c)
 {
-	if(c == NULL)
-		return 1;
-	if(c->cipher != NULL) {
-		if(c->cipher->cleanup && !c->cipher->cleanup(c))
-			return 0;
-		/* Cleanse cipher context data */
-		if(c->cipher_data && c->cipher->ctx_size)
-			OPENSSL_cleanse(c->cipher_data, c->cipher->ctx_size);
-	}
-	OPENSSL_free(c->cipher_data);
+	if(c) {
+		if(c->cipher != NULL) {
+			if(c->cipher->cleanup && !c->cipher->cleanup(c))
+				return 0;
+			// Cleanse cipher context data 
+			if(c->cipher_data && c->cipher->ctx_size)
+				OPENSSL_cleanse(c->cipher_data, c->cipher->ctx_size);
+		}
+		OPENSSL_free(c->cipher_data);
 #ifndef OPENSSL_NO_ENGINE
-	ENGINE_finish(c->engine);
+		ENGINE_finish(c->engine);
 #endif
-	memzero(c, sizeof(*c));
+		memzero(c, sizeof(*c));
+	}
 	return 1;
 }
 
@@ -46,16 +46,13 @@ void EVP_CIPHER_CTX_free(EVP_CIPHER_CTX * ctx)
 	OPENSSL_free(ctx);
 }
 
-int EVP_CipherInit(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher,
-    const uchar * key, const uchar * iv, int enc)
+int EVP_CipherInit(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher, const uchar * key, const uchar * iv, int enc)
 {
 	EVP_CIPHER_CTX_reset(ctx);
 	return EVP_CipherInit_ex(ctx, cipher, NULL, key, iv, enc);
 }
 
-int EVP_CipherInit_ex(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher,
-    ENGINE * impl, const uchar * key,
-    const uchar * iv, int enc)
+int EVP_CipherInit_ex(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher, ENGINE * impl, const uchar * key, const uchar * iv, int enc)
 {
 	if(enc == -1)
 		enc = ctx->encrypt;
@@ -71,8 +68,7 @@ int EVP_CipherInit_ex(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher,
 	 * previous handle, re-querying for an ENGINE, and having a
 	 * reinitialisation, when it may all be unnecessary.
 	 */
-	if(ctx->engine && ctx->cipher
-	    && (cipher == NULL || cipher->nid == ctx->cipher->nid))
+	if(ctx->engine && ctx->cipher && (cipher == NULL || cipher->nid == ctx->cipher->nid))
 		goto skip_to_init;
 #endif
 	if(cipher) {
@@ -95,8 +91,7 @@ int EVP_CipherInit_ex(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher,
 				return 0;
 			}
 		}
-		else
-			/* Ask if an ENGINE is reserved for this job */
+		else // Ask if an ENGINE is reserved for this job 
 			impl = ENGINE_get_cipher_engine(cipher->nid);
 		if(impl) {
 			/* There's an ENGINE for this job ... (apparently) */
@@ -153,16 +148,11 @@ int EVP_CipherInit_ex(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher,
 skip_to_init:
 #endif
 	/* we assume block size is a power of 2 in *cryptUpdate */
-	OPENSSL_assert(ctx->cipher->block_size == 1
-	    || ctx->cipher->block_size == 8
-	    || ctx->cipher->block_size == 16);
-
-	if(!(ctx->flags & EVP_CIPHER_CTX_FLAG_WRAP_ALLOW)
-	    && EVP_CIPHER_CTX_mode(ctx) == EVP_CIPH_WRAP_MODE) {
+	OPENSSL_assert(ctx->cipher->block_size == 1 || ctx->cipher->block_size == 8 || ctx->cipher->block_size == 16);
+	if(!(ctx->flags & EVP_CIPHER_CTX_FLAG_WRAP_ALLOW) && EVP_CIPHER_CTX_mode(ctx) == EVP_CIPH_WRAP_MODE) {
 		EVPerr(EVP_F_EVP_CIPHERINIT_EX, EVP_R_WRAP_MODE_NOT_ALLOWED);
 		return 0;
 	}
-
 	if(!(EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(ctx)) & EVP_CIPH_CUSTOM_IV)) {
 		switch(EVP_CIPHER_CTX_mode(ctx)) {
 			case EVP_CIPH_STREAM_CIPHER:
@@ -176,26 +166,21 @@ skip_to_init:
 			/* fall-through */
 
 			case EVP_CIPH_CBC_MODE:
-
-			    OPENSSL_assert(EVP_CIPHER_CTX_iv_length(ctx) <=
-			    (int)sizeof(ctx->iv));
+			    OPENSSL_assert(EVP_CIPHER_CTX_iv_length(ctx) <= (int)sizeof(ctx->iv));
 			    if(iv)
 				    memcpy(ctx->oiv, iv, EVP_CIPHER_CTX_iv_length(ctx));
 			    memcpy(ctx->iv, ctx->oiv, EVP_CIPHER_CTX_iv_length(ctx));
 			    break;
-
 			case EVP_CIPH_CTR_MODE:
 			    ctx->num = 0;
 			    /* Don't reuse IV for CTR mode */
 			    if(iv)
 				    memcpy(ctx->iv, iv, EVP_CIPHER_CTX_iv_length(ctx));
 			    break;
-
 			default:
 			    return 0;
 		}
 	}
-
 	if(key || (ctx->cipher->flags & EVP_CIPH_ALWAYS_CALL_INIT)) {
 		if(!ctx->cipher->init(ctx, key, iv, enc))
 			return 0;
@@ -206,57 +191,40 @@ skip_to_init:
 	return 1;
 }
 
-int EVP_CipherUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl,
-    const uchar * in, int inl)
+int EVP_CipherUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl, const uchar * in, int inl)
 {
-	if(ctx->encrypt)
-		return EVP_EncryptUpdate(ctx, out, outl, in, inl);
-	else
-		return EVP_DecryptUpdate(ctx, out, outl, in, inl);
+	return ctx->encrypt ? EVP_EncryptUpdate(ctx, out, outl, in, inl) : EVP_DecryptUpdate(ctx, out, outl, in, inl);
 }
 
 int EVP_CipherFinal_ex(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)
 {
-	if(ctx->encrypt)
-		return EVP_EncryptFinal_ex(ctx, out, outl);
-	else
-		return EVP_DecryptFinal_ex(ctx, out, outl);
+	return ctx->encrypt ? EVP_EncryptFinal_ex(ctx, out, outl) : EVP_DecryptFinal_ex(ctx, out, outl);
 }
 
 int EVP_CipherFinal(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)
 {
-	if(ctx->encrypt)
-		return EVP_EncryptFinal(ctx, out, outl);
-	else
-		return EVP_DecryptFinal(ctx, out, outl);
+	return ctx->encrypt ? EVP_EncryptFinal(ctx, out, outl) : EVP_DecryptFinal(ctx, out, outl);
 }
 
-int EVP_EncryptInit(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher,
-    const uchar * key, const uchar * iv)
+int EVP_EncryptInit(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher, const uchar * key, const uchar * iv)
 {
 	return EVP_CipherInit(ctx, cipher, key, iv, 1);
 }
 
-int EVP_EncryptInit_ex(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher,
-    ENGINE * impl, const uchar * key,
-    const uchar * iv)
+int EVP_EncryptInit_ex(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher, ENGINE * impl, const uchar * key, const uchar * iv)
 {
 	return EVP_CipherInit_ex(ctx, cipher, impl, key, iv, 1);
 }
 
-int EVP_DecryptInit(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher,
-    const uchar * key, const uchar * iv)
+int EVP_DecryptInit(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher, const uchar * key, const uchar * iv)
 {
 	return EVP_CipherInit(ctx, cipher, key, iv, 0);
 }
 
-int EVP_DecryptInit_ex(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher,
-    ENGINE * impl, const uchar * key,
-    const uchar * iv)
+int EVP_DecryptInit_ex(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher, ENGINE * impl, const uchar * key, const uchar * iv)
 {
 	return EVP_CipherInit_ex(ctx, cipher, impl, key, iv, 0);
 }
-
 /*
  * According to the letter of standard difference between pointers
  * is specified to be valid only within same object. This makes
@@ -288,29 +256,22 @@ int is_partially_overlapping(const void * ptr1, const void * ptr2, int len)
 	 * operations are used instead of boolean to minimize number
 	 * of conditional branches.]
 	 */
-	int overlapped = (len > 0) & (diff != 0) & ((diff < (PTRDIFF_T)len) |
-	    (diff > (0 - (PTRDIFF_T)len)));
-
+	int overlapped = (len > 0) & (diff != 0) & ((diff < (PTRDIFF_T)len) | (diff > (0 - (PTRDIFF_T)len)));
 	return overlapped;
 }
 
-int EVP_EncryptUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl,
-    const uchar * in, int inl)
+int EVP_EncryptUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl, const uchar * in, int inl)
 {
 	int i, j, bl, cmpl = inl;
-
 	if(EVP_CIPHER_CTX_test_flags(ctx, EVP_CIPH_FLAG_LENGTH_BITS))
 		cmpl = (cmpl + 7) / 8;
-
 	bl = ctx->cipher->block_size;
-
 	if(ctx->cipher->flags & EVP_CIPH_FLAG_CUSTOM_CIPHER) {
-		/* If block size > 1 then the cipher will have to do this check */
+		// If block size > 1 then the cipher will have to do this check 
 		if(bl == 1 && is_partially_overlapping(out, in, cmpl)) {
 			EVPerr(EVP_F_EVP_ENCRYPTUPDATE, EVP_R_PARTIALLY_OVERLAPPING);
 			return 0;
 		}
-
 		i = ctx->cipher->do_cipher(ctx, out, in, inl);
 		if(i < 0)
 			return 0;
@@ -318,7 +279,6 @@ int EVP_EncryptUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl,
 			*outl = i;
 		return 1;
 	}
-
 	if(inl <= 0) {
 		*outl = 0;
 		return inl == 0;
@@ -327,7 +287,6 @@ int EVP_EncryptUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl,
 		EVPerr(EVP_F_EVP_ENCRYPTUPDATE, EVP_R_PARTIALLY_OVERLAPPING);
 		return 0;
 	}
-
 	if(ctx->buf_len == 0 && (inl & (ctx->block_mask)) == 0) {
 		if(ctx->cipher->do_cipher(ctx, out, in, inl)) {
 			*outl = inl;
@@ -367,7 +326,6 @@ int EVP_EncryptUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl,
 			return 0;
 		*outl += inl;
 	}
-
 	if(i != 0)
 		memcpy(ctx->buf, &(in[inl]), i);
 	ctx->buf_len = i;
@@ -376,8 +334,7 @@ int EVP_EncryptUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl,
 
 int EVP_EncryptFinal(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)
 {
-	int ret;
-	ret = EVP_EncryptFinal_ex(ctx, out, outl);
+	int ret = EVP_EncryptFinal_ex(ctx, out, outl);
 	return ret;
 }
 
@@ -385,7 +342,6 @@ int EVP_EncryptFinal_ex(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)
 {
 	int n, ret;
 	uint i, b, bl;
-
 	if(ctx->cipher->flags & EVP_CIPH_FLAG_CUSTOM_CIPHER) {
 		ret = ctx->cipher->do_cipher(ctx, out, NULL, 0);
 		if(ret < 0)
@@ -394,7 +350,6 @@ int EVP_EncryptFinal_ex(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)
 			*outl = ret;
 		return 1;
 	}
-
 	b = ctx->cipher->block_size;
 	OPENSSL_assert(b <= sizeof ctx->buf);
 	if(b == 1) {
@@ -404,42 +359,32 @@ int EVP_EncryptFinal_ex(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)
 	bl = ctx->buf_len;
 	if(ctx->flags & EVP_CIPH_NO_PADDING) {
 		if(bl) {
-			EVPerr(EVP_F_EVP_ENCRYPTFINAL_EX,
-			    EVP_R_DATA_NOT_MULTIPLE_OF_BLOCK_LENGTH);
+			EVPerr(EVP_F_EVP_ENCRYPTFINAL_EX, EVP_R_DATA_NOT_MULTIPLE_OF_BLOCK_LENGTH);
 			return 0;
 		}
 		*outl = 0;
 		return 1;
 	}
-
 	n = b - bl;
 	for(i = bl; i < b; i++)
 		ctx->buf[i] = n;
 	ret = ctx->cipher->do_cipher(ctx, out, ctx->buf, b);
-
 	if(ret)
 		*outl = b;
-
 	return ret;
 }
 
-int EVP_DecryptUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl,
-    const uchar * in, int inl)
+int EVP_DecryptUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl, const uchar * in, int inl)
 {
-	int fix_len, cmpl = inl;
-	uint b;
-
-	b = ctx->cipher->block_size;
-
+	int    fix_len, cmpl = inl;
+	uint   b = ctx->cipher->block_size;
 	if(EVP_CIPHER_CTX_test_flags(ctx, EVP_CIPH_FLAG_LENGTH_BITS))
 		cmpl = (cmpl + 7) / 8;
-
 	if(ctx->cipher->flags & EVP_CIPH_FLAG_CUSTOM_CIPHER) {
 		if(b == 1 && is_partially_overlapping(out, in, cmpl)) {
 			EVPerr(EVP_F_EVP_DECRYPTUPDATE, EVP_R_PARTIALLY_OVERLAPPING);
 			return 0;
 		}
-
 		fix_len = ctx->cipher->do_cipher(ctx, out, in, inl);
 		if(fix_len < 0) {
 			*outl = 0;
@@ -449,56 +394,45 @@ int EVP_DecryptUpdate(EVP_CIPHER_CTX * ctx, uchar * out, int * outl,
 			*outl = fix_len;
 		return 1;
 	}
-
 	if(inl <= 0) {
 		*outl = 0;
 		return inl == 0;
 	}
-
 	if(ctx->flags & EVP_CIPH_NO_PADDING)
 		return EVP_EncryptUpdate(ctx, out, outl, in, inl);
-
-	OPENSSL_assert(b <= sizeof ctx->final);
-
+	OPENSSL_assert(b <= sizeof(ctx->Final));
 	if(ctx->final_used) {
-		/* see comment about PTRDIFF_T comparison above */
-		if(((PTRDIFF_T)out == (PTRDIFF_T)in)
-		    || is_partially_overlapping(out, in, b)) {
+		// see comment about PTRDIFF_T comparison above 
+		if(((PTRDIFF_T)out == (PTRDIFF_T)in) || is_partially_overlapping(out, in, b)) {
 			EVPerr(EVP_F_EVP_DECRYPTUPDATE, EVP_R_PARTIALLY_OVERLAPPING);
 			return 0;
 		}
-		memcpy(out, ctx->final, b);
+		memcpy(out, ctx->Final, b);
 		out += b;
 		fix_len = 1;
 	}
 	else
 		fix_len = 0;
-
 	if(!EVP_EncryptUpdate(ctx, out, outl, in, inl))
 		return 0;
-
-	/*
-	 * if we have 'decrypted' a multiple of block size, make sure we have a
-	 * copy of this last block
-	 */
+	//
+	// if we have 'decrypted' a multiple of block size, make sure we have a copy of this last block
+	//
 	if(b > 1 && !ctx->buf_len) {
 		*outl -= b;
 		ctx->final_used = 1;
-		memcpy(ctx->final, &out[*outl], b);
+		memcpy(ctx->Final, &out[*outl], b);
 	}
 	else
 		ctx->final_used = 0;
-
 	if(fix_len)
 		*outl += b;
-
 	return 1;
 }
 
 int EVP_DecryptFinal(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)
 {
-	int ret;
-	ret = EVP_DecryptFinal_ex(ctx, out, outl);
+	int ret = EVP_DecryptFinal_ex(ctx, out, outl);
 	return ret;
 }
 
@@ -507,7 +441,6 @@ int EVP_DecryptFinal_ex(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)
 	int i, n;
 	uint b;
 	*outl = 0;
-
 	if(ctx->cipher->flags & EVP_CIPH_FLAG_CUSTOM_CIPHER) {
 		i = ctx->cipher->do_cipher(ctx, out, NULL, 0);
 		if(i < 0)
@@ -516,12 +449,10 @@ int EVP_DecryptFinal_ex(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)
 			*outl = i;
 		return 1;
 	}
-
 	b = ctx->cipher->block_size;
 	if(ctx->flags & EVP_CIPH_NO_PADDING) {
 		if(ctx->buf_len) {
-			EVPerr(EVP_F_EVP_DECRYPTFINAL_EX,
-			    EVP_R_DATA_NOT_MULTIPLE_OF_BLOCK_LENGTH);
+			EVPerr(EVP_F_EVP_DECRYPTFINAL_EX, EVP_R_DATA_NOT_MULTIPLE_OF_BLOCK_LENGTH);
 			return 0;
 		}
 		*outl = 0;
@@ -532,26 +463,25 @@ int EVP_DecryptFinal_ex(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)
 			EVPerr(EVP_F_EVP_DECRYPTFINAL_EX, EVP_R_WRONG_FINAL_BLOCK_LENGTH);
 			return (0);
 		}
-		OPENSSL_assert(b <= sizeof ctx->final);
-
-		/*
-		 * The following assumes that the ciphertext has been authenticated.
-		 * Otherwise it provides a padding oracle.
-		 */
-		n = ctx->final[b - 1];
+		OPENSSL_assert(b <= sizeof(ctx->Final));
+		// 
+		// The following assumes that the ciphertext has been authenticated.
+		// Otherwise it provides a padding oracle.
+		// 
+		n = ctx->Final[b-1];
 		if(n == 0 || n > (int)b) {
 			EVPerr(EVP_F_EVP_DECRYPTFINAL_EX, EVP_R_BAD_DECRYPT);
 			return (0);
 		}
 		for(i = 0; i < n; i++) {
-			if(ctx->final[--b] != n) {
+			if(ctx->Final[--b] != n) {
 				EVPerr(EVP_F_EVP_DECRYPTFINAL_EX, EVP_R_BAD_DECRYPT);
 				return (0);
 			}
 		}
-		n = ctx->cipher->block_size - n;
+		n = ctx->cipher->block_size-n;
 		for(i = 0; i < n; i++)
-			out[i] = ctx->final[i];
+			out[i] = ctx->Final[i];
 		*outl = n;
 	}
 	else
@@ -563,14 +493,16 @@ int EVP_CIPHER_CTX_set_key_length(EVP_CIPHER_CTX * c, int keylen)
 {
 	if(c->cipher->flags & EVP_CIPH_CUSTOM_KEY_LENGTH)
 		return EVP_CIPHER_CTX_ctrl(c, EVP_CTRL_SET_KEY_LENGTH, keylen, NULL);
-	if(c->key_len == keylen)
+	else if(c->key_len == keylen)
 		return 1;
-	if((keylen > 0) && (c->cipher->flags & EVP_CIPH_VARIABLE_LENGTH)) {
+	else if((keylen > 0) && (c->cipher->flags & EVP_CIPH_VARIABLE_LENGTH)) {
 		c->key_len = keylen;
 		return 1;
 	}
-	EVPerr(EVP_F_EVP_CIPHER_CTX_SET_KEY_LENGTH, EVP_R_INVALID_KEY_LENGTH);
-	return 0;
+	else {
+		EVPerr(EVP_F_EVP_CIPHER_CTX_SET_KEY_LENGTH, EVP_R_INVALID_KEY_LENGTH);
+		return 0;
+	}
 }
 
 int EVP_CIPHER_CTX_set_padding(EVP_CIPHER_CTX * ctx, int pad)

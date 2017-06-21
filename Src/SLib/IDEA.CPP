@@ -102,11 +102,10 @@ const static uint16 SLAPI mul(register uint16 a, register uint16 b)
 // avoid swapping the meaning of the registers each iteration,
 // and some subtracts of t have been changed to adds.
 //
-const static uint16 SLAPI inv(uint16 x)
+static uint16 FASTCALL inv(uint16 x)
 {
 	uint16 t0, t1;
 	uint16 q, y;
-
 	if(x <= 1)
 		return x;	/* 0 and 1 are self-inverse */
 	t1 = (uint16)(0x10001L / x);	/* Since x >= 2, this fits into 16 bits */
@@ -148,7 +147,7 @@ static void SLAPI en_key_idea(uint16 *userkey, uint16 *Z)
 //
 static void SLAPI de_key_idea(IDEAkey Z, IDEAkey DK)
 {
-	int j;
+	int    j;
 	uint16 t1, t2, t3;
 	IDEAkey T;
 	uint16 *p = T + IDEA_KEYLEN;
@@ -362,10 +361,9 @@ void main(void)
 static void SLAPI xorbuf(register uint8 * buf, register uint8 * mask, register int count)
 // count must be > 0
 {
-	if(count)
-		do
-			*buf++ ^= *mask++;
-		while(--count);
+	if(count) do {
+		*buf++ ^= *mask++;
+	} while(--count);
 }
 //
 // cfbshift - shift bytes into IV for CFB input
@@ -383,16 +381,16 @@ static void SLAPI cfbshift(register uint8 * iv, register uint8 * buf, register i
 {
 	int retained;
 	if(count) {
-		retained = blocksize-count;	/* number bytes in iv to retain */
-		/* left-shift retained bytes of IV over by count bytes to make room */
+		retained = blocksize-count;	// number bytes in iv to retain 
+		// left-shift retained bytes of IV over by count bytes to make room 
 		while(retained--) {
 			*iv = *(iv+count);
 			iv++;
 		}
-		/* now copy count bytes from buf to shifted tail of IV */
-		do
+		// now copy count bytes from buf to shifted tail of IV 
+		do {
 			*iv++ = *buf++;
-		while(--count);
+		} while(--count);
 	}
 }
 //
@@ -488,7 +486,6 @@ void SLAPI IDEACFB::run(uint8 * buf, int count)
 			cfbshift((uint8 *)iv_idea, buf, chunksize, IDEABLOCKSIZE);
 		// convert buf via xor
 		xorbuf(buf, (uint8 *)temp, chunksize); // buf now has enciphered output
-
 		if(!cfb_dc_idea) // buf was plaintext, is now ciphertext
 			// shift in ciphertext to IV...
 			cfbshift((uint8 *)iv_idea, buf, chunksize, IDEABLOCKSIZE);
@@ -602,12 +599,12 @@ void SLAPI hashpass(char * keystring, int keylen, uint8 * hash)
 	//md.final(hash);
 }
 
-static void SLAPI IdeaCrypt(const char * pw, void * buf, size_t len, int decrypt)
+static void SLAPI IdeaCrypt(const char * pPw, void * pBuf, size_t bufLen, int decrypt)
 {
 	uint16 iv[4];
 	uint8  key[16];
 	char   temp_pw[128];
-	if(pw == 0) {
+	if(pPw == 0) {
 		SlExtraProcBlock epb;
 		SLS.GetExtraProcBlock(&epb);
 		if(epb.F_GetDefaultEncrKey) {
@@ -617,11 +614,11 @@ static void SLAPI IdeaCrypt(const char * pw, void * buf, size_t len, int decrypt
 		}
 	}
 	else
-		STRNSCPY(temp_pw, pw);
+		STRNSCPY(temp_pw, pPw);
 	hashpass(temp_pw, strlen(temp_pw), key);
 	memzero(iv, sizeof(iv));
 	IDEACFB idea(iv, key, decrypt);
-	idea.run((uint8*)buf, len);
+	idea.run((uint8*)pBuf, bufLen);
 }
 
 void SLAPI IdeaEncrypt(const char * pw, void * buf, size_t len)

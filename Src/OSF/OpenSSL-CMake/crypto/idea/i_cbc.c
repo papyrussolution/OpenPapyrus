@@ -11,9 +11,7 @@
 #include <openssl/idea.h>
 #include "idea_lcl.h"
 
-void IDEA_cbc_encrypt(const uchar * in, uchar * out,
-    long length, IDEA_KEY_SCHEDULE * ks, uchar * iv,
-    int encrypt)
+void IDEA_cbc_encrypt(const uchar * in, uchar * out, long length, IDEA_KEY_SCHEDULE * ks, uchar * iv, int encrypt)
 {
 	register ulong tin0, tin1;
 	register ulong tout0, tout1, xor0, xor1;
@@ -92,14 +90,11 @@ void IDEA_encrypt(ulong * d, IDEA_KEY_SCHEDULE * key)
 {
 	register IDEA_INT * p;
 	register ulong x1, x2, x3, x4, t0, t1, ul;
-
 	x2 = d[0];
 	x1 = (x2 >> 16);
 	x4 = d[1];
 	x3 = (x4 >> 16);
-
 	p = &(key->data[0][0]);
-
 	E_IDEA(0);
 	E_IDEA(1);
 	E_IDEA(2);
@@ -108,17 +103,13 @@ void IDEA_encrypt(ulong * d, IDEA_KEY_SCHEDULE * key)
 	E_IDEA(5);
 	E_IDEA(6);
 	E_IDEA(7);
-
 	x1 &= 0xffff;
 	idea_mul(x1, x1, *p, ul);
 	p++;
-
 	t0 = x3 + *(p++);
 	t1 = x2 + *(p++);
-
 	x4 &= 0xffff;
 	idea_mul(x4, x4, *p, ul);
-
 	d[0] = (t0 & 0xffff) | ((x1 & 0xffff) << 16);
 	d[1] = (x4 & 0xffff) | ((t1 & 0xffff) << 16);
 }

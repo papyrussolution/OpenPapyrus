@@ -368,6 +368,7 @@ int PPEgaisProcessor::LogSended(const Packet & rPack)
 			ok = 1;
 			break;
 		case PPEDIOP_EGAIS_WAYBILL:
+		case PPEDIOP_EGAIS_WAYBILL_V2:
 			if(msg_buf.Empty())
 				PPLoadText(PPTXT_EGAIS_QS_WAYBILL, msg_buf);
 			// @nobreak
@@ -821,7 +822,7 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
 			BillTbl::Rec bill_rec;
 			ObjTagItem tag_item;
 			PPIDArray edi_op_list;
-			edi_op_list.addzlist(PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_ACTCHARGEON,
+			edi_op_list.addzlist(PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_ACTCHARGEON,
 				PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTWRITEOFF,
 				PPEDIOP_EGAIS_ACTWRITEOFF_V2, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP,
 				PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILLACT_V2,
@@ -1281,13 +1282,19 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 			kpp = epr_item.KPP;
 		}
 		else {
-			j_status = 1;
-			p_j_scope = "oref:UL";
 			//
 			if(psn_pack.Regs.GetRegister(PPREGT_TPID, actualDate, 0, &reg_rec) > 0)
 				(inn = reg_rec.Num).Strip();
 			if(GetWkrRegister(wkrKPP, personID, addrLocID, actualDate, &reg_rec) > 0)
 				kpp = reg_rec.Num;
+			if(inn.Len() == 12) {
+				j_status = 2;
+				p_j_scope = "oref:FL";
+			}
+			else {
+				j_status = 1;
+				p_j_scope = "oref:UL";
+			}
 		}
 		if(flags & woifStrict && oneof2(j_status, 1, 2)) {
 			THROW_PP_S(inn.NotEmptyS(), PPERR_EGAIS_PERSONINNUNDEF, info_org_name);
@@ -7402,7 +7409,6 @@ int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 	SString file_name;
 	SString temp_buf;
 	PPIDArray totransm_bill_list, reject_bill_list;
-	// @v9.4.1 {
 	{
 		const PPEgaisProcessor::BillTransmissionPattern _BillTransmPatterns[] = {
 			{ bilstfReadyForAck|bilstfChargeOn,         PPEDIOP_EGAIS_ACTCHARGEON,       "ActChargeOn" },
@@ -7418,94 +7424,6 @@ int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 				ok = 1;
 		}
 	}
-	// } @v9.4.1
-#if 0 // @v9.4.1 {
-	{
-		//
-		// Передача документов постановки остатков на баланс
-		//
-		totransm_bill_list.clear();
-		GetBillListForTransmission(rP, bilstfReadyForAck|bilstfChargeOn, totransm_bill_list, 0);
-		if(totransm_bill_list.getCount()) {
-			{
-				ExclChrgOnMarks.clear();
-                PPGetFilePath(PPPATH_IN, "egais-exclude-chargeon-marks.txt", file_name);
-				if(fileExists(file_name)) {
-					SFile f_in(file_name, SFile::mRead);
-					while(f_in.ReadLine(temp_buf)) {
-						if(PrcssrAlcReport::IsEgaisMark(temp_buf.Chomp(), 0))
-                            ExclChrgOnMarks.add(temp_buf);
-					}
-				}
-			}
-			for(uint i = 0; i < totransm_bill_list.getCount(); i++) {
-				if(Helper_SendBills(totransm_bill_list.get(i), PPEDIOP_EGAIS_ACTCHARGEON, rP.LocID, "ActChargeOn") > 0)
-					ok = 1;
-			}
-		}
-	}
-	// @v9.2.11 {
-	{
-		//
-		// Передача документов постановки остатков на баланс в торговом зале (регистр 2)
-		//
-		totransm_bill_list.clear();
-		GetBillListForTransmission(rP, bilstfReadyForAck|bilstfChargeOnShop, totransm_bill_list, 0);
-		for(uint i = 0; i < totransm_bill_list.getCount(); i++) {
-			if(Helper_SendBills(totransm_bill_list.get(i), PPEDIOP_EGAIS_ACTCHARGEONSHOP, rP.LocID, "ActChargeOnShop_v2") > 0)
-				ok = 1;
-		}
-	}
-	// } @v9.2.11
-	// @v9.4.0 {
-	{
-		//
-		// Передача документов списания остатков с баланса в торговом зале (регистр 2)
-		//
-		totransm_bill_list.clear();
-		GetBillListForTransmission(rP, bilstfReadyForAck|bilstfWriteOffShop, totransm_bill_list, 0);
-		for(uint i = 0; i < totransm_bill_list.getCount(); i++) {
-			if(Helper_SendBills(totransm_bill_list.get(i), PPEDIOP_EGAIS_ACTWRITEOFFSHOP, rP.LocID, "ActWriteOffShop_v2") > 0)
-				ok = 1;
-		}
-	}
-	// } @v9.4.0
-	// @v9.2.11 {
-	{
-		//
-		// Передача документов перемещения товаров в торговый зал (регистр 2)
-		//
-		totransm_bill_list.clear();
-		GetBillListForTransmission(rP, bilstfReadyForAck|bilstfTransferToShop, totransm_bill_list, 0);
-		for(uint i = 0; i < totransm_bill_list.getCount(); i++) {
-			if(Helper_SendBills(totransm_bill_list.get(i), PPEDIOP_EGAIS_TRANSFERTOSHOP, rP.LocID, "TransferToShop") > 0)
-				ok = 1;
-		}
-	}
-	{
-		//
-		// Передача документов перемещения товаров из торгового зала (регистр 2) на склад
-		//
-		totransm_bill_list.clear();
-		GetBillListForTransmission(rP, bilstfReadyForAck|bilstfTransferFromShop, totransm_bill_list, 0);
-		for(uint i = 0; i < totransm_bill_list.getCount(); i++) {
-			if(Helper_SendBills(totransm_bill_list.get(i), PPEDIOP_EGAIS_TRANSFERFROMSHOP, rP.LocID, "TransferFromShop") > 0)
-				ok = 1;
-		}
-	}
-	// } @v9.2.11
-	{
-		//
-		// Передача документов прочего расхода (как потери)
-		//
-		totransm_bill_list.clear();
-		GetBillListForTransmission(/*locID, period*/rP, bilstfReadyForAck|bilstfLosses, totransm_bill_list, 0);
-		for(uint i = 0; i < totransm_bill_list.getCount(); i++) {
-			if(Helper_SendBills(totransm_bill_list.get(i), PPEDIOP_EGAIS_ACTWRITEOFF, rP.LocID, "ActWriteOff") > 0)
-				ok = 1;
-		}
-	}
-#endif // } 0 @v9.4.1
 	{
 		//
 		// Передача документов отгрузки
@@ -7557,12 +7475,14 @@ int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 		{
 			for(uint i = 0; i < totransm_bill_list.getCount(); i++) {
 				const PPID bill_id = totransm_bill_list.get(i);
-				PPEgaisProcessor::Packet pack(PPEDIOP_EGAIS_WAYBILL);
+				const int edi_op = (Cfg.E.Flags & Cfg.fEgaisVer2Fmt) ? PPEDIOP_EGAIS_WAYBILL_V2 : PPEDIOP_EGAIS_WAYBILL;
+				const char * p_url_sfx = (Cfg.E.Flags & Cfg.fEgaisVer2Fmt) ? "WayBill_v2" : "WayBill";
+				PPEgaisProcessor::Packet pack(edi_op);
 				pack.Flags |= PPEgaisProcessor::Packet::fReturnBill;
 				PPBillPacket * p_bp = (PPBillPacket *)pack.P_Data;
 				if(P_BObj->ExtractPacketWithFlags(bill_id, p_bp, BPLD_FORCESERIALS) > 0) {
 					Ack ack;
-					const int r = PutQuery(pack, rP.LocID, "WayBill", ack);
+					const int r = PutQuery(pack, rP.LocID, p_url_sfx, ack);
 					if(r > 0)
 						ok = 1;
 					else if(r == 0)
