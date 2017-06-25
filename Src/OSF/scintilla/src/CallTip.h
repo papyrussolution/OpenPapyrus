@@ -29,12 +29,11 @@ class CallTip {
 
 	// Private so CallTip objects can not be copied
 	CallTip(const CallTip &);
-	CallTip & operator = (const CallTip &);
-	void DrawChunk(Surface *surface, int &x, const char *s, int posStart, int posEnd, int ytext, PRectangle rcClient, bool highlight, bool draw);
-	int PaintContents(Surface *surfaceWindow, bool draw);
-	bool IsTabCharacter(char c) const;
-	int NextTabPos(int x) const;
-
+	CallTip & FASTCALL operator = (const CallTip &);
+	void   DrawChunk(Surface *surface, int &x, const char *s, int posStart, int posEnd, int ytext, PRectangle rcClient, bool highlight, bool draw);
+	int    PaintContents(Surface *surfaceWindow, bool draw);
+	bool   IsTabCharacter(char c) const;
+	int    NextTabPos(int x) const;
 public:
 	Window wCallTip;
 	Window wDraw;

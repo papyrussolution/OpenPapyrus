@@ -40,12 +40,73 @@ int Scintilla_LinkLexers(void);
 #else
 	#include <stdint.h>
 #endif
-// Define uptr_t, an unsigned integer type large enough to hold a pointer.
-typedef uintptr_t uptr_t;
-// Define sptr_t, a signed integer large enough to hold a pointer.
-typedef intptr_t sptr_t;
+typedef uintptr_t uptr_t; // Define uptr_t, an unsigned integer type large enough to hold a pointer.
+typedef intptr_t  sptr_t; // Define sptr_t, a signed integer large enough to hold a pointer.
 
-#include "Sci_Position.h"
+//#include "Sci_Position.h"
+typedef int Sci_Position; // Basic signed type used throughout interface
+typedef uint Sci_PositionU; // Unsigned variant used for ILexer::Lex and ILexer::Fold
+typedef long Sci_PositionCR; // For Sci_CharacterRange  which is defined as long to be compatible with Win32 CHARRANGE
+#include "ILexer.h" // @sobolev
+#include "SciLexer.h" // @sobolev
+//#include "PropSetSimple.h"
+//#include "Position.h"
+// 
+// A Position is a position within a document between two characters or at the beginning or end.
+// Sometimes used as a character index where it identifies the character after the position.
+// 
+namespace Sci {
+	typedef int Position;
+	// A later version (4.x) of this file may:
+	//#if defined(SCI_LARGE_FILE_SUPPORT)
+	//typedef std::ptrdiff_t Position;
+	// or may allow runtime choice between different position sizes.
+	const Position invalidPosition = -1;
+}
+
+//#include "WordList.h" // @sobolev
+
+#ifdef SCI_NAMESPACE
+namespace Scintilla {
+#endif
+	class PropSetSimple {
+	private:
+		void * impl;
+		void   Set(const char *keyVal);
+	public:
+		PropSetSimple();
+		virtual ~PropSetSimple();
+		void   Set(const char *key, const char *val, int lenKey=-1, int lenVal=-1);
+		void   SetMultiple(const char *);
+		const  char *Get(const char *key) const;
+		int    GetExpanded(const char *key, char *result) const;
+		int    GetInt(const char *key, int defaultValue=0) const;
+	};
+
+	class WordList {
+	private:
+		// Each word contains at least one character - a empty word acts as sentinel at the end.
+		char ** words;
+		char * list;
+		int    len;
+		bool   onlyLineEnds; ///< Delimited by any white space or only line ends
+		int    starts[256];
+	public:
+		explicit WordList(bool onlyLineEnds_ = false);
+		~WordList();
+		operator bool() const;
+		bool operator!=(const WordList &other) const;
+		int    Length() const;
+		void   Clear();
+		void   Set(const char *s);
+		bool   InList(const char *s) const;
+		bool   InListAbbreviated(const char *s, const char marker) const;
+		bool   InListAbridged(const char *s, const char marker) const;
+		const char * WordAt(int n) const;
+	};
+#ifdef SCI_NAMESPACE
+}
+#endif
 
 typedef sptr_t (*SciFnDirect)(sptr_t ptr, uint iMessage, uptr_t wParam, sptr_t lParam);
 

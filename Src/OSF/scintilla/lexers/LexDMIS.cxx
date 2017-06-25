@@ -13,9 +13,9 @@
 #include <cassert>
 #include <cstring>
 #include <cctype>
-#include "ILexer.h"
-#include "SciLexer.h"
-#include "WordList.h"
+//#include "ILexer.h"
+//#include "SciLexer.h"
+//#include "WordList.h"
 #include "LexAccessor.h"
 #include "StyleContext.h"
 #include "CharacterSet.h"

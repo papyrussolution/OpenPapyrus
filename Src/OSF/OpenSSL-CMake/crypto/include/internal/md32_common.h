@@ -68,33 +68,29 @@
 #include <openssl/crypto.h>
 
 #if !defined(DATA_ORDER_IS_BIG_ENDIAN) && !defined(DATA_ORDER_IS_LITTLE_ENDIAN)
-# error "DATA_ORDER must be defined!"
+	#error "DATA_ORDER must be defined!"
 #endif
-
 #ifndef HASH_CBLOCK
-# error "HASH_CBLOCK must be defined!"
+	#error "HASH_CBLOCK must be defined!"
 #endif
 #ifndef HASH_LONG
-# error "HASH_LONG must be defined!"
+	#error "HASH_LONG must be defined!"
 #endif
 #ifndef HASH_CTX
-# error "HASH_CTX must be defined!"
+	#error "HASH_CTX must be defined!"
 #endif
-
 #ifndef HASH_UPDATE
-# error "HASH_UPDATE must be defined!"
+	#error "HASH_UPDATE must be defined!"
 #endif
 #ifndef HASH_TRANSFORM
-# error "HASH_TRANSFORM must be defined!"
+	#error "HASH_TRANSFORM must be defined!"
 #endif
 #ifndef HASH_FINAL
-# error "HASH_FINAL must be defined!"
+	#error "HASH_FINAL must be defined!"
 #endif
-
 #ifndef HASH_BLOCK_DATA_ORDER
-# error "HASH_BLOCK_DATA_ORDER must be defined!"
+	#error "HASH_BLOCK_DATA_ORDER must be defined!"
 #endif
-
 /*
  * Engage compiler specific rotate intrinsic function if available.
  */
@@ -241,21 +237,17 @@
 # endif
 
 #endif
-
 /*
  * Time for some action:-)
  */
-
 int HASH_UPDATE(HASH_CTX * c, const void * data_, size_t len)
 {
 	const uchar * data = (const uchar*)data_;
 	uchar * p;
 	HASH_LONG l;
 	size_t n;
-
 	if(len == 0)
 		return 1;
-
 	l = (c->Nl + (((HASH_LONG)len) << 3)) & 0xffffffffUL;
 	/*
 	 * 95-05-24 eay Fixed a bug with the overflow handling, thanks to Wei Dai
@@ -263,8 +255,7 @@ int HASH_UPDATE(HASH_CTX * c, const void * data_, size_t len)
 	 */
 	if(l < c->Nl)           /* overflow */
 		c->Nh++;
-	c->Nh += (HASH_LONG)(len >> 29); /* might cause compiler warning on
-	                                  * 16-bit */
+	c->Nh += (HASH_LONG)(len >> 29); // might cause compiler warning on 16-bit 
 	c->Nl = l;
 	n = c->num;
 	if(n != 0) {
@@ -290,7 +281,6 @@ int HASH_UPDATE(HASH_CTX * c, const void * data_, size_t len)
 			return 1;
 		}
 	}
-
 	n = len / HASH_CBLOCK;
 	if(n > 0) {
 		HASH_BLOCK_DATA_ORDER(c, data, n);
@@ -298,7 +288,6 @@ int HASH_UPDATE(HASH_CTX * c, const void * data_, size_t len)
 		data += n;
 		len -= n;
 	}
-
 	if(len != 0) {
 		p = (uchar*)c->data;
 		c->num = (uint)len;
@@ -324,9 +313,8 @@ int HASH_FINAL(uchar * md, HASH_CTX * c)
 		HASH_BLOCK_DATA_ORDER(c, p, 1);
 	}
 	memzero(p + n, HASH_CBLOCK - 8 - n);
-
 	p += HASH_CBLOCK - 8;
-#if   defined(DATA_ORDER_IS_BIG_ENDIAN)
+#if defined(DATA_ORDER_IS_BIG_ENDIAN)
 	(void)HOST_l2c(c->Nh, p);
 	(void)HOST_l2c(c->Nl, p);
 #elif defined(DATA_ORDER_IS_LITTLE_ENDIAN)
@@ -337,13 +325,11 @@ int HASH_FINAL(uchar * md, HASH_CTX * c)
 	HASH_BLOCK_DATA_ORDER(c, p, 1);
 	c->num = 0;
 	OPENSSL_cleanse(p, HASH_CBLOCK);
-
 #ifndef HASH_MAKE_STRING
-# error "HASH_MAKE_STRING must be defined!"
+	#error "HASH_MAKE_STRING must be defined!"
 #else
 	HASH_MAKE_STRING(c, md);
 #endif
-
 	return 1;
 }
 

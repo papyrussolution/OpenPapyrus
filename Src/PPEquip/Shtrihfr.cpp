@@ -557,22 +557,34 @@ int	SLAPI SCS_SHTRIHFRF::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
 		THROW(SetFR(StringForPrinting, (prn_str = 0).CatCharN('-', CheckStrLen)));
 		THROW(ExecFRPrintOper(PrintString));
 		(temp_str = 0).Cat(amt + dscnt, SFMT_MONEY);
-		prn_str = "ÑÓÌÌÀ ÁÅÇ ÑÊÈÄÊÈ"; // @cstr #0
+		// @v9.7.1 prn_str = "ÑÓÌÌÀ ÁÅÇ ÑÊÈÄÊÈ"; // @cstr #0
+		PPLoadText(PPTXT_CCFMT_AMTWODISCOUNT, prn_str); // @v9.7.1 
+		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
 		THROW(SetFR(StringForPrinting, prn_str));
 		THROW(ExecFRPrintOper(PrintString));
 		if(scc.Search(pPack->Rec.SCardID, 0) > 0) {
-			THROW(SetFR(StringForPrinting, (prn_str = "ÊÀÐÒÀ").Space().Cat(scc.data.Code))); // @cstr #1
+			// @v9.7.1 prn_str = "ÊÀÐÒÀ"; // @cstr #1
+			PPLoadText(PPTXT_CCFMT_CARD, prn_str); // @v9.7.1 
+			prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
+			prn_str.Space().Cat(scc.data.Code); 
+			THROW(SetFR(StringForPrinting, prn_str)); 
 			THROW(ExecFRPrintOper(PrintString));
-			if(scc.data.PersonID && GetPersonName(scc.data.PersonID, temp_str) > 0) { // @v6.0.9 GetObjectName-->GetPersonName
-				(prn_str = "ÂËÀÄÅËÅÖ").Space().Cat(temp_str.Transf(CTRANSF_INNER_TO_OUTER)); // @cstr #2
+			if(scc.data.PersonID && GetPersonName(scc.data.PersonID, temp_str) > 0) {
+				// @v9.7.1 (prn_str = "ÂËÀÄÅËÅÖ"); // @cstr #2
+				PPLoadText(PPTXT_CCFMT_CARDOWNER, prn_str); // @v9.7.1 
+				prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
+				prn_str.Space().Cat(temp_str.Transf(CTRANSF_INNER_TO_OUTER)); 
 				CutLongTail(prn_str);
 				THROW(SetFR(StringForPrinting, prn_str));
 				THROW(ExecFRPrintOper(PrintString));
 			}
 		}
 		(temp_str = 0).Cat(dscnt, SFMT_MONEY);
-		(prn_str = "ÑÊÈÄÊÀ").Space().Cat(pcnt, MKSFMTD(0, (flags & PRNCHK_ROUNDINT) ? 0 : 1, NMBF_NOTRAILZ)).CatChar('%'); // @cstr #3
+		// @v9.7.1 (prn_str = "ÑÊÈÄÊÀ"); // @cstr #3
+		PPLoadText(PPTXT_CCFMT_DISCOUNT, prn_str); // @v9.7.1 
+		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
+		prn_str.Space().Cat(pcnt, MKSFMTD(0, (flags & PRNCHK_ROUNDINT) ? 0 : 1, NMBF_NOTRAILZ)).CatChar('%'); 
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
 		THROW(SetFR(StringForPrinting, prn_str));
 		THROW(ExecFRPrintOper(PrintString));
@@ -689,7 +701,7 @@ int SLAPI SCS_SHTRIHFRF::GetBarcodePrintMethodAndStd(int innerBarcodeStd, int * 
 int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 {
 	int     ok = 1, chk_no = 0, is_format = 0;
-	SString buf;
+	SString temp_buf;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR;
 	THROW_INVARG(pPack);
@@ -739,8 +751,11 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 						const double _p = sl_param.Price;
 						running_total += (_q * _p);
 						THROW(SetFR(Quantity, _q));
-						THROW(SetFR(Price, fabs(_p))); // @v7.2.0 fabs
-						THROW(SetFR(StringForPrinting, ""));
+						THROW(SetFR(Price, fabs(_p)));
+						{
+							(temp_buf = sl_param.Text).Strip().Transf(CTRANSF_INNER_TO_OUTER).Trim(CheckStrLen);
+							THROW(SetFR(StringForPrinting, ""));
+						}
 						THROW(SetFR(Department, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 :  sl_param.DivID));
 						THROW(SetFR(Tax1, 0L));
 						THROW(ExecFRPrintOper((flags & PRNCHK_RETURN) ? ReturnSale : Sale));
@@ -789,7 +804,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 						THROW(ExecFRPrintOper((sl_param.Font > 1) ? PrintWideString : PrintString));
 					}
 				}
-				running_total = fabs(running_total); // @v7.7.2
+				running_total = fabs(running_total);
 				CheckForRibbonUsing(SlipLineParam::fRegRegular|SlipLineParam::fRegJournal);
 				THROW(SetFR(StringForPrinting, ""));
 				if(prn_total_sale) {
@@ -812,7 +827,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 						}
 					}
 				}
-				else if(running_total != amt) { // @v7.6.3 (>)-->(!=)
+				else if(running_total != amt) {
 					SString fmt_buf, msg_buf, added_buf;
 					PPLoadText(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf);
 					const char * p_sign = (running_total > amt) ? " > " : ((running_total < amt) ? " < " : " ?==? ");
@@ -827,9 +842,9 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			for(uint pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
 				int  division = (ccl.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? ccl.DivID - CHECK_LINE_IS_PRINTED_BIAS : ccl.DivID;
 				// Íàèìåíîâàíèå òîâàðà
-				GetGoodsName(ccl.GoodsID, buf);
-				buf.Strip().Transf(CTRANSF_INNER_TO_OUTER).Trim(CheckStrLen);
-				THROW(SetFR(StringForPrinting, buf));
+				GetGoodsName(ccl.GoodsID, temp_buf);
+				temp_buf.Strip().Transf(CTRANSF_INNER_TO_OUTER).Trim(CheckStrLen);
+				THROW(SetFR(StringForPrinting, temp_buf));
 				// Öåíà
 				THROW(SetFR(Price, R2(intmnytodbl(ccl.Price) - ccl.Dscnt)));
 				// Êîëè÷åñòâî
@@ -845,34 +860,30 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			THROW(PrintDiscountInfo(pPack, flags));
 			if(DeviceType == devtypeShtrih)
 				THROW(SetFR(UseJournalRibbon, TRUE));
-			(buf = 0).CatCharN('=', CheckStrLen);
-			THROW(SetFR(StringForPrinting, buf));
+			(temp_buf = 0).CatCharN('=', CheckStrLen);
+			THROW(SetFR(StringForPrinting, temp_buf));
 		}
 		if(nonfiscal > 0.0) {
 			if(fiscal > 0.0) {
-				// @v7.4.12 {
 				if(flags & PRNCHK_BANKING) {
 					THROW(SetFR(Summ2, fiscal));
 					THROW(SetFR(Summ1, 0L));
 				}
-				else { // } @v7.4.12
+				else {
 					THROW(SetFR(Summ1, fiscal));
 					THROW(SetFR(Summ2, 0L));
 				}
 			}
 		}
 		else {
-			if(running_total > sum || ((flags & PRNCHK_BANKING) && running_total != sum)) // @v7.5.1
+			if(running_total > sum || ((flags & PRNCHK_BANKING) && running_total != sum))
 				sum = running_total;
 			if(flags & PRNCHK_BANKING) {
 				double  add_paym = 0.0; // @v9.0.4 intmnytodbl(pPack->Ext.AddPaym)-->0.0
-				// @v7.5.1 {
 				const double add_paym_epsilon = 0.01;
 				const double add_paym_delta = (add_paym - sum);
-				if(add_paym_delta > 0.0 || fabs(add_paym_delta) < add_paym_epsilon) {
+				if(add_paym_delta > 0.0 || fabs(add_paym_delta) < add_paym_epsilon)
 					add_paym = 0.0;
-				}
-				// } @v7.5.1
 				if(add_paym) {
 					THROW(SetFR(Summ1, sum - amt + add_paym));
 					THROW(SetFR(Summ2, amt - add_paym));
@@ -1023,7 +1034,8 @@ int SLAPI SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry
 {
 	int    ok = 1, print_tax_action = 0;
 	uint   pos;
-	long   cshr_pssw = CashierPassword, s_tax = 0;
+	long   cshr_pssw = CashierPassword;
+	long   s_tax = 0;
 	pVatAry->freeAll();
 	for(pos = 0; pos < pBTaxAry->getCount(); pos++) {
 		BillTaxEntry & bte = pBTaxAry->at(pos);
@@ -1053,12 +1065,8 @@ int SLAPI SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry
 		THROW(GetFR(ValueOfFieldInteger, &print_tax_action));
 	}
 	if(print_tax_action) {
-		SString  prefix_vat, vat_str;
-		// @v9.0.2 {
-		PPLoadString("vat", prefix_vat);
-		prefix_vat.Transf(CTRANSF_INNER_TO_OUTER).Space();
-		// } @v9.0.2
-		// @v9.0.2 PPGetWord(PPWORD_VAT, 1, prefix_vat).Space();
+		SString temp_buf;
+		SString vat_str;
 		// Íàñòðîéêà òàáëèöû íàëîãîâûõ ñòàâîê
 		// Íàëîã ñ ïðîäàæ
 		THROW(SetFR(TableNumber, FRTAX_TBL));
@@ -1070,7 +1078,12 @@ int SLAPI SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry
 			THROW(ExecFR(WriteTable));
 			THROW(SetFR(FieldNumber, FRTAX_FIELD_TAXNAME));
 			THROW(ExecFR(GetFieldStruct));
-			THROW(SetFR(ValueOfFieldString, "ÍÀËÎÃ Ñ ÏÐÎÄÀÆ")); // @cstr #5
+			{
+				// @v9.7.1 temp_buf = "ÍÀËÎÃ Ñ ÏÐÎÄÀÆ"; // @cstr #5
+				PPLoadText(PPTXT_CCFMT_STAX, temp_buf); // @v9.7.1 
+				temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
+				THROW(SetFR(ValueOfFieldString, temp_buf)); 
+			}
 			THROW(ExecFR(WriteTable));
 		}
 		// Ñòàâêè ÍÄÑ
@@ -1082,8 +1095,15 @@ int SLAPI SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry
 			THROW(ExecFR(WriteTable));
 			THROW(SetFR(FieldNumber, FRTAX_FIELD_TAXNAME));
 			THROW(ExecFR(GetFieldStruct));
-			(vat_str = prefix_vat).Cat(fdiv100i(pVatAry->at(pos)), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%');
-			THROW(SetFR(ValueOfFieldString, vat_str));
+			{
+				// @v9.0.2 {
+				PPLoadString("vat", temp_buf);
+				temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Space();
+				// } @v9.0.2
+				// @v9.0.2 PPGetWord(PPWORD_VAT, 1, temp_buf).Space();
+				(vat_str = temp_buf).Cat(fdiv100i(pVatAry->at(pos)), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%');
+				THROW(SetFR(ValueOfFieldString, vat_str));
+			}
 			THROW(ExecFR(WriteTable));
 		}
 	}
@@ -1100,6 +1120,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double mul
 	long    flags = 0;
 	double  price, sum = 0.0;
 	SString prn_str, name;
+	SString temp_buf;
 	BillTaxArray  bt_ary;
 	PPIDArray     vat_ary;
 	ResCode = RESCODE_NO_ERROR;
@@ -1133,7 +1154,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double mul
 		if(departN > 0 && departN <= 16) {
 			THROW(SetFR(Department, departN));
 		}
-		// } @v9.5.7 
+		// } @v9.5.7
 		// Íàëîãè
 		if(print_tax) {
 			if(bte.SalesTax) {
@@ -1144,15 +1165,25 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double mul
 			}
 		}
 		THROW(SetFR(tax_no, 0L));
-		(prn_str = "ÑÓÌÌÀ ÏÎ ÑÒÀÂÊÅ ÍÄÑ").Space().Cat(fdiv100i(bte.VAT), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%'); // @cstr #6
-		if(bte.SalesTax)
-			prn_str.Space().Cat("ÍÑÏ").Space().Cat(fdiv100i(bte.SalesTax), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%'); // @cstr #7
+		// @v9.7.1 prn_str = "ÑÓÌÌÀ ÏÎ ÑÒÀÂÊÅ ÍÄÑ"; // @cstr #6
+		PPLoadText(PPTXT_CCFMT_AMTBYVATRATE, prn_str); // @v9.7.1 
+		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
+		prn_str.Space().Cat(fdiv100i(bte.VAT), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%');
+		if(bte.SalesTax) {
+			// @v9.7.1 temp_buf = "ÍÑÏ"; // @cstr #7
+			PPLoadText(PPTXT_CCFMT_STAX_S, temp_buf); // @v9.7.1 
+			temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
+			prn_str.Space().Cat(temp_buf).Space().Cat(fdiv100i(bte.SalesTax), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%'); 
+		}
 		THROW(SetFR(StringForPrinting, prn_str));
 		THROW(ExecFRPrintOper((flags & PRNCHK_RETURN) ? ReturnSale : Sale));
 		Flags |= sfOpenCheck;
 	}
 	if(name.NotEmptyS()) {
-		(prn_str = "ÏÎËÓ×ÀÒÅËÜ").Space().Cat(name.Transf(CTRANSF_INNER_TO_OUTER)); // @cstr #8
+		// @v9.7.1 prn_str = "ÏÎËÓ×ÀÒÅËÜ"; // @cstr #8
+		PPLoadText(PPTXT_CCFMT_RECEIVER, prn_str); // @v9.7.1 
+		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
+		prn_str.Space().Cat(name.Transf(CTRANSF_INNER_TO_OUTER));
 		CutLongTail(prn_str);
 		THROW(SetFR(StringForPrinting, prn_str));
 		THROW(ExecFRPrintOper(PrintString));
@@ -1297,13 +1328,24 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(CCheckPacket * pPack, const char * pForm
 	}
 	if(!is_format) {
 		uint    pos;
-		SString prn_str, temp_str;
+		SString prn_str;
+		SString temp_buf;
 		CCheckLineTbl::Rec ccl;
 		if(DeviceType == devtypeShtrih)
 			THROW(SetFR(UseJournalRibbon, FALSE));
-		THROW(SetFR(DocumentName, "ÊÎÏÈß ×ÅÊÀ")); // @cstr #9
+		{
+			// @v9.7.1 temp_buf = "ÊÎÏÈß ×ÅÊÀ"; // @cstr #9
+			PPLoadText(PPTXT_CCFMT_CHKCOPY, temp_buf); // @v9.7.1 
+			temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
+			THROW(SetFR(DocumentName, temp_buf)); 
+		}
 		THROW(ExecFRPrintOper(PrintDocumentTitle));
-		THROW(SetFR(StringForPrinting, (flags & PRNCHK_RETURN) ? "ÂÎÇÂÐÀÒ ÏÐÎÄÀÆÈ" : "ÏÐÎÄÀÆÀ")); // @cstr #10 #11
+		{
+			// @v9.7.1 temp_buf = (flags & PRNCHK_RETURN) ? "ÂÎÇÂÐÀÒ ÏÐÎÄÀÆÈ" : "ÏÐÎÄÀÆÀ"; // @cstr #10 #11
+			PPLoadText((flags & PRNCHK_RETURN) ? PPTXT_CCFMT_RETURN : PPTXT_CCFMT_SALE, temp_buf); // @v9.7.1 
+			temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
+			THROW(SetFR(StringForPrinting, temp_buf)); 
+		}
 		THROW(ExecFRPrintOper(PrintString));
 		for(pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
 			double  price = intmnytodbl(ccl.Price) - ccl.Dscnt;
@@ -1313,20 +1355,22 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(CCheckPacket * pPack, const char * pForm
 			THROW(SetFR(StringForPrinting, prn_str));
 			THROW(ExecFRPrintOper(PrintString));
 			if(qtty != 1.0) {
-				(temp_str = 0).Cat(qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatDiv('X', 1).Cat(price, SFMT_MONEY);
-				THROW(SetFR(StringForPrinting, (prn_str = 0).CatCharN(' ', CheckStrLen - temp_str.Len()).Cat(temp_str)));
+				(temp_buf = 0).Cat(qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatDiv('X', 1).Cat(price, SFMT_MONEY);
+				THROW(SetFR(StringForPrinting, (prn_str = 0).CatCharN(' ', CheckStrLen - temp_buf.Len()).Cat(temp_buf)));
 				THROW(ExecFRPrintOper(PrintString));
 			}
-			(temp_str = 0).CatEq(0, qtty * price, SFMT_MONEY);
-			THROW(SetFR(StringForPrinting, (prn_str = 0).CatCharN(' ', CheckStrLen - temp_str.Len()).Cat(temp_str)));
+			(temp_buf = 0).CatEq(0, qtty * price, SFMT_MONEY);
+			THROW(SetFR(StringForPrinting, (prn_str = 0).CatCharN(' ', CheckStrLen - temp_buf.Len()).Cat(temp_buf)));
 			THROW(ExecFRPrintOper(PrintString));
 		}
 		THROW(PrintDiscountInfo(pPack, flags));
 		THROW(SetFR(StringForPrinting, (prn_str = 0).CatCharN('=', CheckStrLen)));
 		THROW(ExecFRPrintOper(PrintString));
-		(temp_str = 0).CatEq(0, fabs(MONEYTOLDBL(pPack->Rec.Amount)), SFMT_MONEY);
-		prn_str = "ÈÒÎÃ"; // @cstr #12
-		prn_str.CatCharN(' ', CheckStrLen / 2 - prn_str.Len() - temp_str.Len()).Cat(temp_str);
+		(temp_buf = 0).CatEq(0, fabs(MONEYTOLDBL(pPack->Rec.Amount)), SFMT_MONEY);
+		// @v9.7.1 prn_str = "ÈÒÎÃ"; // @cstr #12
+		PPLoadText(PPTXT_CCFMT_TOTAL, prn_str); // @v9.7.1 
+		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
+		prn_str.CatCharN(' ', CheckStrLen / 2 - prn_str.Len() - temp_buf.Len()).Cat(temp_buf);
 		THROW(SetFR(StringForPrinting, prn_str));
 		THROW(ExecFRPrintOper(PrintWideString));
 	}
@@ -1731,16 +1775,17 @@ int SLAPI SCS_SHTRIHFRF::SetupTables()
 {
 	int     ok = 1;
 	long    cshr_pssw;
-	SString cshr_name, cshr_str;
-	if(GetCurUserPerson(0, &cshr_name) == -1) {
+	SString temp_buf;//cshr_name;
+	SString cshr_str;
+	if(GetCurUserPerson(0, &temp_buf) == -1) {
 		PPObjSecur sec_obj(PPOBJ_USR, 0);
 		PPSecur sec_rec;
 		if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
-			cshr_name = sec_rec.Name;
+			temp_buf = sec_rec.Name;
 	}
 	// @v9.2.1 PPGetWord(PPWORD_CASHIER, 0, cshr_str);
 	PPLoadString("cashier", cshr_str); // @v9.2.1
-	cshr_str.Space().Cat(cshr_name).Transf(CTRANSF_INNER_TO_OUTER);
+	cshr_str.Space().Cat(temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
 	// Ïîëó÷àåì ïàðîëü êàññèðà
 	THROW(ReadValueFromTbl(FRCASHIER_TBL, FRCASHIER_ROW, FRCASHIER_FIELD_PSSW, &cshr_pssw));
 	// Ïðèõîäèòñÿ ïðîâåðÿòü íåçàêðûòûé ÷åê, èíà÷å íå óäàñòñÿ çàïèñàòü èìÿ êàññèðà
@@ -1751,8 +1796,7 @@ int SLAPI SCS_SHTRIHFRF::SetupTables()
 	// Èìÿ êàññèðà
 	THROW(WriteStringToTbl(FRCASHIER_TBL, FRCASHIER_ROW, FRCASHIER_FIELD_NAME, cshr_str));
 	// Èìÿ àäìèíèñòðàòîðà
-	THROW(WriteStringToTbl(FRCASHIER_TBL, FRCASHIER_ADMINROW, FRCASHIER_FIELD_NAME,
-		AdmName.NotEmpty() ? AdmName : cshr_str));
+	THROW(WriteStringToTbl(FRCASHIER_TBL, FRCASHIER_ADMINROW, FRCASHIER_FIELD_NAME, AdmName.NotEmpty() ? AdmName : cshr_str));
 	// Íàñòðîéêè ðåæèìà ðàáîòû êàññû
 	//    Óñòàíîâèòü àâòîìàòè÷åñêîå îáíóëåíèå íàëè÷íîñòè
 	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, FRCASHMODE_AUTOCASHNULL, 1));
@@ -1763,14 +1807,14 @@ int SLAPI SCS_SHTRIHFRF::SetupTables()
 	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW,
 		(DeviceType == devtypeCombo || DeviceType == devtypeMini) ? COMBOCASHMODE_CUTTING : FRCASHMODE_CUTTING, 0));
 	//    Óñòàíîâèòü èñïîëüçîâàíèå âåñîâûõ äàò÷èêîâ
-	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
-		DeviceType == devtypeMini) ? COMBOCASHMODE_USEWGHTSENSOR : FRCASHMODE_USEWGHTSENSOR, BIN(Flags & sfUseWghtSensor)));
+	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, oneof2(DeviceType, devtypeCombo, devtypeMini) ? 
+		COMBOCASHMODE_USEWGHTSENSOR : FRCASHMODE_USEWGHTSENSOR, BIN(Flags & sfUseWghtSensor)));
 	//    Óñòàíîâèòü àâòîìàòè÷åñêèé ïåðåâîä âðåìåíè
 	//THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
 	//	DeviceType == devtypeMini) ? COMBOCASHMODE_AUTOTIMING : FRCASHMODE_AUTOTIMING, 1));
 	//    Íå ñîõðàíÿòü ñòðîêè â áóôåðå ÷åêà
-	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
-		DeviceType == devtypeMini) ? COMBOCASHMODE_SAVESTRING : FRCASHMODE_SAVESTRING, 0));
+	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, oneof2(DeviceType, devtypeCombo, devtypeMini) ? 
+		COMBOCASHMODE_SAVESTRING : FRCASHMODE_SAVESTRING, 0));
 	/*    Ñîâðåìåííûå âåðñèè Øòðèõà çàïðåùàþò ðåäàêòèðîâàíèå òàáëèöû ïåðåâîäà âðåìåíè
 	THROW(ReadValueFromTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
 		DeviceType == devtypeMini) ? COMBOCASHMODE_AUTOTIMING : FRCASHMODE_AUTOTIMING, &auto_timing));
@@ -1798,8 +1842,15 @@ int SLAPI SCS_SHTRIHFRF::SetupTables()
 			DeviceType == devtypeMini) ? COMBOCASHMODE_AUTOTIMING : FRCASHMODE_AUTOTIMING, 1));
 	}
 	*/
+	//
 	// Íàèìåíîâàíèÿ òèïîâ îïëàò
-	THROW(WriteStringToTbl(FRPAYMTYPE_TBL, 2, FRPAYMTYPE_NAME, "ÁÅÇÍÀËÈ×ÍÀß ÎÏËÀÒÀ")); // @cstr #13
+	//
+	{
+		// @v9.7.1 temp_buf = "ÁÅÇÍÀËÈ×ÍÀß ÎÏËÀÒÀ"; // @cstr #13
+		PPLoadText(PPTXT_CCFMT_CASHLESSPAYM, temp_buf); // @v9.7.1 
+		temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
+		THROW(WriteStringToTbl(FRPAYMTYPE_TBL, 2, FRPAYMTYPE_NAME, temp_buf)); 
+	}
 	THROW(WriteStringToTbl(FRPAYMTYPE_TBL, 3, FRPAYMTYPE_NAME, ""));
 	THROW(WriteStringToTbl(FRPAYMTYPE_TBL, 4, FRPAYMTYPE_NAME, ""));
 	// Ôîðìàò ÷åêà
@@ -2089,16 +2140,21 @@ void SLAPI SCS_SHTRIHFRF::SetErrorMessage()
 {
 	char   err_buf[MAXPATH];
 	memzero(err_buf, sizeof(err_buf));
-	if((Flags & sfConnected) && ResCode != RESCODE_NO_ERROR && GetFR(ResultCodeDescription, err_buf, sizeof(err_buf) - 1) > 0) {
+	if((Flags & sfConnected) && ResCode != RESCODE_NO_ERROR && GetFR(ResultCodeDescription, err_buf, sizeof(err_buf)-1) > 0) {
 		SString err_msg;
 		err_msg.Cat(err_buf);
 		if(ResCode == RESCODE_MODE_OFF && ExecFR(GetECRStatus) > 0) {
 			char mode_descr[MAXPATH];
 			memzero(mode_descr, sizeof(mode_descr));
-			if(GetFR(ECRModeDescription, mode_descr, sizeof(mode_descr) - 1) > 0)
-				err_msg.CR().Cat("\003Ðåæèì: ").Cat(mode_descr); // @cstr
+			if(GetFR(ECRModeDescription, mode_descr, sizeof(mode_descr) - 1) > 0) {
+				SString temp_buf;
+				// @v9.7.1 temp_buf = "Ðåæèì"; // @cstr
+				PPLoadText(PPTXT_CCFMT_MODE, temp_buf); // @v9.7.1 
+				temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
+				err_msg.CR().CatChar('\003').Cat(temp_buf).CatDiv(':', 2).Cat(mode_descr); 
+			}
 		}
-		err_msg.ToOem();
+		err_msg.Transf(CTRANSF_OUTER_TO_INNER);
 		PPSetError(PPERR_SYNCCASH, err_msg);
 	}
 }

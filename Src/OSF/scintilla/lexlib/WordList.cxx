@@ -8,9 +8,9 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include <algorithm>
+//#include <algorithm>
+//#include "WordList.h"
 #include "StringCopy.h"
-#include "WordList.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -62,8 +62,7 @@ static char ** ArrayFromWordList(char * wordlist, int * len, bool onlyLineEnds =
 	return keywords;
 }
 
-WordList::WordList(bool onlyLineEnds_) :
-	words(0), list(0), len(0), onlyLineEnds(onlyLineEnds_)
+WordList::WordList(bool onlyLineEnds_) : words(0), list(0), len(0), onlyLineEnds(onlyLineEnds_)
 {
 	// Prevent warnings by static analyzers about uninitialized starts.
 	starts[0] = -1;
@@ -251,55 +250,52 @@ bool WordList::InListAbbreviated(const char * s, const char marker) const
  */
 bool WordList::InListAbridged(const char * s, const char marker) const
 {
-	if(0 == words)
-		return false;
-	uchar firstChar = s[0];
-	int j = starts[firstChar];
-	if(j >= 0) {
-		while(static_cast<uchar>(words[j][0]) == firstChar) {
-			const char * a = words[j];
-			const char * b = s;
-			while(*a && *a == *b) {
-				a++;
-				if(*a == marker) {
+	if(words) {
+		uchar firstChar = s[0];
+		int j = starts[firstChar];
+		if(j >= 0) {
+			while(static_cast<uchar>(words[j][0]) == firstChar) {
+				const char * a = words[j];
+				const char * b = s;
+				while(*a && *a == *b) {
 					a++;
-					const size_t suffixLengthA = strlen(a);
-					const size_t suffixLengthB = strlen(b);
-					if(suffixLengthA >= suffixLengthB)
-						break;
-					b = b + suffixLengthB - suffixLengthA - 1;
+					if(*a == marker) {
+						a++;
+						const size_t suffixLengthA = strlen(a);
+						const size_t suffixLengthB = strlen(b);
+						if(suffixLengthA >= suffixLengthB)
+							break;
+						b = b + suffixLengthB - suffixLengthA - 1;
+					}
+					b++;
 				}
-				b++;
-			}
-			if(!*a  && !*b)
-				return true;
-			j++;
-		}
-	}
-
-	j = starts[static_cast<uint>(marker)];
-	if(j >= 0) {
-		while(words[j][0] == marker) {
-			const char * a = words[j] + 1;
-			const char * b = s;
-			const size_t suffixLengthA = strlen(a);
-			const size_t suffixLengthB = strlen(b);
-			if(suffixLengthA > suffixLengthB) {
+				if(!*a  && !*b)
+					return true;
 				j++;
-				continue;
 			}
-			b = b + suffixLengthB - suffixLengthA;
-
-			while(*a && *a == *b) {
-				a++;
-				b++;
+		}
+		j = starts[static_cast<uint>(marker)];
+		if(j >= 0) {
+			while(words[j][0] == marker) {
+				const char * a = words[j] + 1;
+				const char * b = s;
+				const size_t suffixLengthA = strlen(a);
+				const size_t suffixLengthB = strlen(b);
+				if(suffixLengthA > suffixLengthB) {
+					j++;
+					continue;
+				}
+				b = b + suffixLengthB - suffixLengthA;
+				while(*a && *a == *b) {
+					a++;
+					b++;
+				}
+				if(!*a && !*b)
+					return true;
+				j++;
 			}
-			if(!*a && !*b)
-				return true;
-			j++;
 		}
 	}
-
 	return false;
 }
 

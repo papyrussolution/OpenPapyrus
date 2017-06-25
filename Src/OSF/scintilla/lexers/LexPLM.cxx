@@ -5,9 +5,9 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include "ILexer.h"
-#include "SciLexer.h"
-#include "WordList.h"
+//#include "ILexer.h"
+//#include "SciLexer.h"
+//#include "WordList.h"
 #include "LexAccessor.h"
 #include "Accessor.h"
 #include "StyleContext.h"
@@ -19,12 +19,13 @@ using namespace Scintilla;
 #endif
 
 static void GetRange(Sci_PositionU start,
-                     Sci_PositionU end,
-                     Accessor &styler,
-                     char *s,
-                     Sci_PositionU len) {
+    Sci_PositionU end,
+    Accessor &styler,
+    char * s,
+    Sci_PositionU len)
+{
 	Sci_PositionU i = 0;
-	while ((i < end - start + 1) && (i < len-1)) {
+	while((i < end - start + 1) && (i < len-1)) {
 		s[i] = static_cast<char>(tolower(styler[start + i]));
 		i++;
 	}
@@ -32,10 +33,10 @@ static void GetRange(Sci_PositionU start,
 }
 
 static void ColourisePlmDoc(Sci_PositionU startPos,
-                            Sci_Position length,
-                            int initStyle,
-                            WordList *keywordlists[],
-                            Accessor &styler)
+    Sci_Position length,
+    int initStyle,
+    WordList * keywordlists[],
+    Accessor &styler)
 {
 	Sci_PositionU endPos = startPos + length;
 	int state = initStyle;
@@ -43,74 +44,85 @@ static void ColourisePlmDoc(Sci_PositionU startPos,
 	styler.StartAt(startPos);
 	styler.StartSegment(startPos);
 
-	for (Sci_PositionU i = startPos; i < endPos; i++) {
+	for(Sci_PositionU i = startPos; i < endPos; i++) {
 		char ch = styler.SafeGetCharAt(i);
 		char chNext = styler.SafeGetCharAt(i + 1);
-
-		if (state == SCE_PLM_DEFAULT) {
-			if (ch == '/' && chNext == '*') {
+		if(state == SCE_PLM_DEFAULT) {
+			if(ch == '/' && chNext == '*') {
 				styler.ColourTo(i - 1, state);
 				state = SCE_PLM_COMMENT;
-			} else if (ch == '\'') {
+			}
+			else if(ch == '\'') {
 				styler.ColourTo(i - 1, state);
 				state = SCE_PLM_STRING;
-			} else if (isdigit(ch)) {
+			}
+			else if(isdigit(ch)) {
 				styler.ColourTo(i - 1, state);
 				state = SCE_PLM_NUMBER;
-			} else if (isalpha(ch)) {
+			}
+			else if(isalpha(ch)) {
 				styler.ColourTo(i - 1, state);
 				state = SCE_PLM_IDENTIFIER;
-			} else if (ch == '+' || ch == '-' || ch == '*' || ch == '/' ||
-			           ch == '=' || ch == '<' || ch == '>' || ch == ':') {
+			}
+			else if(ch == '+' || ch == '-' || ch == '*' || ch == '/' ||
+			    ch == '=' || ch == '<' || ch == '>' || ch == ':') {
 				styler.ColourTo(i - 1, state);
 				state = SCE_PLM_OPERATOR;
-			} else if (ch == '$') {
+			}
+			else if(ch == '$') {
 				styler.ColourTo(i - 1, state);
 				state = SCE_PLM_CONTROL;
 			}
-		} else if (state == SCE_PLM_COMMENT) {
-			if (ch == '*' && chNext == '/') {
+		}
+		else if(state == SCE_PLM_COMMENT) {
+			if(ch == '*' && chNext == '/') {
 				i++;
 				styler.ColourTo(i, state);
 				state = SCE_PLM_DEFAULT;
 			}
-		} else if (state == SCE_PLM_STRING) {
-			if (ch == '\'') {
-				if (chNext == '\'') {
+		}
+		else if(state == SCE_PLM_STRING) {
+			if(ch == '\'') {
+				if(chNext == '\'') {
 					i++;
-				} else {
+				}
+				else {
 					styler.ColourTo(i, state);
 					state = SCE_PLM_DEFAULT;
 				}
 			}
-		} else if (state == SCE_PLM_NUMBER) {
-			if (!isdigit(ch) && !isalpha(ch) && ch != '$') {
+		}
+		else if(state == SCE_PLM_NUMBER) {
+			if(!isdigit(ch) && !isalpha(ch) && ch != '$') {
 				i--;
 				styler.ColourTo(i, state);
 				state = SCE_PLM_DEFAULT;
 			}
-		} else if (state == SCE_PLM_IDENTIFIER) {
-			if (!isdigit(ch) && !isalpha(ch) && ch != '$') {
+		}
+		else if(state == SCE_PLM_IDENTIFIER) {
+			if(!isdigit(ch) && !isalpha(ch) && ch != '$') {
 				// Get the entire identifier.
 				char word[1024];
 				Sci_Position segmentStart = styler.GetStartSegment();
 				GetRange(segmentStart, i - 1, styler, word, sizeof(word));
 
 				i--;
-				if (keywordlists[0]->InList(word))
+				if(keywordlists[0]->InList(word))
 					styler.ColourTo(i, SCE_PLM_KEYWORD);
 				else
 					styler.ColourTo(i, state);
 				state = SCE_PLM_DEFAULT;
 			}
-		} else if (state == SCE_PLM_OPERATOR) {
-			if (ch != '=' && ch != '>') {
+		}
+		else if(state == SCE_PLM_OPERATOR) {
+			if(ch != '=' && ch != '>') {
 				i--;
 				styler.ColourTo(i, state);
 				state = SCE_PLM_DEFAULT;
 			}
-		} else if (state == SCE_PLM_CONTROL) {
-			if (ch == '\r' || ch == '\n') {
+		}
+		else if(state == SCE_PLM_CONTROL) {
+			if(ch == '\r' || ch == '\n') {
 				styler.ColourTo(i - 1, state);
 				state = SCE_PLM_DEFAULT;
 			}
@@ -120,10 +132,10 @@ static void ColourisePlmDoc(Sci_PositionU startPos,
 }
 
 static void FoldPlmDoc(Sci_PositionU startPos,
-                       Sci_Position length,
-                       int initStyle,
-                       WordList *[],
-                       Accessor &styler)
+    Sci_Position length,
+    int initStyle,
+    WordList *[],
+    Accessor &styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
@@ -137,7 +149,7 @@ static void FoldPlmDoc(Sci_PositionU startPos,
 	int style = initStyle;
 	Sci_Position startKeyword = 0;
 
-	for (Sci_PositionU i = startPos; i < endPos; i++) {
+	for(Sci_PositionU i = startPos; i < endPos; i++) {
 		char ch = chNext;
 		chNext = styler.SafeGetCharAt(i + 1);
 		int stylePrev = style;
@@ -145,33 +157,33 @@ static void FoldPlmDoc(Sci_PositionU startPos,
 		styleNext = styler.StyleAt(i + 1);
 		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
 
-		if (stylePrev != SCE_PLM_KEYWORD && style == SCE_PLM_KEYWORD)
+		if(stylePrev != SCE_PLM_KEYWORD && style == SCE_PLM_KEYWORD)
 			startKeyword = i;
 
-		if (style == SCE_PLM_KEYWORD && styleNext != SCE_PLM_KEYWORD) {
+		if(style == SCE_PLM_KEYWORD && styleNext != SCE_PLM_KEYWORD) {
 			char word[1024];
 			GetRange(startKeyword, i, styler, word, sizeof(word));
 
-			if (strcmp(word, "procedure") == 0 || strcmp(word, "do") == 0)
+			if(strcmp(word, "procedure") == 0 || strcmp(word, "do") == 0)
 				levelCurrent++;
-			else if (strcmp(word, "end") == 0)
+			else if(strcmp(word, "end") == 0)
 				levelCurrent--;
 		}
 
-		if (foldComment) {
-			if (stylePrev != SCE_PLM_COMMENT && style == SCE_PLM_COMMENT)
+		if(foldComment) {
+			if(stylePrev != SCE_PLM_COMMENT && style == SCE_PLM_COMMENT)
 				levelCurrent++;
-			else if (stylePrev == SCE_PLM_COMMENT && style != SCE_PLM_COMMENT)
+			else if(stylePrev == SCE_PLM_COMMENT && style != SCE_PLM_COMMENT)
 				levelCurrent--;
 		}
 
-		if (atEOL) {
+		if(atEOL) {
 			int lev = levelPrev;
-			if (visibleChars == 0 && foldCompact)
+			if(visibleChars == 0 && foldCompact)
 				lev |= SC_FOLDLEVELWHITEFLAG;
-			if ((levelCurrent > levelPrev) && (visibleChars > 0))
+			if((levelCurrent > levelPrev) && (visibleChars > 0))
 				lev |= SC_FOLDLEVELHEADERFLAG;
-			if (lev != styler.LevelAt(lineCurrent)) {
+			if(lev != styler.LevelAt(lineCurrent)) {
 				styler.SetLevel(lineCurrent, lev);
 			}
 			lineCurrent++;
@@ -179,7 +191,7 @@ static void FoldPlmDoc(Sci_PositionU startPos,
 			visibleChars = 0;
 		}
 
-		if (!isspacechar(ch))
+		if(!isspacechar(ch))
 			visibleChars++;
 	}
 
@@ -187,7 +199,7 @@ static void FoldPlmDoc(Sci_PositionU startPos,
 	styler.SetLevel(lineCurrent, levelPrev | flagsNext);
 }
 
-static const char *const plmWordListDesc[] = {
+static const char * const plmWordListDesc[] = {
 	"Keywords",
 	0
 };

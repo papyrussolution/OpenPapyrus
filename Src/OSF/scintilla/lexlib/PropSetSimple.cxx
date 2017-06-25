@@ -1,7 +1,7 @@
 // SciTE - Scintilla based Text Editor
 /** @file PropSetSimple.cxx
- ** A Java style properties file module.
- **/
+** A Java style properties file module.
+**/
 // Copyright 1998-2010 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -10,9 +10,9 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include <string>
-#include <map>
-#include "PropSetSimple.h"
+//#include <string>
+//#include <map>
+//#include "PropSetSimple.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -20,50 +20,57 @@ using namespace Scintilla;
 
 typedef std::map<std::string, std::string> mapss;
 
-PropSetSimple::PropSetSimple() {
-	mapss *props = new mapss;
+PropSetSimple::PropSetSimple()
+{
+	mapss * props = new mapss;
 	impl = static_cast<void *>(props);
 }
 
-PropSetSimple::~PropSetSimple() {
-	mapss *props = static_cast<mapss *>(impl);
+PropSetSimple::~PropSetSimple()
+{
+	mapss * props = static_cast<mapss *>(impl);
 	delete props;
 	impl = 0;
 }
 
-void PropSetSimple::Set(const char *key, const char *val, int lenKey, int lenVal) {
-	mapss *props = static_cast<mapss *>(impl);
-	if (!*key)	// Empty keys are not supported
+void PropSetSimple::Set(const char * key, const char * val, int lenKey, int lenVal)
+{
+	mapss * props = static_cast<mapss *>(impl);
+	if(!*key)       // Empty keys are not supported
 		return;
-	if (lenKey == -1)
+	if(lenKey == -1)
 		lenKey = static_cast<int>(strlen(key));
-	if (lenVal == -1)
+	if(lenVal == -1)
 		lenVal = static_cast<int>(strlen(val));
 	(*props)[std::string(key, lenKey)] = std::string(val, lenVal);
 }
 
-static bool IsASpaceCharacter(uint ch) {
-    return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
+static bool IsASpaceCharacter(uint ch)
+{
+	return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
 }
 
-void PropSetSimple::Set(const char *keyVal) {
-	while (IsASpaceCharacter(*keyVal))
+void PropSetSimple::Set(const char * keyVal)
+{
+	while(IsASpaceCharacter(*keyVal))
 		keyVal++;
-	const char *endVal = keyVal;
-	while (*endVal && (*endVal != '\n'))
+	const char * endVal = keyVal;
+	while(*endVal && (*endVal != '\n'))
 		endVal++;
-	const char *eqAt = strchr(keyVal, '=');
-	if (eqAt) {
+	const char * eqAt = strchr(keyVal, '=');
+	if(eqAt) {
 		Set(keyVal, eqAt + 1, static_cast<int>(eqAt-keyVal),
-			static_cast<int>(endVal - eqAt - 1));
-	} else if (*keyVal) {	// No '=' so assume '=1'
+		    static_cast<int>(endVal - eqAt - 1));
+	}
+	else if(*keyVal) {      // No '=' so assume '=1'
 		Set(keyVal, "1", static_cast<int>(endVal-keyVal), 1);
 	}
 }
 
-void PropSetSimple::SetMultiple(const char *s) {
-	const char *eol = strchr(s, '\n');
-	while (eol) {
+void PropSetSimple::SetMultiple(const char * s)
+{
+	const char * eol = strchr(s, '\n');
+	while(eol) {
 		Set(s);
 		s = eol + 1;
 		eol = strchr(s, '\n');
@@ -71,12 +78,14 @@ void PropSetSimple::SetMultiple(const char *s) {
 	Set(s);
 }
 
-const char *PropSetSimple::Get(const char *key) const {
-	mapss *props = static_cast<mapss *>(impl);
+const char * PropSetSimple::Get(const char * key) const
+{
+	mapss * props = static_cast<mapss *>(impl);
 	mapss::const_iterator keyPos = props->find(std::string(key));
-	if (keyPos != props->end()) {
+	if(keyPos != props->end()) {
 		return keyPos->second.c_str();
-	} else {
+	}
+	else {
 		return "";
 	}
 }
@@ -87,68 +96,65 @@ const char *PropSetSimple::Get(const char *key) const {
 // for that, through a recursive function and a simple chain of pointers.
 
 struct VarChain {
-	VarChain(const char *var_=NULL, const VarChain *link_=NULL): var(var_), link(link_) {}
-
-	bool contains(const char *testVar) const {
-		return (var && (0 == strcmp(var, testVar)))
-			|| (link && link->contains(testVar));
+	VarChain(const char * var_ = NULL, const VarChain * link_ = NULL) : var(var_), link(link_)
+	{
 	}
-
-	const char *var;
-	const VarChain *link;
+	bool contains(const char * testVar) const
+	{
+		return (var && (0 == strcmp(var, testVar))) || (link && link->contains(testVar));
+	}
+	const char * var;
+	const VarChain * link;
 };
 
-static int ExpandAllInPlace(const PropSetSimple &props, std::string &withVars, int maxExpands, const VarChain &blankVars) {
+static int ExpandAllInPlace(const PropSetSimple &props, std::string &withVars, int maxExpands, const VarChain &blankVars)
+{
 	size_t varStart = withVars.find("$(");
-	while ((varStart != std::string::npos) && (maxExpands > 0)) {
+	while((varStart != std::string::npos) && (maxExpands > 0)) {
 		size_t varEnd = withVars.find(")", varStart+2);
-		if (varEnd == std::string::npos) {
+		if(varEnd == std::string::npos) {
 			break;
 		}
-
 		// For consistency, when we see '$(ab$(cde))', expand the inner variable first,
 		// regardless whether there is actually a degenerate variable named 'ab$(cde'.
 		size_t innerVarStart = withVars.find("$(", varStart+2);
-		while ((innerVarStart != std::string::npos) && (innerVarStart > varStart) && (innerVarStart < varEnd)) {
+		while((innerVarStart != std::string::npos) && (innerVarStart > varStart) && (innerVarStart < varEnd)) {
 			varStart = innerVarStart;
 			innerVarStart = withVars.find("$(", varStart+2);
 		}
-
 		std::string var(withVars.c_str(), varStart + 2, varEnd - varStart - 2);
 		std::string val = props.Get(var.c_str());
-
-		if (blankVars.contains(var.c_str())) {
+		if(blankVars.contains(var.c_str())) {
 			val = ""; // treat blankVar as an empty string (e.g. to block self-reference)
 		}
-
-		if (--maxExpands >= 0) {
+		if(--maxExpands >= 0) {
 			maxExpands = ExpandAllInPlace(props, val, maxExpands, VarChain(var.c_str(), &blankVars));
 		}
-
 		withVars.erase(varStart, varEnd-varStart+1);
 		withVars.insert(varStart, val.c_str(), val.length());
-
 		varStart = withVars.find("$(");
 	}
-
 	return maxExpands;
 }
 
-int PropSetSimple::GetExpanded(const char *key, char *result) const {
+int PropSetSimple::GetExpanded(const char * key, char * result) const
+{
 	std::string val = Get(key);
 	ExpandAllInPlace(*this, val, 100, VarChain(key));
 	const int n = static_cast<int>(val.size());
-	if (result) {
+	if(result) {
 		memcpy(result, val.c_str(), n+1);
 	}
-	return n;	// Not including NUL
+	return n;       // Not including NUL
 }
 
-int PropSetSimple::GetInt(const char *key, int defaultValue) const {
+int PropSetSimple::GetInt(const char * key, int defaultValue) const
+{
 	std::string val = Get(key);
 	ExpandAllInPlace(*this, val, 100, VarChain(key));
-	if (!val.empty()) {
+	if(!val.empty()) {
 		return atoi(val.c_str());
 	}
 	return defaultValue;
 }
+

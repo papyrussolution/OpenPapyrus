@@ -215,7 +215,6 @@ struct _cairo_color {
     double green;
     double blue;
     double alpha;
-
     ushort red_short;
     ushort green_short;
     ushort blue_short;
@@ -228,7 +227,6 @@ struct _cairo_color_stop {
     double green;
     double blue;
     double alpha;
-
     // unpremultipled, for convenience 
     uint16_t red_short;
     uint16_t green_short;
@@ -301,9 +299,10 @@ typedef struct _cairo_trapezoid {
 	cairo_line_t right;
 } cairo_trapezoid_t;
 
-typedef struct _cairo_point_int {
-    int x, y;
-} cairo_point_int_t;
+/* @sobolev (unused) typedef struct _cairo_point_int {
+    int    x;
+	int    y;
+} cairo_point_int_t;*/
 
 #define CAIRO_RECT_INT_MIN (INT_MIN >> CAIRO_FIXED_FRAC_BITS)
 #define CAIRO_RECT_INT_MAX (INT_MAX >> CAIRO_FIXED_FRAC_BITS)

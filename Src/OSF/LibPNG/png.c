@@ -143,11 +143,9 @@ int png_user_version_check(png_structrp png_ptr, const char * user_png_ver)
 	 * string matches through the second '.'; we must recompile any
 	 * applications that use any older library version.
 	 */
-
 	if(user_png_ver != NULL) {
 		int i = -1;
 		int found_dots = 0;
-
 		do {
 			i++;
 			if(user_png_ver[i] != PNG_LIBPNG_VER_STRING[i])

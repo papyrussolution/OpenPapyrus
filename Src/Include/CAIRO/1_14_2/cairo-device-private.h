@@ -45,21 +45,16 @@ struct _cairo_device {
     cairo_reference_count_t ref_count;
     cairo_status_t status;
     cairo_user_data_array_t user_data;
-
     const cairo_device_backend_t *backend;
-
     cairo_recursive_mutex_t mutex;
     unsigned mutex_depth;
-
     cairo_bool_t finished;
 };
 
 struct _cairo_device_backend {
     cairo_device_type_t type;
-
     void (*lock) (void *device);
     void (*unlock) (void *device);
-
     cairo_warn cairo_status_t (*flush) (void *device);
     void (*finish) (void *device);
     void (*destroy) (void *device);

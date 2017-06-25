@@ -31,13 +31,13 @@ class MarkerHandleSet {
 public:
 	MarkerHandleSet();
 	~MarkerHandleSet();
-	int Length() const;
-	int MarkValue() const;	///< Bit set of marker numbers.
-	bool Contains(int handle) const;
-	bool InsertHandle(int handle, int markerNum);
-	void RemoveHandle(int handle);
-	bool RemoveNumber(int markerNum, bool all);
-	void CombineWith(MarkerHandleSet *other);
+	int    Length() const;
+	int    MarkValue() const;	///< Bit set of marker numbers.
+	bool   FASTCALL Contains(int handle) const;
+	bool   InsertHandle(int handle, int markerNum);
+	void   RemoveHandle(int handle);
+	bool   RemoveNumber(int markerNum, bool all);
+	void   CombineWith(MarkerHandleSet *other);
 };
 
 class LineMarkers : public PerLine {
@@ -52,13 +52,13 @@ public:
 	virtual void InsertLine(int line);
 	virtual void RemoveLine(int line);
 
-	int MarkValue(int line);
-	int MarkerNext(int lineStart, int mask) const;
-	int AddMark(int line, int marker, int lines);
-	void MergeMarkers(int pos);
-	bool DeleteMark(int line, int markerNum, bool all);
-	void DeleteMarkFromHandle(int markerHandle);
-	int LineFromHandle(int markerHandle);
+	int    MarkValue(int line);
+	int    MarkerNext(int lineStart, int mask) const;
+	int    AddMark(int line, int marker, int lines);
+	void   MergeMarkers(int pos);
+	bool   DeleteMark(int line, int markerNum, bool all);
+	void   DeleteMarkFromHandle(int markerHandle);
+	int    FASTCALL LineFromHandle(int markerHandle);
 };
 
 class LineLevels : public PerLine {
@@ -78,16 +78,16 @@ public:
 class LineState : public PerLine {
 	SplitVector<int> lineStates;
 public:
-	LineState() {
+	LineState() 
+	{
 	}
 	virtual ~LineState();
 	virtual void Init();
 	virtual void InsertLine(int line);
 	virtual void RemoveLine(int line);
-
-	int SetLineState(int line, int state);
-	int GetLineState(int line);
-	int GetMaxLineState() const;
+	int    SetLineState(int line, int state);
+	int    FASTCALL GetLineState(int line);
+	int    GetMaxLineState() const;
 };
 
 class LineAnnotation : public PerLine {

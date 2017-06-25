@@ -39,82 +39,66 @@
 #include "cairo-compiler-private.h"
 #include "cairo-fixed-private.h"
 
-static inline void
-_cairo_box_set (cairo_box_t *box,
-		const cairo_point_t *p1,
-		const cairo_point_t *p2)
+static inline void _cairo_box_set(cairo_box_t * box, const cairo_point_t * p1, const cairo_point_t * p2)
 {
-    box->p1 = *p1;
-    box->p2 = *p2;
+	box->p1 = *p1;
+	box->p2 = *p2;
 }
 
-static inline void
-_cairo_box_from_integers (cairo_box_t *box, int x, int y, int w, int h)
+static inline void _cairo_box_from_integers(cairo_box_t * box, int x, int y, int w, int h)
 {
-    box->p1.x = _cairo_fixed_from_int (x);
-    box->p1.y = _cairo_fixed_from_int (y);
-    box->p2.x = _cairo_fixed_from_int (x + w);
-    box->p2.y = _cairo_fixed_from_int (y + h);
+	box->p1.x = _cairo_fixed_from_int(x);
+	box->p1.y = _cairo_fixed_from_int(y);
+	box->p2.x = _cairo_fixed_from_int(x + w);
+	box->p2.y = _cairo_fixed_from_int(y + h);
 }
 
 /* assumes box->p1 is top-left, p2 bottom-right */
-static inline void
-_cairo_box_add_point (cairo_box_t *box,
-		      const cairo_point_t *point)
+static inline void _cairo_box_add_point(cairo_box_t * box, const cairo_point_t * point)
 {
-    if (point->x < box->p1.x)
-	box->p1.x = point->x;
-    else if (point->x > box->p2.x)
-	box->p2.x = point->x;
-
-    if (point->y < box->p1.y)
-	box->p1.y = point->y;
-    else if (point->y > box->p2.y)
-	box->p2.y = point->y;
+	if(point->x < box->p1.x)
+		box->p1.x = point->x;
+	else if(point->x > box->p2.x)
+		box->p2.x = point->x;
+	if(point->y < box->p1.y)
+		box->p1.y = point->y;
+	else if(point->y > box->p2.y)
+		box->p2.y = point->y;
 }
 
-static inline void
-_cairo_box_add_box (cairo_box_t *box,
-		    const cairo_box_t *add)
+static inline void _cairo_box_add_box(cairo_box_t * box, const cairo_box_t * add)
 {
-    if (add->p1.x < box->p1.x)
-	box->p1.x = add->p1.x;
-    if (add->p2.x > box->p2.x)
-	box->p2.x = add->p2.x;
-
-    if (add->p1.y < box->p1.y)
-	box->p1.y = add->p1.y;
-    if (add->p2.y > box->p2.y)
-	box->p2.y = add->p2.y;
+	if(add->p1.x < box->p1.x)
+		box->p1.x = add->p1.x;
+	if(add->p2.x > box->p2.x)
+		box->p2.x = add->p2.x;
+	if(add->p1.y < box->p1.y)
+		box->p1.y = add->p1.y;
+	if(add->p2.y > box->p2.y)
+		box->p2.y = add->p2.y;
+}
+//
+// assumes box->p1 is top-left, p2 bottom-right 
+//
+static inline cairo_bool_t _cairo_box_contains_point(const cairo_box_t * box, const cairo_point_t * point)
+{
+	return box->p1.x <= point->x  && point->x <= box->p2.x && box->p1.y <= point->y  && point->y <= box->p2.y;
 }
 
-/* assumes box->p1 is top-left, p2 bottom-right */
-static inline cairo_bool_t
-_cairo_box_contains_point (const cairo_box_t *box,
-			   const cairo_point_t *point)
-{
-    return box->p1.x <= point->x  && point->x <= box->p2.x &&
-	box->p1.y <= point->y  && point->y <= box->p2.y;
-}
-
-static inline cairo_bool_t
-_cairo_box_is_pixel_aligned (const cairo_box_t *box)
+static inline cairo_bool_t _cairo_box_is_pixel_aligned(const cairo_box_t * box)
 {
 #if CAIRO_FIXED_FRAC_BITS <= 8 && 0
-    return ((box->p1.x & CAIRO_FIXED_FRAC_MASK) << 24 |
+	return ((box->p1.x & CAIRO_FIXED_FRAC_MASK) << 24 |
 	    (box->p1.y & CAIRO_FIXED_FRAC_MASK) << 16 |
 	    (box->p2.x & CAIRO_FIXED_FRAC_MASK) << 8 |
 	    (box->p2.y & CAIRO_FIXED_FRAC_MASK) << 0) == 0;
 #else /* GCC on i7 prefers this variant (bizarrely according to the profiler) */
-    cairo_fixed_t f;
-
-    f = 0;
-    f |= box->p1.x & CAIRO_FIXED_FRAC_MASK;
-    f |= box->p1.y & CAIRO_FIXED_FRAC_MASK;
-    f |= box->p2.x & CAIRO_FIXED_FRAC_MASK;
-    f |= box->p2.y & CAIRO_FIXED_FRAC_MASK;
-
-    return f == 0;
+	cairo_fixed_t f = 0;
+	f |= box->p1.x & CAIRO_FIXED_FRAC_MASK;
+	f |= box->p1.y & CAIRO_FIXED_FRAC_MASK;
+	f |= box->p2.x & CAIRO_FIXED_FRAC_MASK;
+	f |= box->p2.y & CAIRO_FIXED_FRAC_MASK;
+	return f == 0;
 #endif
 }
 

@@ -102,9 +102,7 @@ typedef struct bio_dgram_data_st {
 	uint _errno;
 	uint mtu;
 	struct timeval next_timeout;
-
 	struct timeval socket_timeout;
-
 	uint peekmode;
 } bio_dgram_data;
 
@@ -121,11 +119,8 @@ typedef struct bio_dgram_sctp_data_st {
 	uint _errno;
 	uint mtu;
 	struct bio_dgram_sctp_sndinfo sndinfo;
-
 	struct bio_dgram_sctp_rcvinfo rcvinfo;
-
 	struct bio_dgram_sctp_prinfo prinfo;
-
 	void (* handle_notifications)(BIO * bio, void * context, void * buf);
 	void * notification_context;
 	int in_handshake;
@@ -144,9 +139,7 @@ const BIO_METHOD * BIO_s_datagram(void)
 
 BIO * BIO_new_dgram(int fd, int close_flag)
 {
-	BIO * ret;
-
-	ret = BIO_new(BIO_s_datagram());
+	BIO * ret = BIO_new(BIO_s_datagram());
 	if(ret == NULL)
 		return (NULL);
 	BIO_set_fd(ret, fd, close_flag);
@@ -165,15 +158,12 @@ static int dgram_new(BIO * bi)
 static int dgram_free(BIO * a)
 {
 	bio_dgram_data * data;
-
 	if(a == NULL)
 		return (0);
 	if(!dgram_clear(a))
 		return 0;
-
 	data = (bio_dgram_data*)a->ptr;
 	OPENSSL_free(data);
-
 	return (1);
 }
 
@@ -630,7 +620,6 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 #  ifdef OPENSSL_SYS_WINDOWS
 		    int timeout;
 		    struct timeval * tv = (struct timeval*)ptr;
-
 		    sz.i = sizeof(timeout);
 		    if(getsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, &sz.i) < 0) {
 			    perror("getsockopt");
@@ -643,8 +632,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    }
 #  else
 		    sz.i = sizeof(struct timeval);
-		    if(getsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO,
-				    ptr, (void*)&sz) < 0) {
+		    if(getsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, ptr, (void*)&sz) < 0) {
 			    perror("getsockopt");
 			    ret = -1;
 		    }
@@ -688,7 +676,6 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 #  ifdef OPENSSL_SYS_WINDOWS
 		    int timeout;
 		    struct timeval * tv = (struct timeval*)ptr;
-
 		    sz.i = sizeof(timeout);
 		    if(getsockopt(b->num, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, &sz.i) < 0) {
 			    perror("getsockopt");
@@ -760,9 +747,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 					ret = -1;
 				}
 # elif defined(OPENSSL_SYS_WINDOWS) && defined(IP_DONTFRAGMENT)
-				if((ret = setsockopt(b->num, IPPROTO_IP, IP_DONTFRAGMENT,
-					    (const char*)&sockopt_val,
-					    sizeof(sockopt_val))) < 0) {
+				if((ret = setsockopt(b->num, IPPROTO_IP, IP_DONTFRAGMENT, (const char*)&sockopt_val, sizeof(sockopt_val))) < 0) {
 					perror("setsockopt");
 					ret = -1;
 				}
@@ -773,9 +758,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 # if OPENSSL_USE_IPV6
 			    case AF_INET6:
 #  if defined(IPV6_DONTFRAG)
-				if((ret = setsockopt(b->num, IPPROTO_IPV6, IPV6_DONTFRAG,
-					    (const char*)&sockopt_val,
-					    sizeof(sockopt_val))) < 0) {
+				if((ret = setsockopt(b->num, IPPROTO_IPV6, IPV6_DONTFRAG, (const char*)&sockopt_val, sizeof(sockopt_val))) < 0) {
 					perror("setsockopt");
 					ret = -1;
 				}
@@ -811,10 +794,8 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 
 static int dgram_puts(BIO * bp, const char * str)
 {
-	int n, ret;
-
-	n = strlen(str);
-	ret = dgram_write(bp, str, n);
+	int n = strlen(str);
+	int ret = dgram_write(bp, str, n);
 	return (ret);
 }
 
@@ -1620,22 +1601,15 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 	return (ret);
 }
 
-int BIO_dgram_sctp_notification_cb(BIO * b,
-    void (* handle_notifications)(BIO * bio,
-	    void
-	    * context,
-	    void * buf),
-    void * context)
+int BIO_dgram_sctp_notification_cb(BIO * b, void (* handle_notifications)(BIO * bio, void * context, void * buf), void * context)
 {
 	bio_dgram_sctp_data * data = (bio_dgram_sctp_data*)b->ptr;
-
 	if(handle_notifications != NULL) {
 		data->handle_notifications = handle_notifications;
 		data->notification_context = context;
 	}
 	else
 		return -1;
-
 	return 0;
 }
 
@@ -1708,16 +1682,13 @@ int BIO_dgram_sctp_wait_for_dry(BIO * b)
 	msg.msg_control = NULL;
 	msg.msg_controllen = 0;
 	msg.msg_flags = 0;
-
 	n = recvmsg(b->num, &msg, MSG_PEEK);
 	if(n <= 0) {
-		if((n < 0) && (get_last_socket_error() != EAGAIN)
-		    && (get_last_socket_error() != EWOULDBLOCK))
+		if((n < 0) && (get_last_socket_error() != EAGAIN) && (get_last_socket_error() != EWOULDBLOCK))
 			return -1;
 		else
 			return 0;
 	}
-
 	/* if we find a notification, process it and try again if necessary */
 	while(msg.msg_flags & MSG_NOTIFICATION) {
 		memzero(&snp, sizeof(snp));
@@ -1730,7 +1701,6 @@ int BIO_dgram_sctp_wait_for_dry(BIO * b)
 		msg.msg_control = NULL;
 		msg.msg_controllen = 0;
 		msg.msg_flags = 0;
-
 		n = recvmsg(b->num, &msg, 0);
 		if(n <= 0) {
 			if((n < 0) && (get_last_socket_error() != EAGAIN)
@@ -1749,22 +1719,14 @@ int BIO_dgram_sctp_wait_for_dry(BIO * b)
 			event.se_assoc_id = 0;
 			event.se_type = SCTP_SENDER_DRY_EVENT;
 			event.se_on = 0;
-			ret =
-			    setsockopt(b->num, IPPROTO_SCTP, SCTP_EVENT, &event,
-			    sizeof(struct sctp_event));
+			ret = setsockopt(b->num, IPPROTO_SCTP, SCTP_EVENT, &event, sizeof(struct sctp_event));
 #  else
 			eventsize = (socklen_t)sizeof(struct sctp_event_subscribe);
-			ret =
-			    getsockopt(b->num, IPPROTO_SCTP, SCTP_EVENTS, &event,
-			    &eventsize);
+			ret = getsockopt(b->num, IPPROTO_SCTP, SCTP_EVENTS, &event, &eventsize);
 			if(ret < 0)
 				return -1;
-
 			event.sctp_sender_dry_event = 0;
-
-			ret =
-			    setsockopt(b->num, IPPROTO_SCTP, SCTP_EVENTS, &event,
-			    sizeof(struct sctp_event_subscribe));
+			ret = setsockopt(b->num, IPPROTO_SCTP, SCTP_EVENTS, &event, sizeof(struct sctp_event_subscribe));
 #  endif
 			if(ret < 0)
 				return -1;
@@ -1773,10 +1735,8 @@ int BIO_dgram_sctp_wait_for_dry(BIO * b)
 		if(snp.sn_header.sn_type == SCTP_AUTHENTICATION_EVENT)
 			dgram_sctp_handle_auth_free_key_event(b, &snp);
 #  endif
-
 		if(data->handle_notifications != NULL)
 			data->handle_notifications(b, data->notification_context, (void*)&snp);
-
 		/* found notification, peek again */
 		memzero(&snp, sizeof(snp));
 		iov.iov_base = (char*)&snp;
@@ -1788,28 +1748,22 @@ int BIO_dgram_sctp_wait_for_dry(BIO * b)
 		msg.msg_control = NULL;
 		msg.msg_controllen = 0;
 		msg.msg_flags = 0;
-
 		/* if we have seen the dry already, don't wait */
 		if(is_dry) {
 			sockflags = fcntl(b->num, F_GETFL, 0);
 			fcntl(b->num, F_SETFL, O_NONBLOCK);
 		}
-
 		n = recvmsg(b->num, &msg, MSG_PEEK);
-
 		if(is_dry) {
 			fcntl(b->num, F_SETFL, sockflags);
 		}
-
 		if(n <= 0) {
-			if((n < 0) && (get_last_socket_error() != EAGAIN)
-			    && (get_last_socket_error() != EWOULDBLOCK))
+			if((n < 0) && (get_last_socket_error() != EAGAIN) && (get_last_socket_error() != EWOULDBLOCK))
 				return -1;
 			else
 				return is_dry;
 		}
 	}
-
 	/* read anything else */
 	return is_dry;
 }
@@ -1818,14 +1772,10 @@ int BIO_dgram_sctp_msg_waiting(BIO * b)
 {
 	int n, sockflags;
 	union sctp_notification snp;
-
 	struct msghdr msg;
-
 	struct iovec iov;
-
 	bio_dgram_sctp_data * data = (bio_dgram_sctp_data*)b->ptr;
-
-	/* Check if there are any messages waiting to be read */
+	// Check if there are any messages waiting to be read 
 	do {
 		memzero(&snp, sizeof(snp));
 		iov.iov_base = (char*)&snp;
@@ -1876,10 +1826,8 @@ int BIO_dgram_sctp_msg_waiting(BIO * b)
 
 static int dgram_sctp_puts(BIO * bp, const char * str)
 {
-	int n, ret;
-
-	n = strlen(str);
-	ret = dgram_sctp_write(bp, str, n);
+	int n = strlen(str);
+	int ret = dgram_sctp_write(bp, str, n);
 	return (ret);
 }
 
@@ -1945,7 +1893,6 @@ int BIO_dgram_non_fatal_error(int err)
 # ifdef EALREADY
 		case EALREADY:
 # endif
-
 		return (1);
 		/* break; */
 		default:

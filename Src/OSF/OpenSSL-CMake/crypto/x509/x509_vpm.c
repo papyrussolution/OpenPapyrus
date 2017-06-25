@@ -39,29 +39,24 @@ static int int_x509_param_set_hosts(X509_VERIFY_PARAM * vpm, int mode, const cha
 	 * XXX: Do we need to push an error onto the error stack?
 	 */
 	if(namelen == 0 || name == NULL)
-		namelen = name ? strlen(name) : 0;
+		namelen = sstrlen(name);
 	else if(name && memchr(name, '\0', namelen > 1 ? namelen - 1 : namelen))
 		return 0;
 	if(namelen > 0 && name[namelen - 1] == '\0')
 		--namelen;
-
 	if(mode == SET_HOST) {
 		sk_OPENSSL_STRING_pop_free(vpm->hosts, str_free);
 		vpm->hosts = NULL;
 	}
 	if(name == NULL || namelen == 0)
 		return 1;
-
 	copy = OPENSSL_strndup(name, namelen);
 	if(copy == NULL)
 		return 0;
-
-	if(vpm->hosts == NULL &&
-	    (vpm->hosts = sk_OPENSSL_STRING_new_null()) == NULL) {
+	if(vpm->hosts == NULL && (vpm->hosts = sk_OPENSSL_STRING_new_null()) == NULL) {
 		OPENSSL_free(copy);
 		return 0;
 	}
-
 	if(!sk_OPENSSL_STRING_push(vpm->hosts, copy)) {
 		OPENSSL_free(copy);
 		if(sk_OPENSSL_STRING_num(vpm->hosts) == 0) {
@@ -70,7 +65,6 @@ static int int_x509_param_set_hosts(X509_VERIFY_PARAM * vpm, int mode, const cha
 		}
 		return 0;
 	}
-
 	return 1;
 }
 

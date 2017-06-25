@@ -1,22 +1,22 @@
 // Scintilla source code edit control
 /** @file EditModel.cxx
- ** Defines the editor state that must be visible to EditorView.
- **/
+** Defines the editor state that must be visible to EditorView.
+**/
 // Copyright 1998-2014 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include <stdexcept>
-#include <string>
-#include <vector>
-#include <map>
-#include <algorithm>
-#include <memory>
-#include "ILexer.h"
+//#include <stdexcept>
+//#include <string>
+//#include <vector>
+//#include <map>
+//#include <algorithm>
+//#include <memory>
+//#include "ILexer.h"
+//#include "Position.h"
 #include "StringCopy.h"
-#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -41,10 +41,16 @@
 using namespace Scintilla;
 #endif
 
-Caret::Caret() :
-	active(false), on(false), period(500) {}
+Caret::Caret()
+{
+	//active = false;
+	//on = false;
+	Flags = 0;
+	period = 500;
+}
 
-EditModel::EditModel() {
+EditModel::EditModel()
+{
 	inOverstrike = false;
 	xOffset = 0;
 	trackLineWidth = false;
@@ -64,7 +70,9 @@ EditModel::EditModel() {
 	pdoc->AddRef();
 }
 
-EditModel::~EditModel() {
+EditModel::~EditModel()
+{
 	pdoc->Release();
 	pdoc = 0;
 }
+

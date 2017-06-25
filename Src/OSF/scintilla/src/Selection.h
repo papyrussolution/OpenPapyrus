@@ -28,14 +28,14 @@ public:
 		virtualSpace = 0;
 	}
 	void MoveForInsertDelete(bool insertion, int startChange, int length);
-	bool operator ==(const SelectionPosition &other) const
+	bool FASTCALL operator == (const SelectionPosition &other) const
 	{
 		return position == other.position && virtualSpace == other.virtualSpace;
 	}
-	bool operator <(const SelectionPosition &other) const;
-	bool operator >(const SelectionPosition &other) const;
-	bool operator <=(const SelectionPosition &other) const;
-	bool operator >=(const SelectionPosition &other) const;
+	bool FASTCALL operator < (const SelectionPosition &other) const;
+	bool FASTCALL operator > (const SelectionPosition &other) const;
+	bool FASTCALL operator <= (const SelectionPosition &other) const;
+	bool FASTCALL operator >= (const SelectionPosition &other) const;
 	int Position() const
 	{
 		return position;
@@ -89,10 +89,8 @@ struct SelectionSegment {
 	}
 	void Extend(SelectionPosition p)
 	{
-		if(start > p)
-			start = p;
-		if(end < p)
-			end = p;
+		SETMIN(start, p);
+		SETMAX(end, p);
 	}
 };
 
@@ -120,11 +118,11 @@ struct SelectionRange {
 	}
 	int Length() const;
 	// int Width() const;	// Like Length but takes virtual space into account
-	bool operator ==(const SelectionRange &other) const
+	bool FASTCALL operator == (const SelectionRange &other) const
 	{
 		return caret == other.caret && anchor == other.anchor;
 	}
-	bool operator <(const SelectionRange &other) const
+	bool FASTCALL operator < (const SelectionRange &other) const
 	{
 		return caret < other.caret || ((caret == other.caret) && (anchor < other.anchor));
 	}
@@ -139,9 +137,9 @@ struct SelectionRange {
 		caret.SetVirtualSpace(0);
 	}
 	void MoveForInsertDelete(bool insertion, int startChange, int length);
-	bool Contains(int pos) const;
+	bool FASTCALL Contains(int pos) const;
 	bool Contains(SelectionPosition sp) const;
-	bool ContainsCharacter(int posCharacter) const;
+	bool FASTCALL ContainsCharacter(int posCharacter) const;
 	SelectionSegment Intersect(SelectionSegment check) const;
 	SelectionPosition Start() const
 	{

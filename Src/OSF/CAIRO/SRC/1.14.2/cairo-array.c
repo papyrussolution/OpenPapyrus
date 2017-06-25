@@ -53,14 +53,13 @@
  * When finished using the array, _cairo_array_fini() should be
  * called to free resources allocated during use of the array.
  **/
-void _cairo_array_init(cairo_array_t * array, uint element_size)
+void FASTCALL _cairo_array_init(cairo_array_t * array, uint element_size)
 {
 	array->size = 0;
 	array->num_elements = 0;
 	array->element_size = element_size;
 	array->elements = NULL;
 }
-
 /**
  * _cairo_array_fini:
  * @array: A #cairo_array_t
@@ -69,7 +68,7 @@ void _cairo_array_init(cairo_array_t * array, uint element_size)
  * should not be used again without a subsequent call to
  * _cairo_array_init() again first.
  **/
-void _cairo_array_fini(cairo_array_t * array)
+void FASTCALL _cairo_array_fini(cairo_array_t * array)
 {
 	SAlloc::F(array->elements);
 }
@@ -88,7 +87,6 @@ cairo_status_t _cairo_array_grow_by(cairo_array_t * array, uint additional)
 	uint old_size = array->size;
 	uint required_size = array->num_elements + additional;
 	uint new_size;
-
 	/* check for integer overflow */
 	if(required_size > INT_MAX || required_size < array->num_elements)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -96,10 +94,7 @@ cairo_status_t _cairo_array_grow_by(cairo_array_t * array, uint additional)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	if(required_size <= old_size)
 		return CAIRO_STATUS_SUCCESS;
-	if(old_size == 0)
-		new_size = 1;
-	else
-		new_size = old_size * 2;
+	new_size = old_size ? (old_size * 2) : 1;
 	while(new_size < required_size)
 		new_size = new_size * 2;
 	array->size = new_size;
@@ -111,7 +106,6 @@ cairo_status_t _cairo_array_grow_by(cairo_array_t * array, uint additional)
 	array->elements = new_elements;
 	return CAIRO_STATUS_SUCCESS;
 }
-
 /**
  * _cairo_array_truncate:
  * @array: a #cairo_array_t
@@ -125,7 +119,6 @@ void _cairo_array_truncate(cairo_array_t * array, uint num_elements)
 	if(num_elements < array->num_elements)
 		array->num_elements = num_elements;
 }
-
 /**
  * _cairo_array_index:
  * @array: a #cairo_array_t
@@ -148,7 +141,7 @@ void _cairo_array_truncate(cairo_array_t * array, uint num_elements)
  *	    ... use values[i] here ...
  * </programlisting></informalexample>
  **/
-void * _cairo_array_index(cairo_array_t * array, uint index)
+void * FASTCALL _cairo_array_index(cairo_array_t * array, uint index)
 {
 	/* We allow an index of 0 for the no-elements case.
 	 * This makes for cleaner calling code which will often look like:
@@ -189,7 +182,7 @@ void * _cairo_array_index(cairo_array_t * array, uint index)
  *	    ... read values[i] here ...
  * </programlisting></informalexample>
  **/
-const void * _cairo_array_index_const(const cairo_array_t * array, uint index)
+const void * FASTCALL _cairo_array_index_const(const cairo_array_t * array, uint index)
 {
 	/* We allow an index of 0 for the no-elements case.
 	 * This makes for cleaner calling code which will often look like:
@@ -207,7 +200,6 @@ const void * _cairo_array_index_const(const cairo_array_t * array, uint index)
 	assert(index < array->num_elements);
 	return array->elements + index * array->element_size;
 }
-
 /**
  * _cairo_array_copy_element:
  * @array: a #cairo_array_t
@@ -235,11 +227,10 @@ void _cairo_array_copy_element(const cairo_array_t * array, uint index, void * d
  * %CAIRO_STATUS_NO_MEMORY if insufficient memory is available for the
  * operation.
  **/
-cairo_status_t _cairo_array_append(cairo_array_t * array, const void * element)
+cairo_status_t FASTCALL _cairo_array_append(cairo_array_t * array, const void * element)
 {
 	return _cairo_array_append_multiple(array, element, 1);
 }
-
 /**
  * _cairo_array_append_multiple:
  * @array: a #cairo_array_t
@@ -292,7 +283,7 @@ cairo_status_t _cairo_array_allocate(cairo_array_t * array, uint num_elements, v
  *
  * This space was left intentionally blank, but gtk-doc filled it.
  **/
-uint _cairo_array_num_elements(const cairo_array_t * array)
+uint FASTCALL _cairo_array_num_elements(const cairo_array_t * array)
 {
 	return array->num_elements;
 }
@@ -357,16 +348,14 @@ void _cairo_user_data_array_fini(cairo_user_data_array_t * array)
  **/
 void * _cairo_user_data_array_get_data(cairo_user_data_array_t * array, const cairo_user_data_key_t * key)
 {
-	int i, num_slots;
-	cairo_user_data_slot_t * slots;
-	/* We allow this to support degenerate objects such as cairo_surface_nil. */
-	if(array == NULL)
-		return NULL;
-	num_slots = array->num_elements;
-	slots = (cairo_user_data_slot_t *)_cairo_array_index(array, 0);
-	for(i = 0; i < num_slots; i++) {
-		if(slots[i].key == key)
-			return slots[i].user_data;
+	// We allow this to support degenerate objects such as cairo_surface_nil
+	if(array) {
+		int num_slots = array->num_elements;
+		cairo_user_data_slot_t * slots = (cairo_user_data_slot_t *)_cairo_array_index(array, 0);
+		for(int i = 0; i < num_slots; i++) {
+			if(slots[i].key == key)
+				return slots[i].user_data;
+		}
 	}
 	return NULL;
 }

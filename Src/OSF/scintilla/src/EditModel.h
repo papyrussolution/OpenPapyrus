@@ -16,9 +16,15 @@ namespace Scintilla {
 */
 class Caret {
 public:
-	bool active;
-	bool on;
-	int period;
+
+	//bool   active;
+	//bool   on;
+	enum {
+		fActive = 0x0001,
+		fOn     = 0x0002
+	};
+	int    Flags;
+	int    period;
 
 	Caret();
 };
@@ -26,35 +32,32 @@ public:
 class EditModel {
 	// Private so EditModel objects can not be copied
 	explicit EditModel(const EditModel &);
-	EditModel &operator=(const EditModel &);
-
+	EditModel & FASTCALL operator = (const EditModel &);
 public:
-	bool inOverstrike;
-	int xOffset;		///< Horizontal scrolled amount in pixels
-	bool trackLineWidth;
-
+	int    xOffset; ///< Horizontal scrolled amount in pixels
 	SpecialRepresentations reprs;
-	Caret caret;
+	Caret  caret;
 	SelectionPosition posDrag;
 	Position braces[2];
-	int bracesMatchStyle;
-	int highlightGuideColumn;
+	int    bracesMatchStyle;
+	int    highlightGuideColumn;
 	Selection sel;
-	bool primarySelection;
 
-	enum IMEInteraction { imeWindowed, imeInline } imeInteraction;
+	enum IMEInteraction { 
+		imeWindowed, 
+		imeInline 
+	} imeInteraction;
 
 	int foldFlags;
 	int foldDisplayTextStyle;
 	ContractionState cs;
-	// Hotspot support
-	Range hotspot;
+	Range hotspot; // Hotspot support
 	int hoverIndicatorPos;
-
-	// Wrapping support
-	int wrapWidth;
-
-	Document *pdoc;
+	int wrapWidth; // Wrapping support
+	Document * pdoc;
+	bool   inOverstrike;
+	bool   trackLineWidth;
+	bool   primarySelection;
 
 	EditModel();
 	virtual ~EditModel();

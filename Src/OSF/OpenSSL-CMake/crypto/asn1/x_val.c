@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/asn1t.h>
-#include <openssl/x509.h>
+//#include <openssl/x509.h>
 
 ASN1_SEQUENCE(X509_VAL) = {
         ASN1_SIMPLE(X509_VAL, notBefore, ASN1_TIME),

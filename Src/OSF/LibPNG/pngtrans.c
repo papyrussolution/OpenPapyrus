@@ -21,9 +21,8 @@
 void PNGAPI png_set_bgr(png_structrp png_ptr)
 {
 	png_debug(1, "in png_set_bgr");
-	if(png_ptr == NULL)
-		return;
-	png_ptr->transformations |= PNG_BGR;
+	if(png_ptr)
+		png_ptr->transformations |= PNG_BGR;
 }
 
 #endif
@@ -33,10 +32,8 @@ void PNGAPI png_set_bgr(png_structrp png_ptr)
 void PNGAPI png_set_swap(png_structrp png_ptr)
 {
 	png_debug(1, "in png_set_swap");
-
 	if(png_ptr == NULL)
 		return;
-
 	if(png_ptr->bit_depth == 16)
 		png_ptr->transformations |= PNG_SWAP_BYTES;
 }
@@ -48,10 +45,8 @@ void PNGAPI png_set_swap(png_structrp png_ptr)
 void PNGAPI png_set_packing(png_structrp png_ptr)
 {
 	png_debug(1, "in png_set_packing");
-
 	if(png_ptr == NULL)
 		return;
-
 	if(png_ptr->bit_depth < 8) {
 		png_ptr->transformations |= PNG_PACK;
 #     ifdef PNG_WRITE_SUPPORTED
@@ -81,27 +76,22 @@ void PNGAPI png_set_packswap(png_structrp png_ptr)
 void PNGAPI png_set_shift(png_structrp png_ptr, png_const_color_8p true_bits)
 {
 	png_debug(1, "in png_set_shift");
-
 	if(png_ptr == NULL)
 		return;
-
 	png_ptr->transformations |= PNG_SHIFT;
 	png_ptr->shift = *true_bits;
 }
 
 #endif
 
-#if defined(PNG_READ_INTERLACING_SUPPORTED) || \
-	defined(PNG_WRITE_INTERLACING_SUPPORTED)
+#if defined(PNG_READ_INTERLACING_SUPPORTED) || defined(PNG_WRITE_INTERLACING_SUPPORTED)
 int PNGAPI png_set_interlace_handling(png_structrp png_ptr)
 {
 	png_debug(1, "in png_set_interlace handling");
-
 	if(png_ptr != 0 && png_ptr->interlaced != 0) {
 		png_ptr->transformations |= PNG_INTERLACE;
 		return (7);
 	}
-
 	return (1);
 }
 
@@ -116,10 +106,8 @@ int PNGAPI png_set_interlace_handling(png_structrp png_ptr)
 void PNGAPI png_set_filler(png_structrp png_ptr, uint32 filler, int filler_loc)
 {
 	png_debug(1, "in png_set_filler");
-
 	if(png_ptr == NULL)
 		return;
-
 	/* In libpng 1.6 it is possible to determine whether this is a read or write
 	 * operation and therefore to do more checking here for a valid call.
 	 */
@@ -190,10 +178,8 @@ void PNGAPI png_set_filler(png_structrp png_ptr, uint32 filler, int filler_loc)
 void PNGAPI png_set_add_alpha(png_structrp png_ptr, uint32 filler, int filler_loc)
 {
 	png_debug(1, "in png_set_add_alpha");
-
 	if(png_ptr == NULL)
 		return;
-
 	png_set_filler(png_ptr, filler, filler_loc);
 	/* The above may fail to do anything. */
 	if((png_ptr->transformations & PNG_FILLER) != 0)
@@ -202,32 +188,23 @@ void PNGAPI png_set_add_alpha(png_structrp png_ptr, uint32 filler, int filler_lo
 
 #endif
 
-#if defined(PNG_READ_SWAP_ALPHA_SUPPORTED) || \
-	defined(PNG_WRITE_SWAP_ALPHA_SUPPORTED)
+#if defined(PNG_READ_SWAP_ALPHA_SUPPORTED) || defined(PNG_WRITE_SWAP_ALPHA_SUPPORTED)
 void PNGAPI png_set_swap_alpha(png_structrp png_ptr)
 {
 	png_debug(1, "in png_set_swap_alpha");
-
-	if(png_ptr == NULL)
-		return;
-
-	png_ptr->transformations |= PNG_SWAP_ALPHA;
+	if(png_ptr)
+		png_ptr->transformations |= PNG_SWAP_ALPHA;
 }
 
 #endif
 
-#if defined(PNG_READ_INVERT_ALPHA_SUPPORTED) ||	\
-	defined(PNG_WRITE_INVERT_ALPHA_SUPPORTED)
+#if defined(PNG_READ_INVERT_ALPHA_SUPPORTED) ||	defined(PNG_WRITE_INVERT_ALPHA_SUPPORTED)
 void PNGAPI png_set_invert_alpha(png_structrp png_ptr)
 {
 	png_debug(1, "in png_set_invert_alpha");
-
-	if(png_ptr == NULL)
-		return;
-
-	png_ptr->transformations |= PNG_INVERT_ALPHA;
+	if(png_ptr)
+		png_ptr->transformations |= PNG_INVERT_ALPHA;
 }
-
 #endif
 
 #if defined(PNG_READ_INVERT_SUPPORTED) || defined(PNG_WRITE_INVERT_SUPPORTED)
@@ -249,19 +226,15 @@ void /* PRIVATE */ png_do_invert(png_row_infop row_info, png_bytep row)
 		png_bytep rp = row;
 		size_t i;
 		size_t istop = row_info->rowbytes;
-
 		for(i = 0; i < istop; i++) {
 			*rp = (uint8)(~(*rp));
 			rp++;
 		}
 	}
-
-	else if(row_info->color_type == PNG_COLOR_TYPE_GRAY_ALPHA &&
-	    row_info->bit_depth == 8) {
+	else if(row_info->color_type == PNG_COLOR_TYPE_GRAY_ALPHA && row_info->bit_depth == 8) {
 		png_bytep rp = row;
 		size_t i;
 		size_t istop = row_info->rowbytes;
-
 		for(i = 0; i < istop; i += 2) {
 			*rp = (uint8)(~(*rp));
 			rp += 2;
@@ -269,12 +242,10 @@ void /* PRIVATE */ png_do_invert(png_row_infop row_info, png_bytep row)
 	}
 
 #ifdef PNG_16BIT_SUPPORTED
-	else if(row_info->color_type == PNG_COLOR_TYPE_GRAY_ALPHA &&
-	    row_info->bit_depth == 16) {
+	else if(row_info->color_type == PNG_COLOR_TYPE_GRAY_ALPHA && row_info->bit_depth == 16) {
 		png_bytep rp = row;
 		size_t i;
 		size_t istop = row_info->rowbytes;
-
 		for(i = 0; i < istop; i += 4) {
 			*rp = (uint8)(~(*rp));
 			*(rp + 1) = (uint8)(~(*(rp + 1)));
@@ -597,7 +568,6 @@ void /* PRIVATE */ png_do_bgr(png_row_infop row_info, png_bytep row)
 			if(row_info->color_type == PNG_COLOR_TYPE_RGB) {
 				png_bytep rp;
 				uint32 i;
-
 				for(i = 0, rp = row; i < row_width; i++, rp += 6) {
 					uint8 save = *rp;
 					*rp = *(rp + 4);
@@ -611,7 +581,6 @@ void /* PRIVATE */ png_do_bgr(png_row_infop row_info, png_bytep row)
 			else if(row_info->color_type == PNG_COLOR_TYPE_RGB_ALPHA) {
 				png_bytep rp;
 				uint32 i;
-
 				for(i = 0, rp = row; i < row_width; i++, rp += 8) {
 					uint8 save = *rp;
 					*rp = *(rp + 4);
@@ -654,68 +623,48 @@ void /* PRIVATE */ png_do_check_palette_indexes(png_structrp png_ptr, png_row_in
 					    png_ptr->num_palette_max = 1;
 				    padding = 0;
 			    }
-
 			    break;
 		    }
-
 			case 2:
 		    {
 			    for(; rp > png_ptr->row_buf; rp--) {
 				    int i = ((*rp >> padding) & 0x03);
-
 				    if(i > png_ptr->num_palette_max)
 					    png_ptr->num_palette_max = i;
-
 				    i = (((*rp >> padding) >> 2) & 0x03);
-
 				    if(i > png_ptr->num_palette_max)
 					    png_ptr->num_palette_max = i;
-
 				    i = (((*rp >> padding) >> 4) & 0x03);
-
 				    if(i > png_ptr->num_palette_max)
 					    png_ptr->num_palette_max = i;
-
 				    i = (((*rp >> padding) >> 6) & 0x03);
-
 				    if(i > png_ptr->num_palette_max)
 					    png_ptr->num_palette_max = i;
-
 				    padding = 0;
 			    }
-
 			    break;
 		    }
-
 			case 4:
 		    {
 			    for(; rp > png_ptr->row_buf; rp--) {
 				    int i = ((*rp >> padding) & 0x0f);
-
 				    if(i > png_ptr->num_palette_max)
 					    png_ptr->num_palette_max = i;
-
 				    i = (((*rp >> padding) >> 4) & 0x0f);
-
 				    if(i > png_ptr->num_palette_max)
 					    png_ptr->num_palette_max = i;
-
 				    padding = 0;
 			    }
-
 			    break;
 		    }
-
 			case 8:
 		    {
 			    for(; rp > png_ptr->row_buf; rp--) {
 				    if(*rp > png_ptr->num_palette_max)
 					    png_ptr->num_palette_max = (int)*rp;
 			    }
-
 			    break;
 		    }
-
 			default:
 			    break;
 		}

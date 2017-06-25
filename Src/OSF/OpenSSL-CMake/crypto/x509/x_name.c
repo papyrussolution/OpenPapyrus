@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/asn1t.h>
-#include <openssl/x509.h>
+//#include <openssl/x509.h>
 #include "internal/x509_int.h"
 #include "internal/asn1_int.h"
 #include "x509_lcl.h"
@@ -25,21 +25,14 @@ static int x509_name_ex_d2i(ASN1_VALUE ** val,
     const unsigned char ** in, long len,
     const ASN1_ITEM * it,
     int tag, int aclass, char opt, ASN1_TLC * ctx);
-
-static int x509_name_ex_i2d(ASN1_VALUE ** val, unsigned char ** out,
-    const ASN1_ITEM * it, int tag, int aclass);
+static int x509_name_ex_i2d(ASN1_VALUE ** val, unsigned char ** out, const ASN1_ITEM * it, int tag, int aclass);
 static int x509_name_ex_new(ASN1_VALUE ** val, const ASN1_ITEM * it);
 static void x509_name_ex_free(ASN1_VALUE ** val, const ASN1_ITEM * it);
-
 static int x509_name_encode(X509_NAME * a);
 static int x509_name_canon(X509_NAME * a);
 static int asn1_string_canon(ASN1_STRING * out, const ASN1_STRING * in);
-static int i2d_name_canon(STACK_OF(STACK_OF_X509_NAME_ENTRY) * intname,
-    unsigned char ** in);
-
-static int x509_name_ex_print(BIO * out, ASN1_VALUE ** pval,
-    int indent,
-    const char * fname, const ASN1_PCTX * pctx);
+static int i2d_name_canon(STACK_OF(STACK_OF_X509_NAME_ENTRY) * intname, unsigned char ** in);
+static int x509_name_ex_print(BIO * out, ASN1_VALUE ** pval, int indent, const char * fname, const ASN1_PCTX * pctx);
 
 ASN1_SEQUENCE(X509_NAME_ENTRY) = {
 	ASN1_SIMPLE(X509_NAME_ENTRY, object, ASN1_OBJECT),
@@ -80,9 +73,7 @@ ASN1_ITEM_TEMPLATE(X509_NAME_ENTRIES) =
 };
 
 IMPLEMENT_EXTERN_ASN1(X509_NAME, V_ASN1_SEQUENCE, x509_name_ff)
-
 IMPLEMENT_ASN1_FUNCTIONS(X509_NAME)
-
 IMPLEMENT_ASN1_DUP_FUNCTION(X509_NAME)
 
 static int x509_name_ex_new(ASN1_VALUE ** val, const ASN1_ITEM * it)
@@ -97,7 +88,6 @@ static int x509_name_ex_new(ASN1_VALUE ** val, const ASN1_ITEM * it)
 	ret->modified = 1;
 	*val = (ASN1_VALUE*)ret;
 	return 1;
-
 memerr:
 	ASN1err(ASN1_F_X509_NAME_EX_NEW, ERR_R_MALLOC_FAILURE);
 	if(ret) {

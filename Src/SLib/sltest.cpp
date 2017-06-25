@@ -1,5 +1,5 @@
 // SLTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017
 //
 // Test Suits
 //
@@ -700,9 +700,7 @@ int STestSuite::LoadTestList(const char * pIniFileName)
 	}
 	if(!TabFileName.NotEmptyS())
 		SPathStruc::ReplaceExt(TabFileName = pIniFileName, "tab", 1);
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -794,10 +792,7 @@ const SString & STestSuite::GetTabFileName() const
 
 const STestSuite::Entry * STestSuite::GetCurEntry() const
 {
-	if(CurIdx < ((TSCollection <Entry> *)P_List)->getCount())
-		return ((TSCollection <Entry> *)P_List)->at(CurIdx);
-	else
-		return 0;
+	return (CurIdx < ((TSCollection <Entry> *)P_List)->getCount()) ? ((TSCollection <Entry> *)P_List)->at(CurIdx) : 0;
 }
 
 int STestSuite::Run(const char * pIniFileName)

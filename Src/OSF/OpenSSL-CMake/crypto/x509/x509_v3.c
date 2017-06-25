@@ -127,14 +127,10 @@ err2:
 	return (NULL);
 }
 
-X509_EXTENSION * X509_EXTENSION_create_by_NID(X509_EXTENSION ** ex, int nid,
-    int crit,
-    ASN1_OCTET_STRING * data)
+X509_EXTENSION * X509_EXTENSION_create_by_NID(X509_EXTENSION ** ex, int nid, int crit, ASN1_OCTET_STRING * data)
 {
-	ASN1_OBJECT * obj;
 	X509_EXTENSION * ret;
-
-	obj = OBJ_nid2obj(nid);
+	ASN1_OBJECT * obj = OBJ_nid2obj(nid);
 	if(obj == NULL) {
 		X509err(X509_F_X509_EXTENSION_CREATE_BY_NID, X509_R_UNKNOWN_NID);
 		return (NULL);
@@ -145,29 +141,23 @@ X509_EXTENSION * X509_EXTENSION_create_by_NID(X509_EXTENSION ** ex, int nid,
 	return (ret);
 }
 
-X509_EXTENSION * X509_EXTENSION_create_by_OBJ(X509_EXTENSION ** ex,
-    const ASN1_OBJECT * obj, int crit,
-    ASN1_OCTET_STRING * data)
+X509_EXTENSION * X509_EXTENSION_create_by_OBJ(X509_EXTENSION ** ex, const ASN1_OBJECT * obj, int crit, ASN1_OCTET_STRING * data)
 {
 	X509_EXTENSION * ret;
-
 	if((ex == NULL) || (*ex == NULL)) {
 		if((ret = X509_EXTENSION_new()) == NULL) {
-			X509err(X509_F_X509_EXTENSION_CREATE_BY_OBJ,
-			    ERR_R_MALLOC_FAILURE);
+			X509err(X509_F_X509_EXTENSION_CREATE_BY_OBJ, ERR_R_MALLOC_FAILURE);
 			return (NULL);
 		}
 	}
 	else
 		ret = *ex;
-
 	if(!X509_EXTENSION_set_object(ret, obj))
 		goto err;
 	if(!X509_EXTENSION_set_critical(ret, crit))
 		goto err;
 	if(!X509_EXTENSION_set_data(ret, data))
 		goto err;
-
 	if((ex != NULL) && (*ex == NULL))
 		*ex = ret;
 	return (ret);
@@ -197,7 +187,6 @@ int X509_EXTENSION_set_critical(X509_EXTENSION * ex, int crit)
 int X509_EXTENSION_set_data(X509_EXTENSION * ex, ASN1_OCTET_STRING * data)
 {
 	int i;
-
 	if(ex == NULL)
 		return (0);
 	i = ASN1_OCTET_STRING_set(&ex->value, data->data, data->length);
@@ -208,16 +197,12 @@ int X509_EXTENSION_set_data(X509_EXTENSION * ex, ASN1_OCTET_STRING * data)
 
 ASN1_OBJECT * X509_EXTENSION_get_object(X509_EXTENSION * ex)
 {
-	if(ex == NULL)
-		return (NULL);
-	return (ex->object);
+	return ex ? ex->object : 0;
 }
 
 ASN1_OCTET_STRING * X509_EXTENSION_get_data(X509_EXTENSION * ex)
 {
-	if(ex == NULL)
-		return (NULL);
-	return &ex->value;
+	return ex ? &ex->value : 0;
 }
 
 int X509_EXTENSION_get_critical(const X509_EXTENSION * ex)

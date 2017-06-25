@@ -1,8 +1,8 @@
 // Scintilla source code edit control
 /** @file LexPOV.cxx
- ** Lexer for POV-Ray SDL (Persistance of Vision Raytracer, Scene Description Language).
- ** Written by Philippe Lhoste but this is mostly a derivative of LexCPP...
- **/
+** Lexer for POV-Ray SDL (Persistance of Vision Raytracer, Scene Description Language).
+** Written by Philippe Lhoste but this is mostly a derivative of LexCPP...
+**/
 // Copyright 1998-2005 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -17,9 +17,9 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include "ILexer.h"
-#include "SciLexer.h"
-#include "WordList.h"
+//#include "ILexer.h"
+//#include "SciLexer.h"
+//#include "WordList.h"
 #include "LexAccessor.h"
 #include "Accessor.h"
 #include "StyleContext.h"
@@ -30,29 +30,31 @@
 using namespace Scintilla;
 #endif
 
-static inline bool IsAWordChar(int ch) {
+static inline bool IsAWordChar(int ch)
+{
 	return ch < 0x80 && (isalnum(ch) || ch == '_');
 }
 
-static inline bool IsAWordStart(int ch) {
+static inline bool IsAWordStart(int ch)
+{
 	return ch < 0x80 && isalpha(ch);
 }
 
-static inline bool IsANumberChar(int ch) {
+static inline bool IsANumberChar(int ch)
+{
 	// Not exactly following number definition (several dots are seen as OK, etc.)
 	// but probably enough in most cases.
 	return (ch < 0x80) &&
-	        (isdigit(ch) || toupper(ch) == 'E' ||
-             ch == '.' || ch == '-' || ch == '+');
+	       (isdigit(ch) || toupper(ch) == 'E' ||
+	    ch == '.' || ch == '-' || ch == '+');
 }
 
-static void ColourisePovDoc(
-	Sci_PositionU startPos,
-	Sci_Position length,
-	int initStyle,
-	WordList *keywordlists[],
-    Accessor &styler) {
-
+static void ColourisePovDoc(Sci_PositionU startPos,
+    Sci_Position length,
+    int initStyle,
+    WordList * keywordlists[],
+    Accessor &styler)
+{
 	WordList &keywords1 = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
 	WordList &keywords3 = *keywordlists[2];
@@ -65,12 +67,12 @@ static void ColourisePovDoc(
 	Sci_Position currentLine = styler.GetLine(startPos);
 	// Initialize the block comment /* */ nesting level, if we are inside such a comment.
 	int blockCommentLevel = 0;
-	if (initStyle == SCE_POV_COMMENT) {
+	if(initStyle == SCE_POV_COMMENT) {
 		blockCommentLevel = styler.GetLineState(currentLine - 1);
 	}
 
 	// Do not leak onto next line
-	if (initStyle == SCE_POV_STRINGEOL || initStyle == SCE_POV_COMMENTLINE) {
+	if(initStyle == SCE_POV_STRINGEOL || initStyle == SCE_POV_COMMENTLINE) {
 		initStyle = SCE_POV_DEFAULT;
 	}
 
@@ -78,140 +80,166 @@ static void ColourisePovDoc(
 
 	StyleContext sc(startPos, length, initStyle, styler);
 
-	for (; sc.More(); sc.Forward()) {
-		if (sc.atLineEnd) {
+	for(; sc.More(); sc.Forward()) {
+		if(sc.atLineEnd) {
 			// Update the line state, so it can be seen by next line
 			currentLine = styler.GetLine(sc.currentPos);
-			if (sc.state == SCE_POV_COMMENT) {
+			if(sc.state == SCE_POV_COMMENT) {
 				// Inside a block comment, we set the line state
 				styler.SetLineState(currentLine, blockCommentLevel);
-			} else {
+			}
+			else {
 				// Reset the line state
 				styler.SetLineState(currentLine, 0);
 			}
 		}
 
-		if (sc.atLineStart && (sc.state == SCE_POV_STRING)) {
+		if(sc.atLineStart && (sc.state == SCE_POV_STRING)) {
 			// Prevent SCE_POV_STRINGEOL from leaking back to previous line
 			sc.SetState(SCE_POV_STRING);
 		}
 
 		// Determine if the current state should terminate.
-		if (sc.state == SCE_POV_OPERATOR) {
+		if(sc.state == SCE_POV_OPERATOR) {
 			sc.SetState(SCE_POV_DEFAULT);
-		} else if (sc.state == SCE_POV_NUMBER) {
+		}
+		else if(sc.state == SCE_POV_NUMBER) {
 			// We stop the number definition on non-numerical non-dot non-eE non-sign char
-			if (!IsANumberChar(sc.ch)) {
+			if(!IsANumberChar(sc.ch)) {
 				sc.SetState(SCE_POV_DEFAULT);
 			}
-		} else if (sc.state == SCE_POV_IDENTIFIER) {
-			if (!IsAWordChar(sc.ch)) {
+		}
+		else if(sc.state == SCE_POV_IDENTIFIER) {
+			if(!IsAWordChar(sc.ch)) {
 				char s[100];
 				sc.GetCurrent(s, sizeof(s));
-				if (keywords2.InList(s)) {
+				if(keywords2.InList(s)) {
 					sc.ChangeState(SCE_POV_WORD2);
-				} else if (keywords3.InList(s)) {
+				}
+				else if(keywords3.InList(s)) {
 					sc.ChangeState(SCE_POV_WORD3);
-				} else if (keywords4.InList(s)) {
+				}
+				else if(keywords4.InList(s)) {
 					sc.ChangeState(SCE_POV_WORD4);
-				} else if (keywords5.InList(s)) {
+				}
+				else if(keywords5.InList(s)) {
 					sc.ChangeState(SCE_POV_WORD5);
-				} else if (keywords6.InList(s)) {
+				}
+				else if(keywords6.InList(s)) {
 					sc.ChangeState(SCE_POV_WORD6);
-				} else if (keywords7.InList(s)) {
+				}
+				else if(keywords7.InList(s)) {
 					sc.ChangeState(SCE_POV_WORD7);
-				} else if (keywords8.InList(s)) {
+				}
+				else if(keywords8.InList(s)) {
 					sc.ChangeState(SCE_POV_WORD8);
 				}
 				sc.SetState(SCE_POV_DEFAULT);
 			}
-		} else if (sc.state == SCE_POV_DIRECTIVE) {
-			if (!IsAWordChar(sc.ch)) {
+		}
+		else if(sc.state == SCE_POV_DIRECTIVE) {
+			if(!IsAWordChar(sc.ch)) {
 				char s[100];
-				char *p;
+				char * p;
 				sc.GetCurrent(s, sizeof(s));
 				p = s;
 				// Skip # and whitespace between # and directive word
 				do {
 					p++;
-				} while ((*p == ' ' || *p == '\t') && *p != '\0');
-				if (!keywords1.InList(p)) {
+				} while((*p == ' ' || *p == '\t') && *p != '\0');
+				if(!keywords1.InList(p)) {
 					sc.ChangeState(SCE_POV_BADDIRECTIVE);
 				}
 				sc.SetState(SCE_POV_DEFAULT);
 			}
-		} else if (sc.state == SCE_POV_COMMENT) {
-			if (sc.Match('/', '*')) {
+		}
+		else if(sc.state == SCE_POV_COMMENT) {
+			if(sc.Match('/', '*')) {
 				blockCommentLevel++;
 				sc.Forward();
-			} else if (sc.Match('*', '/') && blockCommentLevel > 0) {
+			}
+			else if(sc.Match('*', '/') && blockCommentLevel > 0) {
 				blockCommentLevel--;
 				sc.Forward();
-				if (blockCommentLevel == 0) {
+				if(blockCommentLevel == 0) {
 					sc.ForwardSetState(SCE_POV_DEFAULT);
 				}
 			}
-		} else if (sc.state == SCE_POV_COMMENTLINE) {
-			if (sc.atLineEnd) {
+		}
+		else if(sc.state == SCE_POV_COMMENTLINE) {
+			if(sc.atLineEnd) {
 				sc.ForwardSetState(SCE_POV_DEFAULT);
 			}
-		} else if (sc.state == SCE_POV_STRING) {
-			if (sc.ch == '\\') {
+		}
+		else if(sc.state == SCE_POV_STRING) {
+			if(sc.ch == '\\') {
 				stringLen++;
-				if (strchr("abfnrtuv0'\"", sc.chNext)) {
+				if(strchr("abfnrtuv0'\"", sc.chNext)) {
 					// Compound characters are counted as one.
 					// Note: for Unicode chars \u, we shouldn't count the next 4 digits...
 					sc.Forward();
 				}
-			} else if (sc.ch == '\"') {
+			}
+			else if(sc.ch == '\"') {
 				sc.ForwardSetState(SCE_POV_DEFAULT);
-			} else if (sc.atLineEnd) {
+			}
+			else if(sc.atLineEnd) {
 				sc.ChangeState(SCE_POV_STRINGEOL);
 				sc.ForwardSetState(SCE_POV_DEFAULT);
-			} else {
+			}
+			else {
 				stringLen++;
 			}
-			if (stringLen > 256) {
+			if(stringLen > 256) {
 				// Strings are limited to 256 chars
 				sc.SetState(SCE_POV_STRINGEOL);
 			}
-		} else if (sc.state == SCE_POV_STRINGEOL) {
-			if (sc.ch == '\\') {
-				if (sc.chNext == '\"' || sc.chNext == '\\') {
+		}
+		else if(sc.state == SCE_POV_STRINGEOL) {
+			if(sc.ch == '\\') {
+				if(sc.chNext == '\"' || sc.chNext == '\\') {
 					sc.Forward();
 				}
-			} else if (sc.ch == '\"') {
+			}
+			else if(sc.ch == '\"') {
 				sc.ForwardSetState(SCE_C_DEFAULT);
-			} else if (sc.atLineEnd) {
+			}
+			else if(sc.atLineEnd) {
 				sc.ForwardSetState(SCE_POV_DEFAULT);
 			}
 		}
 
 		// Determine if a new state should be entered.
-		if (sc.state == SCE_POV_DEFAULT) {
-			if (IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+		if(sc.state == SCE_POV_DEFAULT) {
+			if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
 				sc.SetState(SCE_POV_NUMBER);
-			} else if (IsAWordStart(sc.ch)) {
+			}
+			else if(IsAWordStart(sc.ch)) {
 				sc.SetState(SCE_POV_IDENTIFIER);
-			} else if (sc.Match('/', '*')) {
+			}
+			else if(sc.Match('/', '*')) {
 				blockCommentLevel = 1;
 				sc.SetState(SCE_POV_COMMENT);
-				sc.Forward();	// Eat the * so it isn't used for the end of the comment
-			} else if (sc.Match('/', '/')) {
+				sc.Forward();   // Eat the * so it isn't used for the end of the comment
+			}
+			else if(sc.Match('/', '/')) {
 				sc.SetState(SCE_POV_COMMENTLINE);
-			} else if (sc.ch == '\"') {
+			}
+			else if(sc.ch == '\"') {
 				sc.SetState(SCE_POV_STRING);
 				stringLen = 0;
-			} else if (sc.ch == '#') {
+			}
+			else if(sc.ch == '#') {
 				sc.SetState(SCE_POV_DIRECTIVE);
 				// Skip whitespace between # and directive word
 				do {
 					sc.Forward();
-				} while ((sc.ch == ' ' || sc.ch == '\t') && sc.More());
-				if (sc.atLineEnd) {
+				} while((sc.ch == ' ' || sc.ch == '\t') && sc.More());
+				if(sc.atLineEnd) {
 					sc.SetState(SCE_POV_DEFAULT);
 				}
-			} else if (isoperator(static_cast<char>(sc.ch))) {
+			}
+			else if(isoperator(static_cast<char>(sc.ch))) {
 				sc.SetState(SCE_POV_OPERATOR);
 			}
 		}
@@ -219,13 +247,12 @@ static void ColourisePovDoc(
 	sc.Complete();
 }
 
-static void FoldPovDoc(
-	Sci_PositionU startPos,
-	Sci_Position length,
-	int initStyle,
-	WordList *[],
-	Accessor &styler) {
-
+static void FoldPovDoc(Sci_PositionU startPos,
+    Sci_Position length,
+    int initStyle,
+    WordList *[],
+    Accessor &styler)
+{
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldDirective = styler.GetPropertyInt("fold.directive") != 0;
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
@@ -237,60 +264,63 @@ static void FoldPovDoc(
 	char chNext = styler[startPos];
 	int styleNext = styler.StyleAt(startPos);
 	int style = initStyle;
-	for (Sci_PositionU i = startPos; i < endPos; i++) {
+	for(Sci_PositionU i = startPos; i < endPos; i++) {
 		char ch = chNext;
 		chNext = styler.SafeGetCharAt(i + 1);
 		int stylePrev = style;
 		style = styleNext;
 		styleNext = styler.StyleAt(i + 1);
 		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
-		if (foldComment && (style == SCE_POV_COMMENT)) {
-			if (stylePrev != SCE_POV_COMMENT) {
+		if(foldComment && (style == SCE_POV_COMMENT)) {
+			if(stylePrev != SCE_POV_COMMENT) {
 				levelCurrent++;
-			} else if ((styleNext != SCE_POV_COMMENT) && !atEOL) {
+			}
+			else if((styleNext != SCE_POV_COMMENT) && !atEOL) {
 				// Comments don't end at end of line and the next character may be unstyled.
 				levelCurrent--;
 			}
 		}
-		if (foldComment && (style == SCE_POV_COMMENTLINE)) {
-			if ((ch == '/') && (chNext == '/')) {
+		if(foldComment && (style == SCE_POV_COMMENTLINE)) {
+			if((ch == '/') && (chNext == '/')) {
 				char chNext2 = styler.SafeGetCharAt(i + 2);
-				if (chNext2 == '{') {
+				if(chNext2 == '{') {
 					levelCurrent++;
-				} else if (chNext2 == '}') {
+				}
+				else if(chNext2 == '}') {
 					levelCurrent--;
 				}
 			}
 		}
-		if (foldDirective && (style == SCE_POV_DIRECTIVE)) {
-			if (ch == '#') {
-				Sci_PositionU j=i+1;
-				while ((j<endPos) && IsASpaceOrTab(styler.SafeGetCharAt(j))) {
+		if(foldDirective && (style == SCE_POV_DIRECTIVE)) {
+			if(ch == '#') {
+				Sci_PositionU j = i+1;
+				while((j<endPos) && IsASpaceOrTab(styler.SafeGetCharAt(j))) {
 					j++;
 				}
 			}
 		}
-		if (style == SCE_POV_OPERATOR) {
-			if (ch == '{') {
+		if(style == SCE_POV_OPERATOR) {
+			if(ch == '{') {
 				levelCurrent++;
-			} else if (ch == '}') {
+			}
+			else if(ch == '}') {
 				levelCurrent--;
 			}
 		}
-		if (atEOL) {
+		if(atEOL) {
 			int lev = levelPrev;
-			if (visibleChars == 0 && foldCompact)
+			if(visibleChars == 0 && foldCompact)
 				lev |= SC_FOLDLEVELWHITEFLAG;
-			if ((levelCurrent > levelPrev) && (visibleChars > 0))
+			if((levelCurrent > levelPrev) && (visibleChars > 0))
 				lev |= SC_FOLDLEVELHEADERFLAG;
-			if (lev != styler.LevelAt(lineCurrent)) {
+			if(lev != styler.LevelAt(lineCurrent)) {
 				styler.SetLevel(lineCurrent, lev);
 			}
 			lineCurrent++;
 			levelPrev = levelCurrent;
 			visibleChars = 0;
 		}
-		if (!isspacechar(ch))
+		if(!isspacechar(ch))
 			visibleChars++;
 	}
 	// Fill in the real level of the next line, keeping the current flags as they will be filled in later

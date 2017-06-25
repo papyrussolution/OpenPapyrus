@@ -853,8 +853,14 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 										LDBLTOMONEY(cc_amount, cp.Rec.Amount);
 										LDBLTOMONEY(dscnt, cp.Rec.Discount);
 										cp._Cash = cc_amount;
-										if(oneof3(link_pack.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN, PPOPT_DRAFTRECEIPT))
-											cp.Rec.Flags |= CCHKF_RETURN;
+										if(oneof3(link_pack.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN, PPOPT_DRAFTRECEIPT)) {
+											if(pack.Rec.Amount > 0.0) // @v9.7.1
+												cp.Rec.Flags |= CCHKF_RETURN;
+										}
+										else {
+											if(pack.Rec.Amount < 0.0) // @v9.7.1
+												cp.Rec.Flags |= CCHKF_RETURN;
+										}
 										if(param.PaymType == cpmBank)
 											cp.Rec.Flags |= CCHKF_BANKING;
 										ok = p_cm->SyncPrintCheck(&cp, 1);
@@ -6872,10 +6878,11 @@ int SLAPI PPObjBill::RemoveTransferItem(PPID billID, int rByBill, int force)
 
 int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 {
-	int   ok = 1, ta = 0, frrl_tag = 0;
-	int   r, found, rbybill, rest_checking = -1;
-	uint  i, pos;
-	const PPID  id = pPack->Rec.ID;
+	int    ok = 1, ta = 0, frrl_tag = 0;
+	int    r, found, rbybill, rest_checking = -1;
+	uint   i, pos;
+	const  PPRights & r_rt = ObjRts;
+	const  PPID  id = pPack->Rec.ID;
 	TBlock tb_;
 	PPIDArray added_lot_items; // —писок позиций товарных строк с признаком
 		// PPTFR_RECEIPT, которые были добавлены. Ќобходим дл€ корректной очистки после ошибки.
@@ -6901,8 +6908,8 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	}
 	THROW(CheckParentStatus(pPack->Rec.ID));
 	if(pPack->Rec.OpID) { // ƒл€ теневого документа не провер€ем период доступа
-		THROW(ObjRts.CheckBillDate(pPack->Rec.Dt));
-		THROW(ObjRts.CheckOpID(pPack->Rec.OpID, PPR_MOD)); // @v9.6.1
+		THROW(r_rt.CheckBillDate(pPack->Rec.Dt));
+		THROW(r_rt.CheckOpID(pPack->Rec.OpID, PPR_MOD)); // @v9.6.1
 		// @v9.4.3 {
 		if(pPack->OpTypeID == PPOPT_CORRECTION)
 			GetCorrectionBackChain(pPack->Rec, correction_exp_chain);
@@ -6949,7 +6956,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		// а затем приводим строки документа в соответствие изменени€м
 		//
 		THROW(P_Tbl->Search(id, &org) > 0);
-		THROW(ObjRts.CheckBillDate(org.Dt));
+		THROW(r_rt.CheckBillDate(org.Dt));
 		THROW_PP(pPack->OpTypeID != PPOPT_GOODSREVAL || pPack->Rec.Dt == org.Dt, PPERR_REVALDTUPD);
 		THROW(ProcessLink(&pPack->Rec, pPack->PaymBillID, &org));
 		diter.Init();

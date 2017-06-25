@@ -11,7 +11,7 @@
 //#include <openssl/asn1.h>
 //#include <openssl/objects.h>
 //#include <openssl/evp.h>
-#include <openssl/x509.h>
+//#include <openssl/x509.h>
 #include "internal/x509_int.h"
 
 int X509_CRL_set_version(X509_CRL * x, long version)

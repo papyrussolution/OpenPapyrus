@@ -20,10 +20,10 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include "ILexer.h"
-#include "SciLexer.h"
-#include "PropSetSimple.h"
-#include "WordList.h"
+//#include "ILexer.h"
+//#include "SciLexer.h"
+//#include "WordList.h"
+//#include "PropSetSimple.h"
 #include "LexAccessor.h"
 #include "Accessor.h"
 #include "StyleContext.h"
@@ -47,7 +47,7 @@ using namespace Scintilla;
 /*
 	(actually seems to work!)
 */
-#include <string>
+//#include <string>
 #include "WindowAccessor.h"
 #include "ExternalLexer.h"
 

@@ -404,9 +404,6 @@
 				RelativePath="..\Osf\Zlib\deflate.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Zlib\infback.c">
-			</File>
-			<File
 				RelativePath="..\Osf\Zlib\inffast.c">
 			</File>
 			<File

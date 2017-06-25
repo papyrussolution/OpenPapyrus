@@ -1,5 +1,5 @@
 // LVECT.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016
+// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016, 2017
 // @codepage windows-1251
 //
 #include <slib.h>
@@ -33,16 +33,20 @@ int SLAPI LMatrix::init(LMIDX numRows, LMIDX numCols)
 	P_Vals = new double[dim()];
 	if(!P_Vals)
 		return (SLibError = SLERR_NOMEM, 0);
-	zero(-1, -1);
-	return 1;
+	else {
+		zero(-1, -1);
+		return 1;
+	}
 }
 
 int SLAPI LMatrix::copy(const LMatrix & s)
 {
 	if(!init(s.NumRows, s.NumCols))
 		return 0;
-	memcpy(P_Vals, s.P_Vals, dim() * sizeof(double));
-	return 1;
+	else {
+		memcpy(P_Vals, s.P_Vals, dim() * sizeof(double));
+		return 1;
+	}
 }
 
 int SLAPI LMatrix::setname(const char * pName)
@@ -122,28 +126,26 @@ int SLAPI LMatrix::setcol(LMIDX col, const LVect & rVect)
 	return ok;
 }
 
-int SLAPI LMatrix::zero(LMIDX row, LMIDX col)
+void SLAPI LMatrix::zero(LMIDX row, LMIDX col)
 {
-	LMIDX i;
 	if(P_Vals)
 		if(row < 0)
 			if(col < 0)
 				memzero(P_Vals, dim() * sizeof(double));
 			else {
-				for(i = 0; i < NumRows; i++)
+				for(LMIDX i = 0; i < NumRows; i++)
 					set(i, col, 0L);
 			}
 		else
 			if(col < 0) {
-				for(i = 0; i < NumCols; i++)
+				for(LMIDX i = 0; i < NumCols; i++)
 					set(row, i, 0L);
 			}
 			else
 				set(row, col, 0L);
-	return 1;
 }
 
-int SLAPI LMatrix::swaprows(LMIDX r1, LMIDX r2)
+void SLAPI LMatrix::swaprows(LMIDX r1, LMIDX r2)
 {
 	if(r1 != r2)
 		for(LMIDX i = 0; i < NumCols; i++) {
@@ -151,27 +153,28 @@ int SLAPI LMatrix::swaprows(LMIDX r1, LMIDX r2)
 			set(r1, i, get(r2, i));
 			set(r2, i, temp);
 		}
-	return 1;
 }
 
 int SLAPI LMatrix::add(const LMatrix & s, int minus)
 {
 	if(cols() != s.cols() || rows() != s.rows())
 		return (SLibError = SLERR_MTX_INCOMPATDIM_MMADD, 0);
-	for(LMIDX j = 0; j < NumCols; j++)
-		for(LMIDX i = 0; i < NumRows; i++) {
-			double a = minus ? -s.get(i, j) : s.get(i, j);
-			set(i, j, get(i, j) + a);
-		}
-	return 1;
+	else {
+		for(LMIDX j = 0; j < NumCols; j++)
+			for(LMIDX i = 0; i < NumRows; i++) {
+				double a = minus ? -s.get(i, j) : s.get(i, j);
+				set(i, j, get(i, j) + a);
+			}
+		return 1;
+	}
 }
 
-int SLAPI LMatrix::operator += (const LMatrix & s)
+int FASTCALL LMatrix::operator += (const LMatrix & s)
 {
 	return add(s, 0);
 }
 
-int SLAPI LMatrix::operator -= (const LMatrix & s)
+int FASTCALL LMatrix::operator -= (const LMatrix & s)
 {
 	return add(s, 1);
 }
@@ -235,20 +238,18 @@ int SLAPI LVect::zero(LMIDX p)
 		return set(p, 0);
 }
 
-int SLAPI LVect::mult(double v)
+void SLAPI LVect::mult(double v)
 {
 	if(P_Vals)
 		for(LMIDX i = 0; i < Dim; i++)
 			P_Vals[i] *= v;
-	return 1;
 }
 
-int SLAPI LVect::div(double v)
+void SLAPI LVect::div(double v)
 {
 	if(P_Vals)
 		for(LMIDX i = 0; i < Dim; i++)
 			P_Vals[i] /= v;
-	return 1;
 }
 
 int SLAPI LVect::add(const LVect & v)
@@ -272,14 +273,13 @@ double SLAPI LVect::dot(const LVect & s) const // return this * s (scalar)
 	return r;
 }
 
-int SLAPI LVect::saxpy(double a, const LVect & y) // this = this * a + y
+void SLAPI LVect::saxpy(double a, const LVect & y) // this = this * a + y
 {
 	if(P_Vals && y.P_Vals) {
 		LMIDX d = MIN(Dim, y.Dim);
 		for(LMIDX i = 0; i < d; i++)
 			P_Vals[i] = P_Vals[i] * a + y.P_Vals[i];
 	}
-	return 1;
 }
 //
 //
@@ -625,12 +625,12 @@ int inverse(LMatrix & a)
 	LMIDX i, j;
 	int   ret = 0;
 	LMIDX n = a.rows();
-	LMatrix ai; ai.init(n, n);
-	LMIDX * p_indx = 0;
-	LVect col; col.init(n);
+	LMatrix ai; 
+	LVect col; 
 	int d;
-
-	p_indx = new LMIDX[n];
+	ai.init(n, n);
+	col.init(n);
+	LMIDX * p_indx = new LMIDX[n];
 	if(ludcmp(a, p_indx, d)){
 		for(j = 0; j < n; j++){
 			for(i = 0; i < n; i++)
@@ -1138,14 +1138,10 @@ LMatrix3D & SLAPI LMatrix3D::InitRotateZ(double teta)
 LMatrix3D & SLAPI LMatrix3D::Mult(const LMatrix3D & rM1, const LMatrix3D & rM2)
 {
 	for(uint i = 0; i < 4; i++) {
-		M[i][0] =
-			rM1.M[i][0]*rM2.M[0][0] + rM1.M[i][1]*rM2.M[1][0] + rM1.M[i][2]*rM2.M[2][0] + rM1.M[i][3]*rM2.M[3][0];
-		M[i][1] =
-			rM1.M[i][0]*rM2.M[0][1] + rM1.M[i][1]*rM2.M[1][1] + rM1.M[i][2]*rM2.M[2][1] + rM1.M[i][3]*rM2.M[3][1];
-		M[i][2] =
-			rM1.M[i][0]*rM2.M[0][2] + rM1.M[i][1]*rM2.M[1][2] + rM1.M[i][2]*rM2.M[2][2] + rM1.M[i][3]*rM2.M[3][2];
-		M[i][3] =
-			rM1.M[i][0]*rM2.M[0][3] + rM1.M[i][1]*rM2.M[1][3] + rM1.M[i][2]*rM2.M[2][3] + rM1.M[i][3]*rM2.M[3][3];
+		M[i][0] = rM1.M[i][0]*rM2.M[0][0] + rM1.M[i][1]*rM2.M[1][0] + rM1.M[i][2]*rM2.M[2][0] + rM1.M[i][3]*rM2.M[3][0];
+		M[i][1] = rM1.M[i][0]*rM2.M[0][1] + rM1.M[i][1]*rM2.M[1][1] + rM1.M[i][2]*rM2.M[2][1] + rM1.M[i][3]*rM2.M[3][1];
+		M[i][2] = rM1.M[i][0]*rM2.M[0][2] + rM1.M[i][1]*rM2.M[1][2] + rM1.M[i][2]*rM2.M[2][2] + rM1.M[i][3]*rM2.M[3][2];
+		M[i][3] = rM1.M[i][0]*rM2.M[0][3] + rM1.M[i][1]*rM2.M[1][3] + rM1.M[i][2]*rM2.M[2][3] + rM1.M[i][3]*rM2.M[3][3];
 	}
 	return *this;
 }

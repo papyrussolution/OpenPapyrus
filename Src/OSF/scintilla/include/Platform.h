@@ -10,6 +10,15 @@
 #define PLATFORM_H
 
 #include <slib.h>
+#include <cstdlib>
+#include <cassert>
+#include <stdexcept>
+#include <cctype>
+#include <cstdio>
+#include <string>
+#include <vector>
+#include <map>
+#include <algorithm>
 
 #define NO_CXX11_REGEX // @sobolev
 
@@ -31,56 +40,45 @@
 #define PLAT_TK 0
 
 #if defined(FOX)
-#undef PLAT_FOX
-#define PLAT_FOX 1
-
+	#undef PLAT_FOX
+	#define PLAT_FOX 1
 #elif defined(__WX__)
-#undef PLAT_WX
-#define PLAT_WX  1
-
+	#undef PLAT_WX
+	#define PLAT_WX  1
 #elif defined(CURSES)
-#undef PLAT_CURSES
-#define PLAT_CURSES 1
-
+	#undef PLAT_CURSES
+	#define PLAT_CURSES 1
 #elif defined(SCINTILLA_QT)
-#undef PLAT_QT
-#define PLAT_QT 1
-
+	#undef PLAT_QT
+	#define PLAT_QT 1
 #elif defined(TK)
-#undef PLAT_TK
-#define PLAT_TK 1
-
+	#undef PLAT_TK
+	#define PLAT_TK 1
 #elif defined(GTK)
-#undef PLAT_GTK
-#define PLAT_GTK 1
-
-#if defined(__WIN32__) || defined(_MSC_VER)
-#undef PLAT_GTK_WIN32
-#define PLAT_GTK_WIN32 1
-#endif
-
-#if defined(__APPLE__)
-#undef PLAT_GTK_MACOSX
-#define PLAT_GTK_MACOSX 1
-#endif
-
+	#undef PLAT_GTK
+	#define PLAT_GTK 1
+	#if defined(__WIN32__) || defined(_MSC_VER)
+		#undef PLAT_GTK_WIN32
+		#define PLAT_GTK_WIN32 1
+	#endif
+	#if defined(__APPLE__)
+		#undef PLAT_GTK_MACOSX
+		#define PLAT_GTK_MACOSX 1
+	#endif
 #elif defined(__APPLE__)
-
-#undef PLAT_MACOSX
-#define PLAT_MACOSX 1
-
+	#undef PLAT_MACOSX
+	#define PLAT_MACOSX 1
 #else
-#undef PLAT_WIN
-#define PLAT_WIN 1
-
+	#undef PLAT_WIN
+	#define PLAT_WIN 1
 #endif
-
 #ifdef SCI_NAMESPACE
-namespace Scintilla {
+	namespace Scintilla {
 #endif
 
 typedef float XYPOSITION;
 typedef double XYACCUMULATOR;
+
 inline int RoundXYPosition(XYPOSITION xyPos)
 {
 	return int(xyPos + 0.5);
@@ -115,7 +113,6 @@ public:
 	// Other automatically defined methods (assignment, copy constructor, destructor) are fine
 	static Point FromLong(long lpoint);
 };
-
 /**
  * A geometric rectangle class.
  * PRectangle is similar to the Win32 RECT.
@@ -127,7 +124,6 @@ public:
 	XYPOSITION top;
 	XYPOSITION right;
 	XYPOSITION bottom;
-
 	explicit PRectangle(XYPOSITION left_ = 0, XYPOSITION top_ = 0, XYPOSITION right_ = 0, XYPOSITION bottom_ = 0) :
 		left(left_), top(top_), right(right_), bottom(bottom_)
 	{
@@ -179,7 +175,6 @@ public:
 		return (Height() <= 0) || (Width() <= 0);
 	}
 };
-
 /**
  * Holds a desired RGB colour.
  */
@@ -244,11 +239,9 @@ public:
 		return (co >> 16) & 0xff;
 	}
 };
-
 /**
  * Font management.
  */
-
 struct FontParameters {
 	const char * faceName;
 	float size;
@@ -322,7 +315,7 @@ public:
 	virtual ~Surface()
 	{
 	}
-	static Surface * Allocate(int technology);
+	static Surface * FASTCALL Allocate(int technology);
 
 	virtual void Init(WindowID wid) = 0;
 	virtual void Init(SurfaceID sid, WindowID wid) = 0;
@@ -340,16 +333,13 @@ public:
 	virtual void FillRectangle(PRectangle rc, ColourDesired back) = 0;
 	virtual void FillRectangle(PRectangle rc, Surface &surfacePattern) = 0;
 	virtual void RoundedRectangle(PRectangle rc, ColourDesired fore, ColourDesired back) = 0;
-	virtual void AlphaRectangle(PRectangle rc, int cornerSize, ColourDesired fill, int alphaFill,
-	    ColourDesired outline, int alphaOutline, int flags) = 0;
+	virtual void AlphaRectangle(PRectangle rc, int cornerSize, ColourDesired fill, int alphaFill, ColourDesired outline, int alphaOutline, int flags) = 0;
 	virtual void DrawRGBAImage(PRectangle rc, int width, int height, const uchar * pixelsImage) = 0;
 	virtual void Ellipse(PRectangle rc, ColourDesired fore, ColourDesired back) = 0;
 	virtual void Copy(PRectangle rc, Point from, Surface &surfaceSource) = 0;
 
-	virtual void DrawTextNoClip(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len,
-	    ColourDesired fore, ColourDesired back) = 0;
-	virtual void DrawTextClipped(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len,
-	    ColourDesired fore, ColourDesired back) = 0;
+	virtual void DrawTextNoClip(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back) = 0;
+	virtual void DrawTextClipped(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back) = 0;
 	virtual void DrawTextTransparent(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore) = 0;
 	virtual void MeasureWidths(Font &font_, const char * s, int len, XYPOSITION * positions) = 0;
 	virtual XYPOSITION WidthText(Font &font_, const char * s, int len) = 0;

@@ -202,7 +202,6 @@ static int mem_write(BIO * b, const char * in, int inl)
 	int ret = -1;
 	int blen;
 	BIO_BUF_MEM * bbm = (BIO_BUF_MEM*)b->ptr;
-
 	if(in == NULL) {
 		BIOerr(BIO_F_MEM_WRITE, BIO_R_NULL_PARAMETER);
 		goto end;
@@ -307,7 +306,6 @@ static int mem_gets(BIO * bp, char * buf, int size)
 	char * p;
 	BIO_BUF_MEM * bbm = (BIO_BUF_MEM*)bp->ptr;
 	BUF_MEM * bm = bbm->readp;
-
 	BIO_clear_retry_flags(bp);
 	j = bm->length;
 	if((size - 1) < j)
@@ -323,12 +321,10 @@ static int mem_gets(BIO * bp, char * buf, int size)
 			break;
 		}
 	}
-
 	/*
 	 * i is now the max num of bytes to copy, either j or up to
 	 * and including the first newline
 	 */
-
 	i = mem_read(bp, buf, i);
 	if(i > 0)
 		buf[i] = '\0';
@@ -338,11 +334,9 @@ static int mem_gets(BIO * bp, char * buf, int size)
 
 static int mem_puts(BIO * bp, const char * str)
 {
-	int n, ret;
-
-	n = strlen(str);
-	ret = mem_write(bp, str, n);
-	/* memory semantics is that it will always work */
+	int n = strlen(str);
+	int ret = mem_write(bp, str, n);
+	// memory semantics is that it will always work 
 	return (ret);
 }
 

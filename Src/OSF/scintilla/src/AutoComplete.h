@@ -20,11 +20,11 @@ class AutoComplete {
 	std::string fillUpChars;
 	char separator;
 	char typesep; // Type seperator
-	enum { maxItemLen=1000 };
+	enum { 
+		maxItemLen = 1000 
+	};
 	std::vector<int> sortMatrix;
-
 public:
-
 	bool ignoreCase;
 	bool chooseSingle;
 	ListBox *lb;

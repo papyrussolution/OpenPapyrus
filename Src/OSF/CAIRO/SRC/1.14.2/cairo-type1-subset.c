@@ -115,22 +115,17 @@ typedef struct _cairo_type1_font_subset {
 	char * type1_data;
 	uint type1_length;
 	char * type1_end;
-
 	char * header_segment;
 	int header_segment_size;
 	char * eexec_segment;
 	int eexec_segment_size;
 	cairo_bool_t eexec_segment_is_ascii;
-
 	char * cleartext;
 	char * cleartext_end;
-
 	int header_size;
-
 	ushort eexec_key;
 	cairo_bool_t hex_encode;
 	int hex_column;
-
 	struct {
 		double stack[TYPE1_STACKSIZE];
 		int sp;
@@ -155,12 +150,9 @@ static cairo_status_t _cairo_type1_font_subset_init(cairo_type1_font_subset_t  *
 	font->num_subrs = 0;
 	font->subset_subrs = TRUE;
 	font->subrs = NULL;
-
 	font->hex_encode = hex_encode;
 	font->num_glyphs = 0;
-
 	_cairo_array_init(&font->contents, sizeof(char));
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -168,53 +160,41 @@ static void cairo_type1_font_subset_use_glyph(cairo_type1_font_subset_t * font, 
 {
 	if(font->glyphs[glyph].subset_index >= 0)
 		return;
-
 	font->glyphs[glyph].subset_index = font->num_glyphs;
 	font->subset_index_to_glyphs[font->num_glyphs] = glyph;
 	font->num_glyphs++;
 }
 
-static cairo_bool_t is_ps_delimiter(int c)
+static cairo_bool_t FASTCALL is_ps_delimiter(int c)
 {
 	static const char delimiters[] = "()[]{}<>/% \t\r\n";
-
 	return strchr(delimiters, c) != NULL;
 }
 
 static const char * find_token(const char * buffer, const char * end, const char * token)
 {
-	int i, length;
-	/* FIXME: find substring really must be find_token */
-
-	if(buffer == NULL)
-		return NULL;
-
-	length = strlen(token);
-	for(i = 0; buffer + i < end - length + 1; i++)
-		if(memcmp(buffer + i, token, length) == 0)
-			if((i == 0 || token[0] == '/' || is_ps_delimiter(buffer[i - 1])) &&
-			    (buffer + i == end - length || is_ps_delimiter(buffer[i + length])))
-				return buffer + i;
-
+	// FIXME: find substring really must be find_token 
+	if(buffer) {
+		int length = strlen(token);
+		for(int i = 0; buffer + i < end - length + 1; i++)
+			if(memcmp(buffer + i, token, length) == 0)
+				if((i == 0 || token[0] == '/' || is_ps_delimiter(buffer[i-1])) && (buffer + i == end - length || is_ps_delimiter(buffer[i + length])))
+					return buffer + i;
+	}
 	return NULL;
 }
 
 static cairo_status_t cairo_type1_font_subset_find_segments(cairo_type1_font_subset_t * font)
 {
-	uchar * p;
 	const char * eexec_token;
 	int size, i;
-
-	p = (uchar*)font->type1_data;
+	uchar * p = (uchar*)font->type1_data;
 	font->type1_end = font->type1_data + font->type1_length;
 	if(p[0] == 0x80 && p[1] == 0x01) {
-		font->header_segment_size =
-		    p[2] | (p[3] << 8) | (p[4] << 16) | (p[5] << 24);
+		font->header_segment_size = p[2] | (p[3] << 8) | (p[4] << 16) | (p[5] << 24);
 		font->header_segment = (char*)p + 6;
-
 		p += 6 + font->header_segment_size;
-		font->eexec_segment_size =
-		    p[2] | (p[3] << 8) | (p[4] << 16) | (p[5] << 24);
+		font->eexec_segment_size = p[2] | (p[3] << 8) | (p[4] << 16) | (p[5] << 24);
 		font->eexec_segment = (char*)p + 6;
 		font->eexec_segment_is_ascii = (p[1] == 1);
 
@@ -229,7 +209,6 @@ static cairo_status_t cairo_type1_font_subset_find_segments(cairo_type1_font_sub
 		eexec_token = find_token((char*)p, font->type1_end, "eexec");
 		if(eexec_token == NULL)
 			return CAIRO_INT_STATUS_UNSUPPORTED;
-
 		font->header_segment_size = eexec_token - (char*)p + strlen("eexec\n");
 		font->header_segment = (char*)p;
 		font->eexec_segment_size = font->type1_length - font->header_segment_size;
@@ -255,15 +234,15 @@ static cairo_status_t cairo_type1_font_subset_find_segments(cairo_type1_font_sub
  */
 static void cairo_type1_font_erase_dict_key(cairo_type1_font_subset_t * font, const char * key)
 {
-	const char * start, * p, * segment_end;
-	segment_end = font->header_segment + font->header_segment_size;
-	start = font->header_segment;
+	const char * p;
+	const char * segment_end = font->header_segment + font->header_segment_size;
+	const char * start = font->header_segment;
 	do {
 		start = find_token(start, segment_end, key);
 		if(start) {
 			p = start + strlen(key);
 			/* skip integers or array of integers */
-			while(p < segment_end && (_cairo_isspace(*p) || _cairo_isdigit(*p) || *p == '[' || *p == ']')) {
+			while(p < segment_end && (_cairo_isspace(*p) || isdec(*p) || *p == '[' || *p == ']')) {
 				p++;
 			}
 			if(p + 3 < segment_end && memcmp(p, "def", 3) == 0) {

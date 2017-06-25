@@ -8,40 +8,34 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include <time.h>
-#include <vector>
-#include <map>
-
+//#include <time.h>
+//#include <vector>
+//#include <map>
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0500
 #undef WINVER
 #define WINVER 0x0500
-#include <windows.h>
-#include <commctrl.h>
-#include <richedit.h>
+//#include <windows.h>
+//#include <commctrl.h>
+//#include <richedit.h>
 #include <windowsx.h>
-
 #if defined(NTDDI_WIN7) && !defined(DISABLE_D2D)
-#define USE_D2D 1
+	#define USE_D2D 1
 #endif
-
 #if defined(USE_D2D)
-#include <d2d1.h>
-#include <dwrite.h>
+	#include <d2d1.h>
+	#include <dwrite.h>
 #endif
-
-#include "Platform.h"
-#include "StringCopy.h"
+//#include "Platform.h"
+//#include "StringCopy.h"
 #include "XPM.h"
 #include "UniConversion.h"
 #include "FontQuality.h"
-
 #ifndef IDC_HAND
-#define IDC_HAND MAKEINTRESOURCE(32649)
+	#define IDC_HAND MAKEINTRESOURCE(32649)
 #endif
-
 #ifndef SPI_GETFONTSMOOTHINGCONTRAST
-#define SPI_GETFONTSMOOTHINGCONTRAST    0x200C
+	#define SPI_GETFONTSMOOTHINGCONTRAST    0x200C
 #endif
 
 static void * PointerFromWindow(HWND hWnd)
@@ -240,23 +234,16 @@ HFONT FormatAndMetrics::HFont()
 }
 
 #ifndef CLEARTYPE_QUALITY
-#define CLEARTYPE_QUALITY 5
+	#define CLEARTYPE_QUALITY 5
 #endif
 
-static BYTE Win32MapFontQuality(int extraFontFlag)
+static BYTE FASTCALL Win32MapFontQuality(int extraFontFlag)
 {
 	switch(extraFontFlag & SC_EFF_QUALITY_MASK) {
-		case SC_EFF_QUALITY_NON_ANTIALIASED:
-		    return NONANTIALIASED_QUALITY;
-
-		case SC_EFF_QUALITY_ANTIALIASED:
-		    return ANTIALIASED_QUALITY;
-
-		case SC_EFF_QUALITY_LCD_OPTIMIZED:
-		    return CLEARTYPE_QUALITY;
-
-		default:
-		    return SC_EFF_QUALITY_DEFAULT;
+		case SC_EFF_QUALITY_NON_ANTIALIASED: return NONANTIALIASED_QUALITY;
+		case SC_EFF_QUALITY_ANTIALIASED: return ANTIALIASED_QUALITY;
+		case SC_EFF_QUALITY_LCD_OPTIMIZED: return CLEARTYPE_QUALITY;
+		default: return SC_EFF_QUALITY_DEFAULT;
 	}
 }
 
@@ -264,17 +251,10 @@ static BYTE Win32MapFontQuality(int extraFontFlag)
 static D2D1_TEXT_ANTIALIAS_MODE DWriteMapFontQuality(int extraFontFlag)
 {
 	switch(extraFontFlag & SC_EFF_QUALITY_MASK) {
-		case SC_EFF_QUALITY_NON_ANTIALIASED:
-		    return D2D1_TEXT_ANTIALIAS_MODE_ALIASED;
-
-		case SC_EFF_QUALITY_ANTIALIASED:
-		    return D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE;
-
-		case SC_EFF_QUALITY_LCD_OPTIMIZED:
-		    return D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE;
-
-		default:
-		    return D2D1_TEXT_ANTIALIAS_MODE_DEFAULT;
+		case SC_EFF_QUALITY_NON_ANTIALIASED: return D2D1_TEXT_ANTIALIAS_MODE_ALIASED;
+		case SC_EFF_QUALITY_ANTIALIASED: return D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE;
+		case SC_EFF_QUALITY_LCD_OPTIMIZED: return D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE;
+		default: return D2D1_TEXT_ANTIALIAS_MODE_DEFAULT;
 	}
 }
 
@@ -489,17 +469,12 @@ template <typename T, int lengthStandard> class VarBuffer {
 	T bufferStandard[lengthStandard];
 	// Private so VarBuffer objects can not be copied
 	VarBuffer(const VarBuffer &);
-	VarBuffer &operator=(const VarBuffer &);
+	VarBuffer & operator = (const VarBuffer &);
 public:
 	T * buffer;
 	explicit VarBuffer(size_t length) : buffer(0)
 	{
-		if(length > lengthStandard) {
-			buffer = new T[length];
-		}
-		else {
-			buffer = bufferStandard;
-		}
+		buffer = (length > lengthStandard) ? new T[length] : bufferStandard;
 	}
 	~VarBuffer()
 	{
@@ -1896,7 +1871,7 @@ void SurfaceD2D::SetDBCSMode(int codePage_)
 
 #endif
 
-Surface * Surface::Allocate(int technology)
+Surface * FASTCALL Surface::Allocate(int technology)
 {
 #if defined(USE_D2D)
 	if(technology == SCWIN_TECH_GDI)

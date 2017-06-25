@@ -7,9 +7,9 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include <stdexcept>
-#include <algorithm>
-#include "Position.h"
+//#include <stdexcept>
+//#include <algorithm>
+//#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -39,8 +39,7 @@ DecorationList::DecorationList() : currentIndicator(0), currentValue(1), current
 
 DecorationList::~DecorationList()
 {
-	Decoration * deco = root;
-	while(deco) {
+	for(Decoration * deco = root; deco;) {
 		Decoration * decoNext = deco->next;
 		delete deco;
 		deco = decoNext;
@@ -64,10 +63,8 @@ Decoration * DecorationList::Create(int indicator, int length)
 	currentIndicator = indicator;
 	Decoration * decoNew = new Decoration(indicator);
 	decoNew->rs.InsertSpace(0, length);
-
 	Decoration * decoPrev = 0;
 	Decoration * deco = root;
-
 	while(deco && (deco->indicator < indicator)) {
 		decoPrev = deco;
 		deco = deco->next;
@@ -126,9 +123,7 @@ bool DecorationList::FillRange(int &position, int value, int &fillLength)
 {
 	if(!current) {
 		current = DecorationFromIndicator(currentIndicator);
-		if(!current) {
-			current = Create(currentIndicator, lengthDocument);
-		}
+		SETIFZ(current, Create(currentIndicator, lengthDocument));
 	}
 	bool changed = current->rs.FillRange(position, value, fillLength);
 	if(current->Empty()) {

@@ -1,16 +1,16 @@
 // Scintilla source code edit control
 /** @file LexProps.cxx
- ** Lexer for properties files.
- **/
+** Lexer for properties files.
+**/
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include "ILexer.h"
-#include "SciLexer.h"
-#include "WordList.h"
+//#include "ILexer.h"
+//#include "SciLexer.h"
+//#include "WordList.h"
 #include "LexAccessor.h"
 #include "Accessor.h"
 #include "StyleContext.h"
@@ -21,60 +21,68 @@
 using namespace Scintilla;
 #endif
 
-static inline bool AtEOL(Accessor &styler, Sci_PositionU i) {
+static inline bool AtEOL(Accessor &styler, Sci_PositionU i)
+{
 	return (styler[i] == '\n') ||
 	       ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
 }
 
-static inline bool isassignchar(uchar ch) {
+static inline bool isassignchar(uchar ch)
+{
 	return (ch == '=') || (ch == ':');
 }
 
-static void ColourisePropsLine(
-    char *lineBuffer,
+static void ColourisePropsLine(char * lineBuffer,
     Sci_PositionU lengthLine,
     Sci_PositionU startLine,
     Sci_PositionU endPos,
     Accessor &styler,
-    bool allowInitialSpaces) {
-
+    bool allowInitialSpaces)
+{
 	Sci_PositionU i = 0;
-	if (allowInitialSpaces) {
-		while ((i < lengthLine) && isspacechar(lineBuffer[i]))	// Skip initial spaces
+	if(allowInitialSpaces) {
+		while((i < lengthLine) && isspacechar(lineBuffer[i]))   // Skip initial spaces
 			i++;
-	} else {
-		if (isspacechar(lineBuffer[i])) // don't allow initial spaces
+	}
+	else {
+		if(isspacechar(lineBuffer[i]))  // don't allow initial spaces
 			i = lengthLine;
 	}
 
-	if (i < lengthLine) {
-		if (lineBuffer[i] == '#' || lineBuffer[i] == '!' || lineBuffer[i] == ';') {
+	if(i < lengthLine) {
+		if(lineBuffer[i] == '#' || lineBuffer[i] == '!' || lineBuffer[i] == ';') {
 			styler.ColourTo(endPos, SCE_PROPS_COMMENT);
-		} else if (lineBuffer[i] == '[') {
+		}
+		else if(lineBuffer[i] == '[') {
 			styler.ColourTo(endPos, SCE_PROPS_SECTION);
-		} else if (lineBuffer[i] == '@') {
+		}
+		else if(lineBuffer[i] == '@') {
 			styler.ColourTo(startLine + i, SCE_PROPS_DEFVAL);
-			if (isassignchar(lineBuffer[i++]))
+			if(isassignchar(lineBuffer[i++]))
 				styler.ColourTo(startLine + i, SCE_PROPS_ASSIGNMENT);
 			styler.ColourTo(endPos, SCE_PROPS_DEFAULT);
-		} else {
+		}
+		else {
 			// Search for the '=' character
-			while ((i < lengthLine) && !isassignchar(lineBuffer[i]))
+			while((i < lengthLine) && !isassignchar(lineBuffer[i]))
 				i++;
-			if ((i < lengthLine) && isassignchar(lineBuffer[i])) {
+			if((i < lengthLine) && isassignchar(lineBuffer[i])) {
 				styler.ColourTo(startLine + i - 1, SCE_PROPS_KEY);
 				styler.ColourTo(startLine + i, SCE_PROPS_ASSIGNMENT);
 				styler.ColourTo(endPos, SCE_PROPS_DEFAULT);
-			} else {
+			}
+			else {
 				styler.ColourTo(endPos, SCE_PROPS_DEFAULT);
 			}
 		}
-	} else {
+	}
+	else {
 		styler.ColourTo(endPos, SCE_PROPS_DEFAULT);
 	}
 }
 
-static void ColourisePropsDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler) {
+static void ColourisePropsDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+{
 	char lineBuffer[1024];
 	styler.StartAt(startPos);
 	styler.StartSegment(startPos);
@@ -87,9 +95,9 @@ static void ColourisePropsDoc(Sci_PositionU startPos, Sci_Position length, int, 
 	//	can be used for RFC2822 text where indentation is used for continuation lines.
 	bool allowInitialSpaces = styler.GetPropertyInt("lexer.props.allow.initial.spaces", 1) != 0;
 
-	for (Sci_PositionU i = startPos; i < startPos + length; i++) {
+	for(Sci_PositionU i = startPos; i < startPos + length; i++) {
 		lineBuffer[linePos++] = styler[i];
-		if (AtEOL(styler, i) || (linePos >= sizeof(lineBuffer) - 1)) {
+		if(AtEOL(styler, i) || (linePos >= sizeof(lineBuffer) - 1)) {
 			// End of line (or of line buffer) met, colourise it
 			lineBuffer[linePos] = '\0';
 			ColourisePropsLine(lineBuffer, linePos, startLine, i, styler, allowInitialSpaces);
@@ -97,14 +105,15 @@ static void ColourisePropsDoc(Sci_PositionU startPos, Sci_Position length, int, 
 			startLine = i + 1;
 		}
 	}
-	if (linePos > 0) {	// Last line does not have ending characters
+	if(linePos > 0) {       // Last line does not have ending characters
 		ColourisePropsLine(lineBuffer, linePos, startLine, startPos + length - 1, styler, allowInitialSpaces);
 	}
 }
 
 // adaption by ksc, using the "} else {" trick of 1.53
 // 030721
-static void FoldPropsDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler) {
+static void FoldPropsDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+{
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 
 	Sci_PositionU endPos = startPos + length;
@@ -116,7 +125,7 @@ static void FoldPropsDoc(Sci_PositionU startPos, Sci_Position length, int, WordL
 	bool headerPoint = false;
 	int lev;
 
-	for (Sci_PositionU i = startPos; i < endPos; i++) {
+	for(Sci_PositionU i = startPos; i < endPos; i++) {
 		char ch = chNext;
 		chNext = styler[i+1];
 
@@ -124,33 +133,34 @@ static void FoldPropsDoc(Sci_PositionU startPos, Sci_Position length, int, WordL
 		styleNext = styler.StyleAt(i + 1);
 		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
 
-		if (style == SCE_PROPS_SECTION) {
+		if(style == SCE_PROPS_SECTION) {
 			headerPoint = true;
 		}
 
-		if (atEOL) {
+		if(atEOL) {
 			lev = SC_FOLDLEVELBASE;
 
-			if (lineCurrent > 0) {
+			if(lineCurrent > 0) {
 				int levelPrevious = styler.LevelAt(lineCurrent - 1);
 
-				if (levelPrevious & SC_FOLDLEVELHEADERFLAG) {
+				if(levelPrevious & SC_FOLDLEVELHEADERFLAG) {
 					lev = SC_FOLDLEVELBASE + 1;
-				} else {
+				}
+				else {
 					lev = levelPrevious & SC_FOLDLEVELNUMBERMASK;
 				}
 			}
 
-			if (headerPoint) {
+			if(headerPoint) {
 				lev = SC_FOLDLEVELBASE;
 			}
-			if (visibleChars == 0 && foldCompact)
+			if(visibleChars == 0 && foldCompact)
 				lev |= SC_FOLDLEVELWHITEFLAG;
 
-			if (headerPoint) {
+			if(headerPoint) {
 				lev |= SC_FOLDLEVELHEADERFLAG;
 			}
-			if (lev != styler.LevelAt(lineCurrent)) {
+			if(lev != styler.LevelAt(lineCurrent)) {
 				styler.SetLevel(lineCurrent, lev);
 			}
 
@@ -158,25 +168,27 @@ static void FoldPropsDoc(Sci_PositionU startPos, Sci_Position length, int, WordL
 			visibleChars = 0;
 			headerPoint = false;
 		}
-		if (!isspacechar(ch))
+		if(!isspacechar(ch))
 			visibleChars++;
 	}
 
-	if (lineCurrent > 0) {
+	if(lineCurrent > 0) {
 		int levelPrevious = styler.LevelAt(lineCurrent - 1);
-		if (levelPrevious & SC_FOLDLEVELHEADERFLAG) {
+		if(levelPrevious & SC_FOLDLEVELHEADERFLAG) {
 			lev = SC_FOLDLEVELBASE + 1;
-		} else {
+		}
+		else {
 			lev = levelPrevious & SC_FOLDLEVELNUMBERMASK;
 		}
-	} else {
+	}
+	else {
 		lev = SC_FOLDLEVELBASE;
 	}
 	int flagsNext = styler.LevelAt(lineCurrent);
 	styler.SetLevel(lineCurrent, lev | (flagsNext & ~SC_FOLDLEVELNUMBERMASK));
 }
 
-static const char *const emptyWordListDesc[] = {
+static const char * const emptyWordListDesc[] = {
 	0
 };
 

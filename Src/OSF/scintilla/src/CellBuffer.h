@@ -131,10 +131,8 @@ private:
 	SplitVector<char> style;
 	bool readOnly;
 	int utf8LineEnds;
-
 	bool collectingUndo;
 	UndoHistory uh;
-
 	LineVector lv;
 
 	bool UTF8LineEndOverlaps(int position) const;
@@ -142,71 +140,60 @@ private:
 	/// Actions without undo
 	void BasicInsertString(int position, const char *s, int insertLength);
 	void BasicDeleteChars(int position, int deleteLength);
-
 public:
-
 	CellBuffer();
 	~CellBuffer();
-
 	/// Retrieving positions outside the range of the buffer works and returns 0
-	char CharAt(int position) const;
-	void GetCharRange(char *buffer, int position, int lengthRetrieve) const;
-	char StyleAt(int position) const;
-	void GetStyleRange(uchar *buffer, int position, int lengthRetrieve) const;
-	const char *BufferPointer();
-	const char *RangePointer(int position, int rangeLength);
-	int GapPosition() const;
-
-	int Length() const;
-	void Allocate(int newSize);
-	int GetLineEndTypes() const { return utf8LineEnds; }
-	void SetLineEndTypes(int utf8LineEnds_);
-	bool ContainsLineEnd(const char *s, int length) const;
-	void SetPerLine(PerLine *pl);
-	int Lines() const;
-	int LineStart(int line) const;
-	int LineFromPosition(int pos) const { return lv.LineFromPosition(pos); }
-	void InsertLine(int line, int position, bool lineStart);
-	void RemoveLine(int line);
-	const char *InsertString(int position, const char *s, int insertLength, bool &startSequence);
-
+	char   FASTCALL CharAt(int position) const;
+	void   GetCharRange(char *buffer, int position, int lengthRetrieve) const;
+	char   FASTCALL StyleAt(int position) const;
+	void   GetStyleRange(uchar *buffer, int position, int lengthRetrieve) const;
+	const char * BufferPointer();
+	const char * RangePointer(int position, int rangeLength);
+	int    GapPosition() const;
+	int    Length() const;
+	void   FASTCALL Allocate(int newSize);
+	int    GetLineEndTypes() const { return utf8LineEnds; }
+	void   SetLineEndTypes(int utf8LineEnds_);
+	bool   ContainsLineEnd(const char *s, int length) const;
+	void   SetPerLine(PerLine *pl);
+	int    Lines() const;
+	int    LineStart(int line) const;
+	int    LineFromPosition(int pos) const { return lv.LineFromPosition(pos); }
+	void   InsertLine(int line, int position, bool lineStart);
+	void   RemoveLine(int line);
+	const char * InsertString(int position, const char *s, int insertLength, bool &startSequence);
 	/// Setting styles for positions outside the range of the buffer is safe and has no effect.
 	/// @return true if the style of a character is changed.
-	bool SetStyleAt(int position, char styleValue);
-	bool SetStyleFor(int position, int length, char styleValue);
-
+	bool   SetStyleAt(int position, char styleValue);
+	bool   SetStyleFor(int position, int length, char styleValue);
 	const char *DeleteChars(int position, int deleteLength, bool &startSequence);
-
-	bool IsReadOnly() const;
-	void SetReadOnly(bool set);
-
+	bool   IsReadOnly() const;
+	void   SetReadOnly(bool set);
 	/// The save point is a marker in the undo stack where the container has stated that
 	/// the buffer was saved. Undo and redo can move over the save point.
-	void SetSavePoint();
-	bool IsSavePoint() const;
-
-	void TentativeStart();
-	void TentativeCommit();
-	bool TentativeActive() const;
-	int TentativeSteps();
-
-	bool SetUndoCollection(bool collectUndo);
-	bool IsCollectingUndo() const;
-	void BeginUndoAction();
-	void EndUndoAction();
-	void AddUndoAction(int token, bool mayCoalesce);
-	void DeleteUndoHistory();
-
+	void   SetSavePoint();
+	bool   IsSavePoint() const;
+	void   TentativeStart();
+	void   TentativeCommit();
+	bool   TentativeActive() const;
+	int    TentativeSteps();
+	bool   SetUndoCollection(bool collectUndo);
+	bool   IsCollectingUndo() const;
+	void   BeginUndoAction();
+	void   EndUndoAction();
+	void   AddUndoAction(int token, bool mayCoalesce);
+	void   DeleteUndoHistory();
 	/// To perform an undo, StartUndo is called to retrieve the number of steps, then UndoStep is
 	/// called that many times. Similarly for redo.
-	bool CanUndo() const;
+	bool   CanUndo() const;
 	int StartUndo();
 	const Action &GetUndoStep() const;
-	void PerformUndoStep();
-	bool CanRedo() const;
-	int StartRedo();
-	const Action &GetRedoStep() const;
-	void PerformRedoStep();
+	void   PerformUndoStep();
+	bool   CanRedo() const;
+	int    StartRedo();
+	const Action & GetRedoStep() const;
+	void   PerformRedoStep();
 };
 
 #ifdef SCI_NAMESPACE

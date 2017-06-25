@@ -224,8 +224,7 @@ cairo_clip_t * _cairo_clip_intersect_boxes(cairo_clip_t * clip, const cairo_boxe
 		return _cairo_clip_set_all_clipped(clip);
 	if(boxes->num_boxes == 1)
 		return _cairo_clip_intersect_box(clip, boxes->chunks.base);
-	if(clip == NULL)
-		clip = _cairo_clip_create();
+	SETIFZ(clip, _cairo_clip_create());
 	if(clip->num_boxes) {
 		_cairo_boxes_init_for_array(&clip_boxes, clip->boxes, clip->num_boxes);
 		if(unlikely(_cairo_boxes_intersect(&clip_boxes, boxes, &clip_boxes))) {
@@ -269,22 +268,17 @@ out:
 	return clip;
 }
 
-cairo_clip_t * _cairo_clip_intersect_rectangle(cairo_clip_t       * clip,
-    const CairoIRect * r)
+cairo_clip_t * _cairo_clip_intersect_rectangle(cairo_clip_t * clip, const CairoIRect * r)
 {
 	cairo_box_t box;
-
 	if(_cairo_clip_is_all_clipped(clip))
 		return clip;
-
 	if(r->width == 0 || r->height == 0)
 		return _cairo_clip_set_all_clipped(clip);
-
 	box.p1.x = _cairo_fixed_from_int(r->x);
 	box.p1.y = _cairo_fixed_from_int(r->y);
 	box.p2.x = _cairo_fixed_from_int(r->x + r->width);
 	box.p2.y = _cairo_fixed_from_int(r->y + r->height);
-
 	return _cairo_clip_intersect_rectangle_box(clip, r, &box);
 }
 
@@ -293,43 +287,30 @@ struct reduce {
 	cairo_box_t limit;
 	cairo_box_t extents;
 	cairo_bool_t inside;
-
 	cairo_point_t current_point;
 	cairo_point_t last_move_to;
 };
 
-static void _add_clipped_edge(struct reduce * r,
-    const cairo_point_t * p1,
-    const cairo_point_t * p2,
-    int y1, int y2)
+static void _add_clipped_edge(struct reduce * r, const cairo_point_t * p1, const cairo_point_t * p2, int y1, int y2)
 {
-	cairo_fixed_t x;
-
-	x = _cairo_edge_compute_intersection_x_for_y(p1, p2, y1);
+	cairo_fixed_t x = _cairo_edge_compute_intersection_x_for_y(p1, p2, y1);
 	if(x < r->extents.p1.x)
 		r->extents.p1.x = x;
-
 	x = _cairo_edge_compute_intersection_x_for_y(p1, p2, y2);
 	if(x > r->extents.p2.x)
 		r->extents.p2.x = x;
-
 	if(y1 < r->extents.p1.y)
 		r->extents.p1.y = y1;
-
 	if(y2 > r->extents.p2.y)
 		r->extents.p2.y = y2;
-
 	r->inside = TRUE;
 }
 
-static void _add_edge(struct reduce * r,
-    const cairo_point_t * p1,
-    const cairo_point_t * p2)
+static void _add_edge(struct reduce * r, const cairo_point_t * p1, const cairo_point_t * p2)
 {
 	int top, bottom;
 	int top_y, bot_y;
 	int n;
-
 	if(p1->y < p2->y) {
 		top = p1->y;
 		bottom = p2->y;
@@ -338,39 +319,28 @@ static void _add_edge(struct reduce * r,
 		top = p2->y;
 		bottom = p1->y;
 	}
-
 	if(bottom < r->limit.p1.y || top > r->limit.p2.y)
 		return;
-
 	if(p1->x > p2->x) {
 		const cairo_point_t * t = p1;
 		p1 = p2;
 		p2 = t;
 	}
-
 	if(p2->x <= r->limit.p1.x || p1->x >= r->limit.p2.x)
 		return;
-
 	for(n = 0; n < r->clip->num_boxes; n++) {
 		const cairo_box_t * limits = &r->clip->boxes[n];
-
 		if(bottom < limits->p1.y || top > limits->p2.y)
 			continue;
-
 		if(p2->x <= limits->p1.x || p1->x >= limits->p2.x)
 			continue;
-
 		if(p1->x >= limits->p1.x && p2->x <= limits->p1.x) {
 			top_y = top;
 			bot_y = bottom;
 		}
 		else {
-			int p1_y, p2_y;
-
-			p1_y = _cairo_edge_compute_intersection_y_for_x(p1, p2,
-			    limits->p1.x);
-			p2_y = _cairo_edge_compute_intersection_y_for_x(p1, p2,
-			    limits->p2.x);
+			const int p1_y = _cairo_edge_compute_intersection_y_for_x(p1, p2, limits->p1.x);
+			const int p2_y = _cairo_edge_compute_intersection_y_for_x(p1, p2, limits->p2.x);
 			if(p1_y < p2_y) {
 				top_y = p1_y;
 				bot_y = p2_y;
@@ -379,18 +349,11 @@ static void _add_edge(struct reduce * r,
 				top_y = p2_y;
 				bot_y = p1_y;
 			}
-
-			if(top_y < top)
-				top_y = top;
-			if(bot_y > bottom)
-				bot_y = bottom;
+			SETMAX(top_y, top);
+			SETMIN(bot_y, bottom);
 		}
-
-		if(top_y < limits->p1.y)
-			top_y = limits->p1.y;
-
-		if(bot_y > limits->p2.y)
-			bot_y = limits->p2.y;
+		SETMAX(top_y, limits->p1.y);
+		SETMIN(bot_y, limits->p2.y);
 		if(bot_y > top_y)
 			_add_clipped_edge(r, p1, p2, top_y, bot_y);
 	}
@@ -424,72 +387,51 @@ static cairo_status_t _reduce_move_to(void * closure, const cairo_point_t * poin
 static cairo_clip_t * _cairo_clip_reduce_to_boxes(cairo_clip_t * clip)
 {
 	struct reduce r;
-
 	cairo_clip_path_t * clip_path;
 	cairo_status_t status;
-
-	return clip;
+	return clip; // @?
 	if(clip->path == NULL)
 		return clip;
-
 	r.clip = clip;
 	r.extents.p1.x = r.extents.p1.y = INT_MAX;
 	r.extents.p2.x = r.extents.p2.y = INT_MIN;
 	r.inside = FALSE;
-
 	r.limit.p1.x = _cairo_fixed_from_int(clip->extents.x);
 	r.limit.p1.y = _cairo_fixed_from_int(clip->extents.y);
 	r.limit.p2.x = _cairo_fixed_from_int(clip->extents.x + clip->extents.width);
 	r.limit.p2.y = _cairo_fixed_from_int(clip->extents.y + clip->extents.height);
-
 	clip_path = clip->path;
 	do {
 		r.current_point.x = 0;
 		r.current_point.y = 0;
 		r.last_move_to = r.current_point;
-
-		status = _cairo_path_fixed_interpret_flat(&clip_path->path,
-		    _reduce_move_to,
-		    _reduce_line_to,
-		    _reduce_close,
-		    &r,
-		    clip_path->tolerance);
+		status = _cairo_path_fixed_interpret_flat(&clip_path->path, _reduce_move_to, _reduce_line_to, _reduce_close, &r, clip_path->tolerance);
 		assert(status == CAIRO_STATUS_SUCCESS);
 		_reduce_close(&r);
 	} while((clip_path = clip_path->prev));
-
 	if(!r.inside) {
 		_cairo_clip_path_destroy(clip->path);
 		clip->path = NULL;
 	}
-
 	return _cairo_clip_intersect_box(clip, &r.extents);
 }
 
-cairo_clip_t * _cairo_clip_reduce_to_rectangle(const cairo_clip_t * clip,
-    const CairoIRect * r)
+cairo_clip_t * _cairo_clip_reduce_to_rectangle(const cairo_clip_t * clip, const CairoIRect * r)
 {
 	cairo_clip_t * copy;
-
 	if(_cairo_clip_is_all_clipped(clip))
 		return (cairo_clip_t*)clip;
-
 	if(_cairo_clip_contains_rectangle(clip, r))
 		return _cairo_clip_intersect_rectangle(NULL, r);
-
 	copy = _cairo_clip_copy_intersect_rectangle(clip, r);
 	if(_cairo_clip_is_all_clipped(copy))
 		return copy;
-
 	return _cairo_clip_reduce_to_boxes(copy);
 }
 
-cairo_clip_t * _cairo_clip_reduce_for_composite(const cairo_clip_t * clip,
-    cairo_composite_rectangles_t * extents)
+cairo_clip_t * _cairo_clip_reduce_for_composite(const cairo_clip_t * clip, cairo_composite_rectangles_t * extents)
 {
-	const CairoIRect * r;
-
-	r = extents->is_bounded ? &extents->bounded : &extents->unbounded;
+	const CairoIRect * r = extents->is_bounded ? &extents->bounded : &extents->unbounded;
 	return _cairo_clip_reduce_to_rectangle(clip, r);
 }
 
@@ -499,7 +441,6 @@ cairo_clip_t * _cairo_clip_from_boxes(const cairo_boxes_t * boxes)
 	cairo_clip_t * clip = _cairo_clip_create();
 	if(clip == NULL)
 		return _cairo_clip_set_all_clipped(clip);
-
 	/* XXX cow-boxes? */
 	if(boxes->num_boxes == 1) {
 		clip->boxes = &clip->embedded_box;
@@ -511,10 +452,8 @@ cairo_clip_t * _cairo_clip_from_boxes(const cairo_boxes_t * boxes)
 		if(clip->boxes == NULL)
 			return _cairo_clip_set_all_clipped(clip);
 	}
-
 	_cairo_boxes_extents(boxes, &extents);
 	_cairo_box_round_to_rectangle(&extents, &clip->extents);
-
 	return clip;
 }
 

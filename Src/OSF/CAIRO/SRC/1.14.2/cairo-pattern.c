@@ -1818,10 +1818,10 @@ cairo_filter_t cairo_pattern_get_filter(cairo_pattern_t * pattern)
  **/
 void cairo_pattern_set_extend(cairo_pattern_t * pattern, cairo_extend_t extend)
 {
-	if(pattern->status)
-		return;
-	pattern->extend = extend;
-	_cairo_pattern_notify_observers(pattern, CAIRO_PATTERN_NOTIFY_EXTEND);
+	if(!pattern->status) {
+		pattern->extend = extend;
+		_cairo_pattern_notify_observers(pattern, CAIRO_PATTERN_NOTIFY_EXTEND);
+	}
 }
 
 /**

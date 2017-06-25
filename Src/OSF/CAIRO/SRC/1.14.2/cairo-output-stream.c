@@ -274,16 +274,12 @@ static void _cairo_dtostr(char * buffer, size_t size, double d, cairo_bool_t lim
 	char * p;
 	int decimal_len;
 	int num_zeros, decimal_digits;
-
-	/* Omit the minus sign from negative zero. */
+	// Omit the minus sign from negative zero. 
 	if(d == 0.0)
 		d = 0.0;
-
 	decimal_point = cairo_get_locale_decimal_point();
 	decimal_point_len = strlen(decimal_point);
-
 	assert(decimal_point_len != 0);
-
 	if(limited_precision) {
 		snprintf(buffer, size, "%.*f", FIXED_POINT_DECIMAL_DIGITS, d);
 	}
@@ -305,34 +301,25 @@ static void _cairo_dtostr(char * buffer, size_t size, double d, cairo_bool_t lim
 		else {
 			snprintf(buffer, size, "%.18f", d);
 			p = buffer;
-
 			if(*p == '+' || *p == '-')
 				p++;
-
-			while(_cairo_isdigit(*p))
+			while(isdec(*p))
 				p++;
-
 			if(strncmp(p, decimal_point, decimal_point_len) == 0)
 				p += decimal_point_len;
-
 			num_zeros = 0;
 			while(*p++ == '0')
 				num_zeros++;
-
 			decimal_digits = num_zeros + SIGNIFICANT_DIGITS_AFTER_DECIMAL;
-
 			if(decimal_digits < 18)
 				snprintf(buffer, size, "%.*f", decimal_digits, d);
 		}
 	}
 	p = buffer;
-
 	if(*p == '+' || *p == '-')
 		p++;
-
-	while(_cairo_isdigit(*p))
+	while(isdec(*p))
 		p++;
-
 	if(strncmp(p, decimal_point, decimal_point_len) == 0) {
 		*p = '.';
 		decimal_len = strlen(p + decimal_point_len);
@@ -394,7 +381,7 @@ void _cairo_output_stream_vprintf(cairo_output_stream_t * stream,
 			var_width = TRUE;
 			f++;
 		}
-		while(_cairo_isdigit(*f))
+		while(isdec(*f))
 			f++;
 		length_modifier = 0;
 		if(*f == 'l') {

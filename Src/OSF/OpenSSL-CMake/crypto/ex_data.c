@@ -10,7 +10,7 @@
 #pragma hdrstop
 #include "internal/cryptlib_int.h"
 #include "internal/thread_once.h"
-#include <openssl/lhash.h>
+//#include <openssl/lhash.h>
 
 /*
  * Each structure type (sometimes called a class), that supports

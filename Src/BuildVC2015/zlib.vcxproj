@@ -748,7 +748,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Osf\Zlib\deflate.c" />
-    <ClCompile Include="..\Osf\Zlib\infback.c" />
     <ClCompile Include="..\Osf\Zlib\inffast.c" />
     <ClCompile Include="..\Osf\Zlib\inflate.c" />
     <ClCompile Include="..\OSF\ZLIB\szlib.c" />

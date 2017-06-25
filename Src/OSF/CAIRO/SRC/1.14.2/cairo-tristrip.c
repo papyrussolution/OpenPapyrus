@@ -50,7 +50,6 @@ void _cairo_tristrip_fini(cairo_tristrip_t * strip)
 {
 	if(strip->points != strip->points_embedded)
 		SAlloc::F(strip->points);
-
 	VG(VALGRIND_MAKE_MEM_NOACCESS(strip, sizeof(cairo_tristrip_t)));
 }
 
@@ -62,16 +61,16 @@ void _cairo_tristrip_limit(cairo_tristrip_t * strip,
 	strip->num_limits = num_limits;
 }
 
-void _cairo_tristrip_init_with_clip(cairo_tristrip_t * strip,
-    const cairo_clip_t * clip)
+void _cairo_tristrip_init_with_clip(cairo_tristrip_t * strip, const cairo_clip_t * clip)
 {
 	_cairo_tristrip_init(strip);
 	if(clip)
 		_cairo_tristrip_limit(strip, clip->boxes, clip->num_boxes);
 }
-
-/* make room for at least one more trap */
-static cairo_bool_t _cairo_tristrip_grow(cairo_tristrip_t * strip)
+//
+// make room for at least one more trap 
+//
+static cairo_bool_t FASTCALL _cairo_tristrip_grow(cairo_tristrip_t * strip)
 {
 	cairo_point_t * points;
 	int new_size = 4 * strip->size_points;
@@ -96,25 +95,21 @@ static cairo_bool_t _cairo_tristrip_grow(cairo_tristrip_t * strip)
 	return TRUE;
 }
 
-void _cairo_tristrip_add_point(cairo_tristrip_t * strip,
-    const cairo_point_t * p)
+void FASTCALL _cairo_tristrip_add_point(cairo_tristrip_t * strip, const cairo_point_t * p)
 {
 	if(unlikely(strip->num_points == strip->size_points)) {
 		if(unlikely(!_cairo_tristrip_grow(strip)))
 			return;
 	}
-
 	strip->points[strip->num_points++] = *p;
 }
 
 /* Insert degenerate triangles to advance to the given point. The
  * next point inserted must also be @p. */
-void _cairo_tristrip_move_to(cairo_tristrip_t * strip,
-    const cairo_point_t * p)
+void _cairo_tristrip_move_to(cairo_tristrip_t * strip, const cairo_point_t * p)
 {
 	if(strip->num_points == 0)
 		return;
-
 	_cairo_tristrip_add_point(strip, &strip->points[strip->num_points-1]);
 	_cairo_tristrip_add_point(strip, p);
 #if 0

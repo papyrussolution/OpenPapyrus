@@ -91,7 +91,7 @@ private:
 	int    EncodeEnd();
 	int    FASTCALL BinarySearchSym(uint16);
 	int    FASTCALL BinarySearchPos(uint16);
-	int    StartDecode();
+	void   StartDecode();
 	int    DecodeChar();
 	int    DecodePosition();
 	int    SetFileInfo();
@@ -605,11 +605,10 @@ int FASTCALL LZAri::BinarySearchPos(uint16 x)
 	return i - 1;
 }
 
-int LZAri::StartDecode()
+void LZAri::StartDecode()
 {
 	for(int i = 0; i < M + 2; i++)
 		Value = 2 * Value + P_Bit->GetBit();
-	return 1;
 }
 
 int LZAri::DecodeChar()
@@ -739,7 +738,8 @@ int LZAri::Decode(PercentFunc pf)
 	if(!TextSize)
 		ok = -1;
 	else {
-		THROW_S(StartDecode() > 0 && StartModel() > 0, SLERR_CANTDECOMPRESS);
+		StartDecode();
+		THROW_S(StartModel() > 0, SLERR_CANTDECOMPRESS);
 		for(i = 0; i < N - F; i++)
 			P_Tree->P_TextBuf[i] = ' ';
 		for(count = 0; count < TextSize;) {
@@ -858,7 +858,7 @@ int LZAri::CheckCrc()
 	CRC32  _crc32;
 	THROW_V(p_buf = new char[buf_size], SLERR_NOMEM);
 	rewind(P_OutFile);
-	while((len = fread(p_buf, 1, buf_size, P_OutFile)) > 0) // @v5.3.2 AHTOXA
+	while((len = fread(p_buf, 1, buf_size, P_OutFile)) > 0) 
 		crc = _crc32.Calc(crc, (uint8 *)p_buf, (size_t)len);
 	THROW_V((long)crc == P_Header->CRC, SLERR_INVALIDCRC);
 	CATCHZOK

@@ -8,9 +8,9 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include <stdexcept>
-#include <algorithm>
-#include "Position.h"
+//#include <stdexcept>
+//#include <algorithm>
+//#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "CellBuffer.h"
@@ -33,9 +33,7 @@ LineVector::~LineVector()
 void LineVector::Init()
 {
 	starts.DeleteAll();
-	if(perLine) {
-		perLine->Init();
-	}
+	CALLPTRMEMB(perLine, Init());
 }
 
 void LineVector::SetPerLine(PerLine * pl)
@@ -66,9 +64,7 @@ void LineVector::SetLineStart(int line, int position)
 void LineVector::RemoveLine(int line)
 {
 	starts.RemovePartition(line);
-	if(perLine) {
-		perLine->RemoveLine(line);
-	}
+	CALLPTRMEMB(perLine, RemoveLine(line));
 }
 
 int LineVector::LineFromPosition(int pos) const
@@ -92,7 +88,7 @@ Action::~Action()
 
 void Action::Create(actionType at_, int position_, const char * data_, int lenData_, bool mayCoalesce_)
 {
-	delete []data;
+	delete [] data;
 	data = NULL;
 	position = position_;
 	at = at_;
@@ -106,20 +102,18 @@ void Action::Create(actionType at_, int position_, const char * data_, int lenDa
 
 void Action::Destroy()
 {
-	delete []data;
+	delete [] data;
 	data = 0;
 }
 
 void Action::Grab(Action * source)
 {
-	delete []data;
-
+	delete [] data;
 	position = source->position;
 	at = source->at;
 	data = source->data;
 	lenData = source->lenData;
 	mayCoalesce = source->mayCoalesce;
-
 	// Ownership of source data transferred to this
 	source->position = 0;
 	source->at = startAction;
@@ -155,7 +149,6 @@ UndoHistory::UndoHistory()
 	undoSequenceDepth = 0;
 	savePoint = 0;
 	tentativePoint = -1;
-
 	actions[currentAction].Create(startAction);
 }
 
@@ -357,7 +350,6 @@ int UndoHistory::StartUndo()
 	// Drop any trailing startAction
 	if(actions[currentAction].at == startAction && currentAction > 0)
 		currentAction--;
-
 	// Count the steps in this action
 	int act = currentAction;
 	while(actions[act].at != startAction && act > 0) {
@@ -386,7 +378,6 @@ int UndoHistory::StartRedo()
 	// Drop any leading startAction
 	if(actions[currentAction].at == startAction && currentAction < maxAction)
 		currentAction++;
-
 	// Count the steps in this action
 	int act = currentAction;
 	while(actions[act].at != startAction && act < maxAction) {
@@ -416,7 +407,7 @@ CellBuffer::~CellBuffer()
 {
 }
 
-char CellBuffer::CharAt(int position) const
+char FASTCALL CellBuffer::CharAt(int position) const
 {
 	return substance.ValueAt(position);
 }
@@ -428,14 +419,13 @@ void CellBuffer::GetCharRange(char * buffer, int position, int lengthRetrieve) c
 	if(position < 0)
 		return;
 	if((position + lengthRetrieve) > substance.Length()) {
-		Platform::DebugPrintf("Bad GetCharRange %d for %d of %d\n", position,
-		    lengthRetrieve, substance.Length());
+		Platform::DebugPrintf("Bad GetCharRange %d for %d of %d\n", position, lengthRetrieve, substance.Length());
 		return;
 	}
 	substance.GetRange(buffer, position, lengthRetrieve);
 }
 
-char CellBuffer::StyleAt(int position) const
+char FASTCALL CellBuffer::StyleAt(int position) const
 {
 	return style.ValueAt(position);
 }
@@ -447,8 +437,7 @@ void CellBuffer::GetStyleRange(uchar * buffer, int position, int lengthRetrieve)
 	if(position < 0)
 		return;
 	if((position + lengthRetrieve) > style.Length()) {
-		Platform::DebugPrintf("Bad GetStyleRange %d for %d of %d\n", position,
-		    lengthRetrieve, style.Length());
+		Platform::DebugPrintf("Bad GetStyleRange %d for %d of %d\n", position, lengthRetrieve, style.Length());
 		return;
 	}
 	style.GetRange(reinterpret_cast<char *>(buffer), position, lengthRetrieve);
@@ -480,7 +469,6 @@ const char * CellBuffer::InsertString(int position, const char * s, int insertLe
 			// This takes up about half load time
 			data = uh.AppendAction(insertAction, position, s, insertLength, startSequence);
 		}
-
 		BasicInsertString(position, s, insertLength);
 	}
 	return data;
@@ -501,8 +489,7 @@ bool CellBuffer::SetStyleAt(int position, char styleValue)
 bool CellBuffer::SetStyleFor(int position, int lengthStyle, char styleValue)
 {
 	bool changed = false;
-	PLATFORM_ASSERT(lengthStyle == 0 ||
-	    (lengthStyle > 0 && lengthStyle + position <= style.Length()));
+	PLATFORM_ASSERT(lengthStyle == 0 || (lengthStyle > 0 && lengthStyle + position <= style.Length()));
 	while(lengthStyle--) {
 		char curVal = style.ValueAt(position);
 		if(curVal != styleValue) {
@@ -527,7 +514,6 @@ const char * CellBuffer::DeleteChars(int position, int deleteLength, bool &start
 			data = substance.RangePointer(position, deleteLength);
 			data = uh.AppendAction(removeAction, position, data, deleteLength, startSequence);
 		}
-
 		BasicDeleteChars(position, deleteLength);
 	}
 	return data;
@@ -538,7 +524,7 @@ int CellBuffer::Length() const
 	return substance.Length();
 }
 
-void CellBuffer::Allocate(int newSize)
+void FASTCALL CellBuffer::Allocate(int newSize)
 {
 	substance.ReAllocate(newSize);
 	style.ReAllocate(newSize);
@@ -660,7 +646,6 @@ void CellBuffer::ResetLineEnds()
 {
 	// Reinitialize line data -- too much work to preserve
 	lv.Init();
-
 	int position = 0;
 	int length = Length();
 	int lineInsert = 1;
@@ -698,155 +683,147 @@ void CellBuffer::ResetLineEnds()
 
 void CellBuffer::BasicInsertString(int position, const char * s, int insertLength)
 {
-	if(insertLength == 0)
-		return;
-	PLATFORM_ASSERT(insertLength > 0);
-
-	uchar chAfter = substance.ValueAt(position);
-	bool breakingUTF8LineEnd = false;
-	if(utf8LineEnds && UTF8IsTrailByte(chAfter)) {
-		breakingUTF8LineEnd = UTF8LineEndOverlaps(position);
-	}
-
-	substance.InsertFromArray(position, s, 0, insertLength);
-	style.InsertValue(position, insertLength, 0);
-
-	int lineInsert = lv.LineFromPosition(position) + 1;
-	bool atLineStart = lv.LineStart(lineInsert-1) == position;
-	// Point all the lines after the insertion point further along in the buffer
-	lv.InsertText(lineInsert-1, insertLength);
-	uchar chBeforePrev = substance.ValueAt(position - 2);
-	uchar chPrev = substance.ValueAt(position - 1);
-	if(chPrev == '\r' && chAfter == '\n') {
-		// Splitting up a crlf pair at position
-		InsertLine(lineInsert, position, false);
-		lineInsert++;
-	}
-	if(breakingUTF8LineEnd) {
-		RemoveLine(lineInsert);
-	}
-	uchar ch = ' ';
-	for(int i = 0; i < insertLength; i++) {
-		ch = s[i];
-		if(ch == '\r') {
-			InsertLine(lineInsert, (position + i) + 1, atLineStart);
+	if(insertLength) {
+		PLATFORM_ASSERT(insertLength > 0);
+		uchar chAfter = substance.ValueAt(position);
+		bool breakingUTF8LineEnd = false;
+		if(utf8LineEnds && UTF8IsTrailByte(chAfter)) {
+			breakingUTF8LineEnd = UTF8LineEndOverlaps(position);
+		}
+		substance.InsertFromArray(position, s, 0, insertLength);
+		style.InsertValue(position, insertLength, 0);
+		int lineInsert = lv.LineFromPosition(position) + 1;
+		bool atLineStart = lv.LineStart(lineInsert-1) == position;
+		// Point all the lines after the insertion point further along in the buffer
+		lv.InsertText(lineInsert-1, insertLength);
+		uchar chBeforePrev = substance.ValueAt(position - 2);
+		uchar chPrev = substance.ValueAt(position - 1);
+		if(chPrev == '\r' && chAfter == '\n') {
+			// Splitting up a crlf pair at position
+			InsertLine(lineInsert, position, false);
 			lineInsert++;
 		}
-		else if(ch == '\n') {
-			if(chPrev == '\r') {
-				// Patch up what was end of line
-				lv.SetLineStart(lineInsert - 1, (position + i) + 1);
-			}
-			else {
+		if(breakingUTF8LineEnd) {
+			RemoveLine(lineInsert);
+		}
+		uchar ch = ' ';
+		for(int i = 0; i < insertLength; i++) {
+			ch = s[i];
+			if(ch == '\r') {
 				InsertLine(lineInsert, (position + i) + 1, atLineStart);
 				lineInsert++;
 			}
-		}
-		else if(utf8LineEnds) {
-			uchar back3[3] = {chBeforePrev, chPrev, ch};
-			if(UTF8IsSeparator(back3) || UTF8IsNEL(back3+1)) {
-				InsertLine(lineInsert, (position + i) + 1, atLineStart);
-				lineInsert++;
+			else if(ch == '\n') {
+				if(chPrev == '\r') {
+					lv.SetLineStart(lineInsert - 1, (position + i) + 1); // Patch up what was end of line
+				}
+				else {
+					InsertLine(lineInsert, (position + i) + 1, atLineStart);
+					lineInsert++;
+				}
 			}
-		}
-		chBeforePrev = chPrev;
-		chPrev = ch;
-	}
-	// Joining two lines where last insertion is cr and following substance starts with lf
-	if(chAfter == '\n') {
-		if(ch == '\r') {
-			// End of line already in buffer so drop the newly created one
-			RemoveLine(lineInsert - 1);
-		}
-	}
-	else if(utf8LineEnds && !UTF8IsAscii(chAfter)) {
-		// May have end of UTF-8 line end in buffer and start in insertion
-		for(int j = 0; j < UTF8SeparatorLength-1; j++) {
-			uchar chAt = substance.ValueAt(position + insertLength + j);
-			uchar back3[3] = {chBeforePrev, chPrev, chAt};
-			if(UTF8IsSeparator(back3)) {
-				InsertLine(lineInsert, (position + insertLength + j) + 1, atLineStart);
-				lineInsert++;
-			}
-			if((j == 0) && UTF8IsNEL(back3+1)) {
-				InsertLine(lineInsert, (position + insertLength + j) + 1, atLineStart);
-				lineInsert++;
+			else if(utf8LineEnds) {
+				uchar back3[3] = {chBeforePrev, chPrev, ch};
+				if(UTF8IsSeparator(back3) || UTF8IsNEL(back3+1)) {
+					InsertLine(lineInsert, (position + i) + 1, atLineStart);
+					lineInsert++;
+				}
 			}
 			chBeforePrev = chPrev;
-			chPrev = chAt;
+			chPrev = ch;
+		}
+		// Joining two lines where last insertion is cr and following substance starts with lf
+		if(chAfter == '\n') {
+			if(ch == '\r') {
+				RemoveLine(lineInsert - 1); // End of line already in buffer so drop the newly created one
+			}
+		}
+		else if(utf8LineEnds && !UTF8IsAscii(chAfter)) {
+			// May have end of UTF-8 line end in buffer and start in insertion
+			for(int j = 0; j < UTF8SeparatorLength-1; j++) {
+				uchar chAt = substance.ValueAt(position + insertLength + j);
+				uchar back3[3] = {chBeforePrev, chPrev, chAt};
+				if(UTF8IsSeparator(back3)) {
+					InsertLine(lineInsert, (position + insertLength + j) + 1, atLineStart);
+					lineInsert++;
+				}
+				if((j == 0) && UTF8IsNEL(back3+1)) {
+					InsertLine(lineInsert, (position + insertLength + j) + 1, atLineStart);
+					lineInsert++;
+				}
+				chBeforePrev = chPrev;
+				chPrev = chAt;
+			}
 		}
 	}
 }
 
 void CellBuffer::BasicDeleteChars(int position, int deleteLength)
 {
-	if(deleteLength == 0)
-		return;
-
-	if((position == 0) && (deleteLength == substance.Length())) {
-		// If whole buffer is being deleted, faster to reinitialise lines data
-		// than to delete each line.
-		lv.Init();
-	}
-	else {
-		// Have to fix up line positions before doing deletion as looking at text in buffer
-		// to work out which lines have been removed
-
-		int lineRemove = lv.LineFromPosition(position) + 1;
-		lv.InsertText(lineRemove-1, -(deleteLength));
-		uchar chPrev = substance.ValueAt(position - 1);
-		uchar chBefore = chPrev;
-		uchar chNext = substance.ValueAt(position);
-		bool ignoreNL = false;
-		if(chPrev == '\r' && chNext == '\n') {
-			// Move back one
-			lv.SetLineStart(lineRemove, position);
-			lineRemove++;
-			ignoreNL = true;        // First \n is not real deletion
+	if(deleteLength) {
+		if((position == 0) && (deleteLength == substance.Length())) {
+			// If whole buffer is being deleted, faster to reinitialise lines data
+			// than to delete each line.
+			lv.Init();
 		}
-		if(utf8LineEnds && UTF8IsTrailByte(chNext)) {
-			if(UTF8LineEndOverlaps(position)) {
-				RemoveLine(lineRemove);
+		else {
+			// Have to fix up line positions before doing deletion as looking at text in buffer
+			// to work out which lines have been removed
+			int lineRemove = lv.LineFromPosition(position) + 1;
+			lv.InsertText(lineRemove-1, -(deleteLength));
+			uchar chPrev = substance.ValueAt(position - 1);
+			uchar chBefore = chPrev;
+			uchar chNext = substance.ValueAt(position);
+			bool ignoreNL = false;
+			if(chPrev == '\r' && chNext == '\n') {
+				// Move back one
+				lv.SetLineStart(lineRemove, position);
+				lineRemove++;
+				ignoreNL = true;        // First \n is not real deletion
 			}
-		}
-		uchar ch = chNext;
-		for(int i = 0; i < deleteLength; i++) {
-			chNext = substance.ValueAt(position + i + 1);
-			if(ch == '\r') {
-				if(chNext != '\n') {
+			if(utf8LineEnds && UTF8IsTrailByte(chNext)) {
+				if(UTF8LineEndOverlaps(position)) {
 					RemoveLine(lineRemove);
 				}
 			}
-			else if(ch == '\n') {
-				if(ignoreNL) {
-					ignoreNL = false;       // Further \n are real deletions
-				}
-				else {
-					RemoveLine(lineRemove);
-				}
-			}
-			else if(utf8LineEnds) {
-				if(!UTF8IsAscii(ch)) {
-					uchar next3[3] = { ch, chNext, static_cast<uchar>(substance.ValueAt(position + i + 2)) };
-					if(UTF8IsSeparator(next3) || UTF8IsNEL(next3)) {
+			uchar ch = chNext;
+			for(int i = 0; i < deleteLength; i++) {
+				chNext = substance.ValueAt(position + i + 1);
+				if(ch == '\r') {
+					if(chNext != '\n') {
 						RemoveLine(lineRemove);
 					}
 				}
+				else if(ch == '\n') {
+					if(ignoreNL) {
+						ignoreNL = false;       // Further \n are real deletions
+					}
+					else {
+						RemoveLine(lineRemove);
+					}
+				}
+				else if(utf8LineEnds) {
+					if(!UTF8IsAscii(ch)) {
+						uchar next3[3] = { ch, chNext, static_cast<uchar>(substance.ValueAt(position + i + 2)) };
+						if(UTF8IsSeparator(next3) || UTF8IsNEL(next3)) {
+							RemoveLine(lineRemove);
+						}
+					}
+				}
+				ch = chNext;
 			}
-
-			ch = chNext;
+			// May have to fix up end if last deletion causes cr to be next to lf
+			// or removes one of a crlf pair
+			char chAfter = substance.ValueAt(position + deleteLength);
+			if(chBefore == '\r' && chAfter == '\n') {
+				// Using lineRemove-1 as cr ended line before start of deletion
+				RemoveLine(lineRemove - 1);
+				lv.SetLineStart(lineRemove - 1, position + 1);
+			}
 		}
-		// May have to fix up end if last deletion causes cr to be next to lf
-		// or removes one of a crlf pair
-		char chAfter = substance.ValueAt(position + deleteLength);
-		if(chBefore == '\r' && chAfter == '\n') {
-			// Using lineRemove-1 as cr ended line before start of deletion
-			RemoveLine(lineRemove - 1);
-			lv.SetLineStart(lineRemove - 1, position + 1);
-		}
+		substance.DeleteRange(position, deleteLength);
+		style.DeleteRange(position, deleteLength);
 	}
-	substance.DeleteRange(position, deleteLength);
-	style.DeleteRange(position, deleteLength);
 }
 
 bool CellBuffer::SetUndoCollection(bool collectUndo)
@@ -899,11 +876,10 @@ const Action &CellBuffer::GetUndoStep() const
 
 void CellBuffer::PerformUndoStep()
 {
-	const Action &actionStep = uh.GetUndoStep();
+	const Action & actionStep = uh.GetUndoStep();
 	if(actionStep.at == insertAction) {
 		if(substance.Length() < actionStep.lenData) {
-			throw std::runtime_error(
-			    "CellBuffer::PerformUndoStep: deletion must be less than document length.");
+			throw std::runtime_error("CellBuffer::PerformUndoStep: deletion must be less than document length.");
 		}
 		BasicDeleteChars(actionStep.position, actionStep.lenData);
 	}

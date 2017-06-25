@@ -8,10 +8,10 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include <stdexcept>
-#include <string>
+//#include <stdexcept>
+//#include <string>
+//#include "Position.h"
 #include "StringCopy.h"
-#include "Position.h"
 #include "CallTip.h"
 
 #ifdef SCI_NAMESPACE

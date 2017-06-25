@@ -71,9 +71,11 @@ static int b64_new(BIO * bi)
 		OPENSSL_free(ctx);
 		return 0;
 	}
-	BIO_set_data(bi, ctx);
-	BIO_set_init(bi, 1);
-	return 1;
+	else {
+		BIO_set_data(bi, ctx);
+		BIO_set_init(bi, 1);
+		return 1;
+	}
 }
 
 static int b64_free(BIO * a)
@@ -155,11 +157,9 @@ static int b64_read(BIO * b, char * out, int outl)
 		}
 		i += ctx->tmp_len;
 		ctx->tmp_len = i;
-
-		/*
-		 * We need to scan, a line at a time until we have a valid line if we
-		 * are starting.
-		 */
+		// 
+		// We need to scan, a line at a time until we have a valid line if we are starting.
+		// 
 		if(ctx->start && (BIO_get_flags(b) & BIO_FLAGS_BASE64_NO_NL)) {
 			/* ctx->start=1; */
 			ctx->tmp_len = 0;
@@ -170,7 +170,6 @@ static int b64_read(BIO * b, char * out, int outl)
 			for(j = 0; j < i; j++) {
 				if(*(q++) != '\n')
 					continue;
-
 				/*
 				 * due to a previous very long line, we need to keep on
 				 * scanning for a '\n' before we even start looking for
@@ -196,7 +195,6 @@ static int b64_read(BIO * b, char * out, int outl)
 				}
 				p = q;
 			}
-
 			/* we fell off the end without starting */
 			if((j == i) && (num == 0)) {
 				/*
@@ -262,10 +260,7 @@ static int b64_read(BIO * b, char * out, int outl)
 			ctx->buf_len = 0;
 			break;
 		}
-		if(ctx->buf_len <= outl)
-			i = ctx->buf_len;
-		else
-			i = outl;
+		i = (ctx->buf_len <= outl) ? ctx->buf_len : outl;
 		memcpy(out, ctx->buf, i);
 		ret += i;
 		ctx->buf_off = i;
@@ -325,11 +320,10 @@ static int b64_write(BIO * b, const char * in, int inl)
 			if(ctx->tmp_len > 0) {
 				OPENSSL_assert(ctx->tmp_len <= 3);
 				n = 3 - ctx->tmp_len;
-				/*
-				 * There's a theoretical possibility for this
-				 */
-				if(n > inl)
-					n = inl;
+				// 
+				// There's a theoretical possibility for this
+				// 
+				SETMIN(n, inl);
 				memcpy(&(ctx->tmp[ctx->tmp_len]), in, n);
 				ctx->tmp_len += n;
 				ret += n;
@@ -338,10 +332,9 @@ static int b64_write(BIO * b, const char * in, int inl)
 				ctx->buf_len = EVP_EncodeBlock((uchar*)ctx->buf, (uchar*)ctx->tmp, ctx->tmp_len);
 				OPENSSL_assert(ctx->buf_len <= (int)sizeof(ctx->buf));
 				OPENSSL_assert(ctx->buf_len >= ctx->buf_off);
-				/*
-				 * Since we're now done using the temporary buffer, the
-				 * length should be 0'd
-				 */
+				// 
+				// Since we're now done using the temporary buffer, the length should be 0'd
+				// 
 				ctx->tmp_len = 0;
 			}
 			else {

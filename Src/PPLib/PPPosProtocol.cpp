@@ -3392,10 +3392,9 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
     return ok;
 }
 
-int PPPosProtocol::SaxStop()
+void PPPosProtocol::SaxStop()
 {
 	xmlStopParser(RdB.P_SaxCtx);
-	return 1;
 }
 
 int SLAPI PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess)

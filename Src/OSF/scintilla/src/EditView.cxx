@@ -8,16 +8,16 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include <stdexcept>
-#include <string>
-#include <vector>
-#include <map>
-#include <algorithm>
-#include <memory>
-#include "ILexer.h"
+//#include <stdexcept>
+//#include <string>
+//#include <vector>
+//#include <map>
+//#include <algorithm>
+//#include <memory>
+//#include "ILexer.h"
+//#include "Position.h"
 #include "StringCopy.h"
 #include "CharacterSet.h"
-#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -283,34 +283,25 @@ void EditView::LinesAddedOrRemoved(int lineOfPos, int linesAdded)
 void EditView::DropGraphics(bool freeObjects)
 {
 	if(freeObjects) {
-		delete pixmapLine;
-		pixmapLine = 0;
-		delete pixmapIndentGuide;
-		pixmapIndentGuide = 0;
-		delete pixmapIndentGuideHighlight;
-		pixmapIndentGuideHighlight = 0;
+		ZDELETE(pixmapLine);
+		ZDELETE(pixmapIndentGuide);
+		ZDELETE(pixmapIndentGuideHighlight);
 	}
 	else {
-		if(pixmapLine)
-			pixmapLine->Release();
-		if(pixmapIndentGuide)
-			pixmapIndentGuide->Release();
-		if(pixmapIndentGuideHighlight)
-			pixmapIndentGuideHighlight->Release();
+		CALLPTRMEMB(pixmapLine, Release());
+		CALLPTRMEMB(pixmapIndentGuide, Release());
+		CALLPTRMEMB(pixmapIndentGuideHighlight, Release());
 	}
 }
 
 void EditView::AllocateGraphics(const ViewStyle &vsDraw)
 {
-	if(!pixmapLine)
-		pixmapLine = Surface::Allocate(vsDraw.technology);
-	if(!pixmapIndentGuide)
-		pixmapIndentGuide = Surface::Allocate(vsDraw.technology);
-	if(!pixmapIndentGuideHighlight)
-		pixmapIndentGuideHighlight = Surface::Allocate(vsDraw.technology);
+	SETIFZ(pixmapLine, Surface::Allocate(vsDraw.technology));
+	SETIFZ(pixmapIndentGuide, Surface::Allocate(vsDraw.technology));
+	SETIFZ(pixmapIndentGuideHighlight, Surface::Allocate(vsDraw.technology));
 }
 
-static const char * ControlCharacterString(uchar ch)
+static const char * FASTCALL ControlCharacterString(uchar ch)
 {
 	const char * reps[] = {
 		"NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL",
@@ -318,12 +309,7 @@ static const char * ControlCharacterString(uchar ch)
 		"DLE", "DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB",
 		"CAN", "EM", "SUB", "ESC", "FS", "GS", "RS", "US"
 	};
-	if(ch < ELEMENTS(reps)) {
-		return reps[ch];
-	}
-	else {
-		return "BAD";
-	}
+	return (ch < ELEMENTS(reps)) ? reps[ch] : "BAD";
 }
 
 static void DrawTabArrow(Surface * surface, PRectangle rcTab, int ymid, const ViewStyle &vsDraw)
@@ -333,7 +319,6 @@ static void DrawTabArrow(Surface * surface, PRectangle rcTab, int ymid, const Vi
 	else
 		surface->MoveTo(static_cast<int>(rcTab.right) - 1, ymid);
 	surface->LineTo(static_cast<int>(rcTab.right) - 1, ymid);
-
 	// Draw the arrow head if needed
 	if(vsDraw.tabDrawMode == tdLongArrow) {
 		int ydiff = static_cast<int>(rcTab.bottom - rcTab.top) / 2;
@@ -1200,7 +1185,7 @@ void EditView::DrawFoldDisplayText(Surface * surface, const EditModel &model, co
 	rcSegment.left = xStart + static_cast<XYPOSITION>(ll->positions[ll->numCharsInLine] - subLineStart) + spaceWidth + virtualSpace;
 	rcSegment.right = rcSegment.left + static_cast<XYPOSITION>(widthFoldDisplayText);
 
-	ColourOptional background = vsDraw.Background(model.pdoc->GetMark(line), model.caret.active, ll->containsCaret);
+	ColourOptional background = vsDraw.Background(model.pdoc->GetMark(line), BIN(model.caret.Flags & Caret::fActive), ll->containsCaret);
 	FontAlias textFont = vsDraw.styles[STYLE_FOLDDISPLAYTEXT].font;
 	ColourDesired textFore = vsDraw.styles[STYLE_FOLDDISPLAYTEXT].fore;
 	if(eolInSelection && (vsDraw.selColours.fore.isSet)) {
@@ -1264,7 +1249,7 @@ void EditView::DrawFoldDisplayText(Surface * surface, const EditModel &model, co
 	}
 }
 
-static bool AnnotationBoxedOrIndented(int annotationVisible)
+static bool FASTCALL AnnotationBoxedOrIndented(int annotationVisible)
 {
 	return annotationVisible == ANNOTATION_BOXED || annotationVisible == ANNOTATION_INDENTED;
 }
@@ -1421,7 +1406,7 @@ void EditView::DrawCarets(Surface * surface, const EditModel &model, const ViewS
 				if(lineStart != 0)      // Wrapped
 					xposCaret += ll->wrapIndent;
 			}
-			bool caretBlinkState = (model.caret.active && model.caret.on) || (!additionalCaretsBlink && !mainCaret);
+			bool caretBlinkState = ((model.caret.Flags & Caret::fActive) && (model.caret.Flags & Caret::fOn)) || (!additionalCaretsBlink && !mainCaret);
 			bool caretVisibleState = additionalCaretsVisible || mainCaret;
 			if((xposCaret >= 0) && (vsDraw.caretWidth > 0) && (vsDraw.caretStyle != CARETSTYLE_INVISIBLE) &&
 			    ((model.posDrag.IsValid()) || (caretBlinkState && caretVisibleState))) {
@@ -1689,7 +1674,7 @@ static void DrawTranslucentSelection(Surface * surface, const EditModel &model, 
 static void DrawTranslucentLineState(Surface * surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout * ll,
     int line, PRectangle rcLine)
 {
-	if((model.caret.active || vsDraw.alwaysShowCaretLineBackground) && vsDraw.showCaretLineBackground && ll->containsCaret) {
+	if(((model.caret.Flags & Caret::fActive) || vsDraw.alwaysShowCaretLineBackground) && vsDraw.showCaretLineBackground && ll->containsCaret) {
 		SimpleAlphaRectangle(surface, rcLine, vsDraw.caretLineBackground, vsDraw.caretLineAlpha);
 	}
 	const int marksOfLine = model.pdoc->GetMark(line);
@@ -2002,29 +1987,21 @@ void EditView::DrawLine(Surface * surface, const EditModel &model, const ViewSty
 		DrawAnnotation(surface, model, vsDraw, ll, line, xStart, rcLine, subLine, phase);
 		return; // No further drawing
 	}
-
 	// See if something overrides the line background color.
-	const ColourOptional background = vsDraw.Background(model.pdoc->GetMark(line), model.caret.active, ll->containsCaret);
-
+	const ColourOptional background = vsDraw.Background(model.pdoc->GetMark(line), BIN(model.caret.Flags & Caret::fActive), ll->containsCaret);
 	const int posLineStart = model.pdoc->LineStart(line);
-
 	const Range lineRange = ll->SubLineRange(subLine);
 	const XYACCUMULATOR subLineStart = ll->positions[lineRange.start];
-
 	if((ll->wrapIndent != 0) && (subLine > 0)) {
 		if(phase & drawBack) {
 			DrawWrapIndentAndMarker(surface, vsDraw, ll, xStart, rcLine, background, customDrawWrapMarker);
 		}
 		xStart += static_cast<int>(ll->wrapIndent);
 	}
-
 	if((phasesDraw != phasesOne) && (phase & drawBack)) {
-		DrawBackground(surface, model, vsDraw, ll, rcLine, lineRange, posLineStart, xStart,
-		    subLine, background);
-		DrawEOL(surface, model, vsDraw, ll, rcLine, line, lineRange.end,
-		    xStart, subLine, subLineStart, background);
+		DrawBackground(surface, model, vsDraw, ll, rcLine, lineRange, posLineStart, xStart, subLine, background);
+		DrawEOL(surface, model, vsDraw, ll, rcLine, line, lineRange.end, xStart, subLine, subLineStart, background);
 	}
-
 	if(phase & drawIndicatorsBack) {
 		DrawIndicators(surface, model, vsDraw, ll, line, xStart, rcLine, subLine, lineRange.end, true, model.hoverIndicatorPos);
 		DrawEdgeLine(surface, vsDraw, ll, rcLine, lineRange, xStart);
@@ -2278,9 +2255,7 @@ void EditView::FillLineRemainder(Surface * surface, const EditModel &model, cons
 		eolInSelection = (subLine == (ll->lines - 1)) ? model.sel.InSelectionForEOL(posAfterLineEnd) : 0;
 		alpha = (eolInSelection == 1) ? vsDraw.selAlpha : vsDraw.selAdditionalAlpha;
 	}
-
-	ColourOptional background = vsDraw.Background(model.pdoc->GetMark(line), model.caret.active, ll->containsCaret);
-
+	ColourOptional background = vsDraw.Background(model.pdoc->GetMark(line), BIN(model.caret.Flags & Caret::fActive), ll->containsCaret);
 	if(eolInSelection && vsDraw.selEOLFilled && vsDraw.selColours.back.isSet && (line < model.pdoc->LinesTotal() - 1) &&
 	    (alpha == SC_ALPHA_NOALPHA)) {
 		surface->FillRectangle(rcArea, SelectionBackground(vsDraw, eolInSelection == 1, model.primarySelection));

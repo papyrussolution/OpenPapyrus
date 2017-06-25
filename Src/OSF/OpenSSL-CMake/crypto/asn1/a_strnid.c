@@ -53,13 +53,13 @@ int ASN1_STRING_set_default_mask_asc(const char * p)
 		if(*end)
 			return 0;
 	}
-	else if(strcmp(p, "nombstr") == 0)
+	else if(sstreq(p, "nombstr"))
 		mask = ~((ulong)(B_ASN1_BMPSTRING | B_ASN1_UTF8STRING));
-	else if(strcmp(p, "pkix") == 0)
+	else if(sstreq(p, "pkix"))
 		mask = ~((ulong)B_ASN1_T61STRING);
-	else if(strcmp(p, "utf8only") == 0)
+	else if(sstreq(p, "utf8only"))
 		mask = B_ASN1_UTF8STRING;
-	else if(strcmp(p, "default") == 0)
+	else if(sstreq(p, "default"))
 		mask = 0xFFFFFFFFL;
 	else
 		return 0;

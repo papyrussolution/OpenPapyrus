@@ -18316,6 +18316,7 @@ struct SlipLineParam {
 	int    Flags;         // fXXX
 	double Qtty;          // для regtoFiscal
 	double Price;         // для regtoFiscal
+	double VatRate;       // для regtoFiscal
 	short  DivID;         // для regtoFiscal
 	short  FontSize;      // Размер шрифта (для обычного принтера)
 	int    BarcodeStd;    // BARCSTD_XXX Стандарт штрихкода
@@ -21765,7 +21766,7 @@ private:
 	int    StartElement(const char * pName, const char ** ppAttrList);
 	int    EndElement(const char * pName);
 	int    SaxParseFile(xmlSAXHandlerPtr sax, const char * pFileName);
-	int    SaxStop();
+	void   SaxStop();
 	int    ProcessString(const char * pRawText, long * pRefId, SString & rTempBuf, SStringU & rTempBufU);
 
 	int    CollectUuid(const S_GUID & rUuid);
@@ -43195,7 +43196,7 @@ private:
 	int    StartElement(const char * pName, const char ** ppAttrList);
 	int    EndElement(const char * pName);
 	int    Characters(const char * pS, size_t len);
-	int    SaxStop();
+	void   SaxStop();
 
 	//
 	// Descr: Разбирает входящий документ из файла pFileName и складывает данные в объект RdB.
@@ -45848,7 +45849,7 @@ private:
 	int    StartElement(const char * pName, const char ** ppAttrList);
 	int    EndElement(const char * pName);
 	int    SaxParseFile(xmlSAXHandlerPtr sax, const char * pFileName);
-	int    SaxStop();
+	void   SaxStop();
 
 	int    SLAPI GetPhaseSymb(long phase, SString & rSymb) const;
 	int    SLAPI ReadCommonAttrSet(const char ** ppAttrList, CommonAttrSet & rSet);

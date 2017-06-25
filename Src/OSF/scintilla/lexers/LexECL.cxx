@@ -15,16 +15,14 @@
 // Borland C++ displays warnings in vector header without this
 #pragma option -w-ccc -w-rch
 #endif
-
-#include <string>
-#include <vector>
-#include <map>
-#include <algorithm>
-
-#include "ILexer.h"
-#include "SciLexer.h"
-#include "PropSetSimple.h"
-#include "WordList.h"
+//#include <string>
+//#include <vector>
+//#include <map>
+//#include <algorithm>
+//#include "ILexer.h"
+//#include "SciLexer.h"
+//#include "WordList.h"
+//#include "PropSetSimple.h"
 #include "LexAccessor.h"
 #include "Accessor.h"
 #include "StyleContext.h"

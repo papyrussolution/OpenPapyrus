@@ -983,9 +983,9 @@ static int addr_validate_path_internal(X509_STORE_CTX * ctx, STACK_OF(X509) * ch
 	IPAddrBlocks * child = NULL;
 	int i, j, ret = 1;
 	X509 * x;
-	OPENSSL_assert(chain != NULL && sk_X509_num(chain) > 0);
-	OPENSSL_assert(ctx != NULL || ext != NULL);
-	OPENSSL_assert(ctx == NULL || ctx->verify_cb != NULL);
+	OPENSSL_assert(chain && sk_X509_num(chain) > 0);
+	OPENSSL_assert(ctx || ext);
+	OPENSSL_assert(!ctx || ctx->verify_cb);
 	/*
 	 * Figure out where to start.  If we don't have an extension to
 	 * check, we're done.  Otherwise, check canonical form and

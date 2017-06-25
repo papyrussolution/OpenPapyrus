@@ -368,25 +368,18 @@ ASN1_VALUE * SMIME_read_ASN1(BIO * bio, BIO ** bcont, const ASN1_ITEM * it)
 	MIME_PARAM * prm;
 	ASN1_VALUE * val;
 	int ret;
-
-	if(bcont)
-		*bcont = NULL;
-
+	ASSIGN_PTR(bcont, NULL);
 	if((headers = mime_parse_hdr(bio)) == NULL) {
 		ASN1err(ASN1_F_SMIME_READ_ASN1, ASN1_R_MIME_PARSE_ERROR);
 		return NULL;
 	}
-
-	if((hdr = mime_hdr_find(headers, "content-type")) == NULL
-	    || hdr->value == NULL) {
+	if((hdr = mime_hdr_find(headers, "content-type")) == NULL || hdr->value == NULL) {
 		sk_MIME_HEADER_pop_free(headers, mime_hdr_free);
 		ASN1err(ASN1_F_SMIME_READ_ASN1, ASN1_R_NO_CONTENT_TYPE);
 		return NULL;
 	}
-
 	/* Handle multipart/signed */
-
-	if(strcmp(hdr->value, "multipart/signed") == 0) {
+	if(sstreq(hdr->value, "multipart/signed")) {
 		/* Split into two parts */
 		prm = mime_param_find(hdr, "boundary");
 		if(!prm || !prm->param_value) {
@@ -404,24 +397,18 @@ ASN1_VALUE * SMIME_read_ASN1(BIO * bio, BIO ** bcont, const ASN1_ITEM * it)
 
 		/* Parse the signature piece */
 		asnin = sk_BIO_value(parts, 1);
-
 		if((headers = mime_parse_hdr(asnin)) == NULL) {
 			ASN1err(ASN1_F_SMIME_READ_ASN1, ASN1_R_MIME_SIG_PARSE_ERROR);
 			sk_BIO_pop_free(parts, BIO_vfree);
 			return NULL;
 		}
-
 		/* Get content type */
-
-		if((hdr = mime_hdr_find(headers, "content-type")) == NULL
-		    || hdr->value == NULL) {
+		if((hdr = mime_hdr_find(headers, "content-type")) == NULL || hdr->value == NULL) {
 			sk_MIME_HEADER_pop_free(headers, mime_hdr_free);
 			ASN1err(ASN1_F_SMIME_READ_ASN1, ASN1_R_NO_SIG_CONTENT_TYPE);
 			return NULL;
 		}
-
-		if(strcmp(hdr->value, "application/x-pkcs7-signature") &&
-		    strcmp(hdr->value, "application/pkcs7-signature")) {
+		if(!sstreq(hdr->value, "application/x-pkcs7-signature") && !sstreq(hdr->value, "application/pkcs7-signature")) {
 			ASN1err(ASN1_F_SMIME_READ_ASN1, ASN1_R_SIG_INVALID_MIME_TYPE);
 			ERR_add_error_data(2, "type: ", hdr->value);
 			sk_MIME_HEADER_pop_free(headers, mime_hdr_free);
@@ -435,7 +422,6 @@ ASN1_VALUE * SMIME_read_ASN1(BIO * bio, BIO ** bcont, const ASN1_ITEM * it)
 			sk_BIO_pop_free(parts, BIO_vfree);
 			return NULL;
 		}
-
 		if(bcont) {
 			*bcont = sk_BIO_value(parts, 0);
 			BIO_free(asnin);
@@ -445,19 +431,14 @@ ASN1_VALUE * SMIME_read_ASN1(BIO * bio, BIO ** bcont, const ASN1_ITEM * it)
 			sk_BIO_pop_free(parts, BIO_vfree);
 		return val;
 	}
-
 	/* OK, if not multipart/signed try opaque signature */
-
-	if(strcmp(hdr->value, "application/x-pkcs7-mime") &&
-	    strcmp(hdr->value, "application/pkcs7-mime")) {
+	if(!sstreq(hdr->value, "application/x-pkcs7-mime") && !sstreq(hdr->value, "application/pkcs7-mime")) {
 		ASN1err(ASN1_F_SMIME_READ_ASN1, ASN1_R_INVALID_MIME_TYPE);
 		ERR_add_error_data(2, "type: ", hdr->value);
 		sk_MIME_HEADER_pop_free(headers, mime_hdr_free);
 		return NULL;
 	}
-
 	sk_MIME_HEADER_pop_free(headers, mime_hdr_free);
-
 	if((val = b64_read_asn1(bio, it)) == NULL) {
 		ASN1err(ASN1_F_SMIME_READ_ASN1, ASN1_R_ASN1_PARSE_ERROR);
 		return NULL;
@@ -521,18 +502,16 @@ int SMIME_text(BIO * in, BIO * out)
 	int len;
 	STACK_OF(MIME_HEADER) *headers;
 	MIME_HEADER * hdr;
-
 	if((headers = mime_parse_hdr(in)) == NULL) {
 		ASN1err(ASN1_F_SMIME_TEXT, ASN1_R_MIME_PARSE_ERROR);
 		return 0;
 	}
-	if((hdr = mime_hdr_find(headers, "content-type")) == NULL
-	    || hdr->value == NULL) {
+	if((hdr = mime_hdr_find(headers, "content-type")) == NULL || hdr->value == NULL) {
 		ASN1err(ASN1_F_SMIME_TEXT, ASN1_R_MIME_NO_CONTENT_TYPE);
 		sk_MIME_HEADER_pop_free(headers, mime_hdr_free);
 		return 0;
 	}
-	if(strcmp(hdr->value, "text/plain")) {
+	if(!sstreq(hdr->value, "text/plain")) {
 		ASN1err(ASN1_F_SMIME_TEXT, ASN1_R_INVALID_MIME_TYPE);
 		ERR_add_error_data(2, "type: ", hdr->value);
 		sk_MIME_HEADER_pop_free(headers, mime_hdr_free);
@@ -541,30 +520,23 @@ int SMIME_text(BIO * in, BIO * out)
 	sk_MIME_HEADER_pop_free(headers, mime_hdr_free);
 	while((len = BIO_read(in, iobuf, sizeof(iobuf))) > 0)
 		BIO_write(out, iobuf, len);
-	if(len < 0)
-		return 0;
-	return 1;
+	return (len < 0) ? 0 : 1;
 }
-
 /*
  * Split a multipart/XXX message body into component parts: result is
  * canonical parts in a STACK of bios
  */
-
 static int multi_split(BIO * bio, const char * bound, STACK_OF(BIO) ** ret)
 {
 	char linebuf[MAX_SMLEN];
-	int len, blen;
+	int len;
 	int eol = 0, next_eol = 0;
 	BIO * bpart = NULL;
-	STACK_OF(BIO) *parts;
-	char state, part, first;
-
-	blen = strlen(bound);
-	part = 0;
-	state = 0;
-	first = 1;
-	parts = sk_BIO_new_null();
+	int blen = strlen(bound);
+	char part = 0;
+	char state = 0;
+	char first = 1;
+	STACK_OF(BIO) * parts = sk_BIO_new_null();
 	*ret = parts;
 	if(*ret == NULL)
 		return 0;
@@ -869,17 +841,14 @@ err:
 	return 0;
 }
 
-static int mime_hdr_cmp(const MIME_HEADER * const * a,
-    const MIME_HEADER * const * b)
+static int mime_hdr_cmp(const MIME_HEADER * const * a, const MIME_HEADER * const * b)
 {
 	if(!(*a)->name || !(*b)->name)
 		return !!(*a)->name - !!(*b)->name;
-
 	return (strcmp((*a)->name, (*b)->name));
 }
 
-static int mime_param_cmp(const MIME_PARAM * const * a,
-    const MIME_PARAM * const * b)
+static int mime_param_cmp(const MIME_PARAM * const * a, const MIME_PARAM * const * b)
 {
 	if(!(*a)->param_name || !(*b)->param_name)
 		return !!(*a)->param_name - !!(*b)->param_name;
@@ -892,11 +861,9 @@ static MIME_HEADER * mime_hdr_find(STACK_OF(MIME_HEADER) * hdrs, const char * na
 {
 	MIME_HEADER htmp;
 	int idx;
-
 	htmp.name = (char*)name;
 	htmp.value = NULL;
 	htmp.params = NULL;
-
 	idx = sk_MIME_HEADER_find(hdrs, &htmp);
 	if(idx < 0)
 		return NULL;
@@ -907,7 +874,6 @@ static MIME_PARAM * mime_param_find(MIME_HEADER * hdr, const char * name)
 {
 	MIME_PARAM param;
 	int idx;
-
 	param.param_name = (char*)name;
 	param.param_value = NULL;
 	idx = sk_MIME_PARAM_find(hdr->params, &param);
@@ -933,7 +899,6 @@ static void mime_param_free(MIME_PARAM * param)
 	OPENSSL_free(param->param_value);
 	OPENSSL_free(param);
 }
-
 /*-
  * Check for a multipart boundary. Returns:
  * 0 : no boundary
@@ -963,9 +928,9 @@ static int mime_bound_check(char * line, int linelen, const char * bound, int bl
 static int strip_eol(char * linebuf, int * plen, int flags)
 {
 	int len = *plen;
-	char * p, c;
+	char c;
 	int is_eol = 0;
-	p = linebuf + len - 1;
+	char * p = linebuf + len - 1;
 	for(p = linebuf + len - 1; len > 0; len--, p--) {
 		c = *p;
 		if(c == '\n')

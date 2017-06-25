@@ -434,8 +434,8 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 				}
 				else {
 					PROFILE_START_S("DVCCMD_OPENCHECK")
-					//THROW(SetFR(DocumentName, "" /*sdc_param.Title*/)); // @v6.8.2
-					//THROW(ExecFRPrintOper(PrintDocumentTitle)); // @v6.8.2
+					//THROW(SetFR(DocumentName, "" /*sdc_param.Title*/));
+					//THROW(ExecFRPrintOper(PrintDocumentTitle));
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, SERVICEDOC));
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, pPack->Rec.Code));
 					THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
@@ -460,6 +460,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, _q));
 						THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, fabs(_p)));
 						THROW(ArrAdd(Arr_In, DVCPARAM_DEPARTMENT, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 :  sl_param.DivID));
+						THROW(ArrAdd(Arr_In, DVCPARAM_VATRATE, fabs(sl_param.VatRate))); // @v9.7.1
 						THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
 						PROFILE_END
 						Flags |= sfOpenCheck;

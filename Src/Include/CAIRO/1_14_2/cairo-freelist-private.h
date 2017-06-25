@@ -28,91 +28,45 @@
 
 /* for stand-alone compilation*/
 #ifndef VG
-#define VG(x)
+	#define VG(x)
 #endif
-
 #ifndef NULL
-#define NULL (void*)0
+	#define NULL (void*)0
 #endif
-
-/* Initialise a freelist that will be responsible for allocating
- * nodes of size nodesize. */
+//
+// Initialise a freelist that will be responsible for allocating nodes of size nodesize.
+//
 cairo_private void _cairo_freelist_init(cairo_freelist_t * freelist, unsigned nodesize);
-
-/* Deallocate any nodes in the freelist. */
+//
+// Deallocate any nodes in the freelist.
+//
 cairo_private void _cairo_freelist_fini(cairo_freelist_t * freelist);
-
-/* Allocate a new node from the freelist.  If the freelist contains no
- * nodes, a new one will be allocated using SAlloc::M().  The caller is
- * responsible for calling _cairo_freelist_free() or SAlloc::F() on the
- * returned node.  Returns %NULL on memory allocation error. */
+// 
+// Allocate a new node from the freelist.  If the freelist contains no
+// nodes, a new one will be allocated using SAlloc::M().  The caller is
+// responsible for calling _cairo_freelist_free() or SAlloc::F() on the
+// returned node.  Returns %NULL on memory allocation error.
+// 
 cairo_private void * _cairo_freelist_alloc(cairo_freelist_t * freelist);
-
-/* Allocate a new node from the freelist.  If the freelist contains no
- * nodes, a new one will be allocated using SAlloc::C().  The caller is
- * responsible for calling _cairo_freelist_free() or SAlloc::F() on the
- * returned node.  Returns %NULL on memory allocation error. */
+// 
+// Allocate a new node from the freelist.  If the freelist contains no
+// nodes, a new one will be allocated using SAlloc::C().  The caller is
+// responsible for calling _cairo_freelist_free() or SAlloc::F() on the
+// returned node.  Returns %NULL on memory allocation error.
+// 
 cairo_private void * _cairo_freelist_calloc(cairo_freelist_t * freelist);
-
-/* Return a node to the freelist. This does not deallocate the memory,
- * but makes it available for later reuse by
- * _cairo_freelist_alloc(). */
+// 
+// Return a node to the freelist. This does not deallocate the memory,
+// but makes it available for later reuse by _cairo_freelist_alloc().
+// 
 cairo_private void _cairo_freelist_free(cairo_freelist_t * freelist, void * node);
-
 cairo_private void _cairo_freepool_init(cairo_freepool_t * freepool, unsigned nodesize);
-
 cairo_private void _cairo_freepool_fini(cairo_freepool_t * freepool);
-
-static inline void _cairo_freepool_reset(cairo_freepool_t * freepool)
-{
-	while(freepool->pools != &freepool->embedded_pool) {
-		cairo_freelist_pool_t * pool = freepool->pools;
-		freepool->pools = pool->next;
-		pool->next = freepool->freepools;
-		freepool->freepools = pool;
-	}
-
-	freepool->embedded_pool.rem = sizeof(freepool->embedded_data);
-	freepool->embedded_pool.data = freepool->embedded_data;
-}
-
+void FASTCALL _cairo_freepool_reset(cairo_freepool_t * freepool);
 cairo_private void * _cairo_freepool_alloc_from_new_pool(cairo_freepool_t * freepool);
-
-static inline void * _cairo_freepool_alloc_from_pool(cairo_freepool_t * freepool)
-{
-	cairo_freelist_pool_t * pool;
-	uint8_t * ptr;
-
-	pool = freepool->pools;
-	if(unlikely(freepool->nodesize > pool->rem))
-		return _cairo_freepool_alloc_from_new_pool(freepool);
-
-	ptr = pool->data;
-	pool->data += freepool->nodesize;
-	pool->rem -= freepool->nodesize;
-	VG(VALGRIND_MAKE_MEM_UNDEFINED(ptr, freepool->nodesize));
-	return ptr;
-}
-
-static inline void * _cairo_freepool_alloc(cairo_freepool_t * freepool)
-{
-	cairo_freelist_node_t * node = freepool->first_free_node;
-	if(node == NULL)
-		return _cairo_freepool_alloc_from_pool(freepool);
-	VG(VALGRIND_MAKE_MEM_DEFINED(node, sizeof(node->next)));
-	freepool->first_free_node = node->next;
-	VG(VALGRIND_MAKE_MEM_UNDEFINED(node, freepool->nodesize));
-	return node;
-}
-
+void * FASTCALL _cairo_freepool_alloc_from_pool(cairo_freepool_t * freepool);
+void * FASTCALL _cairo_freepool_alloc(cairo_freepool_t * freepool);
 cairo_private cairo_status_t _cairo_freepool_alloc_array(cairo_freepool_t * freepool, int count, void ** array);
-
-static inline void _cairo_freepool_free(cairo_freepool_t * freepool, void * ptr)
-{
-	cairo_freelist_node_t * node = (cairo_freelist_node_t *)ptr;
-	node->next = freepool->first_free_node;
-	freepool->first_free_node = node;
-	VG(VALGRIND_MAKE_MEM_NOACCESS(node, freepool->nodesize));
-}
+void FASTCALL _cairo_freepool_free(cairo_freepool_t * freepool, void * ptr);
 
 #endif /* CAIRO_FREELIST_H */

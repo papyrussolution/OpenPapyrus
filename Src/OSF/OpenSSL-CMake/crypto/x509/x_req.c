@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/x509.h>
+//#include <openssl/x509.h>
 #include "internal/x509_int.h"
 
 /*-

@@ -243,10 +243,10 @@ static inline int cairo_const _cairo_isspace(int c)
 	return (c == 0x20 || (c >= 0x09 && c <= 0x0d));
 }
 
-static inline int cairo_const _cairo_isdigit(int c)
+/* (replaced with isdec()) static inline int cairo_const _cairo_isdigit(int c)
 {
 	return (c >= '0' && c <= '9');
-}
+}*/
 
 #include "cairo-types-private.h"
 #include "cairo-cache-private.h"
@@ -785,29 +785,19 @@ _cairo_path_fixed_stroke_to_shaper(cairo_path_fixed_t  *path,
 	    const cairo_point_t * midpt,
 	    const cairo_point_t * points,
 	    int npoints),
-    cairo_status_t (* add_quad)(void * closure,
-	    const cairo_point_t quad[4]),
+    cairo_status_t (* add_quad)(void * closure, const cairo_point_t quad[4]),
     void * closure);
 
 /* cairo-scaled-font.c */
 
 cairo_private void _cairo_scaled_font_freeze_cache(cairo_scaled_font_t * scaled_font);
-
 cairo_private void _cairo_scaled_font_thaw_cache(cairo_scaled_font_t * scaled_font);
-
 cairo_private void _cairo_scaled_font_reset_cache(cairo_scaled_font_t * scaled_font);
-
-cairo_private cairo_status_t _cairo_scaled_font_set_error(cairo_scaled_font_t * scaled_font,
-    cairo_status_t status);
-
+cairo_private cairo_status_t _cairo_scaled_font_set_error(cairo_scaled_font_t * scaled_font, cairo_status_t status);
 cairo_private cairo_scaled_font_t * _cairo_scaled_font_create_in_error(cairo_status_t status);
-
 cairo_private void _cairo_scaled_font_reset_static_data(void);
-
 cairo_private cairo_status_t _cairo_scaled_font_register_placeholder_and_unlock_font_map(cairo_scaled_font_t * scaled_font);
-
 cairo_private void _cairo_scaled_font_unregister_placeholder_and_lock_font_map(cairo_scaled_font_t * scaled_font);
-
 cairo_private cairo_status_t _cairo_scaled_font_init(cairo_scaled_font_t               * scaled_font,
     cairo_font_face_t                 * font_face,
     const cairo_matrix_t              * font_matrix,
@@ -1059,6 +1049,7 @@ cairo_private cairo_bool_t _cairo_matrix_is_scale_0(const cairo_matrix_t * matri
 cairo_private double _cairo_matrix_compute_determinant(const cairo_matrix_t * matrix) cairo_pure;
 cairo_private cairo_status_t _cairo_matrix_compute_basis_scale_factors(const cairo_matrix_t * matrix, double * sx, double * sy, int x_major);
 
+/*
 static inline cairo_bool_t _cairo_matrix_is_identity(const cairo_matrix_t * matrix)
 {
 	return (matrix->xx == 1.0 && matrix->yx == 0.0 && matrix->xy == 0.0 && matrix->yy == 1.0 && matrix->x0 == 0.0 && matrix->y0 == 0.0);
@@ -1073,6 +1064,11 @@ static inline cairo_bool_t _cairo_matrix_is_scale(const cairo_matrix_t * matrix)
 {
 	return matrix->yx == 0.0 && matrix->xy == 0.0;
 }
+*/
+
+cairo_bool_t FASTCALL _cairo_matrix_is_identity(const cairo_matrix_t * matrix);
+cairo_bool_t FASTCALL _cairo_matrix_is_translation(const cairo_matrix_t * matrix);
+cairo_bool_t FASTCALL _cairo_matrix_is_scale(const cairo_matrix_t * matrix);
 
 cairo_private cairo_bool_t _cairo_matrix_is_integer_translation(const cairo_matrix_t * matrix, int * itx, int * ity);
 cairo_private cairo_bool_t _cairo_matrix_has_unity_scale(const cairo_matrix_t * matrix);
@@ -1104,21 +1100,13 @@ cairo_private void _cairo_drm_device_reset_static_data(void);
 #endif
 
 cairo_private void _cairo_clip_reset_static_data(void);
-
 cairo_private void _cairo_pattern_reset_static_data(void);
 
 /* cairo-unicode.c */
 
-cairo_private int _cairo_utf8_get_char_validated(const char * p,
-    uint32_t   * unicode);
-
-cairo_private cairo_status_t _cairo_utf8_to_ucs4(const char * str,
-    int len,
-    uint32_t  ** result,
-    int        * items_written);
-
-cairo_private int _cairo_ucs4_to_utf8(uint32_t unicode,
-    char       * utf8);
+cairo_private int _cairo_utf8_get_char_validated(const char * p, uint32_t   * unicode);
+cairo_private cairo_status_t _cairo_utf8_to_ucs4(const char * str, int len, uint32_t  ** result, int        * items_written);
+cairo_private int _cairo_ucs4_to_utf8(uint32_t unicode, char       * utf8);
 
 #if CAIRO_HAS_WIN32_FONT || CAIRO_HAS_QUARTZ_FONT || CAIRO_HAS_PDF_OPERATORS
 # define CAIRO_HAS_UTF8_TO_UTF16 1

@@ -8,9 +8,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/lhash.h>
+//#include <openssl/lhash.h>
 #include <openssl/safestack.h>
-#include <openssl/e_os2.h>
+//#include <openssl/e_os2.h>
 #include "obj_lcl.h"
 
 /*

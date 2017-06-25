@@ -238,14 +238,14 @@ LZO_EXTERN(lzo_ptr_t) __lzo_ptr_linear(const lzo_voidp ptr);
 #endif
 
 typedef union {
-	char a_char;
-	unsigned char a_uchar;
-	short a_short;
-	unsigned short a_ushort;
-	int a_int;
-	unsigned int a_uint;
-	long a_long;
-	unsigned long a_ulong;
+	char   a_char;
+	uchar  a_uchar;
+	short  a_short;
+	ushort a_ushort;
+	int    a_int;
+	uint   a_uint;
+	long   a_long;
+	ulong  a_ulong;
 	lzo_int a_lzo_int;
 	lzo_uint a_lzo_uint;
 	lzo_int32 a_lzo_int32;

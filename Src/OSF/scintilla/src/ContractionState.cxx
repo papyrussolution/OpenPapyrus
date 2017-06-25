@@ -1,16 +1,16 @@
 // Scintilla source code edit control
 /** @file ContractionState.cxx
- ** Manages visibility of lines for folding and wrapping.
- **/
+** Manages visibility of lines for folding and wrapping.
+**/
 // Copyright 1998-2007 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include <stdexcept>
-#include <algorithm>
-#include "Position.h"
+//#include <stdexcept>
+//#include <algorithm>
+//#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -21,16 +21,19 @@
 using namespace Scintilla;
 #endif
 
-ContractionState::ContractionState() : visible(0), expanded(0), heights(0), foldDisplayTexts(0), displayLines(0), linesInDocument(1) {
+ContractionState::ContractionState() : visible(0), expanded(0), heights(0), foldDisplayTexts(0), displayLines(0), linesInDocument(1)
+{
 	//InsertLine(0);
 }
 
-ContractionState::~ContractionState() {
+ContractionState::~ContractionState()
+{
 	Clear();
 }
 
-void ContractionState::EnsureData() {
-	if (OneToOne()) {
+void ContractionState::EnsureData()
+{
+	if(OneToOne()) {
 		visible = new RunStyles();
 		expanded = new RunStyles();
 		heights = new RunStyles();
@@ -40,58 +43,52 @@ void ContractionState::EnsureData() {
 	}
 }
 
-void ContractionState::Clear() {
-	delete visible;
-	visible = 0;
-	delete expanded;
-	expanded = 0;
-	delete heights;
-	heights = 0;
-	delete foldDisplayTexts;
-	foldDisplayTexts = 0;
-	delete displayLines;
-	displayLines = 0;
+void ContractionState::Clear()
+{
+	ZDELETE(visible);
+	ZDELETE(expanded);
+	ZDELETE(heights);
+	ZDELETE(foldDisplayTexts);
+	ZDELETE(displayLines);
 	linesInDocument = 1;
 }
 
-int ContractionState::LinesInDoc() const {
-	if (OneToOne()) {
-		return linesInDocument;
-	} else {
-		return displayLines->Partitions() - 1;
-	}
+int ContractionState::LinesInDoc() const
+{
+	return OneToOne() ? linesInDocument : (displayLines->Partitions() - 1);
 }
 
-int ContractionState::LinesDisplayed() const {
-	if (OneToOne()) {
-		return linesInDocument;
-	} else {
-		return displayLines->PositionFromPartition(LinesInDoc());
-	}
+int ContractionState::LinesDisplayed() const
+{
+	return OneToOne() ? linesInDocument : displayLines->PositionFromPartition(LinesInDoc());
 }
 
-int ContractionState::DisplayFromDoc(int lineDoc) const {
-	if (OneToOne()) {
+int ContractionState::DisplayFromDoc(int lineDoc) const
+{
+	if(OneToOne()) {
 		return (lineDoc <= linesInDocument) ? lineDoc : linesInDocument;
-	} else {
-		if (lineDoc > displayLines->Partitions())
-			lineDoc = displayLines->Partitions();
+	}
+	else {
+		SETMIN(lineDoc, displayLines->Partitions());
 		return displayLines->PositionFromPartition(lineDoc);
 	}
 }
 
-int ContractionState::DisplayLastFromDoc(int lineDoc) const {
+int ContractionState::DisplayLastFromDoc(int lineDoc) const
+{
 	return DisplayFromDoc(lineDoc) + GetHeight(lineDoc) - 1;
 }
 
-int ContractionState::DocFromDisplay(int lineDisplay) const {
-	if (OneToOne()) {
+int ContractionState::DocFromDisplay(int lineDisplay) const
+{
+	if(OneToOne()) {
 		return lineDisplay;
-	} else {
-		if (lineDisplay <= 0) {
+	}
+	else {
+		if(lineDisplay <= 0) {
 			return 0;
 		}
-		if (lineDisplay > LinesDisplayed()) {
+		if(lineDisplay > LinesDisplayed()) {
 			return displayLines->PartitionFromPosition(LinesDisplayed());
 		}
 		int lineDoc = displayLines->PartitionFromPosition(lineDisplay);
@@ -100,10 +97,12 @@ int ContractionState::DocFromDisplay(int lineDisplay) const {
 	}
 }
 
-void ContractionState::InsertLine(int lineDoc) {
-	if (OneToOne()) {
+void ContractionState::InsertLine(int lineDoc)
+{
+	if(OneToOne()) {
 		linesInDocument++;
-	} else {
+	}
+	else {
 		visible->InsertSpace(lineDoc, 1);
 		visible->SetValueAt(lineDoc, 1);
 		expanded->InsertSpace(lineDoc, 1);
@@ -118,18 +117,21 @@ void ContractionState::InsertLine(int lineDoc) {
 	}
 }
 
-void ContractionState::InsertLines(int lineDoc, int lineCount) {
-	for (int l = 0; l < lineCount; l++) {
+void ContractionState::InsertLines(int lineDoc, int lineCount)
+{
+	for(int l = 0; l < lineCount; l++) {
 		InsertLine(lineDoc + l);
 	}
 	Check();
 }
 
-void ContractionState::DeleteLine(int lineDoc) {
-	if (OneToOne()) {
+void ContractionState::DeleteLine(int lineDoc)
+{
+	if(OneToOne()) {
 		linesInDocument--;
-	} else {
-		if (GetVisible(lineDoc)) {
+	}
+	else {
+		if(GetVisible(lineDoc)) {
 			displayLines->InsertText(lineDoc, -heights->ValueAt(lineDoc));
 		}
 		displayLines->RemovePartition(lineDoc);
@@ -140,40 +142,42 @@ void ContractionState::DeleteLine(int lineDoc) {
 	}
 }
 
-void ContractionState::DeleteLines(int lineDoc, int lineCount) {
-	for (int l = 0; l < lineCount; l++) {
+void ContractionState::DeleteLines(int lineDoc, int lineCount)
+{
+	for(int l = 0; l < lineCount; l++) {
 		DeleteLine(lineDoc);
 	}
 	Check();
 }
 
-bool ContractionState::GetVisible(int lineDoc) const {
-	if (OneToOne()) {
+bool ContractionState::GetVisible(int lineDoc) const
+{
+	if(OneToOne())
 		return true;
-	} else {
-		if (lineDoc >= visible->Length())
-			return true;
-		return visible->ValueAt(lineDoc) == 1;
-	}
+	else
+		return (lineDoc >= visible->Length()) ? true : (visible->ValueAt(lineDoc) == 1);
 }
 
-bool ContractionState::SetVisible(int lineDocStart, int lineDocEnd, bool isVisible) {
-	if (OneToOne() && isVisible) {
+bool ContractionState::SetVisible(int lineDocStart, int lineDocEnd, bool isVisible)
+{
+	if(OneToOne() && isVisible) {
 		return false;
-	} else {
+	}
+	else {
 		EnsureData();
 		int delta = 0;
 		Check();
-		if ((lineDocStart <= lineDocEnd) && (lineDocStart >= 0) && (lineDocEnd < LinesInDoc())) {
-			for (int line = lineDocStart; line <= lineDocEnd; line++) {
-				if (GetVisible(line) != isVisible) {
+		if((lineDocStart <= lineDocEnd) && (lineDocStart >= 0) && (lineDocEnd < LinesInDoc())) {
+			for(int line = lineDocStart; line <= lineDocEnd; line++) {
+				if(GetVisible(line) != isVisible) {
 					int difference = isVisible ? heights->ValueAt(line) : -heights->ValueAt(line);
 					visible->SetValueAt(line, isVisible ? 1 : 0);
 					displayLines->InsertText(line, difference);
 					delta += difference;
 				}
 			}
-		} else {
+		}
+		else {
 			return false;
 		}
 		Check();
@@ -181,71 +185,80 @@ bool ContractionState::SetVisible(int lineDocStart, int lineDocEnd, bool isVisib
 	}
 }
 
-bool ContractionState::HiddenLines() const {
-	if (OneToOne()) {
-		return false;
-	} else {
-		return !visible->AllSameAs(1);
-	}
+bool ContractionState::HiddenLines() const
+{
+	return OneToOne() ? false : !visible->AllSameAs(1);
 }
 
-const char *ContractionState::GetFoldDisplayText(int lineDoc) const {
+const char * ContractionState::GetFoldDisplayText(int lineDoc) const
+{
 	Check();
 	return foldDisplayTexts->ValueAt(lineDoc);
 }
 
-bool ContractionState::SetFoldDisplayText(int lineDoc, const char *text) {
+bool ContractionState::SetFoldDisplayText(int lineDoc, const char * text)
+{
 	EnsureData();
-	const char *foldText = foldDisplayTexts->ValueAt(lineDoc);
-	if (!foldText || 0 != strcmp(text, foldText)) {
+	const char * foldText = foldDisplayTexts->ValueAt(lineDoc);
+	if(!foldText || 0 != strcmp(text, foldText)) {
 		foldDisplayTexts->SetValueAt(lineDoc, text);
 		Check();
 		return true;
-	} else {
+	}
+	else {
 		Check();
 		return false;
 	}
 }
 
-bool ContractionState::GetExpanded(int lineDoc) const {
-	if (OneToOne()) {
+bool ContractionState::GetExpanded(int lineDoc) const
+{
+	if(OneToOne()) {
 		return true;
-	} else {
+	}
+	else {
 		Check();
 		return expanded->ValueAt(lineDoc) == 1;
 	}
 }
 
-bool ContractionState::SetExpanded(int lineDoc, bool isExpanded) {
-	if (OneToOne() && isExpanded) {
+bool ContractionState::SetExpanded(int lineDoc, bool isExpanded)
+{
+	if(OneToOne() && isExpanded) {
 		return false;
-	} else {
+	}
+	else {
 		EnsureData();
-		if (isExpanded != (expanded->ValueAt(lineDoc) == 1)) {
+		if(isExpanded != (expanded->ValueAt(lineDoc) == 1)) {
 			expanded->SetValueAt(lineDoc, isExpanded ? 1 : 0);
 			Check();
 			return true;
-		} else {
+		}
+		else {
 			Check();
 			return false;
 		}
 	}
 }
 
-bool ContractionState::GetFoldDisplayTextShown(int lineDoc) const {
+bool ContractionState::GetFoldDisplayTextShown(int lineDoc) const
+{
 	return !GetExpanded(lineDoc) && GetFoldDisplayText(lineDoc);
 }
 
-int ContractionState::ContractedNext(int lineDocStart) const {
-	if (OneToOne()) {
+int ContractionState::ContractedNext(int lineDocStart) const
+{
+	if(OneToOne()) {
 		return -1;
-	} else {
+	}
+	else {
 		Check();
-		if (!expanded->ValueAt(lineDocStart)) {
+		if(!expanded->ValueAt(lineDocStart)) {
 			return lineDocStart;
-		} else {
+		}
+		else {
 			int lineDocNextChange = expanded->EndRun(lineDocStart);
-			if (lineDocNextChange < LinesInDoc())
+			if(lineDocNextChange < LinesInDoc())
 				return lineDocNextChange;
 			else
 				return -1;
@@ -253,38 +266,40 @@ int ContractionState::ContractedNext(int lineDocStart) const {
 	}
 }
 
-int ContractionState::GetHeight(int lineDoc) const {
-	if (OneToOne()) {
-		return 1;
-	} else {
-		return heights->ValueAt(lineDoc);
-	}
+int ContractionState::GetHeight(int lineDoc) const
+{
+	return OneToOne() ? 1 : heights->ValueAt(lineDoc);
 }
 
 // Set the number of display lines needed for this line.
 // Return true if this is a change.
-bool ContractionState::SetHeight(int lineDoc, int height) {
-	if (OneToOne() && (height == 1)) {
+bool ContractionState::SetHeight(int lineDoc, int height)
+{
+	if(OneToOne() && (height == 1)) {
 		return false;
-	} else if (lineDoc < LinesInDoc()) {
+	}
+	else if(lineDoc < LinesInDoc()) {
 		EnsureData();
-		if (GetHeight(lineDoc) != height) {
-			if (GetVisible(lineDoc)) {
+		if(GetHeight(lineDoc) != height) {
+			if(GetVisible(lineDoc)) {
 				displayLines->InsertText(lineDoc, height - GetHeight(lineDoc));
 			}
 			heights->SetValueAt(lineDoc, height);
 			Check();
 			return true;
-		} else {
+		}
+		else {
 			Check();
 			return false;
 		}
-	} else {
+	}
+	else {
 		return false;
 	}
 }
 
-void ContractionState::ShowAll() {
+void ContractionState::ShowAll()
+{
 	int lines = LinesInDoc();
 	Clear();
 	linesInDocument = lines;
@@ -292,22 +307,25 @@ void ContractionState::ShowAll() {
 
 // Debugging checks
 
-void ContractionState::Check() const {
+void ContractionState::Check() const
+{
 #ifdef CHECK_CORRECTNESS
-	for (int vline = 0; vline < LinesDisplayed(); vline++) {
+	for(int vline = 0; vline < LinesDisplayed(); vline++) {
 		const int lineDoc = DocFromDisplay(vline);
 		PLATFORM_ASSERT(GetVisible(lineDoc));
 	}
-	for (int lineDoc = 0; lineDoc < LinesInDoc(); lineDoc++) {
+	for(int lineDoc = 0; lineDoc < LinesInDoc(); lineDoc++) {
 		const int displayThis = DisplayFromDoc(lineDoc);
 		const int displayNext = DisplayFromDoc(lineDoc + 1);
 		const int height = displayNext - displayThis;
 		PLATFORM_ASSERT(height >= 0);
-		if (GetVisible(lineDoc)) {
+		if(GetVisible(lineDoc)) {
 			PLATFORM_ASSERT(GetHeight(lineDoc) == height);
-		} else {
+		}
+		else {
 			PLATFORM_ASSERT(0 == height);
 		}
 	}
 #endif
 }
+

@@ -8,9 +8,9 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include <stdexcept>
-#include <vector>
-#include <map>
+//#include <stdexcept>
+//#include <vector>
+//#include <map>
 #include "XPM.h"
 
 #ifdef SCI_NAMESPACE

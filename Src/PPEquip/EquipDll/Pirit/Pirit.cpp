@@ -3,10 +3,6 @@
 #pragma hdrstop
 #include <slib.h>
 
-// Адвент - Сортавала:
-// Функция не выполнима при данном статусе ККМ Чек закрыт: печать текстовой строки
-// Анастасия +7 921 527 23 23
-
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 {
 	switch(dwReason) {
@@ -275,7 +271,7 @@ private:
 	public:
 		OpLogBlock(const char * pLogFileName, const char * pOp, const char * pExtMsg) : StartClk(clock())
 		{
-			LogFileName = pLogFileName;
+			LogFileName = 0/*pLogFileName*/; // @v9.7.1 pLogFileName-->0
 			Op = pOp;
 			ExtMsg = pExtMsg;
 			if(LogFileName.NotEmpty() && Op.NotEmpty()) {
@@ -300,10 +296,27 @@ private:
 		SString Op;
 		SString ExtMsg;
 	};
+	//
+	// Налоговой ставки, установленная в аппарате
+	//
+	struct DvcTaxEntry {
+		DvcTaxEntry()
+		{
+			THISZERO();
+		}
+		char   Name[64];
+		double Rate;
+	};
+	DvcTaxEntry DvcTaxArray[8];
+
 	int    FormatPaym(double paym, SString & rStr);
 	int    SetLogotype(SString & rPath, size_t size, uint height, uint width);
 	int    PrintLogo(int print);
 	int    GetDateTime(SYSTEMTIME sysDtTm, SString & rDateTime, int dt); // dt = 0 - возвращает форматировнную дату, dt = 1 - время //
+	//
+	// Descr: Получает таблицу налогов из настроек аппарата (DvcTaxArray)
+	//
+	int    GetTaxTab();
 	void   GetLastCmdName(SString & rName); // new
 	void   SetLastItems(const char * pCmd, const char * pParam);
 
@@ -473,6 +486,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			THROWERR(!(flag & 0x20), PIRIT_ECRNOTACTIVE); // ЭКЛЗ не активирована
 			THROWERR(!(flag & 0x80), PIRIT_ERRFMPASS); // Был введен неверный пароль доступа к ФП
 			THROWERR(!(flag & 0x100), PIRIT_SESSOPENEDTRYAGAIN); // Не было завершено закрытие смены, необходимо повторить операцию
+			GetTaxTab(); // @v9.7.1
 		}
 		else if(sstreqi_ascii(cmd, "CHECKSESSOVER")){
 			SetLastItems(cmd, pInputData);
@@ -607,8 +621,15 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					Check.Text = param_val;
 				else if(s_param == "CODE")
 					Check.Code = param_val;
-				/*else if(s_param == "TAX")
-					Check.Tax = param_val.ToLong();*/
+				// @v9.7.1 {
+				else if(s_param == "VATRATE") {
+					const double _vat_rate = R2(param_val.ToReal());
+					for(uint tidx = 0; tidx < SIZEOFARRAY(DvcTaxArray); tidx++) {
+						if(DvcTaxArray[tidx].Name[0] && feqeps(DvcTaxArray[tidx].Rate, _vat_rate, 1E-5))
+							Check.Tax = (int)tidx;
+					}
+				}
+				// } @v9.7.1 
 				// } @v9.5.7 
 			}
 			THROW(RunCheck(2));
@@ -868,6 +889,7 @@ int PiritEquip::SetConnection()
 	CommPort.PutChr(ENQ); // Проверка связи с ККМ
 	r = CommPort.GetChr();
 	THROW(r == ACK);
+#if 0 // @v9.7.1 {
 	if(Cfg.BaudRate < 6) { // @v9.6.12 (<8)-->(<6)
 		CreateStr(5, in_data);
 		{
@@ -887,6 +909,7 @@ int PiritEquip::SetConnection()
 		r = CommPort.GetChr();
 		THROW(r == ACK);
 	}
+#endif // } 0 @v9.7.1
 	if((Cfg.ReadCycleCount > 0) || (Cfg.ReadCycleDelay > 0))
 		CommPort.SetReadCyclingParams(Cfg.ReadCycleCount, Cfg.ReadCycleDelay);
 	CATCHZOK
@@ -900,9 +923,42 @@ int PiritEquip::CloseConnection()
 	return 1;
 }
 
+int PiritEquip::GetTaxTab()
+{
+	int    ok = 1;
+	SString in_data;
+	SString out_data;
+	SString r_error;
+	for(int i = 0; i < 5; i++) { // В пирите не более 6 налоговых ставок
+		in_data = 0;
+		CreateStr(40, in_data); // Наименование i-й налоговой ставки
+		CreateStr(i, in_data);
+		{
+			OpLogBlock __oplb(LogFileName, "11", 0);
+			THROWERR(PutData("11", in_data), PIRIT_NOTSENT);
+			THROW(GetWhile(out_data, r_error));
+		}
+		if(out_data.NotEmpty()) {
+			STRNSCPY(DvcTaxArray[i].Name, out_data);
+			CreateStr(41, in_data); // Значение i-й налоговой ставки
+			CreateStr(i, in_data);
+			{
+				OpLogBlock __oplb(LogFileName, "11", 0);
+				THROWERR(PutData("11", in_data), PIRIT_NOTSENT);
+				THROW(GetWhile(out_data, r_error));
+			}
+			DvcTaxArray[i].Rate = ((double)out_data.ToLong()) / 10000.0;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PiritEquip::SetCfg()
 {
-	int    ok = 1, err_code = 0, flag = 0;
+	int    ok = 1;
+	int    err_code = 0;
+	int    flag = 0;
 	uint   i = 0;
 	SString out, subdata, in_data, out_data, r_error;
 	// Логический номер кассы
@@ -914,25 +970,29 @@ int PiritEquip::SetCfg()
 		THROWERR(PutData("12", in_data), PIRIT_NOTSENT);
 		THROW(GetWhile(out_data, r_error));
 	}
-	in_data = 0;
-	// Нумерация чеков ККМ
-	CreateStr(2, in_data);
-	CreateStr(0, in_data);
 	{
-		OpLogBlock __oplb(LogFileName, "11", 0);
-		THROWERR(PutData("11", in_data), PIRIT_NOTSENT); // Получаем параметры чека
-		THROW(GetWhile(out_data, r_error));
+		in_data = 0;
+		// Нумерация чеков ККМ
+		CreateStr(2, in_data);
+		CreateStr(0, in_data);
+		{
+			OpLogBlock __oplb(LogFileName, "11", 0);
+			THROWERR(PutData("11", in_data), PIRIT_NOTSENT); // Получаем параметры чека
+			THROW(GetWhile(out_data, r_error));
+		}
+		flag = out_data.ToLong();
+		flag &= ~128; // Устанавливаем бит нумерации чеков ККМ
 	}
-	flag = out_data.ToLong();
-	flag &= ~128; // Устанавливаем бит нумерации чеков ККМ
-	in_data = 0;
-	CreateStr(2, in_data);
-	CreateStr(0, in_data);
-	CreateStr(flag, in_data);
 	{
-		OpLogBlock __oplb(LogFileName, "12", 0);
-		THROWERR(PutData("12", in_data), PIRIT_NOTSENT);
-		THROW(GetWhile(out_data, r_error));
+		in_data = 0;
+		CreateStr(2, in_data);
+		CreateStr(0, in_data);
+		CreateStr(flag, in_data);
+		{
+			OpLogBlock __oplb(LogFileName, "12", 0);
+			THROWERR(PutData("12", in_data), PIRIT_NOTSENT);
+			THROW(GetWhile(out_data, r_error));
+		}
 	}
 	// Получаем номер текущей сессии
 	CreateStr(1, in_data);
@@ -1129,7 +1189,7 @@ int PiritEquip::RunCheck(int opertype)
 			/*FormatPaym(Check.Price, str);
 			CreateStr(str, in_data);*/
 			CreateStr(Check.Price, in_data); // @vmiller
-			CreateStr((int)0, in_data); // @v9.5.7 Номер налоговой ставки
+			CreateStr((int)Check.Tax, in_data); // @v9.5.7 Номер налоговой ставки // @v9.7.1 0-->Check.Tax
 			CreateStr((int)0, in_data); // @v9.5.7 Номер товарной позиции
 			CreateStr(Check.Department, in_data); // @v9.5.7 Номер секции
 			Check.Clear();

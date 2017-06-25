@@ -11,65 +11,52 @@
  *    force_inline   must be defined
  */
 #if defined (__GNUC__)
-#  define FUNC     ((const char*)(__PRETTY_FUNCTION__))
+	#define FUNC     ((const char*)(__PRETTY_FUNCTION__))
 #elif defined (__sun) || (defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L)
-#  define FUNC     ((const char*)(__func__))
+	#define FUNC     ((const char*)(__func__))
 #else
-#  define FUNC     ((const char*)("???"))
+	#define FUNC     ((const char*)("???"))
 #endif
-
 #if defined (__GNUC__)
-#  define unlikely(expr) __builtin_expect((expr), 0)
+	#define unlikely(expr) __builtin_expect((expr), 0)
 #else
-#  define unlikely(expr)  (expr)
+	#define unlikely(expr)  (expr)
 #endif
-
 #if defined (__GNUC__)
-#  define MAYBE_UNUSED  __attribute__((unused))
+	#define MAYBE_UNUSED  __attribute__((unused))
 #else
-#  define MAYBE_UNUSED
+	#define MAYBE_UNUSED
 #endif
-
 #ifndef INT16_MIN
-# define INT16_MIN              (-32767-1)
+	#define INT16_MIN              (-32767-1)
 #endif
-
 #ifndef INT16_MAX
-# define INT16_MAX              (32767)
+	#define INT16_MAX              (32767)
 #endif
-
 #ifndef INT32_MIN
-# define INT32_MIN              (-2147483647-1)
+	#define INT32_MIN              (-2147483647-1)
 #endif
-
 #ifndef INT32_MAX
-# define INT32_MAX              (2147483647)
+	#define INT32_MAX              (2147483647)
 #endif
-
 #ifndef UINT32_MIN
-# define UINT32_MIN             (0)
+	#define UINT32_MIN             (0)
 #endif
-
 #ifndef UINT32_MAX
-# define UINT32_MAX             (4294967295U)
+	#define UINT32_MAX             (4294967295U)
 #endif
-
 #ifndef INT64_MIN
-# define INT64_MIN              (-9223372036854775807-1)
+	#define INT64_MIN              (-9223372036854775807-1)
 #endif
-
 #ifndef INT64_MAX
-# define INT64_MAX              (9223372036854775807)
+	#define INT64_MAX              (9223372036854775807)
 #endif
-
 #ifndef SIZE_MAX
-# define SIZE_MAX               ((size_t)-1)
+	#define SIZE_MAX               ((size_t)-1)
 #endif
-
 #ifndef M_PI
-# define M_PI                   3.14159265358979323846
+	#define M_PI                   3.14159265358979323846
 #endif
-
 #ifdef _MSC_VER
 /* 'inline' is available only in C++ in MSVC */
 #   define inline __inline

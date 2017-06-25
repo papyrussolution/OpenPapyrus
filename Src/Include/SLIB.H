@@ -3363,15 +3363,15 @@ public:
 	//   *this
 	//
 	SString & FASTCALL CatLongZ(long val, uint numDigits);
-	SString & FASTCALL CatLongZ(int val, uint numDigits) 
+	SString & FASTCALL CatLongZ(int val, uint numDigits)
 	{
 		return CatLongZ((long)val, numDigits);
 	}
-	SString & FASTCALL CatLongZ(uint val, uint numDigits) 
+	SString & FASTCALL CatLongZ(uint val, uint numDigits)
 	{
 		return CatLongZ((long)val, numDigits);
 	}
-	SString & FASTCALL CatLongZ(uint32 val, uint numDigits) 
+	SString & FASTCALL CatLongZ(uint32 val, uint numDigits)
 	{
 		return CatLongZ((long)val, numDigits);
 	}
@@ -7819,6 +7819,10 @@ public:
 		Msi,               // Microsoft Installer package
 		TxtUtf8,           // @v9.3.6 Текст в формате utf8
 		TxtAscii,          // @v9.3.6 Текст в котором только ASCII-символы
+		Log,               // @v9.7.1 Файл журнала (by ext only)
+		Properties,        // @v9.7.1 Файл properties. Обычно текстовый файл аналогичный ini, но без зональности ([]).
+		Css,               // @v9.7.1 CSS
+		JavaScript,        // @v9.7.1 JS
 
 		FirstUser = 10000
 	};
@@ -8483,11 +8487,11 @@ public:
 	int    SLAPI set(LMIDX, double);
 	int    SLAPI zero(LMIDX = -1);
 
-	int    SLAPI mult(double val);           // this *= val
-	int    SLAPI div(double val);            // this /= val
+	void   SLAPI mult(double val);           // this *= val
+	void   SLAPI div(double val);            // this /= val
 	int    SLAPI add(const LVect & s);       // this += s
 	double SLAPI dot(const LVect & s) const; // return this * s (scalar)
-	int    SLAPI saxpy(double a, const LVect & y); // this = this * a + y
+	void   SLAPI saxpy(double a, const LVect & y); // this = this * a + y
 
 	friend class     LMatrix;
 	friend LVect   * SLAPI operator * (const LMatrix &, const LVect &);
@@ -8520,14 +8524,14 @@ public:
 	int    SLAPI set(LMIDX row, LMIDX col, double);
 	int    SLAPI setrow(LMIDX row, const LVect &);
 	int    SLAPI setcol(LMIDX col, const LVect &);
-	int    SLAPI zero(LMIDX row, LMIDX col);
+	void   SLAPI zero(LMIDX row, LMIDX col);
 
-	int    SLAPI swaprows(LMIDX r1, LMIDX r2);
+	void   SLAPI swaprows(LMIDX r1, LMIDX r2);
 
 	int    SLAPI transpose(const LMatrix &);
 	double SLAPI Jacobian() const;
-	int    SLAPI operator += (const LMatrix &);
-	int    SLAPI operator -= (const LMatrix &);
+	int    FASTCALL operator += (const LMatrix &);
+	int    FASTCALL operator -= (const LMatrix &);
 
 	friend LVect   * SLAPI operator * (const LMatrix &, const LVect &);
 	friend LMatrix * SLAPI operator * (const LMatrix &, const LMatrix &);

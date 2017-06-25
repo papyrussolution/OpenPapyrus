@@ -678,14 +678,13 @@ void cairo_set_source_rgba(cairo_t * cr, double red, double green, double blue, 
  **/
 void cairo_set_source_surface(cairo_t * cr, cairo_surface_t * surface, double x, double y)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
 	if(unlikely(surface == NULL)) {
 		_cairo_set_error(cr, CAIRO_STATUS_NULL_POINTER);
 		return;
 	}
-	status = cr->backend->set_source_surface(cr, surface, x, y);
+	cairo_status_t status = cr->backend->set_source_surface(cr, surface, x, y);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -715,7 +714,6 @@ slim_hidden_def(cairo_set_source_surface);
  **/
 void cairo_set_source(cairo_t * cr, cairo_pattern_t * source)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
 	if(unlikely(source == NULL)) {
@@ -726,7 +724,7 @@ void cairo_set_source(cairo_t * cr, cairo_pattern_t * source)
 		_cairo_set_error(cr, source->status);
 		return;
 	}
-	status = cr->backend->set_source(cr, source);
+	cairo_status_t status = cr->backend->set_source(cr, source);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -772,10 +770,9 @@ cairo_pattern_t * cairo_get_source(cairo_t * cr)
  **/
 void cairo_set_tolerance(cairo_t * cr, double tolerance)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->set_tolerance(cr, tolerance);
+	cairo_status_t status = cr->backend->set_tolerance(cr, tolerance);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -799,10 +796,9 @@ slim_hidden_def(cairo_set_tolerance);
  **/
 void cairo_set_antialias(cairo_t * cr, cairo_antialias_t antialias)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->set_antialias(cr, antialias);
+	cairo_status_t status = cr->backend->set_antialias(cr, antialias);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -824,10 +820,9 @@ void cairo_set_antialias(cairo_t * cr, cairo_antialias_t antialias)
  **/
 void cairo_set_fill_rule(cairo_t * cr, CairoFillRule fill_rule)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->set_fill_rule(cr, fill_rule);
+	cairo_status_t status = cr->backend->set_fill_rule(cr, fill_rule);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -862,12 +857,11 @@ void cairo_set_fill_rule(cairo_t * cr, CairoFillRule fill_rule)
  **/
 void cairo_set_line_width(cairo_t * cr, double width)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
 	if(width < 0.0)
 		width = 0.0;
-	status = cr->backend->set_line_width(cr, width);
+	cairo_status_t status = cr->backend->set_line_width(cr, width);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -894,10 +888,9 @@ slim_hidden_def(cairo_set_line_width);
  **/
 void cairo_set_line_cap(cairo_t * cr, cairo_line_cap_t line_cap)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->set_line_cap(cr, line_cap);
+	cairo_status_t status = cr->backend->set_line_cap(cr, line_cap);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -924,10 +917,9 @@ slim_hidden_def(cairo_set_line_cap);
  **/
 void cairo_set_line_join(cairo_t * cr, cairo_line_join_t line_join)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->set_line_join(cr, line_join);
+	cairo_status_t status = cr->backend->set_line_join(cr, line_join);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -970,10 +962,9 @@ slim_hidden_def(cairo_set_line_join);
  **/
 void cairo_set_dash(cairo_t * cr, const double * dashes, int num_dashes, double offset)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->set_dash(cr, dashes, num_dashes, offset);
+	cairo_status_t status = cr->backend->set_dash(cr, dashes, num_dashes, offset);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1051,10 +1042,9 @@ void cairo_get_dash(cairo_t * cr, double * dashes, double * offset)
  **/
 void cairo_set_miter_limit(cairo_t * cr, double limit)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->set_miter_limit(cr, limit);
+	cairo_status_t status = cr->backend->set_miter_limit(cr, limit);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1075,10 +1065,9 @@ void cairo_set_miter_limit(cairo_t * cr, double limit)
  **/
 void cairo_translate(cairo_t * cr, double tx, double ty)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->translate(cr, tx, ty);
+	cairo_status_t status = cr->backend->translate(cr, tx, ty);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1100,10 +1089,9 @@ slim_hidden_def(cairo_translate);
  **/
 void cairo_scale(cairo_t * cr, double sx, double sy)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->scale(cr, sx, sy);
+	cairo_status_t status = cr->backend->scale(cr, sx, sy);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1126,10 +1114,9 @@ slim_hidden_def(cairo_scale);
  **/
 void cairo_rotate(cairo_t * cr, double angle)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->rotate(cr, angle);
+	cairo_status_t status = cr->backend->rotate(cr, angle);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1147,10 +1134,9 @@ void cairo_rotate(cairo_t * cr, double angle)
  **/
 void cairo_transform(cairo_t * cr, const cairo_matrix_t * matrix)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->transform(cr, matrix);
+	cairo_status_t status = cr->backend->transform(cr, matrix);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1169,10 +1155,9 @@ slim_hidden_def(cairo_transform);
  **/
 void cairo_set_matrix(cairo_t * cr, const cairo_matrix_t * matrix)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->set_matrix(cr, matrix);
+	cairo_status_t status = cr->backend->set_matrix(cr, matrix);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1192,10 +1177,9 @@ slim_hidden_def(cairo_set_matrix);
  **/
 void cairo_identity_matrix(cairo_t * cr)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->set_identity_matrix(cr);
+	cairo_status_t status = cr->backend->set_identity_matrix(cr);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1294,10 +1278,9 @@ void cairo_device_to_user_distance(cairo_t * cr, double * dx, double * dy)
  **/
 void cairo_new_path(cairo_t * cr)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->new_path(cr);
+	cairo_status_t status = cr->backend->new_path(cr);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1498,18 +1481,16 @@ void cairo_arc(cairo_t * cr, double xc, double yc, double radius, double angle1,
  **/
 void cairo_arc_negative(cairo_t * cr, double xc, double yc, double radius, double angle1, double angle2)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
 	if(angle2 > angle1) {
-		/* decrease angle2 by multiples of full circle until it
-		 * satisfies angle2 <= angle1 */
+		// decrease angle2 by multiples of full circle until it satisfies angle2 <= angle1 
 		angle2 = fmod(angle2 - angle1, 2 * M_PI);
 		if(angle2 > 0)
 			angle2 -= 2 * M_PI;
 		angle2 += angle1;
 	}
-	status = cr->backend->arc(cr, xc, yc, radius, angle1, angle2, FALSE);
+	cairo_status_t status = cr->backend->arc(cr, xc, yc, radius, angle1, angle2, FALSE);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1635,10 +1616,9 @@ slim_hidden_def(cairo_rel_line_to);
  **/
 void cairo_rel_curve_to(cairo_t * cr, double dx1, double dy1, double dx2, double dy2, double dx3, double dy3)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->rel_curve_to(cr, dx1, dy1, dx2, dy2, dx3, dy3);
+	cairo_status_t status = cr->backend->rel_curve_to(cr, dx1, dy1, dx2, dy2, dx3, dy3);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -2562,10 +2542,9 @@ void cairo_get_font_matrix(cairo_t * cr, cairo_matrix_t * matrix)
  **/
 void cairo_set_font_options(cairo_t * cr, const cairo_font_options_t * options)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cairo_font_options_status((cairo_font_options_t*)options);
+	cairo_status_t status = cairo_font_options_status((cairo_font_options_t*)options);
 	if(unlikely(status)) {
 		_cairo_set_error(cr, status);
 		return;
@@ -2617,14 +2596,13 @@ void cairo_get_font_options(cairo_t * cr, cairo_font_options_t * options)
  **/
 void cairo_set_scaled_font(cairo_t * cr, const cairo_scaled_font_t * scaled_font)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
 	if((scaled_font == NULL)) {
 		_cairo_set_error(cr, _cairo_error(CAIRO_STATUS_NULL_POINTER));
 		return;
 	}
-	status = scaled_font->status;
+	cairo_status_t status = scaled_font->status;
 	if(unlikely(status)) {
 		_cairo_set_error(cr, status);
 		return;
@@ -3057,7 +3035,6 @@ BAIL:
  **/
 void cairo_glyph_path(cairo_t * cr, const cairo_glyph_t * glyphs, int num_glyphs)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
 	if(num_glyphs == 0)
@@ -3070,7 +3047,7 @@ void cairo_glyph_path(cairo_t * cr, const cairo_glyph_t * glyphs, int num_glyphs
 		_cairo_set_error(cr, CAIRO_STATUS_NULL_POINTER);
 		return;
 	}
-	status = cr->backend->glyph_path(cr, glyphs, num_glyphs);
+	cairo_status_t status = cr->backend->glyph_path(cr, glyphs, num_glyphs);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -3281,7 +3258,6 @@ double cairo_get_miter_limit(cairo_t * cr)
 {
 	return (unlikely(cr->status)) ? CAIRO_GSTATE_MITER_LIMIT_DEFAULT : cr->backend->get_miter_limit(cr);
 }
-
 /**
  * cairo_get_matrix:
  * @cr: a cairo context
@@ -3448,7 +3424,6 @@ cairo_path_t * cairo_copy_path_flat(cairo_t * cr)
  **/
 void cairo_append_path(cairo_t * cr, const cairo_path_t   * path)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
 	if(unlikely(path == NULL)) {
@@ -3468,7 +3443,7 @@ void cairo_append_path(cairo_t * cr, const cairo_path_t   * path)
 		_cairo_set_error(cr, CAIRO_STATUS_NULL_POINTER);
 		return;
 	}
-	status = cr->backend->append_path(cr, path);
+	cairo_status_t status = cr->backend->append_path(cr, path);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }

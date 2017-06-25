@@ -12,9 +12,9 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include "ILexer.h"
-#include "SciLexer.h"
-#include "WordList.h"
+//#include "ILexer.h"
+//#include "SciLexer.h"
+//#include "WordList.h"
 #include "LexAccessor.h"
 #include "Accessor.h"
 #include "StyleContext.h"

@@ -202,10 +202,10 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include <stdexcept>
-#include <string>
-#include <algorithm>
-#include "Position.h"
+//#include <stdexcept>
+//#include <string>
+//#include <algorithm>
+//#include "Position.h"
 #include "CharClassify.h"
 #include "RESearch.h"
 

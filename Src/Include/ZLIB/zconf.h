@@ -176,16 +176,16 @@
 	#endif
 #endif
 #if (defined(MSDOS) || defined(OS2) || defined(WINDOWS)) && !defined(WIN32)
-#  if !defined(__GNUC__) && !defined(__FLAT__) && !defined(__386__)
-#    ifndef SYS16BIT
-		#define SYS16BIT
-#    endif
-#  endif
+	#if !defined(__GNUC__) && !defined(__FLAT__) && !defined(__386__)
+		#ifndef SYS16BIT
+			#define SYS16BIT
+		#endif
+	#endif
 #endif
-/*
- * Compile with -DMAXSEG_64K if the alloc function cannot allocate more
- * than 64k bytes at a time (needed on systems with 16-bit int).
- */
+// 
+// Compile with -DMAXSEG_64K if the alloc function cannot allocate more
+// than 64k bytes at a time (needed on systems with 16-bit int).
+// 
 #ifdef SYS16BIT
 	#define MAXSEG_64K
 #endif
@@ -249,17 +249,15 @@
 		#define MAX_MEM_LEVEL 9
 	#endif
 #endif
-
-/* Maximum value for windowBits in deflateInit2 and inflateInit2.
- * WARNING: reducing MAX_WBITS makes minigzip unable to extract .gz files
- * created by gzip. (Files created by minigzip can still be extracted by
- * gzip.)
- */
+// 
+// Maximum value for windowBits in deflateInit2 and inflateInit2.
+// WARNING: reducing MAX_WBITS makes minigzip unable to extract .gz files
+// created by gzip. (Files created by minigzip can still be extracted by gzip.)
+// 
 #ifndef MAX_WBITS
 	#define MAX_WBITS   15 /* 32K LZ77 window */
 #endif
-/* The memory requirements for deflate are (in bytes):
-            (1 << (windowBits+2)) +  (1 << (memLevel+9))
+/* The memory requirements for deflate are (in bytes): (1 << (windowBits+2)) +  (1 << (memLevel+9))
    that is: 128K for windowBits=15  +  128K for memLevel = 8  (default values)
    plus a few kilobytes for small objects. For example, if you want to reduce
    the default memory requirements from 256K to 128K, compile with
@@ -270,9 +268,9 @@
    that is, 32K for windowBits=15 (default value) plus about 7 kilobytes
    for small objects.
  */
-
-/* Type declarations */
-
+//
+// Type declarations 
+//
 #ifndef OF /* function prototypes */
 	#ifdef STDC
 		#define OF(args)  args
@@ -478,8 +476,7 @@ typedef uLong uLongf;
 		#define z_off64_t z_off_t
 	#endif
 #endif
-
-/* MVS linker does not support external names larger than 8 bytes */
+// MVS linker does not support external names larger than 8 bytes 
 #if defined(__MVS__)
   #pragma map(deflateInit_,"DEIN")
   #pragma map(deflateInit2_,"DEIN2")

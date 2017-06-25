@@ -8,10 +8,10 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include <stdexcept>
-#include <string>
-#include <vector>
-#include <algorithm>
+//#include <stdexcept>
+//#include <string>
+//#include <vector>
+//#include <algorithm>
 
 #define NOEXCEPT
 
@@ -25,11 +25,11 @@
 	#endif
 #endif
 //#include "Platform.h"
-#include "ILexer.h"
+//#include "ILexer.h"
 //#include "Scintilla.h"
+//#include "Position.h"
 #include "CharacterSet.h"
 #include "CharacterCategory.h"
-#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -460,7 +460,7 @@ void Document::ClearLevels()
 	static_cast<LineLevels *>(perLineData[ldLevels])->ClearLevels();
 }
 
-static bool IsSubordinate(int levelStart, int levelTry)
+static bool FASTCALL IsSubordinate(int levelStart, int levelTry)
 {
 	return (levelTry & SC_FOLDLEVELWHITEFLAG) ? true : (LevelNumber(levelStart) < LevelNumber(levelTry));
 }
@@ -1007,7 +1007,7 @@ bool SCI_METHOD Document::IsDBCSLeadByte(char ch) const
 
 static inline bool IsSpaceOrTab(int ch)
 {
-	return ch == ' ' || ch == '\t';
+	return (ch == ' ' || ch == '\t');
 }
 
 // Need to break text into segments near lengthSegment but taking into
@@ -2379,7 +2379,7 @@ void Document::NotifyModified(DocModification mh)
 }
 
 // Used for word part navigation.
-static bool IsASCIIPunctuationCharacter(uint ch)
+static bool FASTCALL IsASCIIPunctuationCharacter(uint ch)
 {
 	switch(ch) {
 		case '!':
@@ -2530,7 +2530,7 @@ int Document::WordPartRight(int pos) const
 	return pos;
 }
 
-static bool IsLineEndChar(char c)
+static bool FASTCALL IsLineEndChar(char c)
 {
 	return (c == '\n' || c == '\r');
 }
@@ -2550,7 +2550,7 @@ int Document::ExtendStyleRange(int pos, int delta, bool singleLine)
 	return pos;
 }
 
-static char BraceOpposite(char ch)
+static char FASTCALL BraceOpposite(char ch)
 {
 	switch(ch) {
 		case '(': return ')';

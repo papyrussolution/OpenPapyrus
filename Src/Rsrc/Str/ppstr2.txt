@@ -4582,6 +4582,21 @@ PPTXT_SCARDWITHDRAW               "На вашу карту '@zstr' начисл
 PPTXT_TOTALDRAFTWROFFDEFICIT      "Суммарный дефицит при списании драфт-документов"
 PPTXT_TESTLOG_TEXT1               "Тестовое сообщение для вывода в окно журнала"
 PPTXT_TESTLOG_TEXT2               "Тестовый текст для вывода в окно журнала"
+
+PPTXT_CCFMT_AMTWODISCOUNT         "СУММА БЕЗ СКИДКИ"
+PPTXT_CCFMT_CARD                  "КАРТА"
+PPTXT_CCFMT_CARDOWNER             "ВЛАДЕЛЕЦ"
+PPTXT_CCFMT_DISCOUNT              "СКИДКА"
+PPTXT_CCFMT_STAX                  "НАЛОГ С ПРОДАЖ"
+PPTXT_CCFMT_STAX_S                "НСП"
+PPTXT_CCFMT_AMTBYVATRATE          "СУММА ПО СТАВКЕ НДС"
+PPTXT_CCFMT_RECEIVER              "ПОЛУЧАТЕЛЬ"
+PPTXT_CCFMT_CHKCOPY               "КОПИЯ ЧЕКА"
+PPTXT_CCFMT_SALE                  "ПРОДАЖА"
+PPTXT_CCFMT_RETURN                "ВОЗВРАТ ПРОДАЖИ"
+PPTXT_CCFMT_TOTAL                 "ИТОГ"
+PPTXT_CCFMT_CASHLESSPAYM          "БЕЗНАЛИЧНАЯ ОПЛАТА"
+PPTXT_CCFMT_MODE                  "Режим"
 //
 // LastText
 
@@ -5228,6 +5243,7 @@ DVCPARAM_WIDTH          "WIDTH"
 DVCPARAM_HEIGHT         "HEIGHT"
 DVCPARAM_LABEL          "LABEL"
 DVCPARAM_CODE           "CODE"
+DVCPARAM_VATRATE        "VATRATE"
 
 [120]
 IMPEXPCMD_ORDRSP        "ORDRSP"

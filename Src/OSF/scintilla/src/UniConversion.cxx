@@ -8,7 +8,7 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include <stdexcept>
+//#include <stdexcept>
 #include "UniConversion.h"
 
 #ifdef SCI_NAMESPACE

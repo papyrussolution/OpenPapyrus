@@ -8,21 +8,21 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include <stdexcept>
-#include <string>
-#include <vector>
-#include <map>
-#include <algorithm>
-#include "ILexer.h"
+//#include <stdexcept>
+//#include <string>
+//#include <vector>
+//#include <map>
+//#include <algorithm>
+//#include "ILexer.h"
 #ifdef SCI_LEXER
-	#include "SciLexer.h"
+	//#include "SciLexer.h"
 #endif
-#include "PropSetSimple.h"
+//#include "PropSetSimple.h"
 #ifdef SCI_LEXER
 	#include "LexerModule.h"
 	#include "Catalogue.h"
 #endif
-#include "Position.h"
+//#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"

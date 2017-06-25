@@ -19,11 +19,9 @@ static int do_tcreate(const char * value, const char * name);
 static int stbl_module_init(CONF_IMODULE * md, const CONF * cnf)
 {
 	int i;
-	const char * stbl_section;
 	STACK_OF(CONF_VALUE) *sktmp;
 	CONF_VALUE * mval;
-
-	stbl_section = CONF_imodule_get_value(md);
+	const char * stbl_section = CONF_imodule_get_value(md);
 	if((sktmp = NCONF_get_section(cnf, stbl_section)) == NULL) {
 		ASN1err(ASN1_F_STBL_MODULE_INIT, ASN1_R_ERROR_LOADING_SECTION);
 		return 0;
@@ -56,12 +54,12 @@ void ASN1_add_stable_module(void)
 static int do_tcreate(const char * value, const char * name)
 {
 	char * eptr;
-	int nid, i, rv = 0;
+	int i, rv = 0;
 	long tbl_min = -1, tbl_max = -1;
 	ulong tbl_mask = 0, tbl_flags = 0;
 	STACK_OF(CONF_VALUE) *lst = NULL;
 	CONF_VALUE * cnf = NULL;
-	nid = OBJ_sn2nid(name);
+	int nid = OBJ_sn2nid(name);
 	if(nid == NID_undef)
 		nid = OBJ_ln2nid(name);
 	if(nid == NID_undef)
@@ -101,14 +99,12 @@ err:
 	if(rv == 0) {
 		ASN1err(ASN1_F_DO_TCREATE, ASN1_R_INVALID_STRING_TABLE_VALUE);
 		if(cnf)
-			ERR_add_error_data(4, "field=", cnf->name,
-			    ", value=", cnf->value);
+			ERR_add_error_data(4, "field=", cnf->name, ", value=", cnf->value);
 		else
 			ERR_add_error_data(4, "name=", name, ", value=", value);
 	}
 	else {
-		rv = ASN1_STRING_TABLE_add(nid, tbl_min, tbl_max,
-		    tbl_mask, tbl_flags);
+		rv = ASN1_STRING_TABLE_add(nid, tbl_min, tbl_max, tbl_mask, tbl_flags);
 		if(!rv)
 			ASN1err(ASN1_F_DO_TCREATE, ERR_R_MALLOC_FAILURE);
 	}

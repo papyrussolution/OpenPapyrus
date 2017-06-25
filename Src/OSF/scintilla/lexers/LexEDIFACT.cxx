@@ -15,8 +15,8 @@
 #include <cassert>
 #include <cstring>
 #include <cctype>
-#include "ILexer.h"
-#include "SciLexer.h"
+//#include "ILexer.h"
+//#include "SciLexer.h"
 #include "LexAccessor.h"
 #include "LexerModule.h"
 

@@ -460,10 +460,8 @@ static int fmtint(char ** sbuffer,
 	if(place == sizeof(convert))
 		place--;
 	convert[place] = 0;
-
 	zpadlen = max - place;
-	spadlen =
-	    min - OSSL_MAX(max, place) - (signvalue ? 1 : 0) - strlen(prefix);
+	spadlen = min - OSSL_MAX(max, place) - (signvalue ? 1 : 0) - strlen(prefix);
 	if(zpadlen < 0)
 		zpadlen = 0;
 	if(spadlen < 0)
@@ -474,26 +472,22 @@ static int fmtint(char ** sbuffer,
 	}
 	if(flags & DP_F_MINUS)
 		spadlen = -spadlen;
-
 	/* spaces */
 	while(spadlen > 0) {
 		if(!doapr_outch(sbuffer, buffer, currlen, maxlen, ' '))
 			return 0;
 		--spadlen;
 	}
-
 	/* sign */
 	if(signvalue)
 		if(!doapr_outch(sbuffer, buffer, currlen, maxlen, signvalue))
 			return 0;
-
 	/* prefix */
 	while(*prefix) {
 		if(!doapr_outch(sbuffer, buffer, currlen, maxlen, *prefix))
 			return 0;
 		prefix++;
 	}
-
 	/* zeros */
 	if(zpadlen > 0) {
 		while(zpadlen > 0) {
@@ -507,7 +501,6 @@ static int fmtint(char ** sbuffer,
 		if(!doapr_outch(sbuffer, buffer, currlen, maxlen, convert[--place]))
 			return 0;
 	}
-
 	/* left justified spaces */
 	while(spadlen < 0) {
 		if(!doapr_outch(sbuffer, buffer, currlen, maxlen, ' '))

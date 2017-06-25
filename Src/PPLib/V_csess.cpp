@@ -266,28 +266,44 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempCSessFile, TempCSessChecks);
 int SLAPI PPViewCSess::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
+	const PPRights & r_rt = ObjRts;
 	THROW(CsObj.CheckRights(PPR_READ));
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	PPWait(1);
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_TempOrd);
 	Filt.Period.Actualize(ZERODATE);
-	THROW(ObjRts.AdjustCSessPeriod(Filt.Period, 0));
+	THROW(r_rt.AdjustCSessPeriod(Filt.Period, 0));
 	CurrentViewOrder = Filt.InitOrder;
-	NodeList.Set(0);
-	if(Filt.NodeList_.GetCount()) {
-		PPObjCashNode cn_obj;
-		PPCashNode2 cn_rec;
-		PPIDArray temp_list;
-		for(uint i = 0; i < Filt.NodeList_.GetCount(); i++) {
-			PPID   cn_id = Filt.NodeList_.Get().get(i);
-			if(cn_obj.Fetch(cn_id, &cn_rec) > 0) {
-				if(cn_rec.CashType == PPCMT_CASHNGROUP) {
-					temp_list.clear();
-					cn_obj.GetListByGroup(cn_id, temp_list);
-					NodeList.Add(&temp_list);
+	{
+
+		NodeList.Set(0);
+		ObjIdListFilt temp_node_list;
+		if(Filt.NodeList_.GetCount())
+			temp_node_list = Filt.NodeList_;
+		else if(r_rt.P_PosList && r_rt.P_PosList->getCount()) {
+			for(uint i = 0; i < r_rt.P_PosList->getCount(); i++) {
+				temp_node_list.Add(r_rt.P_PosList->at(i).ObjID);
+			}
+		}
+		if(temp_node_list.GetCount()) {
+			PPObjCashNode cn_obj;
+			PPCashNode2 cn_rec;
+			PPIDArray temp_list;
+			for(uint i = 0; i < temp_node_list.GetCount(); i++) {
+				PPID   cn_id = temp_node_list.Get().get(i);
+				if(cn_obj.Fetch(cn_id, &cn_rec) > 0 && r_rt.CheckPosNodeID(cn_id, 0)) {
+					if(cn_rec.CashType == PPCMT_CASHNGROUP) {
+						temp_list.clear();
+						cn_obj.GetListByGroup(cn_id, temp_list);
+						for(uint j = 0; j < temp_list.getCount(); j++) {
+							const PPID inner_cn_id = temp_list.get(j);
+							if(inner_cn_id && cn_obj.Fetch(cn_id, 0) > 0 && r_rt.CheckPosNodeID(inner_cn_id, 0))
+								NodeList.Add(inner_cn_id);
+						}
+					}
+					NodeList.Add(cn_id);
 				}
-				NodeList.Add(cn_id);
 			}
 		}
 	}

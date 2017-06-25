@@ -90,14 +90,12 @@ static void _cairo_default_context_destroy(void * abstract_cr)
 
 static cairo_surface_t * _cairo_default_context_get_original_target(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_get_original_target(cr->gstate);
+	return _cairo_gstate_get_original_target(((cairo_default_context_t *)abstract_cr)->gstate);
 }
 
 static cairo_surface_t * _cairo_default_context_get_current_target(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_get_target(cr->gstate);
+	return _cairo_gstate_get_target(((cairo_default_context_t *)abstract_cr)->gstate);
 }
 
 static cairo_status_t _cairo_default_context_save(void * abstract_cr)
@@ -206,8 +204,7 @@ done:
 
 static cairo_status_t _cairo_default_context_set_source(void * abstract_cr, cairo_pattern_t * source)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_set_source(cr->gstate, source);
+	return _cairo_gstate_set_source(((cairo_default_context_t *)abstract_cr)->gstate, source);
 }
 
 static cairo_bool_t _current_source_matches_solid(const cairo_pattern_t * pattern, double red, double green, double blue, double alpha)
@@ -260,223 +257,186 @@ static cairo_status_t _cairo_default_context_set_source_surface(void * abstract_
 
 static cairo_pattern_t * _cairo_default_context_get_source(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_get_source(cr->gstate);
+	return _cairo_gstate_get_source(((cairo_default_context_t *)abstract_cr)->gstate);
 }
 
 static cairo_status_t _cairo_default_context_set_tolerance(void * abstract_cr, double tolerance)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	if(tolerance < CAIRO_TOLERANCE_MINIMUM)
-		tolerance = CAIRO_TOLERANCE_MINIMUM;
-	return _cairo_gstate_set_tolerance(cr->gstate, tolerance);
+	SETMAX(tolerance, CAIRO_TOLERANCE_MINIMUM);
+	return _cairo_gstate_set_tolerance(((cairo_default_context_t *)abstract_cr)->gstate, tolerance);
 }
 
 static cairo_status_t _cairo_default_context_set_operator(void * abstract_cr, cairo_operator_t op)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_set_operator(cr->gstate, op);
+	return _cairo_gstate_set_operator(((cairo_default_context_t *)abstract_cr)->gstate, op);
 }
 
 static cairo_status_t _cairo_default_context_set_opacity(void * abstract_cr, double opacity)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_set_opacity(cr->gstate, opacity);
+	return _cairo_gstate_set_opacity(((cairo_default_context_t *)abstract_cr)->gstate, opacity);
 }
 
 static cairo_status_t _cairo_default_context_set_antialias(void * abstract_cr, cairo_antialias_t antialias)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_set_antialias(cr->gstate, antialias);
+	return _cairo_gstate_set_antialias(((cairo_default_context_t *)abstract_cr)->gstate, antialias);
 }
 
 static cairo_status_t _cairo_default_context_set_fill_rule(void * abstract_cr, CairoFillRule fill_rule)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_set_fill_rule(cr->gstate, fill_rule);
+	return _cairo_gstate_set_fill_rule(((cairo_default_context_t *)abstract_cr)->gstate, fill_rule);
 }
 
 static cairo_status_t _cairo_default_context_set_line_width(void * abstract_cr, double line_width)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_set_line_width(cr->gstate, line_width);
+	return _cairo_gstate_set_line_width(((cairo_default_context_t *)abstract_cr)->gstate, line_width);
 }
 
 static cairo_status_t _cairo_default_context_set_line_cap(void * abstract_cr, cairo_line_cap_t line_cap)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_set_line_cap(cr->gstate, line_cap);
+	return _cairo_gstate_set_line_cap(((cairo_default_context_t *)abstract_cr)->gstate, line_cap);
 }
 
 static cairo_status_t _cairo_default_context_set_line_join(void * abstract_cr, cairo_line_join_t line_join)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_set_line_join(cr->gstate, line_join);
+	return _cairo_gstate_set_line_join(((cairo_default_context_t *)abstract_cr)->gstate, line_join);
 }
 
 static cairo_status_t _cairo_default_context_set_dash(void * abstract_cr, const double * dashes, int num_dashes, double offset)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_set_dash(cr->gstate, dashes, num_dashes, offset);
+	return _cairo_gstate_set_dash(((cairo_default_context_t *)abstract_cr)->gstate, dashes, num_dashes, offset);
 }
 
 static cairo_status_t _cairo_default_context_set_miter_limit(void * abstract_cr, double limit)
 {	
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_set_miter_limit(cr->gstate, limit);
+	return _cairo_gstate_set_miter_limit(((cairo_default_context_t *)abstract_cr)->gstate, limit);
 }
 
 static cairo_antialias_t _cairo_default_context_get_antialias(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_get_antialias(cr->gstate);
+	return _cairo_gstate_get_antialias(((cairo_default_context_t *)abstract_cr)->gstate);
 }
 
 static void _cairo_default_context_get_dash(void * abstract_cr, double * dashes, int * num_dashes, double * offset)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	_cairo_gstate_get_dash(cr->gstate, dashes, num_dashes, offset);
+	_cairo_gstate_get_dash(((cairo_default_context_t *)abstract_cr)->gstate, dashes, num_dashes, offset);
 }
 
 static CairoFillRule _cairo_default_context_get_fill_rule(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_get_fill_rule(cr->gstate);
+	return _cairo_gstate_get_fill_rule(((cairo_default_context_t *)abstract_cr)->gstate);
 }
 
 static double _cairo_default_context_get_line_width(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_get_line_width(cr->gstate);
+	return _cairo_gstate_get_line_width(((cairo_default_context_t *)abstract_cr)->gstate);
 }
 
 static cairo_line_cap_t _cairo_default_context_get_line_cap(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_get_line_cap(cr->gstate);
+	return _cairo_gstate_get_line_cap(((cairo_default_context_t *)abstract_cr)->gstate);
 }
 
 static cairo_line_join_t _cairo_default_context_get_line_join(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_get_line_join(cr->gstate);
+	return _cairo_gstate_get_line_join(((cairo_default_context_t *)abstract_cr)->gstate);
 }
 
 static double _cairo_default_context_get_miter_limit(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_get_miter_limit(cr->gstate);
+	return _cairo_gstate_get_miter_limit(((cairo_default_context_t *)abstract_cr)->gstate);
 }
 
 static cairo_operator_t _cairo_default_context_get_operator(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_get_operator(cr->gstate);
+	return _cairo_gstate_get_operator(((cairo_default_context_t *)abstract_cr)->gstate);
 }
 
 static double _cairo_default_context_get_opacity(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_get_opacity(cr->gstate);
+	return _cairo_gstate_get_opacity(((cairo_default_context_t *)abstract_cr)->gstate);
 }
 
 static double _cairo_default_context_get_tolerance(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_get_tolerance(cr->gstate);
+	return _cairo_gstate_get_tolerance(((cairo_default_context_t *)abstract_cr)->gstate);
 }
 //
 // Current tranformation matrix 
 //
 static cairo_status_t _cairo_default_context_translate(void * abstract_cr, double tx, double ty)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_translate(cr->gstate, tx, ty);
+	return _cairo_gstate_translate(((cairo_default_context_t *)abstract_cr)->gstate, tx, ty);
 }
 
 static cairo_status_t _cairo_default_context_scale(void * abstract_cr, double sx, double sy)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_scale(cr->gstate, sx, sy);
+	return _cairo_gstate_scale(((cairo_default_context_t *)abstract_cr)->gstate, sx, sy);
 }
 
 static cairo_status_t _cairo_default_context_rotate(void * abstract_cr, double theta)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_rotate(cr->gstate, theta);
+	return _cairo_gstate_rotate(((cairo_default_context_t *)abstract_cr)->gstate, theta);
 }
 
 static cairo_status_t _cairo_default_context_transform(void * abstract_cr, const cairo_matrix_t * matrix)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_transform(cr->gstate, matrix);
+	return _cairo_gstate_transform(((cairo_default_context_t *)abstract_cr)->gstate, matrix);
 }
 
 static cairo_status_t _cairo_default_context_set_matrix(void * abstract_cr, const cairo_matrix_t * matrix)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_set_matrix(cr->gstate, matrix);
+	return _cairo_gstate_set_matrix(((cairo_default_context_t *)abstract_cr)->gstate, matrix);
 }
 
 static cairo_status_t _cairo_default_context_set_identity_matrix(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	_cairo_gstate_identity_matrix(cr->gstate);
+	_cairo_gstate_identity_matrix(((cairo_default_context_t *)abstract_cr)->gstate);
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static void _cairo_default_context_get_matrix(void * abstract_cr, cairo_matrix_t * matrix)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	_cairo_gstate_get_matrix(cr->gstate, matrix);
+	_cairo_gstate_get_matrix(((cairo_default_context_t *)abstract_cr)->gstate, matrix);
 }
 
 static void _cairo_default_context_user_to_device(void * abstract_cr, double * x, double * y)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	_cairo_gstate_user_to_device(cr->gstate, x, y);
+	_cairo_gstate_user_to_device(((cairo_default_context_t *)abstract_cr)->gstate, x, y);
 }
 
 static void _cairo_default_context_user_to_device_distance(void * abstract_cr, double * dx, double * dy)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	_cairo_gstate_user_to_device_distance(cr->gstate, dx, dy);
+	_cairo_gstate_user_to_device_distance(((cairo_default_context_t *)abstract_cr)->gstate, dx, dy);
 }
 
 static void _cairo_default_context_device_to_user(void * abstract_cr, double * x, double * y)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	_cairo_gstate_device_to_user(cr->gstate, x, y);
+	_cairo_gstate_device_to_user(((cairo_default_context_t *)abstract_cr)->gstate, x, y);
 }
 
 static void _cairo_default_context_device_to_user_distance(void * abstract_cr, double * dx, double * dy)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	_cairo_gstate_device_to_user_distance(cr->gstate, dx, dy);
+	_cairo_gstate_device_to_user_distance(((cairo_default_context_t *)abstract_cr)->gstate, dx, dy);
 }
 
 static void _cairo_default_context_backend_to_user(void * abstract_cr, double * x, double * y)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	_cairo_gstate_backend_to_user(cr->gstate, x, y);
+	_cairo_gstate_backend_to_user(((cairo_default_context_t *)abstract_cr)->gstate, x, y);
 }
 
 static void _cairo_default_context_backend_to_user_distance(void * abstract_cr, double * dx, double * dy)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	_cairo_gstate_backend_to_user_distance(cr->gstate, dx, dy);
+	_cairo_gstate_backend_to_user_distance(((cairo_default_context_t *)abstract_cr)->gstate, dx, dy);
 }
 
 static void _cairo_default_context_user_to_backend(void * abstract_cr, double * x, double * y)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	_cairo_gstate_user_to_backend(cr->gstate, x, y);
+	_cairo_gstate_user_to_backend(((cairo_default_context_t *)abstract_cr)->gstate, x, y);
 }
 
 static void _cairo_default_context_user_to_backend_distance(void * abstract_cr, double * dx, double * dy)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	_cairo_gstate_user_to_backend_distance(cr->gstate, dx, dy);
+	_cairo_gstate_user_to_backend_distance(((cairo_default_context_t *)abstract_cr)->gstate, dx, dy);
 }
 //
 // Path constructor 
@@ -491,8 +451,7 @@ static cairo_status_t _cairo_default_context_new_path(void * abstract_cr)
 
 static cairo_status_t _cairo_default_context_new_sub_path(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	_cairo_path_fixed_new_sub_path(cr->path);
+	_cairo_path_fixed_new_sub_path(((cairo_default_context_t *)abstract_cr)->path);
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -603,15 +562,13 @@ static cairo_status_t _cairo_default_context_rel_curve_to(void * abstract_cr, do
 
 static cairo_status_t _cairo_default_context_close_path(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_path_fixed_close_path(cr->path);
+	return _cairo_path_fixed_close_path(((cairo_default_context_t *)abstract_cr)->path);
 }
 
 static cairo_status_t _cairo_default_context_rectangle(void * abstract_cr, double x, double y, double width, double height)
 {
 	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	cairo_status_t status;
-	status = _cairo_default_context_move_to(cr, x, y);
+	cairo_status_t status = _cairo_default_context_move_to(cr, x, y);
 	if(unlikely(status))
 		return status;
 	status = _cairo_default_context_rel_line_to(cr, width, 0);
@@ -634,8 +591,7 @@ static void _cairo_default_context_path_extents(void * abstract_cr, double * x1,
 
 static cairo_bool_t _cairo_default_context_has_current_point(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return cr->path->has_current_point;
+	return ((cairo_default_context_t *)abstract_cr)->path->has_current_point;
 }
 
 static cairo_bool_t _cairo_default_context_get_current_point(void * abstract_cr, double * x, double * y)
@@ -673,8 +629,7 @@ static cairo_status_t _cairo_default_context_append_path(void * abstract_cr, con
 
 static cairo_status_t _cairo_default_context_paint(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_paint(cr->gstate);
+	return _cairo_gstate_paint(((cairo_default_context_t *)abstract_cr)->gstate);
 }
 
 static cairo_status_t _cairo_default_context_paint_with_alpha(void * abstract_cr, double alpha)
@@ -698,8 +653,7 @@ static cairo_status_t _cairo_default_context_paint_with_alpha(void * abstract_cr
 
 static cairo_status_t _cairo_default_context_mask(void * abstract_cr, cairo_pattern_t * mask)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_mask(cr->gstate, mask);
+	return _cairo_gstate_mask(((cairo_default_context_t *)abstract_cr)->gstate, mask);
 }
 
 static cairo_status_t _cairo_default_context_stroke_preserve(void * abstract_cr)
@@ -723,8 +677,7 @@ static cairo_status_t _cairo_default_context_in_stroke(void * abstract_cr, doubl
 	return _cairo_gstate_in_stroke(cr->gstate, cr->path, x, y, inside);
 }
 
-static cairo_status_t _cairo_default_context_stroke_extents(void * abstract_cr,
-    double * x1, double * y1, double * x2, double * y2)
+static cairo_status_t _cairo_default_context_stroke_extents(void * abstract_cr, double * x1, double * y1, double * x2, double * y2)
 {
 	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
 	return _cairo_gstate_stroke_extents(cr->gstate, cr->path, x1, y1, x2, y2);
@@ -776,22 +729,19 @@ static cairo_status_t _cairo_default_context_clip(void * abstract_cr)
 
 static cairo_status_t _cairo_default_context_in_clip(void * abstract_cr, double x, double y, cairo_bool_t * inside)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	*inside = _cairo_gstate_in_clip(cr->gstate, x, y);
+	*inside = _cairo_gstate_in_clip(((cairo_default_context_t *)abstract_cr)->gstate, x, y);
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t _cairo_default_context_reset_clip(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_reset_clip(cr->gstate);
+	return _cairo_gstate_reset_clip(((cairo_default_context_t *)abstract_cr)->gstate);
 }
 
 static cairo_status_t _cairo_default_context_clip_extents(void * abstract_cr,
     double * x1, double * y1, double * x2, double * y2)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	if(!_cairo_gstate_clip_extents(cr->gstate, x1, y1, x2, y2)) {
+	if(!_cairo_gstate_clip_extents(((cairo_default_context_t *)abstract_cr)->gstate, x1, y1, x2, y2)) {
 		*x1 = -INFINITY;
 		*y1 = -INFINITY;
 		*x2 = +INFINITY;
@@ -802,26 +752,22 @@ static cairo_status_t _cairo_default_context_clip_extents(void * abstract_cr,
 
 static cairo_rectangle_list_t * _cairo_default_context_copy_clip_rectangle_list(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_copy_clip_rectangle_list(cr->gstate);
+	return _cairo_gstate_copy_clip_rectangle_list(((cairo_default_context_t *)abstract_cr)->gstate);
 }
 
 static cairo_status_t _cairo_default_context_copy_page(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_copy_page(cr->gstate);
+	return _cairo_gstate_copy_page(((cairo_default_context_t *)abstract_cr)->gstate);
 }
 
 static cairo_status_t _cairo_default_context_show_page(void * abstract_cr)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_show_page(cr->gstate);
+	return _cairo_gstate_show_page(((cairo_default_context_t *)abstract_cr)->gstate);
 }
 
 static cairo_status_t _cairo_default_context_set_font_face(void * abstract_cr, cairo_font_face_t * font_face)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_set_font_face(cr->gstate, font_face);
+	return _cairo_gstate_set_font_face(((cairo_default_context_t *)abstract_cr)->gstate, font_face);
 }
 
 static cairo_font_face_t * _cairo_default_context_get_font_face(void * abstract_cr)
@@ -838,39 +784,33 @@ static cairo_font_face_t * _cairo_default_context_get_font_face(void * abstract_
 
 static cairo_status_t _cairo_default_context_font_extents(void * abstract_cr, cairo_font_extents_t * extents)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_get_font_extents(cr->gstate, extents);
+	return _cairo_gstate_get_font_extents(((cairo_default_context_t *)abstract_cr)->gstate, extents);
 }
 
 static cairo_status_t _cairo_default_context_set_font_size(void * abstract_cr, double size)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_set_font_size(cr->gstate, size);
+	return _cairo_gstate_set_font_size(((cairo_default_context_t *)abstract_cr)->gstate, size);
 }
 
 static cairo_status_t _cairo_default_context_set_font_matrix(void * abstract_cr, const cairo_matrix_t * matrix)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_set_font_matrix(cr->gstate, matrix);
+	return _cairo_gstate_set_font_matrix(((cairo_default_context_t *)abstract_cr)->gstate, matrix);
 }
 
 static void _cairo_default_context_get_font_matrix(void * abstract_cr, cairo_matrix_t * matrix)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	_cairo_gstate_get_font_matrix(cr->gstate, matrix);
+	_cairo_gstate_get_font_matrix(((cairo_default_context_t *)abstract_cr)->gstate, matrix);
 }
 
 static cairo_status_t _cairo_default_context_set_font_options(void * abstract_cr, const cairo_font_options_t * options)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	_cairo_gstate_set_font_options(cr->gstate, options);
+	_cairo_gstate_set_font_options(((cairo_default_context_t *)abstract_cr)->gstate, options);
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static void _cairo_default_context_get_font_options(void * abstract_cr, cairo_font_options_t * options)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	_cairo_gstate_get_font_options(cr->gstate, options);
+	_cairo_gstate_get_font_options(((cairo_default_context_t *)abstract_cr)->gstate, options);
 }
 
 static cairo_status_t _cairo_default_context_set_scaled_font(void * abstract_cr, cairo_scaled_font_t * scaled_font)
@@ -905,8 +845,7 @@ static cairo_scaled_font_t * _cairo_default_context_get_scaled_font(void * abstr
 
 static cairo_status_t _cairo_default_context_glyphs(void * abstract_cr, const cairo_glyph_t * glyphs, int num_glyphs, cairo_glyph_text_info_t * info)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_show_text_glyphs(cr->gstate, glyphs, num_glyphs, info);
+	return _cairo_gstate_show_text_glyphs(((cairo_default_context_t *)abstract_cr)->gstate, glyphs, num_glyphs, info);
 }
 
 static cairo_status_t _cairo_default_context_glyph_path(void * abstract_cr, const cairo_glyph_t * glyphs, int num_glyphs)
@@ -917,8 +856,7 @@ static cairo_status_t _cairo_default_context_glyph_path(void * abstract_cr, cons
 
 static cairo_status_t _cairo_default_context_glyph_extents(void * abstract_cr, const cairo_glyph_t * glyphs, int num_glyphs, cairo_text_extents_t  * extents)
 {
-	cairo_default_context_t * cr = (cairo_default_context_t *)abstract_cr;
-	return _cairo_gstate_glyph_extents(cr->gstate, glyphs, num_glyphs, extents);
+	return _cairo_gstate_glyph_extents(((cairo_default_context_t *)abstract_cr)->gstate, glyphs, num_glyphs, extents);
 }
 
 static const cairo_backend_t _cairo_default_context_backend = {

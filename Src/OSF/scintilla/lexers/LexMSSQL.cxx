@@ -1,16 +1,16 @@
 // Scintilla source code edit control
 /** @file LexMSSQL.cxx
- ** Lexer for MSSQL.
- **/
+** Lexer for MSSQL.
+**/
 // By Filip Yaghob <fyaghob@gmail.com>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include "ILexer.h"
-#include "SciLexer.h"
-#include "WordList.h"
+//#include "ILexer.h"
+//#include "SciLexer.h"
+//#include "WordList.h"
 #include "LexAccessor.h"
 #include "Accessor.h"
 #include "StyleContext.h"
@@ -30,63 +30,63 @@ using namespace Scintilla;
 #define KW_MSSQL_OPERATORS          6
 
 static char classifyWordSQL(Sci_PositionU start,
-                            Sci_PositionU end,
-                            WordList *keywordlists[],
-                            Accessor &styler,
-                            uint actualState,
-							uint prevState) {
+    Sci_PositionU end,
+    WordList * keywordlists[],
+    Accessor &styler,
+    uint actualState,
+    uint prevState)
+{
 	char s[256];
 	bool wordIsNumber = isdigit(styler[start]) || (styler[start] == '.');
 
 	WordList &kwStatements          = *keywordlists[KW_MSSQL_STATEMENTS];
-    WordList &kwDataTypes           = *keywordlists[KW_MSSQL_DATA_TYPES];
-    WordList &kwSystemTables        = *keywordlists[KW_MSSQL_SYSTEM_TABLES];
-    WordList &kwGlobalVariables     = *keywordlists[KW_MSSQL_GLOBAL_VARIABLES];
-    WordList &kwFunctions           = *keywordlists[KW_MSSQL_FUNCTIONS];
-    WordList &kwStoredProcedures    = *keywordlists[KW_MSSQL_STORED_PROCEDURES];
-    WordList &kwOperators           = *keywordlists[KW_MSSQL_OPERATORS];
+	WordList &kwDataTypes           = *keywordlists[KW_MSSQL_DATA_TYPES];
+	WordList &kwSystemTables        = *keywordlists[KW_MSSQL_SYSTEM_TABLES];
+	WordList &kwGlobalVariables     = *keywordlists[KW_MSSQL_GLOBAL_VARIABLES];
+	WordList &kwFunctions           = *keywordlists[KW_MSSQL_FUNCTIONS];
+	WordList &kwStoredProcedures    = *keywordlists[KW_MSSQL_STORED_PROCEDURES];
+	WordList &kwOperators           = *keywordlists[KW_MSSQL_OPERATORS];
 
-	for (Sci_PositionU i = 0; i < end - start + 1 && i < 128; i++) {
+	for(Sci_PositionU i = 0; i < end - start + 1 && i < 128; i++) {
 		s[i] = static_cast<char>(tolower(styler[start + i]));
 		s[i + 1] = '\0';
 	}
 	char chAttr = SCE_MSSQL_IDENTIFIER;
 
-	if (actualState == SCE_MSSQL_GLOBAL_VARIABLE) {
-
-        if (kwGlobalVariables.InList(&s[2]))
-            chAttr = SCE_MSSQL_GLOBAL_VARIABLE;
-
-	} else if (wordIsNumber) {
+	if(actualState == SCE_MSSQL_GLOBAL_VARIABLE) {
+		if(kwGlobalVariables.InList(&s[2]))
+			chAttr = SCE_MSSQL_GLOBAL_VARIABLE;
+	}
+	else if(wordIsNumber) {
 		chAttr = SCE_MSSQL_NUMBER;
-
-	} else if (prevState == SCE_MSSQL_DEFAULT_PREF_DATATYPE) {
+	}
+	else if(prevState == SCE_MSSQL_DEFAULT_PREF_DATATYPE) {
 		// Look first in datatypes
-        if (kwDataTypes.InList(s))
-            chAttr = SCE_MSSQL_DATATYPE;
-		else if (kwOperators.InList(s))
+		if(kwDataTypes.InList(s))
+			chAttr = SCE_MSSQL_DATATYPE;
+		else if(kwOperators.InList(s))
 			chAttr = SCE_MSSQL_OPERATOR;
-		else if (kwStatements.InList(s))
+		else if(kwStatements.InList(s))
 			chAttr = SCE_MSSQL_STATEMENT;
-		else if (kwSystemTables.InList(s))
+		else if(kwSystemTables.InList(s))
 			chAttr = SCE_MSSQL_SYSTABLE;
-		else if (kwFunctions.InList(s))
-            chAttr = SCE_MSSQL_FUNCTION;
-		else if (kwStoredProcedures.InList(s))
-			chAttr = SCE_MSSQL_STORED_PROCEDURE;
-
-	} else {
-		if (kwOperators.InList(s))
-			chAttr = SCE_MSSQL_OPERATOR;
-		else if (kwStatements.InList(s))
-			chAttr = SCE_MSSQL_STATEMENT;
-		else if (kwSystemTables.InList(s))
-			chAttr = SCE_MSSQL_SYSTABLE;
-		else if (kwFunctions.InList(s))
+		else if(kwFunctions.InList(s))
 			chAttr = SCE_MSSQL_FUNCTION;
-		else if (kwStoredProcedures.InList(s))
+		else if(kwStoredProcedures.InList(s))
 			chAttr = SCE_MSSQL_STORED_PROCEDURE;
-		else if (kwDataTypes.InList(s))
+	}
+	else {
+		if(kwOperators.InList(s))
+			chAttr = SCE_MSSQL_OPERATOR;
+		else if(kwStatements.InList(s))
+			chAttr = SCE_MSSQL_STATEMENT;
+		else if(kwSystemTables.InList(s))
+			chAttr = SCE_MSSQL_SYSTABLE;
+		else if(kwFunctions.InList(s))
+			chAttr = SCE_MSSQL_FUNCTION;
+		else if(kwStoredProcedures.InList(s))
+			chAttr = SCE_MSSQL_STORED_PROCEDURE;
+		else if(kwDataTypes.InList(s))
 			chAttr = SCE_MSSQL_DATATYPE;
 	}
 
@@ -96,9 +96,8 @@ static char classifyWordSQL(Sci_PositionU start,
 }
 
 static void ColouriseMSSQLDoc(Sci_PositionU startPos, Sci_Position length,
-                              int initStyle, WordList *keywordlists[], Accessor &styler) {
-
-
+    int initStyle, WordList * keywordlists[], Accessor &styler)
+{
 	styler.StartAt(startPos);
 
 	bool fold = styler.GetPropertyInt("fold") != 0;
@@ -111,26 +110,26 @@ static void ColouriseMSSQLDoc(Sci_PositionU startPos, Sci_Position length,
 	char chNext = styler[startPos];
 	styler.StartSegment(startPos);
 	Sci_PositionU lengthDoc = startPos + length;
-	for (Sci_PositionU i = startPos; i < lengthDoc; i++) {
+	for(Sci_PositionU i = startPos; i < lengthDoc; i++) {
 		char ch = chNext;
 		chNext = styler.SafeGetCharAt(i + 1);
 
-		if ((ch == '\r' && chNext != '\n') || (ch == '\n')) {
+		if((ch == '\r' && chNext != '\n') || (ch == '\n')) {
 			int indentCurrent = styler.IndentAmount(lineCurrent, &spaceFlags);
 			int lev = indentCurrent;
-			if (!(indentCurrent & SC_FOLDLEVELWHITEFLAG)) {
+			if(!(indentCurrent & SC_FOLDLEVELWHITEFLAG)) {
 				// Only non whitespace lines can be headers
 				int indentNext = styler.IndentAmount(lineCurrent + 1, &spaceFlags);
-				if (indentCurrent < (indentNext & ~SC_FOLDLEVELWHITEFLAG)) {
+				if(indentCurrent < (indentNext & ~SC_FOLDLEVELWHITEFLAG)) {
 					lev |= SC_FOLDLEVELHEADERFLAG;
 				}
 			}
-			if (fold) {
+			if(fold) {
 				styler.SetLevel(lineCurrent, lev);
 			}
 		}
 
-		if (styler.IsLeadByte(ch)) {
+		if(styler.IsLeadByte(ch)) {
 			chNext = styler.SafeGetCharAt(i + 2);
 			chPrev = ' ';
 			i += 1;
@@ -138,37 +137,40 @@ static void ColouriseMSSQLDoc(Sci_PositionU startPos, Sci_Position length,
 		}
 
 		// When the last char isn't part of the state (have to deal with it too)...
-		if ( (state == SCE_MSSQL_IDENTIFIER) ||
-                    (state == SCE_MSSQL_STORED_PROCEDURE) ||
-                    (state == SCE_MSSQL_DATATYPE) ||
-                    //~ (state == SCE_MSSQL_COLUMN_NAME) ||
-                    (state == SCE_MSSQL_FUNCTION) ||
-                    //~ (state == SCE_MSSQL_GLOBAL_VARIABLE) ||
-                    (state == SCE_MSSQL_VARIABLE)) {
-			if (!iswordchar(ch)) {
+		if( (state == SCE_MSSQL_IDENTIFIER) ||
+		    (state == SCE_MSSQL_STORED_PROCEDURE) ||
+		    (state == SCE_MSSQL_DATATYPE) ||
+		    //~ (state == SCE_MSSQL_COLUMN_NAME) ||
+		    (state == SCE_MSSQL_FUNCTION) ||
+		    //~ (state == SCE_MSSQL_GLOBAL_VARIABLE) ||
+		    (state == SCE_MSSQL_VARIABLE)) {
+			if(!iswordchar(ch)) {
 				int stateTmp;
 
-                if ((state == SCE_MSSQL_VARIABLE) || (state == SCE_MSSQL_COLUMN_NAME)) {
-                    styler.ColourTo(i - 1, state);
+				if((state == SCE_MSSQL_VARIABLE) || (state == SCE_MSSQL_COLUMN_NAME)) {
+					styler.ColourTo(i - 1, state);
 					stateTmp = state;
-                } else
-                    stateTmp = classifyWordSQL(styler.GetStartSegment(), i - 1, keywordlists, styler, state, prevState);
+				}
+				else
+					stateTmp = classifyWordSQL(styler.GetStartSegment(), i - 1, keywordlists, styler, state, prevState);
 
 				prevState = state;
 
-				if (stateTmp == SCE_MSSQL_IDENTIFIER || stateTmp == SCE_MSSQL_VARIABLE)
+				if(stateTmp == SCE_MSSQL_IDENTIFIER || stateTmp == SCE_MSSQL_VARIABLE)
 					state = SCE_MSSQL_DEFAULT_PREF_DATATYPE;
 				else
 					state = SCE_MSSQL_DEFAULT;
 			}
-		} else if (state == SCE_MSSQL_LINE_COMMENT) {
-			if (ch == '\r' || ch == '\n') {
+		}
+		else if(state == SCE_MSSQL_LINE_COMMENT) {
+			if(ch == '\r' || ch == '\n') {
 				styler.ColourTo(i - 1, state);
 				prevState = state;
 				state = SCE_MSSQL_DEFAULT;
 			}
-		} else if (state == SCE_MSSQL_GLOBAL_VARIABLE) {
-			if ((ch != '@') && !iswordchar(ch)) {
+		}
+		else if(state == SCE_MSSQL_GLOBAL_VARIABLE) {
+			if((ch != '@') && !iswordchar(ch)) {
 				classifyWordSQL(styler.GetStartSegment(), i - 1, keywordlists, styler, state, prevState);
 				prevState = state;
 				state = SCE_MSSQL_DEFAULT;
@@ -176,93 +178,106 @@ static void ColouriseMSSQLDoc(Sci_PositionU startPos, Sci_Position length,
 		}
 
 		// If is the default or one of the above succeeded
-		if (state == SCE_MSSQL_DEFAULT || state == SCE_MSSQL_DEFAULT_PREF_DATATYPE) {
-			if (iswordstart(ch)) {
+		if(state == SCE_MSSQL_DEFAULT || state == SCE_MSSQL_DEFAULT_PREF_DATATYPE) {
+			if(iswordstart(ch)) {
 				styler.ColourTo(i - 1, SCE_MSSQL_DEFAULT);
 				prevState = state;
 				state = SCE_MSSQL_IDENTIFIER;
-			} else if (ch == '/' && chNext == '*') {
+			}
+			else if(ch == '/' && chNext == '*') {
 				styler.ColourTo(i - 1, SCE_MSSQL_DEFAULT);
 				prevState = state;
 				state = SCE_MSSQL_COMMENT;
-			} else if (ch == '-' && chNext == '-') {
+			}
+			else if(ch == '-' && chNext == '-') {
 				styler.ColourTo(i - 1, SCE_MSSQL_DEFAULT);
 				prevState = state;
 				state = SCE_MSSQL_LINE_COMMENT;
-			} else if (ch == '\'') {
+			}
+			else if(ch == '\'') {
 				styler.ColourTo(i - 1, SCE_MSSQL_DEFAULT);
 				prevState = state;
 				state = SCE_MSSQL_STRING;
-			} else if (ch == '"') {
+			}
+			else if(ch == '"') {
 				styler.ColourTo(i - 1, SCE_MSSQL_DEFAULT);
 				prevState = state;
 				state = SCE_MSSQL_COLUMN_NAME;
-			} else if (ch == '[') {
+			}
+			else if(ch == '[') {
 				styler.ColourTo(i - 1, SCE_MSSQL_DEFAULT);
 				prevState = state;
 				state = SCE_MSSQL_COLUMN_NAME_2;
-			} else if (isoperator(ch)) {
+			}
+			else if(isoperator(ch)) {
 				styler.ColourTo(i - 1, SCE_MSSQL_DEFAULT);
 				styler.ColourTo(i, SCE_MSSQL_OPERATOR);
-                //~ style = SCE_MSSQL_DEFAULT;
+				//~ style = SCE_MSSQL_DEFAULT;
 				prevState = state;
 				state = SCE_MSSQL_DEFAULT;
-			} else if (ch == '@') {
-                styler.ColourTo(i - 1, SCE_MSSQL_DEFAULT);
+			}
+			else if(ch == '@') {
+				styler.ColourTo(i - 1, SCE_MSSQL_DEFAULT);
 				prevState = state;
-                if (chNext == '@') {
-                    state = SCE_MSSQL_GLOBAL_VARIABLE;
+				if(chNext == '@') {
+					state = SCE_MSSQL_GLOBAL_VARIABLE;
 //                    i += 2;
-                } else
-                    state = SCE_MSSQL_VARIABLE;
-            }
-
-
-		// When the last char is part of the state...
-		} else if (state == SCE_MSSQL_COMMENT) {
-				if (ch == '/' && chPrev == '*') {
-					if (((i > (styler.GetStartSegment() + 2)) || ((initStyle == SCE_MSSQL_COMMENT) &&
-					    (styler.GetStartSegment() == startPos)))) {
-						styler.ColourTo(i, state);
-						//~ state = SCE_MSSQL_COMMENT;
-					prevState = state;
-                        state = SCE_MSSQL_DEFAULT;
-					}
 				}
-			} else if (state == SCE_MSSQL_STRING) {
-				if (ch == '\'') {
-					if ( chNext == '\'' ) {
-						i++;
+				else
+					state = SCE_MSSQL_VARIABLE;
+			}
+
+			// When the last char is part of the state...
+		}
+		else if(state == SCE_MSSQL_COMMENT) {
+			if(ch == '/' && chPrev == '*') {
+				if(((i > (styler.GetStartSegment() + 2)) || ((initStyle == SCE_MSSQL_COMMENT) &&
+						    (styler.GetStartSegment() == startPos)))) {
+					styler.ColourTo(i, state);
+					//~ state = SCE_MSSQL_COMMENT;
+					prevState = state;
+					state = SCE_MSSQL_DEFAULT;
+				}
+			}
+		}
+		else if(state == SCE_MSSQL_STRING) {
+			if(ch == '\'') {
+				if(chNext == '\'') {
+					i++;
 					ch = chNext;
 					chNext = styler.SafeGetCharAt(i + 1);
-					} else {
-						styler.ColourTo(i, state);
+				}
+				else {
+					styler.ColourTo(i, state);
 					prevState = state;
-						state = SCE_MSSQL_DEFAULT;
+					state = SCE_MSSQL_DEFAULT;
 					//i++;
-					}
+				}
 				//ch = chNext;
 				//chNext = styler.SafeGetCharAt(i + 1);
-				}
-			} else if (state == SCE_MSSQL_COLUMN_NAME) {
-				if (ch == '"') {
-					if (chNext == '"') {
-						i++;
+			}
+		}
+		else if(state == SCE_MSSQL_COLUMN_NAME) {
+			if(ch == '"') {
+				if(chNext == '"') {
+					i++;
 					ch = chNext;
 					chNext = styler.SafeGetCharAt(i + 1);
-				} else {
-                    styler.ColourTo(i, state);
+				}
+				else {
+					styler.ColourTo(i, state);
 					prevState = state;
 					state = SCE_MSSQL_DEFAULT_PREF_DATATYPE;
 					//i++;
-                }
-                }
-		} else if (state == SCE_MSSQL_COLUMN_NAME_2) {
-			if (ch == ']') {
-                styler.ColourTo(i, state);
+				}
+			}
+		}
+		else if(state == SCE_MSSQL_COLUMN_NAME_2) {
+			if(ch == ']') {
+				styler.ColourTo(i, state);
 				prevState = state;
-                state = SCE_MSSQL_DEFAULT_PREF_DATATYPE;
-                //i++;
+				state = SCE_MSSQL_DEFAULT_PREF_DATATYPE;
+				//i++;
 			}
 		}
 
@@ -271,7 +286,8 @@ static void ColouriseMSSQLDoc(Sci_PositionU startPos, Sci_Position length,
 	styler.ColourTo(lengthDoc - 1, state);
 }
 
-static void FoldMSSQLDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler) {
+static void FoldMSSQLDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
+{
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 	Sci_PositionU endPos = startPos + length;
@@ -281,52 +297,52 @@ static void FoldMSSQLDoc(Sci_PositionU startPos, Sci_Position length, int, WordL
 	int levelCurrent = levelPrev;
 	char chNext = styler[startPos];
 	bool inComment = (styler.StyleAt(startPos-1) == SCE_MSSQL_COMMENT);
-    char s[10] = "";
-	for (Sci_PositionU i = startPos; i < endPos; i++) {
+	char s[10] = "";
+	for(Sci_PositionU i = startPos; i < endPos; i++) {
 		char ch = chNext;
 		chNext = styler.SafeGetCharAt(i + 1);
 		int style = styler.StyleAt(i);
 		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
-        // Comment folding
-		if (foldComment) {
-			if (!inComment && (style == SCE_MSSQL_COMMENT))
+		// Comment folding
+		if(foldComment) {
+			if(!inComment && (style == SCE_MSSQL_COMMENT))
 				levelCurrent++;
-			else if (inComment && (style != SCE_MSSQL_COMMENT))
+			else if(inComment && (style != SCE_MSSQL_COMMENT))
 				levelCurrent--;
 			inComment = (style == SCE_MSSQL_COMMENT);
 		}
-        if (style == SCE_MSSQL_STATEMENT) {
-            // Folding between begin or case and end
-            if (ch == 'b' || ch == 'B' || ch == 'c' || ch == 'C' || ch == 'e' || ch == 'E') {
-                for (Sci_PositionU j = 0; j < 5; j++) {
-					if (!iswordchar(styler[i + j])) {
+		if(style == SCE_MSSQL_STATEMENT) {
+			// Folding between begin or case and end
+			if(ch == 'b' || ch == 'B' || ch == 'c' || ch == 'C' || ch == 'e' || ch == 'E') {
+				for(Sci_PositionU j = 0; j < 5; j++) {
+					if(!iswordchar(styler[i + j])) {
 						break;
 					}
 					s[j] = static_cast<char>(tolower(styler[i + j]));
 					s[j + 1] = '\0';
-                }
-				if ((strcmp(s, "begin") == 0) || (strcmp(s, "case") == 0)) {
+				}
+				if((strcmp(s, "begin") == 0) || (strcmp(s, "case") == 0)) {
 					levelCurrent++;
 				}
-				if (strcmp(s, "end") == 0) {
+				if(strcmp(s, "end") == 0) {
 					levelCurrent--;
 				}
-            }
-        }
-		if (atEOL) {
+			}
+		}
+		if(atEOL) {
 			int lev = levelPrev;
-			if (visibleChars == 0 && foldCompact)
+			if(visibleChars == 0 && foldCompact)
 				lev |= SC_FOLDLEVELWHITEFLAG;
-			if ((levelCurrent > levelPrev) && (visibleChars > 0))
+			if((levelCurrent > levelPrev) && (visibleChars > 0))
 				lev |= SC_FOLDLEVELHEADERFLAG;
-			if (lev != styler.LevelAt(lineCurrent)) {
+			if(lev != styler.LevelAt(lineCurrent)) {
 				styler.SetLevel(lineCurrent, lev);
 			}
 			lineCurrent++;
 			levelPrev = levelCurrent;
 			visibleChars = 0;
 		}
-		if (!isspacechar(ch))
+		if(!isspacechar(ch))
 			visibleChars++;
 	}
 	// Fill in the real level of the next line, keeping the current flags as they will be filled in later
@@ -336,12 +352,12 @@ static void FoldMSSQLDoc(Sci_PositionU startPos, Sci_Position length, int, WordL
 
 static const char * const sqlWordListDesc[] = {
 	"Statements",
-    "Data Types",
-    "System tables",
-    "Global variables",
-    "Functions",
-    "System Stored Procedures",
-    "Operators",
+	"Data Types",
+	"System tables",
+	"Global variables",
+	"Functions",
+	"System Stored Procedures",
+	"Operators",
 	0,
 };
 

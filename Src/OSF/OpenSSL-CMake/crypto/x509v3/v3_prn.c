@@ -65,27 +65,20 @@ int X509V3_EXT_print(BIO * out, X509_EXTENSION * ext, ulong flag, int indent)
 {
 	void * ext_str = NULL;
 	char * value = NULL;
-	ASN1_OCTET_STRING * extoct;
-	const uchar * p;
-	int extlen;
 	const X509V3_EXT_METHOD * method;
 	STACK_OF(CONF_VALUE) *nval = NULL;
 	int ok = 1;
-
-	extoct = X509_EXTENSION_get_data(ext);
-	p = ASN1_STRING_get0_data(extoct);
-	extlen = ASN1_STRING_length(extoct);
-
+	ASN1_OCTET_STRING * extoct = X509_EXTENSION_get_data(ext);
+	const uchar * p = ASN1_STRING_get0_data(extoct);
+	int extlen = ASN1_STRING_length(extoct);
 	if((method = X509V3_EXT_get(ext)) == NULL)
 		return unknown_ext_print(out, p, extlen, flag, indent, 0);
 	if(method->it)
 		ext_str = ASN1_item_d2i(NULL, &p, extlen, ASN1_ITEM_ptr(method->it));
 	else
 		ext_str = method->d2i(NULL, &p, extlen);
-
 	if(!ext_str)
 		return unknown_ext_print(out, p, extlen, flag, indent, 1);
-
 	if(method->i2s) {
 		if((value = method->i2s(method, ext_str)) == NULL) {
 			ok = 0;
@@ -112,8 +105,7 @@ int X509V3_EXT_print(BIO * out, X509_EXTENSION * ext, ulong flag, int indent)
 			ok = 0;
 			goto err;
 		}
-		X509V3_EXT_val_prn(out, nval, indent,
-		    method->ext_flags & X509V3_EXT_MULTILINE);
+		X509V3_EXT_val_prn(out, nval, indent, method->ext_flags & X509V3_EXT_MULTILINE);
 	}
 	else if(method->i2r) {
 		if(!method->i2r(method, ext_str, out, indent))
@@ -121,7 +113,6 @@ int X509V3_EXT_print(BIO * out, X509_EXTENSION * ext, ulong flag, int indent)
 	}
 	else
 		ok = 0;
-
 err:
 	sk_CONF_VALUE_pop_free(nval, X509V3_conf_free);
 	OPENSSL_free(value);
@@ -132,20 +123,15 @@ err:
 	return ok;
 }
 
-int X509V3_extensions_print(BIO * bp, const char * title,
-    const STACK_OF(X509_EXTENSION) * exts,
-    ulong flag, int indent)
+int X509V3_extensions_print(BIO * bp, const char * title, const STACK_OF(X509_EXTENSION) * exts, ulong flag, int indent)
 {
 	int i, j;
-
 	if(sk_X509_EXTENSION_num(exts) <= 0)
 		return 1;
-
 	if(title) {
 		BIO_printf(bp, "%*s%s:\n", indent, "", title);
 		indent += 4;
 	}
-
 	for(i = 0; i < sk_X509_EXTENSION_num(exts); i++) {
 		ASN1_OBJECT * obj;
 		X509_EXTENSION * ex;
@@ -178,12 +164,10 @@ static int unknown_ext_print(BIO * out, const uchar * ext, int extlen, ulong fla
 		    else
 			    BIO_printf(out, "%*s<Not Supported>", indent, "");
 		    return 1;
-
 		case X509V3_EXT_PARSE_UNKNOWN:
 		    return ASN1_parse_dump(out, ext, extlen, indent, -1);
 		case X509V3_EXT_DUMP_UNKNOWN:
 		    return BIO_dump_indent(out, (const char*)ext, extlen, indent);
-
 		default:
 		    return 1;
 	}

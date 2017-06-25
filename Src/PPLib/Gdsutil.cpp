@@ -3286,7 +3286,7 @@ int SLAPI PPBarcode::RecognizeImage(const char * pInpFileName, TSCollection <PPB
 				sz.X *= 2.0f;
 				sz.Y *= 2.0f;
 			}
-			THROW_SL(ib__.Init(sz.X, sz.Y));
+			THROW_SL(ib__.Init((uint)sz.X, (uint)sz.Y));
 			THROW_SL(p_fig->TransformToImage(0, ib__));
 			p_ib = &ib__;
 		}

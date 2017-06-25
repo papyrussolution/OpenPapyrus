@@ -330,7 +330,6 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 static int file_gets(BIO * bp, char * buf, int size)
 {
 	int ret = 0;
-
 	buf[0] = '\0';
 	if(bp->flags & BIO_FLAGS_UPLINK) {
 		if(!UP_fgets(buf, size, bp->ptr))
@@ -348,10 +347,8 @@ err:
 
 static int file_puts(BIO * bp, const char * str)
 {
-	int n, ret;
-
-	n = strlen(str);
-	ret = file_write(bp, str, n);
+	int n = strlen(str);
+	int ret = file_write(bp, str, n);
 	return (ret);
 }
 

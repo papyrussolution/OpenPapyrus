@@ -852,7 +852,6 @@
     <ClInclude Include="..\Osf\scintilla\include\SciLexer.h" />
     <ClInclude Include="..\Osf\scintilla\include\Scintilla.h" />
     <ClInclude Include="..\Osf\scintilla\include\ScintillaWidget.h" />
-    <ClInclude Include="..\OSF\scintilla\include\Sci_Position.h" />
     <ClInclude Include="..\OSF\scintilla\lexlib\Accessor.h" />
     <ClInclude Include="..\OSF\scintilla\lexlib\CharacterCategory.h" />
     <ClInclude Include="..\OSF\scintilla\lexlib\CharacterSet.h" />
@@ -867,7 +866,6 @@
     <ClInclude Include="..\OSF\scintilla\lexlib\StringCopy.h" />
     <ClInclude Include="..\OSF\scintilla\lexlib\StyleContext.h" />
     <ClInclude Include="..\OSF\scintilla\lexlib\SubStyles.h" />
-    <ClInclude Include="..\OSF\scintilla\lexlib\WordList.h" />
     <ClInclude Include="..\Osf\scintilla\src\AutoComplete.h" />
     <ClInclude Include="..\Osf\scintilla\src\CallTip.h" />
     <ClInclude Include="..\Osf\scintilla\src\CaseConvert.h" />

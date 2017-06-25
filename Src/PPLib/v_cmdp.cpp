@@ -788,10 +788,13 @@ int EditMenusDlg::LoadCfg(long id)
 			setGroupData(GRP_BKGND, &color_rec);
 		}
 	}
-	disableCtrls(!IsMaster && ObjRts.CheckDesktopID(0, PPR_INS) == 0,
-		CTL_MENULIST_FLAGS, CTL_MENULIST_IMAGE, CTLSEL_MENULIST_BKGND, CTL_MENULIST_SELBKGND, 0L);
-	showCtrl(CTL_MENULIST_ADDIMG, IsMaster || ObjRts.CheckDesktopID(0, PPR_INS));
-	showCtrl(CTL_MENULIST_DELIMG, IsMaster || ObjRts.CheckDesktopID(0, PPR_INS));
+	{
+		const PPRights & r_rt = ObjRts;
+		disableCtrls(!IsMaster && r_rt.CheckDesktopID(0, PPR_INS) == 0,
+			CTL_MENULIST_FLAGS, CTL_MENULIST_IMAGE, CTLSEL_MENULIST_BKGND, CTL_MENULIST_SELBKGND, 0L);
+		showCtrl(CTL_MENULIST_ADDIMG, IsMaster || r_rt.CheckDesktopID(0, PPR_INS));
+		showCtrl(CTL_MENULIST_DELIMG, IsMaster || r_rt.CheckDesktopID(0, PPR_INS));
+	}
 	return 1;
 }
 

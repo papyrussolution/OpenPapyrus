@@ -109,8 +109,7 @@ dolen:
 		op = (unsigned)(here.op);
 		if(op == 0) {                   /* literal */
 			Tracevv((stderr, here.val >= 0x20 && here.val < 0x7f ?
-				    "inflate:         literal '%c'\n" :
-				    "inflate:         literal 0x%02x\n", here.val));
+				"inflate:         literal '%c'\n" : "inflate:         literal 0x%02x\n", here.val));
 			*out++ = (uchar)(here.val);
 		}
 		else if(op & 16) {              /* length base */

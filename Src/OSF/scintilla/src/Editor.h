@@ -131,8 +131,9 @@ private:
 
 struct WrapPending {
 	// The range of lines that need to be wrapped
-	enum { lineLarge = 0x7ffffff };
-
+	enum { 
+		lineLarge = 0x7ffffff 
+	};
 	int start;      // When there are wraps pending, will be in document range
 	int end;        // May be lineLarge to indicate all of document after start
 	WrapPending()
@@ -140,24 +141,20 @@ struct WrapPending {
 		start = lineLarge;
 		end = lineLarge;
 	}
-
 	void Reset()
 	{
 		start = lineLarge;
 		end = lineLarge;
 	}
-
 	void Wrapped(int line)
 	{
 		if(start == line)
 			start++;
 	}
-
 	bool NeedsWrap() const
 	{
 		return start < end;
 	}
-
 	bool AddRange(int lineStart, int lineEnd)
 	{
 		const bool neededWrap = NeedsWrap();
@@ -179,51 +176,41 @@ struct WrapPending {
 class Editor : public EditModel, public DocWatcher {
 	// Private so Editor objects can not be copied
 	explicit Editor(const Editor &);
-	Editor & operator=(const Editor &);
+	Editor & operator = (const Editor &);
 protected:      // ScintillaBase subclass needs access to much of Editor
-	/** On GTK+, Scintilla is a container widget holding two scroll bars
-	 * whereas on Windows there is just one window with both scroll bars turned on. */
+	// On GTK+, Scintilla is a container widget holding two scroll bars
+	// whereas on Windows there is just one window with both scroll bars turned on.
 	Window wMain;   ///< The Scintilla parent window
 	Window wMargin; ///< May be separate when using a scroll view for wMain
-	/** Style resources may be expensive to allocate so are cached between uses.
-	 * When a style attribute is changed, this cache is flushed. */
-	bool stylesValid;
+	// Style resources may be expensive to allocate so are cached between uses.
+	// When a style attribute is changed, this cache is flushed. 
+	bool   stylesValid;
 	ViewStyle vs;
-	int technology;
-	Point sizeRGBAImage;
-	float scaleRGBAImage;
+	int    technology;
+	Point  sizeRGBAImage;
+	float  scaleRGBAImage;
 	MarginView marginView;
 	EditView view;
-	int cursorMode;
-	bool hasFocus;
-	bool mouseDownCaptures;
-	bool mouseWheelCaptures;
-	int xCaretMargin;       ///< Ensure this many pixels visible on both sides of caret
-	bool horizontalScrollBarVisible;
-	int scrollWidth;
-	bool verticalScrollBarVisible;
-	bool endAtLastLine;
-	int caretSticky;
-	int marginOptions;
-	bool mouseSelectionRectangularSwitch;
-	bool multipleSelection;
-	bool additionalSelectionTyping;
-	int multiPasteMode;
-	int virtualSpaceOptions;
+	int    cursorMode;
+	int    xCaretMargin;       ///< Ensure this many pixels visible on both sides of caret
+	int    scrollWidth;
+	int    caretSticky;
+	int    marginOptions;
+	int    multiPasteMode;
+	int    virtualSpaceOptions;
 	KeyMap kmap;
-	Timer timer;
-	Timer autoScrollTimer;
+	Timer  timer;
+	Timer  autoScrollTimer;
 	enum {
 		autoScrollDelay = 200
 	};
 
-	Idler idler;
-	Point lastClick;
-	uint lastClickTime;
-	Point doubleClickCloseThreshold;
-	int dwellDelay;
-	int ticksToDwell;
-	bool dwelling;
+	Idler  idler;
+	Point  lastClick;
+	uint   lastClickTime;
+	Point  doubleClickCloseThreshold;
+	int    dwellDelay;
+	int    ticksToDwell;
 	enum {
 		selChar,
 		selWord,
@@ -238,49 +225,58 @@ protected:      // ScintillaBase subclass needs access to much of Editor
 		ddDragging
 	} inDragDrop;
 
-	bool dropWentOutside;
 	SelectionPosition posDrop;
-	int hotSpotClickPos;
-	int lastXChosen;
-	int lineAnchorPos;
-	int originalAnchorPos;
-	int wordSelectAnchorStartPos;
-	int wordSelectAnchorEndPos;
-	int wordSelectInitialCaretPos;
-	int targetStart;
-	int targetEnd;
-	int searchFlags;
-	int topLine;
-	int posTopLine;
-	int lengthForEncode;
-	int needUpdateUI;
+	int    hotSpotClickPos;
+	int    lastXChosen;
+	int    lineAnchorPos;
+	int    originalAnchorPos;
+	int    wordSelectAnchorStartPos;
+	int    wordSelectAnchorEndPos;
+	int    wordSelectInitialCaretPos;
+	int    targetStart;
+	int    targetEnd;
+	int    searchFlags;
+	int    topLine;
+	int    posTopLine;
+	int    lengthForEncode;
+	int    needUpdateUI;
 	enum {
 		notPainting,
 		painting,
 		paintAbandoned
 	} paintState;
 
-	bool paintAbandonedByStyling;
 	PRectangle rcPaint;
-	bool paintingAllText;
-	bool willRedrawAll;
 	WorkNeeded workNeeded;
-	int idleStyling;
-	bool needIdleStyling;
-	int modEventMask;
+	int    idleStyling;
+	int    modEventMask;
 	SelectionText drag;
-	int caretXPolicy;
-	int caretXSlop; ///< Ensure this many pixels visible on both sides of caret
-	int caretYPolicy;
-	int caretYSlop; ///< Ensure this many lines visible on both sides of caret
-	int visiblePolicy;
-	int visibleSlop;
-	int searchAnchor;
-	bool recordingMacro;
-	int foldAutomatic;
-	// Wrapping support
-	WrapPending wrapPending;
-	bool convertPastes;
+	int    caretXPolicy;
+	int    caretXSlop; ///< Ensure this many pixels visible on both sides of caret
+	int    caretYPolicy;
+	int    caretYSlop; ///< Ensure this many lines visible on both sides of caret
+	int    visiblePolicy;
+	int    visibleSlop;
+	int    searchAnchor;
+	int    foldAutomatic;
+	WrapPending wrapPending; // Wrapping support
+	bool   hasFocus;
+	bool   mouseDownCaptures;
+	bool   mouseWheelCaptures;
+	bool   horizontalScrollBarVisible;
+	bool   verticalScrollBarVisible;
+	bool   endAtLastLine;
+	bool   mouseSelectionRectangularSwitch;
+	bool   multipleSelection;
+	bool   additionalSelectionTyping;
+	bool   dwelling;
+	bool   dropWentOutside;
+	bool   paintAbandonedByStyling;
+	bool   paintingAllText;
+	bool   willRedrawAll;
+	bool   needIdleStyling;
+	bool   recordingMacro;
+	bool   convertPastes;
 
 	Editor();
 	virtual ~Editor();
@@ -311,10 +307,7 @@ protected:      // ScintillaBase subclass needs access to much of Editor
 	Point LocationFromPosition(int pos, PointEnd pe = peDefault);
 	int XFromPosition(int pos);
 	int XFromPosition(SelectionPosition sp);
-	SelectionPosition SPositionFromLocation(Point pt,
-	    bool canReturnInvalid = false,
-	    bool charPosition = false,
-	    bool virtualSpace = true);
+	SelectionPosition SPositionFromLocation(Point pt, bool canReturnInvalid = false, bool charPosition = false, bool virtualSpace = true);
 	int PositionFromLocation(Point pt, bool canReturnInvalid = false, bool charPosition = false);
 	SelectionPosition SPositionFromLineX(int lineDoc, int x);
 	int PositionFromLineX(int line, int x);
@@ -328,12 +321,10 @@ protected:      // ScintillaBase subclass needs access to much of Editor
 	void RedrawSelMargin(int line = -1, bool allAfter = false);
 	PRectangle RectangleFromRange(Range r, int overlap);
 	void InvalidateRange(int start, int end);
-
 	bool UserVirtualSpace() const
 	{
 		return ((virtualSpaceOptions & SCVS_USERACCESSIBLE) != 0);
 	}
-
 	int CurrentPosition() const;
 	bool SelectionEmpty() const;
 	SelectionPosition SelectionStart();
@@ -379,8 +370,7 @@ protected:      // ScintillaBase subclass needs access to much of Editor
 		XYScrollPosition(int xOffset_, int topLine_) : xOffset(xOffset_), topLine(topLine_)
 		{
 		}
-
-		bool operator==(const XYScrollPosition &other) const
+		bool operator== (const XYScrollPosition & other) const
 		{
 			return (xOffset == other.xOffset) && (topLine == other.topLine);
 		}
@@ -637,13 +627,11 @@ protected:      // ScintillaBase subclass needs access to much of Editor
 
 public:
 	// Public so the COM thunks can access it.
-	bool IsUnicodeMode() const;
+	bool   IsUnicodeMode() const;
 	// Public so scintilla_send_message can use it.
 	virtual sptr_t WndProc(uint iMessage, uptr_t wParam, sptr_t lParam);
-	// Public so scintilla_set_id can use it.
-	int ctrlID;
-	// Public so COM methods for drag and drop can set it.
-	int errorStatus;
+	int    ctrlID;      // Public so scintilla_set_id can use it.
+	int    errorStatus; // Public so COM methods for drag and drop can set it.
 	friend class AutoSurface;
 	friend class SelectionLineIterator;
 };

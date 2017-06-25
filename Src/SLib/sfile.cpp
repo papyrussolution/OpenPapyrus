@@ -1674,7 +1674,8 @@ int SFileFormat::Register()
 	Register(Xml, "application/xml", "xml", "T<?xml");                 // XML  @v8.1.0
 	Register(Svg,              0, "svg", "T<?xml"); // SVG // @todo Необходимо проверить XML-контент на наличие тега <svg>
 	Register(Html,   "text/html", "html;htm", "T<!DOCTYPE HTML"); // HTML @v8.1.0
-	Register(Ini,              0, "ini", (const char *)0);                 // INI  @v8.1.0
+	Register(Ini,              0, "ini", (const char *)0);  // INI  @v8.1.0
+
 	Register(Latex,            0, "tex", (const char *)0);                // LATEX @v8.8.3
 	Register(TxtBomUTF8,       0, "txt;csv", "EFBBBF");
 	Register(TxtBomUTF16BE,    0, "txt;csv", "FEFF");
@@ -1801,6 +1802,10 @@ int SFileFormat::Register()
 
 	Register(UnixShell,        0, "sh",   "T#!/bin/sh"); // @v9.1.2
 	Register(Msi,  "application/x-ole-storage", "msi",  "D0CF11E0A1B11AE1"); // @v9.1.2
+	Register(Log,              0, "log", 0); // @v9.7.1
+	Register(Properties,       0, "properties", (const char *)0); // @v9.7.1
+	Register(Css,              0, "css", (const char *)0); // @v9.7.1
+	Register(JavaScript,       0, "js", (const char *)0); // @v9.7.1
 
 	return ok;
 }

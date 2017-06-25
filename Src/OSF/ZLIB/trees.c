@@ -245,11 +245,8 @@ static void FASTCALL bi_flush(deflate_state *s);
 #ifdef GEN_TREES_H
 	static void gen_trees_header OF((void));
 #endif
-
 #ifndef ZLIB_DEBUG
-	#define send_code(s, c, tree) send_bits(s, tree[c].Code, tree[c].Len)
-/* Send a code of the given tree. c and tree must not have side effects */
-
+	#define send_code(s, c, tree) send_bits(s, tree[c].Code, tree[c].Len) // Send a code of the given tree. c and tree must not have side effects 
 #else /* !ZLIB_DEBUG */
 	#define send_code(s, c, tree) { if(z_verbose>2) fprintf(stderr, "\ncd %3d ", (c)); send_bits(s, tree[c].Code, tree[c].Len); }
 #endif
@@ -305,12 +302,11 @@ static void send_bits(deflate_state * s, int value, int length)
 	  } \
 	}
 #endif /* ZLIB_DEBUG */
-
-/* the arguments must not have side effects */
-
-/* ===========================================================================
- * Initialize the various 'constant' tables.
- */
+// 
+// the arguments must not have side effects 
+// 
+// Initialize the various 'constant' tables.
+// 
 static void tr_static_init()
 {
 #if defined(GEN_TREES_H) || !defined(STDC)
@@ -379,7 +375,6 @@ static void tr_static_init()
 	 * all ones)
 	 */
 	gen_codes((ct_data*)static_ltree, L_CODES+1, bl_count);
-
 	/* The static distance tree is trivial: */
 	for(n = 0; n < D_CODES; n++) {
 		static_dtree[n].Len = 5;
@@ -436,10 +431,9 @@ void gen_trees_header()
 }
 
 #endif /* GEN_TREES_H */
-
-/* ===========================================================================
- * Initialize the tree data structures for a new zlib stream.
- */
+// 
+// Initialize the tree data structures for a new zlib stream.
+// 
 void ZLIB_INTERNAL _tr_init(deflate_state * s)
 {
 	tr_static_init();
@@ -458,9 +452,7 @@ void ZLIB_INTERNAL _tr_init(deflate_state * s)
 	s->compressed_len = 0L;
 	s->bits_sent = 0L;
 #endif
-
-	/* Initialize the first block of the first file: */
-	init_block(s);
+	init_block(s); // Initialize the first block of the first file
 }
 
 /* ===========================================================================
@@ -470,10 +462,12 @@ static void init_block(deflate_state * s)
 {
 	int n; /* iterates over tree elements */
 	/* Initialize the trees. */
-	for(n = 0; n < L_CODES; n++) s->dyn_ltree[n].Freq = 0;
-	for(n = 0; n < D_CODES; n++) s->dyn_dtree[n].Freq = 0;
-	for(n = 0; n < BL_CODES; n++) s->bl_tree[n].Freq = 0;
-
+	for(n = 0; n < L_CODES; n++) 
+		s->dyn_ltree[n].Freq = 0;
+	for(n = 0; n < D_CODES; n++) 
+		s->dyn_dtree[n].Freq = 0;
+	for(n = 0; n < BL_CODES; n++) 
+		s->bl_tree[n].Freq = 0;
 	s->dyn_ltree[END_BLOCK].Freq = 1;
 	s->opt_len = s->static_len = 0L;
 	s->last_lit = s->matches = 0;
@@ -645,15 +639,14 @@ static void gen_codes(ct_data * tree, int max_code, ushort * bl_count)
 		Tracecv(tree != static_ltree, (stderr, "\nn %3d %c l %2d c %4x (%x) ", n, (isgraph(n) ? n : ' '), len, tree[n].Code, next_code[len]-1));
 	}
 }
-
-/* ===========================================================================
- * Construct one Huffman tree and assigns the code bit strings and lengths.
- * Update the total bit length for the current block.
- * IN assertion: the field freq is set for all tree elements.
- * OUT assertions: the fields len and code are set to the optimal bit length
- *     and corresponding code. The length opt_len is updated; static_len is
- *     also updated if stree is not null. The field max_code is set.
- */
+// 
+// Construct one Huffman tree and assigns the code bit strings and lengths.
+// Update the total bit length for the current block.
+// IN assertion: the field freq is set for all tree elements.
+// OUT assertions: the fields len and code are set to the optimal bit length
+//     and corresponding code. The length opt_len is updated; static_len is
+//     also updated if stree is not null. The field max_code is set.
+// 
 static void build_tree(deflate_state * s, tree_desc * desc)
 {
 	ct_data * tree         = desc->dyn_tree;
@@ -662,13 +655,11 @@ static void build_tree(deflate_state * s, tree_desc * desc)
 	int n, m;      /* iterate over heap elements */
 	int max_code = -1; /* largest code with non zero frequency */
 	int node;      /* new node being created */
-
 	/* Construct the initial heap, with least frequent element in
 	 * heap[SMALLEST]. The sons of heap[n] are heap[2*n] and heap[2*n+1].
 	 * heap[0] is not used.
 	 */
 	s->heap_len = 0, s->heap_max = HEAP_SIZE;
-
 	for(n = 0; n < elems; n++) {
 		if(tree[n].Freq != 0) {
 			s->heap[++(s->heap_len)] = max_code = n;
@@ -678,7 +669,6 @@ static void build_tree(deflate_state * s, tree_desc * desc)
 			tree[n].Len = 0;
 		}
 	}
-
 	/* The pkzip format requires that at least one distance code exists,
 	 * and that at least one bit should be sent even if there is only one
 	 * possible code. So to avoid special checks later on we force at least
@@ -691,18 +681,14 @@ static void build_tree(deflate_state * s, tree_desc * desc)
 		s->opt_len--; 
 		if(stree) 
 			s->static_len -= stree[node].Len;
-		/* node is 0 or 1 so it does not have extra bits */
+		// node is 0 or 1 so it does not have extra bits
 	}
 	desc->max_code = max_code;
-	/* The elements heap[heap_len/2+1 .. heap_len] are leaves of the tree,
-	 * establish sub-heaps of increasing lengths:
-	 */
+	// The elements heap[heap_len/2+1 .. heap_len] are leaves of the tree,
+	// establish sub-heaps of increasing lengths:
 	for(n = s->heap_len/2; n >= 1; n--) 
 		pqdownheap(s, tree, n);
-
-	/* Construct the Huffman tree by repeatedly combining the least two
-	 * frequent nodes.
-	 */
+	// Construct the Huffman tree by repeatedly combining the least two frequent nodes.
 	node = elems;          /* next internal node of the tree */
 	do {
 		pqremove(s, tree, n); /* n = node of least frequency */
@@ -743,7 +729,6 @@ static void scan_tree(deflate_state * s, ct_data * tree, int max_code)
 	if(nextlen == 0) 
 		max_count = 138, min_count = 3;
 	tree[max_code+1].Len = (ushort)0xffff; /* guard */
-
 	for(n = 0; n <= max_code; n++) {
 		curlen = nextlen; nextlen = tree[n+1].Len;
 		if(++count < max_count && curlen == nextlen) {

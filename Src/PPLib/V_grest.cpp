@@ -258,11 +258,12 @@ SLAPI PPViewGoodsRest::~PPViewGoodsRest()
 
 PPBaseFilt * PPViewGoodsRest::CreateFilt(void * extraPtr) const
 {
+	const PPConfig & r_cfg = LConfig;
 	GoodsRestFilt * p_filt = new GoodsRestFilt;
-	p_filt->LocList.Add(LConfig.Location);
+	p_filt->LocList.Add(r_cfg.Location);
 	if(((long)extraPtr) & 0x0001)
 		p_filt->Flags2 |= GoodsRestFilt::f2CalcPrognosis; // // @v9.5.8 CalcPrognosis-->Flags2
-	if(LConfig.Flags & CFGFLG_USEGOODSMATRIX)
+	if(r_cfg.Flags & CFGFLG_USEGOODSMATRIX)
 		p_filt->Flags |= GoodsRestFilt::fUseGoodsMatrix;
 	PPAccessRestriction accsr;
 	p_filt->GoodsGrpID = ObjRts.GetAccessRestriction(accsr).OnlyGoodsGrpID;

@@ -20,7 +20,10 @@ namespace Scintilla {
 	#define SCI_METHOD
 #endif
 
-enum { dvOriginal=0, dvLineEnd=1 };
+enum { 
+	dvOriginal=0, 
+	dvLineEnd=1 
+};
 
 class IDocument {
 public:

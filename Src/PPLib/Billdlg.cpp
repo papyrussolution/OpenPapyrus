@@ -499,10 +499,11 @@ int SLAPI EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 {
 	MemLeakTracer mlt;
 	int    ok = -1, r;
+	const  PPRights & r_rt = ObjRts;
 	uint   prn_form = 0;
 	BillDialog * dlg = 0;
 	uint   dlg_id = 0;
-	THROW(ObjRts.CheckOpID(pPack->Rec.OpID, PPR_READ));
+	THROW(r_rt.CheckOpID(pPack->Rec.OpID, PPR_READ));
 	if(CheckOpFlags(pPack->Rec.OpID, OPKF_CURTRANSIT)) {
 		THROW(r = EditCurTransitBill(pPack));
 	}
@@ -515,7 +516,7 @@ int SLAPI EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 			dlg->Flags |= BillDialog::fModified;
 		// @v8.6.1 {
 		if(egbFlags & PPObjBill::efEdit/*options >= 1*/) {
-			if(!BillObj->CheckRights(PPR_MOD) || !ObjRts.CheckBillDate(pPack->Rec.Dt) || !ObjRts.CheckOpID(pPack->Rec.OpID, PPR_MOD)) {
+			if(!BillObj->CheckRights(PPR_MOD) || !r_rt.CheckBillDate(pPack->Rec.Dt) || !r_rt.CheckOpID(pPack->Rec.OpID, PPR_MOD)) {
 				dlg->enableCommand(cmOK, 0);
 				//options = 3;
 				egbFlags |= PPObjBill::efNoUpdNotif;
@@ -3502,6 +3503,7 @@ int SLAPI PPObjBill::EditBillExtData(PPID billID)
 	BillTbl::Rec bill_rec;
 	THROW(CheckRights(PPR_READ));
 	if(Search(billID, &bill_rec) > 0) {
+		const  PPRights & r_rt = ObjRts;
 		int    is_need_paym = BIN(CheckOpFlags(bill_rec.OpID, OPKF_NEEDPAYMENT, 0));
 		int    valid_data = 0;
 		const  PPID agent_acs_id = GetAgentAccSheet();
@@ -3510,7 +3512,7 @@ int SLAPI PPObjBill::EditBillExtData(PPID billID)
 		PPBillExt ext_data;
 		PayPlanArray payplan;
 		ObjTagList tag_list;
-		THROW(ObjRts.CheckBillDate(bill_rec.Dt, 1));
+		THROW(r_rt.CheckBillDate(bill_rec.Dt, 1));
 		THROW(P_Tbl->GetExtraData(billID, &ext_data));
 		THROW(P_Tbl->GetPayPlan(billID, &payplan));
 		THROW(GetTagList(billID, &tag_list));
@@ -3528,10 +3530,10 @@ int SLAPI PPObjBill::EditBillExtData(PPID billID)
 		dlg->SetupCalDate(CTLCAL_BILLEXT_INVCDATE, CTL_BILLEXT_INVCDATE);
 		dlg->setCtrlData(CTL_BILLEXT_INVCCODE, ext_data.InvoiceCode);
 		dlg->setCtrlData(CTL_BILLEXT_INVCDATE, &ext_data.InvoiceDate);
-		if(!CheckRights(PPR_MOD) || !ObjRts.CheckBillDate(bill_rec.Dt))
+		if(!CheckRights(PPR_MOD) || !r_rt.CheckBillDate(bill_rec.Dt))
 			dlg->enableCommand(cmOK, 0);
 		while(!valid_data && ExecView(dlg) == cmOK) {
-			THROW(CheckRights(PPR_MOD) && ObjRts.CheckBillDate(bill_rec.Dt));
+			THROW(CheckRights(PPR_MOD) && r_rt.CheckBillDate(bill_rec.Dt));
 			if(is_need_paym)
 				dlg->getCtrlData(CTL_BILLEXT_PAYDATE, &last_pay_date);
 			else

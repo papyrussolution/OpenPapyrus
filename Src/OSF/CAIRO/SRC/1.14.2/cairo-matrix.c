@@ -67,11 +67,8 @@
  * coordinates to device-space coordinates. See cairo_get_matrix() and
  * cairo_set_matrix().
  **/
-
 static void _cairo_matrix_scalar_multiply(cairo_matrix_t * matrix, double scalar);
-
 static void _cairo_matrix_compute_adjoint(cairo_matrix_t * matrix);
-
 /**
  * cairo_matrix_init_identity:
  * @matrix: a #cairo_matrix_t
@@ -80,15 +77,27 @@ static void _cairo_matrix_compute_adjoint(cairo_matrix_t * matrix);
  *
  * Since: 1.0
  **/
-void cairo_matrix_init_identity(cairo_matrix_t * matrix)
+void FASTCALL cairo_matrix_init_identity(cairo_matrix_t * matrix)
 {
-	cairo_matrix_init(matrix,
-	    1, 0,
-	    0, 1,
-	    0, 0);
+	cairo_matrix_init(matrix, 1, 0, 0, 1, 0, 0);
 }
 
 slim_hidden_def(cairo_matrix_init_identity);
+
+cairo_bool_t FASTCALL _cairo_matrix_is_identity(const cairo_matrix_t * matrix)
+{
+	return (matrix->xx == 1.0 && matrix->yx == 0.0 && matrix->xy == 0.0 && matrix->yy == 1.0 && matrix->x0 == 0.0 && matrix->y0 == 0.0);
+}
+
+cairo_bool_t FASTCALL _cairo_matrix_is_translation(const cairo_matrix_t * matrix)
+{
+	return (matrix->xx == 1.0 && matrix->yx == 0.0 && matrix->xy == 0.0 && matrix->yy == 1.0);
+}
+
+cairo_bool_t FASTCALL _cairo_matrix_is_scale(const cairo_matrix_t * matrix)
+{
+	return matrix->yx == 0.0 && matrix->xy == 0.0;
+}
 
 /**
  * cairo_matrix_init:
@@ -546,7 +555,6 @@ static void _cairo_matrix_compute_adjoint(cairo_matrix_t * matrix)
 {
 	/* adj (A) = transpose (C:cofactor (A,i,j)) */
 	double a, b, c, d, tx, ty;
-
 	_cairo_matrix_get_affine(matrix,
 	    &a,  &b,
 	    &c,  &d,
@@ -576,16 +584,13 @@ static void _cairo_matrix_compute_adjoint(cairo_matrix_t * matrix)
 cairo_status_t cairo_matrix_invert(cairo_matrix_t * matrix)
 {
 	double det;
-
 	/* Simple scaling|translation matrices are quite common... */
 	if(matrix->xy == 0. && matrix->yx == 0.) {
 		matrix->x0 = -matrix->x0;
 		matrix->y0 = -matrix->y0;
-
 		if(matrix->xx != 1.) {
 			if(matrix->xx == 0.)
 				return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
-
 			matrix->xx = 1. / matrix->xx;
 			matrix->x0 *= matrix->xx;
 		}
@@ -597,22 +602,16 @@ cairo_status_t cairo_matrix_invert(cairo_matrix_t * matrix)
 			matrix->yy = 1. / matrix->yy;
 			matrix->y0 *= matrix->yy;
 		}
-
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	/* inv (A) = 1/det (A) * adj (A) */
 	det = _cairo_matrix_compute_determinant(matrix);
-
 	if(!ISFINITE(det))
 		return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
-
 	if(det == 0)
 		return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
-
 	_cairo_matrix_compute_adjoint(matrix);
 	_cairo_matrix_scalar_multiply(matrix, 1 / det);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -620,28 +619,21 @@ slim_hidden_def(cairo_matrix_invert);
 
 cairo_bool_t _cairo_matrix_is_invertible(const cairo_matrix_t * matrix)
 {
-	double det;
-
-	det = _cairo_matrix_compute_determinant(matrix);
-
+	double det = _cairo_matrix_compute_determinant(matrix);
 	return ISFINITE(det) && det != 0.;
 }
 
 cairo_bool_t _cairo_matrix_is_scale_0(const cairo_matrix_t * matrix)
 {
-	return matrix->xx == 0. &&
-	       matrix->xy == 0. &&
-	       matrix->yx == 0. &&
-	       matrix->yy == 0.;
+	return (matrix->xx == 0. && matrix->xy == 0. && matrix->yx == 0. && matrix->yy == 0.);
 }
 
 double _cairo_matrix_compute_determinant(const cairo_matrix_t * matrix)
 {
-	double a, b, c, d;
-
-	a = matrix->xx; b = matrix->yx;
-	c = matrix->xy; d = matrix->yy;
-
+	double a = matrix->xx; 
+	double b = matrix->yx;
+	double c = matrix->xy; 
+	double d = matrix->yy;
 	return a*d - b*c;
 }
 

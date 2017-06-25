@@ -262,12 +262,10 @@ err:
 	return extension;
 }
 
-static uchar * generic_asn1(const char * value, X509V3_CTX * ctx,
-    long * ext_len)
+static uchar * generic_asn1(const char * value, X509V3_CTX * ctx, long * ext_len)
 {
-	ASN1_TYPE * typ;
 	uchar * ext_der = NULL;
-	typ = ASN1_generate_v3(value, ctx);
+	ASN1_TYPE * typ = ASN1_generate_v3(value, ctx);
 	if(typ == NULL)
 		return NULL;
 	*ext_len = i2d_ASN1_TYPE(typ, &ext_der);
@@ -278,8 +276,7 @@ static uchar * generic_asn1(const char * value, X509V3_CTX * ctx,
 static void delete_ext(STACK_OF(X509_EXTENSION) * sk, X509_EXTENSION * dext)
 {
 	int idx;
-	ASN1_OBJECT * obj;
-	obj = X509_EXTENSION_get_object(dext);
+	ASN1_OBJECT * obj = X509_EXTENSION_get_object(dext);
 	while((idx = X509v3_get_ext_by_OBJ(sk, obj, -1)) >= 0) {
 		X509_EXTENSION * tmpext = X509v3_get_ext(sk, idx);
 		X509v3_delete_ext(sk, idx);
@@ -292,14 +289,12 @@ static void delete_ext(STACK_OF(X509_EXTENSION) * sk, X509_EXTENSION * dext)
  * file section to an extension STACK.
  */
 
-int X509V3_EXT_add_nconf_sk(CONF * conf, X509V3_CTX * ctx, const char * section,
-    STACK_OF(X509_EXTENSION) ** sk)
+int X509V3_EXT_add_nconf_sk(CONF * conf, X509V3_CTX * ctx, const char * section, STACK_OF(X509_EXTENSION) ** sk)
 {
 	X509_EXTENSION * ext;
 	STACK_OF(CONF_VALUE) *nval;
 	CONF_VALUE * val;
 	int i;
-
 	if((nval = NCONF_get_section(conf, section)) == NULL)
 		return 0;
 	for(i = 0; i < sk_CONF_VALUE_num(nval); i++) {

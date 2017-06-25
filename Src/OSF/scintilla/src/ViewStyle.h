@@ -180,7 +180,7 @@ public:
 	void Init(size_t stylesSize_=256);
 	void Refresh(Surface &surface, int tabInChars);
 	void ReleaseAllExtendedStyles();
-	int AllocateExtendedStyles(int numberStyles);
+	int    FASTCALL AllocateExtendedStyles(int numberStyles);
 	void EnsureStyle(size_t index);
 	void ResetDefaultStyle();
 	void ClearStyles();

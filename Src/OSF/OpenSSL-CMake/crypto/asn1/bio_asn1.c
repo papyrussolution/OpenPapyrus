@@ -95,7 +95,6 @@ const BIO_METHOD * BIO_f_asn1(void)
 static int asn1_bio_new(BIO * b)
 {
 	BIO_ASN1_BUF_CTX * ctx = (BIO_ASN1_BUF_CTX*)OPENSSL_zalloc(sizeof(*ctx));
-
 	if(ctx == NULL)
 		return 0;
 	if(!asn1_bio_init(ctx, DEFAULT_ASN1_BUF_SIZE)) {
@@ -104,7 +103,6 @@ static int asn1_bio_new(BIO * b)
 	}
 	BIO_set_data(b, ctx);
 	BIO_set_init(b, 1);
-
 	return 1;
 }
 
@@ -123,57 +121,42 @@ static int asn1_bio_init(BIO_ASN1_BUF_CTX * ctx, int size)
 static int asn1_bio_free(BIO * b)
 {
 	BIO_ASN1_BUF_CTX * ctx;
-
 	if(b == NULL)
 		return 0;
-
 	ctx = (BIO_ASN1_BUF_CTX*)BIO_get_data(b);
 	if(ctx == NULL)
 		return 0;
-
 	OPENSSL_free(ctx->buf);
 	OPENSSL_free(ctx);
 	BIO_set_data(b, NULL);
 	BIO_set_init(b, 0);
-
 	return 1;
 }
 
 static int asn1_bio_write(BIO * b, const char * in, int inl)
 {
-	BIO_ASN1_BUF_CTX * ctx;
 	int wrmax, wrlen, ret;
 	uchar * p;
-	BIO * next;
-
-	ctx = (BIO_ASN1_BUF_CTX*)BIO_get_data(b);
-	next = BIO_next(b);
+	BIO_ASN1_BUF_CTX * ctx = (BIO_ASN1_BUF_CTX*)BIO_get_data(b);
+	BIO * next = BIO_next(b);
 	if(in == NULL || inl < 0 || ctx == NULL || next == NULL)
 		return 0;
-
 	wrlen = 0;
 	ret = -1;
-
 	for(;; ) {
 		switch(ctx->state) {
 			/* Setup prefix data, call it */
 			case ASN1_STATE_START:
-			    if(!asn1_bio_setup_ex(b, ctx, ctx->prefix,
-				    ASN1_STATE_PRE_COPY, ASN1_STATE_HEADER))
+			    if(!asn1_bio_setup_ex(b, ctx, ctx->prefix, ASN1_STATE_PRE_COPY, ASN1_STATE_HEADER))
 				    return 0;
 			    break;
-
 			/* Copy any pre data first */
 			case ASN1_STATE_PRE_COPY:
-
 			    ret = asn1_bio_flush_ex(b, ctx, ctx->prefix_free,
 			    ASN1_STATE_HEADER);
-
 			    if(ret <= 0)
 				    goto done;
-
 			    break;
-
 			case ASN1_STATE_HEADER:
 			    ctx->buflen = ASN1_object_size(0, inl, ctx->asn1_tag) - inl;
 			    OPENSSL_assert(ctx->buflen <= ctx->bufsize);
@@ -181,14 +164,11 @@ static int asn1_bio_write(BIO * b, const char * in, int inl)
 			    ASN1_put_object(&p, 0, inl, ctx->asn1_tag, ctx->asn1_class);
 			    ctx->copylen = inl;
 			    ctx->state = ASN1_STATE_HEADER_COPY;
-
 			    break;
-
 			case ASN1_STATE_HEADER_COPY:
 			    ret = BIO_write(next, ctx->buf + ctx->bufpos, ctx->buflen);
 			    if(ret <= 0)
 				    goto done;
-
 			    ctx->buflen -= ret;
 			    if(ctx->buflen)
 				    ctx->bufpos += ret;
@@ -196,15 +176,9 @@ static int asn1_bio_write(BIO * b, const char * in, int inl)
 				    ctx->bufpos = 0;
 				    ctx->state = ASN1_STATE_DATA_COPY;
 			    }
-
 			    break;
-
 			case ASN1_STATE_DATA_COPY:
-
-			    if(inl > ctx->copylen)
-				    wrmax = ctx->copylen;
-			    else
-				    wrmax = inl;
+			    wrmax = (inl > ctx->copylen) ? ctx->copylen : inl;
 			    ret = BIO_write(next, in, wrmax);
 			    if(ret <= 0)
 				    break;
@@ -212,33 +186,25 @@ static int asn1_bio_write(BIO * b, const char * in, int inl)
 			    ctx->copylen -= ret;
 			    in += ret;
 			    inl -= ret;
-
 			    if(ctx->copylen == 0)
 				    ctx->state = ASN1_STATE_HEADER;
-
 			    if(inl == 0)
 				    goto done;
-
 			    break;
-
 			default:
 			    BIO_clear_retry_flags(b);
 			    return 0;
 		}
 	}
-
 done:
 	BIO_clear_retry_flags(b);
 	BIO_copy_next_retry(b);
-
 	return (wrlen > 0) ? wrlen : ret;
 }
 
-static int asn1_bio_flush_ex(BIO * b, BIO_ASN1_BUF_CTX * ctx,
-    asn1_ps_func * cleanup, asn1_bio_state_t next)
+static int asn1_bio_flush_ex(BIO * b, BIO_ASN1_BUF_CTX * ctx, asn1_ps_func * cleanup, asn1_bio_state_t next)
 {
 	int ret;
-
 	if(ctx->ex_len <= 0)
 		return 1;
 	for(;; ) {
@@ -291,27 +257,21 @@ static int asn1_bio_puts(BIO * b, const char * str)
 static int asn1_bio_gets(BIO * b, char * str, int size)
 {
 	BIO * next = BIO_next(b);
-	if(next == NULL)
-		return 0;
-	return BIO_gets(next, str, size);
+	return next ? BIO_gets(next, str, size) : 0;
 }
 
 static long asn1_bio_callback_ctrl(BIO * b, int cmd, bio_info_cb * fp)
 {
 	BIO * next = BIO_next(b);
-	if(next == NULL)
-		return 0;
-	return BIO_callback_ctrl(next, cmd, fp);
+	return next ? BIO_callback_ctrl(next, cmd, fp) : 0;
 }
 
 static long asn1_bio_ctrl(BIO * b, int cmd, long arg1, void * arg2)
 {
-	BIO_ASN1_BUF_CTX * ctx;
 	BIO_ASN1_EX_FUNCS * ex_func;
 	long ret = 1;
 	BIO * next;
-
-	ctx = (BIO_ASN1_BUF_CTX*)BIO_get_data(b);
+	BIO_ASN1_BUF_CTX * ctx = (BIO_ASN1_BUF_CTX*)BIO_get_data(b);
 	if(ctx == NULL)
 		return 0;
 	next = BIO_next(b);
@@ -382,8 +342,7 @@ static long asn1_bio_ctrl(BIO * b, int cmd, long arg1, void * arg2)
 	return ret;
 }
 
-static int asn1_bio_set_ex(BIO * b, int cmd,
-    asn1_ps_func * ex_func, asn1_ps_func * ex_free_func)
+static int asn1_bio_set_ex(BIO * b, int cmd, asn1_ps_func * ex_func, asn1_ps_func * ex_free_func)
 {
 	BIO_ASN1_EX_FUNCS extmp;
 	extmp.ex_func = ex_func;
@@ -391,13 +350,10 @@ static int asn1_bio_set_ex(BIO * b, int cmd,
 	return BIO_ctrl(b, cmd, 0, &extmp);
 }
 
-static int asn1_bio_get_ex(BIO * b, int cmd,
-    asn1_ps_func ** ex_func,
-    asn1_ps_func ** ex_free_func)
+static int asn1_bio_get_ex(BIO * b, int cmd, asn1_ps_func ** ex_func, asn1_ps_func ** ex_free_func)
 {
 	BIO_ASN1_EX_FUNCS extmp;
-	int ret;
-	ret = BIO_ctrl(b, cmd, 0, &extmp);
+	int ret = BIO_ctrl(b, cmd, 0, &extmp);
 	if(ret > 0) {
 		*ex_func = extmp.ex_func;
 		*ex_free_func = extmp.ex_free_func;
@@ -405,26 +361,22 @@ static int asn1_bio_get_ex(BIO * b, int cmd,
 	return ret;
 }
 
-int BIO_asn1_set_prefix(BIO * b, asn1_ps_func * prefix,
-    asn1_ps_func * prefix_free)
+int BIO_asn1_set_prefix(BIO * b, asn1_ps_func * prefix, asn1_ps_func * prefix_free)
 {
 	return asn1_bio_set_ex(b, BIO_C_SET_PREFIX, prefix, prefix_free);
 }
 
-int BIO_asn1_get_prefix(BIO * b, asn1_ps_func ** pprefix,
-    asn1_ps_func ** pprefix_free)
+int BIO_asn1_get_prefix(BIO * b, asn1_ps_func ** pprefix, asn1_ps_func ** pprefix_free)
 {
 	return asn1_bio_get_ex(b, BIO_C_GET_PREFIX, pprefix, pprefix_free);
 }
 
-int BIO_asn1_set_suffix(BIO * b, asn1_ps_func * suffix,
-    asn1_ps_func * suffix_free)
+int BIO_asn1_set_suffix(BIO * b, asn1_ps_func * suffix, asn1_ps_func * suffix_free)
 {
 	return asn1_bio_set_ex(b, BIO_C_SET_SUFFIX, suffix, suffix_free);
 }
 
-int BIO_asn1_get_suffix(BIO * b, asn1_ps_func ** psuffix,
-    asn1_ps_func ** psuffix_free)
+int BIO_asn1_get_suffix(BIO * b, asn1_ps_func ** psuffix, asn1_ps_func ** psuffix_free)
 {
 	return asn1_bio_get_ex(b, BIO_C_GET_SUFFIX, psuffix, psuffix_free);
 }

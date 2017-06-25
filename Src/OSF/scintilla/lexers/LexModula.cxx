@@ -12,10 +12,10 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include "ILexer.h"
-#include "SciLexer.h"
-#include "PropSetSimple.h"
-#include "WordList.h"
+//#include "ILexer.h"
+//#include "SciLexer.h"
+//#include "WordList.h"
+//#include "PropSetSimple.h"
 #include "LexAccessor.h"
 #include "Accessor.h"
 #include "StyleContext.h"
@@ -34,10 +34,10 @@ using namespace Scintilla;
 
 static inline bool IsDigitOfBase(unsigned ch, unsigned base)
 {
-	if(ch < '0' || ch > 'f') 
+	if(ch < '0' || ch > 'f')
 		return false;
 	if(base <= 10) {
-		if(ch >= ( '0' + base ) ) 
+		if(ch >= ( '0' + base ) )
 			return false;
 	}
 	else {

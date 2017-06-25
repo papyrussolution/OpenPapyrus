@@ -11,7 +11,7 @@
 //#include "internal/cryptlib.h"
 //#include <openssl/objects.h>
 //#include <openssl/asn1t.h>
-#include <openssl/x509.h>
+//#include <openssl/x509.h>
 #include "x509_lcl.h"
 
 /*-

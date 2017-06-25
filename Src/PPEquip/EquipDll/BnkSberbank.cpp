@@ -228,12 +228,12 @@ extern PPDrvSession DRVS;
 #define SBRBNK_ERR_CLOSEDAY         6005 // Ошибка операции закрытия дня
 
 struct AuthAnswerSt {
-  int    TType;        // IN: Тип транзакции
-  ulong  Amount;       // IN: Сумма в копейках
-  char   Rcode[3];     // OUT: Код результата авторизации
-  char   AMessage[16]; // OUT: Словесное пояснение результата
-  int    CType;        // OUT: Тип карты 
-  char * P_Check;      // OUT: Образ чека, должен освобождаться GlobalFree в вызывающей программе
+	int    TType;        // IN: Тип транзакции
+	ulong  Amount;       // IN: Сумма в копейках
+	char   Rcode[3];     // OUT: Код результата авторизации
+	char   AMessage[16]; // OUT: Словесное пояснение результата
+	int    CType;        // OUT: Тип карты 
+	char * P_Check;      // OUT: Образ чека, должен освобождаться GlobalFree в вызывающей программе
 };
 
 typedef int (__cdecl * CardAuthProc) (char *, AuthAnswerSt *);
@@ -558,9 +558,9 @@ int PPDrvSberTrmnl::Disconnect()
 
 int PPDrvSberTrmnl::Pay(double amount)
 {
-	int ok = 1, result = SBRBNK_ERR_OK;
+	int    ok = 1;
+	int    result = SBRBNK_ERR_OK;
 	AuthAnswerSt auth_answr;
-	
 	MEMSZERO(auth_answr);
 	auth_answr.TType = SBRBNK_FUNC_PAY;
 	auth_answr.Amount = (ulong)(amount); // Сумма передается в копейках
@@ -568,7 +568,6 @@ int PPDrvSberTrmnl::Pay(double amount)
 	THROWERR((result = CardAuth(0, &auth_answr)) == SBRBNK_ERR_OK, SBRBNK_ERR_PAY); // Будем надеяться, что код ошибки и так вернет
 	//if(strlen(auth_answr.P_Check))
 	//	GlobalFree();
-
 	CATCH
 		ok = 0;
 		{
@@ -579,7 +578,7 @@ int PPDrvSberTrmnl::Pay(double amount)
 			DRVS.GetErrText(result, buf);
 			msg.CatChar(':').Space().Cat("Error Code ").Cat(/*auth_answr.Rcode*/result).CatChar(':').Cat(buf);
 			if(auth_answr.AMessage)
-				msg.CR().CatChar('\t').Cat("Adddition message: ").Cat(auth_answr.AMessage);
+				msg.CR().CatChar('\t').Cat("Addition message: ").Cat(auth_answr.AMessage);
 			DRVS.Log(msg, 0xffff);
 			DRVS.SetErrCode(/*rcode.ToLong()*/result); // Пусть будет виден более точный код ошибки
 		}

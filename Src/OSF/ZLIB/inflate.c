@@ -260,14 +260,12 @@ static void FASTCALL fixedtables(struct inflate_state  * state)
 	static int virgin = 1;
 	static code * lenfix, * distfix;
 	static code fixed[544];
-
-	/* build fixed huffman tables if first call (may not be thread safe) */
+	// build fixed huffman tables if first call (may not be thread safe) 
 	if(virgin) {
-		unsigned sym, bits;
+		unsigned bits;
 		static code * next;
-
-		/* literal/length table */
-		sym = 0;
+		// literal/length table 
+		unsigned sym = 0;
 		while(sym < 144) state->lens[sym++] = 8;
 		while(sym < 256) state->lens[sym++] = 9;
 		while(sym < 280) state->lens[sym++] = 7;
@@ -276,15 +274,14 @@ static void FASTCALL fixedtables(struct inflate_state  * state)
 		lenfix = next;
 		bits = 9;
 		inflate_table(LENS, state->lens, 288, &(next), &(bits), state->work);
-
-		/* distance table */
+		// distance table 
 		sym = 0;
-		while(sym < 32) state->lens[sym++] = 5;
+		while(sym < 32) 
+			state->lens[sym++] = 5;
 		distfix = next;
 		bits = 5;
 		inflate_table(DISTS, state->lens, 32, &(next), &(bits), state->work);
-
-		/* do this just once */
+		// do this just once 
 		virgin = 0;
 	}
 #else /* !BUILDFIXED */
@@ -463,13 +460,10 @@ static int updatewindow(z_streamp strm, const Bytef * end, unsigned copy)
 		state->hold = hold; \
 		state->bits = bits; \
 	} while(0)
-
-/* Clear the input bit accumulator */
-#define INITBITS() \
-	do { \
-		hold = 0; \
-		bits = 0; \
-	} while(0)
+//
+// Clear the input bit accumulator 
+//
+#define INITBITS() do { hold = 0; bits = 0; } while(0)
 
 /* Get a byte of input into the bit accumulator, or return from inflate()
    if there is no input available. */
@@ -891,8 +885,7 @@ int ZEXPORT inflate(z_streamp strm, int flush)
 			    state->next = state->codes;
 			    state->lencode = (const ZInfTreesCode *)(state->next);
 			    state->lenbits = 7;
-			    ret = inflate_table(CODES, state->lens, 19, &(state->next),
-			    &(state->lenbits), state->work);
+			    ret = inflate_table(CODES, state->lens, 19, &(state->next), &(state->lenbits), state->work);
 			    if(ret) {
 				    strm->msg = (char*)"invalid code lengths set";
 				    state->mode = BAD;
@@ -970,8 +963,7 @@ int ZEXPORT inflate(z_streamp strm, int flush)
 			    }
 			    state->distcode = (const ZInfTreesCode *)(state->next);
 			    state->distbits = 6;
-			    ret = inflate_table(DISTS, state->lens + state->nlen, state->ndist,
-			    &(state->next), &(state->distbits), state->work);
+			    ret = inflate_table(DISTS, state->lens + state->nlen, state->ndist, &(state->next), &(state->distbits), state->work);
 			    if(ret) {
 				    strm->msg = (char*)"invalid distances set";
 				    state->mode = BAD;

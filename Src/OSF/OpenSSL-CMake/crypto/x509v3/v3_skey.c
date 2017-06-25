@@ -12,8 +12,8 @@
 #include "internal/x509_int.h"
 #include "ext_dat.h"
 
-static ASN1_OCTET_STRING * s2i_skey_id(X509V3_EXT_METHOD * method,
-    X509V3_CTX * ctx, char * str);
+static ASN1_OCTET_STRING * s2i_skey_id(X509V3_EXT_METHOD * method, X509V3_CTX * ctx, char * str);
+
 const X509V3_EXT_METHOD v3_skey_id = {
 	NID_subject_key_identifier, 0, ASN1_ITEM_ref(ASN1_OCTET_STRING),
 	0, 0, 0, 0,
@@ -44,8 +44,7 @@ ASN1_OCTET_STRING * s2i_ASN1_OCTET_STRING(X509V3_EXT_METHOD * method, X509V3_CTX
 	return oct;
 }
 
-static ASN1_OCTET_STRING * s2i_skey_id(X509V3_EXT_METHOD * method,
-    X509V3_CTX * ctx, char * str)
+static ASN1_OCTET_STRING * s2i_skey_id(X509V3_EXT_METHOD * method, X509V3_CTX * ctx, char * str)
 {
 	ASN1_OCTET_STRING * oct;
 	X509_PUBKEY * pubkey;
@@ -53,45 +52,34 @@ static ASN1_OCTET_STRING * s2i_skey_id(X509V3_EXT_METHOD * method,
 	int pklen;
 	uchar pkey_dig[EVP_MAX_MD_SIZE];
 	uint diglen;
-
 	if(strcmp(str, "hash"))
 		return s2i_ASN1_OCTET_STRING(method, ctx, str);
-
 	if((oct = ASN1_OCTET_STRING_new()) == NULL) {
 		X509V3err(X509V3_F_S2I_SKEY_ID, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-
 	if(ctx && (ctx->flags == CTX_TEST))
 		return oct;
-
 	if(!ctx || (!ctx->subject_req && !ctx->subject_cert)) {
 		X509V3err(X509V3_F_S2I_SKEY_ID, X509V3_R_NO_PUBLIC_KEY);
 		goto err;
 	}
-
 	if(ctx->subject_req)
 		pubkey = ctx->subject_req->req_info.pubkey;
 	else
 		pubkey = ctx->subject_cert->cert_info.key;
-
 	if(pubkey == NULL) {
 		X509V3err(X509V3_F_S2I_SKEY_ID, X509V3_R_NO_PUBLIC_KEY);
 		goto err;
 	}
-
 	X509_PUBKEY_get0_param(NULL, &pk, &pklen, NULL, pubkey);
-
 	if(!EVP_Digest(pk, pklen, pkey_dig, &diglen, EVP_sha1(), NULL))
 		goto err;
-
 	if(!ASN1_OCTET_STRING_set(oct, pkey_dig, diglen)) {
 		X509V3err(X509V3_F_S2I_SKEY_ID, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
 	return oct;
-
 err:
 	ASN1_OCTET_STRING_free(oct);
 	return NULL;

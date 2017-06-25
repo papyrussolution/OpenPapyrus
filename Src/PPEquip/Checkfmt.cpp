@@ -16,6 +16,7 @@ void SLAPI SlipLineParam::Init()
 	Flags = 0;
 	Qtty = 0.0;
 	Price = 0.0;
+	VatRate = 0.0;
 	DivID = 0;
 	FontSize = 0;
 	MEMSZERO(PictCoord);
@@ -146,6 +147,7 @@ public:
 		double Price;         // Для строки чека (документа) - чистая цена (с учетом скидки), в остальных случаях - 0
 		double Amount;        // Для строки чека (документа) - чистая сумма по строке, для "дна" чека (документа) -
 			// сумма к оплате, для кассовой сессии - общая сумма выручки (с учетом возвратов).
+		double VatRate;       // @v9.7.1 Для строки чека (документа) - ставка НДС (в процентах)
 		int16  DivID;         // Для строки чека (документа) - ИД отдела, в остальных случаях - 0
 		uint16 Reserve;       // @alignment
 		long   GoodsID;       // @v9.5.7
@@ -1463,6 +1465,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 			const PPSlipFormatZone * p_zone = pIter->P_Zone;
 			if(pIter->EntryNo < (long)p_zone->getCount()) {
 				const PPSlipFormatEntry * p_entry = pIter->P_Entry = p_zone->at(pIter->EntryNo);
+				PPGoodsTaxEntry tax_entry;
 				if(P_CcPack) {
 					CCheckLineTbl::Rec cc_item;
 					PPTransferItem ti;
@@ -1475,6 +1478,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							const double is = RunningTotal - prev_rt;
 							pIter->Qtty  = fabs(cc_item.Quantity);
 							pIter->Price = is / pIter->Qtty;
+							pIter->VatRate = 0.0; // @v9.7.1
 							pIter->DivID = (cc_item.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? (cc_item.DivID - CHECK_LINE_IS_PRINTED_BIAS) : cc_item.DivID;
 							// @v9.5.7 {
 							pIter->GoodsID = cc_item.GoodsID;
@@ -1482,6 +1486,8 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 								STRNSCPY(pIter->Text, goods_rec.Name);
 								P_Od->GObj.GetSingleBarcode(pIter->GoodsID, temp_buf);
 								STRNSCPY(pIter->Code, temp_buf);
+								if(P_Od->GObj.FetchTax(pIter->GoodsID, P_CcPack->Rec.Dt, 0, &tax_entry) > 0)
+									pIter->VatRate = tax_entry.GetVatRate();
 							}
 							// } @v9.5.7
 						}
@@ -1490,12 +1496,17 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 						if(GetCurBillItem(pIter, &ti)) {
 							pIter->Qtty  = R3(fabs(ti.Quantity_));
 							pIter->Price = R2(fabs(ti.NetPrice()));
+							pIter->VatRate = 0.0; // @v9.7.1
 							// @v9.5.7 {
 							pIter->GoodsID = labs(ti.GoodsID);
 							if(P_Od && P_Od->GObj.Fetch(pIter->GoodsID, &goods_rec) > 0) {
 								STRNSCPY(pIter->Text, goods_rec.Name);
 								P_Od->GObj.GetSingleBarcode(pIter->GoodsID, temp_buf);
 								STRNSCPY(pIter->Code, temp_buf);
+								// @v9.7.1 {
+								if(P_Od->GObj.FetchTax(pIter->GoodsID, ti.Date, 0, &tax_entry) > 0)
+									pIter->VatRate = tax_entry.GetVatRate();
+								// } @v9.7.1
 							}
 							// } @v9.5.7
 						}
@@ -2367,6 +2378,7 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 			SETFLAG(sl_param.Flags, SlipLineParam::fRegFiscal,  flags & PPSlipFormatEntry::fFiscal);
 			sl_param.Qtty  = CurIter.Qtty;
 			sl_param.Price = CurIter.Price;
+			sl_param.VatRate = CurIter.VatRate; // @v9.7.1
 			sl_param.DivID = CurIter.DivID;
 		}
 		else if(ok < 0) {

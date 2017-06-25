@@ -2767,36 +2767,27 @@ static void cairo_cff_font_destroy(cairo_cff_font_t * font)
 		SAlloc::F(font->fd_default_width);
 		SAlloc::F(font->fd_nominal_width);
 	}
-
 	SAlloc::F(font->data);
-
 	SAlloc::F(font);
 }
 
-cairo_status_t _cairo_cff_subset_init(cairo_cff_subset_t          * cff_subset,
-    const char                  * subset_name,
-    cairo_scaled_font_subset_t  * font_subset)
+cairo_status_t _cairo_cff_subset_init(cairo_cff_subset_t * cff_subset, const char * subset_name, cairo_scaled_font_subset_t * font_subset)
 {
 	cairo_cff_font_t * font = NULL; /* squelch bogus compiler warning */
-	cairo_status_t status;
 	const char * data = NULL; /* squelch bogus compiler warning */
 	ulong length = 0; /* squelch bogus compiler warning */
 	uint i;
-
-	status = _cairo_cff_font_create(font_subset, &font, subset_name);
+	cairo_status_t status = _cairo_cff_font_create(font_subset, &font, subset_name);
 	if(unlikely(status))
 		return status;
-
 	status = cairo_cff_font_generate(font, &data, &length);
 	if(unlikely(status))
 		goto fail1;
-
 	cff_subset->ps_name = sstrdup(font->ps_name);
 	if(unlikely(cff_subset->ps_name == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail1;
 	}
-
 	if(font->font_name) {
 		cff_subset->family_name_utf8 = sstrdup(font->font_name);
 		if(cff_subset->family_name_utf8 == NULL) {
@@ -2807,7 +2798,6 @@ cairo_status_t _cairo_cff_subset_init(cairo_cff_subset_t          * cff_subset,
 	else {
 		cff_subset->family_name_utf8 = NULL;
 	}
-
 	cff_subset->widths = (double *)SAlloc::C(sizeof(double), font->scaled_font_subset->num_glyphs);
 	if(unlikely(cff_subset->widths == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -2840,7 +2830,6 @@ fail2:
 	SAlloc::F(cff_subset->ps_name);
 fail1:
 	cairo_cff_font_destroy(font);
-
 	return status;
 }
 
