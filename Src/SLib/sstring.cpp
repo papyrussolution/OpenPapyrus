@@ -1415,7 +1415,7 @@ int FASTCALL SString::Alloc(size_t sz)
 			// } @v9.4.9
 		}
 		else
-			ok = (SLibError = SLERR_NOMEM, 0);
+			ok = 0;
 	}
 	return ok;
 }
@@ -1820,7 +1820,7 @@ SString & SLAPI SString::ReplaceCR()
 
 char * json_escape(const char * text)
 {
-	rcstring * output;
+	RcString * output;
 	size_t i, length;
 	char buffer[6];
 	// check if pre-conditions are met
@@ -3644,7 +3644,7 @@ int FASTCALL SStringU::Alloc(size_t sz)
 			// } @v9.4.9
 		}
 		else
-			ok = (SLibError = SLERR_NOMEM, 0);
+			ok = 0;
 	}
 	return ok;
 }

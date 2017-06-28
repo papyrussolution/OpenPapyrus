@@ -100,26 +100,18 @@ static int rsa_ossl_public_encrypt(int flen, const unsigned char * from,
 	}
 	if(i <= 0)
 		goto err;
-
 	if(BN_bin2bn(buf, num, f) == NULL)
 		goto err;
-
 	if(BN_ucmp(f, rsa->n) >= 0) {
 		/* usually the padding functions would catch this */
-		RSAerr(RSA_F_RSA_OSSL_PUBLIC_ENCRYPT,
-		    RSA_R_DATA_TOO_LARGE_FOR_MODULUS);
+		RSAerr(RSA_F_RSA_OSSL_PUBLIC_ENCRYPT, RSA_R_DATA_TOO_LARGE_FOR_MODULUS);
 		goto err;
 	}
-
 	if(rsa->flags & RSA_FLAG_CACHE_PUBLIC)
-		if(!BN_MONT_CTX_set_locked
-			    (&rsa->_method_mod_n, rsa->lock, rsa->n, ctx))
+		if(!BN_MONT_CTX_set_locked(&rsa->_method_mod_n, rsa->lock, rsa->n, ctx))
 			goto err;
-
-	if(!rsa->meth->bn_mod_exp(ret, f, rsa->e, rsa->n, ctx,
-		    rsa->_method_mod_n))
+	if(!rsa->meth->bn_mod_exp(ret, f, rsa->e, rsa->n, ctx, rsa->_method_mod_n))
 		goto err;
-
 	/*
 	 * put in leading 0 bytes if the number is less than the length of the
 	 * modulus
@@ -128,11 +120,9 @@ static int rsa_ossl_public_encrypt(int flen, const unsigned char * from,
 	i = BN_bn2bin(ret, &(to[num - j]));
 	for(k = 0; k < (num - i); k++)
 		to[k] = 0;
-
 	r = num;
 err:
-	if(ctx != NULL)
-		BN_CTX_end(ctx);
+	BN_CTX_end(ctx);
 	BN_CTX_free(ctx);
 	OPENSSL_clear_free(buf, num);
 	return (r);
@@ -344,8 +334,7 @@ static int rsa_ossl_private_encrypt(int flen, const unsigned char * from,
 
 	r = num;
 err:
-	if(ctx != NULL)
-		BN_CTX_end(ctx);
+	BN_CTX_end(ctx);
 	BN_CTX_free(ctx);
 	OPENSSL_clear_free(buf, num);
 	return (r);
@@ -470,8 +459,7 @@ static int rsa_ossl_private_decrypt(int flen, const unsigned char * from,
 		RSAerr(RSA_F_RSA_OSSL_PRIVATE_DECRYPT, RSA_R_PADDING_CHECK_FAILED);
 
 err:
-	if(ctx != NULL)
-		BN_CTX_end(ctx);
+	BN_CTX_end(ctx);
 	BN_CTX_free(ctx);
 	OPENSSL_clear_free(buf, num);
 	return (r);
@@ -569,8 +557,7 @@ static int rsa_ossl_public_decrypt(int flen, const unsigned char * from,
 		RSAerr(RSA_F_RSA_OSSL_PUBLIC_DECRYPT, RSA_R_PADDING_CHECK_FAILED);
 
 err:
-	if(ctx != NULL)
-		BN_CTX_end(ctx);
+	BN_CTX_end(ctx);
 	BN_CTX_free(ctx);
 	OPENSSL_clear_free(buf, num);
 	return (r);

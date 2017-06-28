@@ -30,10 +30,10 @@
 //#include "sendf.h"
 //#include "curl_base64.h"
 //#include "strcase.h"
-#include "multiif.h"
-#include "conncache.h"
+//#include "multiif.h"
+//#include "conncache.h"
 //#include "url.h"
-#include "connect.h"
+//#include "connect.h"
 //#include "strtoofft.h"
 //#include "strdup.h"
 // The last 3 #include files should be in this order 

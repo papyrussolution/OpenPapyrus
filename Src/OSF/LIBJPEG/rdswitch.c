@@ -76,21 +76,19 @@ GLOBAL(boolean) read_quant_tables(j_compress_ptr cinfo, char * filename, boolean
 	FILE * fp;
 	int tblno, i, termchar;
 	long val;
-	unsigned int table[DCTSIZE2];
-
+	uint table[DCTSIZE2];
 	if((fp = fopen(filename, "r")) == NULL) {
 		fprintf(stderr, "Can't open table file %s\n", filename);
 		return FALSE;
 	}
 	tblno = 0;
-
 	while(read_text_integer(fp, &val, &termchar)) { /* read 1st element of table */
 		if(tblno >= NUM_QUANT_TBLS) {
 			fprintf(stderr, "Too many tables in file %s\n", filename);
 			fclose(fp);
 			return FALSE;
 		}
-		table[0] = (unsigned int)val;
+		table[0] = (uint)val;
 		for(i = 1; i < DCTSIZE2; i++) {
 			if(!read_text_integer(fp, &val, &termchar)) {
 				fprintf(stderr, "Invalid table data in file %s\n", filename);
@@ -99,17 +97,14 @@ GLOBAL(boolean) read_quant_tables(j_compress_ptr cinfo, char * filename, boolean
 			}
 			table[i] = (unsigned int)val;
 		}
-		jpeg_add_quant_table(cinfo, tblno, table, cinfo->q_scale_factor[tblno],
-		    force_baseline);
+		jpeg_add_quant_table(cinfo, tblno, table, cinfo->q_scale_factor[tblno], force_baseline);
 		tblno++;
 	}
-
 	if(termchar != EOF) {
 		fprintf(stderr, "Non-numeric data in file %s\n", filename);
 		fclose(fp);
 		return FALSE;
 	}
-
 	fclose(fp);
 	return TRUE;
 }
@@ -166,14 +161,12 @@ GLOBAL(boolean) read_scan_script(j_compress_ptr cinfo, char * filename)
 	jpeg_scan_info * scanptr;
 #define MAX_SCANS  100          /* quite arbitrary limit */
 	jpeg_scan_info scans[MAX_SCANS];
-
 	if((fp = fopen(filename, "r")) == NULL) {
 		fprintf(stderr, "Can't open scan definition file %s\n", filename);
 		return FALSE;
 	}
 	scanptr = scans;
 	scanno = 0;
-
 	while(read_scan_integer(fp, &val, &termchar)) {
 		if(scanno >= MAX_SCANS) {
 			fprintf(stderr, "Too many scans defined in file %s\n", filename);
@@ -184,8 +177,7 @@ GLOBAL(boolean) read_scan_script(j_compress_ptr cinfo, char * filename)
 		ncomps = 1;
 		while(termchar == ' ') {
 			if(ncomps >= MAX_COMPS_IN_SCAN) {
-				fprintf(stderr, "Too many components in one scan in file %s\n",
-				    filename);
+				fprintf(stderr, "Too many components in one scan in file %s\n", filename);
 				fclose(fp);
 				return FALSE;
 			}
@@ -224,26 +216,21 @@ bogus:
 		}
 		scanptr++, scanno++;
 	}
-
 	if(termchar != EOF) {
 		fprintf(stderr, "Non-numeric data in file %s\n", filename);
 		fclose(fp);
 		return FALSE;
 	}
-
 	if(scanno > 0) {
 		/* Stash completed scan list in cinfo structure.
 		 * NOTE: for cjpeg's use, JPOOL_IMAGE is the right lifetime for this data,
 		 * but if you want to compress multiple images you'd want JPOOL_PERMANENT.
 		 */
-		scanptr = (jpeg_scan_info*)
-		    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-		    scanno * SIZEOF(jpeg_scan_info));
+		scanptr = (jpeg_scan_info*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, scanno * SIZEOF(jpeg_scan_info));
 		MEMCOPY(scanptr, scans, scanno * SIZEOF(jpeg_scan_info));
 		cinfo->scan_info = scanptr;
 		cinfo->num_scans = scanno;
 	}
-
 	fclose(fp);
 	return TRUE;
 }
@@ -257,10 +244,8 @@ GLOBAL(boolean) set_quality_ratings(j_compress_ptr cinfo, char * arg, boolean fo
  */
 {
 	int val = 75;           /* default value */
-	int tblno;
 	char ch;
-
-	for(tblno = 0; tblno < NUM_QUANT_TBLS; tblno++) {
+	for(int tblno = 0; tblno < NUM_QUANT_TBLS; tblno++) {
 		if(*arg) {
 			ch = ','; /* if not set by sscanf, will be ',' */
 			if(sscanf(arg, "%d%c", &val, &ch) < 1)
@@ -321,18 +306,16 @@ GLOBAL(boolean) set_sample_factors(j_compress_ptr cinfo, char * arg)
  * If there are more components than parameters, "1x1" is assumed for the rest.
  */
 {
-	int ci, val1, val2;
+	int val1, val2;
 	char ch1, ch2;
-
-	for(ci = 0; ci < MAX_COMPONENTS; ci++) {
+	for(int ci = 0; ci < MAX_COMPONENTS; ci++) {
 		if(*arg) {
 			ch2 = ','; /* if not set by sscanf, will be ',' */
 			if(sscanf(arg, "%d%c%d%c", &val1, &ch1, &val2, &ch2) < 3)
 				return FALSE;
 			if((ch1 != 'x' && ch1 != 'X') || ch2 != ',') /* syntax check */
 				return FALSE;
-			if(val1 <= 0 || val1 > MAX_SAMP_FACTOR ||
-			    val2 <= 0 || val2 > MAX_SAMP_FACTOR) {
+			if(val1 <= 0 || val1 > MAX_SAMP_FACTOR || val2 <= 0 || val2 > MAX_SAMP_FACTOR) {
 				fprintf(stderr, "JPEG sampling factors must be 1..%d\n", MAX_SAMP_FACTOR);
 				return FALSE;
 			}

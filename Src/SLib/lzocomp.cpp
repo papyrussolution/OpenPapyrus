@@ -54,16 +54,14 @@ int compress(char *src, char *dest, int isdecomp, PercentFunc pf, ulong *sz)
 	LDATETIME creation_time, last_access_time, last_modif_time;
 	if(lzo_init() != LZO_E_OK)
 		return r;
-	wrkmem = (long huge*)SAlloc::C(((LZO1X_1_MEM_COMPRESS)+sizeof(long)-1)/sizeof(long), sizeof(long));
-	THROW_V(wrkmem, SLERR_NOMEM);
+	THROW(wrkmem = (long *)SAlloc::C(((LZO1X_1_MEM_COMPRESS)+sizeof(long)-1)/sizeof(long), sizeof(long)));
 	do {
 		ZFREE(inbuf);
 		ZFREE(outbuf);
 		inbuf = (unsigned char huge*)SAlloc::M(BUFLEN);
 		outbuf = (unsigned char huge*)SAlloc::M(BUFLEN);
 	} while((!inbuf || !outbuf) && (BUFLEN -= KB) >= KB);
-
-	THROW_V(inbuf && outbuf, SLERR_NOMEM);
+	THROW(inbuf && outbuf);
 // AHTOXA {
 #ifdef __WIN32__
 	srchdl = CreateFile(src, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);

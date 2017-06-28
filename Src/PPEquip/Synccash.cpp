@@ -399,7 +399,8 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 		double sum = fabs(pPack->_Cash) + 0.001;
 		double running_total = 0.0;
-		double fiscal = 0.0, nonfiscal = 0.0;
+		double fiscal = 0.0;
+		double nonfiscal = 0.0;
 		pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
 		THROW(Connect());
 		if(flags & PRNCHK_LASTCHKANNUL)
@@ -566,37 +567,53 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 			THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 		}
 		Arr_In.Clear();
-		if(nonfiscal > 0.0) {
-			if(fiscal > 0.0) {
-				if(flags & PRNCHK_BANKING) {
-					THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, fiscal))
-				}
-				else {
-					THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, fiscal));
-				}
+		{
+			const CcAmountList & r_al = pPack->AL_Const();
+			const int is_al = BIN(r_al.getCount());
+			const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? fiscal : 0.0);
+			const double amt_cash = (fiscal - amt_bnk);
+			// @v9.7.2 {
+			if(amt_bnk > 0.0) {
+				THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, amt_bnk))
 			}
-		}
-		else {
-			if(running_total > sum || ((flags & PRNCHK_BANKING) && running_total != sum)) // @v7.5.1
-				sum = running_total;
-			if(flags & PRNCHK_BANKING) {
-				double  add_paym = 0.0; // @v9.0.4 intmnytodbl(pPack->Ext.AddPaym)-->0.0
-				const double add_paym_epsilon = 0.01;
-				const double add_paym_delta = (add_paym - sum);
-				if(add_paym_delta > 0.0 || fabs(add_paym_delta) < add_paym_epsilon) {
-					add_paym = 0.0;
-				}
-				if(add_paym) {
-					THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, sum - amt + add_paym));
-					THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, amt - add_paym));
-				}
-				else {
-					THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, sum));
+			if(amt_cash > 0.0) {
+				THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, amt_cash));
+			}
+			// } @v9.7.2 
+			/* @v9.7.2 
+			if(nonfiscal > 0.0) {
+				if(fiscal > 0.0) {
+					if(flags & PRNCHK_BANKING) {
+						THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, fiscal))
+					}
+					else {
+						THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, fiscal));
+					}
 				}
 			}
 			else {
-				THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, sum));
+				if(running_total > sum || ((flags & PRNCHK_BANKING) && running_total != sum))
+					sum = running_total;
+				if(flags & PRNCHK_BANKING) {
+					double  add_paym = 0.0; // @v9.0.4 intmnytodbl(pPack->Ext.AddPaym)-->0.0
+					const double add_paym_epsilon = 0.01;
+					const double add_paym_delta = (add_paym - sum);
+					if(add_paym_delta > 0.0 || fabs(add_paym_delta) < add_paym_epsilon) {
+						add_paym = 0.0;
+					}
+					if(add_paym) {
+						THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, sum - amt + add_paym));
+						THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, amt - add_paym));
+					}
+					else {
+						THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, sum));
+					}
+				}
+				else {
+					THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, sum));
+				}
 			}
+			*/
 		}
 		// Всегда закрываем чек
 		//if(fiscal != 0.0) {

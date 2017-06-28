@@ -1971,8 +1971,7 @@ int SLAPI PrcssrAbsentGoods::ProcessGoods(PPID goodsID, PPID lotID, PPID billID,
 		else if(P_BObj->Search(billID, &bill_rec) > 0)
 			PPObjBill::MakeCodeString(&bill_rec, 0, bill_buf);
 		//"Отсутствует товар ID=%ld (лот ID=%ld Bill=%s N=%s q=%lf c=%.2lf p=%.2lf)"
-		log_buf.Printf(fmt_buf, goodsID, lotID, (const char *)bill_buf,
-			bill_rec.Code, lot_rec.Quantity, R5(lot_rec.Cost), R5(lot_rec.Price));
+		log_buf.Printf(fmt_buf, goodsID, lotID, bill_buf.cptr(), bill_rec.Code, lot_rec.Quantity, R5(lot_rec.Cost), R5(lot_rec.Price));
 		rLogger.Log(log_buf);
 		if(P.Flags & Param::fCorrectErrors) {
 			Goods2Tbl::Rec goods_rec;
@@ -2162,7 +2161,7 @@ int SLAPI RecoverTransfer()
 			_FZEROINV(Discount);
 			_FZEROINV(CurPrice);
 			if(!fpok) {
-				logger.Log(PPFormatT(PPTXT_TRFRRECERROR, &msg_buf, r_data.BillID, r_data.GoodsID, r_data.LotID, (const char *)fp_err_var));
+				logger.Log(PPFormatT(PPTXT_TRFRRECERROR, &msg_buf, r_data.BillID, r_data.GoodsID, r_data.LotID, fp_err_var.cptr()));
 				BadTrfrEntry entry;
 				MEMSZERO(entry);
 				entry.N = bad_list.getCount()+1;

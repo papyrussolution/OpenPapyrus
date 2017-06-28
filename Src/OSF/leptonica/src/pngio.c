@@ -246,25 +246,22 @@ PIX * pixReadStreamPng(FILE  * fp)
 	if(spp == 3 && bit_depth != 8) {
 		fprintf(stderr, "Help: spp = 3 and depth = %d != 8\n!!", bit_depth);
 		png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-		return (PIX*)ERROR_PTR("not implemented for this depth",
-		    procName, NULL);
+		return (PIX*)ERROR_PTR("not implemented for this depth", procName, NULL);
 	}
-
 	if(color_type == PNG_COLOR_TYPE_PALETTE ||
 	    color_type == PNG_COLOR_MASK_PALETTE) { /* generate a colormap */
 		png_get_PLTE(png_ptr, info_ptr, &palette, &num_palette);
 		cmap = pixcmapCreate(d); /* spp == 1 */
 		for(cindex = 0; cindex < num_palette; cindex++) {
-			rval = palette[cindex].red;
-			gval = palette[cindex].green;
-			bval = palette[cindex].blue;
+			rval = palette[cindex].R;
+			gval = palette[cindex].G;
+			bval = palette[cindex].B;
 			pixcmapAddColor(cmap, rval, gval, bval);
 		}
 	}
 	else {
 		cmap = NULL;
 	}
-
 	if((pix = pixCreate(w, h, d)) == NULL) {
 		png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
 		return (PIX*)ERROR_PTR("pix not made", procName, NULL);
@@ -826,13 +823,12 @@ int32 fgetPngColormapInfo(FILE      * fp,
 		png_get_PLTE(png_ptr, info_ptr, &palette, &num_palette);
 		*pcmap = pixcmapCreate(bit_depth); /* spp == 1 */
 		for(cindex = 0; cindex < num_palette; cindex++) {
-			rval = palette[cindex].red;
-			gval = palette[cindex].green;
-			bval = palette[cindex].blue;
+			rval = palette[cindex].R;
+			gval = palette[cindex].G;
+			bval = palette[cindex].B;
 			pixcmapAddColor(*pcmap, rval, gval, bval);
 		}
 	}
-
 	/* Optionally, look for transparency.  Note that the colormap
 	 * has been initialized to fully opaque. */
 	if(ptransparency && png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
@@ -990,32 +986,24 @@ int32 pixWriteStreamPng(FILE * fp, PIX * pix, float gamma)
 	PIX         * pixt;
 	PIXCMAP     * cmap;
 	char        * text;
-
 	PROCNAME("pixWriteStreamPng");
-
 	if(!fp)
 		return ERROR_INT("stream not open", procName, 1);
 	if(!pix)
 		return ERROR_INT("pix not defined", procName, 1);
-
 	/* Allocate the 2 data structures */
-	if((png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
-			    (void *)NULL, NULL, NULL)) == NULL)
+	if((png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, (void *)NULL, NULL, NULL)) == NULL)
 		return ERROR_INT("png_ptr not made", procName, 1);
-
 	if((info_ptr = png_create_info_struct(png_ptr)) == NULL) {
 		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
 		return ERROR_INT("info_ptr not made", procName, 1);
 	}
-
 	/* Set up png setjmp error handling */
 	if(setjmp(png_jmpbuf(png_ptr))) {
 		png_destroy_write_struct(&png_ptr, &info_ptr);
 		return ERROR_INT("internal png error", procName, 1);
 	}
-
 	png_init_io(png_ptr, fp);
-
 	/* With best zlib compression (9), get between 1 and 10% improvement
 	 * over default (6), but the compression is 3 to 10 times slower.
 	 * Use the zlib default (6) as our default compression unless
@@ -1025,7 +1013,6 @@ int32 pixWriteStreamPng(FILE * fp, PIX * pix, float gamma)
 	if(pix->special >= 10 && pix->special < 20)
 		compval = pix->special - 10;
 	png_set_compression_level(png_ptr, compval);
-
 	w = pixGetWidth(pix);
 	h = pixGetHeight(pix);
 	d = pixGetDepth(pix);
@@ -1054,14 +1041,9 @@ int32 pixWriteStreamPng(FILE * fp, PIX * pix, float gamma)
 		color_type = PNG_COLOR_TYPE_PALETTE;  /* 3 */
 
 #if  DEBUG_WRITE
-	fprintf(stderr, "cmflag = %d, bit_depth = %d, color_type = %d\n",
-	    cmflag, bit_depth, color_type);
+	fprintf(stderr, "cmflag = %d, bit_depth = %d, color_type = %d\n", cmflag, bit_depth, color_type);
 #endif  /* DEBUG_WRITE */
-
-	png_set_IHDR(png_ptr, info_ptr, w, h, bit_depth, color_type,
-	    PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
-	    PNG_FILTER_TYPE_BASE);
-
+	png_set_IHDR(png_ptr, info_ptr, w, h, bit_depth, color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 	/* Store resolution in ppm, if known */
 	xres = (uint32)(39.37 * (float)pixGetXRes(pix) + 0.5);
 	yres = (uint32)(39.37 * (float)pixGetYRes(pix) + 0.5);
@@ -1069,28 +1051,22 @@ int32 pixWriteStreamPng(FILE * fp, PIX * pix, float gamma)
 		png_set_pHYs(png_ptr, info_ptr, 0, 0, PNG_RESOLUTION_UNKNOWN);
 	else
 		png_set_pHYs(png_ptr, info_ptr, xres, yres, PNG_RESOLUTION_METER);
-
 	if(cmflag) {
 		pixcmapToArrays(cmap, &rmap, &gmap, &bmap, &amap);
 		ncolors = pixcmapGetCount(cmap);
 		pixcmapIsOpaque(cmap, &opaque);
-
 		/* Make and save the palette */
-		if((palette = (png_colorp)(LEPT_CALLOC(ncolors, sizeof(png_color))))
-		    == NULL)
+		if((palette = (png_colorp)(LEPT_CALLOC(ncolors, sizeof(SColorRGB)))) == NULL)
 			return ERROR_INT("palette not made", procName, 1);
-
 		for(i = 0; i < ncolors; i++) {
-			palette[i].red = (uint8)rmap[i];
-			palette[i].green = (uint8)gmap[i];
-			palette[i].blue = (uint8)bmap[i];
+			palette[i].R = (uint8)rmap[i];
+			palette[i].G = (uint8)gmap[i];
+			palette[i].B = (uint8)bmap[i];
 			alpha[i] = (uint8)amap[i];
 		}
-
 		png_set_PLTE(png_ptr, info_ptr, palette, (int)ncolors);
 		if(!opaque) /* alpha channel has some transparency; assume valid */
-			png_set_tRNS(png_ptr, info_ptr, (png_bytep)alpha,
-			    (int)ncolors, NULL);
+			png_set_tRNS(png_ptr, info_ptr, (png_bytep)alpha, (int)ncolors, NULL);
 		LEPT_FREE(rmap);
 		LEPT_FREE(gmap);
 		LEPT_FREE(bmap);

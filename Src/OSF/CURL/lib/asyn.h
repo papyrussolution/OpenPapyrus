@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
-#include "curl_addrinfo.h"
+//#include "curl_setup.h"
+//#include "curl_addrinfo.h"
 
 struct addrinfo;
 struct hostent;

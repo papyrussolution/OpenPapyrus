@@ -1477,7 +1477,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Запрос к серверу ЕГАИС"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "",CTL_EGAISQ_WHAT,5,5,265,120,WS_GROUP
+    GROUPBOX        "",CTL_EGAISQ_WHAT,5,5,265,130,WS_GROUP
     CONTROL         "@contractor_pl",5347,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,15,240,10
     CONTROL         "Все контрагенты, имеющие лицензию",9443,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,25,240,10
     CONTROL         "@ware_pl",13539,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,35,240,10
@@ -1488,6 +1488,8 @@ BEGIN
     CONTROL         "Штрихкод акцизной марки",34019,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,85,240,10
     CONTROL         "Актуализация внутренней базы данных",38115,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,95,245,10
     CONTROL         "Удалить исходящие документы УТМ",42211,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,105,240,10
+    CONTROL         "Уведомление об использовании 2-й версии протокола",46307,
+                    "Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,115,245,10
     LTEXT           "Параметр запроса",4001,275,80,175,8
     EDITTEXT        CTL_EGAISQ_QADD,275,91,220,13,ES_AUTOHSCROLL
     LTEXT           "",CTL_EGAISQ_INFO,5,160,490,35,0,WS_EX_STATICEDGE
@@ -1497,7 +1499,7 @@ BEGIN
     EDITTEXT        CTL_EGAISQ_LOC,275,140,220,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "@warehouse",4003,275,130,150,8
     PUSHBUTTON      "",CTLSEL_EGAISQ_LOC,495,140,12,13,BS_BITMAP | NOT WS_TABSTOP
-    CONTROL         "@testmode",5352,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,130,130,13
+    CONTROL         "@testmode",5352,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,135,130,13
     GROUPBOX        "Варианты актуализации",CTL_EGAISQ_ACTLZVAR,275,5,220,70,WS_GROUP
     CONTROL         "Запрос справок А",5353,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,280,15,206,10
     CONTROL         "Запрос производителей",9449,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,280,25,206,10
@@ -13226,6 +13228,7 @@ BEGIN
     GROUPBOX        "",CTL_OBJTRANSM_TRNSMFLAGS,205,5,105,35,WS_GROUP
     CONTROL         "@objtransm_trnsmfdelinfiles",5303,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,210,15,95,10
     CONTROL         "@objtransm_trnsmfdeloutfiles",9399,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,210,25,95,10
+    CONTROL         "@objtransm_fqueryinmasstransmission",5305,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,5,140,195,13
     PUSHBUTTON      "@but_filt",CTL_OBJTRANSM_FILT,320,10,50,13
     GROUPBOX        "@objtransm_destdbdivlist",IDC_STATIC,205,45,170,90
     LISTBOX         CTL_OBJTRANSM_DBDIVLIST,210,55,160,55,LBS_NOINTEGRALHEIGHT | LBS_WANTKEYBOARDINPUT | WS_TABSTOP
@@ -30109,6 +30112,10 @@ BEGIN
     BEGIN
         RIGHTMARGIN, 541
         BOTTOMMARGIN, 140
+    END
+
+    DLG_OBJTRANSM, DIALOG
+    BEGIN
     END
 
     DLG_TODOTEMPL, DIALOG

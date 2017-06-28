@@ -40,7 +40,7 @@
 #endif
 //#include <curl/curl.h>
 //#include "urldata.h"
-#include "connect.h"
+//#include "connect.h"
 //#include "select.h"
 #include "warnless.h"
 

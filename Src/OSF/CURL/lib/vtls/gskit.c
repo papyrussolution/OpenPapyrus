@@ -51,15 +51,12 @@
 #ifndef GSK_TRUE
 	#define GSK_TRUE                                1
 #endif
-#ifdef HAVE_LIMITS_H
-	#include <limits.h>
-#endif
 //#include <curl/curl.h>
 //#include "urldata.h"
 //#include "sendf.h"
 #include "gskit.h"
 #include "vtls.h"
-#include "connect.h" /* for the connect timeout */
+//#include "connect.h" /* for the connect timeout */
 //#include "select.h"
 //#include "strcase.h"
 #include "x509asn1.h"

@@ -5746,9 +5746,9 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 				ObjTagList * p_tag_list = pPack->LTagL.Get(row_idx); // PPLotTagContainer
 				if(p_ti->Flags & PPTFR_RECEIPT) {
 					THROW(p_ref->Ot.PutListExcl(PPOBJ_LOT, p_ti->LotID, p_tag_list, &excl_tag_list, 0));
-					p_clb = (pPack->ClbL.GetNumber(row_idx, &clb) > 0) ? (const char *)clb : 0;
+					p_clb = (pPack->ClbL.GetNumber(row_idx, &clb) > 0) ? clb.cptr() : 0;
 					THROW(SetClbNumberByLot(p_ti->LotID, p_clb, 0));
-					p_clb = (pPack->SnL.GetNumber(row_idx, &clb) > 0) ? (const char *)clb : 0;
+					p_clb = (pPack->SnL.GetNumber(row_idx, &clb) > 0) ? clb.cptr() : 0;
 					THROW(SetSerialNumberByLot(p_ti->LotID, p_clb, 0));
 				}
 				//
@@ -5808,7 +5808,7 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 								}
 							}
 							THROW(p_ref->Ot.PutList(PPOBJ_LOT, mirror_lot_id, &mirror_tag_list, 0));
-							p_clb = (pPack->SnL.GetNumber(row_idx, &clb) > 0) ? (const char *)clb : 0;
+							p_clb = (pPack->SnL.GetNumber(row_idx, &clb) > 0) ? clb.cptr() : 0;
 							THROW(SetSerialNumberByLot(mirror_lot_id, p_clb, 0));
 						}
 					}

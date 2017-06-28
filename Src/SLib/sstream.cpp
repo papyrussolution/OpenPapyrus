@@ -33,7 +33,7 @@ int SLAPI ReadSArrayFromFile(SArray * pAry, FILE * pStream)
 	long   beg_pos = ftell(pStream);
 	pAry->freeAll();
 	char * p_buf = (char*)SAlloc::M(item_size);
-	THROW_V(p_buf, SLERR_NOMEM);
+	THROW(p_buf);
 	THROW_V(fread(&c, sizeof(c), 1, pStream) == 1, SLERR_READFAULT);
 	for(i = 0; i < c; i++) {
 		SLibError = SLERR_READFAULT;

@@ -28,7 +28,7 @@
 #include "curl_gssapi.h"
 //#include "urldata.h"
 //#include "sendf.h"
-#include "connect.h"
+//#include "connect.h"
 //#include "timeval.h"
 //#include "socks.h"
 #include "warnless.h"

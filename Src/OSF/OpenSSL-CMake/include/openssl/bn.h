@@ -135,8 +135,8 @@ void *BN_GENCB_get_arg(BN_GENCB *cb);
 # define BN_num_bytes(a) ((BN_num_bits(a)+7)/8)
 
 int BN_abs_is_word(const BIGNUM *a, const BN_ULONG w);
-int BN_is_zero(const BIGNUM *a);
-int BN_is_one(const BIGNUM *a);
+int FASTCALL BN_is_zero(const BIGNUM *a);
+int FASTCALL BN_is_one(const BIGNUM *a);
 int BN_is_word(const BIGNUM *a, const BN_ULONG w);
 int BN_is_odd(const BIGNUM *a);
 
@@ -192,7 +192,7 @@ void BN_set_negative(BIGNUM *b, int n);
  * \param  a  pointer to the BIGNUM object
  * \return 1 if a < 0 and 0 otherwise
  */
-int BN_is_negative(const BIGNUM *b);
+int FASTCALL BN_is_negative(const BIGNUM *b);
 
 int BN_div(BIGNUM *dv, BIGNUM *rem, const BIGNUM *m, const BIGNUM *d, BN_CTX *ctx);
 # define BN_mod(rem,m,d,ctx) BN_div(NULL,(rem),(m),(d),(ctx))
@@ -210,11 +210,11 @@ int BN_mod_lshift_quick(BIGNUM *r, const BIGNUM *a, int n, const BIGNUM *m);
 
 BN_ULONG BN_mod_word(const BIGNUM *a, BN_ULONG w);
 BN_ULONG BN_div_word(BIGNUM *a, BN_ULONG w);
-int BN_mul_word(BIGNUM *a, BN_ULONG w);
-int BN_add_word(BIGNUM *a, BN_ULONG w);
-int BN_sub_word(BIGNUM *a, BN_ULONG w);
-int BN_set_word(BIGNUM *a, BN_ULONG w);
-BN_ULONG BN_get_word(const BIGNUM *a);
+int FASTCALL BN_mul_word(BIGNUM *a, BN_ULONG w);
+int FASTCALL BN_add_word(BIGNUM *a, BN_ULONG w);
+int FASTCALL BN_sub_word(BIGNUM *a, BN_ULONG w);
+int FASTCALL BN_set_word(BIGNUM *a, BN_ULONG w);
+BN_ULONG FASTCALL BN_get_word(const BIGNUM *a);
 
 int BN_cmp(const BIGNUM *a, const BIGNUM *b);
 void BN_free(BIGNUM *a);

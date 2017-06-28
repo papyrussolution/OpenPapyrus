@@ -800,8 +800,8 @@ int SLAPI PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SStri
 	int    r, is_new = 0;
 	PPGoodsConfig cfg = *pCfg;
 	PPGoodsConfig prev_cfg;
-	assert(!cfg.Ver.IsLt(7, 7, 0)); // Жесткая проверка на предмет инициализации номера версии
-	cfg.Ver = DS.GetVersion();
+	// @v9.7.2 assert(!cfg.Ver.IsLt(7, 7, 0)); // Жесткая проверка на предмет инициализации номера версии
+	cfg.Ver__ = DS.GetVersion();
 	{
 		PPTransaction tra(use_ta); // @v8.7.0 @fix 1-->use_ta
 		THROW(tra);
@@ -858,10 +858,11 @@ int SLAPI PPObjGoods::ReadConfig(PPGoodsConfig * pCfg)
 	Reference * p_ref = PPRef;
 	assert(pCfg);
 	pCfg->Clear();
+	pCfg->Ver__ = DS.GetVersion(); // @v9.7.2
 	size_t sz = 0;
 	if(p_ref->GetPropActualSize(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_GOODSCFG, &sz) > 0) {
 		const size_t pre770_size = pCfg->GetSize_Pre770();
-		assert(pre770_size == (offsetof(PPGoodsConfig, Ver)));
+		assert(pre770_size == (offsetof(PPGoodsConfig, Ver__)));
 		if(sz <= pre770_size) {
 			ok = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_GOODSCFG, pCfg, sz);
 			assert(ok > 0); // Раз нам удалось считать размер буфера, то последующая ошибка чтения - критична
@@ -874,12 +875,12 @@ int SLAPI PPObjGoods::ReadConfig(PPGoodsConfig * pCfg)
 			THROW(ok > 0);
 			{
 				const size_t offs = offsetof(PPGoodsConfig, TagIndFilt);
-				const size_t after_ver_offs = offsetof(PPGoodsConfig, Ver)+sizeof(pCfg->Ver);
+				const size_t after_ver_offs = offsetof(PPGoodsConfig, Ver__)+sizeof(pCfg->Ver__);
 				//
 				// Сначала считаем данные до номера версии включительно...
 				//
 				memcpy(pCfg, (const char *)temp_buf, after_ver_offs);
-				if(!pCfg->Ver.IsLt(7, 7, 2)) {
+				if(!pCfg->Ver__.IsLt(7, 7, 2)) {
 					//
 					// ... и, если версия больше или равна 7.7.2, дочитаем оставшийся кусочек
 					//
@@ -958,7 +959,7 @@ SLAPI PPGoodsConfig::PPGoodsConfig()
 PPGoodsConfig & PPGoodsConfig::Clear()
 {
 	memzero(this, (size_t)(PTR8(&TagIndFilt) - PTR8(this)));
-	Ver = DS.GetVersion();
+	// @v9.7.2 (expensive call) Ver = DS.GetVersion();
 	TagIndFilt.Init(1, 0);
 	return *this;
 }

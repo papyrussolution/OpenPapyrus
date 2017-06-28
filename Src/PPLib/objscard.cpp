@@ -2278,7 +2278,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 									}
 									else {
 										PPLoadText(PPTXT_LOG_UNCOMPSCARDSER, fmt_buf);
-										msg_buf.Printf(fmt_buf, (const char *)scard_name, (const char *)mov_ser_rec.Name);
+										msg_buf.Printf(fmt_buf, scard_name.cptr(), (const char *)mov_ser_rec.Name);
 										if(pLog)
 											pLog->Log(msg_buf);
 										else
@@ -2290,7 +2290,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 									PPLoadText(PPTXT_LOG_INVSCARDSER, fmt_buf);
 									ideqvalstr(entry.SeriesID, temp_buf = 0);
 									PPGetLastErrorMessage(1, temp_buf2);
-									msg_buf.Printf(fmt_buf, (const char *)temp_buf, (const char *)scard_name, (const char *)temp_buf2);
+									msg_buf.Printf(fmt_buf, (const char *)temp_buf, scard_name.cptr(), temp_buf2.cptr());
 									if(pLog)
 										pLog->Log(msg_buf);
 									else

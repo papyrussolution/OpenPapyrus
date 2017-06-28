@@ -946,7 +946,7 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 						SString fmt_buf, msg_buf, added_buf;
 						PPLoadText(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf);
 						(added_buf = 0).Cat(running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('>').Cat(amt, MKSFMTD(0, 20, NMBF_NOTRAILZ));
-						msg_buf.Printf(fmt_buf, (const char *)added_buf);
+						msg_buf.Printf(fmt_buf, added_buf.cptr());
 						PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 					}
 					out_buf.CatChar('\t').CatChar('}').CR();

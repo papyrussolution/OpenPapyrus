@@ -122,7 +122,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 					temp_buf.Cat(scheme_id).Semicol();                     // #1 Код схемы
 					temp_buf.Cat(card_rec.Code).Cat(psn_name).Semicol();   // #2 Название схемы
 					temp_buf.Cat(1L);                                         // #3 Применяется по карте
-					THROW_PP(fprintf(pFile, p_format, (const char *)temp_buf) > 0, PPERR_EXPFILEWRITEFAULT);
+					THROW_PP(fprintf(pFile, p_format, temp_buf.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 				}
 				//
 				// Эскпорт автоматических скидок/надбавок
@@ -146,7 +146,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 					temp_buf.Cat(0L).Semicol();                                         // #15 Конечное количество
 					temp_buf.Cat(0L).Cat(psn_name).Semicol();                           // #16 Начальная сумма
 					temp_buf.Cat(0L);                                                   // #17 Конечная сумма
-					THROW_PP(fprintf(pFile, p_format, (const char *)temp_buf) > 0, PPERR_EXPFILEWRITEFAULT);
+					THROW_PP(fprintf(pFile, p_format, temp_buf.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 				}
 				//
 				// Экспорт дисконтных карт
@@ -166,7 +166,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 					temp_buf.CatCharN(';', 3);                           // #10-#12 Не используется //
 					temp_buf.Cat(0L).Semicol();                       // #13 Код схемы накопительных скидок
 					temp_buf.CatCharN(';', 4);                           // #14-#18 Не используется //
-					THROW_PP(fprintf(pFile, p_format, (const char *)temp_buf) > 0, PPERR_EXPFILEWRITEFAULT);
+					THROW_PP(fprintf(pFile, p_format, temp_buf.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 				}
 			}
 		}
@@ -228,7 +228,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 			f_str.CatCharN(';', 11);                      // #5-#15 - Не используем
 			f_str.Cat(grp_info.ParentID).Semicol();    // #16 - ИД родительской группы
 			f_str.CatChar('0');                           // #17 - Признак товарной группы (0)
-			THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+			THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 			grp_n_level_ary.Add(grp_info.ID, grp_info.Level, 0);
 		}
 	}
@@ -277,7 +277,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 			else
 				f_str.CatChar('0').Semicol();
 			f_str.CatChar('1');                                           // #17 - Признак товара (1)
-			THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+			THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 			goods_list.add(gds_info.ID);
 		}
 		else {
@@ -301,7 +301,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 			f_str.Cat(gds_info.Price, SFMT_MONEY).Semicol();              // #5 - Цена товара
 			f_str.CatCharN(';', 4);                                       // #6-#9 Не используем
 			f_str.Cat((gds_info.UnitPerPack) ? gds_info.UnitPerPack : 1); // #10 - Коэффициент
-			THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+			THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 		}
 	   	prev_goods_id = gds_info.ID;
 		PPWaitPercent(p_gds_iter->GetIterCounter());
@@ -316,7 +316,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 		f_str.Cat(5L).Semicol();                                            // #3 - Число знаков под код (5)
 		f_str.Cat(0.001).Semicol();                                         // #4 - Коэффициент веса (0.001)
 		f_str.Cat(0.001);                                                      // #5 - Множитель цены (0.001)
-		THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+		THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 	}
 	*/
 	//THROW(ExportSCard(p_file, updOnly));
@@ -357,7 +357,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 						temp_buf.Cat(scheme_id).Semicol();                         // #1 Код схемы
 						temp_buf.Cat(info.Rec.Code).Cat(psn_name).Semicol();       // #2 Название схемы
 						temp_buf.Cat(1L);                                          // #3 Применяется по карте
-						THROW_PP(fprintf(p_file, p_format, (const char *)temp_buf) > 0, PPERR_EXPFILEWRITEFAULT);
+						THROW_PP(fprintf(p_file, p_format, temp_buf.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 					}
 					//
 					// Эскпорт автоматических скидок/надбавок
@@ -382,7 +382,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 						temp_buf.Cat(0L).Cat(psn_name).Semicol();                           // #16 Начальная сумма
 						temp_buf.Cat(0L);                                                   // #17 Конечная сумма
 						temp_buf.Cat(ser_rec.QuotKindID_s);                                 // #18 Код дополнительной цены
-						THROW_PP(fprintf(p_file, p_format, (const char *)temp_buf) > 0, PPERR_EXPFILEWRITEFAULT);
+						THROW_PP(fprintf(p_file, p_format, temp_buf.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 					}
 					//
 					// Экспорт дисконтных карт
@@ -402,7 +402,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 						temp_buf.CatCharN(';', 3);                        // #10-#12 Не используется //
 						temp_buf.Cat(0L).Semicol();                       // #13 Код схемы накопительных скидок
 						temp_buf.CatCharN(';', 4);                        // #14-#18 Не используется //
-						THROW_PP(fprintf(p_file, p_format, (const char *)temp_buf) > 0, PPERR_EXPFILEWRITEFAULT);
+						THROW_PP(fprintf(p_file, p_format, temp_buf.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 					}
 					iter.SetStat();
 				}
@@ -437,7 +437,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 					temp_buf.Cat(quot_kind_id).Semicol();     // #2 Код доп цены.
 					temp_buf.Cat(quot_name).Semicol();        // #3 Наименование
 					temp_buf.Cat(price_item.Price);           // #4 Цена
-					THROW_PP(fprintf(p_file, p_format, (const char *)temp_buf) > 0, PPERR_EXPFILEWRITEFAULT);
+					THROW_PP(fprintf(p_file, p_format, temp_buf.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 				}
 			}
 		}
@@ -445,14 +445,14 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 	//
 	if(updOnly) {
 		THROW(PPGetSubStr(PPTXT_SHTRIHMFRK_CMDSTRINGS, PPSHTRIHMFRKCS_REPLACEQTTY, f_str));
-		THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+		THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 	}
 	else {
 		THROW(PPGetSubStr(PPTXT_SHTRIHMFRK_CMDSTRINGS, PPSHTRIHMFRKCS_CLEAR, f_str));
 		f_str.Cat("{AUT_S}").Cat("{DIS_C}");
-		THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+		THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 		THROW(PPGetSubStr(PPTXT_SHTRIHMFRK_CMDSTRINGS, PPSHTRIHMFRKCS_ADDQTTY, f_str));
-		THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+		THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 	}
 	SFile::ZClose(&p_file);
 	PPWait(0);

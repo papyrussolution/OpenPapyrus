@@ -1,82 +1,69 @@
 #ifndef HEADER_CURL_SETUP_ONCE_H
 #define HEADER_CURL_SETUP_ONCE_H
 /***************************************************************************
- *                                  _   _ ____  _
- *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
- *
- * Copyright (C) 1998 - 2013, Daniel Stenberg, <daniel@haxx.se>, et al.
- *
- * This software is licensed as described in the file COPYING, which
- * you should have received as part of this distribution. The terms
- * are also available at https://curl.haxx.se/docs/copyright.html.
- *
- * You may opt to use, copy, modify, merge, publish, distribute and/or sell
- * copies of the Software, and permit persons to whom the Software is
- * furnished to do so, under the terms of the COPYING file.
- *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
- * KIND, either express or implied.
- *
- ***************************************************************************/
-
-
+*                                  _   _ ____  _
+*  Project                     ___| | | |  _ \| |
+*                             / __| | | | |_) | |
+*                            | (__| |_| |  _ <| |___
+*                             \___|\___/|_| \_\_____|
+*
+* Copyright (C) 1998 - 2013, Daniel Stenberg, <daniel@haxx.se>, et al.
+*
+* This software is licensed as described in the file COPYING, which
+* you should have received as part of this distribution. The terms
+* are also available at https://curl.haxx.se/docs/copyright.html.
+*
+* You may opt to use, copy, modify, merge, publish, distribute and/or sell
+* copies of the Software, and permit persons to whom the Software is
+* furnished to do so, under the terms of the COPYING file.
+*
+* This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
+* KIND, either express or implied.
+*
+***************************************************************************/
 /*
  * Inclusion of common header files.
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
-
 #ifdef HAVE_ERRNO_H
-#include <errno.h>
+	#include <errno.h>
 #endif
-
 #ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
+	#include <sys/types.h>
 #endif
-
 #ifdef NEED_MALLOC_H
-#include <malloc.h>
+	#include <malloc.h>
 #endif
-
 #ifdef NEED_MEMORY_H
-#include <memory.h>
+	#include <memory.h>
 #endif
-
 #ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
+	#include <sys/stat.h>
 #endif
-
 #ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#ifdef TIME_WITH_SYS_TIME
-#include <time.h>
-#endif
+	#include <sys/time.h>
+	#ifdef TIME_WITH_SYS_TIME
+		#include <time.h>
+	#endif
 #else
-#ifdef HAVE_TIME_H
-#include <time.h>
+	#ifdef HAVE_TIME_H
+		#include <time.h>
+	#endif
 #endif
-#endif
-
 #ifdef WIN32
-#include <io.h>
-#include <fcntl.h>
+	#include <io.h>
+	#include <fcntl.h>
 #endif
-
 #if defined(HAVE_STDBOOL_H) && defined(HAVE_BOOL_T)
-#include <stdbool.h>
+	#include <stdbool.h>
 #endif
-
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+	#include <unistd.h>
 #endif
-
 #ifdef __hpux
 #  if !defined(_XOPEN_SOURCE_EXTENDED) || defined(_KERNEL)
 #    ifdef _APP32_64BIT_OFF_T
@@ -87,11 +74,9 @@
 #    endif
 #  endif
 #endif
-
 #ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
+	#include <sys/socket.h>
 #endif
-
 #ifdef __hpux
 #  if !defined(_XOPEN_SOURCE_EXTENDED) || defined(_KERNEL)
 #    ifdef OLD_APP32_64BIT_OFF_T
@@ -100,38 +85,27 @@
 #    endif
 #  endif
 #endif
-
-
 /*
  * Definition of timeval struct for platforms that don't have it.
  */
-
 #ifndef HAVE_STRUCT_TIMEVAL
-struct timeval {
- long tv_sec;
- long tv_usec;
-};
+	struct timeval {
+		long tv_sec;
+		long tv_usec;
+	};
 #endif
-
-
 /*
  * If we have the MSG_NOSIGNAL define, make sure we use
  * it as the fourth argument of function send()
  */
-
 #ifdef HAVE_MSG_NOSIGNAL
-#define SEND_4TH_ARG MSG_NOSIGNAL
+	#define SEND_4TH_ARG MSG_NOSIGNAL
 #else
-#define SEND_4TH_ARG 0
+	#define SEND_4TH_ARG 0
 #endif
-
-
 #if defined(__minix)
-/* Minix doesn't support recv on TCP sockets */
-#define sread(x,y,z) (ssize_t)read((RECV_TYPE_ARG1)(x), \
-                                   (RECV_TYPE_ARG2)(y), \
-                                   (RECV_TYPE_ARG3)(z))
-
+	/* Minix doesn't support recv on TCP sockets */
+	#define sread(x, y, z) (ssize_t)read((RECV_TYPE_ARG1)(x), (RECV_TYPE_ARG2)(y), (RECV_TYPE_ARG3)(z))
 #elif defined(HAVE_RECV)
 /*
  * The definitions for the return type and arguments types
@@ -154,60 +128,41 @@ struct timeval {
  * SEND_TYPE_ARG2, SEND_TYPE_ARG3, SEND_TYPE_ARG4 and
  * SEND_TYPE_RETV must also be defined.
  */
-
-#if !defined(RECV_TYPE_ARG1) || \
-    !defined(RECV_TYPE_ARG2) || \
-    !defined(RECV_TYPE_ARG3) || \
-    !defined(RECV_TYPE_ARG4) || \
-    !defined(RECV_TYPE_RETV)
-  /* */
-  Error Missing_definition_of_return_and_arguments_types_of_recv
-  /* */
+#if !defined(RECV_TYPE_ARG1) ||	!defined(RECV_TYPE_ARG2) || !defined(RECV_TYPE_ARG3) || !defined(RECV_TYPE_ARG4) || !defined(RECV_TYPE_RETV)
+	/* */
+	Error Missing_definition_of_return_and_arguments_types_of_recv
+	/* */
 #else
-#define sread(x,y,z) (ssize_t)recv((RECV_TYPE_ARG1)(x), \
-                                   (RECV_TYPE_ARG2)(y), \
-                                   (RECV_TYPE_ARG3)(z), \
-                                   (RECV_TYPE_ARG4)(0))
+	#define sread(x, y, z) (ssize_t)recv((RECV_TYPE_ARG1)(x), (RECV_TYPE_ARG2)(y), (RECV_TYPE_ARG3)(z), (RECV_TYPE_ARG4)(0))
 #endif
 #else /* HAVE_RECV */
 #ifndef sread
-  /* */
-  Error Missing_definition_of_macro_sread
-  /* */
+/* */
+Error Missing_definition_of_macro_sread
+/* */
 #endif
 #endif /* HAVE_RECV */
-
-
 #if defined(__minix)
 /* Minix doesn't support send on TCP sockets */
-#define swrite(x,y,z) (ssize_t)write((SEND_TYPE_ARG1)(x), \
-                                    (SEND_TYPE_ARG2)(y), \
-                                    (SEND_TYPE_ARG3)(z))
-
+#define swrite(x, y, z) (ssize_t)write((SEND_TYPE_ARG1)(x), (SEND_TYPE_ARG2)(y), (SEND_TYPE_ARG3)(z))
 #elif defined(HAVE_SEND)
-#if !defined(SEND_TYPE_ARG1) || \
-    !defined(SEND_QUAL_ARG2) || \
-    !defined(SEND_TYPE_ARG2) || \
-    !defined(SEND_TYPE_ARG3) || \
-    !defined(SEND_TYPE_ARG4) || \
-    !defined(SEND_TYPE_RETV)
-  /* */
-  Error Missing_definition_of_return_and_arguments_types_of_send
-  /* */
+#if !defined(SEND_TYPE_ARG1) ||	!defined(SEND_QUAL_ARG2) || !defined(SEND_TYPE_ARG2) || !defined(SEND_TYPE_ARG3) || !defined(SEND_TYPE_ARG4) || !defined(SEND_TYPE_RETV)
+/* */
+Error Missing_definition_of_return_and_arguments_types_of_send
+/* */
 #else
-#define swrite(x,y,z) (ssize_t)send((SEND_TYPE_ARG1)(x), \
-                                    (SEND_TYPE_ARG2)(y), \
-                                    (SEND_TYPE_ARG3)(z), \
-                                    (SEND_TYPE_ARG4)(SEND_4TH_ARG))
+#define swrite(x, y, z) (ssize_t)send((SEND_TYPE_ARG1)(x), \
+	    (SEND_TYPE_ARG2)(y), \
+	    (SEND_TYPE_ARG3)(z), \
+	    (SEND_TYPE_ARG4)(SEND_4TH_ARG))
 #endif
 #else /* HAVE_SEND */
 #ifndef swrite
-  /* */
-  Error Missing_definition_of_macro_swrite
-  /* */
+/* */
+Error Missing_definition_of_macro_swrite
+/* */
 #endif
 #endif /* HAVE_SEND */
-
 
 #if 0
 #if defined(HAVE_RECVFROM)
@@ -215,31 +170,30 @@ struct timeval {
  * Currently recvfrom is only used on udp sockets.
  */
 #if !defined(RECVFROM_TYPE_ARG1) || \
-    !defined(RECVFROM_TYPE_ARG2) || \
-    !defined(RECVFROM_TYPE_ARG3) || \
-    !defined(RECVFROM_TYPE_ARG4) || \
-    !defined(RECVFROM_TYPE_ARG5) || \
-    !defined(RECVFROM_TYPE_ARG6) || \
-    !defined(RECVFROM_TYPE_RETV)
-  /* */
-  Error Missing_definition_of_return_and_arguments_types_of_recvfrom
-  /* */
+	!defined(RECVFROM_TYPE_ARG2) ||	\
+	!defined(RECVFROM_TYPE_ARG3) ||	\
+	!defined(RECVFROM_TYPE_ARG4) ||	\
+	!defined(RECVFROM_TYPE_ARG5) ||	\
+	!defined(RECVFROM_TYPE_ARG6) ||	\
+	!defined(RECVFROM_TYPE_RETV)
+/* */
+Error Missing_definition_of_return_and_arguments_types_of_recvfrom
+/* */
 #else
-#define sreadfrom(s,b,bl,f,fl) (ssize_t)recvfrom((RECVFROM_TYPE_ARG1)  (s),  \
-                                                 (RECVFROM_TYPE_ARG2 *)(b),  \
-                                                 (RECVFROM_TYPE_ARG3)  (bl), \
-                                                 (RECVFROM_TYPE_ARG4)  (0),  \
-                                                 (RECVFROM_TYPE_ARG5 *)(f),  \
-                                                 (RECVFROM_TYPE_ARG6 *)(fl))
+#define sreadfrom(s, b, bl, f, fl) (ssize_t)recvfrom((RECVFROM_TYPE_ARG1)(s),  \
+	    (RECVFROM_TYPE_ARG2*)(b),  \
+	    (RECVFROM_TYPE_ARG3)(bl), \
+	    (RECVFROM_TYPE_ARG4)(0),  \
+	    (RECVFROM_TYPE_ARG5*)(f),  \
+	    (RECVFROM_TYPE_ARG6*)(fl))
 #endif
 #else /* HAVE_RECVFROM */
 #ifndef sreadfrom
-  /* */
-  Error Missing_definition_of_macro_sreadfrom
-  /* */
+/* */
+Error Missing_definition_of_macro_sreadfrom
+/* */
 #endif
 #endif /* HAVE_RECVFROM */
-
 
 #ifdef RECVFROM_TYPE_ARG6_IS_VOID
 #  define RECVFROM_ARG6_T int
@@ -247,7 +201,6 @@ struct timeval {
 #  define RECVFROM_ARG6_T RECVFROM_TYPE_ARG6
 #endif
 #endif /* if 0 */
-
 
 /*
  * Function-like macro definition used to close a socket.
@@ -279,34 +232,32 @@ struct timeval {
  * avoid negative number inputs with argument byte codes > 127.
  */
 
-#define ISSPACE(x)  (isspace((int)  ((uchar)x)))
-#define ISDIGIT(x)  (isdigit((int)  ((uchar)x)))
-#define ISALNUM(x)  (isalnum((int)  ((uchar)x)))
-#define ISXDIGIT(x) (isxdigit((int) ((uchar)x)))
-#define ISGRAPH(x)  (isgraph((int)  ((uchar)x)))
-#define ISALPHA(x)  (isalpha((int)  ((uchar)x)))
-#define ISPRINT(x)  (isprint((int)  ((uchar)x)))
-#define ISUPPER(x)  (isupper((int)  ((uchar)x)))
-#define ISLOWER(x)  (islower((int)  ((uchar)x)))
-#define ISASCII(x)  (isascii((int)  ((uchar)x)))
+#define ISSPACE(x)  (isspace((int)((uchar)x)))
+#define ISDIGIT(x)  (isdigit((int)((uchar)x)))
+#define ISALNUM(x)  (isalnum((int)((uchar)x)))
+#define ISXDIGIT(x) (isxdigit((int)((uchar)x)))
+#define ISGRAPH(x)  (isgraph((int)((uchar)x)))
+#define ISALPHA(x)  (isalpha((int)((uchar)x)))
+#define ISPRINT(x)  (isprint((int)((uchar)x)))
+#define ISUPPER(x)  (isupper((int)((uchar)x)))
+#define ISLOWER(x)  (islower((int)((uchar)x)))
+#define ISASCII(x)  (isascii((int)((uchar)x)))
 
 #define ISBLANK(x)  (int)((((uchar)x) == ' ') || \
-                          (((uchar)x) == '\t'))
+	    (((uchar)x) == '\t'))
 
-#define TOLOWER(x)  (tolower((int)  ((uchar)x)))
-
+#define TOLOWER(x)  (tolower((int)((uchar)x)))
 
 /*
  * 'bool' stuff compatible with HP-UX headers.
  */
 
 #if defined(__hpux) && !defined(HAVE_BOOL_T)
-   typedef int bool;
+typedef int bool;
 #  define false 0
 #  define true 1
 #  define HAVE_BOOL_T
 #endif
-
 
 /*
  * 'bool' exists on platforms with <stdbool.h>, i.e. C99 platforms.
@@ -316,10 +267,10 @@ struct timeval {
  */
 
 #ifndef HAVE_BOOL_T
-  typedef enum {
-      bool_false = 0,
-      bool_true  = 1
-  } bool;
+typedef enum {
+	bool_false = 0,
+	bool_true  = 1
+} bool;
 
 /*
  * Use a define to let 'true' and 'false' use those enums.  There
@@ -331,7 +282,6 @@ struct timeval {
 #  define true  bool_true
 #  define HAVE_BOOL_T
 #endif
-
 
 /*
  * Redefine TRUE and FALSE too, to catch current use. With this
@@ -347,7 +297,6 @@ struct timeval {
 #define FALSE false
 #endif
 
-
 /*
  * Macro WHILE_FALSE may be used to build single-iteration do-while loops,
  * avoiding compiler warnings. Mostly intended for other macro definitions.
@@ -360,14 +309,13 @@ struct timeval {
 #  if (_MSC_VER < 1500)
 #    define WHILE_FALSE  while(1, 0)
 #  else
-#    define WHILE_FALSE \
-__pragma(warning(push)) \
-__pragma(warning(disable:4127)) \
-while(0) \
-__pragma(warning(pop))
+#    define WHILE_FALSE	\
+	__pragma(warning(push))	\
+	__pragma(warning(disable: 4127)) \
+	while(0) \
+		__pragma(warning(pop))
 #  endif
 #endif
-
 
 /*
  * Typedef to 'int' if sig_atomic_t is not an available 'typedefed' type.
@@ -377,7 +325,6 @@ __pragma(warning(pop))
 typedef int sig_atomic_t;
 #define HAVE_SIG_ATOMIC_T
 #endif
-
 
 /*
  * Convenience SIG_ATOMIC_T definition
@@ -389,7 +336,6 @@ typedef int sig_atomic_t;
 #define SIG_ATOMIC_T static volatile sig_atomic_t
 #endif
 
-
 /*
  * Default return type for signal handlers.
  */
@@ -397,7 +343,6 @@ typedef int sig_atomic_t;
 #ifndef RETSIGTYPE
 #define RETSIGTYPE void
 #endif
-
 
 /*
  * Macro used to include code only in debug builds.
@@ -409,7 +354,6 @@ typedef int sig_atomic_t;
 #define DEBUGF(x) do { } WHILE_FALSE
 #endif
 
-
 /*
  * Macro used to include assertion code only in debug builds.
  */
@@ -419,7 +363,6 @@ typedef int sig_atomic_t;
 #else
 #define DEBUGASSERT(x) do { } WHILE_FALSE
 #endif
-
 
 /*
  * Macro SOCKERRNO / SET_SOCKERRNO() returns / sets the *socket-related* errno
@@ -434,7 +377,6 @@ typedef int sig_atomic_t;
 #define SET_SOCKERRNO(x)  (errno = (x))
 #endif
 
-
 /*
  * Macro ERRNO / SET_ERRNO() returns / sets the NOT *socket-related* errno
  * (or equivalent) on this platform to hide platform details to code using it.
@@ -447,7 +389,6 @@ typedef int sig_atomic_t;
 #define ERRNO         (errno)
 #define SET_ERRNO(x)  (errno = (x))
 #endif
-
 
 /*
  * Portable error number symbolic names defined to Winsock error codes.
@@ -538,14 +479,12 @@ typedef int sig_atomic_t;
 #define argv_item_t  char *
 #endif
 
-
 /*
  * We use this ZERO_NULL to avoid picky compiler warnings,
  * when assigning a NULL pointer to a function pointer var.
  */
 
 #define ZERO_NULL 0
-
 
 #endif /* HEADER_CURL_SETUP_ONCE_H */
 

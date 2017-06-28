@@ -496,7 +496,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SCopy
 		do {
 			p_buf = SAlloc::M(buflen);
 		} while(!p_buf && (buflen -= KB) >= KB);
-		THROW_V(p_buf, SLERR_NOMEM);
+		THROW(p_buf);
 		do {
 			THROW_V(ReadFile(srchdl, p_buf, (flen < buflen) ? flen : buflen, &bytes_read_write, NULL), SLERR_READFAULT);
 			len = bytes_read_write;
@@ -579,7 +579,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SCopy
 		do
 			p_buf = SAlloc::M(buflen);
 		while(!p_buf && (buflen -= KB) >= KB);
-		THROW_V(p_buf, SLERR_NOMEM);
+		THROW(p_buf);
 		do {
 			THROW_V((len = read(srchdl, p_buf, (flen < buflen) ? (uint)flen : buflen)) > 0, SLERR_READFAULT);
 			THROW_V(write(desthdl, p_buf, len) == (int)len, SLERR_WRITEFAULT);

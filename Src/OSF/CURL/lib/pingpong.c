@@ -31,7 +31,7 @@
 //#include "progress.h"
 #include "speedcheck.h"
 #include "pingpong.h"
-#include "multiif.h"
+//#include "multiif.h"
 //#include "non-ascii.h"
 #include "vtls/vtls.h"
 

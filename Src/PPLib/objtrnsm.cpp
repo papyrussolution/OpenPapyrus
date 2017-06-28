@@ -2555,8 +2555,8 @@ private:
 	int    addItem(int dbDivList);
 	int    delItem(int dbDivList);
 	int    updateList(int dbDivList);
-	int    setSinceDate(LDATE);
-	int    getSince();
+	void   setSinceDate(LDATE);
+	void   getSince();
 
 	long   DlgFlags;
 	LDATETIME Since;
@@ -2756,7 +2756,7 @@ IMPL_HANDLE_EVENT(ObjTranDialog)
 	clearEvent(event);
 }
 
-int ObjTranDialog::setSinceDate(LDATE dt)
+void ObjTranDialog::setSinceDate(LDATE dt)
 {
 	SString buf;
 	if(dt.year() == (int)0x8000) {
@@ -2770,10 +2770,9 @@ int ObjTranDialog::setSinceDate(LDATE dt)
 	else
 		buf.Cat(dt);
 	setCtrlString(CTL_OBJTRANSM_DT, buf);
-	return 1;
 }
 
-int ObjTranDialog::getSince()
+void ObjTranDialog::getSince()
 {
 	char   buf[64];
 	long   dt_val = 0;
@@ -2783,7 +2782,6 @@ int ObjTranDialog::getSince()
 	Data.Since_.d.v = (ulong)dt_val;
 	getCtrlData(CTL_OBJTRANSM_TM, &Data.Since_.t);
 	Since = Data.Since_;
-	return 1;
 }
 
 int ObjTranDialog::setDTS(const ObjTransmitParam * pData)
@@ -2821,6 +2819,14 @@ int ObjTranDialog::setDTS(const ObjTransmitParam * pData)
 	AddClusterAssoc(CTL_OBJTRANSM_TRNSMFLAGS, 0, TRNSMF_DELINFILES);
 	AddClusterAssoc(CTL_OBJTRANSM_TRNSMFLAGS, 1, TRNSMF_DELOUTFILES);
 	SetClusterData(CTL_OBJTRANSM_TRNSMFLAGS, Data.TrnsmFlags);
+	if(Data.Flags & Data.fQueryInmassTransmission) {
+		showCtrl(CTL_OBJTRANSM_INMASS, 1);
+		AddClusterAssoc(CTL_OBJTRANSM_INMASS, 0, Data.fInmassTransmission);
+		SetClusterData(CTL_OBJTRANSM_INMASS, Data.Flags);
+	}
+	else {
+		showCtrl(CTL_OBJTRANSM_INMASS, 0);
+	}
 	if(Id == DLG_MODTRANSM)
 		updateList(0);
 	updateList(1);
@@ -2831,10 +2837,11 @@ int ObjTranDialog::setDTS(const ObjTransmitParam * pData)
 
 int ObjTranDialog::getDTS(ObjTransmitParam * pData)
 {
+	int    ok = 1;
 	if(!Data.DestDBDivList.GetCount())
-		return PPErrorByDialog(this, CTL_OBJTRANSM_DBDIVLIST, PPERR_INVDESTDBDIV);
+		ok = PPErrorByDialog(this, CTL_OBJTRANSM_DBDIVLIST, PPERR_INVDESTDBDIV);
 	else if(Id == DLG_MODTRANSM && !Data.ObjList.GetCount())
-		return PPErrorByDialog(this, CTL_OBJTRANSM_OBJLIST, PPERR_INVOBJ);
+		ok = PPErrorByDialog(this, CTL_OBJTRANSM_OBJLIST, PPERR_INVOBJ);
 	else {
 		ushort v = 0;
 		if(getCtrlData(CTL_OBJTRANSM_PROTOCOL, &v))
@@ -2847,9 +2854,15 @@ int ObjTranDialog::getDTS(ObjTransmitParam * pData)
 		SETFLAG(Data.Flags, ObjTransmitParam::fSyncCmp, v & 0x01);
 		getSince();
 		GetClusterData(CTL_OBJTRANSM_TRNSMFLAGS, &Data.TrnsmFlags);
+		if(Data.Flags & Data.fQueryInmassTransmission) {
+			GetClusterData(CTL_OBJTRANSM_INMASS, &Data.Flags);
+		}
+		else {
+			Data.Flags &= ~Data.fInmassTransmission;
+		}
 		ASSIGN_PTR(pData, Data);
-		return 1;
 	}
+	return ok;
 }
 
 int SLAPI ObjTransmDialog(uint dlgID, ObjTransmitParam * pParam, long dlgFlags /*=0*/)
@@ -2980,8 +2993,7 @@ int SLAPI PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID com
 {
 	int    ok = -1;
 	PPID   primary_id = 0;
-	if(pModDtm)
-		pModDtm->SetZero();
+	CALLPTRMEMB(pModDtm, SetZero());
 	ASSIGN_PTR(pObjName, 0);
 	int    r = SyncTbl.SearchCommonObj(objType, commID, &primary_id, 0);
 	if(r > 0)
@@ -3241,12 +3253,10 @@ int SLAPI SynchronizeObjects(PPID dest)
 	PPObjProject    prj_obj;
 	PPObjPrjTask    todo_obj;
 	PPObjWorld      world_obj;
-	PPObjCSession   cses_obj; // @v7.7.0
-
+	PPObjCSession   cses_obj;
 	PPObjTSession   tses_obj; // @v8.4.12
 	PPObjProcessor  prc_obj;  // @v8.4.12
 	PPObjTech       tec_obj;  // @v8.4.12
-
 	PPObjBill * p_bobj = BillObj;
 
 	PPIDArray ref_obj_list;

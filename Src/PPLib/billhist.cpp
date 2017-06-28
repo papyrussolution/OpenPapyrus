@@ -162,7 +162,7 @@ int SLAPI HistBillCore::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 			PPLoadText(PPTXT_DBMAINTAIN, buf);
 			ps.Split(fileName);
 			ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, fname);
-			msg.Printf(buf, (const char *)fname);
+			msg.Printf(buf, fname.cptr());
 		}
 		PPTransaction tra(1);
 		THROW(tra);

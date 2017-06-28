@@ -27,9 +27,9 @@
 //#include "urldata.h"
 //#include "url.h"
 //#include "progress.h"
-#include "multiif.h"
+//#include "multiif.h"
 //#include "sendf.h"
-#include "conncache.h"
+//#include "conncache.h"
 // The last 3 #include files should be in this order 
 #include "curl_printf.h"
 //#include "curl_memory.h"

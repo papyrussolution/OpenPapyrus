@@ -770,7 +770,7 @@ long TInputLine::getFormat() const
 TYPEID TInputLine::getType() const
 	{ return type; }
 const char * TInputLine::getText()
-	{ return (const char *)Data; }
+	{ return Data.cptr(); }
 size_t TInputLine::getMaxLen() const
 	{ return maxLen; }
 
@@ -866,7 +866,7 @@ int TInputLine::TransmitData(int dir, void * pData)
 			ASSIGN_PTR((long*)pData, id);
 		}
 		else {
-			if(((const char *)Data) == 0)
+			if(Data.cptr() == 0)
 				Data.Space() = 0;
 			SETFLAG(InlSt, stValidStr, stfromstr(type, pData, format, Data));
 		}

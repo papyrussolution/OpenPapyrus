@@ -38,9 +38,6 @@
 	#include <in.h>
 	#include <inet.h>
 #endif
-#ifdef HAVE_PROCESS_H
-	#include <process.h>
-#endif
 #if (defined(NETWARE) && defined(__NOVELL_LIBC__))
 	#undef in_addr_t
 	#define in_addr_t ulong
@@ -56,14 +53,14 @@
 
 //#include "urldata.h"
 //#include "sendf.h"
-#include "hostip.h"
-#include "hash.h"
+//#include "hostip.h"
+//#include "hash.h"
 #include "share.h"
 //#include "strerror.h"
 //#include "url.h"
-#include "multiif.h"
+//#include "multiif.h"
 #include "inet_pton.h"
-#include "connect.h"
+//#include "connect.h"
 //#include "select.h"
 //#include "progress.h"
 

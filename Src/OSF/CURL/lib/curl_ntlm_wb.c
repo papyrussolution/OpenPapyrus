@@ -34,13 +34,10 @@
 #define DEBUG_ME 0
 
 #ifdef HAVE_SYS_WAIT_H
-#include <sys/wait.h>
-#endif
-#ifdef HAVE_SIGNAL_H
-#include <signal.h>
+	#include <sys/wait.h>
 #endif
 #ifdef HAVE_PWD_H
-#include <pwd.h>
+	#include <pwd.h>
 #endif
 //#include "urldata.h"
 //#include "sendf.h"

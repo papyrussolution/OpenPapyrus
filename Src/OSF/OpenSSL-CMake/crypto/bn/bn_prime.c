@@ -186,8 +186,7 @@ loop:
 	found = 1;
 err:
 	OPENSSL_free(mods);
-	if(ctx != NULL)
-		BN_CTX_end(ctx);
+	BN_CTX_end(ctx);
 	BN_CTX_free(ctx);
 	bn_check_top(ret);
 	return found;
@@ -292,13 +291,10 @@ int BN_is_prime_fasttest_ex(const BIGNUM * a, int checks, BN_CTX * ctx_passed,
 	}
 	ret = 1;
 err:
-	if(ctx != NULL) {
-		BN_CTX_end(ctx);
-		if(ctx_passed == NULL)
-			BN_CTX_free(ctx);
-	}
+	BN_CTX_end(ctx);
+	if(ctx_passed == NULL)
+		BN_CTX_free(ctx);
 	BN_MONT_CTX_free(mont);
-
 	return (ret);
 }
 

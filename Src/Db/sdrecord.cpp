@@ -556,7 +556,7 @@ int SdRecord::AllocDataBuf()
 	P_DataBuf = SAlloc::R(P_DataBuf, RecSize);
 	IsDataBufOwner = 1;
 	if(P_DataBuf == 0 && RecSize > 0)
-		ok = (SLibError = SLERR_NOMEM, 0);
+		ok = 0;
 	else
 		memzero(P_DataBuf, RecSize);
 	return ok;

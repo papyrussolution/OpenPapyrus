@@ -67,8 +67,8 @@ typedef struct {
 	/* These arrays save pixel expansion factors so that int_downsample need not
 	 * recompute them each time.  They are unused for other downsampling methods.
 	 */
-	UINT8 h_expand[MAX_COMPONENTS];
-	UINT8 v_expand[MAX_COMPONENTS];
+	uint8 h_expand[MAX_COMPONENTS];
+	uint8 v_expand[MAX_COMPONENTS];
 } my_downsampler;
 
 typedef my_downsampler * my_downsample_ptr;
@@ -513,8 +513,8 @@ GLOBAL(void) jinit_downsampler(j_compress_ptr cinfo)
 		    (v_in_group % v_out_group) == 0) {
 			smoothok = FALSE;
 			downsample->methods[ci] = int_downsample;
-			downsample->h_expand[ci] = (UINT8)(h_in_group / h_out_group);
-			downsample->v_expand[ci] = (UINT8)(v_in_group / v_out_group);
+			downsample->h_expand[ci] = (uint8)(h_in_group / h_out_group);
+			downsample->v_expand[ci] = (uint8)(v_in_group / v_out_group);
 		}
 		else
 			ERREXIT(cinfo, JERR_FRACT_SAMPLE_NOTIMPL);

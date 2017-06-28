@@ -330,23 +330,45 @@ void FASTCALL ExchangeToOrder(double * pA, double * pB)
 //static
 void * FASTCALL SAlloc::M(size_t sz)
 {
-	return malloc(sz);
+	void * p_result = malloc(sz);
+	if(!p_result)
+		SLS.SetError(SLERR_NOMEM);
+	return p_result;
 }
 
 //static
 void * FASTCALL SAlloc::C(size_t n, size_t sz)
 {
-	return calloc(n, sz);
+	void * p_result = calloc(n, sz);
+	if(!p_result)
+		SLS.SetError(SLERR_NOMEM);
+	return p_result;
 }
 
 //static
 void * FASTCALL SAlloc::R(void * ptr, size_t sz)
 {
-	return realloc(ptr, sz);
+	void * p_result = realloc(ptr, sz);
+	if(!p_result)
+		SLS.SetError(SLERR_NOMEM);
+	return p_result;
 }
 
 //static
 void FASTCALL SAlloc::F(void * ptr)
+{
+	free(ptr);
+}
+
+void * operator new(size_t sz)
+{
+	void * p_result = malloc(sz);
+	if(!p_result)
+		SLS.SetError(SLERR_NOMEM);
+	return p_result;
+}
+
+void operator delete(void * ptr)
 {
 	free(ptr);
 }

@@ -594,7 +594,7 @@ int SLAPI PPObjCSession::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack,
 			if(pCtx) {
 				SString msg_buf, sess_buf;
 				PPObjCSession::MakeCodeString(&rec, sess_buf);
-				pCtx->Output(msg_buf.Printf(fmt_buf, (const char *)sess_buf));
+				pCtx->Output(msg_buf.Printf(fmt_buf, sess_buf.cptr()));
 			}
 		}
 	}
@@ -728,13 +728,13 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 							break;
 					}
 				}
-				pack.UpdFlags |= CCheckPacket::ufCheckInvariant; // @v7.0.0
+				pack.UpdFlags |= CCheckPacket::ufCheckInvariant;
 				pack.UpdFlags |= CCheckPacket::ufSkipUhtt; // @v8.4.2
 				if(!Cc.TurnCheck(&pack, 0)) {
 					PPLoadText(PPTXT_LOG_ERRACCEPTCCHECK, err_msg_fmt);
 					CCheckCore::MakeCodeString(&pack.Rec, ccheck_code);
 					PPGetLastErrorMessage(1, err_msg_text);
-					msg_buf.Printf(err_msg_fmt, (const char *)ccheck_code, (const char *)err_msg_text);
+					msg_buf.Printf(err_msg_fmt, ccheck_code.cptr(), err_msg_text.cptr());
 					pCtx->Output(msg_buf);
 				}
 				PPWaitMsg(msg_buf.Printf(msg_tmpl_buf, (long)i+1, (long)ChecksCount));
@@ -809,7 +809,7 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 															// PPTXT_CCPAYMSCARDCORRECTED  "Скорректирована карта оплаты в чеке %s"
 															PPLoadText(PPTXT_CCPAYMSCARDCORRECTED, err_msg_fmt);
 															CCheckCore::MakeCodeString(&pack.Rec, ccheck_code);
-															pCtx->Output(msg_buf.Printf(err_msg_fmt, (const char *)ccheck_code));
+															pCtx->Output(msg_buf.Printf(err_msg_fmt, ccheck_code.cptr()));
 														}
 													}
 												}
@@ -821,17 +821,17 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 							}
 							// @v8.4.2 {
 							else {
-								pack.UpdFlags |= CCheckPacket::ufCheckInvariant; // @v7.0.0
+								pack.UpdFlags |= CCheckPacket::ufCheckInvariant;
 								pack.UpdFlags |= CCheckPacket::ufSkipUhtt; // @v8.4.2
 								CCheckCore::MakeCodeString(&pack.Rec, ccheck_code);
 								if(!Cc.TurnCheck(&pack, 0)) {
 									PPLoadText(PPTXT_LOG_ERRACCEPTCCHECK, err_msg_fmt);
 									PPGetLastErrorMessage(1, err_msg_text);
-									msg_buf.Printf(err_msg_fmt, (const char *)ccheck_code, (const char *)err_msg_text);
+									msg_buf.Printf(err_msg_fmt, ccheck_code.cptr(), err_msg_text.cptr());
 								}
 								else {
 									PPLoadText(PPTXT_CCABSRESTORED, err_msg_fmt);
-									msg_buf.Printf(err_msg_fmt, (const char *)ccheck_code);
+									msg_buf.Printf(err_msg_fmt, ccheck_code.cptr());
 								}
 								pCtx->Output(msg_buf);
 							}

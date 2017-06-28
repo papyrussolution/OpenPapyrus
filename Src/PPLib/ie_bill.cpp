@@ -2496,7 +2496,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 								}
 							}
 							ilti.Setup(r_row.GoodsID, -1, r_row.Quantity, r_row.Cost, r_row.Price);
-							const int rconv = P_BObj->ConvertILTI(&ilti, &pack, 0, ciltif_, serial.NotEmpty() ? (const char *)serial : 0, 0);
+							const int rconv = P_BObj->ConvertILTI(&ilti, &pack, 0, ciltif_, serial.NotEmpty() ? serial.cptr() : 0, 0);
 							if(!rconv) {
 								Logger.LogLastError();
 								SETIFZ(is_bad_packet, 1);
@@ -3332,7 +3332,7 @@ private:
 			if(SignerName.NotEmpty() && FileName.NotEmpty()) {
 				if(Eds.SignData(SignerName.Transf(CTRANSF_INNER_TO_OUTER), FileName, SignFileName)) {
 					PPLoadText(PPTXT_EDS_FILESIGNED, fmt_buf);
-					msg_buf.Printf(fmt_buf, (const char *)FileName, (const char *)SignFileName);
+					msg_buf.Printf(fmt_buf, FileName.cptr(), SignFileName.cptr());
 					PPOutputMessage(msg_buf, mfYes | mfLargeBox);
 				}
 				else

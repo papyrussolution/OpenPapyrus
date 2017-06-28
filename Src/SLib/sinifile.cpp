@@ -518,7 +518,7 @@ int SLAPI SIniFile::SearchParam(const char * pSect, const char * pParam, SString
 			int    r = IsSection(line_buf, sect, 0);
 			if(r > 0)
 				this_sect = (r == 2) ? 1 : 0;
-			else if(this_sect) {
+			else if(this_sect || isempty(pSect)) {
 				Scan.Set(line_buf.Chomp().Strip(), 0);
 				Scan.Skip();
 				if(*Scan != ';') {

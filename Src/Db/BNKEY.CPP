@@ -71,7 +71,7 @@ int SLAPI BNKey::addSegment(int fldID, int flags)
 		return 1;
 	}
 	else
-		return SLS.SetError(SLERR_NOMEM);
+		return 0;
 }
 
 int SLAPI BNKey::setFieldID(int seg, int newID)

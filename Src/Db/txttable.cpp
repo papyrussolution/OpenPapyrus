@@ -165,7 +165,7 @@ int TextDbFile::IsTerminalLine(const SString & rLine, uint fldNo) const
 	else {
 		uint   num_flds = 0;
 		if(P.VertRecTerm[0] == ':' && P.VertRecTerm.Last() == ':') {
-			num_flds = atoi(((const char *)P.VertRecTerm)+1);
+			num_flds = atoi(P.VertRecTerm.cptr()+1);
 		}
 		if(num_flds > 0 && num_flds < 1000)
 			return (fldNo == num_flds) ? 2 : 0;

@@ -75,7 +75,7 @@ int SLAPI PPCheckInPersonItem::CalcPinCode(SString & rCode) const
     rCode = 0;
     SString temp_buf;
     temp_buf.Cat(PrmrID).CatChar('#').Cat(PersonID).CatChar('#').Cat(PlaceCode);
-	uint32 h = BobJencHash((const char *)temp_buf, temp_buf.Len());
+	uint32 h = BobJencHash(temp_buf.cptr(), temp_buf.Len());
 	rCode.CatLongZ((long)(h % 10000), 4);
 	return 1;
 }

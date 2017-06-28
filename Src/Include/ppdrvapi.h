@@ -71,8 +71,8 @@ public:
 	int    DefineErrTextTable(uint numEntries, const TextTableEntry * pTab);
 	int    GetLastErr();
 	int    GetErrText(int errCode, SString & rBuf);
-	int    SetErrCode(int errCode);
-	int    SetLogFileName(const char * pFileName);
+	void   SetErrCode(int errCode);
+	void   SetLogFileName(const char * pFileName);
 
 	enum {
 		logfTime     = 0x0001,

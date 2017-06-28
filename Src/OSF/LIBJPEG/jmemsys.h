@@ -43,7 +43,7 @@
  */
 
 EXTERN(void *) jpeg_get_small JPP((j_common_ptr cinfo, size_t sizeofobject));
-EXTERN(void) jpeg_free_small JPP((j_common_ptr cinfo, void * object,
+extern void jpeg_free_small JPP((j_common_ptr cinfo, void * object,
 	    size_t sizeofobject));
 
 /*
@@ -57,7 +57,7 @@ EXTERN(void) jpeg_free_small JPP((j_common_ptr cinfo, void * object,
 
 EXTERN(void FAR *) jpeg_get_large JPP((j_common_ptr cinfo,
 	    size_t sizeofobject));
-EXTERN(void) jpeg_free_large JPP((j_common_ptr cinfo, void FAR * object,
+extern void jpeg_free_large JPP((j_common_ptr cinfo, void FAR * object,
 	    size_t sizeofobject));
 
 /*
@@ -161,7 +161,7 @@ typedef struct backing_store_struct {
  * just take an error exit.)
  */
 
-EXTERN(void) jpeg_open_backing_store JPP((j_common_ptr cinfo, backing_store_ptr info, long total_bytes_needed));
+extern void jpeg_open_backing_store JPP((j_common_ptr cinfo, backing_store_ptr info, long total_bytes_needed));
 
 /*
  * These routines take care of any system-dependent initialization and
@@ -176,4 +176,4 @@ EXTERN(void) jpeg_open_backing_store JPP((j_common_ptr cinfo, backing_store_ptr 
  */
 
 EXTERN(long) jpeg_mem_init JPP((j_common_ptr cinfo));
-EXTERN(void) jpeg_mem_term JPP((j_common_ptr cinfo));
+extern void jpeg_mem_term JPP((j_common_ptr cinfo));

@@ -300,47 +300,46 @@ struct jpeg_color_quantizer {
  * in the small-model libraries.  These will be used if USE_FMEM is defined.
  * Otherwise, the routines in jutils.c do it the hard way.
  */
-
 #ifndef NEED_FAR_POINTERS       /* normal case, same as regular macro */
-#define FMEMZERO(target, size)   MEMZERO(target, size)
+	#define FMEMZERO(target, size)   MEMZERO(target, size)
 #else                           /* 80x86 case */
 #ifdef USE_FMEM
-#define FMEMZERO(target, size)   _fmemset((void FAR*)(target), 0, (size_t)(size))
+	#define FMEMZERO(target, size)   _fmemset((void FAR*)(target), 0, (size_t)(size))
 #else
-EXTERN(void) jzero_far JPP((void FAR * target, size_t bytestozero));
-#define FMEMZERO(target, size)   jzero_far(target, size)
+	EXTERN(void) jzero_far JPP((void FAR * target, size_t bytestozero));
+	#define FMEMZERO(target, size)   jzero_far(target, size)
 #endif
 #endif
 
 /* Compression module initialization routines */
-EXTERN(void) jinit_compress_master JPP((j_compress_ptr cinfo));
-EXTERN(void) jinit_c_master_control JPP((j_compress_ptr cinfo, boolean transcode_only));
-EXTERN(void) jinit_c_main_controller JPP((j_compress_ptr cinfo, boolean need_full_buffer));
-EXTERN(void) jinit_c_prep_controller JPP((j_compress_ptr cinfo, boolean need_full_buffer));
-EXTERN(void) jinit_c_coef_controller JPP((j_compress_ptr cinfo, boolean need_full_buffer));
-EXTERN(void) jinit_color_converter JPP((j_compress_ptr cinfo));
-EXTERN(void) jinit_downsampler JPP((j_compress_ptr cinfo));
-EXTERN(void) jinit_forward_dct JPP((j_compress_ptr cinfo));
-EXTERN(void) jinit_huff_encoder JPP((j_compress_ptr cinfo));
-EXTERN(void) jinit_arith_encoder JPP((j_compress_ptr cinfo));
-EXTERN(void) jinit_marker_writer JPP((j_compress_ptr cinfo));
+extern void jinit_compress_master JPP((j_compress_ptr cinfo));
+extern void jinit_c_master_control JPP((j_compress_ptr cinfo, boolean transcode_only));
+extern void jinit_c_main_controller JPP((j_compress_ptr cinfo, boolean need_full_buffer));
+extern void jinit_c_prep_controller JPP((j_compress_ptr cinfo, boolean need_full_buffer));
+extern void jinit_c_coef_controller JPP((j_compress_ptr cinfo, boolean need_full_buffer));
+extern void jinit_color_converter JPP((j_compress_ptr cinfo));
+extern void jinit_downsampler JPP((j_compress_ptr cinfo));
+extern void jinit_forward_dct JPP((j_compress_ptr cinfo));
+extern void jinit_huff_encoder JPP((j_compress_ptr cinfo));
+extern void jinit_arith_encoder JPP((j_compress_ptr cinfo));
+extern void jinit_marker_writer JPP((j_compress_ptr cinfo));
 /* Decompression module initialization routines */
-EXTERN(void) jinit_master_decompress JPP((j_decompress_ptr cinfo));
-EXTERN(void) jinit_d_main_controller JPP((j_decompress_ptr cinfo, boolean need_full_buffer));
-EXTERN(void) jinit_d_coef_controller JPP((j_decompress_ptr cinfo, boolean need_full_buffer));
-EXTERN(void) jinit_d_post_controller JPP((j_decompress_ptr cinfo, boolean need_full_buffer));
-EXTERN(void) jinit_input_controller JPP((j_decompress_ptr cinfo));
-EXTERN(void) jinit_marker_reader JPP((j_decompress_ptr cinfo));
-EXTERN(void) jinit_huff_decoder JPP((j_decompress_ptr cinfo));
-EXTERN(void) jinit_arith_decoder JPP((j_decompress_ptr cinfo));
-EXTERN(void) jinit_inverse_dct JPP((j_decompress_ptr cinfo));
-EXTERN(void) jinit_upsampler JPP((j_decompress_ptr cinfo));
-EXTERN(void) jinit_color_deconverter JPP((j_decompress_ptr cinfo));
-EXTERN(void) jinit_1pass_quantizer JPP((j_decompress_ptr cinfo));
-EXTERN(void) jinit_2pass_quantizer JPP((j_decompress_ptr cinfo));
-EXTERN(void) jinit_merged_upsampler JPP((j_decompress_ptr cinfo));
+extern void jinit_master_decompress JPP((j_decompress_ptr cinfo));
+extern void jinit_d_main_controller JPP((j_decompress_ptr cinfo, boolean need_full_buffer));
+extern void jinit_d_coef_controller JPP((j_decompress_ptr cinfo, boolean need_full_buffer));
+extern void jinit_d_post_controller JPP((j_decompress_ptr cinfo, boolean need_full_buffer));
+extern void jinit_input_controller JPP((j_decompress_ptr cinfo));
+extern void jinit_marker_reader JPP((j_decompress_ptr cinfo));
+extern void jinit_huff_decoder JPP((j_decompress_ptr cinfo));
+extern void jinit_arith_decoder JPP((j_decompress_ptr cinfo));
+extern void jinit_inverse_dct JPP((j_decompress_ptr cinfo));
+extern void jinit_upsampler JPP((j_decompress_ptr cinfo));
+extern void jinit_color_deconverter JPP((j_decompress_ptr cinfo));
+extern void jinit_1pass_quantizer JPP((j_decompress_ptr cinfo));
+extern void jinit_2pass_quantizer JPP((j_decompress_ptr cinfo));
+extern void jinit_merged_upsampler JPP((j_decompress_ptr cinfo));
 /* Memory manager initialization */
-EXTERN(void) jinit_memory_mgr JPP((j_common_ptr cinfo));
+extern void jinit_memory_mgr JPP((j_common_ptr cinfo));
 
 /* Utility routines in jutils.c */
 EXTERN(long) jdiv_round_up JPP((long a, long b));

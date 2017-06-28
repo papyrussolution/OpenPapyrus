@@ -4097,9 +4097,15 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						case cpmBank:
 							if(ConfirmPosPaymBank(paym_blk2.AmtToPaym)) {
 								if(P_BNKTERM) {
-									int    r = (paym_blk2.AmtToPaym < 0) ? P_BNKTERM->Refund(-paym_blk2.AmtToPaym) : P_BNKTERM->Pay(paym_blk2.AmtToPaym);
-									if(r)
+									SString slip_rep;
+									int    r = (paym_blk2.AmtToPaym < 0) ? P_BNKTERM->Refund(-paym_blk2.AmtToPaym, slip_rep) : P_BNKTERM->Pay(paym_blk2.AmtToPaym, slip_rep);
+									if(r) {
 										AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + diff, accmRegular);
+										if(slip_rep.NotEmpty() && InitCashMachine() && P_CM) {
+											PPSyncCashSession * p_ifc = P_CM->SyncInterface();
+											CALLPTRMEMB(p_ifc, PrintBnkTermReport(slip_rep));
+										}
+									}
 									else
 										PPError();
 								}
@@ -4133,13 +4139,20 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 											for(uint i = 0; i < paym_blk2.CcPl.getCount(); i++) {
 												if(paym_blk2.CcPl.at(i).Type == CCAMTTYP_BANK) {
 													double bank_amt = paym_blk2.CcPl.at(i).Amount;
+													SString slip_rep;
 													if(bank_amt > 0) {
-														r = P_BNKTERM->Pay(bank_amt);
+														r = P_BNKTERM->Pay(bank_amt, slip_rep);
 													}
 													else {
-														r = P_BNKTERM->Refund(bank_amt);
+														r = P_BNKTERM->Refund(bank_amt, slip_rep);
 													}
-													if(!r)
+													if(r) {
+														if(slip_rep.NotEmpty() && InitCashMachine() && P_CM) {
+															PPSyncCashSession * p_ifc = P_CM->SyncInterface();
+															CALLPTRMEMB(p_ifc, PrintBnkTermReport(slip_rep));
+														}
+													}
+													else
 														PPError();
 													break;
 												}

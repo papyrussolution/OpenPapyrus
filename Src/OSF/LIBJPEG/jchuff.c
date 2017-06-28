@@ -1157,7 +1157,7 @@ METHODDEF(boolean) encode_mcu_gather(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 static void jpeg_gen_optimal_table(j_compress_ptr cinfo, JHUFF_TBL * htbl, long freq[])
 {
 #define MAX_CLEN 32             /* assumed maximum initial code length */
-	UINT8 bits[MAX_CLEN+1]; /* bits[k] = # of symbols with code length k */
+	uint8 bits[MAX_CLEN+1]; /* bits[k] = # of symbols with code length k */
 	int codesize[257];      /* codesize[k] = code length of symbol k */
 	int others[257];        /* next symbol in current branch of tree */
 	int c1, c2;
@@ -1279,7 +1279,7 @@ static void jpeg_gen_optimal_table(j_compress_ptr cinfo, JHUFF_TBL * htbl, long 
 	for(i = 1; i <= MAX_CLEN; i++) {
 		for(j = 0; j <= 255; j++) {
 			if(codesize[j] == i) {
-				htbl->huffval[p] = (UINT8)j;
+				htbl->huffval[p] = (uint8)j;
 				p++;
 			}
 		}

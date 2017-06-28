@@ -503,7 +503,7 @@ int	SLAPI PrcssrBuild::Run()
 					strnzcpy(cmd_line, temp_buf, cmd_line.GetSize());
 
 					PPLoadText(PPTXT_BUILD_SOLUTION, fmt_buf);
-					logger.Log(msg_buf.Printf(fmt_buf, (const char *)temp_buf));
+					logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
 					int    r = ::CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, p_prc_cur_dir, &si, &pi); // @unicodeproblem
 					if(!r) {
 						SLS.SetOsError(0);
@@ -618,7 +618,7 @@ int	SLAPI PrcssrBuild::Run()
 				strnzcpy(cmd_line, temp_buf, cmd_line.GetSize());
 
 				PPLoadText(PPTXT_BUILD_DISTRIB, fmt_buf);
-				logger.Log(msg_buf.Printf(fmt_buf, (const char *)temp_buf));
+				logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
 
 				int    r = ::CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, build_path, &si, &pi); // @unicodeproblem
 				if(!r) {
@@ -632,7 +632,7 @@ int	SLAPI PrcssrBuild::Run()
 						(temp_buf = build_path).SetLastSlash().Cat(target_file_name);
 						if(fileExists(temp_buf)) {
 							PPLoadText(PPTXT_BUILD_DISTRIB_SUCCESS, fmt_buf);
-							msg_buf.Printf(fmt_buf, (const char *)target_file_name);
+							msg_buf.Printf(fmt_buf, target_file_name.cptr());
 							logger.Log(msg_buf);
 							//
 							(dest_path = distrib_path).SetLastSlash().Cat(target_file_name);
@@ -642,13 +642,13 @@ int	SLAPI PrcssrBuild::Run()
 						}
 						else {
 							PPLoadText(PPTXT_BUILD_DISTRIB_TARGETNFOUND, fmt_buf);
-							msg_buf.Printf(fmt_buf, (const char *)target_file_name, (const char *)temp_buf);
+							msg_buf.Printf(fmt_buf, target_file_name.cptr(), temp_buf.cptr());
 							logger.Log(msg_buf);
 						}
 					}
 					else {
 						PPLoadText(PPTXT_BUILD_DISTRIB_FAIL, fmt_buf);
-						msg_buf.Printf(fmt_buf, (const char *)target_file_name, (const char *)build_log_path);
+						msg_buf.Printf(fmt_buf, target_file_name.cptr(), build_log_path.cptr());
 						logger.Log(msg_buf);
 					}
 				}
@@ -687,7 +687,7 @@ int	SLAPI PrcssrBuild::Run()
 					else {
 						PPLoadText(PPTXT_BUILD_UHTTCOPY_FAIL, fmt_buf);
 						PPGetLastErrorMessage(1, temp_buf);
-						msg_buf.Printf(fmt_buf, r_nsis_entry.FileName, (const char *)temp_buf);
+						msg_buf.Printf(fmt_buf, r_nsis_entry.FileName, temp_buf.cptr());
 						logger.Log(msg_buf);
 					}
 				}
@@ -744,7 +744,7 @@ int SLAPI PrcssrBuild::BuildLocalDl600(const char * pPath)
 		}
 		cmd_line.Space().Cat("/ob").Space().CatQStr(src_file_name);
 		PPLoadText(PPTXT_BUILD_LOCALDL600, fmt_buf);
-		logger.Log(msg_buf.Printf(fmt_buf, (const char *)cmd_line));
+		logger.Log(msg_buf.Printf(fmt_buf, cmd_line.cptr()));
 		{
 			STempBuffer cmd_line_buf(cmd_line.Len()*2);
 			strnzcpy(cmd_line_buf, cmd_line, cmd_line_buf.GetSize());
@@ -774,7 +774,7 @@ int SLAPI PrcssrBuild::BuildLocalDl600(const char * pPath)
                 THROW_SL(SCopyFile(result_file_name, dest_file_name, 0, FILE_SHARE_READ, 0));
 			}
 			else {
-				msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_LOCALDL600_FAIL, fmt_buf), (const char *)src_file_name);
+				msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_LOCALDL600_FAIL, fmt_buf), src_file_name.cptr());
 				logger.Log(msg_buf);
 			}
 		}

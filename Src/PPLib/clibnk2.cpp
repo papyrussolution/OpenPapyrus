@@ -506,7 +506,7 @@ static int SLAPI TurnBankImportPacket(const Assoc * pAssoc, BankStmntItem * pIte
 				SString msg_buf, log_buf, item_buf;
 				pItem->MakeDescrText(item_buf).Quot('(', ')');
 				if(PPLoadText(PPTXT_CLIBNK_BILLTURNED, msg_buf))
-					rLogger.Log(log_buf.Printf(msg_buf, (const char *)item_buf));
+					rLogger.Log(log_buf.Printf(msg_buf, item_buf.cptr()));
 			}
 			if(pItem->DebtBillID || (!isempty(pItem->DebtBillCode) && checkdate(pItem->DebtBillDate, 0))) {
 				//

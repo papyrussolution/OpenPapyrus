@@ -37,7 +37,7 @@ int FASTCALL StringSet::Alloc(size_t sz)
 			P_Buf = p;
 		}
 		else
-			ok = (SLibError = SLERR_NOMEM, 0);
+			ok = 0;
 	}
 	return ok;
 }

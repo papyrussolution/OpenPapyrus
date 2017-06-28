@@ -1592,7 +1592,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 					{
 						// @log PPTXT_SYNCLOT_UPDROWNSYNCRMV "—трока измен€емого документа [%s] не синхронизирована и должна быть заменена"
                         (temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(r_ti.RByBill).CatDiv('-', 0).Cat(r_ti.LotID);
-                        msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_UPDROWNSYNCRMV, fmt_buf), (const char *)temp_buf);
+                        msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_UPDROWNSYNCRMV, fmt_buf), temp_buf.cptr());
                         PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 					}
 					// } @v8.4.10
@@ -1629,7 +1629,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 								GetGoodsName(p_ilti->GoodsID, goods_name);
 								(temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(p_ilti->RByBill).
 									CatDiv('-', 0).Cat(preserve_frgn_lot_id).CatDiv('-', 0).Cat(goods_name);
-								msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_NSYNCMAIN, fmt_buf), (const char *)temp_buf);
+								msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_NSYNCMAIN, fmt_buf), temp_buf.cptr());
 								PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 							}
 							// } @v8.4.10
@@ -1646,7 +1646,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 							GetGoodsName(p_ilti->GoodsID, goods_name);
 							(temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(p_ilti->RByBill).CatDiv('-', 0).Cat(preserve_frgn_lot_mirr_id).
 								CatDiv('-', 0).Cat(goods_name);
-							msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_NSYNCMIRR, fmt_buf), (const char *)temp_buf);
+							msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_NSYNCMIRR, fmt_buf), temp_buf.cptr());
 							PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 						}
 						// } @v8.4.10
@@ -1994,7 +1994,7 @@ int SLAPI BillTransmDeficit::PrintTotalDeficit(ObjTransmContext * pCtx)
 		double deficit = Tbl->data.Req - Tbl->data.Rest;
 		if(deficit > 0.0 && fmt_buf.NotEmpty()) {
 			GetGoodsName(Tbl->data.GoodsID, goods_name);
-			msg_buf.Printf(fmt_buf, (const char *)goods_name, deficit, Tbl->data.ReqCost, Tbl->data.ReqPrice);
+			msg_buf.Printf(fmt_buf, goods_name.cptr(), deficit, Tbl->data.ReqCost, Tbl->data.ReqPrice);
 			pCtx->OutReceivingMsg(msg_buf);
 		}
 	}
@@ -2317,7 +2317,7 @@ int SLAPI BillTransmDeficit::ProcessDeficit(ObjTransmContext * pCtx, int * pNext
 										sync_tbl.updateRec(); // @sfu
 										(new_goods_name = 0).Space();
 										(buf2 = 0).Space();
-										buf.Printf((const char*)msg, (const char *)new_goods_name, new_id, (const char*)buf2, 0);
+										buf.Printf(msg.cptr(), new_goods_name.cptr(), new_id, buf2.cptr(), 0);
 										pCtx->OutReceivingMsg(buf);
 									}
 									k1.ObjID = prev_id;
@@ -2325,7 +2325,7 @@ int SLAPI BillTransmDeficit::ProcessDeficit(ObjTransmContext * pCtx, int * pNext
 										sync_tbl.data.ObjID = new_id;
 										sync_tbl.updateRec(); // @sfu
 										GetGoodsName(new_id, new_goods_name);
-										buf.Printf((const char*)msg, list.at(i).GoodsName, prev_id, (const char*)new_goods_name, new_id);
+										buf.Printf(msg.cptr(), list.at(i).GoodsName, prev_id, new_goods_name.cptr(), new_id);
 										pCtx->OutReceivingMsg(buf);
 									}
 								}

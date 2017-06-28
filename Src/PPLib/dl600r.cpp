@@ -782,24 +782,24 @@ int DlRtm::SetByJSON_Helper(json_t * pNode, SetScopeBlk & rBlk)
 	SdbField fld;
 	SFormatParam fp;
 	SString temp_buf;
-	for(json_t * p_cur = pNode; p_cur != NULL; p_cur = p_cur->next) {
-		switch(p_cur->type) {
+	for(json_t * p_cur = pNode; p_cur != NULL; p_cur = p_cur->P_Next) {
+		switch(p_cur->Type) {
 			case JSON_ARRAY:
-				THROW(SetByJSON_Helper(p_cur->child, rBlk));   // @recursion
+				THROW(SetByJSON_Helper(p_cur->P_Child, rBlk));   // @recursion
 				break;
 			case JSON_OBJECT:
-                THROW(SetByJSON_Helper(p_cur->child, rBlk));   // @recursion
+                THROW(SetByJSON_Helper(p_cur->P_Child, rBlk));   // @recursion
 				THROW(Set(rBlk.GetScopeID(), 0));
 				break;
 			case JSON_STRING:
-				if(p_cur->text && p_cur->child) {
-					fld_name = p_cur->text;
-					switch(p_cur->child->type) {
+				if(p_cur->P_Text && p_cur->P_Child) {
+					fld_name = p_cur->P_Text;
+					switch(p_cur->P_Child->Type) {
 						case JSON_NUMBER:
 						case JSON_STRING:
 							THROW(rBlk.GetFieldByName(fld_name, &fld));
 							if(!(fld.T.Flags & STypEx::fFormula)) {
-								p_value = json_unescape(p_cur->child->text);
+								p_value = json_unescape(p_cur->P_Child->P_Text);
 								THROW(p_buf = rBlk.GetBuffer());
 								THROW(fld.PutFieldDataToBuf(p_value, p_buf, fp));
 								ZFREE(p_value);
@@ -808,7 +808,7 @@ int DlRtm::SetByJSON_Helper(json_t * pNode, SetScopeBlk & rBlk)
 						default:
 							THROW(Set(rBlk.GetScopeID(), 0));
 							THROW(rBlk.ToChild((temp_buf = 0).Cat("iter@").Cat(fld_name)));
-							THROW(SetByJSON_Helper(p_cur->child, rBlk));	// @recursion
+							THROW(SetByJSON_Helper(p_cur->P_Child, rBlk));	// @recursion
 							THROW(rBlk.ToHeader());
 							break;
 					}
@@ -1384,7 +1384,7 @@ int SLAPI DlRtm::Helper_PutScopeToJson(const DlScope * pScope, json_t * pJsonObj
 			if(fld.T.IsZStr(0))
 				buf.Transf(CTRANSF_INNER_TO_OUTER);
 			buf.Escape();
-			json_insert_pair_into_object(pJsonObj, (const char *)fld.Name, json_new_string(buf));
+			json_insert_pair_into_object(pJsonObj, fld.Name.cptr(), json_new_string(buf));
 		}
 	}
 	CATCHZOK
@@ -1420,7 +1420,7 @@ int SLAPI DlRtm::Helper_PutItemToJson(PPFilt * pFilt, json_t * pRoot)
 				Helper_PutScopeToJson(p_child, p_iter_obj);
 				json_insert_child(p_iter_ary, p_iter_obj);
 			}
-			json_insert_pair_into_object(p_hdr_obj, (const char *)suffix, p_iter_ary);
+			json_insert_pair_into_object(p_hdr_obj, suffix.cptr(), p_iter_ary);
 		}
 	}
 	json_insert_child(pRoot, p_hdr_obj);

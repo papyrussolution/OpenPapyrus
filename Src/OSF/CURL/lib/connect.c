@@ -31,14 +31,8 @@
 #ifdef HAVE_NETINET_TCP_H
 	#include <netinet/tcp.h> /* for TCP_NODELAY */
 #endif
-#ifdef HAVE_SYS_IOCTL_H
-	#include <sys/ioctl.h>
-#endif
 #ifdef HAVE_NETDB_H
 	#include <netdb.h>
-#endif
-#ifdef HAVE_FCNTL_H
-	#include <fcntl.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 	#include <arpa/inet.h>
@@ -58,18 +52,18 @@
 //#include "sendf.h"
 #include "if2ip.h"
 //#include "strerror.h"
-#include "connect.h"
+//#include "connect.h"
 //#include "select.h"
 //#include "url.h" /* for ZFREE() */
-#include "multiif.h"
-#include "sockaddr.h" /* required for Curl_sockaddr_storage */
+//#include "multiif.h"
+//#include "sockaddr.h" /* required for Curl_sockaddr_storage */
 #include "inet_ntop.h"
 #include "inet_pton.h"
 #include "vtls/vtls.h" /* for Curl_ssl_check_cxn() */
 //#include "progress.h"
 #include "warnless.h"
-#include "conncache.h"
-#include "multihandle.h"
+//#include "conncache.h"
+//#include "multihandle.h"
 #include "system_win32.h"
 // The last 3 #include files should be in this order 
 #include "curl_printf.h"

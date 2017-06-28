@@ -3576,7 +3576,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 					THROW(r = PPObjStyloPalm::PeekDisplayBlock(id, blk, 0));
 					if(blk.DirectMsg.Len()) {
 						(str_buf = blk.DirectMsg).Transf(CTRANSF_INNER_TO_OUTER);
-						rReply.Write((const char *)str_buf, str_buf.Len());
+						rReply.Write(str_buf.cptr(), str_buf.Len());
 						rReply.SetDataType(PPJobSrvReply::htFile, 0);
 						rReply.FinishWriting();
 						THROW(SendReply(rReply));
@@ -3922,7 +3922,7 @@ int SLAPI PPJobSrvReply::SetDataType(int dataType, const char * pDataTypeText)
 
 int FASTCALL PPJobSrvReply::WriteString(const SString & rStr)
 {
-	return Write((const char *)rStr, rStr.Len()) ? 1 : PPSetErrorSLib();
+	return Write(rStr.cptr(), rStr.Len()) ? 1 : PPSetErrorSLib();
 }
 
 int FASTCALL PPJobSrvReply::FinishWriting(int hdrFlags)
@@ -4807,7 +4807,7 @@ int SLAPI run_client()
 							PPGetLastErrorMessage(1, msg_buf);
 							(reply_str = 0).Cat("Error").CatDiv(':', 2).Cat(msg_buf);
 						}
-						printf((const char *)reply_str);
+						printf(reply_str.cptr());
 					}
 				}
 				// } @v7.3.2 @debug
@@ -4843,7 +4843,7 @@ int SLAPI run_client()
 							PPGetLastErrorMessage(1, msg_buf);
 							(reply_str = 0).Cat("Error").CatDiv(':', 2).Cat(msg_buf);
 						}
-						printf((const char *)reply_str);
+						printf(reply_str.cptr());
 					}
 					if(is_quit)
 						cli.Disconnect();
@@ -4854,7 +4854,7 @@ int SLAPI run_client()
 	else {
 		PPGetLastErrorMessage(1, msg_buf);
 		(reply_str = 0).Cat("Error").CatDiv(':', 2).Cat(msg_buf).CR();
-		printf((const char *)reply_str);
+		printf(reply_str.cptr());
 		err = -1;
 	}
 	return err;

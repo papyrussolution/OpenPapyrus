@@ -32,9 +32,6 @@
 //#include "strtok.h"
 
 #ifdef USE_DARWINSSL
-#ifdef HAVE_LIMITS_H
-	#include <limits.h>
-#endif
 #include <Security/Security.h>
 #include <Security/SecureTransport.h>
 #include <CoreFoundation/CoreFoundation.h>
@@ -90,7 +87,7 @@
 //#include "urldata.h"
 //#include "sendf.h"
 #include "inet_pton.h"
-#include "connect.h"
+//#include "connect.h"
 //#include "select.h"
 #include "vtls.h"
 #include "darwinssl.h"

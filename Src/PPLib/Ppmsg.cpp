@@ -89,11 +89,10 @@ int SLAPI PPInitStrings(const char * pFileName)
 	LEAVE_CRITICAL_SECTION
 }
 
-int SLAPI PPReleaseStrings()
+void SLAPI PPReleaseStrings()
 {
 	if(_PPStrStore)
 		DO_CRITICAL(ZDELETE(_PPStrStore));
-	return 1;
 }
 
 const SymbHashTable * FASTCALL PPGetStringHash(int group)
@@ -111,8 +110,9 @@ int SLAPI PPLoadString(int group, int code, SString & s)
 	if(group && code) {
 		PROFILE_START
 		ok = _PPStrStore ? _PPStrStore->GetString(group, code, s) : 0;
+		if(s.Len() && !sisascii(s.cptr(), s.Len())) // @v9.7.2
+			s.Transf(CTRANSF_UTF8_TO_INNER);
 		PROFILE_END
-		s.Transf(CTRANSF_UTF8_TO_INNER);
 		if(!ok)
 			PPSetErrorSLib();
 	}

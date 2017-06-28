@@ -497,7 +497,7 @@ int BDbDatabase::Helper_Create(const char * pFileName, int createMode, BDbTable:
 #ifdef _MT
 		opf |= DB_THREAD;
 #endif
-		r = p_db->open(p_db, T.T, (r2 > 0) ? (const char *)file_name : 0, (r2 == 2) ? (const char *)tbl_name : 0, dbtype, opf, 0 /*mode*/);
+		r = p_db->open(p_db, T.T, (r2 > 0) ? file_name.cptr() : 0, (r2 == 2) ? tbl_name.cptr() : 0, dbtype, opf, 0 /*mode*/);
 	}
 	THROW(ProcessError(r));
 	CATCHZOK

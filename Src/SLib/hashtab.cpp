@@ -63,11 +63,7 @@ int FASTCALL HashTableBase::Copy(const HashTableBase & rSrc)
 
 int HashTableBase::InitTab()
 {
-	if(P_Tab == 0) {
-		P_Tab = (Entry *)SAlloc::C(Size, sizeof(Entry));
-		if(!P_Tab)
-			SLS.SetError(SLERR_NOMEM);
-	}
+	SETIFZ(P_Tab, (Entry *)SAlloc::C(Size, sizeof(Entry)));
 	return BIN(P_Tab);
 }
 
@@ -133,7 +129,7 @@ int HashTableBase::Entry::SetVal(uint key, uint val)
 	else {
 		P_Ext = (LAssoc *)SAlloc::R(P_Ext, sizeof(LAssoc) * Count);
 		if(P_Ext == 0)
-			ok = (SLibError = SLERR_NOMEM, 0);
+			ok = 0;
 		else {
 			P_Ext[Count-1].Key = (long)key;
 			P_Ext[Count-1].Val = (long)val;
@@ -176,7 +172,7 @@ int FASTCALL HashTableBase::Entry::Copy(const SymbHashTable::Entry & rSrc)
 		P_Ext = (LAssoc *)SAlloc::M(sizeof(LAssoc) * Count-1);
 		if(P_Ext == 0) {
 			Count = 1;
-			ok = (SLibError = SLERR_NOMEM, 0);
+			ok = 0;
 		}
 		else
 			for(size_t i = 0; i < (uint)(Count-1); i++)

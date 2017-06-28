@@ -714,7 +714,7 @@ int SLAPI BillCore::EditRec(PPID * pID, BillTbl::Rec * pRec, int use_ta)
 	if(ok == 2 && CConfig.Flags & CCFLG_DEBUG) {
 		SString msg_buf, fmt_buf, obj_title;
 		GetObjectTitle(PPOBJ_BILL, obj_title);
-		msg_buf.Printf(PPLoadTextS(PPTXT_LOG_ADDOBJREC_JUMPED_ID, fmt_buf), (const char *)obj_title);
+		msg_buf.Printf(PPLoadTextS(PPTXT_LOG_ADDOBJREC_JUMPED_ID, fmt_buf), obj_title.cptr());
 		PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 	}
 	return ok;

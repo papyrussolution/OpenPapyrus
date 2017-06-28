@@ -90,7 +90,7 @@ int SLAPI WinRegValue::Alloc(size_t bufSize)
 		P_Buf = SAlloc::R(P_Buf, bufSize);
 		if(bufSize && P_Buf == 0) {
 			BufSize = DataSize = 0;
-			return (SLibError = SLERR_NOMEM, 0);
+			return 0;
 		}
 	}
 	BufSize = bufSize;

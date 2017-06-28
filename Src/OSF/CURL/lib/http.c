@@ -35,9 +35,6 @@
 #ifdef HAVE_NET_IF_H
 	#include <net/if.h>
 #endif
-#ifdef HAVE_SYS_IOCTL_H
-	#include <sys/ioctl.h>
-#endif
 #ifdef HAVE_SYS_PARAM_H
 	#include <sys/param.h>
 #endif
@@ -57,21 +54,21 @@
 #include "http_negotiate.h"
 //#include "url.h"
 #include "share.h"
-#include "hostip.h"
+//#include "hostip.h"
 #include "http.h"
 //#include "select.h"
 #include "parsedate.h" /* for the week day and month names */
 //#include "strtoofft.h"
-#include "multiif.h"
+//#include "multiif.h"
 //#include "strcase.h"
 #include "content_encoding.h"
 #include "http_proxy.h"
 #include "warnless.h"
 //#include "non-ascii.h"
-#include "conncache.h"
+//#include "conncache.h"
 #include "pipeline.h"
 #include "http2.h"
-#include "connect.h"
+//#include "connect.h"
 //#include "strdup.h"
 // The last 3 #include files should be in this order 
 #include "curl_printf.h"

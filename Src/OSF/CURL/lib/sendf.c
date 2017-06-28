@@ -25,10 +25,10 @@
 //#include <curl/curl.h>
 //#include "urldata.h"
 //#include "sendf.h"
-#include "connect.h"
+//#include "connect.h"
 #include "vtls/vtls.h"
 #include "ssh.h"
-#include "multiif.h"
+//#include "multiif.h"
 //#include "non-ascii.h"
 //#include "strerror.h"
 //#include "select.h"

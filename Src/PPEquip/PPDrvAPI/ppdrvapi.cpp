@@ -1,5 +1,5 @@
 // PPDRVAPI.CPP
-// Copyright (c) A.Sobolev 2013
+// Copyright (c) A.Sobolev 2013, 2017
 //
 #include <ppdrvapi.h>
 
@@ -194,10 +194,9 @@ int PPDrvSession::DefineErrTextTable(uint numEntries, const TextTableEntry * pTa
 	return ok;
 }
 
-int PPDrvSession::SetErrCode(int errCode)
+void PPDrvSession::SetErrCode(int errCode)
 {
 	GetTLA().LastErr = errCode;
-	return 1;
 }
 
 int PPDrvSession::GetLastErr()
@@ -212,12 +211,11 @@ int PPDrvSession::GetErrText(int errCode, SString & rBuf)
 	return ErrText.Get(errCode, rBuf);
 }
 
-int PPDrvSession::SetLogFileName(const char * pFileName)
+void PPDrvSession::SetLogFileName(const char * pFileName)
 {
 	Cs_Log.Enter();
 	(LogFileName = pFileName).Strip();
 	Cs_Log.Leave();
-	return 1;
 }
 
 int PPDrvSession::Log(const char * pMsg, long flags)
@@ -292,8 +290,7 @@ int PPDrvSession::Helper_ProcessCommand(const char * pCmd, const char * pInputDa
 		(output = 0).Cat(r_tla.LastErr);
 	}
 	if((output.Len()+1) > outSize) {
-		if(err == 0)
-			err = 2;
+		SETIFZ(err, 2);
 	}
 	output.CopyTo(pOutputData, outSize);
 	return err;

@@ -2932,10 +2932,10 @@ static const char * UriParseDecOctet(UriIp4Parser*parser, const char * first, co
 				return first+1;
 			case _UT('1'):
 				uriPushToStack(parser, 1);
-				return (const char *)UriParseDecOctetOne(parser, first+1, afterLast);
+				return UriParseDecOctetOne(parser, first+1, afterLast);
 			case _UT('2'):
 				uriPushToStack(parser, 2);
-				return (const char *)UriParseDecOctetTwo(parser, first+1, afterLast);
+				return UriParseDecOctetTwo(parser, first+1, afterLast);
 			case _UT('3'):
 			case _UT('4'):
 			case _UT('5'):
@@ -2944,7 +2944,7 @@ static const char * UriParseDecOctet(UriIp4Parser*parser, const char * first, co
 			case _UT('8'):
 			case _UT('9'):
 				uriPushToStack(parser,(uchar)(9+*first-_UT('9')));
-				return (const char *)UriParseDecOctetThree(parser, first+1, afterLast);
+				return UriParseDecOctetThree(parser, first+1, afterLast);
 			default:
 				return NULL;
 		}
@@ -2971,7 +2971,7 @@ static const char * UriParseDecOctetOne(UriIp4Parser*parser, const char * first,
 			case _UT('8'):
 			case _UT('9'):
 				uriPushToStack(parser,(uchar)(9+*first-_UT('9')));
-				return(const char *)UriParseDecOctetThree(parser, first+1, afterLast);
+				return UriParseDecOctetThree(parser, first+1, afterLast);
 			default:
 				return first;
 		}
@@ -3002,10 +3002,10 @@ static const char * UriParseDecOctetTwo(UriIp4Parser*parser, const char * first,
 			case _UT('3'):
 			case _UT('4'):
 				uriPushToStack(parser,(uchar)(9+*first-_UT('9')));
-				return(const char *)UriParseDecOctetThree(parser, first+1, afterLast);
+				return UriParseDecOctetThree(parser, first+1, afterLast);
 			case _UT('5'):
 				uriPushToStack(parser, 5);
-				return(const char *)UriParseDecOctetFour(parser, first+1, afterLast);
+				return UriParseDecOctetFour(parser, first+1, afterLast);
 			case _UT('6'):
 			case _UT('7'):
 			case _UT('8'):

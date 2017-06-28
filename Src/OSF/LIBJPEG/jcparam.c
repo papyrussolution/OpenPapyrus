@@ -17,9 +17,7 @@
  * Quantization table setup routines
  */
 
-GLOBAL(void) jpeg_add_quant_table(j_compress_ptr cinfo, int which_tbl,
-    const unsigned int * basic_table,
-    int scale_factor, boolean force_baseline)
+GLOBAL(void) jpeg_add_quant_table(j_compress_ptr cinfo, int which_tbl, const uint * basic_table, int scale_factor, boolean force_baseline)
 /* Define a quantization table equal to the basic_table times
  * a scale factor (given as a percentage).
  * If force_baseline is TRUE, the computed quantization table entries
@@ -29,19 +27,14 @@ GLOBAL(void) jpeg_add_quant_table(j_compress_ptr cinfo, int which_tbl,
 	JQUANT_TBL ** qtblptr;
 	int i;
 	long temp;
-
 	/* Safety check to ensure start_compress not called yet. */
 	if(cinfo->global_state != CSTATE_START)
 		ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
-
 	if(which_tbl < 0 || which_tbl >= NUM_QUANT_TBLS)
 		ERREXIT1(cinfo, JERR_DQT_INDEX, which_tbl);
-
 	qtblptr = &cinfo->quant_tbl_ptrs[which_tbl];
-
 	if(*qtblptr == NULL)
 		*qtblptr = jpeg_alloc_quant_table((j_common_ptr)cinfo);
-
 	for(i = 0; i < DCTSIZE2; i++) {
 		temp = ((long)basic_table[i] * scale_factor + 50L) / 100L;
 		/* limit the values to the valid range */
@@ -51,7 +44,6 @@ GLOBAL(void) jpeg_add_quant_table(j_compress_ptr cinfo, int which_tbl,
 			temp = 255L;  /* limit to baseline range if requested */
 		(*qtblptr)->quantval[i] = (UINT16)temp;
 	}
-
 	/* Initialize sent_table FALSE so table will be written to JPEG file. */
 	(*qtblptr)->sent_table = FALSE;
 }
@@ -60,7 +52,7 @@ GLOBAL(void) jpeg_add_quant_table(j_compress_ptr cinfo, int which_tbl,
  * The spec says that the values given produce "good" quality, and
  * when divided by 2, "very good" quality.
  */
-static const unsigned int std_luminance_quant_tbl[DCTSIZE2] = {
+static const uint std_luminance_quant_tbl[DCTSIZE2] = {
 	16,  11,  10,  16,  24,  40,  51,  61,
 	12,  12,  14,  19,  26,  58,  60,  55,
 	14,  13,  16,  24,  40,  57,  69,  56,
@@ -70,7 +62,8 @@ static const unsigned int std_luminance_quant_tbl[DCTSIZE2] = {
 	49,  64,  78,  87, 103, 121, 120, 101,
 	72,  92,  95,  98, 112, 100, 103,  99
 };
-static const unsigned int std_chrominance_quant_tbl[DCTSIZE2] = {
+
+static const uint std_chrominance_quant_tbl[DCTSIZE2] = {
 	17,  18,  24,  47,  99,  99,  99,  99,
 	18,  21,  26,  66,  99,  99,  99,  99,
 	24,  26,  56,  99,  99,  99,  99,  99,
@@ -88,10 +81,8 @@ GLOBAL(void) jpeg_default_qtables(j_compress_ptr cinfo, boolean force_baseline)
  */
 {
 	/* Set up two quantization tables using the specified scaling */
-	jpeg_add_quant_table(cinfo, 0, std_luminance_quant_tbl,
-	    cinfo->q_scale_factor[0], force_baseline);
-	jpeg_add_quant_table(cinfo, 1, std_chrominance_quant_tbl,
-	    cinfo->q_scale_factor[1], force_baseline);
+	jpeg_add_quant_table(cinfo, 0, std_luminance_quant_tbl, cinfo->q_scale_factor[0], force_baseline);
+	jpeg_add_quant_table(cinfo, 1, std_chrominance_quant_tbl, cinfo->q_scale_factor[1], force_baseline);
 }
 
 GLOBAL(void) jpeg_set_linear_quality(j_compress_ptr cinfo, int scale_factor, boolean force_baseline)
@@ -102,10 +93,8 @@ GLOBAL(void) jpeg_set_linear_quality(j_compress_ptr cinfo, int scale_factor, boo
  */
 {
 	/* Set up two quantization tables using the specified scaling */
-	jpeg_add_quant_table(cinfo, 0, std_luminance_quant_tbl,
-	    scale_factor, force_baseline);
-	jpeg_add_quant_table(cinfo, 1, std_chrominance_quant_tbl,
-	    scale_factor, force_baseline);
+	jpeg_add_quant_table(cinfo, 0, std_luminance_quant_tbl, scale_factor, force_baseline);
+	jpeg_add_quant_table(cinfo, 1, std_chrominance_quant_tbl, scale_factor, force_baseline);
 }
 
 GLOBAL(int) jpeg_quality_scaling(int quality)
@@ -117,7 +106,6 @@ GLOBAL(int) jpeg_quality_scaling(int quality)
 	/* Safety limit on quality factor.  Convert 0 to 1 to avoid zero divide. */
 	if(quality <= 0) quality = 1;
 	if(quality > 100) quality = 100;
-
 	/* The basic table is used as-is (scaling 100) for a quality of 50.
 	 * Qualities 50..100 are converted to scaling percentage 200 - 2*Q;
 	 * note that at Q=100 the scaling is 0, which will cause jpeg_add_quant_table
@@ -128,7 +116,6 @@ GLOBAL(int) jpeg_quality_scaling(int quality)
 		quality = 5000 / quality;
 	else
 		quality = 200 - quality*2;
-
 	return quality;
 }
 
@@ -141,7 +128,6 @@ GLOBAL(void) jpeg_set_quality(j_compress_ptr cinfo, int quality, boolean force_b
 {
 	/* Convert user 0-100 rating to percentage scaling */
 	quality = jpeg_quality_scaling(quality);
-
 	/* Set up standard quality tables */
 	jpeg_set_linear_quality(cinfo, quality, force_baseline);
 }
@@ -149,7 +135,7 @@ GLOBAL(void) jpeg_set_quality(j_compress_ptr cinfo, int quality, boolean force_b
 /*
  * Huffman table setup routines
  */
-static void add_huff_table(j_compress_ptr cinfo, JHUFF_TBL **htblptr, const UINT8 *bits, const UINT8 *val)
+static void add_huff_table(j_compress_ptr cinfo, JHUFF_TBL **htblptr, const uint8 *bits, const uint8 *val)
 /* Define a Huffman table */
 {
 	int nsymbols, len;
@@ -166,9 +152,7 @@ static void add_huff_table(j_compress_ptr cinfo, JHUFF_TBL **htblptr, const UINT
 		nsymbols += bits[len];
 	if(nsymbols < 1 || nsymbols > 256)
 		ERREXIT(cinfo, JERR_BAD_HUFF_TABLE);
-
-	MEMCOPY((*htblptr)->huffval, val, nsymbols * SIZEOF(UINT8));
-
+	MEMCOPY((*htblptr)->huffval, val, nsymbols * SIZEOF(uint8));
 	/* Initialize sent_table FALSE so table will be written to JPEG file. */
 	(*htblptr)->sent_table = FALSE;
 }
@@ -177,19 +161,12 @@ static void std_huff_tables(j_compress_ptr cinfo)
 /* Set up the standard Huffman tables (cf. JPEG standard section K.3) */
 /* IMPORTANT: these are only valid for 8-bit data precision! */
 {
-	static const UINT8 bits_dc_luminance[17] =
-	{ /* 0-base */ 0, 0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
-	static const UINT8 val_dc_luminance[] =
-	{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
-
-	static const UINT8 bits_dc_chrominance[17] =
-	{ /* 0-base */ 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 };
-	static const UINT8 val_dc_chrominance[] =
-	{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
-
-	static const UINT8 bits_ac_luminance[17] =
-	{ /* 0-base */ 0, 0, 2, 1, 3, 3, 2, 4, 3, 5, 5, 4, 4, 0, 0, 1, 0x7d };
-	static const UINT8 val_ac_luminance[] =
+	static const uint8 bits_dc_luminance[17] = { /* 0-base */ 0, 0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
+	static const uint8 val_dc_luminance[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+	static const uint8 bits_dc_chrominance[17] = { /* 0-base */ 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 };
+	static const uint8 val_dc_chrominance[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+	static const uint8 bits_ac_luminance[17] = { /* 0-base */ 0, 0, 2, 1, 3, 3, 2, 4, 3, 5, 5, 4, 4, 0, 0, 1, 0x7d };
+	static const uint8 val_ac_luminance[] =
 	{ 0x01, 0x02, 0x03, 0x00, 0x04, 0x11, 0x05, 0x12,
 	  0x21, 0x31, 0x41, 0x06, 0x13, 0x51, 0x61, 0x07,
 	  0x22, 0x71, 0x14, 0x32, 0x81, 0x91, 0xa1, 0x08,
@@ -212,9 +189,9 @@ static void std_huff_tables(j_compress_ptr cinfo)
 	  0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8,
 	  0xf9, 0xfa };
 
-	static const UINT8 bits_ac_chrominance[17] =
+	static const uint8 bits_ac_chrominance[17] =
 	{ /* 0-base */ 0, 0, 2, 1, 2, 4, 4, 3, 4, 7, 5, 4, 4, 0, 1, 2, 0x77 };
-	static const UINT8 val_ac_chrominance[] =
+	static const uint8 val_ac_chrominance[] =
 	{ 0x00, 0x01, 0x02, 0x03, 0x11, 0x04, 0x05, 0x21,
 	  0x31, 0x06, 0x12, 0x41, 0x51, 0x07, 0x61, 0x71,
 	  0x13, 0x22, 0x32, 0x81, 0x08, 0x14, 0x42, 0x91,

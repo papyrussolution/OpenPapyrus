@@ -461,7 +461,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 						newtbl.GetLobField(newtbl.GetLobCount()-1, &lob_fld);
 					else
 						lob_fld.id = 0;
-					pParam->callbackProc(BREV_START, (long)(const char *)path, (long)(const char *)dest);
+					pParam->callbackProc(BREV_START, (long)path.cptr(), (long)dest.cptr());
 					if(tbl.step(sp_first) || BtrError == BE_VLRPAGE)
 						do {
 							RECORDSIZE retBufLen = tbl.getRetBufLen();
@@ -473,8 +473,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 							else
 								newtbl.setDataBuf(tbl.getDataBuf(), retBufLen);
 							if(newtbl.insertRec()) {
-								if(!pParam->callbackProc(BREV_PROGRESS, ++pParam->ActNumRecs, pParam->OrgNumRecs,
-									(void *)(const char *)path)) {
+								if(!pParam->callbackProc(BREV_PROGRESS, ++pParam->ActNumRecs, pParam->OrgNumRecs, (void *)path.cptr())) {
 									ok = -1;
 									break;
 								}
@@ -495,7 +494,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 					}
 				}
 				else {
-					pParam->callbackProc(BREV_ERRCREATE, (long)(const char *)dest);
+					pParam->callbackProc(BREV_ERRCREATE, (long)dest.cptr());
 					ok = 0;
 				}
 			}
@@ -516,7 +515,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 			for(tpe.Init(path); ok && tpe.Next(spart, &first) > 0;) {
 				SPathStruc::ReplacePath(temp_buf = spart, pParam->P_BakPath, 1);
 				if(!SFile::Rename(spart, temp_buf)) {
-					pParam->callbackProc(BREV_ERRRENAME, (long)(const char *)dest);
+					pParam->callbackProc(BREV_ERRRENAME, (long)dest.cptr());
 					ok = 0;
 				}
 			}

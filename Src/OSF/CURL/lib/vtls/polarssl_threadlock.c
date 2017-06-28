@@ -30,9 +30,9 @@
 #    include <pthread.h>
 #  endif
 #elif defined(USE_THREADS_WIN32)
-#  ifdef HAVE_PROCESS_H
-#    include <process.h>
-#  endif
+	//#ifdef HAVE_PROCESS_H
+	//	#include <process.h>
+	//#endif
 #endif
 
 #include "polarssl_threadlock.h"

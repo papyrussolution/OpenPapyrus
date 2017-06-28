@@ -1928,7 +1928,7 @@ size_t FASTCALL sisascii(const char * pS, size_t len)
 		size_t p = 0;
 		const int8 * _ = (const int8 *)pS;
 		for(uint i = 0; yes && i < oct_count; i++) {
-			yes = (((_[p+0] | _[p+1] | _[p+2] | _[p+3] | _[p+4] | _[p+5] | _[p+6] | _[p+7]) & 0x80) == 0);
+			yes = (((_[p] | _[p+1] | _[p+2] | _[p+3] | _[p+4] | _[p+5] | _[p+6] | _[p+7]) & 0x80) == 0);
 			p += 8;
 		}
 		while(yes && p < len) {

@@ -68,7 +68,7 @@ typedef struct _tga_source_struct {
 
 /* For expanding 5-bit pixel values to 8-bit with best rounding */
 
-static const UINT8 c5to8bits[32] = {
+static const uint8 c5to8bits[32] = {
 	0,   8,  16,  25,  33,  41,  49,  58,
 	66,  74,  82,  90,  99, 107, 115, 123,
 	132, 140, 148, 156, 165, 173, 181, 189,

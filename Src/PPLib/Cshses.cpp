@@ -229,7 +229,7 @@ int SLAPI PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDA
 			CCheckCore::MakeCodeString(&CC.data, cc_text_buf);
 			// PPTXT_DUPNEWCCHECKCODEZAMT        "В существующей временной кассовой сессии обнаружен чек-дублер принимаемого чека с нулевой суммой (%s)"
 			PPLoadText(PPTXT_DUPNEWCCHECKCODEZAMT, fmt_buf);
-			msg_buf.Printf(fmt_buf, (const char *)cc_text_buf);
+			msg_buf.Printf(fmt_buf, cc_text_buf.cptr());
 			PPLogMessage(PPFILNAM_ACS_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 
 			temp_replace_id = CC.data.ID;
@@ -261,7 +261,7 @@ int SLAPI PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDA
 				time_buf.Cat(*pDT, DATF_DMY, TIMF_HMS|TIMF_MSEC);
 				// PPTXT_DUPNEWCCHECKCODE            "В существующей кассовой сессии обнаружен чек-дублер '%s' принимаемого, время нового чека = '%s'"
 				PPLoadText(PPTXT_DUPNEWCCHECKCODE, fmt_buf);
-				msg_buf.Printf(fmt_buf, (const char *)cc_text_buf, (const char *)time_buf);
+				msg_buf.Printf(fmt_buf, cc_text_buf.cptr(), time_buf.cptr());
 				PPLogMessage(PPFILNAM_ACS_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 
 				temp_replace_id = CC.data.ID;
@@ -880,7 +880,7 @@ int SLAPI PPAsyncCashSession::LogExportingGoodsItem(const AsyncCashGoodsInfo * p
 			Cat(pInfo->Name).CatDiv('-', 1).Cat(pInfo->Price, SFMT_MONEY);
 	else
 		added_info.Space();
-	msg_buf.Printf(LogFmt_ExpGoods, (const char *)added_info);
+	msg_buf.Printf(LogFmt_ExpGoods, added_info.cptr());
 	PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 	return ok;
 }

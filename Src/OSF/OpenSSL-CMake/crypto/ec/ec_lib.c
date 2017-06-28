@@ -536,10 +536,8 @@ int EC_GROUP_cmp(const EC_GROUP * a, const EC_GROUP * b, BN_CTX * ctx)
 		if(BN_cmp(ao, bo) || BN_cmp(ac, bc))
 			r = 1;
 	}
-
 	BN_CTX_end(ctx);
 	BN_CTX_free(ctx_new);
-
 	return r;
 }
 
@@ -548,7 +546,6 @@ int EC_GROUP_cmp(const EC_GROUP * a, const EC_GROUP * b, BN_CTX * ctx)
 EC_POINT * EC_POINT_new(const EC_GROUP * group)
 {
 	EC_POINT * ret;
-
 	if(group == NULL) {
 		ECerr(EC_F_EC_POINT_NEW, ERR_R_PASSED_NULL_PARAMETER);
 		return NULL;

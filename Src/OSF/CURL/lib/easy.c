@@ -41,9 +41,6 @@
 #ifdef HAVE_NET_IF_H
 	#include <net/if.h>
 #endif
-#ifdef HAVE_SYS_IOCTL_H
-	#include <sys/ioctl.h>
-#endif
 #ifdef HAVE_SYS_PARAM_H
 	#include <sys/param.h>
 #endif
@@ -53,20 +50,20 @@
 #include "vtls/vtls.h"
 //#include "url.h"
 //#include "getinfo.h"
-#include "hostip.h"
+//#include "hostip.h"
 #include "share.h"
 //#include "strdup.h"
 //#include "progress.h"
 #include "easyif.h"
 //#include "select.h"
 //#include "sendf.h" /* for failf function prototype */
-#include "connect.h" /* for Curl_getconnectinfo */
+//#include "connect.h" /* for Curl_getconnectinfo */
 //#include "slist.h"
 #include "amigaos.h"
 //#include "non-ascii.h"
 #include "warnless.h"
-#include "conncache.h"
-#include "multiif.h"
+//#include "conncache.h"
+//#include "multiif.h"
 #include "sigpipe.h"
 #include "ssh.h"
 // The last 3 #include files should be in this order 

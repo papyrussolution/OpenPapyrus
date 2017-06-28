@@ -75,9 +75,6 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-#ifdef HAVE_LIMITS_H
-	#include <limits.h>
-#endif
 //#include <curl/curl.h>
 //#include "strcase.h"
 #include "warnless.h"

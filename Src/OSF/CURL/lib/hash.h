@@ -22,8 +22,8 @@
 *
 ***************************************************************************/
 
-#include "curl_setup.h"
-#include <stddef.h>
+//#include "curl_setup.h"
+//#include <stddef.h>
 //#include "llist.h"
 
 /* Hash function prototype */
@@ -55,12 +55,7 @@ struct curl_hash_iterator {
 	struct curl_llist_element * current_element;
 };
 
-int Curl_hash_init(struct curl_hash * h,
-    int slots,
-    hash_function hfunc,
-    comp_function comparator,
-    curl_hash_dtor dtor);
-
+int Curl_hash_init(struct curl_hash * h, int slots, hash_function hfunc, comp_function comparator, curl_hash_dtor dtor);
 void * Curl_hash_add(struct curl_hash * h, void * key, size_t key_len, void * p);
 int Curl_hash_delete(struct curl_hash * h, void * key, size_t key_len);
 void * Curl_hash_pick(struct curl_hash *, void * key, size_t key_len);

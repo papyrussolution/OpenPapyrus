@@ -2968,37 +2968,29 @@ int ssl_parse_serverhello_tlsext(SSL * s, PACKET * pkt)
  *   For extended master secret flag is set if the extension is present.
  *
  */
-int tls_check_serverhello_tlsext_early(SSL * s, const PACKET * ext,
-    const PACKET * session_id,
-    SSL_SESSION ** ret)
+int tls_check_serverhello_tlsext_early(SSL * s, const PACKET * ext, const PACKET * session_id, SSL_SESSION ** ret)
 {
 	unsigned int i;
 	PACKET local_ext = *ext;
 	int retv = -1;
-
 	int have_ticket = 0;
 	int use_ticket = tls_use_ticket(s);
-
 	*ret = NULL;
 	s->tlsext_ticket_expected = 0;
 	s->s3->flags &= ~TLS1_FLAGS_RECEIVED_EXTMS;
-
 	/*
 	 * If tickets disabled behave as if no ticket present to permit stateful
 	 * resumption.
 	 */
 	if((s->version <= SSL3_VERSION))
 		return 0;
-
 	if(!PACKET_get_net_2(&local_ext, &i)) {
 		retv = 0;
 		goto end;
 	}
 	while(PACKET_remaining(&local_ext) >= 4) {
 		unsigned int type, size;
-
-		if(!PACKET_get_net_2(&local_ext, &type)
-		    || !PACKET_get_net_2(&local_ext, &size)) {
+		if(!PACKET_get_net_2(&local_ext, &type) || !PACKET_get_net_2(&local_ext, &size)) {
 			/* Shouldn't ever happen */
 			retv = -1;
 			goto end;
@@ -4117,24 +4109,23 @@ DH * ssl_get_auto_dh(SSL * s)
 		CERT_PKEY * cpk = ssl_get_server_send_pkey(s);
 		dh_secbits = EVP_PKEY_security_bits(cpk->privatekey);
 	}
-
 	if(dh_secbits >= 128) {
 		DH * dhp = DH_new();
-		BIGNUM * p, * g;
-		if(dhp == NULL)
-			return NULL;
-		g = BN_new();
-		if(g != NULL)
-			BN_set_word(g, 2);
-		if(dh_secbits >= 192)
-			p = BN_get_rfc3526_prime_8192(NULL);
-		else
-			p = BN_get_rfc3526_prime_3072(NULL);
-		if(p == NULL || g == NULL || !DH_set0_pqg(dhp, p, NULL, g)) {
-			DH_free(dhp);
-			BN_free(p);
-			BN_free(g);
-			return NULL;
+		BIGNUM * p;
+		if(dhp) {
+			BIGNUM * g = BN_new();
+			if(g != NULL)
+				BN_set_word(g, 2);
+			if(dh_secbits >= 192)
+				p = BN_get_rfc3526_prime_8192(NULL);
+			else
+				p = BN_get_rfc3526_prime_3072(NULL);
+			if(p == NULL || g == NULL || !DH_set0_pqg(dhp, p, NULL, g)) {
+				DH_free(dhp);
+				BN_free(p);
+				BN_free(g);
+				return NULL;
+			}
 		}
 		return dhp;
 	}
@@ -4199,13 +4190,11 @@ int ssl_security_cert(SSL * s, SSL_CTX * ctx, X509 * x, int vfy, int is_ee)
 		return SSL_R_CA_MD_TOO_WEAK;
 	return 1;
 }
-
 /*
  * Check security of a chain, if sk includes the end entity certificate then
  * x is NULL. If vfy is 1 then we are verifying a peer chain and not sending
  * one to the peer. Return values: 1 if ok otherwise error code to use
  */
-
 int ssl_security_cert_chain(SSL * s, STACK_OF(X509) * sk, X509 * x, int vfy)
 {
 	int rv, start_idx, i;

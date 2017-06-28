@@ -29,7 +29,7 @@
 
 #define BUILDING_CURL_SMB_C
 #ifdef HAVE_PROCESS_H
-	#include <process.h>
+	//#include <process.h>
 	#ifdef CURL_WINDOWS_APP
 		#define getpid GetCurrentProcessId
 	#else
@@ -39,8 +39,8 @@
 //#include "smb.h"
 //#include "urldata.h"
 //#include "sendf.h"
-#include "multiif.h"
-#include "connect.h"
+//#include "multiif.h"
+//#include "connect.h"
 //#include "progress.h"
 //#include "transfer.h"
 #include "vtls/vtls.h"

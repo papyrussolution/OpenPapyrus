@@ -414,11 +414,11 @@ LOCAL(boolean) get_dac(j_decompress_ptr cinfo)
 			ERREXIT1(cinfo, JERR_DAC_INDEX, index);
 
 		if(index >= NUM_ARITH_TBLS) { /* define AC table */
-			cinfo->arith_ac_K[index-NUM_ARITH_TBLS] = (UINT8)val;
+			cinfo->arith_ac_K[index-NUM_ARITH_TBLS] = (uint8)val;
 		}
 		else {          /* define DC table */
-			cinfo->arith_dc_L[index] = (UINT8)(val & 0x0F);
-			cinfo->arith_dc_U[index] = (UINT8)(val >> 4);
+			cinfo->arith_dc_L[index] = (uint8)(val & 0x0F);
+			cinfo->arith_dc_U[index] = (uint8)(val >> 4);
 			if(cinfo->arith_dc_L[index] > cinfo->arith_dc_U[index])
 				ERREXIT1(cinfo, JERR_DAC_VALUE, val);
 		}
@@ -441,8 +441,8 @@ LOCAL(boolean) get_dht(j_decompress_ptr cinfo)
 /* Process a DHT marker */
 {
 	INT32 length;
-	UINT8 bits[17];
-	UINT8 huffval[256];
+	uint8 bits[17];
+	uint8 huffval[256];
 	int i, index, count;
 	JHUFF_TBL ** htblptr;
 	INPUT_VARS(cinfo);
@@ -790,7 +790,7 @@ static void examine_app14(j_decompress_ptr cinfo, JOCTET FAR * data, unsigned in
 		transform = GETJOCTET(data[11]);
 		TRACEMS4(cinfo, 1, JTRC_ADOBE, version, flags0, flags1, transform);
 		cinfo->saw_Adobe_marker = TRUE;
-		cinfo->Adobe_transform = (UINT8)transform;
+		cinfo->Adobe_transform = (uint8)transform;
 	}
 	else {
 		/* Start of APP14 does not match "Adobe", or too short */
@@ -873,7 +873,7 @@ METHODDEF(boolean) save_marker(j_decompress_ptr cinfo)
 			    SIZEOF(struct jpeg_marker_struct) + limit);
 
 			cur_marker->next = NULL;
-			cur_marker->marker = (UINT8)cinfo->unread_marker;
+			cur_marker->marker = (uint8)cinfo->unread_marker;
 			cur_marker->original_length = (unsigned int)length;
 			cur_marker->data_length = limit;
 			/* data area is just beyond the jpeg_marker_struct */

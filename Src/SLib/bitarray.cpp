@@ -42,7 +42,7 @@ int FASTCALL BitArray::Copy(const BitArray & s)
 		return 1;
 	}
 	else
-		return (SLibError = SLERR_NOMEM, 0);
+		return 0;
 }
 
 int SLAPI BitArray::Init(const void * pBits, size_t count)

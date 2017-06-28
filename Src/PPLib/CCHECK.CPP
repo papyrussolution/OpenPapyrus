@@ -1755,12 +1755,12 @@ int CCheckCore::ValidateCheck(PPID id, double tolerance, PPLogger & rLogger)
 		double rec_dscnt = MONEYTOLDBL(cc_pack.Rec.Discount);
 		if(fabs(amt - rec_amt) > tolerance) {
 			// #error —умма чека не совпадает с суммой по строкам
-			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVAMOUNT, fmt_buf), (const char *)chk_text, rec_amt - amt));
+			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVAMOUNT, fmt_buf), chk_text.cptr(), rec_amt - amt));
 			ok = 0;
 		}
 		if(fabs(dscnt - rec_dscnt) > tolerance) {
 			// #error —умма скидки чека не совпадает с суммой скидки по строкам
-			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVDSCNT, fmt_buf), (const char *)chk_text, rec_dscnt - dscnt));
+			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVDSCNT, fmt_buf), chk_text.cptr(), rec_dscnt - dscnt));
 			ok = 0;
 		}
 		{
@@ -1769,14 +1769,14 @@ int CCheckCore::ValidateCheck(PPID id, double tolerance, PPLogger & rLogger)
 			for(uint i = 0; i < r_al.getCount(); i++) {
 				const CcAmountEntry & r_al_entry = r_al.at(i);
 				if((amt_sign < 0 && r_al_entry.Amount > 0.0) || (amt_sign > 0 && r_al_entry.Amount < 0.0)) {
-					rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVALENTRYSIGN, fmt_buf), (const char *)chk_text, r_al_entry.Amount));
+					rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVALENTRYSIGN, fmt_buf), chk_text.cptr(), r_al_entry.Amount));
 					ok = 0;
 				}
 			}
 		}
 		if(cc_pack.Rec.SCardID && Cards.Search(cc_pack.Rec.SCardID, 0) <= 0) {
 			// #error ¬ис€ча€ ссылка на карту в чеке
-			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVSCARDID, fmt_buf), (const char *)chk_text));
+			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVSCARDID, fmt_buf), chk_text.cptr()));
 			ok = 0;
 		}
 		{
@@ -1793,7 +1793,7 @@ int CCheckCore::ValidateCheck(PPID id, double tolerance, PPLogger & rLogger)
 							code_buf.CatDiv(',', 2);
 						code_buf.Cat(data.CashID).CatChar('-').Cat(i);
 					}
-					rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_CODEGAP, fmt_buf), (const char *)code_buf));
+					rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_CODEGAP, fmt_buf), code_buf.cptr()));
 				}
 			}
 		}
@@ -2083,7 +2083,7 @@ int SLAPI CCheckCore::LoadPacket(PPID id, long flags, CCheckPacket * pPack)
 			if(r < 0) {
 				SString fmt_buf, msg_buf, cchk_code;
 				CCheckCore::MakeCodeString(&pPack->Rec, cchk_code);
-				msg_buf.Printf(PPLoadTextS(PPTXT_LOG_CCHKEXTNFOUND, fmt_buf), (const char *)cchk_code);
+				msg_buf.Printf(PPLoadTextS(PPTXT_LOG_CCHKEXTNFOUND, fmt_buf), cchk_code.cptr());
 				PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 			}
 		}
@@ -3759,7 +3759,7 @@ int SLAPI CCheckCore::RemoveZeroLinkLines(int use_ta)
 			const PPID rmv_cc_id = rmv_id_list.get(i);
 			THROW_DB(deleteFrom(&Lines, 0, Lines.CheckID == rmv_cc_id));
 			(id_msg = 0).CatEq("ID", rmv_cc_id);
-			msg_buf.Printf(msg_templ, (const char *)id_msg);
+			msg_buf.Printf(msg_templ, id_msg.cptr());
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
 		}
 		THROW(tra.Commit());
@@ -5467,7 +5467,7 @@ int SLAPI CCheckCore::RecognizeOrdBarcode(const char * pCode, PPID * pOrdCheckID
 	if(!isempty(pCode)) {
 		SString temp_buf = pCode;
 		if(temp_buf.CmpPrefix("CTO", 1) == 0)
-			cc_id = atol(((const char *)temp_buf)+3);
+			cc_id = atol(temp_buf.cptr()+3);
 	}
 	ASSIGN_PTR(pOrdCheckID, cc_id);
 	return BIN(cc_id);

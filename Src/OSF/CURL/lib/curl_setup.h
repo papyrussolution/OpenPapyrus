@@ -23,7 +23,6 @@
  ***************************************************************************/
 
 #include <slib.h> // @sobolev
-
 /*
  * Define WIN32 when build target is Win32 API
  */
@@ -669,28 +668,58 @@
 
 // @sobolev {
 #define BUILDING_CURL_SMB_C
+#ifdef HAVE_SETJMP_H
+	#include <setjmp.h>
+#endif
+#ifdef HAVE_LIMITS_H
+	#include <limits.h>
+#endif
+#ifdef HAVE_SYS_IOCTL_H
+	#include <sys/ioctl.h>
+#endif
+#ifdef HAVE_FCNTL_H
+	#include <fcntl.h>
+#endif
+#ifdef HAVE_SIGNAL_H
+	#include <signal.h>
+#endif
+#ifdef HAVE_PROCESS_H
+	#include <process.h>
+#endif
+#include <stddef.h>
+
 #include "llist.h"
 #include "wildcard.h"
 #include "strtok.h"
 #include "strcase.h"
 #include "strerror.h"
+#include "curl_addrinfo.h"
+#include "curl_gethostname.h"
 #include "smb.h"
-#include "urldata.h"
 #include "fileinfo.h"
 #include "getinfo.h"
-#include "curl_gethostname.h"
 #include "transfer.h"
 #include "sendf.h"
 #include "non-ascii.h"
 #include "escape.h"
+#include "file.h"
 #include "strtoofft.h"
 #include "select.h"
 #include "url.h"
 #include "progress.h"
+#include "multiif.h"
 #include "socks.h"
-#include "timeval.h"   
+#include "timeval.h"  
+#include "connect.h"
 #include "slist.h"
 #include "strdup.h"
+#include "asyn.h"
+#include "hostip.h"
+#include "hash.h"
+#include "conncache.h"
+#include "multihandle.h"
+#include "urldata.h"
+#include "dict.h"
 #include "curl_base64.h"
 #include "curl_memory.h"
 // } @sobolev 

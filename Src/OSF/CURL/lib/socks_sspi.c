@@ -27,7 +27,7 @@
 
 //#include "urldata.h"
 //#include "sendf.h"
-#include "connect.h"
+//#include "connect.h"
 //#include "strerror.h"
 //#include "timeval.h"
 //#include "socks.h"

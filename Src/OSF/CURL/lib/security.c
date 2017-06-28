@@ -49,9 +49,6 @@
 #ifdef HAVE_NETDB_H
 	#include <netdb.h>
 #endif
-#ifdef HAVE_LIMITS_H
-	#include <limits.h>
-#endif
 //#include "urldata.h"
 //#include "curl_base64.h"
 //#include "curl_memory.h"

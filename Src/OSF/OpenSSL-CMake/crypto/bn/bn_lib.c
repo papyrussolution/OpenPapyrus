@@ -451,7 +451,7 @@ void BN_clear(BIGNUM * a)
 	a->neg = 0;
 }
 
-BN_ULONG BN_get_word(const BIGNUM * a)
+BN_ULONG FASTCALL BN_get_word(const BIGNUM * a)
 {
 	if(a->top > 1)
 		return BN_MASK2;
@@ -461,7 +461,7 @@ BN_ULONG BN_get_word(const BIGNUM * a)
 	return 0;
 }
 
-int BN_set_word(BIGNUM * a, BN_ULONG w)
+int FASTCALL BN_set_word(BIGNUM * a, BN_ULONG w)
 {
 	bn_check_top(a);
 	if(bn_expand(a, (int)sizeof(BN_ULONG) * 8) == NULL)
@@ -479,7 +479,6 @@ BIGNUM * BN_bin2bn(const uchar * s, int len, BIGNUM * ret)
 	uint n;
 	BN_ULONG l;
 	BIGNUM * bn = NULL;
-
 	if(ret == NULL)
 		ret = bn = BN_new();
 	if(ret == NULL)
@@ -523,7 +522,6 @@ static int bn2binpad(const BIGNUM * a, uchar * to, int tolen)
 {
 	int i;
 	BN_ULONG l;
-
 	bn_check_top(a);
 	i = BN_num_bytes(a);
 	if(tolen == -1)
@@ -560,7 +558,6 @@ BIGNUM * BN_lebin2bn(const uchar * s, int len, BIGNUM * ret)
 	uint n;
 	BN_ULONG l;
 	BIGNUM * bn = NULL;
-
 	if(ret == NULL)
 		ret = bn = BN_new();
 	if(ret == NULL)
@@ -625,10 +622,8 @@ int BN_ucmp(const BIGNUM * a, const BIGNUM * b)
 {
 	int i;
 	BN_ULONG t1, t2, * ap, * bp;
-
 	bn_check_top(a);
 	bn_check_top(b);
-
 	i = a->top - b->top;
 	if(i != 0)
 		return (i);
@@ -648,7 +643,6 @@ int BN_cmp(const BIGNUM * a, const BIGNUM * b)
 	int i;
 	int gt, lt;
 	BN_ULONG t1, t2;
-
 	if((a == NULL) || (b == NULL)) {
 		if(a != NULL)
 			return (-1);
@@ -919,12 +913,12 @@ int BN_abs_is_word(const BIGNUM * a, const BN_ULONG w)
 	return ((a->top == 1) && (a->d[0] == w)) || ((w == 0) && (a->top == 0));
 }
 
-int BN_is_zero(const BIGNUM * a)
+int FASTCALL BN_is_zero(const BIGNUM * a)
 {
 	return a->top == 0;
 }
 
-int BN_is_one(const BIGNUM * a)
+int FASTCALL BN_is_one(const BIGNUM * a)
 {
 	return BN_abs_is_word(a, 1) && !a->neg;
 }
@@ -939,7 +933,7 @@ int BN_is_odd(const BIGNUM * a)
 	return (a->top > 0) && (a->d[0] & 1);
 }
 
-int BN_is_negative(const BIGNUM * a)
+int FASTCALL BN_is_negative(const BIGNUM * a)
 {
 	return (a->neg != 0);
 }

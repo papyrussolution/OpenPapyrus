@@ -84,45 +84,37 @@ struct bignum_ctx {
 
 /* Enable this to find BN_CTX bugs */
 #ifdef BN_CTX_DEBUG
-static const char * ctxdbg_cur = NULL;
-static void ctxdbg(BN_CTX * ctx)
-{
-	uint bnidx = 0, fpidx = 0;
-	BN_POOL_ITEM * item = ctx->pool.head;
-	BN_STACK * stack = &ctx->stack;
-	fprintf(stderr, "(%16p): ", ctx);
-	while(bnidx < ctx->used) {
-		fprintf(stderr, "%03x ", item->vals[bnidx++ % BN_CTX_POOL_SIZE].dmax);
-		if(!(bnidx % BN_CTX_POOL_SIZE))
-			item = item->next;
+	static const char * ctxdbg_cur = NULL;
+	static void ctxdbg(BN_CTX * ctx)
+	{
+		uint bnidx = 0, fpidx = 0;
+		BN_POOL_ITEM * item = ctx->pool.head;
+		BN_STACK * stack = &ctx->stack;
+		fprintf(stderr, "(%16p): ", ctx);
+		while(bnidx < ctx->used) {
+			fprintf(stderr, "%03x ", item->vals[bnidx++ % BN_CTX_POOL_SIZE].dmax);
+			if(!(bnidx % BN_CTX_POOL_SIZE))
+				item = item->next;
+		}
+		fprintf(stderr, "\n");
+		bnidx = 0;
+		fprintf(stderr, "          : ");
+		while(fpidx < stack->depth) {
+			while(bnidx++ < stack->indexes[fpidx])
+				fprintf(stderr, "    ");
+			fprintf(stderr, "^^^ ");
+			bnidx++;
+			fpidx++;
+		}
+		fprintf(stderr, "\n");
 	}
-	fprintf(stderr, "\n");
-	bnidx = 0;
-	fprintf(stderr, "          : ");
-	while(fpidx < stack->depth) {
-		while(bnidx++ < stack->indexes[fpidx])
-			fprintf(stderr, "    ");
-		fprintf(stderr, "^^^ ");
-		bnidx++;
-		fpidx++;
-	}
-	fprintf(stderr, "\n");
-}
-
-# define CTXDBG_ENTRY(str, ctx)  do { \
-		ctxdbg_cur = (str); \
-		fprintf(stderr, "Starting %s\n", ctxdbg_cur); \
-		ctxdbg(ctx); \
-} while(0)
-# define CTXDBG_EXIT(ctx)        do { \
-		fprintf(stderr, "Ending %s\n", ctxdbg_cur); \
-		ctxdbg(ctx); \
-} while(0)
-# define CTXDBG_RET(ctx, ret)
+	#define CTXDBG_ENTRY(str, ctx)  do { ctxdbg_cur = (str); fprintf(stderr, "Starting %s\n", ctxdbg_cur); ctxdbg(ctx); } while(0)
+	#define CTXDBG_EXIT(ctx)    do { fprintf(stderr, "Ending %s\n", ctxdbg_cur); ctxdbg(ctx); } while(0)
+	#define CTXDBG_RET(ctx, ret)
 #else
-# define CTXDBG_ENTRY(str, ctx)
-# define CTXDBG_EXIT(ctx)
-# define CTXDBG_RET(ctx, ret)
+	#define CTXDBG_ENTRY(str, ctx)
+	#define CTXDBG_EXIT(ctx)
+	#define CTXDBG_RET(ctx, ret)
 #endif
 
 BN_CTX * BN_CTX_new(void)
@@ -148,25 +140,25 @@ BN_CTX * BN_CTX_secure_new(void)
 
 void FASTCALL BN_CTX_free(BN_CTX * ctx)
 {
-	if(ctx == NULL)
-		return;
+	if(ctx) {
 #ifdef BN_CTX_DEBUG
-	{
-		BN_POOL_ITEM * pool = ctx->pool.head;
-		fprintf(stderr, "BN_CTX_free, stack-size=%d, pool-bignums=%d\n", ctx->stack.size, ctx->pool.size);
-		fprintf(stderr, "dmaxs: ");
-		while(pool) {
-			unsigned loop = 0;
-			while(loop < BN_CTX_POOL_SIZE)
-				fprintf(stderr, "%02x ", pool->vals[loop++].dmax);
-			pool = pool->next;
+		{
+			BN_POOL_ITEM * pool = ctx->pool.head;
+			fprintf(stderr, "BN_CTX_free, stack-size=%d, pool-bignums=%d\n", ctx->stack.size, ctx->pool.size);
+			fprintf(stderr, "dmaxs: ");
+			while(pool) {
+				unsigned loop = 0;
+				while(loop < BN_CTX_POOL_SIZE)
+					fprintf(stderr, "%02x ", pool->vals[loop++].dmax);
+				pool = pool->next;
+			}
+			fprintf(stderr, "\n");
 		}
-		fprintf(stderr, "\n");
-	}
 #endif
-	BN_STACK_finish(&ctx->stack);
-	BN_POOL_finish(&ctx->pool);
-	OPENSSL_free(ctx);
+		BN_STACK_finish(&ctx->stack);
+		BN_POOL_finish(&ctx->pool);
+		OPENSSL_free(ctx);
+	}
 }
 
 void FASTCALL BN_CTX_start(BN_CTX * ctx)
@@ -185,19 +177,21 @@ void FASTCALL BN_CTX_start(BN_CTX * ctx)
 
 void FASTCALL BN_CTX_end(BN_CTX * ctx)
 {
-	CTXDBG_ENTRY("BN_CTX_end", ctx);
-	if(ctx->err_stack)
-		ctx->err_stack--;
-	else {
-		uint fp = BN_STACK_pop(&ctx->stack);
-		// Does this stack frame have anything to release? 
-		if(fp < ctx->used)
-			BN_POOL_release(&ctx->pool, ctx->used - fp);
-		ctx->used = fp;
-		// Unjam "too_many" in case "get" had failed 
-		ctx->too_many = 0;
+	if(ctx) { // @sobolev
+		CTXDBG_ENTRY("BN_CTX_end", ctx);
+		if(ctx->err_stack)
+			ctx->err_stack--;
+		else {
+			uint fp = BN_STACK_pop(&ctx->stack);
+			// Does this stack frame have anything to release? 
+			if(fp < ctx->used)
+				BN_POOL_release(&ctx->pool, ctx->used - fp);
+			ctx->used = fp;
+			// Unjam "too_many" in case "get" had failed 
+			ctx->too_many = 0;
+		}
+		CTXDBG_EXIT(ctx);
 	}
-	CTXDBG_EXIT(ctx);
 }
 
 BIGNUM * FASTCALL BN_CTX_get(BN_CTX * ctx)
@@ -205,18 +199,20 @@ BIGNUM * FASTCALL BN_CTX_get(BN_CTX * ctx)
 	BIGNUM * ret = 0;
 	CTXDBG_ENTRY("BN_CTX_get", ctx);
 	if(!ctx->err_stack && !ctx->too_many) {
-		if((ret = BN_POOL_get(&ctx->pool, ctx->flags)) == NULL) {
+		ret = BN_POOL_get(&ctx->pool, ctx->flags);
+		if(!ret) {
 			//
 			// Setting too_many prevents repeated "get" attempts from cluttering the error stack.
 			//
 			ctx->too_many = 1;
 			BNerr(BN_F_BN_CTX_GET, BN_R_TOO_MANY_TEMPORARY_VARIABLES);
-			return NULL;
 		}
-		// OK, make sure the returned bignum is "zero" 
-		BN_zero(ret);
-		ctx->used++;
-		CTXDBG_RET(ctx, ret);
+		else {
+			// OK, make sure the returned bignum is "zero" 
+			BN_zero(ret);
+			ctx->used++;
+			CTXDBG_RET(ctx, ret);
+		}
 	}
 	return ret;
 }

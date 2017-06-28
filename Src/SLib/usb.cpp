@@ -285,8 +285,7 @@ int FASTCALL SUsbDvcIfcData::Get(void * pHandle, SP_DEVICE_INTERFACE_DATA * pDvc
 	devinfo_data.cbSize = sizeof(SP_DEVINFO_DATA);
 	int    ret = SetupDiGetDeviceInterfaceDetail(pHandle, pDvcIfcData, p_dev_ifc_detail, ret_size, &ret_size, &devinfo_data);
 	if(!ret && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-		p_dev_ifc_detail = (SP_DEVICE_INTERFACE_DETAIL_DATA *)SAlloc::M(ret_size);
-		THROW_S(p_dev_ifc_detail, SLERR_NOMEM);
+		THROW(p_dev_ifc_detail = (SP_DEVICE_INTERFACE_DETAIL_DATA *)SAlloc::M(ret_size));
 		allocated_size = ret_size;
 		memzero(p_dev_ifc_detail, ret_size);
 		p_dev_ifc_detail->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA);
@@ -295,7 +294,7 @@ int FASTCALL SUsbDvcIfcData::Get(void * pHandle, SP_DEVICE_INTERFACE_DATA * pDvc
 		ret = SetupDiGetDeviceInterfaceDetail(pHandle, pDvcIfcData, p_dev_ifc_detail, ret_size, &ret_size, &devinfo_data);
 	}
 	THROW_S(ret, SLERR_WINDOWS);
-	THROW_S(P_DvcInfo = SAlloc::M(sizeof(devinfo_data)), SLERR_NOMEM);
+	THROW(P_DvcInfo = SAlloc::M(sizeof(devinfo_data)));
 	memcpy(P_DvcInfo, &devinfo_data, sizeof(devinfo_data));
 	ClsGuid.Init(devinfo_data.ClassGuid);
 	DevInst = devinfo_data.DevInst;
@@ -330,13 +329,10 @@ int SUsbDvcIfcData::GetPropString(void * pHandle, int prop, SString & rBuf)
 	THROW_S(pHandle != INVALID_HANDLE_VALUE, SLERR_USB);
 	int    ret = SetupDiGetDeviceRegistryProperty(pHandle, (SP_DEVINFO_DATA *)P_DvcInfo, (DWORD)prop, &prop_type, p_data, size, &size);
 	if(!ret && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-		p_data = (uint8 *)SAlloc::M(size);
-		THROW_S(p_data, SLERR_NOMEM);
+		THROW(p_data = (uint8 *)SAlloc::M(size));
 		allocated_size = size;
-
 		//MEMSZERO(dev_info);
 		//dev_info.cbSize = sizeof(dev_info);
-
 		ret = SetupDiGetDeviceRegistryProperty(pHandle, (SP_DEVINFO_DATA *)P_DvcInfo, (DWORD)prop, &prop_type, p_data, size, &size);
 	}
 	THROW(ret);

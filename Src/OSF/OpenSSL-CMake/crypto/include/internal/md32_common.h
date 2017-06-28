@@ -135,107 +135,68 @@
 #  endif
 # endif
 #endif                          /* PEDANTIC */
-
 #ifndef ROTATE
-# define ROTATE(a, n)     (((a)<<(n))|(((a)&0xffffffff)>>(32-(n))))
+	#define ROTATE(a, n)     (((a)<<(n))|(((a)&0xffffffff)>>(32-(n))))
 #endif
-
 #if defined(DATA_ORDER_IS_BIG_ENDIAN)
-
-# ifndef PEDANTIC
-#  if defined(__GNUC__) && __GNUC__>=2 && !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM)
-#   if ((defined(__i386) || defined(__i386__)) && !defined(I386_ONLY)) || \
-	(defined(__x86_64) || defined(__x86_64__))
-#    if !defined(B_ENDIAN)
-/*
- * This gives ~30-40% performance improvement in SHA-256 compiled
- * with gcc [on P4]. Well, first macro to be frank. We can pull
- * this trick on x86* platforms only, because these CPUs can fetch
- * unaligned data without raising an exception.
- */
-#     define HOST_c2l(c, l)        ({ uint r = *((const uint*)(c)); \
-				      asm ("bswapl %0" : "=r" (r) : "0" (r));	 \
-				      (c) += 4; (l) = r;                       })
-#     define HOST_l2c(l, c)        ({ uint r = (l);		     \
-				      asm ("bswapl %0" : "=r" (r) : "0" (r));	 \
-				      *((uint*)(c)) = r; (c) += 4; r; })
-#    endif
-#   elif defined(__aarch64__)
-#    if defined(__BYTE_ORDER__)
-#     if defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__==__ORDER_LITTLE_ENDIAN__
-#      define HOST_c2l(c, l)      ({ uint r;		  \
-				     asm ("rev    %w0,%w1"	  \
-			    : "=r" (r)		      \
-			    : "r" (*((const uint*)(c)))); \
-				     (c) += 4; (l) = r;               })
-#      define HOST_l2c(l, c)      ({ uint r;		  \
-				     asm ("rev    %w0,%w1"	  \
-			    : "=r" (r)		      \
-			    : "r" ((uint)(l)));	\
-				     *((uint*)(c)) = r; (c) += 4; r; })
-#     elif defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__==__ORDER_BIG_ENDIAN__
-#      define HOST_c2l(c, l)      ((l) = *((const uint*)(c)), (c) += 4, (l))
-#      define HOST_l2c(l, c)      (*((uint*)(c)) = (l), (c) += 4, (l))
-#     endif
-#    endif
-#   endif
-#  endif
-#  if defined(__s390__) || defined(__s390x__)
-#   define HOST_c2l(c, l) ((l) = *((const uint*)(c)), (c) += 4, (l))
-#   define HOST_l2c(l, c) (*((uint*)(c)) = (l), (c) += 4, (l))
-#  endif
-# endif
-
-# ifndef HOST_c2l
-#  define HOST_c2l(c, l)   (l = (((ulong)(*((c)++)))<<24),	    \
-	    l |= (((ulong)(*((c)++)))<<16),	     \
-	    l |= (((ulong)(*((c)++)))<< 8),	     \
-	    l |= (((ulong)(*((c)++)))    )           )
-# endif
-# ifndef HOST_l2c
-#  define HOST_l2c(l, c)   (*((c)++) = (uchar)(((l)>>24)&0xff),	     \
-	    *((c)++) = (uchar)(((l)>>16)&0xff),	     \
-	    *((c)++) = (uchar)(((l)>> 8)&0xff),	     \
-	    *((c)++) = (uchar)(((l)    )&0xff),	     \
-	    l)
-# endif
-
+#ifndef PEDANTIC
+	#if defined(__GNUC__) && __GNUC__>=2 && !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM)
+		#if ((defined(__i386) || defined(__i386__)) && !defined(I386_ONLY)) ||  (defined(__x86_64) || defined(__x86_64__))
+			#if !defined(B_ENDIAN)
+				// 
+				// This gives ~30-40% performance improvement in SHA-256 compiled
+				// with gcc [on P4]. Well, first macro to be frank. We can pull
+				// this trick on x86* platforms only, because these CPUs can fetch
+				// unaligned data without raising an exception.
+				// 
+				#define HOST_c2l(c, l) ({ uint r = *((const uint*)(c)); asm ("bswapl %0" : "=r" (r) : "0" (r)); (c) += 4; (l) = r; })
+				#define HOST_l2c(l, c) ({ uint r = (l); asm ("bswapl %0" : "=r" (r) : "0" (r)); *((uint*)(c)) = r; (c) += 4; r; })
+			#endif
+		#elif defined(__aarch64__)
+			#if defined(__BYTE_ORDER__)
+				#if defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__==__ORDER_LITTLE_ENDIAN__
+					#define HOST_c2l(c, l) ({ uint r; asm ("rev    %w0,%w1" : "=r" (r) : "r" (*((const uint*)(c)))); (c) += 4; (l) = r; })
+					#define HOST_l2c(l, c) ({ uint r; asm ("rev    %w0,%w1" : "=r" (r) : "r" ((uint)(l))); *((uint*)(c)) = r; (c) += 4; r; })
+				#elif defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__==__ORDER_BIG_ENDIAN__
+					#define HOST_c2l(c, l)      ((l) = *((const uint*)(c)), (c) += 4, (l))
+					#define HOST_l2c(l, c)      (*((uint*)(c)) = (l), (c) += 4, (l))
+				#endif
+			#endif
+		#endif
+	#endif
+	#if defined(__s390__) || defined(__s390x__)
+		#define HOST_c2l(c, l) ((l) = *((const uint*)(c)), (c) += 4, (l))
+		#define HOST_l2c(l, c) (*((uint*)(c)) = (l), (c) += 4, (l))
+	#endif
+#endif
+#ifndef HOST_c2l
+	#define HOST_c2l(c, l) (l = (((ulong)(*((c)++)))<<24), l |= (((ulong)(*((c)++)))<<16), l |= (((ulong)(*((c)++)))<< 8), l |= (((ulong)(*((c)++)))))
+#endif
+#ifndef HOST_l2c
+	#define HOST_l2c(l, c) (*((c)++) = (uchar)(((l)>>24)&0xff), *((c)++) = (uchar)(((l)>>16)&0xff), *((c)++) = (uchar)(((l)>> 8)&0xff), *((c)++) = (uchar)(((l))&0xff), l)
+#endif
 #elif defined(DATA_ORDER_IS_LITTLE_ENDIAN)
-
-# ifndef PEDANTIC
-#  if defined(__GNUC__) && __GNUC__>=2 && !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM)
-#   if defined(__s390x__)
-#    define HOST_c2l(c, l)        ({ asm ("lrv    %0,%1"		  \
-			    : "=d" (l) : "m" (*(const uint*)(c))); \
-				     (c) += 4; (l);                         })
-#    define HOST_l2c(l, c)        ({ asm ("strv   %1,%0"		  \
-			    : "=m" (*(uint*)(c)) : "d" (l)); \
-				     (c) += 4; (l);                         })
-#   endif
-#  endif
-#  if defined(__i386) || defined(__i386__) || defined(__x86_64) || defined(__x86_64__)
-#   ifndef B_ENDIAN
-/* See comment in DATA_ORDER_IS_BIG_ENDIAN section. */
-#    define HOST_c2l(c, l)        ((l) = *((const uint*)(c)), (c) += 4, l)
-#    define HOST_l2c(l, c)        (*((uint*)(c)) = (l), (c) += 4, l)
-#   endif
-#  endif
-# endif
-
-# ifndef HOST_c2l
-#  define HOST_c2l(c, l)   (l = (((ulong)(*((c)++)))    ),	    \
-	    l |= (((ulong)(*((c)++)))<< 8),	     \
-	    l |= (((ulong)(*((c)++)))<<16),	     \
-	    l |= (((ulong)(*((c)++)))<<24)           )
-# endif
-# ifndef HOST_l2c
-#  define HOST_l2c(l, c)   (*((c)++) = (uchar)(((l)    )&0xff),	     \
-	    *((c)++) = (uchar)(((l)>> 8)&0xff),	     \
-	    *((c)++) = (uchar)(((l)>>16)&0xff),	     \
-	    *((c)++) = (uchar)(((l)>>24)&0xff),	     \
-	    l)
-# endif
-
+#ifndef PEDANTIC
+	#if defined(__GNUC__) && __GNUC__>=2 && !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM)
+		#if defined(__s390x__)
+			#define HOST_c2l(c, l) ({ asm ("lrv    %0,%1" : "=d" (l) : "m" (*(const uint*)(c))); (c) += 4; (l); })
+			#define HOST_l2c(l, c) ({ asm ("strv   %1,%0" : "=m" (*(uint*)(c)) : "d" (l)); (c) += 4; (l); })
+	#endif
+#endif
+	#if defined(__i386) || defined(__i386__) || defined(__x86_64) || defined(__x86_64__)
+		#ifndef B_ENDIAN
+		// See comment in DATA_ORDER_IS_BIG_ENDIAN section. 
+			#define HOST_c2l(c, l) ((l) = *((const uint*)(c)), (c) += 4, l)
+			#define HOST_l2c(l, c) (*((uint*)(c)) = (l), (c) += 4, l)
+		#endif
+	#endif
+#endif
+#ifndef HOST_c2l
+	#define HOST_c2l(c, l) (l = (((ulong)(*((c)++)))), l |= (((ulong)(*((c)++)))<< 8), l |= (((ulong)(*((c)++)))<<16), l |= (((ulong)(*((c)++)))<<24))
+#endif
+#ifndef HOST_l2c
+	#define HOST_l2c(l, c) (*((c)++) = (uchar)(((l))&0xff), *((c)++) = (uchar)(((l)>> 8)&0xff), *((c)++) = (uchar)(((l)>>16)&0xff), *((c)++) = (uchar)(((l)>>24)&0xff), l)
+#endif
 #endif
 /*
  * Time for some action:-)

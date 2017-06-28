@@ -332,11 +332,10 @@ static L_BILATERAL * bilateralCreate(PIX       * pixs,
 	for(i = 0; i < ncomps; i++)
 		nc[i] = minval + i * (maxval - minval) / (ncomps - 1);
 	bil->nc = nc;
-
 	/* kindex maps from intensity I(x) to the lower k index for J(k,x) */
 	kindex = (int32*)LEPT_CALLOC(256, sizeof(int32));
 	for(i = minval, k = 0; i <= maxval && k < ncomps - 1; k++) {
-		fval2 = nc[k + 1];
+		fval2 = (float)nc[k + 1];
 		while(i < fval2) {
 			kindex[i] = k;
 			i++;
@@ -344,12 +343,11 @@ static L_BILATERAL * bilateralCreate(PIX       * pixs,
 	}
 	kindex[maxval] = ncomps - 2;
 	bil->kindex = kindex;
-
 	/* kfract maps from intensity I(x) to the fraction of J(k+1,x) used */
 	kfract = (float*)LEPT_CALLOC(256, sizeof(float)); /* from lower */
 	for(i = minval, k = 0; i <= maxval && k < ncomps - 1; k++) {
-		fval1 = nc[k];
-		fval2 = nc[k + 1];
+		fval1 = (float)nc[k];
+		fval2 = (float)nc[k + 1];
 		while(i < fval2) {
 			kfract[i] = (float)(i - fval1) / (float)(fval2 - fval1);
 			i++;
@@ -369,7 +367,7 @@ static L_BILATERAL * bilateralCreate(PIX       * pixs,
 	/* -------------------------------------------------------------------- *
 	*             Generate 1-D kernel arrays (spatial and range)           *
 	* -------------------------------------------------------------------- */
-	spatial_size = 2 * sstdev + 1;
+	spatial_size = (int32)(2 * sstdev + 1);
 	spatial = (float*)LEPT_CALLOC(spatial_size, sizeof(float));
 	denom = 2.0f * sstdev * sstdev;
 	for(i = 0; i < spatial_size; i++)
@@ -716,16 +714,12 @@ PIX * pixBilateralGrayExact(PIX       * pixs,
  *          where A = # of pixels, sh = spatial halfwidth of filter.
  * </pre>
  */
-PIX* pixBlockBilateralExact(PIX       * pixs,
-    float spatial_stdev,
-    float range_stdev)
+PIX * pixBlockBilateralExact(PIX * pixs, float spatial_stdev, float range_stdev)
 {
 	int32 d, halfwidth;
 	L_KERNEL  * spatial_kel, * range_kel;
 	PIX       * pixd;
-
 	PROCNAME("pixBlockBilateralExact");
-
 	if(!pixs)
 		return (PIX*)ERROR_PTR("pixs not defined", procName, NULL);
 	d = pixGetDepth(pixs);
@@ -737,8 +731,7 @@ PIX* pixBlockBilateralExact(PIX       * pixs,
 		return (PIX*)ERROR_PTR("invalid spatial stdev", procName, NULL);
 	if(range_stdev <= 0.0)
 		return (PIX*)ERROR_PTR("invalid range stdev", procName, NULL);
-
-	halfwidth = 2 * spatial_stdev;
+	halfwidth = (int32)(2 * spatial_stdev);
 	spatial_kel = makeGaussianKernel(halfwidth, halfwidth, spatial_stdev, 1.0);
 	range_kel = makeRangeKernel(range_stdev);
 	pixd = pixBilateralExact(pixs, spatial_kel, range_kel);
@@ -784,4 +777,3 @@ L_KERNEL * makeRangeKernel(float range_stdev)
 	}
 	return kel;
 }
-

@@ -766,8 +766,8 @@ typedef struct IPAddressOrRange_st {
 typedef STACK_OF (IPAddressOrRange) IPAddressOrRanges;
 DEFINE_STACK_OF(IPAddressOrRange)
 
-# define IPAddressChoice_inherit                 0
-# define IPAddressChoice_addressesOrRanges       1
+#define IPAddressChoice_inherit                 0
+#define IPAddressChoice_addressesOrRanges       1
 
 typedef struct IPAddressChoice_st {
 	int type;

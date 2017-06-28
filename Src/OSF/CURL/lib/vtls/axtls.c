@@ -37,7 +37,7 @@
 #include "inet_pton.h"
 #include "vtls.h"
 #include "parsedate.h"
-#include "connect.h" /* for the connect timeout */
+//#include "connect.h" /* for the connect timeout */
 //#include "select.h"
 #include "curl_printf.h"
 #include "hostcheck.h"

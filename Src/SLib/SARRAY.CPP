@@ -204,7 +204,7 @@ int FASTCALL SArray::expand(uint numNewRecs)
 			Limit = new_limit;
 		}
 		else
-			ok = (SLibError = SLERR_NOMEM, 0);
+			ok = 0;
 	}
 	return ok;
 }
@@ -1741,7 +1741,7 @@ int FASTCALL SV_Uint32::Copy(const SV_Uint32 & s)
 	if(c) {
 		P_Data = (uint32 *)SAlloc::C((c+1), sizeof(uint32));
 		if(P_Data == 0)
-			return (SLibError = SLERR_NOMEM, 0);
+			return 0;
 		else
 			memcpy(P_Data, s.P_Data, (c+1) * sizeof(uint32));
 	}
@@ -1793,7 +1793,7 @@ int FASTCALL SV_Uint32::Add(uint32 item)
 		return 1;
 	}
 	else
-		return (SLibError = SLERR_NOMEM, 0);
+		return 0;
 }
 
 int SV_Uint32::Add(uint count, const uint32 * pSrc)
@@ -1806,7 +1806,7 @@ int SV_Uint32::Add(uint count, const uint32 * pSrc)
 		return 1;
 	}
 	else
-		return (SLibError = SLERR_NOMEM, 0);
+		return 0;
 }
 
 int FASTCALL SV_Uint32::Write(SBuffer & rBuf) const
@@ -1830,7 +1830,7 @@ int FASTCALL SV_Uint32::Read(SBuffer & rBuf)
 			return 1;
 		}
 		else
-			return (SLibError = SLERR_NOMEM, 0);
+			return 0;
 	}
 	else
 		Destroy();

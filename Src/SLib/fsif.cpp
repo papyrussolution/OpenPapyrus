@@ -66,13 +66,13 @@ long SLAPI SearchStrInFile(FILE * fpFile, long lOffset, const char *pszStr, int 
 	// Calculate remaining no of blocks 
 	if((pszBuffer = (char *)SAlloc::C(2 * iBufferSize, sizeof(char))) == 0)
 		return -2;
-	memset(pszBuffer, '\0', iBufferSize);
+	memzero(pszBuffer, iBufferSize);
 	data_size = fread(pszBuffer, sizeof(char), iBufferSize, fpFile);
 	// Read the first block 
 	while(iNoBlocks > 0 && !cFound) { /* Repeat until EOF or found */
 		iSector++; /* Counting no of blocks read */
 		iNoBlocks--;
-		memset(&pszBuffer[iBufferSize], '\0', iBufferSize);
+		memzero(&pszBuffer[iBufferSize], iBufferSize);
 		// Read next block 
 		data_size = fread(&pszBuffer[iBufferSize], sizeof(char), iBufferSize, fpFile);
 		// Search first block 

@@ -324,11 +324,11 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 	}
 	if(updOnly || (Flags & PPACSF_LOADRESTWOSALES)) {
 		f_str = (Flags & PPACSF_LOADRESTWOSALES) ? "$$$REPLACEQUANTITYWITHOUTSALE" : "$$$REPLACEQUANTITY";
-		THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+		THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 	}
 	else {
 		f_str = "$$$REPLACEQUANTITY";
-		THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+		THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 	}
 	{
 		//long   iter_flags = updOnly ? ACGIF_UPDATEDONLY : 0;
@@ -360,7 +360,7 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 					f_str.Cat((long)grp_info.Level).Semicol();    // #18 - Номер уровня иерархического списка
 					f_str.CatCharN(';', 4);                       // #19-#22 - Не используем
 					f_str.Semicol();                              // #23 - Налоговую группу не грузим
-					THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+					THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 					grp_n_level_ary.Add(grp_info.ID, grp_info.Level, 0);
 				}
 			}
@@ -384,7 +384,7 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 						PPID   dscnt_scheme_id = 0; // @v6.4.0 =ATOL_INNER_SCHEME --> =0
 						if(prev_goods_id) {
 							f_str.Transf(CTRANSF_INNER_TO_OUTER).Semicol().Cat(tail);
-							THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+							THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 						}
 						// @v8.2.0 {
 						if(gc_alc_id && gc_alc_code.NotEmpty() && gds_info.GdsClsID == gc_alc_id) {
@@ -510,7 +510,7 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 			}
 			if(prev_goods_id) {
 				f_str.Transf(CTRANSF_INNER_TO_OUTER).Semicol().Cat(tail);
-				THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+				THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 			}
 			//
 			// @v7.4.12 {
@@ -551,7 +551,7 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 						(f_str = 0).Cat(qk_id).Semicol();                     // #1 - код схемы внутренней авт.скидки
 						f_str.Cat(qk_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CatCharN(';', 2);     // #2 - наименование схемы, #3 - не используется //
 						f_str.CatChar('0').Semicol();                         // #4 - тип операции объединения (0 - не объединять)
-						THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+						THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 					}
 				}
 				if(!updOnly) {
@@ -642,7 +642,7 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 					f_str.Semicol();                                      // #42
 					f_str.Semicol();                                      // #43
 					f_str.Semicol();                                      // #44
-					THROW_PP(fprintf(p_file, p_format, (const char *)f_str.Transf(CTRANSF_INNER_TO_OUTER)) > 0, PPERR_EXPFILEWRITEFAULT);
+					THROW_PP(fprintf(p_file, p_format, f_str.Transf(CTRANSF_INNER_TO_OUTER).cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 				}
 			}
 		}

@@ -26,7 +26,7 @@
 //#include "urldata.h"
 //#include "getinfo.h"
 #include "vtls/vtls.h"
-#include "connect.h" /* Curl_getconnectinfo() */
+//#include "connect.h" /* Curl_getconnectinfo() */
 //#include "progress.h"
 /* The last #include files should be: */
 //#include "curl_memory.h"

@@ -32,7 +32,7 @@
 //#include "urldata.h"
 //#include "sendf.h"
 //#include "select.h"
-#include "connect.h"
+//#include "connect.h"
 //#include "timeval.h"
 //#include "socks.h"
 #include "memdebug.h" // The last #include file should be

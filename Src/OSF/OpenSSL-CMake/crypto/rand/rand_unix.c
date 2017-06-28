@@ -128,7 +128,6 @@ int RAND_poll(void)
 {
 	u_int32_t rnd = 0, i;
 	uchar buf[ENTROPY_NEEDED];
-
 	for(i = 0; i < sizeof(buf); i++) {
 		if(i % 4 == 0)
 			rnd = arc4random();
@@ -137,7 +136,6 @@ int RAND_poll(void)
 	}
 	RAND_add(buf, sizeof(buf), ENTROPY_NEEDED);
 	OPENSSL_cleanse(buf, sizeof(buf));
-
 	return 1;
 }
 
@@ -187,7 +185,6 @@ int RAND_poll(void)
 			int r;
 			uint j;
 			struct stat * st = &randomstats[i];
-
 			/*
 			 * Avoid using same input... Used to be O_NOFOLLOW above, but
 			 * it's not universally appropriate...
@@ -205,18 +202,14 @@ int RAND_poll(void)
 				close(fd);
 				continue;
 			}
-
 			do {
 				int try_read = 0;
-
 #   if defined(OPENSSL_SYS_LINUX)
 				/* use poll() */
 				struct pollfd pset;
-
 				pset.fd = fd;
 				pset.events = POLLIN;
 				pset.revents = 0;
-
 				if(poll(&pset, 1, usec / 1000) < 0)
 					usec = 0;
 				else
@@ -226,10 +219,8 @@ int RAND_poll(void)
 				/* use select() */
 				fd_set fset;
 				struct timeval t;
-
 				t.tv_sec = 0;
 				t.tv_usec = usec;
-
 				if(FD_SETSIZE > 0 && (unsigned)fd >= FD_SETSIZE) {
 					/*
 					 * can't use select, so just try to read once anyway
@@ -239,7 +230,6 @@ int RAND_poll(void)
 				else {
 					FD_ZERO(&fset);
 					FD_SET(fd, &fset);
-
 					if(select(fd + 1, &fset, NULL, NULL, &t) >= 0) {
 						usec = t.tv_usec;
 						if(FD_ISSET(fd, &fset))
@@ -249,16 +239,13 @@ int RAND_poll(void)
 						usec = 0;
 				}
 #   endif
-
 				if(try_read) {
-					r = read(fd, (uchar*)tmpbuf + n,
-					    ENTROPY_NEEDED - n);
+					r = read(fd, (uchar*)tmpbuf + n, ENTROPY_NEEDED - n);
 					if(r > 0)
 						n += r;
 				}
 				else
 					r = -1;
-
 				/*
 				 * Some Unixen will update t in select(), some won't.  For
 				 * those who won't, or if we didn't use select() in the first
@@ -268,10 +255,8 @@ int RAND_poll(void)
 				if(usec == 10 * 1000)
 					usec = 0;
 			}
-			while((r > 0 ||
-				    (errno == EINTR || errno == EAGAIN)) && usec != 0
-			    && n < ENTROPY_NEEDED);
-
+			while((r > 0 || (errno == EINTR || errno == EAGAIN)) && usec != 0 && n < ENTROPY_NEEDED)
+				;
 			close(fd);
 		}
 	}
@@ -282,13 +267,8 @@ int RAND_poll(void)
 	 * Use an EGD socket to read entropy from an EGD or PRNGD entropy
 	 * collecting daemon.
 	 */
-
-	for(egdsocket = egdsockets; *egdsocket && n < ENTROPY_NEEDED;
-	    egdsocket++) {
-		int r;
-
-		r = RAND_query_egd_bytes(*egdsocket, (uchar*)tmpbuf + n,
-		    ENTROPY_NEEDED - n);
+	for(egdsocket = egdsockets; *egdsocket && n < ENTROPY_NEEDED; egdsocket++) {
+		int r = RAND_query_egd_bytes(*egdsocket, (uchar*)tmpbuf + n, ENTROPY_NEEDED - n);
 		if(r > 0)
 			n += r;
 	}
@@ -306,7 +286,6 @@ int RAND_poll(void)
 	RAND_add(&l, sizeof(l), 0.0);
 	l = getuid();
 	RAND_add(&l, sizeof(l), 0.0);
-
 	l = time(NULL);
 	RAND_add(&l, sizeof(l), 0.0);
 

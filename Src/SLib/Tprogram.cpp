@@ -2060,16 +2060,16 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 				}
 			}
 			else {
-				if(strcmp((const char *)p_user_data, "papyruscalendarperiod") == 0) { // GetCalCtrlSignature(1)
+				if(sstreq((const char *)p_user_data, "papyruscalendarperiod")) { // GetCalCtrlSignature(1)
 					dv_id = PPDV_CALENDAR03;
 				}
-				else if(strcmp((const char *)p_user_data, "papyruscalendardate") == 0) { // GetCalCtrlSignature(0)
+				else if(sstreq((const char *)p_user_data, "papyruscalendardate")) { // GetCalCtrlSignature(0)
 					dv_id = PPDV_CALENDARDAY01;
 				}
-				else if(strcmp((const char *)p_user_data, "papyruscalculator") == 0) {
+				else if(sstreq((const char *)p_user_data, "papyruscalculator")) {
 					dv_id = PPDV_CALCULATOR02;
 				}
-				else if(strcmp((const char *)p_user_data, "papyrusclock") == 0) { // @v9.2.11
+				else if(sstreq((const char *)p_user_data, "papyrusclock")) { // @v9.2.11
 					dv_id = PPDV_CLOCK02;
 				}
 			}

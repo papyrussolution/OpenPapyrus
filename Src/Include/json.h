@@ -28,8 +28,8 @@
 #ifndef JSON_H
 #define JSON_H
 
-#include <stdio.h>
-#include <stdlib.h>
+//#include <stdio.h>
+//#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,8 +52,18 @@ enum json_value_type {
 //
 // Descr: String implementation
 //
-struct rcstring {
-	char * text; // char c-string */
+struct RcString {
+	RcString()
+	{
+		P_Text = 0;
+		length = 0;
+		max = 0;
+	}
+	size_t Len() const
+	{
+		return length;
+	}
+	char * P_Text; // char c-string */
 	size_t length;	// put in place to avoid strlen() calls
 	size_t max;	    // usable memory allocated to text minus the space for the nul character
 };
@@ -61,42 +71,44 @@ struct rcstring {
 // The error messages produced by the JSON parsers
 //
 enum json_error {
-	JSON_OK = 1,	/*!< everything went smoothly */
-	JSON_INCOMPLETE_DOCUMENT,	/*!< the parsed document didn't ended */
-	JSON_WAITING_FOR_EOF,	/*!< A complete JSON document tree was already finished but needs to get to EOF. Other characters beyond whitespaces produce errors */
-	JSON_MALFORMED_DOCUMENT,	/* the JSON document which was fed to this parser is malformed */
-	JSON_INCOMPATIBLE_TYPE,	/*!< the currently parsed type does not belong here */
-	JSON_MEMORY,	/*!< an error occurred when allocating memory */
-	JSON_ILLEGAL_CHARACTER,	/*!< the currently parsed character does not belong here */
-	JSON_BAD_TREE_STRUCTURE,	/*!< the document tree structure is malformed */
-	JSON_MAXIMUM_LENGTH,	/*!< the parsed string reached the maximum allowed size */
-	JSON_UNKNOWN_PROBLEM	/*!< some random, unaccounted problem occurred */
+	JSON_OK = 1,              // everything went smoothly 
+	JSON_INCOMPLETE_DOCUMENT, // the parsed document didn't ended 
+	JSON_WAITING_FOR_EOF,     // A complete JSON document tree was already finished but needs to get to EOF. Other characters beyond whitespaces produce errors
+	JSON_MALFORMED_DOCUMENT,  // the JSON document which was fed to this parser is malformed 
+	JSON_INCOMPATIBLE_TYPE,   // the currently parsed type does not belong here 
+	JSON_MEMORY,              // an error occurred when allocating memory 
+	JSON_ILLEGAL_CHARACTER,   // the currently parsed character does not belong here 
+	JSON_BAD_TREE_STRUCTURE,  // the document tree structure is malformed 
+	JSON_MAXIMUM_LENGTH,      // the parsed string reached the maximum allowed size 
+	JSON_UNKNOWN_PROBLEM      // some random, unaccounted problem occurred 
 };
 //
 // The JSON document tree node, which is a basic JSON type
 //
 struct json_t {
-	enum json_value_type type; /*!< the type of node */
-	char * text;        /*!< The text stored by the node. It stores UTF-8 strings and is used exclusively by the JSON_STRING and JSON_NUMBER node types */
+	json_t(enum json_value_type aType);
+	~json_t();
+	enum json_value_type Type; // the type of node 
+	char * P_Text; // The text stored by the node. It stores UTF-8 strings and is used exclusively by the JSON_STRING and JSON_NUMBER node types 
 	//
 	// FIFO queue data
 	//
-	json_t * next;      /*!< The pointer pointing to the next element in the FIFO sibling list */
-	json_t * previous;  /*!< The pointer pointing to the previous element in the FIFO sibling list */
-	json_t * parent;    /*!< The pointer pointing to the parent node in the document tree */
-	json_t * child;     /*!< The pointer pointing to the first child node in the document tree */
-	json_t * child_end; /*!< The pointer pointing to the last child node in the document tree */
+	json_t * P_Next;      // The pointer pointing to the next element in the FIFO sibling list 
+	json_t * P_Previous;  // The pointer pointing to the previous element in the FIFO sibling list 
+	json_t * P_Parent;    // The pointer pointing to the parent node in the document tree 
+	json_t * P_Child;     // The pointer pointing to the first child node in the document tree 
+	json_t * P_ChildEnd; // The pointer pointing to the last child node in the document tree 
 };
 //
 // The structure holding all information needed to resume parsing
 //
 struct json_parsing_info {
-	uint   state; /*!< the state where the parsing was left on the last parser run */
+	uint   state; // the state where the parsing was left on the last parser run 
 	uint   lex_state;
-	rcstring * lex_text;
+	RcString * lex_text;
 	char * p;
-	int    string_length_limit_reached;	/*!< flag informing if the string limit length defined by JSON_MAX_STRING_LENGTH was reached */
-	json_t * cursor; /*!< pointers to nodes belonging to the document tree which aid the document parsing */
+	int    string_length_limit_reached; // flag informing if the string limit length defined by JSON_MAX_STRING_LENGTH was reached
+	json_t * cursor; // pointers to nodes belonging to the document tree which aid the document parsing 
 };
 //
 // The structure which holds the pointers to the functions that will be called by the saxy parser whenever their evens are triggered
@@ -118,9 +130,9 @@ struct json_saxy_functions {
 // The structure holding the information needed for json_saxy_parse to resume parsing
 //
 struct json_saxy_parser_status {
-	uint   state; /*!< current parser state */
-	int    string_length_limit_reached;	/*!< flag informing if the string limit length defined by JSON_MAX_STRING_LENGTH was reached */
-	rcstring * temp; /*!< temporary string which will be used to build up parsed strings between parser runs. */
+	uint   state; // current parser state 
+	int    string_length_limit_reached; // flag informing if the string limit length defined by JSON_MAX_STRING_LENGTH was reached 
+	RcString * temp; // temporary string which will be used to build up parsed strings between parser runs.
 };
 //
 // Buils a json_t document by parsing an open file
@@ -183,7 +195,7 @@ void json_free_value(json_t ** value);
 // @param child the node being added as a child to parent
 // @return the error code corresponding to the operation result
 //
-enum json_error json_insert_child(json_t * parent, json_t * child);
+enum json_error FASTCALL json_insert_child(json_t * parent, json_t * child);
 //
 // Inserts a label:value pair into a parent node, as well as performs some document tree integrity checks.
 // @param parent the parent node
@@ -249,7 +261,7 @@ enum json_error json_parse_fragment(json_parsing_info * info, const char * buffe
 // @param text a c-string containing a complete JSON text document
 // @return a pointer to the new document tree or NULL if some error occurred
 //
-enum json_error json_parse_document(json_t **root, const char *text);
+enum json_error json_parse_document(json_t ** root, const char * text);
 //
 // Function to perform a SAX-like parsing of any JSON document or document fragment that is passed to it
 // @param jsps a structure holding the status information of the current parser

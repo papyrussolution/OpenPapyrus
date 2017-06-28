@@ -35,12 +35,6 @@
 #ifdef HAVE_NET_IF_H
 	#include <net/if.h>
 #endif
-#ifdef HAVE_SYS_IOCTL_H
-	#include <sys/ioctl.h>
-#endif
-#ifdef HAVE_SIGNAL_H
-	#include <signal.h>
-#endif
 #ifdef HAVE_SYS_PARAM_H
 	#include <sys/param.h>
 #endif
@@ -54,7 +48,7 @@
 //#include <curl/curl.h>
 #include "netrc.h"
 #include "content_encoding.h"
-#include "hostip.h"
+//#include "hostip.h"
 //#include "transfer.h"
 //#include "sendf.h"
 #include "speedcheck.h"
@@ -64,8 +58,8 @@
 //#include "getinfo.h"
 #include "vtls/vtls.h"
 //#include "select.h"
-#include "multiif.h"
-#include "connect.h"
+//#include "multiif.h"
+//#include "connect.h"
 //#include "non-ascii.h"
 #include "http2.h"
 // The last 3 #include files should be in this order 

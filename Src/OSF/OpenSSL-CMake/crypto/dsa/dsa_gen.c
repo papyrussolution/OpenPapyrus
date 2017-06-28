@@ -263,10 +263,8 @@ end:
 			goto err;
 		h++;
 	}
-
 	if(!BN_GENCB_call(cb, 3, 1))
 		goto err;
-
 	ok = 1;
 err:
 	if(ok) {
@@ -287,8 +285,7 @@ err:
 		if(seed_out)
 			memcpy(seed_out, seed, qsize);
 	}
-	if(ctx)
-		BN_CTX_end(ctx);
+	BN_CTX_end(ctx);
 	BN_CTX_free(ctx);
 	BN_MONT_CTX_free(mont);
 	return ok;
@@ -593,8 +590,7 @@ err:
 	OPENSSL_free(seed);
 	if(seed_out != seed_tmp)
 		OPENSSL_free(seed_tmp);
-	if(ctx)
-		BN_CTX_end(ctx);
+	BN_CTX_end(ctx);
 	BN_CTX_free(ctx);
 	BN_MONT_CTX_free(mont);
 	EVP_MD_CTX_free(mctx);

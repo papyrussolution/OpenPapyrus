@@ -176,30 +176,23 @@ static int compute_key(uchar * key, const BIGNUM * pub_key, DH * dh)
 		if(!mont)
 			goto err;
 	}
-
 	if(!DH_check_pub_key(dh, pub_key, &check_result) || check_result) {
 		DHerr(DH_F_COMPUTE_KEY, DH_R_INVALID_PUBKEY);
 		goto err;
 	}
-
 	if(!dh->
 	    meth->bn_mod_exp(dh, tmp, pub_key, dh->priv_key, dh->p, ctx, mont)) {
 		DHerr(DH_F_COMPUTE_KEY, ERR_R_BN_LIB);
 		goto err;
 	}
-
 	ret = BN_bn2bin(tmp, key);
 err:
-	if(ctx != NULL) {
-		BN_CTX_end(ctx);
-		BN_CTX_free(ctx);
-	}
+	BN_CTX_end(ctx);
+	BN_CTX_free(ctx);
 	return (ret);
 }
 
-static int dh_bn_mod_exp(const DH * dh, BIGNUM * r,
-    const BIGNUM * a, const BIGNUM * p,
-    const BIGNUM * m, BN_CTX * ctx, BN_MONT_CTX * m_ctx)
+static int dh_bn_mod_exp(const DH * dh, BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGNUM * m, BN_CTX * ctx, BN_MONT_CTX * m_ctx)
 {
 	return BN_mod_exp_mont(r, a, p, m, ctx, m_ctx);
 }

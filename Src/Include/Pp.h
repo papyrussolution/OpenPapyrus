@@ -4245,7 +4245,7 @@ struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 	PPGoodsConfig & Clear();
 	size_t GetSize_Pre770() const
 	{
-		return (size_t)(PTR8(&Ver) - PTR8(this));
+		return (size_t)(PTR8(&Ver__) - PTR8(this));
 	}
 	//
 	// Descr: Определяет, является ли заданный штрихкод весовым
@@ -4283,7 +4283,7 @@ struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 	PPID   MtxRestrQkID;       // ->Ref(PPOBJ_QUOTKIND) Вид котировки ограничение товарной матрицы
 	char   WghtCntPrefix[12];  // @v7.0.7 Префикс счетного весового товара (возможен специальный вариант передачи на весы).
 	PPID   DefGroupID;         // @v7.2.7 Товарная группа по умолчанию
-	SVerT Ver;                // @anchor @v7.7.0 Версия, сформировавшая запись. Если размер считанной записи меньше или равен,
+	SVerT  Ver__;              // @anchor @v7.7.0 Версия, сформировавшая запись. Если размер считанной записи меньше или равен,
 		// чем (&Ver-this), то версия предшествует 7.7.0
 	//
 	PPID   BcPrefixGuaTagID;   // @v7.7.2 Тег, содержащий допустимые префиксы штрихкодов для глобальной учетной записи
@@ -6841,7 +6841,7 @@ private:
 // String loading and processing functions
 //
 int    SLAPI PPInitStrings(const char * pFileName = 0);
-int    SLAPI PPReleaseStrings();
+void   SLAPI PPReleaseStrings();
 //
 // Descr: Загружает строку, принадлежащую группе group с идентификатором code в буфер s.
 // Returns:
@@ -17763,10 +17763,10 @@ public:
 	~PPBnkTerminal();
 	int    Connect(int port);
 	int    Disconnect();
-	int    Pay(double amount);
-	int    GetSessReport(SString & rZCheck);
+	int    Pay(double amount, SString & rSlip);
+	int    Refund(double amount, SString & rSlip);
 	int    Cancel();
-	int    Refund(double amount);
+	int    GetSessReport(SString & rZCheck);
 	int    GetErrorMsg(SString & rStr);
 	int    IsInited() const;
 	int    IsConnected() const;
@@ -33488,9 +33488,21 @@ struct ObjTransmitParam {
 	int    SLAPI Write(SBuffer & rBuf, long) const;
 
 	enum {
-		fSyncCmp             = 0x0001,
-		fRecoverTransmission = 0x0002 // @v8.2.3 Специальный флаг, указывающий на то, что пакет передачи содержит
+		fSyncCmp                 = 0x0001,
+		fRecoverTransmission     = 0x0002, // @v8.2.3 Специальный флаг, указывающий на то, что пакет передачи содержит
 			// восстановительные данные для раздела-получателя //
+		//
+		// @v9.7.2 
+		// В подавляющем большинстве случаев объекты передаются выборкой. Однако, иногда,
+		// по-умолчанию передача осуществляется только для выбранного объекта (например, в кассовых сессиях).
+		// Для ручного переопределения такого поведения применяются следущие 2 флага.
+		// 1. !fQueryInmassTransmission && !fInmassTransmission) вызывающая функция ведет себя по умолчанию
+		// 2. fQueryInmassTransmission && !fInmassTransmission вызывающая функция ведет себя по умолчанию (в диалоге была возможность выбрать массовую передачу)
+		// 3. fQueryInmassTransmission && fInmassTransmission вызывающая функция передает всю выборку объектов
+		// 4. !fQueryInmassTransmission && fInmassTransmission инвалидная комбинация: вызывающая функция ведет себя по умолчанию
+		//
+		fQueryInmassTransmission = 0x0004, // Запрос на необходимость передачи всей выборки объектов
+		fInmassTransmission      = 0x0008  // От пользователя получено требование передачи всей выборки объектов.
 	};
 	ObjIdListFilt DestDBDivList;
 	ObjIdListFilt ObjList;       // PPACN_XXX

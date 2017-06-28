@@ -734,7 +734,7 @@ int SLAPI Crosstab::Helper_SetupBrowserCtColumn(BrowserWindow * pBrw, uint ctVal
 		long  fmt     = p_bct ? p_bct->Format : 0;
 		uint  options = p_bct ? p_bct->Options : 0;
 		if(aggr_count == 1)
-			p_title = (const char *)rTitle;
+			p_title = rTitle.cptr();
 		else {
 			if(j < AggrFldColNames.getCount())
 				p_title = AggrFldColNames.at(j);
@@ -924,7 +924,7 @@ int SLAPI Crosstab::Write(SBuffer & rBuf, SSerializeContext * pCtx)
 	THROW_SL(pCtx->Serialize(+1, Flags, rBuf));
 	THROW_SL(SortIdxList.Write(rBuf));
 	THROW_SL(pCtx->Serialize(+1, (temp_buf = P_Tbl ? P_Tbl->tableName : 0), rBuf));
-	THROW_SL(pCtx->Serialize(+1, (temp_buf = P_Tbl ? (const char *)P_Tbl->fileName : 0), rBuf));
+	THROW_SL(pCtx->Serialize(+1, (temp_buf = P_Tbl ? P_Tbl->fileName.cptr() : 0), rBuf));
 	THROW_SL(pCtx->Serialize(+1, &AggrFuncList, rBuf));
 	THROW_SL(pCtx->Serialize(+1, &AggrFldColNames, rBuf));
 	{

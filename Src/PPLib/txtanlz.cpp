@@ -3955,20 +3955,20 @@ int SLAPI PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSec
 			json_t * p_next = 0;
 			THROW(json_parse_document(&p_json_doc, (const char *)result_str) == JSON_OK);
 			for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
-				p_next = p_cur->next;
-				switch(p_cur->type) {
+				p_next = p_cur->P_Next;
+				switch(p_cur->Type) {
 					case JSON_ARRAY:
 						break;
 					case JSON_OBJECT:
-						p_next = p_cur->child;
+						p_next = p_cur->P_Child;
 						break;
 					case JSON_STRING:
-						if(p_cur->text && p_cur->child) {
-							if(sstreqi_ascii(p_cur->text, "statusCode")) {
-								LastStatusCode = (temp_buf = p_cur->child->text).Unescape().ToLong();
+						if(p_cur->P_Text && p_cur->P_Child) {
+							if(sstreqi_ascii(p_cur->P_Text, "statusCode")) {
+								LastStatusCode = (temp_buf = p_cur->P_Child->P_Text).Unescape().ToLong();
 							}
-							else if(sstreqi_ascii(p_cur->text, "message")) {
-								LastStatusMessage = (temp_buf = p_cur->child->text).Unescape();
+							else if(sstreqi_ascii(p_cur->P_Text, "message")) {
+								LastStatusMessage = (temp_buf = p_cur->P_Child->P_Text).Unescape();
 							}
 						}
 						break;

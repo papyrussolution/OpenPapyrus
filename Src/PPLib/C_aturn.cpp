@@ -19,8 +19,8 @@ static int ReplyProc(PPID accRelID, LDATE dt, long oprno, double delta, void * p
 		PPLoadString(PPMSG_INFORMATION, PPINF_INVATURNREST, buf2);
 		buf1.Cat(accRelID).Space().Cat(oprno).Space().Cat(dt).Space().
 			CatChar('(').Cat(delta, MKSFMTD(0, 12, NMBF_NOTRAILZ)).CatChar(')');
-		buf.Printf(buf2, (const char *)buf1);
-		p->Logger.Log(buf.Printf(buf2, (const char *)buf1));
+		buf.Printf(buf2, buf1.cptr());
+		p->Logger.Log(buf.Printf(buf2, buf1.cptr()));
 		return p->Correct;
 	}
 	else
@@ -94,7 +94,7 @@ static int CorrectAccturnMsgProc(int msgCode, PPID accID, PPID billID, LDATE dt,
 			SString buf, buf1, buf2;
 			PPLoadString(PPMSG_ERROR, msgCode, buf1);
 			buf2.Cat(dt).Space().CatEq("OprNo", oprno).Space().CatEq("Acc", accID).Space().CatEq("BillID", billID);
-			p->Logger.Log(buf.Printf(buf1, (const char *)buf2));
+			p->Logger.Log(buf.Printf(buf1, buf2.cptr()));
 		}
 	}
 	else

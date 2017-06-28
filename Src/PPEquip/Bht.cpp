@@ -970,7 +970,7 @@ int SLAPI PPObjBHT::PutPacket(PPID * pID, PPBhtTerminalPacket * pPack, int use_t
 			((SBIIOpInfo *)(p_buf+1))[i] = pPack->P_SBIICfg->P_OpList->at(i);
 		}
 		if(ext_str.Len()) {
-			memcpy(PTR8(p_buf+1) + op_items_count * sizeof(SBIIOpInfo), (const char *)ext_str, ext_str.Len());
+			memcpy(PTR8(p_buf+1) + op_items_count * sizeof(SBIIOpInfo), ext_str.cptr(), ext_str.Len());
 		}
 		THROW(ref->PutProp(Obj, *pID, BHTPRP_SBIICFG2, p_buf, buf_size));
 	}
@@ -3254,7 +3254,7 @@ int SLAPI PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl:
 					SString fmt_buf, msg_buf, guid_buf;
 					// Найден дубликат импортируемой инвентаризации по GUID=%s. Новый документ создан не будет.
 					pRec->Uuid.ToStr(S_GUID::fmtIDL, guid_buf);
-					pLogger->Log(msg_buf.Printf(PPLoadTextS(PPTXT_IMP_INFDUPGUIDFOUND, fmt_buf), (const char *)guid_buf));
+					pLogger->Log(msg_buf.Printf(PPLoadTextS(PPTXT_IMP_INFDUPGUIDFOUND, fmt_buf), guid_buf.cptr()));
 				}
 				dup_found = 1;
 			}
@@ -3277,7 +3277,7 @@ int SLAPI PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl:
 				if(pLogger) {
 					// Найден дубликат импортируемой инвентаризации по дате и коду. Новый документ будет иметь код '%s'
 					SString fmt_buf, msg_buf;
-					pLogger->Log(msg_buf.Printf(PPLoadTextS(PPTXT_IMP_INVDUPFOUND, fmt_buf), (const char *)bill_code));
+					pLogger->Log(msg_buf.Printf(PPLoadTextS(PPTXT_IMP_INVDUPFOUND, fmt_buf), bill_code.cptr()));
 				}
 			}
 			// } @v8.0.9
@@ -3902,7 +3902,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 						if(sdr_brow.GoodsID) {
 							if(sdr_bill.OpID == StyloBhtIIConfig::oprkInventory) {
 								PPObjBill::InvItem inv_item;
-								inv_item.Init(sdr_brow.GoodsID, is_serial ? (const char *)serial : 0);
+								inv_item.Init(sdr_brow.GoodsID, is_serial ? serial.cptr() : 0);
 								inv_item.Qtty = sdr_brow.Qtty;
 								inv_item.Cost = sdr_brow.Cost;
 								inv_item.Price = sdr_brow.Cost;
@@ -4114,7 +4114,7 @@ int SLAPI PPObjBHT::AddEBLineToPacket(PPBillPacket * pPack, const char * pBarcod
 						oneof2(tses_rec.Status, TSESST_INPROCESS, TSESST_CLOSED)) {
 						if(pLog) {
 							tses_obj.MakeName(&tses_rec, tses_name);
-							pLog->Log(msg_buf.Printf(PPLoadTextS(PPTXT_USEDSERIALFROMTSESS, fmt_buf), pBarcode, (const char *)tses_name));
+							pLog->Log(msg_buf.Printf(PPLoadTextS(PPTXT_USEDSERIALFROMTSESS, fmt_buf), pBarcode, tses_name.cptr()));
 						}
 						PPTransferItem ti;
 						ti.Init(&pPack->Rec);
@@ -4603,11 +4603,11 @@ int SLAPI PPObjBHT::AcceptInvent(const char * pHName, const char * pLName, PPID 
 							if(barcode.Len())
 								temp_buf.CatDiv(':', 1).CatEq("Barcode", barcode);
 							temp_buf.CatDiv(':', 1).CatEq("qtty", qtty);
-							pLog->Log(log_msg.Printf(PPLoadTextS(PPTXT_LOG_IMPINV_GOODSNOTIDD, fmt_buf), (const char *)temp_buf));
+							pLog->Log(log_msg.Printf(PPLoadTextS(PPTXT_LOG_IMPINV_GOODSNOTIDD, fmt_buf), temp_buf.cptr()));
 						}
 						else if(qtty <= 0.0) {
 							(temp_buf = 0).Cat(qtty, SFMT_QTTY);
-							log_msg.Printf(PPLoadTextS(PPTXT_LOG_IMPINV_INVQTTY, fmt_buf), goods_rec.Name, (const char *)temp_buf);
+							log_msg.Printf(PPLoadTextS(PPTXT_LOG_IMPINV_INVQTTY, fmt_buf), goods_rec.Name, temp_buf.cptr());
 							pLog->Log(log_msg);
 						}
 					}

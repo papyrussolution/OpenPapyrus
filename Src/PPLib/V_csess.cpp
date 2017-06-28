@@ -298,7 +298,8 @@ int SLAPI PPViewCSess::Init_(const PPBaseFilt * pBaseFilt)
 						cn_obj.GetListByGroup(cn_id, temp_list);
 						for(uint j = 0; j < temp_list.getCount(); j++) {
 							const PPID inner_cn_id = temp_list.get(j);
-							if(inner_cn_id && cn_obj.Fetch(cn_id, 0) > 0 && r_rt.CheckPosNodeID(inner_cn_id, 0))
+							PPCashNode inner_cn_rec;
+							if(inner_cn_id && cn_obj.Fetch(inner_cn_id, &inner_cn_rec) > 0 && r_rt.CheckPosNodeID(inner_cn_id, 0))
 								NodeList.Add(inner_cn_id);
 						}
 					}
@@ -1991,16 +1992,19 @@ int SLAPI PPViewCSess::Transmit(PPID id, int transmitKind)
 	}
 	else {
 		ObjTransmitParam param;
+		if(id) 
+			param.Flags |= param.fQueryInmassTransmission;
 		if(id && ObjTransmDialog(DLG_OBJTRANSM, &param) > 0) {
 			CSessViewItem item;
 			const PPIDArray & rary = param.DestDBDivList.Get();
 			PPObjIDArray objid_ary;
 			PPWait(1);
-			if(id)
+			if(id && !(param.Flags & param.fInmassTransmission))
 				objid_ary.Add(PPOBJ_CSESSION, id);
-			else
+			else {
 				for(InitIteration(ordByDefault); NextIteration(&item) > 0;)
 					objid_ary.Add(PPOBJ_CSESSION, item.ID);
+			}
 			THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 			ok = 1;
 		}

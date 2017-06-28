@@ -35,19 +35,10 @@
 	#include <in.h>
 	#include <inet.h>
 #endif
-#ifdef HAVE_SETJMP_H
-	#include <setjmp.h>
-#endif
-#ifdef HAVE_SIGNAL_H
-	#include <signal.h>
-#endif
-#ifdef HAVE_PROCESS_H
-	#include <process.h>
-#endif
 //#include "urldata.h"
 //#include "sendf.h"
-#include "hostip.h"
-#include "hash.h"
+//#include "hostip.h"
+//#include "hash.h"
 #include "share.h"
 //#include "strerror.h"
 //#include "url.h"

@@ -467,14 +467,14 @@ int SSuffixTree::EdgeHub::Add(uint item)
 	}
 	else if(Count == SIZEOFARRAY(I)) {
 		uint * _ptr = (uint *)SAlloc::M((Count+1) * sizeof(uint));
-		THROW_S(_ptr, SLERR_NOMEM);
+		THROW(_ptr);
 		memcpy(_ptr, I, sizeof(I));
 		_ptr[Count++] = item;
 		Ptr = _ptr;
 	}
 	else {
 		uint * _ptr = (uint *)SAlloc::R(Ptr, (Count+1) * sizeof(uint));
-		THROW_S(_ptr, SLERR_NOMEM);
+		THROW(_ptr);
 		_ptr[Count++] = item;
 		Ptr = _ptr;
 	}

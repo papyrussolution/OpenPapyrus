@@ -31,10 +31,8 @@ void OPENSSL_cpuid_setup(void)
 	IA32CAP OPENSSL_ia32_cpuid(uint *);
 	IA32CAP vec;
 	char * env;
-
 	if(trigger)
 		return;
-
 	trigger = 1;
 	if((env = getenv("OPENSSL_ia32cap"))) {
 		int off = (env[0] == '~') ? 1 : 0;
@@ -109,10 +107,7 @@ int OPENSSL_isservice(void)
 	static union {
 		void * p;
 		FARPROC f;
-	} _OPENSSL_isservice = {
-		NULL
-	};
-
+	} _OPENSSL_isservice = { NULL };
 	if(_OPENSSL_isservice.p == NULL) {
 		HANDLE mod = GetModuleHandle(NULL);
 		if(mod != NULL)
@@ -120,18 +115,13 @@ int OPENSSL_isservice(void)
 		if(_OPENSSL_isservice.p == NULL)
 			_OPENSSL_isservice.p = (void*)-1;
 	}
-
 	if(_OPENSSL_isservice.p != (void*)-1)
 		return (*_OPENSSL_isservice.f)();
-
 	h = GetProcessWindowStation();
 	if(h == NULL)
 		return -1;
-
-	if(GetUserObjectInformationW(h, UOI_NAME, NULL, 0, &len) ||
-	    GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+	if(GetUserObjectInformationW(h, UOI_NAME, NULL, 0, &len) || GetLastError() != ERROR_INSUFFICIENT_BUFFER)
 		return -1;
-
 	if(len > 512)
 		return -1;      /* paranoia */
 	len++, len &= ~1;       /* paranoia */
@@ -173,13 +163,10 @@ void OPENSSL_showfatal(const char * fmta, ...)
 	const TCHAR * fmt;
 # ifdef STD_ERROR_HANDLE        /* what a dirty trick! */
 	HANDLE h;
-
-	if((h = GetStdHandle(STD_ERROR_HANDLE)) != NULL &&
-	    GetFileType(h) != FILE_TYPE_UNKNOWN) {
+	if((h = GetStdHandle(STD_ERROR_HANDLE)) != NULL && GetFileType(h) != FILE_TYPE_UNKNOWN) {
 		/* must be console application */
 		int len;
 		DWORD out;
-
 		va_start(ap, fmta);
 		len = _vsnprintf((char*)buf, sizeof(buf), fmta, ap);
 		WriteFile(h, buf, len < 0 ? sizeof(buf) : (DWORD)len, &out, NULL);
@@ -187,16 +174,13 @@ void OPENSSL_showfatal(const char * fmta, ...)
 		return;
 	}
 # endif
-
 	if(sizeof(TCHAR) == sizeof(char))
 		fmt = (const TCHAR*)fmta;
 	else
 		do {
 			int keepgoing;
 			size_t len_0 = strlen(fmta) + 1, i;
-			WCHAR * fmtw;
-
-			fmtw = (WCHAR*)alloca(len_0 * sizeof(WCHAR));
+			WCHAR * fmtw = (WCHAR*)alloca(len_0 * sizeof(WCHAR));
 			if(fmtw == NULL) {
 				fmt = (const TCHAR*)L"no stack?";
 				break;
@@ -252,10 +236,8 @@ void OPENSSL_showfatal(const char * fmta, ...)
 	/* this -------------v--- guards NT-specific calls */
 	if(check_winnt() && OPENSSL_isservice() > 0) {
 		HANDLE hEventLog = RegisterEventSource(NULL, _T("OpenSSL"));
-
 		if(hEventLog != NULL) {
 			const TCHAR * pmsg = buf;
-
 			if(!ReportEvent(hEventLog, EVENTLOG_ERROR_TYPE, 0, 0, NULL,
 				    1, 0, &pmsg, NULL)) {
 #if defined(DEBUG)
@@ -314,8 +296,7 @@ void OPENSSL_die(const char * message, const char * file, int line)
 
 #if !defined(OPENSSL_CPUID_OBJ)
 /* volatile uchar* pointers are there because
- * 1. Accessing a variable declared volatile via a pointer
- *    that lacks a volatile qualifier causes undefined behavior.
+ * 1. Accessing a variable declared volatile via a pointer that lacks a volatile qualifier causes undefined behavior.
  * 2. When the variable itself is not volatile the compiler is
  *    not required to keep all those reads and can convert
  *    this into canonical memcmp() which doesn't read the whole block.
@@ -323,12 +304,10 @@ void OPENSSL_die(const char * message, const char * file, int line)
  * problem cannot be resolved in any Standard-compliant way but this
  * works the problem around. Compilers typically react to
  * pointers to volatile by preserving the reads and writes through them.
- * The latter is not required by the Standard if the memory pointed to
- * is not volatile.
+ * The latter is not required by the Standard if the memory pointed to is not volatile.
  * Pointers themselves are volatile in the function signature to work
  * around a subtle bug in gcc 4.6+ which causes writes through
- * pointers to volatile to not be emitted in some rare,
- * never needed in real life, pieces of code.
+ * pointers to volatile to not be emitted in some rare, never needed in real life, pieces of code.
  */
 int CRYPTO_memcmp(const volatile void * volatile in_a, const volatile void * volatile in_b, size_t len)
 {

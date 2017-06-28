@@ -51,7 +51,7 @@
 #include "polarssl.h"
 #include "vtls.h"
 #include "parsedate.h"
-#include "connect.h" /* for the connect timeout */
+//#include "connect.h" /* for the connect timeout */
 //#include "select.h"
 //#include "strcase.h"
 #include "polarssl_threadlock.h"

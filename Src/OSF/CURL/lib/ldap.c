@@ -73,7 +73,7 @@
 #include "curl_ldap.h"
 #include "curl_multibyte.h"
 //#include "curl_base64.h"
-#include "connect.h"
+//#include "connect.h"
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
 //#include "curl_memory.h"

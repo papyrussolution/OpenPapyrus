@@ -825,7 +825,7 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
 			edi_op_list.addzlist(PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_ACTCHARGEON,
 				PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTWRITEOFF,
 				PPEDIOP_EGAIS_ACTWRITEOFF_V2, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP,
-				PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILLACT_V2,
+				PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILLACT_V2, 
 				0);
 			// @v9.6.4 (useless) THROW_MEM(SETIFZ(P_Dgq, new DGQCore));
 			{
@@ -1057,7 +1057,7 @@ void SLAPI PPEgaisProcessor::LogTextWithAddendum(int msgCode, const SString & rA
 {
 	SString fmt_buf, msg_buf;
 	PPLoadText(msgCode, fmt_buf);
-	Log(msg_buf.Printf(fmt_buf, (const char *)rAddendum));
+	Log(msg_buf.Printf(fmt_buf, rAddendum.cptr()));
 }
 
 void SLAPI PPEgaisProcessor::LogLastError()
@@ -1132,6 +1132,7 @@ static const EgaisDocTypeEntry _EgaisDocTypes[] = {
 	{ PPEDIOP_EGAIS_WAYBILL_V2,       "WayBill_v2" }, // @v9.5.5
 	{ PPEDIOP_EGAIS_TTNINFORMF2REG,   "TTNInformF2Reg" }, // @v9.5.5
 	{ PPEDIOP_EGAIS_WAYBILLACT_V2,    "WayBillAct_v2" }, // @v9.5.8
+	{ PPEDIOP_EGAIS_NOTIFY_WBVER2,    "InfoVersionTTN" } // @v9.7.2
 };
 
 const char * FASTCALL PPEgaisProcessor::GetDocTypeTag(int docType)
@@ -1928,7 +1929,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 	THROW_INVARG(pX);
 	THROW(p_doc_type_tag);
 	THROW(GetFSRARID(locID, fsrar_ident, &main_org_id));
-	if(rPack.P_Data || oneof2(doc_type, PPEDIOP_EGAIS_QUERYRESTS, PPEDIOP_EGAIS_QUERYRESTSSHOP)) {
+	if(rPack.P_Data || oneof3(doc_type, PPEDIOP_EGAIS_QUERYRESTS, PPEDIOP_EGAIS_QUERYRESTSSHOP, PPEDIOP_EGAIS_NOTIFY_WBVER2)) {
 		SXml::WDoc _doc(pX, cpUTF8);
 		{
 			SXml::WNode n_docs(_doc, "ns:Documents");
@@ -1965,6 +1966,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 					{ 24, "awr",  "ActWriteOffShop_v2"   }, // ambiguity
 					{ 25, "wa",   "ActTTNSingle_v2"      }, // ambiguity
 					{ 26, "wb",   "TTNSingle_v2"         }, // ambiguity
+					{ 27, "qp",   "InfoVersionTTN"       }, // ambiguity
 				};
 				const SString fsrar_url_prefix = "http://fsrar.ru/WEGAIS/";
 				n_docs.PutAttrib("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
@@ -1979,7 +1981,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						case  4: skip = BIN(oneof6(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTWRITEOFFSHOP)); break; // "pref" "ProductRef"
 						case  5: skip = BIN(doc_type == PPEDIOP_EGAIS_WAYBILL_V2); break; // "wb"
 						case  7: skip = BIN(doc_type != PPEDIOP_EGAIS_REQUESTREPEALWB); break;
-						case  6: skip = BIN(doc_type == PPEDIOP_EGAIS_REQUESTREPEALWB); break;
+						case  6: skip = BIN(oneof2(doc_type, PPEDIOP_EGAIS_REQUESTREPEALWB, PPEDIOP_EGAIS_NOTIFY_WBVER2)); break;
 						case  8: skip = BIN(doc_type == PPEDIOP_EGAIS_WAYBILLACT_V2); break; // "wa"
 						case 10: skip = BIN(doc_type == PPEDIOP_EGAIS_ACTCHARGEON_V2); break; // "iab"
 						case 11: skip = BIN(doc_type == PPEDIOP_EGAIS_CONFIRMREPEALWB); break; // "wt"
@@ -1993,6 +1995,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						case 24: skip = BIN(doc_type != PPEDIOP_EGAIS_ACTWRITEOFFSHOP); break; // "awr"
 						case 25: skip = BIN(doc_type != PPEDIOP_EGAIS_WAYBILLACT_V2); break; // "wa"
 						case 26: skip = BIN(doc_type != PPEDIOP_EGAIS_WAYBILL_V2); break; // "wb"
+						case 27: skip = BIN(doc_type != PPEDIOP_EGAIS_NOTIFY_WBVER2); break; // "qp"
 					}
 					if(!skip) {
 						(bill_text = 0).Cat("xmlns").CatChar(':').Cat(r_entry.P_Ns); // bill_text as temporary buffer
@@ -2241,6 +2244,11 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								n_p.PutInner("qp:Value", EncText(temp_buf = par.Val));
 							}
 						}
+					}
+					else if(doc_type == PPEDIOP_EGAIS_NOTIFY_WBVER2) {
+						SXml::WNode n_iv(_doc, "ns:InfoVersionTTN");
+						n_iv.PutInner("qp:ClientId", EncText(fsrar_ident));
+						n_iv.PutInner("qp:WBTypeUsed", EncText(temp_buf = "WayBill_v2"));
 					}
 					else if(oneof2(doc_type, PPEDIOP_EGAIS_QUERYFORMA, PPEDIOP_EGAIS_REPLYFORMB)) {
 						const SString * p_formab_regid = (const SString *)rPack.P_Data;
@@ -4525,7 +4533,7 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, TSCollection
 				do_skip = 1;
 				PPObjBill::MakeCodeString(&p_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
 				PPLoadText(PPTXT_EGAIS_BILLFORWARDFOUND, fmt_buf);
-				Log(msg_buf.Printf(fmt_buf, (const char *)bill_text));
+				Log(msg_buf.Printf(fmt_buf, bill_text.cptr()));
 			}
 			else {
 				PPIDArray ex_bill_id_list;
@@ -7652,6 +7660,7 @@ int SLAPI PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 			AddClusterAssoc(CTL_EGAISQ_WHAT,  7, PPEDIOP_EGAIS_QUERYBARCODE);
 			AddClusterAssoc(CTL_EGAISQ_WHAT,  8, PPEDIOP_EGAIS_QUERYCLIENTS+2000);
 			AddClusterAssoc(CTL_EGAISQ_WHAT,  9, PPEDIOP_EGAIS_QUERYCLIENTS+3000);
+			AddClusterAssoc(CTL_EGAISQ_WHAT, 10, PPEDIOP_EGAIS_NOTIFY_WBVER2); // @v9.7.2
 			SetClusterData(CTL_EGAISQ_WHAT, Data.DocType);
 			setCtrlString(CTL_EGAISQ_QADD, Data.ParamString);
 			SetupPersonCombo(this, CTLSEL_EGAISQ_MAINORG, Data.MainOrgID, 0, PPPRK_MAIN, 1);
@@ -7718,6 +7727,10 @@ int SLAPI PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 					}
 					else if(doc_type == PPEDIOP_EGAIS_QUERYRESTSSHOP) {
 						PPLoadText(PPTXT_HINT_EGAIS_QRESTSSHOP, msg_buf);
+						DisplayInfo(msg_buf);
+					}
+					else if(doc_type == PPEDIOP_EGAIS_NOTIFY_WBVER2) {
+						PPLoadText(PPTXT_HINT_EGAIS_NOTIFY_WBVER2, msg_buf);
 						DisplayInfo(msg_buf);
 					}
 					else {
@@ -8010,6 +8023,14 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 			RemoveOutputMessages(rParam.LocID, rmv_debug_mode);
 		}
 		PPWait(0);
+	}
+	else if(rParam.DocType == PPEDIOP_EGAIS_NOTIFY_WBVER2) {
+		Ack    ack;
+		Packet qp(PPEDIOP_EGAIS_NOTIFY_WBVER2);
+		if(PutQuery(qp, rParam.LocID, "InfoVersionTTN", ack))
+			query_sended = 1;
+		else
+			do_report_error = 1;
 	}
 	else if(rParam.DocType == PPEDIOP_EGAIS_QUERYFORMA) {
 		if(QueryInfA(rParam.LocID, rParam.ParamString))

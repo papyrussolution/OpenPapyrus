@@ -75,12 +75,13 @@ int PPBnkTerminal::Release()
 int PPBnkTerminal::Connect(int port)
 {
 	int    ok = 1;
+	SString msg;
 	Arr_In.Clear();
 	BnkTermArrAdd(Arr_In, DVCPARAM_PORT, port);
 	Arr_Out.Clear();
-	SString msg = "Œœ≈–¿÷»ﬂ: “≈—“ —¬ﬂ«»";
+	PPLoadText(PPTXT_BNKTRM_TESTCONN, msg);
 	PPWait(1);
-	PPWaitMsg(msg.Transf(CTRANSF_OUTER_TO_INNER));
+	PPWaitMsg(msg);
 	ok = ExecOper(DVCCMD_CONNECT, Arr_In, Arr_Out);
 	PPWait(0);
 	if(ok)
@@ -103,32 +104,42 @@ int PPBnkTerminal::SetConfig(uint logNum)
 	return ExecOper(DVCCMD_SETCFG, Arr_In, Arr_Out);
 }
 
-int PPBnkTerminal::Pay(double amount)
+int PPBnkTerminal::Pay(double amount, SString & rSlip)
 {
+	rSlip = 0;
 	int    ok = 1;
+	SString msg;
 	Arr_In.Clear();
 	Arr_Out.Clear();
 	amount *= 100; // œÂÂ‚Â‰ÂÏ ‚ ÍÓÔÂÈÍË
 	BnkTermArrAdd(Arr_In, DVCPARAM_AMOUNT, (int)amount);
-	SString msg = "Œœ≈–¿÷»ﬂ: ŒœÀ¿“¿\n Œ¡–¿¡Œ“ ¿...";
+	PPLoadText(PPTXT_BNKTRM_PAYMENT, msg);
 	PPWait(1);
-	PPWaitMsg(msg.Transf(CTRANSF_OUTER_TO_INNER));
+	PPWaitMsg(msg);
 	ok = ExecOper(DVCCMD_PAY, Arr_In, Arr_Out);
+	if(ok) {
+		Arr_Out.Get(0, rSlip);
+	}
 	PPWait(0);
 	return ok;
 }
 
-int PPBnkTerminal::Refund(double amount)
+int PPBnkTerminal::Refund(double amount, SString & rSlip)
 {
-	int ok = 1;
+	rSlip = 0;
+	int    ok = 1;
+	SString msg;
 	Arr_In.Clear();
 	Arr_Out.Clear();
 	amount *= 100; // œÂÂ‚Â‰ÂÏ ‚ ÍÓÔÂÈÍË
 	BnkTermArrAdd(Arr_In, DVCPARAM_AMOUNT, (int)amount);
-	SString msg = "Œœ≈–¿÷»ﬂ: ¬Œ«¬–¿“\n Œ¡–¿¡Œ“ ¿...";
+	PPLoadText(PPTXT_BNKTRM_RETURN, msg);
 	PPWait(1);
-	PPWaitMsg(msg.Transf(CTRANSF_OUTER_TO_INNER));
+	PPWaitMsg(msg);
 	ok = ExecOper(DVCCMD_REFUND, Arr_In, Arr_Out);
+	if(ok) {
+		Arr_Out.Get(0, rSlip);
+	}
 	PPWait(0);
 	return ok;
 }
@@ -136,9 +147,10 @@ int PPBnkTerminal::Refund(double amount)
 int PPBnkTerminal::GetSessReport(SString & rZCheck)
 {
 	int    ok = 1;
+	SString msg;
 	Arr_In.Clear();
 	Arr_Out.Clear();
-	SString msg = "Œœ≈–¿÷»ﬂ: «¿ –€“»≈ ƒÕﬂ\n Œ¡–¿¡Œ“ ¿...";
+	PPLoadText(PPTXT_BNKTRM_CLOSESESS, msg);
 	PPWait(1);
 	PPWaitMsg(msg.Transf(CTRANSF_OUTER_TO_INNER));
 	if(ok = ExecOper(DVCCMD_GETBANKREPORT, Arr_In, Arr_Out))

@@ -116,7 +116,7 @@ int FASTCALL BNFieldList::copy(const BNFieldList * pSrc)
 	fields = (BNField *)SAlloc::M(sizeof(BNField) * pSrc->count);
 	if(fields == 0) {
 		count = 0;
-		return (SLibError = SLERR_NOMEM, 0);
+		return 0;
 	}
 	else {
 		memcpy(fields, pSrc->fields, sizeof(BNField) * pSrc->count);
@@ -160,7 +160,7 @@ int SLAPI BNFieldList::addField(const char * pName, TYPEID type, int id)
 		}
 		else {
 			count = 0;
-			ok = (SLibError = SLERR_NOMEM, 0);
+			ok = 0;
 		}
 	}
 	return ok;

@@ -24,11 +24,9 @@
 #include "curl_setup.h"
 
 #if defined(HAVE_SIGNAL_H) && defined(HAVE_SIGACTION) && defined(USE_OPENSSL)
-#include <signal.h>
 
 struct sigpipe_ignore {
 	struct sigaction old_pipe_act;
-
 	bool no_signal;
 };
 

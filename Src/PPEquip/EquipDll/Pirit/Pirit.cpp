@@ -603,6 +603,8 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			THROW(RunCheck(1));
 		}
 		else if(sstreqi_ascii(cmd, "PRINTFISCAL")) {
+			int   tax_entry_id_result = -1;
+			double _vat_rate = 0.0;
 			SetLastItems(cmd, 0);
 			//LastParams = pInputData;
 			//LastCmd = 0;
@@ -623,15 +625,34 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					Check.Code = param_val;
 				// @v9.7.1 {
 				else if(s_param == "VATRATE") {
-					const double _vat_rate = R2(param_val.ToReal());
+					_vat_rate = R2(param_val.ToReal());
+					Check.Tax = 0;
+					tax_entry_id_result = 0;
 					for(uint tidx = 0; tidx < SIZEOFARRAY(DvcTaxArray); tidx++) {
-						if(DvcTaxArray[tidx].Name[0] && feqeps(DvcTaxArray[tidx].Rate, _vat_rate, 1E-5))
+						if(DvcTaxArray[tidx].Name[0] && feqeps(DvcTaxArray[tidx].Rate, _vat_rate, 1E-5)) {
 							Check.Tax = (int)tidx;
+							tax_entry_id_result = tidx+1;
+							break;
+						}
 					}
 				}
 				// } @v9.7.1 
 				// } @v9.5.7 
 			}
+			// @debug {
+			if(LogFileName.NotEmpty()) {
+				if(tax_entry_id_result < 0) {
+					(str = "TaxEntry isn't identified").CatDiv(':', 2).Cat(_vat_rate);
+				}
+				else if(tax_entry_id_result == 0) {
+					(str = "TaxEntry isn't found").CatDiv(':', 2).Cat(_vat_rate);
+				}
+				else if(tax_entry_id_result > 0) {
+					(str = "TaxEntry is found").CatDiv(':', 2).Cat(tax_entry_id_result-1).CatDiv(',', 2).Cat(_vat_rate);
+				}
+				SLS.LogMessage(LogFileName, str);
+			}
+			// } @debug 
 			THROW(RunCheck(2));
 		}
 		else if(sstreqi_ascii(cmd, "PRINTTEXT")) {
@@ -929,7 +950,11 @@ int PiritEquip::GetTaxTab()
 	SString in_data;
 	SString out_data;
 	SString r_error;
+	SString log_buf;
 	for(int i = 0; i < 5; i++) { // В пирите не более 6 налоговых ставок
+
+		MEMSZERO(DvcTaxArray[i]);
+
 		in_data = 0;
 		CreateStr(40, in_data); // Наименование i-й налоговой ставки
 		CreateStr(i, in_data);
@@ -949,6 +974,14 @@ int PiritEquip::GetTaxTab()
 			}
 			DvcTaxArray[i].Rate = ((double)out_data.ToLong()) / 10000.0;
 		}
+		if(i == 0)
+			log_buf.Cat("DvcTaxArray").CatDiv(':', 2);
+		else
+			log_buf.CatDiv(';', 2);
+		log_buf.Cat(DvcTaxArray[i].Name).CatDiv(',', 2).Cat(DvcTaxArray[i].Rate, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+	}
+	if(LogFileName.NotEmpty()) {
+		SLS.LogMessage(LogFileName, log_buf, 8192);
 	}
 	CATCHZOK
 	return ok;
@@ -1244,11 +1277,11 @@ int PiritEquip::RunCheck(int opertype)
 						}
 					}
 				}
-				else if((hb1 == 2) || (hb1 == 3) || (gcf_result < 3)) { // Текстовая строка для чека
+				else if(oneof2(hb1, 2, 3) || (gcf_result < 3)) { // Текстовая строка для чека
 					in_data = 0;
 					text_attr = 0;
 					CreateStr(0, in_data);
-					if((Check.FontSize == 1) || (Check.FontSize == 2))
+					if(oneof2(Check.FontSize, 1, 2))
 						text_attr = 0x01;
 					else if(Check.FontSize == 3)
 						text_attr = 0;
@@ -1707,23 +1740,12 @@ int PiritEquip::PrintLogo(int print)
 
 int PiritEquip::GetDateTime(SYSTEMTIME sysDtTm, SString & rDateTime, int dt)
 {
-	SString str;
 	switch(dt) {
 		case 0:
-			(str = 0).CatLongZ(sysDtTm.wDay, 2);
-			(rDateTime = 0).Cat(str);
-			(str = 0).CatLongZ(sysDtTm.wMonth, 2);
-			rDateTime.Cat(str);
-			(str = 0).Cat(sysDtTm.wYear % 100);
-			rDateTime.Cat(str);
+			(rDateTime = 0).CatLongZ(sysDtTm.wDay, 2).CatLongZ(sysDtTm.wMonth, 2).Cat(sysDtTm.wYear % 100);
 			break;
 		case 1:
-			(str = 0).CatLongZ(sysDtTm.wHour, 2);
-			(rDateTime = 0).Cat(str);
-			(str = 0).CatLongZ(sysDtTm.wMinute, 2);
-			rDateTime.Cat(str);
-			(str = 0).CatLongZ(sysDtTm.wSecond, 2);
-			rDateTime.Cat(str);
+			(rDateTime = 0).CatLongZ(sysDtTm.wHour, 2).CatLongZ(sysDtTm.wMinute, 2).CatLongZ(sysDtTm.wSecond, 2);
 			break;
 	}
 	return 1;

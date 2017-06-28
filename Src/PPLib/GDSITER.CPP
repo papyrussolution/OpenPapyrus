@@ -960,7 +960,7 @@ int SLAPI GoodsGroupIterator::Init(PPID parentID, long flags)
 				THROW_MEM(ptr = new char[s]);
 				*(PPID *)ptr = grec.ID;
 				memcpy(ptr+hs, code, cs);
-				memcpy(ptr+hs+cs, (const char *)grp_name, grp_name.Len()+1);
+				memcpy(ptr+hs+cs, grp_name.cptr(), grp_name.Len()+1);
 				THROW_SL(List.insert(ptr));
 			}
 		}

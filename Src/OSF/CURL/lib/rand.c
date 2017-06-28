@@ -22,9 +22,6 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-#ifdef HAVE_FCNTL_H
-	#include <fcntl.h>
-#endif
 //#include <curl/curl.h>
 #include "vtls/vtls.h"
 //#include "sendf.h"

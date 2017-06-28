@@ -95,7 +95,7 @@ int SLAPI WinService::Create(const char * pDisplayName, const char * pModuleName
 		else
 			GetModuleFileName(NULL, path, sizeof(path));
 		if(!H) {
-			H = CreateService(*P_ScMngr, (const char *)Name, pDisplayName ? pDisplayName : (const char *)Name,
+			H = CreateService(*P_ScMngr, Name.cptr(), pDisplayName ? pDisplayName : Name.cptr(),
     	    	SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
         		path, NULL, NULL, NULL, p_login, p_pw);
 			ok = H ? 1 : 0;

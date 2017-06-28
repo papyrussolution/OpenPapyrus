@@ -67,7 +67,7 @@
 #ifdef HAVE_UNSIGNED_CHAR
 
 typedef unsigned char JSAMPLE;
-#define GETJSAMPLE(value)  ((int) (value))
+#define GETJSAMPLE(value)  ((int)(value))
 
 #else /* not HAVE_UNSIGNED_CHAR */
 
@@ -181,15 +181,15 @@ typedef char JOCTET;
  * typedefs live at a different point on the speed/space tradeoff curve.)
  */
 
-/* UINT8 must hold at least the values 0..255. */
+/* uint8 must hold at least the values 0..255. */
 
 #ifdef HAVE_UNSIGNED_CHAR
-typedef unsigned char UINT8;
+typedef unsigned char uint8;
 #else /* not HAVE_UNSIGNED_CHAR */
 #ifdef CHAR_IS_UNSIGNED
-typedef char UINT8;
+typedef char uint8;
 #else /* not CHAR_IS_UNSIGNED */
-typedef short UINT8;
+typedef short uint8;
 #endif /* CHAR_IS_UNSIGNED */
 #endif /* HAVE_UNSIGNED_CHAR */
 
@@ -237,49 +237,43 @@ typedef unsigned int JDIMENSION;
  * or code profilers that require it.
  */
 
-#define METHODDEF(type) static type /* a function called through method pointers: */
-#define LOCAL(type)     static type /* a function used only in its module: */
-#define GLOBAL(type)    type /* a function referenced thru EXTERNs: */
-#define EXTERN(type)    extern type /* a reference to a GLOBAL function: */
-
-
-/* This macro is used to declare a "method", that is, a function pointer.
- * We want to supply prototype parameters if the compiler can cope.
- * Note that the arglist parameter must be parenthesized!
- * Again, you can customize this if you need special linkage keywords.
- */
-
+#define METHODDEF(type) static type // a function called through method pointers: 
+#define LOCAL(type)     static type // a function used only in its module: 
+#define GLOBAL(type)    type // a function referenced thru EXTERNs: 
+#define EXTERN(type)    extern type // a reference to a GLOBAL function: 
+// 
+// This macro is used to declare a "method", that is, a function pointer.
+// We want to supply prototype parameters if the compiler can cope.
+// Note that the arglist parameter must be parenthesized!
+// Again, you can customize this if you need special linkage keywords.
+// 
 #ifdef HAVE_PROTOTYPES
-#define JMETHOD(type,methodname,arglist)  type (*methodname) arglist
+	#define JMETHOD(type,methodname,arglist)  type (*methodname) arglist
 #else
-#define JMETHOD(type,methodname,arglist)  type (*methodname) ()
+	#define JMETHOD(type,methodname,arglist)  type (*methodname) ()
 #endif
-
-
-/* The noreturn type identifier is used to declare functions
- * which cannot return.
- * Compilers can thus create more optimized code and perform
- * better checks for warnings and errors.
- * Static analyzer tools can make improved inferences about
- * execution paths and are prevented from giving false alerts.
- *
- * Unfortunately, the proposed specifications of corresponding
- * extensions in the Dec 2011 ISO C standard revision (C11),
- * GCC, MSVC, etc. are not viable.
- * Thus we introduce a user defined type to declare noreturn
- * functions at least for clarity.  A proper compiler would
- * have a suitable noreturn type to match in place of void.
- */
-
+// 
+// The noreturn type identifier is used to declare functions which cannot return.
+// Compilers can thus create more optimized code and perform better checks for warnings and errors.
+// Static analyzer tools can make improved inferences about
+// execution paths and are prevented from giving false alerts.
+// 
+// Unfortunately, the proposed specifications of corresponding
+// extensions in the Dec 2011 ISO C standard revision (C11),
+// GCC, MSVC, etc. are not viable.
+// Thus we introduce a user defined type to declare noreturn
+// functions at least for clarity.  A proper compiler would
+// have a suitable noreturn type to match in place of void.
+// 
 #ifndef HAVE_NORETURN_T
 	typedef void noreturn_t;
 #endif
-
-/* Here is the pseudo-keyword for declaring pointers that must be "far"
- * on 80x86 machines.  Most of the specialized coding for 80x86 is handled
- * by just saying "FAR *" where such a pointer is needed.  In a few places
- * explicit coding is needed; see uses of the NEED_FAR_POINTERS symbol.
- */
+// 
+// Here is the pseudo-keyword for declaring pointers that must be "far"
+// on 80x86 machines.  Most of the specialized coding for 80x86 is handled
+// by just saying "FAR *" where such a pointer is needed.  In a few places
+// explicit coding is needed; see uses of the NEED_FAR_POINTERS symbol.
+// 
 #ifndef FAR
 	#ifdef NEED_FAR_POINTERS
 		#define FAR  far

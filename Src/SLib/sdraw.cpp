@@ -1195,7 +1195,7 @@ int SImageBuffer::Palette::Alloc(uint count)
 			Count = count;
 		else {
 			Count = 0;
-			ok = SLS.SetError(SLERR_NOMEM);
+			ok = 0;
 		}
 	}
 	else
@@ -2281,9 +2281,8 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 	if(pageIdx < hdr.idCount) {
 		BITMAPINFOHEADER bm_hdr;
 		size_t dir_entry_size = sizeof(IconDirEntry) * hdr.idCount;
-		THROW_S(p_idir = (IconDirEntry *)SAlloc::M(dir_entry_size), SLERR_NOMEM);
+		THROW(p_idir = (IconDirEntry *)SAlloc::M(dir_entry_size));
 		THROW(rF.ReadV(p_idir, dir_entry_size));
-
 		THROW(rF.Seek(p_idir[pageIdx].dwImageOffset));
 		THROW(rF.ReadV(&bm_hdr, sizeof(bm_hdr)));
 		total_rc_size += sizeof(bm_hdr);
@@ -2461,7 +2460,7 @@ int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 						}
 					}
 					else
-						ok = SLS.SetError(SLERR_NOMEM);
+						ok = 0;
 				}
 			}
 			else
@@ -2592,7 +2591,7 @@ int SImageBuffer::LoadPng(SFile & rF)
 		png_set_filler(p_png, 0xff, PNG_FILLER_AFTER);
 		png_read_update_info(p_png, p_info);
 		THROW(Init(width, 0));
-		THROW_S(p_row_buf = (uint8 *)SAlloc::M(width*sizeof(uint32)), SLERR_NOMEM);
+		THROW(p_row_buf = (uint8 *)SAlloc::M(width*sizeof(uint32)));
 		{
 			PixF fmt = PixF::s32ARGB;
 			int  pass_count = png_set_interlace_handling(p_png);
@@ -2638,7 +2637,7 @@ int SImageBuffer::StorePng(const StoreParam & rP, SFile & rF)
 	uint8 ** volatile pp_rows = 0;
 	const uint stride = F.GetStride(S.x);
 	THROW(S.x && S.y); // no image
-	THROW_S(pp_rows = (uint8 **)SAlloc::M(S.y * sizeof(uint8*)), SLERR_NOMEM);
+	THROW(pp_rows = (uint8 **)SAlloc::M(S.y * sizeof(uint8*)));
 	for(int i = 0; i < S.y; i++) {
 		pp_rows[i] = (uint8 *)P_Buf+i*stride;
 	}
@@ -2718,11 +2717,11 @@ int SImageBuffer::LoadGif(SFile & rF)
 		// GIF file parameters.
 		//
 		size_t size = 0;
-		THROW_S(p_buffer = (GifRowType *)SAlloc::M(p_gf->SHeight * sizeof(GifRowType)), SLERR_NOMEM);
+		THROW(p_buffer = (GifRowType *)SAlloc::M(p_gf->SHeight * sizeof(GifRowType)));
 		size = p_gf->SWidth * sizeof(GifPixelType); // Size in bytes one row
 		for(i = 0; i < p_gf->SHeight; i++) {
 			// Allocate rows, and set their color to background
-			THROW_S(p_buffer[i] = (GifRowType)SAlloc::M(size), SLERR_NOMEM);
+			THROW(p_buffer[i] = (GifRowType)SAlloc::M(size));
 			memset(p_buffer[i], p_gf->SBackGroundColor, size); // Set its color to BackGround
 		}
 	}

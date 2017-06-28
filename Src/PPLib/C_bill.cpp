@@ -125,7 +125,7 @@ int SLAPI PPObjBill::GatherPayments()
 					if(paym != real_paym) {
 						//"Неверная сумма оплаты по документу '%s' (факт=%.2lf, правильно=%.2lf)"
 						PPLoadText(PPTXT_LOG_INVBILLPAYMAMOUNT, fmt_buf);
-						msg_buf.Printf(fmt_buf, (const char *)bill_name, paym, real_paym);
+						msg_buf.Printf(fmt_buf, bill_name.cptr(), paym, real_paym);
 						logger.Log(msg_buf);
 						AmtEntry ae(PPAMT_PAYMENT, cur_id, real_paym);
 						THROW(P_Tbl->UpdateAmount(bill_id, &ae, 1));
@@ -134,13 +134,13 @@ int SLAPI PPObjBill::GatherPayments()
 						if(f != f1) {
 							//"Неверно установлен признак 'оплачено' по документу '%s' (факт=%d, правильно=%d)"
 							PPLoadText(PPTXT_LOG_INVBILLPAYMFLAG, fmt_buf);
-							msg_buf.Printf(fmt_buf, (const char *)bill_name, BIN(f1 & BILLF_PAYOUT), BIN(f & BILLF_PAYOUT));
+							msg_buf.Printf(fmt_buf, bill_name.cptr(), BIN(f1 & BILLF_PAYOUT), BIN(f & BILLF_PAYOUT));
 							logger.Log(msg_buf);
 						}
 						if(real_paym != omt_paymamt) {
 							//"Неверная включенная сумма оплаты по документу '%s' (факт=%.2lf, правильно=%.2lf)"
 							PPLoadText(PPTXT_LOG_INVBILLOMTPAYMAMT, fmt_buf);
-							msg_buf.Printf(fmt_buf, (const char *)bill_name, omt_paymamt, real_paym);
+							msg_buf.Printf(fmt_buf, bill_name.cptr(), omt_paymamt, real_paym);
 							logger.Log(msg_buf);
 						}
 						THROW_DB(updateFor(P_Tbl, 0, (P_Tbl->ID == bill_id), set(P_Tbl->Flags, dbconst(f)).set(P_Tbl->PaymAmount, dbconst(real_paym))));
@@ -177,7 +177,7 @@ int SLAPI PPObjBill::CheckAmounts(PPID id, PPLogger & rLogger)
 				if(PPLoadString(PPMSG_ERROR, PPERR_NMATCHBILLAMT, fmt_buf)) {
 					MakeCodeString(&pack.Rec, 1, bill_buf);
 					GetObjectName(PPOBJ_AMOUNTTYPE, t, amt_buf);
-					log_buf.Printf(fmt_buf, (const char *)bill_buf, t, (const char *)amt_buf, bamt, ramt, bamt-ramt);
+					log_buf.Printf(fmt_buf, bill_buf.cptr(), t, (const char *)amt_buf, bamt, ramt, bamt-ramt);
 					rLogger.Log(log_buf);
 				}
 			}
@@ -187,7 +187,7 @@ int SLAPI PPObjBill::CheckAmounts(PPID id, PPLogger & rLogger)
 		if(bamt != ramt) {
 			if(PPLoadString(PPMSG_ERROR, PPERR_NMATCHBILLMAINAMT, fmt_buf)) {
 				MakeCodeString(&pack.Rec, 1, bill_buf);
-				log_buf.Printf(fmt_buf, (const char *)bill_buf, bamt, ramt, bamt-ramt);
+				log_buf.Printf(fmt_buf, bill_buf.cptr(), bamt, ramt, bamt-ramt);
 				rLogger.Log(log_buf);
 			}
 		}

@@ -1806,6 +1806,8 @@ int SFileFormat::Register()
 	Register(Properties,       0, "properties", (const char *)0); // @v9.7.1
 	Register(Css,              0, "css", (const char *)0); // @v9.7.1
 	Register(JavaScript,       0, "js", (const char *)0); // @v9.7.1
+	Register(Json,             0, "json", "T{"); // @v9.7.2
+	Register(Json,             0, "json", "T["); // @v9.7.2
 
 	return ok;
 }

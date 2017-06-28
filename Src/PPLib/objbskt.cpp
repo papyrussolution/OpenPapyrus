@@ -646,7 +646,7 @@ int SLAPI PPObjGoodsBasket::GetPreferredBasket(PPBasketCombine & rC)
 		if(id && Search(id, &rec) > 0) {
 			if(IsLocked(id)) {
 				PPLoadText(PPTXT_OWNBASKETISLOCKED, fmt_buf);
-				msg_buf.Printf(fmt_buf, rec.Name, (const char *)DS.GetConstTLA().AddedMsgString);
+				msg_buf.Printf(fmt_buf, rec.Name, DS.GetConstTLA().AddedMsgString.cptr());
 				if(Select(&(id = 0), msg_buf) > 0)
 					ok = 1;
 			}
@@ -656,7 +656,7 @@ int SLAPI PPObjGoodsBasket::GetPreferredBasket(PPBasketCombine & rC)
 		else if(SearchDefaultBasket(&id, &rec) > 0) {
 			if(IsLocked(id)) {
 				PPLoadText(PPTXT_DEFBASKETISLOCKED, fmt_buf);
-				msg_buf.Printf(fmt_buf, rec.Name, (const char *)DS.GetConstTLA().AddedMsgString);
+				msg_buf.Printf(fmt_buf, rec.Name, DS.GetConstTLA().AddedMsgString.cptr());
 				if(Select(&(id = 0), msg_buf) > 0)
 					ok = 1;
 			}

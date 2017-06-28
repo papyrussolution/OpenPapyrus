@@ -880,7 +880,6 @@ __owur static int ecp_nistz256_mult_precompute(EC_GROUP * group, BN_CTX * ctx)
 		if(!EC_POINT_add(group, T, T, generator, ctx))
 			goto err;
 	}
-
 	pre_comp->group = group;
 	pre_comp->w = w;
 	pre_comp->precomp = preComputedTable;
@@ -889,12 +888,9 @@ __owur static int ecp_nistz256_mult_precompute(EC_GROUP * group, BN_CTX * ctx)
 	SETPRECOMP(group, nistz256, pre_comp);
 	pre_comp = NULL;
 	ret = 1;
-
 err:
-	if(ctx != NULL)
-		BN_CTX_end(ctx);
+	BN_CTX_end(ctx);
 	BN_CTX_free(new_ctx);
-
 	EC_nistz256_pre_comp_free(pre_comp);
 	OPENSSL_free(precomp_storage);
 	EC_POINT_free(P);
@@ -1386,8 +1382,7 @@ __owur static int ecp_nistz256_points_mul(const EC_GROUP * group,
 	ret = 1;
 
 err:
-	if(ctx)
-		BN_CTX_end(ctx);
+	BN_CTX_end(ctx);
 	BN_CTX_free(new_ctx);
 	OPENSSL_free(new_points);
 	OPENSSL_free(new_scalars);

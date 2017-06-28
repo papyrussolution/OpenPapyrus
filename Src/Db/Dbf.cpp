@@ -466,10 +466,8 @@ int SLAPI DbfTable::initBuffer()
 {
 	BufSize = 1024 * 8;
 	P_Buffer  = (char *)SAlloc::M(BufSize);
-	if(P_Buffer == 0) {
+	if(P_Buffer == 0)
 		BufSize = 0;
-		SLibError = SLERR_NOMEM;
-	}
 	return (BufSize != 0);
 }
 

@@ -1426,6 +1426,7 @@
 #define PPEDIOP_EGAIS_WAYBILL_V2             59 // @v9.5.5
 #define PPEDIOP_EGAIS_TTNINFORMF2REG         60 // @v9.5.5 version 2 of PPEDIOP_EGAIS_TTNINFORMBREG
 #define PPEDIOP_EGAIS_WAYBILLACT_V2          61 // @v9.5.8 version 2 of PPEDIOP_EGAIS_WAYBILLACT
+#define PPEDIOP_EGAIS_NOTIFY_WBVER2          62 // @v9.7.2 Уведомление сервера ЕГАИС об использовании версии 2 протокола обмена
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
 //
@@ -4656,6 +4657,7 @@
 	#define CTL_OBJTRANSM_FLAGS          (6 + WINDOWS_ID_BIAS)
 	#define CTL_OBJTRANSM_TRNSMFLAGS     (7 + WINDOWS_ID_BIAS)
 	#define CTL_OBJTRANSM_FILT           (8 + WINDOWS_ID_BIAS)
+	#define CTL_OBJTRANSM_INMASS         (9 + WINDOWS_ID_BIAS)
 #define DLG_OPCNTR                435 // Счетчик операций
 #define DLG_OPKCOUNTER            436 // Выбор счетчика в виде операций
 	#define cmDiffByLoc                  101

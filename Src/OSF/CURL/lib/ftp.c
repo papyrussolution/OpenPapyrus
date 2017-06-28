@@ -47,7 +47,7 @@
 //#include "urldata.h"
 //#include "sendf.h"
 #include "if2ip.h"
-#include "hostip.h"
+//#include "hostip.h"
 //#include "progress.h"
 //#include "transfer.h"
 //#include "escape.h"
@@ -60,14 +60,14 @@
 //#include "strtoofft.h"
 //#include "strcase.h"
 #include "vtls/vtls.h"
-#include "connect.h"
+//#include "connect.h"
 //#include "strerror.h"
 #include "inet_ntop.h"
 #include "inet_pton.h"
 //#include "select.h"
 #include "parsedate.h" /* for the week day and month names */
-#include "sockaddr.h" /* required for Curl_sockaddr_storage */
-#include "multiif.h"
+//#include "sockaddr.h" /* required for Curl_sockaddr_storage */
+//#include "multiif.h"
 //#include "url.h"
 //#include "strcase.h"
 #include "speedcheck.h"

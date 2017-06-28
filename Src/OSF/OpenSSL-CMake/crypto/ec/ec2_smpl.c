@@ -251,22 +251,17 @@ int ec_GF2m_simple_group_check_discriminant(const EC_GROUP * group,
 	b = BN_CTX_get(ctx);
 	if(b == NULL)
 		goto err;
-
 	if(!BN_GF2m_mod_arr(b, group->b, group->poly))
 		goto err;
-
 	/*
 	 * check the discriminant: y^2 + x*y = x^3 + a*x^2 + b is an elliptic
 	 * curve <=> b != 0 (mod p)
 	 */
 	if(BN_is_zero(b))
 		goto err;
-
 	ret = 1;
-
 err:
-	if(ctx != NULL)
-		BN_CTX_end(ctx);
+	BN_CTX_end(ctx);
 	BN_CTX_free(new_ctx);
 	return ret;
 }
@@ -509,12 +504,9 @@ int ec_GF2m_simple_add(const EC_GROUP * group, EC_POINT * r, const EC_POINT * a,
 		goto err;
 	if(!BN_GF2m_add(y2, y2, y1))
 		goto err;
-
 	if(!EC_POINT_set_affine_coordinates_GF2m(group, r, x2, y2, ctx))
 		goto err;
-
 	ret = 1;
-
 err:
 	BN_CTX_end(ctx);
 	BN_CTX_free(new_ctx);
@@ -608,8 +600,7 @@ int ec_GF2m_simple_is_on_curve(const EC_GROUP * group, const EC_POINT * point,
 		goto err;
 	ret = BN_is_zero(lh);
 err:
-	if(ctx)
-		BN_CTX_end(ctx);
+	BN_CTX_end(ctx);
 	BN_CTX_free(new_ctx);
 	return ret;
 }
@@ -660,35 +651,29 @@ int ec_GF2m_simple_cmp(const EC_GROUP * group, const EC_POINT * a,
 	ret = ((BN_cmp(aX, bX) == 0) && BN_cmp(aY, bY) == 0) ? 0 : 1;
 
 err:
-	if(ctx)
-		BN_CTX_end(ctx);
+	BN_CTX_end(ctx);
 	BN_CTX_free(new_ctx);
 	return ret;
 }
 
 /* Forces the given EC_POINT to internally use affine coordinates. */
-int ec_GF2m_simple_make_affine(const EC_GROUP * group, EC_POINT * point,
-    BN_CTX * ctx)
+int ec_GF2m_simple_make_affine(const EC_GROUP * group, EC_POINT * point, BN_CTX * ctx)
 {
 	BN_CTX * new_ctx = NULL;
 	BIGNUM * x, * y;
 	int ret = 0;
-
 	if(point->Z_is_one || EC_POINT_is_at_infinity(group, point))
 		return 1;
-
 	if(ctx == NULL) {
 		ctx = new_ctx = BN_CTX_new();
 		if(ctx == NULL)
 			return 0;
 	}
-
 	BN_CTX_start(ctx);
 	x = BN_CTX_get(ctx);
 	y = BN_CTX_get(ctx);
 	if(y == NULL)
 		goto err;
-
 	if(!EC_POINT_get_affine_coordinates_GF2m(group, point, x, y, ctx))
 		goto err;
 	if(!BN_copy(point->X, x))
@@ -698,12 +683,9 @@ int ec_GF2m_simple_make_affine(const EC_GROUP * group, EC_POINT * point,
 	if(!BN_one(point->Z))
 		goto err;
 	point->Z_is_one = 1;
-
 	ret = 1;
-
 err:
-	if(ctx)
-		BN_CTX_end(ctx);
+	BN_CTX_end(ctx);
 	BN_CTX_free(new_ctx);
 	return ret;
 }

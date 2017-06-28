@@ -35,18 +35,15 @@
 #ifdef HAVE_SYS_UN_H
 	#include <sys/un.h>
 #endif
-
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+	#include <in.h>
+	#include <inet.h>
 #endif
-
 #if defined(NETWARE) && defined(__NOVELL_LIBC__)
-#  undef  in_addr_t
-#  define in_addr_t ulong
+	#undef  in_addr_t
+	#define in_addr_t ulong
 #endif
-#include <stddef.h>
-#include "curl_addrinfo.h"
+//#include "curl_addrinfo.h"
 #include "inet_pton.h"
 #include "warnless.h"
 // The last 3 #include files should be in this order 

@@ -236,9 +236,9 @@ struct AuthAnswerSt {
 	char * P_Check;      // OUT: Образ чека, должен освобождаться GlobalFree в вызывающей программе
 };
 
-typedef int (__cdecl * CardAuthProc) (char *, AuthAnswerSt *);
-typedef int (__cdecl * CloseDayProc) (struct AuthAnswerSt * pAuthAns);
-typedef int (__cdecl * TestPinpadProc) ();
+typedef int (__cdecl * CardAuthProc)(char *, AuthAnswerSt *);
+typedef int (__cdecl * CloseDayProc)(struct AuthAnswerSt * pAuthAns);
+typedef int (__cdecl * TestPinpadProc)();
 //typedef int (__cdecl * GlobalFreeProc) (); // Освобождает поле Check, если оно вернулось непустым
 
 class PPDrvSberTrmnl : public PPBaseDriver {
@@ -255,18 +255,21 @@ public:
 		getExecPath(file_name);
 		DRVS.SetLogFileName(file_name.SetLastSlash().Cat("SberTrmnl.log"));
 	}
-	~PPDrvSberTrmnl() { Release(); }
-
-	int ProcessCommand(const SString & rCmd, const char * pInputData, SString & rOutput);
-	int Init(const char * pLibPath); // Инициализация библиотеки Сбербанка
-	int Connect();
-	int Disconnect();
-	int Release();
-	int Pay(double amount);
-	int Refund(double amount);
-	int GetSessReport(SString & rCheck); // Итоги дня	
+	~PPDrvSberTrmnl() 
+	{ 
+		Release(); 
+	}
+	int    ProcessCommand(const SString & rCmd, const char * pInputData, SString & rOutput);
+	int    Init(const char * pLibPath); // Инициализация библиотеки Сбербанка
+	int    Connect();
+	int    Disconnect();
+	int    Release();
+	int    Pay(double amount, SString & rSlip);
+	int    Refund(double amount, SString & rSlip);
+	int    GetSessReport(SString & rCheck); // Итоги дня	
 private:
-	long LogNum;
+	long   LogNum;
+	SString SlipFileName;
 	SDynLibrary * P_Lib;
 	CardAuthProc   CardAuth;
     CloseDayProc   CloseDay;
@@ -481,8 +484,8 @@ PPDRV_INSTANCE_ERRTAB(SberTrmnl, 1, 0, PPDrvSberTrmnl, _ErrMsgTab);
 
 int PPDrvSberTrmnl::Init(const char * pLibPath)
 {
-	int ok = 1;
-
+	int    ok = 1;
+	SlipFileName = 0;
 	if(P_Lib) {
 		CardAuth = 0;
 		CloseDay = 0;
@@ -498,15 +501,33 @@ int PPDrvSberTrmnl::Init(const char * pLibPath)
 	TestPinpad = (TestPinpadProc)P_Lib->GetProcAddr("_TestPinpad");
 	//GlobalFree = (GlobalFreeProc)P_Lib->GetProcAddr("GlobalFree");
 	THROWERR(P_Lib && CardAuth && CloseDay && TestPinpad /*&& GlobalFree*/, SBRBNK_ERR_DLLFILENOTFOUND);
-
+	{
+		SString ini_file_name;
+		(ini_file_name = pLibPath).Strip().SetLastSlash().Cat("pinpad.ini");
+		if(fileExists(ini_file_name)) {
+			SString slip_file_name;
+			SIniFile ini_file("pinpad.ini");
+			if(ini_file.GetParam(0, "printerfile", slip_file_name) > 0) {
+				SPathStruc ps;
+				ps.Split(slip_file_name);
+				if(ps.Drv.Empty() && ps.Dir.Empty()) {
+					(SlipFileName = pLibPath).SetLastSlash().Cat(slip_file_name);
+				}
+				else
+					SlipFileName = slip_file_name;
+			}
+		}
+		if(SlipFileName.Empty()) {
+			(SlipFileName = pLibPath).SetLastSlash().Cat("p");
+		}
+	}
 	CATCH
 		ok = 0;
 		CardAuth = 0;
 		CloseDay = 0;
 		TestPinpad = 0;
 		//GlobalFree = 0;
-		if(P_Lib)
-			ZDELETE(P_Lib);
+		ZDELETE(P_Lib);
 		{
 			SString msg, buf;
 			DRVS.GetErrText(serrNotInited, msg);
@@ -524,8 +545,7 @@ int PPDrvSberTrmnl::Release()
 	CloseDay = 0;
 	TestPinpad = 0;
 	//GlobalFree = 0;
-	if(P_Lib)
-		ZDELETE(P_Lib);
+	ZDELETE(P_Lib);
 	return 1;
 }
 
@@ -533,11 +553,10 @@ int PPDrvSberTrmnl::Release()
 // Чтбы проверить наличие соединения, запросим список терминалов/валют
 int PPDrvSberTrmnl::Connect()
 {
-	int ok = 1, result = SBRBNK_ERR_OK;
-
+	int    ok = 1;
+	int    result = SBRBNK_ERR_OK;
 	// Проверим соединение с пинпадом
 	THROWERR((result = TestPinpad()) == SBRBNK_ERR_OK, SBRBNK_ERR_NOTCONNECTED);
-
 	CATCH
 		ok = 0;
 		{
@@ -556,8 +575,9 @@ int PPDrvSberTrmnl::Disconnect()
 	return 1;
 }
 
-int PPDrvSberTrmnl::Pay(double amount)
+int PPDrvSberTrmnl::Pay(double amount, SString & rSlip)
 {
+	rSlip = 0;
 	int    ok = 1;
 	int    result = SBRBNK_ERR_OK;
 	AuthAnswerSt auth_answr;
@@ -566,8 +586,11 @@ int PPDrvSberTrmnl::Pay(double amount)
 	auth_answr.Amount = (ulong)(amount); // Сумма передается в копейках
 	//auth_answr.CType = SBRBNK_CRDTYPE_MAESTRO;
 	THROWERR((result = CardAuth(0, &auth_answr)) == SBRBNK_ERR_OK, SBRBNK_ERR_PAY); // Будем надеяться, что код ошибки и так вернет
-	//if(strlen(auth_answr.P_Check))
-	//	GlobalFree();
+	if(!isempty(auth_answr.P_Check)) {
+		rSlip = auth_answr.P_Check;
+		::GlobalFree(auth_answr.P_Check);
+		auth_answr.P_Check = 0;
+	}
 	CATCH
 		ok = 0;
 		{
@@ -586,18 +609,21 @@ int PPDrvSberTrmnl::Pay(double amount)
 	return ok;
 }
 
-int PPDrvSberTrmnl::Refund(double amount)
+int PPDrvSberTrmnl::Refund(double amount, SString & rSlip)
 {
-	int ok = 1, result = SBRBNK_ERR_OK;
+	rSlip = 0;
+	int    ok = 1;
+	int    result = SBRBNK_ERR_OK;
 	AuthAnswerSt auth_answr;
-	
 	MEMSZERO(auth_answr);
 	auth_answr.TType = SBRBNK_FUNC_REFUND;
 	auth_answr.Amount = (ulong)(amount); // Сумма передается в копейках
 	THROWERR((result = CardAuth(0, &auth_answr)) == SBRBNK_ERR_OK, SBRBNK_ERR_REFUND); // Будем надеяться, что код ошибки и так вернет
-	//if(strlen(auth_answr.P_Check))
-	//	GlobalFree();
-
+	if(!isempty(auth_answr.P_Check)) {
+		rSlip = auth_answr.P_Check;
+		::GlobalFree(auth_answr.P_Check);
+		auth_answr.P_Check = 0;
+	}
 	CATCH
 		ok = 0;
 		{
@@ -625,8 +651,8 @@ int PPDrvSberTrmnl::GetSessReport(SString & rCheck)
 	// Если в прошлый раз выходного буфера было недостаточно (это проверяется где-то выше),
 	// то сейчас повторно вызовется закрытие дня. Что произойдет?
 	THROWERR((result = CloseDay(&auth_answr)) == SBRBNK_ERR_OK, SBRBNK_ERR_CLOSEDAY); // Будем надеяться, что код ошибки и так вернет
-	if(auth_answr.P_Check && (strlen(auth_answr.P_Check) > 0)) {
-		rCheck.CopyFrom(auth_answr.P_Check);
+	if(sstrlen(auth_answr.P_Check)) {
+		rCheck = auth_answr.P_Check;
 		//GlobalFree();
 	}
 	// Так как даже при ошибке глупая сберовская dll не возвращает ошибку в result, а пишет только в Rcode, то делаем такую хитрость
@@ -676,11 +702,11 @@ int PPDrvSberTrmnl::ProcessCommand(const SString & rCmd, const char * pInputData
 	}
 	else if(rCmd == "PAY") {
 		double amount = (pb.Get("AMOUNT", value) > 0) ? value.ToReal() : 0;
-		THROW(Pay(amount));
+		THROW(Pay(amount, rOutput));
 	}
 	else if(rCmd == "REFUND") {
 		double amount = (pb.Get("AMOUNT", value) > 0) ? value.ToReal() : 0;
-		THROW(Refund(amount));
+		THROW(Refund(amount, rOutput));
 	}
 	else if(rCmd == "GETBANKREPORT") {
 		// Получаем отчет по операциям за день (грубо говоря, закрытие сессии)

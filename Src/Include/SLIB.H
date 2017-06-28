@@ -341,35 +341,6 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 	//#define stricmp  A_stricmp
 	//#define strstr   A_strstr
 #endif
-#if SALLOCATOR == SALLOC_NEDMALLOC
-
-	#include <nedmalloc.h>
-
-	inline void * SAlloc::M(size_t sz)
-	{
-		return nedmalloc(sz);
-	}
-	inline void * SAlloc::C(size_t n, size_t sz)
-	{
-		return nedcalloc(n, sz);
-	}
-	inline void * SAlloc::R(void * ptr, size_t sz)
-	{
-		return nedrealloc(ptr, sz);
-	}
-	inline void SAlloc::F(void * ptr)
-	{
-		return nedfree(ptr);
-	}
-	inline void * operator new(size_t sz)
-	{
-		return nedmalloc(sz);
-	}
-	inline void operator delete(void * ptr)
-	{
-		nedfree(ptr);
-	}
-#endif
 
 class SAlloc {
 public:
@@ -378,6 +349,9 @@ public:
 	static void * FASTCALL R(void * ptr, size_t sz);
 	static void   FASTCALL F(void * ptr);
 };
+
+void * operator new(size_t sz);
+void operator delete(void * ptr);
 //
 // Экземпляр SCriticalSection::Data создается с признаком
 // DontDestroyOnDestruction который припятствует "преждевременному"
@@ -2134,6 +2108,16 @@ private:
 #define SLERR_FANN_INVLAYERCOUNT               521 // Не допустимое количество слоев нейронной сети
 #define SLERR_FANN_INVLAYERSIZE                522 // Не допустимый размер слоя нейронной сети
 #define SLERR_FANN_INVTRAINALG                 523 // Не допустимый алгоритм обучения нейронной сети
+//#define SLERR_JSON_OK = 1,                  // everything went smoothly
+//#define SLERR_JSON_MEMORY,                   // an error occurred when allocating memory
+#define SLERR_JSON_INCOMPLETE_DOCUMENT         550 // the parsed document didn't ended
+#define SLERR_JSON_WAITING_FOR_EOF             551 // A complete JSON document tree was already finished but needs to get to EOF. Other characters beyond whitespaces produce errors
+#define SLERR_JSON_MALFORMED_DOCUMENT          552 // the JSON document which was fed to this parser is malformed
+#define SLERR_JSON_INCOMPATIBLE_TYPE           553 // the currently parsed type does not belong here
+#define SLERR_JSON_ILLEGAL_CHARACTER           554 // the currently parsed character does not belong here
+#define SLERR_JSON_BAD_TREE_STRUCTURE          555 // the document tree structure is malformed
+#define SLERR_JSON_MAXIMUM_LENGTH              556 // the parsed string reached the maximum allowed size
+#define SLERR_JSON_UNKNOWN_PROBLEM             557 // some random, unaccounted problem occurred
 
 // LastError
 //
@@ -5685,6 +5669,7 @@ public:
 	T * FASTCALL CreateNewItem(uint * pPosition)
 	{
 		T * p_new_item = new T;
+		/*
 		if(!p_new_item)
 			SLS.SetError(SLERR_NOMEM);
 		else if(insert(p_new_item)) {
@@ -5692,15 +5677,29 @@ public:
 		}
 		else
 			ZDELETE(p_new_item);
+		*/
+		if(p_new_item) {
+			if(insert(p_new_item)) {
+				ASSIGN_PTR(pPosition, count-1);
+			}
+			else
+				ZDELETE(p_new_item);
+		}
 		return p_new_item;
 	}
 	T * FASTCALL CreateNewItem()
 	{
 		T * p_new_item = new T;
+		/*
 		if(!p_new_item)
 			SLS.SetError(SLERR_NOMEM);
 		else if(!insert(p_new_item))
 			ZDELETE(p_new_item);
+		*/
+		if(p_new_item) {
+			if(!insert(p_new_item))
+				ZDELETE(p_new_item);
+		}
 		return p_new_item;
 	}
 };
@@ -5736,7 +5735,7 @@ template <class T> int TSDupPtr(T ** ppDest, T * pSrc)
 		if(*ppDest)
 			**ppDest = *pSrc;
 		else
-			ok = SLS.SetError(SLERR_NOMEM);
+			ok = 0; //SLS.SetError(SLERR_NOMEM);
 	}
 	return ok;
 }
@@ -7823,6 +7822,7 @@ public:
 		Properties,        // @v9.7.1 Файл properties. Обычно текстовый файл аналогичный ini, но без зональности ([]).
 		Css,               // @v9.7.1 CSS
 		JavaScript,        // @v9.7.1 JS
+		Json,              // @v9.7.2
 
 		FirstUser = 10000
 	};

@@ -2102,11 +2102,11 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 			if(Operator == oSet) {
 				// @Muxa {
 				json_t * p_json_doc = NULL;
-				if(json_parse_document(&p_json_doc, (const char *)JSONString) == JSON_OK) {
+				if(json_parse_document(&p_json_doc, JSONString.cptr()) == JSON_OK) {
 					DlContext * p_ctx = NULL;
 					DlRtm * p_rtm = NULL;
 					THROW(p_ctx = DS.GetInterfaceContext(PPSession::ctxtExportData));
-					THROW(p_rtm = p_ctx->GetRtm((const char *)DL600StrucName));
+					THROW(p_rtm = p_ctx->GetRtm(DL600StrucName.cptr()));
 					long id = 0;
 					int  r = p_rtm->SetByJSON(p_json_doc, id);
 					json_free_value(&p_json_doc);

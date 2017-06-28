@@ -35,9 +35,6 @@
 #ifdef HAVE_NET_IF_H
 	#include <net/if.h>
 #endif
-#ifdef HAVE_SYS_IOCTL_H
-	#include <sys/ioctl.h>
-#endif
 #ifdef HAVE_SYS_PARAM_H
 	#include <sys/param.h>
 #endif
@@ -47,10 +44,10 @@
 //#include "sendf.h"
 #include "tftp.h"
 //#include "progress.h"
-#include "connect.h"
+//#include "connect.h"
 //#include "strerror.h"
-#include "sockaddr.h" /* required for Curl_sockaddr_storage */
-#include "multiif.h"
+//#include "sockaddr.h" /* required for Curl_sockaddr_storage */
+//#include "multiif.h"
 //#include "url.h"
 //#include "strcase.h"
 #include "speedcheck.h"

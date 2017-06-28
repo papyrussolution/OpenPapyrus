@@ -1829,11 +1829,11 @@ int Fann::AllocateNeurons()
 int Fann::AllocateConnections()
 {
 	int    ok = 1;
-	THROW_S(P_Weights = (ANNTYP *)SAlloc::C(TotalConnections, sizeof(ANNTYP)), SLERR_NOMEM);
+	THROW(P_Weights = (ANNTYP *)SAlloc::C(TotalConnections, sizeof(ANNTYP)));
 	TotalConnectionsAllocated = TotalConnections;
 	// TODO make special cases for all places where the connections
 	// is used, so that it is not needed for fully connected networks
-	THROW_S(PP_Connections = (Fann::Neuron **)SAlloc::C(TotalConnectionsAllocated, sizeof(Fann::Neuron *)), SLERR_NOMEM);
+	THROW(PP_Connections = (Fann::Neuron **)SAlloc::C(TotalConnectionsAllocated, sizeof(Fann::Neuron *)));
 	CATCH
 		ok = 0;
 		fann_error(&Err, SLERR_FANN_CANT_ALLOCATE_MEM);
@@ -2053,11 +2053,11 @@ int Fann::ReallocateConnections(uint totalConnections)
 	int   ok = 1;
 	// The connections are allocated, but the pointers inside are
 	// first moved in the end of the cascade training session.
-	THROW_S(PP_Connections = (Fann::Neuron**)SAlloc::R(PP_Connections, totalConnections * sizeof(Fann::Neuron *)), SLERR_NOMEM);
-	THROW_S(P_Weights = (ANNTYP*)SAlloc::R(P_Weights, totalConnections * sizeof(ANNTYP)), SLERR_NOMEM);
-	THROW_S(P_TrainSlopes = (ANNTYP*)SAlloc::R(P_TrainSlopes, totalConnections * sizeof(ANNTYP)), SLERR_NOMEM);
-	THROW_S(P_PrevSteps = (ANNTYP*)SAlloc::R(P_PrevSteps, totalConnections * sizeof(ANNTYP)), SLERR_NOMEM);
-	THROW_S(P_PrevTrainSlopes = (ANNTYP*)SAlloc::R(P_PrevTrainSlopes, totalConnections * sizeof(ANNTYP)), SLERR_NOMEM);
+	THROW(PP_Connections = (Fann::Neuron**)SAlloc::R(PP_Connections, totalConnections * sizeof(Fann::Neuron *)));
+	THROW(P_Weights = (ANNTYP*)SAlloc::R(P_Weights, totalConnections * sizeof(ANNTYP)));
+	THROW(P_TrainSlopes = (ANNTYP*)SAlloc::R(P_TrainSlopes, totalConnections * sizeof(ANNTYP)));
+	THROW(P_PrevSteps = (ANNTYP*)SAlloc::R(P_PrevSteps, totalConnections * sizeof(ANNTYP)));
+	THROW(P_PrevTrainSlopes = (ANNTYP*)SAlloc::R(P_PrevTrainSlopes, totalConnections * sizeof(ANNTYP)));
 	TotalConnectionsAllocated = totalConnections;
 	CATCHZOK
 	return ok;
@@ -2069,9 +2069,9 @@ int Fann::ReallocateNeurons(uint totalNeurons)
 	int    ok = 1;
 	Fann::Neuron * p_neurons = (Fann::Neuron*)SAlloc::R(P_FirstLayer->P_FirstNeuron, totalNeurons * sizeof(Fann::Neuron));
 	TotalNeuronsAllocated = totalNeurons;
-	THROW_S(p_neurons, SLERR_NOMEM);
+	THROW(p_neurons);
 	// Also allocate room for more train_errors
-	THROW_S(P_TrainErrors = (ANNTYP*)SAlloc::R(P_TrainErrors, totalNeurons * sizeof(ANNTYP)), SLERR_NOMEM);
+	THROW(P_TrainErrors = (ANNTYP*)SAlloc::R(P_TrainErrors, totalNeurons * sizeof(ANNTYP)));
 	if(p_neurons != P_FirstLayer->P_FirstNeuron) {
 		// Then the memory has moved, also move the pointers
 		// Move pointers from layers to neurons
@@ -2424,7 +2424,7 @@ Fann::Layer * Fann::AddLayer(Fann::Layer * pLayer)
 	const int _num_layers = (int)(GetNumLayers() + 1);
 	// allocate the layer
 	Fann::Layer * p_layers = (Fann::Layer*)SAlloc::R(P_FirstLayer, _num_layers * sizeof(Fann::Layer));
-	THROW_S(p_layers, SLERR_NOMEM);
+	THROW(p_layers);
 	// copy layers so that the free space is at the right location
 	for(int i = _num_layers - 1; i >= _layer_pos; i--) {
 		p_layers[i] = p_layers[i-1];
@@ -3058,28 +3058,28 @@ int Fann::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 			THROW(pSCtx->Serialize(dir, _pc, rBuf));
 			if(_pc) {
 				ZDELETE(P_TrainSlopes);
-				THROW_S(P_TrainSlopes = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
+				THROW(P_TrainSlopes = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)));
 				THROW(pSCtx->SerializeBlock(dir, _pc * sizeof(P_TrainSlopes[0]), P_TrainSlopes, rBuf, 0));
 			}
 			//
 			THROW(pSCtx->Serialize(dir, _pc, rBuf));
 			if(_pc) {
 				ZDELETE(P_PrevSteps);
-				THROW_S(P_PrevSteps = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
+				THROW(P_PrevSteps = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)));
 				THROW(pSCtx->SerializeBlock(dir, _pc * sizeof(P_PrevSteps[0]), P_PrevSteps, rBuf, 0));
 			}
 			//
 			THROW(pSCtx->Serialize(dir, _pc, rBuf));
 			if(_pc) {
 				ZDELETE(P_PrevTrainSlopes);
-				THROW_S(P_PrevTrainSlopes = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
+				THROW(P_PrevTrainSlopes = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)));
 				THROW(pSCtx->SerializeBlock(dir, _pc * sizeof(P_PrevTrainSlopes[0]), P_PrevTrainSlopes, rBuf, 0));
 			}
 			//
 			THROW(pSCtx->Serialize(dir, _pc, rBuf));
 			if(_pc) {
 				ZDELETE(P_PrevWeightsDeltas);
-				THROW_S(P_PrevWeightsDeltas = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
+				THROW(P_PrevWeightsDeltas = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)));
 				THROW(pSCtx->SerializeBlock(dir, _pc * sizeof(P_PrevWeightsDeltas[0]), P_PrevWeightsDeltas, rBuf, 0));
 			}
 		}
@@ -3692,7 +3692,7 @@ int Fann::ComputeMSE(const ANNTYP * pDesiredOutput)
 	const Fann::Neuron * p_first_neuron = P_FirstLayer->P_FirstNeuron;
 	// if no room allocated for the error variabels, allocate it now
 	if(P_TrainErrors == NULL) {
-		THROW_S(P_TrainErrors = (ANNTYP*)SAlloc::C(TotalNeurons, sizeof(ANNTYP)), SLERR_NOMEM);
+		THROW(P_TrainErrors = (ANNTYP*)SAlloc::C(TotalNeurons, sizeof(ANNTYP)));
 	}
 	else {
 		// clear the error variabels
@@ -3788,7 +3788,7 @@ int Fann::UpdateWeights()
 	ANNTYP * p_deltas_begin;
 	// if no room allocated for the deltas, allocate it now
 	if(P_PrevWeightsDeltas == NULL) {
-		THROW_S(P_PrevWeightsDeltas = (ANNTYP*)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
+		THROW(P_PrevWeightsDeltas = (ANNTYP*)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)));
 	}
 	p_deltas_begin = P_PrevWeightsDeltas;
 	p_prev_neurons = p_first_neuron;
@@ -3840,7 +3840,7 @@ int Fann::UpdateSlopesBatch(const Fann::Layer * pLayerBegin, const Fann::Layer *
 	const ANNTYP * p_error_begin = P_TrainErrors;
 	// if no room allocated for the slope variabels, allocate it now
 	if(P_TrainSlopes == NULL) {
-		THROW_S(P_TrainSlopes = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
+		THROW(P_TrainSlopes = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)));
 	}
 	SETIFZ(pLayerBegin, (P_FirstLayer + 1));
 	SETIFZ(pLayerEnd, (P_LastLayer - 1));
@@ -3887,13 +3887,13 @@ int Fann::ClearTrainArrays()
 	int    ok = 1;
 	// if no room allocated for the slope variabels, allocate it now (calloc clears mem)
 	if(P_TrainSlopes == NULL) {
-		THROW_S(P_TrainSlopes = (ANNTYP*)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
+		THROW(P_TrainSlopes = (ANNTYP*)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)));
 	}
 	else
 		memzero(P_TrainSlopes, TotalConnectionsAllocated * sizeof(ANNTYP));
 	// if no room allocated for the variabels, allocate it now
 	if(P_PrevSteps == NULL) {
-		THROW_S(P_PrevSteps = (ANNTYP *)SAlloc::M(TotalConnectionsAllocated * sizeof(ANNTYP)), SLERR_NOMEM);
+		THROW(P_PrevSteps = (ANNTYP *)SAlloc::M(TotalConnectionsAllocated * sizeof(ANNTYP)));
 	}
 	if(TrainingAlgorithm == FANN_TRAIN_RPROP) {
 		const ANNTYP _delta_zero = RpropDeltaZero;
@@ -3904,7 +3904,7 @@ int Fann::ClearTrainArrays()
 		memzero(P_PrevSteps, TotalConnectionsAllocated * sizeof(ANNTYP));
 	// if no room allocated for the variabels, allocate it now
 	if(P_PrevTrainSlopes == NULL) {
-		THROW_S(P_PrevTrainSlopes = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)), SLERR_NOMEM);
+		THROW(P_PrevTrainSlopes = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)));
 	}
 	else
 		memzero(P_PrevTrainSlopes, TotalConnectionsAllocated * sizeof(ANNTYP));
@@ -4904,8 +4904,6 @@ float * Fann::ScaleParam::Helper_Allocate(uint c, float defValue)
 		for(uint i = 0; i < c; i++)
 			p_list[i] = defValue;
 	}
-	else
-		SLS.SetError(SLERR_NOMEM);
 	return p_list;
 }
 
@@ -5401,7 +5399,7 @@ int Fann::DetectOptimal(Fann::DetectOptimalParam & rParam)
 		Fann   test_ann(rParam.NetworkType, rParam.ConnectionRate, rParam.Layers);
 		THROW(test_ann.IsValid());
 		const size_t weights_buffer_size = test_ann.GetWeights(0, 0);
-		THROW_S(p_preserve_weights = (ANNTYP *)SAlloc::M(weights_buffer_size), SLERR_NOMEM);
+		THROW(p_preserve_weights = (ANNTYP *)SAlloc::M(weights_buffer_size));
 		THROW(test_ann.GetWeights(p_preserve_weights, weights_buffer_size));
 		if(rParam.Flags & rParam.fDetectActivationFunc) {
 			uint   best_hi = 0;

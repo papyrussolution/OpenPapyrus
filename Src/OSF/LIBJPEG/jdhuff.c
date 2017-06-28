@@ -42,7 +42,7 @@ typedef struct {
 	 * the corresponding symbol directly from these tables.
 	 */
 	int look_nbits[1<<HUFF_LOOKAHEAD]; /* # bits, or 0 if too long */
-	UINT8 look_sym[1<<HUFF_LOOKAHEAD]; /* symbol, or unused */
+	uint8 look_sym[1<<HUFF_LOOKAHEAD]; /* symbol, or unused */
 } d_derived_tbl;
 
 /*

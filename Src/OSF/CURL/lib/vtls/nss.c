@@ -33,7 +33,7 @@
 //#include "sendf.h"
 #include "formdata.h" /* for the boundary function */
 //#include "url.h" /* for the ssl config check function */
-#include "connect.h"
+//#include "connect.h"
 //#include "strcase.h"
 //#include "select.h"
 #include "vtls.h"

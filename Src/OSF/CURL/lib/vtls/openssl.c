@@ -35,16 +35,13 @@
 
 #ifdef USE_OPENSSL
 
-#ifdef HAVE_LIMITS_H
-	#include <limits.h>
-#endif
-//#include "urldata.h"
+ //#include "urldata.h"
 //#include "sendf.h"
 #include "formdata.h" /* for the boundary function */
 //#include "url.h" /* for the ssl config check function */
 #include "inet_pton.h"
 #include "openssl.h"
-#include "connect.h"
+//#include "connect.h"
 //#include "slist.h"
 //#include "select.h"
 #include "vtls.h"
@@ -1576,43 +1573,32 @@ static const char * get_ssl_version_txt(SSL * ssl)
 {
 	if(!ssl)
 		return "";
-
 	switch(SSL_version(ssl)) {
 #ifdef TLS1_3_VERSION
-		case TLS1_3_VERSION:
-		    return "TLSv1.3";
+		case TLS1_3_VERSION: return "TLSv1.3";
 #endif
 #if OPENSSL_VERSION_NUMBER >= 0x1000100FL
-		case TLS1_2_VERSION:
-		    return "TLSv1.2";
-		case TLS1_1_VERSION:
-		    return "TLSv1.1";
+		case TLS1_2_VERSION: return "TLSv1.2";
+		case TLS1_1_VERSION: return "TLSv1.1";
 #endif
-		case TLS1_VERSION:
-		    return "TLSv1.0";
-		case SSL3_VERSION:
-		    return "SSLv3";
-		case SSL2_VERSION:
-		    return "SSLv2";
+		case TLS1_VERSION: return "TLSv1.0";
+		case SSL3_VERSION: return "SSLv3";
+		case SSL2_VERSION: return "SSLv2";
 	}
 	return "unknown";
 }
 
-static CURLcode set_ssl_version_min_max(long * ctx_options, struct connectdata * conn,
-    int sockindex)
+static CURLcode set_ssl_version_min_max(long * ctx_options, struct connectdata * conn, int sockindex)
 {
 #if (OPENSSL_VERSION_NUMBER < 0x1000100FL) || !defined(TLS1_3_VERSION)
-	/* convoluted #if condition just to avoid compiler warnings on unused
-	   variable */
+	// convoluted #if condition just to avoid compiler warnings on unused variable
 	struct Curl_easy * data = conn->data;
 #endif
 	long ssl_version = SSL_CONN_CONFIG(version);
 	long ssl_version_max = SSL_CONN_CONFIG(version_max);
-
 	if(ssl_version_max == CURL_SSLVERSION_MAX_NONE) {
 		ssl_version_max = ssl_version << 16;
 	}
-
 	switch(ssl_version) {
 		case CURL_SSLVERSION_TLSv1_3:
 #ifdef TLS1_3_VERSION
@@ -1698,8 +1684,7 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 
 #endif
 #endif
-	long * const certverifyresult = SSL_IS_PROXY() ?
-	    &data->set.proxy_ssl.certverifyresult : &data->set.ssl.certverifyresult;
+	long * const certverifyresult = SSL_IS_PROXY() ? &data->set.proxy_ssl.certverifyresult : &data->set.ssl.certverifyresult;
 	const long int ssl_version = SSL_CONN_CONFIG(version);
 #ifdef USE_TLS_SRP
 	const enum CURL_TLSAUTH ssl_authtype = SSL_SET_OPTION(authtype);
@@ -2443,25 +2428,18 @@ static CURLcode get_cert_chain(struct connectdata * conn,
 		{
 			/* before OpenSSL 1.0.2 */
 			X509_CINF * cinf = x->cert_info;
-
 			i2a_ASN1_OBJECT(mem, cinf->signature->algorithm);
 			push_certinfo("Signature Algorithm", i);
-
 			i2a_ASN1_OBJECT(mem, cinf->key->algor->algorithm);
 			push_certinfo("Public Key Algorithm", i);
-
 			X509V3_ext(data, i, cinf->extensions);
-
 			psig = x->signature;
 		}
 #endif
-
 		ASN1_TIME_print(mem, X509_get0_notBefore(x));
 		push_certinfo("Start date", i);
-
 		ASN1_TIME_print(mem, X509_get0_notAfter(x));
 		push_certinfo("Expire date", i);
-
 		pubkey = X509_get_pubkey(x);
 		if(!pubkey)
 			infof(data, "   Unable to load public key\n");

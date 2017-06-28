@@ -2435,7 +2435,7 @@ int SLAPI TCPIPMToledo::CloseConnection()
 			PPSetAddedMsgString(out_path);
 			THROW_PP(p_stream = fopen(out_path, "w"), PPERR_CANTOPENFILE);
 			PPGetFileName(PPFILNAM_MTSCALE_DATA, path);
-			fprintf(p_stream, "%s\n%i", (const char *)path, Data.LogNum);
+			fprintf(p_stream, "%s\n%i", path.cptr(), Data.LogNum);
 			SFile::ZClose(&p_stream);
 			{
 				char   temp_path[512];

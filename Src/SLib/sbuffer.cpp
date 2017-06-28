@@ -38,7 +38,7 @@ int FASTCALL SBuffer::Alloc(size_t sz)
 		}
 		else {
 			Flags |= fError;
-			ok = (SLibError = SLERR_NOMEM, 0);
+			ok = 0;
 		}
 	}
 	return ok;
@@ -465,7 +465,7 @@ int FASTCALL SBuffer::Read(SString & rBuf)
 	rBuf = 0;
 	THROW(ReadV(&sz, sizeof(sz)));
 	if(sz > sizeof(shrt_buf)) {
-		THROW_V(p_temp_buf = (char *)SAlloc::M(sz), SLERR_NOMEM);
+		THROW(p_temp_buf = (char *)SAlloc::M(sz));
 	}
 	else
 		p_temp_buf = shrt_buf;
@@ -574,7 +574,7 @@ int FASTCALL SBaseBuffer::Alloc(size_t sz)
 			Size = sz;
 		}
 		else
-			ok = (SLibError = SLERR_NOMEM, 0);
+			ok = 0;
 	}
 	return ok;
 }
@@ -723,7 +723,7 @@ int FASTCALL STempBuffer::Alloc(size_t sz)
 		}
 		else {
 			Size = 0;
-			return (SLibError = SLERR_NOMEM, 0);
+			return 0;
 		}
 	}
 }
@@ -1013,7 +1013,7 @@ int SLAPI SSerializeContext::Serialize(const char * pDbtName, BNFieldList * pFld
 			//
 			// Страховка от случая, когда количество полей больше, чем 512
 			//
-			THROW_S(p_ind_list = (uint8 *)SAlloc::M(ind_len), SLERR_NOMEM);
+			THROW(p_ind_list = (uint8 *)SAlloc::M(ind_len));
 			own_ind_list = 1;
 		}
 		else
@@ -1068,7 +1068,7 @@ int SLAPI SSerializeContext::Unserialize(const BNFieldList * pFldList, void * pD
 			//
 			// Страховка от случая, когда количество полей больше, чем 512
 			//
-			THROW_S(p_ind_list = (uint8 *)SAlloc::M(ind_len), SLERR_NOMEM);
+			THROW(p_ind_list = (uint8 *)SAlloc::M(ind_len));
 			own_ind_list = 1;
 		}
 		else

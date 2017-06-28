@@ -175,7 +175,7 @@ GifFileType * DGifOpenFileHandle(int FileHandle, int * Error)
 	GifFileType * GifFile = (GifFileType*)SAlloc::M(sizeof(GifFileType));
 	if(GifFile == NULL) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_ENOUGH_MEM);
-		(void)close(FileHandle);
+		close(FileHandle);
 		return NULL;
 	}
 	/*@i1@*/ memzero(GifFile, sizeof(GifFileType));
@@ -185,7 +185,7 @@ GifFileType * DGifOpenFileHandle(int FileHandle, int * Error)
 	Private = (GifFilePrivateType*)SAlloc::M(sizeof(GifFilePrivateType));
 	if(Private == NULL) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_ENOUGH_MEM);
-		(void)close(FileHandle);
+		close(FileHandle);
 		SAlloc::F((char*)GifFile);
 		return NULL;
 	}
@@ -1459,8 +1459,8 @@ int EGifPutScreenDesc(GifFileType * GifFile, const int Width, const int Height, 
 	 * Put the logical screen descriptor into the file:
 	 */
 	/* Logical Screen Descriptor: Dimensions */
-	(void)EGifPutWord(Width, GifFile);
-	(void)EGifPutWord(Height, GifFile);
+	EGifPutWord(Width, GifFile);
+	EGifPutWord(Height, GifFile);
 
 	/* Logical Screen Descriptor: Packed Fields */
 	/* Note: We have actual size of the color table default to the largest
@@ -1529,10 +1529,10 @@ int EGifPutImageDesc(GifFileType * GifFile, const int Left, const int Top, const
 	/* Put the image descriptor into the file: */
 	Buf[0] = DESCRIPTOR_INTRODUCER; /* Image separator character. */
 	InternalWrite(GifFile, Buf, 1);
-	(void)EGifPutWord(Left, GifFile);
-	(void)EGifPutWord(Top, GifFile);
-	(void)EGifPutWord(Width, GifFile);
-	(void)EGifPutWord(Height, GifFile);
+	EGifPutWord(Left, GifFile);
+	EGifPutWord(Top, GifFile);
+	EGifPutWord(Width, GifFile);
+	EGifPutWord(Height, GifFile);
 	Buf[0] = (ColorMap ? 0x80 : 0x00) | (Interlace ? 0x40 : 0x00) | (ColorMap ? ColorMap->BitsPerPixel - 1 : 0);
 	InternalWrite(GifFile, Buf, 1);
 	// If we have Global color map - dump it also: 

@@ -204,7 +204,7 @@ static int SLAPI alloc_list(void)
 	termList      = (CompareTerm *)SAlloc::C(numberOfTerms, sizeof(CompareTerm));
 	if(!termList) {
 		numberOfTerms = 0;
-		ok = ((SLibError = SLERR_NOMEM), 0);
+		ok = 0;
 	}
 	return ok;
 }
@@ -219,7 +219,6 @@ static int SLAPI inc_list()
 		if(termList == NULL) {
 			currentTerm = 0;
 			numberOfTerms = 0;
-			SLibError = SLERR_NOMEM;
 			ok = 0;
 		}
 		else {

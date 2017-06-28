@@ -52,9 +52,6 @@
 #ifdef HAVE_SYS_STAT_H
 	#include <sys/stat.h>
 #endif
-#ifdef HAVE_FCNTL_H
-	#include <fcntl.h>
-#endif
 //#include "urldata.h"
 #include "vtls.h" /* generic SSL protos etc */
 //#include "slist.h"
@@ -63,7 +60,7 @@
 //#include "url.h"
 //#include "progress.h"
 #include "share.h"
-#include "multiif.h"
+//#include "multiif.h"
 //#include "timeval.h"
 #include "curl_md5.h"
 #include "warnless.h"
@@ -260,39 +257,27 @@ void Curl_ssl_sessionid_unlock(struct connectdata * conn)
  * Check if there's a session ID for the given connection in the cache, and if
  * there's one suitable, it is provided. Returns TRUE when no entry matched.
  */
-bool Curl_ssl_getsessionid(struct connectdata * conn,
-    void ** ssl_sessionid,
-    size_t * idsize,                       /* set 0 if unknown */
-    int sockindex)
+bool Curl_ssl_getsessionid(struct connectdata * conn, void ** ssl_sessionid, size_t * idsize/* set 0 if unknown */, int sockindex)
 {
 	struct curl_ssl_session * check;
-
 	struct Curl_easy * data = conn->data;
 	size_t i;
 	long * general_age;
 	bool no_match = TRUE;
-
 	const bool isProxy = CONNECT_PROXY_SSL();
-	struct ssl_primary_config * const ssl_config = isProxy ?
-	    &conn->proxy_ssl_config :
-	    &conn->ssl_config;
-	const char * const name = isProxy ? conn->http_proxy.host.name :
-	    conn->host.name;
+	struct ssl_primary_config * const ssl_config = isProxy ? &conn->proxy_ssl_config : &conn->ssl_config;
+	const char * const name = isProxy ? conn->http_proxy.host.name : conn->host.name;
 	int port = isProxy ? (int)conn->port : conn->remote_port;
 	*ssl_sessionid = NULL;
-
 	DEBUGASSERT(SSL_SET_OPTION(primary.sessionid));
-
 	if(!SSL_SET_OPTION(primary.sessionid))
 		/* session ID re-use is disabled */
 		return TRUE;
-
 	/* Lock if shared */
 	if(SSLSESSION_SHARED(data))
 		general_age = &data->share->sessionage;
 	else
 		general_age = &data->state.sessionage;
-
 	for(i = 0; i < data->set.general_ssl.max_ssl_sessions; i++) {
 		check = &data->state.session[i];
 		if(!check->sessionid)
@@ -329,7 +314,6 @@ void Curl_ssl_kill_session(struct curl_ssl_session * session)
 {
 	if(session->sessionid) {
 		/* defensive check */
-
 		/* free the ID the SSL-layer specific way */
 		curlssl_session_free(session->sessionid);
 

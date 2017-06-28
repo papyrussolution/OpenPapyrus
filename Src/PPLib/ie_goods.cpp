@@ -2092,18 +2092,18 @@ int SLAPI PPGoodsImporter::AssignEgaisCode(const Sdr_Goods2 & rRec, PPGoodsPacke
 			BarcodeTbl::Rec egais_code_rec;
 			if(GObj.SearchByBarcode(temp_buf, &egais_code_rec, 0, 0) > 0) {
 				PPLoadText(PPTXT_IMPEGAISCODEXISTS, fmt_buf);
-				rLogger.Log(msg_buf.Printf(fmt_buf, (const char *)temp_buf));
+				rLogger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
 			}
 			else {
 				pPack->Codes.Add(temp_buf, 0, 1.0);
 				PPLoadText(PPTXT_IMPEGAISCODACCEPTED, fmt_buf);
-				rLogger.Log(msg_buf.Printf(fmt_buf, (const char *)temp_buf));
+				rLogger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
 				ok = 1;
 			}
 		}
 		else {
 			PPLoadText(PPTXT_IMPEGAISCODEINV, fmt_buf);
-			rLogger.Log(msg_buf.Printf(fmt_buf, (const char *)temp_buf));
+			rLogger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
 		}
 	}
 	return ok;
@@ -2696,7 +2696,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 									if(!GObj.PutPacket(&goods_id, &pack, 0)) {
 										PPGetLastErrorMessage(1, err_msg_buf);
 										PPLoadText(PPTXT_ERRACCEPTGOODS, fmt_buf);
-										logger.Log(msg_buf.Printf(fmt_buf, PPOBJ_GOODS, pack.Rec.Name, (const char *)err_msg_buf));
+										logger.Log(msg_buf.Printf(fmt_buf, PPOBJ_GOODS, pack.Rec.Name, err_msg_buf.cptr()));
 									}
 								}
 								if(do_add) {
@@ -2704,7 +2704,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 									if(!GObj.PutPacket(&goods_id, &pack2, 0)) {
 										PPGetLastErrorMessage(1, err_msg_buf);
 										PPLoadText(PPTXT_ERRACCEPTGOODS, fmt_buf);
-										logger.Log(msg_buf.Printf(fmt_buf, PPOBJ_GOODS, pack2.Rec.Name, (const char *)err_msg_buf));
+										logger.Log(msg_buf.Printf(fmt_buf, PPOBJ_GOODS, pack2.Rec.Name, err_msg_buf.cptr()));
 									}
 								}
 							}
@@ -2715,7 +2715,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 								if(pack.Rec.Name[0] == 0) {
 									PPLoadText(PPTXT_UNDEFIMPGOODSNAME, err_msg_buf);
 									PPLoadText(PPTXT_ERRACCEPTGOODS, fmt_buf);
-									msg_buf.Printf(fmt_buf, PPOBJ_GOODS, pack.Rec.Name, (const char *)err_msg_buf);
+									msg_buf.Printf(fmt_buf, PPOBJ_GOODS, pack.Rec.Name, err_msg_buf.cptr());
 									logger.Log(msg_buf);
 								}
 								else {
@@ -2755,7 +2755,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 										if(!ok_2) {
 											PPGetLastErrorMessage(1, err_msg_buf);
 											PPLoadText(PPTXT_ERRACCEPTGOODS, fmt_buf);
-											msg_buf.Printf(fmt_buf, PPOBJ_GOODS, pack.Rec.Name, (const char *)err_msg_buf);
+											msg_buf.Printf(fmt_buf, PPOBJ_GOODS, pack.Rec.Name, err_msg_buf.cptr());
 											logger.Log(msg_buf);
 										}
 									}
