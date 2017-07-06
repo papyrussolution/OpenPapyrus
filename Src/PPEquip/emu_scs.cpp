@@ -619,19 +619,19 @@ int SLAPI SCS_SYNCSYM::PrintBnkTermReport(const char * pZCheck)
 	int     ok = 1;
 	if(PrinterPort.Len()) {
 		SlipLineParam sl_param;
-		PrnLineStruc * p_prn_ls = 0;
 		PrnLinesArray prn_list;
 		StringSet str_set('\n', pZCheck);
 		SString str;
 		for(uint pos = 0; str_set.get(&pos, str) > 0;) {
 			sl_param.FontSize = 1; // какое значение?
 			sl_param.Flags = SlipLineParam::fRegRegular;
-			p_prn_ls = new PrnLineStruc;
-			p_prn_ls->PrnBuf = pZCheck;
-			p_prn_ls->Param = sl_param;
-			prn_list.insert(p_prn_ls);
-			SendToPrinter(&prn_list);
+			PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();
+			if(p_prn_ls) {
+				p_prn_ls->PrnBuf = pZCheck;
+				p_prn_ls->Param = sl_param;
+			}
 		}
+		SendToPrinter(&prn_list);
 	}
 	return ok;
 

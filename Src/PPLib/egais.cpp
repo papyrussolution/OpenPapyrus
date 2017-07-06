@@ -825,7 +825,7 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
 			edi_op_list.addzlist(PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_ACTCHARGEON,
 				PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTWRITEOFF,
 				PPEDIOP_EGAIS_ACTWRITEOFF_V2, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP,
-				PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILLACT_V2, 
+				PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILLACT_V2,
 				0);
 			// @v9.6.4 (useless) THROW_MEM(SETIFZ(P_Dgq, new DGQCore));
 			{
@@ -1263,6 +1263,8 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 			}
 		}
 		if(epr_item.ID) {
+			inn = epr_item.INN;
+			kpp = epr_item.KPP;
 			if(epr_item.CountryCode == 643 && inn.Len() == 10) {
 				j_status = 1;
 				p_j_scope = "oref:UL";
@@ -1279,8 +1281,6 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 				j_status = 3;
 				p_j_scope = "oref:FO";
 			}
-			inn = epr_item.INN;
-			kpp = epr_item.KPP;
 		}
 		else {
 			//
@@ -2246,9 +2246,9 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						}
 					}
 					else if(doc_type == PPEDIOP_EGAIS_NOTIFY_WBVER2) {
-						SXml::WNode n_iv(_doc, "ns:InfoVersionTTN");
-						n_iv.PutInner("qp:ClientId", EncText(fsrar_ident));
-						n_iv.PutInner("qp:WBTypeUsed", EncText(temp_buf = "WayBill_v2"));
+						//SXml::WNode n_iv(_doc, "ns:InfoVersionTTN");
+						n_dt.PutInner("qp:ClientId", EncText(fsrar_ident));
+						n_dt.PutInner("qp:WBTypeUsed", EncText(temp_buf = "WayBill_v2"));
 					}
 					else if(oneof2(doc_type, PPEDIOP_EGAIS_QUERYFORMA, PPEDIOP_EGAIS_REPLYFORMB)) {
 						const SString * p_formab_regid = (const SString *)rPack.P_Data;

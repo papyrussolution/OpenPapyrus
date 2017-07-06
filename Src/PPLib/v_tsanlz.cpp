@@ -1315,9 +1315,14 @@ int PPALDD_TSessAnlz::NextIteration(PPIterID iterId)
 	STRNSCPY(I.PrcName,       item.PrcName);
 	STRNSCPY(I.DtText,        item.DtText);
 	if(item.PrcID == MAXLONG) {
-		memset(I.Intrn_PrcName, 'ÿ', sizeof(I.Intrn_PrcName)-1);
-		I.Intrn_PrcName[sizeof(I.Intrn_PrcName)-1] = 0;
-		SCharToOem(I.Intrn_PrcName);
+		// @v9.7.4 memset(I.Intrn_PrcName, 'ÿ', sizeof(I.Intrn_PrcName)-1);
+		// @v9.7.4 I.Intrn_PrcName[sizeof(I.Intrn_PrcName)-1] = 0;
+		// @v9.7.4 SCharToOem(I.Intrn_PrcName);
+		// @v9.7.4 {
+		SString temp_buf;
+		temp_buf.CatCharN('ÿ', sizeof(I.Intrn_PrcName)-1).Transf(CTRANSF_OUTER_TO_INNER);
+		STRNSCPY(I.Intrn_PrcName, temp_buf);
+		// } @v9.7.4
 	}
 	else
 		STRNSCPY(I.Intrn_PrcName, I.PrcName);

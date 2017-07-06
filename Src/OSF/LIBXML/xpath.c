@@ -1321,7 +1321,7 @@ void xmlXPathDebugDumpObject(FILE * output, xmlXPathObjectPtr cur, int depth)
 					break;
 				case XPATH_POINT:
 					fprintf(output, "Object is a point : index %d in node", cur->index);
-					xmlXPathDebugDumpNode(output, (xmlNodePtr)cur->user, depth + 1);
+					xmlXPathDebugDumpNode(output, (xmlNode *)cur->user, depth + 1);
 					fprintf(output, "\n");
 					break;
 				case XPATH_RANGE:
@@ -1332,7 +1332,7 @@ void xmlXPathDebugDumpObject(FILE * output, xmlXPathObjectPtr cur, int depth)
 						if(cur->index >= 0)
 							fprintf(output, "index %d in ", cur->index);
 						fprintf(output, "node\n");
-						xmlXPathDebugDumpNode(output, (xmlNodePtr)cur->user,
+						xmlXPathDebugDumpNode(output, (xmlNode *)cur->user,
 						depth + 1);
 					}
 					else {
@@ -1342,14 +1342,14 @@ void xmlXPathDebugDumpObject(FILE * output, xmlXPathObjectPtr cur, int depth)
 						if(cur->index >= 0)
 							fprintf(output, "index %d in ", cur->index);
 						fprintf(output, "node\n");
-						xmlXPathDebugDumpNode(output, (xmlNodePtr)cur->user,
+						xmlXPathDebugDumpNode(output, (xmlNode *)cur->user,
 						depth + 1);
 						fprintf(output, "%s", shift);
 						fprintf(output, "To ");
 						if(cur->index2 >= 0)
 							fprintf(output, "index %d in ", cur->index2);
 						fprintf(output, "node\n");
-						xmlXPathDebugDumpNode(output, (xmlNodePtr)cur->user2,
+						xmlXPathDebugDumpNode(output, (xmlNode *)cur->user2,
 						depth + 1);
 						fprintf(output, "\n");
 					}
@@ -2747,7 +2747,7 @@ xmlNodeSetPtr xmlXPathPopNodeSet(xmlXPathParserContextPtr ctxt)
 #if 0
 	/* to fix memory leak of not clearing obj->user */
 	if(obj->boolval && obj->user)
-		xmlFreeNodeList((xmlNodePtr)obj->user);
+		xmlFreeNodeList((xmlNode *)obj->user);
 #endif
 	obj->nodesetval = NULL;
 	xmlXPathReleaseObject(ctxt->context, obj);
@@ -3007,7 +3007,7 @@ long xmlXPathOrderDocElems(xmlDocPtr doc)
 			cur = cur->parent;
 			if(cur == NULL)
 				break;
-			if(cur == (xmlNodePtr)doc) {
+			if(cur == (xmlNode *)doc) {
 				cur = NULL;
 				break;
 			}
@@ -3232,7 +3232,7 @@ static xmlNodePtr xmlXPathNodeSetDupNs(xmlNodePtr node, xmlNsPtr ns)
 	if((ns == NULL) || (ns->type != XML_NAMESPACE_DECL))
 		return 0;
 	if((node == NULL) || (node->type == XML_NAMESPACE_DECL))
-		return((xmlNodePtr)ns);
+		return((xmlNode *)ns);
 
 	/*
 	 * Allocate a new Namespace and fill the fields.
@@ -3249,7 +3249,7 @@ static xmlNodePtr xmlXPathNodeSetDupNs(xmlNodePtr node, xmlNsPtr ns)
 	if(ns->prefix)
 		cur->prefix = xmlStrdup(ns->prefix);
 	cur->next = (xmlNsPtr)node;
-	return((xmlNodePtr)cur);
+	return((xmlNode *)cur);
 }
 
 /**
@@ -3288,17 +3288,17 @@ xmlNodeSetPtr xmlXPathNodeSetCreate(xmlNodePtr val)
 	}
 	memzero(ret, (size_t)sizeof(xmlNodeSet));
 	if(val) {
-		ret->nodeTab = (xmlNodePtr*)xmlMalloc(XML_NODESET_DEFAULT * sizeof(xmlNodePtr));
+		ret->nodeTab = (xmlNodePtr*)xmlMalloc(XML_NODESET_DEFAULT * sizeof(xmlNode *));
 		if(ret->nodeTab == NULL) {
 			xmlXPathErrMemory(NULL, "creating nodeset");
 			free(ret);
 			return 0;
 		}
-		memzero(ret->nodeTab, XML_NODESET_DEFAULT * (size_t)sizeof(xmlNodePtr));
+		memzero(ret->nodeTab, XML_NODESET_DEFAULT * (size_t)sizeof(xmlNode *));
 		ret->nodeMax = XML_NODESET_DEFAULT;
 		if(val->type == XML_NAMESPACE_DECL) {
 			xmlNsPtr ns = (xmlNsPtr)val;
-			ret->nodeTab[ret->nodeNr++] = xmlXPathNodeSetDupNs((xmlNodePtr)ns->next, ns);
+			ret->nodeTab[ret->nodeNr++] = xmlXPathNodeSetDupNs((xmlNode *)ns->next, ns);
 		}
 		else
 			ret->nodeTab[ret->nodeNr++] = val;
@@ -3324,13 +3324,13 @@ static xmlNodeSetPtr xmlXPathNodeSetCreateSize(int size)
 	memzero(ret, (size_t)sizeof(xmlNodeSet));
 	if(size < XML_NODESET_DEFAULT)
 		size = XML_NODESET_DEFAULT;
-	ret->nodeTab = (xmlNodePtr*)xmlMalloc(size * sizeof(xmlNodePtr));
+	ret->nodeTab = (xmlNodePtr*)xmlMalloc(size * sizeof(xmlNode *));
 	if(ret->nodeTab == NULL) {
 		xmlXPathErrMemory(NULL, "creating nodeset");
 		free(ret);
 		return 0;
 	}
-	memzero(ret->nodeTab, size * (size_t)sizeof(xmlNodePtr));
+	memzero(ret->nodeTab, size * (size_t)sizeof(xmlNode *));
 	ret->nodeMax = size;
 	return ret;
 }
@@ -3403,12 +3403,12 @@ int xmlXPathNodeSetAddNs(xmlNodeSetPtr cur, xmlNodePtr node, xmlNsPtr ns) {
 	 * grow the nodeTab if needed
 	 */
 	if(cur->nodeMax == 0) {
-		cur->nodeTab = (xmlNodePtr*)xmlMalloc(XML_NODESET_DEFAULT * sizeof(xmlNodePtr));
+		cur->nodeTab = (xmlNodePtr*)xmlMalloc(XML_NODESET_DEFAULT * sizeof(xmlNode *));
 		if(cur->nodeTab == NULL) {
 			xmlXPathErrMemory(NULL, "growing nodeset");
 			return -1;
 		}
-		memzero(cur->nodeTab, XML_NODESET_DEFAULT * (size_t)sizeof(xmlNodePtr));
+		memzero(cur->nodeTab, XML_NODESET_DEFAULT * (size_t)sizeof(xmlNode *));
 		cur->nodeMax = XML_NODESET_DEFAULT;
 	}
 	else if(cur->nodeNr == cur->nodeMax) {
@@ -3417,7 +3417,7 @@ int xmlXPathNodeSetAddNs(xmlNodeSetPtr cur, xmlNodePtr node, xmlNsPtr ns) {
 			xmlXPathErrMemory(NULL, "growing nodeset hit limit");
 			return -1;
 		}
-		temp = (xmlNodePtr*)xmlRealloc(cur->nodeTab, cur->nodeMax * 2 * sizeof(xmlNodePtr));
+		temp = (xmlNodePtr*)xmlRealloc(cur->nodeTab, cur->nodeMax * 2 * sizeof(xmlNode *));
 		if(temp == NULL) {
 			xmlXPathErrMemory(NULL, "growing nodeset");
 			return -1;
@@ -3454,12 +3454,12 @@ int xmlXPathNodeSetAdd(xmlNodeSetPtr cur, xmlNodePtr val) {
 	 * grow the nodeTab if needed
 	 */
 	if(cur->nodeMax == 0) {
-		cur->nodeTab = (xmlNodePtr*)xmlMalloc(XML_NODESET_DEFAULT * sizeof(xmlNodePtr));
+		cur->nodeTab = (xmlNodePtr*)xmlMalloc(XML_NODESET_DEFAULT * sizeof(xmlNode *));
 		if(cur->nodeTab == NULL) {
 			xmlXPathErrMemory(NULL, "growing nodeset");
 			return -1;
 		}
-		memzero(cur->nodeTab, XML_NODESET_DEFAULT * (size_t)sizeof(xmlNodePtr));
+		memzero(cur->nodeTab, XML_NODESET_DEFAULT * (size_t)sizeof(xmlNode *));
 		cur->nodeMax = XML_NODESET_DEFAULT;
 	}
 	else if(cur->nodeNr == cur->nodeMax) {
@@ -3468,7 +3468,7 @@ int xmlXPathNodeSetAdd(xmlNodeSetPtr cur, xmlNodePtr val) {
 			xmlXPathErrMemory(NULL, "growing nodeset hit limit");
 			return -1;
 		}
-		temp = (xmlNodePtr*)xmlRealloc(cur->nodeTab, cur->nodeMax * 2 * sizeof(xmlNodePtr));
+		temp = (xmlNodePtr*)xmlRealloc(cur->nodeTab, cur->nodeMax * 2 * sizeof(xmlNode *));
 		if(temp == NULL) {
 			xmlXPathErrMemory(NULL, "growing nodeset");
 			return -1;
@@ -3480,7 +3480,7 @@ int xmlXPathNodeSetAdd(xmlNodeSetPtr cur, xmlNodePtr val) {
 		xmlNsPtr ns = (xmlNsPtr)val;
 
 		cur->nodeTab[cur->nodeNr++] =
-		    xmlXPathNodeSetDupNs((xmlNodePtr)ns->next, ns);
+		    xmlXPathNodeSetDupNs((xmlNode *)ns->next, ns);
 	}
 	else
 		cur->nodeTab[cur->nodeNr++] = val;
@@ -3505,12 +3505,12 @@ int xmlXPathNodeSetAddUnique(xmlNodeSetPtr cur, xmlNodePtr val) {
 	 * grow the nodeTab if needed
 	 */
 	if(cur->nodeMax == 0) {
-		cur->nodeTab = (xmlNodePtr*)xmlMalloc(XML_NODESET_DEFAULT * sizeof(xmlNodePtr));
+		cur->nodeTab = (xmlNodePtr*)xmlMalloc(XML_NODESET_DEFAULT * sizeof(xmlNode *));
 		if(cur->nodeTab == NULL) {
 			xmlXPathErrMemory(NULL, "growing nodeset");
 			return -1;
 		}
-		memzero(cur->nodeTab, XML_NODESET_DEFAULT * (size_t)sizeof(xmlNodePtr));
+		memzero(cur->nodeTab, XML_NODESET_DEFAULT * (size_t)sizeof(xmlNode *));
 		cur->nodeMax = XML_NODESET_DEFAULT;
 	}
 	else if(cur->nodeNr == cur->nodeMax) {
@@ -3519,7 +3519,7 @@ int xmlXPathNodeSetAddUnique(xmlNodeSetPtr cur, xmlNodePtr val) {
 			xmlXPathErrMemory(NULL, "growing nodeset hit limit");
 			return -1;
 		}
-		temp = (xmlNodePtr*)xmlRealloc(cur->nodeTab, cur->nodeMax * 2 * sizeof(xmlNodePtr));
+		temp = (xmlNodePtr*)xmlRealloc(cur->nodeTab, cur->nodeMax * 2 * sizeof(xmlNode *));
 		if(temp == NULL) {
 			xmlXPathErrMemory(NULL, "growing nodeset");
 			return -1;
@@ -3529,7 +3529,7 @@ int xmlXPathNodeSetAddUnique(xmlNodeSetPtr cur, xmlNodePtr val) {
 	}
 	if(val->type == XML_NAMESPACE_DECL) {
 		xmlNsPtr ns = (xmlNsPtr)val;
-		cur->nodeTab[cur->nodeNr++] = xmlXPathNodeSetDupNs((xmlNodePtr)ns->next, ns);
+		cur->nodeTab[cur->nodeNr++] = xmlXPathNodeSetDupNs((xmlNode *)ns->next, ns);
 	}
 	else
 		cur->nodeTab[cur->nodeNr++] = val;
@@ -3576,7 +3576,7 @@ xmlNodeSetPtr xmlXPathNodeSetMerge(xmlNodeSetPtr val1, xmlNodeSetPtr val2) {
 				*(val1->nodeTab) = *(val2->nodeTab);
 			else {
 				memcpy(val1->nodeTab, val2->nodeTab,
-				    val2->nodeNr * sizeof(xmlNodePtr));
+				    val2->nodeNr * sizeof(xmlNode *));
 			}
 			val1->nodeNr = val2->nodeNr;
 		}
@@ -3616,12 +3616,12 @@ xmlNodeSetPtr xmlXPathNodeSetMerge(xmlNodeSetPtr val1, xmlNodeSetPtr val2) {
 		 * grow the nodeTab if needed
 		 */
 		if(val1->nodeMax == 0) {
-			val1->nodeTab = (xmlNodePtr*)xmlMalloc(XML_NODESET_DEFAULT * sizeof(xmlNodePtr));
+			val1->nodeTab = (xmlNodePtr*)xmlMalloc(XML_NODESET_DEFAULT * sizeof(xmlNode *));
 			if(val1->nodeTab == NULL) {
 				xmlXPathErrMemory(NULL, "merging nodeset");
 				return 0;
 			}
-			memzero(val1->nodeTab, XML_NODESET_DEFAULT * (size_t)sizeof(xmlNodePtr));
+			memzero(val1->nodeTab, XML_NODESET_DEFAULT * (size_t)sizeof(xmlNode *));
 			val1->nodeMax = XML_NODESET_DEFAULT;
 		}
 		else if(val1->nodeNr == val1->nodeMax) {
@@ -3630,7 +3630,7 @@ xmlNodeSetPtr xmlXPathNodeSetMerge(xmlNodeSetPtr val1, xmlNodeSetPtr val2) {
 				xmlXPathErrMemory(NULL, "merging nodeset hit limit");
 				return 0;
 			}
-			temp = (xmlNodePtr*)xmlRealloc(val1->nodeTab, val1->nodeMax * 2 * sizeof(xmlNodePtr));
+			temp = (xmlNodePtr*)xmlRealloc(val1->nodeTab, val1->nodeMax * 2 * sizeof(xmlNode *));
 			if(temp == NULL) {
 				xmlXPathErrMemory(NULL, "merging nodeset");
 				return 0;
@@ -3640,7 +3640,7 @@ xmlNodeSetPtr xmlXPathNodeSetMerge(xmlNodeSetPtr val1, xmlNodeSetPtr val2) {
 		}
 		if(n2->type == XML_NAMESPACE_DECL) {
 			xmlNsPtr ns = (xmlNsPtr)n2;
-			val1->nodeTab[val1->nodeNr++] = xmlXPathNodeSetDupNs((xmlNodePtr)ns->next, ns);
+			val1->nodeTab[val1->nodeNr++] = xmlXPathNodeSetDupNs((xmlNode *)ns->next, ns);
 		}
 		else
 			val1->nodeTab[val1->nodeNr++] = n2;
@@ -3671,7 +3671,7 @@ static xmlNodeSetPtr xmlXPathNodeSetMergeAndClear(xmlNodeSetPtr set1, xmlNodeSet
 		if(set1 == NULL)
 			return 0;
 		if(set2->nodeNr != 0) {
-			memcpy(set1->nodeTab, set2->nodeTab, set2->nodeNr * sizeof(xmlNodePtr));
+			memcpy(set1->nodeTab, set2->nodeTab, set2->nodeNr * sizeof(xmlNode *));
 			set1->nodeNr = set2->nodeNr;
 		}
 	}
@@ -3713,12 +3713,12 @@ static xmlNodeSetPtr xmlXPathNodeSetMergeAndClear(xmlNodeSetPtr set1, xmlNodeSet
 			 * grow the nodeTab if needed
 			 */
 			if(set1->nodeMax == 0) {
-				set1->nodeTab = (xmlNodePtr*)xmlMalloc(XML_NODESET_DEFAULT * sizeof(xmlNodePtr));
+				set1->nodeTab = (xmlNodePtr*)xmlMalloc(XML_NODESET_DEFAULT * sizeof(xmlNode *));
 				if(set1->nodeTab == NULL) {
 					xmlXPathErrMemory(NULL, "merging nodeset");
 					return 0;
 				}
-				memzero(set1->nodeTab, XML_NODESET_DEFAULT * (size_t)sizeof(xmlNodePtr));
+				memzero(set1->nodeTab, XML_NODESET_DEFAULT * (size_t)sizeof(xmlNode *));
 				set1->nodeMax = XML_NODESET_DEFAULT;
 			}
 			else if(set1->nodeNr >= set1->nodeMax) {
@@ -3727,7 +3727,7 @@ static xmlNodeSetPtr xmlXPathNodeSetMergeAndClear(xmlNodeSetPtr set1, xmlNodeSet
 					xmlXPathErrMemory(NULL, "merging nodeset hit limit");
 					return 0;
 				}
-				temp = (xmlNodePtr*)xmlRealloc(set1->nodeTab, set1->nodeMax * 2 * sizeof(xmlNodePtr));
+				temp = (xmlNodePtr*)xmlRealloc(set1->nodeTab, set1->nodeMax * 2 * sizeof(xmlNode *));
 				if(temp == NULL) {
 					xmlXPathErrMemory(NULL, "merging nodeset");
 					return 0;
@@ -3737,7 +3737,7 @@ static xmlNodeSetPtr xmlXPathNodeSetMergeAndClear(xmlNodeSetPtr set1, xmlNodeSet
 			}
 			if(n2->type == XML_NAMESPACE_DECL) {
 				xmlNsPtr ns = (xmlNsPtr)n2;
-				set1->nodeTab[set1->nodeNr++] = xmlXPathNodeSetDupNs((xmlNodePtr)ns->next, ns);
+				set1->nodeTab[set1->nodeNr++] = xmlXPathNodeSetDupNs((xmlNode *)ns->next, ns);
 			}
 			else
 				set1->nodeTab[set1->nodeNr++] = n2;
@@ -3774,7 +3774,7 @@ static xmlNodeSetPtr xmlXPathNodeSetMergeAndClearNoDupls(xmlNodeSetPtr set1, xml
 		if(set1 == NULL)
 			return 0;
 		if(set2->nodeNr != 0) {
-			memcpy(set1->nodeTab, set2->nodeTab, set2->nodeNr * sizeof(xmlNodePtr));
+			memcpy(set1->nodeTab, set2->nodeTab, set2->nodeNr * sizeof(xmlNode *));
 			set1->nodeNr = set2->nodeNr;
 		}
 	}
@@ -3794,12 +3794,12 @@ static xmlNodeSetPtr xmlXPathNodeSetMergeAndClearNoDupls(xmlNodeSetPtr set1, xml
 				continue;
 			if(set1->nodeMax == 0) {
 				set1->nodeTab = (xmlNodePtr*)xmlMalloc(
-				    XML_NODESET_DEFAULT * sizeof(xmlNodePtr));
+				    XML_NODESET_DEFAULT * sizeof(xmlNode *));
 				if(set1->nodeTab == NULL) {
 					xmlXPathErrMemory(NULL, "merging nodeset");
 					return 0;
 				}
-				memzero(set1->nodeTab, XML_NODESET_DEFAULT * (size_t)sizeof(xmlNodePtr));
+				memzero(set1->nodeTab, XML_NODESET_DEFAULT * (size_t)sizeof(xmlNode *));
 				set1->nodeMax = XML_NODESET_DEFAULT;
 			}
 			else if(set1->nodeNr >= set1->nodeMax) {
@@ -3810,7 +3810,7 @@ static xmlNodeSetPtr xmlXPathNodeSetMergeAndClearNoDupls(xmlNodeSetPtr set1, xml
 					return 0;
 				}
 				temp = (xmlNodePtr*)xmlRealloc(
-				    set1->nodeTab, set1->nodeMax * 2 * sizeof(xmlNodePtr));
+				    set1->nodeTab, set1->nodeMax * 2 * sizeof(xmlNode *));
 				if(temp == NULL) {
 					xmlXPathErrMemory(NULL, "merging nodeset");
 					return 0;
@@ -5023,12 +5023,12 @@ xmlXPathObjectPtr xmlXPathObjectCopy(xmlXPathObjectPtr val)
 				    cur = val->nodesetval->nodeTab[0]->children;
 				    while(cur) {
 					    tmp = xmlDocCopyNode(cur, top, 1);
-					    xmlAddChild((xmlNodePtr)top, tmp);
+					    xmlAddChild((xmlNode *)top, tmp);
 					    cur = cur->next;
 				    }
 			    }
 
-			    ret->nodesetval = xmlXPathNodeSetCreate((xmlNodePtr)top);
+			    ret->nodesetval = xmlXPathNodeSetCreate((xmlNode *)top);
 		    }
 		    else
 			    ret->nodesetval = xmlXPathNodeSetCreate(NULL);
@@ -5072,7 +5072,7 @@ void xmlXPathFreeObject(xmlXPathObjectPtr obj)
 #if 0
 				if(obj->user) {
 					xmlXPathFreeNodeSet(obj->nodesetval);
-					xmlFreeNodeList((xmlNodePtr)obj->user);
+					xmlFreeNodeList((xmlNode *)obj->user);
 				}
 				else
 #endif
@@ -5825,10 +5825,8 @@ void xmlXPathFreeParserContext(xmlXPathParserContextPtr ctxt)
 	free(ctxt->valueTab);
 	if(ctxt->comp) {
 #ifdef XPATH_STREAMING
-		if(ctxt->comp->stream) {
-			xmlFreePatternList(ctxt->comp->stream);
-			ctxt->comp->stream = NULL;
-		}
+		xmlFreePatternList(ctxt->comp->stream);
+		ctxt->comp->stream = 0;
 #endif
 		xmlXPathFreeCompExpr(ctxt->comp);
 	}
@@ -7362,7 +7360,7 @@ xmlNodePtr xmlXPathNextDescendant(xmlXPathParserContextPtr ctxt, xmlNodePtr cur)
 		    (ctxt->context->node->type == XML_NAMESPACE_DECL))
 			return 0;
 
-		if(ctxt->context->node == (xmlNodePtr)ctxt->context->doc)
+		if(ctxt->context->node == (xmlNode *)ctxt->context->doc)
 			return(ctxt->context->doc->children);
 		return(ctxt->context->node->children);
 	}
@@ -7465,7 +7463,7 @@ xmlNodePtr xmlXPathNextParent(xmlXPathParserContextPtr ctxt, xmlNodePtr cur) {
 			case XML_XINCLUDE_END:
 			case XML_ENTITY_DECL:
 			    if(ctxt->context->node->parent == NULL)
-				    return((xmlNodePtr)ctxt->context->doc);
+				    return((xmlNode *)ctxt->context->doc);
 			    if((ctxt->context->node->parent->type == XML_ELEMENT_NODE) &&
 			    ((ctxt->context->node->parent->name[0] == ' ') ||
 				    (xmlStrEqual(ctxt->context->node->parent->name,
@@ -7488,7 +7486,7 @@ xmlNodePtr xmlXPathNextParent(xmlXPathParserContextPtr ctxt, xmlNodePtr cur) {
 			case XML_NAMESPACE_DECL: {
 			    xmlNsPtr ns = (xmlNsPtr)ctxt->context->node;
 			    if(ns->next && (ns->next->type != XML_NAMESPACE_DECL))
-				    return((xmlNodePtr)ns->next);
+				    return((xmlNode *)ns->next);
 			    return 0;
 		    }
 		}
@@ -7535,7 +7533,7 @@ xmlNodePtr xmlXPathNextAncestor(xmlXPathParserContextPtr ctxt, xmlNodePtr cur) {
 			case XML_XINCLUDE_START:
 			case XML_XINCLUDE_END:
 			    if(ctxt->context->node->parent == NULL)
-				    return((xmlNodePtr)ctxt->context->doc);
+				    return((xmlNode *)ctxt->context->doc);
 			    if((ctxt->context->node->parent->type == XML_ELEMENT_NODE) &&
 			    ((ctxt->context->node->parent->name[0] == ' ') ||
 				    (xmlStrEqual(ctxt->context->node->parent->name,
@@ -7558,7 +7556,7 @@ xmlNodePtr xmlXPathNextAncestor(xmlXPathParserContextPtr ctxt, xmlNodePtr cur) {
 			case XML_NAMESPACE_DECL: {
 			    xmlNsPtr ns = (xmlNsPtr)ctxt->context->node;
 			    if(ns->next && (ns->next->type != XML_NAMESPACE_DECL))
-				    return((xmlNodePtr)ns->next);
+				    return((xmlNode *)ns->next);
 			    /* Bad, how did that namespace end up here ? */
 			    return 0;
 		    }
@@ -7566,8 +7564,8 @@ xmlNodePtr xmlXPathNextAncestor(xmlXPathParserContextPtr ctxt, xmlNodePtr cur) {
 		return 0;
 	}
 	if(cur == ctxt->context->doc->children)
-		return((xmlNodePtr)ctxt->context->doc);
-	if(cur == (xmlNodePtr)ctxt->context->doc)
+		return((xmlNode *)ctxt->context->doc);
+	if(cur == (xmlNode *)ctxt->context->doc)
 		return 0;
 	switch(cur->type) {
 		case XML_ELEMENT_NODE:
@@ -7600,7 +7598,7 @@ xmlNodePtr xmlXPathNextAncestor(xmlXPathParserContextPtr ctxt, xmlNodePtr cur) {
 		case XML_NAMESPACE_DECL: {
 		    xmlNsPtr ns = (xmlNsPtr)ctxt->context->node;
 		    if(ns->next && (ns->next->type != XML_NAMESPACE_DECL))
-			    return((xmlNodePtr)ns->next);
+			    return((xmlNode *)ns->next);
 		    /* Bad, how did that namespace end up here ? */
 		    return 0;
 	    }
@@ -7652,7 +7650,7 @@ xmlNodePtr xmlXPathNextFollowingSibling(xmlXPathParserContextPtr ctxt, xmlNodePt
 	if((ctxt->context->node->type == XML_ATTRIBUTE_NODE) ||
 	    (ctxt->context->node->type == XML_NAMESPACE_DECL))
 		return 0;
-	if(cur == (xmlNodePtr)ctxt->context->doc)
+	if(cur == (xmlNode *)ctxt->context->doc)
 		return 0;
 	if(cur == NULL)
 		return(ctxt->context->node->next);
@@ -7677,7 +7675,7 @@ xmlNodePtr xmlXPathNextPrecedingSibling(xmlXPathParserContextPtr ctxt, xmlNodePt
 		return 0;
 	if(oneof2(ctxt->context->node->type, XML_ATTRIBUTE_NODE, XML_NAMESPACE_DECL))
 		return 0;
-	if(cur == (xmlNodePtr)ctxt->context->doc)
+	if(cur == (xmlNode *)ctxt->context->doc)
 		return 0;
 	if(cur == NULL)
 		return(ctxt->context->node->prev);
@@ -7723,7 +7721,7 @@ xmlNodePtr xmlXPathNextFollowing(xmlXPathParserContextPtr ctxt, xmlNodePtr cur)
 		cur = cur->parent;
 		if(cur == NULL) 
 			break;
-		else if(cur == (xmlNodePtr)ctxt->context->doc) 
+		else if(cur == (xmlNode *)ctxt->context->doc) 
 			return 0;
 		else if(cur->next) 
 			return cur->next;
@@ -7751,9 +7749,9 @@ static int xmlXPathIsAncestor(xmlNodePtr ancestor, xmlNodePtr node)
 		if(ancestor->doc != node->doc) 
 			return 0;
 		/* avoid searching if ancestor or node is the root node */
-		if(ancestor == (xmlNodePtr)node->doc) 
+		if(ancestor == (xmlNode *)node->doc) 
 			return 1;
-		if(node == (xmlNodePtr)ancestor->doc) 
+		if(node == (xmlNode *)ancestor->doc) 
 			return 0;
 		while(node->parent) {
 			if(node->parent == ancestor)
@@ -7873,7 +7871,7 @@ xmlNodePtr xmlXPathNextNamespace(xmlXPathParserContextPtr ctxt, xmlNodePtr cur)
 		return 0;
 	if(ctxt->context->node->type != XML_ELEMENT_NODE) 
 		return 0;
-	if(ctxt->context->tmpNsList == NULL && cur != (xmlNodePtr)xmlXPathXMLNamespace) {
+	if(ctxt->context->tmpNsList == NULL && cur != (xmlNode *)xmlXPathXMLNamespace) {
 		free(ctxt->context->tmpNsList);
 		ctxt->context->tmpNsList = xmlGetNsList(ctxt->context->doc, ctxt->context->node);
 		ctxt->context->tmpNsNr = 0;
@@ -7882,10 +7880,10 @@ xmlNodePtr xmlXPathNextNamespace(xmlXPathParserContextPtr ctxt, xmlNodePtr cur)
 				ctxt->context->tmpNsNr++;
 			}
 		}
-		return((xmlNodePtr)xmlXPathXMLNamespace);
+		return((xmlNode *)xmlXPathXMLNamespace);
 	}
 	if(ctxt->context->tmpNsNr > 0) {
-		return (xmlNodePtr)ctxt->context->tmpNsList[--ctxt->context->tmpNsNr];
+		return (xmlNode *)ctxt->context->tmpNsList[--ctxt->context->tmpNsNr];
 	}
 	else {
 		free(ctxt->context->tmpNsList);
@@ -7912,11 +7910,11 @@ xmlNodePtr xmlXPathNextAttribute(xmlXPathParserContextPtr ctxt, xmlNodePtr cur)
 	if(ctxt->context->node->type != XML_ELEMENT_NODE)
 		return 0;
 	if(cur == NULL) {
-		if(ctxt->context->node == (xmlNodePtr)ctxt->context->doc)
+		if(ctxt->context->node == (xmlNode *)ctxt->context->doc)
 			return 0;
-		return((xmlNodePtr)ctxt->context->node->properties);
+		return((xmlNode *)ctxt->context->node->properties);
 	}
-	return((xmlNodePtr)cur->next);
+	return((xmlNode *)cur->next);
 }
 
 /************************************************************************
@@ -7942,7 +7940,7 @@ xmlNodePtr xmlXPathNextAttribute(xmlXPathParserContextPtr ctxt, xmlNodePtr cur)
 void xmlXPathRoot(xmlXPathParserContextPtr ctxt) 
 {
 	if(ctxt && ctxt->context) {
-		ctxt->context->node = (xmlNodePtr)ctxt->context->doc;
+		ctxt->context->node = (xmlNode *)ctxt->context->doc;
 		valuePush(ctxt, xmlXPathCacheNewNodeSet(ctxt->context, ctxt->context->node));
 	}
 }
@@ -8082,7 +8080,7 @@ static xmlNodeSetPtr xmlXPathGetElementsByIds(xmlDocPtr doc, const xmlChar * ids
 				if(attr->type == XML_ATTRIBUTE_NODE)
 					elem = attr->parent;
 				else if(attr->type == XML_ELEMENT_NODE)
-					elem = (xmlNodePtr)attr;
+					elem = (xmlNode *)attr;
 				else
 					elem = NULL;
 				if(elem)
@@ -12353,7 +12351,7 @@ error:
 				 * Run the evaluation with a node list made of a
 				 * single item in the nodelocset.
 				 */
-				ctxt->context->node = (xmlNodePtr)oldlocset->locTab[i]->user;
+				ctxt->context->node = (xmlNode *)oldlocset->locTab[i]->user;
 				ctxt->context->contextSize = oldlocset->locNr;
 				ctxt->context->proximityPosition = i + 1;
 				if(tmp == NULL) {
@@ -12405,7 +12403,7 @@ error:
 				 * Only put the first node in the result, then leave.
 				 */
 				if(newlocset->locNr > 0) {
-					*first = (xmlNodePtr)oldlocset->locTab[i]->user;
+					*first = (xmlNode *)oldlocset->locTab[i]->user;
 					break;
 				}
 			}
@@ -13000,7 +12998,7 @@ error:
 					     * Run the evaluation with a node list made of a
 					     * single item in the nodelocset.
 					     */
-					    ctxt->context->node = (xmlNodePtr)oldlocset->locTab[i]->user;
+					    ctxt->context->node = (xmlNode *)oldlocset->locTab[i]->user;
 					    ctxt->context->contextSize = oldlocset->locNr;
 					    ctxt->context->proximityPosition = i + 1;
 					    tmp = xmlXPathCacheNewNodeSet(ctxt->context, ctxt->context->node);
@@ -13246,7 +13244,7 @@ error:
 					     * Run the evaluation with a node list made of a
 					     * single item in the nodelocset.
 					     */
-					    ctxt->context->node = (xmlNodePtr)oldlocset->locTab[i]->user;
+					    ctxt->context->node = (xmlNode *)oldlocset->locTab[i]->user;
 					    ctxt->context->contextSize = oldlocset->locNr;
 					    ctxt->context->proximityPosition = i + 1;
 					    tmp = xmlXPathCacheNewNodeSet(ctxt->context, ctxt->context->node);
@@ -13262,15 +13260,15 @@ error:
 					    if(res->type == XPATH_LOCATIONSET) {
 						    xmlLocationSetPtr rloc = (xmlLocationSetPtr)res->user;
 						    for(j = 0; j<rloc->locNr; j++) {
-							    range = xmlXPtrNewRange((xmlNodePtr)oldlocset->locTab[i]->user,
-								    oldlocset->locTab[i]->index, (xmlNodePtr)rloc->locTab[j]->user2, rloc->locTab[j]->index2);
+							    range = xmlXPtrNewRange((xmlNode *)oldlocset->locTab[i]->user,
+								    oldlocset->locTab[i]->index, (xmlNode *)rloc->locTab[j]->user2, rloc->locTab[j]->index2);
 							    if(range) {
 								    xmlXPtrLocationSetAdd(newlocset, range);
 							    }
 						    }
 					    }
 					    else {
-						    range = xmlXPtrNewRangeNodeObject((xmlNodePtr)oldlocset->locTab[i]->user, res);
+						    range = xmlXPtrNewRangeNodeObject((xmlNode *)oldlocset->locTab[i]->user, res);
 						    if(range)
 							    xmlXPtrLocationSetAdd(newlocset, range);
 					    }
@@ -13477,7 +13475,7 @@ start:
 				/* Select "/" */
 				if(toBool)
 					return 1;
-				xmlXPathNodeSetAddUnique((*resultSeq)->nodesetval, (xmlNodePtr)ctxt->doc);
+				xmlXPathNodeSetAddUnique((*resultSeq)->nodesetval, (xmlNode *)ctxt->doc);
 			}
 			else {
 				/* Select "self::node()" */
@@ -13490,7 +13488,7 @@ start:
 			return 0;
 		}
 		if(from_root) {
-			cur = (xmlNodePtr)ctxt->doc;
+			cur = (xmlNode *)ctxt->doc;
 		}
 		else if(ctxt->node) {
 			switch(ctxt->node->type) {

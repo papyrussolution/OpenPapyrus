@@ -348,6 +348,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)libzip.lib</OutputFile>
@@ -378,6 +380,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)libzip.lib</OutputFile>
@@ -408,6 +412,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)libzip.lib</OutputFile>
@@ -546,6 +552,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)libzip.lib</OutputFile>
@@ -574,6 +581,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)libzip.lib</OutputFile>
@@ -602,6 +610,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)libzip.lib</OutputFile>

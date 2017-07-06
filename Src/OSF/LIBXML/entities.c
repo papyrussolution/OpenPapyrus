@@ -5,7 +5,7 @@
  *
  * daniel@veillard.com
  */
-
+// 
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -277,12 +277,12 @@ xmlEntityPtr xmlAddDtdEntity(xmlDocPtr doc, const xmlChar * name, int type,
 	ret->parent = dtd;
 	ret->doc = dtd->doc;
 	if(dtd->last == NULL) {
-		dtd->children = dtd->last = (xmlNodePtr)ret;
+		dtd->children = dtd->last = (xmlNode *)ret;
 	}
 	else {
-		dtd->last->next = (xmlNodePtr)ret;
+		dtd->last->next = (xmlNode *)ret;
 		ret->prev = dtd->last;
-		dtd->last = (xmlNodePtr)ret;
+		dtd->last = (xmlNode *)ret;
 	}
 	return ret;
 }
@@ -318,12 +318,12 @@ xmlEntityPtr xmlAddDocEntity(xmlDocPtr doc, const xmlChar * name, int type,
 			ret->parent = dtd;
 			ret->doc = dtd->doc;
 			if(dtd->last == NULL) {
-				dtd->children = dtd->last = (xmlNodePtr)ret;
+				dtd->children = dtd->last = (xmlNode *)ret;
 			}
 			else {
-				dtd->last->next = (xmlNodePtr)ret;
+				dtd->last->next = (xmlNode *)ret;
 				ret->prev = dtd->last;
-				dtd->last = (xmlNodePtr)ret;
+				dtd->last = (xmlNode *)ret;
 			}
 		}
 	}

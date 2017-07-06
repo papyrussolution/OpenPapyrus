@@ -6901,7 +6901,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	// } @v8.0.6
 	PPIDArray correction_exp_chain; // @v9.4.3
 	pPack->ErrCause = 0;
-	THROW_PP_S(!(pPack->ProcessFlags & PPBillPacket::pfUpdateProhited), PPERR_UPDBPACKPROHIBITED, PPObjBill::MakeCodeString(&pPack->Rec, 0, bill_code));
+	THROW_PP_S(!(pPack->ProcessFlags & PPBillPacket::pfUpdateProhibited), PPERR_UPDBPACKPROHIBITED, PPObjBill::MakeCodeString(&pPack->Rec, 0, bill_code));
 	if(!(pPack->ProcessFlags & PPBillPacket::pfIgnoreStatusRestr)) { // @v8.6.6
 		THROW_PP_S(!pPack->Rec.StatusID || !CheckStatusFlag(pPack->Rec.StatusID, BILSTF_DENY_MOD), PPERR_BILLST_DENY_MOD,
 			PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName, bill_code));
@@ -7632,7 +7632,7 @@ int SLAPI PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl
 			CALLEXCEPT();
 	}
 	if(fl & BPLD_SKIPTRFR) {
-		pPack->ProcessFlags |= PPBillPacket::pfUpdateProhited;
+		pPack->ProcessFlags |= PPBillPacket::pfUpdateProhibited;
 		// @v8.5.11 {
 		//
 		// Эти функции вызываются в pPack->LoadClbList, однако при (fl & BPLD_SKIPTRFR)
@@ -7644,7 +7644,7 @@ int SLAPI PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl
 	}
 	else {
 		if(pGoodsList)
-			pPack->ProcessFlags |= PPBillPacket::pfUpdateProhited;
+			pPack->ProcessFlags |= PPBillPacket::pfUpdateProhibited;
 		if(pPack->IsDraft()) {
 			if(P_CpTrfr) {
 				THROW(P_CpTrfr->LoadItems(id, pPack, pGoodsList));

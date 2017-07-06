@@ -33,7 +33,7 @@
 	colorlinks=true,
 	linkcolor=blue
 ]{hyperref}
-\usepackage{literat}
+% \usepackage{literat}
 %
 % Определение цветов
 %

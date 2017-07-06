@@ -562,8 +562,7 @@ void GoodsOpAnlzFiltDialog::SetupFlags()
 	DisableClusterItem(CTL_BILLFLT_DIFFBYPRICE, 4, !(flags & GoodsOpAnalyzeFilt::fCalcRest));
 	DisableClusterItem(CTL_BILLFLT_DIFFBYPRICE, 5, !(flags & GoodsOpAnalyzeFilt::fCalcRest));
 	DisableClusterItem(CTL_BILLFLT_DIFFBYPRICE, 7, !(flags & GoodsOpAnalyzeFilt::fCalcRest));
-	DisableClusterItem(CTL_BILLFLT_DIFFBYPRICE, 9,
-		!(flags & GoodsOpAnalyzeFilt::fCalcRest) || (flags & GoodsOpAnalyzeFilt::fBadSellingGoods));
+	DisableClusterItem(CTL_BILLFLT_DIFFBYPRICE, 9, !(flags & GoodsOpAnalyzeFilt::fCalcRest) || (flags & GoodsOpAnalyzeFilt::fBadSellingGoods));
 	DisableClusterItem(CTL_BILLFLT_DIFFBYPRICE, 6, flags & GoodsOpAnalyzeFilt::fBadSellingGoods);
 	DisableClusterItem(CTL_BILLFLT_DIFFBYPRICE, 8, BIN(!(Data.Flags & GoodsOpAnalyzeFilt::fBillListAsTradePlan)));
 	SetClusterData(CTL_BILLFLT_DIFFBYPRICE, flags);

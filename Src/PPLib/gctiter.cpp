@@ -549,6 +549,7 @@ int SLAPI GCTIterator::InitQuery(int cpMode)
 {
 	int    ok = 1;
 	const  int soft_restr = BIN(Filt.SoftRestrict);
+	const  int calc_links = BIN(OpList.GetCount() && Filt.Flags & OPG_COMPAREWROFF); // @v9.7.3
 	struct {
 		PPID  obj;
 		LDATE dt;
@@ -608,11 +609,11 @@ int SLAPI GCTIterator::InitQuery(int cpMode)
 		}
 		GoodsArray.sortAndUndup(); // @v8.1.0 sort-->sortAndUndup
 	}
-	if(Filt.SupplID) {
+	if(Filt.SupplID && !calc_links) { // @v9.7.3 (!calc_links)
 		if(cpMode)
 			ok = -1;
 		else {
-			LDATE  e = NZOR(Period.upp, MAXDATE);
+			const LDATE e = NZOR(Period.upp, MAXDATE);
 			if(Filt.GoodsID && !(State & stUseGoodsList)) {
 				dbq   = & (rt->Dt <= e && rt->SupplID == Filt.SupplID);
 				if(!soft_restr) {
@@ -652,7 +653,7 @@ int SLAPI GCTIterator::InitQuery(int cpMode)
 			else
 				THROW_MEM(P_GoodsRestList = new GCTIterator::GoodsRestArray);
 		}
-		if(cpMode || (!Filt.GoodsID && ((ArList.GetCount() && !soft_restr) || OpList.GetCount() || Filt.BillList.GetCount()))) {
+		if(cpMode || calc_links || (!Filt.GoodsID && ((ArList.GetCount() && !soft_restr) || OpList.GetCount() || Filt.BillList.GetCount()))) {
 			BillCore * p_bt = BT;
 			if(Filt.BillList.GetCount()) {
 				BillList = Filt.BillList.Get();
@@ -845,6 +846,26 @@ int SLAPI GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec *
 						pTrfrRec->GoodsID = NZOR(Filt.GoodsID, Filt.GoodsGrpID);
 				}
 			}
+			// @v9.7.3 {
+			if(Cbb.P_WrOffPack && Filt.Flags & OPG_COMPAREWROFF && pExt) {
+				double sum_cost = 0.0;
+				double sum_price = 0.0;
+				double sum_qtty = 0.0;
+				double sum_qtty_abs = 0.0;
+				for(uint wop = 0; Cbb.P_WrOffPack->SearchGoods(goods_id, &wop); wop++) {
+					const PPTransferItem & r_ti = Cbb.P_WrOffPack->ConstTI(wop);
+					const double aq = fabs(r_ti.Quantity_);
+					sum_qtty += r_ti.Quantity_;
+					sum_qtty_abs += aq;
+					sum_cost += fabs(r_ti.Cost) * aq;
+					sum_price += fabs(r_ti.Price - r_ti.Discount) * aq;
+				}
+				pExt->LinkBillID = Cbb.P_WrOffPack->Rec.ID;
+				pExt->LinkQtty = sum_qtty;
+				pExt->LinkCost = fdivnz(sum_cost, sum_qtty_abs);
+				pExt->LinkPrice = fdivnz(sum_price, sum_qtty_abs);
+			}
+			// } @v9.7.3 
 		}
 	}
 	return ok;
@@ -938,6 +959,7 @@ int SLAPI GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBi
 		CpTransfTbl::Key1 k1;
 	} cpk;
 	const  int opt_for_psales = BIN(Filt.Flags & OPG_OPTIMIZEFORPSALES && (State & stUseGoodsList) && !Filt.SoftRestrict);
+	int    ok = 1;
 	int    idx;
 	Transfer * p_tfr = Trfr;
 	DBQ  * dbq = 0;
@@ -950,6 +972,51 @@ int SLAPI GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBi
 		dbq = & (p_tfr->LotID == CurrID);
 	}
 	else if(ByWhat_ == bwBill) {
+		// @v9.7.3 {
+		Cbb.Clear();
+		if(Filt.Flags & OPG_COMPAREWROFF) {
+			BillTbl::Rec bill_rec;
+			if(BCache && BCache->Get(CurrID, &bill_rec) > 0 && GetOpType(bill_rec.OpID) == PPOPT_GOODSORDER) {
+				PPObjBill * p_bobj = BillObj;
+				PPTransferItem ti;
+				THROW_MEM(SETIFZ(Cbb.P_Pack, new PPBillPacket));
+				if(p_bobj->ExtractPacket(CurrID, Cbb.P_Pack) > 0) {
+					PPID   single_wroff_bill_id = 0;
+					BillTbl::Rec sh_rec;
+					PPBillPacket temp_pack;
+					for(DateIter di; p_bobj->P_Tbl->EnumByObj(CurrID, &di, &sh_rec) > 0;) {
+						if(sh_rec.OpID == 0) {
+							THROW_MEM(SETIFZ(Cbb.P_WrOffPack, new PPBillPacket));
+							if(p_bobj->ExtractPacket(bill_rec.ID, &temp_pack) > 0) {
+								for(temp_pack.InitExtTIter(ETIEF_UNITEBYGOODS, 0); temp_pack.EnumTItemsExt(0, &ti) > 0;) {
+									THROW(Cbb.P_WrOffPack->LoadTItem(&ti, 0, 0));
+								}
+								if(!single_wroff_bill_id)
+									single_wroff_bill_id = temp_pack.Rec.ID;
+								else if(single_wroff_bill_id > 0 && single_wroff_bill_id != temp_pack.Rec.ID)
+									single_wroff_bill_id = -1;
+							}
+						}
+					}
+					if(Cbb.P_WrOffPack) {
+						if(single_wroff_bill_id > 0)
+							Cbb.P_WrOffPack->Rec.ID = single_wroff_bill_id;
+						for(Cbb.P_WrOffPack->InitExtTIter(ETIEF_UNITEBYGOODS, 0); Cbb.P_WrOffPack->EnumTItemsExt(0, &ti) > 0;) {
+							if(!Cbb.P_Pack->SearchGoods(ti.GoodsID, 0)) {
+								ti.Quantity_ = 0.0;
+								ti.Cost = 0.0;
+								ti.Price = 0.0;
+								ti.Discount = 0.0;
+								ti.WtQtty = 0.0;
+								THROW(Cbb.P_Pack->LoadTItem(&ti, 0, 0));
+							}
+						}
+					}
+					Cbb.P_Pack->InitExtTIter(ETIEF_UNITEBYGOODS, 0);
+				}
+			}
+		}
+		// } @v9.7.3
 		idx = 0;
 		k.k0.BillID = CurrID;
 		dbq = & (p_tfr->BillID == CurrID);
@@ -995,7 +1062,9 @@ int SLAPI GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBi
 	delete trfr_q;
 	trfr_q  = q;
 	trfr_q->initIteration(0, &k, spGt);
-	return NextTrfr(pTrfrRec, pBillRec, pExt);
+	ok = NextTrfr(pTrfrRec, pBillRec, pExt);
+	CATCHZOK
+	return ok;
 }
 
 int SLAPI GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec, GCTIterator::ItemExtension * pExt)

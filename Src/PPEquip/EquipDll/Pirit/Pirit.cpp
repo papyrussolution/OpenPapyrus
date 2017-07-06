@@ -950,12 +950,14 @@ int PiritEquip::GetTaxTab()
 	SString in_data;
 	SString out_data;
 	SString r_error;
+	SString raw_tax_val;
 	SString log_buf;
 	for(int i = 0; i < 5; i++) { // В пирите не более 6 налоговых ставок
 
 		MEMSZERO(DvcTaxArray[i]);
 
 		in_data = 0;
+		raw_tax_val = 0;
 		CreateStr(40, in_data); // Наименование i-й налоговой ставки
 		CreateStr(i, in_data);
 		{
@@ -965,6 +967,8 @@ int PiritEquip::GetTaxTab()
 		}
 		if(out_data.NotEmpty()) {
 			STRNSCPY(DvcTaxArray[i].Name, out_data);
+			in_data = 0;
+			out_data = 0;
 			CreateStr(41, in_data); // Значение i-й налоговой ставки
 			CreateStr(i, in_data);
 			{
@@ -972,13 +976,14 @@ int PiritEquip::GetTaxTab()
 				THROWERR(PutData("11", in_data), PIRIT_NOTSENT);
 				THROW(GetWhile(out_data, r_error));
 			}
-			DvcTaxArray[i].Rate = ((double)out_data.ToLong()) / 10000.0;
+			raw_tax_val = out_data;
+			DvcTaxArray[i].Rate = out_data.ToReal();
 		}
 		if(i == 0)
 			log_buf.Cat("DvcTaxArray").CatDiv(':', 2);
 		else
 			log_buf.CatDiv(';', 2);
-		log_buf.Cat(DvcTaxArray[i].Name).CatDiv(',', 2).Cat(DvcTaxArray[i].Rate, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+		log_buf.Cat(DvcTaxArray[i].Name).CatDiv(',', 2).Cat(DvcTaxArray[i].Rate, MKSFMTD(0, 6, NMBF_NOTRAILZ)).CatChar('|').Cat(raw_tax_val);
 	}
 	if(LogFileName.NotEmpty()) {
 		SLS.LogMessage(LogFileName, log_buf, 8192);

@@ -1,0 +1,93 @@
+slip Form10 {
+	title = "Êàññîâûé ÷åê"
+	number = "@billno"
+	pagewidth=50
+	pagelength=60
+	paper=regular
+
+	font 0 = "courier new" 10 
+	font 1 = "Courier New Bold" 10 40
+	font 2 = "Times New Roman" 16
+.header
+	"@mainorg"
+	"ÏÐÎÄÀÆÀ" font=2
+	"@date-@time-@billno"
+	space="="
+	"fiscal string" fiscal center
+	"regular only string" left regular
+	"@goods"
+	if(@qtty != 1)
+		"@qtty X @price=@itemamt" right
+	else
+		"@price=@itemamt" right
+	endif
+	space="."
+	"@goods\t@qtty X @price"
+	"@goods\t\.@qtty X @price"
+	"@goods\t@qtty X @price" wrap=20
+	if(@itemdis != 0)
+		"Ñêèäêà = @itemdis" font=1
+	endif
+.footer
+	if(@discount > 0)
+		"ÑÊÈÄÊÀ @pctdis=@discount" right
+	endif
+	space="="
+	"ÈÒÎÃÎ=@amount" right
+}
+
+slip Form1 {
+	title="ÊÎÏÈß ×ÅÊÀ"
+	number="@billno"
+	pagewidth=36
+	pagelength=60
+	paper=regular,journal
+.header
+	"@mainorg"
+	"ÏÐÎÄÀÆÀ" font=14
+	"@date-@time-@billno"
+	space="-"
+.detail
+	"fiscal string" fiscal center
+	"regular only string" left regular
+	"@goods"
+	if(@qtty != 1)
+		"@qtty X @price=@itemamt" right
+	else
+		"@price=@itemamt" right
+	endif
+	space="."
+	"@goods\t@qtty X @price"
+	"@goods\t\.@qtty X @price"
+	"@goods\t@qtty X @price" wrap=20
+.footer
+	if(@discount > 0)
+		"ÑÊÈÄÊÀ @pctdis=@discount" right
+	endif
+	space="="
+	"ÈÒÎÃÎ=@amount" right
+}
+
+slip Form_ABC {
+	title="×ÅÊ ÏÐÎÄÀÆÈ"
+	number="@billno"
+	pagewidth=30
+	pagelength=60
+	paper=regular,journal
+	//paper=slip
+.header
+	"ÏÐÎÄÀÆÀ"
+	"@mainorg"
+	space="-"
+.detail
+	"@gname"
+	if(@qtty != 1)
+		"@qtty X @price" right
+	else
+	endif
+	"=@rowsum" right
+.footer
+	if(@discount > 0)
+		space="-"
+	endif
+}

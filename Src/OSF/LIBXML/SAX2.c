@@ -330,7 +330,7 @@ void xmlSAX2InternalSubset(void * ctx, const xmlChar * name, const xmlChar * Ext
 			if(dtd != NULL) {
 				if(ctxt->html)
 					return;
-				xmlUnlinkNode((xmlNodePtr)dtd);
+				xmlUnlinkNode((xmlNode *)dtd);
 				xmlFreeDtd(dtd);
 				ctxt->myDoc->intSubset = NULL;
 			}
@@ -552,7 +552,7 @@ xmlEntityPtr xmlSAX2GetEntity(void * ctx, const xmlChar * name)
 		val = xmlParseCtxtExternalEntity(ctxt, ret->URI,
 		    ret->ExternalID, &children);
 		if(val == 0) {
-			xmlAddChildList((xmlNodePtr)ret, children);
+			xmlAddChildList((xmlNode *)ret, children);
 		}
 		else {
 			xmlFatalErrMsg(ctxt, XML_ERR_ENTITY_PROCESSING, "Failure to process entity %s\n", name, NULL);
@@ -1154,7 +1154,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname,
 			ret->children = xmlStringGetNodeList(ctxt->myDoc, value);
 			tmp = ret->children;
 			while(tmp != NULL) {
-				tmp->parent = (xmlNodePtr)ret;
+				tmp->parent = (xmlNode *)ret;
 				if(tmp->next == NULL)
 					ret->last = tmp;
 				tmp = tmp->next;
@@ -1164,7 +1164,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname,
 			ret->children = xmlNewDocText(ctxt->myDoc, value);
 			ret->last = ret->children;
 			if(ret->children != NULL)
-				ret->children->parent = (xmlNodePtr)ret;
+				ret->children->parent = (xmlNode *)ret;
 		}
 	}
 
@@ -1268,19 +1268,12 @@ process_external_subset:
 		 * Check against defaulted attributes from the external subset
 		 * if the document is stamped as standalone
 		 */
-		if((ctxt->myDoc->standalone == 1) &&
-		    (ctxt->myDoc->extSubset != NULL) &&
-		    (ctxt->validate)) {
+		if((ctxt->myDoc->standalone == 1) && (ctxt->myDoc->extSubset != NULL) && (ctxt->validate)) {
 			while(attr != NULL) {
 				if((attr->defaultValue != NULL) &&
-				    (xmlGetDtdQAttrDesc(ctxt->myDoc->extSubset,
-						    attr->elem, attr->name,
-						    attr->prefix) == attr) &&
-				    (xmlGetDtdQAttrDesc(ctxt->myDoc->intSubset,
-						    attr->elem, attr->name,
-						    attr->prefix) == NULL)) {
+				    (xmlGetDtdQAttrDesc(ctxt->myDoc->extSubset, attr->elem, attr->name, attr->prefix) == attr) &&
+				    (xmlGetDtdQAttrDesc(ctxt->myDoc->intSubset, attr->elem, attr->name, attr->prefix) == NULL)) {
 					xmlChar * fulln;
-
 					if(attr->prefix != NULL) {
 						fulln = xmlStrdup(attr->prefix);
 						fulln = xmlStrcat(fulln, BAD_CAST ":");
@@ -1340,26 +1333,15 @@ process_external_subset:
 				 *  - there isn't already an attribute definition
 				 *    in the internal subset overriding it.
 				 */
-				if(((attr->prefix != NULL) &&
-					    (xmlStrEqual(attr->prefix, BAD_CAST "xmlns"))) ||
-				    ((attr->prefix == NULL) &&
-					    (xmlStrEqual(attr->name, BAD_CAST "xmlns"))) ||
-				    (ctxt->loadsubset & XML_COMPLETE_ATTRS)) {
-					xmlAttributePtr tst;
-
-					tst = xmlGetDtdQAttrDesc(ctxt->myDoc->intSubset,
-					    attr->elem, attr->name,
-					    attr->prefix);
+				if(((attr->prefix != NULL) && (xmlStrEqual(attr->prefix, BAD_CAST "xmlns"))) || ((attr->prefix == NULL) && (xmlStrEqual(attr->name, BAD_CAST "xmlns"))) || (ctxt->loadsubset & XML_COMPLETE_ATTRS)) {
+					xmlAttributePtr tst = xmlGetDtdQAttrDesc(ctxt->myDoc->intSubset, attr->elem, attr->name, attr->prefix);
 					if((tst == attr) || (tst == NULL)) {
 						xmlChar fn[50];
-						xmlChar * fulln;
-
-						fulln = xmlBuildQName(attr->name, attr->prefix, fn, 50);
+						xmlChar * fulln = xmlBuildQName(attr->name, attr->prefix, fn, 50);
 						if(fulln == NULL) {
 							xmlSAX2ErrMemory(ctxt, "xmlSAX2StartElement");
 							return;
 						}
-
 						/*
 						 * Check that the attribute is not declared in the
 						 * serialization
@@ -1376,8 +1358,7 @@ process_external_subset:
 							}
 						}
 						if(att == NULL) {
-							xmlSAX2AttributeInternal(ctxt, fulln,
-							    attr->defaultValue, prefix);
+							xmlSAX2AttributeInternal(ctxt, fulln, attr->defaultValue, prefix);
 						}
 						if((fulln != fn) && (fulln != attr->name))
 							free(fulln);
@@ -1455,7 +1436,7 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
 #ifdef DEBUG_SAX_TREE
 		xmlGenericError(xmlGenericErrorContext, "Setting %s as root\n", name);
 #endif
-		xmlAddChild((xmlNodePtr)ctxt->myDoc, (xmlNodePtr)ret);
+		xmlAddChild((xmlNode *)ctxt->myDoc, (xmlNode *)ret);
 	}
 	else if(parent == NULL) {
 		parent = ctxt->myDoc->children;
@@ -1667,7 +1648,7 @@ static xmlNodePtr xmlSAX2TextNode(xmlParserCtxtPtr ctxt, const xmlChar * str, in
 		ctxt->freeElemsNr--;
 	}
 	else {
-		ret = (xmlNodePtr)xmlMalloc(sizeof(xmlNode));
+		ret = (xmlNode *)xmlMalloc(sizeof(xmlNode));
 	}
 	if(ret == NULL) {
 		xmlErrMemory(ctxt, "xmlSAX2Characters");
@@ -1820,7 +1801,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxtPtr ctxt,
 		}
 
 		if((__xmlRegisterCallbacks) && (xmlRegisterNodeDefaultValue))
-			xmlRegisterNodeDefaultValue((xmlNodePtr)ret);
+			xmlRegisterNodeDefaultValue((xmlNode *)ret);
 	}
 	else {
 		if(ctxt->dictNames)
@@ -1848,7 +1829,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxtPtr ctxt,
 			ret->last = tmp;
 			if(tmp != NULL) {
 				tmp->doc = ret->doc;
-				tmp->parent = (xmlNodePtr)ret;
+				tmp->parent = (xmlNode *)ret;
 			}
 		}
 		else {
@@ -1857,7 +1838,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxtPtr ctxt,
 			tmp = ret->children;
 			while(tmp != NULL) {
 				tmp->doc = ret->doc;
-				tmp->parent = (xmlNodePtr)ret;
+				tmp->parent = (xmlNode *)ret;
 				if(tmp->next == NULL)
 					ret->last = tmp;
 				tmp = tmp->next;
@@ -1872,7 +1853,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxtPtr ctxt,
 		ret->last = tmp;
 		if(tmp != NULL) {
 			tmp->doc = ret->doc;
-			tmp->parent = (xmlNodePtr)ret;
+			tmp->parent = (xmlNode *)ret;
 		}
 	}
 
@@ -2105,7 +2086,7 @@ void xmlSAX2StartElementNs(void * ctx,
 	}
 
 	if(parent == NULL) {
-		xmlAddChild((xmlNodePtr)ctxt->myDoc, (xmlNodePtr)ret);
+		xmlAddChild((xmlNode *)ctxt->myDoc, (xmlNode *)ret);
 	}
 	/*
 	 * Build the namespace__ list
@@ -2472,18 +2453,18 @@ void xmlSAX2ProcessingInstruction(void * ctx, const xmlChar * target, const xmlC
 			ret->line = (ctxt->input->line < 65535) ? (short)ctxt->input->line : 65535;
 	}
 	if(ctxt->inSubset == 1) {
-		xmlAddChild((xmlNodePtr)ctxt->myDoc->intSubset, ret);
+		xmlAddChild((xmlNode *)ctxt->myDoc->intSubset, ret);
 		return;
 	}
 	else if(ctxt->inSubset == 2) {
-		xmlAddChild((xmlNodePtr)ctxt->myDoc->extSubset, ret);
+		xmlAddChild((xmlNode *)ctxt->myDoc->extSubset, ret);
 		return;
 	}
 	if(parent == NULL) {
 #ifdef DEBUG_SAX_TREE
 		xmlGenericError(xmlGenericErrorContext, "Setting PI %s as root\n", target);
 #endif
-		xmlAddChild((xmlNodePtr)ctxt->myDoc, (xmlNodePtr)ret);
+		xmlAddChild((xmlNode *)ctxt->myDoc, (xmlNode *)ret);
 		return;
 	}
 	if(parent->type == XML_ELEMENT_NODE) {
@@ -2527,18 +2508,18 @@ void xmlSAX2Comment(void * ctx, const xmlChar * value)
 			ret->line = (ctxt->input->line < 65535) ? (short)ctxt->input->line : 65535;
 	}
 	if(ctxt->inSubset == 1) {
-		xmlAddChild((xmlNodePtr)ctxt->myDoc->intSubset, ret);
+		xmlAddChild((xmlNode *)ctxt->myDoc->intSubset, ret);
 		return;
 	}
 	else if(ctxt->inSubset == 2) {
-		xmlAddChild((xmlNodePtr)ctxt->myDoc->extSubset, ret);
+		xmlAddChild((xmlNode *)ctxt->myDoc->extSubset, ret);
 		return;
 	}
 	if(parent == NULL) {
 #ifdef DEBUG_SAX_TREE
 		xmlGenericError(xmlGenericErrorContext, "Setting xmlSAX2Comment as root\n");
 #endif
-		xmlAddChild((xmlNodePtr)ctxt->myDoc, (xmlNodePtr)ret);
+		xmlAddChild((xmlNode *)ctxt->myDoc, (xmlNode *)ret);
 		return;
 	}
 	if(parent->type == XML_ELEMENT_NODE) {

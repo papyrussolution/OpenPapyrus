@@ -276,17 +276,15 @@ int FASTCALL SArray::insert(const void * pItem)
 		//static void SLAPI insmem(void * pDest, const void * pSrc, size_t blkOffs, size_t blkSize, size_t destSize)
 		{
 			const void * p_intr = _INTRPTR(pItem);
+			uint8 * d = PTR8(data) + _c * quant;
 			if(quant == sizeof(uint32)) {
-				uint8 * d = PTR8(data) + (_c * sizeof(uint32));
 				PTR32(d)[0] = PTR32(p_intr)[0];
 			}
 			else if(quant == sizeof(uint32)*2) {
-				uint8 * d = PTR8(data) + (_c * sizeof(uint32) * 2);
 				PTR32(d)[0] = PTR32(p_intr)[0];
 				PTR32(d)[1] = PTR32(p_intr)[1];
 			}
 			else {
-				uint8 * d = PTR8(data) + _c * quant;
 				memmove(d, p_intr, quant);
 			}
 		}

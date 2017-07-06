@@ -11,10 +11,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libxml", "libxml.vcproj", "
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Uncrustify_Win32", "Uncrustify_Win32.vcproj", "{FB6527FF-FF4A-497D-A241-E90F36BD0285}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libjpeg", "libjpeg.vcproj", "{270B7CAE-41A6-43AE-A53D-D06DD9EE84E9}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -35,10 +31,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ppgplot", "ppgplot.vcproj", "{7E287371-FBAC-47A5-9C89-52CA8A3A691B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D507E468-21FC-4209-A5A8-DE1F055866DC} = {D507E468-21FC-4209-A5A8-DE1F055866DC}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ccv", "ccv.vcproj", "{3A362513-A60A-4567-AAA0-CFE34B0ED66E}"
-	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzip", "libzip.vcproj", "{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}"
@@ -119,18 +111,6 @@ Global
 		{82523A80-856A-4957-BCEA-1A5738139141}.ServerDebug.Build.0 = ServerDebug|Win32
 		{82523A80-856A-4957-BCEA-1A5738139141}.ServerRelease.ActiveCfg = ServerRelease|Win32
 		{82523A80-856A-4957-BCEA-1A5738139141}.ServerRelease.Build.0 = ServerRelease|Win32
-		{FB6527FF-FF4A-497D-A241-E90F36BD0285}.Debug.ActiveCfg = Debug|Win32
-		{FB6527FF-FF4A-497D-A241-E90F36BD0285}.Debug.Build.0 = Debug|Win32
-		{FB6527FF-FF4A-497D-A241-E90F36BD0285}.MtDllDebug.ActiveCfg = MtDllDebug|Win32
-		{FB6527FF-FF4A-497D-A241-E90F36BD0285}.MtDllDebug.Build.0 = MtDllDebug|Win32
-		{FB6527FF-FF4A-497D-A241-E90F36BD0285}.MtDllRelease.ActiveCfg = MtDllRelease|Win32
-		{FB6527FF-FF4A-497D-A241-E90F36BD0285}.MtDllRelease.Build.0 = MtDllRelease|Win32
-		{FB6527FF-FF4A-497D-A241-E90F36BD0285}.Release.ActiveCfg = Release|Win32
-		{FB6527FF-FF4A-497D-A241-E90F36BD0285}.Release.Build.0 = Release|Win32
-		{FB6527FF-FF4A-497D-A241-E90F36BD0285}.ServerDebug.ActiveCfg = ServerDebug|Win32
-		{FB6527FF-FF4A-497D-A241-E90F36BD0285}.ServerDebug.Build.0 = ServerDebug|Win32
-		{FB6527FF-FF4A-497D-A241-E90F36BD0285}.ServerRelease.ActiveCfg = ServerRelease|Win32
-		{FB6527FF-FF4A-497D-A241-E90F36BD0285}.ServerRelease.Build.0 = ServerRelease|Win32
 		{270B7CAE-41A6-43AE-A53D-D06DD9EE84E9}.Debug.ActiveCfg = Debug|Win32
 		{270B7CAE-41A6-43AE-A53D-D06DD9EE84E9}.Debug.Build.0 = Debug|Win32
 		{270B7CAE-41A6-43AE-A53D-D06DD9EE84E9}.MtDllDebug.ActiveCfg = MtDllDebug|Win32
@@ -185,18 +165,6 @@ Global
 		{7E287371-FBAC-47A5-9C89-52CA8A3A691B}.Release.ActiveCfg = Release|Win32
 		{7E287371-FBAC-47A5-9C89-52CA8A3A691B}.ServerDebug.ActiveCfg = Debug|Win32
 		{7E287371-FBAC-47A5-9C89-52CA8A3A691B}.ServerRelease.ActiveCfg = Release|Win32
-		{3A362513-A60A-4567-AAA0-CFE34B0ED66E}.Debug.ActiveCfg = Debug|Win32
-		{3A362513-A60A-4567-AAA0-CFE34B0ED66E}.Debug.Build.0 = Debug|Win32
-		{3A362513-A60A-4567-AAA0-CFE34B0ED66E}.MtDllDebug.ActiveCfg = Debug|Win32
-		{3A362513-A60A-4567-AAA0-CFE34B0ED66E}.MtDllDebug.Build.0 = Debug|Win32
-		{3A362513-A60A-4567-AAA0-CFE34B0ED66E}.MtDllRelease.ActiveCfg = Release|Win32
-		{3A362513-A60A-4567-AAA0-CFE34B0ED66E}.MtDllRelease.Build.0 = Release|Win32
-		{3A362513-A60A-4567-AAA0-CFE34B0ED66E}.Release.ActiveCfg = Release|Win32
-		{3A362513-A60A-4567-AAA0-CFE34B0ED66E}.Release.Build.0 = Release|Win32
-		{3A362513-A60A-4567-AAA0-CFE34B0ED66E}.ServerDebug.ActiveCfg = Debug|Win32
-		{3A362513-A60A-4567-AAA0-CFE34B0ED66E}.ServerDebug.Build.0 = Debug|Win32
-		{3A362513-A60A-4567-AAA0-CFE34B0ED66E}.ServerRelease.ActiveCfg = Release|Win32
-		{3A362513-A60A-4567-AAA0-CFE34B0ED66E}.ServerRelease.Build.0 = Release|Win32
 		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.Debug.ActiveCfg = Debug|Win32
 		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.Debug.Build.0 = Debug|Win32
 		{1EE9AB8F-F42F-481E-963F-5854BFDB8EC1}.MtDllDebug.ActiveCfg = Debug|Win32

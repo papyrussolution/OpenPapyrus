@@ -2119,6 +2119,20 @@ private:
 #define SLERR_JSON_MAXIMUM_LENGTH              556 // the parsed string reached the maximum allowed size
 #define SLERR_JSON_UNKNOWN_PROBLEM             557 // some random, unaccounted problem occurred
 
+#define SLERR_URI_SYNTAX                       570 // Parsed text violates expected format
+#define SLERR_URI_NULL                         571 // One of the params passed was NULL although it mustn't be
+//#define SLERR_URI_MALLOC                     572 // Requested memory could not be allocated
+#define SLERR_URI_OUTPUT_TOO_LARGE             573 // Some output is to large for the receiving buffer
+#define SLERR_URI_NOT_IMPLEMENTED              574 // The called function is not implemented yet
+#define SLERR_URI_RANGE_INVALID                575 // The parameters passed contained invalid ranges
+// Errors specific to ToString
+#define SLERR_URI_TOSTRING_TOO_LONG        SLERR_URI_OUTPUT_TOO_LARGE // Deprecated, test for URI_ERROR_OUTPUT_TOO_LARGE instead
+// Errors specific to AddBaseUri
+#define SLERR_URI_ADDBASE_REL_BASE             576 // Given base is not absolute
+// Errors specific to RemoveBaseUri
+#define SLERR_URI_REMOVEBASE_REL_BASE          577 // Given base is not absolute
+#define SLERR_URI_REMOVEBASE_REL_SOURCE        578 // Given base is not absolute
+
 // LastError
 //
 // @ModuleDecl(SType) {
@@ -12519,8 +12533,7 @@ extern "C" typedef STestCase * (*FN_SLTEST_FACTORY)(STestSuite * pSuite);
 #define SLTEST_CLS(s)     SLTC_##s
 #define SLTEST_FACTORY(s) SLTCF_##s
 #define IMPLEMENT_SLTEST_FACTORY(test) \
-	extern "C" __declspec(dllexport) STestCase * SLTEST_FACTORY(test)(STestSuite * pSuite) \
-	{ return new SLTEST_CLS(test)(pSuite); }
+	extern "C" __declspec(dllexport) STestCase * SLTEST_FACTORY(test)(STestSuite * pSuite) { return new SLTEST_CLS(test)(pSuite); }
 #define DECL_SLTEST(test)                 class SLTEST_CLS(test) : public STestCase { \
 	public: SLTEST_CLS(test)(STestSuite * pS) : STestCase(pS) {} virtual int Run(const char * pBenchmark);};
 #define DECL_SLTEST_FIXTURE(test,fixture) class SLTEST_CLS(test) : public STestCase { \

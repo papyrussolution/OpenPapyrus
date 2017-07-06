@@ -4151,6 +4151,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 		PPBillPacket pack;
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
 		b_filt.OpID = opID;
+		b_filt.LocList = P.LocList; // @v9.7.5
 		if(outerDocType == 6) {
 			b_filt.ObjectID = P.SupplID;
 		}
@@ -4162,7 +4163,8 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 			LDATETIME since;
 			since.Set(b_filt.Period.low, ZEROTIME);
 			PPIDArray upd_bill_list;
-			p_sj->GetObjListByEventSince(PPOBJ_BILL, &acn_list, since, upd_bill_list);
+			// @v9.7.5 p_sj->GetObjListByEventSince(PPOBJ_BILL, &acn_list, since, upd_bill_list);
+			p_sj->GetObjListByEventPeriod(PPOBJ_BILL, 0, &acn_list, &b_filt.Period, upd_bill_list); // @v9.7.5
 			upd_bill_list.sortAndUndup();
 			for(uint i = 0; i < upd_bill_list.getCount(); i++) {
 				const PPID upd_bill_id = upd_bill_list.get(i);
@@ -4175,7 +4177,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 				//
 				if(p_ref->Ot.GetTagStr(PPOBJ_BILL, upd_bill_id, bill_ack_tag_id, temp_buf) > 0 && !test_uuid.FromStr(temp_buf)) {
                     if(P_BObj->Search(upd_bill_id, &bill_rec) > 0) {
-						if(IsOpBelongTo(bill_rec.OpID, b_filt.OpID)) {
+						if(IsOpBelongTo(bill_rec.OpID, b_filt.OpID) && b_filt.LocList.CheckID(bill_rec.LocID)) { // @v9.7.5 b_filt.LocList.CheckID(bill_rec.LocID)
 							Helper_Make_iSalesIdent(bill_rec, outerDocType, isales_code);
 							if(isales_code != temp_buf) {
 								Helper_MakeBillEntry(upd_bill_id, -outerDocType, rList);

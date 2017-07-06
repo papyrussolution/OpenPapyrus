@@ -675,7 +675,7 @@ static void xmlSchematronPushInclude(xmlSchematronParserCtxtPtr ctxt, xmlDocPtr 
 {
 	if(ctxt->includes == NULL) {
 		ctxt->maxIncludes = 10;
-		ctxt->includes = (xmlNodePtr*)xmlMalloc(ctxt->maxIncludes * 2 * sizeof(xmlNodePtr));
+		ctxt->includes = (xmlNodePtr*)xmlMalloc(ctxt->maxIncludes * 2 * sizeof(xmlNode *));
 		if(ctxt->includes == NULL) {
 			xmlSchematronPErrMemory(NULL, "allocating parser includes", NULL);
 			return;
@@ -683,7 +683,7 @@ static void xmlSchematronPushInclude(xmlSchematronParserCtxtPtr ctxt, xmlDocPtr 
 		ctxt->nbIncludes = 0;
 	}
 	else if(ctxt->nbIncludes + 2 >= ctxt->maxIncludes) {
-		xmlNodePtr * tmp = (xmlNodePtr*)xmlRealloc(ctxt->includes, ctxt->maxIncludes * 4 * sizeof(xmlNodePtr));
+		xmlNodePtr * tmp = (xmlNodePtr*)xmlRealloc(ctxt->includes, ctxt->maxIncludes * 4 * sizeof(xmlNode *));
 		if(tmp == NULL) {
 			xmlSchematronPErrMemory(NULL, "allocating parser includes", NULL);
 			return;
@@ -692,7 +692,7 @@ static void xmlSchematronPushInclude(xmlSchematronParserCtxtPtr ctxt, xmlDocPtr 
 		ctxt->maxIncludes *= 2;
 	}
 	ctxt->includes[2 * ctxt->nbIncludes] = cur;
-	ctxt->includes[2 * ctxt->nbIncludes + 1] = (xmlNodePtr)doc;
+	ctxt->includes[2 * ctxt->nbIncludes + 1] = (xmlNode *)doc;
 	ctxt->nbIncludes++;
 }
 
@@ -1009,7 +1009,7 @@ xmlSchematronPtr xmlSchematronParse(xmlSchematronParserCtxtPtr ctxt)
 	 */
 	root = xmlDocGetRootElement(doc);
 	if(root == NULL) {
-		xmlSchematronPErr(ctxt, (xmlNodePtr)doc,
+		xmlSchematronPErr(ctxt, (xmlNode *)doc,
 		    XML_SCHEMAP_NOROOT,
 		    "The schema has no document element.\n", NULL, NULL);
 		if(!preserve) {

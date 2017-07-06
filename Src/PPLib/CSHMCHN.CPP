@@ -1603,10 +1603,10 @@ int SLAPI ExecCSPanel(const CashNodePaneFilt * pFilt)
 								if(cn_obj.GetSync(cn_id, &scn) > 0) {
 									p_bnk_term = GetBnkTerm(scn.BnkTermType, scn.BnkTermLogNum, scn.BnkTermPort, scn.BnkTermPath);
 									if(p_bnk_term) {
-										if(!p_bnk_term->GetSessReport(zcheck))
-											PPError();
-										else
+										if(p_bnk_term->GetSessReport(zcheck))
 											p_cm->SyncPrintBnkTermReport(scn.BnkTermFlags, zcheck);
+										else
+											PPError();
 									}
 								}
 							}

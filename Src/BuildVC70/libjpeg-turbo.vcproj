@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -32,8 +32,9 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
-				AssemblerListingLocation="Debug/"
+				AssemblerListingLocation="$(IntDir)\"
 				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)vc70.pdb"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 				CompileAs="2"
@@ -77,8 +78,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -96,8 +97,9 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
-				AssemblerListingLocation="Release/"
+				AssemblerListingLocation="$(IntDir)\"
 				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)vc70.pdb"
 				WarningLevel="3"
 				CompileAs="2"
 				DisableSpecificWarnings="4996"/>

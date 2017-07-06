@@ -16,23 +16,19 @@
 void uriWriteQuadToDoubleByte(const uchar * hexDigits, int digitCount, uchar * output)
 {
 	switch(digitCount) {
-	    case 1:
-			/* 0x___? -> \x00 \x0? */
+	    case 1: // 0x___? -> \x00 \x0? 
 			output[0] = 0;
 			output[1] = hexDigits[0];
 			break;
-	    case 2:
-			/* 0x__?? -> \0xx \x?? */
+	    case 2: // 0x__?? -> \0xx \x?? 
 			output[0] = 0;
 			output[1] = 16*hexDigits[0]+hexDigits[1];
 			break;
-	    case 3:
-			/* 0x_??? -> \0x? \x?? */
+	    case 3: // 0x_??? -> \0x? \x?? 
 			output[0] = hexDigits[0];
 			output[1] = 16*hexDigits[1]+hexDigits[2];
 			break;
-	    case 4:
-			/* 0x???? -> \0?? \x?? */
+	    case 4: // 0x???? -> \0?? \x?? 
 			output[0] = 16*hexDigits[0]+hexDigits[1];
 			output[1] = 16*hexDigits[2]+hexDigits[3];
 			break;
@@ -164,7 +160,7 @@ static int FASTCALL UriMergePath(UriUri * absWork, const UriUri * relAppend)
 	if(relAppend->pathHead) {
 		UriPathSegment * sourceWalker;
 		UriPathSegment * destPrev;
-		/* Replace last segment("" if trailing slash) with first of append chain */
+		// Replace last segment("" if trailing slash) with first of append chain 
 		if(absWork->pathHead == NULL) {
 			UriPathSegment * const dup =(UriPathSegment *)SAlloc::M(sizeof(UriPathSegment));
 			THROW(dup); /* Raises SAlloc::M error */
@@ -174,7 +170,7 @@ static int FASTCALL UriMergePath(UriUri * absWork, const UriUri * relAppend)
 		}
 		absWork->pathTail->text.first = relAppend->pathHead->text.first;
 		absWork->pathTail->text.afterLast = relAppend->pathHead->text.afterLast;
-		/* Append all the others */
+		// Append all the others 
 		sourceWalker = relAppend->pathHead->next;
 		if(sourceWalker) {
 			destPrev = absWork->pathTail;
@@ -208,15 +204,15 @@ static int FASTCALL UriMergePath(UriUri * absWork, const UriUri * relAppend)
 static int UriAddBaseUriImpl(UriUri * absDest, const UriUri * relSource, const UriUri * absBase)
 {
 	if(absDest == NULL) {
-		return URI_ERROR_NULL;
+		return SLERR_URI_NULL;
 	}
 	UriResetUri(absDest);
 	if((relSource == NULL) ||(absBase == NULL)) {
-		return URI_ERROR_NULL;
+		return SLERR_URI_NULL;
 	}
 	/* absBase absolute? */
 	if(absBase->scheme.first == NULL) {
-		return URI_ERROR_ADDBASE_REL_BASE;
+		return SLERR_URI_ADDBASE_REL_BASE;
 	}
 	/* [01/32]	if defined(R.scheme) then */
 	if(relSource->scheme.first != NULL) {
@@ -224,14 +220,14 @@ static int UriAddBaseUriImpl(UriUri * absDest, const UriUri * relSource, const U
 		absDest->scheme = relSource->scheme;
 		/* [03/32]		T.authority = R.authority; */
 		if(!UriCopyAuthority(absDest, relSource)) {
-			return URI_ERROR_MALLOC;
+			return SLERR_NOMEM;
 		}
 		/* [04/32]		T.path = remove_dot_segments(R.path); */
 		if(!UriCopyPath(absDest, relSource)) {
-			return URI_ERROR_MALLOC;
+			return SLERR_NOMEM;
 		}
 		if(!UriRemoveDotSegmentsAbsolute(absDest)) {
-			return URI_ERROR_MALLOC;
+			return SLERR_NOMEM;
 		}
 		/* [05/32]		T.query = R.query; */
 		absDest->query = relSource->query;
@@ -242,14 +238,14 @@ static int UriAddBaseUriImpl(UriUri * absDest, const UriUri * relSource, const U
 		if(UriIsHostSet(relSource)) {
 			/* [08/32]			T.authority = R.authority; */
 			if(!UriCopyAuthority(absDest, relSource)) {
-				return URI_ERROR_MALLOC;
+				return SLERR_NOMEM;
 			}
 			/* [09/32]			T.path = remove_dot_segments(R.path); */
 			if(!UriCopyPath(absDest, relSource)) {
-				return URI_ERROR_MALLOC;
+				return SLERR_NOMEM;
 			}
 			if(!UriRemoveDotSegmentsAbsolute(absDest)) {
-				return URI_ERROR_MALLOC;
+				return SLERR_NOMEM;
 			}
 			/* [10/32]			T.query = R.query; */
 			absDest->query = relSource->query;
@@ -258,13 +254,13 @@ static int UriAddBaseUriImpl(UriUri * absDest, const UriUri * relSource, const U
 		else {
 			/* [28/32]			T.authority = Base.authority; */
 			if(!UriCopyAuthority(absDest, absBase)) {
-				return URI_ERROR_MALLOC;
+				return SLERR_NOMEM;
 			}
 			/* [12/32]			if(R.path == "") then */
 			if(relSource->pathHead == NULL) {
 				/* [13/32]				T.path = Base.path; */
 				if(!UriCopyPath(absDest, absBase)) {
-					return URI_ERROR_MALLOC;
+					return SLERR_NOMEM;
 				}
 				/* [14/32]				if defined(R.query) then */
 				if(relSource->query.first != NULL) {
@@ -284,27 +280,27 @@ static int UriAddBaseUriImpl(UriUri * absDest, const UriUri * relSource, const U
 				if(relSource->absolutePath) {
 					/* [21/32]					T.path = remove_dot_segments(R.path); */
 					if(!UriCopyPath(absDest, relSource)) {
-						return URI_ERROR_MALLOC;
+						return SLERR_NOMEM;
 					}
 					if(!UriRemoveDotSegmentsAbsolute(absDest)) {
-						return URI_ERROR_MALLOC;
+						return SLERR_NOMEM;
 					}
 					/* [22/32]				else */
 				}
 				else {
 					/* [23/32]					T.path = merge(Base.path, R.path); */
 					if(!UriCopyPath(absDest, absBase)) {
-						return URI_ERROR_MALLOC;
+						return SLERR_NOMEM;
 					}
 					if(!UriMergePath(absDest, relSource)) {
-						return URI_ERROR_MALLOC;
+						return SLERR_NOMEM;
 					}
 					/* [24/32]					T.path = remove_dot_segments(T.path); */
 					if(!UriRemoveDotSegmentsAbsolute(absDest)) {
-						return URI_ERROR_MALLOC;
+						return SLERR_NOMEM;
 					}
 					if(!UriFixAmbiguity(absDest)) {
-						return URI_ERROR_MALLOC;
+						return SLERR_NOMEM;
 					}
 					/* [25/32]				endif; */
 				}
@@ -321,13 +317,13 @@ static int UriAddBaseUriImpl(UriUri * absDest, const UriUri * relSource, const U
 	}
 	/* [32/32]	T.fragment = R.fragment; */
 	absDest->fragment = relSource->fragment;
-	return URI_SUCCESS;
+	return SLERR_SUCCESS;
 }
 
-int UriAddBaseUri(UriUri * absDest, const UriUri * relSource, const UriUri*absBase)
+int UriAddBaseUri(UriUri * absDest, const UriUri * relSource, const UriUri * pAbsBase)
 {
-	const int res = UriAddBaseUriImpl(absDest, relSource, absBase);
-	if((res != URI_SUCCESS) && absDest) {
+	const int res = UriAddBaseUriImpl(absDest, relSource, pAbsBase);
+	if((res != SLERR_SUCCESS) && absDest) {
 		UriFreeUriMembers(absDest);
 	}
 	return res;
@@ -381,19 +377,19 @@ static int FASTCALL UriEqualsAuthority(const UriUri * first, const UriUri * seco
 int UriRemoveBaseUriImpl(UriUri * dest, const UriUri * absSource, const UriUri * absBase, int domainRootMode)
 {
 	if(dest == NULL) {
-		return URI_ERROR_NULL;
+		return SLERR_URI_NULL;
 	}
 	UriResetUri(dest);
 	if((absSource == NULL) ||(absBase == NULL)) {
-		return URI_ERROR_NULL;
+		return SLERR_URI_NULL;
 	}
 	/* absBase absolute? */
 	if(absBase->scheme.first == NULL) {
-		return URI_ERROR_REMOVEBASE_REL_BASE;
+		return SLERR_URI_REMOVEBASE_REL_BASE;
 	}
 	/* absSource absolute? */
 	if(absSource->scheme.first == NULL) {
-		return URI_ERROR_REMOVEBASE_REL_SOURCE;
+		return SLERR_URI_REMOVEBASE_REL_SOURCE;
 	}
 	/* [01/50]	if(A.scheme != Base.scheme) then */
 	if(strncmp(absSource->scheme.first, absBase->scheme.first, absSource->scheme.afterLast-absSource->scheme.first)) {
@@ -401,11 +397,11 @@ int UriRemoveBaseUriImpl(UriUri * dest, const UriUri * absSource, const UriUri *
 		dest->scheme = absSource->scheme;
 		/* [03/50]	   T.authority = A.authority; */
 		if(!UriCopyAuthority(dest, absSource)) {
-			return URI_ERROR_MALLOC;
+			return SLERR_NOMEM;
 		}
 		/* [04/50]	   T.path      = A.path; */
 		if(!UriCopyPath(dest, absSource)) {
-			return URI_ERROR_MALLOC;
+			return SLERR_NOMEM;
 		}
 		/* [05/50]	else */
 	}
@@ -416,11 +412,11 @@ int UriRemoveBaseUriImpl(UriUri * dest, const UriUri * absSource, const UriUri *
 		if(!UriEqualsAuthority(absSource, absBase)) {
 			/* [08/50]	      T.authority = A.authority; */
 			if(!UriCopyAuthority(dest, absSource)) {
-				return URI_ERROR_MALLOC;
+				return SLERR_NOMEM;
 			}
 			/* [09/50]	      T.path      = A.path; */
 			if(!UriCopyPath(dest, absSource)) {
-				return URI_ERROR_MALLOC;
+				return SLERR_NOMEM;
 			}
 			/* [10/50]	   else */
 		}
@@ -439,11 +435,11 @@ int UriRemoveBaseUriImpl(UriUri * dest, const UriUri * absSource, const UriUri *
 				/* GROUPED */
 				/* [17/50]	         endif; */
 				if(!UriCopyPath(dest, absSource)) {
-					return URI_ERROR_MALLOC;
+					return SLERR_NOMEM;
 				}
 				dest->absolutePath = TRUE;
 				if(!UriFixAmbiguity(dest)) {
-					return URI_ERROR_MALLOC;
+					return SLERR_NOMEM;
 				}
 				/* [18/50]	      else */
 			}
@@ -474,7 +470,7 @@ int UriRemoveBaseUriImpl(UriUri * dest, const UriUri * absSource, const UriUri *
 					baseSeg = baseSeg->next;
 					/* [28/50]	            T.path += "../"; */
 					if(!UriAppendSegment(dest, UriConstParent, UriConstParent+2)) {
-						return URI_ERROR_MALLOC;
+						return SLERR_NOMEM;
 					}
 					/* [29/50]	            pathNaked = false; */
 					pathNaked = FALSE;
@@ -496,14 +492,14 @@ int UriRemoveBaseUriImpl(UriUri * dest, const UriUri * absSource, const UriUri *
 						if(containsColon) {
 							/* [34/50]	                  T.path += "./"; */
 							if(!UriAppendSegment(dest, UriConstPwd, UriConstPwd+1)) {
-								return URI_ERROR_MALLOC;
+								return SLERR_NOMEM;
 							}
 							/* [35/50]	               elseif(first(A.path) == "") then */
 						}
 						else if(sourceSeg->text.first == sourceSeg->text.afterLast) {
 							/* [36/50]	                  T.path += "/."; */
 							if(!UriAppendSegment(dest, UriConstPwd, UriConstPwd+1)) {
-								return URI_ERROR_MALLOC;
+								return SLERR_NOMEM;
 							}
 							/* [37/50]	               endif; */
 						}
@@ -511,7 +507,7 @@ int UriRemoveBaseUriImpl(UriUri * dest, const UriUri * absSource, const UriUri *
 					}
 					/* [39/50]	            T.path += first(A.path); */
 					if(!UriAppendSegment(dest, sourceSeg->text.first, sourceSeg->text.afterLast)) {
-						return URI_ERROR_MALLOC;
+						return SLERR_NOMEM;
 					}
 					/* [40/50]	            pathNaked = false; */
 					pathNaked = FALSE;
@@ -535,13 +531,13 @@ int UriRemoveBaseUriImpl(UriUri * dest, const UriUri * absSource, const UriUri *
 	dest->query = absSource->query;
 	/* [50/50]	T.fragment  = A.fragment; */
 	dest->fragment = absSource->fragment;
-	return URI_SUCCESS;
+	return SLERR_SUCCESS;
 }
 
 int UriRemoveBaseUri(UriUri * dest, const UriUri * absSource, const UriUri * absBase, int domainRootMode)
 {
 	const int res = UriRemoveBaseUriImpl(dest, absSource, absBase, domainRootMode);
-	if((res != URI_SUCCESS) &&(dest != NULL)) {
+	if((res != SLERR_SUCCESS) &&(dest != NULL)) {
 		UriFreeUriMembers(dest);
 	}
 	return res;
@@ -564,7 +560,7 @@ int UriComposeQueryCharsRequired(const UriQueryList*queryList, int * charsRequir
 int UriComposeQueryCharsRequiredEx(const UriQueryList*queryList, int * charsRequired, int spaceToPlus, int normalizeBreaks)
 {
 	if((queryList == NULL) ||(charsRequired == NULL)) {
-		return URI_ERROR_NULL;
+		return SLERR_URI_NULL;
 	}
 	return UriComposeQueryEngine(NULL, queryList, 0, NULL, charsRequired, spaceToPlus, normalizeBreaks);
 }
@@ -579,10 +575,10 @@ int UriComposeQuery(char * dest, const UriQueryList*queryList, int maxChars, int
 int UriComposeQueryEx(char * dest, const UriQueryList*queryList, int maxChars, int * charsWritten, int spaceToPlus, int normalizeBreaks)
 {
 	if((dest == NULL) ||(queryList == NULL)) {
-		return URI_ERROR_NULL;
+		return SLERR_URI_NULL;
 	}
 	if(maxChars < 1) {
-		return URI_ERROR_OUTPUT_TOO_LARGE;
+		return SLERR_URI_OUTPUT_TOO_LARGE;
 	}
 	return UriComposeQueryEngine(dest, queryList, maxChars, charsWritten, NULL, spaceToPlus, normalizeBreaks);
 }
@@ -600,27 +596,27 @@ int UriComposeQueryMallocEx(char * *dest, const UriQueryList*queryList, int spac
 	int res;
 	char * queryString;
 	if(dest == NULL) {
-		return URI_ERROR_NULL;
+		return SLERR_URI_NULL;
 	}
 	/* Calculate space */
 	res = UriComposeQueryCharsRequiredEx(queryList, &charsRequired, spaceToPlus, normalizeBreaks);
-	if(res != URI_SUCCESS) {
+	if(res != SLERR_SUCCESS) {
 		return res;
 	}
 	charsRequired++;
 	/* Allocate space */
 	queryString =(char *)SAlloc::M(charsRequired*sizeof(char));
 	if(queryString == NULL) {
-		return URI_ERROR_MALLOC;
+		return SLERR_NOMEM;
 	}
 	/* Put query in */
 	res = UriComposeQueryEx(queryString, queryList, charsRequired, NULL, spaceToPlus, normalizeBreaks);
-	if(res != URI_SUCCESS) {
+	if(res != SLERR_SUCCESS) {
 		SAlloc::F(queryString);
 		return res;
 	}
 	*dest = queryString;
-	return URI_SUCCESS;
+	return SLERR_SUCCESS;
 }
 
 int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
@@ -654,7 +650,7 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 		else {
 			char * afterKey;
 			if((write-dest)+ampersandLen+keyRequiredChars > maxChars) {
-				return URI_ERROR_OUTPUT_TOO_LARGE;
+				return SLERR_URI_OUTPUT_TOO_LARGE;
 			}
 			/* Copy key */
 			if(firstItem == TRUE) {
@@ -669,7 +665,7 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 			if(value != NULL) {
 				char * afterValue;
 				if((write-dest)+1+valueRequiredChars > maxChars) {
-					return URI_ERROR_OUTPUT_TOO_LARGE;
+					return SLERR_URI_OUTPUT_TOO_LARGE;
 				}
 				/* Copy value */
 				write[0] = _UT('=');
@@ -687,212 +683,167 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 			*charsWritten =(int)(write-dest)+1;     /* .. for terminator */
 		}
 	}
-	return URI_SUCCESS;
+	return SLERR_SUCCESS;
 }
 
-int UriAppendQueryItem(UriQueryList ** prevNext,
-	int * itemCount, const char * keyFirst, const char * keyAfter,
-	const char * valueFirst, const char * valueAfter,
-	int plusToSpace, UriBreakConversion breakConversion)
+int UriAppendQueryItem(UriQueryList ** ppPrevNext, int * pItemCount, const char * pKeyFirst, const char * pKeyAfter,
+	const char * pValueFirst, const char * pValueAfter, int plusToSpace, UriBreakConversion breakConversion)
 {
-	const int keyLen =(int)(keyAfter-keyFirst);
-	const int valueLen =(int)(valueAfter-valueFirst);
-	char * key;
-	char * value;
-	if((prevNext == NULL) ||(itemCount == NULL) ||(keyFirst == NULL) ||(keyAfter == NULL) ||
-	  (keyFirst > keyAfter) ||(valueFirst > valueAfter) ||((keyFirst == keyAfter) &&(valueFirst == NULL) &&(valueAfter == NULL))) {
+	int    ok = 1;
+	const  int key_len = (int)(pKeyAfter-pKeyFirst);
+	const  int value_len = (int)(pValueAfter-pValueFirst);
+	char * p_key = 0;
+	char * p_value = 0;
+	ASSIGN_PTR(ppPrevNext, 0);
+	/*if(!ppPrevNext || !pItemCount || !pKeyFirst || !pKeyAfter || (pKeyFirst > pKeyAfter) ||(pValueFirst > pValueAfter) || ((pKeyFirst == pKeyAfter) && !pValueFirst && !pValueAfter)) {
 		return TRUE;
+	}*/
+	THROW(ppPrevNext && pItemCount && pKeyFirst && pKeyAfter && (pKeyFirst <= pKeyAfter) && (pValueFirst <= pValueAfter) && ((pKeyFirst != pKeyAfter) || pValueFirst || pValueAfter));
+	// Append new empty item 
+	THROW(*ppPrevNext = (UriQueryList *)SAlloc::M(1*sizeof(UriQueryList)));
+	(*ppPrevNext)->next = NULL;
+	// Fill key 
+	THROW(p_key = (char *)SAlloc::M((key_len+1)*sizeof(char)));
+	p_key[key_len] = _UT('\0');
+	if(key_len > 0) {
+		memcpy(p_key, pKeyFirst, key_len*sizeof(char));
+		UriUnescapeInPlaceEx(p_key, plusToSpace, breakConversion);
 	}
-	/* Append new empty item */
-	*prevNext =(UriQueryList *)SAlloc::M(1*sizeof(UriQueryList));
-	if(*prevNext == NULL) {
-		return FALSE; /* Raises SAlloc::M error */
-	}
-	(*prevNext)->next = NULL;
-
-	/* Fill key */
-	key =(char *)SAlloc::M((keyLen+1)*sizeof(char));
-	if(key == NULL) {
-		SAlloc::F(*prevNext);
-		*prevNext = NULL;
-		return FALSE; /* Raises SAlloc::M error */
-	}
-	key[keyLen] = _UT('\0');
-	if(keyLen > 0) {
-		/* Copy 1:1 */
-		memcpy(key, keyFirst, keyLen*sizeof(char));
-
-		/* Unescape */
-		UriUnescapeInPlaceEx(key, plusToSpace, breakConversion);
-	}
-	(*prevNext)->key = key;
-	/* Fill value */
-	if(valueFirst != NULL) {
-		value =(char *)SAlloc::M((valueLen+1)*sizeof(char));
-		if(value == NULL) {
-			SAlloc::F(key);
-			SAlloc::F(*prevNext);
-			*prevNext = NULL;
-			return FALSE; /* Raises SAlloc::M error */
+	(*ppPrevNext)->key = p_key;
+	// Fill value 
+	if(pValueFirst) {
+		THROW(p_value = (char *)SAlloc::M((value_len+1)*sizeof(char)));
+		p_value[value_len] = _UT('\0');
+		if(value_len > 0) {
+			memcpy(p_value, pValueFirst, value_len*sizeof(char));
+			UriUnescapeInPlaceEx(p_value, plusToSpace, breakConversion);
 		}
-		value[valueLen] = _UT('\0');
-		if(valueLen > 0) {
-			/* Copy 1:1 */
-			memcpy(value, valueFirst, valueLen*sizeof(char));
-
-			/* Unescape */
-			UriUnescapeInPlaceEx(value, plusToSpace, breakConversion);
+		(*ppPrevNext)->value = p_value;
+	}
+	else
+		p_value = NULL;
+	(*ppPrevNext)->value = p_value;
+	(*pItemCount)++;
+	CATCH
+		SAlloc::F(p_key);
+		if(ppPrevNext) {
+			SAlloc::F(*ppPrevNext);
+			*ppPrevNext = NULL;
 		}
-		(*prevNext)->value = value;
-	}
-	else {
-		value = NULL;
-	}
-	(*prevNext)->value = value;
-
-	(*itemCount)++;
-	return TRUE;
+		ok = 0;
+	ENDCATCH
+	return ok;
 }
 
-void UriFreeQueryList(UriQueryList*queryList) {
-	while(queryList != NULL) {
-		UriQueryList*nextBackup = queryList->next;
-		SAlloc::F((char *)queryList->key); /* const cast */
-		SAlloc::F((char *)queryList->value); /* const cast */
-		SAlloc::F(queryList);
-		queryList = nextBackup;
+void UriFreeQueryList(UriQueryList * pQueryList) 
+{
+	while(pQueryList) {
+		UriQueryList * p_next_backup = pQueryList->next;
+		SAlloc::F((char *)pQueryList->key); // @badcast
+		SAlloc::F((char *)pQueryList->value); // @badcast
+		SAlloc::F(pQueryList);
+		pQueryList = p_next_backup;
 	}
 }
 
-int UriDissectQueryMalloc(UriQueryList**dest, int * itemCount,
-	const char * first, const char * afterLast) {
+int UriDissectQueryMalloc(UriQueryList ** dest, int * itemCount, const char * first, const char * afterLast) 
+{
 	const int plusToSpace = TRUE;
 	const UriBreakConversion breakConversion = URI_BR_DONT_TOUCH;
-
-	return UriDissectQueryMallocEx(dest, itemCount, first, afterLast,
-		plusToSpace, breakConversion);
+	return UriDissectQueryMallocEx(dest, itemCount, first, afterLast, plusToSpace, breakConversion);
 }
 
-int UriDissectQueryMallocEx(UriQueryList**dest, int * itemCount,
-	const char * first, const char * afterLast,
-	int plusToSpace, UriBreakConversion breakConversion) {
+int UriDissectQueryMallocEx(UriQueryList ** dest, int * itemCount, const char * first, const char * afterLast, int plusToSpace, UriBreakConversion breakConversion) 
+{
+	int    ok = 1;
 	const char * walk = first;
 	const char * keyFirst = first;
 	const char * keyAfter = NULL;
 	const char * valueFirst = NULL;
 	const char * valueAfter = NULL;
-	UriQueryList**prevNext = dest;
-	int nullCounter;
-	int * itemsAppended =(itemCount == NULL) ? &nullCounter : itemCount;
-	if((dest == NULL) ||(first == NULL) ||(afterLast == NULL)) {
-		return URI_ERROR_NULL;
-	}
-	if(first > afterLast) {
-		return URI_ERROR_RANGE_INVALID;
-	}
-	*dest = NULL;
+	UriQueryList ** prevNext = dest;
+	int   nullCounter;
+	int * itemsAppended = NZOR(itemCount, &nullCounter);
+	ASSIGN_PTR(dest, 0);
 	*itemsAppended = 0;
-
-	/* Parse query string */
+	THROW_S(dest && first && afterLast, SLERR_URI_NULL);
+	THROW_S(first <= afterLast, SLERR_URI_RANGE_INVALID);
+	// Parse query string 
 	for(; walk < afterLast; walk++) {
 		switch(*walk) {
 		    case _UT('&'):
-			if(valueFirst != NULL) {
-				valueAfter = walk;
-			}
-			else {
-				keyAfter = walk;
-			}
-			if(UriAppendQueryItem(prevNext, itemsAppended,
-				   keyFirst, keyAfter, valueFirst, valueAfter,
-				   plusToSpace, breakConversion)
-			   == FALSE) {
-				/* Free list we built */
-				*itemsAppended = 0;
-				UriFreeQueryList(*dest);
-				return URI_ERROR_MALLOC;
-			}
-			/* Make future items children of the current */
-			if((prevNext != NULL) &&(*prevNext != NULL)) {
-				prevNext = &((*prevNext)->next);
-			}
-			if(walk+1 < afterLast) {
-				keyFirst = walk+1;
-			}
-			else {
-				keyFirst = NULL;
-			}
-			keyAfter = NULL;
-			valueFirst = NULL;
-			valueAfter = NULL;
-			break;
-
-		    case _UT('='):
-			/* NOTE: WE treat the first '=' as a separator, */
-			/*       all following go into the value part   */
-			if(keyAfter == NULL) {
-				keyAfter = walk;
-				if(walk+1 < afterLast) {
-					valueFirst = walk+1;
-					valueAfter = walk+1;
+				if(valueFirst)
+					valueAfter = walk;
+				else
+					keyAfter = walk;
+				THROW(UriAppendQueryItem(prevNext, itemsAppended, keyFirst, keyAfter, valueFirst, valueAfter, plusToSpace, breakConversion));
+				// Make future items children of the current 
+				if(prevNext && *prevNext) {
+					prevNext = &((*prevNext)->next);
 				}
-			}
-			break;
-
+				keyFirst = (walk+1 < afterLast) ? (walk+1) : NULL;
+				keyAfter = NULL;
+				valueFirst = NULL;
+				valueAfter = NULL;
+				break;
+		    case _UT('='): // NOTE: WE treat the first '=' as a separator,  all following go into the value part 
+				if(keyAfter == NULL) {
+					keyAfter = walk;
+					if(walk+1 < afterLast) {
+						valueFirst = walk+1;
+						valueAfter = walk+1;
+					}
+				}
+				break;
 		    default:
-			break;
+				break;
 		}
 	}
-	if(valueFirst != NULL) {
-		/* Must be key/value pair */
-		valueAfter = walk;
-	}
-	else {
-		/* Must be key only */
-		keyAfter = walk;
-	}
-	if(UriAppendQueryItem(prevNext, itemsAppended, keyFirst, keyAfter, valueFirst, valueAfter, plusToSpace, breakConversion) == FALSE) {
-		/* Free list we built */
+	if(valueFirst)
+		valueAfter = walk; // Must be key/value pair 
+	else
+		keyAfter = walk; // Must be key only 
+	THROW(UriAppendQueryItem(prevNext, itemsAppended, keyFirst, keyAfter, valueFirst, valueAfter, plusToSpace, breakConversion));
+	CATCH
+		// Free list we built 
 		*itemsAppended = 0;
 		UriFreeQueryList(*dest);
-		return URI_ERROR_MALLOC;
-	}
-	return URI_SUCCESS;
+		ok = 0;
+	ENDCATCH
+	return ok;
 }
 //
 //
 //
 static int UriFilenameToUriString(const char * filename, char * uriString, int fromUnix)
 {
+	int    ok = 1;
 	const char * input = filename;
 	const char * lastSep = input-1;
 	int firstSegment = TRUE;
 	char * output = uriString;
 	const int absolute = (filename) && ((fromUnix && (filename[0] == _UT('/'))) || (!fromUnix &&(filename[0] != _UT('\0')) &&(filename[1] == _UT(':'))));
-	if((filename == NULL) ||(uriString == NULL)) {
-		return URI_ERROR_NULL;
-	}
+	THROW_S(filename && uriString, SLERR_URI_NULL);
 	if(absolute) {
 		const char * const prefix = fromUnix ? _UT("file://") : _UT("file:///");
 		const int prefixLen = fromUnix ? 7 : 8;
-		/* Copy prefix */
+		// Copy prefix 
 		memcpy(uriString, prefix, prefixLen*sizeof(char));
 		output += prefixLen;
 	}
-	/* Copy and escape on the fly */
+	// Copy and escape on the fly 
 	for(;; ) {
 		if((input[0] == _UT('\0')) ||(fromUnix && input[0] == _UT('/')) ||(!fromUnix && input[0] == _UT('\\'))) {
-			/* Copy text after last seperator */
+			// Copy text after last seperator 
 			if(lastSep+1 < input) {
 				if(!fromUnix && absolute &&(firstSegment == TRUE)) {
-					/* Quick hack to not convert "C:" to "C%3A" */
+					// Quick hack to not convert "C:" to "C%3A" 
 					const int charsToCopy =(int)(input-(lastSep+1));
 					memcpy(output, lastSep+1, charsToCopy*sizeof(char));
 					output += charsToCopy;
 				}
-				else {
+				else
 					output = UriEscapeEx(lastSep+1, input, output, FALSE, FALSE);
-				}
 			}
 			firstSegment = FALSE;
 		}
@@ -901,20 +852,21 @@ static int UriFilenameToUriString(const char * filename, char * uriString, int f
 			break;
 		}
 		else if(fromUnix &&(input[0] == _UT('/'))) {
-			/* Copy separators unmodified */
+			// Copy separators unmodified 
 			output[0] = _UT('/');
 			output++;
 			lastSep = input;
 		}
 		else if(!fromUnix &&(input[0] == _UT('\\'))) {
-			/* Convert backslashes to forward slashes */
+			// Convert backslashes to forward slashes 
 			output[0] = _UT('/');
 			output++;
 			lastSep = input;
 		}
 		input++;
 	}
-	return URI_SUCCESS;
+	CATCHZOK
+	return ok;
 }
 
 static int UriUriStringToFilename(const char * uriString, char * filename, int toUnix)
@@ -928,7 +880,7 @@ static int UriUriStringToFilename(const char * uriString, char * filename, int t
 	charsToCopy = strlen(uriString+charsToSkip)+1;
 	memcpy(filename, uriString+charsToSkip, charsToCopy*sizeof(char));
 	UriUnescapeInPlaceEx(filename, FALSE, URI_BR_DONT_TOUCH);
-	/* Convert forward slashes to backslashes */
+	// Convert forward slashes to backslashes 
 	if(!toUnix) {
 		while(walker[0] != _UT('\0')) {
 			if(walker[0] == _UT('/')) {
@@ -937,7 +889,7 @@ static int UriUriStringToFilename(const char * uriString, char * filename, int t
 			walker++;
 		}
 	}
-	return URI_SUCCESS;
+	return 1;
 }
 
 int UriUnixFilenameToUriString(const char * filename, char * uriString)
@@ -976,13 +928,11 @@ char * UriEscapeEx(const char * inFirst, const char * inAfterLast, char * out, i
 		return NULL;
 	}
 	else if(inFirst == NULL) {
-		if(out != NULL) {
-			out[0] = _UT('\0');
-		}
+		ASSIGN_PTR(out, _UT('\0'));
 		return out;
 	}
 	for(;; ) {
-		if((inAfterLast != NULL) &&(read >= inAfterLast)) {
+		if(inAfterLast && read >= inAfterLast) {
 			write[0] = _UT('\0');
 			return write;
 		}
@@ -1069,7 +1019,7 @@ char * UriEscapeEx(const char * inFirst, const char * inAfterLast, char * out, i
 		    case _UT('.'):
 		    case _UT('_'):
 		    case _UT('~'):
-				/* Copy unmodified */
+				// Copy unmodified 
 				write[0] = read[0];
 				write++;
 				prevWasCr = FALSE;
@@ -1113,16 +1063,15 @@ char * UriEscapeEx(const char * inFirst, const char * inAfterLast, char * out, i
 				prevWasCr = TRUE;
 				break;
 		    default:
-				/* Percent encode */
-		    {
-			    const uchar code =(uchar)read[0];
-			    write[0] = _UT('%');
-			    write[1] = UriHexToLetter(code>>4);
-			    write[2] = UriHexToLetter(code&0x0f);
-			    write += 3;
-		    }
-			prevWasCr = FALSE;
-			break;
+				{ // Percent encode 
+					const uchar code =(uchar)read[0];
+					write[0] = _UT('%');
+					write[1] = UriHexToLetter(code>>4);
+					write[2] = UriHexToLetter(code&0x0f);
+					write += 3;
+				}
+				prevWasCr = FALSE;
+				break;
 		}
 		read++;
 	}
@@ -1135,20 +1084,18 @@ const char * UriUnescapeInPlace(char * inout)
 
 const char * UriUnescapeInPlaceEx(char * inout, int plusToSpace, UriBreakConversion breakConversion)
 {
-	char * read = inout;
-	char * write = inout;
+	char * p_write = inout;
+	char * p_read = inout;
 	int prevWasCr = FALSE;
-	if(inout == NULL) {
-		return NULL;
-	}
-	for(;; ) {
-		switch(read[0]) {
-		    case _UT('\0'):
-				if(read > write)
-					write[0] = _UT('\0');
-				return write;
+	THROW(inout);
+	while(p_read[0] != _UT('\0')) {
+		switch(p_read[0]) {
+		    /*case _UT('\0'):
+				if(read > p_write)
+					p_write[0] = _UT('\0');
+				return p_write;*/
 		    case _UT('%'):
-			switch(read[1]) {
+			switch(p_read[1]) {
 			    case _UT('0'):
 			    case _UT('1'):
 			    case _UT('2'):
@@ -1171,7 +1118,7 @@ const char * UriUnescapeInPlaceEx(char * inout, int plusToSpace, UriBreakConvers
 			    case _UT('D'):
 			    case _UT('E'):
 			    case _UT('F'):
-				switch(read[2]) {
+				switch(p_read[2]) {
 				    case _UT('0'):
 				    case _UT('1'):
 				    case _UT('2'):
@@ -1195,116 +1142,118 @@ const char * UriUnescapeInPlaceEx(char * inout, int plusToSpace, UriBreakConvers
 				    case _UT('E'):
 				    case _UT('F'):
 				    {
-					    /* Percent group found */
-					    const uchar left = UriHexdigToInt(read[1]);
-					    const uchar right = UriHexdigToInt(read[2]);
+					    // Percent group found 
+					    const uchar left = UriHexdigToInt(p_read[1]);
+					    const uchar right = UriHexdigToInt(p_read[2]);
 					    const int code = 16*left+right;
 					    switch(code) {
 							case 10:
 								switch(breakConversion) {
 									case URI_BR_TO_LF:
 										if(!prevWasCr) {
-											write[0] =(char)10;
-											write++;
+											p_write[0] =(char)10;
+											p_write++;
 										}
 										break;
 									case URI_BR_TO_CRLF:
 										if(!prevWasCr) {
-											write[0] =(char)13;
-											write[1] =(char)10;
-											write += 2;
+											p_write[0] =(char)13;
+											p_write[1] =(char)10;
+											p_write += 2;
 										}
 										break;
 									case URI_BR_TO_CR:
 										if(!prevWasCr) {
-											write[0] =(char)13;
-											write++;
+											p_write[0] =(char)13;
+											p_write++;
 										}
 										break;
 									case URI_BR_DONT_TOUCH:
 									default:
-										write[0] =(char)10;
-										write++;
+										p_write[0] =(char)10;
+										p_write++;
 								}
 								prevWasCr = FALSE;
 								break;
 							case 13:
 								switch(breakConversion) {
 									case URI_BR_TO_LF:
-										write[0] =(char)10;
-										write++;
+										p_write[0] =(char)10;
+										p_write++;
 										break;
 									case URI_BR_TO_CRLF:
-										write[0] =(char)13;
-										write[1] =(char)10;
-										write += 2;
+										p_write[0] =(char)13;
+										p_write[1] =(char)10;
+										p_write += 2;
 										break;
 									case URI_BR_TO_CR:
-										write[0] =(char)13;
-										write++;
+										p_write[0] =(char)13;
+										p_write++;
 										break;
 									case URI_BR_DONT_TOUCH:
 									default:
-										write[0] =(char)13;
-										write++;
+										p_write[0] =(char)13;
+										p_write++;
 								}
 								prevWasCr = TRUE;
 								break;
 							default:
-								write[0] =(char)(code);
-								write++;
+								p_write[0] =(char)(code);
+								p_write++;
 								prevWasCr = FALSE;
 							}
-							read += 3;
+							p_read += 3;
 						}
 						break;
 				    default:
-						/* Copy two chars unmodified and */
-						/* look at this char again */
-						if(read > write) {
-							write[0] = read[0];
-							write[1] = read[1];
+						// Copy two chars unmodified and 
+						// look at this char again 
+						if(p_read > p_write) {
+							p_write[0] = p_read[0];
+							p_write[1] = p_read[1];
 						}
-						read += 2;
-						write += 2;
+						p_read += 2;
+						p_write += 2;
 						prevWasCr = FALSE;
 				}
 				break;
 			    default:
-					/* Copy one char unmodified and */
-					/* look at this char again */
-					if(read > write)
-						write[0] = read[0];
-					read++;
-					write++;
+					// Copy one char unmodified and 
+					// look at this char again 
+					if(p_read > p_write)
+						p_write[0] = p_read[0];
+					p_read++;
+					p_write++;
 					prevWasCr = FALSE;
 			}
 			break;
 		    case _UT('+'):
-				if(plusToSpace) {
-					/* Convert '+' to ' ' */
-					write[0] = _UT(' ');
+				if(plusToSpace) // Convert '+' to ' ' 
+					p_write[0] = _UT(' ');
+				else { // Copy one char unmodified 
+					if(p_read > p_write)
+						p_write[0] = p_read[0];
 				}
-				else {
-					/* Copy one char unmodified */
-					if(read > write) {
-						write[0] = read[0];
-					}
-				}
-				read++;
-				write++;
+				p_read++;
+				p_write++;
 				prevWasCr = FALSE;
 				break;
 		    default:
-				/* Copy one char unmodified */
-				if(read > write) {
-					write[0] = read[0];
+				// Copy one char unmodified 
+				if(p_read > p_write) {
+					p_write[0] = p_read[0];
 				}
-				read++;
-				write++;
+				p_read++;
+				p_write++;
 				prevWasCr = FALSE;
 		}
 	}
+	if(p_read > p_write)
+		p_write[0] = _UT('\0');
+	CATCH
+		p_write = 0;
+	ENDCATCH
+	return p_write;
 }
 //
 // Compares two text ranges for equal text content 
@@ -1328,42 +1277,42 @@ static int FASTCALL UriCompareRange(const UriTextRange * a, const UriTextRange *
 int UriEqualsUri(const UriUri * a, const UriUri * b)
 {
 	// NOTE: Both NULL means equal! 
-	if((a == NULL) ||(b == NULL)) {
-		return((a == NULL) &&(b == NULL)) ? TRUE : FALSE;
+	if(!a || !b) {
+		return (!a && !b) ? TRUE : FALSE;
 	}
-	/* scheme */
+	// scheme 
 	if(UriCompareRange(&(a->scheme), &(b->scheme))) {
 		return FALSE;
 	}
-	/* absolutePath */
-	if((a->scheme.first == NULL)&&(a->absolutePath != b->absolutePath)) {
+	// absolutePath 
+	if(!a->scheme.first && (a->absolutePath != b->absolutePath)) {
 		return FALSE;
 	}
-	/* userInfo */
+	// userInfo 
 	if(UriCompareRange(&(a->userInfo), &(b->userInfo))) {
 		return FALSE;
 	}
-	/* Host */
-	if(((a->hostData.ip4 == NULL) !=(b->hostData.ip4 == NULL)) || ((a->hostData.ip6 == NULL) !=(b->hostData.ip6 == NULL)) || ((a->hostData.ipFuture.first == NULL)
+	// Host 
+	if(((a->hostData.ip4 == NULL) != (b->hostData.ip4 == NULL)) || ((a->hostData.ip6 == NULL) != (b->hostData.ip6 == NULL)) || ((a->hostData.ipFuture.first == NULL)
 	    !=(b->hostData.ipFuture.first == NULL))) {
 		return FALSE;
 	}
-	if(a->hostData.ip4 != NULL) {
+	if(a->hostData.ip4) {
 		if(memcmp(a->hostData.ip4->data, b->hostData.ip4->data, 4)) {
 			return FALSE;
 		}
 	}
-	if(a->hostData.ip6 != NULL) {
+	if(a->hostData.ip6) {
 		if(memcmp(a->hostData.ip6->data, b->hostData.ip6->data, 16)) {
 			return FALSE;
 		}
 	}
-	if(a->hostData.ipFuture.first != NULL) {
+	if(a->hostData.ipFuture.first) {
 		if(UriCompareRange(&(a->hostData.ipFuture), &(b->hostData.ipFuture))) {
 			return FALSE;
 		}
 	}
-	if((a->hostData.ip4 == NULL) && (a->hostData.ip6 == NULL) && (a->hostData.ipFuture.first == NULL)) {
+	if(!a->hostData.ip4 && !a->hostData.ip6 && !a->hostData.ipFuture.first) {
 		if(UriCompareRange(&(a->hostText), &(b->hostText))) {
 			return FALSE;
 		}
@@ -1372,18 +1321,18 @@ int UriEqualsUri(const UriUri * a, const UriUri * b)
 	if(UriCompareRange(&(a->portText), &(b->portText))) {
 		return FALSE;
 	}
-	/* Path */
+	// Path 
 	if((a->pathHead == NULL) !=(b->pathHead == NULL)) {
 		return FALSE;
 	}
 	if(a->pathHead != NULL) {
-		UriPathSegment*walkA = a->pathHead;
-		UriPathSegment*walkB = b->pathHead;
+		UriPathSegment * walkA = a->pathHead;
+		UriPathSegment * walkB = b->pathHead;
 		do {
 			if(UriCompareRange(&(walkA->text), &(walkB->text))) {
 				return FALSE;
 			}
-			else if((walkA->next == NULL) !=(walkB->next == NULL)) {
+			else if((walkA->next == NULL) != (walkB->next == NULL)) {
 				return FALSE;
 			}
 			else {
@@ -1392,12 +1341,10 @@ int UriEqualsUri(const UriUri * a, const UriUri * b)
 			}
 		} while(walkA != NULL);
 	}
-	/* query */
-	if(UriCompareRange(&(a->query), &(b->query))) {
+	if(UriCompareRange(&(a->query), &(b->query))) { // query 
 		return FALSE;
 	}
-	/* fragment */
-	if(UriCompareRange(&(a->fragment), &(b->fragment))) {
+	if(UriCompareRange(&(a->fragment), &(b->fragment))) { // fragment 
 		return FALSE;
 	}
 	return TRUE; /* Equal*/
@@ -1417,30 +1364,29 @@ void UriResetUri(UriUri * pUri)
 /* Properly removes "." and ".." path segments */
 int UriRemoveDotSegments(UriUri*uri, int relative)
 {
-	return(uri == NULL) ? TRUE : UriRemoveDotSegmentsEx(uri, relative, uri->owner);
+	return (uri == NULL) ? TRUE : UriRemoveDotSegmentsEx(uri, relative, uri->owner);
 }
 
-int UriRemoveDotSegmentsEx(UriUri * uri, int relative, int pathOwned)
+int UriRemoveDotSegmentsEx(UriUri * pUri, int relative, int pathOwned)
 {
-	if(!uri || !(uri->pathHead)) {
-		return TRUE;
-	}
-	else {
-		UriPathSegment * walker = uri->pathHead;
-		walker->reserved = NULL; /* Prev pointer */
+	int    ok = 1;
+	UriPathSegment * p_walker = 0;
+	UriPathSegment * p_prev = 0;
+	if(pUri && pUri->pathHead) {
+		p_walker = pUri->pathHead;
+		p_walker->reserved = NULL; /* Prev pointer */
 		do {
 			int removeSegment = FALSE;
-			int len =(int)(walker->text.afterLast-walker->text.first);
-			switch(len) {
-				case 1:
-				if((walker->text.first)[0] == _UT('.')) {
-					/* "." segment -> remove if not essential */
-					UriPathSegment * const prev =(UriPathSegment *)walker->reserved;
-					UriPathSegment * const nextBackup = walker->next;
-					/* Is this dot segment essential? */
+			const int len = (int)(p_walker->text.afterLast-p_walker->text.first);
+			if(len == 1) {
+				if((p_walker->text.first)[0] == _UT('.')) {
+					// "." segment -> remove if not essential 
+					p_prev = (UriPathSegment *)p_walker->reserved;
+					UriPathSegment * const nextBackup = p_walker->next;
+					// Is this dot segment essential? 
 					removeSegment = TRUE;
-					if(relative && walker == uri->pathHead && walker->next) {
-						for(const char * ch = walker->next->text.first; ch < walker->next->text.afterLast; ch++) {
+					if(relative && p_walker == pUri->pathHead && p_walker->next) {
+						for(const char * ch = p_walker->next->text.first; ch < p_walker->next->text.afterLast; ch++) {
 							if(*ch == _UT(':')) {
 								removeSegment = FALSE;
 								break;
@@ -1448,171 +1394,149 @@ int UriRemoveDotSegmentsEx(UriUri * uri, int relative, int pathOwned)
 						}
 					}
 					if(removeSegment) {
-						/* Last segment? */
-						if(walker->next != NULL) {
-							/* Not last segment */
-							walker->next->reserved = prev;
-							if(prev == NULL) {
-								uri->pathHead = walker->next; // First but not last segment
-							}
-							else {
-								prev->next = walker->next; // Middle segment
-							}
-							if(pathOwned &&(walker->text.first != walker->text.afterLast)) {
-								SAlloc::F((char *)walker->text.first);
-							}
-							SAlloc::F(walker);
+						// Last segment? 
+						if(p_walker->next) { // Not last segment 
+							p_walker->next->reserved = p_prev;
+							if(p_prev == NULL)
+								pUri->pathHead = p_walker->next; // First but not last segment
+							else
+								p_prev->next = p_walker->next; // Middle segment
+							if(pathOwned &&(p_walker->text.first != p_walker->text.afterLast))
+								SAlloc::F((char *)p_walker->text.first);
+							SAlloc::F(p_walker);
 						}
-						else {
-							/* Last segment */
-							if(pathOwned &&(walker->text.first != walker->text.afterLast)) {
-								SAlloc::F((char *)walker->text.first);
+						else { // Last segment 
+							if(pathOwned && (p_walker->text.first != p_walker->text.afterLast)) {
+								SAlloc::F((char *)p_walker->text.first);
 							}
-							if(prev == NULL) {
-								/* Last and first */
-								if(UriIsHostSet(uri)) {
-									/* Replace "." with empty segment to represent trailing slash */
-									walker->text.first = UriSafeToPointTo;
-									walker->text.afterLast = UriSafeToPointTo;
+							if(p_prev == NULL) {
+								// Last and first 
+								if(UriIsHostSet(pUri)) {
+									// Replace "." with empty segment to represent trailing slash 
+									p_walker->text.first = UriSafeToPointTo;
+									p_walker->text.afterLast = UriSafeToPointTo;
 								}
 								else {
-									SAlloc::F(walker);
-									uri->pathHead = NULL;
-									uri->pathTail = NULL;
+									SAlloc::F(p_walker);
+									pUri->pathHead = NULL;
+									pUri->pathTail = NULL;
 								}
 							}
 							else {
-								/* Last but not first, replace "." with empty segment to represent trailing slash */
-								walker->text.first = UriSafeToPointTo;
-								walker->text.afterLast = UriSafeToPointTo;
+								// Last but not first, replace "." with empty segment to represent trailing slash 
+								p_walker->text.first = UriSafeToPointTo;
+								p_walker->text.afterLast = UriSafeToPointTo;
 							}
 						}
-						walker = nextBackup;
+						p_walker = nextBackup;
 					}
 				}
-				break;
-
-				case 2:
-				if(((walker->text.first)[0] == _UT('.')) &&((walker->text.first)[1] == _UT('.'))) {
-					/* Path ".." -> remove this and the previous segment */
-					UriPathSegment * const prev =(UriPathSegment *)walker->reserved;
+			}
+			else if(len == 2) {
+				if((p_walker->text.first[0] == _UT('.')) && (p_walker->text.first[1] == _UT('.'))) {
+					// Path ".." -> remove this and the previous segment 
+					p_prev = (UriPathSegment *)p_walker->reserved;
 					UriPathSegment * prevPrev;
-					UriPathSegment * const nextBackup = walker->next;
+					UriPathSegment * const nextBackup = p_walker->next;
 					removeSegment = TRUE;
 					if(relative) {
-						if(prev == NULL) {
+						if(p_prev == NULL)
 							removeSegment = FALSE;
-						}
-						else if((prev != NULL) &&((prev->text.afterLast-prev->text.first) == 2) &&
-							((prev->text.first)[0] == _UT('.')) &&((prev->text.first)[1] == _UT('.'))) {
+						else if(p_prev &&((p_prev->text.afterLast-p_prev->text.first) == 2) && (p_prev->text.first[0] == _UT('.')) && (p_prev->text.first[1] == _UT('.')))
 							removeSegment = FALSE;
-						}
 					}
 					if(removeSegment) {
-						if(prev != NULL) {
-							/* Not first segment */
-							prevPrev =(UriPathSegment *)prev->reserved;
-							if(prevPrev != NULL) {
-								/* Not even prev is the first one */
-								prevPrev->next = walker->next;
-								if(walker->next != NULL) {
-									walker->next->reserved = prevPrev;
-								}
+						if(p_prev) { // Not first segment 
+							prevPrev = (UriPathSegment *)p_prev->reserved;
+							if(prevPrev) {
+								// Not even prev is the first one 
+								prevPrev->next = p_walker->next;
+								if(p_walker->next)
+									p_walker->next->reserved = prevPrev;
 								else {
-									/* Last segment -> insert "" segment to represent trailing slash, update tail */
-									UriPathSegment * const segment =(UriPathSegment *)SAlloc::M(1 * sizeof(UriPathSegment));
-									if(segment == NULL) {
-										if(pathOwned && (walker->text.first != walker->text.afterLast)) {
-											SAlloc::F((char *)walker->text.first);
-										}
-										SAlloc::F(walker);
-										if(pathOwned && (prev->text.first != prev->text.afterLast)) {
-											SAlloc::F((char *)prev->text.first);
-										}
-										SAlloc::F(prev);
-										return FALSE; /* Raises SAlloc::M error */
-									}
-									memzero(segment, sizeof(*segment));
-									segment->text.first = UriSafeToPointTo;
-									segment->text.afterLast = UriSafeToPointTo;
-									prevPrev->next = segment;
-									uri->pathTail = segment;
+									// Last segment -> insert "" segment to represent trailing slash, update tail 
+									UriPathSegment * const p_segment = (UriPathSegment *)SAlloc::M(1 * sizeof(UriPathSegment));
+									THROW(p_segment);
+									memzero(p_segment, sizeof(*p_segment));
+									p_segment->text.first = UriSafeToPointTo;
+									p_segment->text.afterLast = UriSafeToPointTo;
+									prevPrev->next = p_segment;
+									pUri->pathTail = p_segment;
 								}
-								if(pathOwned && (walker->text.first != walker->text.afterLast)) {
-									SAlloc::F((char *)walker->text.first);
-								}
-								SAlloc::F(walker);
-								if(pathOwned &&(prev->text.first != prev->text.afterLast)) {
-									SAlloc::F((char *)prev->text.first);
-								}
-								SAlloc::F(prev);
-								walker = nextBackup;
+								if(pathOwned && (p_walker->text.first != p_walker->text.afterLast))
+									SAlloc::F((char *)p_walker->text.first);
+								SAlloc::F(p_walker);
+								if(pathOwned && (p_prev->text.first != p_prev->text.afterLast))
+									SAlloc::F((char *)p_prev->text.first);
+								SAlloc::F(p_prev);
+								p_walker = nextBackup;
 							}
 							else {
-								/* Prev is the first segment */
-								if(walker->next != NULL) {
-									uri->pathHead = walker->next;
-									walker->next->reserved = NULL;
-									if(pathOwned && walker->text.first != walker->text.afterLast) {
-										SAlloc::F((char *)walker->text.first);
-									}
-									SAlloc::F(walker);
+								if(p_walker->next) { // Prev is the first segment 
+									pUri->pathHead = p_walker->next;
+									p_walker->next->reserved = NULL;
+									if(pathOwned && p_walker->text.first != p_walker->text.afterLast)
+										SAlloc::F((char *)p_walker->text.first);
+									SAlloc::F(p_walker);
 								}
 								else {
-									/* Re-use segment for "" path segment to represent trailing slash, update tail */
-									UriPathSegment * const segment = walker;
-									if(pathOwned && segment->text.first != segment->text.afterLast) {
+									// Re-use segment for "" path segment to represent trailing slash, update tail 
+									UriPathSegment * const segment = p_walker;
+									if(pathOwned && segment->text.first != segment->text.afterLast)
 										SAlloc::F((char *)segment->text.first);
-									}
 									segment->text.first = UriSafeToPointTo;
 									segment->text.afterLast = UriSafeToPointTo;
-									uri->pathHead = segment;
-									uri->pathTail = segment;
+									pUri->pathHead = segment;
+									pUri->pathTail = segment;
 								}
-								if(pathOwned &&(prev->text.first != prev->text.afterLast)) {
-									SAlloc::F((char *)prev->text.first);
-								}
-								SAlloc::F(prev);
-								walker = nextBackup;
+								if(pathOwned && (p_prev->text.first != p_prev->text.afterLast))
+									SAlloc::F((char *)p_prev->text.first);
+								SAlloc::F(p_prev);
+								p_walker = nextBackup;
 							}
 						}
 						else {
-							UriPathSegment * const nextBackup = walker->next;
-							/* First segment -> update head pointer */
-							uri->pathHead = walker->next;
-							if(walker->next != NULL) {
-								walker->next->reserved = NULL;
-							}
-							else {
-								uri->pathTail = NULL; // Last segment -> update tail
-							}
-							if(pathOwned &&(walker->text.first != walker->text.afterLast)) {
-								SAlloc::F((char *)walker->text.first);
-							}
-							SAlloc::F(walker);
-							walker = nextBackup;
+							UriPathSegment * const nextBackup = p_walker->next;
+							// First segment -> update head pointer 
+							pUri->pathHead = p_walker->next;
+							if(p_walker->next)
+								p_walker->next->reserved = NULL;
+							else
+								pUri->pathTail = NULL; // Last segment -> update tail
+							if(pathOwned && (p_walker->text.first != p_walker->text.afterLast))
+								SAlloc::F((char *)p_walker->text.first);
+							SAlloc::F(p_walker);
+							p_walker = nextBackup;
 						}
 					}
 				}
-				break;
-
 			}
 			if(!removeSegment) {
-				if(walker->next != NULL) {
-					walker->next->reserved = walker;
-				}
-				else {
-					/* Last segment -> update tail */
-					uri->pathTail = walker;
-				}
-				walker = walker->next;
+				if(p_walker->next)
+					p_walker->next->reserved = p_walker;
+				else // Last segment -> update tail 
+					pUri->pathTail = p_walker; 
+				p_walker = p_walker->next;
 			}
-		} while(walker != NULL);
-		return TRUE;
+		} while(p_walker);
 	}
+	CATCH
+		if(p_walker) {
+			if(pathOwned && (p_walker->text.first != p_walker->text.afterLast))
+				SAlloc::F((char *)p_walker->text.first);
+			SAlloc::F(p_walker);
+		}
+		if(p_prev) {
+			if(pathOwned && p_prev->text.first != p_prev->text.afterLast)
+				SAlloc::F((char *)p_prev->text.first);
+			SAlloc::F(p_prev);
+		}
+		ok = 0;
+	ENDCATCH
+	return ok;
 }
 
-/* Properly removes "." and ".." path segments */
+// Properly removes "." and ".." path segments 
 int UriRemoveDotSegmentsAbsolute(UriUri * uri)
 {
 	const int absolute = FALSE;
@@ -2066,74 +1990,66 @@ static int UriMakeRangeOwner(uint * doneMask, uint maskTest, UriTextRange*range)
 
 static int FASTCALL UriMakeOwner(UriUri * uri, uint * doneMask)
 {
-	UriPathSegment * walker = uri->pathHead;
-	if(!UriMakeRangeOwner(doneMask, URI_NORMALIZE_SCHEME, &(uri->scheme)) ||
-	   !UriMakeRangeOwner(doneMask, URI_NORMALIZE_USER_INFO, &(uri->userInfo)) ||
-	   !UriMakeRangeOwner(doneMask, URI_NORMALIZE_QUERY, &(uri->query)) ||
-	   !UriMakeRangeOwner(doneMask, URI_NORMALIZE_FRAGMENT, &(uri->fragment))) {
-		return FALSE; /* Raises SAlloc::M error */
-	}
-	/* Host */
-	if((*doneMask&URI_NORMALIZE_HOST) == 0) {
+	int    ok = 1;
+	UriPathSegment * p_walker = uri->pathHead;
+	THROW(UriMakeRangeOwner(doneMask, URI_NORMALIZE_SCHEME, &(uri->scheme)));
+	THROW(UriMakeRangeOwner(doneMask, URI_NORMALIZE_USER_INFO, &(uri->userInfo)));
+	THROW(UriMakeRangeOwner(doneMask, URI_NORMALIZE_QUERY, &(uri->query)));
+	THROW(UriMakeRangeOwner(doneMask, URI_NORMALIZE_FRAGMENT, &(uri->fragment)));
+	// Host 
+	if(!(*doneMask & URI_NORMALIZE_HOST)) {
 		if(!uri->hostData.ip4 && !uri->hostData.ip6) {
 			if(uri->hostData.ipFuture.first != NULL) {
-				/* IPvFuture */
-				if(!UriMakeRangeOwner(doneMask, URI_NORMALIZE_HOST, &(uri->hostData.ipFuture))) {
-					return FALSE; /* Raises SAlloc::M error */
-				}
+				// IPvFuture 
+				THROW(UriMakeRangeOwner(doneMask, URI_NORMALIZE_HOST, &(uri->hostData.ipFuture)));
 				uri->hostText.first = uri->hostData.ipFuture.first;
 				uri->hostText.afterLast = uri->hostData.ipFuture.afterLast;
 			}
 			else if(uri->hostText.first != NULL) {
-				/* Regname */
-				if(!UriMakeRangeOwner(doneMask, URI_NORMALIZE_HOST, &(uri->hostText))) {
-					return FALSE; /* Raises SAlloc::M error */
-				}
+				// Regname 
+				THROW(UriMakeRangeOwner(doneMask, URI_NORMALIZE_HOST, &(uri->hostText)));
 			}
 		}
 	}
-	/* Path */
-	if((*doneMask&URI_NORMALIZE_PATH) == 0) {
-		while(walker) {
-			if(!UriMakeRangeOwner(doneMask, 0, &(walker->text))) {
-				/* Kill path to one before walker */
-				UriPathSegment * ranger = uri->pathHead;
-				while(ranger->next != walker) {
-					UriPathSegment * const next = ranger->next;
-					if(ranger->text.first && ranger->text.afterLast && (ranger->text.afterLast > ranger->text.first)) {
-						SAlloc::F((char *)ranger->text.first);
-						SAlloc::F(ranger);
+	// Path 
+	if(!(*doneMask & URI_NORMALIZE_PATH)) {
+		for(; p_walker; p_walker = p_walker->next) {
+			if(!UriMakeRangeOwner(doneMask, 0, &(p_walker->text))) {
+				// Kill path to one before walker 
+				for(UriPathSegment * p_ranger = uri->pathHead; p_ranger->next != p_walker;) {
+					UriPathSegment * const next = p_ranger->next;
+					if(p_ranger->text.first && p_ranger->text.afterLast && (p_ranger->text.afterLast > p_ranger->text.first)) {
+						SAlloc::F((char *)p_ranger->text.first);
+						SAlloc::F(p_ranger);
 					}
-					ranger = next;
+					p_ranger = next;
 				}
-				/* Kill path from walker */
-				while(walker) {
-					UriPathSegment * const next = walker->next;
-					SAlloc::F(walker);
-					walker = next;
+				// Kill path from walker 
+				while(p_walker) {
+					UriPathSegment * const next = p_walker->next;
+					SAlloc::F(p_walker);
+					p_walker = next;
 				}
 				uri->pathHead = NULL;
 				uri->pathTail = NULL;
-				return FALSE; /* Raises SAlloc::M error */
+				CALLEXCEPT(); // Raises error 
 			}
-			walker = walker->next;
 		}
 		*doneMask |= URI_NORMALIZE_PATH;
 	}
 	// Port text, must come last so we don't have to undo that one if it fails.
 	// Otherwise we would need and extra enum flag for it although the port      
 	// cannot go unnormalized...  
-	if(!UriMakeRangeOwner(doneMask, 0, &(uri->portText))) {
-		return FALSE; /* Raises SAlloc::M error */
-	}
-	return TRUE;
+	THROW(UriMakeRangeOwner(doneMask, 0, &(uri->portText)));
+	CATCHZOK
+	return ok;
 }
 
 uint FASTCALL UriNormalizeSyntaxMaskRequired(const UriUri * uri)
 {
 	uint res;
- #if defined(__GNUC__) &&((__GNUC__ > 4) ||((__GNUC__ == 4) && defined(__GNUC_MINOR__) &&(__GNUC_MINOR__ >= 2)))
-	/* Slower code that fixes a warning, not sure if this is a smart idea */
+ #if defined(__GNUC__) &&((__GNUC__ > 4) || ((__GNUC__ == 4) && defined(__GNUC_MINOR__) &&(__GNUC_MINOR__ >= 2)))
+	// Slower code that fixes a warning, not sure if this is a smart idea 
 	UriUri writeableClone;
 	memcpy(&writeableClone, uri, 1*sizeof(UriUri));
 	UriNormalizeSyntaxEngine(&writeableClone, 0, &res);
@@ -2153,41 +2069,33 @@ int FASTCALL UriNormalizeSyntax(UriUri * uri)
 	return UriNormalizeSyntaxEx(uri,(uint)-1);
 }
 
-static int UriNormalizeSyntaxEngine(UriUri*uri, uint inMask, uint * outMask)
+static int UriNormalizeSyntaxEngine(UriUri * uri, uint inMask, uint * outMask)
 {
 	uint doneMask = URI_NORMALIZED;
 	if(uri == NULL) {
 		if(outMask != NULL) {
 			*outMask = URI_NORMALIZED;
-			return URI_SUCCESS;
+			return SLERR_SUCCESS;
 		}
-		else {
-			return URI_ERROR_NULL;
-		}
+		else
+			return SLERR_URI_NULL;
 	}
-	if(outMask != NULL) {
-		/* Reset mask */
-		*outMask = URI_NORMALIZED;
-	}
-	else if(inMask == URI_NORMALIZED) {
-		/* Nothing to do */
-		return URI_SUCCESS;
-	}
-	/* Scheme, host */
-	if(outMask != NULL) {
+	if(outMask)
+		*outMask = URI_NORMALIZED; // Reset mask 
+	else if(inMask == URI_NORMALIZED)
+		return SLERR_SUCCESS; // Nothing to do 
+	// Scheme, host 
+	if(outMask) {
 		const int normalizeScheme = UriContainsUppercaseLetters(uri->scheme.first, uri->scheme.afterLast);
 		const int normalizeHostCase = UriContainsUppercaseLetters(uri->hostText.first, uri->hostText.afterLast);
-		if(normalizeScheme) {
+		if(normalizeScheme)
 			*outMask |= URI_NORMALIZE_SCHEME;
-		}
-		if(normalizeHostCase) {
+		if(normalizeHostCase)
 			*outMask |= URI_NORMALIZE_HOST;
-		}
 		else {
 			const int normalizeHostPrecent = UriContainsUglyPercentEncoding(uri->hostText.first, uri->hostText.afterLast);
-			if(normalizeHostPrecent) {
+			if(normalizeHostPrecent)
 				*outMask |= URI_NORMALIZE_HOST;
-			}
 		}
 	}
 	else {
@@ -2199,29 +2107,28 @@ static int UriNormalizeSyntaxEngine(UriUri*uri, uint inMask, uint * outMask)
 			else {
 				if(!UriLowercaseMalloc(&(uri->scheme.first), &(uri->scheme.afterLast))) {
 					UriPreventLeakage(uri, doneMask);
-					return URI_ERROR_MALLOC;
+					return SLERR_NOMEM;
 				}
 				doneMask |= URI_NORMALIZE_SCHEME;
 			}
 		}
-		/* Host */
+		// Host 
 		if(inMask&URI_NORMALIZE_HOST) {
-			if(uri->hostData.ipFuture.first != NULL) {
-				/* IPvFuture */
-				if(uri->owner) {
+			if(uri->hostData.ipFuture.first) {
+				// IPvFuture 
+				if(uri->owner)
 					UriLowercaseInplace(uri->hostData.ipFuture.first, uri->hostData.ipFuture.afterLast);
-				}
 				else {
 					if(!UriLowercaseMalloc(&(uri->hostData.ipFuture.first), &(uri->hostData.ipFuture.afterLast))) {
 						UriPreventLeakage(uri, doneMask);
-						return URI_ERROR_MALLOC;
+						return SLERR_NOMEM;
 					}
 					doneMask |= URI_NORMALIZE_HOST;
 				}
 				uri->hostText.first = uri->hostData.ipFuture.first;
 				uri->hostText.afterLast = uri->hostData.ipFuture.afterLast;
 			}
-			else if((uri->hostText.first != NULL) &&(uri->hostData.ip4 == NULL) &&(uri->hostData.ip6 == NULL)) {
+			else if(uri->hostText.first && (uri->hostData.ip4 == NULL) && (uri->hostData.ip6 == NULL)) {
 				/* Regname */
 				if(uri->owner) {
 					UriFixPercentEncodingInplace(uri->hostText.first, &(uri->hostText.afterLast));
@@ -2229,7 +2136,7 @@ static int UriNormalizeSyntaxEngine(UriUri*uri, uint inMask, uint * outMask)
 				else {
 					if(!UriFixPercentEncodingMalloc(&(uri->hostText.first), &(uri->hostText.afterLast))) {
 						UriPreventLeakage(uri, doneMask);
-						return URI_ERROR_MALLOC;
+						return SLERR_NOMEM;
 					}
 					doneMask |= URI_NORMALIZE_HOST;
 				}
@@ -2252,66 +2159,59 @@ static int UriNormalizeSyntaxEngine(UriUri*uri, uint inMask, uint * outMask)
 			else {
 				if(!UriFixPercentEncodingMalloc(&(uri->userInfo.first), &(uri->userInfo.afterLast))) {
 					UriPreventLeakage(uri, doneMask);
-					return URI_ERROR_MALLOC;
+					return SLERR_NOMEM;
 				}
 				doneMask |= URI_NORMALIZE_USER_INFO;
 			}
 		}
 	}
-	/* Path */
-	if(outMask != NULL) {
-		const UriPathSegment*walker = uri->pathHead;
-		while(walker != NULL) {
-			const char * const first = walker->text.first;
-			const char * const afterLast = walker->text.afterLast;
-			if((first != NULL) &&(afterLast != NULL) &&(afterLast > first) &&(
-				(((afterLast-first) == 1) &&(first[0] == _UT('.'))) ||
-				(((afterLast-first) == 2) &&(first[0] == _UT('.')) &&(first[1] == _UT('.'))) ||
-				UriContainsUglyPercentEncoding(first, afterLast))) {
+	// Path 
+	if(outMask) {
+		for(const UriPathSegment * p_walker = uri->pathHead; p_walker; p_walker = p_walker->next) {
+			const char * const first = p_walker->text.first;
+			const char * const afterLast = p_walker->text.afterLast;
+			if(first && afterLast && (afterLast > first) && ((((afterLast-first) == 1) &&(first[0] == _UT('.'))) ||
+				(((afterLast-first) == 2) && (first[0] == _UT('.')) && (first[1] == _UT('.'))) || UriContainsUglyPercentEncoding(first, afterLast))) {
 				*outMask |= URI_NORMALIZE_PATH;
 				break;
 			}
-			walker = walker->next;
 		}
 	}
 	else if(inMask&URI_NORMALIZE_PATH) {
-		UriPathSegment*walker;
-		const int relative =((uri->scheme.first == NULL) && !uri->absolutePath) ? TRUE : FALSE;
-		/* Fix percent-encoding for each segment */
-		walker = uri->pathHead;
+		const int relative = (!uri->scheme.first && !uri->absolutePath) ? TRUE : FALSE;
+		// Fix percent-encoding for each segment 
+		UriPathSegment * p_walker = uri->pathHead;
 		if(uri->owner) {
-			while(walker != NULL) {
-				UriFixPercentEncodingInplace(walker->text.first, &(walker->text.afterLast));
-				walker = walker->next;
+			while(p_walker) {
+				UriFixPercentEncodingInplace(p_walker->text.first, &(p_walker->text.afterLast));
+				p_walker = p_walker->next;
 			}
 		}
 		else {
-			while(walker != NULL) {
-				if(!UriFixPercentEncodingMalloc(&(walker->text.first), &(walker->text.afterLast))) {
+			while(p_walker) {
+				if(!UriFixPercentEncodingMalloc(&p_walker->text.first, &p_walker->text.afterLast)) {
 					UriPreventLeakage(uri, doneMask);
-					return URI_ERROR_MALLOC;
+					return SLERR_NOMEM;
 				}
-				walker = walker->next;
+				p_walker = p_walker->next;
 			}
 			doneMask |= URI_NORMALIZE_PATH;
 		}
-		/* 6.2.2.3 Path Segment Normalization */
-		if(!UriRemoveDotSegmentsEx(uri, relative,(uri->owner == TRUE) ||((doneMask&URI_NORMALIZE_PATH) != 0))) {
+		// 6.2.2.3 Path Segment Normalization 
+		if(!UriRemoveDotSegmentsEx(uri, relative, (uri->owner == TRUE) || ((doneMask&URI_NORMALIZE_PATH) != 0))) {
 			UriPreventLeakage(uri, doneMask);
-			return URI_ERROR_MALLOC;
+			return SLERR_NOMEM;
 		}
 		UriFixEmptyTrailSegment(uri);
 	}
-	/* Query, fragment */
-	if(outMask != NULL) {
+	// Query, fragment 
+	if(outMask) {
 		const int normalizeQuery = UriContainsUglyPercentEncoding(uri->query.first, uri->query.afterLast);
 		const int normalizeFragment = UriContainsUglyPercentEncoding(uri->fragment.first, uri->fragment.afterLast);
-		if(normalizeQuery) {
+		if(normalizeQuery)
 			*outMask |= URI_NORMALIZE_QUERY;
-		}
-		if(normalizeFragment) {
+		if(normalizeFragment)
 			*outMask |= URI_NORMALIZE_FRAGMENT;
-		}
 	}
 	else {
 		/* Query */
@@ -2322,7 +2222,7 @@ static int UriNormalizeSyntaxEngine(UriUri*uri, uint inMask, uint * outMask)
 			else {
 				if(!UriFixPercentEncodingMalloc(&(uri->query.first), &(uri->query.afterLast))) {
 					UriPreventLeakage(uri, doneMask);
-					return URI_ERROR_MALLOC;
+					return SLERR_NOMEM;
 				}
 				doneMask |= URI_NORMALIZE_QUERY;
 			}
@@ -2335,7 +2235,7 @@ static int UriNormalizeSyntaxEngine(UriUri*uri, uint inMask, uint * outMask)
 			else {
 				if(!UriFixPercentEncodingMalloc(&(uri->fragment.first), &(uri->fragment.afterLast))) {
 					UriPreventLeakage(uri, doneMask);
-					return URI_ERROR_MALLOC;
+					return SLERR_NOMEM;
 				}
 				doneMask |= URI_NORMALIZE_FRAGMENT;
 			}
@@ -2345,11 +2245,11 @@ static int UriNormalizeSyntaxEngine(UriUri*uri, uint inMask, uint * outMask)
 	if((outMask == NULL) && !uri->owner) {
 		if(!UriMakeOwner(uri, &doneMask)) {
 			UriPreventLeakage(uri, doneMask);
-			return URI_ERROR_MALLOC;
+			return SLERR_NOMEM;
 		}
 		uri->owner = TRUE;
 	}
-	return URI_SUCCESS;
+	return SLERR_SUCCESS;
 }
 //
 //
@@ -2374,13 +2274,13 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		if(charsWritten != NULL) {
 			*charsWritten = 0;
 		}
-		return URI_ERROR_NULL;
+		return SLERR_URI_NULL;
 	}
 	if(maxChars < 1) {
 		if(charsWritten != NULL) {
 			*charsWritten = 0;
 		}
-		return URI_ERROR_TOSTRING_TOO_LONG;
+		return SLERR_URI_TOSTRING_TOO_LONG;
 	}
 	maxChars--; /* So we don't have to substract 1 for '\0' all the time */
 	/* [01/19]	result = "" */
@@ -2404,7 +2304,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				if(charsWritten != NULL) {
 					*charsWritten = 0;
 				}
-				return URI_ERROR_TOSTRING_TOO_LONG;
+				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
 		}
 		else {
@@ -2421,7 +2321,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				if(charsWritten != NULL) {
 					*charsWritten = 0;
 				}
-				return URI_ERROR_TOSTRING_TOO_LONG;
+				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
 		}
 		else {
@@ -2442,7 +2342,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				if(charsWritten != NULL) {
 					*charsWritten = 0;
 				}
-				return URI_ERROR_TOSTRING_TOO_LONG;
+				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
 		}
 		else {
@@ -2462,7 +2362,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					if(charsWritten != NULL) {
 						*charsWritten = 0;
 					}
-					return URI_ERROR_TOSTRING_TOO_LONG;
+					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 				if(written+1 <= maxChars) {
 					memcpy(dest+written, _UT("@"), 1*sizeof(char));
@@ -2473,7 +2373,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					if(charsWritten != NULL) {
 						*charsWritten = 0;
 					}
-					return URI_ERROR_TOSTRING_TOO_LONG;
+					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
 			else {
@@ -2511,7 +2411,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 						if(charsWritten != NULL) {
 							*charsWritten = 0;
 						}
-						return URI_ERROR_TOSTRING_TOO_LONG;
+						return SLERR_URI_TOSTRING_TOO_LONG;
 					}
 					if(i < 3) {
 						if(written+1 <= maxChars) {
@@ -2523,7 +2423,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 							if(charsWritten != NULL) {
 								*charsWritten = 0;
 							}
-							return URI_ERROR_TOSTRING_TOO_LONG;
+							return SLERR_URI_TOSTRING_TOO_LONG;
 						}
 					}
 				}
@@ -2545,7 +2445,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					if(charsWritten != NULL) {
 						*charsWritten = 0;
 					}
-					return URI_ERROR_TOSTRING_TOO_LONG;
+					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
 			else {
@@ -2567,7 +2467,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 						if(charsWritten != NULL) {
 							*charsWritten = 0;
 						}
-						return URI_ERROR_TOSTRING_TOO_LONG;
+						return SLERR_URI_TOSTRING_TOO_LONG;
 					}
 				}
 				else {
@@ -2584,7 +2484,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 							if(charsWritten != NULL) {
 								*charsWritten = 0;
 							}
-							return URI_ERROR_TOSTRING_TOO_LONG;
+							return SLERR_URI_TOSTRING_TOO_LONG;
 						}
 					}
 					else {
@@ -2602,7 +2502,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					if(charsWritten != NULL) {
 						*charsWritten = 0;
 					}
-					return URI_ERROR_TOSTRING_TOO_LONG;
+					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
 			else {
@@ -2622,7 +2522,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					if(charsWritten != NULL) {
 						*charsWritten = 0;
 					}
-					return URI_ERROR_TOSTRING_TOO_LONG;
+					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 				if(written+charsToWrite <= maxChars) {
 					memcpy(dest+written, uri->hostData.ipFuture.first, charsToWrite*sizeof(char));
@@ -2633,7 +2533,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					if(charsWritten != NULL) {
 						*charsWritten = 0;
 					}
-					return URI_ERROR_TOSTRING_TOO_LONG;
+					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 				if(written+1 <= maxChars) {
 					memcpy(dest+written, _UT("]"), 1*sizeof(char));
@@ -2644,7 +2544,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					if(charsWritten != NULL) {
 						*charsWritten = 0;
 					}
-					return URI_ERROR_TOSTRING_TOO_LONG;
+					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
 			else {
@@ -2664,7 +2564,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					if(charsWritten != NULL) {
 						*charsWritten = 0;
 					}
-					return URI_ERROR_TOSTRING_TOO_LONG;
+					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
 			else {
@@ -2685,7 +2585,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					if(charsWritten != NULL) {
 						*charsWritten = 0;
 					}
-					return URI_ERROR_TOSTRING_TOO_LONG;
+					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 				/* Port number */
 				if(written+charsToWrite <= maxChars) {
@@ -2697,7 +2597,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					if(charsWritten != NULL) {
 						*charsWritten = 0;
 					}
-					return URI_ERROR_TOSTRING_TOO_LONG;
+					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
 			else {
@@ -2719,7 +2619,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				if(charsWritten != NULL) {
 					*charsWritten = 0;
 				}
-				return URI_ERROR_TOSTRING_TOO_LONG;
+				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
 		}
 		else {
@@ -2740,7 +2640,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					if(charsWritten != NULL) {
 						*charsWritten = 0;
 					}
-					return URI_ERROR_TOSTRING_TOO_LONG;
+					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
 			else {
@@ -2758,7 +2658,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 						if(charsWritten != NULL) {
 							*charsWritten = 0;
 						}
-						return URI_ERROR_TOSTRING_TOO_LONG;
+						return SLERR_URI_TOSTRING_TOO_LONG;
 					}
 				}
 				else {
@@ -2782,7 +2682,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				if(charsWritten != NULL) {
 					*charsWritten = 0;
 				}
-				return URI_ERROR_TOSTRING_TOO_LONG;
+				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
 		}
 		else {
@@ -2803,7 +2703,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					if(charsWritten != NULL) {
 						*charsWritten = 0;
 					}
-					return URI_ERROR_TOSTRING_TOO_LONG;
+					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
 			else {
@@ -2825,7 +2725,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				if(charsWritten != NULL) {
 					*charsWritten = 0;
 				}
-				return URI_ERROR_TOSTRING_TOO_LONG;
+				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
 		}
 		else {
@@ -2844,7 +2744,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					if(charsWritten != NULL) {
 						*charsWritten = 0;
 					}
-					return URI_ERROR_TOSTRING_TOO_LONG;
+					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
 			else {
@@ -2860,16 +2760,16 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			*charsWritten = written;
 		}
 	}
-	return URI_SUCCESS;
+	return SLERR_SUCCESS;
 }
 //
 // Prototypes
 //
-static const char * UriParseDecOctet(UriIp4Parser*parser, const char * first, const char * afterLast);
-static const char * UriParseDecOctetOne(UriIp4Parser*parser, const char * first, const char * afterLast);
-static const char * UriParseDecOctetTwo(UriIp4Parser*parser, const char * first, const char * afterLast);
-static const char * UriParseDecOctetThree(UriIp4Parser*parser, const char * first, const char * afterLast);
-static const char * UriParseDecOctetFour(UriIp4Parser*parser, const char * first, const char * afterLast);
+static const char * UriParseDecOctet(UriIp4Parser * parser, const char * first, const char * afterLast);
+static const char * UriParseDecOctetOne(UriIp4Parser * parser, const char * first, const char * afterLast);
+static const char * UriParseDecOctetTwo(UriIp4Parser * parser, const char * first, const char * afterLast);
+static const char * UriParseDecOctetThree(UriIp4Parser * parser, const char * first, const char * afterLast);
+static const char * UriParseDecOctetFour(UriIp4Parser * parser, const char * first, const char * afterLast);
 /*
  * [ipFourAddress]->[decOctet]<.>[decOctet]<.>[decOctet]<.>[decOctet]
  */
@@ -2879,35 +2779,35 @@ int UriParseIpFourAddress(uchar * octetOutput, const char * first, const char * 
 	UriIp4Parser parser;
 	/* Essential checks */
 	if((octetOutput == NULL) ||(first == NULL) ||(afterLast <= first)) {
-		return URI_ERROR_SYNTAX;
+		return SLERR_URI_SYNTAX;
 	}
 	/* Reset parser */
 	parser.stackCount = 0;
 	/* Octet #1 */
 	after = UriParseDecOctet(&parser, first, afterLast);
 	if((after == NULL) ||(after >= afterLast) ||(*after != _UT('.'))) {
-		return URI_ERROR_SYNTAX;
+		return SLERR_URI_SYNTAX;
 	}
 	uriStackToOctet(&parser, octetOutput);
 	/* Octet #2 */
 	after = UriParseDecOctet(&parser, after+1, afterLast);
 	if((after == NULL) ||(after >= afterLast) ||(*after != _UT('.'))) {
-		return URI_ERROR_SYNTAX;
+		return SLERR_URI_SYNTAX;
 	}
 	uriStackToOctet(&parser, octetOutput+1);
 	/* Octet #3 */
 	after = UriParseDecOctet(&parser, after+1, afterLast);
 	if((after == NULL) ||(after >= afterLast) ||(*after != _UT('.'))) {
-		return URI_ERROR_SYNTAX;
+		return SLERR_URI_SYNTAX;
 	}
 	uriStackToOctet(&parser, octetOutput+2);
 	/* Octet #4 */
 	after = UriParseDecOctet(&parser, after+1, afterLast);
 	if(after != afterLast) {
-		return URI_ERROR_SYNTAX;
+		return SLERR_URI_SYNTAX;
 	}
 	uriStackToOctet(&parser, octetOutput+3);
-	return URI_SUCCESS;
+	return SLERR_SUCCESS;
 }
 /*
  * [decOctet]-><0>
@@ -3155,28 +3055,48 @@ static const char * UriParseUriTail(UriParserState * state, const char * first, 
 static const char * UriParseUriTailTwo(UriParserState * state, const char * first, const char *  afterLast);
 static const char * UriParseZeroMoreSlashSegs(UriParserState * state, const char * first, const char * afterLast);
 
-static int FASTCALL UriOnExitOwnHost2(UriParserState * state, const char * first);
-static int FASTCALL UriOnExitOwnHostUserInfo(UriParserState * state, const char * first);
-static int FASTCALL UriOnExitOwnPortUserInfo(UriParserState * state, const char * first);
-static int FASTCALL UriOnExitSegmentNzNcOrScheme2(UriParserState * state, const char * first);
-static void FASTCALL UriOnExitPartHelperTwo(UriParserState * state);
-static void FASTCALL UriResetParserState(UriParserState * state);
-static int UriPushPathSegment(UriParserState * state, const char * first, const char * afterLast);
-static void FASTCALL UriStopSyntax(UriParserState * state, const char * errorPos);
-static void FASTCALL UriStopMalloc(UriParserState * state);
+static int UriPushPathSegment(UriParserState * state, const char * first, const char *  afterLast)
+{
+	int    ok = TRUE;
+	UriPathSegment * segment = (UriPathSegment *)SAlloc::M(1*sizeof(UriPathSegment));
+	if(!segment)
+		ok = FALSE; // Raises SAlloc::M error
+	else {
+		memzero(segment, sizeof(*segment));
+		if(first == afterLast) {
+			segment->text.first = UriSafeToPointTo;
+			segment->text.afterLast = UriSafeToPointTo;
+		}
+		else {
+			segment->text.first = first;
+			segment->text.afterLast = afterLast;
+		}
+		if(state->uri->pathHead == NULL) { // First segment ever?
+			// First segement ever, set head and tail
+			state->uri->pathHead = segment;
+			state->uri->pathTail = segment;
+		}
+		else {
+			// Append, update tail
+			state->uri->pathTail->next = segment;
+			state->uri->pathTail = segment;
+		}
+	}
+	return ok;
+}
 
 static void FASTCALL UriStopSyntax(UriParserState * state, const char * errorPos)
 {
 	UriFreeUriMembers(state->uri);
 	state->errorPos = errorPos;
-	state->errorCode = URI_ERROR_SYNTAX;
+	state->errorCode = SLERR_URI_SYNTAX;
 }
 
 static void FASTCALL UriStopMalloc(UriParserState * state)
 {
 	UriFreeUriMembers(state->uri);
 	state->errorPos = NULL;
-	state->errorCode = URI_ERROR_MALLOC;
+	state->errorCode = SLERR_NOMEM;
 }
 /*
  * [authority]-><[>[ipLit2][authorityTwo]
@@ -4203,7 +4123,7 @@ static const char * UriParsePathAbsEmpty(UriParserState * state, const char * fi
 			if(!UriPushPathSegment(state, first+1, afterSegment)) // SEGMENT BOTH
 				UriStopMalloc(state);
 			else
-				p_ret = UriParsePathAbsEmpty(state, afterSegment, afterLast);
+				p_ret = UriParsePathAbsEmpty(state, afterSegment, afterLast); // @recursion
 		}
 	}
 	else
@@ -4581,7 +4501,7 @@ static const char * UriParseSegmentNzNcOrScheme2(UriParserState * state, const c
 	    case _UT('%'):
 	    {
 		    const char * const afterPctEncoded = UriParsePctEncoded(state, first, afterLast);
-			return(afterPctEncoded == NULL) ? NULL : UriParseMustBeSegmentNzNc(state, afterPctEncoded, afterLast);
+			return afterPctEncoded ? UriParseMustBeSegmentNzNc(state, afterPctEncoded, afterLast) : 0;
 	    }
 	    case _UT('!'):
 	    case _UT('$'):
@@ -4783,70 +4703,28 @@ static void FASTCALL UriResetParserState(UriParserState * pState)
 	pState->uri = p_uri_backup;
 }
 
-static int UriPushPathSegment(UriParserState * state, const char * first, const char *  afterLast)
-{
-	int    ok = TRUE;
-	UriPathSegment * segment =(UriPathSegment *)SAlloc::M(1*sizeof(UriPathSegment));
-	if(segment == NULL) {
-		ok = FALSE; // Raises SAlloc::M error
-	}
-	else {
-		memzero(segment, sizeof(*segment));
-		if(first == afterLast) {
-			segment->text.first = UriSafeToPointTo;
-			segment->text.afterLast = UriSafeToPointTo;
-		}
-		else {
-			segment->text.first = first;
-			segment->text.afterLast = afterLast;
-		}
-		if(state->uri->pathHead == NULL) { // First segment ever?
-			// First segement ever, set head and tail
-			state->uri->pathHead = segment;
-			state->uri->pathTail = segment;
-		}
-		else {
-			// Append, update tail
-			state->uri->pathTail->next = segment;
-			state->uri->pathTail = segment;
-		}
-	}
-	return ok;
-}
-
 int UriParseUriEx(UriParserState * state, const char * first, const char * afterLast)
 {
-	int    ok = 0;
-	/* Check params */
-	if(!state || !first || !afterLast)
-		ok = URI_ERROR_NULL;
-	else {
+	int    ok = 1;
+	// Check params 
+	THROW_S(state && first && afterLast, SLERR_URI_NULL);
+	{
 		UriUri * uri = state->uri;
-		/* Init parser */
+		// Init parser 
 		UriResetParserState(state);
 		UriResetUri(uri);
-		/* Parse */
-		const char * afterUriReference = UriParseUriReference(state, first, afterLast);
-		if(afterUriReference == NULL)
-			ok = state->errorCode;
-		else if(afterUriReference != afterLast)
-			ok = URI_ERROR_SYNTAX;
-		else
-			ok = URI_SUCCESS;
+		// Parse 
+		const char * p_after_uri_reference = UriParseUriReference(state, first, afterLast);
+		THROW_S(p_after_uri_reference, state->errorCode);
+		THROW_S(p_after_uri_reference == afterLast, SLERR_URI_SYNTAX);
 	}
+	CATCHZOK
 	return ok;
 }
 
 int UriParseUri(UriParserState * pState, const char * pText)
 {
-	int    ok = 0;
-	if(pState && pText) {
-		const size_t len = strlen(pText);
-		ok = UriParseUriEx(pState, pText, pText+len);
-	}
-	else
-		ok = URI_ERROR_NULL;
-	return ok;
+	return (pState && pText) ? UriParseUriEx(pState, pText, pText+strlen(pText)) : SLS.SetError(SLERR_URI_NULL);
 }
 
 void UriFreeUriMembers(UriUri * uri)
@@ -4895,10 +4773,10 @@ void UriFreeUriMembers(UriUri * uri)
 			uri->portText.afterLast = NULL;
 		}
 		/* Path */
-		if(uri->pathHead != NULL) {
+		if(uri->pathHead) {
 			UriPathSegment*segWalk = uri->pathHead;
-			while(segWalk != NULL) {
-				UriPathSegment*const next = segWalk->next;
+			while(segWalk) {
+				UriPathSegment * const next = segWalk->next;
 				if(uri->owner && segWalk->text.first && (segWalk->text.first < segWalk->text.afterLast))
 					SAlloc::F((char *)segWalk->text.first);
 				SAlloc::F(segWalk);
@@ -4908,15 +4786,15 @@ void UriFreeUriMembers(UriUri * uri)
 			uri->pathTail = NULL;
 		}
 		if(uri->owner) {
-			/* Query */
-			if(uri->query.first != NULL) {
+			// Query 
+			if(uri->query.first) {
 				if(uri->query.first != uri->query.afterLast)
 					SAlloc::F((char *)uri->query.first);
 				uri->query.first = NULL;
 				uri->query.afterLast = NULL;
 			}
-			/* Fragment */
-			if(uri->fragment.first != NULL) {
+			// Fragment 
+			if(uri->fragment.first) {
 				if(uri->fragment.first != uri->fragment.afterLast)
 					SAlloc::F((char *)uri->fragment.first);
 				uri->fragment.first = NULL;
@@ -4938,14 +4816,14 @@ int Uri_TESTING_ONLY_ParseIpSix(const char * text)
 	parser.uri->hostData.ip6 =(UriIp6 *)SAlloc::M(1*sizeof(UriIp6));
 	res = UriParseIPv6address2(&parser, text, afterIpSix);
 	UriFreeUriMembers(&uri);
-	return res == afterIpSix ? TRUE : FALSE;
+	return (res == afterIpSix) ? TRUE : FALSE;
 }
 
 int Uri_TESTING_ONLY_ParseIpFour(const char * text)
 {
 	uchar octets[4];
 	int res = UriParseIpFourAddress(octets, text, text+strlen(text));
-	return(res == URI_SUCCESS) ? TRUE : FALSE;
+	return (res == SLERR_SUCCESS) ? TRUE : FALSE;
 }
 
 #undef URI_SET_DIGIT

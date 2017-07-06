@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\osf\libxml\include"
+				AdditionalIncludeDirectories="..\include;..\osf\libxml\incl"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;DL600C;SC2C"
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"
@@ -81,7 +81,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\libxml\include"
+				AdditionalIncludeDirectories="..\include;..\osf\libxml\incl"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;DL600C;SC2C"
 				StringPooling="TRUE"
 				BasicRuntimeChecks="0"

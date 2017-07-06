@@ -307,6 +307,7 @@
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <AdditionalOptions>
@@ -356,6 +357,7 @@
       <ShowIncludes>false</ShowIncludes>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <AdditionalOptions>
@@ -402,6 +404,7 @@
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <AdditionalOptions>
@@ -492,6 +495,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <DebugInformationFormat>None</DebugInformationFormat>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <AdditionalOptions>
@@ -537,6 +541,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <ShowIncludes>false</ShowIncludes>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <AdditionalOptions>
@@ -580,6 +585,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <DebugInformationFormat>None</DebugInformationFormat>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <AdditionalOptions>
@@ -626,6 +632,7 @@
       <ShowIncludes>false</ShowIncludes>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <AdditionalOptions>
@@ -672,6 +679,7 @@
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <AdditionalOptions>
@@ -717,6 +725,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <ShowIncludes>false</ShowIncludes>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <AdditionalOptions>
@@ -760,6 +769,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <DebugInformationFormat>None</DebugInformationFormat>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <AdditionalOptions>

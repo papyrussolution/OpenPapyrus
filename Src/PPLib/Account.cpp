@@ -1,5 +1,5 @@
 // ACCOUNT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017
 // @Kernel
 //
 #include <pp.h>
@@ -64,12 +64,11 @@ SLAPI PPAccountPacket::PPAccountPacket()
 	Init();
 }
 
-int SLAPI PPAccountPacket::Init()
+void SLAPI PPAccountPacket::Init()
 {
 	MEMSZERO(Rec);
 	CurList.freeAll();
 	GenList.freeAll();
-	return 1;
 }
 
 PPAccountPacket & FASTCALL PPAccountPacket::operator = (const PPAccountPacket & src)

@@ -12,7 +12,7 @@
 #ifndef __XML_ENC_H__
 #define __XML_ENC_H__
 
-#include <libxml/tree.h>
+//#include <libxml/tree.h>
 
 #ifdef __cplusplus
 extern "C" {

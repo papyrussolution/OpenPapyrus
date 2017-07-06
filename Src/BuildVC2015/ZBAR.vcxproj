@@ -234,7 +234,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -254,6 +254,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -262,7 +263,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -283,6 +284,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -291,7 +293,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -312,6 +314,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -320,7 +323,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -342,6 +345,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -350,7 +354,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -372,6 +376,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -380,7 +385,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -402,6 +407,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -409,7 +415,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -444,7 +450,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -480,7 +486,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -516,7 +522,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -552,7 +558,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
       <WarningLevel>Level3</WarningLevel>
@@ -571,11 +577,12 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl\include;..\osf\curl\include;..\osf\libzip\lib;..\osf\zbar\include;..\osf\zbar\zbar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
       <WarningLevel>Level3</WarningLevel>
@@ -594,6 +601,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

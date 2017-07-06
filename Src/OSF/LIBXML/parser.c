@@ -1843,31 +1843,25 @@ static void xmlSHRINK(xmlParserCtxtPtr ctxt) {
 		xmlPopInput(ctxt);
 }
 
-#define GROW if((ctxt->progressive == 0) &&			       \
-	    (ctxt->input->end - ctxt->input->cur < INPUT_CHUNK))   \
-		xmlGROW(ctxt);
+#define GROW if((ctxt->progressive == 0) && (ctxt->input->end - ctxt->input->cur < INPUT_CHUNK)) xmlGROW(ctxt);
 
-static void xmlGROW(xmlParserCtxtPtr ctxt) {
+static void xmlGROW(xmlParserCtxtPtr ctxt) 
+{
 	unsigned long curEnd = ctxt->input->end - ctxt->input->cur;
 	unsigned long curBase = ctxt->input->cur - ctxt->input->base;
-
-	if(((curEnd > (unsigned long)XML_MAX_LOOKUP_LIMIT) ||
-		    (curBase > (unsigned long)XML_MAX_LOOKUP_LIMIT)) &&
+	if(((curEnd > (unsigned long)XML_MAX_LOOKUP_LIMIT) || (curBase > (unsigned long)XML_MAX_LOOKUP_LIMIT)) &&
 	    ((ctxt->input->buf) && (ctxt->input->buf->readcallback != (xmlInputReadCallback)xmlNop)) &&
 	    ((ctxt->options & XML_PARSE_HUGE) == 0)) {
 		xmlFatalErr(ctxt, XML_ERR_INTERNAL_ERROR, "Huge input lookup");
 		ctxt->instate = XML_PARSER_EOF;
 	}
 	xmlParserInputGrow(ctxt->input, INPUT_CHUNK);
-	if((ctxt->input->cur != NULL) && (*ctxt->input->cur == 0) &&
-	    (xmlParserInputGrow(ctxt->input, INPUT_CHUNK) <= 0))
+	if(ctxt->input->cur && (*ctxt->input->cur == 0) && (xmlParserInputGrow(ctxt->input, INPUT_CHUNK) <= 0))
 		xmlPopInput(ctxt);
 }
 
 #define SKIP_BLANKS xmlSkipBlankChars(ctxt)
-
 #define NEXT xmlNextChar(ctxt)
-
 #define NEXT1 {								\
 		ctxt->input->col++;						\
 		ctxt->input->cur++;						\
@@ -1901,9 +1895,9 @@ static void xmlGROW(xmlParserCtxtPtr ctxt) {
  * Returns the number of space chars skipped
  */
 
-int xmlSkipBlankChars(xmlParserCtxtPtr ctxt) {
+int xmlSkipBlankChars(xmlParserCtxtPtr ctxt) 
+{
 	int res = 0;
-
 	/*
 	 * It's Okay to use CUR/NEXT here since all the blanks are on
 	 * the ASCII range.
@@ -1916,7 +1910,8 @@ int xmlSkipBlankChars(xmlParserCtxtPtr ctxt) {
 		cur = ctxt->input->cur;
 		while(IS_BLANK_CH(*cur)) {
 			if(*cur == '\n') {
-				ctxt->input->line++; ctxt->input->col = 1;
+				ctxt->input->line++; 
+				ctxt->input->col = 1;
 			}
 			else {
 				ctxt->input->col++;
@@ -1940,15 +1935,15 @@ int xmlSkipBlankChars(xmlParserCtxtPtr ctxt) {
 				cur = CUR;
 				res++;
 			}
-			while((cur == 0) && (ctxt->inputNr > 1) &&
-			    (ctxt->instate != XML_PARSER_COMMENT)) {
+			while((cur == 0) && (ctxt->inputNr > 1) && (ctxt->instate != XML_PARSER_COMMENT)) {
 				xmlPopInput(ctxt);
 				cur = CUR;
 			}
 			/*
 			 * Need to handle support of entities branching here
 			 */
-			if(*ctxt->input->cur == '%') xmlParserHandlePEReference(ctxt);
+			if(*ctxt->input->cur == '%') 
+				xmlParserHandlePEReference(ctxt);
 		} while(IS_BLANK(cur)); /* CHECKED tstblanks.xml */
 	}
 	return(res);
@@ -4915,7 +4910,7 @@ void xmlParsePI(xmlParserCtxtPtr ctxt)
 				SKIP(2);
 
 #ifdef LIBXML_CATALOG_ENABLED
-				if(((state == XML_PARSER_MISC) || (state == XML_PARSER_START)) && (xmlStrEqual(target, XML_CATALOG_PI))) {
+				if(oneof2(state, XML_PARSER_MISC, XML_PARSER_START) && (xmlStrEqual(target, XML_CATALOG_PI))) {
 					xmlCatalogAllow allow = xmlCatalogGetDefaults();
 					if((allow == XML_CATA_ALLOW_DOCUMENT) || (allow == XML_CATA_ALLOW_ALL))
 						xmlParseCatalogPI(ctxt, buf);
@@ -4924,7 +4919,7 @@ void xmlParsePI(xmlParserCtxtPtr ctxt)
 				/*
 				 * SAX: PI detected.
 				 */
-				if((ctxt->sax) && (!ctxt->disableSAX) && (ctxt->sax->processingInstruction != NULL))
+				if((ctxt->sax) && (!ctxt->disableSAX) && ctxt->sax->processingInstruction)
 					ctxt->sax->processingInstruction(ctxt->userData, target, buf);
 			}
 			free(buf);
@@ -6729,14 +6724,14 @@ void xmlParseReference(xmlParserCtxtPtr ctxt)
 					 * except for single text nodes.
 					 */
 					if(((list->type == XML_TEXT_NODE) && (list->next == NULL)) || (ctxt->parseMode == XML_PARSE_READER)) {
-						list->parent = (xmlNodePtr)ent;
+						list->parent = (xmlNode *)ent;
 						list = NULL;
 						ent->owner = 1;
 					}
 					else {
 						ent->owner = 0;
 						while(list != NULL) {
-							list->parent = (xmlNodePtr)ctxt->node;
+							list->parent = (xmlNode *)ctxt->node;
 							list->doc = ctxt->myDoc;
 							if(list->next == NULL)
 								ent->last = list;
@@ -6752,7 +6747,7 @@ void xmlParseReference(xmlParserCtxtPtr ctxt)
 				else {
 					ent->owner = 1;
 					while(list != NULL) {
-						list->parent = (xmlNodePtr)ent;
+						list->parent = (xmlNode *)ent;
 						xmlSetTreeDoc(list, ent->doc);
 						if(list->next == NULL)
 							ent->last = list;
@@ -6926,7 +6921,7 @@ void xmlParseReference(xmlParserCtxtPtr ctxt)
 						if(firstChild == NULL) {
 							firstChild = cur;
 						}
-						xmlAddChild((xmlNodePtr)ent, nw);
+						xmlAddChild((xmlNode *)ent, nw);
 						xmlAddChild(ctxt->node, cur);
 					}
 					if(cur == last)
@@ -11892,7 +11887,7 @@ int xmlParseCtxtExternalEntity(xmlParserCtxtPtr ctx, const xmlChar * URL,
 		xmlFreeDoc(newDoc);
 		return -1;
 	}
-	xmlAddChild((xmlNodePtr)newDoc, newRoot);
+	xmlAddChild((xmlNode *)newDoc, newRoot);
 	nodePush(ctxt, newDoc->children);
 	if(ctx->myDoc == NULL) {
 		ctxt->myDoc = newDoc;
@@ -12112,7 +12107,7 @@ static xmlParserErrors xmlParseExternalEntityPrivate(xmlDocPtr doc, xmlParserCtx
 		xmlFreeDoc(newDoc);
 		return(XML_ERR_INTERNAL_ERROR);
 	}
-	xmlAddChild((xmlNodePtr)newDoc, newRoot);
+	xmlAddChild((xmlNode *)newDoc, newRoot);
 	nodePush(ctxt, newDoc->children);
 	ctxt->myDoc = doc;
 	newRoot->doc = doc;
@@ -12351,7 +12346,7 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxtPtr oldc
 	}
 	ctxt->myDoc->children = NULL;
 	ctxt->myDoc->last = NULL;
-	xmlAddChild((xmlNodePtr)ctxt->myDoc, newRoot);
+	xmlAddChild((xmlNode *)ctxt->myDoc, newRoot);
 	nodePush(ctxt, ctxt->myDoc->children);
 	ctxt->instate = XML_PARSER_CONTENT;
 	ctxt->depth = oldctxt->depth + 1;
@@ -12712,7 +12707,7 @@ int xmlParseBalancedChunkMemoryRecover(xmlDocPtr doc, xmlSAXHandlerPtr sax,
 						ret = -1;
 					}
 					else {
-						xmlAddChild((xmlNodePtr)newDoc, newRoot);
+						xmlAddChild((xmlNode *)newDoc, newRoot);
 						nodePush(ctxt, newRoot);
 						if(doc == NULL) {
 							ctxt->myDoc = newDoc;
@@ -12721,7 +12716,7 @@ int xmlParseBalancedChunkMemoryRecover(xmlDocPtr doc, xmlSAXHandlerPtr sax,
 							ctxt->myDoc = newDoc;
 							newDoc->children->doc = doc;
 							// Ensure that doc has XML spec namespace 
-							xmlSearchNsByHref(doc, (xmlNodePtr)doc, XML_XML_NAMESPACE);
+							xmlSearchNsByHref(doc, (xmlNode *)doc, XML_XML_NAMESPACE);
 							newDoc->oldNs = doc->oldNs;
 						}
 						ctxt->instate = XML_PARSER_CONTENT;

@@ -2524,14 +2524,14 @@ int SLAPI ACS_CRCSHSRV::PrepareImpFileNameV10(int filTyp, const char * pName, co
 	return 1;
 }
 
-static void SLAPI RemoveQuotations(char * pBuf)
+/* @v9.7.4 static void SLAPI RemoveQuotations(char * pBuf)
 {
 	if(pBuf && pBuf[0] == '"' && pBuf[strlen(pBuf) - 1] == '"') {
 		strcpy(pBuf, pBuf + 1);
 		pBuf[strlen(pBuf) - 1] = 0;
 		strip(pBuf);
 	}
-}
+} */
 
 static void SLAPI ConvertCrystalRightsSetToCashierRights(long crystCshrRights, long * pCshrRights)
 {
@@ -2555,6 +2555,9 @@ int SLAPI ACS_CRCSHSRV::GetCashiersList()
 	if(EqCfg.CshrsPsnKindID) {
 		uint   pos, p;
 		SString buf;
+		SString cshr_name_;
+		SString cshr_tabnum_;
+		SString cshr_password_;
 		PPIDArray     psn_ary;
 		PPObjPerson   psn_obj;
 		PPObjRegister reg_obj;
@@ -2571,23 +2574,32 @@ int SLAPI ACS_CRCSHSRV::GetCashiersList()
 				int    is_kind = 0, is_reg = 0;
 				uint   i = 0;
 				long   rights = 0;
-				char   cshr_tabnum[32], cshr_name[64], cshr_password[20], cshr_rights[20];
+				//char   cshr_tabnum[32];
+				//char   cshr_name[64];
+				//char   cshr_password[20];
+				char   cshr_rights[20];
 				PPID   psn_id = 0;
 				PPPersonPacket  psn_pack;
 				PPIDArray  by_name_ary, by_num_ary;
 				StringSet ss(',', 0);
 				buf.Chomp();
 				ss.add(buf);
-				ss.get(&i, cshr_tabnum, sizeof(cshr_tabnum));       // Табельный номер
-				RemoveQuotations(cshr_tabnum);
-				ss.get(&i, cshr_name, sizeof(cshr_name));           // Имя кассира
-				SCharToOem(cshr_name);
-				RemoveQuotations(cshr_name);
-				ss.get(&i, cshr_password, sizeof(cshr_password));   // Пароль
-				RemoveQuotations(cshr_password);
+				// @v9.7.4 ss.get(&i, cshr_tabnum, sizeof(cshr_tabnum));       // Табельный номер
+				// @v9.7.4 RemoveQuotations(cshr_tabnum);
+				ss.get(&i, cshr_tabnum_);       // Табельный номер // @v9.7.4
+				cshr_tabnum_.StripQuotes(); // @v9.7.4
+				// @v9.7.4 ss.get(&i, cshr_name, sizeof(cshr_name));           // Имя кассира
+				// @v9.7.4 SCharToOem(cshr_name);
+				// @v9.7.4 RemoveQuotations(cshr_name);
+				ss.get(&i, cshr_name_);                  // Имя кассира // @v9.7.4 
+				cshr_name_.Transf(CTRANSF_INNER_TO_OUTER).StripQuotes(); // @v9.7.4 
+				// @v9.7.4 ss.get(&i, cshr_password, sizeof(cshr_password));   // Пароль
+				// @v9.7.4 RemoveQuotations(cshr_password);
+				ss.get(&i, cshr_password_);   // Пароль // @v9.7.4
+				cshr_password_.StripQuotes(); // @v9.7.4
 				ss.get(&i, cshr_rights, sizeof(cshr_rights));       // Права
 				strtolong(cshr_rights, &rights);
-				PPObjPerson::SrchAnalogPattern sap(cshr_name, PPObjPerson::sapfMatchWholeWord);
+				PPObjPerson::SrchAnalogPattern sap(cshr_name_, PPObjPerson::sapfMatchWholeWord);
 				psn_obj.GetListByPattern(&sap, &by_name_ary);
 				if(by_name_ary.getCount())
 					psn_id = by_name_ary.at(0);
@@ -2598,7 +2610,7 @@ int SLAPI ACS_CRCSHSRV::GetCashiersList()
 						psn_ary.freeByKey(by_name_ary.at(p), 0);
 					is_kind = 1;
 				}
-				reg_flt.NmbPattern = cshr_tabnum;
+				reg_flt.NmbPattern = cshr_tabnum_;
 				reg_obj.SearchByFilt(&reg_flt, 0, &by_num_ary, 0);
 				by_name_ary.intersect(&by_num_ary, 0);
 				if(by_name_ary.getCount())
@@ -2620,7 +2632,7 @@ int SLAPI ACS_CRCSHSRV::GetCashiersList()
 					if(!is_kind)
 						THROW_SL(psn_pack.Kinds.add(EqCfg.CshrsPsnKindID));
 					for(p = 0; psn_pack.Regs.GetRegister(tabnum_reg_id, &p, &reg_rec) > 0;)
-						if(strcmp(reg_rec.Num, cshr_tabnum)) {
+						if(strcmp(reg_rec.Num, cshr_tabnum_)) {
 							if(reg_rec.Expiry == ZERODATE || diffdate(reg_rec.Expiry, last_dt) > 0)
 								psn_pack.Regs.at(p-1).Expiry = last_dt;
 						}
@@ -2629,17 +2641,17 @@ int SLAPI ACS_CRCSHSRV::GetCashiersList()
 				}
 				else {
 					psn_pack.Rec.Status = PPPRS_PRIVATE;
-					STRNSCPY(psn_pack.Rec.Name, cshr_name);
+					STRNSCPY(psn_pack.Rec.Name, cshr_name_);
 					THROW_SL(psn_pack.Kinds.add(EqCfg.CshrsPsnKindID));
 				}
 				if(!is_reg) {
 					MEMSZERO(reg_rec);
 					THROW(PPObjRegister::InitPacket(&reg_rec, tabnum_reg_id, PPOBJ_PERSON, psn_id));
-					STRNSCPY(reg_rec.Num, cshr_tabnum);
+					STRNSCPY(reg_rec.Num, cshr_tabnum_);
 					THROW_SL(psn_pack.Regs.insert(&reg_rec));
 				}
 				ConvertCrystalRightsSetToCashierRights(rights, &psn_pack.CshrInfo.Rights);
-				STRNSCPY(psn_pack.CshrInfo.Password, cshr_password);
+				STRNSCPY(psn_pack.CshrInfo.Password, cshr_password_);
 				psn_pack.CshrInfo.Flags |= (CIF_CASHIER | CIF_MODIFIED);
 				THROW(psn_obj.PutPacket(&psn_id, &psn_pack, 1));
 			}

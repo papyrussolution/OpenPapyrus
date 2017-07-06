@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../tools/swceinst/;..\include;&quot;..\libxml2-2.6.19\include&quot;"
+				AdditionalIncludeDirectories="../tools/swceinst/;..\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"
@@ -75,7 +75,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../tools/swceinst/;..\include;&quot;..\libxml2-2.6.19\include&quot;"
+				AdditionalIncludeDirectories="../tools/swceinst/;..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"

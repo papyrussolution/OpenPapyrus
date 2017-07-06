@@ -5780,7 +5780,8 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 						SrDatabase * p_db = O.GetDb();
 						if(p_db) {
 							const int dont_check_existance = 1;
-							LLAssocArray node_to_way_assc_list;
+							//LLAssocArray node_to_way_assc_list;
+							Pb.NodeToWayAsscList.clear();
 							LLAssocArray * p_node_to_way_assc_list = 0;
 							if(P_NodeToWayAssocInF) {
 								SString _key_buf, _val_buf;
@@ -5788,7 +5789,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 								int64 last_node_id = (int64)NodeAccum.at(_count-1).ID;
 								if(LastNodeToWayAssoc.Key && LastNodeToWayAssoc.Val) {
 									if(LastNodeToWayAssoc.Key >= first_node_id && LastNodeToWayAssoc.Key <= last_node_id) {
-										THROW_SL(node_to_way_assc_list.insert(&LastNodeToWayAssoc));
+										THROW_SL(Pb.NodeToWayAsscList.insert(&LastNodeToWayAssoc));
 									}
 								}
 								while(P_NodeToWayAssocInF->ReadLine(Pb.LineBuf)) {
@@ -5797,7 +5798,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 										LastNodeToWayAssoc.Key = _key_buf.ToInt64();
 										LastNodeToWayAssoc.Val = _val_buf.ToInt64();
 										if(NodeAccum.bsearch(&LastNodeToWayAssoc.Key, 0, CMPF_INT64)) {
-											THROW_SL(node_to_way_assc_list.insert(&LastNodeToWayAssoc));
+											THROW_SL(Pb.NodeToWayAsscList.insert(&LastNodeToWayAssoc));
 										}
 										else if(LastNodeToWayAssoc.Key > last_node_id) {
 											break;
@@ -5806,7 +5807,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 								}
 
 							}
-							THROW(p_db->StoreGeoNodeList(NodeAccum, &node_to_way_assc_list, dont_check_existance, &Stat.NcList));
+							THROW(p_db->StoreGeoNodeList(NodeAccum, &Pb.NodeToWayAsscList, dont_check_existance, &Stat.NcList));
 						}
 						OutputStat(0);
 						// (При работе с RoadSton'ом - не катит) assert((Stat.GetNcActualCount() + Stat.GetNcProcessedCount()) == Stat.NodeCount);
@@ -7172,7 +7173,7 @@ class Pbf {
 		obuf += *osizp = osizm-(i = strm.avail_out);
 		// add some zero bytes
 		SETMIN(i, 4);
-		while(--i >= 0) 
+		while(--i >= 0)
 			*obuf++ = 0;
 		return 0;
 	}
@@ -7206,7 +7207,7 @@ class Pbf {
 		// id: id of the object;
 		uchar * mem; // address of byte in hash table
 		uint ido; // bit offset to idi;
-		if(!hash__initialized) 
+		if(!hash__initialized)
 			return;  // error prevention
 		idi += hash__max[o]<<3; // consider small negative numbers
 		ido = idi&0x7; // extract bit number (0..7)
@@ -7228,7 +7229,7 @@ class Pbf {
 		uchar * mem;
 		uint ido; // bit offset to idi;
 		bool flag;
-		if(!hash__initialized) 
+		if(!hash__initialized)
 			return 0;  // error prevention
 		idi += hash__max[o]<<3; // consider small negative numbers
 		ido = idi&0x7; // extract bit number (0..7)
@@ -7256,7 +7257,7 @@ class Pbf {
 			if(x<border__bx1 || x>border__bx2 || y<border__by1 || y>border__by2)
 				return false; // point lies outside the border box
 		}
-		{ /* second, consider border polygon (if any) */ 
+		{ /* second, consider border polygon (if any) */
 			border__edge_t  * bep; // pointer in border__edge[]
 			border__edge_t::Chain * bcp; // pointer in border__chain[]
 			int cross; // number of the crossings a line from the point
@@ -7267,15 +7268,15 @@ class Pbf {
 			cross = 0;
 			{ // binary-search the edge with the closest x1
 				int i; // iteration indexes
-				int i1 = 0; 
+				int i1 = 0;
 				int i2 = border__edge_n;
 				while(i2>i1+1) {
 					i = (i1+i2)/2;
 					bep = border__edge+i;
 					//fprintf(stderr,"s %i %i %i   %li\n",i1,i,i2,bep->x1); ///
-					if(bep->x1 > x) 
+					if(bep->x1 > x)
 						i2 = i;
-					else 
+					else
 						i1 = i;
 					//fprintf(stderr,"  %i %i %i\n",i1,i,i2); ///
 				}
@@ -7425,7 +7426,7 @@ class Pbf {
 								nodeusere = (bp += l);
 								break;
 							default:
-								{ /* block */ 
+								{ /* block */
 									static int msgn = 3;
 									if(--msgn>=0) {
 										fprintf(stderr, "pbftoosm Warning: node history element type unknown: 0x%02X 0x%02X.\n", bp[0], bp[1]);
@@ -7472,7 +7473,7 @@ class Pbf {
 					nodetagse = (bp += l);
 					break;
 				default:
-					{ /* block */ 
+					{ /* block */
 						static int msgn = 3;
 						if(--msgn>=0) {
 							fprintf(stderr, "pbftoosm Warning: dense node element type unknown: 0x%02X 0x%02X.\n", bp[0], bp[1]);
@@ -7508,7 +7509,7 @@ class Pbf {
 						fprintf(stderr, "pbftoosm Warning: wrong sequence at node %lld.\n", id);
 					oldid = id;
 				}
-				po__sequencetype = 0; 
+				po__sequencetype = 0;
 				po__sequenceid = id;
 				// write the node
 				if(border_active && !border_queryinside(lon, lat)) {
@@ -7535,14 +7536,14 @@ class Pbf {
 						hash_seti(0, id);  // mark this node id as 'inside'
 					if(!po_dropnodes) { // not to drop
 						if(po_emulateosmosis) { // emulate osmosis
-							write_str("  <node id=\""); 
+							write_str("  <node id=\"");
 							write_sint64(id);
 							if(nodever<nodevere && nodetime<nodetimee && nodecset<nodecsete && nodeuid<nodeuide && nodeuser<nodeusere) {
 								// history information available
 								write_str("\" version=\"");
 								write_uint32(pbf_uint32(&nodever));
 								histime += pbf_sint64(&nodetime);
-								write_str("\" timestamp=\""); 
+								write_str("\" timestamp=\"");
 								write_timestamp(histime);
 								hisuser += pbf_sint32(&nodeuser);
 								if(hisuser>=strm) {
@@ -7552,7 +7553,7 @@ class Pbf {
 								hisuid += pbf_sint32(&nodeuid);
 								if(hisuser!=0 && str[hisuser][0]!=0) {
 									// user name available
-									write_str("\" uid=\""); 
+									write_str("\" uid=\"");
 									write_uint32(hisuid);
 									write_str("\" user=\"");
 									write_xmlstr(str[hisuser]);
@@ -7560,24 +7561,24 @@ class Pbf {
 								hiscset += pbf_sint32(&nodecset);
 								write_str("\" changeset=\""); write_uint32(hiscset);
 							} // end   history information available
-							write_str("\" lat=\""); 
+							write_str("\" lat=\"");
 							write_sfix7(lat);
-							write_str("\" lon=\""); 
+							write_str("\" lon=\"");
 							write_sfix7(lon);
 						} // end   emulate osmosis
 						else { // not emulate osmosis
-							write_str("\t<node id=\""); 
+							write_str("\t<node id=\"");
 							write_sint64(id);
 							if(po_emulatepbf2osm) {
-								write_str("\" lat=\""); 
+								write_str("\" lat=\"");
 								write_sfix7o(lat);
-								write_str("\" lon=\""); 
+								write_str("\" lon=\"");
 								write_sfix7o(lon);
 							}
 							else {
-								write_str("\" lat=\""); 
+								write_str("\" lat=\"");
 								write_sfix7(lat);
-								write_str("\" lon=\""); 
+								write_str("\" lon=\"");
 								write_sfix7(lon);
 							}
 							if(nodever < nodevere && nodetime < nodetimee && nodecset < nodecsete && nodeuid < nodeuide && nodeuser < nodeusere) {
@@ -7585,7 +7586,7 @@ class Pbf {
 								write_str("\" version=\"");
 								write_uint32(pbf_uint32(&nodever));
 								hiscset += pbf_sint32(&nodecset);
-								write_str("\" changeset=\""); 
+								write_str("\" changeset=\"");
 								write_uint32(hiscset);
 								hisuser += pbf_sint32(&nodeuser);
 								if(hisuser>=strm) {
@@ -7600,7 +7601,7 @@ class Pbf {
 									write_str("\" uid=\""); write_uint32(hisuid);
 								}
 								histime += pbf_sint64(&nodetime);
-								write_str("\" timestamp=\""); 
+								write_str("\" timestamp=\"");
 								write_timestamp(histime);
 							}
 						}
@@ -7614,9 +7615,9 @@ class Pbf {
 									fprintf(stderr, "pbftoosm Error: key/val string index overflow: %u->%u,%u\n", strm, key, val);
 									return 1;
 								}
-								write_str("\t\t<tag k=\""); 
+								write_str("\t\t<tag k=\"");
 								write_xmlstr(str[key]);
-								write_str("\" v=\""); 
+								write_str("\" v=\"");
 								write_xmlstr(str[val]);
 								write_str("\" />\n");
 								key = pbf_uint32(&nodetags);
@@ -7784,7 +7785,7 @@ class Pbf {
 						fprintf(stderr, "pbftoosm Warning: wrong sequence at way %lld.\n", id);
 					oldid = id;
 				}
-				po__sequencetype = 1; 
+				po__sequencetype = 1;
 				po__sequenceid = id;
 				reftabp = reftabe = reftab;
 				noderef = 0;
@@ -7801,7 +7802,7 @@ class Pbf {
 						*reftabe++ = noderef;
 						if(hash_geti(0, noderef)) {
 							//{static int msgn=3; if(--msgn>=0) fprintf(stderr,"X %lli\n",id);}
-							inside = true; 
+							inside = true;
 							goto po__d_pg_ways_inside;
 						}
 					}
@@ -7811,7 +7812,7 @@ class Pbf {
 						noderef += pbf_sint64(&waynode_dyn);
 						if(hash_geti(0, noderef)) {
 							//{static int msgn=3; if(--msgn>=0) fprintf(stderr,"Y %lli\n",id);}
-							inside = true; 
+							inside = true;
 							goto po__d_pg_ways_inside;
 						}
 					}
@@ -7825,9 +7826,9 @@ po__d_pg_ways_inside:;
 						write_str("\t<way id=\"");
 						write_sint64(id);
 						if((hiscomplete&7)==7) { // history information is complete
-							write_str("\" version=\""); 
+							write_str("\" version=\"");
 							write_uint32(hisver);
-							write_str("\" changeset=\""); 
+							write_str("\" changeset=\"");
 							write_uint32(hiscset);
 							if((hiscomplete&24)==24 && str[hisuser][0]!=0) {
 								// user name available
@@ -7858,7 +7859,7 @@ po__d_pg_ways_inside:;
 							noderef += pbf_sint64(&waynode);
 							if(!po_dropbrokenrefs || hash_geti(0, noderef)) {
 								// referenced node lies inside the borders
-								write_str("\t\t<nd ref=\""); 
+								write_str("\t\t<nd ref=\"");
 								write_sint64(noderef);
 								write_str("\"/>\n");
 							} // end   referenced node lies inside the borders
@@ -8065,7 +8066,7 @@ po__d_pg_ways_inside:;
 						fprintf(stderr, "pbftoosm Warning: wrong sequence at relation %lld.\n", id);
 					oldid = id;
 				}
-				po__sequencetype = 2; 
+				po__sequencetype = 2;
 				po__sequenceid = id;
 				reftabp = reftabe = reftab;
 				reftypetabp = reftypetab;
@@ -8124,12 +8125,12 @@ po__d_pg_refs_outside:;
 								fprintf(stderr, "pbftoosm Error: rel user string index overflow: %u->%u\n", strM, hisuser);
 								return 1;
 							}
-							write_str("\" uid=\""); 
+							write_str("\" uid=\"");
 							write_uint32(hisuid);
-							write_str("\" user=\""); 
+							write_str("\" user=\"");
 							write_xmlstr(ppStr[hisuser]);
 						}
-						write_str("\" timestamp=\""); 
+						write_str("\" timestamp=\"");
 						write_timestamp(histime);
 					}
 					write_str("\">\n");
@@ -8182,14 +8183,14 @@ po__d_pg_refs_outside:;
 	#if 0
 		fprintf(stderr, "X %p %p %p %u\n", buf, bufe, str, strm);
 		int i = 3000;
-		while(--i>0 && bp<bufe) 
+		while(--i>0 && bp<bufe)
 			putchar(*bp++);
 		static int j = 3;
 		if(--j<0) exit(0);
 	#endif
 	#if 0
 		int i = 0;
-		do 
+		do
 			printf("str[%2i]: %s\n", i, str[i]);
 		while(++i<=40 && i<strm);
 		exit(0);
@@ -8355,7 +8356,7 @@ po__d_pg_refs_outside:;
 						} // end   S 1, string
 						else { // element type unknown
 							const uint8 * p;
-							{ // block 
+							{ // block
 								static int msgn = 3;
 								if(--msgn>=0) {
 									fprintf(stderr, "pbftoosm Warning: string table element type unknown: 0x%02X 0x%02X.\n", bp[0], bp[1]);
@@ -8445,7 +8446,7 @@ po__d_pg_refs_outside:;
 					bp = bpge;
 					break;
 				case 0x88: // 0x01 V 17, nanodegrees
-					if(bp[1]!=0x01) 
+					if(bp[1]!=0x01)
 						goto po__d_unknown;
 					bp += 2;
 					l = pbf_uint32(&bp);
@@ -8455,17 +8456,17 @@ po__d_pg_refs_outside:;
 					}
 					break;
 				case 0x90: // 0x01 V 18, millisec
-					if(bp[1]!=0x01) 
+					if(bp[1]!=0x01)
 						goto po__d_unknown;
 					bp += 2;
 					l = pbf_uint32(&bp);
 					if(l!=1000) {
-						fprintf(stderr, "pbftoosm Error: node milliseconds must be 1000: %u\n", l); 
+						fprintf(stderr, "pbftoosm Error: node milliseconds must be 1000: %u\n", l);
 						return 1;
 					}
 					break;
 				case 0x98: // 0x01 V 19, latitude offset
-					if(bp[1]!=0x01) 
+					if(bp[1]!=0x01)
 						goto po__d_unknown;
 					bp += 2;
 					if(pbf_sint64(&bp)!=0) {
@@ -8474,7 +8475,7 @@ po__d_pg_refs_outside:;
 					}
 					break;
 				case 0xa0: // 0x01 V 20, longitude offset
-					if(bp[1]!=0x01) 
+					if(bp[1]!=0x01)
 						goto po__d_unknown;
 					bp += 2;
 					if(pbf_sint64(&bp)!=0) {

@@ -580,7 +580,7 @@ int SLAPI PPViewCCheck::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY_P1(CCheckFiltDialog, BIN(State & stHasExt), p_filt);
 }
 
-int SLAPI PPViewCCheck::PreprocessCheckRec(const CCheckTbl::Rec * pRec, CCheckTbl::Rec & rResultRec, CCheckExtTbl::Rec & rExtRec)
+void SLAPI PPViewCCheck::PreprocessCheckRec(const CCheckTbl::Rec * pRec, CCheckTbl::Rec & rResultRec, CCheckExtTbl::Rec & rExtRec)
 {
 	rResultRec = *pRec;
 	MEMSZERO(rExtRec);
@@ -591,7 +591,6 @@ int SLAPI PPViewCCheck::PreprocessCheckRec(const CCheckTbl::Rec * pRec, CCheckTb
 			rResultRec.Tm = rExtRec.CreationDtm.t;
 		}
 	}
-	return 1;
 }
 
 int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CCheckExtTbl::Rec * pExtRec)

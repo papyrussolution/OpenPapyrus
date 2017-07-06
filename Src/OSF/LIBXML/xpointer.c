@@ -245,9 +245,9 @@ static void xmlXPtrRangeCheckOrder(xmlXPathObjectPtr range)
 		return;
 	if(range->user2 == NULL)
 		return;
-	tmp = xmlXPtrCmpPoints((xmlNodePtr)range->user, range->index, (xmlNodePtr)range->user2, range->index2);
+	tmp = xmlXPtrCmpPoints((xmlNode *)range->user, range->index, (xmlNode *)range->user2, range->index2);
 	if(tmp == -1) {
-		tmp2 = (xmlNodePtr)range->user;
+		tmp2 = (xmlNode *)range->user;
 		range->user = range->user2;
 		range->user2 = tmp2;
 		tmp = range->index;
@@ -923,7 +923,7 @@ static void xmlXPtrEvalXPtrPart(xmlXPathParserContextPtr ctxt, xmlChar * name)
 		 *   context position initalized to 1
 		 *   context size initialized to 1
 		 */
-		ctxt->context->node = (xmlNodePtr)ctxt->context->doc;
+		ctxt->context->node = (xmlNode *)ctxt->context->doc;
 		ctxt->context->proximityPosition = 1;
 		ctxt->context->contextSize = 1;
 		xmlXPathEvalExpr(ctxt);
@@ -1246,7 +1246,7 @@ xmlXPathObjectPtr xmlXPtrEval(const xmlChar * str, xmlXPathContextPtr ctx)
 					 */
 					xmlNodeSetPtr set;
 					set = tmp->nodesetval;
-					if((set->nodeNr != 1) || (set->nodeTab[0] != (xmlNodePtr)ctx->doc))
+					if((set->nodeNr != 1) || (set->nodeTab[0] != (xmlNode *)ctx->doc))
 						stack++;
 				}
 				else
@@ -1286,10 +1286,10 @@ static xmlNodePtr xmlXPtrBuildRangeNodeList(xmlXPathObjectPtr range)
 		return 0;
 	if(range->type != XPATH_RANGE)
 		return 0;
-	start = (xmlNodePtr)range->user;
+	start = (xmlNode *)range->user;
 	if((start == NULL) || (start->type == XML_NAMESPACE_DECL))
 		return 0;
-	end = (xmlNodePtr)range->user2;
+	end = (xmlNode *)range->user2;
 	if(end == NULL)
 		return(xmlCopyNode(start, 1));
 	if(end->type == XML_NAMESPACE_DECL)
@@ -1519,7 +1519,7 @@ xmlNodePtr xmlXPtrBuildNodeList(xmlXPathObjectPtr obj)
 		case XPATH_RANGE:
 		    return(xmlXPtrBuildRangeNodeList(obj));
 		case XPATH_POINT:
-		    return xmlCopyNode((xmlNodePtr)obj->user, 0);
+		    return xmlCopyNode((xmlNode *)obj->user, 0);
 		default:
 		    break;
 	}
@@ -1662,10 +1662,10 @@ static void xmlXPtrStartPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
 				point = NULL;
 				switch(tmp->type) {
 					case XPATH_POINT:
-						point = xmlXPtrNewPoint((xmlNodePtr)tmp->user, tmp->index);
+						point = xmlXPtrNewPoint((xmlNode *)tmp->user, tmp->index);
 						break;
 					case XPATH_RANGE: {
-						xmlNodePtr node = (xmlNodePtr)tmp->user;
+						xmlNodePtr node = (xmlNode *)tmp->user;
 						if(node) {
 							if(node->type == XML_ATTRIBUTE_NODE) {
 								/* TODO: Namespace Nodes ??? */
@@ -1754,10 +1754,10 @@ static void xmlXPtrEndPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
 			point = NULL;
 			switch(tmp->type) {
 				case XPATH_POINT:
-				    point = xmlXPtrNewPoint((xmlNodePtr)tmp->user, tmp->index);
+				    point = xmlXPtrNewPoint((xmlNode *)tmp->user, tmp->index);
 				    break;
 				case XPATH_RANGE: {
-				    xmlNodePtr node = (xmlNodePtr)tmp->user2;
+				    xmlNodePtr node = (xmlNode *)tmp->user2;
 				    if(node) {
 					    if(node->type == XML_ATTRIBUTE_NODE) {
 						    /* TODO: Namespace Nodes ??? */
@@ -1806,14 +1806,14 @@ static xmlXPathObjectPtr xmlXPtrCoveringRange(xmlXPathParserContextPtr ctxt, xml
 		return 0;
 	switch(loc->type) {
 		case XPATH_POINT:
-		    return xmlXPtrNewRange((xmlNodePtr)loc->user, loc->index, (xmlNodePtr)loc->user, loc->index);
+		    return xmlXPtrNewRange((xmlNode *)loc->user, loc->index, (xmlNode *)loc->user, loc->index);
 		case XPATH_RANGE:
 		    if(loc->user2) {
-			    return xmlXPtrNewRange((xmlNodePtr)loc->user, loc->index, (xmlNodePtr)loc->user2, loc->index2);
+			    return xmlXPtrNewRange((xmlNode *)loc->user, loc->index, (xmlNode *)loc->user2, loc->index2);
 		    }
 		    else {
-			    xmlNodePtr node = (xmlNodePtr)loc->user;
-			    if(node == (xmlNodePtr)ctxt->context->doc) {
+			    xmlNodePtr node = (xmlNode *)loc->user;
+			    if(node == (xmlNode *)ctxt->context->doc) {
 				    return xmlXPtrNewRange(node, 0, node, xmlXPtrGetArity(node));
 			    }
 			    else {
@@ -1917,7 +1917,7 @@ static xmlXPathObjectPtr xmlXPtrInsideRange(xmlXPathParserContextPtr ctxt, xmlXP
 		return 0;
 	switch(loc->type) {
 		case XPATH_POINT: {
-		    xmlNodePtr node = (xmlNodePtr)loc->user;
+		    xmlNodePtr node = (xmlNode *)loc->user;
 		    switch(node->type) {
 			    case XML_PI_NODE:
 			    case XML_COMMENT_NODE:
@@ -1945,9 +1945,9 @@ static xmlXPathObjectPtr xmlXPtrInsideRange(xmlXPathParserContextPtr ctxt, xmlXP
 		    return 0;
 	    }
 		case XPATH_RANGE: {
-		    xmlNodePtr node = (xmlNodePtr)loc->user;
+		    xmlNodePtr node = (xmlNode *)loc->user;
 		    if(loc->user2) {
-			    return xmlXPtrNewRange(node, loc->index, (xmlNodePtr)loc->user2, loc->index2);
+			    return xmlXPtrNewRange(node, loc->index, (xmlNode *)loc->user2, loc->index2);
 		    }
 		    else {
 			    switch(node->type) {
@@ -2456,14 +2456,14 @@ static int xmlXPtrGetStartPoint(xmlXPathObjectPtr obj, xmlNodePtr * node, int * 
 	if(obj && node && indx) {
 		switch(obj->type) {
 			case XPATH_POINT:
-				*node = (xmlNodePtr)obj->user;
+				*node = (xmlNode *)obj->user;
 				if(obj->index <= 0)
 					*indx = 0;
 				else
 					*indx = obj->index;
 				return 0;
 			case XPATH_RANGE:
-				*node = (xmlNodePtr)obj->user;
+				*node = (xmlNode *)obj->user;
 				if(obj->index <= 0)
 					*indx = 0;
 				else
@@ -2492,14 +2492,14 @@ static int xmlXPtrGetEndPoint(xmlXPathObjectPtr obj, xmlNodePtr * node, int * in
 		return -1;
 	switch(obj->type) {
 		case XPATH_POINT:
-		    *node = (xmlNodePtr)obj->user;
+		    *node = (xmlNode *)obj->user;
 		    if(obj->index <= 0)
 			    *indx = 0;
 		    else
 			    *indx = obj->index;
 		    return 0;
 		case XPATH_RANGE:
-		    *node = (xmlNodePtr)obj->user;
+		    *node = (xmlNode *)obj->user;
 		    if(obj->index <= 0)
 			    *indx = 0;
 		    else
@@ -2716,7 +2716,7 @@ void xmlXPtrEvalRangePredicate(xmlXPathParserContextPtr ctxt)
 				* Run the evaluation with a node list made of a single item
 				* in the nodeset.
 				*/
-				ctxt->context->node = (xmlNodePtr)oldset->locTab[i]->user;
+				ctxt->context->node = (xmlNode *)oldset->locTab[i]->user;
 				tmp = xmlXPathNewNodeSet(ctxt->context->node);
 				valuePush(ctxt, tmp);
 				ctxt->context->contextSize = oldset->locNr;

@@ -277,7 +277,7 @@ static void xmlCtxtGenericNodeCheck(xmlDebugCtxtPtr ctxt, xmlNodePtr node)
 	if(node->prev == NULL) {
 		if(node->type == XML_ATTRIBUTE_NODE) {
 			if((node->parent != NULL) &&
-			    (node != (xmlNodePtr)node->parent->properties))
+			    (node != (xmlNode *)node->parent->properties))
 				xmlDebugErr(ctxt, XML_CHECK_NO_PREV,
 				    "Attr has no prev and not first of attr list\n");
 		}
@@ -421,7 +421,7 @@ static void xmlCtxtDumpDtdNode(xmlDebugCtxtPtr ctxt, xmlDtdPtr dtd)
 		/*
 		* Do a bit of checking
 		*/
-		xmlCtxtGenericNodeCheck(ctxt, (xmlNodePtr)dtd);
+		xmlCtxtGenericNodeCheck(ctxt, (xmlNode *)dtd);
 	}
 }
 
@@ -527,7 +527,7 @@ static void xmlCtxtDumpAttrDecl(xmlDebugCtxtPtr ctxt, xmlAttributePtr attr)
 	/*
 	 * Do a bit of checking
 	 */
-	xmlCtxtGenericNodeCheck(ctxt, (xmlNodePtr)attr);
+	xmlCtxtGenericNodeCheck(ctxt, (xmlNode *)attr);
 }
 
 static void xmlCtxtDumpElemDecl(xmlDebugCtxtPtr ctxt, xmlElementPtr elem)
@@ -580,7 +580,7 @@ static void xmlCtxtDumpElemDecl(xmlDebugCtxtPtr ctxt, xmlElementPtr elem)
 		/*
 		* Do a bit of checking
 		*/
-		xmlCtxtGenericNodeCheck(ctxt, (xmlNodePtr)elem);
+		xmlCtxtGenericNodeCheck(ctxt, (xmlNode *)elem);
 	}
 }
 
@@ -647,7 +647,7 @@ static void xmlCtxtDumpEntityDecl(xmlDebugCtxtPtr ctxt, xmlEntityPtr ent)
 		/*
 		* Do a bit of checking
 		*/
-		xmlCtxtGenericNodeCheck(ctxt, (xmlNodePtr)ent);
+		xmlCtxtGenericNodeCheck(ctxt, (xmlNode *)ent);
 	}
 }
 
@@ -767,7 +767,7 @@ static void xmlCtxtDumpAttr(xmlDebugCtxtPtr ctxt, xmlAttrPtr attr)
 		/*
 		* Do a bit of checking
 		*/
-		xmlCtxtGenericNodeCheck(ctxt, (xmlNodePtr)attr);
+		xmlCtxtGenericNodeCheck(ctxt, (xmlNode *)attr);
 	}
 }
 
@@ -1015,7 +1015,7 @@ static void xmlCtxtDumpDocHead(xmlDebugCtxtPtr ctxt, xmlDocPtr doc)
 			fprintf(ctxt->output, "DOCUMENT == NULL !\n");
 		return;
 	}
-	ctxt->node = (xmlNodePtr)doc;
+	ctxt->node = (xmlNode *)doc;
 
 	switch(doc->type) {
 		case XML_ELEMENT_NODE:
@@ -2353,7 +2353,7 @@ int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename,
 #endif /* LIBXML_XPATH_ENABLED */
 		free(ctxt->filename);
 		ctxt->doc = doc;
-		ctxt->node = (xmlNodePtr)doc;
+		ctxt->node = (xmlNode *)doc;
 #ifdef LIBXML_XPATH_ENABLED
 		ctxt->pctxt = xmlXPathNewContext(doc);
 #endif /* LIBXML_XPATH_ENABLED */
@@ -2685,7 +2685,7 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input,
 	ctxt->input = input;
 	ctxt->output = output;
 	ctxt->filename = (char*)xmlStrdup((xmlChar*)filename);
-	ctxt->node = (xmlNodePtr)ctxt->doc;
+	ctxt->node = (xmlNode *)ctxt->doc;
 
 #ifdef LIBXML_XPATH_ENABLED
 	ctxt->pctxt = xmlXPathNewContext(ctxt->doc);
@@ -2695,7 +2695,7 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input,
 	}
 #endif /* LIBXML_XPATH_ENABLED */
 	while(1) {
-		if(ctxt->node == (xmlNodePtr)ctxt->doc)
+		if(ctxt->node == (xmlNode *)ctxt->doc)
 			snprintf(prompt, sizeof(prompt), "%s > ", "/");
 		else if((ctxt->node != NULL) && (ctxt->node->name) &&
 		    (ctxt->node->ns) && (ctxt->node->ns->prefix))
@@ -3085,7 +3085,7 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input,
 		}
 		else if(!strcmp(command, "cd")) {
 			if(arg[0] == 0) {
-				ctxt->node = (xmlNodePtr)ctxt->doc;
+				ctxt->node = (xmlNode *)ctxt->doc;
 			}
 			else {
 #ifdef LIBXML_XPATH_ENABLED

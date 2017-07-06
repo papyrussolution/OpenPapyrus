@@ -1540,7 +1540,7 @@ int xmlInitParserCtxt(xmlParserCtxtPtr ctxt)
 
 	/* Allocate the Node stack */
 	if(ctxt->nodeTab == NULL) {
-		ctxt->nodeTab = (xmlNodePtr*)xmlMalloc(10 * sizeof(xmlNodePtr));
+		ctxt->nodeTab = (xmlNodePtr*)xmlMalloc(10 * sizeof(xmlNode *));
 		ctxt->nodeMax = 10;
 	}
 	if(ctxt->nodeTab == NULL) {
@@ -1868,7 +1868,7 @@ void xmlParserAddNodeInfo(xmlParserCtxtPtr ctxt, const xmlParserNodeInfoPtr info
 {
 	if(ctxt && info) {
 		/* Find pos and check to see if node is already in the sequence */
-		unsigned long pos = xmlParserFindNodeInfoIndex(&ctxt->node_seq, (xmlNodePtr)info->node);
+		unsigned long pos = xmlParserFindNodeInfoIndex(&ctxt->node_seq, (xmlNode *)info->node);
 		if((pos < ctxt->node_seq.length) && (ctxt->node_seq.buffer != NULL) && (ctxt->node_seq.buffer[pos].node == info->node)) {
 			ctxt->node_seq.buffer[pos] = *info;
 		}

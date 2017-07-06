@@ -603,7 +603,7 @@ static void htmlDtdDumpOutput(xmlOutputBufferPtr buf, xmlDocPtr doc,
 	xmlDtdPtr cur = doc->intSubset;
 
 	if(cur == NULL) {
-		htmlSaveErr(XML_SAVE_NO_DOCTYPE, (xmlNodePtr)doc, NULL);
+		htmlSaveErr(XML_SAVE_NO_DOCTYPE, (xmlNode *)doc, NULL);
 		return;
 	}
 	xmlOutputBufferWriteString(buf, "<!DOCTYPE ");

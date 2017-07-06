@@ -224,7 +224,7 @@ static void xmlReportError(xmlErrorPtr err, xmlParserCtxtPtr ctxt, const char * 
 		code = err->code;
 		domain = err->domain;
 		level = err->level;
-		node = (xmlNodePtr)err->node;
+		node = (xmlNode *)err->node;
 		if(code == XML_ERR_OK)
 			return;
 		if(node && node->type == XML_ELEMENT_NODE)
@@ -407,7 +407,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel,
     const char * msg, ...)
 {
 	xmlParserCtxtPtr ctxt = NULL;
-	xmlNodePtr node = (xmlNodePtr)nod;
+	xmlNodePtr node = (xmlNode *)nod;
 	char * str = NULL;
 	xmlParserInputPtr input = NULL;
 	xmlErrorPtr to = &xmlLastError;

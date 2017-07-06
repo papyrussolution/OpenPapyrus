@@ -658,7 +658,6 @@ int PPDrvSberTrmnl::GetSessReport(SString & rCheck)
 	// Так как даже при ошибке глупая сберовская dll не возвращает ошибку в result, а пишет только в Rcode, то делаем такую хитрость
 	result = atoi(auth_answr.Rcode);
     THROWERR(result == SBRBNK_ERR_OK, SBRBNK_ERR_CLOSEDAY);
-
 	CATCH
 		ok = 0;
 		{

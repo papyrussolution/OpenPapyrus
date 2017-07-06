@@ -1299,7 +1299,7 @@ static void xhtmlAttrListDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur) {
 				xmlFreeNode(cur->children);
 			cur->children = xmlNewText(cur->name);
 			if(cur->children != NULL)
-				cur->children->parent = (xmlNodePtr)cur;
+				cur->children->parent = (xmlNode *)cur;
 		}
 		xmlAttrDumpOutput(ctxt, cur);
 		cur = cur->next;
@@ -1527,7 +1527,7 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 	}
 	if(cur->properties != NULL)
 		xhtmlAttrListDumpOutput(ctxt, cur->properties);
-	if((cur->type == XML_ELEMENT_NODE) && cur->parent && (cur->parent->parent == (xmlNodePtr)cur->doc) &&
+	if((cur->type == XML_ELEMENT_NODE) && cur->parent && (cur->parent->parent == (xmlNode *)cur->doc) &&
 	    xmlStrEqual(cur->name, BAD_CAST "head") && xmlStrEqual(cur->parent->name, BAD_CAST "html")) {
 		tmp = cur->children;
 		while(tmp != NULL) {
@@ -2025,7 +2025,7 @@ void xmlBufAttrSerializeTxtContent(xmlBufPtr buf, xmlDocPtr doc, xmlAttrPtr attr
 				if(base != cur)
 					xmlBufAdd(buf, base, cur - base);
 				if(*cur < 0xC0) {
-					xmlSaveErr(XML_SAVE_NOT_UTF8, (xmlNodePtr)attr, NULL);
+					xmlSaveErr(XML_SAVE_NOT_UTF8, (xmlNode *)attr, NULL);
 					if(doc != NULL)
 						doc->encoding = xmlStrdup(BAD_CAST "ISO-8859-1");
 					xmlSerializeHexCharRef(tmp, *cur);
@@ -2059,7 +2059,7 @@ void xmlBufAttrSerializeTxtContent(xmlBufPtr buf, xmlDocPtr doc, xmlAttrPtr attr
 					l = 4;
 				}
 				if((l == 1) || (!IS_CHAR(val))) {
-					xmlSaveErr(XML_SAVE_CHAR_INVALID, (xmlNodePtr)attr, NULL);
+					xmlSaveErr(XML_SAVE_CHAR_INVALID, (xmlNode *)attr, NULL);
 					if(doc != NULL)
 						doc->encoding = xmlStrdup(BAD_CAST "ISO-8859-1");
 					xmlSerializeHexCharRef(tmp, *cur);
@@ -2322,7 +2322,7 @@ void xmlDocDumpFormatMemoryEnc(xmlDocPtr out_doc, xmlChar ** doc_txt_ptr, int * 
 			if(txt_encoding != NULL) {
 				conv_hdlr = xmlFindCharEncodingHandler(txt_encoding);
 				if(conv_hdlr == NULL) {
-					xmlSaveErr(XML_SAVE_UNKNOWN_ENCODING, (xmlNodePtr)out_doc, txt_encoding);
+					xmlSaveErr(XML_SAVE_UNKNOWN_ENCODING, (xmlNode *)out_doc, txt_encoding);
 					return;
 				}
 			}

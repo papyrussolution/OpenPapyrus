@@ -10072,9 +10072,9 @@ public:
 	//   массива ShLots (если, конечно, он не нулевой) либо предварительно вызвать ее с нулевым параметром
 	//   shadow. Эта функция самостоятельно инициализирует пакет shadow.
 	//
-	int    SLAPI CreateShadowPacket(PPBillPacket * shadow);
+	int    SLAPI CreateShadowPacket(PPBillPacket * pShadow);
 	int    SLAPI CreateBlankBySample(PPID sampleBillID, int use_ta);
-	int    SLAPI CreateBlankByFilt(PPID opID, const BillFilt *, int use_ta);
+	int    SLAPI CreateBlankByFilt(PPID opID, const BillFilt * pFilt, int use_ta);
 	//
 	struct SetupObjectBlock {
 		SLAPI  SetupObjectBlock();
@@ -10515,7 +10515,7 @@ public:
 		pfIgnoreStatusRestr     = 0x00004000, // @v8.6.6 При изменении документа игнорировать ограничения статуса
 		pfForceRByBill          = 0x00008000, // @v8.8.6 Для новых строк документа использовать тот RByBill, который указан (не обнулять)
 		pfNoLoadTrfr            = 0x00010000, // @v9.4.3 @construction При загрузке и обработке документа не следует загружать товарные строки
-		pfUpdateProhited        = 0x00020000  // @v9.5.1 Проведение этого пакета функцией PPObjBill::UpdatePacket запрещено
+		pfUpdateProhibited      = 0x00020000  // @v9.5.1 Проведение этого пакета функцией PPObjBill::UpdatePacket запрещено
 			// (например, по причене не полной загрузки).
 	};
 	long   ProcessFlags;       // @transient
@@ -17891,7 +17891,7 @@ struct PPAccount { // @persistent
 
 struct PPAccountPacket {
 	SLAPI  PPAccountPacket();
-	int    SLAPI  Init();
+	void   SLAPI  Init();
 	PPAccountPacket & FASTCALL operator = (const PPAccountPacket &);
 
 	//PPAccount Rec;
@@ -33492,7 +33492,7 @@ struct ObjTransmitParam {
 		fRecoverTransmission     = 0x0002, // @v8.2.3 Специальный флаг, указывающий на то, что пакет передачи содержит
 			// восстановительные данные для раздела-получателя //
 		//
-		// @v9.7.2 
+		// @v9.7.2
 		// В подавляющем большинстве случаев объекты передаются выборкой. Однако, иногда,
 		// по-умолчанию передача осуществляется только для выбранного объекта (например, в кассовых сессиях).
 		// Для ручного переопределения такого поведения применяются следущие 2 флага.
@@ -38814,7 +38814,7 @@ private:
 	SString &   SLAPI GetCtColumnTitle(int ct, SString & rBuf);
 	int    SLAPI IsTempTblNeeded() const;
 	int    SLAPI DoProcessLines() const;
-	int    SLAPI PreprocessCheckRec(const CCheckTbl::Rec * pRec, CCheckTbl::Rec & rResultRec, CCheckExtTbl::Rec & rExtRec);
+	void   SLAPI PreprocessCheckRec(const CCheckTbl::Rec * pRec, CCheckTbl::Rec & rResultRec, CCheckExtTbl::Rec & rExtRec);
 	int    SLAPI ProcessCheckRec(const CCheckTbl::Rec * pRec, BExtInsert * pBei);
 	int    FASTCALL CheckForFilt(const CCheckTbl::Rec * pRec, const CCheckExtTbl::Rec * pExtRec);
 	int    FASTCALL CheckLineForFilt(const CCheckLineTbl::Rec & rLnRec);
@@ -45938,6 +45938,7 @@ private:
 		SString LineBuf;
 		SString TagKeyBuf; // Временный буфер для хранения ключа тега
 		SString TagValBuf; // Временный буфер для хранения значения тега
+		LLAssocArray NodeToWayAsscList;
 	};
 
 	ProcessBlock Pb;

@@ -661,7 +661,7 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 			SETFLAG(gct_filt.Flags, OPG_SKIPNOUPDLOTREST, 1); // @v8.9.0
 			SETFLAG(gct_filt.Flags, OPG_STOREDAYLYRESTS, Filt.Flags & TrfrAnlzFilt::fCalcRest); // @v9.1.3
 			// @v9.4.10 {
-			if(GCTIterator::AnalyzeOp(Filt.OpID, 0) & GCTIterator::aorfThereAreDrafts) {
+			if(GCTIterator::AnalyzeOp(Filt.OpID, 0) & (GCTIterator::aorfThereAreDrafts|GCTIterator::aorfThereAreOrders)) {
 				SETFLAG(gct_filt.Flags, OPG_COMPAREWROFF, Filt.Flags & TrfrAnlzFilt::fCmpWrOff);
 			}
 			// } @v9.4.10
@@ -2854,8 +2854,8 @@ void TrfrAnlzFiltDialog::SetupCtrls()
 	const ushort v = getCtrlUInt16(CTL_GTO_GRPDATE);
 	disableCtrl(CTL_GTO_ORDER, v);
 	// @v9.4.10 {
-	const PPID  op_id = getCtrlLong(CTLSEL_GTO_OPR);
-	const int enable_cmp_wroff = BIN(op_id && (GCTIterator::AnalyzeOp(op_id, 0) & GCTIterator::aorfThereAreDrafts));
+	const PPID op_id = getCtrlLong(CTLSEL_GTO_OPR);
+	const int  enable_cmp_wroff = BIN(op_id && (GCTIterator::AnalyzeOp(op_id, 0) & (GCTIterator::aorfThereAreDrafts|GCTIterator::aorfThereAreOrders)));
 	DisableClusterItem(CTL_GTO_FLAGS, 4, !enable_cmp_wroff);
 	// } @v9.4.10
 	DisableClusterItem(CTL_GTO_FLAGS, 5, (!enable_cmp_wroff || !(Data.Flags & TrfrAnlzFilt::fCmpWrOff))); // @v9.5.8
@@ -2893,7 +2893,7 @@ void TrfrAnlzFiltDialog::SetupCtrls()
 			enableCommand(cmGoodsFilt, 1);
 	}
 	disableCtrl(CTLSEL_GTO_OBJECT, flags & TrfrAnlzFilt::fShowAllArticles);
-	disableCtrl(CTLSEL_GTO_AGENT, flags & TrfrAnlzFilt::fShowAllAgents);
+	disableCtrl(CTLSEL_GTO_AGENT,  flags & TrfrAnlzFilt::fShowAllAgents);
 	if(flags & TrfrAnlzFilt::fShowAllGoods)
 		disableCtrls(1, CTLSEL_GTO_GOODS, CTLSEL_GTO_GGRP, 0L);
 }

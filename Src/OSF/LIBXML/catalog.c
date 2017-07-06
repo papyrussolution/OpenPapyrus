@@ -597,7 +597,7 @@ static int xmlDumpXMLCatalog(FILE * out, xmlCatalogEntryPtr catal)
 	dtd = xmlNewDtd(doc, BAD_CAST "catalog",
 	    BAD_CAST "-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN",
 	    BAD_CAST "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd");
-	xmlAddChild((xmlNodePtr)doc, (xmlNodePtr)dtd);
+	xmlAddChild((xmlNode *)doc, (xmlNode *)dtd);
 	ns = xmlNewNs(NULL, XML_CATALOGS_NAMESPACE, NULL);
 	if(ns == NULL) {
 		xmlFreeDoc(doc);
@@ -610,7 +610,7 @@ static int xmlDumpXMLCatalog(FILE * out, xmlCatalogEntryPtr catal)
 		return -1;
 	}
 	catalog->nsDef = ns;
-	xmlAddChild((xmlNodePtr)doc, catalog);
+	xmlAddChild((xmlNode *)doc, catalog);
 	xmlDumpXMLCatalogNode(catal, catalog, doc, ns, NULL);
 	/*
 	 * reserialize it
@@ -1222,7 +1222,7 @@ static xmlCatalogEntryPtr xmlParseXMLCatalogFile(xmlCatalogPrefer prefer, const 
 		xmlParseXMLCatalogNodeList(cur, prefer, parent, NULL);
 	}
 	else {
-		xmlCatalogErr(NULL, (xmlNodePtr)doc, XML_CATALOG_NOT_CATALOG, "File %s is not an XML Catalog\n", filename, NULL, NULL);
+		xmlCatalogErr(NULL, (xmlNode *)doc, XML_CATALOG_NOT_CATALOG, "File %s is not an XML Catalog\n", filename, NULL, NULL);
 		xmlFreeDoc(doc);
 		return 0;
 	}

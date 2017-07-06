@@ -3448,7 +3448,7 @@ int SLAPI PPBillExporter::Init(const PPBillImpExpParam * pBillParam, const PPBil
 					THROW(!P_IEBRow->IsCtrError());
 					THROW(P_IEBRow->OpenFileForWriting(0, 1, pResultFileList));
 				}
-				// @v7.1.10 Если имя файла задано шаблоном, то оно могло измениться { //
+				// Если имя файла задано шаблоном, то оно могло измениться { //
 				BillParam.FileName = P_IEBill->GetParam().FileName;
 				BRowParam.FileName = P_IEBRow->GetParam().FileName;
 				// }
@@ -4028,8 +4028,14 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 				// } @vmiller
 			}
 		}
-		if(pPack->P_Freight) {
-			const PPID dlvr_addr_id = pPack->P_Freight->DlvrAddrID;
+		{
+			PPID   dlvr_addr_id = 0;
+			if(pPack->P_Freight && pPack->P_Freight->DlvrAddrID) {
+				dlvr_addr_id = pPack->P_Freight->DlvrAddrID;
+			}
+			else if(oneof2(pPack->Rec.EdiOp, PPEDIOP_ORDER, PPEDIOP_RECADV)) { // @v9.7.4
+				dlvr_addr_id = pPack->Rec.LocID;
+			}
 			if(dlvr_addr_id && LocObj.Search(dlvr_addr_id, &loc_rec) > 0) {
 				pBill->DlvrAddrID = dlvr_addr_id;
 				(temp_buf = loc_rec.Code).Transf(CTRANSF_INNER_TO_OUTER);

@@ -106,7 +106,7 @@ static xmlChar * xmlC11NNormalizeString(const xmlChar * input,
 #define xmlC14NIsVisible(ctx, node, parent) \
 	(((ctx)->is_visible_callback != NULL) ?	\
 	    (ctx)->is_visible_callback((ctx)->user_data, \
-		    (xmlNodePtr)(node), (xmlNodePtr)(parent)) : 1)
+		    (xmlNode *)(node), (xmlNode *)(parent)) : 1)
 
 #define xmlC14NIsExclusive(ctx)	\
 	( (ctx)->mode == XML_C14N_EXCLUSIVE_1_0 )
@@ -238,7 +238,7 @@ static int xmlC14NIsNodeInNodeset(xmlNodeSetPtr nodes, xmlNodePtr node, xmlNodeP
 			 * If the input is an XPath node-set, then the node-set must explicitly
 			 * contain every node to be rendered to the canonical form.
 			 */
-			return(xmlXPathNodeSetContains(nodes, (xmlNodePtr)&ns));
+			return(xmlXPathNodeSetContains(nodes, (xmlNode *)&ns));
 		}
 	}
 	return 1;
@@ -267,7 +267,7 @@ static void xmlC14NVisibleNsStackDestroy(xmlC14NVisibleNsStackPtr cur)
 		free(cur->nsTab);
 	}
 	if(cur->nodeTab != NULL) {
-		memzero(cur->nodeTab, cur->nsMax * sizeof(xmlNodePtr));
+		memzero(cur->nodeTab, cur->nsMax * sizeof(xmlNode *));
 		free(cur->nodeTab);
 	}
 	memzero(cur, sizeof(xmlC14NVisibleNsStack));
@@ -281,13 +281,13 @@ static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNsPtr ns, 
 	}
 	if((cur->nsTab == NULL) && (cur->nodeTab == NULL)) {
 		cur->nsTab = (xmlNsPtr*)xmlMalloc(XML_NAMESPACES_DEFAULT * sizeof(xmlNsPtr));
-		cur->nodeTab = (xmlNodePtr*)xmlMalloc(XML_NAMESPACES_DEFAULT * sizeof(xmlNodePtr));
+		cur->nodeTab = (xmlNodePtr*)xmlMalloc(XML_NAMESPACES_DEFAULT * sizeof(xmlNode *));
 		if((cur->nsTab == NULL) || (cur->nodeTab == NULL)) {
 			xmlC14NErrMemory("adding node to stack");
 			return;
 		}
 		memzero(cur->nsTab, XML_NAMESPACES_DEFAULT * sizeof(xmlNsPtr));
-		memzero(cur->nodeTab, XML_NAMESPACES_DEFAULT * sizeof(xmlNodePtr));
+		memzero(cur->nodeTab, XML_NAMESPACES_DEFAULT * sizeof(xmlNode *));
 		cur->nsMax = XML_NAMESPACES_DEFAULT;
 	}
 	else if(cur->nsMax == cur->nsCurEnd) {
@@ -298,7 +298,7 @@ static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNsPtr ns, 
 			return;
 		}
 		cur->nsTab = (xmlNsPtr*)tmp;
-		tmp = xmlRealloc(cur->nodeTab, tmpSize * sizeof(xmlNodePtr));
+		tmp = xmlRealloc(cur->nodeTab, tmpSize * sizeof(xmlNode *));
 		if(tmp == NULL) {
 			xmlC14NErrMemory("adding node to stack");
 			return;
@@ -1672,7 +1672,7 @@ static xmlC14NCtxPtr xmlC14NNewCtx(xmlDocPtr doc,
 	 *  Validate the encoding output buffer encoding
 	 */
 	if(buf->encoder != NULL) {
-		xmlC14NErr(ctx, (xmlNodePtr)doc, XML_C14N_REQUIRES_UTF8,
+		xmlC14NErr(ctx, (xmlNode *)doc, XML_C14N_REQUIRES_UTF8,
 		    "xmlC14NNewCtx: output buffer encoder != NULL but C14N requires UTF8 output\n");
 		return 0;
 	}
@@ -1681,7 +1681,7 @@ static xmlC14NCtxPtr xmlC14NNewCtx(xmlDocPtr doc,
 	 *  Validate the XML document encoding value, if provided.
 	 */
 	if(doc->charset != XML_CHAR_ENCODING_UTF8) {
-		xmlC14NErr(ctx, (xmlNodePtr)doc, XML_C14N_REQUIRES_UTF8, "xmlC14NNewCtx: source document not in UTF8\n");
+		xmlC14NErr(ctx, (xmlNode *)doc, XML_C14N_REQUIRES_UTF8, "xmlC14NNewCtx: source document not in UTF8\n");
 		return 0;
 	}
 	/*
@@ -1705,7 +1705,7 @@ static xmlC14NCtxPtr xmlC14NNewCtx(xmlDocPtr doc,
 	ctx->pos = XMLC14N_BEFORE_DOCUMENT_ELEMENT;
 	ctx->ns_rendered = xmlC14NVisibleNsStackCreate();
 	if(ctx->ns_rendered == NULL) {
-		xmlC14NErr(ctx, (xmlNodePtr)doc, XML_C14N_CREATE_STACK, "xmlC14NNewCtx: xmlC14NVisibleNsStackCreate failed\n");
+		xmlC14NErr(ctx, (xmlNode *)doc, XML_C14N_CREATE_STACK, "xmlC14NNewCtx: xmlC14NVisibleNsStackCreate failed\n");
 		xmlC14NFreeCtx(ctx);
 		return 0;
 	}
@@ -1773,7 +1773,7 @@ int xmlC14NExecute(xmlDocPtr doc, xmlC14NIsVisibleCallback is_visible_callback,
 	 *  Validate the encoding output buffer encoding
 	 */
 	if(buf->encoder != NULL) {
-		xmlC14NErr(NULL, (xmlNodePtr)doc, XML_C14N_REQUIRES_UTF8,
+		xmlC14NErr(NULL, (xmlNode *)doc, XML_C14N_REQUIRES_UTF8,
 		    "xmlC14NExecute: output buffer encoder != NULL but C14N requires UTF8 output\n");
 		return (-1);
 	}
@@ -1782,7 +1782,7 @@ int xmlC14NExecute(xmlDocPtr doc, xmlC14NIsVisibleCallback is_visible_callback,
 	    c14n_mode, inclusive_ns_prefixes,
 	    with_comments, buf);
 	if(ctx == NULL) {
-		xmlC14NErr(NULL, (xmlNodePtr)doc, XML_C14N_CREATE_CTXT,
+		xmlC14NErr(NULL, (xmlNode *)doc, XML_C14N_CREATE_CTXT,
 		    "xmlC14NExecute: unable to create C14N context\n");
 		return (-1);
 	}

@@ -284,7 +284,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -328,7 +328,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -354,6 +354,8 @@
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -368,7 +370,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -411,7 +413,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -437,6 +439,7 @@
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -445,7 +448,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -475,6 +478,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -483,7 +487,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -508,6 +512,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -519,7 +525,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -548,6 +554,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -559,7 +566,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -584,6 +591,7 @@
       <DisableSpecificWarnings>4996;4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -592,7 +600,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -622,6 +630,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -630,7 +639,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -655,6 +664,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -666,7 +677,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -695,6 +706,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -706,7 +718,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=;PACKAGE_BUGREPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -731,6 +743,7 @@
       <DisableSpecificWarnings>4996;4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -739,11 +752,19 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
     <ClCompile>
       <CompileAs>CompileAsCpp</CompileAs>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <WarningLevel>Level3</WarningLevel>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
     <ClCompile>
       <CompileAs>CompileAsCpp</CompileAs>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <WarningLevel>Level3</WarningLevel>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

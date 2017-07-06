@@ -1136,7 +1136,7 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGNewValidState(xmlRelaxNGValidCtxtPtr ct
 	ret->value = NULL;
 	ret->endvalue = NULL;
 	if(node == NULL) {
-		ret->node = (xmlNodePtr)ctxt->doc;
+		ret->node = (xmlNode *)ctxt->doc;
 		ret->seq = root;
 	}
 	else {
@@ -1871,7 +1871,7 @@ static xmlRelaxNGDocumentPtr xmlRelaxNGLoadExternalRef(xmlRelaxNGParserCtxtPtr c
 	 */
 	ret = (xmlRelaxNGDocumentPtr)xmlMalloc(sizeof(xmlRelaxNGDocument));
 	if(ret == NULL) {
-		xmlRngPErr(ctxt, (xmlNodePtr)doc, XML_ERR_NO_MEMORY,
+		xmlRngPErr(ctxt, (xmlNode *)doc, XML_ERR_NO_MEMORY,
 		    "xmlRelaxNG: allocate memory for doc %s\n", URL, NULL);
 		xmlFreeDoc(doc);
 		return 0;
@@ -7299,7 +7299,7 @@ static xmlDocPtr xmlRelaxNGCleanupDoc(xmlRelaxNGParserCtxtPtr ctxt, xmlDocPtr do
 	 */
 	xmlNodePtr root = xmlDocGetRootElement(doc);
 	if(root == NULL) {
-		xmlRngPErr(ctxt, (xmlNodePtr)doc, XML_RNGP_EMPTY, "xmlRelaxNGParse: %s is empty\n", ctxt->URL, NULL);
+		xmlRngPErr(ctxt, (xmlNode *)doc, XML_RNGP_EMPTY, "xmlRelaxNGParse: %s is empty\n", ctxt->URL, NULL);
 		return 0;
 	}
 	xmlRelaxNGCleanupTree(ctxt, root);
@@ -7367,7 +7367,7 @@ xmlRelaxNGPtr xmlRelaxNGParse(xmlRelaxNGParserCtxtPtr ctxt)
 	 */
 	root = xmlDocGetRootElement(doc);
 	if(root == NULL) {
-		xmlRngPErr(ctxt, (xmlNodePtr)doc,
+		xmlRngPErr(ctxt, (xmlNode *)doc,
 		    XML_RNGP_EMPTY, "xmlRelaxNGParse: %s is empty\n",
 		    (ctxt->URL ? ctxt->URL : BAD_CAST "schemas"), NULL);
 
@@ -8961,7 +8961,7 @@ static int xmlRelaxNGValidateAttribute(xmlRelaxNGValidCtxtPtr ctxt,
 			value = xmlNodeListGetString(prop->doc, prop->children, 1);
 			oldvalue = ctxt->state->value;
 			oldseq = ctxt->state->seq;
-			ctxt->state->seq = (xmlNodePtr)prop;
+			ctxt->state->seq = (xmlNode *)prop;
 			ctxt->state->value = value;
 			ctxt->state->endvalue = NULL;
 			ret = xmlRelaxNGValidateValueContent(ctxt, define->content);
@@ -9001,7 +9001,7 @@ static int xmlRelaxNGValidateAttribute(xmlRelaxNGValidCtxtPtr ctxt,
 			value = xmlNodeListGetString(prop->doc, prop->children, 1);
 			oldvalue = ctxt->state->value;
 			oldseq = ctxt->state->seq;
-			ctxt->state->seq = (xmlNodePtr)prop;
+			ctxt->state->seq = (xmlNode *)prop;
 			ctxt->state->value = value;
 			ret = xmlRelaxNGValidateValueContent(ctxt, define->content);
 			if(ctxt->state->value != NULL)
@@ -9188,18 +9188,18 @@ static int xmlRelaxNGValidateInterleave(xmlRelaxNGValidCtxtPtr ctxt,
 	 * Build arrays to store the first and last node of the chain
 	 * pertaining to each group
 	 */
-	list = (xmlNodePtr*)xmlMalloc(nbgroups * sizeof(xmlNodePtr));
+	list = (xmlNodePtr*)xmlMalloc(nbgroups * sizeof(xmlNode *));
 	if(list == NULL) {
 		xmlRngVErrMemory(ctxt, "validating\n");
 		return (-1);
 	}
-	memset(list, 0, nbgroups * sizeof(xmlNodePtr));
-	lasts = (xmlNodePtr*)xmlMalloc(nbgroups * sizeof(xmlNodePtr));
+	memset(list, 0, nbgroups * sizeof(xmlNode *));
+	lasts = (xmlNodePtr*)xmlMalloc(nbgroups * sizeof(xmlNode *));
 	if(lasts == NULL) {
 		xmlRngVErrMemory(ctxt, "validating\n");
 		return (-1);
 	}
-	memset(lasts, 0, nbgroups * sizeof(xmlNodePtr));
+	memset(lasts, 0, nbgroups * sizeof(xmlNode *));
 
 	/*
 	 * Walk the sequence of children finding the right group and
@@ -10890,7 +10890,7 @@ int xmlRelaxNGValidateDoc(xmlRelaxNGValidCtxtPtr ctxt, xmlDocPtr doc)
 	/*
 	 * Remove all left PSVI
 	 */
-	xmlRelaxNGCleanPSVI((xmlNodePtr)doc);
+	xmlRelaxNGCleanPSVI((xmlNode *)doc);
 	/*
 	 * TODO: build error codes
 	 */

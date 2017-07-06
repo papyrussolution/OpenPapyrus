@@ -267,7 +267,7 @@ static void xmlTextReaderFreeProp(xmlTextReaderPtr reader, xmlAttrPtr cur)
 	xmlDictPtr dict = (reader && reader->ctxt) ? reader->ctxt->dict : NULL;
 	if(cur) {
 		if((__xmlRegisterCallbacks) && (xmlDeregisterNodeDefaultValue))
-			xmlDeregisterNodeDefaultValue((xmlNodePtr)cur);
+			xmlDeregisterNodeDefaultValue((xmlNode *)cur);
 		// Check for ID removal -> leading to invalid references ! 
 		if(cur->parent && cur->parent->doc && (cur->parent->doc->intSubset || cur->parent->doc->extSubset)) {
 			if(xmlIsID(cur->parent->doc, cur->parent, cur))
@@ -441,7 +441,7 @@ static void xmlTextReaderFreeDoc(xmlTextReaderPtr reader, xmlDocPtr cur)
 	if(cur == NULL)
 		return;
 	if((__xmlRegisterCallbacks) && (xmlDeregisterNodeDefaultValue))
-		xmlDeregisterNodeDefaultValue((xmlNodePtr)cur);
+		xmlDeregisterNodeDefaultValue((xmlNode *)cur);
 	/*
 	 * Do this before freeing the children list to avoid ID lookups
 	 */
@@ -456,12 +456,12 @@ static void xmlTextReaderFreeDoc(xmlTextReaderPtr reader, xmlDocPtr cur)
 	if(intSubset == extSubset)
 		extSubset = NULL;
 	if(extSubset) {
-		xmlUnlinkNode((xmlNodePtr)cur->extSubset);
+		xmlUnlinkNode((xmlNode *)cur->extSubset);
 		cur->extSubset = NULL;
 		xmlFreeDtd(extSubset);
 	}
 	if(intSubset != NULL) {
-		xmlUnlinkNode((xmlNodePtr)cur->intSubset);
+		xmlUnlinkNode((xmlNode *)cur->intSubset);
 		cur->intSubset = NULL;
 		xmlFreeDtd(intSubset);
 	}
@@ -950,7 +950,7 @@ static void xmlTextReaderValidateEntity(xmlTextReaderPtr reader)
 			 * and walk it.
 			 */
 			if((node->children == NULL) && ctxt->sax && ctxt->sax->getEntity) {
-				node->children = (xmlNodePtr)
+				node->children = (xmlNode *)
 			    ctxt->sax->getEntity(ctxt, node->name);
 			}
 			if(node->children && (node->children->type == XML_ENTITY_DECL) && node->children->children) {
@@ -1353,7 +1353,7 @@ node_found:
 		 * and walk it.
 		 */
 		if((reader->node->children == NULL) && reader->ctxt->sax && reader->ctxt->sax->getEntity) {
-			reader->node->children = (xmlNodePtr)reader->ctxt->sax->getEntity(reader->ctxt, reader->node->name);
+			reader->node->children = (xmlNode *)reader->ctxt->sax->getEntity(reader->ctxt, reader->node->name);
 		}
 		if(reader->node->children && (reader->node->children->type == XML_ENTITY_DECL) && reader->node->children->children) {
 			xmlTextReaderEntPush(reader, reader->node);
@@ -1537,7 +1537,7 @@ xmlChar * xmlTextReaderReadOuterXml(xmlTextReaderPtr reader ATTRIBUTE_UNUSED)
 		return NULL;
 	}
 	if(node->type == XML_DTD_NODE) {
-		node = (xmlNodePtr)xmlCopyDtd((xmlDtdPtr)node);
+		node = (xmlNode *)xmlCopyDtd((xmlDtdPtr)node);
 	}
 	else {
 		node = xmlDocCopyNode(node, doc, 1);
@@ -2326,7 +2326,7 @@ int xmlTextReaderMoveToAttributeNo(xmlTextReaderPtr reader, int no)
 		ns = ns->next;
 	}
 	if(ns != NULL) {
-		reader->curnode = (xmlNodePtr)ns;
+		reader->curnode = (xmlNode *)ns;
 		return 1;
 	}
 
@@ -2340,7 +2340,7 @@ int xmlTextReaderMoveToAttributeNo(xmlTextReaderPtr reader, int no)
 	}
 	/* TODO walk the DTD if present */
 
-	reader->curnode = (xmlNodePtr)cur;
+	reader->curnode = (xmlNode *)cur;
 	return 1;
 }
 
@@ -2377,7 +2377,7 @@ int xmlTextReaderMoveToAttribute(xmlTextReaderPtr reader, const xmlChar * name)
 			ns = reader->node->nsDef;
 			while(ns != NULL) {
 				if(ns->prefix == NULL) {
-					reader->curnode = (xmlNodePtr)ns;
+					reader->curnode = (xmlNode *)ns;
 					return 1;
 				}
 				ns = ns->next;
@@ -2392,7 +2392,7 @@ int xmlTextReaderMoveToAttribute(xmlTextReaderPtr reader, const xmlChar * name)
 			 *   - and the attribute carrying that namespace
 			 */
 			if((xmlStrEqual(prop->name, name)) && ((prop->ns == NULL) || (prop->ns->prefix == NULL))) {
-				reader->curnode = (xmlNodePtr)prop;
+				reader->curnode = (xmlNode *)prop;
 				return 1;
 			}
 			prop = prop->next;
@@ -2406,7 +2406,7 @@ int xmlTextReaderMoveToAttribute(xmlTextReaderPtr reader, const xmlChar * name)
 		ns = reader->node->nsDef;
 		while(ns != NULL) {
 			if((ns->prefix != NULL) && (xmlStrEqual(ns->prefix, localname))) {
-				reader->curnode = (xmlNodePtr)ns;
+				reader->curnode = (xmlNode *)ns;
 				goto found;
 			}
 			ns = ns->next;
@@ -2421,7 +2421,7 @@ int xmlTextReaderMoveToAttribute(xmlTextReaderPtr reader, const xmlChar * name)
 		 *   - and the attribute carrying that namespace
 		 */
 		if((xmlStrEqual(prop->name, localname)) && (prop->ns != NULL) && (xmlStrEqual(prop->ns->prefix, prefix))) {
-			reader->curnode = (xmlNodePtr)prop;
+			reader->curnode = (xmlNode *)prop;
 			goto found;
 		}
 		prop = prop->next;
@@ -2470,7 +2470,7 @@ int xmlTextReaderMoveToAttributeNs(xmlTextReaderPtr reader,
 		ns = reader->node->nsDef;
 		while(ns != NULL) {
 			if((prefix == NULL && ns->prefix == NULL) || ((ns->prefix != NULL) && (xmlStrEqual(ns->prefix, localName)))) {
-				reader->curnode = (xmlNodePtr)ns;
+				reader->curnode = (xmlNode *)ns;
 				return 1;
 			}
 			ns = ns->next;
@@ -2485,7 +2485,7 @@ int xmlTextReaderMoveToAttributeNs(xmlTextReaderPtr reader,
 		 *   - and the attribute carrying that namespace
 		 */
 		if(xmlStrEqual(prop->name, localName) && (prop->ns && (xmlStrEqual(prop->ns->href, namespaceURI)))) {
-			reader->curnode = (xmlNodePtr)prop;
+			reader->curnode = (xmlNode *)prop;
 			return 1;
 		}
 		prop = prop->next;
@@ -2512,11 +2512,11 @@ int xmlTextReaderMoveToFirstAttribute(xmlTextReaderPtr reader)
 		return 0;
 
 	if(reader->node->nsDef != NULL) {
-		reader->curnode = (xmlNodePtr)reader->node->nsDef;
+		reader->curnode = (xmlNode *)reader->node->nsDef;
 		return 1;
 	}
 	if(reader->node->properties != NULL) {
-		reader->curnode = (xmlNodePtr)reader->node->properties;
+		reader->curnode = (xmlNode *)reader->node->properties;
 		return 1;
 	}
 	return 0;
@@ -2545,11 +2545,11 @@ int xmlTextReaderMoveToNextAttribute(xmlTextReaderPtr reader)
 	if(reader->curnode->type == XML_NAMESPACE_DECL) {
 		xmlNsPtr ns = (xmlNsPtr)reader->curnode;
 		if(ns->next != NULL) {
-			reader->curnode = (xmlNodePtr)ns->next;
+			reader->curnode = (xmlNode *)ns->next;
 			return 1;
 		}
 		if(reader->node->properties != NULL) {
-			reader->curnode = (xmlNodePtr)reader->node->properties;
+			reader->curnode = (xmlNode *)reader->node->properties;
 			return 1;
 		}
 		return 0;

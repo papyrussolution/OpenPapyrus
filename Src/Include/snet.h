@@ -669,6 +669,15 @@ public:
     int    HttpGet(const char * pUrl, int mflags, SFile * pReplyStream);
     int    HttpGet(const char * pUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, SFile * pReplyStream);
 	int    HttpDelete(const char * pUrl, int mflags, SFile * pReplyStream);
+	//
+	int    FtpList(const char * pUrl, int mflags, const char * pRemotePath, SFileEntryPool & rPool);
+	int    FtpPut(const char * pUrl, int mflags, const char * pLocalFile, const char * pRemotePath, SCopyFileProgressProc pf, void * extraPtr);
+	int    FtpGet(const char * pUrl, int mflags, const char * pLocalFile, const char * pRemotePath, SCopyFileProgressProc pf, void * extraPtr);
+	int    FtpDelete(const char * pUrl, int mflags, const char * pRemotePath);
+	int    FtpChangeDir(const char * pUrl, int mflags, const char * pRemotePath);
+	int    FtpCreateDir(const char * pUrl, int mflags, const char * pRemotePath);
+	//
+	int    Pop3List();
 private:
 	static size_t CbRead(char * pBuffer, size_t size, size_t nitems, void * pExtra);
 	static size_t CbWrite(char * pBuffer, size_t size, size_t nmemb, void * pExtra);

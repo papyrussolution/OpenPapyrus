@@ -289,7 +289,7 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <OmitFramePointers>false</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;SL_PROFILE;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -309,7 +309,7 @@
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
-      <BrowseInformation />
+      <BrowseInformation>true</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
@@ -331,6 +331,9 @@
     <PostBuildEvent>
       <Command>copy $(TargetPath) ..\lib</Command>
     </PostBuildEvent>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -340,7 +343,7 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <OmitFramePointers>false</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;SL_PROFILE;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -371,6 +374,7 @@
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -387,7 +391,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -437,7 +441,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -466,6 +470,7 @@
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -479,7 +484,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;SL_PROFILE;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -512,6 +517,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -525,7 +531,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;SL_PROFILE;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -555,6 +561,8 @@
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -569,7 +577,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -602,6 +610,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -616,7 +625,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -646,6 +655,7 @@
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -659,7 +669,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;SL_PROFILE;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -692,6 +702,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -705,7 +716,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;SL_PROFILE;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -735,6 +746,8 @@
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>false</OmitFramePointers>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -749,7 +762,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -782,6 +795,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -796,7 +810,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -826,6 +840,7 @@
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -836,21 +851,27 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <AssemblerOutput>NoListing</AssemblerOutput>
+      <CompileAsManaged>false</CompileAsManaged>
+      <WarningLevel>Level3</WarningLevel>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <AssemblerOutput>NoListing</AssemblerOutput>
+      <CompileAsManaged>false</CompileAsManaged>
+      <WarningLevel>Level3</WarningLevel>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -861,8 +882,7 @@
     <ClCompile Include="..\SLib\bitstr.cpp" />
     <ClCompile Include="..\SLib\Bnfldlst.cpp" />
     <ClCompile Include="..\Slib\chksyscr.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </BrowseInformation>
+      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
@@ -887,8 +907,7 @@
     <ClCompile Include="..\SLib\dec.cpp" />
     <ClCompile Include="..\SLib\Dlgprocs.cpp" />
     <ClCompile Include="..\Slib\findfile.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </BrowseInformation>
+      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
@@ -923,8 +942,7 @@
     <ClCompile Include="..\SLib\lzari.cpp" />
     <ClCompile Include="..\SLib\lzocomp.cpp" />
     <ClCompile Include="..\Slib\macaddr.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </BrowseInformation>
+      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
@@ -959,8 +977,7 @@
     <ClCompile Include="..\SLib\Sarray.cpp" />
     <ClCompile Include="..\SLib\Sbrodef.cpp" />
     <ClCompile Include="..\Slib\sbuffer.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </BrowseInformation>
+      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
@@ -990,8 +1007,7 @@
     <ClCompile Include="..\SLib\sc_todo.cpp" />
     <ClCompile Include="..\SLib\sdate.cpp" />
     <ClCompile Include="..\Slib\sdebug.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </BrowseInformation>
+      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
@@ -1016,8 +1032,7 @@
     <ClCompile Include="..\SLib\sextprc.cpp" />
     <ClCompile Include="..\SLib\sfann.cpp" />
     <ClCompile Include="..\Slib\sfile.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </BrowseInformation>
+      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
@@ -1088,8 +1103,7 @@
     <ClCompile Include="..\SLib\sstorage.cpp" />
     <ClCompile Include="..\SLib\sstream.cpp" />
     <ClCompile Include="..\Slib\sstring.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </BrowseInformation>
+      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
@@ -1139,8 +1153,7 @@
     </ClCompile>
     <ClCompile Include="..\SLib\stchbrw.cpp" />
     <ClCompile Include="..\Slib\stcp.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </BrowseInformation>
+      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
@@ -1182,8 +1195,7 @@
     <ClCompile Include="..\SLib\tsstat.cpp" />
     <ClCompile Include="..\SLib\Tview.cpp" />
     <ClCompile Include="..\SLib\Tvrez.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </BrowseInformation>
+      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
@@ -1212,8 +1224,7 @@
     <ClCompile Include="..\SLib\whatman.cpp" />
     <ClCompile Include="..\SLib\winreg.cpp" />
     <ClCompile Include="..\Slib\winsrvc.cpp">
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </BrowseInformation>
+      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
@@ -1247,8 +1258,7 @@
       </PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </PrecompiledHeaderFile>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </BrowseInformation>
+      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </BrowseInformation>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">1Byte</StructMemberAlignment>

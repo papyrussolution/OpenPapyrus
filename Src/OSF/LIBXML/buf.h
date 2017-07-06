@@ -13,7 +13,7 @@
 #ifndef __XML_BUF_H__
 #define __XML_BUF_H__
 
-#include <libxml/tree.h>
+//#include <libxml/tree.h>
 
 #ifdef __cplusplus
 extern "C" {

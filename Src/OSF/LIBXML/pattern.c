@@ -81,18 +81,17 @@
 
 #define XML_PAT_FREE_STRING(c, r) if((c)->comp->dict == NULL) free(r);
 
-typedef struct _xmlStreamStep xmlStreamStep;
-typedef xmlStreamStep * xmlStreamStepPtr;
-struct _xmlStreamStep {
+struct xmlStreamStep {
 	int flags;              /* properties of that step */
 	const xmlChar * name;   /* first string value if NULL accept all */
 	const xmlChar * ns;     /* second string value */
 	int nodeType;           /* type of node */
 };
 
-typedef struct _xmlStreamComp xmlStreamComp;
-typedef xmlStreamComp * xmlStreamCompPtr;
-struct _xmlStreamComp {
+//typedef struct _xmlStreamStep xmlStreamStep;
+typedef xmlStreamStep * xmlStreamStepPtr;
+
+struct xmlStreamComp {
 	xmlDict * dict;         /* the dictionary if any */
 	int nbStep;             /* number of steps in the automata */
 	int maxStep;            /* allocated number of steps */
@@ -100,9 +99,11 @@ struct _xmlStreamComp {
 	int flags;
 };
 
+//typedef struct _xmlStreamComp xmlStreamComp;
+typedef xmlStreamComp * xmlStreamCompPtr;
+
 struct _xmlStreamCtxt {
 	struct _xmlStreamCtxt * next; /* link to next sub pattern if | */
-
 	xmlStreamCompPtr comp;  /* the compiled stream */
 	int nbState;            /* number of states in the automata */
 	int maxState;           /* allocated number of states */
@@ -111,13 +112,9 @@ struct _xmlStreamCtxt {
 	int flags;              /* validation options */
 	int blockLevel;
 };
-
-static void xmlFreeStreamComp(xmlStreamCompPtr comp);
-
 /*
  * Types are private:
  */
-
 typedef enum {
 	XML_OP_END = 0,
 	XML_OP_ROOT,
@@ -130,28 +127,31 @@ typedef enum {
 	XML_OP_ALL
 } xmlPatOp;
 
-typedef struct _xmlStepState xmlStepState;
-typedef xmlStepState * xmlStepStatePtr;
-struct _xmlStepState {
+struct xmlStepState {
 	int step;
-	xmlNodePtr node;
+	xmlNode * node;
 };
 
-typedef struct _xmlStepStates xmlStepStates;
-typedef xmlStepStates * xmlStepStatesPtr;
-struct _xmlStepStates {
+//typedef struct _xmlStepState xmlStepState;
+typedef xmlStepState * xmlStepStatePtr;
+
+struct xmlStepStates {
 	int nbstates;
 	int maxstates;
-	xmlStepStatePtr states;
+	xmlStepState * states;
 };
 
-typedef struct _xmlStepOp xmlStepOp;
-typedef xmlStepOp * xmlStepOpPtr;
-struct _xmlStepOp {
+//typedef struct _xmlStepStates xmlStepStates;
+typedef xmlStepStates * xmlStepStatesPtr;
+
+struct xmlStepOp {
 	xmlPatOp op;
 	const xmlChar * value;
 	const xmlChar * value2; /* The namespace name */
 };
+
+//typedef struct _xmlStepOp xmlStepOp;
+typedef xmlStepOp * xmlStepOpPtr;
 
 #define PAT_FROM_ROOT   (1<<8)
 #define PAT_FROM_CUR    (1<<9)
@@ -160,18 +160,15 @@ struct _xmlPattern {
 	void * data;    /* the associated template */
 	xmlDictPtr dict;        /* the optional dictionary */
 	struct _xmlPattern * next; /* next pattern if | is used */
-
 	const xmlChar * pattern; /* the pattern */
 	int flags;              /* flags */
 	int nbStep;
 	int maxStep;
-	xmlStepOpPtr steps;    /* ops for computation */
-	xmlStreamCompPtr stream; /* the streaming data if any */
+	xmlStepOp * steps;    /* ops for computation */
+	xmlStreamComp * stream; /* the streaming data if any */
 };
 
-typedef struct _xmlPatParserContext xmlPatParserContext;
-typedef xmlPatParserContext * xmlPatParserContextPtr;
-struct _xmlPatParserContext {
+struct xmlPatParserContext {
 	const xmlChar * cur;            /* the current char being parsed */
 	const xmlChar * base;           /* the full expression */
 	int error;                      /* error code */
@@ -181,6 +178,9 @@ struct _xmlPatParserContext {
 	const xmlChar ** namespaces;    /* the namespaces definitions */
 	int nb_namespaces;              /* the number of namespaces */
 };
+
+//typedef struct _xmlPatParserContext xmlPatParserContext;
+typedef xmlPatParserContext * xmlPatParserContextPtr;
 
 /************************************************************************
 *									*
@@ -199,7 +199,7 @@ static xmlPatternPtr xmlNewPattern()
 {
 	xmlPatternPtr cur = (xmlPatternPtr)xmlMalloc(sizeof(xmlPattern));
 	if(!cur) {
-		ERROR(NULL, NULL, NULL, "xmlNewPattern : malloc failed\n");
+		ERROR(0, 0, 0, "xmlNewPattern : malloc failed\n");
 	}
 	else {
 		memzero(cur, sizeof(xmlPattern));
@@ -207,11 +207,24 @@ static xmlPatternPtr xmlNewPattern()
 		cur->steps = (xmlStepOpPtr)xmlMalloc(cur->maxStep * sizeof(xmlStepOp));
 		if(cur->steps == NULL) {
 			free(cur);
-			ERROR(NULL, NULL, NULL, "xmlNewPattern : malloc failed\n");
+			ERROR(0, 0, 0, "xmlNewPattern : malloc failed\n");
 			cur = 0;
 		}
 	}
 	return cur;
+}
+/**
+ * @comp: the compiled pattern for streaming
+ *
+ * Free the compiled pattern for streaming
+ */
+static void FASTCALL xmlFreeStreamComp(xmlStreamComp * comp)
+{
+	if(comp) {
+		free(comp->steps);
+		xmlDictFree(comp->dict);
+		free(comp);
+	}
 }
 /**
  * xmlFreePattern:
@@ -219,12 +232,11 @@ static xmlPatternPtr xmlNewPattern()
  *
  * Free up the memory allocated by @comp
  */
-void xmlFreePattern(xmlPatternPtr comp)
+void xmlFreePattern(xmlPattern * comp)
 {
 	if(comp) {
 		xmlFreePattern(comp->next); // @recursion
-		if(comp->stream)
-			xmlFreeStreamComp(comp->stream);
+		xmlFreeStreamComp(comp->stream);
 		free((xmlChar*)comp->pattern);
 		if(comp->steps) {
 			if(comp->dict == NULL) {
@@ -241,23 +253,21 @@ void xmlFreePattern(xmlPatternPtr comp)
 		free(comp);
 	}
 }
-
 /**
  * xmlFreePatternList:
  * @comp:  an XSLT comp list
  *
  * Free up the memory allocated by all the elements of @comp
  */
-void xmlFreePatternList(xmlPatternPtr comp)
+void xmlFreePatternList(xmlPattern * comp)
 {
 	while(comp) {
-		xmlPatternPtr cur = comp;
+		xmlPattern * cur = comp;
 		comp = comp->next;
 		cur->next = NULL;
 		xmlFreePattern(cur);
 	}
 }
-
 /**
  * xmlNewPatParserContext:
  * @pattern:  the pattern context
@@ -276,7 +286,7 @@ static xmlPatParserContextPtr xmlNewPatParserContext(const xmlChar * pattern, xm
 		return 0;
 	cur = (xmlPatParserContextPtr)xmlMalloc(sizeof(xmlPatParserContext));
 	if(cur == NULL) {
-		ERROR(NULL, NULL, NULL, "xmlNewPatParserContext : malloc failed\n");
+		ERROR(0, 0, 0, "xmlNewPatParserContext : malloc failed\n");
 		return 0;
 	}
 	memzero(cur, sizeof(xmlPatParserContext));
@@ -324,7 +334,7 @@ static void xmlFreePatParserContext(xmlPatParserContextPtr ctxt)
 static int xmlPatternAdd(xmlPatParserContextPtr ctxt ATTRIBUTE_UNUSED, xmlPatternPtr comp, xmlPatOp op, xmlChar * value, xmlChar * value2)
 {
 	if(comp->nbStep >= comp->maxStep) {
-		xmlStepOpPtr temp = (xmlStepOpPtr)xmlRealloc(comp->steps, comp->maxStep * 2 * sizeof(xmlStepOp));
+		xmlStepOp * temp = (xmlStepOp *)xmlRealloc(comp->steps, comp->maxStep * 2 * sizeof(xmlStepOp));
 		if(temp == NULL) {
 			ERROR(ctxt, NULL, NULL, "xmlPatternAdd: realloc failed\n");
 			return (-1);
@@ -430,10 +440,10 @@ static int xmlPatPushState(xmlStepStates * states, int step, xmlNodePtr node)
 	if((states->states == NULL) || (states->maxstates <= 0)) {
 		states->maxstates = 4;
 		states->nbstates = 0;
-		states->states = (xmlStepStatePtr)xmlMalloc(4 * sizeof(xmlStepState));
+		states->states = (xmlStepState *)xmlMalloc(4 * sizeof(xmlStepState));
 	}
 	else if(states->maxstates <= states->nbstates) {
-		xmlStepState * tmp = (xmlStepStatePtr)xmlRealloc(states->states, 2 * states->maxstates * sizeof(xmlStepState));
+		xmlStepState * tmp = (xmlStepState *)xmlRealloc(states->states, 2 * states->maxstates * sizeof(xmlStepState));
 		if(tmp == NULL)
 			return -1;
 		states->states = tmp;
@@ -851,7 +861,7 @@ static void xmlCompileAttributeTest(xmlPatParserContextPtr ctxt)
 			NEXT;
 		}
 		else {
-			ERROR(NULL, NULL, NULL, "xmlCompileAttributeTest : Name expected\n");
+			ERROR(0, 0, 0, "xmlCompileAttributeTest : Name expected\n");
 			ctxt->error = 1;
 		}
 		return;
@@ -893,7 +903,7 @@ static void xmlCompileAttributeTest(xmlPatParserContextPtr ctxt)
 				PUSH(XML_OP_ATTR, NULL, URL);
 			}
 			else {
-				ERROR(NULL, NULL, NULL, "xmlCompileAttributeTest : Name expected\n");
+				ERROR(0, 0, 0, "xmlCompileAttributeTest : Name expected\n");
 				ctxt->error = 1;
 				goto error;
 			}
@@ -962,7 +972,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 			return;
 		}
 		else {
-			ERROR(NULL, NULL, NULL, "xmlCompileStepPattern : Name expected\n");
+			ERROR(0, 0, 0, "xmlCompileStepPattern : Name expected\n");
 			ctxt->error = 1;
 			return;
 		}
@@ -1009,7 +1019,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 					PUSH(XML_OP_NS, URL, NULL);
 				}
 				else {
-					ERROR(NULL, NULL, NULL, "xmlCompileStepPattern : Name expected\n");
+					ERROR(0, 0, 0, "xmlCompileStepPattern : Name expected\n");
 					ctxt->error = 1;
 					goto error;
 				}
@@ -1030,7 +1040,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 						return;
 					}
 					else {
-						ERROR(NULL, NULL, NULL, "xmlCompileStepPattern : QName expected\n");
+						ERROR(0, 0, 0, "xmlCompileStepPattern : QName expected\n");
 						ctxt->error = 1;
 						goto error;
 					}
@@ -1075,7 +1085,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 							PUSH(XML_OP_NS, URL, NULL);
 						}
 						else {
-							ERROR(NULL, NULL, NULL, "xmlCompileStepPattern : Name expected\n");
+							ERROR(0, 0, 0, "xmlCompileStepPattern : Name expected\n");
 							ctxt->error = 1;
 							goto error;
 						}
@@ -1389,36 +1399,20 @@ static xmlStreamCompPtr xmlNewStreamComp(int size)
 	SETMAX(size, 4);
 	xmlStreamCompPtr cur = (xmlStreamCompPtr)xmlMalloc(sizeof(xmlStreamComp));
 	if(cur == NULL) {
-		ERROR(NULL, NULL, NULL, "xmlNewStreamComp: malloc failed\n");
+		ERROR(0, 0, 0, "xmlNewStreamComp: malloc failed\n");
 		return 0;
 	}
 	memzero(cur, sizeof(xmlStreamComp));
 	cur->steps = (xmlStreamStepPtr)xmlMalloc(size * sizeof(xmlStreamStep));
 	if(cur->steps == NULL) {
 		free(cur);
-		ERROR(NULL, NULL, NULL, "xmlNewStreamComp: malloc failed\n");
+		ERROR(0, 0, 0, "xmlNewStreamComp: malloc failed\n");
 		return 0;
 	}
 	cur->nbStep = 0;
 	cur->maxStep = size;
 	return(cur);
 }
-
-/**
- * xmlFreeStreamComp:
- * @comp: the compiled pattern for streaming
- *
- * Free the compiled pattern for streaming
- */
-static void xmlFreeStreamComp(xmlStreamCompPtr comp)
-{
-	if(comp) {
-		free(comp->steps);
-		xmlDictFree(comp->dict);
-		free(comp);
-	}
-}
-
 /**
  * xmlStreamCompAddStep:
  * @comp: the compiled pattern for streaming
@@ -1436,7 +1430,7 @@ static int xmlStreamCompAddStep(xmlStreamCompPtr comp, const xmlChar * name, con
 	if(comp->nbStep >= comp->maxStep) {
 		cur = (xmlStreamStepPtr)xmlRealloc(comp->steps, comp->maxStep * 2 * sizeof(xmlStreamStep));
 		if(cur == NULL) {
-			ERROR(NULL, NULL, NULL, "xmlNewStreamComp: malloc failed\n");
+			ERROR(0, 0, 0, "xmlNewStreamComp: malloc failed\n");
 			return -1;
 		}
 		comp->steps = cur;
@@ -1644,14 +1638,14 @@ static xmlStreamCtxtPtr xmlNewStreamCtxt(xmlStreamCompPtr stream)
 {
 	xmlStreamCtxtPtr cur = (xmlStreamCtxtPtr)xmlMalloc(sizeof(xmlStreamCtxt));
 	if(cur == NULL) {
-		ERROR(NULL, NULL, NULL, "xmlNewStreamCtxt: malloc failed\n");
+		ERROR(0, 0, 0, "xmlNewStreamCtxt: malloc failed\n");
 	}
 	else {
 		memzero(cur, sizeof(xmlStreamCtxt));
 		cur->states = (int*)xmlMalloc(4 * 2 * sizeof(int));
 		if(cur->states == NULL) {
 			free(cur);
-			ERROR(NULL, NULL, NULL, "xmlNewStreamCtxt: malloc failed\n");
+			ERROR(0, 0, 0, "xmlNewStreamCtxt: malloc failed\n");
 			cur = 0;
 		}
 		else {
@@ -1701,7 +1695,7 @@ static int xmlStreamCtxtAddState(xmlStreamCtxtPtr comp, int idx, int level)
 	if(comp->nbState >= comp->maxState) {
 		int * cur = (int*)xmlRealloc(comp->states, comp->maxState * 4 * sizeof(int));
 		if(cur == NULL) {
-			ERROR(NULL, NULL, NULL, "xmlNewStreamCtxt: malloc failed\n");
+			ERROR(0, 0, 0, "xmlNewStreamCtxt: malloc failed\n");
 			return -1;
 		}
 		comp->states = cur;
@@ -2283,10 +2277,8 @@ xmlPatternPtr xmlPatterncompile(const xmlChar * pattern, xmlDict * dict, int fla
 	if(streamable == 0) {
 		cur = ret;
 		while(cur != NULL) {
-			if(cur->stream != NULL) {
-				xmlFreeStreamComp(cur->stream);
-				cur->stream = NULL;
-			}
+			xmlFreeStreamComp(cur->stream);
+			cur->stream = NULL;
 			cur = cur->next;
 		}
 	}

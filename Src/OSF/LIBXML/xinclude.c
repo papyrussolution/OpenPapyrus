@@ -263,7 +263,7 @@ xmlXIncludeCtxtPtr xmlXIncludeNewContext(xmlDocPtr doc)
 	if(doc) {
 		ret = (xmlXIncludeCtxtPtr)xmlMalloc(sizeof(xmlXIncludeCtxt));
 		if(!ret) {
-			xmlXIncludeErrMemory(NULL, (xmlNodePtr)doc, "creating XInclude context");
+			xmlXIncludeErrMemory(NULL, (xmlNode *)doc, "creating XInclude context");
 		}
 		else {
 			memzero(ret, sizeof(xmlXIncludeCtxt));
@@ -616,7 +616,7 @@ static void xmlXIncludeRecurseDoc(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc,
 		newctxt->incTab = (xmlXIncludeRefPtr*)xmlMalloc(newctxt->incMax *
 		    sizeof(newctxt->incTab[0]));
 		if(newctxt->incTab == NULL) {
-			xmlXIncludeErrMemory(ctxt, (xmlNodePtr)doc, "processing doc");
+			xmlXIncludeErrMemory(ctxt, (xmlNode *)doc, "processing doc");
 			free(newctxt);
 			return;
 		}
@@ -838,11 +838,11 @@ static xmlNodePtr xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target
 		return 0;
 	if(range->type != XPATH_RANGE)
 		return 0;
-	start = (xmlNodePtr)range->user;
+	start = (xmlNode *)range->user;
 
 	if((start == NULL) || (start->type == XML_NAMESPACE_DECL))
 		return 0;
-	end = (xmlNodePtr)range->user2;
+	end = (xmlNode *)range->user2;
 	if(end == NULL)
 		return(xmlDocCopyNode(start, target, 1));
 	if(end->type == XML_NAMESPACE_DECL)
@@ -1250,7 +1250,7 @@ error:
 		case XML_EXTERNAL_GENERAL_UNPARSED_ENTITY:
 		    break;
 	}
-	xmlXIncludeErr(ctxt, (xmlNodePtr)ent, XML_XINCLUDE_ENTITY_DEF_MISMATCH,
+	xmlXIncludeErr(ctxt, (xmlNode *)ent, XML_XINCLUDE_ENTITY_DEF_MISMATCH,
 	    "mismatch in redefinition of entity %s\n",
 	    ent->name);
 }
@@ -1454,13 +1454,13 @@ static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	/*
 	 * We don't need the DTD anymore, free up space
 	   if (doc->intSubset != NULL) {
-	    xmlUnlinkNode((xmlNodePtr) doc->intSubset);
-	    xmlFreeNode((xmlNodePtr) doc->intSubset);
+	    xmlUnlinkNode((xmlNode *) doc->intSubset);
+	    xmlFreeNode((xmlNode *) doc->intSubset);
 	    doc->intSubset = NULL;
 	   }
 	   if (doc->extSubset != NULL) {
-	    xmlUnlinkNode((xmlNodePtr) doc->extSubset);
-	    xmlFreeNode((xmlNodePtr) doc->extSubset);
+	    xmlUnlinkNode((xmlNode *) doc->extSubset);
+	    xmlFreeNode((xmlNode *) doc->extSubset);
 	    doc->extSubset = NULL;
 	   }
 	 */
@@ -2013,13 +2013,11 @@ static int xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, int nr)
 	xmlGenericError(xmlGenericErrorContext, "parse: %s\n", xml ? "xml" : "text");
 	xmlGenericError(xmlGenericErrorContext, "URI: %s\n", URI);
 #endif
-
 	/*
 	 * Save the base for this include (saving the current one)
 	 */
 	oldBase = ctxt->base;
 	ctxt->base = base;
-
 	if(xml) {
 		ret = xmlXIncludeLoadDoc(ctxt, URI, nr);
 		/* xmlXIncludeGetFragment(ctxt, cur, URI); */
@@ -2027,7 +2025,6 @@ static int xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, int nr)
 	else {
 		ret = xmlXIncludeLoadTxt(ctxt, URI, nr);
 	}
-
 	/*
 	 * Restore the original base before checking for fallback
 	 */
@@ -2043,8 +2040,7 @@ static int xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, int nr)
 		children = cur->children;
 		while(children) {
 			if((children->type == XML_ELEMENT_NODE) && children->ns &&
-			    (xmlStrEqual(children->name, XINCLUDE_FALLBACK)) && ((xmlStrEqual(children->ns->href, XINCLUDE_NS)) ||
-				    (xmlStrEqual(children->ns->href, XINCLUDE_OLD_NS)))) {
+			    (xmlStrEqual(children->name, XINCLUDE_FALLBACK)) && ((xmlStrEqual(children->ns->href, XINCLUDE_NS)) || (xmlStrEqual(children->ns->href, XINCLUDE_OLD_NS)))) {
 				ret = xmlXIncludeLoadFallback(ctxt, children, nr);
 				if(ret == 0)
 					break;

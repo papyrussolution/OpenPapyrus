@@ -952,8 +952,7 @@ int InetUrl::Parse(const char * pUrl)
 		UriUri uri;
 		state.uri = &uri;
 		SString temp_buf;
-		int    r = UriParseUri(&state, pUrl); // == URI_SUCCESS
-		if(r == URI_SUCCESS) {
+		if(UriParseUri(&state, pUrl)) {
 			temp_buf.CopyFromN(uri.scheme.first, (uri.scheme.afterLast-uri.scheme.first));
 			if(temp_buf.NotEmpty()) {
 				Protocol = GetSchemeId(temp_buf);

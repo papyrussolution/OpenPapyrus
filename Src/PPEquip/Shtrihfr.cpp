@@ -394,11 +394,11 @@ private:
 		devtypeLight
 	};
 	enum ShtrihFlags {
-		sfConnected = 0x0001,     // установлена связь с Штрих-ФР, COM-порт занят
-		sfOpenCheck = 0x0002,     // чек открыт
-		sfCancelled = 0x0004,     // операция печати чека прервана пользователем
-		sfOldShtrih = 0x0008,     // старая версия драйвера Штрих-ФР
-		sfPrintSlip = 0x0010,     // печать подкладного документа
+		sfConnected     = 0x0001, // установлена связь с Штрих-ФР, COM-порт занят
+		sfOpenCheck     = 0x0002, // чек открыт
+		sfCancelled     = 0x0004, // операция печати чека прервана пользователем
+		sfOldShtrih     = 0x0008, // старая версия драйвера Штрих-ФР
+		sfPrintSlip     = 0x0010, // печать подкладного документа
 		sfNotUseCutter  = 0x0020, // не использовать отрезчик чеков
 		sfUseWghtSensor = 0x0040  // использовать весовой датчик
 	};
@@ -558,23 +558,23 @@ int	SLAPI SCS_SHTRIHFRF::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
 		THROW(ExecFRPrintOper(PrintString));
 		(temp_str = 0).Cat(amt + dscnt, SFMT_MONEY);
 		// @v9.7.1 prn_str = "СУММА БЕЗ СКИДКИ"; // @cstr #0
-		PPLoadText(PPTXT_CCFMT_AMTWODISCOUNT, prn_str); // @v9.7.1 
-		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
+		PPLoadText(PPTXT_CCFMT_AMTWODISCOUNT, prn_str); // @v9.7.1
+		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
 		THROW(SetFR(StringForPrinting, prn_str));
 		THROW(ExecFRPrintOper(PrintString));
 		if(scc.Search(pPack->Rec.SCardID, 0) > 0) {
 			// @v9.7.1 prn_str = "КАРТА"; // @cstr #1
-			PPLoadText(PPTXT_CCFMT_CARD, prn_str); // @v9.7.1 
-			prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
-			prn_str.Space().Cat(scc.data.Code); 
-			THROW(SetFR(StringForPrinting, prn_str)); 
+			PPLoadText(PPTXT_CCFMT_CARD, prn_str); // @v9.7.1
+			prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+			prn_str.Space().Cat(scc.data.Code);
+			THROW(SetFR(StringForPrinting, prn_str));
 			THROW(ExecFRPrintOper(PrintString));
 			if(scc.data.PersonID && GetPersonName(scc.data.PersonID, temp_str) > 0) {
 				// @v9.7.1 (prn_str = "ВЛАДЕЛЕЦ"); // @cstr #2
-				PPLoadText(PPTXT_CCFMT_CARDOWNER, prn_str); // @v9.7.1 
-				prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
-				prn_str.Space().Cat(temp_str.Transf(CTRANSF_INNER_TO_OUTER)); 
+				PPLoadText(PPTXT_CCFMT_CARDOWNER, prn_str); // @v9.7.1
+				prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+				prn_str.Space().Cat(temp_str.Transf(CTRANSF_INNER_TO_OUTER));
 				CutLongTail(prn_str);
 				THROW(SetFR(StringForPrinting, prn_str));
 				THROW(ExecFRPrintOper(PrintString));
@@ -582,9 +582,9 @@ int	SLAPI SCS_SHTRIHFRF::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
 		}
 		(temp_str = 0).Cat(dscnt, SFMT_MONEY);
 		// @v9.7.1 (prn_str = "СКИДКА"); // @cstr #3
-		PPLoadText(PPTXT_CCFMT_DISCOUNT, prn_str); // @v9.7.1 
-		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
-		prn_str.Space().Cat(pcnt, MKSFMTD(0, (flags & PRNCHK_ROUNDINT) ? 0 : 1, NMBF_NOTRAILZ)).CatChar('%'); 
+		PPLoadText(PPTXT_CCFMT_DISCOUNT, prn_str); // @v9.7.1
+		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+		prn_str.Space().Cat(pcnt, MKSFMTD(0, (flags & PRNCHK_ROUNDINT) ? 0 : 1, NMBF_NOTRAILZ)).CatChar('%');
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
 		THROW(SetFR(StringForPrinting, prn_str));
 		THROW(ExecFRPrintOper(PrintString));
@@ -1080,9 +1080,9 @@ int SLAPI SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry
 			THROW(ExecFR(GetFieldStruct));
 			{
 				// @v9.7.1 temp_buf = "НАЛОГ С ПРОДАЖ"; // @cstr #5
-				PPLoadText(PPTXT_CCFMT_STAX, temp_buf); // @v9.7.1 
-				temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
-				THROW(SetFR(ValueOfFieldString, temp_buf)); 
+				PPLoadText(PPTXT_CCFMT_STAX, temp_buf); // @v9.7.1
+				temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+				THROW(SetFR(ValueOfFieldString, temp_buf));
 			}
 			THROW(ExecFR(WriteTable));
 		}
@@ -1166,14 +1166,14 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double mul
 		}
 		THROW(SetFR(tax_no, 0L));
 		// @v9.7.1 prn_str = "СУММА ПО СТАВКЕ НДС"; // @cstr #6
-		PPLoadText(PPTXT_CCFMT_AMTBYVATRATE, prn_str); // @v9.7.1 
-		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
+		PPLoadText(PPTXT_CCFMT_AMTBYVATRATE, prn_str); // @v9.7.1
+		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
 		prn_str.Space().Cat(fdiv100i(bte.VAT), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%');
 		if(bte.SalesTax) {
 			// @v9.7.1 temp_buf = "НСП"; // @cstr #7
-			PPLoadText(PPTXT_CCFMT_STAX_S, temp_buf); // @v9.7.1 
-			temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
-			prn_str.Space().Cat(temp_buf).Space().Cat(fdiv100i(bte.SalesTax), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%'); 
+			PPLoadText(PPTXT_CCFMT_STAX_S, temp_buf); // @v9.7.1
+			temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+			prn_str.Space().Cat(temp_buf).Space().Cat(fdiv100i(bte.SalesTax), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%');
 		}
 		THROW(SetFR(StringForPrinting, prn_str));
 		THROW(ExecFRPrintOper((flags & PRNCHK_RETURN) ? ReturnSale : Sale));
@@ -1181,8 +1181,8 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double mul
 	}
 	if(name.NotEmptyS()) {
 		// @v9.7.1 prn_str = "ПОЛУЧАТЕЛЬ"; // @cstr #8
-		PPLoadText(PPTXT_CCFMT_RECEIVER, prn_str); // @v9.7.1 
-		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
+		PPLoadText(PPTXT_CCFMT_RECEIVER, prn_str); // @v9.7.1
+		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
 		prn_str.Space().Cat(name.Transf(CTRANSF_INNER_TO_OUTER));
 		CutLongTail(prn_str);
 		THROW(SetFR(StringForPrinting, prn_str));
@@ -1335,16 +1335,16 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(CCheckPacket * pPack, const char * pForm
 			THROW(SetFR(UseJournalRibbon, FALSE));
 		{
 			// @v9.7.1 temp_buf = "КОПИЯ ЧЕКА"; // @cstr #9
-			PPLoadText(PPTXT_CCFMT_CHKCOPY, temp_buf); // @v9.7.1 
-			temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
-			THROW(SetFR(DocumentName, temp_buf)); 
+			PPLoadText(PPTXT_CCFMT_CHKCOPY, temp_buf); // @v9.7.1
+			temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+			THROW(SetFR(DocumentName, temp_buf));
 		}
 		THROW(ExecFRPrintOper(PrintDocumentTitle));
 		{
 			// @v9.7.1 temp_buf = (flags & PRNCHK_RETURN) ? "ВОЗВРАТ ПРОДАЖИ" : "ПРОДАЖА"; // @cstr #10 #11
-			PPLoadText((flags & PRNCHK_RETURN) ? PPTXT_CCFMT_RETURN : PPTXT_CCFMT_SALE, temp_buf); // @v9.7.1 
-			temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
-			THROW(SetFR(StringForPrinting, temp_buf)); 
+			PPLoadText((flags & PRNCHK_RETURN) ? PPTXT_CCFMT_RETURN : PPTXT_CCFMT_SALE, temp_buf); // @v9.7.1
+			temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+			THROW(SetFR(StringForPrinting, temp_buf));
 		}
 		THROW(ExecFRPrintOper(PrintString));
 		for(pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
@@ -1368,8 +1368,8 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(CCheckPacket * pPack, const char * pForm
 		THROW(ExecFRPrintOper(PrintString));
 		(temp_buf = 0).CatEq(0, fabs(MONEYTOLDBL(pPack->Rec.Amount)), SFMT_MONEY);
 		// @v9.7.1 prn_str = "ИТОГ"; // @cstr #12
-		PPLoadText(PPTXT_CCFMT_TOTAL, prn_str); // @v9.7.1 
-		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
+		PPLoadText(PPTXT_CCFMT_TOTAL, prn_str); // @v9.7.1
+		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
 		prn_str.CatCharN(' ', CheckStrLen / 2 - prn_str.Len() - temp_buf.Len()).Cat(temp_buf);
 		THROW(SetFR(StringForPrinting, prn_str));
 		THROW(ExecFRPrintOper(PrintWideString));
@@ -1773,8 +1773,8 @@ int SLAPI SCS_SHTRIHFRF::WriteValueToTbl(int tblNum, int rowNum, int fldNum, lon
 
 int SLAPI SCS_SHTRIHFRF::SetupTables()
 {
-	int     ok = 1;
-	long    cshr_pssw;
+	int    ok = 1;
+	long   cshr_pssw;
 	SString temp_buf;//cshr_name;
 	SString cshr_str;
 	if(GetCurUserPerson(0, &temp_buf) == -1) {
@@ -1806,15 +1806,23 @@ int SLAPI SCS_SHTRIHFRF::SetupTables()
 	//    Нет автоматической отрезки чека
 	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW,
 		(DeviceType == devtypeCombo || DeviceType == devtypeMini) ? COMBOCASHMODE_CUTTING : FRCASHMODE_CUTTING, 0));
+	/* @v9.7.4 Проблемы с модернизированными аппаратами
 	//    Установить использование весовых датчиков
-	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, oneof2(DeviceType, devtypeCombo, devtypeMini) ? 
+	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, oneof2(DeviceType, devtypeCombo, devtypeMini) ?
 		COMBOCASHMODE_USEWGHTSENSOR : FRCASHMODE_USEWGHTSENSOR, BIN(Flags & sfUseWghtSensor)));
+	*/
 	//    Установить автоматический перевод времени
 	//THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
 	//	DeviceType == devtypeMini) ? COMBOCASHMODE_AUTOTIMING : FRCASHMODE_AUTOTIMING, 1));
 	//    Не сохранять строки в буфере чека
-	THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, oneof2(DeviceType, devtypeCombo, devtypeMini) ? 
-		COMBOCASHMODE_SAVESTRING : FRCASHMODE_SAVESTRING, 0));
+	/* @v9.7.5 В новых аппаратах путаница с нумерацией полей. Просто ничего не будем писать в это поле.
+	if(oneof2(DeviceType, devtypeCombo, devtypeMini)) {
+		THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, COMBOCASHMODE_SAVESTRING, 0));
+	}
+	else {
+		THROW(WriteValueToTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, FRCASHMODE_SAVESTRING, 0));
+	}
+	*/
 	/*    Современные версии Штриха запрещают редактирование таблицы перевода времени
 	THROW(ReadValueFromTbl(FRCASHMODE_TBL, FRCASHMODE_ROW, (DeviceType == devtypeCombo ||
 		DeviceType == devtypeMini) ? COMBOCASHMODE_AUTOTIMING : FRCASHMODE_AUTOTIMING, &auto_timing));
@@ -1847,9 +1855,9 @@ int SLAPI SCS_SHTRIHFRF::SetupTables()
 	//
 	{
 		// @v9.7.1 temp_buf = "БЕЗНАЛИЧНАЯ ОПЛАТА"; // @cstr #13
-		PPLoadText(PPTXT_CCFMT_CASHLESSPAYM, temp_buf); // @v9.7.1 
-		temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
-		THROW(WriteStringToTbl(FRPAYMTYPE_TBL, 2, FRPAYMTYPE_NAME, temp_buf)); 
+		PPLoadText(PPTXT_CCFMT_CASHLESSPAYM, temp_buf); // @v9.7.1
+		temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+		THROW(WriteStringToTbl(FRPAYMTYPE_TBL, 2, FRPAYMTYPE_NAME, temp_buf));
 	}
 	THROW(WriteStringToTbl(FRPAYMTYPE_TBL, 3, FRPAYMTYPE_NAME, ""));
 	THROW(WriteStringToTbl(FRPAYMTYPE_TBL, 4, FRPAYMTYPE_NAME, ""));
@@ -2009,7 +2017,7 @@ void SLAPI SCS_SHTRIHFRF::WriteLogFile(PPID id)
 		size_t  pos = 0;
 		char    mode_descr[MAXPATH];
 		SString msg_fmt, msg;
-		SString err_msg(DS.GetConstTLA().AddedMsgString);
+		SString err_msg = DS.GetConstTLA().AddedMsgString;
 		SString oper_name;
 		PPLoadText(PPTXT_LOG_SHTRIH, msg_fmt);
 		P_DrvFRIntrf->GetNameByID(id, oper_name);
@@ -2149,9 +2157,9 @@ void SLAPI SCS_SHTRIHFRF::SetErrorMessage()
 			if(GetFR(ECRModeDescription, mode_descr, sizeof(mode_descr) - 1) > 0) {
 				SString temp_buf;
 				// @v9.7.1 temp_buf = "Режим"; // @cstr
-				PPLoadText(PPTXT_CCFMT_MODE, temp_buf); // @v9.7.1 
-				temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1 
-				err_msg.CR().CatChar('\003').Cat(temp_buf).CatDiv(':', 2).Cat(mode_descr); 
+				PPLoadText(PPTXT_CCFMT_MODE, temp_buf); // @v9.7.1
+				temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+				err_msg.CR().CatChar('\003').Cat(temp_buf).CatDiv(':', 2).Cat(mode_descr);
 			}
 		}
 		err_msg.Transf(CTRANSF_OUTER_TO_INNER);
