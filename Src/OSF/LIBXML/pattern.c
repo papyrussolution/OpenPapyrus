@@ -285,7 +285,7 @@ static xmlPatParserContextPtr xmlNewPatParserContext(const xmlChar * pattern, xm
 	if(pattern == NULL)
 		return 0;
 	cur = (xmlPatParserContextPtr)xmlMalloc(sizeof(xmlPatParserContext));
-	if(cur == NULL) {
+	if(!cur) {
 		ERROR(0, 0, 0, "xmlNewPatParserContext : malloc failed\n");
 		return 0;
 	}
@@ -303,7 +303,7 @@ static xmlPatParserContextPtr xmlNewPatParserContext(const xmlChar * pattern, xm
 		cur->nb_namespaces = 0;
 	}
 	cur->namespaces = namespaces;
-	return(cur);
+	return cur;
 }
 
 /**
@@ -602,7 +602,7 @@ restart:
 			    (node->type == XML_NAMESPACE_DECL))
 				    goto rollback;
 			    node = node->parent;
-			    while(node != NULL) {
+			    while(node) {
 				    if((node->type == XML_ELEMENT_NODE) && (step->value[0] == node->name[0]) && (xmlStrEqual(step->value, node->name))) {
 					    /* Namespace test */
 					    if(node->ns == NULL) {
@@ -672,7 +672,7 @@ rollback:
 *									*
 ************************************************************************/
 
-#define TODO xmlGenericError(xmlGenericErrorContext, "Unimplemented block at %s:%d\n", __FILE__, __LINE__);
+#define TODO xmlGenericError(0, "Unimplemented block at %s:%d\n", __FILE__, __LINE__);
 #define CUR  (*ctxt->cur)
 #define SKIP(val) ctxt->cur += (val)
 #define NXT(val) ctxt->cur[(val)]
@@ -1362,7 +1362,7 @@ error_unfinished:
 				}
 				static void xmlDebugStreamCtxt(xmlStreamCtxtPtr ctxt, int match) 
 				{
-					if(ctxt == NULL) {
+					if(!ctxt) {
 						printf("Stream: NULL\n");
 					}
 					else {
@@ -1398,7 +1398,7 @@ static xmlStreamCompPtr xmlNewStreamComp(int size)
 {
 	SETMAX(size, 4);
 	xmlStreamCompPtr cur = (xmlStreamCompPtr)xmlMalloc(sizeof(xmlStreamComp));
-	if(cur == NULL) {
+	if(!cur) {
 		ERROR(0, 0, 0, "xmlNewStreamComp: malloc failed\n");
 		return 0;
 	}
@@ -1411,7 +1411,7 @@ static xmlStreamCompPtr xmlNewStreamComp(int size)
 	}
 	cur->nbStep = 0;
 	cur->maxStep = size;
-	return(cur);
+	return cur;
 }
 /**
  * xmlStreamCompAddStep:
@@ -1429,7 +1429,7 @@ static int xmlStreamCompAddStep(xmlStreamCompPtr comp, const xmlChar * name, con
 	xmlStreamStepPtr cur;
 	if(comp->nbStep >= comp->maxStep) {
 		cur = (xmlStreamStepPtr)xmlRealloc(comp->steps, comp->maxStep * 2 * sizeof(xmlStreamStep));
-		if(cur == NULL) {
+		if(!cur) {
 			ERROR(0, 0, 0, "xmlNewStreamComp: malloc failed\n");
 			return -1;
 		}
@@ -1637,7 +1637,7 @@ error:
 static xmlStreamCtxtPtr xmlNewStreamCtxt(xmlStreamCompPtr stream)
 {
 	xmlStreamCtxtPtr cur = (xmlStreamCtxtPtr)xmlMalloc(sizeof(xmlStreamCtxt));
-	if(cur == NULL) {
+	if(!cur) {
 		ERROR(0, 0, 0, "xmlNewStreamCtxt: malloc failed\n");
 	}
 	else {
@@ -1694,7 +1694,7 @@ static int xmlStreamCtxtAddState(xmlStreamCtxtPtr comp, int idx, int level)
 	}
 	if(comp->nbState >= comp->maxState) {
 		int * cur = (int*)xmlRealloc(comp->states, comp->maxState * 4 * sizeof(int));
-		if(cur == NULL) {
+		if(!cur) {
 			ERROR(0, 0, 0, "xmlNewStreamCtxt: malloc failed\n");
 			return -1;
 		}
@@ -2226,10 +2226,10 @@ xmlPatternPtr xmlPatterncompile(const xmlChar * pattern, xmlDict * dict, int fla
 			}
 			or++;
 		}
-		if(ctxt == NULL)
+		if(!ctxt)
 			goto error;
 		cur = xmlNewPattern();
-		if(cur == NULL)
+		if(!cur)
 			goto error;
 		/*
 			* Assign string dict.
@@ -2276,7 +2276,7 @@ xmlPatternPtr xmlPatterncompile(const xmlChar * pattern, xmlDict * dict, int fla
 	}
 	if(streamable == 0) {
 		cur = ret;
-		while(cur != NULL) {
+		while(cur) {
 			xmlFreeStreamComp(cur->stream);
 			cur->stream = NULL;
 			cur = cur->next;
@@ -2331,7 +2331,7 @@ xmlStreamCtxtPtr xmlPatternGetStreamCtxt(xmlPatternPtr comp)
 		if(comp->stream == NULL)
 			goto failed;
 		cur = xmlNewStreamCtxt(comp->stream);
-		if(cur == NULL)
+		if(!cur)
 			goto failed;
 		if(ret == NULL)
 			ret = cur;
@@ -2390,7 +2390,7 @@ int xmlPatternMaxDepth(xmlPatternPtr comp)
 			return -1;
 		for(i = 0; i < comp->stream->nbStep; i++)
 			if(comp->stream->steps[i].flags & XML_STREAM_STEP_DESC)
-				return(-2);
+				return -2;
 		if(comp->stream->nbStep > ret)
 			ret = comp->stream->nbStep;
 		comp = comp->next;

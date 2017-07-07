@@ -63,7 +63,7 @@ int xmlIsXHTML(const xmlChar * systemID, const xmlChar * publicID) {
 
 #ifdef LIBXML_OUTPUT_ENABLED
 
-#define TODO xmlGenericError(xmlGenericErrorContext, "Unimplemented block at %s:%d\n", __FILE__, __LINE__);
+#define TODO xmlGenericError(0, "Unimplemented block at %s:%d\n", __FILE__, __LINE__);
 
 struct _xmlSaveCtxt {
 	void * _private;
@@ -287,8 +287,7 @@ static int xmlEscapeEntities(uchar* out, int * outlen,
 			out = xmlSerializeHexCharRef(out, *in++);
 		}
 		else {
-			xmlGenericError(xmlGenericErrorContext,
-			    "xmlEscapeEntities : char out of range\n");
+			xmlGenericError(0, "xmlEscapeEntities : char out of range\n");
 			in++;
 			goto error;
 		}
@@ -317,7 +316,7 @@ static void xmlSaveCtxtInit(xmlSaveCtxtPtr ctxt)
 {
 	int i;
 	int len;
-	if(ctxt == NULL) return;
+	if(!ctxt) return;
 	if((ctxt->encoding == NULL) && (ctxt->escape == NULL))
 		ctxt->escape = xmlEscapeEntities;
 	len = xmlStrlen((xmlChar*)xmlTreeIndentString);
@@ -344,7 +343,7 @@ static void xmlSaveCtxtInit(xmlSaveCtxtPtr ctxt)
  */
 static void xmlFreeSaveCtxt(xmlSaveCtxtPtr ctxt)
 {
-	if(ctxt == NULL) return;
+	if(!ctxt) return;
 	if(ctxt->encoding != NULL)
 		free((char*)ctxt->encoding);
 	if(ctxt->buf != NULL)
@@ -657,7 +656,7 @@ static void FASTCALL xmlNsListDumpOutputCtxt(xmlSaveCtxtPtr ctxt, xmlNsPtr cur)
  * Should be called in the context of attributes dumps.
  */
 void xmlNsListDumpOutput(xmlOutputBufferPtr buf, xmlNsPtr cur) {
-	while(cur != NULL) {
+	while(cur) {
 		xmlNsDumpOutput(buf, cur, NULL);
 		cur = cur->next;
 	}
@@ -677,7 +676,7 @@ static void xmlDtdDumpOutput(xmlSaveCtxtPtr ctxt, xmlDtdPtr dtd)
 	xmlDocPtr doc;
 	if(dtd == NULL)
 		return;
-	if((ctxt == NULL) || (ctxt->buf == NULL))
+	if(!ctxt || (ctxt->buf == NULL))
 		return;
 	buf = ctxt->buf;
 	xmlOutputBufferWrite(buf, 10, "<!DOCTYPE ");
@@ -729,7 +728,7 @@ static void xmlDtdDumpOutput(xmlSaveCtxtPtr ctxt, xmlDtdPtr dtd)
 static void xmlAttrDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur) {
 	xmlOutputBufferPtr buf;
 
-	if(cur == NULL) return;
+	if(!cur) return;
 	buf = ctxt->buf;
 	if(buf == NULL) return;
 	if(ctxt->format == 2)
@@ -756,8 +755,8 @@ static void xmlAttrDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur) {
  * Dump a list of XML attributes
  */
 static void xmlAttrListDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur) {
-	if(cur == NULL) return;
-	while(cur != NULL) {
+	if(!cur) return;
+	while(cur) {
 		xmlAttrDumpOutput(ctxt, cur);
 		cur = cur->next;
 	}
@@ -772,9 +771,9 @@ static void xmlAttrListDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur) {
 static void xmlNodeListDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 	xmlOutputBufferPtr buf;
 
-	if(cur == NULL) return;
+	if(!cur) return;
 	buf = ctxt->buf;
-	while(cur != NULL) {
+	while(cur) {
 		if((ctxt->format == 1) && (xmlIndentTreeOutput) &&
 		    ((cur->type == XML_ELEMENT_NODE) ||
 			    (cur->type == XML_COMMENT_NODE) ||
@@ -861,7 +860,7 @@ static void xmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 	xmlChar * start, * end;
 	xmlOutputBufferPtr buf;
 
-	if(cur == NULL) return;
+	if(!cur) return;
 	buf = ctxt->buf;
 	if(cur->type == XML_XINCLUDE_START)
 		return;
@@ -1025,7 +1024,7 @@ static void xmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 	if((cur->type != XML_ELEMENT_NODE) && (cur->content != NULL)) {
 		xmlOutputBufferWriteEscape(buf, cur->content, ctxt->escape);
 	}
-	if(cur->children != NULL) {
+	if(cur->children) {
 		if(ctxt->format == 1) xmlOutputBufferWrite(buf, 1, "\n");
 		if(ctxt->level >= 0) ctxt->level++;
 		xmlNodeListDumpOutput(ctxt, cur->children);
@@ -1161,7 +1160,7 @@ static int xmlDocContentDumpOutput(xmlSaveCtxtPtr ctxt, xmlDocPtr cur)
 			}
 		}
 #endif
-		if(cur->children != NULL) {
+		if(cur->children) {
 			xmlNodePtr child = cur->children;
 			while(child != NULL) {
 				ctxt->level = 0;
@@ -1277,10 +1276,10 @@ static void xhtmlAttrListDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur) {
 	xmlNodePtr parent;
 	xmlOutputBufferPtr buf;
 
-	if(cur == NULL) return;
+	if(!cur) return;
 	buf = ctxt->buf;
 	parent = cur->parent;
-	while(cur != NULL) {
+	while(cur) {
 		if((cur->ns == NULL) && (xmlStrEqual(cur->name, BAD_CAST "id")))
 			id = cur;
 		else if((cur->ns == NULL) && (xmlStrEqual(cur->name, BAD_CAST "name")))
@@ -1295,10 +1294,10 @@ static void xhtmlAttrListDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur) {
 			    (cur->children->content == NULL) ||
 			    (cur->children->content[0] == 0)) &&
 		    (htmlIsBooleanAttr(cur->name))) {
-			if(cur->children != NULL)
+			if(cur->children)
 				xmlFreeNode(cur->children);
 			cur->children = xmlNewText(cur->name);
-			if(cur->children != NULL)
+			if(cur->children)
 				cur->children->parent = (xmlNode *)cur;
 		}
 		xmlAttrDumpOutput(ctxt, cur);
@@ -1354,9 +1353,9 @@ static void xhtmlAttrListDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur) {
 static void xhtmlNodeListDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 	xmlOutputBufferPtr buf;
 
-	if(cur == NULL) return;
+	if(!cur) return;
 	buf = ctxt->buf;
-	while(cur != NULL) {
+	while(cur) {
 		if((ctxt->format == 1) && (xmlIndentTreeOutput) &&
 		    (cur->type == XML_ELEMENT_NODE))
 			xmlOutputBufferWrite(buf, ctxt->indent_size *
@@ -1388,7 +1387,7 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 	xmlChar * start, * end;
 	xmlOutputBufferPtr buf;
 
-	if(cur == NULL) return;
+	if(!cur) return;
 	if((cur->type == XML_DOCUMENT_NODE) ||
 	    (cur->type == XML_HTML_DOCUMENT_NODE)) {
 		xmlDocContentDumpOutput(ctxt, (xmlDocPtr)cur);
@@ -1683,7 +1682,7 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 	}
 #endif
 
-	if(cur->children != NULL) {
+	if(cur->children) {
 		int indent = ctxt->format;
 
 		if(format == 1) xmlOutputBufferWrite(buf, 1, "\n");
@@ -1852,7 +1851,7 @@ long xmlSaveDoc(xmlSaveCtxtPtr ctxt, xmlDocPtr doc)
 {
 	long ret = 0;
 
-	if((ctxt == NULL) || (doc == NULL)) return -1;
+	if(!ctxt || (doc == NULL)) return -1;
 	if(xmlDocContentDumpOutput(ctxt, doc) < 0)
 		return -1;
 	return ret;
@@ -1873,7 +1872,7 @@ long xmlSaveTree(xmlSaveCtxtPtr ctxt, xmlNodePtr node)
 {
 	long ret = 0;
 
-	if((ctxt == NULL) || (node == NULL)) return -1;
+	if(!ctxt || (node == NULL)) return -1;
 	xmlNodeDumpOutputInternal(ctxt, node);
 	return ret;
 }
@@ -1889,7 +1888,7 @@ long xmlSaveTree(xmlSaveCtxtPtr ctxt, xmlNodePtr node)
  */
 int xmlSaveFlush(xmlSaveCtxtPtr ctxt)
 {
-	if(ctxt == NULL) return -1;
+	if(!ctxt) return -1;
 	if(ctxt->buf == NULL) return -1;
 	return(xmlOutputBufferFlush(ctxt->buf));
 }
@@ -1906,7 +1905,7 @@ int xmlSaveFlush(xmlSaveCtxtPtr ctxt)
 int xmlSaveClose(xmlSaveCtxtPtr ctxt)
 {
 	int ret;
-	if(ctxt == NULL) return -1;
+	if(!ctxt) return -1;
 	ret = xmlSaveFlush(ctxt);
 	xmlFreeSaveCtxt(ctxt);
 	return ret;
@@ -1923,7 +1922,7 @@ int xmlSaveClose(xmlSaveCtxtPtr ctxt)
  */
 int xmlSaveSetEscape(xmlSaveCtxtPtr ctxt, xmlCharEncodingOutputFunc escape)
 {
-	if(ctxt == NULL) return -1;
+	if(!ctxt) return -1;
 	ctxt->escape = escape;
 	return 0;
 }
@@ -1939,7 +1938,7 @@ int xmlSaveSetEscape(xmlSaveCtxtPtr ctxt, xmlCharEncodingOutputFunc escape)
  */
 int xmlSaveSetAttrEscape(xmlSaveCtxtPtr ctxt, xmlCharEncodingOutputFunc escape)
 {
-	if(ctxt == NULL) return -1;
+	if(!ctxt) return -1;
 	ctxt->escapeAttr = escape;
 	return 0;
 }
@@ -2160,14 +2159,14 @@ size_t xmlBufNodeDump(xmlBufPtr buf, xmlDocPtr doc, xmlNodePtr cur, int level, i
 	xmlOutputBufferPtr outbuf;
 	int oldalloc;
 	xmlInitParser();
-	if(cur == NULL) {
+	if(!cur) {
 #ifdef DEBUG_TREE
-		xmlGenericError(xmlGenericErrorContext, "xmlNodeDump : node == NULL\n");
+		xmlGenericError(0, "xmlNodeDump : node == NULL\n");
 #endif
 	}
 	else if(buf == NULL) {
 #ifdef DEBUG_TREE
-		xmlGenericError(xmlGenericErrorContext, "xmlNodeDump : buf == NULL\n");
+		xmlGenericError(0, "xmlNodeDump : buf == NULL\n");
 #endif
 	}
 	else {
@@ -2206,15 +2205,15 @@ size_t xmlBufNodeDump(xmlBufPtr buf, xmlDocPtr doc, xmlNodePtr cur, int level, i
 void xmlElemDump(FILE * f, xmlDocPtr doc, xmlNodePtr cur)
 {
 	xmlInitParser();
-	if(cur == NULL) {
+	if(!cur) {
 #ifdef DEBUG_TREE
-		xmlGenericError(xmlGenericErrorContext, "xmlElemDump : cur == NULL\n");
+		xmlGenericError(0, "xmlElemDump : cur == NULL\n");
 #endif
 	}
 	else {
 #ifdef DEBUG_TREE
 		if(doc == NULL) {
-			xmlGenericError(xmlGenericErrorContext, "xmlElemDump : doc == NULL\n");
+			xmlGenericError(0, "xmlElemDump : doc == NULL\n");
 		}
 #endif
 		xmlOutputBufferPtr outbuf = xmlOutputBufferCreateFile(f, NULL);
@@ -2428,9 +2427,9 @@ int xmlDocFormatDump(FILE * f, xmlDocPtr cur, int format)
 	const char * encoding;
 	xmlCharEncodingHandlerPtr handler = NULL;
 	int ret;
-	if(cur == NULL) {
+	if(!cur) {
 #ifdef DEBUG_TREE
-		xmlGenericError(xmlGenericErrorContext, "xmlDocDump : document == NULL\n");
+		xmlGenericError(0, "xmlDocDump : document == NULL\n");
 #endif
 		return -1;
 	}
@@ -2489,7 +2488,7 @@ int xmlSaveFileTo(xmlOutputBufferPtr buf, xmlDocPtr cur, const char * encoding)
 	xmlSaveCtxt ctxt;
 	int ret;
 	if(buf == NULL) return -1;
-	if(cur == NULL) {
+	if(!cur) {
 		xmlOutputBufferClose(buf);
 		return -1;
 	}

@@ -184,7 +184,7 @@ XMLPUBFUN xmlOutputBufferPtr XMLCALL xmlOutputBufferCreateIO(xmlOutputWriteCallb
 XMLPUBFUN const xmlChar * XMLCALL xmlOutputBufferGetContent(xmlOutputBufferPtr out);
 XMLPUBFUN size_t XMLCALL xmlOutputBufferGetSize(xmlOutputBufferPtr out);
 XMLPUBFUN int XMLCALL xmlOutputBufferWrite(xmlOutputBufferPtr out, int len, const char *buf);
-XMLPUBFUN int XMLCALL xmlOutputBufferWriteString(xmlOutputBufferPtr out, const char *str);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlOutputBufferWriteString(xmlOutputBufferPtr out, const char *str);
 XMLPUBFUN int XMLCALL xmlOutputBufferWriteEscape(xmlOutputBufferPtr out, const xmlChar *str, xmlCharEncodingOutputFunc escaping);
 XMLPUBFUN int XMLCALL xmlOutputBufferFlush(xmlOutputBufferPtr out);
 XMLPUBFUN int XMLCALL xmlOutputBufferClose(xmlOutputBufferPtr out);

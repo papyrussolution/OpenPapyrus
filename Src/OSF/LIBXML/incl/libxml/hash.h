@@ -100,7 +100,7 @@ typedef void (*xmlHashScannerFull)(void *payload, void *data, const xmlChar *nam
  */
 XMLPUBFUN xmlHashTablePtr XMLCALL xmlHashCreate(int size);
 XMLPUBFUN xmlHashTablePtr XMLCALL xmlHashCreateDict(int size, xmlDictPtr dict);
-XMLPUBFUN void XMLCALL xmlHashFree(xmlHashTablePtr table, xmlHashDeallocator f);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlHashFree(xmlHashTablePtr table, xmlHashDeallocator f);
 
 /*
  * Add a new entry to the hash table.

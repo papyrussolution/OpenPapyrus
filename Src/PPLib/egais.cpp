@@ -1,49 +1,49 @@
 // EGAIS.CPP
 // Copyright (c) A.Sobolev 2015, 2016, 2017
-//
-// Поддержка форматов для обмена с системой EGAIS
+// РџРѕРґРґРµСЂР¶РєР° С„РѕСЂРјР°С‚РѕРІ РґР»СЏ РѕР±РјРµРЅР° СЃ СЃРёСЃС‚РµРјРѕР№ EGAIS
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 
 /*
-#define BEDIUS_DESADV_OUT_SENDED            1 // Документ отправлен получателю в виде DESADV
-#define BEDIUS_DESADV_OUT_PROCESSED         2 // Документ, отправленный получателю в виде DESADV, принят EDI-сервером
-#define BEDIUS_DESADV_OUT_RECADV_ACC        3 // На документ, отправленный получателю в виде DESADV, получен RECADV "принят"
-#define BEDIUS_DESADV_OUT_RECADV_PACC       4 // На документ, отправленный получателю в виде DESADV, получен RECADV "частично принят"
-#define BEDIUS_DESADV_OUT_RECADV_REJ        5 // На документ, отправленный получателю в виде DESADV, получен RECADV "отклонен"
-#define BEDIUS_DESADV_OUT_RECADV_CONF_ACC   6 // В ответ на RECADV отправлено подтверждение "принято"
-#define BEDIUS_DESADV_OUT_RECADV_CONF_REJ   7 // В ответ на RECADV отправлено подтверждение "отклонено"
+#define BEDIUS_DESADV_OUT_SENDED            1 // Р”РѕРєСѓРјРµРЅС‚ РѕС‚РїСЂР°РІР»РµРЅ РїРѕР»СѓС‡Р°С‚РµР»СЋ РІ РІРёРґРµ DESADV
+#define BEDIUS_DESADV_OUT_PROCESSED         2 // Р”РѕРєСѓРјРµРЅС‚, РѕС‚РїСЂР°РІР»РµРЅРЅС‹Р№ РїРѕР»СѓС‡Р°С‚РµР»СЋ РІ РІРёРґРµ DESADV, РїСЂРёРЅСЏС‚ EDI-СЃРµСЂРІРµСЂРѕРј
+#define BEDIUS_DESADV_OUT_RECADV_ACC        3 // РќР° РґРѕРєСѓРјРµРЅС‚, РѕС‚РїСЂР°РІР»РµРЅРЅС‹Р№ РїРѕР»СѓС‡Р°С‚РµР»СЋ РІ РІРёРґРµ DESADV, РїРѕР»СѓС‡РµРЅ RECADV "РїСЂРёРЅСЏС‚"
+#define BEDIUS_DESADV_OUT_RECADV_PACC       4 // РќР° РґРѕРєСѓРјРµРЅС‚, РѕС‚РїСЂР°РІР»РµРЅРЅС‹Р№ РїРѕР»СѓС‡Р°С‚РµР»СЋ РІ РІРёРґРµ DESADV, РїРѕР»СѓС‡РµРЅ RECADV "С‡Р°СЃС‚РёС‡РЅРѕ РїСЂРёРЅСЏС‚"
+#define BEDIUS_DESADV_OUT_RECADV_REJ        5 // РќР° РґРѕРєСѓРјРµРЅС‚, РѕС‚РїСЂР°РІР»РµРЅРЅС‹Р№ РїРѕР»СѓС‡Р°С‚РµР»СЋ РІ РІРёРґРµ DESADV, РїРѕР»СѓС‡РµРЅ RECADV "РѕС‚РєР»РѕРЅРµРЅ"
+#define BEDIUS_DESADV_OUT_RECADV_CONF_ACC   6 // Р’ РѕС‚РІРµС‚ РЅР° RECADV РѕС‚РїСЂР°РІР»РµРЅРѕ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ "РїСЂРёРЅСЏС‚Рѕ"
+#define BEDIUS_DESADV_OUT_RECADV_CONF_REJ   7 // Р’ РѕС‚РІРµС‚ РЅР° RECADV РѕС‚РїСЂР°РІР»РµРЅРѕ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ "РѕС‚РєР»РѕРЅРµРЅРѕ"
 
-#define BEDIUS_DESADV_IN_ACCEPTED           8 // Документ получен от отправителя в виде DESADV
-#define BEDIUS_DESADV_IN_RECADV_ACC         9 // На документ, полученный от отправителя в виде DESADV, отправлен RECADV "принят"
-#define BEDIUS_DESADV_IN_RECADV_PACC       10 // На документ, полученный от отправителя в виде DESADV, отправлен RECADV "частично принят"
-#define BEDIUS_DESADV_IN_RECADV_REJ        11 // На документ, полученный от отправителя в виде DESADV, отправлен RECADV "отклонен"
+#define BEDIUS_DESADV_IN_ACCEPTED           8 // Р”РѕРєСѓРјРµРЅС‚ РїРѕР»СѓС‡РµРЅ РѕС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЏ РІ РІРёРґРµ DESADV
+#define BEDIUS_DESADV_IN_RECADV_ACC         9 // РќР° РґРѕРєСѓРјРµРЅС‚, РїРѕР»СѓС‡РµРЅРЅС‹Р№ РѕС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЏ РІ РІРёРґРµ DESADV, РѕС‚РїСЂР°РІР»РµРЅ RECADV "РїСЂРёРЅСЏС‚"
+#define BEDIUS_DESADV_IN_RECADV_PACC       10 // РќР° РґРѕРєСѓРјРµРЅС‚, РїРѕР»СѓС‡РµРЅРЅС‹Р№ РѕС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЏ РІ РІРёРґРµ DESADV, РѕС‚РїСЂР°РІР»РµРЅ RECADV "С‡Р°СЃС‚РёС‡РЅРѕ РїСЂРёРЅСЏС‚"
+#define BEDIUS_DESADV_IN_RECADV_REJ        11 // РќР° РґРѕРєСѓРјРµРЅС‚, РїРѕР»СѓС‡РµРЅРЅС‹Р№ РѕС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЏ РІ РІРёРґРµ DESADV, РѕС‚РїСЂР°РІР»РµРЅ RECADV "РѕС‚РєР»РѕРЅРµРЅ"
 */
 
 /*
 BILL_EDI_USER_STATE
 
-Пользовательские состояния отправленных документов:
+РџРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ РѕС‚РїСЂР°РІР»РµРЅРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ:
 
-- отправлен в УТМ                        yellow    тег PPTAG_BILL_EDIACK
-- успешно обработан ЕГАИС                orange    теги PPTAG_BILL_EDIACK и PPTAG_BILL_EDIIDENT
-- получено подтверждение от получателя
-	-- полностью принят                  green          тег PPTAG_BILL_EDIIDENT и BillCore::GetRecadvStatus() == PPEDI_RECADV_STATUS_ACCEPT
-	-- частично принят                   light green    тег PPTAG_BILL_EDIIDENT и BillCore::GetRecadvStatus() == PPEDI_RECADV_STATUS_PARTACCEPT
-	-- отказ                             brown          тег PPTAG_BILL_EDIIDENT и BillCore::GetRecadvStatus() == PPEDI_RECADV_STATUS_REJECT
-- отправлено подтверждение получателю
-	-- принято                           blue           тег PPTAG_BILL_EDIIDENT и BillCore::GetRecadvStatus() != PPEDI_RECADV_STATUS_UNDEF и
+- РѕС‚РїСЂР°РІР»РµРЅ РІ РЈРўРњ                        yellow    С‚РµРі PPTAG_BILL_EDIACK
+- СѓСЃРїРµС€РЅРѕ РѕР±СЂР°Р±РѕС‚Р°РЅ Р•Р“РђРРЎ                orange    С‚РµРіРё PPTAG_BILL_EDIACK Рё PPTAG_BILL_EDIIDENT
+- РїРѕР»СѓС‡РµРЅРѕ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РѕС‚ РїРѕР»СѓС‡Р°С‚РµР»СЏ
+	-- РїРѕР»РЅРѕСЃС‚СЊСЋ РїСЂРёРЅСЏС‚                  green          С‚РµРі PPTAG_BILL_EDIIDENT Рё BillCore::GetRecadvStatus() == PPEDI_RECADV_STATUS_ACCEPT
+	-- С‡Р°СЃС‚РёС‡РЅРѕ РїСЂРёРЅСЏС‚                   light green    С‚РµРі PPTAG_BILL_EDIIDENT Рё BillCore::GetRecadvStatus() == PPEDI_RECADV_STATUS_PARTACCEPT
+	-- РѕС‚РєР°Р·                             brown          С‚РµРі PPTAG_BILL_EDIIDENT Рё BillCore::GetRecadvStatus() == PPEDI_RECADV_STATUS_REJECT
+- РѕС‚РїСЂР°РІР»РµРЅРѕ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РїРѕР»СѓС‡Р°С‚РµР»СЋ
+	-- РїСЂРёРЅСЏС‚Рѕ                           blue           С‚РµРі PPTAG_BILL_EDIIDENT Рё BillCore::GetRecadvStatus() != PPEDI_RECADV_STATUS_UNDEF Рё
 															BillCore::GetRecadvConfStatus() == PPEDI_RECADVCONF_STATUS_ACCEPT
-	-- отказано                          grey           тег PPTAG_BILL_EDIIDENT и BillCore::GetRecadvStatus() != PPEDI_RECADV_STATUS_UNDEF и
+	-- РѕС‚РєР°Р·Р°РЅРѕ                          grey           С‚РµРі PPTAG_BILL_EDIIDENT Рё BillCore::GetRecadvStatus() != PPEDI_RECADV_STATUS_UNDEF Рё
 															BillCore::GetRecadvConfStatus() == PPEDI_RECADVCONF_STATUS_REJECT
 
-Пользовательские состояния принятых документов:
-- принят из ЕГАИС                        orange      EdiOp == PPEDIOP_EGAIS_WAYBILL
-- отправлен RECADV
-	-- полностью принят                  green       EdiOp == PPEDIOP_EGAIS_WAYBILL && BillCore::GetRecadvConfStatus() == PPEDI_RECADVCONF_STATUS_ACCEPT
-	-- частично принят                   light green EdiOp == PPEDIOP_EGAIS_WAYBILL && BillCore::GetRecadvConfStatus() == PPEDI_RECADVCONF_STATUS_PARTACCEPT
-	-- отказ                             brown       EdiOp == PPEDIOP_EGAIS_WAYBILL && BillCore::GetRecadvConfStatus() == PPEDI_RECADVCONF_STATUS_REJECT
+РџРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ РїСЂРёРЅСЏС‚С‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ:
+- РїСЂРёРЅСЏС‚ РёР· Р•Р“РђРРЎ                        orange      EdiOp == PPEDIOP_EGAIS_WAYBILL
+- РѕС‚РїСЂР°РІР»РµРЅ RECADV
+	-- РїРѕР»РЅРѕСЃС‚СЊСЋ РїСЂРёРЅСЏС‚                  green       EdiOp == PPEDIOP_EGAIS_WAYBILL && BillCore::GetRecadvConfStatus() == PPEDI_RECADVCONF_STATUS_ACCEPT
+	-- С‡Р°СЃС‚РёС‡РЅРѕ РїСЂРёРЅСЏС‚                   light green EdiOp == PPEDIOP_EGAIS_WAYBILL && BillCore::GetRecadvConfStatus() == PPEDI_RECADVCONF_STATUS_PARTACCEPT
+	-- РѕС‚РєР°Р·                             brown       EdiOp == PPEDIOP_EGAIS_WAYBILL && BillCore::GetRecadvConfStatus() == PPEDI_RECADVCONF_STATUS_REJECT
 */
 
 
@@ -451,7 +451,7 @@ int SLAPI PPEgaisProcessor::GetReplyList(void * pCtx, PPID locID, int direction 
 							THROW_SL(rList.insert(p_new_reply));
 						}
 						else if(SXml::GetContentByName(p_c, "ver", temp_buf)) {
-							// Фактически, здесь номер версии не используем
+							// Р¤Р°РєС‚РёС‡РµСЃРєРё, Р·РґРµСЃСЊ РЅРѕРјРµСЂ РІРµСЂСЃРёРё РЅРµ РёСЃРїРѕР»СЊР·СѓРµРј
 						}
 					}
 				}
@@ -543,8 +543,8 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 	SString temp_path;
 	SString mark_buf;
 	SBuffer ack_buf;
-	LongArray marked_pos_list;    // Список позиций чека, содержащих маркированный алкоголь (номера позиций [1..])
-	LongArray nonmarked_pos_list; // Список позиций чека, содержащих не маркированный алкоголь (номера позиций [1..])
+	LongArray marked_pos_list;    // РЎРїРёСЃРѕРє РїРѕР·РёС†РёР№ С‡РµРєР°, СЃРѕРґРµСЂР¶Р°С‰РёС… РјР°СЂРєРёСЂРѕРІР°РЅРЅС‹Р№ Р°Р»РєРѕРіРѕР»СЊ (РЅРѕРјРµСЂР° РїРѕР·РёС†РёР№ [1..])
+	LongArray nonmarked_pos_list; // РЎРїРёСЃРѕРє РїРѕР·РёС†РёР№ С‡РµРєР°, СЃРѕРґРµСЂР¶Р°С‰РёС… РЅРµ РјР°СЂРєРёСЂРѕРІР°РЅРЅС‹Р№ Р°Р»РєРѕРіРѕР»СЊ (РЅРѕРјРµСЂР° РїРѕР·РёС†РёР№ [1..])
 	PrcssrAlcReport::GoodsItem agi;
 	SString url;
 	{
@@ -573,7 +573,7 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 		PPObjCashNode cn_obj;
 		PPSyncCashNode cn_pack;
         THROW(cn_obj.GetSync(rPack.Rec.CashID, &cn_pack) > 0);
-        const PPID loc_id = NZOR(locID, cn_pack.LocID); // Переданный параметром locID имеет приоритет перед cn_pack.LocID
+        const PPID loc_id = NZOR(locID, cn_pack.LocID); // РџРµСЂРµРґР°РЅРЅС‹Р№ РїР°СЂР°РјРµС‚СЂРѕРј locID РёРјРµРµС‚ РїСЂРёРѕСЂРёС‚РµС‚ РїРµСЂРµРґ cn_pack.LocID
 		THROW(GetURL(loc_id, url));
 		THROW(GetDebugPath(loc_id, temp_path));
 		THROW(GetTempFileName(temp_path, "cc", "EGH", file_name));
@@ -629,9 +629,9 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 				cn_pack.GetPropString(SCN_MANUFSERIAL, temp_buf);
 				if(!temp_buf.NotEmptyS())
 					temp_buf.CatLongZ(1, 6);
-				n_doc.PutAttrib("kassa", EncText(temp_buf)); // Заводской номер кассы
+				n_doc.PutAttrib("kassa", EncText(temp_buf)); // Р—Р°РІРѕРґСЃРєРѕР№ РЅРѕРјРµСЂ РєР°СЃСЃС‹
 			}
-			n_doc.PutAttrib("shift",  (temp_buf = 0).Cat(rPack.Rec.SessID)); // Номер смены @todo Вероятно, здесь нужен номер, а не идентификатор
+			n_doc.PutAttrib("shift",  (temp_buf = 0).Cat(rPack.Rec.SessID)); // РќРѕРјРµСЂ СЃРјРµРЅС‹ @todo Р’РµСЂРѕСЏС‚РЅРѕ, Р·РґРµСЃСЊ РЅСѓР¶РµРЅ РЅРѕРјРµСЂ, Р° РЅРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
 			n_doc.PutAttrib("number", (temp_buf = 0).Cat(rPack.Rec.Code));
 			{
 				LDATETIME _dtm;
@@ -667,7 +667,7 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 							{
 								GObj.GetSingleBarcode(r_item.GoodsID, temp_buf);
 								result_barcode = 0;
-								int    dbr = 0; // Результат диагностики штрихкода
+								int    dbr = 0; // Р РµР·СѓР»СЊС‚Р°С‚ РґРёР°РіРЅРѕСЃС‚РёРєРё С€С‚СЂРёС…РєРѕРґР°
 								if(temp_buf.NotEmptyS()) {
 									int    diag = 0, std = 0;
 									dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
@@ -718,7 +718,7 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 		xmlFreeTextWriter(p_x);
 		p_x = 0;
 		{
-            // Серверу ЕГАИС отправлен кассовый чек '%s'
+            // РЎРµСЂРІРµСЂСѓ Р•Р“РђРРЎ РѕС‚РїСЂР°РІР»РµРЅ РєР°СЃСЃРѕРІС‹Р№ С‡РµРє '%s'
             //
             PPLoadText(PPTXT_EGAIS_QS_CCHECK, temp_buf);
             temp_buf.Space().CatChar('\'').Cat(cc_text).CatChar('\'');
@@ -761,8 +761,8 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 			*/
 			{
 				/*
-					PPTXT_CCACKOK                 "Отправка чека '@zstr' серверу ЕГАИС завершилась УСПЕШНО: @zstr"
-					PPTXT_CCACKERROR              "Отправка чека '@zstr' серверу ЕГАИС завершилась С ОШИБКОЙ: @zstr"
+					PPTXT_CCACKOK                 "РћС‚РїСЂР°РІРєР° С‡РµРєР° '@zstr' СЃРµСЂРІРµСЂСѓ Р•Р“РђРРЎ Р·Р°РІРµСЂС€РёР»Р°СЃСЊ РЈРЎРџР•РЁРќРћ: @zstr"
+					PPTXT_CCACKERROR              "РћС‚РїСЂР°РІРєР° С‡РµРєР° '@zstr' СЃРµСЂРІРµСЂСѓ Р•Р“РђРРЎ Р·Р°РІРµСЂС€РёР»Р°СЃСЊ РЎ РћРЁРР‘РљРћР™: @zstr"
 				*/
 				if(rAck.Status & rAck.stError) {
 					PPFormatT(PPTXT_CCACKERROR, &temp_buf, cc_text.cptr(), rAck.Message.cptr());
@@ -863,7 +863,7 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
 							rAck.Id.ToStr(S_GUID::fmtIDL, temp_buf);
 							if(oneof2(rPack.DocType, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILLACT_V2) && !p_bp->Rec.EdiOp && p_bp->Rec.Flags2 & BILLF2_DECLINED) {
 								//
-								// Для отказа от собственного документа необходимо установить специальный тег квитанции
+								// Р”Р»СЏ РѕС‚РєР°Р·Р° РѕС‚ СЃРѕР±СЃС‚РІРµРЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РЅРµРѕР±С…РѕРґРёРјРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ СЃРїРµС†РёР°Р»СЊРЅС‹Р№ С‚РµРі РєРІРёС‚Р°РЅС†РёРё
 								//
 								THROW(tag_item.SetStr(PPTAG_BILL_EDIREJECTACK, temp_buf));
 							}
@@ -890,13 +890,13 @@ int SLAPI PPEgaisProcessor::QueryClients(PPID locID, int queryby, const char * p
 		Ack    ack;
 		Packet qp(PPEDIOP_EGAIS_QUERYCLIENTS);
 		if(qp.P_Data) {
-           	// Запрос контрагента по идентификатору: "СИО"
-           	// Запрос товара по коду ЕГАИС: "КОД"
+           	// Р—Р°РїСЂРѕСЃ РєРѕРЅС‚СЂР°РіРµРЅС‚Р° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ: "РЎРРћ"
+           	// Р—Р°РїСЂРѕСЃ С‚РѕРІР°СЂР° РїРѕ РєРѕРґСѓ Р•Р“РђРРЎ: "РљРћР”"
 			SString code_buf;
 			if(queryby == querybyINN)
-				code_buf = "ИНН";
+				code_buf = "РРќРќ";
 			else if(queryby == querybyCode)
-				code_buf = "СИО";
+				code_buf = "РЎРРћ";
 			else
 				assert(0);
 			code_buf.Transf(CTRANSF_OUTER_TO_INNER);
@@ -938,9 +938,9 @@ int SLAPI PPEgaisProcessor::QueryProducts(PPID locID, int queryby, const char * 
 		if(qp.P_Data) {
 			SString code_buf;
 			if(queryby == querybyINN)
-				code_buf = "ИНН";
+				code_buf = "РРќРќ";
 			else if(queryby == querybyCode)
-				code_buf = "КОД";
+				code_buf = "РљРћР”";
 			else
 				assert(0);
 			code_buf.Transf(CTRANSF_OUTER_TO_INNER);
@@ -1227,9 +1227,9 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 	SString temp_buf;
 	SString inn, kpp;
 	SString rar_id;
-	SString info_org_name; // Наименование организации для вывода информации
+	SString info_org_name; // РќР°РёРјРµРЅРѕРІР°РЅРёРµ РѕСЂРіР°РЅРёР·Р°С†РёРё РґР»СЏ РІС‹РІРѕРґР° РёРЅС„РѕСЂРјР°С†РёРё
 	RegisterTbl::Rec reg_rec;
-	int   j_status = 0; // 1 - росс юр, 2 - росс ип, 3 - иностранец (не ТС), 4 - иностранец (таможенный союз)
+	int   j_status = 0; // 1 - СЂРѕСЃСЃ СЋСЂ, 2 - СЂРѕСЃСЃ РёРї, 3 - РёРЅРѕСЃС‚СЂР°РЅРµС† (РЅРµ РўРЎ), 4 - РёРЅРѕСЃС‚СЂР°РЅРµС† (С‚Р°РјРѕР¶РµРЅРЅС‹Р№ СЃРѕСЋР·)
 	const char * p_j_scope = 0;
 	THROW(PsnObj.GetPacket(personID, &psn_pack, PGETPCKF_USEINHERITENCE) > 0); // @v9.3.6 PGETPCKF_USEINHERITENCE
 	info_org_name = psn_pack.Rec.Name;
@@ -1371,14 +1371,14 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 						{
 							const long country_code = (temp_buf = cntryb.Code.NotEmptyS() ? cntryb.Code.cptr() : "643").ToLong();
 							(temp_buf = 0).CatLongZ(country_code, 3);
-							w_a.PutInner("oref:Country", EncText(temp_buf)); // По умолчанию 643 (Россия)
+							w_a.PutInner("oref:Country", EncText(temp_buf)); // РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 643 (Р РѕСЃСЃРёСЏ)
 						}
 					}
 					{
 						//
-						// ИНН и КПП для России всегда содержать в виде префикса код региона.
-						// Поэтому не будем пытаться получить этот год из адреса, а используем КПП (с приоритетом) или,
-						// если КПП пустой - ИНН.
+						// РРќРќ Рё РљРџРџ РґР»СЏ Р РѕСЃСЃРёРё РІСЃРµРіРґР° СЃРѕРґРµСЂР¶Р°С‚СЊ РІ РІРёРґРµ РїСЂРµС„РёРєСЃР° РєРѕРґ СЂРµРіРёРѕРЅР°.
+						// РџРѕСЌС‚РѕРјСѓ РЅРµ Р±СѓРґРµРј РїС‹С‚Р°С‚СЊСЃСЏ РїРѕР»СѓС‡РёС‚СЊ СЌС‚РѕС‚ РіРѕРґ РёР· Р°РґСЂРµСЃР°, Р° РёСЃРїРѕР»СЊР·СѓРµРј РљРџРџ (СЃ РїСЂРёРѕСЂРёС‚РµС‚РѕРј) РёР»Рё,
+						// РµСЃР»Рё РљРџРџ РїСѓСЃС‚РѕР№ - РРќРќ.
 						//
 						if(kpp.Len() > 2)
 							kpp.Sub(0, 2, temp_buf);
@@ -1403,8 +1403,8 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 			w_s.PutInner("oref:ShortName", EncText((temp_buf = psn_pack.Rec.Name).Trim(64)));
 			w_s.PutInnerSkipEmpty("oref:INN", EncText(inn));
 			w_s.PutInnerSkipEmpty("oref:KPP", EncText(kpp));
-			w_s.PutInnerSkipEmpty("oref:UNP", ""); // Для Белоруси
-			w_s.PutInnerSkipEmpty("oref:RNN", ""); // Для Казахстана
+			w_s.PutInnerSkipEmpty("oref:UNP", ""); // Р”Р»СЏ Р‘РµР»РѕСЂСѓСЃРё
+			w_s.PutInnerSkipEmpty("oref:RNN", ""); // Р”Р»СЏ РљР°Р·Р°С…СЃС‚Р°РЅР°
 			{
 				SXml::WNode w_a(rXmlDoc, "oref:address");
 				PPCountryBlock cntryb;
@@ -1412,16 +1412,16 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 				{
 					long country_code = (temp_buf = cntryb.Code.NotEmptyS() ? cntryb.Code.cptr() : "643").ToLong();
 					(temp_buf = 0).CatLongZ(country_code, 3);
-					w_a.PutInner("oref:Country", EncText(temp_buf)); // По умолчанию 643 (Россия)
+					w_a.PutInner("oref:Country", EncText(temp_buf)); // РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 643 (Р РѕСЃСЃРёСЏ)
 				}
 				LocationCore::GetExField(&__loc_rec, LOCEXSTR_ZIP, temp_buf);
-				if(!temp_buf.IsDigit() || temp_buf.Len() != 6) // Проверка на "битый" почтовый индекс
+				if(!temp_buf.IsDigit() || temp_buf.Len() != 6) // РџСЂРѕРІРµСЂРєР° РЅР° "Р±РёС‚С‹Р№" РїРѕС‡С‚РѕРІС‹Р№ РёРЅРґРµРєСЃ
 					temp_buf = 0;
 				w_a.PutInnerSkipEmpty("oref:Index", EncText(temp_buf));
 				//
-				// ИНН и КПП для России всегда содержать в виде префикса код региона.
-				// Поэтому не будем пытаться получить этот год из адреса, а используем КПП (с приоритетом) или,
-				// если КПП пустой - ИНН.
+				// РРќРќ Рё РљРџРџ РґР»СЏ Р РѕСЃСЃРёРё РІСЃРµРіРґР° СЃРѕРґРµСЂР¶Р°С‚СЊ РІ РІРёРґРµ РїСЂРµС„РёРєСЃР° РєРѕРґ СЂРµРіРёРѕРЅР°.
+				// РџРѕСЌС‚РѕРјСѓ РЅРµ Р±СѓРґРµРј РїС‹С‚Р°С‚СЊСЃСЏ РїРѕР»СѓС‡РёС‚СЊ СЌС‚РѕС‚ РіРѕРґ РёР· Р°РґСЂРµСЃР°, Р° РёСЃРїРѕР»СЊР·СѓРµРј РљРџРџ (СЃ РїСЂРёРѕСЂРёС‚РµС‚РѕРј) РёР»Рё,
+				// РµСЃР»Рё РљРџРџ РїСѓСЃС‚РѕР№ - РРќРќ.
 				//
 				if(kpp.Len() > 2)
 					kpp.Sub(0, 2, temp_buf);
@@ -1472,7 +1472,7 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 	SString inn = rRefcItem.INN;
 	SString kpp = rRefcItem.KPP;
 	SString rar_id = rRefcItem.RarIdent;
-	int   j_status = 0; // 1 - росс юр, 2 - росс ип, 3 - иностранец (не ТС), 4 - иностранец (таможенный союз)
+	int   j_status = 0; // 1 - СЂРѕСЃСЃ СЋСЂ, 2 - СЂРѕСЃСЃ РёРї, 3 - РёРЅРѕСЃС‚СЂР°РЅРµС† (РЅРµ РўРЎ), 4 - РёРЅРѕСЃС‚СЂР°РЅРµС† (С‚Р°РјРѕР¶РµРЅРЅС‹Р№ СЃРѕСЋР·)
 	const char * p_j_scope = 0;
 	{
 		if(flags & woifStrict) {
@@ -1553,8 +1553,8 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 				THROW_PP_S(!(flags & woifStrict) || (kpp.NotEmptyS() || inn.Len() == 12), PPERR_EGAIS_PERSONKPPUNDEF, rRefcItem.Name);
 				w_s.PutInnerSkipEmpty("oref:KPP", EncText(kpp));
 			}
-			w_s.PutInnerSkipEmpty("oref:UNP", EncText(rRefcItem.UNP)); // Для Белоруси
-			w_s.PutInnerSkipEmpty("oref:RNN", EncText(rRefcItem.RNN)); // Для Казахстана
+			w_s.PutInnerSkipEmpty("oref:UNP", EncText(rRefcItem.UNP)); // Р”Р»СЏ Р‘РµР»РѕСЂСѓСЃРё
+			w_s.PutInnerSkipEmpty("oref:RNN", EncText(rRefcItem.RNN)); // Р”Р»СЏ РљР°Р·Р°С…СЃС‚Р°РЅР°
 			{
 				SXml::WNode w_a(rXmlDoc, "oref:address");
 				w_a.PutInner("oref:Country", EncText((temp_buf = 0).CatLongZ(rRefcItem.CountryCode, 3)));
@@ -1587,7 +1587,7 @@ int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * 
 		if(flags & wpifVersion2) {
 			w_s.PutInner("pref:UnitType", EncText((temp_buf = (agi.UnpackedVolume > 0.0) ? "Unpacked" : "Packed").Transf(CTRANSF_OUTER_TO_INNER)));
 		}
-		w_s.PutInner("pref:Type", EncText((temp_buf = "АП").Transf(CTRANSF_OUTER_TO_INNER))); // АП или что-то еще
+		w_s.PutInner("pref:Type", EncText((temp_buf = "РђРџ").Transf(CTRANSF_OUTER_TO_INNER))); // РђРџ РёР»Рё С‡С‚Рѕ-С‚Рѕ РµС‰Рµ
 		{
 			int    names_done = 0;
 			if(use_refc_data && agi.RefcProductID) {
@@ -1610,7 +1610,7 @@ int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * 
 			(added_msg_buf = 0).CatEq("Goods", goods_rec.Name).CatDiv(';', 2).CatEq("LotID", lotID);
 			LogTextWithAddendum(PPTXT_EGAIS_NOEGAISCODE, added_msg_buf);
 		}
-		w_s.PutInner("pref:AlcCode", EncText(agi.EgaisCode)); // Код продукта по версии ЕГАИС
+		w_s.PutInner("pref:AlcCode", EncText(agi.EgaisCode)); // РљРѕРґ РїСЂРѕРґСѓРєС‚Р° РїРѕ РІРµСЂСЃРёРё Р•Р“РђРРЎ
 		if(agi.UnpackedVolume > 0.0) {
 		}
 		else {
@@ -1974,7 +1974,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 					const EgaisNsEntry & r_entry = ns_entries[eidx];
 					int    skip = 0;
 					//
-					// Разрешение неоднозначностей в namespace'ах
+					// Р Р°Р·СЂРµС€РµРЅРёРµ РЅРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚РµР№ РІ namespace'Р°С…
 					//
 					switch(r_entry.Nn) {
 						case  3: skip = BIN(oneof4(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTWRITEOFFSHOP)); break; // "oref" "ClientRef"
@@ -2005,7 +2005,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 			}
 			{
 				SXml::WNode n_owner(_doc, "ns:Owner");
-				n_owner.PutInner("ns:FSRAR_ID", EncText(fsrar_ident)); // РАР идент отправителя
+				n_owner.PutInner("ns:FSRAR_ID", EncText(fsrar_ident)); // Р РђР  РёРґРµРЅС‚ РѕС‚РїСЂР°РІРёС‚РµР»СЏ
 			}
 			{
 				SXml::WNode n_d(_doc, "ns:Document");
@@ -2099,9 +2099,9 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
                         	}
                         	if(wb_type && !do_skip) {
 								enum {
-									gppfAlc      = 0x0001, // В документе есть алкогольные товары
-									gppfPacked   = 0x0002, // В документе есть алкогольные упакованные товары
-									gppfUnpacked = 0x0004  // В документе есть алкогольные неупакованные товары
+									gppfAlc      = 0x0001, // Р’ РґРѕРєСѓРјРµРЅС‚Рµ РµСЃС‚СЊ Р°Р»РєРѕРіРѕР»СЊРЅС‹Рµ С‚РѕРІР°СЂС‹
+									gppfPacked   = 0x0002, // Р’ РґРѕРєСѓРјРµРЅС‚Рµ РµСЃС‚СЊ Р°Р»РєРѕРіРѕР»СЊРЅС‹Рµ СѓРїР°РєРѕРІР°РЅРЅС‹Рµ С‚РѕРІР°СЂС‹
+									gppfUnpacked = 0x0004  // Р’ РґРѕРєСѓРјРµРЅС‚Рµ РµСЃС‚СЊ Р°Р»РєРѕРіРѕР»СЊРЅС‹Рµ РЅРµСѓРїР°РєРѕРІР°РЅРЅС‹Рµ С‚РѕРІР°СЂС‹
 								};
 								long   gppf = 0;
 								PrcssrAlcReport::GoodsItem agi;
@@ -2142,7 +2142,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								}
 								{
 									SXml::WNode n_tr(_doc, "wb:Transport");
-									n_tr.PutInner("wb:TRAN_TYPE", "413"); // Пока не понятно. Во всех примерах только это значение.
+									n_tr.PutInner("wb:TRAN_TYPE", "413"); // РџРѕРєР° РЅРµ РїРѕРЅСЏС‚РЅРѕ. Р’Рѕ РІСЃРµС… РїСЂРёРјРµСЂР°С… С‚РѕР»СЊРєРѕ СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ.
 									temp_buf = 0;
 									if(p_bp->P_Freight)
 										GetPersonName(p_bp->P_Freight->AgentID, temp_buf);
@@ -2168,17 +2168,17 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									n_tr.PutInnerSkipEmpty("wb:TRAN_REDIRECT", "");
 									n_tr.PutInnerSkipEmpty("wb:TRAN_FORWARDER", "");
 								}
-								n_h.PutInnerSkipEmpty("wb:Base", ""); // Основание
+								n_h.PutInnerSkipEmpty("wb:Base", ""); // РћСЃРЅРѕРІР°РЅРёРµ
 								{
 									temp_buf = 0;
 									if(is_intrexpend) {
 										temp_buf.CatEq(P_IntrExpndNotePrefix, p_bp->Rec.ID);
 									}
-									/* @v8.9.10 Поставщики не хотят передавать свои примечания в ЕГАИС
+									/* @v8.9.10 РџРѕСЃС‚Р°РІС‰РёРєРё РЅРµ С…РѕС‚СЏС‚ РїРµСЂРµРґР°РІР°С‚СЊ СЃРІРѕРё РїСЂРёРјРµС‡Р°РЅРёСЏ РІ Р•Р“РђРРЎ
 									if(p_bp->Rec.Memo[0])
 										temp_buf.CatDiv('-', 1, 1).Cat(p_bp->Rec.Memo);
 									*/
-									n_h.PutInnerSkipEmpty("wb:Note", EncText(temp_buf)); // Примечание
+									n_h.PutInnerSkipEmpty("wb:Note", EncText(temp_buf)); // РџСЂРёРјРµС‡Р°РЅРёРµ
 								}
                         	}
                         }
@@ -2208,7 +2208,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										// } @v9.5.2
 										if(agi.UnpackedVolume > 0.0) {
 											const double mult = agi.UnpackedVolume / 10.0;
-											qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
+											qtty = (qtty * mult); // РќРµСѓРїР°РєРѕРІР°РЅРЅР°СЏ РїСЂРѕРґСѓРєС†РёСЏ РїРµСЂРµРґР°РµС‚СЃСЏ РІ РґРµРєР°Р»РёС‚СЂР°С…
 											price = (price / mult);
 										}
 										w_p.PutInner("wb:Quantity", EncText((temp_buf = 0).Cat(qtty, MKSFMTD(0, 0, NMBF_NOTRAILZ))));
@@ -2319,8 +2319,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							is_status_suited = 1;
 						if(oneof2(p_bp->Rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2)) { // @v9.5.6
 							int    cmp_result = 0; // 0 - accepted, -1 - rejected,
-								// & 0x01 - есть отличия в меньшую сторону по количеству
-								// & 0x02 - есть отличия в большую сторону по количеству
+								// & 0x01 - РµСЃС‚СЊ РѕС‚Р»РёС‡РёСЏ РІ РјРµРЅСЊС€СѓСЋ СЃС‚РѕСЂРѕРЅСѓ РїРѕ РєРѕР»РёС‡РµСЃС‚РІСѓ
+								// & 0x02 - РµСЃС‚СЊ РѕС‚Р»РёС‡РёСЏ РІ Р±РѕР»СЊС€СѓСЋ СЃС‚РѕСЂРѕРЅСѓ РїРѕ РєРѕР»РёС‡РµСЃС‚РІСѓ
 							int    is_uncond_accept = 0;
 							PPIDArray wroff_bill_list;
 							BillTbl::Rec wroff_bill_rec;
@@ -2364,8 +2364,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											if(p_diff_item->Flags & PPBillPacket::tidfThisAbsent) {
 												// @v9.0.0 {
 												//
-												// Если в нашем документе отсутствует позиция документа списания,
-												// не являющаяся алкогольной, то игнорируем это рассогласование
+												// Р•СЃР»Рё РІ РЅР°С€РµРј РґРѕРєСѓРјРµРЅС‚Рµ РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ РїРѕР·РёС†РёСЏ РґРѕРєСѓРјРµРЅС‚Р° СЃРїРёСЃР°РЅРёСЏ,
+												// РЅРµ СЏРІР»СЏСЋС‰Р°СЏСЃСЏ Р°Р»РєРѕРіРѕР»СЊРЅРѕР№, С‚Рѕ РёРіРЅРѕСЂРёСЂСѓРµРј СЌС‚Рѕ СЂР°СЃСЃРѕРіР»Р°СЃРѕРІР°РЅРёРµ
 												//
 												int    is_other_alc = 0;
 												for(uint opi = 0; !is_other_alc && opi < p_diff_item->OtherPList.getCount(); opi++) {
@@ -2445,7 +2445,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										n_h.PutInner("wa:ActDate", (temp_buf = 0).Cat(getcurdate_(), DATF_ISO8601|DATF_CENTURY));
 										BillCore::GetCode(temp_buf = p_bp->Rec.Code);
 										n_h.PutInner("wa:WBRegId", EncText(temp_buf = edi_ident));
-										n_h.PutInner("wa:Note", EncText(/*p_bp->Rec.Memo*/"")); // @v8.9.10 Не хотят передавать свои примечания в ЕГАИС
+										n_h.PutInner("wa:Note", EncText(/*p_bp->Rec.Memo*/"")); // @v8.9.10 РќРµ С…РѕС‚СЏС‚ РїРµСЂРµРґР°РІР°С‚СЊ СЃРІРѕРё РїСЂРёРјРµС‡Р°РЅРёСЏ РІ Р•Р“РђРРЎ
 									}
 									{
 										SXml::WNode n_c(_doc, "wa:Content");
@@ -2488,7 +2488,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 														PreprocessGoodsItem(r_ti.GoodsID, 0, 0, 0, _agi);
 														if(_agi.UnpackedVolume > 0.0) {
 															const double mult = _agi.UnpackedVolume / 10.0;
-															real_qtty = (real_qtty * mult); // Неупакованная продукция передается в декалитрах
+															real_qtty = (real_qtty * mult); // РќРµСѓРїР°РєРѕРІР°РЅРЅР°СЏ РїСЂРѕРґСѓРєС†РёСЏ РїРµСЂРµРґР°РµС‚СЃСЏ РІ РґРµРєР°Р»РёС‚СЂР°С…
 														}
 													}
 													// } @v8.9.10
@@ -2517,7 +2517,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									LogTextWithAddendum(PPTXT_EGAIS_BILLSTATUSNREADY, bill_text);
 							}
 						}
-						else if(p_bp->Rec.Flags2 & BILLF2_DECLINED && is_status_suited) { // нет признака EdiOp - документ отправлялся нами и мы хотим отправить отмену проводки
+						else if(p_bp->Rec.Flags2 & BILLF2_DECLINED && is_status_suited) { // РЅРµС‚ РїСЂРёР·РЅР°РєР° EdiOp - РґРѕРєСѓРјРµРЅС‚ РѕС‚РїСЂР°РІР»СЏР»СЃСЏ РЅР°РјРё Рё РјС‹ С…РѕС‚РёРј РѕС‚РїСЂР°РІРёС‚СЊ РѕС‚РјРµРЅСѓ РїСЂРѕРІРѕРґРєРё
 							{
 								SXml::WNode n_h(_doc, "wa:Header");
 								n_h.PutInner("wa:IsAccept", EncText(temp_buf = "Rejected"));
@@ -2525,7 +2525,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								n_h.PutInner("wa:ACTNUMBER", EncText(temp_buf));
 								n_h.PutInner("wa:ActDate", (temp_buf = 0).Cat(getcurdate_(), DATF_ISO8601|DATF_CENTURY));
 								n_h.PutInner("wa:WBRegId", EncText(temp_buf = edi_ident));
-								// @v8.9.10 (Не хотят передавать свои примечания в ЕГАИС) n_h.PutInnerSkipEmpty("wa:Note", EncText(p_bp->Rec.Memo));
+								// @v8.9.10 (РќРµ С…РѕС‚СЏС‚ РїРµСЂРµРґР°РІР°С‚СЊ СЃРІРѕРё РїСЂРёРјРµС‡Р°РЅРёСЏ РІ Р•Р“РђРРЎ) n_h.PutInnerSkipEmpty("wa:Note", EncText(p_bp->Rec.Memo));
 							}
 							{
 								SXml::WNode n_c(_doc, "wa:Content");
@@ -2541,7 +2541,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							n_h.PutInner("ainp:Number", EncText(temp_buf = p_bp->Rec.Code));
 							n_h.PutInner("ainp:ActDate", EncText((temp_buf = 0).Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0) {
-								// @v9.6.7 (temp_buf = "Продукция, полученная до 01.01.2016").Transf(CTRANSF_OUTER_TO_INNER);
+								// @v9.6.7 (temp_buf = "РџСЂРѕРґСѓРєС†РёСЏ, РїРѕР»СѓС‡РµРЅРЅР°СЏ РґРѕ 01.01.2016").Transf(CTRANSF_OUTER_TO_INNER);
 								PPLoadText(PPTXT_EGAIS_PRODRCVDBEFORE2016, temp_buf); // @v9.6.7
 							}
 							n_h.PutInner("ainp:TypeChargeOn", EncText(temp_buf));
@@ -2578,7 +2578,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							n_h.PutInner("awr:ActNumber", EncText(temp_buf = p_bp->Rec.Code));
 							n_h.PutInner("awr:ActDate", EncText((temp_buf = 0).Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0)
-								(temp_buf = "Недостача").Transf(CTRANSF_OUTER_TO_INNER);
+								(temp_buf = "РќРµРґРѕСЃС‚Р°С‡Р°").Transf(CTRANSF_OUTER_TO_INNER);
 							n_h.PutInner("awr:TypeWriteOff", EncText(temp_buf));
 						}
 						{
@@ -2590,7 +2590,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									long   qtty_fmt = MKSFMTD(0, 0, NMBF_NOTRAILZ);
 									if(agi.UnpackedVolume > 0.0) {
 										const double mult = agi.UnpackedVolume / 10.0;
-										qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
+										qtty = (qtty * mult); // РќРµСѓРїР°РєРѕРІР°РЅРЅР°СЏ РїСЂРѕРґСѓРєС†РёСЏ РїРµСЂРµРґР°РµС‚СЃСЏ РІ РґРµРєР°Р»РёС‚СЂР°С…
 										qtty_fmt = MKSFMTD(0, 3, 0);
 									}
 									SXml::WNode w_p(_doc, "awr:Position");
@@ -2609,7 +2609,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							n_h.PutInner("ainp:Number", EncText(temp_buf = p_bp->Rec.Code));
 							n_h.PutInner("ainp:ActDate", EncText((temp_buf = 0).Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0)
-								(temp_buf = "Пересортица").Transf(CTRANSF_OUTER_TO_INNER);
+								(temp_buf = "РџРµСЂРµСЃРѕСЂС‚РёС†Р°").Transf(CTRANSF_OUTER_TO_INNER);
 							n_h.PutInner("ainp:TypeChargeOn", EncText(temp_buf));
 						}
 						THROW_MEM(SETIFZ(P_LecT, new LotExtCodeTbl));
@@ -2636,9 +2636,9 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										THROW(WriteProductInfo(_doc, "ainp:Product", r_ti.GoodsID, lot_id, wpifPutManufInfo|wpifVersion2, 0));
 										{
 											//
-											// Передаем количество, устанавливаемое на баланс.
-											// Если в сопровождении с лотом идут коды марок, то в качестве количества применяем количество этих марок.
-											// В противном случае берем количество из строки документа (остаток по лоту на момент формирования документа).
+											// РџРµСЂРµРґР°РµРј РєРѕР»РёС‡РµСЃС‚РІРѕ, СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРјРѕРµ РЅР° Р±Р°Р»Р°РЅСЃ.
+											// Р•СЃР»Рё РІ СЃРѕРїСЂРѕРІРѕР¶РґРµРЅРёРё СЃ Р»РѕС‚РѕРј РёРґСѓС‚ РєРѕРґС‹ РјР°СЂРѕРє, С‚Рѕ РІ РєР°С‡РµСЃС‚РІРµ РєРѕР»РёС‡РµСЃС‚РІР° РїСЂРёРјРµРЅСЏРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ СЌС‚РёС… РјР°СЂРѕРє.
+											// Р’ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ Р±РµСЂРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РёР· СЃС‚СЂРѕРєРё РґРѕРєСѓРјРµРЅС‚Р° (РѕСЃС‚Р°С‚РѕРє РїРѕ Р»РѕС‚Сѓ РЅР° РјРѕРјРµРЅС‚ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р°).
 											//
 											const long org_qtty = (long)R0(fabs(r_ti.Qtty()));
 											const long sqtty = /*ext_code_count*/ext_code_exists ? (long)ext_code_count : org_qtty;
@@ -2689,7 +2689,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							SXml::WNode n_h(_doc, "ain:Header");
 							n_h.PutInner("ain:Number", EncText(temp_buf = p_bp->Rec.Code));
 							n_h.PutInner("ain:ActDate", EncText((temp_buf = 0).Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
-							// @v8.9.10 (Не хотят передавать свои примечания в ЕГАИС) n_h.PutInnerSkipEmpty("wb:Note", EncText(temp_buf = p_bp->Rec.Memo)); // Примечание
+							// @v8.9.10 (РќРµ С…РѕС‚СЏС‚ РїРµСЂРµРґР°РІР°С‚СЊ СЃРІРѕРё РїСЂРёРјРµС‡Р°РЅРёСЏ РІ Р•Р“РђРРЎ) n_h.PutInnerSkipEmpty("wb:Note", EncText(temp_buf = p_bp->Rec.Memo)); // РџСЂРёРјРµС‡Р°РЅРёРµ
 						}
 						THROW_MEM(SETIFZ(P_LecT, new LotExtCodeTbl));
 						{
@@ -2715,9 +2715,9 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										THROW(WriteProductInfo(_doc, "ain:Product", r_ti.GoodsID, lot_id, 0, 0));
 										{
 											//
-											// Передаем количество, устанавливаемое на баланс.
-											// Если в сопровождении с лотом идут коды марок, то в качестве количества применяем количество этих марок.
-											// В противном случае берем количество из строки документа (остаток по лоту на момент формирования документа).
+											// РџРµСЂРµРґР°РµРј РєРѕР»РёС‡РµСЃС‚РІРѕ, СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРјРѕРµ РЅР° Р±Р°Р»Р°РЅСЃ.
+											// Р•СЃР»Рё РІ СЃРѕРїСЂРѕРІРѕР¶РґРµРЅРёРё СЃ Р»РѕС‚РѕРј РёРґСѓС‚ РєРѕРґС‹ РјР°СЂРѕРє, С‚Рѕ РІ РєР°С‡РµСЃС‚РІРµ РєРѕР»РёС‡РµСЃС‚РІР° РїСЂРёРјРµРЅСЏРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ СЌС‚РёС… РјР°СЂРѕРє.
+											// Р’ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ Р±РµСЂРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РёР· СЃС‚СЂРѕРєРё РґРѕРєСѓРјРµРЅС‚Р° (РѕСЃС‚Р°С‚РѕРє РїРѕ Р»РѕС‚Сѓ РЅР° РјРѕРјРµРЅС‚ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р°).
 											//
 											const long org_qtty = (long)R0(fabs(r_ti.Qtty()));
 											const long sqtty = /*ext_code_count*/ext_code_exists ? (long)ext_code_count : org_qtty;
@@ -2776,9 +2776,9 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							n_h.PutInner("awr:ActNumber", EncText(temp_buf = p_bp->Rec.Code));
 							n_h.PutInner("awr:ActDate", EncText((temp_buf = 0).Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0)
-								PPLoadString("losses", temp_buf); // Потери
+								PPLoadString("losses", temp_buf); // РџРѕС‚РµСЂРё
 							n_h.PutInner("awr:TypeWriteOff", EncText(temp_buf));
-							// @v8.9.10 (Не хотят передавать свои примечания в ЕГАИС) n_h.PutInnerSkipEmpty("awr:Note", EncText(temp_buf = p_bp->Rec.Memo)); // Примечание
+							// @v8.9.10 (РќРµ С…РѕС‚СЏС‚ РїРµСЂРµРґР°РІР°С‚СЊ СЃРІРѕРё РїСЂРёРјРµС‡Р°РЅРёСЏ РІ Р•Р“РђРРЎ) n_h.PutInnerSkipEmpty("awr:Note", EncText(temp_buf = p_bp->Rec.Memo)); // РџСЂРёРјРµС‡Р°РЅРёРµ
 						}
 						{
 							SXml::WNode n_c(_doc, "awr:Content");
@@ -2795,7 +2795,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										long   qtty_fmt = MKSFMTD(0, 0, NMBF_NOTRAILZ);
 										if(agi.UnpackedVolume > 0.0) {
 											const double mult = agi.UnpackedVolume / 10.0;
-											qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
+											qtty = (qtty * mult); // РќРµСѓРїР°РєРѕРІР°РЅРЅР°СЏ РїСЂРѕРґСѓРєС†РёСЏ РїРµСЂРµРґР°РµС‚СЃСЏ РІ РґРµРєР°Р»РёС‚СЂР°С…
 											qtty_fmt = MKSFMTD(0, 3, 0);
 										}
 										w_p.PutInner("awr:Quantity", EncText((temp_buf = 0).Cat(qtty, qtty_fmt)));
@@ -2843,7 +2843,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										long   qtty_fmt = MKSFMTD(0, 0, NMBF_NOTRAILZ);
 										if(agi.UnpackedVolume > 0.0) {
 											const double mult = agi.UnpackedVolume / 10.0;
-											qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
+											qtty = (qtty * mult); // РќРµСѓРїР°РєРѕРІР°РЅРЅР°СЏ РїСЂРѕРґСѓРєС†РёСЏ РїРµСЂРµРґР°РµС‚СЃСЏ РІ РґРµРєР°Р»РёС‚СЂР°С…
 											qtty_fmt = MKSFMTD(0, 3, NMBF_NOTRAILZ);
 										}
 										SXml::WNode w_p(_doc, "tts:Position");
@@ -2886,7 +2886,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										long   qtty_fmt = MKSFMTD(0, 0, NMBF_NOTRAILZ);
 										if(agi.UnpackedVolume > 0.0) {
 											const double mult = agi.UnpackedVolume / 10.0;
-											qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
+											qtty = (qtty * mult); // РќРµСѓРїР°РєРѕРІР°РЅРЅР°СЏ РїСЂРѕРґСѓРєС†РёСЏ РїРµСЂРµРґР°РµС‚СЃСЏ РІ РґРµРєР°Р»РёС‚СЂР°С…
 											qtty_fmt = MKSFMTD(0, 3, 0);
 										}
 										SXml::WNode w_p(_doc, "tfs:Position");
@@ -2923,7 +2923,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							<wt:ConfirmNumber>0001</wt:ConfirmNumber>
 							<wt:ConfirmDate>2014-12-17</wt:ConfirmDate>
 							<wt:WBRegId>TTN-0021795603</wt:WBRegId>
-							<wt:Note>Подтверждаем отмену проведения ТТН</wt:Note>
+							<wt:Note>РџРѕРґС‚РІРµСЂР¶РґР°РµРј РѕС‚РјРµРЅСѓ РїСЂРѕРІРµРґРµРЅРёСЏ РўРўРќ</wt:Note>
 							</wt:Header>
 						*/
 						SXml::WNode n_c(_doc, "wt:Header");
@@ -2953,30 +2953,30 @@ struct EgaisGoodsNameReplacement {
 };
 
 static EgaisGoodsNameReplacement _GoodsNameReplacement[] = {
-	{ "красное", "красн" },
-	{ "полусухое", "полусух" },
-	{ "полусладкое", "полуслад" },
-	{ "защищенного наименования места происхождения", " "},
-	{ "защищенного географического указания", " " },
-	{ "с защищенным географическим указанием", " " },
-	{ "защищенного географического названия", " " },
-	{ "географического указания", " " },
-	{ "с защищенным наименованием места происхождения", " " },
-	{ "напиток ароматизированный, изготовленный на основе пива", "пивной напиток ароматизированный" },
-	{ "напиток, изготовленный на основе пива", "пивной напиток" },
-	{ "изготовленный на основе пива", "на основе пива" },
-	{ "объемная доля этилового спирта", " " },
-	{ "в алюминиевых банках вместимостью", "банка" },
-	{ "сидр фруктовый ароматизированный газированный", "сидр фруктовый ароматиз газ" },
-	{ "блейзер стронг ( blazer strong)", " блейзер стронг " },
-	{ "<блейзер> (<blazer>)", "блейзер" },
-	{ "<марти рэй> (<marty ray>)", "марти рэй" },
-    { "со вкусом", "вкус" },
-	{ "пастеризованный", "пастериз" },
-	{ "из полиэтилентерефталата", "пэтф" },
-	{ "нефильтрованное", "нефильтр" },
-	{ "пастеризованное", "пастер" },
-	{ "hefe-weissier naturtrub (пауланер хефе-вайссбир натуртрюб)", "hefe-weissier naturtrub" },
+	{ "РєСЂР°СЃРЅРѕРµ", "РєСЂР°СЃРЅ" },
+	{ "РїРѕР»СѓСЃСѓС…РѕРµ", "РїРѕР»СѓСЃСѓС…" },
+	{ "РїРѕР»СѓСЃР»Р°РґРєРѕРµ", "РїРѕР»СѓСЃР»Р°Рґ" },
+	{ "Р·Р°С‰РёС‰РµРЅРЅРѕРіРѕ РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ РјРµСЃС‚Р° РїСЂРѕРёСЃС…РѕР¶РґРµРЅРёСЏ", " "},
+	{ "Р·Р°С‰РёС‰РµРЅРЅРѕРіРѕ РіРµРѕРіСЂР°С„РёС‡РµСЃРєРѕРіРѕ СѓРєР°Р·Р°РЅРёСЏ", " " },
+	{ "СЃ Р·Р°С‰РёС‰РµРЅРЅС‹Рј РіРµРѕРіСЂР°С„РёС‡РµСЃРєРёРј СѓРєР°Р·Р°РЅРёРµРј", " " },
+	{ "Р·Р°С‰РёС‰РµРЅРЅРѕРіРѕ РіРµРѕРіСЂР°С„РёС‡РµСЃРєРѕРіРѕ РЅР°Р·РІР°РЅРёСЏ", " " },
+	{ "РіРµРѕРіСЂР°С„РёС‡РµСЃРєРѕРіРѕ СѓРєР°Р·Р°РЅРёСЏ", " " },
+	{ "СЃ Р·Р°С‰РёС‰РµРЅРЅС‹Рј РЅР°РёРјРµРЅРѕРІР°РЅРёРµРј РјРµСЃС‚Р° РїСЂРѕРёСЃС…РѕР¶РґРµРЅРёСЏ", " " },
+	{ "РЅР°РїРёС‚РѕРє Р°СЂРѕРјР°С‚РёР·РёСЂРѕРІР°РЅРЅС‹Р№, РёР·РіРѕС‚РѕРІР»РµРЅРЅС‹Р№ РЅР° РѕСЃРЅРѕРІРµ РїРёРІР°", "РїРёРІРЅРѕР№ РЅР°РїРёС‚РѕРє Р°СЂРѕРјР°С‚РёР·РёСЂРѕРІР°РЅРЅС‹Р№" },
+	{ "РЅР°РїРёС‚РѕРє, РёР·РіРѕС‚РѕРІР»РµРЅРЅС‹Р№ РЅР° РѕСЃРЅРѕРІРµ РїРёРІР°", "РїРёРІРЅРѕР№ РЅР°РїРёС‚РѕРє" },
+	{ "РёР·РіРѕС‚РѕРІР»РµРЅРЅС‹Р№ РЅР° РѕСЃРЅРѕРІРµ РїРёРІР°", "РЅР° РѕСЃРЅРѕРІРµ РїРёРІР°" },
+	{ "РѕР±СЉРµРјРЅР°СЏ РґРѕР»СЏ СЌС‚РёР»РѕРІРѕРіРѕ СЃРїРёСЂС‚Р°", " " },
+	{ "РІ Р°Р»СЋРјРёРЅРёРµРІС‹С… Р±Р°РЅРєР°С… РІРјРµСЃС‚РёРјРѕСЃС‚СЊСЋ", "Р±Р°РЅРєР°" },
+	{ "СЃРёРґСЂ С„СЂСѓРєС‚РѕРІС‹Р№ Р°СЂРѕРјР°С‚РёР·РёСЂРѕРІР°РЅРЅС‹Р№ РіР°Р·РёСЂРѕРІР°РЅРЅС‹Р№", "СЃРёРґСЂ С„СЂСѓРєС‚РѕРІС‹Р№ Р°СЂРѕРјР°С‚РёР· РіР°Р·" },
+	{ "Р±Р»РµР№Р·РµСЂ СЃС‚СЂРѕРЅРі ( blazer strong)", " Р±Р»РµР№Р·РµСЂ СЃС‚СЂРѕРЅРі " },
+	{ "<Р±Р»РµР№Р·РµСЂ> (<blazer>)", "Р±Р»РµР№Р·РµСЂ" },
+	{ "<РјР°СЂС‚Рё СЂСЌР№> (<marty ray>)", "РјР°СЂС‚Рё СЂСЌР№" },
+    { "СЃРѕ РІРєСѓСЃРѕРј", "РІРєСѓСЃ" },
+	{ "РїР°СЃС‚РµСЂРёР·РѕРІР°РЅРЅС‹Р№", "РїР°СЃС‚РµСЂРёР·" },
+	{ "РёР· РїРѕР»РёСЌС‚РёР»РµРЅС‚РµСЂРµС„С‚Р°Р»Р°С‚Р°", "РїСЌС‚С„" },
+	{ "РЅРµС„РёР»СЊС‚СЂРѕРІР°РЅРЅРѕРµ", "РЅРµС„РёР»СЊС‚СЂ" },
+	{ "РїР°СЃС‚РµСЂРёР·РѕРІР°РЅРЅРѕРµ", "РїР°СЃС‚РµСЂ" },
+	{ "hefe-weissier naturtrub (РїР°СѓР»Р°РЅРµСЂ С…РµС„Рµ-РІР°Р№СЃСЃР±РёСЂ РЅР°С‚СѓСЂС‚СЂСЋР±)", "hefe-weissier naturtrub" },
 	{ "\"", " " },
 	{ " ,", "," },
 	{ "  ", " " }
@@ -2999,7 +2999,7 @@ int SLAPI PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket
 	SString temp_buf;
 	SString full_name, short_name;
 	//SString rar_ident;
-	//SString ap_code; // Код алкогольной продукции (не путать с rar_ident - кодом конкретного наименования)
+	//SString ap_code; // РљРѕРґ Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РїСЂРѕРґСѓРєС†РёРё (РЅРµ РїСѓС‚Р°С‚СЊ СЃ rar_ident - РєРѕРґРѕРј РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ)
 	const PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
 	PPID   manuf_psn_kind_id = PPPRK_MANUF;
 	int    manuf_refc_pos = -1;
@@ -3022,7 +3022,7 @@ int SLAPI PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket
 		if(SXml::IsName(p_n, "Identity"))
 			;
 		else if(SXml::IsName(p_n, "Type"))
-			; // Не используем - здесь всегда "АП"
+			; // РќРµ РёСЃРїРѕР»СЊР·СѓРµРј - Р·РґРµСЃСЊ РІСЃРµРіРґР° "РђРџ"
 		// @v9.5.10 {
 		else if(SXml::GetContentByName(p_n, "UnitType", temp_buf)) {
 			if(temp_buf.CmpNC("Unpacked") == 0) {
@@ -3105,7 +3105,7 @@ int SLAPI PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket
 				SString goods_name;
 				{
 					//
-					// Формируем наименование товара
+					// Р¤РѕСЂРјРёСЂСѓРµРј РЅР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РѕРІР°СЂР°
 					//
 					if(full_name.NotEmptyS())
 						goods_name = full_name;
@@ -3118,7 +3118,7 @@ int SLAPI PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket
 							goods_name.Space().Cat(temp_buf);
 					}
 					if(alc_goods_item.Volume > 0.0) {
-						(temp_buf = 0).Cat(alc_goods_item.Volume, MKSFMTD(0, 3, NMBF_NOTRAILZ)).Cat("л");
+						(temp_buf = 0).Cat(alc_goods_item.Volume, MKSFMTD(0, 3, NMBF_NOTRAILZ)).Cat("Р»");
 						if(!goods_name.Search(temp_buf, 0, 1, 0))
 							goods_name.Space().Cat(temp_buf);
 					}
@@ -3332,7 +3332,7 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 	int    j_status = 0;
 	for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
 		//
-		// Для 2-й версии протокола есть дополнетельная обрамляющая зона идентифицирующая юридичесткий статус персоналии
+		// Р”Р»СЏ 2-Р№ РІРµСЂСЃРёРё РїСЂРѕС‚РѕРєРѕР»Р° РµСЃС‚СЊ РґРѕРїРѕР»РЅРµС‚РµР»СЊРЅР°СЏ РѕР±СЂР°РјР»СЏСЋС‰Р°СЏ Р·РѕРЅР° РёРґРµРЅС‚РёС„РёС†РёСЂСѓСЋС‰Р°СЏ СЋСЂРёРґРёС‡РµСЃС‚РєРёР№ СЃС‚Р°С‚СѓСЃ РїРµСЂСЃРѕРЅР°Р»РёРё
 		//
 		int    is_v2_js = 0;
 		if(!j_status) {
@@ -3353,7 +3353,7 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 				is_v2_js = 1;
 			}
 			if(is_v2_js)
-				p_n = p_n->children; // Переключаемся на внутреннюю область - она идентична в 1 и 2 версиях протокола
+				p_n = p_n->children; // РџРµСЂРµРєР»СЋС‡Р°РµРјСЃСЏ РЅР° РІРЅСѓС‚СЂРµРЅРЅСЋСЋ РѕР±Р»Р°СЃС‚СЊ - РѕРЅР° РёРґРµРЅС‚РёС‡РЅР° РІ 1 Рё 2 РІРµСЂСЃРёСЏС… РїСЂРѕС‚РѕРєРѕР»Р°
 		}
 		//
 		if(SXml::IsName(p_n, "Identity")) {
@@ -3421,9 +3421,9 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 			THROW(pRefC->SetPerson(pi));
 		}
 		if(pPack) {
-			int    pack_extracted = 0; // Если !0 то пакет pPacket идентифицирован (в той или иной
-				// степени однозначности) и извлечен из базы данных.
-			int    rarid_assigned = 0; // 1 - ид РАР присвоен пакету персоналии, 2 - ид РАР присвоен одному из адресов
+			int    pack_extracted = 0; // Р•СЃР»Рё !0 С‚Рѕ РїР°РєРµС‚ pPacket РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅ (РІ С‚РѕР№ РёР»Рё РёРЅРѕР№
+				// СЃС‚РµРїРµРЅРё РѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚Рё) Рё РёР·РІР»РµС‡РµРЅ РёР· Р±Р°Р·С‹ РґР°РЅРЅС‹С….
+			int    rarid_assigned = 0; // 1 - РёРґ Р РђР  РїСЂРёСЃРІРѕРµРЅ РїР°РєРµС‚Сѓ РїРµСЂСЃРѕРЅР°Р»РёРё, 2 - РёРґ Р РђР  РїСЂРёСЃРІРѕРµРЅ РѕРґРЅРѕРјСѓ РёР· Р°РґСЂРµСЃРѕРІ
 			PPLocationPacket loc_pack;
 			if(SearchPersonByRarCode(rar_ident, &psn_id, &loc_id) > 0) {
 				THROW(PsnObj.GetPacket(psn_id, pPack, 0) > 0);
@@ -3468,7 +3468,7 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 									}
 								}
 							}
-							if(!(roleFlag & (EgaisPersonCore::rolefManuf|EgaisPersonCore::rolefImporter))) { // Для производителей не сопоставляем КПП с адресами доставки
+							if(!(roleFlag & (EgaisPersonCore::rolefManuf|EgaisPersonCore::rolefImporter))) { // Р”Р»СЏ РїСЂРѕРёР·РІРѕРґРёС‚РµР»РµР№ РЅРµ СЃРѕРїРѕСЃС‚Р°РІР»СЏРµРј РљРџРџ СЃ Р°РґСЂРµСЃР°РјРё РґРѕСЃС‚Р°РІРєРё
 								for(uint dlp = 0; _pack.EnumDlvrLoc(&dlp, &loc_pack) > 0;) {
 									if(loc_pack.Regs.GetListByType(PPREGT_KPP, ZERODATE, &kpp_reg_list) > 0) {
 										for(uint j = 0; j < kpp_reg_list.getCount(); j++) {
@@ -3485,8 +3485,8 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 					}
 					if(by_kpp_loc_list.getCount()) {
 						if(by_kpp_loc_list.getCount() > 1) {
-							// @todo log Неоднозначность в разрешении склада по КПП
-							// Прежде всего рассматриваем те локации, у которых не определен ФСРАР-ИД
+							// @todo log РќРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚СЊ РІ СЂР°Р·СЂРµС€РµРЅРёРё СЃРєР»Р°РґР° РїРѕ РљРџРџ
+							// РџСЂРµР¶РґРµ РІСЃРµРіРѕ СЂР°СЃСЃРјР°С‚СЂРёРІР°РµРј С‚Рµ Р»РѕРєР°С†РёРё, Сѓ РєРѕС‚РѕСЂС‹С… РЅРµ РѕРїСЂРµРґРµР»РµРЅ Р¤РЎР РђР -РР”
 							PPIDArray wo_rarid_loc_list;
 							for(uint i = 0; i < by_kpp_loc_list.getCount(); i++) {
 								const PPID loc_id = by_kpp_loc_list.at(i).Val;
@@ -3516,8 +3516,8 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 					else if(by_kpp_psn_list.getCount()) {
 						if(by_kpp_psn_list.getCount() > 1) {
 							PPIDArray wo_rarid_psn_list;
-							// @todo log Неоднозначность в разрешении персоналии по КПП
-							// Прежде всего рассматриваем те персоналии, у которых не определен ФСРАР-ИД
+							// @todo log РќРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚СЊ РІ СЂР°Р·СЂРµС€РµРЅРёРё РїРµСЂСЃРѕРЅР°Р»РёРё РїРѕ РљРџРџ
+							// РџСЂРµР¶РґРµ РІСЃРµРіРѕ СЂР°СЃСЃРјР°С‚СЂРёРІР°РµРј С‚Рµ РїРµСЂСЃРѕРЅР°Р»РёРё, Сѓ РєРѕС‚РѕСЂС‹С… РЅРµ РѕРїСЂРµРґРµР»РµРЅ Р¤РЎР РђР -РР”
 							for(uint i = 0; i < by_kpp_psn_list.getCount(); i++) {
 								const PPID psn_id = by_kpp_psn_list.get(i);
 								if(p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_FSRARID, temp_buf) <= 0)
@@ -3531,13 +3531,13 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 					}
 				}
 				//
-				// По поводу условия (manufType < 0):
-				// Для производителей другой КПП - новая персоналия
+				// РџРѕ РїРѕРІРѕРґСѓ СѓСЃР»РѕРІРёСЏ (manufType < 0):
+				// Р”Р»СЏ РїСЂРѕРёР·РІРѕРґРёС‚РµР»РµР№ РґСЂСѓРіРѕР№ РљРџРџ - РЅРѕРІР°СЏ РїРµСЂСЃРѕРЅР°Р»РёСЏ
 				//
 				if(!pack_extracted && by_inn_psn_list.getCount() && !(roleFlag & (EgaisPersonCore::rolefManuf|EgaisPersonCore::rolefImporter))) {
 					if(by_inn_psn_list.getCount() > 1) {
-						// @todo log Неоднозначность в разрешении персоналии по ИНН
-						// Прежде всего рассматриваем те персоналии, у которых не определен ФСРАР-ИД
+						// @todo log РќРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚СЊ РІ СЂР°Р·СЂРµС€РµРЅРёРё РїРµСЂСЃРѕРЅР°Р»РёРё РїРѕ РРќРќ
+						// РџСЂРµР¶РґРµ РІСЃРµРіРѕ СЂР°СЃСЃРјР°С‚СЂРёРІР°РµРј С‚Рµ РїРµСЂСЃРѕРЅР°Р»РёРё, Сѓ РєРѕС‚РѕСЂС‹С… РЅРµ РѕРїСЂРµРґРµР»РµРЅ Р¤РЎР РђР -РР”
 						PPIDArray wo_rarid_psn_list;
 						for(uint i = 0; i < by_inn_psn_list.getCount(); i++) {
 							const PPID psn_id = by_inn_psn_list.get(i);
@@ -3551,8 +3551,8 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 					pack_extracted = 1;
 					if(pPack->Regs.GetListByType(PPREGT_KPP, ZERODATE, 0) > 0) {
 						//
-						// КПП у персоналии есть, по заданному КПП ни склад ни персоналию разрешить не удалось:
-						//     создаем новый адрес доставки в найденной по ИНН персоналии
+						// РљРџРџ Сѓ РїРµСЂСЃРѕРЅР°Р»РёРё РµСЃС‚СЊ, РїРѕ Р·Р°РґР°РЅРЅРѕРјСѓ РљРџРџ РЅРё СЃРєР»Р°Рґ РЅРё РїРµСЂСЃРѕРЅР°Р»РёСЋ СЂР°Р·СЂРµС€РёС‚СЊ РЅРµ СѓРґР°Р»РѕСЃСЊ:
+						//     СЃРѕР·РґР°РµРј РЅРѕРІС‹Р№ Р°РґСЂРµСЃ РґРѕСЃС‚Р°РІРєРё РІ РЅР°Р№РґРµРЅРЅРѕР№ РїРѕ РРќРќ РїРµСЂСЃРѕРЅР°Р»РёРё
 						//
 						loc_pack.destroy();
 						loc_pack.Type = LOCTYP_ADDRESS;
@@ -3651,7 +3651,7 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 			}
 			if(!rarid_assigned) {
 				//
-				// Не заменяем уже установленный ФСРАР-ИД
+				// РќРµ Р·Р°РјРµРЅСЏРµРј СѓР¶Рµ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Р№ Р¤РЎР РђР -РР”
 				//
 				const ObjTagItem * p_tag_item = pPack->TagL.GetItem(PPTAG_PERSON_FSRARID);
 				if(!p_tag_item || (p_tag_item->GetStr(temp_buf) <= 0 || temp_buf.Empty())) {
@@ -3996,7 +3996,7 @@ int SLAPI PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Pa
 												PreprocessGoodsItem(ti.GoodsID, 0, 0, 0, _agi);
 												if(_agi.UnpackedVolume > 0.0) {
 													const double mult = _agi.UnpackedVolume / 10.0;
-													ti.Quantity_ = (ti.Quantity_ / mult); // Неупакованная продукция передается в декалитрах
+													ti.Quantity_ = (ti.Quantity_ / mult); // РќРµСѓРїР°РєРѕРІР°РЅРЅР°СЏ РїСЂРѕРґСѓРєС†РёСЏ РїРµСЂРµРґР°РµС‚СЃСЏ РІ РґРµРєР°Р»РёС‚СЂР°С…
 												}
 											}
 											// } @v8.9.10
@@ -4055,25 +4055,25 @@ struct EgaisWayBillRowTags {
 int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateRange * pPeriod, Packet * pPack, PrcssrAlcReport::RefCollection * pRefC)
 {
 	//
-	// Descr: Причины отказа от приема документа
+	// Descr: РџСЂРёС‡РёРЅС‹ РѕС‚РєР°Р·Р° РѕС‚ РїСЂРёРµРјР° РґРѕРєСѓРјРµРЅС‚Р°
 	//
 	enum RejectReason {
 		rrNone = 0,
-		rrUnresolvedGoods,    // В документе есть неразрешенные товары
-		rrDateOutOfRange,     // Дата документа выходит за пределы заданного периода
-		rrIntrBillNotFound,   // Не найден соответствующий документ внутреннего перемещения
-		rrIntrBillIdUnrecogn, // Принятый документ имеет примечание с префиксом внутреннего перемещения, но не удалось распознать идентификатор
-		rrRByBillDup          // Дублирование идентификаторов строк в документе
+		rrUnresolvedGoods,    // Р’ РґРѕРєСѓРјРµРЅС‚Рµ РµСЃС‚СЊ РЅРµСЂР°Р·СЂРµС€РµРЅРЅС‹Рµ С‚РѕРІР°СЂС‹
+		rrDateOutOfRange,     // Р”Р°С‚Р° РґРѕРєСѓРјРµРЅС‚Р° РІС‹С…РѕРґРёС‚ Р·Р° РїСЂРµРґРµР»С‹ Р·Р°РґР°РЅРЅРѕРіРѕ РїРµСЂРёРѕРґР°
+		rrIntrBillNotFound,   // РќРµ РЅР°Р№РґРµРЅ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РґРѕРєСѓРјРµРЅС‚ РІРЅСѓС‚СЂРµРЅРЅРµРіРѕ РїРµСЂРµРјРµС‰РµРЅРёСЏ
+		rrIntrBillIdUnrecogn, // РџСЂРёРЅСЏС‚С‹Р№ РґРѕРєСѓРјРµРЅС‚ РёРјРµРµС‚ РїСЂРёРјРµС‡Р°РЅРёРµ СЃ РїСЂРµС„РёРєСЃРѕРј РІРЅСѓС‚СЂРµРЅРЅРµРіРѕ РїРµСЂРµРјРµС‰РµРЅРёСЏ, РЅРѕ РЅРµ СѓРґР°Р»РѕСЃСЊ СЂР°СЃРїРѕР·РЅР°С‚СЊ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
+		rrRByBillDup          // Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ СЃС‚СЂРѕРє РІ РґРѕРєСѓРјРµРЅС‚Рµ
 	};
     int    ok = 1;
     RejectReason rr = rrNone;
     int    was_header_accepted = 0;
     int    is_pack_inited = 0;
     int    wb_type = 0;
-    int    unpacked = 0; // Признак того, что документ содержит неупакованную продукцию (количество в декалитрах)
+    int    unpacked = 0; // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РґРѕРєСѓРјРµРЅС‚ СЃРѕРґРµСЂР¶РёС‚ РЅРµСѓРїР°РєРѕРІР°РЅРЅСѓСЋ РїСЂРѕРґСѓРєС†РёСЋ (РєРѕР»РёС‡РµСЃС‚РІРѕ РІ РґРµРєР°Р»РёС‚СЂР°С…)
     // PPID   op_id = 0;
-    PPID   intr_expend_bill_id = 0; // Идент документа внутренней передачи, дубликат которого мы получили по ЕГАИС (установлен в поле Note)
-	// (Замещено на pPack->IntrBillID) PPID   local_intr_bill_id = 0; // Локальный для нашей БД идентификатор документа внутренней передачи, соответствующий intr_expend_bill_id
+    PPID   intr_expend_bill_id = 0; // РРґРµРЅС‚ РґРѕРєСѓРјРµРЅС‚Р° РІРЅСѓС‚СЂРµРЅРЅРµР№ РїРµСЂРµРґР°С‡Рё, РґСѓР±Р»РёРєР°С‚ РєРѕС‚РѕСЂРѕРіРѕ РјС‹ РїРѕР»СѓС‡РёР»Рё РїРѕ Р•Р“РђРРЎ (СѓСЃС‚Р°РЅРѕРІР»РµРЅ РІ РїРѕР»Рµ Note)
+	// (Р—Р°РјРµС‰РµРЅРѕ РЅР° pPack->IntrBillID) PPID   local_intr_bill_id = 0; // Р›РѕРєР°Р»СЊРЅС‹Р№ РґР»СЏ РЅР°С€РµР№ Р‘Р” РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РґРѕРєСѓРјРµРЅС‚Р° РІРЅСѓС‚СЂРµРЅРЅРµР№ РїРµСЂРµРґР°С‡Рё, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ intr_expend_bill_id
     const  PPID loc_id = NZOR(locID, LConfig.Location);
     PPPersonPacket psn_shipper;
     PPPersonPacket psn_suppl;
@@ -4090,7 +4090,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 	TSArray <EgaisWayBillRowTags> row_tags;
 	const PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
 	if(pPack)
-		pPack->Flags |= Packet::fFaultObj; // @v9.2.8 Иницилизируем флаг. Когда убедимся, что документ OK, флаг снимим.
+		pPack->Flags |= Packet::fFaultObj; // @v9.2.8 РРЅРёС†РёР»РёР·РёСЂСѓРµРј С„Р»Р°Рі. РљРѕРіРґР° СѓР±РµРґРёРјСЃСЏ, С‡С‚Рѕ РґРѕРєСѓРјРµРЅС‚ OK, С„Р»Р°Рі СЃРЅРёРјРёРј.
     for(xmlNode * p_n = pFirstNode; ok > 0 && p_n; p_n = p_n->next) {
         if(SXml::GetContentByName(p_n, "Identity", temp_buf)) {
 			bill_ident = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -4119,21 +4119,21 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 						unpacked = 1;
                 }
 				else if(SXml::IsName(p_h, "Shipper")) {
-					// pRefC-->0: Считанные из накладной данные о персоналии не вносим во внутреннюю БД (они могут быть не достоверны)
+					// pRefC-->0: РЎС‡РёС‚Р°РЅРЅС‹Рµ РёР· РЅР°РєР»Р°РґРЅРѕР№ РґР°РЅРЅС‹Рµ Рѕ РїРµСЂСЃРѕРЅР°Р»РёРё РЅРµ РІРЅРѕСЃРёРј РІРѕ РІРЅСѓС‚СЂРµРЅРЅСЋСЋ Р‘Р” (РѕРЅРё РјРѕРіСѓС‚ Р±С‹С‚СЊ РЅРµ РґРѕСЃС‚РѕРІРµСЂРЅС‹)
 					Read_OrgInfo(p_h->children, PPPRK_SUPPL, EgaisPersonCore::rolefShipper, p_bp ? &psn_shipper : 0, /*pRefC*/0, 0);
 				}
                 else if(SXml::IsName(p_h, "Consignee")) {
                 	PPID   psn_kind = 0;
-					if(oneof2(wb_type, wbtInvcFromMe, wbtRetFromMe)) // От поставщика ко мне
+					if(oneof2(wb_type, wbtInvcFromMe, wbtRetFromMe)) // РћС‚ РїРѕСЃС‚Р°РІС‰РёРєР° РєРѕ РјРЅРµ
 						psn_kind = PPPRK_MAIN;
 					else
-						psn_kind = PPPRK_SUPPL; // Технически, мы здесь не должны оказаться ибо импортируются только документы ToMe.
-					// @todo В этом блоке необходимо правильно идентифицировать склад, на который должен попасть документ
-					// pRefC-->0: Считанные из накладной данные о персоналии не вносим во внутреннюю БД (они могут быть не достоверны)
+						psn_kind = PPPRK_SUPPL; // РўРµС…РЅРёС‡РµСЃРєРё, РјС‹ Р·РґРµСЃСЊ РЅРµ РґРѕР»Р¶РЅС‹ РѕРєР°Р·Р°С‚СЊСЃСЏ РёР±Рѕ РёРјРїРѕСЂС‚РёСЂСѓСЋС‚СЃСЏ С‚РѕР»СЊРєРѕ РґРѕРєСѓРјРµРЅС‚С‹ ToMe.
+					// @todo Р’ СЌС‚РѕРј Р±Р»РѕРєРµ РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂР°РІРёР»СЊРЅРѕ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ СЃРєР»Р°Рґ, РЅР° РєРѕС‚РѕСЂС‹Р№ РґРѕР»Р¶РµРЅ РїРѕРїР°СЃС‚СЊ РґРѕРєСѓРјРµРЅС‚
+					// pRefC-->0: РЎС‡РёС‚Р°РЅРЅС‹Рµ РёР· РЅР°РєР»Р°РґРЅРѕР№ РґР°РЅРЅС‹Рµ Рѕ РїРµСЂСЃРѕРЅР°Р»РёРё РЅРµ РІРЅРѕСЃРёРј РІРѕ РІРЅСѓС‚СЂРµРЅРЅСЋСЋ Р‘Р” (РѕРЅРё РјРѕРіСѓС‚ Р±С‹С‚СЊ РЅРµ РґРѕСЃС‚РѕРІРµСЂРЅС‹)
 					Read_OrgInfo(p_h->children, psn_kind, EgaisPersonCore::rolefConsignee, p_bp ? &psn_consignee : 0, /*pRefC*/0, 0);
                 }
 				else if(SXml::IsName(p_h, "Supplier")) {
-					// pRefC-->0: Считанные из накладной данные о персоналии не вносим во внутреннюю БД (они могут быть не достоверны)
+					// pRefC-->0: РЎС‡РёС‚Р°РЅРЅС‹Рµ РёР· РЅР°РєР»Р°РґРЅРѕР№ РґР°РЅРЅС‹Рµ Рѕ РїРµСЂСЃРѕРЅР°Р»РёРё РЅРµ РІРЅРѕСЃРёРј РІРѕ РІРЅСѓС‚СЂРµРЅРЅСЋСЋ Р‘Р” (РѕРЅРё РјРѕРіСѓС‚ Р±С‹С‚СЊ РЅРµ РґРѕСЃС‚РѕРІРµСЂРЅС‹)
 					Read_OrgInfo(p_h->children, PPPRK_SUPPL, EgaisPersonCore::rolefSupplier, p_bp ? &psn_suppl : 0, /*pRefC*/0, 0);
 				}
                 else if(SXml::IsName(p_h, "Transport"))
@@ -4192,7 +4192,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 				rr = rrIntrBillIdUnrecogn;
 				ok = -1;
 			}
-			if(wb_type == wbtInvcFromMe) { // От поставщика ко мне
+			if(wb_type == wbtInvcFromMe) { // РћС‚ РїРѕСЃС‚Р°РІС‰РёРєР° РєРѕ РјРЅРµ
 				if(p_bp) {
 					const PPID op_id = ACfg.Hdr.EgaisRcptOpID;
 					THROW_PP(op_id, PPERR_EGAIS_RCPTOPUNDEF);
@@ -4205,9 +4205,9 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 					else if(memo_base.NotEmptyS())
 						STRNSCPY(p_bp->Rec.Memo, memo_base);
 					//
-					// @v9.5.11 Изменен приоритет применения контрагента в качестве поставщика.
-					// Ранее у psn_suppl был приоритет, однако выяснилось что некоторые поставщики
-					// гонят в этом теге бредовые значения (типа собственного поставщика).
+					// @v9.5.11 РР·РјРµРЅРµРЅ РїСЂРёРѕСЂРёС‚РµС‚ РїСЂРёРјРµРЅРµРЅРёСЏ РєРѕРЅС‚СЂР°РіРµРЅС‚Р° РІ РєР°С‡РµСЃС‚РІРµ РїРѕСЃС‚Р°РІС‰РёРєР°.
+					// Р Р°РЅРµРµ Сѓ psn_suppl Р±С‹Р» РїСЂРёРѕСЂРёС‚РµС‚, РѕРґРЅР°РєРѕ РІС‹СЏСЃРЅРёР»РѕСЃСЊ С‡С‚Рѕ РЅРµРєРѕС‚РѕСЂС‹Рµ РїРѕСЃС‚Р°РІС‰РёРєРё
+					// РіРѕРЅСЏС‚ РІ СЌС‚РѕРј С‚РµРіРµ Р±СЂРµРґРѕРІС‹Рµ Р·РЅР°С‡РµРЅРёСЏ (С‚РёРїР° СЃРѕР±СЃС‚РІРµРЅРЅРѕРіРѕ РїРѕСЃС‚Р°РІС‰РёРєР°).
 					// {
 					if(psn_shipper.Rec.ID) {
 						ArObj.P_Tbl->PersonToArticle(psn_shipper.Rec.ID, op_rec.AccSheetID, &ar_id);
@@ -4226,7 +4226,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 					is_pack_inited = 1;
 				}
 			}
-			else if(wb_type == wbtRetFromMe) { // Возврат от покупателя ко мне
+			else if(wb_type == wbtRetFromMe) { // Р’РѕР·РІСЂР°С‚ РѕС‚ РїРѕРєСѓРїР°С‚РµР»СЏ РєРѕ РјРЅРµ
 				if(p_bp && ACfg.Hdr.EgaisRetOpID) {
 					const PPID op_id = ACfg.Hdr.EgaisRetOpID;
 					THROW_PP(op_id, PPERR_EGAIS_RCPTOPUNDEF);
@@ -4239,8 +4239,8 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 					else if(memo_base.NotEmptyS())
 						STRNSCPY(p_bp->Rec.Memo, memo_base);
 					//
-					// @v9.2.10 Изменен приоритет идентификации контрагента: сначала по грузоотправителю, потом - по поставщику,
-					// поскольку некоторые покупатели отгружают возврат с указанием получателя как поставщика
+					// @v9.2.10 РР·РјРµРЅРµРЅ РїСЂРёРѕСЂРёС‚РµС‚ РёРґРµРЅС‚РёС„РёРєР°С†РёРё РєРѕРЅС‚СЂР°РіРµРЅС‚Р°: СЃРЅР°С‡Р°Р»Р° РїРѕ РіСЂСѓР·РѕРѕС‚РїСЂР°РІРёС‚РµР»СЋ, РїРѕС‚РѕРј - РїРѕ РїРѕСЃС‚Р°РІС‰РёРєСѓ,
+					// РїРѕСЃРєРѕР»СЊРєСѓ РЅРµРєРѕС‚РѕСЂС‹Рµ РїРѕРєСѓРїР°С‚РµР»Рё РѕС‚РіСЂСѓР¶Р°СЋС‚ РІРѕР·РІСЂР°С‚ СЃ СѓРєР°Р·Р°РЅРёРµРј РїРѕР»СѓС‡Р°С‚РµР»СЏ РєР°Рє РїРѕСЃС‚Р°РІС‰РёРєР°
 					//
 					if(psn_shipper.Rec.ID) {
 						ArObj.P_Tbl->PersonToArticle(psn_shipper.Rec.ID, op_rec.AccSheetID, &ar_id);
@@ -4298,7 +4298,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 							else if(SXml::IsName(p_pos, "Product")) {
 								int   rs = 0;
 								PPGoodsPacket goods_pack;
-								// pRefC-->0: Считанные из накладной данные о товаре не вносим во внутреннюю БД (они могут быть не достоверны)
+								// pRefC-->0: РЎС‡РёС‚Р°РЅРЅС‹Рµ РёР· РЅР°РєР»Р°РґРЅРѕР№ РґР°РЅРЅС‹Рµ Рѕ С‚РѕРІР°СЂРµ РЅРµ РІРЅРѕСЃРёРј РІРѕ РІРЅСѓС‚СЂРµРЅРЅСЋСЋ Р‘Р” (РѕРЅРё РјРѕРіСѓС‚ Р±С‹С‚СЊ РЅРµ РґРѕСЃС‚РѕРІРµСЂРЅС‹)
 								THROW(rs = Read_ProductInfo(p_pos->children, p_bp ? &goods_pack : 0, &alc_ext, /*pRefC*/0, 0));
 								// @v9.5.10 {
 								if(alc_ext.OuterUnpackedTag)
@@ -4313,7 +4313,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 									}
 									else {
 										rr = rrUnresolvedGoods;
-										ok = -1; // Отказ акцептировать товар воспринимаем как директиву к выходу из процесса чтения документа
+										ok = -1; // РћС‚РєР°Р· Р°РєС†РµРїС‚РёСЂРѕРІР°С‚СЊ С‚РѕРІР°СЂ РІРѕСЃРїСЂРёРЅРёРјР°РµРј РєР°Рє РґРёСЂРµРєС‚РёРІСѓ Рє РІС‹С…РѕРґСѓ РёР· РїСЂРѕС†РµСЃСЃР° С‡С‚РµРЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р°
 									}
 								}
 							}
@@ -4402,10 +4402,10 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
     if(is_pack_inited) {
 		SString bill_text;
 		PPObjBill::MakeCodeString(&p_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
-		p_bp->SortTI(); // Обязательно необходимо отсортировать строки по RByBill (могут прийти в перепутанном порядке)
+		p_bp->SortTI(); // РћР±СЏР·Р°С‚РµР»СЊРЅРѕ РЅРµРѕР±С…РѕРґРёРјРѕ РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°С‚СЊ СЃС‚СЂРѕРєРё РїРѕ RByBill (РјРѕРіСѓС‚ РїСЂРёР№С‚Рё РІ РїРµСЂРµРїСѓС‚Р°РЅРЅРѕРј РїРѕСЂСЏРґРєРµ)
 		{
 			//
-			// Проверка на наличие дубликатов в номерах строк документа
+			// РџСЂРѕРІРµСЂРєР° РЅР° РЅР°Р»РёС‡РёРµ РґСѓР±Р»РёРєР°С‚РѕРІ РІ РЅРѕРјРµСЂР°С… СЃС‚СЂРѕРє РґРѕРєСѓРјРµРЅС‚Р°
 			//
 			LongArray rbb_list;
 			for(uint i = 0; ok > 0 && i < p_bp->GetTCount(); i++) {
@@ -4420,7 +4420,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 			int    msg_id = 0;
 			switch(rr) {
 				case rrUnresolvedGoods: msg_id = PPTXT_EGAIS_BILLREJECTEDUNR; break;
-				case rrDateOutOfRange: /* (сообщение мешает) msg_id = PPTXT_EGAIS_BILLREJECTOOD; */ break;
+				case rrDateOutOfRange: /* (СЃРѕРѕР±С‰РµРЅРёРµ РјРµС€Р°РµС‚) msg_id = PPTXT_EGAIS_BILLREJECTOOD; */ break;
 				case rrIntrBillIdUnrecogn: break;
 				case rrIntrBillNotFound: msg_id = PPTXT_EGAIS_INTRBILLNFOUNT; break;
 				case rrRByBillDup: msg_id = PPTXT_EGAIS_RBYBILLDUP; break;
@@ -4465,7 +4465,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 						p_bp->InitAmounts();
 				}
 			}
-			pPack->Flags &= ~Packet::fFaultObj; // @v9.2.8 Пакет документа готов к акцепту
+			pPack->Flags &= ~Packet::fFaultObj; // @v9.2.8 РџР°РєРµС‚ РґРѕРєСѓРјРµРЅС‚Р° РіРѕС‚РѕРІ Рє Р°РєС†РµРїС‚Сѓ
 		}
     }
 	CATCHZOK
@@ -4548,7 +4548,7 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, TSCollection
 								do_skip = 1;
 							}
 							if(do_skip) {
-								/* Избыточное сообщение - мешает
+								/* РР·Р±С‹С‚РѕС‡РЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ - РјРµС€Р°РµС‚
 								PPObjBill::MakeCodeString(&ex_bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
 								PPLoadText(PPTXT_EGAIS_BILLTOOACCEPTED, fmt_buf);
 								Log(msg_buf.Printf(fmt_buf, (const char *)bill_text));
@@ -4673,8 +4673,8 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 	ObjTagItem tag_item;
 	PPBillPacket * p_wroff_bp = 0;
 	//
-	// Формируем документ передачи в торговый зал (регистр 2) лотов, которых
-	// нет в отчете ЕГАИС об остатках в торговом зале.
+	// Р¤РѕСЂРјРёСЂСѓРµРј РґРѕРєСѓРјРµРЅС‚ РїРµСЂРµРґР°С‡Рё РІ С‚РѕСЂРіРѕРІС‹Р№ Р·Р°Р» (СЂРµРіРёСЃС‚СЂ 2) Р»РѕС‚РѕРІ, РєРѕС‚РѕСЂС‹С…
+	// РЅРµС‚ РІ РѕС‚С‡РµС‚Рµ Р•Р“РђРРЎ РѕР± РѕСЃС‚Р°С‚РєР°С… РІ С‚РѕСЂРіРѕРІРѕРј Р·Р°Р»Рµ.
 	//
 	const LDATE _cur_date = getcurdate_();
     PPIDArray alco_goods_list;
@@ -4834,7 +4834,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 												double wroff_qtty = 0.0;
 												if(ccl_rest < 0.0)
 													wroff_qtty = ccl_rest;
-												/* ЕГАИС не разрешает списание в минус
+												/* Р•Р“РђРРЎ РЅРµ СЂР°Р·СЂРµС€Р°РµС‚ СЃРїРёСЃР°РЅРёРµ РІ РјРёРЅСѓСЃ
 												else if(bci == (bc_list.getCount()-1))
 													wroff_qtty = ccl_rest;
 												*/
@@ -4902,8 +4902,8 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 	ObjTagItem tag_item;
 	PPBillPacket * p_shop_rest_bp = 0;
 	//
-	// Формируем документ передачи в торговый зал (регистр 2) лотов, которых
-	// нет в отчете ЕГАИС об остатках в торговом зале.
+	// Р¤РѕСЂРјРёСЂСѓРµРј РґРѕРєСѓРјРµРЅС‚ РїРµСЂРµРґР°С‡Рё РІ С‚РѕСЂРіРѕРІС‹Р№ Р·Р°Р» (СЂРµРіРёСЃС‚СЂ 2) Р»РѕС‚РѕРІ, РєРѕС‚РѕСЂС‹С…
+	// РЅРµС‚ РІ РѕС‚С‡РµС‚Рµ Р•Р“РђРРЎ РѕР± РѕСЃС‚Р°С‚РєР°С… РІ С‚РѕСЂРіРѕРІРѕРј Р·Р°Р»Рµ.
 	//
 	const LDATE _cur_date = getcurdate_();
     PPIDArray alco_goods_list;
@@ -4922,8 +4922,8 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 		PPOprKind op_rec_r1;
 		PPOprKind op_rec_r2;
 		int    r1_can_have_main_org_ar = 0;
-		PPID   target_ar2_id = 0; // Дополнительная статья, которая, если !0, должна совпадать
-			// у документа остатков по R2 и по R1.
+		PPID   target_ar2_id = 0; // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ СЃС‚Р°С‚СЊСЏ, РєРѕС‚РѕСЂР°СЏ, РµСЃР»Рё !0, РґРѕР»Р¶РЅР° СЃРѕРІРїР°РґР°С‚СЊ
+			// Сѓ РґРѕРєСѓРјРµРЅС‚Р° РѕСЃС‚Р°С‚РєРѕРІ РїРѕ R2 Рё РїРѕ R1.
 		GetOpData(op_id, &op_rec_r1);
 		GetOpData(pCurrentRestPack->Rec.OpID, &op_rec_r2);
 		if(IsAcsLinkedToMainOrg(op_rec_r1.AccSheet2ID)) {
@@ -4941,7 +4941,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 		}
 		if(last_wh_rest_bill_id) {
 			if(P_BObj->ExtractPacketWithFlags(last_wh_rest_bill_id, &current_wh_rest_bp, BPLD_FORCESERIALS) > 0) {
-				//PPTXT_EGAIS_LASTSTOCKBILLFOUND "Последний документ регистрации складских остатков в @{brand_egais}: '%s'"
+				//PPTXT_EGAIS_LASTSTOCKBILLFOUND "РџРѕСЃР»РµРґРЅРёР№ РґРѕРєСѓРјРµРЅС‚ СЂРµРіРёСЃС‚СЂР°С†РёРё СЃРєР»Р°РґСЃРєРёС… РѕСЃС‚Р°С‚РєРѕРІ РІ @{brand_egais}: '%s'"
 				PPObjBill::MakeCodeString(&current_wh_rest_bp.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, temp_buf);
 				LogTextWithAddendum(PPTXT_EGAIS_LASTSTOCKBILLFOUND, temp_buf);
 			}
@@ -4956,8 +4956,8 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 		}
 	}
     if(current_wh_rest_bp.Rec.ID && sco_op_id && GetAlcGoodsList(alco_goods_list) > 0) {
-		int    dont_create_transfer = 0; // Если есть еще не принятый ЕГАИС документ передачи, то новый документ не заводим
-		PPIDArray settled_bill_list; // Список документов передачи, принятых в ЕГАИС
+		int    dont_create_transfer = 0; // Р•СЃР»Рё РµСЃС‚СЊ РµС‰Рµ РЅРµ РїСЂРёРЅСЏС‚С‹Р№ Р•Р“РђРРЎ РґРѕРєСѓРјРµРЅС‚ РїРµСЂРµРґР°С‡Рё, С‚Рѕ РЅРѕРІС‹Р№ РґРѕРєСѓРјРµРЅС‚ РЅРµ Р·Р°РІРѕРґРёРј
+		PPIDArray settled_bill_list; // РЎРїРёСЃРѕРє РґРѕРєСѓРјРµРЅС‚РѕРІ РїРµСЂРµРґР°С‡Рё, РїСЂРёРЅСЏС‚С‹С… РІ Р•Р“РђРРЎ
 		{
 			DateRange settled_period;
 			settled_period.Set(encodedate(1, 9, 2016), ZERODATE);
@@ -4982,12 +4982,12 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 			SString goods_name;
 			LongArray row_idx_list;
 			{
-				PPIDArray ref_b_lot_list; // Список лотов со справкой Б той же, что и в строке текущих остатков по складу
-				LongArray processed_csr_rows; // Список индексов строк pCurrentRestPack, которые были затронуты созданным документом
+				PPIDArray ref_b_lot_list; // РЎРїРёСЃРѕРє Р»РѕС‚РѕРІ СЃРѕ СЃРїСЂР°РІРєРѕР№ Р‘ С‚РѕР№ Р¶Рµ, С‡С‚Рѕ Рё РІ СЃС‚СЂРѕРєРµ С‚РµРєСѓС‰РёС… РѕСЃС‚Р°С‚РєРѕРІ РїРѕ СЃРєР»Р°РґСѓ
+				LongArray processed_csr_rows; // РЎРїРёСЃРѕРє РёРЅРґРµРєСЃРѕРІ СЃС‚СЂРѕРє pCurrentRestPack, РєРѕС‚РѕСЂС‹Рµ Р±С‹Р»Рё Р·Р°С‚СЂРѕРЅСѓС‚С‹ СЃРѕР·РґР°РЅРЅС‹Рј РґРѕРєСѓРјРµРЅС‚РѕРј
 				PrcssrAlcReport::GoodsItem agi;
 				long   checked_counter = 0;
-				StrAssocArray checked_list; // Список егаис-кодов, которые уже встречались
-				RAssocArray checked_qtty_list; // Список учтенных остатков по егаис кодам
+				StrAssocArray checked_list; // РЎРїРёСЃРѕРє РµРіР°РёСЃ-РєРѕРґРѕРІ, РєРѕС‚РѕСЂС‹Рµ СѓР¶Рµ РІСЃС‚СЂРµС‡Р°Р»РёСЃСЊ
+				RAssocArray checked_qtty_list; // РЎРїРёСЃРѕРє СѓС‡С‚РµРЅРЅС‹С… РѕСЃС‚Р°С‚РєРѕРІ РїРѕ РµРіР°РёСЃ РєРѕРґР°Рј
 				//
 				PPTransaction tra(1);
 				THROW(tra);
@@ -5036,7 +5036,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 						}
 						//
 						if(lot_id == 0) {
-							// PPTXT_EGAIS_NOLOTSFORWHREST    "Для остатка по складу ЕГАИС '%s' не найдено ни одного соответствия в лотах"
+							// PPTXT_EGAIS_NOLOTSFORWHREST    "Р”Р»СЏ РѕСЃС‚Р°С‚РєР° РїРѕ СЃРєР»Р°РґСѓ Р•Р“РђРРЎ '%s' РЅРµ РЅР°Р№РґРµРЅРѕ РЅРё РѕРґРЅРѕРіРѕ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ РІ Р»РѕС‚Р°С…"
 							(temp_buf = 0).Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().CatChar('=').Cat(cwr_rest, MKSFMTD(0, 1, 0));
 							LogTextWithAddendum(PPTXT_EGAIS_NOLOTSFORWHREST, temp_buf);
 						}
@@ -5093,7 +5093,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 						}
 						else if(shop_rest < 0.0) {
 							//
-							// PPTXT_EGAIS_NOWHRESTFORR2DFCT  "Для отрицательного остатка по регистру 2 @{brand_egais} '%s' нет доступного остатка по складу @{brand_egais}"
+							// PPTXT_EGAIS_NOWHRESTFORR2DFCT  "Р”Р»СЏ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅРѕРіРѕ РѕСЃС‚Р°С‚РєР° РїРѕ СЂРµРіРёСЃС‚СЂСѓ 2 @{brand_egais} '%s' РЅРµС‚ РґРѕСЃС‚СѓРїРЅРѕРіРѕ РѕСЃС‚Р°С‚РєР° РїРѕ СЃРєР»Р°РґСѓ @{brand_egais}"
 							(temp_buf = 0).Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().CatChar('=').Cat(shop_rest, MKSFMTD(0, 1, 0));
 							LogTextWithAddendum(PPTXT_EGAIS_NOWHRESTFORR2DFCT, temp_buf);
 						}
@@ -5104,7 +5104,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 						const PPTransferItem & r_csr_ti = pCurrentRestPack->ConstTI(csridx);
 						if(r_csr_ti.Quantity_ < 0.0) {
 							pCurrentRestPack->LTagL.GetTagStr(csridx, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
-							// PPTXT_EGAIS_NOWHRESTFORR2DFCT  "Для отрицательного остатка по регистру 2 @{brand_egais} '%s' нет доступного остатка по складу @{brand_egais}"
+							// PPTXT_EGAIS_NOWHRESTFORR2DFCT  "Р”Р»СЏ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅРѕРіРѕ РѕСЃС‚Р°С‚РєР° РїРѕ СЂРµРіРёСЃС‚СЂСѓ 2 @{brand_egais} '%s' РЅРµС‚ РґРѕСЃС‚СѓРїРЅРѕРіРѕ РѕСЃС‚Р°С‚РєР° РїРѕ СЃРєР»Р°РґСѓ @{brand_egais}"
 							(temp_buf = 0).Cat(egais_code).Space().CatChar('=').Cat(r_csr_ti.Quantity_, MKSFMTD(0, 1, 0));
 							LogTextWithAddendum(PPTXT_EGAIS_NOWHRESTFORR2DFCT, temp_buf);
 						}
@@ -5361,7 +5361,7 @@ int SLAPI PPEgaisProcessor::DeleteDoc(PPEgaisProcessor::Reply & rR)
 		THROW_SL(c.HttpDelete(rR.Url, 0, &wr_stream));
     }
 	rR.Status |= Reply::stDeleted;
-	// @v9.2.10 (лишнее сообщение - мешает) LogTextWithAddendum(PPTXT_EGAIS_DOCDELETED, rR.Url);
+	// @v9.2.10 (Р»РёС€РЅРµРµ СЃРѕРѕР±С‰РµРЅРёРµ - РјРµС€Р°РµС‚) LogTextWithAddendum(PPTXT_EGAIS_DOCDELETED, rR.Url);
     CATCHZOK
     return ok;
 }
@@ -6111,7 +6111,7 @@ int SLAPI PPEgaisProcessor::RemoveOutputMessages(PPID locID, int debugMode)
 	xmlParserCtxt * p_ctx = 0;
 	TSCollection <PPEgaisProcessor::Reply> reply_list;
 	THROW(p_ctx = xmlNewParserCtxt());
-	THROW(GetReplyList(p_ctx, locID, -1 /* ! -1 - исходящие сообщения */, reply_list));
+	THROW(GetReplyList(p_ctx, locID, -1 /* ! -1 - РёСЃС…РѕРґСЏС‰РёРµ СЃРѕРѕР±С‰РµРЅРёСЏ */, reply_list));
 	const uint reply_count = reply_list.getCount();
 	if(reply_count) {
 		SString msg_buf;
@@ -6342,7 +6342,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 							LogTextWithAddendum(PPTXT_EGAIS_WBRPLREQMANYDOCS, temp_buf);
 						}
 						else {
-							// Запрос на отмену проведения через ЕГАИС '%s' не может быть акцептирован поскольку ему не соответствует ни одного документа в БД
+							// Р—Р°РїСЂРѕСЃ РЅР° РѕС‚РјРµРЅСѓ РїСЂРѕРІРµРґРµРЅРёСЏ С‡РµСЂРµР· Р•Р“РђРРЎ '%s' РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р°РєС†РµРїС‚РёСЂРѕРІР°РЅ РїРѕСЃРєРѕР»СЊРєСѓ РµРјСѓ РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РЅРё РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РІ Р‘Р”
 							(temp_buf = 0).Cat(p_rwb->TTNCode).CatDiv('-', 1).Cat(p_rwb->ReqNumber);
 							LogTextWithAddendum(PPTXT_EGAIS_WBRPLREQNODOCS, temp_buf);
 						}
@@ -6350,8 +6350,8 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 					else if(oneof2(p_pack->DocType, PPEDIOP_EGAIS_TTNINFORMBREG, PPEDIOP_EGAIS_TTNINFORMF2REG)) {
 						const InformB * p_inf = (const InformB *)p_pack->P_Data;
 						//
-						// Пытаемся избежать повторного разбора двух и более PPEDIOP_EGAIS_TTNINFORMBREG
-						// относящихся к одному документу (разные версии посылок). Нам нажна только последняя версия.
+						// РџС‹С‚Р°РµРјСЃСЏ РёР·Р±РµР¶Р°С‚СЊ РїРѕРІС‚РѕСЂРЅРѕРіРѕ СЂР°Р·Р±РѕСЂР° РґРІСѓС… Рё Р±РѕР»РµРµ PPEDIOP_EGAIS_TTNINFORMBREG
+						// РѕС‚РЅРѕСЃСЏС‰РёС…СЃСЏ Рє РѕРґРЅРѕРјСѓ РґРѕРєСѓРјРµРЅС‚Сѓ (СЂР°Р·РЅС‹Рµ РІРµСЂСЃРёРё РїРѕСЃС‹Р»РѕРє). РќР°Рј РЅР°Р¶РЅР° С‚РѕР»СЊРєРѕ РїРѕСЃР»РµРґРЅСЏСЏ РІРµСЂСЃРёСЏ.
 						//
 						for(uint fwpackidx = packidx+1; fwpackidx < pack_list.getCount(); fwpackidx++) {
 							Packet * p_fw_pack = pack_list.at(fwpackidx);
@@ -6407,7 +6407,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 								}
 							}
 							int    _bill_found = 0;
-							int    _err = 0; // Признак того, что произошла ошибка. Если !0, то удалять документ из УТМ нельзя
+							int    _err = 0; // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РїСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР°. Р•СЃР»Рё !0, С‚Рѕ СѓРґР°Р»СЏС‚СЊ РґРѕРєСѓРјРµРЅС‚ РёР· РЈРўРњ РЅРµР»СЊР·СЏ
 							for(uint j = 0; !_bill_found && j < bill_id_list.getCount(); j++) {
 								const PPID bill_id = bill_id_list.get(j);
 								BillTbl::Rec ex_bill_rec;
@@ -6416,11 +6416,11 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 								int   do_update = 0;
 								int   do_update_wroff_pack = 0;
 								//
-								// Значения do_process:
-								// 0 - не обрабатывать,
-								// 1 - приход от поставщика,
-								// 2 - возврат от покупателя
-								// 3 - расходные операции (по ним сейчас ничего не делаем, но временно оставляем так)
+								// Р—РЅР°С‡РµРЅРёСЏ do_process:
+								// 0 - РЅРµ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ,
+								// 1 - РїСЂРёС…РѕРґ РѕС‚ РїРѕСЃС‚Р°РІС‰РёРєР°,
+								// 2 - РІРѕР·РІСЂР°С‚ РѕС‚ РїРѕРєСѓРїР°С‚РµР»СЏ
+								// 3 - СЂР°СЃС…РѕРґРЅС‹Рµ РѕРїРµСЂР°С†РёРё (РїРѕ РЅРёРј СЃРµР№С‡Р°СЃ РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°РµРј, РЅРѕ РІСЂРµРјРµРЅРЅРѕ РѕСЃС‚Р°РІР»СЏРµРј С‚Р°Рє)
 								int   do_process = 0;
 								if(P_BObj->Fetch(bill_id, &ex_bill_rec) > 0) {
 									if(IsOpBelongTo(ex_bill_rec.OpID, ACfg.Hdr.EgaisRcptOpID))
@@ -6431,7 +6431,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 										do_process = 3;
 								}
 								if(do_process == 3) {
-									// Ничего не делаем по справке Б для собственного документа
+									// РќРёС‡РµРіРѕ РЅРµ РґРµР»Р°РµРј РїРѕ СЃРїСЂР°РІРєРµ Р‘ РґР»СЏ СЃРѕР±СЃС‚РІРµРЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 								}
 								else if(oneof2(do_process, 1, 2)) {
 									BillCore::GetCode(temp_buf = ex_bill_rec.Code);
@@ -6485,9 +6485,9 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 											}
 											{
 												//
-												// Если драфт-документ уже имеет привязанный документ внутреннего перемещения,
-												// то нам понадобится пакет этого привязанного документа для изменения
-												// в нем справок А и Б.
+												// Р•СЃР»Рё РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚ СѓР¶Рµ РёРјРµРµС‚ РїСЂРёРІСЏР·Р°РЅРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚ РІРЅСѓС‚СЂРµРЅРЅРµРіРѕ РїРµСЂРµРјРµС‰РµРЅРёСЏ,
+												// С‚Рѕ РЅР°Рј РїРѕРЅР°РґРѕР±РёС‚СЃСЏ РїР°РєРµС‚ СЌС‚РѕРіРѕ РїСЂРёРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ
+												// РІ РЅРµРј СЃРїСЂР°РІРѕРє Рђ Рё Р‘.
 												//
 												PPIDArray wroff_bill_list;
 												BillTbl::Rec wroff_bill_rec;
@@ -6639,10 +6639,10 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 					else if(p_pack->DocType == PPEDIOP_EGAIS_TICKET) {
 						Ticket * p_tick = (Ticket *)p_pack->P_Data;
 						//
-						// Note: Следующий вызов правильнее разместить в точке @1, однако пока
-						// механизмы не будут окончательно отлажены будем финишировать цикл
-						// обработки документа не зависимо от инфраструктуры хранения данных об
-						// отправленных и ожищающих ответа запросов (DGQ).
+						// Note: РЎР»РµРґСѓСЋС‰РёР№ РІС‹Р·РѕРІ РїСЂР°РІРёР»СЊРЅРµРµ СЂР°Р·РјРµСЃС‚РёС‚СЊ РІ С‚РѕС‡РєРµ @1, РѕРґРЅР°РєРѕ РїРѕРєР°
+						// РјРµС…Р°РЅРёР·РјС‹ РЅРµ Р±СѓРґСѓС‚ РѕРєРѕРЅС‡Р°С‚РµР»СЊРЅРѕ РѕС‚Р»Р°Р¶РµРЅС‹ Р±СѓРґРµРј С„РёРЅРёС€РёСЂРѕРІР°С‚СЊ С†РёРєР»
+						// РѕР±СЂР°Р±РѕС‚РєРё РґРѕРєСѓРјРµРЅС‚Р° РЅРµ Р·Р°РІРёСЃРёРјРѕ РѕС‚ РёРЅС„СЂР°СЃС‚СЂСѓРєС‚СѓСЂС‹ С…СЂР°РЅРµРЅРёСЏ РґР°РЅРЅС‹С… РѕР±
+						// РѕС‚РїСЂР°РІР»РµРЅРЅС‹С… Рё РѕР¶РёС‰Р°СЋС‰РёС… РѕС‚РІРµС‚Р° Р·Р°РїСЂРѕСЃРѕРІ (DGQ).
 						//
 						THROW(FinishBillProcessingByTicket(p_tick, 1));
 #if 0 // @v9.6.4 (useless) {
@@ -6700,7 +6700,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 	}
 	CATCH
 		LogLastError();
-		ok = 0; // Сообщение об ошибке должно выводиться блоком, который вызывает PPEgaisProcessor::ReadInput
+		ok = 0; // РЎРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС€РёР±РєРµ РґРѕР»Р¶РЅРѕ РІС‹РІРѕРґРёС‚СЊСЃСЏ Р±Р»РѕРєРѕРј, РєРѕС‚РѕСЂС‹Р№ РІС‹Р·С‹РІР°РµС‚ PPEgaisProcessor::ReadInput
 	ENDCATCH
 	xmlFreeParserCtxt(p_ctx);
 	CALLPTRMEMB(P_Logger, Save(PPFILNAM_EGAIS_LOG, 0));
@@ -6815,7 +6815,7 @@ int SLAPI PPEgaisProcessor::CreateActChargeOnBill(PPID * pBillID, int ediOp, PPI
 				ReceiptTbl::Rec lot_rec;
 				if(P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
 					const PPID goods_id = lot_rec.GoodsID;
-					if(goods_id > 0 && IsAlcGoods(goods_id) && PreprocessGoodsItem(goods_id, 0, 0, 0, agi) > 0) { // Исключаем попадание лота заказа
+					if(goods_id > 0 && IsAlcGoods(goods_id) && PreprocessGoodsItem(goods_id, 0, 0, 0, agi) > 0) { // РСЃРєР»СЋС‡Р°РµРј РїРѕРїР°РґР°РЅРёРµ Р»РѕС‚Р° Р·Р°РєР°Р·Р°
 						PPTransferItem ti;
 						int   skip = 0;
 						double rest = 0.0;
@@ -6836,7 +6836,7 @@ int SLAPI PPEgaisProcessor::CreateActChargeOnBill(PPID * pBillID, int ediOp, PPI
 								// @v9.3.9 rest = lot_rec.Rest;
 								if(agi.UnpackedVolume > 0.0) {
 									const double mult = agi.UnpackedVolume / 10.0;
-									rest = (rest * mult); // Неупакованная продукция передается в декалитрах
+									rest = (rest * mult); // РќРµСѓРїР°РєРѕРІР°РЅРЅР°СЏ РїСЂРѕРґСѓРєС†РёСЏ РїРµСЂРµРґР°РµС‚СЃСЏ РІ РґРµРєР°Р»РёС‚СЂР°С…
 								}
 							}
 							// } @v9.3.3
@@ -6989,14 +6989,14 @@ int SLAPI PPEgaisProcessor::GetAcceptedBillList(const SendBillsParam & rP, long 
 							suited = 0;
 						else if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_EDIREPEALACK, temp_buf) > 0) {
 							//
-							// Запрос на отмену проведения уже отправлен
+							// Р—Р°РїСЂРѕСЃ РЅР° РѕС‚РјРµРЅСѓ РїСЂРѕРІРµРґРµРЅРёСЏ СѓР¶Рµ РѕС‚РїСЂР°РІР»РµРЅ
 							//
 							suited = 0;
 						}
 					}
 					else {
 						//
-						// По документам с установленным тегом PPTAG_BILL_EDIACK уже отправлены подтверждения
+						// РџРѕ РґРѕРєСѓРјРµРЅС‚Р°Рј СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј С‚РµРіРѕРј PPTAG_BILL_EDIACK СѓР¶Рµ РѕС‚РїСЂР°РІР»РµРЅС‹ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ
 						//
 						suited = 0;
 					}
@@ -7160,18 +7160,18 @@ int SLAPI PPEgaisProcessor::GetBillListForTransmission(const SendBillsParam & rP
 			p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIIDENT, edi_ident);
 			p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIREJECTACK, edi_rejectack);
 			if(edi_ack.NotEmpty() && edi_ident.NotEmpty() && bill_rec.Flags2 & BILLF2_DECLINED && edi_rejectack.Empty()) {
-				for_reject = 1; // По документу необходимо отправить отказ от проведения //
+				for_reject = 1; // РџРѕ РґРѕРєСѓРјРµРЅС‚Сѓ РЅРµРѕР±С…РѕРґРёРјРѕ РѕС‚РїСЂР°РІРёС‚СЊ РѕС‚РєР°Р· РѕС‚ РїСЂРѕРІРµРґРµРЅРёСЏ //
 			}
 			else {
 				if(suited && edi_ack.NotEmpty()) {
 					//
-					// По документам с установленным тегом PPTAG_BILL_EDIACK уже отправлены подтверждения
+					// РџРѕ РґРѕРєСѓРјРµРЅС‚Р°Рј СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј С‚РµРіРѕРј PPTAG_BILL_EDIACK СѓР¶Рµ РѕС‚РїСЂР°РІР»РµРЅС‹ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ
 					//
 					suited = 0;
 				}
 				if(suited && (flags & (bilstfExpend|bilstfIntrExpend)) && edi_ident.NotEmpty()) {
 					//
-					// Документ уже отправлен
+					// Р”РѕРєСѓРјРµРЅС‚ СѓР¶Рµ РѕС‚РїСЂР°РІР»РµРЅ
 					//
 					suited = 0;
 				}
@@ -7414,18 +7414,20 @@ int SLAPI PPEgaisProcessor::Helper_SendBillsByPattern(const SendBillsParam & rP,
 int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 {
 	int    ok = -1;
+	const  int __v2 = BIN(Cfg.E.Flags & Cfg.fEgaisVer2Fmt);
 	SString file_name;
 	SString temp_buf;
 	PPIDArray totransm_bill_list, reject_bill_list;
 	{
 		const PPEgaisProcessor::BillTransmissionPattern _BillTransmPatterns[] = {
-			{ bilstfReadyForAck|bilstfChargeOn,         PPEDIOP_EGAIS_ACTCHARGEON,       "ActChargeOn" },
-			{ bilstfReadyForAck|bilstfChargeOnShop,     PPEDIOP_EGAIS_ACTCHARGEONSHOP,   "ActChargeOnShop_v2" },
-			{ bilstfReadyForAck|bilstfWriteOffShop,     PPEDIOP_EGAIS_ACTWRITEOFFSHOP,   "ActWriteOffShop_v2" },
-			{ bilstfReadyForAck|bilstfTransferToShop,   PPEDIOP_EGAIS_TRANSFERTOSHOP,    "TransferToShop" },
-			{ bilstfReadyForAck|bilstfTransferFromShop, PPEDIOP_EGAIS_TRANSFERFROMSHOP,  "TransferFromShop" },
-			{ bilstfReadyForAck|bilstfLosses,           PPEDIOP_EGAIS_ACTWRITEOFF,       "ActWriteOff" },
-			{ bilstfReadyForAck|bilstfWbRepealConf,     PPEDIOP_EGAIS_CONFIRMREPEALWB,   "ConfirmRepealWB" } // @v9.5.12
+			{ bilstfReadyForAck|bilstfChargeOn,          PPEDIOP_EGAIS_ACTCHARGEON,       "ActChargeOn" },
+			{ bilstfReadyForAck|bilstfChargeOn|bilstfV2, PPEDIOP_EGAIS_ACTCHARGEON_V2,    "ActChargeOn_v2" },
+			{ bilstfReadyForAck|bilstfChargeOnShop,      PPEDIOP_EGAIS_ACTCHARGEONSHOP,   "ActChargeOnShop_v2" },
+			{ bilstfReadyForAck|bilstfWriteOffShop,      PPEDIOP_EGAIS_ACTWRITEOFFSHOP,   "ActWriteOffShop_v2" },
+			{ bilstfReadyForAck|bilstfTransferToShop,    PPEDIOP_EGAIS_TRANSFERTOSHOP,    "TransferToShop" },
+			{ bilstfReadyForAck|bilstfTransferFromShop,  PPEDIOP_EGAIS_TRANSFERFROMSHOP,  "TransferFromShop" },
+			{ bilstfReadyForAck|bilstfLosses,            PPEDIOP_EGAIS_ACTWRITEOFF,       "ActWriteOff" },
+			{ bilstfReadyForAck|bilstfWbRepealConf,      PPEDIOP_EGAIS_CONFIRMREPEALWB,   "ConfirmRepealWB" } // @v9.5.12
 		};
 		for(uint i = 0; i < SIZEOFARRAY(_BillTransmPatterns); i++) {
 			if(Helper_SendBillsByPattern(rP, _BillTransmPatterns[i]) > 0)
@@ -7434,13 +7436,13 @@ int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 	}
 	{
 		//
-		// Передача документов отгрузки
+		// РџРµСЂРµРґР°С‡Р° РґРѕРєСѓРјРµРЅС‚РѕРІ РѕС‚РіСЂСѓР·РєРё
 		//
 		totransm_bill_list.clear();
 		reject_bill_list.clear();
 		GetBillListForTransmission(/*locID, period*/rP, bilstfReadyForAck|bilstfExpend|bilstfIntrExpend, totransm_bill_list, &reject_bill_list);
 		{
-			const int edi_op = (Cfg.E.Flags & Cfg.fEgaisVer2Fmt) ? PPEDIOP_EGAIS_WAYBILL_V2 : PPEDIOP_EGAIS_WAYBILL;
+			const int edi_op = __v2 ? PPEDIOP_EGAIS_WAYBILL_V2 : PPEDIOP_EGAIS_WAYBILL;
 			const char * p_url_sfx = (Cfg.E.Flags & Cfg.fEgaisVer2Fmt) ? "WayBill_v2" : "WayBill";
 			for(uint i = 0; i < totransm_bill_list.getCount(); i++) {
 				if(Helper_SendBills(totransm_bill_list.get(i), edi_op, rP.LocID, p_url_sfx) > 0)
@@ -7475,7 +7477,7 @@ int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 	}
 	{
 		//
-		// Передача документов возврата поставщику
+		// РџРµСЂРµРґР°С‡Р° РґРѕРєСѓРјРµРЅС‚РѕРІ РІРѕР·РІСЂР°С‚Р° РїРѕСЃС‚Р°РІС‰РёРєСѓ
 		//
 		totransm_bill_list.clear();
 		reject_bill_list.clear();
@@ -7483,8 +7485,8 @@ int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 		{
 			for(uint i = 0; i < totransm_bill_list.getCount(); i++) {
 				const PPID bill_id = totransm_bill_list.get(i);
-				const int edi_op = (Cfg.E.Flags & Cfg.fEgaisVer2Fmt) ? PPEDIOP_EGAIS_WAYBILL_V2 : PPEDIOP_EGAIS_WAYBILL;
-				const char * p_url_sfx = (Cfg.E.Flags & Cfg.fEgaisVer2Fmt) ? "WayBill_v2" : "WayBill";
+				const int edi_op = __v2 ? PPEDIOP_EGAIS_WAYBILL_V2 : PPEDIOP_EGAIS_WAYBILL;
+				const char * p_url_sfx = __v2 ? "WayBill_v2" : "WayBill";
 				PPEgaisProcessor::Packet pack(edi_op);
 				pack.Flags |= PPEgaisProcessor::Packet::fReturnBill;
 				PPBillPacket * p_bp = (PPBillPacket *)pack.P_Data;
@@ -7527,7 +7529,7 @@ int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 	}
 	{
 		//
-		// Внутренние перемещения
+		// Р’РЅСѓС‚СЂРµРЅРЅРёРµ РїРµСЂРµРјРµС‰РµРЅРёСЏ
 		//
 		totransm_bill_list.clear();
 		GetBillListForConfirmTicket(rP, bilstfReadyForAck|bilstfExpend|bilstfIntrExpend|bilstfReturnToSuppl, totransm_bill_list); // @v9.5.1 bilstfReturnToSuppl
@@ -7883,15 +7885,15 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 		THROW_MEM(SETIFZ(P_RefC, new RefCollection));
 		{
 			//
-			// Запрос контрагента по идентификатору: "СИО"
-			// Запрос товара по коду ЕГАИС: "КОД"
+			// Р—Р°РїСЂРѕСЃ РєРѕРЅС‚СЂР°РіРµРЅС‚Р° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ: "РЎРРћ"
+			// Р—Р°РїСЂРѕСЃ С‚РѕРІР°СЂР° РїРѕ РєРѕРґСѓ Р•Р“РђРРЎ: "РљРћР”"
 			//
 			const uint _delay_ms = 100;
 			int   db_was_cleared = 0;
 
 			SString msg_buf;
 			StringSet refa_codes;
-			StringSet manuf_codes_for_products; // Идентификаторы
+			StringSet manuf_codes_for_products; // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹
 			StringSet codes_for_products;
 			StringSet codes_for_contragents;
 			StringSet inn_for_contragents;
@@ -7926,7 +7928,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 						}
 						if(rParam.DbActualizeFlags & rParam._afQueryPerson) {
 							int    is_importer = 0;
-							if(strlen(item.ImporterRarIdent) >= 8) { // Код контрагента 12 символов, но страхуемся значением 8
+							if(strlen(item.ImporterRarIdent) >= 8) { // РљРѕРґ РєРѕРЅС‚СЂР°РіРµРЅС‚Р° 12 СЃРёРјРІРѕР»РѕРІ, РЅРѕ СЃС‚СЂР°С…СѓРµРјСЃСЏ Р·РЅР°С‡РµРЅРёРµРј 8
 								is_importer = 1;
 								if(P_RefC->PsC.IsVerifiedCode(item.ImporterRarIdent) <= 0) {
 									codes_for_contragents.add(item.ImporterRarIdent);
@@ -8058,10 +8060,10 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 	}
 	else if(rParam.DocType == PPEDIOP_EGAIS_QUERYRESTSSHOP) {
 		//
-		// @v9.3.1 Непосредственно перед запросом остатков по регистру 2
-		// запрашиваем остатки по складу. Для того, чтобы при создании
-		// автоматического документа передачи со склада на регистр 2
-		// проверять наличие заданной справки Б на складе.
+		// @v9.3.1 РќРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ РїРµСЂРµРґ Р·Р°РїСЂРѕСЃРѕРј РѕСЃС‚Р°С‚РєРѕРІ РїРѕ СЂРµРіРёСЃС‚СЂСѓ 2
+		// Р·Р°РїСЂР°С€РёРІР°РµРј РѕСЃС‚Р°С‚РєРё РїРѕ СЃРєР»Р°РґСѓ. Р”Р»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РїСЂРё СЃРѕР·РґР°РЅРёРё
+		// Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РїРµСЂРµРґР°С‡Рё СЃРѕ СЃРєР»Р°РґР° РЅР° СЂРµРіРёСЃС‚СЂ 2
+		// РїСЂРѕРІРµСЂСЏС‚СЊ РЅР°Р»РёС‡РёРµ Р·Р°РґР°РЅРЅРѕР№ СЃРїСЂР°РІРєРё Р‘ РЅР° СЃРєР»Р°РґРµ.
 		//
 		if(QueryRests(rParam.LocID, 0)) {
 			query_sended = 1;
@@ -8508,7 +8510,7 @@ int SLAPI EgaisPersonCore::Put(PPID * pID, EgaisPersonCore::Item * pItem, long *
 				THROW_DB(rereadForUpdate(0, 0));
 				THROW_DB(updateRecBuf(&rec));
 				//
-				// Пустые текстовые поля не вносим на случай, если в БД есть не пустое сооте
+				// РџСѓСЃС‚С‹Рµ С‚РµРєСЃС‚РѕРІС‹Рµ РїРѕР»СЏ РЅРµ РІРЅРѕСЃРёРј РЅР° СЃР»СѓС‡Р°Р№, РµСЃР»Рё РІ Р‘Р” РµСЃС‚СЊ РЅРµ РїСѓСЃС‚РѕРµ СЃРѕРѕС‚Рµ
 				//
 				if(pItem->Name.NotEmptyS()) {
 					(temp_buf = pItem->Name).Transf(CTRANSF_INNER_TO_UTF8);

@@ -101,26 +101,22 @@ struct _xmlBuffer {
  *
  * A buffer structure, new one, the actual structure internals are not public
  */
-
 typedef struct _xmlBuf xmlBuf;
-
 /**
  * xmlBufPtr:
  *
  * A pointer to a buffer structure, the actual structure internals are not
  * public
  */
-
 typedef xmlBuf * xmlBufPtr;
-
 /*
  * A few public routines for xmlBuf. As those are expected to be used
  * mostly internally the bulk of the routines are internal in buf.h
  */
-XMLPUBFUN xmlChar* XMLCALL       xmlBufContent(const xmlBuf* buf);
-XMLPUBFUN xmlChar* XMLCALL       xmlBufEnd(xmlBufPtr buf);
-XMLPUBFUN size_t XMLCALL         xmlBufUse(const xmlBufPtr buf);
-XMLPUBFUN size_t XMLCALL         xmlBufShrink(xmlBufPtr buf, size_t len);
+XMLPUBFUN xmlChar* XMLCALL xmlBufContent(const xmlBuf* buf);
+XMLPUBFUN xmlChar* XMLCALL xmlBufEnd(xmlBufPtr buf);
+XMLPUBFUN size_t XMLCALL xmlBufUse(const xmlBufPtr buf);
+XMLPUBFUN size_t XMLCALL xmlBufShrink(xmlBufPtr buf, size_t len);
 
 /*
  * LIBXML2_NEW_BUFFER:
@@ -482,12 +478,12 @@ typedef struct _xmlID xmlID;
 typedef xmlID * xmlIDPtr;
 
 struct _xmlID {
-	struct _xmlID    * next; /* next ID */
-	const xmlChar    * value; /* The ID name */
+	struct _xmlID * next; /* next ID */
+	const xmlChar * value; /* The ID name */
 	xmlAttrPtr attr;        /* The attribute holding it */
-	const xmlChar    * name; /* The attribute if attr is not available */
+	const xmlChar * name; /* The attribute if attr is not available */
 	int lineno;             /* The line number if attr is not available */
-	struct _xmlDoc   * doc; /* The document holding the ID */
+	struct _xmlDoc * doc; /* The document holding the ID */
 };
 /**
  * xmlRef:
@@ -498,10 +494,10 @@ typedef struct _xmlRef xmlRef;
 typedef xmlRef * xmlRefPtr;
 
 struct _xmlRef {
-	struct _xmlRef    * next; /* next Ref */
-	const xmlChar     * value; /* The Ref name */
+	struct _xmlRef * next; /* next Ref */
+	const xmlChar  * value; /* The Ref name */
 	xmlAttrPtr attr;        /* The attribute holding it */
-	const xmlChar    * name; /* The attribute if attr is not available */
+	const xmlChar * name; /* The attribute if attr is not available */
 	int lineno;             /* The line number if attr is not available */
 };
 /**
@@ -513,8 +509,8 @@ typedef struct _xmlNode xmlNode;
 typedef xmlNode * xmlNodePtr;
 
 struct _xmlNode {
-	void * _private; /* application data */
-	xmlElementType type;    /* type number, must be second ! */
+	void * _private; // application data 
+	xmlElementType type; // type number, must be second ! 
 	const xmlChar   * name; /* the name of the node, or the entity */
 	struct _xmlNode * children; /* parent->childs link */
 	struct _xmlNode * last; /* last child link */
@@ -522,7 +518,7 @@ struct _xmlNode {
 	struct _xmlNode * next; /* next sibling link  */
 	struct _xmlNode * prev; /* previous sibling link  */
 	struct _xmlDoc  * doc;  /* the containing document */
-	/* End of common part */
+	// End of common part 
 	xmlNs   * ns;   /* pointer to the associated namespace */
 	xmlChar * content; /* the content */
 	struct _xmlAttr * properties; /* properties list */
@@ -579,12 +575,8 @@ struct _xmlDoc {
 	struct _xmlDoc  * doc;  /* autoreference to itself */
 	/* End of common part */
 	int compression;        /* level of zlib compression */
-	int standalone;         /* standalone document (no external refs)
-	                             1 if standalone="yes"
-	                             0 if standalone="no"
-	                            -1 if there is no XML declaration
-	                            -2 if there is an XML declaration, but no
-	                                standalone attribute was specified */
+	int standalone; // standalone document (no external refs) 1 if standalone="yes", 0 if standalone="no", 
+		// -1 if there is no XML declaration, -2 if there is an XML declaration, but no standalone attribute was specified 
 	struct _xmlDtd  * intSubset; /* the document internal subset */
 	struct _xmlDtd  * extSubset; /* the document external subset */
 	struct _xmlNs   * oldNs; /* Global namespace, the old way */

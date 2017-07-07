@@ -28,17 +28,9 @@
 static void xmlURIErrMemory(const char * extra)
 {
 	if(extra)
-		__xmlRaiseError(0, 0, 0,
-		    NULL, NULL, XML_FROM_URI,
-		    XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0,
-		    extra, NULL, NULL, 0, 0,
-		    "Memory allocation failed : %s\n", extra);
+		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_URI, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra, 0, 0, 0, 0, "Memory allocation failed : %s\n", extra);
 	else
-		__xmlRaiseError(0, 0, 0,
-		    NULL, NULL, XML_FROM_URI,
-		    XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0,
-		    NULL, NULL, NULL, 0, 0,
-		    "Memory allocation failed\n");
+		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_URI, XML_ERR_NO_MEMORY, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "Memory allocation failed\n");
 }
 
 static void xmlCleanURI(xmlURIPtr uri);
@@ -200,7 +192,7 @@ static int xmlParse3986Scheme(xmlURIPtr uri, const char ** str)
 	cur++;
 	while(ISA_ALPHA(cur) || ISA_DIGIT(cur) || oneof3(*cur, '+', '-', '.'))
 		cur++;
-	if(uri != NULL) {
+	if(uri) {
 		if(uri->scheme != NULL)
 			free(uri->scheme);
 		uri->scheme = STRNDUP(*str, cur - *str);
@@ -232,7 +224,7 @@ static int xmlParse3986Fragment(xmlURIPtr uri, const char ** str)
 	cur = *str;
 	while((ISA_PCHAR(cur)) || oneof4(*cur, '/', '?', '[', ']') || (uri && (uri->cleanup & 1) && (IS_UNWISE(cur))))
 		NEXT(cur);
-	if(uri != NULL) {
+	if(uri) {
 		if(uri->fragment != NULL)
 			free(uri->fragment);
 		if(uri->cleanup & 2)
@@ -263,7 +255,7 @@ static int xmlParse3986Query(xmlURIPtr uri, const char ** str)
 	cur = *str;
 	while((ISA_PCHAR(cur)) || oneof2(*cur, '/', '?') || (uri && (uri->cleanup & 1) && (IS_UNWISE(cur))))
 		NEXT(cur);
-	if(uri != NULL) {
+	if(uri) {
 		if(uri->query != NULL)
 			free(uri->query);
 		if(uri->cleanup & 2)
@@ -298,10 +290,10 @@ static int xmlParse3986Port(xmlURIPtr uri, const char ** str)
 {
 	const char * cur = *str;
 	if(ISA_DIGIT(cur)) {
-		if(uri != NULL)
+		if(uri)
 			uri->port = 0;
 		while(ISA_DIGIT(cur)) {
-			if(uri != NULL)
+			if(uri)
 				uri->port = uri->port * 10 + (*cur - '0');
 			cur++;
 		}
@@ -329,7 +321,7 @@ static int xmlParse3986Userinfo(xmlURIPtr uri, const char ** str)
 	while(ISA_UNRESERVED(cur) || ISA_PCT_ENCODED(cur) || ISA_SUB_DELIM(cur) || (*cur == ':'))
 		NEXT(cur);
 	if(*cur == '@') {
-		if(uri != NULL) {
+		if(uri) {
 			if(uri->user != NULL) free(uri->user);
 			if(uri->cleanup & 2)
 				uri->user = STRNDUP(*str, cur - *str);
@@ -437,7 +429,7 @@ not_ipv4:
 	while(ISA_UNRESERVED(cur) || ISA_PCT_ENCODED(cur) || ISA_SUB_DELIM(cur))
 		NEXT(cur);
 found:
-	if(uri != NULL) {
+	if(uri) {
 		if(uri->authority != NULL)
 			free(uri->authority);
 		uri->authority = NULL;
@@ -538,7 +530,7 @@ static int FASTCALL xmlParse3986PathAbEmpty(xmlURIPtr uri, const char ** str)
 		if(ret != 0) 
 			return ret;
 	}
-	if(uri != NULL) {
+	if(uri) {
 		if(uri->path != NULL) free(uri->path);
 		if(*str != cur) {
 			if(uri->cleanup & 2)
@@ -581,7 +573,7 @@ static int FASTCALL xmlParse3986PathAbsolute(xmlURIPtr uri, const char ** str)
 			if(ret != 0) return ret;
 		}
 	}
-	if(uri != NULL) {
+	if(uri) {
 		if(uri->path != NULL) free(uri->path);
 		if(cur != *str) {
 			if(uri->cleanup & 2)
@@ -618,7 +610,7 @@ static int FASTCALL xmlParse3986PathRootless(xmlURIPtr uri, const char ** str)
 		ret = xmlParse3986Segment(&cur, 0, 1);
 		if(ret != 0) return ret;
 	}
-	if(uri != NULL) {
+	if(uri) {
 		if(uri->path != NULL)
 			free(uri->path);
 		if(cur != *str) {
@@ -657,8 +649,8 @@ static int xmlParse3986PathNoScheme(xmlURIPtr uri, const char ** str)
 		ret = xmlParse3986Segment(&cur, 0, 1);
 		if(ret != 0) return ret;
 	}
-	if(uri != NULL) {
-		if(uri->path != NULL) free(uri->path);
+	if(uri) {
+		free(uri->path);
 		if(cur != *str) {
 			if(uri->cleanup & 2)
 				uri->path = STRNDUP(*str, cur - *str);
@@ -713,7 +705,7 @@ static int xmlParse3986HierPart(xmlURIPtr uri, const char ** str)
 	}
 	else {
 		/* path-empty is effectively empty */
-		if(uri != NULL) {
+		if(uri) {
 			if(uri->path != NULL) free(uri->path);
 			uri->path = NULL;
 		}
@@ -758,7 +750,7 @@ static int xmlParse3986RelativeRef(xmlURIPtr uri, const char * str)
 	}
 	else {
 		/* path-empty is effectively empty */
-		if(uri != NULL) {
+		if(uri) {
 			if(uri->path != NULL) free(uri->path);
 			uri->path = NULL;
 		}
@@ -867,7 +859,7 @@ xmlURIPtr xmlParseURI(const char * str)
 	xmlURIPtr uri = 0;
 	if(str) {
 		uri = xmlCreateURI();
-		if(uri != NULL) {
+		if(uri) {
 			int ret = xmlParse3986URIReference(uri, str);
 			if(ret) {
 				xmlFreeURI(uri);
@@ -911,7 +903,7 @@ xmlURIPtr xmlParseURIRaw(const char * str, int raw)
 	xmlURIPtr uri = 0;
 	if(str) {
 		uri = xmlCreateURI();
-		if(uri != NULL) {
+		if(uri) {
 			if(raw) {
 				uri->cleanup |= 2;
 			}
@@ -1653,7 +1645,7 @@ xmlChar * xmlURIEscape(const xmlChar * str)
 	if(str == NULL)
 		return 0;
 	uri = xmlCreateURI();
-	if(uri != NULL) {
+	if(uri) {
 		/*
 		 * Allow escaping errors in the unescaped form
 		 */
@@ -2325,7 +2317,7 @@ xmlChar * xmlCanonicPath(const xmlChar * path)
 			/* Try parsing the escaped path */
 			uri = xmlParseURI((const char*)escURI);
 			/* If successful, return the escaped string */
-			if(uri != NULL) {
+			if(uri) {
 				xmlFreeURI(uri);
 				return escURI;
 			}

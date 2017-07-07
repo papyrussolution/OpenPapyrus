@@ -37,7 +37,7 @@ int docbEncodeEntities(uchar * out ATTRIBUTE_UNUSED, int * outlen ATTRIBUTE_UNUS
 {
 	static int deprecated = 0;
 	if(!deprecated) {
-		xmlGenericError(xmlGenericErrorContext, "docbEncodeEntities() deprecated function reached\n");
+		xmlGenericError(0, "docbEncodeEntities() deprecated function reached\n");
 		deprecated = 1;
 	}
 	return -1;
@@ -58,7 +58,7 @@ int docbParseDocument(docbParserCtxtPtr ctxt ATTRIBUTE_UNUSED)
 {
 	static int deprecated = 0;
 	if(!deprecated) {
-		xmlGenericError(xmlGenericErrorContext, "docbParseDocument() deprecated function reached\n");
+		xmlGenericError(0, "docbParseDocument() deprecated function reached\n");
 		deprecated = 1;
 	}
 	return (xmlParseDocument(ctxt));
@@ -76,7 +76,7 @@ void docbFreeParserCtxt(docbParserCtxtPtr ctxt ATTRIBUTE_UNUSED)
 {
 	static int deprecated = 0;
 	if(!deprecated) {
-		xmlGenericError(xmlGenericErrorContext, "docbFreeParserCtxt() deprecated function reached\n");
+		xmlGenericError(0, "docbFreeParserCtxt() deprecated function reached\n");
 		deprecated = 1;
 	}
 	xmlFreeParserCtxt(ctxt);
@@ -98,7 +98,7 @@ int docbParseChunk(docbParserCtxtPtr ctxt ATTRIBUTE_UNUSED,
 {
 	static int deprecated = 0;
 	if(!deprecated) {
-		xmlGenericError(xmlGenericErrorContext, "docbParseChunk() deprecated function reached\n");
+		xmlGenericError(0, "docbParseChunk() deprecated function reached\n");
 		deprecated = 1;
 	}
 	return (xmlParseChunk(ctxt, chunk, size, terminate));
@@ -129,7 +129,7 @@ docbParserCtxtPtr docbCreatePushParserCtxt(docbSAXHandlerPtr sax ATTRIBUTE_UNUSE
 {
 	static int deprecated = 0;
 	if(!deprecated) {
-		xmlGenericError(xmlGenericErrorContext, "docbParseChunk() deprecated function reached\n");
+		xmlGenericError(0, "docbParseChunk() deprecated function reached\n");
 		deprecated = 1;
 	}
 	return xmlCreatePushParserCtxt(sax, user_data, chunk, size, filename);
@@ -156,7 +156,7 @@ docbDocPtr docbSAXParseDoc(xmlChar * cur ATTRIBUTE_UNUSED,
 {
 	static int deprecated = 0;
 	if(!deprecated) {
-		xmlGenericError(xmlGenericErrorContext, "docbParseChunk() deprecated function reached\n");
+		xmlGenericError(0, "docbParseChunk() deprecated function reached\n");
 		deprecated = 1;
 	}
 	return (xmlSAXParseMemoryWithData(sax, (const char*)cur, xmlStrlen((const xmlChar*)cur), 0,  userData));
@@ -176,7 +176,7 @@ docbDocPtr docbParseDoc(xmlChar * cur ATTRIBUTE_UNUSED, const char * encoding AT
 {
 	static int deprecated = 0;
 	if(!deprecated) {
-		xmlGenericError(xmlGenericErrorContext, "docbParseChunk() deprecated function reached\n");
+		xmlGenericError(0, "docbParseChunk() deprecated function reached\n");
 		deprecated = 1;
 	}
 	return (xmlParseDoc(cur));
@@ -197,7 +197,7 @@ docbParserCtxtPtr docbCreateFileParserCtxt(const char * filename ATTRIBUTE_UNUSE
 {
 	static int deprecated = 0;
 	if(!deprecated) {
-		xmlGenericError(xmlGenericErrorContext, "docbCreateFileParserCtxt() deprecated function reached\n");
+		xmlGenericError(0, "docbCreateFileParserCtxt() deprecated function reached\n");
 		deprecated = 1;
 	}
 	return (xmlCreateFileParserCtxt(filename));
@@ -225,7 +225,7 @@ docbDocPtr docbSAXParseFile(const char * filename ATTRIBUTE_UNUSED,
 {
 	static int deprecated = 0;
 	if(!deprecated) {
-		xmlGenericError(xmlGenericErrorContext, "docbSAXParseFile() deprecated function reached\n");
+		xmlGenericError(0, "docbSAXParseFile() deprecated function reached\n");
 		deprecated = 1;
 	}
 	return (xmlSAXParseFileWithData(sax, filename, 0, userData));
@@ -247,7 +247,7 @@ docbDocPtr docbParseFile(const char * filename ATTRIBUTE_UNUSED, const char * en
 {
 	static int deprecated = 0;
 	if(!deprecated) {
-		xmlGenericError(xmlGenericErrorContext, "docbParseFile() deprecated function reached\n");
+		xmlGenericError(0, "docbParseFile() deprecated function reached\n");
 		deprecated = 1;
 	}
 	return (xmlParseFile(filename));

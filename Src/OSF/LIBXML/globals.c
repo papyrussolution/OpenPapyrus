@@ -556,7 +556,7 @@ void xmlThrDefSetGenericErrorFunc(void * ctx, xmlGenericErrorFunc handler)
 {
 	xmlMutexLock(xmlThrDefMutex);
 	xmlGenericErrorContextThrDef = ctx;
-	if(handler != NULL)
+	if(handler)
 		xmlGenericErrorThrDef = handler;
 	else
 		xmlGenericErrorThrDef = xmlGenericErrorDefaultFunc;

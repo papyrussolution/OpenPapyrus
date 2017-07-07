@@ -46,23 +46,16 @@
  * check the compiled lib version against the include one.
  * This can warn or immediately kill the application
  */
-void xmlCheckVersion(int version) {
+void xmlCheckVersion(int version) 
+{
 	int myversion = (int)LIBXML_VERSION;
-
 	xmlInitParser();
-
 	if((myversion / 10000) != (version / 10000)) {
-		xmlGenericError(xmlGenericErrorContext,
-		    "Fatal: program compiled against libxml %d using libxml %d\n",
-		    (version / 10000), (myversion / 10000));
-		fprintf(stderr,
-		    "Fatal: program compiled against libxml %d using libxml %d\n",
-		    (version / 10000), (myversion / 10000));
+		xmlGenericError(0, "Fatal: program compiled against libxml %d using libxml %d\n", (version / 10000), (myversion / 10000));
+		fprintf(stderr, "Fatal: program compiled against libxml %d using libxml %d\n", (version / 10000), (myversion / 10000));
 	}
 	if((myversion / 100) < (version / 100)) {
-		xmlGenericError(xmlGenericErrorContext,
-		    "Warning: program compiled against libxml %d using older %d\n",
-		    (version / 100), (myversion / 100));
+		xmlGenericError(0, "Warning: program compiled against libxml %d using older %d\n", (version / 100), (myversion / 100));
 	}
 }
 
@@ -81,8 +74,7 @@ void xmlCheckVersion(int version) {
  */
 void xmlErrMemory(xmlParserCtxtPtr ctxt, const char * extra)
 {
-	if((ctxt) && (ctxt->disableSAX != 0) &&
-	    (ctxt->instate == XML_PARSER_EOF))
+	if((ctxt) && (ctxt->disableSAX != 0) && (ctxt->instate == XML_PARSER_EOF))
 		return;
 	if(ctxt) {
 		ctxt->errNo = XML_ERR_NO_MEMORY;
@@ -90,13 +82,10 @@ void xmlErrMemory(xmlParserCtxtPtr ctxt, const char * extra)
 		ctxt->disableSAX = 1;
 	}
 	if(extra)
-		__xmlRaiseError(0, 0, 0, ctxt, NULL, XML_FROM_PARSER,
-		    XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra,
-		    NULL, NULL, 0, 0,
-		    "Memory allocation failed : %s\n", extra);
+		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra,
+		    NULL, NULL, 0, 0, "Memory allocation failed : %s\n", extra);
 	else
-		__xmlRaiseError(0, 0, 0, ctxt, NULL, XML_FROM_PARSER,
-		    XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, NULL,
+		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, NULL,
 		    NULL, NULL, 0, 0, "Memory allocation failed\n");
 }
 
@@ -110,25 +99,19 @@ void xmlErrMemory(xmlParserCtxtPtr ctxt, const char * extra)
  *
  * Handle an encoding error
  */
-void __xmlErrEncoding(xmlParserCtxtPtr ctxt, xmlParserErrors xmlerr,
-    const char * msg, const xmlChar * str1, const xmlChar * str2)
+void __xmlErrEncoding(xmlParserCtxtPtr ctxt, xmlParserErrors xmlerr, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
-	if((ctxt) && (ctxt->disableSAX != 0) &&
-	    (ctxt->instate == XML_PARSER_EOF))
+	if((ctxt) && (ctxt->disableSAX != 0) && (ctxt->instate == XML_PARSER_EOF))
 		return;
 	if(ctxt)
 		ctxt->errNo = xmlerr;
-	__xmlRaiseError(0, 0, 0,
-	    ctxt, NULL, XML_FROM_PARSER, xmlerr, XML_ERR_FATAL,
-	    NULL, 0, (const char*)str1, (const char*)str2,
-	    NULL, 0, 0, msg, str1, str2);
+	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, xmlerr, XML_ERR_FATAL, NULL, 0, (const char*)str1, (const char*)str2, NULL, 0, 0, msg, str1, str2);
 	if(ctxt) {
 		ctxt->wellFormed = 0;
 		if(ctxt->recovery == 0)
 			ctxt->disableSAX = 1;
 	}
 }
-
 /**
  * xmlErrInternal:
  * @ctxt:  an XML parser context
@@ -139,15 +122,11 @@ void __xmlErrEncoding(xmlParserCtxtPtr ctxt, xmlParserErrors xmlerr,
  */
 static void xmlErrInternal(xmlParserCtxtPtr ctxt, const char * msg, const xmlChar * str)
 {
-	if((ctxt) && (ctxt->disableSAX != 0) &&
-	    (ctxt->instate == XML_PARSER_EOF))
+	if((ctxt) && (ctxt->disableSAX != 0) && (ctxt->instate == XML_PARSER_EOF))
 		return;
 	if(ctxt)
 		ctxt->errNo = XML_ERR_INTERNAL_ERROR;
-	__xmlRaiseError(0, 0, 0,
-	    ctxt, NULL, XML_FROM_PARSER, XML_ERR_INTERNAL_ERROR,
-	    XML_ERR_FATAL, NULL, 0, (const char*)str, NULL, NULL,
-	    0, 0, msg, str);
+	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, XML_ERR_INTERNAL_ERROR, XML_ERR_FATAL, NULL, 0, (const char*)str, NULL, NULL, 0, 0, msg, str);
 	if(ctxt) {
 		ctxt->wellFormed = 0;
 		if(ctxt->recovery == 0)
@@ -164,24 +143,19 @@ static void xmlErrInternal(xmlParserCtxtPtr ctxt, const char * msg, const xmlCha
  *
  * n encoding error
  */
-static void xmlErrEncodingInt(xmlParserCtxtPtr ctxt, xmlParserErrors error,
-    const char * msg, int val)
+static void xmlErrEncodingInt(xmlParserCtxtPtr ctxt, xmlParserErrors error, const char * msg, int val)
 {
-	if((ctxt) && (ctxt->disableSAX != 0) &&
-	    (ctxt->instate == XML_PARSER_EOF))
+	if((ctxt) && (ctxt->disableSAX != 0) && (ctxt->instate == XML_PARSER_EOF))
 		return;
 	if(ctxt)
 		ctxt->errNo = error;
-	__xmlRaiseError(0, 0, 0,
-	    ctxt, NULL, XML_FROM_PARSER, error, XML_ERR_FATAL,
-	    NULL, 0, NULL, NULL, NULL, val, 0, msg, val);
+	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, error, XML_ERR_FATAL, 0, 0, 0, 0, 0, val, 0, msg, val);
 	if(ctxt) {
 		ctxt->wellFormed = 0;
 		if(ctxt->recovery == 0)
 			ctxt->disableSAX = 1;
 	}
 }
-
 /**
  * xmlIsLetter:
  * @c:  an unicode character (int)
@@ -214,20 +188,16 @@ int xmlIsLetter(int c) {
 static
 void check_buffer(xmlParserInputPtr in) {
 	if(in->base != xmlBufContent(in->buf->buffer)) {
-		xmlGenericError(xmlGenericErrorContext,
-		    "xmlParserInput: base mismatch problem\n");
+		xmlGenericError(0, "xmlParserInput: base mismatch problem\n");
 	}
 	if(in->cur < in->base) {
-		xmlGenericError(xmlGenericErrorContext,
-		    "xmlParserInput: cur < base problem\n");
+		xmlGenericError(0, "xmlParserInput: cur < base problem\n");
 	}
 	if(in->cur > in->base + xmlBufUse(in->buf->buffer)) {
-		xmlGenericError(xmlGenericErrorContext,
-		    "xmlParserInput: cur > base + use problem\n");
+		xmlGenericError(0, "xmlParserInput: cur > base + use problem\n");
 	}
-	xmlGenericError(xmlGenericErrorContext, "buffer %x : content %x, cur %d, use %d\n",
-	    (int)in, (int)xmlBufContent(in->buf->buffer), in->cur - in->base,
-	    xmlBufUse(in->buf->buffer));
+	xmlGenericError(0, "buffer %x : content %x, cur %d, use %d\n",
+	    (int)in, (int)xmlBufContent(in->buf->buffer), in->cur - in->base, xmlBufUse(in->buf->buffer));
 }
 
 #else
@@ -258,26 +228,24 @@ int xmlParserInputRead(xmlParserInputPtr in ATTRIBUTE_UNUSED, int len ATTRIBUTE_
  * Returns the amount of char read, or -1 in case of error, 0 indicate the
  * end of this entity
  */
-int xmlParserInputGrow(xmlParserInputPtr in, int len) {
+int xmlParserInputGrow(xmlParserInputPtr in, int len) 
+{
 	size_t ret;
 	size_t indx;
 	const xmlChar * content;
-
-	if((in == NULL) || (len < 0)) return -1;
+	if((in == NULL) || (len < 0)) 
+		return -1;
 #ifdef DEBUG_INPUT
-	xmlGenericError(xmlGenericErrorContext, "Grow\n");
+	xmlGenericError(0, "Grow\n");
 #endif
 	if(in->buf == NULL) return -1;
 	if(in->base == NULL) return -1;
 	if(in->cur == NULL) return -1;
 	if(in->buf->buffer == NULL) return -1;
-
 	CHECK_BUFFER(in);
-
 	indx = in->cur - in->base;
 	if(xmlBufUse(in->buf->buffer) > (uint)indx + INPUT_CHUNK) {
 		CHECK_BUFFER(in);
-
 		return 0;
 	}
 	if(in->buf->readcallback != NULL) {
@@ -320,7 +288,7 @@ void xmlParserInputShrink(xmlParserInputPtr in)
 	size_t indx;
 	const xmlChar * content;
 #ifdef DEBUG_INPUT
-	xmlGenericError(xmlGenericErrorContext, "Shrink\n");
+	xmlGenericError(0, "Shrink\n");
 #endif
 	if(in == NULL) return;
 	if(in->buf == NULL) return;
@@ -377,7 +345,7 @@ void xmlParserInputShrink(xmlParserInputPtr in)
 
 void xmlNextChar(xmlParserCtxtPtr ctxt)
 {
-	if((ctxt == NULL) || (ctxt->instate == XML_PARSER_EOF) ||
+	if(!ctxt || (ctxt->instate == XML_PARSER_EOF) ||
 	    (ctxt->input == NULL))
 		return;
 
@@ -515,7 +483,7 @@ encoding_error:
 	 * to ISO-Latin-1 (if you don't like this policy, just declare the
 	 * encoding !)
 	 */
-	if((ctxt == NULL) || (ctxt->input == NULL) ||
+	if(!ctxt || (ctxt->input == NULL) ||
 	    (ctxt->input->end - ctxt->input->cur < 4)) {
 		__xmlErrEncoding(ctxt, XML_ERR_INVALID_CHAR,
 		    "Input is not proper UTF-8, indicate encoding !\n",
@@ -555,7 +523,7 @@ encoding_error:
  */
 
 int xmlCurrentChar(xmlParserCtxtPtr ctxt, int * len) {
-	if((ctxt == NULL) || (len == NULL) || (ctxt->input == NULL)) return 0;
+	if(!ctxt || (len == NULL) || (ctxt->input == NULL)) return 0;
 	if(ctxt->instate == XML_PARSER_EOF)
 		return 0;
 
@@ -719,7 +687,7 @@ encoding_error:
 int xmlStringCurrentChar(xmlParserCtxtPtr ctxt, const xmlChar * cur, int * len)
 {
 	if((len == NULL) || (cur == NULL)) return 0;
-	if((ctxt == NULL) || (ctxt->charset == XML_CHAR_ENCODING_UTF8)) {
+	if(!ctxt || (ctxt->charset == XML_CHAR_ENCODING_UTF8)) {
 		/*
 		 * We are supposed to handle UTF8, check it's valid
 		 * From rfc2044: encoding of the Unicode values on UTF-8:
@@ -791,7 +759,7 @@ encoding_error:
 	 * splitting a character in the middle. In that case do not raise
 	 * an error but return 0 to endicate an end of stream problem
 	 */
-	if((ctxt == NULL) || (ctxt->input == NULL) ||
+	if(!ctxt || (ctxt->input == NULL) ||
 	    (ctxt->input->end - ctxt->input->cur < 4)) {
 		*len = 0;
 		return 0;
@@ -909,7 +877,7 @@ int xmlSwitchEncoding(xmlParserCtxtPtr ctxt, xmlCharEncoding enc)
 	xmlCharEncodingHandlerPtr handler;
 	int len = -1;
 
-	if(ctxt == NULL) return -1;
+	if(!ctxt) return -1;
 	switch(enc) {
 		case XML_CHAR_ENCODING_ERROR:
 		    __xmlErrEncoding(ctxt, XML_ERR_UNKNOWN_ENCODING,
@@ -1221,7 +1189,7 @@ int xmlSwitchInputEncoding(xmlParserCtxtPtr ctxt, xmlParserInputPtr input, xmlCh
 static int xmlSwitchToEncodingInt(xmlParserCtxtPtr ctxt, xmlCharEncodingHandlerPtr handler, int len)
 {
 	int ret = 0;
-	if(handler != NULL) {
+	if(handler) {
 		if(ctxt->input != NULL) {
 			ret = xmlSwitchInputEncodingInt(ctxt, ctxt->input, handler, len);
 		}
@@ -1327,7 +1295,7 @@ xmlParserInputPtr xmlNewIOInputStream(xmlParserCtxtPtr ctxt, xmlParserInputBuffe
 	if(input == NULL)
 		return 0;
 	if(xmlParserDebugEntities)
-		xmlGenericError(xmlGenericErrorContext, "new input from I/O\n");
+		xmlGenericError(0, "new input from I/O\n");
 	inputStream = xmlNewInputStream(ctxt);
 	if(inputStream == NULL) {
 		return 0;
@@ -1358,7 +1326,7 @@ xmlParserInputPtr xmlNewEntityInputStream(xmlParserCtxtPtr ctxt, xmlEntityPtr en
 	}
 	else {
 		if(xmlParserDebugEntities)
-			xmlGenericError(xmlGenericErrorContext, "new input from entity: %s\n", entity->name);
+			xmlGenericError(0, "new input from entity: %s\n", entity->name);
 		if(entity->content == NULL) {
 			switch(entity->etype) {
 				case XML_EXTERNAL_GENERAL_UNPARSED_ENTITY:
@@ -1409,7 +1377,7 @@ xmlParserInputPtr xmlNewStringInputStream(xmlParserCtxtPtr ctxt, const xmlChar *
 	}
 	else {
 		if(xmlParserDebugEntities)
-			xmlGenericError(xmlGenericErrorContext, "new fixed input: %.30s\n", buffer);
+			xmlGenericError(0, "new fixed input: %.30s\n", buffer);
 		input = xmlNewInputStream(ctxt);
 		if(input == NULL) {
 			xmlErrMemory(ctxt,  "couldn't allocate a new input stream\n");
@@ -1437,7 +1405,7 @@ xmlParserInputPtr xmlNewInputFromFile(xmlParserCtxtPtr ctxt, const char * filena
 {
 	xmlParserInputPtr inputStream = 0;
 	if(xmlParserDebugEntities)
-		xmlGenericError(xmlGenericErrorContext, "new input from file: %s\n", filename);
+		xmlGenericError(0, "new input from file: %s\n", filename);
 	if(ctxt) {
 		xmlParserInputBufferPtr buf = xmlParserInputBufferCreateFilename(filename, XML_CHAR_ENCODING_NONE);
 		if(buf == NULL) {
@@ -1735,7 +1703,7 @@ void xmlFreeParserCtxt(xmlParserCtxtPtr ctxt)
 xmlParserCtxtPtr xmlNewParserCtxt()
 {
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)xmlMalloc(sizeof(xmlParserCtxt));
-	if(ctxt == NULL) {
+	if(!ctxt) {
 		xmlErrMemory(NULL, "cannot allocate parser context\n");
 	}
 	else {
@@ -1781,7 +1749,7 @@ void xmlClearParserCtxt(xmlParserCtxtPtr ctxt)
 const xmlParserNodeInfo * xmlParserFindNodeInfo(const xmlParserCtxtPtr ctx, const xmlNodePtr node)
 {
 	unsigned long pos;
-	if((ctx == NULL) || (node == NULL))
+	if(!ctx || (node == NULL))
 		return 0;
 	/* Find position where node should be at */
 	pos = xmlParserFindNodeInfoIndex(&ctx->node_seq, node);

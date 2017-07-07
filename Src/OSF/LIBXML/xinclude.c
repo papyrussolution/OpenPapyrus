@@ -90,17 +90,12 @@ static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNodeP
  *
  * Handle an out of memory condition
  */
-static void xmlXIncludeErrMemory(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node,
-    const char * extra)
+static void xmlXIncludeErrMemory(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node, const char * extra)
 {
 	if(ctxt)
 		ctxt->nbErrors++;
-	__xmlRaiseError(0, 0, 0, ctxt, node, XML_FROM_XINCLUDE,
-	    XML_ERR_NO_MEMORY, XML_ERR_ERROR, NULL, 0,
-	    extra, NULL, NULL, 0, 0,
-	    "Memory allocation failed : %s\n", extra);
+	__xmlRaiseError(0, 0, 0, ctxt, node, XML_FROM_XINCLUDE, XML_ERR_NO_MEMORY, XML_ERR_ERROR, NULL, 0, extra, 0, 0, 0, 0, "Memory allocation failed : %s\n", extra);
 }
-
 /**
  * xmlXIncludeErr:
  * @ctxt: the XInclude context
@@ -110,15 +105,12 @@ static void xmlXIncludeErrMemory(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node,
  *
  * Handle an XInclude error
  */
-static void xmlXIncludeErr(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node, int error,
-    const char * msg, const xmlChar * extra)
+static void xmlXIncludeErr(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node, int error, const char * msg, const xmlChar * extra)
 {
 	if(ctxt)
 		ctxt->nbErrors++;
-	__xmlRaiseError(0, 0, 0, ctxt, node, XML_FROM_XINCLUDE,
-	    error, XML_ERR_ERROR, NULL, 0, (const char*)extra, NULL, NULL, 0, 0, msg, (const char*)extra);
+	__xmlRaiseError(0, 0, 0, ctxt, node, XML_FROM_XINCLUDE, error, XML_ERR_ERROR, NULL, 0, (const char*)extra, NULL, NULL, 0, 0, msg, (const char*)extra);
 }
-
 #if 0
 /**
  * xmlXIncludeWarn:
@@ -129,15 +121,10 @@ static void xmlXIncludeErr(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node, int error,
  *
  * Emit an XInclude warning.
  */
-static void xmlXIncludeWarn(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node, int error,
-    const char * msg, const xmlChar * extra)
+static void xmlXIncludeWarn(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node, int error, const char * msg, const xmlChar * extra)
 {
-	__xmlRaiseError(0, 0, 0, ctxt, node, XML_FROM_XINCLUDE,
-	    error, XML_ERR_WARNING, NULL, 0,
-	    (const char*)extra, NULL, NULL, 0, 0,
-	    msg, (const char*)extra);
+	__xmlRaiseError(0, 0, 0, ctxt, node, XML_FROM_XINCLUDE, error, XML_ERR_WARNING, NULL, 0, (const char*)extra, NULL, NULL, 0, 0, msg, (const char*)extra);
 }
-
 #endif
 
 /**
@@ -155,11 +142,11 @@ static xmlChar * xmlXIncludeGetProp(xmlXIncludeCtxtPtr ctxt, xmlNodePtr cur,
 	xmlChar * ret;
 
 	ret = xmlGetNsProp(cur, XINCLUDE_NS, name);
-	if(ret != NULL)
+	if(ret)
 		return ret;
 	if(ctxt->legacy != 0) {
 		ret = xmlGetNsProp(cur, XINCLUDE_OLD_NS, name);
-		if(ret != NULL)
+		if(ret)
 			return ret;
 	}
 	ret = xmlGetProp(cur, name);
@@ -176,11 +163,11 @@ static void xmlXIncludeFreeRef(xmlXIncludeRefPtr ref)
 {
 	if(ref) {
 #ifdef DEBUG_XINCLUDE
-		xmlGenericError(xmlGenericErrorContext, "Freeing ref\n");
+		xmlGenericError(0, "Freeing ref\n");
 #endif
 		if(ref->doc) {
 #ifdef DEBUG_XINCLUDE
-			xmlGenericError(xmlGenericErrorContext, "Freeing doc %s\n", ref->URI);
+			xmlGenericError(0, "Freeing doc %s\n", ref->URI);
 #endif
 			xmlFreeDoc(ref->doc);
 		}
@@ -204,7 +191,7 @@ static xmlXIncludeRefPtr xmlXIncludeNewRef(xmlXIncludeCtxtPtr ctxt, const xmlCha
 {
 	xmlXIncludeRefPtr ret;
 #ifdef DEBUG_XINCLUDE
-	xmlGenericError(xmlGenericErrorContext, "New ref %s\n", URI);
+	xmlGenericError(0, "New ref %s\n", URI);
 #endif
 	ret = (xmlXIncludeRefPtr)xmlMalloc(sizeof(xmlXIncludeRef));
 	if(ret == NULL) {
@@ -258,7 +245,7 @@ xmlXIncludeCtxtPtr xmlXIncludeNewContext(xmlDocPtr doc)
 {
 	xmlXIncludeCtxtPtr ret = 0;
 #ifdef DEBUG_XINCLUDE
-	xmlGenericError(xmlGenericErrorContext, "New context\n");
+	xmlGenericError(0, "New context\n");
 #endif
 	if(doc) {
 		ret = (xmlXIncludeCtxtPtr)xmlMalloc(sizeof(xmlXIncludeCtxt));
@@ -347,9 +334,9 @@ void xmlXIncludeFreeContext(xmlXIncludeCtxtPtr ctxt)
 {
 	int i;
 #ifdef DEBUG_XINCLUDE
-	xmlGenericError(xmlGenericErrorContext, "Freeing context\n");
+	xmlGenericError(0, "Freeing context\n");
 #endif
-	if(ctxt == NULL)
+	if(!ctxt)
 		return;
 	while(ctxt->urlNr > 0)
 		xmlXIncludeURLPop(ctxt);
@@ -447,13 +434,13 @@ static int xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr cur)
 	int xml = 1, i; /* default Issue 64 */
 	int local = 0;
 
-	if(ctxt == NULL)
+	if(!ctxt)
 		return -1;
-	if(cur == NULL)
+	if(!cur)
 		return -1;
 
 #ifdef DEBUG_XINCLUDE
-	xmlGenericError(xmlGenericErrorContext, "Add node\n");
+	xmlGenericError(0, "Add node\n");
 #endif
 	/*
 	 * read the attributes
@@ -596,7 +583,7 @@ static void xmlXIncludeRecurseDoc(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc,
 	 */
 
 #ifdef DEBUG_XINCLUDE
-	xmlGenericError(xmlGenericErrorContext, "Recursing in doc %s\n", doc->URL);
+	xmlGenericError(0, "Recursing in doc %s\n", doc->URL);
 #endif
 	/*
 	 * Handle recursion here.
@@ -663,7 +650,7 @@ static void xmlXIncludeRecurseDoc(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc,
 		xmlXIncludeFreeContext(newctxt);
 	}
 #ifdef DEBUG_XINCLUDE
-	xmlGenericError(xmlGenericErrorContext, "Done recursing in doc %s\n", url);
+	xmlGenericError(0, "Done recursing in doc %s\n", url);
 #endif
 }
 
@@ -677,7 +664,7 @@ static void xmlXIncludeRecurseDoc(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc,
  */
 static void xmlXIncludeAddTxt(xmlXIncludeCtxtPtr ctxt, xmlNodePtr txt, const xmlURL url) {
 #ifdef DEBUG_XINCLUDE
-	xmlGenericError(xmlGenericErrorContext, "Adding text %s\n", url);
+	xmlGenericError(0, "Adding text %s\n", url);
 #endif
 	if(ctxt->txtMax == 0) {
 		ctxt->txtMax = 4;
@@ -737,7 +724,7 @@ static xmlNodePtr xmlXIncludeCopyNode(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target,
     xmlDocPtr source, xmlNodePtr elem) {
 	xmlNodePtr result = NULL;
 
-	if((ctxt == NULL) || (target == NULL) || (source == NULL) ||
+	if(!ctxt || (target == NULL) || (source == NULL) ||
 	    (elem == NULL))
 		return 0;
 	if(elem->type == XML_DTD_NODE)
@@ -763,11 +750,11 @@ static xmlNodePtr xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDocPtr tar
     xmlDocPtr source, xmlNodePtr elem) {
 	xmlNodePtr cur, res, result = NULL, last = NULL;
 
-	if((ctxt == NULL) || (target == NULL) || (source == NULL) ||
+	if(!ctxt || (target == NULL) || (source == NULL) ||
 	    (elem == NULL))
 		return 0;
 	cur = elem;
-	while(cur != NULL) {
+	while(cur) {
 		res = xmlXIncludeCopyNode(ctxt, target, source, cur);
 		if(res != NULL) {
 			if(result == NULL) {
@@ -793,12 +780,12 @@ static xmlNodePtr xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDocPtr tar
  */
 static xmlNodePtr xmlXIncludeGetNthChild(xmlNodePtr cur, int no) {
 	int i;
-	if((cur == NULL) || (cur->type == XML_NAMESPACE_DECL))
+	if(!cur || (cur->type == XML_NAMESPACE_DECL))
 		return 0;
 	cur = cur->children;
 	for(i = 0; i <= no; cur = cur->next) {
-		if(cur == NULL)
-			return(cur);
+		if(!cur)
+			return cur;
 		if((cur->type == XML_ELEMENT_NODE) ||
 		    (cur->type == XML_DOCUMENT_NODE) ||
 		    (cur->type == XML_HTML_DOCUMENT_NODE)) {
@@ -807,7 +794,7 @@ static xmlNodePtr xmlXIncludeGetNthChild(xmlNodePtr cur, int no) {
 				break;
 		}
 	}
-	return(cur);
+	return cur;
 }
 
 xmlNodePtr xmlXPtrAdvanceNode(xmlNodePtr cur, int * level); /* in xpointer.c */
@@ -833,7 +820,7 @@ static xmlNodePtr xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target
 	int index1, index2;
 	int level = 0, lastLevel = 0, endLevel = 0, endFlag = 0;
 
-	if((ctxt == NULL) || (target == NULL) || (source == NULL) ||
+	if(!ctxt || (target == NULL) || (source == NULL) ||
 	    (range == NULL))
 		return 0;
 	if(range->type != XPATH_RANGE)
@@ -859,7 +846,7 @@ static xmlNodePtr xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target
 	 * last is a pointer to the last node added to the output tree
 	 * lastLevel is the depth of last (relative to the root)
 	 */
-	while(cur != NULL) {
+	while(cur) {
 		/*
 		 * Check if our output tree needs a parent
 		 */
@@ -1052,7 +1039,7 @@ static xmlNodePtr xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDocPtr tar
 
 	if(source == NULL)
 		source = ctxt->doc;
-	if((ctxt == NULL) || (target == NULL) || (source == NULL) ||
+	if(!ctxt || (target == NULL) || (source == NULL) ||
 	    (obj == NULL))
 		return 0;
 	switch(obj->type) {
@@ -1082,7 +1069,7 @@ static xmlNodePtr xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDocPtr tar
 					xmlNodePtr tmp, cur = set->nodeTab[i];
 
 					cur = cur->next;
-					while(cur != NULL) {
+					while(cur) {
 						switch(cur->type) {
 							case XML_TEXT_NODE:
 							case XML_CDATA_SECTION_NODE:
@@ -1196,7 +1183,7 @@ static void xmlXIncludeMergeEntity(xmlEntityPtr ent, xmlXIncludeMergeDataPtr dat
 		return;
 	ctxt = data->ctxt;
 	doc = data->doc;
-	if((ctxt == NULL) || (doc == NULL))
+	if(!ctxt || (doc == NULL))
 		return;
 	switch(ent->etype) {
 		case XML_INTERNAL_PARAMETER_ENTITY:
@@ -1210,7 +1197,7 @@ static void xmlXIncludeMergeEntity(xmlEntityPtr ent, xmlXIncludeMergeDataPtr dat
 	}
 	ret = xmlAddDocEntity(doc, ent->name, ent->etype, ent->ExternalID,
 	    ent->SystemID, ent->content);
-	if(ret != NULL) {
+	if(ret) {
 		if(ent->URI != NULL)
 			ret->URI = xmlStrdup(ent->URI);
 	}
@@ -1270,7 +1257,7 @@ static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc,
 	xmlNodePtr cur;
 	xmlDtdPtr target, source;
 
-	if(ctxt == NULL)
+	if(!ctxt)
 		return -1;
 
 	if((from == NULL) || (from->intSubset == NULL))
@@ -1279,7 +1266,7 @@ static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc,
 	target = doc->intSubset;
 	if(target == NULL) {
 		cur = xmlDocGetRootElement(doc);
-		if(cur == NULL)
+		if(!cur)
 			return -1;
 		target = xmlCreateIntSubset(doc, cur->name, NULL, NULL);
 		if(target == NULL)
@@ -1336,7 +1323,7 @@ static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 #endif
 
 #ifdef DEBUG_XINCLUDE
-	xmlGenericError(xmlGenericErrorContext, "Loading doc %s:%d\n", url, nr);
+	xmlGenericError(0, "Loading doc %s:%d\n", url, nr);
 #endif
 	/*
 	 * Check the URL and remove any fragment identifier
@@ -1647,7 +1634,7 @@ loaded:
 		}
 		if(base != NULL) { /* Adjustment may be needed */
 			node = ctxt->incTab[nr]->inc;
-			while(node != NULL) {
+			while(node) {
 				/* Only work on element nodes */
 				if(node->type == XML_ELEMENT_NODE) {
 					curBase = xmlNodeGetBase(node->doc, node);
@@ -1951,12 +1938,12 @@ static int xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, int nr)
 	int xml = 1; /* default Issue 64 */
 	int ret;
 
-	if(ctxt == NULL)
+	if(!ctxt)
 		return -1;
 	if((nr < 0) || (nr >= ctxt->incNr))
 		return -1;
 	cur = ctxt->incTab[nr]->ref;
-	if(cur == NULL)
+	if(!cur)
 		return -1;
 
 	/*
@@ -2010,8 +1997,8 @@ static int xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, int nr)
 		return -1;
 	}
 #ifdef DEBUG_XINCLUDE
-	xmlGenericError(xmlGenericErrorContext, "parse: %s\n", xml ? "xml" : "text");
-	xmlGenericError(xmlGenericErrorContext, "URI: %s\n", URI);
+	xmlGenericError(0, "parse: %s\n", xml ? "xml" : "text");
+	xmlGenericError(0, "URI: %s\n", URI);
 #endif
 	/*
 	 * Save the base for this include (saving the current one)
@@ -2035,7 +2022,7 @@ static int xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, int nr)
 		 * Time to try a fallback if availble
 		 */
 #ifdef DEBUG_XINCLUDE
-		xmlGenericError(xmlGenericErrorContext, "error looking for fallback\n");
+		xmlGenericError(0, "error looking for fallback\n");
 #endif
 		children = cur->children;
 		while(children) {
@@ -2073,7 +2060,7 @@ static int xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, int nr)
 static int xmlXIncludeIncludeNode(xmlXIncludeCtxtPtr ctxt, int nr) 
 {
 	xmlNodePtr cur, end, list, tmp;
-	if(ctxt == NULL)
+	if(!ctxt)
 		return -1;
 	if((nr < 0) || (nr >= ctxt->incNr))
 		return -1;
@@ -2222,7 +2209,7 @@ static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNodeP
 	int i, start;
 	if((doc == NULL) || (tree == NULL) || (tree->type == XML_NAMESPACE_DECL))
 		return -1;
-	if(ctxt == NULL)
+	if(!ctxt)
 		return -1;
 	if(doc->URL != NULL) {
 		ret = xmlXIncludeURLPush(ctxt, doc->URL);
@@ -2236,7 +2223,7 @@ static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNodeP
 	cur = tree;
 	if(xmlXIncludeTestNode(ctxt, cur) == 1)
 		xmlXIncludePreProcessNode(ctxt, cur);
-	while((cur != NULL) && (cur != tree->parent)) {
+	while(cur && (cur != tree->parent)) {
 		/* TODO: need to work on entities -> stack */
 		if((cur->children != NULL) &&
 		    (cur->children->type != XML_ENTITY_DECL) &&
@@ -2256,7 +2243,7 @@ static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNodeP
 				break;
 			do {
 				cur = cur->parent;
-				if((cur == NULL) || (cur == tree->parent))
+				if(!cur || (cur == tree->parent))
 					break;  /* do */
 				if(cur->next != NULL) {
 					cur = cur->next;
@@ -2264,7 +2251,7 @@ static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNodeP
 						xmlXIncludePreProcessNode(ctxt, cur);
 					break; /* do */
 				}
-			} while(cur != NULL);
+			} while(cur);
 		}
 	}
 
@@ -2308,7 +2295,7 @@ static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNodeP
  */
 int xmlXIncludeSetFlags(xmlXIncludeCtxtPtr ctxt, int flags)
 {
-	if(ctxt == NULL)
+	if(!ctxt)
 		return -1;
 	ctxt->parseFlags = flags;
 	return 0;
@@ -2334,7 +2321,7 @@ int xmlXIncludeProcessTreeFlagsData(xmlNodePtr tree, int flags, void * data)
 	if((tree == NULL) || (tree->type == XML_NAMESPACE_DECL) || (tree->doc == NULL))
 		return -1;
 	ctxt = xmlXIncludeNewContext(tree->doc);
-	if(ctxt == NULL)
+	if(!ctxt)
 		return -1;
 	ctxt->_private = data;
 	ctxt->base = xmlStrdup((xmlChar*)tree->doc->URL);
@@ -2414,7 +2401,7 @@ int xmlXIncludeProcessTreeFlags(xmlNodePtr tree, int flags)
 	if((tree == NULL) || (tree->type == XML_NAMESPACE_DECL) || (tree->doc == NULL))
 		return -1;
 	ctxt = xmlXIncludeNewContext(tree->doc);
-	if(ctxt == NULL)
+	if(!ctxt)
 		return -1;
 	ctxt->base = xmlNodeGetBase(tree->doc, tree);
 	xmlXIncludeSetFlags(ctxt, flags);

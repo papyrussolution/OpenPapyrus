@@ -65,7 +65,7 @@
  *
  * macro to flag unimplemented blocks
  */
-#define TODO xmlGenericError(xmlGenericErrorContext, "Unimplemented block at %s:%d\n", __FILE__, __LINE__);
+#define TODO xmlGenericError(0, "Unimplemented block at %s:%d\n", __FILE__, __LINE__);
 
 #ifdef DEBUG_READER
 #define DUMP_READER xmlTextReaderDebug(reader);
@@ -319,7 +319,7 @@ static void xmlTextReaderFreeNodeList(xmlTextReaderPtr reader, xmlNodePtr cur) {
 		dict = reader->ctxt->dict;
 	else
 		dict = NULL;
-	if(cur == NULL) return;
+	if(!cur) return;
 	if(cur->type == XML_NAMESPACE_DECL) {
 		xmlFreeNsList((xmlNsPtr)cur);
 		return;
@@ -329,7 +329,7 @@ static void xmlTextReaderFreeNodeList(xmlTextReaderPtr reader, xmlNodePtr cur) {
 		xmlFreeDoc((xmlDocPtr)cur);
 		return;
 	}
-	while(cur != NULL) {
+	while(cur) {
 		next = cur->next;
 		/* unroll to speed up freeing the document */
 		if(cur->type != XML_DTD_NODE) {
@@ -438,7 +438,7 @@ static void xmlTextReaderFreeIDTable(xmlIDTablePtr table)
 static void xmlTextReaderFreeDoc(xmlTextReaderPtr reader, xmlDocPtr cur)
 {
 	xmlDtdPtr extSubset, intSubset;
-	if(cur == NULL)
+	if(!cur)
 		return;
 	if((__xmlRegisterCallbacks) && (xmlDeregisterNodeDefaultValue))
 		xmlDeregisterNodeDefaultValue((xmlNode *)cur);
@@ -525,7 +525,7 @@ static int xmlTextReaderEntPush(xmlTextReaderPtr reader, xmlNodePtr value)
 		reader->entMax = 10;
 		reader->entTab = (xmlNodePtr*)xmlMalloc(reader->entMax * sizeof(reader->entTab[0]));
 		if(reader->entTab == NULL) {
-			xmlGenericError(xmlGenericErrorContext, "xmlMalloc failed !\n");
+			xmlGenericError(0, "xmlMalloc failed !\n");
 			return 0;
 		}
 	}
@@ -533,7 +533,7 @@ static int xmlTextReaderEntPush(xmlTextReaderPtr reader, xmlNodePtr value)
 		reader->entMax *= 2;
 		reader->entTab = (xmlNodePtr*)xmlRealloc(reader->entTab, reader->entMax * sizeof(reader->entTab[0]));
 		if(reader->entTab == NULL) {
-			xmlGenericError(xmlGenericErrorContext, "xmlRealloc failed !\n");
+			xmlGenericError(0, "xmlRealloc failed !\n");
 			return 0;
 		}
 	}
@@ -759,7 +759,7 @@ static int xmlTextReaderPushData(xmlTextReaderPtr reader)
 		if(xmlBufUse(inbuf) >= reader->cur + CHUNK_SIZE) {
 			val = xmlParseChunk(reader->ctxt, (const char*)xmlBufContent(inbuf) + reader->cur, CHUNK_SIZE, 0);
 			reader->cur += CHUNK_SIZE;
-			if(val != 0)
+			if(val)
 				reader->ctxt->wellFormed = 0;
 			if(reader->ctxt->wellFormed == 0)
 				break;
@@ -768,7 +768,7 @@ static int xmlTextReaderPushData(xmlTextReaderPtr reader)
 			s = xmlBufUse(inbuf) - reader->cur;
 			val = xmlParseChunk(reader->ctxt, (const char*)xmlBufContent(inbuf) + reader->cur, s, 0);
 			reader->cur += s;
-			if(val != 0)
+			if(val)
 				reader->ctxt->wellFormed = 0;
 			break;
 		}
@@ -797,7 +797,7 @@ static int xmlTextReaderPushData(xmlTextReaderPtr reader)
 			val = xmlParseChunk(reader->ctxt, (const char*)xmlBufContent(inbuf) + reader->cur, s, 1);
 			reader->cur = xmlBufUse(inbuf);
 			reader->state  = XML_TEXTREADER_DONE;
-			if(val != 0) {
+			if(val) {
 				if(reader->ctxt->wellFormed)
 					reader->ctxt->wellFormed = 0;
 				else
@@ -1040,7 +1040,7 @@ static xmlNodePtr xmlTextReaderGetSuccessor(xmlNodePtr cur)
 			return cur->next;
 		do {
 			cur = cur->parent;
-			if(cur == NULL)
+			if(!cur)
 				break;
 			if(cur->next)
 				return cur->next;
@@ -1277,7 +1277,7 @@ get_next_node:
 		if(reader->mode != XML_TEXTREADER_MODE_EOF) {
 			val = xmlParseChunk(reader->ctxt, "", 0, 1);
 			reader->state = XML_TEXTREADER_DONE;
-			if(val != 0)
+			if(val)
 				return -1;
 		}
 		reader->node = NULL;
@@ -1456,7 +1456,7 @@ int xmlTextReaderNext(xmlTextReaderPtr reader) {
 	if(reader->doc != NULL)
 		return(xmlTextReaderNextTree(reader));
 	cur = reader->node;
-	if((cur == NULL) || (cur->type != XML_ELEMENT_NODE))
+	if(!cur || (cur->type != XML_ELEMENT_NODE))
 		return(xmlTextReaderRead(reader));
 	if(reader->state == XML_TEXTREADER_END || reader->state == XML_TEXTREADER_BACKTRACK)
 		return(xmlTextReaderRead(reader));
@@ -1824,7 +1824,7 @@ xmlTextReaderPtr xmlNewTextReader(xmlParserInputBufferPtr input, const char * UR
 		return 0;
 	xmlTextReaderPtr ret = (xmlTextReaderPtr)xmlMalloc(sizeof(xmlTextReader));
 	if(ret == NULL) {
-		xmlGenericError(xmlGenericErrorContext, "xmlNewTextReader : malloc failed\n");
+		xmlGenericError(0, "xmlNewTextReader : malloc failed\n");
 		return 0;
 	}
 	memzero(ret, sizeof(xmlTextReader));
@@ -1836,14 +1836,14 @@ xmlTextReaderPtr xmlNewTextReader(xmlParserInputBufferPtr input, const char * UR
 	ret->buffer = xmlBufCreateSize(100);
 	if(ret->buffer == NULL) {
 		free(ret);
-		xmlGenericError(xmlGenericErrorContext, "xmlNewTextReader : malloc failed\n");
+		xmlGenericError(0, "xmlNewTextReader : malloc failed\n");
 		return 0;
 	}
 	ret->sax = (xmlSAXHandler*)xmlMalloc(sizeof(xmlSAXHandler));
 	if(ret->sax == NULL) {
 		xmlBufFree(ret->buffer);
 		free(ret);
-		xmlGenericError(xmlGenericErrorContext, "xmlNewTextReader : malloc failed\n");
+		xmlGenericError(0, "xmlNewTextReader : malloc failed\n");
 		return 0;
 	}
 	xmlSAXVersion(ret->sax, 2);
@@ -1891,7 +1891,7 @@ else {
 		ret->cur = 0;
 	}
 	if(ret->ctxt == NULL) {
-		xmlGenericError(xmlGenericErrorContext, "xmlNewTextReader : malloc failed\n");
+		xmlGenericError(0, "xmlNewTextReader : malloc failed\n");
 		xmlBufFree(ret->buffer);
 		free(ret->sax);
 		free(ret);
@@ -2095,11 +2095,11 @@ xmlChar * xmlTextReaderGetAttributeNo(xmlTextReaderPtr reader, int no)
 		return(xmlStrdup(ns->href));
 
 	cur = reader->node->properties;
-	if(cur == NULL)
+	if(!cur)
 		return 0;
 	for(; i < no; i++) {
 		cur = cur->next;
-		if(cur == NULL)
+		if(!cur)
 			return 0;
 	}
 	/* TODO walk the DTD if present */
@@ -2331,11 +2331,11 @@ int xmlTextReaderMoveToAttributeNo(xmlTextReaderPtr reader, int no)
 	}
 
 	cur = reader->node->properties;
-	if(cur == NULL)
+	if(!cur)
 		return 0;
 	for(; i < no; i++) {
 		cur = cur->next;
-		if(cur == NULL)
+		if(!cur)
 			return 0;
 	}
 	/* TODO walk the DTD if present */
@@ -3268,7 +3268,7 @@ xmlChar * xmlTextReaderValue(xmlTextReaderPtr reader)
 			case XML_CDATA_SECTION_NODE:
 			case XML_PI_NODE:
 			case XML_COMMENT_NODE:
-				if(node->content != NULL)
+				if(node->content)
 					return (xmlStrdup(node->content));
 				// @nobreak
 			default:
@@ -3311,7 +3311,7 @@ const xmlChar * xmlTextReaderConstValue(xmlTextReaderPtr reader)
 			    if(reader->buffer == NULL) {
 				    reader->buffer = xmlBufCreateSize(100);
 				    if(reader->buffer == NULL) {
-					    xmlGenericError(xmlGenericErrorContext, "xmlTextReaderSetup : malloc failed\n");
+					    xmlGenericError(0, "xmlTextReaderSetup : malloc failed\n");
 					    return 0;
 				    }
 			    }
@@ -3616,7 +3616,7 @@ int xmlTextReaderPreservePattern(xmlTextReaderPtr reader, const xmlChar * patter
 				reader->patternMax = 4;
 				reader->patternTab = (xmlPatternPtr*)xmlMalloc(reader->patternMax * sizeof(reader->patternTab[0]));
 				if(reader->patternTab == NULL) {
-					xmlGenericError(xmlGenericErrorContext, "xmlMalloc failed !\n");
+					xmlGenericError(0, "xmlMalloc failed !\n");
 					return (-1);
 				}
 			}
@@ -3624,7 +3624,7 @@ int xmlTextReaderPreservePattern(xmlTextReaderPtr reader, const xmlChar * patter
 				reader->patternMax *= 2;
 				xmlPatternPtr * tmp = (xmlPatternPtr*)xmlRealloc(reader->patternTab, reader->patternMax * sizeof(reader->patternTab[0]));
 				if(tmp == NULL) {
-					xmlGenericError(xmlGenericErrorContext, "xmlRealloc failed !\n");
+					xmlGenericError(0, "xmlRealloc failed !\n");
 					reader->patternMax /= 2;
 					return (-1);
 				}
@@ -3790,7 +3790,7 @@ int xmlTextReaderRelaxNGSetSchema(xmlTextReaderPtr reader, xmlRelaxNGPtr schema)
 static int xmlTextReaderLocator(void * ctx, const char ** file, unsigned long * line)
 {
 	xmlTextReaderPtr reader;
-	if((ctx == NULL) || ((file == NULL) && (line == NULL)))
+	if(!ctx || ((file == NULL) && (line == NULL)))
 		return -1;
 	ASSIGN_PTR(file, NULL);
 	ASSIGN_PTR(line, 0);
@@ -4234,7 +4234,7 @@ static char * xmlTextReaderBuildMessage(const char * msg, va_list ap)
 		chars = vsnprintf(str, size, msg, aq);
 		va_end(aq);
 		if(chars < 0) {
-			xmlGenericError(xmlGenericErrorContext, "vsnprintf failed !\n");
+			xmlGenericError(0, "vsnprintf failed !\n");
 			free(str);
 			return NULL;
 		}
@@ -4245,7 +4245,7 @@ static char * xmlTextReaderBuildMessage(const char * msg, va_list ap)
 		else
 			size = MAX_ERR_MSG_SIZE;
 		if((larger = (char*)xmlRealloc(str, size)) == NULL) {
-			xmlGenericError(xmlGenericErrorContext, "xmlRealloc failed !\n");
+			xmlGenericError(0, "xmlRealloc failed !\n");
 			free(str);
 			return NULL;
 		}
@@ -4572,12 +4572,12 @@ int xmlTextReaderSetup(xmlTextReaderPtr reader, xmlParserInputBufferPtr input, c
 	}
 	SETIFZ(reader->buffer, xmlBufCreateSize(100));
 	if(reader->buffer == NULL) {
-		xmlGenericError(xmlGenericErrorContext, "xmlTextReaderSetup : malloc failed\n");
+		xmlGenericError(0, "xmlTextReaderSetup : malloc failed\n");
 		return (-1);
 	}
 	SETIFZ(reader->sax, (xmlSAXHandler*)xmlMalloc(sizeof(xmlSAXHandler)));
 	if(reader->sax == NULL) {
-		xmlGenericError(xmlGenericErrorContext, "xmlTextReaderSetup : malloc failed\n");
+		xmlGenericError(0, "xmlTextReaderSetup : malloc failed\n");
 		return (-1);
 	}
 	xmlSAXVersion(reader->sax, 2);
@@ -4646,7 +4646,7 @@ else {
 			reader->cur = 0;
 		}
 		if(reader->ctxt == NULL) {
-			xmlGenericError(xmlGenericErrorContext, "xmlTextReaderSetup : malloc failed\n");
+			xmlGenericError(0, "xmlTextReaderSetup : malloc failed\n");
 			return (-1);
 		}
 	}
@@ -4748,7 +4748,7 @@ xmlTextReaderPtr xmlReaderWalker(xmlDocPtr doc)
 		return 0;
 	ret = (xmlTextReaderPtr)xmlMalloc(sizeof(xmlTextReader));
 	if(ret == NULL) {
-		xmlGenericError(xmlGenericErrorContext, "xmlNewTextReader : malloc failed\n");
+		xmlGenericError(0, "xmlNewTextReader : malloc failed\n");
 		return 0;
 	}
 	memzero(ret, sizeof(xmlTextReader));
@@ -4781,7 +4781,7 @@ xmlTextReaderPtr xmlReaderWalker(xmlDocPtr doc)
 xmlTextReaderPtr xmlReaderForDoc(const xmlChar * cur, const char * URL, const char * encoding, int options)
 {
 	int len;
-	if(cur == NULL)
+	if(!cur)
 		return 0;
 	len = xmlStrlen(cur);
 	return xmlReaderForMemory((const char*)cur, len, URL, encoding, options);
@@ -4966,7 +4966,7 @@ int xmlReaderNewWalker(xmlTextReaderPtr reader, xmlDocPtr doc)
 int xmlReaderNewDoc(xmlTextReaderPtr reader, const xmlChar * cur, const char * URL, const char * encoding, int options)
 {
 	int len;
-	if(cur == NULL)
+	if(!cur)
 		return (-1);
 	if(reader == NULL)
 		return (-1);

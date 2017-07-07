@@ -127,9 +127,9 @@ void xmlParserPrintFileInfo(xmlParserInputPtr input)
 {
 	if(input) {
 		if(input->filename)
-			xmlGenericError(xmlGenericErrorContext, "%s:%d: ", input->filename, input->line);
+			xmlGenericError(0, "%s:%d: ", input->filename, input->line);
 		else
-			xmlGenericError(xmlGenericErrorContext, "Entity: line %d: ", input->line);
+			xmlGenericError(0, "Entity: line %d: ", input->line);
 	}
 }
 /**
@@ -399,12 +399,9 @@ static void xmlReportError(xmlErrorPtr err, xmlParserCtxtPtr ctxt, const char * 
  * then forward the error message down the parser or generic
  * error callback handler
  */
-void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel,
-    xmlGenericErrorFunc channel, void * data, void * ctx,
-    void * nod, int domain, int code, xmlErrorLevel level,
-    const char * file, int line, const char * str1,
-    const char * str2, const char * str3, int int1, int col,
-    const char * msg, ...)
+void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFunc channel, void * data, void * ctx,
+    void * nod, int domain, int code, xmlErrorLevel level, const char * file, int line, const char * str1,
+    const char * str2, const char * str3, int int1, int col, const char * msg, ...)
 {
 	xmlParserCtxtPtr ctxt = NULL;
 	xmlNodePtr node = (xmlNode *)nod;
@@ -449,7 +446,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel,
 	if(ctxt) {
 		if(file == NULL) {
 			input = ctxt->input;
-			if(input && (input->filename == NULL) && (ctxt->inputNr > 1)) {
+			if(input && !input->filename && (ctxt->inputNr > 1)) {
 				input = ctxt->inputTab[ctxt->inputNr - 2];
 			}
 			if(input) {
@@ -466,7 +463,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel,
 			baseptr = node;
 /*	    file = (const char *) node->doc->URL; */
 		}
-		for(i = 0; ((i < 10) && (node != NULL) && (node->type != XML_ELEMENT_NODE)); i++)
+		for(i = 0; ((i < 10) && node && (node->type != XML_ELEMENT_NODE)); i++)
 			node = node->parent;
 		if(!baseptr && node && node->doc && node->doc->URL)
 			baseptr = node;
@@ -575,22 +572,14 @@ void __xmlSimpleError(int domain, int code, xmlNodePtr node, const char * msg, c
 {
 	if(code == XML_ERR_NO_MEMORY) {
 		if(extra)
-			__xmlRaiseError(0, 0, 0, NULL, node, domain,
-			    XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra,
-			    NULL, NULL, 0, 0,
-			    "Memory allocation failed : %s\n", extra);
+			__xmlRaiseError(0, 0, 0, 0, node, domain, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra, 0, 0, 0, 0, "Memory allocation failed : %s\n", extra);
 		else
-			__xmlRaiseError(0, 0, 0, NULL, node, domain,
-			    XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, NULL,
-			    NULL, NULL, 0, 0, "Memory allocation failed\n");
+			__xmlRaiseError(0, 0, 0, 0, node, domain, XML_ERR_NO_MEMORY, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "Memory allocation failed\n");
 	}
 	else {
-		__xmlRaiseError(0, 0, 0, NULL, node, domain,
-		    code, XML_ERR_ERROR, NULL, 0, extra,
-		    NULL, NULL, 0, 0, msg, extra);
+		__xmlRaiseError(0, 0, 0, 0, node, domain, code, XML_ERR_ERROR, NULL, 0, extra, 0, 0, 0, 0, msg, extra);
 	}
 }
-
 /**
  * xmlParserError:
  * @ctx:  an XML parser context
@@ -614,15 +603,15 @@ void XMLCDECL xmlParserError(void * ctx, const char * msg, ...)
 		}
 		xmlParserPrintFileInfo(input);
 	}
-	xmlGenericError(xmlGenericErrorContext, "error: ");
+	xmlGenericError(0, "error: ");
 	XML_GET_VAR_STR(msg, str);
-	xmlGenericError(xmlGenericErrorContext, "%s", str);
+	xmlGenericError(0, "%s", str);
 	free(str);
 	if(ctxt) {
 		xmlParserPrintFileContext(input);
-		if(cur != NULL) {
+		if(cur) {
 			xmlParserPrintFileInfo(cur);
-			xmlGenericError(xmlGenericErrorContext, "\n");
+			xmlGenericError(0, "\n");
 			xmlParserPrintFileContext(cur);
 		}
 	}
@@ -651,15 +640,15 @@ void XMLCDECL xmlParserWarning(void * ctx, const char * msg, ...)
 		}
 		xmlParserPrintFileInfo(input);
 	}
-	xmlGenericError(xmlGenericErrorContext, "warning: ");
+	xmlGenericError(0, "warning: ");
 	XML_GET_VAR_STR(msg, str);
-	xmlGenericError(xmlGenericErrorContext, "%s", str);
+	xmlGenericError(0, "%s", str);
 	free(str);
 	if(ctxt) {
 		xmlParserPrintFileContext(input);
-		if(cur != NULL) {
+		if(cur) {
 			xmlParserPrintFileInfo(cur);
-			xmlGenericError(xmlGenericErrorContext, "\n");
+			xmlGenericError(0, "\n");
 			xmlParserPrintFileContext(cur);
 		}
 	}
@@ -698,14 +687,14 @@ void XMLCDECL xmlParserValidityError(void * ctx, const char * msg, ...)
 				xmlParserPrintFileInfo(input);
 			}
 		}
-		xmlGenericError(xmlGenericErrorContext, "validity error: ");
+		xmlGenericError(0, "validity error: ");
 		had_info = 0;
 	}
 	else {
 		had_info = 1;
 	}
 	XML_GET_VAR_STR(msg, str);
-	xmlGenericError(xmlGenericErrorContext, "%s", str);
+	xmlGenericError(0, "%s", str);
 	free(str);
 	if(ctxt && input) {
 		xmlParserPrintFileContext(input);
@@ -733,9 +722,9 @@ void XMLCDECL xmlParserValidityWarning(void * ctx, const char * msg, ...)
 			input = ctxt->inputTab[ctxt->inputNr - 2];
 		xmlParserPrintFileInfo(input);
 	}
-	xmlGenericError(xmlGenericErrorContext, "validity warning: ");
+	xmlGenericError(0, "validity warning: ");
 	XML_GET_VAR_STR(msg, str);
-	xmlGenericError(xmlGenericErrorContext, "%s", str);
+	xmlGenericError(0, "%s", str);
 	free(str);
 	if(ctxt) {
 		xmlParserPrintFileContext(input);
@@ -775,17 +764,12 @@ void xmlResetError(xmlErrorPtr err)
 		return;
 	if(err->code == XML_ERR_OK)
 		return;
-	if(err->message != NULL)
-		free(err->message);
-	if(err->file != NULL)
-		free(err->file);
-	if(err->str1 != NULL)
-		free(err->str1);
-	if(err->str2 != NULL)
-		free(err->str2);
-	if(err->str3 != NULL)
-		free(err->str3);
-	memset(err, 0, sizeof(xmlError));
+	free(err->message);
+	free(err->file);
+	free(err->str1);
+	free(err->str2);
+	free(err->str3);
+	memzero(err, sizeof(xmlError));
 	err->code = XML_ERR_OK;
 }
 
@@ -814,7 +798,7 @@ xmlErrorPtr xmlCtxtGetLastError(void * ctx)
 {
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
 
-	if(ctxt == NULL)
+	if(!ctxt)
 		return 0;
 	if(ctxt->lastError.code == XML_ERR_OK)
 		return 0;
@@ -832,7 +816,7 @@ void xmlCtxtResetLastError(void * ctx)
 {
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
 
-	if(ctxt == NULL)
+	if(!ctxt)
 		return;
 	ctxt->errNo = XML_ERR_OK;
 	if(ctxt->lastError.code == XML_ERR_OK)

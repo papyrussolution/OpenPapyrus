@@ -686,7 +686,7 @@ static int xmlDictGrow(xmlDictPtr dict, size_t size)
 	}
 	free(olddict);
 #ifdef DEBUG_GROW
-	xmlGenericError(xmlGenericErrorContext, "xmlDictGrow : from %lu to %lu, %u elems\n", oldsize, size, nbElem);
+	xmlGenericError(0, "xmlDictGrow : from %lu to %lu, %u elems\n", oldsize, size, nbElem);
 #endif
 
 	return ret;
@@ -816,23 +816,23 @@ const xmlChar * xmlDictLookup(xmlDictPtr dict, const xmlChar * name, int len)
 #ifdef __GNUC__
 				if((tmp->okey == skey) && (tmp->len == l)) {
 					if(!memcmp(tmp->name, name, l))
-						return(tmp->name);
+						return tmp->name;
 				}
 #else
 				if((tmp->okey == skey) && (tmp->len == l) &&
 				    (!xmlStrncmp(tmp->name, name, l)))
-					return(tmp->name);
+					return tmp->name;
 #endif
 				nbi++;
 			}
 #ifdef __GNUC__
 			if((tmp->okey == skey) && (tmp->len == l)) {
 				if(!memcmp(tmp->name, name, l))
-					return(tmp->name);
+					return tmp->name;
 			}
 #else
 			if((tmp->okey == skey) && (tmp->len == l) && (!xmlStrncmp(tmp->name, name, l)))
-				return(tmp->name);
+				return tmp->name;
 #endif
 		}
 		key = okey % dict->size;
@@ -935,22 +935,22 @@ const xmlChar * xmlDictExists(xmlDictPtr dict, const xmlChar * name, int len)
 #ifdef __GNUC__
 				if((tmp->okey == skey) && (tmp->len == l)) {
 					if(!memcmp(tmp->name, name, l))
-						return(tmp->name);
+						return tmp->name;
 				}
 #else
 				if((tmp->okey == skey) && (tmp->len == l) && (!xmlStrncmp(tmp->name, name, l)))
-					return(tmp->name);
+					return tmp->name;
 #endif
 				nbi++;
 			}
 #ifdef __GNUC__
 			if((tmp->okey == skey) && (tmp->len == l)) {
 				if(!memcmp(tmp->name, name, l))
-					return(tmp->name);
+					return tmp->name;
 			}
 #else
 			if((tmp->okey == skey) && (tmp->len == l) && (!xmlStrncmp(tmp->name, name, l)))
-				return(tmp->name);
+				return tmp->name;
 #endif
 		}
 	}
@@ -1013,11 +1013,11 @@ const xmlChar * xmlDictQLookup(xmlDictPtr dict, const xmlChar * prefix, const xm
 			xmlDictEntryPtr tmp;
 			for(tmp = &(dict->subdict->dict[key]); tmp->next != NULL; tmp = tmp->next) {
 				if((tmp->okey == skey) && (tmp->len == len) && (xmlStrQEqual(prefix, name, tmp->name)))
-					return(tmp->name);
+					return tmp->name;
 				nbi++;
 			}
 			if((tmp->okey == skey) && (tmp->len == len) && (xmlStrQEqual(prefix, name, tmp->name)))
-				return(tmp->name);
+				return tmp->name;
 		}
 		key = okey % dict->size;
 	}

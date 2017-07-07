@@ -33,7 +33,7 @@
  **> values "system" and "public".  I have made the default be "system" to
  **> match yours.
  */
-#define TODO xmlGenericError(xmlGenericErrorContext, "Unimplemented block at %s:%d\n", __FILE__, __LINE__);
+#define TODO xmlGenericError(0, "Unimplemented block at %s:%d\n", __FILE__, __LINE__);
 
 /*
  * xmlSAX2ErrMemory:
@@ -46,25 +46,17 @@ static void xmlSAX2ErrMemory(xmlParserCtxtPtr ctxt, const char * msg)
 	const char * str1 = "out of memory\n";
 	if(ctxt) {
 		ctxt->errNo = XML_ERR_NO_MEMORY;
-		if((ctxt->sax != NULL) && (ctxt->sax->initialized == XML_SAX2_MAGIC))
+		if(ctxt->sax && (ctxt->sax->initialized == XML_SAX2_MAGIC))
 			schannel = ctxt->sax->serror;
-		__xmlRaiseError(schannel,
-		    ctxt->vctxt.error, ctxt->vctxt.userData,
-		    ctxt, NULL, XML_FROM_PARSER, XML_ERR_NO_MEMORY,
-		    XML_ERR_ERROR, NULL, 0, (const char*)str1,
-		    NULL, NULL, 0, 0,
-		    msg, (const char*)str1, NULL);
+		__xmlRaiseError(schannel, ctxt->vctxt.error, ctxt->vctxt.userData, ctxt, NULL, XML_FROM_PARSER, XML_ERR_NO_MEMORY,
+		    XML_ERR_ERROR, NULL, 0, (const char*)str1, NULL, NULL, 0, 0, msg, (const char*)str1, NULL);
 		ctxt->errNo = XML_ERR_NO_MEMORY;
 		ctxt->instate = XML_PARSER_EOF;
 		ctxt->disableSAX = 1;
 	}
 	else {
-		__xmlRaiseError(schannel,
-		    NULL, NULL,
-		    ctxt, NULL, XML_FROM_PARSER, XML_ERR_NO_MEMORY,
-		    XML_ERR_ERROR, NULL, 0, (const char*)str1,
-		    NULL, NULL, 0, 0,
-		    msg, (const char*)str1, NULL);
+		__xmlRaiseError(schannel, 0, 0, ctxt, NULL, XML_FROM_PARSER, XML_ERR_NO_MEMORY, XML_ERR_ERROR, NULL, 0, (const char*)str1,
+		    NULL, NULL, 0, 0, msg, (const char*)str1, NULL);
 	}
 }
 
@@ -78,33 +70,22 @@ static void xmlSAX2ErrMemory(xmlParserCtxtPtr ctxt, const char * msg)
  *
  * Handle a validation error
  */
-static void xmlErrValid(xmlParserCtxtPtr ctxt, xmlParserErrors error,
-    const char * msg, const char * str1, const char * str2)
+static void xmlErrValid(xmlParserCtxtPtr ctxt, xmlParserErrors error, const char * msg, const char * str1, const char * str2)
 {
 	xmlStructuredErrorFunc schannel = NULL;
-
-	if((ctxt) && (ctxt->disableSAX != 0) &&
-	    (ctxt->instate == XML_PARSER_EOF))
+	if((ctxt) && (ctxt->disableSAX != 0) && (ctxt->instate == XML_PARSER_EOF))
 		return;
 	if(ctxt) {
 		ctxt->errNo = error;
-		if((ctxt->sax != NULL) && (ctxt->sax->initialized == XML_SAX2_MAGIC))
+		if(ctxt->sax && (ctxt->sax->initialized == XML_SAX2_MAGIC))
 			schannel = ctxt->sax->serror;
-		__xmlRaiseError(schannel,
-		    ctxt->vctxt.error, ctxt->vctxt.userData,
-		    ctxt, NULL, XML_FROM_DTD, error,
-		    XML_ERR_ERROR, NULL, 0, (const char*)str1,
-		    (const char*)str2, NULL, 0, 0,
-		    msg, (const char*)str1, (const char*)str2);
+		__xmlRaiseError(schannel, ctxt->vctxt.error, ctxt->vctxt.userData, ctxt, NULL, XML_FROM_DTD, error,
+		    XML_ERR_ERROR, NULL, 0, (const char*)str1, (const char*)str2, NULL, 0, 0, msg, (const char*)str1, (const char*)str2);
 		ctxt->valid = 0;
 	}
 	else {
-		__xmlRaiseError(schannel,
-		    NULL, NULL,
-		    ctxt, NULL, XML_FROM_DTD, error,
-		    XML_ERR_ERROR, NULL, 0, (const char*)str1,
-		    (const char*)str2, NULL, 0, 0,
-		    msg, (const char*)str1, (const char*)str2);
+		__xmlRaiseError(schannel, 0, 0, ctxt, NULL, XML_FROM_DTD, error,
+		    XML_ERR_ERROR, NULL, 0, (const char*)str1, (const char*)str2, NULL, 0, 0, msg, (const char*)str1, (const char*)str2);
 	}
 }
 
@@ -124,7 +105,7 @@ static void xmlFatalErrMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error, const c
 		return;
 	if(ctxt)
 		ctxt->errNo = error;
-	__xmlRaiseError(0, 0, 0, ctxt, NULL, XML_FROM_PARSER, error, XML_ERR_FATAL, NULL, 0, (const char*)str1, (const char*)str2, NULL, 0, 0, msg, str1, str2);
+	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, error, XML_ERR_FATAL, NULL, 0, (const char*)str1, (const char*)str2, NULL, 0, 0, msg, str1, str2);
 	if(ctxt) {
 		ctxt->wellFormed = 0;
 		ctxt->valid = 0;
@@ -143,20 +124,14 @@ static void xmlFatalErrMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error, const c
  *
  * Handle a parser warning
  */
-static void xmlWarnMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error,
-    const char * msg, const xmlChar * str1)
+static void xmlWarnMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1)
 {
-	if((ctxt) && (ctxt->disableSAX != 0) &&
-	    (ctxt->instate == XML_PARSER_EOF))
+	if((ctxt) && (ctxt->disableSAX != 0) && (ctxt->instate == XML_PARSER_EOF))
 		return;
 	if(ctxt)
 		ctxt->errNo = error;
-	__xmlRaiseError(0, 0, 0, ctxt, NULL, XML_FROM_PARSER, error,
-	    XML_ERR_WARNING, NULL, 0,
-	    (const char*)str1, NULL,
-	    NULL, 0, 0, msg, str1);
+	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, error, XML_ERR_WARNING, NULL, 0, (const char*)str1, NULL, NULL, 0, 0, msg, str1);
 }
-
 /**
  * xmlNsErrMsg:
  * @ctxt:  an XML parser context
@@ -167,18 +142,13 @@ static void xmlWarnMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error,
  *
  * Handle a namespace__ error
  */
-static void xmlNsErrMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error,
-    const char * msg, const xmlChar * str1, const xmlChar * str2)
+static void xmlNsErrMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
-	if((ctxt) && (ctxt->disableSAX != 0) &&
-	    (ctxt->instate == XML_PARSER_EOF))
+	if((ctxt) && (ctxt->disableSAX != 0) && (ctxt->instate == XML_PARSER_EOF))
 		return;
 	if(ctxt)
 		ctxt->errNo = error;
-	__xmlRaiseError(0, 0, 0, ctxt, NULL, XML_FROM_NAMESPACE, error,
-	    XML_ERR_ERROR, NULL, 0,
-	    (const char*)str1, (const char*)str2,
-	    NULL, 0, 0, msg, str1, str2);
+	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_NAMESPACE, error, XML_ERR_ERROR, NULL, 0, (const char*)str1, (const char*)str2, NULL, 0, 0, msg, str1, str2);
 }
 
 /**
@@ -193,15 +163,11 @@ static void xmlNsErrMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error,
 static void xmlNsWarnMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error,
     const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
-	if((ctxt) && (ctxt->disableSAX != 0) &&
-	    (ctxt->instate == XML_PARSER_EOF))
+	if((ctxt) && (ctxt->disableSAX != 0) && (ctxt->instate == XML_PARSER_EOF))
 		return;
 	if(ctxt)
 		ctxt->errNo = error;
-	__xmlRaiseError(0, 0, 0, ctxt, NULL, XML_FROM_NAMESPACE, error,
-	    XML_ERR_WARNING, NULL, 0,
-	    (const char*)str1, (const char*)str2,
-	    NULL, 0, 0, msg, str1, str2);
+	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_NAMESPACE, error, XML_ERR_WARNING, NULL, 0, (const char*)str1, (const char*)str2, NULL, 0, 0, msg, str1, str2);
 }
 
 /**
@@ -230,7 +196,7 @@ const xmlChar * xmlSAX2GetPublicId(void * ctx ATTRIBUTE_UNUSED)
 const xmlChar * xmlSAX2GetSystemId(void * ctx)
 {
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
-	if((ctx == NULL) || (ctxt->input == NULL)) return 0;
+	if(!ctx || (ctxt->input == NULL)) return 0;
 	return((const xmlChar*)ctxt->input->filename);
 }
 
@@ -245,7 +211,7 @@ const xmlChar * xmlSAX2GetSystemId(void * ctx)
 int xmlSAX2GetLineNumber(void * ctx)
 {
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
-	if((ctx == NULL) || (ctxt->input == NULL)) return 0;
+	if(!ctx || (ctxt->input == NULL)) return 0;
 	return(ctxt->input->line);
 }
 
@@ -260,7 +226,7 @@ int xmlSAX2GetLineNumber(void * ctx)
 int xmlSAX2GetColumnNumber(void * ctx)
 {
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
-	if((ctx == NULL) || (ctxt->input == NULL)) return 0;
+	if(!ctx || (ctxt->input == NULL)) return 0;
 	return(ctxt->input->col);
 }
 
@@ -275,7 +241,7 @@ int xmlSAX2GetColumnNumber(void * ctx)
 int xmlSAX2IsStandalone(void * ctx)
 {
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
-	if((ctx == NULL) || (ctxt->myDoc == NULL)) return 0;
+	if(!ctx || (ctxt->myDoc == NULL)) return 0;
 	return(ctxt->myDoc->standalone == 1);
 }
 
@@ -290,7 +256,7 @@ int xmlSAX2IsStandalone(void * ctx)
 int xmlSAX2HasInternalSubset(void * ctx)
 {
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
-	if((ctxt == NULL) || (ctxt->myDoc == NULL)) return 0;
+	if(!ctxt || (ctxt->myDoc == NULL)) return 0;
 	return(ctxt->myDoc->intSubset != NULL);
 }
 
@@ -305,7 +271,7 @@ int xmlSAX2HasInternalSubset(void * ctx)
 int xmlSAX2HasExternalSubset(void * ctx)
 {
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
-	if((ctxt == NULL) || (ctxt->myDoc == NULL)) return 0;
+	if(!ctxt || (ctxt->myDoc == NULL)) return 0;
 	return(ctxt->myDoc->extSubset != NULL);
 }
 
@@ -323,7 +289,7 @@ void xmlSAX2InternalSubset(void * ctx, const xmlChar * name, const xmlChar * Ext
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
 	if(ctx) {
 #ifdef DEBUG_SAX
-		xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2InternalSubset(%s, %s, %s)\n", name, ExternalID, SystemID);
+		xmlGenericError(0, "SAX.xmlSAX2InternalSubset(%s, %s, %s)\n", name, ExternalID, SystemID);
 #endif
 		if(ctxt->myDoc) {
 			xmlDtdPtr dtd = xmlGetIntSubset(ctxt->myDoc);
@@ -356,7 +322,7 @@ void xmlSAX2ExternalSubset(void * ctx, const xmlChar * name,
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
 	if(ctx == NULL) return;
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2ExternalSubset(%s, %s, %s)\n", name, ExternalID, SystemID);
+	xmlGenericError(0, "SAX.xmlSAX2ExternalSubset(%s, %s, %s)\n", name, ExternalID, SystemID);
 #endif
 	if(((ExternalID != NULL) || (SystemID != NULL)) &&
 	    (((ctxt->validate) || (ctxt->loadsubset != 0)) &&
@@ -376,7 +342,7 @@ void xmlSAX2ExternalSubset(void * ctx, const xmlChar * name,
 		/*
 		 * Ask the Entity resolver to load the damn thing
 		 */
-		if((ctxt->sax != NULL) && (ctxt->sax->resolveEntity != NULL))
+		if(ctxt->sax && (ctxt->sax->resolveEntity != NULL))
 			input = ctxt->sax->resolveEntity(ctxt->userData, ExternalID,
 			    SystemID);
 		if(input == NULL) {
@@ -485,7 +451,7 @@ xmlParserInputPtr xmlSAX2ResolveEntity(void * ctx, const xmlChar * publicId, con
 		base = ctxt->directory;
 	URI = xmlBuildURI(systemId, (const xmlChar*)base);
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2ResolveEntity(%s, %s)\n", publicId, systemId);
+	xmlGenericError(0, "SAX.xmlSAX2ResolveEntity(%s, %s)\n", publicId, systemId);
 #endif
 	ret = xmlLoadExternalEntity((const char*)URI, (const char*)publicId, ctxt);
 	free(URI);
@@ -508,11 +474,11 @@ xmlEntityPtr xmlSAX2GetEntity(void * ctx, const xmlChar * name)
 	if(ctx == NULL)
 		return 0;
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2GetEntity(%s)\n", name);
+	xmlGenericError(0, "SAX.xmlSAX2GetEntity(%s)\n", name);
 #endif
 	if(ctxt->inSubset == 0) {
 		ret = xmlGetPredefinedEntity(name);
-		if(ret != NULL)
+		if(ret)
 			return ret;
 	}
 	if((ctxt->myDoc != NULL) && (ctxt->myDoc->standalone == 1)) {
@@ -526,7 +492,7 @@ xmlEntityPtr xmlSAX2GetEntity(void * ctx, const xmlChar * name)
 			if(ret == NULL) {
 				ctxt->myDoc->standalone = 0;
 				ret = xmlGetDocEntity(ctxt->myDoc, name);
-				if(ret != NULL) {
+				if(ret) {
 					xmlFatalErrMsg(ctxt, XML_ERR_NOT_STANDALONE, "Entity(%s) document marked standalone but requires external subset\n", name, NULL);
 				}
 				ctxt->myDoc->standalone = 1;
@@ -584,7 +550,7 @@ xmlEntityPtr xmlSAX2GetParameterEntity(void * ctx, const xmlChar * name)
 	xmlEntityPtr ret = 0;
 	if(ctx) {
 #ifdef DEBUG_SAX
-		xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2GetParameterEntity(%s)\n", name);
+		xmlGenericError(0, "SAX.xmlSAX2GetParameterEntity(%s)\n", name);
 #endif
 		ret = xmlGetParameterEntity(ctxt->myDoc, name);
 	}
@@ -609,7 +575,7 @@ void xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type,
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
 	if(ctx == NULL) return;
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2EntityDecl(%s, %d, %s, %s, %s)\n", name, type, publicId, systemId, content);
+	xmlGenericError(0, "SAX.xmlSAX2EntityDecl(%s, %d, %s, %s, %s)\n", name, type, publicId, systemId, content);
 #endif
 	if(ctxt->inSubset == 1) {
 		ent = xmlAddDocEntity(ctxt->myDoc, name, type, publicId, systemId, content);
@@ -662,10 +628,10 @@ void xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * full
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
 	xmlAttributePtr attr;
 	xmlChar * name = NULL, * prefix = NULL;
-	if((ctxt == NULL) || (ctxt->myDoc == NULL))
+	if(!ctxt || (ctxt->myDoc == NULL))
 		return;
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2AttributeDecl(%s, %s, %d, %d, %s, ...)\n", elem, fullname, type, def, defaultValue);
+	xmlGenericError(0, "SAX.xmlSAX2AttributeDecl(%s, %s, %d, %d, %s, ...)\n", elem, fullname, type, def, defaultValue);
 #endif
 	if((xmlStrEqual(fullname, BAD_CAST "xml:id")) && (type != XML_ATTRIBUTE_ID)) {
 		/*
@@ -710,10 +676,10 @@ void xmlSAX2ElementDecl(void * ctx, const xmlChar * name, int type, xmlElementCo
 {
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
 	xmlElementPtr elem = NULL;
-	if((ctxt == NULL) || (ctxt->myDoc == NULL))
+	if(!ctxt || (ctxt->myDoc == NULL))
 		return;
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2ElementDecl(%s, %d, ...)\n", name, type);
+	xmlGenericError(0, "SAX.xmlSAX2ElementDecl(%s, %d, ...)\n", name, type);
 #endif
 	if(ctxt->inSubset == 1)
 		elem = xmlAddElementDecl(&ctxt->vctxt, ctxt->myDoc->intSubset, name, (xmlElementTypeVal)type, content);
@@ -744,10 +710,10 @@ void xmlSAX2NotationDecl(void * ctx, const xmlChar * name, const xmlChar * publi
 {
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
 	xmlNotationPtr nota = NULL;
-	if((ctxt == NULL) || (ctxt->myDoc == NULL))
+	if(!ctxt || (ctxt->myDoc == NULL))
 		return;
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2NotationDecl(%s, %s, %s)\n", name, publicId, systemId);
+	xmlGenericError(0, "SAX.xmlSAX2NotationDecl(%s, %s, %s)\n", name, publicId, systemId);
 #endif
 	if(!publicId && !systemId) {
 		xmlFatalErrMsg(ctxt, XML_ERR_NOTATION_PROCESSING, "SAX.xmlSAX2NotationDecl(%s) externalID or PublicID missing\n", name, NULL);
@@ -787,7 +753,7 @@ void xmlSAX2UnparsedEntityDecl(void * ctx, const xmlChar * name,
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
 	if(ctx == NULL) return;
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2UnparsedEntityDecl(%s, %s, %s, %s)\n", name, publicId, systemId, notationName);
+	xmlGenericError(0, "SAX.xmlSAX2UnparsedEntityDecl(%s, %s, %s, %s)\n", name, publicId, systemId, notationName);
 #endif
 	if(ctxt->inSubset == 1) {
 		ent = xmlAddDocEntity(ctxt->myDoc, name, XML_EXTERNAL_GENERAL_UNPARSED_ENTITY, publicId, systemId, notationName);
@@ -834,7 +800,7 @@ void xmlSAX2SetDocumentLocator(void * ctx ATTRIBUTE_UNUSED, xmlSAXLocatorPtr loc
 {
 	/* xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr) ctx; */
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2SetDocumentLocator()\n");
+	xmlGenericError(0, "SAX.xmlSAX2SetDocumentLocator()\n");
 #endif
 }
 
@@ -851,7 +817,7 @@ void xmlSAX2StartDocument(void * ctx)
 	if(ctx == NULL)
 		return;
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2StartDocument()\n");
+	xmlGenericError(0, "SAX.xmlSAX2StartDocument()\n");
 #endif
 	if(ctxt->html) {
 #ifdef LIBXML_HTML_ENABLED
@@ -863,7 +829,7 @@ void xmlSAX2StartDocument(void * ctx)
 		ctxt->myDoc->properties = XML_DOC_HTML;
 		ctxt->myDoc->parseFlags = ctxt->options;
 #else
-		xmlGenericError(xmlGenericErrorContext, "libxml2 built without HTML support\n");
+		xmlGenericError(0, "libxml2 built without HTML support\n");
 		ctxt->errNo = XML_ERR_INTERNAL_ERROR;
 		ctxt->instate = XML_PARSER_EOF;
 		ctxt->disableSAX = 1;
@@ -905,7 +871,7 @@ void xmlSAX2EndDocument(void * ctx)
 {
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2EndDocument()\n");
+	xmlGenericError(0, "SAX.xmlSAX2EndDocument()\n");
 #endif
 	if(ctx == NULL) return;
 #ifdef LIBXML_VALID_ENABLED
@@ -1147,7 +1113,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname,
 	/* !!!!!! <a toto:arg="" xmlns:toto="http://toto.com"> */
 	ret = xmlNewNsPropEatName(ctxt->node, namespace__, name, NULL);
 
-	if(ret != NULL) {
+	if(ret) {
 		if((ctxt->replaceEntities == 0) && (!ctxt->html)) {
 			xmlNodePtr tmp;
 
@@ -1160,7 +1126,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname,
 				tmp = tmp->next;
 			}
 		}
-		else if(value != NULL) {
+		else if(value) {
 			ret->children = xmlNewDocText(ctxt->myDoc, value);
 			ret->last = ret->children;
 			if(ret->children != NULL)
@@ -1396,10 +1362,10 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
 	const xmlChar * value;
 	int i;
 
-	if((ctx == NULL) || (fullname == NULL) || (ctxt->myDoc == NULL)) return;
+	if(!ctx || (fullname == NULL) || (ctxt->myDoc == NULL)) return;
 	parent = ctxt->node;
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2StartElement(%s)\n", fullname);
+	xmlGenericError(0, "SAX.xmlSAX2StartElement(%s)\n", fullname);
 #endif
 
 	/*
@@ -1434,7 +1400,7 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
 	}
 	if(ctxt->myDoc->children == NULL) {
 #ifdef DEBUG_SAX_TREE
-		xmlGenericError(xmlGenericErrorContext, "Setting %s as root\n", name);
+		xmlGenericError(0, "Setting %s as root\n", name);
 #endif
 		xmlAddChild((xmlNode *)ctxt->myDoc, (xmlNode *)ret);
 	}
@@ -1455,7 +1421,7 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
 	 * We are parsing a new node.
 	 */
 #ifdef DEBUG_SAX_TREE
-	xmlGenericError(xmlGenericErrorContext, "pushing(%s)\n", name);
+	xmlGenericError(0, "pushing(%s)\n", name);
 #endif
 	nodePush(ctxt, ret);
 
@@ -1465,13 +1431,13 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
 	if(parent != NULL) {
 		if(parent->type == XML_ELEMENT_NODE) {
 #ifdef DEBUG_SAX_TREE
-			xmlGenericError(xmlGenericErrorContext, "adding child %s to %s\n", name, parent->name);
+			xmlGenericError(0, "adding child %s to %s\n", name, parent->name);
 #endif
 			xmlAddChild(parent, ret);
 		}
 		else {
 #ifdef DEBUG_SAX_TREE
-			xmlGenericError(xmlGenericErrorContext, "adding sibling %s to ", name);
+			xmlGenericError(0, "adding sibling %s to ", name);
 			xmlDebugDumpOneNode(stderr, parent, 0);
 #endif
 			xmlAddSibling(parent, ret);
@@ -1593,9 +1559,9 @@ void xmlSAX2EndElement(void * ctx, const xmlChar * name ATTRIBUTE_UNUSED)
 	cur = ctxt->node;
 #ifdef DEBUG_SAX
 	if(name == NULL)
-		xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2EndElement(NULL)\n");
+		xmlGenericError(0, "SAX.xmlSAX2EndElement(NULL)\n");
 	else
-		xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2EndElement(%s)\n", name);
+		xmlGenericError(0, "SAX.xmlSAX2EndElement(%s)\n", name);
 #endif
 
 	/* Capture end position and add node */
@@ -1618,7 +1584,7 @@ void xmlSAX2EndElement(void * ctx, const xmlChar * name ATTRIBUTE_UNUSED)
 	 * end of parsing of this node.
 	 */
 #ifdef DEBUG_SAX_TREE
-	xmlGenericError(xmlGenericErrorContext, "popping(%s)\n", cur->name);
+	xmlGenericError(0, "popping(%s)\n", cur->name);
 #endif
 	nodePop(ctxt);
 }
@@ -1845,7 +1811,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxtPtr ctxt,
 			}
 		}
 	}
-	else if(value != NULL) {
+	else if(value) {
 		xmlNodePtr tmp;
 
 		tmp = xmlSAX2TextNode(ctxt, value, valueend - value);
@@ -2275,14 +2241,14 @@ void xmlSAX2Reference(void * ctx, const xmlChar * name)
 	if(ctx == NULL)
 		return;
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2Reference(%s)\n", name);
+	xmlGenericError(0, "SAX.xmlSAX2Reference(%s)\n", name);
 #endif
 	if(name[0] == '#')
 		ret = xmlNewCharRef(ctxt->myDoc, name);
 	else
 		ret = xmlNewReference(ctxt->myDoc, name);
 #ifdef DEBUG_SAX_TREE
-	xmlGenericError(xmlGenericErrorContext, "add xmlSAX2Reference %s to %s \n", name, ctxt->node->name);
+	xmlGenericError(0, "add xmlSAX2Reference %s to %s \n", name, ctxt->node->name);
 #endif
 	if(xmlAddChild(ctxt->node, ret) == NULL) {
 		xmlFreeNode(ret);
@@ -2304,7 +2270,7 @@ void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len)
 	if(ctx == NULL)
 		return;
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2Characters(%.30s, %d)\n", ch, len);
+	xmlGenericError(0, "SAX.xmlSAX2Characters(%.30s, %d)\n", ch, len);
 #endif
 	/*
 	 * Handle the data if any. If there is no child
@@ -2313,13 +2279,13 @@ void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len)
 	 */
 	if(ctxt->node == NULL) {
 #ifdef DEBUG_SAX_TREE
-		xmlGenericError(xmlGenericErrorContext, "add chars: ctxt->node == NULL !\n");
+		xmlGenericError(0, "add chars: ctxt->node == NULL !\n");
 #endif
 		return;
 	}
 	lastChild = ctxt->node->last;
 #ifdef DEBUG_SAX_TREE
-	xmlGenericError(xmlGenericErrorContext, "add chars to %s \n", ctxt->node->name);
+	xmlGenericError(0, "add chars to %s \n", ctxt->node->name);
 #endif
 
 	/*
@@ -2422,7 +2388,7 @@ void xmlSAX2IgnorableWhitespace(void * ctx ATTRIBUTE_UNUSED, const xmlChar * ch 
 {
 	/* xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr) ctx; */
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2IgnorableWhitespace(%.30s, %d)\n", ch, len);
+	xmlGenericError(0, "SAX.xmlSAX2IgnorableWhitespace(%.30s, %d)\n", ch, len);
 #endif
 }
 
@@ -2443,7 +2409,7 @@ void xmlSAX2ProcessingInstruction(void * ctx, const xmlChar * target, const xmlC
 		return;
 	parent = ctxt->node;
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2ProcessingInstruction(%s, %s)\n", target, data);
+	xmlGenericError(0, "SAX.xmlSAX2ProcessingInstruction(%s, %s)\n", target, data);
 #endif
 	ret = xmlNewDocPI(ctxt->myDoc, target, data);
 	if(ret == NULL)
@@ -2462,20 +2428,20 @@ void xmlSAX2ProcessingInstruction(void * ctx, const xmlChar * target, const xmlC
 	}
 	if(parent == NULL) {
 #ifdef DEBUG_SAX_TREE
-		xmlGenericError(xmlGenericErrorContext, "Setting PI %s as root\n", target);
+		xmlGenericError(0, "Setting PI %s as root\n", target);
 #endif
 		xmlAddChild((xmlNode *)ctxt->myDoc, (xmlNode *)ret);
 		return;
 	}
 	if(parent->type == XML_ELEMENT_NODE) {
 #ifdef DEBUG_SAX_TREE
-		xmlGenericError(xmlGenericErrorContext, "adding PI %s child to %s\n", target, parent->name);
+		xmlGenericError(0, "adding PI %s child to %s\n", target, parent->name);
 #endif
 		xmlAddChild(parent, ret);
 	}
 	else {
 #ifdef DEBUG_SAX_TREE
-		xmlGenericError(xmlGenericErrorContext, "adding PI %s sibling to ", target);
+		xmlGenericError(0, "adding PI %s sibling to ", target);
 		xmlDebugDumpOneNode(stderr, parent, 0);
 #endif
 		xmlAddSibling(parent, ret);
@@ -2498,7 +2464,7 @@ void xmlSAX2Comment(void * ctx, const xmlChar * value)
 	if(ctx == NULL) return;
 	parent = ctxt->node;
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.xmlSAX2Comment(%s)\n", value);
+	xmlGenericError(0, "SAX.xmlSAX2Comment(%s)\n", value);
 #endif
 	ret = xmlNewDocComment(ctxt->myDoc, value);
 	if(ret == NULL)
@@ -2517,20 +2483,20 @@ void xmlSAX2Comment(void * ctx, const xmlChar * value)
 	}
 	if(parent == NULL) {
 #ifdef DEBUG_SAX_TREE
-		xmlGenericError(xmlGenericErrorContext, "Setting xmlSAX2Comment as root\n");
+		xmlGenericError(0, "Setting xmlSAX2Comment as root\n");
 #endif
 		xmlAddChild((xmlNode *)ctxt->myDoc, (xmlNode *)ret);
 		return;
 	}
 	if(parent->type == XML_ELEMENT_NODE) {
 #ifdef DEBUG_SAX_TREE
-		xmlGenericError(xmlGenericErrorContext, "adding xmlSAX2Comment child to %s\n", parent->name);
+		xmlGenericError(0, "adding xmlSAX2Comment child to %s\n", parent->name);
 #endif
 		xmlAddChild(parent, ret);
 	}
 	else {
 #ifdef DEBUG_SAX_TREE
-		xmlGenericError(xmlGenericErrorContext, "adding xmlSAX2Comment sibling to ");
+		xmlGenericError(0, "adding xmlSAX2Comment sibling to ");
 		xmlDebugDumpOneNode(stderr, parent, 0);
 #endif
 		xmlAddSibling(parent, ret);
@@ -2551,11 +2517,11 @@ void xmlSAX2CDataBlock(void * ctx, const xmlChar * value, int len)
 	xmlNodePtr ret, lastChild;
 	if(ctx == NULL) return;
 #ifdef DEBUG_SAX
-	xmlGenericError(xmlGenericErrorContext, "SAX.pcdata(%.10s, %d)\n", value, len);
+	xmlGenericError(0, "SAX.pcdata(%.10s, %d)\n", value, len);
 #endif
 	lastChild = xmlGetLastChild(ctxt->node);
 #ifdef DEBUG_SAX_TREE
-	xmlGenericError(xmlGenericErrorContext, "add chars to %s \n", ctxt->node->name);
+	xmlGenericError(0, "add chars to %s \n", ctxt->node->name);
 #endif
 	if(lastChild && lastChild->type == XML_CDATA_SECTION_NODE) {
 		xmlTextConcat(lastChild, value, len);

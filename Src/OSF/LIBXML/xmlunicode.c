@@ -2553,7 +2553,8 @@ int xmlUCSIsCatCc(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsCatCf(int code) {
+int xmlUCSIsCatCf(int code) 
+{
 	return(xmlCharInRange((uint)code, &xmlCfG));
 }
 
@@ -2565,15 +2566,10 @@ int xmlUCSIsCatCf(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsCatCo(int code) {
-	return((code == 0xe000) ||
-	    (code == 0xf8ff) ||
-	    (code == 0xf0000) ||
-	    (code == 0xffffd) ||
-	    (code == 0x100000) ||
-	    (code == 0x10fffd));
+int xmlUCSIsCatCo(int code) 
+{
+	return((code == 0xe000) || (code == 0xf8ff) || (code == 0xf0000) || (code == 0xffffd) || (code == 0x100000) || (code == 0x10fffd));
 }
-
 /**
  * xmlUCSIsCatCs:
  * @code: UCS code point
@@ -2695,10 +2691,7 @@ int xmlUCSIsCatMc(int code)
  */
 int xmlUCSIsCatMe(int code) 
 {
-	return(((code >= 0x488) && (code <= 0x489)) ||
-	    (code == 0x6de) ||
-	    ((code >= 0x20dd) && (code <= 0x20e0)) ||
-	    ((code >= 0x20e2) && (code <= 0x20e4)));
+	return (((code >= 0x488) && (code <= 0x489)) || (code == 0x6de) || ((code >= 0x20dd) && (code <= 0x20e0)) || ((code >= 0x20e2) && (code <= 0x20e4)));
 }
 
 /**

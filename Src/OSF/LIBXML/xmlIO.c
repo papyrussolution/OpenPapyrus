@@ -1420,7 +1420,7 @@ static void xmlFreeZMemBuff(xmlZMemBuffPtr buff)
 #ifdef DEBUG_HTTP
 		int z_err = deflateEnd(&buff->zctrl);
 		if(z_err != Z_OK)
-			xmlGenericError(xmlGenericErrorContext, "xmlFreeZMemBuff:  Error releasing zlib context:  %d\n", z_err);
+			xmlGenericError(0, "xmlFreeZMemBuff:  Error releasing zlib context:  %d\n", z_err);
 #else
 		deflateEnd(&buff->zctrl);
 #endif
@@ -1507,7 +1507,7 @@ static int xmlZMemBuffExtend(xmlZMemBuffPtr buff, size_t ext_amt)
 	new_size = buff->size + ext_amt;
 #ifdef DEBUG_HTTP
 	if(cur_used > new_size)
-		xmlGenericError(xmlGenericErrorContext, "xmlZMemBuffExtend:  %s\n%s %d bytes.\n",
+		xmlGenericError(0, "xmlZMemBuffExtend:  %s\n%s %d bytes.\n",
 		    "Buffer overwrite detected during compressed memory", "buffer extension.  Overflowed by", (cur_used - new_size));
 #endif
 	tmp_ptr = xmlRealloc(buff->zbuff, new_size);
@@ -1542,7 +1542,7 @@ static int xmlZMemBuffAppend(xmlZMemBuffPtr buff, const char * src, int len)
 {
 	int z_err;
 	size_t min_accept;
-	if( ( buff == NULL ) || ( src == NULL ) )
+	if(( buff == NULL ) || ( src == NULL ) )
 		return ( -1 );
 	buff->zctrl.avail_in = len;
 	buff->zctrl.next_in  = (uchar*)src;
@@ -1587,7 +1587,7 @@ static int xmlZMemBuffGetContent(xmlZMemBuffPtr buff, char ** data_ref)
 {
 	int zlgth = -1;
 	int z_err;
-	if( ( buff == NULL ) || ( data_ref == NULL ) )
+	if(( buff == NULL ) || ( data_ref == NULL ) )
 		return ( -1 );
 	/*  Need to loop until compression output buffers are flushed  */
 	do {
@@ -1707,7 +1707,7 @@ void * xmlIOHTTPOpenW(const char * post_uri, int compression)
 	xmlIOHTTPWriteCtxtPtr ctxt = NULL;
 	if(post_uri) {
 		ctxt = (xmlIOHTTPWriteCtxtPtr)xmlMalloc(sizeof(xmlIOHTTPWriteCtxt));
-		if(ctxt == NULL) {
+		if(!ctxt) {
 			xmlIOErrMemory("creating HTTP output context");
 			return 0;
 		}
@@ -1793,7 +1793,7 @@ int xmlIOHTTPRead(void * context, char * buffer, int len)
 static int xmlIOHTTPWrite(void * context, const char * buffer, int len)
 {
 	xmlIOHTTPWriteCtxtPtr ctxt = (xmlIOHTTPWriteCtxtPtr)context;
-	if((ctxt == NULL) || (ctxt->doc_buff == NULL) || (buffer == NULL))
+	if(!ctxt || (ctxt->doc_buff == NULL) || (buffer == NULL))
 		return ( -1 );
 	if(len > 0) {
 		/*  Use gzwrite or fwrite as previously setup in the open call  */
@@ -1847,7 +1847,7 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 	char * content_encoding = NULL;
 	char * content_type = (char*)"text/xml";
 	void * http_ctxt = NULL;
-	if( ( ctxt == NULL ) || ( http_mthd == NULL ) )
+	if(( ctxt == NULL ) || ( http_mthd == NULL ) )
 		return ( -1 );
 
 	/*  Retrieve the content from the appropriate buffer  */
@@ -1885,7 +1885,7 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 			char buffer[ 4096 ];
 			char *      dump_name = NULL;
 			int avail;
-			xmlGenericError(xmlGenericErrorContext, "xmlNanoHTTPCloseWrite:  HTTP %s to\n%s returned %d.\n",
+			xmlGenericError(0, "xmlNanoHTTPCloseWrite:  HTTP %s to\n%s returned %d.\n",
 			    http_mthd, ctxt->uri, xmlNanoHTTPReturnCode(http_ctxt) );
 			/*
 			**  Since either content or reply may be gzipped,
@@ -1898,14 +1898,14 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 
 				tst_file = fopen(buffer, "wb");
 				if(tst_file != NULL) {
-					xmlGenericError(xmlGenericErrorContext, "Transmitted content saved in file:  %s\n", buffer);
+					xmlGenericError(0, "Transmitted content saved in file:  %s\n", buffer);
 					fwrite(http_content, sizeof(char), content_lgth, tst_file);
 					fclose(tst_file);
 				}
 				()snprintf(buffer, sizeof(buffer), "%s.reply", dump_name);
 				tst_file = fopen(buffer, "wb");
 				if(tst_file != NULL) {
-					xmlGenericError(xmlGenericErrorContext, "Reply content saved in file:  %s\n", buffer);
+					xmlGenericError(0, "Reply content saved in file:  %s\n", buffer);
 					while((avail = xmlNanoHTTPRead(http_ctxt, buffer, sizeof( buffer ) )) > 0) {
 						fwrite(buffer, sizeof( char ), avail, tst_file);
 					}
@@ -1915,7 +1915,7 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 			}
 #endif  /*  DEBUG_HTTP  */
 			http_rtn = xmlNanoHTTPReturnCode(http_ctxt);
-			if( ( http_rtn >= 200 ) && ( http_rtn < 300 ) )
+			if(( http_rtn >= 200 ) && ( http_rtn < 300 ) )
 				close_rc = 0;
 			else {
 				xmlChar msg[500];
@@ -2388,7 +2388,7 @@ xmlParserInputBufferPtr __xmlParserInputBufferCreateFilename(const char * URI, x
 	 * Allocate the Input buffer front-end.
 	 */
 	ret = xmlAllocParserInputBuffer(enc);
-	if(ret != NULL) {
+	if(ret) {
 		ret->context = context;
 		ret->readcallback = xmlInputCallbackTable[i].readcallback;
 		ret->closecallback = xmlInputCallbackTable[i].closecallback;
@@ -2483,7 +2483,7 @@ xmlOutputBufferPtr __xmlOutputBufferCreateFilename(const char * URI, xmlCharEnco
 			context = xmlGzfileOpenW(unescaped, compression);
 			if(context != NULL) {
 				ret = xmlAllocOutputBufferInternal(encoder);
-				if(ret != NULL) {
+				if(ret) {
 					ret->context = context;
 					ret->writecallback = xmlGzfileWrite;
 					ret->closecallback = xmlGzfileClose;
@@ -2519,7 +2519,7 @@ xmlOutputBufferPtr __xmlOutputBufferCreateFilename(const char * URI, xmlCharEnco
 			context = xmlGzfileOpenW(URI, compression);
 			if(context != NULL) {
 				ret = xmlAllocOutputBufferInternal(encoder);
-				if(ret != NULL) {
+				if(ret) {
 					ret->context = context;
 					ret->writecallback = xmlGzfileWrite;
 					ret->closecallback = xmlGzfileClose;
@@ -2549,7 +2549,7 @@ xmlOutputBufferPtr __xmlOutputBufferCreateFilename(const char * URI, xmlCharEnco
 	 * Allocate the Output buffer front-end.
 	 */
 	ret = xmlAllocOutputBufferInternal(encoder);
-	if(ret != NULL) {
+	if(ret) {
 		ret->context = context;
 		ret->writecallback = xmlOutputCallbackTable[i].writecallback;
 		ret->closecallback = xmlOutputCallbackTable[i].closecallback;
@@ -2599,7 +2599,7 @@ xmlParserInputBufferPtr xmlParserInputBufferCreateFile(FILE * file, xmlCharEncod
 		xmlRegisterDefaultInputCallbacks();
 	if(file) {
 		ret = xmlAllocParserInputBuffer(enc);
-		if(ret != NULL) {
+		if(ret) {
 			ret->context = file;
 			ret->readcallback = xmlFileRead;
 			ret->closecallback = xmlFileFlush;
@@ -2691,7 +2691,7 @@ xmlParserInputBufferPtr xmlParserInputBufferCreateFd(int fd, xmlCharEncoding enc
 	xmlParserInputBufferPtr ret = 0;
 	if(fd >= 0) {
 		ret = xmlAllocParserInputBuffer(enc);
-		if(ret != NULL) {
+		if(ret) {
 			ret->context = (void*)(long)fd;
 			ret->readcallback = xmlFdRead;
 			ret->closecallback = xmlFdClose;
@@ -2787,7 +2787,7 @@ xmlOutputBufferPtr xmlOutputBufferCreateFd(int fd, xmlCharEncodingHandlerPtr enc
 	xmlOutputBufferPtr ret = 0;
 	if(fd >= 0) {
 		ret = xmlAllocOutputBufferInternal(encoder);
-		if(ret != NULL) {
+		if(ret) {
 			ret->context = (void*)(long)fd;
 			ret->writecallback = xmlFdWrite;
 			ret->closecallback = NULL;
@@ -2944,7 +2944,7 @@ int xmlParserInputBufferPush(xmlParserInputBufferPtr in,
 			return -1;
 	}
 #ifdef DEBUG_INPUT
-	xmlGenericError(xmlGenericErrorContext, "I/O: pushed %d chars, buffer %d/%d\n", nbchars, xmlBufUse(in->buffer), xmlBufLength(in->buffer));
+	xmlGenericError(0, "I/O: pushed %d chars, buffer %d/%d\n", nbchars, xmlBufUse(in->buffer), xmlBufLength(in->buffer));
 #endif
 	return(nbchars);
 }
@@ -3048,7 +3048,7 @@ int xmlParserInputBufferGrow(xmlParserInputBufferPtr in, int len)
 		xmlBufAddLen(in->buffer, nbchars);
 	}
 #ifdef DEBUG_INPUT
-	xmlGenericError(xmlGenericErrorContext, "I/O: read %d chars, buffer %d\n", nbchars, xmlBufUse(in->buffer));
+	xmlGenericError(0, "I/O: read %d chars, buffer %d\n", nbchars, xmlBufUse(in->buffer));
 #endif
 	return(nbchars);
 }
@@ -3170,7 +3170,7 @@ int xmlOutputBufferWrite(xmlOutputBufferPtr out, int len, const char * buf)
 
 done:
 #ifdef DEBUG_INPUT
-	xmlGenericError(xmlGenericErrorContext, "I/O: wrote %d chars\n", written);
+	xmlGenericError(0, "I/O: wrote %d chars\n", written);
 #endif
 	return(written);
 }
@@ -3355,7 +3355,7 @@ int xmlOutputBufferWriteEscape(xmlOutputBufferPtr out, const xmlChar * str, xmlC
 
 done:
 #ifdef DEBUG_INPUT
-	xmlGenericError(xmlGenericErrorContext, "I/O: wrote %d chars\n", written);
+	xmlGenericError(0, "I/O: wrote %d chars\n", written);
 #endif
 	return(written);
 }
@@ -3373,7 +3373,7 @@ done:
  * Returns the number of chars immediately written, or -1
  *         in case of error.
  */
-int xmlOutputBufferWriteString(xmlOutputBufferPtr out, const char * str)
+int FASTCALL xmlOutputBufferWriteString(xmlOutputBufferPtr out, const char * str)
 {
 	int    len = -1;
 	if(out && !out->error && str) {
@@ -3433,7 +3433,7 @@ int xmlOutputBufferFlush(xmlOutputBufferPtr out)
 	}
 	out->written += ret;
 #ifdef DEBUG_INPUT
-	xmlGenericError(xmlGenericErrorContext, "I/O: flushed %d chars\n", ret);
+	xmlGenericError(0, "I/O: flushed %d chars\n", ret);
 #endif
 	return ret;
 }
@@ -3539,7 +3539,7 @@ xmlParserInputPtr xmlCheckHTTPInput(xmlParserCtxtPtr ctxt, xmlParserInputPtr ret
 					xmlCharEncodingHandlerPtr handler;
 
 					handler = xmlFindCharEncodingHandler(encoding);
-					if(handler != NULL) {
+					if(handler) {
 						xmlSwitchInputEncoding(ctxt, ret, handler);
 					}
 					else {
@@ -3668,7 +3668,7 @@ static xmlParserInputPtr xmlDefaultExternalEntityLoader(const char * URL, const 
 {
 	xmlParserInputPtr ret = NULL;
 #ifdef DEBUG_EXTERNAL_ENTITIES
-	xmlGenericError(xmlGenericErrorContext, "xmlDefaultExternalEntityLoader(%s, xxx)\n", URL);
+	xmlGenericError(0, "xmlDefaultExternalEntityLoader(%s, xxx)\n", URL);
 #endif
 	if(ctxt && (ctxt->options & XML_PARSE_NONET)) {
 		int options = ctxt->options;

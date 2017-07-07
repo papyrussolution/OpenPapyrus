@@ -59,7 +59,7 @@
  *
  * macro to flag unimplemented blocks
  */
-#define TODO xmlGenericError(xmlGenericErrorContext, "Unimplemented block at %s:%d\n", __FILE__, __LINE__);
+#define TODO xmlGenericError(0, "Unimplemented block at %s:%d\n", __FILE__, __LINE__);
 
 /************************************************************************
 *									*
@@ -369,12 +369,8 @@ static void xmlRegexpErrMemory(xmlRegParserCtxtPtr ctxt, const char * extra)
 		regexp = (const char*)ctxt->string;
 		ctxt->error = XML_ERR_NO_MEMORY;
 	}
-	__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_REGEXP,
-	    XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra,
-	    regexp, NULL, 0, 0,
-	    "Memory allocation failed : %s\n", extra);
+	__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_REGEXP, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra, regexp, NULL, 0, 0, "Memory allocation failed : %s\n", extra);
 }
-
 /**
  * xmlRegexpErrCompile:
  * @extra:  extra information
@@ -1050,7 +1046,7 @@ static void xmlRegPrintCtxt(FILE * output, xmlRegParserCtxtPtr ctxt)
 {
 	int i;
 	fprintf(output, " ctxt: ");
-	if(ctxt == NULL) {
+	if(!ctxt) {
 		fprintf(output, "NULL\n");
 		return;
 	}
@@ -3595,7 +3591,7 @@ static int xmlRegExecPushStringInternal(xmlRegExecCtxtPtr exec, const xmlChar * 
 				if((value == NULL) && (final)) {
 					ret = 1;
 				}
-				else if(value != NULL) {
+				else if(value) {
 					for(i = 0; i < exec->state->nbTrans; i++) {
 						t = &exec->state->trans[i];
 						if((t->counter < 0) || (t == trans))
@@ -3660,7 +3656,7 @@ static int xmlRegExecPushStringInternal(xmlRegExecCtxtPtr exec, const xmlChar * 
 				exec->status = -2;
 				break;
 			}
-			else if(value != NULL) {
+			else if(value) {
 				ret = xmlRegStrEqualWildcard((xmlChar *)atom->valuep, value);
 				if(atom->neg) {
 					ret = !ret;
@@ -4340,7 +4336,7 @@ static int xmlFAIsChar(xmlRegParserCtxtPtr ctxt) {
 	    (cur == ')') || (cur == '|') || (cur == 0x5B) ||
 	    (cur == 0x5D) || (cur == 0))
 		return -1;
-	return(cur);
+	return cur;
 }
 
 /**
@@ -5235,7 +5231,7 @@ xmlRegexpPtr xmlRegexpCompile(const xmlChar * regexp)
 {
 	xmlRegexpPtr ret;
 	xmlRegParserCtxtPtr ctxt = xmlRegNewParserCtxt(regexp);
-	if(ctxt == NULL)
+	if(!ctxt)
 		return 0;
 	/* initialize the parser */
 	ctxt->end = NULL;
@@ -5367,7 +5363,7 @@ xmlAutomataPtr xmlNewAutomata() {
 	xmlAutomataPtr ctxt;
 
 	ctxt = xmlRegNewParserCtxt(NULL);
-	if(ctxt == NULL)
+	if(!ctxt)
 		return 0;
 
 	/* initialize the parser */
@@ -6281,7 +6277,7 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 	ushort kbase, key;
 	xmlExpNodePtr entry;
 	xmlExpNodePtr insert;
-	if(ctxt == NULL)
+	if(!ctxt)
 		return 0;
 	/*
 	 * Check for duplicate and insertion location.
@@ -6574,7 +6570,7 @@ void xmlExpRef(xmlExpNodePtr exp) {
  * Returns the node or NULL in case of error
  */
 xmlExpNodePtr xmlExpNewAtom(xmlExpCtxtPtr ctxt, const xmlChar * name, int len) {
-	if((ctxt == NULL) || (name == NULL))
+	if(!ctxt || (name == NULL))
 		return 0;
 	name = xmlDictLookup(ctxt->dict, name, len);
 	if(name == NULL)
@@ -6596,7 +6592,7 @@ xmlExpNodePtr xmlExpNewAtom(xmlExpCtxtPtr ctxt, const xmlChar * name, int len) {
  * Returns the node or NULL in case of error
  */
 xmlExpNodePtr xmlExpNewOr(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr right) {
-	if(ctxt == NULL)
+	if(!ctxt)
 		return 0;
 	if((left == NULL) || (right == NULL)) {
 		xmlExpFree(ctxt, left);
@@ -6621,7 +6617,7 @@ xmlExpNodePtr xmlExpNewOr(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr 
  */
 xmlExpNodePtr xmlExpNewSeq(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr right)
 {
-	if(ctxt == NULL)
+	if(!ctxt)
 		return 0;
 	if((left == NULL) || (right == NULL)) {
 		xmlExpFree(ctxt, left);
@@ -6647,7 +6643,7 @@ xmlExpNodePtr xmlExpNewSeq(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr
  */
 xmlExpNodePtr xmlExpNewRange(xmlExpCtxtPtr ctxt, xmlExpNodePtr subset, int min, int max)
 {
-	if(ctxt == NULL)
+	if(!ctxt)
 		return 0;
 	if((subset == NULL) || (min < 0) || (max < -1) || ((max >= 0) && (min > max))) {
 		xmlExpFree(ctxt, subset);
@@ -6674,7 +6670,7 @@ tail:
 			    if(list[tmp] == exp->exp_str)
 				    return 0;
 		    if(nb >= len)
-			    return(-2);
+			    return -2;
 		    list[nb] = exp->exp_str;
 		    return 1;
 		case XML_EXP_COUNT:
@@ -6708,7 +6704,7 @@ tail:
  */
 int xmlExpGetLanguage(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xmlChar** langList, int len)
 {
-	if((ctxt == NULL) || (exp == NULL) || (langList == NULL) || (len <= 0))
+	if(!ctxt || (exp == NULL) || (langList == NULL) || (len <= 0))
 		return -1;
 	return(xmlExpGetLanguageInt(ctxt, exp, langList, len, 0));
 }
@@ -6727,7 +6723,7 @@ tail:
 			    if(list[tmp] == exp->exp_str)
 				    return 0;
 		    if(nb >= len)
-			    return(-2);
+			    return -2;
 		    list[nb] = exp->exp_str;
 		    return 1;
 		case XML_EXP_COUNT:
@@ -6774,7 +6770,7 @@ tail:
  */
 int xmlExpGetStart(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xmlChar** tokList, int len)
 {
-	if((ctxt == NULL) || (exp == NULL) || (tokList == NULL) || (len <= 0))
+	if(!ctxt || (exp == NULL) || (tokList == NULL) || (len <= 0))
 		return -1;
 	return(xmlExpGetStartInt(ctxt, exp, tokList, len, 0));
 }

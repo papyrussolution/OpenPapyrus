@@ -70,7 +70,7 @@ static char * xmlShellReadline(const char * prompt) {
 	line_read[500] = 0;
 	len = strlen(line_read);
 	ret = (char*)malloc(len + 1);
-	if(ret != NULL) {
+	if(ret) {
 		memcpy(ret, line_read, len + 1);
 	}
 	return ret;
@@ -109,12 +109,12 @@ static void usershell() {
 			free(cmdline);
 			continue;
 		}
-
 		/*
 		 * Parse the argument string
 		 */
-		memset(arg, 0, sizeof(arg));
-		while((*cur == ' ') || (*cur == '\t')) cur++;
+		memzero(arg, sizeof(arg));
+		while((*cur == ' ') || (*cur == '\t')) 
+			cur++;
 		i = 0;
 		while((*cur != '\n') && (*cur != '\r') && (*cur != 0)) {
 			if(*cur == 0)
@@ -129,7 +129,7 @@ static void usershell() {
 		i = 0;
 		nbargs = 0;
 		cur = arg;
-		memset(argv, 0, sizeof(argv));
+		memzero(argv, sizeof(argv));
 		while(*cur != 0) {
 			while((*cur == ' ') || (*cur == '\t')) cur++;
 			if(*cur == '\'') {

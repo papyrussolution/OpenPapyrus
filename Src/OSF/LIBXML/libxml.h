@@ -115,6 +115,7 @@ int xmlNop(void);
 #include <libxml/tree.h>
 #include <libxml/uri.h>
 #include <libxml/parser.h>
+#include <libxml/list.h>
 #include <libxml/valid.h>
 #include <libxml/hash.h>
 #include <libxml/encoding.h>
@@ -131,8 +132,8 @@ xmlBufPtr xmlBufCreateSize(size_t size);
 xmlBufPtr xmlBufCreateStatic(void * mem, size_t size);
 int xmlBufSetAllocationScheme(xmlBufPtr buf, xmlBufferAllocationScheme scheme);
 int xmlBufGetAllocationScheme(xmlBufPtr buf);
-void xmlBufFree(xmlBufPtr buf);
-void xmlBufEmpty(xmlBufPtr buf);
+void xmlBufFree(xmlBuf * buf);
+void xmlBufEmpty(xmlBuf * buf);
 // size_t xmlBufShrink(xmlBufPtr buf, size_t len); 
 int xmlBufGrow(xmlBufPtr buf, int len);
 int xmlBufInflate(xmlBufPtr buf, size_t len);

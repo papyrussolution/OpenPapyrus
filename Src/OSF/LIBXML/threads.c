@@ -236,8 +236,7 @@ void xmlMutexLock(xmlMutexPtr tok)
 #elif defined HAVE_BEOS_THREADS
 	if(acquire_sem(tok->sem) != B_NO_ERROR) {
 #ifdef DEBUG_THREADS
-		xmlGenericError(xmlGenericErrorContext,
-		    "xmlMutexLock():BeOS:Couldn't aquire semaphore\n");
+		xmlGenericError(0, "xmlMutexLock():BeOS:Couldn't aquire semaphore\n");
 #endif
 	}
 	tok->tid = find_thread(NULL);
@@ -428,7 +427,7 @@ void __xmlGlobalInitMutexLock()
 	if(global_init_lock == NULL) {
 		cs = (LPCRITICAL_SECTION)malloc(sizeof(CRITICAL_SECTION));
 		if(cs == NULL) {
-			xmlGenericError(xmlGenericErrorContext, "xmlGlobalInitMutexLock: out of memory\n");
+			xmlGenericError(0, "xmlGlobalInitMutexLock: out of memory\n");
 			return;
 		}
 		InitializeCriticalSection(cs);
@@ -470,8 +469,7 @@ void __xmlGlobalInitMutexLock()
 	/* Acquire the chosen semaphore */
 	if(acquire_sem(global_init_lock) != B_NO_ERROR) {
 #ifdef DEBUG_THREADS
-		xmlGenericError(xmlGenericErrorContext,
-		    "xmlGlobalInitMutexLock():BeOS:Couldn't acquire semaphore\n");
+		xmlGenericError(0, "xmlGlobalInitMutexLock():BeOS:Couldn't acquire semaphore\n");
 #endif
 	}
 #endif
@@ -548,12 +546,12 @@ static void xmlFreeGlobalState(void * state)
 static xmlGlobalStatePtr xmlNewGlobalState()
 {
 	xmlGlobalState * gs = (xmlGlobalState *)malloc(sizeof(xmlGlobalState));
-	if(gs == NULL) {
-		xmlGenericError(xmlGenericErrorContext, "xmlGetGlobalState: out of memory\n");
-		return 0;
+	if(gs == NULL)
+		xmlGenericError(0, "xmlGetGlobalState: out of memory\n");
+	else {
+		memzero(gs, sizeof(xmlGlobalState));
+		xmlInitializeGlobalState(gs);
 	}
-	memset(gs, 0, sizeof(xmlGlobalState));
-	xmlInitializeGlobalState(gs);
 	return (gs);
 }
 
@@ -660,22 +658,17 @@ xmlGlobalStatePtr xmlGetGlobalState()
 #endif
 	if(globalval == NULL) {
 		xmlGlobalState * tsd = xmlNewGlobalState();
-
 		if(tsd == NULL)
 			return 0;
-		p = (xmlGlobalStateCleanupHelperParams*)
-		    malloc(sizeof(xmlGlobalStateCleanupHelperParams));
+		p = (xmlGlobalStateCleanupHelperParams*)malloc(sizeof(xmlGlobalStateCleanupHelperParams));
 		if(p == NULL) {
-			xmlGenericError(xmlGenericErrorContext,
-			    "xmlGetGlobalState: out of memory\n");
+			xmlGenericError(0, "xmlGetGlobalState: out of memory\n");
 			xmlFreeGlobalState(tsd);
 			return 0;
 		}
 		p->memory = tsd;
 #if defined(LIBXML_STATIC) && !defined(LIBXML_STATIC_FOR_DLL)
-		DuplicateHandle(GetCurrentProcess(), GetCurrentThread(),
-		    GetCurrentProcess(), &p->thread, 0, TRUE,
-		    DUPLICATE_SAME_ACCESS);
+		DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &p->thread, 0, TRUE, DUPLICATE_SAME_ACCESS);
 		TlsSetValue(globalkey, tsd);
 		_beginthread(xmlGlobalStateCleanupHelper, 0, p);
 #else
@@ -772,7 +765,7 @@ int xmlIsMainThread()
 #endif
 
 #ifdef DEBUG_THREADS
-	xmlGenericError(xmlGenericErrorContext, "xmlIsMainThread()\n");
+	xmlGenericError(0, "xmlIsMainThread()\n");
 #endif
 #ifdef HAVE_PTHREAD_H
 	return (pthread_equal(mainthread, pthread_self()));
@@ -794,7 +787,7 @@ int xmlIsMainThread()
 void xmlLockLibrary()
 {
 #ifdef DEBUG_THREADS
-	xmlGenericError(xmlGenericErrorContext, "xmlLockLibrary()\n");
+	xmlGenericError(0, "xmlLockLibrary()\n");
 #endif
 	xmlRMutexLock(xmlLibraryLock);
 }
@@ -808,7 +801,7 @@ void xmlLockLibrary()
 void xmlUnlockLibrary()
 {
 #ifdef DEBUG_THREADS
-	xmlGenericError(xmlGenericErrorContext, "xmlUnlockLibrary()\n");
+	xmlGenericError(0, "xmlUnlockLibrary()\n");
 #endif
 	xmlRMutexUnlock(xmlLibraryLock);
 }
@@ -869,7 +862,7 @@ void xmlInitThreads()
 void xmlCleanupThreads()
 {
 #ifdef DEBUG_THREADS
-	xmlGenericError(xmlGenericErrorContext, "xmlCleanupThreads()\n");
+	xmlGenericError(0, "xmlCleanupThreads()\n");
 #endif
 #ifdef HAVE_PTHREAD_H
 	if((libxml_is_threaded)  && (pthread_key_delete != NULL))

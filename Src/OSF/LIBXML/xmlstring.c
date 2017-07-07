@@ -62,7 +62,7 @@ xmlChar * xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len)
  */
 xmlChar * xmlStrdup(const xmlChar * cur) 
 {
-	if(cur == NULL) 
+	if(!cur) 
 		return 0;
 	else {
 		const xmlChar * p = cur;
@@ -85,7 +85,7 @@ xmlChar * xmlCharStrndup(const char * cur, int len)
 {
 	int i;
 	xmlChar * ret;
-	if((cur == NULL) || (len < 0)) return 0;
+	if(!cur || (len < 0)) return 0;
 	ret = (xmlChar*)xmlMallocAtomic((len + 1) * sizeof(xmlChar));
 	if(ret == NULL) {
 		xmlErrMemory(NULL, NULL);
@@ -109,7 +109,7 @@ xmlChar * xmlCharStrndup(const char * cur, int len)
 xmlChar * xmlCharStrdup(const char * cur) 
 {
 	const char * p = cur;
-	if(cur == NULL) 
+	if(!cur) 
 		return 0;
 	while(*p != '\0') 
 		p++;  /* non input consuming */
@@ -442,16 +442,16 @@ xmlChar * xmlStrncat(xmlChar * cur, const xmlChar * add, int len)
 	int size;
 	xmlChar * ret;
 	if((add == NULL) || (len == 0))
-		return(cur);
+		return cur;
 	if(len < 0)
 		return 0;
-	if(cur == NULL)
+	if(!cur)
 		return(xmlStrndup(add, len));
 	size = xmlStrlen(cur);
 	ret = (xmlChar*)xmlRealloc(cur, (size + len + 1) * sizeof(xmlChar));
 	if(ret == NULL) {
 		xmlErrMemory(NULL, NULL);
-		return(cur);
+		return cur;
 	}
 	memcpy(&ret[size], add, len * sizeof(xmlChar));
 	ret[size + len] = 0;
@@ -507,8 +507,8 @@ xmlChar * xmlStrncatNew(const xmlChar * str1, const xmlChar * str2, int len)
 xmlChar * xmlStrcat(xmlChar * cur, const xmlChar * add) 
 {
 	const xmlChar * p = add;
-	if(add == NULL) return(cur);
-	if(cur == NULL)
+	if(add == NULL) return cur;
+	if(!cur)
 		return(xmlStrdup(add));
 	while(*p != 0) p++;  /* non input consuming */
 	return(xmlStrncat(cur, add, p - add));
@@ -810,7 +810,7 @@ int xmlUTF8Strsize(const xmlChar * utf, int len)
 	while(len-- > 0) {
 		if(!*ptr)
 			break;
-		if( (ch = *ptr++) & 0x80)
+		if((ch = *ptr++) & 0x80)
 			while((ch <<= 1) & 0x80) {
 				ptr++;
 				if(*ptr == 0) break;
@@ -836,7 +836,7 @@ xmlChar * xmlUTF8Strndup(const xmlChar * utf, int len)
 	i = xmlUTF8Strsize(utf, len);
 	ret = (xmlChar*)xmlMallocAtomic((i + 1) * sizeof(xmlChar));
 	if(ret == NULL) {
-		xmlGenericError(xmlGenericErrorContext, "malloc of %ld byte failed\n", (len + 1) * (long)sizeof(xmlChar));
+		xmlGenericError(0, "malloc of %ld byte failed\n", (len + 1) * (long)sizeof(xmlChar));
 		return 0;
 	}
 	memcpy(ret, utf, i * sizeof(xmlChar));
@@ -864,11 +864,11 @@ const xmlChar * xmlUTF8Strpos(const xmlChar * utf, int pos)
 		if((ch = *utf++) == 0) return 0;
 		if(ch & 0x80) {
 			/* if not simple ascii, verify proper format */
-			if( (ch & 0xc0) != 0xc0)
+			if((ch & 0xc0) != 0xc0)
 				return 0;
 			/* then skip over remaining bytes for this char */
 			while( (ch <<= 1) & 0x80)
-				if( (*utf++ & 0xc0) != 0x80)
+				if((*utf++ & 0xc0) != 0x80)
 					return 0;
 		}
 	}
@@ -896,11 +896,11 @@ int xmlUTF8Strloc(const xmlChar * utf, const xmlChar * utfchar)
 		utf++;
 		if(ch & 0x80) {
 			/* if not simple ascii, verify proper format */
-			if( (ch & 0xc0) != 0xc0)
+			if((ch & 0xc0) != 0xc0)
 				return -1;
 			/* then skip over remaining bytes for this char */
 			while( (ch <<= 1) & 0x80)
-				if( (*utf++ & 0xc0) != 0x80)
+				if((*utf++ & 0xc0) != 0x80)
 					return -1;
 		}
 	}
@@ -934,11 +934,11 @@ xmlChar * xmlUTF8Strsub(const xmlChar * utf, int start, int len)
 		if((ch = *utf++) == 0) return 0;
 		if(ch & 0x80) {
 			/* if not simple ascii, verify proper format */
-			if( (ch & 0xc0) != 0xc0)
+			if((ch & 0xc0) != 0xc0)
 				return 0;
 			/* then skip over remaining bytes for this char */
 			while( (ch <<= 1) & 0x80)
-				if( (*utf++ & 0xc0) != 0x80)
+				if((*utf++ & 0xc0) != 0x80)
 					return 0;
 		}
 	}

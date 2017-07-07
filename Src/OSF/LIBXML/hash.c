@@ -271,7 +271,7 @@ static int xmlHashGrow(xmlHashTablePtr table, int size)
 	}
 	free(oldtable);
 #ifdef DEBUG_GROW
-	xmlGenericError(xmlGenericErrorContext, "xmlHashGrow : from %d to %d, %d elems\n", oldsize, size, nbElem);
+	xmlGenericError(0, "xmlHashGrow : from %d to %d, %d elems\n", oldsize, size, nbElem);
 #endif
 	return 0;
 }
@@ -284,16 +284,15 @@ static int xmlHashGrow(xmlHashTablePtr table, int size)
  * Free the hash @table and its contents. The userdata is
  * deallocated with @f if provided.
  */
-void xmlHashFree(xmlHashTablePtr table, xmlHashDeallocator f)
+void FASTCALL xmlHashFree(xmlHashTablePtr table, xmlHashDeallocator f)
 {
-	int inside_table = 0;
 	if(table) {
 		if(table->table) {
 			int nbElems = table->nbElems;
 			for(int i = 0; (i < table->size) && (nbElems > 0); i++) {
 				xmlHashEntryPtr iter = &(table->table[i]);
 				if(iter->valid) {
-					inside_table = 1;
+					int inside_table = 1;
 					while(iter) {
 						xmlHashEntryPtr next = iter->next;
 						if(f && iter->payload)

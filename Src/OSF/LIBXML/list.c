@@ -172,14 +172,14 @@ xmlListPtr xmlListCreate(xmlListDeallocator deallocator, xmlListDataCompare comp
 {
 	xmlListPtr l;
 	if(NULL == (l = (xmlListPtr)xmlMalloc(sizeof(xmlList)))) {
-		xmlGenericError(xmlGenericErrorContext, "Cannot initialize memory for list");
+		xmlGenericError(0, "Cannot initialize memory for list");
 		return 0;
 	}
 	/* Initialize the list to NULL */
 	memzero(l, sizeof(xmlList));
 	/* Add the sentinel */
 	if(NULL ==(l->sentinel = (xmlLinkPtr)xmlMalloc(sizeof(xmlLink)))) {
-		xmlGenericError(xmlGenericErrorContext, "Cannot initialize memory for sentinel");
+		xmlGenericError(0, "Cannot initialize memory for sentinel");
 		free(l);
 		return 0;
 	}
@@ -253,7 +253,7 @@ int xmlListInsert(xmlListPtr l, void * data)
 		/* Add the new link */
 		xmlLinkPtr lkNew = (xmlLinkPtr)xmlMalloc(sizeof(xmlLink));
 		if(lkNew == NULL) {
-			xmlGenericError(xmlGenericErrorContext, "Cannot initialize memory for new link");
+			xmlGenericError(0, "Cannot initialize memory for new link");
 			return 1;
 		}
 		else {
@@ -286,7 +286,7 @@ int xmlListAppend(xmlListPtr l, void * data)
 	/* Add the new link */
 	lkNew = (xmlLinkPtr)xmlMalloc(sizeof(xmlLink));
 	if(lkNew == NULL) {
-		xmlGenericError(xmlGenericErrorContext, "Cannot initialize memory for new link");
+		xmlGenericError(0, "Cannot initialize memory for new link");
 		return 1;
 	}
 	lkNew->data = data;
@@ -398,7 +398,7 @@ void xmlListClear(xmlListPtr l)
  *
  * Returns 1 if the list is empty, 0 if not empty and -1 in case of error
  */
-int xmlListEmpty(xmlListPtr l)
+int FASTCALL xmlListEmpty(xmlListPtr l)
 {
 	return l ? (l->sentinel->next == l->sentinel) : -1;
 }
@@ -470,7 +470,6 @@ void xmlListPopBack(xmlListPtr l)
 	if(!xmlListEmpty(l))
 		xmlLinkDeallocator(l, l->sentinel->prev);
 }
-
 /**
  * xmlListPushFront:
  * @l:  a list
@@ -489,7 +488,7 @@ int xmlListPushFront(xmlListPtr l, void * data)
 	/* Add the new link */
 	lkNew = (xmlLinkPtr)xmlMalloc(sizeof(xmlLink));
 	if(lkNew == NULL) {
-		xmlGenericError(xmlGenericErrorContext, "Cannot initialize memory for new link");
+		xmlGenericError(0, "Cannot initialize memory for new link");
 		return 0;
 	}
 	lkNew->data = data;
@@ -517,7 +516,7 @@ int xmlListPushBack(xmlListPtr l, void * data)
 	lkPlace = l->sentinel->prev;
 	/* Add the new link */
 	if(NULL ==(lkNew = (xmlLinkPtr)xmlMalloc(sizeof(xmlLink)))) {
-		xmlGenericError(xmlGenericErrorContext, "Cannot initialize memory for new link");
+		xmlGenericError(0, "Cannot initialize memory for new link");
 		return 0;
 	}
 	lkNew->data = data;
@@ -527,7 +526,6 @@ int xmlListPushBack(xmlListPtr l, void * data)
 	lkNew->prev = lkPlace;
 	return 1;
 }
-
 /**
  * xmlLinkGetData:
  * @lk:  a link
@@ -540,7 +538,6 @@ void * xmlLinkGetData(xmlLinkPtr lk)
 {
 	return lk ? lk->data : 0;
 }
-
 /**
  * xmlListReverse:
  * @l:  a list
@@ -549,21 +546,19 @@ void * xmlLinkGetData(xmlLinkPtr lk)
  */
 void xmlListReverse(xmlListPtr l)
 {
-	xmlLinkPtr lk;
-	xmlLinkPtr lkPrev;
-	if(l == NULL)
-		return;
-	lkPrev = l->sentinel;
-	for(lk = l->sentinel->next; lk != l->sentinel; lk = lk->next) {
+	if(l) {
+		xmlLinkPtr lkPrev = l->sentinel;
+		xmlLinkPtr lk;
+		for(lk = l->sentinel->next; lk != l->sentinel; lk = lk->next) {
+			lkPrev->next = lkPrev->prev;
+			lkPrev->prev = lk;
+			lkPrev = lk;
+		}
+		/* Fix up the last node */
 		lkPrev->next = lkPrev->prev;
 		lkPrev->prev = lk;
-		lkPrev = lk;
 	}
-	/* Fix up the last node */
-	lkPrev->next = lkPrev->prev;
-	lkPrev->prev = lk;
 }
-
 /**
  * xmlListSort:
  * @l:  a list
@@ -589,7 +584,6 @@ void xmlListSort(xmlListPtr l)
 	xmlListDelete(lTemp);
 	return;
 }
-
 /**
  * xmlListWalk:
  * @l:  a list
@@ -629,7 +623,6 @@ void xmlListReverseWalk(xmlListPtr l, xmlListWalker walker, const void * user)
 			break;
 	}
 }
-
 /**
  * xmlListMerge:
  * @l1:  the original list
@@ -654,22 +647,19 @@ void xmlListMerge(xmlListPtr l1, xmlListPtr l2)
  */
 xmlListPtr xmlListDup(const xmlListPtr old)
 {
-	xmlListPtr cur;
-	if(old == NULL)
-		return 0;
-	/* Hmmm, how to best deal with allocation issues when copying
-	 * lists. If there is a de-allocator, should responsibility lie with
-	 * the new list or the old list. Surely not both. I'll arbitrarily
-	 * set it to be the old list for the time being whilst I work out
-	 * the answer
-	 */
-	if(NULL ==(cur = xmlListCreate(NULL, old->linkCompare)))
-		return 0;
-	if(0 != xmlListCopy(cur, old))
-		return NULL;
+	// 
+	// Hmmm, how to best deal with allocation issues when copying
+	// lists. If there is a de-allocator, should responsibility lie with
+	// the new list or the old list. Surely not both. I'll arbitrarily
+	// set it to be the old list for the time being whilst I work out the answer
+	// 
+	xmlListPtr cur = old ? xmlListCreate(NULL, old->linkCompare) : 0;
+	if(cur) {
+		if(xmlListCopy(cur, old) != 0)
+			cur = 0;
+	}
 	return cur;
 }
-
 /**
  * xmlListCopy:
  * @cur:  the new list

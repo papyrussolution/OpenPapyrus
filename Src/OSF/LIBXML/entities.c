@@ -394,7 +394,7 @@ xmlEntityPtr xmlGetParameterEntity(xmlDocPtr doc, const xmlChar * name)
 		if(doc->intSubset && doc->intSubset->pentities) {
 			table = (xmlEntitiesTablePtr)doc->intSubset->pentities;
 			ret = xmlGetEntityFromTable(table, name);
-			if(ret != NULL)
+			if(ret)
 				return ret;
 		}
 		if(doc->extSubset && doc->extSubset->pentities) {
@@ -443,16 +443,16 @@ xmlEntityPtr xmlGetDocEntity(const xmlDoc * doc, const xmlChar * name)
 		if((doc->intSubset != NULL) && (doc->intSubset->entities != NULL)) {
 			table = (xmlEntitiesTablePtr)doc->intSubset->entities;
 			cur = xmlGetEntityFromTable(table, name);
-			if(cur != NULL)
-				return(cur);
+			if(cur)
+				return cur;
 		}
 		if(doc->standalone != 1) {
 			if((doc->extSubset != NULL) &&
 			    (doc->extSubset->entities != NULL)) {
 				table = (xmlEntitiesTablePtr)doc->extSubset->entities;
 				cur = xmlGetEntityFromTable(table, name);
-				if(cur != NULL)
-					return(cur);
+				if(cur)
+					return cur;
 			}
 		}
 	}
@@ -835,7 +835,7 @@ void xmlFreeEntitiesTable(xmlEntitiesTablePtr table)
 static xmlEntityPtr xmlCopyEntity(xmlEntityPtr ent)
 {
 	xmlEntityPtr cur = (xmlEntityPtr)xmlMalloc(sizeof(xmlEntity));
-	if(cur == NULL) {
+	if(!cur) {
 		xmlEntitiesErrMemory("xmlCopyEntity:: malloc failed");
 		return 0;
 	}
@@ -854,7 +854,7 @@ static xmlEntityPtr xmlCopyEntity(xmlEntityPtr ent)
 		cur->orig = xmlStrdup(ent->orig);
 	if(ent->URI != NULL)
 		cur->URI = xmlStrdup(ent->URI);
-	return(cur);
+	return cur;
 }
 
 /**

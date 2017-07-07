@@ -39,17 +39,11 @@ static int xmlModulePlatformSymbol(void * handle, const char * name, void ** res
 static void xmlModuleErrMemory(xmlModulePtr module, const char * extra)
 {
 	const char * name = NULL;
-
 	if(module != NULL) {
 		name = (const char*)module->name;
 	}
-
-	__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE,
-	    XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra,
-	    name, NULL, 0, 0,
-	    "Memory allocation failed : %s\n", extra);
+	__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra, name, NULL, 0, 0, "Memory allocation failed : %s\n", extra);
 }
-
 /**
  * xmlModuleOpen:
  * @name: the module name
@@ -66,30 +60,21 @@ static void xmlModuleErrMemory(xmlModulePtr module, const char * extra)
  */
 xmlModulePtr xmlModuleOpen(const char * name, int options ATTRIBUTE_UNUSED)
 {
-	xmlModulePtr module;
-
-	module = (xmlModulePtr)xmlMalloc(sizeof(xmlModule));
+	xmlModulePtr module = (xmlModulePtr)xmlMalloc(sizeof(xmlModule));
 	if(module == NULL) {
 		xmlModuleErrMemory(NULL, "creating module");
 		return 0;
 	}
-
-	memset(module, 0, sizeof(xmlModule));
-
+	memzero(module, sizeof(xmlModule));
 	module->handle = xmlModulePlatformOpen(name);
-
 	if(module->handle == NULL) {
 		free(module);
-		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE,
-		    XML_MODULE_OPEN, XML_ERR_FATAL, NULL, 0, 0,
-		    name, NULL, 0, 0, "failed to open %s\n", name);
+		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_OPEN, XML_ERR_FATAL, NULL, 0, 0, name, NULL, 0, 0, "failed to open %s\n", name);
 		return 0;
 	}
-
 	module->name = xmlStrdup((const xmlChar*)name);
 	return (module);
 }
-
 /**
  * xmlModuleSymbol:
  * @module: the module
@@ -107,28 +92,18 @@ xmlModulePtr xmlModuleOpen(const char * name, int options ATTRIBUTE_UNUSED)
 int xmlModuleSymbol(xmlModulePtr module, const char * name, void ** symbol)
 {
 	int rc = -1;
-
 	if((NULL == module) || (symbol == NULL) || (name == NULL)) {
-		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE,
-		    XML_MODULE_OPEN, XML_ERR_FATAL, NULL, 0, 0,
-		    NULL, NULL, 0, 0, "null parameter\n");
+		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_OPEN, XML_ERR_FATAL, NULL, 0, 0, NULL, NULL, 0, 0, "null parameter\n");
 		return rc;
 	}
-
 	rc = xmlModulePlatformSymbol(module->handle, name, symbol);
-
 	if(rc == -1) {
-		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE,
-		    XML_MODULE_OPEN, XML_ERR_FATAL, NULL, 0, 0,
-		    name, NULL, 0, 0,
-		    "failed to find symbol: %s\n",
-		    (name == NULL ? "NULL" : name));
+		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_OPEN, XML_ERR_FATAL, NULL, 0, 0,
+		    name, NULL, 0, 0, "failed to find symbol: %s\n", (name == NULL ? "NULL" : name));
 		return rc;
 	}
-
 	return rc;
 }
-
 /**
  * xmlModuleClose:
  * @module: the module handle
@@ -142,28 +117,19 @@ int xmlModuleSymbol(xmlModulePtr module, const char * name, void ** symbol)
 int xmlModuleClose(xmlModulePtr module)
 {
 	int rc;
-
 	if(NULL == module) {
-		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE,
-		    XML_MODULE_CLOSE, XML_ERR_FATAL, NULL, 0, 0,
-		    NULL, NULL, 0, 0, "null module pointer\n");
+		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_CLOSE, XML_ERR_FATAL, NULL, 0, 0, NULL, NULL, 0, 0, "null module pointer\n");
 		return -1;
 	}
-
 	rc = xmlModulePlatformClose(module->handle);
-
 	if(rc != 0) {
-		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE,
-		    XML_MODULE_CLOSE, XML_ERR_FATAL, NULL, 0, 0,
-		    (const char*)module->name, NULL, 0, 0,
-		    "failed to close: %s\n", module->name);
+		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_CLOSE, XML_ERR_FATAL, NULL, 0, 0,
+		    (const char*)module->name, NULL, 0, 0, "failed to close: %s\n", module->name);
 		return -2;
 	}
-
 	rc = xmlModuleFree(module);
 	return (rc);
 }
-
 /**
  * xmlModuleFree:
  * @module: the module handle
@@ -177,15 +143,11 @@ int xmlModuleClose(xmlModulePtr module)
 int xmlModuleFree(xmlModulePtr module)
 {
 	if(NULL == module) {
-		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE,
-		    XML_MODULE_CLOSE, XML_ERR_FATAL, NULL, 0, NULL,
-		    NULL, NULL, 0, 0, "null module pointer\n");
+		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_CLOSE, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "null module pointer\n");
 		return -1;
 	}
-
 	free(module->name);
 	free(module);
-
 	return 0;
 }
 

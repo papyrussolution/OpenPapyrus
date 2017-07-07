@@ -190,7 +190,7 @@ static int UTF16LEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlen
 			else {
 				*outlen = out - outstart;
 				*inlenb = processed - inb;
-				return(-2);
+				return -2;
 			}
 		}
 		// assertion: c is a single UTF-4 value
@@ -367,7 +367,7 @@ static int UTF8Toascii(uchar* out, int * outlen, const uchar* in, int * inlen)
 			/* trailing byte in leading position */
 			*outlen = out - outstart;
 			*inlen = processed - instart;
-			return(-2);
+			return -2;
 		}
 		else if(d < 0xE0) {
 			c = d & 0x1F; trailing = 1;
@@ -382,7 +382,7 @@ static int UTF8Toascii(uchar* out, int * outlen, const uchar* in, int * inlen)
 			/* no chance for this in Ascii */
 			*outlen = out - outstart;
 			*inlen = processed - instart;
-			return(-2);
+			return -2;
 		}
 		if(inend - in < trailing) {
 			break;
@@ -403,7 +403,7 @@ static int UTF8Toascii(uchar* out, int * outlen, const uchar* in, int * inlen)
 			/* no chance for this in Ascii */
 			*outlen = out - outstart;
 			*inlen = processed - instart;
-			return(-2);
+			return -2;
 		}
 		processed = in;
 	}
@@ -505,7 +505,7 @@ int UTF8Toisolat1(uchar* out, int * outlen, const uchar* in, int * inlen)
 			/* trailing byte in leading position */
 			*outlen = out - outstart;
 			*inlen = processed - instart;
-			return(-2);
+			return -2;
 		}
 		else if(d < 0xE0) {
 			c = d & 0x1F; trailing = 1;
@@ -520,20 +520,18 @@ int UTF8Toisolat1(uchar* out, int * outlen, const uchar* in, int * inlen)
 			/* no chance for this in IsoLat1 */
 			*outlen = out - outstart;
 			*inlen = processed - instart;
-			return(-2);
+			return -2;
 		}
-
 		if(inend - in < trailing) {
 			break;
 		}
-
 		for(; trailing; trailing--) {
 			if(in >= inend)
 				break;
 			if(((d = *in++) & 0xC0) != 0x80) {
 				*outlen = out - outstart;
 				*inlen = processed - instart;
-				return(-2);
+				return -2;
 			}
 			c <<= 6;
 			c |= d & 0x3F;
@@ -549,7 +547,7 @@ int UTF8Toisolat1(uchar* out, int * outlen, const uchar* in, int * inlen)
 			/* no chance for this in IsoLat1 */
 			*outlen = out - outstart;
 			*inlen = processed - instart;
-			return(-2);
+			return -2;
 		}
 		processed = in;
 	}
@@ -604,7 +602,7 @@ static int UTF8ToUTF16LE(uchar* outb, int * outlen, const uchar* in, int * inlen
 				/* trailing byte in leading position */
 				*outlen = (out - outstart) * 2;
 				*inlen = processed - instart;
-				return(-2);
+				return -2;
 			}
 			else if(d < 0xE0) {
 				c = d & 0x1F;
@@ -622,7 +620,7 @@ static int UTF8ToUTF16LE(uchar* outb, int * outlen, const uchar* in, int * inlen
 				/* no chance for this in UTF-16 */
 				*outlen = (out - outstart) * 2;
 				*inlen = processed - instart;
-				return(-2);
+				return -2;
 			}
 			if(inend - in < trailing) {
 				break;
@@ -704,7 +702,7 @@ static int UTF8ToUTF16(uchar* outb, int * outlen, const uchar* in, int * inlen)
 			*outlen = 2;
 			*inlen = 0;
 #ifdef DEBUG_ENCODING
-			xmlGenericError(xmlGenericErrorContext, "Added FFFE Byte Order Mark\n");
+			xmlGenericError(0, "Added FFFE Byte Order Mark\n");
 #endif
 			return(2);
 		}
@@ -763,7 +761,7 @@ static int UTF16BEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlen
 			if(in >= inend) { /* (in > inend) shouldn't happens */
 				*outlen = out - outstart;
 				*inlenb = processed - inb;
-				return(-2);
+				return -2;
 			}
 			if(EncBlk.xmlLittleEndian) {
 				tmp = (uchar*)in;
@@ -784,7 +782,7 @@ static int UTF16BEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlen
 			else {
 				*outlen = out - outstart;
 				*inlenb = processed - inb;
-				return(-2);
+				return -2;
 			}
 		}
 
@@ -866,7 +864,7 @@ static int UTF8ToUTF16BE(uchar* outb, int * outlen, const uchar* in, int * inlen
 				/* trailing byte in leading position */
 				*outlen = out - outstart;
 				*inlen = processed - instart;
-				return(-2);
+				return -2;
 			}
 			else if(d < 0xE0) {
 				c = d & 0x1F; trailing = 1;
@@ -881,7 +879,7 @@ static int UTF8ToUTF16BE(uchar* outb, int * outlen, const uchar* in, int * inlen
 				/* no chance for this in UTF-16 */
 				*outlen = out - outstart;
 				*inlen = processed - instart;
-				return(-2);
+				return -2;
 			}
 			if(inend - in < trailing) {
 				break;
@@ -1199,7 +1197,7 @@ xmlCharEncoding xmlParseCharEncoding(const char* name)
 	if(!strcmp(upper, "EUC-JP")) return(XML_CHAR_ENCODING_EUC_JP);
 
 #ifdef DEBUG_ENCODING
-	xmlGenericError(xmlGenericErrorContext, "Unknown encoding %s\n", name);
+	xmlGenericError(0, "Unknown encoding %s\n", name);
 #endif
 	return(XML_CHAR_ENCODING_ERROR);
 }
@@ -1335,7 +1333,7 @@ xmlCharEncodingHandlerPtr xmlNewCharEncodingHandler(const char * name, xmlCharEn
 				//
 				xmlRegisterCharEncodingHandler(handler);
 #ifdef DEBUG_ENCODING
-				xmlGenericError(xmlGenericErrorContext, "Registered encoding handler for %s\n", name);
+				xmlGenericError(0, "Registered encoding handler for %s\n", name);
 #endif
 			}
 		}
@@ -1616,21 +1614,21 @@ int xmlCharEncFirstLineInt(xmlCharEncodingHandler * handler, xmlBufferPtr out, x
 #ifdef DEBUG_ENCODING
 	switch(ret) {
 		case 0:
-		    xmlGenericError(xmlGenericErrorContext, "converted %d bytes to %d bytes of input\n", toconv, written);
+		    xmlGenericError(0, "converted %d bytes to %d bytes of input\n", toconv, written);
 		    break;
 		case -1:
-		    xmlGenericError(xmlGenericErrorContext, "converted %d bytes to %d bytes of input, %d left\n",
+		    xmlGenericError(0, "converted %d bytes to %d bytes of input, %d left\n",
 				toconv, written, in->use);
 		    break;
 		case -2:
-		    xmlGenericError(xmlGenericErrorContext, "input conversion failed due to input error\n");
+		    xmlGenericError(0, "input conversion failed due to input error\n");
 		    break;
 		case -3:
-		    xmlGenericError(xmlGenericErrorContext, "converted %d bytes to %d bytes of input, %d left\n",
+		    xmlGenericError(0, "converted %d bytes to %d bytes of input, %d left\n",
 		    toconv, written, in->use);
 		    break;
 		default:
-		    xmlGenericError(xmlGenericErrorContext, "Unknown input conversion failed %d\n", ret);
+		    xmlGenericError(0, "Unknown input conversion failed %d\n", ret);
 	}
 #endif /* DEBUG_ENCODING */
 	/*
@@ -1746,17 +1744,17 @@ int xmlCharEncFirstLineInput(xmlParserInputBufferPtr input, int len)
 	switch(ret) {
 		case 0:
 #ifdef DEBUG_ENCODING
-		    xmlGenericError(xmlGenericErrorContext, "converted %d bytes to %d bytes of input\n", c_in, c_out);
+		    xmlGenericError(0, "converted %d bytes to %d bytes of input\n", c_in, c_out);
 #endif
 		    break;
 		case -1:
 #ifdef DEBUG_ENCODING
-		    xmlGenericError(xmlGenericErrorContext, "converted %d bytes to %d bytes of input, %d left\n", c_in, c_out, (int)xmlBufUse(in));
+		    xmlGenericError(0, "converted %d bytes to %d bytes of input, %d left\n", c_in, c_out, (int)xmlBufUse(in));
 #endif
 		    break;
 		case -3:
 #ifdef DEBUG_ENCODING
-		    xmlGenericError(xmlGenericErrorContext, "converted %d bytes to %d bytes of input, %d left\n", c_in, c_out, (int)xmlBufUse(in));
+		    xmlGenericError(0, "converted %d bytes to %d bytes of input, %d left\n", c_in, c_out, (int)xmlBufUse(in));
 #endif
 		    break;
 		case -2: {
@@ -1847,17 +1845,17 @@ int xmlCharEncInput(xmlParserInputBufferPtr input, int flush)
 	switch(ret) {
 		case 0:
 #ifdef DEBUG_ENCODING
-		    xmlGenericError(xmlGenericErrorContext, "converted %d bytes to %d bytes of input\n", c_in, c_out);
+		    xmlGenericError(0, "converted %d bytes to %d bytes of input\n", c_in, c_out);
 #endif
 		    break;
 		case -1:
 #ifdef DEBUG_ENCODING
-		    xmlGenericError(xmlGenericErrorContext, "converted %d bytes to %d bytes of input, %d left\n", c_in, c_out, (int)xmlBufUse(in));
+		    xmlGenericError(0, "converted %d bytes to %d bytes of input, %d left\n", c_in, c_out, (int)xmlBufUse(in));
 #endif
 		    break;
 		case -3:
 #ifdef DEBUG_ENCODING
-		    xmlGenericError(xmlGenericErrorContext, "converted %d bytes to %d bytes of input, %d left\n", c_in, c_out, (int)xmlBufUse(in));
+		    xmlGenericError(0, "converted %d bytes to %d bytes of input, %d left\n", c_in, c_out, (int)xmlBufUse(in));
 #endif
 		    break;
 		case -2: {
@@ -1940,17 +1938,17 @@ int xmlCharEncInFunc(xmlCharEncodingHandler * handler, xmlBufferPtr out, xmlBuff
 	switch(ret) {
 		case 0:
 #ifdef DEBUG_ENCODING
-		    xmlGenericError(xmlGenericErrorContext, "converted %d bytes to %d bytes of input\n", toconv, written);
+		    xmlGenericError(0, "converted %d bytes to %d bytes of input\n", toconv, written);
 #endif
 		    break;
 		case -1:
 #ifdef DEBUG_ENCODING
-		    xmlGenericError(xmlGenericErrorContext, "converted %d bytes to %d bytes of input, %d left\n", toconv, written, in->use);
+		    xmlGenericError(0, "converted %d bytes to %d bytes of input, %d left\n", toconv, written, in->use);
 #endif
 		    break;
 		case -3:
 #ifdef DEBUG_ENCODING
-		    xmlGenericError(xmlGenericErrorContext, "converted %d bytes to %d bytes of input, %d left\n", toconv, written, in->use);
+		    xmlGenericError(0, "converted %d bytes to %d bytes of input, %d left\n", toconv, written, in->use);
 #endif
 		    break;
 		case -2: {
@@ -2029,7 +2027,7 @@ retry:
 		}
 #endif /* LIBXML_ICU_ENABLED */
 #ifdef DEBUG_ENCODING
-		xmlGenericError(xmlGenericErrorContext, "initialized encoder\n");
+		xmlGenericError(0, "initialized encoder\n");
 #endif
 		return 0;
 	}
@@ -2101,17 +2099,17 @@ retry:
 	switch(ret) {
 		case 0:
 #ifdef DEBUG_ENCODING
-		    xmlGenericError(xmlGenericErrorContext, "converted %d bytes to %d bytes of output\n", c_in, c_out);
+		    xmlGenericError(0, "converted %d bytes to %d bytes of output\n", c_in, c_out);
 #endif
 		    break;
 		case -1:
 #ifdef DEBUG_ENCODING
-		    xmlGenericError(xmlGenericErrorContext, "output conversion failed by lack of space\n");
+		    xmlGenericError(0, "output conversion failed by lack of space\n");
 #endif
 		    break;
 		case -3:
 #ifdef DEBUG_ENCODING
-		    xmlGenericError(xmlGenericErrorContext, "converted %d bytes to %d bytes of output %d left\n", c_in, c_out, (int)xmlBufUse(in));
+		    xmlGenericError(0, "converted %d bytes to %d bytes of output %d left\n", c_in, c_out, (int)xmlBufUse(in));
 #endif
 		    break;
 		case -2: {
@@ -2133,8 +2131,8 @@ retry:
 		    else if(cur > 0) {
 			    xmlChar charref[20];
 #ifdef DEBUG_ENCODING
-			    xmlGenericError(xmlGenericErrorContext, "handling output conversion error\n");
-			    xmlGenericError(xmlGenericErrorContext, "Bytes: 0x%02X 0x%02X 0x%02X 0x%02X\n", content[0], content[1], content[2], content[3]);
+			    xmlGenericError(0, "handling output conversion error\n");
+			    xmlGenericError(0, "Bytes: 0x%02X 0x%02X 0x%02X 0x%02X\n", content[0], content[1], content[2], content[3]);
 #endif
 			    /*
 			     * Removes the UTF8 sequence, and replace it by a charref
@@ -2220,7 +2218,7 @@ retry:
 		}
 #endif // LIBXML_ICU_ENABLED
 #ifdef DEBUG_ENCODING
-		xmlGenericError(xmlGenericErrorContext, "initialized encoder\n");
+		xmlGenericError(0, "initialized encoder\n");
 #endif
 		return 0;
 	}
@@ -2289,17 +2287,17 @@ retry:
 	switch(ret) {
 		case 0:
 #ifdef DEBUG_ENCODING
-		    xmlGenericError(xmlGenericErrorContext, "converted %d bytes to %d bytes of output\n", toconv, written);
+		    xmlGenericError(0, "converted %d bytes to %d bytes of output\n", toconv, written);
 #endif
 		    break;
 		case -1:
 #ifdef DEBUG_ENCODING
-		    xmlGenericError(xmlGenericErrorContext, "output conversion failed by lack of space\n");
+		    xmlGenericError(0, "output conversion failed by lack of space\n");
 #endif
 		    break;
 		case -3:
 #ifdef DEBUG_ENCODING
-		    xmlGenericError(xmlGenericErrorContext, "converted %d bytes to %d bytes of output %d left\n",
+		    xmlGenericError(0, "converted %d bytes to %d bytes of output %d left\n",
 		    toconv, written, in->use);
 #endif
 		    break;
@@ -2322,8 +2320,8 @@ retry:
 		    else if(cur > 0) {
 			    xmlChar charref[20];
 #ifdef DEBUG_ENCODING
-			    xmlGenericError(xmlGenericErrorContext, "handling output conversion error\n");
-			    xmlGenericError(xmlGenericErrorContext, "Bytes: 0x%02X 0x%02X 0x%02X 0x%02X\n", in->content[0], in->content[1], in->content[2], in->content[3]);
+			    xmlGenericError(0, "handling output conversion error\n");
+			    xmlGenericError(0, "Bytes: 0x%02X 0x%02X 0x%02X 0x%02X\n", in->content[0], in->content[1], in->content[2], in->content[3]);
 #endif
 				//
 			    // Removes the UTF8 sequence, and replace it by a charref
@@ -2378,7 +2376,7 @@ int xmlCharEncCloseFunc(xmlCharEncodingHandler * handler)
 long xmlByteConsumed(xmlParserCtxtPtr ctxt)
 {
 	xmlParserInputPtr in;
-	if(ctxt == NULL)
+	if(!ctxt)
 		return -1;
 	in = ctxt->input;
 	if(in == NULL)
@@ -2503,7 +2501,7 @@ static int UTF8ToISO8859x(uchar* out, int * outlen,
 			/* trailing byte in leading position */
 			*outlen = out - outstart;
 			*inlen = processed - instart;
-			return(-2);
+			return -2;
 		}
 		else if(d < 0xE0) {
 			uchar c;
@@ -2518,7 +2516,7 @@ static int UTF8ToISO8859x(uchar* out, int * outlen,
 				/* not a trailing byte */
 				*outlen = out - outstart;
 				*inlen = processed - instart;
-				return(-2);
+				return -2;
 			}
 			c = c & 0x3F;
 			d = d & 0x1F;
@@ -2527,7 +2525,7 @@ static int UTF8ToISO8859x(uchar* out, int * outlen,
 				/* not in character set */
 				*outlen = out - outstart;
 				*inlen = processed - instart;
-				return(-2);
+				return -2;
 			}
 			*out++ = d;
 		}
@@ -2545,14 +2543,14 @@ static int UTF8ToISO8859x(uchar* out, int * outlen,
 				/* not a trailing byte (c1) */
 				*outlen = out - outstart;
 				*inlen = processed - instart;
-				return(-2);
+				return -2;
 			}
 			c2 = *in++;
 			if((c2 & 0xC0) != 0x80) {
 				/* not a trailing byte (c2) */
 				*outlen = out - outstart;
 				*inlen = processed - instart;
-				return(-2);
+				return -2;
 			}
 			c1 = c1 & 0x3F;
 			c2 = c2 & 0x3F;
@@ -2563,7 +2561,7 @@ static int UTF8ToISO8859x(uchar* out, int * outlen,
 				/* not in character set */
 				*outlen = out - outstart;
 				*inlen = processed - instart;
-				return(-2);
+				return -2;
 			}
 			*out++ = d;
 		}
@@ -2571,7 +2569,7 @@ static int UTF8ToISO8859x(uchar* out, int * outlen,
 			/* cannot transcode >= U+010000 */
 			*outlen = out - outstart;
 			*inlen = processed - instart;
-			return(-2);
+			return -2;
 		}
 		processed = in;
 	}
@@ -2736,38 +2734,38 @@ xmlCharEncodingHandlerPtr LibXmlEncoderBlock::GetCharEncodingHandler(xmlCharEnco
 		    return xmlUTF16BEHandler;
 		case XML_CHAR_ENCODING_EBCDIC:
 		    handler = xmlFindCharEncodingHandler("EBCDIC");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    handler = xmlFindCharEncodingHandler("ebcdic");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    handler = xmlFindCharEncodingHandler("EBCDIC-US");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    handler = xmlFindCharEncodingHandler("IBM-037");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    break;
 		case XML_CHAR_ENCODING_UCS4BE:
 		    handler = xmlFindCharEncodingHandler("ISO-10646-UCS-4");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    handler = xmlFindCharEncodingHandler("UCS-4");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    handler = xmlFindCharEncodingHandler("UCS4");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    break;
 		case XML_CHAR_ENCODING_UCS4LE:
 		    handler = xmlFindCharEncodingHandler("ISO-10646-UCS-4");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    handler = xmlFindCharEncodingHandler("UCS-4");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    handler = xmlFindCharEncodingHandler("UCS4");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    break;
 		case XML_CHAR_ENCODING_UCS4_2143:
@@ -2776,13 +2774,13 @@ xmlCharEncodingHandlerPtr LibXmlEncoderBlock::GetCharEncodingHandler(xmlCharEnco
 		    break;
 		case XML_CHAR_ENCODING_UCS2:
 		    handler = xmlFindCharEncodingHandler("ISO-10646-UCS-2");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    handler = xmlFindCharEncodingHandler("UCS-2");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    handler = xmlFindCharEncodingHandler("UCS2");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    break;
 		/*
@@ -2793,75 +2791,75 @@ xmlCharEncodingHandlerPtr LibXmlEncoderBlock::GetCharEncodingHandler(xmlCharEnco
 		 */
 		case XML_CHAR_ENCODING_8859_1:
 		    handler = xmlFindCharEncodingHandler("ISO-8859-1");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    break;
 		case XML_CHAR_ENCODING_8859_2:
 		    handler = xmlFindCharEncodingHandler("ISO-8859-2");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    break;
 		case XML_CHAR_ENCODING_8859_3:
 		    handler = xmlFindCharEncodingHandler("ISO-8859-3");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    break;
 		case XML_CHAR_ENCODING_8859_4:
 		    handler = xmlFindCharEncodingHandler("ISO-8859-4");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    break;
 		case XML_CHAR_ENCODING_8859_5:
 		    handler = xmlFindCharEncodingHandler("ISO-8859-5");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    break;
 		case XML_CHAR_ENCODING_8859_6:
 		    handler = xmlFindCharEncodingHandler("ISO-8859-6");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    break;
 		case XML_CHAR_ENCODING_8859_7:
 		    handler = xmlFindCharEncodingHandler("ISO-8859-7");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    break;
 		case XML_CHAR_ENCODING_8859_8:
 		    handler = xmlFindCharEncodingHandler("ISO-8859-8");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    break;
 		case XML_CHAR_ENCODING_8859_9:
 		    handler = xmlFindCharEncodingHandler("ISO-8859-9");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    break;
 		case XML_CHAR_ENCODING_2022_JP:
 		    handler = xmlFindCharEncodingHandler("ISO-2022-JP");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    break;
 		case XML_CHAR_ENCODING_SHIFT_JIS:
 		    handler = xmlFindCharEncodingHandler("SHIFT-JIS");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    handler = xmlFindCharEncodingHandler("SHIFT_JIS");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    handler = xmlFindCharEncodingHandler("Shift_JIS");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    break;
 		case XML_CHAR_ENCODING_EUC_JP:
 		    handler = xmlFindCharEncodingHandler("EUC-JP");
-		    if(handler != NULL)
+		    if(handler)
 				return handler;
 		    break;
 		default:
 		    break;
 	}
 #ifdef DEBUG_ENCODING
-	xmlGenericError(xmlGenericErrorContext, "No handler found for encoding %d\n", enc);
+	xmlGenericError(0, "No handler found for encoding %d\n", enc);
 #endif
 	return 0;
 }
@@ -2911,7 +2909,7 @@ xmlCharEncodingHandlerPtr LibXmlEncoderBlock::FindCharEncodingHandler(const char
 			for(i = 0; i < nbCharEncodingHandler; i++) {
 				if(strcmp(upper, PP_Tab[i]->name) == 0) {
 	#ifdef DEBUG_ENCODING
-					xmlGenericError(xmlGenericErrorContext, "Found registered handler for encoding %s\n", name);
+					xmlGenericError(0, "Found registered handler for encoding %s\n", name);
 	#endif
 					return PP_Tab[i];
 				}
@@ -2941,7 +2939,7 @@ xmlCharEncodingHandlerPtr LibXmlEncoderBlock::FindCharEncodingHandler(const char
 				enc->iconv_in = icv_in;
 				enc->iconv_out = icv_out;
 		#ifdef DEBUG_ENCODING
-				xmlGenericError(xmlGenericErrorContext, "Found iconv handler for encoding %s\n", name);
+				xmlGenericError(0, "Found iconv handler for encoding %s\n", name);
 		#endif
 			}
 			return enc;
@@ -2961,14 +2959,14 @@ xmlCharEncodingHandlerPtr LibXmlEncoderBlock::FindCharEncodingHandler(const char
 				closeIcuConverter(ucv_out);
 			}
 			else {
-				memset(encu, 0, sizeof(xmlCharEncodingHandler));
+				memzero(encu, sizeof(xmlCharEncodingHandler));
 				encu->name = xmlMemStrdup(name);
 				encu->input = NULL;
 				encu->output = NULL;
 				encu->uconv_in = ucv_in;
 				encu->uconv_out = ucv_out;
 		#ifdef DEBUG_ENCODING
-				xmlGenericError(xmlGenericErrorContext,"Found ICU converter handler for encoding %s\n", name);
+				xmlGenericError(0,"Found ICU converter handler for encoding %s\n", name);
 		#endif
 			}
 			return encu;
@@ -2981,7 +2979,7 @@ xmlCharEncodingHandlerPtr LibXmlEncoderBlock::FindCharEncodingHandler(const char
 	#endif /* LIBXML_ICU_ENABLED */
 
 	#ifdef DEBUG_ENCODING
-		xmlGenericError(xmlGenericErrorContext, "No handler found for encoding %s\n", name);
+		xmlGenericError(0, "No handler found for encoding %s\n", name);
 	#endif
 		//
 		// Fallback using the canonical names
@@ -3062,9 +3060,9 @@ int LibXmlEncoderBlock::CharEncCloseFunc(xmlCharEncodingHandler * handler)
 		}
 #ifdef DEBUG_ENCODING
 		if(ret)
-			xmlGenericError(xmlGenericErrorContext, "failed to close the encoding handler\n");
+			xmlGenericError(0, "failed to close the encoding handler\n");
 		else
-			xmlGenericError(xmlGenericErrorContext, "closed the encoding handler\n");
+			xmlGenericError(0, "closed the encoding handler\n");
 #endif
 	}
 	return ret;

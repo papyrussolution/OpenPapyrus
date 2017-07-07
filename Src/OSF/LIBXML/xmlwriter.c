@@ -119,10 +119,10 @@ static int xmlTextWriterHandleStateDependencies(xmlTextWriterPtr writer, xmlText
 static void xmlWriterErrMsg(xmlTextWriterPtr ctxt, xmlParserErrors error, const char * msg)
 {
 	if(ctxt) {
-		__xmlRaiseError(0, 0, 0, ctxt->ctxt, NULL, XML_FROM_WRITER, error, XML_ERR_FATAL, NULL, 0, NULL, NULL, NULL, 0, 0, "%s", msg);
+		__xmlRaiseError(0, 0, 0, ctxt->ctxt, NULL, XML_FROM_WRITER, error, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "%s", msg);
 	}
 	else {
-		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_WRITER, error, XML_ERR_FATAL, NULL, 0, NULL, NULL, NULL, 0, 0, "%s", msg);
+		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_WRITER, error, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "%s", msg);
 	}
 }
 /**
@@ -137,10 +137,10 @@ static void xmlWriterErrMsg(xmlTextWriterPtr ctxt, xmlParserErrors error, const 
 static void xmlWriterErrMsgInt(xmlTextWriterPtr ctxt, xmlParserErrors error, const char * msg, int val)
 {
 	if(ctxt) {
-		__xmlRaiseError(0, 0, 0, ctxt->ctxt, NULL, XML_FROM_WRITER, error, XML_ERR_FATAL, NULL, 0, NULL, NULL, NULL, val, 0, msg, val);
+		__xmlRaiseError(0, 0, 0, ctxt->ctxt, NULL, XML_FROM_WRITER, error, XML_ERR_FATAL, 0, 0, 0, 0, 0, val, 0, msg, val);
 	}
 	else {
-		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_WRITER, error, XML_ERR_FATAL, NULL, 0, NULL, NULL, NULL, val, 0, msg, val);
+		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_WRITER, error, XML_ERR_FATAL, 0, 0, 0, 0, 0, val, 0, msg, val);
 	}
 }
 /**
@@ -263,7 +263,7 @@ xmlTextWriterPtr xmlNewTextWriterPushParser(xmlParserCtxtPtr ctxt, int compressi
 {
 	xmlTextWriterPtr ret;
 	xmlOutputBufferPtr out;
-	if(ctxt == NULL) {
+	if(!ctxt) {
 		xmlWriterErrMsg(NULL, XML_ERR_INTERNAL_ERROR, "xmlNewTextWriterPushParser : invalid context!\n");
 		return NULL;
 	}
@@ -304,7 +304,7 @@ xmlTextWriterPtr xmlNewTextWriterDoc(xmlDocPtr * doc, int compression)
 	saxHandler.startElement = xmlSAX2StartElement;
 	saxHandler.endElement = xmlSAX2EndElement;
 	ctxt = xmlCreatePushParserCtxt(&saxHandler, NULL, NULL, 0, NULL);
-	if(ctxt == NULL) {
+	if(!ctxt) {
 		xmlWriterErrMsg(NULL, XML_ERR_INTERNAL_ERROR, "xmlNewTextWriterDoc : error at xmlCreatePushParserCtxt!\n");
 		return NULL;
 	}
@@ -359,7 +359,7 @@ xmlTextWriterPtr xmlNewTextWriterTree(xmlDocPtr doc, xmlNodePtr node, int compre
 		saxHandler.startElement = xmlSAX2StartElement;
 		saxHandler.endElement = xmlSAX2EndElement;
 		xmlParserCtxtPtr ctxt = xmlCreatePushParserCtxt(&saxHandler, NULL, NULL, 0, NULL);
-		if(ctxt == NULL) {
+		if(!ctxt) {
 			xmlWriterErrMsg(NULL, XML_ERR_INTERNAL_ERROR, "xmlNewTextWriterDoc : error at xmlCreatePushParserCtxt!\n");
 		}
 		else {
