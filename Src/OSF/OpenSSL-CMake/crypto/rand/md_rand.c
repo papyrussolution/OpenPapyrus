@@ -503,7 +503,7 @@ static int rand_bytes(uchar * buf, int num, int pseudo)
 		RANDerr(RAND_F_RAND_BYTES, RAND_R_PRNG_NOT_SEEDED);
 		ERR_add_error_data(1, "You need to read the OpenSSL FAQ, "
 		    "https://www.openssl.org/docs/faq.html");
-		return (0);
+		return 0;
 	}
 err:
 	RANDerr(RAND_F_RAND_BYTES, ERR_R_EVP_LIB);

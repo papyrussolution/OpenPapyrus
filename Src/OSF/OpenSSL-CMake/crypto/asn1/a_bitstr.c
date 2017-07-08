@@ -19,8 +19,8 @@ int i2c_ASN1_BIT_STRING(ASN1_BIT_STRING * a, uchar ** pp)
 {
 	int ret, j, bits, len;
 	uchar * p, * d;
-	if(a == NULL)
-		return (0);
+	if(!a)
+		return 0;
 	len = a->length;
 	if(len > 0) {
 		if(a->flags & ASN1_STRING_FLAG_BITS_LEFT) {
@@ -56,7 +56,7 @@ int i2c_ASN1_BIT_STRING(ASN1_BIT_STRING * a, uchar ** pp)
 		bits = 0;
 	ret = 1 + len;
 	if(pp == NULL)
-		return (ret);
+		return ret;
 	p = *pp;
 	*(p++) = (uchar)bits;
 	d = a->data;
@@ -66,7 +66,7 @@ int i2c_ASN1_BIT_STRING(ASN1_BIT_STRING * a, uchar ** pp)
 		p[-1] &= (0xff << bits);
 	}
 	*pp = p;
-	return (ret);
+	return ret;
 }
 
 ASN1_BIT_STRING * c2i_ASN1_BIT_STRING(ASN1_BIT_STRING ** a, const uchar ** pp, long len)
@@ -116,7 +116,7 @@ ASN1_BIT_STRING * c2i_ASN1_BIT_STRING(ASN1_BIT_STRING ** a, const uchar ** pp, l
 	if(a != NULL)
 		(*a) = ret;
 	*pp = p;
-	return (ret);
+	return ret;
 err:
 	ASN1err(ASN1_F_C2I_ASN1_BIT_STRING, i);
 	if((a == NULL) || (*a != ret))
@@ -134,7 +134,7 @@ int ASN1_BIT_STRING_set_bit(ASN1_BIT_STRING * a, int n, int value)
 	int iv = ~v;
 	if(!value)
 		v = 0;
-	if(a == NULL)
+	if(!a)
 		return 0;
 	a->flags &= ~(ASN1_STRING_FLAG_BITS_LEFT | 0x07); /* clear, set on write */
 	if((a->length < (w + 1)) || (a->data == NULL)) {
@@ -161,7 +161,7 @@ int ASN1_BIT_STRING_get_bit(const ASN1_BIT_STRING * a, int n)
 	int w = n / 8;
 	int v = 1 << (7 - (n & 0x07));
 	if((a == NULL) || (a->length < (w + 1)) || (a->data == NULL))
-		return (0);
+		return 0;
 	return ((a->data[w] & v) != 0);
 }
 /*

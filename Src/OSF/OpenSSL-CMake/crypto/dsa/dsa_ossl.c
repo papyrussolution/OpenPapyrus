@@ -58,14 +58,14 @@ static DSA_SIG * dsa_do_sign(const uchar * dgst, int dlen, DSA * dsa)
 		goto err;
 	}
 	ret = DSA_SIG_new();
-	if(ret == NULL)
+	if(!ret)
 		goto err;
 	ret->r = BN_new();
 	ret->s = BN_new();
 	if(ret->r == NULL || ret->s == NULL)
 		goto err;
 	ctx = BN_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto err;
 redo:
 	if(!dsa_sign_setup(dsa, ctx, &kinv, &ret->r, dgst, dlen))
@@ -290,7 +290,7 @@ err:
 	BN_free(u1);
 	BN_free(u2);
 	BN_free(t1);
-	return (ret);
+	return ret;
 }
 
 static int dsa_init(DSA * dsa)

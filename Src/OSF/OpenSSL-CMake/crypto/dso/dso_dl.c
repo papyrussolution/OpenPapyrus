@@ -90,7 +90,7 @@ err:
 	OPENSSL_free(filename);
 	if(ptr != NULL)
 		shl_unload(ptr);
-	return (0);
+	return 0;
 }
 
 static int dl_unload(DSO * dso)
@@ -98,7 +98,7 @@ static int dl_unload(DSO * dso)
 	shl_t ptr;
 	if(dso == NULL) {
 		DSOerr(DSO_F_DL_UNLOAD, ERR_R_PASSED_NULL_PARAMETER);
-		return (0);
+		return 0;
 	}
 	if(sk_num(dso->meth_data) < 1)
 		return (1);
@@ -110,7 +110,7 @@ static int dl_unload(DSO * dso)
 		 * Should push the value back onto the stack in case of a retry.
 		 */
 		sk_push(dso->meth_data, (char*)ptr);
-		return (0);
+		return 0;
 	}
 	shl_unload(ptr);
 	return (1);

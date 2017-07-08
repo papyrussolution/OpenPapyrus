@@ -15,29 +15,29 @@
 
 #define HKDF_MAXBUF 1024
 
-static unsigned char * HKDF(const EVP_MD * evp_md,
-    const unsigned char * salt, size_t salt_len,
-    const unsigned char * key, size_t key_len,
-    const unsigned char * info, size_t info_len,
-    unsigned char * okm, size_t okm_len);
+static uchar * HKDF(const EVP_MD * evp_md,
+    const uchar * salt, size_t salt_len,
+    const uchar * key, size_t key_len,
+    const uchar * info, size_t info_len,
+    uchar * okm, size_t okm_len);
 
-static unsigned char * HKDF_Extract(const EVP_MD * evp_md,
-    const unsigned char * salt, size_t salt_len,
-    const unsigned char * key, size_t key_len,
-    unsigned char * prk, size_t * prk_len);
+static uchar * HKDF_Extract(const EVP_MD * evp_md,
+    const uchar * salt, size_t salt_len,
+    const uchar * key, size_t key_len,
+    uchar * prk, size_t * prk_len);
 
-static unsigned char * HKDF_Expand(const EVP_MD * evp_md,
-    const unsigned char * prk, size_t prk_len,
-    const unsigned char * info, size_t info_len,
-    unsigned char * okm, size_t okm_len);
+static uchar * HKDF_Expand(const EVP_MD * evp_md,
+    const uchar * prk, size_t prk_len,
+    const uchar * info, size_t info_len,
+    uchar * okm, size_t okm_len);
 
 typedef struct {
 	const EVP_MD * md;
-	unsigned char * salt;
+	uchar * salt;
 	size_t salt_len;
-	unsigned char * key;
+	uchar * key;
 	size_t key_len;
-	unsigned char info[HKDF_MAXBUF];
+	uchar info[HKDF_MAXBUF];
 	size_t info_len;
 } HKDF_PKEY_CTX;
 
@@ -75,7 +75,7 @@ static int pkey_hkdf_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 			    return 0;
 		    if(kctx->salt != NULL)
 			    OPENSSL_clear_free(kctx->salt, kctx->salt_len);
-		    kctx->salt = (unsigned char *)OPENSSL_memdup(p2, p1);
+		    kctx->salt = (uchar *)OPENSSL_memdup(p2, p1);
 		    if(kctx->salt == NULL)
 			    return 0;
 
@@ -87,7 +87,7 @@ static int pkey_hkdf_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 			    return 0;
 		    if(kctx->key != NULL)
 			    OPENSSL_clear_free(kctx->key, kctx->key_len);
-		    kctx->key = (unsigned char *)OPENSSL_memdup(p2, p1);
+		    kctx->key = (uchar *)OPENSSL_memdup(p2, p1);
 		    if(kctx->key == NULL)
 			    return 0;
 		    kctx->key_len  = p1;
@@ -133,7 +133,7 @@ static int pkey_hkdf_ctrl_str(EVP_PKEY_CTX * ctx, const char * type,
 	return -2;
 }
 
-static int pkey_hkdf_derive(EVP_PKEY_CTX * ctx, unsigned char * key, size_t * keylen)
+static int pkey_hkdf_derive(EVP_PKEY_CTX * ctx, uchar * key, size_t * keylen)
 {
 	HKDF_PKEY_CTX * kctx = (HKDF_PKEY_CTX *)ctx->data;
 	if(kctx->md == NULL || kctx->key == NULL)
@@ -174,41 +174,41 @@ const EVP_PKEY_METHOD hkdf_pkey_meth = {
 	pkey_hkdf_ctrl_str
 };
 
-static unsigned char * HKDF(const EVP_MD * evp_md,
-    const unsigned char * salt, size_t salt_len,
-    const unsigned char * key, size_t key_len,
-    const unsigned char * info, size_t info_len,
-    unsigned char * okm, size_t okm_len)
+static uchar * HKDF(const EVP_MD * evp_md,
+    const uchar * salt, size_t salt_len,
+    const uchar * key, size_t key_len,
+    const uchar * info, size_t info_len,
+    uchar * okm, size_t okm_len)
 {
-	unsigned char prk[EVP_MAX_MD_SIZE];
+	uchar prk[EVP_MAX_MD_SIZE];
 	size_t prk_len;
 	if(!HKDF_Extract(evp_md, salt, salt_len, key, key_len, prk, &prk_len))
 		return NULL;
 	return HKDF_Expand(evp_md, prk, prk_len, info, info_len, okm, okm_len);
 }
 
-static unsigned char * HKDF_Extract(const EVP_MD * evp_md,
-    const unsigned char * salt, size_t salt_len,
-    const unsigned char * key, size_t key_len,
-    unsigned char * prk, size_t * prk_len)
+static uchar * HKDF_Extract(const EVP_MD * evp_md,
+    const uchar * salt, size_t salt_len,
+    const uchar * key, size_t key_len,
+    uchar * prk, size_t * prk_len)
 {
-	unsigned int tmp_len;
+	uint tmp_len;
 	if(!HMAC(evp_md, salt, salt_len, key, key_len, prk, &tmp_len))
 		return NULL;
 	*prk_len = tmp_len;
 	return prk;
 }
 
-static unsigned char * HKDF_Expand(const EVP_MD * evp_md,
-    const unsigned char * prk, size_t prk_len,
-    const unsigned char * info, size_t info_len,
-    unsigned char * okm, size_t okm_len)
+static uchar * HKDF_Expand(const EVP_MD * evp_md,
+    const uchar * prk, size_t prk_len,
+    const uchar * info, size_t info_len,
+    uchar * okm, size_t okm_len)
 {
 	HMAC_CTX * hmac;
 
-	unsigned int i;
+	uint i;
 
-	unsigned char prev[EVP_MAX_MD_SIZE];
+	uchar prev[EVP_MAX_MD_SIZE];
 
 	size_t done_len = 0, dig_len = EVP_MD_size(evp_md);
 
@@ -227,7 +227,7 @@ static unsigned char * HKDF_Expand(const EVP_MD * evp_md,
 
 	for(i = 1; i <= n; i++) {
 		size_t copy_len;
-		const unsigned char ctr = i;
+		const uchar ctr = i;
 
 		if(i > 1) {
 			if(!HMAC_Init_ex(hmac, NULL, 0, NULL, NULL))

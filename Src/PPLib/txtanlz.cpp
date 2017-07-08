@@ -2273,15 +2273,11 @@ int SLAPI PPTextAnalyzer::ProcessString(const PPTextAnalyzer::Replacer & rRpl, c
 							if(spr < 0)
 								break;
 						}
-						if(pDebugFile) {
-							pDebugFile->WriteLine(temp_buf.Insert(0, "\t signal:").CR());
-						}
+						CALLPTRMEMB(pDebugFile, WriteLine(temp_buf.Insert(0, "\t signal:").CR()));
 					}
 					else {
 						rResult = temp_buf;
-						if(pDebugFile) {
-							pDebugFile->WriteLine(temp_buf.Insert(0, "\t").CR());
-						}
+						CALLPTRMEMB(pDebugFile, WriteLine(temp_buf.Insert(0, "\t").CR()));
 						//
 						// ѕри повторной обработке текста не передаем p_resource дабы не возникала
 						// путаница между оригинальым текстом и промежуточным результатом.
@@ -2400,6 +2396,46 @@ int SLAPI PPTextAnalyzer::Test()
 	}
 	PPWait(0);
 	CATCHZOKPPERR
+	return ok;
+}
+
+SLAPI PPTextAnalyzerWrapper::PPTextAnalyzerWrapper() : R(), Fb(R)
+{
+	Flags = 0;
+}
+
+int SLAPI PPTextAnalyzerWrapper::Init(const char * pRuleFileName, long flags)
+{
+	int    ok = 1;
+	SETFLAGBYSAMPLE(Flags, fEncInner, flags);
+	if(A.ParseReplacerFile(pRuleFileName, R)) {
+		Flags |= fInited;
+	}
+	else {
+		Flags &= ~fInited;
+		ok = 0;
+	}
+	return ok;
+}
+
+int SLAPI PPTextAnalyzerWrapper::ReplaceString(const char * pText, SString & rResult)
+{
+	rResult = 0;
+	int    ok = -1;
+	if(Flags & fInited) {
+		(TempBuf = pText).Strip();
+		if(Flags & fEncInner)
+			TempBuf.Transf(CTRANSF_INNER_TO_OUTER);
+		TempBuf.ToLower1251();
+		A.Reset(0);
+		ok = A.ProcessString(R, 0, TempBuf, rResult, &Fb, 0);
+		if(rResult.Empty())
+			rResult = pText;
+		if(Flags & fEncInner)
+			rResult.Transf(CTRANSF_OUTER_TO_INNER);
+	}
+	else
+		ok = 0;
 	return ok;
 }
 

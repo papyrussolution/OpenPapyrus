@@ -263,7 +263,7 @@ static cairo_surface_t * _cairo_win32_display_surface_create_for_dc(HDC original
 	uchar * bits;
 	int rowstride;
 	cairo_win32_display_surface_t * surface = (cairo_win32_display_surface_t *)SAlloc::M(sizeof(*surface));
-	if(surface == NULL)
+	if(!surface)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	surface->fallback = NULL;
 	status = _create_dc_and_bitmap(surface, original_dc, format, width, height, &bits, &rowstride);
@@ -731,7 +731,7 @@ cairo_surface_t * cairo_win32_surface_create(HDC hdc)
 	// Assume that everything coming in as a HDC is RGB24 
 	cairo_format_t format = CAIRO_FORMAT_RGB24;
 	cairo_win32_display_surface_t * surface = (cairo_win32_display_surface_t * )SAlloc::M(sizeof(*surface));
-	if(surface == NULL)
+	if(!surface)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	status = _cairo_win32_save_initial_clip(hdc, surface);
 	if(status) {

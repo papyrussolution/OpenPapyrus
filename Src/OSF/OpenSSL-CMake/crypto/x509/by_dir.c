@@ -83,7 +83,7 @@ static int dir_ctrl(X509_LOOKUP * ctx, int cmd, const char * argp, long argl, ch
 			    ret = add_cert_dir(ld, argp, (int)argl);
 		    break;
 	}
-	return (ret);
+	return ret;
 }
 
 static int new_dir(X509_LOOKUP * lu)
@@ -203,7 +203,7 @@ static int get_cert_by_subject(X509_LOOKUP * xl, X509_LOOKUP_TYPE type, X509_NAM
 	X509_OBJECT stmp, * tmp;
 	const char * postfix = "";
 	if(name == NULL)
-		return (0);
+		return 0;
 	stmp.type = type;
 	if(type == X509_LU_X509) {
 		data.st_x509.cert_info.subject = name;

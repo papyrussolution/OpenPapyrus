@@ -108,12 +108,12 @@ void * PEM_ASN1_read(d2i_of_void * d2i, const char * name, FILE * fp, void ** x,
 	void * ret;
 	if((b = BIO_new(BIO_s_file())) == NULL) {
 		PEMerr(PEM_F_PEM_ASN1_READ, ERR_R_BUF_LIB);
-		return (0);
+		return 0;
 	}
 	BIO_set_fp(b, fp, BIO_NOCLOSE);
 	ret = PEM_ASN1_read_bio(d2i, name, b, x, cb, u);
 	BIO_free(b);
-	return (ret);
+	return ret;
 }
 
 #endif
@@ -240,12 +240,12 @@ int PEM_ASN1_write(i2d_of_void * i2d, const char * name, FILE * fp, void * x, co
 	int ret;
 	if((b = BIO_new(BIO_s_file())) == NULL) {
 		PEMerr(PEM_F_PEM_ASN1_WRITE, ERR_R_BUF_LIB);
-		return (0);
+		return 0;
 	}
 	BIO_set_fp(b, fp, BIO_NOCLOSE);
 	ret = PEM_ASN1_write_bio(i2d, name, b, x, enc, kstr, klen, callback, u);
 	BIO_free(b);
-	return (ret);
+	return ret;
 }
 
 #endif
@@ -333,7 +333,7 @@ err:
 	EVP_CIPHER_CTX_free(ctx);
 	OPENSSL_cleanse(buf, PEM_BUFSIZE);
 	OPENSSL_clear_free(data, (uint)dsize);
-	return (ret);
+	return ret;
 }
 
 int PEM_do_header(EVP_CIPHER_INFO * cipher, uchar * data, long * plen, pem_password_cb * callback, void * u)
@@ -369,7 +369,7 @@ int PEM_do_header(EVP_CIPHER_INFO * cipher, uchar * data, long * plen, pem_passw
 	if(!EVP_BytesToKey(cipher->cipher, EVP_md5(), &(cipher->iv[0]), (uchar*)buf, keylen, 1, key, NULL))
 		return 0;
 	ctx = EVP_CIPHER_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 
 	ok = EVP_DecryptInit_ex(ctx, cipher->cipher, NULL, key, &(cipher->iv[0]));
@@ -496,7 +496,7 @@ static int load_iv(char ** fromp, uchar * to, int num)
 		v = OPENSSL_hexchar2int(*from);
 		if(v < 0) {
 			PEMerr(PEM_F_LOAD_IV, PEM_R_BAD_IV_CHARS);
-			return (0);
+			return 0;
 		}
 		from++;
 		to[i / 2] |= v << (long)((!(i & 1)) * 4);
@@ -515,12 +515,12 @@ int PEM_write(FILE * fp, const char * name, const char * header,
 
 	if((b = BIO_new(BIO_s_file())) == NULL) {
 		PEMerr(PEM_F_PEM_WRITE, ERR_R_BUF_LIB);
-		return (0);
+		return 0;
 	}
 	BIO_set_fp(b, fp, BIO_NOCLOSE);
 	ret = PEM_write_bio(b, name, header, data, len);
 	BIO_free(b);
-	return (ret);
+	return ret;
 }
 
 #endif
@@ -533,7 +533,7 @@ int PEM_write_bio(BIO * bp, const char * name, const char * header,
 	EVP_ENCODE_CTX * ctx = EVP_ENCODE_CTX_new();
 	int reason = ERR_R_BUF_LIB;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		reason = ERR_R_MALLOC_FAILURE;
 		goto err;
 	}
@@ -583,7 +583,7 @@ err:
 	OPENSSL_clear_free(buf, PEM_BUFSIZE * 8);
 	EVP_ENCODE_CTX_free(ctx);
 	PEMerr(PEM_F_PEM_WRITE_BIO, reason);
-	return (0);
+	return 0;
 }
 
 #ifndef OPENSSL_NO_STDIO
@@ -595,12 +595,12 @@ int PEM_read(FILE * fp, char ** name, char ** header, uchar ** data,
 
 	if((b = BIO_new(BIO_s_file())) == NULL) {
 		PEMerr(PEM_F_PEM_READ, ERR_R_BUF_LIB);
-		return (0);
+		return 0;
 	}
 	BIO_set_fp(b, fp, BIO_NOCLOSE);
 	ret = PEM_read_bio(b, name, header, data, len);
 	BIO_free(b);
-	return (ret);
+	return ret;
 }
 
 #endif
@@ -613,9 +613,9 @@ int PEM_read_bio(BIO * bp, char ** name, char ** header, uchar ** data, long * l
 	BUF_MEM * nameB;
 	BUF_MEM * headerB;
 	BUF_MEM * dataB, * tmpB;
-	if(ctx == NULL) {
+	if(!ctx) {
 		PEMerr(PEM_F_PEM_READ_BIO, ERR_R_MALLOC_FAILURE);
-		return (0);
+		return 0;
 	}
 	nameB = BUF_MEM_new();
 	headerB = BUF_MEM_new();
@@ -757,7 +757,7 @@ err:
 	BUF_MEM_free(headerB);
 	BUF_MEM_free(dataB);
 	EVP_ENCODE_CTX_free(ctx);
-	return (0);
+	return 0;
 }
 
 /*

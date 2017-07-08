@@ -45,8 +45,8 @@ int dtls1_dispatch_alert(SSL * s)
 {
 	int i, j;
 	void (* cb)(const SSL * ssl, int type, int val) = NULL;
-	unsigned char buf[DTLS1_AL_HEADER_LENGTH];
-	unsigned char * ptr = &buf[0];
+	uchar buf[DTLS1_AL_HEADER_LENGTH];
+	uchar * ptr = &buf[0];
 	s->s3->alert_dispatch = 0;
 	memzero(buf, sizeof(buf));
 	*ptr++ = s->s3->send_alert[0];

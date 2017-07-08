@@ -48,7 +48,7 @@ int BN_gcd(BIGNUM * r, const BIGNUM * in_a, const BIGNUM * in_b, BN_CTX * ctx)
 err:
 	BN_CTX_end(ctx);
 	bn_check_top(r);
-	return (ret);
+	return ret;
 }
 
 static BIGNUM * euclid(BIGNUM * a, BIGNUM * b)
@@ -162,7 +162,7 @@ BIGNUM * int_bn_mod_inverse(BIGNUM * in,
 	if(T == NULL)
 		goto err;
 
-	if(in == NULL)
+	if(!in)
 		R = BN_new();
 	else
 		R = in;
@@ -457,7 +457,7 @@ err:
 		BN_free(R);
 	BN_CTX_end(ctx);
 	bn_check_top(ret);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -486,7 +486,7 @@ static BIGNUM * BN_mod_inverse_no_branch(BIGNUM * in,
 	if(T == NULL)
 		goto err;
 
-	if(in == NULL)
+	if(!in)
 		R = BN_new();
 	else
 		R = in;
@@ -630,6 +630,6 @@ err:
 		BN_free(R);
 	BN_CTX_end(ctx);
 	bn_check_top(ret);
-	return (ret);
+	return ret;
 }
 

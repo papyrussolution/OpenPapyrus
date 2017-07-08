@@ -140,10 +140,10 @@ const BIO_METHOD * BIO_s_datagram(void)
 BIO * BIO_new_dgram(int fd, int close_flag)
 {
 	BIO * ret = BIO_new(BIO_s_datagram());
-	if(ret == NULL)
+	if(!ret)
 		return (NULL);
 	BIO_set_fd(ret, fd, close_flag);
-	return (ret);
+	return ret;
 }
 
 static int dgram_new(BIO * bi)
@@ -158,8 +158,8 @@ static int dgram_new(BIO * bi)
 static int dgram_free(BIO * a)
 {
 	bio_dgram_data * data;
-	if(a == NULL)
-		return (0);
+	if(!a)
+		return 0;
 	if(!dgram_clear(a))
 		return 0;
 	data = (bio_dgram_data*)a->ptr;
@@ -169,8 +169,8 @@ static int dgram_free(BIO * a)
 
 static int dgram_clear(BIO * a)
 {
-	if(a == NULL)
-		return (0);
+	if(!a)
+		return 0;
 	if(a->shutdown) {
 		if(a->init) {
 			BIO_closesocket(a->num);
@@ -321,7 +321,7 @@ static int dgram_read(BIO * b, char * out, int outl)
 
 		dgram_reset_rcv_timeout(b);
 	}
-	return (ret);
+	return ret;
 }
 
 static int dgram_write(BIO * b, const char * in, int inl)
@@ -351,7 +351,7 @@ static int dgram_write(BIO * b, const char * in, int inl)
 			data->_errno = get_last_socket_error();
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 static long dgram_get_mtu_overhead(bio_dgram_data * data)
@@ -789,14 +789,14 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    ret = 0;
 		    break;
 	}
-	return (ret);
+	return ret;
 }
 
 static int dgram_puts(BIO * bp, const char * str)
 {
 	int n = strlen(str);
 	int ret = dgram_write(bp, str, n);
-	return (ret);
+	return ret;
 }
 
 # ifndef OPENSSL_NO_SCTP
@@ -957,8 +957,8 @@ static int dgram_sctp_free(BIO * a)
 {
 	bio_dgram_sctp_data * data;
 
-	if(a == NULL)
-		return (0);
+	if(!a)
+		return 0;
 	if(!dgram_clear(a))
 		return 0;
 
@@ -1227,7 +1227,7 @@ static int dgram_sctp_read(BIO * b, char * out, int outl)
 			data->peer_auth_tested = 1;
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -1362,7 +1362,7 @@ static int dgram_sctp_write(BIO * b, const char * in, int inl)
 			data->_errno = get_last_socket_error();
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
@@ -1598,7 +1598,7 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    ret = dgram_ctrl(b, cmd, num, ptr);
 		    break;
 	}
-	return (ret);
+	return ret;
 }
 
 int BIO_dgram_sctp_notification_cb(BIO * b, void (* handle_notifications)(BIO * bio, void * context, void * buf), void * context)
@@ -1828,7 +1828,7 @@ static int dgram_sctp_puts(BIO * bp, const char * str)
 {
 	int n = strlen(str);
 	int ret = dgram_sctp_write(bp, str, n);
-	return (ret);
+	return ret;
 }
 
 # endif
@@ -1850,7 +1850,7 @@ static int BIO_dgram_should_retry(int i)
 
 		return (BIO_dgram_non_fatal_error(err));
 	}
-	return (0);
+	return 0;
 }
 
 int BIO_dgram_non_fatal_error(int err)
@@ -1898,7 +1898,7 @@ int BIO_dgram_non_fatal_error(int err)
 		default:
 		    break;
 	}
-	return (0);
+	return 0;
 }
 
 static void get_current_time(struct timeval * t)

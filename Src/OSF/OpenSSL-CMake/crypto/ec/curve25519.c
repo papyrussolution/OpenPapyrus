@@ -3248,7 +3248,7 @@ static void ge_scalarmult_base(ge_p3 * h, const uint8_t * a)
  * replace (f,g) with (f,g) if b == 0.
  *
  * Preconditions: b in {0,1}. */
-static void fe_cswap(fe f, fe g, unsigned int b)
+static void fe_cswap(fe f, fe g, uint b)
 {
 	size_t i;
 	b = 0-b;

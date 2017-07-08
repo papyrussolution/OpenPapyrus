@@ -856,6 +856,12 @@ toolbar export ACCANLZ2 TB_FIRST_TOOLBAR {
 	REFRESH    : kbCtrlZ, TBBM_REFRESHVIEW, "@{refresh}\tCtrl-Z"
 }
 
+toolbar export LOGVIEW TB_FIRST_TOOLBAR {
+	SAVEAS      : kbCtrlS,   TBBM_SAVEAS,        "Сохранить как...\tCtlr-S"
+	SEARCH      : kbCtrlF,   TBBM_SEARCHREPLACE, "Поиск и замена...\tCtrl-F"
+	PRINT       : kbF7,      TBBM_PRINT,         "@{print}\tF7"
+}
+
 toolbar export TEXTBROWSER TB_FIRST_TOOLBAR {
 	OPEN        : kbCtrlO,   TBBM_OPEN,        "Открыть...\tCtlr-O"
 	SAVE        : kbCtrlS,   TBBM_SAVE,        "Сохранить\tCtlr-S"

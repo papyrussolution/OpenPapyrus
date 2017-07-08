@@ -282,7 +282,7 @@ ASN1_INTEGER * c2i_ASN1_INTEGER(ASN1_INTEGER ** a, const uchar ** pp, long len)
 	if(r) {
 		if((a == NULL) || ((*a) == NULL)) {
 			ret = ASN1_INTEGER_new();
-			if(ret == NULL)
+			if(!ret)
 				return NULL;
 			ret->type = V_ASN1_INTEGER;
 		}
@@ -306,7 +306,7 @@ err:
 
 static int asn1_string_get_int64(int64_t * pr, const ASN1_STRING * a, int itype)
 {
-	if(a == NULL) {
+	if(!a) {
 		ASN1err(ASN1_F_ASN1_STRING_GET_INT64, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -336,7 +336,7 @@ static int asn1_string_set_int64(ASN1_STRING * a, int64_t r, int itype)
 
 static int asn1_string_get_uint64(uint64_t * pr, const ASN1_STRING * a, int itype)
 {
-	if(a == NULL) {
+	if(!a) {
 		ASN1err(ASN1_F_ASN1_STRING_GET_UINT64, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -413,7 +413,7 @@ ASN1_INTEGER * d2i_ASN1_UINTEGER(ASN1_INTEGER ** a, const uchar ** pp, long leng
 	ret->length = (int)len;
 	ASSIGN_PTR(a, ret);
 	*pp = p;
-	return (ret);
+	return ret;
 err:
 	ASN1err(ASN1_F_D2I_ASN1_UINTEGER, i);
 	if((a == NULL) || (*a != ret))
@@ -432,7 +432,7 @@ static ASN1_STRING * bn_to_asn1_string(const BIGNUM * bn, ASN1_STRING * ai, int 
 		ret = ai;
 		ret->type = atype;
 	}
-	if(ret == NULL) {
+	if(!ret) {
 		ASN1err(ASN1_F_BN_TO_ASN1_STRING, ERR_R_NESTED_ASN1_ERROR);
 		goto err;
 	}
@@ -504,7 +504,7 @@ long FASTCALL ASN1_INTEGER_get(const ASN1_INTEGER * a)
 {
 	int i;
 	int64_t r;
-	if(a == NULL)
+	if(!a)
 		return 0;
 	i = ASN1_INTEGER_get_int64(&r, a);
 	if(i == 0)
@@ -543,7 +543,7 @@ long FASTCALL ASN1_ENUMERATED_get(const ASN1_ENUMERATED * a)
 {
 	int i;
 	int64_t r;
-	if(a == NULL)
+	if(!a)
 		return 0;
 	if((a->type & ~V_ASN1_NEG) != V_ASN1_ENUMERATED)
 		return -1;

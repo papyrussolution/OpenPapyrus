@@ -152,7 +152,7 @@ void SRP_user_pwd_free(SRP_user_pwd * user_pwd)
 static SRP_user_pwd * SRP_user_pwd_new(void)
 {
 	SRP_user_pwd * ret = (SRP_user_pwd*)OPENSSL_malloc(sizeof(*ret));
-	if(ret == NULL)
+	if(!ret)
 		return NULL;
 	ret->N = NULL;
 	ret->g = NULL;

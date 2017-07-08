@@ -215,6 +215,7 @@ int Use001()
 //
 //
 //
+/*
 struct __ITextAnalyzerBlock {
 	__ITextAnalyzerBlock() : R(), Fb(R)
 	{
@@ -225,16 +226,19 @@ struct __ITextAnalyzerBlock {
 	PPTextAnalyzer::FindBlock Fb;
 	int    Inited;
 };
+*/
 
 DL6_IC_CONSTRUCTOR(PapyrusTextAnalyzer, DL6ICLS_PapyrusTextAnalyzer_VTab)
 {
 	SLS.SetCodepage(cp1251);
-	ExtraPtr = new __ITextAnalyzerBlock;
+	//ExtraPtr = new __ITextAnalyzerBlock;
+	ExtraPtr = new PPTextAnalyzerWrapper;
 }
 
 DL6_IC_DESTRUCTOR(PapyrusTextAnalyzer)
 {
-	delete (__ITextAnalyzerBlock *)ExtraPtr;
+	//delete (__ITextAnalyzerBlock *)ExtraPtr;
+	delete (PPTextAnalyzerWrapper *)ExtraPtr;
 }
 //
 // Interface IPapyrusTextAnalyzer implementation
@@ -242,21 +246,30 @@ DL6_IC_DESTRUCTOR(PapyrusTextAnalyzer)
 int32 DL6ICLS_PapyrusTextAnalyzer::Init(SString & ruleFileName)
 {
 	int    ok = 1;
-	__ITextAnalyzerBlock * p_obj = (__ITextAnalyzerBlock *)ExtraPtr;
+	//__ITextAnalyzerBlock * p_obj = (__ITextAnalyzerBlock *)ExtraPtr;
+	PPTextAnalyzerWrapper * p_obj = (PPTextAnalyzerWrapper *)ExtraPtr;
 	if(p_obj) {
+		if(!p_obj->Init(ruleFileName, PPTextAnalyzerWrapper::fEncInner))
+			ok = RaiseAppError();
+		/*
 		if(p_obj->A.ParseReplacerFile(ruleFileName, p_obj->R)) {
 			p_obj->Inited = 1;
 		}
 		else
 			ok = RaiseAppError();
+		*/
 	}
 	return ok;
 }
 
 SString & DL6ICLS_PapyrusTextAnalyzer::ReplaceString(SString & inputText)
 {
-	__ITextAnalyzerBlock * p_obj = (__ITextAnalyzerBlock *)ExtraPtr;
+	//__ITextAnalyzerBlock * p_obj = (__ITextAnalyzerBlock *)ExtraPtr;
+	PPTextAnalyzerWrapper * p_obj = (PPTextAnalyzerWrapper *)ExtraPtr;
 	if(p_obj) {
+		if(!p_obj->ReplaceString(inputText, RetStrBuf))
+			AppError = 1;
+		/*
 		RetStrBuf = 0;
 		if(p_obj->Inited) {
 			inputText.Strip().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
@@ -269,6 +282,7 @@ SString & DL6ICLS_PapyrusTextAnalyzer::ReplaceString(SString & inputText)
 		else {
 			AppError = 1;
 		}
+		*/
 	}
 	return RetStrBuf;
 }

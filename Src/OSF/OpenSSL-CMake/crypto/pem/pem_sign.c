@@ -43,5 +43,5 @@ int PEM_SignFinal(EVP_MD_CTX *ctx, uchar *sigret,
  err:
     /* ctx has been zeroed by EVP_SignFinal() */
     OPENSSL_free(m);
-    return (ret);
+    return ret;
 }

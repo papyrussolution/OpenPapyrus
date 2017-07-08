@@ -231,9 +231,9 @@ void EC_GROUP_set_point_conversion_form(EC_GROUP *group,
                                         point_conversion_form_t form);
 point_conversion_form_t EC_GROUP_get_point_conversion_form(const EC_GROUP *);
 
-unsigned char *EC_GROUP_get0_seed(const EC_GROUP *x);
+uchar *EC_GROUP_get0_seed(const EC_GROUP *x);
 size_t EC_GROUP_get_seed_len(const EC_GROUP *);
-size_t EC_GROUP_set_seed(EC_GROUP *, const unsigned char *, size_t len);
+size_t EC_GROUP_set_seed(EC_GROUP *, const uchar *, size_t len);
 
 /** Sets the parameter of a ec over GFp defined by y^2 = x^3 + a*x + b
  *  \param  group  EC_GROUP object
@@ -555,7 +555,7 @@ int EC_POINT_set_compressed_coordinates_GF2m(const EC_GROUP *group,
  */
 size_t EC_POINT_point2oct(const EC_GROUP *group, const EC_POINT *p,
                           point_conversion_form_t form,
-                          unsigned char *buf, size_t len, BN_CTX *ctx);
+                          uchar *buf, size_t len, BN_CTX *ctx);
 
 /** Decodes a EC_POINT from a octet string
  *  \param  group  underlying EC_GROUP object
@@ -566,7 +566,7 @@ size_t EC_POINT_point2oct(const EC_GROUP *group, const EC_POINT *p,
  *  \return 1 on success and 0 if an error occurred
  */
 int EC_POINT_oct2point(const EC_GROUP *group, EC_POINT *p,
-                       const unsigned char *buf, size_t len, BN_CTX *ctx);
+                       const uchar *buf, size_t len, BN_CTX *ctx);
 
 /** Encodes an EC_POINT object to an allocated octet string
  *  \param  group  underlying EC_GROUP object
@@ -580,7 +580,7 @@ int EC_POINT_oct2point(const EC_GROUP *group, EC_POINT *p,
 
 size_t EC_POINT_point2buf(const EC_GROUP *group, const EC_POINT *point,
                           point_conversion_form_t form,
-                          unsigned char **pbuf, BN_CTX *ctx);
+                          uchar **pbuf, BN_CTX *ctx);
 
 /* other interfaces to point2oct/oct2point: */
 BIGNUM *EC_POINT_point2bn(const EC_GROUP *, const EC_POINT *,
@@ -709,23 +709,23 @@ DECLARE_ASN1_ALLOC_FUNCTIONS(ECPARAMETERS)
  */
 int EC_GROUP_get_basis_type(const EC_GROUP *);
 # ifndef OPENSSL_NO_EC2M
-int EC_GROUP_get_trinomial_basis(const EC_GROUP *, unsigned int *k);
-int EC_GROUP_get_pentanomial_basis(const EC_GROUP *, unsigned int *k1,
-                                   unsigned int *k2, unsigned int *k3);
+int EC_GROUP_get_trinomial_basis(const EC_GROUP *, uint *k);
+int EC_GROUP_get_pentanomial_basis(const EC_GROUP *, uint *k1,
+                                   uint *k2, uint *k3);
 # endif
 
 # define OPENSSL_EC_EXPLICIT_CURVE  0x000
 # define OPENSSL_EC_NAMED_CURVE     0x001
 
-EC_GROUP *d2i_ECPKParameters(EC_GROUP **, const unsigned char **in, long len);
-int i2d_ECPKParameters(const EC_GROUP *, unsigned char **out);
+EC_GROUP *d2i_ECPKParameters(EC_GROUP **, const uchar **in, long len);
+int i2d_ECPKParameters(const EC_GROUP *, uchar **out);
 
 # define d2i_ECPKParameters_bio(bp,x) ASN1_d2i_bio_of(EC_GROUP,NULL,d2i_ECPKParameters,bp,x)
 # define i2d_ECPKParameters_bio(bp,x) ASN1_i2d_bio_of_const(EC_GROUP,i2d_ECPKParameters,bp,x)
 # define d2i_ECPKParameters_fp(fp,x) (EC_GROUP *)ASN1_d2i_fp(NULL, \
-                (char *(*)())d2i_ECPKParameters,(fp),(unsigned char **)(x))
+                (char *(*)())d2i_ECPKParameters,(fp),(uchar **)(x))
 # define i2d_ECPKParameters_fp(fp,x) ASN1_i2d_fp(i2d_ECPKParameters,(fp), \
-                (unsigned char *)(x))
+                (uchar *)(x))
 
 int ECPKParameters_print(BIO *bp, const EC_GROUP *x, int off);
 # ifndef OPENSSL_NO_STDIO
@@ -830,7 +830,7 @@ const EC_POINT *EC_KEY_get0_public_key(const EC_KEY *key);
 int EC_KEY_set_public_key(EC_KEY *key, const EC_POINT *pub);
 
 unsigned EC_KEY_get_enc_flags(const EC_KEY *key);
-void EC_KEY_set_enc_flags(EC_KEY *eckey, unsigned int flags);
+void EC_KEY_set_enc_flags(EC_KEY *eckey, uint flags);
 point_conversion_form_t EC_KEY_get_conv_form(const EC_KEY *key);
 void EC_KEY_set_conv_form(EC_KEY *eckey, point_conversion_form_t cform);
 
@@ -888,7 +888,7 @@ int EC_KEY_set_public_key_affine_coordinates(EC_KEY *key, BIGNUM *x,
  */
 
 size_t EC_KEY_key2buf(const EC_KEY *key, point_conversion_form_t form,
-                      unsigned char **pbuf, BN_CTX *ctx);
+                      uchar **pbuf, BN_CTX *ctx);
 
 /** Decodes a EC_KEY public key from a octet string
  *  \param  key    key to decode
@@ -898,7 +898,7 @@ size_t EC_KEY_key2buf(const EC_KEY *key, point_conversion_form_t form,
  *  \return 1 on success and 0 if an error occurred
  */
 
-int EC_KEY_oct2key(EC_KEY *key, const unsigned char *buf, size_t len,
+int EC_KEY_oct2key(EC_KEY *key, const uchar *buf, size_t len,
                    BN_CTX *ctx);
 
 /** Decodes an EC_KEY private key from an octet string
@@ -908,7 +908,7 @@ int EC_KEY_oct2key(EC_KEY *key, const unsigned char *buf, size_t len,
  *  \return 1 on success and 0 if an error occurred
  */
 
-int EC_KEY_oct2priv(EC_KEY *key, const unsigned char *buf, size_t len);
+int EC_KEY_oct2priv(EC_KEY *key, const uchar *buf, size_t len);
 
 /** Encodes a EC_KEY private key to an octet string
  *  \param  key    key to encode
@@ -918,7 +918,7 @@ int EC_KEY_oct2priv(EC_KEY *key, const unsigned char *buf, size_t len);
  *  \return the length of the encoded octet string or 0 if an error occurred
  */
 
-size_t EC_KEY_priv2oct(const EC_KEY *key, unsigned char *buf, size_t len);
+size_t EC_KEY_priv2oct(const EC_KEY *key, uchar *buf, size_t len);
 
 /** Encodes an EC_KEY private key to an allocated octet string
  *  \param  key    key to encode
@@ -926,7 +926,7 @@ size_t EC_KEY_priv2oct(const EC_KEY *key, unsigned char *buf, size_t len);
  *  \return the length of the encoded octet string or 0 if an error occurred
  */
 
-size_t EC_KEY_priv2buf(const EC_KEY *eckey, unsigned char **pbuf);
+size_t EC_KEY_priv2buf(const EC_KEY *eckey, uchar **pbuf);
 
 /********************************************************************/
 /*        de- and encoding functions for SEC1 ECPrivateKey          */
@@ -938,7 +938,7 @@ size_t EC_KEY_priv2buf(const EC_KEY *eckey, unsigned char **pbuf);
  *  \param  len  length of the DER encoded private key
  *  \return the decoded private key or NULL if an error occurred.
  */
-EC_KEY *d2i_ECPrivateKey(EC_KEY **key, const unsigned char **in, long len);
+EC_KEY *d2i_ECPrivateKey(EC_KEY **key, const uchar **in, long len);
 
 /** Encodes a private key object and stores the result in a buffer.
  *  \param  key  the EC_KEY object to encode
@@ -946,7 +946,7 @@ EC_KEY *d2i_ECPrivateKey(EC_KEY **key, const unsigned char **in, long len);
  *               of bytes needed).
  *  \return 1 on success and 0 if an error occurred.
  */
-int i2d_ECPrivateKey(EC_KEY *key, unsigned char **out);
+int i2d_ECPrivateKey(EC_KEY *key, uchar **out);
 
 /********************************************************************/
 /*        de- and encoding functions for EC parameters              */
@@ -959,7 +959,7 @@ int i2d_ECPrivateKey(EC_KEY *key, unsigned char **out);
  *  \return a EC_KEY object with the decoded parameters or NULL if an error
  *          occurred.
  */
-EC_KEY *d2i_ECParameters(EC_KEY **key, const unsigned char **in, long len);
+EC_KEY *d2i_ECParameters(EC_KEY **key, const uchar **in, long len);
 
 /** Encodes ec parameter and stores the result in a buffer.
  *  \param  key  the EC_KEY object with ec parameters to encode
@@ -967,7 +967,7 @@ EC_KEY *d2i_ECParameters(EC_KEY **key, const unsigned char **in, long len);
  *               of bytes needed).
  *  \return 1 on success and 0 if an error occurred.
  */
-int i2d_ECParameters(EC_KEY *key, unsigned char **out);
+int i2d_ECParameters(EC_KEY *key, uchar **out);
 
 /********************************************************************/
 /*         de- and encoding functions for EC public key             */
@@ -981,7 +981,7 @@ int i2d_ECParameters(EC_KEY *key, unsigned char **out);
  *  \return EC_KEY object with decoded public key or NULL if an error
  *          occurred.
  */
-EC_KEY *o2i_ECPublicKey(EC_KEY **key, const unsigned char **in, long len);
+EC_KEY *o2i_ECPublicKey(EC_KEY **key, const uchar **in, long len);
 
 /** Encodes a ec public key in an octet string.
  *  \param  key  the EC_KEY object with the public key
@@ -989,7 +989,7 @@ EC_KEY *o2i_ECPublicKey(EC_KEY **key, const unsigned char **in, long len);
  *               of bytes needed).
  *  \return 1 on success and 0 if an error occurred
  */
-int i2o_ECPublicKey(const EC_KEY *key, unsigned char **out);
+int i2o_ECPublicKey(const EC_KEY *key, uchar **out);
 
 /** Prints out the ec parameters on human readable form.
  *  \param  bp   BIO object to which the information is printed
@@ -1031,9 +1031,9 @@ const EC_KEY_METHOD *EC_KEY_get_method(const EC_KEY *key);
 int EC_KEY_set_method(EC_KEY *key, const EC_KEY_METHOD *meth);
 EC_KEY *EC_KEY_new_method(ENGINE *engine);
 
-int ECDH_KDF_X9_62(unsigned char *out, size_t outlen,
-                   const unsigned char *Z, size_t Zlen,
-                   const unsigned char *sinfo, size_t sinfolen,
+int ECDH_KDF_X9_62(uchar *out, size_t outlen,
+                   const uchar *Z, size_t Zlen,
+                   const uchar *sinfo, size_t sinfolen,
                    const EVP_MD *md);
 
 int ECDH_compute_key(void *out, size_t outlen, const EC_POINT *pub_key,
@@ -1056,10 +1056,10 @@ void ECDSA_SIG_free(ECDSA_SIG *sig);
 /** DER encode content of ECDSA_SIG object (note: this function modifies *pp
  *  (*pp += length of the DER encoded signature)).
  *  \param  sig  pointer to the ECDSA_SIG object
- *  \param  pp   pointer to a unsigned char pointer for the output or NULL
+ *  \param  pp   pointer to a uchar pointer for the output or NULL
  *  \return the length of the DER encoded ECDSA_SIG object or 0
  */
-int i2d_ECDSA_SIG(const ECDSA_SIG *sig, unsigned char **pp);
+int i2d_ECDSA_SIG(const ECDSA_SIG *sig, uchar **pp);
 
 /** Decodes a DER encoded ECDSA signature (note: this function changes *pp
  *  (*pp += len)).
@@ -1068,7 +1068,7 @@ int i2d_ECDSA_SIG(const ECDSA_SIG *sig, unsigned char **pp);
  *  \param  len  length of the buffer
  *  \return pointer to the decoded ECDSA_SIG structure (or NULL)
  */
-ECDSA_SIG *d2i_ECDSA_SIG(ECDSA_SIG **sig, const unsigned char **pp, long len);
+ECDSA_SIG *d2i_ECDSA_SIG(ECDSA_SIG **sig, const uchar **pp, long len);
 
 /** Accessor for r and s fields of ECDSA_SIG
  *  \param  sig  pointer to ECDSA_SIG pointer
@@ -1091,7 +1091,7 @@ int ECDSA_SIG_set0(ECDSA_SIG *sig, BIGNUM *r, BIGNUM *s);
  *  \param  eckey     EC_KEY object containing a private EC key
  *  \return pointer to a ECDSA_SIG structure or NULL if an error occurred
  */
-ECDSA_SIG *ECDSA_do_sign(const unsigned char *dgst, int dgst_len,
+ECDSA_SIG *ECDSA_do_sign(const uchar *dgst, int dgst_len,
                          EC_KEY *eckey);
 
 /** Computes ECDSA signature of a given hash value using the supplied
@@ -1104,7 +1104,7 @@ ECDSA_SIG *ECDSA_do_sign(const unsigned char *dgst, int dgst_len,
  *  \param  eckey    EC_KEY object containing a private EC key
  *  \return pointer to a ECDSA_SIG structure or NULL if an error occurred
  */
-ECDSA_SIG *ECDSA_do_sign_ex(const unsigned char *dgst, int dgstlen,
+ECDSA_SIG *ECDSA_do_sign_ex(const uchar *dgst, int dgstlen,
                             const BIGNUM *kinv, const BIGNUM *rp,
                             EC_KEY *eckey);
 
@@ -1117,7 +1117,7 @@ ECDSA_SIG *ECDSA_do_sign_ex(const unsigned char *dgst, int dgstlen,
  *  \return 1 if the signature is valid, 0 if the signature is invalid
  *          and -1 on error
  */
-int ECDSA_do_verify(const unsigned char *dgst, int dgst_len,
+int ECDSA_do_verify(const uchar *dgst, int dgst_len,
                     const ECDSA_SIG *sig, EC_KEY *eckey);
 
 /** Precompute parts of the signing operation
@@ -1139,8 +1139,8 @@ int ECDSA_sign_setup(EC_KEY *eckey, BN_CTX *ctx, BIGNUM **kinv, BIGNUM **rp);
  *  \param  eckey    EC_KEY object containing a private EC key
  *  \return 1 on success and 0 otherwise
  */
-int ECDSA_sign(int type, const unsigned char *dgst, int dgstlen,
-               unsigned char *sig, unsigned int *siglen, EC_KEY *eckey);
+int ECDSA_sign(int type, const uchar *dgst, int dgstlen,
+               uchar *sig, uint *siglen, EC_KEY *eckey);
 
 /** Computes ECDSA signature of a given hash value using the supplied
  *  private key (note: sig must point to ECDSA_size(eckey) bytes of memory).
@@ -1155,8 +1155,8 @@ int ECDSA_sign(int type, const unsigned char *dgst, int dgstlen,
  *  \param  eckey    EC_KEY object containing a private EC key
  *  \return 1 on success and 0 otherwise
  */
-int ECDSA_sign_ex(int type, const unsigned char *dgst, int dgstlen,
-                  unsigned char *sig, unsigned int *siglen,
+int ECDSA_sign_ex(int type, const uchar *dgst, int dgstlen,
+                  uchar *sig, uint *siglen,
                   const BIGNUM *kinv, const BIGNUM *rp, EC_KEY *eckey);
 
 /** Verifies that the given signature is valid ECDSA signature
@@ -1170,8 +1170,8 @@ int ECDSA_sign_ex(int type, const unsigned char *dgst, int dgstlen,
  *  \return 1 if the signature is valid, 0 if the signature is invalid
  *          and -1 on error
  */
-int ECDSA_verify(int type, const unsigned char *dgst, int dgstlen,
-                 const unsigned char *sig, int siglen, EC_KEY *eckey);
+int ECDSA_verify(int type, const uchar *dgst, int dgstlen,
+                 const uchar *sig, int siglen, EC_KEY *eckey);
 
 /** Returns the maximum length of the DER encoded signature
  *  \param  eckey  EC_KEY object
@@ -1199,20 +1199,20 @@ void EC_KEY_METHOD_set_keygen(EC_KEY_METHOD *meth,
                               int (*keygen)(EC_KEY *key));
 
 void EC_KEY_METHOD_set_compute_key(EC_KEY_METHOD *meth,
-                                   int (*ckey)(unsigned char **psec,
+                                   int (*ckey)(uchar **psec,
                                                size_t *pseclen,
                                                const EC_POINT *pub_key,
                                                const EC_KEY *ecdh));
 
 void EC_KEY_METHOD_set_sign(EC_KEY_METHOD *meth,
-                            int (*sign)(int type, const unsigned char *dgst,
-                                        int dlen, unsigned char *sig,
-                                        unsigned int *siglen,
+                            int (*sign)(int type, const uchar *dgst,
+                                        int dlen, uchar *sig,
+                                        uint *siglen,
                                         const BIGNUM *kinv, const BIGNUM *r,
                                         EC_KEY *eckey),
                             int (*sign_setup)(EC_KEY *eckey, BN_CTX *ctx_in,
                                               BIGNUM **kinvp, BIGNUM **rp),
-                            ECDSA_SIG *(*sign_sig)(const unsigned char *dgst,
+                            ECDSA_SIG *(*sign_sig)(const uchar *dgst,
                                                    int dgst_len,
                                                    const BIGNUM *in_kinv,
                                                    const BIGNUM *in_r,
@@ -1221,9 +1221,9 @@ void EC_KEY_METHOD_set_sign(EC_KEY_METHOD *meth,
 void EC_KEY_METHOD_set_verify(EC_KEY_METHOD *meth,
                               int (*verify)(int type, const unsigned
                                             char *dgst, int dgst_len,
-                                            const unsigned char *sigbuf,
+                                            const uchar *sigbuf,
                                             int sig_len, EC_KEY *eckey),
-                              int (*verify_sig)(const unsigned char *dgst,
+                              int (*verify_sig)(const uchar *dgst,
                                                 int dgst_len,
                                                 const ECDSA_SIG *sig,
                                                 EC_KEY *eckey));
@@ -1243,20 +1243,20 @@ void EC_KEY_METHOD_get_keygen(EC_KEY_METHOD *meth,
                               int (**pkeygen)(EC_KEY *key));
 
 void EC_KEY_METHOD_get_compute_key(EC_KEY_METHOD *meth,
-                                   int (**pck)(unsigned char **psec,
+                                   int (**pck)(uchar **psec,
                                                size_t *pseclen,
                                                const EC_POINT *pub_key,
                                                const EC_KEY *ecdh));
 
 void EC_KEY_METHOD_get_sign(EC_KEY_METHOD *meth,
-                            int (**psign)(int type, const unsigned char *dgst,
-                                          int dlen, unsigned char *sig,
-                                          unsigned int *siglen,
+                            int (**psign)(int type, const uchar *dgst,
+                                          int dlen, uchar *sig,
+                                          uint *siglen,
                                           const BIGNUM *kinv, const BIGNUM *r,
                                           EC_KEY *eckey),
                             int (**psign_setup)(EC_KEY *eckey, BN_CTX *ctx_in,
                                                 BIGNUM **kinvp, BIGNUM **rp),
-                            ECDSA_SIG *(**psign_sig)(const unsigned char *dgst,
+                            ECDSA_SIG *(**psign_sig)(const uchar *dgst,
                                                      int dgst_len,
                                                      const BIGNUM *in_kinv,
                                                      const BIGNUM *in_r,
@@ -1265,9 +1265,9 @@ void EC_KEY_METHOD_get_sign(EC_KEY_METHOD *meth,
 void EC_KEY_METHOD_get_verify(EC_KEY_METHOD *meth,
                               int (**pverify)(int type, const unsigned
                                               char *dgst, int dgst_len,
-                                              const unsigned char *sigbuf,
+                                              const uchar *sigbuf,
                                               int sig_len, EC_KEY *eckey),
-                              int (**pverify_sig)(const unsigned char *dgst,
+                              int (**pverify_sig)(const uchar *dgst,
                                                   int dgst_len,
                                                   const ECDSA_SIG *sig,
                                                   EC_KEY *eckey));

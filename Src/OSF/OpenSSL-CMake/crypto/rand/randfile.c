@@ -119,7 +119,7 @@ int RAND_load_file(const char * file, long bytes)
 	if(bytes == 0)
 		return ret;
 	in = openssl_fopen(file, "rb");
-	if(in == NULL)
+	if(!in)
 		goto err;
 #ifndef OPENSSL_NO_POSIX_IO
 	/*

@@ -83,7 +83,7 @@ int RECORD_LAYER_write_pending(const RECORD_LAYER * rl)
 	       && SSL3_BUFFER_get_left(&rl->wbuf[rl->numwpipes - 1]) != 0;
 }
 
-int RECORD_LAYER_set_data(RECORD_LAYER * rl, const unsigned char * buf, int len)
+int RECORD_LAYER_set_data(RECORD_LAYER * rl, const uchar * buf, int len)
 {
 	rl->packet_length = len;
 	if(len != 0) {
@@ -111,7 +111,7 @@ void RECORD_LAYER_reset_write_sequence(RECORD_LAYER * rl)
 
 int ssl3_pending(const SSL * s)
 {
-	unsigned int i;
+	uint i;
 	int num = 0;
 	if(s->rlayer.rstate == SSL_ST_READ_BODY)
 		return 0;
@@ -177,7 +177,7 @@ int ssl3_read_n(SSL * s, int n, int max, int extend, int clearold)
 	 */
 	int i, len, left;
 	size_t align = 0;
-	unsigned char * pkt;
+	uchar * pkt;
 	SSL3_BUFFER * rb;
 
 	if(n <= 0)
@@ -278,7 +278,6 @@ int ssl3_read_n(SSL * s, int n, int max, int extend, int clearold)
 		 * need to read in more until we have len+n (up to len+max if
 		 * possible)
 		 */
-
 		clear_sys_error();
 		if(s->rbio != NULL) {
 			s->rwstate = SSL_READING;
@@ -288,7 +287,6 @@ int ssl3_read_n(SSL * s, int n, int max, int extend, int clearold)
 			SSLerr(SSL_F_SSL3_READ_N, SSL_R_READ_BIO_NOT_SET);
 			i = -1;
 		}
-
 		if(i <= 0) {
 			rb->left = left;
 			if(s->mode & SSL_MODE_RELEASE_BUFFERS && !SSL_IS_DTLS(s))
@@ -322,12 +320,12 @@ int ssl3_read_n(SSL * s, int n, int max, int extend, int clearold)
  */
 int ssl3_write_bytes(SSL * s, int type, const void * buf_, int len)
 {
-	const unsigned char * buf = (const unsigned char *)buf_;
+	const uchar * buf = (const uchar *)buf_;
 	int tot;
-	unsigned int n, split_send_fragment, maxpipes;
+	uint n, split_send_fragment, maxpipes;
 #if !defined(OPENSSL_NO_MULTIBLOCK) && EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK
-	unsigned int max_send_fragment, nw;
-	unsigned int u_len = (unsigned int)len;
+	uint max_send_fragment, nw;
+	uint u_len = (uint)len;
 #endif
 	SSL3_BUFFER * wb = &s->rlayer.wbuf[0];
 	int i;
@@ -348,7 +346,7 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, int len)
 	 * promptly send beyond the end of the users buffer ... so we trap and
 	 * report the error in a way the user will notice
 	 */
-	if((unsigned int)len < s->rlayer.wnum) {
+	if((uint)len < s->rlayer.wnum) {
 		SSLerr(SSL_F_SSL3_WRITE_BYTES, SSL_R_BAD_LENGTH);
 		return -1;
 	}
@@ -385,32 +383,22 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, int len)
 	 * jumbo buffer to accommodate up to 8 records, but the
 	 * compromise is considered worthy.
 	 */
-	if(type == SSL3_RT_APPLICATION_DATA &&
-	    u_len >= 4 * (max_send_fragment = s->max_send_fragment) &&
-	    s->compress == NULL && s->msg_callback == NULL &&
-	    !SSL_WRITE_ETM(s) && SSL_USE_EXPLICIT_IV(s) &&
-	    EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(s->enc_write_ctx)) &
-	    EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK) {
-		unsigned char aad[13];
+	if(type == SSL3_RT_APPLICATION_DATA && u_len >= 4 * (max_send_fragment = s->max_send_fragment) &&
+	    s->compress == NULL && s->msg_callback == NULL && !SSL_WRITE_ETM(s) && SSL_USE_EXPLICIT_IV(s) &&
+	    EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(s->enc_write_ctx)) & EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK) {
+		uchar aad[13];
 		EVP_CTRL_TLS1_1_MULTIBLOCK_PARAM mb_param;
 		int packlen;
-
 		/* minimize address aliasing conflicts */
 		if((max_send_fragment & 0xfff) == 0)
 			max_send_fragment -= 512;
-
 		if(tot == 0 || wb->buf == NULL) { /* allocate jumbo buffer */
 			ssl3_release_write_buffer(s);
-
-			packlen = EVP_CIPHER_CTX_ctrl(s->enc_write_ctx,
-			    EVP_CTRL_TLS1_1_MULTIBLOCK_MAX_BUFSIZE,
-			    max_send_fragment, NULL);
-
+			packlen = EVP_CIPHER_CTX_ctrl(s->enc_write_ctx, EVP_CTRL_TLS1_1_MULTIBLOCK_MAX_BUFSIZE, max_send_fragment, NULL);
 			if(u_len >= 8 * max_send_fragment)
 				packlen *= 8;
 			else
 				packlen *= 4;
-
 			if(!ssl3_setup_write_buffer(s, 1, packlen)) {
 				SSLerr(SSL_F_SSL3_WRITE_BYTES, ERR_R_MALLOC_FAILURE);
 				return -1;
@@ -421,7 +409,6 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, int len)
 			ssl3_release_write_buffer(s);
 			return tot;
 		}
-
 		n = (len - tot);
 		for(;; ) {
 			if(n < 4 * max_send_fragment) {
@@ -429,7 +416,6 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, int len)
 				ssl3_release_write_buffer(s);
 				break;
 			}
-
 			if(s->s3->alert_dispatch) {
 				i = s->method->ssl_dispatch_alert(s);
 				if(i <= 0) {
@@ -437,16 +423,14 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, int len)
 					return i;
 				}
 			}
-
 			if(n >= 8 * max_send_fragment)
 				nw = max_send_fragment * (mb_param.interleave = 8);
 			else
 				nw = max_send_fragment * (mb_param.interleave = 4);
-
 			memcpy(aad, s->rlayer.write_sequence, 8);
 			aad[8] = type;
-			aad[9] = (unsigned char)(s->version >> 8);
-			aad[10] = (unsigned char)(s->version);
+			aad[9] = (uchar)(s->version >> 8);
+			aad[10] = (uchar)(s->version);
 			aad[11] = 0;
 			aad[12] = 0;
 			mb_param.out = NULL;
@@ -548,8 +532,8 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, int len)
 	}
 
 	for(;; ) {
-		unsigned int pipelens[SSL_MAX_PIPELINES], tmppipelen, remain;
-		unsigned int numpipes, j;
+		uint pipelens[SSL_MAX_PIPELINES], tmppipelen, remain;
+		uint numpipes, j;
 
 		if(n == 0)
 			numpipes = 1;
@@ -606,11 +590,11 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, int len)
 	}
 }
 
-int do_ssl3_write(SSL * s, int type, const unsigned char * buf,
-    unsigned int * pipelens, unsigned int numpipes,
+int do_ssl3_write(SSL * s, int type, const uchar * buf,
+    uint * pipelens, uint numpipes,
     int create_empty_fragment)
 {
-	unsigned char * outbuf[SSL_MAX_PIPELINES], * plen[SSL_MAX_PIPELINES];
+	uchar * outbuf[SSL_MAX_PIPELINES], * plen[SSL_MAX_PIPELINES];
 	SSL3_RECORD wr[SSL_MAX_PIPELINES];
 	int i, mac_size, clear = 0;
 	int prefix_len = 0;
@@ -618,8 +602,8 @@ int do_ssl3_write(SSL * s, int type, const unsigned char * buf,
 	size_t align = 0;
 	SSL3_BUFFER * wb;
 	SSL_SESSION * sess;
-	unsigned int totlen = 0;
-	unsigned int j;
+	uint totlen = 0;
+	uint j;
 
 	for(j = 0; j < numpipes; j++)
 		totlen += pipelens[j];
@@ -641,14 +625,10 @@ int do_ssl3_write(SSL * s, int type, const unsigned char * buf,
 	if(s->rlayer.numwpipes < numpipes)
 		if(!ssl3_setup_write_buffer(s, numpipes, 0))
 			return -1;
-
 	if(totlen == 0 && !create_empty_fragment)
 		return 0;
-
 	sess = s->session;
-
-	if((sess == NULL) ||
-	    (s->enc_write_ctx == NULL) || (EVP_MD_CTX_md(s->write_hash) == NULL)) {
+	if((sess == NULL) || (s->enc_write_ctx == NULL) || (EVP_MD_CTX_md(s->write_hash) == NULL)) {
 		clear = s->enc_write_ctx ? 0 : 1; /* must be AEAD cipher */
 		mac_size = 0;
 	}
@@ -657,7 +637,6 @@ int do_ssl3_write(SSL * s, int type, const unsigned char * buf,
 		if(mac_size < 0)
 			goto err;
 	}
-
 	/*
 	 * 'create_empty_fragment' is true only when this function calls itself
 	 */
@@ -666,7 +645,6 @@ int do_ssl3_write(SSL * s, int type, const unsigned char * buf,
 		 * countermeasure against known-IV weakness in CBC ciphersuites (see
 		 * http://www.openssl.org/~bodo/tls-cbc.txt)
 		 */
-
 		if(s->s3->need_empty_fragments && type == SSL3_RT_APPLICATION_DATA) {
 			/*
 			 * recursive function call with 'create_empty_fragment' set; this
@@ -674,7 +652,7 @@ int do_ssl3_write(SSL * s, int type, const unsigned char * buf,
 			 * 'prefix_len' bytes are sent out later together with the actual
 			 * payload)
 			 */
-			unsigned int tmppipelen = 0;
+			uint tmppipelen = 0;
 
 			prefix_len = do_ssl3_write(s, type, buf, &tmppipelen, 1, 1);
 			if(prefix_len <= 0)
@@ -765,7 +743,7 @@ int do_ssl3_write(SSL * s, int type, const unsigned char * buf,
 		/* lets setup the record stuff. */
 		SSL3_RECORD_set_data(&wr[j], outbuf[j] + eivlen);
 		SSL3_RECORD_set_length(&wr[j], (int)pipelens[j]);
-		SSL3_RECORD_set_input(&wr[j], (unsigned char*)&buf[totlen]);
+		SSL3_RECORD_set_input(&wr[j], (uchar*)&buf[totlen]);
 		totlen += pipelens[j];
 
 		/*
@@ -872,12 +850,12 @@ err:
  *
  * Return values are as per SSL_write()
  */
-int ssl3_write_pending(SSL * s, int type, const unsigned char * buf,
-    unsigned int len)
+int ssl3_write_pending(SSL * s, int type, const uchar * buf,
+    uint len)
 {
 	int i;
 	SSL3_BUFFER * wb = s->rlayer.wbuf;
-	unsigned int currbuf = 0;
+	uint currbuf = 0;
 
 /* XXXX */
 	if((s->rlayer.wpend_tot > (int)len)
@@ -901,7 +879,7 @@ int ssl3_write_pending(SSL * s, int type, const unsigned char * buf,
 			i = BIO_write(s->wbio, (char*)
 			    &(SSL3_BUFFER_get_buf(&wb[currbuf])
 				    [SSL3_BUFFER_get_offset(&wb[currbuf])]),
-			    (unsigned int)SSL3_BUFFER_get_left(&wb[currbuf]));
+			    (uint)SSL3_BUFFER_get_left(&wb[currbuf]));
 		}
 		else {
 			SSLerr(SSL_F_SSL3_WRITE_PENDING, SSL_R_BIO_NOT_SET);
@@ -959,11 +937,11 @@ int ssl3_write_pending(SSL * s, int type, const unsigned char * buf,
  *     Application data protocol
  *             none of our business
  */
-int ssl3_read_bytes(SSL * s, int type, int * recvd_type, unsigned char * buf,
+int ssl3_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf,
     int len, int peek)
 {
 	int al, i, j, ret;
-	unsigned int n, curr_rec, num_recs, read_bytes;
+	uint n, curr_rec, num_recs, read_bytes;
 	SSL3_RECORD * rr;
 	SSL3_BUFFER * rbuf;
 	void (* cb)(const SSL * ssl, int type2, int val) = NULL;
@@ -986,9 +964,9 @@ int ssl3_read_bytes(SSL * s, int type, int * recvd_type, unsigned char * buf,
 
 	if((type == SSL3_RT_HANDSHAKE) && (s->rlayer.handshake_fragment_len > 0)) {
 		/* (partially) satisfy request from storage */
-		unsigned char * src = s->rlayer.handshake_fragment;
-		unsigned char * dst = buf;
-		unsigned int k;
+		uchar * src = s->rlayer.handshake_fragment;
+		uchar * dst = buf;
+		uint k;
 
 		/* peek == 0 */
 		n = 0;
@@ -1040,7 +1018,7 @@ start:
 		if(num_recs == 0) {
 			ret = ssl3_get_record(s);
 			if(ret <= 0)
-				return (ret);
+				return ret;
 			num_recs = RECORD_LAYER_get_numrpipes(&s->rlayer);
 			if(num_recs == 0) {
 				/* Shouldn't happen */
@@ -1086,7 +1064,7 @@ start:
 	if(s->shutdown & SSL_RECEIVED_SHUTDOWN) {
 		SSL3_RECORD_set_length(rr, 0);
 		s->rwstate = SSL_NOTHING;
-		return (0);
+		return 0;
 	}
 
 	if(type == SSL3_RECORD_get_type(rr)
@@ -1124,10 +1102,10 @@ start:
 
 		read_bytes = 0;
 		do {
-			if((unsigned int)len - read_bytes > SSL3_RECORD_get_length(rr))
+			if((uint)len - read_bytes > SSL3_RECORD_get_length(rr))
 				n = SSL3_RECORD_get_length(rr);
 			else
-				n = (unsigned int)len - read_bytes;
+				n = (uint)len - read_bytes;
 
 			memcpy(buf, &(rr->data[rr->off]), n);
 			buf += n;
@@ -1152,7 +1130,7 @@ start:
 			}
 			read_bytes += n;
 		} while(type == SSL3_RT_APPLICATION_DATA && curr_rec < num_recs
-		    && read_bytes < (unsigned int)len);
+		    && read_bytes < (uint)len);
 		if(read_bytes == 0) {
 			/* We must have read empty records. Get more data */
 			goto start;
@@ -1204,9 +1182,9 @@ start:
 	 * that so that we can process the data at a fixed place.
 	 */
 	{
-		unsigned int dest_maxlen = 0;
-		unsigned char * dest = NULL;
-		unsigned int * dest_len = NULL;
+		uint dest_maxlen = 0;
+		uchar * dest = NULL;
+		uint * dest_len = NULL;
 
 		if(SSL3_RECORD_get_type(rr) == SSL3_RT_HANDSHAKE) {
 			dest_maxlen = sizeof s->rlayer.handshake_fragment;
@@ -1362,7 +1340,7 @@ start:
 
 			if(alert_descr == SSL_AD_CLOSE_NOTIFY) {
 				s->shutdown |= SSL_RECEIVED_SHUTDOWN;
-				return (0);
+				return 0;
 			}
 			/*
 			 * This is a warning but we receive it if we requested
@@ -1379,7 +1357,7 @@ start:
 			}
 #ifdef SSL_AD_MISSING_SRP_USERNAME
 			else if(alert_descr == SSL_AD_MISSING_SRP_USERNAME)
-				return (0);
+				return 0;
 #endif
 		}
 		else if(alert_level == SSL3_AL_FATAL) {
@@ -1393,7 +1371,7 @@ start:
 			s->shutdown |= SSL_RECEIVED_SHUTDOWN;
 			SSL3_RECORD_set_read(rr);
 			SSL_CTX_remove_session(s->session_ctx, s->session);
-			return (0);
+			return 0;
 		}
 		else {
 			al = SSL_AD_ILLEGAL_PARAMETER;
@@ -1409,7 +1387,7 @@ start:
 		s->rwstate = SSL_NOTHING;
 		SSL3_RECORD_set_length(rr, 0);
 		SSL3_RECORD_set_read(rr);
-		return (0);
+		return 0;
 	}
 
 	if(SSL3_RECORD_get_type(rr) == SSL3_RT_CHANGE_CIPHER_SPEC) {
@@ -1505,7 +1483,7 @@ f_err:
 	return (-1);
 }
 
-void ssl3_record_sequence_update(unsigned char * seq)
+void ssl3_record_sequence_update(uchar * seq)
 {
 	int i;
 
@@ -1528,7 +1506,7 @@ int RECORD_LAYER_is_sslv2_record(RECORD_LAYER * rl)
 /*
  * Returns the length in bytes of the current rrec
  */
-unsigned int RECORD_LAYER_get_rrec_length(RECORD_LAYER * rl)
+uint RECORD_LAYER_get_rrec_length(RECORD_LAYER * rl)
 {
 	return SSL3_RECORD_get_length(&rl->rrec[0]);
 }

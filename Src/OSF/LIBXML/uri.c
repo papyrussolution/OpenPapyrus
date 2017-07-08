@@ -194,7 +194,7 @@ static int xmlParse3986Scheme(xmlURIPtr uri, const char ** str)
 		cur++;
 	if(uri) {
 		if(uri->scheme != NULL)
-			free(uri->scheme);
+			SAlloc::F(uri->scheme);
 		uri->scheme = STRNDUP(*str, cur - *str);
 	}
 	*str = cur;
@@ -220,13 +220,13 @@ static int xmlParse3986Fragment(xmlURIPtr uri, const char ** str)
 {
 	const char * cur;
 	if(str == NULL)
-		return (-1);
+		return -1;
 	cur = *str;
 	while((ISA_PCHAR(cur)) || oneof4(*cur, '/', '?', '[', ']') || (uri && (uri->cleanup & 1) && (IS_UNWISE(cur))))
 		NEXT(cur);
 	if(uri) {
 		if(uri->fragment != NULL)
-			free(uri->fragment);
+			SAlloc::F(uri->fragment);
 		if(uri->cleanup & 2)
 			uri->fragment = STRNDUP(*str, cur - *str);
 		else
@@ -251,13 +251,13 @@ static int xmlParse3986Query(xmlURIPtr uri, const char ** str)
 {
 	const char * cur;
 	if(str == NULL)
-		return (-1);
+		return -1;
 	cur = *str;
 	while((ISA_PCHAR(cur)) || oneof2(*cur, '/', '?') || (uri && (uri->cleanup & 1) && (IS_UNWISE(cur))))
 		NEXT(cur);
 	if(uri) {
 		if(uri->query != NULL)
-			free(uri->query);
+			SAlloc::F(uri->query);
 		if(uri->cleanup & 2)
 			uri->query = STRNDUP(*str, cur - *str);
 		else
@@ -267,7 +267,7 @@ static int xmlParse3986Query(xmlURIPtr uri, const char ** str)
 		 * See: http://mail.gnome.org/archives/xml/2007-April/thread.html#00114
 		 */
 		if(uri->query_raw != NULL)
-			free(uri->query_raw);
+			SAlloc::F(uri->query_raw);
 		uri->query_raw = STRNDUP(*str, cur - *str);
 	}
 	*str = cur;
@@ -322,7 +322,7 @@ static int xmlParse3986Userinfo(xmlURIPtr uri, const char ** str)
 		NEXT(cur);
 	if(*cur == '@') {
 		if(uri) {
-			if(uri->user != NULL) free(uri->user);
+			if(uri->user != NULL) SAlloc::F(uri->user);
 			if(uri->cleanup & 2)
 				uri->user = STRNDUP(*str, cur - *str);
 			else
@@ -431,10 +431,10 @@ not_ipv4:
 found:
 	if(uri) {
 		if(uri->authority != NULL)
-			free(uri->authority);
+			SAlloc::F(uri->authority);
 		uri->authority = NULL;
 		if(uri->server != NULL)
-			free(uri->server);
+			SAlloc::F(uri->server);
 		if(cur != host) {
 			if(uri->cleanup & 2)
 				uri->server = STRNDUP(host, cur - host);
@@ -531,7 +531,7 @@ static int FASTCALL xmlParse3986PathAbEmpty(xmlURIPtr uri, const char ** str)
 			return ret;
 	}
 	if(uri) {
-		if(uri->path != NULL) free(uri->path);
+		if(uri->path != NULL) SAlloc::F(uri->path);
 		if(*str != cur) {
 			if(uri->cleanup & 2)
 				uri->path = STRNDUP(*str, cur - *str);
@@ -574,7 +574,7 @@ static int FASTCALL xmlParse3986PathAbsolute(xmlURIPtr uri, const char ** str)
 		}
 	}
 	if(uri) {
-		if(uri->path != NULL) free(uri->path);
+		if(uri->path != NULL) SAlloc::F(uri->path);
 		if(cur != *str) {
 			if(uri->cleanup & 2)
 				uri->path = STRNDUP(*str, cur - *str);
@@ -612,7 +612,7 @@ static int FASTCALL xmlParse3986PathRootless(xmlURIPtr uri, const char ** str)
 	}
 	if(uri) {
 		if(uri->path != NULL)
-			free(uri->path);
+			SAlloc::F(uri->path);
 		if(cur != *str) {
 			if(uri->cleanup & 2)
 				uri->path = STRNDUP(*str, cur - *str);
@@ -650,7 +650,7 @@ static int xmlParse3986PathNoScheme(xmlURIPtr uri, const char ** str)
 		if(ret != 0) return ret;
 	}
 	if(uri) {
-		free(uri->path);
+		SAlloc::F(uri->path);
 		if(cur != *str) {
 			if(uri->cleanup & 2)
 				uri->path = STRNDUP(*str, cur - *str);
@@ -706,7 +706,7 @@ static int xmlParse3986HierPart(xmlURIPtr uri, const char ** str)
 	else {
 		/* path-empty is effectively empty */
 		if(uri) {
-			if(uri->path != NULL) free(uri->path);
+			if(uri->path != NULL) SAlloc::F(uri->path);
 			uri->path = NULL;
 		}
 	}
@@ -751,7 +751,7 @@ static int xmlParse3986RelativeRef(xmlURIPtr uri, const char * str)
 	else {
 		/* path-empty is effectively empty */
 		if(uri) {
-			if(uri->path != NULL) free(uri->path);
+			if(uri->path != NULL) SAlloc::F(uri->path);
 			uri->path = NULL;
 		}
 	}
@@ -932,8 +932,8 @@ xmlURIPtr xmlParseURIRaw(const char * str, int raw)
  */
 xmlURIPtr xmlCreateURI()
 {
-	xmlURIPtr ret = (xmlURIPtr)xmlMalloc(sizeof(xmlURI));
-	if(ret == NULL) {
+	xmlURIPtr ret = (xmlURIPtr)SAlloc::M(sizeof(xmlURI));
+	if(!ret) {
 		xmlURIErrMemory("creating URI structure\n");
 		return 0;
 	}
@@ -956,7 +956,7 @@ static xmlChar * xmlSaveUriRealloc(xmlChar * ret, int * max)
 		return 0;
 	}
 	tmp = *max * 2;
-	temp = (xmlChar*)xmlRealloc(ret, (tmp + 1));
+	temp = (xmlChar*)SAlloc::R(ret, (tmp + 1));
 	if(temp == NULL) {
 		xmlURIErrMemory("saving URI\n");
 		return 0;
@@ -982,8 +982,8 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 	int max = 80;
 	if(uri == NULL)
 		return 0;
-	ret = (xmlChar*)xmlMallocAtomic((max + 1) * sizeof(xmlChar));
-	if(ret == NULL) {
+	ret = (xmlChar*)SAlloc::M((max + 1) * sizeof(xmlChar));
+	if(!ret) {
 		xmlURIErrMemory("saving URI\n");
 		return 0;
 	}
@@ -1128,7 +1128,7 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 			    (((p[1] >= 'a') && (p[1] <= 'z')) ||
 				    ((p[1] >= 'A') && (p[1] <= 'Z'))) &&
 			    (p[2] == ':') &&
-			    (xmlStrEqual(BAD_CAST uri->scheme, BAD_CAST "file"))) {
+			    (sstreq(BAD_CAST uri->scheme, BAD_CAST "file"))) {
 				if(len + 3 >= max) {
 					temp = xmlSaveUriRealloc(ret, &max);
 					if(temp == NULL) goto mem_error;
@@ -1234,7 +1234,7 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 	ret[len] = 0;
 	return ret;
 mem_error:
-	free(ret);
+	SAlloc::F(ret);
 	return 0;
 }
 
@@ -1250,7 +1250,7 @@ void xmlPrintURI(FILE * stream, xmlURIPtr uri)
 	xmlChar * out = xmlSaveUri(uri);
 	if(out != NULL) {
 		fprintf(stream, "%s", (char*)out);
-		free(out);
+		SAlloc::F(out);
 	}
 }
 
@@ -1263,23 +1263,23 @@ void xmlPrintURI(FILE * stream, xmlURIPtr uri)
 static void xmlCleanURI(xmlURIPtr uri)
 {
 	if(uri) {
-		if(uri->scheme != NULL) free(uri->scheme);
+		if(uri->scheme != NULL) SAlloc::F(uri->scheme);
 		uri->scheme = NULL;
-		if(uri->server != NULL) free(uri->server);
+		if(uri->server != NULL) SAlloc::F(uri->server);
 		uri->server = NULL;
-		if(uri->user != NULL) free(uri->user);
+		if(uri->user != NULL) SAlloc::F(uri->user);
 		uri->user = NULL;
-		if(uri->path != NULL) free(uri->path);
+		if(uri->path != NULL) SAlloc::F(uri->path);
 		uri->path = NULL;
-		if(uri->fragment != NULL) free(uri->fragment);
+		if(uri->fragment != NULL) SAlloc::F(uri->fragment);
 		uri->fragment = NULL;
-		if(uri->opaque != NULL) free(uri->opaque);
+		if(uri->opaque != NULL) SAlloc::F(uri->opaque);
 		uri->opaque = NULL;
-		if(uri->authority != NULL) free(uri->authority);
+		if(uri->authority != NULL) SAlloc::F(uri->authority);
 		uri->authority = NULL;
-		if(uri->query != NULL) free(uri->query);
+		if(uri->query != NULL) SAlloc::F(uri->query);
 		uri->query = NULL;
-		if(uri->query_raw != NULL) free(uri->query_raw);
+		if(uri->query_raw != NULL) SAlloc::F(uri->query_raw);
 		uri->query_raw = NULL;
 	}
 }
@@ -1293,16 +1293,16 @@ static void xmlCleanURI(xmlURIPtr uri)
 void xmlFreeURI(xmlURIPtr uri)
 {
 	if(uri) {
-		free(uri->scheme);
-		free(uri->server);
-		free(uri->user);
-		free(uri->path);
-		free(uri->fragment);
-		free(uri->opaque);
-		free(uri->authority);
-		free(uri->query);
-		free(uri->query_raw);
-		free(uri);
+		SAlloc::F(uri->scheme);
+		SAlloc::F(uri->server);
+		SAlloc::F(uri->user);
+		SAlloc::F(uri->path);
+		SAlloc::F(uri->fragment);
+		SAlloc::F(uri->opaque);
+		SAlloc::F(uri->authority);
+		SAlloc::F(uri->query);
+		SAlloc::F(uri->query_raw);
+		SAlloc::F(uri);
 	}
 }
 
@@ -1515,8 +1515,8 @@ char * xmlURIUnescapeString(const char * str, int len, char * target)
 	if(len <= 0) len = strlen(str);
 	if(len < 0) return 0;
 	if(target == NULL) {
-		ret = (char*)xmlMallocAtomic(len + 1);
-		if(ret == NULL) {
+		ret = (char*)SAlloc::M(len + 1);
+		if(!ret) {
 			xmlURIErrMemory("unescaping URI value\n");
 			return 0;
 		}
@@ -1574,12 +1574,12 @@ xmlChar * xmlURIEscapeStr(const xmlChar * str, const xmlChar * list)
 		return 0;
 	if(str[0] == 0)
 		return(xmlStrdup(str));
-	len = xmlStrlen(str);
+	len = sstrlen(str);
 	if(!(len > 0))
 		return 0;
 	len += 20;
-	ret = (xmlChar*)xmlMallocAtomic(len);
-	if(ret == NULL) {
+	ret = (xmlChar*)SAlloc::M(len);
+	if(!ret) {
 		xmlURIErrMemory("escaping URI value\n");
 		return 0;
 	}
@@ -1590,7 +1590,7 @@ xmlChar * xmlURIEscapeStr(const xmlChar * str, const xmlChar * list)
 			temp = xmlSaveUriRealloc(ret, &len);
 			if(temp == NULL) {
 				xmlURIErrMemory("escaping URI value\n");
-				free(ret);
+				SAlloc::F(ret);
 				return 0;
 			}
 			ret = temp;
@@ -1664,14 +1664,14 @@ xmlChar * xmlURIEscape(const xmlChar * str)
 		NULLCHK(segment)
 		ret = xmlStrcat(ret, segment);
 		ret = xmlStrcat(ret, BAD_CAST ":");
-		free(segment);
+		SAlloc::F(segment);
 	}
 	if(uri->authority) {
 		segment = xmlURIEscapeStr(BAD_CAST uri->authority, BAD_CAST "/?;:@");
 		NULLCHK(segment)
 		ret = xmlStrcat(ret, BAD_CAST "//");
 		ret = xmlStrcat(ret, segment);
-		free(segment);
+		SAlloc::F(segment);
 	}
 	if(uri->user) {
 		segment = xmlURIEscapeStr(BAD_CAST uri->user, BAD_CAST ";:&=+$,");
@@ -1679,7 +1679,7 @@ xmlChar * xmlURIEscape(const xmlChar * str)
 		ret = xmlStrcat(ret, BAD_CAST "//");
 		ret = xmlStrcat(ret, segment);
 		ret = xmlStrcat(ret, BAD_CAST "@");
-		free(segment);
+		SAlloc::F(segment);
 	}
 	if(uri->server) {
 		segment = xmlURIEscapeStr(BAD_CAST uri->server, BAD_CAST "/?;:@");
@@ -1687,7 +1687,7 @@ xmlChar * xmlURIEscape(const xmlChar * str)
 		if(uri->user == NULL)
 			ret = xmlStrcat(ret, BAD_CAST "//");
 		ret = xmlStrcat(ret, segment);
-		free(segment);
+		SAlloc::F(segment);
 	}
 	if(uri->port) {
 		xmlChar port[10];
@@ -1699,7 +1699,7 @@ xmlChar * xmlURIEscape(const xmlChar * str)
 		segment = xmlURIEscapeStr(BAD_CAST uri->path, BAD_CAST ":@&=+$,/?;");
 		NULLCHK(segment)
 		ret = xmlStrcat(ret, segment);
-		free(segment);
+		SAlloc::F(segment);
 	}
 
 	if(uri->query_raw) {
@@ -1711,24 +1711,24 @@ xmlChar * xmlURIEscape(const xmlChar * str)
 		NULLCHK(segment)
 		ret = xmlStrcat(ret, BAD_CAST "?");
 		ret = xmlStrcat(ret, segment);
-		free(segment);
+		SAlloc::F(segment);
 	}
 	if(uri->opaque) {
 		segment = xmlURIEscapeStr(BAD_CAST uri->opaque, BAD_CAST "");
 		NULLCHK(segment)
 		ret = xmlStrcat(ret, segment);
-		free(segment);
+		SAlloc::F(segment);
 	}
 	if(uri->fragment) {
 		segment = xmlURIEscapeStr(BAD_CAST uri->fragment, BAD_CAST "#");
 		NULLCHK(segment)
 		ret = xmlStrcat(ret, BAD_CAST "#");
 		ret = xmlStrcat(ret, segment);
-		free(segment);
+		SAlloc::F(segment);
 	}
 	xmlFreeURI(uri);
 #undef NULLCHK
-	return (ret);
+	return ret;
 }
 
 /************************************************************************
@@ -1806,7 +1806,7 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 		 * the base fragment must be ignored
 		 */
 		if(bas->fragment != NULL) {
-			free(bas->fragment);
+			SAlloc::F(bas->fragment);
 			bas->fragment = NULL;
 		}
 		val = xmlSaveUri(bas);
@@ -1923,7 +1923,7 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 		len += strlen(ref->path);
 	if(bas->path != NULL)
 		len += strlen(bas->path);
-	res->path = (char*)xmlMallocAtomic(len);
+	res->path = (char*)SAlloc::M(len);
 	if(res->path == NULL) {
 		xmlURIErrMemory("resolving URI against base\n");
 		goto done;
@@ -2082,7 +2082,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 		val = xmlStrdup(URI);
 		goto done;
 	}
-	if(xmlStrEqual((xmlChar*)bas->path, (xmlChar*)ref->path)) {
+	if(sstreq((xmlChar*)bas->path, (xmlChar*)ref->path)) {
 		val = xmlStrdup(BAD_CAST "");
 		goto done;
 	}
@@ -2168,7 +2168,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 					nbslash++;
 			}
 		}
-		len = xmlStrlen(uptr) + 1;
+		len = sstrlen(uptr) + 1;
 	}
 
 	if(nbslash == 0) {
@@ -2183,7 +2183,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	 * length of the remainder of the URI, plus enough space
 	 * for the "../" groups, plus one for the terminator
 	 */
-	val = (xmlChar*)xmlMalloc(len + 3 * nbslash);
+	val = (xmlChar*)SAlloc::M(len + 3 * nbslash);
 	if(val == NULL) {
 		xmlURIErrMemory("building relative URI\n");
 		goto done;
@@ -2219,7 +2219,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	vptr = val;
 	/* exception characters from xmlSaveUri */
 	val = xmlURIEscapeStr(vptr, BAD_CAST "/;&=+$,");
-	free(vptr);
+	SAlloc::F(vptr);
 
 done:
 	/*
@@ -2335,12 +2335,12 @@ path_processing:
 		return 0;
 	}
 
-	len = xmlStrlen(path);
+	len = sstrlen(path);
 	if((len > 2) && IS_WINDOWS_PATH(path)) {
 		/* make the scheme 'file' */
 		uri->scheme = (char *)xmlStrdup(BAD_CAST "file");
 		/* allocate space for leading '/' + path + string terminator */
-		uri->path = (char *)xmlMallocAtomic(len + 2);
+		uri->path = (char *)SAlloc::M(len + 2);
 		if(uri->path == NULL) {
 			xmlFreeURI(uri); /* Guard agains 'out of memory' */
 			return 0;
@@ -2423,7 +2423,7 @@ xmlChar * xmlPathToURI(const xmlChar * path)
 	MEMSZERO(temp);
 	temp.path = (char*)cal;
 	ret = xmlSaveUri(&temp);
-	free(cal);
+	SAlloc::F(cal);
 	return ret;
 }
 

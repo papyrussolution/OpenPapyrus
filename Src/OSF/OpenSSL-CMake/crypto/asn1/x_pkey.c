@@ -15,7 +15,7 @@
 X509_PKEY * X509_PKEY_new(void)
 {
 	X509_PKEY * ret = (X509_PKEY*)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL)
+	if(!ret)
 		goto err;
 	ret->enc_algor = X509_ALGOR_new();
 	ret->enc_pkey = ASN1_OCTET_STRING_new();
@@ -31,7 +31,7 @@ err:
 
 void X509_PKEY_free(X509_PKEY * x)
 {
-	if(x == NULL)
+	if(!x)
 		return;
 
 	X509_ALGOR_free(x->enc_algor);

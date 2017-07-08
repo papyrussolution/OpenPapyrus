@@ -64,7 +64,7 @@ int RSA_set_method(RSA * rsa, const RSA_METHOD * meth)
 RSA * RSA_new_method(ENGINE * engine)
 {
 	RSA * ret = (RSA*)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL) {
+	if(!ret) {
 		RSAerr(RSA_F_RSA_NEW_METHOD, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}

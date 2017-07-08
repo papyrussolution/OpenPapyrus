@@ -3288,7 +3288,7 @@ public:
 	}
 private:
 	const SdRecord & R_Rec;
-	SString TempBuf;
+	SString TempBuf; // @allocreuse
 };
 
 // @vmiller

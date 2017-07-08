@@ -60,7 +60,7 @@ static void xmlModuleErrMemory(xmlModulePtr module, const char * extra)
  */
 xmlModulePtr xmlModuleOpen(const char * name, int options ATTRIBUTE_UNUSED)
 {
-	xmlModulePtr module = (xmlModulePtr)xmlMalloc(sizeof(xmlModule));
+	xmlModulePtr module = (xmlModulePtr)SAlloc::M(sizeof(xmlModule));
 	if(module == NULL) {
 		xmlModuleErrMemory(NULL, "creating module");
 		return 0;
@@ -68,7 +68,7 @@ xmlModulePtr xmlModuleOpen(const char * name, int options ATTRIBUTE_UNUSED)
 	memzero(module, sizeof(xmlModule));
 	module->handle = xmlModulePlatformOpen(name);
 	if(module->handle == NULL) {
-		free(module);
+		SAlloc::F(module);
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_OPEN, XML_ERR_FATAL, NULL, 0, 0, name, NULL, 0, 0, "failed to open %s\n", name);
 		return 0;
 	}
@@ -146,8 +146,8 @@ int xmlModuleFree(xmlModulePtr module)
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_CLOSE, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "null module pointer\n");
 		return -1;
 	}
-	free(module->name);
-	free(module);
+	SAlloc::F(module->name);
+	SAlloc::F(module);
 	return 0;
 }
 

@@ -893,14 +893,16 @@ int SLAPI PPEgaisProcessor::QueryClients(PPID locID, int queryby, const char * p
            	// Запрос контрагента по идентификатору: "СИО"
            	// Запрос товара по коду ЕГАИС: "КОД"
 			SString code_buf;
+			int   code_txt_id = 0;
 			if(queryby == querybyINN)
-				code_buf = "ИНН";
+				code_txt_id = PPTXT_EGAIS_QP_INN; // "ИНН"
 			else if(queryby == querybyCode)
-				code_buf = "СИО";
+				code_txt_id = PPTXT_EGAIS_QP_CIO; // "СИО"
 			else
 				assert(0);
-			code_buf.Transf(CTRANSF_OUTER_TO_INNER);
-			((StrStrAssocArray *)qp.P_Data)->Add(code_buf, pQ);
+			if(code_txt_id && PPLoadText(code_txt_id, code_buf)) {
+				((StrStrAssocArray *)qp.P_Data)->Add(code_buf, pQ);
+			}
 		}
 		THROW(PutQuery(qp, locID, "QueryPartner", ack));
 	}
@@ -937,14 +939,16 @@ int SLAPI PPEgaisProcessor::QueryProducts(PPID locID, int queryby, const char * 
 		Packet qp(PPEDIOP_EGAIS_QUERYAP);
 		if(qp.P_Data) {
 			SString code_buf;
+			int   code_txt_id = 0;
 			if(queryby == querybyINN)
-				code_buf = "ИНН";
+				code_txt_id = PPTXT_EGAIS_QP_INN; // "ИНН"
 			else if(queryby == querybyCode)
-				code_buf = "КОД";
+				code_txt_id = PPTXT_EGAIS_QP_KOD; // "КОД"
 			else
 				assert(0);
-			code_buf.Transf(CTRANSF_OUTER_TO_INNER);
-			((StrStrAssocArray *)qp.P_Data)->Add(code_buf, pQ);
+			if(code_txt_id && PPLoadText(code_txt_id, code_buf)) {
+				((StrStrAssocArray *)qp.P_Data)->Add(code_buf, pQ);
+			}
 		}
 		THROW(PutQuery(qp, locID, "QueryAP", ack));
 	}
@@ -985,6 +989,27 @@ SLAPI PPEgaisProcessor::PPEgaisProcessor(long cflags, PPLogger * pOuterLogger) :
 	P_LecT = 0;
 	P_Logger = 0;
 	P_UtmEntry = 0;
+	// { @v9.7.5
+	P_Taw = 0;
+	{
+		//
+		// Инициализация процессора замены наименований входящих товаров
+		//
+		SString temp_buf;
+		SString file_name;
+		SString path;
+		PPGetFileName(PPFILNAM_REPLACERRULEGOODS, file_name);
+		PPGetPath(PPPATH_DD, path);
+		(temp_buf = path).SetLastSlash().Cat("local").SetLastSlash().Cat(file_name);
+		if(!fileExists(temp_buf))
+			(temp_buf = path).SetLastSlash().Cat(file_name);
+		if(fileExists(temp_buf)) {
+			P_Taw = new PPTextAnalyzerWrapper;
+			if(P_Taw && !P_Taw->Init(temp_buf, 0))
+				ZDELETE(P_Taw);
+		}
+	}
+	// } @v9.7.5
 	P_Las = new PPLocAddrStruc(0, 0);
 	THROW(SetConfig(0));
 	THROW(Init());
@@ -1019,6 +1044,7 @@ SLAPI PPEgaisProcessor::~PPEgaisProcessor()
 	delete P_LecT;
 	// @v9.6.4 (useless) delete P_Dgq;
 	delete P_Las;
+	delete P_Taw; // @v9.7.5
 	if(!(State & stOuterLogger))
 		delete P_Logger;
 }
@@ -2540,6 +2566,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							SXml::WNode n_h(_doc, "ainp:Header");
 							n_h.PutInner("ainp:Number", EncText(temp_buf = p_bp->Rec.Code));
 							n_h.PutInner("ainp:ActDate", EncText((temp_buf = 0).Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
+							temp_buf = 0; // @v9.7.5
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0) {
 								// @v9.6.7 (temp_buf = "Продукция, полученная до 01.01.2016").Transf(CTRANSF_OUTER_TO_INNER);
 								PPLoadText(PPTXT_EGAIS_PRODRCVDBEFORE2016, temp_buf); // @v9.6.7
@@ -2608,8 +2635,12 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							SXml::WNode n_h(_doc, "ainp:Header");
 							n_h.PutInner("ainp:Number", EncText(temp_buf = p_bp->Rec.Code));
 							n_h.PutInner("ainp:ActDate", EncText((temp_buf = 0).Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
-							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0)
-								(temp_buf = "Пересортица").Transf(CTRANSF_OUTER_TO_INNER);
+							temp_buf = 0;
+							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0) {
+								// @v9.7.5 (temp_buf = "Пересортица").Transf(CTRANSF_OUTER_TO_INNER);
+								PPLoadText(PPTXT_EGAIS_REGRADING, temp_buf); // @v9.7.5
+							}
+							// regrading
 							n_h.PutInner("ainp:TypeChargeOn", EncText(temp_buf));
 						}
 						THROW_MEM(SETIFZ(P_LecT, new LotExtCodeTbl));
@@ -2952,6 +2983,7 @@ struct EgaisGoodsNameReplacement {
 	const char * P_Subst;
 };
 
+/* @v9.7.5 Заменено на использование общей технологии (особенно, из-за перехода на utf8 кодировку исходных кодов)
 static EgaisGoodsNameReplacement _GoodsNameReplacement[] = {
 	{ "красное", "красн" },
 	{ "полусухое", "полусух" },
@@ -2980,14 +3012,24 @@ static EgaisGoodsNameReplacement _GoodsNameReplacement[] = {
 	{ "\"", " " },
 	{ " ,", "," },
 	{ "  ", " " }
-};
+};*/
 
 SString & FASTCALL PPEgaisProcessor::PreprocessGoodsName(SString & rName) const
 {
+	rName.Strip();
+	if(P_Taw) {
+		SString result_buf;
+		if(P_Taw->ReplaceString(rName, result_buf) > 0) {
+			rName = result_buf.Strip();
+		}
+	}
+	/*
 	rName.Strip().ToLower1251();
 	for(uint i = 0; i < SIZEOFARRAY(_GoodsNameReplacement); i++)
         rName.ReplaceStr(_GoodsNameReplacement[i].P_Pattern, _GoodsNameReplacement[i].P_Subst, 0);
 	return rName.Strip();
+	*/
+	return rName;
 }
 
 int SLAPI PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket * pPack,
@@ -7420,7 +7462,7 @@ int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 	PPIDArray totransm_bill_list, reject_bill_list;
 	{
 		const PPEgaisProcessor::BillTransmissionPattern _BillTransmPatterns[] = {
-			{ bilstfReadyForAck|bilstfChargeOn,          PPEDIOP_EGAIS_ACTCHARGEON,       "ActChargeOn" },
+			{ bilstfReadyForAck|bilstfChargeOn|bilstfV1, PPEDIOP_EGAIS_ACTCHARGEON,       "ActChargeOn" },
 			{ bilstfReadyForAck|bilstfChargeOn|bilstfV2, PPEDIOP_EGAIS_ACTCHARGEON_V2,    "ActChargeOn_v2" },
 			{ bilstfReadyForAck|bilstfChargeOnShop,      PPEDIOP_EGAIS_ACTCHARGEONSHOP,   "ActChargeOnShop_v2" },
 			{ bilstfReadyForAck|bilstfWriteOffShop,      PPEDIOP_EGAIS_ACTWRITEOFFSHOP,   "ActWriteOffShop_v2" },
@@ -7430,8 +7472,11 @@ int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 			{ bilstfReadyForAck|bilstfWbRepealConf,      PPEDIOP_EGAIS_CONFIRMREPEALWB,   "ConfirmRepealWB" } // @v9.5.12
 		};
 		for(uint i = 0; i < SIZEOFARRAY(_BillTransmPatterns); i++) {
-			if(Helper_SendBillsByPattern(rP, _BillTransmPatterns[i]) > 0)
-				ok = 1;
+			const PPEgaisProcessor::BillTransmissionPattern & r_pattern = _BillTransmPatterns[i];
+			if(((r_pattern.Flags & bilstfV1) && !__v2) || ((r_pattern.Flags & bilstfV2) && __v2) || !(r_pattern.Flags & (bilstfV1|bilstfV2))) {
+				if(Helper_SendBillsByPattern(rP, r_pattern) > 0)
+					ok = 1;
+			}
 		}
 	}
 	{
@@ -7705,40 +7750,25 @@ int SLAPI PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 			if(event.isClusterClk(CTL_EGAISQ_WHAT)) {
 				long doc_type = GetClusterData(CTL_EGAISQ_WHAT);
 				SString msg_buf;
-				if(doc_type == (PPEDIOP_EGAIS_QUERYCLIENTS+2000)) {
+				int   info_text_id = 0;
+				if(doc_type == (PPEDIOP_EGAIS_QUERYCLIENTS+2000))
 					disableCtrl(CTL_EGAISQ_ACTLZVAR, 0);
-					DisplayInfo(0);
-				}
 				else {
 					disableCtrl(CTL_EGAISQ_ACTLZVAR, 1);
-					if(doc_type == PPEDIOP_EGAIS_QUERYBARCODE) {
-						PPLoadText(PPTXT_HINT_EGAIS_QBARCODE, msg_buf);
-						DisplayInfo(msg_buf);
-					}
-					else if(doc_type == PPEDIOP_EGAIS_QUERYCLIENTS) {
-						PPLoadText(PPTXT_HINT_EGAIS_QCLIENTS, msg_buf);
-						DisplayInfo(msg_buf);
-					}
-					else if(doc_type == PPEDIOP_EGAIS_QUERYAP) {
-						PPLoadText(PPTXT_HINT_EGAIS_QPRODUCTS, msg_buf);
-						DisplayInfo(msg_buf);
-					}
-					else if(doc_type == PPEDIOP_EGAIS_QUERYRESTS) {
-						PPLoadText(PPTXT_HINT_EGAIS_QRESTS, msg_buf);
-						DisplayInfo(msg_buf);
-					}
-					else if(doc_type == PPEDIOP_EGAIS_QUERYRESTSSHOP) {
-						PPLoadText(PPTXT_HINT_EGAIS_QRESTSSHOP, msg_buf);
-						DisplayInfo(msg_buf);
-					}
-					else if(doc_type == PPEDIOP_EGAIS_NOTIFY_WBVER2) {
-						PPLoadText(PPTXT_HINT_EGAIS_NOTIFY_WBVER2, msg_buf);
-						DisplayInfo(msg_buf);
-					}
-					else {
-						DisplayInfo(0);
-					}
+					if(doc_type == PPEDIOP_EGAIS_QUERYBARCODE)
+						info_text_id = PPTXT_HINT_EGAIS_QBARCODE;
+					else if(doc_type == PPEDIOP_EGAIS_QUERYCLIENTS)
+						info_text_id = PPTXT_HINT_EGAIS_QCLIENTS;
+					else if(doc_type == PPEDIOP_EGAIS_QUERYAP)
+						info_text_id = PPTXT_HINT_EGAIS_QPRODUCTS;
+					else if(doc_type == PPEDIOP_EGAIS_QUERYRESTS)
+						info_text_id = PPTXT_HINT_EGAIS_QRESTS;
+					else if(doc_type == PPEDIOP_EGAIS_QUERYRESTSSHOP)
+						info_text_id = PPTXT_HINT_EGAIS_QRESTSSHOP;
+					else if(doc_type == PPEDIOP_EGAIS_NOTIFY_WBVER2)
+						info_text_id = PPTXT_HINT_EGAIS_NOTIFY_WBVER2;
 				}
+				DisplayInfo(info_text_id ? PPLoadTextS(info_text_id, msg_buf).cptr() : 0);
 			}
 			else if(event.isClusterClk(CTL_EGAISQ_ACTLZVAR)) {
 				long _af = 0;

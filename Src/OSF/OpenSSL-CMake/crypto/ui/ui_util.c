@@ -24,7 +24,7 @@ int UI_UTIL_read_pw_string(char *buf, int length, const char *prompt,
         UI_UTIL_read_pw(buf, buff, (length > BUFSIZ) ? BUFSIZ : length,
                         prompt, verify);
     OPENSSL_cleanse(buff, BUFSIZ);
-    return (ret);
+    return ret;
 }
 
 int UI_UTIL_read_pw(char *buf, char *buff, int size, const char *prompt,

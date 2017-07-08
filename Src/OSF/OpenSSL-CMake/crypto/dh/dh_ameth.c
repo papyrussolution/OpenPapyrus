@@ -258,7 +258,7 @@ static int do_dh_print(BIO * bp, const DH * x, int indent, int ptype)
 				goto err;
 		}
 		if(BIO_write(bp, "\n", 1) <= 0)
-			return (0);
+			return 0;
 	}
 	if(x->counter && !ASN1_bn_print(bp, "counter:", x->counter, NULL, indent))
 		goto err;
@@ -345,7 +345,7 @@ static int int_dh_param_copy(DH * to, const DH * from, int is_x942)
 DH * DHparams_dup(DH * dh)
 {
 	DH * ret = DH_new();
-	if(ret == NULL)
+	if(!ret)
 		return NULL;
 	else if(!int_dh_param_copy(ret, dh, -1)) {
 		DH_free(ret);

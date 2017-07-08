@@ -36,7 +36,7 @@ static int rsa_builtin_keygen(RSA * rsa, int bits, BIGNUM * e_value, BN_GENCB * 
 	BIGNUM * r0 = NULL, * r1 = NULL, * r2 = NULL, * r3 = NULL, * tmp;
 	int bitsp, bitsq, ok = -1, n = 0;
 	BN_CTX * ctx = BN_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto err;
 	BN_CTX_start(ctx);
 	r0 = BN_CTX_get(ctx);
@@ -156,7 +156,7 @@ static int rsa_builtin_keygen(RSA * rsa, int bits, BIGNUM * e_value, BN_GENCB * 
 	}
 	{
 		BIGNUM * p = BN_new();
-		if(p == NULL)
+		if(!p)
 			goto err;
 		BN_with_flags(p, rsa->p, BN_FLG_CONSTTIME);
 		/* calculate inverse of q mod p */

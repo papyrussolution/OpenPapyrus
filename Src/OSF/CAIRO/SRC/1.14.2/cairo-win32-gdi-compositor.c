@@ -197,7 +197,7 @@ static cairo_status_t copy_boxes(cairo_win32_display_surface_t * dst, const cair
 	surface = _cairo_surface_get_source(pattern->surface, &cb.limit);
 	if(surface->type == CAIRO_SURFACE_TYPE_IMAGE) {
 		surface = to_image_surface(surface)->parent;
-		if(surface == NULL)
+		if(!surface)
 			return CAIRO_INT_STATUS_UNSUPPORTED;
 	}
 	if(surface->type != CAIRO_SURFACE_TYPE_WIN32)
@@ -298,7 +298,7 @@ static cairo_status_t alpha_blend_boxes(cairo_win32_display_surface_t * dst,
 	surface = _cairo_surface_get_source(pattern->surface, &cb.limit);
 	if(surface->type == CAIRO_SURFACE_TYPE_IMAGE) {
 		surface = to_image_surface(surface)->parent;
-		if(surface == NULL)
+		if(!surface)
 			return CAIRO_INT_STATUS_UNSUPPORTED;
 	}
 	if(surface->type != CAIRO_SURFACE_TYPE_WIN32)

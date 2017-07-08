@@ -88,27 +88,27 @@ static void FASTCALL xmlFreeEntity(xmlEntityPtr entity)
 			xmlFreeNodeList(entity->children);
 		if(dict) {
 			if(entity->name && !xmlDictOwns(dict, entity->name))
-				free((char*)entity->name);
+				SAlloc::F((char*)entity->name);
 			if(entity->ExternalID && (!xmlDictOwns(dict, entity->ExternalID)))
-				free((char*)entity->ExternalID);
+				SAlloc::F((char*)entity->ExternalID);
 			if(entity->SystemID && (!xmlDictOwns(dict, entity->SystemID)))
-				free((char*)entity->SystemID);
+				SAlloc::F((char*)entity->SystemID);
 			if(entity->URI && (!xmlDictOwns(dict, entity->URI)))
-				free((char*)entity->URI);
+				SAlloc::F((char*)entity->URI);
 			if(entity->content && (!xmlDictOwns(dict, entity->content)))
-				free((char*)entity->content);
+				SAlloc::F((char*)entity->content);
 			if(entity->orig && (!xmlDictOwns(dict, entity->orig)))
-				free((char*)entity->orig);
+				SAlloc::F((char*)entity->orig);
 		}
 		else {
-			free((char*)entity->name);
-			free((char*)entity->ExternalID);
-			free((char*)entity->SystemID);
-			free((char*)entity->URI);
-			free((char*)entity->content);
-			free((char*)entity->orig);
+			SAlloc::F((char*)entity->name);
+			SAlloc::F((char*)entity->ExternalID);
+			SAlloc::F((char*)entity->SystemID);
+			SAlloc::F((char*)entity->URI);
+			SAlloc::F((char*)entity->content);
+			SAlloc::F((char*)entity->orig);
 		}
-		free(entity);
+		SAlloc::F(entity);
 	}
 }
 
@@ -118,11 +118,10 @@ static void FASTCALL xmlFreeEntity(xmlEntityPtr entity)
  * internal routine doing the entity node strutures allocations
  */
 static xmlEntityPtr xmlCreateEntity(xmlDictPtr dict, const xmlChar * name, int type,
-    const xmlChar * ExternalID, const xmlChar * SystemID,
-    const xmlChar * content) 
+    const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content) 
 {
-	xmlEntityPtr ret = (xmlEntityPtr)xmlMalloc(sizeof(xmlEntity));
-	if(ret == NULL) {
+	xmlEntityPtr ret = (xmlEntityPtr)SAlloc::M(sizeof(xmlEntity));
+	if(!ret) {
 		xmlEntitiesErrMemory("xmlCreateEntity: malloc failed");
 		return 0;
 	}
@@ -133,7 +132,7 @@ static xmlEntityPtr xmlCreateEntity(xmlDictPtr dict, const xmlChar * name, int t
 	 * fill the structure.
 	 */
 	ret->etype = (xmlEntityType)type;
-	if(dict == NULL) {
+	if(!dict) {
 		ret->name = xmlStrdup(name);
 		if(ExternalID != NULL)
 			ret->ExternalID = xmlStrdup(ExternalID);
@@ -148,7 +147,7 @@ static xmlEntityPtr xmlCreateEntity(xmlDictPtr dict, const xmlChar * name, int t
 			ret->SystemID = xmlDictLookup(dict, SystemID, -1);
 	}
 	if(content != NULL) {
-		ret->length = xmlStrlen(content);
+		ret->length = sstrlen(content);
 		ret->content = (dict && (ret->length < 5)) ? (xmlChar*)xmlDictLookup(dict, content, ret->length) : xmlStrndup(content, ret->length);
 	}
 	else {
@@ -217,21 +216,21 @@ xmlEntityPtr xmlGetPredefinedEntity(const xmlChar * name)
 	if(name) {
 		switch(name[0]) {
 			case 'l':
-				if(xmlStrEqual(name, BAD_CAST "lt"))
+				if(sstreq(name, BAD_CAST "lt"))
 					return(&xmlEntityLt);
 				break;
 			case 'g':
-				if(xmlStrEqual(name, BAD_CAST "gt"))
+				if(sstreq(name, BAD_CAST "gt"))
 					return(&xmlEntityGt);
 				break;
 			case 'a':
-				if(xmlStrEqual(name, BAD_CAST "amp"))
+				if(sstreq(name, BAD_CAST "amp"))
 					return(&xmlEntityAmp);
-				if(xmlStrEqual(name, BAD_CAST "apos"))
+				if(sstreq(name, BAD_CAST "apos"))
 					return(&xmlEntityApos);
 				break;
 			case 'q':
-				if(xmlStrEqual(name, BAD_CAST "quot"))
+				if(sstreq(name, BAD_CAST "quot"))
 					return(&xmlEntityQuot);
 				break;
 			default:
@@ -269,7 +268,7 @@ xmlEntityPtr xmlAddDtdEntity(xmlDocPtr doc, const xmlChar * name, int type,
 	}
 	dtd = doc->extSubset;
 	ret = xmlAddEntity(dtd, name, type, ExternalID, SystemID, content);
-	if(ret == NULL) return 0;
+	if(!ret) return 0;
 
 	/*
 	 * Link it to the DTD
@@ -466,7 +465,7 @@ xmlEntityPtr xmlGetDocEntity(const xmlDoc * doc, const xmlChar * name)
 		xmlChar * tmp;							     \
 		size_t new_size = buffer_size * 2;				    \
 		if(new_size < buffer_size) goto mem_error;			   \
-		tmp = (xmlChar*)xmlRealloc(buffer, new_size);			  \
+		tmp = (xmlChar*)SAlloc::R(buffer, new_size);			  \
 		if(tmp == NULL) goto mem_error;					   \
 		buffer = tmp;							    \
 		buffer_size = new_size;						    \
@@ -500,8 +499,8 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDocPtr doc, const xmlChar * input,
 	 * allocate an translation buffer.
 	 */
 	buffer_size = 1000;
-	buffer = (xmlChar*)xmlMalloc(buffer_size * sizeof(xmlChar));
-	if(buffer == NULL) {
+	buffer = (xmlChar*)SAlloc::M(buffer_size * sizeof(xmlChar));
+	if(!buffer) {
 		xmlEntitiesErrMemory("xmlEncodeEntities: malloc failed");
 		return 0;
 	}
@@ -665,7 +664,7 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDocPtr doc, const xmlChar * input,
 	return(buffer);
 mem_error:
 	xmlEntitiesErrMemory("xmlEncodeEntities: realloc failed");
-	free(buffer);
+	SAlloc::F(buffer);
 	return 0;
 }
 
@@ -722,8 +721,8 @@ xmlChar * xmlEncodeSpecialChars(const xmlDoc * doc ATTRIBUTE_UNUSED, const xmlCh
 	 * allocate an translation buffer.
 	 */
 	buffer_size = 1000;
-	buffer = (xmlChar*)xmlMalloc(buffer_size * sizeof(xmlChar));
-	if(buffer == NULL) {
+	buffer = (xmlChar*)SAlloc::M(buffer_size * sizeof(xmlChar));
+	if(!buffer) {
 		xmlEntitiesErrMemory("xmlEncodeSpecialChars: malloc failed");
 		return 0;
 	}
@@ -784,7 +783,7 @@ xmlChar * xmlEncodeSpecialChars(const xmlDoc * doc ATTRIBUTE_UNUSED, const xmlCh
 	return(buffer);
 mem_error:
 	xmlEntitiesErrMemory("xmlEncodeSpecialChars: realloc failed");
-	free(buffer);
+	SAlloc::F(buffer);
 	return 0;
 }
 
@@ -834,7 +833,7 @@ void xmlFreeEntitiesTable(xmlEntitiesTablePtr table)
  */
 static xmlEntityPtr xmlCopyEntity(xmlEntityPtr ent)
 {
-	xmlEntityPtr cur = (xmlEntityPtr)xmlMalloc(sizeof(xmlEntity));
+	xmlEntityPtr cur = (xmlEntityPtr)SAlloc::M(sizeof(xmlEntity));
 	if(!cur) {
 		xmlEntitiesErrMemory("xmlCopyEntity:: malloc failed");
 		return 0;

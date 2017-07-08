@@ -34,7 +34,14 @@ public:
 class LogListWindow : public TWindow {
 public:
 	LogListWindow(TRect &, LogListBoxDef *, const char *, int);
-	~LogListWindow();
+	~LogListWindow()
+	{
+		if(IsWindow(H()))
+			DestroyWindow(H());
+		def->P_MsgLog->P_LWnd = 0;
+		ZDELETE(def);
+		ZDeleteWinGdiObject(&hf);
+	}
 	void   Refresh(long);
 	void   Append();
 protected:
@@ -50,12 +57,12 @@ protected:
 //
 // Новый вариант окна отображения сообщений (на платформе Scintilla)
 //
-class LogListWindowSCI : public TWindow {
+class LogListWindowSCI : public TWindow, public SScEditorBase {
 public:
 	LogListWindowSCI(TVMsgLog * pLog);
 	~LogListWindowSCI()
 	{
-		DestroyWindow(HwndSci);
+		::DestroyWindow(HwndSci);
 		ZDELETE(P_MsgLog);
 		delete P_Toolbar;
 	}
@@ -67,33 +74,33 @@ private:
 	static LRESULT CALLBACK ScintillaWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw);
 	int    WMHCreate();
+	int    SLAPI LoadToolbar(uint tbId);
 	HWND   GetSciWnd() const
 	{
 		return HwndSci;
 	}
-	int    CallFunc(int msg, int param1, int param2)
+	/*int    CallFunc(int msg, int param1, int param2)
 	{
 		return (P_SciFn && P_SciPtr) ? P_SciFn(P_SciPtr, msg, param1, param2) : 0;
-	}
+	}*/
 	int    Resize();
 
 	static LPCTSTR WndClsName; // @global
 
-	STextBrowser::Document Doc;
 	enum {
 		sstLastKeyDownConsumed = 0x0001
 	};
 	long   SysState;
 	HWND   HwndSci;
-	int    (*P_SciFn)(void *, int, int, int);
-	void * P_SciPtr;
+	//int    (*P_SciFn)(void *, int, int, int);
+	//void * P_SciPtr;
 	TVMsgLog * P_MsgLog;
 	TToolbar * P_Toolbar;
 	long   ToolBarWidth;
 	uint   ToolbarId;
 	WNDPROC OrgScintillaWndProc;
-	SKeyAccelerator KeyAccel; // Ассоциации клавиатурных кодов с командами. {KeyDownCommand Key, long Val}
-	SKeyAccelerator OuterKeyAccel; // Ассоциации клавиатурных кодов с командами, заданные из-вне: вливаются в KeyAccel
+	//SKeyAccelerator KeyAccel; // Ассоциации клавиатурных кодов с командами. {KeyDownCommand Key, long Val}
+	//SKeyAccelerator OuterKeyAccel; // Ассоциации клавиатурных кодов с командами, заданные из-вне: вливаются в KeyAccel
 };
 
 // static
@@ -119,7 +126,7 @@ int LogListWindowSCI::RegWindowClass(HINSTANCE hInst)
 	return ::RegisterClassEx(&wc);
 }
 
-LogListWindowSCI::LogListWindowSCI(TVMsgLog * pLog) : TWindow(TRect(0, 0, 100, 20), "LOG WINDOW", 0)
+LogListWindowSCI::LogListWindowSCI(TVMsgLog * pLog) : TWindow(TRect(0, 0, 100, 20), "LOG WINDOW", 0), SScEditorBase()
 {
 	{
 		static int is_cls_reg = 0;
@@ -130,8 +137,6 @@ LogListWindowSCI::LogListWindowSCI(TVMsgLog * pLog) : TWindow(TRect(0, 0, 100, 2
 	}
 	P_MsgLog = pLog;
 	HwndSci = 0;
-	P_SciFn = 0;
-	P_SciPtr = 0;
 	P_Toolbar = 0;
 	ToolBarWidth = 0;
 	OrgScintillaWndProc = 0;
@@ -150,8 +155,8 @@ LogListWindowSCI::LogListWindowSCI(TVMsgLog * pLog) : TWindow(TRect(0, 0, 100, 2
 	APPL->H_LogWnd = HW = ::CreateWindowEx(WS_EX_TOOLWINDOW, LogListWindowSCI::WndClsName, temp_buf,
 		WS_CHILD|WS_CLIPSIBLINGS|/*WS_VSCROLL|*/WS_CAPTION|WS_SYSMENU|WS_SIZEBOX|LBS_DISABLENOSCROLL|LBS_NOINTEGRALHEIGHT,
 		r.left, r.top, r.right, r.bottom, APPL->H_MainWnd, 0, TProgram::GetInst(), this);
-	TView::SetWindowProp(H(), GWLP_USERDATA, this); 
-	//PrevLogListProc = (WNDPROC)TView::SetWindowProp(H(), GWLP_WNDPROC, LogListProc); 
+	TView::SetWindowProp(H(), GWLP_USERDATA, this);
+	//PrevLogListProc = (WNDPROC)TView::SetWindowProp(H(), GWLP_WNDPROC, LogListProc);
 	//hf = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 	//::SendMessage(H(), WM_SETFONT, (long)hf, 0);
 	::ShowWindow(H(), SW_SHOW);
@@ -201,42 +206,67 @@ void LogListWindowSCI::Append()
 	::UpdateWindow(H());
 }
 
-//virtual (stub)
 int LogListWindowSCI::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw)
 {
 	int    ok = -2;
-	/*
 	switch(ppvCmd) {
+		case PPVCMD_SAVEAS:
+			//ok = FileSave(0, ofInteractiveSaveAs);
+			break;
+		case PPVCMD_SEARCH:
+			SearchAndReplace(srfUseDialog);
+			break;
+		case PPVCMD_SEARCHNEXT:
+			SearchAndReplace(0);
+			break;
+		case PPVCMD_PRINT:
+			if(P_MsgLog) {
+				PView  pv(P_MsgLog);
+				PPAlddPrint(REPORT_LOGLIST, &pv, 0);
+			}
+			break;
 	}
-	*/
 	return ok;
+}
+
+int SLAPI LogListWindowSCI::LoadToolbar(uint tbId)
+{
+	int    r = 0;
+	TVRez & rez = *P_SlRez;
+	ToolbarList tb_list;
+	r = rez.findResource(tbId, TV_EXPTOOLBAR, 0, 0) ? ImpLoadToolbar(rez, &tb_list) : 0;
+	if(r > 0)
+		setupToolbar(&tb_list);
+	return r;
 }
 
 int LogListWindowSCI::WMHCreate()
 {
 	RECT   rc;
+	uint   toolbar_id = TOOLBAR_LOGVIEW;
 	GetWindowRect(HW, &rc);
-	/*
-	P_Toolbar = new TToolbar(hWnd, TBS_NOMOVE);
-	if(P_Toolbar && LoadToolbar(ToolbarId) > 0) {
-		P_Toolbar->Init(ToolbarID, &Toolbar);
+	P_Toolbar = new TToolbar(HW, TBS_NOMOVE);
+	if(P_Toolbar && LoadToolbar(toolbar_id) > 0) {
+		P_Toolbar->Init(toolbar_id, &Toolbar);
 		if(P_Toolbar->Valid()) {
 			RECT tbr;
 			::GetWindowRect(P_Toolbar->H(), &tbr);
 			ToolBarWidth = tbr.bottom - tbr.top;
 		}
 	}
-	*/
 	HwndSci = CreateWindowEx(WS_EX_CLIENTEDGE, _T("Scintilla"), _T(""), WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_CLIPCHILDREN,
 		0, 0/*ToolBarWidth*/, rc.right - rc.left, rc.bottom - rc.top, HW, 0/*(HMENU)GuiID*/, APPL->GetInst(), NULL);
-	P_SciFn  = (int (__cdecl *)(void *, int, int, int))SendMessage(HwndSci, SCI_GETDIRECTFUNCTION, 0, 0);
-	P_SciPtr = (void *)SendMessage(HwndSci, SCI_GETDIRECTPOINTER, 0, 0);
-
+	SScEditorBase::Init(HwndSci);
 	// @v9.1.12 ::SetWindowLongPtr(HwndSci, GWLP_USERDATA, (LONG_PTR)this);
 	TView::SetWindowUserData(HwndSci, this); // @v9.1.12
 	OrgScintillaWndProc = (WNDPROC)::SetWindowLongPtr(HwndSci, GWLP_WNDPROC, (LONG)ScintillaWindowProc);
 	{
 		KeyAccel.clear();
+		{
+			KeyDownCommand k;
+			k.SetTvKeyCode(kbF3);
+			SetKeybAccelerator(k, PPVCMD_SEARCHNEXT);
+		}
 		{
 			for(uint i = 0; i < OuterKeyAccel.getCount(); i++) {
 				const LAssoc & r_accel_item = OuterKeyAccel.at(i);
@@ -250,16 +280,15 @@ int LogListWindowSCI::WMHCreate()
 				const ToolbarItem & r_tbi = P_Toolbar->getItem(i);
 				if(!(r_tbi.Flags & r_tbi.fHidden) && r_tbi.KeyCode && r_tbi.KeyCode != TV_MENUSEPARATOR && r_tbi.Cmd) {
 					KeyDownCommand k;
-					if(k.SetTvKeyCode(r_tbi.KeyCode)) {
+					if(k.SetTvKeyCode(r_tbi.KeyCode))
 						KeyAccel.Set(k, r_tbi.Cmd);
-					}
 				}
 			}
 		}
 		KeyAccel.Sort();
 	}
 	{
-		Doc.SciDoc = (STextBrowser::SciDocument)CallFunc(SCI_CREATEDOCUMENT, 0, 0);
+		Doc.SciDoc = (SScEditorBase::SciDocument)CallFunc(SCI_CREATEDOCUMENT, 0, 0);
 		//Setup scratchtilla for new filedata
 		CallFunc(SCI_SETSTATUS, SC_STATUS_OK, 0); // reset error status
 		CallFunc(SCI_SETDOCPOINTER, 0, (int)Doc.SciDoc);
@@ -341,18 +370,16 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 			{
 				p_view = (LogListWindowSCI *)TView::GetWindowUserData(hWnd);
 				if(p_view) {
-					/*
 					if(HIWORD(wParam) == 0) {
 						if(p_view->KeyAccel.getCount()) {
 							long   cmd = 0;
 							KeyDownCommand k;
 							k.SetTvKeyCode(LOWORD(wParam));
-							if(p_view->KeyAccel.Search(*(long *)&k, &cmd, 0, 1)) {
+							if(p_view->KeyAccel.BSearch(*(long *)&k, &cmd, 0)) {
 								p_view->ProcessCommand(cmd, 0, p_view);
 							}
 						}
 					}
-					*/
 					/*
 					if(LOWORD(wParam))
 						p_view->ProcessCommand(LOWORD(wParam), 0, p_view);
@@ -363,6 +390,9 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 		case WM_DESTROY:
 			p_view = (LogListWindowSCI *)TView::GetWindowUserData(hWnd);
 			if(p_view) {
+				p_view->CallFunc(SCI_SETREADONLY, 0, 0); // @v9.7.5
+				p_view->CallFunc(SCI_CLEARALL, 0, 0); // @v9.7.5
+				p_view->CallFunc(SCI_RELEASEDOCUMENT, 0, (int)p_view->Doc.SciDoc); // @v9.7.5
 				SETIFZ(p_view->EndModalCmd, cmCancel);
 				APPL->DelItemFromMenu(p_view);
 				if(p_view->owner && p_view->owner->P_Current == p_view)
@@ -523,7 +553,7 @@ SLAPI PPMsgLog::~PPMsgLog()
 	Destroy();
 }
 
-int SLAPI PPMsgLog::Destroy()
+void SLAPI PPMsgLog::Destroy()
 {
 	if(Stream >= 0) {
 		close(Stream);
@@ -534,11 +564,10 @@ int SLAPI PPMsgLog::Destroy()
 		InStream = -1;
 	}
 	if(FileName.NotEmpty())
-		::remove(FileName);
+		SFile::Remove(FileName);
 	if(InFileName.NotEmpty())
-		::remove(InFileName);
+		SFile::Remove(InFileName);
 	ZDELETE(P_Index);
-	return 1;
 }
 
 int SLAPI PPMsgLog::ShowLogWnd(const char * pTitle)
@@ -676,7 +705,7 @@ long SLAPI PPMsgLog::Init()
 		InFileName = 0;
 		close(Stream);
 		Stream = -1;
-		::remove(FileName);
+		SFile::Remove(FileName);
 		ZDELETE(P_Index);
 		return 0;
 	}
@@ -780,7 +809,7 @@ int FASTCALL PPMsgLog::NextIteration(MsgLogItem * pItem)
 				p_next_str = p_str + max_str_len - 1;
 			first_sym = *p_next_str;
 			*p_next_str = '\0';
-			NextStrOffset += (int)(p_next_str - p_str) + (first_sym == ' ' ? 1 : 0); // @v7.7.7
+			NextStrOffset += (int)(p_next_str - p_str) + (first_sym == ' ' ? 1 : 0);
 		}
 		else
 			NextStrOffset = 0;
@@ -802,7 +831,7 @@ SLAPI TVMsgLog::TVMsgLog() : PPMsgLog()
 }
 
 // static
-void TVMsgLog::Delete(TVMsgLog * pMsgLog, int winDestroy)
+void TVMsgLog::Delete_(TVMsgLog * pMsgLog, int winDestroy)
 {
 	if(winDestroy)
 		ZDELETE(pMsgLog);
@@ -874,14 +903,15 @@ SLAPI PPLogger::PPLogger(long flags /* = 0 */)
 
 SLAPI PPLogger::~PPLogger()
 {
-	if(P_Log)
-		TVMsgLog::Delete((TVMsgLog *)P_Log, BIN(CS_SERVER));
+	if(P_Log) {
+		TVMsgLog::Delete_((TVMsgLog *)P_Log, BIN(CS_SERVER));
+	}
 }
 
 void SLAPI PPLogger::Clear()
 {
 	if(P_Log)
-		TVMsgLog::Delete((TVMsgLog *)P_Log);
+		TVMsgLog::Delete_((TVMsgLog *)P_Log);
 }
 
 int SLAPI PPLogger::Log(const char * pMsg)
@@ -1042,8 +1072,8 @@ LogListWindow::LogListWindow(TRect & rct, LogListBoxDef * aDef, const char * pTi
 	APPL->H_LogWnd = HW = CreateWindowEx(WS_EX_TOOLWINDOW, "LISTBOX", temp_buf,
 		WS_CHILD|WS_CLIPSIBLINGS|WS_VSCROLL|WS_CAPTION|WS_SYSMENU|WS_THICKFRAME|LBS_DISABLENOSCROLL|LBS_NOINTEGRALHEIGHT,
 		r.left, r.top, r.right, r.bottom, APPL->H_MainWnd, 0, TProgram::GetInst(), 0);
-	TView::SetWindowProp(H(), GWLP_USERDATA, this); 
-	PrevLogListProc = (WNDPROC)TView::SetWindowProp(H(), GWLP_WNDPROC, LogListProc); 
+	TView::SetWindowProp(H(), GWLP_USERDATA, this);
+	PrevLogListProc = (WNDPROC)TView::SetWindowProp(H(), GWLP_WNDPROC, LogListProc);
 	hf = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 	::SendMessage(H(), WM_SETFONT, (long)hf, 0);
 	::ShowWindow(H(), SW_SHOW);
@@ -1051,15 +1081,6 @@ LogListWindow::LogListWindow(TRect & rct, LogListBoxDef * aDef, const char * pTi
 	::PostMessage(H(), WM_SIZE, 0, 0);
 	::PostMessage(APPL->H_MainWnd, WM_SIZE, 0, 0);
 	::SetWindowPos(H(), HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-}
-
-LogListWindow::~LogListWindow()
-{
-	if(IsWindow(H()))
-		DestroyWindow(H());
-	def->P_MsgLog->P_LWnd = 0;
-	ZDELETE(def);
-	ZDeleteWinGdiObject(&hf);
 }
 
 SString & LogListWindow::GetString(int pos, SString & rBuf, int oem) const

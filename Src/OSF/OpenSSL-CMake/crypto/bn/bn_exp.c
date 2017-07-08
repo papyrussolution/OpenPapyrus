@@ -74,7 +74,7 @@ int BN_exp(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, BN_CTX * ctx)
 err:
 	BN_CTX_end(ctx);
 	bn_check_top(r);
-	return (ret);
+	return ret;
 }
 
 int BN_mod_exp(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGNUM * m, BN_CTX * ctx)
@@ -149,7 +149,7 @@ int BN_mod_exp(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGNUM * m,
 #endif
 
 	bn_check_top(r);
-	return (ret);
+	return ret;
 }
 
 int BN_mod_exp_recp(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGNUM * m, BN_CTX * ctx)
@@ -274,7 +274,7 @@ err:
 	BN_CTX_end(ctx);
 	BN_RECP_CTX_free(&recp);
 	bn_check_top(r);
-	return (ret);
+	return ret;
 }
 
 int BN_mod_exp_mont(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p, const BIGNUM * m, BN_CTX * ctx, BN_MONT_CTX * in_mont)
@@ -294,7 +294,7 @@ int BN_mod_exp_mont(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p, const BIGNU
 	bn_check_top(m);
 	if(!BN_is_odd(m)) {
 		BNerr(BN_F_BN_MOD_EXP_MONT, BN_R_CALLED_WITH_EVEN_MODULUS);
-		return (0);
+		return 0;
 	}
 	bits = BN_num_bits(p);
 	if(bits == 0) {
@@ -449,7 +449,7 @@ err:
 		BN_MONT_CTX_free(mont);
 	BN_CTX_end(ctx);
 	bn_check_top(rr);
-	return (ret);
+	return ret;
 }
 
 #if defined(SPARC_T4_MONT)
@@ -573,7 +573,7 @@ int BN_mod_exp_mont_consttime(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p, c
 	bn_check_top(m);
 	if(!BN_is_odd(m)) {
 		BNerr(BN_F_BN_MOD_EXP_MONT_CONSTTIME, BN_R_CALLED_WITH_EVEN_MODULUS);
-		return (0);
+		return 0;
 	}
 	top = m->top;
 	bits = BN_num_bits(p);
@@ -1023,7 +1023,7 @@ err:
 		OPENSSL_free(powerbufFree);
 	}
 	BN_CTX_end(ctx);
-	return (ret);
+	return ret;
 }
 
 int BN_mod_exp_mont_word(BIGNUM * rr, BN_ULONG a, const BIGNUM * p,
@@ -1059,7 +1059,7 @@ int BN_mod_exp_mont_word(BIGNUM * rr, BN_ULONG a, const BIGNUM * p,
 	bn_check_top(m);
 	if(!BN_is_odd(m)) {
 		BNerr(BN_F_BN_MOD_EXP_MONT_WORD, BN_R_CALLED_WITH_EVEN_MODULUS);
-		return (0);
+		return 0;
 	}
 	if(m->top == 1)
 		a %= m->d[0];   /* make sure that 'a' is reduced */
@@ -1168,7 +1168,7 @@ err:
 		BN_MONT_CTX_free(mont);
 	BN_CTX_end(ctx);
 	bn_check_top(rr);
-	return (ret);
+	return ret;
 }
 
 /* The old fallback, simple version :-) */
@@ -1284,6 +1284,6 @@ int BN_mod_exp_simple(BIGNUM * r, const BIGNUM * a, const BIGNUM * p,
 err:
 	BN_CTX_end(ctx);
 	bn_check_top(r);
-	return (ret);
+	return ret;
 }
 

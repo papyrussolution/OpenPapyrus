@@ -52,7 +52,7 @@ void * CRYPTO_memdup(const void * data, size_t siz, const char* file, int line)
 	if(data == NULL || siz >= INT_MAX)
 		return NULL;
 	ret = CRYPTO_malloc(siz, file, line);
-	if(ret == NULL) {
+	if(!ret) {
 		CRYPTOerr(CRYPTO_F_CRYPTO_MEMDUP, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}

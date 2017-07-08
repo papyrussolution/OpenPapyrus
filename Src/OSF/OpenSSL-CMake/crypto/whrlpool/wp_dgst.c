@@ -251,7 +251,7 @@ int WHIRLPOOL_Final(uchar * md, WHIRLPOOL_CTX * c)
 		OPENSSL_cleanse(c, sizeof(*c));
 		return (1);
 	}
-	return (0);
+	return 0;
 }
 
 uchar * WHIRLPOOL(const void * inp, size_t bytes, uchar * md)

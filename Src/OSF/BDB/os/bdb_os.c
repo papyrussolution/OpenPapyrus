@@ -190,7 +190,7 @@ int __os_malloc(ENV * env, size_t size, void * storep)
 	size += sizeof(db_allocinfo_t)+1;
 #endif
 	p = (DB_GLOBAL(j_malloc) != NULL) ? DB_GLOBAL(j_malloc)(size) : SAlloc::M(size);
-	if(p == NULL) {
+	if(!p) {
 		/*
 		 * Some C libraries don't correctly set errno when SAlloc::M(3)
 		 * fails.  We'd like to 0 out errno before calling SAlloc::M,
@@ -252,7 +252,7 @@ int __os_realloc(ENV * env, size_t size, void * storep)
 	 * try to continue after realloc fails.
 	 */
 	p = (DB_GLOBAL(j_realloc) != NULL) ? DB_GLOBAL(j_realloc)(ptr, size) : realloc(ptr, size);
-	if(p == NULL) {
+	if(!p) {
 		/*
 		 * Some C libraries don't correctly set errno when SAlloc::M(3)
 		 * fails.  We'd like to 0 out errno before calling SAlloc::M,
@@ -535,7 +535,7 @@ int __os_isroot()
 #ifdef HAVE_GETUID
 	return (getuid() == 0);
 #else
-	return (0);
+	return 0;
 #endif
 }
 //

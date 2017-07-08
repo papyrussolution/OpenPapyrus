@@ -228,7 +228,7 @@ int RAND_query_egd_bytes(const char * path, uchar * buf, int bytes)
 err:
 	if(fd != -1)
 		close(fd);
-	return (ret);
+	return ret;
 }
 
 int RAND_egd_bytes(const char * path, int bytes)
@@ -241,7 +241,7 @@ int RAND_egd_bytes(const char * path, int bytes)
 	if(RAND_status() == 1)
 		ret = num;
 err:
-	return (ret);
+	return ret;
 }
 
 int RAND_egd(const char * path)

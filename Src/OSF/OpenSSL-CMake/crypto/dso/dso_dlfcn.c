@@ -128,7 +128,7 @@ static int dlfcn_load(DSO *dso)
     OPENSSL_free(filename);
     if (ptr != NULL)
         dlclose(ptr);
-    return (0);
+    return 0;
 }
 
 static int dlfcn_unload(DSO *dso)
@@ -136,7 +136,7 @@ static int dlfcn_unload(DSO *dso)
     void *ptr;
     if (dso == NULL) {
         DSOerr(DSO_F_DLFCN_UNLOAD, ERR_R_PASSED_NULL_PARAMETER);
-        return (0);
+        return 0;
     }
     if (sk_void_num(dso->meth_data) < 1)
         return (1);
@@ -147,7 +147,7 @@ static int dlfcn_unload(DSO *dso)
          * Should push the value back onto the stack in case of a retry.
          */
         sk_void_push(dso->meth_data, ptr);
-        return (0);
+        return 0;
     }
     /* For now I'm not aware of any errors associated with dlclose() */
     dlclose(ptr);

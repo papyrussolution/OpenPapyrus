@@ -86,7 +86,7 @@ static int bnrand(int pseudorand, BIGNUM * rnd, int bits, int top, int bottom)
 err:
 	OPENSSL_clear_free(buf, bytes);
 	bn_check_top(rnd);
-	return (ret);
+	return ret;
 
 toosmall:
 	BNerr(BN_F_BNRAND, BN_R_BITS_TOO_SMALL);

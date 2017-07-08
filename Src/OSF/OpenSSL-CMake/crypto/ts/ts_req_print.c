@@ -17,7 +17,7 @@ int TS_REQ_print_bio(BIO * bio, TS_REQ * a)
 {
 	int v;
 	ASN1_OBJECT * policy_id;
-	if(a == NULL)
+	if(!a)
 		return 0;
 	v = TS_REQ_get_version(a);
 	BIO_printf(bio, "Version: %d\n", v);

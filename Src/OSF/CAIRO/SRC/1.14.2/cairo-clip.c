@@ -260,7 +260,7 @@ cairo_clip_t * _cairo_clip_intersect_clip(cairo_clip_t * clip, const cairo_clip_
 	}
 	if(!_cairo_clip_is_all_clipped(clip)) {
 		if(other->path) {
-			if(clip->path == NULL)
+			if(!clip->path)
 				clip->path = _cairo_clip_path_reference(other->path);
 			else
 				clip = _cairo_clip_intersect_clip_path(clip, other->path);
@@ -360,7 +360,7 @@ cairo_clip_t * _cairo_clip_translate(cairo_clip_t * clip, int tx, int ty)
 	clip->extents.x += tx;
 	clip->extents.y += ty;
 
-	if(clip->path == NULL)
+	if(!clip->path)
 		return clip;
 
 	clip_path = clip->path;
@@ -478,7 +478,7 @@ cairo_clip_t * _cairo_clip_copy_with_translation(const cairo_clip_t * clip, int 
 	copy->extents = clip->extents;
 	copy->extents.x += tx;
 	copy->extents.y += ty;
-	if(clip->path == NULL)
+	if(!clip->path)
 		return copy;
 
 	return _cairo_clip_path_copy_with_translation(copy, clip->path, fx, fy);

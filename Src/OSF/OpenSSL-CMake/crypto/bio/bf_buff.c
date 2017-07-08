@@ -42,20 +42,20 @@ const BIO_METHOD * BIO_f_buffer(void)
 static int buffer_new(BIO * bi)
 {
 	BIO_F_BUFFER_CTX * ctx = (BIO_F_BUFFER_CTX*)OPENSSL_zalloc(sizeof(*ctx));
-	if(ctx == NULL)
-		return (0);
+	if(!ctx)
+		return 0;
 	ctx->ibuf_size = DEFAULT_BUFFER_SIZE;
 	ctx->ibuf = (char*)OPENSSL_malloc(DEFAULT_BUFFER_SIZE);
 	if(ctx->ibuf == NULL) {
 		OPENSSL_free(ctx);
-		return (0);
+		return 0;
 	}
 	ctx->obuf_size = DEFAULT_BUFFER_SIZE;
 	ctx->obuf = (char*)OPENSSL_malloc(DEFAULT_BUFFER_SIZE);
 	if(ctx->obuf == NULL) {
 		OPENSSL_free(ctx->ibuf);
 		OPENSSL_free(ctx);
-		return (0);
+		return 0;
 	}
 	else {
 		bi->init = 1;
@@ -67,8 +67,8 @@ static int buffer_new(BIO * bi)
 
 static int buffer_free(BIO * a)
 {
-	if(a == NULL)
-		return (0);
+	if(!a)
+		return 0;
 	else {
 		BIO_F_BUFFER_CTX * b = (BIO_F_BUFFER_CTX*)a->ptr;
 		OPENSSL_free(b->ibuf);
@@ -86,10 +86,10 @@ static int buffer_read(BIO * b, char * out, int outl)
 	int i, num = 0;
 	BIO_F_BUFFER_CTX * ctx;
 	if(out == NULL)
-		return (0);
+		return 0;
 	ctx = (BIO_F_BUFFER_CTX*)b->ptr;
 	if((ctx == NULL) || (b->next_bio == NULL))
-		return (0);
+		return 0;
 	num = 0;
 	BIO_clear_retry_flags(b);
 
@@ -152,10 +152,10 @@ static int buffer_write(BIO * b, const char * in, int inl)
 	int i, num = 0;
 	BIO_F_BUFFER_CTX * ctx;
 	if((in == NULL) || (inl <= 0))
-		return (0);
+		return 0;
 	ctx = (BIO_F_BUFFER_CTX*)b->ptr;
 	if((ctx == NULL) || (b->next_bio == NULL))
-		return (0);
+		return 0;
 	BIO_clear_retry_flags(b);
 start:
 	i = ctx->obuf_size - (ctx->obuf_len + ctx->obuf_off);
@@ -234,8 +234,8 @@ static long buffer_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    ctx->ibuf_len = 0;
 		    ctx->obuf_off = 0;
 		    ctx->obuf_len = 0;
-		    if(b->next_bio == NULL)
-			    return (0);
+		    if(!b->next_bio)
+			    return 0;
 		    ret = BIO_ctrl(b->next_bio, cmd, num, ptr);
 		    break;
 		case BIO_CTRL_INFO:
@@ -252,16 +252,16 @@ static long buffer_ctrl(BIO * b, int cmd, long num, void * ptr)
 		case BIO_CTRL_WPENDING:
 		    ret = (long)ctx->obuf_len;
 		    if(ret == 0) {
-			    if(b->next_bio == NULL)
-				    return (0);
+			    if(!b->next_bio)
+				    return 0;
 			    ret = BIO_ctrl(b->next_bio, cmd, num, ptr);
 		    }
 		    break;
 		case BIO_CTRL_PENDING:
 		    ret = (long)ctx->ibuf_len;
 		    if(ret == 0) {
-			    if(b->next_bio == NULL)
-				    return (0);
+			    if(!b->next_bio)
+				    return 0;
 			    ret = BIO_ctrl(b->next_bio, cmd, num, ptr);
 		    }
 		    break;
@@ -325,16 +325,16 @@ static long buffer_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    }
 		    break;
 		case BIO_C_DO_STATE_MACHINE:
-		    if(b->next_bio == NULL)
-			    return (0);
+		    if(!b->next_bio)
+			    return 0;
 		    BIO_clear_retry_flags(b);
 		    ret = BIO_ctrl(b->next_bio, cmd, num, ptr);
 		    BIO_copy_next_retry(b);
 		    break;
 
 		case BIO_CTRL_FLUSH:
-		    if(b->next_bio == NULL)
-			    return (0);
+		    if(!b->next_bio)
+			    return 0;
 		    if(ctx->obuf_len <= 0) {
 			    ret = BIO_ctrl(b->next_bio, cmd, num, ptr);
 			    break;
@@ -364,28 +364,28 @@ static long buffer_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    ret = 0;
 		    break;
 		default:
-		    if(b->next_bio == NULL)
-			    return (0);
+		    if(!b->next_bio)
+			    return 0;
 		    ret = BIO_ctrl(b->next_bio, cmd, num, ptr);
 		    break;
 	}
-	return (ret);
+	return ret;
 malloc_error:
 	BIOerr(BIO_F_BUFFER_CTRL, ERR_R_MALLOC_FAILURE);
-	return (0);
+	return 0;
 }
 
 static long buffer_callback_ctrl(BIO * b, int cmd, bio_info_cb * fp)
 {
 	long ret = 1;
-	if(b->next_bio == NULL)
-		return (0);
+	if(!b->next_bio)
+		return 0;
 	switch(cmd) {
 		default:
 		    ret = BIO_callback_ctrl(b->next_bio, cmd, fp);
 		    break;
 	}
-	return (ret);
+	return ret;
 }
 
 static int buffer_gets(BIO * b, char * buf, int size)

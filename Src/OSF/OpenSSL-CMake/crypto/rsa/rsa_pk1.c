@@ -20,7 +20,7 @@ int RSA_padding_add_PKCS1_type_1(uchar * to, int tlen,
 	uchar * p;
 	if(flen > (tlen - RSA_PKCS1_PADDING_SIZE)) {
 		RSAerr(RSA_F_RSA_PADDING_ADD_PKCS1_TYPE_1, RSA_R_DATA_TOO_LARGE_FOR_KEY_SIZE);
-		return (0);
+		return 0;
 	}
 	p = (uchar*)to;
 	*(p++) = 0;
@@ -101,7 +101,7 @@ int RSA_padding_add_PKCS1_type_2(uchar * to, int tlen,
 	if(flen > (tlen - 11)) {
 		RSAerr(RSA_F_RSA_PADDING_ADD_PKCS1_TYPE_2,
 		    RSA_R_DATA_TOO_LARGE_FOR_KEY_SIZE);
-		return (0);
+		return 0;
 	}
 
 	p = (uchar*)to;
@@ -113,12 +113,12 @@ int RSA_padding_add_PKCS1_type_2(uchar * to, int tlen,
 	j = tlen - 3 - flen;
 
 	if(RAND_bytes(p, j) <= 0)
-		return (0);
+		return 0;
 	for(i = 0; i < j; i++) {
 		if(*p == '\0')
 			do {
 				if(RAND_bytes(p, 1) <= 0)
-					return (0);
+					return 0;
 			} while(*p == '\0');
 		p++;
 	}

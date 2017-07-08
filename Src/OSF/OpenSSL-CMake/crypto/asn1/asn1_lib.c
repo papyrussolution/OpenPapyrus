@@ -26,7 +26,7 @@ static int _asn1_check_infinite_end(const uchar ** p, long len)
 		(*p) += 2;
 		return (1);
 	}
-	return (0);
+	return 0;
 }
 
 int ASN1_check_infinite_end(uchar ** p, long len)
@@ -254,7 +254,7 @@ ASN1_STRING * ASN1_STRING_dup(const ASN1_STRING * str)
 	if(!str)
 		return NULL;
 	ret = ASN1_STRING_new();
-	if(ret == NULL)
+	if(!ret)
 		return NULL;
 	if(!ASN1_STRING_copy(ret, str)) {
 		ASN1_STRING_free(ret);
@@ -270,7 +270,7 @@ int ASN1_STRING_set(ASN1_STRING * str, const void * _data, int len)
 
 	if(len < 0) {
 		if(data == NULL)
-			return (0);
+			return 0;
 		else
 			len = strlen(data);
 	}
@@ -280,7 +280,7 @@ int ASN1_STRING_set(ASN1_STRING * str, const void * _data, int len)
 		if(str->data == NULL) {
 			ASN1err(ASN1_F_ASN1_STRING_SET, ERR_R_MALLOC_FAILURE);
 			str->data = c;
-			return (0);
+			return 0;
 		}
 	}
 	str->length = len;
@@ -307,17 +307,17 @@ ASN1_STRING * ASN1_STRING_new(void)
 ASN1_STRING * ASN1_STRING_type_new(int type)
 {
 	ASN1_STRING * ret = (ASN1_STRING*)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL) {
+	if(!ret) {
 		ASN1err(ASN1_F_ASN1_STRING_TYPE_NEW, ERR_R_MALLOC_FAILURE);
 		return (NULL);
 	}
 	ret->type = type;
-	return (ret);
+	return ret;
 }
 
 void asn1_string_embed_free(ASN1_STRING * a, int embed)
 {
-	if(a == NULL)
+	if(!a)
 		return;
 	if(!(a->flags & ASN1_STRING_FLAG_NDEF))
 		OPENSSL_free(a->data);
@@ -327,14 +327,14 @@ void asn1_string_embed_free(ASN1_STRING * a, int embed)
 
 void ASN1_STRING_free(ASN1_STRING * a)
 {
-	if(a == NULL)
+	if(!a)
 		return;
 	asn1_string_embed_free(a, a->flags & ASN1_STRING_FLAG_EMBED);
 }
 
 void ASN1_STRING_clear_free(ASN1_STRING * a)
 {
-	if(a == NULL)
+	if(!a)
 		return;
 	if(a->data && !(a->flags & ASN1_STRING_FLAG_NDEF))
 		OPENSSL_cleanse(a->data, a->length);

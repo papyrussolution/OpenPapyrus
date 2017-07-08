@@ -31,7 +31,7 @@ static ASN1_PCTX default_pctx = {
 ASN1_PCTX * ASN1_PCTX_new(void)
 {
 	ASN1_PCTX * ret = (ASN1_PCTX*)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL) {
+	if(!ret) {
 		ASN1err(ASN1_F_ASN1_PCTX_NEW, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -95,25 +95,12 @@ void ASN1_PCTX_set_str_flags(ASN1_PCTX * p, ulong flags)
 
 /* Main print routines */
 
-static int asn1_item_print_ctx(BIO * out, ASN1_VALUE ** fld, int indent,
-    const ASN1_ITEM * it,
-    const char * fname, const char * sname,
-    int nohdr, const ASN1_PCTX * pctx);
+static int asn1_item_print_ctx(BIO * out, ASN1_VALUE ** fld, int indent, const ASN1_ITEM * it, const char * fname, const char * sname, int nohdr, const ASN1_PCTX * pctx);
+static int asn1_template_print_ctx(BIO * out, ASN1_VALUE ** fld, int indent, const ASN1_TEMPLATE * tt, const ASN1_PCTX * pctx);
+static int asn1_primitive_print(BIO * out, ASN1_VALUE ** fld, const ASN1_ITEM * it, int indent, const char * fname, const char * sname, const ASN1_PCTX * pctx);
+static int asn1_print_fsname(BIO * out, int indent, const char * fname, const char * sname, const ASN1_PCTX * pctx);
 
-static int asn1_template_print_ctx(BIO * out, ASN1_VALUE ** fld, int indent,
-    const ASN1_TEMPLATE * tt, const ASN1_PCTX * pctx);
-
-static int asn1_primitive_print(BIO * out, ASN1_VALUE ** fld,
-    const ASN1_ITEM * it, int indent,
-    const char * fname, const char * sname,
-    const ASN1_PCTX * pctx);
-
-static int asn1_print_fsname(BIO * out, int indent,
-    const char * fname, const char * sname,
-    const ASN1_PCTX * pctx);
-
-int ASN1_item_print(BIO * out, ASN1_VALUE * ifld, int indent,
-    const ASN1_ITEM * it, const ASN1_PCTX * pctx)
+int ASN1_item_print(BIO * out, ASN1_VALUE * ifld, int indent, const ASN1_ITEM * it, const ASN1_PCTX * pctx)
 {
 	const char * sname;
 	if(pctx == NULL)
@@ -125,10 +112,8 @@ int ASN1_item_print(BIO * out, ASN1_VALUE * ifld, int indent,
 	return asn1_item_print_ctx(out, &ifld, indent, it, NULL, sname, 0, pctx);
 }
 
-static int asn1_item_print_ctx(BIO * out, ASN1_VALUE ** fld, int indent,
-    const ASN1_ITEM * it,
-    const char * fname, const char * sname,
-    int nohdr, const ASN1_PCTX * pctx)
+static int asn1_item_print_ctx(BIO * out, ASN1_VALUE ** fld, int indent, const ASN1_ITEM * it,
+    const char * fname, const char * sname, int nohdr, const ASN1_PCTX * pctx)
 {
 	const ASN1_TEMPLATE * tt;
 	const ASN1_EXTERN_FUNCS * ef;
@@ -145,9 +130,7 @@ static int asn1_item_print_ctx(BIO * out, ASN1_VALUE ** fld, int indent,
 	}
 	else
 		asn1_cb = 0;
-
-	if(((it->itype != ASN1_ITYPE_PRIMITIVE)
-		    || (it->utype != V_ASN1_BOOLEAN)) && *fld == NULL) {
+	if(((it->itype != ASN1_ITYPE_PRIMITIVE) || (it->utype != V_ASN1_BOOLEAN)) && *fld == NULL) {
 		if(pctx->flags & ASN1_PCTX_FLAGS_SHOW_ABSENT) {
 			if(!nohdr && !asn1_print_fsname(out, indent, fname, sname, pctx))
 				return 0;
@@ -156,7 +139,6 @@ static int asn1_item_print_ctx(BIO * out, ASN1_VALUE ** fld, int indent,
 		}
 		return 1;
 	}
-
 	switch(it->itype) {
 		case ASN1_ITYPE_PRIMITIVE:
 		    if(it->templates) {

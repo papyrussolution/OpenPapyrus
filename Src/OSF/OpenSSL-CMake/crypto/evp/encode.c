@@ -213,7 +213,7 @@ int EVP_EncodeBlock(uchar * t, const uchar * f, int dlen)
 	}
 
 	*t = '\0';
-	return (ret);
+	return ret;
 }
 
 void EVP_DecodeInit(EVP_ENCODE_CTX * ctx)
@@ -369,7 +369,7 @@ int EVP_DecodeBlock(uchar * t, const uchar * f, int n)
 		*(t++) = (uchar)(l) & 0xff;
 		ret += 3;
 	}
-	return (ret);
+	return ret;
 }
 
 int EVP_DecodeFinal(EVP_ENCODE_CTX * ctx, uchar * out, int * outl)

@@ -114,7 +114,7 @@ int DSA_sign(int type, const uchar *dgst, int dlen,
     s = DSA_do_sign(dgst, dlen, dsa);
     if (s == NULL) {
         *siglen = 0;
-        return (0);
+        return 0;
     }
     *siglen = i2d_DSA_SIG(s, &sig);
     DSA_SIG_free(s);
@@ -139,7 +139,7 @@ int DSA_verify(int type, const uchar *dgst, int dgst_len,
 
     s = DSA_SIG_new();
     if (s == NULL)
-        return (ret);
+        return ret;
     if (d2i_DSA_SIG(&s, &p, siglen) == NULL)
         goto err;
     /* Ensure signature uses DER and doesn't have trailing garbage */
@@ -150,5 +150,5 @@ int DSA_verify(int type, const uchar *dgst, int dgst_len,
  err:
     OPENSSL_clear_free(der, derlen);
     DSA_SIG_free(s);
-    return (ret);
+    return ret;
 }

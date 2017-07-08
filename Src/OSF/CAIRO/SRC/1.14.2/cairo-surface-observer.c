@@ -214,7 +214,7 @@ static int classify_clip(const cairo_clip_t * clip)
 		classify = 0;
 	else if(_cairo_clip_is_region(clip))
 		classify = 1;
-	else if(clip->path == NULL)
+	else if(!clip->path)
 		classify = 2;
 	else if(clip->path->prev == NULL)
 		classify = 3;

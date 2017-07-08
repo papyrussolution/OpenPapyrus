@@ -435,7 +435,7 @@ static int do_i2b(uchar ** out, EVP_PKEY * pk, int ispub)
 		p = *out;
 	else {
 		p = (uchar*)OPENSSL_malloc(outlen);
-		if(p == NULL)
+		if(!p)
 			return -1;
 		*out = p;
 		noinc = 1;
@@ -782,7 +782,7 @@ static int i2b_PVK(uchar ** out, EVP_PKEY * pk, int enclevel, pem_password_cb * 
 	}
 	else {
 		start = p = (uchar*)OPENSSL_malloc(outlen);
-		if(p == NULL) {
+		if(!p) {
 			PEMerr(PEM_F_I2B_PVK, ERR_R_MALLOC_FAILURE);
 			return -1;
 		}

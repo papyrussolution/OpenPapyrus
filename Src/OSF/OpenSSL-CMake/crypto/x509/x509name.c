@@ -41,7 +41,7 @@ int X509_NAME_get_text_by_OBJ(X509_NAME * name, const ASN1_OBJECT * obj, char * 
 int X509_NAME_entry_count(const X509_NAME * name)
 {
 	if(name == NULL)
-		return (0);
+		return 0;
 	return (sk_X509_NAME_ENTRY_num(name->entries));
 }
 
@@ -94,7 +94,7 @@ X509_NAME_ENTRY * X509_NAME_delete_entry(X509_NAME * name, int loc)
 	n = sk_X509_NAME_ENTRY_num(sk);
 	name->modified = 1;
 	if(loc == n)
-		return (ret);
+		return ret;
 	// else we need to fixup the set field 
 	if(loc != 0)
 		set_prev = (sk_X509_NAME_ENTRY_value(sk, loc - 1))->set;
@@ -114,7 +114,7 @@ X509_NAME_ENTRY * X509_NAME_delete_entry(X509_NAME * name, int loc)
 	if(set_prev + 1 < set_next)
 		for(i = loc; i < n; i++)
 			sk_X509_NAME_ENTRY_value(sk, i)->set--;
-	return (ret);
+	return ret;
 }
 
 int X509_NAME_add_entry_by_OBJ(X509_NAME * name, const ASN1_OBJECT * obj, int type, const uchar * bytes, int len, int loc, int set)
@@ -159,7 +159,7 @@ int X509_NAME_add_entry(X509_NAME * name, const X509_NAME_ENTRY * ne, int loc, i
 	int n, i, inc;
 	STACK_OF(X509_NAME_ENTRY) *sk;
 	if(name == NULL)
-		return (0);
+		return 0;
 	sk = name->entries;
 	n = sk_X509_NAME_ENTRY_num(sk);
 	if(loc > n)
@@ -207,7 +207,7 @@ int X509_NAME_add_entry(X509_NAME * name, const X509_NAME_ENTRY * ne, int loc, i
 	return (1);
 err:
 	X509_NAME_ENTRY_free(new_name);
-	return (0);
+	return 0;
 }
 
 X509_NAME_ENTRY * X509_NAME_ENTRY_create_by_txt(X509_NAME_ENTRY ** ne, const char * field, int type, const uchar * bytes, int len)
@@ -253,7 +253,7 @@ X509_NAME_ENTRY * X509_NAME_ENTRY_create_by_OBJ(X509_NAME_ENTRY ** ne,
 		goto err;
 	if((ne != NULL) && (*ne == NULL))
 		*ne = ret;
-	return (ret);
+	return ret;
 err:
 	if((ne == NULL) || (ret != *ne))
 		X509_NAME_ENTRY_free(ret);
@@ -264,7 +264,7 @@ int X509_NAME_ENTRY_set_object(X509_NAME_ENTRY * ne, const ASN1_OBJECT * obj)
 {
 	if((ne == NULL) || (obj == NULL)) {
 		X509err(X509_F_X509_NAME_ENTRY_SET_OBJECT, ERR_R_PASSED_NULL_PARAMETER);
-		return (0);
+		return 0;
 	}
 	ASN1_OBJECT_free(ne->object);
 	ne->object = OBJ_dup(obj);
@@ -276,14 +276,14 @@ int X509_NAME_ENTRY_set_data(X509_NAME_ENTRY * ne, int type, const uchar * bytes
 	int i;
 
 	if((ne == NULL) || ((bytes == NULL) && (len != 0)))
-		return (0);
+		return 0;
 	if((type > 0) && (type & MBSTRING_FLAG))
 		return ASN1_STRING_set_by_NID(&ne->value, bytes, len, type, OBJ_obj2nid(ne->object)) ? 1 : 0;
 	if(len < 0)
 		len = strlen((const char*)bytes);
 	i = ASN1_STRING_set(ne->value, bytes, len);
 	if(!i)
-		return (0);
+		return 0;
 	if(type != V_ASN1_UNDEF) {
 		if(type == V_ASN1_APP_CHOOSE)
 			ne->value->type = ASN1_PRINTABLE_type(bytes, len);

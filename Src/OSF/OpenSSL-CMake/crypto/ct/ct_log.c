@@ -54,7 +54,7 @@ static void ctlog_store_load_ctx_free(CTLOG_STORE_LOAD_CTX* ctx);
 static CTLOG_STORE_LOAD_CTX * ctlog_store_load_ctx_new()
 {
 	CTLOG_STORE_LOAD_CTX * ctx = (CTLOG_STORE_LOAD_CTX *)OPENSSL_zalloc(sizeof(*ctx));
-	if(ctx == NULL)
+	if(!ctx)
 		CTerr(CT_F_CTLOG_STORE_LOAD_CTX_NEW, ERR_R_MALLOC_FAILURE);
 
 	return ctx;
@@ -67,10 +67,10 @@ static void ctlog_store_load_ctx_free(CTLOG_STORE_LOAD_CTX* ctx)
 
 /* Converts a log's public key into a SHA256 log ID */
 static int ct_v1_log_id_from_pkey(EVP_PKEY * pkey,
-    unsigned char log_id[CT_V1_HASHLEN])
+    uchar log_id[CT_V1_HASHLEN])
 {
 	int ret = 0;
-	unsigned char * pkey_der = NULL;
+	uchar * pkey_der = NULL;
 	int pkey_der_len = i2d_PUBKEY(pkey, &pkey_der);
 
 	if(pkey_der_len <= 0) {
@@ -88,7 +88,7 @@ err:
 CTLOG_STORE * CTLOG_STORE_new(void)
 {
 	CTLOG_STORE * ret = (CTLOG_STORE *)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL) {
+	if(!ret) {
 		CTerr(CT_F_CTLOG_STORE_NEW, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -229,7 +229,7 @@ end:
 CTLOG * CTLOG_new(EVP_PKEY * public_key, const char * name)
 {
 	CTLOG * ret = (CTLOG *)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL) {
+	if(!ret) {
 		CTerr(CT_F_CTLOG_NEW, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}

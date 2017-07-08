@@ -23,10 +23,10 @@ extern "C" {
 
 struct rand_meth_st {
     int (*seed) (const void *buf, int num);
-    int (*bytes) (unsigned char *buf, int num);
+    int (*bytes) (uchar *buf, int num);
     void (*cleanup) (void);
     int (*add) (const void *buf, int num, double entropy);
-    int (*pseudorand) (unsigned char *buf, int num);
+    int (*pseudorand) (uchar *buf, int num);
     int (*status) (void);
 };
 
@@ -43,8 +43,8 @@ RAND_METHOD *RAND_OpenSSL(void);
 #if OPENSSL_API_COMPAT < 0x10100000L
 # define RAND_cleanup() while(0) continue
 #endif
-int RAND_bytes(unsigned char *buf, int num);
-DEPRECATEDIN_1_1_0(int RAND_pseudo_bytes(unsigned char *buf, int num))
+int RAND_bytes(uchar *buf, int num);
+DEPRECATEDIN_1_1_0(int RAND_pseudo_bytes(uchar *buf, int num))
 void RAND_seed(const void *buf, int num);
 #if defined(__ANDROID__) && defined(__NDK_FPABI__)
 __NDK_FPABI__	/* __attribute__((pcs("aapcs"))) on ARM */
@@ -55,7 +55,7 @@ int RAND_write_file(const char *file);
 const char *RAND_file_name(char *file, size_t num);
 int RAND_status(void);
 # ifndef OPENSSL_NO_EGD
-int RAND_query_egd_bytes(const char *path, unsigned char *buf, int bytes);
+int RAND_query_egd_bytes(const char *path, uchar *buf, int bytes);
 int RAND_egd(const char *path);
 int RAND_egd_bytes(const char *path, int bytes);
 # endif

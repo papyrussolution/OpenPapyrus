@@ -89,7 +89,7 @@ int PKCS12_key_gen_uni(uchar * pass, int passlen, uchar * salt,
 #endif
 
 	ctx = EVP_MD_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto err;
 
 #ifdef  OPENSSL_DEBUG_KEYGEN

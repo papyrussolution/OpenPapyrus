@@ -285,7 +285,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -328,7 +328,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -368,7 +368,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -409,7 +409,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -442,7 +442,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -480,7 +480,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -515,7 +515,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -555,7 +555,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -587,7 +587,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -625,7 +625,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -660,7 +660,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -700,7 +700,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -742,7 +742,7 @@
     <ClCompile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
       <WarningLevel>Level3</WarningLevel>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -750,7 +750,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">

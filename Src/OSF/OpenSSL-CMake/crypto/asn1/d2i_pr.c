@@ -52,7 +52,7 @@ EVP_PKEY * d2i_PrivateKey(int type, EVP_PKEY ** a, const uchar ** pp, long lengt
 	}
 	*pp = p;
 	ASSIGN_PTR(a, ret);
-	return (ret);
+	return ret;
 err:
 	if(a == NULL || *a != ret)
 		EVP_PKEY_free(ret);

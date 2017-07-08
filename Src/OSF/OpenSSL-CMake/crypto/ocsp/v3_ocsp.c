@@ -24,8 +24,8 @@ static int i2r_ocsp_acutoff(const X509V3_EXT_METHOD * method, void * nonce, BIO 
 static int i2r_object(const X509V3_EXT_METHOD * method, void * obj, BIO * out, int indent);
 
 static void * ocsp_nonce_new(void);
-static int i2d_ocsp_nonce(void * a, unsigned char ** pp);
-static void * d2i_ocsp_nonce(void * a, const unsigned char ** pp, long length);
+static int i2d_ocsp_nonce(void * a, uchar ** pp);
+static void * d2i_ocsp_nonce(void * a, const uchar ** pp, long length);
 static void ocsp_nonce_free(void * a);
 static int i2r_ocsp_nonce(const X509V3_EXT_METHOD * method, void * nonce, BIO * out, int indent);
 
@@ -159,7 +159,7 @@ static void * ocsp_nonce_new(void)
 	return ASN1_OCTET_STRING_new();
 }
 
-static int i2d_ocsp_nonce(void * a, unsigned char ** pp)
+static int i2d_ocsp_nonce(void * a, uchar ** pp)
 {
 	ASN1_OCTET_STRING * os = (ASN1_OCTET_STRING *)a;
 	if(pp) {
@@ -169,7 +169,7 @@ static int i2d_ocsp_nonce(void * a, unsigned char ** pp)
 	return os->length;
 }
 
-static void * d2i_ocsp_nonce(void * a, const unsigned char ** pp, long length)
+static void * d2i_ocsp_nonce(void * a, const uchar ** pp, long length)
 {
 	ASN1_OCTET_STRING * os;
 	ASN1_OCTET_STRING ** pos = (ASN1_OCTET_STRING **)a;

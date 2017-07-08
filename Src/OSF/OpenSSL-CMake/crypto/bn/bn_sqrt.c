@@ -25,9 +25,9 @@ BIGNUM * BN_mod_sqrt(BIGNUM * in, const BIGNUM * a, const BIGNUM * p, BN_CTX * c
 
 	if(!BN_is_odd(p) || BN_abs_is_word(p, 1)) {
 		if(BN_abs_is_word(p, 2)) {
-			if(ret == NULL)
+			if(!ret)
 				ret = BN_new();
-			if(ret == NULL)
+			if(!ret)
 				goto end;
 			if(!BN_set_word(ret, BN_is_bit_set(a, 0))) {
 				if(ret != in)
@@ -43,9 +43,9 @@ BIGNUM * BN_mod_sqrt(BIGNUM * in, const BIGNUM * a, const BIGNUM * p, BN_CTX * c
 	}
 
 	if(BN_is_zero(a) || BN_is_one(a)) {
-		if(ret == NULL)
+		if(!ret)
 			ret = BN_new();
-		if(ret == NULL)
+		if(!ret)
 			goto end;
 		if(!BN_set_word(ret, BN_is_one(a))) {
 			if(ret != in)
@@ -66,9 +66,9 @@ BIGNUM * BN_mod_sqrt(BIGNUM * in, const BIGNUM * a, const BIGNUM * p, BN_CTX * c
 	if(y == NULL)
 		goto end;
 
-	if(ret == NULL)
+	if(!ret)
 		ret = BN_new();
-	if(ret == NULL)
+	if(!ret)
 		goto end;
 
 	/* A = a mod p */

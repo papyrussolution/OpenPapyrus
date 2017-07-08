@@ -13,9 +13,9 @@
 #include "internal/evp_int.h"
 
 static int tls1_prf_alg(const EVP_MD * md,
-    const unsigned char * sec, size_t slen,
-    const unsigned char * seed, size_t seed_len,
-    unsigned char * out, size_t olen);
+    const uchar * sec, size_t slen,
+    const uchar * seed, size_t seed_len,
+    uchar * out, size_t olen);
 
 #define TLS1_PRF_MAXBUF 1024
 
@@ -25,10 +25,10 @@ typedef struct {
 	/* Digest to use for PRF */
 	const EVP_MD * md;
 	/* Secret value to use for PRF */
-	unsigned char * sec;
+	uchar * sec;
 	size_t seclen;
 	/* Buffer of concatenated seed data */
-	unsigned char seed[TLS1_PRF_MAXBUF];
+	uchar seed[TLS1_PRF_MAXBUF];
 	size_t seedlen;
 } TLS1_PRF_PKEY_CTX;
 
@@ -64,7 +64,7 @@ static int pkey_tls1_prf_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 			    OPENSSL_clear_free(kctx->sec, kctx->seclen);
 		    OPENSSL_cleanse(kctx->seed, kctx->seedlen);
 		    kctx->seedlen = 0;
-		    kctx->sec = (unsigned char *)OPENSSL_memdup(p2, p1);
+		    kctx->sec = (uchar *)OPENSSL_memdup(p2, p1);
 		    if(kctx->sec == NULL)
 			    return 0;
 		    kctx->seclen  = p1;
@@ -112,7 +112,7 @@ static int pkey_tls1_prf_ctrl_str(EVP_PKEY_CTX * ctx,
 	return -2;
 }
 
-static int pkey_tls1_prf_derive(EVP_PKEY_CTX * ctx, unsigned char * key, size_t * keylen)
+static int pkey_tls1_prf_derive(EVP_PKEY_CTX * ctx, uchar * key, size_t * keylen)
 {
 	TLS1_PRF_PKEY_CTX * kctx = (TLS1_PRF_PKEY_CTX *)ctx->data;
 	if(kctx->md == NULL || kctx->sec == NULL || kctx->seedlen == 0) {
@@ -153,14 +153,14 @@ const EVP_PKEY_METHOD tls1_prf_pkey_meth = {
 };
 
 static int tls1_prf_P_hash(const EVP_MD * md,
-    const unsigned char * sec, size_t sec_len,
-    const unsigned char * seed, size_t seed_len,
-    unsigned char * out, size_t olen)
+    const uchar * sec, size_t sec_len,
+    const uchar * seed, size_t seed_len,
+    uchar * out, size_t olen)
 {
 	int chunk;
 	EVP_MD_CTX * ctx = NULL, * ctx_tmp = NULL, * ctx_init = NULL;
 	EVP_PKEY * mac_key = NULL;
-	unsigned char A1[EVP_MAX_MD_SIZE];
+	uchar A1[EVP_MAX_MD_SIZE];
 	size_t A1_len;
 	int ret = 0;
 
@@ -224,16 +224,16 @@ err:
 }
 
 static int tls1_prf_alg(const EVP_MD * md,
-    const unsigned char * sec, size_t slen,
-    const unsigned char * seed, size_t seed_len,
-    unsigned char * out, size_t olen)
+    const uchar * sec, size_t slen,
+    const uchar * seed, size_t seed_len,
+    uchar * out, size_t olen)
 {
 	if(EVP_MD_type(md) == NID_md5_sha1) {
 		size_t i;
-		unsigned char * tmp;
+		uchar * tmp;
 		if(!tls1_prf_P_hash(EVP_md5(), sec, slen/2 + (slen & 1), seed, seed_len, out, olen))
 			return 0;
-		tmp = (unsigned char *)OPENSSL_malloc(olen);
+		tmp = (uchar *)OPENSSL_malloc(olen);
 		if(tmp == NULL)
 			return 0;
 		if(!tls1_prf_P_hash(EVP_sha1(), sec + slen/2, slen/2 + (slen & 1), seed, seed_len, tmp, olen)) {

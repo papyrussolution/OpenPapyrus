@@ -461,7 +461,7 @@ int EVP_DecryptFinal_ex(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)
 	if(b > 1) {
 		if(ctx->buf_len || !ctx->final_used) {
 			EVPerr(EVP_F_EVP_DECRYPTFINAL_EX, EVP_R_WRONG_FINAL_BLOCK_LENGTH);
-			return (0);
+			return 0;
 		}
 		OPENSSL_assert(b <= sizeof(ctx->Final));
 		// 
@@ -471,12 +471,12 @@ int EVP_DecryptFinal_ex(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)
 		n = ctx->Final[b-1];
 		if(n == 0 || n > (int)b) {
 			EVPerr(EVP_F_EVP_DECRYPTFINAL_EX, EVP_R_BAD_DECRYPT);
-			return (0);
+			return 0;
 		}
 		for(i = 0; i < n; i++) {
 			if(ctx->Final[--b] != n) {
 				EVPerr(EVP_F_EVP_DECRYPTFINAL_EX, EVP_R_BAD_DECRYPT);
-				return (0);
+				return 0;
 			}
 		}
 		n = ctx->cipher->block_size-n;

@@ -187,7 +187,7 @@ xmlMutexPtr xmlNewMutex()
 	tok->mutex = CreateMutex(NULL, FALSE, NULL);
 #elif defined HAVE_BEOS_THREADS
 	if((tok->sem = create_sem(1, "xmlMutex")) < B_OK) {
-		free(tok);
+		SAlloc::F(tok);
 		return NULL;
 	}
 	tok->tid = -1;
@@ -215,7 +215,7 @@ void xmlFreeMutex(xmlMutexPtr tok)
 #elif defined HAVE_BEOS_THREADS
 	delete_sem(tok->sem);
 #endif
-	free(tok);
+	SAlloc::F(tok);
 }
 
 /**
@@ -293,7 +293,7 @@ xmlRMutexPtr xmlNewRMutex()
 	tok->count = 0;
 #elif defined HAVE_BEOS_THREADS
 	if((tok->lock = xmlNewMutex()) == NULL) {
-		free(tok);
+		SAlloc::F(tok);
 		return NULL;
 	}
 	tok->count = 0;
@@ -322,7 +322,7 @@ void xmlFreeRMutex(xmlRMutexPtr tok ATTRIBUTE_UNUSED)
 #elif defined HAVE_BEOS_THREADS
 	xmlFreeMutex(tok->lock);
 #endif
-	free(tok);
+	SAlloc::F(tok);
 }
 
 /**
@@ -443,7 +443,7 @@ void __xmlGlobalInitMutexLock()
 		 * allocated by this thread. */
 		if(global_init_lock != cs) {
 			DeleteCriticalSection(cs);
-			free(cs);
+			SAlloc::F(cs);
 		}
 	}
 	/* Lock the chosen critical section */
@@ -501,7 +501,7 @@ void __xmlGlobalInitMutexDestroy()
 #elif defined HAVE_WIN32_THREADS
 	if(global_init_lock != NULL) {
 		DeleteCriticalSection(global_init_lock);
-		free(global_init_lock);
+		SAlloc::F(global_init_lock);
 		global_init_lock = NULL;
 	}
 #endif
@@ -531,7 +531,7 @@ static void xmlFreeGlobalState(void * state)
 
 	/* free any memory allocated in the thread's xmlLastError */
 	xmlResetError(&(gs->xmlLastError));
-	free(state);
+	SAlloc::F(state);
 }
 
 /**
@@ -573,7 +573,7 @@ static void XMLCDECL xmlGlobalStateCleanupHelper(void * p)
 	WaitForSingleObject(params->thread, INFINITE);
 	CloseHandle(params->thread);
 	xmlFreeGlobalState(params->memory);
-	free(params);
+	SAlloc::F(params);
 	_endthread();
 }
 
@@ -661,7 +661,7 @@ xmlGlobalStatePtr xmlGetGlobalState()
 		if(tsd == NULL)
 			return 0;
 		p = (xmlGlobalStateCleanupHelperParams*)malloc(sizeof(xmlGlobalStateCleanupHelperParams));
-		if(p == NULL) {
+		if(!p) {
 			xmlGenericError(0, "xmlGetGlobalState: out of memory\n");
 			xmlFreeGlobalState(tsd);
 			return 0;
@@ -733,7 +733,7 @@ int xmlGetThreadId()
 	id = pthread_self();
 	/* horrible but preserves compat, see warning above */
 	memcpy(&ret, &id, sizeof(ret));
-	return (ret);
+	return ret;
 #elif defined HAVE_WIN32_THREADS
 	return GetCurrentThreadId();
 #elif defined HAVE_BEOS_THREADS
@@ -878,7 +878,7 @@ void xmlCleanupThreads()
 			xmlGlobalStateCleanupHelperParams * temp = p;
 			p = p->next;
 			xmlFreeGlobalState(temp->memory);
-			free(temp);
+			SAlloc::F(temp);
 		}
 		cleanup_helpers_head = 0;
 		LeaveCriticalSection(&cleanup_helpers_cs);
@@ -977,7 +977,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 				    if(p->next != NULL)
 					    p->next->prev = p->prev;
 				    LeaveCriticalSection(&cleanup_helpers_cs);
-				    free(p);
+				    SAlloc::F(p);
 			    }
 		    }
 		    break;

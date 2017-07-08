@@ -135,7 +135,7 @@ static int def_load(CONF * conf, const char * name, long * line)
 #else
 	in = BIO_new_file(name, "rb");
 #endif
-	if(in == NULL) {
+	if(!in) {
 		if(ERR_GET_REASON(ERR_peek_last_error()) == BIO_R_NO_SUCH_FILE)
 			CONFerr(CONF_F_DEF_LOAD, CONF_R_NO_SUCH_FILE);
 		else
@@ -356,7 +356,7 @@ err:
 		OPENSSL_free(v->value);
 		OPENSSL_free(v);
 	}
-	return (0);
+	return 0;
 }
 
 static void clear_comments(CONF * conf, char * p)
@@ -402,7 +402,7 @@ static int str_copy(CONF * conf, char * section, char ** pto, char * from)
 	char * s, * e, * rp, * p, * rrp, * np, * cp, v;
 	BUF_MEM * buf;
 	if((buf = BUF_MEM_new()) == NULL)
-		return (0);
+		return 0;
 	len = strlen(from) + 1;
 	if(!BUF_MEM_grow(buf, len))
 		goto err;
@@ -506,7 +506,7 @@ static int str_copy(CONF * conf, char * section, char ** pto, char * from)
 			if(rrp != NULL)
 				*rrp = rr;
 			*rp = r;
-			if(p == NULL) {
+			if(!p) {
 				CONFerr(CONF_F_STR_COPY, CONF_R_VARIABLE_HAS_NO_VALUE);
 				goto err;
 			}
@@ -542,7 +542,7 @@ static int str_copy(CONF * conf, char * section, char ** pto, char * from)
 	return (1);
 err:
 	BUF_MEM_free(buf);
-	return (0);
+	return 0;
 }
 
 static char * eat_ws(CONF * conf, char * p)

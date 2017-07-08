@@ -21,7 +21,7 @@ UI * UI_new(void)
 UI * UI_new_method(const UI_METHOD * method)
 {
 	UI * ret = (UI*)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL) {
+	if(!ret) {
 		UIerr(UI_F_UI_NEW_METHOD, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}

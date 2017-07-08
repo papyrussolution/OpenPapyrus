@@ -15,7 +15,7 @@
 //#include "ssl_locl.h"
 
 /* Find a custom extension from the list. */
-static custom_ext_method * custom_ext_find(const custom_ext_methods * exts, unsigned int ext_type)
+static custom_ext_method * custom_ext_find(const custom_ext_methods * exts, uint ext_type)
 {
 	size_t i;
 	custom_ext_method * meth = exts->meths;
@@ -39,8 +39,8 @@ void custom_ext_init(custom_ext_methods * exts)
 
 /* Pass received custom extension data to the application for parsing. */
 int custom_ext_parse(SSL * s, int server,
-    unsigned int ext_type,
-    const unsigned char * ext_data, size_t ext_size, int * al)
+    uint ext_type,
+    const uchar * ext_data, size_t ext_size, int * al)
 {
 	custom_ext_methods * exts = server ? &s->cert->srv_ext : &s->cert->cli_ext;
 	custom_ext_method * meth;
@@ -76,15 +76,15 @@ int custom_ext_parse(SSL * s, int server,
  * buffer.
  */
 int custom_ext_add(SSL * s, int server,
-    unsigned char ** pret, unsigned char * limit, int * al)
+    uchar ** pret, uchar * limit, int * al)
 {
 	custom_ext_methods * exts = server ? &s->cert->srv_ext : &s->cert->cli_ext;
 	custom_ext_method * meth;
-	unsigned char * ret = *pret;
+	uchar * ret = *pret;
 	size_t i;
 
 	for(i = 0; i < exts->meths_count; i++) {
-		const unsigned char * out = NULL;
+		const uchar * out = NULL;
 		size_t outlen = 0;
 		meth = exts->meths + i;
 
@@ -151,7 +151,7 @@ void custom_exts_free(custom_ext_methods * exts)
 
 /* Set callbacks for a custom extension. */
 static int custom_ext_meth_add(custom_ext_methods * exts,
-    unsigned int ext_type,
+    uint ext_type,
     custom_ext_add_cb add_cb,
     custom_ext_free_cb free_cb,
     void * add_arg,
@@ -194,13 +194,13 @@ static int custom_ext_meth_add(custom_ext_methods * exts,
 }
 
 /* Return true if a client custom extension exists, false otherwise */
-int SSL_CTX_has_client_custom_ext(const SSL_CTX * ctx, unsigned int ext_type)
+int SSL_CTX_has_client_custom_ext(const SSL_CTX * ctx, uint ext_type)
 {
 	return custom_ext_find(&ctx->cert->cli_ext, ext_type) != NULL;
 }
 
 /* Application level functions to add custom extension callbacks */
-int SSL_CTX_add_client_custom_ext(SSL_CTX * ctx, unsigned int ext_type,
+int SSL_CTX_add_client_custom_ext(SSL_CTX * ctx, uint ext_type,
     custom_ext_add_cb add_cb,
     custom_ext_free_cb free_cb,
     void * add_arg,
@@ -220,7 +220,7 @@ int SSL_CTX_add_client_custom_ext(SSL_CTX * ctx, unsigned int ext_type,
 	    free_cb, add_arg, parse_cb, parse_arg);
 }
 
-int SSL_CTX_add_server_custom_ext(SSL_CTX * ctx, unsigned int ext_type,
+int SSL_CTX_add_server_custom_ext(SSL_CTX * ctx, uint ext_type,
     custom_ext_add_cb add_cb,
     custom_ext_free_cb free_cb,
     void * add_arg,
@@ -230,7 +230,7 @@ int SSL_CTX_add_server_custom_ext(SSL_CTX * ctx, unsigned int ext_type,
 	    add_cb, free_cb, add_arg, parse_cb, parse_arg);
 }
 
-int SSL_extension_supported(unsigned int ext_type)
+int SSL_extension_supported(uint ext_type)
 {
 	switch(ext_type) {
 		/* Internally supported extensions. */

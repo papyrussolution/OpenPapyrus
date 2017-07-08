@@ -76,10 +76,10 @@ const BIO_METHOD * BIO_s_fd(void)
 BIO * BIO_new_fd(int fd, int close_flag)
 {
 	BIO * ret = BIO_new(BIO_s_fd());
-	if(ret == NULL)
+	if(!ret)
 		return (NULL);
 	BIO_set_fd(ret, fd, close_flag);
-	return (ret);
+	return ret;
 }
 
 static int fd_new(BIO * bi)
@@ -93,8 +93,8 @@ static int fd_new(BIO * bi)
 
 static int fd_free(BIO * a)
 {
-	if(a == NULL)
-		return (0);
+	if(!a)
+		return 0;
 	if(a->shutdown) {
 		if(a->init) {
 			UP_close(a->num);
@@ -117,7 +117,7 @@ static int fd_read(BIO * b, char * out, int outl)
 				BIO_set_retry_read(b);
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 static int fd_write(BIO * b, const char * in, int inl)
@@ -130,7 +130,7 @@ static int fd_write(BIO * b, const char * in, int inl)
 		if(BIO_fd_should_retry(ret))
 			BIO_set_retry_write(b);
 	}
-	return (ret);
+	return ret;
 }
 
 static long fd_ctrl(BIO * b, int cmd, long num, void * ptr)
@@ -180,14 +180,14 @@ static long fd_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    ret = 0;
 		    break;
 	}
-	return (ret);
+	return ret;
 }
 
 static int fd_puts(BIO * bp, const char * str)
 {
 	int n = strlen(str);
 	int ret = fd_write(bp, str, n);
-	return (ret);
+	return ret;
 }
 
 static int fd_gets(BIO * bp, char * buf, int size)
@@ -200,7 +200,7 @@ static int fd_gets(BIO * bp, char * buf, int size)
 	ptr[0] = '\0';
 	if(buf[0] != '\0')
 		ret = strlen(buf);
-	return (ret);
+	return ret;
 }
 
 int BIO_fd_should_retry(int i)
@@ -210,7 +210,7 @@ int BIO_fd_should_retry(int i)
 		err = get_last_sys_error();
 		return (BIO_fd_non_fatal_error(err));
 	}
-	return (0);
+	return 0;
 }
 
 int BIO_fd_non_fatal_error(int err)
@@ -250,7 +250,7 @@ int BIO_fd_non_fatal_error(int err)
 		default:
 		    break;
 	}
-	return (0);
+	return 0;
 }
 
 #endif

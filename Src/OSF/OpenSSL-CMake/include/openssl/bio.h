@@ -171,18 +171,13 @@ int BIO_test_flags(const BIO *b, int flags);
 void BIO_clear_flags(BIO *b, int flags);
 
 # define BIO_get_flags(b) BIO_test_flags(b, ~(0x0))
-# define BIO_set_retry_special(b) \
-                BIO_set_flags(b, (BIO_FLAGS_IO_SPECIAL|BIO_FLAGS_SHOULD_RETRY))
-# define BIO_set_retry_read(b) \
-                BIO_set_flags(b, (BIO_FLAGS_READ|BIO_FLAGS_SHOULD_RETRY))
-# define BIO_set_retry_write(b) \
-                BIO_set_flags(b, (BIO_FLAGS_WRITE|BIO_FLAGS_SHOULD_RETRY))
+# define BIO_set_retry_special(b) BIO_set_flags(b, (BIO_FLAGS_IO_SPECIAL|BIO_FLAGS_SHOULD_RETRY))
+# define BIO_set_retry_read(b) BIO_set_flags(b, (BIO_FLAGS_READ|BIO_FLAGS_SHOULD_RETRY))
+# define BIO_set_retry_write(b) BIO_set_flags(b, (BIO_FLAGS_WRITE|BIO_FLAGS_SHOULD_RETRY))
 
 /* These are normally used internally in BIOs */
-# define BIO_clear_retry_flags(b) \
-                BIO_clear_flags(b, (BIO_FLAGS_RWS|BIO_FLAGS_SHOULD_RETRY))
-# define BIO_get_retry_flags(b) \
-                BIO_test_flags(b, (BIO_FLAGS_RWS|BIO_FLAGS_SHOULD_RETRY))
+# define BIO_clear_retry_flags(b) BIO_clear_flags(b, (BIO_FLAGS_RWS|BIO_FLAGS_SHOULD_RETRY))
+# define BIO_get_retry_flags(b) BIO_test_flags(b, (BIO_FLAGS_RWS|BIO_FLAGS_SHOULD_RETRY))
 
 /* These should be used by the application to tell why we should retry */
 # define BIO_should_read(a)              BIO_test_flags(a, BIO_FLAGS_READ)
@@ -198,14 +193,9 @@ void BIO_clear_flags(BIO *b, int flags);
  * and the offending BIO. Given a BIO, BIO_get_retry_reason(bio) will return
  * the code.
  */
-/*
- * Returned from the SSL bio when the certificate retrieval code had an error
- */
-# define BIO_RR_SSL_X509_LOOKUP          0x01
-/* Returned from the connect BIO when a connect would have blocked */
-# define BIO_RR_CONNECT                  0x02
-/* Returned from the accept BIO when an accept would have blocked */
-# define BIO_RR_ACCEPT                   0x03
+#define BIO_RR_SSL_X509_LOOKUP          0x01 // Returned from the SSL bio when the certificate retrieval code had an error
+#define BIO_RR_CONNECT                  0x02 // Returned from the connect BIO when a connect would have blocked
+#define BIO_RR_ACCEPT                   0x03 // Returned from the accept BIO when an accept would have blocked 
 
 /* These are passed by the BIO callback */
 # define BIO_CB_FREE     0x01
@@ -224,8 +214,7 @@ void BIO_clear_flags(BIO *b, int flags);
 # define BIO_cb_pre(a)   (!((a)&BIO_CB_RETURN))
 # define BIO_cb_post(a)  ((a)&BIO_CB_RETURN)
 
-typedef long (*BIO_callback_fn)(BIO *b, int oper, const char *argp, int argi,
-                                long argl, long ret);
+typedef long (*BIO_callback_fn)(BIO *b, int oper, const char *argp, int argi, long argl, long ret);
 BIO_callback_fn BIO_get_callback(const BIO *b);
 void BIO_set_callback(BIO *b, BIO_callback_fn callback);
 char *BIO_get_callback_arg(const BIO *b);
@@ -233,7 +222,6 @@ void BIO_set_callback_arg(BIO *b, char *arg);
 
 struct bio_method_st;
 typedef struct bio_method_st BIO_METHOD;
-
 const char *BIO_method_name(const BIO *b);
 int BIO_method_type(const BIO *b);
 
@@ -242,8 +230,7 @@ typedef void bio_info_cb(BIO *, int, const char *, int, long, long);
 DEFINE_STACK_OF(BIO)
 
 /* Prefix and suffix callback in ASN1 BIO */
-typedef int asn1_ps_func (BIO *b, uchar **pbuf, int *plen,
-                          void *parg);
+typedef int asn1_ps_func(BIO *b, uchar **pbuf, int *plen, void *parg);
 
 # ifndef OPENSSL_NO_SCTP
 /* SCTP parameter structs */
@@ -464,8 +451,7 @@ int BIO_read_filename(BIO *b, const char *name);
 size_t BIO_ctrl_pending(BIO *b);
 size_t BIO_ctrl_wpending(BIO *b);
 # define BIO_flush(b)            (int)BIO_ctrl(b,BIO_CTRL_FLUSH,0,NULL)
-# define BIO_get_info_callback(b,cbp) (int)BIO_ctrl(b,BIO_CTRL_GET_CALLBACK,0, \
-                                                   cbp)
+# define BIO_get_info_callback(b,cbp) (int)BIO_ctrl(b,BIO_CTRL_GET_CALLBACK,0, cbp)
 # define BIO_set_info_callback(b,cb) (int)BIO_callback_ctrl(b,BIO_CTRL_SET_CALLBACK,cb)
 
 /* For the BIO_f_buffer() type */
@@ -485,37 +471,25 @@ size_t BIO_ctrl_get_read_request(BIO *b);
 int BIO_ctrl_reset_read_request(BIO *b);
 
 /* ctrl macros for dgram */
-# define BIO_ctrl_dgram_connect(b,peer)  \
-                     (int)BIO_ctrl(b,BIO_CTRL_DGRAM_CONNECT,0, (char *)peer)
-# define BIO_ctrl_set_connected(b,peer) \
-         (int)BIO_ctrl(b, BIO_CTRL_DGRAM_SET_CONNECTED, 0, (char *)peer)
-# define BIO_dgram_recv_timedout(b) \
-         (int)BIO_ctrl(b, BIO_CTRL_DGRAM_GET_RECV_TIMER_EXP, 0, NULL)
-# define BIO_dgram_send_timedout(b) \
-         (int)BIO_ctrl(b, BIO_CTRL_DGRAM_GET_SEND_TIMER_EXP, 0, NULL)
-# define BIO_dgram_get_peer(b,peer) \
-         (int)BIO_ctrl(b, BIO_CTRL_DGRAM_GET_PEER, 0, (char *)peer)
-# define BIO_dgram_set_peer(b,peer) \
-         (int)BIO_ctrl(b, BIO_CTRL_DGRAM_SET_PEER, 0, (char *)peer)
-# define BIO_dgram_get_mtu_overhead(b) \
-         (uint)BIO_ctrl((b), BIO_CTRL_DGRAM_GET_MTU_OVERHEAD, 0, NULL)
+# define BIO_ctrl_dgram_connect(b,peer) (int)BIO_ctrl(b,BIO_CTRL_DGRAM_CONNECT,0, (char *)peer)
+# define BIO_ctrl_set_connected(b,peer) (int)BIO_ctrl(b, BIO_CTRL_DGRAM_SET_CONNECTED, 0, (char *)peer)
+# define BIO_dgram_recv_timedout(b) (int)BIO_ctrl(b, BIO_CTRL_DGRAM_GET_RECV_TIMER_EXP, 0, NULL)
+# define BIO_dgram_send_timedout(b) (int)BIO_ctrl(b, BIO_CTRL_DGRAM_GET_SEND_TIMER_EXP, 0, NULL)
+# define BIO_dgram_get_peer(b,peer) (int)BIO_ctrl(b, BIO_CTRL_DGRAM_GET_PEER, 0, (char *)peer)
+# define BIO_dgram_set_peer(b,peer) (int)BIO_ctrl(b, BIO_CTRL_DGRAM_SET_PEER, 0, (char *)peer)
+# define BIO_dgram_get_mtu_overhead(b) (uint)BIO_ctrl((b), BIO_CTRL_DGRAM_GET_MTU_OVERHEAD, 0, NULL)
 
-#define BIO_get_ex_new_index(l, p, newf, dupf, freef) \
-    CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_BIO, l, p, newf, dupf, freef)
+#define BIO_get_ex_new_index(l, p, newf, dupf, freef) CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_BIO, l, p, newf, dupf, freef)
 int BIO_set_ex_data(BIO *bio, int idx, void *data);
 void *BIO_get_ex_data(BIO *bio, int idx);
 uint64_t BIO_number_read(BIO *bio);
 uint64_t BIO_number_written(BIO *bio);
 
 /* For BIO_f_asn1() */
-int BIO_asn1_set_prefix(BIO *b, asn1_ps_func *prefix,
-                        asn1_ps_func *prefix_free);
-int BIO_asn1_get_prefix(BIO *b, asn1_ps_func **pprefix,
-                        asn1_ps_func **pprefix_free);
-int BIO_asn1_set_suffix(BIO *b, asn1_ps_func *suffix,
-                        asn1_ps_func *suffix_free);
-int BIO_asn1_get_suffix(BIO *b, asn1_ps_func **psuffix,
-                        asn1_ps_func **psuffix_free);
+int BIO_asn1_set_prefix(BIO *b, asn1_ps_func *prefix, asn1_ps_func *prefix_free);
+int BIO_asn1_get_prefix(BIO *b, asn1_ps_func **pprefix, asn1_ps_func **pprefix_free);
+int BIO_asn1_set_suffix(BIO *b, asn1_ps_func *suffix, asn1_ps_func *suffix_free);
+int BIO_asn1_get_suffix(BIO *b, asn1_ps_func **psuffix, asn1_ps_func **psuffix_free);
 
 const BIO_METHOD *BIO_s_file(void);
 BIO *BIO_new_file(const char *filename, const char *mode);
@@ -532,14 +506,13 @@ void BIO_set_shutdown(BIO *a, int shut);
 int BIO_get_shutdown(BIO *a);
 void BIO_vfree(BIO *a);
 int BIO_up_ref(BIO *a);
-int BIO_read(BIO *b, void *data, int len);
-int BIO_gets(BIO *bp, char *buf, int size);
-int BIO_write(BIO *b, const void *data, int len);
-int BIO_puts(BIO *bp, const char *buf);
+int FASTCALL BIO_read(BIO *b, void *data, int len);
+int FASTCALL BIO_gets(BIO *bp, char *buf, int size);
+int FASTCALL BIO_write(BIO *b, const void *data, int len);
+int FASTCALL BIO_puts(BIO *bp, const char *buf);
 int BIO_indent(BIO *b, int indent, int max);
 long BIO_ctrl(BIO *bp, int cmd, long larg, void *parg);
-long BIO_callback_ctrl(BIO *b, int cmd,
-                       void (*fp) (BIO *, int, const char *, int, long, long));
+long BIO_callback_ctrl(BIO *b, int cmd, void (*fp) (BIO *, int, const char *, int, long, long));
 void *BIO_ptr_ctrl(BIO *bp, int cmd, long larg);
 long BIO_int_ctrl(BIO *bp, int cmd, long larg, int iarg);
 BIO *BIO_push(BIO *b, BIO *append);

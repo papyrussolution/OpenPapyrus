@@ -265,11 +265,11 @@ extern int OPENSSL_NONPIC_relocated;
 void crypto_cleanup_all_ex_data_int(void);
 
 int openssl_strerror_r(int errnum, char *buf, size_t buflen);
-# if !defined(OPENSSL_NO_STDIO)
-FILE *openssl_fopen(const char *filename, const char *mode);
-# else
-void *openssl_fopen(const char *filename, const char *mode);
-# endif
+#if !defined(OPENSSL_NO_STDIO)
+	FILE *openssl_fopen(const char *filename, const char *mode);
+#else
+	void *openssl_fopen(const char *filename, const char *mode);
+#endif
 
 #ifdef  __cplusplus
 }
@@ -282,7 +282,6 @@ extern "C" {
 #endif
 
 extern CRYPTO_RWLOCK *global_engine_lock;
-
 /*
  * If we compile with this symbol defined, then both reference counts in the
  * ENGINE structure will be monitored with a line of output on stderr for
@@ -363,7 +362,6 @@ int engine_free_util(ENGINE *e, int locked);
  * the ENGINE_set_***() functions with a NULL value.
  */
 void engine_set_all_null(ENGINE *e);
-
 /*
  * NB: Bitwise OR-able values for the "flags" variable in ENGINE are now
  * exposed in engine.h.

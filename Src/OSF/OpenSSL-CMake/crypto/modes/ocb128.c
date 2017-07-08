@@ -38,12 +38,12 @@ static u32 ocb_ntz(u64 n)
 /*
  * Shift a block of 16 bytes left by shift bits
  */
-static void ocb_block_lshift(const unsigned char * in, size_t shift,
-    unsigned char * out)
+static void ocb_block_lshift(const uchar * in, size_t shift,
+    uchar * out)
 {
-	unsigned char shift_mask;
+	uchar shift_mask;
 	int i;
-	unsigned char mask[15];
+	uchar mask[15];
 
 	shift_mask = 0xff;
 	shift_mask <<= (8 - shift);
@@ -65,7 +65,7 @@ static void ocb_block_lshift(const unsigned char * in, size_t shift,
  */
 static void ocb_double(OCB_BLOCK * in, OCB_BLOCK * out)
 {
-	unsigned char mask;
+	uchar mask;
 
 	/*
 	 * Calculate the mask based on the most significant bit. There are more
@@ -83,9 +83,9 @@ static void ocb_double(OCB_BLOCK * in, OCB_BLOCK * out)
 /*
  * Perform an xor on in1 and in2 - each of len bytes. Store result in out
  */
-static void ocb_block_xor(const unsigned char * in1,
-    const unsigned char * in2, size_t len,
-    unsigned char * out)
+static void ocb_block_xor(const uchar * in1,
+    const uchar * in2, size_t len,
+    uchar * out)
 {
 	size_t i;
 	for(i = 0; i < len; i++) {
@@ -219,11 +219,11 @@ int CRYPTO_ocb128_copy_ctx(OCB128_CONTEXT * dest, OCB128_CONTEXT * src,
 /*
  * Set the IV to be used for this operation. Must be 1 - 15 bytes.
  */
-int CRYPTO_ocb128_setiv(OCB128_CONTEXT * ctx, const unsigned char * iv,
+int CRYPTO_ocb128_setiv(OCB128_CONTEXT * ctx, const uchar * iv,
     size_t len, size_t taglen)
 {
-	unsigned char ktop[16], tmp[16], mask;
-	unsigned char stretch[24], nonce[16];
+	uchar ktop[16], tmp[16], mask;
+	uchar stretch[24], nonce[16];
 	size_t bottom, shift;
 
 	/*
@@ -267,7 +267,7 @@ int CRYPTO_ocb128_setiv(OCB128_CONTEXT * ctx, const unsigned char * iv,
  * Provide any AAD. This can be called multiple times. Only the final time can
  * have a partial block
  */
-int CRYPTO_ocb128_aad(OCB128_CONTEXT * ctx, const unsigned char * aad,
+int CRYPTO_ocb128_aad(OCB128_CONTEXT * ctx, const uchar * aad,
     size_t len)
 {
 	u64 i, all_num_blocks;
@@ -307,7 +307,7 @@ int CRYPTO_ocb128_aad(OCB128_CONTEXT * ctx, const unsigned char * aad,
 		/* CipherInput = (A_* || 1 || zeros(127-bitlen(A_*))) xor Offset_* */
 		memzero(&tmp1, 16);
 		memcpy(&tmp1, aad + (num_blocks * 16), last_len);
-		((unsigned char*)&tmp1)[last_len] = 0x80;
+		((uchar*)&tmp1)[last_len] = 0x80;
 		ocb_block16_xor(&ctx->offset_aad, &tmp1, &tmp2);
 
 		/* Sum = Sum_m xor ENCIPHER(K, CipherInput) */
@@ -325,7 +325,7 @@ int CRYPTO_ocb128_aad(OCB128_CONTEXT * ctx, const unsigned char * aad,
  * the final time can have a partial block
  */
 int CRYPTO_ocb128_encrypt(OCB128_CONTEXT * ctx,
-    const unsigned char * in, unsigned char * out,
+    const uchar * in, uchar * out,
     size_t len)
 {
 	u64 i, all_num_blocks;
@@ -356,7 +356,7 @@ int CRYPTO_ocb128_encrypt(OCB128_CONTEXT * ctx,
 
 		ctx->stream(in, out, num_blocks, ctx->keyenc,
 		    (size_t)ctx->blocks_processed + 1, ctx->offset.c,
-		    (const unsigned char (*)[16])ctx->l, ctx->checksum.c);
+		    (const uchar (*)[16])ctx->l, ctx->checksum.c);
 	}
 	else {
 		/* Loop through all full blocks to be encrypted */
@@ -396,11 +396,11 @@ int CRYPTO_ocb128_encrypt(OCB128_CONTEXT * ctx,
 		/* Pad = ENCIPHER(K, Offset_*) */
 		ctx->encrypt(ctx->offset.c, pad.c, ctx->keyenc);
 		/* C_* = P_* xor Pad[1..bitlen(P_*)] */
-		ocb_block_xor(in + (len / 16) * 16, (unsigned char*)&pad, last_len, out + (num_blocks * 16));
+		ocb_block_xor(in + (len / 16) * 16, (uchar*)&pad, last_len, out + (num_blocks * 16));
 		/* Checksum_* = Checksum_m xor (P_* || 1 || zeros(127-bitlen(P_*))) */
 		memzero(&tmp1, 16);
 		memcpy(&tmp1, in + (len / 16) * 16, last_len);
-		((unsigned char*)(&tmp1))[last_len] = 0x80;
+		((uchar*)(&tmp1))[last_len] = 0x80;
 		ocb_block16_xor(&ctx->checksum, &tmp1, &ctx->checksum);
 	}
 
@@ -414,7 +414,7 @@ int CRYPTO_ocb128_encrypt(OCB128_CONTEXT * ctx,
  * the final time can have a partial block
  */
 int CRYPTO_ocb128_decrypt(OCB128_CONTEXT * ctx,
-    const unsigned char * in, unsigned char * out,
+    const uchar * in, uchar * out,
     size_t len)
 {
 	u64 i, all_num_blocks;
@@ -445,7 +445,7 @@ int CRYPTO_ocb128_decrypt(OCB128_CONTEXT * ctx,
 
 		ctx->stream(in, out, num_blocks, ctx->keydec,
 		    (size_t)ctx->blocks_processed + 1, ctx->offset.c,
-		    (const unsigned char (*)[16])ctx->l, ctx->checksum.c);
+		    (const uchar (*)[16])ctx->l, ctx->checksum.c);
 	}
 	else {
 		/* Loop through all full blocks to be decrypted */
@@ -484,11 +484,11 @@ int CRYPTO_ocb128_decrypt(OCB128_CONTEXT * ctx,
 		/* Pad = ENCIPHER(K, Offset_*) */
 		ctx->encrypt(ctx->offset.c, pad.c, ctx->keyenc);
 		/* P_* = C_* xor Pad[1..bitlen(C_*)] */
-		ocb_block_xor(in + (len / 16) * 16, (unsigned char*)&pad, last_len, out + (num_blocks * 16));
+		ocb_block_xor(in + (len / 16) * 16, (uchar*)&pad, last_len, out + (num_blocks * 16));
 		/* Checksum_* = Checksum_m xor (P_* || 1 || zeros(127-bitlen(P_*))) */
 		memzero(&tmp1, 16);
 		memcpy(&tmp1, out + (len / 16) * 16, last_len);
-		((unsigned char*)(&tmp1))[last_len] = 0x80;
+		((uchar*)(&tmp1))[last_len] = 0x80;
 		ocb_block16_xor(&ctx->checksum, &tmp1, &ctx->checksum);
 	}
 	ctx->blocks_processed = all_num_blocks;
@@ -498,7 +498,7 @@ int CRYPTO_ocb128_decrypt(OCB128_CONTEXT * ctx,
 /*
  * Calculate the tag and verify it against the supplied tag
  */
-int CRYPTO_ocb128_finish(OCB128_CONTEXT * ctx, const unsigned char * tag, size_t len)
+int CRYPTO_ocb128_finish(OCB128_CONTEXT * ctx, const uchar * tag, size_t len)
 {
 	OCB_BLOCK tmp1, tmp2;
 	/*
@@ -523,7 +523,7 @@ int CRYPTO_ocb128_finish(OCB128_CONTEXT * ctx, const unsigned char * tag, size_t
 /*
  * Retrieve the calculated tag
  */
-int CRYPTO_ocb128_tag(OCB128_CONTEXT * ctx, unsigned char * tag, size_t len)
+int CRYPTO_ocb128_tag(OCB128_CONTEXT * ctx, uchar * tag, size_t len)
 {
 	if(len > 16 || len < 1) {
 		return -1;

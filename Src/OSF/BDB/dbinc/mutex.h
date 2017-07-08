@@ -106,7 +106,7 @@ extern "C" {
 		int ret;
 		DB_MUTEX *mutexp;
 		if(!MUTEX_ON(env) || F_ISSET(env->dbenv, DB_ENV_NOLOCKING))
-			return (0);
+			return 0;
 		mutexp = MUTEXP_SET(env, mutex);
 	#ifdef HAVE_SHARED_LATCHES
 		if(F_ISSET(mutexp, DB_MUTEX_SHARED))
@@ -122,7 +122,7 @@ extern "C" {
 			STAT_INC(env,
 				mutex, set_nowait, mutexp->mutex_set_nowait, mutex);
 		}
-		return (ret);
+		return ret;
 	}
 	#ifdef HAVE_SHARED_LATCHES
 		#define	__mutex_rdlock(a, b)		__db_pthread_mutex_readlock(a, b)
@@ -132,7 +132,7 @@ extern "C" {
 			int ret;
 			DB_MUTEX *mutexp;
 			if(!MUTEX_ON(env) || F_ISSET(env->dbenv, DB_ENV_NOLOCKING))
-				return (0);
+				return 0;
 			mutexp = MUTEXP_SET(env, mutex);
 			if(F_ISSET(mutexp, DB_MUTEX_SHARED))
 				ret = pthread_rwlock_tryrdlock(&mutexp->u.rwlock);
@@ -144,7 +144,7 @@ extern "C" {
 			if(ret == 0)
 				STAT_INC(env, mutex, set_rd_nowait, mutexp->mutex_set_nowait, mutex);
 		#endif
-			return (ret);
+			return ret;
 		}
 	#endif
 #elif defined(HAVE_MUTEX_WIN32) || defined(HAVE_MUTEX_WIN32_GCC)

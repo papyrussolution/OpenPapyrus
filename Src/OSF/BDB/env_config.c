@@ -25,7 +25,7 @@ int __env_read_db_config(ENV * env)
 	char * p = NULL;
 	if((ret = __db_appname(env, DB_APP_NONE, "DB_CONFIG", NULL, &p)) != 0)
 		return ret;
-	if(p == NULL)
+	if(!p)
 		fp = NULL;
 	else {
 		fp = fopen(p, "r");

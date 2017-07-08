@@ -123,7 +123,7 @@ static int ok_new(BIO * bi)
 	BIO_OK_CTX * ctx;
 
 	ctx = (BIO_OK_CTX*)OPENSSL_zalloc(sizeof(*ctx));
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 
 	ctx->cont = 1;
@@ -143,7 +143,7 @@ static int ok_free(BIO * a)
 {
 	BIO_OK_CTX * ctx;
 
-	if(a == NULL)
+	if(!a)
 		return 0;
 
 	ctx = (BIO_OK_CTX*)BIO_get_data(a);
@@ -255,7 +255,7 @@ static int ok_write(BIO * b, const char * in, int inl)
 	ret = inl;
 
 	if((ctx == NULL) || (next == NULL) || (BIO_get_init(b) == 0))
-		return (0);
+		return 0;
 
 	if(ctx->sigio && !sig_out(b))
 		return 0;
@@ -283,7 +283,7 @@ static int ok_write(BIO * b, const char * in, int inl)
 		}
 
 		if((in == NULL) || (inl <= 0))
-			return (0);
+			return 0;
 
 		n = (inl + ctx->buf_len > OK_BLOCK_SIZE + OK_BLOCK_BLOCK) ?
 		    (int)(OK_BLOCK_SIZE + OK_BLOCK_BLOCK - ctx->buf_len) : inl;
@@ -303,7 +303,7 @@ static int ok_write(BIO * b, const char * in, int inl)
 
 	BIO_clear_retry_flags(b);
 	BIO_copy_next_retry(b);
-	return (ret);
+	return ret;
 }
 
 static long ok_ctrl(BIO * b, int cmd, long num, void * ptr)

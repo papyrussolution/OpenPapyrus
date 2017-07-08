@@ -52,7 +52,7 @@ static void xmlLinkDeallocator(xmlListPtr l, xmlLinkPtr lk)
 	(lk->next)->prev = lk->prev;
 	if(l->linkDeallocator)
 		l->linkDeallocator(lk);
-	free(lk);
+	SAlloc::F(lk);
 }
 
 /**
@@ -68,7 +68,7 @@ static void xmlLinkDeallocator(xmlListPtr l, xmlLinkPtr lk)
 static int xmlLinkCompare(const void * data0, const void * data1)
 {
 	if(data0 < data1)
-		return (-1);
+		return -1;
 	else if(data0 == data1)
 		return 0;
 	else
@@ -171,16 +171,16 @@ static xmlLinkPtr xmlListLinkReverseSearch(xmlListPtr l, void * data)
 xmlListPtr xmlListCreate(xmlListDeallocator deallocator, xmlListDataCompare compare)
 {
 	xmlListPtr l;
-	if(NULL == (l = (xmlListPtr)xmlMalloc(sizeof(xmlList)))) {
+	if(NULL == (l = (xmlListPtr)SAlloc::M(sizeof(xmlList)))) {
 		xmlGenericError(0, "Cannot initialize memory for list");
 		return 0;
 	}
 	/* Initialize the list to NULL */
 	memzero(l, sizeof(xmlList));
 	/* Add the sentinel */
-	if(NULL ==(l->sentinel = (xmlLinkPtr)xmlMalloc(sizeof(xmlLink)))) {
+	if(NULL ==(l->sentinel = (xmlLinkPtr)SAlloc::M(sizeof(xmlLink)))) {
 		xmlGenericError(0, "Cannot initialize memory for sentinel");
-		free(l);
+		SAlloc::F(l);
 		return 0;
 	}
 	l->sentinel->next = l->sentinel;
@@ -251,7 +251,7 @@ int xmlListInsert(xmlListPtr l, void * data)
 	else {
 		xmlLinkPtr lkPlace = xmlListLowerSearch(l, data);
 		/* Add the new link */
-		xmlLinkPtr lkNew = (xmlLinkPtr)xmlMalloc(sizeof(xmlLink));
+		xmlLinkPtr lkNew = (xmlLinkPtr)SAlloc::M(sizeof(xmlLink));
 		if(lkNew == NULL) {
 			xmlGenericError(0, "Cannot initialize memory for new link");
 			return 1;
@@ -284,7 +284,7 @@ int xmlListAppend(xmlListPtr l, void * data)
 		return 1;
 	lkPlace = xmlListHigherSearch(l, data);
 	/* Add the new link */
-	lkNew = (xmlLinkPtr)xmlMalloc(sizeof(xmlLink));
+	lkNew = (xmlLinkPtr)SAlloc::M(sizeof(xmlLink));
 	if(lkNew == NULL) {
 		xmlGenericError(0, "Cannot initialize memory for new link");
 		return 1;
@@ -306,8 +306,8 @@ void xmlListDelete(xmlListPtr l)
 {
 	if(l) {
 		xmlListClear(l);
-		free(l->sentinel);
-		free(l);
+		SAlloc::F(l->sentinel);
+		SAlloc::F(l);
 	}
 }
 
@@ -486,7 +486,7 @@ int xmlListPushFront(xmlListPtr l, void * data)
 		return 0;
 	lkPlace = l->sentinel;
 	/* Add the new link */
-	lkNew = (xmlLinkPtr)xmlMalloc(sizeof(xmlLink));
+	lkNew = (xmlLinkPtr)SAlloc::M(sizeof(xmlLink));
 	if(lkNew == NULL) {
 		xmlGenericError(0, "Cannot initialize memory for new link");
 		return 0;
@@ -515,7 +515,7 @@ int xmlListPushBack(xmlListPtr l, void * data)
 		return 0;
 	lkPlace = l->sentinel->prev;
 	/* Add the new link */
-	if(NULL ==(lkNew = (xmlLinkPtr)xmlMalloc(sizeof(xmlLink)))) {
+	if(NULL ==(lkNew = (xmlLinkPtr)SAlloc::M(sizeof(xmlLink)))) {
 		xmlGenericError(0, "Cannot initialize memory for new link");
 		return 0;
 	}

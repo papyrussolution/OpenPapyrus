@@ -127,7 +127,7 @@ static int win32_load(DSO *dso)
     OPENSSL_free(p);
     if (h != NULL)
         FreeLibrary(h);
-    return (0);
+    return 0;
 }
 
 static int win32_unload(DSO *dso)
@@ -135,14 +135,14 @@ static int win32_unload(DSO *dso)
     HINSTANCE *p;
     if (dso == NULL) {
         DSOerr(DSO_F_WIN32_UNLOAD, ERR_R_PASSED_NULL_PARAMETER);
-        return (0);
+        return 0;
     }
     if (sk_void_num(dso->meth_data) < 1)
         return (1);
     p = sk_void_pop(dso->meth_data);
     if (p == NULL) {
         DSOerr(DSO_F_WIN32_UNLOAD, DSO_R_NULL_HANDLE);
-        return (0);
+        return 0;
     }
     if (!FreeLibrary(*p)) {
         DSOerr(DSO_F_WIN32_UNLOAD, DSO_R_UNLOAD_FAILED);
@@ -150,7 +150,7 @@ static int win32_unload(DSO *dso)
          * We should push the value back onto the stack in case of a retry.
          */
         sk_void_push(dso->meth_data, p);
-        return (0);
+        return 0;
     }
     /* Cleanup */
     OPENSSL_free(p);

@@ -260,7 +260,7 @@ static DSA * dsa_dh_generate(DH_PKEY_CTX * dctx, BN_GENCB * pcb)
 	if(dctx->use_dsa > 2)
 		return NULL;
 	ret = DSA_new();
-	if(ret == NULL)
+	if(!ret)
 		return NULL;
 	if(subprime_len == -1) {
 		if(prime_len >= 2048)

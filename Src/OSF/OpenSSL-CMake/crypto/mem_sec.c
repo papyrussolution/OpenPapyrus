@@ -234,8 +234,8 @@ typedef struct sh_st {
 	char ** freelist;
 	ossl_ssize_t freelist_size;
 	size_t minsize;
-	unsigned char * bittable;
-	unsigned char * bitmalloc;
+	uchar * bittable;
+	uchar * bitmalloc;
 	size_t bittable_size; /* size in bits */
 } SH;
 
@@ -255,7 +255,7 @@ static size_t sh_getlist(char * ptr)
 	return list;
 }
 
-static int sh_testbit(char * ptr, int list, unsigned char * table)
+static int sh_testbit(char * ptr, int list, uchar * table)
 {
 	size_t bit;
 
@@ -266,7 +266,7 @@ static int sh_testbit(char * ptr, int list, unsigned char * table)
 	return TESTBIT(table, bit);
 }
 
-static void sh_clearbit(char * ptr, int list, unsigned char * table)
+static void sh_clearbit(char * ptr, int list, uchar * table)
 {
 	size_t bit;
 
@@ -278,7 +278,7 @@ static void sh_clearbit(char * ptr, int list, unsigned char * table)
 	CLEARBIT(table, bit);
 }
 
-static void sh_setbit(char * ptr, int list, unsigned char * table)
+static void sh_setbit(char * ptr, int list, uchar * table)
 {
 	size_t bit;
 

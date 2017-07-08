@@ -160,12 +160,12 @@ xmlHashTablePtr xmlHashCreate(int size)
 	xmlHashTablePtr table;
 	if(size <= 0)
 		size = 256;
-	table = (xmlHashTable *)xmlMalloc(sizeof(xmlHashTable));
+	table = (xmlHashTable *)SAlloc::M(sizeof(xmlHashTable));
 	if(table) {
 		table->dict = NULL;
 		table->size = size;
 		table->nbElems = 0;
-		table->table = (xmlHashEntry *)xmlMalloc(size * sizeof(xmlHashEntry));
+		table->table = (xmlHashEntry *)SAlloc::M(size * sizeof(xmlHashEntry));
 		if(table->table) {
 			memzero(table->table, size * sizeof(xmlHashEntry));
 #ifdef HASH_RANDOMIZATION
@@ -173,7 +173,7 @@ xmlHashTablePtr xmlHashCreate(int size)
 #endif
 			return(table);
 		}
-		free(table);
+		SAlloc::F(table);
 	}
 	return 0;
 }
@@ -224,7 +224,7 @@ static int xmlHashGrow(xmlHashTablePtr table, int size)
 	oldtable = table->table;
 	if(oldtable == NULL)
 		return -1;
-	table->table = (xmlHashEntry *)xmlMalloc(size * sizeof(xmlHashEntry));
+	table->table = (xmlHashEntry *)SAlloc::M(size * sizeof(xmlHashEntry));
 	if(table->table == NULL) {
 		table->table = oldtable;
 		return -1;
@@ -256,7 +256,7 @@ static int xmlHashGrow(xmlHashTablePtr table, int size)
 			if(table->table[key].valid == 0) {
 				memcpy(&(table->table[key]), iter, sizeof(xmlHashEntry));
 				table->table[key].next = NULL;
-				free(iter);
+				SAlloc::F(iter);
 			}
 			else {
 				iter->next = table->table[key].next;
@@ -269,7 +269,7 @@ static int xmlHashGrow(xmlHashTablePtr table, int size)
 			iter = next;
 		}
 	}
-	free(oldtable);
+	SAlloc::F(oldtable);
 #ifdef DEBUG_GROW
 	xmlGenericError(0, "xmlHashGrow : from %d to %d, %d elems\n", oldsize, size, nbElem);
 #endif
@@ -298,23 +298,23 @@ void FASTCALL xmlHashFree(xmlHashTablePtr table, xmlHashDeallocator f)
 						if(f && iter->payload)
 							f(iter->payload, iter->name);
 						if(table->dict == NULL) {
-							free(iter->name);
-							free(iter->name2);
-							free(iter->name3);
+							SAlloc::F(iter->name);
+							SAlloc::F(iter->name2);
+							SAlloc::F(iter->name3);
 						}
 						iter->payload = NULL;
 						if(!inside_table)
-							free(iter);
+							SAlloc::F(iter);
 						nbElems--;
 						inside_table = 0;
 						iter = next;
 					}
 				}
 			}
-			free(table->table);
+			SAlloc::F(table->table);
 		}
 		xmlDictFree(table->dict);
-		free(table);
+		SAlloc::F(table);
 	}
 }
 
@@ -513,11 +513,11 @@ int xmlHashAddEntry3(xmlHashTablePtr table, const xmlChar * name,
 		}
 		else {
 			for(insert = &(table->table[key]); insert->next; insert = insert->next) {
-				if((xmlStrEqual(insert->name, name)) && (xmlStrEqual(insert->name2, name2)) && (xmlStrEqual(insert->name3, name3)))
+				if((sstreq(insert->name, name)) && (sstreq(insert->name2, name2)) && (sstreq(insert->name3, name3)))
 					return -1;
 				len++;
 			}
-			if((xmlStrEqual(insert->name, name)) && (xmlStrEqual(insert->name2, name2)) && (xmlStrEqual(insert->name3, name3)))
+			if((sstreq(insert->name, name)) && (sstreq(insert->name2, name2)) && (sstreq(insert->name3, name3)))
 				return -1;
 		}
 	}
@@ -526,7 +526,7 @@ int xmlHashAddEntry3(xmlHashTablePtr table, const xmlChar * name,
 		entry = &(table->table[key]);
 	}
 	else {
-		entry = (xmlHashEntry *)xmlMalloc(sizeof(xmlHashEntry));
+		entry = (xmlHashEntry *)SAlloc::M(sizeof(xmlHashEntry));
 		if(entry == NULL)
 			return -1;
 	}
@@ -626,14 +626,14 @@ int xmlHashUpdateEntry3(xmlHashTablePtr table, const xmlChar * name, const xmlCh
 		else {
 			for(insert = &(table->table[key]); insert->next != NULL;
 			    insert = insert->next) {
-				if((xmlStrEqual(insert->name, name)) && (xmlStrEqual(insert->name2, name2)) && (xmlStrEqual(insert->name3, name3))) {
+				if((sstreq(insert->name, name)) && (sstreq(insert->name2, name2)) && (sstreq(insert->name3, name3))) {
 					if(f)
 						f(insert->payload, insert->name);
 					insert->payload = userdata;
 					return 0;
 				}
 			}
-			if((xmlStrEqual(insert->name, name)) && (xmlStrEqual(insert->name2, name2)) && (xmlStrEqual(insert->name3, name3))) {
+			if((sstreq(insert->name, name)) && (sstreq(insert->name2, name2)) && (sstreq(insert->name3, name3))) {
 				if(f)
 					f(insert->payload, insert->name);
 				insert->payload = userdata;
@@ -645,7 +645,7 @@ int xmlHashUpdateEntry3(xmlHashTablePtr table, const xmlChar * name, const xmlCh
 		entry =  &(table->table[key]);
 	}
 	else {
-		entry = (xmlHashEntry *)xmlMalloc(sizeof(xmlHashEntry));
+		entry = (xmlHashEntry *)SAlloc::M(sizeof(xmlHashEntry));
 		if(entry == NULL)
 			return -1;
 	}
@@ -702,9 +702,9 @@ void * xmlHashLookup3(xmlHashTablePtr table, const xmlChar * name,
 		}
 	}
 	for(entry = &(table->table[key]); entry != NULL; entry = entry->next) {
-		if((xmlStrEqual(entry->name, name)) &&
-		    (xmlStrEqual(entry->name2, name2)) &&
-		    (xmlStrEqual(entry->name3, name3)))
+		if((sstreq(entry->name, name)) &&
+		    (sstreq(entry->name2, name2)) &&
+		    (sstreq(entry->name3, name3)))
 			return(entry->payload);
 	}
 	return 0;
@@ -853,9 +853,9 @@ void xmlHashScanFull3(xmlHashTablePtr table, const xmlChar * name, const xmlChar
 				xmlHashEntryPtr iter = &(table->table[i]);
 				while(iter) {
 					xmlHashEntryPtr next = iter->next;
-					if((!name || (xmlStrEqual(name, iter->name))) &&
-						(!name2 || (xmlStrEqual(name2, iter->name2))) &&
-						(!name3 || (xmlStrEqual(name3, iter->name3))) && iter->payload) {
+					if((!name || (sstreq(name, iter->name))) &&
+						(!name2 || (sstreq(name2, iter->name2))) &&
+						(!name3 || (sstreq(name3, iter->name3))) && iter->payload) {
 						f(iter->payload, data, iter->name,
 							iter->name2, iter->name3);
 					}
@@ -976,18 +976,18 @@ int xmlHashRemoveEntry3(xmlHashTablePtr table, const xmlChar * name,
 	}
 	else {
 		for(entry = &(table->table[key]); entry != NULL; entry = entry->next) {
-			if(xmlStrEqual(entry->name, name) && xmlStrEqual(entry->name2, name2) && xmlStrEqual(entry->name3, name3)) {
+			if(sstreq(entry->name, name) && sstreq(entry->name2, name2) && sstreq(entry->name3, name3)) {
 				if(f && entry->payload)
 					f(entry->payload, entry->name);
 				entry->payload = NULL;
 				if(table->dict == NULL) {
-					free(entry->name);
-					free(entry->name2);
-					free(entry->name3);
+					SAlloc::F(entry->name);
+					SAlloc::F(entry->name2);
+					SAlloc::F(entry->name3);
 				}
 				if(prev) {
 					prev->next = entry->next;
-					free(entry);
+					SAlloc::F(entry);
 				}
 				else {
 					if(entry->next == NULL) {
@@ -996,7 +996,7 @@ int xmlHashRemoveEntry3(xmlHashTablePtr table, const xmlChar * name,
 					else {
 						entry = entry->next;
 						memcpy(&(table->table[key]), entry, sizeof(xmlHashEntry));
-						free(entry);
+						SAlloc::F(entry);
 					}
 				}
 				table->nbElems--;

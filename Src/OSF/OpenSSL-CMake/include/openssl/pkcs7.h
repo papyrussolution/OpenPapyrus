@@ -110,7 +110,7 @@ typedef struct pkcs7_st {
      * The following is non NULL if it contains ASN1 encoding of this
      * structure
      */
-    unsigned char *asn1;
+    uchar *asn1;
     long length;
 # define PKCS7_S_HEADER  0
 # define PKCS7_S_BODY    1
@@ -203,8 +203,8 @@ DEFINE_STACK_OF(PKCS7)
 DECLARE_ASN1_FUNCTIONS(PKCS7_ISSUER_AND_SERIAL)
 
 int PKCS7_ISSUER_AND_SERIAL_digest(PKCS7_ISSUER_AND_SERIAL *data,
-                                   const EVP_MD *type, unsigned char *md,
-                                   unsigned int *len);
+                                   const EVP_MD *type, uchar *md,
+                                   uint *len);
 # ifndef OPENSSL_NO_STDIO
 PKCS7 *d2i_PKCS7_fp(FILE *fp, PKCS7 **p7);
 int i2d_PKCS7_fp(FILE *fp, PKCS7 *p7);
@@ -265,7 +265,7 @@ void PKCS7_RECIP_INFO_get0_alg(PKCS7_RECIP_INFO *ri, X509_ALGOR **penc);
 int PKCS7_add_recipient_info(PKCS7 *p7, PKCS7_RECIP_INFO *ri);
 int PKCS7_RECIP_INFO_set(PKCS7_RECIP_INFO *p7i, X509 *x509);
 int PKCS7_set_cipher(PKCS7 *p7, const EVP_CIPHER *cipher);
-int PKCS7_stream(unsigned char ***boundary, PKCS7 *p7);
+int PKCS7_stream(uchar ***boundary, PKCS7 *p7);
 
 PKCS7_ISSUER_AND_SERIAL *PKCS7_get_issuer_and_serial(PKCS7 *p7, int idx);
 ASN1_OCTET_STRING *PKCS7_digest_from_attributes(STACK_OF(X509_ATTRIBUTE) *sk);
@@ -305,7 +305,7 @@ int PKCS7_simple_smimecap(STACK_OF(X509_ALGOR) *sk, int nid, int arg);
 int PKCS7_add_attrib_content_type(PKCS7_SIGNER_INFO *si, ASN1_OBJECT *coid);
 int PKCS7_add0_attrib_signing_time(PKCS7_SIGNER_INFO *si, ASN1_TIME *t);
 int PKCS7_add1_attrib_digest(PKCS7_SIGNER_INFO *si,
-                             const unsigned char *md, int mdlen);
+                             const uchar *md, int mdlen);
 
 int SMIME_write_PKCS7(BIO *bio, PKCS7 *p7, BIO *data, int flags);
 PKCS7 *SMIME_read_PKCS7(BIO *bio, BIO **bcont);

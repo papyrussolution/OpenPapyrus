@@ -7,7 +7,187 @@
 #include <scintilla.h>
 #include <scilexer.h>
 #include "..\sartr\sartr.h"
+//
+//
+//
+class SearchReplaceDialog : public TDialog {
+public:
+	SearchReplaceDialog() : TDialog(DLG_SCISEARCH)
+	{
+	}
+	int    setDTS(SSearchReplaceParam * pData)
+	{
+		Data = *pData;
+		int    ok = 1;
+		setCtrlString(CTL_SCISEARCH_PATTERN, Data.Pattern);
+		AddClusterAssoc(CTL_SCISEARCH_RF, 0, SSearchReplaceParam::fReplace);
+		SetClusterData(CTL_SCISEARCH_RF, Data.Flags);
+		if(Data.Flags & SSearchReplaceParam::fReplace) {
+			disableCtrl(CTL_SCISEARCH_REPLACE, 0);
+			setCtrlString(CTL_SCISEARCH_REPLACE, Data.Replacer);
+		}
+		else {
+			disableCtrl(CTL_SCISEARCH_REPLACE, 1);
+		}
+		AddClusterAssoc(CTL_SCISEARCH_FLAGS, 0, SSearchReplaceParam::fNoCase);
+		AddClusterAssoc(CTL_SCISEARCH_FLAGS, 1, SSearchReplaceParam::fWholeWords);
+		AddClusterAssoc(CTL_SCISEARCH_FLAGS, 2, SSearchReplaceParam::fReverse);
+		SetClusterData(CTL_SCISEARCH_FLAGS, Data.Flags);
+		return ok;
+	}
+	int    getDTS(SSearchReplaceParam * pData)
+	{
+		int    ok = 1;
+		getCtrlString(CTL_SCISEARCH_PATTERN, Data.Pattern);
+		getCtrlString(CTL_SCISEARCH_REPLACE, Data.Replacer);
+		GetClusterData(CTL_SCISEARCH_RF, &Data.Flags);
+		GetClusterData(CTL_SCISEARCH_FLAGS, &Data.Flags);
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isClusterClk(CTL_SCISEARCH_RF)) {
+			GetClusterData(CTL_SCISEARCH_RF, &Data.Flags);
+			disableCtrl(CTL_SCISEARCH_REPLACE, !BIN(Data.Flags & SSearchReplaceParam::fReplace));
+		}
+		else
+			return;
+		clearEvent(event);
+	}
+	SSearchReplaceParam Data;
+};
 
+int SLAPI EditSearchReplaceParam(SSearchReplaceParam * pData)
+{
+	DIALOG_PROC_BODY(SearchReplaceDialog, pData);
+}
+//
+//
+//
+SScEditorBase::SScEditorBase()
+{
+	Init(0);
+}
+
+void SScEditorBase::Init(HWND hScW)
+{
+	P_SciFn = 0;
+	P_SciPtr = 0;
+	Doc.Reset();
+	if(hScW) {
+		P_SciFn  = (int (__cdecl *)(void *, int, int, int))SendMessage(hScW, SCI_GETDIRECTFUNCTION, 0, 0);
+		P_SciPtr = (void *)SendMessage(hScW, SCI_GETDIRECTPOINTER, 0, 0);
+	}
+}
+
+int SScEditorBase::Release()
+{
+	int    ok = -1;
+	if(Doc.SciDoc) {
+		CallFunc(SCI_CLEARALL, 0, 0);
+		CallFunc(SCI_RELEASEDOCUMENT, 0, (int)Doc.SciDoc);
+		Doc.Reset();
+		ok = 1;
+	}
+	return ok;
+}
+
+int SScEditorBase::CallFunc(int msg, int param1, int param2)
+{
+	return (P_SciFn && P_SciPtr) ? P_SciFn(P_SciPtr, msg, param1, param2) : 0;
+}
+
+int SScEditorBase::SetKeybAccelerator(KeyDownCommand & rK, int cmd)
+{
+	int    ok = OuterKeyAccel.Set(rK, cmd);
+	KeyAccel.Set(rK, cmd);
+	return ok;
+}
+
+int32 SScEditorBase::GetCurrentPos()
+{
+	return CallFunc(SCI_GETCURRENTPOS, 0, 0);
+}
+
+int32 FASTCALL SScEditorBase::SetCurrentPos(int32 pos)
+{
+	int32 prev = CallFunc(SCI_GETCURRENTPOS, 0, 0);
+	CallFunc(SCI_SETCURRENTPOS, pos, 0);
+	return prev;
+}
+
+int FASTCALL SScEditorBase::GetSelection(IntRange & rR)
+{
+	rR.low = CallFunc(SCI_GETSELECTIONSTART, 0, 0);
+	rR.upp = CallFunc(SCI_GETSELECTIONEND, 0, 0);
+	return 1;
+}
+
+int FASTCALL SScEditorBase::SetSelection(const IntRange * pR)
+{
+	int    ok = -1;
+	if(!pR || pR->IsZero()) {
+		CallFunc(SCI_SETEMPTYSELECTION, 0, 0);
+		ok = -1;
+	}
+	else {
+		CallFunc(SCI_SETSELECTIONSTART, pR->low, 0);
+		CallFunc(SCI_SETSELECTIONEND, pR->upp, 0);
+		ok = 1;
+	}
+	return ok;
+}
+
+int SScEditorBase::SearchAndReplace(long flags)
+{
+	int    ok = -1;
+	SSearchReplaceParam param = LastSrParam;
+	if(!(flags & srfUseDialog) || EditSearchReplaceParam(&param) > 0) {
+		LastSrParam = param;
+		SString pattern = param.Pattern;
+		pattern.Transf(CTRANSF_INNER_TO_UTF8);
+		if(pattern.NotEmpty()) {
+			int    sci_srch_flags = 0;
+			int    _func = 0;
+			IntRange sel;
+			if(!(param.Flags & param.fNoCase))
+				sci_srch_flags |= SCFIND_MATCHCASE;
+			if(param.Flags & param.fWholeWords)
+				sci_srch_flags |= SCFIND_WHOLEWORD;
+			GetSelection(sel);
+			const IntRange preserve_sel = sel;
+			if(param.Flags & param.fReverse) {
+				_func = SCI_SEARCHPREV;
+			}
+			else {
+				_func = SCI_SEARCHNEXT;
+				sel.low++;
+				SetSelection(&sel);
+			}
+			CallFunc(SCI_SEARCHANCHOR, 0, 0);
+			int    result = CallFunc(_func, sci_srch_flags, (int)(const char *)pattern);
+			if(result >= 0) {
+				ok = 1;
+				int selend = CallFunc(SCI_GETSELECTIONEND, 0, 0);
+				SetCurrentPos(selend);
+				CallFunc(SCI_SCROLLCARET, 0, 0);
+				IntRange sel;
+				SetSelection(&sel.Set(result, selend));
+				CallFunc(SCI_SEARCHANCHOR, 0, 0);
+			}
+			else {
+				SetSelection(&preserve_sel);
+			}
+		}
+	}
+	return ok;
+}
+//
+//
+//
 static int FASTCALL VkToScTranslate(int keyIn)
 {
 	switch(keyIn) {
@@ -91,14 +271,14 @@ long STextBrowser::Document::SetState(long st, int set)
 	return State;
 }
 
-STextBrowser::STextBrowser() : TBaseBrowserWindow(WndClsName)
+STextBrowser::STextBrowser() : TBaseBrowserWindow(WndClsName), SScEditorBase()
 {
 	P_SrDb = 0; // @v9.2.0
 	SpcMode = spcmNo; // @v9.2.0
 	Init(0);
 }
 
-STextBrowser::STextBrowser(const char * pFileName, int toolbarId) : TBaseBrowserWindow(WndClsName)
+STextBrowser::STextBrowser(const char * pFileName, int toolbarId) : TBaseBrowserWindow(WndClsName), SScEditorBase()
 {
 	P_SrDb = 0; // @v9.2.0
 	SpcMode = spcmNo; // @v9.2.0
@@ -155,12 +335,10 @@ TBaseBrowserWindow::IdentBlock & STextBrowser::GetIdentBlock(TBaseBrowserWindow:
 
 int STextBrowser::Init(const char * pFileName, int toolbarId)
 {
+	SScEditorBase::Init(0);
 	OrgScintillaWndProc = 0;
 	SysState = 0;
-	Doc.Reset();
 	Doc.FileName = pFileName;
-	P_SciPtr     = 0;
-	P_SciFn      = 0;
 	BbState |= bbsWoScrollbars;
 	P_Toolbar    = 0;
 	ToolBarWidth = 0;
@@ -392,11 +570,6 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-int STextBrowser::CallFunc(int msg, int param1, int param2)
-{
-	return (P_SciFn && P_SciPtr) ? P_SciFn(P_SciPtr, msg, param1, param2) : 0;
-}
-
 int STextBrowser::Resize()
 {
 	if(HwndSci != 0) {
@@ -443,14 +616,7 @@ int SKeyAccelerator::Set(KeyDownCommand & rK, int cmd)
 	return ok;
 }
 
-int STextBrowser::SetKeybAccelerator(KeyDownCommand & rK, int cmd)
-{
-	int    ok = OuterKeyAccel.Set(rK, cmd);
-	KeyAccel.Set(rK, cmd);
-	return ok;
-}
-
-int ImpLoadToolbar(TVRez & rez, ToolbarList * pList); // @prototype(wbrowse.cpp)
+// @v9.7.5 moved(tv.h) int ImpLoadToolbar(TVRez & rez, ToolbarList * pList); // @prototype(wbrowse.cpp)
 
 #if 0 // {
 static int ImpLoadToolbar(TVRez & rez, ToolbarList * pList)
@@ -553,9 +719,7 @@ int STextBrowser::WMHCreate()
 	}
 	HwndSci = ::CreateWindowEx(WS_EX_CLIENTEDGE, _T("Scintilla"), _T(""), WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_CLIPCHILDREN,
 		0, ToolBarWidth, rc.right - rc.left, rc.bottom - rc.top, H(), 0/*(HMENU)GuiID*/, APPL->GetInst(), NULL);
-	P_SciFn  = (int (__cdecl *)(void *, int, int, int))SendMessage(HwndSci, SCI_GETDIRECTFUNCTION, 0, 0);
-	P_SciPtr = (void *)SendMessage(HwndSci, SCI_GETDIRECTPOINTER, 0, 0);
-
+	SScEditorBase::Init(HwndSci);
 	TView::SetWindowProp(HwndSci, GWLP_USERDATA, this);
 	OrgScintillaWndProc = (WNDPROC)TView::SetWindowProp(HwndSci, GWLP_WNDPROC, ScintillaWindowProc);
 	// @v8.6.2 (SCI_SETKEYSUNICODE deprecated in sci 3.5.5) CallFunc(SCI_SETKEYSUNICODE, 1, 0);
@@ -581,9 +745,8 @@ int STextBrowser::WMHCreate()
 				const ToolbarItem & r_tbi = P_Toolbar->getItem(i);
 				if(!(r_tbi.Flags & r_tbi.fHidden) && r_tbi.KeyCode && r_tbi.KeyCode != TV_MENUSEPARATOR && r_tbi.Cmd) {
 					KeyDownCommand k;
-					if(k.SetTvKeyCode(r_tbi.KeyCode)) {
+					if(k.SetTvKeyCode(r_tbi.KeyCode))
 						KeyAccel.Set(k, r_tbi.Cmd);
-					}
 				}
 			}
 		}
@@ -677,63 +840,6 @@ int STextBrowser::InsertWorkbookLink()
 //
 //
 //
-class SearchReplaceDialog : public TDialog {
-public:
-	SearchReplaceDialog() : TDialog(DLG_SCISEARCH)
-	{
-	}
-	int    setDTS(SSearchReplaceParam * pData)
-	{
-		Data = *pData;
-		int    ok = 1;
-		setCtrlString(CTL_SCISEARCH_PATTERN, Data.Pattern);
-		AddClusterAssoc(CTL_SCISEARCH_RF, 0, SSearchReplaceParam::fReplace);
-		SetClusterData(CTL_SCISEARCH_RF, Data.Flags);
-		if(Data.Flags & SSearchReplaceParam::fReplace) {
-			disableCtrl(CTL_SCISEARCH_REPLACE, 0);
-			setCtrlString(CTL_SCISEARCH_REPLACE, Data.Replacer);
-		}
-		else {
-			disableCtrl(CTL_SCISEARCH_REPLACE, 1);
-		}
-		AddClusterAssoc(CTL_SCISEARCH_FLAGS, 0, SSearchReplaceParam::fNoCase);
-		AddClusterAssoc(CTL_SCISEARCH_FLAGS, 1, SSearchReplaceParam::fWholeWords);
-		AddClusterAssoc(CTL_SCISEARCH_FLAGS, 2, SSearchReplaceParam::fReverse);
-		SetClusterData(CTL_SCISEARCH_FLAGS, Data.Flags);
-		return ok;
-	}
-	int    getDTS(SSearchReplaceParam * pData)
-	{
-		int    ok = 1;
-		getCtrlString(CTL_SCISEARCH_PATTERN, Data.Pattern);
-		getCtrlString(CTL_SCISEARCH_REPLACE, Data.Replacer);
-		GetClusterData(CTL_SCISEARCH_RF, &Data.Flags);
-		GetClusterData(CTL_SCISEARCH_FLAGS, &Data.Flags);
-		ASSIGN_PTR(pData, Data);
-		return ok;
-	}
-private:
-	DECL_HANDLE_EVENT
-	{
-		TDialog::handleEvent(event);
-		if(event.isClusterClk(CTL_SCISEARCH_RF)) {
-			GetClusterData(CTL_SCISEARCH_RF, &Data.Flags);
-			disableCtrl(CTL_SCISEARCH_REPLACE, !BIN(Data.Flags & SSearchReplaceParam::fReplace));
-		}
-		else
-			return;
-		clearEvent(event);
-	}
-	SSearchReplaceParam Data;
-};
-
-int SLAPI EditSearchReplaceParam(SSearchReplaceParam * pData)
-{
-	DIALOG_PROC_BODY(SearchReplaceDialog, pData);
-}
-//
-//
-//
 struct TidyProcessBlock {
 	TidyProcessBlock();
 
@@ -783,85 +889,6 @@ int TidyProcessText(TidyProcessBlock & rBlk)
 	tidyBufFree(&output);
 	tidyBufFree(&errbuf);
 	tidyRelease(tdoc);
-	return ok;
-}
-
-int32 STextBrowser::GetCurrentPos()
-{
-	return CallFunc(SCI_GETCURRENTPOS, 0, 0);
-}
-
-int32 FASTCALL STextBrowser::SetCurrentPos(int32 pos)
-{
-	int32 prev = CallFunc(SCI_GETCURRENTPOS, 0, 0);
-	CallFunc(SCI_SETCURRENTPOS, pos, 0);
-	return prev;
-}
-
-int FASTCALL STextBrowser::GetSelection(IntRange & rR)
-{
-	rR.low = CallFunc(SCI_GETSELECTIONSTART, 0, 0);
-	rR.upp = CallFunc(SCI_GETSELECTIONEND, 0, 0);
-	return 1;
-}
-
-int FASTCALL STextBrowser::SetSelection(const IntRange * pR)
-{
-	int    ok = -1;
-	if(!pR || pR->IsZero()) {
-		CallFunc(SCI_SETEMPTYSELECTION, 0, 0);
-		ok = -1;
-	}
-	else {
-		CallFunc(SCI_SETSELECTIONSTART, pR->low, 0);
-		CallFunc(SCI_SETSELECTIONEND, pR->upp, 0);
-		ok = 1;
-	}
-	return ok;
-}
-
-int STextBrowser::SearchAndReplace(long flags)
-{
-	int    ok = -1;
-	SSearchReplaceParam param = LastSrParam;
-	if(!(flags & srfUseDialog) || EditSearchReplaceParam(&param) > 0) {
-		LastSrParam = param;
-		SString pattern = param.Pattern;
-		pattern.Transf(CTRANSF_INNER_TO_UTF8);
-		if(pattern.NotEmpty()) {
-			int    sci_srch_flags = 0;
-			int    _func = 0;
-			IntRange sel;
-			if(!(param.Flags & param.fNoCase))
-				sci_srch_flags |= SCFIND_MATCHCASE;
-			if(param.Flags & param.fWholeWords)
-				sci_srch_flags |= SCFIND_WHOLEWORD;
-			GetSelection(sel);
-			const IntRange preserve_sel = sel;
-			if(param.Flags & param.fReverse) {
-				_func = SCI_SEARCHPREV;
-			}
-			else {
-				_func = SCI_SEARCHNEXT;
-				sel.low++;
-				SetSelection(&sel);
-			}
-			CallFunc(SCI_SEARCHANCHOR, 0, 0);
-			int    result = CallFunc(_func, sci_srch_flags, (int)(const char *)pattern);
-			if(result >= 0) {
-				ok = 1;
-				int selend = CallFunc(SCI_GETSELECTIONEND, 0, 0);
-				SetCurrentPos(selend);
-				CallFunc(SCI_SCROLLCARET, 0, 0);
-				IntRange sel;
-				SetSelection(&sel.Set(result, selend));
-				CallFunc(SCI_SEARCHANCHOR, 0, 0);
-			}
-			else {
-				SetSelection(&preserve_sel);
-			}
-		}
-	}
 	return ok;
 }
 
@@ -934,14 +961,7 @@ int STextBrowser::SaveChanges()
 
 int STextBrowser::FileClose()
 {
-	int    ok = -1;
-	if(Doc.SciDoc) {
-		CallFunc(SCI_CLEARALL, 0, 0);
-		CallFunc(SCI_RELEASEDOCUMENT, 0, (int)Doc.SciDoc);
-		Doc.Reset();
-		ok = 1;
-	}
-	return ok;
+	return SScEditorBase::Release();
 }
 
 int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
@@ -960,7 +980,7 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 			const uint64 bufsize_req = _fsize + MIN(1<<20, _fsize/6);
 			THROW(bufsize_req <= 1024*1024*1025);
 			{
-				Doc.SciDoc = (SciDocument)CallFunc(SCI_CREATEDOCUMENT, 0, 0);
+				Doc.SciDoc = (SScEditorBase::SciDocument)CallFunc(SCI_CREATEDOCUMENT, 0, 0);
 				//Setup scratchtilla for new filedata
 				CallFunc(SCI_SETSTATUS, SC_STATUS_OK, 0); // reset error status
 				CallFunc(SCI_SETDOCPOINTER, 0, (int)Doc.SciDoc);

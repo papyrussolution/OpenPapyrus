@@ -79,7 +79,7 @@
 		r = (xmlChar*)xmlDictLookup((c)->comp->dict, BAD_CAST nsname, -1); \
 	else r = xmlStrdup(BAD_CAST nsname);
 
-#define XML_PAT_FREE_STRING(c, r) if((c)->comp->dict == NULL) free(r);
+#define XML_PAT_FREE_STRING(c, r) if((c)->comp->dict == NULL) SAlloc::F(r);
 
 struct xmlStreamStep {
 	int flags;              /* properties of that step */
@@ -197,16 +197,16 @@ typedef xmlPatParserContext * xmlPatParserContextPtr;
  */
 static xmlPatternPtr xmlNewPattern()
 {
-	xmlPatternPtr cur = (xmlPatternPtr)xmlMalloc(sizeof(xmlPattern));
+	xmlPatternPtr cur = (xmlPatternPtr)SAlloc::M(sizeof(xmlPattern));
 	if(!cur) {
 		ERROR(0, 0, 0, "xmlNewPattern : malloc failed\n");
 	}
 	else {
 		memzero(cur, sizeof(xmlPattern));
 		cur->maxStep = 10;
-		cur->steps = (xmlStepOpPtr)xmlMalloc(cur->maxStep * sizeof(xmlStepOp));
+		cur->steps = (xmlStepOpPtr)SAlloc::M(cur->maxStep * sizeof(xmlStepOp));
 		if(cur->steps == NULL) {
-			free(cur);
+			SAlloc::F(cur);
 			ERROR(0, 0, 0, "xmlNewPattern : malloc failed\n");
 			cur = 0;
 		}
@@ -221,9 +221,9 @@ static xmlPatternPtr xmlNewPattern()
 static void FASTCALL xmlFreeStreamComp(xmlStreamComp * comp)
 {
 	if(comp) {
-		free(comp->steps);
+		SAlloc::F(comp->steps);
 		xmlDictFree(comp->dict);
-		free(comp);
+		SAlloc::F(comp);
 	}
 }
 /**
@@ -237,20 +237,20 @@ void xmlFreePattern(xmlPattern * comp)
 	if(comp) {
 		xmlFreePattern(comp->next); // @recursion
 		xmlFreeStreamComp(comp->stream);
-		free((xmlChar*)comp->pattern);
+		SAlloc::F((xmlChar*)comp->pattern);
 		if(comp->steps) {
 			if(comp->dict == NULL) {
 				for(int i = 0; i < comp->nbStep; i++) {
 					xmlStepOpPtr op = &comp->steps[i];
-					free((xmlChar*)op->value);
-					free((xmlChar*)op->value2);
+					SAlloc::F((xmlChar*)op->value);
+					SAlloc::F((xmlChar*)op->value2);
 				}
 			}
-			free(comp->steps);
+			SAlloc::F(comp->steps);
 		}
 		xmlDictFree(comp->dict);
 		memset(comp, -1, sizeof(xmlPattern));
-		free(comp);
+		SAlloc::F(comp);
 	}
 }
 /**
@@ -284,7 +284,7 @@ static xmlPatParserContextPtr xmlNewPatParserContext(const xmlChar * pattern, xm
 	xmlPatParserContextPtr cur;
 	if(pattern == NULL)
 		return 0;
-	cur = (xmlPatParserContextPtr)xmlMalloc(sizeof(xmlPatParserContext));
+	cur = (xmlPatParserContextPtr)SAlloc::M(sizeof(xmlPatParserContext));
 	if(!cur) {
 		ERROR(0, 0, 0, "xmlNewPatParserContext : malloc failed\n");
 		return 0;
@@ -316,7 +316,7 @@ static void xmlFreePatParserContext(xmlPatParserContextPtr ctxt)
 {
 	if(ctxt) {
 		memset(ctxt, -1, sizeof(xmlPatParserContext));
-		free(ctxt);
+		SAlloc::F(ctxt);
 	}
 }
 
@@ -334,10 +334,10 @@ static void xmlFreePatParserContext(xmlPatParserContextPtr ctxt)
 static int xmlPatternAdd(xmlPatParserContextPtr ctxt ATTRIBUTE_UNUSED, xmlPatternPtr comp, xmlPatOp op, xmlChar * value, xmlChar * value2)
 {
 	if(comp->nbStep >= comp->maxStep) {
-		xmlStepOp * temp = (xmlStepOp *)xmlRealloc(comp->steps, comp->maxStep * 2 * sizeof(xmlStepOp));
+		xmlStepOp * temp = (xmlStepOp *)SAlloc::R(comp->steps, comp->maxStep * 2 * sizeof(xmlStepOp));
 		if(temp == NULL) {
 			ERROR(ctxt, NULL, NULL, "xmlPatternAdd: realloc failed\n");
-			return (-1);
+			return -1;
 		}
 		comp->steps = temp;
 		comp->maxStep *= 2;
@@ -399,10 +399,10 @@ static int xmlReversePattern(xmlPatternPtr comp)
 		comp->nbStep--;
 	}
 	if(comp->nbStep >= comp->maxStep) {
-		xmlStepOpPtr temp = (xmlStepOpPtr)xmlRealloc(comp->steps, comp->maxStep * 2 * sizeof(xmlStepOp));
+		xmlStepOpPtr temp = (xmlStepOpPtr)SAlloc::R(comp->steps, comp->maxStep * 2 * sizeof(xmlStepOp));
 		if(temp == NULL) {
 			ERROR(ctxt, NULL, NULL, "xmlReversePattern: realloc failed\n");
-			return (-1);
+			return -1;
 		}
 		comp->steps = temp;
 		comp->maxStep *= 2;
@@ -440,10 +440,10 @@ static int xmlPatPushState(xmlStepStates * states, int step, xmlNodePtr node)
 	if((states->states == NULL) || (states->maxstates <= 0)) {
 		states->maxstates = 4;
 		states->nbstates = 0;
-		states->states = (xmlStepState *)xmlMalloc(4 * sizeof(xmlStepState));
+		states->states = (xmlStepState *)SAlloc::M(4 * sizeof(xmlStepState));
 	}
 	else if(states->maxstates <= states->nbstates) {
-		xmlStepState * tmp = (xmlStepState *)xmlRealloc(states->states, 2 * states->maxstates * sizeof(xmlStepState));
+		xmlStepState * tmp = (xmlStepState *)SAlloc::R(states->states, 2 * states->maxstates * sizeof(xmlStepState));
 		if(tmp == NULL)
 			return -1;
 		states->states = tmp;
@@ -498,7 +498,7 @@ restart:
 				    continue;
 			    if(step->value[0] != node->name[0])
 				    goto rollback;
-			    if(!xmlStrEqual(step->value, node->name))
+			    if(!sstreq(step->value, node->name))
 				    goto rollback;
 
 			    /* Namespace test */
@@ -509,7 +509,7 @@ restart:
 			    else if(node->ns->href != NULL) {
 				    if(step->value2 == NULL)
 					    goto rollback;
-				    if(!xmlStrEqual(step->value2, node->ns->href))
+				    if(!sstreq(step->value2, node->ns->href))
 					    goto rollback;
 			    }
 			    continue;
@@ -525,7 +525,7 @@ restart:
 			    lst = node->children;
 			    if(step->value != NULL) {
 				    while(lst != NULL) {
-					    if((lst->type == XML_ELEMENT_NODE) && (step->value[0] == lst->name[0]) && (xmlStrEqual(step->value, lst->name)))
+					    if((lst->type == XML_ELEMENT_NODE) && (step->value[0] == lst->name[0]) && (sstreq(step->value, lst->name)))
 						    break;
 					    lst = lst->next;
 				    }
@@ -540,7 +540,7 @@ restart:
 			    if(step->value != NULL) {
 				    if(step->value[0] != node->name[0])
 					    goto rollback;
-				    if(!xmlStrEqual(step->value, node->name))
+				    if(!sstreq(step->value, node->name))
 					    goto rollback;
 			    }
 			    /* Namespace test */
@@ -549,7 +549,7 @@ restart:
 					    goto rollback;
 			    }
 			    else if(step->value2 != NULL) {
-				    if(!xmlStrEqual(step->value2, node->ns->href))
+				    if(!sstreq(step->value2, node->ns->href))
 					    goto rollback;
 			    }
 			    continue;
@@ -567,7 +567,7 @@ restart:
 				    continue;
 			    if(step->value[0] != node->name[0])
 				    goto rollback;
-			    if(!xmlStrEqual(step->value, node->name))
+			    if(!sstreq(step->value, node->name))
 				    goto rollback;
 			    /* Namespace test */
 			    if(node->ns == NULL) {
@@ -577,7 +577,7 @@ restart:
 			    else if(node->ns->href != NULL) {
 				    if(step->value2 == NULL)
 					    goto rollback;
-				    if(!xmlStrEqual(step->value2, node->ns->href))
+				    if(!sstreq(step->value2, node->ns->href))
 					    goto rollback;
 			    }
 			    continue;
@@ -603,14 +603,14 @@ restart:
 				    goto rollback;
 			    node = node->parent;
 			    while(node) {
-				    if((node->type == XML_ELEMENT_NODE) && (step->value[0] == node->name[0]) && (xmlStrEqual(step->value, node->name))) {
+				    if((node->type == XML_ELEMENT_NODE) && (step->value[0] == node->name[0]) && (sstreq(step->value, node->name))) {
 					    /* Namespace test */
 					    if(node->ns == NULL) {
 						    if(step->value2 == NULL)
 							    break;
 					    }
 					    else if(node->ns->href != NULL) {
-						    if((step->value2 != NULL) && (xmlStrEqual(step->value2, node->ns->href)))
+						    if((step->value2 != NULL) && (sstreq(step->value2, node->ns->href)))
 							    break;
 					    }
 				    }
@@ -636,7 +636,7 @@ restart:
 			    else if(node->ns->href != NULL) {
 				    if(step->value == NULL)
 					    goto rollback;
-				    if(!xmlStrEqual(step->value, node->ns->href))
+				    if(!sstreq(step->value, node->ns->href))
 					    goto rollback;
 			    }
 			    break;
@@ -647,14 +647,14 @@ restart:
 		}
 	}
 found:
-	free(states.states); /* Free the rollback states */
+	SAlloc::F(states.states); /* Free the rollback states */
 	return 1;
 rollback:
 	/* got an error try to rollback */
 	if(states.states == NULL)
 		return 0;
 	if(states.nbstates <= 0) {
-		free(states.states);
+		SAlloc::F(states.states);
 		return 0;
 	}
 	states.nbstates--;
@@ -885,7 +885,7 @@ static void xmlCompileAttributeTest(xmlPatParserContextPtr ctxt)
 		}
 		else {
 			for(i = 0; i < ctxt->nb_namespaces; i++) {
-				if(xmlStrEqual(ctxt->namespaces[2 * i + 1], prefix)) {
+				if(sstreq(ctxt->namespaces[2 * i + 1], prefix)) {
 					XML_PAT_COPY_NSNAME(ctxt, URL, ctxt->namespaces[2 * i])
 					break;
 				}
@@ -1000,7 +1000,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 			}
 			else {
 				for(i = 0; i < ctxt->nb_namespaces; i++) {
-					if(xmlStrEqual(ctxt->namespaces[2 * i + 1], prefix)) {
+					if(sstreq(ctxt->namespaces[2 * i + 1], prefix)) {
 						XML_PAT_COPY_NSNAME(ctxt, URL, ctxt->namespaces[2 * i])
 						break;
 					}
@@ -1030,7 +1030,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 		}
 		else {
 			NEXT;
-			if(xmlStrEqual(name, (const xmlChar*)"child")) {
+			if(sstreq(name, (const xmlChar*)"child")) {
 				XML_PAT_FREE_STRING(ctxt, name);
 				name = xmlPatScanName(ctxt);
 				if(name == NULL) {
@@ -1066,7 +1066,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 					}
 					else {
 						for(i = 0; i < ctxt->nb_namespaces; i++) {
-							if(xmlStrEqual(ctxt->namespaces[2 * i + 1], prefix)) {
+							if(sstreq(ctxt->namespaces[2 * i + 1], prefix)) {
 								XML_PAT_COPY_NSNAME(ctxt, URL, ctxt->namespaces[2 * i])
 								break;
 							}
@@ -1098,7 +1098,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 					PUSH(XML_OP_CHILD, name, NULL);
 				return;
 			}
-			else if(xmlStrEqual(name, (const xmlChar*)"attribute")) {
+			else if(sstreq(name, (const xmlChar*)"attribute")) {
 				XML_PAT_FREE_STRING(ctxt, name)
 				name = NULL;
 				if(XML_STREAM_XS_IDC_SEL(ctxt->comp)) {
@@ -1397,15 +1397,15 @@ error_unfinished:
 static xmlStreamCompPtr xmlNewStreamComp(int size)
 {
 	SETMAX(size, 4);
-	xmlStreamCompPtr cur = (xmlStreamCompPtr)xmlMalloc(sizeof(xmlStreamComp));
+	xmlStreamCompPtr cur = (xmlStreamCompPtr)SAlloc::M(sizeof(xmlStreamComp));
 	if(!cur) {
 		ERROR(0, 0, 0, "xmlNewStreamComp: malloc failed\n");
 		return 0;
 	}
 	memzero(cur, sizeof(xmlStreamComp));
-	cur->steps = (xmlStreamStepPtr)xmlMalloc(size * sizeof(xmlStreamStep));
+	cur->steps = (xmlStreamStepPtr)SAlloc::M(size * sizeof(xmlStreamStep));
 	if(cur->steps == NULL) {
-		free(cur);
+		SAlloc::F(cur);
 		ERROR(0, 0, 0, "xmlNewStreamComp: malloc failed\n");
 		return 0;
 	}
@@ -1428,7 +1428,7 @@ static int xmlStreamCompAddStep(xmlStreamCompPtr comp, const xmlChar * name, con
 {
 	xmlStreamStepPtr cur;
 	if(comp->nbStep >= comp->maxStep) {
-		cur = (xmlStreamStepPtr)xmlRealloc(comp->steps, comp->maxStep * 2 * sizeof(xmlStreamStep));
+		cur = (xmlStreamStepPtr)SAlloc::R(comp->steps, comp->maxStep * 2 * sizeof(xmlStreamStep));
 		if(!cur) {
 			ERROR(0, 0, 0, "xmlNewStreamComp: malloc failed\n");
 			return -1;
@@ -1636,15 +1636,15 @@ error:
  */
 static xmlStreamCtxtPtr xmlNewStreamCtxt(xmlStreamCompPtr stream)
 {
-	xmlStreamCtxtPtr cur = (xmlStreamCtxtPtr)xmlMalloc(sizeof(xmlStreamCtxt));
+	xmlStreamCtxtPtr cur = (xmlStreamCtxtPtr)SAlloc::M(sizeof(xmlStreamCtxt));
 	if(!cur) {
 		ERROR(0, 0, 0, "xmlNewStreamCtxt: malloc failed\n");
 	}
 	else {
 		memzero(cur, sizeof(xmlStreamCtxt));
-		cur->states = (int*)xmlMalloc(4 * 2 * sizeof(int));
+		cur->states = (int*)SAlloc::M(4 * 2 * sizeof(int));
 		if(cur->states == NULL) {
-			free(cur);
+			SAlloc::F(cur);
 			ERROR(0, 0, 0, "xmlNewStreamCtxt: malloc failed\n");
 			cur = 0;
 		}
@@ -1668,8 +1668,8 @@ void xmlFreeStreamCtxt(xmlStreamCtxtPtr stream)
 {
 	while(stream) {
 		xmlStreamCtxtPtr next = stream->next;
-		free(stream->states);
-		free(stream);
+		SAlloc::F(stream->states);
+		SAlloc::F(stream);
 		stream = next;
 	}
 }
@@ -1693,7 +1693,7 @@ static int xmlStreamCtxtAddState(xmlStreamCtxtPtr comp, int idx, int level)
 		}
 	}
 	if(comp->nbState >= comp->maxState) {
-		int * cur = (int*)xmlRealloc(comp->states, comp->maxState * 4 * sizeof(int));
+		int * cur = (int*)SAlloc::R(comp->states, comp->maxState * 4 * sizeof(int));
 		if(!cur) {
 			ERROR(0, 0, 0, "xmlNewStreamCtxt: malloc failed\n");
 			return -1;
@@ -1821,7 +1821,7 @@ static int xmlStreamPushInternal(xmlStreamCtxtPtr stream, const xmlChar * name, 
 					*/
 				if(stream->states[(2 * (stream->nbState -1)) + 1] <
 					stream->level) {
-					return (-1);
+					return -1;
 				}
 				desc = 0;
 				/* loop-stopper */
@@ -1875,10 +1875,10 @@ static int xmlStreamPushInternal(xmlStreamCtxtPtr stream, const xmlChar * name, 
 					match = 1;
 				}
 				else if(ns != NULL)
-					match = xmlStrEqual(step.ns, ns);
+					match = sstreq(step.ns, ns);
 			}
 			else if(((step.ns != NULL) == (ns != NULL)) && name && (step.name[0] == name[0]) &&
-				xmlStrEqual(step.name, name) && ((step.ns == ns) || xmlStrEqual(step.ns, ns))) {
+				sstreq(step.name, name) && ((step.ns == ns) || sstreq(step.ns, ns))) {
 				match = 1;
 			}
 #if 0
@@ -2015,10 +2015,10 @@ compare:
 				match = 1;
 			}
 			else if(ns != NULL)
-				match = xmlStrEqual(step.ns, ns);
+				match = sstreq(step.ns, ns);
 		}
 		else if(((step.ns != NULL) == (ns != NULL)) && (name != NULL) && (step.name[0] == name[0]) &&
-			xmlStrEqual(step.name, name) && ((step.ns == ns) || xmlStrEqual(step.ns, ns))) {
+			sstreq(step.name, name) && ((step.ns == ns) || sstreq(step.ns, ns))) {
 			match = 1;
 		}
 		final = step.flags & XML_STREAM_STEP_FINAL;
@@ -2238,7 +2238,7 @@ xmlPatternPtr xmlPatterncompile(const xmlChar * pattern, xmlDict * dict, int fla
 			cur->dict = dict;
 			xmlDictReference(dict);
 		}
-		if(ret == NULL)
+		if(!ret)
 			ret = cur;
 		else {
 			cur->next = ret->next;
@@ -2287,7 +2287,7 @@ error:
 	if(ctxt)
 		xmlFreePatParserContext(ctxt);
 	xmlFreePattern(ret);
-	free(tmp);
+	SAlloc::F(tmp);
 	return 0;
 }
 
@@ -2333,7 +2333,7 @@ xmlStreamCtxtPtr xmlPatternGetStreamCtxt(xmlPatternPtr comp)
 		cur = xmlNewStreamCtxt(comp->stream);
 		if(!cur)
 			goto failed;
-		if(ret == NULL)
+		if(!ret)
 			ret = cur;
 		else {
 			cur->next = ret->next;

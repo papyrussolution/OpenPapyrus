@@ -42,7 +42,7 @@ int ssl3_do_write(SSL * s, int type)
 		 * ignore the result anyway
 		 */
 		if(!ssl3_finish_mac(s,
-			    (unsigned char*)&s->init_buf->data[s->init_off],
+			    (uchar*)&s->init_buf->data[s->init_off],
 			    ret))
 			return -1;
 
@@ -55,12 +55,12 @@ int ssl3_do_write(SSL * s, int type)
 	}
 	s->init_off += ret;
 	s->init_num -= ret;
-	return (0);
+	return 0;
 }
 
 int tls_construct_finished(SSL * s, const char * sender, int slen)
 {
-	unsigned char * p;
+	uchar * p;
 	int i;
 	unsigned long l;
 
@@ -246,9 +246,9 @@ f_err:
 
 int tls_construct_change_cipher_spec(SSL * s)
 {
-	unsigned char * p;
+	uchar * p;
 
-	p = (unsigned char*)s->init_buf->data;
+	p = (uchar*)s->init_buf->data;
 	*p = SSL3_MT_CCS;
 	s->init_num = 1;
 	s->init_off = 0;
@@ -258,7 +258,7 @@ int tls_construct_change_cipher_spec(SSL * s)
 
 unsigned long ssl3_output_cert_chain(SSL * s, CERT_PKEY * cpk)
 {
-	unsigned char * p;
+	uchar * p;
 	unsigned long l = 3 + SSL_HM_HEADER_LENGTH(s);
 
 	if(!ssl_add_cert_chain(s, cpk, &l))
@@ -349,10 +349,10 @@ int tls_get_message_header(SSL * s, int * mt)
 {
 	/* s->init_num < SSL3_HM_HEADER_LENGTH */
 	int skip_message, i, recvd_type, al;
-	unsigned char * p;
+	uchar * p;
 	unsigned long l;
 
-	p = (unsigned char*)s->init_buf->data;
+	p = (uchar*)s->init_buf->data;
 
 	do {
 		while(s->init_num < SSL3_HM_HEADER_LENGTH) {
@@ -451,7 +451,7 @@ f_err:
 int tls_get_message_body(SSL * s, unsigned long * len)
 {
 	long n;
-	unsigned char * p;
+	uchar * p;
 	int i;
 
 	if(s->s3->tmp.message_type == SSL3_MT_CHANGE_CIPHER_SPEC) {
@@ -485,7 +485,7 @@ int tls_get_message_body(SSL * s, unsigned long * len)
 
 	/* Feed this message into MAC computation. */
 	if(RECORD_LAYER_is_sslv2_record(&s->rlayer)) {
-		if(!ssl3_finish_mac(s, (unsigned char*)s->init_buf->data,
+		if(!ssl3_finish_mac(s, (uchar*)s->init_buf->data,
 			    s->init_num)) {
 			SSLerr(SSL_F_TLS_GET_MESSAGE_BODY, ERR_R_EVP_LIB);
 			ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_INTERNAL_ERROR);
@@ -497,7 +497,7 @@ int tls_get_message_body(SSL * s, unsigned long * len)
 			    (size_t)s->init_num, s, s->msg_callback_arg);
 	}
 	else {
-		if(!ssl3_finish_mac(s, (unsigned char*)s->init_buf->data,
+		if(!ssl3_finish_mac(s, (uchar*)s->init_buf->data,
 			    s->init_num + SSL3_HM_HEADER_LENGTH)) {
 			SSLerr(SSL_F_TLS_GET_MESSAGE_BODY, ERR_R_EVP_LIB);
 			ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_INTERNAL_ERROR);

@@ -157,7 +157,7 @@ static int do_rsa_print(BIO * bp, const RSA * x, int off, int priv)
 	}
 	ret = 1;
 err:
-	return (ret);
+	return ret;
 }
 
 static int rsa_pub_print(BIO * bp, const EVP_PKEY * pkey, int indent, ASN1_PCTX * ctx)

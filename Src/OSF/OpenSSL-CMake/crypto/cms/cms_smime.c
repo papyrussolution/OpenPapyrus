@@ -234,7 +234,7 @@ static int cms_signerinfo_verify_cert(CMS_SignerInfo * si,
 	X509 * signer;
 	int i, j, r = 0;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		CMSerr(CMS_F_CMS_SIGNERINFO_VERIFY_CERT, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

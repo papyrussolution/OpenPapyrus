@@ -100,7 +100,7 @@ IMPLEMENT_STATIC_ASN1_ENCODE_FUNCTIONS(SSL_SESSION_ASN1)
 /* Initialise OCTET STRING from buffer and length */
 
 static void ssl_session_oinit(ASN1_OCTET_STRING ** dest, ASN1_OCTET_STRING * os,
-    unsigned char * data, size_t len)
+    uchar * data, size_t len)
 {
 	os->data = data;
 	os->length = len;
@@ -113,22 +113,22 @@ static void ssl_session_sinit(ASN1_OCTET_STRING ** dest, ASN1_OCTET_STRING * os,
     char * data)
 {
 	if(data != NULL)
-		ssl_session_oinit(dest, os, (unsigned char*)data, strlen(data));
+		ssl_session_oinit(dest, os, (uchar*)data, strlen(data));
 	else
 		*dest = NULL;
 }
 
-int i2d_SSL_SESSION(SSL_SESSION * in, unsigned char ** pp)
+int i2d_SSL_SESSION(SSL_SESSION * in, uchar ** pp)
 {
 	SSL_SESSION_ASN1 as;
 
 	ASN1_OCTET_STRING cipher;
-	unsigned char cipher_data[2];
+	uchar cipher_data[2];
 	ASN1_OCTET_STRING master_key, session_id, sid_ctx;
 
 #ifndef OPENSSL_NO_COMP
 	ASN1_OCTET_STRING comp_id;
-	unsigned char comp_id_data;
+	uchar comp_id_data;
 #endif
 
 	ASN1_OCTET_STRING tlsext_hostname, tlsext_tick;
@@ -150,12 +150,12 @@ int i2d_SSL_SESSION(SSL_SESSION * in, unsigned char ** pp)
 		l = in->cipher_id;
 	else
 		l = in->cipher->id;
-	cipher_data[0] = ((unsigned char)(l >> 8L)) & 0xff;
-	cipher_data[1] = ((unsigned char)(l)) & 0xff;
+	cipher_data[0] = ((uchar)(l >> 8L)) & 0xff;
+	cipher_data[1] = ((uchar)(l)) & 0xff;
 	ssl_session_oinit(&as.cipher, &cipher, cipher_data, 2);
 #ifndef OPENSSL_NO_COMP
 	if(in->compress_meth) {
-		comp_id_data = (unsigned char)in->compress_meth;
+		comp_id_data = (uchar)in->compress_meth;
 		ssl_session_oinit(&as.comp_id, &comp_id, &comp_id_data, 1);
 	}
 #endif
@@ -201,7 +201,7 @@ static int ssl_session_strndup(char ** pdst, ASN1_OCTET_STRING * src)
 
 /* Copy an OCTET STRING, return error if it exceeds maximum length */
 
-static int ssl_session_memcpy(unsigned char * dst, unsigned int * pdstlen,
+static int ssl_session_memcpy(uchar * dst, uint * pdstlen,
     ASN1_OCTET_STRING * src, int maxlen)
 {
 	if(src == NULL) {
@@ -215,12 +215,12 @@ static int ssl_session_memcpy(unsigned char * dst, unsigned int * pdstlen,
 	return 1;
 }
 
-SSL_SESSION * d2i_SSL_SESSION(SSL_SESSION ** a, const unsigned char ** pp,
+SSL_SESSION * d2i_SSL_SESSION(SSL_SESSION ** a, const uchar ** pp,
     long length)
 {
 	long id;
-	unsigned int tmpl;
-	const unsigned char * p = *pp;
+	uint tmpl;
+	const uchar * p = *pp;
 	SSL_SESSION_ASN1 * as = NULL;
 	SSL_SESSION * ret = NULL;
 
@@ -231,7 +231,7 @@ SSL_SESSION * d2i_SSL_SESSION(SSL_SESSION ** a, const unsigned char ** pp,
 
 	if(!a || !*a) {
 		ret = SSL_SESSION_new();
-		if(ret == NULL)
+		if(!ret)
 			goto err;
 	}
 	else {

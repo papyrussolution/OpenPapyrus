@@ -50,7 +50,7 @@ static int nbiof_new(BIO * bi)
 {
 	NBIO_TEST * nt;
 	if((nt = (NBIO_TEST*)OPENSSL_zalloc(sizeof(*nt))) == NULL)
-		return (0);
+		return 0;
 	nt->lrn = -1;
 	nt->lwn = -1;
 	bi->ptr = (char*)nt;
@@ -60,8 +60,8 @@ static int nbiof_new(BIO * bi)
 
 static int nbiof_free(BIO * a)
 {
-	if(a == NULL)
-		return (0);
+	if(!a)
+		return 0;
 	OPENSSL_free(a->ptr);
 	a->ptr = NULL;
 	a->init = 0;
@@ -75,9 +75,9 @@ static int nbiof_read(BIO * b, char * out, int outl)
 	int num;
 	uchar n;
 	if(out == NULL)
-		return (0);
-	if(b->next_bio == NULL)
-		return (0);
+		return 0;
+	if(!b->next_bio)
+		return 0;
 	BIO_clear_retry_flags(b);
 	if(RAND_bytes(&n, 1) <= 0)
 		return -1;
@@ -93,7 +93,7 @@ static int nbiof_read(BIO * b, char * out, int outl)
 		if(ret < 0)
 			BIO_copy_next_retry(b);
 	}
-	return (ret);
+	return ret;
 }
 
 static int nbiof_write(BIO * b, const char * in, int inl)
@@ -103,9 +103,9 @@ static int nbiof_write(BIO * b, const char * in, int inl)
 	int num;
 	uchar n;
 	if((in == NULL) || (inl <= 0))
-		return (0);
-	if(b->next_bio == NULL)
-		return (0);
+		return 0;
+	if(!b->next_bio)
+		return 0;
 	nt = (NBIO_TEST*)b->ptr;
 	BIO_clear_retry_flags(b);
 	if(nt->lwn > 0) {
@@ -130,7 +130,7 @@ static int nbiof_write(BIO * b, const char * in, int inl)
 			nt->lwn = inl;
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 static long nbiof_ctrl(BIO * b, int cmd, long num, void * ptr)
@@ -151,20 +151,20 @@ static long nbiof_ctrl(BIO * b, int cmd, long num, void * ptr)
 				break;
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 static long nbiof_callback_ctrl(BIO * b, int cmd, bio_info_cb * fp)
 {
 	long ret = 1;
-	if(b->next_bio == NULL)
-		return (0);
+	if(!b->next_bio)
+		return 0;
 	switch(cmd) {
 		default:
 		    ret = BIO_callback_ctrl(b->next_bio, cmd, fp);
 		    break;
 	}
-	return (ret);
+	return ret;
 }
 
 static int nbiof_gets(BIO * bp, char * buf, int size)

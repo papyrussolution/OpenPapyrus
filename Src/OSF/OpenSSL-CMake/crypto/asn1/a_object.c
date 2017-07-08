@@ -16,7 +16,7 @@ int i2d_ASN1_OBJECT(const ASN1_OBJECT * a, uchar ** pp)
 	uchar * p;
 	int objsize;
 	if((a == NULL) || (a->data == NULL))
-		return (0);
+		return 0;
 	objsize = ASN1_object_size(0, a->length, V_ASN1_OBJECT);
 	if(pp == NULL || objsize == -1)
 		return objsize;
@@ -38,7 +38,7 @@ int a2d_ASN1_OBJECT(uchar * out, int olen, const char * buf, int num)
 	BIGNUM * bl = NULL;
 
 	if(num == 0)
-		return (0);
+		return 0;
 	else if(num == -1)
 		num = strlen(buf);
 
@@ -155,7 +155,7 @@ err:
 	if(tmp != ftmp)
 		OPENSSL_free(tmp);
 	BN_free(bl);
-	return (0);
+	return 0;
 }
 
 int i2t_ASN1_OBJECT(char * buf, int buf_len, const ASN1_OBJECT * a)
@@ -173,7 +173,7 @@ int i2a_ASN1_OBJECT(BIO * bp, const ASN1_OBJECT * a)
 	i = i2t_ASN1_OBJECT(buf, sizeof buf, a);
 	if(i > (int)(sizeof(buf) - 1)) {
 		p = (char*)OPENSSL_malloc(i + 1);
-		if(p == NULL)
+		if(!p)
 			return -1;
 		i2t_ASN1_OBJECT(p, i + 1, a);
 	}
@@ -305,7 +305,7 @@ ASN1_OBJECT * c2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp,
 	if(a != NULL)
 		(*a) = ret;
 	*pp = p;
-	return (ret);
+	return ret;
 err:
 	ASN1err(ASN1_F_C2I_ASN1_OBJECT, i);
 	if((a == NULL) || (*a != ret))
@@ -318,17 +318,17 @@ ASN1_OBJECT * ASN1_OBJECT_new(void)
 	ASN1_OBJECT * ret;
 
 	ret = (ASN1_OBJECT*)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL) {
+	if(!ret) {
 		ASN1err(ASN1_F_ASN1_OBJECT_NEW, ERR_R_MALLOC_FAILURE);
 		return (NULL);
 	}
 	ret->flags = ASN1_OBJECT_FLAG_DYNAMIC;
-	return (ret);
+	return ret;
 }
 
 void ASN1_OBJECT_free(ASN1_OBJECT * a)
 {
-	if(a == NULL)
+	if(!a)
 		return;
 	if(a->flags & ASN1_OBJECT_FLAG_DYNAMIC_STRINGS) {
 #ifndef CONST_STRICT            /* disable purely for compile-time strict

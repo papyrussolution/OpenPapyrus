@@ -22,7 +22,7 @@ int asn1_generalizedtime_to_tm(struct tm * tm, const ASN1_GENERALIZEDTIME * d)
 	int n, i, l, o;
 
 	if(d->type != V_ASN1_GENERALIZEDTIME)
-		return (0);
+		return 0;
 	l = d->length;
 	a = (char*)d->data;
 	o = 0;
@@ -129,7 +129,7 @@ int asn1_generalizedtime_to_tm(struct tm * tm, const ASN1_GENERALIZEDTIME * d)
 	}
 	return (o == l);
 err:
-	return (0);
+	return 0;
 }
 
 int ASN1_GENERALIZEDTIME_check(const ASN1_GENERALIZEDTIME * d)
@@ -153,7 +153,7 @@ int ASN1_GENERALIZEDTIME_set_string(ASN1_GENERALIZEDTIME * s, const char * str)
 		return (1);
 	}
 	else
-		return (0);
+		return 0;
 }
 
 ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_set(ASN1_GENERALIZEDTIME * s,
@@ -193,7 +193,7 @@ ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_adj(ASN1_GENERALIZEDTIME * s,
 	p = (char*)tmps->data;
 	if((p == NULL) || ((size_t)tmps->length < len)) {
 		p = (char*)OPENSSL_malloc(len);
-		if(p == NULL) {
+		if(!p) {
 			ASN1err(ASN1_F_ASN1_GENERALIZEDTIME_ADJ, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
@@ -265,11 +265,11 @@ int ASN1_GENERALIZEDTIME_print(BIO * bp, const ASN1_GENERALIZEDTIME * tm)
 	if(BIO_printf(bp, "%s %2d %02d:%02d:%02d%.*s %d%s",
 		    _asn1_mon[M - 1], d, h, m, s, f_len, f, y,
 		    (gmt) ? " GMT" : "") <= 0)
-		return (0);
+		return 0;
 	else
 		return (1);
 err:
 	BIO_write(bp, "Bad time value", 14);
-	return (0);
+	return 0;
 }
 

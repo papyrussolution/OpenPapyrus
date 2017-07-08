@@ -140,7 +140,7 @@ static int ssl_do_config(SSL *s, SSL_CTX *ctx, const char *name)
     SSL_CONF_CTX *cctx = NULL;
     size_t i;
     int rv = 0;
-    unsigned int flags;
+    uint flags;
     const SSL_METHOD *meth;
     const struct ssl_conf_name *nm;
     struct ssl_conf_cmd *cmd;

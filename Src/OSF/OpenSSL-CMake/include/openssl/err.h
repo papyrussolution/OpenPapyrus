@@ -133,9 +133,9 @@ typedef struct err_state_st {
 # define KDFerr(f,r) ERR_PUT_error(ERR_LIB_KDF,(f),(r),OPENSSL_FILE,OPENSSL_LINE)
 
 # define ERR_PACK(l,f,r) ( \
-        (((unsigned int)(l) & 0x0FF) << 24L) | \
-        (((unsigned int)(f) & 0xFFF) << 12L) | \
-        (((unsigned int)(r) & 0xFFF)       ) )
+        (((uint)(l) & 0x0FF) << 24L) | \
+        (((uint)(f) & 0xFFF) << 12L) | \
+        (((uint)(r) & 0xFFF)       ) )
 # define ERR_GET_LIB(l)          (int)(((l) >> 24L) & 0x0FFL)
 # define ERR_GET_FUNC(l)         (int)(((l) >> 12L) & 0xFFFL)
 # define ERR_GET_REASON(l)       (int)( (l)         & 0xFFFL)

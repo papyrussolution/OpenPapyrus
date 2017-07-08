@@ -18,7 +18,7 @@ void * ASN1_dup(i2d_of_void * i2d, d2i_of_void * d2i, void * x)
 	int i;
 	char * ret;
 
-	if(x == NULL)
+	if(!x)
 		return (NULL);
 
 	i = i2d(x, NULL);
@@ -32,7 +32,7 @@ void * ASN1_dup(i2d_of_void * i2d, d2i_of_void * d2i, void * x)
 	p2 = b;
 	ret = (char*)d2i(NULL, &p2, i);
 	OPENSSL_free(b);
-	return (ret);
+	return ret;
 }
 
 #endif
@@ -51,7 +51,7 @@ void * ASN1_item_dup(const ASN1_ITEM * it, void * x)
 	long i;
 	void * ret;
 
-	if(x == NULL)
+	if(!x)
 		return (NULL);
 
 	i = ASN1_item_i2d((ASN1_VALUE*)x, &b, it);
@@ -62,6 +62,6 @@ void * ASN1_item_dup(const ASN1_ITEM * it, void * x)
 	p = b;
 	ret = ASN1_item_d2i(NULL, &p, i, it);
 	OPENSSL_free(b);
-	return (ret);
+	return ret;
 }
 

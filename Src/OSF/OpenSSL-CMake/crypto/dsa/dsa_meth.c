@@ -93,12 +93,12 @@ int DSA_meth_set0_app_data(DSA_METHOD * dsam, void * app_data)
 	return 1;
 }
 
-DSA_SIG *(*DSA_meth_get_sign(const DSA_METHOD *dsam))(const unsigned char *, int, DSA *)
+DSA_SIG *(*DSA_meth_get_sign(const DSA_METHOD *dsam))(const uchar *, int, DSA *)
 {
 	return dsam->dsa_do_sign;
 }
 
-int DSA_meth_set_sign(DSA_METHOD * dsam, DSA_SIG *(*sign)(const unsigned char *, int, DSA *))
+int DSA_meth_set_sign(DSA_METHOD * dsam, DSA_SIG *(*sign)(const uchar *, int, DSA *))
 {
 	dsam->dsa_do_sign = sign;
 	return 1;
@@ -115,12 +115,12 @@ int DSA_meth_set_sign_setup(DSA_METHOD * dsam, int (* sign_setup)(DSA *, BN_CTX 
 	return 1;
 }
 
-int (*DSA_meth_get_verify(const DSA_METHOD *dsam))(const unsigned char *, int, DSA_SIG *, DSA *)
+int (*DSA_meth_get_verify(const DSA_METHOD *dsam))(const uchar *, int, DSA_SIG *, DSA *)
 {
 	return dsam->dsa_do_verify;
 }
 
-int DSA_meth_set_verify(DSA_METHOD * dsam, int (* verify)(const unsigned char *, int, DSA_SIG *, DSA *))
+int DSA_meth_set_verify(DSA_METHOD * dsam, int (* verify)(const uchar *, int, DSA_SIG *, DSA *))
 {
 	dsam->dsa_do_verify = verify;
 	return 1;
@@ -172,12 +172,12 @@ int DSA_meth_set_finish(DSA_METHOD * dsam, int (* finish)(DSA *))
 	return 1;
 }
 
-int (*DSA_meth_get_paramgen(const DSA_METHOD *dsam))(DSA *, int, const unsigned char *, int, int *, unsigned long *, BN_GENCB *)
+int (*DSA_meth_get_paramgen(const DSA_METHOD *dsam))(DSA *, int, const uchar *, int, int *, unsigned long *, BN_GENCB *)
 {
 	return dsam->dsa_paramgen;
 }
 
-int DSA_meth_set_paramgen(DSA_METHOD * dsam, int (* paramgen)(DSA *, int, const unsigned char *, int, int *, unsigned long *, BN_GENCB *))
+int DSA_meth_set_paramgen(DSA_METHOD * dsam, int (* paramgen)(DSA *, int, const uchar *, int, int *, unsigned long *, BN_GENCB *))
 {
 	dsam->dsa_paramgen = paramgen;
 	return 1;

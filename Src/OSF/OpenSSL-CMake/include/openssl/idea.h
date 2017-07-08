@@ -17,7 +17,7 @@
 	extern "C" {
 #endif
 
-typedef unsigned int IDEA_INT;
+typedef uint IDEA_INT;
 
 #define IDEA_ENCRYPT    1
 #define IDEA_DECRYPT    0
@@ -29,12 +29,12 @@ typedef struct idea_key_st {
 } IDEA_KEY_SCHEDULE;
 
 const char * IDEA_options(void);
-void IDEA_ecb_encrypt(const unsigned char * in, unsigned char * out, IDEA_KEY_SCHEDULE * ks);
-void IDEA_set_encrypt_key(const unsigned char * key, IDEA_KEY_SCHEDULE * ks);
+void IDEA_ecb_encrypt(const uchar * in, uchar * out, IDEA_KEY_SCHEDULE * ks);
+void IDEA_set_encrypt_key(const uchar * key, IDEA_KEY_SCHEDULE * ks);
 void IDEA_set_decrypt_key(IDEA_KEY_SCHEDULE * ek, IDEA_KEY_SCHEDULE * dk);
-void IDEA_cbc_encrypt(const unsigned char * in, unsigned char * out, long length, IDEA_KEY_SCHEDULE * ks, unsigned char * iv, int enc);
-void IDEA_cfb64_encrypt(const unsigned char * in, unsigned char * out, long length, IDEA_KEY_SCHEDULE * ks, unsigned char * iv, int * num, int enc);
-void IDEA_ofb64_encrypt(const unsigned char * in, unsigned char * out, long length, IDEA_KEY_SCHEDULE * ks, unsigned char * iv, int * num);
+void IDEA_cbc_encrypt(const uchar * in, uchar * out, long length, IDEA_KEY_SCHEDULE * ks, uchar * iv, int enc);
+void IDEA_cfb64_encrypt(const uchar * in, uchar * out, long length, IDEA_KEY_SCHEDULE * ks, uchar * iv, int * num, int enc);
+void IDEA_ofb64_encrypt(const uchar * in, uchar * out, long length, IDEA_KEY_SCHEDULE * ks, uchar * iv, int * num);
 void IDEA_encrypt(unsigned long * in, IDEA_KEY_SCHEDULE * ks);
 
 #if OPENSSL_API_COMPAT < 0x10100000L

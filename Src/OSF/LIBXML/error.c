@@ -17,7 +17,7 @@ void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx ATTRIBUTE_UNUSED, const char
 		int    chars;					      \
 		char * larger;					     \
 		va_list ap;						  \
-		str = (char*)xmlMalloc(150);				  \
+		str = (char*)SAlloc::M(150); \
 		if(str) {					   \
 			int size = 150;						    \
 			while(size < 64000) {					   \
@@ -34,7 +34,7 @@ void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx ATTRIBUTE_UNUSED, const char
 					size += chars + 1;				    \
 				else							\
 					size += 100;					    \
-				if((larger = (char*)xmlRealloc(str, size)) == NULL) { \
+				if((larger = (char*)SAlloc::R(str, size)) == NULL) { \
 					break;						    \
 				}							\
 				str = larger;						\
@@ -343,7 +343,7 @@ static void xmlReportError(xmlErrorPtr err, xmlParserCtxtPtr ctxt, const char * 
 				break;
 		}
 		if(str != NULL) {
-			int len = xmlStrlen((const xmlChar*)str);
+			int len = sstrlen((const xmlChar*)str);
 			if((len > 0) && (str[len - 1] != '\n'))
 				channel(data, "%s\n", str);
 			else
@@ -362,7 +362,7 @@ static void xmlReportError(xmlErrorPtr err, xmlParserCtxtPtr ctxt, const char * 
 				xmlParserPrintFileContextInternal(cur, channel, data);
 			}
 		}
-		if((domain == XML_FROM_XPATH) && err->str1 && (err->int1 < 100) && (err->int1 < xmlStrlen((const xmlChar*)err->str1))) {
+		if((domain == XML_FROM_XPATH) && err->str1 && (err->int1 < 100) && (err->int1 < (int)sstrlen(err->str1))) {
 			xmlChar buf[150];
 			int i;
 			channel(data, "%s\n", err->str1);
@@ -606,7 +606,7 @@ void XMLCDECL xmlParserError(void * ctx, const char * msg, ...)
 	xmlGenericError(0, "error: ");
 	XML_GET_VAR_STR(msg, str);
 	xmlGenericError(0, "%s", str);
-	free(str);
+	SAlloc::F(str);
 	if(ctxt) {
 		xmlParserPrintFileContext(input);
 		if(cur) {
@@ -643,7 +643,7 @@ void XMLCDECL xmlParserWarning(void * ctx, const char * msg, ...)
 	xmlGenericError(0, "warning: ");
 	XML_GET_VAR_STR(msg, str);
 	xmlGenericError(0, "%s", str);
-	free(str);
+	SAlloc::F(str);
 	if(ctxt) {
 		xmlParserPrintFileContext(input);
 		if(cur) {
@@ -674,7 +674,7 @@ void XMLCDECL xmlParserValidityError(void * ctx, const char * msg, ...)
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
 	xmlParserInputPtr input = NULL;
 	char * str;
-	int len = xmlStrlen((const xmlChar*)msg);
+	int len = sstrlen((const xmlChar*)msg);
 	static int had_info = 0;
 
 	if((len > 1) && (msg[len - 2] != ':')) {
@@ -695,7 +695,7 @@ void XMLCDECL xmlParserValidityError(void * ctx, const char * msg, ...)
 	}
 	XML_GET_VAR_STR(msg, str);
 	xmlGenericError(0, "%s", str);
-	free(str);
+	SAlloc::F(str);
 	if(ctxt && input) {
 		xmlParserPrintFileContext(input);
 	}
@@ -715,7 +715,7 @@ void XMLCDECL xmlParserValidityWarning(void * ctx, const char * msg, ...)
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
 	xmlParserInputPtr input = NULL;
 	char * str;
-	int len = xmlStrlen((const xmlChar*)msg);
+	int len = sstrlen((const xmlChar*)msg);
 	if(ctxt && (len != 0) && (msg[len - 1] != ':')) {
 		input = ctxt->input;
 		if((input->filename == NULL) && (ctxt->inputNr > 1))
@@ -725,7 +725,7 @@ void XMLCDECL xmlParserValidityWarning(void * ctx, const char * msg, ...)
 	xmlGenericError(0, "validity warning: ");
 	XML_GET_VAR_STR(msg, str);
 	xmlGenericError(0, "%s", str);
-	free(str);
+	SAlloc::F(str);
 	if(ctxt) {
 		xmlParserPrintFileContext(input);
 	}
@@ -764,11 +764,11 @@ void xmlResetError(xmlErrorPtr err)
 		return;
 	if(err->code == XML_ERR_OK)
 		return;
-	free(err->message);
-	free(err->file);
-	free(err->str1);
-	free(err->str2);
-	free(err->str3);
+	SAlloc::F(err->message);
+	SAlloc::F(err->file);
+	SAlloc::F(err->str1);
+	SAlloc::F(err->str2);
+	SAlloc::F(err->str3);
 	memzero(err, sizeof(xmlError));
 	err->code = XML_ERR_OK;
 }
@@ -846,15 +846,15 @@ int xmlCopyError(xmlErrorPtr from, xmlErrorPtr to) {
 	str3 = (char*)xmlStrdup((xmlChar*)from->str3);
 
 	if(to->message != NULL)
-		free(to->message);
+		SAlloc::F(to->message);
 	if(to->file != NULL)
-		free(to->file);
+		SAlloc::F(to->file);
 	if(to->str1 != NULL)
-		free(to->str1);
+		SAlloc::F(to->str1);
 	if(to->str2 != NULL)
-		free(to->str2);
+		SAlloc::F(to->str2);
 	if(to->str3 != NULL)
-		free(to->str3);
+		SAlloc::F(to->str3);
 	to->domain = from->domain;
 	to->code = from->code;
 	to->level = from->level;

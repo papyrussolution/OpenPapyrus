@@ -43,7 +43,7 @@ typedef struct danetls_record_st {
     uint8_t usage;
     uint8_t selector;
     uint8_t mtype;
-    unsigned char *data;
+    uchar *data;
     size_t dlen;
     EVP_PKEY *spki;
 } danetls_record;

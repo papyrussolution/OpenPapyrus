@@ -18,7 +18,8 @@
 #ifndef OPENSSL_NO_SCRYPT
 
 #define R(a, b) (((a) << (b)) | ((a) >> (32 - (b))))
-static void salsa208_word_specification(uint32_t inout[16])
+
+static void FASTCALL salsa208_word_specification(uint32_t inout[16])
 {
 	int i;
 	uint32_t x[16];
@@ -77,26 +78,21 @@ static void scryptBlockMix(uint32_t * B_, uint32_t * B, uint64_t r)
 	OPENSSL_cleanse(X, sizeof(X));
 }
 
-static void scryptROMix(unsigned char * B, uint64_t r, uint64_t N,
-    uint32_t * X, uint32_t * T, uint32_t * V)
+static void scryptROMix(uchar * B, uint64_t r, uint64_t N, uint32_t * X, uint32_t * T, uint32_t * V)
 {
-	unsigned char * pB;
+	uchar * pB;
 	uint32_t * pV;
 	uint64_t i, k;
-
-	/* Convert from little endian input */
+	// Convert from little endian input 
 	for(pV = V, i = 0, pB = B; i < 32 * r; i++, pV++) {
 		*pV = *pB++;
 		*pV |= *pB++ << 8;
 		*pV |= *pB++ << 16;
 		*pV |= (uint32_t)*pB++ << 24;
 	}
-
 	for(i = 1; i < N; i++, pV += 32 * r)
 		scryptBlockMix(pV, pV - 32 * r, r);
-
 	scryptBlockMix(X, V + (N - 1) * 32 * r, r);
-
 	for(i = 0; i < N; i++) {
 		uint32_t j = (uint32_t)(X[16 * (2 * r - 1)] % N);
 		pV = V + 32 * r * j;
@@ -104,7 +100,7 @@ static void scryptROMix(unsigned char * B, uint64_t r, uint64_t N,
 			T[k] = X[k] ^ *pV++;
 		scryptBlockMix(X, T, r);
 	}
-	/* Convert output to little endian */
+	// Convert output to little endian 
 	for(i = 0, pB = B; i < 32 * r; i++) {
 		uint32_t xtmp = X[i];
 		*pB++ = xtmp & 0xff;
@@ -115,31 +111,23 @@ static void scryptROMix(unsigned char * B, uint64_t r, uint64_t N,
 }
 
 #ifndef SIZE_MAX
-# define SIZE_MAX    ((size_t)-1)
+	#define SIZE_MAX    ((size_t)-1)
 #endif
-
-/*
- * Maximum power of two that will fit in uint64_t: this should work on
- * most (all?) platforms.
- */
-
+//
+// Maximum power of two that will fit in uint64_t: this should work on most (all?) platforms.
+//
 #define LOG2_UINT64_MAX         (sizeof(uint64_t) * 8 - 1)
-
 /*
  * Maximum value of p * r:
  * p <= ((2^32-1) * hLen) / MFLen =>
  * p <= ((2^32-1) * 32) / (128 * r) =>
  * p * r <= (2^30-1)
- *
  */
-
 #define SCRYPT_PR_MAX   ((1 << 30) - 1)
-
 /*
  * Maximum permitted memory allow this to be overridden with Configuration
  * option: e.g. -DSCRYPT_MAX_MEM=0 for maximum possible.
  */
-
 #ifdef SCRYPT_MAX_MEM
 # if SCRYPT_MAX_MEM == 0
 #  undef SCRYPT_MAX_MEM
@@ -154,17 +142,14 @@ static void scryptROMix(unsigned char * B, uint64_t r, uint64_t N,
 # define SCRYPT_MAX_MEM  (1024 * 1024 * 32)
 #endif
 
-int EVP_PBE_scrypt(const char * pass, size_t passlen,
-    const unsigned char * salt, size_t saltlen,
-    uint64_t N, uint64_t r, uint64_t p, uint64_t maxmem,
-    unsigned char * key, size_t keylen)
+int EVP_PBE_scrypt(const char * pass, size_t passlen, const uchar * salt, size_t saltlen,
+    uint64_t N, uint64_t r, uint64_t p, uint64_t maxmem, uchar * key, size_t keylen)
 {
 	int rv = 0;
-	unsigned char * B;
+	uchar * B;
 	uint32_t * X, * V, * T;
 	uint64_t i, Blen, Vlen;
 	size_t allocsize;
-
 	/* Sanity check parameters */
 	/* initial check, r,p must be non zero, N >= 2 and a power of 2 */
 	if(r == 0 || p == 0 || N < 2 || (N & (N - 1)))
@@ -172,17 +157,14 @@ int EVP_PBE_scrypt(const char * pass, size_t passlen,
 	/* Check p * r < SCRYPT_PR_MAX avoiding overflow */
 	if(p > SCRYPT_PR_MAX / r)
 		return 0;
-
 	/*
 	 * Need to check N: if 2^(128 * r / 8) overflows limit this is
 	 * automatically satisfied since N <= UINT64_MAX.
 	 */
-
 	if(16 * r <= LOG2_UINT64_MAX) {
 		if(N >= (((uint64_t)1) << (16 * r)))
 			return 0;
 	}
-
 	/* Memory checks: check total allocated buffer size fits in uint64_t */
 
 	/*
@@ -191,7 +173,6 @@ int EVP_PBE_scrypt(const char * pass, size_t passlen,
 	 * p * r < SCRYPT_PR_MAX
 	 */
 	Blen = p * 128 * r;
-
 	/*
 	 * Check 32 * r * (N + 2) * sizeof(uint32_t) fits in
 	 * uint64_t and also size_t (their sizes are unrelated).
@@ -201,7 +182,6 @@ int EVP_PBE_scrypt(const char * pass, size_t passlen,
 	if(N + 2 > i / r)
 		return 0;
 	Vlen = 32 * r * (N + 2) * sizeof(uint32_t);
-
 	/* check total allocated size fits in uint64_t */
 	if(Blen > UINT64_MAX - Vlen)
 		return 0;
@@ -218,7 +198,7 @@ int EVP_PBE_scrypt(const char * pass, size_t passlen,
 	/* If no key return to indicate parameters are OK */
 	if(key == NULL)
 		return 1;
-	B = (unsigned char *)OPENSSL_malloc(allocsize);
+	B = (uchar *)OPENSSL_malloc(allocsize);
 	if(B == NULL)
 		return 0;
 	X = (uint32_t*)(B + Blen);

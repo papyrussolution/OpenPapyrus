@@ -493,7 +493,7 @@ int ssl_cipher_get_evp(const SSL_SESSION * s, const EVP_CIPHER ** enc, const EVP
 	int i;
 	const SSL_CIPHER * c = s->cipher;
 	if(c == NULL)
-		return (0);
+		return 0;
 	if(comp != NULL) {
 		SSL_COMP ctmp;
 #ifndef OPENSSL_NO_COMP
@@ -560,7 +560,7 @@ int ssl_cipher_get_evp(const SSL_SESSION * s, const EVP_CIPHER ** enc, const EVP
 		return (1);
 	}
 	else
-		return (0);
+		return 0;
 }
 
 const EVP_MD * ssl_md(int idx)
@@ -869,7 +869,7 @@ static int ssl_cipher_strength_sort(CIPHER_ORDER ** head_p, CIPHER_ORDER ** tail
 	number_uses = (int*)OPENSSL_zalloc(sizeof(int) * (max_strength_bits + 1));
 	if(number_uses == NULL) {
 		SSLerr(SSL_F_SSL_CIPHER_STRENGTH_SORT, ERR_R_MALLOC_FAILURE);
-		return (0);
+		return 0;
 	}
 	/*
 	 * Now find the strength_bits values actually used
@@ -1144,7 +1144,7 @@ static int ssl_cipher_process_rulestr(const char * rule_str, CIPHER_ORDER ** hea
 #ifndef OPENSSL_NO_EC
 static int check_suiteb_cipher_list(const SSL_METHOD * meth, CERT * c, const char ** prule_str)
 {
-	unsigned int suiteb_flags = 0, suiteb_comb2 = 0;
+	uint suiteb_flags = 0, suiteb_comb2 = 0;
 	if(strncmp(*prule_str, "SUITEB128ONLY", 13) == 0) {
 		suiteb_flags = SSL_CERT_FLAG_SUITEB_128_LOS_ONLY;
 	}
@@ -1594,7 +1594,7 @@ int SSL_COMP_add_compression_method(int id, COMP_METHOD * cm)
 		return (1);
 	}
 	CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_ENABLE);
-	return (0);
+	return 0;
 }
 
 #endif
@@ -1643,13 +1643,13 @@ int ssl_cipher_get_cert_index(const SSL_CIPHER * c)
 	return -1;
 }
 
-const SSL_CIPHER * ssl_get_cipher_by_char(SSL * ssl, const unsigned char * ptr)
+const SSL_CIPHER * ssl_get_cipher_by_char(SSL * ssl, const uchar * ptr)
 {
 	const SSL_CIPHER * c = ssl->method->get_cipher_by_char(ptr);
 	return (c == NULL || c->valid == 0) ? NULL : c;
 }
 
-const SSL_CIPHER * SSL_CIPHER_find(SSL * ssl, const unsigned char * ptr)
+const SSL_CIPHER * SSL_CIPHER_find(SSL * ssl, const uchar * ptr)
 {
 	return ssl->method->get_cipher_by_char(ptr);
 }

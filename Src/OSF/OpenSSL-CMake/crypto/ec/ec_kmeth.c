@@ -72,7 +72,7 @@ int EC_KEY_set_method(EC_KEY * key, const EC_KEY_METHOD * meth)
 EC_KEY * EC_KEY_new_method(ENGINE * engine)
 {
 	EC_KEY * ret = (EC_KEY *)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL) {
+	if(!ret) {
 		ECerr(EC_F_EC_KEY_NEW_METHOD, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -126,7 +126,7 @@ int ECDH_compute_key(void * out, size_t outlen, const EC_POINT * pub_key,
     void *(*KDF)(const void * in, size_t inlen, void * out,
 	    size_t *outlen))
 {
-	unsigned char * sec = NULL;
+	uchar * sec = NULL;
 	size_t seclen;
 	if(eckey->meth->compute_key == NULL) {
 		ECerr(EC_F_ECDH_COMPUTE_KEY, EC_R_OPERATION_NOT_SUPPORTED);
@@ -153,7 +153,7 @@ int ECDH_compute_key(void * out, size_t outlen, const EC_POINT * pub_key,
 EC_KEY_METHOD * EC_KEY_METHOD_new(const EC_KEY_METHOD * meth)
 {
 	EC_KEY_METHOD * ret = (EC_KEY_METHOD *)OPENSSL_zalloc(sizeof(*meth));
-	if(ret == NULL)
+	if(!ret)
 		return NULL;
 	if(meth != NULL)
 		*ret = *meth;
@@ -192,7 +192,7 @@ void EC_KEY_METHOD_set_keygen(EC_KEY_METHOD * meth,
 }
 
 void EC_KEY_METHOD_set_compute_key(EC_KEY_METHOD * meth,
-    int (* ckey)(unsigned char ** psec,
+    int (* ckey)(uchar ** psec,
 	    size_t * pseclen,
 	    const EC_POINT * pub_key,
 	    const EC_KEY * ecdh))
@@ -201,14 +201,14 @@ void EC_KEY_METHOD_set_compute_key(EC_KEY_METHOD * meth,
 }
 
 void EC_KEY_METHOD_set_sign(EC_KEY_METHOD * meth,
-    int (* sign)(int type, const unsigned char * dgst,
-	    int dlen, unsigned char * sig,
-	    unsigned int * siglen,
+    int (* sign)(int type, const uchar * dgst,
+	    int dlen, uchar * sig,
+	    uint * siglen,
 	    const BIGNUM * kinv, const BIGNUM * r,
 	    EC_KEY * eckey),
     int (* sign_setup)(EC_KEY * eckey, BN_CTX * ctx_in,
 	    BIGNUM ** kinvp, BIGNUM ** rp),
-    ECDSA_SIG *(*sign_sig)(const unsigned char * dgst,
+    ECDSA_SIG *(*sign_sig)(const uchar * dgst,
 	    int dgst_len,
 	    const BIGNUM *in_kinv,
 	    const BIGNUM *in_r,
@@ -222,9 +222,9 @@ void EC_KEY_METHOD_set_sign(EC_KEY_METHOD * meth,
 void EC_KEY_METHOD_set_verify(EC_KEY_METHOD * meth,
     int (* verify)(int type, const unsigned
 	    char * dgst, int dgst_len,
-	    const unsigned char * sigbuf,
+	    const uchar * sigbuf,
 	    int sig_len, EC_KEY * eckey),
-    int (* verify_sig)(const unsigned char * dgst,
+    int (* verify_sig)(const uchar * dgst,
 	    int dgst_len,
 	    const ECDSA_SIG * sig,
 	    EC_KEY * eckey))
@@ -266,7 +266,7 @@ void EC_KEY_METHOD_get_keygen(EC_KEY_METHOD * meth,
 }
 
 void EC_KEY_METHOD_get_compute_key(EC_KEY_METHOD * meth,
-    int(**pck) (unsigned char ** pout,
+    int(**pck) (uchar ** pout,
 	    size_t *poutlen,
 	    const EC_POINT *pub_key,
 	    const EC_KEY *ecdh))
@@ -276,14 +276,14 @@ void EC_KEY_METHOD_get_compute_key(EC_KEY_METHOD * meth,
 }
 
 void EC_KEY_METHOD_get_sign(EC_KEY_METHOD * meth,
-    int(**psign) (int type, const unsigned char * dgst,
-	    int dlen, unsigned char * sig,
-	    unsigned int * siglen,
+    int(**psign) (int type, const uchar * dgst,
+	    int dlen, uchar * sig,
+	    uint * siglen,
 	    const BIGNUM *kinv, const BIGNUM *r,
 	    EC_KEY *eckey),
     int(**psign_setup) (EC_KEY *eckey, BN_CTX *ctx_in,
 	    BIGNUM **kinvp, BIGNUM **rp),
-    ECDSA_SIG *(**psign_sig)(const unsigned char * dgst,
+    ECDSA_SIG *(**psign_sig)(const uchar * dgst,
 	    int dgst_len,
 	    const BIGNUM *in_kinv,
 	    const BIGNUM *in_r,
@@ -300,9 +300,9 @@ void EC_KEY_METHOD_get_sign(EC_KEY_METHOD * meth,
 void EC_KEY_METHOD_get_verify(EC_KEY_METHOD * meth,
     int(**pverify) (int type, const unsigned
 	    char * dgst, int dgst_len,
-	    const unsigned char * sigbuf,
+	    const uchar * sigbuf,
 	    int sig_len, EC_KEY *eckey),
-    int(**pverify_sig) (const unsigned char * dgst,
+    int(**pverify_sig) (const uchar * dgst,
 	    int dgst_len,
 	    const ECDSA_SIG *sig,
 	    EC_KEY *eckey))

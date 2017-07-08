@@ -202,7 +202,7 @@ static void xmlSchemaTypeErrMemory(xmlNodePtr node, const char * extra)
  */
 static xmlSchemaValPtr xmlSchemaNewValue(xmlSchemaValType type)
 {
-	xmlSchemaValPtr value = (xmlSchemaValPtr)xmlMalloc(sizeof(xmlSchemaVal));
+	xmlSchemaValPtr value = (xmlSchemaValPtr)SAlloc::M(sizeof(xmlSchemaVal));
 	if(value == NULL) {
 		return 0;
 	}
@@ -214,17 +214,17 @@ static xmlSchemaValPtr xmlSchemaNewValue(xmlSchemaValType type)
 static xmlSchemaFacetPtr xmlSchemaNewMinLengthFacet(int value)
 {
 	xmlSchemaFacetPtr ret = xmlSchemaNewFacet();
-	if(ret == NULL) {
+	if(!ret) {
 		return 0;
 	}
 	ret->type = XML_SCHEMA_FACET_MINLENGTH;
 	ret->val = xmlSchemaNewValue(XML_SCHEMAS_NNINTEGER);
 	if(ret->val == NULL) {
-		free(ret);
+		SAlloc::F(ret);
 		return 0;
 	}
 	ret->val->value.decimal.lo = value;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -236,8 +236,8 @@ static xmlSchemaFacetPtr xmlSchemaNewMinLengthFacet(int value)
  */
 static xmlSchemaTypePtr xmlSchemaInitBasicType(const char * name, xmlSchemaValType type, xmlSchemaTypePtr baseType)
 {
-	xmlSchemaTypePtr ret = (xmlSchemaTypePtr)xmlMalloc(sizeof(xmlSchemaType));
-	if(ret == NULL) {
+	xmlSchemaTypePtr ret = (xmlSchemaTypePtr)SAlloc::M(sizeof(xmlSchemaType));
+	if(!ret) {
 		xmlSchemaTypeErrMemory(NULL, "could not initialize basic types");
 		return 0;
 	}
@@ -340,8 +340,8 @@ struct _xmlSchemaModelGroup {
 
 static xmlSchemaParticlePtr xmlSchemaAddParticle()
 {
-	xmlSchemaParticlePtr ret = (xmlSchemaParticlePtr)xmlMalloc(sizeof(xmlSchemaParticle));
-	if(ret == NULL) {
+	xmlSchemaParticlePtr ret = (xmlSchemaParticlePtr)SAlloc::M(sizeof(xmlSchemaParticle));
+	if(!ret) {
 		xmlSchemaTypeErrMemory(NULL, "allocating particle component");
 	}
 	else {
@@ -350,7 +350,7 @@ static xmlSchemaParticlePtr xmlSchemaAddParticle()
 		ret->minOccurs = 1;
 		ret->maxOccurs = 1;
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -384,7 +384,7 @@ void xmlSchemaInitTypes()
 		xmlSchemaTypeAnyTypeDef->subtypes = (xmlSchemaTypePtr)particle;
 		/* Sequence model group. */
 		sequence = (xmlSchemaModelGroupPtr)
-		    xmlMalloc(sizeof(xmlSchemaModelGroup));
+		    SAlloc::M(sizeof(xmlSchemaModelGroup));
 		if(sequence == NULL) {
 			xmlSchemaTypeErrMemory(NULL, "allocating model group component");
 			return;
@@ -400,7 +400,7 @@ void xmlSchemaInitTypes()
 		particle->maxOccurs = UNBOUNDED;
 		sequence->children = (xmlSchemaTreeItemPtr)particle;
 		/* The wildcard */
-		wild = (xmlSchemaWildcardPtr)xmlMalloc(sizeof(xmlSchemaWildcard));
+		wild = (xmlSchemaWildcardPtr)SAlloc::M(sizeof(xmlSchemaWildcard));
 		if(wild == NULL) {
 			xmlSchemaTypeErrMemory(NULL, "allocating wildcard component");
 			return;
@@ -413,7 +413,7 @@ void xmlSchemaInitTypes()
 		/*
 		 * Create the attribute wildcard.
 		 */
-		wild = (xmlSchemaWildcardPtr)xmlMalloc(sizeof(xmlSchemaWildcard));
+		wild = (xmlSchemaWildcardPtr)SAlloc::M(sizeof(xmlSchemaWildcard));
 		if(wild == NULL) {
 			xmlSchemaTypeErrMemory(NULL, "could not create an attribute wildcard on anyType");
 			return;
@@ -529,10 +529,10 @@ void xmlSchemaCleanupTypes()
 		/* Wildcard. */
 		xmlSchemaFreeWildcard((xmlSchemaWildcardPtr)
 		    particle->children->children->children);
-		free((xmlSchemaParticlePtr)particle->children->children);
+		SAlloc::F((xmlSchemaParticlePtr)particle->children->children);
 		/* Sequence model group. */
-		free((xmlSchemaModelGroupPtr)particle->children);
-		free((xmlSchemaParticlePtr)particle);
+		SAlloc::F((xmlSchemaModelGroupPtr)particle->children);
+		SAlloc::F((xmlSchemaParticlePtr)particle);
 		xmlSchemaTypeAnyTypeDef->subtypes = NULL;
 	}
 	xmlHashFree(xmlSchemaTypesBank, (xmlHashDeallocator)xmlSchemaFreeType);
@@ -553,9 +553,9 @@ void xmlSchemaCleanupTypes()
 int xmlSchemaIsBuiltInTypeFacet(xmlSchemaTypePtr type, int facetType)
 {
 	if(type == NULL)
-		return (-1);
+		return -1;
 	if(type->type != XML_SCHEMA_TYPE_BASIC)
-		return (-1);
+		return -1;
 	switch(type->builtInType) {
 		case XML_SCHEMAS_BOOLEAN:
 			return oneof2(facetType, XML_SCHEMA_FACET_PATTERN, XML_SCHEMA_FACET_WHITESPACE) ? 1 : 0;
@@ -812,7 +812,7 @@ xmlSchemaValPtr xmlSchemaNewStringValue(xmlSchemaValType type, const xmlChar * v
 	xmlSchemaValPtr val;
 	if(type != XML_SCHEMAS_STRING)
 		return 0;
-	val = (xmlSchemaValPtr)xmlMalloc(sizeof(xmlSchemaVal));
+	val = (xmlSchemaValPtr)SAlloc::M(sizeof(xmlSchemaVal));
 	if(val == NULL) {
 		return 0;
 	}
@@ -889,25 +889,25 @@ void xmlSchemaFreeValue(xmlSchemaValPtr value)
 			case XML_SCHEMAS_ENTITIES:
 			case XML_SCHEMAS_ANYURI:
 			case XML_SCHEMAS_ANYSIMPLETYPE:
-			    free(value->value.str);
+			    SAlloc::F(value->value.str);
 			    break;
 			case XML_SCHEMAS_NOTATION:
 			case XML_SCHEMAS_QNAME:
-			    free(value->value.qname.uri);
-			    free(value->value.qname.name);
+			    SAlloc::F(value->value.qname.uri);
+			    SAlloc::F(value->value.qname.name);
 			    break;
 			case XML_SCHEMAS_HEXBINARY:
-			    free(value->value.hex.str);
+			    SAlloc::F(value->value.hex.str);
 			    break;
 			case XML_SCHEMAS_BASE64BINARY:
-			    free(value->value.base64.str);
+			    SAlloc::F(value->value.base64.str);
 			    break;
 			default:
 			    break;
 		}
 		prev = value;
 		value = value->next;
-		free(prev);
+		SAlloc::F(prev);
 	}
 }
 
@@ -1849,7 +1849,7 @@ static int xmlSchemaValAtomicListNode(xmlSchemaTypePtr type, const xmlChar * val
 		}
 	}
 	if(nb_values == 0) {
-		free(val);
+		SAlloc::F(val);
 		return(nb_values);
 	}
 	endval = cur;
@@ -1866,7 +1866,7 @@ static int xmlSchemaValAtomicListNode(xmlSchemaTypePtr type, const xmlChar * val
 	   if (ret != NULL) {
 	    TODO
 	   } */
-	free(val);
+	SAlloc::F(val);
 	if(tmp == 0)
 		return(nb_values);
 	return -1;
@@ -1951,7 +1951,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 	if(xmlSchemaTypesInitialized == 0)
 		xmlSchemaInitTypes();
 	if(type == NULL)
-		return (-1);
+		return -1;
 
 	/*
 	 * validating a non existant text node is similar to validating
@@ -2536,21 +2536,21 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    local = xmlSplitQName2(value, &prefix);
 			    ns = xmlSearchNs(node->doc, node, prefix);
 			    if((ns == NULL) && (prefix != NULL)) {
-				    free(prefix);
+				    SAlloc::F(prefix);
 				    if(local != NULL)
-					    free(local);
+					    SAlloc::F(local);
 				    goto return1;
 			    }
 			    if(ns != NULL)
 				    uri = ns->href;
 			    if(prefix != NULL)
-				    free(prefix);
+				    SAlloc::F(prefix);
 		    }
 		    if(val) {
 			    v = xmlSchemaNewValue(XML_SCHEMAS_QNAME);
 			    if(v == NULL) {
 				    if(local != NULL)
-					    free(local);
+					    SAlloc::F(local);
 				    goto error;
 			    }
 			    if(local != NULL)
@@ -2562,7 +2562,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    *val = v;
 		    }
 		    else if(local != NULL)
-			    free(local);
+			    SAlloc::F(local);
 		    goto done;
 	    }
 		case XML_SCHEMAS_NCNAME:
@@ -2604,7 +2604,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 				    strip = xmlSchemaStrip(value);
 				    if(strip != NULL) {
 					    res = xmlAddID(NULL, node->doc, strip, attr);
-					    free(strip);
+					    SAlloc::F(strip);
 				    }
 				    else
 					    res = xmlAddID(NULL, node->doc, value, attr);
@@ -2634,7 +2634,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    strip = xmlSchemaStrip(value);
 			    if(strip != NULL) {
 				    xmlAddRef(NULL, node->doc, strip, attr);
-				    free(strip);
+				    SAlloc::F(strip);
 			    }
 			    else
 				    xmlAddRef(NULL, node->doc, value, attr);
@@ -2667,7 +2667,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    strip = xmlSchemaStrip(value);
 			    if(strip != NULL) {
 				    ent = xmlGetDocEntity(node->doc, strip);
-				    free(strip);
+				    SAlloc::F(strip);
 			    }
 			    else {
 				    ent = xmlGetDocEntity(node->doc, value);
@@ -2723,9 +2723,9 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 					    uri = xmlStrdup(ns->href);
 			    }
 			    if((local != NULL) && ((val == NULL) || (ret != 0)))
-				    free(local);
+				    SAlloc::F(local);
 			    if(prefix != NULL)
-				    free(prefix);
+				    SAlloc::F(prefix);
 		    }
 		    if((node == NULL) || (node->doc == NULL))
 			    ret = 3;
@@ -2750,9 +2750,9 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    }
 			    else {
 				    if(local != NULL)
-					    free(local);
+					    SAlloc::F(local);
 				    if(uri)
-					    free(uri);
+					    SAlloc::F(uri);
 				    goto error;
 			    }
 		    }
@@ -2777,7 +2777,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 					    *cur = '_';
 			    }
 			    uri = xmlParseURI((const char*)tmpval);
-			    free(tmpval);
+			    SAlloc::F(tmpval);
 			    if(uri == NULL)
 				    goto return1;
 			    xmlFreeURI(uri);
@@ -2829,7 +2829,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    cur = xmlStrndup(start, i);
 			    if(!cur) {
 				    xmlSchemaTypeErrMemory(node, "allocating hexbin data");
-				    free(v);
+				    SAlloc::F(v);
 				    goto return1;
 			    }
 
@@ -2950,11 +2950,11 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    if(v == NULL)
 				    goto error;
 			    base =
-				    (xmlChar*)xmlMallocAtomic((i + pad + 1) *
+				    (xmlChar*)SAlloc::M((i + pad + 1) *
 				    sizeof(xmlChar));
 			    if(base == NULL) {
 				    xmlSchemaTypeErrMemory(node, "allocating base64 data");
-				    free(v);
+				    SAlloc::F(v);
 				    goto return1;
 			    }
 			    v->value.base64.str = base;
@@ -3174,24 +3174,24 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 
 done:
 	if(norm != NULL)
-		free(norm);
-	return (ret);
+		SAlloc::F(norm);
+	return ret;
 return3:
 	if(norm != NULL)
-		free(norm);
+		SAlloc::F(norm);
 	return (3);
 return1:
 	if(norm != NULL)
-		free(norm);
+		SAlloc::F(norm);
 	return 1;
 return0:
 	if(norm != NULL)
-		free(norm);
+		SAlloc::F(norm);
 	return 0;
 error:
 	if(norm != NULL)
-		free(norm);
-	return (-1);
+		SAlloc::F(norm);
+	return -1;
 }
 
 /**
@@ -3284,7 +3284,7 @@ static int xmlSchemaCompareDecimals(xmlSchemaValPtr x, xmlSchemaValPtr y)
 		 * Otherwise (y >= 0) we have the answer
 		 */
 		else
-			return (-1);
+			return -1;
 		/*
 		 * If x is not -ve and y is -ve we have the answer
 		 */
@@ -3515,7 +3515,7 @@ static int xmlSchemaCompareDurations(xmlSchemaValPtr x, xmlSchemaValPtr y)
 static xmlSchemaValPtr xmlSchemaDupVal(xmlSchemaValPtr v)
 {
 	xmlSchemaValPtr ret = xmlSchemaNewValue(v->type);
-	if(ret == NULL)
+	if(!ret)
 		return NULL;
 
 	memcpy(ret, v, sizeof(xmlSchemaVal));
@@ -3584,14 +3584,14 @@ xmlSchemaValPtr xmlSchemaCopyValue(xmlSchemaValPtr val)
 			    cur = xmlSchemaDupVal(val);
 			    break;
 		}
-		if(ret == NULL)
+		if(!ret)
 			ret = cur;
 		else
 			prev->next = cur;
 		prev = cur;
 		val = val->next;
 	}
-	return (ret);
+	return ret;
 }
 
 /**
@@ -3617,7 +3617,7 @@ static xmlSchemaValPtr _xmlSchemaDateAdd(xmlSchemaValPtr dt, xmlSchemaValPtr dur
 		return NULL;
 
 	ret = xmlSchemaNewValue(dt->type);
-	if(ret == NULL)
+	if(!ret)
 		return NULL;
 
 	/* make a copy so we don't alter the original value */
@@ -3779,7 +3779,7 @@ static xmlSchemaValPtr xmlSchemaDateNormalize(xmlSchemaValPtr dt, double offset)
 	dur->value.date.sec -= offset;
 
 	ret = _xmlSchemaDateAdd(dt, dur);
-	if(ret == NULL)
+	if(!ret)
 		return NULL;
 
 	xmlSchemaFreeValue(dur);
@@ -4629,7 +4629,7 @@ static int xmlSchemaCompareValuesInternal(xmlSchemaValType xtype,
 	    {
 		    const xmlChar * xv, * yv;
 
-		    if(x == NULL)
+		    if(!x)
 			    xv = xvalue;
 		    else
 			    xv = x->value.str;
@@ -4661,7 +4661,7 @@ static int xmlSchemaCompareValuesInternal(xmlSchemaValType xtype,
 			    if(xws == XML_SCHEMA_WHITESPACE_PRESERVE) {
 				    if(yws == XML_SCHEMA_WHITESPACE_PRESERVE) {
 					    /* TODO: What about x < y or x > y. */
-					    if(xmlStrEqual(xv, yv))
+					    if(sstreq(xv, yv))
 						    return 0;
 					    else
 						    return (2);
@@ -4698,8 +4698,8 @@ static int xmlSchemaCompareValuesInternal(xmlSchemaValType xtype,
 			    return -2;
 		    if((ytype == XML_SCHEMAS_QNAME) ||
 		    (ytype == XML_SCHEMAS_NOTATION)) {
-			    if((xmlStrEqual(x->value.qname.name, y->value.qname.name)) &&
-			    (xmlStrEqual(x->value.qname.uri, y->value.qname.uri)))
+			    if((sstreq(x->value.qname.name, y->value.qname.name)) &&
+			    (sstreq(x->value.qname.uri, y->value.qname.uri)))
 				    return 0;
 			    return(2);
 		    }
@@ -4991,10 +4991,10 @@ static int xmlSchemaValidateLengthFacetInternal(xmlSchemaFacetPtr facet,
 {
 	uint len = 0;
 	if((length == NULL) || (facet == NULL))
-		return (-1);
+		return -1;
 	*length = 0;
 	if(!oneof3(facet->type, XML_SCHEMA_FACET_LENGTH, XML_SCHEMA_FACET_MAXLENGTH, XML_SCHEMA_FACET_MINLENGTH))
-		return (-1);
+		return -1;
 	/*
 	 * TODO: length, maxLength and minLength must be of type
 	 * nonNegativeInteger only. Check if decimal is used somehow.
@@ -5214,7 +5214,7 @@ static int xmlSchemaValidateFacetInternal(xmlSchemaFacetPtr facet,
 			     * TODO: Get rid of this case.
 			     */
 			    if((facet->value != NULL) &&
-			    (xmlStrEqual(facet->value, value)))
+			    (sstreq(facet->value, value)))
 				    return 0;
 		    }
 		    else {
@@ -5518,7 +5518,7 @@ static void xmlSchemaFormatFloat(double number, char buffer[], int buffersize)
 int xmlSchemaGetCanonValue(xmlSchemaValPtr val, const xmlChar ** retValue)
 {
 	if((retValue == NULL) || (val == NULL))
-		return (-1);
+		return -1;
 	*retValue = NULL;
 	switch(val->type) {
 		case XML_SCHEMAS_STRING:
@@ -5549,7 +5549,7 @@ int xmlSchemaGetCanonValue(xmlSchemaValPtr val, const xmlChar ** retValue)
 		case XML_SCHEMAS_NOTATION: /* Unclear */
 		case XML_SCHEMAS_ANYURI: /* Unclear */
 		    if(val->value.str == NULL)
-			    return (-1);
+			    return -1;
 		    *retValue =
 		    BAD_CAST xmlSchemaCollapseString(BAD_CAST val->value.str);
 		    if(*retValue == NULL)
@@ -5592,7 +5592,7 @@ int xmlSchemaGetCanonValue(xmlSchemaValPtr val, const xmlChar ** retValue)
 			    /* Add room for leading/trailing zero. */
 			    if((dec.frac == 0) || (dec.frac == dec.total))
 				    bufsize++;
-			    buf = (char*)xmlMalloc(bufsize);
+			    buf = (char*)SAlloc::M(bufsize);
 			    if(buf == NULL)
 				    return -1;
 			    offs = buf;
@@ -5668,7 +5668,7 @@ int xmlSchemaGetCanonValue(xmlSchemaValPtr val, const xmlChar ** retValue)
 			    /* Add room for the decimal point as well. */
 			    if(dec.sign)
 				    bufsize++;
-			    *retValue = (xmlChar*)xmlMalloc(bufsize);
+			    *retValue = (xmlChar*)SAlloc::M(bufsize);
 			    if(*retValue == NULL)
 				    return -1;
 			    if(dec.hi != 0) {
@@ -5744,7 +5744,7 @@ int xmlSchemaGetCanonValue(xmlSchemaValPtr val, const xmlChar ** retValue)
 		case XML_SCHEMAS_GMONTH: {
 		    /* TODO: Unclear in XML Schema 1.0 */
 		    /* TODO: What to do with the timezone? */
-		    *retValue = (xmlChar *)xmlMalloc(6);
+		    *retValue = (xmlChar *)SAlloc::M(6);
 		    if(*retValue == NULL)
 			    return -1;
 		    snprintf((char*)*retValue, 6, "--%02u", val->value.date.mon);
@@ -5753,7 +5753,7 @@ int xmlSchemaGetCanonValue(xmlSchemaValPtr val, const xmlChar ** retValue)
 		case XML_SCHEMAS_GDAY: {
 		    /* TODO: Unclear in XML Schema 1.0 */
 		    /* TODO: What to do with the timezone? */
-		    *retValue = (xmlChar *)xmlMalloc(6);
+		    *retValue = (xmlChar *)SAlloc::M(6);
 		    if(*retValue == NULL)
 			    return -1;
 		    snprintf((char*)*retValue, 6, "---%02u", val->value.date.day);
@@ -5762,7 +5762,7 @@ int xmlSchemaGetCanonValue(xmlSchemaValPtr val, const xmlChar ** retValue)
 		case XML_SCHEMAS_GMONTHDAY: {
 		    /* TODO: Unclear in XML Schema 1.0 */
 		    /* TODO: What to do with the timezone? */
-		    *retValue = (xmlChar *)xmlMalloc(8);
+		    *retValue = (xmlChar *)SAlloc::M(8);
 		    if(*retValue == NULL)
 			    return -1;
 		    snprintf((char*)*retValue, 8, "--%02u-%02u", val->value.date.mon, val->value.date.day);
@@ -5785,7 +5785,7 @@ int xmlSchemaGetCanonValue(xmlSchemaValPtr val, const xmlChar ** retValue)
 		    if(val->value.date.tz_flag) {
 			    xmlSchemaValPtr norm = xmlSchemaDateNormalize(val, 0);
 			    if(norm == NULL)
-				    return (-1);
+				    return -1;
 			    /*
 			     * TODO: Check if "%.14g" is portable.
 			     */
@@ -5804,7 +5804,7 @@ int xmlSchemaGetCanonValue(xmlSchemaValPtr val, const xmlChar ** retValue)
 		    if(val->value.date.tz_flag) {
 			    xmlSchemaValPtr norm = xmlSchemaDateNormalize(val, 0);
 			    if(norm == NULL)
-				    return (-1);
+				    return -1;
 			    /*
 			     * TODO: Append the canonical value of the
 			     * recoverable timezone and not "Z".
@@ -5824,7 +5824,7 @@ int xmlSchemaGetCanonValue(xmlSchemaValPtr val, const xmlChar ** retValue)
 		    if(val->value.date.tz_flag) {
 			    xmlSchemaValPtr norm = xmlSchemaDateNormalize(val, 0);
 			    if(norm == NULL)
-				    return (-1);
+				    return -1;
 			    /*
 			     * TODO: Check if "%.14g" is portable.
 			     */
@@ -5899,9 +5899,9 @@ int xmlSchemaGetCanonValue(xmlSchemaValPtr val, const xmlChar ** retValue)
 int xmlSchemaGetCanonValueWhtsp(xmlSchemaValPtr val, const xmlChar ** retValue, xmlSchemaWhitespaceValueType ws)
 {
 	if((retValue == NULL) || (val == NULL))
-		return (-1);
+		return -1;
 	if((ws == XML_SCHEMA_WHITESPACE_UNKNOWN) || (ws > XML_SCHEMA_WHITESPACE_COLLAPSE))
-		return (-1);
+		return -1;
 	*retValue = NULL;
 	switch(val->type) {
 		case XML_SCHEMAS_STRING:

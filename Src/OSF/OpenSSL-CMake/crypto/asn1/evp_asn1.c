@@ -16,7 +16,7 @@ int ASN1_TYPE_set_octetstring(ASN1_TYPE *a, uchar *data, int len)
     ASN1_STRING *os;
 
     if ((os = ASN1_OCTET_STRING_new()) == NULL)
-        return (0);
+        return 0;
     if (!ASN1_OCTET_STRING_set(os, data, len)) {
         ASN1_OCTET_STRING_free(os);
         return 0;
@@ -42,7 +42,7 @@ int ASN1_TYPE_get_octetstring(const ASN1_TYPE *a, uchar *data, int max_len)
     else
         num = max_len;
     memcpy(data, p, num);
-    return (ret);
+    return ret;
 }
 
 typedef struct {

@@ -19,7 +19,7 @@ int RSA_padding_add_SSLv23(uchar * to, int tlen, const uchar * from, int flen)
 	if(flen > (tlen - 11)) {
 		RSAerr(RSA_F_RSA_PADDING_ADD_SSLV23,
 		    RSA_R_DATA_TOO_LARGE_FOR_KEY_SIZE);
-		return (0);
+		return 0;
 	}
 	p = (uchar*)to;
 	*(p++) = 0;
@@ -27,12 +27,12 @@ int RSA_padding_add_SSLv23(uchar * to, int tlen, const uchar * from, int flen)
 	/* pad out with non-zero random data */
 	j = tlen - 3 - 8 - flen;
 	if(RAND_bytes(p, j) <= 0)
-		return (0);
+		return 0;
 	for(i = 0; i < j; i++) {
 		if(*p == '\0')
 			do {
 				if(RAND_bytes(p, 1) <= 0)
-					return (0);
+					return 0;
 			} while(*p == '\0');
 		p++;
 	}

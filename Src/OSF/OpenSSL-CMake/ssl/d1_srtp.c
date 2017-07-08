@@ -29,8 +29,7 @@ static SRTP_PROTECTION_PROFILE srtp_known_profiles[] = {
 
 static int find_profile_by_name(char * profile_name, SRTP_PROTECTION_PROFILE ** pptr, unsigned len)
 {
-	SRTP_PROTECTION_PROFILE * p;
-	p = srtp_known_profiles;
+	SRTP_PROTECTION_PROFILE * p = srtp_known_profiles;
 	while(p->name) {
 		if((len == strlen(p->name))
 		    && strncmp(p->name, profile_name, len) == 0) {
@@ -109,7 +108,7 @@ SRTP_PROTECTION_PROFILE * SSL_get_selected_srtp_profile(SSL * s)
 /*
  * Note: this function returns 0 length if there are no profiles specified
  */
-int ssl_add_clienthello_use_srtp_ext(SSL * s, unsigned char * p, int * len, int maxlen)
+int ssl_add_clienthello_use_srtp_ext(SSL * s, uchar * p, int * len, int maxlen)
 {
 	int i;
 	SRTP_PROTECTION_PROFILE * prof;
@@ -141,7 +140,7 @@ int ssl_parse_clienthello_use_srtp_ext(SSL * s, PACKET * pkt, int * al)
 {
 	SRTP_PROTECTION_PROFILE * sprof;
 	STACK_OF(SRTP_PROTECTION_PROFILE) *srvr;
-	unsigned int ct, mki_len, id;
+	uint ct, mki_len, id;
 	int i, srtp_pref;
 	PACKET subpkt;
 	/* Pull off the length of the cipher suite list  and check it is even */
@@ -190,7 +189,7 @@ int ssl_parse_clienthello_use_srtp_ext(SSL * s, PACKET * pkt, int * al)
 	return 0;
 }
 
-int ssl_add_serverhello_use_srtp_ext(SSL * s, unsigned char * p, int * len, int maxlen)
+int ssl_add_serverhello_use_srtp_ext(SSL * s, uchar * p, int * len, int maxlen)
 {
 	if(p) {
 		if(maxlen < 5) {
@@ -211,7 +210,7 @@ int ssl_add_serverhello_use_srtp_ext(SSL * s, unsigned char * p, int * len, int 
 
 int ssl_parse_serverhello_use_srtp_ext(SSL * s, PACKET * pkt, int * al)
 {
-	unsigned int id, ct, mki;
+	uint id, ct, mki;
 	int i;
 	STACK_OF(SRTP_PROTECTION_PROFILE) *clnt;
 	SRTP_PROTECTION_PROFILE * prof;

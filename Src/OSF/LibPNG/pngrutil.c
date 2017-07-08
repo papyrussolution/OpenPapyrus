@@ -208,7 +208,7 @@ int /* PRIVATE */ png_crc_finish(png_structrp png_ptr, uint32 skip)
 			png_chunk_error(png_ptr, "CRC error");
 		return (1);
 	}
-	return (0);
+	return 0;
 }
 
 /* Compare the CRC stored in the PNG file with that calculated by libpng from
@@ -243,7 +243,7 @@ int /* PRIVATE */ png_crc_error(png_structrp png_ptr)
 	}
 
 	else
-		return (0);
+		return 0;
 }
 
 #if defined(PNG_READ_iCCP_SUPPORTED) || defined(PNG_READ_iTXt_SUPPORTED) || \
@@ -268,7 +268,7 @@ static png_bytep png_read_buffer(png_structrp png_ptr, png_alloc_size_t new_size
 		buffer = NULL;
 	}
 
-	if(buffer == NULL) {
+	if(!buffer) {
 		buffer = png_voidcast(png_bytep, png_malloc_base(png_ptr, new_size));
 
 		if(buffer != NULL) {
@@ -481,7 +481,7 @@ static int png_inflate(png_structrp png_ptr, uint32 owner, int finish,
 
 			avail = ZLIB_IO_MAX; /* maximum zlib can process */
 
-			if(output == NULL) {
+			if(!output) {
 				/* Reset the output buffer each time round if output is NULL and
 				 * make available the full buffer, up to 'remaining_space'
 				 */
@@ -507,7 +507,7 @@ static int png_inflate(png_structrp png_ptr, uint32 owner, int finish,
 		} while(ret == Z_OK);
 
 		/* For safety kill the local buffer pointer now */
-		if(output == NULL)
+		if(!output)
 			png_ptr->zstream.next_out = NULL;
 
 		/* Claw back the 'size' and 'remaining_space' byte counts. */
@@ -1498,7 +1498,7 @@ void /* PRIVATE */ png_handle_sPLT(png_structrp png_ptr, png_inforp info_ptr, ui
 #endif
 
 	buffer = png_read_buffer(png_ptr, length+1, 2 /*silent*/);
-	if(buffer == NULL) {
+	if(!buffer) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "out of memory");
 		return;
@@ -1915,7 +1915,7 @@ void /* PRIVATE */ png_handle_pCAL(png_structrp png_ptr, png_inforp info_ptr, ui
 
 	buffer = png_read_buffer(png_ptr, length+1, 2 /*silent*/);
 
-	if(buffer == NULL) {
+	if(!buffer) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "out of memory");
 		return;
@@ -2036,7 +2036,7 @@ void /* PRIVATE */ png_handle_sCAL(png_structrp png_ptr, png_inforp info_ptr, ui
 
 	buffer = png_read_buffer(png_ptr, length+1, 2 /*silent*/);
 
-	if(buffer == NULL) {
+	if(!buffer) {
 		png_chunk_benign_error(png_ptr, "out of memory");
 		png_crc_finish(png_ptr, length);
 		return;
@@ -2163,19 +2163,14 @@ void /* PRIVATE */ png_handle_tEXt(png_structrp png_ptr, png_inforp info_ptr, ui
 		return;
 	}
 #endif
-
 	buffer = png_read_buffer(png_ptr, length+1, 1 /*warn*/);
-
-	if(buffer == NULL) {
+	if(!buffer) {
 		png_chunk_benign_error(png_ptr, "out of memory");
 		return;
 	}
-
 	png_crc_read(png_ptr, buffer, length);
-
 	if(png_crc_finish(png_ptr, skip) != 0)
 		return;
-
 	key = (char *)buffer;
 	key[length] = 0;
 
@@ -2230,7 +2225,7 @@ void /* PRIVATE */ png_handle_zTXt(png_structrp png_ptr, png_inforp info_ptr, ui
 
 	buffer = png_read_buffer(png_ptr, length, 2 /*silent*/);
 
-	if(buffer == NULL) {
+	if(!buffer) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "out of memory");
 		return;
@@ -2331,7 +2326,7 @@ void /* PRIVATE */ png_handle_iTXt(png_structrp png_ptr, png_inforp info_ptr, ui
 
 	buffer = png_read_buffer(png_ptr, length+1, 1 /*warn*/);
 
-	if(buffer == NULL) {
+	if(!buffer) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "out of memory");
 		return;
@@ -3604,7 +3599,7 @@ void /* PRIVATE */ png_read_IDAT_data(png_structrp png_ptr, png_bytep output, pn
 	png_ptr->zstream.next_out = output;
 	png_ptr->zstream.avail_out = 0; /* safety: set below */
 
-	if(output == NULL)
+	if(!output)
 		avail_out = 0;
 
 	do {

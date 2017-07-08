@@ -62,7 +62,7 @@ static int dh_builtin_genparams(DH * ret, int prime_len, int generator,
 	BN_CTX * ctx = NULL;
 
 	ctx = BN_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto err;
 	BN_CTX_start(ctx);
 	t1 = BN_CTX_get(ctx);

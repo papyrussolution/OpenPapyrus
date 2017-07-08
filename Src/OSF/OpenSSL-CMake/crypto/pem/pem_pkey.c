@@ -79,12 +79,12 @@ EVP_PKEY * PEM_read_bio_PrivateKey(BIO * bp, EVP_PKEY ** x, pem_password_cb * cb
 		ret = d2i_PrivateKey(ameth->pkey_id, x, &p, len);
 	}
 p8err:
-	if(ret == NULL)
+	if(!ret)
 		PEMerr(PEM_F_PEM_READ_BIO_PRIVATEKEY, ERR_R_ASN1_LIB);
 err:
 	OPENSSL_free(nm);
 	OPENSSL_clear_free(data, len);
-	return (ret);
+	return ret;
 }
 
 int PEM_write_bio_PrivateKey(BIO * bp, EVP_PKEY * x, const EVP_CIPHER * enc,
@@ -117,7 +117,7 @@ EVP_PKEY * PEM_read_bio_Parameters(BIO * bp, EVP_PKEY ** x)
 
 	if((slen = pem_check_suffix(nm, "PARAMETERS")) > 0) {
 		ret = EVP_PKEY_new();
-		if(ret == NULL)
+		if(!ret)
 			goto err;
 		if(!EVP_PKEY_set_type_str(ret, nm, slen)
 		    || !ret->ameth->param_decode
@@ -132,11 +132,11 @@ EVP_PKEY * PEM_read_bio_Parameters(BIO * bp, EVP_PKEY ** x)
 		}
 	}
 err:
-	if(ret == NULL)
+	if(!ret)
 		PEMerr(PEM_F_PEM_READ_BIO_PARAMETERS, ERR_R_ASN1_LIB);
 	OPENSSL_free(nm);
 	OPENSSL_free(data);
-	return (ret);
+	return ret;
 }
 
 int PEM_write_bio_Parameters(BIO * bp, EVP_PKEY * x)
@@ -157,12 +157,12 @@ EVP_PKEY * PEM_read_PrivateKey(FILE * fp, EVP_PKEY ** x, pem_password_cb * cb, v
 	EVP_PKEY * ret;
 	if((b = BIO_new(BIO_s_file())) == NULL) {
 		PEMerr(PEM_F_PEM_READ_PRIVATEKEY, ERR_R_BUF_LIB);
-		return (0);
+		return 0;
 	}
 	BIO_set_fp(b, fp, BIO_NOCLOSE);
 	ret = PEM_read_bio_PrivateKey(b, x, cb, u);
 	BIO_free(b);
-	return (ret);
+	return ret;
 }
 
 int PEM_write_PrivateKey(FILE * fp, EVP_PKEY * x, const EVP_CIPHER * enc,
@@ -199,7 +199,7 @@ DH * PEM_read_bio_DHparams(BIO * bp, DH ** x, pem_password_cb * cb, void * u)
 		ret = d2i_DHxparams(x, &p, len);
 	else
 		ret = d2i_DHparams(x, &p, len);
-	if(ret == NULL)
+	if(!ret)
 		PEMerr(PEM_F_PEM_READ_BIO_DHPARAMS, ERR_R_ASN1_LIB);
 	OPENSSL_free(nm);
 	OPENSSL_free(data);

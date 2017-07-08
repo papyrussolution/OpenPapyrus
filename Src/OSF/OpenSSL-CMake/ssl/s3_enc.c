@@ -40,13 +40,13 @@
 //#include <openssl/evp.h>
 #include <openssl/md5.h>
 
-static int ssl3_generate_key_block(SSL * s, unsigned char * km, int num)
+static int ssl3_generate_key_block(SSL * s, uchar * km, int num)
 {
 	EVP_MD_CTX * m5;
 	EVP_MD_CTX * s1;
-	unsigned char buf[16], smd[SHA_DIGEST_LENGTH];
-	unsigned char c = 'A';
-	unsigned int i, j, k;
+	uchar buf[16], smd[SHA_DIGEST_LENGTH];
+	uchar c = 'A';
+	uint i, j, k;
 	int ret = 0;
 #ifdef CHARSET_EBCDIC
 	c = os_toascii[c];      /* 'A' in ASCII */
@@ -104,10 +104,10 @@ err:
 
 int ssl3_change_cipher_state(SSL * s, int which)
 {
-	unsigned char * p, * mac_secret;
-	unsigned char exp_key[EVP_MAX_KEY_LENGTH];
-	unsigned char exp_iv[EVP_MAX_IV_LENGTH];
-	unsigned char * ms, * key, * iv;
+	uchar * p, * mac_secret;
+	uchar exp_key[EVP_MAX_KEY_LENGTH];
+	uchar exp_iv[EVP_MAX_IV_LENGTH];
+	uchar * ms, * key, * iv;
 	EVP_CIPHER_CTX * dd;
 	const EVP_CIPHER * c;
 #ifndef OPENSSL_NO_COMP
@@ -250,12 +250,12 @@ err:
 err2:
 	OPENSSL_cleanse(exp_key, sizeof(exp_key));
 	OPENSSL_cleanse(exp_iv, sizeof(exp_iv));
-	return (0);
+	return 0;
 }
 
 int ssl3_setup_key_block(SSL * s)
 {
-	unsigned char * p;
+	uchar * p;
 	const EVP_CIPHER * c;
 	const EVP_MD * hash;
 	int num;
@@ -265,7 +265,7 @@ int ssl3_setup_key_block(SSL * s)
 		return (1);
 	if(!ssl_cipher_get_evp(s->session, &c, &hash, NULL, NULL, &comp, 0)) {
 		SSLerr(SSL_F_SSL3_SETUP_KEY_BLOCK, SSL_R_CIPHER_OR_HASH_UNAVAILABLE);
-		return (0);
+		return 0;
 	}
 	s->s3->tmp.new_sym_enc = c;
 	s->s3->tmp.new_hash = hash;
@@ -280,7 +280,7 @@ int ssl3_setup_key_block(SSL * s)
 	num = EVP_CIPHER_key_length(c) + num + EVP_CIPHER_iv_length(c);
 	num *= 2;
 	ssl3_cleanup_key_block(s);
-	if((p = (unsigned char*)OPENSSL_malloc(num)) == NULL)
+	if((p = (uchar*)OPENSSL_malloc(num)) == NULL)
 		goto err;
 	s->s3->tmp.key_block_length = num;
 	s->s3->tmp.key_block = p;
@@ -303,7 +303,7 @@ int ssl3_setup_key_block(SSL * s)
 	return ret;
 err:
 	SSLerr(SSL_F_SSL3_SETUP_KEY_BLOCK, ERR_R_MALLOC_FAILURE);
-	return (0);
+	return 0;
 }
 
 void ssl3_cleanup_key_block(SSL * s)
@@ -336,7 +336,7 @@ void ssl3_free_digest_list(SSL * s)
 	s->s3->handshake_dgst = NULL;
 }
 
-int ssl3_finish_mac(SSL * s, const unsigned char * buf, int len)
+int ssl3_finish_mac(SSL * s, const uchar * buf, int len)
 {
 	if(s->s3->handshake_dgst == NULL)
 		/* Note: this writes to a memory BIO so a failure is a fatal error */
@@ -377,7 +377,7 @@ int ssl3_digest_cached_records(SSL * s, int keep)
 	return 1;
 }
 
-int ssl3_final_finish_mac(SSL * s, const char * sender, int len, unsigned char * p)
+int ssl3_final_finish_mac(SSL * s, const char * sender, int len, uchar * p)
 {
 	int ret;
 	EVP_MD_CTX * ctx = NULL;
@@ -388,7 +388,7 @@ int ssl3_final_finish_mac(SSL * s, const char * sender, int len, unsigned char *
 		return 0;
 	}
 	ctx = EVP_MD_CTX_new();
-	if(ctx == NULL) {
+	if(!ctx) {
 		SSLerr(SSL_F_SSL3_FINAL_FINISH_MAC, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
@@ -410,28 +410,28 @@ int ssl3_final_finish_mac(SSL * s, const char * sender, int len, unsigned char *
 	return ret;
 }
 
-int ssl3_generate_master_secret(SSL * s, unsigned char * out, unsigned char * p, int len)
+int ssl3_generate_master_secret(SSL * s, uchar * out, uchar * p, int len)
 {
-	static const unsigned char * salt[3] = {
+	static const uchar * salt[3] = {
 #ifndef CHARSET_EBCDIC
-		(const unsigned char*)"A",
-		(const unsigned char*)"BB",
-		(const unsigned char*)"CCC",
+		(const uchar*)"A",
+		(const uchar*)"BB",
+		(const uchar*)"CCC",
 #else
-		(const unsigned char*)"\x41",
-		(const unsigned char*)"\x42\x42",
-		(const unsigned char*)"\x43\x43\x43",
+		(const uchar*)"\x41",
+		(const uchar*)"\x42\x42",
+		(const uchar*)"\x43\x43\x43",
 #endif
 	};
-	unsigned char buf[EVP_MAX_MD_SIZE];
+	uchar buf[EVP_MAX_MD_SIZE];
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
 	int i, ret = 0;
-	unsigned int n;
+	uint n;
 #ifdef OPENSSL_SSL_TRACE_CRYPTO
-	unsigned char * tmpout = out;
+	uchar * tmpout = out;
 #endif
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		SSLerr(SSL_F_SSL3_GENERATE_MASTER_SECRET, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
@@ -471,7 +471,7 @@ int ssl3_generate_master_secret(SSL * s, unsigned char * out, unsigned char * p,
 	}
 #endif
 	OPENSSL_cleanse(buf, sizeof(buf));
-	return (ret);
+	return ret;
 }
 
 int ssl3_alert_code(int code)

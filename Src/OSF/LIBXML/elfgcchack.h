@@ -10787,12 +10787,12 @@ extern __typeof (xmlStopParser) xmlStopParser__internal_alias __attribute((visib
 #endif
 
 #ifdef bottom_xmlstring
-#undef xmlStrEqual
-extern __typeof (xmlStrEqual) xmlStrEqual __attribute((alias("xmlStrEqual__internal_alias")));
+#undef sstreq
+extern __typeof (sstreq) sstreq __attribute((alias("xmlStrEqual__internal_alias")));
 #else
-#ifndef xmlStrEqual
-extern __typeof (xmlStrEqual) xmlStrEqual__internal_alias __attribute((visibility("hidden")));
-#define xmlStrEqual xmlStrEqual__internal_alias
+#ifndef sstreq
+extern __typeof (sstreq) xmlStrEqual__internal_alias __attribute((visibility("hidden")));
+#define sstreq xmlStrEqual__internal_alias
 #endif
 #endif
 
@@ -10997,13 +10997,13 @@ extern __typeof (xmlStringLenGetNodeList) xmlStringLenGetNodeList__internal_alia
 #endif
 
 #ifdef bottom_xmlstring
-#undef xmlStrlen
-extern __typeof (xmlStrlen) xmlStrlen __attribute((alias("xmlStrlen__internal_alias")));
+	#undef sstrlen
+	extern __typeof (sstrlen) sstrlen __attribute((alias("xmlStrlen__internal_alias")));
 #else
-#ifndef xmlStrlen
-extern __typeof (xmlStrlen) xmlStrlen__internal_alias __attribute((visibility("hidden")));
-#define xmlStrlen xmlStrlen__internal_alias
-#endif
+	#ifndef sstrlen
+		extern __typeof (sstrlen) xmlStrlen__internal_alias __attribute((visibility("hidden")));
+		#define sstrlen xmlStrlen__internal_alias
+	#endif
 #endif
 
 #ifdef bottom_xmlstring

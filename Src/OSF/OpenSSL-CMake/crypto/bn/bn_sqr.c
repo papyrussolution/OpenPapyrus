@@ -102,7 +102,7 @@ err:
 	bn_check_top(rr);
 	bn_check_top(tmp);
 	BN_CTX_end(ctx);
-	return (ret);
+	return ret;
 }
 
 /* tmp must have 2*n words */

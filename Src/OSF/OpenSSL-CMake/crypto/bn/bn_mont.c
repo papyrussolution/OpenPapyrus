@@ -33,7 +33,7 @@ int BN_mod_mul_montgomery(BIGNUM * r, const BIGNUM * a, const BIGNUM * b,
 
 	if(num > 1 && a->top == num && b->top == num) {
 		if(bn_wexpand(r, num) == NULL)
-			return (0);
+			return 0;
 		if(bn_mul_mont(r->d, a->d, b->d, mont->N.d, mont->n0, num)) {
 			r->neg = a->neg ^ b->neg;
 			r->top = num;
@@ -69,7 +69,7 @@ int BN_mod_mul_montgomery(BIGNUM * r, const BIGNUM * a, const BIGNUM * b,
 	ret = 1;
 err:
 	BN_CTX_end(ctx);
-	return (ret);
+	return ret;
 }
 
 #ifdef MONT_WORD
@@ -87,7 +87,7 @@ static int BN_from_montgomery_word(BIGNUM * ret, BIGNUM * r, BN_MONT_CTX * mont)
 	}
 	max = (2 * nl);         /* carry is stored separately */
 	if(bn_wexpand(r, max) == NULL)
-		return (0);
+		return 0;
 	r->neg ^= n->neg;
 	np = n->d;
 	rp = r->d;
@@ -107,7 +107,7 @@ static int BN_from_montgomery_word(BIGNUM * ret, BIGNUM * r, BN_MONT_CTX * mont)
 	}
 
 	if(bn_wexpand(ret, nl) == NULL)
-		return (0);
+		return 0;
 	ret->top = nl;
 	ret->neg = r->neg;
 
@@ -211,7 +211,7 @@ BN_MONT_CTX * BN_MONT_CTX_new(void)
 		return (NULL);
 	BN_MONT_CTX_init(ret);
 	ret->flags = BN_FLG_MALLOCED;
-	return (ret);
+	return ret;
 }
 
 void BN_MONT_CTX_init(BN_MONT_CTX * ctx)
@@ -395,7 +395,7 @@ BN_MONT_CTX * BN_MONT_CTX_set_locked(BN_MONT_CTX ** pmont, CRYPTO_RWLOCK * lock,
 	 * (the losers throw away the work they've done).
 	 */
 	ret = BN_MONT_CTX_new();
-	if(ret == NULL)
+	if(!ret)
 		return NULL;
 	if(!BN_MONT_CTX_set(ret, mod, ctx)) {
 		BN_MONT_CTX_free(ret);

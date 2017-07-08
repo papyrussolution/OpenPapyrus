@@ -10,7 +10,7 @@
 #pragma hdrstop
 #include "record_locl.h"
 
-void SSL3_BUFFER_set_data(SSL3_BUFFER * b, const unsigned char * d, int n)
+void SSL3_BUFFER_set_data(SSL3_BUFFER * b, const uchar * d, int n)
 {
 	if(d != NULL)
 		memcpy(b->buf, d, n);
@@ -36,7 +36,7 @@ void SSL3_BUFFER_release(SSL3_BUFFER * b)
 
 int ssl3_setup_read_buffer(SSL * s)
 {
-	unsigned char * p;
+	uchar * p;
 	size_t len, align = 0, headerlen;
 	SSL3_BUFFER * b;
 
@@ -74,12 +74,12 @@ err:
 	return 0;
 }
 
-int ssl3_setup_write_buffer(SSL * s, unsigned int numwpipes, size_t len)
+int ssl3_setup_write_buffer(SSL * s, uint numwpipes, size_t len)
 {
-	unsigned char * p;
+	uchar * p;
 	size_t align = 0, headerlen;
 	SSL3_BUFFER * wb;
-	unsigned int currpipe;
+	uint currpipe;
 
 	s->rlayer.numwpipes = numwpipes;
 
@@ -107,7 +107,7 @@ int ssl3_setup_write_buffer(SSL * s, unsigned int numwpipes, size_t len)
 		SSL3_BUFFER * thiswb = &wb[currpipe];
 		if(thiswb->buf == NULL) {
 			p = (uchar *)OPENSSL_malloc(len);
-			if(p == NULL) {
+			if(!p) {
 				s->rlayer.numwpipes = currpipe;
 				goto err;
 			}
@@ -134,7 +134,7 @@ int ssl3_setup_buffers(SSL * s)
 int ssl3_release_write_buffer(SSL * s)
 {
 	SSL3_BUFFER * wb;
-	unsigned int pipes;
+	uint pipes;
 
 	pipes = s->rlayer.numwpipes;
 	while(pipes > 0) {

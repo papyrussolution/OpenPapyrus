@@ -262,7 +262,7 @@ BN_ULONG bn_div_words(BN_ULONG h, BN_ULONG l, BN_ULONG d)
         l = (l & BN_MASK2l) << BN_BITS4;
     }
     ret |= q;
-    return (ret);
+    return ret;
 }
 #endif                          /* !defined(BN_LLONG) && defined(BN_DIV2W) */
 

@@ -136,14 +136,14 @@ static cairo_clip_t * _cairo_clip_intersect_rectangle_box(cairo_clip_t * clip, c
 		clip->boxes = &clip->embedded_box;
 		clip->boxes[0] = *box;
 		clip->num_boxes = 1;
-		if(clip->path == NULL) {
+		if(!clip->path) {
 			clip->extents = *r;
 		}
 		else {
 			if(!_cairo_rectangle_intersect(&clip->extents, r))
 				return _cairo_clip_set_all_clipped(clip);
 		}
-		if(clip->path == NULL)
+		if(!clip->path)
 			clip->is_region = _cairo_box_is_pixel_aligned(box);
 		return clip;
 	}
@@ -185,7 +185,7 @@ static cairo_clip_t * _cairo_clip_intersect_rectangle_box(cairo_clip_t * clip, c
 		if(clip->boxes[i].p2.y > extents_box.p2.y)
 			extents_box.p2.y = clip->boxes[i].p2.y;
 	}
-	if(clip->path == NULL) {
+	if(!clip->path) {
 		_cairo_box_round_to_rectangle(&extents_box, &clip->extents);
 	}
 	else {
@@ -250,7 +250,7 @@ cairo_clip_t * _cairo_clip_intersect_boxes(cairo_clip_t * clip, const cairo_boxe
 	}
 	_cairo_boxes_extents(boxes, &limits);
 	_cairo_box_round_to_rectangle(&limits, &extents);
-	if(clip->path == NULL) {
+	if(!clip->path) {
 		clip->extents = extents;
 	}
 	else if(!_cairo_rectangle_intersect(&clip->extents, &extents)) {
@@ -390,7 +390,7 @@ static cairo_clip_t * _cairo_clip_reduce_to_boxes(cairo_clip_t * clip)
 	cairo_clip_path_t * clip_path;
 	cairo_status_t status;
 	return clip; // @?
-	if(clip->path == NULL)
+	if(!clip->path)
 		return clip;
 	r.clip = clip;
 	r.extents.p1.x = r.extents.p1.y = INT_MAX;

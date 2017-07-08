@@ -70,7 +70,7 @@ static int generate_key(DH * dh)
 	BIGNUM * pub_key = NULL, * priv_key = NULL;
 
 	ctx = BN_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto err;
 
 	if(dh->priv_key == NULL) {
@@ -157,7 +157,7 @@ static int compute_key(uchar * key, const BIGNUM * pub_key, DH * dh)
 	}
 
 	ctx = BN_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto err;
 	BN_CTX_start(ctx);
 	tmp = BN_CTX_get(ctx);
@@ -189,7 +189,7 @@ static int compute_key(uchar * key, const BIGNUM * pub_key, DH * dh)
 err:
 	BN_CTX_end(ctx);
 	BN_CTX_free(ctx);
-	return (ret);
+	return ret;
 }
 
 static int dh_bn_mod_exp(const DH * dh, BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGNUM * m, BN_CTX * ctx, BN_MONT_CTX * m_ctx)

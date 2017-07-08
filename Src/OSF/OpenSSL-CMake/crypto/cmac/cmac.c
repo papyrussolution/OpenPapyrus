@@ -42,7 +42,7 @@ static void make_kn(uchar * k1, const uchar * l, int bl)
 CMAC_CTX * CMAC_CTX_new(void)
 {
 	CMAC_CTX * ctx = (CMAC_CTX*)OPENSSL_malloc(sizeof(*ctx));
-	if(ctx == NULL)
+	if(!ctx)
 		return NULL;
 	ctx->cctx = EVP_CIPHER_CTX_new();
 	if(ctx->cctx == NULL) {

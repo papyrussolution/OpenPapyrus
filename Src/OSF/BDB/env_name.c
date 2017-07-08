@@ -76,7 +76,7 @@ static int __db_fullpath(ENV * env, const char * dir, const char * file, int che
 		if(ret == 0 && (ret_dir) != NULL)                              \
 			*(ret_dir) = (dir);                                     \
 		if(ret != ENOENT)                                              \
-			return (ret);                                           \
+			return ret;                                           \
 } while(0)
 /*
  * __db_appname --

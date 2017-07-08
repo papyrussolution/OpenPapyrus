@@ -24,7 +24,7 @@ X509_REQ * X509_to_X509_REQ(X509 * x, EVP_PKEY * pkey, const EVP_MD * md)
 	int i;
 	EVP_PKEY * pktmp;
 	X509_REQ * ret = X509_REQ_new();
-	if(ret == NULL) {
+	if(!ret) {
 		X509err(X509_F_X509_TO_X509_REQ, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
@@ -46,7 +46,7 @@ X509_REQ * X509_to_X509_REQ(X509 * x, EVP_PKEY * pkey, const EVP_MD * md)
 		if(!X509_REQ_sign(ret, pkey, md))
 			goto err;
 	}
-	return (ret);
+	return ret;
 err:
 	X509_REQ_free(ret);
 	return (NULL);

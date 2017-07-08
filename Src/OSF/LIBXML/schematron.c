@@ -42,15 +42,15 @@ static const xmlChar * xmlOldSchematronNs = SCT_OLD_NS;
 #define IS_SCHEMATRON(node, elem)					\
 	((node != NULL) && (node->type == XML_ELEMENT_NODE ) &&		     \
 	    (node->ns != NULL) &&						\
-	    (xmlStrEqual(node->name, (const xmlChar*)elem)) &&		      \
-	    ((xmlStrEqual(node->ns->href, xmlSchematronNs)) ||			\
-		    (xmlStrEqual(node->ns->href, xmlOldSchematronNs))))
+	    (sstreq(node->name, (const xmlChar*)elem)) &&		      \
+	    ((sstreq(node->ns->href, xmlSchematronNs)) ||			\
+		    (sstreq(node->ns->href, xmlOldSchematronNs))))
 
 #define NEXT_SCHEMATRON(node)						\
 	while(node) {						    \
 		if((node->type == XML_ELEMENT_NODE ) && (node->ns != NULL) &&	\
-		    ((xmlStrEqual(node->ns->href, xmlSchematronNs)) ||		 \
-			    (xmlStrEqual(node->ns->href, xmlOldSchematronNs))))		\
+		    ((sstreq(node->ns->href, xmlSchematronNs)) ||		 \
+			    (sstreq(node->ns->href, xmlOldSchematronNs))))		\
 			break;							     \
 		node = node->next;						 \
 	}
@@ -297,8 +297,8 @@ static xmlSchematronTestPtr xmlSchematronAddTest(xmlSchematronParserCtxtPtr ctxt
 		return 0;
 	}
 
-	ret = (xmlSchematronTestPtr)xmlMalloc(sizeof(xmlSchematronTest));
-	if(ret == NULL) {
+	ret = (xmlSchematronTestPtr)SAlloc::M(sizeof(xmlSchematronTest));
+	if(!ret) {
 		xmlSchematronPErrMemory(ctxt, "allocating schema test", node);
 		return 0;
 	}
@@ -319,7 +319,7 @@ static xmlSchematronTestPtr xmlSchematronAddTest(xmlSchematronParserCtxtPtr ctxt
 			prev = prev->next;
 		prev->next = ret;
 	}
-	return (ret);
+	return ret;
 }
 
 /**
@@ -333,10 +333,10 @@ static void xmlSchematronFreeTests(xmlSchematronTestPtr tests)
 	xmlSchematronTestPtr next;
 	while(tests != NULL) {
 		next = tests->next;
-		free(tests->test);
+		SAlloc::F(tests->test);
 		xmlXPathFreeCompExpr(tests->comp);
-		free(tests->report);
-		free(tests);
+		SAlloc::F(tests->report);
+		SAlloc::F(tests);
 		tests = next;
 	}
 }
@@ -368,8 +368,8 @@ static xmlSchematronRulePtr xmlSchematronAddRule(xmlSchematronParserCtxtPtr ctxt
 	if(pattern == NULL) {
 		xmlSchematronPErr(ctxt, node, XML_SCHEMAP_NOROOT, "Failed to compile context expression %s", context, NULL);
 	}
-	ret = (xmlSchematronRulePtr)xmlMalloc(sizeof(xmlSchematronRule));
-	if(ret == NULL) {
+	ret = (xmlSchematronRulePtr)SAlloc::M(sizeof(xmlSchematronRule));
+	if(!ret) {
 		xmlSchematronPErrMemory(ctxt, "allocating schema rule", node);
 		return 0;
 	}
@@ -398,7 +398,7 @@ static xmlSchematronRulePtr xmlSchematronAddRule(xmlSchematronParserCtxtPtr ctxt
 			prev = prev->patnext;
 		prev->patnext = ret;
 	}
-	return (ret);
+	return ret;
 }
 
 /**
@@ -414,10 +414,10 @@ static void xmlSchematronFreeRules(xmlSchematronRulePtr rules)
 		next = rules->next;
 		if(rules->tests)
 			xmlSchematronFreeTests(rules->tests);
-		free(rules->context);
+		SAlloc::F(rules->context);
 		xmlFreePattern(rules->pattern);
-		free(rules->report);
-		free(rules);
+		SAlloc::F(rules->report);
+		SAlloc::F(rules);
 		rules = next;
 	}
 }
@@ -439,8 +439,8 @@ static xmlSchematronPatternPtr xmlSchematronAddPattern(xmlSchematronParserCtxtPt
 	xmlSchematronPatternPtr ret;
 	if(!ctxt || (schema == NULL) || (node == NULL) || (name == NULL))
 		return 0;
-	ret = (xmlSchematronPatternPtr)xmlMalloc(sizeof(xmlSchematronPattern));
-	if(ret == NULL) {
+	ret = (xmlSchematronPatternPtr)SAlloc::M(sizeof(xmlSchematronPattern));
+	if(!ret) {
 		xmlSchematronPErrMemory(ctxt, "allocating schema pattern", node);
 		return 0;
 	}
@@ -456,7 +456,7 @@ static xmlSchematronPatternPtr xmlSchematronAddPattern(xmlSchematronParserCtxtPt
 			prev = prev->next;
 		prev->next = ret;
 	}
-	return (ret);
+	return ret;
 }
 
 /**
@@ -471,8 +471,8 @@ static void xmlSchematronFreePatterns(xmlSchematronPatternPtr patterns) {
 	while(patterns != NULL) {
 		next = patterns->next;
 		if(patterns->name != NULL)
-			free(patterns->name);
-		free(patterns);
+			SAlloc::F(patterns->name);
+		SAlloc::F(patterns);
 		patterns = next;
 	}
 }
@@ -487,7 +487,7 @@ static void xmlSchematronFreePatterns(xmlSchematronPatternPtr patterns) {
  */
 static xmlSchematronPtr xmlSchematronNewSchematron(xmlSchematronParserCtxtPtr ctxt)
 {
-	xmlSchematronPtr ret = (xmlSchematronPtr)xmlMalloc(sizeof(xmlSchematron));
+	xmlSchematronPtr ret = (xmlSchematronPtr)SAlloc::M(sizeof(xmlSchematron));
 	if(!ret) {
 		xmlSchematronPErrMemory(ctxt, "allocating schema", NULL);
 	}
@@ -496,7 +496,7 @@ static xmlSchematronPtr xmlSchematronNewSchematron(xmlSchematronParserCtxtPtr ct
 		ret->dict = ctxt->dict;
 		xmlDictReference(ret->dict);
 	}
-	return (ret);
+	return ret;
 }
 
 /**
@@ -510,11 +510,11 @@ void xmlSchematronFree(xmlSchematronPtr schema)
 	if(schema) {
 		if(schema->doc && !(schema->preserve))
 			xmlFreeDoc(schema->doc);
-		free((char**)schema->namespaces);
+		SAlloc::F((char**)schema->namespaces);
 		xmlSchematronFreeRules(schema->rules);
 		xmlSchematronFreePatterns(schema->patterns);
 		xmlDictFree(schema->dict);
-		free(schema);
+		SAlloc::F(schema);
 	}
 }
 
@@ -532,8 +532,8 @@ xmlSchematronParserCtxtPtr xmlSchematronNewParserCtxt(const char * URL)
 	xmlSchematronParserCtxtPtr ret;
 	if(URL == NULL)
 		return 0;
-	ret = (xmlSchematronParserCtxtPtr)xmlMalloc(sizeof(xmlSchematronParserCtxt));
-	if(ret == NULL) {
+	ret = (xmlSchematronParserCtxtPtr)SAlloc::M(sizeof(xmlSchematronParserCtxt));
+	if(!ret) {
 		xmlSchematronPErrMemory(NULL, "allocating schema parser context", NULL);
 		return 0;
 	}
@@ -549,7 +549,7 @@ xmlSchematronParserCtxtPtr xmlSchematronNewParserCtxt(const char * URL)
 		return 0;
 	}
 	ret->xctxt->flags = XML_XPATH_CHECKNS;
-	return (ret);
+	return ret;
 }
 
 /**
@@ -566,8 +566,8 @@ xmlSchematronParserCtxtPtr xmlSchematronNewMemParserCtxt(const char * buffer, in
 {
 	xmlSchematronParserCtxtPtr ret = 0;
 	if(buffer && size > 0) {
-		ret = (xmlSchematronParserCtxtPtr)xmlMalloc(sizeof(xmlSchematronParserCtxt));
-		if(ret == NULL) {
+		ret = (xmlSchematronParserCtxtPtr)SAlloc::M(sizeof(xmlSchematronParserCtxt));
+		if(!ret) {
 			xmlSchematronPErrMemory(NULL, "allocating schema parser context", NULL);
 		}
 		else {
@@ -599,8 +599,8 @@ xmlSchematronParserCtxtPtr xmlSchematronNewDocParserCtxt(xmlDocPtr doc)
 {
 	xmlSchematronParserCtxtPtr ret = 0;
 	if(doc) {
-		ret = (xmlSchematronParserCtxtPtr)xmlMalloc(sizeof(xmlSchematronParserCtxt));
-		if(ret == NULL) {
+		ret = (xmlSchematronParserCtxtPtr)SAlloc::M(sizeof(xmlSchematronParserCtxt));
+		if(!ret) {
 			xmlSchematronPErrMemory(NULL, "allocating schema parser context", NULL);
 		}
 		else {
@@ -634,9 +634,9 @@ void xmlSchematronFreeParserCtxt(xmlSchematronParserCtxtPtr ctxt)
 		if(ctxt->xctxt) {
 			xmlXPathFreeContext(ctxt->xctxt);
 		}
-		free(ctxt->namespaces);
+		SAlloc::F(ctxt->namespaces);
 		xmlDictFree(ctxt->dict);
-		free(ctxt);
+		SAlloc::F(ctxt);
 	}
 }
 
@@ -653,7 +653,7 @@ static void xmlSchematronPushInclude(xmlSchematronParserCtxtPtr ctxt, xmlDocPtr 
 {
 	if(ctxt->includes == NULL) {
 		ctxt->maxIncludes = 10;
-		ctxt->includes = (xmlNodePtr*)xmlMalloc(ctxt->maxIncludes * 2 * sizeof(xmlNode *));
+		ctxt->includes = (xmlNodePtr*)SAlloc::M(ctxt->maxIncludes * 2 * sizeof(xmlNode *));
 		if(ctxt->includes == NULL) {
 			xmlSchematronPErrMemory(NULL, "allocating parser includes", NULL);
 			return;
@@ -661,7 +661,7 @@ static void xmlSchematronPushInclude(xmlSchematronParserCtxtPtr ctxt, xmlDocPtr 
 		ctxt->nbIncludes = 0;
 	}
 	else if(ctxt->nbIncludes + 2 >= ctxt->maxIncludes) {
-		xmlNodePtr * tmp = (xmlNodePtr*)xmlRealloc(ctxt->includes, ctxt->maxIncludes * 4 * sizeof(xmlNode *));
+		xmlNodePtr * tmp = (xmlNodePtr*)SAlloc::R(ctxt->includes, ctxt->maxIncludes * 4 * sizeof(xmlNode *));
 		if(tmp == NULL) {
 			xmlSchematronPErrMemory(NULL, "allocating parser includes", NULL);
 			return;
@@ -695,7 +695,7 @@ static xmlNodePtr xmlSchematronPopInclude(xmlSchematronParserCtxtPtr ctxt)
 	xmlFreeDoc(doc);
 	if(ret)
 		ret = ret->next;
-	if(ret == NULL)
+	if(!ret)
 		return(xmlSchematronPopInclude(ctxt));
 	return ret;
 }
@@ -714,7 +714,7 @@ static void xmlSchematronAddNamespace(xmlSchematronParserCtxtPtr ctxt, const xml
 {
 	if(ctxt->namespaces == NULL) {
 		ctxt->maxNamespaces = 10;
-		ctxt->namespaces = (const xmlChar**)xmlMalloc(ctxt->maxNamespaces * 2 * sizeof(const xmlChar *));
+		ctxt->namespaces = (const xmlChar**)SAlloc::M(ctxt->maxNamespaces * 2 * sizeof(const xmlChar *));
 		if(ctxt->namespaces == NULL) {
 			xmlSchematronPErrMemory(NULL, "allocating parser namespaces", NULL);
 			return;
@@ -722,7 +722,7 @@ static void xmlSchematronAddNamespace(xmlSchematronParserCtxtPtr ctxt, const xml
 		ctxt->nbNamespaces = 0;
 	}
 	else if(ctxt->nbNamespaces + 2 >= ctxt->maxNamespaces) {
-		const xmlChar ** tmp = (const xmlChar**)xmlRealloc((xmlChar**)ctxt->namespaces, ctxt->maxNamespaces * 4 * sizeof(const xmlChar *));
+		const xmlChar ** tmp = (const xmlChar**)SAlloc::R((xmlChar**)ctxt->namespaces, ctxt->maxNamespaces * 4 * sizeof(const xmlChar *));
 		if(tmp == NULL) {
 			xmlSchematronPErrMemory(NULL, "allocating parser namespaces", NULL);
 			return;
@@ -762,13 +762,13 @@ static void xmlSchematronParseRule(xmlSchematronParserCtxtPtr ctxt, xmlSchematro
 	}
 	else if(context[0] == 0) {
 		xmlSchematronPErr(ctxt, rule, XML_SCHEMAP_NOROOT, "rule has an empty context attribute", NULL, NULL);
-		free(context);
+		SAlloc::F(context);
 		return;
 	}
 	else {
 		ruleptr = xmlSchematronAddRule(ctxt, ctxt->schema, pattern, rule, context, NULL);
 		if(ruleptr == NULL) {
-			free(context);
+			SAlloc::F(context);
 			return;
 		}
 	}
@@ -783,14 +783,14 @@ static void xmlSchematronParseRule(xmlSchematronParserCtxtPtr ctxt, xmlSchematro
 			}
 			else if(test[0] == 0) {
 				xmlSchematronPErr(ctxt, cur, XML_SCHEMAP_NOROOT, "assert has an empty test attribute", NULL, NULL);
-				free(test);
+				SAlloc::F(test);
 			}
 			else {
 				/* TODO will need dynamic processing instead */
 				report = xmlNodeGetContent(cur);
 				testptr = xmlSchematronAddTest(ctxt, XML_SCHEMATRON_ASSERT, ruleptr, cur, test, report);
 				if(testptr == NULL)
-					free(test);
+					SAlloc::F(test);
 			}
 		}
 		else if(IS_SCHEMATRON(cur, "report")) {
@@ -801,14 +801,14 @@ static void xmlSchematronParseRule(xmlSchematronParserCtxtPtr ctxt, xmlSchematro
 			}
 			else if(test[0] == 0) {
 				xmlSchematronPErr(ctxt, cur, XML_SCHEMAP_NOROOT, "assert has an empty test attribute", NULL, NULL);
-				free(test);
+				SAlloc::F(test);
 			}
 			else {
 				/* TODO will need dynamic processing instead */
 				report = xmlNodeGetContent(cur);
 				testptr = xmlSchematronAddTest(ctxt, XML_SCHEMATRON_REPORT, ruleptr, cur, test, report);
 				if(testptr == NULL)
-					free(test);
+					SAlloc::F(test);
 			}
 		}
 		else {
@@ -843,7 +843,7 @@ static void xmlSchematronParsePattern(xmlSchematronParserCtxtPtr ctxt, xmlNodePt
 	}
 	pattern = xmlSchematronAddPattern(ctxt, ctxt->schema, pat, id);
 	if(pattern == NULL) {
-		free(id);
+		SAlloc::F(id);
 		return;
 	}
 	cur = pat->children;
@@ -898,7 +898,7 @@ static xmlNodePtr xmlSchematronLoadInclude(xmlSchematronParserCtxtPtr ctxt, xmlN
 		goto done;
 	}
 	ret = xmlDocGetRootElement(doc);
-	if(ret == NULL) {
+	if(!ret) {
 		xmlSchematronPErr(ctxt, cur, XML_SCHEMAP_FAILED_LOAD, "could not find root from include '%s'.\n", URI, NULL);
 		goto done;
 	}
@@ -907,12 +907,12 @@ static xmlNodePtr xmlSchematronLoadInclude(xmlSchematronParserCtxtPtr ctxt, xmlN
 	xmlSchematronPushInclude(ctxt, doc, cur);
 
 done:
-	if(ret == NULL) {
+	if(!ret) {
 		xmlFreeDoc(doc);
 	}
-	free(href);
-	free(base);
-	free(URI);
+	SAlloc::F(href);
+	SAlloc::F(base);
+	SAlloc::F(URI);
 	return ret;
 }
 
@@ -1004,7 +1004,7 @@ xmlSchematronPtr xmlSchematronParse(xmlSchematronParserCtxtPtr ctxt)
 		goto exit;
 	}
 	ret = xmlSchematronNewSchematron(ctxt);
-	if(ret == NULL)
+	if(!ret)
 		goto exit;
 	ctxt->schema = ret;
 
@@ -1017,7 +1017,7 @@ xmlSchematronPtr xmlSchematronParse(xmlSchematronParserCtxtPtr ctxt)
 		xmlChar * title = xmlNodeGetContent(cur);
 		if(title != NULL) {
 			ret->title = xmlDictLookup(ret->dict, title, -1);
-			free(title);
+			SAlloc::F(title);
 		}
 		cur = cur->next;
 		NEXT_SCHEMATRON(cur);
@@ -1041,9 +1041,9 @@ xmlSchematronPtr xmlSchematronParse(xmlSchematronParserCtxtPtr ctxt)
 			ret->nbNs++;
 		}
 		if(uri)
-			free(uri);
+			SAlloc::F(uri);
 		if(prefix)
-			free(prefix);
+			SAlloc::F(prefix);
 		cur = cur->next;
 		NEXT_SCHEMATRON(cur);
 	}
@@ -1089,7 +1089,7 @@ exit:
 			ctxt->namespaces = NULL;
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 /************************************************************************
@@ -1156,7 +1156,7 @@ static xmlChar * xmlSchematronFormatReport(xmlSchematronValidCtxtPtr ctxt, xmlNo
 			if(path != NULL) {
 				node = xmlSchematronGetNode(ctxt, cur, path);
 				SETIFZ(node, cur);
-				free(path);
+				SAlloc::F(path);
 			}
 			if((node->ns == NULL) || (node->ns->prefix == NULL))
 				ret = xmlStrcat(ret, node->name);
@@ -1175,7 +1175,7 @@ static xmlChar * xmlSchematronFormatReport(xmlSchematronValidCtxtPtr ctxt, xmlNo
 		 * remove superfluous \n
 		 */
 		if(ret) {
-			int len = xmlStrlen(ret);
+			int len = sstrlen(ret);
 			xmlChar c;
 			if(len > 0) {
 				c = ret[len - 1];
@@ -1263,9 +1263,9 @@ static void xmlSchematronReportSuccess(xmlSchematronValidCtxtPtr ctxt,
 		else {
 			xmlSchematronReportOutput(ctxt, cur, &msg[0]);
 		}
-		free((char*)report);
+		SAlloc::F((char*)report);
 		if((path != NULL) && (path != (xmlChar*)cur->name))
-			free(path);
+			SAlloc::F(path);
 	}
 }
 /**
@@ -1335,8 +1335,8 @@ xmlSchematronValidCtxtPtr xmlSchematronNewValidCtxt(xmlSchematronPtr schema, int
 	int i;
 	xmlSchematronValidCtxtPtr ret;
 
-	ret = (xmlSchematronValidCtxtPtr)xmlMalloc(sizeof(xmlSchematronValidCtxt));
-	if(ret == NULL) {
+	ret = (xmlSchematronValidCtxtPtr)SAlloc::M(sizeof(xmlSchematronValidCtxt));
+	if(!ret) {
 		xmlSchematronVErrMemory(NULL, "allocating validation context",
 		    NULL);
 		return 0;
@@ -1359,7 +1359,7 @@ xmlSchematronValidCtxtPtr xmlSchematronNewValidCtxt(xmlSchematronPtr schema, int
 		xmlXPathRegisterNs(ret->xctxt, schema->namespaces[2 * i + 1],
 		    schema->namespaces[2 * i]);
 	}
-	return (ret);
+	return ret;
 }
 
 /**
@@ -1374,7 +1374,7 @@ void xmlSchematronFreeValidCtxt(xmlSchematronValidCtxtPtr ctxt)
 		if(ctxt->xctxt != NULL)
 			xmlXPathFreeContext(ctxt->xctxt);
 		xmlDictFree(ctxt->dict);
-		free(ctxt);
+		SAlloc::F(ctxt);
 	}
 }
 
@@ -1434,7 +1434,7 @@ static int xmlSchematronRunTest(xmlSchematronValidCtxtPtr ctxt,
 	ctxt->xctxt->doc = instance;
 	ctxt->xctxt->node = cur;
 	ret = xmlXPathCompiledEval(test->comp, ctxt->xctxt);
-	if(ret == NULL) {
+	if(!ret) {
 		failed = 1;
 	}
 	else {

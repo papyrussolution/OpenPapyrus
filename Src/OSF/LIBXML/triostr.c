@@ -19,11 +19,12 @@
  * Include files
  */
 #pragma hdrstop // Not Using Precompiled Headers
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <math.h>
+#include <slib.h>
+//#include <assert.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <ctype.h>
+//#include <math.h>
 #include "triodef.h"
 #include "triostr.h"
 
@@ -123,7 +124,7 @@ static TRIO_CONST char rcsid[] = "@(#)$Id$";
  */
 TRIO_STRING_PUBLIC char * trio_create TRIO_ARGS1((size), size_t size)
 {
-	return (char*)TRIO_MALLOC(size);
+	return (char*)SAlloc::M(size);
 }
 
 /**
@@ -133,9 +134,7 @@ TRIO_STRING_PUBLIC char * trio_create TRIO_ARGS1((size), size_t size)
  */
 TRIO_STRING_PUBLIC void trio_destroy TRIO_ARGS1((string), char * string)
 {
-	if(string) {
-		TRIO_FREE(string);
-	}
+	SAlloc::F(string);
 }
 
 /**
@@ -445,7 +444,6 @@ TRIO_STRING_PUBLIC int trio_equal_max TRIO_ARGS3((first, max, second), TRIO_CONS
 	}
 	return FALSE;
 }
-
 /**
    Provide a textual description of an error code (errno).
 
@@ -459,14 +457,9 @@ TRIO_STRING_PUBLIC TRIO_CONST char * trio_error TRIO_ARGS1((error_number), int e
 #elif defined(USE_SYS_ERRLIST)
 	extern char * sys_errlist[];
 	extern int sys_nerr;
-	return ((error_number < 0) || (error_number >= sys_nerr))
-	       ? "unknown"
-	       : sys_errlist[error_number];
-
+	return ((error_number < 0) || (error_number >= sys_nerr)) ? "unknown" : sys_errlist[error_number];
 #else
-
 	return "unknown";
-
 #endif
 }
 
@@ -1011,7 +1004,7 @@ TRIO_STRING_PUBLIC int trio_upper TRIO_ARGS1((target), char * target)
  */
 TRIO_STRING_PRIVATE trio_string_t * TrioStringAlloc(TRIO_NOARGS)
 {
-	trio_string_t * self = (trio_string_t*)TRIO_MALLOC(sizeof(trio_string_t));
+	trio_string_t * self = (trio_string_t*)SAlloc::M(sizeof(trio_string_t));
 	if(self) {
 		self->content = NULL;
 		self->length = 0;
@@ -1029,7 +1022,7 @@ TRIO_STRING_PRIVATE BOOLEAN_T TrioStringGrow TRIO_ARGS2((self, delta), trio_stri
 {
 	BOOLEAN_T status = FALSE;
 	size_t new_size = (delta == 0) ? ( (self->allocated == 0) ? 1 : self->allocated * 2 ) : self->allocated + delta;
-	char * new_content = (char*)TRIO_REALLOC(self->content, new_size);
+	char * new_content = (char*)SAlloc::R(self->content, new_size);
 	if(new_content) {
 		self->content = new_content;
 		self->allocated = new_size;
@@ -1046,15 +1039,10 @@ TRIO_STRING_PRIVATE BOOLEAN_T TrioStringGrow TRIO_ARGS2((self, delta), trio_stri
  * If 'length' is less than the original size, the original size will be
  * used (that is, the size of the string is never decreased).
  */
-TRIO_STRING_PRIVATE BOOLEAN_T
-TrioStringGrowTo TRIO_ARGS2((self, length),
-    trio_string_t * self,
-    size_t length)
+TRIO_STRING_PRIVATE BOOLEAN_T TrioStringGrowTo TRIO_ARGS2((self, length), trio_string_t * self, size_t length)
 {
 	length++; /* Room for terminating zero */
-	return (self->allocated < length)
-	       ? TrioStringGrow(self, length - self->allocated)
-	       : TRUE;
+	return (self->allocated < length) ? TrioStringGrow(self, length - self->allocated) : TRUE;
 }
 
 #endif /* !defined(TRIO_MINIMAL) */
@@ -1066,16 +1054,11 @@ TrioStringGrowTo TRIO_ARGS2((self, length),
    @param initial_size Initial size of the buffer.
    @return Newly allocated dynamic string, or NULL if memory allocation failed.
  */
-TRIO_STRING_PUBLIC trio_string_t *
-trio_string_create TRIO_ARGS1((initial_size),
-    int initial_size)
+TRIO_STRING_PUBLIC trio_string_t * trio_string_create TRIO_ARGS1((initial_size), int initial_size)
 {
-	trio_string_t * self;
-
-	self = TrioStringAlloc();
+	trio_string_t * self = TrioStringAlloc();
 	if(self) {
-		if(TrioStringGrow(self,
-			    (size_t)((initial_size > 0) ? initial_size : 1))) {
+		if(TrioStringGrow(self, (size_t)((initial_size > 0) ? initial_size : 1))) {
 			self->content[0] = (char)0;
 			self->allocated = initial_size;
 		}
@@ -1094,15 +1077,12 @@ trio_string_create TRIO_ARGS1((initial_size),
 
    @param self Dynamic string
  */
-TRIO_STRING_PUBLIC void
-trio_string_destroy TRIO_ARGS1((self),
-    trio_string_t * self)
+TRIO_STRING_PUBLIC void trio_string_destroy TRIO_ARGS1((self), trio_string_t * self)
 {
 	assert(self);
-
 	if(self) {
 		trio_destroy(self->content);
-		TRIO_FREE(self);
+		SAlloc::F(self);
 	}
 }
 
@@ -1357,9 +1337,8 @@ TRIO_STRING_PUBLIC trio_string_t * trio_string_duplicate TRIO_ARGS1((other), tri
  */
 TRIO_STRING_PUBLIC trio_string_t * trio_xstring_duplicate TRIO_ARGS1((other), TRIO_CONST char * other)
 {
-	trio_string_t * self;
 	assert(other);
-	self = TrioStringAlloc();
+	trio_string_t * self = TrioStringAlloc();
 	if(self) {
 		self->content = TrioDuplicateMax(other, trio_length(other));
 		if(self->content) {
@@ -1522,8 +1501,7 @@ TRIO_STRING_PUBLIC char * trio_string_index_last(trio_string_t * self, int chara
 TRIO_STRING_PUBLIC int trio_string_length(trio_string_t * self)
 {
 	assert(self);
-	if(!self->length)
-		self->length = trio_length(self->content);
+	SETIFZ(self->length, trio_length(self->content));
 	return self->length;
 }
 

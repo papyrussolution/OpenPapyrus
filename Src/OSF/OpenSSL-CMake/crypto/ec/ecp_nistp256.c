@@ -1625,7 +1625,7 @@ static const smallfelem gmul[2][16][3] = {
  * select_point selects the |idx|th point from a precomputation table and
  * copies it to out.
  */
-static void select_point(const u64 idx, unsigned int size,
+static void select_point(const u64 idx, uint size,
     const smallfelem pre_comp[16][3], smallfelem out[3])
 {
 	unsigned i, j;
@@ -1833,7 +1833,7 @@ static NISTP256_PRE_COMP * nistp256_pre_comp_new()
 {
 	NISTP256_PRE_COMP * ret = OPENSSL_zalloc(sizeof(*ret));
 
-	if(ret == NULL) {
+	if(!ret) {
 		ECerr(EC_F_NISTP256_PRE_COMP_NEW, ERR_R_MALLOC_FAILURE);
 		return ret;
 	}
@@ -1895,7 +1895,7 @@ int ec_GFp_nistp256_group_set_curve(EC_GROUP * group, const BIGNUM * p,
 	BN_CTX * new_ctx = NULL;
 	BIGNUM * curve_p, * curve_a, * curve_b;
 
-	if(ctx == NULL)
+	if(!ctx)
 		if((ctx = new_ctx = BN_CTX_new()) == NULL)
 			return 0;
 	BN_CTX_start(ctx);
@@ -2028,7 +2028,7 @@ int ec_GFp_nistp256_points_mul(const EC_GROUP * group, EC_POINT * r,
 	const EC_POINT * p = NULL;
 	const BIGNUM * p_scalar = NULL;
 
-	if(ctx == NULL)
+	if(!ctx)
 		if((ctx = new_ctx = BN_CTX_new()) == NULL)
 			return 0;
 	BN_CTX_start(ctx);
@@ -2221,7 +2221,7 @@ int ec_GFp_nistp256_precompute_mult(EC_GROUP * group, BN_CTX * ctx)
 
 	/* throw away old precomputation */
 	EC_pre_comp_free(group);
-	if(ctx == NULL)
+	if(!ctx)
 		if((ctx = new_ctx = BN_CTX_new()) == NULL)
 			return 0;
 	BN_CTX_start(ctx);

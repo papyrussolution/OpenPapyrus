@@ -78,7 +78,7 @@ X509_ALGOR * PKCS5_pbe2_set_scrypt(const EVP_CIPHER * cipher,
 			goto err;
 	}
 	ctx = EVP_CIPHER_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto merr;
 	// Dummy cipherinit to just setup the IV 
 	if(EVP_CipherInit_ex(ctx, cipher, NULL, NULL, iv, 0) == 0)
@@ -99,7 +99,7 @@ X509_ALGOR * PKCS5_pbe2_set_scrypt(const EVP_CIPHER * cipher,
 		goto merr;
 	// Now set up top level AlgorithmIdentifier 
 	ret = X509_ALGOR_new();
-	if(ret == NULL)
+	if(!ret)
 		goto merr;
 	ret->algorithm = OBJ_nid2obj(NID_pbes2);
 	// Encode PBE2PARAM into parameter 

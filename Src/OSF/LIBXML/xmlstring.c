@@ -38,7 +38,7 @@ xmlChar * xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len)
 {
 	xmlChar * ret = 0;
 	if(cur && len >= 0) {
-		ret = (xmlChar*)xmlMallocAtomic((len + 1) * sizeof(xmlChar));
+		ret = (xmlChar*)SAlloc::M((len + 1) * sizeof(xmlChar));
 		if(!ret) {
 			xmlErrMemory(NULL, NULL);
 		}
@@ -86,8 +86,8 @@ xmlChar * xmlCharStrndup(const char * cur, int len)
 	int i;
 	xmlChar * ret;
 	if(!cur || (len < 0)) return 0;
-	ret = (xmlChar*)xmlMallocAtomic((len + 1) * sizeof(xmlChar));
-	if(ret == NULL) {
+	ret = (xmlChar*)SAlloc::M((len + 1) * sizeof(xmlChar));
+	if(!ret) {
 		xmlErrMemory(NULL, NULL);
 		return 0;
 	}
@@ -137,9 +137,7 @@ int xmlStrcmp(const xmlChar * str1, const xmlChar * str2)
 	} while(*str2++ != 0);
 	return 0;
 }
-
 /**
- * xmlStrEqual:
  * @str1:  the first xmlChar *
  * @str2:  the second xmlChar *
  *
@@ -148,8 +146,7 @@ int xmlStrcmp(const xmlChar * str1, const xmlChar * str2)
  *
  * Returns 1 if they are equal, 0 if they are different
  */
-
-int xmlStrEqual(const xmlChar * str1, const xmlChar * str2) 
+/*int xmlStrEqual_Removed(const xmlChar * str1, const xmlChar * str2) 
 {
 	if(str1 == str2) return 1;
 	if(str1 == NULL) return 0;
@@ -159,7 +156,7 @@ int xmlStrEqual(const xmlChar * str1, const xmlChar * str2)
 			return 0;
 	} while(*str2++);
 	return 1;
-}
+}*/
 /**
  * xmlStrQEqual:
  * @pref:  the prefix of the QName
@@ -173,7 +170,7 @@ int xmlStrEqual(const xmlChar * str1, const xmlChar * str2)
 
 int xmlStrQEqual(const xmlChar * pref, const xmlChar * name, const xmlChar * str) 
 {
-	if(pref == NULL) return(xmlStrEqual(name, str));
+	if(pref == NULL) return(sstreq(name, str));
 	if(name == NULL) return 0;
 	if(str == NULL) return 0;
 	do {
@@ -308,16 +305,17 @@ int xmlStrncasecmp(const xmlChar * str1, const xmlChar * str2, int len)
  *
  * Returns the xmlChar * for the first occurrence or NULL.
  */
-
-const xmlChar * xmlStrchr(const xmlChar * str, xmlChar val) {
-	if(str == NULL) return 0;
+const xmlChar * xmlStrchr(const xmlChar * str, xmlChar val) 
+{
+	if(str == NULL) 
+		return 0;
 	while(*str != 0) { /* non input consuming */
-		if(*str == val) return((xmlChar*)str);
+		if(*str == val) 
+			return((xmlChar*)str);
 		str++;
 	}
 	return 0;
 }
-
 /**
  * xmlStrstr:
  * @str:  the xmlChar * array (haystack)
@@ -328,19 +326,21 @@ const xmlChar * xmlStrchr(const xmlChar * str, xmlChar val) {
  * Returns the xmlChar * for the first occurrence or NULL.
  */
 
-const xmlChar * xmlStrstr(const xmlChar * str, const xmlChar * val) {
-	int n;
-
-	if(str == NULL) return 0;
-	if(val == NULL) return 0;
-	n = xmlStrlen(val);
-
-	if(n == 0) return(str);
-	while(*str != 0) { /* non input consuming */
-		if(*str == *val) {
-			if(!xmlStrncmp(str, val, n)) return((const xmlChar*)str);
+const xmlChar * xmlStrstr(const xmlChar * str, const xmlChar * val) 
+{
+	if(str && val) {
+		int n = sstrlen(val);
+		if(n == 0) 
+			return str;
+		else {
+			while(*str != 0) { /* non input consuming */
+				if(*str == *val) {
+					if(!xmlStrncmp(str, val, n)) 
+						return str;
+				}
+				str++;
+			}
 		}
-		str++;
 	}
 	return 0;
 }
@@ -355,13 +355,12 @@ const xmlChar * xmlStrstr(const xmlChar * str, const xmlChar * val) {
  * Returns the xmlChar * for the first occurrence or NULL.
  */
 
-const xmlChar * xmlStrcasestr(const xmlChar * str, const xmlChar * val) {
+const xmlChar * xmlStrcasestr(const xmlChar * str, const xmlChar * val) 
+{
 	int n;
-
 	if(str == NULL) return 0;
 	if(val == NULL) return 0;
-	n = xmlStrlen(val);
-
+	n = sstrlen(val);
 	if(n == 0) return(str);
 	while(*str != 0) { /* non input consuming */
 		if(casemap[*str] == casemap[*val])
@@ -403,25 +402,21 @@ xmlChar * xmlStrsub(const xmlChar * str, int start, int len)
 }
 
 /**
- * xmlStrlen:
  * @str:  the xmlChar * array
- *
  * length of a xmlChar's string
- *
  * Returns the number of xmlChar contained in the ARRAY.
  */
-
-int xmlStrlen(const xmlChar * str) 
+/* int xmlStrlen_Removed(const xmlChar * str) 
 {
 	int len = 0;
 	if(str == NULL) 
 		return 0;
-	while(*str != 0) { /* non input consuming */
+	while(*str != 0) { // non input consuming 
 		str++;
 		len++;
 	}
 	return(len);
-}
+}*/
 
 /**
  * xmlStrncat:
@@ -447,9 +442,9 @@ xmlChar * xmlStrncat(xmlChar * cur, const xmlChar * add, int len)
 		return 0;
 	if(!cur)
 		return(xmlStrndup(add, len));
-	size = xmlStrlen(cur);
-	ret = (xmlChar*)xmlRealloc(cur, (size + len + 1) * sizeof(xmlChar));
-	if(ret == NULL) {
+	size = sstrlen(cur);
+	ret = (xmlChar*)SAlloc::R(cur, (size + len + 1) * sizeof(xmlChar));
+	if(!ret) {
 		xmlErrMemory(NULL, NULL);
 		return cur;
 	}
@@ -474,14 +469,14 @@ xmlChar * xmlStrncatNew(const xmlChar * str1, const xmlChar * str2, int len)
 	int size;
 	xmlChar * ret;
 	if(len < 0)
-		len = xmlStrlen(str2);
+		len = sstrlen(str2);
 	if((str2 == NULL) || (len == 0))
 		return xmlStrdup(str1);
 	if(str1 == NULL)
 		return(xmlStrndup(str2, len));
-	size = xmlStrlen(str1);
-	ret = (xmlChar*)xmlMalloc((size + len + 1) * sizeof(xmlChar));
-	if(ret == NULL) {
+	size = sstrlen(str1);
+	ret = (xmlChar*)SAlloc::M((size + len + 1) * sizeof(xmlChar));
+	if(!ret) {
 		xmlErrMemory(NULL, NULL);
 		return xmlStrndup(str1, size);
 	}
@@ -834,8 +829,8 @@ xmlChar * xmlUTF8Strndup(const xmlChar * utf, int len)
 	int i;
 	if((utf == NULL) || (len < 0)) return 0;
 	i = xmlUTF8Strsize(utf, len);
-	ret = (xmlChar*)xmlMallocAtomic((i + 1) * sizeof(xmlChar));
-	if(ret == NULL) {
+	ret = (xmlChar*)SAlloc::M((i + 1) * sizeof(xmlChar));
+	if(!ret) {
 		xmlGenericError(0, "malloc of %ld byte failed\n", (len + 1) * (long)sizeof(xmlChar));
 		return 0;
 	}

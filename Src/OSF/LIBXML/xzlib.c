@@ -79,7 +79,7 @@ static void xz_error(xz_statep state, int err, const char * msg)
 	/* free previously allocated message and clear */
 	if(state->msg) {
 		if(state->err != LZMA_MEM_ERROR)
-			free(state->msg);
+			SAlloc::F(state->msg);
 		state->msg = NULL;
 	}
 	/* set error code, and if no message, then done */
@@ -92,7 +92,7 @@ static void xz_error(xz_statep state, int err, const char * msg)
 		return;
 	}
 	/* construct error message with path */
-	if((state->msg = xmlMalloc(strlen(state->path) + strlen(msg) + 3)) == NULL) {
+	if((state->msg = SAlloc::M(strlen(state->path) + strlen(msg) + 3)) == NULL) {
 		state->err = LZMA_MEM_ERROR;
 		state->msg = (char*)"out of memory";
 		return;
@@ -121,7 +121,7 @@ static void xz_reset(xz_statep state)
 static xzFile xz_open(const char * path, int fd, const char * mode ATTRIBUTE_UNUSED)
 {
 	/* allocate xzFile structure to return */
-	xz_statep state = xmlMalloc(sizeof(xz_state));
+	xz_statep state = SAlloc::M(sizeof(xz_state));
 	if(state == NULL)
 		return NULL;
 	state->size = 0;        /* no buffers allocated yet */
@@ -129,9 +129,9 @@ static xzFile xz_open(const char * path, int fd, const char * mode ATTRIBUTE_UNU
 	state->msg = NULL;      /* no error message yet */
 	state->init = 0;        /* initialization of zlib data */
 	/* save the path name for error messages */
-	state->path = xmlMalloc(strlen(path) + 1);
+	state->path = SAlloc::M(strlen(path) + 1);
 	if(state->path == NULL) {
-		free(state);
+		SAlloc::F(state);
 		return NULL;
 	}
 	strcpy(state->path, path);
@@ -145,8 +145,8 @@ static xzFile xz_open(const char * path, int fd, const char * mode ATTRIBUTE_UNU
 #endif
 	    O_RDONLY, 0666);
 	if(state->fd == -1) {
-		free(state->path);
-		free(state);
+		SAlloc::F(state->path);
+		SAlloc::F(state);
 		return NULL;
 	}
 
@@ -193,11 +193,11 @@ xzFile __libxml2_xzdopen(int fd, const char * mode)
 {
 	char * path;            /* identifier for error messages */
 	xzFile xz;
-	if(fd == -1 || (path = xmlMalloc(7 + 3 * sizeof(int))) == NULL)
+	if(fd == -1 || (path = SAlloc::M(7 + 3 * sizeof(int))) == NULL)
 		return NULL;
 	sprintf(path, "<fd:%d>", fd);   /* for debugging */
 	xz = xz_open(path, fd, mode);
-	free(path);
+	SAlloc::F(path);
 	return xz;
 }
 
@@ -280,7 +280,7 @@ static int is_format_lzma(xz_statep state)
 
 	opt = filter.options;
 	dict_size = opt->dict_size;
-	free(opt); /* we can't use free on a string returned by zlib */
+	SAlloc::F(opt); /* we can't use free on a string returned by zlib */
 
 	/* A hack to ditch tons of false positives: We allow only dictionary
 	 * sizes that are 2^n or 2^n + 2^(n-1) or UINT32_MAX. LZMA_Alone
@@ -357,11 +357,11 @@ static int xz_head(xz_statep state)
 	/* allocate read buffers and inflate memory */
 	if(state->size == 0) {
 		/* allocate buffers */
-		state->in = xmlMalloc(state->want);
-		state->out = xmlMalloc(state->want << 1);
+		state->in = SAlloc::M(state->want);
+		state->out = SAlloc::M(state->want << 1);
 		if(state->in == NULL || state->out == NULL) {
-			free(state->out);
-			free(state->in);
+			SAlloc::F(state->out);
+			SAlloc::F(state->in);
 			xz_error(state, LZMA_MEM_ERROR, "out of memory");
 			return -1;
 		}
@@ -372,8 +372,8 @@ static int xz_head(xz_statep state)
 		state->strm.avail_in = 0;
 		state->strm.next_in = NULL;
 		if(lzma_auto_decoder(&state->strm, UINT64_MAX, 0) != LZMA_OK) {
-			free(state->out);
-			free(state->in);
+			SAlloc::F(state->out);
+			SAlloc::F(state->in);
 			state->size = 0;
 			xz_error(state, LZMA_MEM_ERROR, "out of memory");
 			return -1;
@@ -387,8 +387,8 @@ static int xz_head(xz_statep state)
 		state->zstrm.next_in = Z_NULL;
 		if(state->init == 0) {
 			if(inflateInit2(&(state->zstrm), -15) != Z_OK) { /* raw inflate */
-				free(state->out);
-				free(state->in);
+				SAlloc::F(state->out);
+				SAlloc::F(state->in);
 				state->size = 0;
 				xz_error(state, LZMA_MEM_ERROR, "out of memory");
 				return -1;
@@ -743,12 +743,12 @@ int __libxml2_xzclose(xzFile file)
 			inflateEnd(&(state->zstrm));
 		state->init = 0;
 #endif
-		free(state->out);
-		free(state->in);
+		SAlloc::F(state->out);
+		SAlloc::F(state->in);
 	}
-	free(state->path);
+	SAlloc::F(state->path);
 	ret = close(state->fd);
-	free(state);
+	SAlloc::F(state);
 	return ret ? ret : LZMA_OK;
 }
 

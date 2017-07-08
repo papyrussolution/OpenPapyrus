@@ -27,12 +27,12 @@ int X509_print_ex_fp(FILE * fp, X509 * x, unsigned long nmflag, unsigned long cf
 	int ret;
 	if((b = BIO_new(BIO_s_file())) == NULL) {
 		X509err(X509_F_X509_PRINT_EX_FP, ERR_R_BUF_LIB);
-		return (0);
+		return 0;
 	}
 	BIO_set_fp(b, fp, BIO_NOCLOSE);
 	ret = X509_print_ex(b, x, nmflag, cflag);
 	BIO_free(b);
-	return (ret);
+	return ret;
 }
 
 #endif
@@ -209,16 +209,16 @@ int X509_print_ex(BIO * bp, X509 * x, unsigned long nmflags, unsigned long cflag
 	ret = 1;
 err:
 	OPENSSL_free(m);
-	return (ret);
+	return ret;
 }
 
 int X509_ocspid_print(BIO * bp, X509 * x)
 {
-	unsigned char * der = NULL;
-	unsigned char * dertmp;
+	uchar * der = NULL;
+	uchar * dertmp;
 	int derlen;
 	int i;
-	unsigned char SHA1md[SHA_DIGEST_LENGTH];
+	uchar SHA1md[SHA_DIGEST_LENGTH];
 	ASN1_BIT_STRING * keybstr;
 	X509_NAME * subj;
 	/*
@@ -228,7 +228,7 @@ int X509_ocspid_print(BIO * bp, X509 * x)
 		goto err;
 	subj = X509_get_subject_name(x);
 	derlen = i2d_X509_NAME(subj, NULL);
-	if((der = dertmp = (unsigned char *)OPENSSL_malloc(derlen)) == NULL)
+	if((der = dertmp = (uchar *)OPENSSL_malloc(derlen)) == NULL)
 		goto err;
 	i2d_X509_NAME(subj, &dertmp);
 	if(!EVP_Digest(der, derlen, SHA1md, NULL, EVP_sha1(), NULL))
@@ -257,14 +257,14 @@ int X509_ocspid_print(BIO * bp, X509 * x)
 	return (1);
 err:
 	OPENSSL_free(der);
-	return (0);
+	return 0;
 }
 
 int X509_signature_dump(BIO * bp, const ASN1_STRING * sig, int indent)
 {
 	int i;
 	int n = sig->length;
-	const unsigned char * s = sig->data;
+	const uchar * s = sig->data;
 	for(i = 0; i < n; i++) {
 		if((i % 18) == 0) {
 			if(BIO_write(bp, "\n", 1) <= 0)
@@ -309,7 +309,7 @@ int X509_aux_print(BIO * out, X509 * x, int indent)
 {
 	char oidstr[80], first;
 	STACK_OF(ASN1_OBJECT) *trust, *reject;
-	const unsigned char * alias, * keyid;
+	const uchar * alias, * keyid;
 	int keyidlen;
 	int i;
 	if(X509_trusted(x) == 0)

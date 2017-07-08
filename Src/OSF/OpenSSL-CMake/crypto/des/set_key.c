@@ -66,7 +66,7 @@ int DES_check_key_parity(const_DES_cblock *key)
 
     for (i = 0; i < DES_KEY_SZ; i++) {
         if ((*key)[i] != odd_parity[(*key)[i]])
-            return (0);
+            return 0;
     }
     return (1);
 }
@@ -116,7 +116,7 @@ int DES_is_weak_key(const_DES_cblock *key)
          */
         if (memcmp(weak_keys[i], key, sizeof(DES_cblock)) == 0)
             return (1);
-    return (0);
+    return 0;
 }
 
 /*-

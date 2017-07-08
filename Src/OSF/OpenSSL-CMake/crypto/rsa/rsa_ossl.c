@@ -13,10 +13,10 @@
 
 #ifndef RSA_NULL
 
-static int rsa_ossl_public_encrypt(int flen, const unsigned char * from, unsigned char * to, RSA * rsa, int padding);
-static int rsa_ossl_private_encrypt(int flen, const unsigned char * from, unsigned char * to, RSA * rsa, int padding);
-static int rsa_ossl_public_decrypt(int flen, const unsigned char * from, unsigned char * to, RSA * rsa, int padding);
-static int rsa_ossl_private_decrypt(int flen, const unsigned char * from, unsigned char * to, RSA * rsa, int padding);
+static int rsa_ossl_public_encrypt(int flen, const uchar * from, uchar * to, RSA * rsa, int padding);
+static int rsa_ossl_private_encrypt(int flen, const uchar * from, uchar * to, RSA * rsa, int padding);
+static int rsa_ossl_public_decrypt(int flen, const uchar * from, uchar * to, RSA * rsa, int padding);
+static int rsa_ossl_private_decrypt(int flen, const uchar * from, uchar * to, RSA * rsa, int padding);
 static int rsa_ossl_mod_exp(BIGNUM * r0, const BIGNUM * i, RSA * rsa, BN_CTX * ctx);
 static int rsa_ossl_init(RSA * rsa);
 static int rsa_ossl_finish(RSA * rsa);
@@ -43,12 +43,12 @@ const RSA_METHOD * RSA_PKCS1_OpenSSL(void)
 	return &rsa_pkcs1_ossl_meth;
 }
 
-static int rsa_ossl_public_encrypt(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding)
+static int rsa_ossl_public_encrypt(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding)
 {
 	BIGNUM * f, * ret;
 	int i, j, k, num = 0, r = -1;
-	unsigned char * buf = NULL;
+	uchar * buf = NULL;
 	BN_CTX * ctx = NULL;
 
 	if(BN_num_bits(rsa->n) > OPENSSL_RSA_MAX_MODULUS_BITS) {
@@ -75,7 +75,7 @@ static int rsa_ossl_public_encrypt(int flen, const unsigned char * from,
 	f = BN_CTX_get(ctx);
 	ret = BN_CTX_get(ctx);
 	num = BN_num_bytes(rsa->n);
-	buf = (unsigned char *)OPENSSL_malloc(num);
+	buf = (uchar *)OPENSSL_malloc(num);
 	if(f == NULL || ret == NULL || buf == NULL) {
 		RSAerr(RSA_F_RSA_OSSL_PUBLIC_ENCRYPT, ERR_R_MALLOC_FAILURE);
 		goto err;
@@ -139,7 +139,7 @@ static BN_BLINDING * rsa_get_blinding(RSA * rsa, int * local, BN_CTX * ctx)
 	}
 
 	ret = rsa->blinding;
-	if(ret == NULL)
+	if(!ret)
 		goto err;
 
 	if(BN_BLINDING_is_current_thread(ret)) {
@@ -205,12 +205,12 @@ static int rsa_blinding_invert(BN_BLINDING * b, BIGNUM * f, BIGNUM * unblind,
 }
 
 /* signing */
-static int rsa_ossl_private_encrypt(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding)
+static int rsa_ossl_private_encrypt(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding)
 {
 	BIGNUM * f, * ret, * res;
 	int i, j, k, num = 0, r = -1;
-	unsigned char * buf = NULL;
+	uchar * buf = NULL;
 	BN_CTX * ctx = NULL;
 	int local_blinding = 0;
 	/*
@@ -227,7 +227,7 @@ static int rsa_ossl_private_encrypt(int flen, const unsigned char * from,
 	f = BN_CTX_get(ctx);
 	ret = BN_CTX_get(ctx);
 	num = BN_num_bytes(rsa->n);
-	buf = (unsigned char *)OPENSSL_malloc(num);
+	buf = (uchar *)OPENSSL_malloc(num);
 	if(f == NULL || ret == NULL || buf == NULL) {
 		RSAerr(RSA_F_RSA_OSSL_PRIVATE_ENCRYPT, ERR_R_MALLOC_FAILURE);
 		goto err;
@@ -340,13 +340,13 @@ err:
 	return (r);
 }
 
-static int rsa_ossl_private_decrypt(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding)
+static int rsa_ossl_private_decrypt(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding)
 {
 	BIGNUM * f, * ret;
 	int j, num = 0, r = -1;
-	unsigned char * p;
-	unsigned char * buf = NULL;
+	uchar * p;
+	uchar * buf = NULL;
 	BN_CTX * ctx = NULL;
 	int local_blinding = 0;
 	/*
@@ -363,7 +363,7 @@ static int rsa_ossl_private_decrypt(int flen, const unsigned char * from,
 	f = BN_CTX_get(ctx);
 	ret = BN_CTX_get(ctx);
 	num = BN_num_bytes(rsa->n);
-	buf = (unsigned char *)OPENSSL_malloc(num);
+	buf = (uchar *)OPENSSL_malloc(num);
 	if(f == NULL || ret == NULL || buf == NULL) {
 		RSAerr(RSA_F_RSA_OSSL_PRIVATE_DECRYPT, ERR_R_MALLOC_FAILURE);
 		goto err;
@@ -466,13 +466,13 @@ err:
 }
 
 /* signature verification */
-static int rsa_ossl_public_decrypt(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa, int padding)
+static int rsa_ossl_public_decrypt(int flen, const uchar * from,
+    uchar * to, RSA * rsa, int padding)
 {
 	BIGNUM * f, * ret;
 	int i, num = 0, r = -1;
-	unsigned char * p;
-	unsigned char * buf = NULL;
+	uchar * p;
+	uchar * buf = NULL;
 	BN_CTX * ctx = NULL;
 
 	if(BN_num_bits(rsa->n) > OPENSSL_RSA_MAX_MODULUS_BITS) {
@@ -499,7 +499,7 @@ static int rsa_ossl_public_decrypt(int flen, const unsigned char * from,
 	f = BN_CTX_get(ctx);
 	ret = BN_CTX_get(ctx);
 	num = BN_num_bytes(rsa->n);
-	buf = (unsigned char *)OPENSSL_malloc(num);
+	buf = (uchar *)OPENSSL_malloc(num);
 	if(f == NULL || ret == NULL || buf == NULL) {
 		RSAerr(RSA_F_RSA_OSSL_PUBLIC_DECRYPT, ERR_R_MALLOC_FAILURE);
 		goto err;
@@ -748,7 +748,7 @@ static int rsa_ossl_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa, BN_CTX * c
 	ret = 1;
 err:
 	BN_CTX_end(ctx);
-	return (ret);
+	return ret;
 }
 
 static int rsa_ossl_init(RSA * rsa)

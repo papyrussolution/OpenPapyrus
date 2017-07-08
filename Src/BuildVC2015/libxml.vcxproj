@@ -284,7 +284,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\libxml\incl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -330,7 +330,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\libxml\incl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -376,7 +376,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\libxml\incl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -419,7 +419,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\libxml\incl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -456,7 +456,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\libxml\incl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -496,7 +496,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\libxml\incl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -535,7 +535,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\libxml\incl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -577,7 +577,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\libxml\incl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -613,7 +613,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\libxml\incl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -653,7 +653,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\libxml\incl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -692,7 +692,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\libxml\incl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -734,7 +734,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\libxml\incl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -771,7 +771,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\libxml\incl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -783,7 +783,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\libxml\incl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -935,53 +935,53 @@
     <ClInclude Include="..\OSF\LIBXML\config.h" />
     <ClInclude Include="..\OSF\LIBXML\elfgcchack.h" />
     <ClInclude Include="..\OSF\LIBXML\enc.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\c14n.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\catalog.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\chvalid.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\debugXML.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\dict.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\DOCBparser.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\encoding.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\entities.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\globals.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\hash.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\HTMLparser.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\HTMLtree.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\list.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\nanoftp.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\nanohttp.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\parser.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\parserInternals.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\pattern.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\relaxng.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\SAX.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\SAX2.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\schemasInternals.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\schematron.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\threads.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\tree.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\uri.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\valid.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xinclude.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xlink.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xmlautomata.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xmlerror.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xmlexports.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xmlIO.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xmlmemory.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xmlmodule.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xmlreader.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xmlregexp.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xmlsave.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xmlschemas.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xmlschemastypes.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xmlstring.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xmlunicode.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xmlversion.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xmlwriter.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xpath.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xpathInternals.h" />
-    <ClInclude Include="..\OSF\LIBXML\incl\libxml\xpointer.h" />
+    <ClInclude Include="..\include\libxml\c14n.h" />
+    <ClInclude Include="..\include\libxml\catalog.h" />
+    <ClInclude Include="..\include\libxml\chvalid.h" />
+    <ClInclude Include="..\include\libxml\debugXML.h" />
+    <ClInclude Include="..\include\libxml\dict.h" />
+    <ClInclude Include="..\include\libxml\DOCBparser.h" />
+    <ClInclude Include="..\include\libxml\encoding.h" />
+    <ClInclude Include="..\include\libxml\entities.h" />
+    <ClInclude Include="..\include\libxml\globals.h" />
+    <ClInclude Include="..\include\libxml\hash.h" />
+    <ClInclude Include="..\include\libxml\HTMLparser.h" />
+    <ClInclude Include="..\include\libxml\HTMLtree.h" />
+    <ClInclude Include="..\include\libxml\list.h" />
+    <ClInclude Include="..\include\libxml\nanoftp.h" />
+    <ClInclude Include="..\include\libxml\nanohttp.h" />
+    <ClInclude Include="..\include\libxml\parser.h" />
+    <ClInclude Include="..\include\libxml\parserInternals.h" />
+    <ClInclude Include="..\include\libxml\pattern.h" />
+    <ClInclude Include="..\include\libxml\relaxng.h" />
+    <ClInclude Include="..\include\libxml\SAX.h" />
+    <ClInclude Include="..\include\libxml\SAX2.h" />
+    <ClInclude Include="..\include\libxml\schemasInternals.h" />
+    <ClInclude Include="..\include\libxml\schematron.h" />
+    <ClInclude Include="..\include\libxml\threads.h" />
+    <ClInclude Include="..\include\libxml\tree.h" />
+    <ClInclude Include="..\include\libxml\uri.h" />
+    <ClInclude Include="..\include\libxml\valid.h" />
+    <ClInclude Include="..\include\libxml\xinclude.h" />
+    <ClInclude Include="..\include\libxml\xlink.h" />
+    <ClInclude Include="..\include\libxml\xmlautomata.h" />
+    <ClInclude Include="..\include\libxml\xmlerror.h" />
+    <ClInclude Include="..\include\libxml\xmlexports.h" />
+    <ClInclude Include="..\include\libxml\xmlIO.h" />
+    <ClInclude Include="..\include\libxml\xmlmemory.h" />
+    <ClInclude Include="..\include\libxml\xmlmodule.h" />
+    <ClInclude Include="..\include\libxml\xmlreader.h" />
+    <ClInclude Include="..\include\libxml\xmlregexp.h" />
+    <ClInclude Include="..\include\libxml\xmlsave.h" />
+    <ClInclude Include="..\include\libxml\xmlschemas.h" />
+    <ClInclude Include="..\include\libxml\xmlschemastypes.h" />
+    <ClInclude Include="..\include\libxml\xmlstring.h" />
+    <ClInclude Include="..\include\libxml\xmlunicode.h" />
+    <ClInclude Include="..\include\libxml\xmlversion.h" />
+    <ClInclude Include="..\include\libxml\xmlwriter.h" />
+    <ClInclude Include="..\include\libxml\xpath.h" />
+    <ClInclude Include="..\include\libxml\xpathInternals.h" />
+    <ClInclude Include="..\include\libxml\xpointer.h" />
     <ClInclude Include="..\OSF\LIBXML\libxml.h" />
     <ClInclude Include="..\OSF\LIBXML\save.h" />
     <ClInclude Include="..\OSF\LIBXML\timsort.h" />

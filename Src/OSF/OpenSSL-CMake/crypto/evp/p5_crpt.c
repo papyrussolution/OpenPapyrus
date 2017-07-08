@@ -50,7 +50,7 @@ int PKCS5_PBE_keyivgen(EVP_CIPHER_CTX * cctx, const char * pass, int passlen,
 	else if(passlen == -1)
 		passlen = strlen(pass);
 	ctx = EVP_MD_CTX_new();
-	if(ctx == NULL) {
+	if(!ctx) {
 		EVPerr(EVP_F_PKCS5_PBE_KEYIVGEN, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

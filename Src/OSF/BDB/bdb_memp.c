@@ -1103,7 +1103,7 @@ no_hp:
 		c_mp->pages--;
 		MPOOL_REGION_UNLOCK(env, infop);
 	}
-	if(mfp == NULL)
+	if(!mfp)
 		return ret;
 	/*
 	 * Decrement the reference count of the underlying MPOOLFILE.
@@ -2216,7 +2216,7 @@ int __memp_get_flags(DB_MPOOLFILE * dbmfp, uint32 * flagsp)
 {
 	MPOOLFILE * mfp = dbmfp->mfp;
 	*flagsp = 0;
-	if(mfp == NULL)
+	if(!mfp)
 		*flagsp = FLD_ISSET(dbmfp->config_flags, DB_MPOOL_NOFILE|DB_MPOOL_UNLINK);
 	else {
 		if(mfp->no_backing_file)
@@ -2237,14 +2237,14 @@ int __memp_set_flags(DB_MPOOLFILE * dbmfp, uint32 flags, int onoff)
 	MPOOLFILE * mfp = dbmfp->mfp;
 	switch(flags) {
 	    case DB_MPOOL_NOFILE:
-			if(mfp == NULL) {
+			if(!mfp) {
 				SETFLAG(dbmfp->config_flags, DB_MPOOL_NOFILE, onoff);
 			}
 			else
 				mfp->no_backing_file = onoff;
 			break;
 	    case DB_MPOOL_UNLINK:
-			if(mfp == NULL) {
+			if(!mfp) {
 				SETFLAG(dbmfp->config_flags, DB_MPOOL_UNLINK, onoff);
 			}
 			else
@@ -2548,7 +2548,7 @@ int __memp_fopen(DB_MPOOLFILE * dbmfp, MPOOLFILE * mfp, const char * path, const
 	DB_ASSERT(env, mfp == NULL || path == NULL);
 	bucket = 0;
 	hp = (DB_MPOOL_HASH *)R_ADDR(dbmp->reginfo, mp->ftab);
-	if(mfp == NULL) {
+	if(!mfp) {
 		if(path == NULL)
 			goto alloc;
 		/*
@@ -2766,7 +2766,7 @@ check:  MUTEX_LOCK(env, hp->mtx_hash);
 		if((ret = __memp_mf_discard(dbmp, alloc_mfp, 0)) != 0)
 			goto err;
 	}
-	if(mfp == NULL) {
+	if(!mfp) {
 		/*
 		 * If we didn't find the file and this is an in-memory file,
 		 * then the create flag should be set.
@@ -6928,7 +6928,7 @@ int __memp_nameop(ENV * env, uint8 * fileid, const char * newname, const char * 
 			continue;
 		break;
 	}
-	if(mfp == NULL) {
+	if(!mfp) {
 		if(inmem) {
 			ret = ENOENT;
 			goto err;

@@ -20,14 +20,14 @@
 typedef struct {
 	const char * name;
 	int namelen;
-	unsigned int name_flags;
+	uint name_flags;
 	unsigned long option_value;
 } ssl_flag_tbl;
 
 /* Switch table: use for single command line switches like no_tls2 */
 typedef struct {
 	unsigned long option_value;
-	unsigned int name_flags;
+	uint name_flags;
 } ssl_switch_tbl;
 
 /* Sense of name is inverted e.g. "TLSv1" will clear SSL_OP_NO_TLSv1 */
@@ -73,7 +73,7 @@ struct ssl_conf_ctx_st {
 	 * Various flags indicating (among other things) which options we will
 	 * recognise.
 	 */
-	unsigned int flags;
+	uint flags;
 	/* Prefix and length of commands */
 	char * prefix;
 	size_t prefixlen;
@@ -100,7 +100,7 @@ struct ssl_conf_ctx_st {
 	STACK_OF(X509_NAME) *canames;
 };
 
-static void ssl_set_option(SSL_CONF_CTX * cctx, unsigned int name_flags,
+static void ssl_set_option(SSL_CONF_CTX * cctx, uint name_flags,
     unsigned long option_value, int onoff)
 {
 	uint32_t * pflags;
@@ -483,7 +483,7 @@ static int cmd_DHParameters(SSL_CONF_CTX * cctx, const char * value)
 	BIO * in = NULL;
 	if(cctx->ctx || cctx->ssl) {
 		in = BIO_new(BIO_s_file());
-		if(in == NULL)
+		if(!in)
 			goto end;
 		if(BIO_read_filename(in, value) <= 0)
 			goto end;
@@ -630,8 +630,8 @@ static int ssl_conf_cmd_skip_prefix(SSL_CONF_CTX * cctx, const char ** pcmd)
 /* Determine if a command is allowed according to cctx flags */
 static int ssl_conf_cmd_allowed(SSL_CONF_CTX * cctx, const ssl_conf_cmd_tbl * t)
 {
-	unsigned int tfl = t->flags;
-	unsigned int cfl = cctx->flags;
+	uint tfl = t->flags;
+	uint cfl = cctx->flags;
 	if((tfl & SSL_CONF_FLAG_SERVER) && !(cfl & SSL_CONF_FLAG_SERVER))
 		return 0;
 	if((tfl & SSL_CONF_FLAG_CLIENT) && !(cfl & SSL_CONF_FLAG_CLIENT))
@@ -815,13 +815,13 @@ void SSL_CONF_CTX_free(SSL_CONF_CTX * cctx)
 	}
 }
 
-unsigned int SSL_CONF_CTX_set_flags(SSL_CONF_CTX * cctx, unsigned int flags)
+uint SSL_CONF_CTX_set_flags(SSL_CONF_CTX * cctx, uint flags)
 {
 	cctx->flags |= flags;
 	return cctx->flags;
 }
 
-unsigned int SSL_CONF_CTX_clear_flags(SSL_CONF_CTX * cctx, unsigned int flags)
+uint SSL_CONF_CTX_clear_flags(SSL_CONF_CTX * cctx, uint flags)
 {
 	cctx->flags &= ~flags;
 	return cctx->flags;

@@ -2516,7 +2516,7 @@ int xmlUCSIsBlock(int code, const char * block) {
 
 	func = xmlUnicodeLookup(&xmlUnicodeBlockTbl, block);
 	if(func == NULL)
-		return (-1);
+		return -1;
 	return (func(code));
 }
 

@@ -63,26 +63,26 @@ void xmlCleanupGlobals()
 /*
  * Memory allocation routines
  */
-#undef  free
-#undef  xmlMalloc
-#undef  xmlMallocAtomic
+#undef  free_
+//#undef  xmlMalloc_
+//#undef  xmlMallocAtomic_
 #undef  xmlMemStrdup
-#undef  xmlRealloc
+//#undef  xmlRealloc_
 
 #if defined(DEBUG_MEMORY_LOCATION) || defined(DEBUG_MEMORY)
 	xmlFreeFunc free = (xmlFreeFunc)xmlMemFree;
-	xmlMallocFunc xmlMalloc = (xmlMallocFunc)xmlMemMalloc;
-	xmlMallocFunc xmlMallocAtomic = (xmlMallocFunc)xmlMemMalloc;
-	xmlReallocFunc xmlRealloc = (xmlReallocFunc)xmlMemRealloc;
+	xmlMallocFunc xmlMalloc_ = (xmlMallocFunc)xmlMemMalloc;
+	xmlMallocFunc xmlMallocAtomic_ = (xmlMallocFunc)xmlMemMalloc;
+	xmlReallocFunc xmlRealloc_ = (xmlReallocFunc)xmlMemRealloc;
 	xmlStrdupFunc xmlMemStrdup = (xmlStrdupFunc)xmlMemoryStrdup;
 #else
 	/**
 	* free:
 	* @mem: an already allocated block of memory
 	*
-	* The variable holding the libxml free() implementation
+	* The variable holding the libxml SAlloc::F() implementation
 	*/
-	xmlFreeFunc xmlFree = (xmlFreeFunc)free;
+	//xmlFreeFunc xmlFree_ = (xmlFreeFunc)free;
 	/**
 	* xmlMalloc:
 	* @size:  the size requested in bytes
@@ -91,7 +91,7 @@ void xmlCleanupGlobals()
 	*
 	* Returns a pointer to the newly allocated block or NULL in case of error
 	*/
-	xmlMallocFunc xmlMalloc = (xmlMallocFunc)malloc;
+	//xmlMallocFunc xmlMalloc_ = (xmlMallocFunc)malloc;
 	/**
 	* xmlMallocAtomic:
 	* @size:  the size requested in bytes
@@ -102,7 +102,7 @@ void xmlCleanupGlobals()
 	*
 	* Returns a pointer to the newly allocated block or NULL in case of error
 	*/
-	xmlMallocFunc xmlMallocAtomic = (xmlMallocFunc)malloc;
+	//xmlMallocFunc xmlMallocAtomic_ = (xmlMallocFunc)malloc;
 	/**
 	* xmlRealloc:
 	* @mem: an already allocated block of memory
@@ -480,20 +480,17 @@ xmlSAXHandlerV1 docbDefaultSAXHandler = {
  * xmlInitializeGlobalState() initialize a global state with all the
  * default values of the library.
  */
-void xmlInitializeGlobalState(xmlGlobalStatePtr gs)
+void xmlInitializeGlobalState(xmlGlobalState * gs)
 {
 #ifdef DEBUG_GLOBALS
 	fprintf(stderr, "Initializing globals at %lu for thread %d\n", (unsigned long)gs, xmlGetThreadId());
 #endif
-
 	/*
 	 * Perform initialization as required by libxml
 	 */
 	if(xmlThrDefMutex == NULL)
 		xmlInitGlobals();
-
 	xmlMutexLock(xmlThrDefMutex);
-
 #if defined(LIBXML_DOCB_ENABLED) && defined(LIBXML_LEGACY_ENABLED) && defined(LIBXML_SAX1_ENABLED)
 	initdocbDefaultSAXHandler(&gs->docbDefaultSAXHandler);
 #endif
@@ -514,15 +511,15 @@ void xmlInitializeGlobalState(xmlGlobalStatePtr gs)
 	gs->xmlDoValidityCheckingDefaultValue = xmlDoValidityCheckingDefaultValueThrDef;
 #if defined(DEBUG_MEMORY_LOCATION) | defined(DEBUG_MEMORY)
 	// @sobolev gs->xmlFree = (xmlFreeFunc)xmlMemFree;
-	gs->xmlMalloc = (xmlMallocFunc)xmlMemMalloc;
-	gs->xmlMallocAtomic = (xmlMallocFunc)xmlMemMalloc;
+	//gs->xmlMalloc_ = (xmlMallocFunc)xmlMemMalloc;
+	//gs->xmlMallocAtomic_ = (xmlMallocFunc)xmlMemMalloc;
 	gs->xmlRealloc = (xmlReallocFunc)xmlMemRealloc;
 	gs->xmlMemStrdup = (xmlStrdupFunc)xmlMemoryStrdup;
 #else
 	// @sobolev gs->xmlFree = (xmlFreeFunc)free;
-	gs->xmlMalloc = (xmlMallocFunc)malloc;
-	gs->xmlMallocAtomic = (xmlMallocFunc)malloc;
-	gs->xmlRealloc = (xmlReallocFunc)realloc;
+	//gs->xmlMalloc_ = (xmlMallocFunc)malloc;
+	//gs->xmlMallocAtomic_ = (xmlMallocFunc)malloc;
+	//gs->xmlRealloc_ = (xmlReallocFunc)realloc;
 	gs->xmlMemStrdup = (xmlStrdupFunc)xmlStrdup;
 #endif
 	gs->xmlGetWarningsDefaultValue = xmlGetWarningsDefaultValueThrDef;
@@ -583,7 +580,7 @@ xmlRegisterNodeFunc xmlRegisterNodeDefault(xmlRegisterNodeFunc func)
 	xmlRegisterNodeFunc old = xmlRegisterNodeDefaultValue;
 	__xmlRegisterCallbacks = 1;
 	xmlRegisterNodeDefaultValue = func;
-	return(old);
+	return old;
 }
 
 xmlRegisterNodeFunc xmlThrDefRegisterNodeDefault(xmlRegisterNodeFunc func)
@@ -610,7 +607,7 @@ xmlDeregisterNodeFunc xmlDeregisterNodeDefault(xmlDeregisterNodeFunc func)
 	xmlDeregisterNodeFunc old = xmlDeregisterNodeDefaultValue;
 	__xmlRegisterCallbacks = 1;
 	xmlDeregisterNodeDefaultValue = func;
-	return(old);
+	return old;
 }
 
 xmlDeregisterNodeFunc xmlThrDefDeregisterNodeDefault(xmlDeregisterNodeFunc func)
@@ -644,7 +641,7 @@ xmlOutputBufferCreateFilenameFunc xmlThrDefOutputBufferCreateFilenameDefault(xml
 #endif
 	xmlOutputBufferCreateFilenameValueThrDef = func;
 	xmlMutexUnlock(xmlThrDefMutex);
-	return(old);
+	return old;
 }
 
 #ifdef LIBXML_DOCB_ENABLED

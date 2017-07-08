@@ -1322,9 +1322,9 @@ private:
 	int    SLAPI Implement_StrokeAndFill(SPaintToolBox * pTb, int penIdent, int brushIdent);
 
 	Surface S;
-	SRegion Scope; // Границы области отрисовки между вызовами BeginScope() и EndScope()
-	long   Flags;
-	SString TempBuf;
+	SRegion Scope;   // Границы области отрисовки между вызовами BeginScope() и EndScope()
+	long   Flags;    // @flags
+	SString TempBuf; // @allocreuse
 	SPaintToolBox & R_Tb;
 	TSStack <LMatrix2D> TmStk;
 	SStack GdiObjStack; // @v9.1.7 Для совместимости с TCanvas на уровне функций
@@ -4237,8 +4237,7 @@ struct SBrowserDataProcBlock {
 	const  void * P_SrcData; // IN
 	uint32 Color;            // OUT
 	void * P_DestData;       // OUT
-	SString TempBuf;         // Helper Может использоваться реализацией функции SBrowserDataProc
-		// для ускорения работы (буфер распределяется один раз)
+	SString TempBuf;         // @allocreuse Может использоваться реализацией функции SBrowserDataProc для ускорения работы
 };
 
 typedef int (*SBrowserDataProc)(SBrowserDataProcBlock * pBlk);
@@ -5007,9 +5006,58 @@ public:
 	int    Set(KeyDownCommand & rK, int cmd);
 };
 
-class STextBrowser : public TBaseBrowserWindow {
+int SLAPI ImpLoadToolbar(TVRez & rez, ToolbarList * pList);
+
+class SScEditorBase {
 public:
+	SScEditorBase();
+protected:
+	void   Init(HWND hScW);
+	int    Release();
+	int    CallFunc(int msg, int param1, int param2);
+	int    SetKeybAccelerator(KeyDownCommand & rK, int cmd);
+
+	int32  GetCurrentPos();
+	int32  FASTCALL SetCurrentPos(int32 pos);
+	int    FASTCALL GetSelection(IntRange & rR);
+	int    FASTCALL SetSelection(const IntRange * pR);
+	enum {
+		srfUseDialog = 0x0001
+	};
+	int    SearchAndReplace(long flags);
+
 	typedef void * SciDocument;
+
+	class Document {
+	public:
+		enum {
+			stInit     = 0x0001,
+			stDirty    = 0x0002,
+			stReadOnly = 0x0004,
+			stUtf8Mode = 0x0008,
+			stNewFile  = 0x0010
+		};
+		Document();
+		Document & Reset();
+		long   SetState(long st, int set);
+
+		SCodepageIdent OrgCp;
+		SCodepageIdent Cp;
+		SEOLFormat Eolf;
+		long   State;
+		SciDocument SciDoc;
+		SString FileName;
+	};
+	SKeyAccelerator KeyAccel; // Ассоциации клавиатурных кодов с командами. {KeyDownCommand Key, long Val}
+	SKeyAccelerator OuterKeyAccel; // Ассоциации клавиатурных кодов с командами, заданные из-вне: вливаются в KeyAccel
+	int    (*P_SciFn)(void *, int, int, int);
+	void * P_SciPtr;
+	SSearchReplaceParam LastSrParam;
+	Document Doc;
+};
+
+class STextBrowser : public TBaseBrowserWindow, public SScEditorBase {
+public:
 	static int RegWindowClass(HINSTANCE hInst);
 	static LPCTSTR WndClsName;
 	//
@@ -5044,36 +5092,12 @@ public:
 	int    FileLoad(const char * pFileName, SCodepage cp, long flags);
 	int    FileSave(const char * pFileName, long flags);
 	int    FileClose();
-
-	int    SetKeybAccelerator(KeyDownCommand & rK, int cmd);
-
-	class Document {
-	public:
-		enum {
-			stInit     = 0x0001,
-			stDirty    = 0x0002,
-			stReadOnly = 0x0004,
-			stUtf8Mode = 0x0008,
-			stNewFile  = 0x0010
-		};
-		Document();
-		Document & Reset();
-		long   SetState(long st, int set);
-
-		SCodepageIdent OrgCp;
-		SCodepageIdent Cp;
-		SEOLFormat Eolf;
-		long   State;
-		STextBrowser::SciDocument SciDoc;
-		SString FileName;
-	};
 private:
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK ScintillaWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	virtual TBaseBrowserWindow::IdentBlock & GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk);
 	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw);
 	int    LoadToolbar(uint tbId);
-	int    CallFunc(int msg, int param1, int param2);
 	int    GetText(SString & rBuf);
 	int    SetText(SString & rBuf);
 	int    SaveChanges();
@@ -5082,31 +5106,15 @@ private:
 	int    InsertWorkbookLink();
 	int    BraceHtmlTag();
 
-	int32  GetCurrentPos();
-	int32  FASTCALL SetCurrentPos(int32 pos);
-	int    FASTCALL GetSelection(IntRange & rR);
-	int    FASTCALL SetSelection(const IntRange * pR);
-
-	enum {
-		srfUseDialog = 0x0001
-	};
-	int    SearchAndReplace(long flags);
-
-	Document Doc;
 	enum {
 		sstLastKeyDownConsumed = 0x0001
 	};
 	long   SysState;
 	int    SpcMode; // @v9.2.0
-	SKeyAccelerator KeyAccel; // Ассоциации клавиатурных кодов с командами. {KeyDownCommand Key, long Val}
-	SKeyAccelerator OuterKeyAccel; // Ассоциации клавиатурных кодов с командами, заданные из-вне: вливаются в KeyAccel
-	int    (*P_SciFn)(void *, int, int, int);
 	HWND   HwndSci;
-	void * P_SciPtr;
 	TToolbar * P_Toolbar;
 	long   ToolBarWidth;
 	uint   ToolbarId;
-	SSearchReplaceParam LastSrParam;
 	WNDPROC OrgScintillaWndProc;
 	SrDatabase * P_SrDb; // @v9.2.0 База данных SARTR
 };

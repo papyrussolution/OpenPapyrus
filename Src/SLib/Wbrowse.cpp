@@ -1,11 +1,13 @@
 // WBROWSE.CPP
-// Copyright (c) Sobolev A. 1994-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) Sobolev A. 1994-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // WIN32
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
+#include <scintilla.h>
+#include <scilexer.h>
 //
 //
 //
@@ -235,6 +237,7 @@ int TBaseBrowserWindow::Insert()
 			::GetClientRect(hw_frame, &rc_frame);
 			HW = ::CreateWindowEx(0, ClsName, buf, style, 0, 0,
 				rc_frame.right-16, rc_frame.bottom, hw_frame, 0, TProgram::GetInst(), this); // @unicodeproblem
+			APPL->SizeMainWnd(HW); // @v9.7.5
 			::ShowWindow(HW, SW_SHOW);
 			if(ResourceID == 0) {
 				HWND   hw = GetTopWindow(hw_frame);
@@ -2807,4 +2810,3 @@ void BrowserWindow::search(char * pFirstLetter, int srchMode)
 		InvalidateRect(H(), &rc, 1);
 	}
 }
-

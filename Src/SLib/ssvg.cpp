@@ -138,7 +138,7 @@ private:
 	SStrScan Scan;
 	long  LastOwnSymbNo;
 	SString SymbPrefix;
-	SString TempBuf;
+	SString TempBuf;  // @allocreuse
 	SDraw * P_Result; // @notowned
 	long   ReScpNumber; // »дентификатор регул€рного выражени€, представл€ющего число без об€зательной ведущей цифры (допустимы точка, + или -)
 };

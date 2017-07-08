@@ -21,7 +21,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
-				AdditionalIncludeDirectories="..\include;..\include\zlib;..\osf\libxml\incl"
+				AdditionalIncludeDirectories="..\include;..\include\zlib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;LIBXML_STATIC"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -83,7 +83,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\include;..\include\zlib;..\osf\libxml\incl"
+				AdditionalIncludeDirectories="..\include;..\include\zlib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;LIBXML_STATIC"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -141,7 +141,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
-				AdditionalIncludeDirectories="..\include;..\include\zlib;..\osf\libxml\incl"
+				AdditionalIncludeDirectories="..\include;..\include\zlib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;LIBXML_STATIC"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -202,7 +202,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\include;..\include\zlib;..\osf\libxml\incl"
+				AdditionalIncludeDirectories="..\include;..\include\zlib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;LIBXML_STATIC"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -260,7 +260,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
-				AdditionalIncludeDirectories="..\include;..\include\zlib;..\osf\libxml\incl"
+				AdditionalIncludeDirectories="..\include;..\include\zlib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;LIBXML_STATIC"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -321,7 +321,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\include;..\include\zlib;..\osf\libxml\incl"
+				AdditionalIncludeDirectories="..\include;..\include\zlib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;LIBXML_STATIC"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -375,7 +375,7 @@
 			ConfigurationType="4">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\include;..\include\zlib;..\osf\libxml\incl"
+				AdditionalIncludeDirectories="..\include;..\include\zlib"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderFile="$(IntDir)/$(TargetName).pch"
 				AssemblerListingLocation="$(IntDir)/"
@@ -702,145 +702,145 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\c14n.h">
+				RelativePath="..\include\libxml\c14n.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\catalog.h">
+				RelativePath="..\include\libxml\catalog.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\chvalid.h">
+				RelativePath="..\include\libxml\chvalid.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\debugXML.h">
+				RelativePath="..\include\libxml\debugXML.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\dict.h">
+				RelativePath="..\include\libxml\dict.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\DOCBparser.h">
+				RelativePath="..\include\libxml\DOCBparser.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\encoding.h">
+				RelativePath="..\include\libxml\encoding.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\entities.h">
+				RelativePath="..\include\libxml\entities.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\globals.h">
+				RelativePath="..\include\libxml\globals.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\hash.h">
+				RelativePath="..\include\libxml\hash.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\HTMLparser.h">
+				RelativePath="..\include\libxml\HTMLparser.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\HTMLtree.h">
+				RelativePath="..\include\libxml\HTMLtree.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\list.h">
+				RelativePath="..\include\libxml\list.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\nanoftp.h">
+				RelativePath="..\include\libxml\nanoftp.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\nanohttp.h">
+				RelativePath="..\include\libxml\nanohttp.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\parser.h">
+				RelativePath="..\include\libxml\parser.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\parserInternals.h">
+				RelativePath="..\include\libxml\parserInternals.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\pattern.h">
+				RelativePath="..\include\libxml\pattern.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\relaxng.h">
+				RelativePath="..\include\libxml\relaxng.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\SAX.h">
+				RelativePath="..\include\libxml\SAX.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\SAX2.h">
+				RelativePath="..\include\libxml\SAX2.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\schemasInternals.h">
+				RelativePath="..\include\libxml\schemasInternals.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\schematron.h">
+				RelativePath="..\include\libxml\schematron.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\threads.h">
+				RelativePath="..\include\libxml\threads.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\tree.h">
+				RelativePath="..\include\libxml\tree.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\uri.h">
+				RelativePath="..\include\libxml\uri.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\valid.h">
+				RelativePath="..\include\libxml\valid.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xinclude.h">
+				RelativePath="..\include\libxml\xinclude.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xlink.h">
+				RelativePath="..\include\libxml\xlink.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xmlautomata.h">
+				RelativePath="..\include\libxml\xmlautomata.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xmlerror.h">
+				RelativePath="..\include\libxml\xmlerror.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xmlexports.h">
+				RelativePath="..\include\libxml\xmlexports.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xmlIO.h">
+				RelativePath="..\include\libxml\xmlIO.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xmlmemory.h">
+				RelativePath="..\include\libxml\xmlmemory.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xmlmodule.h">
+				RelativePath="..\include\libxml\xmlmodule.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xmlreader.h">
+				RelativePath="..\include\libxml\xmlreader.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xmlregexp.h">
+				RelativePath="..\include\libxml\xmlregexp.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xmlsave.h">
+				RelativePath="..\include\libxml\xmlsave.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xmlschemas.h">
+				RelativePath="..\include\libxml\xmlschemas.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xmlschemastypes.h">
+				RelativePath="..\include\libxml\xmlschemastypes.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xmlstring.h">
+				RelativePath="..\include\libxml\xmlstring.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xmlunicode.h">
+				RelativePath="..\include\libxml\xmlunicode.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xmlversion.h">
+				RelativePath="..\include\libxml\xmlversion.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xmlwriter.h">
+				RelativePath="..\include\libxml\xmlwriter.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xpath.h">
+				RelativePath="..\include\libxml\xpath.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xpathInternals.h">
+				RelativePath="..\include\libxml\xpathInternals.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Libxml\Include\Libxml\xpointer.h">
+				RelativePath="..\include\libxml\xpointer.h">
 			</File>
 		</Filter>
 		<Filter

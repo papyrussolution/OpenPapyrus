@@ -67,7 +67,7 @@ int BIO_get_port(const char * str, unsigned short * port_ptr)
 
 	if(str == NULL) {
 		BIOerr(BIO_F_BIO_GET_PORT, BIO_R_NO_PORT_DEFINED);
-		return (0);
+		return 0;
 	}
 
 	if(BIO_sock_init() != 1)

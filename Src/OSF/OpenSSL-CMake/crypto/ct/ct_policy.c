@@ -26,7 +26,7 @@ static const time_t SCT_CLOCK_DRIFT_TOLERANCE = 300;
 CT_POLICY_EVAL_CTX * CT_POLICY_EVAL_CTX_new(void)
 {
 	CT_POLICY_EVAL_CTX * ctx = (CT_POLICY_EVAL_CTX *)OPENSSL_zalloc(sizeof(CT_POLICY_EVAL_CTX));
-	if(ctx == NULL) {
+	if(!ctx) {
 		CTerr(CT_F_CT_POLICY_EVAL_CTX_NEW, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -37,7 +37,7 @@ CT_POLICY_EVAL_CTX * CT_POLICY_EVAL_CTX_new(void)
 
 void CT_POLICY_EVAL_CTX_free(CT_POLICY_EVAL_CTX * ctx)
 {
-	if(ctx == NULL)
+	if(!ctx)
 		return;
 	X509_free(ctx->cert);
 	X509_free(ctx->issuer);

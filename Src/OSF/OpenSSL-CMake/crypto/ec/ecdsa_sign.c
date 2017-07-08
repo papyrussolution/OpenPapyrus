@@ -12,12 +12,12 @@
 #include "ec_lcl.h"
 //#include <openssl/err.h>
 
-ECDSA_SIG * ECDSA_do_sign(const unsigned char * dgst, int dlen, EC_KEY * eckey)
+ECDSA_SIG * ECDSA_do_sign(const uchar * dgst, int dlen, EC_KEY * eckey)
 {
 	return ECDSA_do_sign_ex(dgst, dlen, NULL, NULL, eckey);
 }
 
-ECDSA_SIG * ECDSA_do_sign_ex(const unsigned char * dgst, int dlen,
+ECDSA_SIG * ECDSA_do_sign_ex(const uchar * dgst, int dlen,
     const BIGNUM * kinv, const BIGNUM * rp,
     EC_KEY * eckey)
 {
@@ -27,14 +27,14 @@ ECDSA_SIG * ECDSA_do_sign_ex(const unsigned char * dgst, int dlen,
 	return NULL;
 }
 
-int ECDSA_sign(int type, const unsigned char * dgst, int dlen, unsigned char
-    * sig, unsigned int * siglen, EC_KEY * eckey)
+int ECDSA_sign(int type, const uchar * dgst, int dlen, uchar
+    * sig, uint * siglen, EC_KEY * eckey)
 {
 	return ECDSA_sign_ex(type, dgst, dlen, sig, siglen, NULL, NULL, eckey);
 }
 
-int ECDSA_sign_ex(int type, const unsigned char * dgst, int dlen,
-    unsigned char * sig, unsigned int * siglen, const BIGNUM * kinv,
+int ECDSA_sign_ex(int type, const uchar * dgst, int dlen,
+    uchar * sig, uint * siglen, const BIGNUM * kinv,
     const BIGNUM * r, EC_KEY * eckey)
 {
 	if(eckey->meth->sign != NULL)

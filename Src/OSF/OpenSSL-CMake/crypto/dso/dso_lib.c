@@ -25,7 +25,7 @@ static DSO * DSO_new_method(DSO_METHOD * meth)
 		default_DSO_meth = DSO_METHOD_openssl();
 	}
 	ret = (DSO*)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL) {
+	if(!ret) {
 		DSOerr(DSO_F_DSO_NEW_METHOD, ERR_R_MALLOC_FAILURE);
 		return (NULL);
 	}
@@ -123,7 +123,7 @@ DSO * DSO_load(DSO * dso, const char * filename, DSO_METHOD * meth, int flags)
 
 	if(dso == NULL) {
 		ret = DSO_new_method(meth);
-		if(ret == NULL) {
+		if(!ret) {
 			DSOerr(DSO_F_DSO_LOAD, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
@@ -164,7 +164,7 @@ DSO * DSO_load(DSO * dso, const char * filename, DSO_METHOD * meth, int flags)
 		goto err;
 	}
 	/* Load succeeded */
-	return (ret);
+	return ret;
 err:
 	if(allocated)
 		DSO_free(ret);
@@ -188,7 +188,7 @@ DSO_FUNC_TYPE DSO_bind_func(DSO * dso, const char * symname)
 		return (NULL);
 	}
 	/* Success */
-	return (ret);
+	return ret;
 }
 
 /*
@@ -215,10 +215,10 @@ long DSO_ctrl(DSO * dso, int cmd, long larg, void * parg)
 		    return dso->flags;
 		case DSO_CTRL_SET_FLAGS:
 		    dso->flags = (int)larg;
-		    return (0);
+		    return 0;
 		case DSO_CTRL_OR_FLAGS:
 		    dso->flags |= (int)larg;
-		    return (0);
+		    return 0;
 		default:
 		    break;
 	}
@@ -244,17 +244,17 @@ int DSO_set_filename(DSO * dso, const char * filename)
 
 	if((dso == NULL) || (filename == NULL)) {
 		DSOerr(DSO_F_DSO_SET_FILENAME, ERR_R_PASSED_NULL_PARAMETER);
-		return (0);
+		return 0;
 	}
 	if(dso->loaded_filename) {
 		DSOerr(DSO_F_DSO_SET_FILENAME, DSO_R_DSO_ALREADY_LOADED);
-		return (0);
+		return 0;
 	}
 	/* We'll duplicate filename */
 	copied = OPENSSL_strdup(filename);
 	if(copied == NULL) {
 		DSOerr(DSO_F_DSO_SET_FILENAME, ERR_R_MALLOC_FAILURE);
-		return (0);
+		return 0;
 	}
 	OPENSSL_free(dso->filename);
 	dso->filename = copied;

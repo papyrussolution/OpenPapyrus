@@ -9733,7 +9733,7 @@ private:
 	LDATE  SuppDate;   // Опорная дата.
 	SymbHashTable SymbTbl;
 	SCollection * P_DbtDescrList;
-	SString TempBuf;
+	SString TempBuf;   // @allocreuse
 	STempBuffer TempDataBuf;
 };
 
@@ -9868,7 +9868,7 @@ protected:
 	int    SLAPI Init(const char * pFileName, int fcreate, int winCoding, int useIniBuf);
 
 	long   Flags;
-	SString TempBuf;
+	SString TempBuf; // @allocreuse
 private:
 	int    SLAPI Open(const char * pFileName);
 	int    SLAPI Close();
@@ -10052,7 +10052,7 @@ private:
 	SString & CatCls(int cls, SString & rBuf);
 	SString & CatAcs(int acs, SString & rBuf);
 	uint   Indent;
-	SString TempBuf;
+	SString TempBuf; // @allocreuse
 };
 
 #endif // } !_WIN32_WCE
@@ -12440,7 +12440,7 @@ private:
 	}
 
 	STestSuite * P_Suite;
-	SString TempBuf;
+	SString TempBuf; // @allocreuse
 
 	class TabEnum : public SEnumImp {
 	public:

@@ -1869,7 +1869,7 @@ static int FASTCALL UriLowercaseMalloc(const char ** first, const char ** afterL
 		}
 		else if(lenInChars > 0) {
 			buffer =(char *)SAlloc::M(lenInChars * sizeof(char));
-			if(buffer == NULL) {
+			if(!buffer) {
 				ok = 0;
 			}
 			else {
@@ -1958,7 +1958,7 @@ static int FASTCALL UriFixPercentEncodingMalloc(const char ** first, const char 
 		else {
 			// New buffer 
 			char * buffer =(char *)SAlloc::M(lenInChars * sizeof(char));
-			if(buffer == NULL) {
+			if(!buffer) {
 				return FALSE;
 			}
 			else {

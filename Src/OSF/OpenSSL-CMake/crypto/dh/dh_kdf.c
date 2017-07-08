@@ -24,9 +24,9 @@
 
 /* Skip past an ASN1 structure: for OBJECT skip content octets too */
 
-static int skip_asn1(unsigned char ** pp, long * plen, int exptag)
+static int skip_asn1(uchar ** pp, long * plen, int exptag)
 {
-	const unsigned char * q = *pp;
+	const uchar * q = *pp;
 	int i, tag, xclass;
 	long tmplen;
 	i = ASN1_get_object(&q, &tmplen, &tag, &xclass, *plen);
@@ -37,7 +37,7 @@ static int skip_asn1(unsigned char ** pp, long * plen, int exptag)
 	if(tag == V_ASN1_OBJECT)
 		q += tmplen;
 	*plen -= q - *pp;
-	*pp = (unsigned char*)q;
+	*pp = (uchar*)q;
 	return 1;
 }
 
@@ -46,15 +46,15 @@ static int skip_asn1(unsigned char ** pp, long * plen, int exptag)
  * so we can update the structure without reencoding it.
  */
 
-static int dh_sharedinfo_encode(unsigned char ** pder, unsigned char ** pctr,
+static int dh_sharedinfo_encode(uchar ** pder, uchar ** pctr,
     ASN1_OBJECT * key_oid, size_t outlen,
-    const unsigned char * ukm, size_t ukmlen)
+    const uchar * ukm, size_t ukmlen)
 {
-	unsigned char * p;
+	uchar * p;
 	int derlen;
 	long tlen;
 	/* "magic" value to check offset is sane */
-	static unsigned char ctr[4] = { 0xF3, 0x17, 0x22, 0x53 };
+	static uchar ctr[4] = { 0xF3, 0x17, 0x22, 0x53 };
 	X509_ALGOR atmp;
 	ASN1_OCTET_STRING ctr_oct, ukm_oct, * pukm_oct;
 	ASN1_TYPE ctr_atype;
@@ -71,7 +71,7 @@ static int dh_sharedinfo_encode(unsigned char ** pder, unsigned char ** pctr,
 	if(ukm) {
 		ukm_oct.type = V_ASN1_OCTET_STRING;
 		ukm_oct.flags = 0;
-		ukm_oct.data = (unsigned char*)ukm;
+		ukm_oct.data = (uchar*)ukm;
 		ukm_oct.length = ukmlen;
 		pukm_oct = &ukm_oct;
 	}
@@ -96,16 +96,16 @@ static int dh_sharedinfo_encode(unsigned char ** pder, unsigned char ** pctr,
 	return derlen;
 }
 
-int DH_KDF_X9_42(unsigned char * out, size_t outlen,
-    const unsigned char * Z, size_t Zlen,
+int DH_KDF_X9_42(uchar * out, size_t outlen,
+    const uchar * Z, size_t Zlen,
     ASN1_OBJECT * key_oid,
-    const unsigned char * ukm, size_t ukmlen, const EVP_MD * md)
+    const uchar * ukm, size_t ukmlen, const EVP_MD * md)
 {
 	EVP_MD_CTX * mctx = NULL;
 	int rv = 0;
-	unsigned int i;
+	uint i;
 	size_t mdlen;
-	unsigned char * der = NULL, * ctr;
+	uchar * der = NULL, * ctr;
 	int derlen;
 	if(Zlen > DH_KDF_MAX)
 		return 0;
@@ -117,7 +117,7 @@ int DH_KDF_X9_42(unsigned char * out, size_t outlen,
 	if(derlen == 0)
 		goto err;
 	for(i = 1;; i++) {
-		unsigned char mtmp[EVP_MAX_MD_SIZE];
+		uchar mtmp[EVP_MAX_MD_SIZE];
 		if(!EVP_DigestInit_ex(mctx, md, NULL)
 		    || !EVP_DigestUpdate(mctx, Z, Zlen))
 			goto err;

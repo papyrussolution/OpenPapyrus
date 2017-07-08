@@ -14,7 +14,7 @@
 X509_LOOKUP * X509_LOOKUP_new(X509_LOOKUP_METHOD * method)
 {
 	X509_LOOKUP * ret = (X509_LOOKUP*)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL)
+	if(!ret)
 		return NULL;
 	ret->method = method;
 	if((method->new_item != NULL) && !method->new_item(ret)) {
@@ -26,7 +26,7 @@ X509_LOOKUP * X509_LOOKUP_new(X509_LOOKUP_METHOD * method)
 
 void X509_LOOKUP_free(X509_LOOKUP * ctx)
 {
-	if(ctx == NULL)
+	if(!ctx)
 		return;
 	if((ctx->method != NULL) && (ctx->method->free != NULL))
 		(*ctx->method->free)(ctx);
@@ -241,7 +241,7 @@ X509_LOOKUP * X509_STORE_add_lookup(X509_STORE * v, X509_LOOKUP_METHOD * m)
 X509_OBJECT * X509_STORE_CTX_get_obj_by_subject(X509_STORE_CTX * vs, X509_LOOKUP_TYPE type, X509_NAME * name)
 {
 	X509_OBJECT * ret = X509_OBJECT_new();
-	if(ret == NULL)
+	if(!ret)
 		return NULL;
 	if(!X509_STORE_CTX_get_by_subject(vs, type, name, ret)) {
 		X509_OBJECT_free(ret);
@@ -288,7 +288,7 @@ int X509_STORE_add_cert(X509_STORE * ctx, X509 * x)
 	X509_OBJECT * obj;
 	int ret = 1, added = 1;
 
-	if(x == NULL)
+	if(!x)
 		return 0;
 	obj = X509_OBJECT_new();
 	if(obj == NULL)
@@ -317,7 +317,7 @@ int X509_STORE_add_crl(X509_STORE * ctx, X509_CRL * x)
 {
 	X509_OBJECT * obj;
 	int ret = 1, added = 1;
-	if(x == NULL)
+	if(!x)
 		return 0;
 	obj = X509_OBJECT_new();
 	if(obj == NULL)
@@ -377,7 +377,7 @@ X509_LOOKUP_TYPE X509_OBJECT_get_type(const X509_OBJECT * a)
 X509_OBJECT * X509_OBJECT_new()
 {
 	X509_OBJECT * ret = (X509_OBJECT*)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL) {
+	if(!ret) {
 		X509err(X509_F_X509_OBJECT_NEW, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -387,7 +387,7 @@ X509_OBJECT * X509_OBJECT_new()
 
 void X509_OBJECT_free(X509_OBJECT * a)
 {
-	if(a == NULL)
+	if(!a)
 		return;
 	switch(a->type) {
 		default:

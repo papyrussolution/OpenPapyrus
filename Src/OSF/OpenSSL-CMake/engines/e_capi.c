@@ -437,7 +437,7 @@ static int capi_init(ENGINE * e)
 	}
 
 	ctx = capi_ctx_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto memerr;
 
 	ENGINE_set_ex_data(e, capi_idx, ctx);
@@ -565,7 +565,7 @@ IMPLEMENT_DYNAMIC_BIND_FN(bind_helper)
 static ENGINE * engine_capi(void)
 {
 	ENGINE * ret = ENGINE_new();
-	if(ret == NULL)
+	if(!ret)
 		return NULL;
 	if(!bind_capi(ret)) {
 		ENGINE_free(ret);
@@ -1561,7 +1561,7 @@ void capi_free_key(CAPI_KEY * key)
 static CAPI_CTX * capi_ctx_new(void)
 {
 	CAPI_CTX * ctx = (CAPI_CTX*)OPENSSL_zalloc(sizeof(*ctx));
-	if(ctx == NULL) {
+	if(!ctx) {
 		CAPIerr(CAPI_F_CAPI_CTX_NEW, ERR_R_MALLOC_FAILURE);
 	}
 	else {

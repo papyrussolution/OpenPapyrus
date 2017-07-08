@@ -98,7 +98,7 @@ static int conf_value_cmp(const CONF_VALUE * a, const CONF_VALUE * b)
 		return (i);
 	}
 	else if(a->name == b->name)
-		return (0);
+		return 0;
 	else
 		return ((a->name == NULL) ? -1 : 1);
 }

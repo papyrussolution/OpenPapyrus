@@ -1210,7 +1210,7 @@ private:
 		const SString SetPath;
 	private:
 		SPathStruc Ps;
-		SString TempBuf;
+		SString TempBuf; // @allocreuse
 	};
 	int    SLAPI Helper_ImportHier(PPID defUnitID, HierArray * pHierList);
 	int    SLAPI LoadHierList(HierArray * pList);
@@ -1328,7 +1328,7 @@ private:
 	long   ReH_PaperFmt;
 	TSArray <CommonUnit> Units;
 	SString Prefixes;
-	SString TempBuf;
+	SString TempBuf; // @allocreuse
 };
 
 SLAPI TextFieldAnalyzer::TextFieldAnalyzer() : Words(100000, 1)

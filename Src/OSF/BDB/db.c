@@ -1144,13 +1144,13 @@ int __db_backup_name(ENV * env, const char * name, DB_TXN * txn, char ** backup)
 	p = __db_rpath(name);
 	if(IS_REAL_TXN(txn)) {
 		__os_unique_id(env, &id);
-		if(p == NULL)                           /* Case 2. */
+		if(!p)                           /* Case 2. */
 			snprintf(retp, len, "%s%x.%x", BACKUP_PREFIX, txn->txnid, id);
 		else                                    /* Case 4. */
 			snprintf(retp, len, "%.*s%x.%x", (int)(p-name)+1, name, txn->txnid, id);
 	}
 	else {
-		if(p == NULL)                           /* Case 1. */
+		if(!p)                           /* Case 1. */
 			snprintf(retp, len, "%s%s", BACKUP_PREFIX, name);
 		else                                    /* Case 3. */
 			snprintf(retp, len, "%.*s%s%s", (int)(p-name)+1, name, BACKUP_PREFIX, p+1);

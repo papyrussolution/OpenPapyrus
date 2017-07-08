@@ -3579,18 +3579,15 @@ TRIO_PUBLIC trio_pointer_t trio_register(trio_callback_t callback, TRIO_CONST ch
 			}
 			return NULL;
 		}
-
 		/* Bail out if namespace is too long */
 		if(trio_length(name) >= MAX_USER_NAME)
 			return NULL;
-
 		/* Bail out if namespace already is registered */
 		def = TrioFindNamespace(name, &prev);
 		if(def)
 			return NULL;
 	}
-
-	def = (trio_userdef_t*)TRIO_MALLOC(sizeof(trio_userdef_t));
+	def = (trio_userdef_t*)SAlloc::M(sizeof(trio_userdef_t));
 	if(def) {
 		if(internalEnterCriticalRegion)
 			internalEnterCriticalRegion(NULL);
@@ -3636,7 +3633,7 @@ void trio_unregister(trio_pointer_t handle)
 		}
 		trio_destroy(self->name);
 	}
-	TRIO_FREE(self);
+	SAlloc::F(self);
 }
 
 /*************************************************************************
@@ -5137,20 +5134,14 @@ TRIO_PRIVATE void TrioInStreamFile TRIO_ARGS2((self, intPointer), trio_class_t *
 /*************************************************************************
  * TrioInStreamFileDescriptor
  */
-TRIO_PRIVATE void
-TrioInStreamFileDescriptor TRIO_ARGS2((self, intPointer),
-    trio_class_t * self,
-    int * intPointer)
+TRIO_PRIVATE void TrioInStreamFileDescriptor TRIO_ARGS2((self, intPointer), trio_class_t * self, int * intPointer)
 {
 	int fd;
 	int size;
 	uchar input;
-
 	assert(VALID(self));
 	assert(VALID(self->location));
-
 	fd = *((int*)self->location);
-
 	size = read(fd, &input, sizeof(char));
 	if(size == -1) {
 		self->error = TRIO_ERROR_RETURN(TRIO_ERRNO, 0);
@@ -5163,7 +5154,6 @@ TrioInStreamFileDescriptor TRIO_ARGS2((self, intPointer),
 		self->committed++;
 		self->processed++;
 	}
-
 	if(VALID(intPointer)) {
 		*intPointer = self->current;
 	}

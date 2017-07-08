@@ -25,7 +25,7 @@ EC_KEY * EC_KEY_new(void)
 EC_KEY * EC_KEY_new_by_curve_name(int nid)
 {
 	EC_KEY * ret = EC_KEY_new();
-	if(ret == NULL)
+	if(!ret)
 		return NULL;
 	ret->group = EC_GROUP_new_by_curve_name(nid);
 	if(ret->group == NULL) {
@@ -152,7 +152,7 @@ EC_KEY * EC_KEY_dup(const EC_KEY * ec_key)
 {
 	EC_KEY * ret = EC_KEY_new_method(ec_key->engine);
 
-	if(ret == NULL)
+	if(!ret)
 		return NULL;
 
 	if(EC_KEY_copy(ret, ec_key) == NULL) {
@@ -350,7 +350,7 @@ int EC_KEY_set_public_key_affine_coordinates(EC_KEY * key, BIGNUM * x,
 		return 0;
 	}
 	ctx = BN_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 
 	BN_CTX_start(ctx);

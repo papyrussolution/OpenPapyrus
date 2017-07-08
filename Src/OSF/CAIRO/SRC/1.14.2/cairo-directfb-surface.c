@@ -504,7 +504,7 @@ cairo_surface_t * cairo_directfb_surface_create(IDirectFB * dfb, IDirectFBSurfac
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_FORMAT));
 
 	surface = SAlloc::C(1, sizeof(cairo_dfb_surface_t));
-	if(surface == NULL)
+	if(!surface)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
 	/* XXX dfb -> device */

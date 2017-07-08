@@ -82,11 +82,9 @@ void xmlErrMemory(xmlParserCtxtPtr ctxt, const char * extra)
 		ctxt->disableSAX = 1;
 	}
 	if(extra)
-		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra,
-		    NULL, NULL, 0, 0, "Memory allocation failed : %s\n", extra);
+		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra, NULL, NULL, 0, 0, "Memory allocation failed : %s\n", extra);
 	else
-		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, NULL,
-		    NULL, NULL, 0, 0, "Memory allocation failed\n");
+		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, NULL, NULL, NULL, 0, 0, "Memory allocation failed\n");
 }
 
 /**
@@ -290,7 +288,7 @@ void xmlParserInputShrink(xmlParserInputPtr in)
 #ifdef DEBUG_INPUT
 	xmlGenericError(0, "Shrink\n");
 #endif
-	if(in == NULL) return;
+	if(!in) return;
 	if(in->buf == NULL) return;
 	if(in->base == NULL) return;
 	if(in->cur == NULL) return;
@@ -485,19 +483,14 @@ encoding_error:
 	 */
 	if(!ctxt || (ctxt->input == NULL) ||
 	    (ctxt->input->end - ctxt->input->cur < 4)) {
-		__xmlErrEncoding(ctxt, XML_ERR_INVALID_CHAR,
-		    "Input is not proper UTF-8, indicate encoding !\n",
-		    NULL, NULL);
+		__xmlErrEncoding(ctxt, XML_ERR_INVALID_CHAR, "Input is not proper UTF-8, indicate encoding !\n", NULL, NULL);
 	}
 	else {
 		char buffer[150];
-
 		snprintf(buffer, 149, "Bytes: 0x%02X 0x%02X 0x%02X 0x%02X\n",
 		    ctxt->input->cur[0], ctxt->input->cur[1],
 		    ctxt->input->cur[2], ctxt->input->cur[3]);
-		__xmlErrEncoding(ctxt, XML_ERR_INVALID_CHAR,
-		    "Input is not proper UTF-8, indicate encoding !\n%s",
-		    BAD_CAST buffer, NULL);
+		__xmlErrEncoding(ctxt, XML_ERR_INVALID_CHAR, "Input is not proper UTF-8, indicate encoding !\n%s", BAD_CAST buffer, NULL);
 	}
 	ctxt->charset = XML_CHAR_ENCODING_8859_1;
 	ctxt->input->cur++;
@@ -663,9 +656,7 @@ encoding_error:
 		snprintf(&buffer[0], 149, "Bytes: 0x%02X 0x%02X 0x%02X 0x%02X\n",
 		    ctxt->input->cur[0], ctxt->input->cur[1],
 		    ctxt->input->cur[2], ctxt->input->cur[3]);
-		__xmlErrEncoding(ctxt, XML_ERR_INVALID_CHAR,
-		    "Input is not proper UTF-8, indicate encoding !\n%s",
-		    BAD_CAST buffer, NULL);
+		__xmlErrEncoding(ctxt, XML_ERR_INVALID_CHAR, "Input is not proper UTF-8, indicate encoding !\n%s", BAD_CAST buffer, NULL);
 	}
 	ctxt->charset = XML_CHAR_ENCODING_8859_1;
 	*len = 1;
@@ -773,13 +764,10 @@ encoding_error:
 	 */
 	{
 		char buffer[150];
-
 		snprintf(buffer, 149, "Bytes: 0x%02X 0x%02X 0x%02X 0x%02X\n",
 		    ctxt->input->cur[0], ctxt->input->cur[1],
 		    ctxt->input->cur[2], ctxt->input->cur[3]);
-		__xmlErrEncoding(ctxt, XML_ERR_INVALID_CHAR,
-		    "Input is not proper UTF-8, indicate encoding !\n%s",
-		    BAD_CAST buffer, NULL);
+		__xmlErrEncoding(ctxt, XML_ERR_INVALID_CHAR, "Input is not proper UTF-8, indicate encoding !\n%s", BAD_CAST buffer, NULL);
 	}
 	*len = 1;
 	return ((int)*cur);
@@ -880,8 +868,7 @@ int xmlSwitchEncoding(xmlParserCtxtPtr ctxt, xmlCharEncoding enc)
 	if(!ctxt) return -1;
 	switch(enc) {
 		case XML_CHAR_ENCODING_ERROR:
-		    __xmlErrEncoding(ctxt, XML_ERR_UNKNOWN_ENCODING,
-		    "encoding unknown\n", NULL, NULL);
+		    __xmlErrEncoding(ctxt, XML_ERR_UNKNOWN_ENCODING, "encoding unknown\n", NULL, NULL);
 		    return -1;
 		case XML_CHAR_ENCODING_NONE:
 		    /* let's assume it's UTF-8 without the XML decl */
@@ -962,34 +949,22 @@ int xmlSwitchEncoding(xmlParserCtxtPtr ctxt, xmlCharEncoding enc)
 			case XML_CHAR_ENCODING_UTF16BE:
 			    break;
 			case XML_CHAR_ENCODING_UCS4LE:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING,
-			    "encoding not supported %s\n",
-			    BAD_CAST "USC4 little endian", NULL);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "USC4 little endian", NULL);
 			    break;
 			case XML_CHAR_ENCODING_UCS4BE:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING,
-			    "encoding not supported %s\n",
-			    BAD_CAST "USC4 big endian", NULL);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "USC4 big endian", NULL);
 			    break;
 			case XML_CHAR_ENCODING_EBCDIC:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING,
-			    "encoding not supported %s\n",
-			    BAD_CAST "EBCDIC", NULL);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "EBCDIC", NULL);
 			    break;
 			case XML_CHAR_ENCODING_UCS4_2143:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING,
-			    "encoding not supported %s\n",
-			    BAD_CAST "UCS4 2143", NULL);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "UCS4 2143", NULL);
 			    break;
 			case XML_CHAR_ENCODING_UCS4_3412:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING,
-			    "encoding not supported %s\n",
-			    BAD_CAST "UCS4 3412", NULL);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "UCS4 3412", NULL);
 			    break;
 			case XML_CHAR_ENCODING_UCS2:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING,
-			    "encoding not supported %s\n",
-			    BAD_CAST "UCS2", NULL);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "UCS2", NULL);
 			    break;
 			case XML_CHAR_ENCODING_8859_1:
 			case XML_CHAR_ENCODING_8859_2:
@@ -1015,19 +990,13 @@ int xmlSwitchEncoding(xmlParserCtxtPtr ctxt, xmlCharEncoding enc)
 			    ctxt->charset = enc;
 			    return 0;
 			case XML_CHAR_ENCODING_2022_JP:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING,
-			    "encoding not supported %s\n",
-			    BAD_CAST "ISO-2022-JP", NULL);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "ISO-2022-JP", NULL);
 			    break;
 			case XML_CHAR_ENCODING_SHIFT_JIS:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING,
-			    "encoding not supported %s\n",
-			    BAD_CAST "Shift_JIS", NULL);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "Shift_JIS", NULL);
 			    break;
 			case XML_CHAR_ENCODING_EUC_JP:
-			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING,
-			    "encoding not supported %s\n",
-			    BAD_CAST "EUC-JP", NULL);
+			    __xmlErrEncoding(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "encoding not supported %s\n", BAD_CAST "EUC-JP", NULL);
 			    break;
 			default:
 			    break;
@@ -1055,9 +1024,9 @@ static int xmlSwitchInputEncodingInt(xmlParserCtxtPtr ctxt, xmlParserInputPtr in
 {
 	int nbchars;
 	if(handler == NULL)
-		return (-1);
+		return -1;
 	if(input == NULL)
-		return (-1);
+		return -1;
 	if(input->buf != NULL) {
 		if(input->buf->encoder != NULL) {
 			/*
@@ -1097,10 +1066,10 @@ static int xmlSwitchInputEncodingInt(xmlParserCtxtPtr ctxt, xmlParserInputPtr in
 			 * Specific handling of the Byte Order Mark for
 			 * UTF-16
 			 */
-			if((handler->name != NULL) && (!strcmp(handler->name, "UTF-16LE") || !strcmp(handler->name, "UTF-16")) && (input->cur[0] == 0xFF) && (input->cur[1] == 0xFE)) {
+			if(handler->name && (!strcmp(handler->name, "UTF-16LE") || !strcmp(handler->name, "UTF-16")) && (input->cur[0] == 0xFF) && (input->cur[1] == 0xFE)) {
 				input->cur += 2;
 			}
-			if((handler->name != NULL) && (!strcmp(handler->name, "UTF-16BE")) && (input->cur[0] == 0xFE) && (input->cur[1] == 0xFF)) {
+			if(handler->name && (!strcmp(handler->name, "UTF-16BE")) && (input->cur[0] == 0xFE) && (input->cur[1] == 0xFF)) {
 				input->cur += 2;
 			}
 			/*
@@ -1108,10 +1077,9 @@ static int xmlSwitchInputEncodingInt(xmlParserCtxtPtr ctxt, xmlParserInputPtr in
 			 * Specific handling of the Byte Order Mark for
 			 * UTF-8
 			 */
-			if((handler->name != NULL) && (!strcmp(handler->name, "UTF-8")) && (input->cur[0] == 0xEF) && (input->cur[1] == 0xBB) && (input->cur[2] == 0xBF)) {
+			if(handler->name && (!strcmp(handler->name, "UTF-8")) && (input->cur[0] == 0xEF) && (input->cur[1] == 0xBB) && (input->cur[2] == 0xBF)) {
 				input->cur += 3;
 			}
-
 			/*
 			 * Shrink the current input buffer.
 			 * Move it as the raw buffer and create a new input buffer
@@ -1139,7 +1107,7 @@ static int xmlSwitchInputEncodingInt(xmlParserCtxtPtr ctxt, xmlParserInputPtr in
 			}
 			if(nbchars < 0) {
 				xmlErrInternal(ctxt, "switching encoding: encoder error\n", NULL);
-				return (-1);
+				return -1;
 			}
 			input->buf->rawconsumed += use - xmlBufUse(input->buf->raw);
 			xmlBufResetInput(input->buf->buffer, input);
@@ -1152,7 +1120,7 @@ static int xmlSwitchInputEncodingInt(xmlParserCtxtPtr ctxt, xmlParserInputPtr in
 		 * size to be able to convert the buffer.
 		 */
 		xmlErrInternal(ctxt, "switching encoding : no input\n", NULL);
-		return (-1);
+		return -1;
 	}
 	return 0;
 }
@@ -1237,15 +1205,15 @@ int xmlSwitchToEncoding(xmlParserCtxtPtr ctxt, xmlCharEncodingHandlerPtr handler
 void xmlFreeInputStream(xmlParserInputPtr input)
 {
 	if(input) {
-		free((char*)input->filename);
-		free((char*)input->directory);
-		free((char*)input->encoding);
-		free((char*)input->version);
+		SAlloc::F((char*)input->filename);
+		SAlloc::F((char*)input->directory);
+		SAlloc::F((char*)input->encoding);
+		SAlloc::F((char*)input->version);
 		if(input->free && input->base)
 			input->free((xmlChar*)input->base);
 		if(input->buf)
 			xmlFreeParserInputBuffer(input->buf);
-		free(input);
+		SAlloc::F(input);
 	}
 }
 
@@ -1259,7 +1227,7 @@ void xmlFreeInputStream(xmlParserInputPtr input)
  */
 xmlParserInputPtr xmlNewInputStream(xmlParserCtxtPtr ctxt)
 {
-	xmlParserInputPtr input = (xmlParserInputPtr)xmlMalloc(sizeof(xmlParserInput));
+	xmlParserInputPtr input = (xmlParserInputPtr)SAlloc::M(sizeof(xmlParserInput));
 	if(input == NULL) {
 		xmlErrMemory(ctxt,  "couldn't allocate a new input stream\n");
 		return 0;
@@ -1372,7 +1340,7 @@ xmlParserInputPtr xmlNewEntityInputStream(xmlParserCtxtPtr ctxt, xmlEntityPtr en
 xmlParserInputPtr xmlNewStringInputStream(xmlParserCtxtPtr ctxt, const xmlChar * buffer)
 {
 	xmlParserInputPtr input = 0;
-	if(buffer == NULL) {
+	if(!buffer) {
 		xmlErrInternal(ctxt, "xmlNewStringInputStream string = NULL\n", NULL);
 	}
 	else {
@@ -1385,7 +1353,7 @@ xmlParserInputPtr xmlNewStringInputStream(xmlParserCtxtPtr ctxt, const xmlChar *
 		else {
 			input->base = buffer;
 			input->cur = buffer;
-			input->length = xmlStrlen(buffer);
+			input->length = sstrlen(buffer);
 			input->end = &buffer[input->length];
 		}
 	}
@@ -1424,9 +1392,9 @@ xmlParserInputPtr xmlNewInputFromFile(xmlParserCtxtPtr ctxt, const char * filena
 				if(inputStream) {
 					xmlChar * URI = inputStream->filename ? xmlStrdup((xmlChar*)inputStream->filename) : xmlStrdup((xmlChar*)filename);
 					char * directory = xmlParserGetDirectory((const char*)URI);
-					free((char*)inputStream->filename);
+					SAlloc::F((char*)inputStream->filename);
 					inputStream->filename = (char*)xmlCanonicPath((const xmlChar*)URI);
-					free((char*)URI);
+					SAlloc::F((char*)URI);
 					inputStream->directory = directory;
 					xmlBufResetInput(inputStream->buf->buffer, inputStream);
 					if(!ctxt->directory && directory)
@@ -1467,7 +1435,7 @@ int xmlInitParserCtxt(xmlParserCtxtPtr ctxt)
 		return -1;
 	}
 	xmlDictSetLimit(ctxt->dict, XML_MAX_DICTIONARY_LIMIT);
-	SETIFZ(ctxt->sax, (xmlSAXHandler*)xmlMalloc(sizeof(xmlSAXHandler)));
+	SETIFZ(ctxt->sax, (xmlSAXHandler*)SAlloc::M(sizeof(xmlSAXHandler)));
 	if(ctxt->sax == NULL) {
 		xmlErrMemory(NULL, "cannot initialize parser context\n");
 		return -1;
@@ -1479,7 +1447,7 @@ int xmlInitParserCtxt(xmlParserCtxtPtr ctxt)
 	ctxt->atts = NULL;
 	/* Allocate the Input stack */
 	if(ctxt->inputTab == NULL) {
-		ctxt->inputTab = (xmlParserInputPtr*)xmlMalloc(5 * sizeof(xmlParserInputPtr));
+		ctxt->inputTab = (xmlParserInputPtr*)SAlloc::M(5 * sizeof(xmlParserInputPtr));
 		ctxt->inputMax = 5;
 	}
 	if(ctxt->inputTab == NULL) {
@@ -1508,7 +1476,7 @@ int xmlInitParserCtxt(xmlParserCtxtPtr ctxt)
 
 	/* Allocate the Node stack */
 	if(ctxt->nodeTab == NULL) {
-		ctxt->nodeTab = (xmlNodePtr*)xmlMalloc(10 * sizeof(xmlNode *));
+		ctxt->nodeTab = (xmlNodePtr*)SAlloc::M(10 * sizeof(xmlNode *));
 		ctxt->nodeMax = 10;
 	}
 	if(ctxt->nodeTab == NULL) {
@@ -1526,7 +1494,7 @@ int xmlInitParserCtxt(xmlParserCtxtPtr ctxt)
 
 	/* Allocate the Name stack */
 	if(ctxt->nameTab == NULL) {
-		ctxt->nameTab = (const xmlChar**)xmlMalloc(10 * sizeof(xmlChar *));
+		ctxt->nameTab = (const xmlChar**)SAlloc::M(10 * sizeof(xmlChar *));
 		ctxt->nameMax = 10;
 	}
 	if(ctxt->nameTab == NULL) {
@@ -1547,7 +1515,7 @@ int xmlInitParserCtxt(xmlParserCtxtPtr ctxt)
 
 	/* Allocate the space stack */
 	if(ctxt->spaceTab == NULL) {
-		ctxt->spaceTab = (int*)xmlMalloc(10 * sizeof(int));
+		ctxt->spaceTab = (int*)SAlloc::M(10 * sizeof(int));
 		ctxt->spaceMax = 10;
 	}
 	if(ctxt->spaceTab == NULL) {
@@ -1637,35 +1605,35 @@ void xmlFreeParserCtxt(xmlParserCtxtPtr ctxt)
 		while((input = inputPop(ctxt)) != NULL) { /* Non consuming */
 			xmlFreeInputStream(input);
 		}
-		free(ctxt->spaceTab);
-		free((xmlChar**)ctxt->nameTab);
-		free(ctxt->nodeTab);
-		free(ctxt->nodeInfoTab);
-		free(ctxt->inputTab);
-		free((char*)ctxt->version);
-		free((char*)ctxt->encoding);
-		free((char*)ctxt->extSubURI);
-		free((char*)ctxt->extSubSystem);
+		SAlloc::F(ctxt->spaceTab);
+		SAlloc::F((xmlChar**)ctxt->nameTab);
+		SAlloc::F(ctxt->nodeTab);
+		SAlloc::F(ctxt->nodeInfoTab);
+		SAlloc::F(ctxt->inputTab);
+		SAlloc::F((char*)ctxt->version);
+		SAlloc::F((char*)ctxt->encoding);
+		SAlloc::F((char*)ctxt->extSubURI);
+		SAlloc::F((char*)ctxt->extSubSystem);
 	#ifdef LIBXML_SAX1_ENABLED
 		if(ctxt->sax && (ctxt->sax != (xmlSAXHandlerPtr) &xmlDefaultSAXHandler))
 	#else
 		if(ctxt->sax)
 	#endif /* LIBXML_SAX1_ENABLED */
-			free(ctxt->sax);
-		free((char*)ctxt->directory);
-		free(ctxt->vctxt.nodeTab);
-		free((xmlChar**)ctxt->atts);
+			SAlloc::F(ctxt->sax);
+		SAlloc::F((char*)ctxt->directory);
+		SAlloc::F(ctxt->vctxt.nodeTab);
+		SAlloc::F((xmlChar**)ctxt->atts);
 		xmlDictFree(ctxt->dict);
-		free((char*)ctxt->nsTab);
-		free(ctxt->pushTab);
-		free(ctxt->attallocs);
+		SAlloc::F((char*)ctxt->nsTab);
+		SAlloc::F(ctxt->pushTab);
+		SAlloc::F(ctxt->attallocs);
 		xmlHashFree(ctxt->attsDefault, (xmlHashDeallocator)free);
 		xmlHashFree(ctxt->attsSpecial, NULL);
 		if(ctxt->freeElems) {
 			xmlNodePtr cur = ctxt->freeElems;
 			while(cur) {
 				xmlNodePtr next = cur->next;
-				free(cur);
+				SAlloc::F(cur);
 				cur = next;
 			}
 		}
@@ -1673,23 +1641,23 @@ void xmlFreeParserCtxt(xmlParserCtxtPtr ctxt)
 			xmlAttrPtr cur = ctxt->freeAttrs;
 			while(cur) {
 				xmlAttrPtr next = cur->next;
-				free(cur);
+				SAlloc::F(cur);
 				cur = next;
 			}
 		}
 		/*
 		* cleanup the error strings
 		*/
-		free(ctxt->lastError.message);
-		free(ctxt->lastError.file);
-		free(ctxt->lastError.str1);
-		free(ctxt->lastError.str2);
-		free(ctxt->lastError.str3);
+		SAlloc::F(ctxt->lastError.message);
+		SAlloc::F(ctxt->lastError.file);
+		SAlloc::F(ctxt->lastError.str1);
+		SAlloc::F(ctxt->lastError.str2);
+		SAlloc::F(ctxt->lastError.str3);
 #ifdef LIBXML_CATALOG_ENABLED
 		if(ctxt->catalogs != NULL)
 			xmlCatalogFreeLocal(ctxt->catalogs);
 #endif
-		free(ctxt);
+		SAlloc::F(ctxt);
 	}
 }
 /**
@@ -1702,7 +1670,7 @@ void xmlFreeParserCtxt(xmlParserCtxtPtr ctxt)
 
 xmlParserCtxtPtr xmlNewParserCtxt()
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)xmlMalloc(sizeof(xmlParserCtxt));
+	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)SAlloc::M(sizeof(xmlParserCtxt));
 	if(!ctxt) {
 		xmlErrMemory(NULL, "cannot allocate parser context\n");
 	}
@@ -1784,7 +1752,7 @@ void xmlInitNodeInfoSeq(xmlParserNodeInfoSeqPtr seq)
 void xmlClearNodeInfoSeq(xmlParserNodeInfoSeqPtr seq)
 {
 	if(seq) {
-		free(seq->buffer);
+		SAlloc::F(seq->buffer);
 		xmlInitNodeInfoSeq(seq);
 	}
 }
@@ -1847,7 +1815,7 @@ void xmlParserAddNodeInfo(xmlParserCtxtPtr ctxt, const xmlParserNodeInfoPtr info
 				uint byte_size;
 				SETIFZ(ctxt->node_seq.maximum, 2);
 				byte_size = (sizeof(*ctxt->node_seq.buffer) * (2 * ctxt->node_seq.maximum));
-				tmp_buffer = ctxt->node_seq.buffer ? (xmlParserNodeInfo*)xmlRealloc(ctxt->node_seq.buffer, byte_size) : (xmlParserNodeInfo*)xmlMalloc(byte_size);
+				tmp_buffer = ctxt->node_seq.buffer ? (xmlParserNodeInfo*)SAlloc::R(ctxt->node_seq.buffer, byte_size) : (xmlParserNodeInfo*)SAlloc::M(byte_size);
 				if(tmp_buffer == NULL) {
 					xmlErrMemory(ctxt, "failed to allocate buffer\n");
 					return;
@@ -1886,7 +1854,7 @@ int xmlPedanticParserDefault(int val)
 {
 	int old = xmlPedanticParserDefaultValue;
 	xmlPedanticParserDefaultValue = val;
-	return(old);
+	return old;
 }
 
 /**
@@ -1903,7 +1871,7 @@ int xmlLineNumbersDefault(int val)
 {
 	int old = xmlLineNumbersDefaultValue;
 	xmlLineNumbersDefaultValue = val;
-	return(old);
+	return old;
 }
 
 /**
@@ -1924,7 +1892,7 @@ int xmlSubstituteEntitiesDefault(int val)
 {
 	int old = xmlSubstituteEntitiesDefaultValue;
 	xmlSubstituteEntitiesDefaultValue = val;
-	return(old);
+	return old;
 }
 
 /**
@@ -1957,7 +1925,7 @@ int xmlKeepBlanksDefault(int val)
 	xmlKeepBlanksDefaultValue = val;
 	if(!val)
 		xmlIndentTreeOutput = 1;
-	return(old);
+	return old;
 }
 
 #define bottom_parserInternals

@@ -549,7 +549,7 @@ WORK_STATE ossl_statem_server_post_work(SSL * s, WORK_STATE wst)
 		case TLS_ST_SW_SRVR_HELLO:
 #ifndef OPENSSL_NO_SCTP
 		    if(SSL_IS_DTLS(s) && s->hit) {
-			    unsigned char sctpauthkey[64];
+			    uchar sctpauthkey[64];
 			    char labelbuffer[sizeof(DTLS1_SCTP_AUTH_LABEL)];
 
 			    /*
@@ -860,19 +860,19 @@ int tls_construct_hello_request(SSL * s)
 	return 1;
 }
 
-unsigned int dtls_raw_hello_verify_request(unsigned char * buf,
-    unsigned char * cookie,
-    unsigned char cookie_len)
+uint dtls_raw_hello_verify_request(uchar * buf,
+    uchar * cookie,
+    uchar cookie_len)
 {
-	unsigned int msg_len;
-	unsigned char * p;
+	uint msg_len;
+	uchar * p;
 
 	p = buf;
 	/* Always use DTLS 1.0 version: see RFC 6347 */
 	*(p++) = DTLS1_VERSION >> 8;
 	*(p++) = DTLS1_VERSION & 0xFF;
 
-	*(p++) = (unsigned char)cookie_len;
+	*(p++) = (uchar)cookie_len;
 	memcpy(p, cookie, cookie_len);
 	p += cookie_len;
 	msg_len = p - buf;
@@ -882,10 +882,10 @@ unsigned int dtls_raw_hello_verify_request(unsigned char * buf,
 
 int dtls_construct_hello_verify_request(SSL * s)
 {
-	unsigned int len;
-	unsigned char * buf;
+	uint len;
+	uchar * buf;
 
-	buf = (unsigned char*)s->init_buf->data;
+	buf = (uchar*)s->init_buf->data;
 
 	if(s->ctx->app_gen_cookie_cb == NULL ||
 	    s->ctx->app_gen_cookie_cb(s, s->d1->cookie,
@@ -913,7 +913,7 @@ int dtls_construct_hello_verify_request(SSL * s)
 MSG_PROCESS_RETURN tls_process_client_hello(SSL * s, PACKET * pkt)
 {
 	int i, al = SSL_AD_INTERNAL_ERROR;
-	unsigned int j, complen = 0;
+	uint j, complen = 0;
 	unsigned long id;
 	const SSL_CIPHER * c;
 #ifndef OPENSSL_NO_COMP
@@ -924,15 +924,15 @@ MSG_PROCESS_RETURN tls_process_client_hello(SSL * s, PACKET * pkt)
 	/* |cookie| will only be initialized for DTLS. */
 	PACKET session_id, cipher_suites, compression, extensions, cookie;
 	int is_v2_record;
-	static const unsigned char null_compression = 0;
+	static const uchar null_compression = 0;
 
 	is_v2_record = RECORD_LAYER_is_sslv2_record(&s->rlayer);
 
 	PACKET_null_init(&cookie);
 	/* First lets get s->client_version set correctly */
 	if(is_v2_record) {
-		unsigned int version;
-		unsigned int mt;
+		uint version;
+		uint mt;
 		/*-
 		 * An SSLv3/TLSv1 backwards-compatible CLIENT-HELLO in an SSLv2
 		 * header is sent directly on the wire, not wrapped as a TLS
@@ -984,7 +984,7 @@ MSG_PROCESS_RETURN tls_process_client_hello(SSL * s, PACKET * pkt)
 		 * use version from inside client hello, not from record header (may
 		 * differ: see RFC 2246, Appendix E, second paragraph)
 		 */
-		if(!PACKET_get_net_2(pkt, (unsigned int*)&s->client_version)) {
+		if(!PACKET_get_net_2(pkt, (uint*)&s->client_version)) {
 			al = SSL_AD_DECODE_ERROR;
 			SSLerr(SSL_F_TLS_PROCESS_CLIENT_HELLO, SSL_R_LENGTH_TOO_SHORT);
 			goto f_err;
@@ -1026,7 +1026,7 @@ MSG_PROCESS_RETURN tls_process_client_hello(SSL * s, PACKET * pkt)
 		 * Note, this is only for SSLv3+ using the backward compatible format.
 		 * Real SSLv2 is not supported, and is rejected above.
 		 */
-		unsigned int cipher_len, session_id_len, challenge_len;
+		uint cipher_len, session_id_len, challenge_len;
 		PACKET challenge;
 
 		if(!PACKET_get_net_2(pkt, &cipher_len)
@@ -1256,7 +1256,7 @@ MSG_PROCESS_RETURN tls_process_client_hello(SSL * s, PACKET * pkt)
 	 * processing to use it in key derivation.
 	 */
 	{
-		unsigned char * pos;
+		uchar * pos;
 		pos = s->s3->server_random;
 		if(ssl_fill_hello_random(s, 1, pos, SSL3_RANDOM_SIZE) <= 0) {
 			goto f_err;
@@ -1308,7 +1308,7 @@ MSG_PROCESS_RETURN tls_process_client_hello(SSL * s, PACKET * pkt)
 	/* This only happens if we have a cache hit */
 	if(s->session->compress_meth != 0) {
 		int m, comp_id = s->session->compress_meth;
-		unsigned int k;
+		uint k;
 		/* Perform sanity checks on resumed compression algorithm */
 		/* Can't disable compression */
 		if(!ssl_allow_compression(s)) {
@@ -1346,7 +1346,7 @@ MSG_PROCESS_RETURN tls_process_client_hello(SSL * s, PACKET * pkt)
 	else if(ssl_allow_compression(s) && s->ctx->comp_methods) {
 		/* See if we have a match */
 		int m, nn, v, done = 0;
-		unsigned int o;
+		uint o;
 
 		nn = sk_SSL_COMP_num(s->ctx->comp_methods);
 		for(m = 0; m < nn; m++) {
@@ -1522,13 +1522,13 @@ f_err:
 
 int tls_construct_server_hello(SSL * s)
 {
-	unsigned char * buf;
-	unsigned char * p, * d;
+	uchar * buf;
+	uchar * p, * d;
 	int i, sl;
 	int al = 0;
 	unsigned long l;
 
-	buf = (unsigned char*)s->init_buf->data;
+	buf = (uchar*)s->init_buf->data;
 
 	/* Do the message type and length last */
 	d = p = ssl_handshake_start(s);
@@ -1637,13 +1637,13 @@ int tls_construct_server_key_exchange(SSL * s)
 	int j;
 #endif
 #ifndef OPENSSL_NO_EC
-	unsigned char * encodedPoint = NULL;
+	uchar * encodedPoint = NULL;
 	int encodedlen = 0;
 	int curve_id = 0;
 #endif
 	EVP_PKEY * pkey;
 	const EVP_MD * md = NULL;
-	unsigned char * p, * d;
+	uchar * p, * d;
 	int al, i;
 	unsigned long type;
 	int n;
@@ -1966,7 +1966,7 @@ int tls_construct_server_key_exchange(SSL * s)
 				    SSL3_RANDOM_SIZE) <= 0
 			    || EVP_SignUpdate(md_ctx, d, n) <= 0
 			    || EVP_SignFinal(md_ctx, &(p[2]),
-				    (unsigned int*)&i, pkey) <= 0) {
+				    (uint*)&i, pkey) <= 0) {
 				SSLerr(SSL_F_TLS_CONSTRUCT_SERVER_KEY_EXCHANGE, ERR_LIB_EVP);
 				al = SSL_AD_INTERNAL_ERROR;
 				goto f_err;
@@ -2009,7 +2009,7 @@ err:
 
 int tls_construct_certificate_request(SSL * s)
 {
-	unsigned char * p, * d;
+	uchar * p, * d;
 	int i, j, nl, off, n;
 	STACK_OF(X509_NAME) *sk = NULL;
 	X509_NAME * name;
@@ -2027,8 +2027,8 @@ int tls_construct_certificate_request(SSL * s)
 	n++;
 
 	if(SSL_USE_SIGALGS(s)) {
-		const unsigned char * psigs;
-		unsigned char * etmp = p;
+		const uchar * psigs;
+		uchar * etmp = p;
 		nl = tls12_get_psigalgs(s, 1, &psigs);
 		/* Skip over length for now */
 		p += 2;
@@ -2080,7 +2080,7 @@ err:
 static int tls_process_cke_psk_preamble(SSL * s, PACKET * pkt, int * al)
 {
 #ifndef OPENSSL_NO_PSK
-	unsigned char psk[PSK_MAX_PSK_LEN];
+	uchar psk[PSK_MAX_PSK_LEN];
 	size_t psklen;
 	PACKET psk_identity;
 
@@ -2148,13 +2148,13 @@ static int tls_process_cke_psk_preamble(SSL * s, PACKET * pkt, int * al)
 static int tls_process_cke_rsa(SSL * s, PACKET * pkt, int * al)
 {
 #ifndef OPENSSL_NO_RSA
-	unsigned char rand_premaster_secret[SSL_MAX_MASTER_KEY_LENGTH];
+	uchar rand_premaster_secret[SSL_MAX_MASTER_KEY_LENGTH];
 	int decrypt_len;
-	unsigned char decrypt_good, version_good;
+	uchar decrypt_good, version_good;
 	size_t j, padding_len;
 	PACKET enc_premaster;
 	RSA * rsa = NULL;
-	unsigned char * rsa_decrypt = NULL;
+	uchar * rsa_decrypt = NULL;
 	int ret = 0;
 
 	rsa = EVP_PKEY_get0_RSA(s->cert->pkeys[SSL_PKEY_RSA_ENC].privatekey);
@@ -2262,7 +2262,7 @@ static int tls_process_cke_rsa(SSL * s, PACKET * pkt, int * al)
 	 * clients.
 	 */
 	if(s->options & SSL_OP_TLS_ROLLBACK_BUG) {
-		unsigned char workaround_good;
+		uchar workaround_good;
 		workaround_good = constant_time_eq_8(rsa_decrypt[padding_len],
 		    (unsigned)(s->version >> 8));
 		workaround_good &=
@@ -2314,9 +2314,9 @@ static int tls_process_cke_dhe(SSL * s, PACKET * pkt, int * al)
 #ifndef OPENSSL_NO_DH
 	EVP_PKEY * skey = NULL;
 	DH * cdh;
-	unsigned int i;
+	uint i;
 	BIGNUM * pub_key;
-	const unsigned char * data;
+	const uchar * data;
 	EVP_PKEY * ckey = NULL;
 	int ret = 0;
 
@@ -2393,8 +2393,8 @@ static int tls_process_cke_ecdhe(SSL * s, PACKET * pkt, int * al)
 		goto err;
 	}
 	else {
-		unsigned int i;
-		const unsigned char * data;
+		uint i;
+		const uchar * data;
 
 		/*
 		 * Get client's public key from encoded point in the
@@ -2444,8 +2444,8 @@ err:
 static int tls_process_cke_srp(SSL * s, PACKET * pkt, int * al)
 {
 #ifndef OPENSSL_NO_SRP
-	unsigned int i;
-	const unsigned char * data;
+	uint i;
+	const uchar * data;
 
 	if(!PACKET_get_net_2(pkt, &i)
 	    || !PACKET_get_bytes(pkt, &data, i)) {
@@ -2488,14 +2488,14 @@ static int tls_process_cke_gost(SSL * s, PACKET * pkt, int * al)
 #ifndef OPENSSL_NO_GOST
 	EVP_PKEY_CTX * pkey_ctx;
 	EVP_PKEY * client_pub_pkey = NULL, * pk = NULL;
-	unsigned char premaster_secret[32];
-	const unsigned char * start;
+	uchar premaster_secret[32];
+	const uchar * start;
 	size_t outlen = 32, inlen;
 	unsigned long alg_a;
 	int Ttag, Tclass;
 	long Tlen;
 	long sess_key_len;
-	const unsigned char * data;
+	const uchar * data;
 	int ret = 0;
 
 	/* Get our certificate private key */
@@ -2545,7 +2545,7 @@ static int tls_process_cke_gost(SSL * s, PACKET * pkt, int * al)
 		SSLerr(SSL_F_TLS_PROCESS_CKE_GOST, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
-	if(ASN1_get_object((const unsigned char**)&data, &Tlen, &Ttag,
+	if(ASN1_get_object((const uchar**)&data, &Tlen, &Ttag,
 		    &Tclass, sess_key_len) != V_ASN1_CONSTRUCTED
 	    || Ttag != V_ASN1_SEQUENCE || Tclass != V_ASN1_UNIVERSAL) {
 		*al = SSL_AD_DECODE_ERROR;
@@ -2654,7 +2654,7 @@ WORK_STATE tls_post_process_client_key_exchange(SSL * s, WORK_STATE wst)
 #ifndef OPENSSL_NO_SCTP
 	if(wst == WORK_MORE_A) {
 		if(SSL_IS_DTLS(s)) {
-			unsigned char sctpauthkey[64];
+			uchar sctpauthkey[64];
 			char labelbuffer[sizeof(DTLS1_SCTP_AUTH_LABEL)];
 			/*
 			 * Add new shared key for SCTP-Auth, will be ignored if no SCTP
@@ -2731,13 +2731,13 @@ WORK_STATE tls_post_process_client_key_exchange(SSL * s, WORK_STATE wst)
 MSG_PROCESS_RETURN tls_process_cert_verify(SSL * s, PACKET * pkt)
 {
 	EVP_PKEY * pkey = NULL;
-	const unsigned char * sig, * data;
+	const uchar * sig, * data;
 #ifndef OPENSSL_NO_GOST
-	unsigned char * gost_data = NULL;
+	uchar * gost_data = NULL;
 #endif
 	int al, ret = MSG_PROCESS_ERROR;
 	int type = 0, j;
-	unsigned int len;
+	uint len;
 	X509 * peer;
 	const EVP_MD * md = NULL;
 	long hdatalen = 0;
@@ -2897,7 +2897,7 @@ MSG_PROCESS_RETURN tls_process_client_certificate(SSL * s, PACKET * pkt)
 	int i, al = SSL_AD_INTERNAL_ERROR, ret = MSG_PROCESS_ERROR;
 	X509 * x = NULL;
 	unsigned long l, llen;
-	const unsigned char * certstart, * certbytes;
+	const uchar * certstart, * certbytes;
 	STACK_OF(X509) *sk = NULL;
 	PACKET spkt;
 
@@ -2924,8 +2924,8 @@ MSG_PROCESS_RETURN tls_process_client_certificate(SSL * s, PACKET * pkt)
 		}
 
 		certstart = certbytes;
-		x = d2i_X509(NULL, (const unsigned char**)&certbytes, l);
-		if(x == NULL) {
+		x = d2i_X509(NULL, (const uchar**)&certbytes, l);
+		if(!x) {
 			SSLerr(SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE, ERR_R_ASN1_LIB);
 			goto f_err;
 		}
@@ -3031,17 +3031,17 @@ int tls_construct_server_certificate(SSL * s)
 
 int tls_construct_new_session_ticket(SSL * s)
 {
-	unsigned char * senc = NULL;
+	uchar * senc = NULL;
 	EVP_CIPHER_CTX * ctx = NULL;
 	HMAC_CTX * hctx = NULL;
-	unsigned char * p, * macstart;
-	const unsigned char * const_p;
+	uchar * p, * macstart;
+	const uchar * const_p;
 	int len, slen_full, slen;
 	SSL_SESSION * sess;
-	unsigned int hlen;
+	uint hlen;
 	SSL_CTX * tctx = s->session_ctx;
-	unsigned char iv[EVP_MAX_IV_LENGTH];
-	unsigned char key_name[TLSEXT_KEYNAME_LENGTH];
+	uchar iv[EVP_MAX_IV_LENGTH];
+	uchar key_name[TLSEXT_KEYNAME_LENGTH];
 	int iv_len;
 
 	/* get session encoding length */
@@ -3204,7 +3204,7 @@ err:
 
 int tls_construct_cert_status(SSL * s)
 {
-	unsigned char * p;
+	uchar * p;
 	size_t msglen;
 
 	/*-
@@ -3265,7 +3265,7 @@ MSG_PROCESS_RETURN tls_process_next_proto(SSL * s, PACKET * pkt)
 		goto err;
 	}
 
-	s->next_proto_negotiated_len = (unsigned char)next_proto_len;
+	s->next_proto_negotiated_len = (uchar)next_proto_len;
 
 	return MSG_PROCESS_CONTINUE_READING;
 err:
@@ -3286,7 +3286,7 @@ STACK_OF(SSL_CIPHER) *ssl_bytes_to_cipher_list(SSL *s,
 	STACK_OF(SSL_CIPHER) *sk;
 	int n;
 	/* 3 = SSLV2_CIPHER_LEN > TLS_CIPHER_LEN = 2. */
-	unsigned char cipher[SSLV2_CIPHER_LEN];
+	uchar cipher[SSLV2_CIPHER_LEN];
 
 	s->s3->send_connection_binding = 0;
 
@@ -3315,8 +3315,8 @@ STACK_OF(SSL_CIPHER) *ssl_bytes_to_cipher_list(SSL *s,
 	if(sslv2format) {
 		size_t numciphers = PACKET_remaining(cipher_suites) / n;
 		PACKET sslv2ciphers = *cipher_suites;
-		unsigned int leadbyte;
-		unsigned char * raw;
+		uint leadbyte;
+		uchar * raw;
 
 		/*
 		 * We store the raw ciphers list in SSLv3+ format so we need to do some

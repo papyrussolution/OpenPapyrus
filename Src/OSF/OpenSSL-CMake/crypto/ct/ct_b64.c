@@ -16,11 +16,11 @@
  * A new string will be malloc'd and assigned to |out|. This will be owned by
  * the caller. Do not provide a pre-allocated string in |out|.
  */
-static int ct_base64_decode(const char * in, unsigned char ** out)
+static int ct_base64_decode(const char * in, uchar ** out)
 {
 	size_t inlen = strlen(in);
 	int outlen;
-	unsigned char * outbuf = NULL;
+	uchar * outbuf = NULL;
 
 	if(inlen == 0) {
 		*out = NULL;
@@ -34,7 +34,7 @@ static int ct_base64_decode(const char * in, unsigned char ** out)
 		goto err;
 	}
 
-	outlen = EVP_DecodeBlock(outbuf, (unsigned char*)in, inlen);
+	outlen = EVP_DecodeBlock(outbuf, (uchar*)in, inlen);
 	if(outlen < 0) {
 		CTerr(CT_F_CT_BASE64_DECODE, CT_R_BASE64_DECODE_ERROR);
 		goto err;
@@ -52,14 +52,14 @@ err:
 	return -1;
 }
 
-SCT * SCT_new_from_base64(unsigned char version, const char * logid_base64,
+SCT * SCT_new_from_base64(uchar version, const char * logid_base64,
     ct_log_entry_type_t entry_type, uint64_t timestamp,
     const char * extensions_base64,
     const char * signature_base64)
 {
 	SCT * sct = SCT_new();
-	unsigned char * dec = NULL;
-	const unsigned char* p = NULL;
+	uchar * dec = NULL;
+	const uchar* p = NULL;
 	int declen;
 
 	if(sct == NULL) {
@@ -126,9 +126,9 @@ err:
  */
 int CTLOG_new_from_base64(CTLOG ** ct_log, const char * pkey_base64, const char * name)
 {
-	unsigned char * pkey_der = NULL;
+	uchar * pkey_der = NULL;
 	int pkey_der_len = ct_base64_decode(pkey_base64, &pkey_der);
-	const unsigned char * p;
+	const uchar * p;
 	EVP_PKEY * pkey = NULL;
 
 	if(ct_log == NULL) {

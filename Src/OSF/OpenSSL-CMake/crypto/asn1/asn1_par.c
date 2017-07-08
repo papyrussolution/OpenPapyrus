@@ -48,7 +48,7 @@ static int asn1_print_info(BIO * bp, int tag, int xclass, int constructed, int i
 		goto err;
 	return (1);
 err:
-	return (0);
+	return 0;
 }
 
 int ASN1_parse(BIO * bp, const uchar * pp, long len, int indent)
@@ -350,7 +350,7 @@ end:
 	ASN1_OBJECT_free(o);
 	ASN1_OCTET_STRING_free(os);
 	*pp = p;
-	return (ret);
+	return ret;
 }
 
 const char * ASN1_tag2str(int tag)

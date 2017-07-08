@@ -13,7 +13,7 @@
 //#include "ssl_locl.h"
 
 /* Add the client's renegotiation binding */
-int ssl_add_clienthello_renegotiate_ext(SSL * s, unsigned char * p, int * len, int maxlen)
+int ssl_add_clienthello_renegotiate_ext(SSL * s, uchar * p, int * len, int maxlen)
 {
 	if(p) {
 		if((s->s3->previous_client_finished_len + 1) > maxlen) {
@@ -33,8 +33,8 @@ int ssl_add_clienthello_renegotiate_ext(SSL * s, unsigned char * p, int * len, i
  */
 int ssl_parse_clienthello_renegotiate_ext(SSL * s, PACKET * pkt, int * al)
 {
-	unsigned int ilen;
-	const unsigned char * d;
+	uint ilen;
+	const uchar * d;
 	/* Parse the length byte */
 	if(!PACKET_get_1(pkt, &ilen) || !PACKET_get_bytes(pkt, &d, ilen)) {
 		SSLerr(SSL_F_SSL_PARSE_CLIENTHELLO_RENEGOTIATE_EXT, SSL_R_RENEGOTIATION_ENCODING_ERR);
@@ -57,7 +57,7 @@ int ssl_parse_clienthello_renegotiate_ext(SSL * s, PACKET * pkt, int * al)
 }
 
 /* Add the server's renegotiation binding */
-int ssl_add_serverhello_renegotiate_ext(SSL * s, unsigned char * p, int * len, int maxlen)
+int ssl_add_serverhello_renegotiate_ext(SSL * s, uchar * p, int * len, int maxlen)
 {
 	if(p) {
 		if((s->s3->previous_client_finished_len + s->s3->previous_server_finished_len + 1) > maxlen) {
@@ -80,9 +80,9 @@ int ssl_add_serverhello_renegotiate_ext(SSL * s, unsigned char * p, int * len, i
  */
 int ssl_parse_serverhello_renegotiate_ext(SSL * s, PACKET * pkt, int * al)
 {
-	unsigned int expected_len = s->s3->previous_client_finished_len + s->s3->previous_server_finished_len;
-	unsigned int ilen;
-	const unsigned char * data;
+	uint expected_len = s->s3->previous_client_finished_len + s->s3->previous_server_finished_len;
+	uint ilen;
+	const uchar * data;
 	/* Check for logic errors */
 	OPENSSL_assert(!expected_len || s->s3->previous_client_finished_len);
 	OPENSSL_assert(!expected_len || s->s3->previous_server_finished_len);

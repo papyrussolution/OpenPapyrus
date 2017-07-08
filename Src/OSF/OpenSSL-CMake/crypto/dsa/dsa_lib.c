@@ -63,7 +63,7 @@ const DSA_METHOD * DSA_get_method(DSA * d)
 DSA * DSA_new_method(ENGINE * engine)
 {
 	DSA * ret = (DSA*)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL) {
+	if(!ret) {
 		DSAerr(DSA_F_DSA_NEW_METHOD, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -172,7 +172,7 @@ int DSA_size(const DSA * r)
 	i = i2d_ASN1_INTEGER(&bs, NULL);
 	i += i;                 /* r and s */
 	ret = ASN1_object_size(1, i, V_ASN1_SEQUENCE);
-	return (ret);
+	return ret;
 }
 
 int DSA_set_ex_data(DSA * d, int idx, void * arg)
@@ -206,7 +206,7 @@ DH * DSA_dup_DH(const DSA * r)
 	if(r == NULL)
 		goto err;
 	ret = DH_new();
-	if(ret == NULL)
+	if(!ret)
 		goto err;
 	if(r->p != NULL || r->g != NULL || r->q != NULL) {
 		if(r->p == NULL || r->g == NULL || r->q == NULL) {

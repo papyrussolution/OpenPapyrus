@@ -20,8 +20,8 @@
 #define X25519_SECURITY_BITS 128
 
 typedef struct {
-	unsigned char pubkey[X25519_KEYLEN];
-	unsigned char * privkey;
+	uchar pubkey[X25519_KEYLEN];
+	uchar * privkey;
 } X25519_KEY;
 
 typedef enum {
@@ -32,7 +32,7 @@ typedef enum {
 
 /* Setup EVP_PKEY using public, private or generation */
 static int ecx_key_op(EVP_PKEY * pkey, const X509_ALGOR * palg,
-    const unsigned char * p, int plen, ecx_key_op_t op)
+    const uchar * p, int plen, ecx_key_op_t op)
 {
 	X25519_KEY * xkey;
 
@@ -63,7 +63,7 @@ static int ecx_key_op(EVP_PKEY * pkey, const X509_ALGOR * palg,
 		memcpy(xkey->pubkey, p, plen);
 	}
 	else {
-		xkey->privkey = (unsigned char *)OPENSSL_secure_malloc(X25519_KEYLEN);
+		xkey->privkey = (uchar *)OPENSSL_secure_malloc(X25519_KEYLEN);
 		if(xkey->privkey == NULL) {
 			ECerr(EC_F_ECX_KEY_OP, ERR_R_MALLOC_FAILURE);
 			OPENSSL_free(xkey);
@@ -91,12 +91,12 @@ static int ecx_key_op(EVP_PKEY * pkey, const X509_ALGOR * palg,
 static int ecx_pub_encode(X509_PUBKEY * pk, const EVP_PKEY * pkey)
 {
 	const X25519_KEY * xkey = (const X25519_KEY *)pkey->pkey.ptr;
-	unsigned char * penc;
+	uchar * penc;
 	if(xkey == NULL) {
 		ECerr(EC_F_ECX_PUB_ENCODE, EC_R_INVALID_KEY);
 		return 0;
 	}
-	penc = (unsigned char *)OPENSSL_memdup(xkey->pubkey, X25519_KEYLEN);
+	penc = (uchar *)OPENSSL_memdup(xkey->pubkey, X25519_KEYLEN);
 	if(penc == NULL) {
 		ECerr(EC_F_ECX_PUB_ENCODE, ERR_R_MALLOC_FAILURE);
 		return 0;
@@ -111,7 +111,7 @@ static int ecx_pub_encode(X509_PUBKEY * pk, const EVP_PKEY * pkey)
 
 static int ecx_pub_decode(EVP_PKEY * pkey, X509_PUBKEY * pubkey)
 {
-	const unsigned char * p;
+	const uchar * p;
 	int pklen;
 	X509_ALGOR * palg;
 
@@ -131,7 +131,7 @@ static int ecx_pub_cmp(const EVP_PKEY * a, const EVP_PKEY * b)
 
 static int ecx_priv_decode(EVP_PKEY * pkey, const PKCS8_PRIV_KEY_INFO * p8)
 {
-	const unsigned char * p;
+	const uchar * p;
 	int plen;
 	ASN1_OCTET_STRING * oct = NULL;
 	const X509_ALGOR * palg;
@@ -159,7 +159,7 @@ static int ecx_priv_encode(PKCS8_PRIV_KEY_INFO * p8, const EVP_PKEY * pkey)
 {
 	const X25519_KEY * xkey = (const X25519_KEY *)pkey->pkey.ptr;
 	ASN1_OCTET_STRING oct;
-	unsigned char * penc = NULL;
+	uchar * penc = NULL;
 	int penclen;
 	if(xkey == NULL || xkey->privkey == NULL) {
 		ECerr(EC_F_ECX_PRIV_ENCODE, EC_R_INVALID_PRIVATE_KEY);
@@ -260,12 +260,12 @@ static int ecx_ctrl(EVP_PKEY * pkey, int op, long arg1, void * arg2)
 {
 	switch(op) {
 		case ASN1_PKEY_CTRL_SET1_TLS_ENCPT:
-		    return ecx_key_op(pkey, NULL, (const unsigned char *)arg2, arg1, X25519_PUBLIC);
+		    return ecx_key_op(pkey, NULL, (const uchar *)arg2, arg1, X25519_PUBLIC);
 		case ASN1_PKEY_CTRL_GET1_TLS_ENCPT:
 		    if(pkey->pkey.ptr != NULL) {
 			    const X25519_KEY * xkey = (const X25519_KEY *)pkey->pkey.ptr;
-			    unsigned char ** ppt = (unsigned char **)arg2;
-			    *ppt = (unsigned char *)OPENSSL_memdup(xkey->pubkey, X25519_KEYLEN);
+			    uchar ** ppt = (uchar **)arg2;
+			    *ppt = (uchar *)OPENSSL_memdup(xkey->pubkey, X25519_KEYLEN);
 			    if(*ppt != NULL)
 				    return X25519_KEYLEN;
 		    }
@@ -313,7 +313,7 @@ static int pkey_ecx_keygen(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey)
 	return ecx_key_op(pkey, NULL, NULL, 0, X25519_KEYGEN);
 }
 
-static int pkey_ecx_derive(EVP_PKEY_CTX * ctx, unsigned char * key, size_t * keylen)
+static int pkey_ecx_derive(EVP_PKEY_CTX * ctx, uchar * key, size_t * keylen)
 {
 	const X25519_KEY * pkey, * peerkey;
 	if(ctx->pkey == NULL || ctx->peerkey == NULL) {

@@ -127,7 +127,7 @@ SCT *SCT_new(void);
  * Creates a new SCT from some base64-encoded strings.
  * The caller is responsible for calling SCT_free when finished with the SCT.
  */
-SCT *SCT_new_from_base64(unsigned char version,
+SCT *SCT_new_from_base64(uchar version,
                          const char *logid_base64,
                          ct_log_entry_type_t entry_type,
                          uint64_t timestamp,
@@ -172,21 +172,21 @@ __owur int SCT_set_log_entry_type(SCT *sct, ct_log_entry_type_t entry_type);
  * Ownership of the log ID remains with the SCT.
  * Returns the length of the log ID.
  */
-size_t SCT_get0_log_id(const SCT *sct, unsigned char **log_id);
+size_t SCT_get0_log_id(const SCT *sct, uchar **log_id);
 
 /*
  * Set the log ID of an SCT to point directly to the *log_id specified.
  * The SCT takes ownership of the specified pointer.
  * Returns 1 on success, 0 otherwise.
  */
-__owur int SCT_set0_log_id(SCT *sct, unsigned char *log_id, size_t log_id_len);
+__owur int SCT_set0_log_id(SCT *sct, uchar *log_id, size_t log_id_len);
 
 /*
  * Set the log ID of an SCT.
  * This makes a copy of the log_id.
  * Returns 1 on success, 0 otherwise.
  */
-__owur int SCT_set1_log_id(SCT *sct, const unsigned char *log_id,
+__owur int SCT_set1_log_id(SCT *sct, const uchar *log_id,
                            size_t log_id_len);
 
 /*
@@ -219,20 +219,20 @@ __owur int SCT_set_signature_nid(SCT *sct, int nid);
  * The SCT retains ownership of this pointer.
  * Returns length of the data pointed to.
  */
-size_t SCT_get0_extensions(const SCT *sct, unsigned char **ext);
+size_t SCT_get0_extensions(const SCT *sct, uchar **ext);
 
 /*
  * Set the extensions of an SCT to point directly to the *ext specified.
  * The SCT takes ownership of the specified pointer.
  */
-void SCT_set0_extensions(SCT *sct, unsigned char *ext, size_t ext_len);
+void SCT_set0_extensions(SCT *sct, uchar *ext, size_t ext_len);
 
 /*
  * Set the extensions of an SCT.
  * This takes a copy of the ext.
  * Returns 1 on success, 0 otherwise.
  */
-__owur int SCT_set1_extensions(SCT *sct, const unsigned char *ext,
+__owur int SCT_set1_extensions(SCT *sct, const uchar *ext,
                                size_t ext_len);
 
 /*
@@ -240,19 +240,19 @@ __owur int SCT_set1_extensions(SCT *sct, const unsigned char *ext,
  * The SCT retains ownership of this pointer.
  * Returns length of the data pointed to.
  */
-size_t SCT_get0_signature(const SCT *sct, unsigned char **sig);
+size_t SCT_get0_signature(const SCT *sct, uchar **sig);
 
 /*
  * Set the signature of an SCT to point directly to the *sig specified.
  * The SCT takes ownership of the specified pointer.
  */
-void SCT_set0_signature(SCT *sct, unsigned char *sig, size_t sig_len);
+void SCT_set0_signature(SCT *sct, uchar *sig, size_t sig_len);
 
 /*
  * Set the signature of an SCT to be a copy of the *sig specified.
  * Returns 1 on success, 0 otherwise.
  */
-__owur int SCT_set1_signature(SCT *sct, const unsigned char *sig,
+__owur int SCT_set1_signature(SCT *sct, const uchar *sig,
                               size_t sig_len);
 
 /*
@@ -331,7 +331,7 @@ __owur int SCT_LIST_validate(const STACK_OF(SCT) *scts,
  * Returns < 0 on error, >= 0 indicating bytes written (or would have been)
  * on success.
  */
-__owur int i2o_SCT_LIST(const STACK_OF(SCT) *a, unsigned char **pp);
+__owur int i2o_SCT_LIST(const STACK_OF(SCT) *a, uchar **pp);
 
 /*
  * Convert TLS format SCT list to a stack of SCTs.
@@ -343,7 +343,7 @@ __owur int i2o_SCT_LIST(const STACK_OF(SCT) *a, unsigned char **pp);
  * Upon failure, a NULL pointer will be returned, and the position of "*pp" is
  * not defined.
  */
-STACK_OF(SCT) *o2i_SCT_LIST(STACK_OF(SCT) **a, const unsigned char **pp,
+STACK_OF(SCT) *o2i_SCT_LIST(STACK_OF(SCT) **a, const uchar **pp,
                             size_t len);
 
 /*
@@ -358,7 +358,7 @@ STACK_OF(SCT) *o2i_SCT_LIST(STACK_OF(SCT) **a, const unsigned char **pp,
  * Returns < 0 on error, >= 0 indicating bytes written (or would have been)
  * on success.
  */
-__owur int i2d_SCT_LIST(const STACK_OF(SCT) *a, unsigned char **pp);
+__owur int i2d_SCT_LIST(const STACK_OF(SCT) *a, uchar **pp);
 
 /*
  * Parses an SCT list in DER format and returns it.
@@ -370,7 +370,7 @@ __owur int i2d_SCT_LIST(const STACK_OF(SCT) *a, unsigned char **pp);
  * Upon failure, a NULL pointer will be returned, and the position of "*pp" is
  * not defined.
  */
-STACK_OF(SCT) *d2i_SCT_LIST(STACK_OF(SCT) **a, const unsigned char **pp,
+STACK_OF(SCT) *d2i_SCT_LIST(STACK_OF(SCT) **a, const uchar **pp,
                             long len);
 
 /*
@@ -382,7 +382,7 @@ STACK_OF(SCT) *d2i_SCT_LIST(STACK_OF(SCT) **a, const unsigned char **pp,
  * to it.
  * The length of the SCT in TLS format will be returned.
  */
-__owur int i2o_SCT(const SCT *sct, unsigned char **out);
+__owur int i2o_SCT(const SCT *sct, uchar **out);
 
 /*
  * Parses an SCT in TLS format and returns it.
@@ -395,7 +395,7 @@ __owur int i2o_SCT(const SCT *sct, unsigned char **out);
  * If the SCT is an unsupported version, only the SCT's 'sct' and 'sct_len'
  * fields will be populated (with |in| and |len| respectively).
  */
-SCT *o2i_SCT(SCT **psct, const unsigned char **in, size_t len);
+SCT *o2i_SCT(SCT **psct, const uchar **in, size_t len);
 
 /********************
  * CT log functions *

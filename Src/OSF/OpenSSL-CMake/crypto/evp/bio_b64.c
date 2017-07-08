@@ -62,7 +62,7 @@ const BIO_METHOD * BIO_f_base64(void)
 static int b64_new(BIO * bi)
 {
 	BIO_B64_CTX * ctx = (BIO_B64_CTX*)OPENSSL_zalloc(sizeof(*ctx));
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 	ctx->cont = 1;
 	ctx->start = 1;
@@ -81,10 +81,10 @@ static int b64_new(BIO * bi)
 static int b64_free(BIO * a)
 {
 	BIO_B64_CTX * ctx;
-	if(a == NULL)
+	if(!a)
 		return 0;
 	ctx = (BIO_B64_CTX*)BIO_get_data(a);
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 	EVP_ENCODE_CTX_free(ctx->base64);
 	OPENSSL_free(ctx);
@@ -100,7 +100,7 @@ static int b64_read(BIO * b, char * out, int outl)
 	uchar * p, * q;
 	BIO * next;
 	if(out == NULL)
-		return (0);
+		return 0;
 	ctx = (BIO_B64_CTX*)BIO_get_data(b);
 	next = BIO_next(b);
 	if((ctx == NULL) || (next == NULL))
@@ -313,7 +313,7 @@ static int b64_write(BIO * b, const char * in, int inl)
 	ctx->buf_off = 0;
 	ctx->buf_len = 0;
 	if((in == NULL) || (inl <= 0))
-		return (0);
+		return 0;
 	while(inl > 0) {
 		n = (inl > B64_BLOCK_SIZE) ? B64_BLOCK_SIZE : inl;
 		if(BIO_get_flags(b) & BIO_FLAGS_BASE64_NO_NL) {
@@ -378,7 +378,7 @@ static int b64_write(BIO * b, const char * in, int inl)
 		ctx->buf_len = 0;
 		ctx->buf_off = 0;
 	}
-	return (ret);
+	return ret;
 }
 
 static long b64_ctrl(BIO * b, int cmd, long num, void * ptr)
@@ -476,7 +476,7 @@ static long b64_callback_ctrl(BIO * b, int cmd, bio_info_cb * fp)
 		    ret = BIO_callback_ctrl(next, cmd, fp);
 		    break;
 	}
-	return (ret);
+	return ret;
 }
 
 static int b64_puts(BIO * b, const char * str)

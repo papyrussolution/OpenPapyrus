@@ -57,14 +57,14 @@ X509_ATTRIBUTE * X509at_delete_attr(STACK_OF(X509_ATTRIBUTE) * x, int loc)
 	if(x == NULL || sk_X509_ATTRIBUTE_num(x) <= loc || loc < 0)
 		return (NULL);
 	ret = sk_X509_ATTRIBUTE_delete(x, loc);
-	return (ret);
+	return ret;
 }
 
 STACK_OF(X509_ATTRIBUTE) *X509at_add1_attr(STACK_OF(X509_ATTRIBUTE) **x, X509_ATTRIBUTE *attr)
 {
 	X509_ATTRIBUTE * new_attr = NULL;
 	STACK_OF(X509_ATTRIBUTE) *sk = NULL;
-	if(x == NULL) {
+	if(!x) {
 		X509err(X509_F_X509AT_ADD1_ATTR, ERR_R_PASSED_NULL_PARAMETER);
 		goto err2;
 	}
@@ -145,9 +145,9 @@ X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_NID(X509_ATTRIBUTE ** attr, int nid, i
 		return (NULL);
 	}
 	ret = X509_ATTRIBUTE_create_by_OBJ(attr, obj, atrtype, data, len);
-	if(ret == NULL)
+	if(!ret)
 		ASN1_OBJECT_free(obj);
-	return (ret);
+	return ret;
 }
 
 X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_OBJ(X509_ATTRIBUTE ** attr, const ASN1_OBJECT * obj, int atrtype, const void * data, int len)
@@ -170,7 +170,7 @@ X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_OBJ(X509_ATTRIBUTE ** attr, const ASN1
 
 	if((attr != NULL) && (*attr == NULL))
 		*attr = ret;
-	return (ret);
+	return ret;
 err:
 	if((attr == NULL) || (ret != *attr))
 		X509_ATTRIBUTE_free(ret);
@@ -194,7 +194,7 @@ X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_txt(X509_ATTRIBUTE ** attr, const char
 int X509_ATTRIBUTE_set1_object(X509_ATTRIBUTE * attr, const ASN1_OBJECT * obj)
 {
 	if((attr == NULL) || (obj == NULL))
-		return (0);
+		return 0;
 	ASN1_OBJECT_free(attr->object);
 	attr->object = OBJ_dup(obj);
 	return attr->object != NULL;

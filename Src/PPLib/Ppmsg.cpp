@@ -388,9 +388,9 @@ int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmv
 		else
 			*p_tmp_buf = 3; // Сообщение будет центрироваться //
 		if(!pAddInfo) {
-			if(oneof2(group, PPERR_DBENGINE, PPERR_DBLIB))
+			if(oneof2(group, PPSTR_DBENGINE, PPERR_DBLIB))
 				pAddInfo = DBS.GetConstTLA().AddedMsgString;
-			else if(group == PPERR_SLIB)
+			else if(group == PPSTR_SLIBERR)
 				pAddInfo = SLS.GetConstTLA().AddedMsgString;
 			else
 				pAddInfo = DS.GetConstTLA().AddedMsgString;

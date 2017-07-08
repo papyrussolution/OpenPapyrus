@@ -16,14 +16,14 @@ int X509_certificate_type(const X509 * x, const EVP_PKEY * pkey)
 {
 	const EVP_PKEY * pk;
 	int ret = 0, i;
-	if(x == NULL)
-		return (0);
+	if(!x)
+		return 0;
 	if(pkey == NULL)
 		pk = X509_get0_pubkey(x);
 	else
 		pk = pkey;
 	if(pk == NULL)
-		return (0);
+		return 0;
 	switch(EVP_PKEY_id(pk)) {
 		case EVP_PKEY_RSA:
 		    ret = EVP_PK_RSA | EVP_PKT_SIGN;
@@ -66,6 +66,6 @@ int X509_certificate_type(const X509 * x, const EVP_PKEY * pkey)
 			    break;
 		}
 	}
-	return (ret);
+	return ret;
 }
 

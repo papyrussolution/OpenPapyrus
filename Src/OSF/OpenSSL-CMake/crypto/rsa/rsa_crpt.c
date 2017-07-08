@@ -68,7 +68,7 @@ int RSA_blinding_on(RSA * rsa, BN_CTX * ctx)
 	rsa->flags &= ~RSA_FLAG_NO_BLINDING;
 	ret = 1;
 err:
-	return (ret);
+	return ret;
 }
 
 static BIGNUM * rsa_get_public_exp(const BIGNUM * d, const BIGNUM * p, const BIGNUM * q, BN_CTX * ctx)
@@ -138,7 +138,7 @@ BN_BLINDING * RSA_setup_blinding(RSA * rsa, BN_CTX * in_ctx)
 		/* We MUST free n before any further use of rsa->n */
 		BN_free(n);
 	}
-	if(ret == NULL) {
+	if(!ret) {
 		RSAerr(RSA_F_RSA_SETUP_BLINDING, ERR_R_BN_LIB);
 		goto err;
 	}

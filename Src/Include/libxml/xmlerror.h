@@ -841,7 +841,7 @@ typedef enum {
  * Signature of the function to use when there is an error and
  * no parsing or validity context available .
  */
-typedef void (XMLCDECL *xmlGenericErrorFunc)(void *ctx, const char *msg, ...) LIBXML_ATTR_FORMAT(2,3);
+typedef void (XMLCDECL *xmlGenericErrorFunc)(void * ctx, const char *msg, ...) LIBXML_ATTR_FORMAT(2,3);
 /**
  * xmlStructuredErrorFunc:
  * @userData:  user provided data for the error callback
@@ -850,7 +850,7 @@ typedef void (XMLCDECL *xmlGenericErrorFunc)(void *ctx, const char *msg, ...) LI
  * Signature of the function to use when there is an error and
  * the module handles the new error reporting mechanism.
  */
-typedef void (XMLCALL *xmlStructuredErrorFunc)(void *userData, xmlErrorPtr error);
+typedef void (XMLCALL *xmlStructuredErrorFunc)(void * userData, xmlErrorPtr error);
 
 /*
  * Use the following function to reset the two global variables

@@ -1670,10 +1670,9 @@ int SLAPI PPView::UpdateTimeBrowser(const STimeChunkGrid * pGrid, const char * p
 	return ok;
 }
 
-int SLAPI PPView::SetExtToolbar(uint toolbarId)
+void SLAPI PPView::SetExtToolbar(uint toolbarId)
 {
 	ExtToolbarId = toolbarId;
-	return 1;
 }
 
 int SLAPI PPView::Browse(int modeless)
@@ -1832,8 +1831,7 @@ int SLAPI PPView::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pC
 //
 //
 //
-PPViewBrowser::PPViewBrowser(uint brwId, DBQuery * pQ, PPView * pV, int dataOwner) :
-	BrowserWindow(brwId, pQ), RefreshTimer(0)
+PPViewBrowser::PPViewBrowser(uint brwId, DBQuery * pQ, PPView * pV, int dataOwner) : BrowserWindow(brwId, pQ), RefreshTimer(0)
 {
 	P_View = pV;
 	IsDataOwner = dataOwner;
@@ -1844,8 +1842,7 @@ PPViewBrowser::PPViewBrowser(uint brwId, DBQuery * pQ, PPView * pV, int dataOwne
 	Advise();
 }
 
-PPViewBrowser::PPViewBrowser(uint brwId, SArray * pQ, PPView * pV, int dataOwner) :
-	BrowserWindow(brwId, pQ), RefreshTimer(0)
+PPViewBrowser::PPViewBrowser(uint brwId, SArray * pQ, PPView * pV, int dataOwner) : BrowserWindow(brwId, pQ), RefreshTimer(0)
 {
 	P_View = pV;
 	IsDataOwner = dataOwner;
@@ -1924,11 +1921,10 @@ int PPViewBrowser::Advise()
 	return ok;
 }
 
-int PPViewBrowser::Unadvise()
+void PPViewBrowser::Unadvise()
 {
 	for(uint i = 0; i < Cookies.getCount(); i++)
 		DS.Unadvise(Cookies.at(i));
-	return 1;
 }
 
 // static
@@ -2089,7 +2085,7 @@ int PPViewBrowser::Export()
 		path.SetLastSlash();
 		createDir(path);
 		path.Cat(name.ReplaceChar('/', ' ')).Cat(".xls");
-		::remove(path);
+		SFile::Remove(path);
 		p_wkbook->_SaveAs(path);
 		p_wkbook->_Close();
 		ZDELETE(p_wkbook);

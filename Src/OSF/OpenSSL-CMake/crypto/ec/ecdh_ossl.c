@@ -26,7 +26,7 @@
 //#include <openssl/ec.h>
 #include "ec_lcl.h"
 
-int ossl_ecdh_compute_key(unsigned char ** psec, size_t * pseclen, const EC_POINT * pub_key, const EC_KEY * ecdh)
+int ossl_ecdh_compute_key(uchar ** psec, size_t * pseclen, const EC_POINT * pub_key, const EC_KEY * ecdh)
 {
 	if(ecdh->group->meth->ecdh_compute_key == NULL) {
 		ECerr(EC_F_OSSL_ECDH_COMPUTE_KEY, EC_R_CURVE_DOES_NOT_SUPPORT_ECDH);
@@ -40,7 +40,7 @@ int ossl_ecdh_compute_key(unsigned char ** psec, size_t * pseclen, const EC_POIN
  *  - ECKAS-DH1
  *  - ECSVDP-DH
  */
-int ecdh_simple_compute_key(unsigned char ** pout, size_t * poutlen, const EC_POINT * pub_key, const EC_KEY * ecdh)
+int ecdh_simple_compute_key(uchar ** pout, size_t * poutlen, const EC_POINT * pub_key, const EC_KEY * ecdh)
 {
 	BN_CTX * ctx;
 	EC_POINT * tmp = NULL;
@@ -49,7 +49,7 @@ int ecdh_simple_compute_key(unsigned char ** pout, size_t * poutlen, const EC_PO
 	const EC_GROUP * group;
 	int ret = 0;
 	size_t buflen, len;
-	unsigned char * buf = NULL;
+	uchar * buf = NULL;
 
 	if((ctx = BN_CTX_new()) == NULL)
 		goto err;

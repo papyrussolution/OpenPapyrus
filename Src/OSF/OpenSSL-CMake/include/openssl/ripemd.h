@@ -19,7 +19,7 @@
 extern "C" {
 # endif
 
-# define RIPEMD160_LONG unsigned int
+# define RIPEMD160_LONG uint
 
 # define RIPEMD160_CBLOCK        64
 # define RIPEMD160_LBLOCK        (RIPEMD160_CBLOCK/4)
@@ -29,14 +29,14 @@ typedef struct RIPEMD160state_st {
     RIPEMD160_LONG A, B, C, D, E;
     RIPEMD160_LONG Nl, Nh;
     RIPEMD160_LONG data[RIPEMD160_LBLOCK];
-    unsigned int num;
+    uint num;
 } RIPEMD160_CTX;
 
 int RIPEMD160_Init(RIPEMD160_CTX *c);
 int RIPEMD160_Update(RIPEMD160_CTX *c, const void *data, size_t len);
-int RIPEMD160_Final(unsigned char *md, RIPEMD160_CTX *c);
-unsigned char *RIPEMD160(const unsigned char *d, size_t n, unsigned char *md);
-void RIPEMD160_Transform(RIPEMD160_CTX *c, const unsigned char *b);
+int RIPEMD160_Final(uchar *md, RIPEMD160_CTX *c);
+uchar *RIPEMD160(const uchar *d, size_t n, uchar *md);
+void RIPEMD160_Transform(RIPEMD160_CTX *c, const uchar *b);
 
 # ifdef  __cplusplus
 }

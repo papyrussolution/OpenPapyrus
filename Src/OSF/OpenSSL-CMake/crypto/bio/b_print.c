@@ -361,7 +361,7 @@ static int _dopr(char ** sbuffer, char ** buffer, size_t * maxlen, size_t * retl
 	 * We have to truncate if there is no dynamic buffer and we have filled the
 	 * static buffer.
 	 */
-	if(buffer == NULL) {
+	if(!buffer) {
 		*truncated = (currlen > *maxlen - 1);
 		if(*truncated)
 			currlen = *maxlen - 1;
@@ -822,7 +822,7 @@ int BIO_printf(BIO * bio, const char * format, ...)
 	va_start(args, format);
 	ret = BIO_vprintf(bio, format, args);
 	va_end(args);
-	return (ret);
+	return ret;
 }
 
 int BIO_vprintf(BIO * bio, const char * format, va_list args)
@@ -845,7 +845,7 @@ int BIO_vprintf(BIO * bio, const char * format, va_list args)
 	else {
 		ret = BIO_write(bio, hugebuf, (int)retlen);
 	}
-	return (ret);
+	return ret;
 }
 /*
  * As snprintf is not available everywhere, we provide our own
@@ -860,7 +860,7 @@ int BIO_snprintf(char * buf, size_t n, const char * format, ...)
 	va_start(args, format);
 	ret = BIO_vsnprintf(buf, n, format, args);
 	va_end(args);
-	return (ret);
+	return ret;
 }
 
 int BIO_vsnprintf(char * buf, size_t n, const char * format, va_list args)

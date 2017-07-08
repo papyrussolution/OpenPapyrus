@@ -71,7 +71,7 @@ int BN_get_params(int which)
 	else if(which == 3)
 		return (bn_limit_bits_mont);
 	else
-		return (0);
+		return 0;
 }
 
 #endif
@@ -187,7 +187,7 @@ static void bn_free_d(BIGNUM * a)
 void FASTCALL BN_clear_free(BIGNUM * a)
 {
 	int i;
-	if(a == NULL)
+	if(!a)
 		return;
 	bn_check_top(a);
 	if(a->d != NULL) {
@@ -203,7 +203,7 @@ void FASTCALL BN_clear_free(BIGNUM * a)
 
 void BN_free(BIGNUM * a)
 {
-	if(a == NULL)
+	if(!a)
 		return;
 	bn_check_top(a);
 	if(!BN_get_flags(a, BN_FLG_STATIC_DATA))
@@ -236,7 +236,7 @@ BIGNUM * BN_new(void)
 	}
 	ret->flags = BN_FLG_MALLOCED;
 	bn_check_top(ret);
-	return (ret);
+	return ret;
 }
 
 BIGNUM * BN_secure_new(void)
@@ -244,7 +244,7 @@ BIGNUM * BN_secure_new(void)
 	BIGNUM * ret = BN_new();
 	if(ret != NULL)
 		ret->flags |= BN_FLG_SECURE;
-	return (ret);
+	return ret;
 }
 
 /* This is used by bn_expand2() */
@@ -349,7 +349,7 @@ BIGNUM * BN_dup(const BIGNUM * a)
 {
 	BIGNUM * t;
 
-	if(a == NULL)
+	if(!a)
 		return NULL;
 	bn_check_top(a);
 
@@ -465,7 +465,7 @@ int FASTCALL BN_set_word(BIGNUM * a, BN_ULONG w)
 {
 	bn_check_top(a);
 	if(bn_expand(a, (int)sizeof(BN_ULONG) * 8) == NULL)
-		return (0);
+		return 0;
 	a->neg = 0;
 	a->d[0] = w;
 	a->top = (w ? 1 : 0);
@@ -479,9 +479,9 @@ BIGNUM * BN_bin2bn(const uchar * s, int len, BIGNUM * ret)
 	uint n;
 	BN_ULONG l;
 	BIGNUM * bn = NULL;
-	if(ret == NULL)
+	if(!ret)
 		ret = bn = BN_new();
-	if(ret == NULL)
+	if(!ret)
 		return (NULL);
 	bn_check_top(ret);
 	/* Skip leading zero's. */
@@ -490,7 +490,7 @@ BIGNUM * BN_bin2bn(const uchar * s, int len, BIGNUM * ret)
 	n = len;
 	if(n == 0) {
 		ret->top = 0;
-		return (ret);
+		return ret;
 	}
 	i = ((n - 1) / BN_BYTES) + 1;
 	m = ((n - 1) % (BN_BYTES));
@@ -514,7 +514,7 @@ BIGNUM * BN_bin2bn(const uchar * s, int len, BIGNUM * ret)
 	 * bit set (-ve number)
 	 */
 	bn_correct_top(ret);
-	return (ret);
+	return ret;
 }
 
 /* ignore negative */
@@ -558,9 +558,9 @@ BIGNUM * BN_lebin2bn(const uchar * s, int len, BIGNUM * ret)
 	uint n;
 	BN_ULONG l;
 	BIGNUM * bn = NULL;
-	if(ret == NULL)
+	if(!ret)
 		ret = bn = BN_new();
-	if(ret == NULL)
+	if(!ret)
 		return (NULL);
 	bn_check_top(ret);
 	s += len;
@@ -635,7 +635,7 @@ int BN_ucmp(const BIGNUM * a, const BIGNUM * b)
 		if(t1 != t2)
 			return ((t1 > t2) ? 1 : -1);
 	}
-	return (0);
+	return 0;
 }
 
 int BN_cmp(const BIGNUM * a, const BIGNUM * b)
@@ -649,7 +649,7 @@ int BN_cmp(const BIGNUM * a, const BIGNUM * b)
 		else if(b != NULL)
 			return (1);
 		else
-			return (0);
+			return 0;
 	}
 
 	bn_check_top(a);
@@ -682,7 +682,7 @@ int BN_cmp(const BIGNUM * a, const BIGNUM * b)
 		if(t1 < t2)
 			return (lt);
 	}
-	return (0);
+	return 0;
 }
 
 int BN_set_bit(BIGNUM * a, int n)
@@ -696,7 +696,7 @@ int BN_set_bit(BIGNUM * a, int n)
 	j = n % BN_BITS2;
 	if(a->top <= i) {
 		if(bn_wexpand(a, i + 1) == NULL)
-			return (0);
+			return 0;
 		for(k = a->top; k < i + 1; k++)
 			a->d[k] = 0;
 		a->top = i + 1;
@@ -718,7 +718,7 @@ int BN_clear_bit(BIGNUM * a, int n)
 	i = n / BN_BITS2;
 	j = n % BN_BITS2;
 	if(a->top <= i)
-		return (0);
+		return 0;
 
 	a->d[i] &= (~(((BN_ULONG)1) << j));
 	bn_correct_top(a);
@@ -784,7 +784,7 @@ int bn_cmp_words(const BN_ULONG * a, const BN_ULONG * b, int n)
 		if(aa != bb)
 			return ((aa > bb) ? 1 : -1);
 	}
-	return (0);
+	return 0;
 }
 
 /*

@@ -428,7 +428,7 @@ int __os_support_direct_io()
 int __os_support_db_register()
 {
 #ifdef DB_WINCE
-	return (0);
+	return 0;
 #else
 	return (__os_is_winnt());
 #endif
@@ -440,7 +440,7 @@ int __os_support_db_register()
 int __os_support_replication()
 {
 #ifdef DB_WINCE
-	return (0);
+	return 0;
 #else
 	return (__os_is_winnt());
 #endif
@@ -1587,7 +1587,7 @@ void __os_id(DB_ENV * dbenv, pid_t * pidp, db_threadid_t * tidp)
 	 * fairly slow call on lots of systems.
 	 */
 	if(pidp != NULL) {
-		if(dbenv == NULL) {
+		if(!dbenv) {
 #if defined(HAVE_VXWORKS)
 			*pidp = taskIdSelf();
 #else

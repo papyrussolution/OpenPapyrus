@@ -266,7 +266,7 @@ int SLAPI PPViewAccturn::CreateGrouping()
 		TSArray <ACGREC> List;
 		StrAssocArray NameList;
 		long   LastNameIdx;
-		SString TempBuf;
+		SString TempBuf; // @allocreuse
 	};
 	int    ok = 1;
 	AccturnViewItem item;

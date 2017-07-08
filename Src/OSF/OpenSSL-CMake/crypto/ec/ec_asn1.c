@@ -558,7 +558,7 @@ ECPKPARAMETERS * EC_GROUP_get_ecpkparameters(const EC_GROUP * group,
 	int ok = 1, tmp;
 	ECPKPARAMETERS * ret = params;
 
-	if(ret == NULL) {
+	if(!ret) {
 		if((ret = ECPKPARAMETERS_new()) == NULL) {
 			ECerr(EC_F_EC_GROUP_GET_ECPKPARAMETERS, ERR_R_MALLOC_FAILURE);
 			return NULL;
@@ -622,7 +622,7 @@ EC_GROUP * EC_GROUP_new_from_ecparameters(const ECPARAMETERS * params)
 		goto err;
 	}
 	a = BN_bin2bn(params->curve->a->data, params->curve->a->length, NULL);
-	if(a == NULL) {
+	if(!a) {
 		ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, ERR_R_BN_LIB);
 		goto err;
 	}
@@ -734,7 +734,7 @@ EC_GROUP * EC_GROUP_new_from_ecparameters(const ECPARAMETERS * params)
 			goto err;
 		}
 		p = ASN1_INTEGER_to_BN(params->fieldID->p.prime, NULL);
-		if(p == NULL) {
+		if(!p) {
 			ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, ERR_R_ASN1_LIB);
 			goto err;
 		}
@@ -758,7 +758,7 @@ EC_GROUP * EC_GROUP_new_from_ecparameters(const ECPARAMETERS * params)
 		goto err;
 	}
 
-	if(ret == NULL) {
+	if(!ret) {
 		ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, ERR_R_EC_LIB);
 		goto err;
 	}
@@ -835,7 +835,7 @@ err:
 	BN_free(a);
 	BN_free(b);
 	EC_POINT_free(point);
-	return (ret);
+	return ret;
 }
 
 EC_GROUP * EC_GROUP_new_from_ecpkparameters(const ECPKPARAMETERS * params)
@@ -921,7 +921,7 @@ int i2d_ECPKParameters(const EC_GROUP * a, uchar ** out)
 		return 0;
 	}
 	ECPKPARAMETERS_free(tmp);
-	return (ret);
+	return ret;
 }
 
 /* some EC_KEY functions */
@@ -999,7 +999,7 @@ EC_KEY * d2i_ECPrivateKey(EC_KEY ** a, const uchar ** in, long len)
 		*a = ret;
 	EC_PRIVATEKEY_free(priv_key);
 	*in = p;
-	return (ret);
+	return ret;
 
 err:
 	if(a == NULL || *a != ret)
@@ -1082,7 +1082,7 @@ err:
 
 int i2d_ECParameters(EC_KEY * a, uchar ** out)
 {
-	if(a == NULL) {
+	if(!a) {
 		ECerr(EC_F_I2D_ECPARAMETERS, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -1144,7 +1144,7 @@ int i2o_ECPublicKey(const EC_KEY * a, uchar ** out)
 {
 	size_t buf_len = 0;
 	int new_buffer = 0;
-	if(a == NULL) {
+	if(!a) {
 		ECerr(EC_F_I2O_ECPUBLICKEY, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -1243,6 +1243,6 @@ int ECDSA_size(const EC_KEY * r)
 	i = i2d_ASN1_INTEGER(&bs, NULL);
 	i += i;                 /* r and s */
 	ret = ASN1_object_size(1, i, V_ASN1_SEQUENCE);
-	return (ret);
+	return ret;
 }
 

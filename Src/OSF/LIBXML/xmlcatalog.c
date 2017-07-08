@@ -106,7 +106,7 @@ static void usershell() {
 		}
 		command[i] = 0;
 		if(i == 0) {
-			free(cmdline);
+			SAlloc::F(cmdline);
 			continue;
 		}
 		/*
@@ -168,14 +168,14 @@ static void usershell() {
 		/*
 		 * start interpreting the command
 		 */
-		if(!strcmp(command, "exit") ||
+		if(sstreq(command, "exit") ||
 		    !strcmp(command, "quit") ||
 		    !strcmp(command, "bye")) {
-			free(cmdline);
+			SAlloc::F(cmdline);
 			break;
 		}
 
-		if(!strcmp(command, "public")) {
+		if(sstreq(command, "public")) {
 			if(nbargs != 1) {
 				printf("public requires 1 arguments\n");
 			}
@@ -186,11 +186,11 @@ static void usershell() {
 				}
 				else {
 					printf("%s\n", (char*)ans);
-					free(ans);
+					SAlloc::F(ans);
 				}
 			}
 		}
-		else if(!strcmp(command, "system")) {
+		else if(sstreq(command, "system")) {
 			if(nbargs != 1) {
 				printf("system requires 1 arguments\n");
 			}
@@ -201,11 +201,11 @@ static void usershell() {
 				}
 				else {
 					printf("%s\n", (char*)ans);
-					free(ans);
+					SAlloc::F(ans);
 				}
 			}
 		}
-		else if(!strcmp(command, "add")) {
+		else if(sstreq(command, "add")) {
 			if(sgml) {
 				if((nbargs != 3) && (nbargs != 2)) {
 					printf("add requires 2 or 3 arguments\n");
@@ -237,7 +237,7 @@ static void usershell() {
 				}
 			}
 		}
-		else if(!strcmp(command, "del")) {
+		else if(sstreq(command, "del")) {
 			if(nbargs != 1) {
 				printf("del requires 1\n");
 			}
@@ -247,7 +247,7 @@ static void usershell() {
 					printf("del command failed\n");
 			}
 		}
-		else if(!strcmp(command, "resolve")) {
+		else if(sstreq(command, "resolve")) {
 			if(nbargs != 2) {
 				printf("resolve requires 2 arguments\n");
 			}
@@ -259,11 +259,11 @@ static void usershell() {
 				}
 				else {
 					printf("%s\n", (char*)ans);
-					free(ans);
+					SAlloc::F(ans);
 				}
 			}
 		}
-		else if(!strcmp(command, "dump")) {
+		else if(sstreq(command, "dump")) {
 			if(nbargs != 0) {
 				printf("dump has no arguments\n");
 			}
@@ -271,7 +271,7 @@ static void usershell() {
 				xmlCatalogDump(stdout);
 			}
 		}
-		else if(!strcmp(command, "debug")) {
+		else if(sstreq(command, "debug")) {
 			if(nbargs != 0) {
 				printf("debug has no arguments\n");
 			}
@@ -280,7 +280,7 @@ static void usershell() {
 				xmlCatalogSetDebug(verbose);
 			}
 		}
-		else if(!strcmp(command, "quiet")) {
+		else if(sstreq(command, "quiet")) {
 			if(nbargs != 0) {
 				printf("quiet has no arguments\n");
 			}
@@ -305,7 +305,7 @@ static void usershell() {
 			printf("\tquiet: decrease the verbosity level\n");
 			printf("\texit:  quit the shell\n");
 		}
-		free(cmdline); /* not free here ! */
+		SAlloc::F(cmdline); /* not free here ! */
 	}
 }
 
@@ -348,7 +348,7 @@ int main(int argc, char ** argv) {
 
 	LIBXML_TEST_VERSION
 	for(i = 1; i < argc; i++) {
-		if(!strcmp(argv[i], "-"))
+		if(sstreq(argv[i], "-"))
 			break;
 
 		if(argv[i][0] != '-')
@@ -441,7 +441,7 @@ int main(int argc, char ** argv) {
 
 	if((add) || (del)) {
 		for(i = 1; i < argc; i++) {
-			if(!strcmp(argv[i], "-"))
+			if(sstreq(argv[i], "-"))
 				break;
 
 			if(argv[i][0] != '-')
@@ -589,7 +589,7 @@ int main(int argc, char ** argv) {
 				}
 				else {
 					printf("%s\n", (char*)ans);
-					free(ans);
+					SAlloc::F(ans);
 				}
 			}
 			else {
@@ -604,12 +604,12 @@ int main(int argc, char ** argv) {
 					}
 					else {
 						printf("%s\n", (char*)ans);
-						free(ans);
+						SAlloc::F(ans);
 					}
 				}
 				else {
 					printf("%s\n", (char*)ans);
-					free(ans);
+					SAlloc::F(ans);
 				}
 			}
 		}

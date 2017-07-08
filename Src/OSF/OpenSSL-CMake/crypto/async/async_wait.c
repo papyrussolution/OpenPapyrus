@@ -21,7 +21,7 @@ void ASYNC_WAIT_CTX_free(ASYNC_WAIT_CTX * ctx)
 {
 	struct fd_lookup_st * curr;
 	struct fd_lookup_st * next;
-	if(ctx == NULL)
+	if(!ctx)
 		return;
 	curr = ctx->fds;
 	while(curr != NULL) {

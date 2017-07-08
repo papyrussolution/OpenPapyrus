@@ -223,7 +223,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -264,7 +264,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -300,7 +300,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -339,7 +339,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -370,7 +370,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;MT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -399,7 +399,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;MT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -424,7 +424,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;MT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -455,7 +455,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;MT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -476,7 +476,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;MT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -505,7 +505,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;MT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -530,7 +530,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;MT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -561,7 +561,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;..\OSF\LIBXML\INCLUDE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\INCLUDE;..\OSF\CSOAP;..\OSF\CSOAP\LIBCSOAP;..\OSF\CSOAP\NANOHTTP;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;MT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>

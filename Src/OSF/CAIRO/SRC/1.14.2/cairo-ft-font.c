@@ -2369,7 +2369,7 @@ static cairo_int_status_t _cairo_ft_load_truetype_table(void * abstract_font,
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	if(FT_IS_SFNT(face)) {
-		if(buffer == NULL)
+		if(!buffer)
 			*length = 0;
 
 		if(FT_Load_Sfnt_Table(face, tag, offset, buffer, length) == 0)

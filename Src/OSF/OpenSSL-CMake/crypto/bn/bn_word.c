@@ -92,7 +92,7 @@ BN_ULONG BN_div_word(BIGNUM * a, BN_ULONG w)
 	if(!a->top)
 		a->neg = 0;  /* don't allow negative zero */
 	bn_check_top(a);
-	return (ret);
+	return ret;
 }
 
 int FASTCALL BN_add_word(BIGNUM * a, BN_ULONG w)
@@ -186,7 +186,7 @@ int FASTCALL BN_mul_word(BIGNUM * a, BN_ULONG w)
 			ll = bn_mul_words(a->d, a->d, a->top, w);
 			if(ll) {
 				if(bn_wexpand(a, a->top + 1) == NULL)
-					return (0);
+					return 0;
 				a->d[a->top++] = ll;
 			}
 		}

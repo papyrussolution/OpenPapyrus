@@ -111,7 +111,7 @@ xlinkType xlinkIsLink(xmlDocPtr doc, xmlNodePtr node)
 		 * This is an HTML document.
 		 */
 	}
-	else if(node->ns && (xmlStrEqual(node->ns->href, XHTML_NAMESPACE))) {
+	else if(node->ns && (sstreq(node->ns->href, XHTML_NAMESPACE))) {
 		/*
 		 * !!!! We really need an IS_XHTML_ELEMENT function from HTMLtree.h @@@
 		 */
@@ -128,31 +128,31 @@ xlinkType xlinkIsLink(xmlDocPtr doc, xmlNodePtr node)
 	 */
 	type = xmlGetNsProp(node, BAD_CAST "type", XLINK_NAMESPACE);
 	if(type != NULL) {
-		if(xmlStrEqual(type, BAD_CAST "simple")) {
+		if(sstreq(type, BAD_CAST "simple")) {
 			ret = XLINK_TYPE_SIMPLE;
 		}
-		else if(xmlStrEqual(type, BAD_CAST "extended")) {
+		else if(sstreq(type, BAD_CAST "extended")) {
 			role = xmlGetNsProp(node, BAD_CAST "role", XLINK_NAMESPACE);
 			if(role != NULL) {
 				xmlNsPtr xlink = xmlSearchNs(doc, node, XLINK_NAMESPACE);
 				if(xlink == NULL) {
 					/* Humm, fallback method */
-					if(xmlStrEqual(role, BAD_CAST "xlink:external-linkset"))
+					if(sstreq(role, BAD_CAST "xlink:external-linkset"))
 						ret = XLINK_TYPE_EXTENDED_SET;
 				}
 				else {
 					xmlChar buf[200];
 					snprintf((char*)buf, sizeof(buf), "%s:external-linkset", (char*)xlink->prefix);
 					buf[sizeof(buf) - 1] = 0;
-					if(xmlStrEqual(role, buf))
+					if(sstreq(role, buf))
 						ret = XLINK_TYPE_EXTENDED_SET;
 				}
 			}
 			ret = XLINK_TYPE_EXTENDED;
 		}
 	}
-	free(type);
-	free(role);
+	SAlloc::F(type);
+	SAlloc::F(role);
 	return ret;
 }
 

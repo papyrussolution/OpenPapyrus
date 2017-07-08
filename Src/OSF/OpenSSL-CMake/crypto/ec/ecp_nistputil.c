@@ -206,10 +206,10 @@ void ec_GFp_nistp_points_make_affine_internal(size_t num, void * point_array,
  * has to be b_4 b_3 b_2 b_1 b_0 0.
  *
  */
-void ec_GFp_nistp_recode_scalar_bits(unsigned char * sign,
-    unsigned char * digit, unsigned char in)
+void ec_GFp_nistp_recode_scalar_bits(uchar * sign,
+    uchar * digit, uchar in)
 {
-	unsigned char s, d;
+	uchar s, d;
 
 	s = ~((in >> 5) - 1);   /* sets all bits to MSB(in), 'in' seen as
 	                         * 6-bit value */

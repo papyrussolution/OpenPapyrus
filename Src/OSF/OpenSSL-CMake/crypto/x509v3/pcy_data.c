@@ -49,7 +49,7 @@ X509_POLICY_DATA * policy_data_new(POLICYINFO * policy,
 	else
 		id = NULL;
 	ret = (X509_POLICY_DATA*)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL)
+	if(!ret)
 		return NULL;
 	ret->expected_policy_set = sk_ASN1_OBJECT_new_null();
 	if(ret->expected_policy_set == NULL) {

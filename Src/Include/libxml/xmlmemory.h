@@ -51,7 +51,7 @@
  * xmlFreeFunc:
  * @mem: an already allocated block of memory
  *
- * Signature for a free() implementation.
+ * Signature for a SAlloc::F() implementation.
  */
 typedef void (XMLCALL *xmlFreeFunc)(void *mem);
 /**
@@ -87,10 +87,10 @@ typedef char *(XMLCALL *xmlStrdupFunc)(const char *str);
 
 /*
  * The 4 interfaces used for all memory handling within libxml.
-// @sobolev LIBXML_DLL_IMPORT xmlFreeFunc xmlFree;
-LIBXML_DLL_IMPORT xmlMallocFunc xmlMalloc;
-LIBXML_DLL_IMPORT xmlMallocFunc xmlMallocAtomic;
-LIBXML_DLL_IMPORT xmlReallocFunc xmlRealloc;
+// @sobolev LIBXML_DLL_IMPORT xmlFreeFunc xmlFree_;
+LIBXML_DLL_IMPORT xmlMallocFunc xmlMalloc_;
+LIBXML_DLL_IMPORT xmlMallocFunc xmlMallocAtomic_;
+LIBXML_DLL_IMPORT xmlReallocFunc xmlRealloc_;
 LIBXML_DLL_IMPORT xmlStrdupFunc xmlMemStrdup;
  */
 
@@ -99,10 +99,10 @@ LIBXML_DLL_IMPORT xmlStrdupFunc xmlMemStrdup;
  * The xmlGc function have an extra entry for atomic block
  * allocations useful for garbage collected memory allocators
  */
-XMLPUBFUN int XMLCALL xmlMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc, xmlReallocFunc reallocFunc, xmlStrdupFunc strdupFunc);
-XMLPUBFUN int XMLCALL xmlMemGet(xmlFreeFunc *freeFunc, xmlMallocFunc *mallocFunc, xmlReallocFunc *reallocFunc, xmlStrdupFunc *strdupFunc);
-XMLPUBFUN int XMLCALL xmlGcMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc, xmlMallocFunc mallocAtomicFunc, xmlReallocFunc reallocFunc, xmlStrdupFunc strdupFunc);
-XMLPUBFUN int XMLCALL xmlGcMemGet(xmlFreeFunc *freeFunc, xmlMallocFunc *mallocFunc, xmlMallocFunc *mallocAtomicFunc, xmlReallocFunc *reallocFunc, xmlStrdupFunc *strdupFunc);
+//XMLPUBFUN int XMLCALL xmlMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc, xmlReallocFunc reallocFunc, xmlStrdupFunc strdupFunc);
+//XMLPUBFUN int XMLCALL xmlMemGet(xmlFreeFunc *freeFunc, xmlMallocFunc *mallocFunc, xmlReallocFunc *reallocFunc, xmlStrdupFunc *strdupFunc);
+//XMLPUBFUN int XMLCALL xmlGcMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc, xmlMallocFunc mallocAtomicFunc, xmlReallocFunc reallocFunc, xmlStrdupFunc strdupFunc);
+//XMLPUBFUN int XMLCALL xmlGcMemGet(xmlFreeFunc *freeFunc, xmlMallocFunc *mallocFunc, xmlMallocFunc *mallocAtomicFunc, xmlReallocFunc *reallocFunc, xmlStrdupFunc *strdupFunc);
 /*
  * Initialization of the memory layer.
  */
@@ -132,14 +132,13 @@ XMLPUBFUN char * XMLCALL xmlMemStrdupLoc(const char *str, const char *file, int 
 
 #ifdef DEBUG_MEMORY_LOCATION
 /**
- * xmlMalloc:
  * @size:  number of bytes to allocate
  *
  * Wrapper for the malloc() function used in the XML library.
  *
  * Returns the pointer to the allocated area or NULL in case of error.
  */
-#define xmlMalloc(size) xmlMallocLoc((size), __FILE__, __LINE__)
+#define xmlMalloc_(size) xmlMallocLoc((size), __FILE__, __LINE__)
 /**
  * xmlMallocAtomic:
  * @size:  number of bytes to allocate
@@ -149,7 +148,7 @@ XMLPUBFUN char * XMLCALL xmlMemStrdupLoc(const char *str, const char *file, int 
  *
  * Returns the pointer to the allocated area or NULL in case of error.
  */
-#define xmlMallocAtomic(size) xmlMallocAtomicLoc((size), __FILE__, __LINE__)
+#define SAlloc::M(size) xmlMallocAtomicLoc((size), __FILE__, __LINE__)
 /**
  * xmlRealloc:
  * @ptr:  pointer to the existing allocated area
@@ -159,7 +158,7 @@ XMLPUBFUN char * XMLCALL xmlMemStrdupLoc(const char *str, const char *file, int 
  *
  * Returns the pointer to the allocated area or NULL in case of error.
  */
-#define xmlRealloc(ptr, size) xmlReallocLoc((ptr), (size), __FILE__, __LINE__)
+#define SAlloc::R(ptr, size) xmlReallocLoc((ptr), (size), __FILE__, __LINE__)
 /**
  * xmlMemStrdup:
  * @str:  pointer to the existing string

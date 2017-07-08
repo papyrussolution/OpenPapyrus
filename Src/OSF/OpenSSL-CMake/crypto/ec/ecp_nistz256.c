@@ -54,7 +54,7 @@
 # define ALIGN32
 #endif
 
-#define ALIGNPTR(p, N)   ((unsigned char*)p+N-(size_t)p%N)
+#define ALIGNPTR(p, N)   ((uchar*)p+N-(size_t)p%N)
 #define P256_LIMBS      (256/BN_BITS2)
 
 typedef unsigned short u16;
@@ -159,9 +159,9 @@ static NISTZ256_PRE_COMP * ecp_nistz256_pre_comp_new(const EC_GROUP * group);
 extern const PRECOMP256_ROW ecp_nistz256_precomputed[37];
 
 /* Recode window to a signed digit, see ecp_nistputil.c for details */
-static unsigned int _booth_recode_w5(unsigned int in)
+static uint _booth_recode_w5(uint in)
 {
-	unsigned int s, d;
+	uint s, d;
 
 	s = ~((in >> 5) - 1);
 	d = (1 << 6) - in - 1;
@@ -171,9 +171,9 @@ static unsigned int _booth_recode_w5(unsigned int in)
 	return (d << 1) + (s & 1);
 }
 
-static unsigned int _booth_recode_w7(unsigned int in)
+static uint _booth_recode_w7(uint in)
 {
-	unsigned int s, d;
+	uint s, d;
 
 	s = ~((in >> 7) - 1);
 	d = (1 << 8) - in - 1;
@@ -591,11 +591,11 @@ __owur static int ecp_nistz256_windowed_mul(const EC_GROUP * group,
 {
 	size_t i;
 	int j, ret = 0;
-	unsigned int idx;
-	unsigned char (*p_str)[33] = NULL;
-	const unsigned int window_size = 5;
-	const unsigned int mask = (1 << (window_size + 1)) - 1;
-	unsigned int wvalue;
+	uint idx;
+	uchar (*p_str)[33] = NULL;
+	const uint window_size = 5;
+	const uint mask = (1 << (window_size + 1)) - 1;
+	uint wvalue;
 	P256_POINT * temp;      /* place for 5 temporary points */
 	const BIGNUM ** scalars = NULL;
 	P256_POINT(*table)[16] = NULL;
@@ -603,7 +603,7 @@ __owur static int ecp_nistz256_windowed_mul(const EC_GROUP * group,
 
 	if((num * 16 + 6) > OPENSSL_MALLOC_MAX_NELEMS(P256_POINT)
 	    || (table_storage = OPENSSL_malloc((num * 16 + 5) * sizeof(P256_POINT) + 64)) == NULL
-	    || (p_str = (unsigned char (*)[33])OPENSSL_malloc(num * 33 * sizeof(unsigned char))) == NULL
+	    || (p_str = (uchar (*)[33])OPENSSL_malloc(num * 33 * sizeof(uchar))) == NULL
 	    || (scalars = (const BIGNUM **)OPENSSL_malloc(num * sizeof(BIGNUM *))) == NULL) {
 		ECerr(EC_F_ECP_NISTZ256_WINDOWED_MUL, ERR_R_MALLOC_FAILURE);
 		goto err;
@@ -633,16 +633,16 @@ __owur static int ecp_nistz256_windowed_mul(const EC_GROUP * group,
 		for(j = 0; j < bn_get_top(scalars[i]) * BN_BYTES; j += BN_BYTES) {
 			BN_ULONG d = bn_get_words(scalars[i])[j / BN_BYTES];
 
-			p_str[i][j + 0] = (unsigned char)d;
-			p_str[i][j + 1] = (unsigned char)(d >> 8);
-			p_str[i][j + 2] = (unsigned char)(d >> 16);
-			p_str[i][j + 3] = (unsigned char)(d >>= 24);
+			p_str[i][j + 0] = (uchar)d;
+			p_str[i][j + 1] = (uchar)(d >> 8);
+			p_str[i][j + 2] = (uchar)(d >> 16);
+			p_str[i][j + 3] = (uchar)(d >>= 24);
 			if(BN_BYTES == 8) {
 				d >>= 8;
-				p_str[i][j + 4] = (unsigned char)d;
-				p_str[i][j + 5] = (unsigned char)(d >> 8);
-				p_str[i][j + 6] = (unsigned char)(d >> 16);
-				p_str[i][j + 7] = (unsigned char)(d >> 24);
+				p_str[i][j + 4] = (uchar)d;
+				p_str[i][j + 5] = (uchar)(d >> 8);
+				p_str[i][j + 6] = (uchar)(d >> 16);
+				p_str[i][j + 7] = (uchar)(d >> 24);
 			}
 		}
 		for(; j < 33; j++)
@@ -709,7 +709,7 @@ __owur static int ecp_nistz256_windowed_mul(const EC_GROUP * group,
 
 	while(idx >= 5) {
 		for(i = (idx == 255 ? 1 : 0); i < num; i++) {
-			unsigned int off = (idx - 1) / 8;
+			uint off = (idx - 1) / 8;
 
 			wvalue = p_str[i][off] | p_str[i][off + 1] << 8;
 			wvalue = (wvalue >> ((idx - 1) % 8)) & mask;
@@ -797,7 +797,7 @@ __owur static int ecp_nistz256_mult_precompute(EC_GROUP * group, BN_CTX * ctx)
 	size_t w;
 
 	PRECOMP256_ROW * preComputedTable = NULL;
-	unsigned char * precomp_storage = NULL;
+	uchar * precomp_storage = NULL;
 
 	/* if there is an old NISTZ256_PRE_COMP object, throw it away */
 	EC_pre_comp_free(group);
@@ -818,9 +818,9 @@ __owur static int ecp_nistz256_mult_precompute(EC_GROUP * group, BN_CTX * ctx)
 	if((pre_comp = ecp_nistz256_pre_comp_new(group)) == NULL)
 		return 0;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			goto err;
 	}
 
@@ -928,10 +928,10 @@ void ecp_nistz256_avx2_from_mont(void * RESULTx4, const void * Ax4);
 void ecp_nistz256_avx2_set1(void * RESULTx4);
 int ecp_nistz_avx2_eligible(void);
 
-static void booth_recode_w7(unsigned char * sign,
-    unsigned char * digit, unsigned char in)
+static void booth_recode_w7(uchar * sign,
+    uchar * digit, uchar in)
 {
-	unsigned char s, d;
+	uchar s, d;
 
 	s = ~((in >> 7) - 1);
 	d = (1 << 8) - in - 1;
@@ -948,18 +948,18 @@ static void booth_recode_w7(unsigned char * sign,
  * significantly speeding up point multiplication for a fixed value.
  */
 static void ecp_nistz256_avx2_mul_g(P256_POINT * r,
-    unsigned char p_str[33],
+    uchar p_str[33],
     const P256_POINT_AFFINE(*preComputedTable)[64])
 {
-	const unsigned int window_size = 7;
-	const unsigned int mask = (1 << (window_size + 1)) - 1;
-	unsigned int wvalue;
+	const uint window_size = 7;
+	const uint mask = (1 << (window_size + 1)) - 1;
+	uint wvalue;
 	/* Using 4 windows at a time */
-	unsigned char sign0, digit0;
-	unsigned char sign1, digit1;
-	unsigned char sign2, digit2;
-	unsigned char sign3, digit3;
-	unsigned int idx = 0;
+	uchar sign0, digit0;
+	uchar sign1, digit1;
+	uchar sign2, digit2;
+	uchar sign3, digit3;
+	uint idx = 0;
 	BN_ULONG tmp[P256_LIMBS];
 	int i;
 
@@ -1109,7 +1109,7 @@ __owur static int ecp_nistz256_set_from_affine(EC_POINT * out, const EC_GROUP * 
 	int ret = 0;
 
 	x = BN_new();
-	if(x == NULL)
+	if(!x)
 		return 0;
 	y = BN_new();
 	if(y == NULL) {
@@ -1140,17 +1140,17 @@ __owur static int ecp_nistz256_points_mul(const EC_GROUP * group,
 {
 	int i = 0, ret = 0, no_precomp_for_generator = 0, p_is_infinity = 0;
 	size_t j;
-	unsigned char p_str[33] = { 0 };
+	uchar p_str[33] = { 0 };
 	const PRECOMP256_ROW * preComputedTable = NULL;
 	const NISTZ256_PRE_COMP * pre_comp = NULL;
 	const EC_POINT * generator = NULL;
 	BN_CTX * new_ctx = NULL;
 	const BIGNUM ** new_scalars = NULL;
 	const EC_POINT ** new_points = NULL;
-	unsigned int idx = 0;
-	const unsigned int window_size = 7;
-	const unsigned int mask = (1 << (window_size + 1)) - 1;
-	unsigned int wvalue;
+	uint idx = 0;
+	const uint window_size = 7;
+	const uint mask = (1 << (window_size + 1)) - 1;
+	uint wvalue;
 	ALIGN32 union {
 		P256_POINT p;
 		P256_POINT_AFFINE a;
@@ -1178,9 +1178,9 @@ __owur static int ecp_nistz256_points_mul(const EC_GROUP * group,
 		}
 	}
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			goto err;
 	}
 
@@ -1244,16 +1244,16 @@ __owur static int ecp_nistz256_points_mul(const EC_GROUP * group,
 			for(i = 0; i < bn_get_top(scalar) * BN_BYTES; i += BN_BYTES) {
 				BN_ULONG d = bn_get_words(scalar)[i / BN_BYTES];
 
-				p_str[i + 0] = (unsigned char)d;
-				p_str[i + 1] = (unsigned char)(d >> 8);
-				p_str[i + 2] = (unsigned char)(d >> 16);
-				p_str[i + 3] = (unsigned char)(d >>= 24);
+				p_str[i + 0] = (uchar)d;
+				p_str[i + 1] = (uchar)(d >> 8);
+				p_str[i + 2] = (uchar)(d >> 16);
+				p_str[i + 3] = (uchar)(d >>= 24);
 				if(BN_BYTES == 8) {
 					d >>= 8;
-					p_str[i + 4] = (unsigned char)d;
-					p_str[i + 5] = (unsigned char)(d >> 8);
-					p_str[i + 6] = (unsigned char)(d >> 16);
-					p_str[i + 7] = (unsigned char)(d >> 24);
+					p_str[i + 4] = (uchar)d;
+					p_str[i + 5] = (uchar)(d >> 8);
+					p_str[i + 6] = (uchar)(d >> 16);
+					p_str[i + 7] = (uchar)(d >> 24);
 				}
 			}
 
@@ -1307,7 +1307,7 @@ __owur static int ecp_nistz256_points_mul(const EC_GROUP * group,
 				}
 
 				for(i = 1; i < 37; i++) {
-					unsigned int off = (idx - 1) / 8;
+					uint off = (idx - 1) / 8;
 					wvalue = p_str[off] | p_str[off + 1] << 8;
 					wvalue = (wvalue >> ((idx - 1) % 8)) & mask;
 					idx += window_size;
@@ -1442,7 +1442,7 @@ static NISTZ256_PRE_COMP * ecp_nistz256_pre_comp_new(const EC_GROUP * group)
 
 	ret = (NISTZ256_PRE_COMP * )OPENSSL_zalloc(sizeof(*ret));
 
-	if(ret == NULL) {
+	if(!ret) {
 		ECerr(EC_F_ECP_NISTZ256_PRE_COMP_NEW, ERR_R_MALLOC_FAILURE);
 		return ret;
 	}

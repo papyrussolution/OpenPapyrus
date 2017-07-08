@@ -130,7 +130,7 @@ int CRYPTO_free_ex_index(int class_index, int idx)
 	if(idx < 0 || idx >= sk_EX_CALLBACK_num(ip->meth))
 		goto err;
 	a = sk_EX_CALLBACK_value(ip->meth, idx);
-	if(a == NULL)
+	if(!a)
 		goto err;
 	a->new_func = dummy_new;
 	a->dup_func = dummy_dup;
@@ -163,7 +163,7 @@ int CRYPTO_get_ex_new_index(int class_index, long argl, void * argp,
 	}
 
 	a = (EX_CALLBACK*)OPENSSL_malloc(sizeof(*a));
-	if(a == NULL) {
+	if(!a) {
 		CRYPTOerr(CRYPTO_F_CRYPTO_GET_EX_NEW_INDEX, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

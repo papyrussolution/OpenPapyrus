@@ -76,7 +76,7 @@ static int acpt_new(BIO * bi)
 	bi->num = (int)INVALID_SOCKET;
 	bi->flags = 0;
 	if((ba = BIO_ACCEPT_new()) == NULL)
-		return (0);
+		return 0;
 	bi->ptr = (char*)ba;
 	ba->state = ACPT_S_BEFORE;
 	bi->shutdown = 1;
@@ -90,12 +90,12 @@ static BIO_ACCEPT * BIO_ACCEPT_new(void)
 		return (NULL);
 	ret->accept_family = BIO_FAMILY_IPANY;
 	ret->accept_sock = (int)INVALID_SOCKET;
-	return (ret);
+	return ret;
 }
 
 static void BIO_ACCEPT_free(BIO_ACCEPT * a)
 {
-	if(a == NULL)
+	if(!a)
 		return;
 
 	OPENSSL_free(a->param_addr);
@@ -126,8 +126,8 @@ static int acpt_free(BIO * a)
 {
 	BIO_ACCEPT * data;
 
-	if(a == NULL)
-		return (0);
+	if(!a)
+		return 0;
 	data = (BIO_ACCEPT*)a->ptr;
 
 	if(a->shutdown) {
@@ -318,7 +318,7 @@ static int acpt_state(BIO * b, BIO_ACCEPT * c)
 			    goto end;
 
 			case ACPT_S_OK:
-			    if(b->next_bio == NULL) {
+			    if(!b->next_bio) {
 				    c->state = ACPT_S_ACCEPT;
 				    break;
 			    }
@@ -349,12 +349,12 @@ static int acpt_read(BIO * b, char * out, int outl)
 	while(b->next_bio == NULL) {
 		ret = acpt_state(b, data);
 		if(ret <= 0)
-			return (ret);
+			return ret;
 	}
 
 	ret = BIO_read(b->next_bio, out, outl);
 	BIO_copy_next_retry(b);
-	return (ret);
+	return ret;
 }
 
 static int acpt_write(BIO * b, const char * in, int inl)
@@ -366,11 +366,11 @@ static int acpt_write(BIO * b, const char * in, int inl)
 	while(b->next_bio == NULL) {
 		ret = acpt_state(b, data);
 		if(ret <= 0)
-			return (ret);
+			return ret;
 	}
 	ret = BIO_write(b->next_bio, in, inl);
 	BIO_copy_next_retry(b);
-	return (ret);
+	return ret;
 }
 
 static long acpt_ctrl(BIO * b, int cmd, long num, void * ptr)
@@ -529,23 +529,23 @@ static long acpt_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    ret = 0;
 		    break;
 	}
-	return (ret);
+	return ret;
 }
 
 static int acpt_puts(BIO * bp, const char * str)
 {
 	int n = strlen(str);
 	int ret = acpt_write(bp, str, n);
-	return (ret);
+	return ret;
 }
 
 BIO * BIO_new_accept(const char * str)
 {
 	BIO * ret = BIO_new(BIO_s_accept());
-	if(ret == NULL)
+	if(!ret)
 		return (NULL);
 	if(BIO_set_accept_name(ret, str))
-		return (ret);
+		return ret;
 	BIO_free(ret);
 	return (NULL);
 }

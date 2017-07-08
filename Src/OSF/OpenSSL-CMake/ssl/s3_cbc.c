@@ -31,17 +31,17 @@
  * little-endian order. The value of p is advanced by four.
  */
 #define u32toLE(n, p) \
-	(*((p)++) = (unsigned char)(n),	\
-	    *((p)++) = (unsigned char)(n>>8), \
-	    *((p)++) = (unsigned char)(n>>16), \
-	    *((p)++) = (unsigned char)(n>>24))
+	(*((p)++) = (uchar)(n),	\
+	    *((p)++) = (uchar)(n>>8), \
+	    *((p)++) = (uchar)(n>>16), \
+	    *((p)++) = (uchar)(n>>24))
 
 /*
  * These functions serialize the state of a hash and thus perform the
  * standard "final" operation without adding the padding and length that such
  * a function typically does.
  */
-static void tls1_md5_final_raw(void * ctx, unsigned char * md_out)
+static void tls1_md5_final_raw(void * ctx, uchar * md_out)
 {
 	MD5_CTX * md5 = (MD5_CTX*)ctx;
 	u32toLE(md5->A, md_out);
@@ -50,7 +50,7 @@ static void tls1_md5_final_raw(void * ctx, unsigned char * md_out)
 	u32toLE(md5->D, md_out);
 }
 
-static void tls1_sha1_final_raw(void * ctx, unsigned char * md_out)
+static void tls1_sha1_final_raw(void * ctx, uchar * md_out)
 {
 	SHA_CTX * sha1 = (SHA_CTX*)ctx;
 	l2n(sha1->h0, md_out);
@@ -60,7 +60,7 @@ static void tls1_sha1_final_raw(void * ctx, unsigned char * md_out)
 	l2n(sha1->h4, md_out);
 }
 
-static void tls1_sha256_final_raw(void * ctx, unsigned char * md_out)
+static void tls1_sha256_final_raw(void * ctx, uchar * md_out)
 {
 	SHA256_CTX * sha256 = (SHA256_CTX*)ctx;
 	unsigned i;
@@ -69,7 +69,7 @@ static void tls1_sha256_final_raw(void * ctx, unsigned char * md_out)
 	}
 }
 
-static void tls1_sha512_final_raw(void * ctx, unsigned char * md_out)
+static void tls1_sha512_final_raw(void * ctx, uchar * md_out)
 {
 	SHA512_CTX * sha512 = (SHA512_CTX*)ctx;
 	unsigned i;
@@ -125,32 +125,32 @@ char ssl3_cbc_record_digest_supported(const EVP_MD_CTX * ctx)
  * Returns 1 on success or 0 on error
  */
 int ssl3_cbc_digest_record(const EVP_MD_CTX * ctx,
-    unsigned char * md_out,
+    uchar * md_out,
     size_t * md_out_size,
-    const unsigned char header[13],
-    const unsigned char * data,
+    const uchar header[13],
+    const uchar * data,
     size_t data_plus_mac_size,
     size_t data_plus_mac_plus_padding_size,
-    const unsigned char * mac_secret,
+    const uchar * mac_secret,
     unsigned mac_secret_length, char is_sslv3)
 {
 	union {
 		double align;
-		unsigned char c[sizeof(LARGEST_DIGEST_CTX)];
+		uchar c[sizeof(LARGEST_DIGEST_CTX)];
 	} md_state;
 
-	void (* md_final_raw)(void * ctx, unsigned char * md_out);
-	void (* md_transform)(void * ctx, const unsigned char * block);
+	void (* md_final_raw)(void * ctx, uchar * md_out);
+	void (* md_transform)(void * ctx, const uchar * block);
 	unsigned md_size, md_block_size = 64;
 	unsigned sslv3_pad_length = 40, header_length, variance_blocks,
 	    len, max_mac_bytes, num_blocks,
 	    num_starting_blocks, k, mac_end_offset, c, index_a, index_b;
-	unsigned int bits;      /* at most 18 bits */
-	unsigned char length_bytes[MAX_HASH_BIT_COUNT_BYTES];
+	uint bits;      /* at most 18 bits */
+	uchar length_bytes[MAX_HASH_BIT_COUNT_BYTES];
 	/* hmac_pad is the masked HMAC key. */
-	unsigned char hmac_pad[MAX_HASH_BLOCK_SIZE];
-	unsigned char first_block[MAX_HASH_BLOCK_SIZE];
-	unsigned char mac_out[EVP_MAX_MD_SIZE];
+	uchar hmac_pad[MAX_HASH_BLOCK_SIZE];
+	uchar first_block[MAX_HASH_BLOCK_SIZE];
+	uchar mac_out[EVP_MAX_MD_SIZE];
 	unsigned i, j, md_out_size_u;
 	EVP_MD_CTX * md_ctx = NULL;
 	/*
@@ -173,7 +173,7 @@ int ssl3_cbc_digest_record(const EVP_MD_CTX * ctx,
 			    return 0;
 		    md_final_raw = tls1_md5_final_raw;
 		    md_transform =
-		    (void (*)(void * ctx, const unsigned char * block))MD5_Transform;
+		    (void (*)(void * ctx, const uchar * block))MD5_Transform;
 		    md_size = 16;
 		    sslv3_pad_length = 48;
 		    length_is_big_endian = 0;
@@ -183,7 +183,7 @@ int ssl3_cbc_digest_record(const EVP_MD_CTX * ctx,
 			    return 0;
 		    md_final_raw = tls1_sha1_final_raw;
 		    md_transform =
-		    (void (*)(void * ctx, const unsigned char * block))SHA1_Transform;
+		    (void (*)(void * ctx, const uchar * block))SHA1_Transform;
 		    md_size = 20;
 		    break;
 		case NID_sha224:
@@ -191,7 +191,7 @@ int ssl3_cbc_digest_record(const EVP_MD_CTX * ctx,
 			    return 0;
 		    md_final_raw = tls1_sha256_final_raw;
 		    md_transform =
-		    (void (*)(void * ctx, const unsigned char * block))SHA256_Transform;
+		    (void (*)(void * ctx, const uchar * block))SHA256_Transform;
 		    md_size = 224 / 8;
 		    break;
 		case NID_sha256:
@@ -199,7 +199,7 @@ int ssl3_cbc_digest_record(const EVP_MD_CTX * ctx,
 			    return 0;
 		    md_final_raw = tls1_sha256_final_raw;
 		    md_transform =
-		    (void (*)(void * ctx, const unsigned char * block))SHA256_Transform;
+		    (void (*)(void * ctx, const uchar * block))SHA256_Transform;
 		    md_size = 32;
 		    break;
 		case NID_sha384:
@@ -207,7 +207,7 @@ int ssl3_cbc_digest_record(const EVP_MD_CTX * ctx,
 			    return 0;
 		    md_final_raw = tls1_sha512_final_raw;
 		    md_transform =
-		    (void (*)(void * ctx, const unsigned char * block))SHA512_Transform;
+		    (void (*)(void * ctx, const uchar * block))SHA512_Transform;
 		    md_size = 384 / 8;
 		    md_block_size = 128;
 		    md_length_size = 16;
@@ -217,7 +217,7 @@ int ssl3_cbc_digest_record(const EVP_MD_CTX * ctx,
 			    return 0;
 		    md_final_raw = tls1_sha512_final_raw;
 		    md_transform =
-		    (void (*)(void * ctx, const unsigned char * block))SHA512_Transform;
+		    (void (*)(void * ctx, const uchar * block))SHA512_Transform;
 		    md_size = 64;
 		    md_block_size = 128;
 		    md_length_size = 16;
@@ -341,17 +341,17 @@ int ssl3_cbc_digest_record(const EVP_MD_CTX * ctx,
 
 	if(length_is_big_endian) {
 		memzero(length_bytes, md_length_size - 4);
-		length_bytes[md_length_size - 4] = (unsigned char)(bits >> 24);
-		length_bytes[md_length_size - 3] = (unsigned char)(bits >> 16);
-		length_bytes[md_length_size - 2] = (unsigned char)(bits >> 8);
-		length_bytes[md_length_size - 1] = (unsigned char)bits;
+		length_bytes[md_length_size - 4] = (uchar)(bits >> 24);
+		length_bytes[md_length_size - 3] = (uchar)(bits >> 16);
+		length_bytes[md_length_size - 2] = (uchar)(bits >> 8);
+		length_bytes[md_length_size - 1] = (uchar)bits;
 	}
 	else {
 		memzero(length_bytes, md_length_size);
-		length_bytes[md_length_size - 5] = (unsigned char)(bits >> 24);
-		length_bytes[md_length_size - 6] = (unsigned char)(bits >> 16);
-		length_bytes[md_length_size - 7] = (unsigned char)(bits >> 8);
-		length_bytes[md_length_size - 8] = (unsigned char)bits;
+		length_bytes[md_length_size - 5] = (uchar)(bits >> 24);
+		length_bytes[md_length_size - 6] = (uchar)(bits >> 16);
+		length_bytes[md_length_size - 7] = (uchar)(bits >> 8);
+		length_bytes[md_length_size - 8] = (uchar)bits;
 	}
 
 	if(k > 0) {
@@ -398,11 +398,11 @@ int ssl3_cbc_digest_record(const EVP_MD_CTX * ctx,
 	 */
 	for(i = num_starting_blocks; i <= num_starting_blocks + variance_blocks;
 	    i++) {
-		unsigned char block[MAX_HASH_BLOCK_SIZE];
-		unsigned char is_block_a = constant_time_eq_8(i, index_a);
-		unsigned char is_block_b = constant_time_eq_8(i, index_b);
+		uchar block[MAX_HASH_BLOCK_SIZE];
+		uchar is_block_a = constant_time_eq_8(i, index_a);
+		uchar is_block_b = constant_time_eq_8(i, index_b);
 		for(j = 0; j < md_block_size; j++) {
-			unsigned char b = 0, is_past_c, is_past_cp1;
+			uchar b = 0, is_past_c, is_past_cp1;
 			if(k < header_length)
 				b = header[k];
 			else if(k < data_plus_mac_plus_padding_size + header_length)
@@ -483,7 +483,7 @@ err:
  */
 
 int tls_fips_digest_extra(const EVP_CIPHER_CTX * cipher_ctx,
-    EVP_MD_CTX * mac_ctx, const unsigned char * data,
+    EVP_MD_CTX * mac_ctx, const uchar * data,
     size_t data_len, size_t orig_len)
 {
 	size_t block_size, digest_pad, blocks_data, blocks_orig;

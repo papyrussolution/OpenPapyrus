@@ -394,6 +394,7 @@ Section -PPALDD SEC_PPALDD
 	; Файлы данных (текстовые)
 	;	
 	File "${SRC_ROOT}\SRC\RSRC\DATA\RAR-AlcoholCategory.txt"
+	File "${SRC_ROOT}\SRC\RSRC\DATA\replacer-rule-goods.sr" ; @v9.7.5
 	;
 	; @v6.7.1
 	; WTM-файлы

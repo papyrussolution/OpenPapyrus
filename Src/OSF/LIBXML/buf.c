@@ -103,8 +103,8 @@ static void xmlBufOverflowError(xmlBufPtr buf, const char * extra)
  */
 xmlBufPtr xmlBufCreate()
 {
-	xmlBufPtr ret = (xmlBufPtr)xmlMalloc(sizeof(xmlBuf));
-	if(ret == NULL) {
+	xmlBufPtr ret = (xmlBuf *)SAlloc::M(sizeof(xmlBuf));
+	if(!ret) {
 		xmlBufMemoryError(NULL, "creating buffer");
 		return NULL;
 	}
@@ -115,10 +115,10 @@ xmlBufPtr xmlBufCreate()
 	ret->size = xmlDefaultBufferSize;
 	ret->compat_size = xmlDefaultBufferSize;
 	ret->alloc = xmlBufferAllocScheme;
-	ret->content = (xmlChar*)xmlMallocAtomic(ret->size * sizeof(xmlChar));
+	ret->content = (xmlChar*)SAlloc::M(ret->size * sizeof(xmlChar));
 	if(ret->content == NULL) {
 		xmlBufMemoryError(ret, "creating buffer");
-		free(ret);
+		SAlloc::F(ret);
 		return NULL;
 	}
 	ret->content[0] = 0;
@@ -135,8 +135,8 @@ xmlBufPtr xmlBufCreate()
  */
 xmlBufPtr xmlBufCreateSize(size_t size)
 {
-	xmlBufPtr ret = (xmlBufPtr)xmlMalloc(sizeof(xmlBuf));
-	if(ret == NULL) {
+	xmlBuf * ret = (xmlBuf *)SAlloc::M(sizeof(xmlBuf));
+	if(!ret) {
 		xmlBufMemoryError(NULL, "creating buffer");
 		return NULL;
 	}
@@ -148,10 +148,10 @@ xmlBufPtr xmlBufCreateSize(size_t size)
 	ret->size = (size ? size+2 : 0);     /* +1 for ending null */
 	ret->compat_size = (int)ret->size;
 	if(ret->size) {
-		ret->content = (xmlChar*)xmlMallocAtomic(ret->size * sizeof(xmlChar));
+		ret->content = (xmlChar*)SAlloc::M(ret->size * sizeof(xmlChar));
 		if(ret->content == NULL) {
 			xmlBufMemoryError(ret, "creating buffer");
-			free(ret);
+			SAlloc::F(ret);
 			return NULL;
 		}
 		ret->content[0] = 0;
@@ -198,11 +198,11 @@ xmlChar * xmlBufDetach(xmlBufPtr buf)
  */
 xmlBufPtr xmlBufCreateStatic(void * mem, size_t size)
 {
-	xmlBufPtr ret;
+	xmlBuf * ret;
 	if((mem == NULL) || (size == 0))
 		return NULL;
-	ret = (xmlBufPtr)xmlMalloc(sizeof(xmlBuf));
-	if(ret == NULL) {
+	ret = (xmlBuf *)SAlloc::M(sizeof(xmlBuf));
+	if(!ret) {
 		xmlBufMemoryError(NULL, "creating buffer");
 		return NULL;
 	}
@@ -298,12 +298,12 @@ void xmlBufFree(xmlBuf * buf)
 		return;
 	}
 	if(buf->alloc == XML_BUFFER_ALLOC_IO && buf->contentIO != NULL) {
-		free(buf->contentIO);
+		SAlloc::F(buf->contentIO);
 	}
 	else if((buf->content != NULL) && (buf->alloc != XML_BUFFER_ALLOC_IMMUTABLE)) {
-		free(buf->content);
+		SAlloc::F(buf->content);
 	}
-	free(buf);
+	SAlloc::F(buf);
 }
 /**
  * xmlBufEmpty:
@@ -419,7 +419,7 @@ static size_t xmlBufGrowInternal(xmlBufPtr buf, size_t len)
 
 	if((buf->alloc == XML_BUFFER_ALLOC_IO) && (buf->contentIO != NULL)) {
 		size_t start_buf = buf->content - buf->contentIO;
-		newbuf = (xmlChar*)xmlRealloc(buf->contentIO, start_buf + size);
+		newbuf = (xmlChar*)SAlloc::R(buf->contentIO, start_buf + size);
 		if(newbuf == NULL) {
 			xmlBufMemoryError(buf, "growing buffer");
 			return 0;
@@ -428,7 +428,7 @@ static size_t xmlBufGrowInternal(xmlBufPtr buf, size_t len)
 		buf->content = newbuf + start_buf;
 	}
 	else {
-		newbuf = (xmlChar*)xmlRealloc(buf->content, size);
+		newbuf = (xmlChar*)SAlloc::R(buf->content, size);
 		if(newbuf == NULL) {
 			xmlBufMemoryError(buf, "growing buffer");
 			return 0;
@@ -728,7 +728,7 @@ int xmlBufResize(xmlBufPtr buf, size_t size)
 			buf->size += start_buf;
 		}
 		else {
-			rebuf = (xmlChar*)xmlRealloc(buf->contentIO, start_buf + newSize);
+			rebuf = (xmlChar*)SAlloc::R(buf->contentIO, start_buf + newSize);
 			if(rebuf == NULL) {
 				xmlBufMemoryError(buf, "growing buffer");
 				return 0;
@@ -739,10 +739,10 @@ int xmlBufResize(xmlBufPtr buf, size_t size)
 	}
 	else {
 		if(buf->content == NULL) {
-			rebuf = (xmlChar*)xmlMallocAtomic(newSize);
+			rebuf = (xmlChar*)SAlloc::M(newSize);
 		}
 		else if(buf->size - buf->use < 100) {
-			rebuf = (xmlChar*)xmlRealloc(buf->content, newSize);
+			rebuf = (xmlChar*)SAlloc::R(buf->content, newSize);
 		}
 		else {
 			/*
@@ -750,10 +750,10 @@ int xmlBufResize(xmlBufPtr buf, size_t size)
 			 * better to make a new allocation and copy only the used range
 			 * and free the old one.
 			 */
-			rebuf = (xmlChar*)xmlMallocAtomic(newSize);
+			rebuf = (xmlChar*)SAlloc::M(newSize);
 			if(rebuf) {
 				memcpy(rebuf, buf->content, buf->use);
-				free(buf->content);
+				SAlloc::F(buf->content);
 				rebuf[buf->use] = 0;
 			}
 		}
@@ -798,7 +798,7 @@ int xmlBufAdd(xmlBufPtr buf, const xmlChar * str, int len)
 	if(len == 0)
 		return 0;
 	if(len < 0)
-		len = xmlStrlen(str);
+		len = sstrlen(str);
 	if(len < 0)
 		return -1;
 	if(len == 0)
@@ -852,7 +852,7 @@ int xmlBufAddHead(xmlBufPtr buf, const xmlChar * str, int len)
 	if(len == 0)
 		return 0;
 	if(len < 0)
-		len = xmlStrlen(str);
+		len = sstrlen(str);
 	if(len <= 0)
 		return -1;
 	if((buf->alloc == XML_BUFFER_ALLOC_IO) && (buf->contentIO != NULL)) {
@@ -1047,25 +1047,26 @@ int xmlBufWriteQuotedString(xmlBufPtr buf, const xmlChar * string)
  *
  * Returns a new xmlBufPtr unless the call failed and NULL is returned
  */
-xmlBufPtr xmlBufFromBuffer(xmlBufferPtr buffer)
+xmlBuf * xmlBufFromBuffer(xmlBuffer * buffer)
 {
-	xmlBufPtr ret;
-	if(buffer == NULL)
-		return NULL;
-	ret = (xmlBufPtr)xmlMalloc(sizeof(xmlBuf));
-	if(ret == NULL) {
-		xmlBufMemoryError(NULL, "creating buffer");
-		return NULL;
+	xmlBuf * ret = 0;
+	if(buffer) {
+		ret = (xmlBuf *)SAlloc::M(sizeof(xmlBuf));
+		if(!ret) {
+			xmlBufMemoryError(NULL, "creating buffer");
+		}
+		else {
+			ret->use = buffer->use;
+			ret->size = buffer->size;
+			ret->compat_use = buffer->use;
+			ret->compat_size = buffer->size;
+			ret->error = 0;
+			ret->buffer = buffer;
+			ret->alloc = buffer->alloc;
+			ret->content = buffer->content;
+			ret->contentIO = buffer->contentIO;
+		}
 	}
-	ret->use = buffer->use;
-	ret->size = buffer->size;
-	ret->compat_use = buffer->use;
-	ret->compat_size = buffer->size;
-	ret->error = 0;
-	ret->buffer = buffer;
-	ret->alloc = buffer->alloc;
-	ret->content = buffer->content;
-	ret->contentIO = buffer->contentIO;
 	return ret;
 }
 
@@ -1081,7 +1082,7 @@ xmlBufPtr xmlBufFromBuffer(xmlBufferPtr buffer)
  *
  * Returns the old xmlBufferPtr unless the call failed and NULL is returned
  */
-xmlBufferPtr xmlBufBackToBuffer(xmlBufPtr buf)
+xmlBuffer * xmlBufBackToBuffer(xmlBuf * buf)
 {
 	xmlBufferPtr ret;
 	if((buf == NULL) || (buf->error))
@@ -1091,7 +1092,6 @@ xmlBufferPtr xmlBufBackToBuffer(xmlBufPtr buf)
 		xmlBufFree(buf);
 		return NULL;
 	}
-
 	ret = buf->buffer;
 	/*
 	 * What to do in case of error in the buffer ???
@@ -1109,8 +1109,7 @@ xmlBufferPtr xmlBufBackToBuffer(xmlBufPtr buf)
 	else if(buf->size > INT_MAX) {
 		/*
 		 * milder case, we allocated more than the maximum allowed memory
-		 * for an xmlBuffer on this architecture, but used less than the
-		 * limit.
+		 * for an xmlBuffer on this architecture, but used less than the limit.
 		 * Keep the buffer but provide a truncated size value.
 		 */
 		xmlBufOverflowError(buf, "Allocated size too big for xmlBuffer");
@@ -1121,10 +1120,9 @@ xmlBufferPtr xmlBufBackToBuffer(xmlBufPtr buf)
 	ret->alloc = buf->alloc;
 	ret->content = buf->content;
 	ret->contentIO = buf->contentIO;
-	free(buf);
+	SAlloc::F(buf);
 	return ret;
 }
-
 /**
  * xmlBufMergeBuffer:
  * @buf: an xmlBufPtr
@@ -1142,8 +1140,7 @@ int xmlBufMergeBuffer(xmlBufPtr buf, xmlBufferPtr buffer)
 		return -1;
 	}
 	CHECK_COMPAT(buf)
-	if((buffer != NULL) && (buffer->content != NULL) &&
-	    (buffer->use > 0)) {
+	if((buffer != NULL) && (buffer->content != NULL) && (buffer->use > 0)) {
 		ret = xmlBufAdd(buf, buffer->content, buffer->use);
 	}
 	xmlBufferFree(buffer);

@@ -227,7 +227,7 @@ static cairo_surface_t* _prepare_unbounded_surface(cairo_gl_surface_t * dst)
 	    dst->base.content,
 	    dst->width,
 	    dst->height);
-	if(surface == NULL)
+	if(!surface)
 		return NULL;
 	if(unlikely(surface->status)) {
 		cairo_surface_destroy(surface);

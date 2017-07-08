@@ -43,7 +43,7 @@ err:
 int BIO_free(BIO * a)
 {
 	int i;
-	if(a == NULL)
+	if(!a)
 		return 0;
 	else if(CRYPTO_atomic_add(&a->references, -1, &i, a->lock) <= 0)
 		return 0;
@@ -157,7 +157,7 @@ int BIO_method_type(const BIO * b)
 	return b->method->type;
 }
 
-int BIO_read(BIO * b, void * out, int outl)
+int FASTCALL BIO_read(BIO * b, void * out, int outl)
 {
 	int i;
 	long (* cb)(BIO *, int, const char *, int, long, long);
@@ -180,12 +180,12 @@ int BIO_read(BIO * b, void * out, int outl)
 	return (i);
 }
 
-int BIO_write(BIO * b, const void * in, int inl)
+int FASTCALL BIO_write(BIO * b, const void * in, int inl)
 {
 	int i;
 	long (* cb)(BIO *, int, const char *, int, long, long);
 	if(b == NULL)
-		return (0);
+		return 0;
 	cb = b->callback;
 	if((b->method == NULL) || (b->method->bwrite == NULL)) {
 		BIOerr(BIO_F_BIO_WRITE, BIO_R_UNSUPPORTED_METHOD);
@@ -205,7 +205,7 @@ int BIO_write(BIO * b, const void * in, int inl)
 	return (i);
 }
 
-int BIO_puts(BIO * b, const char * in)
+int FASTCALL BIO_puts(BIO * b, const char * in)
 {
 	int i;
 	long (* cb)(BIO *, int, const char *, int, long, long);
@@ -228,7 +228,7 @@ int BIO_puts(BIO * b, const char * in)
 	return (i);
 }
 
-int BIO_gets(BIO * b, char * in, int inl)
+int FASTCALL BIO_gets(BIO * b, char * in, int inl)
 {
 	int i;
 	long (* cb)(BIO *, int, const char *, int, long, long);
@@ -290,7 +290,7 @@ long BIO_ctrl(BIO * b, int cmd, long larg, void * parg)
 			}
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 long BIO_callback_ctrl(BIO * b, int cmd, void (* fp)(struct bio_st *, int, const char *, int, long, long))
@@ -298,18 +298,18 @@ long BIO_callback_ctrl(BIO * b, int cmd, void (* fp)(struct bio_st *, int, const
 	long ret;
 	long (* cb)(BIO *, int, const char *, int, long, long);
 	if(b == NULL)
-		return (0);
+		return 0;
 	if((b->method == NULL) || (b->method->callback_ctrl == NULL)) {
 		BIOerr(BIO_F_BIO_CALLBACK_CTRL, BIO_R_UNSUPPORTED_METHOD);
 		return (-2);
 	}
 	cb = b->callback;
 	if(cb && ((ret = cb(b, BIO_CB_CTRL, (const char*)&fp, cmd, 0, 1L)) <= 0))
-		return (ret);
+		return ret;
 	ret = b->method->callback_ctrl(b, cmd, fp);
 	if(cb)
 		ret = cb(b, BIO_CB_CTRL | BIO_CB_RETURN, (const char*)&fp, cmd, 0, ret);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -452,7 +452,7 @@ BIO * BIO_dup_chain(BIO * in)
 			BIO_free(new_bio);
 			goto err;
 		}
-		if(ret == NULL) {
+		if(!ret) {
 			eoc = new_bio;
 			ret = eoc;
 		}
@@ -461,7 +461,7 @@ BIO * BIO_dup_chain(BIO * in)
 			eoc = new_bio;
 		}
 	}
-	return (ret);
+	return ret;
 err:
 	BIO_free_all(ret);
 	return (NULL);

@@ -21,7 +21,7 @@
 ASN1_SCTX * ASN1_SCTX_new(int (* scan_cb)(ASN1_SCTX * ctx))
 {
 	ASN1_SCTX * ret = (ASN1_SCTX*)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL) {
+	if(!ret) {
 		ASN1err(ASN1_F_ASN1_SCTX_NEW, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}

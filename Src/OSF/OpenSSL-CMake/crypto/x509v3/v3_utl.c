@@ -916,7 +916,7 @@ ASN1_OCTET_STRING * a2i_IPADDRESS(const char * ipasc)
 		return NULL;
 
 	ret = ASN1_OCTET_STRING_new();
-	if(ret == NULL)
+	if(!ret)
 		return NULL;
 	if(!ASN1_OCTET_STRING_set(ret, ipout, iplen)) {
 		ASN1_OCTET_STRING_free(ret);
@@ -954,7 +954,7 @@ ASN1_OCTET_STRING * a2i_IPADDRESS_NC(const char * ipasc)
 		goto err;
 
 	ret = ASN1_OCTET_STRING_new();
-	if(ret == NULL)
+	if(!ret)
 		goto err;
 	if(!ASN1_OCTET_STRING_set(ret, ipout, iplen1 + iplen2))
 		goto err;

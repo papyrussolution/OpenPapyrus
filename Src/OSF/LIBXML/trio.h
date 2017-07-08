@@ -23,29 +23,25 @@
 #define TRIO_TRIO_H
 
 #if !defined(WITHOUT_TRIO)
-
 /*
  * Use autoconf defines if present. Packages using trio must define
  * HAVE_CONFIG_H as a compiler option themselves.
  */
 #if defined(TRIO_HAVE_CONFIG_H)
-# include "config.h"
+	#include "config.h"
 #endif
-
 #include "triodef.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #if defined(TRIO_COMPILER_ANCIENT)
-# include <varargs.h>
+	#include <varargs.h>
 #else
-# include <stdarg.h>
+	#include <stdarg.h>
 #endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /*
  * Error codes.
  *
@@ -89,69 +85,48 @@ int trio_dprintf TRIO_PROTO((int fd, TRIO_CONST char *format, ...));
 int trio_vdprintf TRIO_PROTO((int fd, TRIO_CONST char *format, va_list args));
 int trio_dprintfv TRIO_PROTO((int fd, TRIO_CONST char *format, void **args));
 
-int trio_cprintf TRIO_PROTO((trio_outstream_t stream, trio_pointer_t closure,
-			     TRIO_CONST char *format, ...));
-int trio_vcprintf TRIO_PROTO((trio_outstream_t stream, trio_pointer_t closure,
-			      TRIO_CONST char *format, va_list args));
-int trio_cprintfv TRIO_PROTO((trio_outstream_t stream, trio_pointer_t closure,
-			      TRIO_CONST char *format, void **args));
-
+int trio_cprintf TRIO_PROTO((trio_outstream_t stream, trio_pointer_t closure, TRIO_CONST char *format, ...));
+int trio_vcprintf TRIO_PROTO((trio_outstream_t stream, trio_pointer_t closure, TRIO_CONST char *format, va_list args));
+int trio_cprintfv TRIO_PROTO((trio_outstream_t stream, trio_pointer_t closure, TRIO_CONST char *format, void **args));
 int trio_sprintf TRIO_PROTO((char *buffer, TRIO_CONST char *format, ...));
 int trio_vsprintf TRIO_PROTO((char *buffer, TRIO_CONST char *format, va_list args));
 int trio_sprintfv TRIO_PROTO((char *buffer, TRIO_CONST char *format, void **args));
-
 int trio_snprintf TRIO_PROTO((char *buffer, size_t max, TRIO_CONST char *format, ...));
-int trio_vsnprintf TRIO_PROTO((char *buffer, size_t bufferSize, TRIO_CONST char *format,
-		   va_list args));
-int trio_snprintfv TRIO_PROTO((char *buffer, size_t bufferSize, TRIO_CONST char *format,
-		   void **args));
-
+int trio_vsnprintf TRIO_PROTO((char *buffer, size_t bufferSize, TRIO_CONST char *format, va_list args));
+int trio_snprintfv TRIO_PROTO((char *buffer, size_t bufferSize, TRIO_CONST char *format, void **args));
 int trio_snprintfcat TRIO_PROTO((char *buffer, size_t max, TRIO_CONST char *format, ...));
-int trio_vsnprintfcat TRIO_PROTO((char *buffer, size_t bufferSize, TRIO_CONST char *format,
-                      va_list args));
-
+int trio_vsnprintfcat TRIO_PROTO((char *buffer, size_t bufferSize, TRIO_CONST char *format, va_list args));
 char *trio_aprintf TRIO_PROTO((TRIO_CONST char *format, ...));
 char *trio_vaprintf TRIO_PROTO((TRIO_CONST char *format, va_list args));
-
 int trio_asprintf TRIO_PROTO((char **ret, TRIO_CONST char *format, ...));
 int trio_vasprintf TRIO_PROTO((char **ret, TRIO_CONST char *format, va_list args));
-
-/*************************************************************************
- * Scan Functions
- */
+//
+// Scan Functions
+//
 int trio_scanf TRIO_PROTO((TRIO_CONST char *format, ...));
 int trio_vscanf TRIO_PROTO((TRIO_CONST char *format, va_list args));
 int trio_scanfv TRIO_PROTO((TRIO_CONST char *format, void **args));
-
 int trio_fscanf TRIO_PROTO((FILE *file, TRIO_CONST char *format, ...));
 int trio_vfscanf TRIO_PROTO((FILE *file, TRIO_CONST char *format, va_list args));
 int trio_fscanfv TRIO_PROTO((FILE *file, TRIO_CONST char *format, void **args));
-
 int trio_dscanf TRIO_PROTO((int fd, TRIO_CONST char *format, ...));
 int trio_vdscanf TRIO_PROTO((int fd, TRIO_CONST char *format, va_list args));
 int trio_dscanfv TRIO_PROTO((int fd, TRIO_CONST char *format, void **args));
-
-int trio_cscanf TRIO_PROTO((trio_instream_t stream, trio_pointer_t closure,
-			    TRIO_CONST char *format, ...));
-int trio_vcscanf TRIO_PROTO((trio_instream_t stream, trio_pointer_t closure,
-			     TRIO_CONST char *format, va_list args));
-int trio_cscanfv TRIO_PROTO((trio_instream_t stream, trio_pointer_t closure,
-			     TRIO_CONST char *format, void **args));
-
+int trio_cscanf TRIO_PROTO((trio_instream_t stream, trio_pointer_t closure, TRIO_CONST char *format, ...));
+int trio_vcscanf TRIO_PROTO((trio_instream_t stream, trio_pointer_t closure, TRIO_CONST char *format, va_list args));
+int trio_cscanfv TRIO_PROTO((trio_instream_t stream, trio_pointer_t closure, TRIO_CONST char *format, void **args));
 int trio_sscanf TRIO_PROTO((TRIO_CONST char *buffer, TRIO_CONST char *format, ...));
 int trio_vsscanf TRIO_PROTO((TRIO_CONST char *buffer, TRIO_CONST char *format, va_list args));
 int trio_sscanfv TRIO_PROTO((TRIO_CONST char *buffer, TRIO_CONST char *format, void **args));
-
-/*************************************************************************
- * Locale Functions
- */
+//
+// Locale Functions
+//
 void trio_locale_set_decimal_point TRIO_PROTO((char *decimalPoint));
 void trio_locale_set_thousand_separator TRIO_PROTO((char *thousandSeparator));
 void trio_locale_set_grouping TRIO_PROTO((char *grouping));
-
-/*************************************************************************
- * Renaming
- */
+//
+// Renaming
+//
 #ifdef TRIO_REPLACE_STDIO
 /* Replace the <stdio.h> functions */
 #ifndef HAVE_PRINTF

@@ -27,7 +27,7 @@ void * ASN1_d2i_fp(void *(*xnew)(void), d2i_of_void * d2i, FILE * in, void ** x)
 	BIO_set_fp(b, in, BIO_NOCLOSE);
 	ret = ASN1_d2i_bio(xnew, d2i, b, x);
 	BIO_free(b);
-	return (ret);
+	return ret;
 }
 
 # endif
@@ -44,7 +44,7 @@ void * ASN1_d2i_bio(void *(*xnew)(void), d2i_of_void * d2i, BIO * in, void ** x)
 	ret = d2i(x, &p, len);
 err:
 	BUF_MEM_free(b);
-	return (ret);
+	return ret;
 }
 
 #endif
@@ -61,7 +61,7 @@ void * ASN1_item_d2i_bio(const ASN1_ITEM * it, BIO * in, void * x)
 	ret = ASN1_item_d2i((ASN1_VALUE**)x, &p, len, it);
 err:
 	BUF_MEM_free(b);
-	return (ret);
+	return ret;
 }
 
 #ifndef OPENSSL_NO_STDIO
@@ -76,7 +76,7 @@ void * ASN1_item_d2i_fp(const ASN1_ITEM * it, FILE * in, void * x)
 	BIO_set_fp(b, in, BIO_NOCLOSE);
 	ret = (char*)ASN1_item_d2i_bio(it, b, x);
 	BIO_free(b);
-	return (ret);
+	return ret;
 }
 
 #endif

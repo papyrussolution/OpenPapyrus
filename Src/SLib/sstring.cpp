@@ -1829,7 +1829,7 @@ char * json_escape(const char * text)
 	// defining the temporary variables
 	length = strlen(text);
 	output = rcs_create(length);
-	if(output == NULL)
+	if(!output)
 		return NULL;
 	for(i = 0; i < length; i++) {
 		if(text[i] == '\\')

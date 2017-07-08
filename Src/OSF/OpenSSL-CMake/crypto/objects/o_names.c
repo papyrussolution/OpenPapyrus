@@ -82,7 +82,7 @@ int OBJ_NAME_new_index(ulong (* hash_func)(const char *),
 	}
 	if(name_funcs_stack == NULL) {
 		/* ERROR */
-		return (0);
+		return 0;
 	}
 	ret = names_type_num;
 	names_type_num++;
@@ -92,7 +92,7 @@ int OBJ_NAME_new_index(ulong (* hash_func)(const char *),
 		CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_ENABLE);
 		if(name_funcs == NULL) {
 			OBJerr(OBJ_F_OBJ_NAME_NEW_INDEX, ERR_R_MALLOC_FAILURE);
-			return (0);
+			return 0;
 		}
 		name_funcs->hash_func = OPENSSL_LH_strhash;
 		name_funcs->cmp_func = obj_strcmp;
@@ -114,7 +114,7 @@ int OBJ_NAME_new_index(ulong (* hash_func)(const char *),
 		name_funcs->cmp_func = cmp_func;
 	if(free_func != NULL)
 		name_funcs->free_func = free_func;
-	return (ret);
+	return ret;
 }
 
 static int obj_name_cmp(const OBJ_NAME * a, const OBJ_NAME * b)
@@ -131,7 +131,7 @@ static int obj_name_cmp(const OBJ_NAME * a, const OBJ_NAME * b)
 		else
 			ret = strcmp(a->name, b->name);
 	}
-	return (ret);
+	return ret;
 }
 
 static ulong obj_name_hash(const OBJ_NAME * a)
@@ -148,7 +148,7 @@ static ulong obj_name_hash(const OBJ_NAME * a)
 		ret = OPENSSL_LH_strhash(a->name);
 	}
 	ret ^= a->type;
-	return (ret);
+	return ret;
 }
 
 const char * OBJ_NAME_get(const char * name, int type)
@@ -169,7 +169,7 @@ const char * OBJ_NAME_get(const char * name, int type)
 
 	for(;; ) {
 		ret = lh_OBJ_NAME_retrieve(names_lh, &on);
-		if(ret == NULL)
+		if(!ret)
 			return (NULL);
 		if((ret->alias) && !alias) {
 			if(++num > 10)
@@ -188,7 +188,7 @@ int OBJ_NAME_add(const char * name, int type, const char * data)
 	int alias;
 
 	if((names_lh == NULL) && !OBJ_NAME_init())
-		return (0);
+		return 0;
 
 	alias = type & OBJ_NAME_ALIAS;
 	type &= ~OBJ_NAME_ALIAS;
@@ -234,7 +234,7 @@ int OBJ_NAME_remove(const char * name, int type)
 	OBJ_NAME on, * ret;
 
 	if(names_lh == NULL)
-		return (0);
+		return 0;
 
 	type &= ~OBJ_NAME_ALIAS;
 	on.name = name;
@@ -256,7 +256,7 @@ int OBJ_NAME_remove(const char * name, int type)
 		return (1);
 	}
 	else
-		return (0);
+		return 0;
 }
 
 typedef struct {

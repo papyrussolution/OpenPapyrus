@@ -46,7 +46,7 @@ static EC_PRE_COMP * ec_pre_comp_new(const EC_GROUP * group)
 		return NULL;
 
 	ret = (EC_PRE_COMP*)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL) {
+	if(!ret) {
 		ECerr(EC_F_EC_PRE_COMP_NEW, ERR_R_MALLOC_FAILURE);
 		return ret;
 	}
@@ -163,9 +163,9 @@ int ec_wNAF_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
 		}
 	}
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			goto err;
 	}
 
@@ -546,9 +546,9 @@ int ec_wNAF_precompute_mult(EC_GROUP * group, BN_CTX * ctx)
 		goto err;
 	}
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			goto err;
 	}
 

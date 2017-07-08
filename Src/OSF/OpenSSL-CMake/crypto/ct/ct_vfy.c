@@ -24,8 +24,8 @@ typedef enum sct_signature_type_t {
  */
 static int sct_ctx_update(EVP_MD_CTX * ctx, const SCT_CTX * sctx, const SCT * sct)
 {
-	unsigned char tmpbuf[12];
-	unsigned char * p, * der;
+	uchar tmpbuf[12];
+	uchar * p, * der;
 	size_t derlen;
 	/*+
 	 * digitally-signed struct {
@@ -116,7 +116,7 @@ int SCT_CTX_verify(const SCT_CTX * sctx, const SCT * sct)
 	}
 
 	ctx = EVP_MD_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto end;
 
 	if(!EVP_DigestVerifyInit(ctx, NULL, EVP_sha256(), NULL, sctx->pkey))

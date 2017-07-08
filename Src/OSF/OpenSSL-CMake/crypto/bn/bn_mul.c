@@ -991,7 +991,7 @@ end:
 err:
 	bn_check_top(r);
 	BN_CTX_end(ctx);
-	return (ret);
+	return ret;
 }
 
 void bn_mul_normal(BN_ULONG * r, BN_ULONG * a, int na, BN_ULONG * b, int nb)

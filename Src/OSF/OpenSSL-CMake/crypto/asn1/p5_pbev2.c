@@ -64,7 +64,7 @@ X509_ALGOR *PKCS5_pbe2_set_iv(const EVP_CIPHER *cipher, int iter,
 			goto err;
 	}
 	ctx = EVP_CIPHER_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto merr;
 	/* Dummy cipherinit to just setup the IV, and PRF */
 	if(!EVP_CipherInit_ex(ctx, cipher, NULL, NULL, iv, 0))

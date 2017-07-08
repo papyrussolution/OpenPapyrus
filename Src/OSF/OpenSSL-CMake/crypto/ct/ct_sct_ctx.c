@@ -101,7 +101,7 @@ __owur static int ct_x509_cert_fixup(X509 * cert, X509 * presigner)
 
 int SCT_CTX_set1_cert(SCT_CTX * sctx, X509 * cert, X509 * presigner)
 {
-	unsigned char * certder = NULL, * preder = NULL;
+	uchar * certder = NULL, * preder = NULL;
 	X509 * pretmp = NULL;
 	int certderlen = 0, prederlen = 0;
 	int idx = -1;
@@ -184,13 +184,13 @@ err:
 	return 0;
 }
 
-__owur static int ct_public_key_hash(X509_PUBKEY * pkey, unsigned char ** hash,
+__owur static int ct_public_key_hash(X509_PUBKEY * pkey, uchar ** hash,
     size_t * hash_len)
 {
 	int ret = 0;
-	unsigned char * md = NULL, * der = NULL;
+	uchar * md = NULL, * der = NULL;
 	int der_len;
-	unsigned int md_len;
+	uint md_len;
 
 	/* Reuse buffer if possible */
 	if(*hash != NULL && *hash_len >= SHA256_DIGEST_LENGTH) {

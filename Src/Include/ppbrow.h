@@ -22,19 +22,20 @@
 #define TOOLBAR_ARTICLE                       18
 #define TOOLBAR_ACCANLZ1                      19
 #define TOOLBAR_ACCANLZ2                      20
-#define TOOLBAR_TEXTBROWSER                   21
-#define TOOLBAR_TEXTBROWSER_WB_HTML           22
-#define TOOLBAR_LIST_DEFAULT                  23
-#define TOOLBAR_LIST_BRAND                    24
-#define TOOLBAR_LIST_WORLD                    25
-#define TOOLBAR_LIST_TAG                      26
-#define TOOLBAR_LIST_ACCSHEET                 27
-#define TOOLBAR_LIST_GOODSBASKET              28
-#define TOOLBAR_LIST_GRPNUSR                  29
-#define TOOLBAR_LIST_BILLSTATUS               30
-#define TOOLBAR_LIST_PSNOPKIND                31
-#define TOOLBAR_LIST_SCARDSERIES              32
-#define TOOLBAR_LIST_WORKBOOK                 33
+#define TOOLBAR_LOGVIEW                       21
+#define TOOLBAR_TEXTBROWSER                   22
+#define TOOLBAR_TEXTBROWSER_WB_HTML           23
+#define TOOLBAR_LIST_DEFAULT                  24
+#define TOOLBAR_LIST_BRAND                    25
+#define TOOLBAR_LIST_WORLD                    26
+#define TOOLBAR_LIST_TAG                      27
+#define TOOLBAR_LIST_ACCSHEET                 28
+#define TOOLBAR_LIST_GOODSBASKET              29
+#define TOOLBAR_LIST_GRPNUSR                  30
+#define TOOLBAR_LIST_BILLSTATUS               31
+#define TOOLBAR_LIST_PSNOPKIND                32
+#define TOOLBAR_LIST_SCARDSERIES              33
+#define TOOLBAR_LIST_WORKBOOK                 34
 #define BROWSER_PERSON                         1 // @{person_pl} {%s}
 	#define HELP_BROWSER_PERSON                         1
 #define BROWSER_PERSONCT                       2 // @{person_pl} {%s}
@@ -89,7 +90,7 @@
 	#define HELP_BROWSER_ATURNGRPNG_CYCLE              26
 #define BROWSER_BALANCE                       27 // Баланс (%s)
 	#define HELP_BROWSER_BALANCE                       27
-#define TOOLBAR_DEBTTRNOVR                    34
+#define TOOLBAR_DEBTTRNOVR                    35
 #define BROWSER_SELLTRNOVR_CT                 28 // @{view_debttrnovr} {%s}
 	#define HELP_BROWSER_SELLTRNOVR_CT                 28
 #define BROWSER_SELLTRNOVR_CT_PAYM            29 // @{view_debttrnovr} {%s}
@@ -196,7 +197,7 @@
 	#define HELP_BROWSER_SHIPMANLZBYBILL               79
 #define BROWSER_PSALESGOODS                   80 // Продажи товаров (%s)
 	#define HELP_BROWSER_PSALESGOODS                   80
-#define TOOLBAR_TRFRANLZ                      35
+#define TOOLBAR_TRFRANLZ                      36
 #define BROWSER_GOODSCARD                     81 // Карточка товара {%s}
 	#define HELP_BROWSER_GOODSCARD                     81
 #define BROWSER_TRFRANLZ                      82 // @{view_trfranlz}
@@ -315,7 +316,7 @@
 	#define HELP_BROWSER_PLINES_BYALLQUOTS            138
 #define BROWSER_QCERT                        139 // @{qcert}
 	#define HELP_BROWSER_QCERT                        139
-#define TOOLBAR_VATBOOK                       36
+#define TOOLBAR_VATBOOK                       37
 #define BROWSER_VATSELL                      140 // @{salesledger}
 	#define HELP_BROWSER_VATSELL                      140
 #define BROWSER_VATBUY                       141 // @{purchaseledger}
@@ -334,7 +335,7 @@
 	#define HELP_BROWSER_QUOT_SER                     147
 #define BROWSER_CCHECK                       148 // Кассовые чеки
 	#define HELP_BROWSER_CCHECK                       148
-#define TOOLBAR_CCHECKGRP                     37
+#define TOOLBAR_CCHECKGRP                     38
 #define BROWSER_CCHECKGRP_TM                 149 // Кассовые чеки по часам
 	#define HELP_BROWSER_CCHECKGRP_TM                 149
 #define BROWSER_CCHECKGRP_DT                 150 // Кассовые чеки по дням
@@ -401,7 +402,7 @@
 	#define HELP_BROWSER_STAFFCAL_DTGRP               180
 #define BROWSER_CURRATE                      181 // Валютные курсы
 	#define HELP_BROWSER_CURRATE                      181
-#define TOOLBAR_CSESS                         38
+#define TOOLBAR_CSESS                         39
 #define BROWSER_CSESS                        182 // @{csession_pl} {%s}
 	#define HELP_BROWSER_CSESS                        182
 #define BROWSER_CSESS_EXT                    183 // Расширенная ведомость кассовых сессий
@@ -412,7 +413,7 @@
 	#define HELP_BROWSER_OBJSYNC                      185
 #define BROWSER_OBJSYNCQUEUE                 186 // Очередь синхронизации
 	#define HELP_BROWSER_OBJSYNCQUEUE                 186
-#define TOOLBAR_SCARD                         39
+#define TOOLBAR_SCARD                         40
 #define BROWSER_SCARD                        187 // @{scard_pl} {%s}
 	#define HELP_BROWSER_SCARD                        187
 #define BROWSER_SCARDCRD                     188 // Кредитные карты {%s}
@@ -958,12 +959,12 @@
 #define PPVCMD_EDITAGREEMENT                134
 #define PPVCMD_EDITDEBTLIMS                 135
 #define PPVCMD_VIEWGOODS                    136
-#define PPVCMD_OPEN                         137
-#define PPVCMD_SAVE                         138
-#define PPVCMD_SAVEAS                       139
-#define PPVCMD_SELCODEPAGE                  140
-#define PPVCMD_CVTCODEPAGE                  141
-#define PPVCMD_SEARCH                       142
+#define PPVCMD_SAVEAS                       137
+#define PPVCMD_SEARCH                       138
+#define PPVCMD_OPEN                         139
+#define PPVCMD_SAVE                         140
+#define PPVCMD_SELCODEPAGE                  141
+#define PPVCMD_CVTCODEPAGE                  142
 #define PPVCMD_PROCESSTEXT                  143
 #define PPVCMD_INSERTLINK                   144
 #define PPVCMD_BRACEHTMLTAG                 145

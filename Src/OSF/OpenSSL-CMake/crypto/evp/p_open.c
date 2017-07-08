@@ -47,7 +47,7 @@ int EVP_OpenInit(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * type,
 	ret = 1;
 err:
 	OPENSSL_clear_free(key, size);
-	return (ret);
+	return ret;
 }
 
 int EVP_OpenFinal(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)

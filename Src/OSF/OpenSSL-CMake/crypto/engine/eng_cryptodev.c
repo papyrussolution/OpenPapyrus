@@ -318,7 +318,7 @@ static int get_cryptodev_ciphers(const int ** cnids)
 
 	if((fd = get_dev_crypto()) < 0) {
 		*cnids = NULL;
-		return (0);
+		return 0;
 	}
 	memzero(&sess, sizeof(sess));
 	sess.key = (caddr_t)"123456789abcdefghijklmno";
@@ -358,7 +358,7 @@ static int get_cryptodev_digests(const int ** cnids)
 
 	if((fd = get_dev_crypto()) < 0) {
 		*cnids = NULL;
-		return (0);
+		return 0;
 	}
 	memzero(&sess, sizeof(sess));
 	sess.mackey = (caddr_t)"123456789abcdefghijklmno";
@@ -427,7 +427,7 @@ static int cryptodev_usable_digests(const int ** nids)
 	 * by default) on cards that generally suck like the hifn.
 	 */
 	*nids = NULL;
-	return (0);
+	return 0;
 # endif
 }
 
@@ -442,11 +442,11 @@ static int cryptodev_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 	uchar save_iv[EVP_MAX_IV_LENGTH];
 
 	if(state->d_fd < 0)
-		return (0);
+		return 0;
 	if(!inl)
 		return (1);
 	if((inl % EVP_CIPHER_CTX_block_size(ctx)) != 0)
-		return (0);
+		return 0;
 
 	memzero(&cryp, sizeof(cryp));
 
@@ -474,7 +474,7 @@ static int cryptodev_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 		 * XXX need better error handling this can fail for a number of
 		 * different reasons.
 		 */
-		return (0);
+		return 0;
 	}
 
 	if(EVP_CIPHER_CTX_iv_length(ctx) > 0) {
@@ -505,13 +505,13 @@ static int cryptodev_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
 
 	if(!ciphers[i].id) {
 		state->d_fd = -1;
-		return (0);
+		return 0;
 	}
 
 	memzero(sess, sizeof(*sess));
 
 	if((state->d_fd = get_dev_crypto()) < 0)
-		return (0);
+		return 0;
 
 	sess->key = (caddr_t)key;
 	sess->keylen = EVP_CIPHER_CTX_key_length(ctx);
@@ -520,7 +520,7 @@ static int cryptodev_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
 	if(ioctl(state->d_fd, CIOCGSESSION, sess) == -1) {
 		put_dev_crypto(state->d_fd);
 		state->d_fd = -1;
-		return (0);
+		return 0;
 	}
 	return (1);
 }
@@ -536,7 +536,7 @@ static int cryptodev_cleanup(EVP_CIPHER_CTX * ctx)
 	struct session_op * sess = &state->d_sess;
 
 	if(state->d_fd < 0)
-		return (0);
+		return 0;
 
 	/*
 	 * XXX if this ioctl fails, something's wrong. the invoker may have called
@@ -557,7 +557,7 @@ static int cryptodev_cleanup(EVP_CIPHER_CTX * ctx)
 	put_dev_crypto(state->d_fd);
 	state->d_fd = -1;
 
-	return (ret);
+	return ret;
 }
 
 /*
@@ -885,7 +885,7 @@ static int digest_nid_to_cryptodev(int nid)
 	for(i = 0; digests[i].id; i++)
 		if(digests[i].nid == nid)
 			return (digests[i].id);
-	return (0);
+	return 0;
 }
 
 static int digest_key_length(int nid)
@@ -895,7 +895,7 @@ static int digest_key_length(int nid)
 	for(i = 0; digests[i].id; i++)
 		if(digests[i].nid == nid)
 			return digests[i].keylen;
-	return (0);
+	return 0;
 }
 
 static int cryptodev_digest_init(EVP_MD_CTX * ctx)
@@ -906,14 +906,14 @@ static int cryptodev_digest_init(EVP_MD_CTX * ctx)
 
 	if((digest = digest_nid_to_cryptodev(EVP_MD_CTX_type(ctx))) == NID_undef) {
 		printf("cryptodev_digest_init: Can't get digest \n");
-		return (0);
+		return 0;
 	}
 
 	memzero(state, sizeof(*state));
 
 	if((state->d_fd = get_dev_crypto()) < 0) {
 		printf("cryptodev_digest_init: Can't get Dev \n");
-		return (0);
+		return 0;
 	}
 
 	sess->mackey = state->dummy_mac_key;
@@ -924,7 +924,7 @@ static int cryptodev_digest_init(EVP_MD_CTX * ctx)
 		put_dev_crypto(state->d_fd);
 		state->d_fd = -1;
 		printf("cryptodev_digest_init: Open session failed\n");
-		return (0);
+		return 0;
 	}
 
 	return (1);
@@ -941,11 +941,11 @@ static int cryptodev_digest_update(EVP_MD_CTX * ctx, const void * data,
 
 	if(!data || state->d_fd < 0) {
 		printf("cryptodev_digest_update: illegal inputs \n");
-		return (0);
+		return 0;
 	}
 
 	if(!count) {
-		return (0);
+		return 0;
 	}
 
 	if(!EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_ONESHOT)) {
@@ -955,7 +955,7 @@ static int cryptodev_digest_update(EVP_MD_CTX * ctx, const void * data,
 
 		if(!new_mac_data) {
 			printf("cryptodev_digest_update: realloc failed\n");
-			return (0);
+			return 0;
 		}
 		state->mac_data = new_mac_data;
 
@@ -975,7 +975,7 @@ static int cryptodev_digest_update(EVP_MD_CTX * ctx, const void * data,
 	cryp.mac = (caddr_t)state->digest_res;
 	if(ioctl(state->d_fd, CIOCCRYPT, &cryp) < 0) {
 		printf("cryptodev_digest_update: digest failed\n");
-		return (0);
+		return 0;
 	}
 	return (1);
 }
@@ -991,7 +991,7 @@ static int cryptodev_digest_final(EVP_MD_CTX * ctx, uchar * md)
 
 	if(!md || state->d_fd < 0) {
 		printf("cryptodev_digest_final: illegal input\n");
-		return (0);
+		return 0;
 	}
 
 	if(!EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_ONESHOT)) {
@@ -1005,7 +1005,7 @@ static int cryptodev_digest_final(EVP_MD_CTX * ctx, uchar * md)
 		cryp.mac = (caddr_t)md;
 		if(ioctl(state->d_fd, CIOCCRYPT, &cryp) < 0) {
 			printf("cryptodev_digest_final: digest failed\n");
-			return (0);
+			return 0;
 		}
 
 		return 1;
@@ -1013,7 +1013,7 @@ static int cryptodev_digest_final(EVP_MD_CTX * ctx, uchar * md)
 
 	memcpy(md, state->digest_res, EVP_MD_CTX_size(ctx));
 
-	return (ret);
+	return ret;
 }
 
 static int cryptodev_digest_cleanup(EVP_MD_CTX * ctx)
@@ -1027,7 +1027,7 @@ static int cryptodev_digest_cleanup(EVP_MD_CTX * ctx)
 
 	if(state->d_fd < 0) {
 		printf("cryptodev_digest_cleanup: illegal input\n");
-		return (0);
+		return 0;
 	}
 
 	OPENSSL_free(state->mac_data);
@@ -1044,7 +1044,7 @@ static int cryptodev_digest_cleanup(EVP_MD_CTX * ctx)
 	put_dev_crypto(state->d_fd);
 	state->d_fd = -1;
 
-	return (ret);
+	return ret;
 }
 
 static int cryptodev_digest_copy(EVP_MD_CTX * to, const EVP_MD_CTX * from)
@@ -1074,7 +1074,7 @@ static int cryptodev_digest_copy(EVP_MD_CTX * to, const EVP_MD_CTX * from)
 		put_dev_crypto(dstate->d_fd);
 		dstate->d_fd = -1;
 		printf("cryptodev_digest_copy: Open session failed\n");
-		return (0);
+		return 0;
 	}
 
 	if(fstate->mac_len != 0) {
@@ -1082,7 +1082,7 @@ static int cryptodev_digest_copy(EVP_MD_CTX * to, const EVP_MD_CTX * from)
 			dstate->mac_data = OPENSSL_malloc(fstate->mac_len);
 			if(dstate->mac_data == NULL) {
 				printf("cryptodev_digest_copy: mac_data allocation failed\n");
-				return (0);
+				return 0;
 			}
 			memcpy(dstate->mac_data, fstate->mac_data, fstate->mac_len);
 			dstate->mac_len = fstate->mac_len;
@@ -1235,7 +1235,7 @@ static int bn2crparam(const BIGNUM * a, struct crparam * crp)
 	crp->crp_nbits = bits;
 
 	BN_bn2bin(a, b);
-	return (0);
+	return 0;
 }
 
 /* Convert a /dev/crypto parameter to a BIGNUM */
@@ -1258,7 +1258,7 @@ static int crparam2bn(struct crparam * crp, BIGNUM * a)
 	BN_bin2bn(pd, bytes, a);
 	free(pd);
 
-	return (0);
+	return 0;
 }
 
 static void zapparams(struct crypt_kop * kop)
@@ -1324,7 +1324,7 @@ static int cryptodev_bn_mod_exp(BIGNUM * r, const BIGNUM * a, const BIGNUM * p,
 	 */
 	if(cryptodev_asymfeat == 0) {
 		ret = BN_mod_exp(r, a, p, m, ctx);
-		return (ret);
+		return ret;
 	}
 
 	memzero(&kop, sizeof(kop));
@@ -1353,7 +1353,7 @@ static int cryptodev_bn_mod_exp(BIGNUM * r, const BIGNUM * a, const BIGNUM * p,
 
 err:
 	zapparams(&kop);
-	return (ret);
+	return ret;
 }
 
 static int cryptodev_rsa_nocrt_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa,
@@ -1388,7 +1388,7 @@ static int cryptodev_rsa_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa, BN_CT
 
 	if(!p || !q || !dmp1 || !dmq1 || !iqmp) {
 		/* XXX 0 means failure?? */
-		return (0);
+		return 0;
 	}
 
 	memzero(&kop, sizeof(kop));
@@ -1422,7 +1422,7 @@ static int cryptodev_rsa_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa, BN_CT
 
 err:
 	zapparams(&kop);
-	return (ret);
+	return ret;
 }
 
 #ifndef OPENSSL_NO_DSA
@@ -1475,7 +1475,7 @@ static int cryptodev_dsa_dsa_mod_exp(DSA * dsa, BIGNUM * t1, const BIGNUM * g,
 	ret = 1;
 err:
 	BN_free(t2);
-	return (ret);
+	return ret;
 }
 
 static DSA_SIG * cryptodev_dsa_do_sign(const uchar * dgst, int dlen,

@@ -45,7 +45,7 @@ static inline int __dbc_put_secondaries(DBC*, DBT*, DBT*, DBT*, int, DBT*, uint3
                                                                         \
 		if(F_ISSET(dbc, DBC_WRITECURSOR) && (ret = __lock_get(env, \
 			(dbc)->locker, DB_LOCK_UPGRADE, &(dbc)->lock_dbt, DB_LOCK_WRITE, &(dbc)->mylock)) != 0) \
-			return (ret);                                   \
+			return ret;                                   \
 	}
 #define CDB_LOCKING_DONE(env, dbc)                                      \
         /* Release the upgraded lock. */                                \

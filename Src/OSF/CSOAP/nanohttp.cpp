@@ -64,9 +64,8 @@
 	#include <utils/alloc.h>
 #endif
 #include "nanohttp.h"
-
 #ifdef WIN32
-	#include "wsockcompat.h"
+	//#include <libxml/wsockcompat.h>
 	#include <winsock2.h>
 	#define inline
 	#ifndef __MINGW32__

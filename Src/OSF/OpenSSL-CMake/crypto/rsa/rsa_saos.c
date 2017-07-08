@@ -25,12 +25,12 @@ int RSA_sign_ASN1_OCTET_STRING(int type, const uchar * m, uint m_len, uchar * si
 	j = RSA_size(rsa);
 	if(i > (j - RSA_PKCS1_PADDING_SIZE)) {
 		RSAerr(RSA_F_RSA_SIGN_ASN1_OCTET_STRING, RSA_R_DIGEST_TOO_BIG_FOR_RSA_KEY);
-		return (0);
+		return 0;
 	}
 	s = (uchar*)OPENSSL_malloc((uint)j + 1);
 	if(s == NULL) {
 		RSAerr(RSA_F_RSA_SIGN_ASN1_OCTET_STRING, ERR_R_MALLOC_FAILURE);
-		return (0);
+		return 0;
 	}
 	p = s;
 	i2d_ASN1_OCTET_STRING(&sig, &p);
@@ -41,7 +41,7 @@ int RSA_sign_ASN1_OCTET_STRING(int type, const uchar * m, uint m_len, uchar * si
 		*siglen = i;
 
 	OPENSSL_clear_free(s, (uint)j + 1);
-	return (ret);
+	return ret;
 }
 
 int RSA_verify_ASN1_OCTET_STRING(int dtype,
@@ -57,7 +57,7 @@ int RSA_verify_ASN1_OCTET_STRING(int dtype,
 	if(siglen != (uint)RSA_size(rsa)) {
 		RSAerr(RSA_F_RSA_VERIFY_ASN1_OCTET_STRING,
 		    RSA_R_WRONG_SIGNATURE_LENGTH);
-		return (0);
+		return 0;
 	}
 
 	s = (uchar*)OPENSSL_malloc((uint)siglen);
@@ -84,6 +84,6 @@ int RSA_verify_ASN1_OCTET_STRING(int dtype,
 err:
 	ASN1_OCTET_STRING_free(sig);
 	OPENSSL_clear_free(s, (uint)siglen);
-	return (ret);
+	return ret;
 }
 

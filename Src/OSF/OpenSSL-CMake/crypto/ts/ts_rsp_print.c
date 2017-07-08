@@ -113,7 +113,7 @@ static int ts_status_map_print(BIO * bio, const struct status_map_st * a,
 int TS_TST_INFO_print_bio(BIO * bio, TS_TST_INFO * a)
 {
 	int v;
-	if(a == NULL)
+	if(!a)
 		return 0;
 	v = ASN1_INTEGER_get(a->version);
 	BIO_printf(bio, "Version: %d\n", v);

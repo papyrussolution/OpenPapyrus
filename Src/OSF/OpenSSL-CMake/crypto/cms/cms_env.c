@@ -187,8 +187,7 @@ CMS_RecipientInfo * CMS_add1_recipient_cert(CMS_ContentInfo * cms, X509 * recip,
 			    goto err;
 		    break;
 		default:
-		    CMSerr(CMS_F_CMS_ADD1_RECIPIENT_CERT,
-		    CMS_R_NOT_SUPPORTED_FOR_THIS_KEY_TYPE);
+		    CMSerr(CMS_F_CMS_ADD1_RECIPIENT_CERT, CMS_R_NOT_SUPPORTED_FOR_THIS_KEY_TYPE);
 		    goto err;
 	}
 	if(!sk_CMS_RecipientInfo_push(env->recipientInfos, ri))

@@ -151,9 +151,9 @@ void async_start_func(void)
 int ASYNC_start_job(ASYNC_JOB ** job, ASYNC_WAIT_CTX * wctx, int * ret, int (* func)(void *), void * args, size_t size)
 {
 	async_ctx * ctx = async_get_ctx();
-	if(ctx == NULL)
+	if(!ctx)
 		ctx = async_ctx_new();
-	if(ctx == NULL) {
+	if(!ctx) {
 		return ASYNC_ERR;
 	}
 	if(*job) {
@@ -360,7 +360,7 @@ void ASYNC_cleanup_thread(void)
 ASYNC_JOB * ASYNC_get_current_job(void)
 {
 	async_ctx * ctx = async_get_ctx();
-	if(ctx == NULL)
+	if(!ctx)
 		return NULL;
 	return ctx->currjob;
 }

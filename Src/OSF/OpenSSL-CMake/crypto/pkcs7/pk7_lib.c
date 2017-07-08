@@ -52,7 +52,7 @@ long PKCS7_ctrl(PKCS7 * p7, int cmd, long larg, char * parg)
 		    PKCS7err(PKCS7_F_PKCS7_CTRL, PKCS7_R_UNKNOWN_OPERATION);
 		    ret = 0;
 	}
-	return (ret);
+	return ret;
 }
 
 int PKCS7_content_new(PKCS7 * p7, int type)
@@ -67,7 +67,7 @@ int PKCS7_content_new(PKCS7 * p7, int type)
 	return (1);
 err:
 	PKCS7_free(ret);
-	return (0);
+	return 0;
 }
 
 int PKCS7_set_content(PKCS7 * p7, PKCS7 * p7_data)
@@ -92,7 +92,7 @@ int PKCS7_set_content(PKCS7 * p7, PKCS7 * p7_data)
 	}
 	return (1);
 err:
-	return (0);
+	return 0;
 }
 
 int PKCS7_set_type(PKCS7 * p7, int type)
@@ -157,7 +157,7 @@ int PKCS7_set_type(PKCS7 * p7, int type)
 	}
 	return (1);
 err:
-	return (0);
+	return 0;
 }
 
 int PKCS7_set0_type_other(PKCS7 * p7, int type, ASN1_TYPE * other)
@@ -185,7 +185,7 @@ int PKCS7_add_signer(PKCS7 * p7, PKCS7_SIGNER_INFO * psi)
 		    break;
 		default:
 		    PKCS7err(PKCS7_F_PKCS7_ADD_SIGNER, PKCS7_R_WRONG_CONTENT_TYPE);
-		    return (0);
+		    return 0;
 	}
 	nid = OBJ_obj2nid(psi->digest_alg->algorithm);
 	/* If the digest is not currently listed, add it */
@@ -201,7 +201,7 @@ int PKCS7_add_signer(PKCS7 * p7, PKCS7_SIGNER_INFO * psi)
 		if((alg = X509_ALGOR_new()) == NULL || (alg->parameter = ASN1_TYPE_new()) == NULL) {
 			X509_ALGOR_free(alg);
 			PKCS7err(PKCS7_F_PKCS7_ADD_SIGNER, ERR_R_MALLOC_FAILURE);
-			return (0);
+			return 0;
 		}
 		alg->algorithm = OBJ_nid2obj(nid);
 		alg->parameter->type = V_ASN1_NULL;
@@ -228,7 +228,7 @@ int PKCS7_add_certificate(PKCS7 * p7, X509 * x509)
 		    break;
 		default:
 		    PKCS7err(PKCS7_F_PKCS7_ADD_CERTIFICATE, PKCS7_R_WRONG_CONTENT_TYPE);
-		    return (0);
+		    return 0;
 	}
 	if(*sk == NULL)
 		*sk = sk_X509_new_null();
@@ -257,7 +257,7 @@ int PKCS7_add_crl(PKCS7 * p7, X509_CRL * crl)
 		    break;
 		default:
 		    PKCS7err(PKCS7_F_PKCS7_ADD_CRL, PKCS7_R_WRONG_CONTENT_TYPE);
-		    return (0);
+		    return 0;
 	}
 	if(*sk == NULL)
 		*sk = sk_X509_CRL_new_null();
@@ -402,7 +402,7 @@ int PKCS7_add_recipient_info(PKCS7 * p7, PKCS7_RECIP_INFO * ri)
 		default:
 		    PKCS7err(PKCS7_F_PKCS7_ADD_RECIPIENT_INFO,
 		    PKCS7_R_WRONG_CONTENT_TYPE);
-		    return (0);
+		    return 0;
 	}
 	if(!sk_PKCS7_RECIP_INFO_push(sk, ri))
 		return 0;
@@ -462,13 +462,13 @@ int PKCS7_set_cipher(PKCS7 * p7, const EVP_CIPHER * cipher)
 		    break;
 		default:
 		    PKCS7err(PKCS7_F_PKCS7_SET_CIPHER, PKCS7_R_WRONG_CONTENT_TYPE);
-		    return (0);
+		    return 0;
 	}
 	/* Check cipher OID exists and has data in it */
 	i = EVP_CIPHER_type(cipher);
 	if(i == NID_undef) {
 		PKCS7err(PKCS7_F_PKCS7_SET_CIPHER, PKCS7_R_CIPHER_HAS_NO_OBJECT_IDENTIFIER);
-		return (0);
+		return 0;
 	}
 	ec->cipher = cipher;
 	return 1;

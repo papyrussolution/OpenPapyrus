@@ -88,7 +88,7 @@ BIO * BIO_new_file(const char * filename, const char * mode)
 	}
 	BIO_clear_flags(ret, BIO_FLAGS_UPLINK); /* we did fopen -> we disengage UPLINK */
 	BIO_set_fp(ret, file, fp_flags);
-	return (ret);
+	return ret;
 }
 
 BIO * BIO_new_fp(FILE * stream, int close_flag)
@@ -99,7 +99,7 @@ BIO * BIO_new_fp(FILE * stream, int close_flag)
 	/* redundant flag, left for documentation purposes */
 	BIO_set_flags(ret, BIO_FLAGS_UPLINK);
 	BIO_set_fp(ret, stream, close_flag);
-	return (ret);
+	return ret;
 }
 
 const BIO_METHOD * BIO_s_file(void)
@@ -118,8 +118,8 @@ static int file_new(BIO * bi)
 
 static int file_free(BIO * a)
 {
-	if(a == NULL)
-		return (0);
+	if(!a)
+		return 0;
 	if(a->shutdown) {
 		if((a->init) && (a->ptr != NULL)) {
 			if(a->flags & BIO_FLAGS_UPLINK)
@@ -150,7 +150,7 @@ static int file_read(BIO * b, char * out, int outl)
 			ret = -1;
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 static int file_write(BIO * b, const char * in, int inl)
@@ -170,7 +170,7 @@ static int file_write(BIO * b, const char * in, int inl)
 		 * implementations (VMS)
 		 */
 	}
-	return (ret);
+	return ret;
 }
 
 static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
@@ -324,7 +324,7 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    ret = 0;
 		    break;
 	}
-	return (ret);
+	return ret;
 }
 
 static int file_gets(BIO * bp, char * buf, int size)
@@ -342,14 +342,14 @@ static int file_gets(BIO * bp, char * buf, int size)
 	if(buf[0] != '\0')
 		ret = strlen(buf);
 err:
-	return (ret);
+	return ret;
 }
 
 static int file_puts(BIO * bp, const char * str)
 {
 	int n = strlen(str);
 	int ret = file_write(bp, str, n);
-	return (ret);
+	return ret;
 }
 
 #else

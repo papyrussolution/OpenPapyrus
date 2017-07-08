@@ -454,7 +454,7 @@ cairo_surface_t * cairo_surface_create_similar(cairo_surface_t  * other, cairo_c
 	surface = NULL;
 	if(other->backend->create_similar)
 		surface = other->backend->create_similar(other, content, width, height);
-	if(surface == NULL)
+	if(!surface)
 		surface = cairo_surface_create_similar_image(other, _cairo_format_from_content(content), width, height);
 	if(unlikely(surface->status))
 		return surface;
@@ -745,7 +745,7 @@ cairo_surface_t * _cairo_surface_create_scratch(cairo_surface_t * other, cairo_c
 		return _cairo_surface_create_in_error(other->status);
 	if(other->backend->create_similar)
 		surface = other->backend->create_similar(other, content, width, height);
-	if(surface == NULL)
+	if(!surface)
 		surface = cairo_surface_create_similar_image(other, _cairo_format_from_content(content), width, height);
 	if(unlikely(surface->status))
 		return surface;

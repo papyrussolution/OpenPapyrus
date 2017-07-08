@@ -128,7 +128,7 @@ int BN_hex2bn(BIGNUM ** bn, const char * a)
 	int num;
 
 	if((a == NULL) || (*a == '\0'))
-		return (0);
+		return 0;
 
 	if(*a == '-') {
 		neg = 1;
@@ -148,7 +148,7 @@ int BN_hex2bn(BIGNUM ** bn, const char * a)
 	/* a is the start of the hex digits, and it is 'i' long */
 	if(*bn == NULL) {
 		if((ret = BN_new()) == NULL)
-			return (0);
+			return 0;
 	}
 	else {
 		ret = *bn;
@@ -191,7 +191,7 @@ int BN_hex2bn(BIGNUM ** bn, const char * a)
 err:
 	if(*bn == NULL)
 		BN_free(ret);
-	return (0);
+	return 0;
 }
 
 int BN_dec2bn(BIGNUM ** bn, const char * a)
@@ -202,7 +202,7 @@ int BN_dec2bn(BIGNUM ** bn, const char * a)
 	int num;
 
 	if((a == NULL) || (*a == '\0'))
-		return (0);
+		return 0;
 	if(*a == '-') {
 		neg = 1;
 		a++;
@@ -224,7 +224,7 @@ int BN_dec2bn(BIGNUM ** bn, const char * a)
 	 */
 	if(*bn == NULL) {
 		if((ret = BN_new()) == NULL)
-			return (0);
+			return 0;
 	}
 	else {
 		ret = *bn;
@@ -262,7 +262,7 @@ int BN_dec2bn(BIGNUM ** bn, const char * a)
 err:
 	if(*bn == NULL)
 		BN_free(ret);
-	return (0);
+	return 0;
 }
 
 int BN_asc2bn(BIGNUM ** bn, const char * a)
@@ -290,11 +290,11 @@ int BN_print_fp(FILE * fp, const BIGNUM * a)
 	BIO * b;
 	int ret;
 	if((b = BIO_new(BIO_s_file())) == NULL)
-		return (0);
+		return 0;
 	BIO_set_fp(b, fp, BIO_NOCLOSE);
 	ret = BN_print(b, a);
 	BIO_free(b);
-	return (ret);
+	return ret;
 }
 
 # endif
@@ -321,7 +321,7 @@ int BN_print(BIO * bp, const BIGNUM * a)
 	}
 	ret = 1;
 end:
-	return (ret);
+	return ret;
 }
 
 char * BN_options(void)

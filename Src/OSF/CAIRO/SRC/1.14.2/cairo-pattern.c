@@ -619,7 +619,7 @@ slim_hidden_def(cairo_pattern_create_rgba);
 cairo_pattern_t * cairo_pattern_create_for_surface(cairo_surface_t * surface)
 {
 	cairo_surface_pattern_t * pattern;
-	if(surface == NULL) {
+	if(!surface) {
 		_cairo_error_throw(CAIRO_STATUS_NULL_POINTER);
 		return (cairo_pattern_t*)&_cairo_pattern_nil_null_pointer;
 	}

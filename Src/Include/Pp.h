@@ -83,6 +83,8 @@
 // @sfu-r     - временная пометка для вызовов updateRec и updateRecBuf означающая, что
 //              предварительный вызов search приведен к searchForUpdate
 // @speedcritical - пометка, означающая, что код введен ради ускорения критичной по времени исполнения функции
+// @allocreuse    - помечаются члены классов, используемые как временные буферы
+//                  для предотвращения повторного распределения памяти с целью ускорения испольнения функций.
 //
 // @todo Повторная загрузка на асинхронный узел всех объектов, начиная с заданной записи журнала загрузки
 // @todo В примитивы бизнес-показателей добавить фильтрацию по группам
@@ -288,6 +290,7 @@ struct AddrItemDescr;
 class  GoodsRestFilt;
 class  SmsProtocolBuf;
 class  SrGeoNodeTbl;
+class  PPTextAnalyzerWrapper;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -1601,8 +1604,8 @@ public:
 	long   SLAPI GetVisibleMessage(long nrow);
 	void * SLAPI GetRow(long r);
 protected:
-	virtual  int   SLAPI Destroy();
 	virtual  long  SLAPI ImplPutMsg(const char * pText, long flags);
+	void   SLAPI Destroy();
 	PPLogIdx SLAPI GetLogIdx(long);
 	void   SLAPI SetLogIdx(long, PPLogIdx *);
 
@@ -5530,7 +5533,7 @@ private:
 	SString InitAddr;
 	int    InitPort;
 	SString AuthCookie;
-	SString TempBuf;
+	SString TempBuf; // @allocreuse
 	SString DebugLogFileName;
 	SBuffer Reply;
 	SCycleTimer SyncTimer; // Таймер, по котрому серверу
@@ -6712,7 +6715,7 @@ public:
 		}
 		const   long CfgMaxFileSize;
 		SString MsgBuf;
-		SString TempBuf;
+		SString TempBuf; // @allocreuse
 		SString NewFileName;
 	};
 
@@ -12141,7 +12144,7 @@ private:
 	SString FmtBuf;
 	SString MsgBuf;
 	SString AddedBuf;
-	SString TempBuf;
+	SString TempBuf; // @allocreuse
 };
 //
 //
@@ -14144,7 +14147,7 @@ protected:
 	int    SLAPI DefaultCmdProcessor(uint ppvCmd, const void *, PPViewBrowser *);
 	int    SLAPI Helper_Print(uint rptId, int ord = 0);
 	int    SLAPI ChangeFilt(int refreshOnly, PPViewBrowser * pW);
-	int    SLAPI SetExtToolbar(uint toolbarId);
+	void   SLAPI SetExtToolbar(uint toolbarId);
 	//
 	// Descr: Изменяет данные во временной диаграмме, связанной с этим объектом.
 	//   Функция должна быть вызвана при разрушении объекта, а также при существенном изменении
@@ -24072,7 +24075,7 @@ public:
 		PPPsnOpKindPacket PokPack;
 		PPAbstractDevice Ad;
 		StrAssocArray Out;
-		SString TempBuf;
+		SString TempBuf; // @allocreuse
 
 		SString DeviceText;
 		SString InfoText;
@@ -43166,7 +43169,7 @@ private:
 		int    Phase; // phXXX Фаза обработки входящего файла
 
 		const SymbHashTable * P_ShT; // Таблица символов, полученная вызовом PPGetStringHash(int)
-		SString TempBuf;
+		SString TempBuf; // @allocreuse
 		SString TagValue;
 		SString SrcFileName;
 		TSStack <int> TokPath;
@@ -43567,7 +43570,8 @@ public:
 		bilstfTransferFromShop = 0x0800, // @v9.3.10 Документы возврата из торговый зал (Регистр 2) на склад
 		bilstfWriteOffShop     = 0x1000, // @v9.4.0  Документы списания с баланса торгового зала (Регистр 2)
 		bilstfWbRepealConf     = 0x2000, // @v9.5.12 Документы, для которых получен и ожидает подтверждения запрос на отмету проведения
-		bilstfV2               = 0x4000, // @v9.7.5  Документы 2-й версии ЕГАИС
+		bilstfV1               = 0x4000, // @v9.7.5  Специальный флаг, явно указывающий на 1-ю версию формата ЕГАИС
+		bilstfV2               = 0x8000, // @v9.7.5  Документы 2-й версии ЕГАИС
 	};
 
 	struct SendBillsParam {
@@ -43699,6 +43703,7 @@ private:
 	StringSet ExclChrgOnMarks; // @v8.9.12 Список марок, которые должны быть исключены при постановке лотов на баланс
 	PPLocAddrStruc * P_Las;
 	LotExtCodeTbl * P_LecT;
+	PPTextAnalyzerWrapper * P_Taw;
 	PPLogger * P_Logger;
 };
 //
@@ -45257,7 +45262,7 @@ public:
 			// данное поле для иноформирования вызывающей функции о том, на какую позицию в тексте следует
 			// переместиться для быстрого нахождения токена.
 		//
-		SString TempBuf;
+		SString TempBuf; // @allocreuse
 		STokenizer::Item Item_;
 		TextIndex * P_Idx;
 	private:
@@ -45316,6 +45321,26 @@ private:
 
 	TextAnalyzerSignalProc SignalProc;
 	void * P_SignalProcExtra;
+};
+//
+// Descr: Упрощенная обертка для класса PPTextAnalyze для замены текста по правилам,
+//   заданным в исходном файле. Сигналы не отрабатываются.
+//
+class PPTextAnalyzerWrapper {
+public:
+	enum {
+		fInited   = 0x0001, // @internal
+		fEncInner = 0x0002  // Входящая строка и результат кодируются в INNER-кодировке
+	};
+	SLAPI  PPTextAnalyzerWrapper();
+	int    SLAPI Init(const char * pRuleFileName, long flags);
+	int    SLAPI ReplaceString(const char * pText, SString & rResult);
+private:
+	PPTextAnalyzer A;
+	PPTextAnalyzer::Replacer R;
+	PPTextAnalyzer::FindBlock Fb;
+	long   Flags;
+	SString TempBuf; // @allocreuse
 };
 //
 //
@@ -45934,11 +45959,11 @@ private:
 	PPUserFuncProfiler * P_Ufp;
 
 	struct ProcessBlock {
-		SString TempBuf;
-		SString AttrBuf;
-		SString LineBuf;
-		SString TagKeyBuf; // Временный буфер для хранения ключа тега
-		SString TagValBuf; // Временный буфер для хранения значения тега
+		SString TempBuf;   // @allocreuse
+		SString AttrBuf;   // @allocreuse
+		SString LineBuf;   // @allocreuse
+		SString TagKeyBuf; // @allocreuse Временный буфер для хранения ключа тега
+		SString TagValBuf; // @allocreuse Временный буфер для хранения значения тега
 		LLAssocArray NodeToWayAsscList;
 	};
 
@@ -46038,7 +46063,7 @@ protected:
 	int    IsDataOwner;
 private:
 	int    Advise();
-	int    Unadvise();
+	void   Unadvise();
 	int    GetToolbarComboRect(RECT * pRect);
 	int    Helper_SetupToolbarCombo(PPID objType, PPID id, uint flags, void * extraPtr, const PPIDArray * pObjList);
 
@@ -47684,7 +47709,7 @@ struct EmailToBlock {
 class TVMsgLog : public PPMsgLog {
 public:
 	// only for dos, for windows do nothing if winDestroy = 0
-	static void Delete(TVMsgLog * pMsgLog, int winDestroy = 0);
+	static void Delete_(TVMsgLog * pMsgLog, int winDestroy = 0);
 
 	SLAPI  TVMsgLog();
 	virtual SLAPI ~TVMsgLog();
@@ -49614,7 +49639,7 @@ public:
 	int    CreateBizScoreWnd();
 	int    LoadBizScoreData();
 	int    Advise();
-	int    Unadvise();
+	void   Unadvise();
 protected:
 	DECL_HANDLE_EVENT;
 private:

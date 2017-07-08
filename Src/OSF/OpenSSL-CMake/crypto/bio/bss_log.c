@@ -109,8 +109,8 @@ static int slg_new(BIO * bi)
 
 static int slg_free(BIO * a)
 {
-	if(a == NULL)
-		return (0);
+	if(!a)
+		return 0;
 	xcloselog(a);
 	return (1);
 }
@@ -190,7 +190,7 @@ static int slg_write(BIO * b, const char * in, int inl)
 	};
 
 	if((buf = OPENSSL_malloc(inl + 1)) == NULL) {
-		return (0);
+		return 0;
 	}
 	strncpy(buf, in, inl);
 	buf[inl] = '\0';
@@ -204,7 +204,7 @@ static int slg_write(BIO * b, const char * in, int inl)
 	xsyslog(b, priority, pp);
 
 	OPENSSL_free(buf);
-	return (ret);
+	return ret;
 }
 
 static long slg_ctrl(BIO * b, int cmd, long num, void * ptr)
@@ -217,14 +217,14 @@ static long slg_ctrl(BIO * b, int cmd, long num, void * ptr)
 		default:
 		    break;
 	}
-	return (0);
+	return 0;
 }
 
 static int slg_puts(BIO * bp, const char * str)
 {
 	int n = strlen(str);
 	int ret = slg_write(bp, str, n);
-	return (ret);
+	return ret;
 }
 
 # if defined(OPENSSL_SYS_WIN32)

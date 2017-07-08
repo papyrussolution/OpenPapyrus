@@ -22,7 +22,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=&quot;&quot;;PACKAGE_BUGREPORT=&quot;&quot;"
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"
@@ -82,7 +82,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=&quot;&quot;;PACKAGE_BUGREPORT=&quot;&quot;"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -137,7 +137,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=&quot;&quot;;PACKAGE_BUGREPORT=&quot;&quot;"
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"
@@ -197,7 +197,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=&quot;&quot;;PACKAGE_BUGREPORT=&quot;&quot;"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -252,7 +252,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=&quot;&quot;;PACKAGE_BUGREPORT=&quot;&quot;"
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"
@@ -312,7 +312,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=&quot;&quot;;PACKAGE_BUGREPORT=&quot;&quot;"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -366,7 +366,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG;..\OSF\LIBXML\INCL"/>
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool

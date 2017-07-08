@@ -240,7 +240,7 @@ void * xmlMallocAtomicLoc(size_t size, const char * file, int line)
 
 void * xmlMemMalloc(size_t size)
 {
-	return(xmlMallocLoc(size, "none", 0));
+	return xmlMallocLoc(size, "none", 0);
 }
 
 /**
@@ -287,7 +287,7 @@ void * xmlReallocLoc(void * ptr, size_t size, const char * file, int line)
 	xmlMutexUnlock(xmlMemMutex);
 	tmp = (MEMHDR*)realloc(p, RESERVE_SIZE+size);
 	if(!tmp) {
-		free(p);
+		SAlloc::F(p);
 		goto error;
 	}
 	p = tmp;
@@ -329,14 +329,14 @@ error:
 
 void * xmlMemRealloc(void * ptr, size_t size)
 {
-	return(xmlReallocLoc(ptr, size, "none", 0));
+	return xmlReallocLoc(ptr, size, "none", 0);
 }
 
 /**
  * xmlMemFree:
  * @ptr:  the memory block pointer
  *
- * a free() equivalent, with error checking.
+ * a SAlloc::F() equivalent, with error checking.
  */
 void xmlMemFree(void * ptr)
 {
@@ -376,7 +376,7 @@ void xmlMemFree(void * ptr)
 	debugmem_list_delete(p);
 #endif
 	xmlMutexUnlock(xmlMemMutex);
-	free(p);
+	SAlloc::F(p);
 	TEST_POINT
 #ifdef DEBUG_MEMORY
 	xmlGenericError(0, "Freed(%d) Ok\n", size);
@@ -490,7 +490,7 @@ static void xmlMemContentShow(FILE * fp, MEMHDR * p)
 	int i, j, k, len;
 	const char * buf;
 
-	if(p == NULL) {
+	if(!p) {
 		fprintf(fp, " NULL");
 		return;
 	}
@@ -876,7 +876,7 @@ void xmlCleanupMemory()
 }
 /**
  * xmlMemSetup:
- * @freeFunc: the free() function to use
+ * @freeFunc: the SAlloc::F() function to use
  * @mallocFunc: the malloc() function to use
  * @reallocFunc: the realloc() function to use
  * @strdupFunc: the strdup() function to use
@@ -889,7 +889,7 @@ void xmlCleanupMemory()
  *
  * Returns 0 on success
  */
-int xmlMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc, xmlReallocFunc reallocFunc, xmlStrdupFunc strdupFunc) 
+/*int xmlMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc, xmlReallocFunc reallocFunc, xmlStrdupFunc strdupFunc) 
 {
 #ifdef DEBUG_MEMORY
 	xmlGenericError(0, "xmlMemSetup()\n");
@@ -902,20 +902,20 @@ int xmlMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc, xmlReallocFunc r
 		return -1;
 	if(strdupFunc == NULL)
 		return -1;
-	// @sobolev xmlFree = freeFunc;
-	xmlMalloc = mallocFunc;
-	xmlMallocAtomic = mallocFunc;
-	xmlRealloc = reallocFunc;
+	// @sobolev xmlFree_ = freeFunc;
+	//xmlMalloc_ = mallocFunc;
+	//xmlMallocAtomic_ = mallocFunc;
+	//xmlRealloc_ = reallocFunc;
 	xmlMemStrdup = strdupFunc;
 #ifdef DEBUG_MEMORY
 	xmlGenericError(0, "xmlMemSetup() Ok\n");
 #endif
 	return 0;
-}
+}*/
 
 /**
  * xmlMemGet:
- * @freeFunc: place to save the free() function in use
+ * @freeFunc: place to save the SAlloc::F() function in use
  * @mallocFunc: place to save the malloc() function in use
  * @reallocFunc: place to save the realloc() function in use
  * @strdupFunc: place to save the strdup() function in use
@@ -924,18 +924,18 @@ int xmlMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc, xmlReallocFunc r
  *
  * Returns 0 on success
  */
-int xmlMemGet(xmlFreeFunc * freeFunc, xmlMallocFunc * mallocFunc, xmlReallocFunc * reallocFunc, xmlStrdupFunc * strdupFunc)
+/*int xmlMemGet(xmlFreeFunc * freeFunc, xmlMallocFunc * mallocFunc, xmlReallocFunc * reallocFunc, xmlStrdupFunc * strdupFunc)
 {
 	if(freeFunc != NULL) *freeFunc = free;
-	if(mallocFunc != NULL) *mallocFunc = xmlMalloc;
-	if(reallocFunc != NULL) *reallocFunc = xmlRealloc;
-	if(strdupFunc != NULL) *strdupFunc = xmlMemStrdup;
+	if(mallocFunc != NULL) *mallocFunc = xmlMalloc_;
+	if(reallocFunc != NULL) *reallocFunc = xmlRealloc_;
+	if(strdupFunc != NULL) *strdupFunc = xmlMemStrdup_;
 	return 0;
-}
+}*/
 
 /**
  * xmlGcMemSetup:
- * @freeFunc: the free() function to use
+ * @freeFunc: the SAlloc::F() function to use
  * @mallocFunc: the malloc() function to use
  * @mallocAtomicFunc: the malloc() function to use for atomic allocations
  * @reallocFunc: the realloc() function to use
@@ -951,7 +951,7 @@ int xmlMemGet(xmlFreeFunc * freeFunc, xmlMallocFunc * mallocFunc, xmlReallocFunc
  *
  * Returns 0 on success
  */
-int xmlGcMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc, xmlMallocFunc mallocAtomicFunc, xmlReallocFunc reallocFunc, xmlStrdupFunc strdupFunc)
+/*int xmlGcMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc, xmlMallocFunc mallocAtomicFunc, xmlReallocFunc reallocFunc, xmlStrdupFunc strdupFunc)
 {
 #ifdef DEBUG_MEMORY
 	xmlGenericError(0, "xmlGcMemSetup()\n");
@@ -967,19 +967,19 @@ int xmlGcMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc, xmlMallocFunc 
 	if(strdupFunc == NULL)
 		return -1;
 	// @sobolev xmlFree = freeFunc;
-	xmlMalloc = mallocFunc;
-	xmlMallocAtomic = mallocAtomicFunc;
-	xmlRealloc = reallocFunc;
+	xmlMalloc_ = mallocFunc;
+	xmlMallocAtomic_ = mallocAtomicFunc;
+	xmlRealloc_ = reallocFunc;
 	xmlMemStrdup = strdupFunc;
 #ifdef DEBUG_MEMORY
 	xmlGenericError(0, "xmlGcMemSetup() Ok\n");
 #endif
 	return 0;
-}
+}*/
 
 /**
  * xmlGcMemGet:
- * @freeFunc: place to save the free() function in use
+ * @freeFunc: place to save the SAlloc::F() function in use
  * @mallocFunc: place to save the malloc() function in use
  * @mallocAtomicFunc: place to save the atomic malloc() function in use
  * @reallocFunc: place to save the realloc() function in use
@@ -991,7 +991,7 @@ int xmlGcMemSetup(xmlFreeFunc freeFunc, xmlMallocFunc mallocFunc, xmlMallocFunc 
  *
  * Returns 0 on success
  */
-int xmlGcMemGet(xmlFreeFunc * freeFunc, xmlMallocFunc * mallocFunc, xmlMallocFunc * mallocAtomicFunc, xmlReallocFunc * reallocFunc, xmlStrdupFunc * strdupFunc)
+/*int xmlGcMemGet(xmlFreeFunc * freeFunc, xmlMallocFunc * mallocFunc, xmlMallocFunc * mallocAtomicFunc, xmlReallocFunc * reallocFunc, xmlStrdupFunc * strdupFunc)
 {
 	if(freeFunc != NULL) *freeFunc = free;
 	if(mallocFunc != NULL) *mallocFunc = xmlMalloc;
@@ -999,7 +999,7 @@ int xmlGcMemGet(xmlFreeFunc * freeFunc, xmlMallocFunc * mallocFunc, xmlMallocFun
 	if(reallocFunc != NULL) *reallocFunc = xmlRealloc;
 	if(strdupFunc != NULL) *strdupFunc = xmlMemStrdup;
 	return 0;
-}
+}*/
 
 #define bottom_xmlmemory
 #include "elfgcchack.h"

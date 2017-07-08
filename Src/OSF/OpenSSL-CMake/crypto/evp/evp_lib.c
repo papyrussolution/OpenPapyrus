@@ -38,7 +38,7 @@ int EVP_CIPHER_param_to_asn1(EVP_CIPHER_CTX * c, ASN1_TYPE * type)
 	}
 	else
 		ret = -1;
-	return (ret);
+	return ret;
 }
 
 int EVP_CIPHER_asn1_to_param(EVP_CIPHER_CTX * c, ASN1_TYPE * type)
@@ -64,7 +64,7 @@ int EVP_CIPHER_asn1_to_param(EVP_CIPHER_CTX * c, ASN1_TYPE * type)
 	}
 	else
 		ret = -1;
-	return (ret);
+	return ret;
 }
 
 int EVP_CIPHER_get_asn1_iv(EVP_CIPHER_CTX * c, ASN1_TYPE * type)
@@ -151,7 +151,7 @@ int EVP_Cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, uint inl)
 	return ctx->cipher->do_cipher(ctx, out, in, inl);
 }
 
-const EVP_CIPHER * EVP_CIPHER_CTX_cipher(const EVP_CIPHER_CTX * ctx)
+const EVP_CIPHER * FASTCALL EVP_CIPHER_CTX_cipher(const EVP_CIPHER_CTX * ctx)
 {
 	return ctx->cipher;
 }
@@ -161,7 +161,7 @@ int EVP_CIPHER_CTX_encrypting(const EVP_CIPHER_CTX * ctx)
 	return ctx->encrypt;
 }
 
-ulong EVP_CIPHER_flags(const EVP_CIPHER * cipher)
+ulong FASTCALL EVP_CIPHER_flags(const EVP_CIPHER * cipher)
 {
 	return cipher->flags;
 }
@@ -223,12 +223,12 @@ int EVP_CIPHER_CTX_num(const EVP_CIPHER_CTX * ctx)
 	return ctx->num;
 }
 
-void EVP_CIPHER_CTX_set_num(EVP_CIPHER_CTX * ctx, int num)
+void FASTCALL EVP_CIPHER_CTX_set_num(EVP_CIPHER_CTX * ctx, int num)
 {
 	ctx->num = num;
 }
 
-int EVP_CIPHER_key_length(const EVP_CIPHER * cipher)
+int FASTCALL EVP_CIPHER_key_length(const EVP_CIPHER * cipher)
 {
 	return cipher->key_len;
 }
@@ -248,12 +248,12 @@ int EVP_CIPHER_CTX_nid(const EVP_CIPHER_CTX * ctx)
 	return ctx->cipher->nid;
 }
 
-int EVP_MD_block_size(const EVP_MD * md)
+int FASTCALL EVP_MD_block_size(const EVP_MD * md)
 {
 	return md->block_size;
 }
 
-int EVP_MD_type(const EVP_MD * md)
+int FASTCALL EVP_MD_type(const EVP_MD * md)
 {
 	return md->type;
 }
@@ -263,13 +263,14 @@ int EVP_MD_pkey_type(const EVP_MD * md)
 	return md->pkey_type;
 }
 
-int EVP_MD_size(const EVP_MD * md)
+int FASTCALL EVP_MD_size(const EVP_MD * md)
 {
 	if(!md) {
 		EVPerr(EVP_F_EVP_MD_SIZE, EVP_R_MESSAGE_DIGEST_IS_NULL);
 		return -1;
 	}
-	return md->md_size;
+	else
+		return md->md_size;
 }
 
 ulong EVP_MD_flags(const EVP_MD * md)

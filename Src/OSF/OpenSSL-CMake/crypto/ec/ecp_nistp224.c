@@ -1083,7 +1083,7 @@ static void point_add(felem x3, felem y3, felem z3,
  * copies it to out.
  * The pre_comp array argument should be size of |size| argument
  */
-static void select_point(const u64 idx, unsigned int size, const felem pre_comp[][3], felem out[3])
+static void select_point(const u64 idx, uint size, const felem pre_comp[][3], felem out[3])
 {
 	unsigned i, j;
 	limb * outlimbs = &out[0][0];
@@ -1248,7 +1248,7 @@ void EC_nistp224_pre_comp_free(NISTP224_PRE_COMP * p)
 {
 	int i;
 
-	if(p == NULL)
+	if(!p)
 		return;
 
 	CRYPTO_atomic_add(&p->references, -1, &i, p->lock);
@@ -1282,7 +1282,7 @@ int ec_GFp_nistp224_group_set_curve(EC_GROUP * group, const BIGNUM * p,
 	BN_CTX * new_ctx = NULL;
 	BIGNUM * curve_p, * curve_a, * curve_b;
 
-	if(ctx == NULL)
+	if(!ctx)
 		if((ctx = new_ctx = BN_CTX_new()) == NULL)
 			return 0;
 	BN_CTX_start(ctx);
@@ -1414,7 +1414,7 @@ int ec_GFp_nistp224_points_mul(const EC_GROUP * group, EC_POINT * r,
 	const EC_POINT * p = NULL;
 	const BIGNUM * p_scalar = NULL;
 
-	if(ctx == NULL)
+	if(!ctx)
 		if((ctx = new_ctx = BN_CTX_new()) == NULL)
 			return 0;
 	BN_CTX_start(ctx);
@@ -1600,7 +1600,7 @@ int ec_GFp_nistp224_precompute_mult(EC_GROUP * group, BN_CTX * ctx)
 
 	/* throw away old precomputation */
 	EC_pre_comp_free(group);
-	if(ctx == NULL)
+	if(!ctx)
 		if((ctx = new_ctx = BN_CTX_new()) == NULL)
 			return 0;
 	BN_CTX_start(ctx);

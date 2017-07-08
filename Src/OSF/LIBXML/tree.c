@@ -200,8 +200,8 @@ xmlChar * xmlBuildQName(const xmlChar * ncname, const xmlChar * prefix, xmlChar 
 	lenn = strlen((char*)ncname);
 	lenp = strlen((char*)prefix);
 	if((memory == NULL) || (len < lenn + lenp + 2)) {
-		ret = (xmlChar*)xmlMallocAtomic(lenn + lenp + 2);
-		if(ret == NULL) {
+		ret = (xmlChar*)SAlloc::M(lenn + lenp + 2);
+		if(!ret) {
 			xmlTreeErrMemory("building QName");
 			return 0;
 		}
@@ -262,7 +262,7 @@ xmlChar * xmlSplitQName2(const xmlChar * name, xmlChar ** prefix)
 		return 0;
 	}
 	ret = xmlStrdup(&name[len + 1]);
-	if(ret == NULL) {
+	if(!ret) {
 		xmlTreeErrMemory("QName split");
 		ZFREE(*prefix);
 		return 0;
@@ -691,9 +691,9 @@ xmlNsPtr xmlNewNs(xmlNodePtr node, const xmlChar * href, const xmlChar * prefix)
 	if((node != NULL) && (node->type != XML_ELEMENT_NODE))
 		return 0;
 
-	if((prefix != NULL) && (xmlStrEqual(prefix, BAD_CAST "xml"))) {
+	if((prefix != NULL) && (sstreq(prefix, BAD_CAST "xml"))) {
 		/* xml namespace is predefined, no need to add it */
-		if(xmlStrEqual(href, XML_XML_NAMESPACE))
+		if(sstreq(href, XML_XML_NAMESPACE))
 			return 0;
 
 		/*
@@ -708,7 +708,7 @@ xmlNsPtr xmlNewNs(xmlNodePtr node, const xmlChar * href, const xmlChar * prefix)
 	/*
 	 * Allocate a new Namespace and fill the fields.
 	 */
-	cur = (xmlNsPtr)xmlMalloc(sizeof(xmlNs));
+	cur = (xmlNsPtr)SAlloc::M(sizeof(xmlNs));
 	if(!cur) {
 		xmlTreeErrMemory("building namespace");
 		return 0;
@@ -733,14 +733,14 @@ xmlNsPtr xmlNewNs(xmlNodePtr node, const xmlChar * href, const xmlChar * prefix)
 			xmlNsPtr prev = node->nsDef;
 
 			if(((prev->prefix == NULL) && (cur->prefix == NULL)) ||
-			    (xmlStrEqual(prev->prefix, cur->prefix))) {
+			    (sstreq(prev->prefix, cur->prefix))) {
 				xmlFreeNs(cur);
 				return 0;
 			}
 			while(prev->next != NULL) {
 				prev = prev->next;
 				if(((prev->prefix == NULL) && (cur->prefix == NULL)) ||
-				    (xmlStrEqual(prev->prefix, cur->prefix))) {
+				    (sstreq(prev->prefix, cur->prefix))) {
 					xmlFreeNs(cur);
 					return 0;
 				}
@@ -783,9 +783,9 @@ void xmlFreeNs(xmlNsPtr cur)
 #endif
 		return;
 	}
-	free((char*)cur->href);
-	free((char*)cur->prefix);
-	free(cur);
+	SAlloc::F((char*)cur->href);
+	SAlloc::F((char*)cur->prefix);
+	SAlloc::F(cur);
 }
 
 /**
@@ -834,7 +834,7 @@ xmlDtdPtr xmlNewDtd(xmlDocPtr doc, const xmlChar * name, const xmlChar * Externa
 	/*
 	 * Allocate a new DTD and fill the fields.
 	 */
-	cur = (xmlDtdPtr)xmlMalloc(sizeof(xmlDtd));
+	cur = (xmlDtdPtr)SAlloc::M(sizeof(xmlDtd));
 	if(!cur) {
 		xmlTreeErrMemory("building DTD");
 		return 0;
@@ -898,7 +898,7 @@ xmlDtdPtr xmlCreateIntSubset(xmlDocPtr doc, const xmlChar * name, const xmlChar 
 	/*
 	 * Allocate a new DTD and fill the fields.
 	 */
-	cur = (xmlDtdPtr)xmlMalloc(sizeof(xmlDtd));
+	cur = (xmlDtdPtr)SAlloc::M(sizeof(xmlDtd));
 	if(!cur) {
 		xmlTreeErrMemory("building internal subset");
 		return 0;
@@ -909,7 +909,7 @@ xmlDtdPtr xmlCreateIntSubset(xmlDocPtr doc, const xmlChar * name, const xmlChar 
 		cur->name = xmlStrdup(name);
 		if(cur->name == NULL) {
 			xmlTreeErrMemory("building internal subset");
-			free(cur);
+			SAlloc::F(cur);
 			return 0;
 		}
 	}
@@ -917,8 +917,8 @@ xmlDtdPtr xmlCreateIntSubset(xmlDocPtr doc, const xmlChar * name, const xmlChar 
 		cur->ExternalID = xmlStrdup(ExternalID);
 		if(cur->ExternalID == NULL) {
 			xmlTreeErrMemory("building internal subset");
-			free((void *)cur->name); // @badcast
-			free(cur);
+			SAlloc::F((void *)cur->name); // @badcast
+			SAlloc::F(cur);
 			return 0;
 		}
 	}
@@ -926,9 +926,9 @@ xmlDtdPtr xmlCreateIntSubset(xmlDocPtr doc, const xmlChar * name, const xmlChar 
 		cur->SystemID = xmlStrdup(SystemID);
 		if(cur->SystemID == NULL) {
 			xmlTreeErrMemory("building internal subset");
-			free((char*)cur->name);
-			free((char*)cur->ExternalID);
-			free(cur);
+			SAlloc::F((char*)cur->name);
+			SAlloc::F((char*)cur->ExternalID);
+			SAlloc::F(cur);
 			return 0;
 		}
 	}
@@ -986,7 +986,7 @@ xmlDtdPtr xmlCreateIntSubset(xmlDocPtr doc, const xmlChar * name, const xmlChar 
  * Free a string if it is not owned by the "dict" dictionnary in the
  * current scope
  */
-#define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar*)(str)) == 0))) free((char*)(str));
+#define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar*)(str)) == 0))) SAlloc::F((char*)(str));
 
 /**
  * DICT_COPY:
@@ -1068,7 +1068,7 @@ void xmlFreeDtd(xmlDtdPtr cur) {
 		xmlFreeEntitiesTable((xmlEntitiesTablePtr)cur->entities);
 	if(cur->pentities != NULL)
 		xmlFreeEntitiesTable((xmlEntitiesTablePtr)cur->pentities);
-	free(cur);
+	SAlloc::F(cur);
 }
 /**
  * xmlNewDoc:
@@ -1084,7 +1084,7 @@ xmlDocPtr xmlNewDoc(const xmlChar * version)
 	/*
 	 * Allocate a new document and fill the fields.
 	 */
-	xmlDocPtr cur = (xmlDocPtr)xmlMalloc(sizeof(xmlDoc));
+	xmlDocPtr cur = (xmlDocPtr)SAlloc::M(sizeof(xmlDoc));
 	if(!cur) {
 		xmlTreeErrMemory("building doc");
 		return 0;
@@ -1094,7 +1094,7 @@ xmlDocPtr xmlNewDoc(const xmlChar * version)
 	cur->version = xmlStrdup(version);
 	if(cur->version == NULL) {
 		xmlTreeErrMemory("building doc");
-		free(cur);
+		SAlloc::F(cur);
 		return 0;
 	}
 	cur->standalone = -1;
@@ -1164,7 +1164,7 @@ void xmlFreeDoc(xmlDocPtr cur)
 		DICT_FREE(cur->name)
 		DICT_FREE(cur->encoding)
 		DICT_FREE(cur->URL)
-		free(cur);
+		SAlloc::F(cur);
 		xmlDictFree(dict);
 	}
 }
@@ -1291,7 +1291,7 @@ xmlNodePtr xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, in
 						if(!xmlBufIsEmpty(buf)) {
 							node = xmlNewDocText(doc, NULL);
 							if(node == NULL) {
-								if(val) free(val);
+								if(val) SAlloc::F(val);
 								goto out;
 							}
 							node->content = xmlBufDetach(buf);
@@ -1309,7 +1309,7 @@ xmlNodePtr xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, in
 						 */
 						node = xmlNewReference(doc, val);
 						if(node == NULL) {
-							if(val) free(val);
+							if(val) SAlloc::F(val);
 							goto out;
 						}
 						else if((ent != NULL) && (ent->children == NULL)) {
@@ -1332,7 +1332,7 @@ xmlNodePtr xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, in
 							last = xmlAddNextSibling(last, node);
 						}
 					}
-					free(val);
+					SAlloc::F(val);
 				}
 				cur++;
 				q = cur;
@@ -1368,7 +1368,7 @@ xmlNodePtr xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, in
 			last = xmlAddNextSibling(last, node);
 		}
 	}
-	else if(ret == NULL) {
+	else if(!ret) {
 		ret = xmlNewDocText(doc, BAD_CAST "");
 	}
 out:
@@ -1499,7 +1499,7 @@ xmlNodePtr xmlStringGetNodeList(const xmlDoc * doc, const xmlChar * value)
 						 */
 						node = xmlNewReference(doc, val);
 						if(node == NULL) {
-							if(val) free(val);
+							if(val) SAlloc::F(val);
 							goto out;
 						}
 						else if((ent != NULL) && (ent->children == NULL)) {
@@ -1521,7 +1521,7 @@ xmlNodePtr xmlStringGetNodeList(const xmlDoc * doc, const xmlChar * value)
 							last = xmlAddNextSibling(last, node);
 						}
 					}
-					free(val);
+					SAlloc::F(val);
 				}
 				cur++;
 				q = cur;
@@ -1571,7 +1571,7 @@ out:
  * Build the string equivalent to the text contained in the Node list
  * made of TEXTs and ENTITY_REFs
  *
- * Returns a pointer to the string copy, the caller must free it with free().
+ * Returns a pointer to the string copy, the caller must free it with SAlloc::F().
  */
 xmlChar * xmlNodeListGetString(xmlDocPtr doc, const xmlNode * list, int inLine)
 {
@@ -1589,7 +1589,7 @@ xmlChar * xmlNodeListGetString(xmlDocPtr doc, const xmlNode * list, int inLine)
 					xmlChar * buffer = attr ? xmlEncodeAttributeEntities(doc, node->content) : xmlEncodeEntitiesReentrant(doc, node->content);
 					if(buffer != NULL) {
 						ret = xmlStrcat(ret, buffer);
-						free(buffer);
+						SAlloc::F(buffer);
 					}
 				}
 			}
@@ -1607,7 +1607,7 @@ xmlChar * xmlNodeListGetString(xmlDocPtr doc, const xmlNode * list, int inLine)
 						xmlChar * buffer = xmlNodeListGetString(doc, ent->children, 1);
 						if(buffer != NULL) {
 							ret = xmlStrcat(ret, buffer);
-							free(buffer);
+							SAlloc::F(buffer);
 						}
 					}
 					else {
@@ -1647,7 +1647,7 @@ xmlChar * xmlNodeListGetString(xmlDocPtr doc, const xmlNode * list, int inLine)
  * made of TEXTs and ENTITY_REFs, contrary to xmlNodeListGetString()
  * this function doesn't do any character encoding handling.
  *
- * Returns a pointer to the string copy, the caller must free it with free().
+ * Returns a pointer to the string copy, the caller must free it with SAlloc::F().
  */
 xmlChar * xmlNodeListGetRawString(const xmlDoc * doc, const xmlNode * list, int inLine)
 {
@@ -1664,7 +1664,7 @@ xmlChar * xmlNodeListGetRawString(const xmlDoc * doc, const xmlNode * list, int 
 					xmlChar * buffer = xmlEncodeSpecialChars(doc, node->content);
 					if(buffer != NULL) {
 						ret = xmlStrcat(ret, buffer);
-						free(buffer);
+						SAlloc::F(buffer);
 					}
 				}
 			}
@@ -1682,7 +1682,7 @@ xmlChar * xmlNodeListGetRawString(const xmlDoc * doc, const xmlNode * list, int 
 						xmlChar * buffer = xmlNodeListGetRawString(doc, ent->children, 1);
 						if(buffer != NULL) {
 							ret = xmlStrcat(ret, buffer);
-							free(buffer);
+							SAlloc::F(buffer);
 						}
 					}
 					else {
@@ -1719,16 +1719,16 @@ static xmlAttrPtr xmlNewPropInternal(xmlNodePtr node, xmlNsPtr ns, const xmlChar
 	xmlDocPtr doc = NULL;
 	if((node != NULL) && (node->type != XML_ELEMENT_NODE)) {
 		if((eatname == 1) && ((node->doc == NULL) || (!(xmlDictOwns(node->doc->dict, name)))))
-			free((xmlChar*)name);
+			SAlloc::F((xmlChar*)name);
 		return 0;
 	}
 	/*
 	 * Allocate a new property and fill the fields.
 	 */
-	cur = (xmlAttrPtr)xmlMalloc(sizeof(xmlAttr));
+	cur = (xmlAttrPtr)SAlloc::M(sizeof(xmlAttr));
 	if(!cur) {
 		if((eatname == 1) && ((node == NULL) || (node->doc == NULL) || (!(xmlDictOwns(node->doc->dict, name)))))
-			free((xmlChar*)name);
+			SAlloc::F((xmlChar*)name);
 		xmlTreeErrMemory("building attribute");
 		return 0;
 	}
@@ -1873,7 +1873,7 @@ xmlAttrPtr xmlNewDocProp(xmlDocPtr doc, const xmlChar * name, const xmlChar * va
 	/*
 	 * Allocate a new property and fill the fields.
 	 */
-	cur = (xmlAttrPtr)xmlMalloc(sizeof(xmlAttr));
+	cur = (xmlAttrPtr)SAlloc::M(sizeof(xmlAttr));
 	if(!cur) {
 		xmlTreeErrMemory("building attribute");
 		return 0;
@@ -1939,7 +1939,7 @@ void xmlFreeProp(xmlAttrPtr cur)
 		if(cur->children)
 			xmlFreeNodeList(cur->children);
 		DICT_FREE(cur->name)
-		free(cur);
+		SAlloc::F(cur);
 	}
 }
 
@@ -2012,7 +2012,7 @@ xmlNodePtr xmlNewDocPI(xmlDocPtr doc, const xmlChar * name, const xmlChar * cont
 	/*
 	 * Allocate a new node and fill the fields.
 	 */
-	cur = (xmlNode *)xmlMalloc(sizeof(xmlNode));
+	cur = (xmlNode *)SAlloc::M(sizeof(xmlNode));
 	if(!cur) {
 		xmlTreeErrMemory("building PI");
 		return 0;
@@ -2069,7 +2069,7 @@ xmlNodePtr xmlNewNode(xmlNsPtr ns, const xmlChar * name)
 	/*
 	 * Allocate a new node and fill the fields.
 	 */
-	cur = (xmlNode *)xmlMalloc(sizeof(xmlNode));
+	cur = (xmlNode *)SAlloc::M(sizeof(xmlNode));
 	if(!cur) {
 		xmlTreeErrMemory("building node");
 		return 0;
@@ -2106,7 +2106,7 @@ xmlNodePtr xmlNewNodeEatName(xmlNsPtr ns, xmlChar * name)
 	/*
 	 * Allocate a new node and fill the fields.
 	 */
-	cur = (xmlNode *)xmlMalloc(sizeof(xmlNode));
+	cur = (xmlNode *)SAlloc::M(sizeof(xmlNode));
 	if(!cur) {
 		xmlTreeErrMemory("building node");
 		/* we can't check here that name comes from the doc dictionnary */
@@ -2179,7 +2179,7 @@ xmlNodePtr xmlNewDocNodeEatName(xmlDocPtr doc, xmlNsPtr ns, xmlChar * name, cons
 	else {
 		/* if name don't come from the doc dictionnary free it here */
 		if((name != NULL) && (doc != NULL) && (!(xmlDictOwns(doc->dict, name))))
-			free(name);
+			SAlloc::F(name);
 	}
 	return cur;
 }
@@ -2222,7 +2222,7 @@ xmlNodePtr xmlNewDocFragment(xmlDocPtr doc)
 	//
 	// Allocate a new DocumentFragment node and fill the fields.
 	//
-	xmlNodePtr cur = (xmlNode *)xmlMalloc(sizeof(xmlNode));
+	xmlNodePtr cur = (xmlNode *)SAlloc::M(sizeof(xmlNode));
 	if(!cur)
 		xmlTreeErrMemory("building fragment");
 	else {
@@ -2249,7 +2249,7 @@ xmlNodePtr xmlNewText(const xmlChar * content)
 	/*
 	 * Allocate a new node and fill the fields.
 	 */
-	xmlNodePtr cur = (xmlNode *)xmlMalloc(sizeof(xmlNode));
+	xmlNodePtr cur = (xmlNode *)SAlloc::M(sizeof(xmlNode));
 	if(!cur)
 		xmlTreeErrMemory("building text");
 	else {
@@ -2363,7 +2363,7 @@ xmlNodePtr xmlNewCharRef(xmlDocPtr doc, const xmlChar * name)
 		//
 		// Allocate a new node and fill the fields.
 		//
-		cur = (xmlNode *)xmlMalloc(sizeof(xmlNode));
+		cur = (xmlNode *)SAlloc::M(sizeof(xmlNode));
 		if(!cur)
 			xmlTreeErrMemory("building character reference");
 		else {
@@ -2371,7 +2371,7 @@ xmlNodePtr xmlNewCharRef(xmlDocPtr doc, const xmlChar * name)
 			cur->type = XML_ENTITY_REF_NODE;
 			cur->doc = doc;
 			if(name[0] == '&') {
-				int len = xmlStrlen(++name);
+				int len = sstrlen(++name);
 				if(name[len-1] == ';')
 					cur->name = xmlStrndup(name, len - 1);
 				else
@@ -2403,7 +2403,7 @@ xmlNodePtr xmlNewReference(const xmlDoc * doc, const xmlChar * name)
 	/*
 	 * Allocate a new node and fill the fields.
 	 */
-	cur = (xmlNode *)xmlMalloc(sizeof(xmlNode));
+	cur = (xmlNode *)SAlloc::M(sizeof(xmlNode));
 	if(!cur) {
 		xmlTreeErrMemory("building reference");
 		return 0;
@@ -2412,7 +2412,7 @@ xmlNodePtr xmlNewReference(const xmlDoc * doc, const xmlChar * name)
 	cur->type = XML_ENTITY_REF_NODE;
 	cur->doc = (xmlDoc*)doc;
 	if(name[0] == '&') {
-		int len = xmlStrlen(++name);
+		int len = sstrlen(++name);
 		if(name[len-1] == ';')
 			cur->name = xmlStrndup(name, len-1);
 		else
@@ -2465,7 +2465,7 @@ xmlNodePtr xmlNewTextLen(const xmlChar * content, int len) {
 	/*
 	 * Allocate a new node and fill the fields.
 	 */
-	cur = (xmlNode *)xmlMalloc(sizeof(xmlNode));
+	cur = (xmlNode *)SAlloc::M(sizeof(xmlNode));
 	if(!cur) {
 		xmlTreeErrMemory("building text");
 		return 0;
@@ -2514,7 +2514,7 @@ xmlNodePtr xmlNewComment(const xmlChar * content) {
 	/*
 	 * Allocate a new node and fill the fields.
 	 */
-	cur = (xmlNode *)xmlMalloc(sizeof(xmlNode));
+	cur = (xmlNode *)SAlloc::M(sizeof(xmlNode));
 	if(!cur) {
 		xmlTreeErrMemory("building comment");
 		return 0;
@@ -2547,7 +2547,7 @@ xmlNodePtr xmlNewCDataBlock(xmlDocPtr doc, const xmlChar * content, int len) {
 	/*
 	 * Allocate a new node and fill the fields.
 	 */
-	cur = (xmlNode *)xmlMalloc(sizeof(xmlNode));
+	cur = (xmlNode *)SAlloc::M(sizeof(xmlNode));
 	if(!cur) {
 		xmlTreeErrMemory("building CDATA");
 		return 0;
@@ -2807,7 +2807,7 @@ xmlNodePtr xmlAddNextSibling(xmlNodePtr cur, xmlNodePtr elem) {
 			tmp = xmlStrdup(elem->content);
 			tmp = xmlStrcat(tmp, cur->next->content);
 			xmlNodeSetContent(cur->next, tmp);
-			free(tmp);
+			SAlloc::F(tmp);
 			xmlFreeNode(elem);
 			return(cur->next);
 		}
@@ -2876,7 +2876,7 @@ xmlNodePtr xmlAddPrevSibling(xmlNodePtr cur, xmlNodePtr elem) {
 			tmp = xmlStrdup(elem->content);
 			tmp = xmlStrcat(tmp, cur->content);
 			xmlNodeSetContent(cur, tmp);
-			free(tmp);
+			SAlloc::F(tmp);
 			xmlFreeNode(elem);
 			return cur;
 		}
@@ -3440,7 +3440,7 @@ void xmlFreeNodeList(xmlNodePtr cur)
 				*/
 				if(cur->name && !oneof2(cur->type, XML_TEXT_NODE, XML_COMMENT_NODE))
 					DICT_FREE(cur->name)
-				free(cur);
+				SAlloc::F(cur);
 			}
 			cur = next;
 		}
@@ -3492,7 +3492,7 @@ void xmlFreeNode(xmlNodePtr cur)
 				DICT_FREE(cur->name)
 			if(oneof3(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END) && cur->nsDef)
 				xmlFreeNsList(cur->nsDef);
-			free(cur);
+			SAlloc::F(cur);
 		}
 	}
 }
@@ -3586,22 +3586,22 @@ xmlNodePtr xmlReplaceNode(xmlNodePtr old, xmlNodePtr cur)
 	}
 	if(!cur || (cur->type == XML_NAMESPACE_DECL)) {
 		xmlUnlinkNode(old);
-		return(old);
+		return old;
 	}
 	if(cur == old) {
-		return(old);
+		return old;
 	}
 	if((old->type==XML_ATTRIBUTE_NODE) && (cur->type!=XML_ATTRIBUTE_NODE)) {
 #ifdef DEBUG_TREE
 		xmlGenericError(0, "xmlReplaceNode : Trying to replace attribute node with other node type\n");
 #endif
-		return(old);
+		return old;
 	}
 	if((cur->type==XML_ATTRIBUTE_NODE) && (old->type!=XML_ATTRIBUTE_NODE)) {
 #ifdef DEBUG_TREE
 		xmlGenericError(0, "xmlReplaceNode : Trying to replace a non-attribute node with attribute node\n");
 #endif
-		return(old);
+		return old;
 	}
 	xmlUnlinkNode(cur);
 	xmlSetTreeDoc(cur, old->doc);
@@ -3626,7 +3626,7 @@ xmlNodePtr xmlReplaceNode(xmlNodePtr old, xmlNodePtr cur)
 	}
 	old->next = old->prev = NULL;
 	old->parent = NULL;
-	return(old);
+	return old;
 }
 
 #endif /* LIBXML_TREE_ENABLED */
@@ -3677,7 +3677,7 @@ xmlNsPtr xmlCopyNamespaceList(xmlNsPtr cur)
 	xmlNsPtr p = NULL, q;
 	while(cur) {
 		q = xmlCopyNamespace(cur);
-		if(p == NULL) {
+		if(!p) {
 			ret = p = q;
 		}
 		else {
@@ -3708,7 +3708,7 @@ static xmlAttrPtr xmlCopyPropInternal(xmlDocPtr doc, xmlNodePtr target, xmlAttrP
 		ret = xmlNewDocProp(cur->children->doc, cur->name, NULL);
 	else
 		ret = xmlNewDocProp(NULL, cur->name, NULL);
-	if(ret == NULL)
+	if(!ret)
 		return 0;
 	ret->parent = target;
 	if(cur->ns && target) {
@@ -3739,7 +3739,7 @@ static xmlAttrPtr xmlCopyPropInternal(xmlDocPtr doc, xmlNodePtr target, xmlAttrP
 			 * we cant be sure, that the namespce we found is identified
 			 * by the prefix
 			 */
-			if(xmlStrEqual(ns->href, cur->ns->href)) {
+			if(sstreq(ns->href, cur->ns->href)) {
 				ret->ns = ns; // this is the nice case
 			}
 			else {
@@ -3770,7 +3770,7 @@ static xmlAttrPtr xmlCopyPropInternal(xmlDocPtr doc, xmlNodePtr target, xmlAttrP
 			xmlChar * id = xmlNodeListGetString(cur->doc, cur->children, 1);
 			if(id != NULL) {
 				xmlAddID(NULL, target->doc, id, ret);
-				free(id);
+				SAlloc::F(id);
 			}
 		}
 	}
@@ -3810,7 +3810,7 @@ xmlAttrPtr xmlCopyPropList(xmlNodePtr target, xmlAttrPtr cur)
 		q = xmlCopyProp(target, cur);
 		if(q == NULL)
 			return 0;
-		if(p == NULL) {
+		if(!p) {
 			ret = p = q;
 		}
 		else {
@@ -3884,8 +3884,8 @@ static xmlNodePtr xmlStaticCopyNode(xmlNodePtr node, xmlDocPtr doc, xmlNodePtr p
 	/*
 	 * Allocate a new node and fill the fields.
 	 */
-	ret = (xmlNode *)xmlMalloc(sizeof(xmlNode));
-	if(ret == NULL) {
+	ret = (xmlNode *)SAlloc::M(sizeof(xmlNode));
+	if(!ret) {
 		xmlTreeErrMemory("copying node");
 		return 0;
 	}
@@ -4017,7 +4017,7 @@ static xmlNodePtr xmlStaticCopyNodeList(xmlNodePtr node, xmlDocPtr doc, xmlNodeP
 		q = xmlStaticCopyNode(node, doc, parent, 1);
 		if(q == NULL)
 			return 0;
-		if(ret == NULL) {
+		if(!ret) {
 			q->prev = NULL;
 			ret = p = q;
 		}
@@ -4109,7 +4109,7 @@ xmlDtdPtr xmlCopyDtd(xmlDtdPtr dtd)
 	if(dtd == NULL) 
 		return 0;
 	ret = xmlNewDtd(NULL, dtd->name, dtd->ExternalID, dtd->SystemID);
-	if(ret == NULL) return 0;
+	if(!ret) return 0;
 	if(dtd->entities != NULL)
 		ret->entities = (void*)xmlCopyEntitiesTable((xmlEntitiesTablePtr)dtd->entities);
 	if(dtd->notations != NULL)
@@ -4154,7 +4154,7 @@ xmlDtdPtr xmlCopyDtd(xmlDtdPtr dtd)
 			cur = cur->next;
 			continue;
 		}
-		if(p == NULL)
+		if(!p)
 			ret->children = q;
 		else
 			p->next = q;
@@ -4186,7 +4186,7 @@ xmlDocPtr xmlCopyDoc(xmlDocPtr doc, int recursive)
 	xmlDocPtr ret;
 	if(doc == NULL) return 0;
 	ret = xmlNewDoc(doc->version);
-	if(ret == NULL) return 0;
+	if(!ret) return 0;
 	if(doc->name != NULL)
 		ret->name = xmlMemStrdup(doc->name);
 	if(doc->encoding != NULL)
@@ -4313,15 +4313,15 @@ xmlChar * xmlGetNodePath(const xmlNode * node)
 		return 0;
 
 	buf_len = 500;
-	buffer = (xmlChar*)xmlMallocAtomic(buf_len * sizeof(xmlChar));
-	if(buffer == NULL) {
+	buffer = (xmlChar*)SAlloc::M(buf_len * sizeof(xmlChar));
+	if(!buffer) {
 		xmlTreeErrMemory("getting node path");
 		return 0;
 	}
-	buf = (xmlChar*)xmlMallocAtomic(buf_len * sizeof(xmlChar));
+	buf = (xmlChar*)SAlloc::M(buf_len * sizeof(xmlChar));
 	if(buf == NULL) {
 		xmlTreeErrMemory("getting node path");
-		free(buffer);
+		SAlloc::F(buffer);
 		return 0;
 	}
 
@@ -4364,16 +4364,16 @@ xmlChar * xmlGetNodePath(const xmlNode * node)
 			 */
 			tmp = cur->prev;
 			while(tmp != NULL) {
-				if((tmp->type == XML_ELEMENT_NODE) && (generic || (xmlStrEqual(cur->name, tmp->name) &&
-					((tmp->ns == cur->ns) || ((tmp->ns != NULL) && (cur->ns != NULL) && (xmlStrEqual(cur->ns->prefix, tmp->ns->prefix)))))))
+				if((tmp->type == XML_ELEMENT_NODE) && (generic || (sstreq(cur->name, tmp->name) &&
+					((tmp->ns == cur->ns) || ((tmp->ns != NULL) && (cur->ns != NULL) && (sstreq(cur->ns->prefix, tmp->ns->prefix)))))))
 					occur++;
 				tmp = tmp->prev;
 			}
 			if(occur == 0) {
 				tmp = cur->next;
 				while(tmp != NULL && occur == 0) {
-					if((tmp->type == XML_ELEMENT_NODE) && (generic || (xmlStrEqual(cur->name, tmp->name) &&
-						((tmp->ns == cur->ns) || ((tmp->ns != NULL) && (cur->ns != NULL) && (xmlStrEqual(cur->ns->prefix, tmp->ns->prefix)))))))
+					if((tmp->type == XML_ELEMENT_NODE) && (generic || (sstreq(cur->name, tmp->name) &&
+						((tmp->ns == cur->ns) || ((tmp->ns != NULL) && (cur->ns != NULL) && (sstreq(cur->ns->prefix, tmp->ns->prefix)))))))
 						occur++;
 					tmp = tmp->next;
 				}
@@ -4451,14 +4451,14 @@ xmlChar * xmlGetNodePath(const xmlNode * node)
 			 */
 			tmp = cur->prev;
 			while(tmp != NULL) {
-				if((tmp->type == XML_PI_NODE) && (xmlStrEqual(cur->name, tmp->name)))
+				if((tmp->type == XML_PI_NODE) && (sstreq(cur->name, tmp->name)))
 					occur++;
 				tmp = tmp->prev;
 			}
 			if(occur == 0) {
 				tmp = cur->next;
 				while(tmp != NULL && occur == 0) {
-					if((tmp->type == XML_PI_NODE) && (xmlStrEqual(cur->name, tmp->name)))
+					if((tmp->type == XML_PI_NODE) && (sstreq(cur->name, tmp->name)))
 						occur++;
 					tmp = tmp->next;
 				}
@@ -4488,21 +4488,21 @@ xmlChar * xmlGetNodePath(const xmlNode * node)
 		/*
 		 * Make sure there is enough room
 		 */
-		if(xmlStrlen(buffer) + sizeof(nametemp) + 20 > buf_len) {
-			buf_len = 2 * buf_len + xmlStrlen(buffer) + sizeof(nametemp) + 20;
-			temp = (xmlChar*)xmlRealloc(buffer, buf_len);
+		if(sstrlen(buffer) + sizeof(nametemp) + 20 > buf_len) {
+			buf_len = 2 * buf_len + sstrlen(buffer) + sizeof(nametemp) + 20;
+			temp = (xmlChar*)SAlloc::R(buffer, buf_len);
 			if(temp == NULL) {
 				xmlTreeErrMemory("getting node path");
-				free(buf);
-				free(buffer);
+				SAlloc::F(buf);
+				SAlloc::F(buffer);
 				return 0;
 			}
 			buffer = temp;
-			temp = (xmlChar*)xmlRealloc(buf, buf_len);
+			temp = (xmlChar*)SAlloc::R(buf, buf_len);
 			if(temp == NULL) {
 				xmlTreeErrMemory("getting node path");
-				free(buf);
-				free(buffer);
+				SAlloc::F(buf);
+				SAlloc::F(buffer);
 				return 0;
 			}
 			buf = temp;
@@ -4514,7 +4514,7 @@ xmlChar * xmlGetNodePath(const xmlNode * node)
 		snprintf((char*)buffer, buf_len, "%s", (char*)buf);
 		cur = next;
 	} while(cur);
-	free(buf);
+	SAlloc::F(buf);
 	return (buffer);
 }
 
@@ -4580,7 +4580,7 @@ xmlNodePtr xmlDocSetRootElement(xmlDocPtr doc, xmlNodePtr root)
 	else {
 		xmlReplaceNode(old, root);
 	}
-	return(old);
+	return old;
 }
 
 #endif
@@ -4640,7 +4640,7 @@ void xmlNodeSetLang(xmlNodePtr cur, const xmlChar * lang)
  * attribute or the one carried by the nearest ancestor.
  *
  * Returns a pointer to the lang value, or NULL if not found
- *     It's up to the caller to free the memory with free().
+ *     It's up to the caller to free the memory with SAlloc::F().
  */
 xmlChar * xmlNodeGetLang(const xmlNode * cur)
 {
@@ -4729,15 +4729,15 @@ int xmlNodeGetSpacePreserve(const xmlNode * cur)
 	while(cur) {
 		space = xmlGetNsProp(cur, BAD_CAST "space", XML_XML_NAMESPACE);
 		if(space != NULL) {
-			if(xmlStrEqual(space, BAD_CAST "preserve")) {
-				free(space);
+			if(sstreq(space, BAD_CAST "preserve")) {
+				SAlloc::F(space);
 				return 1;
 			}
-			if(xmlStrEqual(space, BAD_CAST "default")) {
-				free(space);
+			if(sstreq(space, BAD_CAST "default")) {
+				SAlloc::F(space);
 				return 0;
 			}
-			free(space);
+			SAlloc::F(space);
 		}
 		cur = cur->parent;
 	}
@@ -4801,7 +4801,7 @@ void xmlNodeSetName(xmlNodePtr cur, const xmlChar * name)
 			freeme = cur->name;
 		cur->name = xmlStrdup(name);
 	}
-	free((xmlChar*)freeme);
+	SAlloc::F((xmlChar*)freeme);
 }
 
 #endif
@@ -4849,7 +4849,7 @@ void xmlNodeSetBase(xmlNodePtr cur, const xmlChar* uri)
 		    xmlDocPtr doc = (xmlDocPtr)cur;
 
 		    if(doc->URL != NULL)
-			    free((xmlChar*)doc->URL);
+			    SAlloc::F((xmlChar*)doc->URL);
 		    if(uri == NULL)
 			    doc->URL = NULL;
 		    else
@@ -4864,7 +4864,7 @@ void xmlNodeSetBase(xmlNodePtr cur, const xmlChar* uri)
 	fixed = xmlPathToURI(uri);
 	if(fixed != NULL) {
 		xmlSetNsProp(cur, ns, BAD_CAST "base", fixed);
-		free(fixed);
+		SAlloc::F(fixed);
 	}
 	else {
 		xmlSetNsProp(cur, ns, BAD_CAST "base", uri);
@@ -4888,7 +4888,7 @@ void xmlNodeSetBase(xmlNodePtr cur, const xmlChar* uri)
  * doc->URL in this case
  *
  * Returns a pointer to the base URL, or NULL if not found
- *     It's up to the caller to free the memory with free().
+ *     It's up to the caller to free the memory with SAlloc::F().
  */
 xmlChar * xmlNodeGetBase(const xmlDoc * doc, const xmlNode * cur)
 {
@@ -4932,13 +4932,13 @@ xmlChar * xmlNodeGetBase(const xmlDoc * doc, const xmlNode * cur)
 				if(oldbase != NULL) {
 					newbase = xmlBuildURI(oldbase, base);
 					if(newbase != NULL) {
-						free(oldbase);
-						free(base);
+						SAlloc::F(oldbase);
+						SAlloc::F(base);
 						oldbase = newbase;
 					}
 					else {
-						free(oldbase);
-						free(base);
+						SAlloc::F(oldbase);
+						SAlloc::F(base);
 						return 0;
 					}
 				}
@@ -4957,7 +4957,7 @@ xmlChar * xmlNodeGetBase(const xmlDoc * doc, const xmlNode * cur)
 		if(oldbase == NULL)
 			return(xmlStrdup(doc->URL));
 		newbase = xmlBuildURI(oldbase, doc->URL);
-		free(oldbase);
+		SAlloc::F(oldbase);
 		return(newbase);
 	}
 	return(oldbase);
@@ -5140,7 +5140,7 @@ int xmlBufGetNodeContent(xmlBufPtr buf, const xmlNode * cur)
  * of the values carried by this node child's (TEXT and ENTITY_REF).
  * Entity references are substituted.
  * Returns a new #xmlChar * or NULL if no content is available.
- *     It's up to the caller to free the memory with free().
+ *     It's up to the caller to free the memory with SAlloc::F().
  */
 xmlChar * xmlNodeGetContent(const xmlNode * cur)
 {
@@ -5158,7 +5158,7 @@ xmlChar * xmlNodeGetContent(const xmlNode * cur)
 		    xmlBufGetNodeContent(buf, cur);
 		    ret = xmlBufDetach(buf);
 		    xmlBufFree(buf);
-		    return (ret);
+		    return ret;
 	    }
 		case XML_ATTRIBUTE_NODE:
 		    return(xmlGetPropNodeValueInternal((xmlAttrPtr)cur));
@@ -5185,7 +5185,7 @@ xmlChar * xmlNodeGetContent(const xmlNode * cur)
 
 		    ret = xmlBufDetach(buf);
 		    xmlBufFree(buf);
-		    return (ret);
+		    return ret;
 	    }
 		case XML_ENTITY_NODE:
 		case XML_DOCUMENT_TYPE_NODE:
@@ -5210,7 +5210,7 @@ xmlChar * xmlNodeGetContent(const xmlNode * cur)
 
 		    ret = xmlBufDetach(buf);
 		    xmlBufFree(buf);
-		    return (ret);
+		    return ret;
 	    }
 		case XML_NAMESPACE_DECL: {
 		    xmlChar * tmp;
@@ -5271,7 +5271,7 @@ void xmlNodeSetContent(xmlNodePtr cur, const xmlChar * content) {
 		    (cur->content != (xmlChar*)&(cur->properties))) {
 			    if(!((cur->doc != NULL) && (cur->doc->dict != NULL) &&
 				    (xmlDictOwns(cur->doc->dict, cur->content))))
-				    free(cur->content);
+				    SAlloc::F(cur->content);
 		    }
 		    if(cur->children) xmlFreeNodeList(cur->children);
 		    cur->last = cur->children = NULL;
@@ -5348,7 +5348,7 @@ void xmlNodeSetContentLen(xmlNodePtr cur, const xmlChar * content, int len) {
 		    (cur->content != (xmlChar*)&(cur->properties))) {
 			    if(!((cur->doc != NULL) && (cur->doc->dict != NULL) &&
 				    (xmlDictOwns(cur->doc->dict, cur->content))))
-				    free(cur->content);
+				    SAlloc::F(cur->content);
 		    }
 		    if(cur->children) xmlFreeNodeList(cur->children);
 		    cur->children = cur->last = NULL;
@@ -5479,7 +5479,7 @@ void xmlNodeAddContent(xmlNodePtr cur, const xmlChar * content)
 		return;
 	}
 	if(content == NULL) return;
-	len = xmlStrlen(content);
+	len = sstrlen(content);
 	xmlNodeAddContentLen(cur, content, len);
 }
 
@@ -5528,23 +5528,23 @@ xmlNsPtr * xmlGetNsList(const xmlDoc * doc ATTRIBUTE_UNUSED, const xmlNode * nod
 		if(node->type == XML_ELEMENT_NODE) {
 			cur = node->nsDef;
 			while(cur) {
-				if(ret == NULL) {
-					ret = (xmlNsPtr*)xmlMalloc((maxns + 1) * sizeof(xmlNsPtr));
-					if(ret == NULL) {
+				if(!ret) {
+					ret = (xmlNsPtr*)SAlloc::M((maxns + 1) * sizeof(xmlNsPtr));
+					if(!ret) {
 						xmlTreeErrMemory("getting namespace list");
 						return 0;
 					}
 					ret[nbns] = NULL;
 				}
 				for(i = 0; i < nbns; i++) {
-					if((cur->prefix == ret[i]->prefix) || (xmlStrEqual(cur->prefix, ret[i]->prefix)))
+					if((cur->prefix == ret[i]->prefix) || (sstreq(cur->prefix, ret[i]->prefix)))
 						break;
 				}
 				if(i >= nbns) {
 					if(nbns >= maxns) {
 						maxns *= 2;
-						ret = (xmlNsPtr*)xmlRealloc(ret, (maxns + 1) * sizeof(xmlNsPtr));
-						if(ret == NULL) {
+						ret = (xmlNsPtr*)SAlloc::R(ret, (maxns + 1) * sizeof(xmlNsPtr));
+						if(!ret) {
 							xmlTreeErrMemory("getting namespace list");
 							return 0;
 						}
@@ -5558,7 +5558,7 @@ xmlNsPtr * xmlGetNsList(const xmlDoc * doc ATTRIBUTE_UNUSED, const xmlNode * nod
 		}
 		node = node->parent;
 	}
-	return (ret);
+	return ret;
 }
 
 #endif /* LIBXML_TREE_ENABLED */
@@ -5578,7 +5578,7 @@ static xmlNsPtr xmlTreeEnsureXMLDecl(xmlDocPtr doc)
 	else if(doc->oldNs != NULL)
 		return (doc->oldNs);
 	else {
-		xmlNsPtr ns = (xmlNsPtr)xmlMalloc(sizeof(xmlNs));
+		xmlNsPtr ns = (xmlNsPtr)SAlloc::M(sizeof(xmlNs));
 		if(ns == NULL) {
 			xmlTreeErrMemory("allocating the XML namespace");
 		}
@@ -5615,14 +5615,14 @@ xmlNsPtr xmlSearchNs(xmlDocPtr doc, xmlNodePtr node, const xmlChar * nameSpace)
 	const xmlNode * orig = node;
 	if((node == NULL) || (node->type == XML_NAMESPACE_DECL)) 
 		return 0;
-	if((nameSpace != NULL) && (xmlStrEqual(nameSpace, (const xmlChar*)"xml"))) {
+	if((nameSpace != NULL) && (sstreq(nameSpace, (const xmlChar*)"xml"))) {
 		if((doc == NULL) && (node->type == XML_ELEMENT_NODE)) {
 			/*
 			 * The XML-1.0 namespace is normally held on the root
 			 * element. In this case exceptionally create it on the
 			 * node element.
 			 */
-			cur = (xmlNsPtr)xmlMalloc(sizeof(xmlNs));
+			cur = (xmlNsPtr)SAlloc::M(sizeof(xmlNs));
 			if(!cur) {
 				xmlTreeErrMemory("searching namespace");
 				return 0;
@@ -5661,7 +5661,7 @@ xmlNsPtr xmlSearchNs(xmlDocPtr doc, xmlNodePtr node, const xmlChar * nameSpace)
 					return cur;
 				if((cur->prefix != NULL) && (nameSpace != NULL) &&
 				    (cur->href != NULL) &&
-				    (xmlStrEqual(cur->prefix, nameSpace)))
+				    (sstreq(cur->prefix, nameSpace)))
 					return cur;
 				cur = cur->next;
 			}
@@ -5673,7 +5673,7 @@ xmlNsPtr xmlSearchNs(xmlDocPtr doc, xmlNodePtr node, const xmlChar * nameSpace)
 						return cur;
 					if((cur->prefix != NULL) && (nameSpace != NULL) &&
 					    (cur->href != NULL) &&
-					    (xmlStrEqual(cur->prefix, nameSpace)))
+					    (sstreq(cur->prefix, nameSpace)))
 						return cur;
 				}
 			}
@@ -5698,15 +5698,15 @@ xmlNsPtr xmlSearchNs(xmlDocPtr doc, xmlNodePtr node, const xmlChar * nameSpace)
 static int xmlNsInScope(xmlDocPtr doc ATTRIBUTE_UNUSED, xmlNodePtr node, xmlNodePtr ancestor, const xmlChar * prefix)
 {
 	xmlNsPtr tst;
-	while((node != NULL) && (node != ancestor)) {
+	while(node && (node != ancestor)) {
 		if((node->type == XML_ENTITY_REF_NODE) || (node->type == XML_ENTITY_NODE) || (node->type == XML_ENTITY_DECL))
-			return (-1);
+			return -1;
 		if(node->type == XML_ELEMENT_NODE) {
 			tst = node->nsDef;
 			while(tst != NULL) {
 				if((tst->prefix == NULL) && (prefix == NULL))
 					return 0;
-				if((tst->prefix != NULL) && (prefix != NULL) && (xmlStrEqual(tst->prefix, prefix)))
+				if((tst->prefix != NULL) && (prefix != NULL) && (sstreq(tst->prefix, prefix)))
 					return 0;
 				tst = tst->next;
 			}
@@ -5714,7 +5714,7 @@ static int xmlNsInScope(xmlDocPtr doc ATTRIBUTE_UNUSED, xmlNodePtr node, xmlNode
 		node = node->parent;
 	}
 	if(node != ancestor)
-		return (-1);
+		return -1;
 	return 1;
 }
 
@@ -5735,7 +5735,7 @@ xmlNsPtr xmlSearchNsByHref(xmlDocPtr doc, xmlNodePtr node, const xmlChar * href)
 	int is_attr;
 	if((node == NULL) || (node->type == XML_NAMESPACE_DECL) || (href == NULL))
 		return 0;
-	if(xmlStrEqual(href, XML_XML_NAMESPACE)) {
+	if(sstreq(href, XML_XML_NAMESPACE)) {
 		/*
 		 * Only the document can hold the XML spec namespace.
 		 */
@@ -5745,7 +5745,7 @@ xmlNsPtr xmlSearchNsByHref(xmlDocPtr doc, xmlNodePtr node, const xmlChar * href)
 			 * element. In this case exceptionally create it on the
 			 * node element.
 			 */
-			cur = (xmlNsPtr)xmlMalloc(sizeof(xmlNs));
+			cur = (xmlNsPtr)SAlloc::M(sizeof(xmlNs));
 			if(!cur) {
 				xmlTreeErrMemory("searching namespace");
 				return 0;
@@ -5781,7 +5781,7 @@ xmlNsPtr xmlSearchNsByHref(xmlDocPtr doc, xmlNodePtr node, const xmlChar * href)
 			cur = node->nsDef;
 			while(cur) {
 				if((cur->href != NULL) && (href != NULL) &&
-				    (xmlStrEqual(cur->href, href))) {
+				    (sstreq(cur->href, href))) {
 					if(((!is_attr) || (cur->prefix != NULL)) &&
 					    (xmlNsInScope(doc, orig, node, cur->prefix) == 1))
 						return (cur);
@@ -5792,7 +5792,7 @@ xmlNsPtr xmlSearchNsByHref(xmlDocPtr doc, xmlNodePtr node, const xmlChar * href)
 				cur = node->ns;
 				if(cur) {
 					if((cur->href != NULL) && (href != NULL) &&
-					    (xmlStrEqual(cur->href, href))) {
+					    (sstreq(cur->href, href))) {
 						if(((!is_attr) || (cur->prefix != NULL)) &&
 						    (xmlNsInScope(doc, orig, node, cur->prefix) == 1))
 							return (cur);
@@ -5908,17 +5908,17 @@ int xmlReconciliateNs(xmlDocPtr doc, xmlNodePtr tree) {
 			 */
 			if(sizeCache == 0) {
 				sizeCache = 10;
-				oldNs = (xmlNsPtr*)xmlMalloc(sizeCache *
+				oldNs = (xmlNsPtr*)SAlloc::M(sizeCache *
 				    sizeof(xmlNsPtr));
 				if(oldNs == NULL) {
 					xmlTreeErrMemory("fixing namespaces");
 					return -1;
 				}
-				newNs = (xmlNsPtr*)xmlMalloc(sizeCache *
+				newNs = (xmlNsPtr*)SAlloc::M(sizeCache *
 				    sizeof(xmlNsPtr));
 				if(newNs == NULL) {
 					xmlTreeErrMemory("fixing namespaces");
-					free(oldNs);
+					SAlloc::F(oldNs);
 					return -1;
 				}
 			}
@@ -5939,18 +5939,18 @@ int xmlReconciliateNs(xmlDocPtr doc, xmlNodePtr tree) {
 					 */
 					if(sizeCache <= nbCache) {
 						sizeCache *= 2;
-						oldNs = (xmlNsPtr*)xmlRealloc(oldNs, sizeCache *
+						oldNs = (xmlNsPtr*)SAlloc::R(oldNs, sizeCache *
 						    sizeof(xmlNsPtr));
 						if(oldNs == NULL) {
 							xmlTreeErrMemory("fixing namespaces");
-							free(newNs);
+							SAlloc::F(newNs);
 							return -1;
 						}
-						newNs = (xmlNsPtr*)xmlRealloc(newNs, sizeCache *
+						newNs = (xmlNsPtr*)SAlloc::R(newNs, sizeCache *
 						    sizeof(xmlNsPtr));
 						if(newNs == NULL) {
 							xmlTreeErrMemory("fixing namespaces");
-							free(oldNs);
+							SAlloc::F(oldNs);
 							return -1;
 						}
 					}
@@ -5965,24 +5965,24 @@ int xmlReconciliateNs(xmlDocPtr doc, xmlNodePtr tree) {
 		 */
 		if(node->type == XML_ELEMENT_NODE) {
 			attr = node->properties;
-			while(attr != NULL) {
+			while(attr) {
 				if(attr->ns != NULL) {
 					/*
 					 * initialize the cache if needed
 					 */
 					if(sizeCache == 0) {
 						sizeCache = 10;
-						oldNs = (xmlNsPtr*)xmlMalloc(sizeCache *
+						oldNs = (xmlNsPtr*)SAlloc::M(sizeCache *
 						    sizeof(xmlNsPtr));
 						if(oldNs == NULL) {
 							xmlTreeErrMemory("fixing namespaces");
 							return -1;
 						}
-						newNs = (xmlNsPtr*)xmlMalloc(sizeCache *
+						newNs = (xmlNsPtr*)SAlloc::M(sizeCache *
 						    sizeof(xmlNsPtr));
 						if(newNs == NULL) {
 							xmlTreeErrMemory("fixing namespaces");
-							free(oldNs);
+							SAlloc::F(oldNs);
 							return -1;
 						}
 					}
@@ -6003,18 +6003,18 @@ int xmlReconciliateNs(xmlDocPtr doc, xmlNodePtr tree) {
 							 */
 							if(sizeCache <= nbCache) {
 								sizeCache *= 2;
-								oldNs = (xmlNsPtr*)xmlRealloc(oldNs,
+								oldNs = (xmlNsPtr*)SAlloc::R(oldNs,
 								    sizeCache * sizeof(xmlNsPtr));
 								if(oldNs == NULL) {
 									xmlTreeErrMemory("fixing namespaces");
-									free(newNs);
+									SAlloc::F(newNs);
 									return -1;
 								}
-								newNs = (xmlNsPtr*)xmlRealloc(newNs,
+								newNs = (xmlNsPtr*)SAlloc::R(newNs,
 								    sizeCache * sizeof(xmlNsPtr));
 								if(newNs == NULL) {
 									xmlTreeErrMemory("fixing namespaces");
-									free(oldNs);
+									SAlloc::F(oldNs);
 									return -1;
 								}
 							}
@@ -6061,9 +6061,9 @@ int xmlReconciliateNs(xmlDocPtr doc, xmlNodePtr tree) {
 			break;
 	}
 	if(oldNs != NULL)
-		free(oldNs);
+		SAlloc::F(oldNs);
 	if(newNs != NULL)
-		free(newNs);
+		SAlloc::F(newNs);
 	return ret;
 }
 
@@ -6084,7 +6084,7 @@ static xmlAttrPtr xmlGetPropNodeInternal(const xmlNode * node, const xmlChar * n
 			 * We want the attr to be in no namespace.
 			 */
 			do {
-				if((prop->ns == NULL) && xmlStrEqual(prop->name, name)) {
+				if((prop->ns == NULL) && sstreq(prop->name, name)) {
 					return(prop);
 				}
 				prop = prop->next;
@@ -6095,9 +6095,9 @@ static xmlAttrPtr xmlGetPropNodeInternal(const xmlNode * node, const xmlChar * n
 			 * We want the attr to be in the specified namespace.
 			 */
 			do {
-				if((prop->ns != NULL) && xmlStrEqual(prop->name, name) &&
+				if((prop->ns != NULL) && sstreq(prop->name, name) &&
 				    ((prop->ns->href == nsName) ||
-					    xmlStrEqual(prop->ns->href, nsName))) {
+					    sstreq(prop->ns->href, nsName))) {
 					return(prop);
 				}
 				prop = prop->next;
@@ -6149,12 +6149,12 @@ static xmlAttrPtr xmlGetPropNodeInternal(const xmlNode * node, const xmlChar * n
 			nsList = xmlGetNsList(node->doc, node);
 			if(nsList == NULL) {
 				if(tmpstr != NULL)
-					free(tmpstr);
+					SAlloc::F(tmpstr);
 				return 0;
 			}
 			cur = nsList;
 			while(*cur != NULL) {
-				if(xmlStrEqual((*cur)->href, nsName)) {
+				if(sstreq((*cur)->href, nsName)) {
 					attrDecl = xmlGetDtdQAttrDesc(doc->intSubset, elemQName, name, (*cur)->prefix);
 					if(attrDecl)
 						break;
@@ -6166,10 +6166,10 @@ static xmlAttrPtr xmlGetPropNodeInternal(const xmlNode * node, const xmlChar * n
 				}
 				cur++;
 			}
-			free(nsList);
+			SAlloc::F(nsList);
 		}
 		if(tmpstr != NULL)
-			free(tmpstr);
+			SAlloc::F(tmpstr);
 		/*
 		 * Only default/fixed attrs are relevant.
 		 */
@@ -6233,7 +6233,7 @@ xmlAttrPtr FASTCALL xmlHasProp(const xmlNode * node, const xmlChar * name)
 	 */
 	prop = node->properties;
 	while(prop) {
-		if(xmlStrEqual(prop->name, name)) {
+		if(sstreq(prop->name, name)) {
 			return prop;
 		}
 		prop = prop->next;
@@ -6293,7 +6293,7 @@ xmlAttrPtr xmlHasNsProp(const xmlNode * node, const xmlChar * name, const xmlCha
  *       for namespace aware processing.
  *
  * Returns the attribute value or NULL if not found.
- *     It's up to the caller to free the memory with free().
+ *     It's up to the caller to free the memory with SAlloc::F().
  */
 xmlChar * FASTCALL xmlGetProp(const xmlNode * node, const xmlChar * name) 
 {
@@ -6313,7 +6313,7 @@ xmlChar * FASTCALL xmlGetProp(const xmlNode * node, const xmlChar * name)
  * an attribute in no namespace.
  *
  * Returns the attribute value or NULL if not found.
- *     It's up to the caller to free the memory with free().
+ *     It's up to the caller to free the memory with SAlloc::F().
  */
 xmlChar * xmlGetNoNsProp(const xmlNode * node, const xmlChar * name) {
 	xmlAttrPtr prop;
@@ -6337,7 +6337,7 @@ xmlChar * xmlGetNoNsProp(const xmlNode * node, const xmlChar * name) {
  * default declaration values unless DTD use has been turned off.
  *
  * Returns the attribute value or NULL if not found.
- *     It's up to the caller to free the memory with free().
+ *     It's up to the caller to free the memory with SAlloc::F().
  */
 xmlChar * xmlGetNsProp(const xmlNode * node, const xmlChar * name, const xmlChar * nameSpace) {
 	xmlAttrPtr prop;
@@ -6422,7 +6422,7 @@ xmlAttrPtr xmlSetProp(xmlNodePtr node, const xmlChar * name, const xmlChar * val
 		xmlChar * prefix = xmlStrndup(name, len);
 		ns = xmlSearchNs(node->doc, node, prefix);
 		if(prefix != NULL)
-			free(prefix);
+			SAlloc::F(prefix);
 		if(ns != NULL)
 			return(xmlSetNsProp(node, ns, nqname, value));
 	}
@@ -6581,18 +6581,18 @@ int xmlTextConcat(xmlNodePtr node, const xmlChar * content, int len)
  */
 xmlBufferPtr xmlBufferCreate()
 {
-	xmlBufferPtr ret = (xmlBufferPtr)xmlMalloc(sizeof(xmlBuffer));
-	if(ret == NULL) {
+	xmlBufferPtr ret = (xmlBufferPtr)SAlloc::M(sizeof(xmlBuffer));
+	if(!ret) {
 		xmlTreeErrMemory("creating buffer");
 	}
 	else {
 		ret->use = 0;
 		ret->size = xmlDefaultBufferSize;
 		ret->alloc = xmlBufferAllocScheme;
-		ret->content = (xmlChar*)xmlMallocAtomic(ret->size * sizeof(xmlChar));
+		ret->content = (xmlChar*)SAlloc::M(ret->size * sizeof(xmlChar));
 		if(ret->content == NULL) {
 			xmlTreeErrMemory("creating buffer");
-			free(ret);
+			SAlloc::F(ret);
 			ret = 0;
 		}
 		else {
@@ -6612,8 +6612,8 @@ xmlBufferPtr xmlBufferCreate()
  */
 xmlBufferPtr xmlBufferCreateSize(size_t size)
 {
-	xmlBufferPtr ret = (xmlBufferPtr)xmlMalloc(sizeof(xmlBuffer));
-	if(ret == NULL) {
+	xmlBufferPtr ret = (xmlBufferPtr)SAlloc::M(sizeof(xmlBuffer));
+	if(!ret) {
 		xmlTreeErrMemory("creating buffer");
 	}
 	else {
@@ -6621,10 +6621,10 @@ xmlBufferPtr xmlBufferCreateSize(size_t size)
 		ret->alloc = xmlBufferAllocScheme;
 		ret->size = (size ? size+2 : 0);     /* +1 for ending null */
 		if(ret->size) {
-			ret->content = (xmlChar*)xmlMallocAtomic(ret->size * sizeof(xmlChar));
+			ret->content = (xmlChar*)SAlloc::M(ret->size * sizeof(xmlChar));
 			if(ret->content == NULL) {
 				xmlTreeErrMemory("creating buffer");
-				free(ret);
+				SAlloc::F(ret);
 				return 0;
 			}
 			ret->content[0] = 0;
@@ -6674,8 +6674,8 @@ xmlBufferPtr xmlBufferCreateStatic(void * mem, size_t size)
 	xmlBufferPtr ret;
 	if((mem == NULL) || (size == 0))
 		return 0;
-	ret = (xmlBufferPtr)xmlMalloc(sizeof(xmlBuffer));
-	if(ret == NULL) {
+	ret = (xmlBufferPtr)SAlloc::M(sizeof(xmlBuffer));
+	if(!ret) {
 		xmlTreeErrMemory("creating buffer");
 		return 0;
 	}
@@ -6717,10 +6717,10 @@ void xmlBufferFree(xmlBufferPtr buf)
 {
 	if(buf) {
 		if((buf->alloc == XML_BUFFER_ALLOC_IO) && buf->contentIO)
-			free(buf->contentIO);
+			SAlloc::F(buf->contentIO);
 		else if(buf->content && (buf->alloc != XML_BUFFER_ALLOC_IMMUTABLE))
-			free(buf->content);
-		free(buf);
+			SAlloc::F(buf->content);
+		SAlloc::F(buf);
 	}
 }
 
@@ -6829,7 +6829,7 @@ int xmlBufferGrow(xmlBufferPtr buf, uint len)
 
 	if((buf->alloc == XML_BUFFER_ALLOC_IO) && (buf->contentIO != NULL)) {
 		size_t start_buf = buf->content - buf->contentIO;
-		newbuf = (xmlChar*)xmlRealloc(buf->contentIO, start_buf + size);
+		newbuf = (xmlChar*)SAlloc::R(buf->contentIO, start_buf + size);
 		if(newbuf == NULL) {
 			xmlTreeErrMemory("growing buffer");
 			return -1;
@@ -6838,7 +6838,7 @@ int xmlBufferGrow(xmlBufferPtr buf, uint len)
 		buf->content = newbuf + start_buf;
 	}
 	else {
-		newbuf = (xmlChar*)xmlRealloc(buf->content, size);
+		newbuf = (xmlChar*)SAlloc::R(buf->content, size);
 		if(newbuf == NULL) {
 			xmlTreeErrMemory("growing buffer");
 			return -1;
@@ -6973,7 +6973,7 @@ int xmlBufferResize(xmlBufferPtr buf, uint size)
 			buf->size += start_buf;
 		}
 		else {
-			rebuf = (xmlChar*)xmlRealloc(buf->contentIO, start_buf + newSize);
+			rebuf = (xmlChar*)SAlloc::R(buf->contentIO, start_buf + newSize);
 			if(rebuf == NULL) {
 				xmlTreeErrMemory("growing buffer");
 				return 0;
@@ -6984,10 +6984,10 @@ int xmlBufferResize(xmlBufferPtr buf, uint size)
 	}
 	else {
 		if(buf->content == NULL) {
-			rebuf = (xmlChar*)xmlMallocAtomic(newSize);
+			rebuf = (xmlChar*)SAlloc::M(newSize);
 		}
 		else if(buf->size - buf->use < 100) {
-			rebuf = (xmlChar*)xmlRealloc(buf->content, newSize);
+			rebuf = (xmlChar*)SAlloc::R(buf->content, newSize);
 		}
 		else {
 			/*
@@ -6995,10 +6995,10 @@ int xmlBufferResize(xmlBufferPtr buf, uint size)
 			 * better to make a new allocation and copy only the used range
 			 * and free the old one.
 			 */
-			rebuf = (xmlChar*)xmlMallocAtomic(newSize);
+			rebuf = (xmlChar*)SAlloc::M(newSize);
 			if(rebuf != NULL) {
 				memcpy(rebuf, buf->content, buf->use);
-				free(buf->content);
+				SAlloc::F(buf->content);
 				rebuf[buf->use] = 0;
 			}
 		}
@@ -7041,7 +7041,7 @@ int xmlBufferAdd(xmlBufferPtr buf, const xmlChar * str, int len)
 	if(len == 0)
 		return 0;
 	if(len < 0)
-		len = xmlStrlen(str);
+		len = sstrlen(str);
 	if(len < 0)
 		return -1;
 	if(len == 0)
@@ -7093,7 +7093,7 @@ int xmlBufferAddHead(xmlBufferPtr buf, const xmlChar * str, int len)
 	if(len == 0)
 		return 0;
 	if(len < 0)
-		len = xmlStrlen(str);
+		len = sstrlen(str);
 	if(len <= 0)
 		return -1;
 	if((buf->alloc == XML_BUFFER_ALLOC_IO) && (buf->contentIO != NULL)) {
@@ -7365,15 +7365,15 @@ static void xmlDOMWrapNsMapFree(xmlNsMapPtr nsmap)
 	while(cur) {
 		tmp = cur;
 		cur = cur->next;
-		free(tmp);
+		SAlloc::F(tmp);
 	}
 	cur = nsmap->first;
 	while(cur) {
 		tmp = cur;
 		cur = cur->next;
-		free(tmp);
+		SAlloc::F(tmp);
 	}
-	free(nsmap);
+	SAlloc::F(nsmap);
 }
 
 /*
@@ -7400,7 +7400,7 @@ static xmlNsMapItemPtr xmlDOMWrapNsMapAddItem(xmlNsMapPtr * nsmap, int position,
 		/*
 		 * Create the ns-map.
 		 */
-		map = (xmlNsMapPtr)xmlMalloc(sizeof(struct xmlNsMap));
+		map = (xmlNsMapPtr)SAlloc::M(sizeof(struct xmlNsMap));
 		if(map == NULL) {
 			xmlTreeErrMemory("allocating namespace map");
 			return 0;
@@ -7420,8 +7420,8 @@ static xmlNsMapItemPtr xmlDOMWrapNsMapAddItem(xmlNsMapPtr * nsmap, int position,
 		/*
 		 * Create a new item.
 		 */
-		ret = (xmlNsMapItemPtr)xmlMalloc(sizeof(struct xmlNsMapItem));
-		if(ret == NULL) {
+		ret = (xmlNsMapItemPtr)SAlloc::M(sizeof(struct xmlNsMapItem));
+		if(!ret) {
 			xmlTreeErrMemory("allocating namespace map item");
 			return 0;
 		}
@@ -7456,7 +7456,7 @@ static xmlNsMapItemPtr xmlDOMWrapNsMapAddItem(xmlNsMapPtr * nsmap, int position,
 	ret->newNs = newNs;
 	ret->shadowDepth = -1;
 	ret->depth = depth;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -7487,8 +7487,8 @@ static xmlNsPtr xmlDOMWrapStoreNs(xmlDocPtr doc,
 		ns = ns->next;
 		while(ns != NULL) {
 			if(((ns->prefix == prefix) ||
-				    xmlStrEqual(ns->prefix, prefix)) &&
-			    xmlStrEqual(ns->href, nsName)) {
+				    sstreq(ns->prefix, prefix)) &&
+			    sstreq(ns->href, nsName)) {
 				return (ns);
 			}
 			if(ns->next == NULL)
@@ -7513,13 +7513,13 @@ static xmlNsPtr xmlDOMWrapStoreNs(xmlDocPtr doc,
  */
 xmlDOMWrapCtxtPtr xmlDOMWrapNewCtxt()
 {
-	xmlDOMWrapCtxtPtr ret = (xmlDOMWrapCtxtPtr)xmlMalloc(sizeof(xmlDOMWrapCtxt));
-	if(ret == NULL) {
+	xmlDOMWrapCtxtPtr ret = (xmlDOMWrapCtxtPtr)SAlloc::M(sizeof(xmlDOMWrapCtxt));
+	if(!ret) {
 		xmlTreeErrMemory("allocating DOM-wrapper context");
 		return 0;
 	}
 	memzero(ret, sizeof(xmlDOMWrapCtxt));
-	return (ret);
+	return ret;
 }
 
 /*
@@ -7537,7 +7537,7 @@ void xmlDOMWrapFreeCtxt(xmlDOMWrapCtxtPtr ctxt)
 	/*
 	 * TODO: Store the namespace map in the context.
 	 */
-	free(ctxt);
+	SAlloc::F(ctxt);
 }
 
 /*
@@ -7559,7 +7559,7 @@ static xmlNsPtr xmlTreeNSListLookupByPrefix(xmlNsPtr nsList, const xmlChar * pre
 		ns = nsList;
 		do {
 			if((prefix == ns->prefix) ||
-			    xmlStrEqual(prefix, ns->prefix)) {
+			    sstreq(prefix, ns->prefix)) {
 				return (ns);
 			}
 			ns = ns->next;
@@ -7582,9 +7582,9 @@ static int FASTCALL xmlDOMWrapNSNormGatherInScopeNs(xmlNsMapPtr * map, xmlNode *
 	xmlNsMapItemPtr mi;
 	int shadowed;
 	if((map == NULL) || (*map != NULL))
-		return (-1);
+		return -1;
 	if((node == NULL) || (node->type == XML_NAMESPACE_DECL))
-		return (-1);
+		return -1;
 	/*
 	 * Get in-scope ns-decls of @parent.
 	 */
@@ -7601,7 +7601,7 @@ static int FASTCALL xmlDOMWrapNSNormGatherInScopeNs(xmlNsMapPtr * map, xmlNode *
 						 */
 						XML_NSMAP_FOREACH(*map, mi) {
 							if((ns->prefix == mi->newNs->prefix) ||
-							    xmlStrEqual(ns->prefix, mi->newNs->prefix)) {
+							    sstreq(ns->prefix, mi->newNs->prefix)) {
 								shadowed = 1;
 								break;
 							}
@@ -7613,7 +7613,7 @@ static int FASTCALL xmlDOMWrapNSNormGatherInScopeNs(xmlNsMapPtr * map, xmlNode *
 					mi = xmlDOMWrapNsMapAddItem(map, 0, NULL,
 					    ns, XML_TREE_NSMAP_PARENT);
 					if(mi == NULL)
-						return (-1);
+						return -1;
 					if(shadowed)
 						mi->shadowDepth = 0;
 					ns = ns->next;
@@ -7636,7 +7636,7 @@ static int FASTCALL xmlDOMWrapNSNormGatherInScopeNs(xmlNsMapPtr * map, xmlNode *
 			str = xmlDictLookup(destDoc->dict, str, -1); \
 			if((sourceDoc == NULL) || (sourceDoc->dict == NULL) || \
 			    (!xmlDictOwns(sourceDoc->dict, old))) \
-				free((char*)old); \
+				SAlloc::F((char*)old); \
 		} else if((sourceDoc) && (sourceDoc->dict) && \
 		    xmlDictOwns(sourceDoc->dict, str)) { \
 			str = BAD_CAST xmlStrdup(str); \
@@ -7648,14 +7648,8 @@ static int FASTCALL xmlDOMWrapNSNormGatherInScopeNs(xmlNsMapPtr * map, xmlNode *
  * put it in dest-dict or copy it.
  */
 #define XML_TREE_ADOPT_STR_2(str) \
-	if(adoptStr && (str != NULL) && (sourceDoc != NULL) && \
-	    (sourceDoc->dict != NULL) && \
-	    xmlDictOwns(sourceDoc->dict, cur->content)) { \
-		if(destDoc->dict) \
-			cur->content = (xmlChar*) \
-			    xmlDictLookup(destDoc->dict, cur->content, -1); \
-		else \
-			cur->content = xmlStrdup(BAD_CAST cur->content); \
+	if(adoptStr && (str) && sourceDoc && sourceDoc->dict && xmlDictOwns(sourceDoc->dict, cur->content)) { \
+		cur->content = destDoc->dict ? (xmlChar*)xmlDictLookup(destDoc->dict, cur->content, -1) : xmlStrdup(BAD_CAST cur->content); \
 	}
 
 /*
@@ -7665,11 +7659,10 @@ static int FASTCALL xmlDOMWrapNSNormGatherInScopeNs(xmlNsMapPtr * map, xmlNode *
  *
  * Returns 0 on success, -1 on internal errors.
  */
-static int xmlDOMWrapNSNormAddNsMapItem2(xmlNsPtr ** list, int * size, int * number,
-    xmlNsPtr oldNs, xmlNsPtr newNs)
+static int xmlDOMWrapNSNormAddNsMapItem2(xmlNsPtr ** list, int * size, int * number, xmlNsPtr oldNs, xmlNsPtr newNs)
 {
 	if(*list == NULL) {
-		*list = (xmlNsPtr*)xmlMalloc(6 * sizeof(xmlNsPtr));
+		*list = (xmlNsPtr*)SAlloc::M(6 * sizeof(xmlNsPtr));
 		if(*list == NULL) {
 			xmlTreeErrMemory("alloc ns map item");
 			return -1;
@@ -7679,7 +7672,7 @@ static int xmlDOMWrapNSNormAddNsMapItem2(xmlNsPtr ** list, int * size, int * num
 	}
 	else if((*number) >= (*size)) {
 		*size *= 2;
-		*list = (xmlNsPtr*)xmlRealloc(*list,
+		*list = (xmlNsPtr*)SAlloc::R(*list,
 		    (*size) * 2 * sizeof(xmlNsPtr));
 		if(*list == NULL) {
 			xmlTreeErrMemory("realloc ns map item");
@@ -7717,7 +7710,7 @@ int xmlDOMWrapRemoveNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr doc,
 	xmlNsPtr ns;
 
 	if((node == NULL) || (doc == NULL) || (node->doc != doc))
-		return (-1);
+		return -1;
 
 	/* TODO: 0 or -1 ? */
 	if(node->parent == NULL)
@@ -7759,7 +7752,7 @@ int xmlDOMWrapRemoveNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr doc,
 				    /*
 				     * Find a mapping.
 				     */
-				    if(list != NULL) {
+				    if(list) {
 					    for(i = 0, j = 0; i < nbList; i++, j += 2) {
 						    if(node->ns == list[j]) {
 							    node->ns = list[++j];
@@ -7818,14 +7811,14 @@ next_sibling:
 		}
 	} while(node);
 
-	if(list != NULL)
-		free(list);
+	if(list)
+		SAlloc::F(list);
 	return 0;
 
 internal_error:
-	if(list != NULL)
-		free(list);
-	return (-1);
+	if(list)
+		SAlloc::F(list);
+	return -1;
 }
 
 /*
@@ -7850,15 +7843,15 @@ static int xmlSearchNsByNamespaceStrict(xmlDocPtr doc, xmlNodePtr node,
 	xmlNsPtr ns, prevns;
 
 	if((doc == NULL) || (nsName == NULL) || (retNs == NULL))
-		return (-1);
+		return -1;
 	if((node == NULL) || (node->type == XML_NAMESPACE_DECL))
 		return -1;
 
 	*retNs = NULL;
-	if(xmlStrEqual(nsName, XML_XML_NAMESPACE)) {
+	if(sstreq(nsName, XML_XML_NAMESPACE)) {
 		*retNs = xmlTreeEnsureXMLDecl(doc);
 		if(*retNs == NULL)
-			return (-1);
+			return -1;
 		return 1;
 	}
 	cur = node;
@@ -7878,7 +7871,7 @@ static int xmlSearchNsByNamespaceStrict(xmlDocPtr doc, xmlNodePtr node,
 							if((prevns->prefix == ns->prefix) ||
 							    ((prevns->prefix != NULL) &&
 								    (ns->prefix != NULL) &&
-								    xmlStrEqual(prevns->prefix, ns->prefix))) {
+								    sstreq(prevns->prefix, ns->prefix))) {
 								/*
 								 * Shadowed.
 								 */
@@ -7893,7 +7886,7 @@ static int xmlSearchNsByNamespaceStrict(xmlDocPtr doc, xmlNodePtr node,
 					 * Ns-name comparison.
 					 */
 					if((nsName == ns->href) ||
-					    xmlStrEqual(nsName, ns->href)) {
+					    sstreq(nsName, ns->href)) {
 						/*
 						 * At this point the prefix can only be shadowed,
 						 * if we are the the (at least) 3rd level of
@@ -7904,7 +7897,7 @@ static int xmlSearchNsByNamespaceStrict(xmlDocPtr doc, xmlNodePtr node,
 
 							ret = xmlNsInScope(doc, node, prev, ns->prefix);
 							if(ret < 0)
-								return (-1);
+								return -1;
 							/*
 							 * TODO: Should we try to find a matching ns-name
 							 * only once? This here keeps on searching.
@@ -7960,7 +7953,7 @@ static int xmlSearchNsByPrefixStrict(xmlDocPtr doc, xmlNodePtr node,
 		if(retNs) {
 			*retNs = xmlTreeEnsureXMLDecl(doc);
 			if(*retNs == NULL)
-				return (-1);
+				return -1;
 		}
 		return 1;
 	}
@@ -7971,7 +7964,7 @@ static int xmlSearchNsByPrefixStrict(xmlDocPtr doc, xmlNodePtr node,
 				ns = cur->nsDef;
 				do {
 					if((prefix == ns->prefix) ||
-					    xmlStrEqual(prefix, ns->prefix)) {
+					    sstreq(prefix, ns->prefix)) {
 						/*
 						 * Disabled namespaces, e.g. xmlns:abc="".
 						 */
@@ -8041,7 +8034,7 @@ static xmlNsPtr xmlDOMWrapNSNormDeclareNsForced(xmlDocPtr doc,
 				goto ns_next_prefix;
 		}
 		ret = xmlNewNs(NULL, nsName, pref);
-		if(ret == NULL)
+		if(!ret)
 			return 0;
 		if(elem->nsDef == NULL)
 			elem->nsDef = ret;
@@ -8051,7 +8044,7 @@ static xmlNsPtr xmlDOMWrapNSNormDeclareNsForced(xmlDocPtr doc,
 				ns2 = ns2->next;
 			ns2->next = ret;
 		}
-		return (ret);
+		return ret;
 ns_next_prefix:
 		counter++;
 		if(counter > 1000)
@@ -8100,7 +8093,7 @@ static int xmlDOMWrapNSNormAquireNormalizedNs(xmlDocPtr doc,
 
 	if((doc == NULL) || (ns == NULL) || (retNs == NULL) ||
 	    (nsMap == NULL))
-		return (-1);
+		return -1;
 
 	*retNs = NULL;
 	/*
@@ -8112,7 +8105,7 @@ static int xmlDOMWrapNSNormAquireNormalizedNs(xmlDocPtr doc,
 		 */
 		*retNs = xmlTreeEnsureXMLDecl(doc);
 		if(*retNs == NULL)
-			return (-1);
+			return -1;
 		return 0;
 	}
 	/*
@@ -8142,7 +8135,7 @@ static int xmlDOMWrapNSNormAquireNormalizedNs(xmlDocPtr doc,
 			    ((!prefixed) || (mi->newNs->prefix != NULL)) &&
 			    /* Equal ns name */
 			    ((mi->newNs->href == ns->href) ||
-				    xmlStrEqual(mi->newNs->href, ns->href))) {
+				    sstreq(mi->newNs->href, ns->href))) {
 				/* Set the mapping. */
 				mi->oldNs = ns;
 				*retNs = mi->newNs;
@@ -8161,14 +8154,14 @@ static int xmlDOMWrapNSNormAquireNormalizedNs(xmlDocPtr doc,
 		 */
 		tmpns = xmlDOMWrapStoreNs(doc, ns->href, ns->prefix);
 		if(tmpns == NULL)
-			return (-1);
+			return -1;
 		/*
 		 * Insert mapping.
 		 */
 		if(xmlDOMWrapNsMapAddItem(nsMap, -1, ns,
 			    tmpns, XML_TREE_NSMAP_DOC) == NULL) {
 			xmlFreeNs(tmpns);
-			return (-1);
+			return -1;
 		}
 		*retNs = tmpns;
 	}
@@ -8178,7 +8171,7 @@ static int xmlDOMWrapNSNormAquireNormalizedNs(xmlDocPtr doc,
 		tmpns = xmlDOMWrapNSNormDeclareNsForced(doc, elem, ns->href,
 		    ns->prefix, 0);
 		if(tmpns == NULL)
-			return (-1);
+			return -1;
 
 		if(*nsMap != NULL) {
 			/*
@@ -8188,7 +8181,7 @@ static int xmlDOMWrapNSNormAquireNormalizedNs(xmlDocPtr doc,
 				if((mi->depth < depth) &&
 				    (mi->shadowDepth == -1) &&
 				    ((ns->prefix == mi->newNs->prefix) ||
-					    xmlStrEqual(ns->prefix, mi->newNs->prefix))) {
+					    sstreq(ns->prefix, mi->newNs->prefix))) {
 					/*
 					 * Shadows.
 					 */
@@ -8199,7 +8192,7 @@ static int xmlDOMWrapNSNormAquireNormalizedNs(xmlDocPtr doc,
 		}
 		if(xmlDOMWrapNsMapAddItem(nsMap, -1, ns, tmpns, depth) == NULL) {
 			xmlFreeNs(tmpns);
-			return (-1);
+			return -1;
 		}
 		*retNs = tmpns;
 	}
@@ -8246,7 +8239,7 @@ int xmlDOMWrapReconcileNamespaces(xmlDOMWrapCtxtPtr ctxt ATTRIBUTE_UNUSED,
 
 	if((elem == NULL) || (elem->doc == NULL) ||
 	    (elem->type != XML_ELEMENT_NODE))
-		return (-1);
+		return -1;
 
 	doc = elem->doc;
 	cur = elem;
@@ -8282,9 +8275,9 @@ int xmlDOMWrapReconcileNamespaces(xmlDOMWrapCtxtPtr ctxt ATTRIBUTE_UNUSED,
 							    if((mi->depth >= XML_TREE_NSMAP_PARENT) &&
 							    (mi->shadowDepth == -1) &&
 							    ((ns->prefix == mi->newNs->prefix) ||
-								    xmlStrEqual(ns->prefix, mi->newNs->prefix)) &&
+								    sstreq(ns->prefix, mi->newNs->prefix)) &&
 							    ((ns->href == mi->newNs->href) ||
-								    xmlStrEqual(ns->href, mi->newNs->href))) {
+								    sstreq(ns->href, mi->newNs->href))) {
 								    /*
 								     * A redundant ns-decl was found.
 								     * Add it to the list of redundant ns-decls.
@@ -8318,7 +8311,7 @@ int xmlDOMWrapReconcileNamespaces(xmlDOMWrapCtxtPtr ctxt ATTRIBUTE_UNUSED,
 							    if((mi->depth >= XML_TREE_NSMAP_PARENT) &&
 							    (mi->shadowDepth == -1) &&
 							    ((ns->prefix == mi->newNs->prefix) ||
-								    xmlStrEqual(ns->prefix, mi->newNs->prefix))) {
+								    sstreq(ns->prefix, mi->newNs->prefix))) {
 								    mi->shadowDepth = depth;
 							    }
 						    }
@@ -8451,11 +8444,11 @@ exit:
 		for(i = 0, j = 0; i < nbRedund; i++, j += 2) {
 			xmlFreeNs(listRedund[j]);
 		}
-		free(listRedund);
+		SAlloc::F(listRedund);
 	}
 	if(nsMap != NULL)
 		xmlDOMWrapNsMapFree(nsMap);
-	return (ret);
+	return ret;
 }
 
 /*
@@ -8559,7 +8552,7 @@ static int xmlDOMWrapAdoptBranch(xmlDOMWrapCtxtPtr ctxt,
 			    /*
 			     * TODO
 			     */
-			    return (-1);
+			    return -1;
 			case XML_ELEMENT_NODE:
 			    curElem = cur;
 			    depth++;
@@ -8594,7 +8587,7 @@ static int xmlDOMWrapAdoptBranch(xmlDOMWrapCtxtPtr ctxt,
 							    if((mi->depth >= XML_TREE_NSMAP_PARENT) &&
 							    (mi->shadowDepth == -1) &&
 							    ((ns->prefix == mi->newNs->prefix) ||
-								    xmlStrEqual(ns->prefix,
+								    sstreq(ns->prefix,
 									    mi->newNs->prefix))) {
 								    mi->shadowDepth = depth;
 							    }
@@ -8883,12 +8876,12 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt,
 		/*
 		 * Might be an XIncluded node.
 		 */
-		return (-1);
+		return -1;
 	}
 	if(sourceDoc == NULL)
 		sourceDoc = node->doc;
 	if(sourceDoc == NULL)
-		return (-1);
+		return -1;
 
 	dict = destDoc->dict;
 	/*
@@ -8934,7 +8927,7 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt,
 			    /*
 			     * Nodes of xmlNode structure.
 			     */
-			    clone = (xmlNode *)xmlMalloc(sizeof(xmlNode));
+			    clone = (xmlNode *)SAlloc::M(sizeof(xmlNode));
 			    if(clone == NULL) {
 				    xmlTreeErrMemory("xmlDOMWrapCloneNode(): allocating a node");
 				    goto internal_error;
@@ -8960,7 +8953,7 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt,
 			    /*
 			     * Attributes (xmlAttr).
 			     */
-			    clone = (xmlNode *)xmlMalloc(sizeof(xmlAttr));
+			    clone = (xmlNode *)SAlloc::M(sizeof(xmlAttr));
 			    if(clone == NULL) {
 				    xmlTreeErrMemory("xmlDOMWrapCloneNode(): allocating an attr-node");
 				    goto internal_error;
@@ -9016,7 +9009,7 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt,
 			    /*
 			     * TODO
 			     */
-			    return (-1);
+			    return -1;
 			case XML_ELEMENT_NODE:
 			    curElem = cur;
 			    depth++;
@@ -9042,7 +9035,7 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt,
 					    /*
 					     * Create a new xmlNs.
 					     */
-					    cloneNs = (xmlNsPtr)xmlMalloc(sizeof(xmlNs));
+					    cloneNs = (xmlNsPtr)SAlloc::M(sizeof(xmlNs));
 					    if(cloneNs == NULL) {
 						    xmlTreeErrMemory("xmlDOMWrapCloneNode(): "
 						    "allocating namespace");
@@ -9070,7 +9063,7 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt,
 								    if((mi->depth >= XML_TREE_NSMAP_PARENT) &&
 								    (mi->shadowDepth == -1) &&
 								    ((ns->prefix == mi->newNs->prefix) ||
-									    xmlStrEqual(ns->prefix,
+									    sstreq(ns->prefix,
 										    mi->newNs->prefix))) {
 									    /*
 									     * Mark as shadowed at the current
@@ -9224,10 +9217,10 @@ end_ns_reference:
 				if(idVal != NULL) {
 					if(xmlAddID(NULL, destDoc, idVal, (xmlAttrPtr)cur) == NULL) {
 						/* TODO: error message. */
-						free(idVal);
+						SAlloc::F(idVal);
 						goto internal_error;
 					}
-					free(idVal);
+					SAlloc::F(idVal);
 				}
 			}
 		}
@@ -9347,7 +9340,7 @@ exit:
 	 * fatal error?
 	 */
 	*resNode = resultClone;
-	return (ret);
+	return ret;
 }
 
 /*
@@ -9377,7 +9370,7 @@ static int xmlDOMWrapAdoptAttr(xmlDOMWrapCtxtPtr ctxt,
 	int adoptStr = 1;
 
 	if((attr == NULL) || (destDoc == NULL))
-		return (-1);
+		return -1;
 
 	attr->doc = destDoc;
 	if(attr->ns != NULL) {
@@ -9470,7 +9463,7 @@ next_sibling:
 	}
 	return 0;
 internal_error:
-	return (-1);
+	return -1;
 }
 
 /*
@@ -9514,12 +9507,12 @@ int xmlDOMWrapAdoptNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNodePtr 
 		/*
 		 * Might be an XIncluded node.
 		 */
-		return (-1);
+		return -1;
 	}
 	if(sourceDoc == NULL)
 		sourceDoc = node->doc;
 	if(sourceDoc == destDoc)
-		return (-1);
+		return -1;
 	switch(node->type) {
 		case XML_ELEMENT_NODE:
 		case XML_ATTRIBUTE_NODE:

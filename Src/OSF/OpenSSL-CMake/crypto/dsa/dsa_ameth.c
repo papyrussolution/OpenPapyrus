@@ -325,33 +325,20 @@ static int do_dsa_print(BIO * bp, const DSA * x, int off, int ptype)
 {
 	int ret = 0;
 	const char * ktype = NULL;
-	const BIGNUM * priv_key, * pub_key;
-
-	if(ptype == 2)
-		priv_key = x->priv_key;
-	else
-		priv_key = NULL;
-
-	if(ptype > 0)
-		pub_key = x->pub_key;
-	else
-		pub_key = NULL;
-
+	const BIGNUM * priv_key = (ptype == 2) ? x->priv_key : NULL;
+	const BIGNUM * pub_key = (ptype > 0) ? x->pub_key : NULL;
 	if(ptype == 2)
 		ktype = "Private-Key";
 	else if(ptype == 1)
 		ktype = "Public-Key";
 	else
 		ktype = "DSA-Parameters";
-
 	if(priv_key) {
 		if(!BIO_indent(bp, off, 128))
 			goto err;
-		if(BIO_printf(bp, "%s: (%d bit)\n", ktype, BN_num_bits(x->p))
-		    <= 0)
+		if(BIO_printf(bp, "%s: (%d bit)\n", ktype, BN_num_bits(x->p)) <= 0)
 			goto err;
 	}
-
 	if(!ASN1_bn_print(bp, "priv:", priv_key, NULL, off))
 		goto err;
 	if(!ASN1_bn_print(bp, "pub: ", pub_key, NULL, off))
@@ -364,14 +351,12 @@ static int do_dsa_print(BIO * bp, const DSA * x, int off, int ptype)
 		goto err;
 	ret = 1;
 err:
-	return (ret);
+	return ret;
 }
 
-static int dsa_param_decode(EVP_PKEY * pkey,
-    const uchar ** pder, int derlen)
+static int dsa_param_decode(EVP_PKEY * pkey, const uchar ** pder, int derlen)
 {
 	DSA * dsa;
-
 	if((dsa = d2i_DSAparams(NULL, pder, derlen)) == NULL) {
 		DSAerr(DSA_F_DSA_PARAM_DECODE, ERR_R_DSA_LIB);
 		return 0;
@@ -385,29 +370,24 @@ static int dsa_param_encode(const EVP_PKEY * pkey, uchar ** pder)
 	return i2d_DSAparams(pkey->pkey.dsa, pder);
 }
 
-static int dsa_param_print(BIO * bp, const EVP_PKEY * pkey, int indent,
-    ASN1_PCTX * ctx)
+static int dsa_param_print(BIO * bp, const EVP_PKEY * pkey, int indent, ASN1_PCTX * ctx)
 {
 	return do_dsa_print(bp, pkey->pkey.dsa, indent, 0);
 }
 
-static int dsa_pub_print(BIO * bp, const EVP_PKEY * pkey, int indent,
-    ASN1_PCTX * ctx)
+static int dsa_pub_print(BIO * bp, const EVP_PKEY * pkey, int indent, ASN1_PCTX * ctx)
 {
 	return do_dsa_print(bp, pkey->pkey.dsa, indent, 1);
 }
 
-static int dsa_priv_print(BIO * bp, const EVP_PKEY * pkey, int indent,
-    ASN1_PCTX * ctx)
+static int dsa_priv_print(BIO * bp, const EVP_PKEY * pkey, int indent, ASN1_PCTX * ctx)
 {
 	return do_dsa_print(bp, pkey->pkey.dsa, indent, 2);
 }
 
-static int old_dsa_priv_decode(EVP_PKEY * pkey,
-    const uchar ** pder, int derlen)
+static int old_dsa_priv_decode(EVP_PKEY * pkey, const uchar ** pder, int derlen)
 {
 	DSA * dsa;
-
 	if((dsa = d2i_DSAPrivateKey(NULL, pder, derlen)) == NULL) {
 		DSAerr(DSA_F_OLD_DSA_PRIV_DECODE, ERR_R_DSA_LIB);
 		return 0;
@@ -421,12 +401,10 @@ static int old_dsa_priv_encode(const EVP_PKEY * pkey, uchar ** pder)
 	return i2d_DSAPrivateKey(pkey->pkey.dsa, pder);
 }
 
-static int dsa_sig_print(BIO * bp, const X509_ALGOR * sigalg,
-    const ASN1_STRING * sig, int indent, ASN1_PCTX * pctx)
+static int dsa_sig_print(BIO * bp, const X509_ALGOR * sigalg, const ASN1_STRING * sig, int indent, ASN1_PCTX * pctx)
 {
 	DSA_SIG * dsa_sig;
 	const uchar * p;
-
 	if(!sig) {
 		if(BIO_puts(bp, "\n") <= 0)
 			return 0;
@@ -438,12 +416,9 @@ static int dsa_sig_print(BIO * bp, const X509_ALGOR * sigalg,
 	if(dsa_sig) {
 		int rv = 0;
 		const BIGNUM * r, * s;
-
 		DSA_SIG_get0(dsa_sig, &r, &s);
-
 		if(BIO_write(bp, "\n", 1) != 1)
 			goto err;
-
 		if(!ASN1_bn_print(bp, "r:   ", r, NULL, indent))
 			goto err;
 		if(!ASN1_bn_print(bp, "s:   ", s, NULL, indent))
@@ -495,11 +470,9 @@ static int dsa_pkey_ctrl(EVP_PKEY * pkey, int op, long arg1, void * arg2)
 		    *(int*)arg2 = CMS_RECIPINFO_NONE;
 		    return 1;
 #endif
-
 		case ASN1_PKEY_CTRL_DEFAULT_MD_NID:
 		    *(int*)arg2 = NID_sha256;
 		    return 2;
-
 		default:
 		    return -2;
 	}
@@ -513,25 +486,21 @@ const EVP_PKEY_ASN1_METHOD dsa_asn1_meths[5] = {
 		EVP_PKEY_DSA,
 		ASN1_PKEY_ALIAS
 	},
-
 	{
 		EVP_PKEY_DSA1,
 		EVP_PKEY_DSA,
 		ASN1_PKEY_ALIAS
 	},
-
 	{
 		EVP_PKEY_DSA4,
 		EVP_PKEY_DSA,
 		ASN1_PKEY_ALIAS
 	},
-
 	{
 		EVP_PKEY_DSA3,
 		EVP_PKEY_DSA,
 		ASN1_PKEY_ALIAS
 	},
-
 	{
 		EVP_PKEY_DSA,
 		EVP_PKEY_DSA,

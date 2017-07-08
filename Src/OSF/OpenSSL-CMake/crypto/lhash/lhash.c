@@ -34,7 +34,7 @@ OPENSSL_LHASH * OPENSSL_LH_new(OPENSSL_LH_HASHFUNC h, OPENSSL_LH_COMPFUNC c)
 	ret->pmax = MIN_NODES / 2;
 	ret->up_load = UP_LOAD;
 	ret->down_load = DOWN_LOAD;
-	return (ret);
+	return ret;
 
 err1:
 	OPENSSL_free(ret);
@@ -92,7 +92,7 @@ void * OPENSSL_LH_insert(OPENSSL_LHASH * lh, void * data)
 		(*rn)->data = data;
 		lh->num_replace++;
 	}
-	return (ret);
+	return ret;
 }
 
 void * OPENSSL_LH_delete(OPENSSL_LHASH * lh, const void * data)
@@ -121,7 +121,7 @@ void * OPENSSL_LH_delete(OPENSSL_LHASH * lh, const void * data)
 	    (lh->down_load >= (lh->num_items * LH_LOAD_MULT / lh->num_nodes)))
 		contract(lh);
 
-	return (ret);
+	return ret;
 }
 
 void * OPENSSL_LH_retrieve(OPENSSL_LHASH * lh, const void * data)
@@ -141,7 +141,7 @@ void * OPENSSL_LH_retrieve(OPENSSL_LHASH * lh, const void * data)
 		ret = (*rn)->data;
 		lh->num_retrieve++;
 	}
-	return (ret);
+	return ret;
 }
 
 static void doall_util_fn(OPENSSL_LHASH * lh, int use_arg,
@@ -291,7 +291,7 @@ static OPENSSL_LH_NODE ** getrn(OPENSSL_LHASH * lh,
 			break;
 		ret = &(n1->next);
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -307,7 +307,7 @@ ulong OPENSSL_LH_strhash(const char * c)
 	int r;
 
 	if((c == NULL) || (*c == '\0'))
-		return (ret);
+		return ret;
 /*-
     uchar b[16];
     MD5(c,strlen(c),b);

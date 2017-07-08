@@ -1175,11 +1175,10 @@ int PPDesktop::Advise()
 	return ok;
 }
 
-int PPDesktop::Unadvise()
+void PPDesktop::Unadvise()
 {
 	for(uint i = 0; i < Cookies.getCount(); i++)
 		DS.Unadvise(Cookies.at(i));
-	return 1;
 }
 
 // static

@@ -1568,7 +1568,7 @@ cairo_surface_t * cairo_win32_printing_surface_create(HDC hdc)
 	cairo_surface_t * paginated;
 	RECT rect;
 	cairo_win32_printing_surface_t * surface = (cairo_win32_printing_surface_t *)SAlloc::M(sizeof(cairo_win32_printing_surface_t));
-	if(surface == NULL)
+	if(!surface)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 #if 0
 	if(_cairo_win32_save_initial_clip(hdc, surface) != CAIRO_STATUS_SUCCESS) {

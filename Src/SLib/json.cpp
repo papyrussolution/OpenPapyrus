@@ -768,7 +768,7 @@ char * json_escape(const char * text)
 	// defining the temporary variables
 	length = strlen(text);
 	output = rcs_create(length);
-	if(output == NULL)
+	if(!output)
 		return NULL;
 	for(i = 0; i < length; i++) {
 		if(text[i] == '\\')
@@ -1486,7 +1486,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 					assert(info->cursor->Type == JSON_OBJECT);
 					switch(lexer (buffer, &info->p, &info->lex_state, &info->lex_text)) {
 						case LEX_STRING:
-							if((p_temp = json_new_value (JSON_STRING)) == NULL)
+							if((p_temp = json_new_value(JSON_STRING)) == NULL)
 								return JSON_MEMORY;
 							p_temp->P_Text = rcs_unwrap(info->lex_text), info->lex_text = NULL;
 							if(json_insert_child(info->cursor, p_temp) != JSON_OK) {
@@ -1497,7 +1497,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							info->state = 5; // label, pre label:value separator
 							break;
 						case LEX_END_OBJECT:
-							if(info->cursor->P_Parent == NULL) {
+							if(!info->cursor->P_Parent) {
 								info->state = 99; // finished document. only accept whitespaces until EOF
 							}
 							else {
@@ -1541,7 +1541,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							info->state = 4; /// sibling, post-object 
 							break;
 						case LEX_END_OBJECT:
-							if(info->cursor->P_Parent == NULL)
+							if(!info->cursor->P_Parent)
 								info->state = 99;	/* parse until EOF */
 							else {
 								info->cursor = info->cursor->P_Parent;
@@ -1576,7 +1576,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 					assert(info->cursor->Type == JSON_OBJECT);
 					switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
 						case LEX_STRING:
-							if((p_temp = json_new_value (JSON_STRING)) == NULL)
+							if((p_temp = json_new_value(JSON_STRING)) == NULL)
 								return JSON_MEMORY;
 							p_temp->P_Text = rcs_unwrap(info->lex_text), info->lex_text = NULL;
 							if(json_insert_child(info->cursor, p_temp) != JSON_OK)
@@ -1623,7 +1623,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							if(json_insert_child(info->cursor, p_temp) != JSON_OK) {
 								return JSON_UNKNOWN_PROBLEM; // TODO specify the exact error message
 							}
-							if(info->cursor->P_Parent == NULL)
+							if(!info->cursor->P_Parent)
 								info->state = 99; // finished document. only accepts whitespaces until EOF
 							else
 								info->cursor = info->cursor->P_Parent;
@@ -1637,7 +1637,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							if(json_insert_child(info->cursor, p_temp) != JSON_OK) {
 								return JSON_UNKNOWN_PROBLEM; // TODO specify the exact error message
 							}
-							if(info->cursor->P_Parent == NULL) {
+							if(!info->cursor->P_Parent) {
 								info->state = 99; // finished document. only accepts whitespaces until EOF
 							}
 							else {
@@ -1652,7 +1652,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							if(json_insert_child(info->cursor, p_temp) != JSON_OK) {
 								return JSON_UNKNOWN_PROBLEM; // TODO specify the exact error message
 							}
-							if(info->cursor->P_Parent == NULL)
+							if(!info->cursor->P_Parent)
 								info->state = 99; // finished document. only accepts whitespaces until EOF
 							else
 								info->cursor = info->cursor->P_Parent;
@@ -1660,11 +1660,11 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							info->state = 3; // finished adding a field to an object
 							break;
 						case LEX_FALSE:
-							if((p_temp = json_new_value (JSON_FALSE)) == NULL)
+							if((p_temp = json_new_value(JSON_FALSE)) == NULL)
 								return JSON_MEMORY;
 							if(json_insert_child(info->cursor, p_temp) != JSON_OK)
 								return JSON_UNKNOWN_PROBLEM; // TODO specify the exact error message
-							if(info->cursor->P_Parent == NULL)
+							if(!info->cursor->P_Parent)
 								info->state = 99; // finished document. only accepts whitespaces until EOF
 							else
 								info->cursor = info->cursor->P_Parent;
@@ -1672,13 +1672,13 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							info->state = 3; // finished adding a field to an object
 							break;
 						case LEX_NULL:
-							if((p_temp = json_new_value (JSON_NULL)) == NULL)
+							if((p_temp = json_new_value(JSON_NULL)) == NULL)
 								return JSON_MEMORY;
 							if(json_insert_child(info->cursor, p_temp) != JSON_OK) {
 								/*TODO specify the exact error message */
 								return JSON_UNKNOWN_PROBLEM;
 							}
-							if(info->cursor->P_Parent == NULL)
+							if(!info->cursor->P_Parent)
 								info->state = 99;	/* finished document. only accepts whitespaces until EOF */
 							else
 								info->cursor = info->cursor->P_Parent;
@@ -1725,7 +1725,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 					assert(info->cursor->Type == JSON_ARRAY);
 					switch(lexer (buffer, &info->p, &info->lex_state, &info->lex_text)) {
 					case LEX_STRING:
-						if((p_temp = json_new_value (JSON_STRING)) == NULL)
+						if((p_temp = json_new_value(JSON_STRING)) == NULL)
 							return JSON_MEMORY;
 						p_temp->P_Text = rcs_unwrap(info->lex_text), info->lex_text = NULL;
 						if(json_insert_child(info->cursor, p_temp) != JSON_OK)
@@ -1734,7 +1734,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 						info->state = 9;	/* label, pre label:value separator */
 						break;
 					case LEX_NUMBER:
-						if((p_temp = json_new_value (JSON_NUMBER)) == NULL)
+						if((p_temp = json_new_value(JSON_NUMBER)) == NULL)
 							return JSON_MEMORY;
 						p_temp->P_Text = rcs_unwrap(info->lex_text), info->lex_text = NULL;
 						if(json_insert_child(info->cursor, p_temp) != JSON_OK)
@@ -1743,14 +1743,14 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 						info->state = 9;	/* label, pre label:value separator */
 						break;
 					case LEX_TRUE:
-						if((p_temp = json_new_value (JSON_TRUE)) == NULL)
+						if((p_temp = json_new_value(JSON_TRUE)) == NULL)
 							return JSON_MEMORY;
 						if(json_insert_child(info->cursor, p_temp) != JSON_OK)
 							return JSON_UNKNOWN_PROBLEM;
 						info->state = 9;	/* label, pre label:value separator */
 						break;
 					case LEX_FALSE:
-						if((p_temp = json_new_value (JSON_FALSE)) == NULL)
+						if((p_temp = json_new_value(JSON_FALSE)) == NULL)
 							return JSON_MEMORY;
 						else if(json_insert_child(info->cursor, p_temp) != JSON_OK)
 							return JSON_UNKNOWN_PROBLEM;
@@ -1767,7 +1767,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 						break;
 					case LEX_BEGIN_ARRAY: info->state = 7; break; // open array 
 					case LEX_END_ARRAY:
-						if(info->cursor->P_Parent == NULL) {
+						if(!info->cursor->P_Parent) {
 							/*TODO implement this */
 							info->state = 99;	/* finished document. only accept whitespaces until EOF */
 						}
@@ -1775,7 +1775,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							info->cursor = info->cursor->P_Parent;
 							switch(info->cursor->Type) {
 							case JSON_STRING:
-								if(info->cursor->P_Parent == NULL)
+								if(!info->cursor->P_Parent)
 									return JSON_BAD_TREE_STRUCTURE;
 								else {
 									info->cursor = info->cursor->P_Parent;
@@ -1809,13 +1809,13 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 						info->state = 8;
 						break;
 					case LEX_END_ARRAY:
-						if(info->cursor->P_Parent == NULL)
+						if(!info->cursor->P_Parent)
 							info->state = 99; // finished document. only accept whitespaces until EOF 
 						else {
 							info->cursor = info->cursor->P_Parent;
 							switch(info->cursor->Type) {
 								case JSON_STRING:
-									if(info->cursor->P_Parent == NULL) {
+									if(!info->cursor->P_Parent) {
 										info->state = 99; // finished document. only accept whitespaces until EOF 
 									}
 									else {
@@ -2210,7 +2210,7 @@ state17: // parse number: 0
 		case '\x09':
 		case '\x0A':
 		case '\x0D':	/* JSON insignificant white spaces */
-			if((jsps->temp) == NULL)
+			if(!jsps->temp)
 				return JSON_MEMORY;
 			if(jsf->new_number)
 				jsf->new_number((jsps->temp)->P_Text);
@@ -2218,7 +2218,7 @@ state17: // parse number: 0
 			jsps->state = 0;
 			break;
 		case '}':
-			if((jsps->temp) == NULL)
+			if(!jsps->temp)
 				return JSON_MEMORY;
 			if(jsf->new_number)
 				jsf->new_number((jsps->temp)->P_Text);
@@ -2228,7 +2228,7 @@ state17: // parse number: 0
 			jsps->state = 26;	/* close object/array */
 			break;
 		case ']':
-			if((jsps->temp) == NULL)
+			if(!jsps->temp)
 				return JSON_MEMORY;
 			if(jsf->new_number)
 				jsf->new_number((jsps->temp)->P_Text);
@@ -2238,7 +2238,7 @@ state17: // parse number: 0
 			jsps->state = 26; // close object/array
 			break;
 		case ',':
-			if((jsps->temp) == NULL)
+			if(!jsps->temp)
 				return JSON_MEMORY;
 			if(jsf->new_number)
 				jsf->new_number((jsps->temp)->P_Text);
@@ -2287,7 +2287,7 @@ state19: // parse number: fraccional part
 			case '\x09':
 			case '\x0A':
 			case '\x0D':	/* JSON insignificant white spaces */
-				if((jsps->temp) == NULL)
+				if(!jsps->temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->P_Text);
@@ -2295,7 +2295,7 @@ state19: // parse number: fraccional part
 				jsps->state = 0;
 				break;
 			case '}':
-				if((jsps->temp) == NULL)
+				if(!jsps->temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->P_Text);
@@ -2306,7 +2306,7 @@ state19: // parse number: fraccional part
 				break;
 			case ']':
 				if(jsf->new_number) {
-					if((jsps->temp) == NULL)
+					if(!jsps->temp)
 						return JSON_MEMORY;
 					jsf->new_number((jsps->temp)->P_Text);
 					rcs_free(&jsps->temp);
@@ -2320,7 +2320,7 @@ state19: // parse number: fraccional part
 				jsps->state = 26;	/* close object/array */
 				break;
 			case ',':
-				if((jsps->temp) == NULL)
+				if(!jsps->temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->P_Text);
@@ -2375,7 +2375,7 @@ state21: // parse number: exponent part
 			case '\x09':
 			case '\x0A':
 			case '\x0D':	/* JSON insignificant white spaces */
-				if((jsps->temp) == NULL)
+				if(!jsps->temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->P_Text);
@@ -2383,7 +2383,7 @@ state21: // parse number: exponent part
 				jsps->state = 0;
 				break;
 			case '}':
-				if((jsps->temp) == NULL)
+				if(!jsps->temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->P_Text);
@@ -2394,7 +2394,7 @@ state21: // parse number: exponent part
 				break;
 			case ']':
 				if(jsf->new_number) {
-					if((jsps->temp) == NULL)
+					if(!jsps->temp)
 						return JSON_MEMORY;
 					jsf->new_number((jsps->temp)->P_Text);
 					ZFREE(jsps->temp);
@@ -2408,7 +2408,7 @@ state21: // parse number: exponent part
 				break;
 			case ',':
 				if(jsf->new_number) {
-					if((jsps->temp) == NULL)
+					if(!jsps->temp)
 						return JSON_MEMORY;
 					jsf->new_number((jsps->temp)->P_Text);
 					ZFREE(jsps->temp);
@@ -2500,7 +2500,7 @@ state24: // parse number: decimal part
 			case '\x09':
 			case '\x0A':
 			case '\x0D':	/* JSON insignificant white spaces */
-				if((jsps->temp) == NULL)
+				if(!jsps->temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->P_Text);
@@ -2508,7 +2508,7 @@ state24: // parse number: decimal part
 				jsps->state = 0;
 				break;
 			case '}':
-				if((jsps->temp) == NULL)
+				if(!jsps->temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->P_Text);
@@ -2518,7 +2518,7 @@ state24: // parse number: decimal part
 				jsps->state = 26;	/* close object/array */
 				break;
 			case ']':
-				if((jsps->temp) == NULL)
+				if(!jsps->temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->P_Text);
@@ -2528,7 +2528,7 @@ state24: // parse number: decimal part
 				jsps->state = 26;	/* close object/array */
 				break;
 			case ',':
-				if((jsps->temp) == NULL)
+				if(!jsps->temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->P_Text);

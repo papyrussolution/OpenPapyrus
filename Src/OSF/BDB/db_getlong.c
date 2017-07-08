@@ -28,28 +28,28 @@ int __db_getlong(DB_ENV * dbenv, const char * progname, char * p, long min, long
 	__os_set_errno(0);
 	val = strtol(p, &end, 10);
 	if(oneof2(val, LONG_MIN, LONG_MAX) && __os_get_errno() == ERANGE) {
-		if(dbenv == NULL)
+		if(!dbenv)
 			fprintf(stderr, "%s: %s: %s\n", progname, p, strerror(ERANGE));
 		else
 			dbenv->err(dbenv, ERANGE, "%s", p);
 		return ERANGE;
 	}
 	else if(p[0] == '\0' || (end[0] != '\0' && end[0] != '\n')) {
-		if(dbenv == NULL)
+		if(!dbenv)
 			fprintf(stderr, DB_STR_A("0042", "%s: %s: Invalid numeric argument\n", "%s %s\n"), progname, p);
 		else
 			dbenv->errx(dbenv, DB_STR_A("0043", "%s: Invalid numeric argument", "%s"), p);
 		return EINVAL;
 	}
 	else if(val < min) {
-		if(dbenv == NULL)
+		if(!dbenv)
 			fprintf(stderr, DB_STR_A("0044", "%s: %s: Less than minimum value (%ld)\n", "%s %s %ld\n"), progname, p, min);
 		else
 			dbenv->errx(dbenv, DB_STR_A("0045", "%s: Less than minimum value (%ld)", "%s %ld"), p, min);
 		return ERANGE;
 	}
 	else if(val > max) {
-		if(dbenv == NULL)
+		if(!dbenv)
 			fprintf(stderr, DB_STR_A("0046", "%s: %s: Greater than maximum value (%ld)\n", "%s %s %ld\n"), progname, p, max);
 		else
 			dbenv->errx(dbenv, DB_STR_A("0047", "%s: Greater than maximum value (%ld)", "%s %ld"), p, max);
@@ -74,21 +74,21 @@ int __db_getulong(DB_ENV * dbenv, const char * progname, char * p, ulong min, ul
 	__os_set_errno(0);
 	val = strtoul(p, &end, 10);
 	if(val == ULONG_MAX && __os_get_errno() == ERANGE) {
-		if(dbenv == NULL)
+		if(!dbenv)
 			fprintf(stderr, "%s: %s: %s\n", progname, p, strerror(ERANGE));
 		else
 			dbenv->err(dbenv, ERANGE, "%s", p);
 		return ERANGE;
 	}
 	else if(p[0] == '\0' || (end[0] != '\0' && end[0] != '\n')) {
-		if(dbenv == NULL)
+		if(!dbenv)
 			fprintf(stderr, DB_STR_A("0048", "%s: %s: Invalid numeric argument\n", "%s %s\n"), progname, p);
 		else
 			dbenv->errx(dbenv, DB_STR_A("0049", "%s: Invalid numeric argument", "%s"), p);
 		return EINVAL;
 	}
 	else if(val < min) {
-		if(dbenv == NULL)
+		if(!dbenv)
 			fprintf(stderr, DB_STR_A("0050", "%s: %s: Less than minimum value (%lu)\n", "%s %s %lu\n"), progname, p, min);
 		else
 			dbenv->errx(dbenv, DB_STR_A("0051", "%s: Less than minimum value (%lu)", "%s %lu"), p, min);
@@ -101,7 +101,7 @@ int __db_getulong(DB_ENV * dbenv, const char * progname, char * p, ulong min, ul
 	 * may not exist on all platforms.
 	 */
 	else if(max != 0 && val > max) {
-		if(dbenv == NULL)
+		if(!dbenv)
 			fprintf(stderr, DB_STR_A("0052", "%s: %s: Greater than maximum value (%lu)\n", "%s %s %lu\n"), progname, p, max);
 		else
 			dbenv->errx(dbenv, DB_STR_A("0053", "%s: Greater than maximum value (%lu)", "%s %lu"), p, max);

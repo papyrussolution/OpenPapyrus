@@ -159,7 +159,7 @@ docbDocPtr docbSAXParseDoc(xmlChar * cur ATTRIBUTE_UNUSED,
 		xmlGenericError(0, "docbParseChunk() deprecated function reached\n");
 		deprecated = 1;
 	}
-	return (xmlSAXParseMemoryWithData(sax, (const char*)cur, xmlStrlen((const xmlChar*)cur), 0,  userData));
+	return (xmlSAXParseMemoryWithData(sax, (const char*)cur, sstrlen((const xmlChar*)cur), 0,  userData));
 }
 
 /**

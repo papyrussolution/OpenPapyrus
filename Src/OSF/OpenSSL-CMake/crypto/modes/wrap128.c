@@ -17,9 +17,9 @@
 #include <openssl/modes.h>
 
 /** RFC 3394 section 2.2.3.1 Default Initial Value */
-static const unsigned char default_iv[] = { 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, };
+static const uchar default_iv[] = { 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, };
 /** RFC 5649 section 3 Alternative Initial Value 32-bit constant */
-static const unsigned char default_aiv[] = { 0xA6, 0x59, 0x59, 0xA6 };
+static const uchar default_aiv[] = { 0xA6, 0x59, 0x59, 0xA6 };
 
 /** Input size limit: lower than maximum of standards but far larger than
  *  anything that will be used in practice.
@@ -40,9 +40,9 @@ static const unsigned char default_aiv[] = { 0xA6, 0x59, 0x59, 0xA6 };
  *                     or if inlen > CRYPTO128_WRAP_MAX.
  *                     Output length if wrapping succeeded.
  */
-size_t CRYPTO_128_wrap(void * key, const unsigned char * iv, unsigned char * out, const unsigned char * in, size_t inlen, block128_f block)
+size_t CRYPTO_128_wrap(void * key, const uchar * iv, uchar * out, const uchar * in, size_t inlen, block128_f block)
 {
-	unsigned char * A, B[16], * R;
+	uchar * A, B[16], * R;
 	size_t i, j, t;
 	if((inlen & 0x7) || (inlen < 16) || (inlen > CRYPTO128_WRAP_MAX))
 		return 0;
@@ -56,11 +56,11 @@ size_t CRYPTO_128_wrap(void * key, const unsigned char * iv, unsigned char * out
 		for(i = 0; i < inlen; i += 8, t++, R += 8) {
 			memcpy(B + 8, R, 8);
 			block(B, B, key);
-			A[7] ^= (unsigned char)(t & 0xff);
+			A[7] ^= (uchar)(t & 0xff);
 			if(t > 0xff) {
-				A[6] ^= (unsigned char)((t >> 8) & 0xff);
-				A[5] ^= (unsigned char)((t >> 16) & 0xff);
-				A[4] ^= (unsigned char)((t >> 24) & 0xff);
+				A[6] ^= (uchar)((t >> 8) & 0xff);
+				A[5] ^= (uchar)((t >> 16) & 0xff);
+				A[4] ^= (uchar)((t >> 24) & 0xff);
 			}
 			memcpy(R, B + 8, 8);
 		}
@@ -85,9 +85,9 @@ size_t CRYPTO_128_wrap(void * key, const unsigned char * iv, unsigned char * out
  *                     or if inlen is not a multiple of 8.
  *                     Output length otherwise.
  */
-static size_t crypto_128_unwrap_raw(void * key, unsigned char * iv, unsigned char * out, const unsigned char * in, size_t inlen, block128_f block)
+static size_t crypto_128_unwrap_raw(void * key, uchar * iv, uchar * out, const uchar * in, size_t inlen, block128_f block)
 {
-	unsigned char * A, B[16], * R;
+	uchar * A, B[16], * R;
 	size_t i, j, t;
 	inlen -= 8;
 	if((inlen & 0x7) || (inlen < 16) || (inlen > CRYPTO128_WRAP_MAX))
@@ -99,11 +99,11 @@ static size_t crypto_128_unwrap_raw(void * key, unsigned char * iv, unsigned cha
 	for(j = 0; j < 6; j++) {
 		R = out + inlen - 8;
 		for(i = 0; i < inlen; i += 8, t--, R -= 8) {
-			A[7] ^= (unsigned char)(t & 0xff);
+			A[7] ^= (uchar)(t & 0xff);
 			if(t > 0xff) {
-				A[6] ^= (unsigned char)((t >> 8) & 0xff);
-				A[5] ^= (unsigned char)((t >> 16) & 0xff);
-				A[4] ^= (unsigned char)((t >> 24) & 0xff);
+				A[6] ^= (uchar)((t >> 8) & 0xff);
+				A[5] ^= (uchar)((t >> 16) & 0xff);
+				A[4] ^= (uchar)((t >> 24) & 0xff);
 			}
 			memcpy(B + 8, R, 8);
 			block(B, B, key);
@@ -133,9 +133,9 @@ static size_t crypto_128_unwrap_raw(void * key, unsigned char * iv, unsigned cha
  *                     or if IV doesn't match expected value.
  *                     Output length otherwise.
  */
-size_t CRYPTO_128_unwrap(void * key, const unsigned char * iv, unsigned char * out, const unsigned char * in, size_t inlen, block128_f block)
+size_t CRYPTO_128_unwrap(void * key, const uchar * iv, uchar * out, const uchar * in, size_t inlen, block128_f block)
 {
-	unsigned char got_iv[8];
+	uchar got_iv[8];
 	size_t ret = crypto_128_unwrap_raw(key, got_iv, out, in, inlen, block);
 	if(ret == 0)
 		return 0;
@@ -161,9 +161,9 @@ size_t CRYPTO_128_unwrap(void * key, const unsigned char * iv, unsigned char * o
  *  @return            0 if inlen is out of range [1, CRYPTO128_WRAP_MAX].
  *                     Output length if wrapping succeeded.
  */
-size_t CRYPTO_128_wrap_pad(void * key, const unsigned char * icv,
-    unsigned char * out,
-    const unsigned char * in, size_t inlen,
+size_t CRYPTO_128_wrap_pad(void * key, const uchar * icv,
+    uchar * out,
+    const uchar * in, size_t inlen,
     block128_f block)
 {
 	/* n: number of 64-bit blocks in the padded key data
@@ -176,7 +176,7 @@ size_t CRYPTO_128_wrap_pad(void * key, const unsigned char * icv,
 	const size_t padded_len = blocks_padded * 8;
 	const size_t padding_len = padded_len - inlen;
 	/* RFC 5649 section 3: Alternative Initial Value */
-	unsigned char aiv[8];
+	uchar aiv[8];
 	int ret;
 
 	/* Section 1: use 32-bit fixed field for plaintext octet length */
@@ -229,9 +229,9 @@ size_t CRYPTO_128_wrap_pad(void * key, const unsigned char * icv,
  *                     or if IV and message length indicator doesn't match.
  *                     Output length if unwrapping succeeded and IV matches.
  */
-size_t CRYPTO_128_unwrap_pad(void * key, const unsigned char * icv,
-    unsigned char * out,
-    const unsigned char * in, size_t inlen,
+size_t CRYPTO_128_unwrap_pad(void * key, const uchar * icv,
+    uchar * out,
+    const uchar * in, size_t inlen,
     block128_f block)
 {
 	/* n: number of 64-bit blocks in the padded key data */
@@ -240,8 +240,8 @@ size_t CRYPTO_128_unwrap_pad(void * key, const unsigned char * icv,
 	size_t padding_len;
 	size_t ptext_len;
 	/* RFC 5649 section 3: Alternative Initial Value */
-	unsigned char aiv[8];
-	static unsigned char zeros[8] = { 0x0 };
+	uchar aiv[8];
+	static uchar zeros[8] = { 0x0 };
 	size_t ret;
 
 	/* Section 4.2: Ciphertext length has to be (n+1) 64-bit blocks. */
@@ -287,10 +287,10 @@ size_t CRYPTO_128_unwrap_pad(void * key, const unsigned char * icv,
 	 * LSB(32,AIV).
 	 */
 
-	ptext_len =   ((unsigned int)aiv[4] << 24)
-	    | ((unsigned int)aiv[5] << 16)
-	    | ((unsigned int)aiv[6] <<  8)
-	    |  (unsigned int)aiv[7];
+	ptext_len =   ((uint)aiv[4] << 24)
+	    | ((uint)aiv[5] << 16)
+	    | ((uint)aiv[6] <<  8)
+	    |  (uint)aiv[7];
 	if(8 * (n - 1) >= ptext_len || ptext_len > 8 * n) {
 		OPENSSL_cleanse(out, inlen);
 		return 0;

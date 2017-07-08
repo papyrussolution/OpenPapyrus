@@ -77,7 +77,7 @@ static ulong added_obj_hash(const ADDED_OBJ * ca)
 	}
 	ret &= 0x3fffffffL;
 	ret |= ((ulong)ca->type) << 30L;
-	return (ret);
+	return ret;
 }
 
 static int added_obj_cmp(const ADDED_OBJ * ca, const ADDED_OBJ * cb)
@@ -173,7 +173,7 @@ int OBJ_add_object(const ASN1_OBJECT * obj)
 
 	if(added == NULL)
 		if(!init_added())
-			return (0);
+			return 0;
 	if((o = OBJ_dup(obj)) == NULL)
 		goto err;
 	if((ao[ADDED_NID] = (ADDED_OBJ*)OPENSSL_malloc(sizeof(*ao[0]))) == NULL)
@@ -315,7 +315,7 @@ int OBJ_obj2nid(const ASN1_OBJECT * a)
 	const uint * op;
 	ADDED_OBJ ad, * adp;
 
-	if(a == NULL)
+	if(!a)
 		return (NID_undef);
 	if(a->nid != 0)
 		return (a->nid);
@@ -400,7 +400,7 @@ int OBJ_obj2txt(char * buf, int buf_len, const ASN1_OBJECT * a, int no_name)
 		buf[0] = '\0';
 
 	if((a == NULL) || (a->data == NULL))
-		return (0);
+		return 0;
 
 	if(!no_name && (nid = OBJ_obj2nid(a)) != NID_undef) {
 		const char * s;

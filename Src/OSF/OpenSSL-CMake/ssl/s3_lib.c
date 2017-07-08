@@ -2745,8 +2745,8 @@ const SSL3_ENC_METHOD SSLv3_enc_data = {
 	SSL3_MD_CLIENT_FINISHED_CONST, 4,
 	SSL3_MD_SERVER_FINISHED_CONST, 4,
 	ssl3_alert_code,
-	(int (*)(SSL *, unsigned char *, size_t, const char *,
-		    size_t, const unsigned char *, size_t,
+	(int (*)(SSL *, uchar *, size_t, const char *,
+		    size_t, const uchar *, size_t,
 		    int use_context))ssl_undefined_function,
 	0,
 	SSL3_HM_HEADER_LENGTH,
@@ -2768,7 +2768,7 @@ int ssl3_num_ciphers(void)
 	return (SSL3_NUM_CIPHERS);
 }
 
-const SSL_CIPHER * ssl3_get_cipher(unsigned int u)
+const SSL_CIPHER * ssl3_get_cipher(uint u)
 {
 	if(u < SSL3_NUM_CIPHERS)
 		return (&(ssl3_ciphers[SSL3_NUM_CIPHERS - 1 - u]));
@@ -2778,7 +2778,7 @@ const SSL_CIPHER * ssl3_get_cipher(unsigned int u)
 
 int ssl3_set_handshake_header(SSL * s, int htype, unsigned long len)
 {
-	unsigned char * p = (unsigned char*)s->init_buf->data;
+	uchar * p = (uchar*)s->init_buf->data;
 	*(p++) = htype;
 	l2n3(len, p);
 	s->init_num = (int)len + SSL3_HM_HEADER_LENGTH;
@@ -2807,7 +2807,7 @@ int ssl3_new(SSL * s)
 	s->method->ssl_clear(s);
 	return (1);
 err:
-	return (0);
+	return 0;
 }
 
 void ssl3_free(SSL * s)
@@ -2874,7 +2874,7 @@ static char * srp_password_from_info_cb(SSL * s, void * arg)
 
 #endif
 
-static int ssl3_set_req_cert_type(CERT * c, const unsigned char * p, size_t len);
+static int ssl3_set_req_cert_type(CERT * c, const uchar * p, size_t len);
 
 long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 {
@@ -2903,7 +2903,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 		    EVP_PKEY * pkdh = NULL;
 		    if(dh == NULL) {
 			    SSLerr(SSL_F_SSL3_CTRL, ERR_R_PASSED_NULL_PARAMETER);
-			    return (ret);
+			    return ret;
 		    }
 		    pkdh = ssl_dh_to_pkey(dh);
 		    if(pkdh == NULL) {
@@ -2924,7 +2924,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 		case SSL_CTRL_SET_TMP_DH_CB:
 	    {
 		    SSLerr(SSL_F_SSL3_CTRL, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
-		    return (ret);
+		    return ret;
 	    }
 		case SSL_CTRL_SET_DH_AUTO:
 		    s->cert->dh_tmp_auto = larg;
@@ -3014,12 +3014,12 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 		    break;
 
 		case SSL_CTRL_GET_TLSEXT_STATUS_REQ_OCSP_RESP:
-		    *(unsigned char**)parg = s->tlsext_ocsp_resp;
+		    *(uchar**)parg = s->tlsext_ocsp_resp;
 		    return s->tlsext_ocsp_resplen;
 
 		case SSL_CTRL_SET_TLSEXT_STATUS_REQ_OCSP_RESP:
 		    OPENSSL_free(s->tlsext_ocsp_resp);
-		    s->tlsext_ocsp_resp = (unsigned char*)parg;
+		    s->tlsext_ocsp_resp = (uchar*)parg;
 		    s->tlsext_ocsp_resplen = larg;
 		    ret = 1;
 		    break;
@@ -3091,7 +3091,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 #ifndef OPENSSL_NO_EC
 		case SSL_CTRL_GET_CURVES:
 	    {
-		    unsigned char * clist;
+		    uchar * clist;
 		    size_t clistlen;
 		    if(!s->session)
 			    return 0;
@@ -3100,7 +3100,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 		    if(parg) {
 			    size_t i;
 			    int * cptr = (int*)parg;
-			    unsigned int cid, nid;
+			    uint cid, nid;
 			    for(i = 0; i < clistlen; i++) {
 				    n2s(clist, cid);
 				    nid = tls1_ec_curve_id2nid(cid, NULL);
@@ -3137,7 +3137,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 
 		case SSL_CTRL_GET_CLIENT_CERT_TYPES:
 	    {
-		    const unsigned char ** pctype = (const unsigned char**)parg;
+		    const uchar ** pctype = (const uchar**)parg;
 		    if(s->server || !s->s3->tmp.cert_req)
 			    return 0;
 		    if(s->cert->ctypes) {
@@ -3146,14 +3146,14 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 			    return (int)s->cert->ctype_num;
 		    }
 		    if(pctype)
-			    *pctype = (unsigned char*)s->s3->tmp.ctype;
+			    *pctype = (uchar*)s->s3->tmp.ctype;
 		    return s->s3->tmp.ctype_num;
 	    }
 
 		case SSL_CTRL_SET_CLIENT_CERT_TYPES:
 		    if(!s->server)
 			    return 0;
-		    return ssl3_set_req_cert_type(s->cert, (unsigned char*)parg, larg);
+		    return ssl3_set_req_cert_type(s->cert, (uchar*)parg, larg);
 
 		case SSL_CTRL_BUILD_CERT_CHAIN:
 		    return ssl_build_cert_chain(s, NULL, larg);
@@ -3197,7 +3197,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 		case SSL_CTRL_GET_EC_POINT_FORMATS:
 	    {
 		    SSL_SESSION * sess = s->session;
-		    const unsigned char ** pformat = (const unsigned char**)parg;
+		    const uchar ** pformat = (const uchar**)parg;
 		    if(!sess || !sess->tlsext_ecpointformatlist)
 			    return 0;
 		    *pformat = sess->tlsext_ecpointformatlist;
@@ -3208,7 +3208,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 		default:
 		    break;
 	}
-	return (ret);
+	return ret;
 }
 
 long ssl3_callback_ctrl(SSL * s, int cmd, void (* fp)(void))
@@ -3225,7 +3225,7 @@ long ssl3_callback_ctrl(SSL * s, int cmd, void (* fp)(void))
 #endif
 		case SSL_CTRL_SET_TLSEXT_DEBUG_CB:
 		    s->tlsext_debug_cb = (void (*)(SSL *, int, int,
-			    const unsigned char *, int, void *))fp;
+			    const uchar *, int, void *))fp;
 		    break;
 
 		case SSL_CTRL_SET_NOT_RESUMABLE_SESS_CB:
@@ -3236,7 +3236,7 @@ long ssl3_callback_ctrl(SSL * s, int cmd, void (* fp)(void))
 		default:
 		    break;
 	}
-	return (ret);
+	return ret;
 }
 
 long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
@@ -3272,7 +3272,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		case SSL_CTRL_SET_TMP_DH_CB:
 	    {
 		    SSLerr(SSL_F_SSL3_CTX_CTRL, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
-		    return (0);
+		    return 0;
 	    }
 		case SSL_CTRL_SET_DH_AUTO:
 		    ctx->cert->dh_tmp_auto = larg;
@@ -3308,7 +3308,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		case SSL_CTRL_SET_TLSEXT_TICKET_KEYS:
 		case SSL_CTRL_GET_TLSEXT_TICKET_KEYS:
 	    {
-		    unsigned char * keys = (unsigned char*)parg;
+		    uchar * keys = (uchar*)parg;
 		    long tlsext_tick_keylen = (sizeof(ctx->tlsext_tick_key_name) +
 			    sizeof(ctx->tlsext_tick_hmac_key) +
 			    sizeof(ctx->tlsext_tick_aes_key));
@@ -3413,7 +3413,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		    return tls1_set_sigalgs_list(ctx->cert, (const char*)parg, 1);
 
 		case SSL_CTRL_SET_CLIENT_CERT_TYPES:
-		    return ssl3_set_req_cert_type(ctx->cert, (unsigned char*)parg, larg);
+		    return ssl3_set_req_cert_type(ctx->cert, (uchar*)parg, larg);
 
 		case SSL_CTRL_BUILD_CERT_CHAIN:
 		    return ssl_build_cert_chain(NULL, ctx, larg);
@@ -3473,7 +3473,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		    return ssl_cert_set_current(ctx->cert, larg);
 
 		default:
-		    return (0);
+		    return 0;
 	}
 	return (1);
 }
@@ -3497,8 +3497,8 @@ long ssl3_ctx_callback_ctrl(SSL_CTX * ctx, int cmd, void (* fp)(void))
 		    break;
 
 		case SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB:
-		    ctx->tlsext_ticket_key_cb = (int (*)(SSL *, unsigned char *,
-			    unsigned char *,
+		    ctx->tlsext_ticket_key_cb = (int (*)(SSL *, uchar *,
+			    uchar *,
 			    EVP_CIPHER_CTX *,
 			    HMAC_CTX *, int))fp;
 		    break;
@@ -3525,7 +3525,7 @@ long ssl3_ctx_callback_ctrl(SSL_CTX * ctx, int cmd, void (* fp)(void))
 	    }
 	    break;
 		default:
-		    return (0);
+		    return 0;
 	}
 	return (1);
 }
@@ -3534,7 +3534,7 @@ long ssl3_ctx_callback_ctrl(SSL_CTX * ctx, int cmd, void (* fp)(void))
  * This function needs to check if the ciphers required are actually
  * available
  */
-const SSL_CIPHER * ssl3_get_cipher_by_char(const unsigned char * p)
+const SSL_CIPHER * ssl3_get_cipher_by_char(const uchar * p)
 {
 	SSL_CIPHER c;
 	const SSL_CIPHER * cp;
@@ -3546,16 +3546,16 @@ const SSL_CIPHER * ssl3_get_cipher_by_char(const unsigned char * p)
 	return cp;
 }
 
-int ssl3_put_cipher_by_char(const SSL_CIPHER * c, unsigned char * p)
+int ssl3_put_cipher_by_char(const SSL_CIPHER * c, uchar * p)
 {
 	long l;
 
 	if(p != NULL) {
 		l = c->id;
 		if((l & 0xff000000) != 0x03000000)
-			return (0);
-		p[0] = ((unsigned char)(l >> 8L)) & 0xFF;
-		p[1] = ((unsigned char)(l)) & 0xFF;
+			return 0;
+		p[0] = ((uchar)(l >> 8L)) & 0xFF;
+		p[1] = ((uchar)(l)) & 0xFF;
 	}
 	return (2);
 }
@@ -3668,10 +3668,10 @@ const SSL_CIPHER * ssl3_choose_cipher(SSL * s, STACK_OF(SSL_CIPHER) * clnt, STAC
 			break;
 		}
 	}
-	return (ret);
+	return ret;
 }
 
-int ssl3_get_req_cert_type(SSL * s, unsigned char * p)
+int ssl3_get_req_cert_type(SSL * s, uchar * p)
 {
 	int ret = 0;
 	uint32_t alg_k, alg_a = 0;
@@ -3691,7 +3691,7 @@ int ssl3_get_req_cert_type(SSL * s, unsigned char * p)
 			p[ret++] = TLS_CT_GOST01_SIGN;
 			p[ret++] = TLS_CT_GOST12_SIGN;
 			p[ret++] = TLS_CT_GOST12_512_SIGN;
-			return (ret);
+			return ret;
 		}
 	}
 #endif
@@ -3724,10 +3724,10 @@ int ssl3_get_req_cert_type(SSL * s, unsigned char * p)
 			p[ret++] = TLS_CT_ECDSA_SIGN;
 	}
 #endif
-	return (ret);
+	return ret;
 }
 
-static int ssl3_set_req_cert_type(CERT * c, const unsigned char * p, size_t len)
+static int ssl3_set_req_cert_type(CERT * c, const uchar * p, size_t len)
 {
 	OPENSSL_free(c->ctypes);
 	c->ctypes = NULL;
@@ -3735,7 +3735,7 @@ static int ssl3_set_req_cert_type(CERT * c, const unsigned char * p, size_t len)
 		return 1;
 	if(len > 0xff)
 		return 0;
-	c->ctypes = (unsigned char*)OPENSSL_malloc(len);
+	c->ctypes = (uchar*)OPENSSL_malloc(len);
 	if(c->ctypes == NULL)
 		return 0;
 	memcpy(c->ctypes, p, len);
@@ -3775,7 +3775,7 @@ int ssl3_shutdown(SSL * s)
 			 * have already signalled return 0 upon a previous invocation,
 			 * return WANT_WRITE
 			 */
-			return (ret);
+			return ret;
 		}
 	}
 	else if(!(s->shutdown & SSL_RECEIVED_SHUTDOWN)) {
@@ -3792,7 +3792,7 @@ int ssl3_shutdown(SSL * s)
 	    !s->s3->alert_dispatch)
 		return (1);
 	else
-		return (0);
+		return 0;
 }
 
 int ssl3_write(SSL * s, const void * buf, int len)
@@ -3811,7 +3811,7 @@ static int ssl3_read_internal(SSL * s, void * buf, int len, int peek)
 	if(s->s3->renegotiate)
 		ssl3_renegotiate_check(s);
 	s->s3->in_read_app_data = 1;
-	ret = s->method->ssl_read_bytes(s, SSL3_RT_APPLICATION_DATA, NULL, (unsigned char*)buf, len, peek);
+	ret = s->method->ssl_read_bytes(s, SSL3_RT_APPLICATION_DATA, NULL, (uchar*)buf, len, peek);
 	if((ret == -1) && (s->s3->in_read_app_data == 2)) {
 		/*
 		 * ssl3_read_bytes decided to call s->handshake_func, which called
@@ -3821,13 +3821,13 @@ static int ssl3_read_internal(SSL * s, void * buf, int len, int peek)
 		 * application data again.
 		 */
 		ossl_statem_set_in_handshake(s, 1);
-		ret = s->method->ssl_read_bytes(s, SSL3_RT_APPLICATION_DATA, NULL, (unsigned char*)buf, len, peek);
+		ret = s->method->ssl_read_bytes(s, SSL3_RT_APPLICATION_DATA, NULL, (uchar*)buf, len, peek);
 		ossl_statem_set_in_handshake(s, 0);
 	}
 	else
 		s->s3->in_read_app_data = 0;
 
-	return (ret);
+	return ret;
 }
 
 int ssl3_read(SSL * s, void * buf, int len)
@@ -3846,7 +3846,7 @@ int ssl3_renegotiate(SSL * s)
 		return (1);
 
 	if(s->s3->flags & SSL3_FLAGS_NO_RENEGOTIATE_CIPHERS)
-		return (0);
+		return 0;
 
 	s->s3->renegotiate = 1;
 	return (1);
@@ -3872,7 +3872,7 @@ int ssl3_renegotiate_check(SSL * s)
 			ret = 1;
 		}
 	}
-	return (ret);
+	return ret;
 }
 
 /*
@@ -3902,7 +3902,7 @@ long ssl_get_algorithm2(SSL * s)
  * Fill a ClientRandom or ServerRandom field of length len. Returns <= 0 on
  * failure, 1 on success.
  */
-int ssl_fill_hello_random(SSL * s, int server, unsigned char * result, int len)
+int ssl_fill_hello_random(SSL * s, int server, uchar * result, int len)
 {
 	int send_time = 0;
 
@@ -3914,7 +3914,7 @@ int ssl_fill_hello_random(SSL * s, int server, unsigned char * result, int len)
 		send_time = (s->mode & SSL_MODE_SEND_CLIENTHELLO_TIME) != 0;
 	if(send_time) {
 		unsigned long Time = (unsigned long)time(NULL);
-		unsigned char * p = result;
+		uchar * p = result;
 		l2n(Time, p);
 		return RAND_bytes(p, len - 4);
 	}
@@ -3922,13 +3922,13 @@ int ssl_fill_hello_random(SSL * s, int server, unsigned char * result, int len)
 		return RAND_bytes(result, len);
 }
 
-int ssl_generate_master_secret(SSL * s, unsigned char * pms, size_t pmslen,
+int ssl_generate_master_secret(SSL * s, uchar * pms, size_t pmslen,
     int free_pms)
 {
 	unsigned long alg_k = s->s3->tmp.new_cipher->algorithm_mkey;
 	if(alg_k & SSL_PSK) {
 #ifndef OPENSSL_NO_PSK
-		unsigned char * pskpms, * t;
+		uchar * pskpms, * t;
 		size_t psklen = s->s3->tmp.psklen;
 		size_t pskpmslen;
 
@@ -3939,7 +3939,7 @@ int ssl_generate_master_secret(SSL * s, unsigned char * pms, size_t pmslen,
 			pmslen = psklen;
 
 		pskpmslen = 4 + pmslen + psklen;
-		pskpms = (unsigned char*)OPENSSL_malloc(pskpmslen);
+		pskpms = (uchar*)OPENSSL_malloc(pskpmslen);
 		if(pskpms == NULL) {
 			s->session->master_key_length = 0;
 			goto err;
@@ -4012,7 +4012,7 @@ EVP_PKEY * ssl_generate_pkey_curve(int id)
 {
 	EVP_PKEY_CTX * pctx = NULL;
 	EVP_PKEY * pkey = NULL;
-	unsigned int curve_flags;
+	uint curve_flags;
 	int nid = tls1_ec_curve_id2nid(id, &curve_flags);
 	if(nid == 0)
 		goto err;
@@ -4045,7 +4045,7 @@ err:
 int ssl_derive(SSL * s, EVP_PKEY * privkey, EVP_PKEY * pubkey)
 {
 	int rv = 0;
-	unsigned char * pms = NULL;
+	uchar * pms = NULL;
 	size_t pmslen = 0;
 	EVP_PKEY_CTX * pctx;
 	if(privkey == NULL || pubkey == NULL)
@@ -4056,7 +4056,7 @@ int ssl_derive(SSL * s, EVP_PKEY * privkey, EVP_PKEY * pubkey)
 	    || EVP_PKEY_derive(pctx, NULL, &pmslen) <= 0) {
 		goto err;
 	}
-	pms = (unsigned char*)OPENSSL_malloc(pmslen);
+	pms = (uchar*)OPENSSL_malloc(pmslen);
 	if(pms == NULL)
 		goto err;
 	if(EVP_PKEY_derive(pctx, pms, &pmslen) <= 0)

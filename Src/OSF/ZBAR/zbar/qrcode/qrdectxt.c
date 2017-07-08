@@ -233,7 +233,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 								    size_t plen;
 								    char c;
 								    p = memchr(in, '%', inleft*sizeof(*in));
-								    if(p == NULL) 
+								    if(!p) 
 										break;
 								    plen = p-in;
 								    if(sa_ctext-sa_ntext<plen+1) 

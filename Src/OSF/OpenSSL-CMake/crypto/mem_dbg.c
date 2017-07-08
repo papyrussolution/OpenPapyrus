@@ -178,7 +178,7 @@ int CRYPTO_mem_ctrl(int mode)
 		    break;
 	}
 	CRYPTO_THREAD_unlock(malloc_lock);
-	return (ret);
+	return ret;
 #endif
 }
 
@@ -201,7 +201,7 @@ static int mem_check_on(void)
 
 		CRYPTO_THREAD_unlock(malloc_lock);
 	}
-	return (ret);
+	return ret;
 }
 
 static int mem_cmp(const MEM * a, const MEM * b)
@@ -226,7 +226,7 @@ static ulong mem_hash(const MEM * a)
 	ret = (size_t)a->addr;
 
 	ret = ret * 17851 + (ret >> 14) * 7 + (ret >> 4) * 251;
-	return (ret);
+	return ret;
 }
 
 /* returns 1 if there was an info to pop, 0 if the stack was empty. */
@@ -285,7 +285,7 @@ int CRYPTO_mem_debug_push(const char * info, const char * file, int line)
 err:
 		CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_ENABLE);
 	}
-	return (ret);
+	return ret;
 }
 
 int CRYPTO_mem_debug_pop(void)
@@ -296,7 +296,7 @@ int CRYPTO_mem_debug_pop(void)
 		ret = pop_info();
 		CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_ENABLE);
 	}
-	return (ret);
+	return ret;
 }
 
 static ulong break_order_num = 0;

@@ -15,8 +15,8 @@ int i2a_ASN1_INTEGER(BIO * bp, const ASN1_INTEGER * a)
 	int i, n = 0;
 	static const char * h = "0123456789ABCDEF";
 	char buf[2];
-	if(a == NULL)
-		return (0);
+	if(!a)
+		return 0;
 	if(a->type & V_ASN1_NEG) {
 		if(BIO_write(bp, "-", 1) != 1)
 			goto err;

@@ -76,7 +76,7 @@ int X509_load_cert_file(X509_LOOKUP * ctx, const char * file, int type)
 	if(type == X509_FILETYPE_PEM) {
 		for(;; ) {
 			x = PEM_read_bio_X509_AUX(in, 0, 0, 0);
-			if(x == NULL) {
+			if(!x) {
 				if((ERR_GET_REASON(ERR_peek_last_error()) == PEM_R_NO_START_LINE) && (count > 0)) {
 					ERR_clear_error();
 					break;
@@ -97,7 +97,7 @@ int X509_load_cert_file(X509_LOOKUP * ctx, const char * file, int type)
 	}
 	else if(type == X509_FILETYPE_ASN1) {
 		x = d2i_X509_bio(in, NULL);
-		if(x == NULL) {
+		if(!x) {
 			X509err(X509_F_X509_LOAD_CERT_FILE, ERR_R_ASN1_LIB);
 			goto err;
 		}
@@ -113,7 +113,7 @@ int X509_load_cert_file(X509_LOOKUP * ctx, const char * file, int type)
 err:
 	X509_free(x);
 	BIO_free(in);
-	return (ret);
+	return ret;
 }
 
 int X509_load_crl_file(X509_LOOKUP * ctx, const char * file, int type)
@@ -132,7 +132,7 @@ int X509_load_crl_file(X509_LOOKUP * ctx, const char * file, int type)
 	if(type == X509_FILETYPE_PEM) {
 		for(;; ) {
 			x = PEM_read_bio_X509_CRL(in, 0, 0, 0);
-			if(x == NULL) {
+			if(!x) {
 				if((ERR_GET_REASON(ERR_peek_last_error()) == PEM_R_NO_START_LINE) && (count > 0)) {
 					ERR_clear_error();
 					break;
@@ -153,7 +153,7 @@ int X509_load_crl_file(X509_LOOKUP * ctx, const char * file, int type)
 	}
 	else if(type == X509_FILETYPE_ASN1) {
 		x = d2i_X509_CRL_bio(in, NULL);
-		if(x == NULL) {
+		if(!x) {
 			X509err(X509_F_X509_LOAD_CRL_FILE, ERR_R_ASN1_LIB);
 			goto err;
 		}
@@ -169,7 +169,7 @@ int X509_load_crl_file(X509_LOOKUP * ctx, const char * file, int type)
 err:
 	X509_CRL_free(x);
 	BIO_free(in);
-	return (ret);
+	return ret;
 }
 
 int X509_load_cert_crl_file(X509_LOOKUP * ctx, const char * file, int type)

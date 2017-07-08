@@ -18,7 +18,7 @@ int asn1_utctime_to_tm(struct tm * tm, const ASN1_UTCTIME * d)
 	int n, i, l, o;
 
 	if(d->type != V_ASN1_UTCTIME)
-		return (0);
+		return 0;
 	l = d->length;
 	a = (char*)d->data;
 	o = 0;
@@ -123,7 +123,7 @@ int ASN1_UTCTIME_set_string(ASN1_UTCTIME * s, const char * str)
 		return (1);
 	}
 	else
-		return (0);
+		return 0;
 }
 
 ASN1_UTCTIME * ASN1_UTCTIME_set(ASN1_UTCTIME * s, time_t t)
@@ -164,7 +164,7 @@ ASN1_UTCTIME * ASN1_UTCTIME_adj(ASN1_UTCTIME * s, time_t t,
 	p = (char*)s->data;
 	if((p == NULL) || ((size_t)s->length < len)) {
 		p = (char*)OPENSSL_malloc(len);
-		if(p == NULL) {
+		if(!p) {
 			ASN1err(ASN1_F_ASN1_UTCTIME_ADJ, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
@@ -246,11 +246,11 @@ int ASN1_UTCTIME_print(BIO * bp, const ASN1_UTCTIME * tm)
 	if(BIO_printf(bp, "%s %2d %02d:%02d:%02d %d%s",
 		    _asn1_mon[M - 1], d, h, m, s, y + 1900,
 		    (gmt) ? " GMT" : "") <= 0)
-		return (0);
+		return 0;
 	else
 		return (1);
 err:
 	BIO_write(bp, "Bad time value", 14);
-	return (0);
+	return 0;
 }
 

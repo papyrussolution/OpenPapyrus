@@ -10,14 +10,13 @@
 #define __XML_LIBXML_H__
 
 #ifndef NO_LARGEFILE_SOURCE
-#ifndef _LARGEFILE_SOURCE
-#define _LARGEFILE_SOURCE
+	#ifndef _LARGEFILE_SOURCE
+		#define _LARGEFILE_SOURCE
+	#endif
+	#ifndef _FILE_OFFSET_BITS
+		#define _FILE_OFFSET_BITS 64
+	#endif
 #endif
-#ifndef _FILE_OFFSET_BITS
-#define _FILE_OFFSET_BITS 64
-#endif
-#endif
-
 #include <slib.h> // @sobolev
 #if defined(macintosh)
 	#include "config-mac.h"
@@ -90,11 +89,11 @@ int __xmlInitializeDict(void);
 int xmlNop(void);
 #ifdef IN_LIBXML
 // @sobolev {
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <limits.h>
+//#include <string.h>
+//#include <stdlib.h>
+//#include <stdio.h>
+//#include <stdarg.h>
+//#include <limits.h>
 #ifdef HAVE_CTYPE_H
 	#include <ctype.h>
 #endif
@@ -120,7 +119,6 @@ int xmlNop(void);
 #include <libxml/hash.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlIO.h>
-#include <libxml/tree.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -155,8 +153,8 @@ int xmlBufErase(xmlBufPtr buf, size_t len);
 // const xmlChar * xmlBufEnd(xmlBufPtr buf); 
 xmlChar * xmlBufDetach(xmlBufPtr buf);
 size_t xmlBufDump(FILE * file, xmlBufPtr buf);
-xmlBufPtr xmlBufFromBuffer(xmlBufferPtr buffer);
-xmlBufferPtr xmlBufBackToBuffer(xmlBufPtr buf);
+xmlBuf * xmlBufFromBuffer(xmlBuffer * buffer);
+xmlBuffer * xmlBufBackToBuffer(xmlBuf * buf);
 int xmlBufMergeBuffer(xmlBufPtr buf, xmlBufferPtr buffer);
 int xmlBufResetInput(xmlBufPtr buf, xmlParserInputPtr input);
 size_t xmlBufGetInputBase(xmlBufPtr buf, xmlParserInputPtr input);

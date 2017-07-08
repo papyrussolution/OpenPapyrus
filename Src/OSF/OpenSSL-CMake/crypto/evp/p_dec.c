@@ -24,5 +24,5 @@ int EVP_PKEY_decrypt_old(uchar * key, const uchar * ek, int ekl, EVP_PKEY * priv
 	ret = RSA_private_decrypt(ekl, ek, key, EVP_PKEY_get0_RSA(priv), RSA_PKCS1_PADDING);
 err:
 #endif
-	return (ret);
+	return ret;
 }

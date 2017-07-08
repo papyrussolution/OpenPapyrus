@@ -14,11 +14,11 @@ int RSA_padding_add_none(uchar * to, int tlen, const uchar * from, int flen)
 {
 	if(flen > tlen) {
 		RSAerr(RSA_F_RSA_PADDING_ADD_NONE, RSA_R_DATA_TOO_LARGE_FOR_KEY_SIZE);
-		return (0);
+		return 0;
 	}
 	if(flen < tlen) {
 		RSAerr(RSA_F_RSA_PADDING_ADD_NONE, RSA_R_DATA_TOO_SMALL_FOR_KEY_SIZE);
-		return (0);
+		return 0;
 	}
 	memcpy(to, from, (uint)flen);
 	return (1);

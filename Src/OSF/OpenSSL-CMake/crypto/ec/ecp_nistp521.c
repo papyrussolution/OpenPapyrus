@@ -1472,7 +1472,7 @@ static const felem gmul[16][3] = {
  * copies it to out.
  */
 /* pre_comp below is of the size provided in |size| */
-static void select_point(const limb idx, unsigned int size,
+static void select_point(const limb idx, uint size,
     const felem pre_comp[][3], felem out[3])
 {
 	unsigned i, j;
@@ -1664,7 +1664,7 @@ static NISTP521_PRE_COMP * nistp521_pre_comp_new()
 {
 	NISTP521_PRE_COMP * ret = OPENSSL_zalloc(sizeof(*ret));
 
-	if(ret == NULL) {
+	if(!ret) {
 		ECerr(EC_F_NISTP521_PRE_COMP_NEW, ERR_R_MALLOC_FAILURE);
 		return ret;
 	}
@@ -1692,7 +1692,7 @@ void EC_nistp521_pre_comp_free(NISTP521_PRE_COMP * p)
 {
 	int i;
 
-	if(p == NULL)
+	if(!p)
 		return;
 
 	CRYPTO_atomic_add(&p->references, -1, &i, p->lock);
@@ -1726,7 +1726,7 @@ int ec_GFp_nistp521_group_set_curve(EC_GROUP * group, const BIGNUM * p,
 	BN_CTX * new_ctx = NULL;
 	BIGNUM * curve_p, * curve_a, * curve_b;
 
-	if(ctx == NULL)
+	if(!ctx)
 		if((ctx = new_ctx = BN_CTX_new()) == NULL)
 			return 0;
 	BN_CTX_start(ctx);
@@ -1858,7 +1858,7 @@ int ec_GFp_nistp521_points_mul(const EC_GROUP * group, EC_POINT * r,
 	const EC_POINT * p = NULL;
 	const BIGNUM * p_scalar = NULL;
 
-	if(ctx == NULL)
+	if(!ctx)
 		if((ctx = new_ctx = BN_CTX_new()) == NULL)
 			return 0;
 	BN_CTX_start(ctx);
@@ -2048,7 +2048,7 @@ int ec_GFp_nistp521_precompute_mult(EC_GROUP * group, BN_CTX * ctx)
 
 	/* throw away old precomputation */
 	EC_pre_comp_free(group);
-	if(ctx == NULL)
+	if(!ctx)
 		if((ctx = new_ctx = BN_CTX_new()) == NULL)
 			return 0;
 	BN_CTX_start(ctx);

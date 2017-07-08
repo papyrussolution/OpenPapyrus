@@ -195,10 +195,10 @@ static int _zip_mkstemp(char * path)
 		if(*trv == '/') {
 			*trv = '\0';
 			if(stat(path, &sbuf))
-				return (0);
+				return 0;
 			if(!S_ISDIR(sbuf.st_mode)) {
 				errno = ENOTDIR;
-				return (0);
+				return 0;
 			}
 			*trv = '/';
 			break;
@@ -208,11 +208,11 @@ static int _zip_mkstemp(char * path)
 		if((fd = open(path, O_CREAT|O_EXCL|O_RDWR|O_BINARY, 0600)) >= 0)
 			return (fd);
 		if(errno != EEXIST)
-			return (0);
+			return 0;
 		// tricky little algorithm for backward compatibility 
 		for(trv = start;; ) {
 			if(!*trv)
-				return (0);
+				return 0;
 			if(*trv == 'z')
 				*trv++ = 'a';
 			else {

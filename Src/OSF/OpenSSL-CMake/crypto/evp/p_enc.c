@@ -24,5 +24,5 @@ int EVP_PKEY_encrypt_old(uchar * ek, const uchar * key, int key_len, EVP_PKEY * 
 	ret = RSA_public_encrypt(key_len, key, ek, EVP_PKEY_get0_RSA(pubk), RSA_PKCS1_PADDING);
 err:
 #endif
-	return (ret);
+	return ret;
 }

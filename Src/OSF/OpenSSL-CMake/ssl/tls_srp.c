@@ -18,7 +18,7 @@
 
 int SSL_CTX_SRP_CTX_free(struct ssl_ctx_st * ctx)
 {
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 	OPENSSL_free(ctx->srp_ctx.login);
 	BN_free(ctx->srp_ctx.N);
@@ -146,12 +146,12 @@ err:
 	BN_free(s->srp_ctx.a);
 	BN_free(s->srp_ctx.b);
 	BN_free(s->srp_ctx.v);
-	return (0);
+	return 0;
 }
 
 int SSL_CTX_SRP_CTX_init(struct ssl_ctx_st * ctx)
 {
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 
 	ctx->srp_ctx.SRP_cb_arg = NULL;
@@ -181,7 +181,7 @@ int SSL_CTX_SRP_CTX_init(struct ssl_ctx_st * ctx)
 /* server side */
 int SSL_srp_server_param_with_username(SSL * s, int * ad)
 {
-	unsigned char b[SSL_MAX_MASTER_KEY_LENGTH];
+	uchar b[SSL_MAX_MASTER_KEY_LENGTH];
 	int al;
 
 	*ad = SSL_AD_UNKNOWN_PSK_IDENTITY;
@@ -289,7 +289,7 @@ int srp_generate_server_master_secret(SSL * s)
 {
 	BIGNUM * K = NULL, * u = NULL;
 	int ret = -1, tmp_len = 0;
-	unsigned char * tmp = NULL;
+	uchar * tmp = NULL;
 
 	if(!SRP_Verify_A_mod_N(s->srp_ctx.A, s->srp_ctx.N))
 		goto err;
@@ -300,7 +300,7 @@ int srp_generate_server_master_secret(SSL * s)
 		goto err;
 
 	tmp_len = BN_num_bytes(K);
-	if((tmp = (unsigned char*)OPENSSL_malloc(tmp_len)) == NULL)
+	if((tmp = (uchar*)OPENSSL_malloc(tmp_len)) == NULL)
 		goto err;
 	BN_bn2bin(K, tmp);
 	ret = ssl_generate_master_secret(s, tmp, tmp_len, 1);
@@ -316,7 +316,7 @@ int srp_generate_client_master_secret(SSL * s)
 	BIGNUM * x = NULL, * u = NULL, * K = NULL;
 	int ret = -1, tmp_len = 0;
 	char * passwd = NULL;
-	unsigned char * tmp = NULL;
+	uchar * tmp = NULL;
 
 	/*
 	 * Checks if b % n == 0
@@ -338,7 +338,7 @@ int srp_generate_client_master_secret(SSL * s)
 		goto err;
 
 	tmp_len = BN_num_bytes(K);
-	if((tmp = (unsigned char*)OPENSSL_malloc(tmp_len)) == NULL)
+	if((tmp = (uchar*)OPENSSL_malloc(tmp_len)) == NULL)
 		goto err;
 	BN_bn2bin(K, tmp);
 	ret = ssl_generate_master_secret(s, tmp, tmp_len, 1);
@@ -385,7 +385,7 @@ int srp_verify_server_param(SSL * s, int * al)
 
 int SRP_Calc_A_param(SSL * s)
 {
-	unsigned char rnd[SSL_MAX_MASTER_KEY_LENGTH];
+	uchar rnd[SSL_MAX_MASTER_KEY_LENGTH];
 
 	if(RAND_bytes(rnd, sizeof(rnd)) <= 0)
 		return 0;

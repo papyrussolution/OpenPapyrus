@@ -64,7 +64,7 @@ BIO_ADDR * BIO_ADDR_new(void)
 {
 	BIO_ADDR * ret = (BIO_ADDR*)OPENSSL_zalloc(sizeof(*ret));
 
-	if(ret == NULL) {
+	if(!ret) {
 		BIOerr(BIO_F_BIO_ADDR_NEW, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}

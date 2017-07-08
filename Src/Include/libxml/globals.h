@@ -123,9 +123,9 @@ struct _xmlGlobalState {
 	xmlSAXHandlerV1 docbDefaultSAXHandler;
 	xmlSAXHandlerV1 htmlDefaultSAXHandler;
 	xmlFreeFunc xmlFree_; // @sobolev xmlFree-->xmlFree_
-	xmlMallocFunc xmlMalloc;
+	//xmlMallocFunc xmlMalloc_;
 	xmlStrdupFunc xmlMemStrdup;
-	xmlReallocFunc xmlRealloc;
+	//xmlReallocFunc xmlRealloc_;
 	xmlGenericErrorFunc xmlGenericError;
 	xmlStructuredErrorFunc xmlStructuredError;
 	void *xmlGenericErrorContext;
@@ -145,7 +145,7 @@ struct _xmlGlobalState {
 	const char *xmlTreeIndentString;
 	xmlRegisterNodeFunc xmlRegisterNodeDefaultValue;
 	xmlDeregisterNodeFunc xmlDeregisterNodeDefaultValue;
-	xmlMallocFunc xmlMallocAtomic;
+	//xmlMallocFunc xmlMallocAtomic_;
 	xmlError xmlLastError;
 	xmlParserInputBufferCreateFilenameFunc xmlParserInputBufferCreateFilenameValue;
 	xmlOutputBufferCreateFilenameFunc xmlOutputBufferCreateFilenameValue;
@@ -183,15 +183,15 @@ XMLPUBFUN xmlParserInputBufferCreateFilenameFunc XMLCALL xmlThrDefParserInputBuf
 #ifdef LIBXML_THREAD_ALLOC_ENABLED
 	#ifdef LIBXML_THREAD_ENABLED
 		XMLPUBFUN  xmlMallocFunc * XMLCALL __xmlMalloc();
-		#define xmlMalloc (*(__xmlMalloc()))
+		//#define xmlMalloc_(*(__xmlMalloc()))
 	#else
-		XMLPUBVAR xmlMallocFunc xmlMalloc;
+		//XMLPUBVAR xmlMallocFunc xmlMalloc_;
 	#endif
 	#ifdef LIBXML_THREAD_ENABLED
 		XMLPUBFUN  xmlMallocFunc * XMLCALL __xmlMallocAtomic();
-		#define xmlMallocAtomic (*(__xmlMallocAtomic()))
+		//#define xmlMallocAtomic_(*(__xmlMallocAtomic()))
 	#else
-		XMLPUBVAR xmlMallocFunc xmlMallocAtomic;
+		//XMLPUBVAR xmlMallocFunc xmlMallocAtomic_;
 	#endif
 	#ifdef LIBXML_THREAD_ENABLED
 		XMLPUBFUN  xmlReallocFunc * XMLCALL __xmlRealloc();
@@ -201,9 +201,9 @@ XMLPUBFUN xmlParserInputBufferCreateFilenameFunc XMLCALL xmlThrDefParserInputBuf
 	#endif
 	#ifdef LIBXML_THREAD_ENABLED
 		XMLPUBFUN  xmlFreeFunc * XMLCALL __xmlFree();
-		// @sobolev #define xmlFree (*(__xmlFree()))
+		// @sobolev #define xmlFree_ (*(__xmlFree()))
 	#else
-		// @sobolev XMLPUBVAR xmlFreeFunc xmlFree;
+		// @sobolev XMLPUBVAR xmlFreeFunc xmlFree_;
 	#endif
 	#ifdef LIBXML_THREAD_ENABLED
 		XMLPUBFUN  xmlStrdupFunc * XMLCALL __xmlMemStrdup();
@@ -212,10 +212,10 @@ XMLPUBFUN xmlParserInputBufferCreateFilenameFunc XMLCALL xmlThrDefParserInputBuf
 		XMLPUBVAR xmlStrdupFunc xmlMemStrdup;
 	#endif
 #else /* !LIBXML_THREAD_ALLOC_ENABLED */
-	XMLPUBVAR xmlMallocFunc xmlMalloc;
-	XMLPUBVAR xmlMallocFunc xmlMallocAtomic;
-	XMLPUBVAR xmlReallocFunc xmlRealloc;
-	// @sobolev XMLPUBVAR xmlFreeFunc xmlFree;
+	//XMLPUBVAR xmlMallocFunc xmlMalloc_;
+	//XMLPUBVAR xmlMallocFunc xmlMallocAtomic_;
+	//XMLPUBVAR xmlReallocFunc xmlRealloc_;
+	// @sobolev XMLPUBVAR xmlFreeFunc xmlFree_;
 	XMLPUBVAR xmlStrdupFunc xmlMemStrdup;
 #endif /* LIBXML_THREAD_ALLOC_ENABLED */
 #ifdef LIBXML_DOCB_ENABLED

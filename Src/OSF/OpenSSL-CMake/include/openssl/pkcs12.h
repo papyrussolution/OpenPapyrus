@@ -101,7 +101,7 @@ PKCS12_SAFEBAG *PKCS12_SAFEBAG_create0_pkcs8(X509_SIG *p8);
 PKCS12_SAFEBAG *PKCS12_SAFEBAG_create_pkcs8_encrypt(int pbe_nid,
                                                     const char *pass,
                                                     int passlen,
-                                                    unsigned char *salt,
+                                                    uchar *salt,
                                                     int saltlen, int iter,
                                                     PKCS8_PRIV_KEY_INFO *p8inf);
 
@@ -112,14 +112,14 @@ PKCS8_PRIV_KEY_INFO *PKCS8_decrypt(const X509_SIG *p8, const char *pass,
 PKCS8_PRIV_KEY_INFO *PKCS12_decrypt_skey(const PKCS12_SAFEBAG *bag,
                                          const char *pass, int passlen);
 X509_SIG *PKCS8_encrypt(int pbe_nid, const EVP_CIPHER *cipher,
-                        const char *pass, int passlen, unsigned char *salt,
+                        const char *pass, int passlen, uchar *salt,
                         int saltlen, int iter, PKCS8_PRIV_KEY_INFO *p8);
 X509_SIG *PKCS8_set0_pbe(const char *pass, int passlen,
                         PKCS8_PRIV_KEY_INFO *p8inf, X509_ALGOR *pbe);
 PKCS7 *PKCS12_pack_p7data(STACK_OF(PKCS12_SAFEBAG) *sk);
 STACK_OF(PKCS12_SAFEBAG) *PKCS12_unpack_p7data(PKCS7 *p7);
 PKCS7 *PKCS12_pack_p7encdata(int pbe_nid, const char *pass, int passlen,
-                             unsigned char *salt, int saltlen, int iter,
+                             uchar *salt, int saltlen, int iter,
                              STACK_OF(PKCS12_SAFEBAG) *bags);
 STACK_OF(PKCS12_SAFEBAG) *PKCS12_unpack_p7encdata(PKCS7 *p7, const char *pass,
                                                   int passlen);
@@ -127,7 +127,7 @@ STACK_OF(PKCS12_SAFEBAG) *PKCS12_unpack_p7encdata(PKCS7 *p7, const char *pass,
 int PKCS12_pack_authsafes(PKCS12 *p12, STACK_OF(PKCS7) *safes);
 STACK_OF(PKCS7) *PKCS12_unpack_authsafes(const PKCS12 *p12);
 
-int PKCS12_add_localkeyid(PKCS12_SAFEBAG *bag, unsigned char *name,
+int PKCS12_add_localkeyid(PKCS12_SAFEBAG *bag, uchar *name,
                           int namelen);
 int PKCS12_add_friendlyname_asc(PKCS12_SAFEBAG *bag, const char *name,
                                 int namelen);
@@ -136,17 +136,17 @@ int PKCS12_add_friendlyname_utf8(PKCS12_SAFEBAG *bag, const char *name,
 int PKCS12_add_CSPName_asc(PKCS12_SAFEBAG *bag, const char *name,
                            int namelen);
 int PKCS12_add_friendlyname_uni(PKCS12_SAFEBAG *bag,
-                                const unsigned char *name, int namelen);
+                                const uchar *name, int namelen);
 int PKCS8_add_keyusage(PKCS8_PRIV_KEY_INFO *p8, int usage);
 ASN1_TYPE *PKCS12_get_attr_gen(const STACK_OF(X509_ATTRIBUTE) *attrs,
                                int attr_nid);
 char *PKCS12_get_friendlyname(PKCS12_SAFEBAG *bag);
 const STACK_OF(X509_ATTRIBUTE) *
 PKCS12_SAFEBAG_get0_attrs(const PKCS12_SAFEBAG *bag);
-unsigned char *PKCS12_pbe_crypt(const X509_ALGOR *algor,
+uchar *PKCS12_pbe_crypt(const X509_ALGOR *algor,
                                 const char *pass, int passlen,
-                                const unsigned char *in, int inlen,
-                                unsigned char **data, int *datalen,
+                                const uchar *in, int inlen,
+                                uchar **data, int *datalen,
                                 int en_de);
 void *PKCS12_item_decrypt_d2i(const X509_ALGOR *algor, const ASN1_ITEM *it,
                               const char *pass, int passlen,
@@ -156,32 +156,32 @@ ASN1_OCTET_STRING *PKCS12_item_i2d_encrypt(X509_ALGOR *algor,
                                            const char *pass, int passlen,
                                            void *obj, int zbuf);
 PKCS12 *PKCS12_init(int mode);
-int PKCS12_key_gen_asc(const char *pass, int passlen, unsigned char *salt,
+int PKCS12_key_gen_asc(const char *pass, int passlen, uchar *salt,
                        int saltlen, int id, int iter, int n,
-                       unsigned char *out, const EVP_MD *md_type);
-int PKCS12_key_gen_uni(unsigned char *pass, int passlen, unsigned char *salt,
+                       uchar *out, const EVP_MD *md_type);
+int PKCS12_key_gen_uni(uchar *pass, int passlen, uchar *salt,
                        int saltlen, int id, int iter, int n,
-                       unsigned char *out, const EVP_MD *md_type);
-int PKCS12_key_gen_utf8(const char *pass, int passlen, unsigned char *salt,
+                       uchar *out, const EVP_MD *md_type);
+int PKCS12_key_gen_utf8(const char *pass, int passlen, uchar *salt,
                         int saltlen, int id, int iter, int n,
-                        unsigned char *out, const EVP_MD *md_type);
+                        uchar *out, const EVP_MD *md_type);
 int PKCS12_PBE_keyivgen(EVP_CIPHER_CTX *ctx, const char *pass, int passlen,
                         ASN1_TYPE *param, const EVP_CIPHER *cipher,
                         const EVP_MD *md_type, int en_de);
 int PKCS12_gen_mac(PKCS12 *p12, const char *pass, int passlen,
-                   unsigned char *mac, unsigned int *maclen);
+                   uchar *mac, uint *maclen);
 int PKCS12_verify_mac(PKCS12 *p12, const char *pass, int passlen);
 int PKCS12_set_mac(PKCS12 *p12, const char *pass, int passlen,
-                   unsigned char *salt, int saltlen, int iter,
+                   uchar *salt, int saltlen, int iter,
                    const EVP_MD *md_type);
-int PKCS12_setup_mac(PKCS12 *p12, int iter, unsigned char *salt,
+int PKCS12_setup_mac(PKCS12 *p12, int iter, uchar *salt,
                      int saltlen, const EVP_MD *md_type);
-unsigned char *OPENSSL_asc2uni(const char *asc, int asclen,
-                               unsigned char **uni, int *unilen);
-char *OPENSSL_uni2asc(const unsigned char *uni, int unilen);
-unsigned char *OPENSSL_utf82uni(const char *asc, int asclen,
-                                unsigned char **uni, int *unilen);
-char *OPENSSL_uni2utf8(const unsigned char *uni, int unilen);
+uchar *OPENSSL_asc2uni(const char *asc, int asclen,
+                               uchar **uni, int *unilen);
+char *OPENSSL_uni2asc(const uchar *uni, int unilen);
+uchar *OPENSSL_utf82uni(const char *asc, int asclen,
+                                uchar **uni, int *unilen);
+char *OPENSSL_uni2utf8(const uchar *uni, int unilen);
 
 DECLARE_ASN1_FUNCTIONS(PKCS12)
 DECLARE_ASN1_FUNCTIONS(PKCS12_MAC_DATA)

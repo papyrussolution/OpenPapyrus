@@ -48,7 +48,7 @@ int EVP_PKEY_save_parameters(EVP_PKEY * pkey, int mode)
 		int ret = pkey->save_parameters;
 		if(mode >= 0)
 			pkey->save_parameters = mode;
-		return (ret);
+		return ret;
 	}
 #endif
 #ifndef OPENSSL_NO_EC
@@ -56,10 +56,10 @@ int EVP_PKEY_save_parameters(EVP_PKEY * pkey, int mode)
 		int ret = pkey->save_parameters;
 		if(mode >= 0)
 			pkey->save_parameters = mode;
-		return (ret);
+		return ret;
 	}
 #endif
-	return (0);
+	return 0;
 }
 
 int EVP_PKEY_copy_parameters(EVP_PKEY * to, const EVP_PKEY * from)
@@ -125,7 +125,7 @@ int EVP_PKEY_cmp(const EVP_PKEY * a, const EVP_PKEY * b)
 EVP_PKEY * EVP_PKEY_new(void)
 {
 	EVP_PKEY * ret = (EVP_PKEY*)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL) {
+	if(!ret) {
 		EVPerr(EVP_F_EVP_PKEY_NEW, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -376,7 +376,7 @@ int EVP_PKEY_base_id(const EVP_PKEY * pkey)
 void EVP_PKEY_free(EVP_PKEY * x)
 {
 	int i;
-	if(x == NULL)
+	if(!x)
 		return;
 	CRYPTO_atomic_add(&x->references, -1, &i, x->lock);
 	REF_PRINT_COUNT("EVP_PKEY", x);

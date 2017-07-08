@@ -293,9 +293,9 @@ int ec_GF2m_simple_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scal
 	size_t i;
 	EC_POINT * p = NULL;
 	EC_POINT * acc = NULL;
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			return 0;
 	}
 	/*

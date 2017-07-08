@@ -84,7 +84,7 @@ uint32 PNGAPI png_get_x_pixels_per_meter(png_const_structrp png_ptr, png_const_i
 	PNG_UNUSED(png_ptr)
 	PNG_UNUSED(info_ptr)
 #endif
-	return (0);
+	return 0;
 }
 
 uint32 PNGAPI png_get_y_pixels_per_meter(png_const_structrp png_ptr, png_const_inforp info_ptr)
@@ -99,7 +99,7 @@ uint32 PNGAPI png_get_y_pixels_per_meter(png_const_structrp png_ptr, png_const_i
 	PNG_UNUSED(png_ptr)
 	PNG_UNUSED(info_ptr)
 #endif
-	return (0);
+	return 0;
 }
 
 uint32 PNGAPI png_get_pixels_per_meter(png_const_structrp png_ptr, png_const_inforp info_ptr)
@@ -114,7 +114,7 @@ uint32 PNGAPI png_get_pixels_per_meter(png_const_structrp png_ptr, png_const_inf
 	PNG_UNUSED(png_ptr)
 	PNG_UNUSED(info_ptr)
 #endif
-	return (0);
+	return 0;
 }
 
 #ifdef PNG_FLOATING_POINT_SUPPORTED
@@ -180,7 +180,7 @@ png_int_32 PNGAPI png_get_x_offset_microns(png_const_structrp png_ptr, png_const
 	PNG_UNUSED(info_ptr)
 #endif
 
-	return (0);
+	return 0;
 }
 
 png_int_32 PNGAPI png_get_y_offset_microns(png_const_structrp png_ptr, png_const_inforp info_ptr)
@@ -198,7 +198,7 @@ png_int_32 PNGAPI png_get_y_offset_microns(png_const_structrp png_ptr, png_const
 	PNG_UNUSED(info_ptr)
 #endif
 
-	return (0);
+	return 0;
 }
 
 png_int_32 PNGAPI png_get_x_offset_pixels(png_const_structrp png_ptr, png_const_inforp info_ptr)
@@ -216,7 +216,7 @@ png_int_32 PNGAPI png_get_x_offset_pixels(png_const_structrp png_ptr, png_const_
 	PNG_UNUSED(info_ptr)
 #endif
 
-	return (0);
+	return 0;
 }
 
 png_int_32 PNGAPI png_get_y_offset_pixels(png_const_structrp png_ptr, png_const_inforp info_ptr)
@@ -234,7 +234,7 @@ png_int_32 PNGAPI png_get_y_offset_pixels(png_const_structrp png_ptr, png_const_
 	PNG_UNUSED(info_ptr)
 #endif
 
-	return (0);
+	return 0;
 }
 
 #ifdef PNG_INCH_CONVERSIONS_SUPPORTED
@@ -375,7 +375,7 @@ uint8 PNGAPI png_get_channels(png_const_structrp png_ptr, png_const_inforp info_
 	if(png_ptr != NULL && info_ptr != NULL)
 		return(info_ptr->channels);
 
-	return (0);
+	return 0;
 }
 
 #ifdef PNG_READ_SUPPORTED
@@ -402,7 +402,7 @@ uint32 PNGAPI png_get_bKGD(png_const_structrp png_ptr, png_inforp info_ptr,
 		return (PNG_INFO_bKGD);
 	}
 
-	return (0);
+	return 0;
 }
 
 #endif
@@ -454,7 +454,7 @@ uint32 PNGAPI png_get_cHRM(png_const_structrp png_ptr, png_const_inforp info_ptr
 		return (PNG_INFO_cHRM);
 	}
 
-	return (0);
+	return 0;
 }
 
 uint32 PNGAPI png_get_cHRM_XYZ(png_const_structrp png_ptr, png_const_inforp info_ptr,
@@ -496,7 +496,7 @@ uint32 PNGAPI png_get_cHRM_XYZ(png_const_structrp png_ptr, png_const_inforp info
 		return (PNG_INFO_cHRM);
 	}
 
-	return (0);
+	return 0;
 }
 
 #  endif
@@ -534,7 +534,7 @@ uint32 PNGAPI png_get_cHRM_XYZ_fixed(png_const_structrp png_ptr, png_const_infor
 		return (PNG_INFO_cHRM);
 	}
 
-	return (0);
+	return 0;
 }
 
 uint32 PNGAPI png_get_cHRM_fixed(png_const_structrp png_ptr, png_const_inforp info_ptr,
@@ -565,7 +565,7 @@ uint32 PNGAPI png_get_cHRM_fixed(png_const_structrp png_ptr, png_const_inforp in
 		return (PNG_INFO_cHRM);
 	}
 
-	return (0);
+	return 0;
 }
 
 #  endif
@@ -585,7 +585,7 @@ uint32 PNGAPI png_get_gAMA_fixed(png_const_structrp png_ptr, png_const_inforp in
 		return (PNG_INFO_gAMA);
 	}
 
-	return (0);
+	return 0;
 }
 
 #  endif
@@ -604,7 +604,7 @@ uint32 PNGAPI png_get_gAMA(png_const_structrp png_ptr, png_const_inforp info_ptr
 		return (PNG_INFO_gAMA);
 	}
 
-	return (0);
+	return 0;
 }
 
 #  endif
@@ -622,7 +622,7 @@ uint32 PNGAPI png_get_sRGB(png_const_structrp png_ptr, png_const_inforp info_ptr
 		return (PNG_INFO_sRGB);
 	}
 
-	return (0);
+	return 0;
 }
 
 #endif
@@ -648,7 +648,7 @@ uint32 PNGAPI png_get_iCCP(png_const_structrp png_ptr, png_inforp info_ptr,
 		return (PNG_INFO_iCCP);
 	}
 
-	return (0);
+	return 0;
 }
 
 #endif
@@ -662,7 +662,7 @@ int PNGAPI png_get_sPLT(png_const_structrp png_ptr, png_inforp info_ptr,
 		return info_ptr->splt_palettes_num;
 	}
 
-	return (0);
+	return 0;
 }
 
 #endif
@@ -679,7 +679,7 @@ uint32 PNGAPI png_get_hIST(png_const_structrp png_ptr, png_inforp info_ptr,
 		return (PNG_INFO_hIST);
 	}
 
-	return (0);
+	return 0;
 }
 
 #endif
@@ -692,7 +692,7 @@ uint32 PNGAPI png_get_IHDR(png_const_structrp png_ptr, png_const_inforp info_ptr
 	png_debug1(1, "in %s retrieval function", "IHDR");
 
 	if(png_ptr == NULL || info_ptr == NULL)
-		return (0);
+		return 0;
 
 	if(width != NULL)
 		*width = info_ptr->width;
@@ -742,7 +742,7 @@ uint32 PNGAPI png_get_oFFs(png_const_structrp png_ptr, png_const_inforp info_ptr
 		return (PNG_INFO_oFFs);
 	}
 
-	return (0);
+	return 0;
 }
 
 #endif
@@ -768,7 +768,7 @@ uint32 PNGAPI png_get_pCAL(png_const_structrp png_ptr, png_inforp info_ptr,
 		return (PNG_INFO_pCAL);
 	}
 
-	return (0);
+	return 0;
 }
 
 #endif
@@ -871,7 +871,7 @@ uint32 PNGAPI png_get_PLTE(png_const_structrp png_ptr, png_inforp info_ptr,
 		png_debug1(3, "num_palette = %d", *num_palette);
 		return (PNG_INFO_PLTE);
 	}
-	return (0);
+	return 0;
 }
 
 #ifdef PNG_sBIT_SUPPORTED
@@ -882,7 +882,7 @@ uint32 PNGAPI png_get_sBIT(png_const_structrp png_ptr, png_inforp info_ptr, png_
 		*sig_bit = &(info_ptr->sig_bit);
 		return (PNG_INFO_sBIT);
 	}
-	return (0);
+	return 0;
 }
 
 #endif
@@ -910,7 +910,7 @@ uint32 PNGAPI png_get_tIME(png_const_structrp png_ptr, png_inforp info_ptr, png_
 		*mod_time = &(info_ptr->mod_time);
 		return (PNG_INFO_tIME);
 	}
-	return (0);
+	return 0;
 }
 
 #endif
@@ -961,7 +961,7 @@ int PNGAPI png_get_unknown_chunks(png_const_structrp png_ptr, png_inforp info_pt
 		*unknowns = info_ptr->unknown_chunks;
 		return info_ptr->unknown_chunks_num;
 	}
-	return (0);
+	return 0;
 }
 
 #endif

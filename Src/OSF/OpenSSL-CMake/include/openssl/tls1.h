@@ -228,18 +228,18 @@ __owur int SSL_get_servername_type(const SSL *s);
  * flag controls whether a context is included.) It returns 1 on success and
  * zero otherwise.
  */
-__owur int SSL_export_keying_material(SSL *s, unsigned char *out, size_t olen,
+__owur int SSL_export_keying_material(SSL *s, uchar *out, size_t olen,
                                const char *label, size_t llen,
-                               const unsigned char *p, size_t plen,
+                               const uchar *p, size_t plen,
                                int use_context);
 
 int SSL_get_sigalgs(SSL *s, int idx,
                     int *psign, int *phash, int *psignandhash,
-                    unsigned char *rsig, unsigned char *rhash);
+                    uchar *rsig, uchar *rhash);
 
 int SSL_get_shared_sigalgs(SSL *s, int idx,
                            int *psign, int *phash, int *psignandhash,
-                           unsigned char *rsig, unsigned char *rhash);
+                           uchar *rsig, uchar *rhash);
 
 __owur int SSL_check_chain(SSL *s, X509 *x, EVP_PKEY *pk, STACK_OF(X509) *chain);
 

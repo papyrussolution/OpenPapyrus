@@ -109,7 +109,7 @@ OPENSSL_STACK * OPENSSL_sk_new(OPENSSL_sk_compfunc c)
 		goto err;
 	ret->comp = c;
 	ret->num_alloc = MIN_NODES;
-	return (ret);
+	return ret;
 
 err:
 	OPENSSL_free(ret);

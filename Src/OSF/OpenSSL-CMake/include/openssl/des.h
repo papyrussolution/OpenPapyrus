@@ -18,15 +18,15 @@ extern "C" {
 # endif
 # include <openssl/e_os2.h>
 
-typedef unsigned int DES_LONG;
+typedef uint DES_LONG;
 
 # ifdef OPENSSL_BUILD_SHLIBCRYPTO
 #  undef OPENSSL_EXTERN
 #  define OPENSSL_EXTERN OPENSSL_EXPORT
 # endif
 
-typedef unsigned char DES_cblock[8];
-typedef /* const */ unsigned char const_DES_cblock[8];
+typedef uchar DES_cblock[8];
+typedef /* const */ uchar const_DES_cblock[8];
 /*
  * With "const", gcc 2.8.1 on Solaris thinks that DES_cblock * and
  * const_DES_cblock * are incompatible pointer types.
@@ -70,21 +70,21 @@ const char *DES_options(void);
 void DES_ecb3_encrypt(const_DES_cblock *input, DES_cblock *output,
                       DES_key_schedule *ks1, DES_key_schedule *ks2,
                       DES_key_schedule *ks3, int enc);
-DES_LONG DES_cbc_cksum(const unsigned char *input, DES_cblock *output,
+DES_LONG DES_cbc_cksum(const uchar *input, DES_cblock *output,
                        long length, DES_key_schedule *schedule,
                        const_DES_cblock *ivec);
 /* DES_cbc_encrypt does not update the IV!  Use DES_ncbc_encrypt instead. */
-void DES_cbc_encrypt(const unsigned char *input, unsigned char *output,
+void DES_cbc_encrypt(const uchar *input, uchar *output,
                      long length, DES_key_schedule *schedule,
                      DES_cblock *ivec, int enc);
-void DES_ncbc_encrypt(const unsigned char *input, unsigned char *output,
+void DES_ncbc_encrypt(const uchar *input, uchar *output,
                       long length, DES_key_schedule *schedule,
                       DES_cblock *ivec, int enc);
-void DES_xcbc_encrypt(const unsigned char *input, unsigned char *output,
+void DES_xcbc_encrypt(const uchar *input, uchar *output,
                       long length, DES_key_schedule *schedule,
                       DES_cblock *ivec, const_DES_cblock *inw,
                       const_DES_cblock *outw, int enc);
-void DES_cfb_encrypt(const unsigned char *in, unsigned char *out, int numbits,
+void DES_cfb_encrypt(const uchar *in, uchar *out, int numbits,
                      long length, DES_key_schedule *schedule,
                      DES_cblock *ivec, int enc);
 void DES_ecb_encrypt(const_DES_cblock *input, DES_cblock *output,
@@ -116,31 +116,31 @@ void DES_encrypt3(DES_LONG *data, DES_key_schedule *ks1,
                   DES_key_schedule *ks2, DES_key_schedule *ks3);
 void DES_decrypt3(DES_LONG *data, DES_key_schedule *ks1,
                   DES_key_schedule *ks2, DES_key_schedule *ks3);
-void DES_ede3_cbc_encrypt(const unsigned char *input, unsigned char *output,
+void DES_ede3_cbc_encrypt(const uchar *input, uchar *output,
                           long length,
                           DES_key_schedule *ks1, DES_key_schedule *ks2,
                           DES_key_schedule *ks3, DES_cblock *ivec, int enc);
-void DES_ede3_cfb64_encrypt(const unsigned char *in, unsigned char *out,
+void DES_ede3_cfb64_encrypt(const uchar *in, uchar *out,
                             long length, DES_key_schedule *ks1,
                             DES_key_schedule *ks2, DES_key_schedule *ks3,
                             DES_cblock *ivec, int *num, int enc);
-void DES_ede3_cfb_encrypt(const unsigned char *in, unsigned char *out,
+void DES_ede3_cfb_encrypt(const uchar *in, uchar *out,
                           int numbits, long length, DES_key_schedule *ks1,
                           DES_key_schedule *ks2, DES_key_schedule *ks3,
                           DES_cblock *ivec, int enc);
-void DES_ede3_ofb64_encrypt(const unsigned char *in, unsigned char *out,
+void DES_ede3_ofb64_encrypt(const uchar *in, uchar *out,
                             long length, DES_key_schedule *ks1,
                             DES_key_schedule *ks2, DES_key_schedule *ks3,
                             DES_cblock *ivec, int *num);
 char *DES_fcrypt(const char *buf, const char *salt, char *ret);
 char *DES_crypt(const char *buf, const char *salt);
-void DES_ofb_encrypt(const unsigned char *in, unsigned char *out, int numbits,
+void DES_ofb_encrypt(const uchar *in, uchar *out, int numbits,
                      long length, DES_key_schedule *schedule,
                      DES_cblock *ivec);
-void DES_pcbc_encrypt(const unsigned char *input, unsigned char *output,
+void DES_pcbc_encrypt(const uchar *input, uchar *output,
                       long length, DES_key_schedule *schedule,
                       DES_cblock *ivec, int enc);
-DES_LONG DES_quad_cksum(const unsigned char *input, DES_cblock output[],
+DES_LONG DES_quad_cksum(const uchar *input, DES_cblock output[],
                         long length, int out_count, DES_cblock *seed);
 int DES_random_key(DES_cblock *ret);
 void DES_set_odd_parity(DES_cblock *key);
@@ -157,10 +157,10 @@ int DES_set_key_checked(const_DES_cblock *key, DES_key_schedule *schedule);
 void DES_set_key_unchecked(const_DES_cblock *key, DES_key_schedule *schedule);
 void DES_string_to_key(const char *str, DES_cblock *key);
 void DES_string_to_2keys(const char *str, DES_cblock *key1, DES_cblock *key2);
-void DES_cfb64_encrypt(const unsigned char *in, unsigned char *out,
+void DES_cfb64_encrypt(const uchar *in, uchar *out,
                        long length, DES_key_schedule *schedule,
                        DES_cblock *ivec, int *num, int enc);
-void DES_ofb64_encrypt(const unsigned char *in, unsigned char *out,
+void DES_ofb64_encrypt(const uchar *in, uchar *out,
                        long length, DES_key_schedule *schedule,
                        DES_cblock *ivec, int *num);
 

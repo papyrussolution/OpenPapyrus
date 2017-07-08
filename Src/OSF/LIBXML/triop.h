@@ -27,12 +27,11 @@
 #define TRIO_TRIOP_H
 
 #include "triodef.h"
-
 #include <stdlib.h>
 #if defined(TRIO_COMPILER_ANCIENT)
-# include <varargs.h>
+	#include <varargs.h>
 #else
-# include <stdarg.h>
+	#include <stdarg.h>
 #endif
 
 #ifdef __cplusplus
@@ -40,42 +39,41 @@ extern "C" {
 #endif
 
 #ifndef TRIO_C99
-# define TRIO_C99 1
+	#define TRIO_C99 1
 #endif
 #ifndef TRIO_BSD
-# define TRIO_BSD 1
+	#define TRIO_BSD 1
 #endif
 #ifndef TRIO_GNU
-# define TRIO_GNU 1
+	#define TRIO_GNU 1
 #endif
 #ifndef TRIO_MISC
-# define TRIO_MISC 1
+	#define TRIO_MISC 1
 #endif
 #ifndef TRIO_UNIX98
-# define TRIO_UNIX98 1
+	#define TRIO_UNIX98 1
 #endif
 #ifndef TRIO_MICROSOFT
-# define TRIO_MICROSOFT 1
+	#define TRIO_MICROSOFT 1
 #endif
 #ifndef TRIO_EXTENSION
-# define TRIO_EXTENSION 1
+	#define TRIO_EXTENSION 1
 #endif
 #ifndef TRIO_WIDECHAR /* Does not work yet. Do not enable */
-# define TRIO_WIDECHAR 0
+	#define TRIO_WIDECHAR 0
 #endif
 #ifndef TRIO_ERRORS
-# define TRIO_ERRORS 1
+	#define TRIO_ERRORS 1
 #endif
-
-#ifndef TRIO_MALLOC
-# define TRIO_MALLOC(n) malloc(n)
-#endif
-#ifndef TRIO_REALLOC
-# define TRIO_REALLOC(x,n) realloc((x),(n))
-#endif
-#ifndef TRIO_FREE
-# define TRIO_FREE(x) free(x)
-#endif
+//#ifndef TRIO_MALLOC
+//	#define TRIO_MALLOC(n) malloc(n)
+//#endif
+//#ifndef TRIO_REALLOC
+	//#define TRIO_REALLOC(x,n) realloc((x),(n))
+//#endif
+//#ifndef TRIO_FREE
+	//#define TRIO_FREE(x) SAlloc::F(x)
+//#endif
 
 
 /*************************************************************************

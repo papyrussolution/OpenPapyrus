@@ -21,7 +21,7 @@ int ASN1_verify(i2d_of_void * i2d, X509_ALGOR * a, ASN1_BIT_STRING * signature,
 	uchar * p, * buf_in = NULL;
 	int ret = -1, i, inl;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ASN1err(ASN1_F_ASN1_VERIFY, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
@@ -60,7 +60,7 @@ int ASN1_verify(i2d_of_void * i2d, X509_ALGOR * a, ASN1_BIT_STRING * signature,
 	ret = 1;
 err:
 	EVP_MD_CTX_free(ctx);
-	return (ret);
+	return ret;
 }
 
 #endif
@@ -80,7 +80,7 @@ int ASN1_item_verify(const ASN1_ITEM * it, X509_ALGOR * a, ASN1_BIT_STRING * sig
 		return -1;
 	}
 	ctx = EVP_MD_CTX_new();
-	if(ctx == NULL) {
+	if(!ctx) {
 		ASN1err(ASN1_F_ASN1_ITEM_VERIFY, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
@@ -146,6 +146,6 @@ int ASN1_item_verify(const ASN1_ITEM * it, X509_ALGOR * a, ASN1_BIT_STRING * sig
 	ret = 1;
 err:
 	EVP_MD_CTX_free(ctx);
-	return (ret);
+	return ret;
 }
 

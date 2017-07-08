@@ -136,13 +136,12 @@ static int mem_free(BIO * a)
 
 static int mem_buf_free(BIO * a, int free_all)
 {
-	if(a == NULL)
-		return (0);
+	if(!a)
+		return 0;
 	if(a->shutdown) {
 		if((a->init) && (a->ptr != NULL)) {
 			BUF_MEM * b;
 			BIO_BUF_MEM * bb = (BIO_BUF_MEM*)a->ptr;
-
 			if(bb != NULL) {
 				b = bb->buf;
 				if(a->flags & BIO_FLAGS_MEM_RDONLY)
@@ -158,7 +157,6 @@ static int mem_buf_free(BIO * a, int free_all)
 	}
 	return (1);
 }
-
 /*
  * Reallocate memory buffer if read pointer differs
  */
@@ -166,14 +164,13 @@ static int mem_buf_sync(BIO * b)
 {
 	if(b != NULL && b->init != 0 && b->ptr != NULL) {
 		BIO_BUF_MEM * bbm = (BIO_BUF_MEM*)b->ptr;
-
 		if(bbm->readp->data != bbm->buf->data) {
 			memmove(bbm->buf->data, bbm->readp->data, bbm->readp->length);
 			bbm->buf->length = bbm->readp->length;
 			bbm->readp->data = bbm->buf->data;
 		}
 	}
-	return (0);
+	return 0;
 }
 
 static int mem_read(BIO * b, char * out, int outl)
@@ -181,7 +178,6 @@ static int mem_read(BIO * b, char * out, int outl)
 	int ret = -1;
 	BIO_BUF_MEM * bbm = (BIO_BUF_MEM*)b->ptr;
 	BUF_MEM * bm = bbm->readp;
-
 	BIO_clear_retry_flags(b);
 	ret = (outl >= 0 && (size_t)outl > bm->length) ? (int)bm->length : outl;
 	if((out != NULL) && (ret > 0)) {
@@ -194,7 +190,7 @@ static int mem_read(BIO * b, char * out, int outl)
 		if(ret != 0)
 			BIO_set_retry_read(b);
 	}
-	return (ret);
+	return ret;
 }
 
 static int mem_write(BIO * b, const char * in, int inl)
@@ -202,7 +198,7 @@ static int mem_write(BIO * b, const char * in, int inl)
 	int ret = -1;
 	int blen;
 	BIO_BUF_MEM * bbm = (BIO_BUF_MEM*)b->ptr;
-	if(in == NULL) {
+	if(!in) {
 		BIOerr(BIO_F_MEM_WRITE, BIO_R_NULL_PARAMETER);
 		goto end;
 	}
@@ -219,7 +215,7 @@ static int mem_write(BIO * b, const char * in, int inl)
 	*bbm->readp = *bbm->buf;
 	ret = inl;
 end:
-	return (ret);
+	return ret;
 }
 
 static long mem_ctrl(BIO * b, int cmd, long num, void * ptr)
@@ -296,7 +292,7 @@ static long mem_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    ret = 0;
 		    break;
 	}
-	return (ret);
+	return ret;
 }
 
 static int mem_gets(BIO * bp, char * buf, int size)
@@ -329,7 +325,7 @@ static int mem_gets(BIO * bp, char * buf, int size)
 	if(i > 0)
 		buf[i] = '\0';
 	ret = i;
-	return (ret);
+	return ret;
 }
 
 static int mem_puts(BIO * bp, const char * str)
@@ -337,6 +333,6 @@ static int mem_puts(BIO * bp, const char * str)
 	int n = strlen(str);
 	int ret = mem_write(bp, str, n);
 	// memory semantics is that it will always work 
-	return (ret);
+	return ret;
 }
 

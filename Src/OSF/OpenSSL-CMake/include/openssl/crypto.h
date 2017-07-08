@@ -16,7 +16,7 @@
 #ifndef HEADER_CRYPTO_H
 # define HEADER_CRYPTO_H
 
-//#include <stdlib.h>
+ //#include <stdlib.h>
 //#include <time.h>
 #include <openssl/e_os2.h>
 #ifndef OPENSSL_NO_STDIO
@@ -30,9 +30,9 @@
 #ifdef CHARSET_EBCDIC
 	#include <openssl/ebcdic.h>
 #endif
-/*
- * Resolve problems on some operating systems with symbol names that clash one way or another
- */
+//
+// Resolve problems on some operating systems with symbol names that clash one way or another
+//
 #include <openssl/symhacks.h>
 #if OPENSSL_API_COMPAT < 0x10100000L
 	#include <openssl/opensslv.h>
@@ -127,12 +127,12 @@ int CRYPTO_mem_ctrl(int mode);
 #define OPENSSL_secure_free(addr) CRYPTO_secure_free(addr, OPENSSL_FILE, OPENSSL_LINE)
 #define OPENSSL_secure_actual_size(ptr) CRYPTO_secure_actual_size(ptr)
 
-size_t OPENSSL_strlcpy(char *dst, const char *src, size_t siz);
-size_t OPENSSL_strlcat(char *dst, const char *src, size_t siz);
-size_t OPENSSL_strnlen(const char *str, size_t maxlen);
-char *OPENSSL_buf2hexstr(const unsigned char *buffer, long len);
-unsigned char *OPENSSL_hexstr2buf(const char *str, long *len);
-int OPENSSL_hexchar2int(unsigned char c);
+size_t  OPENSSL_strlcpy(char *dst, const char *src, size_t siz);
+size_t  OPENSSL_strlcat(char *dst, const char *src, size_t siz);
+size_t  OPENSSL_strnlen(const char *str, size_t maxlen);
+char  * OPENSSL_buf2hexstr(const uchar *buffer, long len);
+uchar * OPENSSL_hexstr2buf(const char *str, long *len);
+int     OPENSSL_hexchar2int(uchar c);
 
 # define OPENSSL_MALLOC_MAX_NELEMS(type)  (((1U<<(sizeof(int)*8-1))-1)/sizeof(type))
 
@@ -252,7 +252,7 @@ int CRYPTO_secure_malloc_initialized(void);
 size_t CRYPTO_secure_actual_size(void *ptr);
 size_t CRYPTO_secure_used(void);
 
-void OPENSSL_cleanse(void *ptr, size_t len);
+void FASTCALL OPENSSL_cleanse(void * ptr, size_t len);
 
 # ifndef OPENSSL_NO_CRYPTO_MDEBUG
 #  define OPENSSL_mem_debug_push(info) CRYPTO_mem_debug_push(info, OPENSSL_FILE, OPENSSL_LINE)
@@ -362,9 +362,9 @@ typedef pthread_t CRYPTO_THREAD_ID;
 # endif
 
 # if !defined(CRYPTO_ONCE_STATIC_INIT)
-typedef unsigned int CRYPTO_ONCE;
-typedef unsigned int CRYPTO_THREAD_LOCAL;
-typedef unsigned int CRYPTO_THREAD_ID;
+typedef uint CRYPTO_ONCE;
+typedef uint CRYPTO_THREAD_LOCAL;
+typedef uint CRYPTO_THREAD_ID;
 #  define CRYPTO_ONCE_STATIC_INIT 0
 # endif
 

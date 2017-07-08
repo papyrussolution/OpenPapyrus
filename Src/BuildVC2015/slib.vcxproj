@@ -289,7 +289,7 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <OmitFramePointers>false</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;SL_PROFILE;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -343,7 +343,7 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <OmitFramePointers>false</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;SL_PROFILE;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -391,7 +391,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -441,7 +441,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -484,7 +484,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;SL_PROFILE;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -531,7 +531,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;SL_PROFILE;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -577,7 +577,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -625,7 +625,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -669,7 +669,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;SL_PROFILE;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -716,7 +716,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;SL_PROFILE;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -762,7 +762,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -810,7 +810,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -851,7 +851,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
@@ -864,7 +864,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\libxml\incl;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src;..\osf\openssl-cmake\include;..\osf\curl\include;..\osf\libzip\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
@@ -6138,7 +6138,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</ExcludedFromBuild>
     </CustomBuild>
-    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -26,7 +26,7 @@
 		if(ret != 0) {                                         \
 			__lv_on_bdbop_err(ret);                         \
 			__db_err(dbenv->env, ret, "\n%s", funct);       \
-			return (ret);                                   \
+			return ret;                                   \
 		}                                                       \
 } while(0)
 
@@ -36,7 +36,7 @@
 			__lv_on_bdbop_err(ret);                                 \
 			if(ret != excpt) {                                     \
 				__db_err(dbenv->env, ret, "\n%s", funct);       \
-				return (ret);                                   \
+				return ret;                                   \
 			}                                                       \
 		}                                                               \
 } while(0)
@@ -594,7 +594,7 @@ int __iterate_txninfo(DB_LOG_VRFY_INFO * lvinfo, uint32 min, uint32 max, TXNINFO
 		DB_MULTIPLE_INIT(p, &data);
 		while(1) {
 			DB_MULTIPLE_KEY_NEXT(p, &data, retk, retkl, retd, retdl);
-			if(p == NULL)
+			if(!p)
 				break;
 			DB_ASSERT(env, retkl == sizeof(txnid) && retk != NULL);
 			memcpy(&txnid, retk, retkl);
@@ -1061,7 +1061,7 @@ err:
  */
 int __free_filereg_info(VRFY_FILEREG_INFO * p)
 {
-	if(p == NULL)
+	if(!p)
 		return 0;
 	__os_free(NULL, (void *)(p->fname));
 	__os_free(NULL, p->fileid.data);

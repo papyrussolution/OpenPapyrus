@@ -141,7 +141,7 @@ PNG_FUNCTION(void *, PNGAPI png_malloc, (png_const_structrp png_ptr, png_alloc_s
 	if(png_ptr == NULL)
 		return NULL;
 	ret = png_malloc_base(png_ptr, size);
-	if(ret == NULL)
+	if(!ret)
 		png_error(png_ptr, "Out of memory");  /* 'm' means png_malloc */
 	return ret;
 }
@@ -153,7 +153,7 @@ PNG_FUNCTION(void *, PNGAPI png_malloc_default, (png_const_structrp png_ptr, png
 	if(png_ptr) {
 		// Passing 'NULL' here bypasses the application provided memory handler. 
 		ret = png_malloc_base(NULL /*use SAlloc::M*/, size);
-		if(ret == NULL)
+		if(!ret)
 			png_error(png_ptr, "Out of Memory"); // 'M' means png_malloc_default 
 	}
 	return ret;

@@ -51,7 +51,7 @@ LHASH_OF(CONF_VALUE) *CONF_load(LHASH_OF(CONF_VALUE) *conf, const char * file,
 #else
 	in = BIO_new_file(file, "rb");
 #endif
-	if(in == NULL) {
+	if(!in) {
 		CONFerr(CONF_F_CONF_LOAD, ERR_R_SYS_LIB);
 		return NULL;
 	}
@@ -180,7 +180,7 @@ CONF * NCONF_new(CONF_METHOD * meth)
 	CONF * ret;
 	SETIFZ(meth, NCONF_default());
 	ret = meth->create(meth);
-	if(ret == NULL) {
+	if(!ret) {
 		CONFerr(CONF_F_NCONF_NEW, ERR_R_MALLOC_FAILURE);
 		return (NULL);
 	}

@@ -70,7 +70,7 @@ err:
 X509_ALGOR * PKCS5_pbe_set(int alg, int iter, const uchar * salt, int saltlen)
 {
 	X509_ALGOR * ret = X509_ALGOR_new();
-	if(ret == NULL) {
+	if(!ret) {
 		ASN1err(ASN1_F_PKCS5_PBE_SET, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}

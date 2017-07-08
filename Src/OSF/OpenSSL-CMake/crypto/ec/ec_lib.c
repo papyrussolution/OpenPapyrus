@@ -33,7 +33,7 @@ EC_GROUP * EC_GROUP_new(const EC_METHOD * meth)
 	}
 
 	ret = (EC_GROUP*)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL) {
+	if(!ret) {
 		ECerr(EC_F_EC_GROUP_NEW, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -228,7 +228,7 @@ EC_GROUP * EC_GROUP_dup(const EC_GROUP * a)
 	EC_GROUP * t = NULL;
 	int ok = 0;
 
-	if(a == NULL)
+	if(!a)
 		return NULL;
 
 	if((t = EC_GROUP_new(a->meth)) == NULL)
@@ -487,9 +487,9 @@ int EC_GROUP_cmp(const EC_GROUP * a, const EC_GROUP * b, BN_CTX * ctx)
 	if(a->meth->flags & EC_FLAGS_CUSTOM_CURVE)
 		return 0;
 
-	if(ctx == NULL)
+	if(!ctx)
 		ctx_new = ctx = BN_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		return -1;
 
 	BN_CTX_start(ctx);
@@ -556,7 +556,7 @@ EC_POINT * EC_POINT_new(const EC_GROUP * group)
 	}
 
 	ret = (EC_POINT*)OPENSSL_zalloc(sizeof(*ret));
-	if(ret == NULL) {
+	if(!ret) {
 		ECerr(EC_F_EC_POINT_NEW, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -613,7 +613,7 @@ EC_POINT * EC_POINT_dup(const EC_POINT * a, const EC_GROUP * group)
 	EC_POINT * t;
 	int r;
 
-	if(a == NULL)
+	if(!a)
 		return NULL;
 
 	t = EC_POINT_new(group);
@@ -966,7 +966,7 @@ int ec_precompute_mont_data(EC_GROUP * group)
 	BN_MONT_CTX_free(group->mont_data);
 	group->mont_data = NULL;
 
-	if(ctx == NULL)
+	if(!ctx)
 		goto err;
 
 	group->mont_data = BN_MONT_CTX_new();

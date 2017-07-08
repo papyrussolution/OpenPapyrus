@@ -15,8 +15,8 @@
 //#include <openssl/ec.h>
 #include "ec_lcl.h"
 
-int ossl_ecdsa_sign(int type, const unsigned char * dgst, int dlen,
-    unsigned char * sig, unsigned int * siglen,
+int ossl_ecdsa_sign(int type, const uchar * dgst, int dlen,
+    uchar * sig, uint * siglen,
     const BIGNUM * kinv, const BIGNUM * r, EC_KEY * eckey)
 {
 	ECDSA_SIG * s;
@@ -33,7 +33,7 @@ int ossl_ecdsa_sign(int type, const unsigned char * dgst, int dlen,
 
 static int ecdsa_sign_setup(EC_KEY * eckey, BN_CTX * ctx_in,
     BIGNUM ** kinvp, BIGNUM ** rp,
-    const unsigned char * dgst, int dlen)
+    const uchar * dgst, int dlen)
 {
 	BN_CTX * ctx = NULL;
 	BIGNUM * k = NULL, * r = NULL, * X = NULL;
@@ -184,7 +184,7 @@ err:
 		BN_CTX_free(ctx);
 	EC_POINT_free(tmp_point);
 	BN_clear_free(X);
-	return (ret);
+	return ret;
 }
 
 int ossl_ecdsa_sign_setup(EC_KEY * eckey, BN_CTX * ctx_in, BIGNUM ** kinvp,
@@ -193,7 +193,7 @@ int ossl_ecdsa_sign_setup(EC_KEY * eckey, BN_CTX * ctx_in, BIGNUM ** kinvp,
 	return ecdsa_sign_setup(eckey, ctx_in, kinvp, rp, NULL, 0);
 }
 
-ECDSA_SIG * ossl_ecdsa_sign_sig(const unsigned char * dgst, int dgst_len,
+ECDSA_SIG * ossl_ecdsa_sign_sig(const uchar * dgst, int dgst_len,
     const BIGNUM * in_kinv, const BIGNUM * in_r,
     EC_KEY * eckey)
 {
@@ -219,7 +219,7 @@ ECDSA_SIG * ossl_ecdsa_sign_sig(const unsigned char * dgst, int dgst_len,
 	}
 
 	ret = ECDSA_SIG_new();
-	if(ret == NULL) {
+	if(!ret) {
 		ECerr(EC_F_OSSL_ECDSA_SIGN_SIG, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -320,18 +320,18 @@ err:
  *      0: incorrect signature
  *     -1: error
  */
-int ossl_ecdsa_verify(int type, const unsigned char * dgst, int dgst_len,
-    const unsigned char * sigbuf, int sig_len, EC_KEY * eckey)
+int ossl_ecdsa_verify(int type, const uchar * dgst, int dgst_len,
+    const uchar * sigbuf, int sig_len, EC_KEY * eckey)
 {
 	ECDSA_SIG * s;
-	const unsigned char * p = sigbuf;
-	unsigned char * der = NULL;
+	const uchar * p = sigbuf;
+	uchar * der = NULL;
 	int derlen = -1;
 	int ret = -1;
 
 	s = ECDSA_SIG_new();
 	if(s == NULL)
-		return (ret);
+		return ret;
 	if(d2i_ECDSA_SIG(&s, &p, sig_len) == NULL)
 		goto err;
 	/* Ensure signature uses DER and doesn't have trailing garbage */
@@ -342,10 +342,10 @@ int ossl_ecdsa_verify(int type, const unsigned char * dgst, int dgst_len,
 err:
 	OPENSSL_clear_free(der, derlen);
 	ECDSA_SIG_free(s);
-	return (ret);
+	return ret;
 }
 
-int ossl_ecdsa_verify_sig(const unsigned char * dgst, int dgst_len,
+int ossl_ecdsa_verify_sig(const uchar * dgst, int dgst_len,
     const ECDSA_SIG * sig, EC_KEY * eckey)
 {
 	int ret = -1, i;
@@ -369,7 +369,7 @@ int ossl_ecdsa_verify_sig(const unsigned char * dgst, int dgst_len,
 	}
 
 	ctx = BN_CTX_new();
-	if(ctx == NULL) {
+	if(!ctx) {
 		ECerr(EC_F_OSSL_ECDSA_VERIFY_SIG, ERR_R_MALLOC_FAILURE);
 		return -1;
 	}

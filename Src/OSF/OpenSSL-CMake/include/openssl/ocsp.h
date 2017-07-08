@@ -192,8 +192,8 @@ OCSP_CERTID *OCSP_cert_id_new(const EVP_MD *dgst,
 
 OCSP_ONEREQ *OCSP_request_add0_id(OCSP_REQUEST *req, OCSP_CERTID *cid);
 
-int OCSP_request_add1_nonce(OCSP_REQUEST *req, unsigned char *val, int len);
-int OCSP_basic_add1_nonce(OCSP_BASICRESP *resp, unsigned char *val, int len);
+int OCSP_request_add1_nonce(OCSP_REQUEST *req, uchar *val, int len);
+int OCSP_basic_add1_nonce(OCSP_BASICRESP *resp, uchar *val, int len);
 int OCSP_check_nonce(OCSP_REQUEST *req, OCSP_BASICRESP *bs);
 int OCSP_copy_nonce(OCSP_BASICRESP *resp, OCSP_REQUEST *req);
 

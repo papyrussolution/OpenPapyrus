@@ -31,7 +31,7 @@ ulong X509_issuer_and_serial_hash(X509 * a)
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
 	uchar md[16];
 	char * f;
-	if(ctx == NULL)
+	if(!ctx)
 		goto err;
 	f = X509_NAME_oneline(a->cert_info.issuer, NULL, 0);
 	if(!EVP_DigestInit_ex(ctx, EVP_md5(), NULL))
@@ -50,7 +50,7 @@ ulong X509_issuer_and_serial_hash(X509 * a)
 	    ) & 0xffffffffL;
 err:
 	EVP_MD_CTX_free(ctx);
-	return (ret);
+	return ret;
 }
 
 #endif
@@ -191,7 +191,7 @@ ulong X509_NAME_hash(X509_NAME * x)
 	ret = (((ulong)md[0]) | ((ulong)md[1] << 8L) |
 	    ((ulong)md[2] << 16L) | ((ulong)md[3] << 24L)
 	    ) & 0xffffffffL;
-	return (ret);
+	return ret;
 }
 
 #ifndef OPENSSL_NO_MD5
@@ -220,7 +220,7 @@ ulong X509_NAME_hash_old(X509_NAME * x)
 		    ) & 0xffffffffL;
 	EVP_MD_CTX_free(md_ctx);
 
-	return (ret);
+	return ret;
 }
 
 #endif
@@ -261,14 +261,14 @@ X509 * X509_find_by_subject(STACK_OF(X509) * sk, X509_NAME * name)
 
 EVP_PKEY * X509_get0_pubkey(const X509 * x)
 {
-	if(x == NULL)
+	if(!x)
 		return NULL;
 	return X509_PUBKEY_get0(x->cert_info.key);
 }
 
 EVP_PKEY * X509_get_pubkey(X509 * x)
 {
-	if(x == NULL)
+	if(!x)
 		return NULL;
 	return X509_PUBKEY_get(x->cert_info.key);
 }
@@ -354,7 +354,7 @@ int X509_chain_check_suiteb(int * perror_depth, X509 * x, STACK_OF(X509) * chain
 		return X509_V_OK;
 
 	/* If no EE certificate passed in must be first in chain */
-	if(x == NULL) {
+	if(!x) {
 		x = sk_X509_value(chain, 0);
 		i = 1;
 	}

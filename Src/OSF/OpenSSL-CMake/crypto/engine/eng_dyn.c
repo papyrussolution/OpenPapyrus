@@ -234,7 +234,7 @@ static dynamic_data_ctx * dynamic_get_data_ctx(ENGINE * e)
 static ENGINE * engine_dynamic(void)
 {
 	ENGINE * ret = ENGINE_new();
-	if(ret == NULL)
+	if(!ret)
 		return NULL;
 	if(!ENGINE_set_id(ret, engine_dynamic_id) ||
 	    !ENGINE_set_name(ret, engine_dynamic_name) ||

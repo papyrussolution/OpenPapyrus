@@ -22,7 +22,7 @@ COMP_CTX * COMP_CTX_new(COMP_METHOD * meth)
 		OPENSSL_free(ret);
 		ret = NULL;
 	}
-	return (ret);
+	return ret;
 }
 
 const COMP_METHOD * COMP_CTX_get_method(const COMP_CTX * ctx)
@@ -42,7 +42,7 @@ const char * COMP_get_name(const COMP_METHOD * meth)
 
 void COMP_CTX_free(COMP_CTX * ctx)
 {
-	if(ctx == NULL)
+	if(!ctx)
 		return;
 
 	if(ctx->meth->finish != NULL)
@@ -63,7 +63,7 @@ int COMP_compress_block(COMP_CTX * ctx, uchar * out, int olen,
 		ctx->compress_in += ilen;
 		ctx->compress_out += ret;
 	}
-	return (ret);
+	return ret;
 }
 
 int COMP_expand_block(COMP_CTX * ctx, uchar * out, int olen,
@@ -79,7 +79,7 @@ int COMP_expand_block(COMP_CTX * ctx, uchar * out, int olen,
 		ctx->expand_in += ilen;
 		ctx->expand_out += ret;
 	}
-	return (ret);
+	return ret;
 }
 
 int COMP_CTX_get_type(const COMP_CTX* comp)

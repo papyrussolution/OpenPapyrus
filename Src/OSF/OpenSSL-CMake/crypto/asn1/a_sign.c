@@ -22,7 +22,7 @@ int ASN1_sign(i2d_of_void * i2d, X509_ALGOR * algor1, X509_ALGOR * algor2,
 	int i, inl = 0, outl = 0, outll = 0;
 	X509_ALGOR * a;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ASN1err(ASN1_F_ASN1_SIGN, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
@@ -31,7 +31,7 @@ int ASN1_sign(i2d_of_void * i2d, X509_ALGOR * algor1, X509_ALGOR * algor2,
 			a = algor1;
 		else
 			a = algor2;
-		if(a == NULL)
+		if(!a)
 			continue;
 		if(type->pkey_type == NID_dsaWithSHA1) {
 			/*
@@ -55,8 +55,7 @@ int ASN1_sign(i2d_of_void * i2d, X509_ALGOR * algor1, X509_ALGOR * algor2,
 			goto err;
 		}
 		if(a->algorithm->length == 0) {
-			ASN1err(ASN1_F_ASN1_SIGN,
-			    ASN1_R_THE_ASN1_OBJECT_IDENTIFIER_IS_NOT_KNOWN_FOR_THIS_MD);
+			ASN1err(ASN1_F_ASN1_SIGN, ASN1_R_THE_ASN1_OBJECT_IDENTIFIER_IS_NOT_KNOWN_FOR_THIS_MD);
 			goto err;
 		}
 	}
@@ -72,10 +71,7 @@ int ASN1_sign(i2d_of_void * i2d, X509_ALGOR * algor1, X509_ALGOR * algor2,
 	p = buf_in;
 
 	i2d(data, &p);
-	if(!EVP_SignInit_ex(ctx, type, NULL)
-	    || !EVP_SignUpdate(ctx, (uchar*)buf_in, inl)
-	    || !EVP_SignFinal(ctx, (uchar*)buf_out,
-		    (uint*)&outl, pkey)) {
+	if(!EVP_SignInit_ex(ctx, type, NULL) || !EVP_SignUpdate(ctx, (uchar*)buf_in, inl) || !EVP_SignFinal(ctx, (uchar*)buf_out, (uint*)&outl, pkey)) {
 		outl = 0;
 		ASN1err(ASN1_F_ASN1_SIGN, ERR_R_EVP_LIB);
 		goto err;
@@ -99,14 +95,11 @@ err:
 
 #endif
 
-int ASN1_item_sign(const ASN1_ITEM * it, X509_ALGOR * algor1,
-    X509_ALGOR * algor2, ASN1_BIT_STRING * signature, void * asn,
-    EVP_PKEY * pkey, const EVP_MD * type)
+int ASN1_item_sign(const ASN1_ITEM * it, X509_ALGOR * algor1, X509_ALGOR * algor2, ASN1_BIT_STRING * signature, void * asn, EVP_PKEY * pkey, const EVP_MD * type)
 {
 	int rv;
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
-
-	if(ctx == NULL) {
+	if(!ctx) {
 		ASN1err(ASN1_F_ASN1_ITEM_SIGN, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
@@ -114,16 +107,12 @@ int ASN1_item_sign(const ASN1_ITEM * it, X509_ALGOR * algor1,
 		EVP_MD_CTX_free(ctx);
 		return 0;
 	}
-
 	rv = ASN1_item_sign_ctx(it, algor1, algor2, signature, asn, ctx);
-
 	EVP_MD_CTX_free(ctx);
 	return rv;
 }
 
-int ASN1_item_sign_ctx(const ASN1_ITEM * it,
-    X509_ALGOR * algor1, X509_ALGOR * algor2,
-    ASN1_BIT_STRING * signature, void * asn, EVP_MD_CTX * ctx)
+int ASN1_item_sign_ctx(const ASN1_ITEM * it, X509_ALGOR * algor1, X509_ALGOR * algor2, ASN1_BIT_STRING * signature, void * asn, EVP_MD_CTX * ctx)
 {
 	const EVP_MD * type;
 	EVP_PKEY * pkey;

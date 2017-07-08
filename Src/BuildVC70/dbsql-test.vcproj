@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				ImproveFloatingPointConsistency="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\libxml\include"
+				AdditionalIncludeDirectories="..\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -79,7 +79,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				ImproveFloatingPointConsistency="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\libxml\include"
+				AdditionalIncludeDirectories="..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"

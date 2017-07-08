@@ -545,7 +545,7 @@ char * ERR_error_string(ulong e, char * ret)
 {
 	static char buf[256];
 
-	if(ret == NULL)
+	if(!ret)
 		ret = buf;
 	ERR_error_string_n(e, ret, 256);
 
@@ -715,7 +715,7 @@ void ERR_add_error_vdata(int num, va_list args)
 			if(n > s) {
 				s = n + 20;
 				p = (char*)OPENSSL_realloc(str, s + 1);
-				if(p == NULL) {
+				if(!p) {
 					OPENSSL_free(str);
 					return;
 				}

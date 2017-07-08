@@ -19,22 +19,22 @@
 typedef struct {
 	union {
 		double align; /* this ensures even sizeof(EVP_CHACHA_KEY)%8==0 */
-		unsigned int d[CHACHA_KEY_SIZE / 4];
+		uint d[CHACHA_KEY_SIZE / 4];
 	} key;
 
-	unsigned int counter[CHACHA_CTR_SIZE / 4];
-	unsigned char buf[CHACHA_BLK_SIZE];
-	unsigned int partial_len;
+	uint counter[CHACHA_CTR_SIZE / 4];
+	uchar buf[CHACHA_BLK_SIZE];
+	uint partial_len;
 } EVP_CHACHA_KEY;
 
 #define data(ctx)   ((EVP_CHACHA_KEY*)(ctx)->cipher_data)
 
 static int chacha_init_key(EVP_CIPHER_CTX * ctx,
-    const unsigned char user_key[CHACHA_KEY_SIZE],
-    const unsigned char iv[CHACHA_CTR_SIZE], int enc)
+    const uchar user_key[CHACHA_KEY_SIZE],
+    const uchar iv[CHACHA_CTR_SIZE], int enc)
 {
 	EVP_CHACHA_KEY * key = data(ctx);
-	unsigned int i;
+	uint i;
 
 	if(user_key)
 		for(i = 0; i < CHACHA_KEY_SIZE; i += 4) {
@@ -51,11 +51,11 @@ static int chacha_init_key(EVP_CIPHER_CTX * ctx,
 	return 1;
 }
 
-static int chacha_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * inp, size_t len)
+static int chacha_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * inp, size_t len)
 {
 	EVP_CHACHA_KEY * key = data(ctx);
-	unsigned int n, rem, ctr32;
+	uint n, rem, ctr32;
 
 	if((n = key->partial_len)) {
 		while(len && n < CHACHA_BLK_SIZE) {
@@ -75,7 +75,7 @@ static int chacha_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
 		}
 	}
 
-	rem = (unsigned int)(len % CHACHA_BLK_SIZE);
+	rem = (uint)(len % CHACHA_BLK_SIZE);
 	len -= rem;
 	ctr32 = key->counter[0];
 	while(len >= CHACHA_BLK_SIZE) {
@@ -85,7 +85,7 @@ static int chacha_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
 		 * Below condition is practically never met, but it has to
 		 * be checked for code correctness.
 		 */
-		if(sizeof(size_t)>sizeof(unsigned int) && blocks>(1U<<28))
+		if(sizeof(size_t)>sizeof(uint) && blocks>(1U<<28))
 			blocks = (1U<<28);
 
 		/*
@@ -94,7 +94,7 @@ static int chacha_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
 		 * overflow, which is then handled by limiting the
 		 * amount of blocks to the exact overflow point...
 		 */
-		ctr32 += (unsigned int)blocks;
+		ctr32 += (uint)blocks;
 		if(ctr32 < blocks) {
 			blocks -= ctr32;
 			ctr32 = 0;
@@ -145,8 +145,8 @@ const EVP_CIPHER * EVP_chacha20(void)
 
 typedef struct {
 	EVP_CHACHA_KEY key;
-	unsigned int nonce[12/4];
-	unsigned char tag[POLY1305_BLOCK_SIZE];
+	uint nonce[12/4];
+	uchar tag[POLY1305_BLOCK_SIZE];
 	struct { uint64_t aad, text; } len;
 
 	int aad, mac_inited, tag_len, nonce_len;
@@ -158,8 +158,8 @@ typedef struct {
 #  define POLY1305_ctx(actx)    ((POLY1305*)(actx + 1))
 
 static int chacha20_poly1305_init_key(EVP_CIPHER_CTX * ctx,
-    const unsigned char * inkey,
-    const unsigned char * iv, int enc)
+    const uchar * inkey,
+    const uchar * iv, int enc)
 {
 	EVP_CHACHA_AEAD_CTX * actx = aead_data(ctx);
 
@@ -173,7 +173,7 @@ static int chacha20_poly1305_init_key(EVP_CIPHER_CTX * ctx,
 	actx->tls_payload_length = NO_TLS_PAYLOAD_LENGTH;
 
 	if(iv != NULL) {
-		unsigned char temp[CHACHA_CTR_SIZE] = { 0 };
+		uchar temp[CHACHA_CTR_SIZE] = { 0 };
 
 		/* pad on the left */
 		if(actx->nonce_len <= CHACHA_CTR_SIZE)
@@ -192,12 +192,12 @@ static int chacha20_poly1305_init_key(EVP_CIPHER_CTX * ctx,
 	return 1;
 }
 
-static int chacha20_poly1305_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
-    const unsigned char * in, size_t len)
+static int chacha20_poly1305_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
+    const uchar * in, size_t len)
 {
 	EVP_CHACHA_AEAD_CTX * actx = aead_data(ctx);
 	size_t rem, plen = actx->tls_payload_length;
-	static const unsigned char zero[POLY1305_BLOCK_SIZE] = { 0 };
+	static const uchar zero[POLY1305_BLOCK_SIZE] = { 0 };
 	if(!actx->mac_inited) {
 		actx->key.counter[0] = 0;
 		memzero(actx->key.buf, sizeof(actx->key.buf));
@@ -251,7 +251,7 @@ static int chacha20_poly1305_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
 			long one;
 			char little;
 		} is_endian = { 1 };
-		unsigned char temp[POLY1305_BLOCK_SIZE];
+		uchar temp[POLY1305_BLOCK_SIZE];
 
 		if(actx->aad) {                 /* wrap up aad */
 			if((rem = (size_t)actx->len.aad % POLY1305_BLOCK_SIZE))
@@ -266,26 +266,26 @@ static int chacha20_poly1305_cipher(EVP_CIPHER_CTX * ctx, unsigned char * out,
 
 		if(is_endian.little) {
 			Poly1305_Update(POLY1305_ctx(actx),
-			    (unsigned char*)&actx->len, POLY1305_BLOCK_SIZE);
+			    (uchar*)&actx->len, POLY1305_BLOCK_SIZE);
 		}
 		else {
-			temp[0]  = (unsigned char)(actx->len.aad);
-			temp[1]  = (unsigned char)(actx->len.aad>>8);
-			temp[2]  = (unsigned char)(actx->len.aad>>16);
-			temp[3]  = (unsigned char)(actx->len.aad>>24);
-			temp[4]  = (unsigned char)(actx->len.aad>>32);
-			temp[5]  = (unsigned char)(actx->len.aad>>40);
-			temp[6]  = (unsigned char)(actx->len.aad>>48);
-			temp[7]  = (unsigned char)(actx->len.aad>>56);
+			temp[0]  = (uchar)(actx->len.aad);
+			temp[1]  = (uchar)(actx->len.aad>>8);
+			temp[2]  = (uchar)(actx->len.aad>>16);
+			temp[3]  = (uchar)(actx->len.aad>>24);
+			temp[4]  = (uchar)(actx->len.aad>>32);
+			temp[5]  = (uchar)(actx->len.aad>>40);
+			temp[6]  = (uchar)(actx->len.aad>>48);
+			temp[7]  = (uchar)(actx->len.aad>>56);
 
-			temp[8]  = (unsigned char)(actx->len.text);
-			temp[9]  = (unsigned char)(actx->len.text>>8);
-			temp[10] = (unsigned char)(actx->len.text>>16);
-			temp[11] = (unsigned char)(actx->len.text>>24);
-			temp[12] = (unsigned char)(actx->len.text>>32);
-			temp[13] = (unsigned char)(actx->len.text>>40);
-			temp[14] = (unsigned char)(actx->len.text>>48);
-			temp[15] = (unsigned char)(actx->len.text>>56);
+			temp[8]  = (uchar)(actx->len.text);
+			temp[9]  = (uchar)(actx->len.text>>8);
+			temp[10] = (uchar)(actx->len.text>>16);
+			temp[11] = (uchar)(actx->len.text>>24);
+			temp[12] = (uchar)(actx->len.text>>32);
+			temp[13] = (uchar)(actx->len.text>>40);
+			temp[14] = (uchar)(actx->len.text>>48);
+			temp[15] = (uchar)(actx->len.text>>56);
 
 			Poly1305_Update(POLY1305_ctx(actx), temp, POLY1305_BLOCK_SIZE);
 		}
@@ -361,11 +361,11 @@ static int chacha20_poly1305_ctrl(EVP_CIPHER_CTX * ctx, int type, int arg, void 
 		    if(arg != 12)
 			    return 0;
 		    actx->nonce[0] = actx->key.counter[1]
-			    = CHACHA_U8TOU32((unsigned char*)ptr);
+			    = CHACHA_U8TOU32((uchar*)ptr);
 		    actx->nonce[1] = actx->key.counter[2]
-			    = CHACHA_U8TOU32((unsigned char*)ptr+4);
+			    = CHACHA_U8TOU32((uchar*)ptr+4);
 		    actx->nonce[2] = actx->key.counter[3]
-			    = CHACHA_U8TOU32((unsigned char*)ptr+8);
+			    = CHACHA_U8TOU32((uchar*)ptr+8);
 		    return 1;
 
 		case EVP_CTRL_AEAD_SET_TAG:
@@ -387,9 +387,9 @@ static int chacha20_poly1305_ctrl(EVP_CIPHER_CTX * ctx, int type, int arg, void 
 		    if(arg != EVP_AEAD_TLS1_AAD_LEN)
 			    return 0;
 		    {
-			    unsigned int len;
-			    unsigned char * aad = (unsigned char *)ptr;
-				unsigned char temp[POLY1305_BLOCK_SIZE];
+			    uint len;
+			    uchar * aad = (uchar *)ptr;
+				uchar temp[POLY1305_BLOCK_SIZE];
 			    len = aad[EVP_AEAD_TLS1_AAD_LEN - 2] << 8 |
 			    aad[EVP_AEAD_TLS1_AAD_LEN - 1];
 			    if(!ctx->encrypt) {
@@ -398,8 +398,8 @@ static int chacha20_poly1305_ctrl(EVP_CIPHER_CTX * ctx, int type, int arg, void 
 				    len -= POLY1305_BLOCK_SIZE; /* discount attached tag */
 				    memcpy(temp, aad, EVP_AEAD_TLS1_AAD_LEN - 2);
 				    aad = temp;
-				    temp[EVP_AEAD_TLS1_AAD_LEN - 2] = (unsigned char)(len >> 8);
-				    temp[EVP_AEAD_TLS1_AAD_LEN - 1] = (unsigned char)len;
+				    temp[EVP_AEAD_TLS1_AAD_LEN - 2] = (uchar)(len >> 8);
+				    temp[EVP_AEAD_TLS1_AAD_LEN - 1] = (uchar)len;
 			    }
 			    actx->tls_payload_length = len;
 

@@ -378,7 +378,7 @@ private:
 	SArray Items;            // @persistent
 	StringSet StringPool;    // @persistent
 	size_t RecSize;          // @transient
-	SString TempBuf;         // @transient
+	SString TempBuf;         // @transient @allocreuse
 	void * P_DataBuf;        // @transient
 	size_t OuterDataBufSize; // @transient
 	int    IsDataBufOwner;   // @transient Если !0, то экземпляр является владельцем буфера данных

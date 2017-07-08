@@ -40,18 +40,18 @@ extern "C" {
  * These flags are used to control combinations of algorithm (methods) by
  * bitwise "OR"ing.
  */
-# define ENGINE_METHOD_RSA               (unsigned int)0x0001
-# define ENGINE_METHOD_DSA               (unsigned int)0x0002
-# define ENGINE_METHOD_DH                (unsigned int)0x0004
-# define ENGINE_METHOD_RAND              (unsigned int)0x0008
-# define ENGINE_METHOD_CIPHERS           (unsigned int)0x0040
-# define ENGINE_METHOD_DIGESTS           (unsigned int)0x0080
-# define ENGINE_METHOD_PKEY_METHS        (unsigned int)0x0200
-# define ENGINE_METHOD_PKEY_ASN1_METHS   (unsigned int)0x0400
-# define ENGINE_METHOD_EC                (unsigned int)0x0800
+# define ENGINE_METHOD_RSA               (uint)0x0001
+# define ENGINE_METHOD_DSA               (uint)0x0002
+# define ENGINE_METHOD_DH                (uint)0x0004
+# define ENGINE_METHOD_RAND              (uint)0x0008
+# define ENGINE_METHOD_CIPHERS           (uint)0x0040
+# define ENGINE_METHOD_DIGESTS           (uint)0x0080
+# define ENGINE_METHOD_PKEY_METHS        (uint)0x0200
+# define ENGINE_METHOD_PKEY_ASN1_METHS   (uint)0x0400
+# define ENGINE_METHOD_EC                (uint)0x0800
 /* Obvious all-or-nothing cases. */
-# define ENGINE_METHOD_ALL               (unsigned int)0xFFFF
-# define ENGINE_METHOD_NONE              (unsigned int)0x0000
+# define ENGINE_METHOD_ALL               (uint)0xFFFF
+# define ENGINE_METHOD_NONE              (uint)0x0000
 
 /*
  * This(ese) flag(s) controls behaviour of the ENGINE_TABLE mechanism used
@@ -59,7 +59,7 @@ extern "C" {
  * set by ENGINE_set_table_flags(). The "NOINIT" flag prevents attempts to
  * initialise registered ENGINEs if they are not already initialised.
  */
-# define ENGINE_TABLE_FLAG_NOINIT        (unsigned int)0x0001
+# define ENGINE_TABLE_FLAG_NOINIT        (uint)0x0001
 
 /* ENGINE flags that can be set by ENGINE_set_flags(). */
 /* Not used */
@@ -106,23 +106,23 @@ extern "C" {
  */
 
 /* accepts a 'long' input value (3rd parameter to ENGINE_ctrl) */
-# define ENGINE_CMD_FLAG_NUMERIC         (unsigned int)0x0001
+# define ENGINE_CMD_FLAG_NUMERIC         (uint)0x0001
 /*
  * accepts string input (cast from 'void*' to 'const char *', 4th parameter
  * to ENGINE_ctrl)
  */
-# define ENGINE_CMD_FLAG_STRING          (unsigned int)0x0002
+# define ENGINE_CMD_FLAG_STRING          (uint)0x0002
 /*
  * Indicates that the control command takes *no* input. Ie. the control
  * command is unparameterised.
  */
-# define ENGINE_CMD_FLAG_NO_INPUT        (unsigned int)0x0004
+# define ENGINE_CMD_FLAG_NO_INPUT        (uint)0x0004
 /*
  * Indicates that the control command is internal. This control command won't
  * be shown in any output, and is only usable through the ENGINE_ctrl_cmd()
  * function.
  */
-# define ENGINE_CMD_FLAG_INTERNAL        (unsigned int)0x0008
+# define ENGINE_CMD_FLAG_INTERNAL        (uint)0x0008
 
 /*
  * NB: These 3 control commands are deprecated and should not be used.
@@ -253,10 +253,10 @@ extern "C" {
  * has cmd_num set to zero and/or cmd_name set to NULL.
  */
 typedef struct ENGINE_CMD_DEFN_st {
-    unsigned int cmd_num;       /* The command number */
+    uint cmd_num;       /* The command number */
     const char *cmd_name;       /* The command name itself */
     const char *cmd_desc;       /* A short description of the command */
-    unsigned int cmd_flags;     /* The input the command expects */
+    uint cmd_flags;     /* The input the command expects */
 } ENGINE_CMD_DEFN;
 
 /* Generic function pointer */
@@ -348,8 +348,8 @@ void ENGINE_load_builtin_engines(void);
  * Get and set global flags (ENGINE_TABLE_FLAG_***) for the implementation
  * "registry" handling.
  */
-unsigned int ENGINE_get_table_flags(void);
-void ENGINE_set_table_flags(unsigned int flags);
+uint ENGINE_get_table_flags(void);
+void ENGINE_set_table_flags(uint flags);
 
 /*- Manage registration of ENGINEs per "table". For each type, there are 3
  * functions;
@@ -630,7 +630,7 @@ int ENGINE_set_default_pkey_asn1_meths(ENGINE *e);
  * application requires only specific functionality, consider using more
  * selective functions.
  */
-int ENGINE_set_default(ENGINE *e, unsigned int flags);
+int ENGINE_set_default(ENGINE *e, uint flags);
 
 void ENGINE_add_conf_module(void);
 
