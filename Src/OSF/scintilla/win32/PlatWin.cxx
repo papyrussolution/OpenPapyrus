@@ -27,7 +27,7 @@
 	#include <dwrite.h>
 #endif
 //#include "Platform.h"
-//#include "StringCopy.h"
+////#include "StringCopy.h"
 #include "XPM.h"
 #include "UniConversion.h"
 #include "FontQuality.h"

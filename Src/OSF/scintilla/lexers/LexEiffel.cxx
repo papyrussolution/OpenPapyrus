@@ -11,17 +11,17 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
 
-static inline bool isEiffelOperator(uint ch)
+static bool FASTCALL isEiffelOperator(uint ch)
 {
 	// '.' left out as it is used to make up numbers
 	return ch == '*' || ch == '/' || ch == '\\' || ch == '-' || ch == '+' ||
@@ -33,12 +33,12 @@ static inline bool isEiffelOperator(uint ch)
 	       ch == '!' || ch == '@' || ch == '?';
 }
 
-static inline bool IsAWordChar(uint ch)
+static bool FASTCALL IsAWordChar(uint ch)
 {
 	return (ch < 0x80) && (isalnum(ch) || ch == '_');
 }
 
-static inline bool IsAWordStart(uint ch)
+static bool FASTCALL IsAWordStart(uint ch)
 {
 	return (ch < 0x80) && (isalnum(ch) || ch == '_');
 }

@@ -21,10 +21,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -62,52 +62,52 @@ using namespace Scintilla;
 
 // Auxiliary functions:
 
-static inline bool endOfLine(Accessor &styler, Sci_PositionU i)
+static bool FASTCALL endOfLine(Accessor &styler, Sci_PositionU i)
 {
 	return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
 }
 
-static inline bool isTeXzero(int ch)
+static bool FASTCALL isTeXzero(int ch)
 {
 	return (ch == '%');
 }
 
-static inline bool isTeXone(int ch)
+static bool FASTCALL isTeXone(int ch)
 {
 	return (ch == '[') || (ch == ']') || (ch == '=') || (ch == '#') ||
 		(ch == '(') || (ch == ')') || (ch == '<') || (ch == '>') ||
 		(ch == '"');
 }
 
-static inline bool isTeXtwo(int ch)
+static bool FASTCALL isTeXtwo(int ch)
 {
 	return (ch == '{') || (ch == '}') || (ch == '$');
 }
 
-static inline bool isTeXthree(int ch)
+static bool FASTCALL isTeXthree(int ch)
 {
 	return (ch == '~') || (ch == '^') || (ch == '_') || (ch == '&') ||
 		(ch == '-') || (ch == '+') || (ch == '\"') || (ch == '`') ||
 		(ch == '/') || (ch == '|') || (ch == '%');
 }
 
-static inline bool isTeXfour(int ch)
+static bool FASTCALL isTeXfour(int ch)
 {
 	return (ch == '\\');
 }
 
-static inline bool isTeXfive(int ch)
+static bool FASTCALL isTeXfive(int ch)
 {
 	return ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')) ||
 		(ch == '@') || (ch == '!') || (ch == '?');
 }
 
-static inline bool isTeXsix(int ch)
+static bool FASTCALL isTeXsix(int ch)
 {
 	return (ch == ' ');
 }
 
-static inline bool isTeXseven(int ch)
+static bool FASTCALL isTeXseven(int ch)
 {
 	return (ch == '^');
 }
@@ -300,7 +300,7 @@ static void ColouriseTeXDoc(Sci_PositionU startPos,
 	sc.Complete();
 }
 
-static inline bool isNumber(int ch)
+static bool FASTCALL isNumber(int ch)
 {
 	return
 		(ch == '0') || (ch == '1') || (ch == '2') ||
@@ -308,7 +308,7 @@ static inline bool isNumber(int ch)
 		(ch == '6') || (ch == '7') || (ch == '8') || (ch == '9');
 }
 
-static inline bool isWordChar(int ch)
+static bool FASTCALL isWordChar(int ch)
 {
 	return ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z'));
 }

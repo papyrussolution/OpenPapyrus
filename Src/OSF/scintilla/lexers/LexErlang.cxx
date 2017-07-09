@@ -14,10 +14,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -65,7 +65,7 @@ typedef enum {
 	PREPROCESSOR
 } atom_parse_state_t;
 
-static inline bool IsAWordChar(const int ch)
+static bool FASTCALL IsAWordChar(const int ch)
 {
 	return (ch < 0x80) && (ch != ' ') && (isalnum(ch) || ch == '_');
 }

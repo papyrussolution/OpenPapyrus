@@ -19,10 +19,10 @@
 //#include "SciLexer.h"
 //#include "WordList.h"
 //#include "PropSetSimple.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -227,18 +227,15 @@ void ColorizeBibTeX(Sci_PositionU start_pos, Sci_Position length, int /*init_sty
 				sc.SetState(SCE_BIBTEX_DEFAULT);
 				--current_level;
 			}
-
 			// Non escaped % found which represents a comment until the end of the line
 			if(sc.chPrev != '\\' && sc.ch == '%') {
 				in_comment = true;
 				sc.SetState(SCE_BIBTEX_COMMENT);
 			}
 		}
-
 		if(sc.state == SCE_BIBTEX_UNKNOWN_ENTRY || sc.state == SCE_BIBTEX_ENTRY) {
 			if(!IsAlphabetic(sc.ch) && collect_entry_name)
 				collect_entry_name = false;
-
 			if(collect_entry_name) {
 				buffer += static_cast<char>(tolower(sc.ch));
 				if(EntryNames.InList(buffer.c_str()))
@@ -247,13 +244,10 @@ void ColorizeBibTeX(Sci_PositionU start_pos, Sci_Position length, int /*init_sty
 					sc.ChangeState(SCE_BIBTEX_UNKNOWN_ENTRY);
 			}
 		}
-
 		if(sc.atLineEnd) {
 			int level = prev_level;
-
 			if(visible_chars == 0 && fold_compact)
 				level |= SC_FOLDLEVELWHITEFLAG;
-
 			if((current_level > prev_level))
 				level |= SC_FOLDLEVELHEADERFLAG;
 			// else if (current_level < prev_level)

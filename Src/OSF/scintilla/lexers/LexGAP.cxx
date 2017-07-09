@@ -12,17 +12,17 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
 
-static inline bool IsGAPOperator(char ch)
+static bool FASTCALL IsGAPOperator(char ch)
 {
 	if(IsASCII(ch) && isalnum(ch)) return false;
 	if(ch == '+' || ch == '-' || ch == '*' || ch == '/' ||

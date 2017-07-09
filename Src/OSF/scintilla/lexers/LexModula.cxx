@@ -16,10 +16,10 @@
 //#include "SciLexer.h"
 //#include "WordList.h"
 //#include "PropSetSimple.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -32,7 +32,7 @@ using namespace Scintilla;
 	#define DEBUG_STATE(p, c)
 #endif
 
-static inline bool IsDigitOfBase(unsigned ch, unsigned base)
+static bool FASTCALL IsDigitOfBase(unsigned ch, unsigned base)
 {
 	if(ch < '0' || ch > 'f')
 		return false;
@@ -77,19 +77,16 @@ static inline unsigned IsOperator(StyleContext & sc, WordList & op)
 	return 0;
 }
 
-static inline bool IsEOL(Accessor &styler, Sci_PositionU curPos)
+static bool FASTCALL IsEOL(Accessor &styler, Sci_PositionU curPos)
 {
 	unsigned ch = styler.SafeGetCharAt(curPos);
-	if( ( ch == '\r' && styler.SafeGetCharAt(curPos + 1) == '\n' ) ||
-	    ( ch == '\n' ) ) {
+	if(( ch == '\r' && styler.SafeGetCharAt(curPos + 1) == '\n' ) || ( ch == '\n' )) {
 		return true;
 	}
 	return false;
 }
 
-static inline bool checkStatement(Accessor &styler,
-    Sci_Position &curPos,
-    const char * stt, bool spaceAfter = true)
+static bool FASTCALL checkStatement(Accessor &styler, Sci_Position &curPos, const char * stt, bool spaceAfter = true)
 {
 	int len = static_cast<int>(strlen(stt));
 	int i;
@@ -107,7 +104,7 @@ static inline bool checkStatement(Accessor &styler,
 	return true;
 }
 
-static inline bool checkEndSemicolon(Accessor &styler,
+static bool FASTCALL checkEndSemicolon(Accessor &styler,
     Sci_Position &curPos, Sci_Position endPos)
 {
 	const char * stt = "END";
@@ -129,9 +126,7 @@ static inline bool checkEndSemicolon(Accessor &styler,
 	return true;
 }
 
-static inline bool checkKeyIdentOper(Accessor &styler,
-    Sci_Position &curPos, Sci_Position endPos,
-    const char * stt, const char etk)
+static bool FASTCALL checkKeyIdentOper(Accessor &styler, Sci_Position &curPos, Sci_Position endPos, const char * stt, const char etk)
 {
 	Sci_Position newPos = curPos;
 	if(!checkStatement(styler, newPos, stt) )
@@ -291,7 +286,7 @@ static void FoldModulaDoc(Sci_PositionU startPos, Sci_Position length, int, Word
 	}
 }
 
-static inline bool skipWhiteSpaces(StyleContext & sc)
+static bool FASTCALL skipWhiteSpaces(StyleContext & sc)
 {
 	while(isspace(sc.ch) ) {
 		sc.SetState(SCE_MODULA_DEFAULT);

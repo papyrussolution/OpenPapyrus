@@ -11,7 +11,7 @@
 //#include <stdexcept>
 //#include <vector>
 //#include <map>
-#include "StringCopy.h"
+//#include "StringCopy.h"
 #include "XPM.h"
 #include "LineMarker.h"
 

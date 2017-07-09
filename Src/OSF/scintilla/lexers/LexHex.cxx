@@ -1,9 +1,9 @@
 // Scintilla source code edit control
 /** @file LexHex.cxx
- ** Lexers for Motorola S-Record, Intel HEX and Tektronix extended HEX.
- **
- ** Written by Markus Heidelberg
- **/
+** Lexers for Motorola S-Record, Intel HEX and Tektronix extended HEX.
+**
+** Written by Markus Heidelberg
+**/
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
@@ -22,7 +22,8 @@
  *  +----------+
  *  | count    |  2               SCE_HEX_BYTECOUNT, SCE_HEX_BYTECOUNT_WRONG
  *  +----------+
- *  | address  |  4/6/8           SCE_HEX_NOADDRESS, SCE_HEX_DATAADDRESS, SCE_HEX_RECCOUNT, SCE_HEX_STARTADDRESS, (SCE_HEX_ADDRESSFIELD_UNKNOWN)
+ *  | address  |  4/6/8           SCE_HEX_NOADDRESS, SCE_HEX_DATAADDRESS, SCE_HEX_RECCOUNT, SCE_HEX_STARTADDRESS,
+ *(SCE_HEX_ADDRESSFIELD_UNKNOWN)
  *  +----------+
  *  | data     |  0..504/502/500  SCE_HEX_DATA_ODD, SCE_HEX_DATA_EVEN, SCE_HEX_DATA_EMPTY, (SCE_HEX_DATA_UNKNOWN)
  *  +----------+
@@ -46,7 +47,8 @@
  *  +----------+
  *  | type     |  2               SCE_HEX_RECTYPE, (SCE_HEX_RECTYPE_UNKNOWN)
  *  +----------+
- *  | data     |  0..510          SCE_HEX_DATA_ODD, SCE_HEX_DATA_EVEN, SCE_HEX_DATA_EMPTY, SCE_HEX_EXTENDEDADDRESS, SCE_HEX_STARTADDRESS, (SCE_HEX_DATA_UNKNOWN)
+ *  | data     |  0..510          SCE_HEX_DATA_ODD, SCE_HEX_DATA_EVEN, SCE_HEX_DATA_EMPTY, SCE_HEX_EXTENDEDADDRESS,
+ *SCE_HEX_STARTADDRESS, (SCE_HEX_DATA_UNKNOWN)
  *  +----------+
  *  | checksum |  2               SCE_HEX_CHECKSUM, SCE_HEX_CHECKSUM_WRONG
  *  +----------+
@@ -105,10 +107,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -116,7 +118,7 @@ using namespace Scintilla;
 #endif
 
 // prototypes for general helper functions
-static inline bool IsNewline(const int ch);
+static bool FASTCALL IsNewline(const int ch);
 static int GetHexaNibble(char hd);
 static int GetHexaChar(char hd1, char hd2);
 static int GetHexaChar(Sci_PositionU pos, Accessor &styler);
@@ -151,22 +153,25 @@ static int GetTEHexAddressFieldType(Sci_PositionU recStartPos, Accessor &styler)
 static int GetTEHexChecksum(Sci_PositionU recStartPos, Accessor &styler);
 static int CalcTEHexChecksum(Sci_PositionU recStartPos, Accessor &styler);
 
-static inline bool IsNewline(const int ch)
+static bool FASTCALL IsNewline(const int ch)
 {
-    return (ch == '\n' || ch == '\r');
+	return (ch == '\n' || ch == '\r');
 }
 
 static int GetHexaNibble(char hd)
 {
 	int hexValue = 0;
 
-	if (hd >= '0' && hd <= '9') {
+	if(hd >= '0' && hd <= '9') {
 		hexValue += hd - '0';
-	} else if (hd >= 'A' && hd <= 'F') {
+	}
+	else if(hd >= 'A' && hd <= 'F') {
 		hexValue += hd - 'A' + 10;
-	} else if (hd >= 'a' && hd <= 'f') {
+	}
+	else if(hd >= 'a' && hd <= 'f') {
 		hexValue += hd - 'a' + 10;
-	} else {
+	}
+	else {
 		return -1;
 	}
 
@@ -177,23 +182,29 @@ static int GetHexaChar(char hd1, char hd2)
 {
 	int hexValue = 0;
 
-	if (hd1 >= '0' && hd1 <= '9') {
+	if(hd1 >= '0' && hd1 <= '9') {
 		hexValue += 16 * (hd1 - '0');
-	} else if (hd1 >= 'A' && hd1 <= 'F') {
+	}
+	else if(hd1 >= 'A' && hd1 <= 'F') {
 		hexValue += 16 * (hd1 - 'A' + 10);
-	} else if (hd1 >= 'a' && hd1 <= 'f') {
+	}
+	else if(hd1 >= 'a' && hd1 <= 'f') {
 		hexValue += 16 * (hd1 - 'a' + 10);
-	} else {
+	}
+	else {
 		return -1;
 	}
 
-	if (hd2 >= '0' && hd2 <= '9') {
+	if(hd2 >= '0' && hd2 <= '9') {
 		hexValue += hd2 - '0';
-	} else if (hd2 >= 'A' && hd2 <= 'F') {
+	}
+	else if(hd2 >= 'A' && hd2 <= 'F') {
 		hexValue += hd2 - 'A' + 10;
-	} else if (hd2 >= 'a' && hd2 <= 'f') {
+	}
+	else if(hd2 >= 'a' && hd2 <= 'f') {
 		hexValue += hd2 - 'a' + 10;
-	} else {
+	}
+	else {
 		return -1;
 	}
 
@@ -216,13 +227,14 @@ static int GetHexaChar(Sci_PositionU pos, Accessor &styler)
 // is malformed (too short).
 static bool ForwardWithinLine(StyleContext &sc, Sci_Position nb)
 {
-	for (Sci_Position i = 0; i < nb; i++) {
-		if (sc.atLineEnd) {
+	for(Sci_Position i = 0; i < nb; i++) {
+		if(sc.atLineEnd) {
 			// line is too short
 			sc.SetState(SCE_HEX_DEFAULT);
 			sc.Forward();
 			return false;
-		} else {
+		}
+		else {
 			sc.Forward();
 		}
 	}
@@ -246,7 +258,7 @@ static Sci_Position CountByteCount(Sci_PositionU startPos, Sci_Position uncounte
 
 	pos = startPos;
 
-	while (!IsNewline(styler.SafeGetCharAt(pos, '\n'))) {
+	while(!IsNewline(styler.SafeGetCharAt(pos, '\n'))) {
 		pos++;
 	}
 
@@ -255,7 +267,7 @@ static Sci_Position CountByteCount(Sci_PositionU startPos, Sci_Position uncounte
 
 	// Prepare round up if odd (digit pair incomplete), this way the byte
 	// count is considered to be valid if the checksum is incomplete.
-	if (cnt >= 0) {
+	if(cnt >= 0) {
 		cnt++;
 	}
 
@@ -272,10 +284,10 @@ static int CalcChecksum(Sci_PositionU startPos, Sci_Position cnt, bool twosCompl
 {
 	int cs = 0;
 
-	for (Sci_PositionU pos = startPos; pos < startPos + cnt; pos += 2) {
+	for(Sci_PositionU pos = startPos; pos < startPos + cnt; pos += 2) {
 		int val = GetHexaChar(pos, styler);
 
-		if (val < 0) {
+		if(val < 0) {
 			return val;
 		}
 
@@ -283,10 +295,11 @@ static int CalcChecksum(Sci_PositionU startPos, Sci_Position cnt, bool twosCompl
 		cs += val;
 	}
 
-	if (twosCompl) {
+	if(twosCompl) {
 		// low byte of two's complement
 		return -cs & 0xFF;
-	} else {
+	}
+	else {
 		// low byte of one's complement
 		return ~cs & 0xFF;
 	}
@@ -296,7 +309,7 @@ static int CalcChecksum(Sci_PositionU startPos, Sci_Position cnt, bool twosCompl
 // the record around position <pos>.
 static Sci_PositionU GetSrecRecStartPosition(Sci_PositionU pos, Accessor &styler)
 {
-	while (styler.SafeGetCharAt(pos) != 'S') {
+	while(styler.SafeGetCharAt(pos) != 'S') {
 		pos--;
 	}
 
@@ -310,8 +323,8 @@ static int GetSrecByteCount(Sci_PositionU recStartPos, Accessor &styler)
 	int val;
 
 	val = GetHexaChar(recStartPos + 2, styler);
-	if (val < 0) {
-	       val = 0;
+	if(val < 0) {
+		val = 0;
 	}
 
 	return val;
@@ -328,72 +341,72 @@ static Sci_Position CountSrecByteCount(Sci_PositionU recStartPos, Accessor &styl
 // Get the size of the "address" field.
 static int GetSrecAddressFieldSize(Sci_PositionU recStartPos, Accessor &styler)
 {
-	switch (styler.SafeGetCharAt(recStartPos + 1)) {
+	switch(styler.SafeGetCharAt(recStartPos + 1)) {
 		case '0':
 		case '1':
 		case '5':
 		case '9':
-			return 2; // 16 bit
+		    return 2;     // 16 bit
 
 		case '2':
 		case '6':
 		case '8':
-			return 3; // 24 bit
+		    return 3;     // 24 bit
 
 		case '3':
 		case '7':
-			return 4; // 32 bit
+		    return 4;     // 32 bit
 
 		default:
-			return 0;
+		    return 0;
 	}
 }
 
 // Get the type of the "address" field content.
 static int GetSrecAddressFieldType(Sci_PositionU recStartPos, Accessor &styler)
 {
-	switch (styler.SafeGetCharAt(recStartPos + 1)) {
+	switch(styler.SafeGetCharAt(recStartPos + 1)) {
 		case '0':
-			return SCE_HEX_NOADDRESS;
+		    return SCE_HEX_NOADDRESS;
 
 		case '1':
 		case '2':
 		case '3':
-			return SCE_HEX_DATAADDRESS;
+		    return SCE_HEX_DATAADDRESS;
 
 		case '5':
 		case '6':
-			return SCE_HEX_RECCOUNT;
+		    return SCE_HEX_RECCOUNT;
 
 		case '7':
 		case '8':
 		case '9':
-			return SCE_HEX_STARTADDRESS;
+		    return SCE_HEX_STARTADDRESS;
 
 		default: // handle possible format extension in the future
-			return SCE_HEX_ADDRESSFIELD_UNKNOWN;
+		    return SCE_HEX_ADDRESSFIELD_UNKNOWN;
 	}
 }
 
 // Get the type of the "data" field content.
 static int GetSrecDataFieldType(Sci_PositionU recStartPos, Accessor &styler)
 {
-	switch (styler.SafeGetCharAt(recStartPos + 1)) {
+	switch(styler.SafeGetCharAt(recStartPos + 1)) {
 		case '0':
 		case '1':
 		case '2':
 		case '3':
-			return SCE_HEX_DATA_ODD;
+		    return SCE_HEX_DATA_ODD;
 
 		case '5':
 		case '6':
 		case '7':
 		case '8':
 		case '9':
-			return SCE_HEX_DATA_EMPTY;
+		    return SCE_HEX_DATA_EMPTY;
 
 		default: // handle possible format extension in the future
-			return SCE_HEX_DATA_UNKNOWN;
+		    return SCE_HEX_DATA_UNKNOWN;
 	}
 }
 
@@ -402,18 +415,18 @@ static int GetSrecDataFieldType(Sci_PositionU recStartPos, Accessor &styler)
 // from the "byte count" and "address field" size in this case.
 static Sci_Position GetSrecRequiredDataFieldSize(Sci_PositionU recStartPos, Accessor &styler)
 {
-	switch (styler.SafeGetCharAt(recStartPos + 1)) {
+	switch(styler.SafeGetCharAt(recStartPos + 1)) {
 		case '5':
 		case '6':
 		case '7':
 		case '8':
 		case '9':
-			return 0;
+		    return 0;
 
 		default:
-			return GetSrecByteCount(recStartPos, styler)
-				- GetSrecAddressFieldSize(recStartPos, styler)
-				- 1; // -1 for checksum field
+		    return GetSrecByteCount(recStartPos, styler)
+			   - GetSrecAddressFieldSize(recStartPos, styler)
+			   - 1;      // -1 for checksum field
 	}
 }
 
@@ -442,7 +455,7 @@ static int CalcSrecChecksum(Sci_PositionU recStartPos, Accessor &styler)
 // the record around position <pos>.
 static Sci_PositionU GetIHexRecStartPosition(Sci_PositionU pos, Accessor &styler)
 {
-	while (styler.SafeGetCharAt(pos) != ':') {
+	while(styler.SafeGetCharAt(pos) != ':') {
 		pos--;
 	}
 
@@ -456,8 +469,8 @@ static int GetIHexByteCount(Sci_PositionU recStartPos, Accessor &styler)
 	int val;
 
 	val = GetHexaChar(recStartPos + 1, styler);
-	if (val < 0) {
-	       val = 0;
+	if(val < 0) {
+		val = 0;
 	}
 
 	return val;
@@ -474,48 +487,48 @@ static Sci_Position CountIHexByteCount(Sci_PositionU recStartPos, Accessor &styl
 // Get the type of the "address" field content.
 static int GetIHexAddressFieldType(Sci_PositionU recStartPos, Accessor &styler)
 {
-	if (!PosInSameRecord(recStartPos, recStartPos + 7, styler)) {
+	if(!PosInSameRecord(recStartPos, recStartPos + 7, styler)) {
 		// malformed (record too short)
 		// type cannot be determined
 		return SCE_HEX_ADDRESSFIELD_UNKNOWN;
 	}
 
-	switch (GetHexaChar(recStartPos + 7, styler)) {
+	switch(GetHexaChar(recStartPos + 7, styler)) {
 		case 0x00:
-			return SCE_HEX_DATAADDRESS;
+		    return SCE_HEX_DATAADDRESS;
 
 		case 0x01:
 		case 0x02:
 		case 0x03:
 		case 0x04:
 		case 0x05:
-			return SCE_HEX_NOADDRESS;
+		    return SCE_HEX_NOADDRESS;
 
 		default: // handle possible format extension in the future
-			return SCE_HEX_ADDRESSFIELD_UNKNOWN;
+		    return SCE_HEX_ADDRESSFIELD_UNKNOWN;
 	}
 }
 
 // Get the type of the "data" field content.
 static int GetIHexDataFieldType(Sci_PositionU recStartPos, Accessor &styler)
 {
-	switch (GetHexaChar(recStartPos + 7, styler)) {
+	switch(GetHexaChar(recStartPos + 7, styler)) {
 		case 0x00:
-			return SCE_HEX_DATA_ODD;
+		    return SCE_HEX_DATA_ODD;
 
 		case 0x01:
-			return SCE_HEX_DATA_EMPTY;
+		    return SCE_HEX_DATA_EMPTY;
 
 		case 0x02:
 		case 0x04:
-			return SCE_HEX_EXTENDEDADDRESS;
+		    return SCE_HEX_EXTENDEDADDRESS;
 
 		case 0x03:
 		case 0x05:
-			return SCE_HEX_STARTADDRESS;
+		    return SCE_HEX_STARTADDRESS;
 
 		default: // handle possible format extension in the future
-			return SCE_HEX_DATA_UNKNOWN;
+		    return SCE_HEX_DATA_UNKNOWN;
 	}
 }
 
@@ -523,20 +536,20 @@ static int GetIHexDataFieldType(Sci_PositionU recStartPos, Accessor &styler)
 // record (type 00), return the "byte count" in this case.
 static int GetIHexRequiredDataFieldSize(Sci_PositionU recStartPos, Accessor &styler)
 {
-	switch (GetHexaChar(recStartPos + 7, styler)) {
+	switch(GetHexaChar(recStartPos + 7, styler)) {
 		case 0x01:
-			return 0;
+		    return 0;
 
 		case 0x02:
 		case 0x04:
-			return 2;
+		    return 2;
 
 		case 0x03:
 		case 0x05:
-			return 4;
+		    return 4;
 
 		default:
-			return GetIHexByteCount(recStartPos, styler);
+		    return GetIHexByteCount(recStartPos, styler);
 	}
 }
 
@@ -561,14 +574,13 @@ static int CalcIHexChecksum(Sci_PositionU recStartPos, Accessor &styler)
 	return CalcChecksum(recStartPos + 1, 8 + byteCount * 2, true, styler);
 }
 
-
 // Get the value of the "record length" field, it counts the number of digits in
 // the record excluding the percent.
 static int GetTEHexDigitCount(Sci_PositionU recStartPos, Accessor &styler)
 {
 	int val = GetHexaChar(recStartPos + 1, styler);
-	if (val < 0)
-	       val = 0;
+	if(val < 0)
+		val = 0;
 
 	return val;
 }
@@ -581,7 +593,7 @@ static Sci_Position CountTEHexDigitCount(Sci_PositionU recStartPos, Accessor &st
 
 	pos = recStartPos+1;
 
-	while (!IsNewline(styler.SafeGetCharAt(pos, '\n'))) {
+	while(!IsNewline(styler.SafeGetCharAt(pos, '\n'))) {
 		pos++;
 	}
 
@@ -591,15 +603,15 @@ static Sci_Position CountTEHexDigitCount(Sci_PositionU recStartPos, Accessor &st
 // Get the type of the "address" field content.
 static int GetTEHexAddressFieldType(Sci_PositionU recStartPos, Accessor &styler)
 {
-	switch (styler.SafeGetCharAt(recStartPos + 3)) {
+	switch(styler.SafeGetCharAt(recStartPos + 3)) {
 		case '6':
-			return SCE_HEX_DATAADDRESS;
+		    return SCE_HEX_DATAADDRESS;
 
 		case '8':
-			return SCE_HEX_STARTADDRESS;
+		    return SCE_HEX_STARTADDRESS;
 
 		default: // handle possible format extension in the future
-			return SCE_HEX_ADDRESSFIELD_UNKNOWN;
+		    return SCE_HEX_ADDRESSFIELD_UNKNOWN;
 	}
 }
 
@@ -615,17 +627,17 @@ static int CalcTEHexChecksum(Sci_PositionU recStartPos, Accessor &styler)
 	Sci_PositionU pos = recStartPos +1;
 	Sci_PositionU length = GetTEHexDigitCount(recStartPos, styler);
 
-	int cs = GetHexaNibble(styler.SafeGetCharAt(pos++));//length
-	cs += GetHexaNibble(styler.SafeGetCharAt(pos++));//length
+	int cs = GetHexaNibble(styler.SafeGetCharAt(pos++)); //length
+	cs += GetHexaNibble(styler.SafeGetCharAt(pos++)); //length
 
-	cs += GetHexaNibble(styler.SafeGetCharAt(pos++));//type
+	cs += GetHexaNibble(styler.SafeGetCharAt(pos++)); //type
 
-	pos += 2;// jump over CS field
+	pos += 2; // jump over CS field
 
-	for (; pos <= recStartPos + length; ++pos) {
+	for(; pos <= recStartPos + length; ++pos) {
 		int val = GetHexaNibble(styler.SafeGetCharAt(pos));
 
-		if (val < 0) {
+		if(val < 0) {
 			return val;
 		}
 
@@ -635,128 +647,123 @@ static int CalcTEHexChecksum(Sci_PositionU recStartPos, Accessor &styler)
 
 	// low byte
 	return cs & 0xFF;
-
 }
 
 static void ColouriseSrecDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor &styler)
 {
 	StyleContext sc(startPos, length, initStyle, styler);
-
-	while (sc.More()) {
+	while(sc.More()) {
 		Sci_PositionU recStartPos;
 		int byteCount, reqByteCount, addrFieldSize, addrFieldType, dataFieldSize, dataFieldType;
 		int cs1, cs2;
-
-		switch (sc.state) {
+		switch(sc.state) {
 			case SCE_HEX_DEFAULT:
-				if (sc.atLineStart && sc.Match('S')) {
-					sc.SetState(SCE_HEX_RECSTART);
-				}
-				ForwardWithinLine(sc);
-				break;
-
+			    if(sc.atLineStart && sc.Match('S')) {
+				    sc.SetState(SCE_HEX_RECSTART);
+			    }
+			    ForwardWithinLine(sc);
+			    break;
 			case SCE_HEX_RECSTART:
-				recStartPos = sc.currentPos - 1;
-				addrFieldType = GetSrecAddressFieldType(recStartPos, styler);
-
-				if (addrFieldType == SCE_HEX_ADDRESSFIELD_UNKNOWN) {
-					sc.SetState(SCE_HEX_RECTYPE_UNKNOWN);
-				} else {
-					sc.SetState(SCE_HEX_RECTYPE);
-				}
-
-				ForwardWithinLine(sc);
-				break;
-
+			    recStartPos = sc.currentPos - 1;
+			    addrFieldType = GetSrecAddressFieldType(recStartPos, styler);
+			    if(addrFieldType == SCE_HEX_ADDRESSFIELD_UNKNOWN) {
+				    sc.SetState(SCE_HEX_RECTYPE_UNKNOWN);
+			    }
+			    else {
+				    sc.SetState(SCE_HEX_RECTYPE);
+			    }
+			    ForwardWithinLine(sc);
+			    break;
 			case SCE_HEX_RECTYPE:
 			case SCE_HEX_RECTYPE_UNKNOWN:
-				recStartPos = sc.currentPos - 2;
-				byteCount = GetSrecByteCount(recStartPos, styler);
-				reqByteCount = GetSrecAddressFieldSize(recStartPos, styler)
-						+ GetSrecRequiredDataFieldSize(recStartPos, styler)
-						+ 1; // +1 for checksum field
-
-				if (byteCount == CountSrecByteCount(recStartPos, styler)
-						&& byteCount == reqByteCount) {
-					sc.SetState(SCE_HEX_BYTECOUNT);
-				} else {
-					sc.SetState(SCE_HEX_BYTECOUNT_WRONG);
-				}
-
-				ForwardWithinLine(sc, 2);
-				break;
+			    recStartPos = sc.currentPos - 2;
+			    byteCount = GetSrecByteCount(recStartPos, styler);
+			    reqByteCount = GetSrecAddressFieldSize(recStartPos, styler)
+			    + GetSrecRequiredDataFieldSize(recStartPos, styler)
+			    + 1;                     // +1 for checksum field
+			    if(byteCount == CountSrecByteCount(recStartPos, styler) && byteCount == reqByteCount) {
+				    sc.SetState(SCE_HEX_BYTECOUNT);
+			    }
+			    else {
+				    sc.SetState(SCE_HEX_BYTECOUNT_WRONG);
+			    }
+			    ForwardWithinLine(sc, 2);
+			    break;
 
 			case SCE_HEX_BYTECOUNT:
 			case SCE_HEX_BYTECOUNT_WRONG:
-				recStartPos = sc.currentPos - 4;
-				addrFieldSize = GetSrecAddressFieldSize(recStartPos, styler);
-				addrFieldType = GetSrecAddressFieldType(recStartPos, styler);
+			    recStartPos = sc.currentPos - 4;
+			    addrFieldSize = GetSrecAddressFieldSize(recStartPos, styler);
+			    addrFieldType = GetSrecAddressFieldType(recStartPos, styler);
 
-				sc.SetState(addrFieldType);
-				ForwardWithinLine(sc, addrFieldSize * 2);
-				break;
+			    sc.SetState(addrFieldType);
+			    ForwardWithinLine(sc, addrFieldSize * 2);
+			    break;
 
 			case SCE_HEX_NOADDRESS:
 			case SCE_HEX_DATAADDRESS:
 			case SCE_HEX_RECCOUNT:
 			case SCE_HEX_STARTADDRESS:
 			case SCE_HEX_ADDRESSFIELD_UNKNOWN:
-				recStartPos = GetSrecRecStartPosition(sc.currentPos, styler);
-				dataFieldType = GetSrecDataFieldType(recStartPos, styler);
+			    recStartPos = GetSrecRecStartPosition(sc.currentPos, styler);
+			    dataFieldType = GetSrecDataFieldType(recStartPos, styler);
 
-				// Using the required size here if possible has the effect that the
-				// checksum is highlighted at a fixed position after this field for
-				// specific record types, independent on the "byte count" value.
-				dataFieldSize = GetSrecRequiredDataFieldSize(recStartPos, styler);
+			    // Using the required size here if possible has the effect that the
+			    // checksum is highlighted at a fixed position after this field for
+			    // specific record types, independent on the "byte count" value.
+			    dataFieldSize = GetSrecRequiredDataFieldSize(recStartPos, styler);
 
-				sc.SetState(dataFieldType);
+			    sc.SetState(dataFieldType);
 
-				if (dataFieldType == SCE_HEX_DATA_ODD) {
-					for (int i = 0; i < dataFieldSize * 2; i++) {
-						if ((i & 0x3) == 0) {
-							sc.SetState(SCE_HEX_DATA_ODD);
-						} else if ((i & 0x3) == 2) {
-							sc.SetState(SCE_HEX_DATA_EVEN);
-						}
+			    if(dataFieldType == SCE_HEX_DATA_ODD) {
+				    for(int i = 0; i < dataFieldSize * 2; i++) {
+					    if((i & 0x3) == 0) {
+						    sc.SetState(SCE_HEX_DATA_ODD);
+					    }
+					    else if((i & 0x3) == 2) {
+						    sc.SetState(SCE_HEX_DATA_EVEN);
+					    }
 
-						if (!ForwardWithinLine(sc)) {
-							break;
-						}
-					}
-				} else {
-					ForwardWithinLine(sc, dataFieldSize * 2);
-				}
-				break;
+					    if(!ForwardWithinLine(sc)) {
+						    break;
+					    }
+				    }
+			    }
+			    else {
+				    ForwardWithinLine(sc, dataFieldSize * 2);
+			    }
+			    break;
 
 			case SCE_HEX_DATA_ODD:
 			case SCE_HEX_DATA_EVEN:
 			case SCE_HEX_DATA_EMPTY:
 			case SCE_HEX_DATA_UNKNOWN:
-				recStartPos = GetSrecRecStartPosition(sc.currentPos, styler);
-				cs1 = CalcSrecChecksum(recStartPos, styler);
-				cs2 = GetSrecChecksum(recStartPos, styler);
+			    recStartPos = GetSrecRecStartPosition(sc.currentPos, styler);
+			    cs1 = CalcSrecChecksum(recStartPos, styler);
+			    cs2 = GetSrecChecksum(recStartPos, styler);
 
-				if (cs1 != cs2 || cs1 < 0 || cs2 < 0) {
-					sc.SetState(SCE_HEX_CHECKSUM_WRONG);
-				} else {
-					sc.SetState(SCE_HEX_CHECKSUM);
-				}
+			    if(cs1 != cs2 || cs1 < 0 || cs2 < 0) {
+				    sc.SetState(SCE_HEX_CHECKSUM_WRONG);
+			    }
+			    else {
+				    sc.SetState(SCE_HEX_CHECKSUM);
+			    }
 
-				ForwardWithinLine(sc, 2);
-				break;
+			    ForwardWithinLine(sc, 2);
+			    break;
 
 			case SCE_HEX_CHECKSUM:
 			case SCE_HEX_CHECKSUM_WRONG:
 			case SCE_HEX_GARBAGE:
-				// record finished or line too long
-				sc.SetState(SCE_HEX_GARBAGE);
-				ForwardWithinLine(sc);
-				break;
+			    // record finished or line too long
+			    sc.SetState(SCE_HEX_GARBAGE);
+			    ForwardWithinLine(sc);
+			    break;
 
 			default:
-				// prevent endless loop in faulty state
-				sc.SetState(SCE_HEX_DEFAULT);
-				break;
+			    // prevent endless loop in faulty state
+			    sc.SetState(SCE_HEX_DEFAULT);
+			    break;
 		}
 	}
 	sc.Complete();
@@ -766,86 +773,90 @@ static void ColouriseIHexDoc(Sci_PositionU startPos, Sci_Position length, int in
 {
 	StyleContext sc(startPos, length, initStyle, styler);
 
-	while (sc.More()) {
+	while(sc.More()) {
 		Sci_PositionU recStartPos;
 		int byteCount, addrFieldType, dataFieldSize, dataFieldType;
 		int cs1, cs2;
 
-		switch (sc.state) {
+		switch(sc.state) {
 			case SCE_HEX_DEFAULT:
-				if (sc.atLineStart && sc.Match(':')) {
-					sc.SetState(SCE_HEX_RECSTART);
-				}
-				ForwardWithinLine(sc);
-				break;
+			    if(sc.atLineStart && sc.Match(':')) {
+				    sc.SetState(SCE_HEX_RECSTART);
+			    }
+			    ForwardWithinLine(sc);
+			    break;
 
 			case SCE_HEX_RECSTART:
-				recStartPos = sc.currentPos - 1;
-				byteCount = GetIHexByteCount(recStartPos, styler);
-				dataFieldSize = GetIHexRequiredDataFieldSize(recStartPos, styler);
+			    recStartPos = sc.currentPos - 1;
+			    byteCount = GetIHexByteCount(recStartPos, styler);
+			    dataFieldSize = GetIHexRequiredDataFieldSize(recStartPos, styler);
 
-				if (byteCount == CountIHexByteCount(recStartPos, styler)
-						&& byteCount == dataFieldSize) {
-					sc.SetState(SCE_HEX_BYTECOUNT);
-				} else {
-					sc.SetState(SCE_HEX_BYTECOUNT_WRONG);
-				}
+			    if(byteCount == CountIHexByteCount(recStartPos, styler)
+			    && byteCount == dataFieldSize) {
+				    sc.SetState(SCE_HEX_BYTECOUNT);
+			    }
+			    else {
+				    sc.SetState(SCE_HEX_BYTECOUNT_WRONG);
+			    }
 
-				ForwardWithinLine(sc, 2);
-				break;
+			    ForwardWithinLine(sc, 2);
+			    break;
 
 			case SCE_HEX_BYTECOUNT:
 			case SCE_HEX_BYTECOUNT_WRONG:
-				recStartPos = sc.currentPos - 3;
-				addrFieldType = GetIHexAddressFieldType(recStartPos, styler);
+			    recStartPos = sc.currentPos - 3;
+			    addrFieldType = GetIHexAddressFieldType(recStartPos, styler);
 
-				sc.SetState(addrFieldType);
-				ForwardWithinLine(sc, 4);
-				break;
+			    sc.SetState(addrFieldType);
+			    ForwardWithinLine(sc, 4);
+			    break;
 
 			case SCE_HEX_NOADDRESS:
 			case SCE_HEX_DATAADDRESS:
 			case SCE_HEX_ADDRESSFIELD_UNKNOWN:
-				recStartPos = sc.currentPos - 7;
-				addrFieldType = GetIHexAddressFieldType(recStartPos, styler);
+			    recStartPos = sc.currentPos - 7;
+			    addrFieldType = GetIHexAddressFieldType(recStartPos, styler);
 
-				if (addrFieldType == SCE_HEX_ADDRESSFIELD_UNKNOWN) {
-					sc.SetState(SCE_HEX_RECTYPE_UNKNOWN);
-				} else {
-					sc.SetState(SCE_HEX_RECTYPE);
-				}
+			    if(addrFieldType == SCE_HEX_ADDRESSFIELD_UNKNOWN) {
+				    sc.SetState(SCE_HEX_RECTYPE_UNKNOWN);
+			    }
+			    else {
+				    sc.SetState(SCE_HEX_RECTYPE);
+			    }
 
-				ForwardWithinLine(sc, 2);
-				break;
+			    ForwardWithinLine(sc, 2);
+			    break;
 
 			case SCE_HEX_RECTYPE:
 			case SCE_HEX_RECTYPE_UNKNOWN:
-				recStartPos = sc.currentPos - 9;
-				dataFieldType = GetIHexDataFieldType(recStartPos, styler);
+			    recStartPos = sc.currentPos - 9;
+			    dataFieldType = GetIHexDataFieldType(recStartPos, styler);
 
-				// Using the required size here if possible has the effect that the
-				// checksum is highlighted at a fixed position after this field for
-				// specific record types, independent on the "byte count" value.
-				dataFieldSize = GetIHexRequiredDataFieldSize(recStartPos, styler);
+			    // Using the required size here if possible has the effect that the
+			    // checksum is highlighted at a fixed position after this field for
+			    // specific record types, independent on the "byte count" value.
+			    dataFieldSize = GetIHexRequiredDataFieldSize(recStartPos, styler);
 
-				sc.SetState(dataFieldType);
+			    sc.SetState(dataFieldType);
 
-				if (dataFieldType == SCE_HEX_DATA_ODD) {
-					for (int i = 0; i < dataFieldSize * 2; i++) {
-						if ((i & 0x3) == 0) {
-							sc.SetState(SCE_HEX_DATA_ODD);
-						} else if ((i & 0x3) == 2) {
-							sc.SetState(SCE_HEX_DATA_EVEN);
-						}
+			    if(dataFieldType == SCE_HEX_DATA_ODD) {
+				    for(int i = 0; i < dataFieldSize * 2; i++) {
+					    if((i & 0x3) == 0) {
+						    sc.SetState(SCE_HEX_DATA_ODD);
+					    }
+					    else if((i & 0x3) == 2) {
+						    sc.SetState(SCE_HEX_DATA_EVEN);
+					    }
 
-						if (!ForwardWithinLine(sc)) {
-							break;
-						}
-					}
-				} else {
-					ForwardWithinLine(sc, dataFieldSize * 2);
-				}
-				break;
+					    if(!ForwardWithinLine(sc)) {
+						    break;
+					    }
+				    }
+			    }
+			    else {
+				    ForwardWithinLine(sc, dataFieldSize * 2);
+			    }
+			    break;
 
 			case SCE_HEX_DATA_ODD:
 			case SCE_HEX_DATA_EVEN:
@@ -853,31 +864,32 @@ static void ColouriseIHexDoc(Sci_PositionU startPos, Sci_Position length, int in
 			case SCE_HEX_EXTENDEDADDRESS:
 			case SCE_HEX_STARTADDRESS:
 			case SCE_HEX_DATA_UNKNOWN:
-				recStartPos = GetIHexRecStartPosition(sc.currentPos, styler);
-				cs1 = CalcIHexChecksum(recStartPos, styler);
-				cs2 = GetIHexChecksum(recStartPos, styler);
+			    recStartPos = GetIHexRecStartPosition(sc.currentPos, styler);
+			    cs1 = CalcIHexChecksum(recStartPos, styler);
+			    cs2 = GetIHexChecksum(recStartPos, styler);
 
-				if (cs1 != cs2 || cs1 < 0 || cs2 < 0) {
-					sc.SetState(SCE_HEX_CHECKSUM_WRONG);
-				} else {
-					sc.SetState(SCE_HEX_CHECKSUM);
-				}
+			    if(cs1 != cs2 || cs1 < 0 || cs2 < 0) {
+				    sc.SetState(SCE_HEX_CHECKSUM_WRONG);
+			    }
+			    else {
+				    sc.SetState(SCE_HEX_CHECKSUM);
+			    }
 
-				ForwardWithinLine(sc, 2);
-				break;
+			    ForwardWithinLine(sc, 2);
+			    break;
 
 			case SCE_HEX_CHECKSUM:
 			case SCE_HEX_CHECKSUM_WRONG:
 			case SCE_HEX_GARBAGE:
-				// record finished or line too long
-				sc.SetState(SCE_HEX_GARBAGE);
-				ForwardWithinLine(sc);
-				break;
+			    // record finished or line too long
+			    sc.SetState(SCE_HEX_GARBAGE);
+			    ForwardWithinLine(sc);
+			    break;
 
 			default:
-				// prevent endless loop in faulty state
-				sc.SetState(SCE_HEX_DEFAULT);
-				break;
+			    // prevent endless loop in faulty state
+			    sc.SetState(SCE_HEX_DEFAULT);
+			    break;
 		}
 	}
 	sc.Complete();
@@ -889,33 +901,35 @@ static void FoldIHexDoc(Sci_PositionU startPos, Sci_Position length, int, WordLi
 
 	Sci_Position lineCurrent = styler.GetLine(startPos);
 	int levelCurrent = SC_FOLDLEVELBASE;
-	if (lineCurrent > 0)
+	if(lineCurrent > 0)
 		levelCurrent = styler.LevelAt(lineCurrent - 1);
 
 	Sci_PositionU lineStartNext = styler.LineStart(lineCurrent + 1);
 	int levelNext = SC_FOLDLEVELBASE; // default if no specific line found
 
-	for (Sci_PositionU i = startPos; i < endPos; i++) {
+	for(Sci_PositionU i = startPos; i < endPos; i++) {
 		bool atEOL = i == (lineStartNext - 1);
 		int style = styler.StyleAt(i);
 
 		// search for specific lines
-		if (style == SCE_HEX_EXTENDEDADDRESS) {
+		if(style == SCE_HEX_EXTENDEDADDRESS) {
 			// extended addres record
 			levelNext = SC_FOLDLEVELBASE | SC_FOLDLEVELHEADERFLAG;
-		} else if (style == SCE_HEX_DATAADDRESS
-			|| (style == SCE_HEX_DEFAULT
-				&& i == (Sci_PositionU)styler.LineStart(lineCurrent))) {
+		}
+		else if(style == SCE_HEX_DATAADDRESS
+		    || (style == SCE_HEX_DEFAULT
+			    && i == (Sci_PositionU)styler.LineStart(lineCurrent))) {
 			// data record or no record start code at all
-			if (levelCurrent & SC_FOLDLEVELHEADERFLAG) {
+			if(levelCurrent & SC_FOLDLEVELHEADERFLAG) {
 				levelNext = SC_FOLDLEVELBASE + 1;
-			} else {
+			}
+			else {
 				// continue level 0 or 1, no fold point
 				levelNext = levelCurrent;
 			}
 		}
 
-		if (atEOL || (i == endPos - 1)) {
+		if(atEOL || (i == endPos - 1)) {
 			styler.SetLevel(lineCurrent, levelNext);
 
 			lineCurrent++;
@@ -930,104 +944,107 @@ static void ColouriseTEHexDoc(Sci_PositionU startPos, Sci_Position length, int i
 {
 	StyleContext sc(startPos, length, initStyle, styler);
 
-	while (sc.More()) {
+	while(sc.More()) {
 		Sci_PositionU recStartPos;
 		int digitCount, addrFieldType;
 		int cs1, cs2;
 
-		switch (sc.state) {
+		switch(sc.state) {
 			case SCE_HEX_DEFAULT:
-				if (sc.atLineStart && sc.Match('%')) {
-					sc.SetState(SCE_HEX_RECSTART);
-				}
-				ForwardWithinLine(sc);
-				break;
+			    if(sc.atLineStart && sc.Match('%')) {
+				    sc.SetState(SCE_HEX_RECSTART);
+			    }
+			    ForwardWithinLine(sc);
+			    break;
 
 			case SCE_HEX_RECSTART:
 
-				recStartPos = sc.currentPos - 1;
+			    recStartPos = sc.currentPos - 1;
 
-				if (GetTEHexDigitCount(recStartPos, styler) == CountTEHexDigitCount(recStartPos, styler)) {
-					sc.SetState(SCE_HEX_BYTECOUNT);
-				} else {
-					sc.SetState(SCE_HEX_BYTECOUNT_WRONG);
-				}
+			    if(GetTEHexDigitCount(recStartPos, styler) == CountTEHexDigitCount(recStartPos, styler)) {
+				    sc.SetState(SCE_HEX_BYTECOUNT);
+			    }
+			    else {
+				    sc.SetState(SCE_HEX_BYTECOUNT_WRONG);
+			    }
 
-				ForwardWithinLine(sc, 2);
-				break;
+			    ForwardWithinLine(sc, 2);
+			    break;
 
 			case SCE_HEX_BYTECOUNT:
 			case SCE_HEX_BYTECOUNT_WRONG:
-				recStartPos = sc.currentPos - 3;
-				addrFieldType = GetTEHexAddressFieldType(recStartPos, styler);
+			    recStartPos = sc.currentPos - 3;
+			    addrFieldType = GetTEHexAddressFieldType(recStartPos, styler);
 
-				if (addrFieldType == SCE_HEX_ADDRESSFIELD_UNKNOWN) {
-					sc.SetState(SCE_HEX_RECTYPE_UNKNOWN);
-				} else {
-					sc.SetState(SCE_HEX_RECTYPE);
-				}
+			    if(addrFieldType == SCE_HEX_ADDRESSFIELD_UNKNOWN) {
+				    sc.SetState(SCE_HEX_RECTYPE_UNKNOWN);
+			    }
+			    else {
+				    sc.SetState(SCE_HEX_RECTYPE);
+			    }
 
-				ForwardWithinLine(sc);
-				break;
+			    ForwardWithinLine(sc);
+			    break;
 
 			case SCE_HEX_RECTYPE:
 			case SCE_HEX_RECTYPE_UNKNOWN:
-				recStartPos = sc.currentPos - 4;
-				cs1 = CalcTEHexChecksum(recStartPos, styler);
-				cs2 = GetTEHexChecksum(recStartPos, styler);
+			    recStartPos = sc.currentPos - 4;
+			    cs1 = CalcTEHexChecksum(recStartPos, styler);
+			    cs2 = GetTEHexChecksum(recStartPos, styler);
 
-				if (cs1 != cs2 || cs1 < 0 || cs2 < 0) {
-					sc.SetState(SCE_HEX_CHECKSUM_WRONG);
-				} else {
-					sc.SetState(SCE_HEX_CHECKSUM);
-				}
+			    if(cs1 != cs2 || cs1 < 0 || cs2 < 0) {
+				    sc.SetState(SCE_HEX_CHECKSUM_WRONG);
+			    }
+			    else {
+				    sc.SetState(SCE_HEX_CHECKSUM);
+			    }
 
-				ForwardWithinLine(sc, 2);
-				break;
-
+			    ForwardWithinLine(sc, 2);
+			    break;
 
 			case SCE_HEX_CHECKSUM:
 			case SCE_HEX_CHECKSUM_WRONG:
-				recStartPos = sc.currentPos - 6;
-				addrFieldType = GetTEHexAddressFieldType(recStartPos, styler);
+			    recStartPos = sc.currentPos - 6;
+			    addrFieldType = GetTEHexAddressFieldType(recStartPos, styler);
 
-				sc.SetState(addrFieldType);
-				ForwardWithinLine(sc, 9);
-				break;
+			    sc.SetState(addrFieldType);
+			    ForwardWithinLine(sc, 9);
+			    break;
 
 			case SCE_HEX_DATAADDRESS:
 			case SCE_HEX_STARTADDRESS:
 			case SCE_HEX_ADDRESSFIELD_UNKNOWN:
-				recStartPos = sc.currentPos - 15;
-				digitCount = GetTEHexDigitCount(recStartPos, styler) - 14;
+			    recStartPos = sc.currentPos - 15;
+			    digitCount = GetTEHexDigitCount(recStartPos, styler) - 14;
 
-				sc.SetState(SCE_HEX_DATA_ODD);
+			    sc.SetState(SCE_HEX_DATA_ODD);
 
-				for (int i = 0; i < digitCount; i++) {
-					if ((i & 0x3) == 0) {
-						sc.SetState(SCE_HEX_DATA_ODD);
-					} else if ((i & 0x3) == 2) {
-						sc.SetState(SCE_HEX_DATA_EVEN);
-					}
+			    for(int i = 0; i < digitCount; i++) {
+				    if((i & 0x3) == 0) {
+					    sc.SetState(SCE_HEX_DATA_ODD);
+				    }
+				    else if((i & 0x3) == 2) {
+					    sc.SetState(SCE_HEX_DATA_EVEN);
+				    }
 
-					if (!ForwardWithinLine(sc)) {
-						break;
-					}
-				}
-				break;
+				    if(!ForwardWithinLine(sc)) {
+					    break;
+				    }
+			    }
+			    break;
 
 			case SCE_HEX_DATA_ODD:
 			case SCE_HEX_DATA_EVEN:
 			case SCE_HEX_GARBAGE:
-				// record finished or line too long
-				sc.SetState(SCE_HEX_GARBAGE);
-				ForwardWithinLine(sc);
-				break;
+			    // record finished or line too long
+			    sc.SetState(SCE_HEX_GARBAGE);
+			    ForwardWithinLine(sc);
+			    break;
 
 			default:
-				// prevent endless loop in faulty state
-				sc.SetState(SCE_HEX_DEFAULT);
-				break;
+			    // prevent endless loop in faulty state
+			    sc.SetState(SCE_HEX_DEFAULT);
+			    break;
 		}
 	}
 	sc.Complete();

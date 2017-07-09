@@ -17,7 +17,7 @@
 //#include <memory>
 //#include "ILexer.h"
 //#include "Position.h"
-#include "StringCopy.h"
+//#include "StringCopy.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -84,7 +84,7 @@ Idler::Idler() : state(false), idlerID(0)
 {
 }
 
-static inline bool IsAllSpacesOrTabs(const char * s, uint len)
+static bool FASTCALL IsAllSpacesOrTabs(const char * s, uint len)
 {
 	for(uint i = 0; i < len; i++) {
 		// This is safe because IsSpaceOrTab() will return false for null terminators

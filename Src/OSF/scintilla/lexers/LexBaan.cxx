@@ -24,15 +24,15 @@
 //#include "SciLexer.h"
 // lexlib
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 #include "OptionSet.h"
 
-# ifdef SCI_NAMESPACE
-using namespace Scintilla;
-# endif
+#ifdef SCI_NAMESPACE
+	using namespace Scintilla;
+#endif
 
 namespace {
 // Use an unnamed namespace to protect the functions and classes from name conflicts
@@ -78,45 +78,36 @@ struct OptionSetBaan : public OptionSet<OptionsBaan> {
 	OptionSetBaan()
 	{
 		DefineProperty("fold", &OptionsBaan::fold);
-
 		DefineProperty("fold.comment", &OptionsBaan::foldComment);
-
 		DefineProperty("fold.preprocessor", &OptionsBaan::foldPreprocessor);
-
 		DefineProperty("fold.compact", &OptionsBaan::foldCompact);
-
 		DefineProperty("fold.baan.syntax.based", &OptionsBaan::baanFoldSyntaxBased,
 			    "Set this property to 0 to disable syntax based folding, which is folding based on '{' & '('.");
-
 		DefineProperty(
 			    "fold.baan.keywords.based",
 			    &OptionsBaan::baanFoldKeywordsBased,
 			    "Set this property to 0 to disable keywords based folding, which is folding based on "
 			    " for, if, on (case), repeat, select, while and fold ends based on endfor, endif, endcase, until, endselect, endwhile respectively."
 			    "Also folds declarations which are grouped together.");
-
 		DefineProperty("fold.baan.sections", &OptionsBaan::baanFoldSections,
 			    "Set this property to 0 to disable folding of Main Sections as well as Sub Sections.");
-
 		DefineProperty("fold.baan.inner.level", &OptionsBaan::baanFoldInnerLevel,
 			    "Set this property to 1 to enable folding of inner levels of select statements."
 			    "Disabled by default. case and if statements are also eligible");
-
 		DefineProperty("lexer.baan.styling.within.preprocessor", &OptionsBaan::baanStylingWithinPreprocessor,
 			    "For Baan code, determines whether all preprocessor code is styled in the "
 			    "preprocessor style (0, the default) or only from the initial # to the end "
 			    "of the command word(1).");
-
 		DefineWordListSets(baanWordLists);
 	}
 };
 
-static inline bool IsAWordChar(const int ch)
+static bool FASTCALL IsAWordChar(const int ch)
 {
 	return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_' || ch == '$');
 }
 
-static inline bool IsAnOperator(int ch)
+static bool FASTCALL IsAnOperator(int ch)
 {
 	if(IsAlphaNumeric(ch))
 		return false;
@@ -373,7 +364,7 @@ static bool IsInnerLevelFold(Sci_Position line, LexAccessor &styler)
 	return false;
 }
 
-static inline bool wordInArray(const std::string& value, std::string * array, int length)
+static bool FASTCALL wordInArray(const std::string& value, std::string * array, int length)
 {
 	for(int i = 0; i < length; i++) {
 		if(value == array[i]) {

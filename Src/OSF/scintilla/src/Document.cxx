@@ -28,7 +28,7 @@
 //#include "ILexer.h"
 //#include "Scintilla.h"
 //#include "Position.h"
-#include "CharacterSet.h"
+//#include "CharacterSet.h"
 #include "CharacterCategory.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
@@ -1005,7 +1005,7 @@ bool SCI_METHOD Document::IsDBCSLeadByte(char ch) const
 	return false;
 }
 
-static inline bool IsSpaceOrTab(int ch)
+static bool FASTCALL IsSpaceOrTab(int ch)
 {
 	return (ch == ' ' || ch == '\t');
 }

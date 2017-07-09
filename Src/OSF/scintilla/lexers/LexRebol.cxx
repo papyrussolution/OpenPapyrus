@@ -17,30 +17,30 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
 
-static inline bool IsAWordChar(const int ch)
+static bool FASTCALL IsAWordChar(const int ch)
 {
 	return (isalnum(ch) || ch == '?' || ch == '!' || ch == '.' || ch == '\'' || ch == '+' || ch == '-' || ch == '*' || ch == '&' ||
 	    ch == '|' || ch == '=' || ch == '_' || ch == '~');
 }
 
-static inline bool IsAWordStart(const int ch, const int ch2)
+static bool FASTCALL IsAWordStart(const int ch, const int ch2)
 {
 	return ((ch == '+' || ch == '-' || ch == '.') && !isdigit(ch2)) ||
 	       (isalpha(ch) || ch == '?' || ch == '!' || ch == '\'' || ch == '*' || ch == '&' || ch == '|' || ch == '=' || ch == '_' ||
 	    ch == '~');
 }
 
-static inline bool IsAnOperator(const int ch, const int ch2, const int ch3)
+static bool FASTCALL IsAnOperator(const int ch, const int ch2, const int ch3)
 {
 	// One char operators
 	if(IsASpaceOrTab(ch2)) {
@@ -60,7 +60,7 @@ static inline bool IsAnOperator(const int ch, const int ch2, const int ch3)
 	return false;
 }
 
-static inline bool IsBinaryStart(const int ch, const int ch2, const int ch3, const int ch4)
+static bool FASTCALL IsBinaryStart(const int ch, const int ch2, const int ch3, const int ch4)
 {
 	return (ch == '#' && ch2 == '{') ||
 	       (IsADigit(ch) && ch2 == '#' && ch3 == '{' ) ||

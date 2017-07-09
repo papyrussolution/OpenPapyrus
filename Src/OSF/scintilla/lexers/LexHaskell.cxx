@@ -27,10 +27,10 @@
 //#include "SciLexer.h"
 //#include "WordList.h"
 //#include "PropSetSimple.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "CharacterCategory.h"
 #include "LexerModule.h"
 #include "OptionSet.h"
@@ -68,7 +68,7 @@ static int u_IsHaskellSymbol(int ch)
 	       || c == ccSm || c == ccSc || c == ccSk || c == ccSo;
 }
 
-static inline bool IsHaskellLetter(const int ch)
+static bool FASTCALL IsHaskellLetter(const int ch)
 {
 	if(IsASCII(ch)) {
 		return (ch >= 'a' && ch <= 'z')
@@ -79,7 +79,7 @@ static inline bool IsHaskellLetter(const int ch)
 	}
 }
 
-static inline bool IsHaskellAlphaNumeric(const int ch)
+static bool FASTCALL IsHaskellAlphaNumeric(const int ch)
 {
 	if(IsASCII(ch)) {
 		return IsAlphaNumeric(ch);
@@ -89,7 +89,7 @@ static inline bool IsHaskellAlphaNumeric(const int ch)
 	}
 }
 
-static inline bool IsHaskellUpperCase(const int ch)
+static bool FASTCALL IsHaskellUpperCase(const int ch)
 {
 	if(IsASCII(ch)) {
 		return ch >= 'A' && ch <= 'Z';
@@ -99,7 +99,7 @@ static inline bool IsHaskellUpperCase(const int ch)
 	}
 }
 
-static inline bool IsAnHaskellOperatorChar(const int ch)
+static bool FASTCALL IsAnHaskellOperatorChar(const int ch)
 {
 	if(IsASCII(ch)) {
 		return
@@ -114,24 +114,24 @@ static inline bool IsAnHaskellOperatorChar(const int ch)
 	}
 }
 
-static inline bool IsAHaskellWordStart(const int ch)
+static bool FASTCALL IsAHaskellWordStart(const int ch)
 {
 	return IsHaskellLetter(ch) || ch == '_';
 }
 
-static inline bool IsAHaskellWordChar(const int ch)
+static bool FASTCALL IsAHaskellWordChar(const int ch)
 {
 	return (  IsHaskellAlphaNumeric(ch)
 	    || ch == '_'
 	    || ch == '\'');
 }
 
-static inline bool IsCommentBlockStyle(int style)
+static bool FASTCALL IsCommentBlockStyle(int style)
 {
 	return (style >= SCE_HA_COMMENTBLOCK && style <= SCE_HA_COMMENTBLOCK3);
 }
 
-static inline bool IsCommentStyle(int style)
+static bool FASTCALL IsCommentStyle(int style)
 {
 	return (style >= SCE_HA_COMMENTLINE && style <= SCE_HA_COMMENTBLOCK3)
 	       || ( style == SCE_HA_LITERATE_COMMENT
@@ -139,7 +139,7 @@ static inline bool IsCommentStyle(int style)
 }
 
 // styles which do not belong to Haskell, but to external tools
-static inline bool IsExternalStyle(int style)
+static bool FASTCALL IsExternalStyle(int style)
 {
 	return ( style == SCE_HA_PREPROCESSOR
 	    || style == SCE_HA_LITERATE_COMMENT

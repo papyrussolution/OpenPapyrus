@@ -13,10 +13,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -34,7 +34,7 @@ using namespace Scintilla;
  *  Return true if the given char is a valid identifier first char
  */
 
-static inline bool IsIdentifierStart(const int ch)
+static bool FASTCALL IsIdentifierStart(const int ch)
 {
 	return (isalpha(ch) || (ch == '_') || (ch == '\\'));
 }
@@ -45,7 +45,7 @@ static inline bool IsIdentifierStart(const int ch)
  *  Return true if the given char is a valid identifier char
  */
 
-static inline bool IsIdentifierChar(const int ch)
+static bool FASTCALL IsIdentifierChar(const int ch)
 {
 	return (isalnum(ch) || (ch == '_') || (ch == '@') || (ch == ':') || (ch == '.'));
 }
@@ -78,7 +78,7 @@ static inline int GetOperatorType(const int ch1, const int ch2)
  *  Return true if the given char is 0 or 1
  */
 
-static inline bool IsBin(const int ch)
+static bool FASTCALL IsBin(const int ch)
 {
 	return (ch == '0') || (ch == '1');
 }
@@ -89,7 +89,7 @@ static inline bool IsBin(const int ch)
  *  Return true if the char may be part of a Doxygen keyword
  */
 
-static inline bool IsDoxygenChar(const int ch)
+static bool FASTCALL IsDoxygenChar(const int ch)
 {
 	return isalpha(ch) || (ch == '$') || (ch == '[') || (ch == ']') || (ch == '{') || (ch == '}');
 }

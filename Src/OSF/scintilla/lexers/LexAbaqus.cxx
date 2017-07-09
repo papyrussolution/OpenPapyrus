@@ -14,22 +14,22 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
 
-static inline bool IsAKeywordChar(const int ch)
+static bool FASTCALL IsAKeywordChar(const int ch)
 {
 	return (ch < 0x80 && (isalnum(ch) || (ch == '_') || (ch == ' ')));
 }
 
-static inline bool IsASetChar(const int ch)
+static bool FASTCALL IsASetChar(const int ch)
 {
 	return (ch < 0x80 && (isalnum(ch) || (ch == '_') || (ch == '.') || (ch == '-')));
 }

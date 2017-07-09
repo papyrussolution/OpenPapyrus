@@ -37,7 +37,7 @@
 #ifdef SCI_LEXER
 	#include "SciLexer.h"
 #endif
-#include "StringCopy.h"
+//#include "StringCopy.h"
 #ifdef SCI_LEXER
 	#include "LexerModule.h"
 #endif

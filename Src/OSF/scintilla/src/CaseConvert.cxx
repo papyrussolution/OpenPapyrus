@@ -16,7 +16,7 @@
 //#include <string>
 //#include <vector>
 //#include <algorithm>
-#include "StringCopy.h"
+//#include "StringCopy.h"
 #include "CaseConvert.h"
 #include "UniConversion.h"
 #include "UnicodeFromUTF8.h"
@@ -386,12 +386,12 @@ class CaseConverter : public ICaseConverter {
 		ConversionString conversion;
 		CharacterConversion(int character_ = 0, const char * conversion_ = "") : character(character_)
 		{
-			StringCopy(conversion.conversion, conversion_);
+			//StringCopy(conversion.conversion, conversion_);
+			STRNSCPY(conversion.conversion, conversion_);
 		}
-
-		bool operator<(const CharacterConversion &other) const
+		bool operator < (const CharacterConversion & other) const
 		{
-			return character < other.character;
+			return (character < other.character);
 		}
 	};
 

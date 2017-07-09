@@ -12,10 +12,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -177,14 +177,12 @@ public:
 			Up    = '\0';
 			Down  = '\0';
 		}
-
 		void Open(int u)
 		{
 			Count++;
 			Up    = u;
 			Down  = opposite(Up);
 		}
-
 		void Start(int u)
 		{
 			Count = 0;
@@ -195,7 +193,7 @@ public:
 	QuoteCls Quote;
 
 	class QuoteStackCls {   // Class to manage quote pairs that nest
-public:
+	public:
 		int Count;
 		int Up, Down;
 		int Style;
@@ -211,7 +209,6 @@ public:
 			Style = 0;
 			Depth = 0;
 		}
-
 		void Start(int u, int s)
 		{
 			Count = 1;
@@ -219,7 +216,6 @@ public:
 			Down  = opposite(Up);
 			Style = s;
 		}
-
 		void Push(int u, int s)
 		{
 			if(Depth >= BASH_DELIM_STACK_MAX)
@@ -233,7 +229,6 @@ public:
 			Down  = opposite(Up);
 			Style = s;
 		}
-
 		void Pop(void)
 		{
 			if(Depth <= 0)
@@ -244,20 +239,16 @@ public:
 			Style = StyleStack[Depth];
 			Down  = opposite(Up);
 		}
-
 		~QuoteStackCls()
 		{
 		}
 	};
-
 	QuoteStackCls QuoteStack;
-
 	int numBase = 0;
 	int digit;
 	Sci_PositionU endPos = startPos + length;
 	int cmdState = BASH_CMD_START;
 	int testExprType = 0;
-
 	// Always backtracks to the start of a line that is not a continuation
 	// of the previous line (i.e. start of a bash command segment)
 	Sci_Position ln = styler.GetLine(startPos);
@@ -270,26 +261,18 @@ public:
 		ln--;
 	}
 	initStyle = SCE_SH_DEFAULT;
-
 	StyleContext sc(startPos, endPos - startPos, initStyle, styler);
-
 	for(; sc.More(); sc.Forward()) {
 		// handle line continuation, updates per-line stored state
 		if(sc.atLineStart) {
 			ln = styler.GetLine(sc.currentPos);
-			if(sc.state == SCE_SH_STRING
-			    || sc.state == SCE_SH_BACKTICKS
-			    || sc.state == SCE_SH_CHARACTER
-			    || sc.state == SCE_SH_HERE_Q
-			    || sc.state == SCE_SH_COMMENTLINE
-			    || sc.state == SCE_SH_PARAM) {
+			if(oneof6(sc.state, SCE_SH_STRING, SCE_SH_BACKTICKS, SCE_SH_CHARACTER, SCE_SH_HERE_Q, SCE_SH_COMMENTLINE, SCE_SH_PARAM)) {
 				// force backtrack while retaining cmdState
 				styler.SetLineState(ln, BASH_CMD_BODY);
 			}
 			else {
 				if(ln > 0) {
-					if((sc.GetRelative(-3) == '\\' && sc.GetRelative(-2) == '\r' && sc.chPrev == '\n')
-					    || sc.GetRelative(-2) == '\\') {    // handle '\' line continuation
+					if((sc.GetRelative(-3) == '\\' && sc.GetRelative(-2) == '\r' && sc.chPrev == '\n') || sc.GetRelative(-2) == '\\') {    // handle '\' line continuation
 						// retain last line's state
 					}
 					else

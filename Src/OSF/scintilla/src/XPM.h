@@ -38,14 +38,13 @@ public:
 private:
 	static std::vector<const char *>LinesFormFromTextForm(const char *textForm);
 };
-
 /**
  * A translucent image stored as a sequence of RGBA bytes.
  */
 class RGBAImage {
 	// Private so RGBAImage objects can not be copied
 	RGBAImage(const RGBAImage &);
-	RGBAImage &operator=(const RGBAImage &);
+	RGBAImage & operator= (const RGBAImage &);
 	int height;
 	int width;
 	float scale;
@@ -63,7 +62,6 @@ public:
 	const uchar *Pixels() const;
 	void SetPixel(int x, int y, ColourDesired colour, int alpha=0xff);
 };
-
 /**
  * A collection of RGBAImage pixmaps indexed by integer id.
  */

@@ -11,10 +11,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -22,18 +22,18 @@ using namespace Scintilla;
 #endif
 
 // Extended to accept accented characters
-static inline bool IsAWordChar(int ch)
+static bool FASTCALL IsAWordChar(int ch)
 {
 	return ch >= 0x80 ||
 	       (isalnum(ch) || ch == '_' || ch ==':' || ch=='.'); // : name space separator
 }
 
-static inline bool IsAWordStart(int ch)
+static bool FASTCALL IsAWordStart(int ch)
 {
 	return ch >= 0x80 || (ch ==':' || isalpha(ch) || ch == '_');
 }
 
-static inline bool IsANumberChar(int ch)
+static bool FASTCALL IsANumberChar(int ch)
 {
 	// Not exactly following number definition (several dots are seen as OK, etc.)
 	// but probably enough in most cases.

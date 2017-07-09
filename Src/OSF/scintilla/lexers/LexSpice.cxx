@@ -11,10 +11,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 #include <string>
 
@@ -45,8 +45,8 @@ static void ColouriseNumber(StyleContext& sc, bool& apostropheStartsAttribute);
 static void ColouriseWhiteSpace(StyleContext& sc, bool& apostropheStartsAttribute);
 static void ColouriseWord(StyleContext& sc, WordList& keywords, WordList& keywords2, WordList& keywords3, bool& apostropheStartsAttribute);
 
-static inline bool IsDelimiterCharacter(int ch);
-static inline bool IsSeparatorOrDelimiterCharacter(int ch);
+static bool FASTCALL IsDelimiterCharacter(int ch);
+static bool FASTCALL IsSeparatorOrDelimiterCharacter(int ch);
 
 static void ColouriseComment(StyleContext& sc, bool&)
 {
@@ -172,7 +172,7 @@ static void ColouriseDocument(Sci_PositionU startPos,
 	sc.Complete();
 }
 
-static inline bool IsDelimiterCharacter(int ch)
+static bool FASTCALL IsDelimiterCharacter(int ch)
 {
 	switch(ch) {
 		case '&':
@@ -197,7 +197,7 @@ static inline bool IsDelimiterCharacter(int ch)
 	}
 }
 
-static inline bool IsSeparatorOrDelimiterCharacter(int ch)
+static bool FASTCALL IsSeparatorOrDelimiterCharacter(int ch)
 {
 	return IsASpace(ch) || IsDelimiterCharacter(ch);
 }

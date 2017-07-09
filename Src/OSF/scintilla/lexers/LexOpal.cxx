@@ -9,10 +9,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -242,14 +242,12 @@ inline bool HandleSpace(Sci_PositionU & cur, Sci_PositionU one_too_much, Accesso
 inline bool HandleInteger(Sci_PositionU & cur, Sci_PositionU one_too_much, Accessor & styler)
 {
 	char ch;
-
 	for(;; ) {
 		cur++;
 		if(cur >= one_too_much) {
 			styler.ColourTo(cur - 1, SCE_OPAL_INTEGER);
 			return false; // STOP
 		}
-
 		ch = styler.SafeGetCharAt(cur);
 		if(!( IsASCII(ch) && isdigit(ch) ) ) {
 			styler.ColourTo(cur - 1, SCE_OPAL_INTEGER);
@@ -348,18 +346,16 @@ static void ColouriseOpalDoc(Sci_PositionU startPos, Sci_Position length, int in
 {
 	styler.StartAt(startPos);
 	styler.StartSegment(startPos);
-
 	Sci_PositionU & cur = startPos;
 	const Sci_PositionU one_too_much = startPos + length;
-
 	int state = initStyle;
-
 	for(;; ) {
 		switch(state)
 		{
 			case SCE_OPAL_KEYWORD:
 			case SCE_OPAL_SORT:
-			    if(!HandleWord(cur, one_too_much, styler, keywordlists) ) return;
+			    if(!HandleWord(cur, one_too_much, styler, keywordlists) ) 
+					return;
 			    state = SCE_OPAL_DEFAULT;
 			    break;
 

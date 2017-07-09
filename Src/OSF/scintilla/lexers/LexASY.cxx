@@ -8,10 +8,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -151,7 +151,7 @@ static bool IsAsyCommentStyle(int style)
 	return style == SCE_ASY_COMMENT;
 }
 
-static inline bool isASYidentifier(int ch)
+static bool FASTCALL isASYidentifier(int ch)
 {
 	return
 		((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z'));

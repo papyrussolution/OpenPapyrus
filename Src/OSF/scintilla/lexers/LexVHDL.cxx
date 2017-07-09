@@ -16,10 +16,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -34,19 +34,19 @@ static void ColouriseVHDLDoc(
     Accessor &styler);
 
 /***************************************/
-static inline bool IsAWordChar(const int ch)
+static bool FASTCALL IsAWordChar(const int ch)
 {
 	return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_' );
 }
 
 /***************************************/
-static inline bool IsAWordStart(const int ch)
+static bool FASTCALL IsAWordStart(const int ch)
 {
 	return (ch < 0x80) && (isalnum(ch) || ch == '_');
 }
 
 /***************************************/
-static inline bool IsABlank(uint ch)
+static bool FASTCALL IsABlank(uint ch)
 {
 	return (ch == ' ') || (ch == 0x09) || (ch == 0x0b);
 }

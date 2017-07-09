@@ -259,6 +259,7 @@ PPEgaisProcessor::Packet::Packet(int docType)
 		case PPEDIOP_EGAIS_ACTCHARGEON_V2: // @v9.3.12
 		case PPEDIOP_EGAIS_ACTCHARGEONSHOP: // @v9.2.11
 		case PPEDIOP_EGAIS_REPLYRESTS:
+		case PPEDIOP_EGAIS_REPLYRESTS_V2: // @v9.7.5
 		case PPEDIOP_EGAIS_REPLYRESTSSHOP:
 		case PPEDIOP_EGAIS_ACTWRITEOFF:
 		case PPEDIOP_EGAIS_ACTWRITEOFF_V2: // @v9.3.12
@@ -319,6 +320,7 @@ PPEgaisProcessor::Packet::~Packet()
 		case PPEDIOP_EGAIS_ACTCHARGEON_V2: // @v9.3.12
 		case PPEDIOP_EGAIS_ACTCHARGEONSHOP: // @v9.2.11
 		case PPEDIOP_EGAIS_REPLYRESTS:
+		case PPEDIOP_EGAIS_REPLYRESTS_V2: // @v9.7.5
 		case PPEDIOP_EGAIS_REPLYRESTSSHOP:
 		case PPEDIOP_EGAIS_ACTWRITEOFF:
 		case PPEDIOP_EGAIS_ACTWRITEOFF_V2: // @v9.3.12
@@ -352,6 +354,7 @@ int PPEgaisProcessor::LogSended(const Packet & rPack)
 		case PPEDIOP_EGAIS_QUERYCLIENTS:
 		case PPEDIOP_EGAIS_QUERYAP:
 		case PPEDIOP_EGAIS_QUERYRESTS:
+		case PPEDIOP_EGAIS_QUERYRESTS_V2: // @v9.7.5
 			PPLoadText(PPTXT_EGAIS_QS_QUERY, msg_buf);
 			msg_buf.CatDiv(':', 2).Cat(PPEgaisProcessor::GetDocTypeTag(rPack.DocType));
 			if(rPack.P_Data) {
@@ -914,8 +917,9 @@ int SLAPI PPEgaisProcessor::QueryRests(PPID locID, const char *)
 {
 	int    ok = -1;
 	Ack    ack;
-    Packet qp(PPEDIOP_EGAIS_QUERYRESTS);
-	THROW(PutQuery(qp, locID, "QueryRests", ack));
+	const  int __v2 = BIN(Cfg.E.Flags & Cfg.fEgaisVer2Fmt);
+    Packet qp(__v2 ? PPEDIOP_EGAIS_QUERYRESTS_V2 : PPEDIOP_EGAIS_QUERYRESTS);
+	THROW(PutQuery(qp, locID, __v2 ? "QueryRests_v2" : "QueryRests", ack));
 	CATCHZOK
     return ok;
 }
@@ -1132,6 +1136,7 @@ static const EgaisDocTypeEntry _EgaisDocTypes[] = {
 	{ PPEDIOP_EGAIS_QUERYSP,          "QuerySP" },
 	{ PPEDIOP_EGAIS_QUERYCLIENTS,     "QueryClients" },
 	{ PPEDIOP_EGAIS_QUERYRESTS,       "QueryRests" },
+	{ PPEDIOP_EGAIS_QUERYRESTS_V2,    "QueryRests_v2" },
 	{ PPEDIOP_EGAIS_QUERYRESTSSHOP,   "QueryRestsShop_v2" },
 	{ PPEDIOP_EGAIS_QUERYFORMA,       "QueryFormA" },
 	{ PPEDIOP_EGAIS_QUERYFORMB,       "QueryFormB" },
@@ -1140,6 +1145,7 @@ static const EgaisDocTypeEntry _EgaisDocTypes[] = {
 	{ PPEDIOP_EGAIS_REPLYCLIENT,      "ReplyClient" },
 	{ PPEDIOP_EGAIS_REPLYAP,          "ReplyAP" },
 	{ PPEDIOP_EGAIS_REPLYRESTS,       "ReplyRests" },
+	{ PPEDIOP_EGAIS_REPLYRESTS_V2,    "ReplyRests_v2" }, // @v9.7.5
 	{ PPEDIOP_EGAIS_REPLYRESTSSHOP,   "ReplyRestsShop_v2" },
 	{ PPEDIOP_EGAIS_REPLYFORMA,       "ReplyFormA" },
 	{ PPEDIOP_EGAIS_REPLYFORMB,       "ReplyFormB" },
@@ -1955,7 +1961,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 	THROW_INVARG(pX);
 	THROW(p_doc_type_tag);
 	THROW(GetFSRARID(locID, fsrar_ident, &main_org_id));
-	if(rPack.P_Data || oneof3(doc_type, PPEDIOP_EGAIS_QUERYRESTS, PPEDIOP_EGAIS_QUERYRESTSSHOP, PPEDIOP_EGAIS_NOTIFY_WBVER2)) {
+	if(rPack.P_Data || oneof4(doc_type, PPEDIOP_EGAIS_QUERYRESTS, PPEDIOP_EGAIS_QUERYRESTS_V2, PPEDIOP_EGAIS_QUERYRESTSSHOP, PPEDIOP_EGAIS_NOTIFY_WBVER2)) {
 		SXml::WDoc _doc(pX, cpUTF8);
 		{
 			SXml::WNode n_docs(_doc, "ns:Documents");
@@ -2258,8 +2264,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
                         	}
                         }
 					}
-					else if(oneof6(doc_type, PPEDIOP_EGAIS_QUERYAP, PPEDIOP_EGAIS_QUERYCLIENTS, PPEDIOP_EGAIS_QUERYRESTS,
-						PPEDIOP_EGAIS_QUERYSP, PPEDIOP_EGAIS_QUERYSSP, PPEDIOP_EGAIS_QUERYRESTSSHOP)) {
+					else if(oneof7(doc_type, PPEDIOP_EGAIS_QUERYAP, PPEDIOP_EGAIS_QUERYCLIENTS, PPEDIOP_EGAIS_QUERYRESTS,
+						PPEDIOP_EGAIS_QUERYRESTS_V2, PPEDIOP_EGAIS_QUERYSP, PPEDIOP_EGAIS_QUERYSSP, PPEDIOP_EGAIS_QUERYRESTSSHOP)) {
 						const StrStrAssocArray * p_param_list = (const StrStrAssocArray *)rPack.P_Data;
 						if(p_param_list && p_param_list->getCount()) {
 							SXml::WNode n_arglist(_doc, "qp:Parameters");
@@ -4976,7 +4982,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 		}
 		// } @v9.6.5
 		for(DateIter di(&period); P_BObj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
-			if(bill_rec.EdiOp == PPEDIOP_EGAIS_REPLYRESTS) {
+			if(oneof2(bill_rec.EdiOp, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2)) {
 				if(!target_ar2_id || !bill_rec.Object2 || bill_rec.Object2 == target_ar2_id) // @v9.6.5
 					last_wh_rest_bill_id = bill_rec.ID;
 			}
@@ -5199,10 +5205,10 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
 						if(SXml::GetContentByName(p_pos, "Quantity", temp_buf)) {
 							rest_item.Rest = temp_buf.ToReal();
 						}
-						else if(SXml::GetContentByName(p_pos, "InformARegId", temp_buf)) {
+						else if(SXml::GetContentByName(p_pos, "InformARegId", temp_buf) || SXml::GetContentByName(p_pos, "InformF1RegId", temp_buf)) {
 							temp_buf.Strip().Transf(CTRANSF_UTF8_TO_INNER).CopyTo(rest_item.InformAIdent, sizeof(rest_item.InformAIdent));
 						}
-						else if(SXml::GetContentByName(p_pos, "InformBRegId", temp_buf)) {
+						else if(SXml::GetContentByName(p_pos, "InformBRegId", temp_buf) || SXml::GetContentByName(p_pos, "nformF2RegId", temp_buf)) {
 							temp_buf.Strip().Transf(CTRANSF_UTF8_TO_INNER).CopyTo(rest_item.InformBIdent, sizeof(rest_item.InformBIdent));
 						}
 						else if(SXml::IsName(p_pos, "Product")) {
@@ -5268,7 +5274,7 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
 				STRNSCPY(p_bp->Rec.Code, temp_buf);
 			}
 			// @v9.5.0 {
-			else if(pPack->DocType == PPEDIOP_EGAIS_REPLYRESTS) {
+			else if(oneof2(pPack->DocType, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2)) {
 				(temp_buf = p_bp->Rec.Code).CatChar('-').Cat("R1");
 				STRNSCPY(p_bp->Rec.Code, temp_buf);
 			}
@@ -5508,7 +5514,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 						}
 					}
 					// } @v9.5.12
-					else if(oneof2(doc_type, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTSSHOP)) {
+					else if(oneof3(doc_type, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2, PPEDIOP_EGAIS_REPLYRESTSSHOP)) {
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 						THROW(rs = Read_Rests(p_nd->children, locID, pPeriod, p_new_pack, pRefC));
 						if(rs > 0) {
@@ -6091,8 +6097,8 @@ int SLAPI PPEgaisProcessor::Helper_CollectRefs(void * pCtx, TSCollection <PPEgai
 				*/
 			}
 		}
-		if(oneof6(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_REPLYCLIENT,
-			PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTSSHOP, PPEDIOP_EGAIS_REPLYAP)) {
+		if(oneof7(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_REPLYCLIENT,
+			PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2, PPEDIOP_EGAIS_REPLYRESTSSHOP, PPEDIOP_EGAIS_REPLYAP)) {
 			int    adr = 1; // AcceptDoc result
 			if(!(p_reply->Status & Reply::stOffline)) {
 				THROW(MakeOutputFileName(p_reply, temp_path, temp_buf));
@@ -6202,7 +6208,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 	if(reply_count) {
 		LongArray ediop_list;
 		ediop_list.addzlist(PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_TTNINFORMBREG, PPEDIOP_EGAIS_TTNINFORMF2REG,
-			PPEDIOP_EGAIS_TICKET, PPEDIOP_EGAIS_REPLYCLIENT, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTSSHOP,
+			PPEDIOP_EGAIS_TICKET, PPEDIOP_EGAIS_REPLYCLIENT, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2, PPEDIOP_EGAIS_REPLYRESTSSHOP,
 			PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_REPLYAP,
 			PPEDIOP_EGAIS_REPLYFORMA, PPEDIOP_EGAIS_REPLYRESTSSHOP, PPEDIOP_EGAIS_REPLYBARCODE, PPEDIOP_EGAIS_WAYBILLACT_V2,
 			PPEDIOP_EGAIS_REQUESTREPEALWB, 0);
@@ -6220,22 +6226,6 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 			for(uint sp = 0; !doc_type && ss_url_tok.get(&sp, temp_buf);) {
 				if(temp_buf.NotEmptyS()) {
 					doc_type = PPEgaisProcessor::RecognizeDocTypeTag(temp_buf);
-					/* @v9.5.5
-					if(!doc_type) {
-						if(temp_buf.CmpNC("FORMBREGINFO") == 0)
-							doc_type = PPEDIOP_EGAIS_TTNINFORMBREG;
-						else if(temp_buf.CmpNC("FORM2REGINFO") == 0)
-							doc_type = PPEDIOP_EGAIS_TTNINFORMF2REG;
-						else if(temp_buf.CmpNC("ReplyPartner") == 0)
-							doc_type = PPEDIOP_EGAIS_REPLYCLIENT;
-						else if(temp_buf.CmpNC("ReplyAP") == 0)
-							doc_type = PPEDIOP_EGAIS_REPLYAP;
-						else if(temp_buf.CmpNC("INVENTORYREGINFO") == 0)
-							doc_type = PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG;
-						else if(temp_buf.CmpNC("WayBillTicket") == 0)
-							doc_type = PPEDIOP_EGAIS_CONFIRMTICKET;
-					}
-					*/
 				}
 			}
 			if(ediop_list.bsearch(doc_type)) {
@@ -6245,7 +6235,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 					adr = AcceptDoc(*p_reply, temp_buf);
 				}
 				if(adr && Helper_Read(p_ctx, p_reply->AcceptedFileName, 0, locID, pPeriod, (i+1), &pack_list, P_RefC)) {
-					if(oneof4(doc_type, PPEDIOP_EGAIS_REPLYCLIENT, PPEDIOP_EGAIS_REPLYAP, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYFORMA)) {
+					if(oneof5(doc_type, PPEDIOP_EGAIS_REPLYCLIENT, PPEDIOP_EGAIS_REPLYAP, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2, PPEDIOP_EGAIS_REPLYFORMA)) {
 						if(!DeleteDoc(*p_reply))
 							LogLastError();
 					}
@@ -6307,7 +6297,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 			else {
 				Packet * p_pack = pack_list.at(packidx);
 				if(p_pack && p_pack->P_Data) {
-					if(p_pack->DocType == PPEDIOP_EGAIS_REPLYRESTS) {
+					if(oneof2(p_pack->DocType, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2)) {
 						const PPBillPacket * p_rbp = (const PPBillPacket *)p_pack->P_Data;
 						if(p_rbp && p_rbp->Rec.ID) {
 							DateIter tdi;

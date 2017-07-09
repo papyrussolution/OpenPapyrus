@@ -10560,7 +10560,25 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @trfranlzfilt_agentlist                   "@{agent}"
 @trfranlzfilt_extval1                     "Дополнительный показатель"
 
-@trfranlz_enum_extval                     "1,Сумма скидки в связанном заказе"
+@trfranlz_enum_extval                     "1,Сумма скидки в связанном заказе;2,Превышение цены в связанном заказе над ценой отгрузки"
+
+@trfranlzval_qtty                         "Торговых единиц"
+@trfranlzval_phqtty                       "Физических единиц"
+@trfranlzval_brutto                       ""
+@trfranlzval_rest                         ""
+@trfranlzval_sumcost                      "@{intermcost}"
+@trfranlzval_sumprice                     "@{intermprice}"
+@trfranlzval_sumdiscount                  "@{discount}"
+@trfranlzval_amount                       "@{nominalamount}"
+@trfranlzval_saldo                        "Сальдо" // generic
+@trfranlzval_saldoqtty                    "Торговых единиц"
+@trfranlzval_saldoamount                  "@{intermprice}"
+@trfranlzval_pvat                         "@{vatamount}"
+@trfranlzval_linkqtty                     ""
+@trfranlzval_linksumcost                  ""
+@trfranlzval_linksumprice                 ""
+@trfranlzval_extval1                      "Дополнительный показатель"
+@trfranlzval_linecount                    "@{linecount}" // total
 
 @egaisexcisemark                          "Акцизная марка @{brand_egais}"
 @doscanmark                               "Считайте марку сканером"

@@ -1050,20 +1050,31 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 		double ext_val1 = 0.0;
 		{
 			const long ext_val_param = Filt.ExtValueParam[0];
-			if(ext_val_param == Filt.extvLinkOrderDiscount) {
+			if(oneof2(ext_val_param, Filt.extvLinkOrderDiscount, Filt.extvLinkOrderPriceAbove)) {
 				PPID   ord_lot_id = 0;
 				if(P_BObj->GetOrderLotForTransfer(*pTrfrRec, &ord_lot_id) > 0) {
 					assert(ord_lot_id);
 					DateIter di;
 					TransferTbl::Rec ord_rec;
 					if(P_BObj->trfr->EnumByLot(ord_lot_id, &di, &ord_rec) > 0) {
-						if(TESTMULTFLAG(ord_rec.Flags, (PPTFR_ORDER|PPTFR_RECEIPT)) && ord_rec.Discount != 0.0) {
-							const double ord_qtty = fabs(ord_rec.Quantity);
-							const double ord_price = fabs(ord_rec.Price) * ord_qtty;
-							const double ord_dis   = ord_rec.Discount * ord_qtty;
-							double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R6(ord_dis / ord_price) : 0.0;
-							if(ord_pct_dis > 0.0)
-								ext_val1 = (pTrfrRec->Price - pTrfrRec->Discount) * ord_pct_dis * qtty / (1.0 - ord_pct_dis);
+						if(TESTMULTFLAG(ord_rec.Flags, (PPTFR_ORDER|PPTFR_RECEIPT))) {
+							if(ext_val_param == Filt.extvLinkOrderDiscount) {
+								if(ord_rec.Discount != 0.0) {
+									const double ord_qtty = fabs(ord_rec.Quantity);
+									const double ord_price = fabs(ord_rec.Price) * ord_qtty;
+									const double ord_dis   = ord_rec.Discount * ord_qtty;
+									double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R6(ord_dis / ord_price) : 0.0;
+									if(ord_pct_dis > 0.0)
+										ext_val1 = (pTrfrRec->Price - pTrfrRec->Discount) * ord_pct_dis * qtty / (1.0 - ord_pct_dis);
+								}
+							}
+							else if(ext_val_param == Filt.extvLinkOrderPriceAbove) {
+								const double ord_price = fabs(ord_rec.Price - ord_rec.Discount);
+								const double sale_price = fabs(pTrfrRec->Price - pTrfrRec->Discount);
+								if(ord_price > sale_price) {
+                                    ext_val1 = (ord_price - sale_price) * qtty;
+								}
+							}
 						}
 					}
 				}
@@ -3387,6 +3398,8 @@ int SLAPI PPViewTrfrAnlz::CalcTotal(TrfrAnlzTotal * pTotal)
 			pTotal->SaldoQtty += item.SaldoQtty;
 			pTotal->SaldoAmt  += item.SaldoAmt;
 			pTotal->PVat      += item.PVat;
+			pTotal->ExtValue[0] += item.ExtValue[0]; // @v9.7.5
+			pTotal->ExtValue[1] += item.ExtValue[1]; // @v9.7.5
 			PPWaitPercent(GetCounter());
 		}
 		PPWait(0);
@@ -3411,6 +3424,7 @@ int SLAPI PPViewTrfrAnlz::ViewTotal()
 			dlg->setCtrlReal(CTL_TRFRANLZTOTAL_SQTTY,  Total.SaldoQtty);
 			dlg->setCtrlReal(CTL_TRFRANLZTOTAL_SAMT,   Total.SaldoAmt);
 			dlg->setCtrlReal(CTL_TRFRANLZTOTAL_PVAT,   Total.PVat);
+			dlg->setCtrlReal(CTL_TRFRANLZTOTAL_EXTV1,  Total.ExtValue[0]); // @v9.7.5
 			ExecViewAndDestroy(dlg);
 		}
 	}

@@ -16,8 +16,8 @@
 //#include <memory>
 //#include "ILexer.h"
 //#include "Position.h"
-#include "StringCopy.h"
-#include "CharacterSet.h"
+//#include "StringCopy.h"
+//#include "CharacterSet.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -45,7 +45,7 @@
 using namespace Scintilla;
 #endif
 
-static inline bool IsControlCharacter(int ch)
+static bool FASTCALL IsControlCharacter(int ch)
 {
 	// iscntrl returns true for lots of chars > 127 which are displayable
 	return ch >= 0 && ch < ' ';

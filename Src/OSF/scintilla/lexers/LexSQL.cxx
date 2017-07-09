@@ -17,10 +17,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 #include "OptionSet.h"
 #include "SparseState.h"
@@ -29,7 +29,7 @@
 using namespace Scintilla;
 #endif
 
-static inline bool IsAWordChar(int ch, bool sqlAllowDottedWord)
+static bool FASTCALL IsAWordChar(int ch, bool sqlAllowDottedWord)
 {
 	if(!sqlAllowDottedWord)
 		return (ch < 0x80) && (isalnum(ch) || ch == '_');
@@ -37,12 +37,12 @@ static inline bool IsAWordChar(int ch, bool sqlAllowDottedWord)
 		return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '.');
 }
 
-static inline bool IsAWordStart(int ch)
+static bool FASTCALL IsAWordStart(int ch)
 {
 	return (ch < 0x80) && (isalpha(ch) || ch == '_');
 }
 
-static inline bool IsADoxygenChar(int ch)
+static bool FASTCALL IsADoxygenChar(int ch)
 {
 	return (islower(ch) || ch == '$' || ch == '@' ||
 	    ch == '\\' || ch == '&' || ch == '<' ||
@@ -50,7 +50,7 @@ static inline bool IsADoxygenChar(int ch)
 	    ch == '}' || ch == '[' || ch == ']');
 }
 
-static inline bool IsANumberChar(int ch, int chPrev)
+static bool FASTCALL IsANumberChar(int ch, int chPrev)
 {
 	// Not exactly following number definition (several dots are seen as OK, etc.)
 	// but probably enough in most cases.

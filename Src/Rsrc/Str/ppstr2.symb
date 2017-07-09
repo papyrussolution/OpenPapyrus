@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147489142
+LastSignatureCode=2147489159
 LastAutoCodeList=1,10969;102,10161;103,10071;110,10000;111,11628;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10077;120,10005;1001,10000;121,10000;122,10000;123,10247;1002,10000;1003,10000;1004,10000;1005,10000
 
 [SignatureList]
@@ -5085,6 +5085,23 @@ trfranlzfilt_arlist=2147487825
 trfranlzfilt_agentlist=2147487826
 trfranlzfilt_extval1=2147488193
 trfranlz_enum_extval=2147488194
+trfranlzval_qtty=2147489143
+trfranlzval_phqtty=2147489144
+trfranlzval_brutto=2147489145
+trfranlzval_rest=2147489146
+trfranlzval_sumcost=2147489147
+trfranlzval_sumprice=2147489148
+trfranlzval_sumdiscount=2147489149
+trfranlzval_amount=2147489150
+trfranlzval_saldo=2147489151
+trfranlzval_saldoqtty=2147489152
+trfranlzval_saldoamount=2147489153
+trfranlzval_pvat=2147489154
+trfranlzval_linkqtty=2147489155
+trfranlzval_linksumcost=2147489156
+trfranlzval_linksumprice=2147489157
+trfranlzval_extval1=2147489158
+trfranlzval_linecount=2147489159
 egaisexcisemark=2147487957
 doscanmark=2147487958
 priceanlzfilt=2147488960

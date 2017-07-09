@@ -13,10 +13,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 /***************************************/
 
@@ -25,25 +25,25 @@ using namespace Scintilla;
 #endif
 
 /***********************************************/
-static inline bool IsAWordChar(const int ch)
+static bool FASTCALL IsAWordChar(const int ch)
 {
 	return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '%');
 }
 
 /**********************************************/
-static inline bool IsAWordStart(const int ch)
+static bool FASTCALL IsAWordStart(const int ch)
 {
 	return (ch < 0x80) && (isalnum(ch));
 }
 
 /***************************************/
-static inline bool IsABlank(uint ch)
+static bool FASTCALL IsABlank(uint ch)
 {
 	return (ch == ' ') || (ch == 0x09) || (ch == 0x0b);
 }
 
 /***************************************/
-static inline bool IsALineEnd(char ch)
+static bool FASTCALL IsALineEnd(char ch)
 {
 	return ((ch == '\n') || (ch == '\r'));
 }

@@ -13,10 +13,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -25,7 +25,7 @@ using namespace Scintilla;
 
 //each character a..z and A..Z + '_' can be part of a keyword
 //additionally numbers that follow 'M' can be contained in a keyword
-static inline bool IsSWordStart(const int ch, const int prev_ch)
+static bool FASTCALL IsSWordStart(const int ch, const int prev_ch)
 {
 	if(isalpha(ch) || (ch == '_') || ((isdigit(ch)) && (prev_ch == 'M')))
 		return true;
@@ -34,7 +34,7 @@ static inline bool IsSWordStart(const int ch, const int prev_ch)
 }
 
 //only digits that are not preceded by 'M' count as a number
-static inline bool IsSorcusNumber(const int ch, const int prev_ch)
+static bool FASTCALL IsSorcusNumber(const int ch, const int prev_ch)
 {
 	if((isdigit(ch)) && (prev_ch != 'M'))
 		return true;
@@ -43,7 +43,7 @@ static inline bool IsSorcusNumber(const int ch, const int prev_ch)
 }
 
 //only = is a valid operator
-static inline bool IsSorcusOperator(const int ch)
+static bool FASTCALL IsSorcusOperator(const int ch)
 {
 	if(ch == '=')
 		return true;

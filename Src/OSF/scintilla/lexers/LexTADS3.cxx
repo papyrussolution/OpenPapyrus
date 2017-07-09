@@ -36,10 +36,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -51,7 +51,7 @@ static const int T3_INT_EXPRESSION = 2;
 static const int T3_INT_EXPRESSION_IN_TAG = 4;
 static const int T3_HTML_SQUOTE = 8;
 
-static inline bool IsEOL(const int ch, const int chNext)
+static bool FASTCALL IsEOL(const int ch, const int chNext)
 {
 	return (ch == '\r' && chNext != '\n') || (ch == '\n');
 }
@@ -69,7 +69,7 @@ static inline bool IsEOL(const int ch, const int chNext)
  *   when we see the CR in a CR-LF, but skipping the CR before returning so
  *   that the caller's caller will see that we've stopped at the LF.
  */
-static inline bool IsEOLSkip(StyleContext &sc)
+static bool FASTCALL IsEOLSkip(StyleContext &sc)
 {
 	/* test for CR-LF */
 	if(sc.ch == '\r' && sc.chNext == '\n') {
@@ -85,7 +85,7 @@ static inline bool IsEOLSkip(StyleContext &sc)
 	return IsEOL(sc.ch, sc.chNext);
 }
 
-static inline bool IsATADS3Operator(const int ch)
+static bool FASTCALL IsATADS3Operator(const int ch)
 {
 	return ch == '=' || ch == '{' || ch == '}' || ch == '(' || ch == ')'
 	       || ch == '[' || ch == ']' || ch == ',' || ch == ':' || ch == ';'
@@ -94,34 +94,34 @@ static inline bool IsATADS3Operator(const int ch)
 	       || ch == '@' || ch == '&' || ch == '~';
 }
 
-static inline bool IsAWordChar(const int ch)
+static bool FASTCALL IsAWordChar(const int ch)
 {
 	return isalnum(ch) || ch == '_';
 }
 
-static inline bool IsAWordStart(const int ch)
+static bool FASTCALL IsAWordStart(const int ch)
 {
 	return isalpha(ch) || ch == '_';
 }
 
-static inline bool IsAHexDigit(const int ch)
+static bool FASTCALL IsAHexDigit(const int ch)
 {
 	int lch = tolower(ch);
 	return isdigit(lch) || lch == 'a' || lch == 'b' || lch == 'c'
 	       || lch == 'd' || lch == 'e' || lch == 'f';
 }
 
-static inline bool IsAnHTMLChar(int ch)
+static bool FASTCALL IsAnHTMLChar(int ch)
 {
 	return isalnum(ch) || ch == '-' || ch == '_' || ch == '.';
 }
 
-static inline bool IsADirectiveChar(int ch)
+static bool FASTCALL IsADirectiveChar(int ch)
 {
 	return isalnum(ch) || isspace(ch) || ch == '-' || ch == '/';
 }
 
-static inline bool IsANumberStart(StyleContext &sc)
+static bool FASTCALL IsANumberStart(StyleContext &sc)
 {
 	return isdigit(sc.ch)
 	       || (!isdigit(sc.chPrev) && sc.ch == '.' && isdigit(sc.chNext));
@@ -726,7 +726,7 @@ static const int T3_SEENSTART = 1 << 12;
 static const int T3_EXPECTINGIDENTIFIER = 1 << 13;
 static const int T3_EXPECTINGPUNCTUATION = 1 << 14;
 
-static inline bool IsStringTransition(int s1, int s2)
+static bool FASTCALL IsStringTransition(int s1, int s2)
 {
 	return s1 != s2
 	       && (s1 == SCE_T3_S_STRING || s1 == SCE_T3_X_STRING
@@ -737,12 +737,12 @@ static inline bool IsStringTransition(int s1, int s2)
 	       && s2 != SCE_T3_HTML_STRING;
 }
 
-static inline bool IsATADS3Punctuation(const int ch)
+static bool FASTCALL IsATADS3Punctuation(const int ch)
 {
 	return ch == ':' || ch == ',' || ch == '(' || ch == ')';
 }
 
-static inline bool IsAnIdentifier(const int style)
+static bool FASTCALL IsAnIdentifier(const int style)
 {
 	return style == SCE_T3_IDENTIFIER
 	       || style == SCE_T3_USER1
@@ -750,12 +750,12 @@ static inline bool IsAnIdentifier(const int style)
 	       || style == SCE_T3_USER3;
 }
 
-static inline bool IsAnOperator(const int style)
+static bool FASTCALL IsAnOperator(const int style)
 {
 	return style == SCE_T3_OPERATOR || style == SCE_T3_BRACE;
 }
 
-static inline bool IsSpaceEquivalent(const int ch, const int style)
+static bool FASTCALL IsSpaceEquivalent(const int ch, const int style)
 {
 	return isspace(ch)
 	       || style == SCE_T3_BLOCK_COMMENT

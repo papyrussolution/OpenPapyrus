@@ -11,10 +11,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -22,7 +22,7 @@ using namespace Scintilla;
 #endif
 
 //XXX Identical to Perl, put in common area
-static inline bool isEOLChar(char ch)
+static bool FASTCALL isEOLChar(char ch)
 {
 	return (ch == '\r') || (ch == '\n');
 }
@@ -31,27 +31,27 @@ static inline bool isEOLChar(char ch)
 // This one's redundant, but makes for more readable code
 #define isHighBitChar(ch) ((uint)(ch) > 127)
 
-static inline bool isSafeAlpha(char ch)
+static bool FASTCALL isSafeAlpha(char ch)
 {
 	return (isSafeASCII(ch) && isalpha(ch)) || ch == '_';
 }
 
-static inline bool isSafeAlnum(char ch)
+static bool FASTCALL isSafeAlnum(char ch)
 {
 	return (isSafeASCII(ch) && isalnum(ch)) || ch == '_';
 }
 
-static inline bool isSafeAlnumOrHigh(char ch)
+static bool FASTCALL isSafeAlnumOrHigh(char ch)
 {
 	return isHighBitChar(ch) || isalnum(ch) || ch == '_';
 }
 
-static inline bool isSafeDigit(char ch)
+static bool FASTCALL isSafeDigit(char ch)
 {
 	return isSafeASCII(ch) && isdigit(ch);
 }
 
-static inline bool isSafeWordcharOrHigh(char ch)
+static bool FASTCALL isSafeWordcharOrHigh(char ch)
 {
 	// Error: scintilla's KeyWords.h includes '.' as a word-char
 	// we want to separate things that can take methods from the

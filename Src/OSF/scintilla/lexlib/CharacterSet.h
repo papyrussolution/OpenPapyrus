@@ -81,7 +81,6 @@ inline bool IsAlphaNumeric(int ch)
 {
 	return ((ch >= '0') && (ch <= '9')) || ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z'));
 }
-
 /**
  * Check if a character is a space.
  * This is ASCII specific but is safe with chars >= 0x80.

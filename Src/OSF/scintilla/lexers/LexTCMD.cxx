@@ -12,10 +12,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -27,7 +27,7 @@ static bool IsAlphabetic(int ch)
 	return IsASCII(ch) && isalpha(ch);
 }
 
-static inline bool AtEOL(Accessor &styler, Sci_PositionU i)
+static bool FASTCALL AtEOL(Accessor &styler, Sci_PositionU i)
 {
 	return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
 }

@@ -17,7 +17,7 @@
 #include <cctype>
 //#include "ILexer.h"
 //#include "SciLexer.h"
-#include "LexAccessor.h"
+//#include "LexAccessor.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE

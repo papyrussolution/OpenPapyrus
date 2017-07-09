@@ -11,23 +11,23 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
 
-static inline bool AtEOL(Accessor &styler, Sci_PositionU i)
+static bool FASTCALL AtEOL(Accessor &styler, Sci_PositionU i)
 {
 	return (styler[i] == '\n') ||
 	       ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
 }
 
-static inline bool isassignchar(uchar ch)
+static bool FASTCALL isassignchar(uchar ch)
 {
 	return (ch == '=') || (ch == ':');
 }

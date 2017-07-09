@@ -11,7 +11,7 @@
 //#include <stdexcept>
 //#include <string>
 //#include "Position.h"
-#include "StringCopy.h"
+//#include "StringCopy.h"
 #include "CallTip.h"
 
 #ifdef SCI_NAMESPACE

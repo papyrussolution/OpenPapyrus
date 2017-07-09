@@ -11,11 +11,11 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "StringCopy.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "StringCopy.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -26,22 +26,36 @@ using namespace Scintilla;
 #define SCE_HA_VBS (SCE_HBA_START - SCE_HB_START)
 #define SCE_HA_PYTHON (SCE_HPA_START - SCE_HP_START)
 
-enum script_type { eScriptNone = 0, eScriptJS, eScriptVBS, eScriptPython, eScriptPHP, eScriptXML, eScriptSGML, eScriptSGMLblock,
-		   eScriptComment };
+enum script_type { 
+	eScriptNone = 0, 
+	eScriptJS, 
+	eScriptVBS, 
+	eScriptPython, 
+	eScriptPHP, 
+	eScriptXML, 
+	eScriptSGML, 
+	eScriptSGMLblock,
+	eScriptComment 
+};
 
-enum script_mode { eHtml = 0, eNonHtmlScript, eNonHtmlPreProc, eNonHtmlScriptPreProc };
+enum script_mode { 
+	eHtml = 0, 
+	eNonHtmlScript, 
+	eNonHtmlPreProc, 
+	eNonHtmlScriptPreProc 
+};
 
-static inline bool IsAWordChar(const int ch)
+static bool FASTCALL IsAWordChar(const int ch)
 {
 	return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_');
 }
 
-static inline bool IsAWordStart(const int ch)
+static bool FASTCALL IsAWordStart(const int ch)
 {
 	return (ch < 0x80) && (isalnum(ch) || ch == '_');
 }
 
-inline bool IsOperator(int ch)
+bool FASTCALL IsOperator(int ch)
 {
 	if(IsASCII(ch) && isalnum(ch))
 		return false;
@@ -77,7 +91,6 @@ static const char * GetNextWord(Accessor &styler, Sci_PositionU start, char * s,
 		s[i] = ch;
 	}
 	s[i] = '\0';
-
 	return s;
 }
 
@@ -107,7 +120,6 @@ static script_type segIsScriptingIndicator(Accessor &styler, Sci_PositionU start
 		}
 		return eScriptXML;
 	}
-
 	return prevValue;
 }
 
@@ -122,7 +134,7 @@ static int PrintScriptingIndicatorOffset(Accessor &styler, Sci_PositionU start, 
 	return iResult;
 }
 
-static script_type ScriptOfState(int state)
+static script_type FASTCALL ScriptOfState(int state)
 {
 	if((state >= SCE_HP_START) && (state <= SCE_HP_IDENTIFIER)) {
 		return eScriptPython;
@@ -147,7 +159,7 @@ static script_type ScriptOfState(int state)
 	}
 }
 
-static int statePrintForState(int state, script_mode inScriptType)
+static int FASTCALL statePrintForState(int state, script_mode inScriptType)
 {
 	int StateToPrint = state;
 
@@ -162,14 +174,12 @@ static int statePrintForState(int state, script_mode inScriptType)
 			StateToPrint = state + ((inScriptType == eNonHtmlScript) ? 0 : SCE_HA_JS);
 		}
 	}
-
 	return StateToPrint;
 }
 
-static int stateForPrintState(int StateToPrint)
+static int FASTCALL stateForPrintState(int StateToPrint)
 {
 	int state;
-
 	if((StateToPrint >= SCE_HPA_START) && (StateToPrint <= SCE_HPA_IDENTIFIER)) {
 		state = StateToPrint - SCE_HA_PYTHON;
 	}
@@ -182,20 +192,17 @@ static int stateForPrintState(int StateToPrint)
 	else {
 		state = StateToPrint;
 	}
-
 	return state;
 }
 
-static inline bool IsNumber(Sci_PositionU start, Accessor &styler)
+static bool FASTCALL IsNumber(Sci_PositionU start, Accessor &styler)
 {
-	return IsADigit(styler[start]) || (styler[start] == '.') ||
-	       (styler[start] == '-') || (styler[start] == '#');
+	return IsADigit(styler[start]) || (styler[start] == '.') || (styler[start] == '-') || (styler[start] == '#');
 }
 
-static inline bool isStringState(int state)
+static bool FASTCALL isStringState(int state)
 {
 	bool bResult;
-
 	switch(state) {
 		case SCE_HJ_DOUBLESTRING:
 		case SCE_HJ_SINGLESTRING:
@@ -224,7 +231,7 @@ static inline bool isStringState(int state)
 	return bResult;
 }
 
-static inline bool stateAllowsTermination(int state)
+static bool FASTCALL stateAllowsTermination(int state)
 {
 	bool allowTermination = !isStringState(state);
 	if(allowTermination) {
@@ -240,10 +247,9 @@ static inline bool stateAllowsTermination(int state)
 }
 
 // not really well done, since it's only comments that should lex the %> and <%
-static inline bool isCommentASPState(int state)
+static bool FASTCALL isCommentASPState(int state)
 {
 	bool bResult;
-
 	switch(state) {
 		case SCE_HJ_COMMENT:
 		case SCE_HJ_COMMENTLINE:
@@ -389,13 +395,8 @@ static int classifyWordHTVB(Sci_PositionU start, Sci_PositionU end, WordList &ke
 		return SCE_HB_DEFAULT;
 }
 
-static void classifyWordHTPy(Sci_PositionU start,
-    Sci_PositionU end,
-    WordList &keywords,
-    Accessor &styler,
-    char * prevWord,
-    script_mode inScriptType,
-    bool isMako)
+static void classifyWordHTPy(Sci_PositionU start, Sci_PositionU end, WordList &keywords,
+    Accessor &styler, char * prevWord, script_mode inScriptType, bool isMako)
 {
 	bool wordIsNumber = IsADigit(styler[start]);
 	char s[30 + 1];
@@ -460,7 +461,7 @@ static bool isWordCdata(Sci_PositionU start, Sci_PositionU end, Accessor &styler
 }
 
 // Return the first state to reach when entering a scripting language
-static int StateForScript(script_type scriptLanguage)
+static int FASTCALL StateForScript(script_type scriptLanguage)
 {
 	int Result;
 	switch(scriptLanguage) {
@@ -475,41 +476,40 @@ static int StateForScript(script_type scriptLanguage)
 	return Result;
 }
 
-static inline bool issgmlwordchar(int ch)
+static bool FASTCALL issgmlwordchar(int ch)
 {
-	return !IsASCII(ch) ||
-	       (isalnum(ch) || ch == '.' || ch == '_' || ch == ':' || ch == '!' || ch == '#' || ch == '[');
+	return !IsASCII(ch) || (isalnum(ch) || ch == '.' || ch == '_' || ch == ':' || ch == '!' || ch == '#' || ch == '[');
 }
 
-static inline bool IsPhpWordStart(int ch)
+static bool FASTCALL IsPhpWordStart(int ch)
 {
 	return (IsASCII(ch) && (isalpha(ch) || (ch == '_'))) || (ch >= 0x7f);
 }
 
-static inline bool IsPhpWordChar(int ch)
+static bool FASTCALL IsPhpWordChar(int ch)
 {
 	return IsADigit(ch) || IsPhpWordStart(ch);
 }
 
-static bool InTagState(int state)
+static bool FASTCALL InTagState(int state)
 {
 	return oneof9(state, SCE_H_TAG, SCE_H_TAGUNKNOWN, SCE_H_SCRIPT, SCE_H_ATTRIBUTE, SCE_H_ATTRIBUTEUNKNOWN,
 		SCE_H_NUMBER, SCE_H_OTHER, SCE_H_DOUBLESTRING, SCE_H_SINGLESTRING);
 }
 
-static bool IsCommentState(const int state)
+static bool FASTCALL IsCommentState(const int state)
 {
 	return oneof2(state, SCE_H_COMMENT, SCE_H_SGML_COMMENT);
 }
 
-static bool IsScriptCommentState(const int state)
+static bool FASTCALL IsScriptCommentState(const int state)
 {
 	return oneof6(state, SCE_HJ_COMMENT, SCE_HJ_COMMENTLINE, SCE_HJA_COMMENT, SCE_HJA_COMMENTLINE, SCE_HB_COMMENTLINE, SCE_HBA_COMMENTLINE);
 }
 
-static bool isLineEnd(int ch)
+static bool FASTCALL isLineEnd(int ch)
 {
-	return ch == '\r' || ch == '\n';
+	return (ch == '\r' || ch == '\n');
 }
 
 static bool isMakoBlockEnd(const int ch, const int chNext, const char * blockType)
@@ -555,20 +555,14 @@ static bool isPHPStringState(int state)
 	return oneof4(state, SCE_HPHP_HSTRING, SCE_HPHP_SIMPLESTRING, SCE_HPHP_HSTRING_VARIABLE, SCE_HPHP_COMPLEX_VARIABLE);
 }
 
-static Sci_Position FindPhpStringDelimiter(char * phpStringDelimiter,
-    const int phpStringDelimiterSize,
-    Sci_Position i,
-    const Sci_Position lengthDoc,
-    Accessor &styler,
-    bool &isSimpleString)
+static Sci_Position FindPhpStringDelimiter(char * phpStringDelimiter, const int phpStringDelimiterSize, Sci_Position i,
+    const Sci_Position lengthDoc, Accessor &styler, bool &isSimpleString)
 {
 	Sci_Position j;
 	const Sci_Position beginning = i - 1;
 	bool isValidSimpleString = false;
-
 	while(i < lengthDoc && (styler[i] == ' ' || styler[i] == '\t'))
 		i++;
-
 	char ch = styler.SafeGetCharAt(i);
 	const char chNext = styler.SafeGetCharAt(i + 1);
 	if(!IsPhpWordStart(ch)) {
@@ -610,8 +604,7 @@ static Sci_Position FindPhpStringDelimiter(char * phpStringDelimiter,
 	return j - 1;
 }
 
-static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor &styler, bool isXml)
+static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler, bool isXml)
 {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -996,15 +989,16 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 		}
 
 		// handle the start Mako template Python code
-		else if(isMako && scriptLanguage == eScriptNone && ((ch == '<' && chNext == '%') ||
-			    (lineStartVisibleChars == 1 && ch == '%') ||
-			    (lineStartVisibleChars == 1 && ch == '/' && chNext == '%') ||
-			    (ch == '$' && chNext == '{') ||
-			    (ch == '<' && chNext == '/' && chNext2 == '%'))) {
-			if(ch == '%' || ch == '/')
-				StringCopy(makoBlockType, "%");
-			else if(ch == '$')
-				StringCopy(makoBlockType, "{");
+		else if(isMako && scriptLanguage == eScriptNone && ((ch == '<' && chNext == '%') || (lineStartVisibleChars == 1 && ch == '%') ||
+			(lineStartVisibleChars == 1 && ch == '/' && chNext == '%') || (ch == '$' && chNext == '{') || (ch == '<' && chNext == '/' && chNext2 == '%'))) {
+			if(ch == '%' || ch == '/') {
+				//StringCopy(makoBlockType, "%");
+				STRNSCPY(makoBlockType, "%");
+			}
+			else if(ch == '$') {
+				//StringCopy(makoBlockType, "{");
+				STRNSCPY(makoBlockType, "{");
+			}
 			else if(chNext == '/')
 				GetNextWord(styler, i+3, makoBlockType, sizeof(makoBlockType));
 			else
@@ -1074,10 +1068,12 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 
 		// handle the start Django template code
 		else if(isDjango && scriptLanguage != eScriptPython && (ch == '{' && (chNext == '%' ||  chNext == '{'))) {
-			if(chNext == '%')
-				StringCopy(djangoBlockType, "%");
-			else
-				StringCopy(djangoBlockType, "{");
+			//if(chNext == '%')
+			//	StringCopy(djangoBlockType, "%");
+			//else
+			//	StringCopy(djangoBlockType, "{");
+			STRNSCPY(djangoBlockType, (chNext == '%') ? "%" : "{");
+			//
 			styler.ColourTo(i - 1, StateToPrint);
 			beforePreProc = state;
 			if(inScriptType == eNonHtmlScript)
@@ -2092,7 +2088,8 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				    }
 				    else if(ch == '\"') {
 					    state = SCE_HPHP_HSTRING;
-					    StringCopy(phpStringDelimiter, "\"");
+					    //StringCopy(phpStringDelimiter, "\"");
+						STRNSCPY(phpStringDelimiter, "\"");
 				    }
 				    else if(styler.Match(i, "<<<")) {
 					    bool isSimpleString = false;
@@ -2109,7 +2106,8 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				    }
 				    else if(ch == '\'') {
 					    state = SCE_HPHP_SIMPLESTRING;
-					    StringCopy(phpStringDelimiter, "\'");
+					    //StringCopy(phpStringDelimiter, "\'");
+						STRNSCPY(phpStringDelimiter, "\'");
 				    }
 				    else if(ch == '$' && IsPhpWordStart(chNext)) {
 					    state = SCE_HPHP_VARIABLE;
@@ -2242,16 +2240,12 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 			    }
 			    else if(ch == '\"') {
 				    state = SCE_HPHP_HSTRING;
-				    StringCopy(phpStringDelimiter, "\"");
+				    //StringCopy(phpStringDelimiter, "\"");
+					STRNSCPY(phpStringDelimiter, "\"");
 			    }
 			    else if(styler.Match(i, "<<<")) {
 				    bool isSimpleString = false;
-				    i = FindPhpStringDelimiter(phpStringDelimiter,
-				    sizeof(phpStringDelimiter),
-				    i + 3,
-				    lengthDoc,
-				    styler,
-				    isSimpleString);
+				    i = FindPhpStringDelimiter(phpStringDelimiter, sizeof(phpStringDelimiter), i + 3, lengthDoc, styler, isSimpleString);
 				    if(strlen(phpStringDelimiter)) {
 					    state = (isSimpleString ? SCE_HPHP_SIMPLESTRING : SCE_HPHP_HSTRING);
 					    if(foldHeredoc) levelCurrent++;
@@ -2259,7 +2253,8 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 			    }
 			    else if(ch == '\'') {
 				    state = SCE_HPHP_SIMPLESTRING;
-				    StringCopy(phpStringDelimiter, "\'");
+				    //StringCopy(phpStringDelimiter, "\'");
+					STRNSCPY(phpStringDelimiter, "\'");
 			    }
 			    else if(ch == '$' && IsPhpWordStart(chNext)) {
 				    state = SCE_HPHP_VARIABLE;

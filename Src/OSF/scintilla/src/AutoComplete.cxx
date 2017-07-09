@@ -19,7 +19,7 @@
 //#include "Platform.h"
 //#include "Scintilla.h"
 //#include "Position.h"
-#include "CharacterSet.h"
+//#include "CharacterSet.h"
 #include "AutoComplete.h"
 
 #ifdef SCI_NAMESPACE

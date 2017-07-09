@@ -18,9 +18,9 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 #include "OptionSet.h"
 
@@ -28,19 +28,17 @@
 using namespace Scintilla;
 #endif
 
-static inline bool IsAWordChar(const int ch)
+static bool FASTCALL IsAWordChar(const int ch)
 {
-	return (ch < 0x80) && (isalnum(ch) || ch == '.' ||
-	    ch == '_' || ch == '?');
+	return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_' || ch == '?');
 }
 
-static inline bool IsAWordStart(const int ch)
+static bool FASTCALL IsAWordStart(const int ch)
 {
-	return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '.' ||
-	    ch == '%' || ch == '@' || ch == '$' || ch == '?');
+	return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '.' || ch == '%' || ch == '@' || ch == '$' || ch == '?');
 }
 
-static inline bool IsAsmOperator(const int ch)
+static bool FASTCALL IsAsmOperator(const int ch)
 {
 	if((ch < 0x80) && (isalnum(ch)))
 		return false;
@@ -191,21 +189,17 @@ public:
 	{
 		return osAsm.DescribeWordListSets();
 	}
-
 	Sci_Position SCI_METHOD WordListSet(int n, const char * wl);
 	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
 	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
-
 	void * SCI_METHOD PrivateCall(int, void *)
 	{
 		return 0;
 	}
-
 	static ILexer * LexerFactoryAsm()
 	{
 		return new LexerAsm(';');
 	}
-
 	static ILexer * LexerFactoryAs()
 	{
 		return new LexerAsm('#');
@@ -224,30 +218,14 @@ Sci_Position SCI_METHOD LexerAsm::WordListSet(int n, const char * wl)
 {
 	WordList * wordListN = 0;
 	switch(n) {
-		case 0:
-		    wordListN = &cpuInstruction;
-		    break;
-		case 1:
-		    wordListN = &mathInstruction;
-		    break;
-		case 2:
-		    wordListN = &registers;
-		    break;
-		case 3:
-		    wordListN = &directive;
-		    break;
-		case 4:
-		    wordListN = &directiveOperand;
-		    break;
-		case 5:
-		    wordListN = &extInstruction;
-		    break;
-		case 6:
-		    wordListN = &directives4foldstart;
-		    break;
-		case 7:
-		    wordListN = &directives4foldend;
-		    break;
+		case 0: wordListN = &cpuInstruction; break;
+		case 1: wordListN = &mathInstruction; break;
+		case 2: wordListN = &registers; break;
+		case 3: wordListN = &directive; break;
+		case 4: wordListN = &directiveOperand; break;
+		case 5: wordListN = &extInstruction; break;
+		case 6: wordListN = &directives4foldstart; break;
+		case 7: wordListN = &directives4foldend; break;
 	}
 	Sci_Position firstModification = -1;
 	if(wordListN) {
@@ -264,13 +242,10 @@ Sci_Position SCI_METHOD LexerAsm::WordListSet(int n, const char * wl)
 void SCI_METHOD LexerAsm::Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess)
 {
 	LexAccessor styler(pAccess);
-
 	// Do not leak onto next line
 	if(initStyle == SCE_ASM_STRINGEOL)
 		initStyle = SCE_ASM_DEFAULT;
-
 	StyleContext sc(startPos, length, initStyle, styler);
-
 	for(; sc.More(); sc.Forward()) {
 		// Prevent SCE_ASM_STRINGEOL from leaking back to previous line
 		if(sc.atLineStart && (sc.state == SCE_ASM_STRING)) {
@@ -279,7 +254,6 @@ void SCI_METHOD LexerAsm::Lex(Sci_PositionU startPos, Sci_Position length, int i
 		else if(sc.atLineStart && (sc.state == SCE_ASM_CHARACTER)) {
 			sc.SetState(SCE_ASM_CHARACTER);
 		}
-
 		// Handle line continuation generically.
 		if(sc.ch == '\\') {
 			if(sc.chNext == '\n' || sc.chNext == '\r') {
@@ -413,96 +387,94 @@ void SCI_METHOD LexerAsm::Lex(Sci_PositionU startPos, Sci_Position length, int i
 
 void SCI_METHOD LexerAsm::Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess)
 {
-	if(!options.fold)
-		return;
-
-	LexAccessor styler(pAccess);
-
-	Sci_PositionU endPos = startPos + length;
-	int visibleChars = 0;
-	Sci_Position lineCurrent = styler.GetLine(startPos);
-	int levelCurrent = SC_FOLDLEVELBASE;
-	if(lineCurrent > 0)
-		levelCurrent = styler.LevelAt(lineCurrent-1) >> 16;
-	int levelNext = levelCurrent;
-	char chNext = styler[startPos];
-	int styleNext = styler.StyleAt(startPos);
-	int style = initStyle;
-	char word[100];
-	int wordlen = 0;
-	const bool userDefinedFoldMarkers = !options.foldExplicitStart.empty() && !options.foldExplicitEnd.empty();
-	for(Sci_PositionU i = startPos; i < endPos; i++) {
-		char ch = chNext;
-		chNext = styler.SafeGetCharAt(i + 1);
-		int stylePrev = style;
-		style = styleNext;
-		styleNext = styler.StyleAt(i + 1);
-		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
-		if(options.foldCommentMultiline && IsStreamCommentStyle(style)) {
-			if(!IsStreamCommentStyle(stylePrev)) {
-				levelNext++;
-			}
-			else if(!IsStreamCommentStyle(styleNext) && !atEOL) {
-				// Comments don't end at end of line and the next character may be unstyled.
-				levelNext--;
-			}
-		}
-		if(options.foldCommentExplicit && ((style == SCE_ASM_COMMENT) || options.foldExplicitAnywhere)) {
-			if(userDefinedFoldMarkers) {
-				if(styler.Match(i, options.foldExplicitStart.c_str())) {
+	if(options.fold) {
+		LexAccessor styler(pAccess);
+		Sci_PositionU endPos = startPos + length;
+		int visibleChars = 0;
+		Sci_Position lineCurrent = styler.GetLine(startPos);
+		int levelCurrent = SC_FOLDLEVELBASE;
+		if(lineCurrent > 0)
+			levelCurrent = styler.LevelAt(lineCurrent-1) >> 16;
+		int levelNext = levelCurrent;
+		char chNext = styler[startPos];
+		int styleNext = styler.StyleAt(startPos);
+		int style = initStyle;
+		char word[100];
+		int wordlen = 0;
+		const bool userDefinedFoldMarkers = !options.foldExplicitStart.empty() && !options.foldExplicitEnd.empty();
+		for(Sci_PositionU i = startPos; i < endPos; i++) {
+			char ch = chNext;
+			chNext = styler.SafeGetCharAt(i + 1);
+			int stylePrev = style;
+			style = styleNext;
+			styleNext = styler.StyleAt(i + 1);
+			bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
+			if(options.foldCommentMultiline && IsStreamCommentStyle(style)) {
+				if(!IsStreamCommentStyle(stylePrev)) {
 					levelNext++;
 				}
-				else if(styler.Match(i, options.foldExplicitEnd.c_str())) {
+				else if(!IsStreamCommentStyle(styleNext) && !atEOL) {
+					// Comments don't end at end of line and the next character may be unstyled.
 					levelNext--;
 				}
 			}
-			else {
-				if(ch == ';') {
-					if(chNext == '{') {
+			if(options.foldCommentExplicit && ((style == SCE_ASM_COMMENT) || options.foldExplicitAnywhere)) {
+				if(userDefinedFoldMarkers) {
+					if(styler.Match(i, options.foldExplicitStart.c_str())) {
 						levelNext++;
 					}
-					else if(chNext == '}') {
+					else if(styler.Match(i, options.foldExplicitEnd.c_str())) {
+						levelNext--;
+					}
+				}
+				else {
+					if(ch == ';') {
+						if(chNext == '{') {
+							levelNext++;
+						}
+						else if(chNext == '}') {
+							levelNext--;
+						}
+					}
+				}
+			}
+			if(options.foldSyntaxBased && (style == SCE_ASM_DIRECTIVE)) {
+				word[wordlen++] = static_cast<char>(LowerCase(ch));
+				if(wordlen == 100) {                    // prevent overflow
+					word[0] = '\0';
+					wordlen = 1;
+				}
+				if(styleNext != SCE_ASM_DIRECTIVE) {    // reading directive ready
+					word[wordlen] = '\0';
+					wordlen = 0;
+					if(directives4foldstart.InList(word)) {
+						levelNext++;
+					}
+					else if(directives4foldend.InList(word)) {
 						levelNext--;
 					}
 				}
 			}
-		}
-		if(options.foldSyntaxBased && (style == SCE_ASM_DIRECTIVE)) {
-			word[wordlen++] = static_cast<char>(LowerCase(ch));
-			if(wordlen == 100) {                    // prevent overflow
-				word[0] = '\0';
-				wordlen = 1;
-			}
-			if(styleNext != SCE_ASM_DIRECTIVE) {    // reading directive ready
-				word[wordlen] = '\0';
-				wordlen = 0;
-				if(directives4foldstart.InList(word)) {
-					levelNext++;
+			if(!IsASpace(ch))
+				visibleChars++;
+			if(atEOL || (i == endPos-1)) {
+				int levelUse = levelCurrent;
+				int lev = levelUse | levelNext << 16;
+				if(visibleChars == 0 && options.foldCompact)
+					lev |= SC_FOLDLEVELWHITEFLAG;
+				if(levelUse < levelNext)
+					lev |= SC_FOLDLEVELHEADERFLAG;
+				if(lev != styler.LevelAt(lineCurrent)) {
+					styler.SetLevel(lineCurrent, lev);
 				}
-				else if(directives4foldend.InList(word)) {
-					levelNext--;
+				lineCurrent++;
+				levelCurrent = levelNext;
+				if(atEOL && (i == static_cast<Sci_PositionU>(styler.Length() - 1))) {
+					// There is an empty line at end of file so give it same level and empty
+					styler.SetLevel(lineCurrent, (levelCurrent | levelCurrent << 16) | SC_FOLDLEVELWHITEFLAG);
 				}
+				visibleChars = 0;
 			}
-		}
-		if(!IsASpace(ch))
-			visibleChars++;
-		if(atEOL || (i == endPos-1)) {
-			int levelUse = levelCurrent;
-			int lev = levelUse | levelNext << 16;
-			if(visibleChars == 0 && options.foldCompact)
-				lev |= SC_FOLDLEVELWHITEFLAG;
-			if(levelUse < levelNext)
-				lev |= SC_FOLDLEVELHEADERFLAG;
-			if(lev != styler.LevelAt(lineCurrent)) {
-				styler.SetLevel(lineCurrent, lev);
-			}
-			lineCurrent++;
-			levelCurrent = levelNext;
-			if(atEOL && (i == static_cast<Sci_PositionU>(styler.Length() - 1))) {
-				// There is an empty line at end of file so give it same level and empty
-				styler.SetLevel(lineCurrent, (levelCurrent | levelCurrent << 16) | SC_FOLDLEVELWHITEFLAG);
-			}
-			visibleChars = 0;
 		}
 	}
 }

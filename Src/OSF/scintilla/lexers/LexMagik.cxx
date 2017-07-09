@@ -12,10 +12,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -28,7 +28,7 @@ using namespace Scintilla;
  * \param  ch The character
  * \return True if ch is a character, False otherwise
  */
-static inline bool IsAlphaCore(int ch)
+static bool FASTCALL IsAlphaCore(int ch)
 {
 	return (isalpha(ch) || ch == '!' || ch == '?');
 }
@@ -38,7 +38,7 @@ static inline bool IsAlphaCore(int ch)
  * \param  ch The character
  * \return True if ch is a character, False otherwise
  */
-static inline bool IsAlpha(int ch)
+static bool FASTCALL IsAlpha(int ch)
 {
 	return (IsAlphaCore(ch) || ch == '_');
 }
@@ -49,7 +49,7 @@ static inline bool IsAlpha(int ch)
  * \param  ch The character
  * \return True if ch is a character, False otherwise
  */
-static inline bool IsAlphaSym(int ch)
+static bool FASTCALL IsAlphaSym(int ch)
 {
 	return (IsAlpha(ch) || ch == ':');
 }
@@ -60,7 +60,7 @@ static inline bool IsAlphaSym(int ch)
  * \param  ch The character
  * \return True if ch is a character, False otherwise
  */
-static inline bool IsAlNum(int ch)
+static bool FASTCALL IsAlNum(int ch)
 {
 	return ((ch >= '0' && ch <= '9') || IsAlpha(ch));
 }
@@ -71,7 +71,7 @@ static inline bool IsAlNum(int ch)
  * \param  ch The character
  * \return True if ch is a character, False otherwise
  */
-static inline bool IsAlNumSym(int ch)
+static bool FASTCALL IsAlNumSym(int ch)
 {
 	return (IsAlNum(ch) || ch == ':');
 }

@@ -9,10 +9,10 @@
 #include <Scintilla.h>
 #pragma hdrstop
 //#include "ILexer.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 
 #ifdef SCI_NAMESPACE
 	using namespace Scintilla;

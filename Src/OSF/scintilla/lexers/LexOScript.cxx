@@ -14,10 +14,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -34,21 +34,21 @@ inline bool IsAlpha(int ch)
 	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
 }
 
-static inline bool IsIdentifierChar(int ch)
+static bool FASTCALL IsIdentifierChar(int ch)
 {
 	// Identifiers cannot contain non-ASCII letters; a word with non-English
 	// language-specific characters cannot be an identifier.
 	return IsAlphaNumeric(ch) || ch == '_';
 }
 
-static inline bool IsIdentifierStart(int ch)
+static bool FASTCALL IsIdentifierStart(int ch)
 {
 	// Identifiers cannot contain non-ASCII letters; a word with non-English
 	// language-specific characters cannot be an identifier.
 	return IsAlpha(ch) || ch == '_';
 }
 
-static inline bool IsNumberChar(int ch, int chNext)
+static bool FASTCALL IsNumberChar(int ch, int chNext)
 {
 	// Numeric constructs are not checked for lexical correctness. They are
 	// expected to look like +1.23-E9 but actually any bunch of the following
@@ -65,12 +65,12 @@ static inline bool IsNumberChar(int ch, int chNext)
 // This function checks for the start or a natural number without any symbols
 // or operators as a prefix; the IsPrefixedNumberStart should be called
 // immediately after this one to cover all possible numeric constructs.
-static inline bool IsNaturalNumberStart(int ch)
+static bool FASTCALL IsNaturalNumberStart(int ch)
 {
 	return IsADigit(ch) != 0;
 }
 
-static inline bool IsPrefixedNumberStart(int ch, int chNext)
+static bool FASTCALL IsPrefixedNumberStart(int ch, int chNext)
 {
 	// KNOWN PROBLEM: if you put + or - operators immediately before a number
 	// the operator will not be recognized and it will be styled together with
@@ -79,7 +79,7 @@ static inline bool IsPrefixedNumberStart(int ch, int chNext)
 	return (ch == '.' || ch == '-' || ch == '+') && IsADigit(chNext);
 }
 
-static inline bool IsOperator(int ch)
+static bool FASTCALL IsOperator(int ch)
 {
 	return strchr("%^&*()-+={}[]:;<>,/?!.~|\\", ch) != NULL;
 }
@@ -412,7 +412,7 @@ static void ColouriseOScriptDoc(Sci_PositionU startPos, Sci_Position length,
 // ------------------------------------------
 // Functions supporting OScript code folding.
 
-static inline bool IsBlockComment(int style)
+static bool FASTCALL IsBlockComment(int style)
 {
 	return style == SCE_OSCRIPT_BLOCK_COMMENT;
 }
@@ -435,7 +435,7 @@ static bool IsLineComment(Sci_Position line, Accessor &styler)
 	return false;
 }
 
-static inline bool IsPreprocessor(int style)
+static bool FASTCALL IsPreprocessor(int style)
 {
 	return style == SCE_OSCRIPT_PREPROCESSOR ||
 	       style == SCE_OSCRIPT_DOC_COMMENT;

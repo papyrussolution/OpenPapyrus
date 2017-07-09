@@ -1,7 +1,7 @@
 // Scintilla source code edit control
 /** @file RESearch.cxx
- ** Regular expression search library.
- **/
+** Regular expression search library.
+**/
 
 /*
  * regex - Regular expression pattern matching and replacement
@@ -241,7 +241,7 @@ using namespace Scintilla;
 
 const char bitarr[] = { 1, 2, 4, 8, 16, 32, 64, '\200' };
 
-#define badpat(x)	(*nfa = END, x)
+#define badpat(x)       (*nfa = END, x)
 
 /*
  * Character classification table for word boundary operators BOW
@@ -250,7 +250,7 @@ const char bitarr[] = { 1, 2, 4, 8, 16, 32, 64, '\200' };
  * 0-9, a-z, A-Z and _
  */
 
-RESearch::RESearch(CharClassify *charClassTable) {
+RESearch::RESearch(CharClassify * charClassTable) {
 	failure = 0;
 	charClass = charClassTable;
 	sta = NOP;                  /* status of lastpat */
@@ -266,7 +266,7 @@ RESearch::~RESearch() {
 }
 
 void RESearch::Clear() {
-	for (int i = 0; i < MAXTAG; i++) {
+	for(int i = 0; i < MAXTAG; i++) {
 		pat[i].clear();
 		bopat[i] = NOTFOUND;
 		eopat[i] = NOTFOUND;
@@ -274,11 +274,11 @@ void RESearch::Clear() {
 }
 
 void RESearch::GrabMatches(CharacterIndexer &ci) {
-	for (uint i = 0; i < MAXTAG; i++) {
-		if ((bopat[i] != NOTFOUND) && (eopat[i] != NOTFOUND)) {
+	for(uint i = 0; i < MAXTAG; i++) {
+		if((bopat[i] != NOTFOUND) && (eopat[i] != NOTFOUND)) {
 			uint len = eopat[i] - bopat[i];
 			pat[i].resize(len);
-			for (uint j = 0; j < len; j++)
+			for(uint j = 0; j < len; j++)
 				pat[i][j] = ci.CharAt(bopat[i] + j);
 		}
 	}
@@ -289,52 +289,61 @@ void RESearch::ChSet(uchar c) {
 }
 
 void RESearch::ChSetWithCase(uchar c, bool caseSensitive) {
-	if (caseSensitive) {
+	if(caseSensitive) {
 		ChSet(c);
-	} else {
-		if ((c >= 'a') && (c <= 'z')) {
+	}
+	else {
+		if((c >= 'a') && (c <= 'z')) {
 			ChSet(c);
 			ChSet(static_cast<uchar>(c - 'a' + 'A'));
-		} else if ((c >= 'A') && (c <= 'Z')) {
+		}
+		else if((c >= 'A') && (c <= 'Z')) {
 			ChSet(c);
 			ChSet(static_cast<uchar>(c - 'A' + 'a'));
-		} else {
+		}
+		else {
 			ChSet(c);
 		}
 	}
 }
 
 static uchar escapeValue(uchar ch) {
-	switch (ch) {
-	case 'a':	return '\a';
-	case 'b':	return '\b';
-	case 'f':	return '\f';
-	case 'n':	return '\n';
-	case 'r':	return '\r';
-	case 't':	return '\t';
-	case 'v':	return '\v';
+	switch(ch) {
+		case 'a':       return '\a';
+		case 'b':       return '\b';
+		case 'f':       return '\f';
+		case 'n':       return '\n';
+		case 'r':       return '\r';
+		case 't':       return '\t';
+		case 'v':       return '\v';
 	}
 	return 0;
 }
 
 static int GetHexaChar(uchar hd1, uchar hd2) {
 	int hexValue = 0;
-	if (hd1 >= '0' && hd1 <= '9') {
+	if(hd1 >= '0' && hd1 <= '9') {
 		hexValue += 16 * (hd1 - '0');
-	} else if (hd1 >= 'A' && hd1 <= 'F') {
+	}
+	else if(hd1 >= 'A' && hd1 <= 'F') {
 		hexValue += 16 * (hd1 - 'A' + 10);
-	} else if (hd1 >= 'a' && hd1 <= 'f') {
+	}
+	else if(hd1 >= 'a' && hd1 <= 'f') {
 		hexValue += 16 * (hd1 - 'a' + 10);
-	} else {
+	}
+	else {
 		return -1;
 	}
-	if (hd2 >= '0' && hd2 <= '9') {
+	if(hd2 >= '0' && hd2 <= '9') {
 		hexValue += hd2 - '0';
-	} else if (hd2 >= 'A' && hd2 <= 'F') {
+	}
+	else if(hd2 >= 'A' && hd2 <= 'F') {
 		hexValue += hd2 - 'A' + 10;
-	} else if (hd2 >= 'a' && hd2 <= 'f') {
+	}
+	else if(hd2 >= 'a' && hd2 <= 'f') {
 		hexValue += hd2 - 'a' + 10;
-	} else {
+	}
+	else {
 		return -1;
 	}
 	return hexValue;
@@ -348,96 +357,96 @@ static int GetHexaChar(uchar hd1, uchar hd2) {
  * @return the char if it resolves to a simple char,
  * or -1 for a char class. In this case, bittab is changed.
  */
-int RESearch::GetBackslashExpression(
-    const char *pattern,
+int RESearch::GetBackslashExpression(const char * pattern,
     int &incr) {
 	// Since error reporting is primitive and messages are not used anyway,
 	// I choose to interpret unexpected syntax in a logical way instead
 	// of reporting errors. Otherwise, we can stick on, eg., PCRE behavior.
-	incr = 0;	// Most of the time, will skip the char "naturally".
+	incr = 0;       // Most of the time, will skip the char "naturally".
 	int c;
 	int result = -1;
 	uchar bsc = *pattern;
-	if (!bsc) {
+	if(!bsc) {
 		// Avoid overrun
-		result = '\\';	// \ at end of pattern, take it literally
+		result = '\\';  // \ at end of pattern, take it literally
 		return result;
 	}
 
-	switch (bsc) {
-	case 'a':
-	case 'b':
-	case 'n':
-	case 'f':
-	case 'r':
-	case 't':
-	case 'v':
-		result = escapeValue(bsc);
-		break;
-	case 'x': {
-			uchar hd1 = *(pattern + 1);
-			uchar hd2 = *(pattern + 2);
-			int hexValue = GetHexaChar(hd1, hd2);
-			if (hexValue >= 0) {
-				result = hexValue;
-				incr = 2;	// Must skip the digits
-			} else {
-				result = 'x';	// \x without 2 digits: see it as 'x'
-			}
-		}
-		break;
-	case 'd':
-		for (c = '0'; c <= '9'; c++) {
-			ChSet(static_cast<uchar>(c));
-		}
-		break;
-	case 'D':
-		for (c = 0; c < MAXCHR; c++) {
-			if (c < '0' || c > '9') {
-				ChSet(static_cast<uchar>(c));
-			}
-		}
-		break;
-	case 's':
-		ChSet(' ');
-		ChSet('\t');
-		ChSet('\n');
-		ChSet('\r');
-		ChSet('\f');
-		ChSet('\v');
-		break;
-	case 'S':
-		for (c = 0; c < MAXCHR; c++) {
-			if (c != ' ' && !(c >= 0x09 && c <= 0x0D)) {
-				ChSet(static_cast<uchar>(c));
-			}
-		}
-		break;
-	case 'w':
-		for (c = 0; c < MAXCHR; c++) {
-			if (iswordc(static_cast<uchar>(c))) {
-				ChSet(static_cast<uchar>(c));
-			}
-		}
-		break;
-	case 'W':
-		for (c = 0; c < MAXCHR; c++) {
-			if (!iswordc(static_cast<uchar>(c))) {
-				ChSet(static_cast<uchar>(c));
-			}
-		}
-		break;
-	default:
-		result = bsc;
+	switch(bsc) {
+		case 'a':
+		case 'b':
+		case 'n':
+		case 'f':
+		case 'r':
+		case 't':
+		case 'v':
+		    result = escapeValue(bsc);
+		    break;
+		case 'x': {
+		    uchar hd1 = *(pattern + 1);
+		    uchar hd2 = *(pattern + 2);
+		    int hexValue = GetHexaChar(hd1, hd2);
+		    if(hexValue >= 0) {
+			    result = hexValue;
+			    incr = 2;           // Must skip the digits
+		    }
+		    else {
+			    result = 'x';       // \x without 2 digits: see it as 'x'
+		    }
+	    }
+	    break;
+		case 'd':
+		    for(c = '0'; c <= '9'; c++) {
+			    ChSet(static_cast<uchar>(c));
+		    }
+		    break;
+		case 'D':
+		    for(c = 0; c < MAXCHR; c++) {
+			    if(c < '0' || c > '9') {
+				    ChSet(static_cast<uchar>(c));
+			    }
+		    }
+		    break;
+		case 's':
+		    ChSet(' ');
+		    ChSet('\t');
+		    ChSet('\n');
+		    ChSet('\r');
+		    ChSet('\f');
+		    ChSet('\v');
+		    break;
+		case 'S':
+		    for(c = 0; c < MAXCHR; c++) {
+			    if(c != ' ' && !(c >= 0x09 && c <= 0x0D)) {
+				    ChSet(static_cast<uchar>(c));
+			    }
+		    }
+		    break;
+		case 'w':
+		    for(c = 0; c < MAXCHR; c++) {
+			    if(iswordc(static_cast<uchar>(c))) {
+				    ChSet(static_cast<uchar>(c));
+			    }
+		    }
+		    break;
+		case 'W':
+		    for(c = 0; c < MAXCHR; c++) {
+			    if(!iswordc(static_cast<uchar>(c))) {
+				    ChSet(static_cast<uchar>(c));
+			    }
+		    }
+		    break;
+		default:
+		    result = bsc;
 	}
 	return result;
 }
 
-const char *RESearch::Compile(const char *pattern, int length, bool caseSensitive, bool posix) {
-	char *mp=nfa;          /* nfa pointer       */
-	char *lp;              /* saved pointer     */
-	char *sp=nfa;          /* another one       */
-	char *mpMax = mp + MAXNFA - BITBLK - 10;
+const char * RESearch::Compile(const char * pattern, int length, bool caseSensitive, bool posix) {
+	char * mp = nfa;          /* nfa pointer       */
+	char * lp;              /* saved pointer     */
+	char * sp = nfa;          /* another one       */
+	char * mpMax = mp + MAXNFA - BITBLK - 10;
 
 	int tagi = 0;          /* tag stack index   */
 	int tagc = 1;          /* actual tag count  */
@@ -446,287 +455,313 @@ const char *RESearch::Compile(const char *pattern, int length, bool caseSensitiv
 	char mask;             /* xor mask -CCL/NCL */
 	int c1, c2, prevChar;
 
-	if (!pattern || !length) {
-		if (sta)
+	if(!pattern || !length) {
+		if(sta)
 			return 0;
 		else
 			return badpat("No previous regular expression");
 	}
 	sta = NOP;
 
-	const char *p=pattern;     /* pattern pointer   */
-	for (int i=0; i<length; i++, p++) {
-		if (mp > mpMax)
+	const char * p = pattern;     /* pattern pointer   */
+	for(int i = 0; i<length; i++, p++) {
+		if(mp > mpMax)
 			return badpat("Pattern too long");
 		lp = mp;
-		switch (*p) {
+		switch(*p) {
+			case '.':       /* match any char  */
+			    *mp++ = ANY;
+			    break;
 
-		case '.':               /* match any char  */
-			*mp++ = ANY;
-			break;
+			case '^':       /* match beginning */
+			    if(p == pattern) {
+				    *mp++ = BOL;
+			    }
+			    else {
+				    *mp++ = CHR;
+				    *mp++ = *p;
+			    }
+			    break;
 
-		case '^':               /* match beginning */
-			if (p == pattern) {
-				*mp++ = BOL;
-			} else {
-				*mp++ = CHR;
-				*mp++ = *p;
-			}
-			break;
+			case '$':       /* match endofline */
+			    if(!*(p+1)) {
+				    *mp++ = EOL;
+			    }
+			    else {
+				    *mp++ = CHR;
+				    *mp++ = *p;
+			    }
+			    break;
 
-		case '$':               /* match endofline */
-			if (!*(p+1)) {
-				*mp++ = EOL;
-			} else {
-				*mp++ = CHR;
-				*mp++ = *p;
-			}
-			break;
+			case '[':       /* match char class */
+			    *mp++ = CCL;
+			    prevChar = 0;
 
-		case '[':               /* match char class */
-			*mp++ = CCL;
-			prevChar = 0;
+			    i++;
+			    if(*++p == '^') {
+				    mask = '\377';
+				    i++;
+				    p++;
+			    }
+			    else {
+				    mask = 0;
+			    }
 
-			i++;
-			if (*++p == '^') {
-				mask = '\377';
-				i++;
-				p++;
-			} else {
-				mask = 0;
-			}
+			    if(*p == '-') {     /* real dash */
+				    i++;
+				    prevChar = *p;
+				    ChSet(*p++);
+			    }
+			    if(*p == ']') {     /* real brace */
+				    i++;
+				    prevChar = *p;
+				    ChSet(*p++);
+			    }
+			    while(*p && *p != ']') {
+				    if(*p == '-') {
+					    if(prevChar < 0) {
+						    // Previous def. was a char class like \d, take dash literally
+						    prevChar = *p;
+						    ChSet(*p);
+					    }
+					    else if(*(p+1)) {
+						    if(*(p+1) != ']') {
+							    c1 = prevChar + 1;
+							    i++;
+							    c2 = static_cast<uchar>(*++p);
+							    if(c2 == '\\') {
+								    if(!*(p+1)) { // End of RE
+									    return badpat("Missing ]");
+								    }
+								    else {
+									    i++;
+									    p++;
+									    int incr;
+									    c2 = GetBackslashExpression(p, incr);
+									    i += incr;
+									    p += incr;
+									    if(c2 >= 0) {
+										    // Convention: \c (c is any char) is
+										    // case sensitive, whatever the
+										    // option
+										    ChSet(static_cast<uchar>(c2));
+										    prevChar = c2;
+									    }
+									    else {
+										    // bittab is already changed
+										    prevChar = -1;
+									    }
+								    }
+							    }
+							    if(prevChar < 0) {
+								    // Char after dash is char class like \d, take dash
+								    // literally
+								    prevChar = '-';
+								    ChSet('-');
+							    }
+							    else {
+								    // Put all chars between c1 and c2 included in the
+								    // char set
+								    while(c1 <= c2) {
+									    ChSetWithCase(static_cast<uchar>(c1++), caseSensitive);
+								    }
+							    }
+						    }
+						    else {
+							    // Dash before the ], take it literally
+							    prevChar = *p;
+							    ChSet(*p);
+						    }
+					    }
+					    else {
+						    return badpat("Missing ]");
+					    }
+				    }
+				    else if(*p == '\\' && *(p+1)) {
+					    i++;
+					    p++;
+					    int incr;
+					    int c = GetBackslashExpression(p, incr);
+					    i += incr;
+					    p += incr;
+					    if(c >= 0) {
+						    // Convention: \c (c is any char) is case sensitive, whatever the
+						    // option
+						    ChSet(static_cast<uchar>(c));
+						    prevChar = c;
+					    }
+					    else {
+						    // bittab is already changed
+						    prevChar = -1;
+					    }
+				    }
+				    else {
+					    prevChar = static_cast<uchar>(*p);
+					    ChSetWithCase(*p, caseSensitive);
+				    }
+				    i++;
+				    p++;
+			    }
+			    if(!*p)
+				    return badpat("Missing ]");
 
-			if (*p == '-') {	/* real dash */
-				i++;
-				prevChar = *p;
-				ChSet(*p++);
-			}
-			if (*p == ']') {	/* real brace */
-				i++;
-				prevChar = *p;
-				ChSet(*p++);
-			}
-			while (*p && *p != ']') {
-				if (*p == '-') {
-					if (prevChar < 0) {
-						// Previous def. was a char class like \d, take dash literally
-						prevChar = *p;
-						ChSet(*p);
-					} else if (*(p+1)) {
-						if (*(p+1) != ']') {
-							c1 = prevChar + 1;
-							i++;
-							c2 = static_cast<uchar>(*++p);
-							if (c2 == '\\') {
-								if (!*(p+1)) {	// End of RE
-									return badpat("Missing ]");
-								} else {
-									i++;
-									p++;
-									int incr;
-									c2 = GetBackslashExpression(p, incr);
-									i += incr;
-									p += incr;
-									if (c2 >= 0) {
-										// Convention: \c (c is any char) is case sensitive, whatever the option
-										ChSet(static_cast<uchar>(c2));
-										prevChar = c2;
-									} else {
-										// bittab is already changed
-										prevChar = -1;
-									}
-								}
-							}
-							if (prevChar < 0) {
-								// Char after dash is char class like \d, take dash literally
-								prevChar = '-';
-								ChSet('-');
-							} else {
-								// Put all chars between c1 and c2 included in the char set
-								while (c1 <= c2) {
-									ChSetWithCase(static_cast<uchar>(c1++), caseSensitive);
-								}
-							}
-						} else {
-							// Dash before the ], take it literally
-							prevChar = *p;
-							ChSet(*p);
+			    for(n = 0; n < BITBLK; bittab[n++] = 0)
+				    *mp++ = static_cast<char>(mask ^ bittab[n]);
+
+			    break;
+
+			case '*':       /* match 0 or more... */
+			case '+':       /* match 1 or more... */
+			case '?':
+			    if(p == pattern)
+				    return badpat("Empty closure");
+			    lp = sp;            /* previous opcode */
+			    if(*lp == CLO || *lp == LCLO)       /* equivalence... */
+				    break;
+			    switch(*lp) {
+				    case BOL:
+				    case BOT:
+				    case EOT:
+				    case BOW:
+				    case EOW:
+				    case REF:
+					return badpat("Illegal closure");
+				    default:
+					break;
+			    }
+
+			    if(*p == '+')
+				    for(sp = mp; lp < sp; lp++)
+					    *mp++ = *lp;
+
+			    *mp++ = END;
+			    *mp++ = END;
+			    sp = mp;
+
+			    while(--mp > lp)
+				    *mp = mp[-1];
+			    if(*p == '?') *mp = CLQ;
+			    else if(*(p+1) == '?') *mp = LCLO;
+			    else *mp = CLO;
+
+			    mp = sp;
+			    break;
+
+			case '\\':      /* tags, backrefs... */
+			    i++;
+			    switch(*++p) {
+				    case '<':
+					*mp++ = BOW;
+					break;
+				    case '>':
+					if(*sp == BOW)
+						return badpat("Null pattern inside \\<\\>");
+					*mp++ = EOW;
+					break;
+				    case '1':
+				    case '2':
+				    case '3':
+				    case '4':
+				    case '5':
+				    case '6':
+				    case '7':
+				    case '8':
+				    case '9':
+					n = *p-'0';
+					if(tagi > 0 && tagstk[tagi] == n)
+						return badpat("Cyclical reference");
+					if(tagc > n) {
+						*mp++ = static_cast<char>(REF);
+						*mp++ = static_cast<char>(n);
+					}
+					else {
+						return badpat("Undetermined reference");
+					}
+					break;
+				    default:
+					if(!posix && *p == '(') {
+						if(tagc < MAXTAG) {
+							tagstk[++tagi] = tagc;
+							*mp++ = BOT;
+							*mp++ = static_cast<char>(tagc++);
 						}
-					} else {
-						return badpat("Missing ]");
+						else {
+							return badpat("Too many \\(\\) pairs");
+						}
 					}
-				} else if (*p == '\\' && *(p+1)) {
-					i++;
-					p++;
-					int incr;
-					int c = GetBackslashExpression(p, incr);
-					i += incr;
-					p += incr;
-					if (c >= 0) {
-						// Convention: \c (c is any char) is case sensitive, whatever the option
-						ChSet(static_cast<uchar>(c));
-						prevChar = c;
-					} else {
-						// bittab is already changed
-						prevChar = -1;
+					else if(!posix && *p == ')') {
+						if(*sp == BOT)
+							return badpat("Null pattern inside \\(\\)");
+						if(tagi > 0) {
+							*mp++ = static_cast<char>(EOT);
+							*mp++ = static_cast<char>(tagstk[tagi--]);
+						}
+						else {
+							return badpat("Unmatched \\)");
+						}
 					}
-				} else {
-					prevChar = static_cast<uchar>(*p);
-					ChSetWithCase(*p, caseSensitive);
-				}
-				i++;
-				p++;
-			}
-			if (!*p)
-				return badpat("Missing ]");
-
-			for (n = 0; n < BITBLK; bittab[n++] = 0)
-				*mp++ = static_cast<char>(mask ^ bittab[n]);
-
-			break;
-
-		case '*':               /* match 0 or more... */
-		case '+':               /* match 1 or more... */
-		case '?':
-			if (p == pattern)
-				return badpat("Empty closure");
-			lp = sp;		/* previous opcode */
-			if (*lp == CLO || *lp == LCLO)		/* equivalence... */
-				break;
-			switch (*lp) {
-
-			case BOL:
-			case BOT:
-			case EOT:
-			case BOW:
-			case EOW:
-			case REF:
-				return badpat("Illegal closure");
-			default:
-				break;
-			}
-
-			if (*p == '+')
-				for (sp = mp; lp < sp; lp++)
-					*mp++ = *lp;
-
-			*mp++ = END;
-			*mp++ = END;
-			sp = mp;
-
-			while (--mp > lp)
-				*mp = mp[-1];
-			if (*p == '?')          *mp = CLQ;
-			else if (*(p+1) == '?') *mp = LCLO;
-			else                    *mp = CLO;
-
-			mp = sp;
-			break;
-
-		case '\\':              /* tags, backrefs... */
-			i++;
-			switch (*++p) {
-			case '<':
-				*mp++ = BOW;
-				break;
-			case '>':
-				if (*sp == BOW)
-					return badpat("Null pattern inside \\<\\>");
-				*mp++ = EOW;
-				break;
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-				n = *p-'0';
-				if (tagi > 0 && tagstk[tagi] == n)
-					return badpat("Cyclical reference");
-				if (tagc > n) {
-					*mp++ = static_cast<char>(REF);
-					*mp++ = static_cast<char>(n);
-				} else {
-					return badpat("Undetermined reference");
-				}
-				break;
-			default:
-				if (!posix && *p == '(') {
-					if (tagc < MAXTAG) {
-						tagstk[++tagi] = tagc;
-						*mp++ = BOT;
-						*mp++ = static_cast<char>(tagc++);
-					} else {
-						return badpat("Too many \\(\\) pairs");
+					else {
+						int incr;
+						int c = GetBackslashExpression(p, incr);
+						i += incr;
+						p += incr;
+						if(c >= 0) {
+							*mp++ = CHR;
+							*mp++ = static_cast<uchar>(c);
+						}
+						else {
+							*mp++ = CCL;
+							mask = 0;
+							for(n = 0; n < BITBLK; bittab[n++] = 0)
+								*mp++ = static_cast<char>(mask ^ bittab[n]);
+						}
 					}
-				} else if (!posix && *p == ')') {
-					if (*sp == BOT)
-						return badpat("Null pattern inside \\(\\)");
-					if (tagi > 0) {
-						*mp++ = static_cast<char>(EOT);
-						*mp++ = static_cast<char>(tagstk[tagi--]);
-					} else {
-						return badpat("Unmatched \\)");
-					}
-				} else {
-					int incr;
-					int c = GetBackslashExpression(p, incr);
-					i += incr;
-					p += incr;
-					if (c >= 0) {
-						*mp++ = CHR;
-						*mp++ = static_cast<uchar>(c);
-					} else {
-						*mp++ = CCL;
-						mask = 0;
-						for (n = 0; n < BITBLK; bittab[n++] = 0)
-							*mp++ = static_cast<char>(mask ^ bittab[n]);
-					}
-				}
-			}
-			break;
+			    }
+			    break;
 
-		default :               /* an ordinary char */
-			if (posix && *p == '(') {
-				if (tagc < MAXTAG) {
-					tagstk[++tagi] = tagc;
-					*mp++ = BOT;
-					*mp++ = static_cast<char>(tagc++);
-				} else {
-					return badpat("Too many () pairs");
-				}
-			} else if (posix && *p == ')') {
-				if (*sp == BOT)
-					return badpat("Null pattern inside ()");
-				if (tagi > 0) {
-					*mp++ = static_cast<char>(EOT);
-					*mp++ = static_cast<char>(tagstk[tagi--]);
-				} else {
-					return badpat("Unmatched )");
-				}
-			} else {
-				uchar c = *p;
-				if (!c)	// End of RE
-					c = '\\';	// We take it as raw backslash
-				if (caseSensitive || !iswordc(c)) {
-					*mp++ = CHR;
-					*mp++ = c;
-				} else {
-					*mp++ = CCL;
-					mask = 0;
-					ChSetWithCase(c, false);
-					for (n = 0; n < BITBLK; bittab[n++] = 0)
-						*mp++ = static_cast<char>(mask ^ bittab[n]);
-				}
-			}
-			break;
+			default:        /* an ordinary char */
+			    if(posix && *p == '(') {
+				    if(tagc < MAXTAG) {
+					    tagstk[++tagi] = tagc;
+					    *mp++ = BOT;
+					    *mp++ = static_cast<char>(tagc++);
+				    }
+				    else {
+					    return badpat("Too many () pairs");
+				    }
+			    }
+			    else if(posix && *p == ')') {
+				    if(*sp == BOT)
+					    return badpat("Null pattern inside ()");
+				    if(tagi > 0) {
+					    *mp++ = static_cast<char>(EOT);
+					    *mp++ = static_cast<char>(tagstk[tagi--]);
+				    }
+				    else {
+					    return badpat("Unmatched )");
+				    }
+			    }
+			    else {
+				    uchar c = *p;
+				    if(!c) // End of RE
+					    c = '\\';   // We take it as raw backslash
+				    if(caseSensitive || !iswordc(c)) {
+					    *mp++ = CHR;
+					    *mp++ = c;
+				    }
+				    else {
+					    *mp++ = CCL;
+					    mask = 0;
+					    ChSetWithCase(c, false);
+					    for(n = 0; n < BITBLK; bittab[n++] = 0)
+						    *mp++ = static_cast<char>(mask ^ bittab[n]);
+				    }
+			    }
+			    break;
 		}
 		sp = lp;
 	}
-	if (tagi > 0)
+	if(tagi > 0)
 		return badpat((posix ? "Unmatched (" : "Unmatched \\("));
 	*mp = END;
 	sta = OKP;
@@ -757,44 +792,44 @@ const char *RESearch::Compile(const char *pattern, int length, bool caseSensitiv
 int RESearch::Execute(CharacterIndexer &ci, int lp, int endp) {
 	uchar c;
 	int ep = NOTFOUND;
-	char *ap = nfa;
+	char * ap = nfa;
 
 	bol = lp;
 	failure = 0;
 
 	Clear();
 
-	switch (*ap) {
-
-	case BOL:			/* anchored: match from BOL only */
-		ep = PMatch(ci, lp, endp, ap);
-		break;
-	case EOL:			/* just searching for end of line normal path doesn't work */
-		if (*(ap+1) == END) {
-			lp = endp;
-			ep = lp;
-			break;
-		} else {
-			return 0;
-		}
-	case CHR:			/* ordinary char: locate it fast */
-		c = *(ap+1);
-		while ((lp < endp) && (static_cast<uchar>(ci.CharAt(lp)) != c))
-			lp++;
-		if (lp >= endp)	/* if EOS, fail, else fall through. */
-			return 0;
-	default:			/* regular matching all the way. */
-		while (lp < endp) {
-			ep = PMatch(ci, lp, endp, ap);
-			if (ep != NOTFOUND)
-				break;
-			lp++;
-		}
-		break;
-	case END:			/* munged automaton. fail always */
-		return 0;
+	switch(*ap) {
+		case BOL:               /* anchored: match from BOL only */
+		    ep = PMatch(ci, lp, endp, ap);
+		    break;
+		case EOL:               /* just searching for end of line normal path doesn't work */
+		    if(*(ap+1) == END) {
+			    lp = endp;
+			    ep = lp;
+			    break;
+		    }
+		    else {
+			    return 0;
+		    }
+		case CHR:               /* ordinary char: locate it fast */
+		    c = *(ap+1);
+		    while((lp < endp) && (static_cast<uchar>(ci.CharAt(lp)) != c))
+			    lp++;
+		    if(lp >= endp) /* if EOS, fail, else fall through. */
+			    return 0;
+		default:                /* regular matching all the way. */
+		    while(lp < endp) {
+			    ep = PMatch(ci, lp, endp, ap);
+			    if(ep != NOTFOUND)
+				    break;
+			    lp++;
+		    }
+		    break;
+		case END:               /* munged automaton. fail always */
+		    return 0;
 	}
-	if (ep == NOTFOUND)
+	if(ep == NOTFOUND)
 		return 0;
 
 	bopat[0] = lp;
@@ -831,131 +866,128 @@ int RESearch::Execute(CharacterIndexer &ci, int lp, int endp) {
  *  by tagged expressions (n = 1 to 9).
  */
 
-extern void re_fail(char *,char);
+extern void re_fail(char *, char);
 
-#define isinset(x,y)	((x)[((y)&BLKIND)>>3] & bitarr[(y)&BITIND])
+#define isinset(x, y)    ((x)[((y)&BLKIND)>>3] & bitarr[(y)&BITIND])
 
 /*
  * skip values for CLO XXX to skip past the closure
  */
 
-#define ANYSKIP 2 	/* [CLO] ANY END          */
-#define CHRSKIP 3	/* [CLO] CHR chr END      */
-#define CCLSKIP 34	/* [CLO] CCL 32 bytes END */
+#define ANYSKIP 2       /* [CLO] ANY END          */
+#define CHRSKIP 3       /* [CLO] CHR chr END      */
+#define CCLSKIP 34      /* [CLO] CCL 32 bytes END */
 
-int RESearch::PMatch(CharacterIndexer &ci, int lp, int endp, char *ap) {
+int RESearch::PMatch(CharacterIndexer &ci, int lp, int endp, char * ap) {
 	int op, c, n;
-	int e;		/* extra pointer for CLO  */
-	int bp;		/* beginning of subpat... */
-	int ep;		/* ending of subpat...    */
-	int are;	/* to save the line ptr.  */
-	int llp;	/* lazy lp for LCLO       */
+	int e;          /* extra pointer for CLO  */
+	int bp;         /* beginning of subpat... */
+	int ep;         /* ending of subpat...    */
+	int are;        /* to save the line ptr.  */
+	int llp;        /* lazy lp for LCLO       */
 
-	while ((op = *ap++) != END)
-		switch (op) {
-
-		case CHR:
-			if (ci.CharAt(lp++) != *ap++)
-				return NOTFOUND;
-			break;
-		case ANY:
-			if (lp++ >= endp)
-				return NOTFOUND;
-			break;
-		case CCL:
-			if (lp >= endp)
-				return NOTFOUND;
-			c = ci.CharAt(lp++);
-			if (!isinset(ap,c))
-				return NOTFOUND;
-			ap += BITBLK;
-			break;
-		case BOL:
-			if (lp != bol)
-				return NOTFOUND;
-			break;
-		case EOL:
-			if (lp < endp)
-				return NOTFOUND;
-			break;
-		case BOT:
-			bopat[static_cast<int>(*ap++)] = lp;
-			break;
-		case EOT:
-			eopat[static_cast<int>(*ap++)] = lp;
-			break;
-		case BOW:
-			if ((lp!=bol && iswordc(ci.CharAt(lp-1))) || !iswordc(ci.CharAt(lp)))
-				return NOTFOUND;
-			break;
-		case EOW:
-			if (lp==bol || !iswordc(ci.CharAt(lp-1)) || iswordc(ci.CharAt(lp)))
-				return NOTFOUND;
-			break;
-		case REF:
-			n = *ap++;
-			bp = bopat[n];
-			ep = eopat[n];
-			while (bp < ep)
-				if (ci.CharAt(bp++) != ci.CharAt(lp++))
-					return NOTFOUND;
-			break;
-		case LCLO:
-		case CLQ:
-		case CLO:
-			are = lp;
-			switch (*ap) {
-
-			case ANY:
-				if (op == CLO || op == LCLO)
-					while (lp < endp)
-						lp++;
-				else if (lp < endp)
-					lp++;
-
-				n = ANYSKIP;
-				break;
+	while((op = *ap++) != END)
+		switch(op) {
 			case CHR:
-				c = *(ap+1);
-				if (op == CLO || op == LCLO)
-					while ((lp < endp) && (c == ci.CharAt(lp)))
-						lp++;
-				else if ((lp < endp) && (c == ci.CharAt(lp)))
-					lp++;
-				n = CHRSKIP;
-				break;
+			    if(ci.CharAt(lp++) != *ap++)
+				    return NOTFOUND;
+			    break;
+			case ANY:
+			    if(lp++ >= endp)
+				    return NOTFOUND;
+			    break;
 			case CCL:
-				while ((lp < endp) && isinset(ap+1,ci.CharAt(lp)))
-					lp++;
-				n = CCLSKIP;
-				break;
-			default:
-				failure = true;
-				//re_fail("closure: bad nfa.", *ap);
-				return NOTFOUND;
-			}
-			ap += n;
+			    if(lp >= endp)
+				    return NOTFOUND;
+			    c = ci.CharAt(lp++);
+			    if(!isinset(ap, c))
+				    return NOTFOUND;
+			    ap += BITBLK;
+			    break;
+			case BOL:
+			    if(lp != bol)
+				    return NOTFOUND;
+			    break;
+			case EOL:
+			    if(lp < endp)
+				    return NOTFOUND;
+			    break;
+			case BOT:
+			    bopat[static_cast<int>(*ap++)] = lp;
+			    break;
+			case EOT:
+			    eopat[static_cast<int>(*ap++)] = lp;
+			    break;
+			case BOW:
+			    if((lp!=bol && iswordc(ci.CharAt(lp-1))) || !iswordc(ci.CharAt(lp)))
+				    return NOTFOUND;
+			    break;
+			case EOW:
+			    if(lp==bol || !iswordc(ci.CharAt(lp-1)) || iswordc(ci.CharAt(lp)))
+				    return NOTFOUND;
+			    break;
+			case REF:
+			    n = *ap++;
+			    bp = bopat[n];
+			    ep = eopat[n];
+			    while(bp < ep)
+				    if(ci.CharAt(bp++) != ci.CharAt(lp++))
+					    return NOTFOUND;
+			    break;
+			case LCLO:
+			case CLQ:
+			case CLO:
+			    are = lp;
+			    switch(*ap) {
+				    case ANY:
+					if(op == CLO || op == LCLO)
+						while(lp < endp)
+							lp++;
+					else if(lp < endp)
+						lp++;
 
-			llp = lp;
-			e = NOTFOUND;
-			while (llp >= are) {
-				int q;
-				if ((q = PMatch(ci, llp, endp, ap)) != NOTFOUND) {
-					e = q;
-					lp = llp;
-					if (op != LCLO) return e;
-				}
-				if (*ap == END) return e;
-				--llp;
-			}
-			if (*ap == EOT)
-				PMatch(ci, lp, endp, ap);
-			return e;
-		default:
-			//re_fail("RESearch::Execute: bad nfa.", static_cast<char>(op));
-			return NOTFOUND;
+					n = ANYSKIP;
+					break;
+				    case CHR:
+					c = *(ap+1);
+					if(op == CLO || op == LCLO)
+						while((lp < endp) && (c == ci.CharAt(lp)))
+							lp++;
+					else if((lp < endp) && (c == ci.CharAt(lp)))
+						lp++;
+					n = CHRSKIP;
+					break;
+				    case CCL:
+					while((lp < endp) && isinset(ap+1, ci.CharAt(lp)))
+						lp++;
+					n = CCLSKIP;
+					break;
+				    default:
+					failure = true;
+					//re_fail("closure: bad nfa.", *ap);
+					return NOTFOUND;
+			    }
+			    ap += n;
+
+			    llp = lp;
+			    e = NOTFOUND;
+			    while(llp >= are) {
+				    int q;
+				    if((q = PMatch(ci, llp, endp, ap)) != NOTFOUND) {
+					    e = q;
+					    lp = llp;
+					    if(op != LCLO) return e;
+				    }
+				    if(*ap == END) return e;
+				    --llp;
+			    }
+			    if(*ap == EOT)
+				    PMatch(ci, lp, endp, ap);
+			    return e;
+			default:
+			    //re_fail("RESearch::Execute: bad nfa.", static_cast<char>(op));
+			    return NOTFOUND;
 		}
 	return lp;
 }
-
 

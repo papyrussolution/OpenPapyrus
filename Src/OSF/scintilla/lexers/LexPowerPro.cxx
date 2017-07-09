@@ -34,22 +34,22 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
 
-static inline bool IsStreamCommentStyle(int style)
+static bool FASTCALL IsStreamCommentStyle(int style)
 {
 	return style == SCE_POWERPRO_COMMENTBLOCK;
 }
 
-static inline bool IsLineEndChar(uchar ch)
+static bool FASTCALL IsLineEndChar(uchar ch)
 {
 	return ch == 0x0a               //LF
 	       || ch == 0x0c            //FF

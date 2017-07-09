@@ -1406,7 +1406,7 @@
 #define PPEDIOP_EGAIS_REPLYSPIRIT            39
 #define PPEDIOP_EGAIS_REPLYCLIENT            40
 #define PPEDIOP_EGAIS_REPLYAP                41
-#define PPEDIOP_EGAIS_REPLYRESTS             42
+#define PPEDIOP_EGAIS_REPLYRESTS             42 // Ответ на запрос остатков
 #define PPEDIOP_EGAIS_REPLYFORMA             43
 #define PPEDIOP_EGAIS_REPLYFORMB             44
 #define PPEDIOP_EGAIS_ACTCHARGEON            45
@@ -1427,6 +1427,8 @@
 #define PPEDIOP_EGAIS_TTNINFORMF2REG         60 // @v9.5.5 version 2 of PPEDIOP_EGAIS_TTNINFORMBREG
 #define PPEDIOP_EGAIS_WAYBILLACT_V2          61 // @v9.5.8 version 2 of PPEDIOP_EGAIS_WAYBILLACT
 #define PPEDIOP_EGAIS_NOTIFY_WBVER2          62 // @v9.7.2 Уведомление сервера ЕГАИС об использовании версии 2 протокола обмена
+#define PPEDIOP_EGAIS_QUERYRESTS_V2          63 // @v9.7.5 Запрос остатков version 2
+#define PPEDIOP_EGAIS_REPLYRESTS_V2          64 // @v9.7.5 Ответ на запрос остатков version 2
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
 //
@@ -5761,6 +5763,8 @@
 	#define CTL_TRFRANLZTOTAL_SQTTY      (8 + WINDOWS_ID_BIAS)
 	#define CTL_TRFRANLZTOTAL_SAMT       (9 + WINDOWS_ID_BIAS)
 	#define CTL_TRFRANLZTOTAL_PVAT       (10 + WINDOWS_ID_BIAS)
+	#define CTL_TRFRANLZTOTAL_EXTV1      (11 + WINDOWS_ID_BIAS)
+	#define CTL_TRFRANLZTOTAL_EXTV2      (12 + WINDOWS_ID_BIAS)
 #define DLG_GOODSTOTAL            574 // Итоги по выборке товаров
 	#define CTL_GOODSTOTAL_COUNT         (1 + WINDOWS_ID_BIAS)
 #define DLG_PERSONTOTAL           575 // Итоги по выборке персоналий

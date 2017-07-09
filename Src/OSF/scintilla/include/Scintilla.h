@@ -49,6 +49,10 @@ typedef uint Sci_PositionU; // Unsigned variant used for ILexer::Lex and ILexer:
 typedef long Sci_PositionCR; // For Sci_CharacterRange  which is defined as long to be compatible with Win32 CHARRANGE
 #include "ILexer.h" // @sobolev
 #include "SciLexer.h" // @sobolev
+//#include "LexAccessor.h" // @sobolev
+//#include "Accessor.h" // @sobolev
+//#include "StyleContext.h" // @sobolev
+//#include "CharacterSet.h" // @sobolev
 //#include "PropSetSimple.h"
 //#include "Position.h"
 // 
@@ -64,11 +68,225 @@ namespace Sci {
 	const Position invalidPosition = -1;
 }
 
+//#include "StringCopy.h" // @sobolev
 //#include "WordList.h" // @sobolev
 
 #ifdef SCI_NAMESPACE
 namespace Scintilla {
 #endif
+	#define ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
+	//
+	// Safer version of string copy functions like strcpy, wcsncpy, etc.
+	// Instantiate over fixed length strings of both char and wchar_t.
+	// May truncate if source doesn't fit into dest with room for NUL.
+	//
+	/* (все использования заменены на STRNSCPY) template <typename T, size_t count> void StringCopy(T(&dest)[count], const T* source)
+	{
+		for(size_t i = 0; i<count; i++) {
+			dest[i] = source[i];
+			if(!source[i])
+				break;
+		}
+		dest[count-1] = 0;
+	}*/
+	//
+	//
+	//
+	class CharacterSet {
+	private:
+		int    size;
+		bool   valueAfter;
+		bool * bset;
+	public:
+		enum setBase {
+			setNone = 0,
+			setLower = 1,
+			setUpper = 2,
+			setDigits = 4,
+			setAlpha = setLower|setUpper,
+			setAlphaNum = setAlpha|setDigits
+		};
+		CharacterSet(setBase base = setNone, const char * initialSet = "", int size_ = 0x80, bool valueAfter_ = false);
+		CharacterSet(const CharacterSet &other);
+		~CharacterSet();
+		CharacterSet & FASTCALL operator = (const CharacterSet &other);
+		void FASTCALL Add(int val);
+		void FASTCALL AddString(const char * setToAdd);
+		bool FASTCALL Contains(int val) const;
+	};
+	//
+	// Functions for classifying characters
+	//
+	bool FASTCALL IsASpace(int ch);
+	bool FASTCALL IsASpaceOrTab(int ch);
+	bool FASTCALL IsADigit(int ch);
+	bool FASTCALL IsADigit(int ch, int base);
+	bool FASTCALL IsASCII(int ch);
+	bool FASTCALL IsLowerCase(int ch);
+	bool FASTCALL IsUpperCase(int ch);
+	bool FASTCALL IsAlphaNumeric(int ch);
+	// 
+	// Check if a character is a space.
+	// This is ASCII specific but is safe with chars >= 0x80.
+	// 
+	bool FASTCALL isspacechar(int ch);
+	bool FASTCALL iswordchar(int ch);
+	bool FASTCALL iswordstart(int ch);
+	bool FASTCALL isoperator(int ch);
+	//
+	// Simple case functions for ASCII.
+	//
+	int FASTCALL MakeUpperCase(int ch);
+	int FASTCALL MakeLowerCase(int ch);
+
+	int CompareCaseInsensitive(const char * a, const char * b);
+	int CompareNCaseInsensitive(const char * a, const char * b, size_t len);
+	//
+	//
+	//
+	enum EncodingType { 
+		enc8bit, 
+		encUnicode, 
+		encDBCS 
+	};
+
+	class LexAccessor {
+	private:
+		IDocument * pAccess;
+		enum {
+			extremePosition = 0x7FFFFFFF
+		};
+		/** @a bufferSize is a trade off between time taken to copy the characters
+		 * and retrieval overhead.
+		 * @a slopSize positions the buffer before the desired position
+		 * in case there is some backtracking. */
+		enum {
+			bufferSize = 4000, 
+			slopSize = bufferSize/8
+		};
+		char buf[bufferSize+1];
+		Sci_Position startPos;
+		Sci_Position endPos;
+		int codePage;
+		enum EncodingType encodingType;
+		Sci_Position lenDoc;
+		char styleBuf[bufferSize];
+		Sci_Position validLen;
+		Sci_PositionU startSeg;
+		Sci_Position startPosStyling;
+		int documentVersion;
+
+		void FASTCALL Fill(Sci_Position position);
+	public:
+		explicit LexAccessor(IDocument * pAccess_);
+		char FASTCALL operator[] (Sci_Position position);
+		IDocumentWithLineEnd * MultiByteAccess() const;
+		//
+		// Safe version of operator[], returning a defined value for invalid position
+		//
+		char SafeGetCharAt(Sci_Position position, char chDefault = ' ');
+		bool FASTCALL IsLeadByte(char ch) const;
+		EncodingType Encoding() const;
+		bool Match(Sci_Position pos, const char * s);
+		char FASTCALL StyleAt(Sci_Position position) const;
+		Sci_Position FASTCALL GetLine(Sci_Position position) const;
+		Sci_Position FASTCALL LineStart(Sci_Position line) const;
+		Sci_Position FASTCALL LineEnd(Sci_Position line);
+		int FASTCALL LevelAt(Sci_Position line) const;
+		Sci_Position Length() const;
+		void Flush();
+		int FASTCALL GetLineState(Sci_Position line) const;
+		int SetLineState(Sci_Position line, int state);
+		// Style setting
+		void FASTCALL StartAt(Sci_PositionU start);
+		Sci_PositionU GetStartSegment() const;
+		void FASTCALL StartSegment(Sci_PositionU pos);
+		void ColourTo(Sci_PositionU pos, int chAttr);
+		void SetLevel(Sci_Position line, int level);
+		void IndicatorFill(Sci_Position start, Sci_Position end, int indicator, int value);
+		void ChangeLexerState(Sci_Position start, Sci_Position end);
+	};
+	//
+	//
+	//
+	enum { 
+		wsSpace=1, 
+		wsTab=2, 
+		wsSpaceTab=4, 
+		wsInconsistent=8 
+	};
+
+	class Accessor;
+	class WordList;
+	class PropSetSimple;
+
+	typedef bool (*PFNIsCommentLeader)(Accessor &styler, Sci_Position pos, Sci_Position len);
+
+	class Accessor : public LexAccessor {
+	public:
+		PropSetSimple *pprops;
+		Accessor(IDocument *pAccess_, PropSetSimple *pprops_);
+		int GetPropertyInt(const char *, int defaultValue=0) const;
+		int IndentAmount(Sci_Position line, int *flags, PFNIsCommentLeader pfnIsCommentLeader = 0);
+	};
+	//
+	// All languages handled so far can treat all characters >= 0x80 as one class
+	// which just continues the current token or starts an identifier if in default.
+	// DBCS treated specially as the second character can be < 0x80 and hence
+	// syntactically significant. UTF-8 avoids this as all trail bytes are >= 0x80
+	//
+	class StyleContext {
+	private:
+		LexAccessor & styler;
+		IDocumentWithLineEnd * multiByteAccess;
+		Sci_PositionU endPos;
+		Sci_PositionU lengthDocument;
+
+		// Used for optimizing GetRelativeCharacter
+		Sci_PositionU posRelative;
+		Sci_PositionU currentPosLastRelative;
+		Sci_Position offsetRelative;
+
+		StyleContext & operator = (const StyleContext &);
+
+		void   GetNextChar();
+	public:
+		Sci_PositionU currentPos;
+		Sci_Position currentLine;
+		Sci_Position lineDocEnd;
+		Sci_Position lineStartNext;
+		bool atLineStart;
+		bool atLineEnd;
+		int state;
+		int chPrev;
+		int ch;
+		Sci_Position width;
+		int chNext;
+		Sci_Position widthNext;
+
+		StyleContext(Sci_PositionU startPos, Sci_PositionU length, int initStyle, LexAccessor &styler_, char chMask = '\377');
+		void   Complete();
+		bool   More() const;
+		void   Forward();
+		void   FASTCALL Forward(Sci_Position nb);
+		void   FASTCALL ForwardBytes(Sci_Position nb);
+		void   FASTCALL ChangeState(int state_);
+		void   FASTCALL SetState(int state_);
+		void   FASTCALL ForwardSetState(int state_);
+		Sci_Position LengthCurrent() const;
+		int    FASTCALL GetRelative(Sci_Position n);
+		int    FASTCALL GetRelativeCharacter(Sci_Position n);
+		bool   FASTCALL Match(char ch0) const;
+		bool   FASTCALL Match(char ch0, char ch1) const;
+		bool   FASTCALL Match(const char * s);
+		// Non-inline
+		bool   FASTCALL MatchIgnoreCase(const char * s);
+		void   GetCurrent(char * s, Sci_PositionU len);
+		void   GetCurrentLowered(char * s, Sci_PositionU len);
+	};
+	//
+	//
+	//
 	class PropSetSimple {
 	private:
 		void * impl;

@@ -12,10 +12,10 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
@@ -57,12 +57,12 @@ static void ColouriseString(StyleContext& sc, bool& apostropheStartsAttribute);
 static void ColouriseWhiteSpace(StyleContext& sc, bool& apostropheStartsAttribute);
 static void ColouriseWord(StyleContext& sc, WordList& keywords, bool& apostropheStartsAttribute);
 
-static inline bool IsDelimiterCharacter(int ch);
-static inline bool IsSeparatorOrDelimiterCharacter(int ch);
+static bool FASTCALL IsDelimiterCharacter(int ch);
+static bool FASTCALL IsSeparatorOrDelimiterCharacter(int ch);
 static bool IsValidIdentifier(const std::string& identifier);
 static bool IsValidNumber(const std::string& number);
-static inline bool IsWordStartCharacter(int ch);
-static inline bool IsWordCharacter(int ch);
+static bool FASTCALL IsWordStartCharacter(int ch);
+static bool FASTCALL IsWordCharacter(int ch);
 
 static void ColouriseCharacter(StyleContext& sc, bool& apostropheStartsAttribute)
 {
@@ -294,7 +294,7 @@ static void ColouriseDocument(Sci_PositionU startPos,
 	sc.Complete();
 }
 
-static inline bool IsDelimiterCharacter(int ch)
+static bool FASTCALL IsDelimiterCharacter(int ch)
 {
 	switch(ch) {
 		case '&':
@@ -319,7 +319,7 @@ static inline bool IsDelimiterCharacter(int ch)
 	}
 }
 
-static inline bool IsSeparatorOrDelimiterCharacter(int ch)
+static bool FASTCALL IsSeparatorOrDelimiterCharacter(int ch)
 {
 	return IsASpace(ch) || IsDelimiterCharacter(ch);
 }
@@ -523,12 +523,12 @@ static bool IsValidNumber(const std::string& number)
 	return i == length;
 }
 
-static inline bool IsWordCharacter(int ch)
+static bool FASTCALL IsWordCharacter(int ch)
 {
 	return IsWordStartCharacter(ch) || IsADigit(ch);
 }
 
-static inline bool IsWordStartCharacter(int ch)
+static bool FASTCALL IsWordStartCharacter(int ch)
 {
 	return (IsASCII(ch) && isalpha(ch)) || ch == '_';
 }

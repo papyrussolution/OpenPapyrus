@@ -16,7 +16,7 @@
 //#include <memory>
 //#include "ILexer.h"
 //#include "Position.h"
-#include "StringCopy.h"
+//#include "StringCopy.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"

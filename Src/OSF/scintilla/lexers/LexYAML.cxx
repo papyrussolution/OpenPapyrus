@@ -11,28 +11,24 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
 
-static const char * const yamlWordListDesc[] = {
-"Keywords",
-0
-};
+static const char * const yamlWordListDesc[] = { "Keywords", 0 };
 
-static inline bool AtEOL(Accessor &styler, Sci_PositionU i)
+static bool FASTCALL AtEOL(Accessor &styler, Sci_PositionU i)
 {
-	return (styler[i] == '\n') ||
-	       ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
+	return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
 }
 
-static uint SpaceCount(char* lineBuffer)
+static uint SpaceCount(char * lineBuffer)
 {
 	if(lineBuffer == NULL)
 		return 0;

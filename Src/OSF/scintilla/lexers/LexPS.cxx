@@ -18,24 +18,24 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "WordList.h"
-#include "LexAccessor.h"
-#include "Accessor.h"
-#include "StyleContext.h"
-#include "CharacterSet.h"
+//#include "LexAccessor.h"
+//#include "Accessor.h"
+//#include "StyleContext.h"
+//#include "CharacterSet.h"
 #include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
 
-static inline bool IsASelfDelimitingChar(const int ch)
+static bool FASTCALL IsASelfDelimitingChar(const int ch)
 {
 	return (ch == '[' || ch == ']' || ch == '{' || ch == '}' ||
 	    ch == '/' || ch == '<' || ch == '>' ||
 	    ch == '(' || ch == ')' || ch == '%');
 }
 
-static inline bool IsAWhitespaceChar(const int ch)
+static bool FASTCALL IsAWhitespaceChar(const int ch)
 {
 	return (ch == ' '  || ch == '\t' || ch == '\r' ||
 	    ch == '\n' || ch == '\f' || ch == '\0');
@@ -56,7 +56,7 @@ static bool IsABaseNDigit(const int ch, const int base)
 	    (ch >= 'a' && ch <= ('a' + letterext)));
 }
 
-static inline bool IsABase85Char(const int ch)
+static bool FASTCALL IsABase85Char(const int ch)
 {
 	return ((ch >= '!' && ch <= 'u') || ch == 'z');
 }
