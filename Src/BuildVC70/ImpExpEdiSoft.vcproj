@@ -138,6 +138,31 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
+				RelativePath="..\Soap\Client\Edisoft\EDIServiceSoap.xml">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources %(FullPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o edisoft.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pedisoft edisoft.h
+cd $(SolutionDir)"
+						Outputs="$(InputDir)edisoftC.cpp;$(InputDir)edisoftH.h;$(InputDir)edisoftEDIServiceSoapProxy.cpp;$(InputDir)edisoftEDIServiceSoapProxy.h"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Construction of gSOAP sources %(FullPath)"
+						CommandLine="cd $(InputDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o edisoft.h $(InputFileName)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pedisoft edisoft.h
+cd $(SolutionDir)"
+						Outputs="$(InputDir)edisoftC.cpp;$(InputDir)edisoftH.h;$(InputDir)edisoftEDIServiceSoapProxy.cpp;$(InputDir)edisoftEDIServiceSoapProxy.h"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\Soap\Client\Edisoft\edisoftC.cpp">
 			</File>
 			<File

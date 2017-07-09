@@ -164,6 +164,22 @@
       <Project>{c23c2b5b-224b-475d-8ae3-82289a87602c}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\SOAP\CLIENT\EDISOFT\EDIServiceSoap.xml">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RelativeDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o edisoft.h %(Filename)%(Extension)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pedisoft edisoft.h
+cd $(SolutionDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RelativeDir)
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o edisoft.h %(Filename)%(Extension)
+$(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pedisoft edisoft.h
+cd $(SolutionDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Construction of gSOAP sources %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Construction of gSOAP sources %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)edisoftC.cpp;%(RelativeDir)edisoftH.h;%(RelativeDir)edisoftEDIServiceSoapProxy.cpp;%(RelativeDir)edisoftEDIServiceSoapProxy.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)edisoftC.cpp;%(RelativeDir)edisoftH.h;%(RelativeDir)edisoftEDIServiceSoapProxy.cpp;%(RelativeDir)edisoftEDIServiceSoapProxy.h</Outputs>
+    </CustomBuild>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
