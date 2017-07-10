@@ -14,7 +14,7 @@
 //#include "PropSetSimple.h"
 //#include "LexAccessor.h"
 //#include "Accessor.h"
-#include "LexerModule.h"
+//#include "LexerModule.h"
 #include "LexerBase.h"
 #include "LexerNoExceptions.h"
 

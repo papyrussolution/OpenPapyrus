@@ -124,56 +124,26 @@ public:
 	XYPOSITION top;
 	XYPOSITION right;
 	XYPOSITION bottom;
-	explicit PRectangle(XYPOSITION left_ = 0, XYPOSITION top_ = 0, XYPOSITION right_ = 0, XYPOSITION bottom_ = 0) :
-		left(left_), top(top_), right(right_), bottom(bottom_)
-	{
-	}
-	static PRectangle FromInts(int left_, int top_, int right_, int bottom_)
-	{
-		return PRectangle(static_cast<XYPOSITION>(left_), static_cast<XYPOSITION>(top_),
-		    static_cast<XYPOSITION>(right_), static_cast<XYPOSITION>(bottom_));
-	}
+
+	explicit PRectangle(XYPOSITION left_/*= 0*/, XYPOSITION top_/*= 0*/, XYPOSITION right_/*= 0*/, XYPOSITION bottom_/*= 0*/);
+	explicit PRectangle();
+	static PRectangle FromInts(int left_, int top_, int right_, int bottom_);
 	// Other automatically defined methods (assignment, copy constructor, destructor) are fine
-	bool operator==(PRectangle &rc) const
-	{
-		return (rc.left == left) && (rc.right == right) && (rc.top == top) && (rc.bottom == bottom);
-	}
-	bool Contains(Point pt) const
-	{
-		return (pt.x >= left) && (pt.x <= right) && (pt.y >= top) && (pt.y <= bottom);
-	}
-	bool ContainsWholePixel(Point pt) const
-	{
-		// Does the rectangle contain all of the pixel to left/below the point
-		return (pt.x >= left) && ((pt.x+1) <= right) && (pt.y >= top) && ((pt.y+1) <= bottom);
-	}
-	bool Contains(PRectangle rc) const
-	{
-		return (rc.left >= left) && (rc.right <= right) && (rc.top >= top) && (rc.bottom <= bottom);
-	}
-	bool Intersects(PRectangle other) const
-	{
-		return (right > other.left) && (left < other.right) && (bottom > other.top) && (top < other.bottom);
-	}
-	void Move(XYPOSITION xDelta, XYPOSITION yDelta)
-	{
-		left += xDelta;
-		top += yDelta;
-		right += xDelta;
-		bottom += yDelta;
-	}
-	XYPOSITION Width() const
+	bool FASTCALL operator == (const PRectangle & rc) const;
+	bool FASTCALL Contains(const Point & pt) const;
+	bool FASTCALL ContainsWholePixel(const Point & pt) const;
+	bool FASTCALL Contains(const PRectangle & rc) const;
+	bool FASTCALL Intersects(const PRectangle & other) const;
+	void Move(XYPOSITION xDelta, XYPOSITION yDelta);
+	XYPOSITION PRectangle::Width() const
 	{
 		return right - left;
 	}
-	XYPOSITION Height() const
+	XYPOSITION PRectangle::Height() const
 	{
 		return bottom - top;
 	}
-	bool Empty() const
-	{
-		return (Height() <= 0) || (Width() <= 0);
-	}
+	bool Empty() const;
 };
 /**
  * Holds a desired RGB colour.
@@ -189,11 +159,11 @@ public:
 	{
 		Set(red, green, blue);
 	}
-	bool operator==(const ColourDesired &other) const
+	bool FASTCALL operator == (const ColourDesired &other) const
 	{
 		return co == other.co;
 	}
-	void Set(long lcol)
+	void FASTCALL Set(long lcol)
 	{
 		co = lcol;
 	}
@@ -212,7 +182,7 @@ public:
 		else
 			return 0;
 	}
-	void Set(const char * val)
+	void FASTCALL Set(const char * val)
 	{
 		if(*val == '#') {
 			val++;
@@ -275,7 +245,7 @@ protected:
 	FontID fid;
 	// Private so Font objects can not be copied
 	Font(const Font &);
-	Font &operator=(const Font &);
+	Font & operator=(const Font &);
 public:
 	Font();
 	virtual ~Font();
@@ -378,7 +348,7 @@ public:
 	{
 	}
 	virtual ~Window();
-	Window &operator=(WindowID wid_)
+	Window & operator= (WindowID wid_)
 	{
 		wid = wid_;
 		return *this;

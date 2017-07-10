@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147489159
+LastSignatureCode=2147489163
 LastAutoCodeList=1,10969;102,10161;103,10071;110,10000;111,11628;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10077;120,10005;1001,10000;121,10000;122,10000;123,10247;1002,10000;1003,10000;1004,10000;1005,10000
 
 [SignatureList]
@@ -918,6 +918,7 @@ rtag_billformalreason=2147488582
 rtag_edibillrepealreq=2147488929
 rtag_posnodeuuid=2147489039
 rtag_posnodehostuuid=2147489041
+rtag_statecontractid=2147489160
 view_ccheck=2147486646
 view_trfranlz=2147486647
 view_stafflist=2147486648
@@ -1971,6 +1972,7 @@ cashnode_sync_scf_dlvrt=2147488818
 cashnode_sync_scf_dlvrt_any=2147488819
 cashnode_sync_scf_dlvrt_only=2147488820
 cashnode_sync_scf_dlvrt_exclude=2147488821
+cashnode_sync_scf_notspfinished=2147489161
 cashnode_sync_printerport=2147488822
 cashnode_sync_tableselwhatman=2147488823
 cashnode_sync_slipfmtpath=2147488824
@@ -2007,6 +2009,7 @@ ccheck_cchkf_suspended=2147484782
 ccheck_cchkf_sync=2147484783
 ccheck_cchkf_transmit=2147484784
 ccheck_cchkf_zcheck=2147484785
+ccheck_cchkf_spfinished=2147489162
 ccheck_code=2147484786
 ccheck_discount=2147484787
 ccheck_dt=2147484788
@@ -4276,6 +4279,7 @@ ccheckfilt_fstartorderperiod=2147487130
 ccheckfilt_fsuspendedonly=2147487131
 ccheckfilt_fwithoutskiptag=2147487132
 ccheckfilt_fzerosess=2147487133
+ccheckfilt_fnotspfinished=2147489163
 ccheckfilt_goods=2147487134
 ccheckfilt_goodsgrp=2147487135
 ccheckfilt_grp=2147487136

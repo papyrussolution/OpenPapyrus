@@ -3184,13 +3184,11 @@ public:
 	{
 		h = ::LoadLibraryA(modulePath);
 	}
-
 	virtual ~DynamicLibraryImpl()
 	{
-		if(h != NULL)
+		if(h)
 			::FreeLibrary(h);
 	}
-
 	// Use GetProcAddress to get a pointer to the relevant function.
 	virtual Function FindFunction(const char * name)
 	{
@@ -3200,7 +3198,6 @@ public:
 				FARPROC fp;
 				Function f;
 			} fnConv;
-
 			fnConv.fp = ::GetProcAddress(h, name);
 			return fnConv.f;
 		}
@@ -3208,7 +3205,6 @@ public:
 			return NULL;
 		}
 	}
-
 	virtual bool IsValid()
 	{
 		return h != NULL;

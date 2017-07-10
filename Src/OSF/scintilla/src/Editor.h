@@ -260,23 +260,44 @@ protected:      // ScintillaBase subclass needs access to much of Editor
 	int    searchAnchor;
 	int    foldAutomatic;
 	WrapPending wrapPending; // Wrapping support
-	bool   hasFocus;
-	bool   mouseDownCaptures;
-	bool   mouseWheelCaptures;
-	bool   horizontalScrollBarVisible;
-	bool   verticalScrollBarVisible;
-	bool   endAtLastLine;
-	bool   mouseSelectionRectangularSwitch;
-	bool   multipleSelection;
-	bool   additionalSelectionTyping;
-	bool   dwelling;
-	bool   dropWentOutside;
-	bool   paintAbandonedByStyling;
-	bool   paintingAllText;
-	bool   willRedrawAll;
-	bool   needIdleStyling;
-	bool   recordingMacro;
-	bool   convertPastes;
+	//bool   hasFocus;
+	//bool   mouseDownCaptures;
+	//bool   mouseWheelCaptures;
+	//bool   horizontalScrollBarVisible;
+	//bool   verticalScrollBarVisible;
+	//bool   endAtLastLine;
+	//bool   mouseSelectionRectangularSwitch;
+	//bool   multipleSelection;
+	//bool   additionalSelectionTyping;
+	//bool   dwelling;
+	//bool   dropWentOutside;
+	//bool   paintAbandonedByStyling;
+	//bool   paintingAllText;
+	//bool   willRedrawAll;
+	//bool   needIdleStyling;
+	//bool   recordingMacro;
+	//bool   convertPastes;
+
+	enum {
+		fHasFocus                        = 0x00000001,
+		fMouseDownCaptures               = 0x00000002,
+		fMouseWheelCaptures              = 0x00000004,
+		fHorizontalScrollBarVisible      = 0x00000008,
+		fVerticalScrollBarVisible        = 0x00000010,
+		fEndAtLastLine                   = 0x00000020,
+		fMouseSelectionRectangularSwitch = 0x00000040,
+		fMultipleSelection               = 0x00000080,
+		fAdditionalSelectionTyping       = 0x00000100,
+		fDwelling                        = 0x00000200,
+		fDropWentOutside                 = 0x00000400,
+		fPaintAbandonedByStyling         = 0x00000800,
+		fPaintingAllText                 = 0x00001000,
+		fWillRedrawAll                   = 0x00002000,
+		fNeedIdleStyling                 = 0x00004000,
+		fRecordingMacro                  = 0x00008000,
+		fConvertPastes                   = 0x00010000
+	};
+	uint32 Flags;
 
 	Editor();
 	virtual ~Editor();
@@ -339,7 +360,11 @@ protected:      // ScintillaBase subclass needs access to much of Editor
 	void SetSelection(int currentPos_);
 	void SetEmptySelection(SelectionPosition currentPos_);
 	void SetEmptySelection(int currentPos_);
-	enum AddNumber { addOne, addEach };
+	
+	enum AddNumber { 
+		addOne, 
+		addEach 
+	};
 
 	void MultipleSelectAdd(AddNumber addNumber);
 	bool RangeContainsProtected(int start, int end) const;
@@ -423,7 +448,12 @@ protected:      // ScintillaBase subclass needs access to much of Editor
 	virtual void AddCharUTF(const char * s, uint len, bool treatAsDBCS = false);
 	void ClearBeforeTentativeStart();
 	void InsertPaste(const char * text, int len);
-	enum PasteShape { pasteStream = 0, pasteRectangular = 1, pasteLine = 2 };
+	
+	enum PasteShape { 
+		pasteStream = 0, 
+		pasteRectangular = 1, 
+		pasteLine = 2 
+	};
 
 	void InsertPasteShape(const char * text, int len, PasteShape shape);
 	void ClearSelection(bool retainMultipleSelections = false);
@@ -487,8 +517,11 @@ protected:      // ScintillaBase subclass needs access to much of Editor
 
 	void ContainerNeedsUpdate(int flags);
 	void PageMove(int direction, Selection::selTypes selt = Selection::noSel, bool stuttered = false);
-	enum { cmSame, cmUpper, cmLower };
-
+	enum { 
+		cmSame, 
+		cmUpper, 
+		cmLower 
+	};
 	virtual std::string CaseMapString(const std::string &s, int caseMapping);
 	void ChangeCaseOfSelection(int caseMapping);
 	void LineTranspose();

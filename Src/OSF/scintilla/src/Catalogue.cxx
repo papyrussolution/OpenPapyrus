@@ -12,7 +12,7 @@
 //#include <vector>
 //#include "ILexer.h"
 //#include "SciLexer.h"
-#include "LexerModule.h"
+//#include "LexerModule.h"
 #include "Catalogue.h"
 
 #ifdef SCI_NAMESPACE

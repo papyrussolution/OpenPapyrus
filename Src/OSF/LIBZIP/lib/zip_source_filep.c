@@ -59,7 +59,7 @@ struct ZipReadFileBlock {
 	/* reading */
 	char * fname;       /* name of file to read from */
 	FILE * f;           /* file to read from */
-	struct zip_stat st; /* stat information passed in */
+	zip_stat_t st; /* stat information passed in */
 	uint64 start; /* start offset of data to read */
 	uint64 end;   /* end offset of data to read, 0 for up to EOF */
 	uint64 current; /* current offset */
@@ -81,7 +81,7 @@ ZIP_EXTERN zip_source_t * zip_source_filep(zip_t * za, FILE * file, uint64 start
 ZIP_EXTERN zip_source_t * zip_source_filep_create(FILE * file, uint64 start, int64 length, zip_error_t * error)
 {
 	if(file == NULL || length < -1) {
-		zip_error_set(error, ZIP_ER_INVAL, 0);
+		zip_error_set(error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}
 	else
@@ -93,18 +93,18 @@ zip_source_t * _zip_source_file_or_p(const char * fname, FILE * file, uint64 sta
 	ZipReadFileBlock * ctx;
 	zip_source_t * zs;
 	if(file == NULL && fname == NULL) {
-		zip_error_set(error, ZIP_ER_INVAL, 0);
+		zip_error_set(error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}
 	if((ctx = (ZipReadFileBlock *)SAlloc::M(sizeof(ZipReadFileBlock))) == NULL) {
-		zip_error_set(error, ZIP_ER_MEMORY, 0);
+		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
 	ctx->fname = NULL;
 	if(fname) {
 		ctx->fname = sstrdup(fname);
 		if(!ctx->fname) {
-			zip_error_set(error, ZIP_ER_MEMORY, 0);
+			zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 			SAlloc::F(ctx);
 			return NULL;
 		}
@@ -235,18 +235,18 @@ static int create_temp_output(ZipReadFileBlock * ctx)
 	FILE * tfp;
 	char * temp = (char*)SAlloc::M(strlen(ctx->fname)+8);
 	if(!temp)
-		return zip_error_set(&ctx->error, ZIP_ER_MEMORY, 0);
+		return zip_error_set(&ctx->error, SLERR_ZIP_MEMORY, 0);
 	sprintf(temp, "%s.XXXXXX", ctx->fname);
 	mask = _umask(_SAFE_MASK);
 	if((tfd = _zip_mkstemp(temp)) == -1) {
-		zip_error_set(&ctx->error, ZIP_ER_TMPOPEN, errno);
+		zip_error_set(&ctx->error, SLERR_ZIP_TMPOPEN, errno);
 		_umask(mask);
 		SAlloc::F(temp);
 		return -1;
 	}
 	_umask(mask);
 	if((tfp = _fdopen(tfd, "r+b")) == NULL) {
-		zip_error_set(&ctx->error, ZIP_ER_TMPOPEN, errno);
+		zip_error_set(&ctx->error, SLERR_ZIP_TMPOPEN, errno);
 		_close(tfd);
 		remove(temp);
 		SAlloc::F(temp);
@@ -271,18 +271,18 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 	switch(cmd) {
 		case ZIP_SOURCE_BEGIN_WRITE:
 		    if(ctx->fname == NULL)
-			    return zip_error_set(&ctx->error, ZIP_ER_OPNOTSUPP, 0);
+			    return zip_error_set(&ctx->error, SLERR_ZIP_OPNOTSUPP, 0);
 			else
 				return create_temp_output(ctx);
 		case ZIP_SOURCE_COMMIT_WRITE: {
 		    mode_t mask;
 		    if(fclose(ctx->fout) < 0) {
 			    ctx->fout = NULL;
-			    zip_error_set(&ctx->error, ZIP_ER_WRITE, errno);
+			    zip_error_set(&ctx->error, SLERR_ZIP_WRITE, errno);
 		    }
 		    ctx->fout = NULL;
 		    if(rename(ctx->tmpname, ctx->fname) < 0)
-			    return zip_error_set(&ctx->error, ZIP_ER_RENAME, errno);
+			    return zip_error_set(&ctx->error, SLERR_ZIP_RENAME, errno);
 			else {
 				mask = _umask(022);
 				_umask(mask);
@@ -307,7 +307,7 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 		case ZIP_SOURCE_OPEN:
 		    if(ctx->fname) {
 			    if((ctx->f = fopen(ctx->fname, "rb")) == NULL)
-				    return zip_error_set(&ctx->error, ZIP_ER_OPEN, errno);
+				    return zip_error_set(&ctx->error, SLERR_ZIP_OPEN, errno);
 		    }
 		    if(ctx->start > 0) {
 			    if(_zip_fseek_u(ctx->f, ctx->start, SEEK_SET, &ctx->error) < 0) {
@@ -327,13 +327,13 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 		    SETMIN(n, SIZE_MAX);
 		    if((i = fread(buf, 1, (size_t)n, ctx->f)) == 0) {
 			    if(ferror(ctx->f))
-				    return zip_error_set(&ctx->error, ZIP_ER_READ, errno);
+				    return zip_error_set(&ctx->error, SLERR_ZIP_READ, errno);
 		    }
 		    ctx->current += i;
 		    return (int64)i;
 		case ZIP_SOURCE_REMOVE:
 		    if(remove(ctx->fname) < 0)
-			    return zip_error_set(&ctx->error, ZIP_ER_REMOVE, errno);
+			    return zip_error_set(&ctx->error, SLERR_ZIP_REMOVE, errno);
 			else
 				return 0;
 		case ZIP_SOURCE_ROLLBACK_WRITE:
@@ -355,7 +355,7 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 						if(_zip_fseek(ctx->f, args->offset, SEEK_END, &ctx->error) < 0)
 							return -1;
 						else if((new_current = ftello(ctx->f)) < 0)
-							return zip_error_set(&ctx->error, ZIP_ER_SEEK, errno);
+							return zip_error_set(&ctx->error, SLERR_ZIP_SEEK, errno);
 						else
 							need_seek = 0;
 					}
@@ -367,11 +367,11 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 					new_current = (int64)ctx->current + args->offset;
 					break;
 			    default:
-					zip_error_set(&ctx->error, ZIP_ER_INVAL, 0);
+					zip_error_set(&ctx->error, SLERR_ZIP_INVAL, 0);
 					return -1;
 		    }
 		    if(new_current < 0 || (uint64)new_current < ctx->start || (ctx->end != 0 && (uint64)new_current > ctx->end)) {
-			    zip_error_set(&ctx->error, ZIP_ER_INVAL, 0);
+			    zip_error_set(&ctx->error, SLERR_ZIP_INVAL, 0);
 			    return -1;
 		    }
 		    ctx->current = (uint64)new_current;
@@ -402,7 +402,7 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 					struct stat fst;
 					int    err = ctx->f ? fstat(_fileno(ctx->f), &fst) : stat(ctx->fname, &fst);
 					if(err != 0)
-						return zip_error_set(&ctx->error, ZIP_ER_READ, errno);
+						return zip_error_set(&ctx->error, SLERR_ZIP_READ, errno);
 					else {
 						st = (zip_stat_t*)data;
 						zip_stat_init(st);
@@ -429,7 +429,7 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 	    {
 		    off_t ret = ftello(ctx->fout);
 		    if(ret < 0)
-			    return zip_error_set(&ctx->error, ZIP_ER_TELL, errno);
+			    return zip_error_set(&ctx->error, SLERR_ZIP_TELL, errno);
 			else
 				return ret;
 	    }
@@ -439,19 +439,19 @@ static int64 read_file(void * state, void * data, uint64 len, zip_source_cmd_t c
 		    clearerr(ctx->fout);
 		    ret = fwrite(data, 1, (size_t)len, ctx->fout);
 		    if(ret != len || ferror(ctx->fout))
-			    return zip_error_set(&ctx->error, ZIP_ER_WRITE, errno);
+			    return zip_error_set(&ctx->error, SLERR_ZIP_WRITE, errno);
 			else
 				return (int64)ret;
 	    }
 		default:
-		    return zip_error_set(&ctx->error, ZIP_ER_OPNOTSUPP, 0);
+		    return zip_error_set(&ctx->error, SLERR_ZIP_OPNOTSUPP, 0);
 	}
 }
 
 static int _zip_fseek_u(FILE * f, uint64 offset, int whence, zip_error_t * error)
 {
 	if(offset > ZIP_INT64_MAX)
-		return zip_error_set(error, ZIP_ER_SEEK, EOVERFLOW);
+		return zip_error_set(error, SLERR_ZIP_SEEK, EOVERFLOW);
 	else
 		return _zip_fseek(f, (int64)offset, whence, error);
 }
@@ -460,10 +460,10 @@ static int _zip_fseek(FILE * f, int64 offset, int whence, zip_error_t * error)
 {
 	int    result = 0;
 	if(offset > ZIP_FSEEK_MAX || offset < ZIP_FSEEK_MIN) {
-		result = zip_error_set(error, ZIP_ER_SEEK, EOVERFLOW);
+		result = zip_error_set(error, SLERR_ZIP_SEEK, EOVERFLOW);
 	}
 	else if(fseeko(f, (off_t)offset, whence) < 0) {
-		result = zip_error_set(error, ZIP_ER_SEEK, errno);
+		result = zip_error_set(error, SLERR_ZIP_SEEK, errno);
 	}
 	return result;
 }

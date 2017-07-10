@@ -15,7 +15,7 @@
 //#include "Accessor.h"
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
-#include "LexerModule.h"
+//#include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -122,8 +122,7 @@ static void ColouriseBatchLine(char * lineBuffer,
 		}
 		// Copy word from Line Buffer into Word Buffer
 		wbl = 0;
-		for(; offset < lengthLine && wbl < 80 &&
-		    !isspacechar(lineBuffer[offset]); wbl++, offset++) {
+		for(; offset < lengthLine && wbl < 80 && !isspacechar(lineBuffer[offset]); wbl++, offset++) {
 			wordBuffer[wbl] = static_cast<char>(tolower(lineBuffer[offset]));
 		}
 		wordBuffer[wbl] = '\0';
@@ -137,10 +136,7 @@ static void ColouriseBatchLine(char * lineBuffer,
 		// Check for Separator
 		if(IsBSeparator(wordBuffer[0])) {
 			// Check for External Command / Program
-			if((cmdLoc == offset - wbl) &&
-			    ((wordBuffer[0] == ':') ||
-				    (wordBuffer[0] == '\\') ||
-				    (wordBuffer[0] == '.'))) {
+			if((cmdLoc == offset - wbl) && oneof3(wordBuffer[0], ':', '\\', '.')) {
 				// Reset Offset to re-process remainder of word
 				offset -= (wbl - 1);
 				// Colorize External Command / Program
@@ -164,46 +160,34 @@ static void ColouriseBatchLine(char * lineBuffer,
 			}
 			// Check for Regular Keyword in list
 		}
-		else if((keywords.InList(wordBuffer)) &&
-		    (continueProcessing)) {
+		else if((keywords.InList(wordBuffer)) && (continueProcessing)) {
 			// ECHO, GOTO, PROMPT and SET require no further Regular Keyword Checking
-			if((CompareCaseInsensitive(wordBuffer, "echo") == 0) ||
-			    (CompareCaseInsensitive(wordBuffer, "goto") == 0) ||
-			    (CompareCaseInsensitive(wordBuffer, "prompt") == 0) ||
-			    (CompareCaseInsensitive(wordBuffer, "set") == 0)) {
+			if(sstreqi_ascii(wordBuffer, "echo") || sstreqi_ascii(wordBuffer, "goto") || sstreqi_ascii(wordBuffer, "prompt") || sstreqi_ascii(wordBuffer, "set")) {
 				continueProcessing = false;
 			}
 			// Identify External Command / Program Location for ERRORLEVEL, and EXIST
-			if((CompareCaseInsensitive(wordBuffer, "errorlevel") == 0) ||
-			    (CompareCaseInsensitive(wordBuffer, "exist") == 0)) {
+			if(sstreqi_ascii(wordBuffer, "errorlevel") || sstreqi_ascii(wordBuffer, "exist")) {
 				// Reset External Command / Program Location
 				cmdLoc = offset;
 				// Skip next spaces
-				while((cmdLoc < lengthLine) &&
-				    (isspacechar(lineBuffer[cmdLoc]))) {
+				while((cmdLoc < lengthLine) && (isspacechar(lineBuffer[cmdLoc]))) {
 					cmdLoc++;
 				}
 				// Skip comparison
-				while((cmdLoc < lengthLine) &&
-				    (!isspacechar(lineBuffer[cmdLoc]))) {
+				while((cmdLoc < lengthLine) && (!isspacechar(lineBuffer[cmdLoc]))) {
 					cmdLoc++;
 				}
 				// Skip next spaces
-				while((cmdLoc < lengthLine) &&
-				    (isspacechar(lineBuffer[cmdLoc]))) {
+				while((cmdLoc < lengthLine) && (isspacechar(lineBuffer[cmdLoc]))) {
 					cmdLoc++;
 				}
 				// Identify External Command / Program Location for CALL, DO, LOADHIGH and LH
 			}
-			else if((CompareCaseInsensitive(wordBuffer, "call") == 0) ||
-			    (CompareCaseInsensitive(wordBuffer, "do") == 0) ||
-			    (CompareCaseInsensitive(wordBuffer, "loadhigh") == 0) ||
-			    (CompareCaseInsensitive(wordBuffer, "lh") == 0)) {
+			else if(sstreqi_ascii(wordBuffer, "call") || sstreqi_ascii(wordBuffer, "do") || sstreqi_ascii(wordBuffer, "loadhigh") || sstreqi_ascii(wordBuffer, "lh")) {
 				// Reset External Command / Program Location
 				cmdLoc = offset;
 				// Skip next spaces
-				while((cmdLoc < lengthLine) &&
-				    (isspacechar(lineBuffer[cmdLoc]))) {
+				while((cmdLoc < lengthLine) && (isspacechar(lineBuffer[cmdLoc]))) {
 					cmdLoc++;
 				}
 			}
@@ -212,10 +196,7 @@ static void ColouriseBatchLine(char * lineBuffer,
 			// No need to Reset Offset
 			// Check for Special Keyword in list, External Command / Program, or Default Text
 		}
-		else if((wordBuffer[0] != '%') &&
-		    (wordBuffer[0] != '!') &&
-		    (!IsBOperator(wordBuffer[0])) &&
-		    (continueProcessing)) {
+		else if((wordBuffer[0] != '%') && (wordBuffer[0] != '!') && (!IsBOperator(wordBuffer[0])) && (continueProcessing)) {
 			// Check for Special Keyword
 			//     Affected Commands are in Length range 2-6
 			//     Good that ERRORLEVEL, EXIST, CALL, DO, LOADHIGH, and LH are unaffected
@@ -228,9 +209,7 @@ static void ColouriseBatchLine(char * lineBuffer,
 				}
 				sKeywordBuffer[wbo] = '\0';
 				// Check for Special Keyword in list
-				if((keywords.InList(sKeywordBuffer)) &&
-				    ((IsBOperator(wordBuffer[wbo])) ||
-					    (IsBSeparator(wordBuffer[wbo])))) {
+				if((keywords.InList(sKeywordBuffer)) && ((IsBOperator(wordBuffer[wbo])) || (IsBSeparator(wordBuffer[wbo])))) {
 					sKeywordFound = true;
 					// ECHO requires no further Regular Keyword Checking
 					if(CompareCaseInsensitive(sKeywordBuffer, "echo") == 0) {
@@ -248,11 +227,7 @@ static void ColouriseBatchLine(char * lineBuffer,
 				// Check for External Command / Program
 				if(cmdLoc == offset - wbl) {
 					// Read up to %, Operator or Separator
-					while((wbo < wbl) &&
-					    (wordBuffer[wbo] != '%') &&
-					    (wordBuffer[wbo] != '!') &&
-					    (!IsBOperator(wordBuffer[wbo])) &&
-					    (!IsBSeparator(wordBuffer[wbo]))) {
+					while((wbo < wbl) && (wordBuffer[wbo] != '%') && (wordBuffer[wbo] != '!') && (!IsBOperator(wordBuffer[wbo])) && (!IsBSeparator(wordBuffer[wbo]))) {
 						wbo++;
 					}
 					// Reset External Command / Program Location
@@ -269,20 +244,17 @@ static void ColouriseBatchLine(char * lineBuffer,
 						// Reset External Command / Program Location
 						cmdLoc = offset;
 						// Skip next spaces
-						while((cmdLoc < lengthLine) &&
-						    (isspacechar(lineBuffer[cmdLoc]))) {
+						while((cmdLoc < lengthLine) && (isspacechar(lineBuffer[cmdLoc]))) {
 							cmdLoc++;
 						}
 						// Reset External Command / Program Location if command switch detected
 						if(lineBuffer[cmdLoc] == '/') {
 							// Skip command switch
-							while((cmdLoc < lengthLine) &&
-							    (!isspacechar(lineBuffer[cmdLoc]))) {
+							while((cmdLoc < lengthLine) && (!isspacechar(lineBuffer[cmdLoc]))) {
 								cmdLoc++;
 							}
 							// Skip next spaces
-							while((cmdLoc < lengthLine) &&
-							    (isspacechar(lineBuffer[cmdLoc]))) {
+							while((cmdLoc < lengthLine) && (isspacechar(lineBuffer[cmdLoc]))) {
 								cmdLoc++;
 							}
 						}
@@ -302,11 +274,7 @@ static void ColouriseBatchLine(char * lineBuffer,
 				}
 				else {
 					// Read up to %, Operator or Separator
-					while((wbo < wbl) &&
-					    (wordBuffer[wbo] != '%') &&
-					    (wordBuffer[wbo] != '!') &&
-					    (!IsBOperator(wordBuffer[wbo])) &&
-					    (!IsBSeparator(wordBuffer[wbo]))) {
+					while((wbo < wbl) && (wordBuffer[wbo] != '%') && (wordBuffer[wbo] != '!') && (!IsBOperator(wordBuffer[wbo])) && (!IsBSeparator(wordBuffer[wbo]))) {
 						wbo++;
 					}
 					// Colorize Default Text
@@ -322,10 +290,7 @@ static void ColouriseBatchLine(char * lineBuffer,
 			styler.ColourTo(startLine + offset - 1 - wbl, SCE_BAT_DEFAULT);
 			wbo++;
 			// Search to end of word for second % (can be a long path)
-			while((wbo < wbl) &&
-			    (wordBuffer[wbo] != '%') &&
-			    (!IsBOperator(wordBuffer[wbo])) &&
-			    (!IsBSeparator(wordBuffer[wbo]))) {
+			while((wbo < wbl) && (wordBuffer[wbo] != '%') && (!IsBOperator(wordBuffer[wbo])) && (!IsBSeparator(wordBuffer[wbo]))) {
 				wbo++;
 			}
 			// Check for Argument (%n) or (%*)

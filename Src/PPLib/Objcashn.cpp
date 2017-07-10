@@ -228,7 +228,8 @@ struct __PosNodeExt {       // @persistent
 	PPID   Tag;             // Const = PPOBJ_CASHNODE
 	PPID   CashNodeID;      // ИД кассового узла
 	PPID   Prop;            // Const = CNPRP_EXTRA
-	uint8  Reserve[60];     // @reserve
+	uint8  Reserve[56];     // @reserve @v9.7.5 [60]-->[56]
+	int32  ScfFlags;        // @v9.7.5  
 	uint16 ScfDaysPeriod;       // Параметр фильтрации отложенных чеков
 	int16  ScfDlvrItemsShowTag; // Параметр фильтрации отложенных чеков
 	uint16 BonusMaxPart;    //
@@ -243,7 +244,7 @@ SLAPI PPSyncCashNode::SuspCheckFilt::SuspCheckFilt()
 
 int SLAPI PPSyncCashNode::SuspCheckFilt::IsEmpty() const
 {
-	return BIN(DaysPeriod == 0 && DlvrItemsShowTag == 0);
+	return BIN(DaysPeriod == 0 && DlvrItemsShowTag == 0 && Flags == 0);
 }
 
 SLAPI PPSyncCashNode::PPSyncCashNode() : PPGenCashNode()
@@ -749,6 +750,7 @@ int SLAPI PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 			if(ref->GetProp(Obj, id, CNPRP_EXTRA, &pnext, sizeof(pnext)) > 0) {
 				pSCN->Scf.DaysPeriod = pnext.ScfDaysPeriod;
 				pSCN->Scf.DlvrItemsShowTag = pnext.ScfDlvrItemsShowTag;
+				pSCN->Scf.Flags = pnext.ScfFlags; // @v9.7.5
 				pSCN->BonusMaxPart = pnext.BonusMaxPart;
 			}
 			else {
@@ -991,6 +993,7 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 						MEMSZERO(pnext);
 						pnext.ScfDaysPeriod = p_scn->Scf.DaysPeriod;
 						pnext.ScfDlvrItemsShowTag = p_scn->Scf.DlvrItemsShowTag;
+						pnext.ScfFlags = p_scn->Scf.Flags; // @v9.7.5
 						pnext.BonusMaxPart = p_scn->BonusMaxPart;
 						THROW(ref->PutProp(Obj, *pID, CNPRP_EXTRA, &pnext, sizeof(pnext)));
 					}
@@ -1261,7 +1264,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			AddClusterAssoc(CTL_EXTDEV_EXTNODEASALT, 0, CASHFX_EXTNODEASALT);
 			SetClusterData(CTL_EXTDEV_EXTNODEASALT, Data.ExtFlags);
 			DisableClusterItem(CTL_EXTDEV_EXTNODEASALT, 0, !Data.ExtCashNodeID);
-			// } @v9.6.9 
+			// } @v9.6.9
 			// @v9.6.9 SetupPPObjCombo(this, CTLSEL_EXTDEV_PAPYRUS,   PPOBJ_CASHNODE, Data.PapyrusNodeID, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_SCALE,     PPOBJ_SCALE, Data.ScaleID, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_PHNSVC,    PPOBJ_PHONESERVICE, Data.PhnSvcID, 0, 0);
@@ -1303,10 +1306,10 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			getCtrlData(CTLSEL_EXTDEV_CASHNODE,  &Data.ExtCashNodeID);
 			// @v9.6.9 {
 			if(Data.ExtCashNodeID)
-				GetClusterData(CTL_EXTDEV_EXTNODEASALT, &Data.ExtFlags); 
+				GetClusterData(CTL_EXTDEV_EXTNODEASALT, &Data.ExtFlags);
 			else
 				Data.ExtFlags &= ~CASHFX_EXTNODEASALT;
-			// } @v9.6.9 
+			// } @v9.6.9
 			// @v9.6.9 getCtrlData(CTLSEL_EXTDEV_PAPYRUS,   &Data.PapyrusNodeID);
 			getCtrlData(CTLSEL_EXTDEV_SCALE,     &Data.ScaleID);
 			getCtrlData(CTLSEL_EXTDEV_PHNSVC,    &Data.PhnSvcID);
@@ -1320,7 +1323,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 				sel = CTL_EXTDEV_CASHNODE;
 				THROW_PP(Data.ID != Data.ExtCashNodeID && PPCashMachine::IsSyncCMT(cn_rec.CashType), PPERR_INVCMT);
 			}
-			/* @v9.6.9 
+			/* @v9.6.9
 			if(Data.PapyrusNodeID) {
 				THROW(cn_obj.Search(Data.PapyrusNodeID, &cn_rec) > 0);
 				sel = CTL_EXTDEV_PAPYRUS;
@@ -1363,7 +1366,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 				getCtrlData(CTLSEL_EXTDEV_CASHNODE,  &ext_node_id);
 				DisableClusterItem(CTL_EXTDEV_EXTNODEASALT, 0, !ext_node_id);
 			}
-			// } @v9.6.9 
+			// } @v9.6.9
 			else if(TVKEYDOWN) {
 				if(TVKEY == kbF2) {
 					SString prn_port;
@@ -1564,6 +1567,10 @@ int SyncCashNodeCfgDialog::editExt()
 		dlg->AddClusterAssoc(CTL_CASHNSEXT_SCF_DLVRT, 1, +1);
 		dlg->AddClusterAssoc(CTL_CASHNSEXT_SCF_DLVRT, 2, -1);
 		dlg->SetClusterData(CTL_CASHNSEXT_SCF_DLVRT, dlvr_items_show_tag);
+
+		dlg->AddClusterAssoc(CTL_CASHNSEXT_NOTSF, 0, Data.Scf.fNotSpFinished); // @v9.7.5
+		dlg->SetClusterData(CTL_CASHNSEXT_NOTSF, Data.Scf.Flags); // @v9.7.5
+
 		dlg->setCtrlReal(CTL_CASHNSEXT_BONUSMAX, (double)Data.BonusMaxPart / 10.0);
 		dlg->setCtrlString(CTL_CASHNSEXT_CTBLLIST, Data.CTblListToString(ctbl_list_buf));
 
@@ -1587,6 +1594,7 @@ int SyncCashNodeCfgDialog::editExt()
 					Data.Scf.DaysPeriod = (uint16)days_period;
 					Data.Scf.DlvrItemsShowTag = (int16)dlg->GetClusterData(CTL_CASHNSEXT_SCF_DLVRT);
 					dlg->GetClusterData(CTL_CASHNSEXT_FLAGS, &Data.ExtFlags); // @v8.0.12
+					dlg->GetClusterData(CTL_CASHNSEXT_NOTSF, &Data.Scf.Flags); // @v9.7.5
 					ok = 1;
 				}
 			}
@@ -2051,7 +2059,7 @@ private:
 					else
 						PPError(PPERR_SLIB, temp_buf);
 				}
-				else 
+				else
 					PPError(PPERR_APNCORR_N_INV, 0);
             }
         }

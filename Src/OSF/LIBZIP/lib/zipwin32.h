@@ -45,15 +45,12 @@ struct _zip_source_win32_file_ops;
 struct _zip_source_win32_read_file {
     zip_error_t error;      /* last error information */
     int64 supports;
-
-    /* operations */
-    struct _zip_source_win32_file_ops *ops;
-
+	struct _zip_source_win32_file_ops * ops; // operations 
     /* reading */
     void *fname;            /* name of file to read from - ANSI (char *) or Unicode (wchar_t *) */
     void *h;                /* HANDLE for file to read from */
     int closep;             /* whether to close f on ZIP_CMD_FREE */
-    struct zip_stat st;     /* stat information passed in */
+    zip_stat_t st;     /* stat information passed in */
     uint64 start;     /* start offset of data to read */
     uint64 end;       /* end offset of data to read, 0 for up to EOF */
     uint64 current;   /* current offset */

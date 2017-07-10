@@ -3278,7 +3278,7 @@ const int catRanges[] = {
 
 const int maxUnicode = 0x10ffff;
 const int maskCategory = 0x1F;
-const int nRanges = ELEMENTS(catRanges);
+const int nRanges = SIZEOFARRAY(catRanges);
 }
 
 // Each element in catRanges is the start of a range of Unicode characters in

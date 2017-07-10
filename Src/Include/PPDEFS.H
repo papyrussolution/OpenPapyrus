@@ -1213,6 +1213,7 @@
 #define PPTAG_BILL_EDIREPEALREQ     60L // @v9.5.12 Запрос на отмену проведения документа EDI
 #define PPTAG_POSNODE_UUID          61L // @v9.6.5  UUID кассового узла
 #define PPTAG_POSNODE_HOSTUUID      62L // @v9.6.5  UUID управляющего кассового узла (для синхронных кассовый узлов Papyrus)
+#define PPTAG_BILL_STATECONTRACTID  63L // @v9.7.5  ИД государственного контракта (для счетов-фактур)
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -9396,6 +9397,7 @@
 	#define CTL_CASHNSEXT_SLEEPTIMEOUT (5 + WINDOWS_ID_BIAS)
 	#define CTL_CASHNSEXT_CTBLLIST     (6 + WINDOWS_ID_BIAS)
 	#define CTL_CASHNSEXT_FLAGS        (7 + WINDOWS_ID_BIAS)
+	#define CTL_CASHNSEXT_NOTSF        (8 + WINDOWS_ID_BIAS)
 // DLG_CASHND                     1193 occupied
 #define DLG_GTAJFILT              1194
 	#define CTL_GTAJFILT_PERIOD        (1 + WINDOWS_ID_BIAS)

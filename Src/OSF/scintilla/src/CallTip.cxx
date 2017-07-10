@@ -128,7 +128,7 @@ void CallTip::DrawChunk(Surface * surface, int &x, const char * s,
 							Point::FromInts(centreX + halfWidth, centreY + quarterWidth),
 							Point::FromInts(centreX, centreY - halfWidth + quarterWidth),
 						};
-						surface->Polygon(pts, ELEMENTS(pts), colourBG, colourBG);
+						surface->Polygon(pts, SIZEOFARRAY(pts), colourBG, colourBG);
 					}
 					else {              // Down arrow
 						Point pts[] = {
@@ -136,7 +136,7 @@ void CallTip::DrawChunk(Surface * surface, int &x, const char * s,
 							Point::FromInts(centreX + halfWidth, centreY - quarterWidth),
 							Point::FromInts(centreX, centreY + halfWidth - quarterWidth),
 						};
-						surface->Polygon(pts, ELEMENTS(pts), colourBG, colourBG);
+						surface->Polygon(pts, SIZEOFARRAY(pts), colourBG, colourBG);
 					}
 				}
 				offsetMain = xEnd;

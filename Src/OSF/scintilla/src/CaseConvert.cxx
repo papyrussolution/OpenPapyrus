@@ -526,7 +526,7 @@ void AddSymmetric(enum CaseConversion conversion, int lower, int upper)
 void SetupConversions(enum CaseConversion conversion)
 {
 	// First initialize for the symmetric ranges
-	for(size_t i = 0; i<ELEMENTS(symmetricCaseConversionRanges); ) {
+	for(size_t i = 0; i < SIZEOFARRAY(symmetricCaseConversionRanges); ) {
 		int lower = symmetricCaseConversionRanges[i++];
 		int upper = symmetricCaseConversionRanges[i++];
 		int length = symmetricCaseConversionRanges[i++];
@@ -536,7 +536,7 @@ void SetupConversions(enum CaseConversion conversion)
 		}
 	}
 	// Add the symmetric singletons
-	for(size_t i = 0; i<ELEMENTS(symmetricCaseConversions); ) {
+	for(size_t i = 0; i < SIZEOFARRAY(symmetricCaseConversions); ) {
 		int lower = symmetricCaseConversions[i++];
 		int upper = symmetricCaseConversions[i++];
 		AddSymmetric(conversion, lower, upper);

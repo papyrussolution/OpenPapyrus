@@ -309,7 +309,7 @@ static const char * FASTCALL ControlCharacterString(uchar ch)
 		"DLE", "DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB",
 		"CAN", "EM", "SUB", "ESC", "FS", "GS", "RS", "US"
 	};
-	return (ch < ELEMENTS(reps)) ? reps[ch] : "BAD";
+	return (ch < SIZEOFARRAY(reps)) ? reps[ch] : "BAD";
 }
 
 static void DrawTabArrow(Surface * surface, PRectangle rcTab, int ymid, const ViewStyle &vsDraw)

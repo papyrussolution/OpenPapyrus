@@ -17,7 +17,7 @@
 //#include "Accessor.h"
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
-#include "LexerModule.h"
+//#include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -388,18 +388,12 @@ static void FoldNimrodDoc(Sci_PositionU startPos, Sci_Position length,
 		// which effectively folds them into surrounding code rather
 		// than screwing up folding.
 
-		while(!quote &&
-		    (lineNext < docLines) &&
-		    ((indentNext & SC_FOLDLEVELWHITEFLAG) ||
-			    (lineNext <= docLines && IsCommentLine(lineNext, styler)))) {
+		while(!quote && (lineNext < docLines) && ((indentNext & SC_FOLDLEVELWHITEFLAG) || (lineNext <= docLines && IsCommentLine(lineNext, styler)))) {
 			lineNext++;
 			indentNext = styler.IndentAmount(lineNext, &spaceFlags, NULL);
 		}
-
 		const int levelAfterComments = indentNext & SC_FOLDLEVELNUMBERMASK;
-		const int levelBeforeComments =
-		    Maximum(indentCurrentLevel, levelAfterComments);
-
+		const int levelBeforeComments = smax(indentCurrentLevel, levelAfterComments);
 		// Now set all the indent levels on the lines we skipped
 		// Do this from end to start.  Once we encounter one line
 		// which is indented more than the line after the end of
@@ -407,22 +401,16 @@ static void FoldNimrodDoc(Sci_PositionU startPos, Sci_Position length,
 
 		Sci_Position skipLine = lineNext;
 		int skipLevel = levelAfterComments;
-
 		while(--skipLine > lineCurrent) {
 			int skipLineIndent = styler.IndentAmount(skipLine, &spaceFlags, NULL);
-
 			if((skipLineIndent & SC_FOLDLEVELNUMBERMASK) > levelAfterComments)
 				skipLevel = levelBeforeComments;
-
 			int whiteFlag = skipLineIndent & SC_FOLDLEVELWHITEFLAG;
-
 			styler.SetLevel(skipLine, skipLevel | whiteFlag);
 		}
-
 		// Set fold header on non-quote/non-comment line
 		if(!quote && !comment && !(indentCurrent & SC_FOLDLEVELWHITEFLAG) ) {
-			if((indentCurrent & SC_FOLDLEVELNUMBERMASK) <
-			    (indentNext & SC_FOLDLEVELNUMBERMASK))
+			if((indentCurrent & SC_FOLDLEVELNUMBERMASK) < (indentNext & SC_FOLDLEVELNUMBERMASK))
 				lev |= SC_FOLDLEVELHEADERFLAG;
 		}
 

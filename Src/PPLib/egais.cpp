@@ -1009,7 +1009,7 @@ SLAPI PPEgaisProcessor::PPEgaisProcessor(long cflags, PPLogger * pOuterLogger) :
 			(temp_buf = path).SetLastSlash().Cat(file_name);
 		if(fileExists(temp_buf)) {
 			P_Taw = new PPTextAnalyzerWrapper;
-			if(P_Taw && !P_Taw->Init(temp_buf, 0))
+			if(P_Taw && !P_Taw->Init(temp_buf, PPTextAnalyzerWrapper::fEncInner))
 				ZDELETE(P_Taw);
 		}
 	}
@@ -3025,9 +3025,11 @@ SString & FASTCALL PPEgaisProcessor::PreprocessGoodsName(SString & rName) const
 	rName.Strip();
 	if(P_Taw) {
 		SString result_buf;
+        rName.Transf(CTRANSF_OUTER_TO_INNER);
 		if(P_Taw->ReplaceString(rName, result_buf) > 0) {
 			rName = result_buf.Strip();
 		}
+		rName.Transf(CTRANSF_INNER_TO_OUTER);
 	}
 	/*
 	rName.Strip().ToLower1251();
@@ -7493,7 +7495,7 @@ int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 					if(p_bp->Rec.Flags2 & BILLF2_DECLINED && p_bp->BTagL.GetItemStr(PPTAG_BILL_EDIIDENT, temp_buf) > 0) {
 						Ack ack;
 						const char * p_suffix = 0;
-						if(p_bp->Rec.EdiOp == PPEDIOP_EGAIS_WAYBILL_V2) {
+						if(/*p_bp->Rec.EdiOp == PPEDIOP_EGAIS_WAYBILL_V2*/__v2) { // @v9.7.5 (p_bp->Rec.EdiOp == PPEDIOP_EGAIS_WAYBILL_V2)-->__v2
 							p_suffix = "WayBillAct_v2";
 							pack.DocType = PPEDIOP_EGAIS_WAYBILLACT_V2;
 						}

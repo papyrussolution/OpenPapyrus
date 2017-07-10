@@ -96,24 +96,25 @@ static bool FASTCALL IsAllSpacesOrTabs(const char * s, uint len)
 
 Editor::Editor()
 {
+	Flags = (fMouseDownCaptures|fMouseWheelCaptures|fHorizontalScrollBarVisible|fVerticalScrollBarVisible|fEndAtLastLine|fConvertPastes);
 	ctrlID = 0;
 	stylesValid = false;
 	technology = SC_TECHNOLOGY_DEFAULT;
 	scaleRGBAImage = 100.0f;
 	cursorMode = SC_CURSORNORMAL;
-	hasFocus = false;
+	//hasFocus = false;
 	errorStatus = 0;
-	mouseDownCaptures = true;
-	mouseWheelCaptures = true;
+	//mouseDownCaptures = true;
+	//mouseWheelCaptures = true;
 	lastClickTime = 0;
 	doubleClickCloseThreshold = Point(3, 3);
 	dwellDelay = SC_TIME_FOREVER;
 	ticksToDwell = SC_TIME_FOREVER;
-	dwelling = false;
+	//dwelling = false;
 	ptMouseLast.x = 0;
 	ptMouseLast.y = 0;
 	inDragDrop = ddNone;
-	dropWentOutside = false;
+	Flags &= ~fDropWentOutside;
 	posDrop = SelectionPosition(invalidPosition);
 	hotSpotClickPos = INVALID_POSITION;
 	selectionType = selChar;
@@ -136,15 +137,15 @@ Editor::Editor()
 	searchAnchor = 0;
 
 	xCaretMargin = 50;
-	horizontalScrollBarVisible = true;
+	//horizontalScrollBarVisible = true;
 	scrollWidth = 2000;
-	verticalScrollBarVisible = true;
-	endAtLastLine = true;
+	//verticalScrollBarVisible = true;
+	//endAtLastLine = true;
 	caretSticky = SC_CARETSTICKY_OFF;
 	marginOptions = SC_MARGINOPTION_NONE;
-	mouseSelectionRectangularSwitch = false;
-	multipleSelection = false;
-	additionalSelectionTyping = false;
+	//mouseSelectionRectangularSwitch = false;
+	//multipleSelection = false;
+	//additionalSelectionTyping = false;
 	multiPasteMode = SC_MULTIPASTE_ONCE;
 	virtualSpaceOptions = SCVS_NONE;
 
@@ -161,16 +162,16 @@ Editor::Editor()
 	ContainerNeedsUpdate(SC_UPDATE_CONTENT);
 
 	paintState = notPainting;
-	paintAbandonedByStyling = false;
-	paintingAllText = false;
-	willRedrawAll = false;
+	//paintAbandonedByStyling = false;
+	//paintingAllText = false;
+	//willRedrawAll = false;
 	idleStyling = SC_IDLESTYLING_NONE;
-	needIdleStyling = false;
+	//needIdleStyling = false;
 	modEventMask = SC_MODEVENTMASKALL;
 	pdoc->AddWatcher(this, 0);
-	recordingMacro = false;
+	//recordingMacro = false;
 	foldAutomatic = 0;
-	convertPastes = true;
+	//convertPastes = true;
 	SetRepresentations();
 }
 
@@ -196,7 +197,7 @@ void Editor::SetRepresentations()
 		"DLE", "DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB",
 		"CAN", "EM", "SUB", "ESC", "FS", "GS", "RS", "US"
 	};
-	for(size_t j = 0; j < ELEMENTS(reps); j++) {
+	for(size_t j = 0; j < SIZEOFARRAY(reps); j++) {
 		char c[2] = { static_cast<char>(j), 0 };
 		reprs.SetRepresentation(c, reps[j]);
 	}
@@ -209,7 +210,7 @@ void Editor::SetRepresentations()
 			"DCS", "PU1", "PU2", "STS", "CCH", "MW", "SPA", "EPA",
 			"SOS", "SGCI", "SCI", "CSI", "ST", "OSC", "PM", "APC"
 		};
-		for(size_t j = 0; j < ELEMENTS(repsC1); j++) {
+		for(size_t j = 0; j < SIZEOFARRAY(repsC1); j++) {
 			char c1[3] = { '\xc2',  static_cast<char>(0x80+j), 0 };
 			reprs.SetRepresentation(c1, repsC1[j]);
 		}
@@ -333,7 +334,7 @@ int Editor::MaxScrollPos() const
 	//Platform::DebugPrintf("Lines %d screen = %d maxScroll = %d\n",
 	//LinesTotal(), LinesOnScreen(), LinesTotal() - LinesOnScreen() + 1);
 	int retVal = cs.LinesDisplayed();
-	if(endAtLastLine) {
+	if(Flags & fEndAtLastLine) {
 		retVal -= LinesOnScreen();
 	}
 	else {
@@ -448,7 +449,7 @@ void Editor::SetTopLine(int topLineNew)
  */
 bool Editor::AbandonPaint()
 {
-	if((paintState == painting) && !paintingAllText) {
+	if((paintState == painting) && !(Flags & fPaintingAllText)) {
 		paintState = paintAbandoned;
 	}
 	return (paintState == paintAbandoned);
@@ -720,7 +721,7 @@ void Editor::SetEmptySelection(int currentPos_)
 
 void Editor::MultipleSelectAdd(AddNumber addNumber)
 {
-	if(SelectionEmpty() || !multipleSelection) {
+	if(SelectionEmpty() || !(Flags & fMultipleSelection)) {
 		// Select word at caret
 		const int startWord = pdoc->ExtendWordSelect(sel.MainCaret(), -1, true);
 		const int endWord = pdoc->ExtendWordSelect(startWord, 1, true);
@@ -854,7 +855,7 @@ void Editor::MovePositionTo(SelectionPosition newPos, Selection::selTypes selt, 
 	int delta = newPos.Position() - sel.MainCaret();
 	newPos = ClampPositionIntoDocument(newPos);
 	newPos = MovePositionOutsideChar(newPos, delta);
-	if(!multipleSelection && sel.IsRectangular() && (selt == Selection::selStream)) {
+	if(!(Flags & fMultipleSelection) && sel.IsRectangular() && (selt == Selection::selStream)) {
 		// Can't turn into multiple selection so clear additional selections
 		InvalidateSelection(SelectionRange(newPos), true);
 		sel.DropAdditionalRanges();
@@ -933,7 +934,7 @@ void Editor::ScrollTo(int line, bool moveThumb)
 #ifndef UNDER_CE
 		int linesToMove = topLine - topLineNew;
 		bool performBlit = (abs(linesToMove) <= 10) && (paintState == notPainting);
-		willRedrawAll = !performBlit;
+		SETFLAG(Flags, fWillRedrawAll, !performBlit);
 #endif
 		SetTopLine(topLineNew);
 		// Optimize by styling the view as this will invalidate any needed area
@@ -947,7 +948,7 @@ void Editor::ScrollTo(int line, bool moveThumb)
 		else {
 			Redraw();
 		}
-		willRedrawAll = false;
+		Flags &= ~fWillRedrawAll;
 #else
 		Redraw();
 #endif
@@ -1385,7 +1386,7 @@ void Editor::SetXYScroll(XYScrollPosition newXY)
 			ContainerNeedsUpdate(SC_UPDATE_H_SCROLL);
 			if(newXY.xOffset > 0) {
 				PRectangle rcText = GetTextRectangle();
-				if(horizontalScrollBarVisible && rcText.Width() + xOffset > scrollWidth) {
+				if(Flags & fHorizontalScrollBarVisible && rcText.Width() + xOffset > scrollWidth) {
 					scrollWidth = xOffset + static_cast<int>(rcText.Width());
 					SetScrollBars();
 				}
@@ -1410,7 +1411,7 @@ void Editor::EnsureCaretVisible(bool useMargin, bool vert, bool horiz)
 
 void Editor::ShowCaretAtCurrentPosition()
 {
-	if(hasFocus) {
+	if(Flags & fHasFocus) {
 		caret.Flags |= (Caret::fActive|Caret::fOn);
 		if(FineTickerAvailable()) {
 			FineTickerCancel(tickCaret);
@@ -1714,11 +1715,8 @@ void Editor::Paint(Surface * surfaceWindow, PRectangle rcArea)
 	if(paintState == paintAbandoned)
 		return;  // Scroll bars may have changed so need redraw
 	RefreshPixMaps(surfaceWindow);
-
-	paintAbandonedByStyling = false;
-
+	Flags &= ~fPaintAbandonedByStyling;
 	StyleAreaBounded(rcArea, false);
-
 	PRectangle rcClient = GetClientRectangle();
 	//Platform::DebugPrintf("Client: (%3d,%3d) ... (%3d,%3d)   %d\n",
 	//	rcClient.left, rcClient.top, rcClient.right, rcClient.bottom);
@@ -1766,7 +1764,7 @@ void Editor::Paint(Surface * surfaceWindow, PRectangle rcArea)
 		// outside the current painting rectangle
 		//Platform::DebugPrintf("Abandoning paint\n");
 		if(Wrapping()) {
-			if(paintAbandonedByStyling) {
+			if(Flags & fPaintAbandonedByStyling) {
 				// Styling has spilled over a line end, such as occurs by starting a multiline
 				// comment. The width of subsequent text may have changed, so rewrap.
 				NeedWrapping(cs.DocFromDisplay(topLine));
@@ -1774,18 +1772,14 @@ void Editor::Paint(Surface * surfaceWindow, PRectangle rcArea)
 		}
 		return;
 	}
-
 	view.PaintText(surfaceWindow, *this, rcArea, rcClient, vs);
-
-	if(horizontalScrollBarVisible && trackLineWidth && (view.lineWidthMaxSeen > scrollWidth)) {
+	if(Flags & fHorizontalScrollBarVisible && trackLineWidth && (view.lineWidthMaxSeen > scrollWidth)) {
 		if(FineTickerAvailable()) {
 			scrollWidth = view.lineWidthMaxSeen;
-			if(!FineTickerRunning(tickWiden)) {
+			if(!FineTickerRunning(tickWiden))
 				FineTickerStart(tickWiden, 50, 5);
-			}
 		}
 	}
-
 	NotifyPainted();
 }
 
@@ -1896,7 +1890,7 @@ void Editor::AddChar(char ch)
 
 void Editor::FilterSelections()
 {
-	if(!additionalSelectionTyping && (sel.Count() > 1)) {
+	if(!(Flags & fAdditionalSelectionTyping) && (sel.Count() > 1)) {
 		InvalidateWholeSelection();
 		sel.DropAdditionalRanges();
 	}
@@ -1982,8 +1976,7 @@ void Editor::AddCharUTF(const char * s, uint len, bool treatAsDBCS)
 	}
 
 	if(treatAsDBCS) {
-		NotifyChar((static_cast<uchar>(s[0]) << 8) |
-		    static_cast<uchar>(s[1]));
+		NotifyChar((static_cast<uchar>(s[0]) << 8) | static_cast<uchar>(s[1]));
 	}
 	else if(len > 0) {
 		int byte = static_cast<uchar>(s[0]);
@@ -1995,13 +1988,12 @@ void Editor::AddCharUTF(const char * s, uint len, bool treatAsDBCS)
 		}
 		else {
 			uint utf32[1] = { 0 };
-			UTF32FromUTF8(s, len, utf32, ELEMENTS(utf32));
+			UTF32FromUTF8(s, len, utf32, SIZEOFARRAY(utf32));
 			byte = utf32[0];
 		}
 		NotifyChar(byte);
 	}
-
-	if(recordingMacro) {
+	if(Flags & fRecordingMacro) {
 		NotifyMacroRecord(SCI_REPLACESEL, 0, reinterpret_cast<sptr_t>(s));
 	}
 }
@@ -2072,7 +2064,7 @@ void Editor::InsertPaste(const char * text, int len)
 void Editor::InsertPasteShape(const char * text, int len, PasteShape shape)
 {
 	std::string convertedText;
-	if(convertPastes) {
+	if(Flags & fConvertPastes) {
 		// Convert line endings of the paste into our local line-endings mode
 		convertedText = Document::TransformLineEnds(text, len, pdoc->eolMode);
 		len = static_cast<int>(convertedText.length());
@@ -2787,7 +2779,7 @@ void Editor::NotifyModified(Document *, DocModification mh, void *)
 	}
 
 	if((mh.modificationType & SC_MOD_CHANGEMARKER) || (mh.modificationType & SC_MOD_CHANGEMARGIN)) {
-		if((!willRedrawAll) && ((paintState == notPainting) || !PaintContainsMargin())) {
+		if(!(Flags & fWillRedrawAll) && ((paintState == notPainting) || !PaintContainsMargin())) {
 			if(mh.modificationType & SC_MOD_CHANGEFOLD) {
 				// Fold changes can affect the drawing of following lines so redraw whole margin
 				RedrawSelMargin(marginView.highlightDelimiter.isEnabled ? -1 : mh.line - 1, true);
@@ -3139,18 +3131,15 @@ void Editor::CancelModes()
 void Editor::NewLine()
 {
 	InvalidateWholeSelection();
-	if(sel.IsRectangular() || !additionalSelectionTyping) {
+	if(sel.IsRectangular() || !(Flags & fAdditionalSelectionTyping)) {
 		// Remove non-main ranges
 		sel.DropAdditionalRanges();
 	}
-
 	UndoGroup ug(pdoc, !sel.Empty() || (sel.Count() > 1));
-
 	// Clear each range
 	if(!sel.Empty()) {
 		ClearSelection();
 	}
-
 	// Insert each line end
 	size_t countInsertions = 0;
 	for(size_t r = 0; r < sel.Count(); r++) {
@@ -3170,7 +3159,7 @@ void Editor::NewLine()
 		const char * eol = StringFromEOLMode(pdoc->eolMode);
 		while(*eol) {
 			NotifyChar(*eol);
-			if(recordingMacro) {
+			if(Flags & fRecordingMacro) {
 				char txt[2];
 				txt[0] = *eol;
 				txt[1] = '\0';
@@ -3264,7 +3253,7 @@ void Editor::CursorUpOrDown(int direction, Selection::selTypes selt)
 	}
 	else {
 		InvalidateWholeSelection();
-		if(!additionalSelectionTyping || (sel.IsRectangular())) {
+		if(!(Flags & fAdditionalSelectionTyping) || (sel.IsRectangular())) {
 			sel.DropAdditionalRanges();
 		}
 		sel.selType = Selection::selStream;
@@ -3430,7 +3419,7 @@ int Editor::HorizontalMove(uint iMessage)
 	if(sel.MoveExtends()) {
 		iMessage = WithExtends(iMessage);
 	}
-	if(!multipleSelection && !sel.IsRectangular()) {
+	if(!(Flags & fMultipleSelection) && !sel.IsRectangular()) {
 		// Simplify selection down to 1
 		sel.SetSelection(sel.RangeMain());
 	}
@@ -3484,7 +3473,7 @@ int Editor::HorizontalMove(uint iMessage)
 		sel.SetSelection(SelectionRange(selAtLimit));
 	}
 	else {
-		if(!additionalSelectionTyping) {
+		if(!(Flags & fAdditionalSelectionTyping)) {
 			InvalidateWholeSelection();
 			sel.DropAdditionalRanges();
 		}
@@ -3657,7 +3646,7 @@ int Editor::DelWordOrLine(uint iMessage)
 	// Rightwards and leftwards deletions differ in treatment of virtual space.
 	// Clear virtual space for leftwards, realise for rightwards.
 	const bool leftwards = (iMessage == SCI_DELWORDLEFT) || (iMessage == SCI_DELLINELEFT);
-	if(!additionalSelectionTyping) {
+	if(!(Flags & fAdditionalSelectionTyping)) {
 		InvalidateWholeSelection();
 		sel.DropAdditionalRanges();
 	}
@@ -4291,7 +4280,7 @@ void Editor::DropAt(SelectionPosition position, const char * value, size_t lengt
 {
 	//Platform::DebugPrintf("DropAt %d %d\n", inDragDrop, position);
 	if(inDragDrop == ddDragging)
-		dropWentOutside = false;
+		Flags &= ~fDropWentOutside;
 	bool positionWasInSelection = PositionInSelection(position.Position());
 	bool positionOnEdgeOfSelection = (position == SelectionStart()) || (position == SelectionEnd());
 	if((inDragDrop != ddDragging) || !(positionWasInSelection) || (positionOnEdgeOfSelection && !moving)) {
@@ -4489,9 +4478,9 @@ void Editor::WordSelection(int pos)
 void Editor::DwellEnd(bool mouseMoved)
 {
 	ticksToDwell = mouseMoved ? dwellDelay : SC_TIME_FOREVER;
-	if(dwelling && (dwellDelay < SC_TIME_FOREVER)) {
-		dwelling = false;
-		NotifyDwelling(ptMouseLast, dwelling);
+	if(Flags & fDwelling && (dwellDelay < SC_TIME_FOREVER)) {
+		Flags &= ~fDwelling;
+		NotifyDwelling(ptMouseLast, BIN(Flags & fDwelling));
 	}
 	if(FineTickerAvailable()) {
 		FineTickerCancel(tickDwell);
@@ -4550,7 +4539,7 @@ void Editor::ButtonDownWithModifiers(Point pt, uint curTime, int modifiers)
 		if(FineTickerAvailable()) {
 			FineTickerStart(tickScroll, 100, 10);
 		}
-		if(!ctrl || !multipleSelection || (selectionType != selChar && selectionType != selWord))
+		if(!ctrl || !(Flags & fMultipleSelection) || (selectionType != selChar && selectionType != selWord))
 			SetEmptySelection(newPos.Position());
 		bool doubleClick = false;
 		// Stop mouse button bounce changing selection type
@@ -4679,7 +4668,7 @@ void Editor::ButtonDownWithModifiers(Point pt, uint curTime, int modifiers)
 			if(inDragDrop != ddInitial) {
 				SetDragPosition(SelectionPosition(invalidPosition));
 				if(!shift) {
-					if(ctrl && multipleSelection) {
+					if(ctrl && Flags & fMultipleSelection) {
 						SelectionRange range(newPos);
 						sel.TentativeSelection(range);
 						InvalidateSelection(range, true);
@@ -4835,7 +4824,7 @@ void Editor::ButtonMoveWithModifiers(Point pt, int modifiers)
 		}
 		else {
 			if(selectionType == selChar) {
-				if(sel.selType == Selection::selStream && (modifiers & SCI_ALT) && mouseSelectionRectangularSwitch) {
+				if(sel.selType == Selection::selStream && (modifiers & SCI_ALT) && Flags & fMouseSelectionRectangularSwitch) {
 					sel.selType = Selection::selRectangle;
 				}
 				if(sel.IsRectangular()) {
@@ -5041,15 +5030,15 @@ void Editor::Tick()
 				InvalidateCaret();
 		}
 	}
-	if(horizontalScrollBarVisible && trackLineWidth && (view.lineWidthMaxSeen > scrollWidth)) {
+	if(Flags & fHorizontalScrollBarVisible && trackLineWidth && (view.lineWidthMaxSeen > scrollWidth)) {
 		scrollWidth = view.lineWidthMaxSeen;
 		SetScrollBars();
 	}
 	if((dwellDelay < SC_TIME_FOREVER) && (ticksToDwell > 0) && (!HaveMouseCapture()) && (ptMouseLast.y >= 0)) {
 		ticksToDwell -= timer.tickSize;
 		if(ticksToDwell <= 0) {
-			dwelling = true;
-			NotifyDwelling(ptMouseLast, dwelling);
+			Flags |= fDwelling;
+			NotifyDwelling(ptMouseLast, BIN(Flags & fDwelling));
 		}
 	}
 }
@@ -5063,14 +5052,14 @@ bool Editor::Idle()
 		// No more wrapping
 		needWrap = wrapPending.NeedsWrap();
 	}
-	else if(needIdleStyling) {
+	else if(Flags & fNeedIdleStyling) {
 		IdleStyling();
 	}
 	// Add more idle things to do here, but make sure idleDone is
 	// set correctly before the function returns. returning
 	// false will stop calling this idle function until SetIdle() is
 	// called again.
-	const bool idleDone = !needWrap && !needIdleStyling; // && thatDone && theOtherThingDone...
+	const bool idleDone = !needWrap && !(Flags & fNeedIdleStyling); // && thatDone && theOtherThingDone...
 	return !idleDone;
 }
 
@@ -5100,8 +5089,8 @@ void Editor::TickFor(TickReason reason)
 		    break;
 		case tickDwell:
 		    if((!HaveMouseCapture()) && (ptMouseLast.y >= 0)) {
-			    dwelling = true;
-			    NotifyDwelling(ptMouseLast, dwelling);
+			    Flags |= fDwelling;
+			    NotifyDwelling(ptMouseLast, BIN(Flags & fDwelling));
 		    }
 		    FineTickerCancel(tickDwell);
 		    break;
@@ -5140,9 +5129,9 @@ void Editor::FineTickerCancel(TickReason)
 
 void Editor::SetFocusState(bool focusState)
 {
-	hasFocus = focusState;
-	NotifyFocus(hasFocus);
-	if(!hasFocus) {
+	SETFLAG(Flags, fHasFocus, focusState);
+	NotifyFocus(BIN(Flags & fHasFocus));
+	if(!(Flags & fHasFocus)) {
 		CancelModes();
 	}
 	ShowCaretAtCurrentPosition();
@@ -5195,15 +5184,14 @@ void Editor::StartIdleStyling(bool truncatedLastStyling)
 	if((idleStyling == SC_IDLESTYLING_ALL) || (idleStyling == SC_IDLESTYLING_AFTERVISIBLE)) {
 		if(pdoc->GetEndStyled() < pdoc->Length()) {
 			// Style remainder of document in idle time
-			needIdleStyling = true;
+			Flags |= fNeedIdleStyling;
 		}
 	}
 	else if(truncatedLastStyling) {
-		needIdleStyling = true;
+		Flags |= fNeedIdleStyling;
 	}
-	if(needIdleStyling) {
+	if(Flags & fNeedIdleStyling)
 		SetIdle(true);
-	}
 }
 
 // Style for an area but bound the amount of styling to remain responsive
@@ -5231,7 +5219,7 @@ void Editor::IdleStyling()
 	const int posAfterMax = PositionAfterMaxStyling(endGoal, false);
 	pdoc->StyleToAdjustingLineDuration(posAfterMax);
 	if(pdoc->GetEndStyled() >= endGoal) {
-		needIdleStyling = false;
+		Flags &= ~fNeedIdleStyling;
 	}
 }
 
@@ -5270,7 +5258,7 @@ bool Editor::PaintContainsMargin()
 
 void Editor::CheckForChangeOutsidePaint(Range r)
 {
-	if(paintState == painting && !paintingAllText) {
+	if(paintState == painting && !(Flags & fPaintingAllText)) {
 		//Platform::DebugPrintf("Checking range in paint %d-%d\n", r.start, r.end);
 		if(!r.Valid())
 			return;
@@ -5286,7 +5274,7 @@ void Editor::CheckForChangeOutsidePaint(Range r)
 
 		if(!PaintContains(rcRange)) {
 			AbandonPaint();
-			paintAbandonedByStyling = true;
+			Flags |= fPaintAbandonedByStyling;
 		}
 	}
 }
@@ -5880,7 +5868,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 	//Platform::DebugPrintf("S start wnd proc %d %d %d\n",iMessage, wParam, lParam);
 
 	// Optional macro recording hook
-	if(recordingMacro)
+	if(Flags & fRecordingMacro)
 		NotifyMacroRecord(iMessage, wParam, lParam);
 	switch(iMessage) {
 		case SCI_GETTEXT: 
@@ -6523,12 +6511,12 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    return vs.lineHeight;
 		case SCI_SETENDATLASTLINE:
 		    PLATFORM_ASSERT((wParam == 0) || (wParam == 1));
-		    if(endAtLastLine != (wParam != 0)) {
-			    endAtLastLine = wParam != 0;
+		    if(BIN(Flags & fEndAtLastLine) != BIN(wParam)) {
+			    SETFLAG(Flags, fEndAtLastLine, wParam);
 			    SetScrollBars();
 		    }
 		    break;
-		case SCI_GETENDATLASTLINE: return endAtLastLine;
+		case SCI_GETENDATLASTLINE: return BIN(Flags & fEndAtLastLine);
 		case SCI_SETCARETSTICKY:
 		    PLATFORM_ASSERT(wParam <= SC_CARETSTICKY_WHITESPACE);
 		    if(wParam <= SC_CARETSTICKY_WHITESPACE) {
@@ -6542,23 +6530,23 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_GETCOLUMN: return pdoc->GetColumn(static_cast<int>(wParam));
 		case SCI_FINDCOLUMN: return pdoc->FindColumn(static_cast<int>(wParam), static_cast<int>(lParam));
 		case SCI_SETHSCROLLBAR:
-		    if(horizontalScrollBarVisible != (wParam != 0)) {
-			    horizontalScrollBarVisible = wParam != 0;
+		    if(BIN(Flags & fHorizontalScrollBarVisible) != BIN(wParam)) {
+			    SETFLAG(Flags, fHorizontalScrollBarVisible, wParam);
 			    SetScrollBars();
 			    ReconfigureScrollBars();
 		    }
 		    break;
-		case SCI_GETHSCROLLBAR: return horizontalScrollBarVisible;
+		case SCI_GETHSCROLLBAR: return BIN(Flags & fHorizontalScrollBarVisible);
 		case SCI_SETVSCROLLBAR:
-		    if(verticalScrollBarVisible != (wParam != 0)) {
-			    verticalScrollBarVisible = wParam != 0;
+		    if(BIN(Flags & fVerticalScrollBarVisible) != BIN(wParam)) {
+			    SETFLAG(Flags, fVerticalScrollBarVisible, wParam);
 			    SetScrollBars();
 			    ReconfigureScrollBars();
-			    if(verticalScrollBarVisible)
+			    if(Flags & fVerticalScrollBarVisible)
 				    SetVerticalScrollPos();
 		    }
 		    break;
-		case SCI_GETVSCROLLBAR: return verticalScrollBarVisible;
+		case SCI_GETVSCROLLBAR: return BIN(Flags & fVerticalScrollBarVisible);
 		case SCI_SETINDENTATIONGUIDES:
 		    vs.viewIndentationGuides = IndentView(wParam);
 		    Redraw();
@@ -7289,8 +7277,8 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_SETOVERTYPE: inOverstrike = wParam != 0; break;
 		case SCI_SETFOCUS:    SetFocusState(wParam != 0); break;
 		case SCI_SETSTATUS:   errorStatus = static_cast<int>(wParam); break;
-		case SCI_SETMOUSEDOWNCAPTURES: mouseDownCaptures = wParam != 0; break;
-		case SCI_SETMOUSEWHEELCAPTURES: mouseWheelCaptures = wParam != 0; break;
+		case SCI_SETMOUSEDOWNCAPTURES: SETFLAG(Flags, fMouseDownCaptures, wParam); break;
+		case SCI_SETMOUSEWHEELCAPTURES: SETFLAG(Flags, fMouseWheelCaptures, wParam); break;
 		case SCI_SETCURSOR:
 		    cursorMode = static_cast<int>(wParam);
 		    DisplayCursor(Window::cursorText);
@@ -7313,10 +7301,10 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    reprs.ClearRepresentation(reinterpret_cast<const char *>(wParam));
 		    break;
 		case SCI_STARTRECORD:
-		    recordingMacro = true;
+		    Flags |= fRecordingMacro;
 		    return 0;
 		case SCI_STOPRECORD:
-		    recordingMacro = false;
+		    Flags &= ~fRecordingMacro;
 		    return 0;
 		case SCI_MOVECARETINSIDEVIEW:
 		    MoveCaretInsideView();
@@ -7350,7 +7338,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    InvalidateStyleRedraw();
 		    break;
 		case SCI_SETPASTECONVERTENDINGS:
-		    convertPastes = wParam != 0;
+		    SETFLAG(Flags, fConvertPastes, wParam);
 		    break;
 		case SCI_SETEXTRAASCENT:
 		    vs.extraAscent = static_cast<int>(wParam);
@@ -7437,14 +7425,14 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    pdoc->AddUndoAction(static_cast<int>(wParam), lParam & UNDO_MAY_COALESCE);
 		    break;
 		case SCI_SETMOUSESELECTIONRECTANGULARSWITCH:
-		    mouseSelectionRectangularSwitch = wParam != 0;
+		    SETFLAG(Flags, fMouseSelectionRectangularSwitch, wParam);
 		    break;
 		case SCI_SETMULTIPLESELECTION:
-		    multipleSelection = wParam != 0;
+		    SETFLAG(Flags, fMultipleSelection, wParam);
 		    InvalidateCaret();
 		    break;
 		case SCI_SETADDITIONALSELECTIONTYPING:
-		    additionalSelectionTyping = wParam != 0;
+		    SETFLAG(Flags, fAdditionalSelectionTyping, wParam);
 		    InvalidateCaret();
 		    break;
 		case SCI_SETMULTIPASTE:
@@ -7523,15 +7511,15 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    Redraw();
 		    break;
 		case SCI_GETOVERTYPE:               return BIN(inOverstrike);
-		case SCI_GETFOCUS:                  return hasFocus;
+		case SCI_GETFOCUS:                  return BIN(Flags & fHasFocus);
 		case SCI_GETSTATUS:                 return errorStatus;
-		case SCI_GETMOUSEDOWNCAPTURES:      return mouseDownCaptures;
-		case SCI_GETMOUSEWHEELCAPTURES:     return mouseWheelCaptures;
+		case SCI_GETMOUSEDOWNCAPTURES:      return BIN(Flags & fMouseDownCaptures);
+		case SCI_GETMOUSEWHEELCAPTURES:     return BIN(Flags & fMouseWheelCaptures);
 		case SCI_GETCURSOR:                 return cursorMode;
 		case SCI_GETCONTROLCHARSYMBOL:      return vs.controlCharSymbol;
 		case SCI_GETHOTSPOTACTIVEUNDERLINE: return BIN(vs.hotspotUnderline);
 		case SCI_GETHOTSPOTSINGLELINE:      return BIN(vs.hotspotSingleLine);
-		case SCI_GETPASTECONVERTENDINGS:    return BIN(convertPastes);
+		case SCI_GETPASTECONVERTENDINGS:    return BIN(Flags & fConvertPastes);
 		case SCI_GETCHARACTERPOINTER: return reinterpret_cast<sptr_t>(pdoc->BufferPointer());
 		case SCI_GETRANGEPOINTER: return reinterpret_cast<sptr_t>(pdoc->RangePointer(static_cast<int>(wParam), static_cast<int>(lParam)));
 		case SCI_GETGAPPOSITION:  return pdoc->GapPosition();
@@ -7539,9 +7527,9 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_GETEXTRADESCENT: return vs.extraDescent;
 		case SCI_ANNOTATIONGETSTYLEOFFSET:        return vs.annotationStyleOffset;
 		case SCI_ALLOCATEEXTENDEDSTYLES:          return vs.AllocateExtendedStyles(static_cast<int>(wParam));
-		case SCI_GETMOUSESELECTIONRECTANGULARSWITCH: return mouseSelectionRectangularSwitch;
-		case SCI_GETMULTIPLESELECTION:            return multipleSelection;
-		case SCI_GETADDITIONALSELECTIONTYPING:    return additionalSelectionTyping;
+		case SCI_GETMOUSESELECTIONRECTANGULARSWITCH: return BIN(Flags & fMouseSelectionRectangularSwitch);
+		case SCI_GETMULTIPLESELECTION:            return BIN(Flags & fMultipleSelection);
+		case SCI_GETADDITIONALSELECTIONTYPING:    return BIN(Flags & fAdditionalSelectionTyping);
 		case SCI_GETMULTIPASTE:                   return multiPasteMode;
 		case SCI_GETADDITIONALCARETSBLINK:        return view.additionalCaretsBlink;
 		case SCI_GETADDITIONALCARETSVISIBLE:      return view.additionalCaretsVisible;

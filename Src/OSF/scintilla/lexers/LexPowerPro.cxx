@@ -38,7 +38,7 @@
 //#include "Accessor.h"
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
-#include "LexerModule.h"
+//#include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

@@ -15,7 +15,7 @@
 //#include "Accessor.h"
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
-#include "LexerModule.h"
+//#include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -223,13 +223,10 @@ static void ColouriseYAMLDoc(Sci_PositionU startPos, Sci_Position length, int, W
 static bool IsCommentLine(Sci_Position line, Accessor &styler)
 {
 	Sci_Position pos = styler.LineStart(line);
-	if(styler[pos] == '#')
-		return true;
-	return false;
+	return (styler[pos] == '#') ? true : false;
 }
 
-static void FoldYAMLDoc(Sci_PositionU startPos, Sci_Position length, int /*initStyle - unused*/,
-    WordList *[], Accessor &styler)
+static void FoldYAMLDoc(Sci_PositionU startPos, Sci_Position length, int /*initStyle - unused*/, WordList *[], Accessor &styler)
 {
 	const Sci_Position maxPos = startPos + length;
 	const Sci_Position maxLines = styler.GetLine(maxPos - 1);             // Requested last line
@@ -292,35 +289,25 @@ static void FoldYAMLDoc(Sci_PositionU startPos, Sci_Position length, int /*initS
 		// which effectively folds them into surrounding code rather
 		// than screwing up folding.
 
-		while((lineNext < docLines) &&
-		    ((indentNext & SC_FOLDLEVELWHITEFLAG) ||
-			    (lineNext <= docLines && IsCommentLine(lineNext, styler)))) {
+		while((lineNext < docLines) && ((indentNext & SC_FOLDLEVELWHITEFLAG) || (lineNext <= docLines && IsCommentLine(lineNext, styler)))) {
 			lineNext++;
 			indentNext = styler.IndentAmount(lineNext, &spaceFlags, NULL);
 		}
-
 		const int levelAfterComments = indentNext & SC_FOLDLEVELNUMBERMASK;
-		const int levelBeforeComments = Maximum(indentCurrentLevel, levelAfterComments);
-
+		const int levelBeforeComments = smax(indentCurrentLevel, levelAfterComments);
 		// Now set all the indent levels on the lines we skipped
 		// Do this from end to start.  Once we encounter one line
 		// which is indented more than the line after the end of
 		// the comment-block, use the level of the block before
-
 		Sci_Position skipLine = lineNext;
 		int skipLevel = levelAfterComments;
-
 		while(--skipLine > lineCurrent) {
 			int skipLineIndent = styler.IndentAmount(skipLine, &spaceFlags, NULL);
-
 			if((skipLineIndent & SC_FOLDLEVELNUMBERMASK) > levelAfterComments)
 				skipLevel = levelBeforeComments;
-
 			int whiteFlag = skipLineIndent & SC_FOLDLEVELWHITEFLAG;
-
 			styler.SetLevel(skipLine, skipLevel | whiteFlag);
 		}
-
 		// Set fold header on non-comment line
 		if(!comment && !(indentCurrent & SC_FOLDLEVELWHITEFLAG) ) {
 			if((indentCurrent & SC_FOLDLEVELNUMBERMASK) < (indentNext & SC_FOLDLEVELNUMBERMASK))

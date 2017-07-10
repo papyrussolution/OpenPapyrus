@@ -95,7 +95,7 @@ const uint8 *zip_get_extra_field_by_id(zip_t *, int, int, uint16, int, uint16 *)
    user-supplied compression/encryption implementation is finished.
    Thus we will keep it private for now. */
 
-typedef int64 (*zip_source_layered_callback)(zip_source_t *, void *, void *, uint64, enum zip_source_cmd);
+typedef int64 (*zip_source_layered_callback)(zip_source_t *, void *, void *, uint64, zip_source_cmd_t);
 zip_source_t *zip_source_crc(zip_t *, zip_source_t *, int);
 zip_source_t *zip_source_deflate(zip_t *, zip_source_t *, int32, int);
 zip_source_t *zip_source_layered(zip_t *, zip_source_t *, zip_source_layered_callback, void *);
@@ -158,7 +158,7 @@ typedef struct zip_hash zip_hash_t;
 //
 // zip archive, part of API 
 //
-struct zip {
+struct zip_t {
     zip_source_t * src; // data source for archive 
     uint   open_flags;  // flags passed to zip_open 
     zip_error_t error;  // error information 
@@ -180,11 +180,11 @@ struct zip {
 //
 // file in zip archive, part of API 
 //
-struct zip_file {
-    zip_t *za;		/* zip archive containing this file */
+struct zip_file_t {
+    zip_t * za;		/* zip archive containing this file */
     zip_error_t error;	/* error information */
-    bool eof;
-    zip_source_t *src;	/* data source */
+    bool   eof;
+    zip_source_t * src;	/* data source */
 };
 //
 // zip archive directory entry (central or local) 
@@ -246,7 +246,7 @@ enum zip_source_write_state {
 
 typedef enum zip_source_write_state zip_source_write_state_t;
 
-struct zip_source {
+struct zip_source_t {
     zip_source_t * src;
     union {
 		zip_source_callback f;
@@ -305,9 +305,9 @@ struct zip_filelist {
 
 typedef struct zip_filelist zip_filelist_t;
 
-extern const char * const _zip_err_str[];
-extern const int _zip_nerr_str;
-extern const int _zip_err_type[];
+//extern const char * const _zip_err_str[];
+//extern const int _zip_nerr_str;
+//extern const int _zip_err_type[];
 
 #define ZIP_ENTRY_CHANGED(e, f)	((e)->changes && ((e)->changes->changed & (f)))
 #define ZIP_ENTRY_DATA_CHANGED(x)	((x)->source != NULL)
@@ -363,7 +363,7 @@ int    _zip_ef_write(zip_t *za, const zip_extra_field_t *ef, zip_flags_t flags);
 void   _zip_entry_finalize(zip_entry_t *);
 void   _zip_entry_init(zip_entry_t *);
 void   _zip_error_clear(zip_error_t *);
-void   _zip_error_get(const zip_error_t *, int *, int *);
+//void   _zip_error_get(const zip_error_t *, int *, int *);
 void   _zip_error_copy(zip_error_t *dst, const zip_error_t *src);
 void   _zip_error_set_from_source(zip_error_t *, zip_source_t *);
 const  uint8 *_zip_extract_extra_field_by_id(zip_error_t *, uint16, int, const uint8 *, uint16, uint16 *);

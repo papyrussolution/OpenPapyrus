@@ -18,9 +18,9 @@
 //
 zip_t * _zip_new(zip_error_t * error)
 {
-	zip_t * za = (zip_t*)SAlloc::M(sizeof(struct zip));
+	zip_t * za = (zip_t*)SAlloc::M(sizeof(zip_t));
 	if(!za) {
-		zip_error_set(error, ZIP_ER_MEMORY, 0);
+		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
 	if((za->names = _zip_hash_new(ZIP_HASH_TABLE_SIZE, error)) == NULL) {
@@ -44,7 +44,7 @@ zip_t * _zip_new(zip_error_t * error)
 //
 //
 //
-const char * const _zip_err_str[] = {
+/*const char * const _zip_err_str[] = {
     "No error",
     "Multi-disk zip archives not supported",
     "Renaming temporary file failed",
@@ -76,15 +76,26 @@ const char * const _zip_err_str[] = {
     "Operation not supported",
     "Resource still in use",
     "Tell error",
-};
+};*/
 
-const int _zip_nerr_str = sizeof(_zip_err_str)/sizeof(_zip_err_str[0]);
+//const int _zip_nerr_str = sizeof(_zip_err_str)/sizeof(_zip_err_str[0]);
 
 #define N ZIP_ET_NONE
 #define S ZIP_ET_SYS
 #define Z ZIP_ET_ZLIB
 
-const int _zip_err_type[] = {
+static int GetZipErrType(int errCode)
+{
+	if(oneof9(errCode, SLERR_ZIP_RENAME, SLERR_ZIP_CLOSE, SLERR_ZIP_SEEK, SLERR_ZIP_READ, SLERR_ZIP_WRITE, SLERR_ZIP_OPEN, 
+		SLERR_ZIP_TMPOPEN, SLERR_ZIP_REMOVE, SLERR_ZIP_TELL))
+		return ZIP_ET_SYS;
+	else if(errCode == SLERR_ZIP_ZLIB)
+		return ZIP_ET_ZLIB;
+	else
+		return ZIP_ET_NONE;
+}
+
+/*static const int _zip_err_type[] = {
     N,
     N,
     S,
@@ -116,7 +127,7 @@ const int _zip_err_type[] = {
     N,
     N,
     S,
-};
+};*/
 //
 // ZIPERROR
 //
@@ -137,12 +148,12 @@ ZIP_EXTERN void zip_error_fini(zip_error_t * err)
 
 ZIP_EXTERN void zip_error_init(zip_error_t * err)
 {
-	err->zip_err = ZIP_ER_OK;
+	err->zip_err = SLERR_SUCCESS;
 	err->sys_err = 0;
 	err->str = NULL;
 }
 
-ZIP_EXTERN void zip_error_init_with_code(zip_error_t * error, int ze)
+/*ZIP_EXTERN void zip_error_init_with_code(zip_error_t * error, int ze)
 {
 	zip_error_init(error);
 	error->zip_err = ze;
@@ -154,14 +165,14 @@ ZIP_EXTERN void zip_error_init_with_code(zip_error_t * error, int ze)
 		    error->sys_err = 0;
 		    break;
 	}
-}
+}*/
 
-ZIP_EXTERN const char * zip_error_strerror(zip_error_t * err)
+/*ZIP_EXTERN const char * zip_error_strerror(zip_error_t * err)
 {
 	const char * zs, * ss;
 	char buf[128], * s;
 	zip_error_fini(err);
-	if(err->zip_err < 0 || err->zip_err >= _zip_nerr_str) {
+	if(err->zip_err < 0 || err->zip_err >= SIZEOFARRAY(_zip_err_str)) {
 		sprintf(buf, "Unknown error %d", err->zip_err);
 		zs = NULL;
 		ss = buf;
@@ -183,27 +194,28 @@ ZIP_EXTERN const char * zip_error_strerror(zip_error_t * err)
 		return zs;
 	else {
 		if((s = (char*)SAlloc::M(strlen(ss) + (zs ? strlen(zs)+2 : 0) + 1)) == NULL)
-			return _zip_err_str[ZIP_ER_MEMORY];
+			return _zip_err_str[SLERR_ZIP_MEMORY];
 		sprintf(s, "%s%s%s", (zs ? zs : ""), (zs ? ": " : ""), ss);
 		err->str = s;
 		return s;
 	}
-}
+}*/
 
 ZIP_EXTERN int zip_error_system_type(const zip_error_t * error)
 {
-	return (error->zip_err >= 0 && error->zip_err < _zip_nerr_str) ? _zip_err_type[error->zip_err] : ZIP_ET_NONE;
+	//return (error->zip_err >= SLERR_ZIP_FIRSTERROR && error->zip_err <= SLERR_ZIP_LASTERROR) ? _zip_err_type[error->zip_err-SLERR_ZIP_FIRSTERROR+1] : ZIP_ET_NONE;
+	return error ? GetZipErrType(error->zip_err) : ZIP_ET_NONE;
 }
 
-ZIP_EXTERN int zip_error_get_sys_type(int ze)
+/*ZIP_EXTERN int zip_error_get_sys_type(int ze)
 {
-	return (ze >= 0 && ze < _zip_nerr_str) ? _zip_err_type[ze] : 0;
-}
+	return (ze >= 0 && ze < SIZEOFARRAY(_zip_err_str)) ? _zip_err_type[ze] : 0;
+}*/
 
 void _zip_error_clear(zip_error_t * err)
 {
 	if(err) {
-		err->zip_err = ZIP_ER_OK;
+		err->zip_err = SLERR_SUCCESS;
 		err->sys_err = 0;
 	}
 }
@@ -214,12 +226,12 @@ void _zip_error_copy(zip_error_t * dst, const zip_error_t * src)
 	dst->sys_err = src->sys_err;
 }
 
-void _zip_error_get(const zip_error_t * err, int * zep, int * sep)
+/*void _zip_error_get(const zip_error_t * err, int * zep, int * sep)
 {
 	ASSIGN_PTR(zep, err->zip_err);
 	if(sep)
 		*sep = (zip_error_system_type(err) != ZIP_ET_NONE) ? err->sys_err : 0;
-}
+}*/
 
 int zip_error_set(zip_error_t * err, int ze, int se)
 {
@@ -227,7 +239,7 @@ int zip_error_set(zip_error_t * err, int ze, int se)
 		err->zip_err = ze;
 		err->sys_err = se;
 	}
-	return -1;
+	return -1; // strictly -1 (callers relys on it)
 }
 
 void _zip_error_set_from_source(zip_error_t * err, zip_source_t * src)
@@ -252,10 +264,10 @@ ZIP_EXTERN void zip_error_clear(zip_t * za)
 		_zip_error_clear(&za->error);
 }
 
-ZIP_EXTERN void zip_error_get(zip_t * za, int * zep, int * sep)
+/*ZIP_EXTERN void zip_error_get(zip_t * za, int * zep, int * sep)
 {
 	_zip_error_get(&za->error, zep, sep);
-}
+}*/
 
 ZIP_EXTERN zip_error_t * zip_get_error(zip_t * za)
 {
@@ -267,10 +279,10 @@ ZIP_EXTERN zip_error_t * zip_file_get_error(zip_file_t * f)
 	return &f->error;
 }
 
-ZIP_EXTERN void zip_file_error_get(zip_file_t * zf, int * zep, int * sep)
+/*ZIP_EXTERN void zip_file_error_get(zip_file_t * zf, int * zep, int * sep)
 {
 	_zip_error_get(&zf->error, zep, sep);
-}
+}*/
 
 ZIP_EXTERN void zip_file_error_clear(zip_file_t * zf)
 {
@@ -278,15 +290,15 @@ ZIP_EXTERN void zip_file_error_clear(zip_file_t * zf)
 		_zip_error_clear(&zf->error);
 }
 
-ZIP_EXTERN const char * zip_file_strerror(zip_file_t * zf)
+/*ZIP_EXTERN const char * zip_file_strerror(zip_file_t * zf)
 {
 	return zip_error_strerror(&zf->error);
-}
+}*/
 
-ZIP_EXTERN int zip_error_to_str(char * buf, size_t len, int ze, int se)
+/*ZIP_EXTERN int zip_error_to_str(char * buf, size_t len, int ze, int se)
 {
 	const char * zs, * ss;
-	if(ze < 0 || ze >= _zip_nerr_str)
+	if(ze < 0 || ze >= SIZEOFARRAY(_zip_err_str))
 		return _snprintf(buf, len, "Unknown error %d", ze);
 	zs = _zip_err_str[ze];
 	switch(_zip_err_type[ze]) {
@@ -300,7 +312,7 @@ ZIP_EXTERN int zip_error_to_str(char * buf, size_t len, int ze, int se)
 		    ss = NULL;
 	}
 	return _snprintf(buf, len, "%s%s%s", zs, (ss ? ": " : ""), (ss ? ss : ""));
-}
+}*/
 //
 // NOTE: Return type is signed so we can return -1 on error.
 //   The index can not be larger than ZIP_INT64_MAX since the size
@@ -337,11 +349,11 @@ int64 FASTCALL _zip_add_entry(zip_t * za)
 		nalloc += additional_entries;
 		realloc_size = sizeof(struct zip_entry) * (size_t)nalloc;
 		if(sizeof(struct zip_entry) * (size_t)za->nentry_alloc > realloc_size) {
-			return zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+			return zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		}
 		rentries = (zip_entry_t*)SAlloc::R(za->entry, sizeof(struct zip_entry) * (size_t)nalloc);
 		if(!rentries) {
-			return zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+			return zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		}
 		za->entry = rentries;
 		za->nentry_alloc = nalloc;
@@ -447,7 +459,7 @@ zip_buffer_t * _zip_buffer_new_from_source(zip_source_t * src, size_t size, uint
 {
 	zip_buffer_t * buffer;
 	if((buffer = _zip_buffer_new(buf, size)) == NULL) {
-		zip_error_set(error, ZIP_ER_MEMORY, 0);
+		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
 	if(_zip_read(src, buffer->data, size, error) < 0) {
@@ -567,10 +579,10 @@ ZIP_EXTERN int zip_delete(zip_t * za, uint64 idx)
 {
 	const char * name;
 	if(idx >= za->nentry) {
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	}
 	if(ZIP_IS_RDONLY(za)) {
-		return zip_error_set(&za->error, ZIP_ER_RDONLY, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	}
 	if((name = _zip_get_name(za, idx, 0, &za->error)) == NULL) {
 		return -1;
@@ -598,16 +610,16 @@ ZIP_EXTERN int64 zip_dir_add(zip_t * za, const char * name, zip_flags_t flags)
 	char * s;
 	zip_source_t * source;
 	if(ZIP_IS_RDONLY(za)) {
-		return zip_error_set(&za->error, ZIP_ER_RDONLY, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	}
 	if(name == NULL) {
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	}
 	s = NULL;
 	len = strlen(name);
 	if(name[len-1] != '/') {
 		if((s = (char*)SAlloc::M(len+2)) == NULL) {
-			return zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+			return zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		}
 		strcpy(s, name);
 		s[len] = '/';
@@ -712,7 +724,7 @@ ZIP_EXTERN int zip_get_num_files(zip_t * za)
 	if(za == NULL)
 		return -1;
 	else if(za->nentry > INT_MAX) {
-		return zip_error_set(&za->error, ZIP_ER_OPNOTSUPP, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_OPNOTSUPP, 0);
 	}
 	else
 		return (int)za->nentry;
@@ -724,7 +736,7 @@ void * _zip_memdup(const void * mem, size_t len, zip_error_t * error)
 	if(len) {
 		ret = SAlloc::M(len);
 		if(!ret) {
-			zip_error_set(error, ZIP_ER_MEMORY, 0);
+			zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 			return NULL;
 		}
 		memcpy(ret, mem, len);
@@ -796,7 +808,7 @@ ZIP_EXTERN int zip_stat_index(zip_t * za, uint64 index, zip_flags_t flags, zip_s
 		return -1;
 	if((flags & ZIP_FL_UNCHANGED) == 0 && ZIP_ENTRY_DATA_CHANGED(za->entry+index)) {
 		if(zip_source_stat(za->entry[index].source, st) < 0) {
-			return zip_error_set(&za->error, ZIP_ER_CHANGED, 0);
+			return zip_error_set(&za->error, SLERR_ZIP_CHANGED, 0);
 		}
 	}
 	else {
@@ -831,7 +843,7 @@ ZIP_EXTERN int zip_source_stat(zip_source_t * src, zip_stat_t * st)
 		return -1;
 	}
 	if(st == NULL) {
-		return zip_error_set(&src->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&src->error, SLERR_ZIP_INVAL, 0);
 	}
 	zip_stat_init(st);
 	if(ZIP_SOURCE_IS_LAYERED(src)) {
@@ -874,7 +886,7 @@ zip_source_t * _zip_source_new(zip_error_t * error)
 {
 	zip_source_t * src;
 	if((src = (zip_source_t*)SAlloc::M(sizeof(*src))) == NULL) {
-		zip_error_set(error, ZIP_ER_MEMORY, 0);
+		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
 	src->src = NULL;
@@ -959,19 +971,18 @@ zip_source_t * _zip_source_window_new(zip_source_t * src, uint64 start, uint64 l
 {
 	struct ZipSourceWindow * ctx;
 	if(src == NULL || start + length < start) {
-		zip_error_set(error, ZIP_ER_INVAL, 0);
+		zip_error_set(error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}
 	if((ctx = (struct ZipSourceWindow*)SAlloc::M(sizeof(*ctx))) == NULL) {
-		zip_error_set(error, ZIP_ER_MEMORY, 0);
+		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
 	ctx->start = start;
 	ctx->end = start + length;
 	zip_stat_init(&ctx->stat);
 	zip_error_init(&ctx->error);
-	ctx->supports = (zip_source_supports(src) &
-	    ZIP_SOURCE_SUPPORTS_SEEKABLE) | (zip_source_make_command_bitmap(ZIP_SOURCE_SUPPORTS, ZIP_SOURCE_TELL, -1));
+	ctx->supports = (zip_source_supports(src) & ZIP_SOURCE_SUPPORTS_SEEKABLE) | (zip_source_make_command_bitmap(ZIP_SOURCE_SUPPORTS, ZIP_SOURCE_TELL, -1));
 	ctx->needs_seek = (ctx->supports & ZIP_SOURCE_MAKE_COMMAND_BITMASK(ZIP_SOURCE_SEEK)) ? true : false;
 	if(st) {
 		if(_zip_stat_merge(&ctx->stat, st, error) < 0) {
@@ -992,8 +1003,8 @@ int _zip_source_set_source_archive(zip_source_t * src, zip_t * za)
 void _zip_source_invalidate(zip_source_t * src)
 {
 	src->source_closed = 1;
-	if(zip_error_code_zip(&src->error) == ZIP_ER_OK) {
-		zip_error_set(&src->error, ZIP_ER_ZIPCLOSED, 0);
+	if(zip_error_code_zip(&src->error) == SLERR_SUCCESS) {
+		zip_error_set(&src->error, SLERR_ZIP_ZIPCLOSED, 0);
 	}
 }
 
@@ -1020,7 +1031,7 @@ static int64 window_read(zip_source_t * src, void * _ctx, void * data, uint64 le
 					    return -1;
 				    }
 				    if(ret == 0)
-					    return zip_error_set(&ctx->error, ZIP_ER_EOF, 0);
+					    return zip_error_set(&ctx->error, SLERR_ZIP_EOF, 0);
 			    }
 		    }
 		    ctx->offset = ctx->start;
@@ -1037,11 +1048,11 @@ static int64 window_read(zip_source_t * src, void * _ctx, void * data, uint64 le
 			    }
 		    }
 		    if((ret = zip_source_read(src, data, len)) < 0)
-			    return zip_error_set(&ctx->error, ZIP_ER_EOF, 0);
+			    return zip_error_set(&ctx->error, SLERR_ZIP_EOF, 0);
 		    ctx->offset += (uint64)ret;
 		    if(ret == 0) {
 			    if(ctx->offset < ctx->end)
-				    return zip_error_set(&ctx->error, ZIP_ER_EOF, 0);
+				    return zip_error_set(&ctx->error, SLERR_ZIP_EOF, 0);
 		    }
 		    return ret;
 		case ZIP_SOURCE_SEEK:
@@ -1063,7 +1074,7 @@ static int64 window_read(zip_source_t * src, void * _ctx, void * data, uint64 le
 		case ZIP_SOURCE_TELL:
 		    return (int64)(ctx->offset - ctx->start);
 		default:
-		    return zip_error_set(&ctx->error, ZIP_ER_OPNOTSUPP, 0);
+		    return zip_error_set(&ctx->error, SLERR_ZIP_OPNOTSUPP, 0);
 	}
 }
 
@@ -1085,7 +1096,7 @@ int _zip_register_source(zip_t * za, zip_source_t * src)
 		uint n = za->nopen_source_alloc + 10;
 		open_source = (zip_source_t**)SAlloc::R(za->open_source, n*sizeof(zip_source_t *));
 		if(!open_source)
-			return zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+			return zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		za->nopen_source_alloc = n;
 		za->open_source = open_source;
 	}
@@ -1113,13 +1124,13 @@ zip_source_t * zip_source_pkware(zip_t * za, zip_source_t * src, uint16 em, int 
 	struct trad_pkware * ctx;
 	zip_source_t * s2 = 0;
 	if(!password || !src || em != ZIP_EM_TRAD_PKWARE) {
-		zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	}
 	else if(flags & ZIP_CODEC_ENCODE) {
-		zip_error_set(&za->error, ZIP_ER_ENCRNOTSUPP, 0);
+		zip_error_set(&za->error, SLERR_ZIP_ENCRNOTSUPP, 0);
 	}
 	else if((ctx = (struct trad_pkware*)SAlloc::M(sizeof(*ctx))) == NULL) {
-		zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+		zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 	}
 	else {
 		zip_error_init(&ctx->error);
@@ -1163,9 +1174,9 @@ static int FASTCALL decrypt_header(zip_source_t * src, struct trad_pkware * ctx)
 		return -1;
 	}
 	else if(n != HEADERLEN)
-		return zip_error_set(&ctx->error, ZIP_ER_EOF, 0);
+		return zip_error_set(&ctx->error, SLERR_ZIP_EOF, 0);
 	else {
-		struct zip_stat st;
+		zip_stat_t st;
 		decrypt(ctx, header, header, HEADERLEN, 0);
 		if(zip_source_stat(src, &st) < 0) {
 			return 0; // stat failed, skip password validation 
@@ -1174,7 +1185,7 @@ static int FASTCALL decrypt_header(zip_source_t * src, struct trad_pkware * ctx)
 			ushort dostime, dosdate;
 			_zip_u2d_time(st.mtime, &dostime, &dosdate);
 			if(header[HEADERLEN-1] != st.crc>>24 && header[HEADERLEN-1] != dostime>>8)
-				return zip_error_set(&ctx->error, ZIP_ER_WRONGPASSWD, 0);
+				return zip_error_set(&ctx->error, SLERR_ZIP_WRONGPASSWD, 0);
 			else
 				return 0;
 		}
@@ -1218,7 +1229,7 @@ static int64 pkware_decrypt(zip_source_t * src, void * ud, void * data, uint64 l
 		    SAlloc::F(ctx);
 		    return 0;
 		default:
-		    return zip_error_set(&ctx->error, ZIP_ER_INVAL, 0);
+		    return zip_error_set(&ctx->error, SLERR_ZIP_INVAL, 0);
 	}
 }
 //
@@ -1249,20 +1260,20 @@ ZIP_EXTERN zip_t * zip_fdopen(int fd_orig, int _flags, int * zep)
 	FILE * fp;
 	zip_t * za;
 	zip_source_t * src;
-	struct zip_error error;
+	zip_error_t error;
 	if(_flags < 0 || (_flags & ZIP_TRUNCATE)) {
-		_zip_set_open_error(zep, NULL, ZIP_ER_INVAL);
+		_zip_set_open_error(zep, NULL, SLERR_ZIP_INVAL);
 		return NULL;
 	}
 	/* We dup() here to avoid messing with the passed in fd.
 	   We could not restore it to the original state in case of error. */
 	if((fd = _dup(fd_orig)) < 0) {
-		_zip_set_open_error(zep, NULL, ZIP_ER_OPEN);
+		_zip_set_open_error(zep, NULL, SLERR_ZIP_OPEN);
 		return NULL;
 	}
 	if((fp = _fdopen(fd, "rb")) == NULL) {
 		_close(fd);
-		_zip_set_open_error(zep, NULL, ZIP_ER_OPEN);
+		_zip_set_open_error(zep, NULL, SLERR_ZIP_OPEN);
 		return NULL;
 	}
 	zip_error_init(&error);
@@ -1294,9 +1305,9 @@ ZIP_EXTERN zip_file_t * zip_fopen_index(zip_t * za, uint64 index, zip_flags_t fl
 
 static zip_file_t * _zip_file_new(zip_t * za)
 {
-	zip_file_t * zf = (zip_file_t*)SAlloc::M(sizeof(struct zip_file));
+	zip_file_t * zf = (zip_file_t*)SAlloc::M(sizeof(zip_file_t));
 	if(!zf) {
-		zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+		zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 	}
 	else {
 		zf->za = za;
@@ -1329,7 +1340,7 @@ ZIP_EXTERN zip_file_t * zip_fopen_index_encrypted(zip_t * za, uint64 index, zip_
 ZIP_EXTERN int64 zip_file_add(zip_t * za, const char * name, zip_source_t * source, zip_flags_t flags)
 {
 	if(name == NULL || source == NULL)
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	else
 		return _zip_file_replace(za, ZIP_UINT64_MAX, name, source, flags);
 }
@@ -1339,7 +1350,7 @@ ZIP_EXTERN int64 zip_fread(zip_file_t * zf, void * outbuf, uint64 toread)
 	int64 n = -1;
 	if(zf && zf->error.zip_err == 0) {
 		if(toread > ZIP_INT64_MAX) {
-			zip_error_set(&zf->error, ZIP_ER_INVAL, 0);
+			zip_error_set(&zf->error, SLERR_ZIP_INVAL, 0);
 		}
 		else {
 			n = (zf->eof || !toread) ? 0 : zip_source_read(zf->src, outbuf, toread);
@@ -1396,7 +1407,7 @@ uint64 _zip_file_get_offset(const zip_t * za, uint64 idx, zip_error_t * error)
 	if((size = _zip_dirent_size(za->src, ZIP_EF_LOCAL, error)) < 0)
 		return 0;
 	if(offset+(uint32)size > ZIP_INT64_MAX) {
-		zip_error_set(error, ZIP_ER_SEEK, EFBIG);
+		zip_error_set(error, SLERR_ZIP_SEEK, EFBIG);
 		return 0;
 	}
 	return offset + (uint32)size;
@@ -1409,15 +1420,15 @@ ZIP_EXTERN int zip_file_rename(zip_t * za, uint64 idx, const char * name, zip_fl
 	const char * old_name;
 	int old_is_dir, new_is_dir;
 	if(idx >= za->nentry || (name != NULL && strlen(name) > ZIP_UINT16_MAX))
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	if(ZIP_IS_RDONLY(za))
-		return zip_error_set(&za->error, ZIP_ER_RDONLY, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	if((old_name = zip_get_name(za, idx, 0)) == NULL)
 		return -1;
 	new_is_dir = (name != NULL && name[strlen(name)-1] == '/');
 	old_is_dir = (old_name[strlen(old_name)-1] == '/');
 	if(new_is_dir != old_is_dir)
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	return _zip_set_name(za, idx, name, flags);
 }
 
@@ -1429,7 +1440,7 @@ ZIP_EXTERN int zip_rename(zip_t * za, uint64 idx, const char * name)
 ZIP_EXTERN int zip_file_replace(zip_t * za, uint64 idx, zip_source_t * source, zip_flags_t flags)
 {
 	if(idx >= za->nentry || source == NULL)
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	else if(_zip_file_replace(za, idx, NULL, source, flags) == -1)
 		return -1;
 	else
@@ -1442,7 +1453,7 @@ int64 _zip_file_replace(zip_t * za, uint64 idx, const char * name, zip_source_t 
 {
 	uint64 za_nentry_prev;
 	if(ZIP_IS_RDONLY(za))
-		return zip_error_set(&za->error, ZIP_ER_RDONLY, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	za_nentry_prev = za->nentry;
 	if(idx == ZIP_UINT64_MAX) {
 		int64 i = -1;
@@ -1468,7 +1479,7 @@ int64 _zip_file_replace(zip_t * za, uint64 idx, const char * name, zip_source_t 
 	if(za->entry[idx].orig && (za->entry[idx].changes == NULL || (za->entry[idx].changes->changed & ZIP_DIRENT_COMP_METHOD) == 0)) {
 		if(za->entry[idx].changes == NULL) {
 			if((za->entry[idx].changes = _zip_dirent_clone(za->entry[idx].orig)) == NULL)
-				return zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+				return zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		}
 		za->entry[idx].changes->comp_method = ZIP_CM_REPLACED_DEFAULT;
 		za->entry[idx].changes->changed |= ZIP_DIRENT_COMP_METHOD;
@@ -1524,13 +1535,13 @@ ZIP_EXTERN zip_source_t * zip_source_buffer_create(const void * data, uint64 len
 	zip_source_t * zs = 0;
 	struct read_data * ctx;
 	if(data == NULL && len > 0) {
-		zip_error_set(error, ZIP_ER_INVAL, 0);
+		zip_error_set(error, SLERR_ZIP_INVAL, 0);
 	}
 	else if((ctx = (struct read_data*)SAlloc::M(sizeof(*ctx))) == NULL) {
-		zip_error_set(error, ZIP_ER_MEMORY, 0);
+		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 	}
 	else if((ctx->in = buffer_new_read(data, len, freep)) == NULL) {
-		zip_error_set(error, ZIP_ER_MEMORY, 0);
+		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		SAlloc::F(ctx);
 	}
 	else {
@@ -1551,7 +1562,7 @@ static int64 read_data(void * state, void * data, uint64 len, zip_source_cmd_t c
 	switch(cmd) {
 		case ZIP_SOURCE_BEGIN_WRITE:
 		    if((ctx->out = buffer_new_write(WRITE_FRAGMENT_SIZE)) == NULL)
-			    return zip_error_set(&ctx->error, ZIP_ER_MEMORY, 0);
+			    return zip_error_set(&ctx->error, SLERR_ZIP_MEMORY, 0);
 			else
 				return 0;
 		case ZIP_SOURCE_CLOSE:
@@ -1573,14 +1584,14 @@ static int64 read_data(void * state, void * data, uint64 len, zip_source_cmd_t c
 		    return 0;
 		case ZIP_SOURCE_READ:
 		    if(len > ZIP_INT64_MAX)
-			    return zip_error_set(&ctx->error, ZIP_ER_INVAL, 0);
+			    return zip_error_set(&ctx->error, SLERR_ZIP_INVAL, 0);
 			else
 				return buffer_read(ctx->in, (uint8*)data, len);
 		case ZIP_SOURCE_REMOVE:
 	    {
 		    ZipSourceBuffer * empty = buffer_new_read(NULL, 0, 0);
 		    if(empty == 0)
-			    return zip_error_set(&ctx->error, ZIP_ER_MEMORY, 0);
+			    return zip_error_set(&ctx->error, SLERR_ZIP_MEMORY, 0);
 			else {
 				buffer_free(ctx->in);
 				ctx->in = empty;
@@ -1599,7 +1610,7 @@ static int64 read_data(void * state, void * data, uint64 len, zip_source_cmd_t c
 	    {
 		    zip_stat_t * st;
 		    if(len < sizeof(*st))
-			    return zip_error_set(&ctx->error, ZIP_ER_INVAL, 0);
+			    return zip_error_set(&ctx->error, SLERR_ZIP_INVAL, 0);
 			else {
 				st = (zip_stat_t*)data;
 				zip_stat_init(st);
@@ -1618,21 +1629,21 @@ static int64 read_data(void * state, void * data, uint64 len, zip_source_cmd_t c
 				ZIP_SOURCE_REMOVE, ZIP_SOURCE_ROLLBACK_WRITE, ZIP_SOURCE_SEEK_WRITE, ZIP_SOURCE_TELL_WRITE, ZIP_SOURCE_WRITE, -1);
 		case ZIP_SOURCE_TELL:
 		    if(ctx->in->offset > ZIP_INT64_MAX)
-			    return zip_error_set(&ctx->error, ZIP_ER_TELL, EOVERFLOW);
+			    return zip_error_set(&ctx->error, SLERR_ZIP_TELL, EOVERFLOW);
 			else
 				return (int64)ctx->in->offset;
 		case ZIP_SOURCE_TELL_WRITE:
 		    if(ctx->out->offset > ZIP_INT64_MAX)
-			    return zip_error_set(&ctx->error, ZIP_ER_TELL, EOVERFLOW);
+			    return zip_error_set(&ctx->error, SLERR_ZIP_TELL, EOVERFLOW);
 			else
 				return (int64)ctx->out->offset;
 		case ZIP_SOURCE_WRITE:
 		    if(len > ZIP_INT64_MAX)
-			    return zip_error_set(&ctx->error, ZIP_ER_INVAL, 0);
+			    return zip_error_set(&ctx->error, SLERR_ZIP_INVAL, 0);
 			else
 				return buffer_write(ctx->out, (const uint8*)data, len, &ctx->error);
 		default:
-		    return zip_error_set(&ctx->error, ZIP_ER_OPNOTSUPP, 0);
+		    return zip_error_set(&ctx->error, SLERR_ZIP_OPNOTSUPP, 0);
 	}
 }
 
@@ -1740,7 +1751,7 @@ static int64 buffer_write(ZipSourceBuffer * buffer, const uint8 * data, uint64 l
 	uint64 n, i, fragment_offset;
 	uint8 ** fragments;
 	if(buffer->offset + length + buffer->fragment_size - 1 < length)
-		return zip_error_set(error, ZIP_ER_INVAL, 0);
+		return zip_error_set(error, SLERR_ZIP_INVAL, 0);
 	// grow buffer if needed 
 	if(buffer->offset + length > buffer->nfragments * buffer->fragment_size) {
 		uint64 needed_fragments = (buffer->offset + length + buffer->fragment_size - 1) / buffer->fragment_size;
@@ -1751,13 +1762,13 @@ static int64 buffer_write(ZipSourceBuffer * buffer, const uint8 * data, uint64 l
 			}
 			fragments = (uint8**)SAlloc::R(buffer->fragments, (size_t)(new_capacity * sizeof(*fragments)));
 			if(fragments == NULL)
-				return zip_error_set(error, ZIP_ER_MEMORY, 0);
+				return zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 			buffer->fragments = fragments;
 			buffer->fragments_capacity = new_capacity;
 		}
 		while(buffer->nfragments < needed_fragments) {
 			if((buffer->fragments[buffer->nfragments] = (uint8*)SAlloc::M((size_t)buffer->fragment_size)) == NULL)
-				return zip_error_set(error, ZIP_ER_MEMORY, 0);
+				return zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 			buffer->nfragments++;
 		}
 	}
@@ -1815,10 +1826,10 @@ ZIP_EXTERN int zip_source_open(zip_source_t * src)
 		return -1;
 	}
 	if(src->write_state == ZIP_SOURCE_WRITE_REMOVED)
-		return zip_error_set(&src->error, ZIP_ER_DELETED, 0);
+		return zip_error_set(&src->error, SLERR_ZIP_DELETED, 0);
 	if(ZIP_SOURCE_IS_OPEN_READING(src)) {
 		if((zip_source_supports(src) & ZIP_SOURCE_MAKE_COMMAND_BITMASK(ZIP_SOURCE_SEEK)) == 0)
-			return zip_error_set(&src->error, ZIP_ER_INUSE, 0);
+			return zip_error_set(&src->error, SLERR_ZIP_INUSE, 0);
 	}
 	else {
 		if(ZIP_SOURCE_IS_LAYERED(src)) {
@@ -1841,13 +1852,13 @@ ZIP_EXTERN int zip_source_open(zip_source_t * src)
 int zip_source_close(zip_source_t * src)
 {
 	if(!ZIP_SOURCE_IS_OPEN_READING(src))
-		return zip_error_set(&src->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&src->error, SLERR_ZIP_INVAL, 0);
 	src->open_count--;
 	if(src->open_count == 0) {
 		_zip_source_call(src, NULL, 0, ZIP_SOURCE_CLOSE);
 		if(ZIP_SOURCE_IS_LAYERED(src)) {
 			if(zip_source_close(src->src) < 0) {
-				zip_error_set(&src->error, ZIP_ER_INTERNAL, 0);
+				zip_error_set(&src->error, SLERR_ZIP_INTERNAL, 0);
 			}
 		}
 	}
@@ -1884,7 +1895,7 @@ ZIP_EXTERN int64 zip_source_tell(zip_source_t * src)
 	if(src->source_closed)
 		return -1;
 	else if(!ZIP_SOURCE_IS_OPEN_READING(src))
-		return zip_error_set(&src->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&src->error, SLERR_ZIP_INVAL, 0);
 	else
 		return _zip_source_call(src, NULL, 0, ZIP_SOURCE_TELL);
 }
@@ -1892,7 +1903,7 @@ ZIP_EXTERN int64 zip_source_tell(zip_source_t * src)
 ZIP_EXTERN int64 zip_source_tell_write(zip_source_t * src)
 {
 	if(!ZIP_SOURCE_IS_OPEN_WRITING(src))
-		return zip_error_set(&src->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&src->error, SLERR_ZIP_INVAL, 0);
 	else
 		return _zip_source_call(src, NULL, 0, ZIP_SOURCE_TELL_WRITE);
 }
@@ -1903,7 +1914,7 @@ ZIP_EXTERN int zip_source_seek(zip_source_t * src, int64 offset, int whence)
 	if(src->source_closed)
 		return -1;
 	else if(!ZIP_SOURCE_IS_OPEN_READING(src) || (whence != SEEK_SET && whence != SEEK_CUR && whence != SEEK_END))
-		return zip_error_set(&src->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&src->error, SLERR_ZIP_INVAL, 0);
 	else {
 		args.offset = offset;
 		args.whence = whence;
@@ -1929,10 +1940,10 @@ int64 zip_source_seek_compute_offset(uint64 offset, uint64 length, void * data, 
 		    new_offset = args->offset;
 		    break;
 		default:
-		    return zip_error_set(error, ZIP_ER_INVAL, 0);
+		    return zip_error_set(error, SLERR_ZIP_INVAL, 0);
 	}
 	if(new_offset < 0 || (uint64)new_offset > length)
-		return zip_error_set(error, ZIP_ER_INVAL, 0);
+		return zip_error_set(error, SLERR_ZIP_INVAL, 0);
 	else
 		return new_offset;
 }
@@ -1941,7 +1952,7 @@ ZIP_EXTERN int zip_source_seek_write(zip_source_t * src, int64 offset, int whenc
 {
 	zip_source_args_seek_t args;
 	if(!ZIP_SOURCE_IS_OPEN_WRITING(src) || (whence != SEEK_SET && whence != SEEK_CUR && whence != SEEK_END))
-		return zip_error_set(&src->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&src->error, SLERR_ZIP_INVAL, 0);
 	else {
 		args.offset = offset;
 		args.whence = whence;
@@ -1954,7 +1965,7 @@ int64 zip_source_read(zip_source_t * src, void * data, uint64 len)
 	if(src->source_closed)
 		return -1;
 	else if(!ZIP_SOURCE_IS_OPEN_READING(src) || len > ZIP_INT64_MAX || (len > 0 && data == NULL))
-		return zip_error_set(&src->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&src->error, SLERR_ZIP_INVAL, 0);
 	else
 		return _zip_source_call(src, data, len, ZIP_SOURCE_READ);
 }
@@ -1962,7 +1973,7 @@ int64 zip_source_read(zip_source_t * src, void * data, uint64 len)
 ZIP_EXTERN int64 zip_source_write(zip_source_t * src, const void * data, uint64 length)
 {
 	if(!ZIP_SOURCE_IS_OPEN_WRITING(src) || length > ZIP_INT64_MAX)
-		return zip_error_set(&src->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&src->error, SLERR_ZIP_INVAL, 0);
 	else
 		return _zip_source_call(src, (void*)data, length, ZIP_SOURCE_WRITE);
 }
@@ -1970,9 +1981,9 @@ ZIP_EXTERN int64 zip_source_write(zip_source_t * src, const void * data, uint64 
 ZIP_EXTERN int zip_source_commit_write(zip_source_t * src)
 {
 	if(!ZIP_SOURCE_IS_OPEN_WRITING(src))
-		return zip_error_set(&src->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&src->error, SLERR_ZIP_INVAL, 0);
 	if(src->open_count > 1)
-		return zip_error_set(&src->error, ZIP_ER_INUSE, 0);
+		return zip_error_set(&src->error, SLERR_ZIP_INUSE, 0);
 	else if(ZIP_SOURCE_IS_OPEN_READING(src)) {
 		if(zip_source_close(src) < 0) {
 			return -1;
@@ -1990,7 +2001,7 @@ int64 _zip_source_call(zip_source_t * src, void * data, uint64 length, zip_sourc
 {
 	int64 ret;
 	if((src->supports & (int64)ZIP_SOURCE_MAKE_COMMAND_BITMASK(command)) == 0)
-		return zip_error_set(&src->error, ZIP_ER_OPNOTSUPP, 0);
+		return zip_error_set(&src->error, SLERR_ZIP_OPNOTSUPP, 0);
 	if(src->src == NULL) {
 		ret = src->cb.f(src->ud, data, length, command);
 	}
@@ -2001,7 +2012,7 @@ int64 _zip_source_call(zip_source_t * src, void * data, uint64 length, zip_sourc
 		if(command != ZIP_SOURCE_ERROR && command != ZIP_SOURCE_SUPPORTS) {
 			int e[2];
 			if(_zip_source_call(src, e, sizeof(e), ZIP_SOURCE_ERROR) < 0) {
-				zip_error_set(&src->error, ZIP_ER_INTERNAL, 0);
+				zip_error_set(&src->error, SLERR_ZIP_INTERNAL, 0);
 			}
 			else {
 				zip_error_set(&src->error, e[0], e[1]);
@@ -2017,40 +2028,40 @@ zip_source_t * _zip_source_zip_new(zip_t * za, zip_t * srcza, uint64 srcidx, zip
 	zip_encryption_implementation enc_impl;
 	zip_source_t * src, * s2;
 	uint64 offset;
-	struct zip_stat st;
+	zip_stat_t st;
 	if(za == NULL)
 		return NULL;
 	if(srcza == NULL || srcidx >= srcza->nentry) {
-		zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}
 	if(!(flags & ZIP_FL_UNCHANGED) && (ZIP_ENTRY_DATA_CHANGED(srcza->entry+srcidx) || srcza->entry[srcidx].deleted)) {
-		zip_error_set(&za->error, ZIP_ER_CHANGED, 0);
+		zip_error_set(&za->error, SLERR_ZIP_CHANGED, 0);
 		return NULL;
 	}
 	if(zip_stat_index(srcza, srcidx, flags|ZIP_FL_UNCHANGED, &st) < 0) {
-		zip_error_set(&za->error, ZIP_ER_INTERNAL, 0);
+		zip_error_set(&za->error, SLERR_ZIP_INTERNAL, 0);
 		return NULL;
 	}
 	if(flags & ZIP_FL_ENCRYPTED)
 		flags |= ZIP_FL_COMPRESSED;
 	if((start > 0 || len > 0) && (flags & ZIP_FL_COMPRESSED)) {
-		zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}
 	/* overflow or past end of file */
 	if((start > 0 || len > 0) && (start+len < start || start+len > st.size)) {
-		zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}
 	enc_impl = NULL;
 	if(((flags & ZIP_FL_ENCRYPTED) == 0) && (st.encryption_method != ZIP_EM_NONE)) {
 		if(password == NULL) {
-			zip_error_set(&za->error, ZIP_ER_NOPASSWD, 0);
+			zip_error_set(&za->error, SLERR_ZIP_NOPASSWD, 0);
 			return NULL;
 		}
 		if((enc_impl = _zip_get_encryption_implementation(st.encryption_method)) == NULL) {
-			zip_error_set(&za->error, ZIP_ER_ENCRNOTSUPP, 0);
+			zip_error_set(&za->error, SLERR_ZIP_ENCRNOTSUPP, 0);
 			return NULL;
 		}
 	}
@@ -2058,7 +2069,7 @@ zip_source_t * _zip_source_zip_new(zip_t * za, zip_t * srcza, uint64 srcidx, zip
 	if((flags & ZIP_FL_COMPRESSED) == 0) {
 		if(st.comp_method != ZIP_CM_STORE) {
 			if((comp_impl = _zip_get_compression_implementation(st.comp_method)) == NULL) {
-				zip_error_set(&za->error, ZIP_ER_COMPNOTSUPP, 0);
+				zip_error_set(&za->error, SLERR_ZIP_COMPNOTSUPP, 0);
 				return NULL;
 			}
 		}
@@ -2069,7 +2080,7 @@ zip_source_t * _zip_source_zip_new(zip_t * za, zip_t * srcza, uint64 srcidx, zip
 		return zip_source_buffer(za, NULL, 0, 0);
 	}
 	if(start+len > 0 && enc_impl == NULL && comp_impl == NULL) {
-		struct zip_stat st2;
+		zip_stat_t st2;
 		st2.size = len ? len : st.size-start;
 		st2.comp_size = st2.size;
 		st2.comp_method = ZIP_CM_STORE;
@@ -2128,7 +2139,7 @@ zip_source_t * _zip_source_zip_new(zip_t * za, zip_t * srcza, uint64 srcidx, zip
 ZIP_EXTERN zip_source_t * zip_source_zip(zip_t * za, zip_t * srcza, uint64 srcidx, zip_flags_t flags, uint64 start, int64 len)
 {
 	if(len < -1) {
-		zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}
 	if(len == -1)
@@ -2140,7 +2151,7 @@ ZIP_EXTERN zip_source_t * zip_source_zip(zip_t * za, zip_t * srcza, uint64 srcid
 ZIP_EXTERN int zip_source_begin_write(zip_source_t * src)
 {
 	if(ZIP_SOURCE_IS_OPEN_WRITING(src))
-		return zip_error_set(&src->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&src->error, SLERR_ZIP_INVAL, 0);
 	else if(_zip_source_call(src, NULL, 0, ZIP_SOURCE_BEGIN_WRITE) < 0)
 		return -1;
 	else {
@@ -2155,15 +2166,15 @@ ZIP_EXTERN int zip_set_archive_comment(zip_t * za, const char * comment, uint16 
 {
 	zip_string_t * cstr;
 	if(ZIP_IS_RDONLY(za))
-		return zip_error_set(&za->error, ZIP_ER_RDONLY, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	if(len > 0 && comment == NULL)
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	if(len > 0) {
 		if((cstr = _zip_string_new((const uint8*)comment, len, ZIP_FL_ENC_GUESS, &za->error)) == NULL)
 			return -1;
 		if(_zip_guess_encoding(cstr, ZIP_ENCODING_UNKNOWN) == ZIP_ENCODING_CP437) {
 			_zip_string_free(cstr);
-			return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+			return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 		}
 	}
 	else
@@ -2191,11 +2202,11 @@ ZIP_EXTERN int zip_set_archive_flag(zip_t * za, zip_flags_t flag, int value)
 	if(new_flags == za->ch_flags)
 		return 0;
 	if(ZIP_IS_RDONLY(za)) {
-		return zip_error_set(&za->error, ZIP_ER_RDONLY, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	}
 	if((flag & ZIP_AFL_RDONLY) && value && (za->ch_flags & ZIP_AFL_RDONLY) == 0) {
 		if(_zip_changed(za, NULL)) {
-			return zip_error_set(&za->error, ZIP_ER_CHANGED, 0);
+			return zip_error_set(&za->error, SLERR_ZIP_CHANGED, 0);
 		}
 	}
 	za->ch_flags = new_flags;
@@ -2211,7 +2222,7 @@ ZIP_EXTERN int zip_set_default_password(zip_t * za, const char * passwd)
 		if(passwd) {
 			za->default_password = sstrdup(passwd);
 			if(!za->default_password) {
-				return zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+				return zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 			}
 		}
 		else
@@ -2223,7 +2234,7 @@ ZIP_EXTERN int zip_set_default_password(zip_t * za, const char * passwd)
 ZIP_EXTERN int zip_set_file_comment(zip_t * za, uint64 idx, const char * comment, int len)
 {
 	if(len < 0 || len > ZIP_UINT16_MAX)
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	else
 		return zip_file_set_comment(za, idx, comment, (uint16)len, 0);
 }
@@ -2233,11 +2244,11 @@ ZIP_EXTERN int zip_set_file_compression(zip_t * za, uint64 idx, int32 method, ui
 	zip_entry_t * e;
 	int32 old_method;
 	if(idx >= za->nentry)
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	if(ZIP_IS_RDONLY(za))
-		return zip_error_set(&za->error, ZIP_ER_RDONLY, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	if(method != ZIP_CM_DEFAULT && method != ZIP_CM_STORE && method != ZIP_CM_DEFLATE)
-		return zip_error_set(&za->error, ZIP_ER_COMPNOTSUPP, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_COMPNOTSUPP, 0);
 	e = za->entry+idx;
 	old_method = (e->orig == NULL ? ZIP_CM_DEFAULT : e->orig->comp_method);
 	/* TODO: revisit this when flags are supported, since they may require a recompression */
@@ -2253,7 +2264,7 @@ ZIP_EXTERN int zip_set_file_compression(zip_t * za, uint64 idx, int32 method, ui
 	else {
 		if(e->changes == NULL) {
 			if((e->changes = _zip_dirent_clone(e->orig)) == NULL)
-				return zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+				return zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		}
 		e->changes->comp_method = method;
 		e->changes->changed |= ZIP_DIRENT_COMP_METHOD;
@@ -2270,9 +2281,9 @@ int _zip_set_name(zip_t * za, uint64 idx, const char * name, zip_flags_t flags)
 	const uint8 * old_name, * new_name;
 	zip_string_t * old_str;
 	if(idx >= za->nentry)
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	if(ZIP_IS_RDONLY(za))
-		return zip_error_set(&za->error, ZIP_ER_RDONLY, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	if(name && name[0] != '\0') {
 		/* TODO: check for string too long */
 		if((str = _zip_string_new((const uint8*)name, (uint16)strlen(name), flags, &za->error)) == NULL)
@@ -2286,7 +2297,7 @@ int _zip_set_name(zip_t * za, uint64 idx, const char * name, zip_flags_t flags)
 	/* TODO: encoding flags needed for CP437? */
 	if((i = _zip_name_locate(za, name, 0, NULL)) >= 0 && (uint64)i != idx) {
 		_zip_string_free(str);
-		return zip_error_set(&za->error, ZIP_ER_EXISTS, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_EXISTS, 0);
 	}
 	/* no effective name change */
 	if(i>=0 && (uint64)i == idx) {
@@ -2297,7 +2308,7 @@ int _zip_set_name(zip_t * za, uint64 idx, const char * name, zip_flags_t flags)
 	same_as_orig = (e->orig && _zip_string_equal(e->orig->filename, str)) ? true : false;
 	if(!same_as_orig && e->changes == NULL) {
 		if((e->changes = _zip_dirent_clone(e->orig)) == NULL) {
-			zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+			zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 			_zip_string_free(str);
 			return -1;
 		}
@@ -2403,13 +2414,13 @@ int _zip_read(zip_source_t * src, uint8 * b, uint64 length, zip_error_t * error)
 {
 	int64 n;
 	if(length > ZIP_INT64_MAX)
-		return zip_error_set(error, ZIP_ER_INTERNAL, 0);
+		return zip_error_set(error, SLERR_ZIP_INTERNAL, 0);
 	else if((n = zip_source_read(src, b, length)) < 0) {
 		_zip_error_set_from_source(error, src);
 		return -1;
 	}
 	else if(n < (int64)length)
-		return zip_error_set(error, ZIP_ER_EOF, 0);
+		return zip_error_set(error, SLERR_ZIP_EOF, 0);
 	else
 		return 0;
 }
@@ -2422,13 +2433,13 @@ uint8 * _zip_read_data(zip_buffer_t * buffer, zip_source_t * src, size_t length,
 	}
 	r = (uint8*)SAlloc::M(length + (nulp ? 1 : 0));
 	if(!r) {
-		zip_error_set(error, ZIP_ER_MEMORY, 0);
+		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
 	if(buffer) {
 		uint8 * data = _zip_buffer_get(buffer, length);
 		if(data == NULL) {
-			zip_error_set(error, ZIP_ER_MEMORY, 0);
+			zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 			SAlloc::F(r);
 			return NULL;
 		}
@@ -2470,7 +2481,7 @@ int _zip_write(zip_t * za, const void * data, uint64 length)
 		return -1;
 	}
 	if((uint64)n != length)
-		return zip_error_set(&za->error, ZIP_ER_WRITE, EINTR);
+		return zip_error_set(&za->error, SLERR_ZIP_WRITE, EINTR);
 	return 0;
 }
 //
@@ -2488,7 +2499,7 @@ int64 _zip_name_locate(zip_t * za, const char * fname, zip_flags_t flags, zip_er
 	if(za == NULL)
 		return -1;
 	if(fname == NULL)
-		return zip_error_set(error, ZIP_ER_INVAL, 0);
+		return zip_error_set(error, SLERR_ZIP_INVAL, 0);
 	if(flags & (ZIP_FL_NOCASE|ZIP_FL_NODIR|ZIP_FL_ENC_CP437)) {
 		// can't use hash table 
 		cmp = (flags & ZIP_FL_NOCASE) ? /*strcasecmp*/_stricmp : strcmp;
@@ -2507,7 +2518,7 @@ int64 _zip_name_locate(zip_t * za, const char * fname, zip_flags_t flags, zip_er
 				}
 			}
 		}
-		return zip_error_set(error, ZIP_ER_NOENT, 0);
+		return zip_error_set(error, SLERR_ZIP_NOENT, 0);
 	}
 	else {
 		return _zip_hash_lookup(za->names, (const uint8*)fname, flags, error);
@@ -2590,11 +2601,11 @@ zip_string_t * _zip_string_new(const uint8 * raw, uint16 length, zip_flags_t fla
 		    expected_encoding = ZIP_ENCODING_CP437;
 		    break;
 		default:
-		    zip_error_set(error, ZIP_ER_INVAL, 0);
+		    zip_error_set(error, SLERR_ZIP_INVAL, 0);
 		    return NULL;
 	}
 	if((s = (zip_string_t*)SAlloc::M(sizeof(*s))) == NULL) {
-		zip_error_set(error, ZIP_ER_MEMORY, 0);
+		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
 	if((s->raw = (uint8*)SAlloc::M((size_t)(length+1))) == NULL) {
@@ -2610,7 +2621,7 @@ zip_string_t * _zip_string_new(const uint8 * raw, uint16 length, zip_flags_t fla
 	if(expected_encoding != ZIP_ENCODING_UNKNOWN) {
 		if(_zip_guess_encoding(s, expected_encoding) == ZIP_ENCODING_ERROR) {
 			_zip_string_free(s);
-			zip_error_set(error, ZIP_ER_INVAL, 0);
+			zip_error_set(error, SLERR_ZIP_INVAL, 0);
 			return NULL;
 		}
 	}
@@ -2622,10 +2633,10 @@ int _zip_string_write(zip_t * za, const zip_string_t * s)
 	return s ? _zip_write(za, s->raw, s->length) : 0;
 }
 
-ZIP_EXTERN const char * zip_strerror(zip_t *za)
+/*ZIP_EXTERN const char * zip_strerror(zip_t *za)
 {
     return zip_error_strerror(&za->error);
-}
+}*/
 //
 // UNCHANGE
 //
@@ -2639,7 +2650,7 @@ int _zip_unchange(zip_t * za, uint64 idx, int allow_duplicates)
 	int64 i;
 	const char * orig_name, * changed_name;
 	if(idx >= za->nentry)
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	if(!allow_duplicates && za->entry[idx].changes && (za->entry[idx].changes->changed & ZIP_DIRENT_FILENAME)) {
 		if(za->entry[idx].orig != NULL) {
 			if((orig_name = _zip_get_name(za, idx, ZIP_FL_UNCHANGED, &za->error)) == NULL) {
@@ -2647,7 +2658,7 @@ int _zip_unchange(zip_t * za, uint64 idx, int allow_duplicates)
 			}
 			i = _zip_name_locate(za, orig_name, 0, NULL);
 			if(i >= 0 && (uint64)i != idx)
-				return zip_error_set(&za->error, ZIP_ER_EXISTS, 0);
+				return zip_error_set(&za->error, SLERR_ZIP_EXISTS, 0);
 		}
 		else {
 			orig_name = NULL;
@@ -2730,13 +2741,13 @@ zip_cdir_t * _zip_cdir_new(uint64 nentry, zip_error_t * error)
 	zip_cdir_t * cd;
 	uint64 i;
 	if((cd = (zip_cdir_t*)SAlloc::M(sizeof(*cd))) == NULL) {
-		zip_error_set(error, ZIP_ER_MEMORY, 0);
+		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
 	if(nentry == 0)
 		cd->entry = NULL;
 	else if((nentry > SIZE_MAX/sizeof(*(cd->entry))) || (cd->entry = (zip_entry_t*)SAlloc::M(sizeof(*(cd->entry))*(size_t)nentry)) == NULL) {
-		zip_error_set(error, ZIP_ER_MEMORY, 0);
+		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		SAlloc::F(cd);
 		return NULL;
 	}
@@ -2779,7 +2790,7 @@ int64 _zip_cdir_write(zip_t * za, const zip_filelist_t * filelist, uint64 surviv
 	if(offset > ZIP_UINT32_MAX || survivors > ZIP_UINT16_MAX)
 		is_zip64 = true;
 	if((buffer = _zip_buffer_new(buf, sizeof(buf))) == NULL)
-		return zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 	if(is_zip64) {
 		_zip_buffer_put(buffer, EOCD64_MAGIC, 4);
 		_zip_buffer_put_64(buffer, EOCD64LEN-12);
@@ -2805,7 +2816,7 @@ int64 _zip_cdir_write(zip_t * za, const zip_filelist_t * filelist, uint64 surviv
 	comment = za->comment_changed ? za->comment_changes : za->comment_orig;
 	_zip_buffer_put_16(buffer, (uint16)(comment ? comment->length : 0));
 	if(!_zip_buffer_ok(buffer)) {
-		zip_error_set(&za->error, ZIP_ER_INTERNAL, 0);
+		zip_error_set(&za->error, SLERR_ZIP_INTERNAL, 0);
 		_zip_buffer_free(buffer);
 		return -1;
 	}
@@ -2916,7 +2927,7 @@ int64 _zip_dirent_read(zip_dirent_t * zde, zip_source_t * src, zip_buffer_t * bu
 	uint32 size = local ? LENTRYSIZE : CDENTRYSIZE;
 	if(buffer) {
 		if(_zip_buffer_left(buffer) < size)
-			return zip_error_set(error, ZIP_ER_NOZIP, 0);
+			return zip_error_set(error, SLERR_ZIP_NOZIP, 0);
 	}
 	else {
 		if((buffer = _zip_buffer_new_from_source(src, size, buf, error)) == NULL) {
@@ -2924,7 +2935,7 @@ int64 _zip_dirent_read(zip_dirent_t * zde, zip_source_t * src, zip_buffer_t * bu
 		}
 	}
 	if(memcmp(_zip_buffer_get(buffer, 4), (local ? LOCAL_MAGIC : CENTRAL_MAGIC), 4) != 0) {
-		zip_error_set(error, ZIP_ER_NOZIP, 0);
+		zip_error_set(error, SLERR_ZIP_NOZIP, 0);
 		if(!from_buffer)
 			_zip_buffer_free(buffer);
 		return -1;
@@ -2959,7 +2970,7 @@ int64 _zip_dirent_read(zip_dirent_t * zde, zip_source_t * src, zip_buffer_t * bu
 		zde->offset = _zip_buffer_get_32(buffer);
 	}
 	if(!_zip_buffer_ok(buffer)) {
-		zip_error_set(error, ZIP_ER_INTERNAL, 0);
+		zip_error_set(error, SLERR_ZIP_INTERNAL, 0);
 		if(!from_buffer)
 			_zip_buffer_free(buffer);
 		return -1;
@@ -2970,7 +2981,7 @@ int64 _zip_dirent_read(zip_dirent_t * zde, zip_source_t * src, zip_buffer_t * bu
 	variable_size = (uint32)filename_len+(uint32)ef_len+(uint32)comment_len;
 	if(from_buffer) {
 		if(_zip_buffer_left(buffer) < variable_size)
-			return zip_error_set(error, ZIP_ER_INCONS, 0);
+			return zip_error_set(error, SLERR_ZIP_INCONS, 0);
 	}
 	else {
 		_zip_buffer_free(buffer);
@@ -2981,15 +2992,15 @@ int64 _zip_dirent_read(zip_dirent_t * zde, zip_source_t * src, zip_buffer_t * bu
 	if(filename_len) {
 		zde->filename = _zip_read_string(buffer, src, filename_len, 1, error);
 		if(!zde->filename) {
-			if(zip_error_code_zip(error) == ZIP_ER_EOF)
-				zip_error_set(error, ZIP_ER_INCONS, 0);
+			if(zip_error_code_zip(error) == SLERR_ZIP_EOF)
+				zip_error_set(error, SLERR_ZIP_INCONS, 0);
 			if(!from_buffer)
 				_zip_buffer_free(buffer);
 			return -1;
 		}
 		if(zde->bitflags & ZIP_GPBF_ENCODING_UTF_8) {
 			if(_zip_guess_encoding(zde->filename, ZIP_ENCODING_UTF8_KNOWN) == ZIP_ENCODING_ERROR) {
-				zip_error_set(error, ZIP_ER_INCONS, 0);
+				zip_error_set(error, SLERR_ZIP_INCONS, 0);
 				if(!from_buffer)
 					_zip_buffer_free(buffer);
 				return -1;
@@ -3023,7 +3034,7 @@ int64 _zip_dirent_read(zip_dirent_t * zde, zip_source_t * src, zip_buffer_t * bu
 		}
 		if(zde->bitflags & ZIP_GPBF_ENCODING_UTF_8) {
 			if(_zip_guess_encoding(zde->comment, ZIP_ENCODING_UTF8_KNOWN) == ZIP_ENCODING_ERROR) {
-				zip_error_set(error, ZIP_ER_INCONS, 0);
+				zip_error_set(error, SLERR_ZIP_INCONS, 0);
 				if(!from_buffer) {
 					_zip_buffer_free(buffer);
 				}
@@ -3048,7 +3059,7 @@ int64 _zip_dirent_read(zip_dirent_t * zde, zip_source_t * src, zip_buffer_t * bu
 			return -1;
 		}
 		if((ef_buffer = _zip_buffer_new((uint8*)ef, got_len)) == NULL) {
-			zip_error_set(error, ZIP_ER_MEMORY, 0);
+			zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 			if(!from_buffer)
 				_zip_buffer_free(buffer);
 			return -1;
@@ -3070,7 +3081,7 @@ int64 _zip_dirent_read(zip_dirent_t * zde, zip_source_t * src, zip_buffer_t * bu
 				zde->disk_number = _zip_buffer_get_32(buffer);
 		}
 		if(!_zip_buffer_eof(ef_buffer)) {
-			zip_error_set(error, ZIP_ER_INCONS, 0);
+			zip_error_set(error, SLERR_ZIP_INCONS, 0);
 			_zip_buffer_free(ef_buffer);
 			if(!from_buffer)
 				_zip_buffer_free(buffer);
@@ -3080,7 +3091,7 @@ int64 _zip_dirent_read(zip_dirent_t * zde, zip_source_t * src, zip_buffer_t * bu
 	}
 
 	if(!_zip_buffer_ok(buffer)) {
-		zip_error_set(error, ZIP_ER_INTERNAL, 0);
+		zip_error_set(error, SLERR_ZIP_INTERNAL, 0);
 		if(!from_buffer) {
 			_zip_buffer_free(buffer);
 		}
@@ -3091,7 +3102,7 @@ int64 _zip_dirent_read(zip_dirent_t * zde, zip_source_t * src, zip_buffer_t * bu
 	}
 	// zip_source_seek / zip_source_tell don't support values > ZIP_INT64_MAX 
 	if(zde->offset > ZIP_INT64_MAX)
-		return zip_error_set(error, ZIP_ER_SEEK, EFBIG);
+		return zip_error_set(error, SLERR_ZIP_SEEK, EFBIG);
 	zde->extra_fields = _zip_ef_remove_internal(zde->extra_fields);
 	return (int64)(size + variable_size);
 }
@@ -3141,7 +3152,7 @@ int32 _zip_dirent_size(zip_source_t * src, uint16 flags, zip_error_t * error)
 		size += _zip_buffer_get_16(buffer);
 	}
 	if(!_zip_buffer_eof(buffer)) {
-		zip_error_set(error, ZIP_ER_INTERNAL, 0);
+		zip_error_set(error, SLERR_ZIP_INTERNAL, 0);
 		_zip_buffer_free(buffer);
 		return -1;
 	}
@@ -3198,7 +3209,7 @@ int _zip_dirent_write(zip_t * za, zip_dirent_t * de, zip_flags_t flags)
 		uint8 ef_zip64[EFZIP64SIZE];
 		zip_buffer_t * ef_buffer = _zip_buffer_new(ef_zip64, sizeof(ef_zip64));
 		if(ef_buffer == NULL) {
-			zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+			zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 			_zip_ef_free(ef);
 			return -1;
 		}
@@ -3223,7 +3234,7 @@ int _zip_dirent_write(zip_t * za, zip_dirent_t * de, zip_flags_t flags)
 			}
 		}
 		if(!_zip_buffer_ok(ef_buffer)) {
-			zip_error_set(&za->error, ZIP_ER_INTERNAL, 0);
+			zip_error_set(&za->error, SLERR_ZIP_INTERNAL, 0);
 			_zip_buffer_free(ef_buffer);
 			_zip_ef_free(ef);
 			return -1;
@@ -3234,7 +3245,7 @@ int _zip_dirent_write(zip_t * za, zip_dirent_t * de, zip_flags_t flags)
 		ef = ef64;
 	}
 	if((buffer = _zip_buffer_new(buf, sizeof(buf))) == NULL) {
-		zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+		zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		_zip_ef_free(ef);
 		return -1;
 	}
@@ -3287,7 +3298,7 @@ int _zip_dirent_write(zip_t * za, zip_dirent_t * de, zip_flags_t flags)
 			_zip_buffer_put_32(buffer, ZIP_UINT32_MAX);
 	}
 	if(!_zip_buffer_ok(buffer)) {
-		zip_error_set(&za->error, ZIP_ER_INTERNAL, 0);
+		zip_error_set(&za->error, SLERR_ZIP_INTERNAL, 0);
 		_zip_buffer_free(buffer);
 		_zip_ef_free(ef);
 		return -1;
@@ -3355,18 +3366,18 @@ static zip_extra_field_t * _zip_ef_utf8(uint16 id, zip_string_t * str, zip_error
 		return NULL;
 	}
 	if(len+5 > ZIP_UINT16_MAX) {
-		zip_error_set(error, ZIP_ER_INVAL, 0); /* TODO: better error code? */
+		zip_error_set(error, SLERR_ZIP_INVAL, 0); /* TODO: better error code? */
 		return NULL;
 	}
 	if((buffer = _zip_buffer_new(NULL, len+5)) == NULL) {
-		zip_error_set(error, ZIP_ER_MEMORY, 0);
+		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
 	_zip_buffer_put_8(buffer, 1);
 	_zip_buffer_put_32(buffer, _zip_string_crc32(str));
 	_zip_buffer_put(buffer, raw, len);
 	if(!_zip_buffer_ok(buffer)) {
-		zip_error_set(error, ZIP_ER_INTERNAL, 0);
+		zip_error_set(error, SLERR_ZIP_INTERNAL, 0);
 		_zip_buffer_free(buffer);
 		return NULL;
 	}
@@ -3379,16 +3390,16 @@ zip_dirent_t * _zip_get_dirent(zip_t * za, uint64 idx, zip_flags_t flags, zip_er
 {
 	SETIFZ(error, &za->error);
 	if(idx >= za->nentry) {
-		zip_error_set(error, ZIP_ER_INVAL, 0);
+		zip_error_set(error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}
 	if((flags & ZIP_FL_UNCHANGED) || za->entry[idx].changes == NULL) {
 		if(za->entry[idx].orig == NULL) {
-			zip_error_set(error, ZIP_ER_INVAL, 0);
+			zip_error_set(error, SLERR_ZIP_INVAL, 0);
 			return NULL;
 		}
 		if(za->entry[idx].deleted && (flags & ZIP_FL_UNCHANGED) == 0) {
-			zip_error_set(error, ZIP_ER_DELETED, 0);
+			zip_error_set(error, SLERR_ZIP_DELETED, 0);
 			return NULL;
 		}
 		return za->entry[idx].orig;
@@ -3411,7 +3422,7 @@ int _zip_filerange_crc(zip_source_t * src, uint64 start, uint64 len, uLong * crc
 	int64 n;
 	*crcp = crc32(0L, Z_NULL, 0);
 	if(start > ZIP_INT64_MAX)
-		return zip_error_set(error, ZIP_ER_SEEK, EFBIG);
+		return zip_error_set(error, SLERR_ZIP_SEEK, EFBIG);
 	if(zip_source_seek(src, (int64)start, SEEK_SET) != 0) {
 		_zip_error_set_from_source(error, src);
 		return -1;
@@ -3423,7 +3434,7 @@ int _zip_filerange_crc(zip_source_t * src, uint64 start, uint64 len, uLong * crc
 			return -1;
 		}
 		if(n == 0)
-			return zip_error_set(error, ZIP_ER_EOF, 0);
+			return zip_error_set(error, SLERR_ZIP_EOF, 0);
 		*crcp = crc32(*crcp, buf, (uInt)n);
 		len -= (uint64)n;
 	}
@@ -3446,11 +3457,11 @@ zip_source_t * zip_source_crc(zip_t * za, zip_source_t * src, int validate)
 {
 	struct crc_context * ctx;
 	if(src == NULL) {
-		zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}
 	if((ctx = (struct crc_context*)SAlloc::M(sizeof(*ctx))) == NULL) {
-		zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+		zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
 	zip_error_init(&ctx->error);
@@ -3480,15 +3491,15 @@ static int64 crc_read(zip_source_t * src, void * _ctx, void * data, uint64 len, 
 				    ctx->crc_complete = 1;
 				    ctx->size = ctx->position;
 				    if(ctx->validate) {
-					    struct zip_stat st;
+					    zip_stat_t st;
 					    if(zip_source_stat(src, &st) < 0) {
 						    _zip_error_set_from_source(&ctx->error, src);
 						    return -1;
 					    }
 					    if((st.valid & ZIP_STAT_CRC) && st.crc != ctx->crc)
-						    return zip_error_set(&ctx->error, ZIP_ER_CRC, 0);
+						    return zip_error_set(&ctx->error, SLERR_ZIP_CRC, 0);
 					    if((st.valid & ZIP_STAT_SIZE) && st.size != ctx->size)
-						    return zip_error_set(&ctx->error, ZIP_ER_INCONS, 0);
+						    return zip_error_set(&ctx->error, SLERR_ZIP_INCONS, 0);
 				    }
 			    }
 		    }
@@ -3552,7 +3563,7 @@ static int64 crc_read(zip_source_t * src, void * _ctx, void * data, uint64 len, 
 		case ZIP_SOURCE_TELL:
 		    return (int64)ctx->position;
 		default:
-		    return zip_error_set(&ctx->error, ZIP_ER_OPNOTSUPP, 0);
+		    return zip_error_set(&ctx->error, SLERR_ZIP_OPNOTSUPP, 0);
 	}
 }
 //
@@ -3603,7 +3614,7 @@ static int FASTCALL copy_source(zip_t * za, zip_source_t * src)
 static int add_data(zip_t * za, zip_source_t * src, zip_dirent_t * de)
 {
 	int64 offstart, offdata, offend;
-	struct zip_stat st;
+	zip_stat_t st;
 	zip_source_t * s2;
 	int ret;
 	int is_zip64;
@@ -3652,7 +3663,7 @@ static int add_data(zip_t * za, zip_source_t * src, zip_dirent_t * de)
 		zip_compression_implementation comp_impl;
 		if(st.comp_method != ZIP_CM_STORE) {
 			if((comp_impl = _zip_get_compression_implementation(st.comp_method)) == NULL)
-				return zip_error_set(&za->error, ZIP_ER_COMPNOTSUPP, 0);
+				return zip_error_set(&za->error, SLERR_ZIP_COMPNOTSUPP, 0);
 			if((s_store = comp_impl(za, src, st.comp_method, ZIP_CODEC_DECODE)) == NULL) {
 				return -1; // error set by comp_impl 
 			}
@@ -3669,7 +3680,7 @@ static int add_data(zip_t * za, zip_source_t * src, zip_dirent_t * de)
 		}
 		if(de->comp_method != ZIP_CM_STORE && ((st.valid & ZIP_STAT_SIZE) == 0 || st.size != 0)) {
 			if((comp_impl = _zip_get_compression_implementation(de->comp_method)) == NULL) {
-				zip_error_set(&za->error, ZIP_ER_COMPNOTSUPP, 0);
+				zip_error_set(&za->error, SLERR_ZIP_COMPNOTSUPP, 0);
 				zip_source_free(s_crc);
 				return -1;
 			}
@@ -3704,7 +3715,7 @@ static int add_data(zip_t * za, zip_source_t * src, zip_dirent_t * de)
 		return -1;
 	}
 	if((st.valid & (ZIP_STAT_COMP_METHOD|ZIP_STAT_CRC|ZIP_STAT_SIZE)) != (ZIP_STAT_COMP_METHOD|ZIP_STAT_CRC|ZIP_STAT_SIZE))
-		return zip_error_set(&za->error, ZIP_ER_INTERNAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INTERNAL, 0);
 	if((de->changed & ZIP_DIRENT_LAST_MOD) == 0) {
 		if(st.valid & ZIP_STAT_MTIME)
 			de->last_mod = st.mtime;
@@ -3719,7 +3730,7 @@ static int add_data(zip_t * za, zip_source_t * src, zip_dirent_t * de)
 		return -1;
 	if(is_zip64 != ret) {
 		// Zip64 mismatch between preliminary file header written before data and final file header written afterwards 
-		return zip_error_set(&za->error, ZIP_ER_INTERNAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INTERNAL, 0);
 	}
 	if(zip_source_seek_write(za->src, offend, SEEK_SET) < 0) {
 		_zip_error_set_from_source(&za->error, za->src);
@@ -3769,7 +3780,7 @@ ZIP_EXTERN int zip_close(zip_t * za)
 		return 0;
 	}
 	if(survivors > za->nentry)
-		return zip_error_set(&za->error, ZIP_ER_INTERNAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INTERNAL, 0);
 	if((filelist = (zip_filelist_t*)SAlloc::M(sizeof(filelist[0])*(size_t)survivors)) == NULL)
 		return -1;
 	// create list of files with index into original archive 
@@ -3777,7 +3788,7 @@ ZIP_EXTERN int zip_close(zip_t * za)
 		if(!za->entry[i].deleted) {
 			if(j >= survivors) {
 				SAlloc::F(filelist);
-				return zip_error_set(&za->error, ZIP_ER_INTERNAL, 0);
+				return zip_error_set(&za->error, SLERR_ZIP_INTERNAL, 0);
 			}
 			filelist[j].idx = i;
 			j++;
@@ -3785,7 +3796,7 @@ ZIP_EXTERN int zip_close(zip_t * za)
 	}
 	if(j < survivors) {
 		SAlloc::F(filelist);
-		return zip_error_set(&za->error, ZIP_ER_INTERNAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INTERNAL, 0);
 	}
 	if(zip_source_begin_write(za->src) < 0) {
 		_zip_error_set_from_source(&za->error, za->src);
@@ -3803,7 +3814,7 @@ ZIP_EXTERN int zip_close(zip_t * za)
 		// create new local directory entry 
 		if(entry->changes == NULL) {
 			if((entry->changes = _zip_dirent_clone(entry->orig)) == NULL) {
-				zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+				zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 				error = 1;
 				break;
 			}
@@ -3914,7 +3925,7 @@ static int64 compress_read(zip_source_t * src, ZipDeflate * ctx, void * data, ui
 	int64 n;
 	uint64 out_offset;
 	uInt out_len;
-	if(zip_error_code_zip(&ctx->error) != ZIP_ER_OK)
+	if(zip_error_code_zip(&ctx->error) != SLERR_SUCCESS)
 		return -1;
 	if(len == 0 || ctx->is_stored) {
 		return 0;
@@ -3981,7 +3992,7 @@ static int64 compress_read(zip_source_t * src, ZipDeflate * ctx, void * data, ui
 			case Z_DATA_ERROR:
 			case Z_STREAM_ERROR:
 			case Z_MEM_ERROR:
-			    zip_error_set(&ctx->error, ZIP_ER_ZLIB, ret);
+			    zip_error_set(&ctx->error, SLERR_ZIP_ZLIB, ret);
 			    end = 1;
 			    break;
 		}
@@ -3990,7 +4001,7 @@ static int64 compress_read(zip_source_t * src, ZipDeflate * ctx, void * data, ui
 		ctx->can_store = false;
 		return (int64)(len - ctx->zstr.avail_out);
 	}
-	return (zip_error_code_zip(&ctx->error) == ZIP_ER_OK) ? 0 : -1;
+	return (zip_error_code_zip(&ctx->error) == SLERR_SUCCESS) ? 0 : -1;
 }
 
 static int64 decompress_read(zip_source_t * src, ZipDeflate * ctx, void * data, uint64 len)
@@ -3999,7 +4010,7 @@ static int64 decompress_read(zip_source_t * src, ZipDeflate * ctx, void * data, 
 	int64 n;
 	uint64 out_offset;
 	uInt out_len;
-	if(zip_error_code_zip(&ctx->error) != ZIP_ER_OK)
+	if(zip_error_code_zip(&ctx->error) != SLERR_SUCCESS)
 		return -1;
 	if(len == 0)
 		return 0;
@@ -4055,14 +4066,14 @@ static int64 decompress_read(zip_source_t * src, ZipDeflate * ctx, void * data, 
 			case Z_DATA_ERROR:
 			case Z_STREAM_ERROR:
 			case Z_MEM_ERROR:
-			    zip_error_set(&ctx->error, ZIP_ER_ZLIB, ret);
+			    zip_error_set(&ctx->error, SLERR_ZIP_ZLIB, ret);
 			    end = 1;
 			    break;
 		}
 	}
 	if(ctx->zstr.avail_out < len)
 		return (int64)(len - ctx->zstr.avail_out);
-	return (zip_error_code_zip(&ctx->error) == ZIP_ER_OK) ? 0 : -1;
+	return (zip_error_code_zip(&ctx->error) == SLERR_SUCCESS) ? 0 : -1;
 }
 
 static int64 deflate_compress(zip_source_t * src, void * ud, void * data, uint64 len, zip_source_cmd_t cmd)
@@ -4080,7 +4091,7 @@ static int64 deflate_compress(zip_source_t * src, void * ud, void * data, uint64
 		    ctx->zstr.next_out = NULL;
 		    // negative value to tell zlib not to write a header 
 		    if((ret = deflateInit2(&ctx->zstr, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, ctx->mem_level, Z_DEFAULT_STRATEGY)) != Z_OK)
-			    return zip_error_set(&ctx->error, ZIP_ER_ZLIB, ret);
+			    return zip_error_set(&ctx->error, SLERR_ZIP_ZLIB, ret);
 			else
 				return 0;
 		case ZIP_SOURCE_READ:
@@ -4109,7 +4120,7 @@ static int64 deflate_compress(zip_source_t * src, void * ud, void * data, uint64
 		case ZIP_SOURCE_SUPPORTS:
 		    return ZIP_SOURCE_SUPPORTS_READABLE;
 		default:
-		    return zip_error_set(&ctx->error, ZIP_ER_INTERNAL, 0);
+		    return zip_error_set(&ctx->error, SLERR_ZIP_INTERNAL, 0);
 	}
 }
 
@@ -4131,7 +4142,7 @@ static int64 deflate_decompress(zip_source_t * src, void * ud, void * data, uint
 		    ctx->zstr.avail_in = (uInt)n;
 		    // negative value to tell zlib that there is no header 
 		    if((ret = inflateInit2(&ctx->zstr, -MAX_WBITS)) != Z_OK)
-			    return zip_error_set(&ctx->error, ZIP_ER_ZLIB, ret);
+			    return zip_error_set(&ctx->error, SLERR_ZIP_ZLIB, ret);
 			else
 				return 0;
 		case ZIP_SOURCE_READ:
@@ -4155,7 +4166,7 @@ static int64 deflate_decompress(zip_source_t * src, void * ud, void * data, uint
 		case ZIP_SOURCE_SUPPORTS:
 		    return zip_source_make_command_bitmap(ZIP_SOURCE_OPEN, ZIP_SOURCE_READ, ZIP_SOURCE_CLOSE, ZIP_SOURCE_STAT, ZIP_SOURCE_ERROR, ZIP_SOURCE_FREE, -1);
 		default:
-		    return zip_error_set(&ctx->error, ZIP_ER_OPNOTSUPP, 0);
+		    return zip_error_set(&ctx->error, SLERR_ZIP_OPNOTSUPP, 0);
 	}
 }
 
@@ -4164,11 +4175,11 @@ zip_source_t * zip_source_deflate(zip_t * za, zip_source_t * src, int32 cm, int 
 	ZipDeflate * ctx;
 	zip_source_t * s2;
 	if(src == NULL || (cm != ZIP_CM_DEFLATE && !ZIP_CM_IS_DEFAULT(cm))) {
-		zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}
 	if((ctx = (ZipDeflate*)SAlloc::M(sizeof(*ctx))) == NULL) {
-		zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+		zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
 	zip_error_init(&ctx->error);
@@ -4205,17 +4216,17 @@ zip_hash_t * _zip_hash_new(uint16 table_size, zip_error_t * error)
 {
 	zip_hash_t * hash;
 	if(table_size == 0) {
-		zip_error_set(error, ZIP_ER_INTERNAL, 0);
+		zip_error_set(error, SLERR_ZIP_INTERNAL, 0);
 		return NULL;
 	}
 	if((hash = (zip_hash_t*)SAlloc::M(sizeof(zip_hash_t))) == NULL) {
-		zip_error_set(error, ZIP_ER_MEMORY, 0);
+		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
 	hash->table_size = table_size;
 	if((hash->table = (zip_hash_entry_t**)SAlloc::C(table_size, sizeof(zip_hash_entry_t *))) == NULL) {
 		SAlloc::F(hash);
-		zip_error_set(error, ZIP_ER_MEMORY, 0);
+		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
 	return hash;
@@ -4263,14 +4274,14 @@ bool _zip_hash_add(zip_hash_t * hash, const uint8 * name, uint64 index, zip_flag
 	uint16 hash_value;
 	zip_hash_entry_t * entry;
 	if(hash == NULL || name == NULL || index > ZIP_INT64_MAX) {
-		zip_error_set(error, ZIP_ER_INVAL, 0);
+		zip_error_set(error, SLERR_ZIP_INVAL, 0);
 		return false;
 	}
 	hash_value = _hash_string(name, hash->table_size);
 	for(entry = hash->table[hash_value]; entry != NULL; entry = entry->next) {
 		if(strcmp((const char*)name, (const char*)entry->name) == 0) {
 			if(((flags & ZIP_FL_UNCHANGED) && entry->orig_index != -1) || entry->current_index != -1) {
-				zip_error_set(error, ZIP_ER_EXISTS, 0);
+				zip_error_set(error, SLERR_ZIP_EXISTS, 0);
 				return false;
 			}
 			else {
@@ -4280,7 +4291,7 @@ bool _zip_hash_add(zip_hash_t * hash, const uint8 * name, uint64 index, zip_flag
 	}
 	if(entry == NULL) {
 		if((entry = (zip_hash_entry_t*)SAlloc::M(sizeof(zip_hash_entry_t))) == NULL) {
-			zip_error_set(error, ZIP_ER_MEMORY, 0);
+			zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 			return false;
 		}
 		entry->name = name;
@@ -4300,7 +4311,7 @@ bool _zip_hash_add(zip_hash_t * hash, const uint8 * name, uint64 index, zip_flag
 bool _zip_hash_delete(zip_hash_t * hash, const uint8 * name, zip_error_t * error)
 {
 	if(hash == NULL || name == NULL) {
-		zip_error_set(error, ZIP_ER_INVAL, 0);
+		zip_error_set(error, SLERR_ZIP_INVAL, 0);
 	}
 	else {
 		uint16 hash_value = _hash_string(name, hash->table_size);
@@ -4325,7 +4336,7 @@ bool _zip_hash_delete(zip_hash_t * hash, const uint8 * name, zip_error_t * error
 			previous = entry;
 			entry = entry->next;
 		}
-		zip_error_set(error, ZIP_ER_NOENT, 0);
+		zip_error_set(error, SLERR_ZIP_NOENT, 0);
 	}
 	return false;
 }
@@ -4335,7 +4346,7 @@ bool _zip_hash_delete(zip_hash_t * hash, const uint8 * name, zip_error_t * error
 int64 _zip_hash_lookup(zip_hash_t * hash, const uint8 * name, zip_flags_t flags, zip_error_t * error)
 {
 	if(hash == NULL || name == NULL) {
-		zip_error_set(error, ZIP_ER_INVAL, 0);
+		zip_error_set(error, SLERR_ZIP_INVAL, 0);
 	}
 	else {
 		uint16 hash_value = _hash_string(name, hash->table_size);
@@ -4352,7 +4363,7 @@ int64 _zip_hash_lookup(zip_hash_t * hash, const uint8 * name, zip_flags_t flags,
 				break;
 			}
 		}
-		zip_error_set(error, ZIP_ER_NOENT, 0);
+		zip_error_set(error, SLERR_ZIP_NOENT, 0);
 	}
 	return -1;
 }
@@ -4394,13 +4405,13 @@ ZIP_EXTERN int zip_file_set_mtime(zip_t * za, uint64 idx, time_t mtime, zip_flag
 	if(_zip_get_dirent(za, idx, 0, NULL) == NULL)
 		return -1;
 	if(ZIP_IS_RDONLY(za))
-		return zip_error_set(&za->error, ZIP_ER_RDONLY, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	e = za->entry+idx;
 	changed = (e->orig == NULL || mtime != e->orig->last_mod);
 	if(changed) {
 		if(e->changes == NULL) {
 			if((e->changes = _zip_dirent_clone(e->orig)) == NULL)
-				return zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+				return zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		}
 		e->changes->last_mod = mtime;
 		e->changes->changed |= ZIP_DIRENT_LAST_MOD;
@@ -4428,7 +4439,7 @@ ZIP_EXTERN int zip_file_set_external_attributes(zip_t * za, uint64 idx, zip_flag
 	if(_zip_get_dirent(za, idx, 0, NULL) == NULL)
 		return -1;
 	if(ZIP_IS_RDONLY(za))
-		return zip_error_set(&za->error, ZIP_ER_RDONLY, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	e = za->entry+idx;
 	unchanged_opsys = (e->orig ? (uint8)(e->orig->version_madeby>>8) : (uint8)ZIP_OPSYS_DEFAULT);
 	unchanged_attributes = e->orig ? e->orig->ext_attrib : ZIP_EXT_ATTRIB_DEFAULT;
@@ -4436,7 +4447,7 @@ ZIP_EXTERN int zip_file_set_external_attributes(zip_t * za, uint64 idx, zip_flag
 	if(changed) {
 		if(e->changes == NULL) {
 			if((e->changes = _zip_dirent_clone(e->orig)) == NULL)
-				return zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+				return zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		}
 		e->changes->version_madeby = (uint16)((opsys << 8) | (e->changes->version_madeby & 0xff));
 		e->changes->ext_attrib = attributes;
@@ -4466,9 +4477,9 @@ ZIP_EXTERN int zip_file_set_comment(zip_t * za, uint64 idx, const char * comment
 	if(_zip_get_dirent(za, idx, 0, NULL) == NULL)
 		return -1;
 	if(ZIP_IS_RDONLY(za))
-		return zip_error_set(&za->error, ZIP_ER_RDONLY, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	if(len > 0 && comment == NULL)
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	if(len > 0) {
 		if((cstr = _zip_string_new((const uint8*)comment, len, flags, &za->error)) == NULL)
 			return -1;
@@ -4491,7 +4502,7 @@ ZIP_EXTERN int zip_file_set_comment(zip_t * za, uint64 idx, const char * comment
 	if(changed) {
 		if(e->changes == NULL) {
 			if((e->changes = _zip_dirent_clone(e->orig)) == NULL) {
-				zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+				zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 				_zip_string_free(cstr);
 				return -1;
 			}
@@ -4515,13 +4526,13 @@ ZIP_EXTERN int zip_file_extra_field_delete(zip_t * za, uint64 idx, uint16 ef_idx
 {
 	zip_dirent_t * de;
 	if((flags & ZIP_EF_BOTH) == 0)
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	if(((flags & ZIP_EF_BOTH) == ZIP_EF_BOTH) && (ef_idx != ZIP_EXTRA_FIELD_ALL))
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	if(_zip_get_dirent(za, idx, 0, NULL) == NULL)
 		return -1;
 	if(ZIP_IS_RDONLY(za))
-		return zip_error_set(&za->error, ZIP_ER_RDONLY, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	if(_zip_file_extra_field_prepare_for_change(za, idx) < 0)
 		return -1;
 	de = za->entry[idx].changes;
@@ -4532,13 +4543,13 @@ ZIP_EXTERN int zip_file_extra_field_delete(zip_t * za, uint64 idx, uint16 ef_idx
 ZIP_EXTERN int zip_file_extra_field_delete_by_id(zip_t * za, uint64 idx, uint16 ef_id, uint16 ef_idx, zip_flags_t flags)
 {
 	if((flags & ZIP_EF_BOTH) == 0)
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	else if(((flags & ZIP_EF_BOTH) == ZIP_EF_BOTH) && (ef_idx != ZIP_EXTRA_FIELD_ALL))
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	else if(_zip_get_dirent(za, idx, 0, NULL) == NULL)
 		return -1;
 	else if(ZIP_IS_RDONLY(za))
-		return zip_error_set(&za->error, ZIP_ER_RDONLY, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	else if(_zip_file_extra_field_prepare_for_change(za, idx) < 0)
 		return -1;
 	else {
@@ -4555,7 +4566,7 @@ ZIP_EXTERN const uint8 * zip_file_extra_field_get(zip_t * za, uint64 idx, uint16
 	zip_extra_field_t * ef;
 	int i;
 	if((flags & ZIP_EF_BOTH) == 0) {
-		zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}
 	if((de = _zip_get_dirent(za, idx, flags, &za->error)) == NULL)
@@ -4575,7 +4586,7 @@ ZIP_EXTERN const uint8 * zip_file_extra_field_get(zip_t * za, uint64 idx, uint16
 			return (ef->size > 0) ? ef->data : empty;
 		}
 	}
-	zip_error_set(&za->error, ZIP_ER_NOENT, 0);
+	zip_error_set(&za->error, SLERR_ZIP_NOENT, 0);
 	return NULL;
 }
 
@@ -4584,7 +4595,7 @@ ZIP_EXTERN const uint8 * zip_file_extra_field_get_by_id(zip_t * za,
 {
 	zip_dirent_t * de;
 	if((flags & ZIP_EF_BOTH) == 0) {
-		zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}
 	if((de = _zip_get_dirent(za, idx, flags, &za->error)) == NULL)
@@ -4601,7 +4612,7 @@ ZIP_EXTERN int16 zip_file_extra_fields_count(zip_t * za, uint64 idx, zip_flags_t
 	zip_extra_field_t * ef;
 	uint16 n;
 	if((flags & ZIP_EF_BOTH) == 0)
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	if((de = _zip_get_dirent(za, idx, flags, &za->error)) == NULL)
 		return -1;
 	if(flags & ZIP_FL_LOCAL)
@@ -4620,7 +4631,7 @@ ZIP_EXTERN int16 zip_file_extra_fields_count_by_id(zip_t * za, uint64 idx, uint1
 	zip_extra_field_t * ef;
 	uint16 n;
 	if((flags & ZIP_EF_BOTH) == 0)
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	if((de = _zip_get_dirent(za, idx, flags, &za->error)) == NULL)
 		return -1;
 	if(flags & ZIP_FL_LOCAL)
@@ -4640,13 +4651,13 @@ ZIP_EXTERN int zip_file_extra_field_set(zip_t * za, uint64 idx, uint16 ef_id, ui
 	zip_extra_field_t * ef, * ef_prev, * ef_new;
 	int i, found, new_len;
 	if((flags & ZIP_EF_BOTH) == 0)
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	if(_zip_get_dirent(za, idx, 0, NULL) == NULL)
 		return -1;
 	if(ZIP_IS_RDONLY(za))
-		return zip_error_set(&za->error, ZIP_ER_RDONLY, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	if(ZIP_EF_IS_INTERNAL(ef_id))
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	if(_zip_file_extra_field_prepare_for_change(za, idx) < 0)
 		return -1;
 	de = za->entry[idx].changes;
@@ -4665,7 +4676,7 @@ ZIP_EXTERN int zip_file_extra_field_set(zip_t * za, uint64 idx, uint16 ef_id, ui
 		ef_prev = ef;
 	}
 	if(i < ef_idx && ef_idx != ZIP_EXTRA_FIELD_NEW)
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	ls = (flags & ZIP_EF_LOCAL) ? _zip_ef_size(de->extra_fields, ZIP_EF_LOCAL) :  0;
 	cs = (flags & ZIP_EF_CENTRAL) ? _zip_ef_size(de->extra_fields, ZIP_EF_CENTRAL) : 0;
 	new_len = ls > cs ? ls : cs;
@@ -4673,9 +4684,9 @@ ZIP_EXTERN int zip_file_extra_field_set(zip_t * za, uint64 idx, uint16 ef_id, ui
 		new_len -= ef->size + 4;
 	new_len += len + 4;
 	if(new_len > ZIP_UINT16_MAX)
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	if((ef_new = _zip_ef_new(ef_id, len, data, flags)) == NULL)
-		return zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 	if(found) {
 		if((ef->flags & ZIP_EF_BOTH) == (flags & ZIP_EF_BOTH)) {
 			ef_new->next = ef->next;
@@ -4704,7 +4715,7 @@ ZIP_EXTERN int zip_file_extra_field_set(zip_t * za, uint64 idx, uint16 ef_id, ui
 int _zip_file_extra_field_prepare_for_change(zip_t * za, uint64 idx)
 {
 	if(idx >= za->nentry)
-		return zip_error_set(&za->error, ZIP_ER_INVAL, 0);
+		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	else {
 		zip_entry_t * e = za->entry+idx;
 		if(e->changes && (e->changes->changed & ZIP_DIRENT_EXTRA_FIELD))
@@ -4715,7 +4726,7 @@ int _zip_file_extra_field_prepare_for_change(zip_t * za, uint64 idx)
 		}
 		if(e->changes == NULL) {
 			if((e->changes = _zip_dirent_clone(e->orig)) == NULL)
-				return zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+				return zip_error_set(&za->error, SLERR_ZIP_MEMORY, 0);
 		}
 		if(e->orig && e->orig->extra_fields) {
 			if((e->changes->extra_fields = _zip_ef_clone(e->orig->extra_fields, &za->error)) == NULL)

@@ -206,7 +206,7 @@ uint8 * _zip_cp437_to_utf8(const uint8 * const _cp437buf, uint32 len, uint32 * u
 		for(i = 0; i < len; i++)
 			buflen += _zip_unicode_to_utf8_len(_cp437_to_unicode[cp437buf[i]]);
 		if((utf8buf = (uint8*)SAlloc::M(buflen)) == NULL) {
-			zip_error_set(error, ZIP_ER_MEMORY, 0);
+			zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		}
 		else {
 			uint32 offset = 0;

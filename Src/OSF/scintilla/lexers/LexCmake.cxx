@@ -16,7 +16,7 @@
 //#include "Accessor.h"
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
-#include "LexerModule.h"
+//#include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -47,21 +47,17 @@ static bool CmakeNextLineHasElse(Sci_PositionU start, Sci_PositionU end, Accesso
 			break;
 		}
 	}
-
 	if(nNextLine == -1) // We never foudn the next line...
 		return false;
-
 	for(Sci_PositionU firstChar = nNextLine; firstChar < end; firstChar++) {
 		char cNext = styler.SafeGetCharAt(firstChar);
-		if(cNext == ' ')
+		if(oneof2(cNext, ' ', '\t'))
 			continue;
-		if(cNext == '\t')
-			continue;
-		if(styler.Match(firstChar, "ELSE")  || styler.Match(firstChar, "else"))
+		else if(styler.Match(firstChar, "ELSE")  || styler.Match(firstChar, "else"))
 			return true;
-		break;
+		else
+			break;
 	}
-
 	return false;
 }
 
@@ -70,15 +66,12 @@ static int calculateFoldCmake(Sci_PositionU start, Sci_PositionU end, int foldle
 	// If the word is too long, it is not what we are looking for
 	if(end - start > 20)
 		return foldlevel;
-
 	int newFoldlevel = foldlevel;
-
 	char s[20]; // The key word we are looking for has atmost 13 characters
 	for(uint i = 0; i < end - start + 1 && i < 19; i++) {
 		s[i] = static_cast<char>( styler[ start + i ] );
 		s[i + 1] = '\0';
 	}
-
 	if(CompareCaseInsensitive(s, "IF") == 0 || CompareCaseInsensitive(s, "WHILE") == 0
 	    || CompareCaseInsensitive(s, "MACRO") == 0 || CompareCaseInsensitive(s, "FOREACH") == 0
 	    || CompareCaseInsensitive(s, "ELSEIF") == 0)

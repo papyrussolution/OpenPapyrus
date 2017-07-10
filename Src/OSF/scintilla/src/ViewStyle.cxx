@@ -406,11 +406,9 @@ void ViewStyle::EnsureStyle(size_t index)
 
 void ViewStyle::ResetDefaultStyle()
 {
-	styles[STYLE_DEFAULT].Clear(ColourDesired(0, 0, 0),
-	    ColourDesired(0xff, 0xff, 0xff),
+	styles[STYLE_DEFAULT].Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff),
 	    Platform::DefaultFontSize() * SC_FONT_SIZE_MULTIPLIER, fontNames.Save(Platform::DefaultFont()),
-	    SC_CHARSET_DEFAULT,
-	    SC_WEIGHT_NORMAL, false, false, false, Style::caseMixed, true, true, false);
+	    SC_CHARSET_DEFAULT, SC_WEIGHT_NORMAL, false, false, false, Style::caseMixed, true, true, false);
 }
 
 void ViewStyle::ClearStyles()
@@ -422,7 +420,6 @@ void ViewStyle::ClearStyles()
 		}
 	}
 	styles[STYLE_LINENUMBER].back = Platform::Chrome();
-
 	// Set call tip fore/back to match the values previously set for call tips
 	styles[STYLE_CALLTIP].back = ColourDesired(0xff, 0xff, 0xff);
 	styles[STYLE_CALLTIP].fore = ColourDesired(0x80, 0x80, 0x80);

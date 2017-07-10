@@ -20,7 +20,7 @@
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
 #include "CharacterCategory.h"
-#include "LexerModule.h"
+//#include "LexerModule.h"
 #include "OptionSet.h"
 #include "SubStyles.h"
 
@@ -696,7 +696,7 @@ void SCI_METHOD LexerPython::Lex(Sci_PositionU startPos, Sci_Position length, in
 				sc.Forward();
 			}
 			else {
-				PushStateToStack(sc.state, fstringStateStack, ELEMENTS(fstringStateStack));
+				PushStateToStack(sc.state, fstringStateStack, SIZEOFARRAY(fstringStateStack));
 				sc.ForwardSetState(SCE_P_DEFAULT);
 			}
 			needEOLCheck = true;
@@ -725,7 +725,7 @@ void SCI_METHOD LexerPython::Lex(Sci_PositionU startPos, Sci_Position length, in
 
 		// If in f-string expression, check for } to resume f-string state
 		if(fstringStateStack[0] != 0 && sc.ch == '}') {
-			sc.SetState(PopFromStateStack(fstringStateStack, ELEMENTS(fstringStateStack)));
+			sc.SetState(PopFromStateStack(fstringStateStack, SIZEOFARRAY(fstringStateStack)));
 		}
 
 		// Check for a new state starting character
@@ -874,43 +874,29 @@ void SCI_METHOD LexerPython::Fold(Sci_PositionU startPos, Sci_Position length, i
 		// comments (all comments, not just those starting in column 0)
 		// which effectively folds them into surrounding code rather
 		// than screwing up folding.
-
-		while(!quote &&
-		    (lineNext < docLines) &&
-		    ((indentNext & SC_FOLDLEVELWHITEFLAG) ||
-			    (lineNext <= docLines && IsCommentLine(lineNext, styler)))) {
+		while(!quote && (lineNext < docLines) && ((indentNext & SC_FOLDLEVELWHITEFLAG) || (lineNext <= docLines && IsCommentLine(lineNext, styler)))) {
 			lineNext++;
 			indentNext = styler.IndentAmount(lineNext, &spaceFlags, NULL);
 		}
-
 		const int levelAfterComments = indentNext & SC_FOLDLEVELNUMBERMASK;
-		const int levelBeforeComments = Maximum(indentCurrentLevel, levelAfterComments);
-
+		const int levelBeforeComments = smax(indentCurrentLevel, levelAfterComments);
 		// Now set all the indent levels on the lines we skipped
 		// Do this from end to start.  Once we encounter one line
 		// which is indented more than the line after the end of
 		// the comment-block, use the level of the block before
-
 		Sci_Position skipLine = lineNext;
 		int skipLevel = levelAfterComments;
-
 		while(--skipLine > lineCurrent) {
 			int skipLineIndent = styler.IndentAmount(skipLine, &spaceFlags, NULL);
-
 			if(options.foldCompact) {
 				if((skipLineIndent & SC_FOLDLEVELNUMBERMASK) > levelAfterComments)
 					skipLevel = levelBeforeComments;
-
 				int whiteFlag = skipLineIndent & SC_FOLDLEVELWHITEFLAG;
-
 				styler.SetLevel(skipLine, skipLevel | whiteFlag);
 			}
 			else {
-				if((skipLineIndent & SC_FOLDLEVELNUMBERMASK) > levelAfterComments &&
-				    !(skipLineIndent & SC_FOLDLEVELWHITEFLAG) &&
-				    !IsCommentLine(skipLine, styler))
+				if((skipLineIndent & SC_FOLDLEVELNUMBERMASK) > levelAfterComments && !(skipLineIndent & SC_FOLDLEVELWHITEFLAG) && !IsCommentLine(skipLine, styler))
 					skipLevel = levelBeforeComments;
-
 				styler.SetLevel(skipLine, skipLevel);
 			}
 		}
@@ -920,10 +906,8 @@ void SCI_METHOD LexerPython::Fold(Sci_PositionU startPos, Sci_Position length, i
 			if((indentCurrent & SC_FOLDLEVELNUMBERMASK) < (indentNext & SC_FOLDLEVELNUMBERMASK))
 				lev |= SC_FOLDLEVELHEADERFLAG;
 		}
-
 		// Keep track of triple quote state of previous line
 		prevQuote = quote;
-
 		// Set fold level for this line and move to next line
 		styler.SetLevel(lineCurrent, options.foldCompact ? lev : lev & ~SC_FOLDLEVELWHITEFLAG);
 		indentCurrent = indentNext;
@@ -935,5 +919,4 @@ void SCI_METHOD LexerPython::Fold(Sci_PositionU startPos, Sci_Position length, i
 	//styler.SetLevel(lineCurrent, indentCurrent);
 }
 
-LexerModule lmPython(SCLEX_PYTHON, LexerPython::LexerFactoryPython, "python",
-    pythonWordListDesc);
+LexerModule lmPython(SCLEX_PYTHON, LexerPython::LexerFactoryPython, "python", pythonWordListDesc);

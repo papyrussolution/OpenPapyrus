@@ -138,7 +138,7 @@ void WordList::Set(const char * s)
 #else
 	SortWordList(words, len);
 #endif
-	std::fill(starts, starts + ELEMENTS(starts), -1);
+	std::fill(starts, starts + SIZEOFARRAY(starts), -1);
 	for(int l = len - 1; l >= 0; l--) {
 		uchar indexChar = words[l][0];
 		starts[indexChar] = l;

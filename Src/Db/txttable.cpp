@@ -123,7 +123,6 @@ int TextDbFile::Open(const char * pFileName, const Param * pParam, int readOnly)
 
 int TextDbFile::Close()
 {
-	// @v7.4.1 {
 	if(!(State & stReadOnly) && F.IsValid()) {
 		if(P.Flags & fVerticalRec && P.FooterLine.NotEmpty()) {
 			SString line_buf;
@@ -131,7 +130,6 @@ int TextDbFile::Close()
 			F.WriteLine(line_buf);
 		}
 	}
-	// } @v7.4.1
 	return F.Close();
 }
 

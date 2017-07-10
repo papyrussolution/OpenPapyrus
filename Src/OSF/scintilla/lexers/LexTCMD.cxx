@@ -16,7 +16,7 @@
 //#include "Accessor.h"
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
-#include "LexerModule.h"
+//#include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -519,10 +519,6 @@ static void FoldTCMDDoc(Sci_PositionU startPos, Sci_Position length, int, WordLi
 	}
 }
 
-static const char * const tcmdWordListDesc[] = {
-	"Internal Commands",
-	"Aliases",
-	0
-};
+static const char * const tcmdWordListDesc[] = { "Internal Commands", "Aliases", 0 };
 
 LexerModule lmTCMD(SCLEX_TCMD, ColouriseTCMDDoc, "tcmd", FoldTCMDDoc, tcmdWordListDesc);

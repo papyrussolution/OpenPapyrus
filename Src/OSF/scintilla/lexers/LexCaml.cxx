@@ -28,7 +28,7 @@
 //#include "Accessor.h"
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
-#include "LexerModule.h"
+//#include "LexerModule.h"
 
 //	Since the Microsoft __iscsym[f] funcs are not ANSI...
 inline int  iscaml(int c) {

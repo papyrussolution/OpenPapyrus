@@ -27,7 +27,7 @@
 //#include "Accessor.h"
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
-#include "LexerModule.h"
+//#include "LexerModule.h"
 #include "OptionSet.h"
 
 #define SET_LOWER "abcdefghijklmnopqrstuvwxyz"

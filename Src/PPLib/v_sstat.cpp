@@ -1357,14 +1357,18 @@ int SLAPI PPViewSStat::ConvertLinesToBasket()
 				i_i.GoodsID     = goods_id;
 				//i_i.UnitPerPack = gr_item.UnitPerPack;
 				i_i.Cost        = R5(lot_rec.Cost);
-				if(param.SelPrice == 1)
-					i_i.Price = R5(lot_rec.Cost);
-				else if(param.SelPrice == 2)
-					i_i.Price = R5(lot_rec.Price);
-				else if(param.SelPrice == 3)
-					i_i.Price = R5(lot_rec.Price);
-				else
-					i_i.Price = R5(lot_rec.Price);
+				{
+					double _price = 0.0;
+					if(param.SelPrice == 1)
+						_price = lot_rec.Cost;
+					else if(param.SelPrice == 2)
+						_price = lot_rec.Price;
+					else if(param.SelPrice == 3)
+						_price = lot_rec.Price;
+					else
+						_price = lot_rec.Price;
+					i_i.Price = R5(_price);
+				}
 				i_i.CurPrice = 0.0;
 				i_i.Flags    = 0;
 				i_i.Suppl    = lot_rec.SupplID;
@@ -1668,7 +1672,7 @@ int SLAPI PPViewSStat::CalcTotal(SStatTotal * pTotal)
 				pTotal->OrderCount++;
 				pTotal->OrderQtty   += oq;
 				pTotal->OrderAmount += (oq * item.PriceAvg);
-				pTotal->OrderCost   += (oq * item.CostAvg); // @v7.1.7
+				pTotal->OrderCost   += (oq * item.CostAvg);
 				if(!item.IsPredictTrust)
 					pTotal->UncertCount++;
 			}
@@ -1691,7 +1695,7 @@ int SLAPI PPViewSStat::ViewTotal()
 	dlg->setCtrlReal(CTL_SSTATTOTAL_AMOUNT,    total.Amount);
 	dlg->setCtrlLong(CTL_SSTATTOTAL_ORDCOUNT,  total.OrderCount);
 	dlg->setCtrlReal(CTL_SSTATTOTAL_ORDQTTY,   total.OrderQtty);
-	dlg->setCtrlReal(CTL_SSTATTOTAL_ORDCOST,   total.OrderCost); // @v7.1.7
+	dlg->setCtrlReal(CTL_SSTATTOTAL_ORDCOST,   total.OrderCost);
 	dlg->setCtrlReal(CTL_SSTATTOTAL_ORDAMOUNT, total.OrderAmount);
 	dlg->setCtrlLong(CTL_SSTATTOTAL_UNCRTCNT,  total.UncertCount);
 	ExecViewAndDestroy(dlg);

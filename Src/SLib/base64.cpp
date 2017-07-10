@@ -204,8 +204,6 @@ int MIME64::Decode(const char * pIn, size_t inLen, char * pOut, size_t * pOutDat
 	}
 	*p_out = 0;
 	ASSIGN_PTR(pOutDataLen, len);
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }

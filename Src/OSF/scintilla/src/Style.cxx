@@ -80,16 +80,13 @@ void FontMeasurements::Clear()
 
 Style::Style() : FontSpecification()
 {
-	Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff),
-	    Platform::DefaultFontSize() * SC_FONT_SIZE_MULTIPLIER, 0, SC_CHARSET_DEFAULT,
+	Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff), Platform::DefaultFontSize() * SC_FONT_SIZE_MULTIPLIER, 0, SC_CHARSET_DEFAULT,
 	    SC_WEIGHT_NORMAL, false, false, false, caseMixed, true, true, false);
 }
 
 Style::Style(const Style &source) : FontSpecification(), FontMeasurements()
 {
-	Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff),
-	    0, 0, 0,
-	    SC_WEIGHT_NORMAL, false, false, false, caseMixed, true, true, false);
+	Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff), 0, 0, 0, SC_WEIGHT_NORMAL, false, false, false, caseMixed, true, true, false);
 	fore = source.fore;
 	back = source.back;
 	characterSet = source.characterSet;
@@ -109,13 +106,11 @@ Style::~Style()
 {
 }
 
-Style &Style::operator=(const Style &source)
+Style & Style::operator=(const Style &source)
 {
 	if(this == &source)
 		return *this;
-	Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff),
-	    0, 0, SC_CHARSET_DEFAULT,
-	    SC_WEIGHT_NORMAL, false, false, false, caseMixed, true, true, false);
+	Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff), 0, 0, SC_CHARSET_DEFAULT, SC_WEIGHT_NORMAL, false, false, false, caseMixed, true, true, false);
 	fore = source.fore;
 	back = source.back;
 	characterSet = source.characterSet;
@@ -131,11 +126,8 @@ Style &Style::operator=(const Style &source)
 	return *this;
 }
 
-void Style::Clear(ColourDesired fore_, ColourDesired back_, int size_,
-    const char * fontName_, int characterSet_,
-    int weight_, bool italic_, bool eolFilled_,
-    bool underline_, ecaseForced caseForce_,
-    bool visible_, bool changeable_, bool hotspot_)
+void Style::Clear(ColourDesired fore_, ColourDesired back_, int size_, const char * fontName_, int characterSet_,
+    int weight_, bool italic_, bool eolFilled_, bool underline_, ecaseForced caseForce_, bool visible_, bool changeable_, bool hotspot_)
 {
 	fore = fore_;
 	back = back_;

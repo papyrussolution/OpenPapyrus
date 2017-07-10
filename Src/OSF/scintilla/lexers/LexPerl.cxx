@@ -18,7 +18,7 @@
 //#include "LexAccessor.h"
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
-#include "LexerModule.h"
+//#include "LexerModule.h"
 #include "OptionSet.h"
 
 #ifdef SCI_NAMESPACE
@@ -379,9 +379,7 @@ struct OptionsPerl {
 	// Enable folding Pod blocks when using the Perl lexer.
 	bool foldPackage;        // fold.perl.package
 	// Enable folding packages when using the Perl lexer.
-
 	bool foldCommentExplicit;
-
 	bool foldAtElse;
 
 	OptionsPerl()
@@ -405,23 +403,12 @@ struct OptionSetPerl : public OptionSet<OptionsPerl> {
 	OptionSetPerl()
 	{
 		DefineProperty("fold", &OptionsPerl::fold);
-
 		DefineProperty("fold.comment", &OptionsPerl::foldComment);
-
 		DefineProperty("fold.compact", &OptionsPerl::foldCompact);
-
-		DefineProperty("fold.perl.pod", &OptionsPerl::foldPOD,
-		    "Set to 0 to disable folding Pod blocks when using the Perl lexer.");
-
-		DefineProperty("fold.perl.package", &OptionsPerl::foldPackage,
-		    "Set to 0 to disable folding packages when using the Perl lexer.");
-
-		DefineProperty("fold.perl.comment.explicit", &OptionsPerl::foldCommentExplicit,
-		    "Set to 0 to disable explicit folding.");
-
-		DefineProperty("fold.perl.at.else", &OptionsPerl::foldAtElse,
-		    "This option enables Perl folding on a \"} else {\" line of an if statement.");
-
+		DefineProperty("fold.perl.pod", &OptionsPerl::foldPOD, "Set to 0 to disable folding Pod blocks when using the Perl lexer.");
+		DefineProperty("fold.perl.package", &OptionsPerl::foldPackage, "Set to 0 to disable folding packages when using the Perl lexer.");
+		DefineProperty("fold.perl.comment.explicit", &OptionsPerl::foldCommentExplicit, "Set to 0 to disable explicit folding.");
+		DefineProperty("fold.perl.at.else", &OptionsPerl::foldAtElse, "This option enables Perl folding on a \"} else {\" line of an if statement.");
 		DefineWordListSets(perlWordListDesc);
 	}
 };
@@ -451,57 +438,45 @@ public:
 	{
 		delete this;
 	}
-
 	int SCI_METHOD Version() const
 	{
 		return lvOriginal;
 	}
-
 	const char * SCI_METHOD PropertyNames()
 	{
 		return osPerl.PropertyNames();
 	}
-
 	int SCI_METHOD PropertyType(const char * name)
 	{
 		return osPerl.PropertyType(name);
 	}
-
 	const char * SCI_METHOD DescribeProperty(const char * name)
 	{
 		return osPerl.DescribeProperty(name);
 	}
-
 	Sci_Position SCI_METHOD PropertySet(const char * key, const char * val);
 	const char * SCI_METHOD DescribeWordListSets()
 	{
 		return osPerl.DescribeWordListSets();
 	}
-
 	Sci_Position SCI_METHOD WordListSet(int n, const char * wl);
 	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
 	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
-
 	void * SCI_METHOD PrivateCall(int, void *)
 	{
 		return 0;
 	}
-
 	static ILexer * LexerFactoryPerl()
 	{
 		return new LexerPerl();
 	}
-
 	int InputSymbolScan(StyleContext &sc);
 	void InterpolateSegment(StyleContext &sc, int maxSeg, bool isPattern = false);
 };
 
 Sci_Position SCI_METHOD LexerPerl::PropertySet(const char * key, const char * val)
 {
-	if(osPerl.PropertySet(&options, key, val)) {
-		return 0;
-	}
-	return -1;
+	return osPerl.PropertySet(&options, key, val) ? 0 : -1;
 }
 
 Sci_Position SCI_METHOD LexerPerl::WordListSet(int n, const char * wl)
@@ -1808,10 +1783,7 @@ public:
 		}
 	}
 	sc.Complete();
-	if(sc.state == SCE_PL_HERE_Q
-	    || sc.state == SCE_PL_HERE_QQ
-	    || sc.state == SCE_PL_HERE_QX
-	    || sc.state == SCE_PL_FORMAT) {
+	if(oneof4(sc.state, SCE_PL_HERE_Q, SCE_PL_HERE_QQ, SCE_PL_HERE_QX, SCE_PL_FORMAT)) {
 		styler.ChangeLexerState(sc.currentPos, styler.Length());
 	}
 	sc.Complete();
@@ -1822,175 +1794,168 @@ public:
 
 void SCI_METHOD LexerPerl::Fold(Sci_PositionU startPos, Sci_Position length, int /* initStyle */, IDocument * pAccess)
 {
-	if(!options.fold)
-		return;
+	if(options.fold) {
+		LexAccessor styler(pAccess);
+		Sci_PositionU endPos = startPos + length;
+		int visibleChars = 0;
+		Sci_Position lineCurrent = styler.GetLine(startPos);
 
-	LexAccessor styler(pAccess);
-
-	Sci_PositionU endPos = startPos + length;
-	int visibleChars = 0;
-	Sci_Position lineCurrent = styler.GetLine(startPos);
-
-	// Backtrack to previous line in case need to fix its fold status
-	if(startPos > 0) {
-		if(lineCurrent > 0) {
-			lineCurrent--;
-			startPos = styler.LineStart(lineCurrent);
-		}
-	}
-
-	int levelPrev = SC_FOLDLEVELBASE;
-	if(lineCurrent > 0)
-		levelPrev = styler.LevelAt(lineCurrent - 1) >> 16;
-	int levelCurrent = levelPrev;
-	char chNext = styler[startPos];
-	char chPrev = styler.SafeGetCharAt(startPos - 1);
-	int styleNext = styler.StyleAt(startPos);
-	// Used at end of line to determine if the line was a package definition
-	bool isPackageLine = false;
-	int podHeading = 0;
-	for(Sci_PositionU i = startPos; i < endPos; i++) {
-		char ch = chNext;
-		chNext = styler.SafeGetCharAt(i + 1);
-		int style = styleNext;
-		styleNext = styler.StyleAt(i + 1);
-		int stylePrevCh = (i) ? styler.StyleAt(i - 1) : SCE_PL_DEFAULT;
-		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
-		bool atLineStart = ((chPrev == '\r') || (chPrev == '\n')) || i == 0;
-		// Comment folding
-		if(options.foldComment && atEOL && IsCommentLine(lineCurrent, styler)) {
-			if(!IsCommentLine(lineCurrent - 1, styler)
-			    && IsCommentLine(lineCurrent + 1, styler))
-				levelCurrent++;
-			else if(IsCommentLine(lineCurrent - 1, styler)
-			    && !IsCommentLine(lineCurrent + 1, styler))
-				levelCurrent--;
-		}
-		// {} [] block folding
-		if(style == SCE_PL_OPERATOR) {
-			if(ch == '{') {
-				if(options.foldAtElse && levelCurrent < levelPrev)
-					--levelPrev;
-				levelCurrent++;
-			}
-			else if(ch == '}') {
-				levelCurrent--;
-			}
-			if(ch == '[') {
-				if(options.foldAtElse && levelCurrent < levelPrev)
-					--levelPrev;
-				levelCurrent++;
-			}
-			else if(ch == ']') {
-				levelCurrent--;
+		// Backtrack to previous line in case need to fix its fold status
+		if(startPos > 0) {
+			if(lineCurrent > 0) {
+				lineCurrent--;
+				startPos = styler.LineStart(lineCurrent);
 			}
 		}
-		// POD folding
-		if(options.foldPOD && atLineStart) {
-			if(style == SCE_PL_POD) {
-				if(stylePrevCh != SCE_PL_POD && stylePrevCh != SCE_PL_POD_VERB)
+
+		int levelPrev = SC_FOLDLEVELBASE;
+		if(lineCurrent > 0)
+			levelPrev = styler.LevelAt(lineCurrent - 1) >> 16;
+		int levelCurrent = levelPrev;
+		char chNext = styler[startPos];
+		char chPrev = styler.SafeGetCharAt(startPos - 1);
+		int styleNext = styler.StyleAt(startPos);
+		// Used at end of line to determine if the line was a package definition
+		bool isPackageLine = false;
+		int podHeading = 0;
+		for(Sci_PositionU i = startPos; i < endPos; i++) {
+			char ch = chNext;
+			chNext = styler.SafeGetCharAt(i + 1);
+			int style = styleNext;
+			styleNext = styler.StyleAt(i + 1);
+			int stylePrevCh = (i) ? styler.StyleAt(i - 1) : SCE_PL_DEFAULT;
+			bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
+			bool atLineStart = ((chPrev == '\r') || (chPrev == '\n')) || i == 0;
+			// Comment folding
+			if(options.foldComment && atEOL && IsCommentLine(lineCurrent, styler)) {
+				if(!IsCommentLine(lineCurrent - 1, styler) && IsCommentLine(lineCurrent + 1, styler))
 					levelCurrent++;
-				else if(styler.Match(i, "=cut"))
-					levelCurrent = (levelCurrent & ~PERL_HEADFOLD_MASK) - 1;
-				else if(styler.Match(i, "=head"))
-					podHeading = PodHeadingLevel(i, styler);
-			}
-			else if(style == SCE_PL_DATASECTION) {
-				if(ch == '=' && IsASCII(chNext) && isalpha(chNext) && levelCurrent == SC_FOLDLEVELBASE)
-					levelCurrent++;
-				else if(styler.Match(i, "=cut") && levelCurrent > SC_FOLDLEVELBASE)
-					levelCurrent = (levelCurrent & ~PERL_HEADFOLD_MASK) - 1;
-				else if(styler.Match(i, "=head"))
-					podHeading = PodHeadingLevel(i, styler);
-				// if package used or unclosed brace, level > SC_FOLDLEVELBASE!
-				// reset needed as level test is vs. SC_FOLDLEVELBASE
-				else if(stylePrevCh != SCE_PL_DATASECTION)
-					levelCurrent = SC_FOLDLEVELBASE;
-			}
-		}
-		// package folding
-		if(options.foldPackage && atLineStart) {
-			if(IsPackageLine(lineCurrent, styler)
-			    && !IsPackageLine(lineCurrent + 1, styler))
-				isPackageLine = true;
-		}
-
-		//heredoc folding
-		switch(style) {
-			case SCE_PL_HERE_QQ:
-			case SCE_PL_HERE_Q:
-			case SCE_PL_HERE_QX:
-			    switch(stylePrevCh) {
-				    case SCE_PL_HERE_QQ:
-				    case SCE_PL_HERE_Q:
-				    case SCE_PL_HERE_QX:
-					//do nothing;
-					break;
-				    default:
-					levelCurrent++;
-					break;
-			    }
-			    break;
-			default:
-			    switch(stylePrevCh) {
-				    case SCE_PL_HERE_QQ:
-				    case SCE_PL_HERE_Q:
-				    case SCE_PL_HERE_QX:
+				else if(IsCommentLine(lineCurrent - 1, styler) && !IsCommentLine(lineCurrent + 1, styler))
 					levelCurrent--;
-					break;
-				    default:
-					//do nothing;
-					break;
-			    }
-			    break;
-		}
+			}
+			// {} [] block folding
+			if(style == SCE_PL_OPERATOR) {
+				if(ch == '{') {
+					if(options.foldAtElse && levelCurrent < levelPrev)
+						--levelPrev;
+					levelCurrent++;
+				}
+				else if(ch == '}') {
+					levelCurrent--;
+				}
+				if(ch == '[') {
+					if(options.foldAtElse && levelCurrent < levelPrev)
+						--levelPrev;
+					levelCurrent++;
+				}
+				else if(ch == ']') {
+					levelCurrent--;
+				}
+			}
+			// POD folding
+			if(options.foldPOD && atLineStart) {
+				if(style == SCE_PL_POD) {
+					if(stylePrevCh != SCE_PL_POD && stylePrevCh != SCE_PL_POD_VERB)
+						levelCurrent++;
+					else if(styler.Match(i, "=cut"))
+						levelCurrent = (levelCurrent & ~PERL_HEADFOLD_MASK) - 1;
+					else if(styler.Match(i, "=head"))
+						podHeading = PodHeadingLevel(i, styler);
+				}
+				else if(style == SCE_PL_DATASECTION) {
+					if(ch == '=' && IsASCII(chNext) && isalpha(chNext) && levelCurrent == SC_FOLDLEVELBASE)
+						levelCurrent++;
+					else if(styler.Match(i, "=cut") && levelCurrent > SC_FOLDLEVELBASE)
+						levelCurrent = (levelCurrent & ~PERL_HEADFOLD_MASK) - 1;
+					else if(styler.Match(i, "=head"))
+						podHeading = PodHeadingLevel(i, styler);
+					// if package used or unclosed brace, level > SC_FOLDLEVELBASE!
+					// reset needed as level test is vs. SC_FOLDLEVELBASE
+					else if(stylePrevCh != SCE_PL_DATASECTION)
+						levelCurrent = SC_FOLDLEVELBASE;
+				}
+			}
+			// package folding
+			if(options.foldPackage && atLineStart) {
+				if(IsPackageLine(lineCurrent, styler) && !IsPackageLine(lineCurrent + 1, styler))
+					isPackageLine = true;
+			}
 
-		//explicit folding
-		if(options.foldCommentExplicit && style == SCE_PL_COMMENTLINE && ch == '#') {
-			if(chNext == '{') {
-				levelCurrent++;
+			//heredoc folding
+			switch(style) {
+				case SCE_PL_HERE_QQ:
+				case SCE_PL_HERE_Q:
+				case SCE_PL_HERE_QX:
+					switch(stylePrevCh) {
+						case SCE_PL_HERE_QQ:
+						case SCE_PL_HERE_Q:
+						case SCE_PL_HERE_QX:
+						//do nothing;
+						break;
+						default:
+						levelCurrent++;
+						break;
+					}
+					break;
+				default:
+					switch(stylePrevCh) {
+						case SCE_PL_HERE_QQ:
+						case SCE_PL_HERE_Q:
+						case SCE_PL_HERE_QX:
+						levelCurrent--;
+						break;
+						default:
+						//do nothing;
+						break;
+					}
+					break;
 			}
-			else if(levelCurrent > SC_FOLDLEVELBASE  && chNext == '}') {
-				levelCurrent--;
+			//explicit folding
+			if(options.foldCommentExplicit && style == SCE_PL_COMMENTLINE && ch == '#') {
+				if(chNext == '{') {
+					levelCurrent++;
+				}
+				else if(levelCurrent > SC_FOLDLEVELBASE  && chNext == '}') {
+					levelCurrent--;
+				}
 			}
+			if(atEOL) {
+				int lev = levelPrev;
+				// POD headings occupy bits 7-4, leaving some breathing room for
+				// non-standard practice -- POD sections stuck in blocks, etc.
+				if(podHeading > 0) {
+					levelCurrent = (lev & ~PERL_HEADFOLD_MASK) | (podHeading << PERL_HEADFOLD_SHIFT);
+					lev = levelCurrent - 1;
+					lev |= SC_FOLDLEVELHEADERFLAG;
+					podHeading = 0;
+				}
+				// Check if line was a package declaration
+				// because packages need "special" treatment
+				if(isPackageLine) {
+					lev = SC_FOLDLEVELBASE | SC_FOLDLEVELHEADERFLAG;
+					levelCurrent = SC_FOLDLEVELBASE + 1;
+					isPackageLine = false;
+				}
+				lev |= levelCurrent << 16;
+				if(visibleChars == 0 && options.foldCompact)
+					lev |= SC_FOLDLEVELWHITEFLAG;
+				if((levelCurrent > levelPrev) && (visibleChars > 0))
+					lev |= SC_FOLDLEVELHEADERFLAG;
+				if(lev != styler.LevelAt(lineCurrent)) {
+					styler.SetLevel(lineCurrent, lev);
+				}
+				lineCurrent++;
+				levelPrev = levelCurrent;
+				visibleChars = 0;
+			}
+			if(!isspacechar(ch))
+				visibleChars++;
+			chPrev = ch;
 		}
-
-		if(atEOL) {
-			int lev = levelPrev;
-			// POD headings occupy bits 7-4, leaving some breathing room for
-			// non-standard practice -- POD sections stuck in blocks, etc.
-			if(podHeading > 0) {
-				levelCurrent = (lev & ~PERL_HEADFOLD_MASK) | (podHeading << PERL_HEADFOLD_SHIFT);
-				lev = levelCurrent - 1;
-				lev |= SC_FOLDLEVELHEADERFLAG;
-				podHeading = 0;
-			}
-			// Check if line was a package declaration
-			// because packages need "special" treatment
-			if(isPackageLine) {
-				lev = SC_FOLDLEVELBASE | SC_FOLDLEVELHEADERFLAG;
-				levelCurrent = SC_FOLDLEVELBASE + 1;
-				isPackageLine = false;
-			}
-			lev |= levelCurrent << 16;
-			if(visibleChars == 0 && options.foldCompact)
-				lev |= SC_FOLDLEVELWHITEFLAG;
-			if((levelCurrent > levelPrev) && (visibleChars > 0))
-				lev |= SC_FOLDLEVELHEADERFLAG;
-			if(lev != styler.LevelAt(lineCurrent)) {
-				styler.SetLevel(lineCurrent, lev);
-			}
-			lineCurrent++;
-			levelPrev = levelCurrent;
-			visibleChars = 0;
-		}
-		if(!isspacechar(ch))
-			visibleChars++;
-		chPrev = ch;
+		// Fill in the real level of the next line, keeping the current flags as they will be filled in later
+		int flagsNext = styler.LevelAt(lineCurrent) & ~SC_FOLDLEVELNUMBERMASK;
+		styler.SetLevel(lineCurrent, levelPrev | flagsNext);
 	}
-	// Fill in the real level of the next line, keeping the current flags as they will be filled in later
-	int flagsNext = styler.LevelAt(lineCurrent) & ~SC_FOLDLEVELNUMBERMASK;
-	styler.SetLevel(lineCurrent, levelPrev | flagsNext);
 }
 
 LexerModule lmPerl(SCLEX_PERL, LexerPerl::LexerFactoryPerl, "perl", perlWordListDesc);

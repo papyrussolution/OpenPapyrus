@@ -149,7 +149,7 @@ void LineMarker::Draw(Surface * surface, PRectangle &rcWhole, Font &fontForChara
 			Point::FromInts(centreX - dimOn4, centreY + dimOn2),
 			Point::FromInts(centreX + dimOn2 - dimOn4, centreY),
 		};
-		surface->Polygon(pts, ELEMENTS(pts), fore, back);
+		surface->Polygon(pts, SIZEOFARRAY(pts), fore, back);
 	}
 	else if(markType == SC_MARK_ARROWDOWN) {
 		Point pts[] = {
@@ -157,7 +157,7 @@ void LineMarker::Draw(Surface * surface, PRectangle &rcWhole, Font &fontForChara
 			Point::FromInts(centreX + dimOn2, centreY - dimOn4),
 			Point::FromInts(centreX, centreY + dimOn2 - dimOn4),
 		};
-		surface->Polygon(pts, ELEMENTS(pts), fore, back);
+		surface->Polygon(pts, SIZEOFARRAY(pts), fore, back);
 	}
 	else if(markType == SC_MARK_PLUS) {
 		Point pts[] = {
@@ -174,7 +174,7 @@ void LineMarker::Draw(Surface * surface, PRectangle &rcWhole, Font &fontForChara
 			Point::FromInts(centreX - 1, centreY + 1),
 			Point::FromInts(centreX - armSize, centreY + 1),
 		};
-		surface->Polygon(pts, ELEMENTS(pts), fore, back);
+		surface->Polygon(pts, SIZEOFARRAY(pts), fore, back);
 	}
 	else if(markType == SC_MARK_MINUS) {
 		Point pts[] = {
@@ -183,7 +183,7 @@ void LineMarker::Draw(Surface * surface, PRectangle &rcWhole, Font &fontForChara
 			Point::FromInts(centreX + armSize, centreY +1),
 			Point::FromInts(centreX - armSize, centreY + 1),
 		};
-		surface->Polygon(pts, ELEMENTS(pts), fore, back);
+		surface->Polygon(pts, SIZEOFARRAY(pts), fore, back);
 	}
 	else if(markType == SC_MARK_SMALLRECT) {
 		PRectangle rcSmall;
@@ -382,7 +382,7 @@ void LineMarker::Draw(Surface * surface, PRectangle &rcWhole, Font &fontForChara
 			Point::FromInts(centreX, centreY + dimOn4),
 			Point::FromInts(centreX, centreY + dimOn2),
 		};
-		surface->Polygon(pts, ELEMENTS(pts), fore, back);
+		surface->Polygon(pts, SIZEOFARRAY(pts), fore, back);
 	}
 	else if(markType == SC_MARK_LEFTRECT) {
 		PRectangle rcLeft = rcWhole;
@@ -398,7 +398,7 @@ void LineMarker::Draw(Surface * surface, PRectangle &rcWhole, Font &fontForChara
 			Point::FromInts(static_cast<int>(rc.right) - 3, centreY + halfHeight),
 			Point::FromInts(static_cast<int>(rc.left), centreY + halfHeight),
 		};
-		surface->Polygon(pts, ELEMENTS(pts), fore, back);
+		surface->Polygon(pts, SIZEOFARRAY(pts), fore, back);
 	}
 	else {   // SC_MARK_FULLRECT
 		surface->FillRectangle(rcWhole, back);

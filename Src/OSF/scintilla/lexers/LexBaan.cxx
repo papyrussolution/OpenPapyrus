@@ -27,7 +27,7 @@
 //#include "LexAccessor.h"
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
-#include "LexerModule.h"
+//#include "LexerModule.h"
 #include "OptionSet.h"
 
 #ifdef SCI_NAMESPACE

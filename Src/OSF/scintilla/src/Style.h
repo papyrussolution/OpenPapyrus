@@ -13,19 +13,15 @@ namespace Scintilla {
 #endif
 
 struct FontSpecification {
-	const char *fontName;
-	int weight;
-	bool italic;
-	int size;
-	int characterSet;
-	int extraFontFlag;
-	FontSpecification() :
-		fontName(0),
-		weight(SC_WEIGHT_NORMAL),
-		italic(false),
-		size(10 * SC_FONT_SIZE_MULTIPLIER),
-		characterSet(0),
-		extraFontFlag(0) {
+	const char * fontName;
+	int    weight;
+	bool   italic;
+	int    size;
+	int    characterSet;
+	int    extraFontFlag;
+
+	FontSpecification() : fontName(0), weight(SC_WEIGHT_NORMAL), italic(false), size(10 * SC_FONT_SIZE_MULTIPLIER), characterSet(0), extraFontFlag(0) 
+	{
 	}
 	bool operator==(const FontSpecification &other) const;
 	bool operator<(const FontSpecification &other) const;
@@ -34,7 +30,7 @@ struct FontSpecification {
 // Just like Font but only has a copy of the FontID so should not delete it
 class FontAlias : public Font {
 	// Private so FontAlias objects can not be assigned except for intiialization
-	FontAlias &operator=(const FontAlias &);
+	FontAlias & operator = (const FontAlias &);
 public:
 	FontAlias();
 	FontAlias(const FontAlias &);
@@ -61,7 +57,12 @@ public:
 	ColourDesired back;
 	bool eolFilled;
 	bool underline;
-	enum ecaseForced {caseMixed, caseUpper, caseLower, caseCamel};
+	enum ecaseForced {
+		caseMixed, 
+		caseUpper, 
+		caseLower, 
+		caseCamel
+	};
 	ecaseForced caseForce;
 	bool visible;
 	bool changeable;
@@ -73,12 +74,8 @@ public:
 	Style(const Style &source);
 	~Style();
 	Style &operator=(const Style &source);
-	void Clear(ColourDesired fore_, ColourDesired back_,
-	           int size_,
-	           const char *fontName_, int characterSet_,
-	           int weight_, bool italic_, bool eolFilled_,
-	           bool underline_, ecaseForced caseForce_,
-	           bool visible_, bool changeable_, bool hotspot_);
+	void Clear(ColourDesired fore_, ColourDesired back_, int size_, const char *fontName_, int characterSet_,
+		int weight_, bool italic_, bool eolFilled_, bool underline_, ecaseForced caseForce_, bool visible_, bool changeable_, bool hotspot_);
 	void ClearTo(const Style &source);
 	void Copy(Font &font_, const FontMeasurements &fm_);
 	bool IsProtected() const { return !(changeable && visible);}

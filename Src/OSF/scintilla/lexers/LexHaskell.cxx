@@ -32,7 +32,7 @@
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
 #include "CharacterCategory.h"
-#include "LexerModule.h"
+//#include "LexerModule.h"
 #include "OptionSet.h"
 
 #ifdef SCI_NAMESPACE
@@ -1115,9 +1115,7 @@ void SCI_METHOD LexerHaskell::Fold(Sci_PositionU startPos, Sci_Position length, 
 			importHere = LineContainsImport(lineNext, styler);
 			indentNext = IndentAmountWithOffset(styler, lineNext);
 		}
-
 		int indentNextLevel = indentNext & SC_FOLDLEVELNUMBERMASK;
-
 		if(importHere) {
 			indentNextLevel = IndentLevelRemoveIndentOffset(indentNextLevel);
 			if(firstImportLine == -1) {
@@ -1128,11 +1126,8 @@ void SCI_METHOD LexerHaskell::Fold(Sci_PositionU startPos, Sci_Position length, 
 				indentNextLevel++;
 			}
 		}
-
 		indentNext = indentNextLevel | (indentNext & ~SC_FOLDLEVELNUMBERMASK);
-
-		const int levelBeforeComments = Maximum(indentCurrentLevel, indentNextLevel);
-
+		const int levelBeforeComments = smax(indentCurrentLevel, indentNextLevel);
 		// Now set all the indent levels on the lines we skipped
 		// Do this from end to start.  Once we encounter one line
 		// which is indented more than the line after the end of
@@ -1143,41 +1138,31 @@ void SCI_METHOD LexerHaskell::Fold(Sci_PositionU startPos, Sci_Position length, 
 
 		while(--skipLine > lineCurrent) {
 			int skipLineIndent = IndentAmountWithOffset(styler, skipLine);
-
 			if(options.foldCompact) {
 				if((skipLineIndent & SC_FOLDLEVELNUMBERMASK) > indentNextLevel) {
 					skipLevel = levelBeforeComments;
 				}
-
 				int whiteFlag = skipLineIndent & SC_FOLDLEVELWHITEFLAG;
-
 				styler.SetLevel(skipLine, skipLevel | whiteFlag);
 			}
 			else {
-				if(  (skipLineIndent & SC_FOLDLEVELNUMBERMASK) > indentNextLevel
-				    && !(skipLineIndent & SC_FOLDLEVELWHITEFLAG)) {
+				if((skipLineIndent & SC_FOLDLEVELNUMBERMASK) > indentNextLevel && !(skipLineIndent & SC_FOLDLEVELWHITEFLAG)) {
 					skipLevel = levelBeforeComments;
 				}
-
 				styler.SetLevel(skipLine, skipLevel);
 			}
 		}
-
 		int lev = indentCurrent;
-
 		if(!(indentCurrent & SC_FOLDLEVELWHITEFLAG)) {
 			if((indentCurrent & SC_FOLDLEVELNUMBERMASK) < (indentNext & SC_FOLDLEVELNUMBERMASK))
 				lev |= SC_FOLDLEVELHEADERFLAG;
 		}
-
 		// Set fold level for this line and move to next line
 		styler.SetLevel(lineCurrent, options.foldCompact ? lev : lev & ~SC_FOLDLEVELWHITEFLAG);
-
 		indentCurrent = indentNext;
 		indentCurrentLevel = indentNextLevel;
 		lineCurrent = lineNext;
 	}
-
 	// NOTE: Cannot set level of last line here because indentCurrent doesn't have
 	// header flag set; the loop above is crafted to take care of this case!
 	//styler.SetLevel(lineCurrent, indentCurrent);

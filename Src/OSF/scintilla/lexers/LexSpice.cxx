@@ -15,7 +15,7 @@
 //#include "Accessor.h"
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
-#include "LexerModule.h"
+//#include "LexerModule.h"
 #include <string>
 
 #ifdef SCI_NAMESPACE

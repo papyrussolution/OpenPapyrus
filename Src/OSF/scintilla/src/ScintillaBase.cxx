@@ -19,7 +19,7 @@
 #endif
 //#include "PropSetSimple.h"
 #ifdef SCI_LEXER
-	#include "LexerModule.h"
+	//#include "LexerModule.h"
 	#include "Catalogue.h"
 #endif
 //#include "Position.h"
@@ -51,7 +51,66 @@
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
+//
+//
+//
+//static 
+PRectangle PRectangle::FromInts(int left_, int top_, int right_, int bottom_)
+{
+	return PRectangle(static_cast<XYPOSITION>(left_), static_cast<XYPOSITION>(top_), static_cast<XYPOSITION>(right_), static_cast<XYPOSITION>(bottom_));
+}
 
+PRectangle::PRectangle(XYPOSITION left_, XYPOSITION top_, XYPOSITION right_, XYPOSITION bottom_) :
+	left(left_), top(top_), right(right_), bottom(bottom_)
+{
+}
+
+PRectangle::PRectangle() : left(0), top(0), right(0), bottom(0)
+{
+}
+
+// Other automatically defined methods (assignment, copy constructor, destructor) are fine
+bool FASTCALL PRectangle::operator == (const PRectangle & rc) const
+{
+	return (rc.left == left) && (rc.right == right) && (rc.top == top) && (rc.bottom == bottom);
+}
+	
+bool FASTCALL PRectangle::Contains(const Point & pt) const
+{
+	return (pt.x >= left) && (pt.x <= right) && (pt.y >= top) && (pt.y <= bottom);
+}
+	
+bool FASTCALL PRectangle::ContainsWholePixel(const Point & pt) const
+{
+	// Does the rectangle contain all of the pixel to left/below the point
+	return (pt.x >= left) && ((pt.x+1) <= right) && (pt.y >= top) && ((pt.y+1) <= bottom);
+}
+	
+bool FASTCALL PRectangle::Contains(const PRectangle & rc) const
+{
+	return (rc.left >= left) && (rc.right <= right) && (rc.top >= top) && (rc.bottom <= bottom);
+}
+	
+bool FASTCALL PRectangle::Intersects(const PRectangle & other) const
+{
+	return (right > other.left) && (left < other.right) && (bottom > other.top) && (top < other.bottom);
+}
+	
+void PRectangle::Move(XYPOSITION xDelta, XYPOSITION yDelta)
+{
+	left += xDelta;
+	top += yDelta;
+	right += xDelta;
+	bottom += yDelta;
+}
+	
+bool PRectangle::Empty() const
+{
+	return (Height() <= 0) || (Width() <= 0);
+}
+//
+//
+//
 ScintillaBase::ScintillaBase()
 {
 	displayPopupMenu = SC_POPUP_ALL;
@@ -89,41 +148,15 @@ void ScintillaBase::AddCharUTF(const char * s, uint len, bool treatAsDBCS)
 void ScintillaBase::Command(int cmdId)
 {
 	switch(cmdId) {
-		case idAutoComplete: // Nothing to do
-
-		    break;
-
-		case idCallTip: // Nothing to do
-
-		    break;
-
-		case idcmdUndo:
-		    WndProc(SCI_UNDO, 0, 0);
-		    break;
-
-		case idcmdRedo:
-		    WndProc(SCI_REDO, 0, 0);
-		    break;
-
-		case idcmdCut:
-		    WndProc(SCI_CUT, 0, 0);
-		    break;
-
-		case idcmdCopy:
-		    WndProc(SCI_COPY, 0, 0);
-		    break;
-
-		case idcmdPaste:
-		    WndProc(SCI_PASTE, 0, 0);
-		    break;
-
-		case idcmdDelete:
-		    WndProc(SCI_CLEAR, 0, 0);
-		    break;
-
-		case idcmdSelectAll:
-		    WndProc(SCI_SELECTALL, 0, 0);
-		    break;
+		case idAutoComplete: break; // Nothing to do
+		case idCallTip: break; // Nothing to do
+		case idcmdUndo: WndProc(SCI_UNDO, 0, 0); break;
+		case idcmdRedo: WndProc(SCI_REDO, 0, 0); break;
+		case idcmdCut:  WndProc(SCI_CUT, 0, 0); break;
+		case idcmdCopy: WndProc(SCI_COPY, 0, 0); break;
+		case idcmdPaste: WndProc(SCI_PASTE, 0, 0); break;
+		case idcmdDelete: WndProc(SCI_CLEAR, 0, 0); break;
+		case idcmdSelectAll: WndProc(SCI_SELECTALL, 0, 0); break;
 	}
 }
 
@@ -133,26 +166,8 @@ int ScintillaBase::KeyCommand(uint iMessage)
 	if(ac.Active()) {
 		switch(iMessage) {
 			// Except for these
-			case SCI_LINEDOWN:
-			    AutoCompleteMove(1);
-			    return 0;
-			case SCI_LINEUP:
-			    AutoCompleteMove(-1);
-			    return 0;
-			case SCI_PAGEDOWN:
-			    AutoCompleteMove(ac.lb->GetVisibleRows());
-			    return 0;
-			case SCI_PAGEUP:
-			    AutoCompleteMove(-ac.lb->GetVisibleRows());
-			    return 0;
-			case SCI_VCHOME:
-			    AutoCompleteMove(-5000);
-			    return 0;
-			case SCI_LINEEND:
-			    AutoCompleteMove(5000);
-			    return 0;
-			case SCI_DELETEBACK:
-			    DelCharBack(true);
+			case SCI_DELETEBACK: 
+				DelCharBack(true);
 			    AutoCompleteCharacterDeleted();
 			    EnsureCaretVisible();
 			    return 0;
@@ -161,31 +176,22 @@ int ScintillaBase::KeyCommand(uint iMessage)
 			    AutoCompleteCharacterDeleted();
 			    EnsureCaretVisible();
 			    return 0;
-			case SCI_TAB:
-			    AutoCompleteCompleted(0, SC_AC_TAB);
-			    return 0;
-			case SCI_NEWLINE:
-			    AutoCompleteCompleted(0, SC_AC_NEWLINE);
-			    return 0;
-
-			default:
-			    AutoCompleteCancel();
+			case SCI_LINEDOWN: AutoCompleteMove(1); return 0;
+			case SCI_LINEUP: AutoCompleteMove(-1); return 0;
+			case SCI_PAGEDOWN: AutoCompleteMove(ac.lb->GetVisibleRows()); return 0;
+			case SCI_PAGEUP: AutoCompleteMove(-ac.lb->GetVisibleRows()); return 0;
+			case SCI_VCHOME: AutoCompleteMove(-5000); return 0;
+			case SCI_LINEEND: AutoCompleteMove(5000); return 0;
+			case SCI_TAB: AutoCompleteCompleted(0, SC_AC_TAB); return 0;
+			case SCI_NEWLINE: AutoCompleteCompleted(0, SC_AC_NEWLINE); return 0;
+			default: AutoCompleteCancel();
 		}
 	}
-
 	if(ct.inCallTipMode) {
-		if(
-		    (iMessage != SCI_CHARLEFT) &&
-		    (iMessage != SCI_CHARLEFTEXTEND) &&
-		    (iMessage != SCI_CHARRIGHT) &&
-		    (iMessage != SCI_CHARRIGHTEXTEND) &&
-		    (iMessage != SCI_EDITTOGGLEOVERTYPE) &&
-		    (iMessage != SCI_DELETEBACK) &&
-		    (iMessage != SCI_DELETEBACKNOTLINE)
-		    ) {
+		if(!oneof7(iMessage, SCI_CHARLEFT, SCI_CHARLEFTEXTEND, SCI_CHARRIGHT, SCI_CHARRIGHTEXTEND, SCI_EDITTOGGLEOVERTYPE, SCI_DELETEBACK, SCI_DELETEBACKNOTLINE)) {
 			ct.CallTipCancel();
 		}
-		if((iMessage == SCI_DELETEBACK) || (iMessage == SCI_DELETEBACKNOTLINE)) {
+		if(oneof2(iMessage, SCI_DELETEBACK, SCI_DELETEBACKNOTLINE)) {
 			if(sel.MainCaret() <= ct.posStartCallTip) {
 				ct.CallTipCancel();
 			}

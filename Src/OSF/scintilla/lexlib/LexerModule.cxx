@@ -15,7 +15,7 @@
 //#include "PropSetSimple.h"
 //#include "LexAccessor.h"
 //#include "Accessor.h"
-#include "LexerModule.h"
+//#include "LexerModule.h"
 #include "LexerBase.h"
 #include "LexerSimple.h"
 
@@ -23,29 +23,18 @@
 using namespace Scintilla;
 #endif
 
-LexerModule::LexerModule(int language_,
-    LexerFunction fnLexer_,
-    const char * languageName_,
-    LexerFunction fnFolder_,
-    const char * const wordListDescriptions_[]) :
-	language(language_),
-	fnLexer(fnLexer_),
-	fnFolder(fnFolder_),
-	fnFactory(0),
-	wordListDescriptions(wordListDescriptions_),
-	languageName(languageName_) {
+LexerModule::LexerModule(int language_, LexerFunction fnLexer_, const char * languageName_, LexerFunction fnFolder_, const char * const wordListDescriptions_[]) :
+	language(language_), fnLexer(fnLexer_), fnFolder(fnFolder_), fnFactory(0), wordListDescriptions(wordListDescriptions_), languageName(languageName_) 
+{
 }
 
-LexerModule::LexerModule(int language_,
-    LexerFactoryFunction fnFactory_,
-    const char * languageName_,
-    const char * const wordListDescriptions_[]) :
-	language(language_),
-	fnLexer(0),
-	fnFolder(0),
-	fnFactory(fnFactory_),
-	wordListDescriptions(wordListDescriptions_),
-	languageName(languageName_) {
+LexerModule::LexerModule(int language_, LexerFactoryFunction fnFactory_, const char * languageName_, const char * const wordListDescriptions_[]) :
+	language(language_), fnLexer(0), fnFolder(0), fnFactory(fnFactory_), wordListDescriptions(wordListDescriptions_), languageName(languageName_) 
+{
+}
+
+LexerModule::~LexerModule() 
+{
 }
 
 int LexerModule::GetNumWordLists() const 

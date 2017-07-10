@@ -1851,10 +1851,10 @@ private:
 #define THROW_V(expr,val)      {if(!(expr)){*__sexcept=val;goto __scatch;}}
 #define THROW_S(expr,val)      {if(!(expr)){SLS.SetError(val);goto __scatch;}}
 #define THROW_S_S(expr,val,s)  {if(!(expr)){SLS.SetError(val, s);goto __scatch;}}
-#define THROW_P()              {if(!_AX){goto __scatch;}}
-#define THROW_VP(val)          {if(!_AX){*__sexcept=val;goto __scatch;}}
-#define THROW_L()              {if(!_AX&&!_DX){goto __scatch;}}
-#define THROW_VL(val)          {if(!_AX&&!_DX){*__sexcept=val;goto __scatch;}}
+// @v9.7.5 (useless and dangerous) #define THROW_P()              {if(!_AX){goto __scatch;}}
+// @v9.7.5 (useless and dangerous) #define THROW_VP(val)          {if(!_AX){*__sexcept=val;goto __scatch;}}
+// @v9.7.5 (useless and dangerous) #define THROW_L()              {if(!_AX&&!_DX){goto __scatch;}}
+// @v9.7.5 (useless and dangerous) #define THROW_VL(val)          {if(!_AX&&!_DX){*__sexcept=val;goto __scatch;}}
 #define CATCH                  goto __sendcatch;__scatch:
 #define ENDCATCH               __sendcatch:;
 #define CATCHZOK               \
@@ -2133,6 +2133,40 @@ private:
 // Errors specific to RemoveBaseUri
 #define SLERR_URI_REMOVEBASE_REL_BASE          577 // Given base is not absolute
 #define SLERR_URI_REMOVEBASE_REL_SOURCE        578 // Given base is not absolute
+
+//#define SLERR_ZIP_OK             0  // N No error
+#define SLERR_ZIP_FIRSTERROR                   591  // @anchor
+#define SLERR_ZIP_MULTIDISK                    591  // N Multi-disk zip archives not supported
+#define SLERR_ZIP_RENAME                       592  // S Renaming temporary file failed
+#define SLERR_ZIP_CLOSE                        593  // S Closing zip archive failed
+#define SLERR_ZIP_SEEK                         594  // S Seek error
+#define SLERR_ZIP_READ                         595  // S Read error
+#define SLERR_ZIP_WRITE                        596  // S Write error
+#define SLERR_ZIP_CRC                          597  // N CRC error
+#define SLERR_ZIP_ZIPCLOSED                    598  // N Containing zip archive was closed
+#define SLERR_ZIP_NOENT                        599  // N No such file
+#define SLERR_ZIP_EXISTS                       600  // N File already exists
+#define SLERR_ZIP_OPEN                         601  // S Can't open file
+#define SLERR_ZIP_TMPOPEN                      602  // S Failure to create temporary file
+#define SLERR_ZIP_ZLIB                         603  // Z Zlib error
+#define SLERR_ZIP_MEMORY                       604  // N Malloc failure
+#define SLERR_ZIP_CHANGED                      605  // N Entry has been changed
+#define SLERR_ZIP_COMPNOTSUPP                  606  // N Compression method not supported
+#define SLERR_ZIP_EOF                          607  // N Premature end of file
+#define SLERR_ZIP_INVAL                        608  // N Invalid argument
+#define SLERR_ZIP_NOZIP                        609  // N Not a zip archive
+#define SLERR_ZIP_INTERNAL                     610  // N Internal error
+#define SLERR_ZIP_INCONS                       611  // N Zip archive inconsistent
+#define SLERR_ZIP_REMOVE                       612  // S Can't remove file
+#define SLERR_ZIP_DELETED                      613  // N Entry has been deleted
+#define SLERR_ZIP_ENCRNOTSUPP                  614  // N Encryption method not supported
+#define SLERR_ZIP_RDONLY                       615  // N Read-only archive
+#define SLERR_ZIP_NOPASSWD                     616  // N No password provided
+#define SLERR_ZIP_WRONGPASSWD                  617  // N Wrong password provided
+#define SLERR_ZIP_OPNOTSUPP                    618  // N Operation not supported
+#define SLERR_ZIP_INUSE                        619  // N Resource still in use
+#define SLERR_ZIP_TELL                         620  // S Tell error
+#define SLERR_ZIP_LASTERROR                    620  // @anchor
 
 // LastError
 //
@@ -5906,7 +5940,7 @@ public:
 #ifndef _WIN32_WCE // {
 	void   SLAPI intersect(const UintHashTable * pList);
 #endif // } _WIN32_WCE
-	int    FASTCALL add(long);
+	int    FASTCALL add(long value);
 	//
 	// Descr: Вставляет элемент value в конец списка только если value != 0
 	//
