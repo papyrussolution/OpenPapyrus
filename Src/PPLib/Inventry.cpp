@@ -232,8 +232,8 @@ class InventoryOptionsDialog : public TDialog {
 public:
 	InventoryOptionsDialog() : TDialog(DLG_OPKINVE)
 	{
-		setCtrlOption(CTL_OPKINVE_FRAME1, ofFramed, 1);
-		setCtrlOption(CTL_OPKINVE_FRAME2, ofFramed, 1);
+		//@v9.7.6 setCtrlOption(CTL_OPKINVE_FRAME1, ofFramed, 1);
+		//@v9.7.6 setCtrlOption(CTL_OPKINVE_FRAME2, ofFramed, 1);
 	}
 	int    setDTS(const PPInventoryOpEx *);
 	int    getDTS(PPInventoryOpEx *);
@@ -282,10 +282,18 @@ int InventoryOptionsDialog::setDTS(const PPInventoryOpEx * pData)
 	AddClusterAssoc(CTL_OPKINVE_FLAGS, 4, INVOPF_SELGOODSBYNAME);
 	AddClusterAssoc(CTL_OPKINVE_FLAGS, 5, INVOPF_USEANOTERLOCLOTS);
 	AddClusterAssoc(CTL_OPKINVE_FLAGS, 6, INVOPF_INVBYCLIENT);
-	AddClusterAssoc(CTL_OPKINVE_FLAGS, 7, INVOPF_ACCELADDITEMS);
-	AddClusterAssoc(CTL_OPKINVE_FLAGS, 8, INVOPF_ASSET);
-	AddClusterAssoc(CTL_OPKINVE_FLAGS, 9, INVOPF_USESERIAL);
+	// @v9.7.6 AddClusterAssoc(CTL_OPKINVE_FLAGS, 7, INVOPF_ACCELADDITEMS);
+	AddClusterAssoc(CTL_OPKINVE_FLAGS, 7, INVOPF_ASSET); // @v9.7.6 8-->7
+	AddClusterAssoc(CTL_OPKINVE_FLAGS, 8, INVOPF_USESERIAL); // @v9.7.6 9-->8
 	SetClusterData(CTL_OPKINVE_FLAGS, Data.Flags);
+	// @v9.7.6 {
+	{
+		AddClusterAssocDef(CTL_OPKINVE_ACCSLMODE, 0, Data.accsliNo);
+		AddClusterAssoc(CTL_OPKINVE_ACCSLMODE, 1, Data.accsliCode);
+		AddClusterAssoc(CTL_OPKINVE_ACCSLMODE, 2, Data.accsliCodeAndQtty);
+		SetClusterData(CTL_OPKINVE_ACCSLMODE, Data.GetAccelInputMode());
+	}
+	// } @v9.7.6
 	return 1;
 }
 
@@ -301,6 +309,7 @@ int InventoryOptionsDialog::getDTS(PPInventoryOpEx * pData)
 	getCtrlData(CTL_OPKINVE_AUTOMETHOD, &Data.AutoFillMethod);
 	getCtrlData(CTL_OPKINVE_CALCPRICE,  &Data.AmountCalcMethod);
 	GetClusterData(CTL_OPKINVE_FLAGS, &Data.Flags);
+	Data.SetAccelInputMode(GetClusterData(CTL_OPKINVE_ACCSLMODE)); // @v9.7.6
 	ASSIGN_PTR(pData, Data);
 	return ok;
 }
@@ -579,10 +588,12 @@ int SLAPI PPObjBill::RollbackInventoryWrOff(PPID id)
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	int    save_err_code = PPErrCode;
-	for(i = 0; i < lock_list.getCount(); i++)
-		Unlock(lock_list.at(i));
-	PPErrCode = save_err_code;
+	{
+		const int save_err_code = PPErrCode;
+		for(i = 0; i < lock_list.getCount(); i++)
+			Unlock(lock_list.at(i));
+		PPErrCode = save_err_code;
+	}
 	return ok;
 }
 

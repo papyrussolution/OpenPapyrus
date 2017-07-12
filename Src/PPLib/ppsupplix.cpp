@@ -2822,7 +2822,7 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
             }
 		}
 	}
-	if(ok < 0) {
+	if(ok < 0 || forceSettings) { // @v9.7.6
 		SString tech_buf;
 		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
 		{
@@ -4065,9 +4065,9 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 							const double discount = nominal_price - full_price;
 							// @v9.5.9 (Установлена точность округления 6) {
 							// @v9.5.11 (Установлена точность округления 12) {
-							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, full_price,    &vat_sum_in_full_price, 0, 0, 12);
-							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, nominal_price, &vat_sum_in_nominal_price, 0, 0, 12);
-							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, discount,      &vat_sum_in_discount, 0, 0, 12);
+							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, full_price,    &vat_sum_in_full_price, 0, 0, 16); // @v9.7.6 12-->16
+							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, nominal_price, &vat_sum_in_nominal_price, 0, 0, 16); // @v9.7.6 12-->16
+							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, discount,      &vat_sum_in_discount, 0, 0, 16); // @v9.7.6 12-->16
 							// } @v9.5.9
 							{
 								iSalesBillAmountEntry * p_amt_entry = p_new_item->Amounts.CreateNewItem();
@@ -4250,6 +4250,7 @@ int SLAPI iSalesPepsi::SendInvoices()
 		Возврат по акту (5) – это документ, c привязкой к расходной накладной, в тегах REFS в этом случае должны быть данные с номером расходной накладной, датой накладной, и тип документа расх. накладная = 1 (<DOC_TP> = 5)
 	*/
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
 	PPSoapClientSession sess;
 	SString temp_buf;
@@ -4380,11 +4381,16 @@ int SLAPI iSalesPepsi::SendInvoices()
 								if(temp_buf.CmpNC(p_result_item->ItemDescr) == 0) {
 									if(p_item->NativeID && p_item->iSalesId.NotEmpty() && P_BObj->Search(p_item->NativeID, &bill_rec) > 0) {
 										if(bill_ack_tag_id) { // @v9.5.7
-											ObjTagItem tag_item;
-											// @v9.6.2 Debug_TestUtfText(p_item->iSalesId, "sendinvoices-1", R_Logger); // @v9.5.11
-											(temp_buf = p_item->iSalesId).Transf(CTRANSF_UTF8_TO_INNER);
-											if(tag_item.SetStr(bill_ack_tag_id, temp_buf))
-												THROW(PPRef->Ot.PutTag(PPOBJ_BILL, p_item->NativeID, &tag_item, 1));
+											if(p_item->Status == 1) { // @v9.7.6
+												THROW(p_ref->Ot.RemoveTag(PPOBJ_BILL, p_item->NativeID, bill_ack_tag_id, 1));
+											}
+											else {
+												ObjTagItem tag_item;
+												// @v9.6.2 Debug_TestUtfText(p_item->iSalesId, "sendinvoices-1", R_Logger); // @v9.5.11
+												(temp_buf = p_item->iSalesId).Transf(CTRANSF_UTF8_TO_INNER);
+												if(tag_item.SetStr(bill_ack_tag_id, temp_buf))
+													THROW(p_ref->Ot.PutTag(PPOBJ_BILL, p_item->NativeID, &tag_item, 1));
+											}
 										}
 									}
 									found = 1;
@@ -5717,7 +5723,6 @@ int SLAPI PrcssrSupplInterchange::Run()
 				SupplInterchangeFilt::opExportDebts|SupplInterchangeFilt::opExportGoodsDebts|
 				SupplInterchangeFilt::opExportPrices|SupplInterchangeFilt::opExportStocks) {
 				THROW(s_e.Export(logger));
-				PPWait(0);
 				ok = 1;
 			}
 		}
@@ -5800,6 +5805,7 @@ int SLAPI PrcssrSupplInterchange::Run()
 	CATCH
 		logger.LogLastError();
 	ENDCATCH
+	PPWait(0); // @v9.7.6
 	if(log_file_name.NotEmpty())
 		logger.Save(log_file_name, LOGMSGF_DIRECTOUTP|LOGMSGF_TIME|LOGMSGF_USER);
 	return ok;

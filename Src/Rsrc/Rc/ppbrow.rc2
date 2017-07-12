@@ -6773,6 +6773,9 @@ record Bill {
 	CntractCode  zstring(32)  "Номер договора с контрагентом (из регистра, указанного в конфигурации)";
 	CntractDt    date         "Дата договора с контрагентом";
 	CntractExpry date         "Дата окончания договора с контрагентом";
+
+	CntragPhone  zstring(128) "Телефон контрагента"; // @v9.7.6
+	CntragEMail  zstring(128) "Email контрагента";   // @v9.7.6
 }
 
 record BRow {

@@ -421,7 +421,7 @@ int BillHdrImpExpCfgListDialog::EditParam(const char * pIniSection)
 						ini_file.RemoveSection(pIniSection);
 					else
 						ini_file.ClearSection(pIniSection);
-				PPErrCode = PPERR_DUPOBJNAME;
+				PPSetError(PPERR_DUPOBJNAME);
 				if((!is_new || ini_file.IsSectExists(param.Name) == 0) && param.WriteIni(&ini_file, param.Name) && ini_file.FlashIniBuf())
 					ok = 1;
 				else
@@ -2982,9 +2982,11 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 		PPID   ar_id = 0;
 		ArticleTbl::Rec ar_rec;
 		PPOprKind op_rec;
+		PPObjAccSheet acs_obj;
+		PPAccSheet acs_rec;
 		THROW(GetOpData(OpID, &op_rec) > 0);
 		const PPID acs_id = op_rec.AccSheetID;
-		if(acs_id) {
+		if(acs_id && acs_obj.Fetch(acs_id, &acs_rec) > 0) {
 			if(pBill->CntragID && ArObj.Search(pBill->CntragID, &ar_rec) > 0 && ar_rec.AccSheetID == acs_id)
 				ar_id = pBill->CntragID;
 			// @v9.0.9 {
@@ -2992,9 +2994,7 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 				ar_id = ar_rec.ID;
 			// } @v9.0.9
 			else if(pBill->RegistryCode[0]) {
-				PPObjAccSheet acs_obj;
-				PPAccSheet acs_rec;
-				if(acs_obj.Fetch(acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
+				if(acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
 					PPObjPersonKind pk_obj;
 					PPPersonKind pk_rec;
 					if(pk_obj.Fetch(acs_rec.ObjGroup, &pk_rec) > 0 && pk_rec.CodeRegTypeID) {
@@ -3025,6 +3025,29 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 					ar_id = temp_ar_id;
 			}
 			// } @v9.3.5
+			// @v9.7.6 {
+			if(acs_rec.Assoc == PPOBJ_PERSON) {
+				if(!ar_id && pBill->CntragEMail[0]) {
+					PPIDArray psn_by_em_list;
+					PPIDArray loc_by_em_list;
+					PsnObj.SearchEmail(pBill->CntragEMail, 0, &psn_by_em_list, /*&loc_by_em_list*/0);
+					if(psn_by_em_list.getCount()) {
+						for(uint i = 0; !ar_id && i < psn_by_em_list.getCount(); i++) {
+							const PPID psn_by_em_id = psn_by_em_list.get(i);
+							PersonTbl::Rec psn_rec;
+							if(PsnObj.Fetch(psn_by_em_id, &psn_rec) > 0) {
+								PPID temp_ar_id = 0;
+								if(ArObj.P_Tbl->PersonToArticle(psn_by_em_id, acs_rec.ObjGroup, &temp_ar_id) > 0)
+									ar_id = temp_ar_id;
+							}
+						}
+					}
+				}
+				if(!ar_id && pBill->CntragPhone[0]) {
+
+				}
+			}
+			// } @v9.7.6
 		}
 		if(ar_id || !acs_id) {
 			pPack->Rec.Object = ar_id;
@@ -3942,8 +3965,20 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 				{
 					PPID   psn_id = ObjectToPerson(pPack->Rec.Object, 0);
 					PPPersonPacket psn_pack;
-					if(PsnObj.GetPacket(psn_id, &psn_pack, 0) > 0 && psn_pack.GetSrchRegNumber(0, temp_buf) > 0)
-						temp_buf.CopyTo(pBill->RegistryCode, sizeof(pBill->RegistryCode));
+					if(PsnObj.GetPacket(psn_id, &psn_pack, 0) > 0) {
+						if(psn_pack.GetSrchRegNumber(0, temp_buf) > 0)
+							temp_buf.CopyTo(pBill->RegistryCode, sizeof(pBill->RegistryCode));
+						// @v9.7.6 {
+                        psn_pack.ELA.GetSinglePhone(temp_buf, 0);
+                        STRNSCPY(pBill->CntragPhone, temp_buf);
+                        {
+                        	StringSet ss_email;
+							psn_pack.ELA.GetListByType(PPELK_EMAIL, ss_email);
+                            if(ss_email.getCount() && ss_email.get((uint)0, temp_buf))
+								STRNSCPY(pBill->CntragEMail, temp_buf);
+						}
+						// } @v9.7.6
+					}
 				}
 			}
 		}

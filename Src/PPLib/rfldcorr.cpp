@@ -1704,12 +1704,10 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 		if(P.TdfParam.Flags & TextDbFile::fVerticalRec && P.HdrOtrRec.GetCount()) {
 			Sdr_ImpExpHeader sdr_hdr;
 			MEMSZERO(sdr_hdr);
-			// @v7.4.6 {
 			if(P_HdrData) {
 				sdr_hdr.PeriodLow = P_HdrData->PeriodLow;
 				sdr_hdr.PeriodUpp = P_HdrData->PeriodUpp;
 			}
-			// } @v7.4.6
 			getcurdatetime(&sdr_hdr.CurDate, &sdr_hdr.CurTime);
 			PPVersionInfo vi = DS.GetVersionInfo();
 			vi.GetProductName(temp_buf);
@@ -1722,13 +1720,11 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 	}
 	else if(P.DataFormat == PPImpExpParam::dfXml) {
 		THROW_MEM(P_XmlT = new XmlDbFile);
-		// @v7.9.8 {
 		{
 			temp_buf = DS.GetConstTLA().DL600XMLEntityParam;
 			if(temp_buf.NotEmptyS())
 				P_XmlT->SetEntitySpec(temp_buf);
 		}
-		// } @v7.9.8
 		THROW_SL(P_XmlT->Open(filename, &P.XdfParam, &P.OtrRec, readOnly));
 		if(P.XdfParam.HdrTag.NotEmpty()) {
 			Sdr_ImpExpHeader sdr_hdr;
@@ -1748,9 +1744,9 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 		THROW_SL(P_SoapT->Open(filename, &P.SdfParam, readOnly));
 	}
 	else if(P.DataFormat == PPImpExpParam::dfExcel) {
-		PPWaitMsg(PPSTR_TEXT, PPTXT_SCANEXCELFILE, filename); // @v7.6.1
+		PPWaitMsg(PPSTR_TEXT, PPTXT_SCANEXCELFILE, filename);
 		THROW_MEM(P_XlsT = new ExcelDbFile);
-		THROW(P_XlsT->Open(filename, &P.XlsdfParam, readOnly)); // @v7.8.5 THROW_SL-->THROW
+		THROW(P_XlsT->Open(filename, &P.XlsdfParam, readOnly));
 	}
 	else
 		ok = PPSetError(PPERR_IMPEXPFMTUNSUPP, (const char *)0);

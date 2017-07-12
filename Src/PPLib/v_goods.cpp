@@ -1057,8 +1057,8 @@ void GoodsListDialog::searchBarcode()
 {
 	int    r;
 	Goods2Tbl::Rec rec;
-	char   bcode[64];
-	if((r = GObj.SelectGoodsByBarcode(0, 0, &rec, 0, bcode)) > 0)
+	SString bcode;
+	if((r = GObj.SelectGoodsByBarcode(0, 0, &rec, 0, &bcode)) > 0)
 		selectGoods(rec.ParentID, rec.ID);
 	else if(r == -2 && PPMessage(mfConf|mfYesNo, PPCFM_ADDNEWGOODS) == cmYes) {
 		PPID   id = 0;

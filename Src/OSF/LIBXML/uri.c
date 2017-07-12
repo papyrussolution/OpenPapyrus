@@ -1988,7 +1988,7 @@ done:
 	xmlFreeURI(ref);
 	xmlFreeURI(bas);
 	xmlFreeURI(res);
-	return(val);
+	return val;
 }
 
 /**

@@ -1619,7 +1619,10 @@ int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * 
 		if(flags & wpifVersion2) {
 			w_s.PutInner("pref:UnitType", EncText((temp_buf = (agi.UnpackedVolume > 0.0) ? "Unpacked" : "Packed").Transf(CTRANSF_OUTER_TO_INNER)));
 		}
-		w_s.PutInner("pref:Type", EncText((temp_buf = "АП").Transf(CTRANSF_OUTER_TO_INNER))); // АП или что-то еще
+		{
+			PPLoadText(PPTXT_EGAIS_AP, temp_buf); // @v9.7.5
+			w_s.PutInner("pref:Type", EncText(temp_buf)); // АП или что-то еще
+		}
 		{
 			int    names_done = 0;
 			if(use_refc_data && agi.RefcProductID) {

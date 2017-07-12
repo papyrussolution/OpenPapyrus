@@ -171,7 +171,7 @@ GLOBAL(void) jpeg_finish_compress(j_compress_ptr cinfo)
  * first call to jpeg_write_scanlines() or jpeg_write_raw_data().
  */
 
-GLOBAL(void) jpeg_write_marker(j_compress_ptr cinfo, int marker, const JOCTET *dataptr, unsigned int datalen)
+GLOBAL(void) jpeg_write_marker(j_compress_ptr cinfo, int marker, const JOCTET *dataptr, uint datalen)
 {
 	JMETHOD(void, write_marker_byte, (j_compress_ptr info, int val));
 	if(cinfo->next_scanline != 0 || (cinfo->global_state != CSTATE_SCANNING && cinfo->global_state != CSTATE_RAW_OK && cinfo->global_state != CSTATE_WRCOEFS))
@@ -186,7 +186,7 @@ GLOBAL(void) jpeg_write_marker(j_compress_ptr cinfo, int marker, const JOCTET *d
 
 /* Same, but piecemeal. */
 
-GLOBAL(void) jpeg_write_m_header(j_compress_ptr cinfo, int marker, unsigned int datalen)
+GLOBAL(void) jpeg_write_m_header(j_compress_ptr cinfo, int marker, uint datalen)
 {
 	if(cinfo->next_scanline != 0 || (cinfo->global_state != CSTATE_SCANNING && cinfo->global_state != CSTATE_RAW_OK && cinfo->global_state != CSTATE_WRCOEFS))
 		ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);

@@ -623,16 +623,15 @@ int SLAPI SCS_SYNCSYM::PrintBnkTermReport(const char * pZCheck)
 		StringSet str_set('\n', pZCheck);
 		SString str;
 		for(uint pos = 0; str_set.get(&pos, str) > 0;) {
-			sl_param.FontSize = 1; // какое значение?
+			sl_param.FontSize = 8; // какое значение? // @v9.7.6 1-->8
 			sl_param.Flags = SlipLineParam::fRegRegular;
 			PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();
 			if(p_prn_ls) {
-				p_prn_ls->PrnBuf = pZCheck;
+				p_prn_ls->PrnBuf = str;
 				p_prn_ls->Param = sl_param;
 			}
 		}
 		SendToPrinter(&prn_list);
 	}
 	return ok;
-
 }

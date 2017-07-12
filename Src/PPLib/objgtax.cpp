@@ -251,20 +251,20 @@ void SLAPI GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, l
 		switch(OrderVect[i]) {
 			case GTAX_VAT:
 				if(!(excludeFlags & GTAXVF_VAT))
-					RateVect[i] = ((double)gtax->VAT) / (100L * 100L); // @divtax
+					RateVect[i] = ((double)gtax->VAT) / (100.0 * 100.0); // @divtax
 				break;
 			case GTAX_EXCISE:
 				if(!(excludeFlags & GTAXVF_EXCISE))
 					if(gtax->Flags & GTAXF_ABSEXCISE) {
-						RateVect[i] = ((double)gtax->Excise) / 100L; // @divtax
+						RateVect[i] = ((double)gtax->Excise) / 100.0; // @divtax
 						AbsVect |= (1 << i);
 					}
 					else
-						RateVect[i] = ((double)gtax->Excise) / (100L * 100L); // @divtax
+						RateVect[i] = ((double)gtax->Excise) / (100.0 * 100.0); // @divtax
 				break;
 			case GTAX_SALES:
 				if(!(excludeFlags & GTAXVF_SALESTAX))
-					RateVect[i] = ((double)gtax->SalesTax) / (100L * 100L);   // @divtax
+					RateVect[i] = ((double)gtax->SalesTax) / (100.0 * 100.0);   // @divtax
 				break;
 		}
 	}
@@ -890,11 +890,11 @@ public:
 	int    SLAPI GetByID(PPID, PPGoodsTaxEntry *);
 	virtual int  SLAPI Dirty(PPID); // @sync_w
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long) 
-	{ 
-		return 0; 
+	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long)
+	{
+		return 0;
 	}
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const 
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	{
 	}
 	int    SLAPI SearchEntry(PPID id, LDATE dt, PPID opID, PPGoodsTaxEntry * pEntry) const;

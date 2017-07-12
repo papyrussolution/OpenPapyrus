@@ -45,9 +45,9 @@ typedef my_destination_mgr * my_dest_ptr;
 typedef struct {
 	struct jpeg_destination_mgr pub; /* public fields */
 
-	unsigned char ** outbuffer; /* target buffer */
-	unsigned long * outsize;
-	unsigned char * newbuffer; /* newly allocated buffer */
+	uchar ** outbuffer; /* target buffer */
+	ulong * outsize;
+	uchar * newbuffer; /* newly allocated buffer */
 	JOCTET * buffer;        /* start of buffer */
 	size_t bufsize;
 } my_mem_destination_mgr;
@@ -210,7 +210,7 @@ GLOBAL(void) jpeg_stdio_dest(j_compress_ptr cinfo, FILE * outfile)
  * when allocating a larger buffer.
  */
 
-GLOBAL(void) jpeg_mem_dest(j_compress_ptr cinfo, unsigned char ** outbuffer, unsigned long * outsize)
+GLOBAL(void) jpeg_mem_dest(j_compress_ptr cinfo, uchar ** outbuffer, ulong * outsize)
 {
 	my_mem_dest_ptr dest;
 	if(outbuffer == NULL || outsize == NULL) /* sanity check */
@@ -232,7 +232,7 @@ GLOBAL(void) jpeg_mem_dest(j_compress_ptr cinfo, unsigned char ** outbuffer, uns
 
 	if(*outbuffer == NULL || *outsize == 0) {
 		/* Allocate initial buffer */
-		dest->newbuffer = *outbuffer = (unsigned char*)SAlloc::M(OUTPUT_BUF_SIZE);
+		dest->newbuffer = *outbuffer = (uchar*)SAlloc::M(OUTPUT_BUF_SIZE);
 		if(dest->newbuffer == NULL)
 			ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 10);
 		*outsize = OUTPUT_BUF_SIZE;

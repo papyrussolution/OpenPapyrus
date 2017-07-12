@@ -1757,11 +1757,11 @@ int SLAPI PPViewTSessLine::AddItemByCode(const char * pInitStr)
 			ok = PPErrorZ();
 		else {
 			long   oprno = 0;
-			char   code[64];
+			SString code;
 			Goods2Tbl::Rec goods_rec;
-			double qtty = 0;
+			double qtty = 0.0;
 			int    init_chr = pInitStr ? pInitStr[0] : 0;
-			if(GObj.SelectGoodsByBarcode(init_chr, 0, &goods_rec, &qtty, code) > 0) {
+			if(GObj.SelectGoodsByBarcode(init_chr, 0, &goods_rec, &qtty, &code) > 0) {
 				TIDlgInitData tidi;
 				SETFLAG(tidi.Flags, TIDIF_AUTOQTTY, 1);
 				tidi.GoodsID  = goods_rec.ID;

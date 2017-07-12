@@ -30,7 +30,7 @@
 /* Macros to deal with unsigned chars as efficiently as compiler allows */
 
 #ifdef HAVE_UNSIGNED_CHAR
-typedef unsigned char U_CHAR;
+typedef uchar U_CHAR;
 #define UCH(x)  ((int)(x))
 #else /* !HAVE_UNSIGNED_CHAR */
 #ifdef CHAR_IS_UNSIGNED
@@ -256,8 +256,8 @@ METHODDEF(void) start_input_bmp(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	bmp_source_ptr source = (bmp_source_ptr)sinfo;
 	U_CHAR bmpfileheader[14];
 	U_CHAR bmpinfoheader[64];
-#define GET_2B(array, offset)  ((unsigned int)UCH(array[offset]) + \
-	    (((unsigned int)UCH(array[offset+1])) << 8))
+#define GET_2B(array, offset)  ((uint)UCH(array[offset]) + \
+	    (((uint)UCH(array[offset+1])) << 8))
 #define GET_4B(array, offset)  ((INT32)UCH(array[offset]) + \
 	    (((INT32)UCH(array[offset+1])) << 8) + \
 	    (((INT32)UCH(array[offset+2])) << 16) + \
@@ -266,7 +266,7 @@ METHODDEF(void) start_input_bmp(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	INT32 headerSize;
 	INT32 biWidth;
 	INT32 biHeight;
-	unsigned int biPlanes;
+	uint biPlanes;
 	INT32 biCompression;
 	INT32 biXPelsPerMeter, biYPelsPerMeter;
 	INT32 biClrUsed = 0;
@@ -348,8 +348,8 @@ METHODDEF(void) start_input_bmp(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 
 		    if(biXPelsPerMeter > 0 && biYPelsPerMeter > 0) {
 			    /* Set JFIF density parameters from the BMP data */
-			    cinfo->X_density = (UINT16)(biXPelsPerMeter/100); /* 100 cm per meter */
-			    cinfo->Y_density = (UINT16)(biYPelsPerMeter/100);
+			    cinfo->X_density = (uint16)(biXPelsPerMeter/100); /* 100 cm per meter */
+			    cinfo->Y_density = (uint16)(biYPelsPerMeter/100);
 			    cinfo->density_unit = 2; /* dots/cm */
 		    }
 		    break;

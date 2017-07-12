@@ -89,7 +89,7 @@ typedef struct {
 	 * (not the zigzag order in which they are stored in a JPEG DQT marker).
 	 * CAUTION: IJG versions prior to v6a kept this array in zigzag order.
 	 */
-	UINT16 quantval[DCTSIZE2]; /* quantization step for each coefficient */
+	uint16 quantval[DCTSIZE2]; /* quantization step for each coefficient */
 	/* This field is used only during compression.  It's initialized FALSE when
 	 * the table is created, and set TRUE when it's been output to the file.
 	 * You could suppress output of a table by setting this to TRUE.
@@ -201,8 +201,8 @@ typedef struct jpeg_marker_struct FAR * jpeg_saved_marker_ptr;
 struct jpeg_marker_struct {
 	jpeg_saved_marker_ptr next; /* next in list, or NULL */
 	uint8 marker;           /* marker code: JPEG_COM, or JPEG_APP0+n */
-	unsigned int original_length; /* # bytes of data in the file */
-	unsigned int data_length; /* # bytes of data saved at data[] */
+	uint original_length; /* # bytes of data in the file */
+	uint data_length; /* # bytes of data saved at data[] */
 	JOCTET FAR * data;      /* the data contained in the marker */
 	/* the marker length word is not counted in data_length or original_length */
 };
@@ -352,8 +352,8 @@ struct jpeg_compress_struct {
 	/* 1 for dots/inch, or 2 for dots/cm.  Note that the pixel aspect */
 	/* ratio is defined by X_density/Y_density even when density_unit=0. */
 	uint8 density_unit;     /* JFIF code for pixel size units */
-	UINT16 X_density;       /* Horizontal pixel density */
-	UINT16 Y_density;       /* Vertical pixel density */
+	uint16 X_density;       /* Horizontal pixel density */
+	uint16 Y_density;       /* Vertical pixel density */
 	boolean write_Adobe_marker; /* should an Adobe marker be written? */
 	J_COLOR_TRANSFORM color_transform;
 	/* Color transform identifier, writes LSE marker if nonzero */
@@ -428,7 +428,7 @@ struct jpeg_decompress_struct {
 	 * them to default values.
 	 */
 	J_COLOR_SPACE out_color_space; /* colorspace for output */
-	unsigned int scale_num, scale_denom; /* fraction by which to scale image */
+	uint scale_num, scale_denom; /* fraction by which to scale image */
 	double output_gamma;    /* image gamma wanted in output */
 	boolean buffered_image; /* TRUE=multiple output passes */
 	boolean raw_data_out;   /* TRUE=downsampled data wanted */
@@ -520,7 +520,7 @@ struct jpeg_decompress_struct {
 	uint8 arith_dc_L[NUM_ARITH_TBLS]; /* L values for DC arith-coding tables */
 	uint8 arith_dc_U[NUM_ARITH_TBLS]; /* U values for DC arith-coding tables */
 	uint8 arith_ac_K[NUM_ARITH_TBLS]; /* Kx values for AC arith-coding tables */
-	unsigned int restart_interval; /* MCUs per restart interval, or 0 for no restart */
+	uint restart_interval; /* MCUs per restart interval, or 0 for no restart */
 	/* These fields record data obtained from optional markers recognized by
 	 * the JPEG library.
 	 */
@@ -529,8 +529,8 @@ struct jpeg_decompress_struct {
 	uint8 JFIF_major_version; /* JFIF version number */
 	uint8 JFIF_minor_version;
 	uint8 density_unit;     /* JFIF code for pixel size units */
-	UINT16 X_density;       /* Horizontal pixel density */
-	UINT16 Y_density;       /* Vertical pixel density */
+	uint16 X_density;       /* Horizontal pixel density */
+	uint16 Y_density;       /* Vertical pixel density */
 	boolean saw_Adobe_marker; /* TRUE iff an Adobe APP14 marker was found */
 	uint8 Adobe_transform;  /* Color transform code from Adobe marker */
 	J_COLOR_TRANSFORM color_transform;
@@ -849,8 +849,8 @@ extern void jpeg_stdio_dest JPP((j_compress_ptr cinfo, FILE * outfile));
 extern void jpeg_stdio_src JPP((j_decompress_ptr cinfo, FILE * infile));
 
 /* Data source and destination managers: memory buffers. */
-extern void jpeg_mem_dest JPP((j_compress_ptr cinfo, unsigned char ** outbuffer, unsigned long * outsize));
-extern void jpeg_mem_src JPP((j_decompress_ptr cinfo, const unsigned char * inbuffer, unsigned long insize));
+extern void jpeg_mem_dest JPP((j_compress_ptr cinfo, uchar ** outbuffer, ulong * outsize));
+extern void jpeg_mem_src JPP((j_decompress_ptr cinfo, const uchar * inbuffer, ulong insize));
 
 /* Default parameter setup for compression */
 extern void jpeg_set_defaults JPP((j_compress_ptr cinfo));
@@ -879,9 +879,9 @@ extern void jpeg_calc_jpeg_dimensions JPP((j_compress_ptr cinfo));
 EXTERN(JDIMENSION) jpeg_write_raw_data JPP((j_compress_ptr cinfo, JSAMPIMAGE data, JDIMENSION num_lines));
 
 /* Write a special marker.  See libjpeg.txt concerning safe usage. */
-extern void jpeg_write_marker JPP((j_compress_ptr cinfo, int marker, const JOCTET * dataptr, unsigned int datalen));
+extern void jpeg_write_marker JPP((j_compress_ptr cinfo, int marker, const JOCTET * dataptr, uint datalen));
 /* Same, but piecemeal. */
-extern void jpeg_write_m_header JPP((j_compress_ptr cinfo, int marker, unsigned int datalen));
+extern void jpeg_write_m_header JPP((j_compress_ptr cinfo, int marker, uint datalen));
 extern void jpeg_write_m_byte JPP((j_compress_ptr cinfo, int val));
 
 /* Alternate compression function: just write an abbreviated table file */
@@ -927,7 +927,7 @@ extern void jpeg_calc_output_dimensions JPP((j_decompress_ptr cinfo));
 
 /* Control saving of COM and APPn markers into marker_list. */
 extern void jpeg_save_markers
-JPP((j_decompress_ptr cinfo, int marker_code, unsigned int length_limit));
+JPP((j_decompress_ptr cinfo, int marker_code, uint length_limit));
 
 /* Install a special processing method for COM or APPn markers. */
 extern void jpeg_set_marker_processor

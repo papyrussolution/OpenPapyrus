@@ -58,7 +58,7 @@ GLOBAL(void) jpeg_calc_jpeg_dimensions(j_compress_ptr cinfo)
 	 * and we need some space for multiplication by block_size.
 	 */
 	if(((long)cinfo->image_width >> 24) || ((long)cinfo->image_height >> 24))
-		ERREXIT1(cinfo, JERR_IMAGE_TOO_BIG, (unsigned int)JPEG_MAX_DIMENSION);
+		ERREXIT1(cinfo, JERR_IMAGE_TOO_BIG, (uint)JPEG_MAX_DIMENSION);
 
 	/* Compute actual JPEG image dimensions and DCT scaling choices. */
 	if(cinfo->scale_num >= cinfo->scale_denom * cinfo->block_size) {
@@ -258,7 +258,7 @@ static void initial_setup(j_compress_ptr cinfo, boolean transcode_only)
 	/* Make sure image isn't bigger than I can handle */
 	if((long)cinfo->jpeg_height > (long)JPEG_MAX_DIMENSION ||
 	    (long)cinfo->jpeg_width > (long)JPEG_MAX_DIMENSION)
-		ERREXIT1(cinfo, JERR_IMAGE_TOO_BIG, (unsigned int)JPEG_MAX_DIMENSION);
+		ERREXIT1(cinfo, JERR_IMAGE_TOO_BIG, (uint)JPEG_MAX_DIMENSION);
 
 	/* Only 8 to 12 bits data precision are supported for DCT based JPEG */
 	if(cinfo->data_precision < 8 || cinfo->data_precision > 12)
@@ -639,7 +639,7 @@ static void per_scan_setup(j_compress_ptr cinfo)
 	/* Note that count must fit in 16 bits, so we provide limiting. */
 	if(cinfo->restart_in_rows > 0) {
 		long nominal = (long)cinfo->restart_in_rows * (long)cinfo->MCUs_per_row;
-		cinfo->restart_interval = (unsigned int)MIN(nominal, 65535L);
+		cinfo->restart_interval = (uint)MIN(nominal, 65535L);
 	}
 }
 

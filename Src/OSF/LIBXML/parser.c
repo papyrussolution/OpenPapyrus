@@ -2086,7 +2086,7 @@ int xmlParseCharRef(xmlParserCtxtPtr ctxt)
 	 * production for Char.
 	 */
 	if((IS_CHAR(val) && (outofrange == 0))) {
-		return(val);
+		return val;
 	}
 	else {
 		xmlFatalErrMsgInt(ctxt, XML_ERR_INVALID_CHAR, "xmlParseCharRef: invalid xmlChar value %d\n", val);
@@ -2178,7 +2178,7 @@ static int xmlParseStringCharRef(xmlParserCtxtPtr ctxt, const xmlChar ** str)
 	 * production for Char.
 	 */
 	if((IS_CHAR(val) && (outofrange == 0))) {
-		return(val);
+		return val;
 	}
 	else {
 		xmlFatalErrMsgInt(ctxt, XML_ERR_INVALID_CHAR, "xmlParseStringCharRef: invalid xmlChar value %d\n", val);
@@ -5271,7 +5271,7 @@ int xmlParseDefaultDecl(xmlParserCtxtPtr ctxt, xmlChar ** value)
 	}
 	else
 		*value = ret;
-	return(val);
+	return val;
 }
 /**
  * xmlParseNotationType:

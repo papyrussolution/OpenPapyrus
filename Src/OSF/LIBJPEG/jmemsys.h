@@ -111,8 +111,8 @@ EXTERN(long) jpeg_mem_available JPP((j_common_ptr cinfo, long min_bytes_needed, 
 
 #ifdef USE_MSDOS_MEMMGR         /* DOS-specific junk */
 
-typedef unsigned short XMSH;    /* type of extended-memory handles */
-typedef unsigned short EMSH;    /* type of expanded-memory handles */
+typedef ushort XMSH;    /* type of extended-memory handles */
+typedef ushort EMSH;    /* type of expanded-memory handles */
 
 typedef union {
 	short file_handle;      /* DOS file handle if it's a temp file */

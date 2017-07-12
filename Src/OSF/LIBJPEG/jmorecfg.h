@@ -66,7 +66,7 @@
 
 #ifdef HAVE_UNSIGNED_CHAR
 
-typedef unsigned char JSAMPLE;
+typedef uchar JSAMPLE;
 #define GETJSAMPLE(value)  ((int)(value))
 
 #else /* not HAVE_UNSIGNED_CHAR */
@@ -159,7 +159,7 @@ typedef short JCOEF;
 
 #ifdef HAVE_UNSIGNED_CHAR
 
-typedef unsigned char JOCTET;
+typedef uchar JOCTET;
 #define GETJOCTET(value)  (value)
 
 #else /* not HAVE_UNSIGNED_CHAR */
@@ -184,7 +184,7 @@ typedef char JOCTET;
 /* uint8 must hold at least the values 0..255. */
 
 #ifdef HAVE_UNSIGNED_CHAR
-typedef unsigned char uint8;
+typedef uchar uint8;
 #else /* not HAVE_UNSIGNED_CHAR */
 #ifdef CHAR_IS_UNSIGNED
 typedef char uint8;
@@ -193,18 +193,18 @@ typedef short uint8;
 #endif /* CHAR_IS_UNSIGNED */
 #endif /* HAVE_UNSIGNED_CHAR */
 
-/* UINT16 must hold at least the values 0..65535. */
+/* uint16 must hold at least the values 0..65535. */
 
 #ifdef HAVE_UNSIGNED_SHORT
-typedef unsigned short UINT16;
+	typedef ushort UINT16_Removed;
 #else /* not HAVE_UNSIGNED_SHORT */
-typedef unsigned int UINT16;
+	typedef uint UINT16_Removed;
 #endif /* HAVE_UNSIGNED_SHORT */
 
-/* INT16 must hold at least the values -32768..32767. */
+/* int16 must hold at least the values -32768..32767. */
 
-#ifndef XMD_H			/* X11/xmd.h correctly defines INT16 */
-	typedef short INT16;
+#ifndef XMD_H			/* X11/xmd.h correctly defines int16 */
+	typedef short INT16_Removed;
 #endif
 //
 // INT32 must hold at least signed 32-bit values. 
@@ -221,11 +221,11 @@ typedef unsigned int UINT16;
 
 /* Datatype used for image dimensions.  The JPEG standard only supports
  * images up to 64K*64K due to 16-bit fields in SOF markers.  Therefore
- * "unsigned int" is sufficient on all machines.  However, if you need to
+ * "uint" is sufficient on all machines.  However, if you need to
  * handle larger images and you don't mind deviating from the spec, you
  * can change this datatype.
  */
-typedef unsigned int JDIMENSION;
+typedef uint JDIMENSION;
 
 #define JPEG_MAX_DIMENSION  65500L  /* a tad under 64K to prevent overflows */
 

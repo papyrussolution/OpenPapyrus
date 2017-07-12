@@ -105,7 +105,7 @@
  * better results; if you are short of memory, 5 bits all around will save
  * some space but degrade the results.
  * To maintain a fully accurate histogram, we'd need to allocate a "long"
- * (preferably unsigned long) for each cell.  In practice this is overkill;
+ * (preferably ulong) for each cell.  In practice this is overkill;
  * we can get by with 16 bits per cell.  Few of the cell counts will overflow,
  * and clamping those that do overflow to the maximum value will give close-
  * enough results.  This reduces the recommended histogram size from 256Kb
@@ -141,7 +141,7 @@
 #define C1_SHIFT  (BITS_IN_JSAMPLE-HIST_C1_BITS)
 #define C2_SHIFT  (BITS_IN_JSAMPLE-HIST_C2_BITS)
 
-typedef UINT16 histcell;        /* histogram cell; prefer an unsigned type */
+typedef uint16 histcell;        /* histogram cell; prefer an unsigned type */
 
 typedef histcell FAR * histptr; /* for pointers to histogram cells */
 
@@ -174,7 +174,7 @@ typedef hist2d * hist3d;        /* type for top-level pointer */
  */
 
 #if BITS_IN_JSAMPLE == 8
-typedef INT16 FSERROR;          /* 16 bits should be enough */
+typedef int16 FSERROR;          /* 16 bits should be enough */
 typedef int LOCFSERROR;         /* use 'int' for calculation temps */
 #else
 typedef INT32 FSERROR;          /* may need more than 16 bits */

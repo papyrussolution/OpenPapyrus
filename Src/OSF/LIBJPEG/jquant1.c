@@ -122,7 +122,7 @@ static const uint8 base_dither_matrix[ODITHER_SIZE][ODITHER_SIZE] = {
  */
 
 #if BITS_IN_JSAMPLE == 8
-typedef INT16 FSERROR;          /* 16 bits should be enough */
+typedef int16 FSERROR;          /* 16 bits should be enough */
 typedef int LOCFSERROR;         /* use 'int' for calculation temps */
 #else
 typedef INT32 FSERROR;          /* may need more than 16 bits */

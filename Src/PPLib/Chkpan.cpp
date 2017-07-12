@@ -11137,6 +11137,15 @@ int CheckPaneDialog::PrintCashReports()
 						Flags &= ~fOnlyReports;
 					break;
 				case cmCSClose:
+					// @v9.7.6 {
+					if(P_BNKTERM) {
+						SString zcheck;
+						if(P_BNKTERM->GetSessReport(zcheck))
+							P_CM->SyncPrintBnkTermReport(/*scn.BnkTermFlags*/1, zcheck);
+						else
+							PPError();
+					}
+					// } @v9.7.6
 					r = P_CM->SyncCloseSession();
 					if(P_CM_EXT)
 						if(P_CM_EXT->GetNodeData().CashType == PPCMT_PAPYRUS) {

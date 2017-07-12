@@ -410,7 +410,7 @@ static int htmlCurrentChar(xmlParserCtxtPtr ctxt, int * len)
 			if(!IS_CHAR(val)) {
 				htmlParseErrInt(ctxt, XML_ERR_INVALID_CHAR, "Char 0x%X out of allowed range\n", val);
 			}
-			return(val);
+			return val;
 		}
 		else {
 			if((*ctxt->input->cur == 0) &&
@@ -3106,7 +3106,7 @@ int htmlParseCharRef(htmlParserCtxtPtr ctxt) {
 	 * Check the value IS_CHAR ...
 	 */
 	if(IS_CHAR(val)) {
-		return(val);
+		return val;
 	}
 	else {
 		htmlParseErrInt(ctxt, XML_ERR_INVALID_CHAR, "htmlParseCharRef: invalid xmlChar value %d\n", val);

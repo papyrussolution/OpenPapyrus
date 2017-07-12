@@ -28,19 +28,16 @@ typedef struct {
 	              * be discarded at the end ("Pacman" termination) */
 	int ct; /* bit shift counter, determines when next byte will be written */
 	int buffer;          /* buffer for most recent output byte != 0xFF */
-
 	int last_dc_val[MAX_COMPS_IN_SCAN]; /* last DC coef for each component */
 	int dc_context[MAX_COMPS_IN_SCAN]; /* context index for DC conditioning */
-
-	unsigned int restarts_to_go; /* MCUs left in this restart interval */
+	uint restarts_to_go; /* MCUs left in this restart interval */
 	int next_restart_num;   /* next restart number to write (0-7) */
-
 	/* Pointers to statistics areas (these workspaces have image lifespan) */
-	unsigned char * dc_stats[NUM_ARITH_TBLS];
-	unsigned char * ac_stats[NUM_ARITH_TBLS];
+	uchar * dc_stats[NUM_ARITH_TBLS];
+	uchar * ac_stats[NUM_ARITH_TBLS];
 
 	/* Statistics bin for coding with fixed probability 0.5 */
-	unsigned char fixed_bin[4];
+	uchar fixed_bin[4];
 } arith_entropy_encoder;
 
 typedef arith_entropy_encoder * arith_entropy_ptr;
@@ -208,10 +205,10 @@ METHODDEF(void) finish_pass(j_compress_ptr cinfo)
  * derived from Markus Kuhn's JBIG implementation.
  */
 
-static void arith_encode(j_compress_ptr cinfo, unsigned char * st, int val)
+static void arith_encode(j_compress_ptr cinfo, uchar * st, int val)
 {
 	register arith_entropy_ptr e = (arith_entropy_ptr)cinfo->entropy;
-	register unsigned char nl, nm;
+	register uchar nl, nm;
 	register INT32 qe, temp;
 	register int sv;
 
@@ -350,7 +347,7 @@ static void FASTCALL emit_restart(j_compress_ptr cinfo, int restart_num)
 METHODDEF(boolean) encode_mcu_DC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
-	unsigned char * st;
+	uchar * st;
 	int blkn, ci, tbl;
 	int v, v2, m;
 	ISHIFT_TEMPS
@@ -441,7 +438,7 @@ METHODDEF(boolean) encode_mcu_AC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	const int * natural_order;
 	JBLOCKROW block;
-	unsigned char * st;
+	uchar * st;
 	int tbl, k, ke;
 	int v, v2, m;
 
@@ -546,7 +543,7 @@ METHODDEF(boolean) encode_mcu_AC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
 METHODDEF(boolean) encode_mcu_DC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
-	unsigned char * st;
+	uchar * st;
 	int Al, blkn;
 
 	/* Emit restart marker if needed */
@@ -581,7 +578,7 @@ METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	const int * natural_order;
 	JBLOCKROW block;
-	unsigned char * st;
+	uchar * st;
 	int tbl, k, ke, kex;
 	int v;
 
@@ -681,7 +678,7 @@ METHODDEF(boolean) encode_mcu(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	const int * natural_order;
 	JBLOCKROW block;
-	unsigned char * st;
+	uchar * st;
 	int tbl, k, ke;
 	int v, v2, m;
 	int blkn, ci;
@@ -868,8 +865,7 @@ METHODDEF(void) start_pass(j_compress_ptr cinfo, boolean gather_statistics)
 			if(tbl < 0 || tbl >= NUM_ARITH_TBLS)
 				ERREXIT1(cinfo, JERR_NO_ARITH_TABLE, tbl);
 			if(entropy->dc_stats[tbl] == NULL)
-				entropy->dc_stats[tbl] = (unsigned char*)(*cinfo->mem->alloc_small)
-					    ((j_common_ptr)cinfo, JPOOL_IMAGE, DC_STAT_BINS);
+				entropy->dc_stats[tbl] = (uchar*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, DC_STAT_BINS);
 			MEMZERO(entropy->dc_stats[tbl], DC_STAT_BINS);
 			/* Initialize DC predictions to 0 */
 			entropy->last_dc_val[ci] = 0;
@@ -881,7 +877,7 @@ METHODDEF(void) start_pass(j_compress_ptr cinfo, boolean gather_statistics)
 			if(tbl < 0 || tbl >= NUM_ARITH_TBLS)
 				ERREXIT1(cinfo, JERR_NO_ARITH_TABLE, tbl);
 			if(entropy->ac_stats[tbl] == NULL)
-				entropy->ac_stats[tbl] = (unsigned char*)(*cinfo->mem->alloc_small)
+				entropy->ac_stats[tbl] = (uchar*)(*cinfo->mem->alloc_small)
 					    ((j_common_ptr)cinfo, JPOOL_IMAGE, AC_STAT_BINS);
 			MEMZERO(entropy->ac_stats[tbl], AC_STAT_BINS);
 #ifdef CALCULATE_SPECTRAL_CONDITIONING

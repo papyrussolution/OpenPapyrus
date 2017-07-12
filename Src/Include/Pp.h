@@ -12510,7 +12510,7 @@ private:
 
 class PrjTaskCore : public PrjTaskTbl {
 public:
-	static int SLAPI IsValidStatus(int s) { return (s >= 1 && s <= 5) ? 1 : (PPErrCode = PPERR_INVTODOSTATUS, 0); }
+	static int SLAPI IsValidStatus(int s) { return (s >= 1 && s <= 5) ? 1 : PPSetError(PPERR_INVTODOSTATUS); }
 	static int SLAPI IsValidPrior(int p) { return (p >= 1 && p <= 5); }
 
 	SLAPI  PrjTaskCore();
@@ -15916,8 +15916,14 @@ DECL_REF_REC(PPOprKind);
 #define INVOPF_ACCELADDITEMS     0x0080L // Ускоренное добавление позиций по штрихкоду
 #define INVOPF_ASSET             0x0100L // Инвентаризация по основным средствам (в обычную инвентаризацию основные средства не входят)
 #define INVOPF_USESERIAL         0x0200L // Использовать серийные номера в строках инвентаризации
+#define INVOPF_ACCELADDITEMSQTTY 0x0400L // @v9.7.6 Ускоренное добавление позиций по штрихкоду с количеством
 
 struct PPInventoryOpEx {   // @persistent @store(PropertyTbl)
+	SLAPI  PPInventoryOpEx();
+	static int FASTCALL Helper_GetAccelInputMode(long flags);
+	int    SLAPI GetAccelInputMode() const;
+	void   SLAPI SetAccelInputMode(int mode);
+
 	enum { // Методы расчета цен
 		acmLIFO     = 0,
 		acmFIFO,
@@ -15928,6 +15934,11 @@ struct PPInventoryOpEx {   // @persistent @store(PropertyTbl)
 		afmAll,
 		afmPrev,
 		afmByCurLotRest // По текущим остаткам лотов
+	};
+	enum { // Методы ускоренного ввода строк
+        accsliNo = 0,      // Нет
+        accsliCode,        // Ввод кода с автоматическим количеством равным 1
+        accsliCodeAndQtty  // Ввод кода с дополнительным вводом количества
 	};
 	PPID   Tag;              // Const=PPOBJ_OPRKIND
 	PPID   ID;               // ->Ref(PPOBJ_OPRKIND)
@@ -17118,6 +17129,7 @@ protected:
 	IdentBlock Ib;
 	long	State;
 	SString DvcName;
+	STempBuffer RetBuf; // @v9.7.6 Буфер для приема возвращаемой драйвером строки
 };
 
 extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
@@ -25716,7 +25728,7 @@ public:
 	};
 
 	int    SLAPI IsPacketEq(const PPGoodsPacket & rS1, const PPGoodsPacket & rS2, long options, long * pResultFlags);
-	int    SLAPI Edit(PPID *, GoodsPacketKind, long parentID, long clsID, char * bcode);
+	int    SLAPI Edit(PPID *, GoodsPacketKind, long parentID, long clsID, const char * bcode);
 	int    SLAPI EditClsdGoods(PPGoodsPacket *, int modifyOnlyExtRec);
 	int    SLAPI EditVad(PPID goodsID);
 	int    SLAPI EditArCode(PPID goodsID, PPID arID, int ownCode);
@@ -25814,8 +25826,8 @@ public:
 	//    0 - ошибка
 	//
 	int    SLAPI SelectGoodsInPlaceOfRemoved(PPID rmvdGoodsID, PPID extGoodsID, PPID * pReplaceGoodsID);
-	int    SLAPI SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec *, double *, char *);
-	int    SLAPI GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, char * pRetCode);
+	int    SLAPI SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec *, double *, SString * pRetCode);
+	int    SLAPI GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode);
 	int    SLAPI GetParentID(PPID, PPID * pParentID);
 	int    SLAPI SearchByName(const char * pName, PPID * pID, Goods2Tbl::Rec * pRec = 0);
 	int    SLAPI SearchMaxLike(PPGoodsPacket *, PPID *);
@@ -29938,7 +29950,7 @@ public:
 	int    SLAPI GenPckgCode(PPID pckgTypeID, char * pBuf, size_t bufLen);
 	int    SLAPI InitPckg(LPackage *);
 	int    SLAPI AddPckgToBillPacket(PPID pckgID, PPBillPacket *);
-	int    SLAPI SelectPckgByCode(char * pCode, PPID locID, PPID * pPckgID);
+	int    SLAPI SelectPckgByCode(const char * pCode, PPID locID, PPID * pPckgID);
 	int    SLAPI SelectPckg(PckgFilt * pFilt, PPID * pPckgID);
 	int    SLAPI ViewPckgDetail(PPID pckgID);
 	int    SLAPI IsLotInPckg(PPID lotID);
@@ -34797,6 +34809,7 @@ private:
 	int    SLAPI EditLine(PPID billID, long * pOprNo, PPID goodsID, const char * pSerial, double initQtty, int accelMode);
 	int    SLAPI AddItem(TIDlgInitData * pInitData);
 	int    SLAPI SelectByBarcode(int initChar, PPViewBrowser * pBrw);
+	int    SLAPI SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode);
 	int    SLAPI UpdateTempTable(PPID billID, long oprno);
 	int    SLAPI Build();
 	int    SLAPI Correct();

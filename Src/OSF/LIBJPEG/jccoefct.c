@@ -155,22 +155,16 @@ METHODDEF(boolean) compress_data(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
 			for(ci = 0; ci < cinfo->comps_in_scan; ci++) {
 				compptr = cinfo->cur_comp_info[ci];
 				forward_DCT = cinfo->fdct->forward_DCT[compptr->component_index];
-				blockcnt = (MCU_col_num < last_MCU_col) ? compptr->MCU_width
-				    : compptr->last_col_width;
+				blockcnt = (MCU_col_num < last_MCU_col) ? compptr->MCU_width : compptr->last_col_width;
 				xpos = MCU_col_num * compptr->MCU_sample_width;
 				ypos = yoffset * compptr->DCT_v_scaled_size;
 				/* ypos == (yoffset+yindex) * DCTSIZE */
 				for(yindex = 0; yindex < compptr->MCU_height; yindex++) {
-					if(coef->iMCU_row_num < last_iMCU_row ||
-					    yoffset+yindex < compptr->last_row_height) {
-						(*forward_DCT)(cinfo, compptr,
-						    input_buf[compptr->component_index],
-						    coef->MCU_buffer[blkn],
-						    ypos, xpos, (JDIMENSION)blockcnt);
+					if(coef->iMCU_row_num < last_iMCU_row || yoffset+yindex < compptr->last_row_height) {
+						(*forward_DCT)(cinfo, compptr, input_buf[compptr->component_index], coef->MCU_buffer[blkn], ypos, xpos, (JDIMENSION)blockcnt);
 						if(blockcnt < compptr->MCU_width) {
 							/* Create some dummy blocks at the right edge of the image. */
-							FMEMZERO((void FAR*)coef->MCU_buffer[blkn + blockcnt],
-							    (compptr->MCU_width - blockcnt) * SIZEOF(JBLOCK));
+							FMEMZERO((void FAR*)coef->MCU_buffer[blkn + blockcnt], (compptr->MCU_width - blockcnt) * SIZEOF(JBLOCK));
 							for(bi = blockcnt; bi < compptr->MCU_width; bi++) {
 								coef->MCU_buffer[blkn+bi][0][0] = coef->MCU_buffer[blkn+bi-1][0][0];
 							}
@@ -178,8 +172,7 @@ METHODDEF(boolean) compress_data(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
 					}
 					else {
 						/* Create a row of dummy blocks at the bottom of the image. */
-						FMEMZERO((void FAR*)coef->MCU_buffer[blkn],
-						    compptr->MCU_width * SIZEOF(JBLOCK));
+						FMEMZERO((void FAR*)coef->MCU_buffer[blkn], compptr->MCU_width * SIZEOF(JBLOCK));
 						for(bi = 0; bi < compptr->MCU_width; bi++) {
 							coef->MCU_buffer[blkn+bi][0][0] = coef->MCU_buffer[blkn-1][0][0];
 						}
@@ -241,14 +234,10 @@ METHODDEF(boolean) compress_first_pass(j_compress_ptr cinfo, JSAMPIMAGE input_bu
 	JBLOCKARRAY buffer;
 	JBLOCKROW thisblockrow, lastblockrow;
 	forward_DCT_ptr forward_DCT;
-
-	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components;
-	    ci++, compptr++) {
+	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components; ci++, compptr++) {
 		/* Align the virtual buffer for this component. */
-		buffer = (*cinfo->mem->access_virt_barray)
-			    ((j_common_ptr)cinfo, coef->whole_image[ci],
-		    coef->iMCU_row_num * compptr->v_samp_factor,
-		    (JDIMENSION)compptr->v_samp_factor, TRUE);
+		buffer = (*cinfo->mem->access_virt_barray)((j_common_ptr)cinfo, coef->whole_image[ci], 
+			coef->iMCU_row_num * compptr->v_samp_factor, (JDIMENSION)compptr->v_samp_factor, TRUE);
 		/* Count non-dummy DCT block rows in this iMCU row. */
 		if(coef->iMCU_row_num < last_iMCU_row)
 			block_rows = compptr->v_samp_factor;
@@ -348,10 +337,8 @@ METHODDEF(boolean) compress_output(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
 	}
 
 	/* Loop to process one whole iMCU row */
-	for(yoffset = coef->MCU_vert_offset; yoffset < coef->MCU_rows_per_iMCU_row;
-	    yoffset++) {
-		for(MCU_col_num = coef->mcu_ctr; MCU_col_num < cinfo->MCUs_per_row;
-		    MCU_col_num++) {
+	for(yoffset = coef->MCU_vert_offset; yoffset < coef->MCU_rows_per_iMCU_row; yoffset++) {
+		for(MCU_col_num = coef->mcu_ctr; MCU_col_num < cinfo->MCUs_per_row; MCU_col_num++) {
 			/* Construct list of pointers to DCT blocks belonging to this MCU */
 			blkn = 0; /* index of current DCT block within MCU */
 			for(ci = 0; ci < cinfo->comps_in_scan; ci++) {

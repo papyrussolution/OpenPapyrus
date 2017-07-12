@@ -819,7 +819,7 @@ xmlSchemaValPtr xmlSchemaNewStringValue(xmlSchemaValType type, const xmlChar * v
 	memzero(val, sizeof(xmlSchemaVal));
 	val->type = type;
 	val->value.str = (xmlChar*)value;
-	return(val);
+	return val;
 }
 
 /**

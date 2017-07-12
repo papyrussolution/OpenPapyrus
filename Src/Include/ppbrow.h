@@ -1988,6 +1988,8 @@ struct Sdr_SpecSeries {
 	#define PPFLD_BILL_CNTRACTCODE                   52
 	#define PPFLD_BILL_CNTRACTDT                     53
 	#define PPFLD_BILL_CNTRACTEXPRY                  54
+	#define PPFLD_BILL_CNTRAGPHONE                   55
+	#define PPFLD_BILL_CNTRAGEMAIL                   56
 
 struct Sdr_Bill {
 	char   ID[32];
@@ -2044,6 +2046,8 @@ struct Sdr_Bill {
 	char   CntractCode[32];
 	LDATE  CntractDt;
 	LDATE  CntractExpry;
+	char   CntragPhone[128];
+	char   CntragEMail[128];
 };
 
 #define PPREC_BROW                           5

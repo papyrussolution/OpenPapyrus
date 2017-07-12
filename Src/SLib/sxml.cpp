@@ -44,7 +44,7 @@ void FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb)
 		else
 			p_include = pProcessSymb;
 	}
-	for(size_t i = 0; i < (sizeof(SpcSymbTab)/sizeof(SpcSymbEntry)); i++) {
+	for(size_t i = 0; i < SIZEOFARRAY(SpcSymbTab); i++) {
 		const char rc = SpcSymbTab[i].chr;
 		if((!p_exclude || strchr(p_exclude, rc) == 0) && (!p_include || strchr(p_include, rc) != 0)) {
 			char   pattern[32];
@@ -69,12 +69,12 @@ int SLAPI XMLWriteSpecSymbEntities(FILE * pStream)
 	int    ok = 1;
 	if(pStream) {
 		SString temp_buf;
-		for(size_t i = 0; i < (sizeof(SpcSymbTab)/sizeof(SpcSymbEntry)); i++) {
+		for(size_t i = 0; i < SIZEOFARRAY(SpcSymbTab); i++) {
 			temp_buf = 0;
 			if(SpcSymbTab[i].Amp)
 				temp_buf.CatChar('#').Cat(0x26).Semicol();
 			temp_buf.CatChar('#').Cat(SpcSymbTab[i].chr).Semicol();
-			fprintf(pStream, "<!ENTITY %s \"&%s\">\n", SpcSymbTab[i].str, (const char *)temp_buf);
+			fprintf(pStream, "<!ENTITY %s \"&%s\">\n", SpcSymbTab[i].str, temp_buf.cptr());
 		}
 	}
 	else
@@ -89,12 +89,12 @@ int SLAPI XMLWriteSpecSymbEntities(void * pWriter)
 	int    ok = 1;
 	SString subst;
 	if(pWriter) {
-		for(size_t i = 0; i < (sizeof(SpcSymbTab)/sizeof(SpcSymbEntry)); i++) {
+		for(size_t i = 0; i < SIZEOFARRAY(SpcSymbTab); i++) {
 			(subst = 0).CatChar('&');
 			if(SpcSymbTab[i].Amp)
 				subst.CatChar('#').Cat(0x26).Semicol();
 			subst.CatChar('#').Cat(SpcSymbTab[i].chr).Semicol();
-			xmlTextWriterWriteDTDEntity((xmlTextWriterPtr)pWriter, 0, (const xmlChar*)SpcSymbTab[i].str, 0, 0, 0, subst.ucptr());
+			xmlTextWriterWriteDTDEntity((xmlTextWriter *)pWriter, 0, (const xmlChar*)SpcSymbTab[i].str, 0, 0, 0, subst.ucptr());
 		}
 	}
 	else

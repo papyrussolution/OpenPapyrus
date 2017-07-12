@@ -47,22 +47,13 @@ int PPQuotImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & r
 		for(uint i = 0; i < param_list.getCount(); i++) {
 			StrAssocArray::Item item = param_list.at_WithoutParent(i);
 			temp_buf = item.Txt;
+			const long id_to_assign = temp_buf.ToLong();
 			switch(item.Id) {
-				case PPQUOTPAR_QUOTKIND:
-					QuotKindID = temp_buf.ToLong();
-					break;
-				case PPQUOTPAR_CURRENCY:
-					CurrID = temp_buf.ToLong();
-					break;
-				case PPQUOTPAR_ARTICLE:
-					ArID = temp_buf.ToLong();
-					break;
-				case PPQUOTPAR_LOC:
-					LocID = temp_buf.ToLong();
-					break;
-				case PPQUOTPAR_FLAGS:
-					Flags = temp_buf.ToLong();
-					break;
+				case PPQUOTPAR_QUOTKIND: QuotKindID = id_to_assign; break;
+				case PPQUOTPAR_CURRENCY: CurrID = id_to_assign; break;
+				case PPQUOTPAR_ARTICLE:  ArID = id_to_assign; break;
+				case PPQUOTPAR_LOC:      LocID = id_to_assign; break;
+				case PPQUOTPAR_FLAGS:    Flags = id_to_assign; break;
 			}
 		}
 	}
@@ -100,8 +91,7 @@ int PPQuotImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const Stri
 	int    ok = 1;
 	SString params, fld_name, param_val;
 	StringSet excl;
-	if(pExclParamList)
-		excl = *pExclParamList;
+	RVALUEPTR(excl, pExclParamList);
 	THROW(PPLoadText(PPTXT_QUOTPARAMS, params));
 	{
 		struct I {
@@ -212,7 +202,7 @@ int SLAPI EditQuotImpExpParam(const char * pIniSection)
    						ini_file.RemoveSection(pIniSection);
    					else
    						ini_file.ClearSection(pIniSection);
-   				PPErrCode = PPERR_DUPOBJNAME;
+   				PPSetError(PPERR_DUPOBJNAME);
    				if((!is_new || ini_file.IsSectExists(param.Name) == 0) && param.WriteIni(&ini_file, param.Name) && ini_file.FlashIniBuf())
    					ok = 1;
    				else
@@ -772,7 +762,7 @@ int SLAPI EditGoodsImpExpParams(const char * pIniSection)
    						ini_file.RemoveSection(pIniSection);
    					else
    						ini_file.ClearSection(pIniSection);
-   				PPErrCode = PPERR_DUPOBJNAME;
+   				PPSetError(PPERR_DUPOBJNAME);
    				if((!is_new || ini_file.IsSectExists(param.Name) == 0) && param.WriteIni(&ini_file, param.Name) && ini_file.FlashIniBuf())
    					ok = 1;
    				else

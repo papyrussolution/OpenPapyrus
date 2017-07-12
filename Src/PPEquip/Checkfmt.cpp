@@ -524,7 +524,9 @@ enum {
 	symbIsEgais,           // ISEGAIS
 	symbEgaisUrl,          // EGAISURL
 	symbEgaisSign,         // EGAISSIGN
-	symbManufSerial        // MANUFSERIAL
+	symbManufSerial,       // MANUFSERIAL
+	symbDirector,          // DIRECTOR   @v9.7.6 Директор
+	symbAccountant         // ACCOUNTANT @v9.7.6 Главный бухгалтер
 };
 
 PPID PPSlipFormat::GetSCardID(const Iter * pIter, double * pAdjSum) const
@@ -567,6 +569,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 	int    ok = -1;
 	CCheckLineTbl::Rec cc_item;
 	CCheckPacket::LineExt ccext_item;
+	PersonTbl::Rec psn_rec;
 	PPTransferItem ti;
 	StringSet ss(';', MetavarList);
 	rResult = 0;
@@ -626,7 +629,6 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				case symbCashier:
 					if(Src == srcCCheck && p_ccp->Rec.UserID) {
-						PersonTbl::Rec psn_rec;
 						if(P_Od->PsnObj.Fetch(p_ccp->Rec.UserID, &psn_rec) > 0)
 							rResult.Cat(psn_rec.Name);
 					}
@@ -638,6 +640,20 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 							GetCurUserName(temp_buf);
 							rResult.Cat(temp_buf);
 						}
+					}
+					break;
+				case symbDirector: // @v9.7.6
+					{
+						DS.GetTLA().InitMainOrgData(0);
+						if(P_Od->PsnObj.Fetch(CConfig.MainOrgDirector_, &psn_rec) > 0)
+							rResult.Cat(psn_rec.Name);
+					}
+					break;
+				case symbAccountant: // @v9.7.6
+					{
+						DS.GetTLA().InitMainOrgData(0);
+						if(P_Od->PsnObj.Fetch(CConfig.MainOrgAccountant_, &psn_rec) > 0)
+							rResult.Cat(psn_rec.Name);
 					}
 					break;
 				case symbTable:

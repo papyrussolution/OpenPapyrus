@@ -293,7 +293,7 @@ METHODDEF(void) start_pass(j_decompress_ptr cinfo)
 			     */
 			    IFAST_MULT_TYPE * ifmtbl = (IFAST_MULT_TYPE*)compptr->dct_table;
 #define CONST_BITS 14
-			    static const INT16 aanscales[DCTSIZE2] = {
+			    static const int16 aanscales[DCTSIZE2] = {
 				    /* precomputed values scaled up by 14 bits */
 				    16384, 22725, 21407, 19266, 16384, 12873,  8867,  4520,
 				    22725, 31521, 29692, 26722, 22725, 17855, 12299,  6270,

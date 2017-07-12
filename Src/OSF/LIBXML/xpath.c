@@ -2435,7 +2435,7 @@ static xmlXPathObjectPtr xmlXPathCacheConvertString(xmlXPathContextPtr ctxt, xml
 		    res = xmlXPathCastNodeSetToString(val->nodesetval);
 		    break;
 		case XPATH_STRING:
-		    return(val);
+		    return val;
 		case XPATH_BOOLEAN:
 		    res = xmlXPathCastBooleanToString(val->boolval);
 		    break;
@@ -5387,7 +5387,7 @@ xmlXPathObjectPtr xmlXPathConvertString(xmlXPathObjectPtr val)
 				res = xmlXPathCastNodeSetToString(val->nodesetval);
 				break;
 			case XPATH_STRING:
-				return(val);
+				return val;
 			case XPATH_BOOLEAN:
 				res = xmlXPathCastBooleanToString(val->boolval);
 				break;
@@ -5531,7 +5531,7 @@ xmlXPathObjectPtr xmlXPathConvertNumber(xmlXPathObjectPtr val)
 	if(val == NULL)
 		return(xmlXPathNewFloat(0.0));
 	if(val->type == XPATH_NUMBER)
-		return(val);
+		return val;
 	ret = xmlXPathNewFloat(xmlXPathCastToNumber(val));
 	xmlXPathFreeObject(val);
 	return ret;
@@ -9233,7 +9233,7 @@ static int xmlXPathCurrentChar(xmlXPathParserContextPtr ctxt, int * len) {
 		if(!IS_CHAR(val)) {
 			XP_ERROR0(XPATH_INVALID_CHAR_ERROR);
 		}
-		return(val);
+		return val;
 	}
 	else {
 		/* 1-byte code */

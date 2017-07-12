@@ -1868,8 +1868,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 							setCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
 							break;
 						case CTL_BILL_LNKFILELIST:
-							if(P_Pack && P_Pack->LnkFiles.getCount() && P_Box && P_Box->def &&
-								P_Pack->LnkFiles.EditDescr(P_Box->def->_curItem()))
+							if(P_Pack && P_Pack->LnkFiles.getCount() && P_Box && P_Box->def && P_Pack->LnkFiles.EditDescr(P_Box->def->_curItem()))
 								updateList(-1);
 							break;
 					}
@@ -2093,7 +2092,6 @@ void BillDialog::ReplyCntragntSelection(int force)
 				ExecViewAndDestroy(dlg);
 			}
 		}
-		// @v7.4.10 {
 		if(client_id && P_Pack->OpTypeID == PPOPT_GOODSRECEIPT && P_Pack->AccSheetID == GetSupplAccSheet() && P_Pack->GetTCount()) {
 			int is_there_force_suppl = 0;
 			uint i;
@@ -2110,7 +2108,6 @@ void BillDialog::ReplyCntragntSelection(int force)
 				}
 			}
 		}
-		// } @v7.4.10
 	}
 	else {
 		if(PPErrCode == PPERR_DENYSTOPPEDAR)

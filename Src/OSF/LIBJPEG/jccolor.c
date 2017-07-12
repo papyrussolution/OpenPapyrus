@@ -16,7 +16,6 @@
 
 typedef struct {
 	struct jpeg_color_converter pub; /* public fields */
-
 	/* Private state for RGB->YCC conversion */
 	INT32 * rgb_ycc_tab;    /* => table for RGB to YCbCr conversion */
 } my_color_converter;
@@ -157,17 +156,11 @@ METHODDEF(void) rgb_ycc_convert(j_compress_ptr cinfo,
 			 * need the general RIGHT_SHIFT macro.
 			 */
 			/* Y */
-			outptr0[col] = (JSAMPLE)
-			    ((ctab[r+R_Y_OFF] + ctab[g+G_Y_OFF] + ctab[b+B_Y_OFF])
-			    >> SCALEBITS);
+			outptr0[col] = (JSAMPLE)((ctab[r+R_Y_OFF] + ctab[g+G_Y_OFF] + ctab[b+B_Y_OFF]) >> SCALEBITS);
 			/* Cb */
-			outptr1[col] = (JSAMPLE)
-			    ((ctab[r+R_CB_OFF] + ctab[g+G_CB_OFF] + ctab[b+B_CB_OFF])
-			    >> SCALEBITS);
+			outptr1[col] = (JSAMPLE)((ctab[r+R_CB_OFF] + ctab[g+G_CB_OFF] + ctab[b+B_CB_OFF]) >> SCALEBITS);
 			/* Cr */
-			outptr2[col] = (JSAMPLE)
-			    ((ctab[r+R_CR_OFF] + ctab[g+G_CR_OFF] + ctab[b+B_CR_OFF])
-			    >> SCALEBITS);
+			outptr2[col] = (JSAMPLE)((ctab[r+R_CR_OFF] + ctab[g+G_CR_OFF] + ctab[b+B_CR_OFF]) >> SCALEBITS);
 			inptr += RGB_PIXELSIZE;
 		}
 	}
@@ -249,17 +242,11 @@ METHODDEF(void) cmyk_ycck_convert(j_compress_ptr cinfo,
 			 * need the general RIGHT_SHIFT macro.
 			 */
 			/* Y */
-			outptr0[col] = (JSAMPLE)
-			    ((ctab[r+R_Y_OFF] + ctab[g+G_Y_OFF] + ctab[b+B_Y_OFF])
-			    >> SCALEBITS);
+			outptr0[col] = (JSAMPLE)((ctab[r+R_Y_OFF] + ctab[g+G_Y_OFF] + ctab[b+B_Y_OFF]) >> SCALEBITS);
 			/* Cb */
-			outptr1[col] = (JSAMPLE)
-			    ((ctab[r+R_CB_OFF] + ctab[g+G_CB_OFF] + ctab[b+B_CB_OFF])
-			    >> SCALEBITS);
+			outptr1[col] = (JSAMPLE)((ctab[r+R_CB_OFF] + ctab[g+G_CB_OFF] + ctab[b+B_CB_OFF]) >> SCALEBITS);
 			/* Cr */
-			outptr2[col] = (JSAMPLE)
-			    ((ctab[r+R_CR_OFF] + ctab[g+G_CR_OFF] + ctab[b+B_CR_OFF])
-			    >> SCALEBITS);
+			outptr2[col] = (JSAMPLE)((ctab[r+R_CR_OFF] + ctab[g+G_CR_OFF] + ctab[b+B_CR_OFF]) >> SCALEBITS);
 			inptr += 4;
 		}
 	}
@@ -274,16 +261,13 @@ METHODDEF(void) cmyk_ycck_convert(j_compress_ptr cinfo,
  * normalization by modulo calculation.
  */
 
-METHODDEF(void) rgb_rgb1_convert(j_compress_ptr cinfo,
-    JSAMPARRAY input_buf, JSAMPIMAGE output_buf,
-    JDIMENSION output_row, int num_rows)
+METHODDEF(void) rgb_rgb1_convert(j_compress_ptr cinfo, JSAMPARRAY input_buf, JSAMPIMAGE output_buf, JDIMENSION output_row, int num_rows)
 {
 	register int r, g, b;
 	register JSAMPROW inptr;
 	register JSAMPROW outptr0, outptr1, outptr2;
 	register JDIMENSION col;
 	JDIMENSION num_cols = cinfo->image_width;
-
 	while(--num_rows >= 0) {
 		inptr = *input_buf++;
 		outptr0 = output_buf[0][output_row];

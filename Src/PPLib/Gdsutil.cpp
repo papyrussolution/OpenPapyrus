@@ -652,7 +652,7 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 	return ok;
 }
 
-int SLAPI PPObjGoods::GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, char * pRetCode)
+int SLAPI PPObjGoods::GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode)
 {
 	int    ok = -1, r;
 	GoodsCodeSrchBlock blk;
@@ -668,7 +668,7 @@ int SLAPI PPObjGoods::GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2
 			int    sel = -1;
 			if(BarcodeList(blk.P_List, &sel) > 0) {
 				BarcodeTbl::Rec bcr = blk.P_List->at(sel);
-				strnzcpy(pRetCode, bcr.Code, 16);
+				ASSIGN_PTR(pRetCode, bcr.Code);
 				if(Fetch(bcr.GoodsID, pRec) > 0) {
 					ASSIGN_PTR(pQtty, bcr.Qtty);
 					ok = 1;
@@ -685,18 +685,18 @@ int SLAPI PPObjGoods::GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2
 	}
 	else
 		ok = r;
-	strnzcpy(pRetCode, blk.RetCode, 64);
+	ASSIGN_PTR(pRetCode, blk.RetCode);
 	return ok;
 }
 
-int SLAPI PPObjGoods::SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, char * pRetCode)
+int SLAPI PPObjGoods::SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode)
 {
 	int    r = -1;
 	SString code = DS.GetTLA().Lid.Barcode;
 	if((r = BarcodeInputDialog(initChar, code)) > 0) {
 		r = GetGoodsByBarcode(code, arID, pRec, pQtty, pRetCode);
 		if(r <= 0)
-			strnzcpy(pRetCode, code, 64);
+			ASSIGN_PTR(pRetCode, code);
 	}
 	if(!r)
 		PPError();

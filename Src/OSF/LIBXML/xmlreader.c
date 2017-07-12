@@ -701,7 +701,6 @@ static void xmlTextReaderCDataBlock(void * ctx, const xmlChar * ch, int len)
 		reader->cdataBlock(ctx, ch, len);
 	}
 }
-
 /**
  * xmlTextReaderPushData:
  * @reader:  the xmlTextReaderPtr used
@@ -717,7 +716,7 @@ static int xmlTextReaderPushData(xmlTextReaderPtr reader)
 	int val, s;
 	xmlTextReaderState oldstate;
 	int alloc;
-	if((reader->input == NULL) || (reader->input->buffer == NULL))
+	if(!reader->input || !reader->input->buffer)
 		return -1;
 	oldstate = reader->state;
 	reader->state = XML_TEXTREADER_NONE;
@@ -730,8 +729,7 @@ static int xmlTextReaderPushData(xmlTextReaderPtr reader)
 			 */
 			if(reader->mode != XML_TEXTREADER_MODE_EOF) {
 				val = xmlParserInputBufferRead(reader->input, 4096);
-				if((val == 0) &&
-				    (alloc == XML_BUFFER_ALLOC_IMMUTABLE)) {
+				if(!val && alloc == XML_BUFFER_ALLOC_IMMUTABLE) {
 					if(xmlBufUse(inbuf) == reader->cur) {
 						reader->mode = XML_TEXTREADER_MODE_EOF;
 						reader->state = oldstate;
@@ -741,7 +739,7 @@ static int xmlTextReaderPushData(xmlTextReaderPtr reader)
 					reader->mode = XML_TEXTREADER_MODE_EOF;
 					reader->state = oldstate;
 					if((oldstate != XML_TEXTREADER_START) || reader->ctxt->myDoc)
-						return(val);
+						return val;
 				}
 				else if(val == 0) {
 					/* mark the end of the stream and process the remains */
@@ -752,10 +750,10 @@ static int xmlTextReaderPushData(xmlTextReaderPtr reader)
 			else
 				break;
 		}
-		/*
-		 * parse by block of CHUNK_SIZE bytes, various tests show that
-		 * it's the best tradeoff at least on a 1.2GH Duron
-		 */
+		//
+		// parse by block of CHUNK_SIZE bytes, various tests show that
+		// it's the best tradeoff at least on a 1.2GH Duron
+		//
 		if(xmlBufUse(inbuf) >= reader->cur + CHUNK_SIZE) {
 			val = xmlParseChunk(reader->ctxt, (const char*)xmlBufContent(inbuf) + reader->cur, CHUNK_SIZE, 0);
 			reader->cur += CHUNK_SIZE;
@@ -773,24 +771,21 @@ static int xmlTextReaderPushData(xmlTextReaderPtr reader)
 			break;
 		}
 	}
-
-	/*
-	 * Discard the consumed input when needed and possible
-	 */
+	//
+	// Discard the consumed input when needed and possible
+	//
 	if(reader->mode == XML_TEXTREADER_MODE_INTERACTIVE) {
 		if(alloc != XML_BUFFER_ALLOC_IMMUTABLE) {
 			if((reader->cur >= 4096) && (xmlBufUse(inbuf) - reader->cur <= CHUNK_SIZE)) {
 				val = xmlBufShrink(inbuf, reader->cur);
-				if(val >= 0) {
+				if(val >= 0)
 					reader->cur -= val;
-				}
 			}
 		}
 	}
-	/*
-	 * At the end of the stream signal that the work is done to the Push
-	 * parser.
-	 */
+	//
+	// At the end of the stream signal that the work is done to the Push parser.
+	//
 	else if(reader->mode == XML_TEXTREADER_MODE_EOF) {
 		if(reader->state != XML_TEXTREADER_DONE) {
 			s = xmlBufUse(inbuf) - reader->cur;

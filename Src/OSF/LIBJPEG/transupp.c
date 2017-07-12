@@ -1261,7 +1261,7 @@ static void transpose_critical_parameters(j_compress_ptr dstinfo)
 	jpeg_component_info * compptr;
 	JQUANT_TBL * qtblptr;
 	JDIMENSION jtemp;
-	UINT16 qtemp;
+	uint16 qtemp;
 
 	/* Transpose image dimensions */
 	jtemp = dstinfo->image_width;
@@ -1299,12 +1299,12 @@ static void transpose_critical_parameters(j_compress_ptr dstinfo)
  * We try to adjust the Tags ExifImageWidth and ExifImageHeight if possible.
  */
 
-static void adjust_exif_parameters(JOCTET FAR * data, unsigned int length,
+static void adjust_exif_parameters(JOCTET FAR * data, uint length,
     JDIMENSION new_width, JDIMENSION new_height)
 {
 	boolean is_motorola; /* Flag for byte order */
-	unsigned int number_of_tags, tagnum;
-	unsigned int firstoffset, offset;
+	uint number_of_tags, tagnum;
+	uint firstoffset, offset;
 	JDIMENSION new_value;
 
 	if(length < 12) return;  /* Length of an IFD entry */
@@ -1428,7 +1428,7 @@ static void adjust_exif_parameters(JOCTET FAR * data, unsigned int length,
 			else
 				new_value = new_height;  /* ExifImageHeight Tag */
 			if(is_motorola) {
-				data[offset+2] = 0; /* Format = unsigned long (4 octets) */
+				data[offset+2] = 0; /* Format = ulong (4 octets) */
 				data[offset+3] = 4;
 				data[offset+4] = 0; /* Number Of Components = 1 */
 				data[offset+5] = 0;
@@ -1440,7 +1440,7 @@ static void adjust_exif_parameters(JOCTET FAR * data, unsigned int length,
 				data[offset+11] = (JOCTET)(new_value & 0xFF);
 			}
 			else {
-				data[offset+2] = 4; /* Format = unsigned long (4 octets) */
+				data[offset+2] = 4; /* Format = ulong (4 octets) */
 				data[offset+3] = 0;
 				data[offset+4] = 1; /* Number Of Components = 1 */
 				data[offset+5] = 0;
@@ -1719,7 +1719,7 @@ GLOBAL(void) jcopy_markers_execute(j_decompress_ptr srcinfo, j_compress_ptr dsti
 #ifdef NEED_FAR_POINTERS
 		/* We could use jpeg_write_marker if the data weren't FAR... */
 		{
-			unsigned int i;
+			uint i;
 			jpeg_write_m_header(dstinfo, marker->marker, marker->data_length);
 			for(i = 0; i < marker->data_length; i++)
 				jpeg_write_m_byte(dstinfo, marker->data[i]);

@@ -95,7 +95,7 @@ GLOBAL(boolean) read_quant_tables(j_compress_ptr cinfo, char * filename, boolean
 				fclose(fp);
 				return FALSE;
 			}
-			table[i] = (unsigned int)val;
+			table[i] = (uint)val;
 		}
 		jpeg_add_quant_table(cinfo, tblno, table, cinfo->q_scale_factor[tblno], force_baseline);
 		tblno++;

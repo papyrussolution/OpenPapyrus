@@ -27,7 +27,7 @@
 
 /*
  * We assume that JSAMPLE has the same representation as rle_pixel,
- * to wit, "unsigned char".  Hence we can't cope with 12- or 16-bit samples.
+ * to wit, "uchar".  Hence we can't cope with 12- or 16-bit samples.
  */
 
 #if BITS_IN_JSAMPLE != 8

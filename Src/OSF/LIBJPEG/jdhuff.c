@@ -191,7 +191,7 @@ slowlabel: \
  */
 
 typedef struct {
-	unsigned int EOBRUN;            /* remaining EOBs in EOBRUN */
+	uint EOBRUN;            /* remaining EOBs in EOBRUN */
 	int last_dc_val[MAX_COMPS_IN_SCAN]; /* last DC coef for each component */
 } savable_state;
 
@@ -224,7 +224,7 @@ typedef struct {
 
 	/* These fields are NOT loaded into local working state. */
 	boolean insufficient_data; /* set TRUE after emitting warning */
-	unsigned int restarts_to_go; /* MCUs left in this restart interval */
+	uint restarts_to_go; /* MCUs left in this restart interval */
 
 	/* Following two fields used only in progressive mode */
 
@@ -317,8 +317,8 @@ static void jpeg_make_d_derived_tbl(j_decompress_ptr cinfo, boolean isDC, int tb
 	int p, i, l, si, numsymbols;
 	int lookbits, ctr;
 	char huffsize[257];
-	unsigned int huffcode[257];
-	unsigned int code;
+	uint huffcode[257];
+	uint code;
 
 	/* Note that huffsize[] and huffcode[] are filled in code-length order,
 	 * paralleling the order of the symbols themselves in htbl->huffval[].
@@ -753,7 +753,7 @@ METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 {
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
 	register int s, k, r;
-	unsigned int EOBRUN;
+	uint EOBRUN;
 	int Se, Al;
 	const int * natural_order;
 	JBLOCKROW block;
@@ -883,7 +883,7 @@ METHODDEF(boolean) decode_mcu_AC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_d
 {
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
 	register int s, k, r;
-	unsigned int EOBRUN;
+	uint EOBRUN;
 	int Se, p1, m1;
 	const int * natural_order;
 	JBLOCKROW block;

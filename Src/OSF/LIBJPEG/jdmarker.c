@@ -94,12 +94,12 @@ typedef struct {
 	jpeg_marker_parser_method process_APPn[16];
 
 	/* Limit on marker data length to save for each marker type */
-	unsigned int length_limit_COM;
-	unsigned int length_limit_APPn[16];
+	uint length_limit_COM;
+	uint length_limit_APPn[16];
 
 	/* Status of COM/APPn marker saving */
 	jpeg_saved_marker_ptr cur_marker; /* NULL if not processing a marker */
-	unsigned int bytes_read;        /* data bytes read so far in marker */
+	uint bytes_read;        /* data bytes read so far in marker */
 	/* Note: cur_marker is not linked into marker_list until it's all read. */
 } my_marker_reader;
 
@@ -149,12 +149,12 @@ typedef my_marker_reader * my_marker_ptr;
 	    V = GETJOCTET(*next_input_byte++); )
 
 /* As above, but read two bytes interpreted as an unsigned 16-bit integer.
- * V should be declared unsigned int or perhaps INT32.
+ * V should be declared uint or perhaps INT32.
  */
 #define INPUT_2BYTES(cinfo, V, action)	\
 	MAKESTMT(MAKE_BYTE_AVAIL(cinfo, action); \
 	    bytes_in_buffer--; \
-	    V = ((unsigned int)GETJOCTET(*next_input_byte++)) << 8; \
+	    V = ((uint)GETJOCTET(*next_input_byte++)) << 8; \
 	    MAKE_BYTE_AVAIL(cinfo, action); \
 	    bytes_in_buffer--; \
 	    V += GETJOCTET(*next_input_byte++); )
@@ -514,7 +514,7 @@ LOCAL(boolean) get_dqt(j_decompress_ptr cinfo)
 {
 	INT32 length, count, i;
 	int n, prec;
-	unsigned int tmp;
+	uint tmp;
 	JQUANT_TBL * quant_ptr;
 	const int * natural_order;
 	INPUT_VARS(cinfo);
@@ -576,7 +576,7 @@ LOCAL(boolean) get_dqt(j_decompress_ptr cinfo)
 			else
 				INPUT_BYTE(cinfo, tmp, return FALSE);
 			/* We convert the zigzag-order table to natural array order. */
-			quant_ptr->quantval[natural_order[i]] = (UINT16)tmp;
+			quant_ptr->quantval[natural_order[i]] = (uint16)tmp;
 		}
 
 		if(cinfo->err->trace_level >= 2) {
@@ -604,7 +604,7 @@ LOCAL(boolean) get_dri(j_decompress_ptr cinfo)
 /* Process a DRI marker */
 {
 	INT32 length;
-	unsigned int tmp;
+	uint tmp;
 	INPUT_VARS(cinfo);
 
 	INPUT_2BYTES(cinfo, length, return FALSE);
@@ -626,7 +626,7 @@ LOCAL(boolean) get_lse(j_decompress_ptr cinfo)
 /* Process an LSE marker */
 {
 	INT32 length;
-	unsigned int tmp;
+	uint tmp;
 	int cid;
 	INPUT_VARS(cinfo);
 
@@ -693,7 +693,7 @@ bad:
 #define APP14_DATA_LEN  12      /* Length of interesting data in APP14 */
 #define APPN_DATA_LEN   14      /* Must be the largest of the above!! */
 
-static void examine_app0(j_decompress_ptr cinfo, JOCTET FAR * data, unsigned int datalen, INT32 remaining)
+static void examine_app0(j_decompress_ptr cinfo, JOCTET FAR * data, uint datalen, INT32 remaining)
 /* Examine first few bytes from an APP0.
  * Take appropriate action if it is a JFIF marker.
  * datalen is # of bytes at data[], remaining is length of rest of marker data.
@@ -769,13 +769,13 @@ static void examine_app0(j_decompress_ptr cinfo, JOCTET FAR * data, unsigned int
 	}
 }
 
-static void examine_app14(j_decompress_ptr cinfo, JOCTET FAR * data, unsigned int datalen, INT32 remaining)
+static void examine_app14(j_decompress_ptr cinfo, JOCTET FAR * data, uint datalen, INT32 remaining)
 /* Examine first few bytes from an APP14.
  * Take appropriate action if it is an Adobe marker.
  * datalen is # of bytes at data[], remaining is length of rest of marker data.
  */
 {
-	unsigned int version, flags0, flags1, transform;
+	uint version, flags0, flags1, transform;
 
 	if(datalen >= APP14_DATA_LEN &&
 	    GETJOCTET(data[0]) == 0x41 &&
@@ -803,7 +803,7 @@ METHODDEF(boolean) get_interesting_appn(j_decompress_ptr cinfo)
 {
 	INT32 length;
 	JOCTET b[APPN_DATA_LEN];
-	unsigned int i, numtoread;
+	uint i, numtoread;
 	INPUT_VARS(cinfo);
 
 	INPUT_2BYTES(cinfo, length, return FALSE);
@@ -813,7 +813,7 @@ METHODDEF(boolean) get_interesting_appn(j_decompress_ptr cinfo)
 	if(length >= APPN_DATA_LEN)
 		numtoread = APPN_DATA_LEN;
 	else if(length > 0)
-		numtoread = (unsigned int)length;
+		numtoread = (uint)length;
 	else
 		numtoread = 0;
 	for(i = 0; i < numtoread; i++)
@@ -849,7 +849,7 @@ METHODDEF(boolean) save_marker(j_decompress_ptr cinfo)
 {
 	my_marker_ptr marker = (my_marker_ptr)cinfo->marker;
 	jpeg_saved_marker_ptr cur_marker = marker->cur_marker;
-	unsigned int bytes_read, data_length;
+	uint bytes_read, data_length;
 	JOCTET FAR * data;
 	INT32 length = 0;
 	INPUT_VARS(cinfo);
@@ -860,13 +860,13 @@ METHODDEF(boolean) save_marker(j_decompress_ptr cinfo)
 		length -= 2;
 		if(length >= 0) { /* watch out for bogus length word */
 			/* figure out how much we want to save */
-			unsigned int limit;
+			uint limit;
 			if(cinfo->unread_marker == (int)M_COM)
 				limit = marker->length_limit_COM;
 			else
 				limit = marker->length_limit_APPn[cinfo->unread_marker - (int)M_APP0];
-			if((unsigned int)length < limit)
-				limit = (unsigned int)length;
+			if((uint)length < limit)
+				limit = (uint)length;
 			/* allocate and initialize the marker item */
 			cur_marker = (jpeg_saved_marker_ptr)
 			    (*cinfo->mem->alloc_large)((j_common_ptr)cinfo, JPOOL_IMAGE,
@@ -874,7 +874,7 @@ METHODDEF(boolean) save_marker(j_decompress_ptr cinfo)
 
 			cur_marker->next = NULL;
 			cur_marker->marker = (uint8)cinfo->unread_marker;
-			cur_marker->original_length = (unsigned int)length;
+			cur_marker->original_length = (uint)length;
 			cur_marker->data_length = limit;
 			/* data area is just beyond the jpeg_marker_struct */
 			data = cur_marker->data = (JOCTET FAR*)(cur_marker + 1);
@@ -1385,7 +1385,7 @@ GLOBAL(void) jinit_marker_reader(j_decompress_ptr cinfo)
  */
 #ifdef SAVE_MARKERS_SUPPORTED
 
-GLOBAL(void) jpeg_save_markers(j_decompress_ptr cinfo, int marker_code, unsigned int length_limit)
+GLOBAL(void) jpeg_save_markers(j_decompress_ptr cinfo, int marker_code, uint length_limit)
 {
 	my_marker_ptr marker = (my_marker_ptr)cinfo->marker;
 	long maxlength;
@@ -1395,7 +1395,7 @@ GLOBAL(void) jpeg_save_markers(j_decompress_ptr cinfo, int marker_code, unsigned
 	 */
 	maxlength = cinfo->mem->max_alloc_chunk - SIZEOF(struct jpeg_marker_struct);
 	if(((long)length_limit) > maxlength)
-		length_limit = (unsigned int)maxlength;
+		length_limit = (uint)maxlength;
 	/* Choose processor routine to use.
 	 * APP0/APP14 have special requirements.
 	 */

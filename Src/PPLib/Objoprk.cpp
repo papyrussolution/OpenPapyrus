@@ -5,6 +5,46 @@
 #include <pp.h>
 #pragma hdrstop
 //
+//
+//
+SLAPI PPInventoryOpEx::PPInventoryOpEx()
+{
+	THISZERO();
+}
+
+//static
+int FASTCALL PPInventoryOpEx::Helper_GetAccelInputMode(long flags)
+{
+	int    mode = accsliNo;
+	if(flags & (INVOPF_ACCELADDITEMS|INVOPF_ACCELADDITEMSQTTY)) {
+		if(flags & INVOPF_ACCELADDITEMS && !(flags & INVOPF_ACCELADDITEMSQTTY))
+			mode = accsliCode;
+		else if(!(flags & INVOPF_ACCELADDITEMS) && (flags & INVOPF_ACCELADDITEMSQTTY))
+			mode = accsliCodeAndQtty;
+	}
+	return mode;
+}
+
+int SLAPI PPInventoryOpEx::GetAccelInputMode() const
+{
+	return Helper_GetAccelInputMode(Flags);
+}
+
+void SLAPI PPInventoryOpEx::SetAccelInputMode(int mode)
+{
+	if(mode == accsliCode) {
+		Flags |= INVOPF_ACCELADDITEMS;
+		Flags &= ~INVOPF_ACCELADDITEMSQTTY;
+	}
+	else if(mode == accsliCodeAndQtty) {
+		Flags &= ~INVOPF_ACCELADDITEMS;
+		Flags |= INVOPF_ACCELADDITEMSQTTY;
+	}
+	else {
+		Flags &= ~(INVOPF_ACCELADDITEMS|INVOPF_ACCELADDITEMSQTTY);
+	}
+}
+//
 // PPReckonOpEx
 //
 SLAPI PPReckonOpEx::PPReckonOpEx()
@@ -462,7 +502,6 @@ int SLAPI PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pack)
 	ZDELETE(pack->P_PoolData);
 	if(pack->Rec.OpTypeID == PPOPT_INVENTORY) {
 		PPInventoryOpEx ioe;
-		MEMSZERO(ioe);
 		ZDELETE(pack->P_IOE);
 		if(ref->GetProp(PPOBJ_OPRKIND, id, OPKPRP_INVENTORY, &ioe, sizeof(ioe)) > 0) {
 			THROW_MEM(pack->P_IOE = new PPInventoryOpEx);
@@ -1961,8 +2000,7 @@ void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * p
 void OprKindDialog::editInventoryOptions()
 {
 	PPInventoryOpEx ioe;
-	if(!RVALUEPTR(ioe, P_Data->P_IOE))
-		MEMSZERO(ioe);
+	RVALUEPTR(ioe, P_Data->P_IOE);
 	if(EditInventoryOptionsDialog(&ioe) > 0) {
 		SETIFZ(P_Data->P_IOE, new PPInventoryOpEx);
 		*P_Data->P_IOE = ioe;

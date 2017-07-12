@@ -110,7 +110,7 @@ struct jpeg_marker_writer {
 	/* These routines are exported to allow insertion of extra markers */
 	/* Probably only COM and APPn markers should be written this way */
 	JMETHOD(void, write_marker_header, (j_compress_ptr cinfo, int marker,
-		    unsigned int datalen));
+		    uint datalen));
 	JMETHOD(void, write_marker_byte, (j_compress_ptr cinfo, int val));
 };
 
@@ -177,7 +177,7 @@ struct jpeg_marker_reader {
 	boolean saw_SOI;        /* found SOI? */
 	boolean saw_SOF;        /* found SOF? */
 	int next_restart_num;   /* next restart number expected (0-7) */
-	unsigned int discarded_bytes; /* # of bytes skipped looking for a marker */
+	uint discarded_bytes; /* # of bytes skipped looking for a marker */
 };
 
 /* Entropy decoding */

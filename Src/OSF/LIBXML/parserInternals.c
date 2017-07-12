@@ -596,7 +596,7 @@ int xmlCurrentChar(xmlParserCtxtPtr ctxt, int * len) {
 				xmlErrEncodingInt(ctxt, XML_ERR_INVALID_CHAR,
 				    "Char 0x%X out of allowed range\n", val);
 			}
-			return(val);
+			return val;
 		}
 		else {
 			/* 1-byte code */

@@ -4037,6 +4037,7 @@
 	#define CTL_INVITEM_FRAME           (11 + WINDOWS_ID_BIAS)
 	#define CTL_INVITEM_WROFFPRICE      (12 + WINDOWS_ID_BIAS)
 	#define CTL_INVITEM_SERIAL          (13 + WINDOWS_ID_BIAS)
+	#define CTL_INVITEM_CODE            (14 + WINDOWS_ID_BIAS) // Для DLG_INVITEMQ
 #define DLG_OPKINVE               321 // Опции инвентаризации
 	#define CTL_OPKINVE_WRDNOP           (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_OPKINVE_WRDNOP        (2 + WINDOWS_ID_BIAS)
@@ -4053,6 +4054,7 @@
 	#define CTL_OPKINVE_FLAGS           (13 + WINDOWS_ID_BIAS)
 	#define CTL_OPKINVE_FRAME1          (14 + WINDOWS_ID_BIAS)
 	#define CTL_OPKINVE_FRAME2          (15 + WINDOWS_ID_BIAS)
+	#define CTL_OPKINVE_ACCSLMODE       (16 + WINDOWS_ID_BIAS)
 #define DLG_OPRINV                322 // Вид операции "Инвентаризация"
 	// Управляющие элементы те же, что и в DLG_OPRKIND
 #define DLG_INVDIFFLT             323 // Фильтр по рассогласованиям инвентаризации
@@ -10172,6 +10174,8 @@
 	#define CTL_WOBARCODE_CODE        (1 + WINDOWS_ID_BIAS)
 	#define CTL_WOBARCODE_STD         (2 + WINDOWS_ID_BIAS)
 	#define CTL_WOBARCODE_ANGLE       (3 + WINDOWS_ID_BIAS)
+#define DLG_INVITEMQ              1323 // Быстрый ввод строки инвентаризации по коду с количесвом
+	// CTL_INVITEM_XXX
 //
 // Win32 Dialog Identifiers
 //
@@ -10714,14 +10718,6 @@
 #define PPERR_INVCRATE            397 // Недопустимое значение валютного курса
 #define PPERR_SCALETYPENEEDED     398 // Необходимо указать тип электронных весов
 #define PPERR_ACCSHEETNEEDED      399 // Необходимо указать таблицу аналитических статей
-#define PPERR_RECKON_INVUSRDT     401 // Неправильный ввод произвольной даты зачета
-#define PPERR_GETERPOOLMERGE      402 // Нельзя объединять строки пула, содержащего документы по разным операциям
-#define PPERR_REVALPOOLMERGE      403 // Нельзя объединять строки пула переоценок
-#define PPERR_LOTNOTBELONGTOBILL  404 // (V_LOT.CPP) Лот не принадлежит документу на который ссылается //
-#define PPERR_DUPAMTTYPETAX       405 // Дублирование типа налоговой суммы
-#define PPERR_DUPOBJNAME          406 // Дублирование имени объекта
-#define PPERR_OBJNFOUND           407 // Объект не найден (uses PPSession.GetConstTLA().LastErrObj)
-#define PPERR_UNDEFCASHNODE       408 // Кассовый узел не определен - операция не доступна
 #define PPERR_VIEWBYFILTISEMPTY   411 // Фильтр дает пустую выборку
 #define PPERR_CANTRMVSUBSESS      412 // Нельзя удалять подчиненную кассовую сессию
 #define PPERR_ACCNGEN             413 // Счет не является группирующим
@@ -11312,18 +11308,6 @@
 // @v8.2.0 #define PPERR_EMPTY_EDISYMB					1446 // У поставщика id = %s отсутствует символ провайдера
 //
 // LastError
-
-//
-// Math exception messages
-//
-#define PPERR_FPE_EXPLICITGEN     501 // User program executed raise(SIGFPE)
-#define PPERR_FPE_INEXACT         502 // Precision
-#define PPERR_FPE_INTDIV0         503 // Integer divide by zero
-#define PPERR_FPE_INTOVFLOW       504 // INTO executed with OF flag set
-#define PPERR_FPE_INVALID         505 // Invalid operation
-#define PPERR_FPE_OVERFLOW        506 // Numeric overflow
-#define PPERR_FPE_UNDERFLOW       507 // Numeric underflow
-#define PPERR_FPE_ZERODIVIDE      508 // Division by zero
 //
 // PPSTR_TEXT   Просто текст
 //

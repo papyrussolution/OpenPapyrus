@@ -25,7 +25,7 @@
 /* Macros to deal with unsigned chars as efficiently as compiler allows */
 
 #ifdef HAVE_UNSIGNED_CHAR
-typedef unsigned char U_CHAR;
+typedef uchar U_CHAR;
 #define UCH(x)  ((int)(x))
 #else /* !HAVE_UNSIGNED_CHAR */
 #ifdef CHAR_IS_UNSIGNED
@@ -45,17 +45,12 @@ typedef struct _tga_source_struct * tga_source_ptr;
 
 typedef struct _tga_source_struct {
 	struct cjpeg_source_struct pub; /* public fields */
-
 	j_compress_ptr cinfo;   /* back link saves passing separate parm */
-
 	JSAMPARRAY colormap;    /* Targa colormap (converted to my format) */
-
 	jvirt_sarray_ptr whole_image; /* Needed if funny input row order */
 	JDIMENSION current_row; /* Current logical row number to read */
-
 	/* Pointer to routine to extract next Targa pixel from input file */
 	JMETHOD(void, read_pixel, (tga_source_ptr sinfo));
-
 	/* Result of read_pixel is delivered here: */
 	U_CHAR tga_pixel[4];
 	int pixel_size;         /* Bytes per Targa pixel (1 to 4) */
@@ -206,10 +201,8 @@ METHODDEF(JDIMENSION) get_24bit_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo
 /* This version is for reading 24-bit pixels */
 {
 	tga_source_ptr source = (tga_source_ptr)sinfo;
-	register JSAMPROW ptr;
 	register JDIMENSION col;
-
-	ptr = source->pub.buffer[0];
+	register JSAMPROW ptr = source->pub.buffer[0];
 	for(col = cinfo->image_width; col > 0; col--) {
 		(*source->read_pixel)(source); /* Load next pixel into tga_pixel */
 		*ptr++ = (JSAMPLE)UCH(source->tga_pixel[2]); /* change BGR to RGB order */
@@ -237,12 +230,10 @@ METHODDEF(JDIMENSION) get_24bit_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo
 METHODDEF(JDIMENSION) get_memory_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
 	tga_source_ptr source = (tga_source_ptr)sinfo;
-	JDIMENSION source_row;
-
 	/* Compute row of source that maps to current_row of normal order */
 	/* For now, assume image is bottom-up and not interlaced. */
 	/* NEEDS WORK to support interlaced images! */
-	source_row = cinfo->image_height - source->current_row - 1;
+	JDIMENSION source_row = cinfo->image_height - source->current_row - 1;
 	/* Fetch that row from virtual array */
 	source->pub.buffer = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, source->whole_image, source_row, (JDIMENSION)1, FALSE);
 	source->current_row++;
@@ -265,13 +256,11 @@ METHODDEF(JDIMENSION) preload_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo
 			progress->pub.pass_limit = (long)cinfo->image_height;
 			(*progress->pub.progress_monitor)((j_common_ptr)cinfo);
 		}
-		source->pub.buffer = (*cinfo->mem->access_virt_sarray)
-			    ((j_common_ptr)cinfo, source->whole_image, row, (JDIMENSION)1, TRUE);
+		source->pub.buffer = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, source->whole_image, row, (JDIMENSION)1, TRUE);
 		(*source->get_pixel_rows)(cinfo, sinfo);
 	}
 	if(progress != NULL)
 		progress->completed_extra_passes++;
-
 	/* Set up to read from the virtual array in unscrambled order */
 	source->pub.get_pixel_rows = get_memory_row;
 	source->current_row = 0;
@@ -287,9 +276,9 @@ METHODDEF(void) start_input_tga(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	tga_source_ptr source = (tga_source_ptr)sinfo;
 	U_CHAR targaheader[18];
 	int idlen, cmaptype, subtype, flags, interlace_type, components;
-	unsigned int width, height, maplen;
+	uint width, height, maplen;
 	boolean is_bottom_up;
-#define GET_2B(offset)  ((unsigned int)UCH(targaheader[offset]) + (((unsigned int)UCH(targaheader[offset+1])) << 8))
+#define GET_2B(offset)  ((uint)UCH(targaheader[offset]) + (((uint)UCH(targaheader[offset+1])) << 8))
 	if(!ReadOK(source->pub.input_file, targaheader, 18))
 		ERREXIT(cinfo, JERR_INPUT_EOF);
 	/* Pretend "15-bit" pixels are 16-bit --- we ignore attribute bit anyway */
@@ -338,18 +327,10 @@ METHODDEF(void) start_input_tga(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 		    break;
 		case 2:         /* RGB image */
 		    switch(source->pixel_size) {
-			    case 2:
-				source->get_pixel_rows = get_16bit_row;
-				break;
-			    case 3:
-				source->get_pixel_rows = get_24bit_row;
-				break;
-			    case 4:
-				source->get_pixel_rows = get_32bit_row;
-				break;
-			    default:
-				ERREXIT(cinfo, JERR_TGA_BADPARMS);
-				break;
+			    case 2: source->get_pixel_rows = get_16bit_row; break;
+			    case 3: source->get_pixel_rows = get_24bit_row; break;
+			    case 4: source->get_pixel_rows = get_32bit_row; break;
+			    default: ERREXIT(cinfo, JERR_TGA_BADPARMS); break;
 		    }
 		    TRACEMS2(cinfo, 1, JTRC_TGA, width, height);
 		    break;

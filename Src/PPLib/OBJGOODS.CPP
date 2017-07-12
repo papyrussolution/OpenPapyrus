@@ -3464,7 +3464,7 @@ int SLAPI PPObjGoods::AddDefaultBarcode(PPGoodsPacket * pPack)
 	return ok;
 }
 
-int SLAPI PPObjGoods::Edit(PPID * pID, GoodsPacketKind gpk, long group, PPID clsID, char * pBarcode)
+int SLAPI PPObjGoods::Edit(PPID * pID, GoodsPacketKind gpk, long group, PPID clsID, const char * pBarcode)
 {
 	int    r = cmCancel, is_locked = 0, is_new = 0;
 	TDialog * kind_dlg = 0;

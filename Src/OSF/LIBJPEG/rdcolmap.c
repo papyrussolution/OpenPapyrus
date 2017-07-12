@@ -123,14 +123,14 @@ static int pbm_getc(FILE * infile)
 	return ch;
 }
 
-LOCAL(unsigned int) read_pbm_integer(j_decompress_ptr cinfo, FILE * infile)
+LOCAL(uint) read_pbm_integer(j_decompress_ptr cinfo, FILE * infile)
 /* Read an unsigned decimal integer from the PPM file */
 /* Swallows one trailing character after the integer */
 /* Note that on a 16-bit-int machine, only values up to 64k can be read. */
 /* This should not be a problem in practice. */
 {
 	register int ch;
-	register unsigned int val;
+	register uint val;
 
 	/* Skip any leading whitespace */
 	do {
@@ -156,7 +156,7 @@ LOCAL(unsigned int) read_pbm_integer(j_decompress_ptr cinfo, FILE * infile)
 static void read_ppm_map(j_decompress_ptr cinfo, FILE * infile)
 {
 	int c;
-	unsigned int w, h, maxval, row, col;
+	uint w, h, maxval, row, col;
 	int R, G, B;
 
 	/* Initial 'P' has already been read by read_color_map */
@@ -171,7 +171,7 @@ static void read_ppm_map(j_decompress_ptr cinfo, FILE * infile)
 		ERREXIT(cinfo, JERR_BAD_CMAP_FILE);
 
 	/* For now, we don't support rescaling from an unusual maxval. */
-	if(maxval != (unsigned int)MAXJSAMPLE)
+	if(maxval != (uint)MAXJSAMPLE)
 		ERREXIT(cinfo, JERR_BAD_CMAP_FILE);
 
 	switch(c) {

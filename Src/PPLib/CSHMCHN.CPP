@@ -1740,7 +1740,7 @@ int SLAPI ViewCashBills(PPID cashNodeID)
 int SLAPI CloseCashDay()
 {
 	int    ok = 1;
-	PPID   cash_node_id;
+	PPID   cash_node_id = 0;
 	PPCashMachine * p_cm = 0;
 	THROW_PP(BillObj->CheckRights(BILLRT_CLOSECASH), PPERR_NORTCLOSECASH);
 	THROW(cash_node_id = PPObjCashNode::Select(LConfig.Location, 1));

@@ -2356,48 +2356,43 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 //
 //
 //
-class BarcodeSrchDialog : public TDialog {
-public:
-	BarcodeSrchDialog() : TDialog(DLG_SRCHBCODE)
-	{
-		disableCtrl(CTL_SRCHBCODE_CHKDIG, 1);
-		SetCtrlBitmap(CTL_SRCHBCODE_IMG, BM_BARCODE);
-	}
-private:
-	DECL_HANDLE_EVENT;
-	void   setChkDig();
-	PPObjGoods GObj;
-};
-
-void BarcodeSrchDialog::setChkDig()
-{
-	SString buf;
-	getCtrlString(CTL_SRCHBCODE_CODE, buf);
-	const int cd = CalcBarcodeCheckDigit(buf);
-	setCtrlString(CTL_SRCHBCODE_CHKDIG, (buf = 0).Cat(cd));
-}
-
-IMPL_HANDLE_EVENT(BarcodeSrchDialog)
-{
-	if(event.isCmd(cmOK)) {
-		SString code;
-		BarcodeTbl::Rec  bc_rec;
-		getCtrlString(CTL_SRCHBCODE_CODE, code);
-		if(GObj.SearchBy2dBarcode(code, &bc_rec, 0) > 0)
-			setCtrlData(CTL_SRCHBCODE_CODE, bc_rec.Code);
-	}
-	TDialog::handleEvent(event);
-	if(event.isKeyDown(kbF2))
-		setChkDig();
-	else if(TVBROADCAST && TVCMD == cmChangedFocus && event.isCtlEvent(CTL_SRCHBCODE_CODE))
-		setChkDig();
-	else
-		return;
-	clearEvent(event);
-}
-
 int SLAPI BarcodeInputDialog(int initChar, SString & rBuf)
 {
+	class BarcodeSrchDialog : public TDialog {
+	public:
+		BarcodeSrchDialog() : TDialog(DLG_SRCHBCODE)
+		{
+			disableCtrl(CTL_SRCHBCODE_CHKDIG, 1);
+			SetCtrlBitmap(CTL_SRCHBCODE_IMG, BM_BARCODE);
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			if(event.isCmd(cmOK)) {
+				SString code;
+				BarcodeTbl::Rec  bc_rec;
+				getCtrlString(CTL_SRCHBCODE_CODE, code);
+				if(GObj.SearchBy2dBarcode(code, &bc_rec, 0) > 0)
+					setCtrlData(CTL_SRCHBCODE_CODE, bc_rec.Code);
+			}
+			TDialog::handleEvent(event);
+			if(event.isKeyDown(kbF2))
+				setChkDig();
+			else if(TVBROADCAST && TVCMD == cmChangedFocus && event.isCtlEvent(CTL_SRCHBCODE_CODE))
+				setChkDig();
+			else
+				return;
+			clearEvent(event);
+		}
+		void   setChkDig()
+		{
+			SString buf;
+			getCtrlString(CTL_SRCHBCODE_CODE, buf);
+			const int cd = CalcBarcodeCheckDigit(buf);
+			setCtrlString(CTL_SRCHBCODE_CHKDIG, (buf = 0).Cat(cd));
+		}
+		PPObjGoods GObj;
+	};
 	int    ok = -1;
 	SString code;
 	BarcodeSrchDialog * dlg = new BarcodeSrchDialog;

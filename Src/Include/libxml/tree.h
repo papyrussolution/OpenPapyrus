@@ -113,10 +113,10 @@ typedef xmlBuf * xmlBufPtr;
  * A few public routines for xmlBuf. As those are expected to be used
  * mostly internally the bulk of the routines are internal in buf.h
  */
-XMLPUBFUN xmlChar* XMLCALL xmlBufContent(const xmlBuf* buf);
-XMLPUBFUN xmlChar* XMLCALL xmlBufEnd(xmlBufPtr buf);
-XMLPUBFUN size_t XMLCALL xmlBufUse(const xmlBufPtr buf);
-XMLPUBFUN size_t XMLCALL xmlBufShrink(xmlBufPtr buf, size_t len);
+XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlBufContent(const xmlBuf * buf);
+XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlBufEnd(xmlBuf * buf);
+XMLPUBFUN size_t /*XMLCALL*/FASTCALL xmlBufUse(xmlBuf * buf);
+XMLPUBFUN size_t /*XMLCALL*/FASTCALL xmlBufShrink(xmlBuf * buf, size_t len);
 
 /*
  * LIBXML2_NEW_BUFFER:

@@ -1204,27 +1204,127 @@ int SLAPI PPViewInventory::AddItem(TIDlgInitData * pInitData)
 
 #define INVDBQ_GOODSIDOFFS sizeof(long) * 2
 
+/*static int SLAPI InvItemQuickInputDialog(int initChar, SString & rBuf, double & rQtty)
+{
+	int    ok = -1;
+	SString code;
+	QuickSearchDialog * dlg = new QuickSearchDialog;
+	if(CheckDialogPtrErr(&dlg)) {
+		if(isalnum(initChar))
+			code.CatChar(initChar);
+		else
+			code = rBuf;
+		dlg->setCtrlString(CTL_INVITEM_CODE, code);
+		dlg->setCtrlReal(CTL_INVITEM_QUANTITY, rQtty);
+		if(code.NotEmpty() && isalnum(initChar)) {
+			TInputLine * il = (TInputLine*)dlg->getCtrlView(CTL_INVITEM_CODE);
+			CALLPTRMEMB(il, disableDeleteSelection(1));
+		}
+		if(ExecView(dlg) == cmOK) {
+			dlg->getCtrlString(CTL_INVITEM_CODE, code);
+			rQtty = dlg->getCtrlReal(CTL_INVITEM_QUANTITY);
+			if(code.NotEmptyS())
+				ok = 1;
+		}
+	}
+	else
+		ok = 0;
+	delete dlg;
+	rBuf = code;
+	return ok;
+}*/
+
+int SLAPI PPViewInventory::SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode)
+{
+	class QuickSearchDialog : public TDialog {
+	public:
+		QuickSearchDialog() : TDialog(DLG_INVITEMQ)
+		{
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			if(event.isCmd(cmOK) && isCurrCtlID(CTL_INVITEM_CODE)) {
+				BarcodeTbl::Rec  bc_rec;
+				SString code;
+				getCtrlString(CTL_INVITEM_CODE, code);
+				if(GObj.SearchBy2dBarcode(code, &bc_rec, 0) > 0)
+					setCtrlData(CTL_INVITEM_CODE, bc_rec.Code);
+				{
+					double qtty = getCtrlReal(CTL_INVITEM_QUANTITY);
+					Goods2Tbl::Rec goods_rec;
+					SString ret_code;
+					if(code.NotEmptyS() && GObj.GetGoodsByBarcode(code, 0, &goods_rec, &qtty, &ret_code) > 0) {
+						setCtrlReal(CTL_INVITEM_QUANTITY, qtty);
+						selectCtrl(CTL_INVITEM_QUANTITY);
+					}
+				}
+				clearEvent(event);
+			}
+			else {
+				TDialog::handleEvent(event);
+			}
+		}
+		PPObjGoods GObj;
+	};
+	int    ok = -1;
+	double qtty = pQtty ? *pQtty : 1.0;
+	SString code = DS.GetTLA().Lid.Barcode;
+	QuickSearchDialog * dlg = new QuickSearchDialog;
+	if(CheckDialogPtrErr(&dlg)) {
+		if(isalnum(initChar))
+			code.CatChar(initChar);
+		dlg->setCtrlString(CTL_INVITEM_CODE, code);
+		dlg->setCtrlReal(CTL_INVITEM_QUANTITY, qtty);
+		if(code.NotEmpty() && isalnum(initChar)) {
+			TInputLine * il = (TInputLine*)dlg->getCtrlView(CTL_INVITEM_CODE);
+			CALLPTRMEMB(il, disableDeleteSelection(1));
+		}
+		if(ExecView(dlg) == cmOK) {
+			dlg->getCtrlString(CTL_INVITEM_CODE, code);
+			qtty = dlg->getCtrlReal(CTL_INVITEM_QUANTITY);
+			if(code.NotEmptyS() && GObj.GetGoodsByBarcode(code, arID, pRec, /*&qtty*/0, pRetCode)) {
+				ASSIGN_PTR(pQtty, qtty);
+				ok = 1;
+			}
+		}
+	}
+	else
+		ok = 0;
+	delete dlg;
+	return ok;
+}
+
 int SLAPI PPViewInventory::SelectByBarcode(int initChar, PPViewBrowser * pBrw)
 {
 	const int  skip_dlg = BIN(P_BObj->GetConfig().Flags & BCF_ADDAUTOQTTYBYBRCODE);
-	const int  is_accel = BIN(CommonIoeFlags & INVOPF_ACCELADDITEMS);
+	//const int  is_accel = BIN(CommonIoeFlags & INVOPF_ACCELADDITEMS);
 	const PPID loc_id = NZOR(CommonLocID, LConfig.Location);
+	const int  accel_mode = PPInventoryOpEx::Helper_GetAccelInputMode(CommonIoeFlags);
 
 	int    ok = -1;
 	int    r = 0;
-	char   code[64];
+	SString code;
 	Goods2Tbl::Rec goods_rec;
 	ReceiptTbl::Rec lot_rec;
 	PPIDArray lot_list;
 	double qtty = 0.0;
 	const  PPID single_bill_id = Filt.GetSingleBillID();
-	if((r = GObj.SelectGoodsByBarcode(initChar, 0, &goods_rec, &qtty, code)) > 0) {
-		if(single_bill_id && (is_accel || InvTbl.SearchByGoods(single_bill_id, goods_rec.ID, 0) < 0)) {
+	if(accel_mode == PPInventoryOpEx::accsliCodeAndQtty) {
+		qtty = 1.0;
+		r = PPViewInventory::SelectGoodsByBarcode(initChar, 0, &goods_rec, &qtty, &code);
+	}
+	else {
+		qtty = 1.0;
+		r = GObj.SelectGoodsByBarcode(initChar, 0, &goods_rec, &qtty, &code);
+	}
+	if(r > 0) {
+		if(single_bill_id && (accel_mode || InvTbl.SearchByGoods(single_bill_id, goods_rec.ID, 0) < 0)) {
 			TIDlgInitData tidi;
 			tidi.GoodsID  = goods_rec.ID;
-			tidi.Quantity = is_accel ? qtty : 0.0;
+			tidi.Quantity = accel_mode ? qtty : 0.0;
 			tidi.Flags    = 0;
-			SETFLAG(tidi.Flags, TIDIF_AUTOQTTY, is_accel);
+			SETFLAG(tidi.Flags, TIDIF_AUTOQTTY, accel_mode);
 			ok = AddItem(&tidi);
 		}
 		else if(pBrw) {
@@ -1260,7 +1360,7 @@ int SLAPI PPViewInventory::SelectByBarcode(int initChar, PPViewBrowser * pBrw)
 			}
 		}
 		if(lot_id && P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
-			if(single_bill_id && (is_accel || InvTbl.SearchIdentical(single_bill_id, lot_rec.GoodsID, code, 0) < 0)) {
+			if(single_bill_id && (accel_mode || InvTbl.SearchIdentical(single_bill_id, lot_rec.GoodsID, code, 0) < 0)) {
 				BillTbl::Rec bill_rec;
 				if(P_BObj->Fetch(single_bill_id, &bill_rec) > 0) {
 					TIDlgInitData tidi;

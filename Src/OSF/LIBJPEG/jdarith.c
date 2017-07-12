@@ -20,7 +20,6 @@
 
 typedef struct {
 	struct jpeg_entropy_decoder pub; /* public fields */
-
 	INT32 c; /* C register, base of coding interval + input bit buffer */
 	INT32 a;         /* A register, normalized size of coding interval */
 	int ct; /* bit shift counter, # of bits left in bit buffer part of C */
@@ -29,15 +28,12 @@ typedef struct {
 	/* error: ct = -1 */
 	int last_dc_val[MAX_COMPS_IN_SCAN]; /* last DC coef for each component */
 	int dc_context[MAX_COMPS_IN_SCAN]; /* context index for DC conditioning */
-
-	unsigned int restarts_to_go; /* MCUs left in this restart interval */
-
+	uint restarts_to_go; /* MCUs left in this restart interval */
 	/* Pointers to statistics areas (these workspaces have image lifespan) */
-	unsigned char * dc_stats[NUM_ARITH_TBLS];
-	unsigned char * ac_stats[NUM_ARITH_TBLS];
-
+	uchar * dc_stats[NUM_ARITH_TBLS];
+	uchar * ac_stats[NUM_ARITH_TBLS];
 	/* Statistics bin for coding with fixed probability 0.5 */
-	unsigned char fixed_bin[4];
+	uchar fixed_bin[4];
 } arith_entropy_decoder;
 
 typedef arith_entropy_decoder * arith_entropy_ptr;
@@ -95,10 +91,10 @@ static int get_byte(j_decompress_ptr cinfo)
  * the probability estimation state machine table,
  * derived from Markus Kuhn's JBIG implementation.
  */
-static int arith_decode(j_decompress_ptr cinfo, unsigned char * st)
+static int arith_decode(j_decompress_ptr cinfo, uchar * st)
 {
 	register arith_entropy_ptr e = (arith_entropy_ptr)cinfo->entropy;
-	register unsigned char nl, nm;
+	register uchar nl, nm;
 	register INT32 qe, temp;
 	register int sv, data;
 
@@ -111,8 +107,9 @@ static int arith_decode(j_decompress_ptr cinfo, unsigned char * st)
 			else {
 				data = get_byte(cinfo); /* read next input byte */
 				if(data == 0xFF) { /* zero stuff or marker code */
-					do data = get_byte(cinfo);
-					while(data == 0xFF); /* swallow extra 0xFF bytes */
+					do {
+						data = get_byte(cinfo);
+					} while(data == 0xFF); /* swallow extra 0xFF bytes */
 					if(data == 0)
 						data = 0xFF;  /* discard stuffed zero byte */
 					else {
@@ -182,11 +179,9 @@ static void process_restart(j_decompress_ptr cinfo)
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	int ci;
 	jpeg_component_info * compptr;
-
 	/* Advance past the RSTn marker */
 	if(!(*cinfo->marker->read_restart_marker)(cinfo))
 		ERREXIT(cinfo, JERR_CANT_SUSPEND);
-
 	/* Re-initialize statistics areas */
 	for(ci = 0; ci < cinfo->comps_in_scan; ci++) {
 		compptr = cinfo->cur_comp_info[ci];
@@ -196,8 +191,7 @@ static void process_restart(j_decompress_ptr cinfo)
 			entropy->last_dc_val[ci] = 0;
 			entropy->dc_context[ci] = 0;
 		}
-		if((!cinfo->progressive_mode && cinfo->lim_Se) ||
-		    (cinfo->progressive_mode && cinfo->Ss)) {
+		if((!cinfo->progressive_mode && cinfo->lim_Se) || (cinfo->progressive_mode && cinfo->Ss)) {
 			MEMZERO(entropy->ac_stats[compptr->ac_tbl_no], AC_STAT_BINS);
 		}
 	}
@@ -231,7 +225,7 @@ METHODDEF(boolean) decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	JBLOCKROW block;
-	unsigned char * st;
+	uchar * st;
 	int blkn, ci, tbl, sign;
 	int v, m;
 
@@ -242,10 +236,9 @@ METHODDEF(boolean) decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 		entropy->restarts_to_go--;
 	}
 
-	if(entropy->ct == -1) return TRUE;  /* if error do nothing */
-
+	if(entropy->ct == -1) 
+		return TRUE;  /* if error do nothing */
 	/* Outer loop handles each block in the MCU */
-
 	for(blkn = 0; blkn < cinfo->blocks_in_MCU; blkn++) {
 		block = MCU_data[blkn];
 		ci = cinfo->MCU_membership[blkn];
@@ -308,7 +301,7 @@ METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	JBLOCKROW block;
-	unsigned char * st;
+	uchar * st;
 	int tbl, sign, k;
 	int v, m;
 	const int * natural_order;
@@ -387,7 +380,7 @@ METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 METHODDEF(boolean) decode_mcu_DC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
-	unsigned char * st;
+	uchar * st;
 	int p1, blkn;
 
 	/* Process restart marker if needed */
@@ -420,7 +413,7 @@ METHODDEF(boolean) decode_mcu_AC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_d
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	JBLOCKROW block;
 	JCOEFPTR thiscoef;
-	unsigned char * st;
+	uchar * st;
 	int tbl, k, kex;
 	int p1, m1;
 	const int * natural_order;
@@ -493,7 +486,7 @@ METHODDEF(boolean) decode_mcu(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
 	jpeg_component_info * compptr;
 	JBLOCKROW block;
-	unsigned char * st;
+	uchar * st;
 	int blkn, ci, tbl, sign, k;
 	int v, m;
 	const int * natural_order;
@@ -697,7 +690,7 @@ bad:
 			if(tbl < 0 || tbl >= NUM_ARITH_TBLS)
 				ERREXIT1(cinfo, JERR_NO_ARITH_TABLE, tbl);
 			if(entropy->dc_stats[tbl] == NULL)
-				entropy->dc_stats[tbl] = (unsigned char*)(*cinfo->mem->alloc_small)
+				entropy->dc_stats[tbl] = (uchar*)(*cinfo->mem->alloc_small)
 					    ((j_common_ptr)cinfo, JPOOL_IMAGE, DC_STAT_BINS);
 			MEMZERO(entropy->dc_stats[tbl], DC_STAT_BINS);
 			/* Initialize DC predictions to 0 */
@@ -710,7 +703,7 @@ bad:
 			if(tbl < 0 || tbl >= NUM_ARITH_TBLS)
 				ERREXIT1(cinfo, JERR_NO_ARITH_TABLE, tbl);
 			if(entropy->ac_stats[tbl] == NULL)
-				entropy->ac_stats[tbl] = (unsigned char*)(*cinfo->mem->alloc_small)
+				entropy->ac_stats[tbl] = (uchar*)(*cinfo->mem->alloc_small)
 					    ((j_common_ptr)cinfo, JPOOL_IMAGE, AC_STAT_BINS);
 			MEMZERO(entropy->ac_stats[tbl], AC_STAT_BINS);
 		}

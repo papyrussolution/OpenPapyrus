@@ -184,7 +184,7 @@ static void compress_term(gif_dest_ptr dinfo)
 
 /* GIF header construction */
 
-static void put_word(gif_dest_ptr dinfo, unsigned int w)
+static void put_word(gif_dest_ptr dinfo, uint w)
 /* Emit a 16-bit word, LSB first */
 {
 	putc(w & 0xFF, dinfo->pub.output_file);
@@ -229,8 +229,8 @@ static void emit_header(gif_dest_ptr dinfo, int num_colors, JSAMPARRAY colormap)
 	putc('7', dinfo->pub.output_file);
 	putc('a', dinfo->pub.output_file);
 	/* Write the Logical Screen Descriptor */
-	put_word(dinfo, (unsigned int)dinfo->cinfo->output_width);
-	put_word(dinfo, (unsigned int)dinfo->cinfo->output_height);
+	put_word(dinfo, (uint)dinfo->cinfo->output_width);
+	put_word(dinfo, (uint)dinfo->cinfo->output_height);
 	FlagByte = 0x80;        /* Yes, there is a global color table */
 	FlagByte |= (BitsPerPixel-1) << 4; /* color resolution */
 	FlagByte |= (BitsPerPixel-1); /* size of global color table */
@@ -268,8 +268,8 @@ static void emit_header(gif_dest_ptr dinfo, int num_colors, JSAMPARRAY colormap)
 	putc(',', dinfo->pub.output_file); /* separator */
 	put_word(dinfo, 0);     /* left/top offset */
 	put_word(dinfo, 0);
-	put_word(dinfo, (unsigned int)dinfo->cinfo->output_width); /* image size */
-	put_word(dinfo, (unsigned int)dinfo->cinfo->output_height);
+	put_word(dinfo, (uint)dinfo->cinfo->output_width); /* image size */
+	put_word(dinfo, (uint)dinfo->cinfo->output_height);
 	/* flag byte: not interlaced, no local color map */
 	putc(0x00, dinfo->pub.output_file);
 	/* Write Initial Code Size byte */

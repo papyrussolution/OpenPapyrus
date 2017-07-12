@@ -271,7 +271,7 @@ int SLAPI PPAbstractDevice::GetDrvIniSectByDvcClass(int dvcClass, int * pReserve
 	return sect_id;
 }
 
-PPAbstractDevice::PPAbstractDevice(const char * pDvcName)
+PPAbstractDevice::PPAbstractDevice(const char * pDvcName) : RetBuf(4096)
 {
 	State = 0;
 	GetCapability(&PCpb);
@@ -517,35 +517,45 @@ int PPAbstractDevice::Helper_RunCmd(SString & rCmd, SString & rArg, StrAssocArra
 {
 	int    ok = 1, r = 0;
 	SString s_arr;
-	const   size_t buf_size_quant = 1024;
-	STempBuffer output(buf_size_quant);
-	THROW_SL(output.IsValid());
+	const   size_t buf_size_quant = 4096; // @v9.7.6 1024-->4096
+	//STempBuffer output(buf_size_quant);
+	//THROW_SL(output.IsValid());
+	if(RetBuf.GetSize() < buf_size_quant)
+		RetBuf.Alloc(buf_size_quant);
+	THROW_SL(RetBuf.IsValid());
 	//THROW_SL(Ib);
 	if(!Ib) {
 		SLS.SetOsError("RunCommand");
 		THROW(0);
 	}
 	do {
-		memzero(output, output.GetSize());
+		//memzero(output, output.GetSize());
+		memzero(RetBuf, RetBuf.GetSize());
 		{
 			const char * p_cmd = rCmd.cptr();
 			const char * p_arg = rArg.cptr();
-			r = Ib.Func(p_cmd, p_arg, output, output.GetSize());
+			//r = Ib.Func(p_cmd, p_arg, output, output.GetSize());
+			r = Ib.Func(p_cmd, p_arg, RetBuf, RetBuf.GetSize());
 		}
 		if(r == 0) {
-			if(output.IsValid()) {
-				(s_arr = 0).Cat(output);
+			//if(output.IsValid()) {
+			if(RetBuf.IsValid()) {
+				//(s_arr = 0).Cat(output);
+				(s_arr = 0).Cat(RetBuf);
 				THROW(StrToArr(s_arr, rOut));
 			}
 		}
 		else if(r == 1) {
-			THROW(rOut.Add(0, output, 1));
+			//THROW(rOut.Add(0, output, 1));
+			THROW(rOut.Add(0, RetBuf, 1));
 			ok = -1;
 			r = 0;
 		}
 		else if(r == 2) {
-			size_t new_size = output.GetSize() + 1024;
-			THROW_SL(output.Alloc(new_size));
+			//size_t new_size = output.GetSize() + 1024;
+			//THROW_SL(output.Alloc(new_size));
+			size_t new_size = RetBuf.GetSize() + 1024;
+			THROW_SL(RetBuf.Alloc(new_size));
 		}
 	} while(r > 0);
 	CATCHZOK;

@@ -30,7 +30,7 @@
 
 /*
  * We assume that JSAMPLE has the same representation as rle_pixel,
- * to wit, "unsigned char".  Hence we can't cope with 12- or 16-bit samples.
+ * to wit, "uchar".  Hence we can't cope with 12- or 16-bit samples.
  */
 
 #if BITS_IN_JSAMPLE != 8
@@ -124,18 +124,15 @@ METHODDEF(void) start_input_rle(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	}
 	else if(source->header.ncolors == 1 && source->header.ncmap == 1) {
 		source->visual     = MAPPEDGRAY;
-		TRACEMS3(cinfo, 1, JTRC_RLE_MAPGRAY, width, height,
-		    1 << source->header.cmaplen);
+		TRACEMS3(cinfo, 1, JTRC_RLE_MAPGRAY, width, height, 1 << source->header.cmaplen);
 	}
 	else if(source->header.ncolors == 1 && source->header.ncmap == 3) {
 		source->visual     = PSEUDOCOLOR;
-		TRACEMS3(cinfo, 1, JTRC_RLE_MAPPED, width, height,
-		    1 << source->header.cmaplen);
+		TRACEMS3(cinfo, 1, JTRC_RLE_MAPPED, width, height, 1 << source->header.cmaplen);
 	}
 	else if(source->header.ncolors == 3 && source->header.ncmap == 3) {
 		source->visual     = TRUECOLOR;
-		TRACEMS3(cinfo, 1, JTRC_RLE_FULLMAP, width, height,
-		    1 << source->header.cmaplen);
+		TRACEMS3(cinfo, 1, JTRC_RLE_FULLMAP, width, height, 1 << source->header.cmaplen);
 	}
 	else if(source->header.ncolors == 3 && source->header.ncmap == 0) {
 		source->visual     = DIRECTCOLOR;
@@ -143,7 +140,6 @@ METHODDEF(void) start_input_rle(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	}
 	else
 		ERREXIT(cinfo, JERR_RLE_UNSUPPORTED);
-
 	if(source->visual == GRAYSCALE || source->visual == MAPPEDGRAY) {
 		cinfo->in_color_space   = JCS_GRAYSCALE;
 		cinfo->input_components = 1;
@@ -158,16 +154,12 @@ METHODDEF(void) start_input_rle(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	 * (GRAYSCALE scanlines don't need converting)
 	 */
 	if(source->visual != GRAYSCALE) {
-		source->rle_row = (rle_pixel**)(*cinfo->mem->alloc_sarray)
-			    ((j_common_ptr)cinfo, JPOOL_IMAGE,
-		    (JDIMENSION)width, (JDIMENSION)cinfo->input_components);
+		source->rle_row = (rle_pixel**)(*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, (JDIMENSION)width, (JDIMENSION)cinfo->input_components);
 	}
 
 	/* request a virtual array to hold the image */
-	source->image = (*cinfo->mem->request_virt_sarray)
-		    ((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE,
-	    (JDIMENSION)(width * source->header.ncolors),
-	    (JDIMENSION)height, (JDIMENSION)1);
+	source->image = (*cinfo->mem->request_virt_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE,
+	    (JDIMENSION)(width * source->header.ncolors), (JDIMENSION)height, (JDIMENSION)1);
 
 #ifdef PROGRESS_REPORT
 	if(progress != NULL) {
@@ -175,7 +167,6 @@ METHODDEF(void) start_input_rle(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 		progress->total_extra_passes++;
 	}
 #endif
-
 	source->pub.buffer_height = 1;
 }
 
@@ -189,9 +180,7 @@ METHODDEF(JDIMENSION) get_rle_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
 	rle_source_ptr source = (rle_source_ptr)sinfo;
 	source->row--;
-	source->pub.buffer = (*cinfo->mem->access_virt_sarray)
-		    ((j_common_ptr)cinfo, source->image, source->row, (JDIMENSION)1, FALSE);
-
+	source->pub.buffer = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, source->image, source->row, (JDIMENSION)1, FALSE);
 	return 1;
 }
 
@@ -204,24 +193,19 @@ METHODDEF(JDIMENSION) get_rle_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 METHODDEF(JDIMENSION) get_pseudocolor_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 {
 	rle_source_ptr source = (rle_source_ptr)sinfo;
-	JSAMPROW src_row, dest_row;
+	JSAMPROW src_row;
 	JDIMENSION col;
-	rle_map * colormap;
 	int val;
-
-	colormap = source->header.cmap;
-	dest_row = source->pub.buffer[0];
+	rle_map * colormap = source->header.cmap;
+	JSAMPROW dest_row = source->pub.buffer[0];
 	source->row--;
-	src_row = *(*cinfo->mem->access_virt_sarray)
-		    ((j_common_ptr)cinfo, source->image, source->row, (JDIMENSION)1, FALSE);
-
+	src_row = *(*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, source->image, source->row, (JDIMENSION)1, FALSE);
 	for(col = cinfo->image_width; col > 0; col--) {
 		val = GETJSAMPLE(*src_row++);
 		*dest_row++ = (JSAMPLE)(colormap[val      ] >> 8);
 		*dest_row++ = (JSAMPLE)(colormap[val + 256] >> 8);
 		*dest_row++ = (JSAMPLE)(colormap[val + 512] >> 8);
 	}
-
 	return 1;
 }
 
@@ -365,7 +349,6 @@ GLOBAL(cjpeg_source_ptr) jinit_read_rle(j_compress_ptr cinfo)
 	source->pub.start_input = start_input_rle;
 	source->pub.finish_input = finish_input_rle;
 	source->pub.get_pixel_rows = load_image;
-
 	return (cjpeg_source_ptr)source;
 }
 

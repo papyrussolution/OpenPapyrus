@@ -550,8 +550,8 @@ void ExtGoodsSelDialog::searchBarcode()
 {
 	int    r;
 	Goods2Tbl::Rec rec;
-	char   bcode[128];
-	if((r = GObj.SelectGoodsByBarcode(0, ArID, &rec, 0, bcode)) > 0) {
+	SString bcode;
+	if((r = GObj.SelectGoodsByBarcode(0, ArID, &rec, 0, &bcode)) > 0) {
 		if(OpID && !GObj.CheckMatrix(rec.ID, NZOR(LocID, LConfig.Location), OpID, ArID))
 			PPError();
 		else

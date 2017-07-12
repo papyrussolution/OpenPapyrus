@@ -931,10 +931,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\LIBXML\acconfig.h" />
-    <ClInclude Include="..\OSF\LIBXML\buf.h" />
     <ClInclude Include="..\OSF\LIBXML\config.h" />
     <ClInclude Include="..\OSF\LIBXML\elfgcchack.h" />
-    <ClInclude Include="..\OSF\LIBXML\enc.h" />
     <ClInclude Include="..\include\libxml\c14n.h" />
     <ClInclude Include="..\include\libxml\catalog.h" />
     <ClInclude Include="..\include\libxml\chvalid.h" />

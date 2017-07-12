@@ -285,7 +285,7 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv,
 			if(lval < 0 || lval > 65535L)
 				usage();
 			if(ch == 'b' || ch == 'B') {
-				cinfo->restart_interval = (unsigned int)lval;
+				cinfo->restart_interval = (uint)lval;
 				cinfo->restart_in_rows = 0; /* else prior '-restart n' overrides me */
 			}
 			else {

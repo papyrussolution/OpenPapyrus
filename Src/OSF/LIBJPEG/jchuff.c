@@ -38,7 +38,7 @@
 /* Derived data constructed for each Huffman table */
 
 typedef struct {
-	unsigned int ehufco[256]; /* code for each symbol */
+	uint ehufco[256]; /* code for each symbol */
 	char ehufsi[256];       /* length of code for each symbol */
 	/* If no code has been allocated for a symbol S, ehufsi[S] contains 0 */
 } c_derived_tbl;
@@ -80,7 +80,7 @@ typedef struct {
 	savable_state saved;    /* Bit buffer & DC state at start of MCU */
 
 	/* These fields are NOT loaded into local working state. */
-	unsigned int restarts_to_go; /* MCUs left in this restart interval */
+	uint restarts_to_go; /* MCUs left in this restart interval */
 	int next_restart_num;   /* next restart number to write (0-7) */
 
 	/* Pointers to derived tables (these workspaces have image lifespan) */
@@ -104,8 +104,8 @@ typedef struct {
 
 	/* Coding status for AC components */
 	int ac_tbl_no;          /* the table number of the single component */
-	unsigned int EOBRUN;    /* run length of EOBs */
-	unsigned int BE;        /* # of buffered correction bits before MCU */
+	uint EOBRUN;    /* run length of EOBs */
+	uint BE;        /* # of buffered correction bits before MCU */
 	char * bit_buffer;      /* buffer for correction bits (1 per char) */
 	/* packing correction bits tightly would save some space but cost time... */
 } huff_entropy_encoder;
@@ -158,8 +158,8 @@ static void jpeg_make_c_derived_tbl(j_compress_ptr cinfo, boolean isDC, int tbln
 	c_derived_tbl * dtbl;
 	int p, i, l, lastp, si, maxsymbol;
 	char huffsize[257];
-	unsigned int huffcode[257];
-	unsigned int code;
+	uint huffcode[257];
+	uint code;
 	/* Note that huffsize[] and huffcode[] are filled in code-length order,
 	 * paralleling the order of the symbols themselves in htbl->huffval[].
 	 */
@@ -287,7 +287,7 @@ static void dump_buffer_e(huff_entropy_ptr entropy)
  * between calls, so 24 bits are sufficient.
  */
 
-INLINE LOCAL(boolean) emit_bits_s(working_state * state, unsigned int code, int size)
+INLINE LOCAL(boolean) emit_bits_s(working_state * state, uint code, int size)
 /* Emit some bits; return TRUE if successful, FALSE if must suspend */
 {
 	/* This routine is heavily used, so it's worth coding tightly. */
@@ -317,7 +317,7 @@ INLINE LOCAL(boolean) emit_bits_s(working_state * state, unsigned int code, int 
 	return TRUE;
 }
 
-INLINE static void emit_bits_e(huff_entropy_ptr entropy, unsigned int code, int size)
+INLINE static void emit_bits_e(huff_entropy_ptr entropy, uint code, int size)
 /* Emit some bits, unless we are in gather mode */
 {
 	/* This routine is heavily used, so it's worth coding tightly. */
@@ -392,12 +392,12 @@ INLINE static void emit_ac_symbol(huff_entropy_ptr entropy, int tbl_no, int symb
  * Emit bits from a correction bit buffer.
  */
 
-static void emit_buffered_bits(huff_entropy_ptr entropy, char * bufstart, unsigned int nbits)
+static void emit_buffered_bits(huff_entropy_ptr entropy, char * bufstart, uint nbits)
 {
 	if(entropy->gather_statistics)
 		return;         /* no real work */
 	while(nbits > 0) {
-		emit_bits_e(entropy, (unsigned int)(*bufstart), 1);
+		emit_bits_e(entropy, (uint)(*bufstart), 1);
 		bufstart++;
 		nbits--;
 	}
@@ -529,7 +529,7 @@ METHODDEF(boolean) encode_mcu_DC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
 		/* Emit that number of bits of the value, if positive, */
 		/* or the complement of its magnitude, if negative. */
 		if(nbits)       /* emit_bits rejects calls with size 0 */
-			emit_bits_e(entropy, (unsigned int)temp2, nbits);
+			emit_bits_e(entropy, (uint)temp2, nbits);
 	}
 
 	cinfo->dest->next_output_byte = entropy->next_output_byte;
@@ -630,7 +630,7 @@ METHODDEF(boolean) encode_mcu_AC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
 
 		/* Emit that number of bits of the value, if positive, */
 		/* or the complement of its magnitude, if negative. */
-		emit_bits_e(entropy, (unsigned int)temp2, nbits);
+		emit_bits_e(entropy, (uint)temp2, nbits);
 
 		r = 0;          /* reset zero run length */
 	}
@@ -677,7 +677,7 @@ METHODDEF(boolean) encode_mcu_DC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 	/* Encode the MCU data blocks */
 	for(blkn = 0; blkn < cinfo->blocks_in_MCU; blkn++) {
 		/* We simply emit the Al'th bit of the DC coefficient value. */
-		emit_bits_e(entropy, (unsigned int)(MCU_data[blkn][0][0] >> Al), 1);
+		emit_bits_e(entropy, (uint)(MCU_data[blkn][0][0] >> Al), 1);
 	}
 	cinfo->dest->next_output_byte = entropy->next_output_byte;
 	cinfo->dest->free_in_buffer = entropy->free_in_buffer;
@@ -705,7 +705,7 @@ METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 	int Se, Al;
 	int EOB;
 	char * BR_buffer;
-	unsigned int BR;
+	uint BR;
 	int absvalues[DCTSIZE2];
 	entropy->next_output_byte = cinfo->dest->next_output_byte;
 	entropy->free_in_buffer = cinfo->dest->free_in_buffer;
@@ -784,7 +784,7 @@ METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 
 		/* Emit output bit for newly-nonzero coef */
 		temp = ((*block)[natural_order[k]] < 0) ? 0 : 1;
-		emit_bits_e(entropy, (unsigned int)temp, 1);
+		emit_bits_e(entropy, (uint)temp, 1);
 
 		/* Emit buffered correction bits that must be associated with this code */
 		emit_buffered_bits(entropy, BR_buffer, BR);
@@ -861,7 +861,7 @@ LOCAL(boolean) encode_one_block(working_state * state, JCOEFPTR block, int last_
 	/* Emit that number of bits of the value, if positive, */
 	/* or the complement of its magnitude, if negative. */
 	if(nbits)               /* emit_bits rejects calls with size 0 */
-		if(!emit_bits_s(state, (unsigned int)temp2, nbits))
+		if(!emit_bits_s(state, (uint)temp2, nbits))
 			return FALSE;
 
 	/* Encode the AC coefficients per section F.1.2.2 */
@@ -902,7 +902,7 @@ LOCAL(boolean) encode_one_block(working_state * state, JCOEFPTR block, int last_
 
 			/* Emit that number of bits of the value, if positive, */
 			/* or the complement of its magnitude, if negative. */
-			if(!emit_bits_s(state, (unsigned int)temp2, nbits))
+			if(!emit_bits_s(state, (uint)temp2, nbits))
 				return FALSE;
 
 			r = 0;
