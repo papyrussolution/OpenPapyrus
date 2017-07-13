@@ -461,7 +461,7 @@ TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opI
 		if(GetOpName(opID, temp_buf) > 0)
 			setTitle(temp_buf);
 	}
-	// } @v9.4.3 
+	// } @v9.4.3
 }
 
 int TrfrItemDialog::isModifPlus() const
@@ -936,10 +936,8 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 						//
 						drawCtrl(CTL_LOT_PRICE);
 					}
-					// @v7.3.0 {
 					else if(event.isCtlEvent(CTL_LOT_SERIAL))
 						SetupSerialWarn();
-					// } @v7.3.0
 					break;
 				case cmCtlColor:
 					{
@@ -1396,7 +1394,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 					}
 					else {
 						//
-						// Если документ привязан к конкретному поставщику (кроме прихода), 
+						// Если документ привязан к конкретному поставщику (кроме прихода),
 						// то проверяем чтобы товар был оприходован от этого поставщика.
 						//
 						if(OpID == _PPOPK_SUPPLRET || (P_Pack->OpTypeID == PPOPT_GOODSREVAL && P_Pack->Rec.Object))
@@ -1448,7 +1446,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 					//setCtrlCost();
 				}
 			}
-			// 
+			//
 			// Наследуем теги из предыдущего лота данного товара
 			//
 			if(ItemNo < 0 && Item.LotID && Item.Flags & PPTFR_RECEIPT) {
@@ -1809,7 +1807,7 @@ int TrfrItemDialog::setDTS(PPTransferItem * pItem)
 			setCtrlReal(CTL_LOT_ORGQTTY, OrgQtty);
 			setCtrlReal(CTL_LOT_OLDPRICE, OrgPrice);
 		}
-		// } @v9.4.3 
+		// } @v9.4.3
 		if(isDiscountInSum()) {
 			Item.Price   -= Item.Discount;
 			Item.Discount = 0.0;
@@ -2085,8 +2083,8 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	sel = CTL_LOT_QUANTITY;
 	setupQuantity(0/*sel*/, 1);
 	THROW(checkQuantityForIntVal());
-	THROW_PP((Item.Flags & PPTFR_REVAL) || Item.IsCorrectionExp() || 
-		oneof2(P_Pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON) || 
+	THROW_PP((Item.Flags & PPTFR_REVAL) || Item.IsCorrectionExp() ||
+		oneof2(P_Pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON) ||
 		Item.Quantity_ > 0.0, PPERR_INVQTTY); // @v9.3.1 P_Pack->Rec.OpID == PPOPK_EDI_STOCK // @v9.4.3 Item.IsCorrectionExp()
 	THROW(r = checkQuantityVal(&extra_qtty));
 	ASSIGN_PTR(pExtraQtty, extra_qtty);
@@ -3024,7 +3022,7 @@ int SLAPI PPObjBill::SelectLot2(SelectLotParam & rParam)
 					s = i+1;
 			}
 		}
-		// } @v9.4.5 
+		// } @v9.4.5
 		if(s)
 			s--;
 		THROW_MEM(p_brw = new SelLotBrowser(this, p_ary, s, (rParam.Flags & rParam.fShowEgaisTags) ? SelLotBrowser::fShowEgaisTags : 0));

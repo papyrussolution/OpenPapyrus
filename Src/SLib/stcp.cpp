@@ -2057,28 +2057,28 @@ SLTEST_R(Uri)
 		int    r = url.Parse(p_url_str);
 		if(r > 0) {
 			url.GetComponent(InetUrl::cScheme, temp_buf);
-			out_buf.CatChar('\t').Cat(temp_buf);
+			out_buf.Tab().Cat(temp_buf);
 
 			url.GetComponent(InetUrl::cUserName, temp_buf);
-			out_buf.CatChar('\t').Cat(temp_buf);
+			out_buf.Tab().Cat(temp_buf);
 
 			url.GetComponent(InetUrl::cPassword, temp_buf);
-			out_buf.CatChar('\t').Cat(temp_buf);
+			out_buf.Tab().Cat(temp_buf);
 
 			url.GetComponent(InetUrl::cHost, temp_buf);
-			out_buf.CatChar('\t').Cat(temp_buf);
+			out_buf.Tab().Cat(temp_buf);
 
 			url.GetComponent(InetUrl::cPort, temp_buf);
-			out_buf.CatChar('\t').Cat(temp_buf);
+			out_buf.Tab().Cat(temp_buf);
 
 			url.GetComponent(InetUrl::cPath, temp_buf);
-			out_buf.CatChar('\t').Cat(temp_buf);
+			out_buf.Tab().Cat(temp_buf);
 
 			url.GetComponent(InetUrl::cQuery, temp_buf);
-			out_buf.CatChar('\t').Cat(temp_buf);
+			out_buf.Tab().Cat(temp_buf);
 
 			url.GetComponent(InetUrl::cRef, temp_buf);
-			out_buf.CatChar('\t').Cat(temp_buf);
+			out_buf.Tab().Cat(temp_buf);
 
 			f_out.WriteLine(out_buf.CR());
 		}

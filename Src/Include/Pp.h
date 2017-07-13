@@ -48892,7 +48892,8 @@ public:
 		enum {
 			fDelivery           = 0x0001,
 			fFixedPrice         = 0x0002, // @v8.7.7 Проекция флага CCHKF_FIXEDPRICE
-			fAttachPhoneToSCard = 0x0004  // @v9.4.11 @transient Привязать номер телефона к выбранной карте
+			fAttachPhoneToSCard = 0x0004, // @v9.4.11 @transient Привязать номер телефона к выбранной карте
+			fSpFinished         = 0x0008, // @v9.7.7 CCHKF_SPFINISHED
 		};
 		ExtCcData();
 		void   Clear();

@@ -71,7 +71,7 @@ static SString & FormatCmdHelp(SrvCmd cmd, SString & rBuf, int addTabs)
 {
 	SString cmd_buf;
 	TranslateCmd(cmd, cmd_buf);
-	(rBuf = 0).CatChar('\t').Cat("ppws").Space().Cat(cmd_buf).Space();
+	(rBuf = 0).Tab().Cat("ppws").Space().Cat(cmd_buf).Space();
 	if(addTabs)
 		rBuf.CatCharN('\t', addTabs);
 	return rBuf;

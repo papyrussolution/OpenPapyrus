@@ -723,14 +723,15 @@ int FASTCALL SString::HasChr(int c) const
 	if(c == 0)
 		return 0;
 	else {
+		const char * p_buf = P_Buf;
 		switch(L) {
 			case 0:
 			case 1:  return 0;
-			case 2:  return (P_Buf[0] == c);
-			case 3:  return (P_Buf[0] == c || P_Buf[1] == c);
-			case 4:  return (P_Buf[0] == c || P_Buf[1] == c || P_Buf[2] == c);
-			case 5:  return (P_Buf[0] == c || P_Buf[1] == c || P_Buf[2] == c || P_Buf[3] == c);
-			default: return BIN(memchr(P_Buf, (uchar)c, L-1));
+			case 2:  return (p_buf[0] == c);
+			case 3:  return (p_buf[0] == c || p_buf[1] == c);
+			case 4:  return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c);
+			case 5:  return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c || p_buf[3] == c);
+			default: return BIN(memchr(p_buf, (uchar)c, L-1));
 		}
 	}
 }
@@ -1748,7 +1749,7 @@ SString & SLAPI SString::ReplaceHtmlSpecSymb()
 			int   s = 0;
 			for(uint j = 0; j < SIZEOFARRAY(HtmlSpcSymbTab); j++) {
 				if(c == HtmlSpcSymbTab[j].chr) {
-					temp_buf.CatChar('&').Cat(HtmlSpcSymbTab[j].str).CatChar(';');
+					temp_buf.CatChar('&').Cat(HtmlSpcSymbTab[j].str).Semicol();
 					s = 1;
 					break;
 				}
@@ -1771,7 +1772,7 @@ SString & SLAPI SString::RevertHtmlSpecSymb()
 			int   s = 0;
 			if(c == '&') {
 				for(uint j = 0; j < SIZEOFARRAY(HtmlSpcSymbTab); j++) {
-					(ent_buf = 0).CatChar('&').Cat(HtmlSpcSymbTab[j].str).CatChar(';');
+					(ent_buf = 0).CatChar('&').Cat(HtmlSpcSymbTab[j].str).Semicol();
 					if(memcmp(ent_buf, P_Buf+i, ent_buf.Len()) == 0) {
 						temp_buf.CatChar(HtmlSpcSymbTab[j].chr);
 						i += (ent_buf.Len()-1);
@@ -2080,7 +2081,7 @@ SString & SLAPI SString::Unescape()
 						CatChar('\r');
 						break;
 					case 't':
-						CatChar('\t');
+						Tab();
 						break;
 					case 'u':
 						{
@@ -2444,15 +2445,17 @@ int FASTCALL SString::IsEqual(const SString & rS) const
 {
 	const size_t len = Len();
 	if(len == rS.Len()) {
-		assert(len == 0 || (P_Buf && rS.P_Buf));
+		const char * p_buf = P_Buf;
+		const char * p_sbuf = rS.P_Buf;
+		assert(len == 0 || (p_buf && p_sbuf));
 		switch(len) {
 			case 0: return 1;
-			case 1: return BIN(P_Buf[0] == rS.P_Buf[0]);
-			case 2: return BIN(PTR16(P_Buf)[0] == PTR16(rS.P_Buf)[0]);
-			case 3: return BIN(P_Buf[0] == rS.P_Buf[0] && P_Buf[1] == rS.P_Buf[1] && P_Buf[2] == rS.P_Buf[2]);
-			case 4: return BIN(PTR32(P_Buf)[0] == PTR32(rS.P_Buf)[0]);
-			case 8: return BIN(PTR64(P_Buf)[0] == PTR64(rS.P_Buf)[0]);
-			default: return BIN(memcmp(P_Buf, rS.P_Buf, len) == 0);
+			case 1: return BIN(p_buf[0] == p_sbuf[0]);
+			case 2: return BIN(PTR16(p_buf)[0] == PTR16(p_sbuf)[0]);
+			case 3: return BIN(p_buf[0] == p_sbuf[0] && p_buf[1] == p_sbuf[1] && p_buf[2] == p_sbuf[2]);
+			case 4: return BIN(PTR32(p_buf)[0] == PTR32(p_sbuf)[0]);
+			case 8: return BIN(PTR64(p_buf)[0] == PTR64(p_sbuf)[0]);
+			default: return BIN(memcmp(p_buf, p_sbuf, len) == 0);
 		}
 	}
 	else
@@ -2464,15 +2467,16 @@ int FASTCALL SString::IsEqual(const char * pS) const
 	const size_t len = Len();
 	const size_t len2 = sstrlen(pS);
 	if(len == len2) {
-		assert(len == 0 || P_Buf);
+		const char * p_buf = P_Buf;
+		assert(len == 0 || p_buf);
 		switch(len) {
 			case 0: return 1;
-			case 1: return BIN(P_Buf[0] == pS[0]);
-			case 2: return BIN(PTR16(P_Buf)[0] == PTR16(pS)[0]);
-			case 3: return BIN(P_Buf[0] == pS[0] && P_Buf[1] == pS[1] && P_Buf[2] == pS[2]);
-			case 4: return BIN(PTR32(P_Buf)[0] == PTR32(pS)[0]);
-			case 8: return BIN(PTR64(P_Buf)[0] == PTR64(pS)[0]);
-			default: return BIN(memcmp(P_Buf, pS, len) == 0);
+			case 1: return BIN(p_buf[0] == pS[0]);
+			case 2: return BIN(PTR16(p_buf)[0] == PTR16(pS)[0]);
+			case 3: return BIN(p_buf[0] == pS[0] && p_buf[1] == pS[1] && p_buf[2] == pS[2]);
+			case 4: return BIN(PTR32(p_buf)[0] == PTR32(pS)[0]);
+			case 8: return BIN(PTR64(p_buf)[0] == PTR64(pS)[0]);
+			default: return BIN(memcmp(p_buf, pS, len) == 0);
 		}
 	}
 	else
@@ -2545,8 +2549,7 @@ int FASTCALL SString::CmpSuffix(const char * pS, int ignoreCase) const
 		return -1;
 	else {
 		size_t len = strlen(pS);
-		// @v7.6.2 int    delta = ((int)len)-((int)Len());
-		int    delta = ((int)Len())-((int)len); // @v7.6.2
+		int    delta = ((int)Len())-((int)len);
 		if(len && delta >= 0)
 			return ignoreCase ? strnicmp866(P_Buf+delta, pS, len) : strncmp(P_Buf+delta, pS, len);
 		else
@@ -2711,16 +2714,12 @@ SString & FASTCALL SString::CatChar(int chr)
 SString & FASTCALL SString::Tab(uint c)
 {
     if(oneof2(c, 1, 0) || c > 1000)
-		return CatChar('\t');
+		return Tab();
 	else
 		return CatCharN('\t', c);
 }
 
-SString & SLAPI SString::Tab()
-{
-	return CatChar('\t');
-}
-
+SString & SLAPI SString::Tab()     { return CatChar('\t'); }
 SString & SLAPI SString::Space()   { return CatChar(' ');  }
 SString & SLAPI SString::Dot()     { return CatChar('.');  }
 SString & SLAPI SString::Comma()   { return CatChar(',');  }
@@ -3360,56 +3359,57 @@ int SLAPI SString::ToIntRange(IntRange & rRange, long flags) const
 		long   lo = 0;
 		long   up = 0;
 		size_t src_pos = 0;
-		while(P_Buf[src_pos] == ' ' || P_Buf[src_pos] == '\t')
+		const  char * p_buf = P_Buf;
+		while(p_buf[src_pos] == ' ' || p_buf[src_pos] == '\t')
 			src_pos++;
 		//
 		int    is_neg = 0;
-		if(P_Buf[src_pos] == '-') {
+		if(p_buf[src_pos] == '-') {
 			src_pos++;
 			is_neg = 1;
 		}
-		else if(P_Buf[src_pos] == '+')
+		else if(p_buf[src_pos] == '+')
 			src_pos++;
-		if(isdec(P_Buf[src_pos])) {
+		if(isdec(p_buf[src_pos])) {
 			do {
-				lo = lo * 10 + (P_Buf[src_pos] - '0');
+				lo = lo * 10 + (p_buf[src_pos] - '0');
 				src_pos++;
-			} while(isdec(P_Buf[src_pos]));
+			} while(isdec(p_buf[src_pos]));
 			if(is_neg)
 				lo = -lo;
 			//
 			const size_t preserve_upp_src_pos = src_pos;
 			int   upp_is_done = 0;
-			while(P_Buf[src_pos] == ' ' || P_Buf[src_pos] == '\t')
+			while(p_buf[src_pos] == ' ' || p_buf[src_pos] == '\t')
 				src_pos++;
 
 			uint do_next = 0;
 			{
-				if(P_Buf[src_pos] == ':' && (flags & torfColon))
+				if(p_buf[src_pos] == ':' && (flags & torfColon))
 					do_next = 1;
-				else if(P_Buf[src_pos] == '-' && (flags & torfHyphen))
+				else if(p_buf[src_pos] == '-' && (flags & torfHyphen))
 					do_next = 1;
-				else if(P_Buf[src_pos] == '.' && P_Buf[src_pos+1] == '.' && (flags & torfDoubleDot))
+				else if(p_buf[src_pos] == '.' && p_buf[src_pos+1] == '.' && (flags & torfDoubleDot))
 					do_next = 2;
-				else if(P_Buf[src_pos] == ',' && P_Buf[src_pos+1] == ',' && (flags & torfDoubleComma))
+				else if(p_buf[src_pos] == ',' && p_buf[src_pos+1] == ',' && (flags & torfDoubleComma))
 					do_next = 2;
 			}
 			if(do_next) {
 				src_pos += do_next;
-				while(P_Buf[src_pos] == ' ' || P_Buf[src_pos] == '\t')
+				while(p_buf[src_pos] == ' ' || p_buf[src_pos] == '\t')
 					src_pos++;
 				is_neg = 0;
-				if(P_Buf[src_pos] == '-') {
+				if(p_buf[src_pos] == '-') {
 					src_pos++;
 					is_neg = 1;
 				}
-				else if(P_Buf[src_pos] == '+')
+				else if(p_buf[src_pos] == '+')
 					src_pos++;
-				if(isdec(P_Buf[src_pos])) {
+				if(isdec(p_buf[src_pos])) {
 					do {
-						up = up * 10 + (P_Buf[src_pos] - '0');
+						up = up * 10 + (p_buf[src_pos] - '0');
 						src_pos++;
-					} while(isdec(P_Buf[src_pos]));
+					} while(isdec(p_buf[src_pos]));
 					if(is_neg)
 						up = -up;
 					upp_is_done = 1;

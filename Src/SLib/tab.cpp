@@ -385,7 +385,7 @@ int SLAPI STabFile::Helper_WriteTab(const char * pTabName, STab * pTab, SFile & 
 			STab::Row row;
 			THROW(rFile.WriteLine(line_buf.Cat("BEGIN").Space().Cat(pTabName).CR()));
 			for(uint i = 0; i < c; i++) {
-				(line_buf = 0).CatChar('\t');
+				(line_buf = 0).Tab();
 				THROW(pTab->GetRow(i, row));
 				uint rc = row.GetCount();
 				for(uint j = 0; j < rc; j++) {

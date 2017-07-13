@@ -601,7 +601,7 @@ int PPDrvSberTrmnl::Pay(double amount, SString & rSlip)
 			DRVS.GetErrText(result, buf);
 			msg.CatChar(':').Space().Cat("Error Code ").Cat(/*auth_answr.Rcode*/result).CatChar(':').Cat(buf);
 			if(auth_answr.AMessage)
-				msg.CR().CatChar('\t').Cat("Addition message: ").Cat(auth_answr.AMessage);
+				msg.CR().Tab().Cat("Addition message: ").Cat(auth_answr.AMessage);
 			DRVS.Log(msg, 0xffff);
 			DRVS.SetErrCode(/*rcode.ToLong()*/result); // Пусть будет виден более точный код ошибки
 		}
@@ -634,7 +634,7 @@ int PPDrvSberTrmnl::Refund(double amount, SString & rSlip)
 			DRVS.GetErrText(result, buf);
 			msg.CatChar(':').Space().Cat("Error Code ").Cat(/*auth_answr.Rcode*/result).CatChar(':').Cat(buf);
 			if(auth_answr.AMessage)
-				msg.CR().CatChar('\t').Cat("Adddition message: ").Cat(auth_answr.AMessage);
+				msg.CR().Tab().Cat("Adddition message: ").Cat(auth_answr.AMessage);
 			DRVS.Log(msg, 0xffff);
 			DRVS.SetErrCode(/*rcode.ToLong()*/result); // Пусть будет виден более точный код ошибки
 		}
@@ -668,7 +668,7 @@ int PPDrvSberTrmnl::GetSessReport(SString & rCheck)
 			DRVS.GetErrText(result, buf);
 			msg.CatChar(':').Space().Cat("Error Code ").Cat(/*auth_answr.Rcode*/result).CatChar(':').Cat(buf);
 			if(auth_answr.AMessage)
-				msg.CR().CatChar('\t').Cat("Adddition message: ").Cat(auth_answr.AMessage);
+				msg.CR().Tab().Cat("Adddition message: ").Cat(auth_answr.AMessage);
 			DRVS.Log(msg, 0xffff);
 			DRVS.SetErrCode(/*rcode.ToLong()*/result); // Пусть будет виден более точный код ошибки
 		}

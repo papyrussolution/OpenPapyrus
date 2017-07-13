@@ -5782,7 +5782,7 @@ static int TestConcept(const char * pDbPath)
 							SrCPropList cpl;
 							SrCProp cp;
 							db.GetConceptSymb(cid, symb);
-							line_buf.CatChar('\t').Cat((temp_buf = symb).Utf8ToChar());
+							line_buf.Tab().Cat((temp_buf = symb).Utf8ToChar());
 							line_buf.CatChar('(');
 							if(db.GetConceptPropList(cid, cpl) > 0) {
 								for(uint k = 0; k < cpl.GetCount(); k++) {
@@ -5903,7 +5903,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 					}
 				}
 				entry.Code.ReplaceChar('.', '_');
-				(out_buf = 0).CatChar('\t').CatChar(':').Cat("geoloct").CatChar('_').Cat(entry.Code).CR();
+				(out_buf = 0).Tab().CatChar(':').Cat("geoloct").CatChar('_').Cat(entry.Code).CR();
 				outf.WriteLine(out_buf);
 			}
 			outf.WriteLine((out_buf = 0).CatChar('}').CatChar(':').Cat("geoloctype").CR());
@@ -5935,7 +5935,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 							}
 						}
 						entry.Code.ReplaceChar('.', '_');
-						(out_buf = 0).CatChar('\t').Cat(entry.Text).Cat("=:").Cat("geoloct").CatChar('_').Cat(entry.Code).CR();
+						(out_buf = 0).Tab().Cat(entry.Text).Cat("=:").Cat("geoloct").CatChar('_').Cat(entry.Code).CR();
 						outf.WriteLine(out_buf);
 					}
 					(out_buf = 0).CatChar('}').CR();

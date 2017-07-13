@@ -6015,7 +6015,7 @@ int EmailCtrlGroup::SetLine(TDialog * pDlg)
 	for(uint i = 0; i < Data.AddrList.getCount(); i++) {
 		addr_list.Cat(Data.AddrList.at(i).Txt);
 		if(i + 1 < Data.AddrList.getCount())
-			addr_list.CatChar(';');
+			addr_list.Semicol();
 	}
 	if(pDlg) {
 		pDlg->setCtrlString(Ctl, addr_list);
@@ -6575,7 +6575,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 										WINDOWINFO wi_combo;
 										if(GetWindowInfo(h_combo, &wi_combo)) {
 											dlg->GetCtlSymb(p_cb->GetId(), symb);
-											line_buf.CatChar('\t').Cat("combobox").Space().Cat(symb).Space().CatQStr(ctl_text);
+											line_buf.Tab().Cat("combobox").Space().Cat(symb).Space().CatQStr(ctl_text);
 											_RectToLine(wi.rcWindow, line_buf.Space());
 											if(p_label) {
 												_RectToLine(label_rect, temp_buf = 0);
@@ -6597,7 +6597,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 										if(wi.dwStyle & ES_READONLY) {
 											prop_list.Add(DlScope::cuifReadOnly, temp_buf = 0);
 										}
-										line_buf.CatChar('\t').Cat("input").Space().Cat(symb).Space().CatQStr(ctl_text);
+										line_buf.Tab().Cat("input").Space().Cat(symb).Space().CatQStr(ctl_text);
 										_RectToLine(wi.rcWindow, line_buf.Space());
 										GetBinaryTypeString(p_il->getType(), 1, temp_buf, "", 0);
 										if(temp_buf.Cmp("unknown", 0) == 0) {
@@ -6626,7 +6626,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 								const int bt = (wi.dwStyle & BS_TYPEMASK);
 								if(oneof2(bt, BS_CHECKBOX, BS_AUTOCHECKBOX)) {
 									if(p_view && p_view->IsSubSign(TV_SUBSIGN_CLUSTER)) {
-										line_buf.CatChar('\t').Cat("checkbox").Space().Cat(symb).Space().CatQStr(ctl_text);
+										line_buf.Tab().Cat("checkbox").Space().Cat(symb).Space().CatQStr(ctl_text);
 										_RectToLine(wi.rcWindow, line_buf.Space()).Semicol().CR();
 										f_out.WriteLine(line_buf);
 										TakeInCountCtrl(h, child_list, seen_pos_list);
@@ -6693,14 +6693,14 @@ int SLAPI ExportDialogs(const char * pFileName)
 												TakeInCountCtrl(h_item, child_list, seen_pos_list);
 											}
 											//
-											(line_buf = 0).CatChar('\t').CatChar('}').CR();
+											(line_buf = 0).Tab().CatChar('}').CR();
 											f_out.WriteLine(line_buf);
 										}
 										TakeInCountCtrl(h, child_list, seen_pos_list);
 									}
 									else {
 										//T_FRAME T_IDENT T_CONST_STR uirectopt uictrl_properties ';'
-										line_buf.CatChar('\t').Cat("framebox").Space().CatQStr(ctl_text);
+										line_buf.Tab().Cat("framebox").Space().CatQStr(ctl_text);
 										_RectToLine(wi.rcWindow, line_buf.Space());
 										line_buf.Semicol().CR();
 										f_out.WriteLine(line_buf);
@@ -6725,7 +6725,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 										if(symb.ToLong() != 0) {
 											(symb = 0).Cat("CTL").CatChar('_').Cat("CMD").CatChar('_').Cat(temp_buf+offs).ToUpper();
 										}
-										line_buf.CatChar('\t').Cat("button").Space().Cat(symb).Space().CatQStr(ctl_text);
+										line_buf.Tab().Cat("button").Space().Cat(symb).Space().CatQStr(ctl_text);
 										_RectToLine(wi.rcWindow, line_buf.Space());
 										line_buf.Space().Cat(temp_buf);
 										line_buf.Semicol().CR();
@@ -6746,7 +6746,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 										symb = 0;
 									else if(symb.ToLong())
 										(symb = 0).Cat("CTL").CatChar('_').Cat(dlg_symb_body).CatChar('_').Cat("ST").CatChar('_').CatLongZ(symb.ToLong(), 3);
-									line_buf.CatChar('\t').Cat("statictext").Space();
+									line_buf.Tab().Cat("statictext").Space();
 									if(symb.NotEmpty())
 										line_buf.Cat(symb).Space();
 									line_buf.CatQStr(ctl_text);
@@ -6761,7 +6761,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 									SmartListBox * p_list = (SmartListBox *)p_view;
 									if(p_label)
 										ctl_text = label_text;
-									line_buf.CatChar('\t').Cat("listbox").Space().Cat(symb).Space().CatQStr(ctl_text);
+									line_buf.Tab().Cat("listbox").Space().Cat(symb).Space().CatQStr(ctl_text);
 									_RectToLine(wi.rcWindow, line_buf.Space());
 									p_list->GetOrgColumnsDescr(temp_buf);
 									if(temp_buf.NotEmptyS())
@@ -6777,7 +6777,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 									SmartListBox * p_list = (SmartListBox *)p_view;
 									if(p_label)
 										ctl_text = label_text;
-									line_buf.CatChar('\t').Cat("treelistbox").Space().Cat(symb).Space().CatQStr(ctl_text);
+									line_buf.Tab().Cat("treelistbox").Space().Cat(symb).Space().CatQStr(ctl_text);
 									_RectToLine(wi.rcWindow, line_buf.Space());
 									line_buf.Semicol().CR();
 									f_out.WriteLine(line_buf);

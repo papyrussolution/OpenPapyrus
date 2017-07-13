@@ -943,7 +943,7 @@ void FASTCALL DBTable::OutOfTransactionLogging(const char * pOp) const
 {
 	if(!(flags & (XTF_TEMP|XTF_DICT|XTF_DISABLEOUTOFTAMSG)) && !(DBS.GetTLA().GetState() & DbThreadLocalArea::stTransaction)) {
 		SString msg_buf;
-		msg_buf.Cat(getcurdatetime_()).CatChar('\t').Cat(pOp).Space().Cat("executed out of transaction").CatDiv(':', 2).
+		msg_buf.Cat(getcurdatetime_()).Tab().Cat(pOp).Space().Cat("executed out of transaction").CatDiv(':', 2).
 			Cat(tableName).CatChar('(').Cat(fileName).CatChar(')');
 		SLS.LogMessage("dbwarn.log", msg_buf);
 	}

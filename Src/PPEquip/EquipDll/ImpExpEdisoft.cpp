@@ -378,7 +378,7 @@ void LogMessage(const char * pMsg)
 		 getcurdate(&date);
 		 getcurtime(&time);
 		(str = 0).Cat(date.day()).Dot().Cat(date.month()).Dot().Cat(date.year()).Space().Cat(time.hour()).
-			CatChar(':').Cat(time.minut()).CatChar(':').Cat(time.sec()).CatChar('\t').Cat(pMsg).CR();
+			CatChar(':').Cat(time.minut()).CatChar(':').Cat(time.sec()).Tab().Cat(pMsg).CR();
         file.WriteLine(str);
 	}
 }
@@ -394,7 +394,7 @@ void SysLogMessage(const char * pMsg)
 		 getcurdate(&date);
 		 getcurtime(&time);
 		(str = 0).Cat(date.day()).Dot().Cat(date.month()).Dot().Cat(date.year()).Space().Cat(time.hour()).
-			CatChar(':').Cat(time.minut()).CatChar(':').Cat(time.sec()).CatChar('\t').Cat(pMsg).CR();
+			CatChar(':').Cat(time.minut()).CatChar(':').Cat(time.sec()).Tab().Cat(pMsg).CR();
         file.WriteLine(str);
 	}
 }

@@ -238,7 +238,7 @@ int SLAPI PPDutySchedPacket::Test(const char * pOutFile) const
 		LTIME tm_dur;
 		GetObjectName(Rec.ObjType, ep.ObjID, add_buf = 0);
 		tm_dur.settotalsec(ep.Duration);
-		msg_buf.CatChar('\t').Cat(ep.Dtm).CatDiv('-', 1).Cat(tm_dur).CatDiv('-', 1).Cat(add_buf);
+		msg_buf.Tab().Cat(ep.Dtm).CatDiv('-', 1).Cat(tm_dur).CatDiv('-', 1).Cat(add_buf);
 		PPLogMessage(pOutFile, msg_buf, 0);
 	}
 	CATCH

@@ -491,16 +491,16 @@ int SLAPI Profile::InitUserProfile(const char * pUserName)
 				line_buf = 0;
 				UPSB.SessUuid.ToStr(S_GUID::fmtIDL, temp_buf);
 				line_buf.Cat(temp_buf);
-				line_buf.CatChar(';').Cat(thread_id);
+				line_buf.Semicol().Cat(thread_id);
 				UPSB.DbUuid.ToStr(S_GUID::fmtIDL, temp_buf);
-				line_buf.CatChar(';').Cat(temp_buf);
+				line_buf.Semicol().Cat(temp_buf);
 				DS.GetVersion().ToStr(temp_buf);
-				line_buf.CatChar(';').Cat(temp_buf);
-				line_buf.CatChar(';').Cat(UPSB.DbSymb);
-				line_buf.CatChar(';').Cat(pUserName);
+				line_buf.Semicol().Cat(temp_buf);
+				line_buf.Semicol().Cat(UPSB.DbSymb);
+				line_buf.Semicol().Cat(pUserName);
 				{
 					SGetComputerName(temp_buf);
-					line_buf.CatChar(';').Cat(temp_buf);
+					line_buf.Semicol().Cat(temp_buf);
 				}
 				{
 					MACAddr addr;
@@ -508,9 +508,9 @@ int SLAPI Profile::InitUserProfile(const char * pUserName)
 						addr.ToStr(temp_buf);
 					else
 						temp_buf = 0;
-					line_buf.CatChar(';').Cat(temp_buf);
+					line_buf.Semicol().Cat(temp_buf);
 				}
-				line_buf.CatChar(';').Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);
+				line_buf.Semicol().Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);
 				PPLogMessage(fname, line_buf, LOGMSGF_UNLIMITSIZE|LOGMSGF_NODUPFORJOB);
 			}
 		}
@@ -525,7 +525,7 @@ int SLAPI Profile::InitUserProfile(const char * pUserName)
 	}
 	{
 		UPSB.SessUuid.ToStr(S_GUID::fmtIDL, temp_buf);
-		(UPSB.LogItemPrefix = temp_buf).CatChar(';').Cat(thread_id);
+		(UPSB.LogItemPrefix = temp_buf).Semicol().Cat(thread_id);
 	}
 	return ok;
 }
@@ -569,8 +569,8 @@ uint FASTCALL Profile::StartUserProfileFunc(int funcId)
 		}
 		if(do_log_start) {
 			SString line_buf;
-			(line_buf = UPSB.LogItemPrefix).CatChar(';').Cat(profile_entry.Seq).CatChar(';').
-				Cat(profile_entry.Fe.GetLoggedFuncId()).CatChar(';').Cat(profile_entry.StartDtm, DATF_DMY|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);
+			(line_buf = UPSB.LogItemPrefix).Semicol().Cat(profile_entry.Seq).Semicol().
+				Cat(profile_entry.Fe.GetLoggedFuncId()).Semicol().Cat(profile_entry.StartDtm, DATF_DMY|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);
 			PPLogMessage(UPSB.LogFileName_Start, line_buf, LOGMSGF_UNLIMITSIZE|LOGMSGF_NODUPFORJOB);
 		}
 	}
@@ -638,8 +638,8 @@ int FASTCALL Profile::FinishUserProfileFunc(uint handle)
 			if(do_log_finish) {
 				SString line_buf;
 				if(p_flash_accum_entry) {
-					(line_buf = 0).Cat(UPSB.LogItemPrefix).CatChar(';').Cat(p_flash_accum_entry->Seq).CatChar(';').
-						Cat(profile_entry.Fe.GetLoggedFuncId()).CatChar(';').Cat(p_flash_accum_entry->AccumClock).CatChar(';');
+					(line_buf = 0).Cat(UPSB.LogItemPrefix).Semicol().Cat(p_flash_accum_entry->Seq).Semicol().
+						Cat(profile_entry.Fe.GetLoggedFuncId()).Semicol().Cat(p_flash_accum_entry->AccumClock).Semicol();
 					line_buf.Cat(p_flash_accum_entry->Accum);
 					p_flash_accum_entry->Accum = 0;
 					p_flash_accum_entry->AccumClock = 0;
@@ -652,8 +652,8 @@ int FASTCALL Profile::FinishUserProfileFunc(uint handle)
 					}
 				}
 				else {
-					(line_buf = 0).Cat(UPSB.LogItemPrefix).CatChar(';').Cat(profile_entry.Seq).CatChar(';').
-						Cat(profile_entry.Fe.GetLoggedFuncId()).CatChar(';').Cat(clock).CatChar(';');
+					(line_buf = 0).Cat(UPSB.LogItemPrefix).Semicol().Cat(profile_entry.Seq).Semicol().
+						Cat(profile_entry.Fe.GetLoggedFuncId()).Semicol().Cat(clock).Semicol();
 					if(profile_entry.Fe.FactorCount) {
 						assert(profile_entry.Fe.FactorCount <= SIZEOFARRAY(profile_entry.Factors));
 						for(uint i = 0; i < (uint)profile_entry.Fe.FactorCount; i++) {
@@ -681,8 +681,8 @@ int SLAPI Profile::FlashUserProfileAccumEntries()
 		for(uint i = 0; i < UserProfileAccum.getCount(); i++) {
 			UserProfileEntry & r_accum_entry = UserProfileAccum.at(i);
 			if(r_accum_entry.Accum > 0) {
-				(line_buf = 0).Cat(UPSB.LogItemPrefix).CatChar(';').Cat(r_accum_entry.Seq).CatChar(';').
-					Cat(r_accum_entry.Fe.GetLoggedFuncId()).CatChar(';').Cat(r_accum_entry.AccumClock).CatChar(';');
+				(line_buf = 0).Cat(UPSB.LogItemPrefix).Semicol().Cat(r_accum_entry.Seq).Semicol().
+					Cat(r_accum_entry.Fe.GetLoggedFuncId()).Semicol().Cat(r_accum_entry.AccumClock).Semicol();
 				line_buf.Cat(r_accum_entry.Accum);
 				r_accum_entry.Accum = 0;
 				r_accum_entry.AccumClock = 0;

@@ -5012,7 +5012,7 @@ class SScEditorBase {
 public:
 	SScEditorBase();
 protected:
-	void   Init(HWND hScW);
+	void   Init(HWND hScW, int preserveFileName);
 	int    Release();
 	int    CallFunc(int msg, int param1, int param2);
 	int    SetKeybAccelerator(KeyDownCommand & rK, int cmd);
@@ -5038,7 +5038,7 @@ protected:
 			stNewFile  = 0x0010
 		};
 		Document();
-		Document & Reset();
+		Document & FASTCALL Reset(int preserveFileName);
 		long   SetState(long st, int set);
 
 		SCodepageIdent OrgCp;

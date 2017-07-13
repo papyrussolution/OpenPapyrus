@@ -268,7 +268,7 @@ int PriceChecker::LogMessage(const char * pMsg, ...)
 		LDATETIME dt_tm;
 		SString str;
 		getcurdatetime(&dt_tm);
-		str.Cat(dt_tm).CatChar('\t');
+		str.Cat(dt_tm).Tab();
 		while(*pp_msg != "") {
 			str.Cat(*pp_msg).Space();
 			pp_msg++;

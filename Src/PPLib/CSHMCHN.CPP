@@ -881,12 +881,12 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 				{
 
 					CCheckLineTbl::Rec line_rec;
-					out_buf.CatChar('\t').CatEq("ID", pPack->Rec.ID).CatDiv(';', 2).CatEq("Code", pPack->Rec.Code).CatDiv(';', 2).
+					out_buf.Tab().CatEq("ID", pPack->Rec.ID).CatDiv(';', 2).CatEq("Code", pPack->Rec.Code).CatDiv(';', 2).
 						CatEq("Date", pPack->Rec.Dt).CatDiv(';', 2).CatEq("Time", pPack->Rec.Tm).CatDiv(';', 2).
 						Cat("Flags").Eq().Cat("0x").CatHex(pPack->Rec.Flags).CatDiv(';', 2).
 						CatEq("Amount", MONEYTOLDBL(pPack->Rec.Amount)).CatDiv(';', 2).
 						CatEq("Discount", MONEYTOLDBL(pPack->Rec.Discount), MKSFMTD(0, 20, NMBF_NOTRAILZ)).CR();
-					out_buf.CatChar('\t').Cat("Lines").Space().CatChar('{').CR();
+					out_buf.Tab().Cat("Lines").Space().CatChar('{').CR();
 					for(uint i = 0; pPack->EnumLines(&i, &line_rec, &serial) > 0;) {
 						double amt = pPack->GetItemAmount(line_rec);
 						running_total += amt;
@@ -895,21 +895,21 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 							double ds = line_rec.Dscnt * line_rec.Quantity;
 							cc_amount = R2(cc_amount + s - ds);
 						}
-						out_buf.CatCharN('\t', 2).CatLongZ(line_rec.GoodsID, 5).CatChar('\t').
-							Cat(line_rec.Quantity, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('\t').
-							Cat(intmnytodbl(line_rec.Price), MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('\t').
-							Cat(line_rec.Dscnt, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('\t').
-							Cat(amt, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('\t').
-							Cat(running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('\t').
+						out_buf.CatCharN('\t', 2).CatLongZ(line_rec.GoodsID, 5).Tab().
+							Cat(line_rec.Quantity, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
+							Cat(intmnytodbl(line_rec.Price), MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
+							Cat(line_rec.Dscnt, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
+							Cat(amt, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
+							Cat(running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
 							Cat(cc_amount, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CR();
 					}
-					out_buf.CatChar('\t').CatChar('}').CR();
+					out_buf.Tab().CatChar('}').CR();
 				}
 				out_buf.CR();
 				pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
 				if(p_formatter->Init(format_name, &sdc_param) > 0) {
 					running_total = 0.0;
-					out_buf.CatChar('\t').CatEq("format", format_name).CatChar('{').CR();
+					out_buf.Tab().CatEq("format", format_name).CatChar('{').CR();
 					if(sdc_param.PageWidth > 36)
 						out_buf.CatCharN('\t', 2).Cat("PageWidthOverflow").CatDiv(':', 2).Cat(sdc_param.PageWidth).CatChar('>').Cat(36).CR();
 					for(p_formatter->InitIteration(pPack); p_formatter->NextIteration(line_buf, &sl_param) > 0;) {
@@ -919,9 +919,9 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 							double _p = sl_param.Price;
 							running_total += (_q * _p);
 							prn_total_sale = 0;
-							out_buf.CatCharN('\t', 2).CatEq("Quantity", _q, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('\t').
-								CatEq("Price", _p, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('\t').
-								CatEq("RunningTotal", running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('\t').
+							out_buf.CatCharN('\t', 2).CatEq("Quantity", _q, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
+								CatEq("Price", _p, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
+								CatEq("RunningTotal", running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
 								CatEq("Line", line_buf).CR();
 						}
 						else {
@@ -949,7 +949,7 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 						msg_buf.Printf(fmt_buf, added_buf.cptr());
 						PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 					}
-					out_buf.CatChar('\t').CatChar('}').CR();
+					out_buf.Tab().CatChar('}').CR();
 				}
 				else {
 					// Ошибка инициализации формата чека

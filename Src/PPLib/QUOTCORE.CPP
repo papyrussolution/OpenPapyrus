@@ -755,7 +755,7 @@ int SLAPI PPQuotArray::DebugLog() const
 	temp_buf.Cat("QUOTARRAY").CatDiv(':', 2).Cat(GoodsID).CR();
 	for(uint i = 0; i < getCount(); i++) {
 		const PPQuot & r_q = at(i);
-		temp_buf.CatChar('\t').Cat(r_q.Kind).CatDiv(';', 2).Cat(r_q.GoodsID).CatDiv(';', 2).Cat(r_q.LocID).
+		temp_buf.Tab().Cat(r_q.Kind).CatDiv(';', 2).Cat(r_q.GoodsID).CatDiv(';', 2).Cat(r_q.LocID).
 			CatDiv(';', 2).Cat(r_q.ArID).CatDiv(';', 2).Cat(r_q.CurID).CatDiv(';', 2).Cat(r_q.PutValToStr(quot_buf = 0)).CR();
 	}
 	temp_buf.CR();

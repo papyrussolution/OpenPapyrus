@@ -14,7 +14,7 @@ TextDbFile::Param::Param(long flags, const char * pFldDiv, const char * pVertRec
 	Flags = flags;
 	FldDiv = pFldDiv;
 	if(FldDiv.Cmp("\\t", 0) == 0 || FldDiv.Cmp("tab", 0) == 0)
-		(FldDiv = 0).CatChar('\t');
+		(FldDiv = 0).Tab();
 	if(FldDiv.Strip().Empty())
 		FldDiv.Semicol();
 	VertRecTerm = pVertRecTerm;
@@ -101,7 +101,7 @@ int TextDbFile::Open(const char * pFileName, const Param * pParam, int readOnly)
 	if(pParam) {
 		P = *pParam;
 		if(P.FldDiv.Cmp("\\t", 0) == 0 || P.FldDiv.Cmp("tab", 0) == 0)
-			(P.FldDiv = 0).CatChar('\t');
+			(P.FldDiv = 0).Tab();
 	}
 	EndPos = 0;
 	CurRec = -1;

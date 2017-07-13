@@ -1201,7 +1201,7 @@ int SLAPI PPTextAnalyzer::DoReplacement(const PPTextAnalyzer::Replacer & rR, PPT
 								last_inserted_token = tokDelim;
 								break;
 							case Replacer::stTab:
-								rBuf.CatChar('\t');
+								rBuf.Tab();
 								last_inserted_token = tokDelim;
 								break;
 							case Replacer::stEmpty:
@@ -2307,7 +2307,7 @@ static int TestSignalProc(const char * pResource, int64 orgOffs, const char * pO
 {
 	TestSignalProcExtra * p_blk = (TestSignalProcExtra *)pExtraPtr;
 	if(p_blk) {
-		p_blk->OutF.WriteLine((p_blk->LineBuf = 0).Cat(pResource).CatChar('\t').Cat(pOrgStr).CatChar('\t').Cat(pSignalStr).CR());
+		p_blk->OutF.WriteLine((p_blk->LineBuf = 0).Cat(pResource).Tab().Cat(pOrgStr).Tab().Cat(pSignalStr).CR());
 	}
 	return 1;
 }
@@ -2363,7 +2363,7 @@ int SLAPI PPTextAnalyzer::Test()
 					line_buf.Chomp().Strip().ToOem().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
 					Reset(0);
 					THROW(ProcessString(rpl, 0, line_buf, result_buf, &fb, 0/*&outf*/));
-					csvf.WriteLine(line_buf.CatChar('\t').Cat(result_buf).CR());
+					csvf.WriteLine(line_buf.Tab().Cat(result_buf).CR());
 					PPWaitPercent(cntr.Increment());
 				}
 			}
@@ -2380,7 +2380,7 @@ int SLAPI PPTextAnalyzer::Test()
 		{
 			for(uint i = 0; i < GetCommCount(); i++) {
 				if(GetComm(i, item)) {
-					(line_buf = 0).CatChar('\t').Cat(item.Token).CatChar('\t').Cat(item.Text).CR();
+					(line_buf = 0).Tab().Cat(item.Token).Tab().Cat(item.Text).CR();
 					f_out.WriteLine(line_buf);
 				}
 			}
@@ -2388,7 +2388,7 @@ int SLAPI PPTextAnalyzer::Test()
 		{
 			for(uint i = 0; i < GetCount(); i++) {
 				if(Get(i, item)) {
-					(line_buf = 0).Cat(item.Resource).CatChar('\t').Cat(item.Token).CatChar('\t').Cat(item.Text).CR();
+					(line_buf = 0).Cat(item.Resource).Tab().Cat(item.Token).Tab().Cat(item.Text).CR();
 					f_out.WriteLine(line_buf);
 				}
 			}
@@ -2634,16 +2634,16 @@ int SLAPI PrcssrObjText::Init(const PPBaseFilt * pBaseFilt)
 				//
 				if(!SGetComputerName(temp_buf))
 					temp_buf = "?COMP?";
-				line_buf.CatChar('\t').Cat(temp_buf);
+				line_buf.Tab().Cat(temp_buf);
 				//
 				if(CurDict)
 					CurDict->GetDbSymb(temp_buf);
 				else
 					temp_buf = "nologin";
-				line_buf.CatChar('\t').Cat(temp_buf);
+				line_buf.Tab().Cat(temp_buf);
 				//
 				GetCurUserName(temp_buf);
-				line_buf.CatChar('\t').Cat(temp_buf);
+				line_buf.Tab().Cat(temp_buf);
 				//
 				LogF.WriteLine(line_buf.CR());
 			}
@@ -2706,7 +2706,7 @@ int SLAPI PrcssrObjText::Run()
 				THROW(r = Ta.ProcessString(*P_Rpl, resource_buf, text_buf, result_buf, &fb, 0/*&outf*/));
 				if(LogF.IsValid()) {
 					(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
-					(line_buf = 0).Cat("goods").CatChar('\t').CatChar('#').Cat(goods_rec.ID).CatChar('\t').Cat(temp_buf).CatChar('\t').Cat(result_buf).CR();
+					(line_buf = 0).Cat("goods").Tab().CatChar('#').Cat(goods_rec.ID).Tab().Cat(temp_buf).Tab().Cat(result_buf).CR();
 					LogF.WriteLine(line_buf);
 				}
 				if(r > 0 && P.Flags & P.fReplace) {
@@ -2756,7 +2756,7 @@ int SLAPI PrcssrObjText::Run()
 						THROW(r = Ta.ProcessString(*P_Rpl, resource_buf, text_buf, result_buf, &fb, 0));
 						if(LogF.IsValid()) {
 							(temp_buf = psn_item.Name).Transf(CTRANSF_INNER_TO_OUTER);
-							(line_buf = 0).Cat("person").CatChar('\t').CatChar('#').Cat(psn_id).CatChar('\t').Cat(temp_buf).CatChar('\t').Cat(result_buf).CR();
+							(line_buf = 0).Cat("person").Tab().CatChar('#').Cat(psn_id).Tab().Cat(temp_buf).Tab().Cat(result_buf).CR();
 							LogF.WriteLine(line_buf);
 						}
 						if(r > 0 && P.Flags & P.fReplace) {
@@ -2905,7 +2905,7 @@ int SLAPI PPObjectTokenizer::SearchObjects(const char * pText, PPID objType, lon
 		SString temp_buf, src_word_buf;
 		TSCollection <STokenizer::SearchBlockEntry> result;
 		if(debug_output)
-			PPLogMessage(PPFILNAM_DEBUG_LOG, (msg_buf = "SuprWareTokenizer").CatChar('\t').Cat(text), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+			PPLogMessage(PPFILNAM_DEBUG_LOG, (msg_buf = "SuprWareTokenizer").Tab().Cat(text), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 		text.ToLower().Transf(CTRANSF_INNER_TO_OUTER);
 		ClearInput();
 		Write(0, 0, text, text.Len()+1);
@@ -3855,7 +3855,7 @@ int SLAPI Test_KeywordListGenerator()
 			context_buf = "org_addr";
 			for(uint i = 0; i < 1000; i++) {
 				if(PPGenerateKeywordSequence(context_buf, word_buf, &stat) > 0) {
-					(temp_buf = 0).Cat(stat.LastRunWordCount).CatChar('\t').Cat(word_buf).CR();
+					(temp_buf = 0).Cat(stat.LastRunWordCount).Tab().Cat(word_buf).CR();
 					f_out.WriteLine(temp_buf);
 				}
 				else
@@ -3871,8 +3871,8 @@ int SLAPI Test_KeywordListGenerator()
 				const PPKeywordListGenerator::RunStatEntry & r_entry = stat.at(i);
 				temp_buf = 0;
 				g.GetWord(r_entry.WordP, word_buf = 0);
-				temp_buf.Cat(word_buf).CatChar('\t').Cat(r_entry.Count).CatChar('\t').Cat((double)r_entry.Count / (double)stat.RunCount, MKSFMTD(0, 6, 0)).
-					CatChar('\t').Cat((double)r_entry.Count / (double)stat.WordCount, MKSFMTD(0, 6, 0)).CR();
+				temp_buf.Cat(word_buf).Tab().Cat(r_entry.Count).Tab().Cat((double)r_entry.Count / (double)stat.RunCount, MKSFMTD(0, 6, 0)).
+					Tab().Cat((double)r_entry.Count / (double)stat.WordCount, MKSFMTD(0, 6, 0)).CR();
 				f_out.WriteLine(temp_buf);
 			}
 		}
@@ -3884,7 +3884,7 @@ int SLAPI Test_KeywordListGenerator()
 				{
 					(context_buf = 0).CatChar('@').CatEq("kwid", wb_rec.ID);
 					if(PPGenerateKeywordSequence(context_buf, word_buf, 0) > 0) {
-						(temp_buf = 0).Cat(context_buf).CatChar('\t').Cat(word_buf);
+						(temp_buf = 0).Cat(context_buf).Tab().Cat(word_buf);
 					}
 					else {
 						(temp_buf = "Error on context").CatDiv(':', 2).Cat(context_buf);
@@ -3894,7 +3894,7 @@ int SLAPI Test_KeywordListGenerator()
 				{
 					(context_buf = 0).CatChar('@').CatEq("kws", wb_rec.Symb);
 					if(PPGenerateKeywordSequence(context_buf, word_buf, 0) > 0) {
-						(temp_buf = 0).Cat(context_buf).CatChar('\t').Cat(word_buf);
+						(temp_buf = 0).Cat(context_buf).Tab().Cat(word_buf);
 					}
 					else {
 						(temp_buf = "Error on context").CatDiv(':', 2).Cat(context_buf);
@@ -3902,9 +3902,9 @@ int SLAPI Test_KeywordListGenerator()
 					f_out.WriteLine(temp_buf.CR());
 				}
 				{
-					(context_buf = 0).CatChar('@').CatEq("kwid", wb_rec.ID).CatChar(';').CatEq("locs", "6300000100000");
+					(context_buf = 0).CatChar('@').CatEq("kwid", wb_rec.ID).Semicol().CatEq("locs", "6300000100000");
 					if(PPGenerateKeywordSequence(context_buf, word_buf, 0) > 0) {
-						(temp_buf = 0).Cat(context_buf).CatChar('\t').Cat(word_buf);
+						(temp_buf = 0).Cat(context_buf).Tab().Cat(word_buf);
 					}
 					else {
 						(temp_buf = "Error on context").CatDiv(':', 2).Cat(context_buf);
@@ -3912,9 +3912,9 @@ int SLAPI Test_KeywordListGenerator()
 					f_out.WriteLine(temp_buf.CR());
 				}
 				{
-					(context_buf = 0).CatChar('@').CatEq("kws", wb_rec.Symb).CatChar(';').CatEq("locn", "чебоксары");
+					(context_buf = 0).CatChar('@').CatEq("kws", wb_rec.Symb).Semicol().CatEq("locn", "чебоксары");
 					if(PPGenerateKeywordSequence(context_buf, word_buf, 0) > 0) {
-						(temp_buf = 0).Cat(context_buf).CatChar('\t').Cat(word_buf);
+						(temp_buf = 0).Cat(context_buf).Tab().Cat(word_buf);
 					}
 					else {
 						(temp_buf = "Error on context").CatDiv(':', 2).Cat(context_buf);

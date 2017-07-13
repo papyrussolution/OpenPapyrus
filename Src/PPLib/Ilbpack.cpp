@@ -304,7 +304,7 @@ static SString & _MakeNSyncMsg(const ILTI * pIlti, SString & rMsgBuf, const char
 {
 	// PPTXT_SYNCLOT_ROWNSYNC       "Строка преобразована без синхронизации. Причина:"
 	SString fmt_buf;
-	(rMsgBuf = 0).CatChar('\t').Cat(pIlti->RByBill).CatDiv(',', 2).Cat(pIlti->LotSyncID).CatDiv(',', 2).Cat(pIlti->LotMirrID).
+	(rMsgBuf = 0).Tab().Cat(pIlti->RByBill).CatDiv(',', 2).Cat(pIlti->LotSyncID).CatDiv(',', 2).Cat(pIlti->LotMirrID).
 		CatDiv(',', 2).Cat(pIlti->GoodsID);
 	PPLoadText(PPTXT_SYNCLOT_ROWNSYNC, fmt_buf);
 	fmt_buf.Space();

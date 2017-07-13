@@ -2196,7 +2196,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 							THROW(tra);
 							for(uint i = 0; i < blk.List.getCount(); i++) {
 								const ImageFileBlock::Entry & r_entry = blk.List.at(i);
-								(line_buf = 0).Cat(GetGoodsName(r_entry.GoodsID, temp_buf2)).CatChar('\t');
+								(line_buf = 0).Cat(GetGoodsName(r_entry.GoodsID, temp_buf2)).Tab();
 								blk.GetS(r_entry.FnP, temp_buf2);
 								line_buf.Cat(temp_buf2).CR();
 								listf.WriteLine(line_buf);
@@ -2265,7 +2265,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 							uint   idx_first = 0, idx_count = 0;
 							PROFILE(THROW_SL(text_analyzer2.Write(temp_buf2, 0, goods_name, goods_name.Len()+1)));
 							PROFILE(THROW_SL(text_analyzer2.Run(&idx_first, &idx_count)));
-							(msg_buf = goods_name).CatChar('\t');
+							(msg_buf = goods_name).Tab();
 							for(j = 0; j < idx_count; j++) {
 								if(text_analyzer2.Get(idx_first+j, text_analyzer_item)) {
 									msg_buf.Cat(text_analyzer_item.Text);
@@ -2273,7 +2273,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 							}
 							for(j = 0; j < idx_count; j++) {
 								if(text_analyzer2.Get(idx_first+j, text_analyzer_item)) {
-									msg_buf.CatChar('\t').Cat(text_analyzer_item.Text);
+									msg_buf.Tab().Cat(text_analyzer_item.Text);
 								}
 							}
 							f_out_name.WriteLine(msg_buf.CR());
@@ -2284,8 +2284,8 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 						SymbHashTable::Stat stat;
 						text_analyzer2.GetSymbHashStat(stat);
 						(msg_buf = "SymbHashTable Statistics").CatDiv(':', 2);
-	#define CATSTATFLD(f) msg_buf.CatEq(#f, (ulong)stat.f).CatChar('\t')
-	#define CATSTATFLD_REAL(f) msg_buf.CatEq(#f, stat.f, MKSFMTD(0, 1, 0)).CatChar('\t')
+	#define CATSTATFLD(f) msg_buf.CatEq(#f, (ulong)stat.f).Tab()
+	#define CATSTATFLD_REAL(f) msg_buf.CatEq(#f, stat.f, MKSFMTD(0, 1, 0)).Tab()
 						CATSTATFLD(NumEntries);
 						CATSTATFLD(CountEmpty);
 						CATSTATFLD(CountSingle);

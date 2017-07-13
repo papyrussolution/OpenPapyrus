@@ -2111,6 +2111,7 @@ PPCFM_UPDBILLAFTERFRNMOD   "Документ был модифицирован �
 PPCFM_CLEARINNEREGAISDB    "Вы уверены, что хотите очистить внутреннюю базу данных объектов @{brand_egais}?"
 PPCFM_REMOVEALLWORKBOOK    "Вы уверены, что хотите удалить все записи рабочих книг?"
 PPCFM_PRINTIMAGE           "Распечатать изображение?"
+PPCFM_SETCCASSPFINISHED    "Пометить чек '%s' как финишированный?"
 
 [103]
 
@@ -4470,6 +4471,7 @@ PPTXT_EGAIS_RESTSACCEPTED      "Отчет об остатках @{brand_egais} 
 PPTXT_EGAIS_RECADVCFMACCEPTED  "Для ТТН @{brand_egais} '%s' выполнено подтверждение RECADV"
 PPTXT_EGAIS_RECADVCFMREJECTED  "Подтверждение RECADV для ТТН @{brand_egais} '%s' отклонено сервером @{brand_egais}"
 PPTXT_EGAIS_REGRADING     /!/  "Пересортица"
+PPTXT_EGAIS_LACK          /!/  "Недостача"
 PPTXT_EGAIS_QP_INN        /!/  "ИНН"
 PPTXT_EGAIS_QP_CIO        /!/  "СИО"
 PPTXT_EGAIS_QP_KOD        /!/  "КОД"
@@ -7403,7 +7405,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccheck_cchkf_sync                        "Синхронная сессия"
 @ccheck_cchkf_transmit                    "Перемещен из другого раздела БД"
 @ccheck_cchkf_zcheck                      "Z-отчет"
-@ccheck_cchkf_spfinished                  "Специальный финишный признак"
+@ccheck_cchkf_spfinished                  "Финишированный чек"
 @ccheck_code                              "@{code}"
 @ccheck_discount                          "@{discount}"
 @ccheck_dt                                "@{date}"

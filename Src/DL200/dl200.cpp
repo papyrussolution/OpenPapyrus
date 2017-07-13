@@ -2149,7 +2149,7 @@ SLTEST_R(DL200_Account)
 		sc2.Init(&dl2_ctx);
 		sc2.GetFromStr(temp_buf, &(offs = 0));
 		ci.ToString(temp_buf2, sizeof(temp_buf2));
-		(out_buf = 0).Cat(strings[i]).CatChar('\t').Cat(temp_buf).CatChar('\t').Cat(temp_buf2).CR();
+		(out_buf = 0).Cat(strings[i]).Tab().Cat(temp_buf).Tab().Cat(temp_buf2).CR();
 		out.WriteLine(out_buf);
 		SLTEST_CHECK_Z(stricmp(temp_buf, temp_buf2));
 	}

@@ -563,7 +563,7 @@ int SLAPI StringStore2::StoreState(const char * pFileName)
     for(i = 0; i < P_Pb->LastAutoCodeList.getCount(); i++) {
 		const LAssoc & r_item = P_Pb->LastAutoCodeList.at(i);
 		if(i)
-			temp_buf.CatChar(';');
+			temp_buf.Semicol();
 		temp_buf.Cat((uint32)r_item.Key).CatChar(',').Cat((uint32)r_item.Val);
     }
     ini_file.AppendParam("common", "LastAutoCodeList", temp_buf, 1);

@@ -538,7 +538,7 @@ int PPTex2HtmlPrcssr::Helper_Debug_OutputTextBlock(const PPTex2HtmlPrcssr::TextB
 	SString line_buf;
 	if(pBlk->Type == TextBlock::tParagraph) {
 		if(!noPrefix)
-			(line_buf = ":paragraph").CatChar('\t');
+			(line_buf = ":paragraph").Tab();
 		else
 			line_buf = 0;
 		line_buf.Cat(pBlk->Text).CR();
@@ -546,7 +546,7 @@ int PPTex2HtmlPrcssr::Helper_Debug_OutputTextBlock(const PPTex2HtmlPrcssr::TextB
 	}
 	else if(pBlk->Type == TextBlock::tContinuation) {
 		if(!noPrefix)
-			(line_buf = ":continuation").CatChar('\t');
+			(line_buf = ":continuation").Tab();
 		else
 			line_buf = 0;
 		line_buf.Cat(pBlk->Text).CR();
@@ -554,7 +554,7 @@ int PPTex2HtmlPrcssr::Helper_Debug_OutputTextBlock(const PPTex2HtmlPrcssr::TextB
 	}
 	else if(pBlk->Type == TextBlock::tCommand) {
 		if(!noPrefix)
-			(line_buf = ":command").CatChar('\t');
+			(line_buf = ":command").Tab();
 		else
 			line_buf = 0;
 		line_buf.Cat(pBlk->Text).CR();
@@ -1197,7 +1197,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 					WriteText(rOut, (line_buf = 0).CatTagBrace("br", 0));
 				}
 				else if(p_blk->Text.CmpNC("indent") == 0) {
-					WriteText(rOut, (line_buf = 0).CatChar('\t'));
+					WriteText(rOut, (line_buf = 0).Tab());
 				}
 				else if(p_blk->Text.CmpNC("sum") == 0) {
 					WriteText(rOut, line_buf = "&Sigma;");
@@ -1233,7 +1233,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 				else if(p_blk->Text.CmpNC("symbol") == 0) {
 					if(p_first_brc_arg) {
 						long sc = p_first_brc_arg->Text.ToLong();
-						(line_buf = 0).CatChar('&').CatChar('#').Cat(sc).CatChar(';');
+						(line_buf = 0).CatChar('&').CatChar('#').Cat(sc).Semicol();
 						WriteText(rOut, line_buf);
 					}
 				}
@@ -1428,17 +1428,17 @@ int PPTex2HtmlPrcssr::OutputStyles(SFile & rOut)
 	(line_buf = 0).CatChar('<').Cat("style").Space().CatEq("type", temp_buf).CatChar('>');
 
 		line_buf.Space().CatChar('.').Cat("ppynote").Space().CatChar('{').Space();
-		line_buf.Cat("width").CatDiv(':', 2).Cat("600px").CatChar(';');
-		line_buf.Cat("background").CatDiv(':', 2).Cat("#ccc").CatChar(';');
-		line_buf.Cat("border").CatDiv(':', 2).Cat("solid lpx black").CatChar(';');
-		//line_buf.Cat("float").CatDiv(':', 2).Cat("left").CatChar(';');
+		line_buf.Cat("width").CatDiv(':', 2).Cat("600px").Semicol();
+		line_buf.Cat("background").CatDiv(':', 2).Cat("#ccc").Semicol();
+		line_buf.Cat("border").CatDiv(':', 2).Cat("solid lpx black").Semicol();
+		//line_buf.Cat("float").CatDiv(':', 2).Cat("left").Semicol();
 		line_buf.CatChar('}');
 
 		line_buf.Space().CatChar('.').Cat("ppyexample").Space().CatChar('{').Space();
-		line_buf.Cat("width").CatDiv(':', 2).Cat("800px").CatChar(';');
-		line_buf.Cat("background").CatDiv(':', 2).Cat("#ccc").CatChar(';');
-		line_buf.Cat("border").CatDiv(':', 2).Cat("solid lpx black").CatChar(';');
-		//line_buf.Cat("float").CatDiv(':', 2).Cat("left").CatChar(';');
+		line_buf.Cat("width").CatDiv(':', 2).Cat("800px").Semicol();
+		line_buf.Cat("background").CatDiv(':', 2).Cat("#ccc").Semicol();
+		line_buf.Cat("border").CatDiv(':', 2).Cat("solid lpx black").Semicol();
+		//line_buf.Cat("float").CatDiv(':', 2).Cat("left").Semicol();
 		line_buf.CatChar('}');
 
 	line_buf.CatTagBrace("style", 1).CR();
@@ -2105,20 +2105,20 @@ int PPVer2HtmlPrcssr::Debug_Output(const char * pOutputFileName)
 			for(Paragraph * p_para = p_entry->P_Body; p_para; p_para = p_para->P_Next) {
 				line_buf = 0;
                 if(p_para->Type == p_para->tRegular) {
-                	line_buf.CatChar('\t');
+                	line_buf.Tab();
 					if(p_para->Flags & p_para->fExclam)
 						line_buf.CatChar('!');
 					line_buf.CatChar('-');
                 }
                 else if(p_para->Type == p_para->tAttention) {
-                	line_buf.CatChar('\t');
+                	line_buf.Tab();
 					line_buf.Cat("ATTENTION!");
                 }
                 else {
-                	line_buf.CatChar('\t');
+                	line_buf.Tab();
 					line_buf.Cat("INVALID PARAGRAPH TYPE!");
                 }
-                line_buf.CatChar('\t').Cat(p_para->Text);
+                line_buf.Tab().Cat(p_para->Text);
 				f_out.WriteLine(line_buf);
 			}
 		}

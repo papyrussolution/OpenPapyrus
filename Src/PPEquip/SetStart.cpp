@@ -315,7 +315,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 						f_str.Cat(info.Rec.Code).Semicol(); // #8 Конец диапазона префиксов
 						f_str.Cat(NZOR(info.Rec.Dt, encodedate(1, 1, 2000)), DATF_GERMAN | DATF_CENTURY).Semicol();     // #09 Начальная дата действия сертификата
 						f_str.Cat(NZOR(info.Rec.Expiry, encodedate(1, 1, 3000)), DATF_GERMAN | DATF_CENTURY).Semicol(); // #10 Конечная дата действия сертификата
-						f_str.CatChar(';');                       // #11 Не используется //
+						f_str.Semicol();                       // #11 Не используется //
 						f_str.Cat((long)R0(info.Rest)).Semicol(); // #12 Конец диапазона длин сертификатов
 						f_str.Cat(info.IsClosed ? 0 : 1).Semicol();  // #13 Passive | Active
 						f_str.CR();
@@ -527,7 +527,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 				alc_goods_list.sortAndUndup();
 				fputs((f_str = "$$$ADDCLASSIFIERLINKS").CR(), p_file);
 				for(i = 0; i < alc_goods_list.getCount(); i++) {
-					(f_str = 0).Cat(gc_alc_code).CatChar(';').Cat(1L).CatChar(';').Cat(alc_goods_list.get(i)).CR();
+					(f_str = 0).Cat(gc_alc_code).Semicol().Cat(1L).Semicol().Cat(alc_goods_list.get(i)).CR();
 					fputs(f_str, p_file);
 				}
 			}

@@ -271,22 +271,21 @@ IMPL_HANDLE_EVENT(BankingOrderDialog)
 	else if(event.isCbSelected(CTLSEL_BNKPAYM_RCVRACC))
 		setupBnkAcc(1, getCtrlLong(CTLSEL_BNKPAYM_RCVRACC));
 	else if(TVCOMMAND && TVCMD == cmCtlColor) {
-			TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
-			if(p_dc && oneof2(p_dc->H_Ctl, getCtrlHandle(CTL_BNKPAYM_PAYERACC), getCtrlHandle(CTL_BNKPAYM_RCVRACC))) {
-				int valid_code = (p_dc->H_Ctl == getCtrlHandle(CTL_BNKPAYM_PAYERACC)) ? PayerValidCode : RcvrValidCode;
-				if(valid_code > 0) {
-					::SetBkMode(p_dc->H_DC, TRANSPARENT);
-					p_dc->H_Br = (HBRUSH)Ptb.Get(brushValidNumber);
-				}
-				else {
-					::SetBkMode(p_dc->H_DC, TRANSPARENT);
-					p_dc->H_Br = (HBRUSH)Ptb.Get(brushInvalidNumber);
-				}
+		TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+		if(p_dc && oneof2(p_dc->H_Ctl, getCtrlHandle(CTL_BNKPAYM_PAYERACC), getCtrlHandle(CTL_BNKPAYM_RCVRACC))) {
+			int valid_code = (p_dc->H_Ctl == getCtrlHandle(CTL_BNKPAYM_PAYERACC)) ? PayerValidCode : RcvrValidCode;
+			if(valid_code > 0) {
+				::SetBkMode(p_dc->H_DC, TRANSPARENT);
+				p_dc->H_Br = (HBRUSH)Ptb.Get(brushValidNumber);
 			}
-			else
-				return;
+			else {
+				::SetBkMode(p_dc->H_DC, TRANSPARENT);
+				p_dc->H_Br = (HBRUSH)Ptb.Get(brushInvalidNumber);
+			}
 		}
-
+		else
+			return;
+	}
 	else if(TVBROADCAST && TVCMD == cmChangedFocus && TVINFOVIEW) {
 		if(event.isCtlEvent(CTL_BNKPAYM_VATRATE) || event.isCtlEvent(CTL_BNKPAYM_AMOUNT))
 			setupVAT();

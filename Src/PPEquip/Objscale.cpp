@@ -2067,28 +2067,28 @@ int SLAPI COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 		00000110;   1;           1;             1;             0;11050;   0;00000110;25.11.2011 16:30:00;         0;           ;    0;        0;Грильяж в шоколаде;       ;        1;2000001914014
 		*/
 			SString line_buf;
-			line_buf.Cat(pScalePLU->GoodsNo).CatChar(';');
-			line_buf.CatChar('1').CatChar(';'); // type 1 - весовой, 0 - штучный
-			line_buf.CatChar('1').CatChar(';'); // label_number
-			line_buf.CatChar('1').CatChar(';'); // barcode_number
-			line_buf.Cat(wght_prefix).CatChar(';'); // barcode_prefix
-			line_buf.Cat(R2(pScalePLU->Price) * 100.0).CatChar(';'); // price
-			line_buf.CatChar('0').CatChar(';'); // tare
-			line_buf.CatChar(pScalePLU->GoodsID).CatChar(';'); // code
+			line_buf.Cat(pScalePLU->GoodsNo).Semicol();
+			line_buf.CatChar('1').Semicol(); // type 1 - весовой, 0 - штучный
+			line_buf.CatChar('1').Semicol(); // label_number
+			line_buf.CatChar('1').Semicol(); // barcode_number
+			line_buf.Cat(wght_prefix).Semicol(); // barcode_prefix
+			line_buf.Cat(R2(pScalePLU->Price) * 100.0).Semicol(); // price
+			line_buf.CatChar('0').Semicol(); // tare
+			line_buf.CatChar(pScalePLU->GoodsID).Semicol(); // code
 			if(expiry_minutes) {
 				(temp_buf = 0).Cat(expiry, DATF_GERMAN|DATF_CENTURY).Space().Cat(encodetime(23, 0, 0, 0), TIMF_HMS);
 			}
 			else
 				temp_buf = 0;
-			line_buf.Cat(temp_buf).CatChar(';'); // best_before
-			line_buf.CatChar('0').CatChar(';'); // shelf_life
-			line_buf.CatChar(';'); // certificate
-			line_buf.CatChar('0').CatChar(';'); // group
-			line_buf.CatChar('0').CatChar(';'); // CENTERING
-			line_buf.Cat(goods_name.Transf(CTRANSF_INNER_TO_OUTER)).CatChar(';'); // NAME
-			line_buf.Cat("").CatChar(';'); // CONTENT
-			line_buf.CatChar('0').CatChar(';'); // INFO_TYPE
-			line_buf.CatChar(';'); // INFO
+			line_buf.Cat(temp_buf).Semicol(); // best_before
+			line_buf.CatChar('0').Semicol(); // shelf_life
+			line_buf.Semicol(); // certificate
+			line_buf.CatChar('0').Semicol(); // group
+			line_buf.CatChar('0').Semicol(); // CENTERING
+			line_buf.Cat(goods_name.Transf(CTRANSF_INNER_TO_OUTER)).Semicol(); // NAME
+			line_buf.Cat("").Semicol(); // CONTENT
+			line_buf.CatChar('0').Semicol(); // INFO_TYPE
+			line_buf.Semicol(); // INFO
 			P_Csv->WriteLine(line_buf.CR());
 		}
 	}
@@ -4092,8 +4092,8 @@ int SLAPI ShtrihCE::CloseConnection()
 				for(uint i = 0; i < MsgResLines.getCount(); i++) {
 					StrAssocArray::Item item = MsgResLines.at(i);
 					(line_buf = 0).Cat("<R").Space();
-					line_buf.Cat(item.Id).CatChar(';');
-					line_buf.Cat((long)1).CatChar(';');
+					line_buf.Cat(item.Id).Semicol();
+					line_buf.Cat((long)1).Semicol();
 					line_buf.CatCharN(';', 19);          // #3-#21
 					line_buf.Cat(item.Txt);              // #22
 					line_buf.CR();
@@ -4155,24 +4155,24 @@ $$$RPL
 		SString line_buf, temp_buf;
 		StringSet ext_lines;
 		line_buf.Cat("<D").Space();
-        line_buf.Cat(pScalePLU->GoodsID).CatChar(';');                    // #1
+        line_buf.Cat(pScalePLU->GoodsID).Semicol();                    // #1
 		temp_buf = pScalePLU->Barcode;
 		if(temp_buf.Len() > 5)
 			temp_buf.ShiftLeft(temp_buf.Len() - 5);
-        line_buf.Cat(temp_buf).CatChar(';');                    // #2
+        line_buf.Cat(temp_buf).Semicol();                    // #2
 		(temp_buf = pScalePLU->GoodsName).Transf(CTRANSF_INNER_TO_OUTER);
-        line_buf.Cat(temp_buf).CatChar(';');                  // #3
-        line_buf.CatChar(pScalePLU->fCountable ? '1' : '0').CatChar(';'); // #4
-		line_buf.Cat(pScalePLU->Price, MKSFMTD(0, 2, 0)).CatChar(';');    // #5
+        line_buf.Cat(temp_buf).Semicol();                  // #3
+        line_buf.CatChar(pScalePLU->fCountable ? '1' : '0').Semicol(); // #4
+		line_buf.Cat(pScalePLU->Price, MKSFMTD(0, 2, 0)).Semicol();    // #5
 		line_buf.CatCharN(';', 6);                                        // #6-#11
 		const long   numdays = diffdate(pScalePLU->Expiry, getcurdate_());
 		if(numdays > 0 && numdays <= 366)
 			line_buf.Cat(numdays);
-		line_buf.CatChar(';');                                            // #12
-		line_buf.CatChar(';');                                            // #13 Дата реализации
+		line_buf.Semicol();                                            // #12
+		line_buf.Semicol();                                            // #13 Дата реализации
 		line_buf.CatCharN(';', 8);                                        // #14-#21
-		line_buf.CatChar(';');                                            // #22 Сертификат
-		line_buf.CatChar(';');                                            // #23 Масса тары
+		line_buf.Semicol();                                            // #22 Сертификат
+		line_buf.Semicol();                                            // #23 Масса тары
 		line_buf.CatCharN(';', 6);                                        // #24-#29
 		if(GetAddedMsgLines(pScalePLU, 255, 1, 0, ext_lines)) {
             ext_lines.get((uint)0, temp_buf);
@@ -4182,8 +4182,8 @@ $$$RPL
 				line_buf.Cat(pScalePLU->GoodsID);
 			}
 		}
-		line_buf.CatChar(';');                                            // #30 Номер сообщения
-		line_buf.CatChar(';');                                            // #31 Код файла картинки
+		line_buf.Semicol();                                            // #30 Номер сообщения
+		line_buf.Semicol();                                            // #31 Код файла картинки
 		// none line_buf.Cat(FixedMsgResID);                                      // #32 Идентификатор ресурса сообщений
 		P_FOut->WriteLine(line_buf.CR());
 	}

@@ -69,14 +69,14 @@ int SLAPI EditSearchReplaceParam(SSearchReplaceParam * pData)
 //
 SScEditorBase::SScEditorBase()
 {
-	Init(0);
+	Init(0, 0);
 }
 
-void SScEditorBase::Init(HWND hScW)
+void SScEditorBase::Init(HWND hScW, int preserveFileName)
 {
 	P_SciFn = 0;
 	P_SciPtr = 0;
-	Doc.Reset();
+	Doc.Reset(preserveFileName);
 	if(hScW) {
 		P_SciFn  = (int (__cdecl *)(void *, int, int, int))SendMessage(hScW, SCI_GETDIRECTFUNCTION, 0, 0);
 		P_SciPtr = (void *)SendMessage(hScW, SCI_GETDIRECTPOINTER, 0, 0);
@@ -89,7 +89,7 @@ int SScEditorBase::Release()
 	if(Doc.SciDoc) {
 		CallFunc(SCI_CLEARALL, 0, 0);
 		CallFunc(SCI_RELEASEDOCUMENT, 0, (int)Doc.SciDoc);
-		Doc.Reset();
+		Doc.Reset(0);
 		ok = 1;
 	}
 	return ok;
@@ -254,14 +254,15 @@ STextBrowser::Document::Document()
 	SciDoc = 0;
 }
 
-STextBrowser::Document & STextBrowser::Document::Reset()
+STextBrowser::Document & FASTCALL STextBrowser::Document::Reset(int preserveFileName)
 {
 	OrgCp = cpUndef;
 	Cp = cpUndef;
 	Eolf = eolUndef;
 	State = 0;
 	SciDoc = 0;
-	FileName = 0;
+	if(!preserveFileName)
+		FileName = 0;
 	return *this;
 }
 
@@ -335,7 +336,7 @@ TBaseBrowserWindow::IdentBlock & STextBrowser::GetIdentBlock(TBaseBrowserWindow:
 
 int STextBrowser::Init(const char * pFileName, int toolbarId)
 {
-	SScEditorBase::Init(0);
+	SScEditorBase::Init(0, 0);
 	OrgScintillaWndProc = 0;
 	SysState = 0;
 	Doc.FileName = pFileName;
@@ -719,7 +720,7 @@ int STextBrowser::WMHCreate()
 	}
 	HwndSci = ::CreateWindowEx(WS_EX_CLIENTEDGE, _T("Scintilla"), _T(""), WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_CLIPCHILDREN,
 		0, ToolBarWidth, rc.right - rc.left, rc.bottom - rc.top, H(), 0/*(HMENU)GuiID*/, APPL->GetInst(), NULL);
-	SScEditorBase::Init(HwndSci);
+	SScEditorBase::Init(HwndSci, 1/*preserveFileName*/);
 	TView::SetWindowProp(HwndSci, GWLP_USERDATA, this);
 	OrgScintillaWndProc = (WNDPROC)TView::SetWindowProp(HwndSci, GWLP_WNDPROC, ScintillaWindowProc);
 	// @v8.6.2 (SCI_SETKEYSUNICODE deprecated in sci 3.5.5) CallFunc(SCI_SETKEYSUNICODE, 1, 0);
@@ -1074,7 +1075,7 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 		}
 	}
 	CATCH
-		Doc.Reset();
+		Doc.Reset(0);
 		ok = 0;
 	ENDCATCH
 	return ok;

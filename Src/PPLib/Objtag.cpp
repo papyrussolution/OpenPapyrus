@@ -49,7 +49,7 @@ int FASTCALL TagFilt::SetRestrictionIdList(SString & rRestrictionBuf, const PPID
 		rRestrictionBuf.Cat(P_ListTagValRestrict).CatChar(':');
 		for(uint i = 0; i < _c; i++) {
 			if(i)
-				rRestrictionBuf.CatChar(';');
+				rRestrictionBuf.Semicol();
 			rRestrictionBuf.Cat(rList.get(i));
 		}
 		ok = 2;

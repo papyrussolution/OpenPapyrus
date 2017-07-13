@@ -318,6 +318,7 @@ int CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack) const
 		Eccd.Memo.CopyTo(pPack->Ext.Memo, sizeof(pPack->Ext.Memo));
 		SETFLAG(pPack->Rec.Flags, CCHKF_DELIVERY,   Eccd.Flags & Eccd.fDelivery);
 		SETFLAG(pPack->Rec.Flags, CCHKF_FIXEDPRICE, Eccd.Flags & Eccd.fFixedPrice); // @v8.7.7
+		SETFLAG(pPack->Rec.Flags, CCHKF_SPFINISHED, Eccd.Flags & Eccd.fSpFinished); // @v9.7.7
 		if(Eccd.Flags & Eccd.fDelivery) {
 			pPack->SetDlvrAddr(&Eccd.Addr_);
 			pPack->Ext.StartOrdDtm = Eccd.DlvrDtm;
@@ -1259,6 +1260,7 @@ int CPosProcessor::SetupExt(const CCheckPacket * pPack)
 		P.Eccd.Memo = pPack->Ext.Memo;
 		SETFLAG(P.Eccd.Flags, P.Eccd.fDelivery,   pPack->Rec.Flags & CCHKF_DELIVERY);
 		SETFLAG(P.Eccd.Flags, P.Eccd.fFixedPrice, pPack->Rec.Flags & CCHKF_FIXEDPRICE); // @v8.7.7
+		SETFLAG(P.Eccd.Flags, P.Eccd.fSpFinished, pPack->Rec.Flags & CCHKF_SPFINISHED); // @v9.7.7
 		if(pPack->Ext.AddrID) {
 			LocationTbl::Rec loc_rec;
 			if(PsnObj.LocObj.Search(pPack->Ext.AddrID, &loc_rec) > 0) {
@@ -2377,7 +2379,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 			if(mode == accmRegular && P_CM_EXT) {
 				epb.Pack._Cash = MONEYTOLDBL(epb.Pack.Rec.Amount);
 				// @v9.6.11 epb.IsExtPack = BIN(epb.ExtPack.GetCount());
-				SETFLAG(epb.Flags, epb.fIsExtPack, epb.ExtPack.GetCount()); // @v9.6.11 
+				SETFLAG(epb.Flags, epb.fIsExtPack, epb.ExtPack.GetCount()); // @v9.6.11
 				if(epb.Flags & epb.fIsExtPack) {
 					double amt, dscnt;
 					GetNewCheckCode(ExtCashNodeID, &epb.ExtPack.Rec.Code);
@@ -2404,7 +2406,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 			}
 		}
 		// @v9.6.11 epb.IsPack = BIN(epb.Pack.GetCount());
-		SETFLAG(epb.Flags, epb.fIsPack, epb.Pack.GetCount()); // @v9.6.11 
+		SETFLAG(epb.Flags, epb.fIsPack, epb.Pack.GetCount()); // @v9.6.11
 		if(mode == accmJunk) {
 			THROW(StoreCheck(&epb.Pack, 0, mode));
 		}
@@ -2656,6 +2658,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 				}
 			}
 			SETFLAG(pPack->Rec.Flags, CCHKF_FIXEDPRICE, P.Eccd.Flags & P.Eccd.fFixedPrice); // @v8.7.7
+			SETFLAG(pPack->Rec.Flags, CCHKF_SPFINISHED, P.Eccd.Flags & P.Eccd.fSpFinished); // @v9.7.7
 			pPack->Ext.CreationDtm = P.Eccd.InitDtm;
 			SETFLAG(pPack->Rec.Flags, CCHKF_EXT, pPack->HasExt()); // @v9.4.5
 			SETIFZ(pPack->Rec.Dt, dtm.d);
@@ -4587,6 +4590,7 @@ private:
 	long   LastChkNo;
 	PPID   LastChkID;
 	LDATE  LastDate;
+
 	enum {
 		stTblOrders        = 0x0001,
 		stInputUpdated     = 0x0002,
@@ -4719,6 +4723,7 @@ int SelCheckListDialog::setupList()
 		LastDate  = dt;
 	}
 	if(ChkList.getCount()) {
+		SmartListBox * p_list = (SmartListBox *)getCtrlView(CTL_SELCHECK_LIST);
 		SString temp_buf;
 		StringSet  ss(SLBColumnDelim);
 		for(i = 0; i < ChkList.getCount(); i++) {
@@ -4728,6 +4733,16 @@ int SelCheckListDialog::setupList()
 			dtm.Set(r_chk_rec.Dt, r_chk_rec.Tm);
 			if(!(State & stTblOrders)) {
 				ss.add((temp_buf = 0).Cat(dtm, DATF_DMY, TIMF_HMS));
+				/*
+				if(p_item->Flags & cifGift)
+					p_list->def->SetItemColor(i, SClrBlack, SClrGreen);
+				*/
+				if(r_chk_rec.Flags & CCHKF_JUNK) {
+					p_list->def->SetItemColor(r_chk_rec.ID, SClrBlack, SClrOrange);
+				}
+				else if(!(r_chk_rec.Flags & CCHKF_SUSPENDED)) {
+					p_list->def->SetItemColor(r_chk_rec.ID, SClrBlack, SClrYellow);
+				}
 				{
 					temp_buf = 0;
 					if(r_chk_rec.Flags & CCHKF_JUNK)
@@ -5349,6 +5364,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 			}
 			setCtrlString(CTL_CCHKDLVR_MEMO, Data.Memo);
 			AddClusterAssoc(CTL_CCHKDLVR_FLAGS, 0, Data.fDelivery);
+			AddClusterAssoc(CTL_CCHKDLVR_FLAGS, 1, Data.fSpFinished); // @v9.7.7
 			SetClusterData(CTL_CCHKDLVR_FLAGS, Data.Flags);
 			SetupPPObjCombo(this, CTLSEL_CCHKDLVR_CITY, PPOBJ_WORLD, NZOR(Data.Addr_.CityID, 0/*DefCityID*/),
 				0/*OLW_LOADDEFONOPEN*/, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
@@ -7344,7 +7360,6 @@ int CheckPaneDialog::SelectSuspendedCheck()
 		PPObjArticle ar_obj;
 		ArticleTbl::Rec ar_rec;
 		TSArray <CCheckViewItem> list;
-		CCheckFilt cc_filt;
 		SelCheckListDialog::AddedParam param(/* @v8.4.3 CashNodeID*/0, P.TableCode, single_agent_id, OperRightsFlags);
 		THROW(InitCcView());
 		const uint dlg_id = (DlgFlags & fLarge) ? DLG_SELSUSCHECK_L : DLG_SELSUSCHECK;
@@ -7352,31 +7367,61 @@ int CheckPaneDialog::SelectSuspendedCheck()
 		Flags |= fSuspSleepTimeout;
 		THROW(CheckDialogPtr(&dlg));
 		do {
-			cc_filt.Period.low = plusdate(getcurdate_(), (Scf.DaysPeriod > 0) ? -Scf.DaysPeriod : -7);
-			cc_filt.Flags |= (CCheckFilt::fSuspendedOnly | CCheckFilt::fShowSuspended);
-			cc_filt.Flags |= CCheckFilt::fLostJunkAsSusp; // @v8.2.12
-			//cc_filt.CashNodeID = CashNodeID;
-			cc_filt.TableCode = P.TableCode;
-			cc_filt.AgentID = single_agent_id;
+			const int do_filter_by_node = 0;
 			list.clear();
-			if(P_CcView->Init_(&cc_filt)) {
-				CCheckViewItem item;
-				for(P_CcView->InitIteration(0); P_CcView->NextIteration(&item) > 0;) {
-					if(Scf.DlvrItemsShowTag < 0) {
-						if(item.Flags & CCHKF_DELIVERY)
+			{
+				CCheckFilt cc_filt;
+				cc_filt.Period.low = plusdate(getcurdate_(), (Scf.DaysPeriod > 0) ? -Scf.DaysPeriod : -7);
+				cc_filt.Flags |= (CCheckFilt::fSuspendedOnly | CCheckFilt::fShowSuspended);
+				cc_filt.Flags |= CCheckFilt::fLostJunkAsSusp; // @v8.2.12
+				if(do_filter_by_node)
+					cc_filt.NodeList.Add(CashNodeID);
+				cc_filt.TableCode = P.TableCode;
+				cc_filt.AgentID = single_agent_id;
+				if(P_CcView->Init_(&cc_filt)) {
+					CCheckViewItem item;
+					for(P_CcView->InitIteration(0); P_CcView->NextIteration(&item) > 0;) {
+						if(Scf.DlvrItemsShowTag < 0) {
+							if(item.Flags & CCHKF_DELIVERY)
+								continue;
+						}
+						else if(Scf.DlvrItemsShowTag > 0) {
+							if(!(item.Flags & CCHKF_DELIVERY))
+								continue;
+						}
+						if(!single_agent_id && item.AgentID && ar_obj.Fetch(item.AgentID, &ar_rec) > 0 && (ar_rec.Flags & ARTRF_STOPBILL)) // @v9.0.8
 							continue;
+						list.insert(&item);
 					}
-					else if(Scf.DlvrItemsShowTag > 0) {
-						if(!(item.Flags & CCHKF_DELIVERY))
-							continue;
-					}
-					// @v9.0.8 {
-					if(!single_agent_id && item.AgentID && ar_obj.Fetch(item.AgentID, &ar_rec) > 0 && (ar_rec.Flags & ARTRF_STOPBILL))
-						continue;
-					// } @v9.0.8
-					list.insert(&item);
 				}
 			}
+			// @v9.7.7 {
+			if(Scf.Flags & Scf.fNotSpFinished) {
+				CCheckFilt cc_filt;
+				cc_filt.Period.low = plusdate(getcurdate_(), (Scf.DaysPeriod > 0) ? -Scf.DaysPeriod : -7);
+				cc_filt.Flags |= (CCheckFilt::fNotSpFinished|CCheckFilt::fLostJunkAsSusp);
+				if(do_filter_by_node)
+					cc_filt.NodeList.Add(CashNodeID);
+				cc_filt.TableCode = P.TableCode;
+				cc_filt.AgentID = single_agent_id;
+				if(P_CcView->Init_(&cc_filt)) {
+					CCheckViewItem item;
+					for(P_CcView->InitIteration(0); P_CcView->NextIteration(&item) > 0;) {
+						if(Scf.DlvrItemsShowTag < 0) {
+							if(item.Flags & CCHKF_DELIVERY)
+								continue;
+						}
+						else if(Scf.DlvrItemsShowTag > 0) {
+							if(!(item.Flags & CCHKF_DELIVERY))
+								continue;
+						}
+						if(!single_agent_id && item.AgentID && ar_obj.Fetch(item.AgentID, &ar_rec) > 0 && (ar_rec.Flags & ARTRF_STOPBILL)) // @v9.0.8
+							continue;
+						list.insert(&item);
+					}
+				}
+			}
+			// } @v9.7.7
 			dlg->setList(list);
 			if(ExecView(dlg) == cmOK) {
 				_SelCheck  sel_chk;
@@ -7386,6 +7431,22 @@ int CheckPaneDialog::SelectSuspendedCheck()
 						if(cc_rec.Flags & CCHKF_SUSPENDED && (!(cc_rec.Flags & CCHKF_JUNK) || CC.IsLostJunkCheck(sel_chk.CheckID, &SessUUID, 0))) {
 							chk_id = sel_chk.CheckID;
 							ok = 1;
+						}
+						else if(!(cc_rec.Flags & CCHKF_SPFINISHED)) {
+							CCheckCore::MakeCodeString(&cc_rec, msg_buf);
+							if(CONFIRM_S(PPCFM_SETCCASSPFINISHED, msg_buf)) {
+								CCheckTbl::Rec cc_rec_to_upd;
+								if(CC.Search(cc_rec.ID, &cc_rec_to_upd) > 0) {
+									if(!(cc_rec_to_upd.Flags & CCHKF_SPFINISHED)) {
+										cc_rec_to_upd.Flags |= CCHKF_SPFINISHED;
+										if(!CC.UpdateFlags(cc_rec_to_upd.ID, cc_rec_to_upd.Flags, 1)) {
+											ok = (MessageError(-1, 0, eomMsgWindow), 2);
+										}
+									}
+								}
+							}
+							else
+								ok = 2;
 						}
 						else {
 							CCheckCore::MakeCodeString(&cc_rec, msg_buf);

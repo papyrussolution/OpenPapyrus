@@ -2807,22 +2807,18 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 	int     storage_exists = 0;
 	DateRange goods_query_period; // @v9.6.3
 	goods_query_period.SetZero(); // @v9.6.3
-	if(useStorage) {
-		if(fileExists(strg_file_name)) {
-			storage_exists = 1;
-			LDATETIME mt;
-            if(SFile::GetTime(strg_file_name, 0, 0, &mt)) {
-                if(diffdate(getcurdate_(), mt.d) <= 2) {
-					if(RestoreGoods(GoodsMapping)) {
-						goods_query_period.low = mt.d; // @v9.6.3
-						State |= stGoodsMappingInited;
-						ok = 2;
-					}
-                }
-            }
-		}
+	if(useStorage && fileExists(strg_file_name)) {
+		storage_exists = 1;
+		LDATETIME mt;
+        if(SFile::GetTime(strg_file_name, 0, 0, &mt) && diffdate(getcurdate_(), mt.d) <= 2) {
+			if(RestoreGoods(GoodsMapping)) {
+				goods_query_period.low = mt.d; // @v9.6.3
+				State |= stGoodsMappingInited;
+				ok = 2;
+			}
+        }
 	}
-	if(ok < 0 || forceSettings) { // @v9.7.6
+	if(ok < 0 || forceSettings) { // @v9.7.6 (|| forceSettings)
 		SString tech_buf;
 		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
 		{
@@ -2836,10 +2832,14 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 		THROW(P_Lib);
 		THROW_SL(func = (ISALESGETGOODSLIST_PROC)P_Lib->GetProcAddr("iSalesGetGoodsList"));
 		sess.Setup(SvcUrl);
+		// @v9.7.7 {
+		if(forceSettings && P.ExpPeriod.low)
+			goods_query_period = P.ExpPeriod;
+		// } @v9.7.7
 		{
 			DateRange * p_qp = 0;
 			if(goods_query_period.low) {
-				goods_query_period.upp = encodedate(31, 12, 2030);
+				SETIFZ(goods_query_period.upp, encodedate(31, 12, 2030));
 				p_qp = &goods_query_period;
 			}
 			p_result = func(sess, UserName, Password, p_qp);
@@ -2966,7 +2966,8 @@ int SLAPI iSalesPepsi::ReceiveReceipts()
 	THROW(P_Lib);
 	THROW_SL(func = (ISALESGETRECEIPTLIST_PROC)P_Lib->GetProcAddr("iSalesGetReceiptList"));
 	sess.Setup(SvcUrl);
-	p_result = func(sess, UserName, Password, &period, 1 /*inclProcessedItems*/);
+
+	p_result = func(sess, UserName, Password, &period, /*1*/BIN(P.Flags & P.fRepeatProcessing) /*inclProcessedItems*/);
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 	{
 		//PPTXT_LOG_SUPPLIX_IMPRCPT_E   "Импортировано @int DESADV поставщика @zstr '@article'"

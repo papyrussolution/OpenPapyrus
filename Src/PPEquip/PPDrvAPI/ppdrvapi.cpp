@@ -224,14 +224,14 @@ int PPDrvSession::Log(const char * pMsg, long flags)
 	Cs_Log.Enter();
 	SString msg_buf;
 	if(flags & logfTime) {
-		msg_buf.Cat(getcurdatetime_(), DATF_DMY, TIMF_HMS).CatChar('\t');
+		msg_buf.Cat(getcurdatetime_(), DATF_DMY, TIMF_HMS).Tab();
 	}
 	if(flags & logfName) {
-		msg_buf.Cat(Name).CatChar('\t');
+		msg_buf.Cat(Name).Tab();
 	}
 	if(flags & logfThreadId) {
 		const PPDrvThreadLocalArea & r_tla = GetConstTLA();
-		msg_buf.CatEq("ThreadId", r_tla.GetId()).CatChar('\t');
+		msg_buf.CatEq("ThreadId", r_tla.GetId()).Tab();
 	}
 	msg_buf.Cat(pMsg);
 	SLS.LogMessage(LogFileName.NotEmpty() ? (const char *)LogFileName : 0, msg_buf, 8192);

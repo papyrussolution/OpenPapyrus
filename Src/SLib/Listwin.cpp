@@ -60,8 +60,7 @@ void ListWindow::executeNM(HWND parent)
 				SetCtrlFont(CTL_TREELBX_TREELIST, ui_cfg.ListFont);
 		}
 	}
-	if(P_Lb)
-		P_Lb->SetLBLnkToUISrchState();
+	CALLPTRMEMB(P_Lb, SetLBLnkToUISrchState());
 	APPL->SetWindowViewByKind(H(), TProgram::wndtypListDialog);
 	MoveWindow(0, 0);
 	if(DlgFlags & fLarge) {
@@ -199,9 +198,9 @@ IMPL_HANDLE_EVENT(ListWindow)
 				SString item_text;
 				if(TbId == 0) {
 					SLS.LoadString("add", item_text);
-					menu.Add(item_text.Transf(CTRANSF_INNER_TO_OUTER).CatChar('\t').Cat("Insert"), cmaInsert);
+					menu.Add(item_text.Transf(CTRANSF_INNER_TO_OUTER).Tab().Cat("Insert"), cmaInsert);
 					SLS.LoadString("edit", item_text);
-					menu.Add(item_text.Transf(CTRANSF_INNER_TO_OUTER).CatChar('\t').Cat("F11"), cmaEdit);
+					menu.Add(item_text.Transf(CTRANSF_INNER_TO_OUTER).Tab().Cat("F11"), cmaEdit);
 				}
 				else {
 					ToolbarList tb_items;

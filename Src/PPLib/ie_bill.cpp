@@ -3037,7 +3037,7 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 							PersonTbl::Rec psn_rec;
 							if(PsnObj.Fetch(psn_by_em_id, &psn_rec) > 0) {
 								PPID temp_ar_id = 0;
-								if(ArObj.P_Tbl->PersonToArticle(psn_by_em_id, acs_rec.ObjGroup, &temp_ar_id) > 0)
+								if(ArObj.P_Tbl->PersonToArticle(psn_by_em_id, acs_id, &temp_ar_id) > 0)
 									ar_id = temp_ar_id;
 							}
 						}
