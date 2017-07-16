@@ -221,7 +221,7 @@ static int UTF16LEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlen
 	}
 	*outlen = out - outstart;
 	*inlenb = processed - inb;
-	return(*outlen);
+	return *outlen;
 }
 
 #if defined(LIBXML_ICONV_ENABLED) || defined(LIBXML_ICU_ENABLED)
@@ -409,7 +409,7 @@ static int UTF8Toascii(uchar* out, int * outlen, const uchar* in, int * inlen)
 	}
 	*outlen = out - outstart;
 	*inlen = processed - instart;
-	return(*outlen);
+	return *outlen;
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
@@ -455,7 +455,7 @@ int isolat1ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
 	}
 	*outlen = out - outstart;
 	*inlen = in - base;
-	return(*outlen);
+	return *outlen;
 }
 
 #ifdef LIBXML_OUTPUT_ENABLED
@@ -553,7 +553,7 @@ int UTF8Toisolat1(uchar* out, int * outlen, const uchar* in, int * inlen)
 	}
 	*outlen = out - outstart;
 	*inlen = processed - instart;
-	return(*outlen);
+	return *outlen;
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
@@ -814,7 +814,7 @@ static int UTF16BEToUTF8(uchar* out, int * outlen, const uchar* inb, int * inlen
 	}
 	*outlen = out - outstart;
 	*inlenb = processed - inb;
-	return(*outlen);
+	return *outlen;
 }
 
 #ifdef LIBXML_OUTPUT_ENABLED
@@ -2571,7 +2571,7 @@ static int UTF8ToISO8859x(uchar* out, int * outlen,
 	}
 	*outlen = out - outstart;
 	*inlen = processed - instart;
-	return(*outlen);
+	return *outlen;
 }
 /**
  * ISO8859xToUTF8

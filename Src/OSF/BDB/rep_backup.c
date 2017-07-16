@@ -1420,7 +1420,7 @@ static int __rep_write_page(ENV * env, DB_THREAD_INFO * ip, REP * rep, __rep_fil
 			 * directory, not the data directory.
 			 */
 			RPRINT(env, (env, DB_VERB_REP_SYNC, "rep_write_page: Calling fop_create for %s", (char *)rfp->info.data));
-			if((ret = __fop_create(env, NULL, NULL, (const char *)rfp->info.data, NULL,
+			if((ret = __fop_create(env, 0, 0, (const char *)rfp->info.data, NULL,
 				__rep_is_internal_rep_file((char *)rfp->info.data) ? DB_APP_NONE : DB_APP_DATA, env->db_mode, 0)) != 0)
 				goto err;
 		}

@@ -3276,7 +3276,7 @@ static int ssl_auth_init(struct soap * soap)
 	}
    #endif
 	if((soap->ssl_flags&SOAP_SSL_RSA)) {
-		RSA * rsa = RSA_generate_key(SOAP_SSL_RSA_BITS, RSA_F4, NULL, NULL);
+		RSA * rsa = RSA_generate_key(SOAP_SSL_RSA_BITS, RSA_F4, 0, 0);
 		if(!SSL_CTX_set_tmp_rsa(soap->ctx, rsa)) {
 			if(rsa)
 				RSA_free(rsa);
@@ -3290,7 +3290,7 @@ static int ssl_auth_init(struct soap * soap)
 		int n = (int)soap_strtoul(soap->dhfile, &s, 10);
 		/* if dhfile is numeric, treat it as a key length to generate DH params which can take a while */
 		if(n >= 512 && s && *s == '\0')
-			dh = DH_generate_parameters(n, 2 /*or 5*/, NULL, NULL);
+			dh = DH_generate_parameters(n, 2 /*or 5*/, 0, 0);
 		else {BIO * bio;
 		      bio = BIO_new_file(soap->dhfile, "r");
 		      if(!bio)
@@ -5931,7 +5931,7 @@ static int http_post(struct soap * soap, const char * endpoint, const char * hos
 		if((err = soap->fposthdr(soap, "SOAPAction", soap->tmpbuf)))
 			return err;
 	}
-	return soap->fposthdr(soap, NULL, NULL);
+	return soap->fposthdr(soap, 0, 0);
 }
 
  #endif
@@ -6051,7 +6051,7 @@ static int http_response(struct soap * soap, int status, size_t count)
 	if(soap_putsetcookies(soap))
 		return soap->error;
   #endif
-	return soap->fposthdr(soap, NULL, NULL);
+	return soap->fposthdr(soap, 0, 0);
 }
 
  #endif
@@ -6753,7 +6753,7 @@ SOAP_FMAC2 soap_getenv_cookies(struct soap * soap)
 		return SOAP_ERR;
 	do {s = soap_decode_key(key, sizeof(key), s);
 	    s = soap_decode_val(val, sizeof(val), s);
-	    p = soap_set_cookie(soap, key, val, NULL, NULL);
+	    p = soap_set_cookie(soap, key, val, 0, 0);
 	    if(p)
 		    p->env = 1; } while(*s);
 	return SOAP_OK;

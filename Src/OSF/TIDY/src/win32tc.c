@@ -700,7 +700,7 @@ bool Win32MLangIsConvertible(tchar c, StreamOut * out)
 		inbuf[inbufsize++] = (WCHAR)c;
 
 	p = (IMLangConvertCharset*)out->mlang;
-	hr = IMLangConvertCharset_DoConversionFromUnicode(p, inbuf, &inbufsize, NULL, NULL);
+	hr = IMLangConvertCharset_DoConversionFromUnicode(p, inbuf, &inbufsize, 0, 0);
 
 	return hr == S_OK ? true : false;
 }

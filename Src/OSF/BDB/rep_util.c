@@ -2271,7 +2271,7 @@ int __rep_get_datagen(ENV*env, uint32 * data_genp)
 	tries = 0;
 	flags = DB_LAST;
 retry:
-	if((ret = __txn_begin(env, NULL, NULL, &txn, DB_IGNORE_LEASE)) != 0)
+	if((ret = __txn_begin(env, 0, 0, &txn, DB_IGNORE_LEASE)) != 0)
 		return ret;
 	if((dbp = db_rep->lsn_db) == NULL) {
 		if((ret = __rep_open_sysdb(env, NULL, txn, REPLSNHIST, 0, &dbp)) != 0) {

@@ -1319,7 +1319,7 @@ int __bam_bulk_overflow(DBC * dbc, uint32 len, db_pgno_t pgno, uint8 * dp)
 	F_SET(&dbt, DB_DBT_USERMEM);
 	dbt.ulen = len;
 	dbt.data = (void *)dp;
-	return __db_goff(dbc, &dbt, len, pgno, NULL, NULL);
+	return __db_goff(dbc, &dbt, len, pgno, 0, 0);
 }
 /*
  * __bam_bulk_duplicates --

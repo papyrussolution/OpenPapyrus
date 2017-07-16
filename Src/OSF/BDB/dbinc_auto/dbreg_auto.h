@@ -32,6 +32,6 @@ __dbreg_register_log(ENV *env, DB_TXN *txnp, DB_LSN *ret_lsnp, uint32 flags,
 static inline int __dbreg_register_read(ENV *env, void *data, __dbreg_register_args **arg)
 {
 	*arg = NULL;
-	return (__log_read_record(env, NULL, NULL, data, __dbreg_register_desc, sizeof(__dbreg_register_args), (void**)arg));
+	return (__log_read_record(env, 0, 0, data, __dbreg_register_desc, sizeof(__dbreg_register_args), (void**)arg));
 }
 #endif

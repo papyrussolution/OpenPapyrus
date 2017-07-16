@@ -275,29 +275,27 @@ static int xmlHashGrow(xmlHashTablePtr table, int size)
 #endif
 	return 0;
 }
-
 /**
- * xmlHashFree:
  * @table: the hash table
  * @f:  the deallocator function for items in the hash
  *
  * Free the hash @table and its contents. The userdata is
  * deallocated with @f if provided.
  */
-void FASTCALL xmlHashFree(xmlHashTablePtr table, xmlHashDeallocator f)
+void FASTCALL xmlHashFree(xmlHashTable * pTable, xmlHashDeallocator f)
 {
-	if(table) {
-		if(table->table) {
-			int nbElems = table->nbElems;
-			for(int i = 0; (i < table->size) && (nbElems > 0); i++) {
-				xmlHashEntryPtr iter = &(table->table[i]);
+	if(pTable) {
+		if(pTable->table) {
+			int nbElems = pTable->nbElems;
+			for(int i = 0; (i < pTable->size) && (nbElems > 0); i++) {
+				xmlHashEntryPtr iter = &(pTable->table[i]);
 				if(iter->valid) {
 					int inside_table = 1;
 					while(iter) {
 						xmlHashEntryPtr next = iter->next;
 						if(f && iter->payload)
 							f(iter->payload, iter->name);
-						if(table->dict == NULL) {
+						if(pTable->dict == NULL) {
 							SAlloc::F(iter->name);
 							SAlloc::F(iter->name2);
 							SAlloc::F(iter->name3);
@@ -311,10 +309,10 @@ void FASTCALL xmlHashFree(xmlHashTablePtr table, xmlHashDeallocator f)
 					}
 				}
 			}
-			SAlloc::F(table->table);
+			SAlloc::F(pTable->table);
 		}
-		xmlDictFree(table->dict);
-		SAlloc::F(table);
+		xmlDictFree(pTable->dict);
+		SAlloc::F(pTable);
 	}
 }
 

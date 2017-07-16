@@ -321,7 +321,7 @@ public:
 	//
 	int    GetInfo(Sdr_BRow * pBRow, TSCollection <GoodInfoSt> * pArr);
 	int    GetContragInfo(Sdr_BRow * pBRow, TSCollection <ContragInfoSt> * pArr); // Заполняем массив с инфой о контрагентах
-	int    SaveInfo(TSCollection <GoodInfoSt> * pArr, xmlTextWriterPtr pXmlPtr, int isBeer = 0); // Сохраняем данные об алкоголе и пиве в соответствующие файлы
+	int    SaveInfo(TSCollection <GoodInfoSt> * pArr, xmlTextWriter * pXmlPtr, int isBeer = 0); // Сохраняем данные об алкоголе и пиве в соответствующие файлы
 	int    SaveContragInfo(TSCollection <ContragInfoSt> * pArr); // Сохраняем данные о контрагентах в файл
 
 	uint   Id;					// ИД, который Papyrus будет воспринимать как ИД сеанса экспорта
@@ -333,11 +333,11 @@ public:
 	//long BeerTypeId;			// ИД группы товара "Пиво"
 	long   ShopPos;				// Позиция инфы в массиве ShopInfo для текущего магазина
 	LDATE  BillDate;
-	xmlTextWriterPtr P_WXmlAlco;
-	xmlTextWriterPtr P_WXmlBeer;
-	xmlTextWriterPtr P_WXmlAlcoRet; // @vmiller new
-	xmlTextWriterPtr P_WXmlBeerRet; // @vmiller new
-	xmlTextWriterPtr P_WXmlContrag;
+	xmlTextWriter * P_WXmlAlco;
+	xmlTextWriter * P_WXmlBeer;
+	xmlTextWriter * P_WXmlAlcoRet; // @vmiller new
+	xmlTextWriter * P_WXmlBeerRet; // @vmiller new
+	xmlTextWriter * P_WXmlContrag;
 	Iterator Itr;
 	SPathStruc PathStruct;
 	SString Prefix;				// Префикс имени документа. Раз уж стали указывать, пусть будет
@@ -534,7 +534,7 @@ int ExportCls::GetContragInfo(Sdr_BRow * pBRow, TSCollection <ContragInfoSt> * p
 	return ok;
 }
 
-int ExportCls::SaveInfo(TSCollection <GoodInfoSt> * pArr, xmlTextWriterPtr pXmlPtr, int isBeer/* = 0*/)
+int ExportCls::SaveInfo(TSCollection <GoodInfoSt> * pArr, xmlTextWriter * pXmlPtr, int isBeer/* = 0*/)
 {
 	// index - порядковый номер записи оборота
 	int    ok = 1, index = 1;

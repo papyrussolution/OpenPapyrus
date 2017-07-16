@@ -696,7 +696,7 @@ public:
 	SString ExpFileName;
 	SString LogFileName;		// Там же, где и ExpFileName
 	SString TTN;				// ТТН для RECADV
-	xmlTextWriterPtr P_XmlWriter;
+	xmlTextWriter * P_XmlWriter;
 	Iterator Itr;
 	SPathStruc PathStruct;
 	Sdr_Bill Bill;

@@ -689,7 +689,7 @@ cairo_output_stream_t * _cairo_null_stream_create(void)
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
 	}
-	_cairo_output_stream_init(stream, null_write, NULL, NULL);
+	_cairo_output_stream_init(stream, null_write, 0, 0);
 	return stream;
 }
 

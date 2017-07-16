@@ -82,7 +82,7 @@ X509_EXTENSION * X509v3_delete_ext(STACK_OF(X509_EXTENSION) * x, int loc)
 	X509_EXTENSION * ret;
 
 	if(x == NULL || sk_X509_EXTENSION_num(x) <= loc || loc < 0)
-		return (NULL);
+		return NULL;
 	ret = sk_X509_EXTENSION_delete(x, loc);
 	return ret;
 }
@@ -124,7 +124,7 @@ err:
 err2:
 	X509_EXTENSION_free(new_ex);
 	sk_X509_EXTENSION_free(sk);
-	return (NULL);
+	return NULL;
 }
 
 X509_EXTENSION * X509_EXTENSION_create_by_NID(X509_EXTENSION ** ex, int nid, int crit, ASN1_OCTET_STRING * data)
@@ -133,7 +133,7 @@ X509_EXTENSION * X509_EXTENSION_create_by_NID(X509_EXTENSION ** ex, int nid, int
 	ASN1_OBJECT * obj = OBJ_nid2obj(nid);
 	if(obj == NULL) {
 		X509err(X509_F_X509_EXTENSION_CREATE_BY_NID, X509_R_UNKNOWN_NID);
-		return (NULL);
+		return NULL;
 	}
 	ret = X509_EXTENSION_create_by_OBJ(ex, obj, crit, data);
 	if(!ret)
@@ -147,7 +147,7 @@ X509_EXTENSION * X509_EXTENSION_create_by_OBJ(X509_EXTENSION ** ex, const ASN1_O
 	if((ex == NULL) || (*ex == NULL)) {
 		if((ret = X509_EXTENSION_new()) == NULL) {
 			X509err(X509_F_X509_EXTENSION_CREATE_BY_OBJ, ERR_R_MALLOC_FAILURE);
-			return (NULL);
+			return NULL;
 		}
 	}
 	else
@@ -164,7 +164,7 @@ X509_EXTENSION * X509_EXTENSION_create_by_OBJ(X509_EXTENSION ** ex, const ASN1_O
 err:
 	if((ex == NULL) || (ret != *ex))
 		X509_EXTENSION_free(ret);
-	return (NULL);
+	return NULL;
 }
 
 int X509_EXTENSION_set_object(X509_EXTENSION * ex, const ASN1_OBJECT * obj)

@@ -784,19 +784,19 @@ int DlRtm::SetByJSON_Helper(json_t * pNode, SetScopeBlk & rBlk)
 	SString temp_buf;
 	for(json_t * p_cur = pNode; p_cur != NULL; p_cur = p_cur->P_Next) {
 		switch(p_cur->Type) {
-			case JSON_ARRAY:
+			case json_t::tARRAY:
 				THROW(SetByJSON_Helper(p_cur->P_Child, rBlk));   // @recursion
 				break;
-			case JSON_OBJECT:
+			case json_t::tOBJECT:
                 THROW(SetByJSON_Helper(p_cur->P_Child, rBlk));   // @recursion
 				THROW(Set(rBlk.GetScopeID(), 0));
 				break;
-			case JSON_STRING:
+			case json_t::tSTRING:
 				if(p_cur->P_Text && p_cur->P_Child) {
 					fld_name = p_cur->P_Text;
 					switch(p_cur->P_Child->Type) {
-						case JSON_NUMBER:
-						case JSON_STRING:
+						case json_t::tNUMBER:
+						case json_t::tSTRING:
 							THROW(rBlk.GetFieldByName(fld_name, &fld));
 							if(!(fld.T.Flags & STypEx::fFormula)) {
 								p_value = json_unescape(p_cur->P_Child->P_Text);
@@ -1043,10 +1043,10 @@ int SLAPI DlRtm::Export(ExportParam & rParam)
 	return ok;
 }
 
-int SLAPI DlRtm::FillXmlBuf(const DlScope * pScope, xmlTextWriterPtr pWriter, StringSet * pDtd, SCodepageIdent cp) const
+int SLAPI DlRtm::FillXmlBuf(const DlScope * pScope, xmlTextWriter * pWriter, StringSet * pDtd, SCodepageIdent cp) const
 {
 	SFormatParam fp;
-	fp.FReal  = MKSFMTD(0, 5, NMBF_NOTRAILZ); // @v9.5.5 MKSFMTD(0, 4, 0)-->MKSFMTD(0, 5, NMBF_NOTRAILZ)
+	fp.FReal  = MKSFMTD(0, 5, NMBF_NOTRAILZ|NMBF_EXPLFLOAT); // @v9.5.5 MKSFMTD(0, 4, 0)-->MKSFMTD(0, 5, NMBF_NOTRAILZ)
 	fp.FDate  = DATF_DMY|DATF_CENTURY;
 	fp.Flags |= SFormatParam::fFloatSize;
 	SString buf;
@@ -1085,7 +1085,7 @@ int SLAPI DlRtm::FillXmlBuf(const DlScope * pScope, xmlTextWriterPtr pWriter, St
 	return 1;
 }
 
-int SLAPI DlRtm::FillDTDBuf(const DlScope * pScope, xmlTextWriterPtr pWriter, const char * pElemName) const
+int SLAPI DlRtm::FillDTDBuf(const DlScope * pScope, xmlTextWriter * pWriter, const char * pElemName) const
 {
 	StringSet ss_dtd(',', 0);
 	FillXmlBuf(pScope, pWriter, &ss_dtd, SCodepageIdent(cpANSI));
@@ -1103,7 +1103,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 	int    r;
 	const  DlScope * p_data = GetData();
 	SString data_name, head_name, suffix, left;
-	xmlTextWriterPtr writer = 0;
+	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
 
 	rBuf = 0;
@@ -1111,11 +1111,11 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 	head_name = data_name;
 	data_name.Dot().Cat("xml");
 	THROW(p_xml_buf = xmlBufferCreate());
-	THROW(writer = xmlNewTextWriterMemory(p_xml_buf, 0));
-	if(rParam.P_F && writer) {
+	THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
+	if(rParam.P_F && p_writer) {
 		uint   i;
 		DlScope * p_child = 0;
-		xmlTextWriterSetIndent(writer, 0);
+		xmlTextWriterSetIndent(p_writer, 0);
 		//xmlTextWriterSetIndentString(writer, (const xmlChar*)"\t");
 		if(!(rParam.Flags & ExportParam::fDontWriteXmlDTD)) {
 			{
@@ -1128,10 +1128,10 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 				else if(temp_cp == cpUndef)
 					temp_cp = cpUTF8;
 				temp_cp.ToStr(SCodepageIdent::fmtXML, left);
-				xmlTextWriterStartDocument(writer, 0, left, 0);
+				xmlTextWriterStartDocument(p_writer, 0, left, 0);
 			}
-			xmlTextWriterStartDTD(writer, head_name.ucptr(), 0, 0);
-			XMLWriteSpecSymbEntities(writer);
+			xmlTextWriterStartDTD(p_writer, head_name.ucptr(), 0, 0);
+			XMLWriteSpecSymbEntities(p_writer);
 			{
 				StringSet dtd(',', 0);
 				for(i = 0; p_data->EnumChilds(&i, &p_child);) {
@@ -1153,7 +1153,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 					dtd.add(suffix, 0);
 				}
 				(suffix = 0).CatParStr(dtd.getBuf());
-				xmlTextWriterWriteDTDElement(writer, head_name.ucptr(), suffix.ucptr());
+				xmlTextWriterWriteDTDElement(p_writer, head_name.ucptr(), suffix.ucptr());
 			}
 			for(i = 0; p_data->EnumChilds(&i, &p_child);) {
 				if(p_child->Name.CmpNC("hdr") == 0)
@@ -1166,12 +1166,12 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 				}
 				else
 					suffix = p_child->Name;
-				FillDTDBuf(p_child, writer, suffix);
+				FillDTDBuf(p_child, p_writer, suffix);
 			}
-			xmlTextWriterEndDTD(writer);
+			xmlTextWriterEndDTD(p_writer);
 		}
 		{
-			SXml::WNode hnode(writer, head_name);
+			SXml::WNode hnode(p_writer, head_name);
 			for(i = 0; p_data->EnumChilds(&i, &p_child);) {
 				int    is_hdr = 0;
 				if(p_child->Name.CmpNC("hdr") == 0) {
@@ -1189,25 +1189,25 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 				else
 					suffix = p_child->Name;
 				if(is_hdr) {
-					SXml::WNode xn(writer, suffix);
-					FillXmlBuf(p_child, writer, 0, rParam.Cp);
+					SXml::WNode xn(p_writer, suffix);
+					FillXmlBuf(p_child, p_writer, 0, rParam.Cp);
 				}
 				else {
 					long   iter_id = GetIterID(p_child->Name);
 					THROW(InitIteration(iter_id, rParam.Sort));
 					while((r = NextIteration(iter_id)) > 0) {
-						SXml::WNode xn(writer, suffix);
-						FillXmlBuf(p_child, writer, 0, rParam.Cp);
+						SXml::WNode xn(p_writer, suffix);
+						FillXmlBuf(p_child, p_writer, 0, rParam.Cp);
 					}
 				}
 			}
 		}
-		xmlTextWriterEndDocument(writer);
-		xmlTextWriterFlush(writer);
+		xmlTextWriterEndDocument(p_writer);
+		xmlTextWriterFlush(p_writer);
 		rBuf.CopyFromN((char *)p_xml_buf->content, p_xml_buf->use)/*.UTF8ToChar()*/;
 	}
 	CATCHZOK
-	xmlFreeTextWriter(writer);
+	xmlFreeTextWriter(p_writer);
 	xmlBufferFree(p_xml_buf);
 	return ok;
 }
@@ -1220,7 +1220,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 	SdbField fld;
 	SString path, data_name, head_name, suffix;//, left;
 	SString temp_buf;
-	xmlTextWriterPtr writer = 0;
+	xmlTextWriter * p_writer = 0;
 	char   xml_entity_spec[256];
 	const  char * p_xml_entity_spec = 0;
 	{
@@ -1236,22 +1236,22 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 	head_name = data_name;
 	data_name.Dot().Cat("xml");
 	PPGetFilePath(PPPATH_OUT, data_name, path);
-	writer = xmlNewTextWriterFilename(path, 0);
-	if(rParam.P_F && writer) {
+	p_writer = xmlNewTextWriterFilename(path, 0);
+	if(rParam.P_F && p_writer) {
 		uint   i;
 		DlScope * p_child = 0;
-		xmlTextWriterSetIndent(writer, 1);
-		xmlTextWriterSetIndentString(writer, (const xmlChar*)"\t");
+		xmlTextWriterSetIndent(p_writer, 1);
+		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
 		// @v9.4.6 xmlTextWriterStartDocument(writer, 0, "windows-1251", 0);
 		if(rParam.Cp == cpUndef)
 			rParam.Cp = cp1251;
 		else if(rParam.Cp == cpANSI)
 			rParam.Cp = cp1251;
 		rParam.Cp.ToStr(SCodepageIdent::fmtXML, temp_buf); // @v9.4.6
-		xmlTextWriterStartDocument(writer, 0, temp_buf, 0); // @v9.4.6
+		xmlTextWriterStartDocument(p_writer, 0, temp_buf, 0); // @v9.4.6
 		if(!(rParam.Flags & ExportParam::fDontWriteXmlDTD)) { // @v8.4.2
-			xmlTextWriterStartDTD(writer, head_name.ucptr(), 0, 0);
-			XMLWriteSpecSymbEntities(writer);
+			xmlTextWriterStartDTD(p_writer, head_name.ucptr(), 0, 0);
+			XMLWriteSpecSymbEntities(p_writer);
 			{
 				StringSet dtd(',', 0);
 				for(i = 0; p_data->EnumChilds(&i, &p_child);) {
@@ -1273,7 +1273,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 					dtd.add(suffix, 0);
 				}
 				(suffix = 0).CatParStr(dtd.getBuf());
-				xmlTextWriterWriteDTDElement(writer, head_name.ucptr(), suffix.ucptr());
+				xmlTextWriterWriteDTDElement(p_writer, head_name.ucptr(), suffix.ucptr());
 			}
 			for(i = 0; p_data->EnumChilds(&i, &p_child);) {
 				if(p_child->Name.CmpNC("hdr") == 0)
@@ -1286,16 +1286,16 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 				}
 				else
 					suffix = p_child->Name;
-				FillDTDBuf(p_child, writer, suffix);
+				FillDTDBuf(p_child, p_writer, suffix);
 			}
-			xmlTextWriterEndDTD(writer);
+			xmlTextWriterEndDTD(p_writer);
 		}
-		xmlTextWriterStartElement(writer, head_name.ucptr());
+		xmlTextWriterStartElement(p_writer, head_name.ucptr());
 		if(!(rParam.Flags & ExportParam::fDontWriteXmlTypes)) {
 		// @paul (pentaho export types) {
 			int    h_i = 0; // счетчик, обработали ли мы уже И "Head" И "Iter"
 			StringSet * p_dtd = 0;
-			xmlTextWriterStartElement(writer, (const xmlChar *)"Types");
+			xmlTextWriterStartElement(p_writer, (const xmlChar *)"Types");
 			for(i = 0; p_data->EnumChilds(&i, &p_child);) {
 				if(h_i >= 2)
 					break;
@@ -1307,7 +1307,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 					h_i++;
 					suffix = "Iter";
 				}
-				xmlTextWriterStartElement(writer, suffix.ucptr());
+				xmlTextWriterStartElement(p_writer, suffix.ucptr());
 				//
 				const DlScope * p_scope = 0;
 				for(uint j = 0; p_child->EnumInheritance(&j, &p_scope);) {
@@ -1316,15 +1316,15 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 							p_dtd->add(fld.Name, 0);
 						else {
 							XMLReplaceSpecSymb(GetBinaryTypeString(fld.T.Typ, 0, temp_buf, 0, 0), p_xml_entity_spec);
-							xmlTextWriterWriteElement(writer, fld.Name.ucptr(), temp_buf.ucptr());
+							xmlTextWriterWriteElement(p_writer, fld.Name.ucptr(), temp_buf.ucptr());
 						}
 					}
 				}
-				xmlTextWriterEndElement(writer);
+				xmlTextWriterEndElement(p_writer);
 				if(h_i >= 2)
 					break;
 			}
-			xmlTextWriterEndElement(writer);
+			xmlTextWriterEndElement(p_writer);
 		// } @paul (pentaho export types)
 		}
 		for(i = 0; p_data->EnumChilds(&i, &p_child);) {
@@ -1344,26 +1344,26 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 			else
 				suffix = p_child->Name;
 			if(is_hdr) {
-				xmlTextWriterStartElement(writer, suffix.ucptr());
-				FillXmlBuf(p_child, writer, 0, rParam.Cp);
-				xmlTextWriterEndElement(writer);
+				xmlTextWriterStartElement(p_writer, suffix.ucptr());
+				FillXmlBuf(p_child, p_writer, 0, rParam.Cp);
+				xmlTextWriterEndElement(p_writer);
 			}
 			else {
 				long   iter_id = GetIterID(p_child->Name);
 				THROW(InitIteration(iter_id, rParam.Sort));
 				while((r = NextIteration(iter_id)) > 0) {
-					xmlTextWriterStartElement(writer, suffix.ucptr());
-					FillXmlBuf(p_child, writer, 0, rParam.Cp);
-					xmlTextWriterEndElement(writer);
+					xmlTextWriterStartElement(p_writer, suffix.ucptr());
+					FillXmlBuf(p_child, p_writer, 0, rParam.Cp);
+					xmlTextWriterEndElement(p_writer);
 				}
 			}
 		}
-		xmlTextWriterEndElement(writer);
-		xmlTextWriterEndDocument(writer);
+		xmlTextWriterEndElement(p_writer);
+		xmlTextWriterEndDocument(p_writer);
 	}
 	rOutFileName = path;
 	CATCHZOK
-	xmlFreeTextWriter(writer);
+	xmlFreeTextWriter(p_writer);
 	return ok;
 }
 
@@ -1397,7 +1397,7 @@ int SLAPI DlRtm::Helper_PutItemToJson(PPFilt * pFilt, json_t * pRoot)
 	SString left, suffix;
 	const   DlScope * p_data = GetData();
 	DlScope * p_child = 0;
-	json_t  * p_hdr_obj = json_new_object();
+	json_t  * p_hdr_obj = new json_t(json_t::tOBJECT);
 	for(uint i = 0; p_data->EnumChilds(&i, &p_child);) {
 		if(p_child->Name.CmpNC("hdr") == 0) {
 			THROW(InitData(*pFilt, 0));
@@ -1414,9 +1414,9 @@ int SLAPI DlRtm::Helper_PutItemToJson(PPFilt * pFilt, json_t * pRoot)
 				suffix = p_child->Name;
 			}
 			THROW(InitIteration(iter_id, 0));
-			json_t * p_iter_ary = json_new_array();
+			json_t * p_iter_ary = new json_t(json_t::tARRAY);
 			while(NextIteration(iter_id) > 0) {
-				json_t * p_iter_obj = json_new_object();
+				json_t * p_iter_obj = new json_t(json_t::tOBJECT);
 				Helper_PutScopeToJson(p_child, p_iter_obj);
 				json_insert_child(p_iter_ary, p_iter_obj);
 			}
@@ -1434,7 +1434,7 @@ int SLAPI DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags
 {
 	int    ok = 1;
 	char * temp_buf = 0;
-	json_t * p_root_ary = json_new_array();
+	json_t * p_root_ary = new json_t(json_t::tARRAY);
 	THROW_MEM(p_root_ary);
 	THROW(pAry);
 	for(uint i = 0, n = pAry->getCount(); i < n; i++) {
@@ -1456,7 +1456,7 @@ int SLAPI DlRtm::PutToJsonBuffer(void * ptr, SString & rBuf, int flags)
 	int    ok = 1;
 	PPFilt filt;
 	char * temp_buf = 0;
-	json_t * p_root_ary = json_new_array();
+	json_t * p_root_ary = new json_t(json_t::tARRAY);
 	THROW_MEM(p_root_ary);
 	THROW(ptr);
 	filt.Ptr = ptr;

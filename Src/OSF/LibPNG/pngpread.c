@@ -41,7 +41,7 @@ void PNGAPI png_process_data(png_structrp png_ptr, png_inforp info_ptr, png_byte
 
 size_t PNGAPI png_process_data_pause(png_structrp png_ptr, int save)
 {
-	if(png_ptr != NULL) {
+	if(png_ptr) {
 		/* It's easiest for the caller if we do the save; then the caller doesn't
 		 * have to supply the same data again:
 		 */
@@ -903,7 +903,7 @@ void PNGAPI png_set_progressive_read_fn(png_structrp png_ptr, void * progressive
 void * PNGAPI png_get_progressive_ptr(png_const_structrp png_ptr)
 {
 	if(png_ptr == NULL)
-		return (NULL);
+		return NULL;
 
 	return png_ptr->io_ptr;
 }

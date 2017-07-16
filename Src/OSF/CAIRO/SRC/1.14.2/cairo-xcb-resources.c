@@ -111,7 +111,7 @@ static cairo_bool_t resource_parse_line(char * name, cairo_xcb_resources_t * res
 	char * value;
 
 	value = strchr(name, ':');
-	if(value == NULL)
+	if(!value)
 		return FALSE;
 
 	*value++ = 0;

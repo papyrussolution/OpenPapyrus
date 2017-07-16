@@ -679,9 +679,8 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 	}
 	if(dest != NULL) {
 		write[0] = _UT('\0');
-		if(charsWritten != NULL) {
-			*charsWritten =(int)(write-dest)+1;     /* .. for terminator */
-		}
+		if(charsWritten)
+			*charsWritten = (int)(write-dest)+1;     /* .. for terminator */
 	}
 	return SLERR_SUCCESS;
 }
@@ -1543,38 +1542,17 @@ int UriRemoveDotSegmentsAbsolute(UriUri * uri)
 	return UriRemoveDotSegments(uri, absolute);
 }
 
-uchar UriHexdigToInt(char hexdig) {
+uchar UriHexdigToInt(char hexdig) 
+{
 	switch(hexdig) {
-	    case _UT('0'):
-	    case _UT('1'):
-	    case _UT('2'):
-	    case _UT('3'):
-	    case _UT('4'):
-	    case _UT('5'):
-	    case _UT('6'):
-	    case _UT('7'):
-	    case _UT('8'):
-	    case _UT('9'):
-		return(uchar)(9+hexdig-_UT('9'));
-
-	    case _UT('a'):
-	    case _UT('b'):
-	    case _UT('c'):
-	    case _UT('d'):
-	    case _UT('e'):
-	    case _UT('f'):
-		return(uchar)(15+hexdig-_UT('f'));
-
-	    case _UT('A'):
-	    case _UT('B'):
-	    case _UT('C'):
-	    case _UT('D'):
-	    case _UT('E'):
-	    case _UT('F'):
-		return(uchar)(15+hexdig-_UT('F'));
-
+	    case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'): case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'):
+			return(uchar)(9+hexdig-_UT('9'));
+	    case _UT('a'): case _UT('b'): case _UT('c'): case _UT('d'): case _UT('e'): case _UT('f'):
+			return(uchar)(15+hexdig-_UT('f'));
+	    case _UT('A'): case _UT('B'): case _UT('C'): case _UT('D'): case _UT('E'): case _UT('F'):
+			return(uchar)(15+hexdig-_UT('F'));
 	    default:
-		return 0;
+			return 0;
 	}
 }
 
@@ -1584,7 +1562,8 @@ char UriHexToLetter(uint value) {
 	return UriHexToLetterEx(value, TRUE);
 }
 
-char UriHexToLetterEx(uint value, int uppercase) {
+char UriHexToLetterEx(uint value, int uppercase) 
+{
 	switch(value) {
 	    case  0: return _UT('0');
 	    case  1: return _UT('1');
@@ -1596,13 +1575,12 @@ char UriHexToLetterEx(uint value, int uppercase) {
 	    case  7: return _UT('7');
 	    case  8: return _UT('8');
 	    case  9: return _UT('9');
-
-	    case 10: return(uppercase == TRUE) ? _UT('A') : _UT('a');
-	    case 11: return(uppercase == TRUE) ? _UT('B') : _UT('b');
-	    case 12: return(uppercase == TRUE) ? _UT('C') : _UT('c');
-	    case 13: return(uppercase == TRUE) ? _UT('D') : _UT('d');
-	    case 14: return(uppercase == TRUE) ? _UT('E') : _UT('e');
-	    default: return(uppercase == TRUE) ? _UT('F') : _UT('f');
+	    case 10: return uppercase ? _UT('A') : _UT('a');
+	    case 11: return uppercase ? _UT('B') : _UT('b');
+	    case 12: return uppercase ? _UT('C') : _UT('c');
+	    case 13: return uppercase ? _UT('D') : _UT('d');
+	    case 14: return uppercase ? _UT('E') : _UT('e');
+	    default: return uppercase ? _UT('F') : _UT('f');
 	}
 }
 //
@@ -1800,7 +1778,7 @@ static void UriPreventLeakage(UriUri*uri, uint revertMask)
 
 static int FASTCALL UriContainsUppercaseLetters(const char * first, const char * afterLast)
 {
-	if((first != NULL) &&(afterLast != NULL) &&(afterLast > first)) {
+	if((first != NULL) && (afterLast != NULL) && (afterLast > first)) {
 		const char * i = first;
 		for(; i < afterLast; i++) {
 			// 6.2.2.1 Case Normalization: uppercase letters in scheme or host 
@@ -1814,7 +1792,7 @@ static int FASTCALL UriContainsUppercaseLetters(const char * first, const char *
 
 static int FASTCALL UriContainsUglyPercentEncoding(const char * first, const char * afterLast)
 {
-	if((first != NULL) &&(afterLast != NULL) &&(afterLast > first)) {
+	if((first != NULL) && (afterLast != NULL) && (afterLast > first)) {
 		const char * i = first;
 		for(; i+2 < afterLast; i++) {
 			if(i[0] == _UT('%')) {
@@ -1842,7 +1820,7 @@ static int FASTCALL UriContainsUglyPercentEncoding(const char * first, const cha
 
 static void FASTCALL UriLowercaseInplace(const char * first, const char * afterLast)
 {
-	if((first != NULL) &&(afterLast != NULL) &&(afterLast > first)) {
+	if((first != NULL) && (afterLast != NULL) && (afterLast > first)) {
 		char * i =(char *)first;
 		const int lowerUpperDiff =(_UT('a')-_UT('A'));
 		for(; i < afterLast; i++) {
@@ -2271,15 +2249,11 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 {
 	int written = 0;
 	if((uri == NULL) ||((dest == NULL) &&(charsRequired == NULL))) {
-		if(charsWritten != NULL) {
-			*charsWritten = 0;
-		}
+		ASSIGN_PTR(charsWritten, 0);
 		return SLERR_URI_NULL;
 	}
 	if(maxChars < 1) {
-		if(charsWritten != NULL) {
-			*charsWritten = 0;
-		}
+		ASSIGN_PTR(charsWritten, 0);
 		return SLERR_URI_TOSTRING_TOO_LONG;
 	}
 	maxChars--; /* So we don't have to substract 1 for '\0' all the time */
@@ -2301,9 +2275,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			}
 			else {
 				dest[0] = _UT('\0');
-				if(charsWritten != NULL) {
-					*charsWritten = 0;
-				}
+				ASSIGN_PTR(charsWritten, 0);
 				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
 		}
@@ -2318,9 +2290,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			}
 			else {
 				dest[0] = _UT('\0');
-				if(charsWritten != NULL) {
-					*charsWritten = 0;
-				}
+				ASSIGN_PTR(charsWritten, 0);
 				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
 		}
@@ -2339,9 +2309,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			}
 			else {
 				dest[0] = _UT('\0');
-				if(charsWritten != NULL) {
-					*charsWritten = 0;
-				}
+				ASSIGN_PTR(charsWritten, 0);
 				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
 		}
@@ -2359,9 +2327,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				}
 				else {
 					dest[0] = _UT('\0');
-					if(charsWritten != NULL) {
-						*charsWritten = 0;
-					}
+					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 				if(written+1 <= maxChars) {
@@ -2370,9 +2336,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				}
 				else {
 					dest[0] = _UT('\0');
-					if(charsWritten != NULL) {
-						*charsWritten = 0;
-					}
+					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
@@ -2408,9 +2372,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					}
 					else {
 						dest[0] = _UT('\0');
-						if(charsWritten != NULL) {
-							*charsWritten = 0;
-						}
+						ASSIGN_PTR(charsWritten, 0);
 						return SLERR_URI_TOSTRING_TOO_LONG;
 					}
 					if(i < 3) {
@@ -2420,9 +2382,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 						}
 						else {
 							dest[0] = _UT('\0');
-							if(charsWritten != NULL) {
-								*charsWritten = 0;
-							}
+							ASSIGN_PTR(charsWritten, 0);
 							return SLERR_URI_TOSTRING_TOO_LONG;
 						}
 					}
@@ -2442,9 +2402,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				}
 				else {
 					dest[0] = _UT('\0');
-					if(charsWritten != NULL) {
-						*charsWritten = 0;
-					}
+					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
@@ -2464,9 +2422,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					}
 					else {
 						dest[0] = _UT('\0');
-						if(charsWritten != NULL) {
-							*charsWritten = 0;
-						}
+						ASSIGN_PTR(charsWritten, 0);
 						return SLERR_URI_TOSTRING_TOO_LONG;
 					}
 				}
@@ -2481,9 +2437,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 						}
 						else {
 							dest[0] = _UT('\0');
-							if(charsWritten != NULL) {
-								*charsWritten = 0;
-							}
+							ASSIGN_PTR(charsWritten, 0);
 							return SLERR_URI_TOSTRING_TOO_LONG;
 						}
 					}
@@ -2499,9 +2453,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				}
 				else {
 					dest[0] = _UT('\0');
-					if(charsWritten != NULL) {
-						*charsWritten = 0;
-					}
+					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
@@ -2519,9 +2471,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				}
 				else {
 					dest[0] = _UT('\0');
-					if(charsWritten != NULL) {
-						*charsWritten = 0;
-					}
+					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 				if(written+charsToWrite <= maxChars) {
@@ -2530,9 +2480,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				}
 				else {
 					dest[0] = _UT('\0');
-					if(charsWritten != NULL) {
-						*charsWritten = 0;
-					}
+					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 				if(written+1 <= maxChars) {
@@ -2541,9 +2489,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				}
 				else {
 					dest[0] = _UT('\0');
-					if(charsWritten != NULL) {
-						*charsWritten = 0;
-					}
+					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
@@ -2561,9 +2507,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				}
 				else {
 					dest[0] = _UT('\0');
-					if(charsWritten != NULL) {
-						*charsWritten = 0;
-					}
+					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
@@ -2582,9 +2526,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				}
 				else {
 					dest[0] = _UT('\0');
-					if(charsWritten != NULL) {
-						*charsWritten = 0;
-					}
+					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 				/* Port number */
@@ -2594,9 +2536,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				}
 				else {
 					dest[0] = _UT('\0');
-					if(charsWritten != NULL) {
-						*charsWritten = 0;
-					}
+					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
@@ -2616,9 +2556,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			}
 			else {
 				dest[0] = _UT('\0');
-				if(charsWritten != NULL) {
-					*charsWritten = 0;
-				}
+				ASSIGN_PTR(charsWritten, 0);
 				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
 		}
@@ -2637,9 +2575,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				}
 				else {
 					dest[0] = _UT('\0');
-					if(charsWritten != NULL) {
-						*charsWritten = 0;
-					}
+					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
@@ -2655,9 +2591,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					}
 					else {
 						dest[0] = _UT('\0');
-						if(charsWritten != NULL) {
-							*charsWritten = 0;
-						}
+						ASSIGN_PTR(charsWritten, 0);
 						return SLERR_URI_TOSTRING_TOO_LONG;
 					}
 				}
@@ -2679,9 +2613,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			}
 			else {
 				dest[0] = _UT('\0');
-				if(charsWritten != NULL) {
-					*charsWritten = 0;
-				}
+				ASSIGN_PTR(charsWritten, 0);
 				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
 		}
@@ -2690,19 +2622,15 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		}
 		/* [13/19]		append query to result; */
 		{
-			const int charsToWrite =
-			       (int)(uri->query.afterLast-uri->query.first);
+			const int charsToWrite = (int)(uri->query.afterLast-uri->query.first);
 			if(dest != NULL) {
 				if(written+charsToWrite <= maxChars) {
-					memcpy(dest+written, uri->query.first,
-						charsToWrite*sizeof(char));
+					memcpy(dest+written, uri->query.first, charsToWrite*sizeof(char));
 					written += charsToWrite;
 				}
 				else {
 					dest[0] = _UT('\0');
-					if(charsWritten != NULL) {
-						*charsWritten = 0;
-					}
+					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
@@ -2722,9 +2650,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			}
 			else {
 				dest[0] = _UT('\0');
-				if(charsWritten != NULL) {
-					*charsWritten = 0;
-				}
+				ASSIGN_PTR(charsWritten, 0);
 				return SLERR_URI_TOSTRING_TOO_LONG;
 			}
 		}
@@ -2741,9 +2667,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				}
 				else {
 					dest[0] = _UT('\0');
-					if(charsWritten != NULL) {
-						*charsWritten = 0;
-					}
+					ASSIGN_PTR(charsWritten, 0);
 					return SLERR_URI_TOSTRING_TOO_LONG;
 				}
 			}
@@ -2756,9 +2680,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 	/* [19/19]	return result; */
 	if(dest != NULL) {
 		dest[written++] = _UT('\0');
-		if(charsWritten != NULL) {
-			*charsWritten = written;
-		}
+		ASSIGN_PTR(charsWritten, written);
 	}
 	return SLERR_SUCCESS;
 }

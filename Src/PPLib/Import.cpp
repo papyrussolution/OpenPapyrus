@@ -4308,7 +4308,7 @@ FiasImporter::FiasImporter() : Tra(0), TextCache(4 * 1024 * 1024)
 	InputObject = 0;
 	//Path = pPath;
 	RawRecN = 0;
-	SaxCtx = 0;
+	P_SaxCtx = 0;
 	State = 0;
 	//Flags = 0;
 	CurPsPos = -1;
@@ -4323,34 +4323,34 @@ FiasImporter::~FiasImporter()
 int FiasImporter::SaxParseFile(xmlSAXHandlerPtr sax, const char * pFileName)
 {
 	int    ret = 0;
-	xmlFreeParserCtxt(SaxCtx);
-	//SaxCtx = xmlCreateFileParserCtxt(pFileName);
-	SaxCtx = xmlCreateURLParserCtxt(pFileName, 0);
-	if(!SaxCtx)
+	xmlFreeParserCtxt(P_SaxCtx);
+	//P_SaxCtx = xmlCreateFileParserCtxt(pFileName);
+	P_SaxCtx = xmlCreateURLParserCtxt(pFileName, 0);
+	if(!P_SaxCtx)
 		ret = -1;
 	else {
-		if(SaxCtx->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
-			SAlloc::F(SaxCtx->sax);
-		SaxCtx->sax = sax;
-		xmlDetectSAX2(SaxCtx);
-		SaxCtx->userData = this;
-		xmlParseDocument(SaxCtx);
-		ret = SaxCtx->wellFormed ? 0 : NZOR(SaxCtx->errNo, -1);
+		if(P_SaxCtx->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
+			SAlloc::F(P_SaxCtx->sax);
+		P_SaxCtx->sax = sax;
+		xmlDetectSAX2(P_SaxCtx);
+		P_SaxCtx->userData = this;
+		xmlParseDocument(P_SaxCtx);
+		ret = P_SaxCtx->wellFormed ? 0 : NZOR(P_SaxCtx->errNo, -1);
 		if(sax)
-			SaxCtx->sax = 0;
-		if(SaxCtx->myDoc) {
-			xmlFreeDoc(SaxCtx->myDoc);
-			SaxCtx->myDoc = NULL;
+			P_SaxCtx->sax = 0;
+		if(P_SaxCtx->myDoc) {
+			xmlFreeDoc(P_SaxCtx->myDoc);
+			P_SaxCtx->myDoc = NULL;
 		}
-		xmlFreeParserCtxt(SaxCtx);
-		SaxCtx = 0;
+		xmlFreeParserCtxt(P_SaxCtx);
+		P_SaxCtx = 0;
 	}
 	return ret;
 }
 
 void FiasImporter::SaxStop()
 {
-	xmlStopParser(SaxCtx);
+	xmlStopParser(P_SaxCtx);
 }
 
 int FiasImporter::ParseFiasFileName(const char * pFileName, SString & rObjName, LDATE & rDt, S_GUID & rUuid)
@@ -5233,7 +5233,7 @@ void SLAPI PrcssrOsm::CommonAttrSet::Reset()
 
 SLAPI PrcssrOsm::PrcssrOsm(const char * pDbPath) : O(pDbPath), GgtFinder(O.GetGrid())
 {
-	SaxCtx = 0;
+	P_SaxCtx = 0;
 	State = 0;
 	P_RoadStoneStat = 0;
 	P_LatOutF = 0;
@@ -5360,34 +5360,34 @@ void SLAPI PrcssrOsm::Reset()
 int PrcssrOsm::SaxParseFile(xmlSAXHandlerPtr sax, const char * pFileName)
 {
 	int    ret = 0;
-	xmlFreeParserCtxt(SaxCtx);
-	//SaxCtx = xmlCreateFileParserCtxt(pFileName);
-	SaxCtx = xmlCreateURLParserCtxt(pFileName, 0);
-	if(!SaxCtx)
+	xmlFreeParserCtxt(P_SaxCtx);
+	//P_SaxCtx = xmlCreateFileParserCtxt(pFileName);
+	P_SaxCtx = xmlCreateURLParserCtxt(pFileName, 0);
+	if(!P_SaxCtx)
 		ret = -1;
 	else {
-		if(SaxCtx->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
-			SAlloc::F(SaxCtx->sax);
-		SaxCtx->sax = sax;
-		xmlDetectSAX2(SaxCtx);
-		SaxCtx->userData = this;
-		xmlParseDocument(SaxCtx);
-		ret = SaxCtx->wellFormed ? 0 : NZOR(SaxCtx->errNo, -1);
+		if(P_SaxCtx->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
+			SAlloc::F(P_SaxCtx->sax);
+		P_SaxCtx->sax = sax;
+		xmlDetectSAX2(P_SaxCtx);
+		P_SaxCtx->userData = this;
+		xmlParseDocument(P_SaxCtx);
+		ret = P_SaxCtx->wellFormed ? 0 : NZOR(P_SaxCtx->errNo, -1);
 		if(sax)
-			SaxCtx->sax = 0;
-		if(SaxCtx->myDoc) {
-			xmlFreeDoc(SaxCtx->myDoc);
-			SaxCtx->myDoc = NULL;
+			P_SaxCtx->sax = 0;
+		if(P_SaxCtx->myDoc) {
+			xmlFreeDoc(P_SaxCtx->myDoc);
+			P_SaxCtx->myDoc = NULL;
 		}
-		xmlFreeParserCtxt(SaxCtx);
-		SaxCtx = 0;
+		xmlFreeParserCtxt(P_SaxCtx);
+		P_SaxCtx = 0;
 	}
 	return ret;
 }
 
 void PrcssrOsm::SaxStop()
 {
-	xmlStopParser(SaxCtx);
+	xmlStopParser(P_SaxCtx);
 }
 
 int PrcssrOsm::StartDocument()

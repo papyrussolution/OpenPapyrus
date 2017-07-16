@@ -203,12 +203,12 @@ static void xmlSchemaTypeErrMemory(xmlNodePtr node, const char * extra)
 static xmlSchemaValPtr xmlSchemaNewValue(xmlSchemaValType type)
 {
 	xmlSchemaValPtr value = (xmlSchemaValPtr)SAlloc::M(sizeof(xmlSchemaVal));
-	if(value == NULL) {
+	if(!value) {
 		return 0;
 	}
 	memzero(value, sizeof(xmlSchemaVal));
 	value->type = type;
-	return(value);
+	return value;
 }
 
 static xmlSchemaFacetPtr xmlSchemaNewMinLengthFacet(int value)
@@ -862,18 +862,15 @@ xmlSchemaValPtr xmlSchemaNewQNameValue(const xmlChar * namespaceName, const xmlC
 	}
 	return val;
 }
-
 /**
- * xmlSchemaFreeValue:
  * @value:  the value to free
  *
  * Cleanup the default XML Schemas type library
  */
-void xmlSchemaFreeValue(xmlSchemaValPtr value)
+void FASTCALL xmlSchemaFreeValue(xmlSchemaVal * pValue)
 {
-	xmlSchemaValPtr prev;
-	while(value != NULL) {
-		switch(value->type) {
+	while(pValue) {
+		switch(pValue->type) {
 			case XML_SCHEMAS_STRING:
 			case XML_SCHEMAS_NORMSTRING:
 			case XML_SCHEMAS_TOKEN:
@@ -889,25 +886,25 @@ void xmlSchemaFreeValue(xmlSchemaValPtr value)
 			case XML_SCHEMAS_ENTITIES:
 			case XML_SCHEMAS_ANYURI:
 			case XML_SCHEMAS_ANYSIMPLETYPE:
-			    SAlloc::F(value->value.str);
+			    SAlloc::F(pValue->value.str);
 			    break;
 			case XML_SCHEMAS_NOTATION:
 			case XML_SCHEMAS_QNAME:
-			    SAlloc::F(value->value.qname.uri);
-			    SAlloc::F(value->value.qname.name);
+			    SAlloc::F(pValue->value.qname.uri);
+			    SAlloc::F(pValue->value.qname.name);
 			    break;
 			case XML_SCHEMAS_HEXBINARY:
-			    SAlloc::F(value->value.hex.str);
+			    SAlloc::F(pValue->value.hex.str);
 			    break;
 			case XML_SCHEMAS_BASE64BINARY:
-			    SAlloc::F(value->value.base64.str);
+			    SAlloc::F(pValue->value.base64.str);
 			    break;
 			default:
 			    break;
 		}
-		prev = value;
-		value = value->next;
-		SAlloc::F(prev);
+		xmlSchemaVal * p_prev = pValue;
+		pValue = pValue->next;
+		SAlloc::F(p_prev);
 	}
 }
 
@@ -1705,7 +1702,7 @@ error:
 static xmlChar * xmlSchemaStrip(const xmlChar * value) {
 	const xmlChar * start = value, * end, * f;
 
-	if(value == NULL) return 0;
+	if(!value) return 0;
 	while((*start != 0) && (IS_BLANK_CH(*start))) start++;
 	end = start;
 	while(*end != 0) end++;
@@ -1729,7 +1726,7 @@ xmlChar * xmlSchemaWhiteSpaceReplace(const xmlChar * value) {
 	const xmlChar * cur = value;
 	xmlChar * ret = NULL, * mcur;
 
-	if(value == NULL)
+	if(!value)
 		return 0;
 
 	while((*cur != 0) &&
@@ -1762,7 +1759,7 @@ xmlChar * xmlSchemaCollapseString(const xmlChar * value) {
 	xmlChar * g;
 	int col = 0;
 
-	if(value == NULL) return 0;
+	if(!value) return 0;
 	while((*start != 0) && (IS_BLANK_CH(*start))) start++;
 	end = start;
 	while(*end != 0) {
@@ -1821,7 +1818,7 @@ static int xmlSchemaValAtomicListNode(xmlSchemaTypePtr type, const xmlChar * val
 	int nb_values = 0;
 	int tmp = 0;
 
-	if(value == NULL) {
+	if(!value) {
 		return -1;
 	}
 	val = xmlStrdup(value);
@@ -1957,7 +1954,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 	 * validating a non existant text node is similar to validating
 	 * an empty one.
 	 */
-	if(value == NULL)
+	if(!value)
 		value = BAD_CAST "";
 
 	if(val)
@@ -2541,7 +2538,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 					    SAlloc::F(local);
 				    goto return1;
 			    }
-			    if(ns != NULL)
+			    if(ns)
 				    uri = ns->href;
 			    if(prefix != NULL)
 				    SAlloc::F(prefix);
@@ -4425,7 +4422,7 @@ static int xmlSchemaCompareNormStrings(const xmlChar * x,
 		if(IS_BLANK_CH(*x)) {
 			if(!IS_BLANK_CH(*y)) {
 				tmp = *x - *y;
-				return(tmp);
+				return tmp;
 			}
 			while(IS_BLANK_CH(*x)) x++;
 			while(IS_BLANK_CH(*y)) y++;
@@ -4862,7 +4859,7 @@ static int xmlSchemaNormLen(const xmlChar * value) {
 	const xmlChar * utf;
 	int ret = 0;
 
-	if(value == NULL)
+	if(!value)
 		return -1;
 	utf = value;
 	while(IS_BLANK_CH(*utf)) utf++;
@@ -5162,7 +5159,7 @@ static int xmlSchemaValidateFacetInternal(xmlSchemaFacetPtr facet,
 		     * NOTE that for patterns, the @value needs to be the normalized
 		     * value, *not* the lexical initial value or the canonical value.
 		     */
-		    if(value == NULL)
+		    if(!value)
 			    return -1;
 		    ret = xmlRegexpExec(facet->regexp, value);
 		    if(ret == 1)

@@ -205,7 +205,7 @@ static int policy_data_cmp(const X509_POLICY_DATA * const * a,
 
 static int policy_cache_set_int(long * out, ASN1_INTEGER * value)
 {
-	if(value == NULL)
+	if(!value)
 		return 1;
 	if(value->type == V_ASN1_NEG_INTEGER)
 		return 0;

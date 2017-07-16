@@ -34,7 +34,7 @@ const xmlChar * htmlGetMetaEncoding(htmlDocPtr doc)
 	htmlNodePtr cur;
 	const xmlChar * content;
 	const xmlChar * encoding;
-	if(doc == NULL)
+	if(!doc)
 		return NULL;
 	cur = doc->children;
 	/*
@@ -42,11 +42,11 @@ const xmlChar * htmlGetMetaEncoding(htmlDocPtr doc)
 	 */
 	while(cur) {
 		if((cur->type == XML_ELEMENT_NODE) && (cur->name != NULL)) {
-			if(sstreq(cur->name, BAD_CAST "html"))
+			if(sstreq(cur->name, "html"))
 				break;
-			if(sstreq(cur->name, BAD_CAST "head"))
+			if(sstreq(cur->name, "head"))
 				goto found_head;
-			if(sstreq(cur->name, BAD_CAST "meta"))
+			if(sstreq(cur->name, "meta"))
 				goto found_meta;
 		}
 		cur = cur->next;
@@ -59,9 +59,9 @@ const xmlChar * htmlGetMetaEncoding(htmlDocPtr doc)
 	 */
 	while(cur) {
 		if((cur->type == XML_ELEMENT_NODE) && (cur->name != NULL)) {
-			if(sstreq(cur->name, BAD_CAST "head"))
+			if(sstreq(cur->name, "head"))
 				break;
-			if(sstreq(cur->name, BAD_CAST "meta"))
+			if(sstreq(cur->name, "meta"))
 				goto found_meta;
 		}
 		cur = cur->next;
@@ -77,7 +77,7 @@ found_head:
 found_meta:
 	while(cur) {
 		if((cur->type == XML_ELEMENT_NODE) && (cur->name != NULL)) {
-			if(sstreq(cur->name, BAD_CAST "meta")) {
+			if(sstreq(cur->name, "meta")) {
 				xmlAttrPtr attr = cur->properties;
 				int http = 0;
 				const xmlChar * value;
@@ -87,7 +87,7 @@ found_meta:
 						value = attr->children->content;
 						if((!xmlStrcasecmp(attr->name, BAD_CAST "http-equiv")) && (!xmlStrcasecmp(value, BAD_CAST "Content-Type")))
 							http = 1;
-						else if((value != NULL) && (!xmlStrcasecmp(attr->name, BAD_CAST "content")))
+						else if(value && (!xmlStrcasecmp(attr->name, BAD_CAST "content")))
 							content = value;
 						if((http != 0) && (content != NULL))
 							goto found_content;
@@ -137,7 +137,7 @@ int htmlSetMetaEncoding(htmlDocPtr doc, const xmlChar * encoding)
 	const xmlChar * content = NULL;
 	char newcontent[100];
 	newcontent[0] = 0;
-	if(doc == NULL)
+	if(!doc)
 		return -1;
 	/* html isn't a real encoding it's just libxml2 way to get entities */
 	if(!xmlStrcasecmp(encoding, BAD_CAST "html"))
@@ -204,7 +204,7 @@ found_meta:
 						if((!xmlStrcasecmp(attr->name, BAD_CAST "http-equiv")) && (!xmlStrcasecmp(value, BAD_CAST "Content-Type")))
 							http = 1;
 						else {
-							if((value != NULL) && (!xmlStrcasecmp(attr->name, BAD_CAST "content")))
+							if(value && (!xmlStrcasecmp(attr->name, BAD_CAST "content")))
 								content = value;
 						}
 						if((http != 0) && (content != NULL))
@@ -634,7 +634,7 @@ static void htmlAttrDumpOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlAttrPtr
 		return;
 	}
 	xmlOutputBufferWriteString(buf, " ");
-	if((cur->ns != NULL) && (cur->ns->prefix != NULL)) {
+	if(cur->ns && (cur->ns->prefix != NULL)) {
 		xmlOutputBufferWriteString(buf, (const char*)cur->ns->prefix);
 		xmlOutputBufferWriteString(buf, ":");
 	}
@@ -805,7 +805,7 @@ void htmlNodeDumpFormatOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlNodePtr 
 	else {
 		const htmlElemDesc * info = cur->ns ? 0 : htmlTagLookup(cur->name); // Get specific HTML info for that node.
 		xmlOutputBufferWriteString(buf, "<");
-		if((cur->ns != NULL) && (cur->ns->prefix != NULL)) {
+		if(cur->ns && (cur->ns->prefix != NULL)) {
 			xmlOutputBufferWriteString(buf, (const char*)cur->ns->prefix);
 			xmlOutputBufferWriteString(buf, ":");
 		}
@@ -856,7 +856,7 @@ void htmlNodeDumpFormatOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlNodePtr 
 					xmlOutputBufferWriteString(buf, "\n");
 			}
 			xmlOutputBufferWriteString(buf, "</");
-			if((cur->ns != NULL) && (cur->ns->prefix != NULL)) {
+			if(cur->ns && (cur->ns->prefix != NULL)) {
 				xmlOutputBufferWriteString(buf, (const char*)cur->ns->prefix);
 				xmlOutputBufferWriteString(buf, ":");
 			}

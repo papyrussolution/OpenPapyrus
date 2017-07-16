@@ -255,7 +255,7 @@ int ENGINE_ctrl_cmd_string(ENGINE * e, const char * cmd_name, const char * arg,
 		return 0;
 	}
 
-	flags = ENGINE_ctrl(e, ENGINE_CTRL_GET_CMD_FLAGS, num, NULL, NULL);
+	flags = ENGINE_ctrl(e, ENGINE_CTRL_GET_CMD_FLAGS, num, 0, 0);
 	if(flags < 0) {
 		/*
 		 * Shouldn't happen, given that ENGINE_cmd_is_executable() returned

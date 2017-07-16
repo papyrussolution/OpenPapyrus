@@ -1611,7 +1611,7 @@ static bool InsideHead(TidyDocImpl* doc, Node * node)
 	if(nodeIsHEAD(node) )
 		return true;
 
-	if(node->parent != NULL)
+	if(node->parent)
 		return InsideHead(doc, node->parent);
 
 	return false;

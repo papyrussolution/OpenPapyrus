@@ -284,7 +284,7 @@ SOAP_FMAC3 int SOAP_FMAC4 soap_putheader(struct soap * soap)
 SOAP_FMAC3 int SOAP_FMAC4 soap_getheader(struct soap * soap)
 {
 	soap->part = SOAP_IN_HEADER;
-	soap->header = soap_in_SOAP_ENV__Header(soap, "SOAP-ENV:Header", NULL, NULL);
+	soap->header = soap_in_SOAP_ENV__Header(soap, "SOAP-ENV:Header", 0, 0);
 	soap->part = SOAP_END_HEADER;
 	return soap->header == NULL;
 }

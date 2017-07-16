@@ -218,12 +218,12 @@ ASN1_OBJECT * OBJ_nid2obj(int n)
 	if((n >= 0) && (n < NUM_NID)) {
 		if((n != NID_undef) && (nid_objs[n].nid == NID_undef)) {
 			OBJerr(OBJ_F_OBJ_NID2OBJ, OBJ_R_UNKNOWN_NID);
-			return (NULL);
+			return NULL;
 		}
 		return ((ASN1_OBJECT*)&(nid_objs[n]));
 	}
 	else if(added == NULL)
-		return (NULL);
+		return NULL;
 	else {
 		ad.type = ADDED_NID;
 		ad.obj = &ob;
@@ -233,7 +233,7 @@ ASN1_OBJECT * OBJ_nid2obj(int n)
 			return (adp->obj);
 		else {
 			OBJerr(OBJ_F_OBJ_NID2OBJ, OBJ_R_UNKNOWN_NID);
-			return (NULL);
+			return NULL;
 		}
 	}
 }
@@ -246,12 +246,12 @@ const char * OBJ_nid2sn(int n)
 	if((n >= 0) && (n < NUM_NID)) {
 		if((n != NID_undef) && (nid_objs[n].nid == NID_undef)) {
 			OBJerr(OBJ_F_OBJ_NID2SN, OBJ_R_UNKNOWN_NID);
-			return (NULL);
+			return NULL;
 		}
 		return (nid_objs[n].sn);
 	}
 	else if(added == NULL)
-		return (NULL);
+		return NULL;
 	else {
 		ad.type = ADDED_NID;
 		ad.obj = &ob;
@@ -261,7 +261,7 @@ const char * OBJ_nid2sn(int n)
 			return (adp->obj->sn);
 		else {
 			OBJerr(OBJ_F_OBJ_NID2SN, OBJ_R_UNKNOWN_NID);
-			return (NULL);
+			return NULL;
 		}
 	}
 }
@@ -274,12 +274,12 @@ const char * OBJ_nid2ln(int n)
 	if((n >= 0) && (n < NUM_NID)) {
 		if((n != NID_undef) && (nid_objs[n].nid == NID_undef)) {
 			OBJerr(OBJ_F_OBJ_NID2LN, OBJ_R_UNKNOWN_NID);
-			return (NULL);
+			return NULL;
 		}
 		return (nid_objs[n].ln);
 	}
 	else if(added == NULL)
-		return (NULL);
+		return NULL;
 	else {
 		ad.type = ADDED_NID;
 		ad.obj = &ob;
@@ -289,7 +289,7 @@ const char * OBJ_nid2ln(int n)
 			return (adp->obj->ln);
 		else {
 			OBJerr(OBJ_F_OBJ_NID2LN, OBJ_R_UNKNOWN_NID);
-			return (NULL);
+			return NULL;
 		}
 	}
 }
@@ -589,7 +589,7 @@ const void * OBJ_bsearch_ex_(const void * key, const void * base_, int num,
 	int l, h, i = 0, c = 0;
 	const char * p = NULL;
 	if(num == 0)
-		return (NULL);
+		return NULL;
 	l = 0;
 	h = num;
 	while(l < h) {

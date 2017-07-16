@@ -657,7 +657,7 @@ public:
 	uint ReadReceiptNum;		// Порядковый номер квитанции, прочитанной из ReceiptList
 	double BillSumWithoutVat;	// Сумма документа без НДС (придется считать самостоятельно, ибо в Sdr_Bill этот праметр не передается)
 	SString ExpFileName;
-	xmlTextWriterPtr P_XmlWriter;
+	xmlTextWriter * P_XmlWriter;
 	Iterator Itr;
 	SPathStruc PathStruct;
 	Sdr_Bill Bill;

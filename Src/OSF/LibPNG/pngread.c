@@ -44,7 +44,7 @@ PNG_FUNCTION(png_structp, PNGAPI
 	    error_fn, warn_fn, mem_ptr, malloc_fn, free_fn);
 #endif /* USER_MEM */
 
-	if(png_ptr != NULL) {
+	if(png_ptr) {
 		png_ptr->mode = PNG_IS_READ_STRUCT;
 
 		/* Added in libpng-1.6.0; this can be used to detect a read structure if
@@ -69,7 +69,7 @@ PNG_FUNCTION(png_structp, PNGAPI
 		 * do it itself) avoiding setting the default function if it is not
 		 * required.
 		 */
-		png_set_read_fn(png_ptr, NULL, NULL);
+		png_set_read_fn(png_ptr, 0, 0);
 	}
 
 	return png_ptr;
@@ -215,7 +215,7 @@ void PNGAPI png_read_info(png_structrp png_ptr, png_inforp info_ptr)
 void PNGAPI png_read_update_info(png_structrp png_ptr, png_inforp info_ptr)
 {
 	png_debug(1, "in png_read_update_info");
-	if(png_ptr != NULL) {
+	if(png_ptr) {
 		if((png_ptr->flags & PNG_FLAG_ROW_INIT) == 0) {
 			png_read_start_row(png_ptr);
 #ifdef PNG_READ_TRANSFORMS_SUPPORTED
@@ -239,7 +239,7 @@ void PNGAPI png_read_update_info(png_structrp png_ptr, png_inforp info_ptr)
 void PNGAPI png_start_read_image(png_structrp png_ptr)
 {
 	png_debug(1, "in png_start_read_image");
-	if(png_ptr != NULL) {
+	if(png_ptr) {
 		if((png_ptr->flags & PNG_FLAG_ROW_INIT) == 0)
 			png_read_start_row(png_ptr);
 		/* New in 1.6.0 this avoids the bug of doing the initializations twice */
@@ -1172,7 +1172,7 @@ static int png_image_read_init(png_imagep image)
 		 */
 		memzero(image, (sizeof *image));
 		image->version = PNG_IMAGE_VERSION;
-		if(png_ptr != NULL) {
+		if(png_ptr) {
 			png_infop info_ptr = png_create_info_struct(png_ptr);
 			if(info_ptr != NULL) {
 				png_controlp control = png_voidcast(png_controlp, png_malloc_warn(png_ptr, (sizeof *control)));
@@ -1187,7 +1187,7 @@ static int png_image_read_init(png_imagep image)
 				/* Error clean up */
 				png_destroy_info_struct(png_ptr, &info_ptr);
 			}
-			png_destroy_read_struct(&png_ptr, NULL, NULL);
+			png_destroy_read_struct(&png_ptr, 0, 0);
 		}
 		return png_image_error(image, "png_image_read: out of memory");
 	}
@@ -1337,7 +1337,7 @@ int PNGAPI png_image_begin_read_from_file(png_imagep image, const char * file_na
 
 static void PNGCBAPI png_image_memory_read(png_structp png_ptr, png_bytep out, size_t need)
 {
-	if(png_ptr != NULL) {
+	if(png_ptr) {
 		png_imagep image = png_voidcast(png_imagep, png_ptr->io_ptr);
 		if(image != NULL) {
 			png_controlp cp = image->opaque;

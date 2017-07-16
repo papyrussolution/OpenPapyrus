@@ -96,7 +96,7 @@ static inline int __txn_ckp_log(ENV *env, DB_TXN *txnp, DB_LSN *ret_lsnp, uint32
 static inline int __txn_ckp_read(ENV *env, void *data, __txn_ckp_args **arg)
 {
 	*arg = NULL;
-	return (__log_read_record(env, NULL, NULL, data, __txn_ckp_desc, sizeof(__txn_ckp_args), (void**)arg));
+	return (__log_read_record(env, 0, 0, data, __txn_ckp_desc, sizeof(__txn_ckp_args), (void**)arg));
 }
 #define	DB___txn_child	12
 typedef struct ___txn_child_args {

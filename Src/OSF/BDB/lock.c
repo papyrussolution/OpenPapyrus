@@ -331,7 +331,7 @@ int __lock_get_pp(DB_ENV * dbenv, uint32 locker, uint32 flags, DBT * obj, db_loc
 	ENV_ENTER(env, ip);
 	REPLICATION_WRAP(env, (__lock_get_api(env, locker, flags, obj, lock_mode, lock)), 0, ret);
 	ENV_LEAVE(env, ip);
-	__dbt_userfree(env, obj, NULL, NULL);
+	__dbt_userfree(env, obj, 0, 0);
 	return ret;
 }
 

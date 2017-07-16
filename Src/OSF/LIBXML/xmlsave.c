@@ -22,19 +22,12 @@
 *			XHTML detection					*
 *									*
 ************************************************************************/
-#define XHTML_STRICT_PUBLIC_ID BAD_CAST	\
-	"-//W3C//DTD XHTML 1.0 Strict//EN"
-#define XHTML_STRICT_SYSTEM_ID BAD_CAST	\
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
-#define XHTML_FRAME_PUBLIC_ID BAD_CAST \
-	"-//W3C//DTD XHTML 1.0 Frameset//EN"
-#define XHTML_FRAME_SYSTEM_ID BAD_CAST \
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd"
-#define XHTML_TRANS_PUBLIC_ID BAD_CAST \
-	"-//W3C//DTD XHTML 1.0 Transitional//EN"
-#define XHTML_TRANS_SYSTEM_ID BAD_CAST \
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"
-
+#define XHTML_STRICT_PUBLIC_ID BAD_CAST	"-//W3C//DTD XHTML 1.0 Strict//EN"
+#define XHTML_STRICT_SYSTEM_ID BAD_CAST	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
+#define XHTML_FRAME_PUBLIC_ID BAD_CAST "-//W3C//DTD XHTML 1.0 Frameset//EN"
+#define XHTML_FRAME_SYSTEM_ID BAD_CAST "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd"
+#define XHTML_TRANS_PUBLIC_ID BAD_CAST "-//W3C//DTD XHTML 1.0 Transitional//EN"
+#define XHTML_TRANS_SYSTEM_ID BAD_CAST "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"
 #define XHTML_NS_NAME BAD_CAST "http://www.w3.org/1999/xhtml"
 /**
  * xmlIsXHTML:
@@ -235,7 +228,7 @@ static int xmlEscapeEntities(uchar* out, int * outlen,
 			if(outend - out < 11) break;
 
 			if(*in < 0xC0) {
-				xmlSaveErr(XML_SAVE_NOT_UTF8, NULL, NULL);
+				xmlSaveErr(XML_SAVE_NOT_UTF8, 0, 0);
 				in++;
 				goto error;
 			}
@@ -267,12 +260,12 @@ static int xmlEscapeEntities(uchar* out, int * outlen,
 				in += 4;
 			}
 			else {
-				xmlSaveErr(XML_SAVE_CHAR_INVALID, NULL, NULL);
+				xmlSaveErr(XML_SAVE_CHAR_INVALID, 0, 0);
 				in++;
 				goto error;
 			}
 			if(!IS_CHAR(val)) {
-				xmlSaveErr(XML_SAVE_CHAR_INVALID, NULL, NULL);
+				xmlSaveErr(XML_SAVE_CHAR_INVALID, 0, 0);
 				in++;
 				goto error;
 			}
@@ -735,7 +728,7 @@ static void xmlAttrDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur) {
 		xmlOutputBufferWriteWSNonSig(ctxt, 2);
 	else
 		xmlOutputBufferWrite(buf, 1, " ");
-	if((cur->ns != NULL) && (cur->ns->prefix != NULL)) {
+	if(cur->ns && (cur->ns->prefix != NULL)) {
 		xmlOutputBufferWriteString(buf, (const char*)cur->ns->prefix);
 		xmlOutputBufferWrite(buf, 1, ":");
 	}
@@ -991,7 +984,7 @@ static void xmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 	format = ctxt->format;
 	if(format == 1) {
 		tmp = cur->children;
-		while(tmp != NULL) {
+		while(tmp) {
 			if((tmp->type == XML_TEXT_NODE) || (tmp->type == XML_CDATA_SECTION_NODE) || (tmp->type == XML_ENTITY_REF_NODE)) {
 				ctxt->format = 0;
 				break;
@@ -1000,7 +993,7 @@ static void xmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 		}
 	}
 	xmlOutputBufferWrite(buf, 1, "<");
-	if((cur->ns != NULL) && (cur->ns->prefix != NULL)) {
+	if(cur->ns && (cur->ns->prefix != NULL)) {
 		xmlOutputBufferWriteString(buf, (const char*)cur->ns->prefix);
 		xmlOutputBufferWrite(buf, 1, ":");
 	}
@@ -1036,7 +1029,7 @@ static void xmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 			    ctxt->indent);
 	}
 	xmlOutputBufferWrite(buf, 2, "</");
-	if((cur->ns != NULL) && (cur->ns->prefix != NULL)) {
+	if(cur->ns && (cur->ns->prefix != NULL)) {
 		xmlOutputBufferWriteString(buf, (const char*)cur->ns->prefix);
 		xmlOutputBufferWrite(buf, 1, ":");
 	}
@@ -1215,47 +1208,47 @@ static int xhtmlIsEmpty(xmlNodePtr node)
 		return 0;
 	switch(node->name[0]) {
 		case 'a':
-		    if(sstreq(node->name, BAD_CAST "area"))
+		    if(sstreq(node->name, "area"))
 			    return 1;
 		    return 0;
 		case 'b':
-		    if(sstreq(node->name, BAD_CAST "br"))
+		    if(sstreq(node->name, "br"))
 			    return 1;
-		    if(sstreq(node->name, BAD_CAST "base"))
+		    if(sstreq(node->name, "base"))
 			    return 1;
-		    if(sstreq(node->name, BAD_CAST "basefont"))
+		    if(sstreq(node->name, "basefont"))
 			    return 1;
 		    return 0;
 		case 'c':
-		    if(sstreq(node->name, BAD_CAST "col"))
+		    if(sstreq(node->name, "col"))
 			    return 1;
 		    return 0;
 		case 'f':
-		    if(sstreq(node->name, BAD_CAST "frame"))
+		    if(sstreq(node->name, "frame"))
 			    return 1;
 		    return 0;
 		case 'h':
-		    if(sstreq(node->name, BAD_CAST "hr"))
+		    if(sstreq(node->name, "hr"))
 			    return 1;
 		    return 0;
 		case 'i':
-		    if(sstreq(node->name, BAD_CAST "img"))
+		    if(sstreq(node->name, "img"))
 			    return 1;
-		    if(sstreq(node->name, BAD_CAST "input"))
+		    if(sstreq(node->name, "input"))
 			    return 1;
-		    if(sstreq(node->name, BAD_CAST "isindex"))
+		    if(sstreq(node->name, "isindex"))
 			    return 1;
 		    return 0;
 		case 'l':
-		    if(sstreq(node->name, BAD_CAST "link"))
+		    if(sstreq(node->name, "link"))
 			    return 1;
 		    return 0;
 		case 'm':
-		    if(sstreq(node->name, BAD_CAST "meta"))
+		    if(sstreq(node->name, "meta"))
 			    return 1;
 		    return 0;
 		case 'p':
-		    if(sstreq(node->name, BAD_CAST "param"))
+		    if(sstreq(node->name, "param"))
 			    return 1;
 		    return 0;
 	}
@@ -1280,14 +1273,13 @@ static void xhtmlAttrListDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur) {
 	buf = ctxt->buf;
 	parent = cur->parent;
 	while(cur) {
-		if((cur->ns == NULL) && (sstreq(cur->name, BAD_CAST "id")))
+		if((cur->ns == NULL) && (sstreq(cur->name, "id")))
 			id = cur;
-		else if((cur->ns == NULL) && (sstreq(cur->name, BAD_CAST "name")))
+		else if((cur->ns == NULL) && (sstreq(cur->name, "name")))
 			name = cur;
-		else if((cur->ns == NULL) && (sstreq(cur->name, BAD_CAST "lang")))
+		else if((cur->ns == NULL) && (sstreq(cur->name, "lang")))
 			lang = cur;
-		else if((cur->ns != NULL) && (sstreq(cur->name, BAD_CAST "lang")) &&
-		    (sstreq(cur->ns->prefix, BAD_CAST "xml")))
+		else if(cur->ns && (sstreq(cur->name, "lang")) && (sstreq(cur->ns->prefix, "xml")))
 			xml_lang = cur;
 		else if((cur->ns == NULL) &&
 		    ((cur->children == NULL) ||
@@ -1307,16 +1299,10 @@ static void xhtmlAttrListDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur) {
 	 * C.8
 	 */
 	if((name != NULL) && (id == NULL)) {
-		if((parent != NULL) && (parent->name != NULL) &&
-		    ((sstreq(parent->name, BAD_CAST "a")) ||
-			    (sstreq(parent->name, BAD_CAST "p")) ||
-			    (sstreq(parent->name, BAD_CAST "div")) ||
-			    (sstreq(parent->name, BAD_CAST "img")) ||
-			    (sstreq(parent->name, BAD_CAST "map")) ||
-			    (sstreq(parent->name, BAD_CAST "applet")) ||
-			    (sstreq(parent->name, BAD_CAST "form")) ||
-			    (sstreq(parent->name, BAD_CAST "frame")) ||
-			    (sstreq(parent->name, BAD_CAST "iframe")))) {
+		if((parent != NULL) && (parent->name != NULL) && ((sstreq(parent->name, "a")) ||
+			    (sstreq(parent->name, "p")) || (sstreq(parent->name, "div")) || (sstreq(parent->name, "img")) ||
+			    (sstreq(parent->name, "map")) || (sstreq(parent->name, "applet")) || (sstreq(parent->name, "form")) ||
+			    (sstreq(parent->name, "frame")) || (sstreq(parent->name, "iframe")))) {
 			xmlOutputBufferWrite(buf, 5, " id=\"");
 			xmlAttrSerializeContent(buf, name);
 			xmlOutputBufferWrite(buf, 1, "\"");
@@ -1497,13 +1483,11 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 		xmlAttrDumpOutput(ctxt, (xmlAttrPtr)cur);
 		return;
 	}
-
 	format = ctxt->format;
 	if(format == 1) {
 		tmp = cur->children;
-		while(tmp != NULL) {
-			if((tmp->type == XML_TEXT_NODE) ||
-			    (tmp->type == XML_ENTITY_REF_NODE)) {
+		while(tmp) {
+			if((tmp->type == XML_TEXT_NODE) || (tmp->type == XML_ENTITY_REF_NODE)) {
 				format = 0;
 				break;
 			}
@@ -1511,14 +1495,14 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 		}
 	}
 	xmlOutputBufferWrite(buf, 1, "<");
-	if((cur->ns != NULL) && (cur->ns->prefix != NULL)) {
+	if(cur->ns && (cur->ns->prefix != NULL)) {
 		xmlOutputBufferWriteString(buf, (const char*)cur->ns->prefix);
 		xmlOutputBufferWrite(buf, 1, ":");
 	}
 
 	xmlOutputBufferWriteString(buf, (const char*)cur->name);
 	xmlNsListDumpOutputCtxt(ctxt, cur->nsDef);
-	if((sstreq(cur->name, BAD_CAST "html") && (cur->ns == NULL) && (cur->nsDef == NULL))) {
+	if((sstreq(cur->name, "html") && (cur->ns == NULL) && (cur->nsDef == NULL))) {
 		/*
 		 * 3.1.1. Strictly Conforming Documents A.3.1.1 3/
 		 */
@@ -1527,10 +1511,10 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 	if(cur->properties != NULL)
 		xhtmlAttrListDumpOutput(ctxt, cur->properties);
 	if((cur->type == XML_ELEMENT_NODE) && cur->parent && (cur->parent->parent == (xmlNode *)cur->doc) &&
-	    sstreq(cur->name, BAD_CAST "head") && sstreq(cur->parent->name, BAD_CAST "html")) {
+	    sstreq(cur->name, "head") && sstreq(cur->parent->name, "html")) {
 		tmp = cur->children;
-		while(tmp != NULL) {
-			if(sstreq(tmp->name, BAD_CAST "meta")) {
+		while(tmp) {
+			if(sstreq(tmp->name, "meta")) {
 				xmlChar * httpequiv = xmlGetProp(tmp, BAD_CAST "http-equiv");
 				if(httpequiv) {
 					if(xmlStrcasecmp(httpequiv, BAD_CAST "Content-Type") == 0) {
@@ -1579,7 +1563,7 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 			 * C.3. Element Minimization and Empty Element Content
 			 */
 			xmlOutputBufferWrite(buf, 2, "</");
-			if((cur->ns != NULL) && (cur->ns->prefix != NULL)) {
+			if(cur->ns && (cur->ns->prefix != NULL)) {
 				xmlOutputBufferWriteString(buf, (const char*)cur->ns->prefix);
 				xmlOutputBufferWrite(buf, 1, ":");
 			}
@@ -1616,11 +1600,8 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 	/*
 	 * 4.8. Script and Style elements
 	 */
-	if((cur->type == XML_ELEMENT_NODE) &&
-	    ((sstreq(cur->name, BAD_CAST "script")) ||
-		    (sstreq(cur->name, BAD_CAST "style"))) &&
-	    ((cur->ns == NULL) ||
-		    (sstreq(cur->ns->href, XHTML_NS_NAME)))) {
+	if((cur->type == XML_ELEMENT_NODE) && ((sstreq(cur->name, "script")) || (sstreq(cur->name, "style"))) &&
+	    ((cur->ns == NULL) || (sstreq(cur->ns->href, XHTML_NS_NAME)))) {
 		xmlNodePtr child = cur->children;
 
 		while(child != NULL) {
@@ -1698,7 +1679,7 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 			    ctxt->indent);
 	}
 	xmlOutputBufferWrite(buf, 2, "</");
-	if((cur->ns != NULL) && (cur->ns->prefix != NULL)) {
+	if(cur->ns && (cur->ns->prefix != NULL)) {
 		xmlOutputBufferWriteString(buf, (const char*)cur->ns->prefix);
 		xmlOutputBufferWrite(buf, 1, ":");
 	}
@@ -2212,7 +2193,7 @@ void xmlElemDump(FILE * f, xmlDocPtr doc, xmlNodePtr cur)
 	}
 	else {
 #ifdef DEBUG_TREE
-		if(doc == NULL) {
+		if(!doc) {
 			xmlGenericError(0, "xmlElemDump : doc == NULL\n");
 		}
 #endif

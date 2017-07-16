@@ -157,9 +157,9 @@ const char * OBJ_NAME_get(const char * name, int type)
 	int num = 0, alias;
 
 	if(name == NULL)
-		return (NULL);
+		return NULL;
 	if((names_lh == NULL) && !OBJ_NAME_init())
-		return (NULL);
+		return NULL;
 
 	alias = type & OBJ_NAME_ALIAS;
 	type &= ~OBJ_NAME_ALIAS;
@@ -170,10 +170,10 @@ const char * OBJ_NAME_get(const char * name, int type)
 	for(;; ) {
 		ret = lh_OBJ_NAME_retrieve(names_lh, &on);
 		if(!ret)
-			return (NULL);
+			return NULL;
 		if((ret->alias) && !alias) {
 			if(++num > 10)
-				return (NULL);
+				return NULL;
 			on.name = ret->data;
 		}
 		else {

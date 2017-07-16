@@ -1228,7 +1228,7 @@ STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(const SSL_METHOD *ssl_method, STACK
 	co_list = (CIPHER_ORDER*)OPENSSL_malloc(sizeof(*co_list) * num_of_ciphers);
 	if(co_list == NULL) {
 		SSLerr(SSL_F_SSL_CREATE_CIPHER_LIST, ERR_R_MALLOC_FAILURE);
-		return (NULL);  /* Failure */
+		return NULL;  /* Failure */
 	}
 	ssl_cipher_collect_ciphers(ssl_method, num_of_ciphers, disabled_mkey, disabled_auth, disabled_enc, disabled_mac, co_list, &head, &tail);
 	/* Now arrange all ciphers by preference. */
@@ -1315,7 +1315,7 @@ STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(const SSL_METHOD *ssl_method, STACK
 	if(ca_list == NULL) {
 		OPENSSL_free(co_list);
 		SSLerr(SSL_F_SSL_CREATE_CIPHER_LIST, ERR_R_MALLOC_FAILURE);
-		return (NULL);  /* Failure */
+		return NULL;  /* Failure */
 	}
 	ssl_cipher_collect_aliases(ca_list, num_of_group_aliases, disabled_mkey, disabled_auth, disabled_enc, disabled_mac, head);
 	/*
@@ -1335,7 +1335,7 @@ STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(const SSL_METHOD *ssl_method, STACK
 	OPENSSL_free((void*)ca_list); // @badcast       /* Not needed anymore */
 	if(!ok) {               /* Rule processing failure */
 		OPENSSL_free(co_list);
-		return (NULL);
+		return NULL;
 	}
 	/*
 	 * Allocate new "cipherstack" for the result, return with error
@@ -1343,7 +1343,7 @@ STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(const SSL_METHOD *ssl_method, STACK
 	 */
 	if((cipherstack = sk_SSL_CIPHER_new_null()) == NULL) {
 		OPENSSL_free(co_list);
-		return (NULL);
+		return NULL;
 	}
 	/*
 	 * The cipher selection for the list is done. The ciphers are added
@@ -1502,14 +1502,14 @@ SSL_COMP * ssl3_comp_find(STACK_OF(SSL_COMP) * sk, int n)
 	SSL_COMP * ctmp;
 	int i, nn;
 	if((n == 0) || (sk == NULL))
-		return (NULL);
+		return NULL;
 	nn = sk_SSL_COMP_num(sk);
 	for(i = 0; i < nn; i++) {
 		ctmp = sk_SSL_COMP_value(sk, i);
 		if(ctmp->id == n)
 			return (ctmp);
 	}
-	return (NULL);
+	return NULL;
 }
 
 #ifdef OPENSSL_NO_COMP

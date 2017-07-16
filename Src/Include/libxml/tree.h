@@ -668,7 +668,7 @@ XMLPUBFUN xmlBufferPtr XMLCALL xmlBufferCreate();
 XMLPUBFUN xmlBufferPtr XMLCALL xmlBufferCreateSize(size_t size);
 XMLPUBFUN xmlBufferPtr XMLCALL xmlBufferCreateStatic(void * mem, size_t size);
 XMLPUBFUN int XMLCALL xmlBufferResize(xmlBufferPtr buf, uint size);
-XMLPUBFUN void XMLCALL xmlBufferFree(xmlBufferPtr buf);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlBufferFree(xmlBuffer * pBuf);
 XMLPUBFUN int XMLCALL xmlBufferDump(FILE * file, xmlBufferPtr buf);
 XMLPUBFUN int XMLCALL xmlBufferAdd(xmlBufferPtr buf, const xmlChar * str, int len);
 XMLPUBFUN int XMLCALL xmlBufferAddHead(xmlBufferPtr buf, const xmlChar * str, int len);
@@ -687,7 +687,7 @@ XMLPUBFUN int XMLCALL xmlBufferLength(const xmlBuffer * buf);
 XMLPUBFUN xmlDtdPtr XMLCALL xmlCreateIntSubset(xmlDocPtr doc, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
 XMLPUBFUN xmlDtdPtr XMLCALL xmlNewDtd(xmlDocPtr doc, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
 XMLPUBFUN xmlDtdPtr XMLCALL xmlGetIntSubset(const xmlDoc * doc);
-XMLPUBFUN void XMLCALL xmlFreeDtd(xmlDtdPtr cur);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeDtd(xmlDtd * pCur);
 #ifdef LIBXML_LEGACY_ENABLED
 XMLPUBFUN xmlNsPtr XMLCALL xmlNewGlobalNs(xmlDocPtr doc, const xmlChar * href, const xmlChar * prefix);
 #endif /* LIBXML_LEGACY_ENABLED */
@@ -695,7 +695,7 @@ XMLPUBFUN xmlNsPtr XMLCALL xmlNewNs(xmlNodePtr node, const xmlChar * href, const
 XMLPUBFUN void XMLCALL xmlFreeNs(xmlNsPtr cur);
 XMLPUBFUN void XMLCALL xmlFreeNsList(xmlNsPtr cur);
 XMLPUBFUN xmlDocPtr XMLCALL xmlNewDoc(const xmlChar * version);
-XMLPUBFUN void XMLCALL xmlFreeDoc(xmlDocPtr cur);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeDoc(xmlDoc * pDoc);
 XMLPUBFUN xmlAttrPtr XMLCALL xmlNewDocProp(xmlDocPtr doc, const xmlChar * name, const xmlChar * value);
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_HTML_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED)
 XMLPUBFUN xmlAttrPtr XMLCALL xmlNewProp(xmlNodePtr node, const xmlChar * name, const xmlChar * value);
@@ -778,7 +778,7 @@ XMLPUBFUN void XMLCALL xmlUnlinkNode(xmlNodePtr cur);
 XMLPUBFUN xmlNodePtr XMLCALL xmlTextMerge(xmlNodePtr first, xmlNodePtr second);
 XMLPUBFUN int XMLCALL xmlTextConcat(xmlNodePtr node, const xmlChar * content, int len);
 XMLPUBFUN void XMLCALL xmlFreeNodeList(xmlNodePtr cur);
-XMLPUBFUN void XMLCALL xmlFreeNode(xmlNodePtr cur);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeNode(xmlNode * pCur);
 XMLPUBFUN void XMLCALL xmlSetTreeDoc(xmlNodePtr tree, xmlDocPtr doc);
 XMLPUBFUN void XMLCALL xmlSetListDoc(xmlNodePtr list, xmlDocPtr doc);
 /*

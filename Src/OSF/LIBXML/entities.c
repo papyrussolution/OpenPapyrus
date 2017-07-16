@@ -216,21 +216,21 @@ xmlEntityPtr xmlGetPredefinedEntity(const xmlChar * name)
 	if(name) {
 		switch(name[0]) {
 			case 'l':
-				if(sstreq(name, BAD_CAST "lt"))
+				if(sstreq(name, "lt"))
 					return(&xmlEntityLt);
 				break;
 			case 'g':
-				if(sstreq(name, BAD_CAST "gt"))
+				if(sstreq(name, "gt"))
 					return(&xmlEntityGt);
 				break;
 			case 'a':
-				if(sstreq(name, BAD_CAST "amp"))
+				if(sstreq(name, "amp"))
 					return(&xmlEntityAmp);
-				if(sstreq(name, BAD_CAST "apos"))
+				if(sstreq(name, "apos"))
 					return(&xmlEntityApos);
 				break;
 			case 'q':
-				if(sstreq(name, BAD_CAST "quot"))
+				if(sstreq(name, "quot"))
 					return(&xmlEntityQuot);
 				break;
 			default:
@@ -258,7 +258,7 @@ xmlEntityPtr xmlAddDtdEntity(xmlDocPtr doc, const xmlChar * name, int type,
 {
 	xmlEntityPtr ret;
 	xmlDtdPtr dtd;
-	if(doc == NULL) {
+	if(!doc) {
 		xmlEntitiesErr(XML_DTD_NO_DOC, "xmlAddDtdEntity: document is NULL");
 		return 0;
 	}
@@ -268,8 +268,8 @@ xmlEntityPtr xmlAddDtdEntity(xmlDocPtr doc, const xmlChar * name, int type,
 	}
 	dtd = doc->extSubset;
 	ret = xmlAddEntity(dtd, name, type, ExternalID, SystemID, content);
-	if(!ret) return 0;
-
+	if(!ret) 
+		return 0;
 	/*
 	 * Link it to the DTD
 	 */
@@ -303,7 +303,7 @@ xmlEntityPtr xmlAddDocEntity(xmlDocPtr doc, const xmlChar * name, int type,
     const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content) 
 {
 	xmlEntityPtr ret = 0;
-	if(doc == NULL) {
+	if(!doc) {
 		xmlEntitiesErr(XML_DTD_NO_DOC, "xmlAddDocEntity: document is NULL");
 	}
 	else if(doc->intSubset == NULL) {
@@ -716,7 +716,8 @@ xmlChar * xmlEncodeSpecialChars(const xmlDoc * doc ATTRIBUTE_UNUSED, const xmlCh
 	xmlChar * buffer = NULL;
 	xmlChar * out = NULL;
 	size_t buffer_size = 0;
-	if(input == NULL) return 0;
+	if(input == NULL) 
+		return 0;
 	/*
 	 * allocate an translation buffer.
 	 */

@@ -685,7 +685,7 @@ static std::string StringEncode(const std::wstring &s, int codePage)
 	const int cchMulti = s.length() ? ::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.length()), NULL, 0, NULL, NULL) : 0;
 	std::string sMulti(cchMulti, 0);
 	if(cchMulti) {
-		::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.size()), &sMulti[0], cchMulti, NULL, NULL);
+		::WideCharToMultiByte(codePage, 0, s.c_str(), static_cast<int>(s.size()), &sMulti[0], cchMulti, 0, 0);
 	}
 	return sMulti;
 }
@@ -2242,7 +2242,7 @@ void ScintillaWin::Paste()
 				UINT cpDest = CodePageOfDocument();
 				len = ::WideCharToMultiByte(cpDest, 0, uptr, -1, NULL, 0, NULL, NULL) - 1; // subtract 0 terminator
 				putf.resize(len + 1);
-				::WideCharToMultiByte(cpDest, 0, uptr, -1, &putf[0], len + 1, NULL, NULL);
+				::WideCharToMultiByte(cpDest, 0, uptr, -1, &putf[0], len + 1, 0, 0);
 			}
 			InsertPasteShape(&putf[0], len, pasteShape);
 		}
@@ -3089,7 +3089,7 @@ STDMETHODIMP ScintillaWin::Drop(LPDATAOBJECT pIDataSource, DWORD grfKeyState, PO
 					UINT cpDest = CodePageOfDocument();
 					int tlen = ::WideCharToMultiByte(cpDest, 0, udata, -1, NULL, 0, NULL, NULL) - 1; // subtract 0 terminator
 					data.resize(tlen + 1);
-					::WideCharToMultiByte(cpDest, 0, udata, -1, &data[0], tlen + 1, NULL, NULL);
+					::WideCharToMultiByte(cpDest, 0, udata, -1, &data[0], tlen + 1, 0, 0);
 				}
 			}
 			memUDrop.Unlock();

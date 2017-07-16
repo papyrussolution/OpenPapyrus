@@ -3993,12 +3993,12 @@ int SLAPI PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSec
 			for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 				p_next = p_cur->P_Next;
 				switch(p_cur->Type) {
-					case JSON_ARRAY:
+					case json_t::tARRAY:
 						break;
-					case JSON_OBJECT:
+					case json_t::tOBJECT:
 						p_next = p_cur->P_Child;
 						break;
-					case JSON_STRING:
+					case json_t::tSTRING:
 						if(p_cur->P_Text && p_cur->P_Child) {
 							if(sstreqi_ascii(p_cur->P_Text, "statusCode")) {
 								LastStatusCode = (temp_buf = p_cur->P_Child->P_Text).Unescape().ToLong();

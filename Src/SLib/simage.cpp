@@ -228,7 +228,7 @@ int SImage::LoadThumbnailImage(const char * pPicPath, int width, int height)
 		OLECHAR wstr[MAXPATH];
 		MultiByteToWideChar(1251, MB_PRECOMPOSED, (const char*)pPicPath, -1, wstr, SIZEOFARRAY(wstr) - 1);
 		p_img = new Gdiplus::Image(wstr);
-		P_Image = p_img->GetThumbnailImage(width, height, NULL, NULL);
+		P_Image = p_img->GetThumbnailImage(width, height, 0, 0);
 		ZDELETE(p_img);
 		FileName.CopyFrom(pPicPath);
 		ok = 1;

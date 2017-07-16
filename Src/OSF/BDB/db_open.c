@@ -161,7 +161,7 @@ int __db_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, c
 	// For in-memory databases, we now need to open/create the database
 	if(F_ISSET(dbp, DB_AM_INMEM)) {
 		if(dname == NULL)
-			ret = __db_new_file(dbp, ip, txn, NULL, NULL);
+			ret = __db_new_file(dbp, ip, txn, 0, 0);
 		else {
 			id = TXN_INVALID;
 			ret = __fop_file_setup(dbp, ip, txn, dname, mode, flags, &id);

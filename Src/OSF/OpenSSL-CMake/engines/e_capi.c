@@ -1085,7 +1085,7 @@ static char * wide_to_asc(LPCWSTR wstr)
 	if(!wstr)
 		return NULL;
 	len_0 = (int)wcslen(wstr) + 1; /* WideCharToMultiByte expects int */
-	sz = WideCharToMultiByte(CP_ACP, 0, wstr, len_0, NULL, 0, NULL, NULL);
+	sz = WideCharToMultiByte(CP_ACP, 0, wstr, len_0, NULL, 0, 0, 0);
 	if(!sz) {
 		CAPIerr(CAPI_F_WIDE_TO_ASC, CAPI_R_WIN32_ERROR);
 		return NULL;

@@ -901,7 +901,7 @@ const zbar_format_def_t * _zbar_format_lookup(uint32 fmt)
 		if(fmt > def->format)
 			i++;
 	}
-	return(NULL);
+	return NULL;
 }
 
 #ifdef HAVE_LIBJPEG
@@ -951,7 +951,7 @@ zbar_image_t * zbar_image_convert_resize(const zbar_image_t * src, ulong fmt, ui
 	srcfmt = _zbar_format_lookup(src->Format);
 	dstfmt = _zbar_format_lookup(dst->Format);
 	if(!srcfmt || !dstfmt)
-		return(NULL); // FIXME free dst 
+		return NULL; // FIXME free dst 
 	if(srcfmt->group == dstfmt->group && srcfmt->p.cmp == dstfmt->p.cmp && src->width == width && src->height == height) {
 		convert_copy(dst, NULL, src, NULL);
 		return(dst);

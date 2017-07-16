@@ -371,7 +371,7 @@ err:
 	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && !ret)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
-	__dbt_userfree(env, key, NULL, NULL);
+	__dbt_userfree(env, key, 0, 0);
 	return ret;
 }
 /*
@@ -786,7 +786,7 @@ int __db_key_range_pp(DB * dbp, DB_TXN * txn, DBT * key, DB_KEY_RANGE * kr, uint
 			goto err;
 		/* Acquire a cursor. */
 		if((ret = __db_cursor(dbp, ip, txn, &dbc, 0)) != 0) {
-			__dbt_userfree(env, key, NULL, NULL);
+			__dbt_userfree(env, key, 0, 0);
 			break;
 		}
 		DEBUG_LWRITE(dbc, NULL, "bam_key_range", NULL, NULL, 0);
@@ -798,7 +798,7 @@ int __db_key_range_pp(DB * dbp, DB_TXN * txn, DBT * key, DB_KEY_RANGE * kr, uint
 		ret = __bam_key_range(dbc, key, kr, flags);
 		if((t_ret = __dbc_close(dbc)) != 0 && !ret)
 			ret = t_ret;
-		__dbt_userfree(env, key, NULL, NULL);
+		__dbt_userfree(env, key, 0, 0);
 		break;
 	    case DB_HASH:
 	    case DB_QUEUE:
@@ -1342,7 +1342,7 @@ int __db_compact_pp(DB * dbp, DB_TXN * txn, DBT * start, DBT * stop, DB_COMPACT 
 	if(start != NULL && (ret = __dbt_usercopy(env, start)) != 0)
 		return ret;
 	if(stop != NULL && (ret = __dbt_usercopy(env, stop)) != 0) {
-		__dbt_userfree(env, start, NULL, NULL);
+		__dbt_userfree(env, start, 0, 0);
 		return ret;
 	}
 	ENV_ENTER(env, ip);

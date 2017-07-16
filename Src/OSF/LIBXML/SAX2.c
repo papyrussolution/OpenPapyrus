@@ -160,8 +160,7 @@ static void xmlNsErrMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error, const char
  *
  * Handle a namespace__ warning
  */
-static void xmlNsWarnMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error,
-    const char * msg, const xmlChar * str1, const xmlChar * str2)
+static void xmlNsWarnMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
 	if((ctxt) && (ctxt->disableSAX != 0) && (ctxt->instate == XML_PARSER_EOF))
 		return;
@@ -445,7 +444,7 @@ xmlParserInputPtr xmlSAX2ResolveEntity(void * ctx, const xmlChar * publicId, con
 	const char * base = NULL;
 	if(!ctx)
 		return 0;
-	if(ctxt->input != NULL)
+	if(ctxt->input)
 		base = ctxt->input->filename;
 	if(base == NULL)
 		base = ctxt->directory;
@@ -568,8 +567,7 @@ xmlEntityPtr xmlSAX2GetParameterEntity(void * ctx, const xmlChar * name)
  *
  * An entity definition has been parsed
  */
-void xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type,
-    const xmlChar * publicId, const xmlChar * systemId, xmlChar * content)
+void xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content)
 {
 	xmlEntityPtr ent;
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
@@ -584,7 +582,7 @@ void xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type,
 		if((ent != NULL) && (ent->URI == NULL) && (systemId != NULL)) {
 			xmlChar * URI;
 			const char * base = NULL;
-			if(ctxt->input != NULL)
+			if(ctxt->input)
 				base = ctxt->input->filename;
 			if(base == NULL)
 				base = ctxt->directory;
@@ -599,7 +597,7 @@ void xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type,
 		if(ent && !ent->URI && systemId) {
 			xmlChar * URI;
 			const char * base = NULL;
-			if(ctxt->input != NULL)
+			if(ctxt->input)
 				base = ctxt->input->filename;
 			SETIFZ(base, ctxt->directory);
 			URI = xmlBuildURI(systemId, (const xmlChar*)base);
@@ -638,7 +636,7 @@ void xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * full
 		 * Raise the error but keep the validity flag
 		 */
 		int tmp = ctxt->valid;
-		xmlErrValid(ctxt, XML_DTD_XMLID_TYPE, "xml:id : attribute type should be ID\n", NULL, NULL);
+		xmlErrValid(ctxt, XML_DTD_XMLID_TYPE, "xml:id : attribute type should be ID\n", 0, 0);
 		ctxt->valid = tmp;
 	}
 	/* TODO: optimize name/prefix allocation */
@@ -728,7 +726,7 @@ void xmlSAX2NotationDecl(void * ctx, const xmlChar * name, const xmlChar * publi
 		return;
 	}
 #ifdef LIBXML_VALID_ENABLED
-	if(nota == NULL)
+	if(!nota)
 		ctxt->valid = 0;
 	if((ctxt->validate) && (ctxt->wellFormed) && (ctxt->myDoc->intSubset != NULL))
 		ctxt->valid &= xmlValidateNotationDecl(&ctxt->vctxt, ctxt->myDoc, nota);
@@ -745,9 +743,7 @@ void xmlSAX2NotationDecl(void * ctx, const xmlChar * name, const xmlChar * publi
  *
  * What to do when an unparsed entity declaration is parsed
  */
-void xmlSAX2UnparsedEntityDecl(void * ctx, const xmlChar * name,
-    const xmlChar * publicId, const xmlChar * systemId,
-    const xmlChar * notationName)
+void xmlSAX2UnparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName)
 {
 	xmlEntityPtr ent;
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
@@ -762,7 +758,7 @@ void xmlSAX2UnparsedEntityDecl(void * ctx, const xmlChar * name,
 		if((ent != NULL) && (ent->URI == NULL) && (systemId != NULL)) {
 			xmlChar * URI;
 			const char * base = NULL;
-			if(ctxt->input != NULL)
+			if(ctxt->input)
 				base = ctxt->input->filename;
 			SETIFZ(base, ctxt->directory);
 			URI = xmlBuildURI(systemId, (const xmlChar*)base);
@@ -776,7 +772,7 @@ void xmlSAX2UnparsedEntityDecl(void * ctx, const xmlChar * name,
 		if((ent != NULL) && (ent->URI == NULL) && (systemId != NULL)) {
 			xmlChar * URI;
 			const char * base = NULL;
-			if(ctxt->input != NULL)
+			if(ctxt->input)
 				base = ctxt->input->filename;
 			SETIFZ(base, ctxt->directory);
 			URI = xmlBuildURI(systemId, (const xmlChar*)base);
@@ -911,8 +907,7 @@ void xmlSAX2EndDocument(void * ctx)
  * DOM subtree and past it in a new xmlAttr element added to
  * the element.
  */
-static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname,
-    const xmlChar * value, const xmlChar * prefix ATTRIBUTE_UNUSED)
+static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const xmlChar * value, const xmlChar * prefix ATTRIBUTE_UNUSED)
 {
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
 	xmlAttrPtr ret;
@@ -947,7 +942,6 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname,
 		SAlloc::F(ns);
 		return;
 	}
-
 #ifdef LIBXML_HTML_ENABLED
 	if((ctxt->html) && (value == NULL) && (htmlIsBooleanAttr(fullname))) {
 		nval = xmlStrdup(fullname);
@@ -1083,7 +1077,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname,
 			SAlloc::F(val);
 		return;
 	}
-	if(ns != NULL) {
+	if(ns) {
 		namespace__ = xmlSearchNs(ctxt->myDoc, ctxt->node, ns);
 		if(namespace__ == NULL) {
 			xmlNsErrMsg(ctxt, XML_NS_ERR_UNDEFINED_NAMESPACE, "Namespace prefix %s of attribute %s is not defined\n", ns, name);
@@ -1119,7 +1113,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname,
 
 			ret->children = xmlStringGetNodeList(ctxt->myDoc, value);
 			tmp = ret->children;
-			while(tmp != NULL) {
+			while(tmp) {
 				tmp->parent = (xmlNode *)ret;
 				if(tmp->next == NULL)
 					ret->last = tmp;
@@ -1374,7 +1368,7 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
 	if(ctxt->validate && (ctxt->myDoc->extSubset == NULL) && ((ctxt->myDoc->intSubset == NULL) ||
 		    ((ctxt->myDoc->intSubset->notations == NULL) && (ctxt->myDoc->intSubset->elements == NULL) &&
 			    (ctxt->myDoc->intSubset->attributes == NULL) && (ctxt->myDoc->intSubset->entities == NULL)))) {
-		xmlErrValid(ctxt, XML_ERR_NO_DTD, "Validation failed: no DTD found !", NULL, NULL);
+		xmlErrValid(ctxt, XML_ERR_NO_DTD, "Validation failed: no DTD found !", 0, 0);
 		ctxt->validate = 0;
 	}
 	/*
@@ -1404,7 +1398,7 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
 	}
 	ctxt->nodemem = -1;
 	if(ctxt->linenumbers) {
-		if(ctxt->input != NULL) {
+		if(ctxt->input) {
 			if(ctxt->input->line < 65535)
 				ret->line = (short)ctxt->input->line;
 			else
@@ -1476,17 +1470,13 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
 		ns = xmlSearchNs(ctxt->myDoc, parent, prefix);
 	if((prefix != NULL) && (ns == NULL)) {
 		ns = xmlNewNs(ret, NULL, prefix);
-		xmlNsWarnMsg(ctxt, XML_NS_ERR_UNDEFINED_NAMESPACE,
-		    "Namespace prefix %s is not defined\n",
-		    prefix, NULL);
+		xmlNsWarnMsg(ctxt, XML_NS_ERR_UNDEFINED_NAMESPACE, "Namespace prefix %s is not defined\n", prefix, NULL);
 	}
-
 	/*
 	 * set the namespace__ node, making sure that if the default namspace
 	 * is unbound on a parent we simply kee it NULL
 	 */
-	if((ns != NULL) && (ns->href != NULL) &&
-	    ((ns->href[0] != 0) || (ns->prefix != NULL)))
+	if((ns != NULL) && (ns->href != NULL) && ((ns->href[0] != 0) || (ns->prefix != NULL)))
 		xmlSetNs(ret, ns);
 
 	/*
@@ -1654,7 +1644,7 @@ skip:
 	else
 		ret->content = (xmlChar*)intern;
 	if(ctxt->linenumbers) {
-		if(ctxt->input != NULL) {
+		if(ctxt->input) {
 			if(ctxt->input->line < 65535)
 				ret->line = (short)ctxt->input->line;
 			else {
@@ -1788,7 +1778,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxtPtr ctxt,
 			tmp = xmlSAX2TextNode(ctxt, value, valueend - value);
 			ret->children = tmp;
 			ret->last = tmp;
-			if(tmp != NULL) {
+			if(tmp) {
 				tmp->doc = ret->doc;
 				tmp->parent = (xmlNode *)ret;
 			}
@@ -1797,7 +1787,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxtPtr ctxt,
 			ret->children = xmlStringLenGetNodeList(ctxt->myDoc, value,
 			    valueend - value);
 			tmp = ret->children;
-			while(tmp != NULL) {
+			while(tmp) {
 				tmp->doc = ret->doc;
 				tmp->parent = (xmlNode *)ret;
 				if(tmp->next == NULL)
@@ -1812,7 +1802,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxtPtr ctxt,
 		tmp = xmlSAX2TextNode(ctxt, value, valueend - value);
 		ret->children = tmp;
 		ret->last = tmp;
-		if(tmp != NULL) {
+		if(tmp) {
 			tmp->doc = ret->doc;
 			tmp->parent = (xmlNode *)ret;
 		}
@@ -1974,7 +1964,7 @@ void xmlSAX2StartElementNs(void * ctx,
 	 */
 	if(ctxt->validate && !ctxt->myDoc->extSubset && (!ctxt->myDoc->intSubset || (!ctxt->myDoc->intSubset->notations && 
 		!ctxt->myDoc->intSubset->elements && !ctxt->myDoc->intSubset->attributes && !ctxt->myDoc->intSubset->entities))) {
-		xmlErrValid(ctxt, XML_DTD_NO_DTD, "Validation failed: no DTD found !", NULL, NULL);
+		xmlErrValid(ctxt, XML_DTD_NO_DTD, "Validation failed: no DTD found !", 0, 0);
 		ctxt->validate = 0;
 	}
 	/*
@@ -2030,7 +2020,7 @@ void xmlSAX2StartElementNs(void * ctx,
 		}
 	}
 	if(ctxt->linenumbers) {
-		if(ctxt->input != NULL) {
+		if(ctxt->input) {
 			if(ctxt->input->line < 65535)
 				ret->line = (short)ctxt->input->line;
 			else
@@ -2048,7 +2038,7 @@ void xmlSAX2StartElementNs(void * ctx,
 		pref = namespaces[i++];
 		uri = namespaces[i++];
 		ns = xmlNewNs(NULL, uri, pref);
-		if(ns != NULL) {
+		if(ns) {
 			if(last == NULL) {
 				ret->nsDef = last = ns;
 			}
@@ -2117,16 +2107,11 @@ void xmlSAX2StartElementNs(void * ctx,
 				return;
 			}
 			if(prefix != NULL)
-				xmlNsWarnMsg(ctxt, XML_NS_ERR_UNDEFINED_NAMESPACE,
-				    "Namespace prefix %s was not found\n",
-				    prefix, NULL);
+				xmlNsWarnMsg(ctxt, XML_NS_ERR_UNDEFINED_NAMESPACE, "Namespace prefix %s was not found\n", prefix, NULL);
 			else
-				xmlNsWarnMsg(ctxt, XML_NS_ERR_UNDEFINED_NAMESPACE,
-				    "Namespace default prefix was not found\n",
-				    NULL, NULL);
+				xmlNsWarnMsg(ctxt, XML_NS_ERR_UNDEFINED_NAMESPACE, "Namespace default prefix was not found\n", 0, 0);
 		}
 	}
-
 	/*
 	 * process all the other attributes
 	 */

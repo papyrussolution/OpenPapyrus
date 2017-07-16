@@ -21839,7 +21839,7 @@ private:
 	ProcessState Ps;
 	int    CurPsPos; // Текущая позиция в Ps. <0 - не определена
 	//
-	xmlParserCtxtPtr SaxCtx;
+	xmlParserCtxt * P_SaxCtx;
 	PPTransaction Tra;
 	ulong  RawRecN;
 	SdRecord * P_Sdr;
@@ -38404,10 +38404,8 @@ struct CSessViewItem : public CSessionTbl::Rec {
 	double BnkDiscount;
 };
 //
-// Descr: Структура параметров создания драфт-документов по кассовым сессиям на
-//   основе правил.
-//   Используется как при ручном вызове функции, так и для определения задания //
-//   Job-сервера.
+// Descr: Структура параметров создания драфт-документов по кассовым сессиям на основе правил.
+//   Используется как при ручном вызове функции, так и для определения задания Job-сервера.
 //
 class CSessCrDraftParam { // @persistent(JobServer)
 public:
@@ -39342,6 +39340,40 @@ private:
 	PPObjBill * P_BObj;
 	PPObjPerson PsnObj;
 	PPObjTag    TagObj;
+};
+//
+// @v9.7.8
+// Descr: Универсальная параметрическая структура для автоматического создания документов.
+// Note: Это, кроме прочего - попытка унифицировать механизмы автоматического создания документов, разбросанные
+//   на текущий момент по всему проекту.
+//PPViewCCheck::CreateDraftBySuspCheck(PPID chkID)
+//PPViewSStat::CreateDraftBySupplOrders(const SStatFilt *)
+//PPViewCSEss::CreateDraft(const CSessCrDraftParam *);
+//
+class PPBillAutoCreateParam : public PPBaseFilt {
+public:
+	SLAPI  PPBillAutoCreateParam();
+	//
+	// Descr: Типы функционала по созданию документов
+	//
+	enum {
+		aNone = 0,
+		aDraftByTrfrAnlz = 1, // Драфт-документы по анализу товарных операций
+		aDraftBySuspCc,       // Драфт-документы по отложенным кассовым чекам
+		aDraftBySupplOrders,  // Драфт-документы заказов опставщикам
+		aDraftByCcRule        // Драфт-документы по правилам на основе кассовых чеков
+	};
+	uint8  ReserveStart[64];
+    PPID   OpID;
+    long   A;                  // Тип функционала, вызываемого по данному параметру
+    long   Flags;
+	int32  RuleGrpID;          // CSessCrDraftParam
+	int32  RuleID;             // CSessCrDraftParam
+    long   Reserve;            // @anchor Заглушка для отмера "плоского" участка фильтра
+	TrfrAnlzFilt * P_TaF;
+	SStatFilt * P_SsF;
+	CCheckFilt * P_CcF;
+	CSessFilt  * P_CsF;
 };
 //
 // @ModuleDecl(PPViewGoodsOpAnalyze)
@@ -45939,7 +45971,7 @@ private:
 	PrcssrOsmFilt P;
 	const SymbHashTable * P_ShT; // Таблица символов, полученная вызовом PPGetStringHash(int)
 
-	xmlParserCtxtPtr SaxCtx;
+	xmlParserCtxt * P_SaxCtx;
 	TSStack <int> TokPath;
 	SGeo   G;
 	PPOsm  O;

@@ -208,7 +208,7 @@ BN_MONT_CTX * BN_MONT_CTX_new(void)
 {
 	BN_MONT_CTX * ret;
 	if((ret = (BN_MONT_CTX*)OPENSSL_malloc(sizeof(*ret))) == NULL)
-		return (NULL);
+		return NULL;
 	BN_MONT_CTX_init(ret);
 	ret->flags = BN_FLG_MALLOCED;
 	return ret;

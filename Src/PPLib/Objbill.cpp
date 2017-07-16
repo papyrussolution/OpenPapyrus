@@ -1211,8 +1211,7 @@ int SLAPI PPObjBill::AddDraftByOrder(PPID * pBillID, PPID sampleBillID, const Se
 	return ok ? res : 0;
 }
 
-int SLAPI PPObjBill::AddGoodsBillByFilt(
-	PPID * pBillID, const BillFilt * pFilt, PPID opID, PPID sCardID, CCheckTbl::Rec * pChkRec)
+int SLAPI PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, PPID opID, PPID sCardID, CCheckTbl::Rec * pChkRec)
 {
 	int    ok = 1, r = cmCancel;
 	PPID   op_type = 0L;
@@ -8448,6 +8447,24 @@ int PPObjBill::ConvertUuid7601()
 	CATCHZOKPPERR
 	return ok;
 }
+//
+//
+//
+SLAPI PPBillAutoCreateParam::PPBillAutoCreateParam() : PPBaseFilt(PPFILT_BILLAUTOCREATEPARAM, 0, 0)
+{
+	P_TaF = 0;
+    P_SsF = 0;
+    P_CcF = 0;
+    P_CsF = 0;
+	SetFlatChunk(offsetof(PPBillAutoCreateParam, ReserveStart),
+		offsetof(PPBillAutoCreateParam, Reserve)-offsetof(PPBillAutoCreateParam, ReserveStart)+sizeof(Reserve));
+	SetBranchBaseFiltPtr(PPFILT_TRFRANLZ, offsetof(PPBillAutoCreateParam, P_TaF));
+	SetBranchBaseFiltPtr(PPFILT_SSTAT,    offsetof(PPBillAutoCreateParam, P_SsF));
+	SetBranchBaseFiltPtr(PPFILT_CCHECK,   offsetof(PPBillAutoCreateParam, P_CcF));
+	SetBranchBaseFiltPtr(PPFILT_CSESS,    offsetof(PPBillAutoCreateParam, P_CsF));
+	Init(1, 0);
+}
+
 
 /* @debug
 int SLAPI TestPPObjBillParseText()

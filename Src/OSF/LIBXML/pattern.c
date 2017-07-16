@@ -494,13 +494,12 @@ restart:
 			case XML_OP_ELEM:
 			    if(node->type != XML_ELEMENT_NODE)
 				    goto rollback;
-			    if(step->value == NULL)
+			    if(!step->value)
 				    continue;
 			    if(step->value[0] != node->name[0])
 				    goto rollback;
 			    if(!sstreq(step->value, node->name))
 				    goto rollback;
-
 			    /* Namespace test */
 			    if(node->ns == NULL) {
 				    if(step->value2 != NULL)
@@ -521,7 +520,6 @@ restart:
 #endif
 				    (node->type != XML_HTML_DOCUMENT_NODE))
 				    goto rollback;
-
 			    lst = node->children;
 			    if(step->value != NULL) {
 				    while(lst != NULL) {
@@ -563,7 +561,7 @@ restart:
 			    node = node->parent;
 			    if(node == NULL)
 				    goto rollback;
-			    if(step->value == NULL)
+			    if(!step->value)
 				    continue;
 			    if(step->value[0] != node->name[0])
 				    goto rollback;
@@ -583,14 +581,14 @@ restart:
 			    continue;
 			case XML_OP_ANCESTOR:
 			    /* TODO: implement coalescing of ANCESTOR/NODE ops */
-			    if(step->value == NULL) {
+			    if(!step->value) {
 				    i++;
 				    step = &comp->steps[i];
 				    if(step->op == XML_OP_ROOT)
 					    goto found;
 				    if(step->op != XML_OP_ELEM)
 					    goto rollback;
-				    if(step->value == NULL)
+				    if(!step->value)
 					    return -1;
 			    }
 			    if(node == NULL)
@@ -634,7 +632,7 @@ restart:
 					    goto rollback;
 			    }
 			    else if(node->ns->href != NULL) {
-				    if(step->value == NULL)
+				    if(!step->value)
 					    goto rollback;
 				    if(!sstreq(step->value, node->ns->href))
 					    goto rollback;
@@ -857,7 +855,7 @@ static void xmlCompileAttributeTest(xmlPatParserContextPtr ctxt)
 	name = xmlPatScanNCName(ctxt);
 	if(name == NULL) {
 		if(CUR == '*') {
-			PUSH(XML_OP_ATTR, NULL, NULL);
+			PUSH(XML_OP_ATTR, 0, 0);
 			NEXT;
 		}
 		else {
@@ -917,7 +915,7 @@ static void xmlCompileAttributeTest(xmlPatParserContextPtr ctxt)
 	}
 	return;
 error:
-	if(URL != NULL)
+	if(URL)
 		XML_PAT_FREE_STRING(ctxt, URL)
 		if(token != NULL)
 			XML_PAT_FREE_STRING(ctxt, token);
@@ -946,7 +944,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 		 * Context node.
 		 */
 		NEXT;
-		PUSH(XML_OP_ELEM, NULL, NULL);
+		PUSH(XML_OP_ELEM, 0, 0);
 		return;
 	}
 	if(CUR == '@') {
@@ -968,7 +966,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 	if(name == NULL) {
 		if(CUR == '*') {
 			NEXT;
-			PUSH(XML_OP_ALL, NULL, NULL);
+			PUSH(XML_OP_ALL, 0, 0);
 			return;
 		}
 		else {
@@ -1036,7 +1034,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 				if(name == NULL) {
 					if(CUR == '*') {
 						NEXT;
-						PUSH(XML_OP_ALL, NULL, NULL);
+						PUSH(XML_OP_ALL, 0, 0);
 						return;
 					}
 					else {
@@ -1058,10 +1056,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 					 * This is a namespace match
 					 */
 					token = xmlPatScanName(ctxt);
-					if((prefix[0] == 'x') &&
-					    (prefix[1] == 'm') &&
-					    (prefix[2] == 'l') &&
-					    (prefix[3] == 0)) {
+					if((prefix[0] == 'x') && (prefix[1] == 'm') && (prefix[2] == 'l') && (prefix[3] == 0)) {
 						XML_PAT_COPY_NSNAME(ctxt, URL, XML_XML_NAMESPACE)
 					}
 					else {
@@ -1131,9 +1126,9 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 	}
 	return;
 error:
-	if(URL != NULL)
+	if(URL)
 		XML_PAT_FREE_STRING(ctxt, URL)
-		if(token != NULL)
+		if(token)
 			XML_PAT_FREE_STRING(ctxt, token)
 			if(name != NULL)
 				XML_PAT_FREE_STRING(ctxt, name)
@@ -1158,12 +1153,12 @@ static void xmlCompilePathPattern(xmlPatParserContextPtr ctxt)
 		ctxt->comp->flags |= PAT_FROM_CUR;
 	}
 	if((CUR == '/') && (NXT(1) == '/')) {
-		PUSH(XML_OP_ANCESTOR, NULL, NULL);
+		PUSH(XML_OP_ANCESTOR, 0, 0);
 		NEXT;
 		NEXT;
 	}
 	else if((CUR == '.') && (NXT(1) == '/') && (NXT(2) == '/')) {
-		PUSH(XML_OP_ANCESTOR, NULL, NULL);
+		PUSH(XML_OP_ANCESTOR, 0, 0);
 		NEXT;
 		NEXT;
 		NEXT;
@@ -1188,7 +1183,7 @@ static void xmlCompilePathPattern(xmlPatParserContextPtr ctxt)
 	}
 	else {
 		if(CUR == '/') {
-			PUSH(XML_OP_ROOT, NULL, NULL);
+			PUSH(XML_OP_ROOT, 0, 0);
 			NEXT;
 			/* Check for incompleteness. */
 			SKIP_BLANKS;
@@ -1204,7 +1199,7 @@ static void xmlCompilePathPattern(xmlPatParserContextPtr ctxt)
 		SKIP_BLANKS;
 		while(CUR == '/') {
 			if(NXT(1) == '/') {
-				PUSH(XML_OP_ANCESTOR, NULL, NULL);
+				PUSH(XML_OP_ANCESTOR, 0, 0);
 				NEXT;
 				NEXT;
 				SKIP_BLANKS;
@@ -1213,7 +1208,7 @@ static void xmlCompilePathPattern(xmlPatParserContextPtr ctxt)
 					goto error;
 			}
 			else {
-				PUSH(XML_OP_PARENT, NULL, NULL);
+				PUSH(XML_OP_PARENT, 0, 0);
 				NEXT;
 				SKIP_BLANKS;
 				if(CUR == 0) {
@@ -1260,7 +1255,7 @@ error:
 							/*
 							 * Selection of the context node.
 							 */
-							PUSH(XML_OP_ELEM, NULL, NULL);
+							PUSH(XML_OP_ELEM, 0, 0);
 							return;
 						}
 						if(CUR != '/') {
@@ -1280,7 +1275,7 @@ error:
 								goto error;
 							}
 							/* ".//" - "self:node()/descendant-or-self::node()/" */
-							PUSH(XML_OP_ANCESTOR, NULL, NULL);
+							PUSH(XML_OP_ANCESTOR, 0, 0);
 							NEXT;
 							SKIP_BLANKS;
 						}
@@ -1297,7 +1292,7 @@ error:
 						SKIP_BLANKS;
 						if(CUR != '/')
 							break;
-						PUSH(XML_OP_PARENT, NULL, NULL);
+						PUSH(XML_OP_PARENT, 0, 0);
 						NEXT;
 						SKIP_BLANKS;
 						if(CUR == '/') {
@@ -1874,7 +1869,7 @@ static int xmlStreamPushInternal(xmlStreamCtxtPtr stream, const xmlChar * name, 
 					// This lets through all elements/attributes.
 					match = 1;
 				}
-				else if(ns != NULL)
+				else if(ns)
 					match = sstreq(step.ns, ns);
 			}
 			else if(((step.ns != NULL) == (ns != NULL)) && name && (step.name[0] == name[0]) &&
@@ -2014,7 +2009,7 @@ compare:
 					*/
 				match = 1;
 			}
-			else if(ns != NULL)
+			else if(ns)
 				match = sstreq(step.ns, ns);
 		}
 		else if(((step.ns != NULL) == (ns != NULL)) && (name != NULL) && (step.name[0] == name[0]) &&
@@ -2221,7 +2216,7 @@ xmlPatternPtr xmlPatterncompile(const xmlChar * pattern, xmlDict * dict, int fla
 			ctxt = xmlNewPatParserContext(start, dict, namespaces);
 		else {
 			tmp = xmlStrndup(start, or - start);
-			if(tmp != NULL) {
+			if(tmp) {
 				ctxt = xmlNewPatParserContext(tmp, dict, namespaces);
 			}
 			or++;

@@ -529,11 +529,11 @@ SSL * SSL_new(SSL_CTX * ctx)
 
 	if(!ctx) {
 		SSLerr(SSL_F_SSL_NEW, SSL_R_NULL_SSL_CTX);
-		return (NULL);
+		return NULL;
 	}
 	if(ctx->method == NULL) {
 		SSLerr(SSL_F_SSL_NEW, SSL_R_SSL_CTX_HAS_NO_DEFAULT_SSL_VERSION);
-		return (NULL);
+		return NULL;
 	}
 	s = (SSL*)OPENSSL_zalloc(sizeof(*s));
 	if(s == NULL)
@@ -1936,7 +1936,7 @@ STACK_OF(SSL_CIPHER) *SSL_get_ciphers(const SSL *s)
 			return (s->ctx->cipher_list);
 		}
 	}
-	return (NULL);
+	return NULL;
 }
 
 STACK_OF(SSL_CIPHER) *SSL_get_client_ciphers(const SSL *s)
@@ -1982,7 +1982,7 @@ STACK_OF(SSL_CIPHER) *ssl_get_ciphers_by_id(SSL *s)
 			return (s->ctx->cipher_list_by_id);
 		}
 	}
-	return (NULL);
+	return NULL;
 }
 
 /** The old interface to get the same thing as SSL_get_ciphers() */
@@ -1992,13 +1992,13 @@ const char * SSL_get_cipher_list(const SSL * s, int n)
 	STACK_OF(SSL_CIPHER) *sk;
 
 	if(s == NULL)
-		return (NULL);
+		return NULL;
 	sk = SSL_get_ciphers(s);
 	if((sk == NULL) || (sk_SSL_CIPHER_num(sk) <= n))
-		return (NULL);
+		return NULL;
 	c = sk_SSL_CIPHER_value(sk, n);
 	if(c == NULL)
-		return (NULL);
+		return NULL;
 	return (c->name);
 }
 
@@ -2059,7 +2059,7 @@ char * SSL_get_shared_ciphers(const SSL * s, char * buf, int len)
 	int i;
 
 	if((s->session == NULL) || (s->session->ciphers == NULL) || (len < 2))
-		return (NULL);
+		return NULL;
 
 	p = buf;
 	sk = s->session->ciphers;
@@ -2360,7 +2360,7 @@ SSL_CTX * SSL_CTX_new(const SSL_METHOD * meth)
 	SSL_CTX * ret = NULL;
 	if(meth == NULL) {
 		SSLerr(SSL_F_SSL_CTX_NEW, SSL_R_NULL_SSL_METHOD_PASSED);
-		return (NULL);
+		return NULL;
 	}
 	if(!OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS, NULL))
 		return NULL;
@@ -2825,7 +2825,7 @@ EVP_PKEY * ssl_get_sign_pkey(SSL * s, const SSL_CIPHER * cipher,
 		idx = SSL_PKEY_ECC;
 	if(idx == -1) {
 		SSLerr(SSL_F_SSL_GET_SIGN_PKEY, ERR_R_INTERNAL_ERROR);
-		return (NULL);
+		return NULL;
 	}
 	if(pmd)
 		*pmd = s->s3->tmp.md[idx];
@@ -3083,7 +3083,7 @@ int ssl_undefined_const_function(const SSL * s)
 const SSL_METHOD * ssl_bad_method(int ver)
 {
 	SSLerr(SSL_F_SSL_BAD_METHOD, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
-	return (NULL);
+	return NULL;
 }
 
 const char * ssl_protocol_to_string(int version)
@@ -3128,7 +3128,7 @@ SSL * SSL_dup(SSL * s)
 	 * Otherwise, copy configuration state, and session if set.
 	 */
 	if((ret = SSL_new(SSL_get_SSL_CTX(s))) == NULL)
-		return (NULL);
+		return NULL;
 
 	if(s->session != NULL) {
 		/*
@@ -3262,7 +3262,7 @@ X509 * SSL_get_certificate(const SSL * s)
 	if(s->cert != NULL)
 		return (s->cert->key->x509);
 	else
-		return (NULL);
+		return NULL;
 }
 
 EVP_PKEY * SSL_get_privatekey(const SSL * s)
@@ -3270,7 +3270,7 @@ EVP_PKEY * SSL_get_privatekey(const SSL * s)
 	if(s->cert != NULL)
 		return (s->cert->key->privatekey);
 	else
-		return (NULL);
+		return NULL;
 }
 
 X509 * SSL_CTX_get0_certificate(const SSL_CTX * ctx)
@@ -3293,7 +3293,7 @@ const SSL_CIPHER * SSL_get_current_cipher(const SSL * s)
 {
 	if((s->session != NULL) && (s->session->cipher != NULL))
 		return (s->session->cipher);
-	return (NULL);
+	return NULL;
 }
 
 const COMP_METHOD * SSL_get_current_compression(SSL * s)
@@ -4006,7 +4006,7 @@ static int ct_extract_ocsp_response_scts(SSL * s)
 
 		if(single == NULL)
 			continue;
-		scts = (STACK_OF(SCT) *)OCSP_SINGLERESP_get1_ext_d2i(single, NID_ct_cert_scts, NULL, NULL);
+		scts = (STACK_OF(SCT) *)OCSP_SINGLERESP_get1_ext_d2i(single, NID_ct_cert_scts, 0, 0);
 		scts_extracted =
 		    ct_move_scts(&s->scts, scts, SCT_SOURCE_OCSP_STAPLED_RESPONSE);
 		if(scts_extracted < 0)
@@ -4034,7 +4034,7 @@ static int ct_extract_x509v3_extension_scts(SSL * s)
 	X509 * cert = s->session != NULL ? s->session->peer : NULL;
 
 	if(cert != NULL) {
-		STACK_OF(SCT) *scts = (STACK_OF(SCT) *)X509_get_ext_d2i(cert, NID_ct_precert_scts, NULL, NULL);
+		STACK_OF(SCT) *scts = (STACK_OF(SCT) *)X509_get_ext_d2i(cert, NID_ct_precert_scts, 0, 0);
 		scts_extracted = ct_move_scts(&s->scts, scts, SCT_SOURCE_X509V3_EXTENSION);
 		SCT_LIST_free(scts);
 	}

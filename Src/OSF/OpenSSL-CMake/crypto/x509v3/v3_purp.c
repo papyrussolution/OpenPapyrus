@@ -322,7 +322,7 @@ static void setup_dp(X509 * x, DIST_POINT * dp)
 static void setup_crldp(X509 * x)
 {
 	int i;
-	x->crldp = (STACK_OF(DIST_POINT) *)X509_get_ext_d2i(x, NID_crl_distribution_points, NULL, NULL);
+	x->crldp = (STACK_OF(DIST_POINT) *)X509_get_ext_d2i(x, NID_crl_distribution_points, 0, 0);
 	for(i = 0; i < sk_DIST_POINT_num(x->crldp); i++)
 		setup_dp(x, sk_DIST_POINT_value(x->crldp, i));
 }
@@ -450,8 +450,8 @@ static void x509v3_cache_extensions(X509 * x)
 		x->ex_flags |= EXFLAG_NSCERT;
 		ASN1_BIT_STRING_free(ns);
 	}
-	x->skid = (ASN1_OCTET_STRING*)X509_get_ext_d2i(x, NID_subject_key_identifier, NULL, NULL);
-	x->akid = (AUTHORITY_KEYID*)X509_get_ext_d2i(x, NID_authority_key_identifier, NULL, NULL);
+	x->skid = (ASN1_OCTET_STRING*)X509_get_ext_d2i(x, NID_subject_key_identifier, 0, 0);
+	x->akid = (AUTHORITY_KEYID*)X509_get_ext_d2i(x, NID_authority_key_identifier, 0, 0);
 	/* Does subject name match issuer ? */
 	if(!X509_NAME_cmp(X509_get_subject_name(x), X509_get_issuer_name(x))) {
 		x->ex_flags |= EXFLAG_SI;
@@ -460,15 +460,15 @@ static void x509v3_cache_extensions(X509 * x)
 		    !ku_reject(x, KU_KEY_CERT_SIGN))
 			x->ex_flags |= EXFLAG_SS;
 	}
-	x->altname = (STACK_OF(GENERAL_NAME) *)X509_get_ext_d2i(x, NID_subject_alt_name, NULL, NULL);
+	x->altname = (STACK_OF(GENERAL_NAME) *)X509_get_ext_d2i(x, NID_subject_alt_name, 0, 0);
 	x->nc = (NAME_CONSTRAINTS*)X509_get_ext_d2i(x, NID_name_constraints, &i, NULL);
 	if(!x->nc && (i != -1))
 		x->ex_flags |= EXFLAG_INVALID;
 	setup_crldp(x);
 
 #ifndef OPENSSL_NO_RFC3779
-	x->rfc3779_addr = (STACK_OF(IPAddressFamily) *)X509_get_ext_d2i(x, NID_sbgp_ipAddrBlock, NULL, NULL);
-	x->rfc3779_asid = (struct ASIdentifiers_st*)X509_get_ext_d2i(x, NID_sbgp_autonomousSysNum, NULL, NULL);
+	x->rfc3779_addr = (STACK_OF(IPAddressFamily) *)X509_get_ext_d2i(x, NID_sbgp_ipAddrBlock, 0, 0);
+	x->rfc3779_asid = (struct ASIdentifiers_st*)X509_get_ext_d2i(x, NID_sbgp_autonomousSysNum, 0, 0);
 #endif
 	for(i = 0; i < X509_get_ext_count(x); i++) {
 		ex = X509_get_ext(x, i);

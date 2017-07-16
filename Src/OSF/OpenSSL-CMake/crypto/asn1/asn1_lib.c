@@ -309,7 +309,7 @@ ASN1_STRING * ASN1_STRING_type_new(int type)
 	ASN1_STRING * ret = (ASN1_STRING*)OPENSSL_zalloc(sizeof(*ret));
 	if(!ret) {
 		ASN1err(ASN1_F_ASN1_STRING_TYPE_NEW, ERR_R_MALLOC_FAILURE);
-		return (NULL);
+		return NULL;
 	}
 	ret->type = type;
 	return ret;

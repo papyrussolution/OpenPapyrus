@@ -106,7 +106,7 @@ int SLAPI XMLWriteSpecSymbEntities(void * pWriter)
 //
 //
 //
-SXml::WDoc::WDoc(xmlTextWriterPtr pWriter, SCodepage cp)
+SXml::WDoc::WDoc(xmlTextWriter * pWriter, SCodepage cp)
 {
 	State = 0;
 	Lx = pWriter;
@@ -141,18 +141,18 @@ SString & FASTCALL SXml::WNode::CDATA(SString & rBuf)
 	return rBuf;
 }
 
-SXml::WNode::WNode(xmlTextWriterPtr pWriter, const char * pName)
+SXml::WNode::WNode(xmlTextWriter * pWriter, const char * pName)
 {
 	Construct(pWriter, pName);
 }
 
-SXml::WNode::WNode(xmlTextWriterPtr pWriter, const char * pName, const SString & rValue)
+SXml::WNode::WNode(xmlTextWriter * pWriter, const char * pName, const SString & rValue)
 {
 	if(Construct(pWriter, pName))
 		xmlTextWriterWriteString(Lx, rValue.ucptr());
 }
 
-SXml::WNode::WNode(xmlTextWriterPtr pWriter, const char * pName, const char * pValue)
+SXml::WNode::WNode(xmlTextWriter * pWriter, const char * pName, const char * pValue)
 {
 	if(Construct(pWriter, pName))
 		xmlTextWriterWriteString(Lx, (const xmlChar*)pValue);
@@ -213,7 +213,7 @@ int SXml::WNode::SetValue(const SString & rText)
 	return ok;
 }
 
-int SXml::WNode::Construct(xmlTextWriterPtr pWriter, const char * pName)
+int SXml::WNode::Construct(xmlTextWriter * pWriter, const char * pName)
 {
 	int   ok = 0;
 	State = 0;

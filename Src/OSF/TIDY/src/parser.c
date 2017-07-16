@@ -186,7 +186,7 @@ void TY_(InsertNodeAfterElement) (Node *element, Node *node)
 	else {
 		node->next = element->next;
 		/* AQ - 13 Jan 2000 fix for node->next == NULL */
-		if(node->next != NULL)
+		if(node->next)
 			node->next->prev = node;
 	}
 

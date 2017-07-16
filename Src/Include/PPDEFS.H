@@ -2093,7 +2093,7 @@
 #define DLG_GGRPKIND              354 // Выбор вида группы товаров
 	#define CTL_GGRPKIND_KIND            (1 + WINDOWS_ID_BIAS)
 #define DLG_GOODSGROUP             70 // Группа товаров
-#define DLG_GGRPFOLD              355 // Группа верхнего уровн
+#define DLG_GGRPFOLD              355 // Группа верхнего уровня
 #define DLG_GGRPALT               356 // Альтернативная группа
 	#define cmGoodsExTitles           104
 	#define CTL_GOODSGROUP_NAME          (1 + WINDOWS_ID_BIAS)

@@ -1036,7 +1036,7 @@ static inline int __dbc_put_append(DBC*dbc, DBT * key, DBT * data, uint32 * put_
 	 * not set in the data buffer. Make sure it is there so that secondary
 	 * updates can complete.
 	 */
-	__dbt_userfree(env, key, NULL, NULL);
+	__dbt_userfree(env, key, 0, 0);
 	if((ret = __dbt_usercopy(env, key)) != 0)
 		goto err;
 	/* An append cannot be replacing an existing item. */

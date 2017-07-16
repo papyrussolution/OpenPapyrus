@@ -2932,7 +2932,7 @@ void cairo_show_text_glyphs(cairo_t * cr, const char * utf8,
 		status = _cairo_validate_text_clusters(utf8, utf8_len, glyphs, num_glyphs, clusters, num_clusters, cluster_flags);
 		if(status == CAIRO_STATUS_INVALID_CLUSTERS) {
 			// Either got invalid UTF-8 text, or cluster mapping is bad. Differentiate those. 
-			cairo_status_t status2 = _cairo_utf8_to_ucs4(utf8, utf8_len, NULL, NULL);
+			cairo_status_t status2 = _cairo_utf8_to_ucs4(utf8, utf8_len, 0, 0);
 			if(status2)
 				status = status2;
 		}

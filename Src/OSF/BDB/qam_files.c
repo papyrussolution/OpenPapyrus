@@ -405,7 +405,7 @@ int __qam_sync(DB*dbp)
 		return ret;
 	if(((QUEUE *)dbp->q_internal)->page_ext != 0)
 		return __memp_sync_int(
-			dbp->env, NULL, 0, DB_SYNC_QUEUE_EXTENT, NULL, NULL);
+			dbp->env, NULL, 0, DB_SYNC_QUEUE_EXTENT, 0, 0);
 	return 0;
 }
 

@@ -240,7 +240,7 @@ cairo_font_face_t * cairo_toy_font_face_create(const char * family, cairo_font_s
 		return (cairo_font_face_t*)&_cairo_font_face_null_pointer;
 
 	/* Make sure we've got valid UTF-8 for the family */
-	status = _cairo_utf8_to_ucs4(family, -1, NULL, NULL);
+	status = _cairo_utf8_to_ucs4(family, -1, 0, 0);
 	if(unlikely(status)) {
 		if(status == CAIRO_STATUS_INVALID_STRING)
 			return (cairo_font_face_t*)&_cairo_font_face_invalid_string;

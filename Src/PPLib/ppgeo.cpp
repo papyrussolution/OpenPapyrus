@@ -1684,7 +1684,7 @@ int SLAPI PPViewGeoTracking::Export()
 	const  char * p_schema_url = "http://www.topografix.com/GPX/";
 	int    ok = -1;
 	SString out_file_name, path;
-	xmlTextWriterPtr writer = 0;
+	xmlTextWriter * p_writer = 0;
 	SXml::WNode * p_n_trk = 0;
 	SXml::WNode * p_n_trkseg = 0;
 	THROW(InitIteration());
@@ -1699,16 +1699,16 @@ int SLAPI PPViewGeoTracking::Export()
 		}
 		out_file_name.Dot().Cat("gpx");
 		PPGetFilePath(PPPATH_OUT, out_file_name, path);
-		THROW(writer = xmlNewTextWriterFilename(path, 0));
+		THROW(p_writer = xmlNewTextWriterFilename(path, 0));
 		{
 			//xmlTextWriterSetIndent(writer, 1);
 			//xmlTextWriterSetIndentString(writer, (const xmlChar*)" ");
-			xmlTextWriterStartDocument(writer, 0, "utf-8", "yes");
+			xmlTextWriterStartDocument(p_writer, 0, "utf-8", "yes");
 			{
 				SString out_buf, temp_buf;
 				SString schema_loc;
 				(schema_loc = p_schema_url).Cat(gpx_ver_major).CatChar('/').Cat(gpx_ver_minor);
-				SXml::WNode n_gpx(writer, "gpx");
+				SXml::WNode n_gpx(p_writer, "gpx");
 					n_gpx.PutAttrib("xmlns", schema_loc);
 					(temp_buf = 0).Cat(gpx_ver_major).CatChar('.').Cat(gpx_ver_minor);
 					n_gpx.PutAttrib("version", temp_buf);
@@ -1733,7 +1733,7 @@ int SLAPI PPViewGeoTracking::Export()
 					dtm.Set(GeoTrackCore::ConvertStorageDate(item.Dts2010), item.Tm);
 					if(!p_n_trk || oid != last_oid) {
 						ZDELETE(p_n_trk);
-						THROW_MEM(p_n_trk = new SXml::WNode(writer, "trk"));
+						THROW_MEM(p_n_trk = new SXml::WNode(p_writer, "trk"));
 						{
 							GetObjectTitle(oid.Obj, out_buf = 0);
 							GetObjectName(oid.Obj, oid.Id, temp_buf);
@@ -1741,11 +1741,11 @@ int SLAPI PPViewGeoTracking::Export()
 							p_n_trk->PutInner("name", out_buf);
 						}
 						ZDELETE(p_n_trkseg);
-						THROW_MEM(p_n_trkseg = new SXml::WNode(writer, "trkseg"));
+						THROW_MEM(p_n_trkseg = new SXml::WNode(p_writer, "trkseg"));
 					}
 					assert(p_n_trkseg != 0);
                     {
-                    	SXml::WNode n_trkpt(writer, "trkpt");
+                    	SXml::WNode n_trkpt(p_writer, "trkpt");
 							n_trkpt.PutAttrib("lat", (out_buf = 0).Cat(item.Latitude, MKSFMTD(0, 20, NMBF_NOTRAILZ)));
 							n_trkpt.PutAttrib("lon", (out_buf = 0).Cat(item.Longitude, MKSFMTD(0, 20, NMBF_NOTRAILZ)));
 							n_trkpt.PutInner("ele", (out_buf = 0).Cat((double)item.Altitude, MKSFMTD(0, 20, NMBF_NOTRAILZ)));
@@ -1757,11 +1757,11 @@ int SLAPI PPViewGeoTracking::Export()
 				ZDELETE(p_n_trkseg);
 				ZDELETE(p_n_trk);
 			}
-			xmlTextWriterEndDocument(writer);
+			xmlTextWriterEndDocument(p_writer);
 		}
 	}
 	CATCHZOKPPERR
-	xmlFreeTextWriter(writer);
+	xmlFreeTextWriter(p_writer);
 	return ok;
 }
 

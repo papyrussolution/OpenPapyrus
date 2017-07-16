@@ -333,7 +333,7 @@ static CURLcode ldap_disconnect(struct connectdata *conn, bool dead_connection)
 
   if(li) {
     if(li->ld) {
-      ldap_unbind_ext(li->ld, NULL, NULL);
+      ldap_unbind_ext(li->ld, 0, 0);
       li->ld = NULL;
     }
     conn->proto.generic = NULL;
@@ -399,7 +399,7 @@ static CURLcode ldap_done(struct connectdata *conn, CURLcode res,
     /* if there was a search in progress, abandon it */
     if(lr->msgid) {
       ldapconninfo *li = conn->proto.generic;
-      ldap_abandon_ext(li->ld, lr->msgid, NULL, NULL);
+      ldap_abandon_ext(li->ld, lr->msgid, 0, 0);
       lr->msgid = 0;
     }
     conn->data->req.protop = NULL;

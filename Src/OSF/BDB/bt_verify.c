@@ -2206,7 +2206,7 @@ static int __bam_safe_getdata(DB * dbp, DB_THREAD_INFO * ip, PAGE * h, uint32 i,
 			bo = (BOVERFLOW *)bk;
 			F_SET(dbt, DB_DBT_MALLOC);
 			*freedbtp = 1;
-			return __db_goff(dbc, dbt, bo->tlen, bo->pgno, NULL, NULL);
+			return __db_goff(dbc, dbt, bo->tlen, bo->pgno, 0, 0);
 		}
 	}
 	else {

@@ -2651,7 +2651,7 @@ int SLAPI PPServerSession::SetupTxtCmdTerm(int code)
 PPServerSession::CmdRet SLAPI PPServerSession::Helper_QueryNaturalToken(PPServerCmd * pEv, PPJobSrvReply & rReply)
 {
 	CmdRet ret = cmdretOK;
-	xmlTextWriterPtr writer = 0;
+	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
 	SString token, temp_buf;
 	PPObjPerson * p_psn_obj = 0;
@@ -2678,23 +2678,23 @@ PPServerSession::CmdRet SLAPI PPServerSession::Helper_QueryNaturalToken(PPServer
             }
 		}
 		THROW(p_xml_buf = xmlBufferCreate());
-		THROW(writer = xmlNewTextWriterMemory(p_xml_buf, 0));
+		THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
 		{
-			SXml::WDoc _doc(writer, cpUTF8);
+			SXml::WDoc _doc(p_writer, cpUTF8);
 			/*
 			xmlTextWriterStartDTD(writer, (temp_buf = "NaturalToken").ucptr(), 0, 0);
 			XMLWriteSpecSymbEntities(writer);
 			xmlTextWriterEndDTD(writer);
 			*/
 			{
-				SXml::WNode n_root(writer, "NaturalToken");
+				SXml::WNode n_root(p_writer, "NaturalToken");
 				{
-					SXml::WNode(writer, "Token", (temp_buf = token).ToUtf8());
+					SXml::WNode(p_writer, "Token", (temp_buf = token).ToUtf8());
 					{
-						SXml::WNode n_probidlist(writer, "TokenTypeList");
+						SXml::WNode n_probidlist(p_writer, "TokenTypeList");
 						for(i = 0; i < nta.getCount(); i++) {
 							const PPNaturalToken & r_nt = nta.at(i);
-							SXml::WNode n_item(writer, "TokenType");
+							SXml::WNode n_item(p_writer, "TokenType");
 							{
 								n_item.PutInner("TokenTypeId", (temp_buf = 0).Cat(r_nt.ID));
 								PPGetSubStrById(PPTXT_NATURALTOKENID, r_nt.ID, temp_buf = 0);
@@ -2707,9 +2707,9 @@ PPServerSession::CmdRet SLAPI PPServerSession::Helper_QueryNaturalToken(PPServer
 						PersonTbl::Rec psn_rec;
 						LocationTbl::Rec loc_rec;
 						THROW_MEM(SETIFZ(p_psn_obj, new PPObjPerson));
-						SXml::WNode n_relobjlist(writer, "RelObjList");
+						SXml::WNode n_relobjlist(p_writer, "RelObjList");
 						for(i = 0; i < rel_obj_list.getCount(); i++) {
-							SXml::WNode n_obj(writer, "RelObj");
+							SXml::WNode n_obj(p_writer, "RelObj");
 							const LAssoc item = rel_obj_list.at(i);
 							const PPID obj_type = item.Key;
 							n_obj.PutInner("Obj", (temp_buf = 0).Cat(obj_type));
@@ -2738,7 +2738,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::Helper_QueryNaturalToken(PPServer
 					}
 				}
 			}
-			xmlTextWriterFlush(writer);
+			xmlTextWriterFlush(p_writer);
 			temp_buf.CopyFromN((char *)p_xml_buf->content, p_xml_buf->use);
 			temp_buf.ReplaceCR();
 			temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
@@ -2748,7 +2748,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::Helper_QueryNaturalToken(PPServer
 	CATCH
 		ret = cmdretError;
 	ENDCATCH
-	xmlFreeTextWriter(writer);
+	xmlFreeTextWriter(p_writer);
 	xmlBufferFree(p_xml_buf);
 	delete p_psn_obj;
     return ret;

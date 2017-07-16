@@ -869,7 +869,7 @@ BOOL FASTCALL IntRoundRect(PDC  dc, int  Left, int  Top, int  Right, int  Bottom
 		ret = FALSE;
 	}
 	else {
-		DC_vPrepareDCsForBlit(dc, &RectBounds, NULL, NULL);
+		DC_vPrepareDCsForBlit(dc, &RectBounds, 0, 0);
 		RtlCopyMemory(&brushTemp, pbrFill, sizeof(brushTemp));
 		brushTemp.ptOrigin.x += RectBounds.left - Left;
 		brushTemp.ptOrigin.y += RectBounds.top - Top;

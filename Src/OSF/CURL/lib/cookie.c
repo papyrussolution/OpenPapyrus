@@ -922,7 +922,7 @@ struct CookieInfo * Curl_cookie_init(struct Curl_easy * data, const char * file,
 			while(*lineptr && ISBLANK(*lineptr))
 				lineptr++;
 
-			Curl_cookie_add(data, c, headerline, lineptr, NULL, NULL);
+			Curl_cookie_add(data, c, headerline, lineptr, 0, 0);
 		}
 		SAlloc::F(line); /* free the line buffer */
 

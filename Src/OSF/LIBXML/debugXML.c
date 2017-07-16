@@ -969,7 +969,7 @@ static void xmlCtxtDumpNodeList(xmlDebugCtxtPtr ctxt, xmlNodePtr node)
 
 static void xmlCtxtDumpDocHead(xmlDebugCtxtPtr ctxt, xmlDocPtr doc)
 {
-	if(doc == NULL) {
+	if(!doc) {
 		if(!ctxt->check)
 			fprintf(ctxt->output, "DOCUMENT == NULL !\n");
 		return;
@@ -1032,7 +1032,7 @@ static void xmlCtxtDumpDocHead(xmlDebugCtxtPtr ctxt, xmlDocPtr doc)
  */
 static void xmlCtxtDumpDocumentHead(xmlDebugCtxtPtr ctxt, xmlDocPtr doc)
 {
-	if(doc == NULL) return;
+	if(!doc) return;
 	xmlCtxtDumpDocHead(ctxt, doc);
 	if(!ctxt->check) {
 		if(doc->name != NULL) {
@@ -1071,7 +1071,7 @@ static void xmlCtxtDumpDocumentHead(xmlDebugCtxtPtr ctxt, xmlDocPtr doc)
  */
 static void xmlCtxtDumpDocument(xmlDebugCtxtPtr ctxt, xmlDocPtr doc)
 {
-	if(doc == NULL) {
+	if(!doc) {
 		if(!ctxt->check)
 			fprintf(ctxt->output, "DOCUMENT == NULL !\n");
 		return;
@@ -1136,7 +1136,7 @@ static void xmlCtxtDumpEntityCallback(xmlEntityPtr cur, xmlDebugCtxtPtr ctxt)
  */
 static void xmlCtxtDumpEntities(xmlDebugCtxtPtr ctxt, xmlDocPtr doc)
 {
-	if(doc == NULL) return;
+	if(!doc) return;
 	xmlCtxtDumpDocHead(ctxt, doc);
 	if((doc->intSubset != NULL) && (doc->intSubset->entities != NULL)) {
 		xmlEntitiesTablePtr table = (xmlEntitiesTablePtr)
@@ -1414,14 +1414,13 @@ void xmlDebugDumpDTD(FILE * output, xmlDtdPtr dtd)
 int xmlDebugCheckDocument(FILE * output, xmlDocPtr doc)
 {
 	xmlDebugCtxt ctxt;
-	if(!output)
-		output = stdout;
+	SETIFZ(output, stdout);
 	xmlCtxtDumpInitCtxt(&ctxt);
 	ctxt.output = output;
 	ctxt.check = 1;
 	xmlCtxtDumpDocument(&ctxt, doc);
 	xmlCtxtDumpCleanCtxt(&ctxt);
-	return(ctxt.errors);
+	return ctxt.errors;
 }
 
 /************************************************************************
@@ -1777,9 +1776,7 @@ void xmlShellPrintXPathResult(xmlXPathObjectPtr list)
  *
  * Returns 0
  */
-int xmlShellList(xmlShellCtxtPtr ctxt,
-    char * arg ATTRIBUTE_UNUSED, xmlNodePtr node,
-    xmlNodePtr node2 ATTRIBUTE_UNUSED)
+int xmlShellList(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
 {
 	xmlNodePtr cur;
 	if(!ctxt)
@@ -1788,8 +1785,7 @@ int xmlShellList(xmlShellCtxtPtr ctxt,
 		fprintf(ctxt->output, "NULL\n");
 		return 0;
 	}
-	if((node->type == XML_DOCUMENT_NODE) ||
-	    (node->type == XML_HTML_DOCUMENT_NODE)) {
+	if((node->type == XML_DOCUMENT_NODE) || (node->type == XML_HTML_DOCUMENT_NODE)) {
 		cur = ((xmlDocPtr)node)->children;
 	}
 	else if(node->type == XML_NAMESPACE_DECL) {
@@ -1822,9 +1818,7 @@ int xmlShellList(xmlShellCtxtPtr ctxt,
  *
  * Returns 0
  */
-int xmlShellBase(xmlShellCtxtPtr ctxt,
-    char * arg ATTRIBUTE_UNUSED, xmlNodePtr node,
-    xmlNodePtr node2 ATTRIBUTE_UNUSED)
+int xmlShellBase(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
 {
 	xmlChar * base;
 	if(!ctxt)
@@ -1833,9 +1827,7 @@ int xmlShellBase(xmlShellCtxtPtr ctxt,
 		fprintf(ctxt->output, "NULL\n");
 		return 0;
 	}
-
 	base = xmlNodeGetBase(node->doc, node);
-
 	if(base == NULL) {
 		fprintf(ctxt->output, " No base found !!!\n");
 	}
@@ -1859,9 +1851,7 @@ int xmlShellBase(xmlShellCtxtPtr ctxt,
  *
  * Returns 0
  */
-static int xmlShellSetBase(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED,
-    char * arg ATTRIBUTE_UNUSED, xmlNodePtr node,
-    xmlNodePtr node2 ATTRIBUTE_UNUSED)
+static int xmlShellSetBase(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg ATTRIBUTE_UNUSED, xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
 {
 	xmlNodeSetBase(node, (xmlChar*)arg);
 	return 0;
@@ -1935,13 +1925,10 @@ static int xmlShellRegisterNamespace(xmlShellCtxtPtr ctxt, char * arg, xmlNodePt
  *
  * Returns 0 on success and a negative value otherwise.
  */
-static int xmlShellRegisterRootNamespaces(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED,
-    xmlNodePtr root, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+static int xmlShellRegisterRootNamespaces(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr root, xmlNodePtr node2 ATTRIBUTE_UNUSED)
 {
 	xmlNsPtr ns;
-
-	if((root == NULL) || (root->type != XML_ELEMENT_NODE) ||
-	    (root->nsDef == NULL) || (ctxt == NULL) || (ctxt->pctxt == NULL))
+	if((root == NULL) || (root->type != XML_ELEMENT_NODE) || (root->nsDef == NULL) || (ctxt == NULL) || (ctxt->pctxt == NULL))
 		return -1;
 	ns = root->nsDef;
 	while(ns != NULL) {
@@ -1997,31 +1984,27 @@ static int xmlShellGrep(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED,
 				xmlShellList(ctxt, NULL, node->parent, NULL);
 			}
 		}
-
 		/*
 		 * Browse the full subtree, deep first
 		 */
-
-		if((node->type == XML_DOCUMENT_NODE) ||
-		    (node->type == XML_HTML_DOCUMENT_NODE)) {
+		if((node->type == XML_DOCUMENT_NODE) || (node->type == XML_HTML_DOCUMENT_NODE)) {
 			node = ((xmlDocPtr)node)->children;
 		}
-		else if((node->children != NULL)
-		    && (node->type != XML_ENTITY_REF_NODE)) {
+		else if((node->children != NULL) && (node->type != XML_ENTITY_REF_NODE)) {
 			/* deep first */
 			node = node->children;
 		}
-		else if(node->next != NULL) {
+		else if(node->next) {
 			/* then siblings */
 			node = node->next;
 		}
 		else {
 			/* go up to parents->next if needed */
 			while(node) {
-				if(node->parent != NULL) {
+				if(node->parent) {
 					node = node->parent;
 				}
-				if(node->next != NULL) {
+				if(node->next) {
 					node = node->next;
 					break;
 				}
@@ -2095,7 +2078,7 @@ static int xmlShellSetContent(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED,
 		fprintf(ctxt->output, "NULL\n");
 		return 0;
 	}
-	if(value == NULL) {
+	if(!value) {
 		fprintf(ctxt->output, "NULL\n");
 		return 0;
 	}
@@ -2127,20 +2110,13 @@ static int xmlShellSetContent(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED,
  *
  * Returns 0
  */
-static int xmlShellRNGValidate(xmlShellCtxtPtr sctxt, char * schemas,
-    xmlNodePtr node ATTRIBUTE_UNUSED,
-    xmlNodePtr node2 ATTRIBUTE_UNUSED)
+static int xmlShellRNGValidate(xmlShellCtxtPtr sctxt, char * schemas, xmlNodePtr node ATTRIBUTE_UNUSED, xmlNodePtr node2 ATTRIBUTE_UNUSED)
 {
 	xmlRelaxNGPtr relaxngschemas;
-	xmlRelaxNGParserCtxtPtr ctxt;
 	xmlRelaxNGValidCtxtPtr vctxt;
 	int ret;
-
-	ctxt = xmlRelaxNGNewParserCtxt(schemas);
-	xmlRelaxNGSetParserErrors(ctxt,
-	    (xmlRelaxNGValidityErrorFunc)fprintf,
-	    (xmlRelaxNGValidityWarningFunc)fprintf,
-	    stderr);
+	xmlRelaxNGParserCtxtPtr ctxt = xmlRelaxNGNewParserCtxt(schemas);
+	xmlRelaxNGSetParserErrors(ctxt, (xmlRelaxNGValidityErrorFunc)fprintf, (xmlRelaxNGValidityWarningFunc)fprintf, stderr);
 	relaxngschemas = xmlRelaxNGParse(ctxt);
 	xmlRelaxNGFreeParserCtxt(ctxt);
 	if(relaxngschemas == NULL) {
@@ -2148,10 +2124,7 @@ static int xmlShellRNGValidate(xmlShellCtxtPtr sctxt, char * schemas,
 		return -1;
 	}
 	vctxt = xmlRelaxNGNewValidCtxt(relaxngschemas);
-	xmlRelaxNGSetValidErrors(vctxt,
-	    (xmlRelaxNGValidityErrorFunc)fprintf,
-	    (xmlRelaxNGValidityWarningFunc)fprintf,
-	    stderr);
+	xmlRelaxNGSetValidErrors(vctxt, (xmlRelaxNGValidityErrorFunc)fprintf, (xmlRelaxNGValidityWarningFunc)fprintf, stderr);
 	ret = xmlRelaxNGValidateDoc(vctxt, sctxt->doc);
 	if(ret == 0) {
 		fprintf(stderr, "%s validates\n", sctxt->filename);
@@ -2182,8 +2155,7 @@ static int xmlShellRNGValidate(xmlShellCtxtPtr sctxt, char * schemas,
  *
  * Returns 0
  */
-int xmlShellCat(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED,
-    xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+int xmlShellCat(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
 {
 	if(!ctxt)
 		return 0;
@@ -2228,13 +2200,10 @@ int xmlShellCat(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED,
  *
  * Returns 0 or -1 if loading failed
  */
-int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename,
-    xmlNodePtr node ATTRIBUTE_UNUSED,
-    xmlNodePtr node2 ATTRIBUTE_UNUSED)
+int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNodePtr node ATTRIBUTE_UNUSED, xmlNodePtr node2 ATTRIBUTE_UNUSED)
 {
 	xmlDocPtr doc;
 	int html = 0;
-
 	if(!ctxt || (filename == NULL)) return -1;
 	if(ctxt->doc != NULL)
 		html = (ctxt->doc->type == XML_HTML_DOCUMENT_NODE);
@@ -2285,8 +2254,7 @@ int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename,
  *
  * Returns 0 or -1 in case of error
  */
-int xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNodePtr node,
-    xmlNodePtr node2 ATTRIBUTE_UNUSED)
+int xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
 {
 	if(node == NULL)
 		return -1;
@@ -2480,7 +2448,7 @@ int xmlShellDu(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr tre
 		else if(node != tree) {
 			/* go up to parents->next if needed */
 			while(node != tree) {
-				if(node->parent != NULL) {
+				if(node->parent) {
 					node = node->parent;
 					indent--;
 				}
@@ -2564,7 +2532,7 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input, FILE *
 	int i;
 	xmlShellCtxtPtr ctxt;
 	xmlXPathObjectPtr list;
-	if(doc == NULL)
+	if(!doc)
 		return;
 	if(filename == NULL)
 		return;
@@ -2685,20 +2653,20 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input, FILE *
 #ifdef LIBXML_VALID_ENABLED
 		}
 		else if(sstreq(command, "validate")) {
-			xmlShellValidate(ctxt, arg, NULL, NULL);
+			xmlShellValidate(ctxt, arg, 0, 0);
 #endif /* LIBXML_VALID_ENABLED */
 		}
 		else if(sstreq(command, "load")) {
-			xmlShellLoad(ctxt, arg, NULL, NULL);
+			xmlShellLoad(ctxt, arg, 0, 0);
 #ifdef LIBXML_SCHEMAS_ENABLED
 		}
 		else if(sstreq(command, "relaxng")) {
-			xmlShellRNGValidate(ctxt, arg, NULL, NULL);
+			xmlShellRNGValidate(ctxt, arg, 0, 0);
 #endif
 #ifdef LIBXML_OUTPUT_ENABLED
 		}
 		else if(sstreq(command, "save")) {
-			xmlShellSave(ctxt, arg, NULL, NULL);
+			xmlShellSave(ctxt, arg, 0, 0);
 		}
 		else if(sstreq(command, "write")) {
 			if(arg[0] == 0)
@@ -2777,7 +2745,7 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input, FILE *
 				xmlGenericError(0, "setns: prefix=[nsuri] required\n");
 			}
 			else {
-				xmlShellRegisterNamespace(ctxt, arg, NULL, NULL);
+				xmlShellRegisterNamespace(ctxt, arg, 0, 0);
 			}
 		}
 		else if(sstreq(command, "setrootns")) {

@@ -246,7 +246,7 @@ PNG_FUNCTION(png_structp /* PRIVATE */, png_create_png_struct, (const char * use
 			png_structrp png_ptr = png_voidcast(png_structrp,
 			    png_malloc_warn(&create_struct, (sizeof *png_ptr)));
 
-			if(png_ptr != NULL) {
+			if(png_ptr) {
 				/* png_ptr->zstream holds a back-pointer to the png_struct, so
 				 * this can only be done now:
 				 */
@@ -537,7 +537,7 @@ void PNGAPI png_free_data(png_const_structrp png_ptr, png_inforp info_ptr, uint3
 void * PNGAPI png_get_io_ptr(png_const_structrp png_ptr)
 {
 	if(png_ptr == NULL)
-		return (NULL);
+		return NULL;
 	return (png_ptr->io_ptr);
 }
 
@@ -630,7 +630,7 @@ int PNGAPI png_convert_to_rfc1123_buffer(char out[29], png_const_timep ptime)
  */
 const char * PNGAPI png_convert_to_rfc1123(png_structrp png_ptr, png_const_timep ptime)
 {
-	if(png_ptr != NULL) {
+	if(png_ptr) {
 		/* The only failure above if png_ptr != NULL is from an invalid ptime */
 		if(png_convert_to_rfc1123_buffer(png_ptr->time_buffer, ptime) == 0)
 			png_warning(png_ptr, "Ignoring invalid time value");

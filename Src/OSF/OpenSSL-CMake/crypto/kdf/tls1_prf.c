@@ -87,7 +87,7 @@ static int pkey_tls1_prf_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 static int pkey_tls1_prf_ctrl_str(EVP_PKEY_CTX * ctx,
     const char * type, const char * value)
 {
-	if(value == NULL) {
+	if(!value) {
 		KDFerr(KDF_F_PKEY_TLS1_PRF_CTRL_STR, KDF_R_VALUE_MISSING);
 		return 0;
 	}

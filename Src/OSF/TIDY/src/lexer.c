@@ -3372,7 +3372,7 @@ static AttVal* ParseAttrs(TidyDocImpl* doc, bool * isempty)
 
 			if(LastChar(attribute) == '"')
 				TY_(ReportAttrError) (doc, lexer->token, av, MISSING_QUOTEMARK);
-			else if(value == NULL)
+			else if(!value)
 				TY_(ReportAttrError) (doc, lexer->token, av, MISSING_ATTR_VALUE);
 			else
 				TY_(ReportAttrError) (doc, lexer->token, av, INVALID_ATTRIBUTE);

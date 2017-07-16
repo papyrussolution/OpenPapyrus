@@ -393,7 +393,7 @@ private:
 	// @v9.0.9 int SLAPI TimeStamp(LTIME tm, SString & rBuf);
 
 	int ReplaceSpecSymb;
-	xmlTextWriterPtr P_Writer;
+	xmlTextWriter * P_Writer;
 };
 
 XmlWriter::XmlWriter(const char * pPath, int replaceSpecSymb)

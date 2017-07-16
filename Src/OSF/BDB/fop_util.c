@@ -564,7 +564,7 @@ err:
 		CLOSE_HANDLE(dbp, fhp);
 		__txn_abort(stxn);
 		if(tmp_created && txn == NULL)
-			__fop_remove(env, NULL, NULL, tmpname, NULL, aflags, dflags);
+			__fop_remove(env, 0, 0, tmpname, NULL, aflags, dflags);
 		if(txn == NULL)
 			__ENV_LPUT(env, dbp->handle_lock);
 		__ENV_LPUT(env, elock);

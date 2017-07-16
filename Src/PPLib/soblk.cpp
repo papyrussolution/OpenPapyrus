@@ -1378,7 +1378,7 @@ struct LocalSelectorDescr {
 	}
 	json_t * CreateJSON() const
 	{
-		json_t * p_jsel = json_new_object();
+		json_t * p_jsel = new json_t(json_t::tOBJECT);
 		SString temp_buf, o_buf, txt_buf;
 		json_insert_pair_into_object(p_jsel, "ID", json_new_string((temp_buf = 0).Cat(ID)));
 		json_insert_pair_into_object(p_jsel, "Attr", json_new_string((temp_buf = 0).Cat(Attr)));
@@ -1388,11 +1388,11 @@ struct LocalSelectorDescr {
 		json_insert_pair_into_object(p_jsel, "Subcrit", json_new_string(temp_buf = 0));
 		json_insert_pair_into_object(p_jsel, "Part", json_new_string(Part));
 		//
-		json_t * p_jsel_val_ary = json_new_array();
+		json_t * p_jsel_val_ary = new json_t(json_t::tARRAY);
 		if(Attr != PPUhttStoreSelDescr::attrName) {
 			PPIDArray parent_id_list, named_id_list;
 			for(uint j = 0, k = Values.getCount(); j < k; j++) {
-				json_t * p_jsel_val = json_new_object();
+				json_t * p_jsel_val = new json_t(json_t::tOBJECT);
 				const StrAssocArray::Item & r_val = Values.at(j);
 				json_insert_pair_into_object(p_jsel_val, "ID", json_new_string((temp_buf = 0).Cat(r_val.Id)));
 				json_insert_pair_into_object(p_jsel_val, "Txt", json_new_string((temp_buf = r_val.Txt).Transf(CTRANSF_INNER_TO_OUTER)));
@@ -1419,7 +1419,7 @@ struct LocalSelectorDescr {
 							if(p_ref->GetItem(tag_rec.TagEnumID, parent_id, &tag_item_rec) > 0) {
 								const PPID next_parent_id = tag_item_rec.Val2;
 								assert(tag_item_rec.ObjID == parent_id);
-								json_t * p_jsel_val = json_new_object();
+								json_t * p_jsel_val = new json_t(json_t::tOBJECT);
 								json_insert_pair_into_object(p_jsel_val, "ID", json_new_string((temp_buf = 0).Cat(parent_id)));
 								json_insert_pair_into_object(p_jsel_val, "Txt", json_new_string((temp_buf = tag_item_rec.ObjName).Transf(CTRANSF_INNER_TO_OUTER)));
 								json_insert_pair_into_object(p_jsel_val, "PID", json_new_string((temp_buf = 0).Cat(next_parent_id)));
@@ -1679,7 +1679,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 				PPObjProcessor prc_obj;
 				PPCheckInPersonMngr ci_mgr;
 				ProcessorPlaceCodeTemplate ppct;
-				json_t * p_jpack = json_new_object();
+				json_t * p_jpack = new json_t(json_t::tOBJECT);
 				TSCollection <LocalSelectorDescr> sdescr_list;
 				CALLPTRMEMB(p_view, GetSelectorListInfo(selector_list));
 				//
@@ -1700,9 +1700,9 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 				// Формирование ответа
 				//
 				{
-					json_t * p_jhdr = json_new_object();
-					json_t * p_jsel_ary = json_new_array();
-					json_t * p_jitem_list = json_new_array();
+					json_t * p_jhdr = new json_t(json_t::tOBJECT);
+					json_t * p_jsel_ary = new json_t(json_t::tARRAY);
+					json_t * p_jitem_list = new json_t(json_t::tARRAY);
 					//
 					json_insert_pair_into_object(p_jpack, "Header", p_jhdr);
 					json_insert_pair_into_object(p_jhdr, "Class", json_new_string((temp_buf = 0).Cat(0L)));
@@ -1768,7 +1768,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 										if(prc_ext.GetPlaceDescription(pdi, pd) && ppct.Parse(pd.Range))
 											ppct.Generate(ss_places);
 								}
-								json_t * p_jitem = json_new_object();
+								json_t * p_jitem = new json_t(json_t::tOBJECT);
 								//
 								json_insert_pair_into_object(p_jitem, "ID", json_new_string((temp_buf = 0).Cat(tses_rec.ID)));
 								json_insert_pair_into_object(p_jitem, "PrcID", json_new_string((temp_buf = 0).Cat(tses_rec.PrcID)));
@@ -1921,7 +1921,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 			GoodsIterator iter(P_GoodsF, GoodsIterator::ordByName);
 			if(iter.GetSelectorListInfo(&cls_id, selector_list) && selector_list.getCount()) {
 				// StrAssocArray CritList;
-				json_t * p_jpack = json_new_object();
+				json_t * p_jpack = new json_t(json_t::tOBJECT);
 				TSCollection <LocalSelectorDescr> sdescr_list;
 				//
 				// Формирование списка селекторов
@@ -1941,9 +1941,9 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 				// Формирование ответа
 				//
 				{
-					json_t * p_jhdr = json_new_object();
-					json_t * p_jsel_ary = json_new_array();
-					json_t * p_jitem_list = json_new_array();
+					json_t * p_jhdr = new json_t(json_t::tOBJECT);
+					json_t * p_jsel_ary = new json_t(json_t::tARRAY);
+					json_t * p_jitem_list = new json_t(json_t::tARRAY);
 					//
 					json_insert_pair_into_object(p_jpack, "Header", p_jhdr);
 					json_insert_pair_into_object(p_jhdr, "Class", json_new_string((temp_buf = 0).Cat(cls_id)));
@@ -1981,7 +1981,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 					else {
 						GoodsIterator::Ext iter_ext;
 						while(iter.Next(&goods_rec, &iter_ext) > 0) {
-							json_t * p_jitem = json_new_object();
+							json_t * p_jitem = new json_t(json_t::tOBJECT);
 							//
 							json_insert_pair_into_object(p_jitem, "ID", json_new_string((temp_buf = 0).Cat(goods_rec.ID)));
 							json_insert_pair_into_object(p_jitem, "Name", json_new_string((temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).Escape()));

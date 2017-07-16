@@ -207,7 +207,7 @@ int xmlStrncmp(const xmlChar * str1, const xmlChar * str2, int len)
 #else
 	do {
 		tmp = *str1++ - *str2;
-		if(tmp != 0 || --len == 0) return(tmp);
+		if(tmp != 0 || --len == 0) return tmp;
 	} while(*str2++ != 0);
 	return 0;
 #endif
@@ -266,7 +266,7 @@ int xmlStrcasecmp(const xmlChar * str1, const xmlChar * str2)
 	if(str2 == NULL) return 1;
 	do {
 		tmp = casemap[*str1++] - casemap[*str2];
-		if(tmp != 0) return(tmp);
+		if(tmp != 0) return tmp;
 	} while(*str2++ != 0);
 	return 0;
 }
@@ -291,7 +291,7 @@ int xmlStrncasecmp(const xmlChar * str1, const xmlChar * str2, int len)
 	if(str2 == NULL) return 1;
 	do {
 		tmp = casemap[*str1++] - casemap[*str2];
-		if(tmp != 0 || --len == 0) return(tmp);
+		if(tmp != 0 || --len == 0) return tmp;
 	} while(*str2++ != 0);
 	return 0;
 }

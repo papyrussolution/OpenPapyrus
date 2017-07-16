@@ -681,7 +681,7 @@ int CPosProcessor::ExportCTblList(SString & rBuf)
 	uint   i;
 	SString temp_buf;
 
-	xmlTextWriterPtr writer = 0;
+	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
 
 	TSArray <CCheckViewItem> cc_list;
@@ -698,17 +698,17 @@ int CPosProcessor::ExportCTblList(SString & rBuf)
 	THROW(Backend_GetCCheckList(0, cc_list));
 	//
 	THROW(p_xml_buf = xmlBufferCreate());
-	THROW(writer = xmlNewTextWriterMemory(p_xml_buf, 0));
+	THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
 	{
-		SXml::WDoc _doc(writer, cpUTF8);
-		xmlTextWriterStartDTD(writer, (temp_buf = "CPosProcessorCTableList").ucptr(), 0, 0);
-		XMLWriteSpecSymbEntities(writer);
-		xmlTextWriterEndDTD(writer);
+		SXml::WDoc _doc(p_writer, cpUTF8);
+		xmlTextWriterStartDTD(p_writer, (temp_buf = "CPosProcessorCTableList").ucptr(), 0, 0);
+		XMLWriteSpecSymbEntities(p_writer);
+		xmlTextWriterEndDTD(p_writer);
 		{
-			SXml::WNode n_list(writer, "CPosProcessorCTableList");
+			SXml::WNode n_list(p_writer, "CPosProcessorCTableList");
 			for(i = 0; i < ctbl_list.getCount(); i++) {
 				const long ctbl_id = ctbl_list.get(i);
-				SXml::WNode n_item(writer, "CPosProcessorCTable");
+				SXml::WNode n_item(p_writer, "CPosProcessorCTable");
 				n_item.PutInner("ID", (temp_buf = 0).Cat(ctbl_id));
 				PPObjCashNode::GetCafeTableName(ctbl_id, temp_buf = 0);
 				n_item.PutInner("Name", temp_buf);
@@ -737,12 +737,12 @@ int CPosProcessor::ExportCTblList(SString & rBuf)
 				}
 			}
 		}
-		xmlTextWriterFlush(writer);
+		xmlTextWriterFlush(p_writer);
 		rBuf.CopyFromN((char *)p_xml_buf->content, p_xml_buf->use)/*.UTF8ToChar()*/;
 		rBuf.Transf(CTRANSF_INNER_TO_UTF8);
 	}
 	CATCHZOK
-	xmlFreeTextWriter(writer);
+	xmlFreeTextWriter(p_writer);
 	xmlBufferFree(p_xml_buf);
     return ok;
 }
@@ -754,24 +754,24 @@ int CPosProcessor::ExportCCheckList(long ctblId, SString & rBuf)
 	uint   i;
 	SString temp_buf;
 
-	xmlTextWriterPtr writer = 0;
+	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
 
 	TSArray <CCheckViewItem> cc_list;
 	THROW(Backend_GetCCheckList(ctblId, cc_list));
 	//
 	THROW(p_xml_buf = xmlBufferCreate());
-	THROW(writer = xmlNewTextWriterMemory(p_xml_buf, 0));
+	THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
 	{
-		SXml::WDoc _doc(writer, cpUTF8);
-		xmlTextWriterStartDTD(writer, (temp_buf = "CPosProcessorCCheckList").ucptr(), 0, 0);
-		XMLWriteSpecSymbEntities(writer);
-		xmlTextWriterEndDTD(writer);
+		SXml::WDoc _doc(p_writer, cpUTF8);
+		xmlTextWriterStartDTD(p_writer, (temp_buf = "CPosProcessorCCheckList").ucptr(), 0, 0);
+		XMLWriteSpecSymbEntities(p_writer);
+		xmlTextWriterEndDTD(p_writer);
 		{
-			SXml::WNode n_list(writer, "CPosProcessorCCheckList");
+			SXml::WNode n_list(p_writer, "CPosProcessorCCheckList");
 			for(i = 0; i < cc_list.getCount(); i++) {
 				const CCheckViewItem & r_item = cc_list.at(i);
-				SXml::WNode n_item(writer, "CPosProcessorCCheck");
+				SXml::WNode n_item(p_writer, "CPosProcessorCCheck");
 				n_item.PutInner("ID", (temp_buf = 0).Cat(r_item.ID));
 				n_item.PutInner("Code", (temp_buf = 0).Cat(r_item.Code));
 				n_item.PutInner("Flags", (temp_buf = 0).Cat(r_item.Flags));
@@ -797,12 +797,12 @@ int CPosProcessor::ExportCCheckList(long ctblId, SString & rBuf)
 				n_item.PutInner("CreationTime", (temp_buf = 0).Cat(r_item.CreationDtm, DATF_ISO8601|DATF_CENTURY, 0));
 			}
 		}
-		xmlTextWriterFlush(writer);
+		xmlTextWriterFlush(p_writer);
 		rBuf.CopyFromN((char *)p_xml_buf->content, p_xml_buf->use);
 		rBuf.Transf(CTRANSF_INNER_TO_UTF8);
 	}
 	CATCHZOK
-	xmlFreeTextWriter(writer);
+	xmlFreeTextWriter(p_writer);
 	xmlBufferFree(p_xml_buf);
     return ok;
 }
@@ -811,22 +811,22 @@ int CPosProcessor::ExportCurrentState(SString & rBuf) const
 {
 	int    ok = 1;
 	SString temp_buf;
-	xmlTextWriterPtr writer = 0;
+	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
 
 	rBuf = 0;
 	THROW(p_xml_buf = xmlBufferCreate());
-	THROW(writer = xmlNewTextWriterMemory(p_xml_buf, 0));
+	THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
 	{
-		SXml::WDoc _doc(writer, cpUTF8);
-		xmlTextWriterStartDTD(writer, (temp_buf = "CPosProcessorState").ucptr(), 0, 0);
-		XMLWriteSpecSymbEntities(writer);
-		xmlTextWriterEndDTD(writer);
+		SXml::WDoc _doc(p_writer, cpUTF8);
+		xmlTextWriterStartDTD(p_writer, (temp_buf = "CPosProcessorState").ucptr(), 0, 0);
+		XMLWriteSpecSymbEntities(p_writer);
+		xmlTextWriterEndDTD(p_writer);
 		{
-			SXml::WNode n_state(writer, "CPosProcessorState");
+			SXml::WNode n_state(p_writer, "CPosProcessorState");
 			{
-				#define PUTNODE_F(f) SXml::WNode(writer, #f, (temp_buf = 0).Cat(f))
-				#define PUTNODE_TF(t, f) SXml::WNode(writer, #t, (temp_buf = 0).Cat(f))
+				#define PUTNODE_F(f) SXml::WNode(p_writer, #f, (temp_buf = 0).Cat(f))
+				#define PUTNODE_TF(t, f) SXml::WNode(p_writer, #t, (temp_buf = 0).Cat(f))
 				PUTNODE_F(AuthAgentID);
 				PUTNODE_F(CheckID);
 				PUTNODE_F(SuspCheckID);
@@ -838,11 +838,11 @@ int CPosProcessor::ExportCurrentState(SString & rBuf) const
 				#undef PUTNODE_TF
 				#undef PUTNODE_F
 				{
-					SXml::WNode n_cardstate(writer, "CardState");
+					SXml::WNode n_cardstate(p_writer, "CardState");
 					{
-						SXml::WNode(writer, "ID", (temp_buf = 0).Cat(CSt.GetID()));
-						SXml::WNode(writer, "Code", (temp_buf = 0).Cat(CSt.GetCode()));
-						#define PUTNODE_F(f) SXml::WNode(writer, #f, (temp_buf = 0).Cat(CSt.f))
+						SXml::WNode(p_writer, "ID", (temp_buf = 0).Cat(CSt.GetID()));
+						SXml::WNode(p_writer, "Code", (temp_buf = 0).Cat(CSt.GetCode()));
+						#define PUTNODE_F(f) SXml::WNode(p_writer, #f, (temp_buf = 0).Cat(CSt.f))
 						PUTNODE_F(Flags);
 						PUTNODE_F(Discount);
 						PUTNODE_F(SettledDiscount);
@@ -856,21 +856,21 @@ int CPosProcessor::ExportCurrentState(SString & rBuf) const
 					}
 				}
 				{
-					SXml::WNode n_packet(writer, "Packet");
+					SXml::WNode n_packet(p_writer, "Packet");
 					{
-						#define PUTNODE_F(f) SXml::WNode(writer, #f, (temp_buf = 0).Cat(P.f))
-						SXml::WNode(writer, "CTableID", (temp_buf = 0).Cat(P.TableCode));
+						#define PUTNODE_F(f) SXml::WNode(p_writer, #f, (temp_buf = 0).Cat(P.f))
+						SXml::WNode(p_writer, "CTableID", (temp_buf = 0).Cat(P.TableCode));
 						PUTNODE_F(GuestCount);
 						PUTNODE_F(OrderCheckID);
 						PUTNODE_F(CurPos);
-						SXml::WNode(writer, "Rest", (temp_buf = 0).Cat(P.GetRest()));
-						SXml::WNode(writer, "AgentID", (temp_buf = 0).Cat(P.GetAgentID()));
+						SXml::WNode(p_writer, "Rest", (temp_buf = 0).Cat(P.GetRest()));
+						SXml::WNode(p_writer, "AgentID", (temp_buf = 0).Cat(P.GetAgentID()));
 						#undef PUTNODE_F
 						for(uint i = 0; i < P.getCount(); i++) {
-							SXml::WNode n_row(writer, "CCRow");
+							SXml::WNode n_row(p_writer, "CCRow");
 							{
 								const CCheckItem & r_item = P.at(i);
-								#define PUTNODE_F(f) SXml::WNode(writer, #f, (temp_buf = 0).Cat(r_item.f))
+								#define PUTNODE_F(f) SXml::WNode(p_writer, #f, (temp_buf = 0).Cat(r_item.f))
 								PUTNODE_F(GoodsID);
 								PUTNODE_F(Quantity);
 								PUTNODE_F(PhQtty);
@@ -889,10 +889,10 @@ int CPosProcessor::ExportCurrentState(SString & rBuf) const
 							}
 						}
 						if(P.HasCur()) {
-							SXml::WNode n_row(writer, "CCRowCurrent");
+							SXml::WNode n_row(p_writer, "CCRowCurrent");
 							{
 								const CCheckItem & r_item = P.GetCurC();
-								#define PUTNODE_F(f) SXml::WNode(writer, #f, (temp_buf = 0).Cat(r_item.f))
+								#define PUTNODE_F(f) SXml::WNode(p_writer, #f, (temp_buf = 0).Cat(r_item.f))
 								PUTNODE_F(GoodsID);
 								PUTNODE_F(Quantity);
 								PUTNODE_F(PhQtty);
@@ -915,11 +915,11 @@ int CPosProcessor::ExportCurrentState(SString & rBuf) const
 			}
 		}
 	}
-	xmlTextWriterFlush(writer);
+	xmlTextWriterFlush(p_writer);
 	rBuf.CopyFromN((char *)p_xml_buf->content, p_xml_buf->use)/*.UTF8ToChar()*/;
 	rBuf.Transf(CTRANSF_INNER_TO_UTF8);
 	CATCHZOK
-	xmlFreeTextWriter(writer);
+	xmlFreeTextWriter(p_writer);
 	xmlBufferFree(p_xml_buf);
 	return ok;
 }
@@ -928,19 +928,19 @@ int CPosProcessor::ExportModifList(PPID goodsID, SString & rBuf)
 {
 	int    ok = 1;
 	SString temp_buf;
-	xmlTextWriterPtr writer = 0;
+	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
 
 	rBuf = 0;
 	THROW(p_xml_buf = xmlBufferCreate());
-	THROW(writer = xmlNewTextWriterMemory(p_xml_buf, 0));
+	THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
 	{
-		SXml::WDoc _doc(writer, cpUTF8);
-		xmlTextWriterStartDTD(writer, (temp_buf = "CPosProcessorModifList").ucptr(), 0, 0);
-		XMLWriteSpecSymbEntities(writer);
-		xmlTextWriterEndDTD(writer);
+		SXml::WDoc _doc(p_writer, cpUTF8);
+		xmlTextWriterStartDTD(p_writer, (temp_buf = "CPosProcessorModifList").ucptr(), 0, 0);
+		XMLWriteSpecSymbEntities(p_writer);
+		xmlTextWriterEndDTD(p_writer);
 		{
-			SXml::WNode n_list(writer, "CPosProcessorModifList");
+			SXml::WNode n_list(p_writer, "CPosProcessorModifList");
 			SaModif mlist;
 			n_list.PutInner("GoodsID", (temp_buf = 0).Cat(goodsID));
 			if(LoadModifiers(goodsID, mlist) > 0) {
@@ -948,7 +948,7 @@ int CPosProcessor::ExportModifList(PPID goodsID, SString & rBuf)
 				for(uint i = 0; i < mlist.getCount(); i++) {
 					const SaModifEntry & r_item = mlist.at(i);
 					if(GObj.Fetch(r_item.GoodsID, &goods_rec) > 0) {
-						SXml::WNode n_item(writer, "Item");
+						SXml::WNode n_item(p_writer, "Item");
 						n_item.PutInner("GoodsID", (temp_buf = 0).Cat(r_item.GoodsID));
 						n_item.PutInner("GoodsName", (temp_buf = goods_rec.Name));
 						n_item.PutInner("Flags", (temp_buf = 0).Cat(r_item.Flags));
@@ -959,11 +959,11 @@ int CPosProcessor::ExportModifList(PPID goodsID, SString & rBuf)
 			}
 		}
 	}
-	xmlTextWriterFlush(writer);
+	xmlTextWriterFlush(p_writer);
 	rBuf.CopyFromN((char *)p_xml_buf->content, p_xml_buf->use)/*.UTF8ToChar()*/;
 	rBuf.Transf(CTRANSF_INNER_TO_UTF8);
 	CATCHZOK
-	xmlFreeTextWriter(writer);
+	xmlFreeTextWriter(p_writer);
 	xmlBufferFree(p_xml_buf);
 	return ok;
 }

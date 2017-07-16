@@ -478,7 +478,7 @@ PNG_FUNCTION(png_structp, PNGAPI
 	png_structrp png_ptr = png_create_png_struct(user_png_ver, error_ptr,
 	    error_fn, warn_fn, mem_ptr, malloc_fn, free_fn);
 #endif /* USER_MEM */
-	if(png_ptr != NULL) {
+	if(png_ptr) {
 		/* Set the zlib control values to defaults; they can be overridden by the
 		 * application after the struct has been created.
 		 */
@@ -901,7 +901,7 @@ void PNGAPI png_destroy_write_struct(png_structpp png_ptr_ptr, png_infopp info_p
 	png_debug(1, "in png_destroy_write_struct");
 	if(png_ptr_ptr != NULL) {
 		png_structrp png_ptr = *png_ptr_ptr;
-		if(png_ptr != NULL) { /* added in libpng 1.6.0 */
+		if(png_ptr) { /* added in libpng 1.6.0 */
 			png_destroy_info_struct(png_ptr, info_ptr_ptr);
 			*png_ptr_ptr = NULL;
 			png_write_destroy(png_ptr);
@@ -1339,7 +1339,7 @@ void PNGAPI png_write_png(png_structrp png_ptr, png_inforp info_ptr, int transfo
 static int png_image_write_init(png_imagep image)
 {
 	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, image, png_safe_error, png_safe_warning);
-	if(png_ptr != NULL) {
+	if(png_ptr) {
 		png_infop info_ptr = png_create_info_struct(png_ptr);
 		if(info_ptr != NULL) {
 			png_controlp control = png_voidcast(png_controlp, png_malloc_warn(png_ptr, (sizeof *control)));

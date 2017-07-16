@@ -163,12 +163,12 @@ static int crl_cb(int operation, ASN1_VALUE ** pval, const ASN1_ITEM * it,
 
 		case ASN1_OP_D2I_POST:
 		    X509_CRL_digest(crl, EVP_sha1(), crl->sha1_hash, NULL);
-		    crl->idp = (ISSUING_DIST_POINT *)X509_CRL_get_ext_d2i(crl, NID_issuing_distribution_point, NULL, NULL);
+		    crl->idp = (ISSUING_DIST_POINT *)X509_CRL_get_ext_d2i(crl, NID_issuing_distribution_point, 0, 0);
 		    if(crl->idp)
 			    setup_idp(crl, crl->idp);
-		    crl->akid = (AUTHORITY_KEYID *)X509_CRL_get_ext_d2i(crl, NID_authority_key_identifier, NULL, NULL);
-		    crl->crl_number = (ASN1_INTEGER *)X509_CRL_get_ext_d2i(crl, NID_crl_number, NULL, NULL);
-		    crl->base_crl_number = (ASN1_INTEGER *)X509_CRL_get_ext_d2i(crl, NID_delta_crl, NULL, NULL);
+		    crl->akid = (AUTHORITY_KEYID *)X509_CRL_get_ext_d2i(crl, NID_authority_key_identifier, 0, 0);
+		    crl->crl_number = (ASN1_INTEGER *)X509_CRL_get_ext_d2i(crl, NID_crl_number, 0, 0);
+		    crl->base_crl_number = (ASN1_INTEGER *)X509_CRL_get_ext_d2i(crl, NID_delta_crl, 0, 0);
 		    /* Delta CRLs must have CRL number */
 		    if(crl->base_crl_number && !crl->crl_number)
 			    crl->flags |= EXFLAG_INVALID;

@@ -545,7 +545,7 @@ static cairo_surface_t * read_png(struct png_read_closure_t * png_closure)
 
 	png_get_IHDR(png, info,
 	    &png_width, &png_height, &depth,
-	    &color_type, &interlace, NULL, NULL);
+	    &color_type, &interlace, 0, 0);
 	if(unlikely(status)) { /* catch any early warnings */
 		surface = _cairo_surface_create_in_error(status);
 		goto BAIL;
@@ -589,7 +589,7 @@ static cairo_surface_t * read_png(struct png_read_closure_t * png_closure)
 	png_read_update_info(png, info);
 	png_get_IHDR(png, info,
 	    &png_width, &png_height, &depth,
-	    &color_type, &interlace, NULL, NULL);
+	    &color_type, &interlace, 0, 0);
 	if(depth != 8 ||
 	    !(color_type == PNG_COLOR_TYPE_RGB ||
 		    color_type == PNG_COLOR_TYPE_RGB_ALPHA)) {

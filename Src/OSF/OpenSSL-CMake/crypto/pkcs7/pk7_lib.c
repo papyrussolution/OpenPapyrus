@@ -329,7 +329,7 @@ PKCS7_SIGNER_INFO * PKCS7_add_signature(PKCS7 * p7, X509 * x509, EVP_PKEY * pkey
 	return (si);
 err:
 	PKCS7_SIGNER_INFO_free(si);
-	return (NULL);
+	return NULL;
 }
 
 int PKCS7_set_digest(PKCS7 * p7, const EVP_MD * md)
@@ -358,7 +358,7 @@ STACK_OF(PKCS7_SIGNER_INFO) *PKCS7_get_signer_info(PKCS7 *p7)
 		return (p7->d.signed_and_enveloped->signer_info);
 	}
 	else
-		return (NULL);
+		return NULL;
 }
 
 void PKCS7_SIGNER_INFO_get0_algs(PKCS7_SIGNER_INFO * si, EVP_PKEY ** pk, X509_ALGOR ** pdig, X509_ALGOR ** psig)
@@ -446,7 +446,7 @@ X509 * PKCS7_cert_from_signer_info(PKCS7 * p7, PKCS7_SIGNER_INFO * si)
 	if(PKCS7_type_is_signed(p7))
 		return (X509_find_by_issuer_and_serial(p7->d.sign->cert, si->issuer_and_serial->issuer, si->issuer_and_serial->serial));
 	else
-		return (NULL);
+		return NULL;
 }
 
 int PKCS7_set_cipher(PKCS7 * p7, const EVP_CIPHER * cipher)

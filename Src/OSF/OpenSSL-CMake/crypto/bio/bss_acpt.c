@@ -87,7 +87,7 @@ static BIO_ACCEPT * BIO_ACCEPT_new(void)
 {
 	BIO_ACCEPT * ret;
 	if((ret = (BIO_ACCEPT*)OPENSSL_zalloc(sizeof(*ret))) == NULL)
-		return (NULL);
+		return NULL;
 	ret->accept_family = BIO_FAMILY_IPANY;
 	ret->accept_sock = (int)INVALID_SOCKET;
 	return ret;
@@ -543,11 +543,11 @@ BIO * BIO_new_accept(const char * str)
 {
 	BIO * ret = BIO_new(BIO_s_accept());
 	if(!ret)
-		return (NULL);
+		return NULL;
 	if(BIO_set_accept_name(ret, str))
 		return ret;
 	BIO_free(ret);
-	return (NULL);
+	return NULL;
 }
 
 #endif

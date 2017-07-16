@@ -123,23 +123,23 @@ static DSO_FUNC_TYPE dl_bind_func(DSO * dso, const char * symname)
 
 	if((dso == NULL) || (symname == NULL)) {
 		DSOerr(DSO_F_DL_BIND_FUNC, ERR_R_PASSED_NULL_PARAMETER);
-		return (NULL);
+		return NULL;
 	}
 	if(sk_num(dso->meth_data) < 1) {
 		DSOerr(DSO_F_DL_BIND_FUNC, DSO_R_STACK_ERROR);
-		return (NULL);
+		return NULL;
 	}
 	ptr = (shl_t)sk_value(dso->meth_data, sk_num(dso->meth_data) - 1);
 	if(ptr == NULL) {
 		DSOerr(DSO_F_DL_BIND_FUNC, DSO_R_NULL_HANDLE);
-		return (NULL);
+		return NULL;
 	}
 	if(shl_findsym(&ptr, symname, TYPE_UNDEFINED, &sym) < 0) {
 		char errbuf[160];
 		DSOerr(DSO_F_DL_BIND_FUNC, DSO_R_SYM_FAILURE);
 		if(openssl_strerror_r(errno, errbuf, sizeof(errbuf)))
 			ERR_add_error_data(4, "symname(", symname, "): ", errbuf);
-		return (NULL);
+		return NULL;
 	}
 	return ((DSO_FUNC_TYPE)sym);
 }
@@ -150,7 +150,7 @@ static char * dl_merger(DSO * dso, const char * filespec1, const char * filespec
 
 	if(!filespec1 && !filespec2) {
 		DSOerr(DSO_F_DL_MERGER, ERR_R_PASSED_NULL_PARAMETER);
-		return (NULL);
+		return NULL;
 	}
 	/*
 	 * If the first file specification is a rooted path, it rules. same goes
@@ -160,7 +160,7 @@ static char * dl_merger(DSO * dso, const char * filespec1, const char * filespec
 		merged = OPENSSL_strdup(filespec1);
 		if(merged == NULL) {
 			DSOerr(DSO_F_DL_MERGER, ERR_R_MALLOC_FAILURE);
-			return (NULL);
+			return NULL;
 		}
 	}
 	/*
@@ -170,7 +170,7 @@ static char * dl_merger(DSO * dso, const char * filespec1, const char * filespec
 		merged = OPENSSL_strdup(filespec2);
 		if(merged == NULL) {
 			DSOerr(DSO_F_DL_MERGER, ERR_R_MALLOC_FAILURE);
-			return (NULL);
+			return NULL;
 		}
 	}
 	else{
@@ -190,7 +190,7 @@ static char * dl_merger(DSO * dso, const char * filespec1, const char * filespec
 		merged = OPENSSL_malloc(len + 2);
 		if(merged == NULL) {
 			DSOerr(DSO_F_DL_MERGER, ERR_R_MALLOC_FAILURE);
-			return (NULL);
+			return NULL;
 		}
 		strcpy(merged, filespec2);
 		merged[spec2len] = '/';
@@ -223,7 +223,7 @@ static char * dl_name_converter(DSO * dso, const char * filename)
 	translated = OPENSSL_malloc(rsize);
 	if(translated == NULL) {
 		DSOerr(DSO_F_DL_NAME_CONVERTER, DSO_R_NAME_TRANSLATION_FAILED);
-		return (NULL);
+		return NULL;
 	}
 	if(transform) {
 		if((DSO_flags(dso) & DSO_FLAG_NAME_TRANSLATION_EXT_ONLY) == 0)

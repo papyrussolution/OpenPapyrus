@@ -38,7 +38,7 @@ PNG_FUNCTION(void, PNGAPI
 {
 #ifdef PNG_ERROR_NUMBERS_SUPPORTED
 	char msg[16];
-	if(png_ptr != NULL) {
+	if(png_ptr) {
 		if((png_ptr->flags &
 			    (PNG_FLAG_STRIP_ERROR_NUMBERS|PNG_FLAG_STRIP_ERROR_TEXT)) != 0) {
 			if(*error_message == PNG_LITERAL_SHARP) {
@@ -70,7 +70,7 @@ PNG_FUNCTION(void, PNGAPI
 		}
 	}
 #endif
-	if(png_ptr != NULL && png_ptr->error_fn != NULL)
+	if(png_ptr && png_ptr->error_fn != NULL)
 		(*(png_ptr->error_fn))(png_constcast(png_structrp, png_ptr),
 		    error_message);
 
@@ -87,7 +87,7 @@ PNG_FUNCTION(void, PNGAPI
 	 * apparently an error, introduced in libpng-1.2.20, and png_default_error
 	 * will crash in this case.
 	 */
-	if(png_ptr != NULL && png_ptr->error_fn != NULL)
+	if(png_ptr && png_ptr->error_fn != NULL)
 		(*(png_ptr->error_fn))(png_constcast(png_structrp, png_ptr), "");
 
 	/* If the custom handler doesn't exist, or if it returns,
@@ -99,17 +99,14 @@ PNG_FUNCTION(void, PNGAPI
 /* Utility to safely appends strings to a buffer.  This never errors out so
  * error checking is not required in the caller.
  */
-size_t png_safecat(char * buffer, size_t bufsize, size_t pos,
-    const char * string)
+size_t png_safecat(char * buffer, size_t bufsize, size_t pos, const char * string)
 {
-	if(buffer != NULL && pos < bufsize) {
-		if(string != NULL)
+	if(buffer && pos < bufsize) {
+		if(string)
 			while(*string != '\0' && pos < bufsize-1)
 				buffer[pos++] = *string++;
-
 		buffer[pos] = '\0';
 	}
-
 	return pos;
 }
 
@@ -123,9 +120,7 @@ char * png_format_number(const char * start, char * end, int format, png_alloc_s
 	int count = 0; /* number of digits output */
 	int mincount = 1; /* minimum number required */
 	int output = 0; /* digit output (for the fixed point format) */
-
 	*--end = '\0';
-
 	/* This is written so that the loop always runs at least once, even with
 	 * number zero.
 	 */
@@ -141,35 +136,28 @@ char * png_format_number(const char * start, char * end, int format, png_alloc_s
 			    }
 			    number /= 10;
 			    break;
-
 			case PNG_NUMBER_FORMAT_02u:
 			    /* Expects at least 2 digits. */
 			    mincount = 2;
 			/* FALL THROUGH */
-
 			case PNG_NUMBER_FORMAT_u:
 			    *--end = digits[number % 10];
 			    number /= 10;
 			    break;
-
 			case PNG_NUMBER_FORMAT_02x:
 			    /* This format expects at least two digits */
 			    mincount = 2;
 			/* FALL THROUGH */
-
 			case PNG_NUMBER_FORMAT_x:
 			    *--end = digits[number & 0xf];
 			    number >>= 4;
 			    break;
-
 			default: /* an error */
 			    number = 0;
 			    break;
 		}
-
 		/* Keep track of the number of digits added */
 		++count;
-
 		/* Float a fixed number here: */
 		if((format == PNG_NUMBER_FORMAT_fixed) && (count == 5) && (end > start)) {
 			/* End of the fraction, but maybe nothing was output?  In that case
@@ -197,7 +185,7 @@ char * png_format_number(const char * start, char * end, int format, png_alloc_s
 void PNGAPI png_warning(png_const_structrp png_ptr, const char * warning_message)
 {
 	int offset = 0;
-	if(png_ptr != NULL) {
+	if(png_ptr) {
 #ifdef PNG_ERROR_NUMBERS_SUPPORTED
 		if((png_ptr->flags &
 			    (PNG_FLAG_STRIP_ERROR_NUMBERS|PNG_FLAG_STRIP_ERROR_TEXT)) != 0)
@@ -210,9 +198,8 @@ void PNGAPI png_warning(png_const_structrp png_ptr, const char * warning_message
 			}
 		}
 	}
-	if(png_ptr != NULL && png_ptr->warning_fn != NULL)
-		(*(png_ptr->warning_fn))(png_constcast(png_structrp, png_ptr),
-		    warning_message + offset);
+	if(png_ptr && png_ptr->warning_fn != NULL)
+		(*(png_ptr->warning_fn))(png_constcast(png_structrp, png_ptr), warning_message + offset);
 	else
 		png_default_warning(png_ptr, warning_message + offset);
 }
@@ -599,7 +586,7 @@ jmp_buf* PNGAPI png_set_longjmp_fn(png_structrp png_ptr, png_longjmp_ptr longjmp
 
 void /* PRIVATE */ png_free_jmpbuf(png_structrp png_ptr)
 {
-	if(png_ptr != NULL) {
+	if(png_ptr) {
 		jmp_buf * jb = png_ptr->jmp_buf_ptr;
 
 		/* A size of 0 is used to indicate a local, stack, allocation of the
@@ -678,18 +665,15 @@ static PNG_FUNCTION(void /* PRIVATE */, png_default_error, (png_const_structrp p
 	png_longjmp(png_ptr, 1);
 }
 
-PNG_FUNCTION(void, PNGAPI
-    png_longjmp, (png_const_structrp png_ptr, int val), PNG_NORETURN)
+PNG_FUNCTION(void, PNGAPI png_longjmp, (png_const_structrp png_ptr, int val), PNG_NORETURN)
 {
 #ifdef PNG_SETJMP_SUPPORTED
-	if(png_ptr != NULL && png_ptr->longjmp_fn != NULL &&
-	    png_ptr->jmp_buf_ptr != NULL)
+	if(png_ptr && png_ptr->longjmp_fn != NULL && png_ptr->jmp_buf_ptr != NULL)
 		png_ptr->longjmp_fn(*png_ptr->jmp_buf_ptr, val);
 #else
 	PNG_UNUSED(png_ptr)
 	PNG_UNUSED(val)
 #endif
-
 	/* If control reaches this point, png_longjmp() must not return. The only
 	 * choice is to terminate the whole process (or maybe the thread); to do
 	 * this the ANSI-C abort() function is used unless a different method is

@@ -77,7 +77,7 @@ int X509_NAME_get_index_by_OBJ(X509_NAME * name, const ASN1_OBJECT * obj, int la
 X509_NAME_ENTRY * X509_NAME_get_entry(const X509_NAME * name, int loc)
 {
 	if(name == NULL || sk_X509_NAME_ENTRY_num(name->entries) <= loc || loc < 0)
-		return (NULL);
+		return NULL;
 	else
 		return (sk_X509_NAME_ENTRY_value(name->entries, loc));
 }
@@ -88,7 +88,7 @@ X509_NAME_ENTRY * X509_NAME_delete_entry(X509_NAME * name, int loc)
 	int i, n, set_prev, set_next;
 	STACK_OF(X509_NAME_ENTRY) *sk;
 	if(name == NULL || sk_X509_NAME_ENTRY_num(name->entries) <= loc || loc < 0)
-		return (NULL);
+		return NULL;
 	sk = name->entries;
 	ret = sk_X509_NAME_ENTRY_delete(sk, loc);
 	n = sk_X509_NAME_ENTRY_num(sk);
@@ -217,7 +217,7 @@ X509_NAME_ENTRY * X509_NAME_ENTRY_create_by_txt(X509_NAME_ENTRY ** ne, const cha
 	if(obj == NULL) {
 		X509err(X509_F_X509_NAME_ENTRY_CREATE_BY_TXT, X509_R_INVALID_FIELD_NAME);
 		ERR_add_error_data(2, "name=", field);
-		return (NULL);
+		return NULL;
 	}
 	nentry = X509_NAME_ENTRY_create_by_OBJ(ne, obj, type, bytes, len);
 	ASN1_OBJECT_free(obj);
@@ -230,7 +230,7 @@ X509_NAME_ENTRY * X509_NAME_ENTRY_create_by_NID(X509_NAME_ENTRY ** ne, int nid, 
 	ASN1_OBJECT * obj = OBJ_nid2obj(nid);
 	if(obj == NULL) {
 		X509err(X509_F_X509_NAME_ENTRY_CREATE_BY_NID, X509_R_UNKNOWN_NID);
-		return (NULL);
+		return NULL;
 	}
 	nentry = X509_NAME_ENTRY_create_by_OBJ(ne, obj, type, bytes, len);
 	ASN1_OBJECT_free(obj);
@@ -243,7 +243,7 @@ X509_NAME_ENTRY * X509_NAME_ENTRY_create_by_OBJ(X509_NAME_ENTRY ** ne,
 	X509_NAME_ENTRY * ret;
 	if((ne == NULL) || (*ne == NULL)) {
 		if((ret = X509_NAME_ENTRY_new()) == NULL)
-			return (NULL);
+			return NULL;
 	}
 	else
 		ret = *ne;
@@ -257,7 +257,7 @@ X509_NAME_ENTRY * X509_NAME_ENTRY_create_by_OBJ(X509_NAME_ENTRY ** ne,
 err:
 	if((ne == NULL) || (ret != *ne))
 		X509_NAME_ENTRY_free(ret);
-	return (NULL);
+	return NULL;
 }
 
 int X509_NAME_ENTRY_set_object(X509_NAME_ENTRY * ne, const ASN1_OBJECT * obj)

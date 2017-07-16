@@ -207,7 +207,7 @@ void Curl_hash_destroy(struct curl_hash * h)
  */
 void Curl_hash_clean(struct curl_hash * h)
 {
-	Curl_hash_clean_with_criterium(h, NULL, NULL);
+	Curl_hash_clean_with_criterium(h, 0, 0);
 }
 
 /* Cleans all entries that pass the comp function criteria. */

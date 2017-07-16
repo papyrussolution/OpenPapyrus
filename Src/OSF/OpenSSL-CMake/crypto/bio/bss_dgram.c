@@ -141,7 +141,7 @@ BIO * BIO_new_dgram(int fd, int close_flag)
 {
 	BIO * ret = BIO_new(BIO_s_datagram());
 	if(!ret)
-		return (NULL);
+		return NULL;
 	BIO_set_fd(ret, fd, close_flag);
 	return ret;
 }
@@ -828,7 +828,7 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 
 	bio = BIO_new(BIO_s_datagram_sctp());
 	if(bio == NULL)
-		return (NULL);
+		return NULL;
 	BIO_set_fd(bio, fd, close_flag);
 
 	/* Activate SCTP-AUTH for DATA and FORWARD-TSN chunks */
@@ -838,7 +838,7 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 	    sizeof(struct sctp_authchunk));
 	if(ret < 0) {
 		BIO_vfree(bio);
-		return (NULL);
+		return NULL;
 	}
 	auth.sauth_chunk = OPENSSL_SCTP_FORWARD_CUM_TSN_CHUNK_TYPE;
 	ret =
@@ -846,7 +846,7 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 	    sizeof(struct sctp_authchunk));
 	if(ret < 0) {
 		BIO_vfree(bio);
-		return (NULL);
+		return NULL;
 	}
 
 	/*
@@ -858,14 +858,14 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 	authchunks = OPENSSL_zalloc(sockopt_len);
 	if(authchunks == NULL) {
 		BIO_vfree(bio);
-		return (NULL);
+		return NULL;
 	}
 	ret = getsockopt(fd, IPPROTO_SCTP, SCTP_LOCAL_AUTH_CHUNKS, authchunks,
 	    &sockopt_len);
 	if(ret < 0) {
 		OPENSSL_free(authchunks);
 		BIO_vfree(bio);
-		return (NULL);
+		return NULL;
 	}
 
 	for(p = (uchar*)authchunks->gauth_chunks;
@@ -893,14 +893,14 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 	    sizeof(struct sctp_event));
 	if(ret < 0) {
 		BIO_vfree(bio);
-		return (NULL);
+		return NULL;
 	}
 #   else
 	sockopt_len = (socklen_t)sizeof(struct sctp_event_subscribe);
 	ret = getsockopt(fd, IPPROTO_SCTP, SCTP_EVENTS, &event, &sockopt_len);
 	if(ret < 0) {
 		BIO_vfree(bio);
-		return (NULL);
+		return NULL;
 	}
 
 	event.sctp_authentication_event = 1;
@@ -910,7 +910,7 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 	    sizeof(struct sctp_event_subscribe));
 	if(ret < 0) {
 		BIO_vfree(bio);
-		return (NULL);
+		return NULL;
 	}
 #   endif
 #  endif
@@ -924,7 +924,7 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 	    sizeof(optval));
 	if(ret < 0) {
 		BIO_vfree(bio);
-		return (NULL);
+		return NULL;
 	}
 
 	return (bio);

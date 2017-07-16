@@ -296,7 +296,7 @@ static int __db_join_get_pp(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 		ret = t_ret;
 err:
 	ENV_LEAVE(env, ip);
-	__dbt_userfree(env, key, NULL, NULL);
+	__dbt_userfree(env, key, 0, 0);
 	return ret;
 }
 

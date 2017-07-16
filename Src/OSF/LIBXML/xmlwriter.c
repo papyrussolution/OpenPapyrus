@@ -349,7 +349,7 @@ xmlTextWriterPtr xmlNewTextWriterTree(xmlDocPtr doc, xmlNodePtr node, int compre
 {
 	xmlTextWriterPtr ret = 0;
 	xmlSAXHandler saxHandler;
-	if(doc == NULL) {
+	if(!doc) {
 		xmlWriterErrMsg(NULL, XML_ERR_INTERNAL_ERROR, "xmlNewTextWriterTree : invalid document tree!\n");
 	}
 	else {
@@ -382,33 +382,30 @@ xmlTextWriterPtr xmlNewTextWriterTree(xmlDocPtr doc, xmlNodePtr node, int compre
 	}
 	return ret;
 }
-
 /**
- * xmlFreeTextWriter:
  * @writer:  the xmlTextWriterPtr
  *
  * Deallocate all the resources associated to the writer
  */
-void xmlFreeTextWriter(xmlTextWriterPtr writer)
+void FASTCALL xmlFreeTextWriter(xmlTextWriter * pWriter)
 {
-	if(writer) {
-		xmlOutputBufferClose(writer->out);
-		xmlListDelete(writer->nodes);
-		xmlListDelete(writer->nsstack);
-		if(writer->ctxt) {
-			if(writer->ctxt->myDoc && (writer->no_doc_free == 0)) {
-				xmlFreeDoc(writer->ctxt->myDoc);
-				writer->ctxt->myDoc = NULL;
+	if(pWriter) {
+		xmlOutputBufferClose(pWriter->out);
+		xmlListDelete(pWriter->nodes);
+		xmlListDelete(pWriter->nsstack);
+		if(pWriter->ctxt) {
+			if(pWriter->ctxt->myDoc && (pWriter->no_doc_free == 0)) {
+				xmlFreeDoc(pWriter->ctxt->myDoc);
+				pWriter->ctxt->myDoc = NULL;
 			}
-			xmlFreeParserCtxt(writer->ctxt);
+			xmlFreeParserCtxt(pWriter->ctxt);
 		}
-		if(writer->doc)
-			xmlFreeDoc(writer->doc);
-		SAlloc::F(writer->ichar);
-		SAlloc::F(writer);
+		if(pWriter->doc)
+			xmlFreeDoc(pWriter->doc);
+		SAlloc::F(pWriter->ichar);
+		SAlloc::F(pWriter);
 	}
 }
-
 /**
  * xmlTextWriterStartDocument:
  * @writer:  the xmlTextWriterPtr
@@ -1070,8 +1067,7 @@ int xmlTextWriterFullEndElement(xmlTextWriterPtr writer)
 		    if(count < 0)
 			    return -1;
 		    sum += count;
-		    count = xmlOutputBufferWriteString(writer->out,
-		    (const char*)p->name);
+		    count = xmlOutputBufferWriteString(writer->out, (const char*)p->name);
 		    if(count < 0)
 			    return -1;
 		    sum += count;
@@ -1123,18 +1119,16 @@ int XMLCDECL xmlTextWriterWriteFormatRaw(xmlTextWriterPtr writer, const char * f
  */
 int xmlTextWriterWriteVFormatRaw(xmlTextWriterPtr writer, const char * format, va_list argptr)
 {
-	int rc;
-	xmlChar * buf;
-	if(writer == NULL)
-		return -1;
-	buf = xmlTextWriterVSprintf(format, argptr);
-	if(buf == NULL)
-		return -1;
-	rc = xmlTextWriterWriteRaw(writer, buf);
-	SAlloc::F(buf);
+	int rc = -1;
+	if(writer) {
+		xmlChar * buf = xmlTextWriterVSprintf(format, argptr);
+		if(buf) {
+			rc = xmlTextWriterWriteRaw(writer, buf);
+			SAlloc::F(buf);
+		}
+	}
 	return rc;
 }
-
 /**
  * xmlTextWriterWriteRawLen:
  * @writer:  the xmlTextWriterPtr
@@ -1499,8 +1493,7 @@ int xmlTextWriterStartAttribute(xmlTextWriterPtr writer, const xmlChar * name)
 			    return -1;
 		    sum += count;
 		    count =
-		    xmlOutputBufferWriteString(writer->out,
-		    (const char*)name);
+		    xmlOutputBufferWriteString(writer->out, (const char*)name);
 		    if(count < 0)
 			    return -1;
 		    sum += count;
@@ -3641,12 +3634,13 @@ static int xmlTextWriterWriteDocCallback(void * context, const xmlChar * str, in
 static int xmlTextWriterCloseDocCallback(void * context)
 {
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)context;
-	int rc;
-	if((rc = xmlParseChunk(ctxt, NULL, 0, 1)) != 0) {
+	int rc = xmlParseChunk(ctxt, NULL, 0, 1);
+	if(rc != 0) {
 		xmlWriterErrMsgInt(NULL, XML_ERR_INTERNAL_ERROR, "xmlTextWriterWriteDocCallback : XML error %d !\n", rc);
 		return -1;
 	}
-	return 0;
+	else
+		return 0;
 }
 
 /**
@@ -3714,7 +3708,7 @@ static void xmlTextWriterStartDocumentCallback(void * ctx)
 	}
 	else {
 		doc = ctxt->myDoc;
-		if(doc == NULL)
+		if(!doc)
 			doc = ctxt->myDoc = xmlNewDoc(ctxt->version);
 		if(doc != NULL) {
 			if(doc->children == NULL) {

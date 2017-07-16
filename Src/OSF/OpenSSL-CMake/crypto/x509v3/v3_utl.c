@@ -112,7 +112,7 @@ ASN1_INTEGER * s2i_ASN1_INTEGER(X509V3_EXT_METHOD * method, const char * value)
 	ASN1_INTEGER * aint;
 	int isneg, ishex;
 	int ret;
-	if(value == NULL) {
+	if(!value) {
 		X509V3err(X509V3_F_S2I_ASN1_INTEGER, X509V3_R_INVALID_NULL_VALUE);
 		return NULL;
 	}
@@ -356,7 +356,7 @@ STACK_OF(OPENSSL_STRING) *X509_get1_email(X509 *x)
 	GENERAL_NAMES * gens;
 	STACK_OF(OPENSSL_STRING) *ret;
 
-	gens = (GENERAL_NAMES*)X509_get_ext_d2i(x, NID_subject_alt_name, NULL, NULL);
+	gens = (GENERAL_NAMES*)X509_get_ext_d2i(x, NID_subject_alt_name, 0, 0);
 	ret = get_email(X509_get_subject_name(x), gens);
 	sk_GENERAL_NAME_pop_free(gens, GENERAL_NAME_free);
 	return ret;
@@ -367,7 +367,7 @@ STACK_OF(OPENSSL_STRING) *X509_get1_ocsp(X509 *x)
 	AUTHORITY_INFO_ACCESS * info;
 	STACK_OF(OPENSSL_STRING) *ret = NULL;
 	int i;
-	info = (AUTHORITY_INFO_ACCESS*)X509_get_ext_d2i(x, NID_info_access, NULL, NULL);
+	info = (AUTHORITY_INFO_ACCESS*)X509_get_ext_d2i(x, NID_info_access, 0, 0);
 	if(!info)
 		return NULL;
 	for(i = 0; i < sk_ACCESS_DESCRIPTION_num(info); i++) {
@@ -391,7 +391,7 @@ STACK_OF(OPENSSL_STRING) *X509_REQ_get1_email(X509_REQ *x)
 	STACK_OF(OPENSSL_STRING) *ret;
 
 	exts = X509_REQ_get_extensions(x);
-	gens = (GENERAL_NAMES*)X509V3_get_d2i(exts, NID_subject_alt_name, NULL, NULL);
+	gens = (GENERAL_NAMES*)X509V3_get_d2i(exts, NID_subject_alt_name, 0, 0);
 	ret = get_email(X509_REQ_get_subject_name(x), gens);
 	sk_GENERAL_NAME_pop_free(gens, GENERAL_NAME_free);
 	sk_X509_EXTENSION_pop_free(exts, X509_EXTENSION_free);
@@ -793,7 +793,7 @@ static int do_x509_check(X509 * x, const char * chk, size_t chklen,
 	if(chklen == 0)
 		chklen = strlen(chk);
 
-	gens = (GENERAL_NAMES*)X509_get_ext_d2i(x, NID_subject_alt_name, NULL, NULL);
+	gens = (GENERAL_NAMES*)X509_get_ext_d2i(x, NID_subject_alt_name, 0, 0);
 	if(gens) {
 		for(i = 0; i < sk_GENERAL_NAME_num(gens); i++) {
 			GENERAL_NAME * gen;

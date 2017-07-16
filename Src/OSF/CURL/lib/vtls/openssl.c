@@ -1120,7 +1120,7 @@ static CURLcode verifyhost(struct connectdata * conn, X509 * server_cert)
 		addrlen = sizeof(struct in_addr);
 	}
 	/* get a "list" of alternative names */
-	altnames = (STACK_OF(GENERAL_NAME) *)X509_get_ext_d2i(server_cert, NID_subject_alt_name, NULL, NULL);
+	altnames = (STACK_OF(GENERAL_NAME) *)X509_get_ext_d2i(server_cert, NID_subject_alt_name, 0, 0);
 	if(altnames) {
 		int numalts;
 		int i;

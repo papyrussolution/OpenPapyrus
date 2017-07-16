@@ -2448,6 +2448,7 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 #define NMBF_DELSPACE  NMBF_TRISPACE   // @obsolete (still used in resource)
 #define NMBF_NOTRAILZ  0x0080  // Обрезать незначащие нули после десятичной точки
 #define NMBF_DECCOMMA  0x0100  // @v9.4.3 Десятичный разделитель - запатая ',', иначе - точка '.'
+#define NMBF_EXPLFLOAT 0x0200  // @v9.7.8 Если float-число не имеет знаков после точки, то оставлять в формате 999.0 (актуально только при флаге NMBF_NOTRAILZ)
 //
 // Text number format flags
 //
@@ -3812,6 +3813,10 @@ uchar * FASTCALL sstrdup(const uchar * pStr);
 //
 int    FASTCALL sstreq(const char * pS1, const char * pS2);
 int    FASTCALL sstreq(const uchar * pS1, const uchar * pS2);
+//
+// Descr: Специальный вариант для libxml - сравнение переменной типа xmlChar * с константой "xxx".
+//
+int    FASTCALL sstreq(const uchar * pS1, const char * pS2);
 //
 // Descr: определяет эквивалентность строк pS1 и pS2
 //   без учета регистра, но только для ascii-символов.
@@ -8195,7 +8200,7 @@ struct SStrScan : public SRegExpSet {
 	int    FASTCALL GetHex(SString & rBuf);
 	int    FASTCALL GetDigits(SString & rBuf);
 	int    FASTCALL GetEMail(SString & rBuf);
-	int    GetDate(long datefmt, LDATE & rDate);
+	int    SLAPI GetDate(long datefmt, LDATE & rDate);
 	//
 	// Descr: Если следующая последовательность символов равна pPattern (без учета регистра),
 	//   то копирует ее в rBuf и перемещает текущий указатель в позицию, следующую за паттерном.
@@ -8254,7 +8259,12 @@ struct SStrScan : public SRegExpSet {
 	//   меняет текущую позицию.
 	//
 	int    FASTCALL IncrChr(int chr);
-	SStrScan & FASTCALL Skip(int ws = wsSpace | wsTab);
+	SStrScan & FASTCALL Skip(int ws);
+	//
+	// Descr: В большинстве случаев Skip(int) вызывается с параметром (wsSpace|wsTab) потому
+	//   для оптимизации кода сделана эта функция.
+	//
+	SStrScan & SLAPI Skip(); // wsSpace|wsTab
 	//
 	// Descr: Пропускает один опциональный разделитель div.
 	//   Если skipWs != 0, то вызывает Skip до разделителя и,

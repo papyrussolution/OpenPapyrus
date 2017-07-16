@@ -39,7 +39,7 @@ OPENSSL_LHASH * OPENSSL_LH_new(OPENSSL_LH_HASHFUNC h, OPENSSL_LH_COMPFUNC c)
 err1:
 	OPENSSL_free(ret);
 err0:
-	return (NULL);
+	return NULL;
 }
 
 void OPENSSL_LH_free(OPENSSL_LHASH * lh)
@@ -77,7 +77,7 @@ void * OPENSSL_LH_insert(OPENSSL_LHASH * lh, void * data)
 	if(*rn == NULL) {
 		if((nn = (OPENSSL_LH_NODE*)OPENSSL_malloc(sizeof(*nn))) == NULL) {
 			lh->error++;
-			return (NULL);
+			return NULL;
 		}
 		nn->data = data;
 		nn->next = NULL;
@@ -106,7 +106,7 @@ void * OPENSSL_LH_delete(OPENSSL_LHASH * lh, const void * data)
 
 	if(*rn == NULL) {
 		lh->num_no_delete++;
-		return (NULL);
+		return NULL;
 	}
 	else {
 		nn = *rn;
@@ -135,7 +135,7 @@ void * OPENSSL_LH_retrieve(OPENSSL_LHASH * lh, const void * data)
 
 	if(*rn == NULL) {
 		lh->num_retrieve_miss++;
-		return (NULL);
+		return NULL;
 	}
 	else {
 		ret = (*rn)->data;

@@ -967,7 +967,7 @@ static void xmlXPtrEvalXPtrPart(xmlXPathParserContextPtr ctxt, xmlChar * name)
 		SKIP_BLANKS;
 		/* @@ check escaping in the XPointer WD */
 		value = xmlParseURI((const char*)ctxt->cur);
-		if(value == NULL) {
+		if(!value) {
 			SAlloc::F(prefix);
 			SAlloc::F(buffer);
 			SAlloc::F(name);
@@ -1314,7 +1314,7 @@ static xmlNodePtr xmlXPtrBuildRangeNodeList(xmlXPathObjectPtr range)
 				}
 				/* single sub text node selection */
 				if(list == NULL)
-					return(tmp);
+					return tmp;
 				/* prune and return full set */
 				if(last)
 					xmlAddNextSibling(last, tmp);
@@ -1629,7 +1629,7 @@ static void xmlXPtrStartPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
 	xmlLocationSetPtr newset = NULL;
 	xmlLocationSetPtr oldset = NULL;
 	CHECK_ARITY(1);
-	if((ctxt->value == NULL) || ((ctxt->value->type != XPATH_LOCATIONSET) && (ctxt->value->type != XPATH_NODESET)))
+	if(!ctxt->value || ((ctxt->value->type != XPATH_LOCATIONSET) && (ctxt->value->type != XPATH_NODESET)))
 		XP_ERROR(XPATH_INVALID_TYPE)
 		obj = valuePop(ctxt);
 	if(obj->type == XPATH_NODESET) {
@@ -1720,7 +1720,7 @@ static void xmlXPtrEndPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
 	xmlLocationSetPtr newset = NULL;
 	xmlLocationSetPtr oldset = NULL;
 	CHECK_ARITY(1);
-	if((ctxt->value == NULL) || ((ctxt->value->type != XPATH_LOCATIONSET) && (ctxt->value->type != XPATH_NODESET)))
+	if(!ctxt->value || ((ctxt->value->type != XPATH_LOCATIONSET) && (ctxt->value->type != XPATH_NODESET)))
 		XP_ERROR(XPATH_INVALID_TYPE)
 
 		obj = valuePop(ctxt);
@@ -1860,7 +1860,7 @@ static void xmlXPtrRangeFunction(xmlXPathParserContextPtr ctxt, int nargs)
 	xmlLocationSetPtr oldset;
 	xmlLocationSetPtr newset;
 	CHECK_ARITY(1);
-	if((ctxt->value == NULL) || ((ctxt->value->type != XPATH_LOCATIONSET) && (ctxt->value->type != XPATH_NODESET)))
+	if(!ctxt->value || ((ctxt->value->type != XPATH_LOCATIONSET) && (ctxt->value->type != XPATH_NODESET)))
 		XP_ERROR(XPATH_INVALID_TYPE)
 		set = valuePop(ctxt);
 	if(set->type == XPATH_NODESET) {
@@ -2004,7 +2004,7 @@ static void xmlXPtrRangeInsideFunction(xmlXPathParserContextPtr ctxt, int nargs)
 	xmlLocationSetPtr oldset;
 	xmlLocationSetPtr newset;
 	CHECK_ARITY(1);
-	if((ctxt->value == NULL) || ((ctxt->value->type != XPATH_LOCATIONSET) && (ctxt->value->type != XPATH_NODESET)))
+	if(!ctxt->value || ((ctxt->value->type != XPATH_LOCATIONSET) && (ctxt->value->type != XPATH_NODESET)))
 		XP_ERROR(XPATH_INVALID_TYPE)
 		set = valuePop(ctxt);
 	if(set->type == XPATH_NODESET) {
@@ -2572,7 +2572,7 @@ static void xmlXPtrStringRangeFunction(xmlXPathParserContextPtr ctxt, int nargs)
 	}
 	CHECK_TYPE(XPATH_STRING);
 	string = valuePop(ctxt);
-	if((ctxt->value == NULL) || ((ctxt->value->type != XPATH_LOCATIONSET) && (ctxt->value->type != XPATH_NODESET)))
+	if(!ctxt->value || ((ctxt->value->type != XPATH_LOCATIONSET) && (ctxt->value->type != XPATH_NODESET)))
 		XP_ERROR(XPATH_INVALID_TYPE)
 		set = valuePop(ctxt);
 	newset = xmlXPtrLocationSetCreate(NULL);

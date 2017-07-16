@@ -180,7 +180,7 @@ int FASTCALL CRegExp::deep_equal(const CRegExp & rxp) const
 #else
 #define UCHARAT(p)	((int) *(p) & CHARBITS)
 #endif
-#define FAIL(m)		{ regerror(m); return (NULL); }
+#define FAIL(m)		{ regerror(m); return NULL; }
 
 #define ISMULT(c)	((c) == '*' || (c) == '+' || (c) == '?')
 #define META		"^$.[()|?+*\\"

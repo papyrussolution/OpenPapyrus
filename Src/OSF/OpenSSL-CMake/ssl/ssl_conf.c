@@ -351,7 +351,7 @@ static int cmd_Options(SSL_CONF_CTX * cctx, const char * value)
 		SSL_FLAG_TBL("UnsafeLegacyRenegotiation",
 		    SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION),
 	};
-	if(value == NULL)
+	if(!value)
 		return -3;
 	cctx->tbl = ssl_option_list;
 	cctx->ntbl = OSSL_NELEM(ssl_option_list);
@@ -367,7 +367,7 @@ static int cmd_VerifyMode(SSL_CONF_CTX * cctx, const char * value)
 		    SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT),
 		SSL_FLAG_VFY_SRV("Once", SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE)
 	};
-	if(value == NULL)
+	if(!value)
 		return -3;
 	cctx->tbl = ssl_vfy_list;
 	cctx->ntbl = OSSL_NELEM(ssl_vfy_list);
@@ -698,7 +698,7 @@ int SSL_CONF_cmd(SSL_CONF_CTX * cctx, const char * cmd, const char * value)
 		if(runcmd->value_type == SSL_CONF_TYPE_NONE) {
 			return ctrl_switch_option(cctx, runcmd);
 		}
-		if(value == NULL)
+		if(!value)
 			return -3;
 		rv = runcmd->cmd(cctx, value);
 		if(rv > 0)

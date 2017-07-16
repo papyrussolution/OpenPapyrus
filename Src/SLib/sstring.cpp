@@ -436,7 +436,7 @@ int FASTCALL SStrScan::GetHex(SString & rBuf)
 		return 0;
 }
 
-int SStrScan::GetDate(long datefmt, LDATE & rDate)
+int SLAPI SStrScan::GetDate(long datefmt, LDATE & rDate)
 {
 	rDate = ZERODATE;
 	int    ok = 0;
@@ -503,7 +503,7 @@ int FASTCALL SStrScan::GetTagBrace(SString & rText, int * pKind)
 			rText.CatChar(c);
 			c = P_Buf[++p];
 		}
-		if(kind == -1) { // @v5.6.12 AHTOXA
+		if(kind == -1) {
 			if(c == '/' && P_Buf[p+1] == '>') { // учитываем теги вида <tag/>, т.е. без закрывающего тега
 				kind = 2;
 				p += 2;
@@ -571,6 +571,20 @@ int FASTCALL SStrScan::Search(const char * pPattern)
 		}
 	}
 	return 0;
+}
+
+SStrScan & SLAPI SStrScan::Skip()
+{
+	if(P_Buf) {
+		const char * p = (P_Buf+Offs);
+		if(oneof2(*p, ' ', '\t')) {
+			do {
+				p++;
+			} while(oneof2(*p, ' ', '\t'));
+			Offs += (p - (P_Buf + Offs));
+		}
+	}
+	return *this;
 }
 
 SStrScan & FASTCALL SStrScan::Skip(int ws)

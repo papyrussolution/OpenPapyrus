@@ -20,7 +20,7 @@ int NETSCAPE_SPKI_set_pubkey(NETSCAPE_SPKI * x, EVP_PKEY * pkey)
 EVP_PKEY * NETSCAPE_SPKI_get_pubkey(NETSCAPE_SPKI * x)
 {
 	if((x == NULL) || (x->spkac == NULL))
-		return (NULL);
+		return NULL;
 	return (X509_PUBKEY_get(x->spkac->pubkey));
 }
 

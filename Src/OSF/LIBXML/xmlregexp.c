@@ -1560,17 +1560,14 @@ static int xmlFAGenerateTransitions(xmlRegParserCtxtPtr ctxt, xmlRegStatePtr fro
 		}
 	}
 	end = to;
-	if((atom->quant == XML_REGEXP_QUANT_MULT) ||
-	    (atom->quant == XML_REGEXP_QUANT_PLUS)) {
+	if((atom->quant == XML_REGEXP_QUANT_MULT) || (atom->quant == XML_REGEXP_QUANT_PLUS)) {
 		/*
 		 * Do not pollute the target state by adding transitions from
 		 * it as it is likely to be the shared target of multiple branches.
 		 * So isolate with an epsilon transition.
 		 */
-		xmlRegStatePtr tmp;
-
-		tmp = xmlRegNewState(ctxt);
-		if(tmp != NULL)
+		xmlRegStatePtr tmp = xmlRegNewState(ctxt);
+		if(tmp)
 			xmlRegStatePush(ctxt, tmp);
 		else {
 			return -1;
@@ -3449,7 +3446,7 @@ static int xmlRegCompactPushString(xmlRegExecCtxtPtr exec,
 	if((comp == NULL) || (comp->compact == NULL) || (comp->stringMap == NULL))
 		return -1;
 
-	if(value == NULL) {
+	if(!value) {
 		/*
 		 * are we at a final state ?
 		 */
@@ -3535,7 +3532,7 @@ static int xmlRegExecPushStringInternal(xmlRegExecCtxtPtr exec, const xmlChar * 
 	if(exec->comp->compact != NULL)
 		return(xmlRegCompactPushString(exec, exec->comp, value, data));
 
-	if(value == NULL) {
+	if(!value) {
 		if(exec->state->type == XML_REGEXP_FINAL_STATE)
 			return 1;
 		final = 1;
@@ -3548,7 +3545,7 @@ static int xmlRegExecPushStringInternal(xmlRegExecCtxtPtr exec, const xmlChar * 
 	 * If we have an active rollback stack push the new value there
 	 * and get back to where we were left
 	 */
-	if((value != NULL) && (exec->inputStackNr > 0)) {
+	if(value && (exec->inputStackNr > 0)) {
 		xmlFARegExecSaveInputString(exec, value, data);
 		value = exec->inputStack[exec->index].value;
 		data = exec->inputStack[exec->index].data;
@@ -3703,7 +3700,7 @@ static int xmlRegExecPushStringInternal(xmlRegExecCtxtPtr exec, const xmlChar * 
 						/*
 						 * End of input: stop here
 						 */
-						if(value == NULL) {
+						if(!value) {
 							exec->index--;
 							break;
 						}
@@ -5472,7 +5469,7 @@ xmlAutomataStatePtr xmlAutomataNewTransition(xmlAutomataPtr am, xmlAutomataState
 	}
 	if(to == NULL)
 		return(am->state);
-	return(to);
+	return to;
 }
 
 /**
@@ -5526,7 +5523,7 @@ xmlAutomataStatePtr xmlAutomataNewTransition2(xmlAutomataPtr am, xmlAutomataStat
 	}
 	if(to == NULL)
 		return(am->state);
-	return(to);
+	return to;
 }
 
 /**
@@ -5587,7 +5584,7 @@ xmlAutomataStatePtr xmlAutomataNewNegTrans(xmlAutomataPtr am, xmlAutomataStatePt
 	am->negs++;
 	if(to == NULL)
 		return(am->state);
-	return(to);
+	return to;
 }
 
 /**
@@ -5671,7 +5668,7 @@ xmlAutomataStatePtr xmlAutomataNewCountTrans2(xmlAutomataPtr am, xmlAutomataStat
 		return 0;
 	if(min == 0)
 		xmlFAGenerateEpsilonTransition(am, from, to);
-	return(to);
+	return to;
 }
 
 /**
@@ -5736,7 +5733,7 @@ xmlAutomataStatePtr xmlAutomataNewCountTrans(xmlAutomataPtr am, xmlAutomataState
 		return 0;
 	if(min == 0)
 		xmlFAGenerateEpsilonTransition(am, from, to);
-	return(to);
+	return to;
 }
 
 /**
@@ -5808,7 +5805,7 @@ xmlAutomataStatePtr xmlAutomataNewOnceTrans2(xmlAutomataPtr am, xmlAutomataState
 	xmlRegStateAddTrans(am, from, atom, to, counter, -1);
 	xmlRegAtomPush(am, atom);
 	am->state = to;
-	return(to);
+	return to;
 }
 
 /**
@@ -5830,11 +5827,10 @@ xmlAutomataStatePtr xmlAutomataNewOnceTrans2(xmlAutomataPtr am, xmlAutomataState
  * Returns the target state or NULL in case of error
  */
 xmlAutomataStatePtr xmlAutomataNewOnceTrans(xmlAutomataPtr am, xmlAutomataStatePtr from,
-    xmlAutomataStatePtr to, const xmlChar * token,
-    int min, int max, void * data) {
+    xmlAutomataStatePtr to, const xmlChar * token, int min, int max, void * data) 
+{
 	xmlRegAtomPtr atom;
 	int counter;
-
 	if((am == NULL) || (from == NULL) || (token == NULL))
 		return 0;
 	if(min < 1)
@@ -5864,7 +5860,7 @@ xmlAutomataStatePtr xmlAutomataNewOnceTrans(xmlAutomataPtr am, xmlAutomataStateP
 	xmlRegStateAddTrans(am, from, atom, to, counter, -1);
 	xmlRegAtomPush(am, atom);
 	am->state = to;
-	return(to);
+	return to;
 }
 
 /**
@@ -5875,16 +5871,15 @@ xmlAutomataStatePtr xmlAutomataNewOnceTrans(xmlAutomataPtr am, xmlAutomataStateP
  *
  * Returns the new state or NULL in case of error
  */
-xmlAutomataStatePtr xmlAutomataNewState(xmlAutomataPtr am) {
-	xmlAutomataStatePtr to;
-
-	if(am == NULL)
-		return 0;
-	to = xmlRegNewState(am);
-	xmlRegStatePush(am, to);
-	return(to);
+xmlAutomataStatePtr xmlAutomataNewState(xmlAutomataPtr am) 
+{
+	xmlAutomataStatePtr to = 0;
+	if(am) {
+		to = xmlRegNewState(am);
+		xmlRegStatePush(am, to);
+	}
+	return to;
 }
-
 /**
  * xmlAutomataNewEpsilon:
  * @am: an automata
@@ -5897,16 +5892,15 @@ xmlAutomataStatePtr xmlAutomataNewState(xmlAutomataPtr am) {
  *
  * Returns the target state or NULL in case of error
  */
-xmlAutomataStatePtr xmlAutomataNewEpsilon(xmlAutomataPtr am, xmlAutomataStatePtr from,
-    xmlAutomataStatePtr to) {
+xmlAutomataStatePtr xmlAutomataNewEpsilon(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to) 
+{
 	if((am == NULL) || (from == NULL))
 		return 0;
 	xmlFAGenerateEpsilonTransition(am, from, to);
 	if(to == NULL)
 		return(am->state);
-	return(to);
+	return to;
 }
-
 /**
  * xmlAutomataNewAllTrans:
  * @am: an automata
@@ -5921,14 +5915,12 @@ xmlAutomataStatePtr xmlAutomataNewEpsilon(xmlAutomataPtr am, xmlAutomataStatePtr
  *
  * Returns the target state or NULL in case of error
  */
-xmlAutomataStatePtr xmlAutomataNewAllTrans(xmlAutomataPtr am, xmlAutomataStatePtr from,
-    xmlAutomataStatePtr to, int lax) {
+xmlAutomataStatePtr xmlAutomataNewAllTrans(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to, int lax) 
+{
 	if((am == NULL) || (from == NULL))
 		return 0;
 	xmlFAGenerateAllTransition(am, from, to, lax);
-	if(to == NULL)
-		return(am->state);
-	return(to);
+	return to ? to : am->state;
 }
 
 /**
@@ -5941,12 +5933,11 @@ xmlAutomataStatePtr xmlAutomataNewAllTrans(xmlAutomataPtr am, xmlAutomataStatePt
  *
  * Returns the counter number or -1 in case of error
  */
-int xmlAutomataNewCounter(xmlAutomataPtr am, int min, int max) {
+int xmlAutomataNewCounter(xmlAutomataPtr am, int min, int max) 
+{
 	int ret;
-
 	if(am == NULL)
 		return -1;
-
 	ret = xmlRegGetCounter(am);
 	if(ret < 0)
 		return -1;
@@ -5954,7 +5945,6 @@ int xmlAutomataNewCounter(xmlAutomataPtr am, int min, int max) {
 	am->counters[ret].max = max;
 	return ret;
 }
-
 /**
  * xmlAutomataNewCountedTrans:
  * @am: an automata
@@ -5968,16 +5958,13 @@ int xmlAutomataNewCounter(xmlAutomataPtr am, int min, int max) {
  *
  * Returns the target state or NULL in case of error
  */
-xmlAutomataStatePtr xmlAutomataNewCountedTrans(xmlAutomataPtr am, xmlAutomataStatePtr from,
-    xmlAutomataStatePtr to, int counter) {
+xmlAutomataStatePtr xmlAutomataNewCountedTrans(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to, int counter) 
+{
 	if((am == NULL) || (from == NULL) || (counter < 0))
 		return 0;
 	xmlFAGenerateCountedEpsilonTransition(am, from, to, counter);
-	if(to == NULL)
-		return(am->state);
-	return(to);
+	return to ? to : am->state;
 }
-
 /**
  * xmlAutomataNewCounterTrans:
  * @am: an automata
@@ -5991,16 +5978,13 @@ xmlAutomataStatePtr xmlAutomataNewCountedTrans(xmlAutomataPtr am, xmlAutomataSta
  *
  * Returns the target state or NULL in case of error
  */
-xmlAutomataStatePtr xmlAutomataNewCounterTrans(xmlAutomataPtr am, xmlAutomataStatePtr from,
-    xmlAutomataStatePtr to, int counter) {
+xmlAutomataStatePtr xmlAutomataNewCounterTrans(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to, int counter) 
+{
 	if((am == NULL) || (from == NULL) || (counter < 0))
 		return 0;
 	xmlFAGenerateCountedTransition(am, from, to, counter);
-	if(to == NULL)
-		return(am->state);
-	return(to);
+	return to ? to : am->state;
 }
-
 /**
  * xmlAutomataCompile:
  * @am: an automata
@@ -6010,17 +5994,15 @@ xmlAutomataStatePtr xmlAutomataNewCounterTrans(xmlAutomataPtr am, xmlAutomataSta
  *
  * Returns the compiled regexp or NULL in case of error
  */
-xmlRegexpPtr xmlAutomataCompile(xmlAutomataPtr am) {
+xmlRegexpPtr xmlAutomataCompile(xmlAutomataPtr am) 
+{
 	xmlRegexpPtr ret;
-
 	if((am == NULL) || (am->error != 0)) return 0;
 	xmlFAEliminateEpsilonTransitions(am);
 	/* xmlFAComputesDeterminism(am); */
 	ret = xmlRegEpxFromParse(am);
-
 	return ret;
 }
-
 /**
  * xmlAutomataIsDeterminist:
  * @am: an automata
@@ -6029,12 +6011,11 @@ xmlRegexpPtr xmlAutomataCompile(xmlAutomataPtr am) {
  *
  * Returns 1 if true, 0 if not, and -1 in case of error
  */
-int xmlAutomataIsDeterminist(xmlAutomataPtr am) {
+int xmlAutomataIsDeterminist(xmlAutomataPtr am) 
+{
 	int ret;
-
 	if(am == NULL)
 		return -1;
-
 	ret = xmlFAComputesDeterminism(am);
 	return ret;
 }
@@ -6344,23 +6325,18 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 		/* linearize (a | b) | c into a | (b | c) */
 		if(left->type == XML_EXP_OR) {
 			xmlExpNodePtr tmp;
-
 			/* OR canonicalization rule 2 */
-			if((left->exp_right->type != XML_EXP_OR) &&
-			    (left->exp_right->key < left->exp_left->key)) {
+			if((left->exp_right->type != XML_EXP_OR) && (left->exp_right->key < left->exp_left->key)) {
 				tmp = left->exp_right;
 				left->exp_right = left->exp_left;
 				left->exp_left = tmp;
 			}
 			left->exp_right->ref++;
-			tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, left->exp_right, right,
-			    NULL, 0, 0);
+			tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, left->exp_right, right, NULL, 0, 0);
 			left->exp_left->ref++;
-			tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, left->exp_left, tmp,
-			    NULL, 0, 0);
-
+			tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, left->exp_left, tmp, NULL, 0, 0);
 			xmlExpFree(ctxt, left);
-			return(tmp);
+			return tmp;
 		}
 		if(right->type == XML_EXP_OR) {
 			/* Ordering in the tree */
@@ -6368,26 +6344,22 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 			if(left->key > right->exp_right->key) {
 				xmlExpNodePtr tmp;
 				right->exp_right->ref++;
-				tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, right->exp_right,
-				    left, NULL, 0, 0);
+				tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, right->exp_right, left, NULL, 0, 0);
 				right->exp_left->ref++;
-				tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, right->exp_left,
-				    tmp, NULL, 0, 0);
+				tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, right->exp_left, tmp, NULL, 0, 0);
 				xmlExpFree(ctxt, right);
-				return(tmp);
+				return tmp;
 			}
 			/* Ordering in the tree */
 			/* B | (A | C) -> A | (B | C) */
 			if(left->key > right->exp_left->key) {
 				xmlExpNodePtr tmp;
 				right->exp_right->ref++;
-				tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, left,
-				    right->exp_right, NULL, 0, 0);
+				tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, left, right->exp_right, NULL, 0, 0);
 				right->exp_left->ref++;
-				tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, right->exp_left,
-				    tmp, NULL, 0, 0);
+				tmp = xmlExpHashGetEntry(ctxt, XML_EXP_OR, right->exp_left, tmp, NULL, 0, 0);
 				xmlExpFree(ctxt, right);
-				return(tmp);
+				return tmp;
 			}
 		}
 		/* we know both types are != XML_EXP_OR here */
@@ -6399,33 +6371,29 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 		kbase = xmlExpHashComputeKey(type, left, right);
 	}
 	else if(type == XML_EXP_SEQ) {
-		/* Forbid reduction rules */
-		if(left->type == XML_EXP_FORBID) {
+		if(left->type == XML_EXP_FORBID) { // Forbid reduction rules 
 			xmlExpFree(ctxt, right);
 			return(left);
 		}
-		if(right->type == XML_EXP_FORBID) {
+		else if(right->type == XML_EXP_FORBID) {
 			xmlExpFree(ctxt, left);
 			return(right);
 		}
-		/* Empty reduction rules */
-		if(right->type == XML_EXP_EMPTY) {
+		else if(right->type == XML_EXP_EMPTY) { // Empty reduction rules 
 			return(left);
 		}
-		if(left->type == XML_EXP_EMPTY) {
+		else if(left->type == XML_EXP_EMPTY) {
 			return(right);
 		}
-		kbase = xmlExpHashComputeKey(type, left, right);
+		else
+			kbase = xmlExpHashComputeKey(type, left, right);
 	}
 	else
 		return 0;
-
 	key = kbase % ctxt->size;
 	if(ctxt->table[key] != NULL) {
-		for(insert = ctxt->table[key]; insert != NULL;
-		    insert = insert->next) {
-			if((insert->key == kbase) &&
-			    (insert->type == type)) {
+		for(insert = ctxt->table[key]; insert != NULL; insert = insert->next) {
+			if((insert->key == kbase) && (insert->type == type)) {
 				if(type == XML_EXP_ATOM) {
 					if(name == insert->exp_str) {
 						insert->ref++;
@@ -6433,15 +6401,13 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 					}
 				}
 				else if(type == XML_EXP_COUNT) {
-					if((insert->exp_min == min) && (insert->exp_max == max) &&
-					    (insert->exp_left == left)) {
+					if((insert->exp_min == min) && (insert->exp_max == max) && (insert->exp_left == left)) {
 						insert->ref++;
 						left->ref--;
 						return(insert);
 					}
 				}
-				else if((insert->exp_left == left) &&
-				    (insert->exp_right == right)) {
+				else if((insert->exp_left == left) && (insert->exp_right == right)) {
 					insert->ref++;
 					left->ref--;
 					right->ref--;
@@ -6450,7 +6416,6 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 			}
 		}
 	}
-
 	entry = xmlExpNewNode(ctxt, type);
 	if(entry == NULL)
 		return 0;
@@ -6476,8 +6441,7 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 		if(type == XML_EXP_OR) {
 			if((IS_NILLABLE(left)) || (IS_NILLABLE(right)))
 				entry->info |= XML_EXP_NILABLE;
-			if((entry->exp_left->c_max == -1) ||
-			    (entry->exp_right->c_max == -1))
+			if((entry->exp_left->c_max == -1) || (entry->exp_right->c_max == -1))
 				entry->c_max = -1;
 			else if(entry->exp_left->c_max > entry->exp_right->c_max)
 				entry->c_max = entry->exp_left->c_max;
@@ -6487,8 +6451,7 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 		else {
 			if((IS_NILLABLE(left)) && (IS_NILLABLE(right)))
 				entry->info |= XML_EXP_NILABLE;
-			if((entry->exp_left->c_max == -1) ||
-			    (entry->exp_right->c_max == -1))
+			if((entry->exp_left->c_max == -1) || (entry->exp_right->c_max == -1))
 				entry->c_max = -1;
 			else
 				entry->c_max = entry->exp_left->c_max + entry->exp_right->c_max;
@@ -6497,13 +6460,10 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 	entry->ref = 1;
 	if(ctxt->table[key] != NULL)
 		entry->next = ctxt->table[key];
-
 	ctxt->table[key] = entry;
 	ctxt->nbElems++;
-
 	return(entry);
 }
-
 /**
  * xmlExpFree:
  * @ctxt: the expression context
@@ -6511,50 +6471,44 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
  *
  * Dereference the expression
  */
-void xmlExpFree(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp) {
-	if((exp == NULL) || (exp == forbiddenExp) || (exp == emptyExp))
-		return;
-	exp->ref--;
-	if(exp->ref == 0) {
-		ushort key;
-
-		/* Unlink it first from the hash table */
-		key = exp->key % ctxt->size;
-		if(ctxt->table[key] == exp) {
-			ctxt->table[key] = exp->next;
-		}
-		else {
-			xmlExpNodePtr tmp;
-
-			tmp = ctxt->table[key];
-			while(tmp != NULL) {
-				if(tmp->next == exp) {
-					tmp->next = exp->next;
-					break;
-				}
-				tmp = tmp->next;
+void FASTCALL xmlExpFree(xmlExpCtxt * ctxt, xmlExpNode * pExp) 
+{
+	if(pExp && (pExp != forbiddenExp) && (pExp != emptyExp)) {
+		pExp->ref--;
+		if(pExp->ref == 0) {
+			// Unlink it first from the hash table 
+			ushort key = pExp->key % ctxt->size;
+			if(ctxt->table[key] == pExp) {
+				ctxt->table[key] = pExp->next;
 			}
+			else {
+				for(xmlExpNode * tmp = ctxt->table[key]; tmp; tmp = tmp->next) {
+					if(tmp->next == pExp) {
+						tmp->next = pExp->next;
+						break;
+					}
+				}
+			}
+			if(oneof2(pExp->type, XML_EXP_SEQ, XML_EXP_OR)) {
+				xmlExpFree(ctxt, pExp->exp_left); // @recursion
+				xmlExpFree(ctxt, pExp->exp_right); // @recursion
+			}
+			else if(pExp->type == XML_EXP_COUNT) {
+				xmlExpFree(ctxt, pExp->exp_left); // @recursion
+			}
+			SAlloc::F(pExp);
+			ctxt->nb_nodes--;
 		}
-
-		if((exp->type == XML_EXP_SEQ) || (exp->type == XML_EXP_OR)) {
-			xmlExpFree(ctxt, exp->exp_left);
-			xmlExpFree(ctxt, exp->exp_right);
-		}
-		else if(exp->type == XML_EXP_COUNT) {
-			xmlExpFree(ctxt, exp->exp_left);
-		}
-		SAlloc::F(exp);
-		ctxt->nb_nodes--;
 	}
 }
-
 /**
  * xmlExpRef:
  * @exp: the expression
  *
  * Increase the reference count of the expression
  */
-void xmlExpRef(xmlExpNodePtr exp) {
+void xmlExpRef(xmlExpNodePtr exp) 
+{
 	if(exp != NULL)
 		exp->ref++;
 }
@@ -6569,7 +6523,8 @@ void xmlExpRef(xmlExpNodePtr exp) {
  *
  * Returns the node or NULL in case of error
  */
-xmlExpNodePtr xmlExpNewAtom(xmlExpCtxtPtr ctxt, const xmlChar * name, int len) {
+xmlExpNodePtr xmlExpNewAtom(xmlExpCtxtPtr ctxt, const xmlChar * name, int len) 
+{
 	if(!ctxt || (name == NULL))
 		return 0;
 	name = xmlDictLookup(ctxt->dict, name, len);
@@ -6577,7 +6532,6 @@ xmlExpNodePtr xmlExpNewAtom(xmlExpCtxtPtr ctxt, const xmlChar * name, int len) {
 		return 0;
 	return(xmlExpHashGetEntry(ctxt, XML_EXP_ATOM, NULL, NULL, name, 0, 0));
 }
-
 /**
  * xmlExpNewOr:
  * @ctxt: the expression context
@@ -6591,7 +6545,8 @@ xmlExpNodePtr xmlExpNewAtom(xmlExpCtxtPtr ctxt, const xmlChar * name, int len) {
  *
  * Returns the node or NULL in case of error
  */
-xmlExpNodePtr xmlExpNewOr(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr right) {
+xmlExpNodePtr xmlExpNewOr(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr right) 
+{
 	if(!ctxt)
 		return 0;
 	if((left == NULL) || (right == NULL)) {
@@ -6601,7 +6556,6 @@ xmlExpNodePtr xmlExpNewOr(xmlExpCtxtPtr ctxt, xmlExpNodePtr left, xmlExpNodePtr 
 	}
 	return(xmlExpHashGetEntry(ctxt, XML_EXP_OR, left, right, NULL, 0, 0));
 }
-
 /**
  * xmlExpNewSeq:
  * @ctxt: the expression context
@@ -6658,8 +6612,8 @@ xmlExpNodePtr xmlExpNewRange(xmlExpCtxtPtr ctxt, xmlExpNodePtr subset, int min, 
 *									*
 ************************************************************************/
 
-static int xmlExpGetLanguageInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp,
-    const xmlChar** list, int len, int nb) {
+static int xmlExpGetLanguageInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xmlChar** list, int len, int nb) 
+{
 	int tmp, tmp2;
 tail:
 	switch(exp->type) {
@@ -6680,11 +6634,11 @@ tail:
 		case XML_EXP_OR:
 		    tmp = xmlExpGetLanguageInt(ctxt, exp->exp_left, list, len, nb);
 		    if(tmp < 0)
-			    return(tmp);
+			    return tmp;
 		    tmp2 = xmlExpGetLanguageInt(ctxt, exp->exp_right, list, len,
 		    nb + tmp);
 		    if(tmp2 < 0)
-			    return(tmp2);
+			    return tmp2;
 		    return(tmp + tmp2);
 	}
 	return -1;
@@ -6732,23 +6686,23 @@ tail:
 		case XML_EXP_SEQ:
 		    tmp = xmlExpGetStartInt(ctxt, exp->exp_left, list, len, nb);
 		    if(tmp < 0)
-			    return(tmp);
+			    return tmp;
 		    if(IS_NILLABLE(exp->exp_left)) {
 			    tmp2 = xmlExpGetStartInt(ctxt, exp->exp_right, list, len,
 			    nb + tmp);
 			    if(tmp2 < 0)
-				    return(tmp2);
+				    return tmp2;
 			    tmp += tmp2;
 		    }
-		    return(tmp);
+		    return tmp;
 		case XML_EXP_OR:
 		    tmp = xmlExpGetStartInt(ctxt, exp->exp_left, list, len, nb);
 		    if(tmp < 0)
-			    return(tmp);
+			    return tmp;
 		    tmp2 = xmlExpGetStartInt(ctxt, exp->exp_right, list, len,
 		    nb + tmp);
 		    if(tmp2 < 0)
-			    return(tmp2);
+			    return tmp2;
 		    return(tmp + tmp2);
 	}
 	return -1;
@@ -6770,9 +6724,9 @@ tail:
  */
 int xmlExpGetStart(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xmlChar** tokList, int len)
 {
-	if(!ctxt || (exp == NULL) || (tokList == NULL) || (len <= 0))
+	if(!ctxt || !exp || !tokList || (len <= 0))
 		return -1;
-	return(xmlExpGetStartInt(ctxt, exp, tokList, len, 0));
+	return xmlExpGetStartInt(ctxt, exp, tokList, len, 0);
 }
 
 /**
@@ -6859,7 +6813,6 @@ static xmlExpNodePtr xmlExpStringDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp
 		case XML_EXP_COUNT: {
 		    int min, max;
 		    xmlExpNodePtr tmp;
-
 		    if(exp->exp_max == 0)
 			    return(forbiddenExp);
 		    ret = xmlExpStringDeriveInt(ctxt, exp->exp_left, str);
@@ -6882,19 +6835,17 @@ static xmlExpNodePtr xmlExpStringDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp
 		    else
 			    min = 0;
 		    exp->exp_left->ref++;
-		    tmp = xmlExpHashGetEntry(ctxt, XML_EXP_COUNT, exp->exp_left, NULL,
-			    NULL, min, max);
+		    tmp = xmlExpHashGetEntry(ctxt, XML_EXP_COUNT, exp->exp_left, NULL, NULL, min, max);
 		    if(ret == emptyExp) {
 #ifdef DEBUG_DERIV
 			    printf("deriv count: match to empty => new count\n");
 #endif
-			    return(tmp);
+			    return tmp;
 		    }
 #ifdef DEBUG_DERIV
 		    printf("deriv count: match => sequence with new count\n");
 #endif
-		    return(xmlExpHashGetEntry(ctxt, XML_EXP_SEQ, ret, tmp,
-				    NULL, 0, 0));
+		    return xmlExpHashGetEntry(ctxt, XML_EXP_SEQ, ret, tmp, NULL, 0, 0);
 	    }
 	}
 	return 0;
@@ -7056,7 +7007,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 		if(tmp == NULL)
 			return 0;
 		if(tmp == forbiddenExp)
-			return(tmp);
+			return tmp;
 		ret = xmlExpExpDeriveInt(ctxt, tmp, sub->exp_right);
 		xmlExpFree(ctxt, tmp);
 		return ret;
@@ -7067,7 +7018,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 #endif
 		tmp = xmlExpExpDeriveInt(ctxt, exp, sub->exp_left);
 		if(tmp == forbiddenExp)
-			return(tmp);
+			return tmp;
 		if(tmp == NULL)
 			return 0;
 		ret = xmlExpExpDeriveInt(ctxt, exp, sub->exp_right);
@@ -7175,9 +7126,9 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 				    if(sub->exp_max < 0)
 					    max = -1;
 				    else
-					    max = sub->exp_max -1;
+					    max = (sub->exp_max -1);
 				    if(sub->exp_min > 0)
-					    min = sub->exp_min -1;
+					    min = (sub->exp_min -1);
 				    else
 					    min = 0;
 				    exp->exp_right->ref++;
@@ -7230,8 +7181,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 #ifdef DEBUG_DERIV
 				    printf("Count, Count inner don't subsume\n");
 #endif
-				    mult = xmlExpDivide(ctxt, sub->exp_left, exp->exp_left,
-					    NULL, &tmp);
+				    mult = xmlExpDivide(ctxt, sub->exp_left, exp->exp_left, NULL, &tmp);
 				    if(mult <= 0) {
 #ifdef DEBUG_DERIV
 					    printf("Count, Count not multiple => forbidden\n");
@@ -7244,7 +7194,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 						    if(exp->exp_min <= sub->exp_min * mult)
 							    min = 0;
 						    else
-							    min = exp->exp_min - sub->exp_min * mult;
+							    min = (exp->exp_min - sub->exp_min * mult);
 					    }
 					    else {
 #ifdef DEBUG_DERIV
@@ -7437,14 +7387,14 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 		if((tmp == NULL) || (tmp == forbiddenExp)) {
 			xmlExpFree(ctxt, ret);
 			SAlloc::F((xmlChar**)tab);
-			return(tmp);
+			return tmp;
 		}
 		tmp2 = xmlExpStringDeriveInt(ctxt, sub, tab[i]);
 		if((tmp2 == NULL) || (tmp2 == forbiddenExp)) {
 			xmlExpFree(ctxt, tmp);
 			xmlExpFree(ctxt, ret);
 			SAlloc::F((xmlChar**)tab);
-			return(tmp);
+			return tmp;
 		}
 		tmp3 = xmlExpExpDeriveInt(ctxt, tmp, tmp2);
 		xmlExpFree(ctxt, tmp);
@@ -7553,7 +7503,7 @@ int xmlExpSubsume(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, xmlExpNodePtr sub)
 		return 0;
 	if(tmp == emptyExp)
 		return 1;
-	if((tmp != NULL) && (IS_NILLABLE(tmp))) {
+	if(tmp && (IS_NILLABLE(tmp))) {
 		xmlExpFree(ctxt, tmp);
 		return 1;
 	}

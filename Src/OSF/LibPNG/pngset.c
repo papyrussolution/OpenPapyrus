@@ -1124,28 +1124,23 @@ void PNGAPI png_set_unknown_chunks(png_const_structrp png_ptr,
 	}
 }
 
-void PNGAPI png_set_unknown_chunk_location(png_const_structrp png_ptr, png_inforp info_ptr,
-    int chunk, int location)
+void PNGAPI png_set_unknown_chunk_location(png_const_structrp png_ptr, png_inforp info_ptr, int chunk, int location)
 {
 	/* This API is pretty pointless in 1.6.0 because the location can be set
 	 * before the call to png_set_unknown_chunks.
 	 *
 	 * TODO: add a png_app_warning in 1.7
 	 */
-	if(png_ptr != NULL && info_ptr != NULL && chunk >= 0 &&
-	    chunk < info_ptr->unknown_chunks_num) {
+	if(png_ptr && info_ptr && chunk >= 0 && chunk < info_ptr->unknown_chunks_num) {
 		if((location & (PNG_HAVE_IHDR|PNG_HAVE_PLTE|PNG_AFTER_IDAT)) == 0) {
 			png_app_error(png_ptr, "invalid unknown chunk location");
 			/* Fake out the pre 1.6.0 behavior: */
 			if((location & PNG_HAVE_IDAT) != 0) /* undocumented! */
 				location = PNG_AFTER_IDAT;
-
 			else
 				location = PNG_HAVE_IHDR;  /* also undocumented */
 		}
-
-		info_ptr->unknown_chunks[chunk].location =
-		    check_location(png_ptr, location);
+		info_ptr->unknown_chunks[chunk].location = check_location(png_ptr, location);
 	}
 }
 
@@ -1155,12 +1150,9 @@ void PNGAPI png_set_unknown_chunk_location(png_const_structrp png_ptr, png_infor
 uint32 PNGAPI png_permit_mng_features(png_structrp png_ptr, uint32 mng_features)
 {
 	png_debug(1, "in png_permit_mng_features");
-
 	if(png_ptr == NULL)
 		return 0;
-
 	png_ptr->mng_features_permitted = mng_features & PNG_ALL_MNG_FEATURES;
-
 	return png_ptr->mng_features_permitted;
 }
 
@@ -1426,38 +1418,35 @@ void PNGAPI png_set_compression_buffer_size(png_structrp png_ptr, size_t size)
 
 void PNGAPI png_set_invalid(png_const_structrp png_ptr, png_inforp info_ptr, int mask)
 {
-	if(png_ptr != NULL && info_ptr != NULL)
+	if(png_ptr && info_ptr)
 		info_ptr->valid &= ~mask;
 }
 
 #ifdef PNG_SET_USER_LIMITS_SUPPORTED
 /* This function was added to libpng 1.2.6 */
-void PNGAPI png_set_user_limits(png_structrp png_ptr, uint32 user_width_max,
-    uint32 user_height_max)
+void PNGAPI png_set_user_limits(png_structrp png_ptr, uint32 user_width_max, uint32 user_height_max)
 {
 	/* Images with dimensions larger than these limits will be
 	 * rejected by png_set_IHDR().  To accept any PNG datastream
 	 * regardless of dimensions, set both limits to 0x7fffffff.
 	 */
-	if(png_ptr == NULL)
-		return;
-
-	png_ptr->user_width_max = user_width_max;
-	png_ptr->user_height_max = user_height_max;
+	if(png_ptr) {
+		png_ptr->user_width_max = user_width_max;
+		png_ptr->user_height_max = user_height_max;
+	}
 }
 
 /* This function was added to libpng 1.4.0 */
 void PNGAPI png_set_chunk_cache_max(png_structrp png_ptr, uint32 user_chunk_cache_max)
 {
-	if(png_ptr != NULL)
+	if(png_ptr)
 		png_ptr->user_chunk_cache_max = user_chunk_cache_max;
 }
 
 /* This function was added to libpng 1.4.1 */
-void PNGAPI png_set_chunk_malloc_max(png_structrp png_ptr,
-    png_alloc_size_t user_chunk_malloc_max)
+void PNGAPI png_set_chunk_malloc_max(png_structrp png_ptr, png_alloc_size_t user_chunk_malloc_max)
 {
-	if(png_ptr != NULL)
+	if(png_ptr)
 		png_ptr->user_chunk_malloc_max = user_chunk_malloc_max;
 }
 
@@ -1467,20 +1456,15 @@ void PNGAPI png_set_chunk_malloc_max(png_structrp png_ptr,
 void PNGAPI png_set_benign_errors(png_structrp png_ptr, int allowed)
 {
 	png_debug(1, "in png_set_benign_errors");
-
 	/* If allowed is 1, png_benign_error() is treated as a warning.
 	 *
 	 * If allowed is 0, png_benign_error() is treated as an error (which
 	 * is the default behavior if png_set_benign_errors() is not called).
 	 */
-
 	if(allowed != 0)
-		png_ptr->flags |= PNG_FLAG_BENIGN_ERRORS_WARN |
-		    PNG_FLAG_APP_WARNINGS_WARN | PNG_FLAG_APP_ERRORS_WARN;
-
+		png_ptr->flags |= PNG_FLAG_BENIGN_ERRORS_WARN | PNG_FLAG_APP_WARNINGS_WARN | PNG_FLAG_APP_ERRORS_WARN;
 	else
-		png_ptr->flags &= ~(PNG_FLAG_BENIGN_ERRORS_WARN |
-		    PNG_FLAG_APP_WARNINGS_WARN | PNG_FLAG_APP_ERRORS_WARN);
+		png_ptr->flags &= ~(PNG_FLAG_BENIGN_ERRORS_WARN | PNG_FLAG_APP_WARNINGS_WARN | PNG_FLAG_APP_ERRORS_WARN);
 }
 
 #endif /* BENIGN_ERRORS */
@@ -1497,18 +1481,15 @@ void PNGAPI png_set_benign_errors(png_structrp png_ptr, int allowed)
 void PNGAPI png_set_check_for_invalid_index(png_structrp png_ptr, int allowed)
 {
 	png_debug(1, "in png_set_check_for_invalid_index");
-
 	if(allowed > 0)
 		png_ptr->num_palette_max = 0;
-
 	else
 		png_ptr->num_palette_max = -1;
 }
 
 #endif
 
-#if defined(PNG_TEXT_SUPPORTED) || defined(PNG_pCAL_SUPPORTED) || \
-	defined(PNG_iCCP_SUPPORTED) || defined(PNG_sPLT_SUPPORTED)
+#if defined(PNG_TEXT_SUPPORTED) || defined(PNG_pCAL_SUPPORTED) || defined(PNG_iCCP_SUPPORTED) || defined(PNG_sPLT_SUPPORTED)
 /* Check that the tEXt or zTXt keyword is valid per PNG 1.0 specification,
  * and if invalid, correct the keyword rather than discarding the entire
  * chunk.  The PNG 1.0 specification requires keywords 1-79 characters in
@@ -1539,12 +1520,10 @@ uint32 /* PRIVATE */ png_check_keyword(png_structrp png_ptr, const char * key, p
 			 * before; output just a space.
 			 */
 			*new_key++ = 32, ++key_len, space = 1;
-
 			/* If the character was not a space then it is invalid. */
 			if(ch != 32)
 				bad_character = ch;
 		}
-
 		else if(bad_character == 0)
 			bad_character = ch;  /* just skip it, record the first error */
 	}
@@ -1554,24 +1533,18 @@ uint32 /* PRIVATE */ png_check_keyword(png_structrp png_ptr, const char * key, p
 		if(bad_character == 0)
 			bad_character = 32;
 	}
-
 	/* Terminate the keyword */
 	*new_key = 0;
-
 	if(key_len == 0)
 		return 0;
-
 #ifdef PNG_WARNINGS_SUPPORTED
 	/* Try to only output one warning per keyword: */
 	if(*key != 0) /* keyword too long */
 		png_warning(png_ptr, "keyword truncated");
-
 	else if(bad_character != 0) {
 		PNG_WARNING_PARAMETERS(p)
-
 		png_warning_parameter(p, 1, orig_key);
 		png_warning_parameter_signed(p, 2, PNG_NUMBER_FORMAT_02x, bad_character);
-
 		png_formatted_warning(png_ptr, p, "keyword \"@1\": bad character '0x@2'");
 	}
 #endif /* WARNINGS */

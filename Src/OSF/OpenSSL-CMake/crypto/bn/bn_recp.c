@@ -21,7 +21,7 @@ BN_RECP_CTX * BN_RECP_CTX_new(void)
 {
 	BN_RECP_CTX * ret;
 	if((ret = (BN_RECP_CTX*)OPENSSL_zalloc(sizeof(*ret))) == NULL)
-		return (NULL);
+		return NULL;
 	bn_init(&(ret->N));
 	bn_init(&(ret->Nr));
 	ret->flags = BN_FLG_MALLOCED;

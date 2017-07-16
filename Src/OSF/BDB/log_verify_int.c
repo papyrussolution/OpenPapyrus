@@ -437,7 +437,7 @@ int __crdel_metasub_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notus
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __crdel_metasub_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __crdel_metasub_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -514,7 +514,7 @@ int __db_addrem_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2,
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __db_addrem_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __db_addrem_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -534,7 +534,7 @@ int __db_big_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, vo
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __db_big_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __db_big_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -556,7 +556,7 @@ int __db_ovref_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, 
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
 	if((ret =
-	            __db_ovref_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	            __db_ovref_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -576,7 +576,7 @@ int __db_relink_42_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notuse
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __db_relink_42_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __db_relink_42_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	ON_NOT_SUPPORTED(env, lvh, *lsnp, argp->type);
 	/* LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid); */
@@ -614,7 +614,7 @@ int __db_noop_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, v
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __db_noop_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __db_noop_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 out:
@@ -634,7 +634,7 @@ int __db_pg_alloc_42_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notu
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __db_pg_alloc_42_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __db_pg_alloc_42_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	ON_NOT_SUPPORTED(env, lvh, *lsnp, argp->type);
 	/* LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid); */
@@ -653,7 +653,7 @@ int __db_pg_alloc_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __db_pg_alloc_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __db_pg_alloc_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -675,7 +675,7 @@ int __db_pg_free_42_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notus
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
 	if((ret =
-	            __db_pg_free_42_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	            __db_pg_free_42_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	ON_NOT_SUPPORTED(env, lvh, *lsnp, argp->type);
 	/* LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid); */
@@ -697,7 +697,7 @@ int __db_pg_free_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __db_pg_free_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __db_pg_free_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -739,7 +739,7 @@ int __db_pg_freedata_42_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops n
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __db_pg_freedata_42_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __db_pg_freedata_42_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	ON_NOT_SUPPORTED(env, lvh, *lsnp, argp->type);
 	/* LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid); */
@@ -761,7 +761,7 @@ int __db_pg_freedata_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notu
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
 	if((ret =
-	            __db_pg_freedata_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	            __db_pg_freedata_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -784,7 +784,7 @@ int __db_pg_init_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __db_pg_init_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __db_pg_init_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -806,7 +806,7 @@ int __db_pg_sort_44_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notus
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
 	if((ret =
-	            __db_pg_sort_44_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	            __db_pg_sort_44_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	ON_NOT_SUPPORTED(env, lvh, *lsnp, argp->type);
 	/* LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid); */
@@ -828,7 +828,7 @@ int __db_pg_trunc_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
 	if((ret =
-	            __db_pg_trunc_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	            __db_pg_trunc_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE4 /* No pages are locked by txns. */
@@ -851,7 +851,7 @@ int __db_realloc_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
 	if((ret =
-	            __db_realloc_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	            __db_realloc_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE4 /* No pages are locked by txns. */
@@ -876,7 +876,7 @@ int __db_relink_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2,
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
 	if((ret =
-	            __db_relink_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	            __db_relink_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -899,7 +899,7 @@ int __db_merge_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, 
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __db_merge_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __db_merge_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -921,7 +921,7 @@ int __db_pgno_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, v
 
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __db_pgno_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __db_pgno_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -1209,7 +1209,7 @@ int __bam_split_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2,
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __bam_split_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __bam_split_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->left);
@@ -1235,7 +1235,7 @@ int __bam_split_42_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notuse
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __bam_split_42_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __bam_split_42_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	ON_NOT_SUPPORTED(env, lvh, *lsnp, argp->type);
 	/* LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid); */
@@ -1257,7 +1257,7 @@ int __bam_rsplit_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
 	if((ret =
-	            __bam_rsplit_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	            __bam_rsplit_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 
@@ -1284,7 +1284,7 @@ int __bam_adj_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, v
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
 	if((ret =
-	            __bam_adj_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	            __bam_adj_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 
@@ -1311,7 +1311,7 @@ int __bam_irep_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, 
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
 	if((ret =
-	            __bam_irep_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	            __bam_irep_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 
@@ -1338,7 +1338,7 @@ int __bam_cadjust_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
 	if((ret =
-	            __bam_cadjust_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	            __bam_cadjust_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 
@@ -1361,14 +1361,11 @@ int __bam_cdel_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, 
 	__bam_cdel_args * argp;
 	DB_LOG_VRFY_INFO * lvh;
 	int ret;
-
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret =
-	            __bam_cdel_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __bam_cdel_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
-
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
 	if((ret = __lv_on_bam_log(lvh, *lsnp, argp->fileid)) != 0)
 		goto err;
@@ -1392,7 +1389,7 @@ int __bam_repl_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, 
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
 	if((ret =
-	            __bam_repl_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	            __bam_repl_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 
@@ -1417,7 +1414,7 @@ int __bam_root_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, 
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __bam_root_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __bam_root_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	if((ret = __lv_on_bam_log(lvh, *lsnp, argp->fileid)) != 0)
@@ -1438,7 +1435,7 @@ int __bam_curadj_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __bam_curadj_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __bam_curadj_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	if((ret = __lv_on_bam_log(lvh, *lsnp, argp->fileid)) != 0)
@@ -1459,7 +1456,7 @@ int __bam_rcuradj_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __bam_rcuradj_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __bam_rcuradj_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	if((ret = __lv_on_bam_log(lvh, *lsnp, argp->fileid)) != 0)
@@ -1480,7 +1477,7 @@ int __bam_relink_43_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notus
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __bam_relink_43_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __bam_relink_43_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	ON_NOT_SUPPORTED(env, lvh, *lsnp, argp->type);
 	/* LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid); */
@@ -1499,7 +1496,7 @@ int __bam_merge_44_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notuse
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __bam_merge_44_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __bam_merge_44_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	ON_NOT_SUPPORTED(env, lvh, *lsnp, argp->type);
 	/* LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid); */
@@ -1703,7 +1700,7 @@ int __ham_insdel_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __ham_insdel_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __ham_insdel_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -1724,7 +1721,7 @@ int __ham_newpage_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __ham_newpage_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __ham_newpage_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE4 /* No pages are locked by txns. */
@@ -1745,7 +1742,7 @@ int __ham_splitdata_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notus
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __ham_splitdata_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __ham_splitdata_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -1766,7 +1763,7 @@ int __ham_replace_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __ham_replace_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __ham_replace_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -1787,7 +1784,7 @@ int __ham_copypage_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notuse
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __ham_copypage_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __ham_copypage_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -1808,7 +1805,7 @@ int __ham_metagroup_42_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops no
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __ham_metagroup_42_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __ham_metagroup_42_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	ON_NOT_SUPPORTED(env, lvh, *lsnp, argp->type);
 	/* LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid); */
@@ -1826,7 +1823,7 @@ int __ham_metagroup_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notus
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __ham_metagroup_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __ham_metagroup_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -1847,7 +1844,7 @@ int __ham_groupalloc_42_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops n
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __ham_groupalloc_42_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __ham_groupalloc_42_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	ON_NOT_SUPPORTED(env, lvh, *lsnp, argp->type);
 	/* LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid); */
@@ -1866,7 +1863,7 @@ int __ham_groupalloc_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notu
 	int ret = 0;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __ham_groupalloc_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __ham_groupalloc_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE4 /* No pages are locked by txns. */
@@ -1898,7 +1895,7 @@ int __ham_changeslot_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notu
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __ham_changeslot_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __ham_changeslot_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE4 /* No pages are locked by txns. */
@@ -1919,7 +1916,7 @@ int __ham_contract_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notuse
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __ham_contract_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __ham_contract_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -1940,7 +1937,7 @@ int __ham_curadj_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __ham_curadj_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __ham_curadj_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -1961,7 +1958,7 @@ int __ham_chgpg_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2,
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __ham_chgpg_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __ham_chgpg_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE4 /* No pages are locked by txns. */
@@ -1985,7 +1982,7 @@ int __heap_addrem_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __heap_addrem_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __heap_addrem_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -2006,7 +2003,7 @@ int __heap_pg_alloc_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notus
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __heap_pg_alloc_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __heap_pg_alloc_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -2027,7 +2024,7 @@ int __heap_trunc_meta_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops not
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __heap_trunc_meta_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __heap_trunc_meta_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -2048,7 +2045,7 @@ int __heap_trunc_page_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops not
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __heap_trunc_page_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __heap_trunc_page_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	ON_PAGE_UPDATE(lvh, *lsnp, argp, argp->pgno);
@@ -2073,7 +2070,7 @@ int __qam_incfirst_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notuse
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __qam_incfirst_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __qam_incfirst_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	if((ret = __lv_on_qam_log(lvh, *lsnp, argp->fileid)) != 0)
@@ -2093,7 +2090,7 @@ int __qam_mvptr_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2,
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __qam_mvptr_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __qam_mvptr_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	if((ret = __lv_on_qam_log(lvh, *lsnp, argp->fileid)) != 0)
@@ -2114,7 +2111,7 @@ int __qam_del_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, v
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __qam_del_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __qam_del_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	if((ret = __lv_on_qam_log(lvh, *lsnp, argp->fileid)) != 0)
@@ -2134,7 +2131,7 @@ int __qam_add_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2, v
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __qam_add_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __qam_add_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, argp->fileid);
 	if((ret = __lv_on_qam_log(lvh, *lsnp, argp->fileid)) != 0)
@@ -2154,7 +2151,7 @@ int __qam_delext_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notused2
 	int ret;
 	notused2 = DB_TXN_LOG_VERIFY;
 	DB_LOG_VRFY_INFO * lvh = (DB_LOG_VRFY_INFO *)lvhp;
-	if((ret = __qam_delext_read(env, NULL, NULL, dbtp->data, &argp)) != 0)
+	if((ret = __qam_delext_read(env, 0, 0, dbtp->data, &argp)) != 0)
 		return ret;
 	LOG_VRFY_PROC(lvh, *lsnp, argp, INVAL_DBREGID);
 	if((ret = __lv_on_qam_log(lvh, *lsnp, argp->fileid)) != 0)

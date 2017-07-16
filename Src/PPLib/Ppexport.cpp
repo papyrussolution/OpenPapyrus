@@ -92,23 +92,23 @@ int SLAPI PPDbTableXmlExporter::Run(const char * pOutFileName)
 {
 	int    ok = 1;
 	const  long preserve_dt_def_fmt = SLS.GetConstTLA().TxtDateFmt_;
-	xmlTextWriterPtr writer = 0;
+	xmlTextWriter * p_writer = 0;
 	PPWait(1);
 	DBTable * p_t = Init();
 	THROW(p_t);
-	THROW(writer = xmlNewTextWriterFilename(pOutFileName, 0));
+	THROW(p_writer = xmlNewTextWriterFilename(pOutFileName, 0));
 	{
 		SString temp_buf, fld_name;
 		const BNFieldList & r_fl = p_t->fields;
-		xmlTextWriterSetIndent(writer, 1);
-		xmlTextWriterSetIndentString(writer, (const xmlChar*)"\t");
-		xmlTextWriterStartDocument(writer, 0, "utf-8", 0);
+		xmlTextWriterSetIndent(p_writer, 1);
+		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
 		// XMLWriteSpecSymbEntities(writer);
 		{
 			DbProvider * p_dict = CurDict;
 			SLS.GetTLA().TxtDateFmt_ = DATF_DMY|DATF_CENTURY;
 			(temp_buf = p_t->tableName).ToUtf8();
-			SXml::WNode n_tbl(writer, temp_buf);
+			SXml::WNode n_tbl(p_writer, temp_buf);
 			DS.GetVersion().ToStr(temp_buf = 0);
 			n_tbl.PutAttrib("version", temp_buf);
 			{
@@ -127,7 +127,7 @@ int SLAPI PPDbTableXmlExporter::Run(const char * pOutFileName)
 				n_tbl.PutAttrib("count", temp_buf);
 			}
 			while(Next() > 0) {
-				SXml::WNode n_rec(writer, "record");
+				SXml::WNode n_rec(p_writer, "record");
 				for(uint i = 0; i < r_fl.getCount(); i++) {
 					char   _buf[1024];
 					const BNField & f = r_fl[i];
@@ -136,7 +136,7 @@ int SLAPI PPDbTableXmlExporter::Run(const char * pOutFileName)
 						f.putValueToString(p_t->getDataBuf(), _buf);
 						(temp_buf = _buf).Transf(CTRANSF_INNER_TO_UTF8);
 						XMLReplaceSpecSymb(temp_buf, "&<>\'");
-						SXml::WNode(writer, fld_name, temp_buf);
+						SXml::WNode(p_writer, fld_name, temp_buf);
 					}
 				}
 				if(Cntr.GetTotal()) {
@@ -147,7 +147,7 @@ int SLAPI PPDbTableXmlExporter::Run(const char * pOutFileName)
 	}
 	CATCHZOK
 	PPWait(0);
-	xmlFreeTextWriter(writer);
+	xmlFreeTextWriter(p_writer);
 	SLS.GetTLA().TxtDateFmt_ = preserve_dt_def_fmt;
 	return ok;
 }

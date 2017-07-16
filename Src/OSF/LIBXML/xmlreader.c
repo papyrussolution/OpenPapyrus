@@ -236,7 +236,7 @@ static int xmlTextReaderRemoveID(xmlDocPtr doc, xmlAttrPtr attr)
 	xmlIDTablePtr table;
 	xmlIDPtr id;
 	xmlChar * ID;
-	if(doc == NULL) return -1;
+	if(!doc) return -1;
 	if(attr == NULL) return -1;
 	table = (xmlIDTablePtr)doc->ids;
 	if(table == NULL)
@@ -2086,7 +2086,7 @@ xmlChar * xmlTextReaderGetAttributeNo(xmlTextReaderPtr reader, int no)
 	for(i = 0; (i < no) && (ns != NULL); i++) {
 		ns = ns->next;
 	}
-	if(ns != NULL)
+	if(ns)
 		return(xmlStrdup(ns->href));
 
 	cur = reader->node->properties;
@@ -2136,7 +2136,7 @@ xmlChar * xmlTextReaderGetAttribute(xmlTextReaderPtr reader, const xmlChar * nam
 		/*
 		 * Namespace default decl
 		 */
-		if(sstreq(name, BAD_CAST "xmlns")) {
+		if(sstreq(name, "xmlns")) {
 			ns = reader->node->nsDef;
 			while(ns != NULL) {
 				if(ns->prefix == NULL) {
@@ -2152,7 +2152,7 @@ xmlChar * xmlTextReaderGetAttribute(xmlTextReaderPtr reader, const xmlChar * nam
 	/*
 	 * Namespace default decl
 	 */
-	if(sstreq(prefix, BAD_CAST "xmlns")) {
+	if(sstreq(prefix, "xmlns")) {
 		ns = reader->node->nsDef;
 		while(ns != NULL) {
 			if((ns->prefix != NULL) && (sstreq(ns->prefix, localname))) {
@@ -2164,7 +2164,7 @@ xmlChar * xmlTextReaderGetAttribute(xmlTextReaderPtr reader, const xmlChar * nam
 	}
 	else {
 		ns = xmlSearchNs(reader->node->doc, reader->node, prefix);
-		if(ns != NULL)
+		if(ns)
 			ret = xmlGetNsProp(reader->node, localname, ns->href);
 	}
 	SAlloc::F(localname);
@@ -2198,8 +2198,8 @@ xmlChar * xmlTextReaderGetAttributeNs(xmlTextReaderPtr reader, const xmlChar * l
 	if(reader->node->type != XML_ELEMENT_NODE)
 		return 0;
 
-	if(sstreq(namespaceURI, BAD_CAST "http://www.w3.org/2000/xmlns/")) {
-		if(!sstreq(localName, BAD_CAST "xmlns")) {
+	if(sstreq(namespaceURI, "http://www.w3.org/2000/xmlns/")) {
+		if(!sstreq(localName, "xmlns")) {
 			prefix = BAD_CAST localName;
 		}
 		ns = reader->node->nsDef;
@@ -2320,7 +2320,7 @@ int xmlTextReaderMoveToAttributeNo(xmlTextReaderPtr reader, int no)
 	for(i = 0; (i < no) && (ns != NULL); i++) {
 		ns = ns->next;
 	}
-	if(ns != NULL) {
+	if(ns) {
 		reader->curnode = (xmlNode *)ns;
 		return 1;
 	}
@@ -2368,7 +2368,7 @@ int xmlTextReaderMoveToAttribute(xmlTextReaderPtr reader, const xmlChar * name)
 		/*
 		 * Namespace default decl
 		 */
-		if(sstreq(name, BAD_CAST "xmlns")) {
+		if(sstreq(name, "xmlns")) {
 			ns = reader->node->nsDef;
 			while(ns != NULL) {
 				if(ns->prefix == NULL) {
@@ -2397,7 +2397,7 @@ int xmlTextReaderMoveToAttribute(xmlTextReaderPtr reader, const xmlChar * name)
 	/*
 	 * Namespace default decl
 	 */
-	if(sstreq(prefix, BAD_CAST "xmlns")) {
+	if(sstreq(prefix, "xmlns")) {
 		ns = reader->node->nsDef;
 		while(ns != NULL) {
 			if((ns->prefix != NULL) && (sstreq(ns->prefix, localname))) {
@@ -2449,7 +2449,6 @@ int xmlTextReaderMoveToAttributeNs(xmlTextReaderPtr reader,
 	xmlNodePtr node;
 	xmlNsPtr ns;
 	xmlChar * prefix = NULL;
-
 	if((reader == NULL) || (localName == NULL) || (namespaceURI == NULL))
 		return -1;
 	if(reader->node == NULL)
@@ -2457,9 +2456,8 @@ int xmlTextReaderMoveToAttributeNs(xmlTextReaderPtr reader,
 	if(reader->node->type != XML_ELEMENT_NODE)
 		return 0;
 	node = reader->node;
-
-	if(sstreq(namespaceURI, BAD_CAST "http://www.w3.org/2000/xmlns/")) {
-		if(!sstreq(localName, BAD_CAST "xmlns")) {
+	if(sstreq(namespaceURI, "http://www.w3.org/2000/xmlns/")) {
+		if(!sstreq(localName, "xmlns")) {
 			prefix = BAD_CAST localName;
 		}
 		ns = reader->node->nsDef;
@@ -2642,7 +2640,7 @@ const xmlChar * xmlTextReaderConstEncoding(xmlTextReaderPtr reader)
 		doc = reader->doc;
 	else if(reader->ctxt != NULL)
 		doc = reader->ctxt->myDoc;
-	if(doc == NULL)
+	if(!doc)
 		return 0;
 	if(doc->encoding == NULL)
 		return 0;
@@ -4177,7 +4175,7 @@ const xmlChar * xmlTextReaderConstXmlVersion(xmlTextReaderPtr reader)
 		doc = reader->doc;
 	else if(reader->ctxt != NULL)
 		doc = reader->ctxt->myDoc;
-	if(doc == NULL)
+	if(!doc)
 		return 0;
 
 	if(doc->version == NULL)
@@ -4205,7 +4203,7 @@ int xmlTextReaderStandalone(xmlTextReaderPtr reader)
 		doc = reader->doc;
 	else if(reader->ctxt != NULL)
 		doc = reader->ctxt->myDoc;
-	if(doc == NULL)
+	if(!doc)
 		return -1;
 	return doc->standalone;
 }
@@ -4350,7 +4348,7 @@ static void XMLCDECL xmlTextReaderWarning(void * ctxt, const char * msg, ...)
 static void XMLCDECL xmlTextReaderValidityError(void * ctxt, const char * msg, ...)
 {
 	va_list ap;
-	int len = sstrlen((const xmlChar*)msg);
+	int len = sstrlen(msg);
 	if((len > 1) && (msg[len - 2] != ':')) {
 		/*
 		 * some callbacks only report locator information:
@@ -4365,7 +4363,7 @@ static void XMLCDECL xmlTextReaderValidityError(void * ctxt, const char * msg, .
 static void XMLCDECL xmlTextReaderValidityWarning(void * ctxt, const char * msg, ...)
 {
 	va_list ap;
-	int len = sstrlen((const xmlChar*)msg);
+	int len = sstrlen(msg);
 	if((len != 0) && (msg[len - 1] != ':')) {
 		/*
 		 * some callbacks only report locator information:
@@ -4705,7 +4703,7 @@ else {
 		if(hdlr != NULL)
 			xmlSwitchToEncoding(reader->ctxt, hdlr);
 	}
-	if((URL != NULL) && (reader->ctxt->input != NULL) && (reader->ctxt->input->filename == NULL))
+	if(URL && (reader->ctxt->input != NULL) && (reader->ctxt->input->filename == NULL))
 		reader->ctxt->input->filename = (char*)xmlStrdup((const xmlChar*)URL);
 	reader->doc = NULL;
 	return 0;
@@ -4739,7 +4737,7 @@ long xmlTextReaderByteConsumed(xmlTextReaderPtr reader)
 xmlTextReaderPtr xmlReaderWalker(xmlDocPtr doc)
 {
 	xmlTextReaderPtr ret;
-	if(doc == NULL)
+	if(!doc)
 		return 0;
 	ret = (xmlTextReaderPtr)SAlloc::M(sizeof(xmlTextReader));
 	if(!ret) {
@@ -4915,7 +4913,7 @@ xmlTextReaderPtr xmlReaderForIO(xmlInputReadCallback ioread, xmlInputCloseCallba
  */
 int xmlReaderNewWalker(xmlTextReaderPtr reader, xmlDocPtr doc)
 {
-	if(doc == NULL)
+	if(!doc)
 		return -1;
 	if(reader == NULL)
 		return -1;

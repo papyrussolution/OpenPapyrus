@@ -1080,7 +1080,7 @@ static cairo_bool_t pattern_is_supported(cairo_xlib_display_t * display,
 		case CAIRO_FILTER_FAST:
 		case CAIRO_FILTER_NEAREST:
 		    return CAIRO_RENDER_HAS_PICTURE_TRANSFORM(display) ||
-			   _cairo_matrix_is_integer_translation(&pattern->matrix, NULL, NULL);
+			   _cairo_matrix_is_integer_translation(&pattern->matrix, 0, 0);
 		case CAIRO_FILTER_GOOD:
 		    return CAIRO_RENDER_HAS_FILTER_GOOD(display);
 		case CAIRO_FILTER_BEST:

@@ -435,7 +435,7 @@ static ulong xmlDictComputeFastKey(const xmlChar * name, int namelen, int seed)
 		case 2: value += name[1];
 		default: break;
 	}
-	return(value);
+	return value;
 }
 
 /*
@@ -446,8 +446,7 @@ static ulong xmlDictComputeFastKey(const xmlChar * name, int namelen, int seed)
  *
  * Neither of the two strings must be NULL.
  */
-static ulong xmlDictComputeFastQKey(const xmlChar * prefix, int plen,
-    const xmlChar * name, int len, int seed)
+static ulong xmlDictComputeFastQKey(const xmlChar * prefix, int plen, const xmlChar * name, int len, int seed)
 {
 	ulong value = (ulong)seed;
 	if(plen == 0)
@@ -491,7 +490,7 @@ static ulong xmlDictComputeFastQKey(const xmlChar * prefix, int plen,
 		case 1: value += name[0];
 		default: break;
 	}
-	return(value);
+	return value;
 }
 
 /**

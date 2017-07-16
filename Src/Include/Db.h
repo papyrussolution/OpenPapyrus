@@ -589,10 +589,10 @@ private:
 	};
 
 	SString FileName;
-	xmlTextWriterPtr P_Writer;
+	xmlTextWriter * P_Writer;
 	xmlBufferPtr P_Buffer;
 	xmlDocPtr P_Doc;
-	SString EntitySpec; // @v7.9.8
+	SString EntitySpec;
 	State  St;
 	State  PreserveSt;
 	TSCollection <State> StateColl; // @vmiller

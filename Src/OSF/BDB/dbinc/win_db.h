@@ -110,7 +110,7 @@ extern int getopt(int, char * const *, const char *);
 	} while(0)
 
 #define	FROM_TSTRING(dbenv, ts, s, ret) { \
-		int __len = WideCharToMultiByte(CP_UTF8, 0, ts, -1, NULL, 0, NULL, NULL); \
+		int __len = WideCharToMultiByte(CP_UTF8, 0, ts, -1, NULL, 0, 0, 0); \
 		s = NULL;						\
 		if((ret = __os_malloc((dbenv), __len, &(s))) == 0 && WideCharToMultiByte(CP_UTF8, 0, (ts), -1, (s), __len, NULL, NULL) == 0) \
 			ret = __os_posix_err(__os_get_syserr());	\

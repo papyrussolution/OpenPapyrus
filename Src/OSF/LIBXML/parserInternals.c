@@ -483,7 +483,7 @@ encoding_error:
 	 */
 	if(!ctxt || (ctxt->input == NULL) ||
 	    (ctxt->input->end - ctxt->input->cur < 4)) {
-		__xmlErrEncoding(ctxt, XML_ERR_INVALID_CHAR, "Input is not proper UTF-8, indicate encoding !\n", NULL, NULL);
+		__xmlErrEncoding(ctxt, XML_ERR_INVALID_CHAR, "Input is not proper UTF-8, indicate encoding !\n", 0, 0);
 	}
 	else {
 		char buffer[150];
@@ -868,7 +868,7 @@ int xmlSwitchEncoding(xmlParserCtxtPtr ctxt, xmlCharEncoding enc)
 	if(!ctxt) return -1;
 	switch(enc) {
 		case XML_CHAR_ENCODING_ERROR:
-		    __xmlErrEncoding(ctxt, XML_ERR_UNKNOWN_ENCODING, "encoding unknown\n", NULL, NULL);
+		    __xmlErrEncoding(ctxt, XML_ERR_UNKNOWN_ENCODING, "encoding unknown\n", 0, 0);
 		    return -1;
 		case XML_CHAR_ENCODING_NONE:
 		    /* let's assume it's UTF-8 without the XML decl */
@@ -1158,7 +1158,7 @@ static int xmlSwitchToEncodingInt(xmlParserCtxtPtr ctxt, xmlCharEncodingHandlerP
 {
 	int ret = 0;
 	if(handler) {
-		if(ctxt->input != NULL) {
+		if(ctxt->input) {
 			ret = xmlSwitchInputEncodingInt(ctxt, ctxt->input, handler, len);
 		}
 		else {

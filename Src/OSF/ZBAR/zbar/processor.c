@@ -254,7 +254,7 @@ zbar_processor_t * zbar_processor_create(int threaded)
 		proc->scanner = zbar_image_scanner_create();
 		if(!proc->scanner) {
 			SAlloc::F(proc);
-			return(NULL);
+			return NULL;
 		}
 		proc->threaded = !_zbar_mutex_init(&proc->mutex) && threaded;
 		_zbar_processor_init(proc);
@@ -385,7 +385,7 @@ zbar_image_data_handler_t* zbar_processor_set_data_handler(zbar_processor_t * pr
 	proc->userdata = userdata;
 
 	proc_leave(proc);
-	return(result);
+	return result;
 }
 
 void zbar_processor_set_userdata(zbar_processor_t * proc,

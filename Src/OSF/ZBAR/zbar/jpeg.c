@@ -104,7 +104,7 @@ struct jpeg_decompress_struct * _zbar_jpeg_decomp_create(void)
 		errenv_t * jerr = (errenv_t *)SAlloc::C(1, sizeof(errenv_t));
 		if(!jerr) {
 			SAlloc::F(cinfo);
-			return(NULL);
+			return NULL;
 		}
 		else {
 			cinfo->err = jpeg_std_error(&jerr->err);
@@ -116,7 +116,7 @@ struct jpeg_decompress_struct * _zbar_jpeg_decomp_create(void)
 				(*cinfo->err->output_message)((j_common_ptr)cinfo);
 				SAlloc::F(jerr);
 				SAlloc::F(cinfo);
-				return(NULL);
+				return NULL;
 			}
 			jpeg_create_decompress(cinfo);
 			jerr->valid = 0;

@@ -2332,7 +2332,7 @@ ColorMapObject * GifUnionColorMap(const ColorMapObject * ColorIn1, const ColorMa
 	/* Allocate table which will hold the result for sure. */
 	ColorUnion = GifMakeMapObject(MAX(ColorIn1->ColorCount, ColorIn2->ColorCount) * 2, NULL);
 	if(ColorUnion == NULL)
-		return (NULL);
+		return NULL;
 	/*
 	 * Copy ColorIn1 to ColorUnion.
 	 */

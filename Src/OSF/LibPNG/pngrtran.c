@@ -92,7 +92,7 @@ void PNGAPI png_set_crc_action(png_structrp png_ptr, int crit_action, int ancil_
  */
 static int png_rtran_ok(png_structrp png_ptr, int need_IHDR)
 {
-	if(png_ptr != NULL) {
+	if(png_ptr) {
 		if((png_ptr->flags & PNG_FLAG_ROW_INIT) != 0)
 			png_app_error(png_ptr, "invalid after png_start_read_image or png_read_update_info");
 		else if(need_IHDR && (png_ptr->mode & PNG_HAVE_IHDR) == 0)
@@ -1842,7 +1842,7 @@ void /* PRIVATE */ png_read_transform_info(png_structrp png_ptr, png_inforp info
 	png_ptr->info_rowbytes = info_ptr->rowbytes;
 
 #ifndef PNG_READ_EXPAND_SUPPORTED
-	if(png_ptr != NULL)
+	if(png_ptr)
 		return;
 #endif
 }
@@ -3156,23 +3156,18 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 		    {
 			    if(row_info->bit_depth == 8) {
 #ifdef PNG_READ_GAMMA_SUPPORTED
-				    if(gamma_to_1 != NULL && gamma_from_1 != NULL &&
-					    gamma_table != NULL) {
+				    if(gamma_to_1 != NULL && gamma_from_1 != NULL && gamma_table != NULL) {
 					    sp = row;
 					    for(i = 0; i < row_width; i++, sp += 2) {
 						    png_uint_16 a = *(sp + 1);
-
 						    if(a == 0xff)
 							    *sp = gamma_table[*sp];
-
 						    else if(a == 0) {
 							    /* Background is already in screen gamma */
 							    *sp = (uint8)png_ptr->background.gray;
 						    }
-
 						    else {
 							    uint8 v, w;
-
 							    v = gamma_to_1[*sp];
 							    png_composite(w, v, a, png_ptr->background_1.gray);
 							    if(optimize == 0)
@@ -3198,8 +3193,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 			    }
 			    else { /* if (png_ptr->bit_depth == 16) */
 #ifdef PNG_READ_GAMMA_SUPPORTED
-				    if(gamma_16 != NULL && gamma_16_from_1 != NULL &&
-					    gamma_16_to_1 != NULL) {
+				    if(gamma_16 != NULL && gamma_16_from_1 != NULL && gamma_16_to_1 != NULL) {
 					    sp = row;
 					    for(i = 0; i < row_width; i++, sp += 4) {
 						    png_uint_16 a = (png_uint_16)(((*(sp + 2)) << 8)
@@ -3267,12 +3261,10 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 		    {
 			    if(row_info->bit_depth == 8) {
 #ifdef PNG_READ_GAMMA_SUPPORTED
-				    if(gamma_to_1 != NULL && gamma_from_1 != NULL &&
-					    gamma_table != NULL) {
+				    if(gamma_to_1 != NULL && gamma_from_1 != NULL && gamma_table != NULL) {
 					    sp = row;
 					    for(i = 0; i < row_width; i++, sp += 4) {
 						    uint8 a = *(sp + 3);
-
 						    if(a == 0xff) {
 							    *sp = gamma_table[*sp];
 							    *(sp + 1) = gamma_table[*(sp + 1)];
@@ -3333,8 +3325,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 			    }
 			    else { /* if (row_info->bit_depth == 16) */
 #ifdef PNG_READ_GAMMA_SUPPORTED
-				    if(gamma_16 != NULL && gamma_16_from_1 != NULL &&
-					    gamma_16_to_1 != NULL) {
+				    if(gamma_16 != NULL && gamma_16_from_1 != NULL && gamma_16_to_1 != NULL) {
 					    sp = row;
 					    for(i = 0; i < row_width; i++, sp += 8) {
 						    png_uint_16 a = (png_uint_16)(((png_uint_16)(*(sp + 6))
@@ -3468,15 +3459,11 @@ static void png_do_gamma(png_row_infop row_info, png_bytep row, png_structrp png
 	png_const_bytep gamma_table = png_ptr->gamma_table;
 	png_const_uint_16pp gamma_16_table = png_ptr->gamma_16_table;
 	int gamma_shift = png_ptr->gamma_shift;
-
 	png_bytep sp;
 	uint32 i;
 	uint32 row_width = row_info->width;
-
 	png_debug(1, "in png_do_gamma");
-
-	if(((row_info->bit_depth <= 8 && gamma_table != NULL) ||
-		    (row_info->bit_depth == 16 && gamma_16_table != NULL))) {
+	if(((row_info->bit_depth <= 8 && gamma_table != NULL) || (row_info->bit_depth == 16 && gamma_16_table != NULL))) {
 		switch(row_info->color_type) {
 			case PNG_COLOR_TYPE_RGB:
 		    {
@@ -3491,7 +3478,6 @@ static void png_do_gamma(png_row_infop row_info, png_bytep row, png_structrp png
 					    sp++;
 				    }
 			    }
-
 			    else { /* if (row_info->bit_depth == 16) */
 				    sp = row;
 				    for(i = 0; i < row_width; i++) {
@@ -3651,35 +3637,24 @@ static void png_do_encode_alpha(png_row_infop row_info, png_bytep row, png_struc
 	if((row_info->color_type & PNG_COLOR_MASK_ALPHA) != 0) {
 		if(row_info->bit_depth == 8) {
 			PNG_CONST png_bytep table = png_ptr->gamma_from_1;
-
 			if(table != NULL) {
-				PNG_CONST int step =
-				    (row_info->color_type & PNG_COLOR_MASK_COLOR) ? 4 : 2;
-
+				PNG_CONST int step = (row_info->color_type & PNG_COLOR_MASK_COLOR) ? 4 : 2;
 				/* The alpha channel is the last component: */
 				row += step - 1;
-
 				for(; row_width > 0; --row_width, row += step)
 					*row = table[*row];
-
 				return;
 			}
 		}
-
 		else if(row_info->bit_depth == 16) {
 			PNG_CONST png_uint_16pp table = png_ptr->gamma_16_from_1;
 			PNG_CONST int gamma_shift = png_ptr->gamma_shift;
-
 			if(table != NULL) {
-				PNG_CONST int step =
-				    (row_info->color_type & PNG_COLOR_MASK_COLOR) ? 8 : 4;
-
+				PNG_CONST int step = (row_info->color_type & PNG_COLOR_MASK_COLOR) ? 8 : 4;
 				/* The alpha channel is the last component: */
 				row += step - 2;
-
 				for(; row_width > 0; --row_width, row += step) {
 					png_uint_16 v;
-
 					v = table[*(row + 1) >> gamma_shift][*row];
 					*row = (uint8)((v >> 8) & 0xff);
 					*(row + 1) = (uint8)(v & 0xff);
@@ -3841,13 +3816,10 @@ static void png_do_expand(png_row_infop row_info, png_bytep row, png_const_color
 	png_bytep sp, dp;
 	uint32 i;
 	uint32 row_width = row_info->width;
-
 	png_debug(1, "in png_do_expand");
-
 	{
 		if(row_info->color_type == PNG_COLOR_TYPE_GRAY) {
 			unsigned int gray = trans_color != NULL ? trans_color->gray : 0;
-
 			if(row_info->bit_depth < 8) {
 				switch(row_info->bit_depth) {
 					case 1:
@@ -3859,15 +3831,12 @@ static void png_do_expand(png_row_infop row_info, png_bytep row, png_const_color
 					    for(i = 0; i < row_width; i++) {
 						    if((*sp >> shift) & 0x01)
 							    *dp = 0xff;
-
 						    else
 							    *dp = 0;
-
 						    if(shift == 7) {
 							    shift = 0;
 							    sp--;
 						    }
-
 						    else
 							    shift++;
 
@@ -3915,27 +3884,22 @@ static void png_do_expand(png_row_infop row_info, png_bytep row, png_const_color
 
 						    else
 							    shift = 4;
-
 						    dp--;
 					    }
 					    break;
 				    }
-
 					default:
 					    break;
 				}
-
 				row_info->bit_depth = 8;
 				row_info->pixel_depth = 8;
 				row_info->rowbytes = row_width;
 			}
-
 			if(trans_color != NULL) {
 				if(row_info->bit_depth == 8) {
 					gray = gray & 0xff;
 					sp = row + (size_t)row_width - 1;
 					dp = row + (size_t)(row_width << 1) - 1;
-
 					for(i = 0; i < row_width; i++) {
 						if((*sp & 0xffU) == gray)
 							*dp-- = 0;
@@ -3946,19 +3910,16 @@ static void png_do_expand(png_row_infop row_info, png_bytep row, png_const_color
 						*dp-- = *sp--;
 					}
 				}
-
 				else if(row_info->bit_depth == 16) {
 					unsigned int gray_high = (gray >> 8) & 0xff;
 					unsigned int gray_low = gray & 0xff;
 					sp = row + row_info->rowbytes - 1;
 					dp = row + (row_info->rowbytes << 1) - 1;
 					for(i = 0; i < row_width; i++) {
-						if((*(sp - 1) & 0xffU) == gray_high &&
-						    (*(sp) & 0xffU) == gray_low) {
+						if((*(sp - 1) & 0xffU) == gray_high && (*(sp) & 0xffU) == gray_low) {
 							*dp-- = 0;
 							*dp-- = 0;
 						}
-
 						else {
 							*dp-- = 0xff;
 							*dp-- = 0xff;
@@ -3972,12 +3933,10 @@ static void png_do_expand(png_row_infop row_info, png_bytep row, png_const_color
 				row_info->color_type = PNG_COLOR_TYPE_GRAY_ALPHA;
 				row_info->channels = 2;
 				row_info->pixel_depth = (uint8)(row_info->bit_depth << 1);
-				row_info->rowbytes = PNG_ROWBYTES(row_info->pixel_depth,
-				    row_width);
+				row_info->rowbytes = PNG_ROWBYTES(row_info->pixel_depth, row_width);
 			}
 		}
-		else if(row_info->color_type == PNG_COLOR_TYPE_RGB &&
-		    trans_color != NULL) {
+		else if(row_info->color_type == PNG_COLOR_TYPE_RGB && trans_color != NULL) {
 			if(row_info->bit_depth == 8) {
 				uint8 red = (uint8)(trans_color->red & 0xff);
 				uint8 green = (uint8)(trans_color->green & 0xff);
@@ -3987,10 +3946,8 @@ static void png_do_expand(png_row_infop row_info, png_bytep row, png_const_color
 				for(i = 0; i < row_width; i++) {
 					if(*(sp - 2) == red && *(sp - 1) == green && *(sp) == blue)
 						*dp-- = 0;
-
 					else
 						*dp-- = 0xff;
-
 					*dp-- = *sp--;
 					*dp-- = *sp--;
 					*dp-- = *sp--;
@@ -4006,21 +3963,14 @@ static void png_do_expand(png_row_infop row_info, png_bytep row, png_const_color
 				sp = row + row_info->rowbytes - 1;
 				dp = row + (size_t)(row_width << 3) - 1;
 				for(i = 0; i < row_width; i++) {
-					if(*(sp - 5) == red_high &&
-					    *(sp - 4) == red_low &&
-					    *(sp - 3) == green_high &&
-					    *(sp - 2) == green_low &&
-					    *(sp - 1) == blue_high &&
-					    *(sp    ) == blue_low) {
+					if(*(sp - 5) == red_high && *(sp - 4) == red_low && *(sp - 3) == green_high && *(sp - 2) == green_low && *(sp - 1) == blue_high && *(sp    ) == blue_low) {
 						*dp-- = 0;
 						*dp-- = 0;
 					}
-
 					else {
 						*dp-- = 0xff;
 						*dp-- = 0xff;
 					}
-
 					*dp-- = *sp--;
 					*dp-- = *sp--;
 					*dp-- = *sp--;
@@ -4045,8 +3995,7 @@ static void png_do_expand(png_row_infop row_info, png_bytep row, png_const_color
  */
 static void png_do_expand_16(png_row_infop row_info, png_bytep row)
 {
-	if(row_info->bit_depth == 8 &&
-	    row_info->color_type != PNG_COLOR_TYPE_PALETTE) {
+	if(row_info->bit_depth == 8 && row_info->color_type != PNG_COLOR_TYPE_PALETTE) {
 		/* The row have a sequence of bytes containing [0..255] and we need
 		 * to turn it into another row containing [0..65535], to do this we
 		 * calculate:
@@ -4060,7 +4009,6 @@ static void png_do_expand_16(png_row_infop row_info, png_bytep row)
 		uint8 * dp = sp + row_info->rowbytes; /* destination, end + 1 */
 		while(dp > sp)
 			dp[-2] = dp[-1] = *--sp, dp -= 2;
-
 		row_info->rowbytes *= 2;
 		row_info->bit_depth = 16;
 		row_info->pixel_depth = (uint8)(row_info->channels * 16);
@@ -4070,15 +4018,12 @@ static void png_do_expand_16(png_row_infop row_info, png_bytep row)
 #endif
 
 #ifdef PNG_READ_QUANTIZE_SUPPORTED
-static void png_do_quantize(png_row_infop row_info, png_bytep row,
-    png_const_bytep palette_lookup, png_const_bytep quantize_lookup)
+static void png_do_quantize(png_row_infop row_info, png_bytep row, png_const_bytep palette_lookup, png_const_bytep quantize_lookup)
 {
 	png_bytep sp, dp;
 	uint32 i;
 	uint32 row_width = row_info->width;
-
 	png_debug(1, "in png_do_quantize");
-
 	if(row_info->bit_depth == 8) {
 		if(row_info->color_type == PNG_COLOR_TYPE_RGB && palette_lookup) {
 			int r, g, b, p;
@@ -4096,15 +4041,9 @@ static void png_do_quantize(png_row_infop row_info, png_bytep row,
 				 *    (((g >> 3) & 0x1f) << 5) |
 				 *    ((b >> 3) & 0x1f);
 				 */
-				p = (((r >> (8 - PNG_QUANTIZE_RED_BITS)) &
-					    ((1 << PNG_QUANTIZE_RED_BITS) - 1)) <<
-				    (PNG_QUANTIZE_GREEN_BITS + PNG_QUANTIZE_BLUE_BITS)) |
-				    (((g >> (8 - PNG_QUANTIZE_GREEN_BITS)) &
-					    ((1 << PNG_QUANTIZE_GREEN_BITS) - 1)) <<
-				    (PNG_QUANTIZE_BLUE_BITS)) |
-				    ((b >> (8 - PNG_QUANTIZE_BLUE_BITS)) &
-				    ((1 << PNG_QUANTIZE_BLUE_BITS) - 1));
-
+				p = (((r >> (8 - PNG_QUANTIZE_RED_BITS)) & ((1 << PNG_QUANTIZE_RED_BITS) - 1)) << (PNG_QUANTIZE_GREEN_BITS + PNG_QUANTIZE_BLUE_BITS)) |
+				    (((g >> (8 - PNG_QUANTIZE_GREEN_BITS)) & ((1 << PNG_QUANTIZE_GREEN_BITS) - 1)) << (PNG_QUANTIZE_BLUE_BITS)) |
+				    ((b >> (8 - PNG_QUANTIZE_BLUE_BITS)) & ((1 << PNG_QUANTIZE_BLUE_BITS) - 1));
 				*dp++ = palette_lookup[p];
 			}
 
@@ -4113,9 +4052,7 @@ static void png_do_quantize(png_row_infop row_info, png_bytep row,
 			row_info->pixel_depth = row_info->bit_depth;
 			row_info->rowbytes = PNG_ROWBYTES(row_info->pixel_depth, row_width);
 		}
-
-		else if(row_info->color_type == PNG_COLOR_TYPE_RGB_ALPHA &&
-		    palette_lookup != NULL) {
+		else if(row_info->color_type == PNG_COLOR_TYPE_RGB_ALPHA && palette_lookup != NULL) {
 			int r, g, b, p;
 			sp = row;
 			dp = row;
@@ -4124,16 +4061,9 @@ static void png_do_quantize(png_row_infop row_info, png_bytep row,
 				g = *sp++;
 				b = *sp++;
 				sp++;
-
-				p = (((r >> (8 - PNG_QUANTIZE_RED_BITS)) &
-					    ((1 << PNG_QUANTIZE_RED_BITS) - 1)) <<
-				    (PNG_QUANTIZE_GREEN_BITS + PNG_QUANTIZE_BLUE_BITS)) |
-				    (((g >> (8 - PNG_QUANTIZE_GREEN_BITS)) &
-					    ((1 << PNG_QUANTIZE_GREEN_BITS) - 1)) <<
-				    (PNG_QUANTIZE_BLUE_BITS)) |
-				    ((b >> (8 - PNG_QUANTIZE_BLUE_BITS)) &
-				    ((1 << PNG_QUANTIZE_BLUE_BITS) - 1));
-
+				p = (((r >> (8 - PNG_QUANTIZE_RED_BITS)) & ((1 << PNG_QUANTIZE_RED_BITS) - 1)) << (PNG_QUANTIZE_GREEN_BITS + PNG_QUANTIZE_BLUE_BITS)) |
+				    (((g >> (8 - PNG_QUANTIZE_GREEN_BITS)) & ((1 << PNG_QUANTIZE_GREEN_BITS) - 1)) << (PNG_QUANTIZE_BLUE_BITS)) |
+				    ((b >> (8 - PNG_QUANTIZE_BLUE_BITS)) & ((1 << PNG_QUANTIZE_BLUE_BITS) - 1));
 				*dp++ = palette_lookup[p];
 			}
 
@@ -4142,11 +4072,8 @@ static void png_do_quantize(png_row_infop row_info, png_bytep row,
 			row_info->pixel_depth = row_info->bit_depth;
 			row_info->rowbytes = PNG_ROWBYTES(row_info->pixel_depth, row_width);
 		}
-
-		else if(row_info->color_type == PNG_COLOR_TYPE_PALETTE &&
-		    quantize_lookup) {
+		else if(row_info->color_type == PNG_COLOR_TYPE_PALETTE && quantize_lookup) {
 			sp = row;
-
 			for(i = 0; i < row_width; i++, sp++) {
 				*sp = quantize_lookup[*sp];
 			}

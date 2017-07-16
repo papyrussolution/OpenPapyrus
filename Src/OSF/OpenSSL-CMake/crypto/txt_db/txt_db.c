@@ -117,7 +117,7 @@ err:
 		OPENSSL_free(ret->qual);
 		OPENSSL_free(ret);
 	}
-	return (NULL);
+	return NULL;
 }
 
 OPENSSL_STRING * TXT_DB_get_by_index(TXT_DB * db, int idx,
@@ -128,12 +128,12 @@ OPENSSL_STRING * TXT_DB_get_by_index(TXT_DB * db, int idx,
 
 	if(idx >= db->num_fields) {
 		db->error = DB_ERROR_INDEX_OUT_OF_RANGE;
-		return (NULL);
+		return NULL;
 	}
 	lh = db->index[idx];
 	if(lh == NULL) {
 		db->error = DB_ERROR_NO_INDEX;
-		return (NULL);
+		return NULL;
 	}
 	ret = lh_OPENSSL_STRING_retrieve(lh, value);
 	db->error = DB_ERROR_OK;

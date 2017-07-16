@@ -1233,8 +1233,8 @@ protected:
 		// @>>InitFixData
 	int    FASTCALL AssignIterData(int one, void * pData, size_t dataSize); // PPALDD compatibility
 		// @>>InitFixData
-	int    SLAPI FillXmlBuf(const DlScope * pScope, xmlTextWriterPtr pWriter, StringSet * pDtd, SCodepageIdent cp) const;
-	int    SLAPI FillDTDBuf(const DlScope * pScope, xmlTextWriterPtr pWriter, const char * pElemName) const;
+	int    SLAPI FillXmlBuf(const DlScope * pScope, xmlTextWriter * pWriter, StringSet * pDtd, SCodepageIdent cp) const;
+	int    SLAPI FillDTDBuf(const DlScope * pScope, xmlTextWriter * pWriter, const char * pElemName) const;
 	//
 	// Descr: Стандартный пролог функций InitIteration и NextIteration.
 	// Returns:

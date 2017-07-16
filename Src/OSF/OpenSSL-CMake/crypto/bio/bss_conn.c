@@ -221,7 +221,7 @@ BIO_CONNECT * BIO_CONNECT_new(void)
 {
 	BIO_CONNECT * ret;
 	if((ret = (BIO_CONNECT*)OPENSSL_zalloc(sizeof(*ret))) == NULL)
-		return (NULL);
+		return NULL;
 	ret->state = BIO_CONN_S_BEFORE;
 	ret->connect_family = BIO_FAMILY_IPANY;
 	return ret;
@@ -533,11 +533,11 @@ BIO * BIO_new_connect(const char * str)
 {
 	BIO * ret = BIO_new(BIO_s_connect());
 	if(!ret)
-		return (NULL);
+		return NULL;
 	if(BIO_set_conn_hostname(ret, str))
 		return ret;
 	BIO_free(ret);
-	return (NULL);
+	return NULL;
 }
 
 #endif

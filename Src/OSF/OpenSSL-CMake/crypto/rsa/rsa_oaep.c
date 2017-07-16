@@ -33,7 +33,7 @@ int RSA_padding_add_PKCS1_OAEP(uchar * to, int tlen,
     const uchar * param, int plen)
 {
 	return RSA_padding_add_PKCS1_OAEP_mgf1(to, tlen, from, flen,
-	    param, plen, NULL, NULL);
+	    param, plen, 0, 0);
 }
 
 int RSA_padding_add_PKCS1_OAEP_mgf1(uchar * to, int tlen,
@@ -111,7 +111,7 @@ int RSA_padding_check_PKCS1_OAEP(uchar * to, int tlen,
     const uchar * param, int plen)
 {
 	return RSA_padding_check_PKCS1_OAEP_mgf1(to, tlen, from, flen, num,
-	    param, plen, NULL, NULL);
+	    param, plen, 0, 0);
 }
 
 int RSA_padding_check_PKCS1_OAEP_mgf1(uchar * to, int tlen,

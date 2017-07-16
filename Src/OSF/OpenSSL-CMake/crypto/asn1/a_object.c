@@ -213,7 +213,7 @@ ASN1_OBJECT * d2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp,
 	return ret;
 err:
 	ASN1err(ASN1_F_D2I_ASN1_OBJECT, i);
-	return (NULL);
+	return NULL;
 }
 
 ASN1_OBJECT * c2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp,
@@ -273,7 +273,7 @@ ASN1_OBJECT * c2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp,
 	if((a == NULL) || ((*a) == NULL) ||
 	    !((*a)->flags & ASN1_OBJECT_FLAG_DYNAMIC)) {
 		if((ret = ASN1_OBJECT_new()) == NULL)
-			return (NULL);
+			return NULL;
 	}
 	else
 		ret = (*a);
@@ -310,7 +310,7 @@ err:
 	ASN1err(ASN1_F_C2I_ASN1_OBJECT, i);
 	if((a == NULL) || (*a != ret))
 		ASN1_OBJECT_free(ret);
-	return (NULL);
+	return NULL;
 }
 
 ASN1_OBJECT * ASN1_OBJECT_new(void)
@@ -320,7 +320,7 @@ ASN1_OBJECT * ASN1_OBJECT_new(void)
 	ret = (ASN1_OBJECT*)OPENSSL_zalloc(sizeof(*ret));
 	if(!ret) {
 		ASN1err(ASN1_F_ASN1_OBJECT_NEW, ERR_R_MALLOC_FAILURE);
-		return (NULL);
+		return NULL;
 	}
 	ret->flags = ASN1_OBJECT_FLAG_DYNAMIC;
 	return ret;

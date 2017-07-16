@@ -41,7 +41,7 @@ static png_fixed_point /* PRIVATE */ png_get_fixed_point(png_structrp png_ptr, p
 	if(uval <= PNG_UINT_31_MAX)
 		return (png_fixed_point)uval;  /* known to be in range */
 	/* The caller can turn off the warning by passing NULL. */
-	if(png_ptr != NULL)
+	if(png_ptr)
 		png_warning(png_ptr, "PNG fixed point integer out of range");
 	return PNG_FIXED_ERROR;
 }
@@ -965,21 +965,19 @@ void /* PRIVATE */ png_handle_PLTE(png_structrp png_ptr, png_inforp info_ptr, ui
 		 * detection of duplicate chunks.
 		 */
 		png_ptr->num_trans = 0;
-
 		if(info_ptr != NULL)
 			info_ptr->num_trans = 0;
-
 		png_chunk_benign_error(png_ptr, "tRNS must be after");
 	}
 #endif
 
 #ifdef PNG_READ_hIST_SUPPORTED
-	if(info_ptr != NULL && (info_ptr->valid & PNG_INFO_hIST) != 0)
+	if(info_ptr && (info_ptr->valid & PNG_INFO_hIST) != 0)
 		png_chunk_benign_error(png_ptr, "hIST must be after");
 #endif
 
 #ifdef PNG_READ_bKGD_SUPPORTED
-	if(info_ptr != NULL && (info_ptr->valid & PNG_INFO_bKGD) != 0)
+	if(info_ptr && (info_ptr->valid & PNG_INFO_bKGD) != 0)
 		png_chunk_benign_error(png_ptr, "bKGD must be after");
 #endif
 }
@@ -1035,46 +1033,36 @@ void /* PRIVATE */ png_handle_sBIT(png_structrp png_ptr, png_inforp info_ptr, ui
 	unsigned int truelen, i;
 	uint8 sample_depth;
 	uint8 buf[4];
-
 	png_debug(1, "in png_handle_sBIT");
-
 	if((png_ptr->mode & PNG_HAVE_IHDR) == 0)
 		png_chunk_error(png_ptr, "missing IHDR");
-
 	else if((png_ptr->mode & (PNG_HAVE_IDAT|PNG_HAVE_PLTE)) != 0) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "out of place");
 		return;
 	}
-
-	if(info_ptr != NULL && (info_ptr->valid & PNG_INFO_sBIT) != 0) {
+	if(info_ptr && (info_ptr->valid & PNG_INFO_sBIT) != 0) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "duplicate");
 		return;
 	}
-
 	if(png_ptr->color_type == PNG_COLOR_TYPE_PALETTE) {
 		truelen = 3;
 		sample_depth = 8;
 	}
-
 	else {
 		truelen = png_ptr->channels;
 		sample_depth = png_ptr->bit_depth;
 	}
-
 	if(length != truelen || length > 4) {
 		png_chunk_benign_error(png_ptr, "invalid");
 		png_crc_finish(png_ptr, length);
 		return;
 	}
-
 	buf[0] = buf[1] = buf[2] = buf[3] = sample_depth;
 	png_crc_read(png_ptr, buf, truelen);
-
 	if(png_crc_finish(png_ptr, 0) != 0)
 		return;
-
 	for(i = 0; i<truelen; ++i) {
 		if(buf[i] == 0 || buf[i] > sample_depth) {
 			png_chunk_benign_error(png_ptr, "invalid");
@@ -1135,32 +1123,22 @@ void /* PRIVATE */ png_handle_cHRM(png_structrp png_ptr, png_inforp info_ptr, ui
 	xy.bluex  = png_get_fixed_point(NULL, buf + 24);
 	xy.bluey  = png_get_fixed_point(NULL, buf + 28);
 
-	if(xy.whitex == PNG_FIXED_ERROR ||
-	    xy.whitey == PNG_FIXED_ERROR ||
-	    xy.redx   == PNG_FIXED_ERROR ||
-	    xy.redy   == PNG_FIXED_ERROR ||
-	    xy.greenx == PNG_FIXED_ERROR ||
-	    xy.greeny == PNG_FIXED_ERROR ||
-	    xy.bluex  == PNG_FIXED_ERROR ||
-	    xy.bluey  == PNG_FIXED_ERROR) {
+	if(xy.whitex == PNG_FIXED_ERROR || xy.whitey == PNG_FIXED_ERROR || xy.redx   == PNG_FIXED_ERROR || xy.redy   == PNG_FIXED_ERROR ||
+	    xy.greenx == PNG_FIXED_ERROR || xy.greeny == PNG_FIXED_ERROR || xy.bluex  == PNG_FIXED_ERROR || xy.bluey  == PNG_FIXED_ERROR) {
 		png_chunk_benign_error(png_ptr, "invalid values");
 		return;
 	}
-
 	/* If a colorspace error has already been output skip this chunk */
 	if((png_ptr->colorspace.flags & PNG_COLORSPACE_INVALID) != 0)
 		return;
-
 	if((png_ptr->colorspace.flags & PNG_COLORSPACE_FROM_cHRM) != 0) {
 		png_ptr->colorspace.flags |= PNG_COLORSPACE_INVALID;
 		png_colorspace_sync(png_ptr, info_ptr);
 		png_chunk_benign_error(png_ptr, "duplicate");
 		return;
 	}
-
 	png_ptr->colorspace.flags |= PNG_COLORSPACE_FROM_cHRM;
-	(void)png_colorspace_set_chromaticities(png_ptr, &png_ptr->colorspace, &xy,
-	    1 /*prefer cHRM values*/);
+	(void)png_colorspace_set_chromaticities(png_ptr, &png_ptr->colorspace, &xy, 1 /*prefer cHRM values*/);
 	png_colorspace_sync(png_ptr, info_ptr);
 }
 
@@ -1345,51 +1323,32 @@ void /* PRIVATE */ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, ui
 
 												/* Steal the profile for info_ptr. */
 												if(info_ptr != NULL) {
-													png_free_data(png_ptr, info_ptr,
-													    PNG_FREE_ICCP, 0);
-
-													info_ptr->iccp_name = png_voidcast(
-													    char*,
-													    png_malloc_base(png_ptr,
-														    keyword_length+1));
+													png_free_data(png_ptr, info_ptr, PNG_FREE_ICCP, 0);
+													info_ptr->iccp_name = png_voidcast(char*, png_malloc_base(png_ptr, keyword_length+1));
 													if(info_ptr->iccp_name != NULL) {
-														memcpy(info_ptr->iccp_name,
-														    keyword,
-														    keyword_length+1);
-														info_ptr->iccp_proflen =
-														    profile_length;
-														info_ptr->iccp_profile =
-														    profile;
+														memcpy(info_ptr->iccp_name, keyword, keyword_length+1);
+														info_ptr->iccp_proflen = profile_length;
+														info_ptr->iccp_profile = profile;
 														png_ptr->read_buffer = NULL; /*steal*/
-														info_ptr->free_me |=
-														    PNG_FREE_ICCP;
-														info_ptr->valid |=
-														    PNG_INFO_iCCP;
+														info_ptr->free_me |= PNG_FREE_ICCP;
+														info_ptr->valid |= PNG_INFO_iCCP;
 													}
 
 													else {
-														png_ptr->colorspace.flags
-															|=
-														    PNG_COLORSPACE_INVALID;
+														png_ptr->colorspace.flags |= PNG_COLORSPACE_INVALID;
 														errmsg = "out of memory";
 													}
 												}
-
 												/* else the profile remains in the read
-												 * buffer which gets reused for subsequent
-												 * chunks.
+												 * buffer which gets reused for subsequent chunks.
 												 */
-
 												if(info_ptr != NULL)
-													png_colorspace_sync(png_ptr,
-													    info_ptr);
-
+													png_colorspace_sync(png_ptr, info_ptr);
 												if(errmsg == NULL) {
 													png_ptr->zowner = 0;
 													return;
 												}
 											}
-
 											else if(size > 0)
 												errmsg = "truncated";
 
@@ -1618,7 +1577,7 @@ void /* PRIVATE */ png_handle_tRNS(png_structrp png_ptr, png_inforp info_ptr, ui
 		png_chunk_benign_error(png_ptr, "out of place");
 		return;
 	}
-	else if(info_ptr != NULL && (info_ptr->valid & PNG_INFO_tRNS) != 0) {
+	else if(info_ptr && (info_ptr->valid & PNG_INFO_tRNS) != 0) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "duplicate");
 		return;
@@ -1708,7 +1667,7 @@ void /* PRIVATE */ png_handle_bKGD(png_structrp png_ptr, png_inforp info_ptr, ui
 		png_chunk_benign_error(png_ptr, "out of place");
 		return;
 	}
-	else if(info_ptr != NULL && (info_ptr->valid & PNG_INFO_bKGD) != 0) {
+	else if(info_ptr && (info_ptr->valid & PNG_INFO_bKGD) != 0) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "duplicate");
 		return;
@@ -1779,7 +1738,7 @@ void /* PRIVATE */ png_handle_hIST(png_structrp png_ptr, png_inforp info_ptr, ui
 		png_chunk_benign_error(png_ptr, "out of place");
 		return;
 	}
-	else if(info_ptr != NULL && (info_ptr->valid & PNG_INFO_hIST) != 0) {
+	else if(info_ptr && (info_ptr->valid & PNG_INFO_hIST) != 0) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "duplicate");
 		return;
@@ -1823,7 +1782,7 @@ void /* PRIVATE */ png_handle_pHYs(png_structrp png_ptr, png_inforp info_ptr, ui
 		png_chunk_benign_error(png_ptr, "out of place");
 		return;
 	}
-	else if(info_ptr != NULL && (info_ptr->valid & PNG_INFO_pHYs) != 0) {
+	else if(info_ptr && (info_ptr->valid & PNG_INFO_pHYs) != 0) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "duplicate");
 		return;
@@ -1862,7 +1821,7 @@ void /* PRIVATE */ png_handle_oFFs(png_structrp png_ptr, png_inforp info_ptr, ui
 		png_chunk_benign_error(png_ptr, "out of place");
 		return;
 	}
-	else if(info_ptr != NULL && (info_ptr->valid & PNG_INFO_oFFs) != 0) {
+	else if(info_ptr && (info_ptr->valid & PNG_INFO_oFFs) != 0) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "duplicate");
 		return;
@@ -1904,7 +1863,7 @@ void /* PRIVATE */ png_handle_pCAL(png_structrp png_ptr, png_inforp info_ptr, ui
 		png_chunk_benign_error(png_ptr, "out of place");
 		return;
 	}
-	else if(info_ptr != NULL && (info_ptr->valid & PNG_INFO_pCAL) != 0) {
+	else if(info_ptr && (info_ptr->valid & PNG_INFO_pCAL) != 0) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "duplicate");
 		return;
@@ -2018,7 +1977,7 @@ void /* PRIVATE */ png_handle_sCAL(png_structrp png_ptr, png_inforp info_ptr, ui
 		png_chunk_benign_error(png_ptr, "out of place");
 		return;
 	}
-	else if(info_ptr != NULL && (info_ptr->valid & PNG_INFO_sCAL) != 0) {
+	else if(info_ptr && (info_ptr->valid & PNG_INFO_sCAL) != 0) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "duplicate");
 		return;
@@ -2095,7 +2054,7 @@ void /* PRIVATE */ png_handle_tIME(png_structrp png_ptr, png_inforp info_ptr, ui
 	png_debug(1, "in png_handle_tIME");
 	if((png_ptr->mode & PNG_HAVE_IHDR) == 0)
 		png_chunk_error(png_ptr, "missing IHDR");
-	else if(info_ptr != NULL && (info_ptr->valid & PNG_INFO_tIME) != 0) {
+	else if(info_ptr && (info_ptr->valid & PNG_INFO_tIME) != 0) {
 		png_crc_finish(png_ptr, length);
 		png_chunk_benign_error(png_ptr, "duplicate");
 		return;
@@ -3902,19 +3861,15 @@ void /* PRIVATE */ png_read_start_row(png_structrp png_ptr)
 		png_ptr->transformations &= ~PNG_EXPAND_16;
 	}
 #endif
-
 #ifdef PNG_READ_FILLER_SUPPORTED
 	if((png_ptr->transformations & (PNG_FILLER)) != 0) {
 		if(png_ptr->color_type == PNG_COLOR_TYPE_GRAY) {
 			if(max_pixel_depth <= 8)
 				max_pixel_depth = 16;
-
 			else
 				max_pixel_depth = 32;
 		}
-
-		else if(png_ptr->color_type == PNG_COLOR_TYPE_RGB ||
-		    png_ptr->color_type == PNG_COLOR_TYPE_PALETTE) {
+		else if(png_ptr->color_type == PNG_COLOR_TYPE_RGB || png_ptr->color_type == PNG_COLOR_TYPE_PALETTE) {
 			if(max_pixel_depth <= 32)
 				max_pixel_depth = 32;
 
@@ -3928,8 +3883,7 @@ void /* PRIVATE */ png_read_start_row(png_structrp png_ptr)
 	if((png_ptr->transformations & PNG_GRAY_TO_RGB) != 0) {
 		if(
 #ifdef PNG_READ_EXPAND_SUPPORTED
-		    (png_ptr->num_trans != 0 &&
-			    (png_ptr->transformations & PNG_EXPAND) != 0) ||
+		    (png_ptr->num_trans != 0 && (png_ptr->transformations & PNG_EXPAND) != 0) ||
 #endif
 #ifdef PNG_READ_FILLER_SUPPORTED
 		    (png_ptr->transformations & (PNG_FILLER)) != 0 ||
@@ -3937,56 +3891,38 @@ void /* PRIVATE */ png_read_start_row(png_structrp png_ptr)
 		    png_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
 			if(max_pixel_depth <= 16)
 				max_pixel_depth = 32;
-
 			else
 				max_pixel_depth = 64;
 		}
-
 		else {
 			if(max_pixel_depth <= 8) {
 				if(png_ptr->color_type == PNG_COLOR_TYPE_RGB_ALPHA)
 					max_pixel_depth = 32;
-
 				else
 					max_pixel_depth = 24;
 			}
-
 			else if(png_ptr->color_type == PNG_COLOR_TYPE_RGB_ALPHA)
 				max_pixel_depth = 64;
-
 			else
 				max_pixel_depth = 48;
 		}
 	}
 #endif
 
-#if defined(PNG_READ_USER_TRANSFORM_SUPPORTED) && \
-	defined(PNG_USER_TRANSFORM_PTR_SUPPORTED)
+#if defined(PNG_READ_USER_TRANSFORM_SUPPORTED) && defined(PNG_USER_TRANSFORM_PTR_SUPPORTED)
 	if((png_ptr->transformations & PNG_USER_TRANSFORM) != 0) {
-		int user_pixel_depth = png_ptr->user_transform_depth *
-		    png_ptr->user_transform_channels;
-
+		int user_pixel_depth = png_ptr->user_transform_depth * png_ptr->user_transform_channels;
 		if(user_pixel_depth > max_pixel_depth)
 			max_pixel_depth = user_pixel_depth;
 	}
 #endif
-
-	/* This value is stored in png_struct and double checked in the row read
-	 * code.
-	 */
+	// This value is stored in png_struct and double checked in the row read code.
 	png_ptr->maximum_pixel_depth = (uint8)max_pixel_depth;
 	png_ptr->transformed_pixel_depth = 0; /* calculated on demand */
-
-	/* Align the width on the next larger 8 pixels.  Mainly used
-	 * for interlacing
-	 */
+	// Align the width on the next larger 8 pixels.  Mainly used for interlacing
 	row_bytes = ((png_ptr->width + 7) & ~((uint32)7));
-	/* Calculate the maximum bytes needed, adding a byte and a pixel
-	 * for safety's sake
-	 */
-	row_bytes = PNG_ROWBYTES(max_pixel_depth, row_bytes) +
-	    1 + ((max_pixel_depth + 7) >> 3);
-
+	/* Calculate the maximum bytes needed, adding a byte and a pixel for safety's sake */
+	row_bytes = PNG_ROWBYTES(max_pixel_depth, row_bytes) + 1 + ((max_pixel_depth + 7) >> 3);
 #ifdef PNG_MAX_MALLOC_64K
 	if(row_bytes > (uint32)65536L)
 		png_error(png_ptr, "This image requires a row greater than 64KB");
@@ -4030,11 +3966,9 @@ void /* PRIVATE */ png_read_start_row(png_structrp png_ptr)
 #endif
 		png_ptr->old_big_row_buf_size = row_bytes + 48;
 	}
-
 #ifdef PNG_MAX_MALLOC_64K
 	if(png_ptr->rowbytes > 65535)
 		png_error(png_ptr, "This image requires a row greater than 64KB");
-
 #endif
 	if(png_ptr->rowbytes > (PNG_SIZE_MAX - 1))
 		png_error(png_ptr, "Row has too many bytes to allocate in memory");
@@ -4055,7 +3989,6 @@ void /* PRIVATE */ png_read_start_row(png_structrp png_ptr)
 		png_ptr->read_buffer = NULL;
 		png_free(png_ptr, buffer);
 	}
-
 	/* Finally claim the zstream for the inflate of the IDAT data, use the bits
 	 * value from the stream (note that this will result in a fatal error if the
 	 * IDAT stream has a bogus deflate header window_bits value, but this should
@@ -4063,7 +3996,6 @@ void /* PRIVATE */ png_read_start_row(png_structrp png_ptr)
 	 */
 	if(png_inflate_claim(png_ptr, png_IDAT) != Z_OK)
 		png_error(png_ptr, png_ptr->zstream.msg);
-
 	png_ptr->flags |= PNG_FLAG_ROW_INIT;
 }
 

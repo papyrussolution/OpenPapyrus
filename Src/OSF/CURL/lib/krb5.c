@@ -80,7 +80,7 @@ static int krb5_decode(void * app_data, void * buf, int len,
 
 	enc.value = buf;
 	enc.length = len;
-	maj = gss_unseal(&min, *context, &enc, &dec, NULL, NULL);
+	maj = gss_unseal(&min, *context, &enc, &dec, 0, 0);
 	if(maj != GSS_S_COMPLETE) {
 		if(len >= 4)
 			strcpy(buf, "599 ");

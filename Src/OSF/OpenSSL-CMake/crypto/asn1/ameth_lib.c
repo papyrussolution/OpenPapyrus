@@ -187,7 +187,7 @@ int EVP_PKEY_asn1_add0(const EVP_PKEY_ASN1_METHOD * ameth)
 int EVP_PKEY_asn1_add_alias(int to, int from)
 {
 	EVP_PKEY_ASN1_METHOD * ameth;
-	ameth = EVP_PKEY_asn1_new(from, ASN1_PKEY_ALIAS, NULL, NULL);
+	ameth = EVP_PKEY_asn1_new(from, ASN1_PKEY_ALIAS, 0, 0);
 	if(ameth == NULL)
 		return 0;
 	ameth->pkey_base_id = to;

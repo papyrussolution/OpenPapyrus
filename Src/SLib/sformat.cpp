@@ -530,8 +530,13 @@ static char * SLAPI fmtnumber(const char * ptr, int dec, int sign, long fmt, cha
 			*b++ = (flags & NMBF_DECCOMMA) ? ',' : '.';
 			b = stpcpy(b, ptr);
 			if(flags & NMBF_NOTRAILZ) {
-				while(*(b-1) == '0')
-					*--b = 0;
+				while(*(b-1) == '0') {
+					if(flags & NMBF_EXPLFLOAT && *(b-2) == '.') { // @v9.7.8
+						break;
+					}
+					else 
+						*--b = 0;
+				}
 				if(*(b-1) == '.')
 					*--b = 0;
 			}

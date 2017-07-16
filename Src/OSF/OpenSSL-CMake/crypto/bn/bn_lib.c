@@ -232,7 +232,7 @@ BIGNUM * BN_new(void)
 
 	if((ret = (BIGNUM*)OPENSSL_zalloc(sizeof(*ret))) == NULL) {
 		BNerr(BN_F_BN_NEW, ERR_R_MALLOC_FAILURE);
-		return (NULL);
+		return NULL;
 	}
 	ret->flags = BN_FLG_MALLOCED;
 	bn_check_top(ret);
@@ -263,7 +263,7 @@ static BN_ULONG * bn_expand_internal(const BIGNUM * b, int words)
 	}
 	if(BN_get_flags(b, BN_FLG_STATIC_DATA)) {
 		BNerr(BN_F_BN_EXPAND_INTERNAL, BN_R_EXPAND_ON_STATIC_BIGNUM_DATA);
-		return (NULL);
+		return NULL;
 	}
 	if(BN_get_flags(b, BN_FLG_SECURE))
 		a = A = (uint*)OPENSSL_secure_zalloc(words * sizeof(*a));
@@ -271,7 +271,7 @@ static BN_ULONG * bn_expand_internal(const BIGNUM * b, int words)
 		a = A = (uint*)OPENSSL_zalloc(words * sizeof(*a));
 	if(A == NULL) {
 		BNerr(BN_F_BN_EXPAND_INTERNAL, ERR_R_MALLOC_FAILURE);
-		return (NULL);
+		return NULL;
 	}
 
 #if 1
@@ -373,7 +373,7 @@ BIGNUM * FASTCALL BN_copy(BIGNUM * a, const BIGNUM * b)
 	if(a == b)
 		return (a);
 	if(bn_wexpand(a, b->top) == NULL)
-		return (NULL);
+		return NULL;
 #if 1
 	A = a->d;
 	B = b->d;
@@ -482,7 +482,7 @@ BIGNUM * BN_bin2bn(const uchar * s, int len, BIGNUM * ret)
 	if(!ret)
 		ret = bn = BN_new();
 	if(!ret)
-		return (NULL);
+		return NULL;
 	bn_check_top(ret);
 	/* Skip leading zero's. */
 	for(; len > 0 && *s == 0; s++, len--)
@@ -561,7 +561,7 @@ BIGNUM * BN_lebin2bn(const uchar * s, int len, BIGNUM * ret)
 	if(!ret)
 		ret = bn = BN_new();
 	if(!ret)
-		return (NULL);
+		return NULL;
 	bn_check_top(ret);
 	s += len;
 	/* Skip trailing zeroes. */
@@ -961,7 +961,7 @@ BN_GENCB * BN_GENCB_new(void)
 
 	if((ret = (BN_GENCB*)OPENSSL_malloc(sizeof(*ret))) == NULL) {
 		BNerr(BN_F_BN_GENCB_NEW, ERR_R_MALLOC_FAILURE);
-		return (NULL);
+		return NULL;
 	}
 
 	return ret;

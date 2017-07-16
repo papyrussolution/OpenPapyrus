@@ -113,7 +113,7 @@ OPENSSL_STACK * OPENSSL_sk_new(OPENSSL_sk_compfunc c)
 
 err:
 	OPENSSL_free(ret);
-	return (NULL);
+	return NULL;
 }
 
 int OPENSSL_sk_insert(OPENSSL_STACK * st, const void * data, int loc)
@@ -226,18 +226,18 @@ int OPENSSL_sk_unshift(OPENSSL_STACK * st, const void * data)
 void * OPENSSL_sk_shift(OPENSSL_STACK * st)
 {
 	if(st == NULL)
-		return (NULL);
+		return NULL;
 	if(st->num <= 0)
-		return (NULL);
+		return NULL;
 	return (OPENSSL_sk_delete(st, 0));
 }
 
 void * OPENSSL_sk_pop(OPENSSL_STACK * st)
 {
 	if(st == NULL)
-		return (NULL);
+		return NULL;
 	if(st->num <= 0)
-		return (NULL);
+		return NULL;
 	return (OPENSSL_sk_delete(st, st->num - 1));
 }
 

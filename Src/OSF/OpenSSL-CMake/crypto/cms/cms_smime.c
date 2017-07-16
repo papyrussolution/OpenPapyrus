@@ -238,7 +238,7 @@ static int cms_signerinfo_verify_cert(CMS_SignerInfo * si,
 		CMSerr(CMS_F_CMS_SIGNERINFO_VERIFY_CERT, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-	CMS_SignerInfo_get0_algs(si, NULL, &signer, NULL, NULL);
+	CMS_SignerInfo_get0_algs(si, NULL, &signer, 0, 0);
 	if(!X509_STORE_CTX_init(ctx, store, signer, certs)) {
 		CMSerr(CMS_F_CMS_SIGNERINFO_VERIFY_CERT, CMS_R_STORE_INIT_ERROR);
 		goto err;
@@ -292,7 +292,7 @@ int CMS_verify(CMS_ContentInfo * cms, STACK_OF(X509) * certs,
 
 	for(i = 0; i < sk_CMS_SignerInfo_num(sinfos); i++) {
 		si = sk_CMS_SignerInfo_value(sinfos, i);
-		CMS_SignerInfo_get0_algs(si, NULL, &signer, NULL, NULL);
+		CMS_SignerInfo_get0_algs(si, NULL, &signer, 0, 0);
 		if(signer)
 			scount++;
 	}

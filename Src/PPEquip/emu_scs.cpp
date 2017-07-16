@@ -156,7 +156,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 			ok = 1;
 		}
 		else {
-			PrinterDC = CreateDC(_T("WINSPOOL\0"), PrinterPort, NULL, NULL); // @unicodeproblem
+			PrinterDC = CreateDC(_T("WINSPOOL\0"), PrinterPort, 0, 0); // @unicodeproblem
 			if(PrinterDC) {
 				const char * p_font_face = "Courier";
 				DOCINFO di;
@@ -239,7 +239,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 	}
 
 	//if(PrinterPort.Len() && !PrinterDC)
-	//	PrinterDC = CreateDC("WINSPOOL\0", PrinterPort, NULL, NULL);
+	//	PrinterDC = CreateDC("WINSPOOL\0", PrinterPort, 0, 0);
 	//if(PrinterDC) {
 	//	const char * p_font_face = "Courier";
 	//	DOCINFO di;

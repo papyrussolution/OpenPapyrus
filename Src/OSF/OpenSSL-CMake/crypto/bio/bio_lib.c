@@ -464,7 +464,7 @@ BIO * BIO_dup_chain(BIO * in)
 	return ret;
 err:
 	BIO_free_all(ret);
-	return (NULL);
+	return NULL;
 }
 
 void BIO_copy_next_retry(BIO * b)

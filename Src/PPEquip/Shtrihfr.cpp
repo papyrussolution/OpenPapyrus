@@ -754,7 +754,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 						THROW(SetFR(Price, fabs(_p)));
 						{
 							(temp_buf = sl_param.Text).Strip().Transf(CTRANSF_INNER_TO_OUTER).Trim(CheckStrLen);
-							THROW(SetFR(StringForPrinting, ""));
+							THROW(SetFR(StringForPrinting, temp_buf)); // @v9.7.8 @fix ""-->temp_buf
 						}
 						THROW(SetFR(Department, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 :  sl_param.DivID));
 						THROW(SetFR(Tax1, 0L));

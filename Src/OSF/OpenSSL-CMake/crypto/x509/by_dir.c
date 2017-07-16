@@ -342,7 +342,7 @@ static int get_cert_by_subject(X509_LOOKUP * xl, X509_LOOKUP_TYPE type, X509_NAM
 			}
 			CRYPTO_THREAD_unlock(ctx->lock);
 		}
-		if(tmp != NULL) {
+		if(tmp) {
 			ok = 1;
 			ret->type = tmp->type;
 			memcpy(&ret->data, &tmp->data, sizeof(ret->data));

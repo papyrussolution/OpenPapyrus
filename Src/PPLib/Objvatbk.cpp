@@ -2672,7 +2672,7 @@ void PPALDD_VatBook::Destroy()
 //
 //
 //
-int SLAPI WriteNalogRuPersonBlock(PPObjPerson & rPsnObj, PPID psnID, xmlTextWriterPtr pWriter)
+int SLAPI WriteNalogRuPersonBlock(PPObjPerson & rPsnObj, PPID psnID, xmlTextWriter * pWriter)
 {
 	int    ok = -1;
     if(pWriter && psnID) {
@@ -2761,7 +2761,7 @@ int SLAPI PPViewVatBook::Export()
 	SString path, data_name, head_name, suffix, left, temp_buf;
 	SString out_file_name;
 	SString id_file;
-	xmlTextWriterPtr writer = 0;
+	xmlTextWriter * p_writer = 0;
 	const LDATE _cdate = getcurdate_();
 	const long  _uniq_suffix = 1;
 	const char * p_ledger_title = 0;
@@ -2847,14 +2847,14 @@ int SLAPI PPViewVatBook::Export()
 		}
 		(out_file_name = 0).Cat(id_file).Dot().Cat("xml");
 		PPGetFilePath(PPPATH_OUT, out_file_name, path);
-		THROW(writer = xmlNewTextWriterFilename(path, 0));
+		THROW(p_writer = xmlNewTextWriterFilename(path, 0));
 		{
-			xmlTextWriterSetIndent(writer, 1);
-			xmlTextWriterSetIndentString(writer, (const xmlChar*)"\t");
-			xmlTextWriterStartDocument(writer, 0, "windows-1251", 0);
+			xmlTextWriterSetIndent(p_writer, 1);
+			xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+			xmlTextWriterStartDocument(p_writer, 0, "windows-1251", 0);
 			//
 			{
-				SXml::WNode n_file(writer, "Файл");
+				SXml::WNode n_file(p_writer, "Файл");
 				n_file.PutAttrib("ИдФайл", id_file);
 				{
 					PPVersionInfo vi = DS.GetVersionInfo();
@@ -2865,7 +2865,7 @@ int SLAPI PPViewVatBook::Export()
 				}
 				n_file.PutAttrib("ВерсФорм", "5.04");
 				{
-					SXml::WNode n_doc(writer, "Документ");
+					SXml::WNode n_doc(p_writer, "Документ");
 					if(Filt.Kind == PPVTB_BUY) {
 						n_doc.PutAttrib("Индекс", "0000080");
 					}
@@ -2874,7 +2874,7 @@ int SLAPI PPViewVatBook::Export()
 					}
 					n_doc.PutAttrib("НомКорр", "0");
 					{
-						SXml::WNode n_book(writer, p_ledger_title);
+						SXml::WNode n_book(p_writer, p_ledger_title);
 
 						double sum_vat0 = 0.0;
 						double sum_vatn[3] = { 0.0, 0.0, 0.0 };
@@ -2924,7 +2924,7 @@ int SLAPI PPViewVatBook::Export()
 							n_book.PutAttrib("СтПродОсвВсКПр", (temp_buf = 0).Cat(sum_vat0, SFMT_MONEY)); // Сумма продаж, освобожденных от НДС
 						}
 						for(InitIteration(); NextIteration(&item) > 0;) {
-							SXml::WNode n_item(writer, p_ledger_line_title);
+							SXml::WNode n_item(p_writer, p_ledger_line_title);
 							line_no++;
 
 							const double _vat0 = MONEYTOLDBL(item.VAT0);
@@ -2969,21 +2969,21 @@ int SLAPI PPViewVatBook::Export()
 								}
                             	{
                             		GetNalogRuOpIdent(item, temp_buf);
-									SXml::WNode n(writer, "КодВидОпер", temp_buf);
+									SXml::WNode n(p_writer, "КодВидОпер", temp_buf);
                             	}
                            		if(Filt.Kind == PPVTB_BUY) {
 									{
-										SXml::WNode n(writer, "ДатаУчТов", (temp_buf = 0).Cat(item.Dt, DATF_GERMAN|DATF_CENTURY));
+										SXml::WNode n(p_writer, "ДатаУчТов", (temp_buf = 0).Cat(item.Dt, DATF_GERMAN|DATF_CENTURY));
 									}
 									{
-										SXml::WNode n(writer, "СвПрод");
-										WriteNalogRuPersonBlock(PsnObj, ObjectToPerson(item.Object), writer);
+										SXml::WNode n(p_writer, "СвПрод");
+										WriteNalogRuPersonBlock(PsnObj, ObjectToPerson(item.Object), p_writer);
 									}
                             	}
                             	else if(Filt.Kind == PPVTB_SELL) {
 									if(item.Object) { // @v8.6.1
-										SXml::WNode n(writer, "СвПокуп");
-										WriteNalogRuPersonBlock(PsnObj, ObjectToPerson(item.Object), writer);
+										SXml::WNode n(p_writer, "СвПокуп");
+										WriteNalogRuPersonBlock(PsnObj, ObjectToPerson(item.Object), p_writer);
 									}
                             	}
                             }
@@ -2991,10 +2991,10 @@ int SLAPI PPViewVatBook::Export()
 					}
 				}
 			}
-			xmlTextWriterEndDocument(writer);
+			xmlTextWriterEndDocument(p_writer);
 		}
 	}
 	CATCHZOKPPERR
-	xmlFreeTextWriter(writer);
+	xmlFreeTextWriter(p_writer);
 	return ok;
 }

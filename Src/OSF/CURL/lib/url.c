@@ -1236,11 +1236,11 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option,
 
 				    if(checkprefix("Set-Cookie:", argptr))
 					    /* HTTP Header format line */
-					    Curl_cookie_add(data, data->cookies, TRUE, argptr + 11, NULL, NULL);
+					    Curl_cookie_add(data, data->cookies, TRUE, argptr + 11, 0, 0);
 
 				    else
 					    /* Netscape format line */
-					    Curl_cookie_add(data, data->cookies, FALSE, argptr, NULL, NULL);
+					    Curl_cookie_add(data, data->cookies, FALSE, argptr, 0, 0);
 
 				    Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
 				    SAlloc::F(argptr);

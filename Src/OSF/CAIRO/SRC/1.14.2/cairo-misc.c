@@ -315,7 +315,7 @@ cairo_status_t _cairo_validate_text_clusters(const char                  * utf8,
 			goto BAD;
 
 		/* Make sure we've got valid UTF-8 for the cluster */
-		status = _cairo_utf8_to_ucs4(utf8+n_bytes, cluster_bytes, NULL, NULL);
+		status = _cairo_utf8_to_ucs4(utf8+n_bytes, cluster_bytes, 0, 0);
 		if(unlikely(status))
 			return _cairo_error(CAIRO_STATUS_INVALID_CLUSTERS);
 

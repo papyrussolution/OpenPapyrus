@@ -569,7 +569,7 @@ static int hwcrhk_init(ENGINE *e)
     if (hndidx_rsa == -1)
         hndidx_rsa = RSA_get_ex_new_index(0,
                                           "nFast HWCryptoHook RSA key handle",
-                                          NULL, NULL, NULL);
+                                          NULL, 0, 0);
 #  endif
     return 1;
  err:

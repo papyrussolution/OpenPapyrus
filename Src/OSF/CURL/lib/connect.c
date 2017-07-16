@@ -990,7 +990,7 @@ static CURLcode singleipconnect(struct connectdata * conn,
 
 			rc = connectx(sockfd, &endpoints, SAE_ASSOCID_ANY,
 			    CONNECT_RESUME_ON_READ_WRITE | CONNECT_DATA_IDEMPOTENT,
-			    NULL, 0, NULL, NULL);
+			    NULL, 0, 0, 0);
 #elif defined(MSG_FASTOPEN) /* Linux */
 			if(conn->given->flags & PROTOPT_SSL)
 				rc = connect(sockfd, &addr.sa_addr, addr.addrlen);

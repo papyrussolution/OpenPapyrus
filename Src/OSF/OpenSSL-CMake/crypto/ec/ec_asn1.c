@@ -536,7 +536,7 @@ ECPARAMETERS * EC_GROUP_get_ecparameters(const EC_GROUP * group,
 
 	/* set the cofactor (optional) */
 	tmp = EC_GROUP_get0_cofactor(group);
-	if(tmp != NULL) {
+	if(tmp) {
 		ret->cofactor = BN_to_ASN1_INTEGER(tmp, ret->cofactor);
 		if(ret->cofactor == NULL) {
 			ECerr(EC_F_EC_GROUP_GET_ECPARAMETERS, ERR_R_ASN1_LIB);

@@ -339,7 +339,7 @@ static long ssl_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    /* Only detach if we are the BIO explicitly being popped */
 		    if(b == ptr) {
 			    /* This will clear the reference we obtained during push */
-			    SSL_set_bio(ssl, NULL, NULL);
+			    SSL_set_bio(ssl, 0, 0);
 		    }
 		    break;
 		case BIO_C_DO_STATE_MACHINE:
@@ -448,7 +448,7 @@ BIO * BIO_new_buffer_ssl_connect(SSL_CTX * ctx)
 	BIO * ret = NULL, * buf = NULL, * ssl = NULL;
 
 	if((buf = BIO_new(BIO_f_buffer())) == NULL)
-		return (NULL);
+		return NULL;
 	if((ssl = BIO_new_ssl_connect(ctx)) == NULL)
 		goto err;
 	if((ret = BIO_push(buf, ssl)) == NULL)
@@ -458,7 +458,7 @@ err:
 	BIO_free(buf);
 	BIO_free(ssl);
 #endif
-	return (NULL);
+	return NULL;
 }
 
 BIO * BIO_new_ssl_connect(SSL_CTX * ctx)
@@ -467,7 +467,7 @@ BIO * BIO_new_ssl_connect(SSL_CTX * ctx)
 	BIO * ret = NULL, * con = NULL, * ssl = NULL;
 
 	if((con = BIO_new(BIO_s_connect())) == NULL)
-		return (NULL);
+		return NULL;
 	if((ssl = BIO_new_ssl(ctx, 1)) == NULL)
 		goto err;
 	if((ret = BIO_push(ssl, con)) == NULL)
@@ -476,7 +476,7 @@ BIO * BIO_new_ssl_connect(SSL_CTX * ctx)
 err:
 	BIO_free(con);
 #endif
-	return (NULL);
+	return NULL;
 }
 
 BIO * BIO_new_ssl(SSL_CTX * ctx, int client)
@@ -485,10 +485,10 @@ BIO * BIO_new_ssl(SSL_CTX * ctx, int client)
 	SSL * ssl;
 
 	if((ret = BIO_new(BIO_f_ssl())) == NULL)
-		return (NULL);
+		return NULL;
 	if((ssl = SSL_new(ctx)) == NULL) {
 		BIO_free(ret);
-		return (NULL);
+		return NULL;
 	}
 	if(client)
 		SSL_set_connect_state(ssl);

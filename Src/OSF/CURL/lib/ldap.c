@@ -367,7 +367,7 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 			goto quit;
 		}
 /*
-    rc = ldap_start_tls_s(server, NULL, NULL);
+    rc = ldap_start_tls_s(server, 0, 0);
     if(rc != LDAP_SUCCESS) {
       failf(data, "LDAP local: ERROR starting SSL/TLS mode: %s",
               ldap_err2string(rc));

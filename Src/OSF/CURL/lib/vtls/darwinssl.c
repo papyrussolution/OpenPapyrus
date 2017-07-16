@@ -987,7 +987,7 @@ static OSStatus CopyIdentityFromPKCS12File(const char * cPath,
 		const void * cKeys[] = {kSecImportExportPassphrase};
 		const void * cValues[] = {password};
 		CFDictionaryRef options = CFDictionaryCreate(NULL, cKeys, cValues,
-		    password ? 1L : 0L, NULL, NULL);
+		    password ? 1L : 0L, 0, 0);
 		CFArrayRef items = NULL;
 
 		/* Here we go: */

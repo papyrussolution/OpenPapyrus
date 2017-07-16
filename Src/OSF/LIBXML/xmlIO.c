@@ -816,7 +816,7 @@ static void * xmlFileOpen_real(const char * filename)
 		return 0;
 	if(sstreq(filename, "-")) {
 		fd = stdin;
-		return((void*)fd);
+		return (void*)fd;
 	}
 	if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file://localhost/", 17)) {
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
@@ -849,7 +849,7 @@ static void * xmlFileOpen_real(const char * filename)
 #endif /* WIN32 */
 	if(fd == NULL)
 		xmlIOErr(0, path);
-	return((void*)fd);
+	return (void*)fd;
 }
 
 /**
@@ -890,7 +890,7 @@ static void * xmlFileOpenW(const char * filename)
 	FILE * fd;
 	if(sstreq(filename, "-")) {
 		fd = stdout;
-		return((void*)fd);
+		return (void*)fd;
 	}
 	if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file://localhost/", 17))
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
@@ -916,7 +916,7 @@ static void * xmlFileOpenW(const char * filename)
 #endif /* WIN32 */
 	if(fd == NULL)
 		xmlIOErr(0, path);
-	return((void*)fd);
+	return (void*)fd;
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
@@ -1075,7 +1075,7 @@ static void * xmlGzfileOpen_real(const char * filename)
 			close(duped_fd); /* gzdOpen() does not close on failure */
 		}
 
-		return((void*)fd);
+		return (void*)fd;
 	}
 
 	if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file://localhost/", 17))
@@ -1093,18 +1093,16 @@ static void * xmlGzfileOpen_real(const char * filename)
 	}
 	else
 		path = filename;
-
 	if(path == NULL)
 		return 0;
 	if(!xmlCheckFilename(path))
 		return 0;
-
 #if defined(_WIN32) || defined (__DJGPP__) && !defined (__CYGWIN__)
 	fd = xmlWrapGzOpen(path, "rb");
 #else
 	fd = gzopen(path, "rb");
 #endif
-	return((void*)fd);
+	return (void*)fd;
 }
 
 /**
@@ -1150,7 +1148,7 @@ static void * xmlGzfileOpenW(const char * filename, int compression)
 		if(fd == Z_NULL && duped_fd >= 0) {
 			close(duped_fd); /* gzdOpen() does not close on failure */
 		}
-		return((void*)fd);
+		return (void*)fd;
 	}
 	if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file://localhost/", 17))
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
@@ -1174,7 +1172,7 @@ static void * xmlGzfileOpenW(const char * filename, int compression)
 #else
 	fd = gzopen(path, mode);
 #endif
-	return((void*)fd);
+	return (void*)fd;
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
@@ -1268,7 +1266,7 @@ static void * xmlXzfileOpen_real(const char * filename)
 	xzFile fd;
 	if(sstreq(filename, "-")) {
 		fd = __libxml2_xzdopen(dup(fileno(stdin)), "rb");
-		return((void*)fd);
+		return (void*)fd;
 	}
 	if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file://localhost/", 17)) {
 		path = &filename[16];
@@ -1560,10 +1558,7 @@ static int xmlZMemBuffAppend(xmlZMemBuffPtr buff, const char * src, int len)
 		z_err = deflate(&buff->zctrl, Z_NO_FLUSH);
 		if(z_err != Z_OK) {
 			xmlChar msg[500];
-			xmlStrPrintf(msg, 500,
-			    (const xmlChar*)"xmlZMemBuffAppend:  %s %d %s - %d",
-			    "Compression error while appending",
-			    len, "bytes to buffer.  ZLIB error", z_err);
+			xmlStrPrintf(msg, 500, (const xmlChar*)"xmlZMemBuffAppend:  %s %d %s - %d", "Compression error while appending", len, "bytes to buffer.  ZLIB error", z_err);
 			xmlIOErr(XML_IO_WRITE, (const char*)msg);
 			return ( -1 );
 		}
@@ -3359,9 +3354,7 @@ done:
 #endif
 	return(written);
 }
-
 /**
- * xmlOutputBufferWriteString:
  * @out:  a buffered parser output
  * @str:  a zero terminated C string
  *
@@ -3383,7 +3376,6 @@ int FASTCALL xmlOutputBufferWriteString(xmlOutputBufferPtr out, const char * str
 	}
 	return len;
 }
-
 /**
  * xmlOutputBufferFlush:
  * @out:  a buffered output
@@ -3629,7 +3621,7 @@ static xmlChar * xmlResolveResourceFromCatalog(const char * URL, const char * ID
 			if((tmp == NULL) && ((pref == XML_CATA_ALLOW_ALL) || (pref == XML_CATA_ALLOW_GLOBAL))) {
 				tmp = xmlCatalogResolveURI(resource);
 			}
-			if(tmp != NULL) {
+			if(tmp) {
 				SAlloc::F(resource);
 				resource = tmp;
 			}

@@ -1749,7 +1749,7 @@ static bool SingleSpace(Lexer* lexer, Node* node)
 	if(node->content) {
 		node = node->content;
 
-		if(node->next != NULL)
+		if(node->next)
 			return false;
 
 		if(node->type != TextNode)

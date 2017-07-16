@@ -266,7 +266,7 @@ struct __mpool { /* SHARED */
 	if(__t_mp->max_nreg == 1) {                             \
 		*(infopp) = &__t_dbmp->reginfo[0];                  \
 	} else                                                  \
-		ret = __memp_get_bucket((dbmfp)->env, (dbmfp)->mfp, (pgno), (infopp), NULL, NULL); \
+		ret = __memp_get_bucket((dbmfp)->env, (dbmfp)->mfp, (pgno), (infopp), 0, 0); \
 } while (0)
 
 /*

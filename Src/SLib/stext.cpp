@@ -1866,32 +1866,33 @@ uchar * FASTCALL sstrdup(const uchar * pStr)
 
 int FASTCALL sstreq(const char * pS1, const char * pS2)
 {
-	if(pS1 != pS2) {
-		if(pS1) {
-            if(pS2 && pS1[0] == pS2[0])
-				return BIN(pS1[0] == 0 || strcmp(pS1, pS2) == 0);
-            else
-				return 0;
-		}
+	if(pS1 != pS2)
+		if(pS1)
+            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || strcmp(pS1, pS2) == 0) : 0;
 		else
 			return 0;
-	}
 	else
 		return 1;
 }
 
 int FASTCALL sstreq(const uchar * pS1, const uchar * pS2)
 {
-	if(pS1 != pS2) {
-		if(pS1) {
-            if(pS2 && pS1[0] == pS2[0])
-				return BIN(pS1[0] == 0 || strcmp((const char *)pS1, (const char *)pS2) == 0);
-            else
-				return 0;
-		}
+	if(pS1 != pS2)
+		if(pS1)
+            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || strcmp((const char *)pS1, (const char *)pS2) == 0) : 0;
 		else
 			return 0;
-	}
+	else
+		return 1;
+}
+
+int FASTCALL sstreq(const uchar * pS1, const char * pS2)
+{
+	if(pS1 != (const uchar *)pS2)
+		if(pS1)
+            return (pS2 && pS1[0] == pS2[0]) ? BIN(pS1[0] == 0 || strcmp((const char *)pS1, (const char *)pS2) == 0) : 0;
+		else
+			return 0;
 	else
 		return 1;
 }

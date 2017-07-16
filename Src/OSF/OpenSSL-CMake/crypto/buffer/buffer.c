@@ -29,7 +29,7 @@ BUF_MEM * BUF_MEM_new(void)
 	ret = (BUF_MEM*)OPENSSL_zalloc(sizeof(*ret));
 	if(!ret) {
 		BUFerr(BUF_F_BUF_MEM_NEW, ERR_R_MALLOC_FAILURE);
-		return (NULL);
+		return NULL;
 	}
 	return ret;
 }

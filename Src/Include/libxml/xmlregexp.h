@@ -111,8 +111,8 @@ XMLPUBVAR xmlExpNodePtr emptyExp;
 /*
  * Expressions are reference counted internally
  */
-XMLPUBFUN void XMLCALL xmlExpFree	(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr);
-XMLPUBFUN void XMLCALL xmlExpRef	(xmlExpNodePtr expr);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlExpFree(xmlExpCtxt * pCtxt, xmlExpNode * pExpr);
+XMLPUBFUN void XMLCALL xmlExpRef(xmlExpNodePtr expr);
 
 /*
  * constructors can be either manual or from a string

@@ -6630,6 +6630,7 @@ filter SupplInterchange        { "@{filter_supplinterchange}" } // @v9.2.1
 view   OprKind                 { "@{view_oprkind}" } // @v9.3.6
 filter GCT                     { "@{filter_gct}"   } // @v9.3.6
 filter PrcssrOsmParam          { "@{filter_prcssrosm}" } // @v9.5.9
+filter BillAutoCreateParam     { "@{filter_billautocreateparam}" } // @v9.7.8
 //
 // lastviewfilter ATTENTION: New view && filt befor this line!
 //

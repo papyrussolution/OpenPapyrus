@@ -264,7 +264,7 @@ int __logc_get(DB_LOGC * logc, DB_LSN * alsn, DBT * dbt, uint32 flags)
 		}
 	}
 err:
-	__dbt_userfree(env, dbt, NULL, NULL);
+	__dbt_userfree(env, dbt, 0, 0);
 	return ret;
 }
 /*

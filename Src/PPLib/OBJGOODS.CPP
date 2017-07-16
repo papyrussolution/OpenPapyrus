@@ -4414,8 +4414,8 @@ int UhttIndexPersons(uint setSz, PPID personKindID, SString & rOutPath)
 
 	THROW(!rOutPath.Empty());
 	(path = 0).Cat(rOutPath).SetLastSlash().Cat(PERSON_INDEX_FILE_NAME);
-	xmlTextWriterPtr writer = xmlNewTextWriterFilename(path, 0);
-	if(writer) {
+	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
+	if(p_writer) {
 		PPObjPerson psn_obj;
 		PPIDArray addr_list, local_addr_list;
 		PersonFilt filt;
@@ -4428,35 +4428,35 @@ int UhttIndexPersons(uint setSz, PPID personKindID, SString & rOutPath)
 		}
 		addr_list.sortAndUndup();
 		addr_list.shuffle(); // @v8.4.0
-		xmlTextWriterSetIndent(writer, 1);
-		xmlTextWriterSetIndentString(writer, (const xmlChar*)"\t");
-		xmlTextWriterStartDocument(writer, 0, "utf-8", 0);
-		xmlTextWriterStartElement(writer, (name_buf = 0).Cat("PersonAddrIndex").ucptr());
+		xmlTextWriterSetIndent(p_writer, 1);
+		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
+		xmlTextWriterStartElement(p_writer, (name_buf = 0).Cat("PersonAddrIndex").ucptr());
 		uint c = addr_list.getCount();
 		if(c) {
 			do {
 				const PPID addr_id = addr_list.get(--c);
 				closed = 0;
 				if(addr_n == 0) {
-					xmlTextWriterStartElement(writer, (name_buf = 0).Cat("Set").ucptr());
-					xmlTextWriterWriteAttribute(writer, (name_buf = 0).Cat("n").ucptr(), (context_buf = 0).Cat(set_n).ucptr());
+					xmlTextWriterStartElement(p_writer, (name_buf = 0).Cat("Set").ucptr());
+					xmlTextWriterWriteAttribute(p_writer, (name_buf = 0).Cat("n").ucptr(), (context_buf = 0).Cat(set_n).ucptr());
 				}
-				xmlTextWriterWriteElement(writer, (name_buf = 0).Cat("Id").ucptr(), (context_buf = 0).Cat(addr_id).ucptr());
+				xmlTextWriterWriteElement(p_writer, (name_buf = 0).Cat("Id").ucptr(), (context_buf = 0).Cat(addr_id).ucptr());
 				addr_n++;
 				if(addr_n >= setSz) {
-					xmlTextWriterEndElement(writer);
+					xmlTextWriterEndElement(p_writer);
 					addr_n = 0;
 					set_n++;
 					closed = 1;
 				}
 			} while(c);
 			if(!closed)
-				xmlTextWriterEndElement(writer);
+				xmlTextWriterEndElement(p_writer);
 		}
-		xmlTextWriterEndElement(writer);
+		xmlTextWriterEndElement(p_writer);
 	}
 	CATCHZOK
-	xmlFreeTextWriter(writer);
+	xmlFreeTextWriter(p_writer);
 	return ok;
 }
 
@@ -4472,43 +4472,43 @@ int UhttIndexGoods(uint setSz, SString & rOutPath)
 	GoodsIterator  goods_iter;
 	THROW(!rOutPath.Empty());
 	(path = 0).Cat(rOutPath).SetLastSlash().Cat(GOODS_INDEX_FILE_NAME);
-	xmlTextWriterPtr writer = xmlNewTextWriterFilename(path, 0);
-	if(writer) {
+	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
+	if(p_writer) {
 		THROW(goods_iter.Init(0));
 		while(goods_iter.Next(&goods_rec) > 0) {
 			id_list.add(goods_rec.ID);
 		}
 		// @v8.4.0 id_list.sort();
 		id_list.shuffle(); // @v8.4.0
-		xmlTextWriterSetIndent(writer, 1);
-		xmlTextWriterSetIndentString(writer, (const xmlChar*)"\t");
-		xmlTextWriterStartDocument(writer, 0, "utf-8", 0);
-		xmlTextWriterStartElement(writer, (name_buf = 0).Cat("GoodsIndex").ucptr());
+		xmlTextWriterSetIndent(p_writer, 1);
+		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
+		xmlTextWriterStartElement(p_writer, (name_buf = 0).Cat("GoodsIndex").ucptr());
 		uint c = id_list.getCount();
 		if(c) {
 			do {
 				const PPID id = id_list.get(--c);
 				closed = 0;
 				if(goods_n == 0) {
-					xmlTextWriterStartElement(writer, (name_buf = 0).Cat("Set").ucptr());
-					xmlTextWriterWriteAttribute(writer, (name_buf = 0).Cat("n").ucptr(), (context_buf = 0).Cat(set_n).ucptr());
+					xmlTextWriterStartElement(p_writer, (name_buf = 0).Cat("Set").ucptr());
+					xmlTextWriterWriteAttribute(p_writer, (name_buf = 0).Cat("n").ucptr(), (context_buf = 0).Cat(set_n).ucptr());
 				}
-				xmlTextWriterWriteElement(writer, (name_buf = 0).Cat("Id").ucptr(), (context_buf = 0).Cat(id).ucptr());
+				xmlTextWriterWriteElement(p_writer, (name_buf = 0).Cat("Id").ucptr(), (context_buf = 0).Cat(id).ucptr());
 				goods_n++;
 				if(goods_n >= setSz) {
-					xmlTextWriterEndElement(writer);
+					xmlTextWriterEndElement(p_writer);
 					goods_n = 0;
 					set_n++;
 					closed = 1;
 				}
 			} while(c);
 			if(!closed)
-				xmlTextWriterEndElement(writer);
+				xmlTextWriterEndElement(p_writer);
 		}
-		xmlTextWriterEndElement(writer);
+		xmlTextWriterEndElement(p_writer);
 	}
 	CATCHZOK
-	xmlFreeTextWriter(writer);
+	xmlFreeTextWriter(p_writer);
 	return ok;
 }
 
@@ -4526,8 +4526,8 @@ int UhttIndexRandomGoods(uint setSz, SString & rOutPath)
 	SString    path;
 	THROW(!rOutPath.Empty());
 	(path = 0).Cat(rOutPath).SetLastSlash().Cat(GOODS_RAND_SET_FILE_NAME);
-	xmlTextWriterPtr writer = xmlNewTextWriterFilename(path, 0);
-	if(writer) {
+	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
+	if(p_writer) {
 		THROW(goods_tbl.search(0, spLast));
 		last_id = goods_tbl.data.ID;
 		THROW(goods_iter.Init(0));
@@ -4543,19 +4543,19 @@ int UhttIndexRandomGoods(uint setSz, SString & rOutPath)
 				}
 			}
 			id_ary.sort();
-			xmlTextWriterSetIndent(writer, 1);
-			xmlTextWriterSetIndentString(writer, (const xmlChar*)"\t");
-			xmlTextWriterStartDocument(writer, 0, "utf-8", 0);
-			xmlTextWriterStartElement(writer, (name_buf = 0).Cat("RandomGoodsIndex").ucptr());
+			xmlTextWriterSetIndent(p_writer, 1);
+			xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+			xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
+			xmlTextWriterStartElement(p_writer, (name_buf = 0).Cat("RandomGoodsIndex").ucptr());
 			for(uint i = 0, n = id_ary.getCount(); i < n; i++) {
 				PPID id = id_ary.get(i);
-				xmlTextWriterWriteElement(writer, (name_buf = 0).Cat("Id").ucptr(), (context_buf = 0).Cat(id).ucptr());
+				xmlTextWriterWriteElement(p_writer, (name_buf = 0).Cat("Id").ucptr(), (context_buf = 0).Cat(id).ucptr());
 			}
-			xmlTextWriterEndElement(writer);
+			xmlTextWriterEndElement(p_writer);
 		}
 	}
 	CATCHZOK
-	xmlFreeTextWriter(writer);
+	xmlFreeTextWriter(p_writer);
 	return ok;
 }
 
@@ -4570,8 +4570,8 @@ int UhttIndexChangedGoods(SString & rOutPath)
 	SString       path;
 	THROW(!rOutPath.Empty());
 	(path = 0).Cat(rOutPath).SetLastSlash().Cat(GOODS_CHANGED_SET_FILE_NAME);
-	xmlTextWriterPtr writer = xmlNewTextWriterFilename(path, 0);
-	if(writer) {
+	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
+	if(p_writer) {
 		filt.P_SjF = new SysJournalFilt;
 		THROW_MEM(filt.P_SjF);
 		filt.P_SjF->ObjType = PPOBJ_GOODS;
@@ -4584,19 +4584,19 @@ int UhttIndexChangedGoods(SString & rOutPath)
 			id_ary.add(item.ID);
 		}
 		id_ary.sort();
-		xmlTextWriterSetIndent(writer, 1);
-		xmlTextWriterSetIndentString(writer, (const xmlChar*)"\t");
-		xmlTextWriterStartDocument(writer, 0, "utf-8", 0);
-		xmlTextWriterStartElement(writer, (name_buf = 0).Cat("ChangedGoodsIndex").ucptr());
+		xmlTextWriterSetIndent(p_writer, 1);
+		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
+		xmlTextWriterStartElement(p_writer, (name_buf = 0).Cat("ChangedGoodsIndex").ucptr());
 		for(uint i = 0, n = id_ary.getCount(); i < n; i++) {
 			PPID id = id_ary.get(i);
-			xmlTextWriterWriteElement(writer, (name_buf = 0).Cat("Id").ucptr(), (context_buf = 0).Cat(id).ucptr());
+			xmlTextWriterWriteElement(p_writer, (name_buf = 0).Cat("Id").ucptr(), (context_buf = 0).Cat(id).ucptr());
 		}
-		xmlTextWriterEndElement(writer);
+		xmlTextWriterEndElement(p_writer);
 	}
 	CATCHZOK
 	ZDELETE(filt.P_SjF);
-	xmlFreeTextWriter(writer);
+	xmlFreeTextWriter(p_writer);
 	return ok;
 }
 
@@ -4617,8 +4617,8 @@ int UhttIndexBrands(SString & rOutPath)
 	} k_;
 	THROW(!rOutPath.Empty());
 	(path = 0).Cat(rOutPath).SetLastSlash().Cat(BRANDS_INDEX_FILE_NAME);
-	xmlTextWriterPtr writer = xmlNewTextWriterFilename(path, 0);
-	if(writer) {
+	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
+	if(p_writer) {
 		Goods2Tbl * p_tbl = goods_obj.P_Tbl;
 		BExtQuery q(p_tbl, 2);
 		DBQ * dbq = &(p_tbl->Kind == PPGDSK_BRAND);
@@ -4641,32 +4641,32 @@ int UhttIndexBrands(SString & rOutPath)
 		id_list.shuffle(); // @v8.4.0
 		// @v8.4.0 id_image_list.sort();
 		id_image_list.shuffle(); // @v8.4.0
-		xmlTextWriterSetIndent(writer, 1);
-		xmlTextWriterSetIndentString(writer, (const xmlChar*)"\t");
-		xmlTextWriterStartDocument(writer, 0, "utf-8", 0);
-		xmlTextWriterStartElement(writer, (name_buf = 0).Cat("BrandIndexRoot").ucptr());
+		xmlTextWriterSetIndent(p_writer, 1);
+		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
+		xmlTextWriterStartElement(p_writer, (name_buf = 0).Cat("BrandIndexRoot").ucptr());
 		{
 			{
-				xmlTextWriterStartElement(writer, (name_buf = 0).Cat("BrandsIndex").ucptr());
+				xmlTextWriterStartElement(p_writer, (name_buf = 0).Cat("BrandsIndex").ucptr());
 				for(uint i = 0, n = id_list.getCount(); i < n; i++) {
 					PPID id = id_list.get(i);
-					xmlTextWriterWriteElement(writer, (name_buf = 0).Cat("Id").ucptr(), (context_buf = 0).Cat(id).ucptr());
+					xmlTextWriterWriteElement(p_writer, (name_buf = 0).Cat("Id").ucptr(), (context_buf = 0).Cat(id).ucptr());
 				}
-				xmlTextWriterEndElement(writer);
+				xmlTextWriterEndElement(p_writer);
 			}
 			if(id_image_list.getCount()) {
-				xmlTextWriterStartElement(writer, (name_buf = 0).Cat("BrandImageIndex").ucptr());
+				xmlTextWriterStartElement(p_writer, (name_buf = 0).Cat("BrandImageIndex").ucptr());
 				for(uint i = 0, n = id_image_list.getCount(); i < n; i++) {
 					PPID id = id_image_list.get(i);
-					xmlTextWriterWriteElement(writer, (name_buf = 0).Cat("Id").ucptr(), (context_buf = 0).Cat(id).ucptr());
+					xmlTextWriterWriteElement(p_writer, (name_buf = 0).Cat("Id").ucptr(), (context_buf = 0).Cat(id).ucptr());
 				}
-				xmlTextWriterEndElement(writer);
+				xmlTextWriterEndElement(p_writer);
 			}
 		}
-		xmlTextWriterEndElement(writer);
+		xmlTextWriterEndElement(p_writer);
 	}
 	CATCHZOK
-	xmlFreeTextWriter(writer);
+	xmlFreeTextWriter(p_writer);
 	return ok;
 }
 
@@ -4682,24 +4682,24 @@ int UhttIndexStores(SString & rOutPath)
 	SString path;
 	THROW(!rOutPath.Empty());
 	(path = 0).Cat(rOutPath).SetLastSlash().Cat(STORES_INDEX_FILE_NAME);
-	xmlTextWriterPtr writer = xmlNewTextWriterFilename(path, 0);
-	if(writer) {
+	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
+	if(p_writer) {
 		for(SEnum en = uhs_obj.ref->Enum(PPOBJ_UHTTSTORE, 0); en.Next(&uhs_rec) > 0;) {
 			id_list.add(uhs_rec.ID);
 		}
 		id_list.sort();
-		xmlTextWriterSetIndent(writer, 1);
-		xmlTextWriterSetIndentString(writer, (const xmlChar*)"\t");
-		xmlTextWriterStartDocument(writer, 0, "utf-8", 0);
-		xmlTextWriterStartElement(writer, (name_buf = 0).Cat("StoresIndex").ucptr());
+		xmlTextWriterSetIndent(p_writer, 1);
+		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
+		xmlTextWriterStartElement(p_writer, (name_buf = 0).Cat("StoresIndex").ucptr());
 		for(uint i = 0, n = id_list.getCount(); i < n; i++) {
 			const PPID id = id_list.get(i);
-			xmlTextWriterWriteElement(writer, (name_buf = 0).Cat("Id").ucptr(), (context_buf = 0).Cat(id).ucptr());
+			xmlTextWriterWriteElement(p_writer, (name_buf = 0).Cat("Id").ucptr(), (context_buf = 0).Cat(id).ucptr());
 		}
-		xmlTextWriterEndElement(writer);
+		xmlTextWriterEndElement(p_writer);
 	}
 	CATCHZOK
-	xmlFreeTextWriter(writer);
+	xmlFreeTextWriter(p_writer);
 	return ok;
 }
 

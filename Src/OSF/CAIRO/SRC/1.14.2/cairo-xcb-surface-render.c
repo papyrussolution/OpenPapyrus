@@ -383,7 +383,7 @@ static cairo_bool_t _pattern_is_supported(uint32_t flags, const cairo_pattern_t 
 			case CAIRO_FILTER_FAST:
 			case CAIRO_FILTER_NEAREST:
 			    return (flags & CAIRO_XCB_RENDER_HAS_PICTURE_TRANSFORM) ||
-				   _cairo_matrix_is_integer_translation(&pattern->matrix, NULL, NULL);
+				   _cairo_matrix_is_integer_translation(&pattern->matrix, 0, 0);
 			case CAIRO_FILTER_GOOD:
 			    return flags & CAIRO_XCB_RENDER_HAS_FILTER_GOOD;
 			case CAIRO_FILTER_BEST:

@@ -1095,7 +1095,7 @@ static void CheckAnchorAccess(TidyDocImpl* doc, Node* node)
 					if(TY_(tmbstrlen) (ext) < 6 && TY_(tmbstrlen) (ext) > 0) {
 						int errcode = IsSoundFile(av->value);
 						if(errcode) {
-							if(node->next != NULL) {
+							if(node->next) {
 								if(node->next->tag == NULL) {
 									ctmbstr word = textFromOneNode(doc, node->next);
 

@@ -622,7 +622,7 @@ int __dbreg_lazy_id(DB * dbp)
 	 */
 	if(fnp->old_id != DB_LOGFILEID_INVALID && (ret = __dbreg_revoke_id(dbp, 1, DB_LOGFILEID_INVALID)) != 0)
 		goto err;
-	if((ret = __txn_begin(env, NULL, NULL, &txn, DB_IGNORE_LEASE)) != 0)
+	if((ret = __txn_begin(env, 0, 0, &txn, DB_IGNORE_LEASE)) != 0)
 		goto err;
 	if((ret = __dbreg_get_id(dbp, txn, &id)) != 0) {
 		__txn_abort(txn);

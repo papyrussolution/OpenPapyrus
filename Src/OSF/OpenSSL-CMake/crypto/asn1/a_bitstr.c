@@ -81,7 +81,7 @@ ASN1_BIT_STRING * c2i_ASN1_BIT_STRING(ASN1_BIT_STRING ** a, const uchar ** pp, l
 	}
 	if((a == NULL) || ((*a) == NULL)) {
 		if((ret = ASN1_BIT_STRING_new()) == NULL)
-			return (NULL);
+			return NULL;
 	}
 	else
 		ret = (*a);
@@ -121,7 +121,7 @@ err:
 	ASN1err(ASN1_F_C2I_ASN1_BIT_STRING, i);
 	if((a == NULL) || (*a != ret))
 		ASN1_BIT_STRING_free(ret);
-	return (NULL);
+	return NULL;
 }
 /*
  * These next 2 functions from Goetz Babin-Ebell <babinebell@trustcenter.de>

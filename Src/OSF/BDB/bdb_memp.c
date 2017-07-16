@@ -241,7 +241,7 @@ search:
 			    case 4:
 			    case 5:
 			    case 6:
-					__memp_sync_int(env, NULL, 0, DB_SYNC_ALLOC, NULL, NULL);
+					__memp_sync_int(env, NULL, 0, DB_SYNC_ALLOC, 0, 0);
 					__os_yield(env, 1, 0);
 					break;
 			    default:
@@ -1025,13 +1025,11 @@ int __memp_bhfree(DB_MPOOL * dbmp, REGINFO * infop, MPOOLFILE * mfp, DB_MPOOL_HA
 #endif
 	BH * prev_bhp;
 	MPOOL * c_mp;
-	int ret, t_ret;
+	int t_ret;
 #ifdef DIAG_MVCC
 	size_t pagesize;
 #endif
-
-	ret = 0;
-
+	int ret = 0;
 	/*
 	 * Assumes the hash bucket is locked and the MPOOL is not.
 	 */
@@ -5812,7 +5810,7 @@ int __memp_fsync(DB_MPOOLFILE * dbmfp)
 		return 0;
 	if(mfp->file_written == 0)
 		return 0;
-	return __memp_sync_int(dbmfp->env, dbmfp, 0, DB_SYNC_FILE, NULL, NULL);
+	return __memp_sync_int(dbmfp->env, dbmfp, 0, DB_SYNC_FILE, 0, 0);
 }
 /*
  * __mp_xxx_fh --

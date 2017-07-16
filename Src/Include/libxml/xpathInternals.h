@@ -330,8 +330,8 @@ XMLPUBFUN void XMLCALL xmlXPathRegisteredVariablesCleanup(xmlXPathContextPtr ctx
 XMLPUBFUN xmlXPathParserContextPtr XMLCALL xmlXPathNewParserContext(const xmlChar * str, xmlXPathContextPtr ctxt);
 XMLPUBFUN void XMLCALL xmlXPathFreeParserContext(xmlXPathParserContextPtr ctxt);
 /* TODO: remap to xmlXPathValuePop and Push. */
-XMLPUBFUN xmlXPathObjectPtr XMLCALL valuePop(xmlXPathParserContextPtr ctxt);
-XMLPUBFUN int XMLCALL valuePush(xmlXPathParserContextPtr ctxt, xmlXPathObjectPtr value);
+XMLPUBFUN xmlXPathObjectPtr /*XMLCALL*/FASTCALL valuePop(xmlXPathParserContext * pCtxt);
+XMLPUBFUN int /*XMLCALL*/FASTCALL valuePush(xmlXPathParserContext * pCtxt, xmlXPathObject * pValue);
 
 XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPathNewString(const xmlChar * val);
 XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPathNewCString(const char * val);

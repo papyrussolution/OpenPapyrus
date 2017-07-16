@@ -68,9 +68,7 @@ METHODDEF(void) progress_monitor(j_common_ptr cinfo)
 	if(percent_done != prog->percent_done) {
 		prog->percent_done = percent_done;
 		if(total_passes > 1) {
-			fprintf(stderr, "\rPass %d/%d: %3d%% ",
-			    prog->pub.completed_passes + prog->completed_extra_passes + 1,
-			    total_passes, percent_done);
+			fprintf(stderr, "\rPass %d/%d: %3d%% ", prog->pub.completed_passes + prog->completed_extra_passes + 1, total_passes, percent_done);
 		}
 		else {
 			fprintf(stderr, "\r %3d%% ", percent_done);

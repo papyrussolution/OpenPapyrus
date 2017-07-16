@@ -15,9 +15,9 @@ class SXml {
 public:
 	class WDoc {
 	public:
-		WDoc(xmlTextWriterPtr pWriter, SCodepage cp);
+		WDoc(xmlTextWriter * pWriter, SCodepage cp);
 		~WDoc();
-		operator xmlTextWriterPtr()
+		operator xmlTextWriter * ()
 		{
 			return Lx;
 		}
@@ -26,28 +26,28 @@ public:
 			stStarted = 0x0001
 		};
 		long   State;
-		xmlTextWriterPtr Lx;
+		xmlTextWriter * Lx;
 	};
     class WNode {
 	public:
 		static SString & FASTCALL CDATA(SString & rBuf);
 
-        WNode(xmlTextWriterPtr pWriter, const char * pName);
-        WNode(xmlTextWriterPtr pWriter, const char * pName, const SString & rValue);
-        WNode(xmlTextWriterPtr pWriter, const char * pName, const char * pValue);
+        WNode(xmlTextWriter * pWriter, const char * pName);
+        WNode(xmlTextWriter * pWriter, const char * pName, const SString & rValue);
+        WNode(xmlTextWriter * pWriter, const char * pName, const char * pValue);
         ~WNode();
         int    PutAttrib(const char * pName, const char * pValue);
         int    PutInner(const char * pInnerName, const char * pInnerValue);
         int    PutInnerSkipEmpty(const char * pInnerName, const char * pInnerValue);
         int    SetValue(const SString & rText);
 	private:
-		int    Construct(xmlTextWriterPtr pWriter, const char * pName);
+		int    Construct(xmlTextWriter * pWriter, const char * pName);
 
 		enum {
 			stStarted = 0x0001
 		};
 		long   State;
-		xmlTextWriterPtr Lx;
+		xmlTextWriter * Lx;
         SString Name;
     };
 

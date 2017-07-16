@@ -414,7 +414,7 @@ static int xmlExcC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNsPtr n
 /* todo: make it a define? */
 static int xmlC14NIsXmlNs(xmlNsPtr ns)
 {
-	return (ns && (sstreq(ns->prefix, BAD_CAST "xml")) && (sstreq(ns->href, XML_XML_NAMESPACE)));
+	return (ns && (sstreq(ns->prefix, "xml")) && (sstreq(ns->href, XML_XML_NAMESPACE)));
 }
 
 /**
@@ -453,21 +453,17 @@ static int xmlC14NPrintNamespaces(const xmlNsPtr ns, xmlC14NCtxPtr ctx)
 		xmlC14NErrParam("writing namespaces");
 		return 0;
 	}
-
 	if(ns->prefix != NULL) {
 		xmlOutputBufferWriteString(ctx->buf, " xmlns:");
 		xmlOutputBufferWriteString(ctx->buf, (const char*)ns->prefix);
 		xmlOutputBufferWriteString(ctx->buf, "=");
 	}
-	else {
+	else
 		xmlOutputBufferWriteString(ctx->buf, " xmlns=");
-	}
-	if(ns->href != NULL) {
+	if(ns->href)
 		xmlBufWriteQuotedString(ctx->buf->buffer, ns->href);
-	}
-	else {
+	else
 		xmlOutputBufferWriteString(ctx->buf, "\"\"");
-	}
 	return 1;
 }
 
@@ -652,8 +648,7 @@ static int xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, in
 			/*
 			 * Special values for namespace with empty prefix
 			 */
-			if(sstreq(prefix, BAD_CAST "#default")
-			    || sstreq(prefix, BAD_CAST "")) {
+			if(sstreq(prefix, "#default") || sstreq(prefix, "")) {
 				prefix = NULL;
 				has_empty_ns_in_inclusive_list = 1;
 			}
@@ -946,9 +941,8 @@ static xmlAttrPtr xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttrPtr xml_base_at
 		/* next */
 		cur = cur->parent;
 	}
-
 	/* check if result uri is empty or not */
-	if((res == NULL) || sstreq(res, BAD_CAST "")) {
+	if((res == NULL) || sstreq(res, "")) {
 		SAlloc::F(res);
 		return 0;
 	}
@@ -1047,7 +1041,7 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent
 		    if(parent_visible && (cur->parent != NULL) && (!xmlC14NIsVisible(ctx, cur->parent, cur->parent->parent))) {
 				// If XPath node-set is not specified then the parent is always visible!
 			    xmlNodePtr tmp = cur->parent;
-			    while(tmp != NULL) {
+			    while(tmp) {
 				    attr = tmp->properties;
 				    while(attr) {
 					    if(xmlC14NIsXmlAttr(attr) != 0) {
@@ -1122,74 +1116,59 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent
 			    }
 			    else {
 				    int matched = 0;
-
 				    /* check for simple inheritance attributes */
-				    if((!matched) && (xml_lang_attr == NULL) && sstreq(attr->name, BAD_CAST "lang")) {
+				    if((!matched) && (xml_lang_attr == NULL) && sstreq(attr->name, "lang")) {
 					    xml_lang_attr = attr;
 					    matched = 1;
 				    }
-				    if((!matched) && (xml_space_attr == NULL) && sstreq(attr->name, BAD_CAST "space")) {
+				    if((!matched) && (xml_space_attr == NULL) && sstreq(attr->name, "space")) {
 					    xml_space_attr = attr;
 					    matched = 1;
 				    }
-
 				    /* check for base attr */
-				    if((!matched) && (xml_base_attr == NULL) && sstreq(attr->name, BAD_CAST "base")) {
+				    if((!matched) && (xml_base_attr == NULL) && sstreq(attr->name, "base")) {
 					    xml_base_attr = attr;
 					    matched = 1;
 				    }
-
-				    /* otherwise, it is a normal attribute, so just check if it is visible */
+				    // otherwise, it is a normal attribute, so just check if it is visible 
 				    if((!matched) && xmlC14NIsVisible(ctx, attr, cur)) {
 					    xmlListInsert(list, attr);
 				    }
 			    }
-
-			    /* move to the next one */
+			    // move to the next one 
 			    attr = attr->next;
 		    }
-
-		    /* special processing for XML attribute kiks in only when we have invisible parents */
+		    // special processing for XML attribute kiks in only when we have invisible parents 
 		    if((parent_visible)) {
-			    /* simple inheritance attributes - copy */
-			    if(xml_lang_attr == NULL) {
-				    xml_lang_attr = xmlC14NFindHiddenParentAttr(ctx, cur->parent, BAD_CAST "lang", XML_XML_NAMESPACE);
-			    }
-			    if(xml_lang_attr != NULL) {
+			    // simple inheritance attributes - copy 
+				SETIFZ(xml_lang_attr, xmlC14NFindHiddenParentAttr(ctx, cur->parent, BAD_CAST "lang", XML_XML_NAMESPACE));
+			    if(xml_lang_attr)
 				    xmlListInsert(list, xml_lang_attr);
-			    }
-			    if(xml_space_attr == NULL) {
-				    xml_space_attr = xmlC14NFindHiddenParentAttr(ctx, cur->parent, BAD_CAST "space", XML_XML_NAMESPACE);
-			    }
-			    if(xml_space_attr != NULL) {
+				SETIFZ(xml_space_attr, xmlC14NFindHiddenParentAttr(ctx, cur->parent, BAD_CAST "space", XML_XML_NAMESPACE));
+			    if(xml_space_attr)
 				    xmlListInsert(list, xml_space_attr);
-			    }
-			    /* base uri attribute - fix up */
-			    if(xml_base_attr == NULL) {
-				    /* if we don't have base uri attribute, check if we have a "hidden" one above */
-				    xml_base_attr = xmlC14NFindHiddenParentAttr(ctx, cur->parent, BAD_CAST "base", XML_XML_NAMESPACE);
-			    }
-			    if(xml_base_attr != NULL) {
+				//
+			    // base uri attribute - fix up 
+				//
+				// if we don't have base uri attribute, check if we have a "hidden" one above 
+				SETIFZ(xml_base_attr, xmlC14NFindHiddenParentAttr(ctx, cur->parent, BAD_CAST "base", XML_XML_NAMESPACE));
+			    if(xml_base_attr) {
 				    xml_base_attr = xmlC14NFixupBaseAttr(ctx, xml_base_attr);
-				    if(xml_base_attr != NULL) {
+				    if(xml_base_attr) {
 					    xmlListInsert(list, xml_base_attr);
-
-					    /* note that we MUST delete returned attr node ourselves! */
+					    // note that we MUST delete returned attr node ourselves! 
 					    xml_base_attr->next = attrs_to_delete;
 					    attrs_to_delete = xml_base_attr;
 				    }
 			    }
 		    }
-
 		    /* done */
 		    break;
 	}
-
 	/*
 	 * print out all elements from list
 	 */
 	xmlListWalk(list, (xmlListWalker)xmlC14NPrintAttrs, (const void*)ctx);
-
 	/*
 	 * Cleanup
 	 */
@@ -1295,7 +1274,7 @@ static int xmlC14NProcessElementNode(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visi
 			ctx->pos = XMLC14N_INSIDE_DOCUMENT_ELEMENT;
 		}
 		xmlOutputBufferWriteString(ctx->buf, "<");
-		if((cur->ns != NULL) && (sstrlen(cur->ns->prefix) > 0)) {
+		if(cur->ns && (sstrlen(cur->ns->prefix) > 0)) {
 			xmlOutputBufferWriteString(ctx->buf, (const char*)cur->ns->prefix);
 			xmlOutputBufferWriteString(ctx->buf, ":");
 		}
@@ -1332,9 +1311,8 @@ static int xmlC14NProcessElementNode(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visi
 	}
 	if(visible) {
 		xmlOutputBufferWriteString(ctx->buf, "</");
-		if((cur->ns != NULL) && (sstrlen(cur->ns->prefix) > 0)) {
-			xmlOutputBufferWriteString(ctx->buf,
-			    (const char*)cur->ns->prefix);
+		if(cur->ns && (sstrlen(cur->ns->prefix) > 0)) {
+			xmlOutputBufferWriteString(ctx->buf, (const char*)cur->ns->prefix);
 			xmlOutputBufferWriteString(ctx->buf, ":");
 		}
 		xmlOutputBufferWriteString(ctx->buf, (const char*)cur->name);
@@ -1421,8 +1399,7 @@ static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNodePtr cur)
 				    xmlOutputBufferWriteString(ctx->buf, "<?");
 			    }
 
-			    xmlOutputBufferWriteString(ctx->buf,
-			    (const char*)cur->name);
+			    xmlOutputBufferWriteString(ctx->buf, (const char*)cur->name);
 			    if((cur->content != NULL) && (*(cur->content) != '\0')) {
 				    xmlChar * buffer;
 				    xmlOutputBufferWriteString(ctx->buf, " ");
@@ -1594,7 +1571,7 @@ static xmlC14NCtxPtr xmlC14NNewCtx(xmlDocPtr doc,
     int with_comments, xmlOutputBufferPtr buf)
 {
 	xmlC14NCtxPtr ctx = NULL;
-	if((doc == NULL) || (buf == NULL)) {
+	if(!doc || (buf == NULL)) {
 		xmlC14NErrParam("creating new context");
 		return 0;
 	}

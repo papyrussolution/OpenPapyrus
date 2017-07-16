@@ -849,21 +849,16 @@ XMLPUBFUN xmlParserCtxtPtr XMLCALL xmlCreateIOParserCtxt(xmlSAXHandlerPtr sax,
     void * ioctx,
     xmlCharEncoding enc);
 
-XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewIOInputStream(xmlParserCtxtPtr ctxt,
-    xmlParserInputBufferPtr input,
-    xmlCharEncoding enc);
+XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewIOInputStream(xmlParserCtxtPtr ctxt, xmlParserInputBufferPtr input, xmlCharEncoding enc);
 
 /*
  * Node infos.
  */
-XMLPUBFUN const xmlParserNodeInfo* XMLCALL xmlParserFindNodeInfo(const xmlParserCtxtPtr ctxt,
-    const xmlNodePtr node);
+XMLPUBFUN const xmlParserNodeInfo* XMLCALL xmlParserFindNodeInfo(const xmlParserCtxtPtr ctxt, const xmlNodePtr node);
 XMLPUBFUN void XMLCALL xmlInitNodeInfoSeq(xmlParserNodeInfoSeqPtr seq);
 XMLPUBFUN void XMLCALL xmlClearNodeInfoSeq(xmlParserNodeInfoSeqPtr seq);
-XMLPUBFUN unsigned long XMLCALL xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeqPtr seq,
-    const xmlNodePtr node);
-XMLPUBFUN void XMLCALL xmlParserAddNodeInfo(xmlParserCtxtPtr ctxt,
-    const xmlParserNodeInfoPtr info);
+XMLPUBFUN unsigned long XMLCALL xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeqPtr seq, const xmlNodePtr node);
+XMLPUBFUN void XMLCALL xmlParserAddNodeInfo(xmlParserCtxtPtr ctxt, const xmlParserNodeInfoPtr info);
 
 /*
  * External entities handling actually implemented in xmlIO.

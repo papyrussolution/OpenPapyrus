@@ -2510,7 +2510,7 @@ public:
 private:
 	int    SLAPI Helper_CloseWriter();
 
-	xmlTextWriterPtr P_Writer;
+	xmlTextWriter * P_Writer;
 	xmlBufferPtr P_Buffer;
 };
 

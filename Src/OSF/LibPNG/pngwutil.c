@@ -410,7 +410,7 @@ void /* PRIVATE */ png_free_buffer_list(png_structrp png_ptr, png_compression_bu
 			png_free(png_ptr, list);
 			list = next;
 		}
-		while(list != NULL);
+		while(list);
 	}
 }
 

@@ -28,7 +28,7 @@ typedef xmlDict *xmlDictPtr;
 /*
  * Initializer
  */
-XMLPUBFUN int XMLCALL  xmlInitializeDict();
+XMLPUBFUN int XMLCALL xmlInitializeDict();
 
 /*
  * Constructor and destructor.

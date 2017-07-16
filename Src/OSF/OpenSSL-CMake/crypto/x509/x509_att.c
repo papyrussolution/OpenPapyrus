@@ -55,7 +55,7 @@ X509_ATTRIBUTE * X509at_delete_attr(STACK_OF(X509_ATTRIBUTE) * x, int loc)
 {
 	X509_ATTRIBUTE * ret;
 	if(x == NULL || sk_X509_ATTRIBUTE_num(x) <= loc || loc < 0)
-		return (NULL);
+		return NULL;
 	ret = sk_X509_ATTRIBUTE_delete(x, loc);
 	return ret;
 }
@@ -86,7 +86,7 @@ err:
 err2:
 	X509_ATTRIBUTE_free(new_attr);
 	sk_X509_ATTRIBUTE_free(sk);
-	return (NULL);
+	return NULL;
 }
 
 STACK_OF(X509_ATTRIBUTE) *X509at_add1_attr_by_OBJ(STACK_OF(X509_ATTRIBUTE) **x, const ASN1_OBJECT *obj, int type, const uchar *bytes, int len)
@@ -142,7 +142,7 @@ X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_NID(X509_ATTRIBUTE ** attr, int nid, i
 	ASN1_OBJECT * obj = OBJ_nid2obj(nid);
 	if(obj == NULL) {
 		X509err(X509_F_X509_ATTRIBUTE_CREATE_BY_NID, X509_R_UNKNOWN_NID);
-		return (NULL);
+		return NULL;
 	}
 	ret = X509_ATTRIBUTE_create_by_OBJ(attr, obj, atrtype, data, len);
 	if(!ret)
@@ -157,7 +157,7 @@ X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_OBJ(X509_ATTRIBUTE ** attr, const ASN1
 		if((ret = X509_ATTRIBUTE_new()) == NULL) {
 			X509err(X509_F_X509_ATTRIBUTE_CREATE_BY_OBJ,
 			    ERR_R_MALLOC_FAILURE);
-			return (NULL);
+			return NULL;
 		}
 	}
 	else
@@ -174,7 +174,7 @@ X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_OBJ(X509_ATTRIBUTE ** attr, const ASN1
 err:
 	if((attr == NULL) || (ret != *attr))
 		X509_ATTRIBUTE_free(ret);
-	return (NULL);
+	return NULL;
 }
 
 X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_txt(X509_ATTRIBUTE ** attr, const char * atrname, int type, const uchar * bytes, int len)
@@ -184,7 +184,7 @@ X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_txt(X509_ATTRIBUTE ** attr, const char
 	if(obj == NULL) {
 		X509err(X509_F_X509_ATTRIBUTE_CREATE_BY_TXT, X509_R_INVALID_FIELD_NAME);
 		ERR_add_error_data(2, "name=", atrname);
-		return (NULL);
+		return NULL;
 	}
 	nattr = X509_ATTRIBUTE_create_by_OBJ(attr, obj, type, bytes, len);
 	ASN1_OBJECT_free(obj);

@@ -421,8 +421,7 @@ int SLAPI PPViewCSess::InitIteration(long ord)
 		TempOrderTbl * p_temp_ord = 0;
 		THROW(r = CreateOrderTable(ord, &p_temp_ord));
 		if(r > 0) {
-			ZDELETE(P_TempOrd);
-			P_TempOrd = p_temp_ord;
+			DELETEANDASSIGN(P_TempOrd, p_temp_ord);
 		}
 	}
 	if(P_TempOrd) {
@@ -578,7 +577,7 @@ DBQuery * SLAPI PPViewCSess::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 			*p_dbe_ret,           // #14
 			p_ch->BnkDiscount,    // #15
 			dbe_cashnode,         // #16
-			p_ch->CSCardAmount,   // #17 @v6.2.1
+			p_ch->CSCardAmount,   // #17
 			0L);
 		if(p_ot) {
 			p_q->from(p_ot, p_ch, 0L).where(p_ch->ID == p_ot->ID).orderBy(p_ot->Name, 0L);
@@ -874,8 +873,7 @@ int SLAPI PPViewCSess::CalcCheckAmounts(TempCSessChecksTbl::Rec * pRec)
 		if(pRec->ID && CsObj.Search(pRec->ID, &sess_rec) > 0) {
 			uint  i;
 			PPIDArray    sess_list;
-			if(!P_SessAmtAry)
-				THROW_MEM(P_SessAmtAry = new SArray(sizeof(SessAmtEntry)));
+			THROW_MEM(SETIFZ(P_SessAmtAry, new SArray(sizeof(SessAmtEntry))));
 			if(!pRec->SuperSessID)
 				CsObj.P_Tbl->GetSubSessList(pRec->ID, &sess_list);
 			if(!sess_list.getCount())

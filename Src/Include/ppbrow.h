@@ -1771,6 +1771,7 @@
 	#define PPVIEWITEM_OPRKIND                     1092
 #define PPFILT_GCT                         1101
 #define PPFILT_PRCSSROSMPARAM              1111
+#define PPFILT_BILLAUTOCREATEPARAM         1121
 //
 // RECORD definitions
 //

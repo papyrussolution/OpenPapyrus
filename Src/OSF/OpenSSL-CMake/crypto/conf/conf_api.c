@@ -21,7 +21,7 @@ CONF_VALUE * _CONF_get_section(const CONF * conf, const char * section)
 {
 	CONF_VALUE * v, vv;
 	if((conf == NULL) || (section == NULL))
-		return (NULL);
+		return NULL;
 	vv.name = NULL;
 	vv.section = (char*)section;
 	v = lh_CONF_VALUE_retrieve(conf->data, &vv);
@@ -56,7 +56,7 @@ int _CONF_add_string(CONF * conf, CONF_VALUE * section, CONF_VALUE * value)
 char * _CONF_get_string(const CONF * conf, const char * section, const char * name)
 {
 	if(name == NULL)
-		return (NULL);
+		return NULL;
 	if(conf != NULL) {
 		CONF_VALUE * v, vv;
 		if(section != NULL) {

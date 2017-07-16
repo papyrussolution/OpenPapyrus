@@ -78,7 +78,7 @@ int SLAPI PPInetAccountManager::GetOutlookAccounts(PPID * pActiveID, PPInetAccnt
 	pAccounts->freeAll();
 	THROW_PP(reg_accts.Open(HKEY_CURRENT_USER, p_root_key, 1, 1), PPERR_SLIB);
 	THROW_PP(reg_accts.GetBinary(p_param_defmailacct, w_buf, sizeof(w_buf)), PPERR_SLIB)
-	WideCharToMultiByte(1251, 0, w_buf, -1, buf, sizeof(buf), NULL, NULL);
+	WideCharToMultiByte(1251, 0, w_buf, -1, buf, sizeof(buf), 0, 0);
 	active_id.CopyFrom(buf);
 	THROW_PP(reg_accts.Open(HKEY_CURRENT_USER, p_root_key, 1, 1), PPERR_SLIB);
 	for(uint idx = 0; reg_accts.EnumKeys(&idx, accnt_id) > 0;) {
@@ -89,13 +89,13 @@ int SLAPI PPInetAccountManager::GetOutlookAccounts(PPID * pActiveID, PPInetAccnt
 			SString name, fromaddr, sendserv, port;
 			PPInternetAccount * p_account = 0;
 			if(reg.GetBinary(p_param_name, w_buf, sizeof(w_buf)) > 0) {
-				WideCharToMultiByte(1251, 0, w_buf, -1, buf, sizeof(buf), NULL, NULL);
+				WideCharToMultiByte(1251, 0, w_buf, -1, buf, sizeof(buf), 0, 0);
 				name.CopyFrom(buf);
 			}
 			else
 				continue;
 			if(reg.GetBinary(p_param_addr, w_buf, sizeof(w_buf)) > 0) {
-				WideCharToMultiByte(1251, 0, w_buf, -1, buf, sizeof(buf), NULL, NULL);
+				WideCharToMultiByte(1251, 0, w_buf, -1, buf, sizeof(buf), 0, 0);
             	fromaddr.CopyFrom(buf);
 			}
 			else

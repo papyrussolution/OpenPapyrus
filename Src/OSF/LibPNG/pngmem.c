@@ -24,7 +24,7 @@
 /* Free a png_struct */
 void /* PRIVATE */ png_destroy_png_struct(png_structrp png_ptr)
 {
-	if(png_ptr != NULL) {
+	if(png_ptr) {
 		/* png_free might call png_error and may certainly call
 		 * png_get_mem_ptr, so fake a temporary png_struct to support this.
 		 */
@@ -68,7 +68,6 @@ PNG_FUNCTION(void * /* PRIVATE */, png_malloc_base, (png_const_structrp png_ptr,
 #ifndef PNG_USER_MEM_SUPPORTED
 	PNG_UNUSED(png_ptr)
 #endif
-
 	/* Some compilers complain that this is always true.  However, it
 	 * can be false when integer overflow happens.
 	 */
@@ -78,14 +77,12 @@ PNG_FUNCTION(void * /* PRIVATE */, png_malloc_base, (png_const_structrp png_ptr,
 #endif
 	    ) {
 #ifdef PNG_USER_MEM_SUPPORTED
-		if(png_ptr != NULL && png_ptr->malloc_fn != NULL)
+		if(png_ptr && png_ptr->malloc_fn != NULL)
 			return png_ptr->malloc_fn(png_constcast(png_structrp, png_ptr), size);
-
 		else
 #endif
 		return SAlloc::M((size_t)size); /* checked for truncation above */
 	}
-
 	else
 		return NULL;
 }
@@ -137,12 +134,12 @@ PNG_FUNCTION(void * /* PRIVATE */, png_realloc_array,
  */
 PNG_FUNCTION(void *, PNGAPI png_malloc, (png_const_structrp png_ptr, png_alloc_size_t size), PNG_ALLOCATED)
 {
-	void * ret;
-	if(png_ptr == NULL)
-		return NULL;
-	ret = png_malloc_base(png_ptr, size);
-	if(!ret)
-		png_error(png_ptr, "Out of memory");  /* 'm' means png_malloc */
+	void * ret = 0;
+	if(png_ptr) {
+		ret = png_malloc_base(png_ptr, size);
+		if(!ret)
+			png_error(png_ptr, "Out of memory");  /* 'm' means png_malloc */
+	}
 	return ret;
 }
 
@@ -166,7 +163,7 @@ PNG_FUNCTION(void *, PNGAPI png_malloc_default, (png_const_structrp png_ptr, png
  */
 PNG_FUNCTION(void *, PNGAPI png_malloc_warn, (png_const_structrp png_ptr, png_alloc_size_t size), PNG_ALLOCATED)
 {
-	if(png_ptr != NULL) {
+	if(png_ptr) {
 		void * ret = png_malloc_base(png_ptr, size);
 		if(ret != NULL)
 			return ret;
@@ -203,7 +200,7 @@ PNG_FUNCTION(void, PNGAPI png_free_default, (png_const_structrp png_ptr, void * 
  */
 void PNGAPI png_set_mem_fn(png_structrp png_ptr, void * mem_ptr, png_malloc_ptr malloc_fn, png_free_ptr free_fn)
 {
-	if(png_ptr != NULL) {
+	if(png_ptr) {
 		png_ptr->mem_ptr = mem_ptr;
 		png_ptr->malloc_fn = malloc_fn;
 		png_ptr->free_fn = free_fn;

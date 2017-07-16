@@ -1384,7 +1384,7 @@ static int cryptodev_rsa_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa, BN_CT
 
 	RSA_get0_factors(rsa, &p, &q);
 	RSA_get0_crt_params(rsa, &dmp1, &dmq1, &iqmp);
-	RSA_get0_key(rsa, &n, NULL, NULL);
+	RSA_get0_key(rsa, &n, 0, 0);
 
 	if(!p || !q || !dmp1 || !dmq1 || !iqmp) {
 		/* XXX 0 means failure?? */
@@ -1604,7 +1604,7 @@ static int cryptodev_dh_compute_key(uchar * key, const BIGNUM * pub_key, DH * dh
 		return DH_meth_get_compute_key(meth) (key, pub_key, dh);
 	}
 
-	DH_get0_pqg(dh, &p, NULL, NULL);
+	DH_get0_pqg(dh, &p, 0, 0);
 	DH_get0_key(dh, NULL, &priv_key);
 
 	keylen = BN_num_bits(p);

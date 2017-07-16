@@ -550,7 +550,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 		}
 		if(channel) {
 			if(oneof4(channel, xmlParserError, xmlParserWarning, xmlParserValidityError, xmlParserValidityWarning))
-				xmlReportError(to, ctxt, str, NULL, NULL);
+				xmlReportError(to, ctxt, str, 0, 0);
 			else if((channel == (xmlGenericErrorFunc)fprintf) || (channel == xmlGenericErrorDefaultFunc))
 				xmlReportError(to, ctxt, str, channel, data);
 			else

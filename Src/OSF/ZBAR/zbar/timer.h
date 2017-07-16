@@ -54,7 +54,7 @@ static inline zbar_timer_t *_zbar_timer_init (zbar_timer_t *timer,
                                               int delay)
 {
     if(delay < 0)
-        return(NULL);
+        return NULL;
 
     clock_gettime(CLOCK_REALTIME, timer);
     timer->tv_nsec += (delay % 1000) * 1000000;
@@ -92,7 +92,7 @@ static inline zbar_timer_t *_zbar_timer_init (zbar_timer_t *timer,
                                               int delay)
 {
     if(delay < 0)
-        return(NULL);
+        return NULL;
 
     *timer = timeGetTime() + delay;
     return(timer);
@@ -124,7 +124,7 @@ static inline zbar_timer_t *_zbar_timer_init (zbar_timer_t *timer,
                                               int delay)
 {
     if(delay < 0)
-        return(NULL);
+        return NULL;
 
     gettimeofday(timer, NULL);
     timer->tv_usec += (delay % 1000) * 1000;

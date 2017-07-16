@@ -41,7 +41,7 @@ DEFINE_RUN_ONCE_STATIC(ssl_x509_store_ctx_init)
 {
 	ssl_x509_store_ctx_idx = X509_STORE_CTX_get_ex_new_index(0,
 	    "SSL for verify callback",
-	    NULL, NULL, NULL);
+	    NULL, 0, 0);
 	return ssl_x509_store_ctx_idx >= 0;
 }
 
@@ -477,7 +477,7 @@ STACK_OF(X509_NAME) *SSL_get_client_CA_list(const SSL *s)
 		if(((s->version >> 8) == SSL3_VERSION_MAJOR) && (s->s3 != NULL))
 			return (s->s3->tmp.ca_names);
 		else
-			return (NULL);
+			return NULL;
 	}
 	else {
 		if(s->client_CA != NULL)

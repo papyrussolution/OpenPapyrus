@@ -3711,11 +3711,10 @@ public:
 	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, valid_data = 0;
-		size_t sav_offs = 0;
+		//size_t sav_offs = 0;
 		TSessionFilt filt;
 		TSessAutoSmsFiltDialog * p_dlg = new TSessAutoSmsFiltDialog;
-
-		sav_offs = pParam->GetRdOffs();
+		const size_t sav_offs = pParam ? pParam->GetRdOffs() : 0;
 		THROW_INVARG(pParam);
 		THROW(CheckDialogPtr(&p_dlg));
 		if(pParam->GetAvailableSize() != 0)

@@ -1052,7 +1052,7 @@ PKCS7_ISSUER_AND_SERIAL * PKCS7_get_issuer_and_serial(PKCS7 * p7, int idx)
 	if(rsk == NULL)
 		return NULL;
 	if(sk_PKCS7_RECIP_INFO_num(rsk) <= idx)
-		return (NULL);
+		return NULL;
 	ri = sk_PKCS7_RECIP_INFO_value(rsk, idx);
 	return (ri->issuer_and_serial);
 }

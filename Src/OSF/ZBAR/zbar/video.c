@@ -117,14 +117,14 @@ zbar_video_t * zbar_video_create()
 		vdo->images = (zbar_image_t **)SAlloc::C(ZBAR_VIDEO_IMAGES_MAX, sizeof(zbar_image_t *));
 		if(!vdo->images) {
 			zbar_video_destroy(vdo);
-			return(NULL);
+			return NULL;
 		}
 		else {
 			for(int i = 0; i < ZBAR_VIDEO_IMAGES_MAX; i++) {
 				zbar_image_t * img = vdo->images[i] = zbar_image_create();
 				if(!img) {
 					zbar_video_destroy(vdo);
-					return(NULL);
+					return NULL;
 				}
 				img->refcnt = 0;
 				img->cleanup = _zbar_video_recycle_image;
@@ -352,10 +352,10 @@ zbar_image_t * zbar_video_next_image(zbar_video_t * vdo)
 	uint frame;
 	zbar_image_t * img;
 	if(video_lock(vdo))
-		return(NULL);
+		return NULL;
 	if(!vdo->active) {
 		video_unlock(vdo);
-		return(NULL);
+		return NULL;
 	}
 	frame = vdo->frame++;
 	img = vdo->dq(vdo);

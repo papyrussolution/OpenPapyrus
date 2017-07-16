@@ -802,7 +802,7 @@ out:
 		__rep_fire_event(env, pending_event, NULL);
 	if(start_th)
 		MUTEX_UNLOCK(env, rep->mtx_repstart);
-	__dbt_userfree(env, dbt, NULL, NULL);
+	__dbt_userfree(env, dbt, 0, 0);
 	ENV_LEAVE(env, ip);
 	return ret;
 }

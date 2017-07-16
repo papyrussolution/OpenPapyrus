@@ -56,7 +56,7 @@ char * Curl_convert_wchar_to_UTF8(const wchar_t * str_w)
 {
 	char * str_utf8 = NULL;
 	if(str_w) {
-		int str_utf8_len = WideCharToMultiByte(CP_UTF8, 0, str_w, -1, NULL, 0, NULL, NULL);
+		int str_utf8_len = WideCharToMultiByte(CP_UTF8, 0, str_w, -1, NULL, 0, 0, 0);
 		if(str_utf8_len > 0) {
 			str_utf8 = SAlloc::M(str_utf8_len * sizeof(wchar_t));
 			if(str_utf8) {

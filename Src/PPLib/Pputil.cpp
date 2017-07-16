@@ -2448,7 +2448,7 @@ int SLAPI XMLFillDTDEntitys(void * pWriter)
 		StringSet ss('.', temp_buf);
 		for(uint i = 0; ss.get(&i, temp_buf);) {
 			temp_buf.Divide('$', ent, subst);
-			xmlTextWriterWriteDTDEntity((xmlTextWriterPtr)pWriter, 0, ent.ucptr(), 0, 0, 0, subst.ucptr());
+			xmlTextWriterWriteDTDEntity((xmlTextWriter *)pWriter, 0, ent.ucptr(), 0, 0, 0, subst.ucptr());
 		}
 	}
 	else

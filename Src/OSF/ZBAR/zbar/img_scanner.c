@@ -503,7 +503,7 @@ zbar_image_data_handler_t* zbar_image_scanner_set_data_handler(zbar_image_scanne
 	zbar_image_data_handler_t * result = iscn->handler;
 	iscn->handler = handler;
 	iscn->userdata = userdata;
-	return(result);
+	return result;
 }
 
 int zbar_image_scanner_set_config(zbar_image_scanner_t * iscn, zbar_symbol_type_t sym, zbar_config_t cfg, int val)

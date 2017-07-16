@@ -444,7 +444,7 @@ static char *vms_merger(DSO *dso, const char *filespec1,
                                "filespec \"", filespec1, "\", ",
                                "defaults \"", filespec2, "\": ", errstring);
         }
-        return (NULL);
+        return NULL;
     }
 
     merged = OPENSSL_malloc(nam.NAMX_ESL + 1);

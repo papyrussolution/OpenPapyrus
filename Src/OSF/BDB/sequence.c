@@ -301,7 +301,7 @@ err:
 	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
-	__dbt_userfree(env, keyp, NULL, NULL);
+	__dbt_userfree(env, keyp, 0, 0);
 	return ret;
 }
 /*

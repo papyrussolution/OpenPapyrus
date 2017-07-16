@@ -2773,7 +2773,7 @@ const SSL_CIPHER * ssl3_get_cipher(uint u)
 	if(u < SSL3_NUM_CIPHERS)
 		return (&(ssl3_ciphers[SSL3_NUM_CIPHERS - 1 - u]));
 	else
-		return (NULL);
+		return NULL;
 }
 
 int ssl3_set_handshake_header(SSL * s, int htype, unsigned long len)
