@@ -24,7 +24,7 @@ ASN1_ADB(PKCS7) = {
 	ADB_ENTRY(NID_pkcs7_signedAndEnveloped, ASN1_NDEF_EXP_OPT(PKCS7, d.signed_and_enveloped, PKCS7_SIGN_ENVELOPE, 0)),
 	ADB_ENTRY(NID_pkcs7_digest, ASN1_NDEF_EXP_OPT(PKCS7, d.digest, PKCS7_DIGEST, 0)),
 	ADB_ENTRY(NID_pkcs7_encrypted, ASN1_NDEF_EXP_OPT(PKCS7, d.encrypted, PKCS7_ENCRYPT, 0))
-} ASN1_ADB_END(PKCS7, 0, type, 0, &p7default_tt, NULL);
+} ASN1_ADB_END(PKCS7, 0, type, 0, &p7default_tt, 0);
 
 /* PKCS#7 streaming support */
 static int pk7_cb(int operation, ASN1_VALUE ** pval, const ASN1_ITEM * it,

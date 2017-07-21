@@ -2585,7 +2585,7 @@ void ProcessError(const char * pProcess)
 	ErrorCode = IEERR_FTP;
 	DWORD code = GetLastError();
 	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
-		temp_err_buf, 256, NULL);
+		temp_err_buf, 256, 0);
 	(temp_buf = pProcess).CatChar(':').Space().Cat(temp_err_buf);
 	// Смотрим дополнительное описание ошибки
 	if(code == ERROR_INTERNET_EXTENDED_ERROR) {

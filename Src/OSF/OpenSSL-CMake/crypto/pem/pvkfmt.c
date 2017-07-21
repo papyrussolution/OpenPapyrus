@@ -43,7 +43,7 @@ static uint read_ledword(const uchar ** in)
 
 static int read_lebn(const uchar ** in, uint nbyte, BIGNUM ** r)
 {
-	*r = BN_lebin2bn(*in, nbyte, NULL);
+	*r = BN_lebin2bn(*in, nbyte, 0);
 	if(*r == NULL)
 		return 0;
 	*in += nbyte;
@@ -429,7 +429,7 @@ static int do_i2b(uchar ** out, EVP_PKEY * pk, int ispub)
 		return -1;
 	outlen = 16 + blob_length(bitlen,
 	    keyalg == MS_KEYALG_DSS_SIGN ? 1 : 0, ispub);
-	if(out == NULL)
+	if(!out)
 		return outlen;
 	if(*out)
 		p = *out;
@@ -507,7 +507,7 @@ static int check_bitlen_rsa(RSA * rsa, int ispub, uint * pmagic)
 	int nbyte, hnbyte, bitlen;
 	const BIGNUM * e;
 
-	RSA_get0_key(rsa, NULL, &e, NULL);
+	RSA_get0_key(rsa, NULL, &e, 0);
 	if(BN_num_bits(e) > 32)
 		goto badkey;
 	bitlen = RSA_bits(rsa);
@@ -775,7 +775,7 @@ static int i2b_PVK(uchar ** out, EVP_PKEY * pk, int enclevel, pem_password_cb * 
 	if(pklen < 0)
 		return -1;
 	outlen += pklen;
-	if(out == NULL)
+	if(!out)
 		return outlen;
 	if(*out != NULL) {
 		p = *out;

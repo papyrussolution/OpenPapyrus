@@ -137,7 +137,7 @@ int __dbreg_setup(DB*dbp, const char * fname, const char * dname, uint32 create_
 	memcpy(fnp->ufid, dbp->fileid, DB_FILE_ID_LEN);
 	fnp->meta_pgno = dbp->meta_pgno;
 	fnp->create_txnid = create_txnid;
-	dbp->dbenv->thread_id(dbp->dbenv, &fnp->pid, NULL);
+	dbp->dbenv->thread_id(dbp->dbenv, &fnp->pid, 0);
 	if(F_ISSET(dbp, DB_AM_INMEM))
 		F_SET(fnp, DB_FNAME_INMEM);
 	if(F_ISSET(dbp, DB_AM_RECOVER))

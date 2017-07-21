@@ -242,7 +242,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	/* Get the fully qualified username back from the context */
 	major_status = gss_inquire_context(&minor_status, krb5->context,
 	    &username, NULL, NULL, NULL, NULL,
-	    NULL, NULL);
+	    NULL, 0);
 	if(GSS_ERROR(major_status)) {
 		Curl_gss_log_error(data, "gss_inquire_context() failed: ",
 		    major_status, minor_status);
@@ -254,7 +254,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 
 	/* Convert the username from internal format to a displayable token */
 	major_status = gss_display_name(&minor_status, username,
-	    &username_token, NULL);
+	    &username_token, 0);
 	if(GSS_ERROR(major_status)) {
 		Curl_gss_log_error(data, "gss_display_name() failed: ",
 		    major_status, minor_status);

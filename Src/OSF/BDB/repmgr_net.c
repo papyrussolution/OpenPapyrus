@@ -445,7 +445,7 @@ out:
 				 * usual; no other bookkeeping needed here.
 				 */
 				STAT(db_rep->region->mstat.st_perm_failed++);
-				DB_EVENT(env, DB_EVENT_REP_PERM_FAILED, NULL);
+				DB_EVENT(env, DB_EVENT_REP_PERM_FAILED, 0);
 				break;
 			    case gmdb_primary:
 				/*
@@ -1398,7 +1398,7 @@ static int final_cleanup(ENV * env, REPMGR_CONNECTION * conn, void * unused)
 	DB_REP * db_rep;
 	REPMGR_SITE * site;
 	int ret, t_ret;
-	COMPQUIET(unused, NULL);
+	COMPQUIET(unused, 0);
 	db_rep = env->rep_handle;
 	ret = __repmgr_close_connection(env, conn);
 	/* Remove the connection from whatever list it's on, if any. */

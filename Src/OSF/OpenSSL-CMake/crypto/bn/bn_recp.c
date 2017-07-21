@@ -46,7 +46,7 @@ int BN_RECP_CTX_set(BN_RECP_CTX * recp, const BIGNUM * d, BN_CTX * ctx)
 	BN_zero(&(recp->Nr));
 	recp->num_bits = BN_num_bits(d);
 	recp->shift = 0;
-	return (1);
+	return 1;
 }
 
 int BN_mod_mul_reciprocal(BIGNUM * r, const BIGNUM * x, const BIGNUM * y,
@@ -104,7 +104,7 @@ int BN_div_recp(BIGNUM * dv, BIGNUM * rem, const BIGNUM * m, BN_RECP_CTX * recp,
 			return 0;
 		}
 		BN_CTX_end(ctx);
-		return (1);
+		return 1;
 	}
 	/*
 	 * We want the remainder Given input of ABCDEF / ab we need multiply

@@ -21,7 +21,7 @@ int RSA_sign_ASN1_OCTET_STRING(int type, const uchar * m, uint m_len, uchar * si
 	sig.type = V_ASN1_OCTET_STRING;
 	sig.length = m_len;
 	sig.data = (uchar*)m;
-	i = i2d_ASN1_OCTET_STRING(&sig, NULL);
+	i = i2d_ASN1_OCTET_STRING(&sig, 0);
 	j = RSA_size(rsa);
 	if(i > (j - RSA_PKCS1_PADDING_SIZE)) {
 		RSAerr(RSA_F_RSA_SIGN_ASN1_OCTET_STRING, RSA_R_DIGEST_TOO_BIG_FOR_RSA_KEY);

@@ -229,16 +229,16 @@ err:
 
 static int __db_join_put(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 {
-	COMPQUIET(dbc, NULL);
-	COMPQUIET(key, NULL);
-	COMPQUIET(data, NULL);
+	COMPQUIET(dbc, 0);
+	COMPQUIET(key, 0);
+	COMPQUIET(data, 0);
 	COMPQUIET(flags, 0);
 	return EINVAL;
 }
 
 static int __db_join_del(DBC * dbc, uint32 flags)
 {
-	COMPQUIET(dbc, NULL);
+	COMPQUIET(dbc, 0);
 	COMPQUIET(flags, 0);
 	return EINVAL;
 }

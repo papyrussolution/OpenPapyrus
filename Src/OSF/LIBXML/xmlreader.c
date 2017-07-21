@@ -485,7 +485,7 @@ static void xmlTextReaderFreeDoc(xmlTextReaderPtr reader, xmlDocPtr cur)
 #ifdef DEBUG_READER
 static void xmlTextReaderDebug(xmlTextReaderPtr reader)
 {
-	if((reader == NULL) || (reader->ctxt == NULL)) {
+	if(!reader || !reader->ctxt) {
 		fprintf(stderr, "xmlTextReader NULL\n");
 		return;
 	}
@@ -1139,9 +1139,9 @@ int xmlTextReaderRead(xmlTextReaderPtr reader)
 	if(reader == NULL)
 		return -1;
 	reader->curnode = NULL;
-	if(reader->doc != NULL)
+	if(reader->doc)
 		return(xmlTextReaderReadTree(reader));
-	if(reader->ctxt == NULL)
+	if(!reader->ctxt)
 		return -1;
 #ifdef DEBUG_READER
 	fprintf(stderr, "\nREAD ");
@@ -1423,9 +1423,9 @@ int xmlTextReaderReadState(xmlTextReaderPtr reader)
 xmlNodePtr xmlTextReaderExpand(xmlTextReaderPtr reader) {
 	if((reader == NULL) || (reader->node == NULL))
 		return 0;
-	if(reader->doc != NULL)
+	if(reader->doc)
 		return(reader->node);
-	if(reader->ctxt == NULL)
+	if(!reader->ctxt)
 		return 0;
 	if(xmlTextReaderDoExpand(reader) < 0)
 		return 0;
@@ -1442,13 +1442,13 @@ xmlNodePtr xmlTextReaderExpand(xmlTextReaderPtr reader) {
  * Returns 1 if the node was read successfully, 0 if there is no more
  *          nodes to read, or -1 in case of error
  */
-int xmlTextReaderNext(xmlTextReaderPtr reader) {
+int xmlTextReaderNext(xmlTextReaderPtr reader) 
+{
 	int ret;
 	xmlNodePtr cur;
-
 	if(reader == NULL)
 		return -1;
-	if(reader->doc != NULL)
+	if(reader->doc)
 		return(xmlTextReaderNextTree(reader));
 	cur = reader->node;
 	if(!cur || (cur->type != XML_ELEMENT_NODE))
@@ -1601,15 +1601,12 @@ xmlChar * xmlTextReaderReadString(xmlTextReaderPtr reader)
  * Returns the number of bytes written to array, or zero if the current
  *         instance is not positioned on an element or -1 in case of error.
  */
-int xmlTextReaderReadBase64(xmlTextReaderPtr reader,
-    uchar * array ATTRIBUTE_UNUSED,
-    int offset ATTRIBUTE_UNUSED,
-    int len ATTRIBUTE_UNUSED) {
-	if((reader == NULL) || (reader->ctxt == NULL))
+int xmlTextReaderReadBase64(xmlTextReaderPtr reader, uchar * array ATTRIBUTE_UNUSED, int offset ATTRIBUTE_UNUSED, int len ATTRIBUTE_UNUSED) 
+{
+	if(!reader || !reader->ctxt)
 		return -1;
 	if(reader->ctxt->wellFormed != 1)
 		return -1;
-
 	if((reader->node == NULL) || (reader->node->type == XML_ELEMENT_NODE))
 		return 0;
 	TODO
@@ -1634,7 +1631,7 @@ int xmlTextReaderReadBinHex(xmlTextReaderPtr reader,
     uchar * array ATTRIBUTE_UNUSED,
     int offset ATTRIBUTE_UNUSED,
     int len ATTRIBUTE_UNUSED) {
-	if((reader == NULL) || (reader->ctxt == NULL))
+	if(!reader || !reader->ctxt)
 		return -1;
 	if(reader->ctxt->wellFormed != 1)
 		return -1;
@@ -2636,7 +2633,7 @@ const xmlChar * xmlTextReaderConstEncoding(xmlTextReaderPtr reader)
 	xmlDocPtr doc = NULL;
 	if(reader == NULL)
 		return 0;
-	if(reader->doc != NULL)
+	if(reader->doc)
 		doc = reader->doc;
 	else if(reader->ctxt != NULL)
 		doc = reader->ctxt->myDoc;
@@ -2790,7 +2787,7 @@ int xmlTextReaderIsEmptyElement(xmlTextReaderPtr reader)
 		return 0;
 	if(reader->state == XML_TEXTREADER_END)
 		return 0;
-	if(reader->doc != NULL)
+	if(reader->doc)
 		return 1;
 #ifdef LIBXML_XINCLUDE_ENABLED
 	if(reader->in_xinclude > 0)
@@ -3649,7 +3646,7 @@ xmlDocPtr xmlTextReaderCurrentDoc(xmlTextReaderPtr reader)
 {
 	if(reader == NULL)
 		return 0;
-	else if(reader->doc != NULL)
+	else if(reader->doc)
 		return reader->doc;
 	else if(!reader->ctxt || !reader->ctxt->myDoc)
 		return 0;
@@ -3785,7 +3782,7 @@ static int xmlTextReaderLocator(void * ctx, const char ** file, unsigned long * 
 	xmlTextReaderPtr reader;
 	if(!ctx || ((file == NULL) && (line == NULL)))
 		return -1;
-	ASSIGN_PTR(file, NULL);
+	ASSIGN_PTR(file, 0);
 	ASSIGN_PTR(line, 0);
 	reader = (xmlTextReaderPtr)ctx;
 	if(reader->ctxt && reader->ctxt->input) {
@@ -4171,7 +4168,7 @@ const xmlChar * xmlTextReaderConstXmlVersion(xmlTextReaderPtr reader)
 	xmlDocPtr doc = NULL;
 	if(reader == NULL)
 		return 0;
-	if(reader->doc != NULL)
+	if(reader->doc)
 		doc = reader->doc;
 	else if(reader->ctxt != NULL)
 		doc = reader->ctxt->myDoc;
@@ -4199,7 +4196,7 @@ int xmlTextReaderStandalone(xmlTextReaderPtr reader)
 	xmlDocPtr doc = NULL;
 	if(reader == NULL)
 		return -1;
-	if(reader->doc != NULL)
+	if(reader->doc)
 		doc = reader->doc;
 	else if(reader->ctxt != NULL)
 		doc = reader->ctxt->myDoc;
@@ -4261,7 +4258,7 @@ int xmlTextReaderLocatorLineNumber(xmlTextReaderLocatorPtr locator)
 	if(locator) {
 		// we know that locator is a xmlParserCtxtPtr 
 		xmlParserCtxtPtr ctx = (xmlParserCtxtPtr)locator;
-		if(ctx->node != NULL) {
+		if(ctx->node) {
 			ret = xmlGetLineNo(ctx->node);
 		}
 		else {
@@ -4290,7 +4287,7 @@ xmlChar * xmlTextReaderLocatorBaseURI(xmlTextReaderLocatorPtr locator)
 	if(locator) {
 		// we know that locator is a xmlParserCtxtPtr 
 		xmlParserCtxtPtr ctx = (xmlParserCtxtPtr)locator;
-		if(ctx->node != NULL) {
+		if(ctx->node) {
 			ret = xmlNodeGetBase(NULL, ctx->node);
 		}
 		else {
@@ -4298,12 +4295,7 @@ xmlChar * xmlTextReaderLocatorBaseURI(xmlTextReaderLocatorPtr locator)
 			xmlParserInputPtr input = ctx->input;
 			if((input->filename == NULL) && (ctx->inputNr > 1))
 				input = ctx->inputTab[ctx->inputNr - 2];
-			if(input != NULL) {
-				ret = xmlStrdup(BAD_CAST input->filename);
-			}
-			else {
-				ret = NULL;
-			}
+			ret = input ? xmlStrdup(BAD_CAST input->filename) : 0;
 		}
 	}
 	return ret;
@@ -4605,7 +4597,7 @@ else {
 		if(xmlBufUse(reader->input->buffer) < 4) {
 			xmlParserInputBufferRead(input, 4);
 		}
-		if(reader->ctxt == NULL) {
+		if(!reader->ctxt) {
 			if(xmlBufUse(reader->input->buffer) >= 4) {
 				reader->ctxt = xmlCreatePushParserCtxt(reader->sax, NULL, (const char*)xmlBufContent(reader->input->buffer), 4, URL);
 				reader->base = 0;
@@ -4623,7 +4615,8 @@ else {
 			xmlCharEncoding enc = XML_CHAR_ENCODING_NONE;
 			xmlCtxtReset(reader->ctxt);
 			buf = xmlAllocParserInputBuffer(enc);
-			if(buf == NULL) return -1;
+			if(buf == NULL) 
+				return -1;
 			inputStream = xmlNewInputStream(reader->ctxt);
 			if(inputStream == NULL) {
 				xmlFreeParserInputBuffer(buf);
@@ -4638,7 +4631,7 @@ else {
 			inputPush(reader->ctxt, inputStream);
 			reader->cur = 0;
 		}
-		if(reader->ctxt == NULL) {
+		if(!reader->ctxt) {
 			xmlGenericError(0, "xmlTextReaderSetup : malloc failed\n");
 			return -1;
 		}

@@ -930,7 +930,7 @@ static void xmlXPtrEvalXPtrPart(xmlXPathParserContextPtr ctxt, xmlChar * name)
 		CUR_PTR = buffer;
 		if(buffer[0] == '/') {
 			xmlXPathRoot(ctxt);
-			xmlXPtrEvalChildSeq(ctxt, NULL);
+			xmlXPtrEvalChildSeq(ctxt, 0);
 		}
 		else {
 			name2 = xmlXPathParseName(ctxt);
@@ -1089,7 +1089,7 @@ static void xmlXPtrEvalChildSeq(xmlXPathParserContextPtr ctxt, xmlChar * name)
 	 * this might prove useful in some cases, warn about it.
 	 */
 	if((name == NULL) && (CUR == '/') && (NXT(1) != '1')) {
-		xmlXPtrErr(ctxt, XML_XPTR_CHILDSEQ_START, "warning: ChildSeq not starting by /1\n", NULL);
+		xmlXPtrErr(ctxt, XML_XPTR_CHILDSEQ_START, "warning: ChildSeq not starting by /1\n", 0);
 	}
 	if(name) {
 		valuePush(ctxt, xmlXPathNewString(name));
@@ -1136,7 +1136,7 @@ static void xmlXPtrEvalXPointer(xmlXPathParserContextPtr ctxt)
 	SKIP_BLANKS;
 	if(CUR == '/') {
 		xmlXPathRoot(ctxt);
-		xmlXPtrEvalChildSeq(ctxt, NULL);
+		xmlXPtrEvalChildSeq(ctxt, 0);
 	}
 	else {
 		xmlChar * name = xmlXPathParseName(ctxt);
@@ -1226,7 +1226,7 @@ xmlXPathObjectPtr xmlXPtrEval(const xmlChar * str, xmlXPathContextPtr ctx)
 	ctxt->xptr = 1;
 	xmlXPtrEvalXPointer(ctxt);
 	if(ctxt->value && (ctxt->value->type != XPATH_NODESET) && (ctxt->value->type != XPATH_LOCATIONSET)) {
-		xmlXPtrErr(ctxt, XML_XPTR_EVAL_FAILED, "xmlXPtrEval: evaluation failed to return a node set\n", NULL);
+		xmlXPtrErr(ctxt, XML_XPTR_EVAL_FAILED, "xmlXPtrEval: evaluation failed to return a node set\n", 0);
 	}
 	else {
 		res = valuePop(ctxt);
@@ -1251,7 +1251,7 @@ xmlXPathObjectPtr xmlXPtrEval(const xmlChar * str, xmlXPathContextPtr ctx)
 		}
 	} while(tmp);
 	if(stack != 0) {
-		xmlXPtrErr(ctxt, XML_XPTR_EXTRA_OBJECTS, "xmlXPtrEval: object(s) left on the eval stack\n", NULL);
+		xmlXPtrErr(ctxt, XML_XPTR_EXTRA_OBJECTS, "xmlXPtrEval: object(s) left on the eval stack\n", 0);
 	}
 	if(ctxt->error != XPATH_EXPRESSION_OK) {
 		xmlXPathFreeObject(res);
@@ -1429,7 +1429,7 @@ static xmlNodePtr xmlXPtrBuildRangeNodeList(xmlXPathObjectPtr range)
 			STRANGE
 			return 0;
 		}
-		cur = xmlXPtrAdvanceNode(cur, NULL);
+		cur = xmlXPtrAdvanceNode(cur, 0);
 	}
 	return(list);
 }
@@ -2182,7 +2182,7 @@ static int xmlXPtrAdvanceChar(xmlNodePtr * node, int * indx, int bytes)
 						pos = 0;
 					}
 					else {
-						cur = xmlXPtrAdvanceNode(cur, NULL);
+						cur = xmlXPtrAdvanceNode(cur, 0);
 						pos = 0;
 					}
 				}
@@ -2216,7 +2216,7 @@ static int xmlXPtrAdvanceChar(xmlNodePtr * node, int * indx, int bytes)
 						}
 						if((pos + bytes) >= len) {
 							bytes -= (len - pos);
-							cur = xmlXPtrAdvanceNode(cur, NULL);
+							cur = xmlXPtrAdvanceNode(cur, 0);
 							pos = 0;
 						}
 						else if((pos + bytes) < len) {
@@ -2303,7 +2303,7 @@ static int xmlXPtrMatchString(const xmlChar * string, xmlNodePtr start, int star
 				}
 			}
 		}
-		cur = xmlXPtrAdvanceNode(cur, NULL);
+		cur = xmlXPtrAdvanceNode(cur, 0);
 		if(!cur)
 			return 0;
 		pos = 0;
@@ -2388,7 +2388,7 @@ static int xmlXPtrSearchString(const xmlChar * string, xmlNodePtr * start, int *
 		}
 		if((cur == *end) && (pos >= *endindex))
 			return 0;
-		cur = xmlXPtrAdvanceNode(cur, NULL);
+		cur = xmlXPtrAdvanceNode(cur, 0);
 		if(!cur)
 			return 0;
 		pos = 1;

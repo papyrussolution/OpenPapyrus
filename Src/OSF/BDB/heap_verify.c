@@ -338,7 +338,7 @@ int __heap_meta2pgset(DB * dbp, VRFY_DBINFO * vdp, HEAPMETA * heapmeta, DB * pgs
 {
 	db_pgno_t pgno, last;
 	int ret;
-	COMPQUIET(dbp, NULL);
+	COMPQUIET(dbp, 0);
 	last = heapmeta->dbmeta.last_pgno;
 	ret = 0;
 	for(pgno = 1; pgno <= last; pgno++)

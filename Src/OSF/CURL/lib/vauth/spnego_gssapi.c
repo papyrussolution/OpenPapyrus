@@ -133,7 +133,7 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy * data,
 	}
 	/* Generate our challenge-response message */
 	major_status = Curl_gss_init_sec_context(data, &minor_status, &nego->context, nego->spn,
-	    &Curl_spnego_mech_oid, GSS_C_NO_CHANNEL_BINDINGS, &input_token, &output_token, TRUE, NULL);
+	    &Curl_spnego_mech_oid, GSS_C_NO_CHANNEL_BINDINGS, &input_token, &output_token, TRUE, 0);
 	/* Free the decoded challenge as it is not required anymore */
 	ZFREE(input_token.value);
 	nego->status = major_status;

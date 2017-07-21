@@ -19,13 +19,10 @@
 
 /* Key Agreement Recipient Info (KARI) routines */
 
-int CMS_RecipientInfo_kari_get0_alg(CMS_RecipientInfo * ri,
-    X509_ALGOR ** palg,
-    ASN1_OCTET_STRING ** pukm)
+int CMS_RecipientInfo_kari_get0_alg(CMS_RecipientInfo * ri, X509_ALGOR ** palg, ASN1_OCTET_STRING ** pukm)
 {
 	if(ri->type != CMS_RECIPINFO_AGREE) {
-		CMSerr(CMS_F_CMS_RECIPIENTINFO_KARI_GET0_ALG,
-		    CMS_R_NOT_KEY_AGREEMENT);
+		CMSerr(CMS_F_CMS_RECIPIENTINFO_KARI_GET0_ALG, CMS_R_NOT_KEY_AGREEMENT);
 		return 0;
 	}
 	if(palg)
@@ -37,12 +34,10 @@ int CMS_RecipientInfo_kari_get0_alg(CMS_RecipientInfo * ri,
 
 /* Retrieve recipient encrypted keys from a kari */
 
-STACK_OF(CMS_RecipientEncryptedKey)
-*CMS_RecipientInfo_kari_get0_reks(CMS_RecipientInfo *ri)
+STACK_OF(CMS_RecipientEncryptedKey) *CMS_RecipientInfo_kari_get0_reks(CMS_RecipientInfo *ri)
 {
 	if(ri->type != CMS_RECIPINFO_AGREE) {
-		CMSerr(CMS_F_CMS_RECIPIENTINFO_KARI_GET0_REKS,
-		    CMS_R_NOT_KEY_AGREEMENT);
+		CMSerr(CMS_F_CMS_RECIPIENTINFO_KARI_GET0_REKS, CMS_R_NOT_KEY_AGREEMENT);
 		return NULL;
 	}
 	return ri->d.kari->recipientEncryptedKeys;
@@ -166,7 +161,7 @@ int CMS_RecipientInfo_kari_set0_pkey(CMS_RecipientInfo * ri, EVP_PKEY * pk)
 	kari->pctx = NULL;
 	if(!pk)
 		return 1;
-	pctx = EVP_PKEY_CTX_new(pk, NULL);
+	pctx = EVP_PKEY_CTX_new(pk, 0);
 	if(!pctx || !EVP_PKEY_derive_init(pctx))
 		goto err;
 	kari->pctx = pctx;
@@ -209,7 +204,7 @@ static int cms_kek_cipher(uchar ** pout, size_t * poutlen, const uchar * in, siz
 	if(!EVP_CipherUpdate(kari->ctx, NULL, &outlen, in, inlen))
 		goto err;
 	out = (uchar *)OPENSSL_malloc(outlen);
-	if(out == NULL)
+	if(!out)
 		goto err;
 	if(!EVP_CipherUpdate(kari->ctx, out, &outlen, in, inlen))
 		goto err;
@@ -262,7 +257,7 @@ static int cms_kari_create_ephemeral_key(CMS_KeyAgreeRecipientInfo * kari,
 	EVP_PKEY_CTX * pctx = NULL;
 	EVP_PKEY * ekey = NULL;
 	int rv = 0;
-	pctx = EVP_PKEY_CTX_new(pk, NULL);
+	pctx = EVP_PKEY_CTX_new(pk, 0);
 	if(!pctx)
 		goto err;
 	if(EVP_PKEY_keygen_init(pctx) <= 0)
@@ -270,7 +265,7 @@ static int cms_kari_create_ephemeral_key(CMS_KeyAgreeRecipientInfo * kari,
 	if(EVP_PKEY_keygen(pctx, &ekey) <= 0)
 		goto err;
 	EVP_PKEY_CTX_free(pctx);
-	pctx = EVP_PKEY_CTX_new(ekey, NULL);
+	pctx = EVP_PKEY_CTX_new(ekey, 0);
 	if(!pctx)
 		goto err;
 	if(EVP_PKEY_derive_init(pctx) <= 0)

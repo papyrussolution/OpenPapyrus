@@ -105,14 +105,14 @@ int png_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 		}
 	}
 	// Set up error handling routine as proc() above 
-	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, graphic, writepng_error_handler, NULL);
+	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, graphic, writepng_error_handler, 0);
 	if(!png_ptr) {
 		sstrcpy(symbol->errtxt, "Out of memory (F33)");
 		return ZINT_ERROR_MEMORY;
 	}
 	info_ptr = png_create_info_struct(png_ptr);
 	if(!info_ptr) {
-		png_destroy_write_struct(&png_ptr, NULL);
+		png_destroy_write_struct(&png_ptr, 0);
 		sstrcpy(symbol->errtxt, "Out of memory (F34)");
 		return ZINT_ERROR_MEMORY;
 	}
@@ -156,7 +156,7 @@ int png_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 		png_write_row(png_ptr, image_data);
 	}
 	// End the file 
-	png_write_end(png_ptr, NULL);
+	png_write_end(png_ptr, 0);
 	// make sure we have disengaged 
 	if(png_ptr && info_ptr) png_destroy_write_struct(&png_ptr, &info_ptr);
 	if(symbol->output_options & BARCODE_STDOUT) {

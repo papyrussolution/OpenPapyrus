@@ -1568,7 +1568,7 @@ PPImpExp::~PPImpExp()
 	delete P_XmlT;
 	delete P_SoapT;
 	delete P_XlsT;
-	delete P_HdrData; // @v7.4.6
+	delete P_HdrData;
 }
 
 int PPImpExp::IsOpened() const
@@ -1581,10 +1581,9 @@ int PPImpExp::IsCtrError() const
 	return BIN(State & sCtrError);
 }
 
-int PPImpExp::SetExprContext(ExprEvalContext * pCtx)
+void PPImpExp::SetExprContext(ExprEvalContext * pCtx)
 {
 	P_ExprContext = pCtx;
-	return 1;
 }
 
 int PPImpExp::SetHeaderData(const Sdr_ImpExpHeader * pData)

@@ -95,8 +95,7 @@ int __db_appname(ENV * env, APPNAME appname, const char * file, const char ** di
 	const char * dir = 0;
 	int ret;
 	DB_ENV * dbenv = env->dbenv;
-	if(namep != NULL)
-		*namep = NULL;
+	ASSIGN_PTR(namep, NULL);
 	/*
 	 * Absolute path names are never modified.  If the file is an absolute
 	 * path, we're done.
@@ -122,7 +121,7 @@ int __db_appname(ENV * env, APPNAME appname, const char * file, const char ** di
 		 * First, step through the data_dir entries, if any, looking
 		 * for the file.
 		 */
-		if(dbenv != NULL && dbenv->db_data_dir != NULL)
+		if(dbenv && dbenv->db_data_dir != NULL)
 			for(ddp = dbenv->db_data_dir; *ddp != NULL; ddp++)
 				DB_CHECKFILE(file, *ddp, 1, 0, namep, dirp);
 		/* Second, look in the environment home directory. */
@@ -132,18 +131,17 @@ int __db_appname(ENV * env, APPNAME appname, const char * file, const char ** di
 		 * directory unless we're in recovery and it doesn't exist.
 		 */
 		if(dirp != NULL && *dirp != NULL)
-			DB_CHECKFILE(file, *dirp, 0,
-				appname == DB_APP_RECOVER, namep, dirp);
+			DB_CHECKFILE(file, *dirp, 0, appname == DB_APP_RECOVER, namep, dirp);
 		/* Finally, use the create directory, if set. */
-		if(dbenv != NULL && dbenv->db_create_dir != NULL)
+		if(dbenv && dbenv->db_create_dir != NULL)
 			dir = dbenv->db_create_dir;
 		break;
 	    case DB_APP_LOG:
-		if(dbenv != NULL)
+		if(dbenv)
 			dir = dbenv->db_log_dir;
 		break;
 	    case DB_APP_TMP:
-		if(dbenv != NULL)
+		if(dbenv)
 			dir = dbenv->db_tmp_dir;
 		break;
 	}
@@ -172,20 +170,17 @@ int __db_tmp_open(ENV * env, uint32 oflags, DB_FH ** fhpp)
 #define DB_TRAIL        "BDBXXXXX"
 	if((ret = __db_appname(env, DB_APP_TMP, DB_TRAIL, NULL, &path)) != 0)
 		goto done;
-	/* Replace the X's with the process ID (in decimal). */
-	__os_id(env->dbenv, &pid, NULL);
+	// Replace the X's with the process ID (in decimal).
+	__os_id(env->dbenv, &pid, 0);
 	ipid = (int)pid;
 	if(ipid < 0)
 		ipid = -ipid;
 	for(trv = path+strlen(path); *--trv == 'X'; ipid /= 10)
 		*trv = '0'+(uchar)(ipid%10);
 	firstx = trv+1;
-
-	/* Loop, trying to open a file. */
+	// Loop, trying to open a file
 	for(filenum = 1;; filenum++) {
-		if((ret = __os_open(env, path, 0,
-			    oflags|DB_OSO_CREATE|DB_OSO_EXCL|DB_OSO_TEMP,
-			    DB_MODE_600, fhpp)) == 0) {
+		if((ret = __os_open(env, path, 0, oflags|DB_OSO_CREATE|DB_OSO_EXCL|DB_OSO_TEMP, DB_MODE_600, fhpp)) == 0) {
 			ret = 0;
 			goto done;
 		}

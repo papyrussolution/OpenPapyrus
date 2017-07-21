@@ -37,15 +37,14 @@ struct PPDefinition {
 	std::string value;
 	bool isUndef;
 	std::string arguments;
-	PPDefinition(Sci_Position line_,
-		    const std::string &key_,
-		    const std::string &value_,
-		    bool isUndef_ = false,
-		    std::string arguments_ = "") :
-		line(line_), key(key_), value(value_), isUndef(isUndef_), arguments(arguments_)
-	{
-	}
+
+	PPDefinition(Sci_Position line_, const std::string &key_, const std::string &value_, bool isUndef_ = false, std::string arguments_ = "");
 };
+
+PPDefinition::PPDefinition(Sci_Position line_, const std::string &key_, const std::string &value_, bool isUndef_, std::string arguments_) :
+	line(line_), key(key_), value(value_), isUndef(isUndef_), arguments(arguments_)
+{
+}
 
 class LinePPState {
 	int state;
@@ -55,27 +54,22 @@ class LinePPState {
 	{
 		return level >= 0 && level < 32;
 	}
-
 	int maskLevel() const
 	{
 		return 1 << level;
 	}
-
 public:
 	LinePPState() : state(0), ifTaken(0), level(-1)
 	{
 	}
-
 	bool IsInactive() const
 	{
 		return state != 0;
 	}
-
 	bool CurrentIfTaken() const
 	{
 		return (ifTaken & maskLevel()) != 0;
 	}
-
 	void StartSection(bool on)
 	{
 		level++;
@@ -90,7 +84,6 @@ public:
 			}
 		}
 	}
-
 	void EndSection()
 	{
 		if(ValidLevel()) {
@@ -99,7 +92,6 @@ public:
 		}
 		level--;
 	}
-
 	void InvertCurrentLevel()
 	{
 		if(ValidLevel()) {
@@ -123,7 +115,6 @@ public:
 			return LinePPState();
 		}
 	}
-
 	void Add(Sci_Position line, LinePPState lls)
 	{
 		vlls.resize(line+1);
@@ -164,27 +155,16 @@ struct OptionsVerilog {
 struct OptionSetVerilog : public OptionSet<OptionsVerilog> {
 	OptionSetVerilog()
 	{
-		DefineProperty("fold.comment", &OptionsVerilog::foldComment,
-			    "This option enables folding multi-line comments when using the Verilog lexer.");
-
-		DefineProperty("fold.preprocessor", &OptionsVerilog::foldPreprocessor,
-			    "This option enables folding preprocessor directives when using the Verilog lexer.");
+		DefineProperty("fold.comment", &OptionsVerilog::foldComment, "This option enables folding multi-line comments when using the Verilog lexer.");
+		DefineProperty("fold.preprocessor", &OptionsVerilog::foldPreprocessor, "This option enables folding preprocessor directives when using the Verilog lexer.");
 		DefineProperty("fold.compact", &OptionsVerilog::foldCompact);
-		DefineProperty("fold.at.else", &OptionsVerilog::foldAtElse,
-			    "This option enables folding on the else line of an if statement.");
-		DefineProperty("fold.verilog.flags", &OptionsVerilog::foldAtModule,
-			    "This option enables folding module definitions. Typically source files "
-			    "contain only one module definition so this option is somewhat useless.");
-		DefineProperty("lexer.verilog.track.preprocessor", &OptionsVerilog::trackPreprocessor,
-			    "Set to 1 to interpret `if/`else/`endif to grey out code that is not active.");
-		DefineProperty("lexer.verilog.update.preprocessor", &OptionsVerilog::updatePreprocessor,
-			    "Set to 1 to update preprocessor definitions when `define, `undef, or `undefineall found.");
-		DefineProperty("lexer.verilog.portstyling", &OptionsVerilog::portStyling,
-			    "Set to 1 to style input, output, and inout ports differently from regular keywords.");
-		DefineProperty("lexer.verilog.allupperkeywords", &OptionsVerilog::allUppercaseDocKeyword,
-			    "Set to 1 to style identifiers that are all uppercase as documentation keyword.");
-		DefineProperty("lexer.verilog.fold.preprocessor.else", &OptionsVerilog::foldPreprocessorElse,
-			    "This option enables folding on `else and `elsif preprocessor directives.");
+		DefineProperty("fold.at.else", &OptionsVerilog::foldAtElse, "This option enables folding on the else line of an if statement.");
+		DefineProperty("fold.verilog.flags", &OptionsVerilog::foldAtModule, "This option enables folding module definitions. Typically source files contain only one module definition so this option is somewhat useless.");
+		DefineProperty("lexer.verilog.track.preprocessor", &OptionsVerilog::trackPreprocessor, "Set to 1 to interpret `if/`else/`endif to grey out code that is not active.");
+		DefineProperty("lexer.verilog.update.preprocessor", &OptionsVerilog::updatePreprocessor, "Set to 1 to update preprocessor definitions when `define, `undef, or `undefineall found.");
+		DefineProperty("lexer.verilog.portstyling", &OptionsVerilog::portStyling, "Set to 1 to style input, output, and inout ports differently from regular keywords.");
+		DefineProperty("lexer.verilog.allupperkeywords", &OptionsVerilog::allUppercaseDocKeyword, "Set to 1 to style identifiers that are all uppercase as documentation keyword.");
+		DefineProperty("lexer.verilog.fold.preprocessor.else", &OptionsVerilog::foldPreprocessorElse, "This option enables folding on `else and `elsif preprocessor directives.");
 	}
 };
 
@@ -207,14 +187,12 @@ class LexerVerilog : public ILexerWithSubStyles {
 		SymbolValue(const std::string &value_ = "", const std::string &arguments_ = "") : value(value_), arguments(arguments_)
 		{
 		}
-
 		SymbolValue &operator =(const std::string &value_)
 		{
 			value = value_;
 			arguments.clear();
 			return *this;
 		}
-
 		bool IsMacro() const
 		{
 			return !arguments.empty();
@@ -239,51 +217,40 @@ class LexerVerilog : public ILexerWithSubStyles {
 	std::map<Sci_Position, int> foldState;
 
 public:
-	LexerVerilog() :
-		setWord(CharacterSet::setAlphaNum, "._", 0x80, true),
-		subStyles(styleSubable, 0x80, 0x40, activeFlag)
+	LexerVerilog() : setWord(CharacterSet::setAlphaNum, "._", 0x80, true), subStyles(styleSubable, 0x80, 0x40, activeFlag)
 	{
 	}
-
 	virtual ~LexerVerilog()
 	{
 	}
-
 	int SCI_METHOD Version() const
 	{
 		return lvSubStyles;
 	}
-
 	void SCI_METHOD Release()
 	{
 		delete this;
 	}
-
 	const char* SCI_METHOD PropertyNames()
 	{
 		return osVerilog.PropertyNames();
 	}
-
 	int SCI_METHOD PropertyType(const char* name)
 	{
 		return osVerilog.PropertyType(name);
 	}
-
 	const char* SCI_METHOD DescribeProperty(const char* name)
 	{
 		return osVerilog.DescribeProperty(name);
 	}
-
 	Sci_Position SCI_METHOD PropertySet(const char* key, const char* val)
 	{
 		return osVerilog.PropertySet(&options, key, val);
 	}
-
 	const char* SCI_METHOD DescribeWordListSets()
 	{
 		return osVerilog.DescribeWordListSets();
 	}
-
 	Sci_Position SCI_METHOD WordListSet(int n, const char* wl);
 	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
 	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
@@ -291,69 +258,56 @@ public:
 	{
 		return 0;
 	}
-
 	int SCI_METHOD LineEndTypesSupported()
 	{
 		return SC_LINE_END_TYPE_UNICODE;
 	}
-
 	int SCI_METHOD AllocateSubStyles(int styleBase, int numberStyles)
 	{
 		return subStyles.Allocate(styleBase, numberStyles);
 	}
-
 	int SCI_METHOD SubStylesStart(int styleBase)
 	{
 		return subStyles.Start(styleBase);
 	}
-
 	int SCI_METHOD SubStylesLength(int styleBase)
 	{
 		return subStyles.Length(styleBase);
 	}
-
 	int SCI_METHOD StyleFromSubStyle(int subStyle)
 	{
 		int styleBase = subStyles.BaseStyle(MaskActive(subStyle));
 		int active = subStyle & activeFlag;
 		return styleBase | active;
 	}
-
 	int SCI_METHOD PrimaryStyleFromStyle(int style)
 	{
 		return MaskActive(style);
 	}
-
 	void SCI_METHOD FreeSubStyles()
 	{
 		subStyles.Free();
 	}
-
 	void SCI_METHOD SetIdentifiers(int style, const char * identifiers)
 	{
 		subStyles.SetIdentifiers(style, identifiers);
 	}
-
 	int SCI_METHOD DistanceToSecondaryStyles()
 	{
 		return activeFlag;
 	}
-
 	const char * SCI_METHOD GetSubStyleBases()
 	{
 		return styleSubable;
 	}
-
 	static ILexer* LexerFactoryVerilog()
 	{
 		return new LexerVerilog();
 	}
-
 	static int MaskActive(int style)
 	{
 		return style & ~activeFlag;
 	}
-
 	std::vector<std::string> Tokenize(const std::string &expr) const;
 };
 
@@ -361,24 +315,12 @@ Sci_Position SCI_METHOD LexerVerilog::WordListSet(int n, const char * wl)
 {
 	WordList * wordListN = 0;
 	switch(n) {
-		case 0:
-		    wordListN = &keywords;
-		    break;
-		case 1:
-		    wordListN = &keywords2;
-		    break;
-		case 2:
-		    wordListN = &keywords3;
-		    break;
-		case 3:
-		    wordListN = &keywords4;
-		    break;
-		case 4:
-		    wordListN = &keywords5;
-		    break;
-		case 5:
-		    wordListN = &ppDefinitions;
-		    break;
+		case 0: wordListN = &keywords; break;
+		case 1: wordListN = &keywords2; break;
+		case 2: wordListN = &keywords3; break;
+		case 3: wordListN = &keywords4; break;
+		case 4: wordListN = &keywords5; break;
+		case 5: wordListN = &ppDefinitions; break;
 	}
 	Sci_Position firstModification = -1;
 	if(wordListN) {
@@ -445,7 +387,6 @@ struct After {
 	explicit After(Sci_Position line_) : line(line_)
 	{
 	}
-
 	bool operator()(PPDefinition &p) const
 	{
 		return p.line > line;
@@ -490,9 +431,7 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 	if(initStyle == SCE_V_STRINGEOL)
 		initStyle = SCE_V_DEFAULT;
 
-	if((MaskActive(initStyle) == SCE_V_PREPROCESSOR) ||
-	    (MaskActive(initStyle) == SCE_V_COMMENTLINE) ||
-	    (MaskActive(initStyle) == SCE_V_COMMENTLINEBANG)) {
+	if((MaskActive(initStyle) == SCE_V_PREPROCESSOR) || (MaskActive(initStyle) == SCE_V_COMMENTLINE) || (MaskActive(initStyle) == SCE_V_COMMENTLINEBANG)) {
 		// Set continuationLine if last character of previous line is '\'
 		if(curLine > 0) {
 			Sci_Position endLinePrevious = styler.LineEnd(curLine - 1);
@@ -891,7 +830,7 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 	sc.Complete();
 }
 
-static bool IsStreamCommentStyle(int style)
+static bool FASTCALL IsStreamCommentStyle(int style)
 {
 	return style == SCE_V_COMMENT;
 }

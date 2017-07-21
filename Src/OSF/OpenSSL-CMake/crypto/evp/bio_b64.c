@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "internal/bio.h"
+//#include "internal/bio.h"
 
 static int b64_write(BIO * h, const char * buf, int num);
 static int b64_read(BIO * h, char * buf, int size);
@@ -88,7 +88,7 @@ static int b64_free(BIO * a)
 		return 0;
 	EVP_ENCODE_CTX_free(ctx->base64);
 	OPENSSL_free(ctx);
-	BIO_set_data(a, NULL);
+	BIO_set_data(a, 0);
 	BIO_set_init(a, 0);
 	return 1;
 }
@@ -99,11 +99,11 @@ static int b64_read(BIO * b, char * out, int outl)
 	BIO_B64_CTX * ctx;
 	uchar * p, * q;
 	BIO * next;
-	if(out == NULL)
+	if(!out)
 		return 0;
 	ctx = (BIO_B64_CTX*)BIO_get_data(b);
 	next = BIO_next(b);
-	if((ctx == NULL) || (next == NULL))
+	if(!ctx || (next == NULL))
 		return 0;
 	BIO_clear_retry_flags(b);
 	if(ctx->encode != B64_DECODE) {
@@ -283,7 +283,7 @@ static int b64_write(BIO * b, const char * in, int inl)
 	int i;
 	BIO_B64_CTX * ctx = (BIO_B64_CTX*)BIO_get_data(b);
 	BIO * next = BIO_next(b);
-	if((ctx == NULL) || (next == NULL))
+	if(!ctx || (next == NULL))
 		return 0;
 	BIO_clear_retry_flags(b);
 	if(ctx->encode != B64_ENCODE) {
@@ -312,7 +312,7 @@ static int b64_write(BIO * b, const char * in, int inl)
 	/* at this point all pending data has been written */
 	ctx->buf_off = 0;
 	ctx->buf_len = 0;
-	if((in == NULL) || (inl <= 0))
+	if(!in || (inl <= 0))
 		return 0;
 	while(inl > 0) {
 		n = (inl > B64_BLOCK_SIZE) ? B64_BLOCK_SIZE : inl;
@@ -387,7 +387,7 @@ static long b64_ctrl(BIO * b, int cmd, long num, void * ptr)
 	int i;
 	BIO_B64_CTX * ctx = (BIO_B64_CTX*)BIO_get_data(b);
 	BIO * next = BIO_next(b);
-	if((ctx == NULL) || (next == NULL))
+	if(!ctx || (next == NULL))
 		return 0;
 	switch(cmd) {
 		case BIO_CTRL_RESET:
@@ -469,7 +469,7 @@ static long b64_callback_ctrl(BIO * b, int cmd, bio_info_cb * fp)
 {
 	long ret = 1;
 	BIO * next = BIO_next(b);
-	if(next == NULL)
+	if(!next)
 		return 0;
 	switch(cmd) {
 		default:

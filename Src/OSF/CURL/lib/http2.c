@@ -2038,7 +2038,7 @@ CURLcode Curl_http2_switched(struct connectdata * conn,
 		stream->stream_id = 1;
 		/* queue SETTINGS frame (again) */
 		rv = nghttp2_session_upgrade(httpc->h2, httpc->binsettings,
-		    httpc->binlen, NULL);
+		    httpc->binlen, 0);
 		if(rv != 0) {
 			failf(data, "nghttp2_session_upgrade() failed: %s(%d)",
 			    nghttp2_strerror(rv), rv);

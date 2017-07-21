@@ -2890,7 +2890,7 @@ TRIO_PRIVATE int TrioFormatProcess TRIO_ARGS3((data, format, parameters), trio_c
 					    }
 					    else {
 						    /* Look up namespace */
-						    def = TrioFindNamespace(parameters[i].user_name, NULL);
+						    def = TrioFindNamespace(parameters[i].user_name, 0);
 					    }
 					    if(def) {
 						    reference.data = data;
@@ -3103,7 +3103,7 @@ TRIO_PUBLIC int trio_printf(TRIO_CONST char * format, TRIO_VA_DECL/*va_alist*/)
 	va_list args;
 	assert(VALID(format));
 	TRIO_VA_START(args, format);
-	status = TrioFormat(stdout, 0, TrioOutStreamFile, format, TRIO_VA_LIST_ADDR(args), NULL);
+	status = TrioFormat(stdout, 0, TrioOutStreamFile, format, TRIO_VA_LIST_ADDR(args), 0);
 	TRIO_VA_END(args);
 	return status;
 }
@@ -3118,7 +3118,7 @@ TRIO_PUBLIC int trio_printf(TRIO_CONST char * format, TRIO_VA_DECL/*va_alist*/)
 TRIO_PUBLIC int trio_vprintf(TRIO_CONST char * format, va_list args)
 {
 	assert(VALID(format));
-	return TrioFormat(stdout, 0, TrioOutStreamFile, format, TRIO_VA_LIST_ADDR(args), NULL);
+	return TrioFormat(stdout, 0, TrioOutStreamFile, format, TRIO_VA_LIST_ADDR(args), 0);
 }
 
 /**
@@ -3153,7 +3153,7 @@ TRIO_PUBLIC int trio_fprintf(FILE * file, TRIO_CONST char * format, TRIO_VA_DECL
 	assert(VALID(file));
 	assert(VALID(format));
 	TRIO_VA_START(args, format);
-	status = TrioFormat(file, 0, TrioOutStreamFile, format, TRIO_VA_LIST_ADDR(args), NULL);
+	status = TrioFormat(file, 0, TrioOutStreamFile, format, TRIO_VA_LIST_ADDR(args), 0);
 	TRIO_VA_END(args);
 	return status;
 }
@@ -3175,7 +3175,7 @@ trio_vfprintf TRIO_ARGS3((file, format, args),
 	assert(VALID(file));
 	assert(VALID(format));
 
-	return TrioFormat(file, 0, TrioOutStreamFile, format, TRIO_VA_LIST_ADDR(args), NULL);
+	return TrioFormat(file, 0, TrioOutStreamFile, format, TRIO_VA_LIST_ADDR(args), 0);
 }
 
 /**
@@ -3211,7 +3211,7 @@ TRIO_PUBLIC int trio_dprintf(int fd, TRIO_CONST char * format, TRIO_VA_DECL)
 	va_list args;
 	assert(VALID(format));
 	TRIO_VA_START(args, format);
-	status = TrioFormat(&fd, 0, TrioOutStreamFileDescriptor, format, TRIO_VA_LIST_ADDR(args), NULL);
+	status = TrioFormat(&fd, 0, TrioOutStreamFileDescriptor, format, TRIO_VA_LIST_ADDR(args), 0);
 	TRIO_VA_END(args);
 	return status;
 }
@@ -3227,7 +3227,7 @@ TRIO_PUBLIC int trio_dprintf(int fd, TRIO_CONST char * format, TRIO_VA_DECL)
 TRIO_PUBLIC int trio_vdprintf(int fd, TRIO_CONST char * format, va_list args)
 {
 	assert(VALID(format));
-	return TrioFormat(&fd, 0, TrioOutStreamFileDescriptor, format, TRIO_VA_LIST_ADDR(args), NULL);
+	return TrioFormat(&fd, 0, TrioOutStreamFileDescriptor, format, TRIO_VA_LIST_ADDR(args), 0);
 }
 
 /**
@@ -3257,7 +3257,7 @@ TRIO_PUBLIC int trio_cprintf(trio_outstream_t stream, trio_pointer_t closure, TR
 	TRIO_VA_START(args, format);
 	data.stream.out = stream;
 	data.closure = closure;
-	status = TrioFormat(&data, 0, TrioOutStreamCustom, format, TRIO_VA_LIST_ADDR(args), NULL);
+	status = TrioFormat(&data, 0, TrioOutStreamCustom, format, TRIO_VA_LIST_ADDR(args), 0);
 	TRIO_VA_END(args);
 	return status;
 }
@@ -3269,7 +3269,7 @@ TRIO_PUBLIC int trio_vcprintf(trio_outstream_t stream, trio_pointer_t closure, T
 	assert(VALID(format));
 	data.stream.out = stream;
 	data.closure = closure;
-	return TrioFormat(&data, 0, TrioOutStreamCustom, format, TRIO_VA_LIST_ADDR(args), NULL);
+	return TrioFormat(&data, 0, TrioOutStreamCustom, format, TRIO_VA_LIST_ADDR(args), 0);
 }
 
 TRIO_PUBLIC int trio_cprintfv(trio_outstream_t stream, trio_pointer_t closure, TRIO_CONST char * format, void ** args)
@@ -3302,7 +3302,7 @@ TRIO_PUBLIC int trio_sprintf(char * buffer, TRIO_CONST char * format, TRIO_VA_DE
 	assert(VALID(format));
 
 	TRIO_VA_START(args, format);
-	status = TrioFormat(&buffer, 0, TrioOutStreamString, format, TRIO_VA_LIST_ADDR(args), NULL);
+	status = TrioFormat(&buffer, 0, TrioOutStreamString, format, TRIO_VA_LIST_ADDR(args), 0);
 	*buffer = NIL; /* Terminate with NIL character */
 	TRIO_VA_END(args);
 	return status;
@@ -3321,7 +3321,7 @@ TRIO_PUBLIC int trio_vsprintf(char * buffer, TRIO_CONST char * format, va_list a
 	int status;
 	assert(VALID(buffer));
 	assert(VALID(format));
-	status = TrioFormat(&buffer, 0, TrioOutStreamString, format, TRIO_VA_LIST_ADDR(args), NULL);
+	status = TrioFormat(&buffer, 0, TrioOutStreamString, format, TRIO_VA_LIST_ADDR(args), 0);
 	*buffer = NIL;
 	return status;
 }
@@ -3364,7 +3364,7 @@ TRIO_PUBLIC int trio_snprintf(char * buffer, size_t max, TRIO_CONST char * forma
 	assert(VALID(buffer));
 	assert(VALID(format));
 	TRIO_VA_START(args, format);
-	status = TrioFormat(&buffer, max > 0 ? max - 1 : 0, TrioOutStreamStringMax, format, TRIO_VA_LIST_ADDR(args), NULL);
+	status = TrioFormat(&buffer, max > 0 ? max - 1 : 0, TrioOutStreamStringMax, format, TRIO_VA_LIST_ADDR(args), 0);
 	if(max > 0)
 		*buffer = NIL;
 	TRIO_VA_END(args);
@@ -3385,7 +3385,7 @@ TRIO_PUBLIC int trio_vsnprintf(char * buffer, size_t max, TRIO_CONST char * form
 	int status;
 	assert(VALID(buffer));
 	assert(VALID(format));
-	status = TrioFormat(&buffer, max > 0 ? max - 1 : 0, TrioOutStreamStringMax, format, TRIO_VA_LIST_ADDR(args), NULL);
+	status = TrioFormat(&buffer, max > 0 ? max - 1 : 0, TrioOutStreamStringMax, format, TRIO_VA_LIST_ADDR(args), 0);
 	if(max > 0)
 		*buffer = NIL;
 	return status;
@@ -3426,7 +3426,7 @@ TRIO_PUBLIC int trio_snprintfcat(char * buffer, size_t max, TRIO_CONST char * fo
 	assert(VALID(format));
 	buf_len = trio_length(buffer);
 	buffer = &buffer[buf_len];
-	status = TrioFormat(&buffer, max - 1 - buf_len, TrioOutStreamStringMax, format, TRIO_VA_LIST_ADDR(args), NULL);
+	status = TrioFormat(&buffer, max - 1 - buf_len, TrioOutStreamStringMax, format, TRIO_VA_LIST_ADDR(args), 0);
 	TRIO_VA_END(args);
 	*buffer = NIL;
 	return status;
@@ -3441,7 +3441,7 @@ TRIO_PUBLIC int trio_vsnprintfcat(char * buffer, size_t max, TRIO_CONST char * f
 	buf_len = trio_length(buffer);
 	buffer = &buffer[buf_len];
 	status = TrioFormat(&buffer, max - 1 - buf_len,
-	    TrioOutStreamStringMax, format, TRIO_VA_LIST_ADDR(args), NULL);
+	    TrioOutStreamStringMax, format, TRIO_VA_LIST_ADDR(args), 0);
 	*buffer = NIL;
 	return status;
 }
@@ -3462,7 +3462,7 @@ TRIO_PUBLIC char * trio_aprintf TRIO_VARGS2((format, va_alist), TRIO_CONST char 
 	info = trio_xstring_duplicate("");
 	if(info) {
 		TRIO_VA_START(args, format);
-		TrioFormat(info, 0, TrioOutStreamStringDynamic, format, TRIO_VA_LIST_ADDR(args), NULL);
+		TrioFormat(info, 0, TrioOutStreamStringDynamic, format, TRIO_VA_LIST_ADDR(args), 0);
 		TRIO_VA_END(args);
 
 		trio_string_terminate(info);
@@ -3480,7 +3480,7 @@ TRIO_PUBLIC char * trio_vaprintf TRIO_ARGS2((format, args), TRIO_CONST char * fo
 	assert(VALID(format));
 	info = trio_xstring_duplicate("");
 	if(info) {
-		TrioFormat(info, 0, TrioOutStreamStringDynamic, format, TRIO_VA_LIST_ADDR(args), NULL);
+		TrioFormat(info, 0, TrioOutStreamStringDynamic, format, TRIO_VA_LIST_ADDR(args), 0);
 		trio_string_terminate(info);
 		result = trio_string_extract(info);
 		trio_string_destroy(info);
@@ -3501,7 +3501,7 @@ TRIO_PUBLIC int trio_asprintf(char ** result, TRIO_CONST char * format, TRIO_VA_
 	}
 	else {
 		TRIO_VA_START(args, format);
-		status = TrioFormat(info, 0, TrioOutStreamStringDynamic, format, TRIO_VA_LIST_ADDR(args), NULL);
+		status = TrioFormat(info, 0, TrioOutStreamStringDynamic, format, TRIO_VA_LIST_ADDR(args), 0);
 		TRIO_VA_END(args);
 		if(status >= 0) {
 			trio_string_terminate(info);
@@ -3523,7 +3523,7 @@ TRIO_PUBLIC int trio_vasprintf(char ** result, TRIO_CONST char * format, va_list
 		status = TRIO_ERROR_RETURN(TRIO_ENOMEM, 0);
 	}
 	else {
-		status = TrioFormat(info, 0, TrioOutStreamStringDynamic, format, TRIO_VA_LIST_ADDR(args), NULL);
+		status = TrioFormat(info, 0, TrioOutStreamStringDynamic, format, TRIO_VA_LIST_ADDR(args), 0);
 		if(status >= 0) {
 			trio_string_terminate(info);
 			*result = trio_string_extract(info);
@@ -3987,7 +3987,7 @@ int trio_print_ref(trio_pointer_t ref, TRIO_CONST char * format, /*va_alist*/TRI
 	va_list arglist;
 	assert(VALID(format));
 	TRIO_VA_START(arglist, format);
-	status = TrioFormatRef((trio_reference_t*)ref, format, TRIO_VA_LIST_ADDR(arglist), NULL);
+	status = TrioFormatRef((trio_reference_t*)ref, format, TRIO_VA_LIST_ADDR(arglist), 0);
 	TRIO_VA_END(arglist);
 	return status;
 }
@@ -3998,7 +3998,7 @@ int trio_print_ref(trio_pointer_t ref, TRIO_CONST char * format, /*va_alist*/TRI
 int trio_vprint_ref(trio_pointer_t ref, TRIO_CONST char * format, va_list arglist)
 {
 	assert(VALID(format));
-	return TrioFormatRef((trio_reference_t*)ref, format, TRIO_VA_LIST_ADDR(arglist), NULL);
+	return TrioFormatRef((trio_reference_t*)ref, format, TRIO_VA_LIST_ADDR(arglist), 0);
 }
 
 /*************************************************************************
@@ -4405,31 +4405,28 @@ TRIO_PRIVATE BOOLEAN_T TrioReadNumber(trio_class_t * self, trio_uintmax_t * targ
 	if(!(flags & FLAGS_UNSIGNED)) {
 		/* Leading sign */
 		if(self->current == '+') {
-			self->InStream(self, NULL);
+			self->InStream(self, 0);
 		}
 		else if(self->current == '-') {
-			self->InStream(self, NULL);
+			self->InStream(self, 0);
 			isNegative = TRUE;
 		}
 	}
 	count = self->processed;
 	if(flags & FLAGS_ALTERNATIVE) {
-		switch(base)
-		{
+		switch(base) {
 			case NO_BASE:
 			case BASE_OCTAL:
 			case BASE_HEX:
 			case BASE_BINARY:
 			    if(self->current == '0') {
-				    self->InStream(self, NULL);
+				    self->InStream(self, 0);
 				    if(self->current) {
-					    if((base == BASE_HEX) &&
-					    (trio_to_upper(self->current) == 'X')) {
-						    self->InStream(self, NULL);
+					    if((base == BASE_HEX) && (trio_to_upper(self->current) == 'X')) {
+						    self->InStream(self, 0);
 					    }
-					    else if((base == BASE_BINARY) &&
-					    (trio_to_upper(self->current) == 'B')) {
-						    self->InStream(self, NULL);
+					    else if((base == BASE_BINARY) && (trio_to_upper(self->current) == 'B')) {
+						    self->InStream(self, 0);
 					    }
 				    }
 			    }
@@ -4453,7 +4450,7 @@ TRIO_PRIVATE BOOLEAN_T TrioReadNumber(trio_class_t * self, trio_uintmax_t * targ
 				if(internalThousandSeparator[j] != self->current)
 					break;
 
-				self->InStream(self, NULL);
+				self->InStream(self, 0);
 			}
 			if(internalThousandSeparator[j])
 				break;  /* Mismatch */
@@ -4467,7 +4464,7 @@ TRIO_PRIVATE BOOLEAN_T TrioReadNumber(trio_class_t * self, trio_uintmax_t * targ
 		number += digit;
 		gotNumber = TRUE; /* we need at least one digit */
 
-		self->InStream(self, NULL);
+		self->InStream(self, 0);
 	}
 
 	/* Was anything read at all? */
@@ -4490,7 +4487,7 @@ TRIO_PRIVATE int TrioReadChar(trio_class_t * self, char * target, trio_flags_t f
 	assert(VALID(self->InStream));
 	for(i = 0; (self->current != EOF) && (i < width); i++) {
 		ch = (char)self->current;
-		self->InStream(self, NULL);
+		self->InStream(self, 0);
 		if((flags & FLAGS_ALTERNATIVE) && (ch == CHAR_BACKSLASH)) {
 			switch(self->current) {
 				case '\\': ch = '\\'; break;
@@ -4510,7 +4507,7 @@ TRIO_PRIVATE int TrioReadChar(trio_class_t * self, char * target, trio_flags_t f
 				    }
 				    else if(trio_to_upper(self->current) == 'X') {
 					    /* Read hexadecimal number */
-					    self->InStream(self, NULL);
+					    self->InStream(self, 0);
 					    if(!TrioReadNumber(self, &number, 0, 2, BASE_HEX))
 						    return 0;
 					    ch = (char)number;
@@ -4580,7 +4577,7 @@ TRIO_PRIVATE int TrioReadWideChar(trio_class_t * self, trio_wchar_t * target, tr
 			do {
 				buffer[j++] = (char)self->current;
 				buffer[j] = NIL;
-				self->InStream(self, NULL);
+				self->InStream(self, 0);
 			}
 			while((j < (int)sizeof(buffer)) && (mblen(buffer, (size_t)j) != j));
 		}
@@ -4590,7 +4587,7 @@ TRIO_PRIVATE int TrioReadWideChar(trio_class_t * self, trio_wchar_t * target, tr
 				target[i] = wch;
 		}
 		amount += size;
-		self->InStream(self, NULL);
+		self->InStream(self, 0);
 	}
 	return amount;
 }
@@ -4793,10 +4790,10 @@ TRIO_PRIVATE BOOLEAN_T TrioReadDouble(trio_class_t * self, trio_pointer_t target
 		return FALSE;
 	doubleString[index] = 0;
 	if(flags & FLAGS_LONGDOUBLE) {
-		*((trio_long_double_t*)target) = trio_to_long_double(doubleString, NULL);
+		*((trio_long_double_t*)target) = trio_to_long_double(doubleString, 0);
 	}
 	else {
-		*((double*)target) = trio_to_double(doubleString, NULL);
+		*((double*)target) = trio_to_double(doubleString, 0);
 	}
 	return TRUE;
 }
@@ -4819,7 +4816,7 @@ TRIO_PRIVATE BOOLEAN_T TrioReadPointer(trio_class_t * self, trio_pointer_t * tar
 	}
 	else if(TrioReadString(self, (flags & FLAGS_IGNORE) ? NULL : buffer, 0, sizeof(internalNullString) - 1)) {
 		if(trio_equal_case(buffer, internalNullString)) {
-			ASSIGN_PTR(target, NULL);
+			ASSIGN_PTR(target, 0);
 			return TRUE;
 		}
 	}
@@ -5234,7 +5231,7 @@ TRIO_PUBLIC int trio_scanf TRIO_VARGS2((format, va_alist), TRIO_CONST char * for
 	va_list args;
 	assert(VALID(format));
 	TRIO_VA_START(args, format);
-	status = TrioScan((trio_pointer_t)stdin, 0, TrioInStreamFile, format, TRIO_VA_LIST_ADDR(args), NULL);
+	status = TrioScan((trio_pointer_t)stdin, 0, TrioInStreamFile, format, TRIO_VA_LIST_ADDR(args), 0);
 	TRIO_VA_END(args);
 	return status;
 }
@@ -5242,7 +5239,7 @@ TRIO_PUBLIC int trio_scanf TRIO_VARGS2((format, va_alist), TRIO_CONST char * for
 TRIO_PUBLIC int trio_vscanf TRIO_ARGS2((format, args), TRIO_CONST char * format, va_list args)
 {
 	assert(VALID(format));
-	return TrioScan((trio_pointer_t)stdin, 0, TrioInStreamFile, format, TRIO_VA_LIST_ADDR(args), NULL);
+	return TrioScan((trio_pointer_t)stdin, 0, TrioInStreamFile, format, TRIO_VA_LIST_ADDR(args), 0);
 }
 
 TRIO_PUBLIC int trio_scanfv TRIO_ARGS2((format, args), TRIO_CONST char * format, trio_pointer_t * args)
@@ -5261,7 +5258,7 @@ TRIO_PUBLIC int trio_fscanf TRIO_VARGS3((file, format, va_alist), FILE * file, T
 	assert(VALID(file));
 	assert(VALID(format));
 	TRIO_VA_START(args, format);
-	status = TrioScan((trio_pointer_t)file, 0, TrioInStreamFile, format, TRIO_VA_LIST_ADDR(args), NULL);
+	status = TrioScan((trio_pointer_t)file, 0, TrioInStreamFile, format, TRIO_VA_LIST_ADDR(args), 0);
 	TRIO_VA_END(args);
 	return status;
 }
@@ -5270,7 +5267,7 @@ TRIO_PUBLIC int trio_vfscanf TRIO_ARGS3((file, format, args), FILE * file, TRIO_
 {
 	assert(VALID(file));
 	assert(VALID(format));
-	return TrioScan((trio_pointer_t)file, 0, TrioInStreamFile, format, TRIO_VA_LIST_ADDR(args), NULL);
+	return TrioScan((trio_pointer_t)file, 0, TrioInStreamFile, format, TRIO_VA_LIST_ADDR(args), 0);
 }
 
 TRIO_PUBLIC int trio_fscanfv TRIO_ARGS3((file, format, args), FILE * file, TRIO_CONST char * format, trio_pointer_t * args)
@@ -5289,7 +5286,7 @@ TRIO_PUBLIC int trio_dscanf TRIO_VARGS3((fd, format, va_alist), int fd, TRIO_CON
 	va_list args;
 	assert(VALID(format));
 	TRIO_VA_START(args, format);
-	status = TrioScan((trio_pointer_t)&fd, 0, TrioInStreamFileDescriptor, format, TRIO_VA_LIST_ADDR(args), NULL);
+	status = TrioScan((trio_pointer_t)&fd, 0, TrioInStreamFileDescriptor, format, TRIO_VA_LIST_ADDR(args), 0);
 	TRIO_VA_END(args);
 	return status;
 }
@@ -5297,7 +5294,7 @@ TRIO_PUBLIC int trio_dscanf TRIO_VARGS3((fd, format, va_alist), int fd, TRIO_CON
 TRIO_PUBLIC int trio_vdscanf TRIO_ARGS3((fd, format, args), int fd, TRIO_CONST char * format, va_list args)
 {
 	assert(VALID(format));
-	return TrioScan((trio_pointer_t)&fd, 0, TrioInStreamFileDescriptor, format, TRIO_VA_LIST_ADDR(args), NULL);
+	return TrioScan((trio_pointer_t)&fd, 0, TrioInStreamFileDescriptor, format, TRIO_VA_LIST_ADDR(args), 0);
 }
 
 TRIO_PUBLIC int trio_dscanfv TRIO_ARGS3((fd, format, args), int fd, TRIO_CONST char * format, trio_pointer_t * args)
@@ -5322,7 +5319,7 @@ TRIO_PUBLIC int trio_cscanf TRIO_VARGS4((stream, closure, format, va_alist),
 	TRIO_VA_START(args, format);
 	data.stream.in = stream;
 	data.closure = closure;
-	status = TrioScan(&data, 0, TrioInStreamCustom, format, TRIO_VA_LIST_ADDR(args), NULL);
+	status = TrioScan(&data, 0, TrioInStreamCustom, format, TRIO_VA_LIST_ADDR(args), 0);
 	TRIO_VA_END(args);
 	return status;
 }
@@ -5335,7 +5332,7 @@ TRIO_PUBLIC int trio_vcscanf TRIO_ARGS4((stream, closure, format, args),
 	assert(VALID(format));
 	data.stream.in = stream;
 	data.closure = closure;
-	return TrioScan(&data, 0, TrioInStreamCustom, format, TRIO_VA_LIST_ADDR(args), NULL);
+	return TrioScan(&data, 0, TrioInStreamCustom, format, TRIO_VA_LIST_ADDR(args), 0);
 }
 
 TRIO_PUBLIC int
@@ -5365,7 +5362,7 @@ TRIO_PUBLIC int trio_sscanf TRIO_VARGS3((buffer, format, va_alist), TRIO_CONST c
 	assert(VALID(buffer));
 	assert(VALID(format));
 	TRIO_VA_START(args, format);
-	status = TrioScan((trio_pointer_t)&buffer, 0, TrioInStreamString, format, TRIO_VA_LIST_ADDR(args), NULL);
+	status = TrioScan((trio_pointer_t)&buffer, 0, TrioInStreamString, format, TRIO_VA_LIST_ADDR(args), 0);
 	TRIO_VA_END(args);
 	return status;
 }
@@ -5374,7 +5371,7 @@ TRIO_PUBLIC int trio_vsscanf TRIO_ARGS3((buffer, format, args), TRIO_CONST char 
 {
 	assert(VALID(buffer));
 	assert(VALID(format));
-	return TrioScan((trio_pointer_t)&buffer, 0, TrioInStreamString, format, TRIO_VA_LIST_ADDR(args), NULL);
+	return TrioScan((trio_pointer_t)&buffer, 0, TrioInStreamString, format, TRIO_VA_LIST_ADDR(args), 0);
 }
 
 TRIO_PUBLIC int trio_sscanfv TRIO_ARGS3((buffer, format, args), TRIO_CONST char * buffer, TRIO_CONST char * format, trio_pointer_t * args)

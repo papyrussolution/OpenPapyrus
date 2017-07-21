@@ -444,7 +444,7 @@ static int cryptodev_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 	if(state->d_fd < 0)
 		return 0;
 	if(!inl)
-		return (1);
+		return 1;
 	if((inl % EVP_CIPHER_CTX_block_size(ctx)) != 0)
 		return 0;
 
@@ -485,7 +485,7 @@ static int cryptodev_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 		memcpy(EVP_CIPHER_CTX_iv_noconst(ctx), iiv,
 		    EVP_CIPHER_CTX_iv_length(ctx));
 	}
-	return (1);
+	return 1;
 }
 
 static int cryptodev_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
@@ -522,7 +522,7 @@ static int cryptodev_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
 		state->d_fd = -1;
 		return 0;
 	}
-	return (1);
+	return 1;
 }
 
 /*
@@ -927,7 +927,7 @@ static int cryptodev_digest_init(EVP_MD_CTX * ctx)
 		return 0;
 	}
 
-	return (1);
+	return 1;
 }
 
 static int cryptodev_digest_update(EVP_MD_CTX * ctx, const void * data,
@@ -962,7 +962,7 @@ static int cryptodev_digest_update(EVP_MD_CTX * ctx, const void * data,
 		memcpy(state->mac_data + state->mac_len, data, count);
 		state->mac_len += count;
 
-		return (1);
+		return 1;
 	}
 
 	memzero(&cryp, sizeof(cryp));
@@ -977,7 +977,7 @@ static int cryptodev_digest_update(EVP_MD_CTX * ctx, const void * data,
 		printf("cryptodev_digest_update: digest failed\n");
 		return 0;
 	}
-	return (1);
+	return 1;
 }
 
 static int cryptodev_digest_final(EVP_MD_CTX * ctx, uchar * md)
@@ -1229,7 +1229,7 @@ static int bn2crparam(const BIGNUM * a, struct crparam * crp)
 
 	b = OPENSSL_zalloc(bytes);
 	if(b == NULL)
-		return (1);
+		return 1;
 
 	crp->crp_p = (caddr_t)b;
 	crp->crp_nbits = bits;
@@ -1365,7 +1365,7 @@ static int cryptodev_rsa_nocrt_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa,
 
 	ctx = BN_CTX_new();
 	RSA_get0_key(rsa, &n, NULL, &d);
-	r = cryptodev_bn_mod_exp(r0, I, d, n, ctx, NULL);
+	r = cryptodev_bn_mod_exp(r0, I, d, n, ctx, 0);
 	BN_CTX_free(ctx);
 	return (r);
 }
@@ -1453,7 +1453,7 @@ static int cryptodev_dsa_dsa_mod_exp(DSA * dsa, BIGNUM * t1, const BIGNUM * g,
 	ret = 0;
 
 	DSA_get0_pqg(dsa, &dsap, NULL, &dsag);
-	DSA_get0_key(dsa, &dsapub_key, NULL);
+	DSA_get0_key(dsa, &dsapub_key, 0);
 
 	meth = DSA_get_method(dsa);
 	if(meth == NULL)
@@ -1553,7 +1553,7 @@ static int cryptodev_dsa_verify(const uchar * dgst, int dlen,
 		goto err;
 	if(bn2crparam(g, &kop.crk_param[3]))
 		goto err;
-	DSA_get0_key(dsa, &pub_key, NULL);
+	DSA_get0_key(dsa, &pub_key, 0);
 	if(bn2crparam(pub_key, &kop.crk_param[4]))
 		goto err;
 	DSA_SIG_get0(sig, &pr, &ps);
@@ -1657,7 +1657,7 @@ static int cryptodev_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void
 # endif
 		    break;
 	}
-	return (1);
+	return 1;
 }
 
 void engine_load_cryptodev_int(void)

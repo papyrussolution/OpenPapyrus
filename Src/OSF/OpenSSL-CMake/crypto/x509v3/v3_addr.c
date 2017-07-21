@@ -16,7 +16,7 @@
 //#include <openssl/asn1t.h>
 //#include <openssl/buffer.h>
 //#include <openssl/x509v3.h>
-#include "internal/x509_int.h"
+//#include "internal/x509_int.h"
 #include "ext_dat.h"
 
 #ifndef OPENSSL_NO_RFC3779
@@ -1072,7 +1072,7 @@ done:
  */
 int X509v3_addr_validate_path(X509_STORE_CTX * ctx)
 {
-	return addr_validate_path_internal(ctx, ctx->chain, NULL);
+	return addr_validate_path_internal(ctx, ctx->chain, 0);
 }
 /*
  * RFC 3779 2.3 path validation of an extension.

@@ -1088,11 +1088,11 @@ static int read_gmdb(ENV * env, DB_THREAD_INFO * ip, uint8 ** bufp, size_t * len
 	/* Get metadata record, make sure key looks right. */
 	if((ret = __dbc_get(dbc, &key_dbt, &data_dbt, DB_NEXT)) != 0)
 		goto err;
-	ret = __repmgr_membership_key_unmarshal(env, &key, key_buf, key_dbt.size, NULL);
+	ret = __repmgr_membership_key_unmarshal(env, &key, key_buf, key_dbt.size, 0);
 	DB_ASSERT(env, ret == 0);
 	DB_ASSERT(env, key.host.size == 0);
 	DB_ASSERT(env, key.port == 0);
-	ret = __repmgr_member_metadata_unmarshal(env, &metadata, metadata_buf, data_dbt.size, NULL);
+	ret = __repmgr_member_metadata_unmarshal(env, &metadata, metadata_buf, data_dbt.size, 0);
 	DB_ASSERT(env, ret == 0);
 	DB_ASSERT(env, metadata.format == REPMGR_GMDB_FMT_VERSION);
 	DB_ASSERT(env, metadata.version > 0);
@@ -1108,13 +1108,13 @@ static int read_gmdb(ENV * env, DB_THREAD_INFO * ip, uint8 ** bufp, size_t * len
 	data_dbt.data = data_buf;
 	data_dbt.ulen = sizeof(data_buf);
 	while((ret = __dbc_get(dbc, &key_dbt, &data_dbt, DB_NEXT)) == 0) {
-		ret = __repmgr_membership_key_unmarshal(env, &key, key_buf, key_dbt.size, NULL);
+		ret = __repmgr_membership_key_unmarshal(env, &key, key_buf, key_dbt.size, 0);
 		DB_ASSERT(env, ret == 0);
 		DB_ASSERT(env, key.host.size <= MAXHOSTNAMELEN+1 && key.host.size > 1);
 		host = (char *)key.host.data;
 		DB_ASSERT(env, host[key.host.size-1] == '\0');
 		DB_ASSERT(env, key.port > 0);
-		ret = __repmgr_membership_data_unmarshal(env, &member_status, data_buf, data_dbt.size, NULL);
+		ret = __repmgr_membership_data_unmarshal(env, &member_status, data_buf, data_dbt.size, 0);
 		DB_ASSERT(env, ret == 0);
 		DB_ASSERT(env, member_status.flags != 0);
 		site_info.host = key.host;
@@ -1470,7 +1470,7 @@ int __repmgr_set_membership(ENV * env, const char * host, uint port, uint32 stat
 	infop = env->reginfo;
 
 	COMPQUIET(orig, 0);
-	COMPQUIET(site, NULL);
+	COMPQUIET(site, 0);
 	DB_ASSERT(env, REP_ON(env));
 
 	MUTEX_LOCK(env, rep->mtx_repmgr);

@@ -10,7 +10,7 @@
 #pragma hdrstop
 //#include <openssl/x509.h>
 //#include <openssl/x509v3.h>
-#include "internal/x509_int.h"
+//#include "internal/x509_int.h"
 #include "pcy_int.h"
 
 static int policy_data_cmp(const X509_POLICY_DATA * const * a, const X509_POLICY_DATA * const * b);
@@ -96,7 +96,7 @@ static int policy_cache_new(X509 * x)
 	 * Handle requireExplicitPolicy *first*. Need to process this even if we
 	 * don't have any policies.
 	 */
-	ext_pcons = (POLICY_CONSTRAINTS*)X509_get_ext_d2i(x, NID_policy_constraints, &i, NULL);
+	ext_pcons = (POLICY_CONSTRAINTS*)X509_get_ext_d2i(x, NID_policy_constraints, &i, 0);
 
 	if(!ext_pcons) {
 		if(i != -1)
@@ -116,7 +116,7 @@ static int policy_cache_new(X509 * x)
 
 	/* Process CertificatePolicies */
 
-	ext_cpols = (CERTIFICATEPOLICIES*)X509_get_ext_d2i(x, NID_certificate_policies, &i, NULL);
+	ext_cpols = (CERTIFICATEPOLICIES*)X509_get_ext_d2i(x, NID_certificate_policies, &i, 0);
 	/*
 	 * If no CertificatePolicies extension or problem decoding then there is
 	 * no point continuing because the valid policies will be NULL.
@@ -135,7 +135,7 @@ static int policy_cache_new(X509 * x)
 	if(i <= 0)
 		return i;
 
-	ext_pmaps = (POLICY_MAPPINGS*)X509_get_ext_d2i(x, NID_policy_mappings, &i, NULL);
+	ext_pmaps = (POLICY_MAPPINGS*)X509_get_ext_d2i(x, NID_policy_mappings, &i, 0);
 
 	if(!ext_pmaps) {
 		/* If not absent some problem with extension */
@@ -147,7 +147,7 @@ static int policy_cache_new(X509 * x)
 		if(i <= 0)
 			goto bad_cache;
 	}
-	ext_any = (ASN1_INTEGER*)X509_get_ext_d2i(x, NID_inhibit_any_policy, &i, NULL);
+	ext_any = (ASN1_INTEGER*)X509_get_ext_d2i(x, NID_inhibit_any_policy, &i, 0);
 	if(!ext_any) {
 		if(i != -1)
 			goto bad_cache;

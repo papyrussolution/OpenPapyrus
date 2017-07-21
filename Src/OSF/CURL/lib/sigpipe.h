@@ -50,7 +50,7 @@ static void sigpipe_ignore(struct Curl_easy * data, struct sigpipe_ignore * ig)
 		action = ig->old_pipe_act;
 		/* ignore this signal */
 		action.sa_handler = SIG_IGN;
-		sigaction(SIGPIPE, &action, NULL);
+		sigaction(SIGPIPE, &action, 0);
 	}
 }
 
@@ -63,7 +63,7 @@ static void sigpipe_restore(struct sigpipe_ignore * ig)
 {
 	if(!ig->no_signal)
 		/* restore the outside state */
-		sigaction(SIGPIPE, &ig->old_pipe_act, NULL);
+		sigaction(SIGPIPE, &ig->old_pipe_act, 0);
 }
 
 #else

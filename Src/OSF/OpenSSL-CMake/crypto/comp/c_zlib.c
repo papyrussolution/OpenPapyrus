@@ -318,7 +318,7 @@ static int bio_zlib_free(BIO * bi)
 		OPENSSL_free(ctx->obuf);
 	}
 	OPENSSL_free(ctx);
-	BIO_set_data(bi, NULL);
+	BIO_set_data(bi, 0);
 	BIO_set_init(bi, 0);
 	return 1;
 }
@@ -499,7 +499,7 @@ static long bio_zlib_ctrl(BIO * b, int cmd, long num, void * ptr)
 	int ret, * ip;
 	int ibs, obs;
 	BIO * next = BIO_next(b);
-	if(next == NULL)
+	if(!next)
 		return 0;
 	ctx = (BIO_ZLIB_CTX *)BIO_get_data(b);
 	switch(cmd) {

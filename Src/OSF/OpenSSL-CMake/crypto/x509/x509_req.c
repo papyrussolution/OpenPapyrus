@@ -13,7 +13,7 @@
 //#include <openssl/asn1.h>
 //#include <openssl/asn1t.h>
 //#include <openssl/x509.h>
-#include "internal/x509_int.h"
+//#include "internal/x509_int.h"
 //#include <openssl/objects.h>
 //#include <openssl/buffer.h>
 //#include <openssl/pem.h>
@@ -98,7 +98,7 @@ int X509_REQ_check_private_key(X509_REQ * x, EVP_PKEY * k)
 		    X509err(X509_F_X509_REQ_CHECK_PRIVATE_KEY, X509_R_UNKNOWN_KEY_TYPE);
 	}
 	EVP_PKEY_free(xk);
-	return (ok);
+	return ok;
 }
 
 /*

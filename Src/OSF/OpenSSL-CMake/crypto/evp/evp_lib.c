@@ -21,7 +21,7 @@ int EVP_CIPHER_param_to_asn1(EVP_CIPHER_CTX * c, ASN1_TYPE * type)
 		switch(EVP_CIPHER_CTX_mode(c)) {
 			case EVP_CIPH_WRAP_MODE:
 			    if(EVP_CIPHER_CTX_nid(c) == NID_id_smime_alg_CMS3DESwrap)
-				    ASN1_TYPE_set(type, V_ASN1_NULL, NULL);
+				    ASN1_TYPE_set(type, V_ASN1_NULL, 0);
 			    ret = 1;
 			    break;
 

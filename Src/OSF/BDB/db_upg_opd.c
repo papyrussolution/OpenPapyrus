@@ -256,7 +256,7 @@ static int __db_build_ri(DB * dbp, DB_FH * fhp, PAGE * ipage, PAGE * page, uint3
 {
 	RINTERNAL ri;
 	db_indx_t * inp;
-	COMPQUIET(fhp, NULL);
+	COMPQUIET(fhp, 0);
 	inp = P_INP(dbp, ipage);
 	if(P_FREESPACE(dbp, ipage) < RINTERNAL_PSIZE) {
 		*nomemp = 1;

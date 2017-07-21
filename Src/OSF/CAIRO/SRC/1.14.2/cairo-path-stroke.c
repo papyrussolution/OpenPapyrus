@@ -735,7 +735,7 @@ static cairo_status_t _cairo_stroker_add_caps(cairo_stroker_t * stroker)
 		cairo_stroke_face_t face;
 
 		_compute_normalized_device_slope(&dx, &dy,
-		    stroker->ctm_inverse, NULL);
+		    stroker->ctm_inverse, 0);
 
 		/* arbitrarily choose first_point
 		 * first_point and current_point should be the same */
@@ -848,7 +848,7 @@ static cairo_status_t _cairo_stroker_line_to(void * closure, const cairo_point_t
 	slope_dx = _cairo_fixed_to_double(point->x - p1->x);
 	slope_dy = _cairo_fixed_to_double(point->y - p1->y);
 	_compute_normalized_device_slope(&slope_dx, &slope_dy,
-	    stroker->ctm_inverse, NULL);
+	    stroker->ctm_inverse, 0);
 
 	status = _cairo_stroker_add_sub_edge(stroker,
 	    p1, point,

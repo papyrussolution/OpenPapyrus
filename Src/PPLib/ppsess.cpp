@@ -940,7 +940,7 @@ void SLAPI PPThreadLocalArea::PopErrContext()
 	}
 }
 
-int PPThreadLocalArea::SLAPI InitMainOrgData(int reset)
+int SLAPI PPThreadLocalArea::InitMainOrgData(int reset)
 {
 	int    ok = 1;
 	if(reset) {
@@ -1807,6 +1807,12 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SPII, temp_buf = 0) > 0) ? temp_buf : (const char *)0;
 					Helper_SetPath(PPPATH_SPII, path);
 				}
+				// @v9.7.8 {
+				{
+					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SARTREDB, temp_buf = 0) > 0) ? temp_buf : (const char *)0;
+					Helper_SetPath(PPPATH_SARTREDB, path);
+				}
+				// } @v9.7.8
 				LoadDriveMapping(&ini_file);
 			}
 		}
@@ -1847,6 +1853,10 @@ int SLAPI PPSession::InitThread(const PPThread * pThread)
 	if(CommonPaths.GetPath(PPPATH_SPII, 0, path) > 0)
 		SetPath(PPPATH_SPII, path, 0, 1);
 	// } @v8.5.10
+	// @v9.7.8 {
+	if(CommonPaths.GetPath(PPPATH_SARTREDB, 0, path) > 0)
+		SetPath(PPPATH_SARTREDB, path, 0, 1);
+	// } @9.7.8
 	LEAVE_CRITICAL_SECTION
 	if(pThread) {
 		p_tla->TId = pThread->GetThreadID();
@@ -2033,7 +2043,7 @@ int SLAPI LogTerminalSessInfo(ulong processID, ulong termSessID, const char * pA
 	/* @v7.9.9 ѕользы не получили, а журнал забиваетс€ //
 	SString msg_buf, buf;
 	PPLoadText(PPTXT_TERMINALSESSINFO, buf);
-	msg_buf.Printf((const char*)buf, pAddMsgString, (long)processID, (long)termSessID);
+	msg_buf.Printf(buf.cptr(), pAddMsgString, (long)processID, (long)termSessID);
 	PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 	*/
 	return 1;
@@ -3470,9 +3480,26 @@ int SLAPI PPSession::SetMainOrgID(PPID id, int enforce)
 		if(psn_obj.P_Tbl->IsBelongToKind(id, PPPRK_MAIN) > 0) {
 			PersonTbl::Rec psn_rec;
 			cc.MainOrgID = id;
+			r_tla.MainOrgCountryCode = 0;
 			if(psn_obj.Search(id, &psn_rec) > 0) {
 				r_tla.MainOrgName.Id = id;
 				r_tla.MainOrgName.CopyFrom(psn_rec.Name);
+				// @v9.7.8 {
+				{
+					LocationTbl::Rec loc_rec;
+					int    is_loc_identified = 0;
+					if(psn_rec.RLoc && psn_obj.LocObj.Fetch(psn_rec.RLoc, &loc_rec) > 0)
+						is_loc_identified = 1;
+					else if(psn_rec.MainLoc && psn_obj.LocObj.Fetch(psn_rec.MainLoc, &loc_rec) > 0)
+						is_loc_identified = 1;
+					if(is_loc_identified) {
+						PPID   country_id = 0;
+						PPCountryBlock cb;
+						if(psn_obj.LocObj.GetCountry(&loc_rec, &country_id, &cb) > 0 && cb.Code.NotEmptyS())
+							r_tla.MainOrgCountryCode = cb.Code;
+					}
+				}
+				// } @v9.7.8
 			}
 			else {
 				r_tla.MainOrgName.Id = 0;

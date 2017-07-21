@@ -76,7 +76,7 @@ static int __xa_get_txn(ENV * env, XID * xid, TXN_DETAIL * td, DB_TXN ** txnp, u
 	DB_THREAD_INFO * ip;
 	int ret;
 	DB_ENV * dbenv = env->dbenv;
-	COMPQUIET(ip, NULL);
+	COMPQUIET(ip, 0);
 	ENV_ENTER_RET(env, ip, ret);
 	if(ret != 0)
 		return XAER_RMFAIL;
@@ -201,7 +201,7 @@ static int __xa_thread_enter(ENV * env, DB_THREAD_INFO ** ipp)
 {
 	int ret;
 	DB_THREAD_INFO * ip;
-	COMPQUIET(ip, NULL);
+	COMPQUIET(ip, 0);
 	ENV_ENTER_RET(env, ip, ret);
 	if(ret == 0)
 		ip->dbth_xa_status = TXN_XA_THREAD_UNASSOCIATED;
@@ -330,8 +330,8 @@ static int __db_xa_close(char * xa_info, int rmid, long arg_flags)
 	ENV * env;
 	int ret, t_ret;
 	ulong flags;
-	COMPQUIET(xa_info, NULL);
-	COMPQUIET(ip, NULL);
+	COMPQUIET(xa_info, 0);
+	COMPQUIET(ip, 0);
 	ret = 0;
 	flags = (ulong)arg_flags;      /* Conversion for bit operations. */
 	if(LF_ISSET(TMASYNC))
@@ -524,7 +524,7 @@ static void corrupted_env(ENV * env, int rmid)
 	int ret;
 	ENV * env2;
 
-	COMPQUIET(home, NULL);
+	COMPQUIET(home, 0);
 	ret = 0;
 	dbenv = env->dbenv;
 	path = NULL;
@@ -838,8 +838,8 @@ static int __db_xa_forget(XID * xid, int rmid, long arg_flags)
  */
 static int __db_xa_complete(int * handle, int * retval, int rmid, long flags)
 {
-	COMPQUIET(handle, NULL);
-	COMPQUIET(retval, NULL);
+	COMPQUIET(handle, 0);
+	COMPQUIET(retval, 0);
 	COMPQUIET(rmid, 0);
 	COMPQUIET(flags, 0);
 	return XAER_INVAL;

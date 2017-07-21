@@ -42,7 +42,7 @@ int __bam_pgout(DB * dbp, db_pgno_t pg, void * pp, DBT * cookie)
 int __bam_mswap(ENV * env, PAGE * pg)
 {
 	uint8 * p;
-	COMPQUIET(env, NULL);
+	COMPQUIET(env, 0);
 	__db_metaswap(pg);
 	p = (uint8 *)pg+sizeof(DBMETA);
 	p += sizeof(uint32); /* unused */

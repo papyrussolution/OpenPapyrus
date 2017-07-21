@@ -139,7 +139,7 @@ zbar_video_t * zbar_video_create()
 void zbar_video_destroy(zbar_video_t * vdo)
 {
 	if(vdo->intf != VIDEO_INVALID)
-		zbar_video_open(vdo, NULL);
+		zbar_video_open(vdo, 0);
 	if(vdo->images) {
 		for(int i = 0; i < ZBAR_VIDEO_IMAGES_MAX; i++) {
 			_zbar_image_free(vdo->images[i]);

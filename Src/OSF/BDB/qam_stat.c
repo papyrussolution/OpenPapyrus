@@ -195,7 +195,7 @@ int __qam_stat_print(DBC*dbc, uint32 flags)
 
 int __qam_stat(DBC*dbc, void * spp, uint32 flags)
 {
-	COMPQUIET(spp, NULL);
+	COMPQUIET(spp, 0);
 	COMPQUIET(flags, 0);
 	return __db_stat_not_built(dbc->env);
 }

@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include "internal/thread_once.h"
-#include "internal/bio.h"
+//#include "internal/bio.h"
 //#include <openssl/lhash.h>
 #ifndef OPENSSL_NO_CRYPTO_MDEBUG_BACKTRACE
 	#include <execinfo.h>
@@ -246,7 +246,7 @@ static int pop_info(void)
 			CRYPTO_THREAD_set_local(&appinfokey, next);
 		}
 		else {
-			CRYPTO_THREAD_set_local(&appinfokey, NULL);
+			CRYPTO_THREAD_set_local(&appinfokey, 0);
 		}
 		if(--(current->references) <= 0) {
 			current->next = NULL;

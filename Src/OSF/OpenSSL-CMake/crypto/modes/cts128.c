@@ -24,26 +24,17 @@
  * compliant with the NIST proposal, both extending CBC mode.
  */
 
-size_t CRYPTO_cts128_encrypt_block(const uchar * in,
-    uchar * out, size_t len,
-    const void * key, uchar ivec[16],
-    block128_f block)
+size_t CRYPTO_cts128_encrypt_block(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], block128_f block)
 {
 	size_t residue, n;
-
 	if(len <= 16)
 		return 0;
-
 	if((residue = len % 16) == 0)
 		residue = 16;
-
 	len -= residue;
-
 	CRYPTO_cbc128_encrypt(in, out, len, key, ivec, block);
-
 	in += len;
 	out += len;
-
 	for(n = 0; n < residue; ++n)
 		ivec[n] ^= in[n];
 	(*block)(ivec, ivec, key);
@@ -53,17 +44,11 @@ size_t CRYPTO_cts128_encrypt_block(const uchar * in,
 	return len + residue;
 }
 
-size_t CRYPTO_nistcts128_encrypt_block(const uchar * in,
-    uchar * out, size_t len,
-    const void * key,
-    uchar ivec[16],
-    block128_f block)
+size_t CRYPTO_nistcts128_encrypt_block(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], block128_f block)
 {
 	size_t residue, n;
-
 	if(len < 16)
 		return 0;
-
 	residue = len % 16;
 
 	len -= residue;

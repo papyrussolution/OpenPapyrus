@@ -230,7 +230,7 @@ static int xmlParse3986Fragment(xmlURIPtr uri, const char ** str)
 		if(uri->cleanup & 2)
 			uri->fragment = STRNDUP(*str, cur - *str);
 		else
-			uri->fragment = xmlURIUnescapeString(*str, cur - *str, NULL);
+			uri->fragment = xmlURIUnescapeString(*str, cur - *str, 0);
 	}
 	*str = cur;
 	return 0;
@@ -261,7 +261,7 @@ static int xmlParse3986Query(xmlURIPtr uri, const char ** str)
 		if(uri->cleanup & 2)
 			uri->query = STRNDUP(*str, cur - *str);
 		else
-			uri->query = xmlURIUnescapeString(*str, cur - *str, NULL);
+			uri->query = xmlURIUnescapeString(*str, cur - *str, 0);
 
 		/* Save the raw bytes of the query as well.
 		 * See: http://mail.gnome.org/archives/xml/2007-April/thread.html#00114
@@ -326,7 +326,7 @@ static int xmlParse3986Userinfo(xmlURIPtr uri, const char ** str)
 			if(uri->cleanup & 2)
 				uri->user = STRNDUP(*str, cur - *str);
 			else
-				uri->user = xmlURIUnescapeString(*str, cur - *str, NULL);
+				uri->user = xmlURIUnescapeString(*str, cur - *str, 0);
 		}
 		*str = cur;
 		return 0;
@@ -439,7 +439,7 @@ found:
 			if(uri->cleanup & 2)
 				uri->server = STRNDUP(host, cur - host);
 			else
-				uri->server = xmlURIUnescapeString(host, cur - host, NULL);
+				uri->server = xmlURIUnescapeString(host, cur - host, 0);
 		}
 		else
 			uri->server = NULL;
@@ -536,7 +536,7 @@ static int FASTCALL xmlParse3986PathAbEmpty(xmlURIPtr uri, const char ** str)
 			if(uri->cleanup & 2)
 				uri->path = STRNDUP(*str, cur - *str);
 			else
-				uri->path = xmlURIUnescapeString(*str, cur - *str, NULL);
+				uri->path = xmlURIUnescapeString(*str, cur - *str, 0);
 		}
 		else {
 			uri->path = NULL;
@@ -579,7 +579,7 @@ static int FASTCALL xmlParse3986PathAbsolute(xmlURIPtr uri, const char ** str)
 			if(uri->cleanup & 2)
 				uri->path = STRNDUP(*str, cur - *str);
 			else
-				uri->path = xmlURIUnescapeString(*str, cur - *str, NULL);
+				uri->path = xmlURIUnescapeString(*str, cur - *str, 0);
 		}
 		else {
 			uri->path = NULL;
@@ -617,7 +617,7 @@ static int FASTCALL xmlParse3986PathRootless(xmlURIPtr uri, const char ** str)
 			if(uri->cleanup & 2)
 				uri->path = STRNDUP(*str, cur - *str);
 			else
-				uri->path = xmlURIUnescapeString(*str, cur - *str, NULL);
+				uri->path = xmlURIUnescapeString(*str, cur - *str, 0);
 		}
 		else {
 			uri->path = NULL;
@@ -655,7 +655,7 @@ static int xmlParse3986PathNoScheme(xmlURIPtr uri, const char ** str)
 			if(uri->cleanup & 2)
 				uri->path = STRNDUP(*str, cur - *str);
 			else
-				uri->path = xmlURIUnescapeString(*str, cur - *str, NULL);
+				uri->path = xmlURIUnescapeString(*str, cur - *str, 0);
 		}
 		else {
 			uri->path = NULL;

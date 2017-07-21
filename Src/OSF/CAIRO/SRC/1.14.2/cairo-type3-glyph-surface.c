@@ -460,7 +460,7 @@ cairo_status_t _cairo_type3_glyph_surface_emit_glyph(void * abstract_surface,
 
 	*bbox = scaled_glyph->bbox;
 	_cairo_matrix_transform_bounding_box_fixed(&surface->scaled_font->scale_inverse,
-	    bbox, NULL);
+	    bbox, 0);
 
 	_cairo_output_stream_printf(surface->stream,
 	    "%f 0 %f %f %f %f d1\n",

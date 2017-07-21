@@ -94,7 +94,7 @@ static cairo_surface_t * _cairo_user_scaled_font_create_recording_surface(const 
 {
 	cairo_content_t content;
 	content = scaled_font->base.options.antialias == CAIRO_ANTIALIAS_SUBPIXEL ? CAIRO_CONTENT_COLOR_ALPHA : CAIRO_CONTENT_ALPHA;
-	return cairo_recording_surface_create(content, NULL);
+	return cairo_recording_surface_create(content, 0);
 }
 
 static cairo_t * _cairo_user_scaled_font_create_recording_context(const cairo_user_scaled_font_t * scaled_font, cairo_surface_t * recording_surface)

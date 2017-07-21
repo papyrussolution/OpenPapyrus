@@ -871,7 +871,7 @@ int STestSuite::Run(const char * pIniFileName)
 				LPVOID msg_buff;
 				FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
 				    FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(),
-					MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &msg_buff, 0, NULL);
+					MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &msg_buff, 0, 0);
 				MessageBox(NULL, ffn.CatDiv(':', 2).Cat((LPCTSTR)msg_buff), "Error", MB_OK);
 				LocalFree(msg_buff);
 			} // } @v5.7 ANDREW

@@ -109,7 +109,7 @@ private:
 	~Image ()
 	{
 		if(zbar_image_get_userdata(_img) == this)
-			zbar_image_set_userdata(_img, NULL);
+			zbar_image_set_userdata(_img, 0);
 		zbar_image_ref(_img, -1);
 	}
 

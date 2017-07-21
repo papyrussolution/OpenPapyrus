@@ -178,6 +178,22 @@ int SXml::WNode::PutAttrib(const char * pName, const char * pValue)
 	return ok;
 }
 
+int SXml::WNode::PutAttribSkipEmpty(const char * pName, const char * pValue)
+{
+	int    ok = 1;
+	if(State & stStarted && Lx) {
+		SString temp_buf = pValue;
+		if(temp_buf.NotEmptyS()) {
+			xmlTextWriterStartAttribute(Lx, (const xmlChar*)pName);
+			xmlTextWriterWriteString(Lx, (const xmlChar*)pValue);
+			xmlTextWriterEndAttribute(Lx);
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
 int SXml::WNode::PutInner(const char * pInnerName, const char * pInnerValue)
 {
 	int    ok = 1;
@@ -729,7 +745,7 @@ int SXml::SearchVal(const char * pVal, uint32 * pID)
 //
 //
 #if 0 // @construction { («ат€нувша€с€ разработка - очень веро€тно, что на всегда)
-// 
+//
 // SOAP
 //
 #define SOAPIF_RESOLVED 0x0001

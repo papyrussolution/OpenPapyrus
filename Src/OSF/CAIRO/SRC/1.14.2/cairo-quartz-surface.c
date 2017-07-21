@@ -1748,7 +1748,7 @@ static cairo_int_status_t _cairo_quartz_cg_mask(const cairo_compositor_t * compo
 
 		/* mask_surf is clear, so use OVER instead of SOURCE to avoid a
 		 * temporary layer or fallback to cairo-image. */
-		status = _cairo_surface_paint(mask_surf, CAIRO_OPERATOR_OVER, mask, NULL);
+		status = _cairo_surface_paint(mask_surf, CAIRO_OPERATOR_OVER, mask, 0);
 		if(unlikely(status))
 			goto BAIL;
 

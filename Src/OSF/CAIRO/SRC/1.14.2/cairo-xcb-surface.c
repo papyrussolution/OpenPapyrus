@@ -486,7 +486,7 @@ static cairo_status_t _cairo_xcb_surface_acquire_source_image(void * abstract_su
 	if(unlikely(image->status))
 		return image->status;
 
-	_cairo_surface_attach_snapshot(&surface->base, image, NULL);
+	_cairo_surface_attach_snapshot(&surface->base, image, 0);
 
 DONE:
 	*image_out = (cairo_image_surface_t*)image;

@@ -425,7 +425,7 @@ char * __env_thread_id_string(DB_ENV * dbenv, pid_t pid, db_threadid_t tid, char
 	snprintf(buf, DB_THREADID_STRLEN, "%lu/TID", (ulong)pid);
  #endif
 #endif
-	COMPQUIET(dbenv, NULL);
+	COMPQUIET(dbenv, 0);
 	COMPQUIET(*(uint8 *)&tid, 0);
 	return buf;
 }

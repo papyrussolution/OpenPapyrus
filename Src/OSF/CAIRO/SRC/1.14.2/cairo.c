@@ -987,7 +987,7 @@ int cairo_get_dash_count(cairo_t * cr)
 	int num_dashes;
 	if(unlikely(cr->status))
 		return 0;
-	cr->backend->get_dash(cr, NULL, &num_dashes, NULL);
+	cr->backend->get_dash(cr, NULL, &num_dashes, 0);
 	return num_dashes;
 }
 
@@ -2859,7 +2859,7 @@ void cairo_show_glyphs(cairo_t * cr, const cairo_glyph_t * glyphs, int num_glyph
 		else if(glyphs == NULL)
 			_cairo_set_error(cr, CAIRO_STATUS_NULL_POINTER);
 		else {
-			cairo_status_t status = cr->backend->glyphs(cr, glyphs, num_glyphs, NULL);
+			cairo_status_t status = cr->backend->glyphs(cr, glyphs, num_glyphs, 0);
 			if(status)
 				_cairo_set_error(cr, status);
 		}
@@ -2947,7 +2947,7 @@ void cairo_show_text_glyphs(cairo_t * cr, const char * utf8,
 		}
 	}
 	else {
-		status = cr->backend->glyphs(cr, glyphs, num_glyphs, NULL);
+		status = cr->backend->glyphs(cr, glyphs, num_glyphs, 0);
 	}
 	if(unlikely(status))
 		_cairo_set_error(cr, status);

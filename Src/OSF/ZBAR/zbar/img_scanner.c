@@ -159,7 +159,7 @@ void _zbar_image_scanner_recycle_syms(zbar_image_scanner_t * iscn, zbar_symbol_t
 	}
 }
 
-static inline int recycle_syms(zbar_image_scanner_t * iscn, zbar_symbol_set_t * syms)
+static /*inline**/ int FASTCALL recycle_syms(zbar_image_scanner_t * iscn, zbar_symbol_set_t * syms)
 {
 	if(_zbar_refcnt(&syms->refcnt, -1))
 		return 1;
@@ -171,7 +171,7 @@ static inline int recycle_syms(zbar_image_scanner_t * iscn, zbar_symbol_set_t * 
 	}
 }
 
-inline void zbar_image_scanner_recycle_image(zbar_image_scanner_t * iscn, zbar_image_t * img)
+/*inline*/ void FASTCALL zbar_image_scanner_recycle_image(zbar_image_scanner_t * iscn, zbar_image_t * img)
 {
 	zbar_symbol_set_t * syms = iscn->syms;
 	if(syms && syms->refcnt) {
@@ -196,7 +196,7 @@ inline void zbar_image_scanner_recycle_image(zbar_image_scanner_t * iscn, zbar_i
 	}
 }
 
-inline zbar_symbol_t* _zbar_image_scanner_alloc_sym(zbar_image_scanner_t * iscn, zbar_symbol_type_t type, int datalen)
+/*inline*/ zbar_symbol_t * _zbar_image_scanner_alloc_sym(zbar_image_scanner_t * iscn, zbar_symbol_type_t type, int datalen)
 {
 	/* recycle old or alloc new symbol */
 	zbar_symbol_t * sym = NULL;
@@ -242,7 +242,7 @@ inline zbar_symbol_t* _zbar_image_scanner_alloc_sym(zbar_image_scanner_t * iscn,
 	return(sym);
 }
 
-static inline zbar_symbol_t * cache_lookup(zbar_image_scanner_t * iscn, zbar_symbol_t * sym)
+static /*inline*/ zbar_symbol_t * FASTCALL cache_lookup(zbar_image_scanner_t * iscn, zbar_symbol_t * sym)
 {
 	// search for matching entry in cache 
 	zbar_symbol_t ** entry = &iscn->cache;
@@ -262,7 +262,7 @@ static inline zbar_symbol_t * cache_lookup(zbar_image_scanner_t * iscn, zbar_sym
 	return(*entry);
 }
 
-static inline void cache_sym(zbar_image_scanner_t * iscn, zbar_symbol_t * sym)
+static /*inline*/ void FASTCALL cache_sym(zbar_image_scanner_t * iscn, zbar_symbol_t * sym)
 {
 	if(iscn->enable_cache) {
 		uint32 age, near_thresh, far_thresh, dup;
@@ -323,11 +323,9 @@ void _zbar_image_scanner_add_sym(zbar_image_scanner_t * iscn, zbar_symbol_t * sy
 extern qr_finder_line * _zbar_decoder_get_qr_finder_line(zbar_decoder_t*);
 
 # define QR_FIXED(v, rnd) ((((v) << 1) + (rnd)) << (QR_FINDER_SUBPREC - 1))
-# define PRINT_FIXED(val, prec)	\
-	((val) >> (prec)),	   \
-	(1000 * ((val) & ((1 << (prec)) - 1)) / (1 << (prec)))
+# define PRINT_FIXED(val, prec)	((val) >> (prec)), (1000 * ((val) & ((1 << (prec)) - 1)) / (1 << (prec)))
 
-static inline void qr_handler(zbar_image_scanner_t * iscn)
+static /*inline*/ void FASTCALL qr_handler(zbar_image_scanner_t * iscn)
 {
 	uint u;
 	int vert;
@@ -567,7 +565,7 @@ const zbar_symbol_set_t * zbar_image_scanner_get_results(const zbar_image_scanne
 	return(iscn->syms);
 }
 
-static inline void quiet_border(zbar_image_scanner_t * iscn)
+static /*inline*/ void FASTCALL quiet_border(zbar_image_scanner_t * iscn)
 {
 	/* flush scanner pipeline */
 	zbar_scanner_t * scn = iscn->scn;

@@ -88,7 +88,7 @@ static int fd_new(BIO * bi)
 	bi->num = -1;
 	bi->ptr = NULL;
 	bi->flags = BIO_FLAGS_UPLINK; /* essentially redundant */
-	return (1);
+	return 1;
 }
 
 static int fd_free(BIO * a)
@@ -102,7 +102,7 @@ static int fd_free(BIO * a)
 		a->init = 0;
 		a->flags = BIO_FLAGS_UPLINK;
 	}
-	return (1);
+	return 1;
 }
 
 static int fd_read(BIO * b, char * out, int outl)
@@ -245,7 +245,7 @@ int BIO_fd_non_fatal_error(int err)
 #ifdef EALREADY
 		case EALREADY:
 #endif
-		return (1);
+		return 1;
 		/* break; */
 		default:
 		    break;

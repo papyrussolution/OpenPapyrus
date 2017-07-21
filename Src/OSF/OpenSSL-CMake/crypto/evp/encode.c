@@ -36,8 +36,7 @@ static uchar conv_ascii2bin(uchar a);
 #define CHUNKS_PER_LINE (64/4)
 #define CHAR_PER_LINE   (64+1)
 
-static const uchar data_bin2ascii[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\
-abcdefghijklmnopqrstuvwxyz0123456789+/";
+static const uchar data_bin2ascii[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /*-
  * 0xF0 is a EOLN
@@ -382,9 +381,9 @@ int EVP_DecodeFinal(EVP_ENCODE_CTX * ctx, uchar * out, int * outl)
 			return (-1);
 		ctx->num = 0;
 		*outl = i;
-		return (1);
+		return 1;
 	}
 	else
-		return (1);
+		return 1;
 }
 

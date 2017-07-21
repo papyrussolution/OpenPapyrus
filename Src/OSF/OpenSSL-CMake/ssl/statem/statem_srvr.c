@@ -581,7 +581,7 @@ WORK_STATE ossl_statem_server_post_work(SSL * s, WORK_STATE wst)
 			     * no SCTP used.
 			     */
 			    BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_NEXT_AUTH_KEY,
-			    0, NULL);
+			    0, 0);
 		    }
 #endif
 		    if(!s->method->ssl3_enc->change_cipher_state(s,
@@ -609,7 +609,7 @@ WORK_STATE ossl_statem_server_post_work(SSL * s, WORK_STATE wst)
 			     * no SCTP used.
 			     */
 			    BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_NEXT_AUTH_KEY,
-			    0, NULL);
+			    0, 0);
 		    }
 #endif
 		    break;
@@ -1740,7 +1740,7 @@ int tls_construct_server_key_exchange(SSL * s)
 		pkdh = NULL;
 
 		DH_get0_pqg(dh, &r[0], NULL, &r[1]);
-		DH_get0_key(dh, &r[2], NULL);
+		DH_get0_key(dh, &r[2], 0);
 	}
 	else
 #endif
@@ -2048,7 +2048,7 @@ int tls_construct_certificate_request(SSL * s)
 	if(sk != NULL) {
 		for(i = 0; i < sk_X509_NAME_num(sk); i++) {
 			name = sk_X509_NAME_value(sk, i);
-			j = i2d_X509_NAME(name, NULL);
+			j = i2d_X509_NAME(name, 0);
 			if(!BUF_MEM_grow_clean(buf, SSL_HM_HEADER_LENGTH(s) + n + j + 2)) {
 				SSLerr(SSL_F_TLS_CONSTRUCT_CERTIFICATE_REQUEST, ERR_R_BUF_LIB);
 				goto err;
@@ -2350,7 +2350,7 @@ static int tls_process_cke_dhe(SSL * s, PACKET * pkt, int * al)
 		goto err;
 	}
 	cdh = EVP_PKEY_get0_DH(ckey);
-	pub_key = BN_bin2bn(data, i, NULL);
+	pub_key = BN_bin2bn(data, i, 0);
 
 	if(pub_key == NULL || !DH_set0_key(cdh, pub_key, NULL)) {
 		SSLerr(SSL_F_TLS_PROCESS_CKE_DHE, ERR_R_INTERNAL_ERROR);
@@ -2516,7 +2516,7 @@ static int tls_process_cke_gost(SSL * s, PACKET * pkt, int * al)
 		pk = s->cert->pkeys[SSL_PKEY_GOST01].privatekey;
 	}
 
-	pkey_ctx = EVP_PKEY_CTX_new(pk, NULL);
+	pkey_ctx = EVP_PKEY_CTX_new(pk, 0);
 	if(pkey_ctx == NULL) {
 		*al = SSL_AD_INTERNAL_ERROR;
 		SSLerr(SSL_F_TLS_PROCESS_CKE_GOST, ERR_R_MALLOC_FAILURE);
@@ -3045,7 +3045,7 @@ int tls_construct_new_session_ticket(SSL * s)
 	int iv_len;
 
 	/* get session encoding length */
-	slen_full = i2d_SSL_SESSION(s->session, NULL);
+	slen_full = i2d_SSL_SESSION(s->session, 0);
 	/*
 	 * Some length values are 16 bits, so forget it if session is too
 	 * long
@@ -3080,7 +3080,7 @@ int tls_construct_new_session_ticket(SSL * s)
 		goto err;
 	sess->session_id_length = 0; /* ID is irrelevant for the ticket */
 
-	slen = i2d_SSL_SESSION(sess, NULL);
+	slen = i2d_SSL_SESSION(sess, 0);
 	if(slen == 0 || slen > slen_full) { /* shouldn't ever happen */
 		SSL_SESSION_free(sess);
 		goto err;

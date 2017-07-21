@@ -81,7 +81,7 @@ int HMAC_Init(HMAC_CTX * ctx, const void * key, int len, const EVP_MD * md)
 {
 	if(key && md)
 		HMAC_CTX_reset(ctx);
-	return HMAC_Init_ex(ctx, key, len, md, NULL);
+	return HMAC_Init_ex(ctx, key, len, md, 0);
 }
 
 #endif

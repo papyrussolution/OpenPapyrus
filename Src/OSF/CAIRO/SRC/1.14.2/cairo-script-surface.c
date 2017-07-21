@@ -882,7 +882,7 @@ static cairo_status_t _emit_recording_surface_pattern(cairo_script_surface_t * s
 	extents = NULL;
 	if(_cairo_recording_surface_get_bounds(&source->base, &r))
 		extents = &r;
-	similar = _cairo_script_surface_create_internal(ctx, source->base.content, extents, NULL);
+	similar = _cairo_script_surface_create_internal(ctx, source->base.content, extents, 0);
 	if(unlikely(similar->base.status))
 		return similar->base.status;
 	similar->base.is_clear = TRUE;
@@ -1318,7 +1318,7 @@ static cairo_int_status_t _emit_raster_pattern(cairo_script_surface_t * surface,
 	cairo_surface_t * source;
 	cairo_int_status_t status;
 
-	source = _cairo_raster_source_pattern_acquire(pattern, &surface->base, NULL);
+	source = _cairo_raster_source_pattern_acquire(pattern, &surface->base, 0);
 	if(unlikely(source == NULL)) {
 		ASSERT_NOT_REACHED;
 		return CAIRO_INT_STATUS_UNSUPPORTED;
@@ -2251,70 +2251,40 @@ static const char * _hint_metrics_to_string(cairo_hint_metrics_t hint_metrics)
 	return names[hint_metrics];
 }
 
-static cairo_status_t _emit_font_options(cairo_script_surface_t * surface,
-    cairo_font_options_t * font_options)
+static cairo_status_t _emit_font_options(cairo_script_surface_t * surface, cairo_font_options_t * font_options)
 {
 	cairo_script_context_t * ctx = to_context(surface);
-
-	if(cairo_font_options_equal(&surface->cr.current_font_options,
-		    font_options)) {
+	if(cairo_font_options_equal(&surface->cr.current_font_options, font_options)) {
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	_cairo_output_stream_printf(ctx->stream, "<<");
-
 	if(font_options->antialias != surface->cr.current_font_options.antialias) {
-		_cairo_output_stream_printf(ctx->stream,
-		    " /antialias //%s",
-		    _antialias_to_string(font_options->antialias));
+		_cairo_output_stream_printf(ctx->stream, " /antialias //%s", _antialias_to_string(font_options->antialias));
 	}
-
-	if(font_options->subpixel_order !=
-	    surface->cr.current_font_options.subpixel_order) {
-		_cairo_output_stream_printf(ctx->stream,
-		    " /subpixel-order //%s",
-		    _subpixel_order_to_string(font_options->subpixel_order));
+	if(font_options->subpixel_order != surface->cr.current_font_options.subpixel_order) {
+		_cairo_output_stream_printf(ctx->stream, " /subpixel-order //%s", _subpixel_order_to_string(font_options->subpixel_order));
 	}
-
-	if(font_options->hint_style !=
-	    surface->cr.current_font_options.hint_style) {
-		_cairo_output_stream_printf(ctx->stream,
-		    " /hint-style //%s",
-		    _hint_style_to_string(font_options->hint_style));
+	if(font_options->hint_style != surface->cr.current_font_options.hint_style) {
+		_cairo_output_stream_printf(ctx->stream, " /hint-style //%s", _hint_style_to_string(font_options->hint_style));
 	}
-
-	if(font_options->hint_metrics !=
-	    surface->cr.current_font_options.hint_metrics) {
-		_cairo_output_stream_printf(ctx->stream,
-		    " /hint-metrics //%s",
-		    _hint_metrics_to_string(font_options->hint_metrics));
+	if(font_options->hint_metrics != surface->cr.current_font_options.hint_metrics) {
+		_cairo_output_stream_printf(ctx->stream, " /hint-metrics //%s", _hint_metrics_to_string(font_options->hint_metrics));
 	}
-
-	_cairo_output_stream_printf(ctx->stream,
-	    " >> set-font-options\n");
-
+	_cairo_output_stream_printf(ctx->stream, " >> set-font-options\n");
 	surface->cr.current_font_options = *font_options;
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static void _cairo_script_scaled_font_fini(cairo_scaled_font_private_t * abstract_private,
-    cairo_scaled_font_t * scaled_font)
+static void _cairo_script_scaled_font_fini(cairo_scaled_font_private_t * abstract_private, cairo_scaled_font_t * scaled_font)
 {
 	cairo_script_font_t * priv = (cairo_script_font_t*)abstract_private;
 	cairo_script_context_t * ctx = (cairo_script_context_t*)abstract_private->key;
-	cairo_status_t status;
-
-	status = cairo_device_acquire(&ctx->base);
+	cairo_status_t status = cairo_device_acquire(&ctx->base);
 	if(likely(status == CAIRO_STATUS_SUCCESS)) {
-		_cairo_output_stream_printf(ctx->stream,
-		    "/f%lu undef /sf%lu undef\n",
-		    priv->id,
-		    priv->id);
-
+		_cairo_output_stream_printf(ctx->stream, "/f%lu undef /sf%lu undef\n", priv->id, priv->id);
 		_bitmap_release_id(&ctx->font_id, priv->id);
 		cairo_device_release(&ctx->base);
 	}
-
 	cairo_list_del(&priv->link);
 	cairo_list_del(&priv->base.link);
 	SAlloc::F(priv);
@@ -2578,106 +2548,68 @@ static cairo_status_t _emit_scaled_glyph_bitmap(cairo_script_surface_t * surface
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _emit_scaled_glyph_prologue(cairo_script_surface_t * surface,
-    cairo_scaled_font_t * scaled_font)
+static cairo_status_t _emit_scaled_glyph_prologue(cairo_script_surface_t * surface, cairo_scaled_font_t * scaled_font)
 {
 	cairo_script_context_t * ctx = to_context(surface);
-
-	_cairo_output_stream_printf(ctx->stream, "f%lu /glyphs get\n",
-	    _cairo_script_font_id(ctx, scaled_font));
-
+	_cairo_output_stream_printf(ctx->stream, "f%lu /glyphs get\n", _cairo_script_font_id(ctx, scaled_font));
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _emit_scaled_glyphs(cairo_script_surface_t * surface,
-    cairo_scaled_font_t * scaled_font,
-    cairo_glyph_t * glyphs,
-    uint num_glyphs)
+static cairo_status_t _emit_scaled_glyphs(cairo_script_surface_t * surface, cairo_scaled_font_t * scaled_font, cairo_glyph_t * glyphs, uint num_glyphs)
 {
 	cairo_script_context_t * ctx = to_context(surface);
 	cairo_script_font_t * font_private;
 	cairo_status_t status;
 	uint n;
 	cairo_bool_t have_glyph_prologue = FALSE;
-
 	if(num_glyphs == 0)
 		return CAIRO_STATUS_SUCCESS;
-
 	font_private = _cairo_script_font_get(ctx, scaled_font);
 	if(font_private->has_sfnt)
 		return CAIRO_STATUS_SUCCESS;
-
 	_cairo_scaled_font_freeze_cache(scaled_font);
 	for(n = 0; n < num_glyphs; n++) {
 		cairo_scaled_glyph_t * scaled_glyph;
-
-		status = _cairo_scaled_glyph_lookup(scaled_font,
-		    glyphs[n].index,
-		    CAIRO_SCALED_GLYPH_INFO_METRICS,
-		    &scaled_glyph);
+		status = _cairo_scaled_glyph_lookup(scaled_font, glyphs[n].index, CAIRO_SCALED_GLYPH_INFO_METRICS, &scaled_glyph);
 		if(unlikely(status))
 			break;
-
 		if(scaled_glyph->dev_private_key == ctx)
 			continue;
-
-		status = _cairo_scaled_glyph_lookup(scaled_font,
-		    glyphs[n].index,
-		    CAIRO_SCALED_GLYPH_INFO_RECORDING_SURFACE,
-		    &scaled_glyph);
+		status = _cairo_scaled_glyph_lookup(scaled_font, glyphs[n].index, CAIRO_SCALED_GLYPH_INFO_RECORDING_SURFACE, &scaled_glyph);
 		if(_cairo_status_is_error(status))
 			break;
-
 		if(status == CAIRO_STATUS_SUCCESS) {
 			if(!have_glyph_prologue) {
 				status = _emit_scaled_glyph_prologue(surface, scaled_font);
 				if(unlikely(status))
 					break;
-
 				have_glyph_prologue = TRUE;
 			}
-
-			status = _emit_scaled_glyph_vector(surface,
-			    scaled_font, font_private,
-			    scaled_glyph);
+			status = _emit_scaled_glyph_vector(surface, scaled_font, font_private, scaled_glyph);
 			if(unlikely(status))
 				break;
-
 			continue;
 		}
-
-		status = _cairo_scaled_glyph_lookup(scaled_font,
-		    glyphs[n].index,
-		    CAIRO_SCALED_GLYPH_INFO_SURFACE,
-		    &scaled_glyph);
+		status = _cairo_scaled_glyph_lookup(scaled_font, glyphs[n].index, CAIRO_SCALED_GLYPH_INFO_SURFACE, &scaled_glyph);
 		if(_cairo_status_is_error(status))
 			break;
-
 		if(status == CAIRO_STATUS_SUCCESS) {
 			if(!have_glyph_prologue) {
 				status = _emit_scaled_glyph_prologue(surface, scaled_font);
 				if(unlikely(status))
 					break;
-
 				have_glyph_prologue = TRUE;
 			}
-
-			status = _emit_scaled_glyph_bitmap(surface,
-			    scaled_font,
-			    font_private,
-			    scaled_glyph);
+			status = _emit_scaled_glyph_bitmap(surface, scaled_font, font_private, scaled_glyph);
 			if(unlikely(status))
 				break;
-
 			continue;
 		}
 	}
 	_cairo_scaled_font_thaw_cache(scaled_font);
-
 	if(have_glyph_prologue) {
 		_cairo_output_stream_puts(to_context(surface)->stream, "pop pop\n");
 	}
-
 	return status;
 }
 
@@ -2689,15 +2621,12 @@ static void to_octal(int value, char * buf, size_t size)
 	} while(size);
 }
 
-static void _emit_string_literal(cairo_script_surface_t * surface,
-    const char * utf8, int len)
+static void _emit_string_literal(cairo_script_surface_t * surface, const char * utf8, int len)
 {
 	cairo_script_context_t * ctx = to_context(surface);
 	char c;
 	const char * end;
-
 	_cairo_output_stream_puts(ctx->stream, "(");
-
 	if(utf8 == NULL) {
 		end = utf8;
 	}
@@ -2706,7 +2635,6 @@ static void _emit_string_literal(cairo_script_surface_t * surface,
 			len = strlen(utf8);
 		end = utf8 + len;
 	}
-
 	while(utf8 < end) {
 		switch((c = *utf8++)) {
 			case '\n':
@@ -2865,10 +2793,8 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 					base85_stream = _cairo_base85_stream_create(ctx->stream);
 				}
 				else {
-					_cairo_output_stream_printf(ctx->stream,
-					    " ] %f [ ", glyphs[n].x - x);
+					_cairo_output_stream_printf(ctx->stream, " ] %f [ ", glyphs[n].x - x);
 				}
-
 				x = glyphs[n].x;
 			}
 			else {
@@ -2883,16 +2809,11 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 						base85_stream = NULL;
 						break;
 					}
-
-					_cairo_output_stream_printf(ctx->stream,
-					    "~> %f %f <~",
-					    ix, iy);
+					_cairo_output_stream_printf(ctx->stream, "~> %f %f <~", ix, iy);
 					base85_stream = _cairo_base85_stream_create(ctx->stream);
 				}
 				else {
-					_cairo_output_stream_printf(ctx->stream,
-					    " ] %f %f [ ",
-					    ix, iy);
+					_cairo_output_stream_printf(ctx->stream, " ] %f %f [ ", ix, iy);
 				}
 			}
 		}
@@ -2921,14 +2842,10 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 		y += dy;
 	}
 	_cairo_scaled_font_thaw_cache(scaled_font);
-
 	if(base85_stream != NULL) {
-		cairo_status_t status2;
-
-		status2 = _cairo_output_stream_destroy(base85_stream);
+		cairo_status_t status2 = _cairo_output_stream_destroy(base85_stream);
 		if(status == CAIRO_STATUS_SUCCESS)
 			status = status2;
-
 		_cairo_output_stream_printf(ctx->stream, "~>");
 	}
 	else {
@@ -2936,22 +2853,16 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 	}
 	if(unlikely(status))
 		return status;
-
 	if(utf8 != NULL && clusters != NULL) {
 		for(n = 0; n < num_clusters; n++) {
-			if(clusters[n].num_bytes > UCHAR_MAX ||
-			    clusters[n].num_glyphs > UCHAR_MAX) {
+			if(clusters[n].num_bytes > UCHAR_MAX || clusters[n].num_glyphs > UCHAR_MAX) {
 				break;
 			}
 		}
-
 		if(n < num_clusters) {
 			_cairo_output_stream_puts(ctx->stream, "] [ ");
 			for(n = 0; n < num_clusters; n++) {
-				_cairo_output_stream_printf(ctx->stream,
-				    "%d %d ",
-				    clusters[n].num_bytes,
-				    clusters[n].num_glyphs);
+				_cairo_output_stream_printf(ctx->stream, "%d %d ", clusters[n].num_bytes, clusters[n].num_glyphs);
 			}
 			_cairo_output_stream_puts(ctx->stream, "]");
 		}
@@ -2970,27 +2881,15 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 
 			_cairo_output_stream_puts(ctx->stream, "~>");
 		}
-
-		_cairo_output_stream_printf(ctx->stream,
-		    " //%s show-text-glyphs\n",
-		    _direction_to_string(backward));
+		_cairo_output_stream_printf(ctx->stream, " //%s show-text-glyphs\n", _direction_to_string(backward));
 	}
 	else {
-		_cairo_output_stream_puts(ctx->stream,
-		    "] show-glyphs\n");
+		_cairo_output_stream_puts(ctx->stream, "] show-glyphs\n");
 	}
-
 	inactive(surface);
-
 	if(_cairo_surface_wrapper_is_active(&surface->wrapper)) {
 		return _cairo_surface_wrapper_show_text_glyphs(&surface->wrapper,
-		    op, source,
-		    utf8, utf8_len,
-		    glyphs, num_glyphs,
-		    clusters, num_clusters,
-		    backward,
-		    scaled_font,
-		    clip);
+		    op, source, utf8, utf8_len, glyphs, num_glyphs, clusters, num_clusters, backward, scaled_font, clip);
 	}
 
 	return CAIRO_STATUS_SUCCESS;
@@ -3082,9 +2981,7 @@ static void _cairo_script_implicit_context_reset(cairo_script_implicit_context_t
 }
 
 static cairo_script_surface_t * _cairo_script_surface_create_internal(cairo_script_context_t * ctx,
-    cairo_content_t content,
-    cairo_rectangle_t * extents,
-    cairo_surface_t * passthrough)
+    cairo_content_t content, cairo_rectangle_t * extents, cairo_surface_t * passthrough)
 {
 	cairo_script_surface_t * surface;
 	if(unlikely(ctx == NULL))
@@ -3092,41 +2989,27 @@ static cairo_script_surface_t * _cairo_script_surface_create_internal(cairo_scri
 	surface = (cairo_script_surface_t *)SAlloc::M(sizeof(cairo_script_surface_t));
 	if(unlikely(surface == NULL))
 		return (cairo_script_surface_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
-
-	_cairo_surface_init(&surface->base,
-	    &_cairo_script_surface_backend,
-	    &ctx->base,
-	    content);
-
+	_cairo_surface_init(&surface->base, &_cairo_script_surface_backend, &ctx->base, content);
 	_cairo_surface_wrapper_init(&surface->wrapper, passthrough);
-
-	_cairo_surface_clipper_init(&surface->clipper,
-	    _cairo_script_surface_clipper_intersect_clip_path);
-
+	_cairo_surface_clipper_init(&surface->clipper, _cairo_script_surface_clipper_intersect_clip_path);
 	surface->width = surface->height = -1;
 	if(extents) {
 		surface->width = extents->width;
 		surface->height = extents->height;
-		cairo_surface_set_device_offset(&surface->base,
-		    -extents->x, -extents->y);
+		cairo_surface_set_device_offset(&surface->base, -extents->x, -extents->y);
 	}
-
 	surface->emitted = FALSE;
 	surface->defined = FALSE;
 	surface->active = FALSE;
 	surface->operand.type = _operand::SURFACE;
 	cairo_list_init(&surface->operand.link);
-
 	_cairo_script_implicit_context_init(&surface->cr);
-
 	return surface;
 }
 
 static const cairo_device_backend_t _cairo_script_device_backend = {
 	CAIRO_DEVICE_TYPE_SCRIPT,
-
 	NULL, NULL, /* lock, unlock */
-
 	_device_flush, /* flush */
 	NULL, /* finish */
 	_device_destroy
@@ -3184,13 +3067,10 @@ static cairo_device_t * _cairo_script_context_create(cairo_output_stream_t * str
  **/
 cairo_device_t * cairo_script_create(const char * filename)
 {
-	cairo_output_stream_t * stream;
 	cairo_status_t status;
-
-	stream = _cairo_output_stream_create_for_filename(filename);
+	cairo_output_stream_t * stream = _cairo_output_stream_create_for_filename(filename);
 	if((status = _cairo_output_stream_get_status(stream)))
 		return _cairo_device_create_in_error(status);
-
 	return _cairo_script_context_create(stream);
 }
 
@@ -3212,16 +3092,12 @@ cairo_device_t * cairo_script_create(const char * filename)
  *
  * Since: 1.12
  **/
-cairo_device_t * cairo_script_create_for_stream(cairo_write_func_t write_func,
-    void * closure)
+cairo_device_t * cairo_script_create_for_stream(cairo_write_func_t write_func, void * closure)
 {
-	cairo_output_stream_t * stream;
 	cairo_status_t status;
-
-	stream = _cairo_output_stream_create(write_func, NULL, closure);
+	cairo_output_stream_t * stream = _cairo_output_stream_create(write_func, NULL, closure);
 	if((status = _cairo_output_stream_get_status(stream)))
 		return _cairo_device_create_in_error(status);
-
 	return _cairo_script_context_create(stream);
 }
 
@@ -3235,15 +3111,11 @@ cairo_device_t * cairo_script_create_for_stream(cairo_write_func_t write_func,
  *
  * Since: 1.12
  **/
-void cairo_script_write_comment(cairo_device_t * script,
-    const char * comment,
-    int len)
+void cairo_script_write_comment(cairo_device_t * script, const char * comment, int len)
 {
 	cairo_script_context_t * context = (cairo_script_context_t*)script;
-
 	if(len < 0)
 		len = strlen(comment);
-
 	_cairo_output_stream_puts(context->stream, "% ");
 	_cairo_output_stream_write(context->stream, comment, len);
 	_cairo_output_stream_puts(context->stream, "\n");
@@ -3258,11 +3130,9 @@ void cairo_script_write_comment(cairo_device_t * script,
  *
  * Since: 1.12
  **/
-void cairo_script_set_mode(cairo_device_t * script,
-    cairo_script_mode_t mode)
+void cairo_script_set_mode(cairo_device_t * script, cairo_script_mode_t mode)
 {
 	cairo_script_context_t * context = (cairo_script_context_t*)script;
-
 	context->mode = mode;
 }
 
@@ -3279,7 +3149,6 @@ void cairo_script_set_mode(cairo_device_t * script,
 cairo_script_mode_t cairo_script_get_mode(cairo_device_t * script)
 {
 	cairo_script_context_t * context = (cairo_script_context_t*)script;
-
 	return context->mode;
 }
 
@@ -3302,19 +3171,13 @@ cairo_script_mode_t cairo_script_get_mode(cairo_device_t * script)
  *
  * Since: 1.12
  **/
-cairo_surface_t * cairo_script_surface_create(cairo_device_t * script,
-    cairo_content_t content,
-    double width,
-    double height)
+cairo_surface_t * cairo_script_surface_create(cairo_device_t * script, cairo_content_t content, double width, double height)
 {
 	cairo_rectangle_t * extents, r;
-
 	if(unlikely(script->backend->type != CAIRO_DEVICE_TYPE_SCRIPT))
 		return _cairo_surface_create_in_error(CAIRO_STATUS_DEVICE_TYPE_MISMATCH);
-
 	if(unlikely(script->status))
 		return _cairo_surface_create_in_error(script->status);
-
 	extents = NULL;
 	if(width > 0 && height > 0) {
 		r.x = r.y = 0;
@@ -3322,9 +3185,7 @@ cairo_surface_t * cairo_script_surface_create(cairo_device_t * script,
 		r.height = height;
 		extents = &r;
 	}
-	return &_cairo_script_surface_create_internal((cairo_script_context_t*)script,
-	    content, extents,
-	    NULL)->base;
+	return &_cairo_script_surface_create_internal((cairo_script_context_t*)script, content, extents, NULL)->base;
 }
 
 slim_hidden_def(cairo_script_surface_create);
@@ -3378,8 +3239,7 @@ cairo_surface_t * cairo_script_surface_create_for_target(cairo_device_t * script
  *
  * Since: 1.12
  **/
-cairo_status_t cairo_script_from_recording_surface(cairo_device_t * script,
-    cairo_surface_t * recording_surface)
+cairo_status_t cairo_script_from_recording_surface(cairo_device_t * script, cairo_surface_t * recording_surface)
 {
 	cairo_rectangle_t r, * extents;
 	cairo_surface_t * surface;

@@ -26,7 +26,7 @@
 int __qam_mswap(ENV*env, PAGE * pg)
 {
 	uint8 * p;
-	COMPQUIET(env, NULL);
+	COMPQUIET(env, 0);
 	__db_metaswap(pg);
 	p = (uint8 *)pg+sizeof(DBMETA);
 	SWAP32(p);              /* first_recno */

@@ -312,7 +312,7 @@ static void stdio_write_func(png_structp png, png_bytep data, size_t size)
 			cairo_status_t * error = (cairo_status_t *)png_get_error_ptr(png);
 			if(*error == CAIRO_STATUS_SUCCESS)
 				*error = _cairo_error(CAIRO_STATUS_WRITE_ERROR);
-			png_error(png, NULL);
+			png_error(png, 0);
 		}
 	}
 }
@@ -377,7 +377,7 @@ static void stream_write_func(png_structp png, png_bytep data, size_t size)
 		cairo_status_t * error = (cairo_status_t *)png_get_error_ptr(png);
 		if(*error == CAIRO_STATUS_SUCCESS)
 			*error = status;
-		png_error(png, NULL);
+		png_error(png, 0);
 	}
 }
 
@@ -493,7 +493,7 @@ static void stream_read_func(png_structp png, png_bytep data, size_t size)
 		cairo_status_t * error = (cairo_status_t *)png_get_error_ptr(png);
 		if(*error == CAIRO_STATUS_SUCCESS)
 			*error = status;
-		png_error(png, NULL);
+		png_error(png, 0);
 	}
 	_cairo_output_stream_write(png_closure->png_data, data, size);
 }
@@ -679,7 +679,7 @@ BAIL:
 	SAlloc::F(row_pointers);
 	SAlloc::F(data);
 	if(png != NULL)
-		png_destroy_read_struct(&png, &info, NULL);
+		png_destroy_read_struct(&png, &info, 0);
 	if(png_closure->png_data != NULL) {
 		cairo_status_t status_ignored;
 

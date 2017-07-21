@@ -420,7 +420,7 @@ static int __partition_setup_keys(DBC * dbc, DB_PARTITION * part, DBMETA * meta,
 	int ret;
 	int (*compare)(DB*, const DBT*, const DBT *);
 	void * dp;
-	COMPQUIET(dd, NULL);
+	COMPQUIET(dd, 0);
 	COMPQUIET(ds, 0);
 	// @v9.6.4 (ctr) memzero(&data, sizeof(data));
 	// @v9.6.4 (ctr) memzero(&key, sizeof(key));
@@ -873,7 +873,7 @@ static int __partc_writelock(DBC * dbc)
 static int __partc_close(DBC * dbc, db_pgno_t root_pgno, int * rmroot)
 {
 	COMPQUIET(root_pgno, 0);
-	COMPQUIET(rmroot, NULL);
+	COMPQUIET(rmroot, 0);
 	int ret = 0;
 	PART_CURSOR * cp = (PART_CURSOR *)dbc->internal;
 	if(cp->sub_cursor) {
@@ -1372,7 +1372,7 @@ static int __part_rr(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * n
 		goto err;
 	part = (DB_PARTITION *)tmpdbp->p_internal;
 	pdbp = part->handles;
-	COMPQUIET(np, NULL);
+	COMPQUIET(np, 0);
 	if(newname != NULL && (ret = __os_malloc(env, strlen(newname)+PART_LEN+1, &np)) != 0) {
 		__db_errx(env, Alloc_err, strlen(newname)+PART_LEN+1);
 		goto err;
@@ -1533,8 +1533,8 @@ int __db_no_partition(ENV * env)
 int __partition_set(DB * dbp, uint32 parts, DBT * keys, uint32 (* callback)(DB *, DBT * key))
 {
 	COMPQUIET(parts, 0);
-	COMPQUIET(keys, NULL);
-	COMPQUIET(callback, NULL);
+	COMPQUIET(keys, 0);
+	COMPQUIET(callback, 0);
 	return __db_no_partition(dbp->env);
 }
 /*
@@ -1546,8 +1546,8 @@ int __partition_set(DB * dbp, uint32 parts, DBT * keys, uint32 (* callback)(DB *
  */
 int __partition_get_callback(DB * dbp, uint32 * parts, uint32 (**callback)(DB*, DBT*key))
 {
-	COMPQUIET(parts, NULL);
-	COMPQUIET(callback, NULL);
+	COMPQUIET(parts, 0);
+	COMPQUIET(callback, 0);
 	return __db_no_partition(dbp->env);
 }
 /*
@@ -1557,7 +1557,7 @@ int __partition_get_callback(DB * dbp, uint32 * parts, uint32 (**callback)(DB*, 
  */
 int __partition_get_dirs(DB * dbp, const char *** dirpp)
 {
-	COMPQUIET(dirpp, NULL);
+	COMPQUIET(dirpp, 0);
 	return __db_no_partition(dbp->env);
 }
 /*
@@ -1567,8 +1567,8 @@ int __partition_get_dirs(DB * dbp, const char *** dirpp)
  */
 int __partition_get_keys(DB * dbp, uint32 * parts, DBT ** keys)
 {
-	COMPQUIET(parts, NULL);
-	COMPQUIET(keys, NULL);
+	COMPQUIET(parts, 0);
+	COMPQUIET(keys, 0);
 	return __db_no_partition(dbp->env);
 }
 /*
@@ -1593,8 +1593,8 @@ int __partition_init(DB * dbp, uint32 flags)
  */
 int __part_fileid_reset(ENV * env, DB_THREAD_INFO * ip, const char * fname, uint32 nparts, int encrypted)
 {
-	COMPQUIET(ip, NULL);
-	COMPQUIET(fname, NULL);
+	COMPQUIET(ip, 0);
+	COMPQUIET(fname, 0);
 	COMPQUIET(nparts, 0);
 	COMPQUIET(encrypted, 0);
 	return __db_no_partition(env);
@@ -1607,7 +1607,7 @@ int __part_fileid_reset(ENV * env, DB_THREAD_INFO * ip, const char * fname, uint
  */
 int __partition_set_dirs(DB * dbp, const char ** dirp)
 {
-	COMPQUIET(dirp, NULL);
+	COMPQUIET(dirp, 0);
 	return __db_no_partition(dbp->env);
 }
 #endif

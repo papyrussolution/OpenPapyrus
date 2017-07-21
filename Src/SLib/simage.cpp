@@ -317,7 +317,7 @@ int CopyPaste(HWND hWnd, int copy, const char * pPath)
 		}
 		else if(IsClipboardFormatAvailable(CF_DIB)) {
 			h_bmp = (HBITMAP)GetClipboardData(CF_BITMAP);
-			p_bmp = new Gdiplus::Bitmap(h_bmp, NULL);
+			p_bmp = new Gdiplus::Bitmap(h_bmp, 0);
 			CloseClipboard();
 			CLSID enc_clsid;
 			GetEncoderClsid(L"image/jpeg", &enc_clsid);

@@ -11,6 +11,26 @@
 #include <Lm.h>
 #include <strstore.h>
 //
+// @prototype {
+//
+int SLAPI ExportDialogs(const char * pFileName);
+int TestAddressRecognition();
+int SLAPI SelfBuild();
+// @v9.7.8 int SLAPI SartTest();
+int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char * pSrcIniFileName, const char * pDestIniFileName);
+int SLAPI RemoveZeroLinkCCLines();
+int SLAPI ReceiptPacking();
+int SLAPI PPTex2Html();
+int SLAPI PPVer2Html();
+int SLAPI Test_KeywordListGenerator(); // txtanlz.cpp
+int SLAPI TestFias(); // objloctn.cpp
+int SLAPI TestCURL(); // pputil.cpp
+int SLAPI TestEGAIS(PPEgaisProcessor::TestParam *); // egais.cpp
+int SLAPI BuildLocalDL600(); // ppbuild.cpp
+int SLAPI TestLogWindow(); // pplog.cpp
+int SLAPI RecoverAbsenceTrfr();
+int SLAPI ImportSartre();
+// } @prototype
 //
 //
 /*static*/ const char * PPRegKeys::PrefSettings          = "Software\\Papyrus\\Pref";   // @declared(pp.h)
@@ -353,18 +373,6 @@ static int SLAPI PPAbout()
 		ok = 0;
 	return ok;
 }
-//
-// Prototype
-int SLAPI RemoveZeroLinkCCLines();
-int SLAPI ReceiptPacking();
-int SLAPI PPTex2Html();
-int SLAPI PPVer2Html();
-int SLAPI Test_KeywordListGenerator(); // @prototype txtanlz.cpp
-int SLAPI TestFias(); // @prototype objloctn.cpp
-int SLAPI TestCURL(); // @prototype pputil.cpp
-int SLAPI TestEGAIS(PPEgaisProcessor::TestParam *); // @prototype egais.cpp
-int SLAPI BuildLocalDL600(); // @prototype ppbuild.cpp
-int SLAPI TestLogWindow(); // @prototype pplog.cpp
 
 static void ShowTags_(PPID objType)
 {
@@ -730,6 +738,7 @@ int PPApp::processCommand(uint cmd)
 				pp.ProcessInput(pib);
 			}
 			break; // @v9.0.8
+		case cmImportSartre:          ImportSartre();                    break;
 		case cmChainDatabase:         SetDatabaseChain();                break;
 		case cmDeleteTmpFiles:        DeleteTmpFiles();                  break;
 		case cmCreateNewFiles:        MakeDatabase();                    break;
@@ -1334,8 +1343,6 @@ int SLAPI PPVerHistory::Log()
 	return ok;
 }
 
-int SLAPI RecoverAbsenceTrfr(); // @prototype
-
 int PPApp::SetDatetimeByServer(PPIniFile * pIniFile, int force)
 {
 	int    ok = -1;
@@ -1530,9 +1537,7 @@ int SLAPI PreprocessCmdLine()
 		}
 		ok = -1;
 	}
-	else if(GetStartUpOption(cmdlSartrTest, 0)) {
-		SartTest();
-	}
+	// else if(GetStartUpOption(cmdlSartrTest, 0)) { SartTest(); }
 	else if(GetStartUpOption(cmdlPPOS, buf)) {
 		if(buf[0] == 0) {
 			puts(msg_buf.Cat("Usage").CatDiv(':', 2).Cat("ppw.exe /ppos:file_name").CR());
@@ -1593,12 +1598,6 @@ int SLAPI PreprocessCmdLine()
 }
 
 #endif // } 0
-
-int SLAPI ExportDialogs(const char * pFileName); // @prototype
-int TestAddressRecognition(); // @prototype @debug
-int SLAPI SelfBuild();        // @prototype ppbuild.cpp
-int SLAPI SartTest();         // @prototype sartr.cpp
-int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char * pSrcIniFileName, const char * pDestIniFileName);
 
 #ifndef NDEBUG // {
 // @test {
@@ -1732,9 +1731,7 @@ void PPApp::login(int processCmdLine)
 		ZDELETE(dlg);
 		TView::messageCommand(this, cmQuit);
 	}
-	else if(GetStartUpOption(cmdlSartrTest, arg_buf)) {
-		SartTest();
-	}
+	// @v9.7.8 else if(GetStartUpOption(cmdlSartrTest, arg_buf)) { SartTest(); }
 	else {
 		int    valid = 0, force_prompt = 0, retry_login = 0, sys_acc_login = 0;
 		int    is_batch = 0;

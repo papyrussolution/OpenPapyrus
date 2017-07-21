@@ -347,7 +347,7 @@ public:
 		return new LexerSQL();
 	}
 private:
-	bool IsStreamCommentStyle(int style)
+	bool FASTCALL IsStreamCommentStyle(int style) const
 	{
 		return oneof4(style, SCE_SQL_COMMENT, SCE_SQL_COMMENTDOC, SCE_SQL_COMMENTDOCKEYWORD, SCE_SQL_COMMENTDOCKEYWORDERROR);
 	}

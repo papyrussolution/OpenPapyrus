@@ -121,7 +121,7 @@ int __envreg_register(ENV * env, int * need_recoveryp, uint32 flags)
 	char * pp;
 	*need_recoveryp = 0;
 	dbenv = env->dbenv;
-	dbenv->thread_id(dbenv, &pid, NULL);
+	dbenv->thread_id(dbenv, &pid, 0);
 	pp = NULL;
 	if(FLD_ISSET(dbenv->verbose, DB_VERB_REGISTER))
 		__db_msg(env, DB_STR_A("1524", "%lu: register environment", "%lu"), (ulong)pid);
@@ -197,11 +197,11 @@ static int __envreg_add(ENV * env, int * need_recoveryp, uint32 flags)
 	dbenv = env->dbenv;
 	need_recovery = 0;
 	COMPQUIET(dead, 0);
-	COMPQUIET(p, NULL);
+	COMPQUIET(p, 0);
 	ip = NULL;
 
 	/* Get a copy of our process ID. */
-	dbenv->thread_id(dbenv, &pid, NULL);
+	dbenv->thread_id(dbenv, &pid, 0);
 	snprintf(pid_buf, sizeof(pid_buf), PID_FMT, (ulong)pid);
 	if(FLD_ISSET(dbenv->verbose, DB_VERB_REGISTER))
 		__db_msg(env, DB_STR_A("1526", "%lu: adding self to registry", "%lu"), (ulong)pid);
@@ -464,7 +464,7 @@ int __envreg_xunlock(ENV * env)
 	pid_t pid;
 	int ret;
 	dbenv = env->dbenv;
-	dbenv->thread_id(dbenv, &pid, NULL);
+	dbenv->thread_id(dbenv, &pid, 0);
 	if(FLD_ISSET(dbenv->verbose, DB_VERB_REGISTER))
 		__db_msg(env, DB_STR_A("1533", "%lu: recovery completed, unlocking", "%lu"), (ulong)pid);
 	if((ret = REGISTRY_EXCL_UNLOCK(env)) == 0)

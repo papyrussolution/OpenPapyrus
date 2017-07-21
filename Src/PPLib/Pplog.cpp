@@ -255,7 +255,7 @@ int LogListWindowSCI::WMHCreate()
 		}
 	}
 	HwndSci = CreateWindowEx(WS_EX_CLIENTEDGE, _T("Scintilla"), _T(""), WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_CLIPCHILDREN,
-		0, 0/*ToolBarWidth*/, rc.right - rc.left, rc.bottom - rc.top, HW, 0/*(HMENU)GuiID*/, APPL->GetInst(), NULL);
+		0, 0/*ToolBarWidth*/, rc.right - rc.left, rc.bottom - rc.top, HW, 0/*(HMENU)GuiID*/, APPL->GetInst(), 0);
 	SScEditorBase::Init(HwndSci, 0/*preserveFileName*/);
 	// @v9.1.12 ::SetWindowLongPtr(HwndSci, GWLP_USERDATA, (LONG_PTR)this);
 	TView::SetWindowUserData(HwndSci, this); // @v9.1.12

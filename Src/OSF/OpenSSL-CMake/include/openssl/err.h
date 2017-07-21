@@ -10,16 +10,14 @@
 #ifndef HEADER_ERR_H
 # define HEADER_ERR_H
 
-# include <openssl/e_os2.h>
-
-# ifndef OPENSSL_NO_STDIO
-#  include <stdio.h>
-#  include <stdlib.h>
-# endif
-
-# include <openssl/ossl_typ.h>
-# include <openssl/bio.h>
-# include <openssl/lhash.h>
+#include <openssl/e_os2.h>
+#ifndef OPENSSL_NO_STDIO
+	#include <stdio.h>
+	#include <stdlib.h>
+#endif
+#include <openssl/ossl_typ.h>
+#include <openssl/bio.h>
+#include <openssl/lhash.h>
 
 #ifdef  __cplusplus
 extern "C" {
@@ -209,24 +207,20 @@ void ERR_set_error_data(char *data, int flags);
 
 unsigned long ERR_get_error(void);
 unsigned long ERR_get_error_line(const char **file, int *line);
-unsigned long ERR_get_error_line_data(const char **file, int *line,
-                                      const char **data, int *flags);
+unsigned long ERR_get_error_line_data(const char **file, int *line, const char **data, int *flags);
 unsigned long ERR_peek_error(void);
 unsigned long ERR_peek_error_line(const char **file, int *line);
-unsigned long ERR_peek_error_line_data(const char **file, int *line,
-                                       const char **data, int *flags);
+unsigned long ERR_peek_error_line_data(const char **file, int *line, const char **data, int *flags);
 unsigned long ERR_peek_last_error(void);
 unsigned long ERR_peek_last_error_line(const char **file, int *line);
-unsigned long ERR_peek_last_error_line_data(const char **file, int *line,
-                                            const char **data, int *flags);
+unsigned long ERR_peek_last_error_line_data(const char **file, int *line, const char **data, int *flags);
 void ERR_clear_error(void);
 char *ERR_error_string(unsigned long e, char *buf);
 void ERR_error_string_n(unsigned long e, char *buf, size_t len);
 const char *ERR_lib_error_string(unsigned long e);
 const char *ERR_func_error_string(unsigned long e);
 const char *ERR_reason_error_string(unsigned long e);
-void ERR_print_errors_cb(int (*cb) (const char *str, size_t len, void *u),
-                         void *u);
+void ERR_print_errors_cb(int (*cb) (const char *str, size_t len, void *u), void *u);
 # ifndef OPENSSL_NO_STDIO
 void ERR_print_errors_fp(FILE *fp);
 # endif
@@ -238,8 +232,7 @@ int ERR_unload_strings(int lib, ERR_STRING_DATA str[]);
 int ERR_load_ERR_strings(void);
 
 #if OPENSSL_API_COMPAT < 0x10100000L
-# define ERR_load_crypto_strings() \
-    OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL)
+# define ERR_load_crypto_strings() OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL)
 # define ERR_free_strings() while(0) continue
 #endif
 

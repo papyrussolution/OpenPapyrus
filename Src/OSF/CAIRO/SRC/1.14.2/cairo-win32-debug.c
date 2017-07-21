@@ -67,7 +67,7 @@ _cairo_win32_debug_dump_hrgn (HRGN rgn, char *header)
 	fprintf (stderr, " NULL\n");
     }
 
-    z = GetRegionData(rgn, 0, NULL);
+    z = GetRegionData(rgn, 0, 0);
     rd = (RGNDATA*) SAlloc::M(z);
     z = GetRegionData(rgn, z, rd);
 

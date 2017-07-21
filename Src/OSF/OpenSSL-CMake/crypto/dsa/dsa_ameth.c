@@ -99,7 +99,7 @@ static int dsa_pub_encode(X509_PUBKEY * pk, const EVP_PKEY * pkey)
 	else
 		ptype = V_ASN1_UNDEF;
 
-	pubint = BN_to_ASN1_INTEGER(dsa->pub_key, NULL);
+	pubint = BN_to_ASN1_INTEGER(dsa->pub_key, 0);
 
 	if(pubint == NULL) {
 		DSAerr(DSA_F_DSA_PUB_ENCODE, ERR_R_MALLOC_FAILURE);
@@ -222,7 +222,7 @@ static int dsa_priv_encode(PKCS8_PRIV_KEY_INFO * p8, const EVP_PKEY * pkey)
 	params->type = V_ASN1_SEQUENCE;
 
 	/* Get private key into integer */
-	prkey = BN_to_ASN1_INTEGER(pkey->pkey.dsa->priv_key, NULL);
+	prkey = BN_to_ASN1_INTEGER(pkey->pkey.dsa->priv_key, 0);
 
 	if(!prkey) {
 		DSAerr(DSA_F_DSA_PRIV_ENCODE, DSA_R_BN_ERROR);

@@ -158,12 +158,12 @@ int __rep_process_message_pp(DB_ENV*dbenv, DBT * control, DBT * rec, int eid, DB
 		return EINVAL;
 	}
 	if((ret = __dbt_usercopy(env, control)) != 0 || (ret = __dbt_usercopy(env, rec)) != 0) {
-		__dbt_userfree(env, control, rec, NULL);
+		__dbt_userfree(env, control, rec, 0);
 		__db_errx(env, DB_STR("3515", "DB_ENV->rep_process_message: error retrieving DBT contents"));
 		return ret;
 	}
 	ret = __rep_process_message_int(env, control, rec, eid, ret_lsnp);
-	__dbt_userfree(env, control, rec, NULL);
+	__dbt_userfree(env, control, rec, 0);
 	return ret;
 }
 /*
@@ -932,7 +932,7 @@ out:
 		ASSIGN_PTR(ret_lsnp, rp->lsn);
 		ret = DB_REP_NOTPERM;
 	}
-	__dbt_userfree(env, control, rec, NULL);
+	__dbt_userfree(env, control, rec, 0);
 	ENV_LEAVE(env, ip);
 	return ret;
 }
@@ -1780,7 +1780,7 @@ static int __rep_process_rec(ENV*env, DB_THREAD_INFO * ip, __rep_control_args * 
 		 */
 		LOGCOPY_32(env, &txnid, (uint8 *)rec->data+sizeof(uint32));
 		if(txnid == TXN_INVALID)
-			ret = __db_dispatch(env, &env->recover_dtab, rec, &rp->lsn, DB_TXN_APPLY, NULL);
+			ret = __db_dispatch(env, &env->recover_dtab, rec, &rp->lsn, DB_TXN_APPLY, 0);
 		break;
 	    case DB___txn_regop:
 		/*
@@ -1801,7 +1801,7 @@ static int __rep_process_rec(ENV*env, DB_THREAD_INFO * ip, __rep_control_args * 
 		} while(ret == DB_LOCK_DEADLOCK || ret == DB_LOCK_NOTGRANTED);
 		// Now flush the log unless we're running TXN_NOSYNC
 		if(ret == 0 && !F_ISSET(env->dbenv, DB_ENV_TXN_NOSYNC))
-			ret = __log_flush(env, NULL);
+			ret = __log_flush(env, 0);
 		if(ret != 0) {
 			__db_errx(env, DB_STR_A("3526", "Error processing txn [%lu][%lu]", "%lu %lu"), (ulong)rp->lsn.file, (ulong)rp->lsn.Offset_);
 			ret = __env_panic(env, ret);
@@ -1809,7 +1809,7 @@ static int __rep_process_rec(ENV*env, DB_THREAD_INFO * ip, __rep_control_args * 
 		*ret_lsnp = rp->lsn;
 		break;
 	    case DB___txn_prepare:
-		ret = __log_flush(env, NULL);
+		ret = __log_flush(env, 0);
 		// 
 		// Save the biggest prepared LSN we've seen.
 		// 
@@ -1853,7 +1853,7 @@ static int __rep_process_rec(ENV*env, DB_THREAD_INFO * ip, __rep_control_args * 
 		//
 		if(ret == 0) {
 			*ret_lsnp = rp->lsn;
-			ret = __log_flush(env, NULL);
+			ret = __log_flush(env, 0);
 			if(ret == 0 && lp->db_log_autoremove)
 				__log_autoremove(env);
 		}
@@ -1871,7 +1871,7 @@ out:
 	// flush fails, we've still written the record to the log and the LSN has been entered.
 	// 
 	if(ret == 0 && F_ISSET(rp, REPCTL_FLUSH))
-		ret = __log_flush(env, NULL);
+		ret = __log_flush(env, 0);
 	__os_ufree(env, control_dbt.data);
 	__os_ufree(env, rec_dbt.data);
 	return ret;
@@ -2158,7 +2158,7 @@ static int __rep_fire_startupdone(ENV*env, uint32 gen, int master)
 	 * the event (and set the flag) if it were not already set.
 	 */
 	if(rep->newmaster_event_gen == gen)
-		__rep_fire_event(env, DB_EVENT_REP_STARTUPDONE, NULL);
+		__rep_fire_event(env, DB_EVENT_REP_STARTUPDONE, 0);
 	REP_EVENT_UNLOCK(env);
 	return 0;
 }

@@ -1320,7 +1320,7 @@ int __bam_curadj_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
 	int ret;
-	COMPQUIET(mpf, NULL);
+	COMPQUIET(mpf, 0);
 	ip = ((DB_TXNHEAD *)info)->thread_info;
 	REC_PRINT(__bam_curadj_print);
 	REC_INTRO(__bam_curadj_read, ip, 1);
@@ -1368,7 +1368,7 @@ int __bam_rcuradj_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, vo
 	DBC * dbc, * rdbc;
 	DB_MPOOLFILE * mpf;
 	int ret, t_ret;
-	COMPQUIET(mpf, NULL);
+	COMPQUIET(mpf, 0);
 	ip = ((DB_TXNHEAD *)info)->thread_info;
 	rdbc = NULL;
 	REC_PRINT(__bam_rcuradj_print);

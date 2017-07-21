@@ -503,7 +503,7 @@ static int load_iv(char ** fromp, uchar * to, int num)
 	}
 
 	*fromp = from;
-	return (1);
+	return 1;
 }
 
 #ifndef OPENSSL_NO_STDIO
@@ -751,7 +751,7 @@ int PEM_read_bio(BIO * bp, char ** name, char ** header, uchar ** data, long * l
 	OPENSSL_free(headerB);
 	OPENSSL_free(dataB);
 	EVP_ENCODE_CTX_free(ctx);
-	return (1);
+	return 1;
 err:
 	BUF_MEM_free(nameB);
 	BUF_MEM_free(headerB);

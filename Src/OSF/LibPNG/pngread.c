@@ -565,7 +565,7 @@ void PNGAPI png_read_rows(png_structrp png_ptr, png_bytepp row,
 	else if(rp != NULL)
 		for(i = 0; i < num_rows; i++) {
 			png_bytep rptr = *rp;
-			png_read_row(png_ptr, rptr, NULL);
+			png_read_row(png_ptr, rptr, 0);
 			rp++;
 		}
 
@@ -637,7 +637,7 @@ void PNGAPI png_read_image(png_structrp png_ptr, png_bytepp image)
 	for(j = 0; j < pass; j++) {
 		rp = image;
 		for(i = 0; i < image_height; i++) {
-			png_read_row(png_ptr, *rp, NULL);
+			png_read_row(png_ptr, *rp, 0);
 			rp++;
 		}
 	}
@@ -2557,7 +2557,7 @@ static int png_image_read_and_map(void * argument)
 				png_const_bytep end_row = outrow + width;
 
 				/* Read read the libpng data into the temporary buffer. */
-				png_read_row(png_ptr, inrow, NULL);
+				png_read_row(png_ptr, inrow, 0);
 
 				/* Now process the row according to the processing option, note
 				 * that the caller verifies that the format of the libpng output
@@ -2760,7 +2760,7 @@ bad_output:
 			png_bytep row = png_voidcast(png_bytep, display->first_row);
 			// @libpng-1629 while(y-- > 0) {
 			for(; y > 0; --y) { // @libpng-1629 
-				png_read_row(png_ptr, row, NULL);
+				png_read_row(png_ptr, row, 0);
 				row += row_bytes;
 			}
 		}
@@ -2822,7 +2822,7 @@ static int png_image_read_composite(void * argument)
 				png_const_bytep end_row;
 
 				/* Read the row, which is packed: */
-				png_read_row(png_ptr, inrow, NULL);
+				png_read_row(png_ptr, inrow, 0);
 
 				outrow = png_voidcast(png_bytep, display->first_row);
 				outrow += y * step_row;
@@ -2967,7 +2967,7 @@ static int png_image_read_background(void * argument)
 					    png_const_bytep end_row = outrow + width;
 
 					    /* Read the row, which is packed: */
-					    png_read_row(png_ptr, inrow, NULL);
+					    png_read_row(png_ptr, inrow, 0);
 
 					    /* Now do the composition on each pixel in this row. */
 					    outrow += startx;
@@ -3004,7 +3004,7 @@ static int png_image_read_background(void * argument)
 					    png_bytep outrow = first_row + y * step_row;
 					    png_const_bytep end_row = outrow + width;
 					    /* Read the row, which is packed: */
-					    png_read_row(png_ptr, inrow, NULL);
+					    png_read_row(png_ptr, inrow, 0);
 					    /* Now do the composition on each pixel in this row. */
 					    outrow += startx;
 					    for(; outrow < end_row; outrow += stepx) {
@@ -3069,7 +3069,7 @@ static int png_image_read_background(void * argument)
 				    png_uint_16p outrow = first_row + y*step_row;
 				    png_uint_16p end_row = outrow + width * outchannels;
 				    // Read the row, which is packed: 
-				    png_read_row(png_ptr, png_voidcast(png_bytep, display->local_row), NULL);
+				    png_read_row(png_ptr, png_voidcast(png_bytep, display->local_row), 0);
 				    inrow = png_voidcast(png_const_uint_16p, display->local_row);
 				    // Now do the pre-multiplication on each pixel in this row.
 				    outrow += startx;
@@ -3483,7 +3483,7 @@ static int png_image_read_direct(void * argument)
 			png_bytep row = png_voidcast(png_bytep, display->first_row);
 			// @libpng-1629 while(y-- > 0) {
 			for(; y > 0; --y) { // @libpng-1629
-				png_read_row(png_ptr, row, NULL);
+				png_read_row(png_ptr, row, 0);
 				row += row_bytes;
 			}
 		}

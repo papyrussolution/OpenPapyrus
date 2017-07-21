@@ -1,5 +1,5 @@
 // XMLTABLE.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017
 //
 #include <db.h>
 #pragma hdrstop
@@ -48,8 +48,7 @@ int XmlDbFile::State::Copy(const XmlDbFile::State & rS)
 	P_LastRec = rS.P_LastRec;
 	P = rS.P;
 	if(rS.P_SplittedRecTag) {
-		SETIFZ(P_SplittedRecTag, new StringSet);
-		if(P_SplittedRecTag)
+		if(SETIFZ(P_SplittedRecTag, new StringSet))
 			*P_SplittedRecTag = *rS.P_SplittedRecTag;
 	}
 	else
@@ -84,7 +83,7 @@ int FASTCALL XmlDbFile::State::IsRecTag(const char * pTag) const
 	return BIN(stricmp(pTag, P.RecTag) == 0);
 }
 
-int FASTCALL XmlDbFile::State::IsRecNode(const xmlNodePtr pNode) const
+int FASTCALL XmlDbFile::State::IsRecNode(const xmlNode * pNode) const
 {
 	int    yes = 0;
 	if(pNode) {
@@ -104,12 +103,12 @@ int FASTCALL XmlDbFile::State::IsRecNode(const xmlNodePtr pNode) const
 	return yes;
 }
 
-xmlNodePtr FASTCALL XmlDbFile::State::GetHeadRecNode(xmlNodePtr pNode) const
+const xmlNode * FASTCALL XmlDbFile::State::GetHeadRecNode(const xmlNode * pNode) const
 {
 	if(P_SplittedRecTag) {
 		SString temp_buf;
-		xmlNodePtr p_node = pNode;
-		xmlNodePtr p_last = 0;
+		const xmlNode * p_node = pNode;
+		const xmlNode * p_last = 0;
 		for(uint p = 0; p_node && P_SplittedRecTag->get(&p, temp_buf);) {
 			if(temp_buf.CmpNC((const char *)p_node->name) != 0) {
 				p_last = 0;
@@ -178,13 +177,12 @@ XmlDbFile::~XmlDbFile()
 	Close();
 }
 
-int XmlDbFile::SetEntitySpec(const char * pSpec)
+void XmlDbFile::SetEntitySpec(const char * pSpec)
 {
 	EntitySpec = pSpec;
-	return 1;
 }
 
-static xmlNodePtr FASTCALL _XmlNextElem(xmlNodePtr pNode)
+static const xmlNode * FASTCALL _XmlNextElem(const xmlNode * pNode)
 {
 	if(pNode) {
 		while((pNode = pNode->next) != 0) {
@@ -196,15 +194,15 @@ static xmlNodePtr FASTCALL _XmlNextElem(xmlNodePtr pNode)
 }
 
 
-xmlNodePtr XmlDbFile::Helper_FindRec_(xmlNodePtr pCurrent) const
+const xmlNode * XmlDbFile::Helper_FindRec_(const xmlNode * pCurrent) const
 {
-	xmlNodePtr p_target = 0;
-	for(xmlNodePtr p_rec = pCurrent; p_rec && !p_target; p_rec = _XmlNextElem(p_rec)) {
+	const xmlNode * p_target = 0;
+	for(const xmlNode * p_rec = pCurrent; p_rec && !p_target; p_rec = _XmlNextElem(p_rec)) {
 		if(St.IsRecNode(p_rec)) {
 			p_target = p_rec;
 		}
 		else {
-			xmlNodePtr p_child = p_rec->children;
+			const xmlNode * p_child = p_rec->children;
 			if(p_child) {
 				if(p_child->type != XML_ELEMENT_NODE)
 					p_child = _XmlNextElem(p_child);
@@ -215,22 +213,22 @@ xmlNodePtr XmlDbFile::Helper_FindRec_(xmlNodePtr pCurrent) const
 	return p_target;
 }
 
-xmlNodePtr XmlDbFile::FindFirstRec_(xmlNodePtr pRoot) const
+const xmlNode * XmlDbFile::FindFirstRec_(const xmlNode * pRoot) const
 {
 	return Helper_FindRec_(pRoot);
 }
 
-xmlNodePtr XmlDbFile::FindNextRec_(xmlNodePtr pCurrent) const
+const xmlNode * XmlDbFile::FindNextRec_(const xmlNode * pCurrent) const
 {
-	xmlNodePtr p_rec = _XmlNextElem(St.GetHeadRecNode(pCurrent));
+	const xmlNode * p_rec = _XmlNextElem(St.GetHeadRecNode(pCurrent));
 	return Helper_FindRec_(p_rec);
 }
 
-int XmlDbFile::CountRecords(const xmlNodePtr pRootNode, uint * pCount)
+int XmlDbFile::CountRecords(const xmlNode * pRootNode, uint * pCount)
 {
 	int    ok = 1;
 	uint   count = 0;
-	xmlNodePtr p_rec = FindFirstRec_(pRootNode);
+	const  xmlNode * p_rec = FindFirstRec_(pRootNode);
 	if(p_rec) {
 		St.P_CurRec = p_rec;
 		do {
@@ -295,7 +293,7 @@ int XmlDbFile::Open(const char * pPath, const Param * pParam, const SdRecord * p
 		//(pattern = r_param.RecTag).ReplaceChar('\\', '/');
 		//(pattern = r_param.RootTag).ReplaceChar('\\', '/');
 		pattern.CatChar('.');
-		xmlTextReaderPreservePattern(reader, pattern.ucptr(), NULL);
+		xmlTextReaderPreservePattern(reader, pattern.ucptr(), 0);
 		r = xmlTextReaderRead(reader);
 		while(r == 1)
 			r = xmlTextReaderRead(reader);
@@ -418,8 +416,7 @@ int XmlDbFile::Pop()
 int XmlDbFile::Push(const Param * pParam)
 {
 	if(pParam /* @v7.8.2 && !St.IsRecTag(pParam->RecTag) */) {
-		xmlNodePtr p_last_rec = St.P_LastRec;
-
+		const xmlNode * p_last_rec = St.P_LastRec;
 		// @vmiller {
 		State * p_st = new State();
 		p_st->Copy(St);
@@ -506,7 +503,7 @@ int XmlDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 					fld_set.add(fld.Name);
 					fld_count++;
 				}
-				xmlNodePtr p_rec = St.P_CurRec;
+				const xmlNode * p_rec = St.P_CurRec;
 				for(uint fp = 0, fno = 0; r < 0 && fld_set.get(&fp, temp_buf);) {
 					fno++;
 					for(xmlNodePtr p_fld = p_rec->children; p_fld != 0; p_fld = p_fld->next) {

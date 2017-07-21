@@ -22,6 +22,6 @@ int _des_crypt(char * buf, int len, struct desparams * desp)
 	else {
 		DES_ncbc_encrypt(desp->UDES.UDES_buf, desp->UDES.UDES_buf, len, &ks, &desp->des_ivec, enc);
 	}
-	return (1);
+	return 1;
 }
 

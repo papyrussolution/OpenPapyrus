@@ -814,7 +814,7 @@ CF_INLINE CFStringRef CopyCertSubject(SecCertificateRef cert)
 	/* Lion & later: Get the long description if we can. */
 	if(SecCertificateCopyLongDescription != NULL)
 		server_cert_summary =
-		    SecCertificateCopyLongDescription(NULL, cert, NULL);
+		    SecCertificateCopyLongDescription(NULL, cert, 0);
 	else
 #endif /* CURL_BUILD_MAC_10_7 */
 #if CURL_BUILD_MAC_10_6
@@ -902,7 +902,7 @@ static OSStatus CopyIdentityWithLabel(char * label,
 		                                * label matching below worked correctly */
 		keys[2] = kSecMatchLimit;
 		/* identity searches need a SecPolicyRef in order to work */
-		values[3] = SecPolicyCreateSSL(false, NULL);
+		values[3] = SecPolicyCreateSSL(false, 0);
 		keys[3] = kSecMatchPolicy;
 		/* match the name of the certificate (doesn't work in macOS 10.12.1) */
 		values[4] = label_cf;

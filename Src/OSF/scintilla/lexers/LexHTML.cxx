@@ -26,23 +26,23 @@ using namespace Scintilla;
 #define SCE_HA_VBS (SCE_HBA_START - SCE_HB_START)
 #define SCE_HA_PYTHON (SCE_HPA_START - SCE_HP_START)
 
-enum script_type { 
-	eScriptNone = 0, 
-	eScriptJS, 
-	eScriptVBS, 
-	eScriptPython, 
-	eScriptPHP, 
-	eScriptXML, 
-	eScriptSGML, 
+enum script_type {
+	eScriptNone = 0,
+	eScriptJS,
+	eScriptVBS,
+	eScriptPython,
+	eScriptPHP,
+	eScriptXML,
+	eScriptSGML,
 	eScriptSGMLblock,
-	eScriptComment 
+	eScriptComment
 };
 
-enum script_mode { 
-	eHtml = 0, 
-	eNonHtmlScript, 
-	eNonHtmlPreProc, 
-	eNonHtmlScriptPreProc 
+enum script_mode {
+	eHtml = 0,
+	eNonHtmlScript,
+	eNonHtmlPreProc,
+	eNonHtmlScriptPreProc
 };
 
 static bool FASTCALL IsAWordChar(const int ch)
@@ -1723,8 +1723,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				    styler.ColourTo(i - 1, StateToPrint);
 				    state = SCE_HJ_SINGLESTRING;
 			    }
-			    else if((ch == '<') && (chNext == '!') && (chNext2 == '-') &&
-			    styler.SafeGetCharAt(i + 3) == '-') {
+			    else if((ch == '<') && (chNext == '!') && (chNext2 == '-') && styler.SafeGetCharAt(i + 3) == '-') {
 				    styler.ColourTo(i - 1, StateToPrint);
 				    state = SCE_HJ_COMMENTLINE;
 			    }

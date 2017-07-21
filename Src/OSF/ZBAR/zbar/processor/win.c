@@ -34,7 +34,7 @@
 
 int _zbar_event_init(zbar_event_t * event)
 {
-	*event = CreateEvent(NULL, 0, 0, NULL);
+	*event = CreateEvent(NULL, 0, 0, 0);
 	return((*event) ? 0 : -1);
 }
 
@@ -74,7 +74,7 @@ int _zbar_thread_start(zbar_thread_t * thr, zbar_thread_proc_t proc, void * arg,
 	_zbar_event_init(&thr->notify);
 	_zbar_event_init(&thr->activity);
 
-	HANDLE hthr = CreateThread(NULL, 0, proc, arg, 0, NULL);
+	HANDLE hthr = CreateThread(NULL, 0, proc, arg, 0, 0);
 	int rc = (!hthr ||
 	    _zbar_event_wait(&thr->activity, NULL, NULL) < 0 ||
 	    !thr->running);
@@ -96,7 +96,7 @@ int _zbar_thread_stop(zbar_thread_t * thr,
 		_zbar_event_trigger(&thr->notify);
 		while(thr->running)
 			/* FIXME time out and abandon? */
-			_zbar_event_wait(&thr->activity, lock, NULL);
+			_zbar_event_wait(&thr->activity, lock, 0);
 		_zbar_event_destroy(&thr->notify);
 		_zbar_event_destroy(&thr->activity);
 	}

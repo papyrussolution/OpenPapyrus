@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "internal/bio.h"
+//#include "internal/bio.h"
 
 static int enc_write(BIO * h, const char * buf, int num);
 static int enc_read(BIO * h, char * buf, int size);
@@ -93,7 +93,7 @@ static int enc_free(BIO * a)
 
 	EVP_CIPHER_CTX_free(b->cipher);
 	OPENSSL_clear_free(b, sizeof(BIO_ENC_CTX));
-	BIO_set_data(a, NULL);
+	BIO_set_data(a, 0);
 	BIO_set_init(a, 0);
 
 	return 1;
@@ -105,12 +105,12 @@ static int enc_read(BIO * b, char * out, int outl)
 	BIO_ENC_CTX * ctx;
 	BIO * next;
 
-	if(out == NULL)
+	if(!out)
 		return 0;
 	ctx = (BIO_ENC_CTX*)BIO_get_data(b);
 
 	next = BIO_next(b);
-	if((ctx == NULL) || (next == NULL))
+	if(!ctx || (next == NULL))
 		return 0;
 
 	/* First check if there are bytes decoded/encoded */
@@ -238,7 +238,7 @@ static int enc_write(BIO * b, const char * in, int inl)
 
 	ctx = (BIO_ENC_CTX*)BIO_get_data(b);
 	next = BIO_next(b);
-	if((ctx == NULL) || (next == NULL))
+	if(!ctx || (next == NULL))
 		return 0;
 
 	ret = inl;
@@ -256,7 +256,7 @@ static int enc_write(BIO * b, const char * in, int inl)
 	}
 	/* at this point all pending data has been written */
 
-	if((in == NULL) || (inl <= 0))
+	if(!in || (inl <= 0))
 		return 0;
 
 	ctx->buf_off = 0;
@@ -389,7 +389,7 @@ static long enc_callback_ctrl(BIO * b, int cmd, bio_info_cb * fp)
 {
 	long ret = 1;
 	BIO * next = BIO_next(b);
-	if(next == NULL)
+	if(!next)
 		return 0;
 	switch(cmd) {
 		default:

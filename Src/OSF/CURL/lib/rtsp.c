@@ -264,7 +264,7 @@ static CURLcode rtsp_do(struct connectdata * conn, bool * done)
 		    return CURLE_BAD_FUNCTION_ARGUMENT;
 	}
 	if(rtspreq == RTSPREQ_RECEIVE) {
-		Curl_setup_transfer(conn, FIRSTSOCKET, -1, TRUE, &http->readbytecount, -1, NULL);
+		Curl_setup_transfer(conn, FIRSTSOCKET, -1, TRUE, &http->readbytecount, -1, 0);
 		return result;
 	}
 	p_session_id = data->set.str[STRING_RTSP_SESSION_ID];

@@ -976,7 +976,7 @@ int TDialog::SetCtrlToolTip(uint ctrlID, const char * pToolTipText)
 	if(ctrl_wnd) {
 		if(!ToolTipsWnd) {
 			ToolTipsWnd = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
-				CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, ctrl_wnd, NULL, TProgram::GetInst(), NULL);
+				CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, ctrl_wnd, NULL, TProgram::GetInst(), 0);
 			SetWindowPos(ToolTipsWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 		}
 		RECT  ctrl_rect;

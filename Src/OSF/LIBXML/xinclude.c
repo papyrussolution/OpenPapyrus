@@ -490,7 +490,7 @@ static int xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr cur)
 	SAlloc::F(href);
 	SAlloc::F(base);
 	if(URI == NULL) {
-		xmlXIncludeErr(ctxt, cur, XML_XINCLUDE_HREF_URI, "failed build URL\n", NULL);
+		xmlXIncludeErr(ctxt, cur, XML_XINCLUDE_HREF_URI, "failed build URL\n", 0);
 		return -1;
 	}
 	fragment = xmlXIncludeGetProp(ctxt, cur, XINCLUDE_PARSE_XPOINTER);
@@ -1466,13 +1466,13 @@ loaded:
 		xmlXPathContextPtr xptrctxt;
 		xmlNodeSetPtr set;
 		if(!doc) {
-			xptrctxt = xmlXPtrNewContext(ctxt->doc, ctxt->incTab[nr]->ref, NULL);
+			xptrctxt = xmlXPtrNewContext(ctxt->doc, ctxt->incTab[nr]->ref, 0);
 		}
 		else {
 			xptrctxt = xmlXPtrNewContext(doc, 0, 0);
 		}
 		if(xptrctxt == NULL) {
-			xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_XPTR_FAILED, "could not create XPointer context\n", NULL);
+			xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_XPTR_FAILED, "could not create XPointer context\n", 0);
 			SAlloc::F(URL);
 			SAlloc::F(fragment);
 			return -1;
@@ -1647,8 +1647,7 @@ loaded:
 			SAlloc::F(base);
 		}
 	}
-	if((nr < ctxt->incNr) && (ctxt->incTab[nr]->doc != NULL) &&
-	    (ctxt->incTab[nr]->count <= 1)) {
+	if((nr < ctxt->incNr) && (ctxt->incTab[nr]->doc != NULL) && (ctxt->incTab[nr]->count <= 1)) {
 #ifdef DEBUG_XINCLUDE
 		printf("freeing %s\n", ctxt->incTab[nr]->doc->URL);
 #endif
@@ -1706,7 +1705,7 @@ static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	 * directly through ctxt->doc.
 	 */
 	if(URL[0] == 0) {
-		xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_TEXT_DOCUMENT, "text serialization of document not available\n", NULL);
+		xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_TEXT_DOCUMENT, "text serialization of document not available\n", 0);
 		SAlloc::F(URL);
 		return -1;
 	}
@@ -1939,7 +1938,7 @@ static int xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, int nr)
 		SAlloc::F(eschref);
 	}
 	if(URI == NULL) {
-		xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_HREF_URI, "failed build URL\n", NULL);
+		xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_HREF_URI, "failed build URL\n", 0);
 		SAlloc::F(parse);
 		SAlloc::F(href);
 		SAlloc::F(base);
@@ -2038,7 +2037,7 @@ static int xmlXIncludeIncludeNode(xmlXIncludeCtxtPtr ctxt, int nr)
 			tmp = tmp->next;
 		}
 		if(nb_elem > 1) {
-			xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_MULTIPLE_ROOT, "XInclude error: would result in multiple root nodes\n", NULL);
+			xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_MULTIPLE_ROOT, "XInclude error: would result in multiple root nodes\n", 0);
 			return -1;
 		}
 	}
@@ -2060,9 +2059,9 @@ static int xmlXIncludeIncludeNode(xmlXIncludeCtxtPtr ctxt, int nr)
 		 * XInclude end one
 		 */
 		cur->type = XML_XINCLUDE_START;
-		end = xmlNewDocNode(cur->doc, cur->ns, cur->name, NULL);
+		end = xmlNewDocNode(cur->doc, cur->ns, cur->name, 0);
 		if(end == NULL) {
-			xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_BUILD_FAILED, "failed to build node\n", NULL);
+			xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_BUILD_FAILED, "failed to build node\n", 0);
 			return -1;
 		}
 		end->type = XML_XINCLUDE_END;
@@ -2312,7 +2311,7 @@ int xmlXIncludeProcessFlagsData(xmlDocPtr doc, int flags, void * data)
  */
 int xmlXIncludeProcessFlags(xmlDocPtr doc, int flags)
 {
-	return xmlXIncludeProcessFlagsData(doc, flags, NULL);
+	return xmlXIncludeProcessFlagsData(doc, flags, 0);
 }
 /**
  * xmlXIncludeProcess:

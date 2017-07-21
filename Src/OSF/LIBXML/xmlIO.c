@@ -865,7 +865,7 @@ void * xmlFileOpen(const char * filename)
 {
 	void * retval = xmlFileOpen_real(filename);
 	if(retval == NULL) {
-		char * unescaped = xmlURIUnescapeString(filename, 0, NULL);
+		char * unescaped = xmlURIUnescapeString(filename, 0, 0);
 		if(unescaped != NULL) {
 			retval = xmlFileOpen_real(unescaped);
 			SAlloc::F(unescaped);
@@ -1116,7 +1116,7 @@ static void * xmlGzfileOpen(const char * filename)
 {
 	void * retval = xmlGzfileOpen_real(filename);
 	if(retval == NULL) {
-		char * unescaped = xmlURIUnescapeString(filename, 0, NULL);
+		char * unescaped = xmlURIUnescapeString(filename, 0, 0);
 		if(unescaped != NULL) {
 			retval = xmlGzfileOpen_real(unescaped);
 		}
@@ -1300,7 +1300,7 @@ static void * xmlXzfileOpen(const char * filename)
 {
 	void * retval = xmlXzfileOpen_real(filename);
 	if(retval == NULL) {
-		char * unescaped = xmlURIUnescapeString(filename, 0, NULL);
+		char * unescaped = xmlURIUnescapeString(filename, 0, 0);
 		if(unescaped != NULL) {
 			retval = xmlXzfileOpen_real(unescaped);
 		}
@@ -1682,7 +1682,7 @@ int xmlIOHTTPMatch(const char * filename)
  */
 void * xmlIOHTTPOpen(const char * filename)
 {
-	return xmlNanoHTTPOpen(filename, NULL);
+	return xmlNanoHTTPOpen(filename, 0);
 }
 
 #ifdef LIBXML_OUTPUT_ENABLED
@@ -2440,7 +2440,7 @@ xmlParserInputBufferPtr xmlParserInputBufferCreateFilename(const char * URI, xml
 }
 
 #ifdef LIBXML_OUTPUT_ENABLED
-xmlOutputBufferPtr __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncodingHandlerPtr encoder, int compression ATTRIBUTE_UNUSED)
+xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncodingHandlerPtr encoder, int compression ATTRIBUTE_UNUSED)
 {
 	xmlOutputBufferPtr ret;
 	xmlURIPtr puri;
@@ -2464,7 +2464,7 @@ xmlOutputBufferPtr __xmlOutputBufferCreateFilename(const char * URI, xmlCharEnco
 		 * try to limit the damages of the URI unescaping code.
 		 */
 		if((puri->scheme == NULL) || (sstreq(BAD_CAST puri->scheme, BAD_CAST "file")))
-			unescaped = xmlURIUnescapeString(URI, 0, NULL);
+			unescaped = xmlURIUnescapeString(URI, 0, 0);
 		xmlFreeURI(puri);
 	}
 	/*
@@ -2472,7 +2472,7 @@ xmlOutputBufferPtr __xmlOutputBufferCreateFilename(const char * URI, xmlCharEnco
 	 * Go in reverse to give precedence to user defined handlers.
 	 * try with an unescaped version of the URI
 	 */
-	if(unescaped != NULL) {
+	if(unescaped) {
 #ifdef HAVE_ZLIB_H
 		if((compression > 0) && (compression <= 9) && (is_file_uri == 1)) {
 			context = xmlGzfileOpenW(unescaped, compression);
@@ -2926,7 +2926,7 @@ int xmlParserInputBufferPush(xmlParserInputBufferPtr in,
 		use = xmlBufUse(in->raw);
 		nbchars = xmlCharEncInput(in, 1);
 		if(nbchars < 0) {
-			xmlIOErr(XML_IO_ENCODER, NULL);
+			xmlIOErr(XML_IO_ENCODER, 0);
 			in->error = XML_IO_ENCODER;
 			return -1;
 		}
@@ -2980,7 +2980,7 @@ int xmlParserInputBufferGrow(xmlParserInputBufferPtr in, int len)
 	if((len <= MINLEN) && (len != 4))
 		len = MINLEN;
 	if(xmlBufAvail(in->buffer) <= 0) {
-		xmlIOErr(XML_IO_BUFFER_FULL, NULL);
+		xmlIOErr(XML_IO_BUFFER_FULL, 0);
 		in->error = XML_IO_BUFFER_FULL;
 		return -1;
 	}
@@ -2999,7 +2999,7 @@ int xmlParserInputBufferGrow(xmlParserInputBufferPtr in, int len)
 			in->readcallback = endOfInput;
 	}
 	else {
-		xmlIOErr(XML_IO_NO_INPUT, NULL);
+		xmlIOErr(XML_IO_NO_INPUT, 0);
 		in->error = XML_IO_NO_INPUT;
 		return -1;
 	}
@@ -3032,7 +3032,7 @@ int xmlParserInputBufferGrow(xmlParserInputBufferPtr in, int len)
 		use = xmlBufUse(in->raw);
 		nbchars = xmlCharEncInput(in, 1);
 		if(nbchars < 0) {
-			xmlIOErr(XML_IO_ENCODER, NULL);
+			xmlIOErr(XML_IO_ENCODER, 0);
 			in->error = XML_IO_ENCODER;
 			return -1;
 		}
@@ -3123,7 +3123,7 @@ int xmlOutputBufferWrite(xmlOutputBufferPtr out, int len, const char * buf)
 			 */
 			ret = xmlCharEncOutput(out, 0);
 			if((ret < 0) && (ret != -3)) {
-				xmlIOErr(XML_IO_ENCODER, NULL);
+				xmlIOErr(XML_IO_ENCODER, 0);
 				out->error = XML_IO_ENCODER;
 				return -1;
 			}
@@ -3154,7 +3154,7 @@ int xmlOutputBufferWrite(xmlOutputBufferPtr out, int len, const char * buf)
 					xmlBufShrink(out->buffer, ret);
 			}
 			if(ret < 0) {
-				xmlIOErr(XML_IO_WRITE, NULL);
+				xmlIOErr(XML_IO_WRITE, 0);
 				out->error = XML_IO_WRITE;
 				return ret;
 			}
@@ -3304,7 +3304,7 @@ int xmlOutputBufferWriteEscape(xmlOutputBufferPtr out, const xmlChar * str, xmlC
 			 */
 			ret = xmlCharEncOutput(out, 0);
 			if((ret < 0) && (ret != -3)) {
-				xmlIOErr(XML_IO_ENCODER, NULL);
+				xmlIOErr(XML_IO_ENCODER, 0);
 				out->error = XML_IO_ENCODER;
 				return -1;
 			}
@@ -3336,7 +3336,7 @@ int xmlOutputBufferWriteEscape(xmlOutputBufferPtr out, const xmlChar * str, xmlC
 					xmlBufShrink(out->buffer, ret);
 			}
 			if(ret < 0) {
-				xmlIOErr(XML_IO_WRITE, NULL);
+				xmlIOErr(XML_IO_WRITE, 0);
 				out->error = XML_IO_WRITE;
 				return ret;
 			}
@@ -3399,7 +3399,7 @@ int xmlOutputBufferFlush(xmlOutputBufferPtr out)
 		do {
 			nbchars = xmlCharEncOutput(out, 0);
 			if(nbchars < 0) {
-				xmlIOErr(XML_IO_ENCODER, NULL);
+				xmlIOErr(XML_IO_ENCODER, 0);
 				out->error = XML_IO_ENCODER;
 				return -1;
 			}
@@ -3419,7 +3419,7 @@ int xmlOutputBufferFlush(xmlOutputBufferPtr out)
 			xmlBufShrink(out->buffer, ret);
 	}
 	if(ret < 0) {
-		xmlIOErr(XML_IO_FLUSH, NULL);
+		xmlIOErr(XML_IO_FLUSH, 0);
 		out->error = XML_IO_FLUSH;
 		return ret;
 	}
@@ -3513,7 +3513,7 @@ xmlParserInputPtr xmlCheckHTTPInput(xmlParserCtxtPtr ctxt, xmlParserInputPtr ret
 			if(ret->filename != NULL)
 				__xmlLoaderErr(ctxt, "failed to load HTTP resource \"%s\"\n", (const char*)ret->filename);
 			else
-				__xmlLoaderErr(ctxt, "failed to load HTTP resource\n", NULL);
+				__xmlLoaderErr(ctxt, "failed to load HTTP resource\n", 0);
 			xmlFreeInputStream(ret);
 			ret = NULL;
 		}
@@ -3527,7 +3527,7 @@ xmlParserInputPtr xmlCheckHTTPInput(xmlParserCtxtPtr ctxt, xmlParserInputPtr ret
 						xmlSwitchInputEncoding(ctxt, ret, handler);
 					}
 					else {
-						__xmlErrEncoding(ctxt, XML_ERR_UNKNOWN_ENCODING, "Unknown encoding %s", BAD_CAST encoding, NULL);
+						__xmlErrEncoding(ctxt, XML_ERR_UNKNOWN_ENCODING, "Unknown encoding %s", BAD_CAST encoding, 0);
 					}
 					if(ret->encoding == NULL)
 						ret->encoding = xmlStrdup(BAD_CAST encoding);

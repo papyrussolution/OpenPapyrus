@@ -113,7 +113,7 @@ static int file_new(BIO * bi)
 	bi->num = 0;
 	bi->ptr = NULL;
 	bi->flags = BIO_FLAGS_UPLINK; /* default to UPLINK */
-	return (1);
+	return 1;
 }
 
 static int file_free(BIO * a)
@@ -131,7 +131,7 @@ static int file_free(BIO * a)
 		}
 		a->init = 0;
 	}
-	return (1);
+	return 1;
 }
 
 static int file_read(BIO * b, char * out, int outl)

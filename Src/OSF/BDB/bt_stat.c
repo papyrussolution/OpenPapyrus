@@ -348,7 +348,7 @@ void __bam_print_cursor(DBC * dbc)
 
 int __bam_stat(DBC * dbc, void * spp, uint32 flags)
 {
-	COMPQUIET(spp, NULL);
+	COMPQUIET(spp, 0);
 	COMPQUIET(flags, 0);
 	return __db_stat_not_built(dbc->env);
 }
@@ -436,7 +436,7 @@ int __bam_traverse(DBC * dbc, db_lockmode_t mode, db_pgno_t root_pgno, int (*cal
 	DB_MPOOLFILE * mpf = dbp->mpf;
 	int already_put = 0;
 	LOCK_INIT(lock);
-	COMPQUIET(h, NULL);
+	COMPQUIET(h, 0);
 	BAM_GET_ROOT(dbc, root_pgno, h, 0, mode, lock, ret);
 	if(ret != 0)
 		goto err1;

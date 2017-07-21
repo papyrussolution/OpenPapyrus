@@ -153,7 +153,7 @@ X509_ALGOR * PKCS5_pbkdf2_set(int iter, uchar * salt, int saltlen,
 		kdf->prf = X509_ALGOR_new();
 		if(kdf->prf == NULL)
 			goto merr;
-		X509_ALGOR_set0(kdf->prf, OBJ_nid2obj(prf_nid), V_ASN1_NULL, NULL);
+		X509_ALGOR_set0(kdf->prf, OBJ_nid2obj(prf_nid), V_ASN1_NULL, 0);
 	}
 	// Finally setup the keyfunc structure 
 	keyfunc = X509_ALGOR_new();

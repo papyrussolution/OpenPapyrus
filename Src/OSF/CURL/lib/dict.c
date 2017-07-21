@@ -187,7 +187,7 @@ static CURLcode dict_do(struct connectdata * conn, bool * done)
 			return result;
 		}
 		Curl_setup_transfer(conn, FIRSTSOCKET, -1, FALSE, bytecount,
-		    -1, NULL);     /* no upload */
+		    -1, 0);     /* no upload */
 	}
 	else if(strncasecompare(path, DICT_DEFINE, sizeof(DICT_DEFINE)-1) ||
 	    strncasecompare(path, DICT_DEFINE2, sizeof(DICT_DEFINE2)-1) ||
@@ -233,7 +233,7 @@ static CURLcode dict_do(struct connectdata * conn, bool * done)
 			return result;
 		}
 		Curl_setup_transfer(conn, FIRSTSOCKET, -1, FALSE, bytecount,
-		    -1, NULL);     /* no upload */
+		    -1, 0);     /* no upload */
 	}
 	else {
 		ppath = strchr(path, '/');
@@ -254,7 +254,7 @@ static CURLcode dict_do(struct connectdata * conn, bool * done)
 				return result;
 			}
 
-			Curl_setup_transfer(conn, FIRSTSOCKET, -1, FALSE, bytecount, -1, NULL);
+			Curl_setup_transfer(conn, FIRSTSOCKET, -1, FALSE, bytecount, -1, 0);
 		}
 	}
 

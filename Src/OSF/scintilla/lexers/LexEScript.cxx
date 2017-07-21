@@ -178,11 +178,9 @@ static int classifyFoldPointESCRIPT(const char* s, const char* prevWord)
 	return lev;
 }
 
-static bool IsStreamCommentStyle(int style)
+static bool FASTCALL IsStreamCommentStyle(int style)
 {
-	return style == SCE_ESCRIPT_COMMENT ||
-	       style == SCE_ESCRIPT_COMMENTDOC ||
-	       style == SCE_ESCRIPT_COMMENTLINE;
+	return style == SCE_ESCRIPT_COMMENT || style == SCE_ESCRIPT_COMMENTDOC || style == SCE_ESCRIPT_COMMENTLINE;
 }
 
 static void FoldESCRIPTDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor &styler)

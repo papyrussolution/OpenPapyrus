@@ -39,122 +39,122 @@
 /// optionally passes to bar width Decoder
 
 class Scanner {
- public:
+public:
 
-    /// constructor.
-    /// @param decoder reference to a Decoder instance which will
-    /// be passed scan results automatically
-    Scanner (Decoder& decoder)
-    {
-        _scanner = zbar_scanner_create(decoder._decoder);
-    }
+	/// constructor.
+	/// @param decoder reference to a Decoder instance which will
+	/// be passed scan results automatically
+	Scanner (Decoder& decoder)
+	{
+		_scanner = zbar_scanner_create(decoder._decoder);
+	}
 
-    /// constructor.
-    /// @param decoder pointer to a Decoder instance which will
-    /// be passed scan results automatically
-    Scanner (Decoder* decoder = NULL)
-    {
-        zbar_decoder_t *zdcode = NULL;
-        if(decoder)
-            zdcode = decoder->_decoder;
-        _scanner = zbar_scanner_create(zdcode);
-    }
+	/// constructor.
+	/// @param decoder pointer to a Decoder instance which will
+	/// be passed scan results automatically
+	Scanner (Decoder* decoder = NULL)
+	{
+		zbar_decoder_t * zdcode = NULL;
+		if(decoder)
+			zdcode = decoder->_decoder;
+		_scanner = zbar_scanner_create(zdcode);
+	}
 
-    ~Scanner ()
-    {
-        zbar_scanner_destroy(_scanner);
-    }
+	~Scanner ()
+	{
+		zbar_scanner_destroy(_scanner);
+	}
 
-    /// clear all scanner state.
-    /// see zbar_scanner_reset()
-    void reset ()
-    {
-        zbar_scanner_reset(_scanner);
-    }
+	/// clear all scanner state.
+	/// see zbar_scanner_reset()
+	void reset()
+	{
+		zbar_scanner_reset(_scanner);
+	}
 
-    /// mark start of a new scan pass.
-    /// see zbar_scanner_new_scan()
-    zbar_symbol_type_t new_scan ()
-    {
-        _type = zbar_scanner_new_scan(_scanner);
-        return(_type);
-    }
+	/// mark start of a new scan pass.
+	/// see zbar_scanner_new_scan()
+	zbar_symbol_type_t new_scan()
+	{
+		_type = zbar_scanner_new_scan(_scanner);
+		return(_type);
+	}
 
-    /// flush scanner pipeline.
-    /// see zbar_scanner_flush()
-    zbar_symbol_type_t flush ()
-    {
-        _type = zbar_scanner_flush(_scanner);
-        return(_type);
-    }
+	/// flush scanner pipeline.
+	/// see zbar_scanner_flush()
+	zbar_symbol_type_t flush()
+	{
+		_type = zbar_scanner_flush(_scanner);
+		return(_type);
+	}
 
-    /// process next sample intensity value.
-    /// see zbar_scan_y()
-    zbar_symbol_type_t scan_y (int y)
-    {
-        _type = zbar_scan_y(_scanner, y);
-        return(_type);
-    }
+	/// process next sample intensity value.
+	/// see zbar_scan_y()
+	zbar_symbol_type_t scan_y(int y)
+	{
+		_type = zbar_scan_y(_scanner, y);
+		return(_type);
+	}
 
-    /// process next sample intensity value.
-    /// see zbar_scan_y()
-    Scanner& operator<< (int y)
-    {
-        _type = zbar_scan_y(_scanner, y);
-        return(*this);
-    }
+	/// process next sample intensity value.
+	/// see zbar_scan_y()
+	Scanner& operator<<(int y)
+	{
+		_type = zbar_scan_y(_scanner, y);
+		return(*this);
+	}
 
-    /// process next sample from RGB (or BGR) triple.
-    /// see zbar_scan_rgb24()
-    zbar_symbol_type_t scan_rgb24 (uchar *rgb)
-    {
-        _type = zbar_scan_rgb24(_scanner, rgb);
-        return(_type);
-    }
+	/// process next sample from RGB (or BGR) triple.
+	/// see zbar_scan_rgb24()
+	zbar_symbol_type_t scan_rgb24(uchar * rgb)
+	{
+		_type = zbar_scan_rgb24(_scanner, rgb);
+		return(_type);
+	}
 
-    /// process next sample from RGB (or BGR) triple.
-    /// see zbar_scan_rgb24()
-    Scanner& operator<< (uchar *rgb)
-    {
-        _type = zbar_scan_rgb24(_scanner, rgb);
-        return(*this);
-    }
+	/// process next sample from RGB (or BGR) triple.
+	/// see zbar_scan_rgb24()
+	Scanner& operator<<(uchar * rgb)
+	{
+		_type = zbar_scan_rgb24(_scanner, rgb);
+		return(*this);
+	}
 
-    /// retrieve last scanned width.
-    /// see zbar_scanner_get_width()
-    uint get_width () const
-    {
-        return(zbar_scanner_get_width(_scanner));
-    }
+	/// retrieve last scanned width.
+	/// see zbar_scanner_get_width()
+	uint get_width() const
+	{
+		return(zbar_scanner_get_width(_scanner));
+	}
 
-    /// retrieve last scanned color.
-    /// see zbar_scanner_get_color()
-    zbar_color_t get_color () const
-    {
-        return(zbar_scanner_get_color(_scanner));
-    }
+	/// retrieve last scanned color.
+	/// see zbar_scanner_get_color()
+	zbar_color_t get_color() const
+	{
+		return(zbar_scanner_get_color(_scanner));
+	}
 
-    /// retrieve last scan result.
-    zbar_symbol_type_t get_type () const
-    {
-        return(_type);
-    }
+	/// retrieve last scan result.
+	zbar_symbol_type_t get_type() const
+	{
+		return(_type);
+	}
 
-    /// cast to C scanner
-    operator zbar_scanner_t* () const
-    {
-        return(_scanner);
-    }
+	/// cast to C scanner
+	operator zbar_scanner_t*() const
+	{
+		return(_scanner);
+	}
 
-    /// retrieve C scanner
-    const zbar_scanner_t *get_c_scanner () const
-    {
-        return(_scanner);
-    }
+	/// retrieve C scanner
+	const zbar_scanner_t * get_c_scanner() const
+	{
+		return(_scanner);
+	}
 
- private:
-    zbar_scanner_t *_scanner;
-    zbar_symbol_type_t _type;
+private:
+	zbar_scanner_t * _scanner;
+	zbar_symbol_type_t _type;
 };
 
 //}

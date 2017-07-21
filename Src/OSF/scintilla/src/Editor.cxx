@@ -6395,13 +6395,13 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_CLEARTABSTOPS:
 		    if(view.ClearTabstops(static_cast<int>(wParam))) {
 			    DocModification mh(SC_MOD_CHANGETABSTOPS, 0, 0, 0, 0, static_cast<int>(wParam));
-			    NotifyModified(pdoc, mh, NULL);
+			    NotifyModified(pdoc, mh, 0);
 		    }
 		    break;
 		case SCI_ADDTABSTOP:
 		    if(view.AddTabstop(static_cast<int>(wParam), static_cast<int>(lParam))) {
 			    DocModification mh(SC_MOD_CHANGETABSTOPS, 0, 0, 0, 0, static_cast<int>(wParam));
-			    NotifyModified(pdoc, mh, NULL);
+			    NotifyModified(pdoc, mh, 0);
 		    }
 		    break;
 		case SCI_GETNEXTTABSTOP: return view.GetNextTabstop(static_cast<int>(wParam), static_cast<int>(lParam));

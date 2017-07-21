@@ -141,7 +141,7 @@ int RAND_load_file(const char * file, long bytes)
 		 * because we will waste system entropy.
 		 */
 		bytes = (bytes == -1) ? 2048 : bytes; /* ok, is 2048 enough? */
-		setbuf(in, NULL); /* don't do buffered reads */
+		setbuf(in, 0); /* don't do buffered reads */
 	}
 # endif
 #endif
@@ -238,7 +238,7 @@ int RAND_write_file(const char * file)
 	out = openssl_fopen(file, "rb+");
 #endif
 	SETIFZ(out, openssl_fopen(file, "wb"));
-	if(out == NULL)
+	if(!out)
 		goto err;
 #if !defined(NO_CHMOD) && !defined(OPENSSL_NO_POSIX_IO)
 	chmod(file, 0600);

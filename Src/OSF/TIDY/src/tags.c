@@ -506,7 +506,7 @@ void TY_(InitTags) (TidyDocImpl* doc)
 	TidyTagImpl* tags = &doc->tags;
 	TidyClearMemory(tags, sizeof(TidyTagImpl));
 	/* create dummy entry for all xml tags */
-	xml =  NewDict(doc, NULL);
+	xml =  NewDict(doc, 0);
 	xml->versions = VERS_XML;
 	xml->model = CM_BLOCK;
 	xml->parser = 0;

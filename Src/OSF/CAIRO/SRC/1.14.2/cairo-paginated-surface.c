@@ -76,7 +76,7 @@ static cairo_surface_t * _create_recording_surface_for_target(cairo_surface_t * 
 		return cairo_recording_surface_create(content, &recording_extents);
 	}
 	else {
-		return cairo_recording_surface_create(content, NULL);
+		return cairo_recording_surface_create(content, 0);
 	}
 }
 

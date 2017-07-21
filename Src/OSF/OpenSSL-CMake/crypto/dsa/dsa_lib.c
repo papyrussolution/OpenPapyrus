@@ -169,7 +169,7 @@ int DSA_size(const DSA * r)
 	/* If the top bit is set the asn1 encoding is 1 larger. */
 	buf[0] = 0xff;
 
-	i = i2d_ASN1_INTEGER(&bs, NULL);
+	i = i2d_ASN1_INTEGER(&bs, 0);
 	i += i;                 /* r and s */
 	ret = ASN1_object_size(1, i, V_ASN1_SEQUENCE);
 	return ret;

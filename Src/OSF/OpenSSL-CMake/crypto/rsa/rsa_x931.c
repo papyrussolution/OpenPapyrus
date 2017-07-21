@@ -39,7 +39,7 @@ int RSA_padding_add_X931(uchar * to, int tlen, const uchar * from, int flen)
 	memcpy(p, from, (uint)flen);
 	p += flen;
 	*p = 0xCC;
-	return (1);
+	return 1;
 }
 
 int RSA_padding_check_X931(uchar * to, int tlen, const uchar * from, int flen, int num)

@@ -31,7 +31,7 @@ int RSA_padding_add_PKCS1_type_1(uchar * to, int tlen,
 	p += j;
 	*(p++) = '\0';
 	memcpy(p, from, (uint)flen);
-	return (1);
+	return 1;
 }
 
 int RSA_padding_check_PKCS1_type_1(uchar * to, int tlen, const uchar * from, int flen, int num)
@@ -126,7 +126,7 @@ int RSA_padding_add_PKCS1_type_2(uchar * to, int tlen,
 	*(p++) = '\0';
 
 	memcpy(p, from, (uint)flen);
-	return (1);
+	return 1;
 }
 
 int RSA_padding_check_PKCS1_type_2(uchar * to, int tlen,

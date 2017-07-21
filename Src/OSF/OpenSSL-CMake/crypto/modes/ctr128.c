@@ -21,7 +21,6 @@
 static void ctr128_inc(uchar * counter)
 {
 	u32 n = 16, c = 1;
-
 	do {
 		--n;
 		c += counter[n];

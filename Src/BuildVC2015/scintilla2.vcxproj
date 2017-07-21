@@ -818,6 +818,7 @@
     <ClCompile Include="..\Osf\scintilla\lexlib\LexerSimple.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexlib\PropSetSimple.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexlib\StyleContext.cxx" />
+    <ClCompile Include="..\OSF\scintilla\lexlib\SubStyles.cxx" />
     <ClCompile Include="..\Osf\scintilla\lexlib\WordList.cxx" />
     <ClCompile Include="..\Osf\scintilla\src\AutoComplete.cxx" />
     <ClCompile Include="..\Osf\scintilla\src\CallTip.cxx" />

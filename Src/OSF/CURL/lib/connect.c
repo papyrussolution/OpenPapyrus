@@ -712,7 +712,7 @@ CURLcode Curl_is_connected(struct connectdata * conn, int sockindex, bool * conn
 		/* Call this function once now, and ignore the results. We do this to
 		   "clear" the error state on the socket so that we can later read it
 		   reliably. This is reported necessary on the MPE/iX operating system. */
-		(void)verifyconnect(conn->tempsock[i], NULL);
+		(void)verifyconnect(conn->tempsock[i], 0);
 #endif
 		/* check socket for connect */
 		rc = SOCKET_WRITABLE(conn->tempsock[i], 0);

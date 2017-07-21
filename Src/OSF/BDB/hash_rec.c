@@ -1230,8 +1230,8 @@ static int __ham_chgpg_recover_func(DBC * cp, DBC * my_dbc, uint32 * countp, db_
 	int ret;
 	__ham_chgpg_args * argp;
 
-	COMPQUIET(my_dbc, NULL);
-	COMPQUIET(countp, NULL);
+	COMPQUIET(my_dbc, 0);
+	COMPQUIET(countp, 0);
 	COMPQUIET(pgno, 0);
 	lcp = (HASH_CURSOR *)cp->internal;
 	argp = (__ham_chgpg_args *)vargs;

@@ -11,7 +11,7 @@
 #include "internal/numbers.h"
 //#include <openssl/x509v3.h>
 #include <openssl/x509_vfy.h>
-#include "internal/x509_int.h"
+//#include "internal/x509_int.h"
 
 static void x509v3_cache_extensions(X509 * x);
 
@@ -347,7 +347,7 @@ static void x509v3_cache_extensions(X509 * x)
 	int i;
 	if(x->ex_flags & EXFLAG_SET)
 		return;
-	X509_digest(x, EVP_sha1(), x->sha1_hash, NULL);
+	X509_digest(x, EVP_sha1(), x->sha1_hash, 0);
 	/* V1 should mean no extensions ... */
 	if(!X509_get_version(x))
 		x->ex_flags |= EXFLAG_V1;
@@ -461,7 +461,7 @@ static void x509v3_cache_extensions(X509 * x)
 			x->ex_flags |= EXFLAG_SS;
 	}
 	x->altname = (STACK_OF(GENERAL_NAME) *)X509_get_ext_d2i(x, NID_subject_alt_name, 0, 0);
-	x->nc = (NAME_CONSTRAINTS*)X509_get_ext_d2i(x, NID_name_constraints, &i, NULL);
+	x->nc = (NAME_CONSTRAINTS*)X509_get_ext_d2i(x, NID_name_constraints, &i, 0);
 	if(!x->nc && (i != -1))
 		x->ex_flags |= EXFLAG_INVALID;
 	setup_crldp(x);

@@ -1434,9 +1434,9 @@ SString & DL6ICLS_PPUtil::GetObjectName(PpyObjectIdent objType, long objID)
 int32 DL6ICLS_PPUtil::Spawnl(int32 wait, SString & rPath, SString & rParams)
 {
 	if(rParams.Len())
-		_spawnl((wait) ? _P_WAIT : _P_NOWAIT, rPath, rParams, NULL);
+		_spawnl((wait) ? _P_WAIT : _P_NOWAIT, rPath, rParams, 0);
 	else
-		_spawnl((wait) ? _P_WAIT : _P_NOWAIT, rPath, rPath, NULL);
+		_spawnl((wait) ? _P_WAIT : _P_NOWAIT, rPath, rPath, 0);
 	return 1;
 }
 

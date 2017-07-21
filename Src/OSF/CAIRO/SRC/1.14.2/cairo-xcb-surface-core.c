@@ -422,7 +422,7 @@ static cairo_xcb_pixmap_t * _cairo_xcb_surface_pixmap(cairo_xcb_surface_t * targ
 	if(unlikely(pixmap->base.status))
 		return pixmap;
 
-	_cairo_surface_attach_snapshot(source, &pixmap->base, NULL);
+	_cairo_surface_attach_snapshot(source, &pixmap->base, 0);
 
 	if(pattern->base.extend != CAIRO_EXTEND_NONE) {
 		if(extents->x < 0 || extents->y < 0 ||

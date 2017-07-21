@@ -62,7 +62,7 @@ void TIDY_CALL tidyInitOutputBuffer(TidyOutputSink* outp, TidyBuffer* buf)
 void TIDY_CALL tidyBufInit(TidyBuffer* buf)
 {
 	assert(buf != NULL);
-	tidyBufInitWithAllocator(buf, NULL);
+	tidyBufInitWithAllocator(buf, 0);
 }
 
 void TIDY_CALL tidyBufAlloc(TidyBuffer* buf, uint allocSize)

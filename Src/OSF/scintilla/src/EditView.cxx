@@ -482,7 +482,7 @@ void EditView::LayoutLine(const EditModel &model, int line, Surface * surface, c
 		ll->positions[0] = 0;
 		bool lastSegItalics = false;
 
-		BreakFinder bfLayout(ll, NULL, Range(0, numCharsInLine), posLineStart, 0, false, model.pdoc, &model.reprs, NULL);
+		BreakFinder bfLayout(ll, NULL, Range(0, numCharsInLine), posLineStart, 0, false, model.pdoc, &model.reprs, 0);
 		while(bfLayout.More()) {
 			const TextSegment ts = bfLayout.Next();
 
@@ -1516,7 +1516,7 @@ void EditView::DrawBackground(Surface * surface, const EditModel &model, const V
 	// Does not take margin into account but not significant
 	const int xStartVisible = static_cast<int>(subLineStart)-xStart;
 
-	BreakFinder bfBack(ll, &model.sel, lineRange, posLineStart, xStartVisible, selBackDrawn, model.pdoc, &model.reprs, NULL);
+	BreakFinder bfBack(ll, &model.sel, lineRange, posLineStart, xStartVisible, selBackDrawn, model.pdoc, &model.reprs, 0);
 
 	const bool drawWhitespaceBackground = vsDraw.WhitespaceBackgroundDrawn() && !background.isSet;
 

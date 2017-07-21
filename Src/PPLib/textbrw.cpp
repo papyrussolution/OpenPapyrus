@@ -306,11 +306,11 @@ int STextBrowser::SetSpecialMode(int spcm)
 	int    ok = 1;
 	if(spcm == spcmSartrTest) {
 		if(!P_SrDb) {
-            SString db_path;
-			getExecPath(db_path);
-			db_path.SetLastSlash().Cat("SARTRDB");
+            //SString db_path;
+			//getExecPath(db_path);
+			//db_path.SetLastSlash().Cat("SARTRDB");
 			THROW_S(P_SrDb = new SrDatabase(), SLERR_NOMEM);
-			THROW(P_SrDb->Open(db_path));
+			THROW(P_SrDb->Open(/*db_path*/0));
 		}
 		SpcMode = spcm;
 	}
@@ -719,7 +719,7 @@ int STextBrowser::WMHCreate()
 		}
 	}
 	HwndSci = ::CreateWindowEx(WS_EX_CLIENTEDGE, _T("Scintilla"), _T(""), WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_CLIPCHILDREN,
-		0, ToolBarWidth, rc.right - rc.left, rc.bottom - rc.top, H(), 0/*(HMENU)GuiID*/, APPL->GetInst(), NULL);
+		0, ToolBarWidth, rc.right - rc.left, rc.bottom - rc.top, H(), 0/*(HMENU)GuiID*/, APPL->GetInst(), 0);
 	SScEditorBase::Init(HwndSci, 1/*preserveFileName*/);
 	TView::SetWindowProp(HwndSci, GWLP_USERDATA, this);
 	OrgScintillaWndProc = (WNDPROC)TView::SetWindowProp(HwndSci, GWLP_WNDPROC, ScintillaWindowProc);

@@ -1980,30 +1980,37 @@ int SrDatabase::Open(const char * pDbPath)
 	//cfg.LogSubDir = "LOG";
 	cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove/*|cfg.fLogInMemory*/); // @v9.6.6
 	Close();
-	THROW_S(P_Db = new BDbDatabase(pDbPath, &cfg, BDbDatabase::oPrivate/*|BDbDatabase::oRecover*/), SLERR_NOMEM);
-	THROW(!!*P_Db);
+	{
+		SString db_path = pDbPath;
+		if(db_path.Empty()) {
+			PPGetPath(PPPATH_SARTREDB, db_path);
+		}
+		THROW_PP(db_path.NotEmpty() && pathValid(db_path, 1), PPERR_SARTREDBUNDEF);
+		THROW_S(P_Db = new BDbDatabase(db_path, &cfg, BDbDatabase::oPrivate/*|BDbDatabase::oRecover*/), SLERR_NOMEM);
+		THROW(!!*P_Db);
 
-	THROW_S(P_WdT = new SrWordTbl(P_Db), SLERR_NOMEM);
-	THROW_S(P_GrT = new SrGrammarTbl(P_Db), SLERR_NOMEM);
-	THROW_S(P_WaT = new SrWordAssocTbl(P_Db), SLERR_NOMEM);
-	THROW_S(P_CT = new SrConceptTbl(P_Db), SLERR_NOMEM);
-	THROW_S(P_CpT = new SrConceptPropTbl(*this), SLERR_NOMEM);
-	THROW_S(P_NgT = new SrNGramTbl(P_Db), SLERR_NOMEM);
-	THROW_S(P_CNgT = new SrConceptNgTbl(P_Db), SLERR_NOMEM);
-	THROW_S(P_GnT = new SrGeoNodeTbl(P_Db), SLERR_NOMEM);
-	THROW_S(P_GwT = new SrGeoWayTbl(P_Db), SLERR_NOMEM);
-	{
-		CONCEPTID prop_instance = GetReservedConcept(rcInstance);
-		CONCEPTID prop_subclass = GetReservedConcept(rcSubclass);
-		CONCEPTID prop_crtype   = GetReservedConcept(rcType);
-		THROW(prop_instance);
-		THROW(prop_subclass);
-		THROW(prop_crtype);
-	}
-	{
-		SString err_file_name;
-		(err_file_name = pDbPath).SetLastSlash().Cat("bdberr.log");
-		P_Db->SetupErrLog(err_file_name);
+		THROW_S(P_WdT = new SrWordTbl(P_Db), SLERR_NOMEM);
+		THROW_S(P_GrT = new SrGrammarTbl(P_Db), SLERR_NOMEM);
+		THROW_S(P_WaT = new SrWordAssocTbl(P_Db), SLERR_NOMEM);
+		THROW_S(P_CT = new SrConceptTbl(P_Db), SLERR_NOMEM);
+		THROW_S(P_CpT = new SrConceptPropTbl(*this), SLERR_NOMEM);
+		THROW_S(P_NgT = new SrNGramTbl(P_Db), SLERR_NOMEM);
+		THROW_S(P_CNgT = new SrConceptNgTbl(P_Db), SLERR_NOMEM);
+		THROW_S(P_GnT = new SrGeoNodeTbl(P_Db), SLERR_NOMEM);
+		THROW_S(P_GwT = new SrGeoWayTbl(P_Db), SLERR_NOMEM);
+		{
+			CONCEPTID prop_instance = GetReservedConcept(rcInstance);
+			CONCEPTID prop_subclass = GetReservedConcept(rcSubclass);
+			CONCEPTID prop_crtype   = GetReservedConcept(rcType);
+			THROW(prop_instance);
+			THROW(prop_subclass);
+			THROW(prop_crtype);
+		}
+		{
+			SString err_file_name;
+			(err_file_name = pDbPath).SetLastSlash().Cat("bdberr.log");
+			P_Db->SetupErrLog(err_file_name);
+		}
 	}
 	CATCH
 		ok = 0;
@@ -3578,7 +3585,7 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 								P_WaT->Search(wa.WordID, test_wa_list);
 								for(uint j = 0; j < test_wa_list.getCount(); j++) {
 									const SrWordAssoc & r_wa = test_wa_list.at(j);
-									(line_buf = 0).Cat(word_buf).CatCharN('\t', 2).Cat(r_wa.ToStr(temp_buf)).CR();
+									(line_buf = 0).Cat(word_buf).Tab(2).Cat(r_wa.ToStr(temp_buf)).CR();
 									test_out_file.WriteLine(line_buf);
 								}
 							}
@@ -3587,6 +3594,7 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 				}
 			}
 			THROW(tra.Commit());
+			THROW(P_Db->TransactionCheckPoint()); // @v9.7.8
 		}
 	}
 	CATCHZOK
@@ -4180,7 +4188,7 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAs
 					if(pStat) {
 						PPOsm::SetNodeClusterStat(*p_cluster, *pStat);
 					}
-					if(0) { // @debug 
+					if(0) { // @debug
 						test_list.clear();
 						p_cluster->Get(outer_id, test_list, 0 /*NodeRefs*/);
 						for(uint i = 0; i < test_list.getCount(); i++) {
@@ -5601,6 +5609,7 @@ int SrConceptParser::Run(const char * pDbPath, const char * pFileName)
 			THROW(PostprocessOpList(&root));
 		}
 		THROW(tra.Commit());
+		THROW(P_Db->P_Db->TransactionCheckPoint()); // @v9.7.8
 	}
 	CATCHZOK
 	CloseInput();
@@ -5611,35 +5620,6 @@ static int TestImportConceptFile(const char * pDbPath, const char * pFileName)
 {
 	SrConceptParser parser;
 	return parser.Run(pDbPath, pFileName);
-}
-
-static int TestImportFlexiaModel(const char * pDbPath)
-{
-	int    ok = 1;
-	SrDatabase db;
-	THROW(db.Open(pDbPath));
-	{
-		SrImportParam impp;
-		impp.InputKind = impp.inpFlexiaModel;
-		impp.LangID = slangEN;
-		impp.CpID = cp1251;
-		impp.Flags |= impp.fTest;
-		impp.SetField(impp.fldAncodeFileName, "\\PAPYRUS\\Src\\SARTR\\data\\gramtab-en.tab");
-		impp.SetField(impp.fldFlexiaModelFileName, "\\PAPYRUS\\Src\\SARTR\\data\\morphs-en.mrd");
-		THROW(db.ImportFlexiaModel(impp));
-	}
-	{
-		SrImportParam impp;
-		impp.InputKind = impp.inpFlexiaModel;
-		impp.LangID = slangRU;
-		impp.CpID = cp1251;
-		impp.Flags |= impp.fTest;
-		impp.SetField(impp.fldAncodeFileName, "\\PAPYRUS\\Src\\SARTR\\data\\gramtab-ru.tab");
-		impp.SetField(impp.fldFlexiaModelFileName, "\\PAPYRUS\\Src\\SARTR\\data\\morphs-ru.mrd");
-		THROW(db.ImportFlexiaModel(impp));
-	}
-	CATCHZOK
-	return ok;
 }
 
 static int TestSearchWords(const char * pDbPath)
@@ -6124,27 +6104,77 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 	return ok;
 }
 
-int SLAPI SartTest()
+int SrDatabase::ImportNames(const SrImportParam & rParam)
+{
+    int    ok = 1;
+	SString src_file_name;
+	rParam.GetField(rParam.fldAncodeFileName, src_file_name);
+    return ok;
+}
+
+int SLAPI ImportSartre()
 {
 	int    ok = 1;
-	const  char * p_db_path = "/PAPYRUS/PPY/BIN/SARTRDB";
-	char * p_loc = setlocale(LC_CTYPE, "rus_rus.1251");
-	//
-	// Извлекает из текстовых файлов базы данных geonames концепции и записывает их в результирующий файл
-	// Process_geonames("/PAPYRUS/Universe-HTT/DATA/GEO/geonames.org", "\\PAPYRUS\\Src\\SARTR\\data\\concept-geonames.txt");
-	/*{
-		BDbDatabase * p_rcv_db = new BDbDatabase(p_db_path, 0, BDbDatabase::oRecover);
-		ZDELETE(p_rcv_db);
-	}*/
-	TestImportFlexiaModel(p_db_path);
-	TestSearchWords(p_db_path);
-	//TestImportConceptFile(p_db_path, "\\PAPYRUS\\Src\\SARTR\\data\\concept.txt");
-	//TestConcept(p_db_path);
-	/*if(!TestImport_Words_MySpell())
-		ret = -1;*/
-	/*if(!TestImport_AncodeCollection())
-		ret = -1;*/
-
+	//const  char * p_db_path = "/PAPYRUS/PPY/BIN/SARTRDB";
+	//PPIniFile ini_file;
+	const char * p_src_data_path = "\\PAPYRUS\\Src\\SARTR\\data";
+	//SString sartre_db_path;
+	SString temp_buf;
+	PPWait(1);
+	//PPGetPath(PPPATH_SPII, temp_buf);
+	//PPGetPath(PPPATH_SARTREDB, sartre_db_path);
+	//THROW_PP(sartre_db_path.NotEmpty() && pathValid(sartre_db_path, 1), PPERR_SARTREDBUNDEF);
+	THROW_SL(pathValid(p_src_data_path, 1));
+	{
+		char * p_loc = setlocale(LC_CTYPE, "rus_rus.1251");
+		//
+		// Извлекает из текстовых файлов базы данных geonames концепции и записывает их в результирующий файл
+		// Process_geonames("/PAPYRUS/Universe-HTT/DATA/GEO/geonames.org", "\\PAPYRUS\\Src\\SARTR\\data\\concept-geonames.txt");
+		/*{
+			BDbDatabase * p_rcv_db = new BDbDatabase(p_db_path, 0, BDbDatabase::oRecover);
+			ZDELETE(p_rcv_db);
+		}*/
+		//ImportFlexiaModel(p_db_path);
+		//static int ImportFlexiaModel(const char * pDbPath, const char * pSrcDataPath)
+		{
+			SString src_file_name;
+			SrDatabase db;
+			THROW(db.Open(/*sartre_db_path*/0));
+			{
+				SrImportParam impp;
+				impp.InputKind = impp.inpFlexiaModel;
+				impp.LangID = slangEN;
+				impp.CpID = cp1251;
+				impp.Flags |= impp.fTest;
+				(src_file_name = p_src_data_path).SetLastSlash().Cat("gramtab-en.tab");
+				impp.SetField(impp.fldAncodeFileName, src_file_name);
+				(src_file_name = p_src_data_path).SetLastSlash().Cat("morphs-en.mrd");
+				impp.SetField(impp.fldFlexiaModelFileName, src_file_name);
+				THROW(db.ImportFlexiaModel(impp));
+			}
+			{
+				SrImportParam impp;
+				impp.InputKind = impp.inpFlexiaModel;
+				impp.LangID = slangRU;
+				impp.CpID = cp1251;
+				impp.Flags |= impp.fTest;
+				(src_file_name = p_src_data_path).SetLastSlash().Cat("gramtab-ru.tab");
+				impp.SetField(impp.fldAncodeFileName, src_file_name);
+				(src_file_name = p_src_data_path).SetLastSlash().Cat("morphs-ru.mrd");
+				impp.SetField(impp.fldFlexiaModelFileName, src_file_name);
+				THROW(db.ImportFlexiaModel(impp));
+			}
+		}
+		TestSearchWords(/*sartre_db_path*/0);
+		//TestImportConceptFile(p_db_path, "\\PAPYRUS\\Src\\SARTR\\data\\concept.txt");
+		//TestConcept(p_db_path);
+		/*if(!TestImport_Words_MySpell())
+			ret = -1;*/
+		/*if(!TestImport_AncodeCollection())
+			ret = -1;*/
+	}
+	CATCHZOKPPERR
+	PPWait(0);
 	return ok;
 }
 
@@ -6163,7 +6193,7 @@ int main(int argc, char * argv[])
 		BDbDatabase * p_rcv_db = new BDbDatabase(p_db_path, 0, BDbDatabase::oRecover);
 		ZDELETE(p_rcv_db);
 	}*/
-	//TestImportFlexiaModel(p_db_path);
+	//ImportFlexiaModel(p_db_path);
 	//TestSearchWords(p_db_path);
 	TestImportConceptFile(p_db_path, "\\PAPYRUS\\Src\\SARTR\\data\\concept.txt");
 	TestConcept(p_db_path);

@@ -59,12 +59,9 @@ static bool IsStringSuffix(int ch)
 	return ch == 'c' || ch == 'w' || ch == 'd';
 }
 
-static bool IsStreamCommentStyle(int style)
+static bool FASTCALL IsStreamCommentStyle(int style)
 {
-	return style == SCE_D_COMMENT ||
-	       style == SCE_D_COMMENTDOC ||
-	       style == SCE_D_COMMENTDOCKEYWORD ||
-	       style == SCE_D_COMMENTDOCKEYWORDERROR;
+	return (style == SCE_D_COMMENT || style == SCE_D_COMMENTDOC || style == SCE_D_COMMENTDOCKEYWORD || style == SCE_D_COMMENTDOCKEYWORDERROR);
 }
 
 // An individual named option for use in an OptionSet

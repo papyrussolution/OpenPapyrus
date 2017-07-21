@@ -38,7 +38,7 @@ int EVP_VerifyFinal(EVP_MD_CTX * ctx, const uchar * sigbuf,
 	}
 
 	i = -1;
-	pkctx = EVP_PKEY_CTX_new(pkey, NULL);
+	pkctx = EVP_PKEY_CTX_new(pkey, 0);
 	if(pkctx == NULL)
 		goto err;
 	if(EVP_PKEY_verify_init(pkctx) <= 0)

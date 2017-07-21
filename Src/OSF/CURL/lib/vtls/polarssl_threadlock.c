@@ -58,7 +58,7 @@ int Curl_polarsslthreadlock_thread_setup(void)
 
 #ifdef HAVE_PTHREAD_H
   for(i = 0;  i < NUMT;  i++) {
-    ret = pthread_mutex_init(&mutex_buf[i], NULL);
+    ret = pthread_mutex_init(&mutex_buf[i], 0);
     if(ret)
       return 0; /* pthread_mutex_init failed */
   }

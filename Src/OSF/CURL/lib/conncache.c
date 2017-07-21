@@ -59,7 +59,7 @@ static void bundle_destroy(struct connectbundle * cb_ptr)
 {
 	if(!cb_ptr)
 		return;
-	Curl_llist_destroy(&cb_ptr->conn_list, NULL);
+	Curl_llist_destroy(&cb_ptr->conn_list, 0);
 	SAlloc::F(cb_ptr);
 }
 
@@ -85,7 +85,7 @@ static int bundle_remove_conn(struct connectbundle * cb_ptr,
 	curr = cb_ptr->conn_list.head;
 	while(curr) {
 		if(curr->ptr == conn) {
-			Curl_llist_remove(&cb_ptr->conn_list, curr, NULL);
+			Curl_llist_remove(&cb_ptr->conn_list, curr, 0);
 			cb_ptr->num_connections--;
 			conn->bundle = NULL;
 			return 1; /* we removed a handle */

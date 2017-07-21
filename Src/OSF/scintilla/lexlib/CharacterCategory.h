@@ -22,7 +22,7 @@ enum CharacterCategory {
 	ccCc, ccCf, ccCs, ccCo, ccCn
 };
 
-CharacterCategory CategoriseCharacter(int character);
+CharacterCategory FASTCALL CategoriseCharacter(int character);
 
 #ifdef SCI_NAMESPACE
 }

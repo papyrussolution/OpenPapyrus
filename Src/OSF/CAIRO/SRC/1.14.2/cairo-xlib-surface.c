@@ -737,7 +737,7 @@ static cairo_surface_t * _get_image_surface(cairo_xlib_surface_t    * surface,
 		_cairo_pattern_init_for_surface(&pattern, &src->base);
 		cairo_matrix_init_translate(&pattern.base.matrix,
 		    extents->x, extents->y);
-		status = _cairo_surface_paint(dst, CAIRO_OPERATOR_SOURCE, &pattern.base, NULL);
+		status = _cairo_surface_paint(dst, CAIRO_OPERATOR_SOURCE, &pattern.base, 0);
 		_cairo_pattern_fini(&pattern.base);
 		if(unlikely(status)) {
 			cairo_surface_destroy(dst);

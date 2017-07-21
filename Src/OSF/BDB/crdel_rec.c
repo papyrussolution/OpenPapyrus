@@ -102,7 +102,7 @@ int __crdel_inmem_create_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops
 	__crdel_inmem_create_args * argp;
 	DB * dbp;
 	int do_close, ret, t_ret;
-	COMPQUIET(info, NULL);
+	COMPQUIET(info, 0);
 	dbp = NULL;
 	do_close = 0;
 	REC_PRINT(__crdel_inmem_create_print);
@@ -182,7 +182,7 @@ int __crdel_inmem_rename_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops
 	__crdel_inmem_rename_args * argp;
 	uint8 * fileid;
 	int ret;
-	COMPQUIET(info, NULL);
+	COMPQUIET(info, 0);
 	REC_PRINT(__crdel_inmem_rename_print);
 	REC_NOOP_INTRO(__crdel_inmem_rename_read);
 	fileid = (uint8 *)argp->fid.data;
@@ -206,7 +206,7 @@ int __crdel_inmem_remove_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops
 {
 	__crdel_inmem_remove_args * argp;
 	int ret;
-	COMPQUIET(info, NULL);
+	COMPQUIET(info, 0);
 	REC_PRINT(__crdel_inmem_remove_print);
 	REC_NOOP_INTRO(__crdel_inmem_remove_read);
 	/*

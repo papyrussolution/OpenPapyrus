@@ -895,7 +895,7 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 							double ds = line_rec.Dscnt * line_rec.Quantity;
 							cc_amount = R2(cc_amount + s - ds);
 						}
-						out_buf.CatCharN('\t', 2).CatLongZ(line_rec.GoodsID, 5).Tab().
+						out_buf.Tab(2).CatLongZ(line_rec.GoodsID, 5).Tab().
 							Cat(line_rec.Quantity, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
 							Cat(intmnytodbl(line_rec.Price), MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
 							Cat(line_rec.Dscnt, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
@@ -911,7 +911,7 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 					running_total = 0.0;
 					out_buf.Tab().CatEq("format", format_name).CatChar('{').CR();
 					if(sdc_param.PageWidth > 36)
-						out_buf.CatCharN('\t', 2).Cat("PageWidthOverflow").CatDiv(':', 2).Cat(sdc_param.PageWidth).CatChar('>').Cat(36).CR();
+						out_buf.Tab(2).Cat("PageWidthOverflow").CatDiv(':', 2).Cat(sdc_param.PageWidth).CatChar('>').Cat(36).CR();
 					for(p_formatter->InitIteration(pPack); p_formatter->NextIteration(line_buf, &sl_param) > 0;) {
 						line_buf.Transf(CTRANSF_OUTER_TO_INNER);
 						if(sl_param.Flags & SlipLineParam::fRegFiscal) {
@@ -919,13 +919,13 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 							double _p = sl_param.Price;
 							running_total += (_q * _p);
 							prn_total_sale = 0;
-							out_buf.CatCharN('\t', 2).CatEq("Quantity", _q, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
+							out_buf.Tab(2).CatEq("Quantity", _q, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
 								CatEq("Price", _p, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
 								CatEq("RunningTotal", running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
 								CatEq("Line", line_buf).CR();
 						}
 						else {
-							out_buf.CatCharN('\t', 2).CatEq("Line", line_buf).CR();
+							out_buf.Tab(2).CatEq("Line", line_buf).CR();
 						}
 					}
 					if(prn_total_sale) {
@@ -953,7 +953,7 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 				}
 				else {
 					// Ошибка инициализации формата чека
-					out_buf.CatCharN('\t', 2).Cat("Error in format").Space().Cat(format_name).CR();
+					out_buf.Tab(2).Cat("Error in format").Space().Cat(format_name).CR();
 				}
 				if(running_total > sum)
 					sum = running_total;

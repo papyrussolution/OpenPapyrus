@@ -207,6 +207,12 @@ int SLAPI PPObjAccSheet::IsAssoc(PPID acsID, PPID objType, PPAccSheet * pRec)
 	return ok;
 }
 
+int SLAPI PPObjAccSheet::IsLinkedToMainOrg(PPID acsID)
+{
+	PPAccSheet acs_rec;
+	return BIN(acsID && Fetch(acsID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MAIN);
+}
+
 int SLAPI PPObjAccSheet::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1;

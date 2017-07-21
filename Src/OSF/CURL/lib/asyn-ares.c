@@ -325,7 +325,7 @@ CURLcode Curl_resolver_wait_resolv(struct connectdata * conn, struct Curl_dns_en
 	long timeout;
 	struct timeval now = Curl_tvnow();
 	struct Curl_dns_entry * temp_entry;
-	ASSIGN_PTR(entry, NULL);  /* clear on entry */
+	ASSIGN_PTR(entry, 0);  /* clear on entry */
 	timeout = Curl_timeleft(data, &now, TRUE);
 	if(timeout < 0) {
 		/* already expired! */

@@ -52,7 +52,7 @@ static void __bam_init_meta(DB*, BTMETA*, db_pgno_t, DB_LSN *);
  */
 int __bam_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, db_pgno_t base_pgno, uint32 flags)
 {
-	COMPQUIET(name, NULL);
+	COMPQUIET(name, 0);
 	BTREE * t = (BTREE *)dbp->bt_internal;
 	/*
 	 * We don't permit the user to specify a prefix routine if they didn't

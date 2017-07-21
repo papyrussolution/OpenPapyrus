@@ -152,61 +152,37 @@ DEFINE_STACK_OF(X509_TRUST)
 
 /* The field separator information */
 
-# define XN_FLAG_SEP_MASK        (0xf << 16)
+#define XN_FLAG_SEP_MASK        (0xf << 16)
 
-# define XN_FLAG_COMPAT          0/* Traditional; use old X509_NAME_print */
-# define XN_FLAG_SEP_COMMA_PLUS  (1 << 16)/* RFC2253 ,+ */
-# define XN_FLAG_SEP_CPLUS_SPC   (2 << 16)/* ,+ spaced: more readable */
-# define XN_FLAG_SEP_SPLUS_SPC   (3 << 16)/* ;+ spaced */
-# define XN_FLAG_SEP_MULTILINE   (4 << 16)/* One line per field */
+#define XN_FLAG_COMPAT          0/* Traditional; use old X509_NAME_print */
+#define XN_FLAG_SEP_COMMA_PLUS  (1 << 16)/* RFC2253 ,+ */
+#define XN_FLAG_SEP_CPLUS_SPC   (2 << 16)/* ,+ spaced: more readable */
+#define XN_FLAG_SEP_SPLUS_SPC   (3 << 16)/* ;+ spaced */
+#define XN_FLAG_SEP_MULTILINE   (4 << 16)/* One line per field */
 
-# define XN_FLAG_DN_REV          (1 << 20)/* Reverse DN order */
+#define XN_FLAG_DN_REV          (1 << 20)/* Reverse DN order */
 
 /* How the field name is shown */
 
-# define XN_FLAG_FN_MASK         (0x3 << 21)
+#define XN_FLAG_FN_MASK         (0x3 << 21)
 
-# define XN_FLAG_FN_SN           0/* Object short name */
-# define XN_FLAG_FN_LN           (1 << 21)/* Object long name */
-# define XN_FLAG_FN_OID          (2 << 21)/* Always use OIDs */
-# define XN_FLAG_FN_NONE         (3 << 21)/* No field names */
+#define XN_FLAG_FN_SN           0/* Object short name */
+#define XN_FLAG_FN_LN           (1 << 21)/* Object long name */
+#define XN_FLAG_FN_OID          (2 << 21)/* Always use OIDs */
+#define XN_FLAG_FN_NONE         (3 << 21)/* No field names */
+#define XN_FLAG_SPC_EQ          (1 << 23)/* Put spaces round '=' */
+//
+// This determines if we dump fields we don't recognise: RFC2253 requires this.
+//
+#define XN_FLAG_DUMP_UNKNOWN_FIELDS (1 << 24)
+#define XN_FLAG_FN_ALIGN        (1 << 25)/* Align field names to 20 characters */
 
-# define XN_FLAG_SPC_EQ          (1 << 23)/* Put spaces round '=' */
-
-/*
- * This determines if we dump fields we don't recognise: RFC2253 requires
- * this.
- */
-
-# define XN_FLAG_DUMP_UNKNOWN_FIELDS (1 << 24)
-
-# define XN_FLAG_FN_ALIGN        (1 << 25)/* Align field names to 20
-                                           * characters */
-
-/* Complete set of RFC2253 flags */
-
-# define XN_FLAG_RFC2253 (ASN1_STRFLGS_RFC2253 | \
-                        XN_FLAG_SEP_COMMA_PLUS | \
-                        XN_FLAG_DN_REV | \
-                        XN_FLAG_FN_SN | \
-                        XN_FLAG_DUMP_UNKNOWN_FIELDS)
-
-/* readable oneline form */
-
-# define XN_FLAG_ONELINE (ASN1_STRFLGS_RFC2253 | \
-                        ASN1_STRFLGS_ESC_QUOTE | \
-                        XN_FLAG_SEP_CPLUS_SPC | \
-                        XN_FLAG_SPC_EQ | \
-                        XN_FLAG_FN_SN)
-
-/* readable multiline form */
-
-# define XN_FLAG_MULTILINE (ASN1_STRFLGS_ESC_CTRL | \
-                        ASN1_STRFLGS_ESC_MSB | \
-                        XN_FLAG_SEP_MULTILINE | \
-                        XN_FLAG_SPC_EQ | \
-                        XN_FLAG_FN_LN | \
-                        XN_FLAG_FN_ALIGN)
+// Complete set of RFC2253 flags 
+#define XN_FLAG_RFC2253 (ASN1_STRFLGS_RFC2253|XN_FLAG_SEP_COMMA_PLUS|XN_FLAG_DN_REV|XN_FLAG_FN_SN|XN_FLAG_DUMP_UNKNOWN_FIELDS)
+// readable oneline form 
+#define XN_FLAG_ONELINE (ASN1_STRFLGS_RFC2253|ASN1_STRFLGS_ESC_QUOTE|XN_FLAG_SEP_CPLUS_SPC|XN_FLAG_SPC_EQ|XN_FLAG_FN_SN)
+// readable multiline form 
+#define XN_FLAG_MULTILINE (ASN1_STRFLGS_ESC_CTRL|ASN1_STRFLGS_ESC_MSB|XN_FLAG_SEP_MULTILINE|XN_FLAG_SPC_EQ|XN_FLAG_FN_LN|XN_FLAG_FN_ALIGN)
 
 DEFINE_STACK_OF(X509_REVOKED)
 
@@ -310,32 +286,20 @@ extern "C" {
 # define         X509_name_cmp(a,b)      X509_NAME_cmp((a),(b))
 
 void X509_CRL_set_default_method(const X509_CRL_METHOD *meth);
-X509_CRL_METHOD *X509_CRL_METHOD_new(int (*crl_init) (X509_CRL *crl),
-                                     int (*crl_free) (X509_CRL *crl),
-                                     int (*crl_lookup) (X509_CRL *crl,
-                                                        X509_REVOKED **ret,
-                                                        ASN1_INTEGER *ser,
-                                                        X509_NAME *issuer),
-                                     int (*crl_verify) (X509_CRL *crl,
-                                                        EVP_PKEY *pk));
+X509_CRL_METHOD *X509_CRL_METHOD_new(int (*crl_init) (X509_CRL *crl), int (*crl_free) (X509_CRL *crl),
+	int (*crl_lookup) (X509_CRL *crl, X509_REVOKED **ret, ASN1_INTEGER *ser, X509_NAME *issuer), int (*crl_verify) (X509_CRL *crl, EVP_PKEY *pk));
 void X509_CRL_METHOD_free(X509_CRL_METHOD *m);
-
 void X509_CRL_set_meth_data(X509_CRL *crl, void *dat);
 void *X509_CRL_get_meth_data(X509_CRL *crl);
-
 const char *X509_verify_cert_error_string(long n);
-
 int X509_verify(X509 *a, EVP_PKEY *r);
-
 int X509_REQ_verify(X509_REQ *a, EVP_PKEY *r);
 int X509_CRL_verify(X509_CRL *a, EVP_PKEY *r);
 int NETSCAPE_SPKI_verify(NETSCAPE_SPKI *a, EVP_PKEY *r);
-
 NETSCAPE_SPKI *NETSCAPE_SPKI_b64_decode(const char *str, int len);
 char *NETSCAPE_SPKI_b64_encode(NETSCAPE_SPKI *x);
 EVP_PKEY *NETSCAPE_SPKI_get_pubkey(NETSCAPE_SPKI *x);
 int NETSCAPE_SPKI_set_pubkey(NETSCAPE_SPKI *x, EVP_PKEY *pkey);
-
 int NETSCAPE_SPKI_print(BIO *out, NETSCAPE_SPKI *spki);
 int X509_signature_dump(BIO *bp, const ASN1_STRING *sig, int indent);
 int X509_signature_print(BIO *bp, const X509_ALGOR *alg, const ASN1_STRING *sig);
@@ -441,10 +405,8 @@ X509_CRL *X509_CRL_dup(X509_CRL *crl);
 X509_REVOKED *X509_REVOKED_dup(X509_REVOKED *rev);
 X509_REQ *X509_REQ_dup(X509_REQ *req);
 X509_ALGOR *X509_ALGOR_dup(X509_ALGOR *xn);
-int X509_ALGOR_set0(X509_ALGOR *alg, ASN1_OBJECT *aobj, int ptype,
-                    void *pval);
-void X509_ALGOR_get0(const ASN1_OBJECT **paobj, int *pptype,
-                     const void **ppval, const X509_ALGOR *algor);
+int X509_ALGOR_set0(X509_ALGOR *alg, ASN1_OBJECT *aobj, int ptype, void *pval);
+void X509_ALGOR_get0(const ASN1_OBJECT **paobj, int *pptype, const void **ppval, const X509_ALGOR *algor);
 void X509_ALGOR_set_md(X509_ALGOR *alg, const EVP_MD *md);
 int X509_ALGOR_cmp(const X509_ALGOR *a, const X509_ALGOR *b);
 
@@ -497,24 +459,16 @@ EC_KEY *d2i_EC_PUBKEY(EC_KEY **a, const uchar **pp, long length);
 DECLARE_ASN1_FUNCTIONS(X509_SIG)
 void X509_SIG_get0(const X509_SIG *sig, const X509_ALGOR **palg, const ASN1_OCTET_STRING **pdigest);
 void X509_SIG_getm(X509_SIG *sig, X509_ALGOR **palg, ASN1_OCTET_STRING **pdigest);
-
 DECLARE_ASN1_FUNCTIONS(X509_REQ_INFO)
 DECLARE_ASN1_FUNCTIONS(X509_REQ)
-
 DECLARE_ASN1_FUNCTIONS(X509_ATTRIBUTE)
 X509_ATTRIBUTE *X509_ATTRIBUTE_create(int nid, int atrtype, void *value);
-
 DECLARE_ASN1_FUNCTIONS(X509_EXTENSION)
 DECLARE_ASN1_ENCODE_FUNCTIONS(X509_EXTENSIONS, X509_EXTENSIONS, X509_EXTENSIONS)
-
 DECLARE_ASN1_FUNCTIONS(X509_NAME_ENTRY)
-
 DECLARE_ASN1_FUNCTIONS(X509_NAME)
-
 int X509_NAME_set(X509_NAME **xn, X509_NAME *name);
-
 DECLARE_ASN1_FUNCTIONS(X509_CINF)
-
 DECLARE_ASN1_FUNCTIONS(X509)
 DECLARE_ASN1_FUNCTIONS(X509_CERT_AUX)
 
@@ -546,8 +500,7 @@ DECLARE_ASN1_FUNCTIONS(X509_CRL_INFO)
 DECLARE_ASN1_FUNCTIONS(X509_CRL)
 
 int X509_CRL_add0_revoked(X509_CRL *crl, X509_REVOKED *rev);
-int X509_CRL_get0_by_serial(X509_CRL *crl,
-                            X509_REVOKED **ret, ASN1_INTEGER *serial);
+int X509_CRL_get0_by_serial(X509_CRL *crl, X509_REVOKED **ret, ASN1_INTEGER *serial);
 int X509_CRL_get0_by_cert(X509_CRL *crl, X509_REVOKED **ret, X509 *x);
 
 X509_PKEY *X509_PKEY_new(void);
@@ -653,8 +606,7 @@ DEPRECATEDIN_1_1_0(ASN1_TIME *X509_CRL_get_nextUpdate(X509_CRL *crl))
 X509_NAME *X509_CRL_get_issuer(const X509_CRL *crl);
 const STACK_OF(X509_EXTENSION) *X509_CRL_get0_extensions(const X509_CRL *crl);
 STACK_OF(X509_REVOKED) *X509_CRL_get_REVOKED(X509_CRL *crl);
-void X509_CRL_get0_signature(const X509_CRL *crl, const ASN1_BIT_STRING **psig,
-                             const X509_ALGOR **palg);
+void X509_CRL_get0_signature(const X509_CRL *crl, const ASN1_BIT_STRING **psig, const X509_ALGOR **palg);
 int X509_CRL_get_signature_nid(const X509_CRL *crl);
 int i2d_re_X509_CRL_tbs(X509_CRL *req, uchar **pp);
 
@@ -665,15 +617,12 @@ int X509_REVOKED_set_revocationDate(X509_REVOKED *r, ASN1_TIME *tm);
 const STACK_OF(X509_EXTENSION) *
 X509_REVOKED_get0_extensions(const X509_REVOKED *r);
 
-X509_CRL *X509_CRL_diff(X509_CRL *base, X509_CRL *newer,
-                        EVP_PKEY *skey, const EVP_MD *md, uint flags);
+X509_CRL *X509_CRL_diff(X509_CRL *base, X509_CRL *newer, EVP_PKEY *skey, const EVP_MD *md, uint flags);
 
 int X509_REQ_check_private_key(X509_REQ *x509, EVP_PKEY *pkey);
 
 int X509_check_private_key(const X509 *x509, const EVP_PKEY *pkey);
-int X509_chain_check_suiteb(int *perror_depth,
-                            X509 *x, STACK_OF(X509) *chain,
-                            ulong flags);
+int X509_chain_check_suiteb(int *perror_depth, X509 *x, STACK_OF(X509) *chain, ulong flags);
 int X509_CRL_check_suiteb(X509_CRL *crl, EVP_PKEY *pk, ulong flags);
 STACK_OF(X509) *X509_chain_up_ref(STACK_OF(X509) *chain);
 
@@ -700,31 +649,25 @@ int X509_CRL_cmp(const X509_CRL *a, const X509_CRL *b);
 int X509_CRL_match(const X509_CRL *a, const X509_CRL *b);
 int X509_aux_print(BIO *out, X509 *x, int indent);
 # ifndef OPENSSL_NO_STDIO
-int X509_print_ex_fp(FILE *bp, X509 *x, ulong nmflag,
-                     ulong cflag);
+int X509_print_ex_fp(FILE *bp, X509 *x, ulong nmflag, ulong cflag);
 int X509_print_fp(FILE *bp, X509 *x);
 int X509_CRL_print_fp(FILE *bp, X509_CRL *x);
 int X509_REQ_print_fp(FILE *bp, X509_REQ *req);
-int X509_NAME_print_ex_fp(FILE *fp, const X509_NAME *nm, int indent,
-                          ulong flags);
+int X509_NAME_print_ex_fp(FILE *fp, const X509_NAME *nm, int indent, ulong flags);
 # endif
 
 int X509_NAME_print(BIO *bp, const X509_NAME *name, int obase);
-int X509_NAME_print_ex(BIO *out, const X509_NAME *nm, int indent,
-                       ulong flags);
-int X509_print_ex(BIO *bp, X509 *x, ulong nmflag,
-                  ulong cflag);
+int X509_NAME_print_ex(BIO *out, const X509_NAME *nm, int indent, ulong flags);
+int X509_print_ex(BIO *bp, X509 *x, ulong nmflag, ulong cflag);
 int X509_print(BIO *bp, X509 *x);
 int X509_ocspid_print(BIO *bp, X509 *x);
 int X509_CRL_print(BIO *bp, X509_CRL *x);
-int X509_REQ_print_ex(BIO *bp, X509_REQ *x, ulong nmflag,
-                      ulong cflag);
+int X509_REQ_print_ex(BIO *bp, X509_REQ *x, ulong nmflag, ulong cflag);
 int X509_REQ_print(BIO *bp, X509_REQ *req);
 
 int X509_NAME_entry_count(const X509_NAME *name);
 int X509_NAME_get_text_by_NID(X509_NAME *name, int nid, char *buf, int len);
-int X509_NAME_get_text_by_OBJ(X509_NAME *name, const ASN1_OBJECT *obj,
-                              char *buf, int len);
+int X509_NAME_get_text_by_OBJ(X509_NAME *name, const ASN1_OBJECT *obj, char *buf, int len);
 
 /*
  * NOTE: you should be passing -1, not 0 as lastpos. The functions that use
@@ -831,26 +774,16 @@ DECLARE_ASN1_FUNCTIONS(PBEPARAM)
 DECLARE_ASN1_FUNCTIONS(PBE2PARAM)
 DECLARE_ASN1_FUNCTIONS(PBKDF2PARAM)
 
-int PKCS5_pbe_set0_algor(X509_ALGOR *algor, int alg, int iter,
-                         const uchar *salt, int saltlen);
-
-X509_ALGOR *PKCS5_pbe_set(int alg, int iter,
-                          const uchar *salt, int saltlen);
-X509_ALGOR *PKCS5_pbe2_set(const EVP_CIPHER *cipher, int iter,
-                           uchar *salt, int saltlen);
-X509_ALGOR *PKCS5_pbe2_set_iv(const EVP_CIPHER *cipher, int iter,
-                              uchar *salt, int saltlen,
-                              uchar *aiv, int prf_nid);
+int PKCS5_pbe_set0_algor(X509_ALGOR *algor, int alg, int iter, const uchar *salt, int saltlen);
+X509_ALGOR *PKCS5_pbe_set(int alg, int iter, const uchar *salt, int saltlen);
+X509_ALGOR *PKCS5_pbe2_set(const EVP_CIPHER *cipher, int iter, uchar *salt, int saltlen);
+X509_ALGOR *PKCS5_pbe2_set_iv(const EVP_CIPHER *cipher, int iter, uchar *salt, int saltlen, uchar *aiv, int prf_nid);
 
 #ifndef OPENSSL_NO_SCRYPT
-X509_ALGOR *PKCS5_pbe2_set_scrypt(const EVP_CIPHER *cipher,
-                                  const uchar *salt, int saltlen,
-                                  uchar *aiv, uint64_t N, uint64_t r,
-                                  uint64_t p);
+X509_ALGOR *PKCS5_pbe2_set_scrypt(const EVP_CIPHER *cipher, const uchar *salt, int saltlen, uchar *aiv, uint64_t N, uint64_t r, uint64_t p);
 #endif
 
-X509_ALGOR *PKCS5_pbkdf2_set(int iter, uchar *salt, int saltlen,
-                             int prf_nid, int keylen);
+X509_ALGOR *PKCS5_pbkdf2_set(int iter, uchar *salt, int saltlen, int prf_nid, int keylen);
 
 /* PKCS#8 utilities */
 
@@ -859,9 +792,7 @@ DECLARE_ASN1_FUNCTIONS(PKCS8_PRIV_KEY_INFO)
 EVP_PKEY *EVP_PKCS82PKEY(const PKCS8_PRIV_KEY_INFO *p8);
 PKCS8_PRIV_KEY_INFO *EVP_PKEY2PKCS8(EVP_PKEY *pkey);
 
-int PKCS8_pkey_set0(PKCS8_PRIV_KEY_INFO *priv, ASN1_OBJECT *aobj,
-                    int version, int ptype, void *pval,
-                    uchar *penc, int penclen);
+int PKCS8_pkey_set0(PKCS8_PRIV_KEY_INFO *priv, ASN1_OBJECT *aobj, int version, int ptype, void *pval, uchar *penc, int penclen);
 int PKCS8_pkey_get0(const ASN1_OBJECT **ppkalg, const uchar **pk, int *ppklen, const X509_ALGOR **pa, const PKCS8_PRIV_KEY_INFO *p8);
 
 const STACK_OF(X509_ATTRIBUTE) *

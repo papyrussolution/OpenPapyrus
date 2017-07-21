@@ -126,7 +126,7 @@ static cairo_status_t log_init(cairo_observation_t * log, cairo_bool_t record)
 	init_glyphs(&log->glyphs);
 	_cairo_array_init(&log->timings, sizeof(cairo_observation_record_t));
 	if(record) {
-		log->record = (cairo_recording_surface_t*)cairo_recording_surface_create(CAIRO_CONTENT_COLOR_ALPHA, NULL);
+		log->record = (cairo_recording_surface_t*)cairo_recording_surface_create(CAIRO_CONTENT_COLOR_ALPHA, 0);
 		if(unlikely(log->record->base.status))
 			return log->record->base.status;
 		log->record->optimize_clears = FALSE;

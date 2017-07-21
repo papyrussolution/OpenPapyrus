@@ -314,10 +314,10 @@ static void FoldNimrodDoc(Sci_PositionU startPos, Sci_Position length,
 	// at least one line in all cases)
 	int spaceFlags = 0;
 	Sci_Position lineCurrent = styler.GetLine(startPos);
-	int indentCurrent = styler.IndentAmount(lineCurrent, &spaceFlags, NULL);
+	int indentCurrent = styler.IndentAmount(lineCurrent, &spaceFlags, 0);
 	while(lineCurrent > 0) {
 		lineCurrent--;
-		indentCurrent = styler.IndentAmount(lineCurrent, &spaceFlags, NULL);
+		indentCurrent = styler.IndentAmount(lineCurrent, &spaceFlags, 0);
 		if(!(indentCurrent & SC_FOLDLEVELWHITEFLAG) &&
 		    (!IsCommentLine(lineCurrent, styler)) &&
 		    (!IsQuoteLine(lineCurrent, styler)))
@@ -348,7 +348,7 @@ static void FoldNimrodDoc(Sci_PositionU startPos, Sci_Position length,
 		int quote = false;
 		if(lineNext <= docLines) {
 			// Information about next line is only available if not at end of document
-			indentNext = styler.IndentAmount(lineNext, &spaceFlags, NULL);
+			indentNext = styler.IndentAmount(lineNext, &spaceFlags, 0);
 			int style = styler.StyleAt(styler.LineStart(lineNext)) & 31;
 			quote = foldQuotes && ((style == SCE_P_TRIPLE) || (style == SCE_P_TRIPLEDOUBLE));
 		}
@@ -390,7 +390,7 @@ static void FoldNimrodDoc(Sci_PositionU startPos, Sci_Position length,
 
 		while(!quote && (lineNext < docLines) && ((indentNext & SC_FOLDLEVELWHITEFLAG) || (lineNext <= docLines && IsCommentLine(lineNext, styler)))) {
 			lineNext++;
-			indentNext = styler.IndentAmount(lineNext, &spaceFlags, NULL);
+			indentNext = styler.IndentAmount(lineNext, &spaceFlags, 0);
 		}
 		const int levelAfterComments = indentNext & SC_FOLDLEVELNUMBERMASK;
 		const int levelBeforeComments = smax(indentCurrentLevel, levelAfterComments);
@@ -402,7 +402,7 @@ static void FoldNimrodDoc(Sci_PositionU startPos, Sci_Position length,
 		Sci_Position skipLine = lineNext;
 		int skipLevel = levelAfterComments;
 		while(--skipLine > lineCurrent) {
-			int skipLineIndent = styler.IndentAmount(skipLine, &spaceFlags, NULL);
+			int skipLineIndent = styler.IndentAmount(skipLine, &spaceFlags, 0);
 			if((skipLineIndent & SC_FOLDLEVELNUMBERMASK) > levelAfterComments)
 				skipLevel = levelBeforeComments;
 			int whiteFlag = skipLineIndent & SC_FOLDLEVELWHITEFLAG;

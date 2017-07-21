@@ -89,7 +89,7 @@ static int pkcs7_encode_rinfo(PKCS7_RECIP_INFO * ri,
 	if(!pkey)
 		return 0;
 
-	pctx = EVP_PKEY_CTX_new(pkey, NULL);
+	pctx = EVP_PKEY_CTX_new(pkey, 0);
 	if(!pctx)
 		return 0;
 
@@ -135,7 +135,7 @@ static int pkcs7_decrypt_rinfo(uchar ** pek, int * peklen,
 
 	int ret = -1;
 
-	pctx = EVP_PKEY_CTX_new(pkey, NULL);
+	pctx = EVP_PKEY_CTX_new(pkey, 0);
 	if(!pctx)
 		return -1;
 
@@ -298,7 +298,7 @@ BIO * PKCS7_dataInit(PKCS7 * p7, BIO * bio)
 		}
 		OPENSSL_cleanse(key, keylen);
 
-		if(out == NULL)
+		if(!out)
 			out = btmp;
 		else
 			BIO_push(out, btmp);
@@ -440,7 +440,7 @@ BIO * PKCS7_dataDecode(PKCS7 * p7, EVP_PKEY * pkey, BIO * in_bio, X509 * pcert)
 			}
 
 			BIO_set_md(btmp, evp_md);
-			if(out == NULL)
+			if(!out)
 				out = btmp;
 			else
 				BIO_push(out, btmp);
@@ -542,7 +542,7 @@ BIO * PKCS7_dataDecode(PKCS7 * p7, EVP_PKEY * pkey, BIO * in_bio, X509 * pcert)
 		OPENSSL_clear_free(tkey, tkeylen);
 		tkey = NULL;
 
-		if(out == NULL)
+		if(!out)
 			out = etmp;
 		else
 			BIO_push(out, etmp);
@@ -1100,7 +1100,7 @@ int PKCS7_set_signed_attributes(PKCS7_SIGNER_INFO * p7si,
 		    == NULL)
 			return 0;
 	}
-	return (1);
+	return 1;
 }
 
 int PKCS7_set_attributes(PKCS7_SIGNER_INFO * p7si,
@@ -1119,7 +1119,7 @@ int PKCS7_set_attributes(PKCS7_SIGNER_INFO * p7si,
 		    == NULL)
 			return 0;
 	}
-	return (1);
+	return 1;
 }
 
 int PKCS7_add_signed_attribute(PKCS7_SIGNER_INFO * p7si, int nid, int atrtype,
@@ -1169,6 +1169,6 @@ new_attrib:
 		goto new_attrib;
 	}
 end:
-	return (1);
+	return 1;
 }
 

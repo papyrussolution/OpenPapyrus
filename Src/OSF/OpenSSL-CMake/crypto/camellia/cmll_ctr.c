@@ -11,13 +11,8 @@
 #include <openssl/camellia.h>
 #include <openssl/modes.h>
 
-void Camellia_ctr128_encrypt(const uchar * in, uchar * out,
-    size_t length, const CAMELLIA_KEY * key,
-    uchar ivec[CAMELLIA_BLOCK_SIZE],
-    uchar ecount_buf[CAMELLIA_BLOCK_SIZE],
-    uint * num)
+void Camellia_ctr128_encrypt(const uchar * in, uchar * out, size_t length, const CAMELLIA_KEY * key,
+    uchar ivec[CAMELLIA_BLOCK_SIZE], uchar ecount_buf[CAMELLIA_BLOCK_SIZE], uint * num)
 {
-	CRYPTO_ctr128_encrypt(in, out, length, key, ivec, ecount_buf, num,
-	    (block128_f)Camellia_encrypt);
+	CRYPTO_ctr128_encrypt(in, out, length, key, ivec, ecount_buf, num, (block128_f)Camellia_encrypt);
 }
-

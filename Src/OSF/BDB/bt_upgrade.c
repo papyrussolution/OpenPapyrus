@@ -57,9 +57,9 @@ int __bam_31_btreemeta(DB * dbp, char * real_name, uint32 flags, DB_FH * fhp, PA
 {
 	BTMETA30 * oldmeta;
 	BTMETA31 * newmeta;
-	COMPQUIET(dbp, NULL);
-	COMPQUIET(real_name, NULL);
-	COMPQUIET(fhp, NULL);
+	COMPQUIET(dbp, 0);
+	COMPQUIET(real_name, 0);
+	COMPQUIET(fhp, 0);
 	newmeta = (BTMETA31 *)h;
 	oldmeta = (BTMETA30 *)h;
 	/*

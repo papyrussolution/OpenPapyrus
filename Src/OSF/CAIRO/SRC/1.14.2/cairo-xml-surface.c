@@ -1111,7 +1111,7 @@ cairo_status_t cairo_xml_for_recording_surface(cairo_device_t  * device,
 		return _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
 
 	status = _cairo_recording_surface_get_bbox((cairo_recording_surface_t*)recording_surface,
-	    &bbox, NULL);
+	    &bbox, 0);
 	if(unlikely(status))
 		return status;
 

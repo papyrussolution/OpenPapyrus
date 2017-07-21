@@ -2938,7 +2938,7 @@ cairo_bool_t FASTCALL _cairo_pattern_is_clear(const cairo_pattern_t * abstract_p
 				return _raster_source_is_clear(&pattern->raster_source);
 			case CAIRO_PATTERN_TYPE_LINEAR:
 			case CAIRO_PATTERN_TYPE_RADIAL:
-				return _gradient_is_clear(&pattern->gradient.base, NULL);
+				return _gradient_is_clear(&pattern->gradient.base, 0);
 			case CAIRO_PATTERN_TYPE_MESH:
 				return _mesh_is_clear(&pattern->mesh);
 		}
@@ -3310,7 +3310,7 @@ HANDLE_FILTER:
 		cairo_status_t status = cairo_matrix_invert(&imatrix);
 		/* cairo_pattern_set_matrix ensures the matrix is invertible */
 		assert(status == CAIRO_STATUS_SUCCESS);
-		_cairo_matrix_transform_bounding_box(&imatrix, &x1, &y1, &x2, &y2, NULL);
+		_cairo_matrix_transform_bounding_box(&imatrix, &x1, &y1, &x2, &y2, 0);
 	}
 	if(!round_x) {
 		x1 -= 0.5;
@@ -3358,7 +3358,7 @@ cairo_int_status_t _cairo_pattern_get_ink_extents(const cairo_pattern_t * patter
 	if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE && pattern->extend == CAIRO_EXTEND_NONE) {
 		const cairo_surface_pattern_t * surface_pattern = (const cairo_surface_pattern_t*)pattern;
 		cairo_surface_t * surface = surface_pattern->surface;
-		surface = _cairo_surface_get_source(surface, NULL);
+		surface = _cairo_surface_get_source(surface, 0);
 		if(_cairo_surface_is_recording(surface)) {
 			cairo_box_t box;
 			cairo_matrix_t imatrix = pattern->matrix;

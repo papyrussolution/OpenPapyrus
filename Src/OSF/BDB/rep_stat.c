@@ -491,7 +491,7 @@ static int __rep_stat_summary_print(ENV*env)
 
 int __rep_stat_pp(DB_ENV*dbenv, DB_REP_STAT ** statp, uint32 flags)
 {
-	COMPQUIET(statp, NULL);
+	COMPQUIET(statp, 0);
 	COMPQUIET(flags, 0);
 	return __db_stat_not_built(dbenv->env);
 }

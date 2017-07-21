@@ -173,7 +173,7 @@ static int initMappedFileSource(TidyAllocator * allocator, TidyInputSource* inp,
 		return -1;
 	}
 #endif
-	fin->map = CreateFileMapping(fp, NULL, PAGE_READONLY, 0, 0, NULL);
+	fin->map = CreateFileMapping(fp, NULL, PAGE_READONLY, 0, 0, 0);
 	if(!fin->map) {
 		TidyFree(allocator, fin);
 		return -1;
@@ -224,7 +224,7 @@ StreamIn* MappedFileInput(TidyDocImpl* doc, HANDLE fp, int encoding)
 int TY_(DocParseFileWithMappedFile) (TidyDocImpl* doc, ctmbstr filnam) 
 {
 	int status = -ENOENT;
-	HANDLE fin = CreateFileA(filnam, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+	HANDLE fin = CreateFileA(filnam, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0);
 #if PRESERVE_FILE_TIMES
 	LONGLONG actime, modtime;
 	TidyClearMemory(&doc->filetimes, sizeof(doc->filetimes));

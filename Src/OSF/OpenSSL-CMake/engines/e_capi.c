@@ -280,7 +280,7 @@ static int capi_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void))
 	}
 	ctx = (CAPI_CTX*)ENGINE_get_ex_data(e, capi_idx);
 	out = BIO_new_fp(stdout, BIO_NOCLOSE);
-	if(out == NULL) {
+	if(!out) {
 		CAPIerr(CAPI_F_CAPI_CTRL, CAPI_R_FILE_OPEN_ERROR);
 		return 0;
 	}
@@ -290,7 +290,7 @@ static int capi_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void))
 		    break;
 
 		case CAPI_CMD_LIST_CERTS:
-		    ret = capi_list_certs(ctx, out, NULL);
+		    ret = capi_list_certs(ctx, out, 0);
 		    break;
 
 		case CAPI_CMD_LOOKUP_CERT:
@@ -492,7 +492,7 @@ static int capi_finish(ENGINE * e)
 	CAPI_CTX * ctx;
 	ctx = (CAPI_CTX*)ENGINE_get_ex_data(e, capi_idx);
 	capi_ctx_free(ctx);
-	ENGINE_set_ex_data(e, capi_idx, NULL);
+	ENGINE_set_ex_data(e, capi_idx, 0);
 	return 1;
 }
 
@@ -667,7 +667,7 @@ static EVP_PKEY * capi_get_pkey(ENGINE * eng, CAPI_KEY * key)
 			goto memerr;
 		}
 
-		RSA_set0_key(rkey, n, e, NULL);
+		RSA_set0_key(rkey, n, e, 0);
 
 		if(!BN_set_word(e, rp->pubexp))
 			goto memerr;
@@ -717,7 +717,7 @@ static EVP_PKEY * capi_get_pkey(ENGINE * eng, CAPI_KEY * key)
 			goto memerr;
 		}
 		DSA_set0_pqg(dkey, p, q, g);
-		DSA_set0_key(dkey, pub_key, NULL);
+		DSA_set0_key(dkey, pub_key, 0);
 		if(!lend_tobn(p, btmp, dsa_plen))
 			goto memerr;
 		btmp += dsa_plen;
@@ -1049,7 +1049,7 @@ static void capi_vtrace(CAPI_CTX * ctx, int level, char * format,
 	if(!ctx || (ctx->debug_level < level) || (!ctx->debug_file))
 		return;
 	out = BIO_new_file(ctx->debug_file, "a+");
-	if(out == NULL) {
+	if(!out) {
 		CAPIerr(CAPI_F_CAPI_VTRACE, CAPI_R_FILE_OPEN_ERROR);
 		return;
 	}
@@ -1419,7 +1419,7 @@ static PCCERT_CONTEXT capi_find_cert(CAPI_CTX * ctx, const char * id, HCERTSTORE
 		case CAPI_LU_SUBSTR:
 		    return CertFindCertificateInStore(hstore,
 		    X509_ASN_ENCODING, 0,
-		    CERT_FIND_SUBJECT_STR_A, id, NULL);
+		    CERT_FIND_SUBJECT_STR_A, id, 0);
 		case CAPI_LU_FNAME:
 		    for(;; ) {
 			    cert = CertEnumCertificatesInStore(hstore, cert);
@@ -1516,7 +1516,7 @@ CAPI_KEY * capi_find_key(CAPI_CTX * ctx, const char * id)
 	switch(ctx->lookup_method) {
 		case CAPI_LU_SUBSTR:
 		case CAPI_LU_FNAME:
-		    hstore = capi_open_store(ctx, NULL);
+		    hstore = capi_open_store(ctx, 0);
 		    if(!hstore)
 			    return NULL;
 		    cert = capi_find_cert(ctx, id, hstore);
@@ -1718,7 +1718,7 @@ static int capi_load_ssl_client_cert(ENGINE * e, SSL * ssl, STACK_OF(X509_NAME) 
 	/* Setup key for selected certificate */
 	key = (CAPI_KEY*)X509_get_ex_data(*pcert, cert_capi_idx);
 	*pkey = capi_get_pkey(e, key);
-	X509_set_ex_data(*pcert, cert_capi_idx, NULL);
+	X509_set_ex_data(*pcert, cert_capi_idx, 0);
 	return 1;
 }
 
@@ -1765,7 +1765,7 @@ static int cert_select_dialog(ENGINE * e, SSL * ssl, STACK_OF(X509) * certs)
 	ctx = ENGINE_get_ex_data(e, capi_idx);
 	/* Create an in memory store of certificates */
 	dstore = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0,
-	    CERT_STORE_CREATE_NEW_FLAG, NULL);
+	    CERT_STORE_CREATE_NEW_FLAG, 0);
 	if(!dstore) {
 		CAPIerr(CAPI_F_CERT_SELECT_DIALOG, CAPI_R_ERROR_CREATING_STORE);
 		capi_addlasterror();
@@ -1790,7 +1790,7 @@ static int cert_select_dialog(ENGINE * e, SSL * ssl, STACK_OF(X509) * certs)
 		hwnd = ctx->getconswindow();
 	/* Call dialog to select one */
 	cert = ctx->certselectdlg(dstore, hwnd, dlg_title, dlg_prompt,
-	    dlg_columns, 0, NULL);
+	    dlg_columns, 0, 0);
 
 	/* Find matching cert from list */
 	if(cert) {

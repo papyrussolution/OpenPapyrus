@@ -72,7 +72,7 @@ int ASN1_UNIVERSALSTRING_to_string(ASN1_UNIVERSALSTRING * s)
 	*(p) = '\0';
 	s->length /= 4;
 	s->type = ASN1_PRINTABLE_type(s->data, s->length);
-	return (1);
+	return 1;
 }
 
 int ASN1_STRING_print(BIO * bp, const ASN1_STRING * v)
@@ -101,6 +101,6 @@ int ASN1_STRING_print(BIO * bp, const ASN1_STRING * v)
 	if(n > 0)
 		if(BIO_write(bp, buf, n) <= 0)
 			return 0;
-	return (1);
+	return 1;
 }
 

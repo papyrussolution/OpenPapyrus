@@ -480,7 +480,7 @@ int __db_txnlist_remove(ENV * env, DB_TXNHEAD * hp, uint32 txnid)
 void __db_txnlist_ckp(ENV * env, DB_TXNHEAD * hp, DB_LSN * ckp_lsn)
 {
 
-	COMPQUIET(env, NULL);
+	COMPQUIET(env, 0);
 	if(IS_ZERO_LSN(hp->ckplsn) && !IS_ZERO_LSN(hp->maxlsn) && LOG_COMPARE(&hp->maxlsn, ckp_lsn) >= 0)
 		hp->ckplsn = *ckp_lsn;
 }
@@ -703,7 +703,7 @@ int __db_txnlist_lsnadd(ENV * env, DB_TXNHEAD * hp, DB_LSN * lsnp)
 int __db_txnlist_lsnget(ENV * env, DB_TXNHEAD * hp, DB_LSN * lsnp, uint32 flags)
 {
 	DB_TXNLIST * elp;
-	COMPQUIET(env, NULL);
+	COMPQUIET(env, 0);
 	COMPQUIET(flags, 0);
 	LIST_FOREACH(elp, &hp->head[0], links)
 	if(elp->type == TXNLIST_LSN)

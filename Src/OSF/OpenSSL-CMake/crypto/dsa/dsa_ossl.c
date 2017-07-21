@@ -296,12 +296,12 @@ err:
 static int dsa_init(DSA * dsa)
 {
 	dsa->flags |= DSA_FLAG_CACHE_MONT_P;
-	return (1);
+	return 1;
 }
 
 static int dsa_finish(DSA * dsa)
 {
 	BN_MONT_CTX_free(dsa->method_mont_p);
-	return (1);
+	return 1;
 }
 

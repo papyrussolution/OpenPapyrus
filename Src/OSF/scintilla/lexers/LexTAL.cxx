@@ -52,12 +52,9 @@ static void getRange(Sci_PositionU start,
 	s[i] = '\0';
 }
 
-static bool IsStreamCommentStyle(int style)
+static bool FASTCALL IsStreamCommentStyle(int style)
 {
-	return style == SCE_C_COMMENT ||
-	       style == SCE_C_COMMENTDOC ||
-	       style == SCE_C_COMMENTDOCKEYWORD ||
-	       style == SCE_C_COMMENTDOCKEYWORDERROR;
+	return oneof4(style, SCE_C_COMMENT, SCE_C_COMMENTDOC, SCE_C_COMMENTDOCKEYWORD, SCE_C_COMMENTDOCKEYWORDERROR);
 }
 
 static void ColourTo(Accessor &styler, Sci_PositionU end, uint attr, bool bInAsm)

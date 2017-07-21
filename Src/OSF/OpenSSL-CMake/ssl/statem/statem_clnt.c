@@ -484,7 +484,7 @@ WORK_STATE ossl_statem_client_post_work(SSL * s, WORK_STATE wst)
 				     * no SCTP used.
 				     */
 				    BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_NEXT_AUTH_KEY,
-				    0, NULL);
+				    0, 0);
 			    }
 #endif
 
@@ -500,7 +500,7 @@ WORK_STATE ossl_statem_client_post_work(SSL * s, WORK_STATE wst)
 			     * no SCTP used.
 			     */
 			    BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_NEXT_AUTH_KEY,
-			    0, NULL);
+			    0, 0);
 		    }
 #endif
 		    if(statem_flush(s) != 1)
@@ -1451,8 +1451,8 @@ static int tls_process_ske_dhe(SSL * s, PACKET * pkt, EVP_PKEY ** pkey, int * al
 		goto err;
 	}
 
-	p = BN_bin2bn(PACKET_data(&prime), PACKET_remaining(&prime), NULL);
-	g = BN_bin2bn(PACKET_data(&generator), PACKET_remaining(&generator), NULL);
+	p = BN_bin2bn(PACKET_data(&prime), PACKET_remaining(&prime), 0);
+	g = BN_bin2bn(PACKET_data(&generator), PACKET_remaining(&generator), 0);
 	bnpub_key = BN_bin2bn(PACKET_data(&pub_key), PACKET_remaining(&pub_key),
 	    NULL);
 	if(p == NULL || g == NULL || bnpub_key == NULL) {
@@ -1578,7 +1578,7 @@ static int tls_process_ske_ecdhe(SSL * s, PACKET * pkt, EVP_PKEY ** pkey, int * 
 	}
 	else {
 		/* Set up EVP_PKEY with named curve as parameters */
-		pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
+		pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, 0);
 		if(pctx == NULL
 		    || EVP_PKEY_paramgen_init(pctx) <= 0
 		    || EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, curve_nid) <= 0
@@ -2239,7 +2239,7 @@ static int tls_construct_cke_rsa(SSL * s, uchar ** p, int * len, int * al)
 	/* Fix buf for TLS and beyond */
 	if(s->version > SSL3_VERSION)
 		*p += 2;
-	pctx = EVP_PKEY_CTX_new(pkey, NULL);
+	pctx = EVP_PKEY_CTX_new(pkey, 0);
 	if(pctx == NULL || EVP_PKEY_encrypt_init(pctx) <= 0
 	    || EVP_PKEY_encrypt(pctx, NULL, &enclen, pms, pmslen) <= 0) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_RSA, ERR_R_EVP_LIB);
@@ -2308,7 +2308,7 @@ static int tls_construct_cke_dhe(SSL * s, uchar ** p, int * len, int * al)
 	}
 
 	/* send off the data */
-	DH_get0_key(dh_clnt, &pub_key, NULL);
+	DH_get0_key(dh_clnt, &pub_key, 0);
 	*len = BN_num_bytes(pub_key);
 	s2n(*len, *p);
 	BN_bn2bin(pub_key, *p);
@@ -2409,7 +2409,7 @@ static int tls_construct_cke_gost(SSL * s, uchar ** p, int * len, int * al)
 		return 0;
 	}
 
-	pkey_ctx = EVP_PKEY_CTX_new(X509_get0_pubkey(peer_cert), NULL);
+	pkey_ctx = EVP_PKEY_CTX_new(X509_get0_pubkey(peer_cert), 0);
 	if(pkey_ctx == NULL) {
 		*al = SSL_AD_INTERNAL_ERROR;
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_GOST, ERR_R_MALLOC_FAILURE);

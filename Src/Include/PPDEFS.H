@@ -277,6 +277,7 @@
 #define PPPATH_PACK          16 // @v7.8.2 Каталог хранения некоторых файлов, распространяемых с дистрибутивом
 #define PPPATH_DOC           17 // @v7.8.6 Каталог хранения документации на систему
 #define PPPATH_SPII          18 // @v8.5.10 Каталог обмена между мобильными устройствами и JobServer'ом
+#define PPPATH_SARTREDB      19 // @v9.7.8 Путь к базе данных проекта Sartre
 #define PPPATH_LAST          20L  // Последний из путей
 #define PPPRP_PATHS          20L  //
 
@@ -5853,6 +5854,7 @@
 	#define CTLSEL_UPDBLIST_OBJECT       (6 + WINDOWS_ID_BIAS)
 	#define CTL_UPDBLIST_OBJECT2         (7 + WINDOWS_ID_BIAS)
 	#define CTLSEL_UPDBLIST_OBJECT2      (8 + WINDOWS_ID_BIAS)
+	#define CTL_UPDBLIST_MODCODEST       (9 + WINDOWS_ID_BIAS)
 #define DLG_CHKPAYM               588 // Выбор способа оплаты кассового чека
 	#define CTL_CHKPAYM_METHOD           (1 + WINDOWS_ID_BIAS)
 #define DLG_RTCSESS               589 // Права доступа к кассовым сессиям
@@ -8776,6 +8778,8 @@
 	#define CTLSEL_IMPEXPBILH_IMPOP    (IMPEXP_CTL_BIAS+3)
 	#define CTL_IMPEXPBILH_SRCHCODE1   (IMPEXP_CTL_BIAS+4)
 	#define CTL_IMPEXPBILH_SRCHCODE2   (IMPEXP_CTL_BIAS+5)
+	#define CTL_IMPEXPBILH_PDFMT       (IMPEXP_CTL_BIAS+6)
+	#define CTLSEL_IMPEXPBILH_PDFMT    (IMPEXP_CTL_BIAS+7)
 #define DLG_IMPEXPCFGS              1086
 	#define CTL_IMPEXPCFGS_CFGS        (1 + WINDOWS_ID_BIAS)
 	#define CTL_IMPEXPCFGS_CFGNAME     (2 + WINDOWS_ID_BIAS)
@@ -10409,6 +10413,7 @@
 #define PPSTR_USRPROFILEFUNCNAM   121 // Наименования функций для профайлера
 #define PPSTR_CURLERR             122 // Текстовые описания ошибок libcurl
 #define PPSTR_HASHTOKEN           123 // Специальный мета-символы, используемые системой для обработки данных и команд.
+#define PPSTR_HASHTOKEN_C         124 // Специальный мета-символы, используемые системой для обработки данных и команд (case seinsitive!).
 //
 // Error codes (Don't mixing enumeration !!!)
 // PPERR_BL_XXX - висячие ссылки
@@ -11413,8 +11418,8 @@
 #define PPTXT_ACSCLS_TOBILLS      123 // Формирование документов
 #define PPTXT_ACSCLS_TESTCHECKS   124 // Тестирование чеков
 
-#define PPTXT_FIXSTAFFLIST        131 // Список фиксированных должностей
-#define PPTXT_POVERB              132 // Список глаголов по персональным событиям
+//#define PPTXT_FIXSTAFFLIST        131 // Список фиксированных должностей
+//#define PPTXT_POVERB              132 // Список глаголов по персональным событиям
 #define PPTXT_ALBATROSTAGNAMES    147 // Имена тегов в файле заказов проекта альбатрос
 	#define PPALTAGNAM_ALBORD      0
 	#define PPALTAGNAM_ALBHEAD     1
@@ -12108,6 +12113,7 @@
 	#define IMPEXPPARAM_BILH_FLAGS       1
 	#define IMPEXPPARAM_BILH_SRCHCODE1   2
 	#define IMPEXPPARAM_BILH_SRCHCODE2   3
+	#define IMPEXPPARAM_BILH_PREDEFFMT   4 // @v9.7.8
 #define PPTXT_SUBSTBILLLIST                     634 // Список подстановок документа
 #define PPTXT_BALTIKA_DOCTYPES                  636
 	#define BALTIKA_DOCTYPES_EXPEND      0

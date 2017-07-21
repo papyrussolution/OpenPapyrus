@@ -145,7 +145,7 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 	}
 
 	/* Generate our SPN */
-	spn = Curl_auth_build_spn(service, data->easy_conn->host.name, NULL);
+	spn = Curl_auth_build_spn(service, data->easy_conn->host.name, 0);
 	if(!spn) {
 		SAlloc::F(output_token);
 		SAlloc::F(input_token);

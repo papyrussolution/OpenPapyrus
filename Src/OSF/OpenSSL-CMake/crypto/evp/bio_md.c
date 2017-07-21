@@ -10,7 +10,7 @@
 #pragma hdrstop
 #include <internal/evp_int.h>
 #include "evp_locl.h"
-#include "internal/bio.h"
+//#include "internal/bio.h"
 /*
  * BIO_put and BIO_get both add to the digest, BIO_gets returns the digest
  */
@@ -57,7 +57,7 @@ static int md_free(BIO * a)
 	if(!a)
 		return 0;
 	EVP_MD_CTX_free((EVP_MD_CTX*)BIO_get_data(a));
-	BIO_set_data(a, NULL);
+	BIO_set_data(a, 0);
 	BIO_set_init(a, 0);
 	return 1;
 }
@@ -67,11 +67,11 @@ static int md_read(BIO * b, char * out, int outl)
 	int ret = 0;
 	EVP_MD_CTX * ctx;
 	BIO * next;
-	if(out == NULL)
+	if(!out)
 		return 0;
 	ctx = (EVP_MD_CTX*)BIO_get_data(b);
 	next = BIO_next(b);
-	if((ctx == NULL) || (next == NULL))
+	if(!ctx || (next == NULL))
 		return 0;
 	ret = BIO_read(next, out, outl);
 	if(BIO_get_init(b)) {
@@ -90,7 +90,7 @@ static int md_write(BIO * b, const char * in, int inl)
 	int ret = 0;
 	EVP_MD_CTX * ctx;
 	BIO * next;
-	if((in == NULL) || (inl <= 0))
+	if(!in || (inl <= 0))
 		return 0;
 	ctx = (EVP_MD_CTX*)BIO_get_data(b);
 	next = BIO_next(b);
@@ -123,7 +123,7 @@ static long md_ctrl(BIO * b, int cmd, long num, void * ptr)
 	switch(cmd) {
 		case BIO_CTRL_RESET:
 		    if(BIO_get_init(b))
-			    ret = EVP_DigestInit_ex(ctx, ctx->digest, NULL);
+			    ret = EVP_DigestInit_ex(ctx, ctx->digest, 0);
 		    else
 			    ret = 0;
 		    if(ret > 0)
@@ -156,7 +156,7 @@ static long md_ctrl(BIO * b, int cmd, long num, void * ptr)
 
 		case BIO_C_SET_MD:
 		    md = (EVP_MD*)ptr;
-		    ret = EVP_DigestInit_ex(ctx, md, NULL);
+		    ret = EVP_DigestInit_ex(ctx, md, 0);
 		    if(ret > 0)
 			    BIO_set_init(b, 1);
 		    break;
@@ -178,7 +178,7 @@ static long md_callback_ctrl(BIO * b, int cmd, bio_info_cb * fp)
 {
 	long ret = 1;
 	BIO * next = BIO_next(b);
-	if(next == NULL)
+	if(!next)
 		return 0;
 	switch(cmd) {
 		default:

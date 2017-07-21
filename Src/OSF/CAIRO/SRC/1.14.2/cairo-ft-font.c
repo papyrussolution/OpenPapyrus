@@ -411,7 +411,7 @@ static cairo_status_t _cairo_ft_unscaled_font_init(cairo_ft_unscaled_font_t * un
 		if(unlikely(filename_copy == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
-		_cairo_ft_unscaled_font_init_key(unscaled, FALSE, filename_copy, id, NULL);
+		_cairo_ft_unscaled_font_init_key(unscaled, FALSE, filename_copy, id, 0);
 	}
 
 	unscaled->have_scale = FALSE;
@@ -740,7 +740,7 @@ static cairo_status_t _compute_transform(cairo_ft_font_transform_t * sf,
 	_cairo_matrix_get_affine(&normalized,
 	    &sf->shape[0][0], &sf->shape[0][1],
 	    &sf->shape[1][0], &sf->shape[1][1],
-	    NULL, NULL);
+	    NULL, 0);
 
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -775,7 +775,7 @@ static cairo_status_t _cairo_ft_unscaled_font_set_scale(cairo_ft_unscaled_font_t
 	unscaled->have_shape = (mat.xx != 0x10000 || mat.yx != 0x00000 || mat.xy != 0x00000 || mat.yy != 0x10000);
 	unscaled->Current_Shape = mat;
 	cairo_matrix_init(&unscaled->current_shape, sf.shape[0][0], sf.shape[0][1], sf.shape[1][0], sf.shape[1][1], 0.0, 0.0);
-	FT_Set_Transform(unscaled->face, &mat, NULL);
+	FT_Set_Transform(unscaled->face, &mat, 0);
 	error = FT_Set_Char_Size(unscaled->face, sf.x_scale * 64.0 + .5, sf.y_scale * 64.0 + .5, 0, 0);
 	if(error)
 		return _cairo_error(_ft_to_cairo_error(error));
@@ -2983,7 +2983,7 @@ static cairo_font_face_t * _cairo_ft_resolve_pattern(FcPattern                  
 	    font_matrix,
 	    &scale);
 
-	status = _compute_transform(&sf, &scale, NULL);
+	status = _compute_transform(&sf, &scale, 0);
 	if(unlikely(status))
 		return (cairo_font_face_t*)&_cairo_font_face_nil;
 

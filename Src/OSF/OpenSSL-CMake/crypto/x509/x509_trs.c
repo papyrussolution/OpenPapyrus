@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/x509v3.h>
-#include "internal/x509_int.h"
+//#include "internal/x509_int.h"
 
 static int tr_cmp(const X509_TRUST * const * a, const X509_TRUST * const * b);
 static void trtable_free(X509_TRUST * p);

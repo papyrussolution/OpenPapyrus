@@ -74,7 +74,7 @@ struct timeval curlx_tvnow(void)
 	*/
 #ifdef HAVE_GETTIMEOFDAY
 	else
-		(void)gettimeofday(&now, NULL);
+		(void)gettimeofday(&now, 0);
 #else
 	else {
 		now.tv_sec = (long)time(NULL);
@@ -95,7 +95,7 @@ struct timeval curlx_tvnow(void)
 	*/
 	struct timeval now;
 
-	(void)gettimeofday(&now, NULL);
+	(void)gettimeofday(&now, 0);
 	return now;
 }
 

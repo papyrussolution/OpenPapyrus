@@ -482,7 +482,7 @@ static cairo_surface_t * _create_scratch_internal(cairo_gl_context_t * ctx,
 	}
 
 	glTexImage2D(ctx->tex_target, 0, format, width, height, 0,
-	    format, GL_UNSIGNED_BYTE, NULL);
+	    format, GL_UNSIGNED_BYTE, 0);
 
 	return &surface->base;
 }

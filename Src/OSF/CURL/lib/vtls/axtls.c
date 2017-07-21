@@ -211,7 +211,7 @@ static CURLcode connect_prep(struct connectdata * conn, int sockindex)
 		/* Instead of trying to analyze cert type here, let axTLS try them all. */
 		while(cert_types[i] != 0) {
 			ssl_fcn_return = ssl_obj_load(ssl_ctx, cert_types[i],
-			    SSL_SET_OPTION(cert), NULL);
+			    SSL_SET_OPTION(cert), 0);
 			if(ssl_fcn_return == SSL_OK) {
 				infof(data, "successfully read cert file %s \n", SSL_SET_OPTION(cert));
 				break;
@@ -232,7 +232,7 @@ static CURLcode connect_prep(struct connectdata * conn, int sockindex)
 		i = 0;
 		/* Instead of trying to analyze key type here, let axTLS try them all. */
 		while(key_types[i] != 0) {
-			ssl_fcn_return = ssl_obj_load(ssl_ctx, key_types[i], SSL_SET_OPTION(key), NULL);
+			ssl_fcn_return = ssl_obj_load(ssl_ctx, key_types[i], SSL_SET_OPTION(key), 0);
 			if(ssl_fcn_return == SSL_OK) {
 				infof(data, "successfully read key file %s \n", SSL_SET_OPTION(key));
 				break;
@@ -260,12 +260,12 @@ static CURLcode connect_prep(struct connectdata * conn, int sockindex)
 		if(!Curl_ssl_getsessionid(conn, (void**)&ssl_sessionid, &ssl_idsize, sockindex)) {
 			/* we got a session id, use it! */
 			infof(data, "SSL re-using session ID\n");
-			ssl = ssl_client_new(ssl_ctx, conn->sock[sockindex], ssl_sessionid, (uint8_t)ssl_idsize, NULL);
+			ssl = ssl_client_new(ssl_ctx, conn->sock[sockindex], ssl_sessionid, (uint8_t)ssl_idsize, 0);
 		}
 		Curl_ssl_sessionid_unlock(conn);
 	}
 	if(!ssl)
-		ssl = ssl_client_new(ssl_ctx, conn->sock[sockindex], NULL, 0, NULL);
+		ssl = ssl_client_new(ssl_ctx, conn->sock[sockindex], NULL, 0, 0);
 	conn->ssl[sockindex].ssl = ssl;
 	return CURLE_OK;
 }
@@ -416,7 +416,7 @@ CURLcode Curl_axtls_connect_nonblocking(struct connectdata * conn,
 			   fact that axtls does not expose any knowledge about when work needs
 			   to be performed. This can save ~25% of time on SSL handshakes. */
 			for(i = 0; i<5; i++) {
-				ssl_fcn_return = ssl_read(conn->ssl[sockindex].ssl, NULL);
+				ssl_fcn_return = ssl_read(conn->ssl[sockindex].ssl, 0);
 				if(ssl_fcn_return < 0) {
 					Curl_axtls_close(conn, sockindex);
 					ssl_display_error(ssl_fcn_return); /* goes to stdout. */
@@ -480,7 +480,7 @@ CURLcode Curl_axtls_connect(struct connectdata * conn,
 			return CURLE_OPERATION_TIMEDOUT;
 		}
 
-		ssl_fcn_return = ssl_read(ssl, NULL);
+		ssl_fcn_return = ssl_read(ssl, 0);
 		if(ssl_fcn_return < 0) {
 			Curl_axtls_close(conn, sockindex);
 			ssl_display_error(ssl_fcn_return); /* goes to stdout. */

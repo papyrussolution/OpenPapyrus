@@ -186,7 +186,7 @@ MSG_PROCESS_RETURN tls_process_change_cipher_spec(SSL * s, PACKET * pkt)
 		 * SCTP-Auth can be deleted when a CCS is sent. Will be ignored if no
 		 * SCTP is used
 		 */
-		BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_AUTH_CCS_RCVD, 1, NULL);
+		BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_AUTH_CCS_RCVD, 1, 0);
 #endif
 	}
 
@@ -624,7 +624,7 @@ int ssl_allow_compression(SSL * s)
 {
 	if(s->options & SSL_OP_NO_COMPRESSION)
 		return 0;
-	return ssl_security(s, SSL_SECOP_COMPRESSION, 0, 0, NULL);
+	return ssl_security(s, SSL_SECOP_COMPRESSION, 0, 0, 0);
 }
 
 static int version_cmp(const SSL * s, int a, int b)

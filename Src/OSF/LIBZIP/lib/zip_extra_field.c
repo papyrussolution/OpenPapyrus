@@ -151,7 +151,7 @@ zip_extra_field_t * _zip_ef_new(uint16 id, uint16 size, const uint8 * data, zip_
 		ef->id = id;
 		ef->size = size;
 		if(size > 0) {
-			ef->data = (uint8*)_zip_memdup(data, size, NULL);
+			ef->data = (uint8*)_zip_memdup(data, size, 0);
 			if(!ef->data) {
 				ZFREE(ef);
 			}

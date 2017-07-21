@@ -21,7 +21,7 @@ int __db_util_logset(const char * progname, char * fname)
 	if((fp = fopen(fname, "w")) == NULL)
 		goto err;
 	_time64(&now);
-	__os_id(NULL, &pid, NULL);
+	__os_id(NULL, &pid, 0);
 	fprintf(fp, "%s: %lu %s", progname, (ulong)pid, __os_ctime(&now, time_buf));
 	if(fclose(fp) == EOF)
 		goto err;

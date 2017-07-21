@@ -844,7 +844,7 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 
 #ifdef HAS_OCSP
 	if(SSL_CONN_CONFIG(verifystatus)) {
-		rc = gnutls_ocsp_status_request_enable_client(session, NULL, 0, NULL);
+		rc = gnutls_ocsp_status_request_enable_client(session, NULL, 0, 0);
 		if(rc != GNUTLS_E_SUCCESS) {
 			failf(data, "gnutls_ocsp_status_request_enable_client() failed: %d", rc);
 			return CURLE_SSL_CONNECT_ERROR;
@@ -1219,7 +1219,7 @@ static CURLcode gtls_connect_step3(struct connectdata * conn,
 			for(i = 0;; i++) {
 				certaddrlen = sizeof(certaddr);
 				ret = gnutls_x509_crt_get_subject_alt_name(x509_cert, i, certaddr,
-				    &certaddrlen, NULL);
+				    &certaddrlen, 0);
 				/* If this happens, it wasn't an IP address. */
 				if(ret == GNUTLS_E_SHORT_MEMORY_BUFFER)
 					continue;

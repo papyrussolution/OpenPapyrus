@@ -240,25 +240,16 @@ static void cairo_gl_shader_emit_variable(cairo_output_stream_t * stream,
 		case CAIRO_GL_VAR_NONE:
 		    break;
 		case CAIRO_GL_VAR_TEXCOORDS:
-		    _cairo_output_stream_printf(stream,
-		    "attribute vec4 MultiTexCoord%d;\n"
-		    "varying vec2 %s_texcoords;\n",
-		    name,
-		    operand_names[name]);
+		    _cairo_output_stream_printf(stream, "attribute vec4 MultiTexCoord%d;\nvarying vec2 %s_texcoords;\n", name, operand_names[name]);
 		    break;
 		case CAIRO_GL_VAR_TEXGEN:
-		    _cairo_output_stream_printf(stream,
-		    "uniform mat3 %s_texgen;\n"
-		    "varying vec2 %s_texcoords;\n",
-		    operand_names[name],
+		    _cairo_output_stream_printf(stream, "uniform mat3 %s_texgen;\nvarying vec2 %s_texcoords;\n", operand_names[name],
 		    operand_names[name]);
 		    break;
 	}
 }
 
-static void cairo_gl_shader_emit_vertex(cairo_output_stream_t * stream,
-    cairo_gl_var_type_t type,
-    cairo_gl_tex_t name)
+static void cairo_gl_shader_emit_vertex(cairo_output_stream_t * stream, cairo_gl_var_type_t type, cairo_gl_tex_t name)
 {
 	switch(type) {
 		default:
@@ -266,15 +257,10 @@ static void cairo_gl_shader_emit_vertex(cairo_output_stream_t * stream,
 		case CAIRO_GL_VAR_NONE:
 		    break;
 		case CAIRO_GL_VAR_TEXCOORDS:
-		    _cairo_output_stream_printf(stream,
-		    "    %s_texcoords = MultiTexCoord%d.xy;\n",
-		    operand_names[name], name);
+		    _cairo_output_stream_printf(stream, "    %s_texcoords = MultiTexCoord%d.xy;\n", operand_names[name], name);
 		    break;
-
 		case CAIRO_GL_VAR_TEXGEN:
-		    _cairo_output_stream_printf(stream,
-		    "    %s_texcoords = (%s_texgen * Vertex.xyw).xy;\n",
-		    operand_names[name], operand_names[name]);
+		    _cairo_output_stream_printf(stream, "    %s_texcoords = (%s_texgen * Vertex.xyw).xy;\n", operand_names[name], operand_names[name]);
 		    break;
 	}
 }

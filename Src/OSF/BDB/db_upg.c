@@ -29,8 +29,8 @@ int __db_upgrade_pp(DB * dbp, const char * fname, uint32 flags)
 	ENV_LEAVE(env, ip);
 	return ret;
 #else
-	COMPQUIET(dbp, NULL);
-	COMPQUIET(fname, NULL);
+	COMPQUIET(dbp, 0);
+	COMPQUIET(fname, 0);
 	COMPQUIET(flags, 0);
 	__db_errx(dbp->env, DB_STR("0665", "upgrade not supported"));
 	return EINVAL;

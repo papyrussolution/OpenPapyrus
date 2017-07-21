@@ -75,8 +75,8 @@ err:
 	__os_free(env, bp);
 	return ret;
 #else
-	COMPQUIET(env, NULL);
-	COMPQUIET(fhp, NULL);
+	COMPQUIET(env, 0);
+	COMPQUIET(fhp, 0);
 	return 0;
 #endif /* HAVE_FILESYSTEM_NOTZERO */
 }

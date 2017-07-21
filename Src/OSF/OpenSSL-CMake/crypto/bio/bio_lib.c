@@ -319,12 +319,12 @@ long BIO_callback_ctrl(BIO * b, int cmd, void (* fp)(struct bio_st *, int, const
  */
 size_t BIO_ctrl_pending(BIO * bio)
 {
-	return BIO_ctrl(bio, BIO_CTRL_PENDING, 0, NULL);
+	return BIO_ctrl(bio, BIO_CTRL_PENDING, 0, 0);
 }
 
 size_t BIO_ctrl_wpending(BIO * bio)
 {
-	return BIO_ctrl(bio, BIO_CTRL_WPENDING, 0, NULL);
+	return BIO_ctrl(bio, BIO_CTRL_WPENDING, 0, 0);
 }
 
 /* put the 'bio' on the end of b's list of operators */

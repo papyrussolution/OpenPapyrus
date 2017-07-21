@@ -74,7 +74,7 @@ static void xmlEntitiesErrMemory(const char * extra)
  */
 static void xmlEntitiesErr(xmlParserErrors code, const char * msg)
 {
-	__xmlSimpleError(XML_FROM_TREE, code, NULL, msg, NULL);
+	__xmlSimpleError(XML_FROM_TREE, code, NULL, msg, 0);
 }
 
 /*
@@ -169,7 +169,7 @@ static xmlEntityPtr xmlAddEntity(xmlDtdPtr dtd, const xmlChar * name, int type,
 	xmlDictPtr dict = NULL;
 	xmlEntitiesTablePtr table = NULL;
 	if(name && dtd) {
-		if(dtd->doc != NULL)
+		if(dtd->doc)
 			dict = dtd->doc->dict;
 		switch(type) {
 			case XML_INTERNAL_GENERAL_ENTITY:
@@ -438,7 +438,7 @@ xmlEntityPtr xmlGetDocEntity(const xmlDoc * doc, const xmlChar * name)
 {
 	xmlEntityPtr cur;
 	xmlEntitiesTablePtr table;
-	if(doc != NULL) {
+	if(doc) {
 		if((doc->intSubset != NULL) && (doc->intSubset->entities != NULL)) {
 			table = (xmlEntitiesTablePtr)doc->intSubset->entities;
 			cur = xmlGetEntityFromTable(table, name);
@@ -493,7 +493,7 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDocPtr doc, const xmlChar * input,
 	int html = 0;
 	if(input == NULL) 
 		return 0;
-	if(doc != NULL)
+	if(doc)
 		html = (doc->type == XML_HTML_DOCUMENT_NODE);
 	/*
 	 * allocate an translation buffer.
@@ -511,7 +511,6 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDocPtr doc, const xmlChar * input,
 			growBufferReentrant();
 			out = &buffer[indx];
 		}
-
 		/*
 		 * By default one have to encode at least '<', '>', '"' and '&' !
 		 */
@@ -575,7 +574,7 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDocPtr doc, const xmlChar * input,
 			*out++ = *cur;
 		}
 		else if(*cur >= 0x80) {
-			if(((doc != NULL) && (doc->encoding != NULL)) || (html)) {
+			if((doc && (doc->encoding != NULL)) || (html)) {
 				/*
 				 * Bjørn Reese <br@sseusa.com> provided the patch
 				   xmlChar xc;
@@ -595,7 +594,7 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDocPtr doc, const xmlChar * input,
 				int val = 0, l = 1;
 				if(*cur < 0xC0) {
 					xmlEntitiesErr(XML_CHECK_NOT_UTF8, "xmlEncodeEntities: input not UTF-8");
-					if(doc != NULL)
+					if(doc)
 						doc->encoding = xmlStrdup(BAD_CAST "ISO-8859-1");
 					snprintf(buf, sizeof(buf), "&#%d;", *cur);
 					buf[sizeof(buf) - 1] = 0;
@@ -630,7 +629,7 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDocPtr doc, const xmlChar * input,
 				}
 				if((l == 1) || (!IS_CHAR(val))) {
 					xmlEntitiesErr(XML_ERR_INVALID_CHAR, "xmlEncodeEntities: char out of range\n");
-					if(doc != NULL)
+					if(doc)
 						doc->encoding = xmlStrdup(BAD_CAST "ISO-8859-1");
 					snprintf(buf, sizeof(buf), "&#%d;", *cur);
 					buf[sizeof(buf) - 1] = 0;

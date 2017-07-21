@@ -165,7 +165,7 @@ ASN1_ADB(X9_62_CHARACTERISTIC_TWO) = {
 	ADB_ENTRY(NID_X9_62_onBasis, ASN1_SIMPLE(X9_62_CHARACTERISTIC_TWO, p.onBasis, ASN1_NULL)),
 	ADB_ENTRY(NID_X9_62_tpBasis, ASN1_SIMPLE(X9_62_CHARACTERISTIC_TWO, p.tpBasis, ASN1_INTEGER)),
 	ADB_ENTRY(NID_X9_62_ppBasis, ASN1_SIMPLE(X9_62_CHARACTERISTIC_TWO, p.ppBasis, X9_62_PENTANOMIAL))
-} ASN1_ADB_END(X9_62_CHARACTERISTIC_TWO, 0, type, 0, &char_two_def_tt, NULL);
+} ASN1_ADB_END(X9_62_CHARACTERISTIC_TWO, 0, type, 0, &char_two_def_tt, 0);
 
 ASN1_SEQUENCE(X9_62_CHARACTERISTIC_TWO) = {
 	ASN1_SIMPLE(X9_62_CHARACTERISTIC_TWO, m, LONG),
@@ -181,7 +181,7 @@ ASN1_ADB_TEMPLATE(fieldID_def) = ASN1_SIMPLE(X9_62_FIELDID, p.other, ASN1_ANY);
 ASN1_ADB(X9_62_FIELDID) = {
 	ADB_ENTRY(NID_X9_62_prime_field, ASN1_SIMPLE(X9_62_FIELDID, p.prime, ASN1_INTEGER)),
 	ADB_ENTRY(NID_X9_62_characteristic_two_field, ASN1_SIMPLE(X9_62_FIELDID, p.char_two, X9_62_CHARACTERISTIC_TWO))
-} ASN1_ADB_END(X9_62_FIELDID, 0, fieldType, 0, &fieldID_def_tt, NULL);
+} ASN1_ADB_END(X9_62_FIELDID, 0, fieldType, 0, &fieldID_def_tt, 0);
 
 ASN1_SEQUENCE(X9_62_FIELDID) = {
 	ASN1_SIMPLE(X9_62_FIELDID, fieldType, ASN1_OBJECT),
@@ -266,7 +266,7 @@ static int ec_asn1_group2fieldid(const EC_GROUP * group, X9_62_FIELDID * field)
 			goto err;
 		}
 		/* set the prime number */
-		field->p.prime = BN_to_ASN1_INTEGER(tmp, NULL);
+		field->p.prime = BN_to_ASN1_INTEGER(tmp, 0);
 		if(field->p.prime == NULL) {
 			ECerr(EC_F_EC_ASN1_GROUP2FIELDID, ERR_R_ASN1_LIB);
 			goto err;
@@ -357,7 +357,7 @@ static int ec_asn1_group2fieldid(const EC_GROUP * group, X9_62_FIELDID * field)
 
 err:
 	BN_free(tmp);
-	return (ok);
+	return ok;
 }
 
 static int ec_asn1_group2curve(const EC_GROUP * group, X9_62_CURVE * curve)
@@ -465,7 +465,7 @@ err:
 	OPENSSL_free(buffer_2);
 	BN_free(tmp_1);
 	BN_free(tmp_2);
-	return (ok);
+	return ok;
 }
 
 ECPARAMETERS * EC_GROUP_get_ecparameters(const EC_GROUP * group,
@@ -510,7 +510,7 @@ ECPARAMETERS * EC_GROUP_get_ecparameters(const EC_GROUP * group,
 
 	form = EC_GROUP_get_point_conversion_form(group);
 
-	len = EC_POINT_point2buf(group, point, form, &buffer, NULL);
+	len = EC_POINT_point2buf(group, point, form, &buffer, 0);
 	if(len == 0) {
 		ECerr(EC_F_EC_GROUP_GET_ECPARAMETERS, ERR_R_EC_LIB);
 		goto err;
@@ -621,12 +621,12 @@ EC_GROUP * EC_GROUP_new_from_ecparameters(const ECPARAMETERS * params)
 		ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, EC_R_ASN1_ERROR);
 		goto err;
 	}
-	a = BN_bin2bn(params->curve->a->data, params->curve->a->length, NULL);
+	a = BN_bin2bn(params->curve->a->data, params->curve->a->length, 0);
 	if(!a) {
 		ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, ERR_R_BN_LIB);
 		goto err;
 	}
-	b = BN_bin2bn(params->curve->b->data, params->curve->b->length, NULL);
+	b = BN_bin2bn(params->curve->b->data, params->curve->b->length, 0);
 	if(b == NULL) {
 		ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, ERR_R_BN_LIB);
 		goto err;
@@ -723,7 +723,7 @@ EC_GROUP * EC_GROUP_new_from_ecparameters(const ECPARAMETERS * params)
 		}
 
 		/* create the EC_GROUP structure */
-		ret = EC_GROUP_new_curve_GF2m(p, a, b, NULL);
+		ret = EC_GROUP_new_curve_GF2m(p, a, b, 0);
 	}
 #endif
 	else if(tmp == NID_X9_62_prime_field) {
@@ -733,7 +733,7 @@ EC_GROUP * EC_GROUP_new_from_ecparameters(const ECPARAMETERS * params)
 			ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, EC_R_ASN1_ERROR);
 			goto err;
 		}
-		p = ASN1_INTEGER_to_BN(params->fieldID->p.prime, NULL);
+		p = ASN1_INTEGER_to_BN(params->fieldID->p.prime, 0);
 		if(!p) {
 			ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, ERR_R_ASN1_LIB);
 			goto err;
@@ -751,7 +751,7 @@ EC_GROUP * EC_GROUP_new_from_ecparameters(const ECPARAMETERS * params)
 		}
 
 		/* create the EC_GROUP structure */
-		ret = EC_GROUP_new_curve_GFp(p, a, b, NULL);
+		ret = EC_GROUP_new_curve_GFp(p, a, b, 0);
 	}
 	else {
 		ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, EC_R_INVALID_FIELD);
@@ -910,7 +910,7 @@ EC_GROUP * d2i_ECPKParameters(EC_GROUP ** a, const uchar ** in, long len)
 int i2d_ECPKParameters(const EC_GROUP * a, uchar ** out)
 {
 	int ret = 0;
-	ECPKPARAMETERS * tmp = EC_GROUP_get_ecpkparameters(a, NULL);
+	ECPKPARAMETERS * tmp = EC_GROUP_get_ecpkparameters(a, 0);
 	if(tmp == NULL) {
 		ECerr(EC_F_I2D_ECPKPARAMETERS, EC_R_GROUP2PKPARAMETERS_FAILURE);
 		return 0;
@@ -1055,7 +1055,7 @@ int i2d_ECPrivateKey(EC_KEY * a, uchar ** out)
 			goto err;
 		}
 
-		publen = EC_KEY_key2buf(a, a->conv_form, &pub, NULL);
+		publen = EC_KEY_key2buf(a, a->conv_form, &pub, 0);
 
 		if(publen == 0) {
 			ECerr(EC_F_I2D_ECPRIVATEKEY, ERR_R_EC_LIB);
@@ -1148,7 +1148,7 @@ int i2o_ECPublicKey(const EC_KEY * a, uchar ** out)
 		ECerr(EC_F_I2O_ECPUBLICKEY, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
-	buf_len = EC_POINT_point2oct(a->group, a->pub_key, a->conv_form, NULL, 0, NULL);
+	buf_len = EC_POINT_point2oct(a->group, a->pub_key, a->conv_form, NULL, 0, 0);
 	if(out == NULL || buf_len == 0)
 		/* out == NULL => just return the length of the octet string */
 		return buf_len;
@@ -1240,7 +1240,7 @@ int ECDSA_size(const EC_KEY * r)
 	/* If the top bit is set the asn1 encoding is 1 larger. */
 	buf[0] = 0xff;
 
-	i = i2d_ASN1_INTEGER(&bs, NULL);
+	i = i2d_ASN1_INTEGER(&bs, 0);
 	i += i;                 /* r and s */
 	ret = ASN1_object_size(1, i, V_ASN1_SEQUENCE);
 	return ret;

@@ -33,12 +33,12 @@ TToolbar::TToolbar(HWND hWnd, DWORD style)
 		::RegisterClassEx(&wc); // @unicodeproblem
 	}
 	H_Wnd = ::CreateWindowEx(WS_EX_TOOLWINDOW, "TOOLBAR_FOR_PPY", NULL, WS_CHILD|WS_CLIPSIBLINGS,
-		0, 0, 0, 0, hWnd, (HMENU)0, TProgram::GetInst(), NULL); // @unicodeproblem
+		0, 0, 0, 0, hWnd, (HMENU)0, TProgram::GetInst(), 0); // @unicodeproblem
 	//SetWindowLong(H_Wnd, GWLP_USERDATA, (long)this);
 	TView::SetWindowProp(H_Wnd, GWLP_USERDATA, this);
 	H_Toolbar = CreateWindowEx(WS_EX_TOOLWINDOW, TOOLBARCLASSNAME, (LPSTR) NULL,
 		WS_CHILD | TBSTYLE_TOOLTIPS | TBSTYLE_FLAT | CCS_NORESIZE | WS_CLIPSIBLINGS,
-		0, 0, 0, 0, H_Wnd, (HMENU)0, TProgram::GetInst(), NULL);
+		0, 0, 0, 0, H_Wnd, (HMENU)0, TProgram::GetInst(), 0);
 	//SetWindowLong(H_Toolbar, GWLP_USERDATA, (long)this);
 	TView::SetWindowProp(H_Toolbar, GWLP_USERDATA, this);
 	//PrevToolProc = (WNDPROC)SetWindowLong(H_Toolbar, GWLP_WNDPROC, (long)ToolbarProc);

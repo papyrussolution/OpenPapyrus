@@ -110,7 +110,7 @@ void ContractionState::InsertLine(int lineDoc)
 		heights->InsertSpace(lineDoc, 1);
 		heights->SetValueAt(lineDoc, 1);
 		foldDisplayTexts->InsertSpace(lineDoc, 1);
-		foldDisplayTexts->SetValueAt(lineDoc, NULL);
+		foldDisplayTexts->SetValueAt(lineDoc, 0);
 		int lineDisplay = DisplayFromDoc(lineDoc);
 		displayLines->InsertPartition(lineDoc, lineDisplay);
 		displayLines->InsertText(lineDoc, 1);

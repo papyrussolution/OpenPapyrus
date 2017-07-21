@@ -57,7 +57,7 @@ static void asn1_item_embed_free(ASN1_VALUE ** pval, const ASN1_ITEM * it, int e
 
 		case ASN1_ITYPE_CHOICE:
 		    if(asn1_cb) {
-			    i = asn1_cb(ASN1_OP_FREE_PRE, pval, it, NULL);
+			    i = asn1_cb(ASN1_OP_FREE_PRE, pval, it, 0);
 			    if(i == 2)
 				    return;
 		    }
@@ -70,7 +70,7 @@ static void asn1_item_embed_free(ASN1_VALUE ** pval, const ASN1_ITEM * it, int e
 			    asn1_template_free(pchval, tt);
 		    }
 		    if(asn1_cb)
-			    asn1_cb(ASN1_OP_FREE_POST, pval, it, NULL);
+			    asn1_cb(ASN1_OP_FREE_POST, pval, it, 0);
 		    if(embed == 0) {
 			    OPENSSL_free(*pval);
 			    *pval = NULL;
@@ -88,7 +88,7 @@ static void asn1_item_embed_free(ASN1_VALUE ** pval, const ASN1_ITEM * it, int e
 		    if(asn1_do_lock(pval, -1, it) != 0) /* if error or ref-counter > 0 */
 			    return;
 		    if(asn1_cb) {
-			    i = asn1_cb(ASN1_OP_FREE_PRE, pval, it, NULL);
+			    i = asn1_cb(ASN1_OP_FREE_PRE, pval, it, 0);
 			    if(i == 2)
 				    return;
 		    }
@@ -110,7 +110,7 @@ static void asn1_item_embed_free(ASN1_VALUE ** pval, const ASN1_ITEM * it, int e
 			    asn1_template_free(pseqval, seqtt);
 		    }
 		    if(asn1_cb)
-			    asn1_cb(ASN1_OP_FREE_POST, pval, it, NULL);
+			    asn1_cb(ASN1_OP_FREE_POST, pval, it, 0);
 		    if(embed == 0) {
 			    OPENSSL_free(*pval);
 			    *pval = NULL;

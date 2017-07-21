@@ -26,10 +26,10 @@ void PKCS12_get0_mac(const ASN1_OCTET_STRING ** pmac, const X509_ALGOR ** pmacal
 		ASSIGN_PTR(piter, p12->mac->iter);
 	}
 	else {
-		ASSIGN_PTR(pmac, NULL);
-		ASSIGN_PTR(pmacalg, NULL);
-		ASSIGN_PTR(psalt, NULL);
-		ASSIGN_PTR(piter, NULL);
+		ASSIGN_PTR(pmac, 0);
+		ASSIGN_PTR(pmacalg, 0);
+		ASSIGN_PTR(psalt, 0);
+		ASSIGN_PTR(piter, 0);
 	}
 }
 
@@ -81,7 +81,7 @@ static int pkcs12_gen_mac(PKCS12 * p12, const char * pass, int passlen,
 		iter = 1;
 	else
 		iter = ASN1_INTEGER_get(p12->mac->iter);
-	X509_SIG_get0(p12->mac->dinfo, &macalg, NULL);
+	X509_SIG_get0(p12->mac->dinfo, &macalg, 0);
 	X509_ALGOR_get0(&macoid, NULL, NULL, macalg);
 	if((md_type = EVP_get_digestbyobj(macoid)) == NULL) {
 		PKCS12err(PKCS12_F_PKCS12_GEN_MAC, PKCS12_R_UNKNOWN_DIGEST_ALGORITHM);
@@ -121,7 +121,7 @@ static int pkcs12_gen_mac(PKCS12 * p12, const char * pass, int passlen,
 
 int PKCS12_gen_mac(PKCS12 * p12, const char * pass, int passlen, uchar * mac, uint * maclen)
 {
-	return pkcs12_gen_mac(p12, pass, passlen, mac, maclen, NULL);
+	return pkcs12_gen_mac(p12, pass, passlen, mac, maclen, 0);
 }
 
 /* Verify the mac */
@@ -201,7 +201,7 @@ int PKCS12_setup_mac(PKCS12 * p12, int iter, uchar * salt, int saltlen, const EV
 	}
 	else
 		memcpy(p12->mac->salt->data, salt, saltlen);
-	X509_SIG_getm(p12->mac->dinfo, &macalg, NULL);
+	X509_SIG_getm(p12->mac->dinfo, &macalg, 0);
 	if(!X509_ALGOR_set0(macalg, OBJ_nid2obj(EVP_MD_type(md_type)), V_ASN1_NULL, NULL)) {
 		PKCS12err(PKCS12_F_PKCS12_SETUP_MAC, ERR_R_MALLOC_FAILURE);
 		return 0;

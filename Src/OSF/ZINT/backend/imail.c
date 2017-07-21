@@ -54,7 +54,7 @@ static const short BCD[40] = {
 
 /* The following lookup tables were generated using the code in Appendix C */
 
-static const unsigned short AppxD_I[1287] = {
+static const ushort AppxD_I[1287] = {
 	/* Appendix D Table 1 - 5 of 13 characters */
 	0x001F, 0x1F00, 0x002F, 0x1E80, 0x0037, 0x1D80, 0x003B, 0x1B80, 0x003D, 0x1780,
 	0x003E, 0x0F80, 0x004F, 0x1E40, 0x0057, 0x1D40, 0x005B, 0x1B40, 0x005D, 0x1740,
@@ -187,7 +187,7 @@ static const unsigned short AppxD_I[1287] = {
 	0x08E2, 0x064C, 0x0554, 0x04E4, 0x0358, 0x02E8, 0x01F0
 };
 
-static const unsigned short AppxD_II[78] = {
+static const ushort AppxD_II[78] = {
 	/* Appendix D Table II - 2 of 13 characters */
 	0x0003, 0x1800, 0x0005, 0x1400, 0x0006, 0x0C00, 0x0009, 0x1200, 0x000A, 0x0A00,
 	0x000C, 0x0600, 0x0011, 0x1100, 0x0012, 0x0900, 0x0014, 0x0500, 0x0018, 0x0300,
@@ -218,13 +218,13 @@ static const int AppxD_IV[130] = {
 **   hold data and must be set to zero.
 **
 ** Outputs:
-**   return unsigned short - 11 bit Frame Check Sequence (right justified)
+**   return ushort - 11 bit Frame Check Sequence (right justified)
 ***************************************************************************/
-extern unsigned short USPS_MSB_Math_CRC11GenerateFrameCheckSequence(uchar * ByteArrayPtr)
+extern ushort USPS_MSB_Math_CRC11GenerateFrameCheckSequence(uchar * ByteArrayPtr)
 {
-	unsigned short GeneratorPolynomial = 0x0F35;
-	unsigned short FrameCheckSequence = 0x07FF;
-	unsigned short Data;
+	ushort GeneratorPolynomial = 0x0F35;
+	ushort FrameCheckSequence = 0x07FF;
+	ushort Data;
 	int ByteIndex, Bit;
 
 	/* Do most significant byte skipping the 2 most significant bits */
@@ -265,9 +265,9 @@ int imail(struct ZintSymbol * symbol, uchar source[], int length)
 	char   zip[35], tracker[35], zip_adder[11], temp[2];
 	short accum[112], x_reg[112], y_reg[112];
 	uchar byte_array[13];
-	unsigned short usps_crc;
+	ushort usps_crc;
 	int    codeword[10];
-	unsigned short characters[10];
+	ushort characters[10];
 	short bar_map[130];
 	int    error_number = 0;
 	if(length > 32) {

@@ -32,12 +32,10 @@ using namespace Scintilla;
 namespace {
 // Use an unnamed namespace to protect the functions and classes from name conflicts
 
-bool IsSpaceEquiv(int state)
+static bool FASTCALL IsSpaceEquiv(int state)
 {
-	return (state <= SCE_C_COMMENTDOC) ||
-	       // including SCE_C_DEFAULT, SCE_C_COMMENT, SCE_C_COMMENTLINE
-	       (state == SCE_C_COMMENTLINEDOC) || (state == SCE_C_COMMENTDOCKEYWORD) ||
-	       (state == SCE_C_COMMENTDOCKEYWORDERROR);
+	// including SCE_C_DEFAULT, SCE_C_COMMENT, SCE_C_COMMENTLINE
+	return (state <= SCE_C_COMMENTDOC) || oneof3(state, SCE_C_COMMENTLINEDOC, SCE_C_COMMENTDOCKEYWORD, SCE_C_COMMENTDOCKEYWORDERROR);
 }
 
 // Preconditions: sc.currentPos points to a character after '+' or '-'.
@@ -226,12 +224,9 @@ std::string GetRestOfLine(LexAccessor &styler, Sci_Position start, bool allowSpa
 	return restOfLine;
 }
 
-bool IsStreamCommentStyle(int style)
+static bool FASTCALL IsStreamCommentStyle(int style)
 {
-	return style == SCE_C_COMMENT ||
-	       style == SCE_C_COMMENTDOC ||
-	       style == SCE_C_COMMENTDOCKEYWORD ||
-	       style == SCE_C_COMMENTDOCKEYWORDERROR;
+	return oneof4(style, SCE_C_COMMENT, SCE_C_COMMENTDOC, SCE_C_COMMENTDOCKEYWORD, SCE_C_COMMENTDOCKEYWORDERROR);
 }
 
 struct PPDefinition {

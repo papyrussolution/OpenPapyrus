@@ -21,7 +21,7 @@ int RSA_padding_add_none(uchar * to, int tlen, const uchar * from, int flen)
 		return 0;
 	}
 	memcpy(to, from, (uint)flen);
-	return (1);
+	return 1;
 }
 
 int RSA_padding_check_none(uchar * to, int tlen, const uchar * from, int flen, int num)

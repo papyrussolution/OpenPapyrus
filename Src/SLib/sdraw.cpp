@@ -2499,19 +2499,19 @@ struct PngSupport {
 	{
 		SFile * p_file = (SFile *)png_get_io_ptr(pPng);
 		if(!p_file || !p_file->ReadV(pData, length))
-			png_error(pPng, NULL);
+			png_error(pPng, 0);
 	}
 	static void PNGAPI WriteFunc(png_structp pPng, png_bytep pData, size_t length)
 	{
 		SFile * p_file = (SFile *)png_get_io_ptr(pPng);
 		if(!p_file || !p_file->Write(pData, length))
-			png_error(pPng, NULL);
+			png_error(pPng, 0);
 	}
 	static void PNGAPI FlushFunc(png_structp pPng)
 	{
 		SFile * p_file = (SFile *)png_get_io_ptr(pPng);
 		if(!p_file || !p_file->Flush())
-			png_error(pPng, NULL);
+			png_error(pPng, 0);
 	}
 	static void UnpremultiplyDataFunc(png_structp png, png_row_infop row_info, png_bytep data)
 	{

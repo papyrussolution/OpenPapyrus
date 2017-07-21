@@ -367,7 +367,7 @@ cairo_status_t _cairo_spline_bound(cairo_spline_add_point_func_t add_point_func,
 	c = -y0 + y1;
 	FIND_EXTREMES(a, b, c);
 
-	status = add_point_func(closure, p0, NULL);
+	status = add_point_func(closure, p0, 0);
 	if(unlikely(status))
 		return status;
 
@@ -401,11 +401,11 @@ cairo_status_t _cairo_spline_bound(cairo_spline_add_point_func_t add_point_func,
 
 		p.x = _cairo_fixed_from_double(x);
 		p.y = _cairo_fixed_from_double(y);
-		status = add_point_func(closure, &p, NULL);
+		status = add_point_func(closure, &p, 0);
 		if(unlikely(status))
 			return status;
 	}
 
-	return add_point_func(closure, p3, NULL);
+	return add_point_func(closure, p3, 0);
 }
 

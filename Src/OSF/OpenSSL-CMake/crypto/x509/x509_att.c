@@ -133,7 +133,7 @@ void * X509at_get0_data_by_OBJ(STACK_OF(X509_ATTRIBUTE) * x, const ASN1_OBJECT *
 	at = X509at_get_attr(x, i);
 	if(lastpos <= -3 && (X509_ATTRIBUTE_count(at) != 1))
 		return NULL;
-	return X509_ATTRIBUTE_get0_data(at, 0, type, NULL);
+	return X509_ATTRIBUTE_get0_data(at, 0, type, 0);
 }
 
 X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_NID(X509_ATTRIBUTE ** attr, int nid, int atrtype, const void * data, int len)

@@ -59,7 +59,7 @@ static int dl_load(DSO * dso)
 	 * DSO's if it has the callback set) best translation of the
 	 * platform-independent filename and try once with that.
 	 */
-	char * filename = DSO_convert_filename(dso, NULL);
+	char * filename = DSO_convert_filename(dso, 0);
 
 	if(filename == NULL) {
 		DSOerr(DSO_F_DL_LOAD, DSO_R_NO_FILENAME);
@@ -84,7 +84,7 @@ static int dl_load(DSO * dso)
 	 * (it also serves as the indicator that we are currently loaded).
 	 */
 	dso->loaded_filename = filename;
-	return (1);
+	return 1;
 err:
 	/* Cleanup! */
 	OPENSSL_free(filename);
@@ -101,7 +101,7 @@ static int dl_unload(DSO * dso)
 		return 0;
 	}
 	if(sk_num(dso->meth_data) < 1)
-		return (1);
+		return 1;
 	/* Is this statement legal? */
 	ptr = (shl_t)sk_pop(dso->meth_data);
 	if(ptr == NULL) {
@@ -113,7 +113,7 @@ static int dl_unload(DSO * dso)
 		return 0;
 	}
 	shl_unload(ptr);
-	return (1);
+	return 1;
 }
 
 static DSO_FUNC_TYPE dl_bind_func(DSO * dso, const char * symname)

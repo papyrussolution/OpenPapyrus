@@ -110,7 +110,7 @@ int _zbar_processor_lock (zbar_processor_t *proc)
     }
 
     proc_waiter_t *waiter = proc_waiter_queue(proc);
-    _zbar_event_wait(&waiter->notify, &proc->mutex, NULL);
+    _zbar_event_wait(&waiter->notify, &proc->mutex, 0);
 
     assert(proc->lock_level == 1);
     assert(_zbar_thread_is_self(proc->lock_owner));
@@ -202,7 +202,7 @@ int _zbar_processor_wait (zbar_processor_t *proc, uint events, zbar_timer_t *tim
             assert(w == waiter);
         }
         else
-            _zbar_event_wait(&waiter->notify, &proc->mutex, NULL);
+            _zbar_event_wait(&waiter->notify, &proc->mutex, 0);
     }
     if(rc > 0 && (waiter->events & EVENT_CANCELED))
         rc = -1;

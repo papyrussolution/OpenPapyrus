@@ -35,7 +35,7 @@ ASN1_ADB(PKCS12_BAGS) = {
         ADB_ENTRY(NID_x509Certificate, ASN1_EXP(PKCS12_BAGS, value.x509cert, ASN1_OCTET_STRING, 0)),
         ADB_ENTRY(NID_x509Crl, ASN1_EXP(PKCS12_BAGS, value.x509crl, ASN1_OCTET_STRING, 0)),
         ADB_ENTRY(NID_sdsiCertificate, ASN1_EXP(PKCS12_BAGS, value.sdsicert, ASN1_IA5STRING, 0)),
-} ASN1_ADB_END(PKCS12_BAGS, 0, type, 0, &bag_default_tt, NULL);
+} ASN1_ADB_END(PKCS12_BAGS, 0, type, 0, &bag_default_tt, 0);
 
 ASN1_SEQUENCE(PKCS12_BAGS) = {
         ASN1_SIMPLE(PKCS12_BAGS, type, ASN1_OBJECT),
@@ -53,7 +53,7 @@ ASN1_ADB(PKCS12_SAFEBAG) = {
         ADB_ENTRY(NID_certBag, ASN1_EXP(PKCS12_SAFEBAG, value.bag, PKCS12_BAGS, 0)),
         ADB_ENTRY(NID_crlBag, ASN1_EXP(PKCS12_SAFEBAG, value.bag, PKCS12_BAGS, 0)),
         ADB_ENTRY(NID_secretBag, ASN1_EXP(PKCS12_SAFEBAG, value.bag, PKCS12_BAGS, 0))
-} ASN1_ADB_END(PKCS12_SAFEBAG, 0, type, 0, &safebag_default_tt, NULL);
+} ASN1_ADB_END(PKCS12_SAFEBAG, 0, type, 0, &safebag_default_tt, 0);
 
 ASN1_SEQUENCE(PKCS12_SAFEBAG) = {
         ASN1_SIMPLE(PKCS12_SAFEBAG, type, ASN1_OBJECT),

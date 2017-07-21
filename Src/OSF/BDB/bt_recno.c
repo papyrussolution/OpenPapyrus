@@ -94,7 +94,7 @@ int __ram_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, d
 	BTREE * t;
 	DBC * dbc;
 	int ret, t_ret;
-	COMPQUIET(name, NULL);
+	COMPQUIET(name, 0);
 	t = (BTREE *)dbp->bt_internal;
 	/* Start up the tree. */
 	if((ret = __bam_read_root(dbp, ip, txn, base_pgno, flags)) != 0)
@@ -301,7 +301,7 @@ int __ramc_get(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t * pgnop
 	BTREE_CURSOR * cp;
 	DB * dbp;
 	int cmp, exact, ret;
-	COMPQUIET(pgnop, NULL);
+	COMPQUIET(pgnop, 0);
 	dbp = dbc->dbp;
 	cp = (BTREE_CURSOR *)dbc->internal;
 	LF_CLR(DB_MULTIPLE|DB_MULTIPLE_KEY);
@@ -529,7 +529,7 @@ int __ramc_put(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t * pgnop
 	uint32 iiflags;
 	int exact, nc, ret, t_ret;
 	void * arg;
-	COMPQUIET(pgnop, NULL);
+	COMPQUIET(pgnop, 0);
 	dbp = dbc->dbp;
 	env = dbp->env;
 	cp = (BTREE_CURSOR *)dbc->internal;
@@ -659,8 +659,8 @@ err:
 static int __ram_ca_getorder(DBC * dbc, DBC * my_dbc, uint32 * orderp, db_pgno_t root_pgno, uint32 recno, void * args)
 {
 	BTREE_CURSOR * cp;
-	COMPQUIET(my_dbc, NULL);
-	COMPQUIET(args, NULL);
+	COMPQUIET(my_dbc, 0);
+	COMPQUIET(args, 0);
 	cp = (BTREE_CURSOR *)dbc->internal;
 	if(root_pgno == BAM_ROOT_PGNO(dbc) && recno == cp->recno && CD_ISSET(cp) && *orderp <= cp->order && !MVCC_SKIP_CURADJ(dbc, BAM_ROOT_PGNO(dbc)))
 		*orderp = cp->order;

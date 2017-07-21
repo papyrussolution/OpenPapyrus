@@ -36,7 +36,7 @@ static int __bam_ca_undosplit_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void 
  */
 static int __bam_ca_delete_func(DBC * dbc, DBC * my_dbc, uint32 * countp, db_pgno_t pgno, uint32 indx, void * args)
 {
-	COMPQUIET(my_dbc, NULL);
+	COMPQUIET(my_dbc, 0);
 	uint32 del = *(uint32 *)args;
 	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
 	if(cp->pgno == pgno && cp->indx == indx && !MVCC_SKIP_CURADJ(dbc, pgno)) {
@@ -111,8 +111,8 @@ int __bam_ca_delete(DB * dbp, db_pgno_t pgno, uint32 indx, int del, uint32 * cou
 static int __ram_ca_delete_func(DBC*dbc, DBC*my_dbc, uint32 * countp, db_pgno_t root_pgno, uint32 indx, void * args)
 {
 	COMPQUIET(indx, 0);
-	COMPQUIET(my_dbc, NULL);
-	COMPQUIET(args, NULL);
+	COMPQUIET(my_dbc, 0);
+	COMPQUIET(args, 0);
 	if(dbc->internal->root == root_pgno && !MVCC_SKIP_CURADJ(dbc, root_pgno)) {
 		(*countp)++;
 		return EEXIST;
@@ -239,7 +239,7 @@ static int __bam_ca_dup_func(DBC * dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t
 	DB * dbp;
 	int ret;
 	struct __bam_ca_dup_args * args;
-	COMPQUIET(my_dbc, NULL);
+	COMPQUIET(my_dbc, 0);
 	/*
 	 * Since we rescan the list see if this is already
 	 * converted.
@@ -292,8 +292,8 @@ static int __bam_ca_undodup_func(DBC * dbc, DBC * my_dbc, uint32 * countp, db_pg
 	DB * dbp;
 	int ret;
 	struct __bam_ca_dup_args * args;
-	COMPQUIET(my_dbc, NULL);
-	COMPQUIET(countp, NULL);
+	COMPQUIET(my_dbc, 0);
+	COMPQUIET(countp, 0);
 	orig_cp = (BTREE_CURSOR *)dbc->internal;
 	dbp = dbc->dbp;
 	args = (struct __bam_ca_dup_args *)vargs;
@@ -379,7 +379,7 @@ struct __bam_ca_split_args {
 
 static int __bam_ca_split_func(DBC*dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t ppgno, uint32 split_indx, void * vargs)
 {
-	COMPQUIET(my_dbc, NULL);
+	COMPQUIET(my_dbc, 0);
 	if(dbc->dbtype != DB_RECNO) {
 		DBC_INTERNAL * cp = dbc->internal;
 		struct __bam_ca_split_args * args = (struct __bam_ca_split_args *)vargs;
@@ -439,8 +439,8 @@ static int __bam_ca_undosplit_func(DBC * dbc, DBC * my_dbc, uint32 * foundp, db_
 {
 	DBC_INTERNAL * cp;
 	struct __bam_ca_split_args * args;
-	COMPQUIET(my_dbc, NULL);
-	COMPQUIET(foundp, NULL);
+	COMPQUIET(my_dbc, 0);
+	COMPQUIET(foundp, 0);
 	if(dbc->dbtype == DB_RECNO)
 		return 0;
 	cp = dbc->internal;

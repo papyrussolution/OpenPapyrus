@@ -188,7 +188,7 @@ int SLAPI SCS_AMC100::Exec(char * exc, char * hdr, char * bdy, char * ftr, uint 
 		ftr = 0;
 	}
 	l[1] = 0;
-	intptr_t ret = spawnlp(P_WAIT, exc, exc, l, hdr, bdy, ftr, NULL);
+	intptr_t ret = spawnlp(P_WAIT, exc, exc, l, hdr, bdy, ftr, 0);
 	APPL->redraw();
 	return ret ? PPSetError(PPERR_CASHDEVPRINT) : 1;
 }
@@ -242,7 +242,7 @@ int SLAPI SCS_AMC100::ExecKLD(int param, int forceRedraw)
 	MakeExecFileName(strcpy(exc, "OUT_KLD"), 0);
 	l[0] = param;
 	l[1] = 0;
-	intptr_t r = spawnlp(P_WAIT, exc, exc, l, NULL);
+	intptr_t r = spawnlp(P_WAIT, exc, exc, l, 0);
 	if(forceRedraw)
 		APPL->redraw();
 	return (r == 0);
@@ -420,7 +420,7 @@ int SLAPI SCS_AMC200::Exec(char * exc, int cmd, char * hdr, char * bdy, char * f
 	itoa(Handle, port_str, 10);
 	l[0] = cmd;
 	l[1] = 0;
-	intptr_t ret = spawnlp(P_WAIT, exc, exc, port_str, l, hdr, bdy, ftr, NULL);
+	intptr_t ret = spawnlp(P_WAIT, exc, exc, port_str, l, hdr, bdy, ftr, 0);
 	APPL->redraw();
 	return ret ? PPSetError(PPERR_CASHDEVPRINT) : 1;
 }

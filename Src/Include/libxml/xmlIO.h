@@ -189,7 +189,7 @@ XMLPUBFUN int XMLCALL xmlOutputBufferWriteEscape(xmlOutputBufferPtr out, const x
 XMLPUBFUN int XMLCALL xmlOutputBufferFlush(xmlOutputBufferPtr out);
 XMLPUBFUN int XMLCALL xmlOutputBufferClose(xmlOutputBufferPtr out);
 XMLPUBFUN int XMLCALL xmlRegisterOutputCallbacks(xmlOutputMatchCallback matchFunc, xmlOutputOpenCallback openFunc, xmlOutputWriteCallback writeFunc, xmlOutputCloseCallback closeFunc);
-xmlOutputBufferPtr __xmlOutputBufferCreateFilename(const char *URI, xmlCharEncodingHandlerPtr encoder, int compression);
+xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char *URI, xmlCharEncodingHandlerPtr encoder, int compression);
 #ifdef LIBXML_HTTP_ENABLED
 /*  This function only exists if HTTP support built into the library  */
 XMLPUBFUN void XMLCALL xmlRegisterHTTPPostCallbacks	(void );

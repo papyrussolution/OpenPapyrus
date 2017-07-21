@@ -75,7 +75,7 @@ static void * _win32_strdup_a(const void * str)
 
 static HANDLE _win32_open_a(_zip_source_win32_read_file_t * ctx)
 {
-	return CreateFileA((LPCSTR)ctx->fname, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	return CreateFileA((LPCSTR)ctx->fname, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 }
 
 static HANDLE _win32_create_temp_a(_zip_source_win32_read_file_t * ctx, void ** temp, uint32 value, PSECURITY_ATTRIBUTES sa)
@@ -91,7 +91,7 @@ static HANDLE _win32_create_temp_a(_zip_source_win32_read_file_t * ctx, void ** 
 		return INVALID_HANDLE_VALUE;
 	}
 	return CreateFileA((const char*)*temp, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, sa, CREATE_NEW,
-	    FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_TEMPORARY, NULL);
+	    FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_TEMPORARY, 0);
 }
 
 static int _win32_rename_temp_a(_zip_source_win32_read_file_t * ctx)
@@ -582,7 +582,7 @@ static void * _win32_strdup_w(const void * str)
 
 static HANDLE _win32_open_w(_zip_source_win32_read_file_t * ctx)
 {
-	return CreateFileW((LPCWSTR)ctx->fname, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	return CreateFileW((LPCWSTR)ctx->fname, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 }
 
 static HANDLE _win32_create_temp_w(_zip_source_win32_read_file_t * ctx, void ** temp, uint32 value, PSECURITY_ATTRIBUTES sa)
@@ -598,7 +598,7 @@ static HANDLE _win32_create_temp_w(_zip_source_win32_read_file_t * ctx, void ** 
 		return INVALID_HANDLE_VALUE;
 	}
 	return CreateFileW((const wchar_t*)*temp, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ,
-	    sa, CREATE_NEW, FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_TEMPORARY, NULL);
+	    sa, CREATE_NEW, FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_TEMPORARY, 0);
 }
 
 static int _win32_rename_temp_w(_zip_source_win32_read_file_t * ctx)

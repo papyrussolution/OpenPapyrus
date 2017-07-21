@@ -16,7 +16,7 @@
 //#include <openssl/asn1t.h>
 //#include <openssl/x509v3.h>
 //#include <openssl/x509.h>
-#include "internal/x509_int.h"
+//#include "internal/x509_int.h"
 #include "ext_dat.h"
 
 #ifndef OPENSSL_NO_RFC3779
@@ -633,15 +633,8 @@ static int asid_contains(ASIdOrRanges * parent, ASIdOrRanges * child)
  */
 int X509v3_asid_subset(ASIdentifiers * a, ASIdentifiers * b)
 {
-	return (a == NULL ||
-	    a == b ||
-	    (b != NULL &&
-		    !X509v3_asid_inherits(a) &&
-		    !X509v3_asid_inherits(b) &&
-		    asid_contains(b->asnum->u.asIdsOrRanges,
-			    a->asnum->u.asIdsOrRanges) &&
-		    asid_contains(b->rdi->u.asIdsOrRanges,
-			    a->rdi->u.asIdsOrRanges)));
+	return (!a || a == b || (b && !X509v3_asid_inherits(a) &&
+		!X509v3_asid_inherits(b) && asid_contains(b->asnum->u.asIdsOrRanges, a->asnum->u.asIdsOrRanges) && asid_contains(b->rdi->u.asIdsOrRanges, a->rdi->u.asIdsOrRanges)));
 }
 
 /*
@@ -768,7 +761,7 @@ done:
  */
 int X509v3_asid_validate_path(X509_STORE_CTX * ctx)
 {
-	return asid_validate_path_internal(ctx, ctx->chain, NULL);
+	return asid_validate_path_internal(ctx, ctx->chain, 0);
 }
 /*
  * RFC 3779 3.3 path validation of an extension.

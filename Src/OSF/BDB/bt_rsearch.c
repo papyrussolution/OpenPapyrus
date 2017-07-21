@@ -397,7 +397,7 @@ int __bam_nrecs(DBC * dbc, db_recno_t * rep)
 	PAGE * h;
 	db_pgno_t pgno;
 	int ret, t_ret;
-	COMPQUIET(h, NULL);
+	COMPQUIET(h, 0);
 	dbp = dbc->dbp;
 	mpf = dbp->mpf;
 	LOCK_INIT(lock);

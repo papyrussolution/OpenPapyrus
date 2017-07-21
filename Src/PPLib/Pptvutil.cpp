@@ -126,7 +126,9 @@ void PPViewTextBrowser(const char * pFileName, const char * pTitle, int toolbarI
 		}
 		p_brw->setTitle(title_buf);
 	}
-	// p_brw->SetSpecialMode(STextBrowser::spcmSartrTest); // @v9.2.0 @debug
+#ifndef NDEBUG
+	p_brw->SetSpecialMode(STextBrowser::spcmSartrTest); // @v9.2.0 @debug
+#endif
 	InsertView(p_brw);
 }
 
@@ -6665,7 +6667,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 													if(GetWindowInfo(h_item, &wi_item)) {
 														// @v9.1.5 SendMessage(h_item, WM_GETTEXT, sizeof(text_buf), (long)text_buf);
 														TView::SGetWindowText(h_item, temp_buf); // @v9.1.5
-														(line_buf = 0).CatCharN('\t', 2).CatQStr(temp_buf);
+														(line_buf = 0).Tab(2).CatQStr(temp_buf);
 														_RectToLine(wi_item.rcWindow, line_buf.Space());
 														line_buf.Semicol().CR();
 														f_out.WriteLine(line_buf);

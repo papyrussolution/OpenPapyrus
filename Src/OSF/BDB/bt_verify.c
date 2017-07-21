@@ -1774,7 +1774,7 @@ int __bam_salvage(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, uint32 pgtype, PA
 		if((!LF_ISSET(DB_AGGRESSIVE) || pgtype == P_IBTREE) && i >= NUM_ENT(h))
 			break;
 		/* Verify the current item. */
-		t_ret = __db_vrfy_inpitem(dbp, h, pgno, i, 1, flags, &himark, NULL);
+		t_ret = __db_vrfy_inpitem(dbp, h, pgno, i, 1, flags, &himark, 0);
 		if(t_ret != 0) {
 			/*
 			 * If this is a btree leaf and we've printed out a key

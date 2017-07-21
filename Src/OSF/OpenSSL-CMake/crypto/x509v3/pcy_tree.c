@@ -664,7 +664,7 @@ int X509_policy_check(X509_POLICY_TREE ** ptree, int * pexplicit_policy,
 
 	ret = tree_evaluate(tree);
 #ifdef OPENSSL_POLICY_DEBUG
-	tree_print("tree_evaluate()", tree, NULL);
+	tree_print("tree_evaluate()", tree, 0);
 #endif
 	if(ret <= 0)
 		goto error;

@@ -715,8 +715,7 @@ int SLAPI PPObjStaffList::GetPostList(PPID staffID, PersonPostArray * pList)
 	k1.StaffID  = staffID;
 	THROW_INVARG(!pList || pList->getItemSize() == sizeof(P_PostTbl->data));
 	while(P_PostTbl->search(1, &k1, spGt) && k1.StaffID == staffID) {
-		if(pList)
-			pList->insert(&P_PostTbl->data);
+		CALLPTRMEMB(pList, insert(&P_PostTbl->data));
 		ok = 1;
 	}
 	THROW_DB(ok > 0 || BTROKORNFOUND);
@@ -1162,8 +1161,7 @@ int SLAPI PPObjStaffList::CreateFixedStaff(PPID * pID, PPID orgID, PPID divID, P
 int SLAPI PPObjStaffList::GetFixedPostList(PPID orgID, PPID fixID, PersonPostArray * pList)
 {
 	int    ok = -1;
-	if(pList)
-		pList->freeAll();
+	CALLPTRMEMB(pList, freeAll());
 	PPIDArray idlist;
 	GetFixedStaffList(orgID, fixID, &idlist);
 	if(idlist.getCount()) {

@@ -14,7 +14,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <internal/bio.h>
+//#include <internal/bio.h>
 
 /* Must be large enough for biggest tag+length */
 #define DEFAULT_ASN1_BUF_SIZE 20
@@ -35,23 +35,15 @@ typedef struct BIO_ASN1_EX_FUNCS_st {
 } BIO_ASN1_EX_FUNCS;
 
 typedef struct BIO_ASN1_BUF_CTX_t {
-	/* Internal state */
-	asn1_bio_state_t state;
-	/* Internal buffer */
-	uchar * buf;
-	/* Size of buffer */
-	int bufsize;
-	/* Current position in buffer */
-	int bufpos;
-	/* Current buffer length */
-	int buflen;
-	/* Amount of data to copy */
-	int copylen;
-	/* Class and tag to use */
-	int asn1_class, asn1_tag;
+	asn1_bio_state_t state; /* Internal state */
+	uchar * buf; /* Internal buffer */
+	int bufsize; /* Size of buffer */
+	int bufpos; /* Current position in buffer */
+	int buflen; /* Current buffer length */
+	int copylen; /* Amount of data to copy */
+	int asn1_class, asn1_tag; /* Class and tag to use */
 	asn1_ps_func * prefix, * prefix_free, * suffix, * suffix_free;
-	/* Extra buffer for prefix and suffix data */
-	uchar * ex_buf;
+	uchar * ex_buf; /* Extra buffer for prefix and suffix data */
 	int ex_len;
 	int ex_pos;
 	void * ex_arg;
@@ -128,7 +120,7 @@ static int asn1_bio_free(BIO * b)
 		return 0;
 	OPENSSL_free(ctx->buf);
 	OPENSSL_free(ctx);
-	BIO_set_data(b, NULL);
+	BIO_set_data(b, 0);
 	BIO_set_init(b, 0);
 	return 1;
 }
@@ -139,7 +131,7 @@ static int asn1_bio_write(BIO * b, const char * in, int inl)
 	uchar * p;
 	BIO_ASN1_BUF_CTX * ctx = (BIO_ASN1_BUF_CTX*)BIO_get_data(b);
 	BIO * next = BIO_next(b);
-	if(in == NULL || inl < 0 || ctx == NULL || next == NULL)
+	if(!in || inl < 0 || !ctx || !next)
 		return 0;
 	wrlen = 0;
 	ret = -1;
@@ -244,7 +236,7 @@ static int asn1_bio_setup_ex(BIO * b, BIO_ASN1_BUF_CTX * ctx,
 static int asn1_bio_read(BIO * b, char * in, int inl)
 {
 	BIO * next = BIO_next(b);
-	if(next == NULL)
+	if(!next)
 		return 0;
 	return BIO_read(next, in, inl);
 }
@@ -307,38 +299,32 @@ static long asn1_bio_ctrl(BIO * b, int cmd, long arg1, void * arg2)
 		case BIO_C_GET_EX_ARG:
 		    *(void**)arg2 = ctx->ex_arg;
 		    break;
-
 		case BIO_CTRL_FLUSH:
-		    if(next == NULL)
+		    if(!next)
 			    return 0;
-
 		    /* Call post function if possible */
 		    if(ctx->state == ASN1_STATE_HEADER) {
 			    if(!asn1_bio_setup_ex(b, ctx, ctx->suffix,
 				    ASN1_STATE_POST_COPY, ASN1_STATE_DONE))
 				    return 0;
 		    }
-
 		    if(ctx->state == ASN1_STATE_POST_COPY) {
 			    ret = asn1_bio_flush_ex(b, ctx, ctx->suffix_free,
 			    ASN1_STATE_DONE);
 			    if(ret <= 0)
 				    return ret;
 		    }
-
 		    if(ctx->state == ASN1_STATE_DONE)
 			    return BIO_ctrl(next, cmd, arg1, arg2);
 		    else {
 			    BIO_clear_retry_flags(b);
 			    return 0;
 		    }
-
 		default:
-		    if(next == NULL)
+		    if(!next)
 			    return 0;
 		    return BIO_ctrl(next, cmd, arg1, arg2);
 	}
-
 	return ret;
 }
 

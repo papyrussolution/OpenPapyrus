@@ -74,7 +74,7 @@ int RAND_poll(void)
 	/* process ID */
 	w = GetCurrentProcessId();
 	RAND_add(&w, sizeof(w), 1);
-	return (1);
+	return 1;
 }
 
 #if OPENSSL_API_COMPAT < 0x10100000L

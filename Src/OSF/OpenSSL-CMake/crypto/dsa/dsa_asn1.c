@@ -118,7 +118,7 @@ int DSA_sign(int type, const uchar *dgst, int dlen,
     }
     *siglen = i2d_DSA_SIG(s, &sig);
     DSA_SIG_free(s);
-    return (1);
+    return 1;
 }
 
 /* data has already been hashed (probably with SHA or SHA-1). */

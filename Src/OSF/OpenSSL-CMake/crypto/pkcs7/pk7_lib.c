@@ -64,7 +64,7 @@ int PKCS7_content_new(PKCS7 * p7, int type)
 		goto err;
 	if(!PKCS7_set_content(p7, ret))
 		goto err;
-	return (1);
+	return 1;
 err:
 	PKCS7_free(ret);
 	return 0;
@@ -90,7 +90,7 @@ int PKCS7_set_content(PKCS7 * p7, PKCS7 * p7_data)
 		    PKCS7err(PKCS7_F_PKCS7_SET_CONTENT, PKCS7_R_UNSUPPORTED_CONTENT_TYPE);
 		    goto err;
 	}
-	return (1);
+	return 1;
 err:
 	return 0;
 }
@@ -155,7 +155,7 @@ int PKCS7_set_type(PKCS7 * p7, int type)
 		    PKCS7err(PKCS7_F_PKCS7_SET_TYPE, PKCS7_R_UNSUPPORTED_CONTENT_TYPE);
 		    goto err;
 	}
-	return (1);
+	return 1;
 err:
 	return 0;
 }
@@ -212,7 +212,7 @@ int PKCS7_add_signer(PKCS7 * p7, PKCS7_SIGNER_INFO * psi)
 	}
 	if(!sk_PKCS7_SIGNER_INFO_push(signer_sk, psi))
 		return 0;
-	return (1);
+	return 1;
 }
 
 int PKCS7_add_certificate(PKCS7 * p7, X509 * x509)
@@ -241,7 +241,7 @@ int PKCS7_add_certificate(PKCS7 * p7, X509 * x509)
 		X509_free(x509);
 		return 0;
 	}
-	return (1);
+	return 1;
 }
 
 int PKCS7_add_crl(PKCS7 * p7, X509_CRL * crl)
@@ -270,7 +270,7 @@ int PKCS7_add_crl(PKCS7 * p7, X509_CRL * crl)
 		X509_CRL_free(crl);
 		return 0;
 	}
-	return (1);
+	return 1;
 }
 
 int PKCS7_SIGNER_INFO_set(PKCS7_SIGNER_INFO * p7i, X509 * x509, EVP_PKEY * pkey, const EVP_MD * dgst)
@@ -292,7 +292,7 @@ int PKCS7_SIGNER_INFO_set(PKCS7_SIGNER_INFO * p7i, X509 * x509, EVP_PKEY * pkey,
 	EVP_PKEY_up_ref(pkey);
 	p7i->pkey = pkey;
 	/* Set the algorithms */
-	X509_ALGOR_set0(p7i->digest_alg, OBJ_nid2obj(EVP_MD_type(dgst)), V_ASN1_NULL, NULL);
+	X509_ALGOR_set0(p7i->digest_alg, OBJ_nid2obj(EVP_MD_type(dgst)), V_ASN1_NULL, 0);
 	if(pkey->ameth && pkey->ameth->pkey_ctrl) {
 		ret = pkey->ameth->pkey_ctrl(pkey, ASN1_PKEY_CTRL_PKCS7_SIGN, 0, p7i);
 		if(ret > 0)
@@ -406,7 +406,7 @@ int PKCS7_add_recipient_info(PKCS7 * p7, PKCS7_RECIP_INFO * ri)
 	}
 	if(!sk_PKCS7_RECIP_INFO_push(sk, ri))
 		return 0;
-	return (1);
+	return 1;
 }
 
 int PKCS7_RECIP_INFO_set(PKCS7_RECIP_INFO * p7i, X509 * x509)

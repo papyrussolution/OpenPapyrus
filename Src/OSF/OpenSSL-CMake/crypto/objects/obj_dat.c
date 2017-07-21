@@ -98,14 +98,14 @@ static int added_obj_cmp(const ADDED_OBJ * ca, const ADDED_OBJ * cb)
 				if(a->sn == NULL)
 					return (-1);
 				else if(b->sn == NULL)
-					return (1);
+					return 1;
 				else
 					return (strcmp(a->sn, b->sn));
 			case ADDED_LNAME:
 				if(a->ln == NULL)
 					return (-1);
 				else if(b->ln == NULL)
-					return (1);
+					return 1;
 				else
 					return (strcmp(a->ln, b->ln));
 			case ADDED_NID:
@@ -120,7 +120,7 @@ static int added_obj_cmp(const ADDED_OBJ * ca, const ADDED_OBJ * cb)
 static int init_added(void)
 {
 	if(added != NULL)
-		return (1);
+		return 1;
 	added = lh_ADDED_OBJ_new(added_obj_hash, added_obj_cmp);
 	return (added != NULL);
 }

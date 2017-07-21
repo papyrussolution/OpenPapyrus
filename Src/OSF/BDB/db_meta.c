@@ -213,7 +213,7 @@ int __db_new(DBC * dbc, uint32 type, DB_LOCK * lockp, PAGE ** pagepp)
 		}
 	}
 #else
-	COMPQUIET(list, NULL);
+	COMPQUIET(list, 0);
 #endif
 	if((ret = __TLPUT(dbc, metalock)) != 0)
 		return ret;
@@ -925,7 +925,7 @@ int __db_lprint(DBC * dbc)
 	ENV * env = dbp->env;
 	if(LOCKING_ON(env)) {
 		req.op = DB_LOCK_DUMP;
-		__lock_vec(env, dbc->locker, 0, &req, 1, NULL);
+		__lock_vec(env, dbc->locker, 0, &req, 1, 0);
 	}
 	return 0;
 }

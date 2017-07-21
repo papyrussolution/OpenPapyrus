@@ -124,7 +124,7 @@ int __heap_stat_print(DBC * dbc, uint32 flags)
  */
 void __heap_print_cursor(DBC * dbc)
 {
-	COMPQUIET(dbc, NULL);
+	COMPQUIET(dbc, 0);
 	return;
 }
 /*
@@ -165,7 +165,7 @@ int __heap_stat_callback(DBC * dbc, PAGE * h, void * cookie, int * putp)
 
 int __heap_stat(DBC * dbc, void * spp, uint32 flags)
 {
-	COMPQUIET(spp, NULL);
+	COMPQUIET(spp, 0);
 	COMPQUIET(flags, 0);
 	return __db_stat_not_built(dbc->env);
 }

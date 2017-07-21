@@ -17,15 +17,13 @@
 #include "cms_lcl.h"
 #include "internal/asn1_int.h"
 
-int CMS_RecipientInfo_set0_password(CMS_RecipientInfo * ri,
-    uchar * pass, ossl_ssize_t passlen)
+int CMS_RecipientInfo_set0_password(CMS_RecipientInfo * ri, uchar * pass, ossl_ssize_t passlen)
 {
 	CMS_PasswordRecipientInfo * pwri;
 	if(ri->type != CMS_RECIPINFO_PASS) {
 		CMSerr(CMS_F_CMS_RECIPIENTINFO_SET0_PASSWORD, CMS_R_NOT_PWRI);
 		return 0;
 	}
-
 	pwri = ri->d.pwri;
 	pwri->pass = pass;
 	if(pass && passlen < 0)

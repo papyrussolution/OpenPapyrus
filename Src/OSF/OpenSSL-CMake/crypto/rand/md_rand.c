@@ -79,7 +79,7 @@ static RAND_METHOD rand_meth = {
 
 DEFINE_RUN_ONCE_STATIC(do_rand_lock_init)
 {
-	OPENSSL_init_crypto(0, NULL);
+	OPENSSL_init_crypto(0, 0);
 	rand_lock = CRYPTO_THREAD_lock_new();
 	rand_tmp_lock = CRYPTO_THREAD_lock_new();
 	return rand_lock != NULL && rand_tmp_lock != NULL;
@@ -297,7 +297,7 @@ static int rand_bytes(uchar * buf, int num, int pseudo)
 #else
 	struct timeval tv;
 
-	gettimeofday(&tv, NULL);
+	gettimeofday(&tv, 0);
 #endif
 
 #ifdef PREDICT
@@ -306,7 +306,7 @@ static int rand_bytes(uchar * buf, int num, int pseudo)
 
 		for(i = 0; i < num; i++)
 			buf[i] = val++;
-		return (1);
+		return 1;
 	}
 #endif
 
@@ -496,7 +496,7 @@ static int rand_bytes(uchar * buf, int num, int pseudo)
 
 	EVP_MD_CTX_free(m);
 	if(ok)
-		return (1);
+		return 1;
 	else if(pseudo)
 		return 0;
 	else {

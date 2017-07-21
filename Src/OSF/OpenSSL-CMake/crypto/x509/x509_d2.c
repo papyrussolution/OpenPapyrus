@@ -22,7 +22,7 @@ int X509_STORE_set_default_paths(X509_STORE * ctx)
 	X509_LOOKUP_add_dir(lookup, NULL, X509_FILETYPE_DEFAULT);
 	// clear any errors 
 	ERR_clear_error();
-	return (1);
+	return 1;
 }
 
 int X509_STORE_load_locations(X509_STORE * ctx, const char * file, const char * path)
@@ -44,6 +44,6 @@ int X509_STORE_load_locations(X509_STORE * ctx, const char * file, const char * 
 	}
 	if((path == NULL) && (file == NULL))
 		return 0;
-	return (1);
+	return 1;
 }
 

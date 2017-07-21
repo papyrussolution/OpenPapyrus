@@ -451,7 +451,7 @@ static void __rep_print_logmsg(ENV * env, const DBT * logdbt, DB_LSN * lsnp)
 		__repmgr_init_print(env, &dtab);
 		__txn_init_print(env, &dtab);
 	}
-	__db_dispatch(env, &dtab, (DBT *)logdbt, lsnp, DB_TXN_PRINT, NULL);
+	__db_dispatch(env, &dtab, (DBT *)logdbt, lsnp, DB_TXN_PRINT, 0);
 }
 #endif
 
@@ -753,7 +753,7 @@ notfound:
 	}
 	else {
 		INIT_LSN(lsn);
-		ret = __log_vtruncate(env, &lsn, &lsn, NULL);
+		ret = __log_vtruncate(env, &lsn, &lsn, 0);
 	}
 	if(ret != 0 && ret != DB_NOTFOUND)
 		return ret;
@@ -1328,7 +1328,7 @@ static int __rep_lockout_int(ENV*env, REP * rep, uint32 * fieldp, uint32 field_v
 #endif
 		REP_SYSTEM_LOCK(env);
 	}
-	COMPQUIET(msg, NULL);
+	COMPQUIET(msg, 0);
 	return 0;
 }
 

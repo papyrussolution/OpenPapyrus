@@ -230,7 +230,7 @@ int __rep_set_config(DB_ENV * dbenv, uint32 which, int on)
 
 static void __rep_config_map(ENV * env, uint32 * inflagsp, uint32 * outflagsp)
 {
-	COMPQUIET(env, NULL);
+	COMPQUIET(env, 0);
 	if(FLD_ISSET(*inflagsp, DB_REP_CONF_AUTOINIT)) {
 		FLD_SET(*outflagsp, REP_C_AUTOINIT);
 		FLD_CLR(*inflagsp, DB_REP_CONF_AUTOINIT);
@@ -799,7 +799,7 @@ out:
 		REP_SYSTEM_UNLOCK(env);
 	}
 	if(pending_event != DB_EVENT_NO_SUCH_EVENT)
-		__rep_fire_event(env, pending_event, NULL);
+		__rep_fire_event(env, pending_event, 0);
 	if(start_th)
 		MUTEX_UNLOCK(env, rep->mtx_repstart);
 	__dbt_userfree(env, dbt, 0, 0);
@@ -1030,7 +1030,7 @@ static int __rep_bt_cmp(DB * dbp, const DBT * dbt1, const DBT * dbt2)
 {
 	DB_LSN lsn1, lsn2;
 	__rep_control_args * rp1, * rp2;
-	COMPQUIET(dbp, NULL);
+	COMPQUIET(dbp, 0);
 	rp1 = (__rep_control_args *)dbt1->data;
 	rp2 = (__rep_control_args *)dbt2->data;
 	__ua_memcpy(&lsn1, &rp1->lsn, sizeof(DB_LSN));
@@ -2390,7 +2390,7 @@ retry:
 	 */
 	if((ret = __rep_lsn_hist_key_unmarshal(env, &key, key_buf, __REP_LSN_HIST_KEY_SIZE, NULL)) != 0)
 		goto err;
-	ret = __rep_lsn_hist_data_unmarshal(env, gen_infop, data_buf, __REP_LSN_HIST_DATA_SIZE, NULL);
+	ret = __rep_lsn_hist_data_unmarshal(env, gen_infop, data_buf, __REP_LSN_HIST_DATA_SIZE, 0);
 	REP_SYSTEM_LOCK(env);
 	if(rep->gen == key.gen) {
 		rep->gen_base_lsn = gen_infop->lsn;
@@ -2408,7 +2408,7 @@ err:
  */
 static uint32 __rep_conv_vers(ENV * env, uint32 log_ver)
 {
-	COMPQUIET(env, NULL);
+	COMPQUIET(env, 0);
 	//
 	// We can't use a switch statement, some of the DB_LOGVERSION_XX constants are the same
 	//

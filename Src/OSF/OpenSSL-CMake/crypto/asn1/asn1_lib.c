@@ -21,10 +21,10 @@ static int _asn1_check_infinite_end(const uchar ** p, long len)
 	 * If there is 0 or 1 byte left, the length check should pick things up
 	 */
 	if(len <= 0)
-		return (1);
+		return 1;
 	else if((len >= 2) && ((*p)[0] == 0) && ((*p)[1] == 0)) {
 		(*p) += 2;
-		return (1);
+		return 1;
 	}
 	return 0;
 }
@@ -267,7 +267,6 @@ int ASN1_STRING_set(ASN1_STRING * str, const void * _data, int len)
 {
 	uchar * c;
 	const char * data = (const char*)_data;
-
 	if(len < 0) {
 		if(data == NULL)
 			return 0;
@@ -284,12 +283,12 @@ int ASN1_STRING_set(ASN1_STRING * str, const void * _data, int len)
 		}
 	}
 	str->length = len;
-	if(data != NULL) {
+	if(data) {
 		memcpy(str->data, data, len);
 		/* an allowance for strings :-) */
 		str->data[len] = '\0';
 	}
-	return (1);
+	return 1;
 }
 
 void ASN1_STRING_set0(ASN1_STRING * str, void * data, int len)

@@ -154,9 +154,9 @@ static void general_composite_rect(pixman_implementation_t * imp, pixman_composi
 	    dest_buffer, (iter_flags_t)(ITER_DEST | width_flag | op_flags[op].dst), info->dest_flags);
 	compose = _pixman_implementation_lookup_combiner(imp->toplevel, op, component_alpha, width_flag != ITER_WIDE);
 	for(i = 0; i < height; ++i) {
-		const uint32_t * m = mask_iter.get_scanline(&mask_iter, NULL);
+		const uint32_t * m = mask_iter.get_scanline(&mask_iter, 0);
 		const uint32_t * s = src_iter.get_scanline(&src_iter, m);
-		uint32_t * d = dest_iter.get_scanline(&dest_iter, NULL);
+		uint32_t * d = dest_iter.get_scanline(&dest_iter, 0);
 		compose(imp->toplevel, op, d, s, m, width);
 		dest_iter.write_back(&dest_iter);
 	}

@@ -126,7 +126,7 @@ int FASTCALL BN_add_word(BIGNUM * a, BN_ULONG w)
 		a->d[i] = w;
 	}
 	bn_check_top(a);
-	return (1);
+	return 1;
 }
 
 int FASTCALL BN_sub_word(BIGNUM * a, BN_ULONG w)
@@ -154,7 +154,7 @@ int FASTCALL BN_sub_word(BIGNUM * a, BN_ULONG w)
 	if((a->top == 1) && (a->d[0] < w)) {
 		a->d[0] = w - a->d[0];
 		a->neg = 1;
-		return (1);
+		return 1;
 	}
 	i = 0;
 	for(;; ) {
@@ -171,7 +171,7 @@ int FASTCALL BN_sub_word(BIGNUM * a, BN_ULONG w)
 	if((a->d[i] == 0) && (i == (a->top - 1)))
 		a->top--;
 	bn_check_top(a);
-	return (1);
+	return 1;
 }
 
 int FASTCALL BN_mul_word(BIGNUM * a, BN_ULONG w)
@@ -192,6 +192,6 @@ int FASTCALL BN_mul_word(BIGNUM * a, BN_ULONG w)
 		}
 	}
 	bn_check_top(a);
-	return (1);
+	return 1;
 }
 

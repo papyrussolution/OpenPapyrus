@@ -114,9 +114,9 @@ static int __bamc_compress_merge_delete_dups (DBC*, BTREE_COMPRESS_STREAM*, uint
 /* BTREE_COMPRESS_STREAM->next() for when the data has finished. */
 static int __bam_cs_next_done(BTREE_COMPRESS_STREAM * stream, DBT * key, DBT * data)
 {
-	COMPQUIET(stream, NULL);
-	COMPQUIET(key, NULL);
-	COMPQUIET(data, NULL);
+	COMPQUIET(stream, 0);
+	COMPQUIET(key, 0);
+	COMPQUIET(data, 0);
 	return 0;
 }
 
@@ -300,7 +300,7 @@ int __bam_defcompress(DB * dbp, const DBT * prevKey, const DBT * prevData, const
 	uint8 * ptr;
 	const uint8 * k, * p;
 	size_t len, prefix, suffix;
-	COMPQUIET(dbp, NULL);
+	COMPQUIET(dbp, 0);
 	k = (const uint8 *)key->data;
 	p = (const uint8 *)prevKey->data;
 	len = key->size > prevKey->size ? prevKey->size : key->size;
@@ -363,7 +363,7 @@ int __bam_defdecompress(DB * dbp, const DBT * prevKey, const DBT * prevData, DBT
 {
 	uint8 * d;
 	uint32 prefix, suffix, size;
-	COMPQUIET(dbp, NULL);
+	COMPQUIET(dbp, 0);
 	/*
 	 * Check for the magic identifying byte, that tells us that this is a
 	 * compressed duplicate value.
@@ -1098,7 +1098,7 @@ static int __bamc_compress_merge_delete_dups(DBC * dbc, BTREE_COMPRESS_STREAM * 
 			else if(iSmallEnough == 0)
 				cmp = -1;
 			else
-				cmp = __db_compare_both(dbp, cp->currentKey, NULL, &ikey, NULL);
+				cmp = __db_compare_both(dbp, cp->currentKey, NULL, &ikey, 0);
 			if(cmp < 0) {
 				if((ret = __bamc_compress_store(dbc, cp->currentKey, cp->currentData, &prevDestKey, &prevDestData, &destkey, &destbuf)) != 0)
 					goto end;
@@ -1883,7 +1883,7 @@ static int __bamc_compress_ibulk_del(DBC * dbc, DBT * key, uint32 flags)
 	switch(flags) {
 	    case 0:
 		__bam_cs_create_single_keyonly(&stream, key);
-		return __bamc_compress_merge_delete_dups(dbc, &stream, NULL);
+		return __bamc_compress_merge_delete_dups(dbc, &stream, 0);
 	    case DB_MULTIPLE:
 		__bam_cs_create_multiple_keyonly(&stream, key);
 		return __bamc_compress_merge_delete_dups(

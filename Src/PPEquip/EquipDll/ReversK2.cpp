@@ -474,7 +474,7 @@ int K2Controller::K2Read(K2FrameSt & rResp)
 	while(!do_exit && ReadFile(Handle, &ch, 1, &ret_size, NULL) && ret_size) {
 		if(ch == 0x55) {
 			if(++count_55 == 10) {
-				ReadFile(Handle, &ch, 1, &ret_size, NULL); // —читаем неинформативный байт и выйдем из цикла
+				ReadFile(Handle, &ch, 1, &ret_size, 0); // —читаем неинформативный байт и выйдем из цикла
 				do_exit = 1;
 			}
 		}
@@ -482,18 +482,18 @@ int K2Controller::K2Read(K2FrameSt & rResp)
 			count_55 = 0;
 	}
 	if(do_exit) {
-		ReadFile(Handle, &rResp.H.Addr,    2, &ret_size, NULL);
-		ReadFile(Handle, &rResp.H.ReqNum,  1, &ret_size, NULL);
-		ReadFile(Handle, &rResp.H.Cmd,     1, &ret_size, NULL);
-		ReadFile(Handle, &rResp.H.DataLen, 1, &ret_size, NULL);
-		ReadFile(Handle, &rResp.H.Crc,     2, &ret_size, NULL);
+		ReadFile(Handle, &rResp.H.Addr,    2, &ret_size, 0);
+		ReadFile(Handle, &rResp.H.ReqNum,  1, &ret_size, 0);
+		ReadFile(Handle, &rResp.H.Cmd,     1, &ret_size, 0);
+		ReadFile(Handle, &rResp.H.DataLen, 1, &ret_size, 0);
+		ReadFile(Handle, &rResp.H.Crc,     2, &ret_size, 0);
 		ushort preserve_crc = rResp.H.Crc;
 		rResp.H.CalcCrc();
 		if(rResp.H.Crc == preserve_crc) {
 			ok = 1;
 			if(rResp.AllocBuf()) {
-				ReadFile(Handle, rResp.P_Data, rResp.H.DataLen - CRC16_SZ, &ret_size, NULL);
-				ReadFile(Handle, &rResp.Crc, 2, &ret_size, NULL);
+				ReadFile(Handle, rResp.P_Data, rResp.H.DataLen - CRC16_SZ, &ret_size, 0);
+				ReadFile(Handle, &rResp.Crc, 2, &ret_size, 0);
 				(msg_buf = "Wicked").CatDiv(':', 2).Cat("K2Read succs").CatDiv('-', 1);
 				DRVS.Log(rResp.ToString(msg_buf), 0xffff); // @debug
 			}
@@ -554,7 +554,7 @@ uchar K2Controller::SendReq(uint16 addr, int cmd, const void * pData, size_t dat
 		else
 			p_buf = wr_buf;
 		frame_req.GetBytes(p_buf, frame_len);
-		WriteFile(Handle, p_buf, frame_len, &(ret_size = 0), NULL);
+		WriteFile(Handle, p_buf, frame_len, &(ret_size = 0), 0);
 		THROWERR(ret_size == frame_len, K2ERR_WRITEPORTFAILED);
 		{
 			(msg_buf = "Wicked").CatDiv(':', 2).Cat("SendReq succs").CatDiv('-', 1);

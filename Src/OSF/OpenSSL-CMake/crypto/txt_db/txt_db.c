@@ -172,7 +172,7 @@ int TXT_DB_create_index(TXT_DB * db, int field, int (* qual)(OPENSSL_STRING *),
 	lh_OPENSSL_STRING_free(db->index[field]);
 	db->index[field] = idx;
 	db->qual[field] = qual;
-	return (1);
+	return 1;
 }
 
 long TXT_DB_write(BIO * out, TXT_DB * db)
@@ -251,7 +251,7 @@ int TXT_DB_insert(TXT_DB * db, OPENSSL_STRING * row)
 			(void)lh_OPENSSL_STRING_insert(db->index[i], row);
 		}
 	}
-	return (1);
+	return 1;
 err:
 	return 0;
 }

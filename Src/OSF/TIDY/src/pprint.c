@@ -1628,10 +1628,8 @@ static int TextEndsWithNewline(Lexer * lexer, Node * node, uint mode)
 	if( (mode & (CDATA|COMMENT)) && TY_(nodeIsText) (node) && node->end > node->start) {
 		uint ch, ix = node->end - 1;
 		/* Skip non-newline whitespace. */
-		while(ix >= node->start && (ch = (lexer->lexbuf[ix] & 0xff))
-		    && ( ch == ' ' || ch == '\t' || ch == '\r' ) )
+		while(ix >= node->start && (ch = (lexer->lexbuf[ix] & 0xff)) && (ch == ' ' || ch == '\t' || ch == '\r'))
 			--ix;
-
 		if(lexer->lexbuf[ ix ] == '\n')
 			return node->end - ix - 1;  /* #543262 tidy eats all memory */
 	}
@@ -1644,10 +1642,8 @@ static int TextStartsWithWhitespace(Lexer * lexer, Node * node, uint start, uint
 	if( (mode & (CDATA|COMMENT)) && TY_(nodeIsText) (node) && node->end > node->start && start >= node->start) {
 		uint ch, ix = start;
 		/* Skip whitespace. */
-		while(ix < node->end && (ch = (lexer->lexbuf[ix] & 0xff))
-		    && ( ch==' ' || ch=='\t' || ch=='\r' ) )
+		while(ix < node->end && (ch = (lexer->lexbuf[ix] & 0xff)) && (ch==' ' || ch=='\t' || ch=='\r') )
 			++ix;
-
 		if(ix > start)
 			return ix - start;
 	}

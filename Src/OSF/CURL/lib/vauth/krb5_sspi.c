@@ -106,7 +106,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
 
 	if(!krb5->spn) {
 		/* Generate our SPN */
-		krb5->spn = Curl_auth_build_spn(service, host, NULL);
+		krb5->spn = Curl_auth_build_spn(service, host, 0);
 		if(!krb5->spn)
 			return CURLE_OUT_OF_MEMORY;
 	}

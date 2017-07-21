@@ -57,7 +57,7 @@ int __bam_get_root(DBC * dbc, db_pgno_t root_pgno, int slevel, uint32 flags, int
 	db_lockmode_t lock_mode;
 	uint32 get_mode;
 	int ret, t_ret;
-	COMPQUIET(h, NULL);
+	COMPQUIET(h, 0);
 	LOCK_INIT(lock);
 	DB * dbp = dbc->dbp;
 	DB_MPOOLFILE * mpf = dbp->mpf;

@@ -1017,7 +1017,7 @@ static cairo_xcb_picture_t * record_to_picture(cairo_surface_t * target,
 		y2 = limit.y + limit.height;
 
 		_cairo_matrix_transform_bounding_box(&matrix,
-		    &x1, &y1, &x2, &y2, NULL);
+		    &x1, &y1, &x2, &y2, 0);
 
 		limit.x = floor(x1);
 		limit.y = floor(y1);
@@ -1175,7 +1175,7 @@ static cairo_xcb_picture_t * _cairo_xcb_surface_picture(cairo_xcb_surface_t * ta
 			return (cairo_xcb_picture_t*)_cairo_surface_create_in_error(status);
 		if(image->format != CAIRO_FORMAT_INVALID) {
 			xcb_render_pictformat_t format = target->screen->connection->standard_formats[image->format];
-			picture = _picture_from_image(target, format, image, NULL);
+			picture = _picture_from_image(target, format, image, 0);
 			_cairo_surface_release_source_image(source, image, image_extra);
 		}
 		else {
@@ -1186,14 +1186,14 @@ static cairo_xcb_picture_t * _cairo_xcb_surface_picture(cairo_xcb_surface_t * ta
 			if(unlikely(conv->base.status))
 				return (cairo_xcb_picture_t*)conv;
 			render_format = target->screen->connection->standard_formats[conv->format];
-			picture = _picture_from_image(target, render_format, conv, NULL);
+			picture = _picture_from_image(target, render_format, conv, 0);
 			cairo_surface_destroy(&conv->base);
 		}
 		if(unlikely(picture->base.status))
 			return picture;
 	}
 #if 0 // @v1.14.6 XXX: This causes too many problems and bugs, let's skip it for now. 
-	_cairo_surface_attach_snapshot(source, &picture->base, NULL);
+	_cairo_surface_attach_snapshot(source, &picture->base, 0);
 #endif
 	_cairo_xcb_surface_setup_surface_picture(picture, pattern, extents);
 	return picture;
@@ -1722,7 +1722,7 @@ static cairo_xcb_surface_t * _create_composite_mask(cairo_clip_t            * cl
 	status = draw_func(draw_closure, surface,
 	    CAIRO_OPERATOR_ADD, NULL,
 	    extents->x, extents->y,
-	    extents, NULL);
+	    extents, 0);
 	if(unlikely(status)) {
 		cairo_surface_destroy(&surface->base);
 		return (cairo_xcb_surface_t*)_cairo_surface_create_in_error(status);
@@ -1847,7 +1847,7 @@ static cairo_status_t _clip_and_composite_combine(cairo_clip_t               * c
 		status = (*draw_func)(draw_closure, tmp,
 		    CAIRO_OPERATOR_ADD, NULL,
 		    extents->x, extents->y,
-		    extents, NULL);
+		    extents, 0);
 	}
 	else {
 		/* Initialize the temporary surface from the destination surface */
@@ -1884,7 +1884,7 @@ static cairo_status_t _clip_and_composite_combine(cairo_clip_t               * c
 
 		status = (*draw_func)(draw_closure, tmp, op, pattern,
 		    extents->x, extents->y,
-		    extents, NULL);
+		    extents, 0);
 	}
 	if(unlikely(status))
 		goto CLEANUP_SURFACE;
@@ -3265,7 +3265,7 @@ static cairo_int_status_t _composite_mask_clip(void * closure,
 	status = _composite_traps(&info,
 	    dst, CAIRO_OPERATOR_SOURCE, mask_pattern,
 	    dst_x, dst_y,
-	    extents, NULL);
+	    extents, 0);
 	_cairo_traps_fini(&info.traps);
 
 	return status;
@@ -4380,7 +4380,7 @@ BAIL:
 	 * the cache
 	 */
 	if(!already_had_glyph_surface)
-		_cairo_scaled_glyph_set_surface(scaled_glyph, font, NULL);
+		_cairo_scaled_glyph_set_surface(scaled_glyph, font, 0);
 
 	return status;
 }

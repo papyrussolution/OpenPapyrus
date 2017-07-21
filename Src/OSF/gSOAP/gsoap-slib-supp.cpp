@@ -209,7 +209,7 @@ SOAP_FMAC3 struct SOAP_ENV__Fault * SOAP_FMAC4 soap_in_SOAP_ENV__Fault(struct so
 			return NULL;
 	}
 	else
-	{	a = (struct SOAP_ENV__Fault *)soap_id_forward(soap, soap->href, (void*)a, 0, SOAP_TYPE_SOAP_ENV__Fault, 0, sizeof(struct SOAP_ENV__Fault), 0, NULL);
+	{	a = (struct SOAP_ENV__Fault *)soap_id_forward(soap, soap->href, (void*)a, 0, SOAP_TYPE_SOAP_ENV__Fault, 0, sizeof(struct SOAP_ENV__Fault), 0, 0);
 		if(soap->body && soap_element_end_in(soap, tag))
 			return NULL;
 	}
@@ -325,7 +325,7 @@ SOAP_FMAC3 void SOAP_FMAC4 soap_serializefault(struct soap * soap)
 SOAP_FMAC3 int SOAP_FMAC4 soap_putfault(struct soap * soap)
 {
 	if(soap->fault)
-		return soap_put_SOAP_ENV__Fault(soap, soap->fault, "SOAP-ENV:Fault", NULL);
+		return soap_put_SOAP_ENV__Fault(soap, soap->fault, "SOAP-ENV:Fault", 0);
 	return SOAP_OK;
 }
 

@@ -142,9 +142,9 @@ int __ham_31_hashmeta(DB * dbp, char * real_name, uint32 flags, DB_FH * fhp, PAG
 {
 	HMETA30 * oldmeta;
 	HMETA31 * newmeta;
-	COMPQUIET(dbp, NULL);
-	COMPQUIET(real_name, NULL);
-	COMPQUIET(fhp, NULL);
+	COMPQUIET(dbp, 0);
+	COMPQUIET(real_name, 0);
+	COMPQUIET(fhp, 0);
 	newmeta = (HMETA31 *)h;
 	oldmeta = (HMETA30 *)h;
 	/*
@@ -213,10 +213,10 @@ int __ham_31_hash(DB * dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE * 
 int __ham_46_hashmeta(DB * dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE * h, int * dirtyp)
 {
 	HMETA33 * newmeta;
-	COMPQUIET(dbp, NULL);
-	COMPQUIET(real_name, NULL);
+	COMPQUIET(dbp, 0);
+	COMPQUIET(real_name, 0);
 	COMPQUIET(flags, 0);
-	COMPQUIET(fhp, NULL);
+	COMPQUIET(fhp, 0);
 	newmeta = (HMETA33 *)h;
 	/* Update the version. */
 	newmeta->dbmeta.version = 9;
@@ -236,9 +236,9 @@ int __ham_46_hash(DB * dbp, char * real_name, uint32 flags, DB_FH * fhp, PAGE * 
 {
 	DBC * dbc;
 	int ret, t_ret;
-	COMPQUIET(real_name, NULL);
+	COMPQUIET(real_name, 0);
 	COMPQUIET(flags, 0);
-	COMPQUIET(fhp, NULL);
+	COMPQUIET(fhp, 0);
 	if((ret = __db_cursor(dbp, NULL, NULL, &dbc, 0)) != 0)
 		return ret;
 	*dirtyp = 1;

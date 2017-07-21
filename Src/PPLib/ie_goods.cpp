@@ -908,10 +908,11 @@ int SLAPI PPGoodsExporter::Init(const PPGoodsImpExpParam * pParam)
 	return ok;
 }
 
-static SString & FASTCALL PreprocessGoodsExtText(SString & rBuf)
+static void FASTCALL PreprocessGoodsExtText(SString & rBuf, char * pDestBuf, size_t destBufLen)
 {
-	return rBuf.ReplaceStr("\x0D\x0A", "\x20", 0).ReplaceChar('\x0D', '\x20').
+	rBuf.ReplaceStr("\x0D\x0A", "\x20", 0).ReplaceChar('\x0D', '\x20').
 		ReplaceChar('\x0A', '\x20').ReplaceChar('\x09', '\x20').ReplaceChar('\x07', '\x20');
+    strnzcpy(pDestBuf, rBuf, destBufLen);
 }
 
 int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, PPID altGrpID /*=0*/)
@@ -956,9 +957,8 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 	}
 	else {
 		MEMSZERO(sdr_goods);
-
-		STRNSCPY(sdr_goods.Name, PreprocessGoodsExtText(temp_buf = pPack->Rec.Name));
-		STRNSCPY(sdr_goods.Abbr, PreprocessGoodsExtText(temp_buf = pPack->Rec.Abbr));
+		PreprocessGoodsExtText(temp_buf = pPack->Rec.Name, sdr_goods.Name, sizeof(sdr_goods.Name));
+		PreprocessGoodsExtText(temp_buf = pPack->Rec.Abbr, sdr_goods.Abbr, sizeof(sdr_goods.Abbr));
 		//
 		//  ласс товара и классификаторы
 		//
@@ -972,7 +972,6 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 				gc_pack.GetExtDim(&pPack->ExtRec, PPGdsCls::eY, &sdr_goods.DimY);
 				gc_pack.GetExtDim(&pPack->ExtRec, PPGdsCls::eZ, &sdr_goods.DimZ);
 				gc_pack.GetExtDim(&pPack->ExtRec, PPGdsCls::eW, &sdr_goods.DimW);
-				// @v7.4.7 {
 				gc_pack.GetExtProp(&pPack->ExtRec, PPGdsCls::eKind, &prop_val_id, temp_buf);
 				temp_buf.CopyTo(sdr_goods.PropKindName, sizeof(sdr_goods.PropKindName));
 				gc_pack.GetExtProp(&pPack->ExtRec, PPGdsCls::eGrade, &prop_val_id, temp_buf);
@@ -981,7 +980,6 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 				temp_buf.CopyTo(sdr_goods.PropAddName, sizeof(sdr_goods.PropAddName));
 				gc_pack.GetExtProp(&pPack->ExtRec, PPGdsCls::eAdd2, &prop_val_id, temp_buf);
 				temp_buf.CopyTo(sdr_goods.PropAdd2Name, sizeof(sdr_goods.PropAdd2Name));
-				// } @v7.4.7
 			}
 		}
 		//
@@ -1135,23 +1133,24 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 		sdr_goods.PckgLength = pPack->Stock.PckgDim.Length;
 		sdr_goods.PckgWidth  = pPack->Stock.PckgDim.Width;
 		sdr_goods.PckgHeight = pPack->Stock.PckgDim.Height;
-		sdr_goods.MinShippmQtty = pPack->Stock.MinShippmQtty; // @v7.5.5
+		sdr_goods.MinShippmQtty = pPack->Stock.MinShippmQtty;
 		sdr_goods.ExpiryPeriod = (long)pPack->Stock.ExpiryPeriod; // —рок годности в дн€х
 		//
 		// Ёкспорт информации о дополнительных пол€х
 		//
-		pPack->GetExtStrData(GDSEXSTR_A, temp_buf); PreprocessGoodsExtText(temp_buf).CopyTo(sdr_goods.ExtA, sizeof(sdr_goods.ExtA));
-		pPack->GetExtStrData(GDSEXSTR_B, temp_buf); PreprocessGoodsExtText(temp_buf).CopyTo(sdr_goods.ExtB, sizeof(sdr_goods.ExtB));
-		pPack->GetExtStrData(GDSEXSTR_C, temp_buf); PreprocessGoodsExtText(temp_buf).CopyTo(sdr_goods.ExtC, sizeof(sdr_goods.ExtC));
-		pPack->GetExtStrData(GDSEXSTR_D, temp_buf); PreprocessGoodsExtText(temp_buf).CopyTo(sdr_goods.ExtD, sizeof(sdr_goods.ExtD));
-		pPack->GetExtStrData(GDSEXSTR_E, temp_buf); PreprocessGoodsExtText(temp_buf).CopyTo(sdr_goods.ExtE, sizeof(sdr_goods.ExtE));
+		pPack->GetExtStrData(GDSEXSTR_A, temp_buf); PreprocessGoodsExtText(temp_buf, sdr_goods.ExtA, sizeof(sdr_goods.ExtA));
+		pPack->GetExtStrData(GDSEXSTR_B, temp_buf); PreprocessGoodsExtText(temp_buf, sdr_goods.ExtB, sizeof(sdr_goods.ExtB));
+		pPack->GetExtStrData(GDSEXSTR_C, temp_buf); PreprocessGoodsExtText(temp_buf, sdr_goods.ExtC, sizeof(sdr_goods.ExtC));
+		pPack->GetExtStrData(GDSEXSTR_D, temp_buf); PreprocessGoodsExtText(temp_buf, sdr_goods.ExtD, sizeof(sdr_goods.ExtD));
+		pPack->GetExtStrData(GDSEXSTR_E, temp_buf); PreprocessGoodsExtText(temp_buf, sdr_goods.ExtE, sizeof(sdr_goods.ExtE));
 		//
 		// »нформаци€ о альтернативной товарной группе
 		//
 		if(altGrpID) {
 			long plu = 0L;
-			if(P_GObj->IsAltGroup(altGrpID) > 0 && PPRef->Assc.Search(PPASS_ALTGOODSGRP, altGrpID, pPack->Rec.ID) > 0)
-				plu = PPRef->Assc.data.InnerNum;
+			Reference * p_ref = PPRef;
+			if(P_GObj->IsAltGroup(altGrpID) > 0 && p_ref->Assc.Search(PPASS_ALTGOODSGRP, altGrpID, pPack->Rec.ID) > 0)
+				plu = p_ref->Assc.data.InnerNum;
 			sdr_goods.AltGrpPLU = plu;
 			GetObjectName(PPOBJ_GOODSGROUP, altGrpID, temp_buf = 0);
 			temp_buf.CopyTo(sdr_goods.GrpName, sizeof(sdr_goods.GrpName));
@@ -1165,12 +1164,22 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 		// —рок годности в дн€х от текущей даты
 		//
 		{
-			LDATE cur_dt = ZERODATE;
-			getcurdate(&cur_dt);
+			const LDATE cur_dt = getcurdate_();
 			sdr_goods.ExpiryFromCurDt = (sdr_goods.Expiry > cur_dt) ? diffdate(sdr_goods.Expiry, cur_dt) : 0;
 		}
 		P_IEGoods->GetParam().InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_goods);
-		THROW(P_IEGoods->AppendRecord(&sdr_goods, sizeof(sdr_goods)));
+		{
+			// @v9.7.8 {
+			GoodsContext::Param gcp;
+            gcp.GoodsID = pPack->Rec.ID;
+			gcp.LocID = Param.LocID;
+			gcp.Qtty = 1.0;
+			GoodsContext ctx(gcp);
+			P_IEGoods->SetExprContext(&ctx);
+			// } @v9.7.8
+			THROW(P_IEGoods->AppendRecord(&sdr_goods, sizeof(sdr_goods)));
+			P_IEGoods->SetExprContext(0); // @v9.7.8
+		}
 	}
 	CATCHZOK
 	return ok;

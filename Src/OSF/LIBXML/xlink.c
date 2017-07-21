@@ -106,7 +106,7 @@ xlinkType xlinkIsLink(xmlDocPtr doc, xmlNodePtr node)
 	xlinkType ret = XLINK_TYPE_NONE;
 	if(node == NULL) return(XLINK_TYPE_NONE);
 	if(!doc) doc = node->doc;
-	if((doc != NULL) && (doc->type == XML_HTML_DOCUMENT_NODE)) {
+	if(doc && (doc->type == XML_HTML_DOCUMENT_NODE)) {
 		/*
 		 * This is an HTML document.
 		 */

@@ -643,7 +643,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_stroke(const cairo_composito
 		    CAIRO_OPERATOR_SOURCE,
 		    &composite->source_pattern.base,
 		    path, style, ctm, ctm_inverse,
-		    tolerance, antialias, NULL);
+		    tolerance, antialias, 0);
 		if(unlikely(status)) {
 			cairo_surface_destroy(surface);
 			return status;
@@ -752,7 +752,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_fill(const cairo_compositor_
 		    CAIRO_OPERATOR_SOURCE,
 		    &composite->source_pattern.base,
 		    path, fill_rule, tolerance,
-		    antialias, NULL);
+		    antialias, 0);
 
 		if(unlikely(status)) {
 			cairo_surface_destroy(surface);

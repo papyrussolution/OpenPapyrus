@@ -297,7 +297,7 @@ void FASTCALL __os_free(ENV * env, void * ptr)
 		if(size != 0)
 			memset(ptr, CLEAR_BYTE, size);
 #else
-		COMPQUIET(env, NULL);
+		COMPQUIET(env, 0);
 #endif
 		if(DB_GLOBAL(j_free) != NULL)
 			DB_GLOBAL(j_free)(ptr);
@@ -422,8 +422,8 @@ int __os_getaddrinfo(ENV * env, const char * nodename, uint port, const char * s
 	uint32 tmpaddr;
 	int ret;
 
-	COMPQUIET(hints, NULL);
-	COMPQUIET(servname, NULL);
+	COMPQUIET(hints, 0);
+	COMPQUIET(servname, 0);
 
 	/* INADDR_NONE is not defined on Solaris 2.6, 2.7 or 2.8. */
  #ifndef INADDR_NONE
@@ -509,7 +509,7 @@ int __os_getaddrinfo(ENV * env, const char * nodename, uint port, const char * s
 void __os_freeaddrinfo(ENV * env, ADDRINFO * ai)
 {
 #ifdef HAVE_GETADDRINFO
-	COMPQUIET(env, NULL);
+	COMPQUIET(env, 0);
 	freeaddrinfo(ai);
 #else
 	ADDRINFO * next, * tmpaddr;
@@ -686,7 +686,7 @@ void __os_unique_id(ENV * env, uint32 * idp)
 	 * Our randomized value is comprised of our process ID, the current
 	 * time of day and a stack address, all XOR'd together.
 	 */
-	__os_id(dbenv, &pid, NULL);
+	__os_id(dbenv, &pid, 0);
 	__os_gettime(env, &v, 1);
 	id = (uint32)pid^(uint32)v.tv_sec^(uint32)v.tv_nsec^P_TO_UINT32(&pid);
 	/*

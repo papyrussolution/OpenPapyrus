@@ -12,7 +12,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/x509.h>
-#include "internal/x509_int.h"
+//#include "internal/x509_int.h"
 //#include <openssl/x509v3.h>
 
 static int v3_check_critical(const char ** value);
@@ -140,7 +140,7 @@ static X509_EXTENSION * do_ext_i2d(const X509V3_EXT_METHOD * method,
 	else {
 		uchar * p;
 
-		ext_len = method->i2d(ext_struc, NULL);
+		ext_len = method->i2d(ext_struc, 0);
 		if((ext_der = (uchar*)OPENSSL_malloc(ext_len)) == NULL)
 			goto merr;
 		p = ext_der;

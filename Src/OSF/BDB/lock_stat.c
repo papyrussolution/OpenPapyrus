@@ -197,7 +197,7 @@ static int __lock_print_stats(ENV * env, uint32 flags)
 		__db_dl(env, "Hash bucket", (ulong)i);
 		__db_dl(env, "Partition", (ulong)LOCK_PART(region, i));
 		__mutex_set_wait_info(env, lt->part_array[LOCK_PART(region, i)].mtx_part, &wait, &nowait);
-		__db_dl_pct(env, "The number of partition mutex requests that required waiting", (ulong)wait, DB_PCT(wait, wait+nowait), NULL);
+		__db_dl_pct(env, "The number of partition mutex requests that required waiting", (ulong)wait, DB_PCT(wait, wait+nowait), 0);
 		__db_dl(env, "Maximum hash bucket length", (ulong)lt->obj_stat[i].st_hash_len);
 		__db_dl(env, "Total number of locks requested", (ulong)lt->obj_stat[i].st_nrequests);
 		__db_dl(env, "Total number of locks released", (ulong)lt->obj_stat[i].st_nreleases);
@@ -251,11 +251,11 @@ static int __lock_print_stats(ENV * env, uint32 flags)
 	__db_dl(env, "Transaction timeout value", (ulong)sp->st_txntimeout);
 	__db_dl(env, "Number of transactions that have timed out", (ulong)sp->st_ntxntimeouts);
 	__db_dlbytes(env, "Region size", (ulong)0, (ulong)0, (ulong)sp->st_regsize);
-	__db_dl_pct(env, "The number of partition locks that required waiting", (ulong)sp->st_part_wait, DB_PCT(sp->st_part_wait, sp->st_part_wait+sp->st_part_nowait), NULL);
-	__db_dl_pct(env, "The maximum number of times any partition lock was waited for", (ulong)sp->st_part_max_wait, DB_PCT(sp->st_part_max_wait, sp->st_part_max_wait+sp->st_part_max_nowait), NULL);
-	__db_dl_pct(env, "The number of object queue operations that required waiting", (ulong)sp->st_objs_wait, DB_PCT(sp->st_objs_wait, sp->st_objs_wait+sp->st_objs_nowait), NULL);
-	__db_dl_pct(env, "The number of locker allocations that required waiting", (ulong)sp->st_lockers_wait, DB_PCT(sp->st_lockers_wait, sp->st_lockers_wait+sp->st_lockers_nowait), NULL);
-	__db_dl_pct(env, "The number of region locks that required waiting", (ulong)sp->st_region_wait, DB_PCT(sp->st_region_wait, sp->st_region_wait+sp->st_region_nowait), NULL);
+	__db_dl_pct(env, "The number of partition locks that required waiting", (ulong)sp->st_part_wait, DB_PCT(sp->st_part_wait, sp->st_part_wait+sp->st_part_nowait), 0);
+	__db_dl_pct(env, "The maximum number of times any partition lock was waited for", (ulong)sp->st_part_max_wait, DB_PCT(sp->st_part_max_wait, sp->st_part_max_wait+sp->st_part_max_nowait), 0);
+	__db_dl_pct(env, "The number of object queue operations that required waiting", (ulong)sp->st_objs_wait, DB_PCT(sp->st_objs_wait, sp->st_objs_wait+sp->st_objs_nowait), 0);
+	__db_dl_pct(env, "The number of locker allocations that required waiting", (ulong)sp->st_lockers_wait, DB_PCT(sp->st_lockers_wait, sp->st_lockers_wait+sp->st_lockers_nowait), 0);
+	__db_dl_pct(env, "The number of region locks that required waiting", (ulong)sp->st_region_wait, DB_PCT(sp->st_region_wait, sp->st_region_wait+sp->st_region_nowait), 0);
 	__db_dl(env, "Maximum hash bucket length", (ulong)sp->st_hash_len);
 	__os_ufree(env, sp);
 	return 0;
@@ -475,7 +475,7 @@ void __lock_printlock(DB_LOCKTAB * lt, DB_MSGBUF * mbp, struct __db_lock * lp, i
 
 int __lock_stat_pp(DB_ENV * dbenv, DB_LOCK_STAT ** statp, uint32 flags)
 {
-	COMPQUIET(statp, NULL);
+	COMPQUIET(statp, 0);
 	COMPQUIET(flags, 0);
 	return __db_stat_not_built(dbenv->env);
 }

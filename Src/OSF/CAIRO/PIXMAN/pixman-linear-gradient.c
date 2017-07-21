@@ -152,7 +152,7 @@ static uint32_t * linear_get_scanline_narrow(pixman_iter_t  * iter, const uint32
 
 static uint32_t * linear_get_scanline_wide(pixman_iter_t * iter, const uint32_t * mask)
 {
-	uint32_t * buffer = linear_get_scanline_narrow(iter, NULL);
+	uint32_t * buffer = linear_get_scanline_narrow(iter, 0);
 	pixman_expand_to_float((argb_t*)buffer, buffer, PIXMAN_a8r8g8b8, iter->width);
 	return buffer;
 }
@@ -161,9 +161,9 @@ void _pixman_linear_gradient_iter_init(pixman_image_t * image, pixman_iter_t  * 
 {
 	if(linear_gradient_is_horizontal(iter->image, iter->x, iter->y, iter->width, iter->height)) {
 		if(iter->iter_flags & ITER_NARROW)
-			linear_get_scanline_narrow(iter, NULL);
+			linear_get_scanline_narrow(iter, 0);
 		else
-			linear_get_scanline_wide(iter, NULL);
+			linear_get_scanline_wide(iter, 0);
 		iter->get_scanline = _pixman_iter_get_scanline_noop;
 	}
 	else {

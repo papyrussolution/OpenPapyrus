@@ -182,9 +182,9 @@ xmlMutexPtr xmlNewMutex()
 		return 0;
 #ifdef HAVE_PTHREAD_H
 	if(libxml_is_threaded != 0)
-		pthread_mutex_init(&tok->lock, NULL);
+		pthread_mutex_init(&tok->lock, 0);
 #elif defined HAVE_WIN32_THREADS
-	tok->mutex = CreateMutex(NULL, FALSE, NULL);
+	tok->mutex = CreateMutex(NULL, FALSE, 0);
 #elif defined HAVE_BEOS_THREADS
 	if((tok->sem = create_sem(1, "xmlMutex")) < B_OK) {
 		SAlloc::F(tok);
@@ -283,10 +283,10 @@ xmlRMutexPtr xmlNewRMutex()
 		return 0;
 #ifdef HAVE_PTHREAD_H
 	if(libxml_is_threaded != 0) {
-		pthread_mutex_init(&tok->lock, NULL);
+		pthread_mutex_init(&tok->lock, 0);
 		tok->held = 0;
 		tok->waiters = 0;
-		pthread_cond_init(&tok->cv, NULL);
+		pthread_cond_init(&tok->cv, 0);
 	}
 #elif defined HAVE_WIN32_THREADS
 	InitializeCriticalSection(&tok->cs);
@@ -433,9 +433,9 @@ void __xmlGlobalInitMutexLock()
 		InitializeCriticalSection(cs);
 		/* Swap it into the global_init_lock */
 #ifdef InterlockedCompareExchangePointer
-		InterlockedCompareExchangePointer((volatile PVOID *)&global_init_lock, cs, NULL);
+		InterlockedCompareExchangePointer((volatile PVOID *)&global_init_lock, cs, 0);
 #else /* Use older void* version */
-		InterlockedCompareExchange((void**)&global_init_lock, (void*)cs, NULL);
+		InterlockedCompareExchange((void**)&global_init_lock, (void*)cs, 0);
 #endif /* InterlockedCompareExchangePointer */
 
 		/* If another thread successfully recorded its critical
@@ -698,7 +698,7 @@ xmlGlobalStatePtr xmlGetGlobalState()
 			return 0;
 
 		tls_set(globalkey, tsd);
-		on_exit_thread(xmlGlobalStateCleanup, NULL);
+		on_exit_thread(xmlGlobalStateCleanup, 0);
 		return (tsd);
 	}
 	return (globalval);
@@ -926,7 +926,7 @@ static void xmlOnceInit()
 #elif defined HAVE_BEOS_THREADS
 	if(atomic_add(&run_once_init, 1) == 0) {
 		globalkey = tls_allocate();
-		tls_set(globalkey, NULL);
+		tls_set(globalkey, 0);
 		mainthread = find_thread(NULL);
 		__xmlInitializeDict();
 	}
@@ -966,7 +966,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 			    globalval = (xmlGlobalState*)(p ? p->memory : NULL);
 			    if(globalval) {
 				    xmlFreeGlobalState(globalval);
-				    TlsSetValue(globalkey, NULL);
+				    TlsSetValue(globalkey, 0);
 			    }
 			    if(p) {
 				    EnterCriticalSection(&cleanup_helpers_cs);

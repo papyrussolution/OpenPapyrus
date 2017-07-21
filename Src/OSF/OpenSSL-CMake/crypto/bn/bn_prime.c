@@ -467,7 +467,7 @@ loop:
 	if(BN_num_bits(rnd) != bits)
 		goto again;
 	bn_check_top(rnd);
-	return (1);
+	return 1;
 }
 
 int bn_probable_prime_dh(BIGNUM * rnd, int bits, const BIGNUM * add, const BIGNUM * rem, BN_CTX * ctx)

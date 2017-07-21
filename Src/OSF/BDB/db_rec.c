@@ -470,7 +470,7 @@ int __db_debug_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 	__db_debug_args * argp;
 	int ret;
 	COMPQUIET(op, DB_TXN_ABORT);
-	COMPQUIET(info, NULL);
+	COMPQUIET(info, 0);
 	REC_PRINT(__db_debug_print);
 	REC_NOOP_INTRO(__db_debug_read);
 	*lsnp = argp->prev_lsn;
@@ -953,8 +953,8 @@ int __db_cksum_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 {
 	__db_cksum_args * argp;
 	int ret;
-	COMPQUIET(info, NULL);
-	COMPQUIET(lsnp, NULL);
+	COMPQUIET(info, 0);
+	COMPQUIET(lsnp, 0);
 	COMPQUIET(op, DB_TXN_ABORT);
 	REC_PRINT(__db_cksum_print);
 	if((ret = __db_cksum_read(env, dbtp->data, &argp)) != 0)
@@ -1192,11 +1192,11 @@ out:
 	 * If HAVE_FTRUNCATE is not defined, we'll never see pg_trunc records
 	 * to recover.
 	 */
-	COMPQUIET(env, NULL);
-	COMPQUIET(dbtp, NULL);
-	COMPQUIET(lsnp, NULL);
+	COMPQUIET(env, 0);
+	COMPQUIET(dbtp, 0);
+	COMPQUIET(lsnp, 0);
 	COMPQUIET(op,  DB_TXN_ABORT);
-	COMPQUIET(info, NULL);
+	COMPQUIET(info, 0);
 	return EINVAL;
 #endif
 }
@@ -1410,11 +1410,11 @@ out:
 	 * If HAVE_FTRUNCATE is not defined, we'll never see pg_sort records
 	 * to recover.
 	 */
-	COMPQUIET(env, NULL);
-	COMPQUIET(dbtp, NULL);
-	COMPQUIET(lsnp, NULL);
+	COMPQUIET(env, 0);
+	COMPQUIET(dbtp, 0);
+	COMPQUIET(lsnp, 0);
 	COMPQUIET(op,  DB_TXN_ABORT);
-	COMPQUIET(info, NULL);
+	COMPQUIET(info, 0);
 	return EINVAL;
 #endif
 }

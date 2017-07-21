@@ -107,7 +107,7 @@ int __ham_quick_delete(DBC*dbc)
 	if((ret = __ham_get_meta(dbc)) != 0)
 		return ret;
 	if((ret = __hamc_writelock(dbc)) == 0) {
-		ret = __ham_del_pair(dbc, 0, NULL);
+		ret = __ham_del_pair(dbc, 0, 0);
 		/*
 		 * If a page was retreived during the delete, put it now. We
 		 * can't rely on the callers cursor close to do that, since bulk
@@ -330,7 +330,7 @@ static int __hamc_del(DBC * dbc, uint32 flags)
 	DB_ASSERT(dbp->env, IS_DIRTY(hcp->page));
 	if(F_ISSET(hcp, H_ISDUP)) {  /* On-page duplicate. */
 		if(hcp->dup_off == 0 && DUP_SIZE(hcp->dup_len) == LEN_HDATA(dbp, hcp->page, hcp->hdr->dbmeta.pagesize, hcp->indx))
-			ret = __ham_del_pair(dbc, 0, NULL);
+			ret = __ham_del_pair(dbc, 0, 0);
 		else {
 			repldbt.flags = 0;
 			F_SET(&repldbt, DB_DBT_PARTIAL);
@@ -351,7 +351,7 @@ static int __hamc_del(DBC * dbc, uint32 flags)
 		}
 	}
 	else   /* Not a duplicate */
-		ret = __ham_del_pair(dbc, 0, NULL);
+		ret = __ham_del_pair(dbc, 0, 0);
 out:
 	if(hcp->page != NULL) {
 		if((t_ret = __memp_fput(mpf, dbc->thread_info, hcp->page, dbc->priority)) != 0 && ret == 0)
@@ -891,7 +891,7 @@ static int __hamc_put(DBC*dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t * 
 	 * equal to 0 and that if ret is equal to 0, that we must have set
 	 * myval.  So, we initialize it here to shut the compiler up.
 	 */
-	COMPQUIET(myval, NULL);
+	COMPQUIET(myval, 0);
 
 	dbp = dbc->dbp;
 	mpf = dbp->mpf;
@@ -980,7 +980,7 @@ done:
 	}
 	else if(ret == 0 && F_ISSET(hcp, H_CONTRACT)) {
 		if(!F_ISSET(dbp, DB_AM_REVSPLITOFF))
-			ret = __ham_contract_table(dbc, NULL);
+			ret = __ham_contract_table(dbc, 0);
 		F_CLR(hcp, H_CONTRACT);
 	}
 err2:
@@ -1412,7 +1412,7 @@ int __ham_overwrite(DBC*dbc, DBT * nval, uint32 flags)
 			if(ISBIG(hcp, (hcp->dup_tlen-nondup_size)+newsize)) {
 				if((ret = __ham_dup_convert(dbc)) != 0)
 					return ret;
-				return hcp->opd->am_put(hcp->opd, NULL, nval, flags, NULL);
+				return hcp->opd->am_put(hcp->opd, NULL, nval, flags, 0);
 			}
 			if((ret = __os_malloc(dbp->env, DUP_SIZE(newsize), &newrec)) != 0)
 				return ret;
@@ -1484,7 +1484,7 @@ int __ham_overwrite(DBC*dbc, DBT * nval, uint32 flags)
 			if(ISBIG(hcp, (hcp->dup_tlen-hcp->dup_len)+nval->size)) {
 				if((ret = __ham_dup_convert(dbc)) != 0)
 					return ret;
-				return hcp->opd->am_put(hcp->opd, NULL, nval, flags, NULL);
+				return hcp->opd->am_put(hcp->opd, NULL, nval, flags, 0);
 			}
 			/* Make sure we maintain sort order. */
 			if(dbp->dup_compare != NULL) {
@@ -1642,7 +1642,7 @@ int __ham_init_dbt(ENV*env, DBT * dbt, uint32 size, void ** bufp, uint32 * sizep
 static int __hamc_update_getorder(DBC*cp, DBC*dbc, uint32 * orderp, db_pgno_t pgno, uint32 is_dup, void * args)
 {
 	HASH_CURSOR * hcp, * lcp;
-	COMPQUIET(args, NULL);
+	COMPQUIET(args, 0);
 	COMPQUIET(pgno, 0);
 	hcp = (HASH_CURSOR *)dbc->internal;
 	if(cp == dbc || cp->dbtype != DB_HASH)
@@ -1823,8 +1823,8 @@ static int __ham_get_clist_func(DBC * dbc, DBC * my_dbc, uint32 * countp, db_pgn
 {
 	int ret;
 	struct __ham_get_clist_args * args;
-	COMPQUIET(my_dbc, NULL);
-	COMPQUIET(countp, NULL);
+	COMPQUIET(my_dbc, 0);
+	COMPQUIET(countp, 0);
 	args = (struct __ham_get_clist_args *)vargs;
 	/*
 	 * We match if dbc->pgno matches the specified

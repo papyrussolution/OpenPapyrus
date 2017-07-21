@@ -53,7 +53,7 @@ int SSL_use_certificate_file(SSL * ssl, const char * file, int type)
 	}
 	if(type == SSL_FILETYPE_ASN1) {
 		j = ERR_R_ASN1_LIB;
-		x = d2i_X509_bio(in, NULL);
+		x = d2i_X509_bio(in, 0);
 	}
 	else if(type == SSL_FILETYPE_PEM) {
 		j = ERR_R_PEM_LIB;
@@ -186,7 +186,7 @@ int SSL_use_RSAPrivateKey_file(SSL * ssl, const char * file, int type)
 	}
 	if(type == SSL_FILETYPE_ASN1) {
 		j = ERR_R_ASN1_LIB;
-		rsa = d2i_RSAPrivateKey_bio(in, NULL);
+		rsa = d2i_RSAPrivateKey_bio(in, 0);
 	}
 	else if(type == SSL_FILETYPE_PEM) {
 		j = ERR_R_PEM_LIB;
@@ -266,7 +266,7 @@ int SSL_use_PrivateKey_file(SSL * ssl, const char * file, int type)
 	}
 	else if(type == SSL_FILETYPE_ASN1) {
 		j = ERR_R_ASN1_LIB;
-		pkey = d2i_PrivateKey_bio(in, NULL);
+		pkey = d2i_PrivateKey_bio(in, 0);
 	}
 	else {
 		SSLerr(SSL_F_SSL_USE_PRIVATEKEY_FILE, SSL_R_BAD_SSL_FILETYPE);
@@ -396,7 +396,7 @@ int SSL_CTX_use_certificate_file(SSL_CTX * ctx, const char * file, int type)
 	}
 	if(type == SSL_FILETYPE_ASN1) {
 		j = ERR_R_ASN1_LIB;
-		x = d2i_X509_bio(in, NULL);
+		x = d2i_X509_bio(in, 0);
 	}
 	else if(type == SSL_FILETYPE_PEM) {
 		j = ERR_R_PEM_LIB;
@@ -479,7 +479,7 @@ int SSL_CTX_use_RSAPrivateKey_file(SSL_CTX * ctx, const char * file, int type)
 	}
 	if(type == SSL_FILETYPE_ASN1) {
 		j = ERR_R_ASN1_LIB;
-		rsa = d2i_RSAPrivateKey_bio(in, NULL);
+		rsa = d2i_RSAPrivateKey_bio(in, 0);
 	}
 	else if(type == SSL_FILETYPE_PEM) {
 		j = ERR_R_PEM_LIB;
@@ -555,7 +555,7 @@ int SSL_CTX_use_PrivateKey_file(SSL_CTX * ctx, const char * file, int type)
 	}
 	else if(type == SSL_FILETYPE_ASN1) {
 		j = ERR_R_ASN1_LIB;
-		pkey = d2i_PrivateKey_bio(in, NULL);
+		pkey = d2i_PrivateKey_bio(in, 0);
 	}
 	else {
 		SSLerr(SSL_F_SSL_CTX_USE_PRIVATEKEY_FILE, SSL_R_BAD_SSL_FILETYPE);

@@ -475,7 +475,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SCopy
 	}
 	//SLS.SetAddedMsgString(pDestFileName);
 	//THROW_V(desthdl != INVALID_HANDLE_VALUE, SLERR_OPENFAULT);
-	flen = GetFileSize(srchdl, NULL);
+	flen = GetFileSize(srchdl, 0);
 
 	scfd.SrcFileName   = pSrcFileName;
 	scfd.DestFileName  = pDestFileName;
@@ -651,7 +651,7 @@ int SFileUtil::GetStat(const char * pFileName, Stat * pStat)
 	MEMSZERO(stat);
 #ifdef __WIN32__
 	LARGE_INTEGER size;
-	HANDLE srchdl = CreateFile(pFileName, FILE_READ_ATTRIBUTES|FILE_READ_EA|STANDARD_RIGHTS_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	HANDLE srchdl = CreateFile(pFileName, FILE_READ_ATTRIBUTES|FILE_READ_EA|STANDARD_RIGHTS_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 	SLS.SetAddedMsgString(pFileName);
 	THROW_V(srchdl != INVALID_HANDLE_VALUE, SLERR_OPENFAULT);
 	SFile::GetTime((int)srchdl, &stat.CrtTime, &stat.AccsTime, &stat.ModTime);

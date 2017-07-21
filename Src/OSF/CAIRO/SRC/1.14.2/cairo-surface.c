@@ -463,7 +463,7 @@ cairo_surface_t * cairo_surface_create_similar(cairo_surface_t  * other, cairo_c
 	if(unlikely(surface->status))
 		return surface;
 	_cairo_pattern_init_solid(&pattern, CAIRO_COLOR_TRANSPARENT);
-	status = _cairo_surface_paint(surface, CAIRO_OPERATOR_CLEAR, &pattern.base, NULL);
+	status = _cairo_surface_paint(surface, CAIRO_OPERATOR_CLEAR, &pattern.base, 0);
 	if(unlikely(status)) {
 		cairo_surface_destroy(surface);
 		surface = _cairo_surface_create_in_error(status);
@@ -754,7 +754,7 @@ cairo_surface_t * _cairo_surface_create_scratch(cairo_surface_t * other, cairo_c
 		return surface;
 	if(color) {
 		_cairo_pattern_init_solid(&pattern, color);
-		status = _cairo_surface_paint(surface, color == CAIRO_COLOR_TRANSPARENT ? CAIRO_OPERATOR_CLEAR : CAIRO_OPERATOR_SOURCE, &pattern.base, NULL);
+		status = _cairo_surface_paint(surface, color == CAIRO_COLOR_TRANSPARENT ? CAIRO_OPERATOR_CLEAR : CAIRO_OPERATOR_SOURCE, &pattern.base, 0);
 		if(unlikely(status)) {
 			cairo_surface_destroy(surface);
 			surface = _cairo_surface_create_in_error(status);
@@ -1229,7 +1229,7 @@ cairo_status_t _cairo_surface_copy_mime_data(cairo_surface_t * dst, cairo_surfac
 	if(unlikely(status))
 		return _cairo_surface_set_error(dst, status);
 	/* now increment the reference counters for the copies */
-	_cairo_user_data_array_foreach(&dst->mime_data, _cairo_mime_data_reference, NULL);
+	_cairo_user_data_array_foreach(&dst->mime_data, _cairo_mime_data_reference, 0);
 	return CAIRO_STATUS_SUCCESS;
 }
 

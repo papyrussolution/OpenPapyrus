@@ -236,7 +236,7 @@ int ASYNC_pause_job(void)
 {
 	ASYNC_JOB * job;
 	async_ctx * ctx = async_get_ctx();
-	if(ctx == NULL || ctx->currjob == NULL || ctx->blocked) {
+	if(!ctx || ctx->currjob == NULL || ctx->blocked) {
 		/*
 		 * Could be we've deliberately not been started within a job so this is
 		 * counted as success.
@@ -333,7 +333,6 @@ int ASYNC_init_thread(size_t max_size, size_t init_size)
 		ASYNCerr(ASYNC_F_ASYNC_INIT_THREAD, ASYNC_R_FAILED_TO_SET_POOL);
 		goto err;
 	}
-
 	return 1;
 err:
 	async_free_pool_internal(pool);
@@ -342,14 +341,14 @@ err:
 
 static void async_free_pool_internal(async_pool * pool)
 {
-	if(pool == NULL)
-		return;
-	async_empty_pool(pool);
-	sk_ASYNC_JOB_free(pool->jobs);
-	OPENSSL_free(pool);
-	CRYPTO_THREAD_set_local(&poolkey, NULL);
-	async_local_cleanup();
-	async_ctx_free();
+	if(pool) {
+		async_empty_pool(pool);
+		sk_ASYNC_JOB_free(pool->jobs);
+		OPENSSL_free(pool);
+		CRYPTO_THREAD_set_local(&poolkey, 0);
+		async_local_cleanup();
+		async_ctx_free();
+	}
 }
 
 void ASYNC_cleanup_thread(void)
@@ -360,9 +359,7 @@ void ASYNC_cleanup_thread(void)
 ASYNC_JOB * ASYNC_get_current_job(void)
 {
 	async_ctx * ctx = async_get_ctx();
-	if(!ctx)
-		return NULL;
-	return ctx->currjob;
+	return ctx ? ctx->currjob : 0;
 }
 
 ASYNC_WAIT_CTX * ASYNC_get_wait_ctx(ASYNC_JOB * job)
@@ -373,24 +370,16 @@ ASYNC_WAIT_CTX * ASYNC_get_wait_ctx(ASYNC_JOB * job)
 void ASYNC_block_pause(void)
 {
 	async_ctx * ctx = async_get_ctx();
-	if(ctx == NULL || ctx->currjob == NULL) {
-		/*
-		 * We're not in a job anyway so ignore this
-		 */
-		return;
-	}
+	if(!ctx || ctx->currjob == NULL)
+		return; // We're not in a job anyway so ignore this
 	ctx->blocked++;
 }
 
 void ASYNC_unblock_pause(void)
 {
 	async_ctx * ctx = async_get_ctx();
-	if(ctx == NULL || ctx->currjob == NULL) {
-		/*
-		 * We're not in a job anyway so ignore this
-		 */
-		return;
-	}
+	if(!ctx || ctx->currjob == NULL)
+		return; // We're not in a job anyway so ignore this
 	if(ctx->blocked > 0)
 		ctx->blocked--;
 }

@@ -11,7 +11,7 @@
 #include <internal/cryptlib_int.h>
 //#include <openssl/err.h>
 #include <internal/rand.h>
-#include <internal/bio.h>
+//#include <internal/bio.h>
 //#include <openssl/evp.h>
 #include <internal/evp_int.h>
 #include <internal/conf.h>
@@ -45,7 +45,7 @@ static struct thread_local_inits_st * ossl_init_get_thread_local(int alloc)
 		CRYPTO_THREAD_set_local(&threadstopkey, local);
 	}
 	if(!alloc) {
-		CRYPTO_THREAD_set_local(&threadstopkey, NULL);
+		CRYPTO_THREAD_set_local(&threadstopkey, 0);
 	}
 	return local;
 }

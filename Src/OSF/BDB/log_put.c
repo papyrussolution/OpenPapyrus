@@ -1329,12 +1329,12 @@ static int __log_put_record_int(ENV * env, DB * dbp, DB_TXN * txnp, DB_LSN * ret
 	uint8 * bp;
 	int is_durable, ret;
 	void * hdrstart;
-	COMPQUIET(lr, NULL);
+	COMPQUIET(lr, 0);
 	COMPQUIET(hdrsize, 0);
 	COMPQUIET(op, 0);
-	COMPQUIET(hdrstart, NULL);
-	COMPQUIET(pghdrstart, NULL);
-	COMPQUIET(header, NULL);
+	COMPQUIET(hdrstart, 0);
+	COMPQUIET(pghdrstart, 0);
+	COMPQUIET(header, 0);
 	/*
 	 * rlsnp will be stored into while holding the log system lock.
 	 * If this is a commit record then ret_lsnp will be the address of
@@ -1544,7 +1544,7 @@ static int __log_put_record_int(ENV * env, DB * dbp, DB_TXN * txnp, DB_LSN * ret
 	}
 #ifdef LOG_DIAGNOSTIC
 	if(ret != 0)
-		__db_addrem_print(env, (DBT *)&logrec, ret_lsnp, DB_TXN_PRINT, NULL);
+		__db_addrem_print(env, (DBT *)&logrec, ret_lsnp, DB_TXN_PRINT, 0);
 #endif
 
 #ifdef DIAGNOSTIC

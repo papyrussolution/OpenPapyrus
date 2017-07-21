@@ -328,7 +328,7 @@ static int __db_env_init(DB_ENV * dbenv)
 	dbenv->thread_id_string = __env_thread_id_string;
 
 	env = dbenv->env;
-	__os_id(NULL, &env->pid_cache, NULL);
+	__os_id(NULL, &env->pid_cache, 0);
 
 	env->db_ref = 0;
 	env->log_verify_wrap = __log_verify_wrap;
@@ -637,7 +637,7 @@ err:
 	ENV_LEAVE(env, ip);
 	return ret;
 #else
-	COMPQUIET(passwd, NULL);
+	COMPQUIET(passwd, 0);
 	COMPQUIET(flags, 0);
 	__db_errx(dbenv->env, DB_STR("1557", "library build did not include support for cryptography"));
 	return DB_OPNOTSUP;

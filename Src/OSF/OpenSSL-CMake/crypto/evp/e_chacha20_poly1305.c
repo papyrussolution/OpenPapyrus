@@ -209,7 +209,7 @@ static int chacha20_poly1305_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 		actx->mac_inited = 1;
 	}
 	if(in) {                                /* aad or text */
-		if(out == NULL) {               /* aad */
+		if(!out) {               /* aad */
 			Poly1305_Update(POLY1305_ctx(actx), in, len);
 			actx->len.aad += len;
 			actx->aad = 1;

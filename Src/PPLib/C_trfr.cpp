@@ -869,6 +869,8 @@ SString & SLAPI PPLotFaultArray::Message(uint p, SString & rBuf)
 			case PPLotFault::InadqLotWoTaxFlagOn: msg_id = PPERR_ELOT_INADQLOTWOTAXFLAGON; break; // @v8.9.0
 			case PPLotFault::InadqTrfrWoTaxFlagOn: msg_id = PPERR_ELOT_INADQTRFRWOTAXFLAGON; break; // @v8.9.0
 			case PPLotFault::EgaisCodeAlone:       msg_id = PPERR_ELOT_EGAISCODEALONE; break; // @v9.3.1
+			case PPLotFault::NoEgaisCode:          msg_id = PPERR_ELOT_NOEGAISCODE; break; // @v9.7.8
+			case PPLotFault::NoEgaisCodeAmbig:     msg_id = PPERR_ELOT_NOEGAISCODEAMBIG; break; // @v9.7.8
 			default: msg_id = PPERR_ELOT_UNKNOWN; break;
 		}
 		SString b, lot_str, temp_buf;
@@ -1051,6 +1053,7 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 	int    ok = 1;
 	if(lotID) {
 		PPObjBill * p_bobj = BillObj;
+		Reference * p_ref = PPRef;
 		ReceiptTbl::Rec rec;
 		Goods2Tbl::Rec goods_rec; // «апись товара, к которому прив€зан лот
 		SString serial_buf;
@@ -1061,9 +1064,10 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 			THROW(Rcpt.Search(lotID, &rec) > 0);
 		}
 		if(rec.GoodsID) {
-            if(goods_obj.Search(labs(rec.GoodsID), &goods_rec) > 0) {
+			const PPID goods_id = labs(rec.GoodsID);
+            if(goods_obj.Search(goods_id, &goods_rec) > 0) {
 				if(flags & TLRF_SETALCCODETOGOODS) {
-					if(PPRef->Ot.GetTagStr(PPOBJ_LOT, rec.ID, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code) > 0) {
+					if(p_ref->Ot.GetTagStr(PPOBJ_LOT, rec.ID, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code) > 0) {
 						if(goods_obj.P_Tbl->SearchByBarcode(egais_code, 0, 0) > 0) {
 							;
 						}
@@ -1072,6 +1076,26 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 						}
 					}
 				}
+				// @v9.7.8 {
+				if(flags & TLRF_SETALCCODETOLOTS) {
+					if(p_ref->Ot.GetTagStr(PPOBJ_LOT, rec.ID, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code) <= 0) {
+						BarcodeArray bc_list;
+						goods_obj.P_Tbl->ReadBarcodes(goods_id, bc_list);
+						uint bcc = bc_list.getCount();
+						if(bcc) do {
+							const BarcodeTbl::Rec & r_bc_rec = bc_list.at(--bcc);
+							if(strlen(r_bc_rec.Code) != 19)
+								bc_list.atFree(bcc);
+						} while(bcc);
+						if(bc_list.getCount() == 1) {
+							pAry->AddFault(PPLotFault::NoEgaisCode, &rec, 0, 0);
+						}
+						else if(bc_list.getCount() > 1) {
+							pAry->AddFault(PPLotFault::NoEgaisCodeAmbig, &rec, 0, 0);
+						}
+					}
+				}
+				// } @v9.7.8 
             }
             else {
 				pAry->AddFault(PPLotFault::RefGoods, &rec, 0, 0);
@@ -1356,8 +1380,9 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 	SString msg_buf, serial_buf;
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
-	if(lotID && pFaultList && pFaultList->getCount() && flags & (TLRF_REPAIR|TLRF_ADJUNUQSERIAL|TLRF_SETALCCODETOGOODS)) {
+	if(lotID && pFaultList && pFaultList->getCount() && flags & (TLRF_REPAIR|TLRF_ADJUNUQSERIAL|TLRF_SETALCCODETOGOODS|TLRF_SETALCCODETOLOTS)) {
 		PPObjBill * p_bobj = BillObj;
+		Reference * p_ref = PPRef;
 		PPLotFault fault;
 		uint   fault_pos = 0;
 		//THROW(PPStartTransaction(&ta, use_ta));
@@ -1373,10 +1398,14 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 			}
 		}
 		// @v9.3.1 {
+		// @v9.7.8 {
+		if(flags & TLRF_SETALCCODETOLOTS) {
+		}
+		// } @v9.7.8
 		if(flags & TLRF_SETALCCODETOGOODS) {
 			if(pFaultList->HasFault(PPLotFault::EgaisCodeAlone, &fault, &fault_pos)) {
 				SString egais_code;
-				if(PPRef->Ot.GetTagStr(PPOBJ_LOT, lotID, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code) > 0) {
+				if(p_ref->Ot.GetTagStr(PPOBJ_LOT, lotID, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code) > 0) {
 					if(goods_obj.P_Tbl->SearchByBarcode(egais_code, 0, 0) < 0) {
 						THROW(goods_obj.P_Tbl->AddBarcode(labs(lot_rec.GoodsID), egais_code, 1.0, 0));
 					}
@@ -1384,6 +1413,30 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 			}
 		}
 		// } @v9.3.1
+		// @v9.7.8 {
+		if(flags & TLRF_SETALCCODETOLOTS) {
+			if(pFaultList->HasFault(PPLotFault::NoEgaisCode, &fault, &fault_pos)) {
+				SString ex_egais_code;
+				if(p_ref->Ot.GetTagStr(PPOBJ_LOT, lotID, PPTAG_LOT_FSRARLOTGOODSCODE, ex_egais_code) <= 0) {
+					const PPID goods_id = labs(lot_rec.GoodsID);
+					BarcodeArray bc_list;
+					goods_obj.P_Tbl->ReadBarcodes(goods_id, bc_list);
+					uint bcc = bc_list.getCount();
+					if(bcc) do {
+						const BarcodeTbl::Rec & r_bc_rec = bc_list.at(--bcc);
+						if(strlen(r_bc_rec.Code) != 19)
+							bc_list.atFree(bcc);
+					} while(bcc);
+					if(bc_list.getCount() == 1) {
+						ObjTagItem tag_item;
+						if(tag_item.SetStr(PPTAG_LOT_FSRARLOTGOODSCODE, bc_list.at(0).Code)) {
+							THROW(p_ref->Ot.PutTag(PPOBJ_LOT, lotID, &tag_item, 0));
+						}
+					}
+				}
+			}
+		}
+		// } @v9.7.8 
 		if(flags & TLRF_REPAIR) {
 			{
 				GoodsStockExt gse;

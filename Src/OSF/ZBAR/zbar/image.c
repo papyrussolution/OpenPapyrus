@@ -26,7 +26,7 @@
 #include "error.h"
 #include "symbol.h"
 
-void _zbar_image_refcnt(zbar_image_t * img, int delta)
+void FASTCALL _zbar_image_refcnt(zbar_image_t * img, int delta)
 {
 	if(!_zbar_refcnt(&img->refcnt, delta) && delta <= 0) {
 		if(img->cleanup)
@@ -36,14 +36,14 @@ void _zbar_image_refcnt(zbar_image_t * img, int delta)
 	}
 }
 
-void _zbar_image_swap_symbols(zbar_image_t * a, zbar_image_t * b)
+void FASTCALL _zbar_image_swap_symbols(zbar_image_t * a, zbar_image_t * b)
 {
 	zbar_symbol_set_t * tmp = a->syms;
 	a->syms = b->syms;
 	b->syms = tmp;
 }
 
-void _zbar_image_copy_size(zbar_image_t * dst, const zbar_image_t * src)
+void FASTCALL _zbar_image_copy_size(zbar_image_t * dst, const zbar_image_t * src)
 {
 	dst->width = src->width;
 	dst->height = src->height;
@@ -331,7 +331,7 @@ int zbar_image_write_png(const zbar_image_t * img, const char * filename)
 	png_set_IHDR(png, info, img->width, img->height, 8, PNG_COLOR_TYPE_GRAY,
 	    PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 	png_set_rows(png, info, (void*)rows);
-	png_write_png(png, info, PNG_TRANSFORM_IDENTITY, NULL);
+	png_write_png(png, info, PNG_TRANSFORM_IDENTITY, 0);
 	png_write_end(png, info);
 	rc = 0;
 done:

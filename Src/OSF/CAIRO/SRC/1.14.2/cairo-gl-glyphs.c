@@ -365,7 +365,7 @@ static cairo_int_status_t render_glyphs_via_mask(cairo_gl_surface_t * dst,
 	status = render_glyphs((cairo_gl_surface_t*)mask,
 	    info->extents.x, info->extents.y,
 	    CAIRO_OPERATOR_ADD, NULL,
-	    info, &has_component_alpha, NULL);
+	    info, &has_component_alpha, 0);
 	if(likely(status == CAIRO_STATUS_SUCCESS)) {
 		cairo_surface_pattern_t mask_pattern;
 		cairo_surface_pattern_t source_pattern;
@@ -469,7 +469,7 @@ cairo_int_status_t _cairo_gl_composite_glyphs(void * _dst,
     cairo_composite_glyphs_info_t * info)
 {
 	return _cairo_gl_composite_glyphs_with_clip(_dst, op, _src, src_x, src_y,
-	    dst_x, dst_y, info, NULL);
+	    dst_x, dst_y, info, 0);
 }
 
 void _cairo_gl_glyph_cache_init(cairo_gl_glyph_cache_t * cache)

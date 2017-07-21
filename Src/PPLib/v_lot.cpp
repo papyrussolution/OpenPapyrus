@@ -836,13 +836,12 @@ static int SLAPI RecoverLotsDialog(LotRecoverParam & rParam)
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS,  3, TLRF_REPAIRCOST);
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS,  4, TLRF_REPAIRPRICE);
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS,  5, TLRF_RMVLOST);
-		// @v7.3.0 {
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS,  6, TLRF_CHECKUNIQSERIAL);
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS,  7, TLRF_ADJUNUQSERIAL);
-		// } @v7.3.0
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS,  8, TLRF_INDEPHQTTY); // @v8.3.9
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS,  9, TLRF_REPAIRWOTAXFLAGS); // @v8.9.0
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 10, TLRF_SETALCCODETOGOODS); // @v9.3.1
+		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 11, TLRF_SETALCCODETOLOTS); // @v9.7.8
 		if(!(LConfig.Flags & CFGFLG_USEPACKAGE)) {
 			dlg->DisableClusterItem(CTL_CORLOTS_FLAGS, 1, 1);
 			rParam.Flags &= ~(TLRF_REPAIRPACK);
@@ -902,7 +901,7 @@ int SLAPI PPViewLot::RecoverLots()
 			if(r < 0) {
 				err_lot_count++;
 				ary.AddMessage();
-				if(param.Flags & (TLRF_REPAIR|TLRF_ADJUNUQSERIAL|TLRF_SETALCCODETOGOODS)) {
+				if(param.Flags & (TLRF_REPAIR|TLRF_ADJUNUQSERIAL|TLRF_SETALCCODETOGOODS|TLRF_SETALCCODETOLOTS)) {
 					THROW(P_BObj->trfr->RecoverLot(lv_item.ID, &ary, param.Flags, 0));
 					modified = 1;
 				}

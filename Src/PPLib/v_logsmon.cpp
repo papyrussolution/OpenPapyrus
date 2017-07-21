@@ -187,7 +187,7 @@ SLAPI PPViewLogsMonitor::PPViewLogsMonitor() : PPView(0, &Filt, PPVIEW_LOGSMONIT
 	LogsArray all_logs;
 	LoadAllLogs(&all_logs);
 	for(uint i=0; i<all_logs.getCount(); i++)
-		LogsOffsets.AddUnique(all_logs.at(i).ID, 0, NULL);
+		LogsOffsets.AddUnique(all_logs.at(i).ID, 0, 0);
 }
 //
 SLAPI PPViewLogsMonitor::~PPViewLogsMonitor()

@@ -67,7 +67,7 @@ int __repmgr_thread_start(ENV*env, REPMGR_RUNNABLE * runnable)
 	runnable->env = env;
 	if((event = CreateEvent(NULL, TRUE, FALSE, NULL)) == NULL)
 		return GetLastError();
-	thread_id = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)runnable->run, runnable, 0, NULL);
+	thread_id = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)runnable->run, runnable, 0, 0);
 	if(thread_id == NULL) {
 		CloseHandle(event);
 		return GetLastError();

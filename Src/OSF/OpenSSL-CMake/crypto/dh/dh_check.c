@@ -43,7 +43,7 @@ int DH_check_params(const DH * dh, int * ret)
 err:
 	BN_CTX_end(ctx);
 	BN_CTX_free(ctx);
-	return (ok);
+	return ok;
 }
 /*-
  * Check that p is a safe prime and
@@ -83,7 +83,7 @@ int DH_check(const DH * dh, int * ret)
 			if(!BN_is_one(t1))
 				*ret |= DH_NOT_SUITABLE_GENERATOR;
 		}
-		r = BN_is_prime_ex(dh->q, BN_prime_checks, ctx, NULL);
+		r = BN_is_prime_ex(dh->q, BN_prime_checks, ctx, 0);
 		if(r < 0)
 			goto err;
 		if(!r)
@@ -113,7 +113,7 @@ int DH_check(const DH * dh, int * ret)
 	else
 		*ret |= DH_UNABLE_TO_CHECK_GENERATOR;
 
-	r = BN_is_prime_ex(dh->p, BN_prime_checks, ctx, NULL);
+	r = BN_is_prime_ex(dh->p, BN_prime_checks, ctx, 0);
 	if(r < 0)
 		goto err;
 	if(!r)
@@ -121,7 +121,7 @@ int DH_check(const DH * dh, int * ret)
 	else if(!dh->q) {
 		if(!BN_rshift1(t1, dh->p))
 			goto err;
-		r = BN_is_prime_ex(t1, BN_prime_checks, ctx, NULL);
+		r = BN_is_prime_ex(t1, BN_prime_checks, ctx, 0);
 		if(r < 0)
 			goto err;
 		if(!r)
@@ -131,7 +131,7 @@ int DH_check(const DH * dh, int * ret)
 err:
 	BN_CTX_end(ctx);
 	BN_CTX_free(ctx);
-	return (ok);
+	return ok;
 }
 
 int DH_check_pub_key(const DH * dh, const BIGNUM * pub_key, int * ret)
@@ -164,6 +164,6 @@ int DH_check_pub_key(const DH * dh, const BIGNUM * pub_key, int * ret)
 err:
 	BN_CTX_end(ctx);
 	BN_CTX_free(ctx);
-	return (ok);
+	return ok;
 }
 

@@ -660,7 +660,7 @@ uint32_t _pixman_image_get_solid(pixman_implementation_t * imp, pixman_image_t *
 otherwise:
 		_pixman_implementation_iter_init(imp, &iter, image, 0, 0, 1, 1,
 		    (uint8_t*)&result, (iter_flags_t)(ITER_NARROW | ITER_SRC), image->common.flags);
-		result = *iter.get_scanline(&iter, NULL);
+		result = *iter.get_scanline(&iter, 0);
 		if(iter.fini)
 			iter.fini(&iter);
 	}

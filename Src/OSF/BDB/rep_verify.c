@@ -655,7 +655,7 @@ int __rep_verify_match(ENV * env, DB_LSN * reclsnp, __time64_t savetime)
 		__rep_send_message(env, master, REP_ALL_REQ, reclsnp, NULL, 0, DB_REP_ANYWHERE);
 	}
 	if(event)
-		__rep_fire_event(env, DB_EVENT_REP_INIT_DONE, NULL);
+		__rep_fire_event(env, DB_EVENT_REP_INIT_DONE, 0);
 	if(0) {
 errunlock2:
 		MUTEX_UNLOCK(env, rep->mtx_clientdb);

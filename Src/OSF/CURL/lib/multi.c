@@ -310,8 +310,8 @@ error:
 	Curl_conncache_destroy(&multi->conn_cache);
 	Curl_close(multi->closure_handle);
 	multi->closure_handle = NULL;
-	Curl_llist_destroy(&multi->msglist, NULL);
-	Curl_llist_destroy(&multi->pending, NULL);
+	Curl_llist_destroy(&multi->msglist, 0);
+	Curl_llist_destroy(&multi->pending, 0);
 
 	SAlloc::F(multi);
 	return NULL;
@@ -689,7 +689,7 @@ CURLMcode curl_multi_remove_handle(struct Curl_multi * multi,
 
 	/* destroy the timeout list that is held in the easy handle, do this *after*
 	   multi_done() as that may actually call Curl_expire that uses this */
-	Curl_llist_destroy(&data->state.timeoutlist, NULL);
+	Curl_llist_destroy(&data->state.timeoutlist, 0);
 
 	/* as this was using a shared connection cache we clear the pointer to that
 	   since we're not part of that multi handle anymore */
@@ -711,7 +711,7 @@ CURLMcode curl_multi_remove_handle(struct Curl_multi * multi,
 	for(e = multi->msglist.head; e; e = e->next) {
 		struct Curl_message * msg = (struct Curl_message *)e->ptr;
 		if(msg->extmsg.easy_handle == easy) {
-			Curl_llist_remove(&multi->msglist, e, NULL);
+			Curl_llist_remove(&multi->msglist, e, 0);
 			/* there can only be one from this specific handle */
 			break;
 		}
@@ -1096,7 +1096,7 @@ CURLMcode Curl_multi_add_perform(struct Curl_multi * multi,
 
 		/* pass in NULL for 'conn' here since we don't want to init the
 		   connection, only this transfer */
-		Curl_init_do(data, NULL);
+		Curl_init_do(data, 0);
 
 		/* take this handle to the perform state right away */
 		multistate(data, CURLM_STATE_PERFORM);
@@ -1145,7 +1145,7 @@ static CURLcode multi_reconnect_request(struct connectdata ** connp)
 			if(async) {
 				/* Now, if async is TRUE here, we need to wait for the name
 				   to resolve */
-				result = Curl_resolver_wait_resolv(conn, NULL);
+				result = Curl_resolver_wait_resolv(conn, 0);
 				if(result)
 					return result;
 
@@ -2179,8 +2179,8 @@ CURLMcode curl_multi_cleanup(struct Curl_multi * multi)
 
 		Curl_hash_destroy(&multi->sockhash);
 		Curl_conncache_destroy(&multi->conn_cache);
-		Curl_llist_destroy(&multi->msglist, NULL);
-		Curl_llist_destroy(&multi->pending, NULL);
+		Curl_llist_destroy(&multi->msglist, 0);
+		Curl_llist_destroy(&multi->pending, 0);
 
 		/* remove all easy handles */
 		data = multi->easyp;
@@ -2236,7 +2236,7 @@ CURLMsg * curl_multi_info_read(struct Curl_multi * multi, int * msgs_in_queue)
 		e = multi->msglist.head;
 		msg = (struct Curl_message *)e->ptr;
 		/* remove the extracted entry */
-		Curl_llist_remove(&multi->msglist, e, NULL);
+		Curl_llist_remove(&multi->msglist, e, 0);
 		*msgs_in_queue = curlx_uztosi(Curl_llist_count(&multi->msglist));
 		return &msg->extmsg;
 	}
@@ -2445,7 +2445,7 @@ static CURLMcode add_next_timeout(struct timeval now,
 		time_t diff = curlx_tvdiff(*(struct timeval*)e->ptr, now);
 		if(diff <= 0)
 			/* remove outdated entry */
-			Curl_llist_remove(list, e, NULL);
+			Curl_llist_remove(list, e, 0);
 		else
 			/* the list is sorted so get out on the first mismatch */
 			break;
@@ -2463,7 +2463,7 @@ static CURLMcode add_next_timeout(struct timeval now,
 		memcpy(tv, e->ptr, sizeof(*tv));
 
 		/* remove first entry from list */
-		Curl_llist_remove(list, e, NULL);
+		Curl_llist_remove(list, e, 0);
 
 		/* insert this node again into the splay */
 		multi->timetree = Curl_splayinsert(*tv, multi->timetree,
@@ -2960,7 +2960,7 @@ void Curl_expire_clear(struct Curl_easy * data)
 
 		/* flush the timeout list too */
 		while(list->size > 0)
-			Curl_llist_remove(list, list->tail, NULL);
+			Curl_llist_remove(list, list->tail, 0);
 
 #ifdef DEBUGBUILD
 		infof(data, "Expire cleared\n");
@@ -3024,7 +3024,7 @@ void Curl_multi_process_pending_handles(struct Curl_multi * multi)
 		if(data->mstate == CURLM_STATE_CONNECT_PEND) {
 			multistate(data, CURLM_STATE_CONNECT);
 			/* Remove this node from the list */
-			Curl_llist_remove(&multi->pending, e, NULL);
+			Curl_llist_remove(&multi->pending, e, 0);
 			/* Make sure that the handle will be processed soonish. */
 			Curl_expire_latest(data, 0);
 		}

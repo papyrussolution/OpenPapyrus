@@ -30,8 +30,7 @@ uint UTF8Length(const wchar_t * uptr, uint tlen)
 		else if(uch < 0x800) {
 			len += 2;
 		}
-		else if((uch >= SURROGATE_LEAD_FIRST) &&
-		    (uch <= SURROGATE_TRAIL_LAST)) {
+		else if((uch >= SURROGATE_LEAD_FIRST) && (uch <= SURROGATE_TRAIL_LAST)) {
 			len += 4;
 			i++;
 		}
@@ -55,8 +54,7 @@ void UTF8FromUTF16(const wchar_t * uptr, uint tlen, char * putf, uint len)
 			putf[k++] = static_cast<char>(0xC0 | (uch >> 6));
 			putf[k++] = static_cast<char>(0x80 | (uch & 0x3f));
 		}
-		else if((uch >= SURROGATE_LEAD_FIRST) &&
-		    (uch <= SURROGATE_TRAIL_LAST)) {
+		else if((uch >= SURROGATE_LEAD_FIRST) && (uch <= SURROGATE_TRAIL_LAST)) {
 			// Half a surrogate pair
 			i++;
 			uint xch = 0x10000 + ((uch & 0x3ff) << 10) + (uptr[i] & 0x3ff);

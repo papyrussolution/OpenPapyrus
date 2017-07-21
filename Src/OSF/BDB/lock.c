@@ -340,7 +340,7 @@ static int __lock_get_api(ENV * env, uint32 locker, uint32 flags, const DBT * ob
 	DB_LOCKER * sh_locker;
 	DB_LOCKREGION * region;
 	int ret;
-	COMPQUIET(region, NULL);
+	COMPQUIET(region, 0);
 	region = (DB_LOCKREGION *)env->lk_handle->reginfo.primary;
 	LOCK_LOCKERS(env, region);
 	ret = __lock_getlocker_int(env->lk_handle, locker, 0, &sh_locker);
@@ -936,7 +936,7 @@ int FASTCALL __lock_put(ENV * env, DB_LOCK * lock)
 		// actually abort anything.
 		//
 		if(ret == 0 && run_dd)
-			__lock_detect(env, ((DB_LOCKREGION *)lt->reginfo.primary)->detect, NULL);
+			__lock_detect(env, ((DB_LOCKREGION *)lt->reginfo.primary)->detect, 0);
 	}
 	return ret;
 }
@@ -999,7 +999,7 @@ static int __lock_put_internal(DB_LOCKTAB * lt, struct __db_lock * lockp, uint32
 	ENV * env;
 	uint32 part_id;
 	int ret, state_changed;
-	COMPQUIET(env, NULL);
+	COMPQUIET(env, 0);
 	env = lt->env;
 	region = (DB_LOCKREGION * )lt->reginfo.primary;
 	ret = state_changed = 0;

@@ -390,11 +390,11 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 								{
 									PPID   in_tax_grp_id = NZOR(lot_item.InTaxGrpID, goods_rec.TaxGrpID);
 									long   amt_fl = 0;
-									GTaxVect vect(5); // @v6.7.11 ()-->(5)
+									GTaxVect vect(5);
 									PPGoodsTaxEntry gt;
 									if(GObj.GTxObj.Fetch(in_tax_grp_id, org_date, 0L, &gt) > 0) {
 										amt_fl = ~GTAXVF_SALESTAX;
-										long excl_fl = (vat_free > 0) ? GTAXVF_VAT : 0;
+										const long excl_fl = (vat_free > 0) ? GTAXVF_VAT : 0;
 										vect.Calc_(&gt, cost, tax_factor, amt_fl, excl_fl);
 										vat = vect.GetValue(GTAXVF_VAT);
 										stax = vect.GetValue(GTAXVF_SALESTAX);

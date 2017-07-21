@@ -39,7 +39,7 @@ int EVP_SignFinal(EVP_MD_CTX * ctx, uchar * sigret, uint * siglen, EVP_PKEY * pk
 	}
 	sltmp = (size_t)EVP_PKEY_size(pkey);
 	i = 0;
-	pkctx = EVP_PKEY_CTX_new(pkey, NULL);
+	pkctx = EVP_PKEY_CTX_new(pkey, 0);
 	if(pkctx == NULL)
 		goto err;
 	if(EVP_PKEY_sign_init(pkctx) <= 0)

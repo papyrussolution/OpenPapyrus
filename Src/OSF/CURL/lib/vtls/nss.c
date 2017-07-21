@@ -468,7 +468,7 @@ static CURLcode nss_load_cert(struct ssl_connect_data * ssl,
 		 * <https://bugzilla.redhat.com/733685>. */
 		nickname = aprintf("PEM Token #1:%s", n);
 		if(nickname) {
-			cert = PK11_FindCertFromNickname(nickname, NULL);
+			cert = PK11_FindCertFromNickname(nickname, 0);
 			if(cert)
 				CERT_DestroyCertificate(cert);
 
@@ -1073,7 +1073,7 @@ static SECStatus SelectClientCert(void * arg, PRFileDesc * sock,
 			return SECFailure;
 		}
 
-		key = PK11_FindPrivateKeyFromCert(slot, cert, NULL);
+		key = PK11_FindPrivateKeyFromCert(slot, cert, 0);
 		PK11_FreeSlot(slot);
 		if(NULL == key) {
 			failf(data, "NSS: private key from file not found");
@@ -1323,7 +1323,7 @@ void Curl_nss_cleanup(void)
 	}
 
 	/* destroy all CRL items */
-	Curl_llist_destroy(&nss_crl_list, NULL);
+	Curl_llist_destroy(&nss_crl_list, 0);
 
 	PR_Unlock(nss_initlock);
 
@@ -1370,7 +1370,7 @@ static void nss_close(struct ssl_connect_data * connssl)
 	connssl->client_nickname = NULL;
 
 	/* destroy all NSS objects in order to avoid failure of NSS shutdown */
-	Curl_llist_destroy(&connssl->obj_list, NULL);
+	Curl_llist_destroy(&connssl->obj_list, 0);
 	connssl->obj_clicert = NULL;
 
 	if(connssl->handle) {
@@ -1620,7 +1620,7 @@ static CURLcode nss_fail_connect(struct ssl_connect_data * connssl,
 	}
 
 	/* cleanup on connection failure */
-	Curl_llist_destroy(&connssl->obj_list, NULL);
+	Curl_llist_destroy(&connssl->obj_list, 0);
 
 	return curlerr;
 }

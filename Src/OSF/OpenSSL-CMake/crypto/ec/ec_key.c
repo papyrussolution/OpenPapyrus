@@ -248,7 +248,7 @@ err:
 int ec_key_simple_generate_public_key(EC_KEY * eckey)
 {
 	return EC_POINT_mul(eckey->group, eckey->pub_key, eckey->priv_key, NULL,
-	    NULL, NULL);
+	    NULL, 0);
 }
 
 int EC_KEY_check_key(const EC_KEY * eckey)

@@ -106,8 +106,8 @@ int __heapc_init(DBC * dbc)
 
 static int __heap_bulk(DBC * dbc, DBT * data, uint32 flags)
 {
-	COMPQUIET(dbc, NULL);
-	COMPQUIET(data, NULL);
+	COMPQUIET(dbc, 0);
+	COMPQUIET(data, 0);
 	COMPQUIET(flags, 0);
 	return EINVAL;
 }
@@ -320,7 +320,7 @@ static int __heapc_get(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t
 	h = (HEAP *)dbp->heap_internal;
 	cp = (HEAP_CURSOR *)dbc->internal;
 	LOCK_INIT(meta_lock);
-	COMPQUIET(pgnop, NULL);
+	COMPQUIET(pgnop, 0);
 	if(F_ISSET(key, DB_DBT_USERMEM) && key->ulen < DB_HEAP_RID_SZ) {
 		key->size = DB_HEAP_RID_SZ;
 		return DB_BUFFER_SMALL;
@@ -698,7 +698,7 @@ static int __heapc_reloc_partial(DBC * dbc, DBT * key, DBT * data)
 	HEAPHDR * old_hdr = (HEAPHDR *)(P_ENTRY(dbp, cp->page, cp->indx));
 	// (replaced by ctr) memzero(&hdr_dbt, sizeof(DBT));
 	// (replaced by ctr) memzero(&log_dbt, sizeof(DBT));
-	COMPQUIET(key, NULL);
+	COMPQUIET(key, 0);
 	/* We only work on partial puts. */
 	DB_ASSERT(dbp->env, F_ISSET(data, DB_DBT_PARTIAL));
 	/*
@@ -1011,7 +1011,7 @@ static int __heapc_reloc(DBC * dbc, DBT * key, DBT * data)
 	old_hdr = (HEAPHDR *)(P_ENTRY(dbp, cp->page, cp->indx));
 	// (replaced by ctr) memzero(&hdr_dbt, sizeof(DBT));
 	// (replaced by ctr) memzero(&log_dbt, sizeof(DBT));
-	COMPQUIET(key, NULL);
+	COMPQUIET(key, 0);
 	/*
 	 * We are updating an existing record, which will grow into a split
 	 * record.  The strategy is to overwrite the existing record (or each

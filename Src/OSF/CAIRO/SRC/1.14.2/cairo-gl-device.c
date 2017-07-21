@@ -85,7 +85,7 @@ static cairo_status_t _gl_flush(void * device)
 	ctx->current_operator = -1;
 	ctx->vertex_size = 0;
 	ctx->pre_shader = NULL;
-	_cairo_gl_set_shader(ctx, NULL);
+	_cairo_gl_set_shader(ctx, 0);
 
 	ctx->dispatch.BindBuffer(GL_ARRAY_BUFFER, 0);
 

@@ -920,9 +920,9 @@ extern void _zbar_image_free(zbar_image_t*);
 	#define zbar_image_write_png(img, filename)
 #endif
 
-void _zbar_image_refcnt(zbar_image_t * img, int delta);
-void _zbar_image_swap_symbols(zbar_image_t * a, zbar_image_t * b);
-void _zbar_image_copy_size(zbar_image_t * dst, const zbar_image_t * src);
+void FASTCALL _zbar_image_refcnt(zbar_image_t * img, int delta);
+void FASTCALL _zbar_image_swap_symbols(zbar_image_t * a, zbar_image_t * b);
+void FASTCALL _zbar_image_copy_size(zbar_image_t * dst, const zbar_image_t * src);
 
 //struct zbar_image_s;
 
@@ -1571,7 +1571,7 @@ extern void zbar_image_scanner_enable_cache(zbar_image_scanner_t * scanner, int 
  * subsequent decodes
  * @since 0.10
  */
-extern void zbar_image_scanner_recycle_image(zbar_image_scanner_t * scanner, zbar_image_t * image);
+extern void FASTCALL zbar_image_scanner_recycle_image(zbar_image_scanner_t * scanner, zbar_image_t * image);
 
 /** retrieve decode results for last scanned image.
  * @returns the symbol set result container or NULL if no results are
@@ -2024,7 +2024,7 @@ extern uint zbar_decoder_get_data_length(const zbar_decoder_t * decoder);
 /** retrieve last decoded symbol type.
  * @returns the type or ::ZBAR_NONE if no new data available
  */
-extern zbar_symbol_type_t zbar_decoder_get_type(const zbar_decoder_t * decoder);
+extern zbar_symbol_type_t FASTCALL zbar_decoder_get_type(const zbar_decoder_t * decoder);
 
 /** retrieve modifier flags for the last decoded symbol.
  * @returns a bitmask indicating which characteristics were detected

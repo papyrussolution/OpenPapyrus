@@ -67,7 +67,7 @@ int __fop_create_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	int ret;
 	char * real_name;
 	const char * dirname;
-	COMPQUIET(info, NULL);
+	COMPQUIET(info, 0);
 	real_name = NULL;
 	REC_PRINT(__fop_create_print);
 	REC_NOOP_INTRO(__fop_create_read);
@@ -124,7 +124,7 @@ int __fop_create_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 	uint8 mbuf[DBMETASIZE];
 	int ret;
 	char * real_name;
-	COMPQUIET(info, NULL);
+	COMPQUIET(info, 0);
 	real_name = NULL;
 	REC_PRINT(__fop_create_print);
 	REC_NOOP_INTRO(__fop_create_read);
@@ -173,7 +173,7 @@ int __fop_remove_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	__fop_remove_args * argp;
 	int ret;
 	char * real_name;
-	COMPQUIET(info, NULL);
+	COMPQUIET(info, 0);
 	real_name = NULL;
 	REC_PRINT(__fop_remove_print);
 	REC_NOOP_INTRO(__fop_remove_read);
@@ -198,7 +198,7 @@ int __fop_write_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 {
 	__fop_write_args * argp;
 	int ret;
-	COMPQUIET(info, NULL);
+	COMPQUIET(info, 0);
 	REC_PRINT(__fop_write_print);
 	REC_NOOP_INTRO(__fop_write_read);
 	ret = 0;
@@ -224,7 +224,7 @@ int __fop_write_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, v
 {
 	__fop_write_args * argp;
 	int ret;
-	COMPQUIET(info, NULL);
+	COMPQUIET(info, 0);
 	REC_PRINT(__fop_write_print);
 	REC_NOOP_INTRO(__fop_write_read);
 	ret = 0;
@@ -272,7 +272,7 @@ static int __fop_rename_recover_int(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_rec
 	char * real_new, * real_old, * src;
 	const char * dirname;
 
-	COMPQUIET(info, NULL);
+	COMPQUIET(info, 0);
 
 	fhp = NULL;
 	meta = (DBMETA *)&mbuf[0];
@@ -377,7 +377,7 @@ static int __fop_rename_42_recover_int(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_
 	uint8 * fileid, mbuf[DBMETASIZE];
 	int ret;
 	char * real_new, * real_old, * src;
-	COMPQUIET(info, NULL);
+	COMPQUIET(info, 0);
 	fhp = NULL;
 	meta = (DBMETA *)&mbuf[0];
 	ret = 0;

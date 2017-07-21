@@ -374,7 +374,7 @@ CURLcode Curl_close(struct Curl_easy * data)
 	/* Destroy the timeout list that is held in the easy handle. It is
 	   /normally/ done by curl_multi_remove_handle() but this is "just in
 	   case" */
-	Curl_llist_destroy(&data->state.timeoutlist, NULL);
+	Curl_llist_destroy(&data->state.timeoutlist, 0);
 
 	data->magic = 0; /* force a clear AFTER the possibly enforced removal from
 	                    the multi handle, since that function uses the magic
@@ -990,7 +990,7 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option,
 				    result = CURLE_OUT_OF_MEMORY;
 			    else {
 				    char * p;
-				    (void)setstropt(&data->set.str[STRING_COPYPOSTFIELDS], NULL);
+				    (void)setstropt(&data->set.str[STRING_COPYPOSTFIELDS], 0);
 				    /* Allocate even when size == 0. This satisfies the need of possible
 				       later address compare to detect the COPYPOSTFIELDS mode, and
 				       to mark that postfields is used rather than read function or
@@ -1016,7 +1016,7 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option,
 		     */
 		    data->set.postfields = va_arg(param, void *);
 		    /* Release old copied data. */
-		    (void)setstropt(&data->set.str[STRING_COPYPOSTFIELDS], NULL);
+		    (void)setstropt(&data->set.str[STRING_COPYPOSTFIELDS], 0);
 		    data->set.httpreq = HTTPREQ_POST;
 		    break;
 
@@ -1030,7 +1030,7 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option,
 		    if(data->set.postfieldsize < bigsize &&
 		    data->set.postfields == data->set.str[STRING_COPYPOSTFIELDS]) {
 			    /* Previous CURLOPT_COPYPOSTFIELDS is no longer valid. */
-			    (void)setstropt(&data->set.str[STRING_COPYPOSTFIELDS], NULL);
+			    (void)setstropt(&data->set.str[STRING_COPYPOSTFIELDS], 0);
 			    data->set.postfields = NULL;
 		    }
 
@@ -1047,7 +1047,7 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option,
 		    if(data->set.postfieldsize < bigsize &&
 		    data->set.postfields == data->set.str[STRING_COPYPOSTFIELDS]) {
 			    /* Previous CURLOPT_COPYPOSTFIELDS is no longer valid. */
-			    (void)setstropt(&data->set.str[STRING_COPYPOSTFIELDS], NULL);
+			    (void)setstropt(&data->set.str[STRING_COPYPOSTFIELDS], 0);
 			    data->set.postfields = NULL;
 		    }
 
@@ -2938,8 +2938,8 @@ static void conn_free(struct connectdata * conn)
 
 	conn_reset_all_postponed_data(conn);
 
-	Curl_llist_destroy(&conn->send_pipe, NULL);
-	Curl_llist_destroy(&conn->recv_pipe, NULL);
+	Curl_llist_destroy(&conn->send_pipe, 0);
+	Curl_llist_destroy(&conn->recv_pipe, 0);
 
 	ZFREE(conn->localdev);
 	Curl_free_primary_ssl_config(&conn->ssl_config);
@@ -3076,7 +3076,7 @@ int Curl_removeHandleFromPipeline(struct Curl_easy * handle,
 		curr = pipeline->head;
 		while(curr) {
 			if(curr->ptr == handle) {
-				Curl_llist_remove(pipeline, curr, NULL);
+				Curl_llist_remove(pipeline, curr, 0);
 				return 1; /* we removed a handle */
 			}
 			curr = curr->next;
@@ -3149,7 +3149,7 @@ static void signalPipeClose(struct curl_llist * pipeline, bool pipe_broke)
 		if(pipe_broke)
 			data->state.pipe_broke = TRUE;
 		Curl_multi_handlePipeBreak(data);
-		Curl_llist_remove(pipeline, curr, NULL);
+		Curl_llist_remove(pipeline, curr, 0);
 		curr = next;
 	}
 }
@@ -4141,8 +4141,8 @@ static struct connectdata * allocate_conn(struct Curl_easy * data)
 	conn->closesocket_client = data->set.closesocket_client;
 	return conn;
 error:
-	Curl_llist_destroy(&conn->send_pipe, NULL);
-	Curl_llist_destroy(&conn->recv_pipe, NULL);
+	Curl_llist_destroy(&conn->send_pipe, 0);
+	Curl_llist_destroy(&conn->recv_pipe, 0);
 	SAlloc::F(conn->master_buffer);
 	SAlloc::F(conn->localdev);
 	SAlloc::F(conn);
@@ -4858,7 +4858,7 @@ static CURLcode parse_proxy(struct Curl_easy * data,
 	/* Is there a username and password given in this proxy url? */
 	atsign = strchr(proxyptr, '@');
 	if(atsign) {
-		CURLcode result = parse_login_details(proxyptr, atsign - proxyptr, &proxyuser, &proxypasswd, NULL);
+		CURLcode result = parse_login_details(proxyptr, atsign - proxyptr, &proxyuser, &proxypasswd, 0);
 		if(result)
 			return result;
 		proxyptr = atsign + 1;
@@ -4939,7 +4939,7 @@ static CURLcode parse_proxy(struct Curl_easy * data,
 			   them, as there is otherwise no way to have a username or password
 			   with reserved characters like ':' in them. */
 			ZFREE(proxyinfo->user);
-			proxyinfo->user = curl_easy_unescape(data, proxyuser, 0, NULL);
+			proxyinfo->user = curl_easy_unescape(data, proxyuser, 0, 0);
 			ZFREE(proxyuser);
 			if(!proxyinfo->user) {
 				ZFREE(proxypasswd);
@@ -4947,7 +4947,7 @@ static CURLcode parse_proxy(struct Curl_easy * data,
 			}
 			ZFREE(proxyinfo->passwd);
 			if(proxypasswd && strlen(proxypasswd) < MAX_CURL_PASSWORD_LENGTH)
-				proxyinfo->passwd = curl_easy_unescape(data, proxypasswd, 0, NULL);
+				proxyinfo->passwd = curl_easy_unescape(data, proxypasswd, 0, 0);
 			else
 				proxyinfo->passwd = _strdup("");
 			ZFREE(proxypasswd);
@@ -5951,8 +5951,8 @@ static void reuse_conn(struct connectdata * old_conn,
 	ZFREE(old_conn->socks_proxy.passwd);
 	ZFREE(old_conn->localdev);
 
-	Curl_llist_destroy(&old_conn->send_pipe, NULL);
-	Curl_llist_destroy(&old_conn->recv_pipe, NULL);
+	Curl_llist_destroy(&old_conn->send_pipe, 0);
+	Curl_llist_destroy(&old_conn->recv_pipe, 0);
 
 	ZFREE(old_conn->master_buffer);
 
@@ -6243,7 +6243,7 @@ static CURLcode create_conn(struct Curl_easy * data, struct connectdata ** in_co
 			}
 
 			Curl_setup_transfer(conn, -1, -1, FALSE, NULL, /* no download */
-			    -1, NULL); /* no upload */
+			    -1, 0); /* no upload */
 		}
 
 		/* since we skip do_init() */

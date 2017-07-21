@@ -132,7 +132,7 @@ int __bam_defcmp(DB * dbp, const DBT * a, const DBT * b)
 {
 	size_t len;
 	uint8 * p1, * p2;
-	COMPQUIET(dbp, NULL);
+	COMPQUIET(dbp, 0);
 	/*
 	 * Returns:
 	 *	< 0 if a is < b
@@ -158,7 +158,7 @@ int __bam_defcmp(DB * dbp, const DBT * a, const DBT * b)
 size_t __bam_defpfx(DB*dbp, const DBT * a, const DBT * b)
 {
 	uint8 * p1, * p2;
-	COMPQUIET(dbp, NULL);
+	COMPQUIET(dbp, 0);
 	size_t cnt = 1;
 	size_t len = a->size > b->size ? b->size : a->size;
 	for(p1 = (uint8 *)a->data, p2 = (uint8 *)b->data; len--; ++p1, ++p2, ++cnt)

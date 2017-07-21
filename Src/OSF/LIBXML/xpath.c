@@ -4507,11 +4507,11 @@ xmlXPathFunction xmlXPathFunctionLookup(xmlXPathContextPtr ctxt, const xmlChar *
 		return 0;
 	if(ctxt->funcLookupFunc) {
 		xmlXPathFuncLookupFunc f = ctxt->funcLookupFunc;
-		xmlXPathFunction ret = f(ctxt->funcLookupData, name, NULL);
+		xmlXPathFunction ret = f(ctxt->funcLookupData, name, 0);
 		if(ret)
 			return ret;
 	}
-	return xmlXPathFunctionLookupNS(ctxt, name, NULL);
+	return xmlXPathFunctionLookupNS(ctxt, name, 0);
 }
 
 /**
@@ -4553,7 +4553,7 @@ xmlXPathFunction xmlXPathFunctionLookupNS(xmlXPathContextPtr ctxt, const xmlChar
 void xmlXPathRegisteredFuncsCleanup(xmlXPathContextPtr ctxt)
 {
 	if(ctxt) {
-		xmlHashFree(ctxt->funcHash, NULL);
+		xmlHashFree(ctxt->funcHash, 0);
 		ctxt->funcHash = NULL;
 	}
 }
@@ -4638,10 +4638,10 @@ xmlXPathObjectPtr xmlXPathVariableLookup(xmlXPathContextPtr ctxt, const xmlChar 
 	if(!ctxt)
 		return 0;
 	if(ctxt->varLookupFunc) {
-		xmlXPathObjectPtr ret = ((xmlXPathVariableLookupFunc)ctxt->varLookupFunc)(ctxt->varLookupData, name, NULL);
+		xmlXPathObjectPtr ret = ((xmlXPathVariableLookupFunc)ctxt->varLookupFunc)(ctxt->varLookupData, name, 0);
 		return ret;
 	}
-	return xmlXPathVariableLookupNS(ctxt, name, NULL);
+	return xmlXPathVariableLookupNS(ctxt, name, 0);
 }
 
 /**
@@ -9543,7 +9543,7 @@ static void xmlXPathCompNumber(xmlXPathParserContextPtr ctxt)
 		ret *= pow(10.0, (double)exponent);
 	}
 	PUSH_LONG_EXPR(XPATH_OP_VALUE, XPATH_NUMBER, 0, 0,
-	    xmlXPathCacheNewFloat(ctxt->context, ret), NULL);
+	    xmlXPathCacheNewFloat(ctxt->context, ret), 0);
 }
 
 /**
@@ -9638,7 +9638,7 @@ static void xmlXPathCompLiteral(xmlXPathParserContextPtr ctxt) {
 		XP_ERROR(XPATH_START_LITERAL_ERROR);
 	}
 	if(!ret) return;
-	PUSH_LONG_EXPR(XPATH_OP_VALUE, XPATH_STRING, 0, 0, xmlXPathCacheNewString(ctxt->context, ret), NULL);
+	PUSH_LONG_EXPR(XPATH_OP_VALUE, XPATH_STRING, 0, 0, xmlXPathCacheNewString(ctxt->context, ret), 0);
 	SAlloc::F(ret);
 }
 
@@ -13315,7 +13315,7 @@ start:
 		if(!toBool) {
 			if(resultSeq == NULL)
 				return -1;
-			*resultSeq = xmlXPathCacheNewNodeSet(ctxt, NULL);
+			*resultSeq = xmlXPathCacheNewNodeSet(ctxt, 0);
 			if(*resultSeq == NULL)
 				return -1;
 		}

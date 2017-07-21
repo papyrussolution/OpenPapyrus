@@ -486,13 +486,13 @@ int EVP_DecryptFinal_ex(EVP_CIPHER_CTX * ctx, uchar * out, int * outl)
 	}
 	else
 		*outl = 0;
-	return (1);
+	return 1;
 }
 
 int EVP_CIPHER_CTX_set_key_length(EVP_CIPHER_CTX * c, int keylen)
 {
 	if(c->cipher->flags & EVP_CIPH_CUSTOM_KEY_LENGTH)
-		return EVP_CIPHER_CTX_ctrl(c, EVP_CTRL_SET_KEY_LENGTH, keylen, NULL);
+		return EVP_CIPHER_CTX_ctrl(c, EVP_CTRL_SET_KEY_LENGTH, keylen, 0);
 	else if(c->key_len == keylen)
 		return 1;
 	else if((keylen > 0) && (c->cipher->flags & EVP_CIPH_VARIABLE_LENGTH)) {
@@ -547,7 +547,7 @@ int EVP_CIPHER_CTX_rand_key(EVP_CIPHER_CTX * ctx, uchar * key)
 
 int EVP_CIPHER_CTX_copy(EVP_CIPHER_CTX * out, const EVP_CIPHER_CTX * in)
 {
-	if((in == NULL) || (in->cipher == NULL)) {
+	if(!in || (in->cipher == NULL)) {
 		EVPerr(EVP_F_EVP_CIPHER_CTX_COPY, EVP_R_INPUT_NOT_INITIALIZED);
 		return 0;
 	}

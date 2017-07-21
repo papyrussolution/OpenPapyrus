@@ -141,7 +141,7 @@ static int __repmgr_print_sites(ENV * env)
  */
 static int __repmgr_print_all(ENV * env, uint32 flags)
 {
-	COMPQUIET(env, NULL);
+	COMPQUIET(env, 0);
 	COMPQUIET(flags, 0);
 	return 0;
 }
@@ -150,7 +150,7 @@ static int __repmgr_print_all(ENV * env, uint32 flags)
 
 int __repmgr_stat_pp(DB_ENV * dbenv, DB_REPMGR_STAT ** statp, uint32 flags)
 {
-	COMPQUIET(statp, NULL);
+	COMPQUIET(statp, 0);
 	COMPQUIET(flags, 0);
 	return __db_stat_not_built(dbenv->env);
 }

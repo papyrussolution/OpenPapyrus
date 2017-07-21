@@ -200,7 +200,7 @@ int SSL_srp_server_param_with_username(SSL * s, int * ad)
 
 	if(RAND_bytes(b, sizeof(b)) <= 0)
 		return SSL3_AL_FATAL;
-	s->srp_ctx.b = BN_bin2bn(b, sizeof(b), NULL);
+	s->srp_ctx.b = BN_bin2bn(b, sizeof(b), 0);
 	OPENSSL_cleanse(b, sizeof(b));
 
 	/* Calculate:  B = (kv + g^b) % N  */

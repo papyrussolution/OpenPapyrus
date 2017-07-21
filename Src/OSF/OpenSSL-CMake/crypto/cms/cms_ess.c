@@ -92,7 +92,7 @@ void CMS_ReceiptRequest_get0_values(CMS_ReceiptRequest * rr, ASN1_STRING ** pcid
 	ASSIGN_PTR(pcid, rr->signedContentIdentifier);
 	if(rr->receiptsFrom->type == 0) {
 		ASSIGN_PTR(pallorfirst, (int)rr->receiptsFrom->d.allOrFirstTier);
-		ASSIGN_PTR(plist, NULL);
+		ASSIGN_PTR(plist, 0);
 	}
 	else {
 		ASSIGN_PTR(pallorfirst, -1);
@@ -249,7 +249,7 @@ ASN1_OCTET_STRING * cms_encode_Receipt(CMS_SignerInfo * si)
 	rct.contentType = ctype;
 	rct.signedContentIdentifier = rr->signedContentIdentifier;
 	rct.originatorSignatureValue = si->signature;
-	os = ASN1_item_pack(&rct, ASN1_ITEM_rptr(CMS_Receipt), NULL);
+	os = ASN1_item_pack(&rct, ASN1_ITEM_rptr(CMS_Receipt), 0);
 err:
 	CMS_ReceiptRequest_free(rr);
 	return os;

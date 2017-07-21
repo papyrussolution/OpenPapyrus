@@ -1308,8 +1308,8 @@ err:
 static int __db_compact_func(DBC * dbc, DBC * my_dbc, uint32 * countp, db_pgno_t pgno, uint32 indx, void * args)
 {
 	DB_TXN * txn = (DB_TXN *)args;
-	COMPQUIET(my_dbc, NULL);
-	COMPQUIET(countp, NULL);
+	COMPQUIET(my_dbc, 0);
+	COMPQUIET(countp, 0);
 	COMPQUIET(pgno, 0);
 	COMPQUIET(indx, 0);
 	return (txn == dbc->txn) ? EEXIST : 0;
@@ -1391,7 +1391,7 @@ err:
 	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
-	__dbt_userfree(env, start, stop, NULL);
+	__dbt_userfree(env, start, stop, 0);
 	return ret;
 }
 /*

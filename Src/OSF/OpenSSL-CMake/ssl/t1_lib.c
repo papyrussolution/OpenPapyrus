@@ -368,7 +368,7 @@ int tls1_shared_curve(SSL * s, int nmatch)
 				if(nmatch == k) {
 					int id = (pref[0] << 8) | pref[1];
 
-					return tls1_ec_curve_id2nid(id, NULL);
+					return tls1_ec_curve_id2nid(id, 0);
 				}
 				k++;
 			}
@@ -898,7 +898,7 @@ static int tls_use_ticket(SSL * s)
 {
 	if(s->options & SSL_OP_NO_TICKET)
 		return 0;
-	return ssl_security(s, SSL_SECOP_TICKET, 0, 0, NULL);
+	return ssl_security(s, SSL_SECOP_TICKET, 0, 0, 0);
 }
 
 static int compare_uint(const void * p1, const void * p2)
@@ -1230,14 +1230,14 @@ skip_ext:
 		idlen = 0;
 		for(i = 0; i < sk_OCSP_RESPID_num(s->tlsext_ocsp_ids); i++) {
 			id = sk_OCSP_RESPID_value(s->tlsext_ocsp_ids, i);
-			lentmp = i2d_OCSP_RESPID(id, NULL);
+			lentmp = i2d_OCSP_RESPID(id, 0);
 			if(lentmp <= 0)
 				return NULL;
 			idlen += (size_t)lentmp + 2;
 		}
 
 		if(s->tlsext_ocsp_exts) {
-			lentmp = i2d_X509_EXTENSIONS(s->tlsext_ocsp_exts, NULL);
+			lentmp = i2d_X509_EXTENSIONS(s->tlsext_ocsp_exts, 0);
 			if(lentmp < 0)
 				return NULL;
 			extlen = (size_t)lentmp;

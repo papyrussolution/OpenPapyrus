@@ -465,7 +465,7 @@ static int __bam_build(DBC * dbc, uint32 op, DBT * dbt, PAGE * h, uint32 indx, u
 	uint32 len, tlen;
 	uint8 * p;
 	int ret;
-	COMPQUIET(bo, NULL);
+	COMPQUIET(bo, 0);
 	dbp = dbc->dbp;
 	t = (BTREE *)dbp->bt_internal;
 	/* We use the record data return memory, it's only a short-term use. */
@@ -881,5 +881,5 @@ static int __bam_ovput(DBC * dbc, uint32 type, db_pgno_t pgno, PAGE * h, uint32 
 	memzero(&hdr, sizeof(hdr));
 	hdr.data = &bo;
 	hdr.size = BOVERFLOW_SIZE;
-	return __db_pitem(dbc, h, indx, BOVERFLOW_SIZE, &hdr, NULL);
+	return __db_pitem(dbc, h, indx, BOVERFLOW_SIZE, &hdr, 0);
 }

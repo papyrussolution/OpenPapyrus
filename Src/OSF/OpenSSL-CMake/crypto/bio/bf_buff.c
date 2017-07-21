@@ -61,7 +61,7 @@ static int buffer_new(BIO * bi)
 		bi->init = 1;
 		bi->ptr = (char*)ctx;
 		bi->flags = 0;
-		return (1);
+		return 1;
 	}
 }
 
@@ -77,7 +77,7 @@ static int buffer_free(BIO * a)
 		a->ptr = NULL;
 		a->init = 0;
 		a->flags = 0;
-		return (1);
+		return 1;
 	}
 }
 
@@ -85,10 +85,10 @@ static int buffer_read(BIO * b, char * out, int outl)
 {
 	int i, num = 0;
 	BIO_F_BUFFER_CTX * ctx;
-	if(out == NULL)
+	if(!out)
 		return 0;
 	ctx = (BIO_F_BUFFER_CTX*)b->ptr;
-	if((ctx == NULL) || (b->next_bio == NULL))
+	if(!ctx || (b->next_bio == NULL))
 		return 0;
 	num = 0;
 	BIO_clear_retry_flags(b);
@@ -151,10 +151,10 @@ static int buffer_write(BIO * b, const char * in, int inl)
 {
 	int i, num = 0;
 	BIO_F_BUFFER_CTX * ctx;
-	if((in == NULL) || (inl <= 0))
+	if(!in || (inl <= 0))
 		return 0;
 	ctx = (BIO_F_BUFFER_CTX*)b->ptr;
-	if((ctx == NULL) || (b->next_bio == NULL))
+	if(!ctx || (b->next_bio == NULL))
 		return 0;
 	BIO_clear_retry_flags(b);
 start:

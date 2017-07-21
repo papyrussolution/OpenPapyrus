@@ -108,7 +108,7 @@ int __db_truncate(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 * countp)
 		if(ret != 0)
 			return ret;
 	}
-	DB_TEST_RECOVERY(dbp, DB_TEST_PREDESTROY, ret, NULL);
+	DB_TEST_RECOVERY(dbp, DB_TEST_PREDESTROY, ret, 0);
 	/* Acquire a cursor. */
 	if((ret = __db_cursor(dbp, ip, txn, &dbc, 0)) != 0)
 		return ret;
@@ -130,15 +130,15 @@ int __db_truncate(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 * countp)
 	// Discard the cursor.
 	if(dbc && (t_ret = __dbc_close(dbc)) != 0 && !ret)
 		ret = t_ret;
-	DB_TEST_RECOVERY(dbp, DB_TEST_POSTDESTROY, ret, NULL);
+	DB_TEST_RECOVERY(dbp, DB_TEST_POSTDESTROY, ret, 0);
 	DB_TEST_RECOVERY_LABEL
 	return ret;
 }
 
 static int __db_cursor_check_func(DBC * dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t pgno, uint32 indx, void * args)
 {
-	COMPQUIET(my_dbc, NULL);
-	COMPQUIET(args, NULL);
+	COMPQUIET(my_dbc, 0);
+	COMPQUIET(args, 0);
 	COMPQUIET(pgno, 0);
 	COMPQUIET(indx, 0);
 	if(IS_INITIALIZED(dbc)) {
@@ -154,6 +154,6 @@ static int __db_cursor_check_func(DBC * dbc, DBC * my_dbc, uint32 * foundp, db_p
 static int __db_cursor_check(DB * dbp)
 {
 	uint32 found;
-	int ret = __db_walk_cursors(dbp, NULL, __db_cursor_check_func, &found, 0, 0, NULL);
+	int ret = __db_walk_cursors(dbp, NULL, __db_cursor_check_func, &found, 0, 0, 0);
 	return ret == EEXIST ? EINVAL : ret;
 }

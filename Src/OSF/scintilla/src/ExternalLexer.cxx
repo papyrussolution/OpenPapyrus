@@ -62,7 +62,7 @@ LexerLibrary::LexerLibrary(const char * ModuleName)
 				// Assign a buffer for the lexer name.
 				char lexname[100] = "";
 				GetLexerName(i, lexname, sizeof(lexname));
-				lex = new ExternalLexerModule(SCLEX_AUTOMATIC, NULL, lexname, NULL);
+				lex = new ExternalLexerModule(SCLEX_AUTOMATIC, NULL, lexname, 0);
 				Catalogue::AddLexerModule(lex);
 				// Create a LexerMinder so we don't leak the ExternalLexerModule...
 				lm = new LexerMinder;

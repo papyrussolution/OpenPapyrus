@@ -532,7 +532,7 @@ public:
 
 	XmlDbFile();
 	~XmlDbFile();
-	int    SetEntitySpec(const char * pSpec); // @v7.9.8
+	void   SetEntitySpec(const char * pSpec);
 	int    Open(const char * pPath, const Param * pParam, const SdRecord * pRec, int readOnly);
 	int    Close();
 	int    AppendRecord(const SdRecord & rRec, const void * pDataBuf);
@@ -549,17 +549,17 @@ public:
 	// Восстанавливает текущее состояние
 	//
 	int    Pop();
-	xmlNodePtr FindFirstRec_(xmlNodePtr pRoot) const;
-	xmlNodePtr FindNextRec_(xmlNodePtr pCurrent) const;
+	const xmlNode * FindFirstRec_(const xmlNode * pRoot) const;
+	const xmlNode * FindNextRec_(const xmlNode * pCurrent) const;
 	const char * GetFileName() const;
-	int    CountRecords(const xmlNodePtr pRootNode, uint * pCount);
+	int    CountRecords(const xmlNode * pRootNode, uint * pCount);
 	int    GetExportBuffer(SBuffer & rBuf);
 private:
 	int    IsUtf8() const;
 	int    WriteField(const char * pFieldName, const char * pFieldValue, int isDtd);
 	int    WriteDTDS(const SdRecord & rRec);
 	int    GetValueByName(const char * pName, SString & rValue);
-	xmlNodePtr Helper_FindRec_(xmlNodePtr pCurrent) const;
+	const  xmlNode * Helper_FindRec_(const xmlNode * pCurrent) const;
 	int    Helper_CloseWriter();
 
 	struct State {
@@ -571,16 +571,16 @@ private:
 		int    Copy(const State & rS);
 		int    SetParam(const Param * pParam);
 		int    FASTCALL IsRecTag(const char * pTag) const;
-		int    FASTCALL IsRecNode(const xmlNodePtr pNode) const;
-		xmlNodePtr FASTCALL GetHeadRecNode(xmlNodePtr pNode) const;
+		int    FASTCALL IsRecNode(const xmlNode * pNode) const;
+		const  xmlNode * FASTCALL GetHeadRecNode(const xmlNode * pNode) const;
 		const  Param & GetParam() const
 		{
 			return P;
 		}
 		uint32 Pos;
 		uint32 NumRecs;
-		xmlNodePtr P_CurRec;
-		xmlNodePtr P_LastRec; // Запись, обработанная последним вызовом GetRecord(). Указатель необходим
+		const xmlNode * P_CurRec;
+		const xmlNode * P_LastRec; // Запись, обработанная последним вызовом GetRecord(). Указатель необходим
 			// для постобработки записи так как P_CurRec этим вызовом переходит к следующей записи (или 0,
 			// если записей не осталось).
 	private:
@@ -590,8 +590,8 @@ private:
 
 	SString FileName;
 	xmlTextWriter * P_Writer;
-	xmlBufferPtr P_Buffer;
-	xmlDocPtr P_Doc;
+	xmlBuffer * P_Buffer;
+	xmlDoc * P_Doc;
 	SString EntitySpec;
 	State  St;
 	State  PreserveSt;
@@ -1352,7 +1352,7 @@ public:
 	// while using result of BNKeyList::getKey
 	//
 	BNKey  FASTCALL getKey(int position) const;
-	BNKey  SLAPI operator[](int i) const { return getKey(i); }
+	BNKey  FASTCALL operator[](int i) const { return getKey(i); }
 
 	uint   SLAPI setBound(int key, int seg, int min_max /*0 - min, !0 - max*/, void * dest) const;
 	void   FASTCALL setTableRef(uint);

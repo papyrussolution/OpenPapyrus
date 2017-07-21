@@ -504,5 +504,6 @@
 #define cmProcessOsm                   609 // @v9.5.9 Процессинг данных OpenStreetMap
 #define cmPosNodeQuery                 610 // @v9.6.5 Интерактивный запрос к кассовому узлу
 #define cmTestLogWindow                611 // @v9.7.0 Тестирование окна вывода сообщений
+#define cmImportSartre                 612 // @v9.7.8 Импорт данных проекта Sartre
 
 #endif /* __PPMENU_H */

@@ -22,7 +22,7 @@
 using namespace Scintilla;
 #endif
 
-static bool IsAlphabetic(int ch)
+static bool FASTCALL IsAlphabetic(int ch)
 {
 	return IsASCII(ch) && isalpha(ch);
 }
@@ -33,21 +33,19 @@ static bool FASTCALL AtEOL(Accessor &styler, Sci_PositionU i)
 }
 
 // Tests for BATCH Operators
-static bool IsBOperator(char ch)
+static bool FASTCALL IsBOperator(char ch)
 {
-	return (ch == '=') || (ch == '+') || (ch == '>') || (ch == '<') || (ch == '|') || (ch == '&') || (ch == '!') || (ch == '?') ||
-	       (ch == '*') || (ch == '(') || (ch == ')');
+	return oneof11(ch, '=', '+', '>', '<', '|', '&', '!', '?', '*', '(', ')');
 }
 
 // Tests for BATCH Separators
-static bool IsBSeparator(char ch)
+static bool FASTCALL IsBSeparator(char ch)
 {
-	return (ch == '\\') || (ch == '.') || (ch == ';') || (ch == ' ') || (ch == '\t') || (ch == '[') || (ch == ']') || (ch == '\"') ||
-	       (ch == '\'') || (ch == '/');
+	return oneof10(ch, '\\', '.', ';', ' ', '\t', '[', ']', '\"', '\'', '/');
 }
 
 // Find length of CMD FOR variable with modifier (%~...) or return 0
-static uint GetBatchVarLen(char * wordBuffer)
+static uint FASTCALL GetBatchVarLen(char * wordBuffer)
 {
 	int nLength = 0;
 	if(wordBuffer[0] == '%') {
@@ -208,8 +206,7 @@ static void ColouriseTCMDLine(char * lineBuffer,
 			styler.ColourTo(startLine + offset - 1 - wbl, SCE_TCMD_DEFAULT);
 			wbo++;
 			// Search to end of word for second !
-			while((wbo < wbl) && (wordBuffer[wbo] != '!') && (!IsBOperator(wordBuffer[wbo])) &&
-			    (!IsBSeparator(wordBuffer[wbo]))) {
+			while((wbo < wbl) && (wordBuffer[wbo] != '!') && (!IsBOperator(wordBuffer[wbo])) && (!IsBSeparator(wordBuffer[wbo]))) {
 				wbo++;
 			}
 			if(wordBuffer[wbo] == '!') {
@@ -271,10 +268,8 @@ static void ColouriseTCMDLine(char * lineBuffer,
 			if(!sKeywordFound) {
 				wbo = 0;
 				// Read up to %, Operator or Separator
-				while((wbo < wbl) && (wordBuffer[wbo] != '%') &&
-				    (!isDelayedExpansion ||
-					    wordBuffer[wbo] != '!') && (!IsBOperator(wordBuffer[wbo])) &&
-				    (!IsBSeparator(wordBuffer[wbo]))) {
+				while((wbo < wbl) && (wordBuffer[wbo] != '%') && (!isDelayedExpansion ||
+					    wordBuffer[wbo] != '!') && (!IsBOperator(wordBuffer[wbo])) && (!IsBSeparator(wordBuffer[wbo]))) {
 					wbo++;
 				}
 				// Colorize Default Text
@@ -304,8 +299,7 @@ static void ColouriseTCMDLine(char * lineBuffer,
 			}
 
 			// Search to end of word for second % or to the first terminator (can be a long path)
-			while((wbo < wbl) && (wordBuffer[wbo] != '%') && (!IsBOperator(wordBuffer[wbo])) &&
-			    (!IsBSeparator(wordBuffer[wbo]))) {
+			while((wbo < wbl) && (wordBuffer[wbo] != '%') && (!IsBOperator(wordBuffer[wbo])) && (!IsBSeparator(wordBuffer[wbo]))) {
 				wbo++;
 			}
 

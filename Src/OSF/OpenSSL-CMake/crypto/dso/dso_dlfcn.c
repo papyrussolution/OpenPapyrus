@@ -99,7 +99,7 @@ static int dlfcn_load(DSO *dso)
 {
     void *ptr = NULL;
     /* See applicable comments in dso_dl.c */
-    char *filename = DSO_convert_filename(dso, NULL);
+    char *filename = DSO_convert_filename(dso, 0);
     int flags = DLOPEN_FLAG;
 
     if (filename == NULL) {
@@ -122,7 +122,7 @@ static int dlfcn_load(DSO *dso)
     }
     /* Success */
     dso->loaded_filename = filename;
-    return (1);
+    return 1;
  err:
     /* Cleanup! */
     OPENSSL_free(filename);
@@ -139,7 +139,7 @@ static int dlfcn_unload(DSO *dso)
         return 0;
     }
     if (sk_void_num(dso->meth_data) < 1)
-        return (1);
+        return 1;
     ptr = sk_void_pop(dso->meth_data);
     if (ptr == NULL) {
         DSOerr(DSO_F_DLFCN_UNLOAD, DSO_R_NULL_HANDLE);
@@ -151,7 +151,7 @@ static int dlfcn_unload(DSO *dso)
     }
     /* For now I'm not aware of any errors associated with dlclose() */
     dlclose(ptr);
-    return (1);
+    return 1;
 }
 
 static DSO_FUNC_TYPE dlfcn_bind_func(DSO *dso, const char *symname)

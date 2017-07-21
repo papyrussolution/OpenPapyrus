@@ -2096,7 +2096,7 @@ int SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const cha
 				CopyDataStruct(pTempPath, path, PPGetFileName(PPFILNAM_ITER_BTR, fname));
 			}
 			if(p_ssda->EdRep)
-				spawnl(_P_NOWAIT, cr_path, cr_path, p_ssda->EdRepPath, NULL);
+				spawnl(_P_NOWAIT, cr_path, cr_path, p_ssda->EdRepPath, 0);
 		}
 		ok = 1;
 	}

@@ -3448,6 +3448,7 @@ public:
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 2, CCHKF_DELIVERY);
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 3, CCHKF_FIXEDPRICE); // @v8.7.7
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 4, CCHKF_SPFINISHED); // @v9.7.5
+		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 5, CCHKF_ALTREG); // @v9.7.8
 		SetClusterData(CTL_CCHECKINFO_FLAGS2, Data.Rec.Flags);
 		if(Data.AL_Const().getCount()) {
 			SmartListBox * p_box = (SmartListBox*)getCtrlView(CTL_CCHECKINFO_PAYMLIST);

@@ -196,7 +196,7 @@ int __repmgr_start(DB_ENV*dbenv, int nthreads, uint32 flags)
 		MUTEX_LOCK(env, rep->mtx_repmgr);
 		if(rep->listener == 0) {
 			is_listener = TRUE;
-			__os_id(dbenv, &rep->listener, NULL);
+			__os_id(dbenv, &rep->listener, 0);
 		}
 		else {
 			is_listener = FALSE;
@@ -719,7 +719,7 @@ int __repmgr_stop_threads(ENV*env)
 static int kick_blockers(ENV*env, REPMGR_CONNECTION * conn, void * unused)
 {
 	int ret, t_ret;
-	COMPQUIET(unused, NULL);
+	COMPQUIET(unused, 0);
 	ret = __repmgr_signal(&conn->drained);
 	if((t_ret = __repmgr_wake_waiters(env, &conn->response_waiters)) != 0 && ret == 0)
 		ret = t_ret;
@@ -976,7 +976,7 @@ static int establish_connection(ENV*env, int eid, REPMGR_CONNECTION ** connp)
 	 */
 	DB_ASSERT(env, conn->reading_phase == SIZES_PHASE);
 	ret = __repmgr_msg_hdr_unmarshal(env, &msg_hdr,
-		conn->msg_hdr_buf, __REPMGR_MSG_HDR_SIZE, NULL);
+		conn->msg_hdr_buf, __REPMGR_MSG_HDR_SIZE, 0);
 	DB_ASSERT(env, ret == 0);
 	__repmgr_iovec_init(&conn->iovecs);
 	conn->reading_phase = DATA_PHASE;
@@ -1405,7 +1405,7 @@ static int response_complete(ENV*env, void * ctx)
 {
 	REPMGR_CONNECTION * conn;
 	struct response_wait * rw;
-	COMPQUIET(env, NULL);
+	COMPQUIET(env, 0);
 	rw = (struct response_wait *)ctx;
 	conn = rw->conn;
 	return F_ISSET(&conn->responses[rw->index], RESP_COMPLETE) || conn->state == CONN_DEFUNCT;
@@ -1463,7 +1463,7 @@ static void adjust_bulk_response(ENV*env, DBT * response)
 {
 	uint32 n, * p;
 #ifndef DIAGNOSTIC
-	COMPQUIET(env, NULL);
+	COMPQUIET(env, 0);
 #endif
 	/*
 	 * Convert bulk-buffer segment info to host byte-order, and count
@@ -1508,7 +1508,7 @@ int __repmgr_send_response(DB_CHANNEL * db_channel, DBT * msg, uint32 nmsg, uint
 	uint8 msg_hdr_buf[__REPMGR_MSG_HDR_SIZE], * msg_hdr_buf_p;
 	size_t sz;
 	int alloc, ret;
-	COMPQUIET(iovecsp, NULL);
+	COMPQUIET(iovecsp, 0);
 	channel = db_channel->channel;
 	env = channel->env;
 	db_rep = env->rep_handle;
@@ -1637,7 +1637,7 @@ static int __repmgr_build_data_out(ENV * env, DBT * msg, uint32 nmsg, __repmgr_m
 	void * inc_p;
 	size_t align, bulk_area_sz, memsize, segments, sz, offset;
 	int ret;
-	COMPQUIET(pad, NULL);
+	COMPQUIET(pad, 0);
 	/*
 	 * The actual message as it will be sent on the wire is composed of the
 	 * following parts:
@@ -1799,9 +1799,9 @@ int __repmgr_channel_timeout(DB_CHANNEL * chan, db_timeout_t timeout)
  */
 int __repmgr_send_request_inval(DB_CHANNEL * dbchan, DBT * request, uint32 nrequest, DBT * response, db_timeout_t timeout, uint32 flags)
 {
-	COMPQUIET(request, NULL);
+	COMPQUIET(request, 0);
 	COMPQUIET(nrequest, 0);
-	COMPQUIET(response, NULL);
+	COMPQUIET(response, 0);
 	COMPQUIET(timeout, 0);
 	COMPQUIET(flags, 0);
 	return bad_callback_method(dbchan, "send_request");
@@ -1994,7 +1994,7 @@ static int read_own_msg(ENV * env, REPMGR_CONNECTION * conn, uint32 * typep, uin
 	__repmgr_reset_for_reading(conn);
 	if((ret = __repmgr_read_conn(conn)) != 0)
 		goto err;
-	ret = __repmgr_msg_hdr_unmarshal(env, &msg_hdr, conn->msg_hdr_buf, __REPMGR_MSG_HDR_SIZE, NULL);
+	ret = __repmgr_msg_hdr_unmarshal(env, &msg_hdr, conn->msg_hdr_buf, __REPMGR_MSG_HDR_SIZE, 0);
 	DB_ASSERT(env, ret == 0);
 	if((conn->msg_type = msg_hdr.type) != REPMGR_OWN_MSG) {
 		ret = DB_REP_UNAVAIL; /* Protocol violation. */
@@ -2039,7 +2039,7 @@ static int make_request_conn(ENV * env, repmgr_netaddr_t * addr, REPMGR_CONNECTI
 	 * expect, so this can't fail.
 	 */
 	DB_ASSERT(env, conn->reading_phase == SIZES_PHASE);
-	ret = __repmgr_msg_hdr_unmarshal(env, &msg_hdr, conn->msg_hdr_buf, __REPMGR_MSG_HDR_SIZE, NULL);
+	ret = __repmgr_msg_hdr_unmarshal(env, &msg_hdr, conn->msg_hdr_buf, __REPMGR_MSG_HDR_SIZE, 0);
 	DB_ASSERT(env, ret == 0);
 	__repmgr_iovec_init(&conn->iovecs);
 	conn->reading_phase = DATA_PHASE;
@@ -2097,7 +2097,7 @@ static int site_by_addr(ENV * env, const char * host, uint port, DB_SITE ** site
 	REPMGR_SITE * site;
 	int eid, locked, ret;
 
-	COMPQUIET(ip, NULL);
+	COMPQUIET(ip, 0);
 	PANIC_CHECK(env);
 	db_rep = env->rep_handle;
 	ENV_NOT_CONFIGURED(env, db_rep->region, "repmgr_site", DB_INIT_REP);
@@ -2313,8 +2313,8 @@ static int set_local_site(DB_SITE*dbsite, uint32 value)
 	REPMGR_SITE * site;
 	int locked, ret;
 
-	COMPQUIET(rep, NULL);
-	COMPQUIET(ip, NULL);
+	COMPQUIET(rep, 0);
+	COMPQUIET(ip, 0);
 	env = dbsite->env;
 	db_rep = env->rep_handle;
 

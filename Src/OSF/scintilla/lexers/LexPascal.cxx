@@ -352,15 +352,13 @@ static void ColourisePascalDoc(Sci_PositionU startPos, Sci_Position length, int 
 			}
 		}
 	}
-
 	if(sc.state == SCE_PAS_IDENTIFIER && setWord.Contains(sc.chPrev)) {
 		ClassifyPascalWord(keywordlists, sc, curLineState, bSmartHighlighting);
 	}
-
 	sc.Complete();
 }
 
-static bool IsStreamCommentStyle(int style)
+static bool FASTCALL IsStreamCommentStyle(int style)
 {
 	return style == SCE_PAS_COMMENT || style == SCE_PAS_COMMENT2;
 }

@@ -30,7 +30,7 @@ static int __db_prtree(DB*, DB_TXN*, uint32, db_pgno_t, db_pgno_t);
 void __db_loadme()
 {
 	pid_t pid;
-	__os_id(NULL, &pid, NULL);
+	__os_id(NULL, &pid, 0);
 }
 
 #ifdef HAVE_STATISTICS
@@ -270,9 +270,9 @@ const char * __db_lockmode_to_string(db_lockmode_t mode)
  */
 int __db_dumptree(DB * dbp, DB_TXN * txn, char * op, char * name, db_pgno_t first, db_pgno_t last)
 {
-	COMPQUIET(txn, NULL);
-	COMPQUIET(op, NULL);
-	COMPQUIET(name, NULL);
+	COMPQUIET(txn, 0);
+	COMPQUIET(op, 0);
+	COMPQUIET(name, 0);
 	COMPQUIET(first, last);
 	return __db_stat_not_built(dbp->env);
 }

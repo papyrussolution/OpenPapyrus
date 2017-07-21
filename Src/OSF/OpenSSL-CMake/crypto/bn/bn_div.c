@@ -33,7 +33,7 @@ int BN_div(BIGNUM * dv, BIGNUM * rem, const BIGNUM * m, const BIGNUM * d,
 		}
 		if(dv != NULL)
 			BN_zero(dv);
-		return (1);
+		return 1;
 	}
 
 	BN_CTX_start(ctx);
@@ -185,7 +185,7 @@ int BN_div(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num, const BIGNUM * divisor,
 		}
 		if(dv != NULL)
 			BN_zero(dv);
-		return (1);
+		return 1;
 	}
 
 	BN_CTX_start(ctx);
@@ -413,7 +413,7 @@ int BN_div(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num, const BIGNUM * divisor,
 	if(no_branch)
 		bn_correct_top(res);
 	BN_CTX_end(ctx);
-	return (1);
+	return 1;
 err:
 	bn_check_top(rm);
 	BN_CTX_end(ctx);

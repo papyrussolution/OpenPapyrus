@@ -46,7 +46,7 @@ static int asn1_print_info(BIO * bp, int tag, int xclass, int constructed, int i
 
 	if(BIO_printf(bp, fmt, p) <= 0)
 		goto err;
-	return (1);
+	return 1;
 err:
 	return 0;
 }

@@ -51,7 +51,7 @@ void EVP_MD_CTX_free(EVP_MD_CTX * ctx)
 int EVP_DigestInit(EVP_MD_CTX * ctx, const EVP_MD * type)
 {
 	EVP_MD_CTX_reset(ctx);
-	return EVP_DigestInit_ex(ctx, type, NULL);
+	return EVP_DigestInit_ex(ctx, type, 0);
 }
 
 int EVP_DigestInit_ex(EVP_MD_CTX * ctx, const EVP_MD * type, ENGINE * impl)
@@ -180,7 +180,7 @@ int EVP_MD_CTX_copy(EVP_MD_CTX * out, const EVP_MD_CTX * in)
 int EVP_MD_CTX_copy_ex(EVP_MD_CTX * out, const EVP_MD_CTX * in)
 {
 	uchar * tmp_buf;
-	if((in == NULL) || (in->digest == NULL)) {
+	if(!in || (in->digest == NULL)) {
 		EVPerr(EVP_F_EVP_MD_CTX_COPY_EX, EVP_R_INPUT_NOT_INITIALIZED);
 		return 0;
 	}

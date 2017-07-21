@@ -120,7 +120,7 @@ zip_encoding_type_t _zip_guess_encoding(zip_string_t * str, zip_encoding_type_t 
 	else {
 		enc = ZIP_ENCODING_ASCII;
 		for(i = 0; i<str->length; i++) {
-			if((name[i] > 31 && name[i] < 128) || name[i] == '\r' || name[i] == '\n' || name[i] == '\t')
+			if((name[i] > 31 && name[i] < 128) || oneof3(name[i], '\r', '\n', '\t'))
 				continue;
 			enc = ZIP_ENCODING_UTF8_GUESSED;
 			if((name[i] & UTF_8_LEN_2_MASK) == UTF_8_LEN_2_MATCH)

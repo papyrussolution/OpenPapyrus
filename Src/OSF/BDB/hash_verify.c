@@ -626,7 +626,7 @@ int __ham_salvage(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, PAGE * h, void * 
 		 * expected and ignored.
 		 */
 		ret = __db_vrfy_inpitem(dbp,
-			h, pgno, i, 0, flags, &himark, NULL);
+			h, pgno, i, 0, flags, &himark, 0);
 		/* If this returned a fatality, it's time to break. */
 		if(ret == DB_VERIFY_FATAL) {
 			if(i >= NUM_ENT(h))

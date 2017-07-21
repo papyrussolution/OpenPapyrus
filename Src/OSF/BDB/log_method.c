@@ -30,7 +30,7 @@ int __log_env_create(DB_ENV * dbenv)
  */
 void __log_env_destroy(DB_ENV * dbenv)
 {
-	COMPQUIET(dbenv, NULL);
+	COMPQUIET(dbenv, 0);
 }
 
 int __log_get_lg_bsize(DB_ENV * dbenv, uint32 * lg_bsizep)

@@ -1217,7 +1217,7 @@ static int __qamc_close(DBC * dbc, db_pgno_t root_pgno, int * rmroot)
 	QUEUE_CURSOR * cp;
 	int ret;
 	COMPQUIET(root_pgno, 0);
-	COMPQUIET(rmroot, NULL);
+	COMPQUIET(rmroot, 0);
 	cp = (QUEUE_CURSOR *)dbc->internal;
 	/* Discard any locks not acquired inside of a transaction. */
 	ret = __TLPUT(dbc, cp->lock);

@@ -157,7 +157,7 @@ static CURLcode gopher_do(struct connectdata * conn, bool * done)
 		return result;
 
 	Curl_setup_transfer(conn, FIRSTSOCKET, -1, FALSE, bytecount,
-	    -1, NULL);           /* no upload */
+	    -1, 0);           /* no upload */
 	return CURLE_OK;
 }
 

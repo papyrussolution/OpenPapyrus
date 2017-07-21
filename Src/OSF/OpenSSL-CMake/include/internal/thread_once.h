@@ -41,5 +41,4 @@
  *
  * (*) by convention, since the init function must return 1 on success.
  */
-#define RUN_ONCE(once, init)                                            \
-    (CRYPTO_THREAD_run_once(once, init##_ossl_) ? init##_ossl_ret_ : 0)
+#define RUN_ONCE(once, init) (CRYPTO_THREAD_run_once(once, init##_ossl_) ? init##_ossl_ret_ : 0)

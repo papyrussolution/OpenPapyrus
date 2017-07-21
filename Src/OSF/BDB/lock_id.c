@@ -202,7 +202,7 @@ int __lock_getlocker(DB_LOCKTAB * lt, uint32 locker, int create, DB_LOCKER ** re
 	DB_LOCKREGION * region;
 	ENV * env;
 	int ret;
-	COMPQUIET(region, NULL);
+	COMPQUIET(region, 0);
 	env = lt->env;
 	region = (DB_LOCKREGION *)lt->reginfo.primary;
 	LOCK_LOCKERS(env, region);
@@ -318,7 +318,7 @@ int __lock_addfamilylocker(ENV * env, uint32 pid, uint32 id, uint32 is_family)
 	DB_LOCKREGION * region;
 	DB_LOCKTAB * lt;
 	int ret;
-	COMPQUIET(region, NULL);
+	COMPQUIET(region, 0);
 	lt = env->lk_handle;
 	region = (DB_LOCKREGION *)lt->reginfo.primary;
 	LOCK_LOCKERS(env, region);

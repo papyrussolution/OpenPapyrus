@@ -124,7 +124,7 @@ static pixman_bool_t pixman_have_vmx(void)
 	if(jmp_result == 0) {
 		asm volatile ( "vor 0, 0, 0" );
 	}
-	sigaction(SIGILL, &osa, NULL);
+	sigaction(SIGILL, &osa, 0);
 	return (jmp_result == 0);
 }
 

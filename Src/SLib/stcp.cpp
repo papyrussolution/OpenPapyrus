@@ -1466,7 +1466,7 @@ content_type_t * content_type_new(const char * content_type_str)
 					begin = 1;
 				if((ch == ' ' || ch == ';') && !inQuote && begin) {
 					value[c] = '\0';
-					pair = hpairnode_new(key, value, NULL);
+					pair = hpairnode_new(key, value, 0);
 					if(ct->params == NULL)
 						ct->params = pair;
 					else
@@ -1600,7 +1600,7 @@ SFtpClient::Enum::Enum(SFtpClient * pCli, const char * pWildcard)
 	if(pCli->State & SFtpClient::stConnected) {
 		State |= stConnected;
 		WIN32_FIND_DATA find_data;
-		HINTERNET h = FtpFindFirstFile((HINTERNET)pCli->H_Sess, pWildcard, &find_data, 0, NULL);
+		HINTERNET h = FtpFindFirstFile((HINTERNET)pCli->H_Sess, pWildcard, &find_data, 0, 0);
 		if(h) {
 			P = (void *)h;
 			CEntry = find_data;

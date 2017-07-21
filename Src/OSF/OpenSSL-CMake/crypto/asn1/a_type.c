@@ -58,10 +58,8 @@ int ASN1_TYPE_set1(ASN1_TYPE * a, int type, const void * value)
 int ASN1_TYPE_cmp(const ASN1_TYPE * a, const ASN1_TYPE * b)
 {
 	int result = -1;
-
 	if(!a || !b || a->type != b->type)
 		return -1;
-
 	switch(a->type) {
 		case V_ASN1_OBJECT:
 		    result = OBJ_cmp(a->value.object, b->value.object);
@@ -103,26 +101,22 @@ int ASN1_TYPE_cmp(const ASN1_TYPE * a, const ASN1_TYPE * b)
 
 ASN1_TYPE * ASN1_TYPE_pack_sequence(const ASN1_ITEM * it, void * s, ASN1_TYPE ** t)
 {
-	ASN1_OCTET_STRING * oct;
-	ASN1_TYPE * rt;
-
-	oct = ASN1_item_pack(s, it, NULL);
-	if(oct == NULL)
-		return NULL;
-
-	if(t && *t) {
-		rt = *t;
-	}
-	else {
-		rt = ASN1_TYPE_new();
-		if(rt == NULL) {
-			ASN1_OCTET_STRING_free(oct);
-			return NULL;
+	ASN1_TYPE * rt = 0;
+	ASN1_OCTET_STRING * oct = ASN1_item_pack(s, it, 0);
+	if(oct) {
+		if(t && *t) {
+			rt = *t;
 		}
-		if(t)
-			*t = rt;
+		else {
+			rt = ASN1_TYPE_new();
+			if(rt == NULL) {
+				ASN1_OCTET_STRING_free(oct);
+				return NULL;
+			}
+			ASSIGN_PTR(t, rt);
+		}
+		ASN1_TYPE_set(rt, V_ASN1_SEQUENCE, oct);
 	}
-	ASN1_TYPE_set(rt, V_ASN1_SEQUENCE, oct);
 	return rt;
 }
 

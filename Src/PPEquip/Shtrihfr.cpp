@@ -849,7 +849,11 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 				THROW(SetFR(Price, R2(intmnytodbl(ccl.Price) - ccl.Dscnt)));
 				// Количество
 				THROW(SetFR(Quantity, R3(fabs(ccl.Quantity))));
-				THROW(SetFR(Department, (division > 16 || division < 0) ? 0 : division));
+				{
+					int _dep = (division > 16 || division < 0) ? 0 : division;
+					if(_dep > 0 && _dep <= 16)
+						THROW(SetFR(Department, _dep));
+				}
 				THROW(SetFR(Tax1, 0L));
 				THROW(ExecFRPrintOper((flags & PRNCHK_RETURN) ? ReturnSale : Sale));
 				Flags |= sfOpenCheck;

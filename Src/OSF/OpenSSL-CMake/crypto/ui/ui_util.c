@@ -47,5 +47,5 @@ int UI_UTIL_read_pw(char *buf, char *buff, int size, const char *prompt,
     }
     if (ok > 0)
         ok = 0;
-    return (ok);
+    return ok;
 }

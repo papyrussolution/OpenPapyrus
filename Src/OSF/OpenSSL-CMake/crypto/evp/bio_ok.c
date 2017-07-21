@@ -69,7 +69,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "internal/bio.h"
+//#include "internal/bio.h"
 #include <internal/evp_int.h>
 
 static int ok_write(BIO * h, const char * buf, int num);
@@ -150,7 +150,7 @@ static int ok_free(BIO * a)
 
 	EVP_MD_CTX_free(ctx->md);
 	OPENSSL_clear_free(ctx, sizeof(BIO_OK_CTX));
-	BIO_set_data(a, NULL);
+	BIO_set_data(a, 0);
 	BIO_set_init(a, 0);
 
 	return 1;
@@ -162,13 +162,13 @@ static int ok_read(BIO * b, char * out, int outl)
 	BIO_OK_CTX * ctx;
 	BIO * next;
 
-	if(out == NULL)
+	if(!out)
 		return 0;
 
 	ctx = (BIO_OK_CTX*)BIO_get_data(b);
 	next = BIO_next(b);
 
-	if((ctx == NULL) || (next == NULL) || (BIO_get_init(b) == 0))
+	if(!ctx || (next == NULL) || (BIO_get_init(b) == 0))
 		return 0;
 
 	while(outl > 0) {
@@ -254,7 +254,7 @@ static int ok_write(BIO * b, const char * in, int inl)
 	next = BIO_next(b);
 	ret = inl;
 
-	if((ctx == NULL) || (next == NULL) || (BIO_get_init(b) == 0))
+	if(!ctx || (next == NULL) || (BIO_get_init(b) == 0))
 		return 0;
 
 	if(ctx->sigio && !sig_out(b))
@@ -282,7 +282,7 @@ static int ok_write(BIO * b, const char * in, int inl)
 			ctx->buf_off = 0;
 		}
 
-		if((in == NULL) || (inl <= 0))
+		if(!in || (inl <= 0))
 			return 0;
 
 		n = (inl + ctx->buf_len > OK_BLOCK_SIZE + OK_BLOCK_BLOCK) ?
@@ -396,7 +396,7 @@ static long ok_callback_ctrl(BIO * b, int cmd, bio_info_cb * fp)
 {
 	long ret = 1;
 	BIO * next = BIO_next(b);
-	if(next == NULL)
+	if(!next)
 		return 0;
 	switch(cmd) {
 		default:

@@ -157,7 +157,7 @@ int SLAPI PPDeclStruc::TransferData(SString & rData, Tfd dir, SString & rBuf, in
 			switch(c) {
 				case '\n': rBuf.CatChar('\\').CatChar('n'); break;
 				case '\r': rBuf.CatChar('\\').CatChar('r'); break;
-				case '\t': rBuf.CatChar('\\').CatChar('t'); break;
+				case '\t': rBuf.CatChar('\\').Tab(); break;
 				case ';' : rBuf.CatChar('\\').Semicol(); break;
 				case '\\': rBuf.CatChar('\\').CatChar('\\'); break;
 				default: rBuf.CatChar(c); break;
@@ -198,7 +198,7 @@ int SLAPI PPDeclStruc::TransferData(char * pData, size_t dataBufLen, Tfd dir, SS
 			switch(*p) {
 				case '\n': rBuf.CatChar('\\').CatChar('n'); break;
 				case '\r': rBuf.CatChar('\\').CatChar('r'); break;
-				case '\t': rBuf.CatChar('\\').CatChar('t'); break;
+				case '\t': rBuf.CatChar('\\').Tab(); break;
 				case ';' : rBuf.CatChar('\\').Semicol(); break;
 				case '\\': rBuf.CatChar('\\').CatChar('\\'); break;
 				default: rBuf.CatChar(*p); break;

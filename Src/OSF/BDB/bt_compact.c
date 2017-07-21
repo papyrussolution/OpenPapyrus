@@ -1297,7 +1297,7 @@ static int __bam_merge_internal(DBC * dbc, DBC * ndbc, int level, DB_COMPACT * c
 	uint32 freespace, pfree;
 	int ret;
 
-	COMPQUIET(bip, NULL);
+	COMPQUIET(bip, 0);
 	COMPQUIET(ppgno, PGNO_INVALID);
 	DB_ASSERT(NULL, dbc != NULL);
 	DB_ASSERT(NULL, ndbc != NULL);
@@ -1715,8 +1715,8 @@ static int __bam_truncate_root_page(DBC * dbc, PAGE * pg, uint32 indx, DB_COMPAC
 	BOVERFLOW * bo;
 	DB * dbp;
 	db_pgno_t * pgnop;
-	COMPQUIET(c_data, NULL);
-	COMPQUIET(bo, NULL);
+	COMPQUIET(c_data, 0);
+	COMPQUIET(bo, 0);
 	dbp = dbc->dbp;
 	if(TYPE(pg) == P_IBTREE) {
 		bi = GET_BINTERNAL(dbp, pg, indx);
@@ -1748,7 +1748,7 @@ static int __bam_truncate_internal_overflow(DBC * dbc, PAGE * page, DB_COMPACT *
 	db_indx_t indx;
 	int ret;
 
-	COMPQUIET(bo, NULL);
+	COMPQUIET(bo, 0);
 	ret = 0;
 	for(indx = 0; indx < NUM_ENT(page); indx++) {
 		bi = GET_BINTERNAL(dbc->dbp, page, indx);
@@ -1979,7 +1979,7 @@ int __bam_truncate_ipages(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_COMPAC
 	uint32 sflag;
 	int level, local_txn, ret, rlevel, t_ret;
 
-	COMPQUIET(pg, NULL);
+	COMPQUIET(pg, 0);
 	dbc = NULL;
 	memzero(&start, sizeof(start));
 	LOCK_INIT(root_lock);

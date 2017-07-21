@@ -328,7 +328,7 @@ int DGifGetScreenDesc(GifFileType * GifFile)
 	GifFile->AspectByte = Buf[2];
 	if(Buf[0] & 0x80) { /* Do we have global color map? */
 		int i;
-		GifFile->SColorMap = GifMakeMapObject(1 << BitsPerPixel, NULL);
+		GifFile->SColorMap = GifMakeMapObject(1 << BitsPerPixel, 0);
 		if(GifFile->SColorMap == NULL) {
 			GifFile->Error = D_GIF_ERR_NOT_ENOUGH_MEM;
 			return GIF_ERROR;
@@ -440,7 +440,7 @@ int DGifGetImageDesc(GifFileType * GifFile)
 	/* Does this image have local color map? */
 	if(Buf[0] & 0x80) {
 		uint i;
-		GifFile->Image.ColorMap = GifMakeMapObject(1 << BitsPerPixel, NULL);
+		GifFile->Image.ColorMap = GifMakeMapObject(1 << BitsPerPixel, 0);
 		if(GifFile->Image.ColorMap == NULL) {
 			GifFile->Error = D_GIF_ERR_NOT_ENOUGH_MEM;
 			return GIF_ERROR;
@@ -2330,7 +2330,7 @@ ColorMapObject * GifUnionColorMap(const ColorMapObject * ColorIn1, const ColorMa
 	 * with an empty color map.
 	 */
 	/* Allocate table which will hold the result for sure. */
-	ColorUnion = GifMakeMapObject(MAX(ColorIn1->ColorCount, ColorIn2->ColorCount) * 2, NULL);
+	ColorUnion = GifMakeMapObject(MAX(ColorIn1->ColorCount, ColorIn2->ColorCount) * 2, 0);
 	if(ColorUnion == NULL)
 		return NULL;
 	/*

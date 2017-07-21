@@ -31,8 +31,8 @@ int __log_print_record(ENV * env, DBT * recbuf, DB_LSN * lsnp, char * name, DB_L
 	char time_buf[CTIME_BUFLEN], * s;
 	const char * hdrname;
 
-	COMPQUIET(hdrstart, NULL);
-	COMPQUIET(hdrname, NULL);
+	COMPQUIET(hdrstart, 0);
+	COMPQUIET(hdrname, 0);
 	COMPQUIET(hdrsize, 0);
 	COMPQUIET(has_data, 0);
 	COMPQUIET(op, 0);

@@ -125,7 +125,7 @@ cairo_status_t _cairo_surface_clipper_set_clip(cairo_surface_clipper_t * clipper
 	if(unlikely(status))
 		return status;
 	if(clip->path != NULL) {
-		status = _cairo_surface_clipper_intersect_clip_path_recursive(clipper, clip->path, NULL);
+		status = _cairo_surface_clipper_intersect_clip_path_recursive(clipper, clip->path, 0);
 	}
 	return status;
 }

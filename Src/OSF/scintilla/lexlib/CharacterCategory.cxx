@@ -3292,13 +3292,15 @@ const int nRanges = SIZEOFARRAY(catRanges);
 // possibly for 0..0xff for most Western European text or 0..0xfff for most
 // alphabetic languages.
 
-CharacterCategory CategoriseCharacter(int character)
+CharacterCategory FASTCALL CategoriseCharacter(int character)
 {
 	if(character < 0 || character > maxUnicode)
 		return ccCn;
-	const int baseValue = character * (maskCategory+1) + maskCategory;
-	const int * placeAfter = std::lower_bound(catRanges, catRanges+nRanges, baseValue);
-	return static_cast<CharacterCategory>(*(placeAfter-1) & maskCategory);
+	else {
+		const int baseValue = character * (maskCategory+1) + maskCategory;
+		const int * placeAfter = std::lower_bound(catRanges, catRanges+nRanges, baseValue);
+		return static_cast<CharacterCategory>(*(placeAfter-1) & maskCategory);
+	}
 }
 
 #ifdef SCI_NAMESPACE

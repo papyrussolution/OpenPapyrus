@@ -120,7 +120,7 @@ int ASN1_UTCTIME_set_string(ASN1_UTCTIME * s, const char * str)
 				return 0;
 			s->type = V_ASN1_UTCTIME;
 		}
-		return (1);
+		return 1;
 	}
 	else
 		return 0;
@@ -248,7 +248,7 @@ int ASN1_UTCTIME_print(BIO * bp, const ASN1_UTCTIME * tm)
 		    (gmt) ? " GMT" : "") <= 0)
 		return 0;
 	else
-		return (1);
+		return 1;
 err:
 	BIO_write(bp, "Bad time value", 14);
 	return 0;

@@ -488,7 +488,7 @@ int __db_del(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * key, uint32 flag
 	db_recno_t recno;
 	uint32 cursor_flags, f_init, f_next;
 	int ret, t_ret;
-	COMPQUIET(bulk_ptr, NULL);
+	COMPQUIET(bulk_ptr, 0);
 	/* Allocate a cursor. */
 	cursor_flags = DB_WRITELOCK;
 	if(LF_ISSET(DB_MULTIPLE|DB_MULTIPLE_KEY))

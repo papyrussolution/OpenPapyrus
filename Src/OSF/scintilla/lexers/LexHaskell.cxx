@@ -31,8 +31,8 @@
 //#include "Accessor.h"
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
-#include "CharacterCategory.h"
 //#include "LexerModule.h"
+#include "CharacterCategory.h"
 #include "OptionSet.h"
 
 #ifdef SCI_NAMESPACE
@@ -42,37 +42,34 @@ using namespace Scintilla;
 // See https://github.com/ghc/ghc/blob/master/compiler/parser/Lexer.x#L1682
 // Note, letter modifiers are prohibited.
 
-static int u_iswupper(int ch)
+static int FASTCALL u_iswupper(int ch)
 {
 	CharacterCategory c = CategoriseCharacter(ch);
 	return c == ccLu || c == ccLt;
 }
 
-static int u_iswalpha(int ch)
+static int FASTCALL u_iswalpha(int ch)
 {
 	CharacterCategory c = CategoriseCharacter(ch);
 	return c == ccLl || c == ccLu || c == ccLt || c == ccLo;
 }
 
-static int u_iswalnum(int ch)
+static int FASTCALL u_iswalnum(int ch)
 {
 	CharacterCategory c = CategoriseCharacter(ch);
-	return c == ccLl || c == ccLu || c == ccLt || c == ccLo
-	       || c == ccNd || c == ccNo;
+	return c == ccLl || c == ccLu || c == ccLt || c == ccLo || c == ccNd || c == ccNo;
 }
 
-static int u_IsHaskellSymbol(int ch)
+static int FASTCALL u_IsHaskellSymbol(int ch)
 {
 	CharacterCategory c = CategoriseCharacter(ch);
-	return c == ccPc || c == ccPd || c == ccPo
-	       || c == ccSm || c == ccSc || c == ccSk || c == ccSo;
+	return c == ccPc || c == ccPd || c == ccPo || c == ccSm || c == ccSc || c == ccSk || c == ccSo;
 }
 
 static bool FASTCALL IsHaskellLetter(const int ch)
 {
 	if(IsASCII(ch)) {
-		return (ch >= 'a' && ch <= 'z')
-		       || (ch >= 'A' && ch <= 'Z');
+		return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
 	}
 	else {
 		return u_iswalpha(ch) != 0;
@@ -364,113 +361,81 @@ class LexerHaskell : public ILexer {
 			}
 		}
 	}
-
 	bool LineContainsImport(const Sci_Position line, Accessor &styler) const
 	{
 		if(options.foldImports) {
 			Sci_Position currentPos = styler.LineStart(line);
 			int style = styler.StyleAt(currentPos);
-
 			Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
-
 			while(currentPos < eol_pos) {
 				int ch = styler[currentPos];
 				style = styler.StyleAt(currentPos);
-
-				if(ch == ' ' || ch == '\t'
-				    || IsCommentBlockStyle(style)
-				    || style == SCE_HA_LITERATE_CODEDELIM) {
+				if(ch == ' ' || ch == '\t' || IsCommentBlockStyle(style) || style == SCE_HA_LITERATE_CODEDELIM) {
 					currentPos++;
 				}
 				else {
 					break;
 				}
 			}
-
-			return (style == SCE_HA_KEYWORD
-			    && styler.Match(currentPos, "import"));
+			return (style == SCE_HA_KEYWORD && styler.Match(currentPos, "import"));
 		}
 		else {
 			return false;
 		}
 	}
-
 	inline int IndentAmountWithOffset(Accessor &styler, const Sci_Position line) const
 	{
 		const int indent = HaskellIndentAmount(styler, line);
 		const int indentLevel = indent & SC_FOLDLEVELNUMBERMASK;
-		return indentLevel <= ((firstImportIndent - 1) + SC_FOLDLEVELBASE)
-		       ? indent
-		       : (indentLevel + firstImportIndent) | (indent & ~SC_FOLDLEVELNUMBERMASK);
+		return indentLevel <= ((firstImportIndent - 1) + SC_FOLDLEVELBASE) ? indent : (indentLevel + firstImportIndent) | (indent & ~SC_FOLDLEVELNUMBERMASK);
 	}
-
 	inline int IndentLevelRemoveIndentOffset(const int indentLevel) const
 	{
-		return indentLevel <= ((firstImportIndent - 1) + SC_FOLDLEVELBASE)
-		       ? indentLevel
-		       : indentLevel - firstImportIndent;
+		return indentLevel <= ((firstImportIndent - 1) + SC_FOLDLEVELBASE) ? indentLevel : indentLevel - firstImportIndent;
 	}
-
 public:
-	LexerHaskell(bool literate_)
-		: literate(literate_)
-		, firstImportLine(-1)
-		, firstImportIndent(0)
+	LexerHaskell(bool literate_) : literate(literate_), firstImportLine(-1), firstImportIndent(0)
 	{
 	}
-
 	virtual ~LexerHaskell()
 	{
 	}
-
 	void SCI_METHOD Release()
 	{
 		delete this;
 	}
-
 	int SCI_METHOD Version() const
 	{
 		return lvOriginal;
 	}
-
 	const char * SCI_METHOD PropertyNames()
 	{
 		return osHaskell.PropertyNames();
 	}
-
 	int SCI_METHOD PropertyType(const char * name)
 	{
 		return osHaskell.PropertyType(name);
 	}
-
 	const char * SCI_METHOD DescribeProperty(const char * name)
 	{
 		return osHaskell.DescribeProperty(name);
 	}
-
 	Sci_Position SCI_METHOD PropertySet(const char * key, const char * val);
-
 	const char * SCI_METHOD DescribeWordListSets()
 	{
 		return osHaskell.DescribeWordListSets();
 	}
-
 	Sci_Position SCI_METHOD WordListSet(int n, const char * wl);
-
 	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
-
 	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
-
 	void * SCI_METHOD PrivateCall(int, void *)
 	{
 		return 0;
 	}
-
 	static ILexer * LexerFactoryHaskell()
 	{
 		return new LexerHaskell(false);
 	}
-
 	static ILexer * LexerFactoryLiterateHaskell()
 	{
 		return new LexerHaskell(true);
@@ -511,38 +476,27 @@ Sci_Position SCI_METHOD LexerHaskell::WordListSet(int n, const char * wl)
 	return firstModification;
 }
 
-void SCI_METHOD LexerHaskell::Lex(Sci_PositionU startPos, Sci_Position length, int initStyle
-    , IDocument * pAccess)
+void SCI_METHOD LexerHaskell::Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess)
 {
 	LexAccessor styler(pAccess);
-
 	Sci_Position lineCurrent = styler.GetLine(startPos);
-
 	HaskellLineInfo hs = HaskellLineInfo(lineCurrent ? styler.GetLineState(lineCurrent-1) : 0);
-
 	// Do not leak onto next line
 	if(initStyle == SCE_HA_STRINGEOL)
 		initStyle = SCE_HA_DEFAULT;
 	else if(initStyle == SCE_HA_LITERATE_CODEDELIM)
 		initStyle = hs.nonexternalStyle;
-
 	StyleContext sc(startPos, length, initStyle, styler);
-
 	int base = 10;
 	bool dot = false;
-
 	bool inDashes = false;
 	bool alreadyInTheMiddleOfOperator = false;
-
 	assert(!(IsCommentBlockStyle(initStyle) && hs.nestLevel == 0));
-
 	while(sc.More()) {
 		// Check for state end
-
 		if(!IsExternalStyle(sc.state)) {
 			hs.nonexternalStyle = sc.state;
 		}
-
 		// For lexer to work, states should unconditionally forward at least one
 		// character.
 		// If they don't, they should still check if they are at line end and
@@ -556,28 +510,22 @@ void SCI_METHOD LexerHaskell::Lex(Sci_PositionU startPos, Sci_Position length, i
 		}
 
 		// Handle line continuation generically.
-		if(sc.ch == '\\' && (sc.chNext == '\n' || sc.chNext == '\r')
-		    && (  sc.state == SCE_HA_STRING
-			    || sc.state == SCE_HA_PREPROCESSOR)) {
+		if(sc.ch == '\\' && (sc.chNext == '\n' || sc.chNext == '\r') && (  sc.state == SCE_HA_STRING || sc.state == SCE_HA_PREPROCESSOR)) {
 			// Remember the line state for future incremental lexing
 			styler.SetLineState(lineCurrent, hs.ToLineState());
 			lineCurrent++;
-
 			sc.Forward();
 			if(sc.ch == '\r' && sc.chNext == '\n') {
 				sc.Forward();
 			}
 			sc.Forward();
-
 			continue;
 		}
-
 		if(sc.atLineStart) {
 			if(sc.state == SCE_HA_STRING || sc.state == SCE_HA_CHARACTER) {
 				// Prevent SCE_HA_STRINGEOL from leaking back to previous line
 				sc.SetState(sc.state);
 			}
-
 			if(literate && hs.lmode == LITERATE_BIRD) {
 				if(!IsExternalStyle(sc.state)) {
 					sc.SetState(SCE_HA_LITERATE_COMMENT);
@@ -1042,7 +990,7 @@ void SCI_METHOD LexerHaskell::Fold(Sci_PositionU startPos, Sci_Position length, 
 	if(!options.fold)
 		return;
 
-	Accessor styler(pAccess, NULL);
+	Accessor styler(pAccess, 0);
 
 	Sci_Position lineCurrent = styler.GetLine(startPos);
 

@@ -877,7 +877,7 @@ SString & DlScope::PropListToLine(const StrAssocArray & rPropList, uint tabCount
 				rBuf.CR();
 			}
 		}
-		rBuf.CatCharN('\t', tabCount).CatChar('}');
+		rBuf.Tab(tabCount).CatChar('}');
 	}
 	return rBuf;
 }

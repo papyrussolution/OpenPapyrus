@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include <internal/evp_int.h>
-#include <internal/bio.h>
+//#include <internal/bio.h>
 #include "asn1_locl.h"
 
 /*
@@ -132,7 +132,7 @@ static ASN1_VALUE * b64_read_asn1(BIO * bio, const ASN1_ITEM * it)
 		return 0;
 	}
 	bio = BIO_push(b64, bio);
-	val = (ASN1_VALUE*)ASN1_item_d2i_bio(it, bio, NULL);
+	val = (ASN1_VALUE*)ASN1_item_d2i_bio(it, bio, 0);
 	if(!val)
 		ASN1err(ASN1_F_B64_READ_ASN1, ASN1_R_DECODE_ERROR);
 	(void)BIO_flush(bio);
@@ -368,7 +368,7 @@ ASN1_VALUE * SMIME_read_ASN1(BIO * bio, BIO ** bcont, const ASN1_ITEM * it)
 	MIME_PARAM * prm;
 	ASN1_VALUE * val;
 	int ret;
-	ASSIGN_PTR(bcont, NULL);
+	ASSIGN_PTR(bcont, 0);
 	if((headers = mime_parse_hdr(bio)) == NULL) {
 		ASN1err(ASN1_F_SMIME_READ_ASN1, ASN1_R_MIME_PARSE_ERROR);
 		return NULL;

@@ -50,12 +50,12 @@ typedef struct s_statestruct {
 	uint OutLength;
 	uint OutPosCur;
 	uint OutByteCountPos;
-	unsigned short ClearCode;
-	unsigned short FreeCode;
+	ushort ClearCode;
+	ushort FreeCode;
 	char fByteCountByteSet;
 	uchar OutBitsFree;
-	unsigned short NodeAxon[4096];
-	unsigned short NodeNext[4096];
+	ushort NodeAxon[4096];
+	ushort NodeNext[4096];
 	uchar NodePix[4096];
 } statestruct;
 
@@ -80,7 +80,7 @@ static char BufferNextByte(statestruct * pState)
 	return 0;
 }
 
-static char AddCodeToBuffer(statestruct * pState, unsigned short CodeIn, uchar CodeBits)
+static char AddCodeToBuffer(statestruct * pState, ushort CodeIn, uchar CodeBits)
 {
 	/* Check, if we may fill up the current byte completely */
 	if(CodeBits >= pState->OutBitsFree) {
@@ -88,7 +88,7 @@ static char AddCodeToBuffer(statestruct * pState, unsigned short CodeIn, uchar C
 		    (CodeIn << (8 - pState->OutBitsFree));
 		if(BufferNextByte(pState))
 			return -1;
-		CodeIn = (unsigned short)(CodeIn >> pState->OutBitsFree);
+		CodeIn = (ushort)(CodeIn >> pState->OutBitsFree);
 		CodeBits -= pState->OutBitsFree;
 		pState->OutBitsFree = 8;
 		/* Write a full byte if there are at least 8 code bits left */
@@ -96,7 +96,7 @@ static char AddCodeToBuffer(statestruct * pState, unsigned short CodeIn, uchar C
 			(pState->pOut)[pState->OutPosCur] = (uchar)CodeIn;
 			if(BufferNextByte(pState))
 				return -1;
-			CodeIn = (unsigned short)(CodeIn >> 8);
+			CodeIn = (ushort)(CodeIn >> 8);
 			CodeBits -= 8;
 		}
 	}
@@ -111,14 +111,14 @@ static char AddCodeToBuffer(statestruct * pState, unsigned short CodeIn, uchar C
 
 static void FlushStringTable(statestruct * pState)
 {
-	for(unsigned short Pos = 0; Pos < pState->ClearCode; Pos++) {
+	for(ushort Pos = 0; Pos < pState->ClearCode; Pos++) {
 		(pState->NodeAxon)[Pos] = 0;
 	}
 }
 
-unsigned short FindPixelOutlet(statestruct * pState, unsigned short HeadNode, uchar Byte)
+ushort FindPixelOutlet(statestruct * pState, ushort HeadNode, uchar Byte)
 {
-	unsigned short Outlet = (pState->NodeAxon)[HeadNode];
+	ushort Outlet = (pState->NodeAxon)[HeadNode];
 	while(Outlet) {
 		if((pState->NodePix)[Outlet] == Byte)
 			return Outlet;
@@ -129,9 +129,9 @@ unsigned short FindPixelOutlet(statestruct * pState, unsigned short HeadNode, uc
 
 static char NextCode(statestruct * pState, uchar * pPixelValueCur, uchar CodeBits)
 {
-	unsigned short DownNode;
+	ushort DownNode;
 	/* start with the root node for last pixel chain */
-	unsigned short UpNode = *pPixelValueCur;
+	ushort UpNode = *pPixelValueCur;
 	if((pState->InLen) == 0)
 		return AddCodeToBuffer(pState, UpNode, CodeBits);
 
@@ -173,7 +173,7 @@ int gif_lzw(uchar * pOut, int OutLength, uchar * pIn, int InLen)
 {
 	uchar PixelValueCur;
 	uchar CodeBits;
-	unsigned short Pos;
+	ushort Pos;
 	statestruct State;
 	State.pIn = pIn;
 	State.InLen = InLen;
@@ -217,7 +217,7 @@ int gif_lzw(uchar * pOut, int OutLength, uchar * pIn, int InLen)
 		//* Check for end of data stream */
 		if(!Res) {
 			/* submit 'eoi' as the last item of the code stream */
-			if(AddCodeToBuffer(&State, (unsigned short)(State.ClearCode + 1), CodeBits))
+			if(AddCodeToBuffer(&State, (ushort)(State.ClearCode + 1), CodeBits))
 				return 0;
 			State.fByteCountByteSet = 0;
 			if(State.OutBitsFree < 8) {
@@ -241,7 +241,7 @@ int gif_lzw(uchar * pOut, int OutLength, uchar * pIn, int InLen)
 			if(AddCodeToBuffer(&State, State.ClearCode, CodeBits))
 				return 0;
 			CodeBits = (uchar)(1 + 2);
-			State.FreeCode = (unsigned short)(State.ClearCode + 2);
+			State.FreeCode = (ushort)(State.ClearCode + 2);
 		}
 	}
 }
@@ -250,7 +250,7 @@ int gif_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 {
 	char outbuf[10];
 	FILE * gif_file;
-	unsigned short usTemp;
+	ushort usTemp;
 	int byte_out;
 #ifdef _MSC_VER
 	char * lzwoutbuf;
@@ -293,11 +293,11 @@ int gif_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	fwrite(outbuf, 6, 1, gif_file);
 	/* Screen Descriptor (7) */
 	/* Screen Width */
-	usTemp = (unsigned short)symbol->bitmap_width;
+	usTemp = (ushort)symbol->bitmap_width;
 	outbuf[0] = (uchar)(0xff & usTemp);
 	outbuf[1] = (uchar)((0xff00 & usTemp) / 0x100);
 	/* Screen Height */
-	usTemp = (unsigned short)symbol->bitmap_height;
+	usTemp = (ushort)symbol->bitmap_height;
 	outbuf[2] = (uchar)(0xff & usTemp);
 	outbuf[3] = (uchar)((0xff00 & usTemp) / 0x100);
 	/* write ImageBits-1 to the three least significant bits of byte 5  of

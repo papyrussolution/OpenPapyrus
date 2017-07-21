@@ -63,7 +63,7 @@ static int tls1_PRF(SSL * s,
 		SSLerr(SSL_F_TLS1_PRF, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
-	pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_TLS1_PRF, NULL);
+	pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_TLS1_PRF, 0);
 	if(pctx == NULL || EVP_PKEY_derive_init(pctx) <= 0
 	    || EVP_PKEY_CTX_set_tls1_prf_md(pctx, md) <= 0
 	    || EVP_PKEY_CTX_set1_tls1_prf_secret(pctx, sec, slen) <= 0)
@@ -151,7 +151,7 @@ int tls1_change_cipher_state(SSL * s, int which)
 			 */
 			EVP_CIPHER_CTX_reset(s->enc_read_ctx);
 		dd = s->enc_read_ctx;
-		mac_ctx = ssl_replace_hash(&s->read_hash, NULL);
+		mac_ctx = ssl_replace_hash(&s->read_hash, 0);
 		if(mac_ctx == NULL)
 			goto err;
 #ifndef OPENSSL_NO_COMP
@@ -196,7 +196,7 @@ int tls1_change_cipher_state(SSL * s, int which)
 			s->write_hash = mac_ctx;
 		}
 		else {
-			mac_ctx = ssl_replace_hash(&s->write_hash, NULL);
+			mac_ctx = ssl_replace_hash(&s->write_hash, 0);
 			if(mac_ctx == NULL)
 				goto err;
 		}

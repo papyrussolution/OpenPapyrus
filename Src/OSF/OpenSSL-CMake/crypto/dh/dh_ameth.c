@@ -99,7 +99,7 @@ static int dh_pub_encode(X509_PUBKEY * pk, const EVP_PKEY * pkey)
 		goto err;
 	}
 	ptype = V_ASN1_SEQUENCE;
-	pub_key = BN_to_ASN1_INTEGER(dh->pub_key, NULL);
+	pub_key = BN_to_ASN1_INTEGER(dh->pub_key, 0);
 	if(!pub_key)
 		goto err;
 	penclen = i2d_ASN1_INTEGER(pub_key, &penc);
@@ -179,7 +179,7 @@ static int dh_priv_encode(PKCS8_PRIV_KEY_INFO * p8, const EVP_PKEY * pkey)
 	}
 	params->type = V_ASN1_SEQUENCE;
 	/* Get private key into integer */
-	prkey = BN_to_ASN1_INTEGER(pkey->pkey.dh->priv_key, NULL);
+	prkey = BN_to_ASN1_INTEGER(pkey->pkey.dh->priv_key, 0);
 	if(!prkey) {
 		DHerr(DH_F_DH_PRIV_ENCODE, DH_R_BN_ERROR);
 		goto err;
@@ -668,7 +668,7 @@ static int dh_cms_encrypt(CMS_RecipientInfo * ri)
 	X509_ALGOR_get0(&aoid, NULL, NULL, talg);
 	/* Is everything uninitialised? */
 	if(aoid == OBJ_nid2obj(NID_undef)) {
-		ASN1_INTEGER * pubk = BN_to_ASN1_INTEGER(pkey->pkey.dh->pub_key, NULL);
+		ASN1_INTEGER * pubk = BN_to_ASN1_INTEGER(pkey->pkey.dh->pub_key, 0);
 		if(!pubk)
 			goto err;
 		/* Set the key */
@@ -680,7 +680,7 @@ static int dh_cms_encrypt(CMS_RecipientInfo * ri)
 		pubkey->flags &= ~(ASN1_STRING_FLAG_BITS_LEFT | 0x07);
 		pubkey->flags |= ASN1_STRING_FLAG_BITS_LEFT;
 		penc = NULL;
-		X509_ALGOR_set0(talg, OBJ_nid2obj(NID_dhpublicnumber), V_ASN1_UNDEF, NULL);
+		X509_ALGOR_set0(talg, OBJ_nid2obj(NID_dhpublicnumber), V_ASN1_UNDEF, 0);
 	}
 	/* See if custom parameters set */
 	kdf_type = EVP_PKEY_CTX_get_dh_kdf_type(pctx);

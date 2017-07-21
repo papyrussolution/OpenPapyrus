@@ -337,7 +337,7 @@ int __qam_vrfy_walkqueue(DB * dbp, VRFY_DBINFO * vdp, void * handle, int (*callb
 	db_pgno_t first, i, last, pg_ext, stop;
 	int isbad, nextents, ret, t_ret;
 
-	COMPQUIET(h, NULL);
+	COMPQUIET(h, 0);
 
 	env = dbp->env;
 	qp = (QUEUE *)dbp->q_internal;

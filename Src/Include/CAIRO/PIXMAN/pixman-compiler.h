@@ -131,7 +131,7 @@
 		{								\
 			if(!tls_ ## name ## _mutex)				   \
 			{							    \
-				void * mutex = CreateMutexA(NULL, 0, NULL);		\
+				void * mutex = CreateMutexA(NULL, 0, 0);		\
 				if(InterlockedCompareExchangePointer(		      \
 					    &tls_ ## name ## _mutex, mutex, NULL) != NULL)  \
 				{							\

@@ -538,7 +538,7 @@ const char * Curl_strerror(struct connectdata * conn, int err)
 		wbuf[0] = L'\0';
 
 		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err,
-		    LANG_NEUTRAL, wbuf, sizeof(wbuf)/sizeof(wchar_t), NULL);
+		    LANG_NEUTRAL, wbuf, sizeof(wbuf)/sizeof(wchar_t), 0);
 		wcstombs(buf, wbuf, max);
 	}
 #else

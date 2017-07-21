@@ -98,7 +98,7 @@ static cairo_surface_t * attach_proxy(cairo_surface_t * source, cairo_surface_t 
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	_cairo_surface_init(&proxy->base, &proxy_backend, NULL, target->content);
 	proxy->target = target;
-	_cairo_surface_attach_snapshot(source, &proxy->base, NULL);
+	_cairo_surface_attach_snapshot(source, &proxy->base, 0);
 	return &proxy->base;
 }
 
@@ -133,7 +133,7 @@ static cairo_int_status_t _analyze_recording_surface_pattern(cairo_analysis_surf
 	assert(status == CAIRO_STATUS_SUCCESS);
 	cairo_matrix_multiply(&tmp->ctm, &p2d, &surface->ctm);
 	tmp->has_ctm = !_cairo_matrix_is_identity(&tmp->ctm);
-	source = _cairo_surface_get_source(source, NULL);
+	source = _cairo_surface_get_source(source, 0);
 	status = _cairo_recording_surface_replay_and_create_regions(source, &tmp->base);
 	analysis_status = tmp->has_unsupported ? CAIRO_INT_STATUS_IMAGE_FALLBACK : CAIRO_INT_STATUS_SUCCESS;
 	detach_proxy(proxy);
@@ -172,7 +172,7 @@ static cairo_int_status_t _add_operation(cairo_analysis_surface_t * surface, Cai
 			bbox.p2.y += ty;
 		}
 		else {
-			_cairo_matrix_transform_bounding_box_fixed(&surface->ctm, &bbox, NULL);
+			_cairo_matrix_transform_bounding_box_fixed(&surface->ctm, &bbox, 0);
 			if(bbox.p1.x == bbox.p2.x || bbox.p1.y == bbox.p2.y) {
 				/* Even though the operation is not visible we must be
 				 * careful to not allow unsupported operations to be
@@ -319,7 +319,7 @@ static cairo_int_status_t _cairo_analysis_surface_mask(void * abstract_surface,
 
 		if(source->type == CAIRO_PATTERN_TYPE_SURFACE) {
 			cairo_surface_t * src_surface = ((cairo_surface_pattern_t*)source)->surface;
-			src_surface = _cairo_surface_get_source(src_surface, NULL);
+			src_surface = _cairo_surface_get_source(src_surface, 0);
 			if(_cairo_surface_is_recording(src_surface)) {
 				backend_source_status =
 				 _analyze_recording_surface_pattern(surface, source);
@@ -330,7 +330,7 @@ static cairo_int_status_t _cairo_analysis_surface_mask(void * abstract_surface,
 
 		if(mask->type == CAIRO_PATTERN_TYPE_SURFACE) {
 			cairo_surface_t * mask_surface = ((cairo_surface_pattern_t*)mask)->surface;
-			mask_surface = _cairo_surface_get_source(mask_surface, NULL);
+			mask_surface = _cairo_surface_get_source(mask_surface, 0);
 			if(_cairo_surface_is_recording(mask_surface)) {
 				backend_mask_status =
 				 _analyze_recording_surface_pattern(surface, mask);

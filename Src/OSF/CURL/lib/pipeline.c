@@ -155,7 +155,7 @@ CURLMcode Curl_pipeline_set_site_blacklist(char ** sites, struct curl_llist * li
 {
 	/* Free the old list */
 	if(list->size)
-		Curl_llist_destroy(list, NULL);
+		Curl_llist_destroy(list, 0);
 	if(sites) {
 		Curl_llist_init(list, (curl_llist_dtor)site_blacklist_llist_dtor);
 		/* Parse the URLs and populate the list */
@@ -164,13 +164,13 @@ CURLMcode Curl_pipeline_set_site_blacklist(char ** sites, struct curl_llist * li
 			struct site_blacklist_entry * entry;
 			char * hostname = _strdup(*sites);
 			if(!hostname) {
-				Curl_llist_destroy(list, NULL);
+				Curl_llist_destroy(list, 0);
 				return CURLM_OUT_OF_MEMORY;
 			}
 			entry = (struct site_blacklist_entry *)SAlloc::M(sizeof(struct site_blacklist_entry));
 			if(!entry) {
 				SAlloc::F(hostname);
-				Curl_llist_destroy(list, NULL);
+				Curl_llist_destroy(list, 0);
 				return CURLM_OUT_OF_MEMORY;
 			}
 			port = strchr(hostname, ':');
@@ -186,7 +186,7 @@ CURLMcode Curl_pipeline_set_site_blacklist(char ** sites, struct curl_llist * li
 			entry->hostname = hostname;
 			if(!Curl_llist_insert_next(list, list->tail, entry)) {
 				site_blacklist_llist_dtor(NULL, entry);
-				Curl_llist_destroy(list, NULL);
+				Curl_llist_destroy(list, 0);
 				return CURLM_OUT_OF_MEMORY;
 			}
 			sites++;
@@ -219,18 +219,18 @@ CURLMcode Curl_pipeline_set_server_blacklist(char ** servers, struct curl_llist 
 {
 	/* Free the old list */
 	if(list->size)
-		Curl_llist_destroy(list, NULL);
+		Curl_llist_destroy(list, 0);
 	if(servers) {
 		Curl_llist_init(list, (curl_llist_dtor)server_blacklist_llist_dtor);
 		/* Parse the URLs and populate the list */
 		while(*servers) {
 			char * server_name = _strdup(*servers);
 			if(!server_name) {
-				Curl_llist_destroy(list, NULL);
+				Curl_llist_destroy(list, 0);
 				return CURLM_OUT_OF_MEMORY;
 			}
 			if(!Curl_llist_insert_next(list, list->tail, server_name)) {
-				Curl_llist_destroy(list, NULL);
+				Curl_llist_destroy(list, 0);
 				ZFREE(server_name);
 				return CURLM_OUT_OF_MEMORY;
 			}

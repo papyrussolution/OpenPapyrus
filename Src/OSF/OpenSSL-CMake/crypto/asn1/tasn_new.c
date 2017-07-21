@@ -78,7 +78,7 @@ int asn1_item_embed_new(ASN1_VALUE ** pval, const ASN1_ITEM * it, int embed)
 
 		case ASN1_ITYPE_CHOICE:
 		    if(asn1_cb) {
-			    i = asn1_cb(ASN1_OP_NEW_PRE, pval, it, NULL);
+			    i = asn1_cb(ASN1_OP_NEW_PRE, pval, it, 0);
 			    if(!i)
 				    goto auxerr;
 			    if(i == 2) {
@@ -104,7 +104,7 @@ int asn1_item_embed_new(ASN1_VALUE ** pval, const ASN1_ITEM * it, int embed)
 		case ASN1_ITYPE_NDEF_SEQUENCE:
 		case ASN1_ITYPE_SEQUENCE:
 		    if(asn1_cb) {
-			    i = asn1_cb(ASN1_OP_NEW_PRE, pval, it, NULL);
+			    i = asn1_cb(ASN1_OP_NEW_PRE, pval, it, 0);
 			    if(!i)
 				    goto auxerr;
 			    if(i == 2) {

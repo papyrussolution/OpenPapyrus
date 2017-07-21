@@ -64,7 +64,7 @@ int DSO_free(DSO * dso)
 	int i;
 
 	if(dso == NULL)
-		return (1);
+		return 1;
 
 	if(CRYPTO_atomic_add(&dso->references, -1, &i, dso->lock) <= 0)
 		return 0;
@@ -258,7 +258,7 @@ int DSO_set_filename(DSO * dso, const char * filename)
 	}
 	OPENSSL_free(dso->filename);
 	dso->filename = copied;
-	return (1);
+	return 1;
 }
 
 char * DSO_merge(DSO * dso, const char * filespec1, const char * filespec2)

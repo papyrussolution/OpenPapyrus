@@ -203,7 +203,7 @@ char * curl_dostrdup(const char * str, int line, const char * source)
 	if(countcheck("strdup", line, source))
 		return NULL;
 	len = strlen(str)+1;
-	mem = curl_domalloc(len, 0, NULL); /* NULL prevents logging */
+	mem = curl_domalloc(len, 0, 0); /* NULL prevents logging */
 	if(mem)
 		memcpy(mem, str, len);
 	if(source)
@@ -221,7 +221,7 @@ wchar_t * curl_dowcsdup(const wchar_t * str, int line, const char * source)
 		return NULL;
 	wsiz = wcslen(str) + 1;
 	bsiz = wsiz * sizeof(wchar_t);
-	mem = curl_domalloc(bsiz, 0, NULL); /* NULL prevents logging */
+	mem = curl_domalloc(bsiz, 0, 0); /* NULL prevents logging */
 	if(mem)
 		memcpy(mem, str, bsiz);
 	if(source)

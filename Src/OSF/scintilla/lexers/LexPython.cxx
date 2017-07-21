@@ -19,8 +19,8 @@
 //#include "Accessor.h"
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
-#include "CharacterCategory.h"
 //#include "LexerModule.h"
+#include "CharacterCategory.h"
 #include "OptionSet.h"
 #include "SubStyles.h"
 
@@ -43,15 +43,12 @@ bool IsPyComment(Accessor &styler, Sci_Position pos, Sci_Position len)
 	return len > 0 && styler[pos] == '#';
 }
 
-bool IsPyStringTypeChar(int ch, literalsAllowed allowed)
+static bool FASTCALL IsPyStringTypeChar(int ch, literalsAllowed allowed)
 {
-	return
-		((allowed & litB) && (ch == 'b' || ch == 'B')) ||
-		((allowed & litU) && (ch == 'u' || ch == 'U')) ||
-		((allowed & litF) && (ch == 'f' || ch == 'F'));
+	return ((allowed & litB) && (ch == 'b' || ch == 'B')) || ((allowed & litU) && (ch == 'u' || ch == 'U')) || ((allowed & litF) && (ch == 'f' || ch == 'F'));
 }
 
-bool IsPyStringStart(int ch, int chNext, int chNext2, literalsAllowed allowed)
+static bool IsPyStringStart(int ch, int chNext, int chNext2, literalsAllowed allowed)
 {
 	if(ch == '\'' || ch == '"')
 		return true;
@@ -63,29 +60,25 @@ bool IsPyStringStart(int ch, int chNext, int chNext2, literalsAllowed allowed)
 	}
 	if((ch == 'r' || ch == 'R') && (chNext == '"' || chNext == '\''))
 		return true;
-
 	return false;
 }
 
-bool IsPyFStringState(int st)
+static bool FASTCALL IsPyFStringState(int st)
 {
-	return ((st == SCE_P_FCHARACTER) || (st == SCE_P_FSTRING) ||
-		    (st == SCE_P_FTRIPLE) || (st == SCE_P_FTRIPLEDOUBLE));
+	return ((st == SCE_P_FCHARACTER) || (st == SCE_P_FSTRING) || (st == SCE_P_FTRIPLE) || (st == SCE_P_FTRIPLEDOUBLE));
 }
 
-bool IsPySingleQuoteStringState(int st)
+static bool FASTCALL IsPySingleQuoteStringState(int st)
 {
-	return ((st == SCE_P_CHARACTER) || (st == SCE_P_STRING) ||
-		    (st == SCE_P_FCHARACTER) || (st == SCE_P_FSTRING));
+	return ((st == SCE_P_CHARACTER) || (st == SCE_P_STRING) || (st == SCE_P_FCHARACTER) || (st == SCE_P_FSTRING));
 }
 
-bool IsPyTripleQuoteStringState(int st)
+static bool FASTCALL IsPyTripleQuoteStringState(int st)
 {
-	return ((st == SCE_P_TRIPLE) || (st == SCE_P_TRIPLEDOUBLE) ||
-		    (st == SCE_P_FTRIPLE) || (st == SCE_P_FTRIPLEDOUBLE));
+	return ((st == SCE_P_TRIPLE) || (st == SCE_P_TRIPLEDOUBLE) || (st == SCE_P_FTRIPLE) || (st == SCE_P_FTRIPLEDOUBLE));
 }
 
-void PushStateToStack(int state, int * stack, int stackSize)
+static void PushStateToStack(int state, int * stack, int stackSize)
 {
 	for(int i = stackSize-1; i > 0; i--) {
 		stack[i] = stack[i-1];
@@ -93,7 +86,7 @@ void PushStateToStack(int state, int * stack, int stackSize)
 	stack[0] = state;
 }
 
-int PopFromStateStack(int * stack, int stackSize)
+static int FASTCALL PopFromStateStack(int * stack, int stackSize)
 {
 	int top = stack[0];
 	for(int i = 0; i < stackSize - 1; i++) {
@@ -102,9 +95,10 @@ int PopFromStateStack(int * stack, int stackSize)
 	stack[stackSize-1] = 0;
 	return top;
 }
-
-/* Return the state to use for the string starting at i; *nextIndex will be set to the first index following the quote(s) */
-int GetPyStringState(Accessor &styler, Sci_Position i, Sci_PositionU * nextIndex, literalsAllowed allowed)
+//
+// Return the state to use for the string starting at i; *nextIndex will be set to the first index following the quote(s) 
+//
+static int GetPyStringState(Accessor &styler, Sci_Position i, Sci_PositionU * nextIndex, literalsAllowed allowed)
 {
 	char ch = styler.SafeGetCharAt(i);
 	char chNext = styler.SafeGetCharAt(i + 1);
@@ -130,10 +124,8 @@ int GetPyStringState(Accessor &styler, Sci_Position i, Sci_PositionU * nextIndex
 		*nextIndex = i + 1;
 		return SCE_P_DEFAULT;
 	}
-
 	if(ch == chNext && ch == styler.SafeGetCharAt(i + 2)) {
 		*nextIndex = i + 3;
-
 		if(ch == '"')
 			return (firstIsF ? SCE_P_FTRIPLEDOUBLE : SCE_P_TRIPLEDOUBLE);
 		else
@@ -141,7 +133,6 @@ int GetPyStringState(Accessor &styler, Sci_Position i, Sci_PositionU * nextIndex
 	}
 	else {
 		*nextIndex = i + 1;
-
 		if(ch == '"')
 			return (firstIsF ? SCE_P_FSTRING : SCE_P_STRING);
 		else
@@ -149,37 +140,31 @@ int GetPyStringState(Accessor &styler, Sci_Position i, Sci_PositionU * nextIndex
 	}
 }
 
-inline bool IsAWordChar(int ch, bool unicodeIdentifiers)
+/*inline*/static bool FASTCALL IsAWordChar(int ch, bool unicodeIdentifiers)
 {
 	if(ch < 0x80)
 		return (isalnum(ch) || ch == '.' || ch == '_');
-
 	if(!unicodeIdentifiers)
 		return false;
-
 	// Approximation, Python uses the XID_Continue set from unicode data
 	// see http://unicode.org/reports/tr31/
 	CharacterCategory c = CategoriseCharacter(ch);
-	return (c == ccLl || c == ccLu || c == ccLt || c == ccLm || c == ccLo
-		    || c == ccNl || c == ccMn || c == ccMc || c == ccNd || c == ccPc);
+	return (c == ccLl || c == ccLu || c == ccLt || c == ccLm || c == ccLo || c == ccNl || c == ccMn || c == ccMc || c == ccNd || c == ccPc);
 }
 
-inline bool IsAWordStart(int ch, bool unicodeIdentifiers)
+/*inline*/static bool FASTCALL IsAWordStart(int ch, bool unicodeIdentifiers)
 {
 	if(ch < 0x80)
 		return (isalpha(ch) || ch == '_');
-
 	if(!unicodeIdentifiers)
 		return false;
-
 	// Approximation, Python uses the XID_Start set from unicode data
 	// see http://unicode.org/reports/tr31/
 	CharacterCategory c = CategoriseCharacter(ch);
-	return (c == ccLl || c == ccLu || c == ccLt || c == ccLm || c == ccLo
-		    || c == ccNl);
+	return (c == ccLl || c == ccLu || c == ccLt || c == ccLm || c == ccLo || c == ccNl);
 }
 
-static bool IsFirstNonWhitespace(Sci_Position pos, Accessor &styler)
+static bool FASTCALL IsFirstNonWhitespace(Sci_Position pos, Accessor &styler)
 {
 	Sci_Position line = styler.GetLine(pos);
 	Sci_Position start_pos = styler.LineStart(line);
@@ -219,7 +204,6 @@ struct OptionsPython {
 		foldCompact = false;
 		unicodeIdentifiers = true;
 	}
-
 	literalsAllowed AllowedLiterals() const
 	{
 		literalsAllowed allowedLiterals = stringsU ? litU : litNone;
@@ -294,111 +278,89 @@ class LexerPython : public ILexerWithSubStyles {
 
 	SubStyles subStyles;
 public:
-	explicit LexerPython() :
-		subStyles(styleSubable, 0x80, 0x40, 0)
+	explicit LexerPython() : subStyles(styleSubable, 0x80, 0x40, 0)
 	{
 	}
-
 	virtual ~LexerPython()
 	{
 	}
-
 	void SCI_METHOD Release()
 	{
 		delete this;
 	}
-
 	int SCI_METHOD Version() const
 	{
 		return lvSubStyles;
 	}
-
 	const char * SCI_METHOD PropertyNames()
 	{
 		return osPython.PropertyNames();
 	}
-
 	int SCI_METHOD PropertyType(const char * name)
 	{
 		return osPython.PropertyType(name);
 	}
-
 	const char * SCI_METHOD DescribeProperty(const char * name)
 	{
 		return osPython.DescribeProperty(name);
 	}
-
 	Sci_Position SCI_METHOD PropertySet(const char * key, const char * val);
 	const char * SCI_METHOD DescribeWordListSets()
 	{
 		return osPython.DescribeWordListSets();
 	}
-
 	Sci_Position SCI_METHOD WordListSet(int n, const char * wl);
 	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
 	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
-
 	void * SCI_METHOD PrivateCall(int, void *)
 	{
 		return 0;
 	}
-
 	int SCI_METHOD LineEndTypesSupported()
 	{
 		return SC_LINE_END_TYPE_UNICODE;
 	}
-
 	int SCI_METHOD AllocateSubStyles(int styleBase, int numberStyles)
 	{
 		return subStyles.Allocate(styleBase, numberStyles);
 	}
-
 	int SCI_METHOD SubStylesStart(int styleBase)
 	{
 		return subStyles.Start(styleBase);
 	}
-
 	int SCI_METHOD SubStylesLength(int styleBase)
 	{
 		return subStyles.Length(styleBase);
 	}
-
 	int SCI_METHOD StyleFromSubStyle(int subStyle)
 	{
 		int styleBase = subStyles.BaseStyle(subStyle);
 		return styleBase;
 	}
-
 	int SCI_METHOD PrimaryStyleFromStyle(int style)
 	{
 		return style;
 	}
-
 	void SCI_METHOD FreeSubStyles()
 	{
 		subStyles.Free();
 	}
-
 	void SCI_METHOD SetIdentifiers(int style, const char * identifiers)
 	{
 		subStyles.SetIdentifiers(style, identifiers);
 	}
-
 	int SCI_METHOD DistanceToSecondaryStyles()
 	{
 		return 0;
 	}
-
 	const char * SCI_METHOD GetSubStyleBases()
 	{
 		return styleSubable;
 	}
-
 	static ILexer * LexerFactoryPython()
 	{
 		return new LexerPython();
 	}
-
 private:
 	void ProcessLineEnd(StyleContext &sc, int * fstringStateStack, bool &inContinuedString) const;
 };
@@ -461,7 +423,7 @@ void LexerPython::ProcessLineEnd(StyleContext &sc, int * fstringStateStack, bool
 
 void SCI_METHOD LexerPython::Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess)
 {
-	Accessor styler(pAccess, NULL);
+	Accessor styler(pAccess, 0);
 
 	// Track whether in f-string expression; an array is used for a stack to
 	// handle nested f-strings such as f"""{f'''{f"{f'{1}'}"}'''}"""
@@ -477,9 +439,7 @@ void SCI_METHOD LexerPython::Lex(Sci_PositionU startPos, Sci_Position length, in
 			while(lineCurrent > 0) {
 				Sci_Position eolPos = styler.LineStart(lineCurrent) - 1;
 				int eolStyle = styler.StyleAt(eolPos);
-				if(eolStyle == SCE_P_STRING
-				    || eolStyle == SCE_P_CHARACTER
-				    || eolStyle == SCE_P_STRINGEOL) {
+				if(oneof3(eolStyle, SCE_P_STRING, SCE_P_CHARACTER, SCE_P_STRINGEOL)) {
 					lineCurrent -= 1;
 				}
 				else {
@@ -804,7 +764,7 @@ void SCI_METHOD LexerPython::Fold(Sci_PositionU startPos, Sci_Position length, i
 	if(!options.fold)
 		return;
 
-	Accessor styler(pAccess, NULL);
+	Accessor styler(pAccess, 0);
 
 	const Sci_Position maxPos = startPos + length;
 	const Sci_Position maxLines = (maxPos == styler.Length()) ? styler.GetLine(maxPos) : styler.GetLine(maxPos - 1);        // Requested
@@ -817,10 +777,10 @@ void SCI_METHOD LexerPython::Fold(Sci_PositionU startPos, Sci_Position length, i
 	// at least one line in all cases)
 	int spaceFlags = 0;
 	Sci_Position lineCurrent = styler.GetLine(startPos);
-	int indentCurrent = styler.IndentAmount(lineCurrent, &spaceFlags, NULL);
+	int indentCurrent = styler.IndentAmount(lineCurrent, &spaceFlags, 0);
 	while(lineCurrent > 0) {
 		lineCurrent--;
-		indentCurrent = styler.IndentAmount(lineCurrent, &spaceFlags, NULL);
+		indentCurrent = styler.IndentAmount(lineCurrent, &spaceFlags, 0);
 		if(!(indentCurrent & SC_FOLDLEVELWHITEFLAG) &&
 		    (!IsCommentLine(lineCurrent, styler)) &&
 		    (!IsQuoteLine(lineCurrent, styler)))
@@ -846,7 +806,7 @@ void SCI_METHOD LexerPython::Fold(Sci_PositionU startPos, Sci_Position length, i
 		int quote = false;
 		if(lineNext <= docLines) {
 			// Information about next line is only available if not at end of document
-			indentNext = styler.IndentAmount(lineNext, &spaceFlags, NULL);
+			indentNext = styler.IndentAmount(lineNext, &spaceFlags, 0);
 			Sci_Position lookAtPos = (styler.LineStart(lineNext) == styler.Length()) ? styler.Length() - 1 : styler.LineStart(
 			    lineNext);
 			int style = styler.StyleAt(lookAtPos) & 31;
@@ -876,7 +836,7 @@ void SCI_METHOD LexerPython::Fold(Sci_PositionU startPos, Sci_Position length, i
 		// than screwing up folding.
 		while(!quote && (lineNext < docLines) && ((indentNext & SC_FOLDLEVELWHITEFLAG) || (lineNext <= docLines && IsCommentLine(lineNext, styler)))) {
 			lineNext++;
-			indentNext = styler.IndentAmount(lineNext, &spaceFlags, NULL);
+			indentNext = styler.IndentAmount(lineNext, &spaceFlags, 0);
 		}
 		const int levelAfterComments = indentNext & SC_FOLDLEVELNUMBERMASK;
 		const int levelBeforeComments = smax(indentCurrentLevel, levelAfterComments);
@@ -887,7 +847,7 @@ void SCI_METHOD LexerPython::Fold(Sci_PositionU startPos, Sci_Position length, i
 		Sci_Position skipLine = lineNext;
 		int skipLevel = levelAfterComments;
 		while(--skipLine > lineCurrent) {
-			int skipLineIndent = styler.IndentAmount(skipLine, &spaceFlags, NULL);
+			int skipLineIndent = styler.IndentAmount(skipLine, &spaceFlags, 0);
 			if(options.foldCompact) {
 				if((skipLineIndent & SC_FOLDLEVELNUMBERMASK) > levelAfterComments)
 					skipLevel = levelBeforeComments;

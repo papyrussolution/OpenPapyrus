@@ -235,7 +235,7 @@ static cairo_status_t _cairo_surface_subsurface_acquire_source_image(void * abst
 	_cairo_pattern_init_for_surface(&pattern, surface->target);
 	cairo_matrix_init_translate(&pattern.base.matrix, surface->extents.x, surface->extents.y);
 	pattern.base.filter = CAIRO_FILTER_NEAREST;
-	status = _cairo_surface_paint(image, CAIRO_OPERATOR_SOURCE, &pattern.base, NULL);
+	status = _cairo_surface_paint(image, CAIRO_OPERATOR_SOURCE, &pattern.base, 0);
 	_cairo_pattern_fini(&pattern.base);
 	if(unlikely(status)) {
 		cairo_surface_destroy(image);
@@ -268,7 +268,7 @@ static cairo_surface_t * _cairo_surface_subsurface_snapshot(void * abstract_surf
 	_cairo_pattern_init_for_surface(&pattern, surface->target);
 	cairo_matrix_init_translate(&pattern.base.matrix, surface->extents.x, surface->extents.y);
 	pattern.base.filter = CAIRO_FILTER_NEAREST;
-	status = _cairo_surface_paint(clone, CAIRO_OPERATOR_SOURCE, &pattern.base, NULL);
+	status = _cairo_surface_paint(clone, CAIRO_OPERATOR_SOURCE, &pattern.base, 0);
 	_cairo_pattern_fini(&pattern.base);
 	if(unlikely(status)) {
 		cairo_surface_destroy(clone);

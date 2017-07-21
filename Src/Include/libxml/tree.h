@@ -303,22 +303,18 @@ typedef enum {
  * An XML Element content as stored after parsing an element definition
  * in a DTD.
  */
-
 typedef struct _xmlElementContent xmlElementContent;
 typedef xmlElementContent * xmlElementContentPtr;
+
 struct _xmlElementContent {
 	xmlElementContentType type;     /* PCDATA, ELEMENT, SEQ or OR */
 	xmlElementContentOccur ocur;    /* ONCE, OPT, MULT or PLUS */
 	const xmlChar             * name; /* Element name */
 	struct _xmlElementContent * c1; /* first child */
-
 	struct _xmlElementContent * c2; /* second child */
-
 	struct _xmlElementContent * parent; /* parent */
-
 	const xmlChar             * prefix; /* Namespace prefix */
 };
-
 /**
  * xmlElementTypeVal:
  *
@@ -354,17 +350,11 @@ struct _xmlElement {
 	xmlElementType type;            /* XML_ELEMENT_DECL, must be second ! */
 	const xmlChar          * name;  /* Element name */
 	struct _xmlNode    * children;  /* NULL */
-
 	struct _xmlNode        * last;  /* NULL */
-
 	struct _xmlDtd       * parent;  /* -> DTD */
-
 	struct _xmlNode        * next;  /* next sibling link  */
-
 	struct _xmlNode        * prev;  /* previous sibling link  */
-
 	struct _xmlDoc          * doc;  /* the containing document */
-
 	xmlElementTypeVal etype;        /* The type */
 	xmlElementContentPtr content;   /* the allowed element content */
 	xmlAttributePtr attributes;     /* List of the declared attributes */
@@ -399,7 +389,6 @@ typedef xmlNs * xmlNsPtr;
 
 struct _xmlNs {
 	struct _xmlNs  * next;  /* next Ns link for this node  */
-
 	xmlNsType type;         /* global or local */
 	const xmlChar * href;   /* URL for the namespace */
 	const xmlChar * prefix; /* prefix for the namespace */

@@ -182,7 +182,7 @@ static ZTHREAD proc_video_thread(void * arg)
 	while(thread->started) {
 		/* wait for video stream to be active */
 		while(thread->started && !proc->streaming)
-			_zbar_event_wait(&thread->notify, &proc->mutex, NULL);
+			_zbar_event_wait(&thread->notify, &proc->mutex, 0);
 		if(!thread->started)
 			break;
 
@@ -361,7 +361,7 @@ int zbar_processor_init(zbar_processor_t * proc, const char * dev, int enable_di
 				fprintf(stderr, "WARNING: no compatible input to output format\n...trying again with output disabled\n");
 		}
 		if(retry)
-			retry = zbar_negotiate_format(proc->video, NULL);
+			retry = zbar_negotiate_format(proc->video, 0);
 		if(retry) {
 			zprintf(1, "ERROR: no compatible %s format\n", (proc->video) ? "video input" : "window output");
 			rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __func__, "no compatible image format");

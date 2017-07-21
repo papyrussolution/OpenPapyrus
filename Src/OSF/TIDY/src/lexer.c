@@ -681,7 +681,7 @@ void TY_(FreeLexer) (TidyDocImpl* doc)
 		}
 
 		while(lexer->istacksize > 0)
-			TY_(PopInline) (doc, NULL);
+			TY_(PopInline) (doc, 0);
 
 		TidyDocFree(doc, lexer->istack);
 		TidyDocFree(doc, lexer->lexbuf);
@@ -1459,7 +1459,7 @@ static Node* NewDocTypeNode(TidyDocImpl* doc)
 	if(!html)
 		return NULL;
 
-	doctype = TY_(NewNode) (doc->allocator, NULL);
+	doctype = TY_(NewNode) (doc->allocator, 0);
 	doctype->type = DocTypeTag;
 	TY_(InsertNodeBeforeElement) (html, doctype);
 	return doctype;

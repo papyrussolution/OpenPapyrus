@@ -269,7 +269,6 @@ static void ColouriseMySQLDoc(Sci_PositionU startPos, Sci_Position length, int i
 	// also at the end of a line.
 	if(sc.state == SCE_MYSQL_IDENTIFIER) {
 		CheckForKeyword(sc, keywordlists, activeState);
-
 		// Additional check for function keywords needed.
 		// A function name must be followed by an opening parenthesis.
 		if(sc.state == SCE_MYSQL_FUNCTION && sc.ch != '(')
@@ -280,11 +279,10 @@ static void ColouriseMySQLDoc(Sci_PositionU startPos, Sci_Position length, int i
 }
 
 //--------------------------------------------------------------------------------------------------
-
 /**
  * Helper function to determine if we have a foldable comment currently.
  */
-static bool IsStreamCommentStyle(int style)
+static bool FASTCALL IsStreamCommentStyle(int style)
 {
 	return MASKACTIVE(style) == SCE_MYSQL_COMMENT;
 }

@@ -20,46 +20,20 @@
 //#include <openssl/x509v3.h>
 //#include <openssl/objects.h>
 #include <internal/dane.h>
-#include <internal/x509_int.h>
+//#include <internal/x509_int.h>
 #include "x509_lcl.h"
 
 /* CRL score values */
 
-/* No unhandled critical extensions */
-
-#define CRL_SCORE_NOCRITICAL    0x100
-
-/* certificate is within CRL scope */
-
-#define CRL_SCORE_SCOPE         0x080
-
-/* CRL times valid */
-
-#define CRL_SCORE_TIME          0x040
-
-/* Issuer name matches certificate */
-
-#define CRL_SCORE_ISSUER_NAME   0x020
-
-/* If this score or above CRL is probably valid */
-
-#define CRL_SCORE_VALID (CRL_SCORE_NOCRITICAL|CRL_SCORE_TIME|CRL_SCORE_SCOPE)
-
-/* CRL issuer is certificate issuer */
-
-#define CRL_SCORE_ISSUER_CERT   0x018
-
-/* CRL issuer is on certificate path */
-
-#define CRL_SCORE_SAME_PATH     0x008
-
-/* CRL issuer matches CRL AKID */
-
-#define CRL_SCORE_AKID          0x004
-
-/* Have a delta CRL with valid times */
-
-#define CRL_SCORE_TIME_DELTA    0x002
+#define CRL_SCORE_NOCRITICAL    0x100 /* No unhandled critical extensions */
+#define CRL_SCORE_SCOPE         0x080 /* certificate is within CRL scope */
+#define CRL_SCORE_TIME          0x040 /* CRL times valid */
+#define CRL_SCORE_ISSUER_NAME   0x020 /* Issuer name matches certificate */
+#define CRL_SCORE_VALID (CRL_SCORE_NOCRITICAL|CRL_SCORE_TIME|CRL_SCORE_SCOPE) /* Issuer name matches certificate */
+#define CRL_SCORE_ISSUER_CERT   0x018 /* CRL issuer is certificate issuer */
+#define CRL_SCORE_SAME_PATH     0x008 /* CRL issuer is on certificate path */
+#define CRL_SCORE_AKID          0x004 /* CRL issuer matches CRL AKID */
+#define CRL_SCORE_TIME_DELTA    0x002 /* Have a delta CRL with valid times */
 
 static int build_chain(X509_STORE_CTX * ctx);
 static int verify_chain(X509_STORE_CTX * ctx);
@@ -237,13 +211,11 @@ int X509_verify_cert(X509_STORE_CTX * ctx)
 {
 	SSL_DANE * dane = ctx->dane;
 	int ret;
-
 	if(ctx->cert == NULL) {
 		X509err(X509_F_X509_VERIFY_CERT, X509_R_NO_CERT_SET_FOR_US_TO_VERIFY);
 		ctx->error = X509_V_ERR_INVALID_CALL;
 		return -1;
 	}
-
 	if(ctx->chain != NULL) {
 		/*
 		 * This X509_STORE_CTX has already been used to verify a cert. We
@@ -258,8 +230,7 @@ int X509_verify_cert(X509_STORE_CTX * ctx)
 	 * first we make sure the chain we are going to build is present and that
 	 * the first entry is in place
 	 */
-	if(((ctx->chain = sk_X509_new_null()) == NULL) ||
-	    (!sk_X509_push(ctx->chain, ctx->cert))) {
+	if(((ctx->chain = sk_X509_new_null()) == NULL) || (!sk_X509_push(ctx->chain, ctx->cert))) {
 		X509err(X509_F_X509_VERIFY_CERT, ERR_R_MALLOC_FAILURE);
 		ctx->error = X509_V_ERR_OUT_OF_MEM;
 		return -1;
@@ -1731,7 +1702,7 @@ check_cert:
 
 int X509_cmp_current_time(const ASN1_TIME * ctm)
 {
-	return X509_cmp_time(ctm, NULL);
+	return X509_cmp_time(ctm, 0);
 }
 
 int X509_cmp_time(const ASN1_TIME * ctm, time_t * cmp_time)
@@ -1850,7 +1821,7 @@ int X509_cmp_time(const ASN1_TIME * ctm, time_t * cmp_time)
 
 ASN1_TIME * X509_gmtime_adj(ASN1_TIME * s, long adj)
 {
-	return X509_time_adj(s, adj, NULL);
+	return X509_time_adj(s, adj, 0);
 }
 
 ASN1_TIME * X509_time_adj(ASN1_TIME * s, long offset_sec, time_t * in_tm)

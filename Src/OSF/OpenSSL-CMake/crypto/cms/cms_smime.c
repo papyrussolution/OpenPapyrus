@@ -19,7 +19,7 @@
 static BIO * cms_get_text_bio(BIO * out, uint flags)
 {
 	BIO * rbio;
-	if(out == NULL)
+	if(!out)
 		rbio = BIO_new(BIO_s_null());
 	else if(flags & CMS_TEXT) {
 		rbio = BIO_new(BIO_s_mem());
@@ -108,7 +108,7 @@ int CMS_data(CMS_ContentInfo * cms, BIO * out, uint flags)
 		CMSerr(CMS_F_CMS_DATA, CMS_R_TYPE_NOT_DATA);
 		return 0;
 	}
-	cont = CMS_dataInit(cms, NULL);
+	cont = CMS_dataInit(cms, 0);
 	if(!cont)
 		return 0;
 	r = cms_copy_content(out, cont, flags);
@@ -154,41 +154,30 @@ int CMS_digest_verify(CMS_ContentInfo * cms, BIO * dcont, BIO * out,
 	return r;
 }
 
-CMS_ContentInfo * CMS_digest_create(BIO * in, const EVP_MD * md,
-    uint flags)
+CMS_ContentInfo * CMS_digest_create(BIO * in, const EVP_MD * md, uint flags)
 {
-	CMS_ContentInfo * cms;
-	if(!md)
-		md = EVP_sha1();
-	cms = cms_DigestedData_create(md);
+	SETIFZ(md, EVP_sha1());
+	CMS_ContentInfo * cms = cms_DigestedData_create(md);
 	if(!cms)
 		return NULL;
-
 	if(!(flags & CMS_DETACHED))
 		CMS_set_detached(cms, 0);
-
 	if((flags & CMS_STREAM) || CMS_final(cms, in, NULL, flags))
 		return cms;
-
 	CMS_ContentInfo_free(cms);
 	return NULL;
 }
 
-int CMS_EncryptedData_decrypt(CMS_ContentInfo * cms,
-    const uchar * key, size_t keylen,
-    BIO * dcont, BIO * out, uint flags)
+int CMS_EncryptedData_decrypt(CMS_ContentInfo * cms, const uchar * key, size_t keylen, BIO * dcont, BIO * out, uint flags)
 {
 	BIO * cont;
 	int r;
 	if(OBJ_obj2nid(CMS_get0_type(cms)) != NID_pkcs7_encrypted) {
-		CMSerr(CMS_F_CMS_ENCRYPTEDDATA_DECRYPT,
-		    CMS_R_TYPE_NOT_ENCRYPTED_DATA);
+		CMSerr(CMS_F_CMS_ENCRYPTEDDATA_DECRYPT, CMS_R_TYPE_NOT_ENCRYPTED_DATA);
 		return 0;
 	}
-
 	if(!dcont && !check_content(cms))
 		return 0;
-
 	if(CMS_EncryptedData_set1_key(cms, NULL, key, keylen) <= 0)
 		return 0;
 	cont = CMS_dataInit(cms, dcont);
@@ -199,9 +188,7 @@ int CMS_EncryptedData_decrypt(CMS_ContentInfo * cms,
 	return r;
 }
 
-CMS_ContentInfo * CMS_EncryptedData_encrypt(BIO * in, const EVP_CIPHER * cipher,
-    const uchar * key,
-    size_t keylen, uint flags)
+CMS_ContentInfo * CMS_EncryptedData_encrypt(BIO * in, const EVP_CIPHER * cipher, const uchar * key, size_t keylen, uint flags)
 {
 	CMS_ContentInfo * cms;
 	if(!cipher) {
@@ -216,11 +203,8 @@ CMS_ContentInfo * CMS_EncryptedData_encrypt(BIO * in, const EVP_CIPHER * cipher,
 
 	if(!(flags & CMS_DETACHED))
 		CMS_set_detached(cms, 0);
-
-	if((flags & (CMS_STREAM | CMS_PARTIAL))
-	    || CMS_final(cms, in, NULL, flags))
+	if((flags & (CMS_STREAM | CMS_PARTIAL)) || CMS_final(cms, in, NULL, flags))
 		return cms;
-
 	CMS_ContentInfo_free(cms);
 	return NULL;
 }
@@ -246,12 +230,10 @@ static int cms_signerinfo_verify_cert(CMS_SignerInfo * si,
 	X509_STORE_CTX_set_default(ctx, "smime_sign");
 	if(crls)
 		X509_STORE_CTX_set0_crls(ctx, crls);
-
 	i = X509_verify_cert(ctx);
 	if(i <= 0) {
 		j = X509_STORE_CTX_get_error(ctx);
-		CMSerr(CMS_F_CMS_SIGNERINFO_VERIFY_CERT,
-		    CMS_R_CERTIFICATE_VERIFY_ERROR);
+		CMSerr(CMS_F_CMS_SIGNERINFO_VERIFY_CERT, CMS_R_CERTIFICATE_VERIFY_ERROR);
 		ERR_add_error_data(2, "Verify error:",
 		    X509_verify_cert_error_string(j));
 		goto err;
@@ -593,7 +575,7 @@ static int cms_kari_set1_pkey(CMS_ContentInfo * cms, CMS_RecipientInfo * ri,
 			continue;
 		CMS_RecipientInfo_kari_set0_pkey(ri, pk);
 		rv = CMS_RecipientInfo_kari_decrypt(cms, ri, rek);
-		CMS_RecipientInfo_kari_set0_pkey(ri, NULL);
+		CMS_RecipientInfo_kari_set0_pkey(ri, 0);
 		if(rv > 0)
 			return 1;
 		return -1;
@@ -612,11 +594,9 @@ int CMS_decrypt_set1_pkey(CMS_ContentInfo * cms, EVP_PKEY * pk, X509 * cert)
 		debug = cms->d.envelopedData->encryptedContentInfo->debug;
 	ri_type = cms_pkey_get_ri_type(pk);
 	if(ri_type == CMS_RECIPINFO_NONE) {
-		CMSerr(CMS_F_CMS_DECRYPT_SET1_PKEY,
-		    CMS_R_NOT_SUPPORTED_FOR_THIS_KEY_TYPE);
+		CMSerr(CMS_F_CMS_DECRYPT_SET1_PKEY, CMS_R_NOT_SUPPORTED_FOR_THIS_KEY_TYPE);
 		return 0;
 	}
-
 	for(i = 0; i < sk_CMS_RecipientInfo_num(ris); i++) {
 		ri = sk_CMS_RecipientInfo_value(ris, i);
 		if(CMS_RecipientInfo_type(ri) != ri_type)
@@ -636,7 +616,7 @@ int CMS_decrypt_set1_pkey(CMS_ContentInfo * cms, EVP_PKEY * pk, X509 * cert)
 		else if(!cert || !CMS_RecipientInfo_ktri_cert_cmp(ri, cert)) {
 			CMS_RecipientInfo_set0_pkey(ri, pk);
 			r = CMS_RecipientInfo_decrypt(cms, ri);
-			CMS_RecipientInfo_set0_pkey(ri, NULL);
+			CMS_RecipientInfo_set0_pkey(ri, 0);
 			if(cert) {
 				/*
 				 * If not debugging clear any error and return success to
@@ -665,14 +645,11 @@ int CMS_decrypt_set1_pkey(CMS_ContentInfo * cms, EVP_PKEY * pk, X509 * cert)
 		ERR_clear_error();
 		return 1;
 	}
-
 	CMSerr(CMS_F_CMS_DECRYPT_SET1_PKEY, CMS_R_NO_MATCHING_RECIPIENT);
 	return 0;
 }
 
-int CMS_decrypt_set1_key(CMS_ContentInfo * cms,
-    uchar * key, size_t keylen,
-    const uchar * id, size_t idlen)
+int CMS_decrypt_set1_key(CMS_ContentInfo * cms, uchar * key, size_t keylen, const uchar * id, size_t idlen)
 {
 	STACK_OF(CMS_RecipientInfo) *ris;
 	CMS_RecipientInfo * ri;
@@ -682,10 +659,8 @@ int CMS_decrypt_set1_key(CMS_ContentInfo * cms,
 		ri = sk_CMS_RecipientInfo_value(ris, i);
 		if(CMS_RecipientInfo_type(ri) != CMS_RECIPINFO_KEK)
 			continue;
-
 		/*
-		 * If we have an id try matching RecipientInfo otherwise try them
-		 * all.
+		 * If we have an id try matching RecipientInfo otherwise try them all.
 		 */
 		if(!id || (CMS_RecipientInfo_kekri_id_cmp(ri, id, idlen) == 0)) {
 			CMS_RecipientInfo_set0_key(ri, key, keylen);
@@ -705,8 +680,7 @@ int CMS_decrypt_set1_key(CMS_ContentInfo * cms,
 	return 0;
 }
 
-int CMS_decrypt_set1_password(CMS_ContentInfo * cms,
-    uchar * pass, ossl_ssize_t passlen)
+int CMS_decrypt_set1_password(CMS_ContentInfo * cms, uchar * pass, ossl_ssize_t passlen)
 {
 	STACK_OF(CMS_RecipientInfo) *ris;
 	CMS_RecipientInfo * ri;
@@ -722,7 +696,6 @@ int CMS_decrypt_set1_password(CMS_ContentInfo * cms,
 		if(r > 0)
 			return 1;
 	}
-
 	CMSerr(CMS_F_CMS_DECRYPT_SET1_PASSWORD, CMS_R_NO_MATCHING_RECIPIENT);
 	return 0;
 }
@@ -811,8 +784,7 @@ CMS_ContentInfo * CMS_compress(BIO * in, int comp_nid, uint flags)
 
 #else
 
-int CMS_uncompress(CMS_ContentInfo * cms, BIO * dcont, BIO * out,
-    uint flags)
+int CMS_uncompress(CMS_ContentInfo * cms, BIO * dcont, BIO * out, uint flags)
 {
 	CMSerr(CMS_F_CMS_UNCOMPRESS, CMS_R_UNSUPPORTED_COMPRESSION_ALGORITHM);
 	return 0;

@@ -67,7 +67,7 @@ static int sock_new(BIO * bi)
 	bi->num = 0;
 	bi->ptr = NULL;
 	bi->flags = 0;
-	return (1);
+	return 1;
 }
 
 static int sock_free(BIO * a)
@@ -81,7 +81,7 @@ static int sock_free(BIO * a)
 		a->init = 0;
 		a->flags = 0;
 	}
-	return (1);
+	return 1;
 }
 
 static int sock_read(BIO * b, char * out, int outl)
@@ -211,7 +211,7 @@ int BIO_sock_non_fatal_error(int err)
 # ifdef EALREADY
 		case EALREADY:
 # endif
-		return (1);
+		return 1;
 		/* break; */
 		default:
 		    break;

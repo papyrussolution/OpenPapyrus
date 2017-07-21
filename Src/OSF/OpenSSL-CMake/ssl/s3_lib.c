@@ -3103,7 +3103,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 			    uint cid, nid;
 			    for(i = 0; i < clistlen; i++) {
 				    n2s(clist, cid);
-				    nid = tls1_ec_curve_id2nid(cid, NULL);
+				    nid = tls1_ec_curve_id2nid(cid, 0);
 				    if(nid != 0)
 					    cptr[i] = nid;
 				    else
@@ -3991,7 +3991,7 @@ EVP_PKEY * ssl_generate_pkey(EVP_PKEY * pm)
 
 	if(pm == NULL)
 		return NULL;
-	pctx = EVP_PKEY_CTX_new(pm, NULL);
+	pctx = EVP_PKEY_CTX_new(pm, 0);
 	if(pctx == NULL)
 		goto err;
 	if(EVP_PKEY_keygen_init(pctx) <= 0)
@@ -4017,11 +4017,11 @@ EVP_PKEY * ssl_generate_pkey_curve(int id)
 	if(nid == 0)
 		goto err;
 	if((curve_flags & TLS_CURVE_TYPE) == TLS_CURVE_CUSTOM) {
-		pctx = EVP_PKEY_CTX_new_id(nid, NULL);
+		pctx = EVP_PKEY_CTX_new_id(nid, 0);
 		nid = 0;
 	}
 	else {
-		pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
+		pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, 0);
 	}
 	if(pctx == NULL)
 		goto err;
@@ -4050,7 +4050,7 @@ int ssl_derive(SSL * s, EVP_PKEY * privkey, EVP_PKEY * pubkey)
 	EVP_PKEY_CTX * pctx;
 	if(privkey == NULL || pubkey == NULL)
 		return 0;
-	pctx = EVP_PKEY_CTX_new(privkey, NULL);
+	pctx = EVP_PKEY_CTX_new(privkey, 0);
 	if(EVP_PKEY_derive_init(pctx) <= 0
 	    || EVP_PKEY_derive_set_peer(pctx, pubkey) <= 0
 	    || EVP_PKEY_derive(pctx, NULL, &pmslen) <= 0) {

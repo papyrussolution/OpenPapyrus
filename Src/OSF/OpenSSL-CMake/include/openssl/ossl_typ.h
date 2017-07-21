@@ -83,38 +83,26 @@ typedef struct bn_blinding_st BN_BLINDING;
 typedef struct bn_mont_ctx_st BN_MONT_CTX;
 typedef struct bn_recp_ctx_st BN_RECP_CTX;
 typedef struct bn_gencb_st BN_GENCB;
-
 typedef struct buf_mem_st BUF_MEM;
-
 typedef struct evp_cipher_st EVP_CIPHER;
 typedef struct evp_cipher_ctx_st EVP_CIPHER_CTX;
 typedef struct evp_md_st EVP_MD;
 typedef struct evp_md_ctx_st EVP_MD_CTX;
 typedef struct evp_pkey_st EVP_PKEY;
-
 typedef struct evp_pkey_asn1_method_st EVP_PKEY_ASN1_METHOD;
-
 typedef struct evp_pkey_method_st EVP_PKEY_METHOD;
 typedef struct evp_pkey_ctx_st EVP_PKEY_CTX;
-
 typedef struct evp_Encode_Ctx_st EVP_ENCODE_CTX;
-
 typedef struct hmac_ctx_st HMAC_CTX;
-
 typedef struct dh_st DH;
 typedef struct dh_method DH_METHOD;
-
 typedef struct dsa_st DSA;
 typedef struct dsa_method DSA_METHOD;
-
 typedef struct rsa_st RSA;
 typedef struct rsa_meth_st RSA_METHOD;
-
 typedef struct ec_key_st EC_KEY;
 typedef struct ec_key_method_st EC_KEY_METHOD;
-
 typedef struct rand_meth_st RAND_METHOD;
-
 typedef struct ssl_dane_st SSL_DANE;
 typedef struct x509_st X509;
 typedef struct X509_algor_st X509_ALGOR;
@@ -125,63 +113,51 @@ typedef struct X509_name_st X509_NAME;
 typedef struct X509_pubkey_st X509_PUBKEY;
 typedef struct x509_store_st X509_STORE;
 typedef struct x509_store_ctx_st X509_STORE_CTX;
-
 typedef struct x509_object_st X509_OBJECT;
 typedef struct x509_lookup_st X509_LOOKUP;
 typedef struct x509_lookup_method_st X509_LOOKUP_METHOD;
 typedef struct X509_VERIFY_PARAM_st X509_VERIFY_PARAM;
-
 typedef struct pkcs8_priv_key_info_st PKCS8_PRIV_KEY_INFO;
-
 typedef struct v3_ext_ctx X509V3_CTX;
 typedef struct conf_st CONF;
 typedef struct ossl_init_settings_st OPENSSL_INIT_SETTINGS;
-
 typedef struct ui_st UI;
 typedef struct ui_method_st UI_METHOD;
-
 typedef struct engine_st ENGINE;
 typedef struct ssl_st SSL;
 typedef struct ssl_ctx_st SSL_CTX;
-
 typedef struct comp_ctx_st COMP_CTX;
 typedef struct comp_method_st COMP_METHOD;
-
 typedef struct X509_POLICY_NODE_st X509_POLICY_NODE;
 typedef struct X509_POLICY_LEVEL_st X509_POLICY_LEVEL;
 typedef struct X509_POLICY_TREE_st X509_POLICY_TREE;
 typedef struct X509_POLICY_CACHE_st X509_POLICY_CACHE;
-
 typedef struct AUTHORITY_KEYID_st AUTHORITY_KEYID;
 typedef struct DIST_POINT_st DIST_POINT;
 typedef struct ISSUING_DIST_POINT_st ISSUING_DIST_POINT;
 typedef struct NAME_CONSTRAINTS_st NAME_CONSTRAINTS;
-
 typedef struct crypto_ex_data_st CRYPTO_EX_DATA;
-
 typedef struct ocsp_req_ctx_st OCSP_REQ_CTX;
 typedef struct ocsp_response_st OCSP_RESPONSE;
 typedef struct ocsp_responder_id_st OCSP_RESPID;
-
 typedef struct sct_st SCT;
 typedef struct sct_ctx_st SCT_CTX;
 typedef struct ctlog_st CTLOG;
 typedef struct ctlog_store_st CTLOG_STORE;
 typedef struct ct_policy_eval_ctx_st CT_POLICY_EVAL_CTX;
 
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L && \
-    defined(INTMAX_MAX) && defined(UINTMAX_MAX)
-typedef intmax_t ossl_intmax_t;
-typedef uintmax_t ossl_uintmax_t;
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L && defined(INTMAX_MAX) && defined(UINTMAX_MAX)
+	typedef intmax_t ossl_intmax_t;
+	typedef uintmax_t ossl_uintmax_t;
 #else
-/*
- * Not long long, because the C-library can only be expected to provide
- * strtoll(), strtoull() at the same time as intmax_t and strtoimax(),
- * strtoumax().  Since we use these for parsing arguments, we need the
- * conversion functions, not just the sizes.
- */
-typedef long ossl_intmax_t;
-typedef ulong ossl_uintmax_t;
+	/*
+	 * Not long long, because the C-library can only be expected to provide
+	 * strtoll(), strtoull() at the same time as intmax_t and strtoimax(),
+	 * strtoumax().  Since we use these for parsing arguments, we need the
+	 * conversion functions, not just the sizes.
+	 */
+	typedef long ossl_intmax_t;
+	typedef ulong ossl_uintmax_t;
 #endif
 
 #ifdef  __cplusplus

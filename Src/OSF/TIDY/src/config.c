@@ -1170,7 +1170,7 @@ bool ParseTagNames(TidyDocImpl* doc, const TidyOptionImpl* option)
 		    return false;
 	}
 
-	SetOptionValue(doc, option->id, NULL);
+	SetOptionValue(doc, option->id, 0);
 	TY_(FreeDeclaredTags) (doc, ttyp);
 	cfg->defined_tags |= ttyp;
 

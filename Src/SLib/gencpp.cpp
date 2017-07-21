@@ -64,7 +64,7 @@ int Generator_CPP::Wr_Indent()
 
 SString & Generator_CPP::CatIndent(SString & rBuf)
 {
-	return rBuf.CatCharN('\t', Indent);
+	return rBuf.Tab(Indent);
 }
 
 SString & Generator_CPP::MakeClsfName(const char * pClsName, const char * pMembName, SString & rBuf) const

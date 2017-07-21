@@ -10,7 +10,7 @@
 #pragma hdrstop
 //#include <openssl/asn1t.h>
 //#include <openssl/x509.h>
-#include "internal/x509_int.h"
+//#include "internal/x509_int.h"
 #include "internal/asn1_int.h"
 #include "x509_lcl.h"
 
@@ -156,7 +156,7 @@ static int x509_name_ex_d2i(ASN1_VALUE ** val,
 		return ret;
 
 	if(*val)
-		x509_name_ex_free(val, NULL);
+		x509_name_ex_free(val, 0);
 	if(!x509_name_ex_new(&nm.a, NULL))
 		goto err;
 	/* We've decoded it: now cache encoding */
@@ -172,7 +172,7 @@ static int x509_name_ex_d2i(ASN1_VALUE ** val,
 			entry->set = i;
 			if(!sk_X509_NAME_ENTRY_push(nm.x->entries, entry))
 				goto err;
-			sk_X509_NAME_ENTRY_set(entries, j, NULL);
+			sk_X509_NAME_ENTRY_set(entries, j, 0);
 		}
 	}
 	ret = x509_name_canon(nm.x);
@@ -329,7 +329,7 @@ static int x509_name_canon(X509_NAME * a)
 
 	/* Finally generate encoding */
 
-	len = i2d_name_canon(intname, NULL);
+	len = i2d_name_canon(intname, 0);
 	if(len < 0)
 		goto err;
 	a->canon_enclen = len;

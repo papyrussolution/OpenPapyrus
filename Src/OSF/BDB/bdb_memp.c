@@ -1202,8 +1202,8 @@ int __memp_fget(DB_MPOOLFILE * dbmfp, db_pgno_t * pgnoaddr, DB_THREAD_INFO * ip,
 	DB_LOCKER * locker;
 #endif
 	*(void **)addrp = NULL;
-	COMPQUIET(c_mp, NULL);
-	COMPQUIET(infop, NULL);
+	COMPQUIET(c_mp, 0);
+	COMPQUIET(infop, 0);
 	env = dbmfp->env;
 	dbmp = env->mp_handle;
 	mfp = dbmfp->mfp;
@@ -1486,7 +1486,7 @@ freebuf:
 				// Freeing a singleton frozen buffer: just free
 				// it.  This call will release the hash bucket mutex.
 				//
-				ret = __memp_bh_thaw(dbmp, infop, hp, bhp, NULL);
+				ret = __memp_bh_thaw(dbmp, infop, hp, bhp, 0);
 				bhp = NULL;
 				b_incr = b_lock = h_locked = 0;
 			}
@@ -1535,7 +1535,7 @@ reuse:
 						//
 						// This call will release the hash bucket mutex.
 						//
-						ret = __memp_bh_thaw(dbmp, infop, hp, oldest_bhp, NULL);
+						ret = __memp_bh_thaw(dbmp, infop, hp, oldest_bhp, 0);
 						h_locked = 0;
 						if(ret != 0)
 							goto err;
@@ -3386,7 +3386,7 @@ static int FASTCALL __memp_reset_lru(ENV * env, REGINFO * infop)
 			}
 			MUTEX_UNLOCK(env, hp->mtx_hash);
 		}
-		COMPQUIET(env, NULL);
+		COMPQUIET(env, 0);
 	}
 	return 0;
 }
@@ -4405,7 +4405,7 @@ uint32 __memp_max_regions(ENV * env)
 	DB_ENV * dbenv = env->dbenv;
 	if(dbenv->mp_max_gbytes == 0 && dbenv->mp_max_bytes == 0)
 		return dbenv->mp_ncache;
-	__memp_region_size(env, &reg_size, NULL);
+	__memp_region_size(env, &reg_size, 0);
 	max_size = (roff_t)dbenv->mp_max_gbytes*GIGABYTE+dbenv->mp_max_bytes;
 	max_nreg = (max_size+reg_size/2)/reg_size;
 	/* Sanity check that the number of regions fits in 32 bits. */
@@ -5232,8 +5232,8 @@ static int __memp_stat(ENV * env, DB_MPOOL_STAT ** gspp, DB_MPOOL_FSTAT *** fspp
 static int __memp_file_stats(ENV * env, MPOOLFILE * mfp, void * argp, uint32 * countp, uint32 flags)
 {
 	DB_MPOOL_STAT * sp;
-	COMPQUIET(env, NULL);
-	COMPQUIET(countp, NULL);
+	COMPQUIET(env, 0);
+	COMPQUIET(countp, 0);
 	sp = (DB_MPOOL_STAT *)argp;
 	sp->st_map += mfp->stat.st_map;
 	sp->st_cache_hit += mfp->stat.st_cache_hit;
@@ -5367,7 +5367,7 @@ static int __memp_print_stats(ENV * env, uint32 flags)
 	STAT_LONG("Maximum sequential buffer writes", gsp->st_maxwrite);
 	STAT_LONG("Sleep after writing maximum sequential buffers", gsp->st_maxwrite_sleep);
 	__db_dl(env, "Requested pages mapped into the process' address space", (ulong)gsp->st_map);
-	__db_dl_pct(env, "Requested pages found in the cache", (ulong)gsp->st_cache_hit, DB_PCT(gsp->st_cache_hit, gsp->st_cache_hit+gsp->st_cache_miss), NULL);
+	__db_dl_pct(env, "Requested pages found in the cache", (ulong)gsp->st_cache_hit, DB_PCT(gsp->st_cache_hit, gsp->st_cache_hit+gsp->st_cache_miss), 0);
 	__db_dl(env, "Requested pages not found in the cache", (ulong)gsp->st_cache_miss);
 	__db_dl(env, "Pages created in the cache", (ulong)gsp->st_page_create);
 	__db_dl(env, "Pages read into the cache", (ulong)gsp->st_page_in);
@@ -5384,9 +5384,9 @@ static int __memp_print_stats(ENV * env, uint32 flags)
 	__db_dl(env, "Total number of times hash chains searched for a page", (ulong)gsp->st_hash_searches);
 	__db_dl(env, "The longest hash chain searched for a page", (ulong)gsp->st_hash_longest);
 	__db_dl(env, "Total number of hash chain entries checked for page", (ulong)gsp->st_hash_examined);
-	__db_dl_pct(env, "The number of hash bucket locks that required waiting", (ulong)gsp->st_hash_wait, DB_PCT(gsp->st_hash_wait, gsp->st_hash_wait+gsp->st_hash_nowait), NULL);
-	__db_dl_pct(env, "The maximum number of times any hash bucket lock was waited for", (ulong)gsp->st_hash_max_wait, DB_PCT(gsp->st_hash_max_wait, gsp->st_hash_max_wait+gsp->st_hash_max_nowait), NULL);
-	__db_dl_pct(env, "The number of region locks that required waiting", (ulong)gsp->st_region_wait, DB_PCT(gsp->st_region_wait, gsp->st_region_wait+gsp->st_region_nowait), NULL);
+	__db_dl_pct(env, "The number of hash bucket locks that required waiting", (ulong)gsp->st_hash_wait, DB_PCT(gsp->st_hash_wait, gsp->st_hash_wait+gsp->st_hash_nowait), 0);
+	__db_dl_pct(env, "The maximum number of times any hash bucket lock was waited for", (ulong)gsp->st_hash_max_wait, DB_PCT(gsp->st_hash_max_wait, gsp->st_hash_max_wait+gsp->st_hash_max_nowait), 0);
+	__db_dl_pct(env, "The number of region locks that required waiting", (ulong)gsp->st_region_wait, DB_PCT(gsp->st_region_wait, gsp->st_region_wait+gsp->st_region_nowait), 0);
 	__db_dl(env, "The number of buffers frozen", (ulong)gsp->st_mvcc_frozen);
 	__db_dl(env, "The number of buffers thawed", (ulong)gsp->st_mvcc_thawed);
 	__db_dl(env, "The number of frozen buffers freed", (ulong)gsp->st_mvcc_freed);
@@ -5404,7 +5404,7 @@ static int __memp_print_stats(ENV * env, uint32 flags)
 		__db_msg(env, "Pool File: %s", (*tfsp)->file_name);
 		__db_dl(env, "Page size", (ulong)(*tfsp)->st_pagesize);
 		__db_dl(env, "Requested pages mapped into the process' address space", (ulong)(*tfsp)->st_map);
-		__db_dl_pct(env, "Requested pages found in the cache", (ulong)(*tfsp)->st_cache_hit, DB_PCT((*tfsp)->st_cache_hit, (*tfsp)->st_cache_hit+(*tfsp)->st_cache_miss), NULL);
+		__db_dl_pct(env, "Requested pages found in the cache", (ulong)(*tfsp)->st_cache_hit, DB_PCT((*tfsp)->st_cache_hit, (*tfsp)->st_cache_hit+(*tfsp)->st_cache_miss), 0);
 		__db_dl(env, "Requested pages not found in the cache", (ulong)(*tfsp)->st_cache_miss);
 		__db_dl(env, "Pages created in the cache", (ulong)(*tfsp)->st_page_create);
 		__db_dl(env, "Pages read into the cache", (ulong)(*tfsp)->st_page_in);
@@ -5654,8 +5654,8 @@ static void __memp_stat_wait(ENV * env, REGINFO * reginfo, MPOOL * mp, DB_MPOOL_
 
 int __memp_stat_pp(DB_ENV * dbenv, DB_MPOOL_STAT ** gspp, DB_MPOOL_FSTAT *** fspp, uint32 flags)
 {
-	COMPQUIET(gspp, NULL);
-	COMPQUIET(fspp, NULL);
+	COMPQUIET(gspp, 0);
+	COMPQUIET(fspp, 0);
 	COMPQUIET(flags, 0);
 	return __db_stat_not_built(dbenv->env);
 }
@@ -6111,7 +6111,7 @@ static int __memp_sync_file(ENV * env, MPOOLFILE * mfp, void * argp, uint32 * co
 	DB_MPOOL * dbmp;
 	DB_MPOOLFILE * dbmfp;
 	int ret, t_ret;
-	COMPQUIET(countp, NULL);
+	COMPQUIET(countp, 0);
 	COMPQUIET(flags, 0);
 	if(!mfp->file_written || mfp->no_backing_file || mfp->deadfile || F_ISSET(mfp, MP_TEMP))
 		return 0;
@@ -6269,7 +6269,7 @@ int __memp_mf_sync(DB_MPOOL * dbmp, MPOOLFILE * mfp, int locked)
 	MPOOL * mp;
 	int ret, t_ret;
 	char * rpath;
-	COMPQUIET(hp, NULL);
+	COMPQUIET(hp, 0);
 	env = dbmp->env;
 	// 
 	// We need to be holding the hash lock: we're using the path name
@@ -6432,7 +6432,7 @@ static int __memp_trickle(ENV * env, int pct, int * nwrotep)
 	if(clean >= need_clean)
 		return 0;
 	need_clean -= clean;
-	ret = __memp_sync_int(env, NULL, need_clean, DB_SYNC_TRICKLE|DB_SYNC_INTERRUPT_OK, &wrote, NULL);
+	ret = __memp_sync_int(env, NULL, need_clean, DB_SYNC_TRICKLE|DB_SYNC_INTERRUPT_OK, &wrote, 0);
 	STAT((mp->stat.st_page_trickle += wrote));
 	ASSIGN_PTR(nwrotep, (int)wrote);
 	return ret;
@@ -6463,7 +6463,7 @@ int __memp_env_create(DB_ENV * dbenv)
  */
 void __memp_env_destroy(DB_ENV * dbenv)
 {
-	COMPQUIET(dbenv, NULL);
+	COMPQUIET(dbenv, 0);
 }
 /*
  * __memp_get_cachesize --
@@ -6862,7 +6862,7 @@ int __memp_nameop(ENV * env, uint8 * fileid, const char * newname, const char * 
 #undef  op_is_remove
 #define op_is_remove    (newname == NULL)
 	COMPQUIET(bucket, 0);
-	COMPQUIET(hp, NULL);
+	COMPQUIET(hp, 0);
 	COMPQUIET(newname_off, 0);
 	COMPQUIET(nlen, 0);
 	if(!MPOOL_ON(env))

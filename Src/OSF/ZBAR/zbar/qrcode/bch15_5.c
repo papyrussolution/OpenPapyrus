@@ -91,7 +91,7 @@ static int bch15_5_calc_omega(uint _o[3], uint _s[3])
 /*Find the roots of the error polynomial.
    Returns the number of roots found, or a negative value if the polynomial did
    not have enough roots, indicating a decoding error.*/
-static int bch15_5_calc_epos(uint _epos[3], uint _s[3])
+static int FASTCALL bch15_5_calc_epos(uint _epos[3], uint _s[3])
 {
 	uint o[3];
 	int d = bch15_5_calc_omega(o, _s);

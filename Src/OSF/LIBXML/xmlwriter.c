@@ -233,7 +233,7 @@ xmlTextWriterPtr xmlNewTextWriterMemory(xmlBufferPtr buf, int compression ATTRIB
 {
 	xmlTextWriterPtr ret = 0;
 /*::todo handle compression */
-	xmlOutputBufferPtr out = xmlOutputBufferCreateBuffer(buf, NULL);
+	xmlOutputBufferPtr out = xmlOutputBufferCreateBuffer(buf, 0);
 	if(out == NULL) {
 		xmlWriterErrMsg(NULL, XML_ERR_NO_MEMORY, "xmlNewTextWriterMemory : out of memory!\n");
 	}
@@ -268,7 +268,7 @@ xmlTextWriterPtr xmlNewTextWriterPushParser(xmlParserCtxtPtr ctxt, int compressi
 		return NULL;
 	}
 	out = xmlOutputBufferCreateIO((xmlOutputWriteCallback)xmlTextWriterWriteDocCallback,
-	    (xmlOutputCloseCallback)xmlTextWriterCloseDocCallback, (void*)ctxt, NULL);
+	    (xmlOutputCloseCallback)xmlTextWriterCloseDocCallback, (void*)ctxt, 0);
 	if(out == NULL) {
 		xmlWriterErrMsg(NULL, XML_ERR_INTERNAL_ERROR, "xmlNewTextWriterPushParser : error at xmlOutputBufferCreateIO!\n");
 		return NULL;
@@ -303,7 +303,7 @@ xmlTextWriterPtr xmlNewTextWriterDoc(xmlDocPtr * doc, int compression)
 	saxHandler.startDocument = xmlTextWriterStartDocumentCallback;
 	saxHandler.startElement = xmlSAX2StartElement;
 	saxHandler.endElement = xmlSAX2EndElement;
-	ctxt = xmlCreatePushParserCtxt(&saxHandler, NULL, NULL, 0, NULL);
+	ctxt = xmlCreatePushParserCtxt(&saxHandler, NULL, NULL, 0, 0);
 	if(!ctxt) {
 		xmlWriterErrMsg(NULL, XML_ERR_INTERNAL_ERROR, "xmlNewTextWriterDoc : error at xmlCreatePushParserCtxt!\n");
 		return NULL;
@@ -327,7 +327,7 @@ xmlTextWriterPtr xmlNewTextWriterDoc(xmlDocPtr * doc, int compression)
 		return NULL;
 	}
 	xmlSetDocCompressMode(ctxt->myDoc, compression);
-	if(doc != NULL) {
+	if(doc) {
 		*doc = ctxt->myDoc;
 		ret->no_doc_free = 1;
 	}
@@ -358,7 +358,7 @@ xmlTextWriterPtr xmlNewTextWriterTree(xmlDocPtr doc, xmlNodePtr node, int compre
 		saxHandler.startDocument = xmlTextWriterStartDocumentCallback;
 		saxHandler.startElement = xmlSAX2StartElement;
 		saxHandler.endElement = xmlSAX2EndElement;
-		xmlParserCtxtPtr ctxt = xmlCreatePushParserCtxt(&saxHandler, NULL, NULL, 0, NULL);
+		xmlParserCtxtPtr ctxt = xmlCreatePushParserCtxt(&saxHandler, NULL, NULL, 0, 0);
 		if(!ctxt) {
 			xmlWriterErrMsg(NULL, XML_ERR_INTERNAL_ERROR, "xmlNewTextWriterDoc : error at xmlCreatePushParserCtxt!\n");
 		}
@@ -1258,7 +1258,7 @@ int xmlTextWriterWriteString(xmlTextWriterPtr writer, const xmlChar * content)
 				case XML_TEXTWRITER_TEXT:
 #if 0
 				    buf = NULL;
-				    xmlOutputBufferWriteEscape(writer->out, content, NULL);
+				    xmlOutputBufferWriteEscape(writer->out, content, 0);
 #endif
 				    // AHTOXA buf = xmlEncodeSpecialChars(NULL, content);
 				    break;
@@ -3710,7 +3710,7 @@ static void xmlTextWriterStartDocumentCallback(void * ctx)
 		doc = ctxt->myDoc;
 		if(!doc)
 			doc = ctxt->myDoc = xmlNewDoc(ctxt->version);
-		if(doc != NULL) {
+		if(doc) {
 			if(doc->children == NULL) {
 				doc->encoding = ctxt->encoding ? xmlStrdup(ctxt->encoding) : 0;
 				doc->standalone = ctxt->standalone;

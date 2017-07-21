@@ -578,7 +578,7 @@ int __txn_commit(DB_TXN*txn, uint32 flags)
 					memzero(&list_dbt, sizeof(list_dbt));
 					request.obj = &list_dbt;
 				}
-				ret = __lock_vec(env, txn->locker, 0, &request, 1, NULL);
+				ret = __lock_vec(env, txn->locker, 0, &request, 1, 0);
 			}
 			if(ret == 0 && !IS_ZERO_LSN(td->last_lsn)) {
 				ret = __txn_flush_fe_files(txn);
@@ -1479,7 +1479,7 @@ int __txn_force_abort(ENV*env, uint8 * buffer)
 	if(CRYPTO_ON(env) && (ret = db_cipher->encrypt(env, db_cipher->data, &hdrp->iv[0], buffer+hdrsize, rec_len)) != 0)
 		return __env_panic(env, ret);
 #ifdef HAVE_LOG_CHECKSUM
-	__db_chksum(&hdr, buffer+hdrsize, rec_len, key, NULL);
+	__db_chksum(&hdr, buffer+hdrsize, rec_len, key, 0);
 	if(LOG_SWAPPED(env))
 		__log_hdrswap(&hdr, CRYPTO_ON(env));
 	memcpy(buffer+SSZA(HDR, chksum), hdr.chksum, sum_len);
@@ -2166,7 +2166,7 @@ int __txn_child_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 			else
 				c_stat = p_stat;
 			if(ret == DB_NOTFOUND)
-				ret = __db_txnlist_add(env, (DB_TXNHEAD *)info, argp->child, c_stat, NULL);
+				ret = __db_txnlist_add(env, (DB_TXNHEAD *)info, argp->child, c_stat, 0);
 			else
 				ret = __db_txnlist_update(env, (DB_TXNHEAD *)info, argp->child, c_stat, NULL, &tmpstat, 0);
 		}
@@ -2285,7 +2285,7 @@ int __txn_recycle_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 #endif
 	if((ret = __txn_recycle_read(env, dbtp->data, &argp)) != 0)
 		return ret;
-	COMPQUIET(lsnp, NULL);
+	COMPQUIET(lsnp, 0);
 	if((ret = __db_txnlist_gen(env, (DB_TXNHEAD *)info, DB_UNDO(op) ? -1 : 1, argp->min, argp->max)) != 0)
 		return ret;
 	__os_free(env, argp);
@@ -2794,7 +2794,7 @@ int __txn_env_refresh(ENV * env)
  */
 uint32 __txn_region_mutex_count(ENV*env)
 {
-	COMPQUIET(env, NULL);
+	COMPQUIET(env, 0);
 	/*
 	 * We need  a mutex for DB_TXNMGR structure, two mutexes for the DB_TXNREGION structure.
 	 */
@@ -2908,7 +2908,7 @@ int __txn_add_buffer(ENV*env, TXN_DETAIL * td)
 	DB_ASSERT(env, td->mvcc_ref < UINT32_MAX);
 	++td->mvcc_ref;
 	MUTEX_UNLOCK(env, td->mvcc_mtx);
-	COMPQUIET(env, NULL);
+	COMPQUIET(env, 0);
 	return 0;
 }
 /*
@@ -3100,7 +3100,7 @@ static int __txn_print_stats(ENV*env, uint32 flags)
 	__db_dl(env, "Maximum snapshot transactions", (ulong)sp->st_maxnsnapshot);
 	__db_dl(env, "Number of transactions restored", (ulong)sp->st_nrestores);
 	__db_dlbytes(env, "Region size", (ulong)0, (ulong)0, (ulong)sp->st_regsize);
-	__db_dl_pct(env, "The number of region locks that required waiting", (ulong)sp->st_region_wait, DB_PCT(sp->st_region_wait, sp->st_region_wait+sp->st_region_nowait), NULL);
+	__db_dl_pct(env, "The number of region locks that required waiting", (ulong)sp->st_region_wait, DB_PCT(sp->st_region_wait, sp->st_region_wait+sp->st_region_nowait), 0);
 	qsort(sp->st_txnarray, sp->st_nactive, sizeof(sp->st_txnarray[0]), __txn_compare);
 	__db_msg(env, "Active transactions:");
 	DB_MSGBUF_INIT(&mb);
@@ -3220,7 +3220,7 @@ static int __txn_compare(const void * a1, const void * b1)
 
 int __txn_stat_pp(DB_ENV*dbenv, DB_TXN_STAT ** statp, uint32 flags)
 {
-	COMPQUIET(statp, NULL);
+	COMPQUIET(statp, 0);
 	COMPQUIET(flags, 0);
 
 	return __db_stat_not_built(dbenv->env);
@@ -3372,7 +3372,7 @@ void __txn_remlock(ENV*env, DB_TXN * txn, DB_LOCK * lock, DB_LOCKER * locker)
 		memzero(&req, sizeof(req));                                   \
 		req.lock = *(DB_LOCK *)&e->u.t.lock;                            \
 		req.op = DB_LOCK_TRADE;                                         \
-		t_ret = __lock_vec(env, txn->parent ? txn->parent->locker : e->u.t.locker, 0, &req, 1, NULL); \
+		t_ret = __lock_vec(env, txn->parent ? txn->parent->locker : e->u.t.locker, 0, &req, 1, 0); \
 		if(t_ret == 0) {                                               \
 			if(txn->parent) {                              \
 				e->u.t.dbp->cur_txn = txn->parent;              \
@@ -3702,7 +3702,7 @@ int __txn_env_create(DB_ENV*dbenv)
  */
 void __txn_env_destroy(DB_ENV*dbenv)
 {
-	COMPQUIET(dbenv, NULL);
+	COMPQUIET(dbenv, 0);
 }
 
 int __txn_get_tx_max(DB_ENV*dbenv, uint32 * tx_maxp)

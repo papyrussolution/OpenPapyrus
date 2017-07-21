@@ -12,7 +12,7 @@
 //#include <openssl/objects.h>
 //#include <openssl/x509.h>
 //#include <openssl/x509v3.h>
-#include "internal/x509_int.h"
+//#include "internal/x509_int.h"
 
 int X509_issuer_and_serial_cmp(const X509 * a, const X509 * b)
 {
@@ -158,13 +158,13 @@ int X509_NAME_cmp(const X509_NAME * a, const X509_NAME * b)
 	/* Ensure canonical encoding is present and up to date */
 
 	if(!a->canon_enc || a->modified) {
-		ret = i2d_X509_NAME((X509_NAME*)a, NULL);
+		ret = i2d_X509_NAME((X509_NAME*)a, 0);
 		if(ret < 0)
 			return -2;
 	}
 
 	if(!b->canon_enc || b->modified) {
-		ret = i2d_X509_NAME((X509_NAME*)b, NULL);
+		ret = i2d_X509_NAME((X509_NAME*)b, 0);
 		if(ret < 0)
 			return -2;
 	}
@@ -183,7 +183,7 @@ ulong X509_NAME_hash(X509_NAME * x)
 	uchar md[SHA_DIGEST_LENGTH];
 
 	/* Make sure X509_NAME structure contains valid cached encoding */
-	i2d_X509_NAME(x, NULL);
+	i2d_X509_NAME(x, 0);
 	if(!EVP_Digest(x->canon_enc, x->canon_enclen, md, NULL, EVP_sha1(),
 		    NULL))
 		return 0;
@@ -210,7 +210,7 @@ ulong X509_NAME_hash_old(X509_NAME * x)
 		return ret;
 
 	/* Make sure X509_NAME structure contains valid cached encoding */
-	i2d_X509_NAME(x, NULL);
+	i2d_X509_NAME(x, 0);
 	EVP_MD_CTX_set_flags(md_ctx, EVP_MD_CTX_FLAG_NON_FIPS_ALLOW);
 	if(EVP_DigestInit_ex(md_ctx, EVP_md5(), NULL)
 	    && EVP_DigestUpdate(md_ctx, x->bytes->data, x->bytes->length)

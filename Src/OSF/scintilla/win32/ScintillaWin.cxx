@@ -1785,7 +1785,7 @@ void ScintillaWin::FineTickerStart(TickReason reason, int millis, int tolerance)
 		timers[reason] = SetCoalescableTimerFn(MainHWND(), fineTimerStart + reason, millis, NULL, tolerance);
 	}
 	else {
-		timers[reason] = ::SetTimer(MainHWND(), fineTimerStart + reason, millis, NULL);
+		timers[reason] = ::SetTimer(MainHWND(), fineTimerStart + reason, millis, 0);
 	}
 }
 

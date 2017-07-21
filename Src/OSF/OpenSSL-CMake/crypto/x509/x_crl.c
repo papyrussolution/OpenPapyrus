@@ -10,7 +10,7 @@
 #pragma hdrstop
 //#include <openssl/asn1t.h>
 //#include <openssl/x509.h>
-#include "internal/x509_int.h"
+//#include "internal/x509_int.h"
 //#include <openssl/x509v3.h>
 #include "x509_lcl.h"
 
@@ -87,7 +87,7 @@ static int crl_set_issuers(X509_CRL * crl)
 		STACK_OF(X509_EXTENSION) *exts;
 		ASN1_ENUMERATED * reason;
 		X509_EXTENSION * ext;
-		gtmp = (GENERAL_NAMES *)X509_REVOKED_get_ext_d2i(rev, NID_certificate_issuer, &j, NULL);
+		gtmp = (GENERAL_NAMES *)X509_REVOKED_get_ext_d2i(rev, NID_certificate_issuer, &j, 0);
 		if(!gtmp && (j != -1)) {
 			crl->flags |= EXFLAG_INVALID;
 			return 1;
@@ -104,7 +104,7 @@ static int crl_set_issuers(X509_CRL * crl)
 				return 0;
 		}
 		rev->issuer = gens;
-		reason = (ASN1_ENUMERATED * )X509_REVOKED_get_ext_d2i(rev, NID_crl_reason, &j, NULL);
+		reason = (ASN1_ENUMERATED * )X509_REVOKED_get_ext_d2i(rev, NID_crl_reason, &j, 0);
 		if(!reason && (j != -1)) {
 			crl->flags |= EXFLAG_INVALID;
 			return 1;
@@ -162,7 +162,7 @@ static int crl_cb(int operation, ASN1_VALUE ** pval, const ASN1_ITEM * it,
 		    break;
 
 		case ASN1_OP_D2I_POST:
-		    X509_CRL_digest(crl, EVP_sha1(), crl->sha1_hash, NULL);
+		    X509_CRL_digest(crl, EVP_sha1(), crl->sha1_hash, 0);
 		    crl->idp = (ISSUING_DIST_POINT *)X509_CRL_get_ext_d2i(crl, NID_issuing_distribution_point, 0, 0);
 		    if(crl->idp)
 			    setup_idp(crl, crl->idp);
@@ -311,7 +311,7 @@ int X509_CRL_get0_by_serial(X509_CRL * crl,
     X509_REVOKED ** ret, ASN1_INTEGER * serial)
 {
 	if(crl->meth->crl_lookup)
-		return crl->meth->crl_lookup(crl, ret, serial, NULL);
+		return crl->meth->crl_lookup(crl, ret, serial, 0);
 	return 0;
 }
 

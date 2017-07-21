@@ -1354,7 +1354,7 @@ static int png_image_write_init(png_imagep image)
 			/* Error clean up */
 			png_destroy_info_struct(png_ptr, &info_ptr);
 		}
-		png_destroy_write_struct(&png_ptr, NULL);
+		png_destroy_write_struct(&png_ptr, 0);
 	}
 	return png_image_error(image, "png_image_write_: out of memory");
 }
@@ -1701,7 +1701,7 @@ static void png_image_set_PLTE(png_image_write_control * display)
 
 	if(num_trans > 0)
 		png_set_tRNS(image->opaque->png_ptr, image->opaque->info_ptr, tRNS,
-		    num_trans, NULL);
+		    num_trans, 0);
 
 	image->colormap_entries = entries;
 }

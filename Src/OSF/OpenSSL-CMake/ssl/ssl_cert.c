@@ -273,7 +273,7 @@ int ssl_cert_set1_chain(SSL * s, SSL_CTX * ctx, STACK_OF(X509) * chain)
 {
 	STACK_OF(X509) *dchain;
 	if(!chain)
-		return ssl_cert_set0_chain(s, ctx, NULL);
+		return ssl_cert_set0_chain(s, ctx, 0);
 	dchain = X509_chain_up_ref(chain);
 	if(!dchain)
 		return 0;
@@ -696,7 +696,7 @@ err:
 static int ssl_add_cert_to_buf(BUF_MEM * buf, unsigned long * l, X509 * x)
 {
 	uchar * p;
-	int n = i2d_X509(x, NULL);
+	int n = i2d_X509(x, 0);
 	if(n < 0 || !BUF_MEM_grow_clean(buf, (int)(n + (*l) + 3))) {
 		SSLerr(SSL_F_SSL_ADD_CERT_TO_BUF, ERR_R_BUF_LIB);
 		return 0;

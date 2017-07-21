@@ -50,47 +50,34 @@ static int send_fp_chars(void * arg, const void * buf, int len)
 #endif
 
 typedef int char_io (void * arg, const void * buf, int len);
-
 /*
  * This function handles display of strings, one character at a time. It is
  * passed an ulong for each character because it could come from 2 or
  * even 4 byte forms.
  */
-
-static int do_esc_char(ulong c, uchar flags, char * do_quotes,
-    char_io * io_ch, void * arg)
+static int do_esc_char(ulong c, uchar flags, char * do_quotes, char_io * io_ch, void * arg)
 {
 	unsigned short chflgs;
 	uchar chtmp;
 	char tmphex[HEX_SIZE(long) + 3];
-
 	if(c > 0xffffffffL)
 		return -1;
 	if(c > 0xffff) {
 		BIO_snprintf(tmphex, sizeof tmphex, "\\W%08lX", c);
-		if(!io_ch(arg, tmphex, 10))
-			return -1;
-		return 10;
+		return io_ch(arg, tmphex, 10) ? 10 : -1;
 	}
 	if(c > 0xff) {
 		BIO_snprintf(tmphex, sizeof tmphex, "\\U%04lX", c);
-		if(!io_ch(arg, tmphex, 6))
-			return -1;
-		return 6;
+		return io_ch(arg, tmphex, 6) ? 6 :  -1;
 	}
 	chtmp = (uchar)c;
-	if(chtmp > 0x7f)
-		chflgs = flags & ASN1_STRFLGS_ESC_MSB;
-	else
-		chflgs = char_type[chtmp] & flags;
+	chflgs = (chtmp > 0x7f) ? (flags & ASN1_STRFLGS_ESC_MSB) : (char_type[chtmp] & flags);
 	if(chflgs & CHARTYPE_BS_ESC) {
 		/* If we don't escape with quotes, signal we need quotes */
 		if(chflgs & ASN1_STRFLGS_ESC_QUOTE) {
 			if(do_quotes)
 				*do_quotes = 1;
-			if(!io_ch(arg, &chtmp, 1))
-				return -1;
-			return 1;
+			return io_ch(arg, &chtmp, 1) ? 1 : -1;
 		}
 		if(!io_ch(arg, "\\", 1))
 			return -1;
@@ -98,26 +85,18 @@ static int do_esc_char(ulong c, uchar flags, char * do_quotes,
 			return -1;
 		return 2;
 	}
-	if(chflgs & (ASN1_STRFLGS_ESC_CTRL
-		    | ASN1_STRFLGS_ESC_MSB
-		    | ASN1_STRFLGS_ESC_2254)) {
+	if(chflgs & (ASN1_STRFLGS_ESC_CTRL|ASN1_STRFLGS_ESC_MSB|ASN1_STRFLGS_ESC_2254)) {
 		BIO_snprintf(tmphex, 11, "\\%02X", chtmp);
-		if(!io_ch(arg, tmphex, 3))
-			return -1;
-		return 3;
+		return io_ch(arg, tmphex, 3) ? 3 : -1;
 	}
 	/*
 	 * If we get this far and do any escaping at all must escape the escape
 	 * character itself: backslash.
 	 */
 	if(chtmp == '\\' && flags & ESC_FLAGS) {
-		if(!io_ch(arg, "\\\\", 2))
-			return -1;
-		return 2;
+		return io_ch(arg, "\\\\", 2) ? 2 : -1;
 	}
-	if(!io_ch(arg, &chtmp, 1))
-		return -1;
-	return 1;
+	return io_ch(arg, &chtmp, 1) ? 1 : -1;
 }
 
 #define BUF_TYPE_WIDTH_MASK     0x7
@@ -128,18 +107,14 @@ static int do_esc_char(ulong c, uchar flags, char * do_quotes,
  * interprets the content formats and converts to or from UTF8 as
  * appropriate.
  */
-
-static int do_buf(uchar * buf, int buflen,
-    int type, unsigned short flags, char * quotes, char_io * io_ch,
-    void * arg)
+static int do_buf(uchar * buf, int buflen, int type, unsigned short flags, char * quotes, char_io * io_ch, void * arg)
 {
-	int i, outlen, len;
+	int i, len;
 	unsigned short orflags;
-	uchar * p, * q;
 	ulong c;
-	p = buf;
-	q = buf + buflen;
-	outlen = 0;
+	uchar * p = buf;
+	uchar * q = buf + buflen;
+	int outlen = 0;
 	while(p != q) {
 		if(p == buf && flags & ASN1_STRFLGS_ESC_2253)
 			orflags = CHARTYPE_FIRST_ESC_2253;
@@ -203,8 +178,7 @@ static int do_buf(uchar * buf, int buflen,
 
 /* This function hex dumps a buffer of characters */
 
-static int do_hex_dump(char_io * io_ch, void * arg, uchar * buf,
-    int buflen)
+static int do_hex_dump(char_io * io_ch, void * arg, uchar * buf, int buflen)
 {
 	static const char hexdig[] = "0123456789ABCDEF";
 	uchar * p, * q;
@@ -251,7 +225,7 @@ static int do_dump(ulong lflags, char_io * io_ch, void * arg,
 	}
 	t.type = str->type;
 	t.value.ptr = (char*)str;
-	der_len = i2d_ASN1_TYPE(&t, NULL);
+	der_len = i2d_ASN1_TYPE(&t, 0);
 	der_buf = (uchar*)OPENSSL_malloc(der_len);
 	if(der_buf == NULL)
 		return -1;
@@ -347,7 +321,7 @@ static int do_print_ex(char_io * io_ch, void * arg, ulong lflags,
 		else
 			type |= BUF_TYPE_CONVUTF8;
 	}
-	len = do_buf(str->data, str->length, type, flags, &quotes, io_ch, NULL);
+	len = do_buf(str->data, str->length, type, flags, &quotes, io_ch, 0);
 	if(len < 0)
 		return -1;
 	outlen += len;
@@ -637,4 +611,3 @@ int asn1_valid_host(const ASN1_STRING * host)
 	}
 	return 1;
 }
-

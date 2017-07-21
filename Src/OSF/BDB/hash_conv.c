@@ -60,7 +60,7 @@ int __ham_mswap(ENV * env, void * pg)
 {
 	uint8 * p;
 	int i;
-	COMPQUIET(env, NULL);
+	COMPQUIET(env, 0);
 	__db_metaswap((PAGE *)pg);
 	p = (uint8 *)pg+sizeof(DBMETA);
 	SWAP32(p);              /* max_bucket */

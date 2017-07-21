@@ -1321,7 +1321,7 @@ static int aes_gcm_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, s
 	if(!gctx->iv_set)
 		return -1;
 	if(in) {
-		if(out == NULL) {
+		if(!out) {
 			if(CRYPTO_gcm128_aad(&gctx->gcm, in, len))
 				return -1;
 		}
@@ -2106,7 +2106,7 @@ static int aes_ocb_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, s
 		 * and those routines don't support that
 		 */
 		/* Are we dealing with AAD or normal data here? */
-		if(out == NULL) {
+		if(!out) {
 			buf = octx->aad_buf;
 			buf_len = &(octx->aad_buf_len);
 		}
@@ -2135,7 +2135,7 @@ static int aes_ocb_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, s
 			 */
 			len -= remaining;
 			in += remaining;
-			if(out == NULL) {
+			if(!out) {
 				if(!CRYPTO_ocb128_aad(&octx->ocb, buf, AES_BLOCK_SIZE))
 					return -1;
 			}
@@ -2158,7 +2158,7 @@ static int aes_ocb_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, s
 		 * If we've got some full blocks to handle, then process these first
 		 */
 		if(len != trailing_len) {
-			if(out == NULL) {
+			if(!out) {
 				if(!CRYPTO_ocb128_aad(&octx->ocb, in, len - trailing_len))
 					return -1;
 			}

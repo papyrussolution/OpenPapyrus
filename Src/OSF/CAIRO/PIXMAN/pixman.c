@@ -140,8 +140,8 @@ static inline pixman_bool_t clip_general_image(pixman_region32_t * region, pixma
 {
 	if(pixman_region32_n_rects(region) == 1 &&
 	    pixman_region32_n_rects(clip) == 1) {
-		pixman_box32_t *  rbox = pixman_region32_rectangles(region, NULL);
-		pixman_box32_t *  cbox = pixman_region32_rectangles(clip, NULL);
+		pixman_box32_t *  rbox = pixman_region32_rectangles(region, 0);
+		pixman_box32_t *  cbox = pixman_region32_rectangles(clip, 0);
 		int v;
 		if(rbox->x1 < (v = cbox->x1 + dx))
 			rbox->x1 = v;

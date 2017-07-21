@@ -1228,8 +1228,9 @@ int SLAPI ILBillPacket::Load(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 					if(psn_id) {
 						PPObjArticle ar_obj;
 						PPObjAccSheet acs_obj;
-						PPAccSheet acs_rec;
-						if(acs_obj.Fetch(acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MAIN)
+						//PPAccSheet acs_rec;
+						//if(acs_obj.Fetch(acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MAIN)
+						if(acs_obj.IsLinkedToMainOrg(acs_id))
 							ar_obj.P_Tbl->PersonToArticle(psn_id, cvt_op_rec.AccSheetID, &dest_ar_id);
 					}
 				}

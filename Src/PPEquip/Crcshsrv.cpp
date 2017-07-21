@@ -3091,7 +3091,7 @@ SLAPI XmlReader::XmlReader(const char * pPath, PPIDArray * pLogNumList, int subV
 		P_Reader = xmlReaderForFile(pPath, NULL, XML_PARSE_NOENT);
 	if(P_Reader) {
 		int r = 0;
-		xmlTextReaderPreservePattern(P_Reader, (const xmlChar*)(const char*)p_chr_tag, NULL);
+		xmlTextReaderPreservePattern(P_Reader, (const xmlChar*)(const char*)p_chr_tag, 0);
 		r = xmlTextReaderRead(P_Reader);
 		while(r == 1)
 			r = xmlTextReaderRead(P_Reader);
@@ -4237,7 +4237,7 @@ SLAPI XmlZRepReader::XmlZRepReader(const char * pPath)
 	if(P_Reader) {
 		const char * p_chr_tag = "zreport";
 		int    r = 0;
-		xmlTextReaderPreservePattern(P_Reader, (const xmlChar*)p_chr_tag, NULL);
+		xmlTextReaderPreservePattern(P_Reader, (const xmlChar*)p_chr_tag, 0);
 		r = xmlTextReaderRead(P_Reader);
 		while(r == 1)
 			r = xmlTextReaderRead(P_Reader);

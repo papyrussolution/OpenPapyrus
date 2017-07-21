@@ -481,7 +481,7 @@ static cairo_surface_t * create_composite_mask(const cairo_traps_compositor_t * 
 	status = draw_func(compositor, surface, draw_closure,
 	    CAIRO_OPERATOR_ADD, src, src_x, src_y,
 	    extents->bounded.x, extents->bounded.y,
-	    &extents->bounded, NULL);
+	    &extents->bounded, 0);
 	if(unlikely(status))
 		goto error;
 
@@ -606,7 +606,7 @@ static cairo_status_t clip_and_composite_combine(const cairo_traps_compositor_t 
 	status = draw_func(compositor, tmp, draw_closure, op,
 	    src, src_x, src_y,
 	    extents->bounded.x, extents->bounded.y,
-	    &extents->bounded, NULL);
+	    &extents->bounded, 0);
 
 	if(unlikely(status))
 		goto cleanup;
@@ -1047,12 +1047,12 @@ skip:
 		if(need_clip & NEED_CLIP_SURFACE)
 			status = fixup_unbounded_with_mask(compositor, extents);
 		else
-			status = fixup_unbounded(compositor, extents, NULL);
+			status = fixup_unbounded(compositor, extents, 0);
 	}
 
 error:
 	if(clip_region)
-		compositor->set_clip_region(dst, NULL);
+		compositor->set_clip_region(dst, 0);
 
 	compositor->release(dst);
 
@@ -1115,14 +1115,14 @@ static cairo_bool_t is_recording_pattern(const cairo_pattern_t * pattern)
 	if(pattern->type != CAIRO_PATTERN_TYPE_SURFACE)
 		return FALSE;
 	surface = ((const cairo_surface_pattern_t*)pattern)->surface;
-	surface = _cairo_surface_get_source(surface, NULL);
+	surface = _cairo_surface_get_source(surface, 0);
 	return _cairo_surface_is_recording(surface);
 }
 
 static cairo_surface_t * recording_pattern_get_surface(const cairo_pattern_t * pattern)
 {
 	cairo_surface_t * surface = ((const cairo_surface_pattern_t*)pattern)->surface;
-	return _cairo_surface_get_source(surface, NULL);
+	return _cairo_surface_get_source(surface, 0);
 }
 
 static cairo_bool_t recording_pattern_contains_sample(const cairo_pattern_t * pattern, const CairoIRect * sample)
@@ -1442,9 +1442,9 @@ static cairo_status_t clip_and_composite_polygon(const cairo_traps_compositor_t 
 			if(clip_surface)
 				status = fixup_unbounded_with_mask(compositor, extents);
 			else
-				status = fixup_unbounded(compositor, extents, NULL);
+				status = fixup_unbounded(compositor, extents, 0);
 			if(clip_region != NULL)
-				compositor->set_clip_region(dst, NULL);
+				compositor->set_clip_region(dst, 0);
 		}
 		return status;
 	}
@@ -1937,7 +1937,7 @@ static cairo_int_status_t composite_mask_clip(const cairo_traps_compositor_t * c
 	    data->mask,
 	    data->mask_x + dst_x, data->mask_y + dst_y,
 	    dst_x, dst_y,
-	    extents, NULL);
+	    extents, 0);
 	_cairo_traps_fini(&info.traps);
 
 	return status;

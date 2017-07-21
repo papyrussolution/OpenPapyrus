@@ -37,11 +37,9 @@ using namespace Scintilla;
 namespace {
 // Use an unnamed namespace to protect the functions and classes from name conflicts
 
-bool IsSpaceEquiv(int state)
+static bool FASTCALL IsSpaceEquiv(int state)
 {
-	return (state == SCE_ABL_COMMENT ||
-		    state == SCE_ABL_LINECOMMENT ||
-		    state == SCE_ABL_DEFAULT);
+	return (state == SCE_ABL_COMMENT || state == SCE_ABL_LINECOMMENT || state == SCE_ABL_DEFAULT);
 }
 
 void highlightTaskMarker(StyleContext &sc, LexAccessor &styler, WordList &markerList)
@@ -66,7 +64,7 @@ void highlightTaskMarker(StyleContext &sc, LexAccessor &styler, WordList &marker
 	}
 }
 
-bool IsStreamCommentStyle(int style)
+static bool FASTCALL IsStreamCommentStyle(int style)
 {
 	return style == SCE_ABL_COMMENT;
 	// style == SCE_ABL_LINECOMMENT;  Only block comments are used for folding
@@ -101,18 +99,10 @@ struct OptionSetABL : public OptionSet<OptionsABL> {
 	OptionSetABL()
 	{
 		DefineProperty("fold", &OptionsABL::fold);
-
-		DefineProperty("fold.abl.syntax.based", &OptionsABL::foldSyntaxBased,
-			    "Set this property to 0 to disable syntax based folding.");
-
-		DefineProperty("fold.comment", &OptionsABL::foldComment,
-			    "This option enables folding multi-line comments and explicit fold points when using the ABL lexer. ");
-
-		DefineProperty("fold.abl.comment.multiline", &OptionsABL::foldCommentMultiline,
-			    "Set this property to 0 to disable folding multi-line comments when fold.comment=1.");
-
+		DefineProperty("fold.abl.syntax.based", &OptionsABL::foldSyntaxBased, "Set this property to 0 to disable syntax based folding.");
+		DefineProperty("fold.comment", &OptionsABL::foldComment, "This option enables folding multi-line comments and explicit fold points when using the ABL lexer. ");
+		DefineProperty("fold.abl.comment.multiline", &OptionsABL::foldCommentMultiline, "Set this property to 0 to disable folding multi-line comments when fold.comment=1.");
 		DefineProperty("fold.compact", &OptionsABL::foldCompact);
-
 		DefineWordListSets(ablWordLists);
 	}
 };
@@ -140,57 +130,45 @@ public:
 		setLogicalOp(CharacterSet::setNone, "|&")
 	{
 	}
-
 	virtual ~LexerABL()
 	{
 	}
-
 	void SCI_METHOD Release()
 	{
 		delete this;
 	}
-
 	int SCI_METHOD Version() const
 	{
 		return lvOriginal;
 	}
-
 	const char * SCI_METHOD PropertyNames()
 	{
 		return osABL.PropertyNames();
 	}
-
 	int SCI_METHOD PropertyType(const char * name)
 	{
 		return osABL.PropertyType(name);
 	}
-
 	const char * SCI_METHOD DescribeProperty(const char * name)
 	{
 		return osABL.DescribeProperty(name);
 	}
-
 	Sci_Position SCI_METHOD PropertySet(const char * key, const char * val);
-
 	const char * SCI_METHOD DescribeWordListSets()
 	{
 		return osABL.DescribeWordListSets();
 	}
-
 	Sci_Position SCI_METHOD WordListSet(int n, const char * wl);
 	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
 	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
-
 	void * SCI_METHOD PrivateCall(int, void *)
 	{
 		return 0;
 	}
-
 	int SCI_METHOD LineEndTypesSupported()
 	{
 		return SC_LINE_END_TYPE_DEFAULT;
 	}
-
 	static ILexer * LexerFactoryABL()
 	{
 		return new LexerABL();
@@ -209,18 +187,10 @@ Sci_Position SCI_METHOD LexerABL::WordListSet(int n, const char * wl)
 {
 	WordList * wordListN = 0;
 	switch(n) {
-		case 0:
-		    wordListN = &keywords1;
-		    break;
-		case 1:
-		    wordListN = &keywords2;
-		    break;
-		case 2:
-		    wordListN = &keywords3;
-		    break;
-		case 3:
-		    wordListN = &keywords4;
-		    break;
+		case 0: wordListN = &keywords1; break;
+		case 1: wordListN = &keywords2; break;
+		case 2: wordListN = &keywords3; break;
+		case 3: wordListN = &keywords4; break;
 	}
 	Sci_Position firstModification = -1;
 	if(wordListN) {
@@ -237,9 +207,7 @@ Sci_Position SCI_METHOD LexerABL::WordListSet(int n, const char * wl)
 void SCI_METHOD LexerABL::Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess)
 {
 	LexAccessor styler(pAccess);
-
 	setWordStart = CharacterSet(CharacterSet::setAlpha, "_", 0x80, true);
-
 	int visibleChars = 0;
 	int visibleChars1 = 0;
 	int styleBeforeTaskMarker = SCE_ABL_DEFAULT;

@@ -34,7 +34,7 @@ static uint32_t * _pixman_image_get_scanline_generic_float(pixman_iter_t * iter,
 {
 	pixman_iter_get_scanline_t fetch_32 = (pixman_iter_get_scanline_t)iter->data;
 	uint32_t * buffer = iter->buffer;
-	fetch_32(iter, NULL);
+	fetch_32(iter, 0);
 	pixman_expand_to_float((argb_t*)buffer, buffer, PIXMAN_a8r8g8b8, iter->width);
 	return iter->buffer;
 }
@@ -428,9 +428,9 @@ static void bits_image_fetch_untransformed_repeat_none(bits_image_t * image,
 	if(x < image->width) {
 		w = MIN(width, image->width - x);
 		if(wide)
-			image->fetch_scanline_float(image, x, y, w, buffer, NULL);
+			image->fetch_scanline_float(image, x, y, w, buffer, 0);
 		else
-			image->fetch_scanline_32(image, x, y, w, buffer, NULL);
+			image->fetch_scanline_32(image, x, y, w, buffer, 0);
 		width -= w;
 		buffer += w * (wide ? 4 : 1);
 		x += w;
@@ -459,9 +459,9 @@ static void bits_image_fetch_untransformed_repeat_normal(bits_image_t * image, p
 			x -= image->width;
 		w = MIN(width, image->width - x);
 		if(wide)
-			image->fetch_scanline_float(image, x, y, w, buffer, NULL);
+			image->fetch_scanline_float(image, x, y, w, buffer, 0);
 		else
-			image->fetch_scanline_32(image, x, y, w, buffer, NULL);
+			image->fetch_scanline_32(image, x, y, w, buffer, 0);
 		buffer += w * (wide ? 4 : 1);
 		x += w;
 		width -= w;
@@ -700,8 +700,8 @@ pixman_bool_t _pixman_bits_image_init(pixman_image_t * image, pixman_format_code
 static pixman_image_t * create_bits_image_internal(pixman_format_code_t format, int width, int height, uint32_t * bits, int rowstride_bytes, pixman_bool_t clear)
 {
 	// must be a whole number of uint32_t's
-	return_val_if_fail(bits == NULL || (rowstride_bytes % sizeof(uint32_t)) == 0, NULL);
-	return_val_if_fail(PIXMAN_FORMAT_BPP(format) >= PIXMAN_FORMAT_DEPTH(format), NULL);
+	return_val_if_fail(bits == NULL || (rowstride_bytes % sizeof(uint32_t)) == 0, 0);
+	return_val_if_fail(PIXMAN_FORMAT_BPP(format) >= PIXMAN_FORMAT_DEPTH(format), 0);
 	pixman_image_t * image = _pixman_image_allocate();
 	if(image) {
 		if(!_pixman_bits_image_init(image, format, width, height, bits, rowstride_bytes / (int)sizeof(uint32_t), clear)) {

@@ -34,7 +34,7 @@ int __repmgr_init_election(ENV * env, uint32 flags)
 	REPMGR_RUNNABLE * th;
 	int ret;
 	uint i, new_size;
-	COMPQUIET(th, NULL);
+	COMPQUIET(th, 0);
 	db_rep = env->rep_handle;
 	if(db_rep->finished) {
 		RPRINT(env, (env, DB_VERB_REPMGR_MISC, "ignoring elect thread request %#lx; repmgr is finished", (ulong)flags));
@@ -111,7 +111,7 @@ static int __repmgr_elect_main(ENV * env, REPMGR_RUNNABLE * th)
 	rep = db_rep->region;
 	flags = th->args.flags;
 	if(LF_ISSET(ELECT_F_EVENT_NOTIFY))
-		DB_EVENT(env, DB_EVENT_REP_MASTER_FAILURE, NULL);
+		DB_EVENT(env, DB_EVENT_REP_MASTER_FAILURE, 0);
 	/*
 	 * As a freshly started thread, lay claim to the title of being
 	 * "preferred".  If an older thread is sleeping for retry, when it wakes
@@ -379,7 +379,7 @@ static int __repmgr_elect(ENV*env, uint32 flags, db_timespec * failtimep)
 	switch(ret = __rep_elect_int(env, nsites, nvotes, 0)) {
 	    case DB_REP_UNAVAIL:
 		__os_gettime(env, failtimep, 1);
-		DB_EVENT(env, DB_EVENT_REP_ELECTION_FAILED, NULL);
+		DB_EVENT(env, DB_EVENT_REP_ELECTION_FAILED, 0);
 		if((t_ret = send_membership(env)) != 0)
 			ret = t_ret;
 		break;

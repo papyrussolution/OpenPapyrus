@@ -223,6 +223,7 @@ void bio_sock_cleanup_int(void);
 //#include <internal/cryptlib.h>
 #include <internal/engine.h>
 #include <internal/thread_once.h>
+#include <internal/x509_int.h>
 
 #ifdef  __cplusplus
 extern "C" {

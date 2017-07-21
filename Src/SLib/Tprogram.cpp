@@ -805,7 +805,7 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 							HWND hwnd_tt = ::CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS,
 								NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP|TTS_BALLOON,
 								CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-								hWnd, NULL, TProgram::GetInst(), NULL);
+								hWnd, NULL, TProgram::GetInst(), 0);
 							SetWindowPos(hwnd_tt, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 							TabCtrl_SetToolTips(GetDlgItem(p_pgm->H_ShortcutsWnd, CTL_SHORTCUTS_ITEMS), hwnd_tt);
 						}
@@ -1401,9 +1401,9 @@ void TProgram::DrawTransparentBitmap(HDC hdc, HBITMAP hBitmap, const RECT & rDes
 	hdcSave   = CreateCompatibleDC(hdc);
 	// Создаём битмап для каждого DC.
 	// Монохромный DC
-	bmAndBack   = CreateBitmap(ptSize.x, ptSize.y, 1, 1, NULL);
+	bmAndBack   = CreateBitmap(ptSize.x, ptSize.y, 1, 1, 0);
 	// Монохромный DC
-	bmAndObject = CreateBitmap(ptSize.x, ptSize.y, 1, 1, NULL);
+	bmAndObject = CreateBitmap(ptSize.x, ptSize.y, 1, 1, 0);
 	bmAndMem    = CreateCompatibleBitmap(hdc, ptSize.x, ptSize.y);
 	bmSave      = CreateCompatibleBitmap(hdc, ptSize.x, ptSize.y);
 	// В каждом DC должен быть выбран объект битмапа для хранения пикселей.

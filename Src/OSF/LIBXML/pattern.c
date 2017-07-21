@@ -869,7 +869,7 @@ static void xmlCompileAttributeTest(xmlPatParserContextPtr ctxt)
 		xmlChar * prefix = name;
 		NEXT;
 		if(IS_BLANK_CH(CUR)) {
-			ERROR5(NULL, NULL, NULL, "Invalid QName.\n", NULL);
+			ERROR5(NULL, NULL, NULL, "Invalid QName.\n", 0);
 			XML_PAT_FREE_STRING(ctxt, prefix);
 			ctxt->error = 1;
 			goto error;
@@ -911,7 +911,7 @@ static void xmlCompileAttributeTest(xmlPatParserContextPtr ctxt)
 		}
 	}
 	else {
-		PUSH(XML_OP_ATTR, name, NULL);
+		PUSH(XML_OP_ATTR, name, 0);
 	}
 	return;
 error:
@@ -985,7 +985,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 			xmlChar * prefix = name;
 			int i;
 			if(hasBlanks || IS_BLANK_CH(CUR)) {
-				ERROR5(NULL, NULL, NULL, "Invalid QName.\n", NULL);
+				ERROR5(NULL, NULL, NULL, "Invalid QName.\n", 0);
 				ctxt->error = 1;
 				goto error;
 			}
@@ -1014,7 +1014,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 			if(token == NULL) {
 				if(CUR == '*') {
 					NEXT;
-					PUSH(XML_OP_NS, URL, NULL);
+					PUSH(XML_OP_NS, URL, 0);
 				}
 				else {
 					ERROR(0, 0, 0, "xmlCompileStepPattern : Name expected\n");
@@ -1048,7 +1048,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 					int i;
 					NEXT;
 					if(IS_BLANK_CH(CUR)) {
-						ERROR5(NULL, NULL, NULL, "Invalid QName.\n", NULL);
+						ERROR5(NULL, NULL, NULL, "Invalid QName.\n", 0);
 						ctxt->error = 1;
 						goto error;
 					}
@@ -1077,7 +1077,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 					if(token == NULL) {
 						if(CUR == '*') {
 							NEXT;
-							PUSH(XML_OP_NS, URL, NULL);
+							PUSH(XML_OP_NS, URL, 0);
 						}
 						else {
 							ERROR(0, 0, 0, "xmlCompileStepPattern : Name expected\n");
@@ -1090,7 +1090,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 					}
 				}
 				else
-					PUSH(XML_OP_CHILD, name, NULL);
+					PUSH(XML_OP_CHILD, name, 0);
 				return;
 			}
 			else if(sstreq(name, (const xmlChar*)"attribute")) {
@@ -1107,7 +1107,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 				return;
 			}
 			else {
-				ERROR5(NULL, NULL, NULL, "The 'element' or 'attribute' axis is expected.\n", NULL);
+				ERROR5(NULL, NULL, NULL, "The 'element' or 'attribute' axis is expected.\n", 0);
 				ctxt->error = 1;
 				goto error;
 			}
@@ -1119,10 +1119,10 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 			goto error;
 		}
 		NEXT;
-		PUSH(XML_OP_ALL, token, NULL);
+		PUSH(XML_OP_ALL, token, 0);
 	}
 	else {
-		PUSH(XML_OP_ELEM, name, NULL);
+		PUSH(XML_OP_ELEM, name, 0);
 	}
 	return;
 error:

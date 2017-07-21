@@ -237,7 +237,7 @@ static bool encrypt_des(const uchar * in, uchar * out,
 	key_item.data = (uchar*)key;
 	key_item.len = sizeof(key);
 	symkey = PK11_ImportSymKey(slot, mech, PK11_OriginUnwrap, CKA_ENCRYPT,
-	    &key_item, NULL);
+	    &key_item, 0);
 	if(!symkey)
 		goto fail;
 

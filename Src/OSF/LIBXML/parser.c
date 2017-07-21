@@ -183,7 +183,7 @@ static int xmlParserEntityCheck(xmlParserCtxtPtr ctxt, size_t size, xmlEntityPtr
 		    (ctxt->nbentities <= 10000))
 			return 0;
 	}
-	xmlFatalErr(ctxt, XML_ERR_ENTITY_LOOP, NULL);
+	xmlFatalErr(ctxt, XML_ERR_ENTITY_LOOP, 0);
 	return 1;
 }
 
@@ -935,7 +935,7 @@ int xmlHasFeature(xmlFeature feature)
 		ctxt->str_xmlns = xmlDictLookup(ctxt->dict, BAD_CAST "xmlns", 5);
 		ctxt->str_xml_ns = xmlDictLookup(ctxt->dict, XML_XML_NAMESPACE, 36);
 		if(!ctxt->str_xml || !ctxt->str_xmlns || !ctxt->str_xml_ns)
-			xmlErrMemory(ctxt, NULL);
+			xmlErrMemory(ctxt, 0);
 	}
 }
 
@@ -1028,7 +1028,7 @@ static const xmlChar * xmlAttrNormalizeSpace2(xmlParserCtxtPtr ctxt, xmlChar * s
 	if(need_realloc) {
 		xmlChar * ret = xmlStrndup(src + remove_head, i - remove_head + 1);
 		if(!ret) {
-			xmlErrMemory(ctxt, NULL);
+			xmlErrMemory(ctxt, 0);
 			return 0;
 		}
 		xmlAttrNormalizeSpace(ret, ret);
@@ -1137,7 +1137,7 @@ static void xmlAddDefAttrs(xmlParserCtxtPtr ctxt, const xmlChar * fullname, cons
 	defaults->nbAttrs++;
 	return;
 mem_error:
-	xmlErrMemory(ctxt, NULL);
+	xmlErrMemory(ctxt, 0);
 	return;
 }
 
@@ -1162,7 +1162,7 @@ static void xmlAddSpecialAttr(xmlParserCtxtPtr ctxt, const xmlChar * fullname, c
 	xmlHashAddEntry2(ctxt->attsSpecial, fullname, fullattr, (void*)(long)type);
 	return;
 mem_error:
-	xmlErrMemory(ctxt, NULL);
+	xmlErrMemory(ctxt, 0);
 	return;
 }
 
@@ -1176,7 +1176,7 @@ static void xmlCleanSpecialAttrCallback(void * payload, void * data,
 {
 	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)data;
 	if(((long)payload) == XML_ATTRIBUTE_CDATA) {
-		xmlHashRemoveEntry2(ctxt->attsSpecial, fullname, fullattr, NULL);
+		xmlHashRemoveEntry2(ctxt->attsSpecial, fullname, fullattr, 0);
 	}
 }
 
@@ -1193,7 +1193,7 @@ static void xmlCleanSpecialAttr(xmlParserCtxtPtr ctxt)
 	if(ctxt->attsSpecial) {
 		xmlHashScanFull(ctxt->attsSpecial, xmlCleanSpecialAttrCallback, ctxt);
 		if(xmlHashSize(ctxt->attsSpecial) == 0) {
-			xmlHashFree(ctxt->attsSpecial, NULL);
+			xmlHashFree(ctxt->attsSpecial, 0);
 			ctxt->attsSpecial = NULL;
 		}
 	}
@@ -1408,7 +1408,7 @@ static int nsPush(xmlParserCtxtPtr ctxt, const xmlChar * prefix, const xmlChar *
 		ctxt->nsNr = 0;
 		ctxt->nsTab = (const xmlChar**)SAlloc::M(ctxt->nsMax * sizeof(xmlChar *));
 		if(ctxt->nsTab == NULL) {
-			xmlErrMemory(ctxt, NULL);
+			xmlErrMemory(ctxt, 0);
 			ctxt->nsMax = 0;
 			return -1;
 		}
@@ -1418,7 +1418,7 @@ static int nsPush(xmlParserCtxtPtr ctxt, const xmlChar * prefix, const xmlChar *
 		ctxt->nsMax *= 2;
 		tmp = (const xmlChar**)SAlloc::R((char*)ctxt->nsTab, ctxt->nsMax * sizeof(ctxt->nsTab[0]));
 		if(tmp == NULL) {
-			xmlErrMemory(ctxt, NULL);
+			xmlErrMemory(ctxt, 0);
 			ctxt->nsMax /= 2;
 			return -1;
 		}
@@ -1488,7 +1488,7 @@ static int xmlCtxtGrowAttrs(xmlParserCtxtPtr ctxt, int nr)
 	}
 	return ctxt->maxatts;
 mem_error:
-	xmlErrMemory(ctxt, NULL);
+	xmlErrMemory(ctxt, 0);
 	return -1;
 }
 
@@ -1509,7 +1509,7 @@ int inputPush(xmlParserCtxtPtr ctxt, xmlParserInputPtr value)
 		ctxt->inputMax *= 2;
 		ctxt->inputTab = (xmlParserInputPtr*)SAlloc::R(ctxt->inputTab, ctxt->inputMax * sizeof(ctxt->inputTab[0]));
 		if(ctxt->inputTab == NULL) {
-			xmlErrMemory(ctxt, NULL);
+			xmlErrMemory(ctxt, 0);
 			xmlFreeInputStream(value);
 			ctxt->inputMax /= 2;
 			value = NULL;
@@ -1558,7 +1558,7 @@ int nodePush(xmlParserCtxtPtr ctxt, xmlNodePtr value)
 	if(ctxt->nodeNr >= ctxt->nodeMax) {
 		xmlNodePtr * tmp = (xmlNodePtr*)SAlloc::R(ctxt->nodeTab, ctxt->nodeMax * 2 * sizeof(ctxt->nodeTab[0]));
 		if(tmp == NULL) {
-			xmlErrMemory(ctxt, NULL);
+			xmlErrMemory(ctxt, 0);
 			return -1;
 		}
 		ctxt->nodeTab = tmp;
@@ -1638,7 +1638,7 @@ static int nameNsPush(xmlParserCtxtPtr ctxt, const xmlChar * value,
 	ctxt->pushTab[ctxt->nameNr * 3 + 2] = (void*)(long)nsNr;
 	return (ctxt->nameNr++);
 mem_error:
-	xmlErrMemory(ctxt, NULL);
+	xmlErrMemory(ctxt, 0);
 	return -1;
 }
 /**
@@ -1689,7 +1689,7 @@ int namePush(xmlParserCtxtPtr ctxt, const xmlChar * value)
 	ctxt->name = value;
 	return (ctxt->nameNr++);
 mem_error:
-	xmlErrMemory(ctxt, NULL);
+	xmlErrMemory(ctxt, 0);
 	return -1;
 }
 
@@ -1719,7 +1719,7 @@ static int FASTCALL spacePush(xmlParserCtxtPtr ctxt, int val)
 		ctxt->spaceMax *= 2;
 		int * tmp = (int*)SAlloc::R(ctxt->spaceTab, ctxt->spaceMax * sizeof(ctxt->spaceTab[0]));
 		if(tmp == NULL) {
-			xmlErrMemory(ctxt, NULL);
+			xmlErrMemory(ctxt, 0);
 			ctxt->spaceMax /= 2;
 			return -1;
 		}
@@ -2018,7 +2018,7 @@ int xmlParseCharRef(xmlParserCtxtPtr ctxt)
 			else if((RAW >= 'A') && (RAW <= 'F') && (count < 20))
 				val = val * 16 + (CUR - 'A') + 10;
 			else {
-				xmlFatalErr(ctxt, XML_ERR_INVALID_HEX_CHARREF, NULL);
+				xmlFatalErr(ctxt, XML_ERR_INVALID_HEX_CHARREF, 0);
 				val = 0;
 				break;
 			}
@@ -2048,7 +2048,7 @@ int xmlParseCharRef(xmlParserCtxtPtr ctxt)
 			if((RAW >= '0') && (RAW <= '9'))
 				val = val * 10 + (CUR - '0');
 			else {
-				xmlFatalErr(ctxt, XML_ERR_INVALID_DEC_CHARREF, NULL);
+				xmlFatalErr(ctxt, XML_ERR_INVALID_DEC_CHARREF, 0);
 				val = 0;
 				break;
 			}
@@ -2066,7 +2066,7 @@ int xmlParseCharRef(xmlParserCtxtPtr ctxt)
 		}
 	}
 	else {
-		xmlFatalErr(ctxt, XML_ERR_INVALID_CHARREF, NULL);
+		xmlFatalErr(ctxt, XML_ERR_INVALID_CHARREF, 0);
 	}
 
 	/*
@@ -2122,7 +2122,7 @@ static int xmlParseStringCharRef(xmlParserCtxtPtr ctxt, const xmlChar ** str)
 			else if((cur >= 'A') && (cur <= 'F'))
 				val = val * 16 + (cur - 'A') + 10;
 			else {
-				xmlFatalErr(ctxt, XML_ERR_INVALID_HEX_CHARREF, NULL);
+				xmlFatalErr(ctxt, XML_ERR_INVALID_HEX_CHARREF, 0);
 				val = 0;
 				break;
 			}
@@ -2142,7 +2142,7 @@ static int xmlParseStringCharRef(xmlParserCtxtPtr ctxt, const xmlChar ** str)
 			if((cur >= '0') && (cur <= '9'))
 				val = val * 10 + (cur - '0');
 			else {
-				xmlFatalErr(ctxt, XML_ERR_INVALID_DEC_CHARREF, NULL);
+				xmlFatalErr(ctxt, XML_ERR_INVALID_DEC_CHARREF, 0);
 				val = 0;
 				break;
 			}
@@ -2156,7 +2156,7 @@ static int xmlParseStringCharRef(xmlParserCtxtPtr ctxt, const xmlChar ** str)
 			ptr++;
 	}
 	else {
-		xmlFatalErr(ctxt, XML_ERR_INVALID_CHARREF, NULL);
+		xmlFatalErr(ctxt, XML_ERR_INVALID_CHARREF, 0);
 		return 0;
 	}
 	*str = ptr;
@@ -2209,7 +2209,7 @@ static xmlParserInputPtr xmlNewBlanksWrapperInputStream(xmlParserCtxtPtr ctxt, x
 	length = sstrlen(entity->name) + 5;
 	buffer = (xmlChar *)SAlloc::M(length);
 	if(!buffer) {
-		xmlErrMemory(ctxt, NULL);
+		xmlErrMemory(ctxt, 0);
 		SAlloc::F(input);
 		return 0;
 	}
@@ -2276,12 +2276,12 @@ void xmlParserHandlePEReference(xmlParserCtxtPtr ctxt)
 		case XML_PARSER_END_TAG:
 		    return;
 		case XML_PARSER_EOF:
-		    xmlFatalErr(ctxt, XML_ERR_PEREF_AT_EOF, NULL);
+		    xmlFatalErr(ctxt, XML_ERR_PEREF_AT_EOF, 0);
 		    return;
 		case XML_PARSER_PROLOG:
 		case XML_PARSER_START:
 		case XML_PARSER_MISC:
-		    xmlFatalErr(ctxt, XML_ERR_PEREF_IN_PROLOG, NULL);
+		    xmlFatalErr(ctxt, XML_ERR_PEREF_IN_PROLOG, 0);
 		    return;
 		case XML_PARSER_ENTITY_DECL:
 		case XML_PARSER_CONTENT:
@@ -2292,7 +2292,7 @@ void xmlParserHandlePEReference(xmlParserCtxtPtr ctxt)
 		    /* we just ignore it there */
 		    return;
 		case XML_PARSER_EPILOG:
-		    xmlFatalErr(ctxt, XML_ERR_PEREF_IN_EPILOG, NULL);
+		    xmlFatalErr(ctxt, XML_ERR_PEREF_IN_EPILOG, 0);
 		    return;
 		case XML_PARSER_ENTITY_VALUE:
 		    /*
@@ -2325,7 +2325,7 @@ void xmlParserHandlePEReference(xmlParserCtxtPtr ctxt)
 	if(xmlParserDebugEntities)
 		xmlGenericError(0, "PEReference: %s\n", name);
 	if(name == NULL) {
-		xmlFatalErr(ctxt, XML_ERR_PEREF_NO_NAME, NULL);
+		xmlFatalErr(ctxt, XML_ERR_PEREF_NO_NAME, 0);
 	}
 	else {
 		if(RAW == ';') {
@@ -2355,10 +2355,10 @@ void xmlParserHandlePEReference(xmlParserCtxtPtr ctxt)
 					 * any reference to it...
 					 */
 					if((ctxt->validate) && (ctxt->vctxt.error != NULL)) {
-						xmlValidityError(ctxt, XML_WAR_UNDECLARED_ENTITY, "PEReference: %%%s; not found\n", name, NULL);
+						xmlValidityError(ctxt, XML_WAR_UNDECLARED_ENTITY, "PEReference: %%%s; not found\n", name, 0);
 					}
 					else
-						xmlWarningMsg(ctxt, XML_WAR_UNDECLARED_ENTITY, "PEReference: %%%s; not found\n", name, NULL);
+						xmlWarningMsg(ctxt, XML_WAR_UNDECLARED_ENTITY, "PEReference: %%%s; not found\n", name, 0);
 					ctxt->valid = 0;
 				}
 				xmlParserEntityCheck(ctxt, 0, NULL, 0);
@@ -2429,7 +2429,7 @@ void xmlParserHandlePEReference(xmlParserCtxtPtr ctxt)
 			}
 		}
 		else {
-			xmlFatalErr(ctxt, XML_ERR_PEREF_SEMICOL_MISSING, NULL);
+			xmlFatalErr(ctxt, XML_ERR_PEREF_SEMICOL_MISSING, 0);
 		}
 	}
 }
@@ -2483,7 +2483,7 @@ xmlChar * xmlStringLenDecodeEntities(xmlParserCtxtPtr ctxt, const xmlChar * str,
 		return 0;
 	last = str + len;
 	if(((ctxt->depth > 40) && ((ctxt->options & XML_PARSE_HUGE) == 0)) || (ctxt->depth > 1024)) {
-		xmlFatalErr(ctxt, XML_ERR_ENTITY_LOOP, NULL);
+		xmlFatalErr(ctxt, XML_ERR_ENTITY_LOOP, 0);
 		return 0;
 	}
 	/*
@@ -2608,7 +2608,7 @@ xmlChar * xmlStringLenDecodeEntities(xmlParserCtxtPtr ctxt, const xmlChar * str,
 	buffer[nbchars] = 0;
 	return(buffer);
 mem_error:
-	xmlErrMemory(ctxt, NULL);
+	xmlErrMemory(ctxt, 0);
 int_error:
 	SAlloc::F(rep);
 	SAlloc::F(buffer);
@@ -2777,7 +2777,7 @@ xmlChar * xmlSplitQName(xmlParserCtxtPtr ctxt, const xmlChar * name, xmlChar ** 
 
 		buffer = (xmlChar*)SAlloc::M(max * sizeof(xmlChar));
 		if(!buffer) {
-			xmlErrMemory(ctxt, NULL);
+			xmlErrMemory(ctxt, 0);
 			return 0;
 		}
 		memcpy(buffer, buf, len);
@@ -2790,7 +2790,7 @@ xmlChar * xmlSplitQName(xmlParserCtxtPtr ctxt, const xmlChar * name, xmlChar ** 
 				    max * sizeof(xmlChar));
 				if(tmp == NULL) {
 					SAlloc::F(buffer);
-					xmlErrMemory(ctxt, NULL);
+					xmlErrMemory(ctxt, 0);
 					return 0;
 				}
 				buffer = tmp;
@@ -2846,7 +2846,7 @@ xmlChar * xmlSplitQName(xmlParserCtxtPtr ctxt, const xmlChar * name, xmlChar ** 
 
 			buffer = (xmlChar*)SAlloc::M(max * sizeof(xmlChar));
 			if(!buffer) {
-				xmlErrMemory(ctxt, NULL);
+				xmlErrMemory(ctxt, 0);
 				return 0;
 			}
 			memcpy(buffer, buf, len);
@@ -2858,7 +2858,7 @@ xmlChar * xmlSplitQName(xmlParserCtxtPtr ctxt, const xmlChar * name, xmlChar ** 
 					tmp = (xmlChar*)SAlloc::R(buffer,
 					    max * sizeof(xmlChar));
 					if(tmp == NULL) {
-						xmlErrMemory(ctxt, NULL);
+						xmlErrMemory(ctxt, 0);
 						SAlloc::F(buffer);
 						return 0;
 					}
@@ -3126,7 +3126,7 @@ const xmlChar * xmlParseName(xmlParserCtxtPtr ctxt)
 				ctxt->nbChars += count;
 				ctxt->input->col += count;
 				if(!ret)
-					xmlErrMemory(ctxt, NULL);
+					xmlErrMemory(ctxt, 0);
 			}
 			return ret;
 		}
@@ -3231,7 +3231,7 @@ static const xmlChar * FASTCALL xmlParseNCName(xmlParserCtxtPtr ctxt)
 				ctxt->nbChars += count;
 				ctxt->input->col += count;
 				if(!ret)
-					xmlErrMemory(ctxt, NULL);
+					xmlErrMemory(ctxt, 0);
 			}
 			return ret;
 		}
@@ -3323,7 +3323,7 @@ static xmlChar * xmlParseStringName(xmlParserCtxtPtr ctxt, const xmlChar** str)
 			int max = len * 2;
 			xmlChar * buffer = (xmlChar*)SAlloc::M(max * sizeof(xmlChar));
 			if(!buffer) {
-				xmlErrMemory(ctxt, NULL);
+				xmlErrMemory(ctxt, 0);
 				return 0;
 			}
 			memcpy(buffer, buf, len);
@@ -3338,7 +3338,7 @@ static xmlChar * xmlParseStringName(xmlParserCtxtPtr ctxt, const xmlChar** str)
 					max *= 2;
 					tmp = (xmlChar*)SAlloc::R(buffer, max * sizeof(xmlChar));
 					if(tmp == NULL) {
-						xmlErrMemory(ctxt, NULL);
+						xmlErrMemory(ctxt, 0);
 						SAlloc::F(buffer);
 						return 0;
 					}
@@ -3412,7 +3412,7 @@ xmlChar * xmlParseNmtoken(xmlParserCtxtPtr ctxt)
 			int max = len * 2;
 			xmlChar * buffer = (xmlChar*)SAlloc::M(max * sizeof(xmlChar));
 			if(!buffer) {
-				xmlErrMemory(ctxt, NULL);
+				xmlErrMemory(ctxt, 0);
 				return 0;
 			}
 			memcpy(buffer, buf, len);
@@ -3435,7 +3435,7 @@ xmlChar * xmlParseNmtoken(xmlParserCtxtPtr ctxt)
 					max *= 2;
 					tmp = (xmlChar*)SAlloc::R(buffer, max * sizeof(xmlChar));
 					if(tmp == NULL) {
-						xmlErrMemory(ctxt, NULL);
+						xmlErrMemory(ctxt, 0);
 						SAlloc::F(buffer);
 						return 0;
 					}
@@ -3485,12 +3485,12 @@ xmlChar * xmlParseEntityValue(xmlParserCtxtPtr ctxt, xmlChar ** orig)
 	else if(RAW == '\'')
 		stop = '\'';
 	else {
-		xmlFatalErr(ctxt, XML_ERR_ENTITY_NOT_STARTED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_ENTITY_NOT_STARTED, 0);
 		return 0;
 	}
 	buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
 	if(buf == NULL) {
-		xmlErrMemory(ctxt, NULL);
+		xmlErrMemory(ctxt, 0);
 		return 0;
 	}
 	/*
@@ -3519,7 +3519,7 @@ xmlChar * xmlParseEntityValue(xmlParserCtxtPtr ctxt, xmlChar ** orig)
 			size *= 2;
 			xmlChar * tmp = (xmlChar*)SAlloc::R(buf, size * sizeof(xmlChar));
 			if(tmp == NULL) {
-				xmlErrMemory(ctxt, NULL);
+				xmlErrMemory(ctxt, 0);
 				SAlloc::F(buf);
 				return 0;
 			}
@@ -3559,7 +3559,7 @@ xmlChar * xmlParseEntityValue(xmlParserCtxtPtr ctxt, xmlChar ** orig)
 				xmlFatalErrMsgInt(ctxt, XML_ERR_ENTITY_CHAR_ERROR, "EntityValue: '%c' forbidden except for entities references\n", tmp);
 			}
 			if((tmp == '%') && (ctxt->inSubset == 1) && (ctxt->inputNr == 1)) {
-				xmlFatalErr(ctxt, XML_ERR_ENTITY_PE_INTERNAL, NULL);
+				xmlFatalErr(ctxt, XML_ERR_ENTITY_PE_INTERNAL, 0);
 			}
 			SAlloc::F(name);
 			if(*cur == 0)
@@ -3571,7 +3571,7 @@ xmlChar * xmlParseEntityValue(xmlParserCtxtPtr ctxt, xmlChar ** orig)
 	 * Then PEReference entities are substituted.
 	 */
 	if(c != stop) {
-		xmlFatalErr(ctxt, XML_ERR_ENTITY_NOT_FINISHED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_ENTITY_NOT_FINISHED, 0);
 		SAlloc::F(buf);
 	}
 	else {
@@ -3623,7 +3623,7 @@ static xmlChar * xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int * attlen, in
 		NEXT;
 	}
 	else {
-		xmlFatalErr(ctxt, XML_ERR_ATTRIBUTE_NOT_STARTED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_ATTRIBUTE_NOT_STARTED, 0);
 		return 0;
 	}
 	/*
@@ -3790,7 +3790,7 @@ static xmlChar * xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int * attlen, in
 	}
 	buf[len] = 0;
 	if(RAW == '<') {
-		xmlFatalErr(ctxt, XML_ERR_LT_IN_ATTRIBUTE, NULL);
+		xmlFatalErr(ctxt, XML_ERR_LT_IN_ATTRIBUTE, 0);
 	}
 	else if(RAW != limit) {
 		if((c != 0) && (!IS_CHAR(c))) {
@@ -3813,7 +3813,7 @@ static xmlChar * xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int * attlen, in
 	ASSIGN_PTR(attlen, (int)len);
 	return buf;
 mem_error:
-	xmlErrMemory(ctxt, NULL);
+	xmlErrMemory(ctxt, 0);
 error:
 	SAlloc::F(buf);
 	SAlloc::F(rep);
@@ -3888,13 +3888,13 @@ xmlChar * xmlParseSystemLiteral(xmlParserCtxtPtr ctxt)
 		stop = '\'';
 	}
 	else {
-		xmlFatalErr(ctxt, XML_ERR_LITERAL_NOT_STARTED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_LITERAL_NOT_STARTED, 0);
 		return 0;
 	}
 
 	buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
 	if(buf == NULL) {
-		xmlErrMemory(ctxt, NULL);
+		xmlErrMemory(ctxt, 0);
 		return 0;
 	}
 	ctxt->instate = XML_PARSER_SYSTEM_LITERAL;
@@ -3914,7 +3914,7 @@ xmlChar * xmlParseSystemLiteral(xmlParserCtxtPtr ctxt)
 			tmp = (xmlChar*)SAlloc::R(buf, size * sizeof(xmlChar));
 			if(tmp == NULL) {
 				SAlloc::F(buf);
-				xmlErrMemory(ctxt, NULL);
+				xmlErrMemory(ctxt, 0);
 				ctxt->instate = (xmlParserInputState)state;
 				return 0;
 			}
@@ -3941,7 +3941,7 @@ xmlChar * xmlParseSystemLiteral(xmlParserCtxtPtr ctxt)
 	buf[len] = 0;
 	ctxt->instate = (xmlParserInputState)state;
 	if(!IS_CHAR(cur)) {
-		xmlFatalErr(ctxt, XML_ERR_LITERAL_NOT_FINISHED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_LITERAL_NOT_FINISHED, 0);
 	}
 	else {
 		NEXT;
@@ -3979,12 +3979,12 @@ xmlChar * xmlParsePubidLiteral(xmlParserCtxtPtr ctxt) {
 		stop = '\'';
 	}
 	else {
-		xmlFatalErr(ctxt, XML_ERR_LITERAL_NOT_STARTED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_LITERAL_NOT_STARTED, 0);
 		return 0;
 	}
 	buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
 	if(buf == NULL) {
-		xmlErrMemory(ctxt, NULL);
+		xmlErrMemory(ctxt, 0);
 		return 0;
 	}
 	ctxt->instate = XML_PARSER_PUBLIC_LITERAL;
@@ -4002,7 +4002,7 @@ xmlChar * xmlParsePubidLiteral(xmlParserCtxtPtr ctxt) {
 			size *= 2;
 			tmp = (xmlChar*)SAlloc::R(buf, size * sizeof(xmlChar));
 			if(tmp == NULL) {
-				xmlErrMemory(ctxt, NULL);
+				xmlErrMemory(ctxt, 0);
 				SAlloc::F(buf);
 				return 0;
 			}
@@ -4028,7 +4028,7 @@ xmlChar * xmlParsePubidLiteral(xmlParserCtxtPtr ctxt) {
 	}
 	buf[len] = 0;
 	if(cur != stop) {
-		xmlFatalErr(ctxt, XML_ERR_LITERAL_NOT_FINISHED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_LITERAL_NOT_FINISHED, 0);
 	}
 	else {
 		NEXT;
@@ -4163,7 +4163,7 @@ get_more:
 			}
 			if(*in == ']') {
 				if((in[1] == ']') && (in[2] == '>')) {
-					xmlFatalErr(ctxt, XML_ERR_MISPLACED_CDATA_END, NULL);
+					xmlFatalErr(ctxt, XML_ERR_MISPLACED_CDATA_END, 0);
 					ctxt->input->cur = in;
 					return;
 				}
@@ -4253,7 +4253,7 @@ static void xmlParseCharDataComplex(xmlParserCtxtPtr ctxt, int cdata)
 			if(cdata)
 				break;
 			else {
-				xmlFatalErr(ctxt, XML_ERR_MISPLACED_CDATA_END, NULL);
+				xmlFatalErr(ctxt, XML_ERR_MISPLACED_CDATA_END, 0);
 			}
 		}
 		COPY_BUF(l, buf, nbchar, cur);
@@ -4351,7 +4351,7 @@ xmlChar * xmlParseExternalID(xmlParserCtxtPtr ctxt, xmlChar ** publicID, int str
 		SKIP_BLANKS;
 		URI = xmlParseSystemLiteral(ctxt);
 		if(URI == NULL) {
-			xmlFatalErr(ctxt, XML_ERR_URI_REQUIRED, NULL);
+			xmlFatalErr(ctxt, XML_ERR_URI_REQUIRED, 0);
 		}
 	}
 	else if(CMP6(ptr, 'P', 'U', 'B', 'L', 'I', 'C')) {
@@ -4362,7 +4362,7 @@ xmlChar * xmlParseExternalID(xmlParserCtxtPtr ctxt, xmlChar ** publicID, int str
 		SKIP_BLANKS;
 		*publicID = xmlParsePubidLiteral(ctxt);
 		if(*publicID == NULL)
-			xmlFatalErr(ctxt, XML_ERR_PUBID_REQUIRED, NULL);
+			xmlFatalErr(ctxt, XML_ERR_PUBID_REQUIRED, 0);
 		if(strict) {
 			//
 			// We don't handle [83] so "S SystemLiteral" is required.
@@ -4386,7 +4386,7 @@ xmlChar * xmlParseExternalID(xmlParserCtxtPtr ctxt, xmlChar ** publicID, int str
 		SKIP_BLANKS;
 		URI = xmlParseSystemLiteral(ctxt);
 		if(URI == NULL)
-			xmlFatalErr(ctxt, XML_ERR_URI_REQUIRED, NULL);
+			xmlFatalErr(ctxt, XML_ERR_URI_REQUIRED, 0);
 	}
 	return(URI);
 }
@@ -4417,7 +4417,7 @@ static void xmlParseCommentComplex(xmlParserCtxtPtr ctxt, xmlChar * buf, size_t 
 		size = XML_PARSER_BUFFER_SIZE;
 		buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
 		if(buf == NULL) {
-			xmlErrMemory(ctxt, NULL);
+			xmlErrMemory(ctxt, 0);
 			return;
 		}
 	}
@@ -4445,10 +4445,10 @@ static void xmlParseCommentComplex(xmlParserCtxtPtr ctxt, xmlChar * buf, size_t 
 		goto not_terminated;
 	while(IS_CHAR(cur) && /* checked */ ((cur != '>') || (r != '-') || (q != '-'))) {
 		if((r == '-') && (q == '-')) {
-			xmlFatalErr(ctxt, XML_ERR_HYPHEN_IN_COMMENT, NULL);
+			xmlFatalErr(ctxt, XML_ERR_HYPHEN_IN_COMMENT, 0);
 		}
 		if((len > XML_MAX_TEXT_LENGTH) && ((ctxt->options & XML_PARSE_HUGE) == 0)) {
-			xmlFatalErrMsgStr(ctxt, XML_ERR_COMMENT_NOT_FINISHED, "Comment too big found", NULL);
+			xmlFatalErrMsgStr(ctxt, XML_ERR_COMMENT_NOT_FINISHED, "Comment too big found", 0);
 			SAlloc::F(buf);
 			return;
 		}
@@ -4457,7 +4457,7 @@ static void xmlParseCommentComplex(xmlParserCtxtPtr ctxt, xmlChar * buf, size_t 
 			xmlChar * new_buf = (xmlChar*)SAlloc::R(buf, new_size);
 			if(new_buf == NULL) {
 				SAlloc::F(buf);
-				xmlErrMemory(ctxt, NULL);
+				xmlErrMemory(ctxt, 0);
 				return;
 			}
 			buf = new_buf;
@@ -4503,7 +4503,7 @@ static void xmlParseCommentComplex(xmlParserCtxtPtr ctxt, xmlChar * buf, size_t 
 	SAlloc::F(buf);
 	return;
 not_terminated:
-	xmlFatalErrMsgStr(ctxt, XML_ERR_COMMENT_NOT_FINISHED, "Comment not terminated\n", NULL);
+	xmlFatalErrMsgStr(ctxt, XML_ERR_COMMENT_NOT_FINISHED, "Comment not terminated\n", 0);
 	SAlloc::F(buf);
 	return;
 }
@@ -4580,7 +4580,7 @@ get_more:
 						size = XML_PARSER_BUFFER_SIZE + nbchar;
 					buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
 					if(buf == NULL) {
-						xmlErrMemory(ctxt, NULL);
+						xmlErrMemory(ctxt, 0);
 						ctxt->instate = state;
 						return;
 					}
@@ -4593,7 +4593,7 @@ get_more:
 					    size * sizeof(xmlChar));
 					if(new_buf == NULL) {
 						SAlloc::F(buf);
-						xmlErrMemory(ctxt, NULL);
+						xmlErrMemory(ctxt, 0);
 						ctxt->instate = state;
 						return;
 					}
@@ -4605,7 +4605,7 @@ get_more:
 			}
 		}
 		if((len > XML_MAX_TEXT_LENGTH) && ((ctxt->options & XML_PARSE_HUGE) == 0)) {
-			xmlFatalErrMsgStr(ctxt, XML_ERR_COMMENT_NOT_FINISHED, "Comment too big found", NULL);
+			xmlFatalErrMsgStr(ctxt, XML_ERR_COMMENT_NOT_FINISHED, "Comment too big found", 0);
 			SAlloc::F(buf);
 			return;
 		}
@@ -4653,7 +4653,7 @@ get_more:
 					xmlFatalErrMsgStr(ctxt, XML_ERR_HYPHEN_IN_COMMENT, "Double hyphen within comment: <!--%.50s\n", buf);
 				}
 				else
-					xmlFatalErrMsgStr(ctxt, XML_ERR_HYPHEN_IN_COMMENT, "Double hyphen within comment\n", NULL);
+					xmlFatalErrMsgStr(ctxt, XML_ERR_HYPHEN_IN_COMMENT, "Double hyphen within comment\n", 0);
 				in++;
 				ctxt->input->col++;
 			}
@@ -4687,7 +4687,7 @@ const xmlChar * xmlParsePITarget(xmlParserCtxtPtr ctxt)
 			return name;
 		}
 		else if(name[3] == 0) {
-			xmlFatalErr(ctxt, XML_ERR_RESERVED_XML_NAME, NULL);
+			xmlFatalErr(ctxt, XML_ERR_RESERVED_XML_NAME, 0);
 			return name;
 		}
 		for(i = 0;; i++) {
@@ -4757,7 +4757,7 @@ static void xmlParseCatalogPI(xmlParserCtxtPtr ctxt, const xmlChar * catalog)
 	}
 	return;
 error:
-	xmlWarningMsg(ctxt, XML_WAR_CATALOG_PI, "Catalog PI syntax error: %s\n", catalog, NULL);
+	xmlWarningMsg(ctxt, XML_WAR_CATALOG_PI, "Catalog PI syntax error: %s\n", catalog, 0);
 	SAlloc::F(URL);
 }
 
@@ -4808,14 +4808,14 @@ void xmlParsePI(xmlParserCtxtPtr ctxt)
 				 * SAX: PI detected.
 				 */
 				if((ctxt->sax) && (!ctxt->disableSAX) && (ctxt->sax->processingInstruction != NULL))
-					ctxt->sax->processingInstruction(ctxt->userData, target, NULL);
+					ctxt->sax->processingInstruction(ctxt->userData, target, 0);
 				if(ctxt->instate != XML_PARSER_EOF)
 					ctxt->instate = state;
 				return;
 			}
 			buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
 			if(buf == NULL) {
-				xmlErrMemory(ctxt, NULL);
+				xmlErrMemory(ctxt, 0);
 				ctxt->instate = state;
 				return;
 			}
@@ -4832,7 +4832,7 @@ void xmlParsePI(xmlParserCtxtPtr ctxt)
 					size_t new_size = size * 2;
 					tmp = (xmlChar*)SAlloc::R(buf, new_size);
 					if(tmp == NULL) {
-						xmlErrMemory(ctxt, NULL);
+						xmlErrMemory(ctxt, 0);
 						SAlloc::F(buf);
 						ctxt->instate = state;
 						return;
@@ -4896,7 +4896,7 @@ void xmlParsePI(xmlParserCtxtPtr ctxt)
 			SAlloc::F(buf);
 		}
 		else {
-			xmlFatalErr(ctxt, XML_ERR_PI_NOT_STARTED, NULL);
+			xmlFatalErr(ctxt, XML_ERR_PI_NOT_STARTED, 0);
 		}
 		if(ctxt->instate != XML_PARSER_EOF)
 			ctxt->instate = state;
@@ -4935,7 +4935,7 @@ void xmlParseNotationDecl(xmlParserCtxtPtr ctxt)
 			SKIP_BLANKS;
 			name = xmlParseName(ctxt);
 			if(name == NULL) {
-				xmlFatalErr(ctxt, XML_ERR_NOTATION_NOT_STARTED, NULL);
+				xmlFatalErr(ctxt, XML_ERR_NOTATION_NOT_STARTED, 0);
 			}
 			else if(!IS_BLANK_CH(CUR)) {
 				xmlFatalErrMsg(ctxt, XML_ERR_SPACE_REQUIRED, "Space required after the NOTATION name'\n");
@@ -4959,7 +4959,7 @@ void xmlParseNotationDecl(xmlParserCtxtPtr ctxt)
 						ctxt->sax->notationDecl(ctxt->userData, name, Pubid, Systemid);
 				}
 				else {
-					xmlFatalErr(ctxt, XML_ERR_NOTATION_NOT_FINISHED, NULL);
+					xmlFatalErr(ctxt, XML_ERR_NOTATION_NOT_FINISHED, 0);
 				}
 				SAlloc::F(Systemid);
 				SAlloc::F(Pubid);
@@ -5043,7 +5043,7 @@ void xmlParseEntityDecl(xmlParserCtxtPtr ctxt)
 			else {
 				URI = xmlParseExternalID(ctxt, &literal, 1);
 				if((URI == NULL) && (literal == NULL)) {
-					xmlFatalErr(ctxt, XML_ERR_VALUE_REQUIRED, NULL);
+					xmlFatalErr(ctxt, XML_ERR_VALUE_REQUIRED, 0);
 				}
 				if(URI) {
 					xmlURIPtr uri = xmlParseURI((const char*)URI);
@@ -5057,11 +5057,11 @@ void xmlParseEntityDecl(xmlParserCtxtPtr ctxt)
 					}
 					else {
 						if(uri->fragment) { // Okay this is foolish to block those but not invalid URIs.
-							xmlFatalErr(ctxt, XML_ERR_URI_FRAGMENT, NULL);
+							xmlFatalErr(ctxt, XML_ERR_URI_FRAGMENT, 0);
 						}
 						else {
 							if(ctxt->sax && (!ctxt->disableSAX) && ctxt->sax->entityDecl)
-								ctxt->sax->entityDecl(ctxt->userData, name, XML_EXTERNAL_PARAMETER_ENTITY, literal, URI, NULL);
+								ctxt->sax->entityDecl(ctxt->userData, name, XML_EXTERNAL_PARAMETER_ENTITY, literal, URI, 0);
 						}
 						xmlFreeURI(uri);
 					}
@@ -5092,7 +5092,7 @@ void xmlParseEntityDecl(xmlParserCtxtPtr ctxt)
 			else {
 				URI = xmlParseExternalID(ctxt, &literal, 1);
 				if((URI == NULL) && (literal == NULL)) {
-					xmlFatalErr(ctxt, XML_ERR_VALUE_REQUIRED, NULL);
+					xmlFatalErr(ctxt, XML_ERR_VALUE_REQUIRED, 0);
 				}
 				if(URI) {
 					xmlURIPtr uri = xmlParseURI((const char*)URI);
@@ -5106,7 +5106,7 @@ void xmlParseEntityDecl(xmlParserCtxtPtr ctxt)
 					}
 					else {
 						if(uri->fragment) { // Okay this is foolish to block those but not invalid URIs.
-							xmlFatalErr(ctxt, XML_ERR_URI_FRAGMENT, NULL);
+							xmlFatalErr(ctxt, XML_ERR_URI_FRAGMENT, 0);
 						}
 						xmlFreeURI(uri);
 					}
@@ -5127,7 +5127,7 @@ void xmlParseEntityDecl(xmlParserCtxtPtr ctxt)
 				}
 				else {
 					if(ctxt->sax && !ctxt->disableSAX && ctxt->sax->entityDecl)
-						ctxt->sax->entityDecl(ctxt->userData, name, XML_EXTERNAL_GENERAL_PARSED_ENTITY, literal, URI, NULL);
+						ctxt->sax->entityDecl(ctxt->userData, name, XML_EXTERNAL_GENERAL_PARSED_ENTITY, literal, URI, 0);
 					/*
 					 * For expat compatibility in SAX mode.
 					 * assuming the entity repalcement was asked for
@@ -5142,7 +5142,7 @@ void xmlParseEntityDecl(xmlParserCtxtPtr ctxt)
 							ctxt->myDoc->properties = XML_DOC_INTERNAL;
 						}
 						SETIFZ(ctxt->myDoc->intSubset, xmlNewDtd(ctxt->myDoc, BAD_CAST "fake", NULL, NULL));
-						xmlSAX2EntityDecl(ctxt, name, XML_EXTERNAL_GENERAL_PARSED_ENTITY, literal, URI, NULL);
+						xmlSAX2EntityDecl(ctxt, name, XML_EXTERNAL_GENERAL_PARSED_ENTITY, literal, URI, 0);
 					}
 				}
 			}
@@ -5273,7 +5273,7 @@ xmlEnumerationPtr xmlParseNotationType(xmlParserCtxtPtr ctxt)
 	const xmlChar * name;
 	xmlEnumerationPtr ret = NULL, last = NULL, cur, tmp;
 	if(RAW != '(') {
-		xmlFatalErr(ctxt, XML_ERR_NOTATION_NOT_STARTED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_NOTATION_NOT_STARTED, 0);
 		return 0;
 	}
 	SHRINK;
@@ -5288,7 +5288,7 @@ xmlEnumerationPtr xmlParseNotationType(xmlParserCtxtPtr ctxt)
 		}
 		for(tmp = ret; tmp; tmp = tmp->next) {
 			if(sstreq(name, tmp->name)) {
-				xmlValidityError(ctxt, XML_DTD_DUP_TOKEN, "standalone: attribute notation value token %s duplicated\n", name, NULL);
+				xmlValidityError(ctxt, XML_DTD_DUP_TOKEN, "standalone: attribute notation value token %s duplicated\n", name, 0);
 				if(!xmlDictOwns(ctxt->dict, name))
 					SAlloc::F((xmlChar*)name);
 				break;
@@ -5310,7 +5310,7 @@ xmlEnumerationPtr xmlParseNotationType(xmlParserCtxtPtr ctxt)
 		SKIP_BLANKS;
 	} while(RAW == '|');
 	if(RAW != ')') {
-		xmlFatalErr(ctxt, XML_ERR_NOTATION_NOT_FINISHED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_NOTATION_NOT_FINISHED, 0);
 		xmlFreeEnumeration(ret);
 		return 0;
 	}
@@ -5338,7 +5338,7 @@ xmlEnumerationPtr xmlParseEnumerationType(xmlParserCtxtPtr ctxt)
 	xmlChar * name;
 	xmlEnumerationPtr ret = NULL, last = NULL, cur, tmp;
 	if(RAW != '(') {
-		xmlFatalErr(ctxt, XML_ERR_ATTLIST_NOT_STARTED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_ATTLIST_NOT_STARTED, 0);
 		return 0;
 	}
 	SHRINK;
@@ -5347,14 +5347,14 @@ xmlEnumerationPtr xmlParseEnumerationType(xmlParserCtxtPtr ctxt)
 		SKIP_BLANKS;
 		name = xmlParseNmtoken(ctxt);
 		if(name == NULL) {
-			xmlFatalErr(ctxt, XML_ERR_NMTOKEN_REQUIRED, NULL);
+			xmlFatalErr(ctxt, XML_ERR_NMTOKEN_REQUIRED, 0);
 			return ret;
 		}
 		else {
 			tmp = ret;
 			while(tmp) {
 				if(sstreq(name, tmp->name)) {
-					xmlValidityError(ctxt, XML_DTD_DUP_TOKEN, "standalone: attribute enumeration value token %s duplicated\n", name, NULL);
+					xmlValidityError(ctxt, XML_DTD_DUP_TOKEN, "standalone: attribute enumeration value token %s duplicated\n", name, 0);
 					if(!xmlDictOwns(ctxt->dict, name))
 						SAlloc::F(name);
 					break;
@@ -5380,7 +5380,7 @@ xmlEnumerationPtr xmlParseEnumerationType(xmlParserCtxtPtr ctxt)
 		}
 	} while(RAW == '|');
 	if(RAW != ')') {
-		xmlFatalErr(ctxt, XML_ERR_ATTLIST_NOT_FINISHED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_ATTLIST_NOT_FINISHED, 0);
 	}
 	else {
 		NEXT;
@@ -5708,12 +5708,12 @@ xmlElementContentPtr xmlParseElementMixedContentDecl(xmlParserCtxtPtr ctxt, int 
 		}
 		else {
 			xmlFreeDocElementContent(ctxt->myDoc, ret);
-			xmlFatalErr(ctxt, XML_ERR_MIXED_NOT_STARTED, NULL);
+			xmlFatalErr(ctxt, XML_ERR_MIXED_NOT_STARTED, 0);
 			return 0;
 		}
 	}
 	else {
-		xmlFatalErr(ctxt, XML_ERR_PCDATA_REQUIRED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_PCDATA_REQUIRED, 0);
 	}
 	return ret;
 }
@@ -5774,12 +5774,12 @@ static xmlElementContentPtr xmlParseElementChildrenContentDeclPriv(xmlParserCtxt
 	else {
 		elem = xmlParseName(ctxt);
 		if(elem == NULL) {
-			xmlFatalErr(ctxt, XML_ERR_ELEMCONTENT_NOT_STARTED, NULL);
+			xmlFatalErr(ctxt, XML_ERR_ELEMCONTENT_NOT_STARTED, 0);
 			return 0;
 		}
 		cur = ret = xmlNewDocElementContent(ctxt->myDoc, elem, XML_ELEMENT_CONTENT_ELEMENT);
 		if(!cur) {
-			xmlErrMemory(ctxt, NULL);
+			xmlErrMemory(ctxt, 0);
 			return 0;
 		}
 		GROW;
@@ -5886,7 +5886,7 @@ static xmlElementContentPtr xmlParseElementChildrenContentDeclPriv(xmlParserCtxt
 			}
 		}
 		else {
-			xmlFatalErr(ctxt, XML_ERR_ELEMCONTENT_NOT_FINISHED, NULL);
+			xmlFatalErr(ctxt, XML_ERR_ELEMCONTENT_NOT_FINISHED, 0);
 			if((last != NULL) && (last != ret))
 				xmlFreeDocElementContent(ctxt->myDoc, last);
 			if(ret)
@@ -5907,7 +5907,7 @@ static xmlElementContentPtr xmlParseElementChildrenContentDeclPriv(xmlParserCtxt
 		else {
 			elem = xmlParseName(ctxt);
 			if(elem == NULL) {
-				xmlFatalErr(ctxt, XML_ERR_ELEMCONTENT_NOT_STARTED, NULL);
+				xmlFatalErr(ctxt, XML_ERR_ELEMCONTENT_NOT_STARTED, 0);
 				if(ret)
 					xmlFreeDocElementContent(ctxt->myDoc, ret);
 				return 0;
@@ -6154,7 +6154,7 @@ int xmlParseElementDecl(xmlParserCtxtPtr ctxt)
 			xmlPopInput(ctxt);
 		SKIP_BLANKS;
 		if(RAW != '>') {
-			xmlFatalErr(ctxt, XML_ERR_GT_REQUIRED, NULL);
+			xmlFatalErr(ctxt, XML_ERR_GT_REQUIRED, 0);
 			if(content != NULL) {
 				xmlFreeDocElementContent(ctxt->myDoc, content);
 			}
@@ -6207,7 +6207,7 @@ static void xmlParseConditionalSections(xmlParserCtxtPtr ctxt)
 		SKIP(7);
 		SKIP_BLANKS;
 		if(RAW != '[') {
-			xmlFatalErr(ctxt, XML_ERR_CONDSEC_INVALID, NULL);
+			xmlFatalErr(ctxt, XML_ERR_CONDSEC_INVALID, 0);
 		}
 		else {
 			if(ctxt->input->id != id) {
@@ -6216,7 +6216,7 @@ static void xmlParseConditionalSections(xmlParserCtxtPtr ctxt)
 			NEXT;
 		}
 		if(xmlParserDebugEntities) {
-			if((ctxt->input != NULL) && (ctxt->input->filename))
+			if(ctxt->input && (ctxt->input->filename))
 				xmlGenericError(0, "%s(%d): ", ctxt->input->filename, ctxt->input->line);
 			xmlGenericError(0, "Entering INCLUDE Conditional Section\n");
 		}
@@ -6234,19 +6234,18 @@ static void xmlParseConditionalSections(xmlParserCtxtPtr ctxt)
 			}
 			else
 				xmlParseMarkupDecl(ctxt);
-
 			/*
 			 * Pop-up of finished entities.
 			 */
 			while((RAW == 0) && (ctxt->inputNr > 1))
 				xmlPopInput(ctxt);
 			if((CUR_PTR == check) && (cons == ctxt->input->consumed)) {
-				xmlFatalErr(ctxt, XML_ERR_EXT_SUBSET_NOT_FINISHED, NULL);
+				xmlFatalErr(ctxt, XML_ERR_EXT_SUBSET_NOT_FINISHED, 0);
 				break;
 			}
 		}
 		if(xmlParserDebugEntities) {
-			if((ctxt->input != NULL) && (ctxt->input->filename))
+			if(ctxt->input && (ctxt->input->filename))
 				xmlGenericError(0, "%s(%d): ", ctxt->input->filename, ctxt->input->line);
 			xmlGenericError(0, "Leaving INCLUDE Conditional Section\n");
 		}
@@ -6258,7 +6257,7 @@ static void xmlParseConditionalSections(xmlParserCtxtPtr ctxt)
 		SKIP(6);
 		SKIP_BLANKS;
 		if(RAW != '[') {
-			xmlFatalErr(ctxt, XML_ERR_CONDSEC_INVALID, NULL);
+			xmlFatalErr(ctxt, XML_ERR_CONDSEC_INVALID, 0);
 		}
 		else {
 			if(ctxt->input->id != id) {
@@ -6267,7 +6266,7 @@ static void xmlParseConditionalSections(xmlParserCtxtPtr ctxt)
 			NEXT;
 		}
 		if(xmlParserDebugEntities) {
-			if((ctxt->input != NULL) && (ctxt->input->filename))
+			if(ctxt->input && (ctxt->input->filename))
 				xmlGenericError(0, "%s(%d): ", ctxt->input->filename, ctxt->input->line);
 			xmlGenericError(0, "Entering IGNORE Conditional Section\n");
 		}
@@ -6295,18 +6294,18 @@ static void xmlParseConditionalSections(xmlParserCtxtPtr ctxt)
 		ctxt->disableSAX = state;
 		ctxt->instate = instate;
 		if(xmlParserDebugEntities) {
-			if((ctxt->input != NULL) && (ctxt->input->filename))
+			if(ctxt->input && (ctxt->input->filename))
 				xmlGenericError(0, "%s(%d): ", ctxt->input->filename, ctxt->input->line);
 			xmlGenericError(0, "Leaving IGNORE Conditional Section\n");
 		}
 	}
 	else {
-		xmlFatalErr(ctxt, XML_ERR_CONDSEC_INVALID_KEYWORD, NULL);
+		xmlFatalErr(ctxt, XML_ERR_CONDSEC_INVALID_KEYWORD, 0);
 	}
 	if(RAW == 0)
 		SHRINK;
 	if(RAW == 0) {
-		xmlFatalErr(ctxt, XML_ERR_CONDSEC_NOT_FINISHED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_CONDSEC_NOT_FINISHED, 0);
 	}
 	else {
 		if(ctxt->input->id != id) {
@@ -6404,7 +6403,7 @@ void xmlParseTextDecl(xmlParserCtxtPtr ctxt)
 		SKIP(5);
 	}
 	else {
-		xmlFatalErr(ctxt, XML_ERR_XMLDECL_NOT_STARTED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_XMLDECL_NOT_STARTED, 0);
 		return;
 	}
 	if(!IS_BLANK_CH(CUR)) {
@@ -6442,11 +6441,11 @@ void xmlParseTextDecl(xmlParserCtxtPtr ctxt)
 	}
 	else if(RAW == '>') {
 		/* Deprecated old WD ... */
-		xmlFatalErr(ctxt, XML_ERR_XMLDECL_NOT_FINISHED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_XMLDECL_NOT_FINISHED, 0);
 		NEXT;
 	}
 	else {
-		xmlFatalErr(ctxt, XML_ERR_XMLDECL_NOT_FINISHED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_XMLDECL_NOT_FINISHED, 0);
 		MOVETO_ENDTAG(CUR_PTR);
 		NEXT;
 	}
@@ -6522,12 +6521,12 @@ void xmlParseExternalSubset(xmlParserCtxtPtr ctxt, const xmlChar * ExternalID, c
 		while((RAW == 0) && (ctxt->inputNr > 1))
 			xmlPopInput(ctxt);
 		if((CUR_PTR == check) && (cons == ctxt->input->consumed)) {
-			xmlFatalErr(ctxt, XML_ERR_EXT_SUBSET_NOT_FINISHED, NULL);
+			xmlFatalErr(ctxt, XML_ERR_EXT_SUBSET_NOT_FINISHED, 0);
 			break;
 		}
 	}
 	if(RAW != 0) {
-		xmlFatalErr(ctxt, XML_ERR_EXT_SUBSET_NOT_FINISHED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_EXT_SUBSET_NOT_FINISHED, 0);
 	}
 }
 
@@ -6652,7 +6651,7 @@ void xmlParseReference(xmlParserCtxtPtr ctxt)
 		}
 		else {
 			ret = XML_ERR_ENTITY_PE_INTERNAL;
-			xmlErrMsgStr(ctxt, XML_ERR_INTERNAL_ERROR, "invalid entity type found\n", NULL);
+			xmlErrMsgStr(ctxt, XML_ERR_INTERNAL_ERROR, "invalid entity type found\n", 0);
 		}
 		/*
 		 * Store the number of entities needing parsing for this entity
@@ -6662,7 +6661,7 @@ void xmlParseReference(xmlParserCtxtPtr ctxt)
 		if((ent->content != NULL) && (xmlStrchr(ent->content, '<')))
 			ent->checked |= 1;
 		if(ret == XML_ERR_ENTITY_LOOP) {
-			xmlFatalErr(ctxt, XML_ERR_ENTITY_LOOP, NULL);
+			xmlFatalErr(ctxt, XML_ERR_ENTITY_LOOP, 0);
 			xmlFreeNodeList(list);
 			return;
 		}
@@ -6695,13 +6694,13 @@ void xmlParseReference(xmlParserCtxtPtr ctxt)
 						list = ent->children;
 #ifdef LIBXML_LEGACY_ENABLED
 						if(ent->etype == XML_EXTERNAL_GENERAL_PARSED_ENTITY)
-							xmlAddEntityReference(ent, list, NULL);
+							xmlAddEntityReference(ent, list, 0);
 #endif /* LIBXML_LEGACY_ENABLED */
 					}
 				}
 				else {
 					ent->owner = 1;
-					while(list != NULL) {
+					while(list) {
 						list->parent = (xmlNode *)ent;
 						xmlSetTreeDoc(list, ent->doc);
 						if(list->next == NULL)
@@ -6715,11 +6714,11 @@ void xmlParseReference(xmlParserCtxtPtr ctxt)
 				list = NULL;
 			}
 		}
-		else if((ret != XML_ERR_OK) && (ret != XML_WAR_UNDECLARED_ENTITY)) {
+		else if(!oneof2(ret, XML_ERR_OK, XML_WAR_UNDECLARED_ENTITY)) {
 			xmlFatalErrMsgStr(ctxt, XML_ERR_UNDECLARED_ENTITY, "Entity '%s' failed to parse\n", ent->name);
 			xmlParserEntityCheck(ctxt, 0, ent, 0);
 		}
-		else if(list) {
+		else {
 			xmlFreeNodeList(list);
 			list = NULL;
 		}
@@ -6751,20 +6750,20 @@ void xmlParseReference(xmlParserCtxtPtr ctxt)
 			void * user_data = (ctxt->userData == ctxt) ? 0 : ctxt->userData;
 			if(ent->etype == XML_INTERNAL_GENERAL_ENTITY) {
 				ctxt->depth++;
-				ret = xmlParseBalancedChunkMemoryInternal(ctxt, ent->content, user_data, NULL);
+				ret = xmlParseBalancedChunkMemoryInternal(ctxt, ent->content, user_data, 0);
 				ctxt->depth--;
 			}
 			else if(ent->etype == XML_EXTERNAL_GENERAL_PARSED_ENTITY) {
 				ctxt->depth++;
-				ret = xmlParseExternalEntityPrivate(ctxt->myDoc, ctxt, ctxt->sax, user_data, ctxt->depth, ent->URI, ent->ExternalID, NULL);
+				ret = xmlParseExternalEntityPrivate(ctxt->myDoc, ctxt, ctxt->sax, user_data, ctxt->depth, ent->URI, ent->ExternalID, 0);
 				ctxt->depth--;
 			}
 			else {
 				ret = XML_ERR_ENTITY_PE_INTERNAL;
-				xmlErrMsgStr(ctxt, XML_ERR_INTERNAL_ERROR, "invalid entity type found\n", NULL);
+				xmlErrMsgStr(ctxt, XML_ERR_INTERNAL_ERROR, "invalid entity type found\n", 0);
 			}
 			if(ret == XML_ERR_ENTITY_LOOP) {
-				xmlFatalErr(ctxt, XML_ERR_ENTITY_LOOP, NULL);
+				xmlFatalErr(ctxt, XML_ERR_ENTITY_LOOP, 0);
 				return;
 			}
 		}
@@ -6958,7 +6957,7 @@ xmlEntityPtr xmlParseEntityRef(xmlParserCtxtPtr ctxt)
 		return 0;
 	}
 	if(RAW != ';') {
-		xmlFatalErr(ctxt, XML_ERR_ENTITYREF_SEMICOL_MISSING, NULL);
+		xmlFatalErr(ctxt, XML_ERR_ENTITYREF_SEMICOL_MISSING, 0);
 		return 0;
 	}
 	NEXT;
@@ -7116,7 +7115,7 @@ static xmlEntity * xmlParseStringEntityRef(xmlParserCtxt * pCtxt, const xmlChar 
 				*ppStr = ptr;
 			}
 			else if(*ptr != ';') {
-				xmlFatalErr(pCtxt, XML_ERR_ENTITYREF_SEMICOL_MISSING, NULL);
+				xmlFatalErr(pCtxt, XML_ERR_ENTITYREF_SEMICOL_MISSING, 0);
 				SAlloc::F(name);
 				*ppStr = ptr;
 			}
@@ -7256,7 +7255,7 @@ void xmlParsePEReference(xmlParserCtxtPtr ctxt)
 		return;
 	}
 	if(RAW != ';') {
-		xmlFatalErr(ctxt, XML_ERR_ENTITYREF_SEMICOL_MISSING, NULL);
+		xmlFatalErr(ctxt, XML_ERR_ENTITYREF_SEMICOL_MISSING, 0);
 		return;
 	}
 	NEXT;
@@ -7291,7 +7290,7 @@ void xmlParsePEReference(xmlParserCtxtPtr ctxt)
 			 * ... The declaration of a parameter entity must
 			 * precede any reference to it...
 			 */
-			xmlWarningMsg(ctxt, XML_WAR_UNDECLARED_ENTITY, "PEReference: %%%s; not found\n", name, NULL);
+			xmlWarningMsg(ctxt, XML_WAR_UNDECLARED_ENTITY, "PEReference: %%%s; not found\n", name, 0);
 			ctxt->valid = 0;
 		}
 		xmlParserEntityCheck(ctxt, 0, NULL, 0);
@@ -7301,7 +7300,7 @@ void xmlParsePEReference(xmlParserCtxtPtr ctxt)
 		 * Internal checking in case the entity quest barfed
 		 */
 		if((entity->etype != XML_INTERNAL_PARAMETER_ENTITY) && (entity->etype != XML_EXTERNAL_PARAMETER_ENTITY)) {
-			xmlWarningMsg(ctxt, XML_WAR_UNDECLARED_ENTITY, "Internal: %%%s; is not a parameter entity\n", name, NULL);
+			xmlWarningMsg(ctxt, XML_WAR_UNDECLARED_ENTITY, "Internal: %%%s; is not a parameter entity\n", name, 0);
 		}
 		else if(ctxt->input->free != deallocblankswrapper) {
 			input = xmlNewBlanksWrapperInputStream(ctxt, entity);
@@ -7468,7 +7467,7 @@ static xmlEntityPtr xmlParseStringPEReference(xmlParserCtxtPtr ctxt, const xmlCh
 	}
 	cur = *ptr;
 	if(cur != ';') {
-		xmlFatalErr(ctxt, XML_ERR_ENTITYREF_SEMICOL_MISSING, NULL);
+		xmlFatalErr(ctxt, XML_ERR_ENTITYREF_SEMICOL_MISSING, 0);
 		SAlloc::F(name);
 		*str = ptr;
 		return 0;
@@ -7507,7 +7506,7 @@ static xmlEntityPtr xmlParseStringPEReference(xmlParserCtxtPtr ctxt, const xmlCh
 			 * ... The declaration of a parameter entity must
 			 * precede any reference to it...
 			 */
-			xmlWarningMsg(ctxt, XML_WAR_UNDECLARED_ENTITY, "PEReference: %%%s; not found\n", name, NULL);
+			xmlWarningMsg(ctxt, XML_WAR_UNDECLARED_ENTITY, "PEReference: %%%s; not found\n", name, 0);
 			ctxt->valid = 0;
 		}
 		xmlParserEntityCheck(ctxt, 0, NULL, 0);
@@ -7517,7 +7516,7 @@ static xmlEntityPtr xmlParseStringPEReference(xmlParserCtxtPtr ctxt, const xmlCh
 		 * Internal checking in case the entity quest barfed
 		 */
 		if((entity->etype != XML_INTERNAL_PARAMETER_ENTITY) && (entity->etype != XML_EXTERNAL_PARAMETER_ENTITY)) {
-			xmlWarningMsg(ctxt, XML_WAR_UNDECLARED_ENTITY, "%%%s; is not a parameter entity\n", name, NULL);
+			xmlWarningMsg(ctxt, XML_WAR_UNDECLARED_ENTITY, "%%%s; is not a parameter entity\n", name, 0);
 		}
 	}
 	ctxt->hasPErefs = 1;
@@ -7586,7 +7585,7 @@ void xmlParseDocTypeDecl(xmlParserCtxtPtr ctxt)
 	 * We should be at the end of the DOCTYPE declaration.
 	 */
 	if(RAW != '>') {
-		xmlFatalErr(ctxt, XML_ERR_DOCTYPE_NOT_FINISHED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_DOCTYPE_NOT_FINISHED, 0);
 	}
 	NEXT;
 }
@@ -7639,7 +7638,7 @@ static void xmlParseInternalSubset(xmlParserCtxtPtr ctxt)
 	 * We should be at the end of the DOCTYPE declaration.
 	 */
 	if(RAW != '>') {
-		xmlFatalErr(ctxt, XML_ERR_DOCTYPE_NOT_FINISHED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_DOCTYPE_NOT_FINISHED, 0);
 	}
 	NEXT;
 }
@@ -7709,7 +7708,7 @@ const xmlChar * xmlParseAttribute(xmlParserCtxtPtr ctxt, xmlChar ** value)
 		*/
 		if((ctxt->pedantic) && (sstreq(name, "xml:lang"))) {
 			if(!xmlCheckLanguageID(val)) {
-				xmlWarningMsg(ctxt, XML_WAR_LANG_VALUE, "Malformed value for xml:lang : %s\n", val, NULL);
+				xmlWarningMsg(ctxt, XML_WAR_LANG_VALUE, "Malformed value for xml:lang : %s\n", val, 0);
 			}
 		}
 		/*
@@ -7721,7 +7720,7 @@ const xmlChar * xmlParseAttribute(xmlParserCtxtPtr ctxt, xmlChar ** value)
 			else if(sstreq(val, "preserve"))
 				*(ctxt->space) = 1;
 			else {
-				xmlWarningMsg(ctxt, XML_WAR_SPACE_VALUE, "Invalid value \"%s\" for xml:space : \"default\" or \"preserve\" expected\n", val, NULL);
+				xmlWarningMsg(ctxt, XML_WAR_SPACE_VALUE, "Invalid value \"%s\" for xml:space : \"default\" or \"preserve\" expected\n", val, 0);
 			}
 		}
 		*value = val;
@@ -7803,7 +7802,7 @@ const xmlChar * xmlParseStartTag(xmlParserCtxtPtr ctxt)
 						maxatts = 22; /* allow for 10 attrs by default */
 						atts = (const xmlChar**)SAlloc::M(maxatts * sizeof(xmlChar *));
 						if(atts == NULL) {
-							xmlErrMemory(ctxt, NULL);
+							xmlErrMemory(ctxt, 0);
 							SAlloc::F(attvalue);
 							goto failed;
 						}
@@ -7815,7 +7814,7 @@ const xmlChar * xmlParseStartTag(xmlParserCtxtPtr ctxt)
 						maxatts *= 2;
 						n = (const xmlChar**)SAlloc::R((void*)atts, maxatts * sizeof(const xmlChar *));
 						if(n == NULL) {
-							xmlErrMemory(ctxt, NULL);
+							xmlErrMemory(ctxt, 0);
 							SAlloc::F(attvalue);
 							goto failed;
 						}
@@ -7892,7 +7891,7 @@ static void xmlParseEndTag1(xmlParserCtxtPtr ctxt, int line)
 	GROW;
 	SKIP_BLANKS;
 	if((!IS_BYTE_CHAR(RAW)) || (RAW != '>')) {
-		xmlFatalErr(ctxt, XML_ERR_GT_REQUIRED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_GT_REQUIRED, 0);
 	}
 	else
 		NEXT1;
@@ -8016,7 +8015,7 @@ static const xmlChar * FASTCALL xmlParseQName(xmlParserCtxtPtr ctxt, const xmlCh
 		}
 		if(CUR == ':') {
 			xmlChar * tmp;
-			xmlNsErr(ctxt, XML_NS_ERR_QNAME, "Failed to parse QName '%s:%s:'\n", p, l, NULL);
+			xmlNsErr(ctxt, XML_NS_ERR_QNAME, "Failed to parse QName '%s:%s:'\n", p, l, 0);
 			NEXT;
 			tmp = (xmlChar*)xmlParseName(ctxt);
 			if(tmp) {
@@ -8132,7 +8131,7 @@ static xmlChar * xmlParseAttValueInternal(xmlParserCtxtPtr ctxt, int * len, int 
 	line = ctxt->input->line;
 	col = ctxt->input->col;
 	if(*in != '"' && *in != '\'') {
-		xmlFatalErr(ctxt, XML_ERR_ATTRIBUTE_NOT_STARTED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_ATTRIBUTE_NOT_STARTED, 0);
 		return 0;
 	}
 	ctxt->instate = XML_PARSER_ATTRIBUTE_VALUE;
@@ -8371,7 +8370,7 @@ static const xmlChar * xmlParseAttribute2(xmlParserCtxtPtr ctxt,
 		if((ctxt->pedantic) && (sstreq(name, "lang"))) {
 			internal_val = xmlStrndup(val, *len);
 			if(!xmlCheckLanguageID(internal_val)) {
-				xmlWarningMsg(ctxt, XML_WAR_LANG_VALUE, "Malformed value for xml:lang : %s\n", internal_val, NULL);
+				xmlWarningMsg(ctxt, XML_WAR_LANG_VALUE, "Malformed value for xml:lang : %s\n", internal_val, 0);
 			}
 		}
 		/*
@@ -8384,7 +8383,7 @@ static const xmlChar * xmlParseAttribute2(xmlParserCtxtPtr ctxt,
 			else if(sstreq(internal_val, "preserve"))
 				*(ctxt->space) = 1;
 			else {
-				xmlWarningMsg(ctxt, XML_WAR_SPACE_VALUE, "Invalid value \"%s\" for xml:space : \"default\" or \"preserve\" expected\n", internal_val, NULL);
+				xmlWarningMsg(ctxt, XML_WAR_SPACE_VALUE, "Invalid value \"%s\" for xml:space : \"default\" or \"preserve\" expected\n", internal_val, 0);
 			}
 		}
 		SAlloc::F(internal_val);
@@ -8575,11 +8574,11 @@ skip_default_ns:
 				else {
 					uri = xmlParseURI((const char*)URL);
 					if(uri == NULL) {
-						xmlNsErr(ctxt, XML_WAR_NS_URI, "xmlns:%s: '%s' is not a valid URI\n", attname, URL, NULL);
+						xmlNsErr(ctxt, XML_WAR_NS_URI, "xmlns:%s: '%s' is not a valid URI\n", attname, URL, 0);
 					}
 					else {
 						if((ctxt->pedantic) && (uri->scheme == NULL)) {
-							xmlNsWarn(ctxt, XML_WAR_NS_URI_RELATIVE, "xmlns:%s: URI %s is not absolute\n", attname, URL, NULL);
+							xmlNsWarn(ctxt, XML_WAR_NS_URI_RELATIVE, "xmlns:%s: URI %s is not absolute\n", attname, URL, 0);
 						}
 						xmlFreeURI(uri);
 					}
@@ -8680,7 +8679,7 @@ failed:
 							break;
 					if(j <= nbNs)
 						continue;
-					nsname = xmlGetNamespace(ctxt, NULL);
+					nsname = xmlGetNamespace(ctxt, 0);
 					if(nsname != defaults->values[5 * i + 2]) {
 						if(nsPush(ctxt, NULL, defaults->values[5 * i + 2]) > 0)
 							nbNs++;
@@ -8761,7 +8760,7 @@ failed:
 					break;
 				}
 				if((nsname != NULL) && (atts[j + 2] == nsname)) {
-					xmlNsErr(ctxt, XML_NS_ERR_ATTRIBUTE_REDEFINED, "Namespaced Attribute %s in '%s' redefined\n", atts[i], nsname, NULL);
+					xmlNsErr(ctxt, XML_NS_ERR_ATTRIBUTE_REDEFINED, "Namespaced Attribute %s in '%s' redefined\n", atts[i], nsname, 0);
 					break;
 				}
 			}
@@ -8769,7 +8768,7 @@ failed:
 	}
 	nsname = xmlGetNamespace(ctxt, prefix);
 	if((prefix != NULL) && (nsname == NULL)) {
-		xmlNsErr(ctxt, XML_NS_ERR_UNDEFINED_NAMESPACE, "Namespace prefix %s on %s is not defined\n", prefix, localname, NULL);
+		xmlNsErr(ctxt, XML_NS_ERR_UNDEFINED_NAMESPACE, "Namespace prefix %s on %s is not defined\n", prefix, localname, 0);
 	}
 	*pref = prefix;
 	*URI = nsname;
@@ -8828,7 +8827,7 @@ static void xmlParseEndTag2(xmlParserCtxtPtr ctxt, const xmlChar * prefix, const
 	const xmlChar * name;
 	GROW;
 	if((RAW != '<') || (NXT(1) != '/')) {
-		xmlFatalErr(ctxt, XML_ERR_LTSLASH_REQUIRED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_LTSLASH_REQUIRED, 0);
 		return;
 	}
 	SKIP(2);
@@ -8856,7 +8855,7 @@ static void xmlParseEndTag2(xmlParserCtxtPtr ctxt, const xmlChar * prefix, const
 		return;
 	SKIP_BLANKS;
 	if((!IS_BYTE_CHAR(RAW)) || (RAW != '>')) {
-		xmlFatalErr(ctxt, XML_ERR_GT_REQUIRED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_GT_REQUIRED, 0);
 	}
 	else
 		NEXT1;
@@ -8916,14 +8915,14 @@ void xmlParseCDSect(xmlParserCtxtPtr ctxt)
 	ctxt->instate = XML_PARSER_CDATA_SECTION;
 	r = CUR_CHAR(rl);
 	if(!IS_CHAR(r)) {
-		xmlFatalErr(ctxt, XML_ERR_CDATA_NOT_FINISHED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_CDATA_NOT_FINISHED, 0);
 		ctxt->instate = XML_PARSER_CONTENT;
 		return;
 	}
 	NEXTL(rl);
 	s = CUR_CHAR(sl);
 	if(!IS_CHAR(s)) {
-		xmlFatalErr(ctxt, XML_ERR_CDATA_NOT_FINISHED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_CDATA_NOT_FINISHED, 0);
 		ctxt->instate = XML_PARSER_CONTENT;
 		return;
 	}
@@ -8931,21 +8930,21 @@ void xmlParseCDSect(xmlParserCtxtPtr ctxt)
 	cur = CUR_CHAR(l);
 	buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
 	if(buf == NULL) {
-		xmlErrMemory(ctxt, NULL);
+		xmlErrMemory(ctxt, 0);
 		return;
 	}
 	while(IS_CHAR(cur) && ((r != ']') || (s != ']') || (cur != '>'))) {
 		if(len + 5 >= size) {
 			xmlChar * tmp;
 			if((size > XML_MAX_TEXT_LENGTH) && ((ctxt->options & XML_PARSE_HUGE) == 0)) {
-				xmlFatalErrMsgStr(ctxt, XML_ERR_CDATA_NOT_FINISHED, "CData section too big found", NULL);
+				xmlFatalErrMsgStr(ctxt, XML_ERR_CDATA_NOT_FINISHED, "CData section too big found", 0);
 				SAlloc::F(buf);
 				return;
 			}
 			tmp = (xmlChar*)SAlloc::R(buf, size * 2 * sizeof(xmlChar));
 			if(tmp == NULL) {
 				SAlloc::F(buf);
-				xmlErrMemory(ctxt, NULL);
+				xmlErrMemory(ctxt, 0);
 				return;
 			}
 			buf = tmp;
@@ -9154,7 +9153,7 @@ void xmlParseElement(xmlParserCtxtPtr ctxt)
 		NEXT1;
 	}
 	else {
-		xmlFatalErrMsgStrIntStr(ctxt, XML_ERR_GT_REQUIRED, "Couldn't find end of Start Tag %s line %d\n", name, line, NULL);
+		xmlFatalErrMsgStrIntStr(ctxt, XML_ERR_GT_REQUIRED, "Couldn't find end of Start Tag %s line %d\n", name, line, 0);
 		//
 		// end of parsing of this node.
 		//
@@ -9181,7 +9180,7 @@ void xmlParseElement(xmlParserCtxtPtr ctxt)
 	if(ctxt->instate == XML_PARSER_EOF)
 		return;
 	if(!IS_BYTE_CHAR(RAW)) {
-		xmlFatalErrMsgStrIntStr(ctxt, XML_ERR_TAG_NOT_FINISHED, "Premature end of data in tag %s line %d\n", name, line, NULL);
+		xmlFatalErrMsgStrIntStr(ctxt, XML_ERR_TAG_NOT_FINISHED, "Premature end of data in tag %s line %d\n", name, line, 0);
 		/*
 		 * end of parsing of this node.
 		 */
@@ -9233,7 +9232,7 @@ xmlChar * xmlParseVersionNum(xmlParserCtxtPtr ctxt)
 	xmlChar cur;
 	xmlChar * buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
 	if(buf == NULL) {
-		xmlErrMemory(ctxt, NULL);
+		xmlErrMemory(ctxt, 0);
 		return 0;
 	}
 	cur = CUR;
@@ -9259,7 +9258,7 @@ xmlChar * xmlParseVersionNum(xmlParserCtxtPtr ctxt)
 			tmp = (xmlChar*)SAlloc::R(buf, size * sizeof(xmlChar));
 			if(tmp == NULL) {
 				SAlloc::F(buf);
-				xmlErrMemory(ctxt, NULL);
+				xmlErrMemory(ctxt, 0);
 				return 0;
 			}
 			buf = tmp;
@@ -9292,7 +9291,7 @@ xmlChar * xmlParseVersionInfo(xmlParserCtxtPtr ctxt)
 		SKIP(7);
 		SKIP_BLANKS;
 		if(RAW != '=') {
-			xmlFatalErr(ctxt, XML_ERR_EQUAL_REQUIRED, NULL);
+			xmlFatalErr(ctxt, XML_ERR_EQUAL_REQUIRED, 0);
 			return 0;
 		}
 		NEXT;
@@ -9301,7 +9300,7 @@ xmlChar * xmlParseVersionInfo(xmlParserCtxtPtr ctxt)
 			NEXT;
 			version = xmlParseVersionNum(ctxt);
 			if(RAW != '"') {
-				xmlFatalErr(ctxt, XML_ERR_STRING_NOT_CLOSED, NULL);
+				xmlFatalErr(ctxt, XML_ERR_STRING_NOT_CLOSED, 0);
 			}
 			else
 				NEXT;
@@ -9310,13 +9309,13 @@ xmlChar * xmlParseVersionInfo(xmlParserCtxtPtr ctxt)
 			NEXT;
 			version = xmlParseVersionNum(ctxt);
 			if(RAW != '\'') {
-				xmlFatalErr(ctxt, XML_ERR_STRING_NOT_CLOSED, NULL);
+				xmlFatalErr(ctxt, XML_ERR_STRING_NOT_CLOSED, 0);
 			}
 			else
 				NEXT;
 		}
 		else {
-			xmlFatalErr(ctxt, XML_ERR_STRING_NOT_STARTED, NULL);
+			xmlFatalErr(ctxt, XML_ERR_STRING_NOT_STARTED, 0);
 		}
 	}
 	return(version);
@@ -9341,7 +9340,7 @@ xmlChar * xmlParseEncName(xmlParserCtxtPtr ctxt)
 	if(((cur >= 'a') && (cur <= 'z')) || ((cur >= 'A') && (cur <= 'Z'))) {
 		buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
 		if(buf == NULL) {
-			xmlErrMemory(ctxt, NULL);
+			xmlErrMemory(ctxt, 0);
 			return 0;
 		}
 		buf[len++] = cur;
@@ -9354,7 +9353,7 @@ xmlChar * xmlParseEncName(xmlParserCtxtPtr ctxt)
 				size *= 2;
 				tmp = (xmlChar*)SAlloc::R(buf, size * sizeof(xmlChar));
 				if(tmp == NULL) {
-					xmlErrMemory(ctxt, NULL);
+					xmlErrMemory(ctxt, 0);
 					SAlloc::F(buf);
 					return 0;
 				}
@@ -9372,7 +9371,7 @@ xmlChar * xmlParseEncName(xmlParserCtxtPtr ctxt)
 		buf[len] = 0;
 	}
 	else {
-		xmlFatalErr(ctxt, XML_ERR_ENCODING_NAME, NULL);
+		xmlFatalErr(ctxt, XML_ERR_ENCODING_NAME, 0);
 	}
 	return buf;
 }
@@ -9398,7 +9397,7 @@ const xmlChar * xmlParseEncodingDecl(xmlParserCtxtPtr ctxt)
 		SKIP(8);
 		SKIP_BLANKS;
 		if(RAW != '=') {
-			xmlFatalErr(ctxt, XML_ERR_EQUAL_REQUIRED, NULL);
+			xmlFatalErr(ctxt, XML_ERR_EQUAL_REQUIRED, 0);
 			return 0;
 		}
 		NEXT;
@@ -9407,7 +9406,7 @@ const xmlChar * xmlParseEncodingDecl(xmlParserCtxtPtr ctxt)
 			NEXT;
 			encoding = xmlParseEncName(ctxt);
 			if(RAW != '"') {
-				xmlFatalErr(ctxt, XML_ERR_STRING_NOT_CLOSED, NULL);
+				xmlFatalErr(ctxt, XML_ERR_STRING_NOT_CLOSED, 0);
 			}
 			else
 				NEXT;
@@ -9416,13 +9415,13 @@ const xmlChar * xmlParseEncodingDecl(xmlParserCtxtPtr ctxt)
 			NEXT;
 			encoding = xmlParseEncName(ctxt);
 			if(RAW != '\'') {
-				xmlFatalErr(ctxt, XML_ERR_STRING_NOT_CLOSED, NULL);
+				xmlFatalErr(ctxt, XML_ERR_STRING_NOT_CLOSED, 0);
 			}
 			else
 				NEXT;
 		}
 		else {
-			xmlFatalErr(ctxt, XML_ERR_STRING_NOT_STARTED, NULL);
+			xmlFatalErr(ctxt, XML_ERR_STRING_NOT_STARTED, 0);
 		}
 		/*
 		 * Non standard parsing, allowing the user to ignore encoding
@@ -9511,7 +9510,7 @@ int xmlParseSDDecl(xmlParserCtxtPtr ctxt)
 		SKIP(10);
 		SKIP_BLANKS;
 		if(RAW != '=') {
-			xmlFatalErr(ctxt, XML_ERR_EQUAL_REQUIRED, NULL);
+			xmlFatalErr(ctxt, XML_ERR_EQUAL_REQUIRED, 0);
 			return(standalone);
 		}
 		NEXT;
@@ -9527,10 +9526,10 @@ int xmlParseSDDecl(xmlParserCtxtPtr ctxt)
 				SKIP(3);
 			}
 			else {
-				xmlFatalErr(ctxt, XML_ERR_STANDALONE_VALUE, NULL);
+				xmlFatalErr(ctxt, XML_ERR_STANDALONE_VALUE, 0);
 			}
 			if(RAW != '\'') {
-				xmlFatalErr(ctxt, XML_ERR_STRING_NOT_CLOSED, NULL);
+				xmlFatalErr(ctxt, XML_ERR_STRING_NOT_CLOSED, 0);
 			}
 			else
 				NEXT;
@@ -9547,16 +9546,16 @@ int xmlParseSDDecl(xmlParserCtxtPtr ctxt)
 				SKIP(3);
 			}
 			else {
-				xmlFatalErr(ctxt, XML_ERR_STANDALONE_VALUE, NULL);
+				xmlFatalErr(ctxt, XML_ERR_STANDALONE_VALUE, 0);
 			}
 			if(RAW != '"') {
-				xmlFatalErr(ctxt, XML_ERR_STRING_NOT_CLOSED, NULL);
+				xmlFatalErr(ctxt, XML_ERR_STRING_NOT_CLOSED, 0);
 			}
 			else
 				NEXT;
 		}
 		else {
-			xmlFatalErr(ctxt, XML_ERR_STRING_NOT_STARTED, NULL);
+			xmlFatalErr(ctxt, XML_ERR_STRING_NOT_STARTED, 0);
 		}
 	}
 	return(standalone);
@@ -9593,7 +9592,7 @@ void xmlParseXMLDecl(xmlParserCtxtPtr ctxt)
 	 */
 	version = xmlParseVersionInfo(ctxt);
 	if(version == NULL) {
-		xmlFatalErr(ctxt, XML_ERR_VERSION_MISSING, NULL);
+		xmlFatalErr(ctxt, XML_ERR_VERSION_MISSING, 0);
 	}
 	else {
 		if(!sstreq(version, (const xmlChar*)XML_DEFAULT_VERSION)) {
@@ -9605,7 +9604,7 @@ void xmlParseXMLDecl(xmlParserCtxtPtr ctxt)
 			}
 			else {
 				if((version[0] == '1') && ((version[1] == '.'))) {
-					xmlWarningMsg(ctxt, XML_WAR_UNKNOWN_VERSION, "Unsupported version '%s'\n", version, NULL);
+					xmlWarningMsg(ctxt, XML_WAR_UNKNOWN_VERSION, "Unsupported version '%s'\n", version, 0);
 				}
 				else {
 					xmlFatalErrMsgStr(ctxt, XML_ERR_UNKNOWN_VERSION, "Unsupported version '%s'\n", version);
@@ -9657,11 +9656,11 @@ void xmlParseXMLDecl(xmlParserCtxtPtr ctxt)
 	}
 	else if(RAW == '>') {
 		/* Deprecated old WD ... */
-		xmlFatalErr(ctxt, XML_ERR_XMLDECL_NOT_FINISHED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_XMLDECL_NOT_FINISHED, 0);
 		NEXT;
 	}
 	else {
-		xmlFatalErr(ctxt, XML_ERR_XMLDECL_NOT_FINISHED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_XMLDECL_NOT_FINISHED, 0);
 		MOVETO_ENDTAG(CUR_PTR);
 		NEXT;
 	}
@@ -9735,7 +9734,7 @@ int xmlParseDocument(xmlParserCtxtPtr ctxt)
 			xmlSwitchEncoding(ctxt, enc);
 	}
 	if(CUR == 0) {
-		xmlFatalErr(ctxt, XML_ERR_DOCUMENT_EMPTY, NULL);
+		xmlFatalErr(ctxt, XML_ERR_DOCUMENT_EMPTY, 0);
 	}
 	/*
 	 * Check for the XMLDecl in the Prolog.
@@ -9811,7 +9810,7 @@ int xmlParseDocument(xmlParserCtxtPtr ctxt)
 		 */
 		xmlParseMisc(ctxt);
 		if(RAW != 0) {
-			xmlFatalErr(ctxt, XML_ERR_DOCUMENT_END, NULL);
+			xmlFatalErr(ctxt, XML_ERR_DOCUMENT_END, 0);
 		}
 		ctxt->instate = XML_PARSER_EOF;
 	}
@@ -9888,7 +9887,7 @@ int xmlParseExtParsedEnt(xmlParserCtxtPtr ctxt)
 		}
 	}
 	if(CUR == 0) {
-		xmlFatalErr(ctxt, XML_ERR_DOCUMENT_EMPTY, NULL);
+		xmlFatalErr(ctxt, XML_ERR_DOCUMENT_EMPTY, 0);
 	}
 	/*
 	 * Check for the XMLDecl in the Prolog.
@@ -9925,10 +9924,10 @@ int xmlParseExtParsedEnt(xmlParserCtxtPtr ctxt)
 	if(ctxt->instate == XML_PARSER_EOF)
 		return -1;
 	if((RAW == '<') && (NXT(1) == '/')) {
-		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, 0);
 	}
 	else if(RAW != 0) {
-		xmlFatalErr(ctxt, XML_ERR_EXTRA_CONTENT, NULL);
+		xmlFatalErr(ctxt, XML_ERR_EXTRA_CONTENT, 0);
 	}
 	/*
 	 * SAX: end of the document processing.
@@ -10206,7 +10205,7 @@ static int xmlParseTryOrFinish(xmlParserCtxtPtr ctxt, int terminate)
 		    xmlGenericError(0, "PP: try IGNORE\n"); break;
 	}
 #endif
-	if((ctxt->input != NULL) && (ctxt->input->cur - ctxt->input->base > 4096)) {
+	if(ctxt->input && (ctxt->input->cur - ctxt->input->base > 4096)) {
 		xmlSHRINK(ctxt);
 		ctxt->checkIndex = 0;
 	}
@@ -10291,7 +10290,7 @@ static int xmlParseTryOrFinish(xmlParserCtxtPtr ctxt, int terminate)
 				    if((ctxt->sax) && (ctxt->sax->setDocumentLocator))
 					    ctxt->sax->setDocumentLocator(ctxt->userData,
 					    &xmlDefaultSAXLocator);
-				    xmlFatalErr(ctxt, XML_ERR_DOCUMENT_EMPTY, NULL);
+				    xmlFatalErr(ctxt, XML_ERR_DOCUMENT_EMPTY, 0);
 				    ctxt->instate = XML_PARSER_EOF;
 #ifdef DEBUG_PUSH
 				    xmlGenericError(0, "PP: entering EOF\n");
@@ -10353,7 +10352,7 @@ static int xmlParseTryOrFinish(xmlParserCtxtPtr ctxt, int terminate)
 					    &xmlDefaultSAXLocator);
 				    ctxt->version = xmlCharStrdup(XML_DEFAULT_VERSION);
 				    if(ctxt->version == NULL) {
-					    xmlErrMemory(ctxt, NULL);
+					    xmlErrMemory(ctxt, 0);
 					    break;
 				    }
 				    if((ctxt->sax) && (ctxt->sax->startDocument) &&
@@ -10375,7 +10374,7 @@ static int xmlParseTryOrFinish(xmlParserCtxtPtr ctxt, int terminate)
 				    goto done;
 			    cur = ctxt->input->cur[0];
 			    if(cur != '<') {
-				    xmlFatalErr(ctxt, XML_ERR_DOCUMENT_EMPTY, NULL);
+				    xmlFatalErr(ctxt, XML_ERR_DOCUMENT_EMPTY, 0);
 				    ctxt->instate = XML_PARSER_EOF;
 				    if((ctxt->sax) && (ctxt->sax->endDocument != NULL))
 					    ctxt->sax->endDocument(ctxt->userData);
@@ -10862,7 +10861,7 @@ static int xmlParseTryOrFinish(xmlParserCtxtPtr ctxt, int terminate)
 				    goto done;
 			    }
 			    else {
-				    xmlFatalErr(ctxt, XML_ERR_DOCUMENT_END, NULL);
+				    xmlFatalErr(ctxt, XML_ERR_DOCUMENT_END, 0);
 				    ctxt->instate = XML_PARSER_EOF;
 #ifdef DEBUG_PUSH
 				    xmlGenericError(0, "PP: entering EOF\n");
@@ -11062,7 +11061,7 @@ encoding_error:
 	{
 		char buffer[150];
 		snprintf(buffer, 149, "Bytes: 0x%02X 0x%02X 0x%02X 0x%02X\n", ctxt->input->cur[0], ctxt->input->cur[1], ctxt->input->cur[2], ctxt->input->cur[3]);
-		__xmlErrEncoding(ctxt, XML_ERR_INVALID_CHAR, "Input is not proper UTF-8, indicate encoding !\n%s", BAD_CAST buffer, NULL);
+		__xmlErrEncoding(ctxt, XML_ERR_INVALID_CHAR, "Input is not proper UTF-8, indicate encoding !\n%s", BAD_CAST buffer, 0);
 	}
 	return 0;
 }
@@ -11176,7 +11175,7 @@ xmldecl_done:
 #endif
 	}
 	else if(ctxt->instate != XML_PARSER_EOF) {
-		if((ctxt->input != NULL) && ctxt->input->buf != NULL) {
+		if(ctxt->input && ctxt->input->buf != NULL) {
 			xmlParserInputBufferPtr in = ctxt->input->buf;
 			if((in->encoder != NULL) && (in->buffer != NULL) && (in->raw != NULL)) {
 				size_t base = xmlBufGetInputBase(in->buffer, ctxt->input);
@@ -11195,7 +11194,7 @@ xmldecl_done:
 		xmlParseTryOrFinish(ctxt, 0);
 	}
 	else {
-		if((ctxt->input != NULL) && (ctxt->input->buf != NULL))
+		if(ctxt->input && (ctxt->input->buf != NULL))
 			avail = xmlBufUse(ctxt->input->buf->buffer);
 		/*
 		 * Depending on the current state it may not be such
@@ -11209,7 +11208,7 @@ xmldecl_done:
 	}
 	if(ctxt->instate == XML_PARSER_EOF)
 		return(ctxt->errNo);
-	if((ctxt->input != NULL) && (((ctxt->input->end - ctxt->input->cur) > XML_MAX_LOOKUP_LIMIT) ||
+	if(ctxt->input && (((ctxt->input->end - ctxt->input->cur) > XML_MAX_LOOKUP_LIMIT) ||
 		    ((ctxt->input->cur - ctxt->input->base) > XML_MAX_LOOKUP_LIMIT)) &&
 	    ((ctxt->options & XML_PARSE_HUGE) == 0)) {
 		xmlFatalErr(ctxt, XML_ERR_INTERNAL_ERROR, "Huge input lookup");
@@ -11241,10 +11240,10 @@ xmldecl_done:
 				cur_avail = xmlBufUse(ctxt->input->buf->buffer) - (ctxt->input->cur - ctxt->input->base);
 		}
 		if((ctxt->instate != XML_PARSER_EOF) && (ctxt->instate != XML_PARSER_EPILOG)) {
-			xmlFatalErr(ctxt, XML_ERR_DOCUMENT_END, NULL);
+			xmlFatalErr(ctxt, XML_ERR_DOCUMENT_END, 0);
 		}
 		if((ctxt->instate == XML_PARSER_EPILOG) && (cur_avail > 0)) {
-			xmlFatalErr(ctxt, XML_ERR_DOCUMENT_END, NULL);
+			xmlFatalErr(ctxt, XML_ERR_DOCUMENT_END, 0);
 		}
 		if(ctxt->instate != XML_PARSER_EOF) {
 			if((ctxt->sax) && (ctxt->sax->endDocument != NULL))
@@ -11304,7 +11303,7 @@ xmlParserCtxtPtr xmlCreatePushParserCtxt(xmlSAXHandlerPtr sax, void * user_data,
 	ctxt->dictNames = 1;
 	ctxt->pushTab = (void**)SAlloc::M(ctxt->nameMax * 3 * sizeof(xmlChar *));
 	if(ctxt->pushTab == NULL) {
-		xmlErrMemory(ctxt, NULL);
+		xmlErrMemory(ctxt, 0);
 		xmlFreeParserInputBuffer(buf);
 		xmlFreeParserCtxt(ctxt);
 		return 0;
@@ -11316,7 +11315,7 @@ xmlParserCtxtPtr xmlCreatePushParserCtxt(xmlSAXHandlerPtr sax, void * user_data,
 		SAlloc::F(ctxt->sax);
 		ctxt->sax = (xmlSAXHandlerPtr)SAlloc::M(sizeof(xmlSAXHandler));
 		if(ctxt->sax == NULL) {
-			xmlErrMemory(ctxt, NULL);
+			xmlErrMemory(ctxt, 0);
 			xmlFreeParserInputBuffer(buf);
 			xmlFreeParserCtxt(ctxt);
 			return 0;
@@ -11357,7 +11356,7 @@ xmlParserCtxtPtr xmlCreatePushParserCtxt(xmlSAXHandlerPtr sax, void * user_data,
 	if((size == 0) || (chunk == NULL)) {
 		ctxt->charset = XML_CHAR_ENCODING_NONE;
 	}
-	else if((ctxt->input != NULL) && (ctxt->input->buf != NULL)) {
+	else if(ctxt->input && (ctxt->input->buf != NULL)) {
 		size_t base = xmlBufGetInputBase(ctxt->input->buf->buffer, ctxt->input);
 		size_t cur = ctxt->input->cur - ctxt->input->base;
 		xmlParserInputBufferPush(ctxt->input->buf, size, chunk);
@@ -11433,7 +11432,7 @@ xmlParserCtxtPtr xmlCreateIOParserCtxt(xmlSAXHandlerPtr sax, void * user_data, x
 		SAlloc::F(ctxt->sax);
 		ctxt->sax = (xmlSAXHandlerPtr)SAlloc::M(sizeof(xmlSAXHandler));
 		if(ctxt->sax == NULL) {
-			xmlErrMemory(ctxt, NULL);
+			xmlErrMemory(ctxt, 0);
 			xmlFreeParserCtxt(ctxt);
 			return 0;
 		}
@@ -11784,7 +11783,7 @@ int xmlParseCtxtExternalEntity(xmlParserCtxtPtr ctx, const xmlChar * URL,
 	if(ctx->myDoc->URL != NULL) {
 		newDoc->URL = xmlStrdup(ctx->myDoc->URL);
 	}
-	newRoot = xmlNewDocNode(newDoc, NULL, BAD_CAST "pseudoroot", NULL);
+	newRoot = xmlNewDocNode(newDoc, NULL, BAD_CAST "pseudoroot", 0);
 	if(newRoot == NULL) {
 		ctxt->sax = oldsax;
 		xmlFreeParserCtxt(ctxt);
@@ -11873,13 +11872,13 @@ int xmlParseCtxtExternalEntity(xmlParserCtxtPtr ctx, const xmlChar * URL,
 	ctx->validate = ctxt->validate;
 	ctx->valid = ctxt->valid;
 	if((RAW == '<') && (NXT(1) == '/')) {
-		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, 0);
 	}
 	else if(RAW != 0) {
-		xmlFatalErr(ctxt, XML_ERR_EXTRA_CONTENT, NULL);
+		xmlFatalErr(ctxt, XML_ERR_EXTRA_CONTENT, 0);
 	}
 	if(ctxt->node != newDoc->children) {
-		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, 0);
 	}
 	if(!ctxt->wellFormed) {
 		if(ctxt->errNo == 0)
@@ -11946,7 +11945,7 @@ static xmlParserErrors xmlParseExternalEntityPrivate(xmlDocPtr doc, xmlParserCtx
 	if(((depth > 40) && ((oldctxt == NULL) || (oldctxt->options & XML_PARSE_HUGE) == 0)) || (depth > 1024)) {
 		return(XML_ERR_ENTITY_LOOP);
 	}
-	ASSIGN_PTR(list, NULL);
+	ASSIGN_PTR(list, 0);
 	if((URL == NULL) && (ID == NULL))
 		return XML_ERR_INTERNAL_ERROR;
 	if(!doc)
@@ -11999,7 +11998,7 @@ static xmlParserErrors xmlParseExternalEntityPrivate(xmlDocPtr doc, xmlParserCtx
 	if(doc->URL != NULL) {
 		newDoc->URL = xmlStrdup(doc->URL);
 	}
-	newRoot = xmlNewDocNode(newDoc, NULL, BAD_CAST "pseudoroot", NULL);
+	newRoot = xmlNewDocNode(newDoc, NULL, BAD_CAST "pseudoroot", 0);
 	if(newRoot == NULL) {
 		if(sax)
 			ctxt->sax = oldsax;
@@ -12043,13 +12042,13 @@ static xmlParserErrors xmlParseExternalEntityPrivate(xmlDocPtr doc, xmlParserCtx
 	ctxt->depth = depth;
 	xmlParseContent(ctxt);
 	if((RAW == '<') && (NXT(1) == '/')) {
-		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, 0);
 	}
 	else if(RAW != 0) {
-		xmlFatalErr(ctxt, XML_ERR_EXTRA_CONTENT, NULL);
+		xmlFatalErr(ctxt, XML_ERR_EXTRA_CONTENT, 0);
 	}
 	if(ctxt->node != newDoc->children) {
-		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, 0);
 	}
 	if(!ctxt->wellFormed) {
 		if(ctxt->errNo == 0)
@@ -12197,7 +12196,7 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxtPtr oldc
 	if(((oldctxt->depth > 40) && ((oldctxt->options & XML_PARSE_HUGE) == 0)) || (oldctxt->depth >  1024)) {
 		return(XML_ERR_ENTITY_LOOP);
 	}
-	ASSIGN_PTR(lst, NULL);
+	ASSIGN_PTR(lst, 0);
 	if(string == NULL)
 		return XML_ERR_INTERNAL_ERROR;
 	size = sstrlen(string);
@@ -12241,7 +12240,7 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxtPtr oldc
 		content = ctxt->myDoc->children;
 		last = ctxt->myDoc->last;
 	}
-	newRoot = xmlNewDocNode(ctxt->myDoc, NULL, BAD_CAST "pseudoroot", NULL);
+	newRoot = xmlNewDocNode(ctxt->myDoc, NULL, BAD_CAST "pseudoroot", 0);
 	if(newRoot == NULL) {
 		ctxt->sax = oldsax;
 		ctxt->dict = NULL;
@@ -12269,13 +12268,13 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxtPtr oldc
 	ctxt->attsSpecial = oldctxt->attsSpecial;
 	xmlParseContent(ctxt);
 	if((RAW == '<') && (NXT(1) == '/')) {
-		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, 0);
 	}
 	else if(RAW != 0) {
-		xmlFatalErr(ctxt, XML_ERR_EXTRA_CONTENT, NULL);
+		xmlFatalErr(ctxt, XML_ERR_EXTRA_CONTENT, 0);
 	}
 	if(ctxt->node != ctxt->myDoc->children) {
-		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, 0);
 	}
 	if(!ctxt->wellFormed) {
 		ret = (ctxt->errNo == 0) ? XML_ERR_INTERNAL_ERROR : (xmlParserErrors)ctxt->errNo;
@@ -12422,7 +12421,7 @@ xmlParserErrors xmlParseInNodeContext(xmlNodePtr node, const char * data, int da
 			return(XML_ERR_UNSUPPORTED_ENCODING);
 		}
 	}
-	xmlCtxtUseOptionsInternal(ctxt, options, NULL);
+	xmlCtxtUseOptionsInternal(ctxt, options, 0);
 	xmlDetectSAX2(ctxt);
 	ctxt->myDoc = doc;
 	/* parsing in context, i.e. as within existing content */
@@ -12474,13 +12473,13 @@ xmlParserErrors xmlParseInNodeContext(xmlNodePtr node, const char * data, int da
 	xmlParseContent(ctxt);
 	nsPop(ctxt, nsnr);
 	if((RAW == '<') && (NXT(1) == '/')) {
-		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, 0);
 	}
 	else if(RAW != 0) {
-		xmlFatalErr(ctxt, XML_ERR_EXTRA_CONTENT, NULL);
+		xmlFatalErr(ctxt, XML_ERR_EXTRA_CONTENT, 0);
 	}
 	if(ctxt->node && (ctxt->node != node)) {
-		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, NULL);
+		xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, 0);
 		ctxt->wellFormed = 0;
 	}
 	if(!ctxt->wellFormed) {
@@ -12558,7 +12557,7 @@ int xmlParseBalancedChunkMemoryRecover(xmlDocPtr doc, xmlSAXHandlerPtr sax,
 		ret = XML_ERR_ENTITY_LOOP;
 	}
 	else {
-		ASSIGN_PTR(lst, NULL);
+		ASSIGN_PTR(lst, 0);
 		if(string == NULL)
 			ret = -1;
 		else {
@@ -12591,13 +12590,13 @@ int xmlParseBalancedChunkMemoryRecover(xmlDocPtr doc, xmlSAXHandlerPtr sax,
 						ctxt->dictNames = 1;
 					}
 					else {
-						xmlCtxtUseOptionsInternal(ctxt, XML_PARSE_NODICT, NULL);
+						xmlCtxtUseOptionsInternal(ctxt, XML_PARSE_NODICT, 0);
 					}
 					if(doc) {
 						newDoc->intSubset = doc->intSubset;
 						newDoc->extSubset = doc->extSubset;
 					}
-					newRoot = xmlNewDocNode(newDoc, NULL, BAD_CAST "pseudoroot", NULL);
+					newRoot = xmlNewDocNode(newDoc, NULL, BAD_CAST "pseudoroot", 0);
 					if(newRoot == NULL) {
 						if(sax)
 							ctxt->sax = oldsax;
@@ -12638,13 +12637,13 @@ int xmlParseBalancedChunkMemoryRecover(xmlDocPtr doc, xmlSAXHandlerPtr sax,
 							xmlParseContent(ctxt);
 						}
 						if((RAW == '<') && (NXT(1) == '/')) {
-							xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, NULL);
+							xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, 0);
 						}
 						else if(RAW != 0) {
-							xmlFatalErr(ctxt, XML_ERR_EXTRA_CONTENT, NULL);
+							xmlFatalErr(ctxt, XML_ERR_EXTRA_CONTENT, 0);
 						}
 						if(ctxt->node != newDoc->children) {
-							xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, NULL);
+							xmlFatalErr(ctxt, XML_ERR_NOT_WELL_BALANCED, 0);
 						}
 						ret = ctxt->wellFormed ? 0 : ((ctxt->errNo == 0) ? 1 : ctxt->errNo);
 						if(lst && (!ret || recover == 1)) {
@@ -12805,7 +12804,7 @@ static xmlParserCtxtPtr xmlCreateEntityParserCtxtInternal(const xmlChar * URL, c
  */
 xmlParserCtxtPtr xmlCreateEntityParserCtxt(const xmlChar * URL, const xmlChar * ID, const xmlChar * base)
 {
-	return xmlCreateEntityParserCtxtInternal(URL, ID, base, NULL);
+	return xmlCreateEntityParserCtxtInternal(URL, ID, base, 0);
 }
 
 /************************************************************************
@@ -12835,7 +12834,7 @@ xmlParserCtxtPtr xmlCreateURLParserCtxt(const char * filename, int options)
 		xmlParserInputPtr inputStream;
 		char * directory = NULL;
 		if(options)
-			xmlCtxtUseOptionsInternal(ctxt, options, NULL);
+			xmlCtxtUseOptionsInternal(ctxt, options, 0);
 		ctxt->linenumbers = 1;
 		inputStream = xmlLoadExternalEntity(filename, NULL, ctxt);
 		if(inputStream == NULL) {
@@ -12947,7 +12946,7 @@ xmlDocPtr xmlSAXParseFileWithData(xmlSAXHandlerPtr sax, const char * filename, i
 
 xmlDocPtr xmlSAXParseFile(xmlSAXHandlerPtr sax, const char * filename, int recovery)
 {
-	return xmlSAXParseFileWithData(sax, filename, recovery, NULL);
+	return xmlSAXParseFileWithData(sax, filename, recovery, 0);
 }
 /**
  * xmlRecoverDoc:
@@ -13178,7 +13177,7 @@ xmlDocPtr xmlSAXParseMemoryWithData(xmlSAXHandlerPtr sax, const char * buffer, i
  */
 xmlDocPtr xmlSAXParseMemory(xmlSAXHandlerPtr sax, const char * buffer, int size, int recovery)
 {
-	return xmlSAXParseMemoryWithData(sax, buffer, size, recovery, NULL);
+	return xmlSAXParseMemoryWithData(sax, buffer, size, recovery, 0);
 }
 
 /**
@@ -13560,7 +13559,7 @@ void xmlCtxtReset(xmlParserCtxtPtr ctxt)
 		xmlInitNodeInfoSeq(&ctxt->node_seq);
 		xmlHashFree(ctxt->attsDefault, (xmlHashDeallocator)free);
 		ctxt->attsDefault = NULL;
-		xmlHashFree(ctxt->attsSpecial, NULL);
+		xmlHashFree(ctxt->attsSpecial, 0);
 		ctxt->attsSpecial = NULL;
 #ifdef LIBXML_CATALOG_ENABLED
 		if(ctxt->catalogs != NULL)
@@ -13603,7 +13602,7 @@ int xmlCtxtResetPush(xmlParserCtxtPtr ctxt, const char * chunk, int size, const 
 	if(ctxt->pushTab == NULL) {
 		ctxt->pushTab = (void**)SAlloc::M(ctxt->nameMax * 3 * sizeof(xmlChar *));
 		if(ctxt->pushTab == NULL) {
-			xmlErrMemory(ctxt, NULL);
+			xmlErrMemory(ctxt, 0);
 			xmlFreeParserInputBuffer(buf);
 			return 1;
 		}

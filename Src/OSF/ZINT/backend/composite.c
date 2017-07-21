@@ -93,7 +93,7 @@ static const int8 aRAPTable[68] = { // @sobolev int-->int8
 //
 // Row Address Patterns are as defined in pdf417.h 
 //
-//#define UINT unsigned short
+//#define UINT ushort
 
 extern int general_rules(const char field[], char type[]);
 extern int eanx(struct ZintSymbol * symbol, uchar source[], int length);

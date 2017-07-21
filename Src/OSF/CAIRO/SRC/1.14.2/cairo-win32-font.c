@@ -433,7 +433,7 @@ static cairo_status_t _win32_scaled_font_get_unscaled_hfont(cairo_win32_scaled_f
 			return status;
 		if(!SelectObject(hdc, scaled_hfont))
 			return _cairo_win32_print_gdi_error("_win32_scaled_font_get_unscaled_hfont:SelectObject");
-		otm_size = GetOutlineTextMetrics(hdc, 0, NULL);
+		otm_size = GetOutlineTextMetrics(hdc, 0, 0);
 		if(!otm_size)
 			return _cairo_win32_print_gdi_error("_win32_scaled_font_get_unscaled_hfont:GetOutlineTextMetrics");
 		otm = (OUTLINETEXTMETRIC *)SAlloc::M(otm_size);
@@ -1219,7 +1219,7 @@ static cairo_int_status_t _cairo_win32_scaled_font_index_to_ucs4(void * abstract
 	status = cairo_win32_scaled_font_select_font(&scaled_font->base, hdc);
 	if(status)
 		return status;
-	res = GetFontUnicodeRanges(hdc, NULL);
+	res = GetFontUnicodeRanges(hdc, 0);
 	if(res == 0) {
 		status = _cairo_win32_print_gdi_error("_cairo_win32_scaled_font_index_to_ucs4:GetFontUnicodeRanges");
 		goto exit1;
@@ -1344,7 +1344,7 @@ static cairo_surface_t * _compute_mask(cairo_surface_t * surface, int quality)
 {
 	cairo_image_surface_t * mask;
 	int i, j;
-	cairo_image_surface_t * glyph = (cairo_image_surface_t*)cairo_surface_map_to_image(surface, NULL);
+	cairo_image_surface_t * glyph = (cairo_image_surface_t*)cairo_surface_map_to_image(surface, 0);
 	if(unlikely(glyph->base.status))
 		return &glyph->base;
 	if(quality == CLEARTYPE_QUALITY) {
@@ -1394,7 +1394,7 @@ static cairo_status_t _cairo_win32_scaled_font_init_glyph_surface(cairo_win32_sc
 	int width = x2 - x1;
 	int height = y2 - y1;
 	surface = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_RGB24, width, height);
-	status = _cairo_surface_paint(surface, CAIRO_OPERATOR_SOURCE, &_cairo_pattern_white.base, NULL);
+	status = _cairo_surface_paint(surface, CAIRO_OPERATOR_SOURCE, &_cairo_pattern_white.base, 0);
 	if(status)
 		goto FAIL;
 	glyph.index = _cairo_scaled_glyph_index(scaled_glyph);
@@ -1844,7 +1844,7 @@ FAIL:
  **/
 cairo_font_face_t * cairo_win32_font_face_create_for_logfontw(LOGFONTW * logfont)
 {
-	return cairo_win32_font_face_create_for_logfontw_hfont(logfont, NULL);
+	return cairo_win32_font_face_create_for_logfontw_hfont(logfont, 0);
 }
 
 /**

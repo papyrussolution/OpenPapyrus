@@ -399,7 +399,7 @@ int _zbar_video_open(zbar_video_t * vdo, const char * dev)
 	if(devid >= MAX_DRIVERS)
 		return err_capture_str(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "video device not found '%s'", dev);
 	if(!state->captured)
-		state->captured = CreateEvent(NULL, 0, 0, NULL);
+		state->captured = CreateEvent(NULL, 0, 0, 0);
 	else
 		ResetEvent(state->captured);
 	if(_zbar_thread_start(&state->thread, vfw_capture_thread, vdo, NULL))
@@ -407,12 +407,12 @@ int _zbar_video_open(zbar_video_t * vdo, const char * dev)
 	/* FIXME error */
 	assert(state->hwnd);
 	if(!capDriverConnect(state->hwnd, devid)) {
-		_zbar_thread_stop(&state->thread, NULL);
+		_zbar_thread_stop(&state->thread, 0);
 		return(err_capture_str(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "failed to connect to camera '%s'", dev));
 	}
 	zprintf(1, "opened camera: %.60s (%d) (thr=%04lx)\n", name, devid, _zbar_thread_self());
 	if(vfw_probe(vdo)) {
-		_zbar_thread_stop(&state->thread, NULL);
+		_zbar_thread_stop(&state->thread, 0);
 		return -1;
 	}
 	return 0;

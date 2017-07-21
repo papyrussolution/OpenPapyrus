@@ -270,7 +270,7 @@ retry:
 		}
 	}
 	else
-		ret = __os_exists(env, real_name, NULL);
+		ret = __os_exists(env, real_name, 0);
 	if(ret == 0) {
 		/*
 		 * If the file exists, there are 5 possible cases:
@@ -993,7 +993,7 @@ int __fop_dbrename(DB * dbp, const char * old, const char * pNewName)
 	 * for ondisk files, but it's done memp_nameop for in-memory ones.
 	 */
 	GET_ENVLOCK(env, dbp->locker, &elock);
-	ret = F_ISSET(dbp, DB_AM_INMEM) ? ENOENT : __os_exists(env, real_new, NULL);
+	ret = F_ISSET(dbp, DB_AM_INMEM) ? ENOENT : __os_exists(env, real_new, 0);
 	if(ret == 0) {
 		ret = EEXIST;
 		__db_errx(env, DB_STR_A("0005", "rename: file %s exists", "%s"), real_new);

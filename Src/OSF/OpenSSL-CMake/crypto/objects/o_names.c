@@ -61,7 +61,7 @@ static int obj_name_cmp(const OBJ_NAME * a, const OBJ_NAME * b);
 int OBJ_NAME_init(void)
 {
 	if(names_lh != NULL)
-		return (1);
+		return 1;
 	CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_DISABLE);
 	names_lh = lh_OBJ_NAME_new(obj_name_hash, obj_name_cmp);
 	CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_ENABLE);
@@ -253,7 +253,7 @@ int OBJ_NAME_remove(const char * name, int type)
 			    ret->data);
 		}
 		OPENSSL_free(ret);
-		return (1);
+		return 1;
 	}
 	else
 		return 0;

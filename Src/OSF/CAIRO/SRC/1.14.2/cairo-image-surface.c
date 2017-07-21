@@ -1048,7 +1048,7 @@ cairo_image_surface_t * _cairo_image_surface_clone_subimage(cairo_surface_t * su
 	cairo_surface_set_device_offset(image, -extents->x, -extents->y);
 	_cairo_pattern_init_for_surface(&pattern, surface);
 	pattern.base.filter = CAIRO_FILTER_NEAREST;
-	status = _cairo_surface_paint(image, CAIRO_OPERATOR_SOURCE, &pattern.base, NULL);
+	status = _cairo_surface_paint(image, CAIRO_OPERATOR_SOURCE, &pattern.base, 0);
 	_cairo_pattern_fini(&pattern.base);
 	if(unlikely(status))
 		goto error;

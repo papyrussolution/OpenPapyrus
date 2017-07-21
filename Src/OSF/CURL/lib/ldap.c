@@ -270,7 +270,7 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 		int ldap_option;
 		char * ldap_ca = conn->ssl_config.CAfile;
 #if defined(CURL_HAS_NOVELL_LDAPSDK)
-		rc = ldapssl_client_init(NULL, NULL);
+		rc = ldapssl_client_init(NULL, 0);
 		if(rc != LDAP_SUCCESS) {
 			failf(data, "LDAP local: ldapssl_client_init %s", ldap_err2string(rc));
 			result = CURLE_SSL_CERTPROBLEM;
@@ -672,7 +672,7 @@ quit:
 #endif
 
 	/* no data to transfer */
-	Curl_setup_transfer(conn, -1, -1, FALSE, NULL, -1, NULL);
+	Curl_setup_transfer(conn, -1, -1, FALSE, NULL, -1, 0);
 	connclose(conn, "LDAP connection always disable re-use");
 
 	return result;

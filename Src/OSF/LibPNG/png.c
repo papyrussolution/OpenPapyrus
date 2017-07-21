@@ -4055,7 +4055,7 @@ static int png_image_free_function(void * argument)
 	}
 	else {
 #ifdef PNG_SIMPLIFIED_READ_SUPPORTED
-		png_destroy_read_struct(&c.png_ptr, &c.info_ptr, NULL);
+		png_destroy_read_struct(&c.png_ptr, &c.info_ptr, 0);
 #else
 		png_error(c.png_ptr, "simplified read not supported");
 #endif

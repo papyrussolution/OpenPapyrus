@@ -26,7 +26,7 @@ static void * s2i_poison(const X509V3_EXT_METHOD * method, X509V3_CTX * ctx, con
 static int i2r_SCT_LIST(X509V3_EXT_METHOD * method, STACK_OF(SCT) * sct_list,
     BIO * out, int indent)
 {
-	SCT_LIST_print(sct_list, out, indent, "\n", NULL);
+	SCT_LIST_print(sct_list, out, indent, "\n", 0);
 	return 1;
 }
 

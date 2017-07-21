@@ -54,7 +54,6 @@ void LexInterface::Colourise(int start, int end)
 		// fold points are discovered while performing styling and the folding
 		// code looks for child lines which may trigger styling.
 		performingStyle = true;
-
 		int lengthDoc = pdoc->Length();
 		if(end == -1)
 			end = lengthDoc;

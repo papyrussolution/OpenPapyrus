@@ -195,7 +195,7 @@ int UI_add_input_string(UI * ui, const char * prompt, int flags,
 {
 	return general_allocate_string(ui, prompt, 0,
 	    UIT_PROMPT, flags, result_buf, minsize,
-	    maxsize, NULL);
+	    maxsize, 0);
 }
 
 /* Same as UI_add_input_string(), excepts it takes a copy of the prompt */
@@ -214,7 +214,7 @@ int UI_dup_input_string(UI * ui, const char * prompt, int flags,
 
 	return general_allocate_string(ui, prompt_copy, 1,
 	    UIT_PROMPT, flags, result_buf, minsize,
-	    maxsize, NULL);
+	    maxsize, 0);
 }
 
 int UI_add_verify_string(UI * ui, const char * prompt, int flags,
@@ -325,7 +325,7 @@ int UI_dup_info_string(UI * ui, const char * text)
 	}
 
 	return general_allocate_string(ui, text_copy, 1, UIT_INFO, 0, NULL,
-	    0, 0, NULL);
+	    0, 0, 0);
 }
 
 int UI_add_error_string(UI * ui, const char * text)
@@ -346,7 +346,7 @@ int UI_dup_error_string(UI * ui, const char * text)
 		}
 	}
 	return general_allocate_string(ui, text_copy, 1, UIT_ERROR, 0, NULL,
-	    0, 0, NULL);
+	    0, 0, 0);
 }
 
 char * UI_construct_prompt(UI * ui, const char * object_desc,

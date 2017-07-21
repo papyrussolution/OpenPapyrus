@@ -70,7 +70,7 @@ int __repmgr_bow_out(ENV * env)
 	LOCK_MUTEX(db_rep->mutex);
 	ret = __repmgr_stop_threads(env);
 	UNLOCK_MUTEX(db_rep->mutex);
-	DB_EVENT(env, DB_EVENT_REP_LOCAL_SITE_REMOVED, NULL);
+	DB_EVENT(env, DB_EVENT_REP_LOCAL_SITE_REMOVED, 0);
 	return ret;
 }
 
@@ -161,7 +161,7 @@ int __repmgr_compute_timeout(ENV * env, db_timespec * timeout)
 	 * There are two factors to consider: are heartbeats in use?  and, do we
 	 * have any sites with broken connections that we ought to retry?
 	 */
-	have_timeout = __repmgr_next_timeout(env, &t, NULL);
+	have_timeout = __repmgr_next_timeout(env, &t, 0);
 	/* List items are in order, so we only have to examine the first one. */
 	if(!TAILQ_EMPTY(&db_rep->retries)) {
 		retry = TAILQ_FIRST(&db_rep->retries);
@@ -665,7 +665,7 @@ static int prepare_input(ENV * env, REPMGR_CONNECTION * conn)
 	 * We can only get here after having read the full 9 bytes that we
 	 * expect, so this can't fail.
 	 */
-	ret = __repmgr_msg_hdr_unmarshal(env, &msg_hdr, conn->msg_hdr_buf, __REPMGR_MSG_HDR_SIZE, NULL);
+	ret = __repmgr_msg_hdr_unmarshal(env, &msg_hdr, conn->msg_hdr_buf, __REPMGR_MSG_HDR_SIZE, 0);
 	DB_ASSERT(env, ret == 0);
 	__repmgr_iovec_init(&conn->iovecs);
 	skip = FALSE;

@@ -11,7 +11,7 @@
 //#include <openssl/asn1.h>
 //#include <openssl/asn1t.h>
 //#include <openssl/x509v3.h>
-#include "internal/x509_int.h"
+//#include "internal/x509_int.h"
 #include "ext_dat.h"
 
 static void * v2i_crld(const X509V3_EXT_METHOD * method, X509V3_CTX * ctx, STACK_OF(CONF_VALUE) * nval);

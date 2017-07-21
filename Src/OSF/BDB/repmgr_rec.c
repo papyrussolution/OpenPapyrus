@@ -20,7 +20,7 @@ int __repmgr_member_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 {
 	__repmgr_member_args * argp;
 	int ret;
-	COMPQUIET(info, NULL);
+	COMPQUIET(info, 0);
 	COMPQUIET(op, DB_TXN_APPLY);
 	REC_PRINT(__repmgr_member_print);
 	REC_NOOP_INTRO(__repmgr_member_read);

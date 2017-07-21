@@ -1650,7 +1650,7 @@ static cairo_status_t _cairo_ps_surface_acquire_source_surface_from_pattern(cair
 					    recording_surface = (cairo_recording_surface_t*)free_me;
 				    }
 
-				    status = _cairo_recording_surface_get_bbox(recording_surface, &bbox, NULL);
+				    status = _cairo_recording_surface_get_bbox(recording_surface, &bbox, 0);
 				    cairo_surface_destroy(free_me);
 				    if(unlikely(status))
 					    return status;
@@ -1677,7 +1677,7 @@ static cairo_status_t _cairo_ps_surface_acquire_source_surface_from_pattern(cair
 
 		    /* get the operation extents in pattern space */
 		    _cairo_box_from_rectangle(&box, extents);
-		    _cairo_matrix_transform_bounding_box_fixed(&pattern->matrix, &box, NULL);
+		    _cairo_matrix_transform_bounding_box_fixed(&pattern->matrix, &box, 0);
 		    _cairo_box_round_to_rectangle(&box, &rect);
 		    surf = _cairo_raster_source_pattern_acquire(pattern, &surface->base, &rect);
 		    if(!surf)
@@ -1762,7 +1762,7 @@ static cairo_status_t _cairo_ps_surface_create_padded_image_from_image(cairo_ps_
 
 	/* get the operation extents in pattern space */
 	_cairo_box_from_rectangle(&box, extents);
-	_cairo_matrix_transform_bounding_box_fixed(source_matrix, &box, NULL);
+	_cairo_matrix_transform_bounding_box_fixed(source_matrix, &box, 0);
 	_cairo_box_round_to_rectangle(&box, &rect);
 
 	/* Check if image needs padding to fill extents. */
@@ -1976,7 +1976,7 @@ static cairo_int_status_t _cairo_ps_surface_analyze_operation(cairo_ps_surface_t
 
 				/* get the operation extents in pattern space */
 				_cairo_box_from_rectangle(&box, extents);
-				_cairo_matrix_transform_bounding_box_fixed(&pattern->matrix, &box, NULL);
+				_cairo_matrix_transform_bounding_box_fixed(&pattern->matrix, &box, 0);
 				_cairo_box_round_to_rectangle(&box, &rect);
 
 				/* Check if surface needs padding to fill extents */
@@ -2015,7 +2015,7 @@ static cairo_int_status_t _cairo_ps_surface_analyze_operation(cairo_ps_surface_t
 	/* Patterns whose drawn part is opaque are directly supported;
 	   those whose drawn part is partially transparent can be
 	   supported by flattening the alpha. */
-	_cairo_pattern_alpha_range(pattern, &min_alpha, NULL);
+	_cairo_pattern_alpha_range(pattern, &min_alpha, 0);
 	if(CAIRO_ALPHA_IS_OPAQUE(min_alpha))
 		return CAIRO_STATUS_SUCCESS;
 
@@ -2202,7 +2202,7 @@ static cairo_status_t _cairo_ps_surface_flatten_image_transparency(cairo_ps_surf
 
 	_cairo_pattern_init_for_surface(&pattern, &image->base);
 	pattern.base.filter = CAIRO_FILTER_NEAREST;
-	status = _cairo_surface_paint(opaque, CAIRO_OPERATOR_OVER, &pattern.base, NULL);
+	status = _cairo_surface_paint(opaque, CAIRO_OPERATOR_OVER, &pattern.base, 0);
 	_cairo_pattern_fini(&pattern.base);
 	if(unlikely(status)) {
 		cairo_surface_destroy(opaque);
@@ -2791,7 +2791,7 @@ static cairo_status_t _cairo_ps_surface_emit_recording_surface(cairo_ps_surface_
 	_cairo_surface_clipper_init(&surface->clipper, _cairo_ps_surface_clipper_intersect_clip_path);
 	if(_cairo_surface_is_snapshot(recording_surface))
 		free_me = recording_surface = _cairo_surface_snapshot_get_target(recording_surface);
-	status = _cairo_recording_surface_get_bbox((cairo_recording_surface_t*)recording_surface, &bbox, NULL);
+	status = _cairo_recording_surface_get_bbox((cairo_recording_surface_t*)recording_surface, &bbox, 0);
 	if(unlikely(status))
 		goto err;
 #if DEBUG_PS

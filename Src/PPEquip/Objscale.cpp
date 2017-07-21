@@ -383,7 +383,7 @@ static SString & __GetLastSystemErr(SString & rBuf)
 	const  DWORD last_err = GetLastError();
 	LPVOID p_msg_buf = 0;
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, last_err,
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&p_msg_buf, 0, NULL);
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&p_msg_buf, 0, 0);
 	rBuf = (char *)p_msg_buf;
 	rBuf.Chomp().Transf(CTRANSF_OUTER_TO_INNER);
 	//MessageBox(NULL, (LPCTSTR)lpMsgBuf, "Error", MB_OK | MB_ICONINFORMATION);
@@ -3132,11 +3132,11 @@ int LongToHexBytesStr(long val, int prec, SString * pBuf)
 			fmt.Printf("%%0%dX", prec * 2);
 		else
 			fmt.Cat("%X");
-		buf.Printf((const char*)fmt, val);
+		buf.Printf(fmt.cptr(), val);
 		len = buf.Len();
 		for(uint i = 0; i < len; i += 2) {
 			int    v1 = 0, v2 = 0;
-			const  char * p_buf = (const char*)buf;
+			const  char * p_buf = buf.cptr();
 			v1 = HexChar2Byte(p_buf[i]);
 			v2 = HexChar2Byte(p_buf[i + 1]);
 			pBuf->CatCharN(v1 * 16 + v2, 1);

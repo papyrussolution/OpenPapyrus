@@ -41,7 +41,7 @@ CMS_ContentInfo * cms_CompressedData_create(int comp_nid)
 	cms->contentType = OBJ_nid2obj(NID_id_smime_ct_compressedData);
 	cms->d.compressedData = cd;
 	cd->version = 0;
-	X509_ALGOR_set0(cd->compressionAlgorithm, OBJ_nid2obj(NID_zlib_compression), V_ASN1_UNDEF, NULL);
+	X509_ALGOR_set0(cd->compressionAlgorithm, OBJ_nid2obj(NID_zlib_compression), V_ASN1_UNDEF, 0);
 	cd->encapContentInfo->eContentType = OBJ_nid2obj(NID_pkcs7_data);
 	return cms;
 err:

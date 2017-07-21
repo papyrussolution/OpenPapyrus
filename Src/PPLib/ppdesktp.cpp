@@ -1150,7 +1150,7 @@ ushort PPDesktop::insert()
 	ShowWindow(H(), SW_SHOW);
 	UpdateWindow(H());
 	HwndTT = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, H(), NULL, TProgram::GetInst(), NULL); // @unicodeproblem
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, H(), NULL, TProgram::GetInst(), 0); // @unicodeproblem
 	SetWindowPos(HwndTT, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 	CreateBizScoreWnd();
 	return (H() != 0);
@@ -1408,7 +1408,7 @@ int PPDesktop::WaitCommand()
 		{
 			SString buf, msg;
 			PPLoadString(PPMSG_ERROR, PPERR_CMDASSCNOTFOUND, buf);
-			msg.Printf((const char*)buf, pCode);
+			msg.Printf(buf.cptr(), pCode);
 			setStaticText(CTL_WAITCMD_STATUS, msg);
 			setCtrlString(CTL_WAITCMD_INPUT, (buf = 0));
 			return 1;

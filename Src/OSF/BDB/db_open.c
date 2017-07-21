@@ -505,9 +505,9 @@ int __db_reopen(DBC * arg_dbc)
 	DBC * dbc = arg_dbc;
 	DB * dbp = dbc->dbp;
 	DB * mdbp = NULL;
-	COMPQUIET(bt, NULL);
-	COMPQUIET(ht, NULL);
-	COMPQUIET(txn, NULL);
+	COMPQUIET(bt, 0);
+	COMPQUIET(ht, 0);
+	COMPQUIET(txn, 0);
 	LOCK_INIT(new_lock);
 	LOCK_INIT(old_lock);
 	/*

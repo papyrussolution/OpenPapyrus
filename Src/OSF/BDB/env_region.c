@@ -1144,7 +1144,7 @@ static int __env_des_get(ENV * env, REGINFO * env_infop, REGINFO * infop, REGION
  */
 static void __env_des_destroy(ENV * env, REGION * rp)
 {
-	COMPQUIET(env, NULL);
+	COMPQUIET(env, 0);
 	rp->id = INVALID_REGION_ID;
 }
 /*

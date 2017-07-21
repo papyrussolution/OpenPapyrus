@@ -354,11 +354,11 @@ void TCalendar::CheckTimer()
 {
 	if(TimerFreq == 50) {
 		TimerFreq = 300;
-		SetTimer(c_hWnd, 1, 300, NULL);
+		SetTimer(c_hWnd, 1, 300, 0);
 	}
 	else {
 		TimerFreq = 52;
-		SetTimer(c_hWnd, 1, 52, NULL);
+		SetTimer(c_hWnd, 1, 52, 0);
 	}
 }
 
@@ -453,10 +453,10 @@ void TDateCalendar::DrawMonthCells(HDC hdc, int decr)
 	int  m_cell_w = (y_br - y_bl) / 6;
 	int  m_cell_h = M_CELLH * y_th / 13;
 	int  m_diff_y = M_DIFFY * y_th / 13;
-	MoveToEx(hdc, Left, Top - m_diff_y + m_cell_h - decr, NULL);
+	MoveToEx(hdc, Left, Top - m_diff_y + m_cell_h - decr, 0);
 	LineTo(hdc, Left + (y_br - y_bl) - 1, Top - (m_diff_y - m_cell_h + decr));
 	for(int i = 1; i < 6; i++) {
-		MoveToEx(hdc, Left + (i * m_cell_w - decr), Top - (m_diff_y + 1), NULL);
+		MoveToEx(hdc, Left + (i * m_cell_w - decr), Top - (m_diff_y + 1), 0);
 		LineTo(hdc, Left + (i * m_cell_w - decr), Top - (m_diff_y - m_cell_h * 2 - 3));
 	}
 }
@@ -551,12 +551,12 @@ void TDateCalendar::OnPaint(HWND hWnd)
 		HPEN   gray_pen  = CreatePen(PS_SOLID, 1, RGB(127, 127, 127));
 
 		oldpen = (HPEN)SelectObject(hdc, black_pen);
-		MoveToEx(hdc, Left - 1, Top + 7 * c_cell_h - 1, NULL);
+		MoveToEx(hdc, Left - 1, Top + 7 * c_cell_h - 1, 0);
 		LineTo(hdc, Left - 1, Top);
 		LineTo(hdc, Left - 1 + (y_br - y_bl), Top);
 
 		SelectObject(hdc, white_pen);
-		MoveToEx(hdc, Left, Top + 7 * c_cell_h - 1, NULL);
+		MoveToEx(hdc, Left, Top + 7 * c_cell_h - 1, 0);
 		LineTo  (hdc, Left + (y_br - y_bl) - 1, Top + 7 * c_cell_h - 1);
 		LineTo  (hdc, Left + (y_br - y_bl) - 1, Top - 1);
 		//
@@ -574,7 +574,7 @@ void TDateCalendar::OnPaint(HWND hWnd)
 		// Draw months frames
 		//
 		SelectObject(hdc, white_pen);
-		MoveToEx(hdc, Left, Top - m_diff_y + m_cell_h * 2 + 3, NULL);
+		MoveToEx(hdc, Left, Top - m_diff_y + m_cell_h * 2 + 3, 0);
 		LineTo(hdc, Left + (y_br - y_bl), Top - m_diff_y + m_cell_h * 2 + 3);
 		LineTo(hdc, Left + (y_br - y_bl), Top - m_diff_y - 3);
 		DrawMonthCells(hdc, 0);
@@ -582,7 +582,7 @@ void TDateCalendar::OnPaint(HWND hWnd)
 		DrawMonthCells(hdc, 1);
 		//
 		SelectObject(hdc, white_pen);
-		MoveToEx(hdc, Left - 1, Top - m_diff_y + m_cell_h * 2 + 3, NULL);
+		MoveToEx(hdc, Left - 1, Top - m_diff_y + m_cell_h * 2 + 3, 0);
 		LineTo  (hdc, Left - 1, Top - m_diff_y - 2);
 		LineTo  (hdc, Left + (y_br - y_bl), Top - m_diff_y - 2);
 		SelectObject(hdc, oldpen);
@@ -1277,7 +1277,7 @@ INT_PTR CALLBACK CalendarWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			break;
 		case WM_SETFOCUS:
 			dc->TimerFreq = 50;
-			SetTimer(dc->c_hWnd, 1, 50, NULL);
+			SetTimer(dc->c_hWnd, 1, 50, 0);
 			break;
 		case WM_KILLFOCUS:
 			KillTimer(dc->c_hWnd, 1);
@@ -1287,7 +1287,7 @@ INT_PTR CALLBACK CalendarWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			break;
 		case WM_KEYUP:
 			dc->TimerFreq = 50;
-			SetTimer(dc->c_hWnd, 1, 50, NULL);
+			SetTimer(dc->c_hWnd, 1, 50, 0);
 			break;
 		case WM_KEYDOWN:
 			switch((int)wParam) {
@@ -1806,7 +1806,7 @@ void TCalendarP::ShowCalendar(HWND hwParent)
 	::ShowWindow(c_hWnd, SW_SHOWNORMAL);
 	::SetFocus(c_hWnd);
 	TimerFreq = 50;
-	SetTimer(c_hWnd, 1, 50, NULL);
+	SetTimer(c_hWnd, 1, 50, 0);
 }
 //
 //

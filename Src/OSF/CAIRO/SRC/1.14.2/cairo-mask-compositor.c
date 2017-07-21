@@ -138,7 +138,7 @@ static cairo_surface_t * create_composite_mask(const cairo_mask_compositor_t * c
 	struct blt_in info;
 	int i;
 	cairo_surface_t * surface = _cairo_surface_create_scratch(dst, CAIRO_CONTENT_ALPHA,
-	    extents->bounded.width, extents->bounded.height, NULL);
+	    extents->bounded.width, extents->bounded.height, 0);
 	if(unlikely(surface->status))
 		return surface;
 	status = compositor->acquire(surface);
@@ -163,7 +163,7 @@ static cairo_surface_t * create_composite_mask(const cairo_mask_compositor_t * c
 	}
 	// Is it worth setting the clip region here? 
 	status = draw_func(compositor, surface, draw_closure, CAIRO_OPERATOR_ADD, NULL, NULL,
-	    extents->bounded.x, extents->bounded.y, &extents->bounded, NULL);
+	    extents->bounded.x, extents->bounded.y, &extents->bounded, 0);
 	if(unlikely(status))
 		goto error;
 	info.compositor = compositor;
@@ -277,7 +277,7 @@ static cairo_status_t clip_and_composite_combine(const cairo_mask_compositor_t *
 	status = draw_func(compositor, tmp, draw_closure, op,
 	    pattern, &extents->source_sample_area,
 	    extents->bounded.x, extents->bounded.y,
-	    &extents->bounded, NULL);
+	    &extents->bounded, 0);
 	if(unlikely(status))
 		goto cleanup;
 
@@ -725,7 +725,7 @@ static cairo_status_t clip_and_composite(const cairo_mask_compositor_t * composi
 	}
 
 	if(clip_region)
-		compositor->set_clip_region(dst, NULL);
+		compositor->set_clip_region(dst, 0);
 
 	compositor->release(dst);
 

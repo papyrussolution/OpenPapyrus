@@ -52,20 +52,15 @@ static void getRange(Sci_PositionU start,
 	s[i] = '\0';
 }
 
-static bool IsStreamCommentStyle(int style)
+static bool FASTCALL IsStreamCommentStyle(int style)
 {
-	return style == SCE_C_COMMENT ||
-	       style == SCE_C_COMMENTDOC ||
-	       style == SCE_C_COMMENTDOCKEYWORD ||
-	       style == SCE_C_COMMENTDOCKEYWORDERROR;
+	return oneof4(style, SCE_C_COMMENT, SCE_C_COMMENTDOC, SCE_C_COMMENTDOCKEYWORD, SCE_C_COMMENTDOCKEYWORDERROR);
 }
 
 static void ColourTo(Accessor &styler, Sci_PositionU end, uint attr, bool bInAsm)
 {
-	if((bInAsm) &&
-	    (attr == SCE_C_OPERATOR || attr == SCE_C_NUMBER || attr == SCE_C_DEFAULT || attr == SCE_C_WORD || attr == SCE_C_IDENTIFIER)) {
+	if((bInAsm) && oneof5(attr, SCE_C_OPERATOR, SCE_C_NUMBER, SCE_C_DEFAULT, SCE_C_WORD, SCE_C_IDENTIFIER))
 		styler.ColourTo(end, SCE_C_REGEX);
-	}
 	else
 		styler.ColourTo(end, attr);
 }
@@ -78,11 +73,9 @@ static int classifyWordTACL(Sci_PositionU start,
     bool bInAsm)
 {
 	int ret = 0;
-
-	WordList& keywords = *keywordlists[0];
-	WordList& builtins = *keywordlists[1];
-	WordList& commands = *keywordlists[2];
-
+	WordList & keywords = *keywordlists[0];
+	WordList & builtins = *keywordlists[1];
+	WordList & commands = *keywordlists[2];
 	char s[100];
 	getRange(start, end, styler, s, sizeof(s));
 

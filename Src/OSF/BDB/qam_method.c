@@ -286,7 +286,7 @@ err:
  */
 void __qam_map_flags(DB*dbp, uint32 * inflagsp, uint32 * outflagsp)
 {
-	COMPQUIET(dbp, NULL);
+	COMPQUIET(dbp, 0);
 	if(FLD_ISSET(*inflagsp, DB_INORDER)) {
 		FLD_SET(*outflagsp, DB_AM_INORDER);
 		FLD_CLR(*inflagsp, DB_INORDER);

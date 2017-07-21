@@ -754,7 +754,7 @@ static int __seq_chk_cachesize(ENV * env, int32 cachesize, db_seq_t max, db_seq_
 
 int db_sequence_create(DB_SEQUENCE ** seqp, DB * dbp, uint32 flags)
 {
-	COMPQUIET(seqp, NULL);
+	COMPQUIET(seqp, 0);
 	COMPQUIET(flags, 0);
 	__db_errx(dbp->env, DB_STR("4015", "library build did not include support for sequences"));
 	return DB_OPNOTSUP;

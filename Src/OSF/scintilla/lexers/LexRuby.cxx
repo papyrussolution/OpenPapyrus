@@ -337,7 +337,7 @@ static bool isEmptyLine(Sci_Position pos,
 {
 	int spaceFlags = 0;
 	Sci_Position lineCurrent = styler.GetLine(pos);
-	int indentCurrent = styler.IndentAmount(lineCurrent, &spaceFlags, NULL);
+	int indentCurrent = styler.IndentAmount(lineCurrent, &spaceFlags, 0);
 	return (indentCurrent & SC_FOLDLEVELWHITEFLAG) != 0;
 }
 

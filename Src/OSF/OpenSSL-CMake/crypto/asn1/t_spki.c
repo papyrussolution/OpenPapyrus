@@ -31,7 +31,7 @@ int NETSCAPE_SPKI_print(BIO * out, NETSCAPE_SPKI * spki)
 	if(!pkey)
 		BIO_printf(out, "  Unable to load public key\n");
 	else {
-		EVP_PKEY_print_public(out, pkey, 4, NULL);
+		EVP_PKEY_print_public(out, pkey, 4, 0);
 		EVP_PKEY_free(pkey);
 	}
 	chal = spki->spkac->challenge;

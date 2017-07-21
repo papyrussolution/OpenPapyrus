@@ -2477,7 +2477,7 @@ void __ham_dpair(DB * dbp, PAGE * p, uint32 indx)
 static int __hamc_delpg_getorder(DBC * cp, DBC * my_dbc, uint32 * orderp, db_pgno_t new_pgno, uint32 indx, void * args)
 {
 	HASH_CURSOR * hcp;
-	COMPQUIET(args, NULL);
+	COMPQUIET(args, 0);
 	if(cp == my_dbc || cp->dbtype != DB_HASH)
 		return 0;
 	hcp = (HASH_CURSOR *)cp->internal;

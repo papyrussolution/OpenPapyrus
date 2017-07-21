@@ -818,8 +818,7 @@ const xmlChar * xmlDictLookup(xmlDictPtr dict, const xmlChar * name, int len)
 						return tmp->name;
 				}
 #else
-				if((tmp->okey == skey) && (tmp->len == l) &&
-				    (!xmlStrncmp(tmp->name, name, l)))
+				if((tmp->okey == skey) && (tmp->len == l) && (!xmlStrncmp(tmp->name, name, l)))
 					return tmp->name;
 #endif
 				nbi++;

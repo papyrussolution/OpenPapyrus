@@ -743,7 +743,7 @@ void SurfaceGDI::FillRectangle(PRectangle rc, ColourDesired back)
 	// There is no need to allocate a brush either.
 	RECT rcw = RectFromPRectangle(rc);
 	::SetBkColor(hdc, back.AsLong());
-	::ExtTextOut(hdc, rcw.left, rcw.top, ETO_OPAQUE, &rcw, TEXT(""), 0, NULL);
+	::ExtTextOut(hdc, rcw.left, rcw.top, ETO_OPAQUE, &rcw, TEXT(""), 0, 0);
 }
 
 void SurfaceGDI::FillRectangle(PRectangle rc, Surface &surfacePattern)
@@ -926,10 +926,10 @@ void SurfaceGDI::DrawTextCommon(PRectangle rc, Font &font_, XYPOSITION ybase, co
 
 	if(unicodeMode) {
 		const TextWide tbuf(s, len, unicodeMode, codePage);
-		::ExtTextOutW(hdc, x, yBaseInt, fuOptions, &rcw, tbuf.buffer, tbuf.tlen, NULL);
+		::ExtTextOutW(hdc, x, yBaseInt, fuOptions, &rcw, tbuf.buffer, tbuf.tlen, 0);
 	}
 	else {
-		::ExtTextOutA(hdc, x, yBaseInt, fuOptions, &rcw, s, len, NULL);
+		::ExtTextOutA(hdc, x, yBaseInt, fuOptions, &rcw, s, len, 0);
 	}
 }
 
@@ -3120,7 +3120,7 @@ void Menu::Show(Point pt, Window &w)
 {
 	::TrackPopupMenu(static_cast<HMENU>(mid),
 	    TPM_RIGHTBUTTON, static_cast<int>(pt.x - 4), static_cast<int>(pt.y), 0,
-	    static_cast<HWND>(w.GetID()), NULL);
+	    static_cast<HWND>(w.GetID()), 0);
 	Destroy();
 }
 

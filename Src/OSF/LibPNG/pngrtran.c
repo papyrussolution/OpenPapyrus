@@ -4123,7 +4123,7 @@ void /* PRIVATE */ png_do_read_transformations(png_structrp png_ptr, png_row_inf
 				png_do_expand(row_info, png_ptr->row_buf + 1, &(png_ptr->trans_color));
 
 			else
-				png_do_expand(row_info, png_ptr->row_buf + 1, NULL);
+				png_do_expand(row_info, png_ptr->row_buf + 1, 0);
 		}
 	}
 #endif

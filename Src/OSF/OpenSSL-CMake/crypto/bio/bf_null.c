@@ -44,7 +44,7 @@ static int nullf_new(BIO * bi)
 	bi->init = 1;
 	bi->ptr = NULL;
 	bi->flags = 0;
-	return (1);
+	return 1;
 }
 
 static int nullf_free(BIO * a)
@@ -56,26 +56,24 @@ static int nullf_free(BIO * a)
 	   a->init=0;
 	   a->flags=0;
 	 */
-	return (1);
+	return 1;
 }
 
 static int nullf_read(BIO * b, char * out, int outl)
 {
 	int ret = 0;
-	if(out == NULL)
-		return 0;
-	if(!b->next_bio)
-		return 0;
-	ret = BIO_read(b->next_bio, out, outl);
-	BIO_clear_retry_flags(b);
-	BIO_copy_next_retry(b);
+	if(out && b->next_bio) {
+		ret = BIO_read(b->next_bio, out, outl);
+		BIO_clear_retry_flags(b);
+		BIO_copy_next_retry(b);
+	}
 	return ret;
 }
 
 static int nullf_write(BIO * b, const char * in, int inl)
 {
 	int ret = 0;
-	if((in == NULL) || (inl <= 0))
+	if(!in || (inl <= 0))
 		return 0;
 	if(!b->next_bio)
 		return 0;

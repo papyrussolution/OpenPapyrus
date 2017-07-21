@@ -1748,7 +1748,7 @@ static void xmlShellPrintXPathResultCtxt(xmlShellCtxtPtr ctxt, xmlXPathObjectPtr
 			    break;
 
 			default:
-			    xmlShellPrintXPathError(list->type, NULL);
+			    xmlShellPrintXPathError(list->type, 0);
 		}
 	}
 }
@@ -1975,13 +1975,13 @@ static int xmlShellGrep(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED,
 		if(node->type == XML_COMMENT_NODE) {
 			if(xmlStrstr(node->content, (xmlChar*)arg)) {
 				fprintf(ctxt->output, "%s : ", xmlGetNodePath(node));
-				xmlShellList(ctxt, NULL, node, NULL);
+				xmlShellList(ctxt, NULL, node, 0);
 			}
 		}
 		else if(node->type == XML_TEXT_NODE) {
 			if(xmlStrstr(node->content, (xmlChar*)arg)) {
 				fprintf(ctxt->output, "%s : ", xmlGetNodePath(node->parent));
-				xmlShellList(ctxt, NULL, node->parent, NULL);
+				xmlShellList(ctxt, NULL, node->parent, 0);
 			}
 		}
 		/*
@@ -2065,34 +2065,27 @@ int xmlShellDir(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED,
  *
  * Returns 0
  */
-static int xmlShellSetContent(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED,
-    char * value, xmlNodePtr node,
-    xmlNodePtr node2 ATTRIBUTE_UNUSED)
+static int xmlShellSetContent(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * value, xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
 {
-	xmlNodePtr results;
-	xmlParserErrors ret;
-
-	if(!ctxt)
-		return 0;
-	if(node == NULL) {
-		fprintf(ctxt->output, "NULL\n");
-		return 0;
-	}
-	if(!value) {
-		fprintf(ctxt->output, "NULL\n");
-		return 0;
-	}
-	ret = xmlParseInNodeContext(node, value, strlen(value), 0, &results);
-	if(ret == XML_ERR_OK) {
-		if(node->children != NULL) {
-			xmlFreeNodeList(node->children);
-			node->children = NULL;
-			node->last = NULL;
+	if(ctxt) {
+		if(!node)
+			fprintf(ctxt->output, "NULL\n");
+		else if(!value)
+			fprintf(ctxt->output, "NULL\n");
+		else {
+			xmlNode * p_results;
+			xmlParserErrors ret = xmlParseInNodeContext(node, value, strlen(value), 0, &p_results);
+			if(ret == XML_ERR_OK) {
+				if(node->children) {
+					xmlFreeNodeList(node->children);
+					node->children = NULL;
+					node->last = NULL;
+				}
+				xmlAddChildList(node, p_results);
+			}
+			else
+				fprintf(ctxt->output, "failed to parse content\n");
 		}
-		xmlAddChildList(node, results);
-	}
-	else {
-		fprintf(ctxt->output, "failed to parse content\n");
 	}
 	return 0;
 }
@@ -2205,12 +2198,12 @@ int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNodePtr node ATTRIBUT
 	xmlDocPtr doc;
 	int html = 0;
 	if(!ctxt || (filename == NULL)) return -1;
-	if(ctxt->doc != NULL)
+	if(ctxt->doc)
 		html = (ctxt->doc->type == XML_HTML_DOCUMENT_NODE);
 
 	if(html) {
 #ifdef LIBXML_HTML_ENABLED
-		doc = htmlParseFile(filename, NULL);
+		doc = htmlParseFile(filename, 0);
 #else
 		fprintf(ctxt->output, "HTML support not compiled in\n");
 		doc = NULL;
@@ -2219,7 +2212,7 @@ int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNodePtr node ATTRIBUT
 	else {
 		doc = xmlReadFile(filename, NULL, 0);
 	}
-	if(doc != NULL) {
+	if(doc) {
 		if(ctxt->loaded == 1) {
 			xmlFreeDoc(ctxt->doc);
 		}
@@ -2672,11 +2665,11 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input, FILE *
 			if(arg[0] == 0)
 				xmlGenericError(0, "Write command requires a filename argument\n");
 			else
-				xmlShellWrite(ctxt, arg, ctxt->node, NULL);
+				xmlShellWrite(ctxt, arg, ctxt->node, 0);
 #endif /* LIBXML_OUTPUT_ENABLED */
 		}
 		else if(sstreq(command, "grep")) {
-			xmlShellGrep(ctxt, arg, ctxt->node, NULL);
+			xmlShellGrep(ctxt, arg, ctxt->node, 0);
 		}
 		else if(sstreq(command, "free")) {
 			if(arg[0] == 0) {
@@ -2695,7 +2688,7 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input, FILE *
 		}
 		else if(sstreq(command, "du")) {
 			if(arg[0] == 0) {
-				xmlShellDu(ctxt, NULL, ctxt->node, NULL);
+				xmlShellDu(ctxt, NULL, ctxt->node, 0);
 			}
 			else {
 				ctxt->pctxt->node = ctxt->node;
@@ -2711,7 +2704,7 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input, FILE *
 						case XPATH_NODESET: 
 							if(list->nodesetval) {
 								for(int indx = 0; indx < list->nodesetval->nodeNr; indx++)
-									xmlShellDu(ctxt, NULL, list->nodesetval->nodeTab[indx], NULL);
+									xmlShellDu(ctxt, NULL, list->nodesetval->nodeTab[indx], 0);
 							}
 							break;
 						case XPATH_BOOLEAN: xmlGenericError(0, "%s is a Boolean\n", arg); break;
@@ -2734,10 +2727,10 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input, FILE *
 			}
 		}
 		else if(sstreq(command, "base")) {
-			xmlShellBase(ctxt, NULL, ctxt->node, NULL);
+			xmlShellBase(ctxt, NULL, ctxt->node, 0);
 		}
 		else if(sstreq(command, "set")) {
-			xmlShellSetContent(ctxt, arg, ctxt->node, NULL);
+			xmlShellSetContent(ctxt, arg, ctxt->node, 0);
 #ifdef LIBXML_XPATH_ENABLED
 		}
 		else if(sstreq(command, "setns")) {
@@ -2750,7 +2743,7 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input, FILE *
 		}
 		else if(sstreq(command, "setrootns")) {
 			xmlNodePtr root = xmlDocGetRootElement(ctxt->doc);
-			xmlShellRegisterRootNamespaces(ctxt, NULL, root, NULL);
+			xmlShellRegisterRootNamespaces(ctxt, NULL, root, 0);
 		}
 		else if(sstreq(command, "xpath")) {
 			if(arg[0] == 0) {
@@ -2766,16 +2759,16 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input, FILE *
 #ifdef LIBXML_TREE_ENABLED
 		}
 		else if(sstreq(command, "setbase")) {
-			xmlShellSetBase(ctxt, arg, ctxt->node, NULL);
+			xmlShellSetBase(ctxt, arg, ctxt->node, 0);
 #endif
 		}
 		else if((!strcmp(command, "ls")) || (!strcmp(command, "dir"))) {
 			int dir = (!strcmp(command, "dir"));
 			if(arg[0] == 0) {
 				if(dir)
-					xmlShellDir(ctxt, NULL, ctxt->node, NULL);
+					xmlShellDir(ctxt, NULL, ctxt->node, 0);
 				else
-					xmlShellList(ctxt, NULL, ctxt->node, NULL);
+					xmlShellList(ctxt, NULL, ctxt->node, 0);
 			}
 			else {
 				ctxt->pctxt->node = ctxt->node;
@@ -2796,9 +2789,9 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input, FILE *
 							    break;
 						    for(indx = 0; indx < list->nodesetval->nodeNr; indx++) {
 							    if(dir)
-								    xmlShellDir(ctxt, NULL, list->nodesetval->nodeTab[indx], NULL);
+								    xmlShellDir(ctxt, NULL, list->nodesetval->nodeTab[indx], 0);
 							    else
-								    xmlShellList(ctxt, NULL, list->nodesetval->nodeTab[indx], NULL);
+								    xmlShellList(ctxt, NULL, list->nodesetval->nodeTab[indx], 0);
 						    }
 						    break;
 					    }
@@ -2927,7 +2920,7 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input, FILE *
 		}
 		else if(sstreq(command, "cat")) {
 			if(arg[0] == 0) {
-				xmlShellCat(ctxt, NULL, ctxt->node, NULL);
+				xmlShellCat(ctxt, NULL, ctxt->node, 0);
 			}
 			else {
 				ctxt->pctxt->node = ctxt->node;
@@ -2949,7 +2942,7 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input, FILE *
 						    for(indx = 0; indx < list->nodesetval->nodeNr; indx++) {
 							    if(i > 0)
 								    fprintf(ctxt->output, " -------\n");
-							    xmlShellCat(ctxt, NULL, list->nodesetval->nodeTab[indx], NULL);
+							    xmlShellCat(ctxt, NULL, list->nodesetval->nodeTab[indx], 0);
 						    }
 						    break;
 					    }

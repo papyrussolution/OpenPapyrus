@@ -202,7 +202,7 @@ static int krb5_auth(void * app_data, struct connectdata * conn)
 			continue;
 		}
 		/* We pass NULL as |output_name_type| to avoid a leak. */
-		gss_display_name(&min, gssname, &output_buffer, NULL);
+		gss_display_name(&min, gssname, &output_buffer, 0);
 		Curl_infof(data, "Trying against %s\n", output_buffer.value);
 		gssresp = GSS_C_NO_BUFFER;
 		*context = GSS_C_NO_CONTEXT;

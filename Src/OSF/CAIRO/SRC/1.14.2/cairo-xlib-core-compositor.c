@@ -243,7 +243,7 @@ static cairo_bool_t fallback_box(cairo_box_t * box, void * closure)
 	    width, height);
 	status = _cairo_surface_offset_paint(image, x, y,
 	    CAIRO_OPERATOR_SOURCE,
-	    data->pattern, NULL);
+	    data->pattern, 0);
 	if(status == CAIRO_STATUS_SUCCESS) {
 		status = _cairo_xlib_surface_draw_image(data->dst,
 		    (cairo_image_surface_t*)image,

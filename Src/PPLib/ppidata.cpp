@@ -119,7 +119,7 @@ static void SLAPI SetInetError(HMODULE handle)
 			InternetGetLastResponseInfo(&iec, buf, &buf_len); // @unicodeproblem
 		}
 		else {
-			FormatMessage(FORMAT_MESSAGE_FROM_HMODULE|FORMAT_MESSAGE_IGNORE_INSERTS, handle, os_err_code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buf, buf_len, NULL); // @unicodeproblem
+			FormatMessage(FORMAT_MESSAGE_FROM_HMODULE|FORMAT_MESSAGE_IGNORE_INSERTS, handle, os_err_code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buf, buf_len, 0); // @unicodeproblem
 		}
 		PPSetAddedMsgString((msg_buf = buf).Chomp().ToOem());
 	}

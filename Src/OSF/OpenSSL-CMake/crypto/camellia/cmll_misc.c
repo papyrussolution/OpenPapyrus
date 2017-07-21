@@ -12,25 +12,22 @@
 #include <openssl/camellia.h>
 #include "cmll_locl.h"
 
-int Camellia_set_key(const uchar *userKey, const int bits,
-                     CAMELLIA_KEY *key)
+int Camellia_set_key(const uchar * userKey, const int bits, CAMELLIA_KEY * key)
 {
-    if (!userKey || !key)
-        return -1;
-    if (bits != 128 && bits != 192 && bits != 256)
-        return -2;
-    key->grand_rounds = Camellia_Ekeygen(bits, userKey, key->u.rd_key);
-    return 0;
+	if(!userKey || !key)
+		return -1;
+	if(bits != 128 && bits != 192 && bits != 256)
+		return -2;
+	key->grand_rounds = Camellia_Ekeygen(bits, userKey, key->u.rd_key);
+	return 0;
 }
 
-void Camellia_encrypt(const uchar *in, uchar *out,
-                      const CAMELLIA_KEY *key)
+void Camellia_encrypt(const uchar * in, uchar * out, const CAMELLIA_KEY * key)
 {
-    Camellia_EncryptBlock_Rounds(key->grand_rounds, in, key->u.rd_key, out);
+	Camellia_EncryptBlock_Rounds(key->grand_rounds, in, key->u.rd_key, out);
 }
 
-void Camellia_decrypt(const uchar *in, uchar *out,
-                      const CAMELLIA_KEY *key)
+void Camellia_decrypt(const uchar * in, uchar * out, const CAMELLIA_KEY * key)
 {
-    Camellia_DecryptBlock_Rounds(key->grand_rounds, in, key->u.rd_key, out);
+	Camellia_DecryptBlock_Rounds(key->grand_rounds, in, key->u.rd_key, out);
 }

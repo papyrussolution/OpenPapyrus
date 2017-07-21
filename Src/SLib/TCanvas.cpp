@@ -878,7 +878,7 @@ BOOL FASTCALL IntRoundRect(PDC  dc, int  Left, int  Top, int  Right, int  Bottom
 		if(ret) {
 			ret = IntDrawRoundRect(dc, RectBounds.left, RectBounds.top, RectBounds.right, RectBounds.bottom, xCurveDiameter, yCurveDiameter, pbrLine);
 		}
-		DC_vFinishBlit(dc, NULL);
+		DC_vFinishBlit(dc, 0);
 	}
 	pbrLine->lWidth = PenOrigWidth;
 	PEN_ShareUnlockPen(pbrLine);

@@ -40,7 +40,7 @@ static int null_new(BIO * bi)
 	bi->init = 1;
 	bi->num = 0;
 	bi->ptr = (NULL);
-	return (1);
+	return 1;
 }
 
 static int null_free(BIO * a)

@@ -4177,15 +4177,16 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 				// @v9.5.7 В конфигурацию обмена данными добавлен спец тег для этого.
 				//
 				if(p_ref->Ot.GetTagStr(PPOBJ_BILL, upd_bill_id, bill_ack_tag_id, temp_buf) > 0 && !test_uuid.FromStr(temp_buf)) {
-                    if(P_BObj->Search(upd_bill_id, &bill_rec) > 0) {
-						if(IsOpBelongTo(bill_rec.OpID, b_filt.OpID) && b_filt.LocList.CheckID(bill_rec.LocID)) { // @v9.7.5 b_filt.LocList.CheckID(bill_rec.LocID)
+                    if(P_BObj->Search(upd_bill_id, &bill_rec) > 0 && IsOpBelongTo(bill_rec.OpID, b_filt.OpID) && b_filt.LocList.CheckID(bill_rec.LocID)) {
+						if(P_BObj->ExtractPacket(upd_bill_id, &pack) > 0) {
 							Helper_Make_iSalesIdent(bill_rec, outerDocType, isales_code);
-							if(isales_code != temp_buf) {
+							if(pack.GetTCount() == 0) {
 								Helper_MakeBillEntry(upd_bill_id, -outerDocType, rList);
+								force_bill_list.add(upd_bill_id);
 							}
-							else if(P_BObj->ExtractPacket(upd_bill_id, &pack) > 0) {
-								long   tiiterpos = 0;
+							else {
 								int    is_isales_goods = 0;
+								long   tiiterpos = 0;
 								for(uint tiidx = 0; !is_isales_goods && tiidx < pack.GetTCount(); tiidx++) {
 									const PPID goods_id = labs(pack.ConstTI(tiidx).GoodsID);
 									if(GObj.BelongToGroup(goods_id, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, goods_id, temp_buf = 0, 0) > 0) {
@@ -4199,10 +4200,13 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 											is_isales_goods = 1;
 									}
 								}
-								if(!is_isales_goods)
-									Helper_MakeBillEntry(upd_bill_id, -outerDocType, rList);
+								if(is_isales_goods) {
+									if(isales_code != temp_buf) {
+										Helper_MakeBillEntry(upd_bill_id, -outerDocType, rList);
+									}
+									force_bill_list.add(upd_bill_id);
+								}
 							}
-							force_bill_list.add(upd_bill_id);
 						}
                     }
 				}

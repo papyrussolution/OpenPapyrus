@@ -2039,7 +2039,7 @@ uint FASTCALL UriNormalizeSyntaxMaskRequired(const UriUri * uri)
 
 int FASTCALL UriNormalizeSyntaxEx(UriUri * uri, uint mask)
 {
-	return UriNormalizeSyntaxEngine(uri, mask, NULL);
+	return UriNormalizeSyntaxEngine(uri, mask, 0);
 }
 
 int FASTCALL UriNormalizeSyntax(UriUri * uri)
@@ -2242,7 +2242,7 @@ int FASTCALL UriToStringCharsRequired(const UriUri*uri, int * charsRequired)
 
 int UriToString(char * dest, const UriUri*uri, int maxChars, int * charsWritten)
 {
-	return UriToStringEngine(dest, uri, maxChars, charsWritten, NULL);
+	return UriToStringEngine(dest, uri, maxChars, charsWritten, 0);
 }
 
 static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * charsWritten, int * charsRequired)

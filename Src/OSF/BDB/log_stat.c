@@ -149,7 +149,7 @@ static int __log_print_stats(ENV * env, uint32 flags)
 	__db_dl(env, "Maximum commits in a log flush", (ulong)sp->st_maxcommitperflush);
 	__db_dl(env, "Minimum commits in a log flush", (ulong)sp->st_mincommitperflush);
 	__db_dlbytes(env, "Region size", (ulong)0, (ulong)0, (ulong)sp->st_regsize);
-	__db_dl_pct(env, "The number of region locks that required waiting", (ulong)sp->st_region_wait, DB_PCT(sp->st_region_wait, sp->st_region_wait+sp->st_region_nowait), NULL);
+	__db_dl_pct(env, "The number of region locks that required waiting", (ulong)sp->st_region_wait, DB_PCT(sp->st_region_wait, sp->st_region_wait+sp->st_region_nowait), 0);
 	__os_ufree(env, sp);
 	return 0;
 }
@@ -217,7 +217,7 @@ static int __log_print_all(ENV * env, uint32 flags)
 
 int __log_stat_pp(DB_ENV * dbenv, DB_LOG_STAT ** statp, uint32 flags)
 {
-	COMPQUIET(statp, NULL);
+	COMPQUIET(statp, 0);
 	COMPQUIET(flags, 0);
 	return __db_stat_not_built(dbenv->env);
 }

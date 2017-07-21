@@ -38,7 +38,8 @@
 using namespace Scintilla;
 #endif
 
-static bool IsSpaceEquiv(int state) {
+static bool FASTCALL IsSpaceEquiv(int state) 
+{
 	switch(state) {
 		case SCE_ECL_DEFAULT:
 		case SCE_ECL_COMMENT:
@@ -48,7 +49,6 @@ static bool IsSpaceEquiv(int state) {
 		case SCE_ECL_COMMENTDOCKEYWORDERROR:
 		case SCE_ECL_COMMENTDOC:
 		    return true;
-
 		default:
 		    return false;
 	}
@@ -400,14 +400,13 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 	sc.Complete();
 }
 
-static bool IsStreamCommentStyle(int style) {
-	return style == SCE_ECL_COMMENT ||
-	       style == SCE_ECL_COMMENTDOC ||
-	       style == SCE_ECL_COMMENTDOCKEYWORD ||
-	       style == SCE_ECL_COMMENTDOCKEYWORDERROR;
+static bool FASTCALL IsStreamCommentStyle(int style) 
+{
+	return style == SCE_ECL_COMMENT || style == SCE_ECL_COMMENTDOC || style == SCE_ECL_COMMENTDOCKEYWORD || style == SCE_ECL_COMMENTDOCKEYWORDERROR;
 }
 
-static bool MatchNoCase(Accessor & styler, Sci_PositionU & pos, const char * s) {
+static bool MatchNoCase(Accessor & styler, Sci_PositionU & pos, const char * s) 
+{
 	Sci_Position i = 0;
 	for(; *s; i++) {
 		char compare_char = tolower(*s);

@@ -98,8 +98,7 @@ static void usershell() {
 		nbargs = 0;
 		while((*cur == ' ') || (*cur == '\t')) cur++;
 		i = 0;
-		while((*cur != ' ') && (*cur != '\t') &&
-		    (*cur != '\n') && (*cur != '\r')) {
+		while((*cur != ' ') && (*cur != '\t') && (*cur != '\n') && (*cur != '\r')) {
 			if(*cur == 0)
 				break;
 			command[i++] = *cur++;
@@ -113,7 +112,7 @@ static void usershell() {
 		 * Parse the argument string
 		 */
 		memzero(arg, sizeof(arg));
-		while((*cur == ' ') || (*cur == '\t')) 
+		while((*cur == ' ') || (*cur == '\t'))
 			cur++;
 		i = 0;
 		while((*cur != '\n') && (*cur != '\r') && (*cur != 0)) {
@@ -431,7 +430,7 @@ int main(int argc, char ** argv) {
 		filename = argv[i];
 		ret = xmlLoadCatalog(argv[i]);
 		if((ret < 0) && (create)) {
-			xmlCatalogAdd(BAD_CAST "catalog", BAD_CAST argv[i], NULL);
+			xmlCatalogAdd(BAD_CAST "catalog", BAD_CAST argv[i], 0);
 		}
 		break;
 	}
@@ -464,7 +463,7 @@ int main(int argc, char ** argv) {
 					if(catal == NULL)
 						catal = xmlNewCatalog(1);
 					xmlACatalogAdd(catal, BAD_CAST "CATALOG",
-					    BAD_CAST argv[i + 2], NULL);
+					    BAD_CAST argv[i + 2], 0);
 
 					if(!no_super_update) {
 						super = xmlLoadSGMLSuperCatalog(XML_SGML_DEFAULT_CATALOG);
@@ -472,7 +471,7 @@ int main(int argc, char ** argv) {
 							super = xmlNewCatalog(1);
 
 						xmlACatalogAdd(super, BAD_CAST "CATALOG",
-						    BAD_CAST argv[i + 1], NULL);
+						    BAD_CAST argv[i + 1], 0);
 					}
 				}
 				else {

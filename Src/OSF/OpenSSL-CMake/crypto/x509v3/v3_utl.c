@@ -13,7 +13,7 @@
 #pragma hdrstop
 //#include <openssl/conf.h>
 //#include <openssl/x509v3.h>
-#include "internal/x509_int.h"
+//#include "internal/x509_int.h"
 //#include <openssl/bn.h>
 #include "ext_dat.h"
 
@@ -149,7 +149,7 @@ ASN1_INTEGER * s2i_ASN1_INTEGER(X509V3_EXT_METHOD * method, const char * value)
 	if(isneg && BN_is_zero(bn))
 		isneg = 0;
 
-	aint = BN_to_ASN1_INTEGER(bn, NULL);
+	aint = BN_to_ASN1_INTEGER(bn, 0);
 	BN_free(bn);
 	if(!aint) {
 		X509V3err(X509V3_F_S2I_ASN1_INTEGER, X509V3_R_BN_TO_ASN1_INTEGER_ERROR);
@@ -873,7 +873,7 @@ int X509_check_email(X509 * x, const char * chk, size_t chklen,
 		return -2;
 	if(chklen > 1 && chk[chklen - 1] == '\0')
 		--chklen;
-	return do_x509_check(x, chk, chklen, flags, GEN_EMAIL, NULL);
+	return do_x509_check(x, chk, chklen, flags, GEN_EMAIL, 0);
 }
 
 int X509_check_ip(X509 * x, const uchar * chk, size_t chklen,
@@ -881,7 +881,7 @@ int X509_check_ip(X509 * x, const uchar * chk, size_t chklen,
 {
 	if(chk == NULL)
 		return -2;
-	return do_x509_check(x, (char*)chk, chklen, flags, GEN_IPADD, NULL);
+	return do_x509_check(x, (char*)chk, chklen, flags, GEN_IPADD, 0);
 }
 
 int X509_check_ip_asc(X509 * x, const char * ipasc, uint flags)
@@ -894,7 +894,7 @@ int X509_check_ip_asc(X509 * x, const char * ipasc, uint flags)
 	iplen = (size_t)a2i_ipadd(ipout, ipasc);
 	if(iplen == 0)
 		return -2;
-	return do_x509_check(x, (char*)ipout, iplen, flags, GEN_IPADD, NULL);
+	return do_x509_check(x, (char*)ipout, iplen, flags, GEN_IPADD, 0);
 }
 
 /*

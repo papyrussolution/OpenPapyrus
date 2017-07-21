@@ -972,7 +972,7 @@ static cairo_surface_t * attach_proxy(cairo_surface_t * source, cairo_surface_t 
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	_cairo_surface_init(&proxy->base, &proxy_backend, NULL, image->content);
 	proxy->image = image;
-	_cairo_surface_attach_snapshot(source, &proxy->base, NULL);
+	_cairo_surface_attach_snapshot(source, &proxy->base, 0);
 	return &proxy->base;
 }
 
@@ -1028,7 +1028,7 @@ static pixman_image_t * _pixman_image_for_recording(cairo_image_surface_t * dst,
 			y2 = limit.y + limit.height;
 
 			_cairo_matrix_transform_bounding_box(&matrix,
-			    &x1, &y1, &x2, &y2, NULL);
+			    &x1, &y1, &x2, &y2, 0);
 
 			limit.x = (int)floor(x1);
 			limit.y = (int)floor(y1);
@@ -1073,7 +1073,7 @@ static pixman_image_t * _pixman_image_for_recording(cairo_image_surface_t * dst,
 
 	/* Handle recursion by returning future reads from the current image */
 	proxy = attach_proxy(source, clone);
-	status = _cairo_recording_surface_replay_with_clip(source, m, clone, NULL);
+	status = _cairo_recording_surface_replay_with_clip(source, m, clone, 0);
 	detach_proxy(source, proxy);
 	if(unlikely(status)) {
 		cairo_surface_destroy(clone);
@@ -1315,7 +1315,7 @@ static pixman_image_t * _pixman_image_for_raster(cairo_image_surface_t * dst,
 	cairo_surface_t * surface;
 	TRACE((stderr, "%s\n", __FUNCTION__));
 	*ix = *iy = 0;
-	surface = _cairo_raster_source_pattern_acquire(&pattern->base, &dst->base, NULL);
+	surface = _cairo_raster_source_pattern_acquire(&pattern->base, &dst->base, 0);
 	if(unlikely(surface == NULL || surface->status))
 		return NULL;
 	status = _cairo_surface_acquire_source_image(surface, &image, &extra);

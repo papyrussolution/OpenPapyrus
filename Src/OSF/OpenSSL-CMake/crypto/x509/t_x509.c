@@ -172,7 +172,7 @@ int X509_print_ex(BIO * bp, X509 * x, unsigned long nmflags, unsigned long cflag
 			ERR_print_errors(bp);
 		}
 		else {
-			EVP_PKEY_print_public(bp, pkey, 16, NULL);
+			EVP_PKEY_print_public(bp, pkey, 16, 0);
 		}
 	}
 
@@ -227,7 +227,7 @@ int X509_ocspid_print(BIO * bp, X509 * x)
 	if(BIO_printf(bp, "        Subject OCSP hash: ") <= 0)
 		goto err;
 	subj = X509_get_subject_name(x);
-	derlen = i2d_X509_NAME(subj, NULL);
+	derlen = i2d_X509_NAME(subj, 0);
 	if((der = dertmp = (uchar *)OPENSSL_malloc(derlen)) == NULL)
 		goto err;
 	i2d_X509_NAME(subj, &dertmp);
@@ -254,7 +254,7 @@ int X509_ocspid_print(BIO * bp, X509 * x)
 			goto err;
 	}
 	BIO_printf(bp, "\n");
-	return (1);
+	return 1;
 err:
 	OPENSSL_free(der);
 	return 0;
@@ -348,7 +348,7 @@ int X509_aux_print(BIO * out, X509 * x, int indent)
 	}
 	else
 		BIO_printf(out, "%*sNo Rejected Uses.\n", indent, "");
-	alias = X509_alias_get0(x, NULL);
+	alias = X509_alias_get0(x, 0);
 	if(alias)
 		BIO_printf(out, "%*sAlias: %s\n", indent, "", alias);
 	keyid = X509_keyid_get0(x, &keyidlen);

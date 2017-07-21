@@ -338,7 +338,7 @@ static cairo_status_t _cairo_win32_printing_surface_paint_recording_pattern(cair
 	surface->ctm = p2d;
 	SaveDC(surface->win32.dc);
 	_cairo_matrix_to_win32_xform(&p2d, &xform);
-	status = _cairo_recording_surface_get_bbox(recording_surface, &bbox, NULL);
+	status = _cairo_recording_surface_get_bbox(recording_surface, &bbox, 0);
 	if(status)
 		return status;
 	_cairo_box_round_to_rectangle(&bbox, &recording_extents);
@@ -388,7 +388,7 @@ static cairo_status_t _cairo_win32_printing_surface_paint_recording_pattern(cair
 			x = 0;
 			y = 0;
 			cairo_matrix_transform_point(&surface->ctm, &x, &y);
-			MoveToEx(surface->win32.dc, (int)x, (int)y, NULL);
+			MoveToEx(surface->win32.dc, (int)x, (int)y, 0);
 
 			x = recording_extents.width;
 			y = 0;
@@ -889,10 +889,10 @@ static cairo_status_t _cairo_win32_printing_surface_path_move_to(void * closure,
 		double x = _cairo_fixed_to_double(point->x);
 		double y = _cairo_fixed_to_double(point->y);
 		cairo_matrix_transform_point(&path_info->surface->ctm, &x, &y);
-		MoveToEx(path_info->surface->win32.dc, (int)x, (int)y, NULL);
+		MoveToEx(path_info->surface->win32.dc, (int)x, (int)y, 0);
 	}
 	else {
-		MoveToEx(path_info->surface->win32.dc, _cairo_fixed_integer_part(point->x), _cairo_fixed_integer_part(point->y), NULL);
+		MoveToEx(path_info->surface->win32.dc, _cairo_fixed_integer_part(point->x), _cairo_fixed_integer_part(point->y), 0);
 	}
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -1136,7 +1136,7 @@ static cairo_int_status_t _cairo_win32_printing_surface_stroke(void * abstract_s
 	else {
 		pen_style |= PS_SOLID;
 	}
-	SetMiterLimit(surface->win32.dc, (FLOAT)(style->miter_limit), NULL);
+	SetMiterLimit(surface->win32.dc, (FLOAT)(style->miter_limit), 0);
 	if(source->type == CAIRO_PATTERN_TYPE_SOLID) {
 		cairo_solid_pattern_t * solid = (cairo_solid_pattern_t*)source;
 		color = _cairo_win32_printing_surface_flatten_transparency(surface, &solid->color);

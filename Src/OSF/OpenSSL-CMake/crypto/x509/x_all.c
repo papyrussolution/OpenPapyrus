@@ -13,7 +13,7 @@
 //#include <openssl/asn1.h>
 //#include <openssl/evp.h>
 //#include <openssl/x509.h>
-#include "internal/x509_int.h"
+//#include "internal/x509_int.h"
 #include <openssl/ocsp.h>
 //#include <openssl/rsa.h>
 //#include <openssl/dsa.h>
@@ -355,7 +355,7 @@ int X509_pubkey_digest(const X509 * data, const EVP_MD * type, uchar * md, uint 
 	key = X509_get0_pubkey_bitstr(data);
 	if(!key)
 		return 0;
-	return EVP_Digest(key->data, key->length, md, len, type, NULL);
+	return EVP_Digest(key->data, key->length, md, len, type, 0);
 }
 
 int X509_digest(const X509 * data, const EVP_MD * type, uchar * md, uint * len)

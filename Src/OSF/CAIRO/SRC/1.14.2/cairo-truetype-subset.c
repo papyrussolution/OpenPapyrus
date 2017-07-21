@@ -1332,7 +1332,7 @@ static cairo_status_t find_name(tt_name_t * name, int name_id, int platform, int
 		uint16_t * u = (uint16_t*)str;
 		int u_len = len/2;
 		for(i = 0; i < u_len; i++)
-			size += _cairo_ucs4_to_utf8(be16_to_cpu(u[i]), NULL);
+			size += _cairo_ucs4_to_utf8(be16_to_cpu(u[i]), 0);
 		utf8 = (char *)SAlloc::M(size + 1);
 		if(utf8 == NULL) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);

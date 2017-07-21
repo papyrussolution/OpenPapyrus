@@ -35,7 +35,7 @@ int ASN1_verify(i2d_of_void * i2d, X509_ALGOR * a, ASN1_BIT_STRING * signature,
 		ASN1err(ASN1_F_ASN1_VERIFY, ASN1_R_INVALID_BIT_STRING_BITS_LEFT);
 		goto err;
 	}
-	inl = i2d(data, NULL);
+	inl = i2d(data, 0);
 	buf_in = (uchar*)OPENSSL_malloc((uint)inl);
 	if(buf_in == NULL) {
 		ASN1err(ASN1_F_ASN1_VERIFY, ERR_R_MALLOC_FAILURE);

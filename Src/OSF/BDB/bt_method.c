@@ -102,7 +102,7 @@ int __bam_db_close(DB * dbp)
  */
 void __bam_map_flags(DB * dbp, uint32 * inflagsp, uint32 * outflagsp)
 {
-	COMPQUIET(dbp, NULL);
+	COMPQUIET(dbp, 0);
 	if(FLD_ISSET(*inflagsp, DB_DUP)) {
 		FLD_SET(*outflagsp, DB_AM_DUP);
 		FLD_CLR(*inflagsp, DB_DUP);
@@ -224,8 +224,8 @@ static int __bam_get_bt_compress(DB * dbp,
 	ASSIGN_PTR(decompressp, t->bt_decompress);
 	return 0;
 #else
-	COMPQUIET(compressp, NULL);
-	COMPQUIET(decompressp, NULL);
+	COMPQUIET(compressp, 0);
+	COMPQUIET(decompressp, 0);
 	__db_errx(dbp->env, DB_STR("1026", "compression support has not been compiled in"));
 	return EINVAL;
 #endif
@@ -280,8 +280,8 @@ int __bam_set_bt_compress(DB * dbp,
 	}
 	return 0;
 #else
-	COMPQUIET(compress, NULL);
-	COMPQUIET(decompress, NULL);
+	COMPQUIET(compress, 0);
+	COMPQUIET(decompress, 0);
 	__db_errx(dbp->env, DB_STR("1030", "compression support has not been compiled in"));
 	return EINVAL;
 #endif
@@ -369,7 +369,7 @@ void __bam_copy_config(DB * src, DB * dst, uint32 nparts)
  */
 void __ram_map_flags(DB * dbp, uint32 * inflagsp, uint32 * outflagsp)
 {
-	COMPQUIET(dbp, NULL);
+	COMPQUIET(dbp, 0);
 	if(FLD_ISSET(*inflagsp, DB_RENUMBER)) {
 		FLD_SET(*outflagsp, DB_AM_RENUMBER);
 		FLD_CLR(*inflagsp, DB_RENUMBER);

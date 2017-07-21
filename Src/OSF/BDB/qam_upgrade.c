@@ -26,8 +26,8 @@ int __qam_31_qammeta(DB * dbp, char * real_name, uint8 * buf)
 {
 	QMETA30 * oldmeta;
 	QMETA31 * newmeta;
-	COMPQUIET(dbp, NULL);
-	COMPQUIET(real_name, NULL);
+	COMPQUIET(dbp, 0);
+	COMPQUIET(real_name, 0);
 	newmeta = (QMETA31 *)buf;
 	oldmeta = (QMETA30 *)buf;
 	/*
@@ -59,8 +59,8 @@ int __qam_32_qammeta(DB * dbp, char * real_name, uint8 * buf)
 {
 	QMETA31 * oldmeta;
 	QMETA32 * newmeta;
-	COMPQUIET(dbp, NULL);
-	COMPQUIET(real_name, NULL);
+	COMPQUIET(dbp, 0);
+	COMPQUIET(real_name, 0);
 	newmeta = (QMETA32 *)buf;
 	oldmeta = (QMETA31 *)buf;
 	/*

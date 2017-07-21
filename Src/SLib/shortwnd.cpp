@@ -93,7 +93,7 @@ HWND ShortcutsWindow::Create(HWND parentWnd)
 		TView::SetWindowProp(Hwnd, GWL_STYLE, WS_CHILD);
 		SetParent(Hwnd, parentWnd);
 		HwndTT = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP|TTS_BALLOON,
-			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, Hwnd, NULL, TProgram::GetInst(), NULL);
+			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, Hwnd, NULL, TProgram::GetInst(), 0);
 		SetWindowPos(HwndTT, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 		TabCtrl_SetToolTips(GetDlgItem(Hwnd, CTL_SHORTCUTS_ITEMS), HwndTT);
 	}

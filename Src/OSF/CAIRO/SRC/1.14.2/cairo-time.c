@@ -156,7 +156,7 @@ cairo_time_t _cairo_time_get(void)
 
 	cairo_time_t r;
 
-	gettimeofday(&t, NULL);
+	gettimeofday(&t, 0);
 
 	r = _cairo_double_to_int64(_cairo_time_1s());
 	r = _cairo_int64_mul(r, _cairo_int32_to_int64(t.tv_sec));

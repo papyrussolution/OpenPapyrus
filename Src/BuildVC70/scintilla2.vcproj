@@ -857,6 +857,9 @@
 				RelativePath="..\Osf\scintilla\lexlib\StyleContext.cxx">
 			</File>
 			<File
+				RelativePath="..\Osf\scintilla\lexlib\SubStyles.cxx">
+			</File>
+			<File
 				RelativePath="..\Osf\scintilla\src\UniConversion.cxx">
 			</File>
 			<File

@@ -1314,8 +1314,15 @@ int SLAPI PPObjPerson::GetCountry(PPID id, PPID * pCountryID, PPCountryBlock * p
 					RegisterTbl::Rec reg_rec;
 					if(reg_list.GetRegister(PPREGT_COUNTRYABBR, 0, &reg_rec) > 0)
 						(pBlk->Abbr = reg_rec.Num).Strip();
-					if(reg_list.GetRegister(PPREGT_COUNTRYCODE, 0, &reg_rec) > 0)
+					if(reg_list.GetRegister(PPREGT_COUNTRYCODE, 0, &reg_rec) > 0) {
 						(pBlk->Code = reg_rec.Num).Strip();
+						// @v9.7.8 {
+						// Россия = 643
+						pBlk->IsNative = 1;
+						if(pBlk->Code.NotEmpty() && DS.GetConstTLA().MainOrgCountryCode != pBlk->Code)
+							pBlk->IsNative = 0;
+						// } @v9.7.8
+					}
 				}
 				(pBlk->Name = rec.Name).Strip();
 			}
@@ -6414,14 +6421,14 @@ int PPALDD_Person::InitData(PPFilt & rFilt, long rsrv)
 				if(r_cfg.TradeLicRegTypeID && p_obj->GetRegister(rec.ID, r_cfg.TradeLicRegTypeID, &reg_rec) > 0)
 					H.TradeLicID = reg_rec.ID;
 			}
-			H.Flags = rec.Flags; // @v7.9.10
+			H.Flags = rec.Flags;
 			{
 				SString temp_buf;
 				PPObjWorld::GetNativeCountryName(temp_buf);
 				H.fNativeLand = BIN((rec.Status == PPPRS_COUNTRY) && temp_buf.CmpNC(rec.Name) == 0);
 			}
-			H.fHasImage = BIN(rec.Flags & PSNF_HASIMAGES); // @v7.9.10
-			H.fNoVat    = BIN(rec.Flags & PSNF_NOVATAX);   // @v7.9.10
+			H.fHasImage = BIN(rec.Flags & PSNF_HASIMAGES);
+			H.fNoVat    = BIN(rec.Flags & PSNF_NOVATAX);
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}
 	}
@@ -6495,7 +6502,7 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 	if(pF->Name == "?FormatRegister") {
 		_RET_STR = 0;
 		RegisterTbl::Rec reg_rec;
-		PPID   reg_type_id = Helper_DL600_GetRegister(H.ID, _ARG_STR(1), Extra[0].Ptr, 0, ZERODATE, &reg_rec); 
+		PPID   reg_type_id = Helper_DL600_GetRegister(H.ID, _ARG_STR(1), Extra[0].Ptr, 0, ZERODATE, &reg_rec);
 		if(reg_type_id) {
 			PPObjRegisterType rt_obj;
 			SString format;
@@ -6506,7 +6513,7 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 	if(pF->Name == "?FormatRegisterD") {
 		_RET_STR = 0;
 		RegisterTbl::Rec reg_rec;
-		PPID   reg_type_id = Helper_DL600_GetRegister(H.ID, _ARG_STR(1), Extra[0].Ptr, 1, _ARG_DATE(2), &reg_rec); 
+		PPID   reg_type_id = Helper_DL600_GetRegister(H.ID, _ARG_STR(1), Extra[0].Ptr, 1, _ARG_DATE(2), &reg_rec);
 		if(reg_type_id) {
 			PPObjRegisterType rt_obj;
 			SString format;

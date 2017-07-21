@@ -911,7 +911,7 @@ int SLAPI PPExprParser::ReadArgString(SString & rBuf, size_t * pOffs) const
 	rBuf = 0;
 	const size_t pos = Pos ? (Pos-1) : Pos; // Pos является указателем на символ, следующий за PPExprParser::Cur
 	const char * p = &P_S[pos];
-	while(*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n')
+	while(oneof4(*p, ' ', '\t', '\r', '\n'))
 		p++;
 	if(*p == '(') {
 		uint   par_count = 0;
@@ -1185,23 +1185,10 @@ int SLAPI GoodsContext::ResolveFunc(int funcId, FC & rFc)
 			PPObjID oid;
 			oid = arg;
 			switch(oid.Obj) {
-				case PPOBJ_QUOTKIND:
-					if(!qk_id)
-						qk_id = oid.Id;
-					break;
-				case PPOBJ_CURRENCY:
-					if(!cur_id)
-						cur_id = oid.Id;
-					break;
-				case PPOBJ_LOCATION:
-					if(!loc_id)
-						loc_id = oid.Id;
-					loc_arg_defined = 1;
-					break;
-				case PPOBJ_ARTICLE:
-					if(!ar_id)
-						ar_id = oid.Id;
-					break;
+				case PPOBJ_QUOTKIND: SETIFZ(qk_id, oid.Id); break;
+				case PPOBJ_CURRENCY: SETIFZ(cur_id, oid.Id); break;
+				case PPOBJ_LOCATION: SETIFZ(loc_id, oid.Id); loc_arg_defined = 1; break;
+				case PPOBJ_ARTICLE:  SETIFZ(ar_id, oid.Id); break;
 				default:
 					if(funcId == funcGetQuotCP) {
 						if(cn == 0)

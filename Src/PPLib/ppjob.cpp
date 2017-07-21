@@ -2888,7 +2888,7 @@ int RFIDDevPrcssr::Run()
 									amount -= price;
 									if(ScObj.P_Tbl->PutOpBlk(op_blk, &urn_list, 1) > 0) {
 										ScObj.FinishSCardUpdNotifyList(urn_list);
-										msg.Printf((const char*)BeginPlay, amount);
+										msg.Printf(BeginPlay.cptr(), amount);
 										rele_count = cp.ReleCount;
 									}
 									else {

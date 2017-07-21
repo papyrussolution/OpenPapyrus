@@ -75,7 +75,7 @@ static void pkey_hmac_cleanup(EVP_PKEY_CTX * ctx)
 		HMAC_CTX_free(hctx->ctx);
 		OPENSSL_clear_free(hctx->ktmp.data, hctx->ktmp.length);
 		OPENSSL_free(hctx);
-		EVP_PKEY_CTX_set_data(ctx, NULL);
+		EVP_PKEY_CTX_set_data(ctx, 0);
 	}
 }
 

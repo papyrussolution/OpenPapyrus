@@ -474,7 +474,7 @@ int cert_stuff(struct connectdata * conn,
 				    failf(data, "could not open PKCS12 file '%s'", cert_file);
 				    return 0;
 			    }
-			    p12 = d2i_PKCS12_fp(f, NULL);
+			    p12 = d2i_PKCS12_fp(f, 0);
 			    fclose(f);
 
 			    if(!p12) {
@@ -1478,9 +1478,9 @@ static void ssl_tls_trace(int direction, int ssl_ver, int content_type, const vo
 		msg_type = *(char*)buf;
 		msg_name = ssl_msg_type(ssl_ver, msg_type);
 		txt_len = snprintf(ssl_buf, sizeof(ssl_buf), "%s (%s), %s, %s (%d):\n", verstr, direction ? "OUT" : "IN", tls_rt_name, msg_name, msg_type);
-		Curl_debug(data, CURLINFO_TEXT, ssl_buf, (size_t)txt_len, NULL);
+		Curl_debug(data, CURLINFO_TEXT, ssl_buf, (size_t)txt_len, 0);
 	}
-	Curl_debug(data, (direction == 1) ? CURLINFO_SSL_DATA_OUT : CURLINFO_SSL_DATA_IN, (char*)buf, len, NULL);
+	Curl_debug(data, (direction == 1) ? CURLINFO_SSL_DATA_OUT : CURLINFO_SSL_DATA_IN, (char*)buf, len, 0);
 	(void)ssl;
 }
 
@@ -2040,7 +2040,7 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 	 * anyway. In the latter case the result of the verification is checked with
 	 * SSL_get_verify_result() below. */
 	SSL_CTX_set_verify(connssl->ctx,
-	    verifypeer ? SSL_VERIFY_PEER : SSL_VERIFY_NONE, NULL);
+	    verifypeer ? SSL_VERIFY_PEER : SSL_VERIFY_NONE, 0);
 
 	/* give application a chance to interfere with SSL set up. */
 	if(data->set.ssl.fsslctx) {
@@ -2465,7 +2465,7 @@ static CURLcode get_cert_chain(struct connectdata * conn,
 					    const BIGNUM * n;
 					    const BIGNUM * e;
 
-					    RSA_get0_key(rsa, &n, &e, NULL);
+					    RSA_get0_key(rsa, &n, &e, 0);
 					    BN_print(mem, n);
 					    push_certinfo("RSA Public Key", i);
 					    print_pubkey_BN(rsa, n, i);
@@ -2497,7 +2497,7 @@ static CURLcode get_cert_chain(struct connectdata * conn,
 					    const BIGNUM * pub_key;
 
 					    DSA_get0_pqg(dsa, &p, &q, &g);
-					    DSA_get0_key(dsa, &pub_key, NULL);
+					    DSA_get0_key(dsa, &pub_key, 0);
 
 					    print_pubkey_BN(dsa, p, i);
 					    print_pubkey_BN(dsa, q, i);
@@ -2528,7 +2528,7 @@ static CURLcode get_cert_chain(struct connectdata * conn,
 					    const BIGNUM * g;
 					    const BIGNUM * pub_key;
 					    DH_get0_pqg(dh, &p, &q, &g);
-					    DH_get0_key(dh, &pub_key, NULL);
+					    DH_get0_key(dh, &pub_key, 0);
 					    print_pubkey_BN(dh, p, i);
 					    print_pubkey_BN(dh, q, i);
 					    print_pubkey_BN(dh, g, i);
@@ -2592,7 +2592,7 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy * data, X509* cert,
 
 		/* https://groups.google.com/group/mailing.openssl.users/browse_thread
 		   /thread/d61858dae102c6c7 */
-		len1 = i2d_X509_PUBKEY(X509_get_X509_PUBKEY(cert), NULL);
+		len1 = i2d_X509_PUBKEY(X509_get_X509_PUBKEY(cert), 0);
 		if(len1 < 1)
 			break;  /* failed */
 
@@ -2714,7 +2714,7 @@ static CURLcode servercert(struct connectdata * conn,
 				return CURLE_SSL_ISSUER_ERROR;
 			}
 
-			issuer = PEM_read_X509(fp, NULL, ZERO_NULL, NULL);
+			issuer = PEM_read_X509(fp, NULL, ZERO_NULL, 0);
 			if(!issuer) {
 				if(strict)
 					failf(data, "SSL: Unable to read issuer cert (%s)",

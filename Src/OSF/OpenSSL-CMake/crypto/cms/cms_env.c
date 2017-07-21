@@ -148,7 +148,7 @@ static int cms_RecipientInfo_ktri_init(CMS_RecipientInfo * ri, X509 * recip, EVP
 	ktri->pkey = pk;
 	ktri->recip = recip;
 	if(flags & CMS_KEY_PARAM) {
-		ktri->pctx = EVP_PKEY_CTX_new(ktri->pkey, NULL);
+		ktri->pctx = EVP_PKEY_CTX_new(ktri->pkey, 0);
 		if(ktri->pctx == NULL)
 			return 0;
 		if(EVP_PKEY_encrypt_init(ktri->pctx) <= 0)
@@ -214,8 +214,7 @@ int CMS_RecipientInfo_ktri_get0_algs(CMS_RecipientInfo * ri, EVP_PKEY ** pk, X50
 	return 1;
 }
 
-int CMS_RecipientInfo_ktri_get0_signer_id(CMS_RecipientInfo * ri, ASN1_OCTET_STRING ** keyid,
-    X509_NAME ** issuer, ASN1_INTEGER ** sno)
+int CMS_RecipientInfo_ktri_get0_signer_id(CMS_RecipientInfo * ri, ASN1_OCTET_STRING ** keyid, X509_NAME ** issuer, ASN1_INTEGER ** sno)
 {
 	CMS_KeyTransRecipientInfo * ktri;
 	if(ri->type != CMS_RECIPINFO_TRANS) {
@@ -267,7 +266,7 @@ static int cms_RecipientInfo_ktri_encrypt(CMS_ContentInfo * cms, CMS_RecipientIn
 			goto err;
 	}
 	else {
-		pctx = EVP_PKEY_CTX_new(ktri->pkey, NULL);
+		pctx = EVP_PKEY_CTX_new(ktri->pkey, 0);
 		if(pctx == NULL)
 			return 0;
 		if(EVP_PKEY_encrypt_init(pctx) <= 0)
@@ -310,7 +309,7 @@ static int cms_RecipientInfo_ktri_decrypt(CMS_ContentInfo * cms, CMS_RecipientIn
 		CMSerr(CMS_F_CMS_RECIPIENTINFO_KTRI_DECRYPT, CMS_R_NO_PRIVATE_KEY);
 		return 0;
 	}
-	ktri->pctx = EVP_PKEY_CTX_new(pkey, NULL);
+	ktri->pctx = EVP_PKEY_CTX_new(pkey, 0);
 	if(ktri->pctx == NULL)
 		return 0;
 	if(EVP_PKEY_decrypt_init(ktri->pctx) <= 0)
@@ -428,7 +427,7 @@ CMS_RecipientInfo * CMS_add0_recipient_key(CMS_ContentInfo * cms, int nid, uchar
 		kekri->kekid->other->keyAttrId = otherTypeId;
 		kekri->kekid->other->keyAttr = otherType;
 	}
-	X509_ALGOR_set0(kekri->keyEncryptionAlgorithm, OBJ_nid2obj(nid), V_ASN1_UNDEF, NULL);
+	X509_ALGOR_set0(kekri->keyEncryptionAlgorithm, OBJ_nid2obj(nid), V_ASN1_UNDEF, 0);
 	return ri;
 merr:
 	CMSerr(CMS_F_CMS_ADD0_RECIPIENT_KEY, ERR_R_MALLOC_FAILURE);
@@ -688,8 +687,8 @@ err:
 int cms_pkey_get_ri_type(EVP_PKEY * pk)
 {
 	if(pk->ameth && pk->ameth->pkey_ctrl) {
-		int i, r;
-		i = pk->ameth->pkey_ctrl(pk, ASN1_PKEY_CTRL_CMS_RI_TYPE, 0, &r);
+		int r;
+		int i = pk->ameth->pkey_ctrl(pk, ASN1_PKEY_CTRL_CMS_RI_TYPE, 0, &r);
 		if(i > 0)
 			return r;
 	}

@@ -945,7 +945,7 @@ zbar_image_t * zbar_image_convert_resize(const zbar_image_t * src, ulong fmt, ui
 	dst->height = height;
 	zbar_image_set_crop(dst, src->crop_x, src->crop_y, src->crop_w, src->crop_h);
 	if(src->Format == fmt && src->width == width && src->height == height) {
-		convert_copy(dst, NULL, src, NULL);
+		convert_copy(dst, NULL, src, 0);
 		return(dst);
 	}
 	srcfmt = _zbar_format_lookup(src->Format);
@@ -953,7 +953,7 @@ zbar_image_t * zbar_image_convert_resize(const zbar_image_t * src, ulong fmt, ui
 	if(!srcfmt || !dstfmt)
 		return NULL; // FIXME free dst 
 	if(srcfmt->group == dstfmt->group && srcfmt->p.cmp == dstfmt->p.cmp && src->width == width && src->height == height) {
-		convert_copy(dst, NULL, src, NULL);
+		convert_copy(dst, NULL, src, 0);
 		return(dst);
 	}
 	func = conversions[srcfmt->group][dstfmt->group].func;

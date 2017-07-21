@@ -294,22 +294,17 @@ static void pop3_get_message(char * buffer, char ** outptr)
 {
 	size_t len = 0;
 	char * message = NULL;
-
-	/* Find the start of the message */
-	for(message = buffer + 2; *message == ' ' || *message == '\t'; message++)
+	// Find the start of the message
+	for(message = buffer + 2; oneof2(*message, ' ', '\t'); message++)
 		;
-
-	/* Find the end of the message */
+	// Find the end of the message
 	for(len = strlen(message); len--; )
-		if(message[len] != '\r' && message[len] != '\n' && message[len] != ' ' &&
-		    message[len] != '\t')
+		if(!oneof4(message[len], '\r', '\n', ' ', '\t'))
 			break;
-
-	/* Terminate the message */
+	// Terminate the message
 	if(++len) {
 		message[len] = '\0';
 	}
-
 	*outptr = message;
 }
 
@@ -717,19 +712,16 @@ static CURLcode pop3_state_capa_resp(struct connectdata * conn, int pop3code, po
 			for(;; ) {
 				size_t llen;
 				uint mechbit;
-				while(len && (*line == ' ' || *line == '\t' || *line == '\r' || *line == '\n')) {
+				while(len && oneof4(*line, ' ', '\t', '\r', '\n')) {
 					line++;
 					len--;
 				}
 				if(!len)
 					break;
-				/* Extract the word */
-				for(wordlen = 0; wordlen < len && line[wordlen] != ' ' &&
-				    line[wordlen] != '\t' && line[wordlen] != '\r' &&
-				    line[wordlen] != '\n'; )
+				// Extract the word
+				for(wordlen = 0; wordlen < len && !oneof4(line[wordlen], ' ', '\t', '\r', '\n'); )
 					wordlen++;
-
-				/* Test the word for a matching authentication mechanism */
+				// Test the word for a matching authentication mechanism
 				mechbit = Curl_sasl_decode_mech(line, wordlen, &llen);
 				if(mechbit && llen == wordlen)
 					pop3c->sasl.authmechs |= mechbit;
@@ -786,17 +778,13 @@ static CURLcode pop3_state_starttls_resp(struct connectdata * conn, int pop3code
 }
 
 /* For SASL authentication responses */
-static CURLcode pop3_state_auth_resp(struct connectdata * conn,
-    int pop3code,
-    pop3state instate)
+static CURLcode pop3_state_auth_resp(struct connectdata * conn, int pop3code, pop3state instate)
 {
 	CURLcode result = CURLE_OK;
 	struct Curl_easy * data = conn->data;
 	struct pop3_conn * pop3c = &conn->proto.pop3c;
 	saslprogress progress;
-
 	(void)instate; /* no use for this yet */
-
 	result = Curl_sasl_continue(&pop3c->sasl, conn, pop3code, &progress);
 	if(!result)
 		switch(progress) {
@@ -837,22 +825,18 @@ static CURLcode pop3_state_apop_resp(struct connectdata * conn, int pop3code, po
 		result = CURLE_LOGIN_DENIED;
 	}
 	else
-		/* End of connect phase */
-		state(conn, POP3_STOP);
+		state(conn, POP3_STOP); // End of connect phase
 	return result;
 }
 
 #endif
 
 /* For USER responses */
-static CURLcode pop3_state_user_resp(struct connectdata * conn, int pop3code,
-    pop3state instate)
+static CURLcode pop3_state_user_resp(struct connectdata * conn, int pop3code, pop3state instate)
 {
 	CURLcode result = CURLE_OK;
 	struct Curl_easy * data = conn->data;
-
 	(void)instate; /* no use for this yet */
-
 	if(pop3code != '+') {
 		failf(data, "Access denied. %c", pop3code);
 		result = CURLE_LOGIN_DENIED;
@@ -904,7 +888,7 @@ static CURLcode pop3_state_command_resp(struct connectdata * conn, int pop3code,
 	pop3c->strip = 2;
 	if(pop3->transfer == FTPTRANSFER_BODY) {
 		/* POP3 download */
-		Curl_setup_transfer(conn, FIRSTSOCKET, -1, FALSE, NULL, -1, NULL);
+		Curl_setup_transfer(conn, FIRSTSOCKET, -1, FALSE, NULL, -1, 0);
 		if(pp->cache) {
 			/* The header "cache" contains a bunch of data that is actually body
 			   content so send it as such. Note that there may even be additional

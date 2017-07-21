@@ -139,7 +139,7 @@ int ASN1_BIT_STRING_set_bit(ASN1_BIT_STRING * a, int n, int value)
 	a->flags &= ~(ASN1_STRING_FLAG_BITS_LEFT | 0x07); /* clear, set on write */
 	if((a->length < (w + 1)) || (a->data == NULL)) {
 		if(!value)
-			return (1);  /* Don't need to set */
+			return 1;  /* Don't need to set */
 		c = (uchar*)OPENSSL_clear_realloc(a->data, a->length, w + 1);
 		if(c == NULL) {
 			ASN1err(ASN1_F_ASN1_BIT_STRING_SET_BIT, ERR_R_MALLOC_FAILURE);
@@ -153,7 +153,7 @@ int ASN1_BIT_STRING_set_bit(ASN1_BIT_STRING * a, int n, int value)
 	a->data[w] = ((a->data[w]) & iv) | v;
 	while((a->length > 0) && (a->data[a->length - 1] == 0))
 		a->length--;
-	return (1);
+	return 1;
 }
 
 int ASN1_BIT_STRING_get_bit(const ASN1_BIT_STRING * a, int n)

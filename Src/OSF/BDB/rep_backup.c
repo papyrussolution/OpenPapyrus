@@ -459,7 +459,7 @@ int __rep_page_req(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_control_args *
 			ret = DB_NOTFOUND;
 		goto err;
 	}
-	ret = __rep_page_sendpages(env, ip, eid, rp, msgfp, mpf, NULL);
+	ret = __rep_page_sendpages(env, ip, eid, rp, msgfp, mpf, 0);
 	t_ret = __memp_fclose(mpf, 0);
 	if(ret == 0 && t_ret != 0)
 		ret = t_ret;
@@ -893,8 +893,8 @@ err:    /*
 
 static int __rep_find_inmem(ENV * env, __rep_fileinfo_args * rfp, void * unused)
 {
-	COMPQUIET(env, NULL);
-	COMPQUIET(unused, NULL);
+	COMPQUIET(env, 0);
+	COMPQUIET(unused, 0);
 	return FLD_ISSET(rfp->db_flags, DB_AM_INMEM) ? DB_KEYEXIST : 0;
 }
 /*
@@ -918,7 +918,7 @@ static int __rep_remove_nimdbs(ENV * env)
 	if((ret = __rep_closefiles(env)) != 0)
 		goto out;
 	ret = __rep_walk_filelist(env, context.version, context.buf,
-		context.size, context.count, __rep_remove_file, NULL);
+		context.size, context.count, __rep_remove_file, 0);
 
 out:
 	__os_free(env, context.buf);
@@ -1135,7 +1135,7 @@ static int __rep_remove_file(ENV * env, __rep_fileinfo_args * rfp, void * unused
 #endif
 	char * name;
 	int ret, t_ret;
-	COMPQUIET(unused, NULL);
+	COMPQUIET(unused, 0);
 	dbp = NULL;
 	name = (char *)rfp->info.data;
 	/*
@@ -1731,7 +1731,7 @@ static int __rep_cleanup_nimdbs(ENV*env, __rep_fileinfo_args * rfp, void * unuse
 	DB * dbp;
 	char * namep;
 	int ret, t_ret;
-	COMPQUIET(unused, NULL);
+	COMPQUIET(unused, 0);
 	ret = 0;
 	dbp = NULL;
 	if(FLD_ISSET(rfp->db_flags, DB_AM_INMEM)) {
@@ -2283,9 +2283,9 @@ static int __rep_log_setup(ENV * env, REP * rep, uint32 file, uint32 version, DB
 static int __rep_queue_filedone(ENV * env, DB_THREAD_INFO * ip, REP * rep, __rep_fileinfo_args * rfp)
 {
 #ifndef HAVE_QUEUE
-	COMPQUIET(ip, NULL);
-	COMPQUIET(rep, NULL);
-	COMPQUIET(rfp, NULL);
+	COMPQUIET(ip, 0);
+	COMPQUIET(rep, 0);
+	COMPQUIET(rfp, 0);
 	return __db_no_queue_am(env);
 #else
 	db_pgno_t first, last;
@@ -2665,7 +2665,7 @@ static int __rep_unlink_file(ENV * env, __rep_fileinfo_args * rfp, void * unused
 {
 	char * namep;
 	int ret;
-	COMPQUIET(unused, NULL);
+	COMPQUIET(unused, 0);
 	if((ret = __db_appname(env, DB_APP_DATA, (const char *)rfp->info.data, NULL, &namep)) == 0) {
 		__os_unlink(env, namep, 0);
 		__os_free(env, namep);
@@ -2676,7 +2676,7 @@ static int __rep_unlink_file(ENV * env, __rep_fileinfo_args * rfp, void * unused
 static int __rep_remove_by_list(ENV * env, __rep_fileinfo_args * rfp, void * unused)
 {
 	int ret;
-	COMPQUIET(unused, NULL);
+	COMPQUIET(unused, 0);
 	if((ret = __rep_remove_file(env, rfp, NULL)) == ENOENT) {
 		/*
 		 * If the file already doesn't exist, that's perfectly

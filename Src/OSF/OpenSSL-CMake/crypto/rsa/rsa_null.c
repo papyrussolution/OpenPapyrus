@@ -83,10 +83,10 @@ static int RSA_null_public_decrypt(int flen, const uchar *from,
 
 static int RSA_null_init(RSA *rsa)
 {
-    return (1);
+    return 1;
 }
 
 static int RSA_null_finish(RSA *rsa)
 {
-    return (1);
+    return 1;
 }

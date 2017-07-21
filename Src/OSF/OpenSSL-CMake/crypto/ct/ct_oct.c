@@ -212,7 +212,7 @@ int i2o_SCT(const SCT * sct, uchar ** out)
 	else
 		len = sct->sct_len;
 
-	if(out == NULL)
+	if(!out)
 		return len;
 
 	if(*out != NULL) {

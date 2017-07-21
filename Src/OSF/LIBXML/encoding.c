@@ -1289,7 +1289,7 @@ xmlCharEncodingHandlerPtr xmlNewCharEncodingHandler(const char * name, xmlCharEn
 	 * Keep only the uppercase version of the encoding.
 	 */
 	if(name == NULL) {
-		xmlEncodingErr(XML_I18N_NO_NAME, "xmlNewCharEncodingHandler : no name !\n", NULL);
+		xmlEncodingErr(XML_I18N_NO_NAME, "xmlNewCharEncodingHandler : no name !\n", 0);
 	}
 	else {
 		for(i = 0; i < sizeof(upper)-1; i++) {
@@ -2084,7 +2084,7 @@ retry:
 	}
 #endif // LIBXML_ICU_ENABLED
 	else {
-		xmlEncodingErr(XML_I18N_NO_OUTPUT, "xmlCharEncOutFunc: no output function !\n", NULL);
+		xmlEncodingErr(XML_I18N_NO_OUTPUT, "xmlCharEncOutFunc: no output function !\n", 0);
 		return -1;
 	}
 	if(ret >= 0)
@@ -2272,7 +2272,7 @@ retry:
 	}
 #endif /* LIBXML_ICU_ENABLED */
 	else {
-		xmlEncodingErr(XML_I18N_NO_OUTPUT, "xmlCharEncOutFunc: no output function !\n", NULL);
+		xmlEncodingErr(XML_I18N_NO_OUTPUT, "xmlCharEncOutFunc: no output function !\n", 0);
 		return -1;
 	}
 	if(ret >= 0)
@@ -2659,7 +2659,7 @@ void LibXmlEncoderBlock::InitCharEncodingHandlers()
 		else if(*ptr == 0x34)
 			xmlLittleEndian = 1;
 		else {
-			xmlEncodingErr(XML_ERR_INTERNAL_ERROR, "Odd problem at endianness detection\n", NULL);
+			xmlEncodingErr(XML_ERR_INTERNAL_ERROR, "Odd problem at endianness detection\n", 0);
 		}
 		if(!PP_Tab) {
 			xmlEncodingErrMemory("xmlInitCharEncodingHandlers : out of memory !\n");
@@ -2677,12 +2677,12 @@ void LibXmlEncoderBlock::InitCharEncodingHandlers()
 			xmlNewCharEncodingHandler("HTML", NULL, UTF8ToHtml);
 #endif
 #else
-			xmlUTF16LEHandler = xmlNewCharEncodingHandler("UTF-16LE", UTF16LEToUTF8, NULL);
-			xmlUTF16BEHandler = xmlNewCharEncodingHandler("UTF-16BE", UTF16BEToUTF8, NULL);
-			xmlNewCharEncodingHandler("UTF-16", UTF16LEToUTF8, NULL);
-			xmlNewCharEncodingHandler("ISO-8859-1", isolat1ToUTF8, NULL);
-			xmlNewCharEncodingHandler("ASCII", asciiToUTF8, NULL);
-			xmlNewCharEncodingHandler("US-ASCII", asciiToUTF8, NULL);
+			xmlUTF16LEHandler = xmlNewCharEncodingHandler("UTF-16LE", UTF16LEToUTF8, 0);
+			xmlUTF16BEHandler = xmlNewCharEncodingHandler("UTF-16BE", UTF16BEToUTF8, 0);
+			xmlNewCharEncodingHandler("UTF-16", UTF16LEToUTF8, 0);
+			xmlNewCharEncodingHandler("ISO-8859-1", isolat1ToUTF8, 0);
+			xmlNewCharEncodingHandler("ASCII", asciiToUTF8, 0);
+			xmlNewCharEncodingHandler("US-ASCII", asciiToUTF8, 0);
 #endif /* LIBXML_OUTPUT_ENABLED */
 #if !defined(LIBXML_ICONV_ENABLED) && !defined(LIBXML_ICU_ENABLED)
 #ifdef LIBXML_ISO8859X_ENABLED
@@ -2698,7 +2698,7 @@ void LibXmlEncoderBlock::RegisterCharEncodingHandler(xmlCharEncodingHandlerPtr h
 	if(!PP_Tab)
 		InitCharEncodingHandlers();
 	if(!handler || !PP_Tab)
-		xmlEncodingErr(XML_I18N_NO_HANDLER, "xmlRegisterCharEncodingHandler: NULL handler !\n", NULL);
+		xmlEncodingErr(XML_I18N_NO_HANDLER, "xmlRegisterCharEncodingHandler: NULL handler !\n", 0);
 	else if(nbCharEncodingHandler >= MAX_ENCODING_HANDLERS)
 		xmlEncodingErr(XML_I18N_EXCESS_HANDLER, "xmlRegisterCharEncodingHandler: Too many handler registered, see %s\n", "MAX_ENCODING_HANDLERS");
 	else

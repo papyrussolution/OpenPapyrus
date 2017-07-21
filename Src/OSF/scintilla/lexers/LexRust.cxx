@@ -30,10 +30,9 @@ using namespace Scintilla;
 static const int NUM_RUST_KEYWORD_LISTS = 7;
 static const int MAX_RUST_IDENT_CHARS = 1023;
 
-static bool IsStreamCommentStyle(int style)
+static bool FASTCALL IsStreamCommentStyle(int style)
 {
-	return style == SCE_RUST_COMMENTBLOCK ||
-	       style == SCE_RUST_COMMENTBLOCKDOC;
+	return style == SCE_RUST_COMMENTBLOCK || style == SCE_RUST_COMMENTBLOCKDOC;
 }
 
 // Options used for LexerRust

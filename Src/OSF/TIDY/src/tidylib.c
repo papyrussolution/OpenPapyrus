@@ -1305,7 +1305,7 @@ int tidyDocSaveStream(TidyDocImpl* doc, StreamOut* out)
 		TY_(DropComments) (doc, &doc->root);
 	if(makeClean) {
 		/* noop */
-		TY_(DropFontElements) (doc, &doc->root, NULL);
+		TY_(DropFontElements) (doc, &doc->root, 0);
 		TY_(WbrToSpace) (doc, &doc->root);
 	}
 	if((makeClean && asciiChars) || makeBare)

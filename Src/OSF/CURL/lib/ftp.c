@@ -488,7 +488,7 @@ static CURLcode InitiateTransfer(struct connectdata * conn)
 		/* FTP download: */
 		Curl_setup_transfer(conn, SECONDARYSOCKET,
 		    conn->proto.ftpc.retr_size_saved, FALSE,
-		    ftp->bytecountp, -1, NULL);     /* no upload here */
+		    ftp->bytecountp, -1, 0);     /* no upload here */
 	}
 
 	conn->proto.ftpc.pp.pending_resp = TRUE; /* expect server response */
@@ -1561,7 +1561,7 @@ static CURLcode ftp_state_ul_setup(struct connectdata * conn, bool sizechecked)
 			if(data->state.infilesize <= 0) {
 				infof(data, "File already completely uploaded\n");
 				/* no data to transfer */
-				Curl_setup_transfer(conn, -1, -1, FALSE, NULL, -1, NULL);
+				Curl_setup_transfer(conn, -1, -1, FALSE, NULL, -1, 0);
 				/* Set ->transfer so that we won't get any error in
 				 * ftp_done() because we didn't transfer anything! */
 				ftp->transfer = FTPTRANSFER_NONE;
@@ -2112,7 +2112,7 @@ static CURLcode ftp_state_retr(struct connectdata * conn, curl_off_t filesize)
 
 		if(ftp->downloadsize == 0) {
 			/* no data to transfer */
-			Curl_setup_transfer(conn, -1, -1, FALSE, NULL, -1, NULL);
+			Curl_setup_transfer(conn, -1, -1, FALSE, NULL, -1, 0);
 			infof(data, "File already completely downloaded\n");
 
 			/* Set ->transfer so that we won't get any error in ftp_done()
@@ -3522,7 +3522,7 @@ static CURLcode ftp_do_more(struct connectdata * conn, int * completep)
 	if(!result && (ftp->transfer != FTPTRANSFER_BODY))
 		/* no data to transfer. FIX: it feels like a kludge to have this here
 		   too! */
-		Curl_setup_transfer(conn, -1, -1, FALSE, NULL, -1, NULL);
+		Curl_setup_transfer(conn, -1, -1, FALSE, NULL, -1, 0);
 
 	if(!ftpc->wait_data_conn) {
 		/* no waiting for the data connection so this is now complete */
@@ -3733,7 +3733,7 @@ static CURLcode wc_statemach(struct connectdata * conn)
 			    return result;
 
 		    /* we don't need the Curl_fileinfo of first file anymore */
-		    Curl_llist_remove(&wildcard->filelist, wildcard->filelist.head, NULL);
+		    Curl_llist_remove(&wildcard->filelist, wildcard->filelist.head, 0);
 
 		    if(wildcard->filelist.size == 0) { /* remains only one file to down. */
 			    wildcard->state = CURLWC_CLEAN;
@@ -3746,7 +3746,7 @@ static CURLcode wc_statemach(struct connectdata * conn)
 		case CURLWC_SKIP: {
 		    if(conn->data->set.chunk_end)
 			    conn->data->set.chunk_end(conn->data->wildcard.customptr);
-		    Curl_llist_remove(&wildcard->filelist, wildcard->filelist.head, NULL);
+		    Curl_llist_remove(&wildcard->filelist, wildcard->filelist.head, 0);
 		    wildcard->state = (wildcard->filelist.size == 0) ? CURLWC_CLEAN : CURLWC_DOWNLOADING;
 		    return wc_statemach(conn);
 	    }
@@ -4135,7 +4135,7 @@ static CURLcode ftp_dophase_done(struct connectdata * conn, bool connected)
 	}
 	if(ftp->transfer != FTPTRANSFER_BODY)
 		/* no data to transfer */
-		Curl_setup_transfer(conn, -1, -1, FALSE, NULL, -1, NULL);
+		Curl_setup_transfer(conn, -1, -1, FALSE, NULL, -1, 0);
 	else if(!connected)
 		/* since we didn't connect now, we want do_more to get called */
 		conn->bits.do_more = TRUE;

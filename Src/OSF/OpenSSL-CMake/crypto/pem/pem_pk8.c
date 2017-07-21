@@ -114,7 +114,7 @@ EVP_PKEY * d2i_PKCS8PrivateKey_bio(BIO * bp, EVP_PKEY ** x, pem_password_cb * cb
 	int klen;
 	EVP_PKEY * ret;
 	char psbuf[PEM_BUFSIZE];
-	p8 = d2i_PKCS8_bio(bp, NULL);
+	p8 = d2i_PKCS8_bio(bp, 0);
 	if(!p8)
 		return NULL;
 	if(cb)

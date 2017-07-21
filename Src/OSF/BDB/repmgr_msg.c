@@ -199,7 +199,7 @@ static int dispatch_app_message(ENV * env, REPMGR_MESSAGE * msg)
 	dbt = (DBT *)&msg->v.appmsg.buf;
 	data = (uint8 *)dbt->data;
 	dbt->size -= __REPMGR_MSG_METADATA_SIZE;
-	ret = __repmgr_msg_metadata_unmarshal(env, &meta, &data[dbt->size], __REPMGR_MSG_METADATA_SIZE, NULL);
+	ret = __repmgr_msg_metadata_unmarshal(env, &meta, &data[dbt->size], __REPMGR_MSG_METADATA_SIZE, 0);
 	DB_ASSERT(env, ret == 0);
 	dbt->ulen = dbt->size;
 	DB_MULTIPLE_INIT(ptr, dbt);
@@ -300,7 +300,7 @@ static int process_message(ENV*env, DBT * control, DBT * rec, int eid)
 			ret = __repmgr_init_election(env, ELECT_F_IMMED);
 			UNLOCK_MUTEX(db_rep->mutex);
 		}
-		DB_EVENT(env, DB_EVENT_REP_DUPMASTER, NULL);
+		DB_EVENT(env, DB_EVENT_REP_DUPMASTER, 0);
 		break;
 
 	    case DB_REP_ISPERM:
@@ -321,7 +321,7 @@ static int process_message(ENV*env, DBT * control, DBT * rec, int eid)
 
 	    case DB_REP_JOIN_FAILURE:
 		RPRINT(env, (env, DB_VERB_REPMGR_MISC, "repmgr fires join failure event"));
-		DB_EVENT(env, DB_EVENT_REP_JOIN_FAILURE, NULL);
+		DB_EVENT(env, DB_EVENT_REP_JOIN_FAILURE, 0);
 		break;
 
 	    case DB_REP_WOULDROLLBACK:
@@ -569,7 +569,7 @@ static int serve_join_request(ENV*env, DB_THREAD_INFO * ip, REPMGR_MESSAGE * msg
 	COMPQUIET(status, 0);
 	conn = msg->v.gmdb_msg.conn;
 	dbt = (DBT *)&msg->v.gmdb_msg.request;
-	ret = __repmgr_site_info_unmarshal(env, &site_info, (uint8 *)dbt->data, dbt->size, NULL);
+	ret = __repmgr_site_info_unmarshal(env, &site_info, (uint8 *)dbt->data, dbt->size, 0);
 	host = (char *)site_info.host.data;
 	host[site_info.host.size-1] = '\0';
 	RPRINT(env, (env, DB_VERB_REPMGR_MISC, "Request to join group from %s:%u", host, (uint)site_info.port));
@@ -633,7 +633,7 @@ static int serve_remove_request(ENV*env, DB_THREAD_INFO * ip, REPMGR_MESSAGE * m
 	db_rep = env->rep_handle;
 	conn = msg->v.gmdb_msg.conn;
 	dbt = (DBT *)&msg->v.gmdb_msg.request;
-	ret = __repmgr_site_info_unmarshal(env, &site_info, (uint8 *)dbt->data, dbt->size, NULL);
+	ret = __repmgr_site_info_unmarshal(env, &site_info, (uint8 *)dbt->data, dbt->size, 0);
 	host = (char *)site_info.host.data;
 	host[site_info.host.size-1] = '\0';
 	RPRINT(env, (env, DB_VERB_REPMGR_MISC, "Request to remove %s:%u from group", host, (uint)site_info.port));
@@ -857,7 +857,7 @@ int __repmgr_update_membership(ENV * env, DB_THREAD_INFO * ip, int eid, uint32 p
 
 	db_rep = env->rep_handle;
 	COMPQUIET(orig_status, 0);
-	COMPQUIET(addr.host, NULL);
+	COMPQUIET(addr.host, 0);
 	COMPQUIET(addr.port, 0);
 retry:
 	txn = NULL;

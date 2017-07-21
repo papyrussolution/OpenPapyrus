@@ -36,11 +36,10 @@ X509_LOOKUP_METHOD * X509_LOOKUP_file(void)
 static int by_file_ctrl(X509_LOOKUP * ctx, int cmd, const char * argp, long argl, char ** ret)
 {
 	int ok = 0;
-	char * file;
 	switch(cmd) {
 		case X509_L_FILE_LOAD:
 		    if(argl == X509_FILETYPE_DEFAULT) {
-			    file = (char*)getenv(X509_get_default_cert_file_env());
+			    char * file = (char*)getenv(X509_get_default_cert_file_env());
 			    if(file)
 				    ok = (X509_load_cert_crl_file(ctx, file, X509_FILETYPE_PEM) != 0);
 			    else
@@ -57,7 +56,7 @@ static int by_file_ctrl(X509_LOOKUP * ctx, int cmd, const char * argp, long argl
 		    }
 		    break;
 	}
-	return (ok);
+	return ok;
 }
 
 int X509_load_cert_file(X509_LOOKUP * ctx, const char * file, int type)
@@ -67,9 +66,9 @@ int X509_load_cert_file(X509_LOOKUP * ctx, const char * file, int type)
 	int i, count = 0;
 	X509 * x = NULL;
 	if(file == NULL)
-		return (1);
+		return 1;
 	in = BIO_new(BIO_s_file());
-	if((in == NULL) || (BIO_read_filename(in, file) <= 0)) {
+	if(!in || (BIO_read_filename(in, file) <= 0)) {
 		X509err(X509_F_X509_LOAD_CERT_FILE, ERR_R_SYS_LIB);
 		goto err;
 	}
@@ -96,7 +95,7 @@ int X509_load_cert_file(X509_LOOKUP * ctx, const char * file, int type)
 		ret = count;
 	}
 	else if(type == X509_FILETYPE_ASN1) {
-		x = d2i_X509_bio(in, NULL);
+		x = d2i_X509_bio(in, 0);
 		if(!x) {
 			X509err(X509_F_X509_LOAD_CERT_FILE, ERR_R_ASN1_LIB);
 			goto err;
@@ -123,9 +122,9 @@ int X509_load_crl_file(X509_LOOKUP * ctx, const char * file, int type)
 	int i, count = 0;
 	X509_CRL * x = NULL;
 	if(file == NULL)
-		return (1);
+		return 1;
 	in = BIO_new(BIO_s_file());
-	if((in == NULL) || (BIO_read_filename(in, file) <= 0)) {
+	if(!in || (BIO_read_filename(in, file) <= 0)) {
 		X509err(X509_F_X509_LOAD_CRL_FILE, ERR_R_SYS_LIB);
 		goto err;
 	}
@@ -152,7 +151,7 @@ int X509_load_crl_file(X509_LOOKUP * ctx, const char * file, int type)
 		ret = count;
 	}
 	else if(type == X509_FILETYPE_ASN1) {
-		x = d2i_X509_CRL_bio(in, NULL);
+		x = d2i_X509_CRL_bio(in, 0);
 		if(!x) {
 			X509err(X509_F_X509_LOAD_CRL_FILE, ERR_R_ASN1_LIB);
 			goto err;

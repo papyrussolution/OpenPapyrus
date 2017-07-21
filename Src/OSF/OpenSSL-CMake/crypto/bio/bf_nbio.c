@@ -55,7 +55,7 @@ static int nbiof_new(BIO * bi)
 	nt->lwn = -1;
 	bi->ptr = (char*)nt;
 	bi->init = 1;
-	return (1);
+	return 1;
 }
 
 static int nbiof_free(BIO * a)
@@ -66,7 +66,7 @@ static int nbiof_free(BIO * a)
 	a->ptr = NULL;
 	a->init = 0;
 	a->flags = 0;
-	return (1);
+	return 1;
 }
 
 static int nbiof_read(BIO * b, char * out, int outl)
@@ -74,7 +74,7 @@ static int nbiof_read(BIO * b, char * out, int outl)
 	int ret = 0;
 	int num;
 	uchar n;
-	if(out == NULL)
+	if(!out)
 		return 0;
 	if(!b->next_bio)
 		return 0;
@@ -102,7 +102,7 @@ static int nbiof_write(BIO * b, const char * in, int inl)
 	int ret = 0;
 	int num;
 	uchar n;
-	if((in == NULL) || (inl <= 0))
+	if(!in || (inl <= 0))
 		return 0;
 	if(!b->next_bio)
 		return 0;

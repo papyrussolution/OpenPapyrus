@@ -291,7 +291,7 @@ static void _cairo_xlib_xcb_display_finish(void * abstract_display)
 	cairo_device_destroy(display->xcb_device);
 	display->xcb_device = NULL;
 
-	XESetCloseDisplay(display->dpy, display->codes->extension, NULL);
+	XESetCloseDisplay(display->dpy, display->codes->extension, 0);
 	/* Drop the reference from _cairo_xlib_xcb_device_create */
 	cairo_device_destroy(&display->base);
 }

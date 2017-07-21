@@ -2427,7 +2427,7 @@ int ZEXPORT gzclose_w(gzFile file)
 		}
 		SAlloc::F(state->in);
 	}
-	gz_error(state, Z_OK, NULL);
+	gz_error(state, Z_OK, 0);
 	SAlloc::F(state->path);
 	if(close(state->fd) == -1)
 		ret = Z_ERRNO;
@@ -2972,7 +2972,7 @@ int ZEXPORT gzclose_r(gzFile file)
 		SAlloc::F(state->in);
 	}
 	err = state->err == Z_BUF_ERROR ? Z_BUF_ERROR : Z_OK;
-	gz_error(state, Z_OK, NULL);
+	gz_error(state, Z_OK, 0);
 	SAlloc::F(state->path);
 	ret = close(state->fd);
 	SAlloc::F(state);
@@ -3022,7 +3022,7 @@ char ZLIB_INTERNAL * gz_strwinerror(DWORD error)
 	static char buf[1024];
 	wchar_t * msgbuf;
 	DWORD lasterr = GetLastError();
-	DWORD chars = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, error, 0/* Default language */, (LPVOID)&msgbuf, 0, NULL);
+	DWORD chars = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, error, 0/* Default language */, (LPVOID)&msgbuf, 0, 0);
 	if(chars != 0) {
 		/* If there is an \r\n appended, zap it.  */
 		if(chars >= 2 && msgbuf[chars - 2] == '\r' && msgbuf[chars - 1] == '\n') {
@@ -3055,7 +3055,7 @@ static void gz_reset(gz_statep state)
 		state->how = LOOK;  /* look for gzip header */
 	}
 	state->seek = 0;            /* no seek request pending */
-	gz_error(state, Z_OK, NULL); /* clear error */
+	gz_error(state, Z_OK, 0); /* clear error */
 	state->x.pos = 0;           /* no uncompressed data yet */
 	state->strm.avail_in = 0;   /* no input data yet */
 }
@@ -3304,7 +3304,7 @@ z_off64_t ZEXPORT gzseek64(gzFile file, z_off64_t offset, int whence)
 		state->eof = 0;
 		state->past = 0;
 		state->seek = 0;
-		gz_error(state, Z_OK, NULL);
+		gz_error(state, Z_OK, 0);
 		state->strm.avail_in = 0;
 		state->x.pos += offset;
 		return state->x.pos;
@@ -3424,7 +3424,7 @@ void ZEXPORT gzclearerr(gzFile file)
 			state->eof = 0;
 			state->past = 0;
 		}
-		gz_error(state, Z_OK, NULL);
+		gz_error(state, Z_OK, 0);
 	}
 }
 

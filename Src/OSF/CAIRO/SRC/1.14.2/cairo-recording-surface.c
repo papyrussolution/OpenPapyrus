@@ -521,7 +521,7 @@ static cairo_surface_t * attach_proxy(cairo_surface_t * source, cairo_surface_t 
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	_cairo_surface_init(&proxy->base, &proxy_backend, NULL, image->content);
 	proxy->image = image;
-	_cairo_surface_attach_snapshot(source, &proxy->base, NULL);
+	_cairo_surface_attach_snapshot(source, &proxy->base, 0);
 	return &proxy->base;
 }
 
@@ -1481,7 +1481,7 @@ static void _cairo_recording_surface_merge_source_attributes(cairo_recording_sur
 		cairo_surface_t * raster;
 
 		image = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 1, 1);
-		raster = _cairo_raster_source_pattern_acquire(source, image, NULL);
+		raster = _cairo_raster_source_pattern_acquire(source, image, 0);
 		cairo_surface_destroy(image);
 		if(raster) {
 			if(raster->type == CAIRO_SURFACE_TYPE_IMAGE) {
@@ -1918,7 +1918,7 @@ void cairo_recording_surface_ink_extents(cairo_surface_t * surface, double * x0,
 		_cairo_error_throw(CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
 		goto DONE;
 	}
-	status = _recording_surface_get_ink_bbox((cairo_recording_surface_t*)surface, &bbox, NULL);
+	status = _recording_surface_get_ink_bbox((cairo_recording_surface_t*)surface, &bbox, 0);
 	if(unlikely(status))
 		status = _cairo_surface_set_error(surface, status);
 DONE:
@@ -1939,7 +1939,7 @@ cairo_status_t _cairo_recording_surface_get_bbox(cairo_recording_surface_t * sur
 	if(!surface->unbounded) {
 		_cairo_box_from_rectangle(bbox, &surface->extents);
 		if(transform != NULL)
-			_cairo_matrix_transform_bounding_box_fixed(transform, bbox, NULL);
+			_cairo_matrix_transform_bounding_box_fixed(transform, bbox, 0);
 
 		return CAIRO_STATUS_SUCCESS;
 	}

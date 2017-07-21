@@ -176,6 +176,7 @@ TLP_IMPL(PPObjLocation, LocationCore, P_Tbl);
 //
 PPCountryBlock & PPCountryBlock::Clear()
 {
+	IsNative = 0;
 	Name = 0;
 	Code = 0;
 	Abbr = 0;
@@ -495,8 +496,7 @@ int SLAPI PPObjLocation::GetAddress(PPID locID, uint flags, SString & rBuf)
 int SLAPI PPObjLocation::GetCountry(const LocationTbl::Rec * pLocRec, PPID * pCountryID, PPCountryBlock * pBlk)
 {
 	int    ok = -1;
-	if(pBlk)
-		pBlk->Clear();
+	CALLPTRMEMB(pBlk, Clear());
 	ASSIGN_PTR(pCountryID, 0);
 	if(pLocRec && pLocRec->CityID) {
 		WorldTbl::Rec w_rec;
@@ -506,6 +506,11 @@ int SLAPI PPObjLocation::GetCountry(const LocationTbl::Rec * pLocRec, PPID * pCo
 				pBlk->Name = w_rec.Name;
 				pBlk->Abbr = w_rec.Abbr;
 				pBlk->Code = w_rec.Code;
+				// @v9.7.8 {
+				pBlk->IsNative = 1;
+				if(pBlk->Code.NotEmpty() && DS.GetConstTLA().MainOrgCountryCode != pBlk->Code)
+					pBlk->IsNative = 0;
+				// } @v9.7.8
 			}
 			ASSIGN_PTR(pCountryID, w_rec.ID);
 			ok = 1;

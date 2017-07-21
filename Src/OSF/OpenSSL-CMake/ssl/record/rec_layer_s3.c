@@ -394,7 +394,7 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, int len)
 			max_send_fragment -= 512;
 		if(tot == 0 || wb->buf == NULL) { /* allocate jumbo buffer */
 			ssl3_release_write_buffer(s);
-			packlen = EVP_CIPHER_CTX_ctrl(s->enc_write_ctx, EVP_CTRL_TLS1_1_MULTIBLOCK_MAX_BUFSIZE, max_send_fragment, NULL);
+			packlen = EVP_CIPHER_CTX_ctrl(s->enc_write_ctx, EVP_CTRL_TLS1_1_MULTIBLOCK_MAX_BUFSIZE, max_send_fragment, 0);
 			if(u_len >= 8 * max_send_fragment)
 				packlen *= 8;
 			else

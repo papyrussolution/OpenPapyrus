@@ -499,7 +499,7 @@ int SLAPI PPViewPerson::OpenClientDir(PPID PersonId)
 			if(GetWindowsDirectory((LPTSTR)full_path_to_expl, sizeof(full_path_to_expl))) {
 				setLastSlash(full_path_to_expl);
 				strcat(full_path_to_expl, "explorer.exe");
-				spawnl(_P_NOWAIT, full_path_to_expl, (const char *)cl_dir_name, (const char *)cl_dir_name, NULL);
+				spawnl(_P_NOWAIT, full_path_to_expl, (const char *)cl_dir_name, (const char *)cl_dir_name, 0);
 				ok = 1;
 			}
 			//HKEY expl_key;
@@ -511,7 +511,7 @@ int SLAPI PPViewPerson::OpenClientDir(PPID PersonId)
 			//	NULL, (LPBYTE)full_path_to_expl, &size_of_path) == ERROR_SUCCESS) {
 			//		setLastSlash(full_path_to_expl);
 			//		strcat(full_path_to_expl, "explorer.exe");
-			//		spawnl(_P_NOWAIT, full_path_to_expl, cl_dir_name, cl_dir_name, NULL);
+			//		spawnl(_P_NOWAIT, full_path_to_expl, cl_dir_name, cl_dir_name, 0);
 			//		ok = 1;
 			//}
 		}

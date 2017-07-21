@@ -174,7 +174,7 @@ static void __OutLastErr()
 	LPVOID p_msg_buf;
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
 		FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(),
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &p_msg_buf, 0, NULL);
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &p_msg_buf, 0, 0);
 	::MessageBox(NULL, (LPCTSTR)p_msg_buf, "Error", MB_OK | MB_ICONINFORMATION);
 	LocalFree(p_msg_buf);
 }

@@ -31,7 +31,7 @@ pthread_mutex_t _zbar_reflock;
 
 static void initialize(void)
 {
-	pthread_mutex_init(&_zbar_reflock, NULL);
+	pthread_mutex_init(&_zbar_reflock, 0);
 }
 
 void _zbar_refcnt_init()

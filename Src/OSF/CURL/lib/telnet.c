@@ -1644,7 +1644,7 @@ static CURLcode telnet_do(struct connectdata * conn, bool * done)
 	}
 #endif
 	/* mark this as "no further transfer wanted" */
-	Curl_setup_transfer(conn, -1, -1, FALSE, NULL, -1, NULL);
+	Curl_setup_transfer(conn, -1, -1, FALSE, NULL, -1, 0);
 
 	return result;
 }

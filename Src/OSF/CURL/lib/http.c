@@ -2073,7 +2073,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 				    failf(data, "Failed sending POST request");
 			    else
 				    /* setup variables for the upcoming transfer */
-				    Curl_setup_transfer(conn, FIRSTSOCKET, -1, TRUE, &http->readbytecount, -1, NULL);
+				    Curl_setup_transfer(conn, FIRSTSOCKET, -1, TRUE, &http->readbytecount, -1, 0);
 			    break;
 		    }
 

@@ -201,7 +201,7 @@ static int __bam_root(DBC*dbc, EPG * cp)
 	lp = rp = NULL;
 	LOCK_INIT(llock);
 	LOCK_INIT(rlock);
-	COMPQUIET(log_dbt.data, NULL);
+	COMPQUIET(log_dbt.data, 0);
 	/* Yeah, right. */
 	if(cp->page->level >= MAXBTREELEVEL) {
 		__db_errx(dbp->env, DB_STR_A("1021", "Too many btree levels: %d", "%d"), cp->page->level);

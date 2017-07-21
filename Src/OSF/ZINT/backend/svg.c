@@ -78,12 +78,7 @@ int svg_plot(struct ZintSymbol * symbol)
 			    // For these symbols use dummy text to ensure formatting is done
 			    // properly even if no text is required
 			    for(i = 0; i < sstrlen(symbol->text); i++) {
-				    if(symbol->text[i] == '+') {
-					    local_text[i] = '+';
-				    }
-				    else {
-					    local_text[i] = ' ';
-				    }
+				    local_text[i] = (symbol->text[i] == '+') ? '+' : ' ';
 				    local_text[sstrlen(symbol->text)] = '\0';
 			    }
 			    break;

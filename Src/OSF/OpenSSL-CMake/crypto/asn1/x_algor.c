@@ -73,7 +73,7 @@ void X509_ALGOR_get0(const ASN1_OBJECT ** paobj, int * pptype, const void ** ppv
 void X509_ALGOR_set_md(X509_ALGOR * alg, const EVP_MD * md)
 {
 	int param_type = (md->flags & EVP_MD_FLAG_DIGALGID_ABSENT) ? V_ASN1_UNDEF : V_ASN1_NULL;
-	X509_ALGOR_set0(alg, OBJ_nid2obj(EVP_MD_type(md)), param_type, NULL);
+	X509_ALGOR_set0(alg, OBJ_nid2obj(EVP_MD_type(md)), param_type, 0);
 }
 
 int X509_ALGOR_cmp(const X509_ALGOR * a, const X509_ALGOR * b)

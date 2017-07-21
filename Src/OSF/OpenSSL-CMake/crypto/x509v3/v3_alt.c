@@ -42,15 +42,11 @@ const X509V3_EXT_METHOD v3_alt[3] = {
 
 STACK_OF(CONF_VALUE) *i2v_GENERAL_NAMES(X509V3_EXT_METHOD *method, GENERAL_NAMES *gens, STACK_OF(CONF_VALUE) *ret)
 {
-	int i;
-	GENERAL_NAME * gen;
-	for(i = 0; i < sk_GENERAL_NAME_num(gens); i++) {
-		gen = sk_GENERAL_NAME_value(gens, i);
+	for(int i = 0; i < sk_GENERAL_NAME_num(gens); i++) {
+		GENERAL_NAME * gen = sk_GENERAL_NAME_value(gens, i);
 		ret = i2v_GENERAL_NAME(method, gen, ret);
 	}
-	if(!ret)
-		return sk_CONF_VALUE_new_null();
-	return ret;
+	return ret ? ret : sk_CONF_VALUE_new_null();
 }
 
 STACK_OF(CONF_VALUE) *i2v_GENERAL_NAME(X509V3_EXT_METHOD *method, GENERAL_NAME *gen, STACK_OF(CONF_VALUE) *ret)
@@ -410,18 +406,13 @@ GENERAL_NAME * a2i_GENERAL_NAME(GENERAL_NAME * out, const X509V3_EXT_METHOD * me
 	}
 
 	if(is_string) {
-		if((gen->d.ia5 = ASN1_IA5STRING_new()) == NULL ||
-		    !ASN1_STRING_set(gen->d.ia5, (uchar*)value,
-			    strlen(value))) {
+		if((gen->d.ia5 = ASN1_IA5STRING_new()) == NULL || !ASN1_STRING_set(gen->d.ia5, (uchar*)value, strlen(value))) {
 			X509V3err(X509V3_F_A2I_GENERAL_NAME, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
 	}
-
 	gen->type = gen_type;
-
 	return gen;
-
 err:
 	if(!out)
 		GENERAL_NAME_free(gen);
@@ -481,9 +472,7 @@ static int do_othername(GENERAL_NAME * gen, const char * value, X509V3_CTX * ctx
 		return 0;
 	gen->d.otherName->type_id = OBJ_txt2obj(objtmp, 0);
 	OPENSSL_free(objtmp);
-	if(!gen->d.otherName->type_id)
-		return 0;
-	return 1;
+	return gen->d.otherName->type_id ? 1 : 0;
 }
 
 static int do_dirname(GENERAL_NAME * gen, const char * value, X509V3_CTX * ctx)
@@ -491,7 +480,6 @@ static int do_dirname(GENERAL_NAME * gen, const char * value, X509V3_CTX * ctx)
 	int ret = 0;
 	STACK_OF(CONF_VALUE) *sk = NULL;
 	X509_NAME * nm;
-
 	if((nm = X509_NAME_new()) == NULL)
 		goto err;
 	sk = X509V3_get_section(ctx, value);

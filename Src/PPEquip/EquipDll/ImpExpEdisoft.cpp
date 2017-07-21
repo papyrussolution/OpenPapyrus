@@ -83,7 +83,7 @@
 //		Статус заказа в Papyrus - 0 - нет такого заказа, 1 - есть такой заказ. Метод ReplyImportObjStatus, структура Sdr_DllImpObjStatus.
 //
 //
-//#include <slib.h>
+#include <slib.h>
 //#include <ppbrow.h>
 #include <sxml.h>
 #include <ppedi.h>

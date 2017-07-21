@@ -2044,7 +2044,7 @@ cairo_status_t _cairo_scaled_font_show_glyphs(cairo_scaled_font_t     * scaled_f
 			 */
 			status = _cairo_surface_composite(CAIRO_OPERATOR_ADD,
 			    &_cairo_pattern_white.base, &mask_pattern.base, new_mask,
-			    0, 0, 0, 0, 0, 0, width, height, NULL);
+			    0, 0, 0, 0, 0, 0, width, height, 0);
 			_cairo_pattern_fini(&mask_pattern.base);
 			if(unlikely(status)) {
 				cairo_surface_destroy(new_mask);
@@ -2065,7 +2065,7 @@ cairo_status_t _cairo_scaled_font_show_glyphs(cairo_scaled_font_t     * scaled_f
 			status = _cairo_surface_composite(CAIRO_OPERATOR_ADD,
 			    &_cairo_pattern_white.base, &glyph_pattern.base,
 			    mask, 0, 0, 0, 0, x - dest_x, y - dest_y,
-			    glyph_surface->width, glyph_surface->height, NULL);
+			    glyph_surface->width, glyph_surface->height, 0);
 			_cairo_pattern_fini(&glyph_pattern.base);
 			if(unlikely(status))
 				goto CLEANUP_MASK;

@@ -10,56 +10,57 @@
 #pragma hdrstop
 
 #ifndef NO_WINDOWS_BRAINDEATH
-	// @sobolev #include "buildinf.h"
+// @sobolev #include "buildinf.h"
 #endif
 
 ulong OpenSSL_version_num(void)
 {
-    return OPENSSL_VERSION_NUMBER;
+	return OPENSSL_VERSION_NUMBER;
 }
 
-const char *OpenSSL_version(int t)
+const char * OpenSSL_version(int t)
 {
-    if (t == OPENSSL_VERSION)
-        return OPENSSL_VERSION_TEXT;
-    if (t == OPENSSL_BUILT_ON) {
+	if(t == OPENSSL_VERSION)
+		return OPENSSL_VERSION_TEXT;
+	if(t == OPENSSL_BUILT_ON) {
 #ifdef DATE
 # ifdef OPENSSL_USE_BUILD_DATE
-        return (DATE);
+		return (DATE);
 # else
-        return ("built on: reproducible build, date unspecified");
+		return ("built on: reproducible build, date unspecified");
 # endif
 #else
-        return ("built on: date not available");
+		return ("built on: date not available");
 #endif
-    }
-    if (t == OPENSSL_CFLAGS) {
+	}
+	if(t == OPENSSL_CFLAGS) {
 #ifdef CFLAGS
-        return (CFLAGS);
+		return (CFLAGS);
 #else
-        return ("compiler: information not available");
+		return ("compiler: information not available");
 #endif
-    }
-    if (t == OPENSSL_PLATFORM) {
+	}
+	if(t == OPENSSL_PLATFORM) {
 #ifdef PLATFORM
-        return (PLATFORM);
+		return (PLATFORM);
 #else
-        return ("platform: information not available");
+		return ("platform: information not available");
 #endif
-    }
-    if (t == OPENSSL_DIR) {
+	}
+	if(t == OPENSSL_DIR) {
 #ifdef OPENSSLDIR
-        return "OPENSSLDIR: \"" OPENSSLDIR "\"";
+		return "OPENSSLDIR: \"" OPENSSLDIR "\"";
 #else
-        return "OPENSSLDIR: N/A";
+		return "OPENSSLDIR: N/A";
 #endif
-    }
-    if (t == OPENSSL_ENGINES_DIR) {
+	}
+	if(t == OPENSSL_ENGINES_DIR) {
 #ifdef ENGINESDIR
-        return "ENGINESDIR: \"" ENGINESDIR "\"";
+		return "ENGINESDIR: \"" ENGINESDIR "\"";
 #else
-        return "ENGINESDIR: N/A";
+		return "ENGINESDIR: N/A";
 #endif
-    }
-    return ("not available");
+	}
+	return ("not available");
 }
+

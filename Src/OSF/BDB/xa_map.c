@@ -91,7 +91,7 @@ int __db_unmap_rmid(int rmid)
  */
 void __db_unmap_xid(ENV*env, XID * xid, size_t off)
 {
-	COMPQUIET(xid, NULL);
+	COMPQUIET(xid, 0);
 	TXN_DETAIL * td = (TXN_DETAIL *)R_ADDR(&env->tx_handle->reginfo, off);
 	memzero(td->gid, sizeof(td->gid));
 }

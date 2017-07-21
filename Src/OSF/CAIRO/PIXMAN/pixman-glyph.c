@@ -192,8 +192,8 @@ PIXMAN_EXPORT const void * pixman_glyph_cache_insert(pixman_glyph_cache_t  * cac
 {
 	glyph_t * glyph;
 	int32_t width, height;
-	return_val_if_fail(cache->freeze_count > 0, NULL);
-	return_val_if_fail(image->type == BITS, NULL);
+	return_val_if_fail(cache->freeze_count > 0, 0);
+	return_val_if_fail(image->type == BITS, 0);
 	width = image->bits.width;
 	height = image->bits.height;
 	if(cache->n_glyphs >= HASH_SIZE)

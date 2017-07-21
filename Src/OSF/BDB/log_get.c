@@ -1145,7 +1145,7 @@ int __log_read_record(ENV * env, DB ** dbpp, void * td, void * recbuf, DB_LOG_RE
 	int has_data, ret, downrev;
 	COMPQUIET(has_data, 0);
 	COMPQUIET(hdrsize, 0);
-	COMPQUIET(hdrstart, NULL);
+	COMPQUIET(hdrstart, 0);
 	COMPQUIET(op, 0);
 	ap = (uint8 *)*argpp;
 	/*

@@ -141,7 +141,7 @@ nomem:
 	 * process ID to know if the mutex is still in use.
 	 */
 	if(LF_ISSET(DB_MUTEX_PROCESS_ONLY))
-		dbenv->thread_id(dbenv, &mutexp->pid, NULL);
+		dbenv->thread_id(dbenv, &mutexp->pid, 0);
 #ifdef HAVE_STATISTICS
 	mutexp->alloc_id = alloc_id;
 #else
@@ -351,7 +351,7 @@ static int __mutex_region_init(ENV * env, DB_MUTEXMGR * mtxmgr)
 	int ret;
 	void * mutex_array;
 	DB_ENV * dbenv = env->dbenv;
-	COMPQUIET(mutexp, NULL);
+	COMPQUIET(mutexp, 0);
 	if((ret = __env_alloc(&mtxmgr->reginfo, sizeof(DB_MUTEXREGION), &mtxmgr->reginfo.primary)) != 0) {
 		__db_errx(env, DB_STR("2013", "Unable to allocate memory for the mutex region"));
 		return ret;
@@ -749,7 +749,7 @@ static int __mutex_print_stats(ENV * env, uint32 flags)
 		__db_msg(env, "Default mutex region information:");
 	__db_dlbytes(env, "Mutex region size", (ulong)0, (ulong)0, (ulong)sp->st_regsize);
 	__db_dlbytes(env, "Mutex region max size", (ulong)0, (ulong)0, (ulong)sp->st_regmax);
-	__db_dl_pct(env, "The number of region locks that required waiting", (ulong)sp->st_region_wait, DB_PCT(sp->st_region_wait, sp->st_region_wait+sp->st_region_nowait), NULL);
+	__db_dl_pct(env, "The number of region locks that required waiting", (ulong)sp->st_region_wait, DB_PCT(sp->st_region_wait, sp->st_region_wait+sp->st_region_nowait), 0);
 	STAT_ULONG("Mutex alignment", sp->st_mutex_align);
 	STAT_ULONG("Mutex test-and-set spins", sp->st_mutex_tas_spins);
 	STAT_ULONG("Mutex initial count", sp->st_mutex_init);
@@ -995,7 +995,7 @@ void __mutex_clear(ENV * env, db_mutex_t mutex)
 
 int __mutex_stat_pp(DB_ENV * dbenv, DB_MUTEX_STAT ** statp, uint32 flags)
 {
-	COMPQUIET(statp, NULL);
+	COMPQUIET(statp, 0);
 	COMPQUIET(flags, 0);
 	return __db_stat_not_built(dbenv->env);
 }
@@ -1488,7 +1488,7 @@ int __db_tas_mutex_destroy(ENV * env, db_mutex_t mutex)
 	if((ret = __db_pthread_mutex_destroy(env, mutex)) != 0)
 		return ret;
 #endif
-	COMPQUIET(mutexp, NULL);        /* MUTEX_DESTROY may not be defined. */
+	COMPQUIET(mutexp, 0);        /* MUTEX_DESTROY may not be defined. */
 	return 0;
 }
 //

@@ -226,7 +226,7 @@ void _cairo_xcb_connection_render_set_picture_filter(cairo_xcb_connection_t     
 {
 	assert(connection->flags & CAIRO_XCB_RENDER_HAS_FILTERS);
 	xcb_render_set_picture_filter(connection->xcb_connection, picture,
-	    filter_len, filter, 0, NULL);
+	    filter_len, filter, 0, 0);
 }
 
 void _cairo_xcb_connection_render_create_solid_fill(cairo_xcb_connection_t     * connection,

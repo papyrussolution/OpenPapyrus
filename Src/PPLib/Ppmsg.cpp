@@ -397,7 +397,7 @@ int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmv
 		}
 		if(is_win_msg) {
 			int c = (is_win_msg == 2) ? SLS.GetConstTLA().LastSockErr : SLS.GetOsError();
-			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, c, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)p_tmp_buf, PP_MSGLEN, NULL);
+			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, c, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)p_tmp_buf, PP_MSGLEN, 0);
 			chomp(SCharToOem(p_tmp_buf));
 			/* @todo
 			if(pAddInfo) {

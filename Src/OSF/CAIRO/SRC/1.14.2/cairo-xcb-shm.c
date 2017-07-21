@@ -118,7 +118,7 @@ static void _cairo_xcb_shm_process_pending(cairo_xcb_connection_t * connection, 
 		switch(wait) {
 			case PENDING_WAIT:
 			    reply = xcb_wait_for_reply(connection->xcb_connection,
-			    info->sync.sequence, NULL);
+			    info->sync.sequence, 0);
 			    break;
 			case PENDING_POLL:
 			    if(!xcb_poll_for_reply(connection->xcb_connection,
@@ -232,7 +232,7 @@ cairo_int_status_t _cairo_xcb_connection_allocate_shm_info(cairo_xcb_connection_
 
 	pool->shm = shmat(pool->shmid, NULL, 0);
 	if(unlikely(pool->shm == (char*)-1)) {
-		shmctl(pool->shmid, IPC_RMID, NULL);
+		shmctl(pool->shmid, IPC_RMID, 0);
 		free(pool);
 		CAIRO_MUTEX_UNLOCK(connection->shm_mutex);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -248,7 +248,7 @@ cairo_int_status_t _cairo_xcb_connection_allocate_shm_info(cairo_xcb_connection_
 	}
 
 	pool->shmseg = _cairo_xcb_connection_shm_attach(connection, pool->shmid, FALSE);
-	shmctl(pool->shmid, IPC_RMID, NULL);
+	shmctl(pool->shmid, IPC_RMID, 0);
 
 	cairo_list_add(&pool->link, &connection->shm_pools);
 	mem = _cairo_mempool_alloc(&pool->mem, size);

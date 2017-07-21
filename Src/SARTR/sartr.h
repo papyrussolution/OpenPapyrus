@@ -641,11 +641,14 @@ class SrImportParam {
 public:
 	enum {
 		inpFlexiaModel = 1,
-		inpMySpell
+		inpMySpell,
+		inpFirstnames, // @v9.7.8
+		inpSurnames,   // @v9.7.8
 	};
 	enum {
 		fldAncodeFileName = 1,
-		fldFlexiaModelFileName
+		fldFlexiaModelFileName,
+		fldSingleFileName // @v9.7.8
 	};
 	enum {
 		fTest = 0x0001
@@ -734,6 +737,8 @@ public:
 	int    FormatProp(const SrCProp & rCp, long flags, SString & rBuf);
 
 	int    ImportFlexiaModel(const SrImportParam & rParam);
+	int    ImportNames(const SrImportParam & rParam);
+
 	int    StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, int dontCheckExist, TSArray <PPOsm::NodeClusterStatEntry> * pStat);
 	int    StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSArray <PPOsm::WayStatEntry> * pStat);
 	int    StoreGeoNodeWayRefList(const LLAssocArray & rList);

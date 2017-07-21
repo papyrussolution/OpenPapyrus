@@ -2014,7 +2014,7 @@ int ec_GFp_nistp521_points_mul(const EC_GROUP * group, EC_POINT * r,
 		/* do the multiplication without generator precomputation */
 		batch_mul(x_out, y_out, z_out,
 		    (const felem_bytearray(*))secrets, num_points,
-		    NULL, mixed, (const felem(*)[17][3])pre_comp, NULL);
+		    NULL, mixed, (const felem(*)[17][3])pre_comp, 0);
 	/* reduce the output to its unique minimal representation */
 	felem_contract(x_in, x_out);
 	felem_contract(y_in, y_out);

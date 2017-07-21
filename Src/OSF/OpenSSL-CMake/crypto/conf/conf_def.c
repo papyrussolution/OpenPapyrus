@@ -339,7 +339,7 @@ again:
 	}
 	BUF_MEM_free(buff);
 	OPENSSL_free(section);
-	return (1);
+	return 1;
 err:
 	BUF_MEM_free(buff);
 	OPENSSL_free(section);
@@ -539,7 +539,7 @@ static int str_copy(CONF * conf, char * section, char ** pto, char * from)
 	OPENSSL_free(*pto);
 	*pto = buf->data;
 	OPENSSL_free(buf);
-	return (1);
+	return 1;
 err:
 	BUF_MEM_free(buf);
 	return 0;

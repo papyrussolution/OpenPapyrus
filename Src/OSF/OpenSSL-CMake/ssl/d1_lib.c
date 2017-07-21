@@ -335,7 +335,7 @@ int dtls1_check_timeout_num(SSL * s)
 	s->d1->timeout.num_alerts++;
 	/* Reduce MTU after 2 unsuccessful retransmissions */
 	if(s->d1->timeout.num_alerts > 2 && !(SSL_get_options(s) & SSL_OP_NO_QUERY_MTU)) {
-		mtu = BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_GET_FALLBACK_MTU, 0, NULL);
+		mtu = BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_GET_FALLBACK_MTU, 0, 0);
 		if(mtu < s->d1->mtu)
 			s->d1->mtu = mtu;
 	}
@@ -399,7 +399,7 @@ static void get_current_time(struct timeval * t)
 	t->tv_sec = (long)tb.time;
 	t->tv_usec = (long)tb.millitm * 1000;
 #else
-	gettimeofday(t, NULL);
+	gettimeofday(t, 0);
 #endif
 }
 
@@ -445,7 +445,7 @@ int DTLSv1_listen(SSL * s, BIO_ADDR * client)
 	 * to respond with a HelloVerifyRequest. If its a ClientHello with a valid
 	 * cookie then we leave it in the BIO for accept to handle.
 	 */
-	BIO_ctrl(SSL_get_rbio(s), BIO_CTRL_DGRAM_SET_PEEK_MODE, 1, NULL);
+	BIO_ctrl(SSL_get_rbio(s), BIO_CTRL_DGRAM_SET_PEEK_MODE, 1, 0);
 
 	/*
 	 * Note: This check deliberately excludes DTLS1_BAD_VER because that version
@@ -673,9 +673,9 @@ int DTLSv1_listen(SSL * s, BIO_ADDR * client)
 			 * Dump the read packet, we don't need it any more. Ignore return
 			 * value
 			 */
-			BIO_ctrl(SSL_get_rbio(s), BIO_CTRL_DGRAM_SET_PEEK_MODE, 0, NULL);
+			BIO_ctrl(SSL_get_rbio(s), BIO_CTRL_DGRAM_SET_PEEK_MODE, 0, 0);
 			BIO_read(rbio, buf, SSL3_RT_MAX_PLAIN_LENGTH);
-			BIO_ctrl(SSL_get_rbio(s), BIO_CTRL_DGRAM_SET_PEEK_MODE, 1, NULL);
+			BIO_ctrl(SSL_get_rbio(s), BIO_CTRL_DGRAM_SET_PEEK_MODE, 1, 0);
 
 			/* Generate the cookie */
 			if(s->ctx->app_gen_cookie_cb == NULL ||
@@ -816,7 +816,7 @@ int DTLSv1_listen(SSL * s, BIO_ADDR * client)
 	clearpkt = 0;
 end:
 	BIO_ADDR_free(tmpclient);
-	BIO_ctrl(SSL_get_rbio(s), BIO_CTRL_DGRAM_SET_PEEK_MODE, 0, NULL);
+	BIO_ctrl(SSL_get_rbio(s), BIO_CTRL_DGRAM_SET_PEEK_MODE, 0, 0);
 	if(clearpkt) {
 		/* Dump this packet. Ignore return value */
 		BIO_read(rbio, buf, SSL3_RT_MAX_PLAIN_LENGTH);
@@ -1026,7 +1026,7 @@ int dtls1_shutdown(SSL * s)
 #endif
 	ret = ssl3_shutdown(s);
 #ifndef OPENSSL_NO_SCTP
-	BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_SAVE_SHUTDOWN, 0, NULL);
+	BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_SAVE_SHUTDOWN, 0, 0);
 #endif
 	return ret;
 }
@@ -1043,7 +1043,7 @@ int dtls1_query_mtu(SSL * s)
 	if(s->d1->mtu < dtls1_min_mtu(s)) {
 		if(!(SSL_get_options(s) & SSL_OP_NO_QUERY_MTU)) {
 			s->d1->mtu =
-			    BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_QUERY_MTU, 0, NULL);
+			    BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_QUERY_MTU, 0, 0);
 
 			/*
 			 * I've seen the kernel return bogus numbers when it doesn't know
@@ -1053,7 +1053,7 @@ int dtls1_query_mtu(SSL * s)
 				/* Set to min mtu */
 				s->d1->mtu = dtls1_min_mtu(s);
 				BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SET_MTU,
-				    s->d1->mtu, NULL);
+				    s->d1->mtu, 0);
 			}
 		}
 		else

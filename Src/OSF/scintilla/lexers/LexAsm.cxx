@@ -52,9 +52,9 @@ static bool FASTCALL IsAsmOperator(const int ch)
 	return false;
 }
 
-static bool IsStreamCommentStyle(int style)
+static bool FASTCALL IsStreamCommentStyle(int style)
 {
-	return style == SCE_ASM_COMMENTDIRECTIVE || style == SCE_ASM_COMMENTBLOCK;
+	return oneof2(style, SCE_ASM_COMMENTDIRECTIVE, SCE_ASM_COMMENTBLOCK);
 }
 
 static inline int LowerCase(int c)
@@ -103,36 +103,21 @@ static const char * const asmWordListDesc[] = {
 	0
 };
 
-struct OptionSetAsm : public OptionSet<OptionsAsm> {
+struct OptionSetAsm : public OptionSet <OptionsAsm> {
 	OptionSetAsm()
 	{
-		DefineProperty("lexer.asm.comment.delimiter", &OptionsAsm::delimiter,
-		    "Character used for COMMENT directive's delimiter, replacing the standard \"~\".");
-
+		DefineProperty("lexer.asm.comment.delimiter", &OptionsAsm::delimiter, "Character used for COMMENT directive's delimiter, replacing the standard \"~\".");
 		DefineProperty("fold", &OptionsAsm::fold);
-
-		DefineProperty("fold.asm.syntax.based", &OptionsAsm::foldSyntaxBased,
-		    "Set this property to 0 to disable syntax based folding.");
-
-		DefineProperty("fold.asm.comment.multiline", &OptionsAsm::foldCommentMultiline,
-		    "Set this property to 1 to enable folding multi-line comments.");
-
+		DefineProperty("fold.asm.syntax.based", &OptionsAsm::foldSyntaxBased, "Set this property to 0 to disable syntax based folding.");
+		DefineProperty("fold.asm.comment.multiline", &OptionsAsm::foldCommentMultiline, "Set this property to 1 to enable folding multi-line comments.");
 		DefineProperty("fold.asm.comment.explicit", &OptionsAsm::foldCommentExplicit,
 		    "This option enables folding explicit fold points when using the Asm lexer. "
 		    "Explicit fold points allows adding extra folding by placing a ;{ comment at the start and a ;} "
 		    "at the end of a section that should fold.");
-
-		DefineProperty("fold.asm.explicit.start", &OptionsAsm::foldExplicitStart,
-		    "The string to use for explicit fold start points, replacing the standard ;{.");
-
-		DefineProperty("fold.asm.explicit.end", &OptionsAsm::foldExplicitEnd,
-		    "The string to use for explicit fold end points, replacing the standard ;}.");
-
-		DefineProperty("fold.asm.explicit.anywhere", &OptionsAsm::foldExplicitAnywhere,
-		    "Set this property to 1 to enable explicit fold points anywhere, not just in line comments.");
-
+		DefineProperty("fold.asm.explicit.start", &OptionsAsm::foldExplicitStart, "The string to use for explicit fold start points, replacing the standard ;{.");
+		DefineProperty("fold.asm.explicit.end", &OptionsAsm::foldExplicitEnd, "The string to use for explicit fold end points, replacing the standard ;}.");
+		DefineProperty("fold.asm.explicit.anywhere", &OptionsAsm::foldExplicitAnywhere, "Set this property to 1 to enable explicit fold points anywhere, not just in line comments.");
 		DefineProperty("fold.compact", &OptionsAsm::foldCompact);
-
 		DefineWordListSets(asmWordListDesc);
 	}
 };

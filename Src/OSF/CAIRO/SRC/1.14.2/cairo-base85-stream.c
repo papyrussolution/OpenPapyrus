@@ -94,7 +94,7 @@ static cairo_status_t _cairo_base85_stream_close(cairo_output_stream_t * base)
 	uchar five_tuple[5];
 	if(stream->pending) {
 		memzero(stream->four_tuple + stream->pending, 4 - stream->pending);
-		_expand_four_tuple_to_five(stream->four_tuple, five_tuple, NULL);
+		_expand_four_tuple_to_five(stream->four_tuple, five_tuple, 0);
 		_cairo_output_stream_write(stream->output, five_tuple, stream->pending + 1);
 	}
 	return _cairo_output_stream_get_status(stream->output);

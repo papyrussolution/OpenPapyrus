@@ -16,7 +16,7 @@
 #endif
 //#include <openssl/lhash.h>
 //#include <openssl/x509.h>
-#include "internal/x509_int.h"
+//#include "internal/x509_int.h"
 #include "x509_lcl.h"
 
 struct lookup_dir_hashes_st {
@@ -355,6 +355,6 @@ static int get_cert_by_subject(X509_LOOKUP * xl, X509_LOOKUP_TYPE type, X509_NAM
 	}
 finish:
 	BUF_MEM_free(b);
-	return (ok);
+	return ok;
 }
 

@@ -33,15 +33,14 @@ char * CRYPTO_strdup(const char * str, const char* file, int line)
 
 char * CRYPTO_strndup(const char * str, size_t s, const char* file, int line)
 {
-	size_t maxlen;
-	char * ret;
-	if(str == NULL)
-		return NULL;
-	maxlen = OPENSSL_strnlen(str, s);
-	ret = (char*)CRYPTO_malloc(maxlen + 1, file, line);
-	if(ret) {
-		memcpy(ret, str, maxlen);
-		ret[maxlen] = '\0';
+	char * ret = NULL;
+	if(str) {
+		size_t maxlen = OPENSSL_strnlen(str, s);
+		ret = (char*)CRYPTO_malloc(maxlen + 1, file, line);
+		if(ret) {
+			memcpy(ret, str, maxlen);
+			ret[maxlen] = '\0';
+		}
 	}
 	return ret;
 }
@@ -62,7 +61,8 @@ void * CRYPTO_memdup(const void * data, size_t siz, const char* file, int line)
 size_t OPENSSL_strnlen(const char * str, size_t maxlen)
 {
 	const char * p;
-	for(p = str; maxlen-- != 0 && *p != '\0'; ++p) ;
+	for(p = str; maxlen-- != 0 && *p != '\0'; ++p) 
+		;
 	return p - str;
 }
 
@@ -161,11 +161,9 @@ char * OPENSSL_buf2hexstr(const uchar * buffer, long len)
 	char * tmp, * q;
 	const uchar * p;
 	int i;
-
 	if(len == 0) {
 		return (char*)OPENSSL_zalloc(1);
 	}
-
 	if((tmp = (char*)OPENSSL_malloc(len * 3)) == NULL) {
 		CRYPTOerr(CRYPTO_F_OPENSSL_BUF2HEXSTR, ERR_R_MALLOC_FAILURE);
 		return NULL;
@@ -180,7 +178,6 @@ char * OPENSSL_buf2hexstr(const uchar * buffer, long len)
 #ifdef CHARSET_EBCDIC
 	ebcdic2ascii(tmp, tmp, q - tmp - 1);
 #endif
-
 	return tmp;
 }
 

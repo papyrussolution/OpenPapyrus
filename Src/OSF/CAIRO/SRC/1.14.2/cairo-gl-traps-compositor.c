@@ -312,7 +312,7 @@ static cairo_int_status_t traps_to_operand(void * _dst,
 
 		_cairo_pattern_init_for_surface(&pattern, image);
 		status = _cairo_surface_paint(rgba_image, CAIRO_OPERATOR_SOURCE,
-		    &pattern.base, NULL);
+		    &pattern.base, 0);
 		_cairo_pattern_fini(&pattern.base);
 
 		cairo_surface_destroy(image);

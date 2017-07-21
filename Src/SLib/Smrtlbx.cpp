@@ -601,7 +601,7 @@ int SmartListBox::SetupTreeWnd(HTREEITEM hParent, long grpParentID)
 					else {
 						char temp_buf[256];
 						FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(),
-							MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), temp_buf, sizeof(temp_buf), NULL);
+							MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), temp_buf, sizeof(temp_buf), 0);
 						(err_msg = temp_buf).Chomp();
 					}
 				}
@@ -680,7 +680,7 @@ int SmartListBox::SetupTreeWnd2(uint32 parentP)
 					else {
 						char temp_buf[256];
 						FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(),
-							MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), temp_buf, sizeof(temp_buf), NULL);
+							MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), temp_buf, sizeof(temp_buf), 0);
 						(err_msg = temp_buf).Chomp();
 					}
 					ok = 1;

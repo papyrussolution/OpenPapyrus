@@ -310,7 +310,7 @@ static cairo_surface_t * render_pattern(cairo_xlib_surface_t * dst,
 
 	src->picture = XRenderCreatePicture(dpy,
 	    src->drawable, src->xrender_format,
-	    0, NULL);
+	    0, 0);
 
 	*src_x = -extents->x;
 	*src_y = -extents->y;
@@ -954,7 +954,7 @@ static cairo_surface_t * surface_source(cairo_xlib_surface_t * dst,
 		proxy->source.picture = XRenderCreatePicture(proxy->source.dpy,
 		    _cairo_xlib_shm_surface_get_pixmap(src),
 		    _cairo_xlib_shm_surface_get_xrender_format(src),
-		    0, NULL);
+		    0, 0);
 		proxy->source.pixmap = None;
 
 		proxy->source.has_component_alpha = 0;

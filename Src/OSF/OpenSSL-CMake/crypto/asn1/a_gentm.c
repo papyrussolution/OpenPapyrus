@@ -150,7 +150,7 @@ int ASN1_GENERALIZEDTIME_set_string(ASN1_GENERALIZEDTIME * s, const char * str)
 				return 0;
 			s->type = V_ASN1_GENERALIZEDTIME;
 		}
-		return (1);
+		return 1;
 	}
 	else
 		return 0;
@@ -162,34 +162,22 @@ ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_set(ASN1_GENERALIZEDTIME * s,
 	return ASN1_GENERALIZEDTIME_adj(s, t, 0, 0);
 }
 
-ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_adj(ASN1_GENERALIZEDTIME * s,
-    time_t t, int offset_day,
-    long offset_sec)
+ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_adj(ASN1_GENERALIZEDTIME * s, time_t t, int offset_day, long offset_sec)
 {
 	char * p;
 	struct tm * ts;
-
 	struct tm data;
-
 	size_t len = 20;
-	ASN1_GENERALIZEDTIME * tmps = NULL;
-
-	if(s == NULL)
-		tmps = ASN1_GENERALIZEDTIME_new();
-	else
-		tmps = s;
+	ASN1_GENERALIZEDTIME * tmps = s ? s : ASN1_GENERALIZEDTIME_new();
 	if(tmps == NULL)
 		return NULL;
-
 	ts = OPENSSL_gmtime(&t, &data);
 	if(ts == NULL)
 		goto err;
-
 	if(offset_day || offset_sec) {
 		if(!OPENSSL_gmtime_adj(ts, offset_day, offset_sec))
 			goto err;
 	}
-
 	p = (char*)tmps->data;
 	if((p == NULL) || ((size_t)tmps->length < len)) {
 		p = (char*)OPENSSL_malloc(len);
@@ -200,10 +188,7 @@ ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_adj(ASN1_GENERALIZEDTIME * s,
 		OPENSSL_free(tmps->data);
 		tmps->data = (uchar*)p;
 	}
-
-	BIO_snprintf(p, len, "%04d%02d%02d%02d%02d%02dZ", ts->tm_year + 1900,
-	    ts->tm_mon + 1, ts->tm_mday, ts->tm_hour, ts->tm_min,
-	    ts->tm_sec);
+	BIO_snprintf(p, len, "%04d%02d%02d%02d%02d%02dZ", ts->tm_year + 1900, ts->tm_mon + 1, ts->tm_mday, ts->tm_hour, ts->tm_min, ts->tm_sec);
 	tmps->length = strlen(p);
 	tmps->type = V_ASN1_GENERALIZEDTIME;
 #ifdef CHARSET_EBCDIC_not
@@ -267,7 +252,7 @@ int ASN1_GENERALIZEDTIME_print(BIO * bp, const ASN1_GENERALIZEDTIME * tm)
 		    (gmt) ? " GMT" : "") <= 0)
 		return 0;
 	else
-		return (1);
+		return 1;
 err:
 	BIO_write(bp, "Bad time value", 14);
 	return 0;

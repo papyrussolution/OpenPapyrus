@@ -480,7 +480,7 @@ cairo_surface_t * _cairo_surface_wrapper_create_similar(cairo_surface_wrapper_t 
     int height)
 {
 	return _cairo_surface_create_scratch(wrapper->target,
-	    content, width, height, NULL);
+	    content, width, height, 0);
 }
 
 cairo_bool_t _cairo_surface_wrapper_get_extents(cairo_surface_wrapper_t * wrapper,
@@ -618,7 +618,7 @@ cairo_bool_t _cairo_surface_wrapper_get_target_extents(cairo_surface_wrapper_t *
 		x2 = clip.x + clip.width;
 		y2 = clip.y + clip.height;
 
-		_cairo_matrix_transform_bounding_box(&m, &x1, &y1, &x2, &y2, NULL);
+		_cairo_matrix_transform_bounding_box(&m, &x1, &y1, &x2, &y2, 0);
 
 		clip.x = (int)floor(x1);
 		clip.y = (int)floor(y1);

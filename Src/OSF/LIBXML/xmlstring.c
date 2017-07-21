@@ -40,7 +40,7 @@ xmlChar * xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len)
 	if(cur && len >= 0) {
 		ret = (xmlChar*)SAlloc::M((len + 1) * sizeof(xmlChar));
 		if(!ret) {
-			xmlErrMemory(NULL, NULL);
+			xmlErrMemory(NULL, 0);
 		}
 		else {
 			memcpy(ret, cur, len * sizeof(xmlChar));
@@ -88,7 +88,7 @@ xmlChar * xmlCharStrndup(const char * cur, int len)
 	if(!cur || (len < 0)) return 0;
 	ret = (xmlChar*)SAlloc::M((len + 1) * sizeof(xmlChar));
 	if(!ret) {
-		xmlErrMemory(NULL, NULL);
+		xmlErrMemory(NULL, 0);
 		return 0;
 	}
 	for(i = 0; i < len; i++) {
@@ -445,7 +445,7 @@ xmlChar * xmlStrncat(xmlChar * cur, const xmlChar * add, int len)
 	size = sstrlen(cur);
 	ret = (xmlChar*)SAlloc::R(cur, (size + len + 1) * sizeof(xmlChar));
 	if(!ret) {
-		xmlErrMemory(NULL, NULL);
+		xmlErrMemory(NULL, 0);
 		return cur;
 	}
 	memcpy(&ret[size], add, len * sizeof(xmlChar));
@@ -477,7 +477,7 @@ xmlChar * xmlStrncatNew(const xmlChar * str1, const xmlChar * str2, int len)
 	size = sstrlen(str1);
 	ret = (xmlChar*)SAlloc::M((size + len + 1) * sizeof(xmlChar));
 	if(!ret) {
-		xmlErrMemory(NULL, NULL);
+		xmlErrMemory(NULL, 0);
 		return xmlStrndup(str1, size);
 	}
 	else {

@@ -153,7 +153,7 @@ static void _vg_context_destroy_target(cairo_vg_context_t * context,
 		return;
 
 	if(context->target_id == surface->target_id)
-		context->set_target(context, NULL);
+		context->set_target(context, 0);
 
 	context->destroy_target(context, surface);
 }

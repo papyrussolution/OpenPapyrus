@@ -35,8 +35,7 @@ static int t_fromb64(uchar * a, size_t alen, const char * src)
 	char * loc;
 	int i, j;
 	int size;
-
-	while(*src && (*src == ' ' || *src == '\t' || *src == '\n'))
+	while(oneof3(*src, ' ', '\t', '\n'))
 		++src;
 	size = strlen(src);
 	if(alen > INT_MAX || size > (int)alen)
@@ -195,7 +194,7 @@ static int SRP_user_pwd_set_sv(SRP_user_pwd * vinfo, const char * s,
 	len = t_fromb64(tmp, sizeof(tmp), s);
 	if(len < 0)
 		goto err;
-	vinfo->s = BN_bin2bn(tmp, len, NULL);
+	vinfo->s = BN_bin2bn(tmp, len, 0);
 	if(vinfo->s == NULL)
 		goto err;
 	return 1;
@@ -528,16 +527,16 @@ char * SRP_create_verifier(const char * user, const char * pass, char ** salt,
 	if(N) {
 		if((len = t_fromb64(tmp, sizeof(tmp), N)) <= 0)
 			goto err;
-		N_bn_alloc = BN_bin2bn(tmp, len, NULL);
+		N_bn_alloc = BN_bin2bn(tmp, len, 0);
 		N_bn = N_bn_alloc;
 		if((len = t_fromb64(tmp, sizeof(tmp), g)) <= 0)
 			goto err;
-		g_bn_alloc = BN_bin2bn(tmp, len, NULL);
+		g_bn_alloc = BN_bin2bn(tmp, len, 0);
 		g_bn = g_bn_alloc;
 		defgNid = "*";
 	}
 	else {
-		SRP_gN * gN = SRP_get_gN_by_id(g, NULL);
+		SRP_gN * gN = SRP_get_gN_by_id(g, 0);
 		if(gN == NULL)
 			goto err;
 		N_bn = gN->N;
@@ -549,12 +548,12 @@ char * SRP_create_verifier(const char * user, const char * pass, char ** salt,
 		if(RAND_bytes(tmp2, SRP_RANDOM_SALT_LEN) <= 0)
 			goto err;
 
-		s = BN_bin2bn(tmp2, SRP_RANDOM_SALT_LEN, NULL);
+		s = BN_bin2bn(tmp2, SRP_RANDOM_SALT_LEN, 0);
 	}
 	else {
 		if((len = t_fromb64(tmp2, sizeof(tmp2), *salt)) <= 0)
 			goto err;
-		s = BN_bin2bn(tmp2, len, NULL);
+		s = BN_bin2bn(tmp2, len, 0);
 	}
 
 	if(!SRP_create_verifier_BN(user, pass, &s, &v, N_bn, g_bn))
@@ -618,7 +617,7 @@ int SRP_create_verifier_BN(const char * user, const char * pass, BIGNUM ** salt,
 		if(RAND_bytes(tmp2, SRP_RANDOM_SALT_LEN) <= 0)
 			goto err;
 
-		salttmp = BN_bin2bn(tmp2, SRP_RANDOM_SALT_LEN, NULL);
+		salttmp = BN_bin2bn(tmp2, SRP_RANDOM_SALT_LEN, 0);
 	}
 	else {
 		salttmp = *salt;

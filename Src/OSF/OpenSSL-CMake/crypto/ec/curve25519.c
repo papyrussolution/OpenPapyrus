@@ -3381,8 +3381,7 @@ static void x25519_scalar_mult(uint8_t out[32], const uint8_t scalar[32],
 	x25519_scalar_mult_generic(out, scalar, point);
 }
 
-int X25519(uint8_t out_shared_key[32], const uint8_t private_key[32],
-    const uint8_t peer_public_value[32])
+int X25519(uint8_t out_shared_key[32], const uint8_t private_key[32], const uint8_t peer_public_value[32])
 {
 	static const uint8_t kZeros[32] = {0};
 	x25519_scalar_mult(out_shared_key, private_key, peer_public_value);
@@ -3390,8 +3389,7 @@ int X25519(uint8_t out_shared_key[32], const uint8_t private_key[32],
 	return CRYPTO_memcmp(kZeros, out_shared_key, 32) != 0;
 }
 
-void X25519_public_from_private(uint8_t out_public_value[32],
-    const uint8_t private_key[32])
+void X25519_public_from_private(uint8_t out_public_value[32], const uint8_t private_key[32])
 {
 	uint8_t e[32];
 	ge_p3 A;

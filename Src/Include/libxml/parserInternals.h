@@ -71,15 +71,10 @@ XMLPUBVAR uint xmlParserMaxDepth;
  * Introduced in 2.9.0
  */
 #define XML_MAX_LOOKUP_LIMIT 10000000
-
 /**
- * XML_MAX_NAMELEN:
- *
- * Identifiers can be longer, but this will be more costly
- * at runtime.
+ * Identifiers can be longer, but this will be more costly at runtime.
  */
 #define XML_MAX_NAMELEN 100
-
 /**
  * INPUT_CHUNK:
  *
@@ -187,46 +182,26 @@ XMLPUBVAR uint xmlParserMaxDepth;
  * Always false (all combining chars > 0xff)
  */
 #define IS_COMBINING_CH(c) 0
-
 /**
- * IS_EXTENDER:
  * @c:  an UNICODE value (int)
- *
  * Macro to check the following production in the XML spec:
- *
- *
- * [89] Extender ::= #x00B7 | #x02D0 | #x02D1 | #x0387 | #x0640 |
- *                   #x0E46 | #x0EC6 | #x3005 | [#x3031-#x3035] |
- *                   [#x309D-#x309E] | [#x30FC-#x30FE]
+ * [89] Extender ::= #x00B7 | #x02D0 | #x02D1 | #x0387 | #x0640 | #x0E46 | #x0EC6 | #x3005 | [#x3031-#x3035] | [#x309D-#x309E] | [#x30FC-#x30FE]
  */
 #define IS_EXTENDER(c) xmlIsExtenderQ(c)
-
 /**
- * IS_EXTENDER_CH:
  * @c:  an xmlChar value (usually an uchar)
- *
  * Behaves like IS_EXTENDER but with a single-byte argument
  */
 #define IS_EXTENDER_CH(c)  xmlIsExtender_ch(c)
-
 /**
- * IS_IDEOGRAPHIC:
  * @c:  an UNICODE value (int)
- *
  * Macro to check the following production in the XML spec:
- *
- *
  * [86] Ideographic ::= [#x4E00-#x9FA5] | #x3007 | [#x3021-#x3029]
  */
 #define IS_IDEOGRAPHIC(c) xmlIsIdeographicQ(c)
-
 /**
- * IS_LETTER:
  * @c:  an UNICODE value (int)
- *
  * Macro to check the following production in the XML spec:
- *
- *
  * [84] Letter ::= BaseChar | Ideographic
  */
 #define IS_LETTER(c) (IS_BASECHAR(c) || IS_IDEOGRAPHIC(c))

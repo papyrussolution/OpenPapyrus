@@ -78,7 +78,7 @@ cairo_int_status_t _cairo_clip_get_polygon(const cairo_clip_t * clip,
 	if(clip->num_boxes < 2)
 		_cairo_polygon_init_with_clip(polygon, clip);
 	else
-		_cairo_polygon_init_with_clip(polygon, NULL);
+		_cairo_polygon_init_with_clip(polygon, 0);
 	clip_path = clip->path;
 	*fill_rule = clip_path->fill_rule;
 	*antialias = clip_path->antialias;

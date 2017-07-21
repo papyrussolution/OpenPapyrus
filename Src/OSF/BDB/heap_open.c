@@ -31,7 +31,7 @@ int __heap_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, 
 	db_pgno_t npgs;
 	int ret;
 	HEAP * h = (HEAP *)dbp->heap_internal;
-	COMPQUIET(name, NULL);
+	COMPQUIET(name, 0);
 	ret = __heap_read_meta(dbp, ip, txn, base_pgno, flags);
 	if(h->gbytes != 0 || h->bytes != 0) {
 		/*

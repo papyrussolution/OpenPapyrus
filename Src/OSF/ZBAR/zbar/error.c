@@ -95,8 +95,7 @@ zbar_error_t _zbar_get_error_code(const void * container)
  *     system error: blah[: blah]
  */
 
-const char * _zbar_error_string(const void * container,
-    int verbosity)
+const char * _zbar_error_string(const void * container, int verbosity)
 {
 	static const char basefmt[] = "%s: zbar %s in %s():\n    %s: ";
 	errinfo_t * err = (errinfo_t*)container;

@@ -793,7 +793,7 @@ static int asn1_ex_c2i(ASN1_VALUE ** pval, const uchar * cont, int len,
 			typ = (ASN1_TYPE*)*pval;
 
 		if(utype != typ->type)
-			ASN1_TYPE_set(typ, utype, NULL);
+			ASN1_TYPE_set(typ, utype, 0);
 		opval = pval;
 		pval = &typ->value.asn1_value;
 	}

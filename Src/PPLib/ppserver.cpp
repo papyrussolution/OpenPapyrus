@@ -4951,7 +4951,7 @@ int SLAPI RFIDPrcssr()
 	if(sio_open(6)!=SIO_OK) {
 	}
 	*/
-	HANDLE h_port = ::CreateFile(file_name, GENERIC_READ|GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+	HANDLE h_port = ::CreateFile(file_name, GENERIC_READ|GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, 0);
 	if(h_port != INVALID_HANDLE_VALUE) {
 		int r = 0;
 		size_t sended = 0;

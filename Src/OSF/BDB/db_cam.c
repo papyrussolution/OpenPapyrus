@@ -788,7 +788,7 @@ retry:
 			ret = __db_unknown_flag(env, "__dbc_get", flags);
 			goto err;
 		}
-		ret = cp_n->opd->am_get(cp_n->opd, key, data, tmp_flags, NULL);
+		ret = cp_n->opd->am_get(cp_n->opd, key, data, tmp_flags, 0);
 		/*
 		 * Another cursor may have deleted all of the off-page
 		 * duplicates, so for operations that are moving a cursor, we
@@ -2149,7 +2149,7 @@ retry:  /* Step 1. */
 	}
 	else if(F_ISSET(pkey, DB_DBT_USERCOPY)) {
 		if(flags == DB_GET_BOTH_RANGE)
-			__dbt_userfree(sdbp->env, NULL, pkey, NULL);
+			__dbt_userfree(sdbp->env, NULL, pkey, 0);
 		if((ret = __dbt_usercopy(sdbp->env, pkey)) != 0)
 			goto err;
 	}

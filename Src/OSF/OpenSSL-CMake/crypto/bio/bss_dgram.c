@@ -152,7 +152,7 @@ static int dgram_new(BIO * bi)
 	if(data == NULL)
 		return 0;
 	bi->ptr = data;
-	return (1);
+	return 1;
 }
 
 static int dgram_free(BIO * a)
@@ -164,7 +164,7 @@ static int dgram_free(BIO * a)
 		return 0;
 	data = (bio_dgram_data*)a->ptr;
 	OPENSSL_free(data);
-	return (1);
+	return 1;
 }
 
 static int dgram_clear(BIO * a)
@@ -178,7 +178,7 @@ static int dgram_clear(BIO * a)
 		a->init = 0;
 		a->flags = 0;
 	}
-	return (1);
+	return 1;
 }
 
 static void dgram_adjust_rcv_timeout(BIO * b)
@@ -950,7 +950,7 @@ static int dgram_sctp_new(BIO * bi)
 	bi->ptr = data;
 
 	bi->flags = 0;
-	return (1);
+	return 1;
 }
 
 static int dgram_sctp_free(BIO * a)
@@ -968,7 +968,7 @@ static int dgram_sctp_free(BIO * a)
 		OPENSSL_free(data);
 	}
 
-	return (1);
+	return 1;
 }
 
 #  ifdef SCTP_AUTHENTICATION_EVENT
@@ -1893,7 +1893,7 @@ int BIO_dgram_non_fatal_error(int err)
 # ifdef EALREADY
 		case EALREADY:
 # endif
-		return (1);
+		return 1;
 		/* break; */
 		default:
 		    break;
@@ -1926,7 +1926,7 @@ static void get_current_time(struct timeval * t)
 	t->tv_sec = (long)tb.time;
 	t->tv_usec = (long)tb.millitm * 1000;
 # else
-	gettimeofday(t, NULL);
+	gettimeofday(t, 0);
 # endif
 }
 

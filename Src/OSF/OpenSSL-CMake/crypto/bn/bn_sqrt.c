@@ -22,7 +22,6 @@ BIGNUM * BN_mod_sqrt(BIGNUM * in, const BIGNUM * a, const BIGNUM * p, BN_CTX * c
 	int r;
 	BIGNUM * A, * b, * q, * t, * x, * y;
 	int e, i, j;
-
 	if(!BN_is_odd(p) || BN_abs_is_word(p, 1)) {
 		if(BN_abs_is_word(p, 2)) {
 			if(!ret)
@@ -37,11 +36,9 @@ BIGNUM * BN_mod_sqrt(BIGNUM * in, const BIGNUM * a, const BIGNUM * p, BN_CTX * c
 			bn_check_top(ret);
 			return ret;
 		}
-
 		BNerr(BN_F_BN_MOD_SQRT, BN_R_P_IS_NOT_PRIME);
 		return NULL;
 	}
-
 	if(BN_is_zero(a) || BN_is_one(a)) {
 		if(!ret)
 			ret = BN_new();
@@ -55,7 +52,6 @@ BIGNUM * BN_mod_sqrt(BIGNUM * in, const BIGNUM * a, const BIGNUM * p, BN_CTX * c
 		bn_check_top(ret);
 		return ret;
 	}
-
 	BN_CTX_start(ctx);
 	A = BN_CTX_get(ctx);
 	b = BN_CTX_get(ctx);

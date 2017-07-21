@@ -313,10 +313,12 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 	// В этом случае не допускаем переписывания уже установленных значений теми, что указаны
 	// в конфигурации.
 	//
-	SString temp_path, log_path, pack_path;
+	SString temp_path, log_path, pack_path, spii_path, sartredb_path;
 	GetPath(PPPATH_TEMP, 0, temp_path);
 	GetPath(PPPATH_LOG, 0, log_path);
 	GetPath(PPPATH_PACK, 0, pack_path); // @v7.8.2
+	GetPath(PPPATH_SPII, 0, spii_path); // @v9.7.8
+	GetPath(PPPATH_SARTREDB, 0, sartredb_path); // @v9.7.8
 	PathItem * p = 0;
 	THROW(Resize(sz));
 	THROW(r = p_ref->GetConfig(securType, securID, PPPRP_PATHS, P, sz));
@@ -369,6 +371,12 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 		SetPath(PPPATH_LOG, log_path, 0, 1);
 	if(pack_path.NotEmptyS())
 		SetPath(PPPATH_PACK, pack_path, 0, 1);
+	// @v9.7.8 {
+	if(spii_path.NotEmptyS())
+		SetPath(PPPATH_SPII, spii_path, 0, 1); 
+	if(sartredb_path.NotEmptyS())
+		SetPath(PPPATH_SARTREDB, sartredb_path, 0, 1); 
+	// } @v9.7.8
 	CATCHZOK
 	return ok;
 }

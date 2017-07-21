@@ -248,7 +248,7 @@ static int state_machine(SSL * s, int server)
 		 * identifier other than 0. Will be ignored if no SCTP is used.
 		 */
 		BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_SET_IN_HANDSHAKE,
-		    st->in_handshake, NULL);
+		    st->in_handshake, 0);
 	}
 #endif
 
@@ -429,7 +429,7 @@ end:
 		 * identifier other than 0. Will be ignored if no SCTP is used.
 		 */
 		BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_SET_IN_HANDSHAKE,
-		    st->in_handshake, NULL);
+		    st->in_handshake, 0);
 	}
 #endif
 

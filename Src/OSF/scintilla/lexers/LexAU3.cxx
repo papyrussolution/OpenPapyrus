@@ -632,9 +632,9 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 }
 
 //
-static bool IsStreamCommentStyle(int style)
+static bool FASTCALL IsStreamCommentStyle(int style)
 {
-	return style == SCE_AU3_COMMENT || style == SCE_AU3_COMMENTBLOCK;
+	return oneof2(style, SCE_AU3_COMMENT, SCE_AU3_COMMENTBLOCK);
 }
 
 //

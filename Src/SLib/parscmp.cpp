@@ -343,7 +343,7 @@ int SLAPI check_cmp_expression(char * pStr, IntRange * pErrLoc)
 {
 	int    ok = 1;
 	int    numItems = 0;
-	parse_cmp_expression(pStr, &numItems, NULL);
+	parse_cmp_expression(pStr, &numItems, 0);
 	ok = (SLibError == SLERR_SUCCESS || SLibError == SLERR_BUFTOOSMALL);
 	if(!ok) {
 		pErrLoc->low = prevIndex;

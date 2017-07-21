@@ -61,7 +61,6 @@ int ASN1_mbstring_ncopy(ASN1_STRING ** out, const uchar * in, int len, int infor
 		    }
 		    nchar = len >> 1;
 		    break;
-
 		case MBSTRING_UNIV:
 		    if(len & 3) {
 			    ASN1err(ASN1_F_ASN1_MBSTRING_NCOPY,
@@ -70,7 +69,6 @@ int ASN1_mbstring_ncopy(ASN1_STRING ** out, const uchar * in, int len, int infor
 		    }
 		    nchar = len >> 2;
 		    break;
-
 		case MBSTRING_UTF8:
 		    nchar = 0;
 		    /* This counts the characters and does utf8 syntax checking */
@@ -80,23 +78,19 @@ int ASN1_mbstring_ncopy(ASN1_STRING ** out, const uchar * in, int len, int infor
 			    return -1;
 		    }
 		    break;
-
 		case MBSTRING_ASC:
 		    nchar = len;
 		    break;
-
 		default:
 		    ASN1err(ASN1_F_ASN1_MBSTRING_NCOPY, ASN1_R_UNKNOWN_FORMAT);
 		    return -1;
 	}
-
 	if((minsize > 0) && (nchar < minsize)) {
 		ASN1err(ASN1_F_ASN1_MBSTRING_NCOPY, ASN1_R_STRING_TOO_SHORT);
 		BIO_snprintf(strbuf, sizeof strbuf, "%ld", minsize);
 		ERR_add_error_data(2, "minsize=", strbuf);
 		return -1;
 	}
-
 	if((maxsize > 0) && (nchar > maxsize)) {
 		ASN1err(ASN1_F_ASN1_MBSTRING_NCOPY, ASN1_R_STRING_TOO_LONG);
 		BIO_snprintf(strbuf, sizeof strbuf, "%ld", maxsize);

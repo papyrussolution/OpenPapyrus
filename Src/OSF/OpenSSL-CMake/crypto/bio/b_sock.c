@@ -34,20 +34,16 @@ int BIO_get_host_ip(const char * str, uchar * ip)
 
 	if(BIO_sock_init() != 1)
 		return 0;       /* don't generate another error code here */
-
 	if(BIO_lookup(str, NULL, BIO_LOOKUP_CLIENT, AF_INET, SOCK_STREAM, &res)) {
 		size_t l;
-
 		if(BIO_ADDRINFO_family(res) != AF_INET) {
-			BIOerr(BIO_F_BIO_GET_HOST_IP,
-			    BIO_R_GETHOSTBYNAME_ADDR_IS_NOT_AF_INET);
+			BIOerr(BIO_F_BIO_GET_HOST_IP, BIO_R_GETHOSTBYNAME_ADDR_IS_NOT_AF_INET);
 		}
 		else {
 			BIO_ADDR_rawaddress(BIO_ADDRINFO_address(res), NULL, &l);
 			/* Because only AF_INET addresses will reach this far,
 			   we can assert that l should be 4 */
 			OPENSSL_assert(l == 4);
-
 			BIO_ADDR_rawaddress(BIO_ADDRINFO_address(res), ip, &l);
 			ret = 1;
 		}
@@ -64,19 +60,15 @@ int BIO_get_port(const char * str, unsigned short * port_ptr)
 {
 	BIO_ADDRINFO * res = NULL;
 	int ret = 0;
-
 	if(str == NULL) {
 		BIOerr(BIO_F_BIO_GET_PORT, BIO_R_NO_PORT_DEFINED);
 		return 0;
 	}
-
 	if(BIO_sock_init() != 1)
 		return 0;       /* don't generate another error code here */
-
 	if(BIO_lookup(NULL, str, BIO_LOOKUP_CLIENT, AF_INET, SOCK_STREAM, &res)) {
 		if(BIO_ADDRINFO_family(res) != AF_INET) {
-			BIOerr(BIO_F_BIO_GET_PORT,
-			    BIO_R_ADDRINFO_ADDR_IS_NOT_AF_INET);
+			BIOerr(BIO_F_BIO_GET_PORT, BIO_R_ADDRINFO_ADDR_IS_NOT_AF_INET);
 		}
 		else {
 			*port_ptr = ntohs(BIO_ADDR_rawport(BIO_ADDRINFO_address(res)));
@@ -87,7 +79,6 @@ int BIO_get_port(const char * str, unsigned short * port_ptr)
 	else {
 		ERR_add_error_data(2, "host=", str);
 	}
-
 	return ret;
 }
 
@@ -97,7 +88,6 @@ int BIO_sock_error(int sock)
 {
 	int j = 0, i;
 	socklen_t size = sizeof(j);
-
 	/*
 	 * Note: under Windows the third parameter is of type (char *) whereas
 	 * under other systems it is (void *) if you don't have a cast it will
@@ -120,7 +110,6 @@ struct hostent * BIO_gethostbyname(const char * name)
 	 */
 #  if (defined(NETWARE_BSDSOCK) && !defined(__NOVELL_LIBC__))
 	return gethostbyname((char*)name);
-
 #  else
 	return gethostbyname(name);
 #  endif
@@ -157,7 +146,7 @@ int BIO_sock_init(void)
 		return (-1);
 # endif
 
-	return (1);
+	return 1;
 }
 
 void bio_sock_cleanup_int(void)
@@ -175,85 +164,71 @@ void bio_sock_cleanup_int(void)
 int BIO_socket_ioctl(int fd, long type, void * arg)
 {
 	int i;
-
-#  ifdef __DJGPP__
+#ifdef __DJGPP__
 	i = ioctlsocket(fd, type, (char*)arg);
-#  else
-#   if defined(OPENSSL_SYS_VMS)
+#else
+	#if defined(OPENSSL_SYS_VMS)
 	/*-
 	 * 2011-02-18 SMS.
-	 * VMS ioctl() can't tolerate a 64-bit "void *arg", but we
-	 * observe that all the consumers pass in an "ulong *",
-	 * so we arrange a local copy with a short pointer, and use
-	 * that, instead.
+	 * VMS ioctl() can't tolerate a 64-bit "void *arg", but we observe that all the consumers pass in an "ulong *",
+	 * so we arrange a local copy with a short pointer, and use that, instead.
 	 */
-#    if __INITIAL_POINTER_SIZE == 64
-#     define ARG arg_32p
-#     pragma pointer_size save
-#     pragma pointer_size 32
+	#if __INITIAL_POINTER_SIZE == 64
+		#define ARG arg_32p
+		#pragma pointer_size save
+		#pragma pointer_size 32
 	ulong arg_32;
 	ulong * arg_32p;
-#     pragma pointer_size restore
+		#pragma pointer_size restore
 	arg_32p = &arg_32;
 	arg_32 = *((ulong*)arg);
-#    else                       /* __INITIAL_POINTER_SIZE == 64 */
-#     define ARG arg
-#    endif                      /* __INITIAL_POINTER_SIZE == 64 [else] */
-#   else                        /* defined(OPENSSL_SYS_VMS) */
-#    define ARG arg
-#   endif                       /* defined(OPENSSL_SYS_VMS) [else] */
+	#else                       /* __INITIAL_POINTER_SIZE == 64 */
+		#define ARG arg
+	#endif                      /* __INITIAL_POINTER_SIZE == 64 [else] */
+#else                        /* defined(OPENSSL_SYS_VMS) */
+	#define ARG arg
+#endif                       /* defined(OPENSSL_SYS_VMS) [else] */
 
 	i = ioctlsocket(fd, type, (u_long*)ARG);
-#  endif                        /* __DJGPP__ */
+#endif                        /* __DJGPP__ */
 	if(i < 0)
 		SYSerr(SYS_F_IOCTLSOCKET, get_last_socket_error());
 	return (i);
 }
 
-# endif                         /* __VMS_VER */
+#endif                         /* __VMS_VER */
 
-# if OPENSSL_API_COMPAT < 0x10100000L
+#if OPENSSL_API_COMPAT < 0x10100000L
 int BIO_get_accept_socket(char * host, int bind_mode)
 {
 	int s = INVALID_SOCKET;
 	char * h = NULL, * p = NULL;
 	BIO_ADDRINFO * res = NULL;
-
 	if(!BIO_parse_hostserv(host, &h, &p, BIO_PARSE_PRIO_SERV))
 		return INVALID_SOCKET;
-
 	if(BIO_sock_init() != 1)
 		return INVALID_SOCKET;
-
 	if(BIO_lookup(h, p, BIO_LOOKUP_SERVER, AF_UNSPEC, SOCK_STREAM, &res) != 0)
 		goto err;
-
-	if((s = BIO_socket(BIO_ADDRINFO_family(res), BIO_ADDRINFO_socktype(res),
-			    BIO_ADDRINFO_protocol(res), 0)) == INVALID_SOCKET) {
+	if((s = BIO_socket(BIO_ADDRINFO_family(res), BIO_ADDRINFO_socktype(res), BIO_ADDRINFO_protocol(res), 0)) == INVALID_SOCKET) {
 		s = INVALID_SOCKET;
 		goto err;
 	}
-
-	if(!BIO_listen(s, BIO_ADDRINFO_address(res),
-		    bind_mode ? BIO_SOCK_REUSEADDR : 0)) {
+	if(!BIO_listen(s, BIO_ADDRINFO_address(res), bind_mode ? BIO_SOCK_REUSEADDR : 0)) {
 		BIO_closesocket(s);
 		s = INVALID_SOCKET;
 	}
-
 err:
 	BIO_ADDRINFO_free(res);
 	OPENSSL_free(h);
 	OPENSSL_free(p);
-
 	return s;
 }
 
 int BIO_accept(int sock, char ** ip_port)
 {
 	BIO_ADDR res;
-	int ret = -1;
-
-	ret = BIO_accept_ex(sock, &res, 0);
+	int ret = BIO_accept_ex(sock, &res, 0);
 	if(ret == (int)INVALID_SOCKET) {
 		if(BIO_sock_should_retry(ret)) {
 			ret = -2;
@@ -263,7 +238,6 @@ int BIO_accept(int sock, char ** ip_port)
 		BIOerr(BIO_F_BIO_ACCEPT, BIO_R_ACCEPT_ERROR);
 		goto end;
 	}
-
 	if(ip_port != NULL) {
 		char * host = BIO_ADDR_hostname_string(&res, 1);
 		char * port = BIO_ADDR_service_string(&res, 1);
@@ -271,7 +245,6 @@ int BIO_accept(int sock, char ** ip_port)
 			*ip_port = (char*)OPENSSL_zalloc(strlen(host) + strlen(port) + 2);
 		else
 			*ip_port = NULL;
-
 		if(*ip_port == NULL) {
 			BIOerr(BIO_F_BIO_ACCEPT, ERR_R_MALLOC_FAILURE);
 			BIO_closesocket(ret);
@@ -285,7 +258,6 @@ int BIO_accept(int sock, char ** ip_port)
 		OPENSSL_free(host);
 		OPENSSL_free(port);
 	}
-
 end:
 	return ret;
 }
@@ -297,7 +269,6 @@ int BIO_set_tcp_ndelay(int s, int on)
 	int ret = 0;
 # if defined(TCP_NODELAY) && (defined(IPPROTO_TCP) || defined(SOL_TCP))
 	int opt;
-
 #  ifdef SOL_TCP
 	opt = SOL_TCP;
 #  else
@@ -356,17 +327,13 @@ int BIO_socket_nbio(int s, int mode)
 	return (ret == 0);
 }
 
-int BIO_sock_info(int sock,
-    enum BIO_sock_info_type type, union BIO_sock_info_u * info)
+int BIO_sock_info(int sock, enum BIO_sock_info_type type, union BIO_sock_info_u * info)
 {
 	switch(type) {
 		case BIO_SOCK_INFO_ADDRESS:
 	    {
-		    socklen_t addr_len;
-		    int ret = 0;
-		    addr_len = sizeof(*info->addr);
-		    ret = getsockname(sock, BIO_ADDR_sockaddr_noconst(info->addr),
-			    &addr_len);
+		    socklen_t addr_len = sizeof(*info->addr);
+		    int ret = getsockname(sock, BIO_ADDR_sockaddr_noconst(info->addr), &addr_len);
 		    if(ret == -1) {
 			    SYSerr(SYS_F_GETSOCKNAME, get_last_socket_error());
 			    BIOerr(BIO_F_BIO_SOCK_INFO, BIO_R_GETSOCKNAME_ERROR);

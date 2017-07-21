@@ -3535,8 +3535,9 @@ int SLAPI PPBillPacket::GetMainOrgID_(PPID * pID) const
 		ArticleTbl::Rec ar_rec;
 		if(ar_obj.Fetch(Rec.Object2, &ar_rec) > 0 && ar_rec.ObjID) {
 			PPObjAccSheet acs_obj;
-			PPAccSheet acs_rec;
-			if(acs_obj.Fetch(ar_rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MAIN) {
+			//PPAccSheet acs_rec;
+			//if(acs_obj.Fetch(ar_rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MAIN) {
+			if(acs_obj.IsLinkedToMainOrg(ar_rec.AccSheetID)) {
 				main_org_id = ar_rec.ObjID;
 			}
 		}

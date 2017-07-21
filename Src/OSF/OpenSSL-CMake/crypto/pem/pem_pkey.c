@@ -147,7 +147,7 @@ int PEM_write_bio_Parameters(BIO * bp, EVP_PKEY * x)
 
 	BIO_snprintf(pem_str, 80, "%s PARAMETERS", x->ameth->pem_str);
 	return PEM_ASN1_write_bio((i2d_of_void*)x->ameth->param_encode,
-	    pem_str, bp, x, NULL, NULL, 0, 0, NULL);
+	    pem_str, bp, x, NULL, NULL, 0, 0, 0);
 }
 
 #ifndef OPENSSL_NO_STDIO

@@ -357,7 +357,7 @@ static cairo_bool_t can_use_shm(Display * dpy, int * has_pixmap)
 	shm.readOnly = FALSE;
 	shm.shmaddr = shmat(shm.shmid, NULL, 0);
 	if(shm.shmaddr == (char*)-1) {
-		shmctl(shm.shmid, IPC_RMID, NULL);
+		shmctl(shm.shmid, IPC_RMID, 0);
 		return FALSE;
 	}
 
@@ -376,7 +376,7 @@ static cairo_bool_t can_use_shm(Display * dpy, int * has_pixmap)
 	XSetErrorHandler(old_handler);
 	XUnlockDisplay(dpy);
 
-	shmctl(shm.shmid, IPC_RMID, NULL);
+	shmctl(shm.shmid, IPC_RMID, 0);
 	shmdt(shm.shmaddr);
 
 	return success && !_x_error_occurred;
@@ -565,7 +565,7 @@ static cairo_xlib_shm_t * _cairo_xlib_shm_pool_create(cairo_xlib_display_t * dis
 	pool->shm.readOnly = FALSE;
 	pool->shm.shmaddr = shmat(pool->shm.shmid, NULL, 0);
 	if(pool->shm.shmaddr == (char*)-1) {
-		shmctl(pool->shm.shmid, IPC_RMID, NULL);
+		shmctl(pool->shm.shmid, IPC_RMID, 0);
 		goto cleanup;
 	}
 
@@ -574,7 +574,7 @@ static cairo_xlib_shm_t * _cairo_xlib_shm_pool_create(cairo_xlib_display_t * dis
 #if !IPC_RMID_DEFERRED_RELEASE
 	XSync(dpy, FALSE);
 #endif
-	shmctl(pool->shm.shmid, IPC_RMID, NULL);
+	shmctl(pool->shm.shmid, IPC_RMID, 0);
 
 	if(!success)
 		goto cleanup_shm;
@@ -1255,7 +1255,7 @@ static cairo_bool_t has_broken_send_shm_event(cairo_xlib_display_t * display,
 	info.readOnly = FALSE;
 	info.shmaddr = shmat(info.shmid, NULL, 0);
 	if(info.shmaddr == (char*)-1) {
-		shmctl(info.shmid, IPC_RMID, NULL);
+		shmctl(info.shmid, IPC_RMID, 0);
 		return TRUE;
 	}
 
@@ -1284,7 +1284,7 @@ static cairo_bool_t has_broken_send_shm_event(cairo_xlib_display_t * display,
 	XSetErrorHandler(old_handler);
 	XUnlockDisplay(dpy);
 
-	shmctl(info.shmid, IPC_RMID, NULL);
+	shmctl(info.shmid, IPC_RMID, 0);
 	shmdt(info.shmaddr);
 
 	return _x_error_occurred;

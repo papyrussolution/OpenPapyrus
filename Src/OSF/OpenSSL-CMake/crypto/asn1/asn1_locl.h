@@ -46,33 +46,19 @@ DEFINE_STACK_OF(MIME_HEADER)
 extern const char *_asn1_mon[12];
 
 void asn1_string_embed_free(ASN1_STRING *a, int embed);
-
 int asn1_get_choice_selector(ASN1_VALUE **pval, const ASN1_ITEM *it);
-int asn1_set_choice_selector(ASN1_VALUE **pval, int value,
-                             const ASN1_ITEM *it);
-
+int asn1_set_choice_selector(ASN1_VALUE **pval, int value, const ASN1_ITEM *it);
 ASN1_VALUE **asn1_get_field_ptr(ASN1_VALUE **pval, const ASN1_TEMPLATE *tt);
-
-const ASN1_TEMPLATE *asn1_do_adb(ASN1_VALUE **pval, const ASN1_TEMPLATE *tt,
-                                 int nullerr);
-
+const ASN1_TEMPLATE *asn1_do_adb(ASN1_VALUE **pval, const ASN1_TEMPLATE *tt, int nullerr);
 int asn1_do_lock(ASN1_VALUE **pval, int op, const ASN1_ITEM *it);
-
 void asn1_enc_init(ASN1_VALUE **pval, const ASN1_ITEM *it);
 void asn1_enc_free(ASN1_VALUE **pval, const ASN1_ITEM *it);
-int asn1_enc_restore(int *len, unsigned char **out, ASN1_VALUE **pval,
-                     const ASN1_ITEM *it);
-int asn1_enc_save(ASN1_VALUE **pval, const unsigned char *in, int inlen,
-                  const ASN1_ITEM *it);
-
+int asn1_enc_restore(int *len, unsigned char **out, ASN1_VALUE **pval, const ASN1_ITEM *it);
+int asn1_enc_save(ASN1_VALUE **pval, const unsigned char *in, int inlen, const ASN1_ITEM *it);
 void asn1_primitive_free(ASN1_VALUE **pval, const ASN1_ITEM *it, int embed);
 void asn1_template_free(ASN1_VALUE **pval, const ASN1_TEMPLATE *tt);
-
-ASN1_OBJECT *c2i_ASN1_OBJECT(ASN1_OBJECT **a, const unsigned char **pp,
-                             long length);
+ASN1_OBJECT *c2i_ASN1_OBJECT(ASN1_OBJECT **a, const unsigned char **pp, long length);
 int i2c_ASN1_BIT_STRING(ASN1_BIT_STRING *a, unsigned char **pp);
-ASN1_BIT_STRING *c2i_ASN1_BIT_STRING(ASN1_BIT_STRING **a,
-                                     const unsigned char **pp, long length);
+ASN1_BIT_STRING *c2i_ASN1_BIT_STRING(ASN1_BIT_STRING **a, const unsigned char **pp, long length);
 int i2c_ASN1_INTEGER(ASN1_INTEGER *a, unsigned char **pp);
-ASN1_INTEGER *c2i_ASN1_INTEGER(ASN1_INTEGER **a, const unsigned char **pp,
-                               long length);
+ASN1_INTEGER *c2i_ASN1_INTEGER(ASN1_INTEGER **a, const unsigned char **pp, long length);

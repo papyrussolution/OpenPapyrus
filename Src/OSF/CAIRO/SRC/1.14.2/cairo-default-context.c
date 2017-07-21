@@ -139,7 +139,7 @@ static cairo_status_t _cairo_default_context_push_group(void * abstract_cr, cair
 			is_empty = _cairo_rectangle_intersect(&extents, _cairo_clip_get_extents(clip));
 		if(!bounded) {
 			/* XXX: Generic solution? */
-			group_surface = cairo_recording_surface_create(content, NULL);
+			group_surface = cairo_recording_surface_create(content, 0);
 			extents.x = extents.y = 0;
 		}
 		else {

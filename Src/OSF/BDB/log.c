@@ -472,7 +472,7 @@ int __log_valid(DB_LOG * dblp, uint32 number, int set_persist, DB_FH ** fhpp, ui
 	DB_CIPHER * db_cipher = env->crypto_handle;
 	logfile_validity status = DB_LV_NORMAL;
 	// Return the file handle to our caller, on request
-	ASSIGN_PTR(fhpp, NULL);
+	ASSIGN_PTR(fhpp, 0);
 	SETIFZ(flags, DB_OSO_RDONLY|DB_OSO_SEQ);
 	// Try to open the log file
 	if((ret = __log_name(dblp, number, &fname, &fhp, flags)) != 0) {

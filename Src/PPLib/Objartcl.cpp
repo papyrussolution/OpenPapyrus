@@ -2250,7 +2250,7 @@ int DebtDimDialog::editItem(long pos, long id)
 			if(!valid_data) {
 				SString temp_buf, msg;
 				PPLoadString(PPMSG_CONFIRMATION, PPCFM_DEBTDIMINTERSECTAGENTS, temp_buf);
-				msg.Printf((const char*)temp_buf, (const char*)agent_name, dd_rec.Name);
+				msg.Printf(temp_buf.cptr(), agent_name.cptr(), dd_rec.Name);
 				if(PPOutputMessage(msg, mfConf|mfYes|mfNo) == cmYes)
 					valid_data = 1;
 			}

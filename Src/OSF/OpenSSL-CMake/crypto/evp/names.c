@@ -113,7 +113,7 @@ void EVP_CIPHER_do_all(void (*fn) (const EVP_CIPHER *ciph,
     struct doall_cipher dc;
 
     /* Ignore errors */
-    OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS, NULL);
+    OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS, 0);
 
     dc.fn = fn;
     dc.arg = arg;
@@ -127,7 +127,7 @@ void EVP_CIPHER_do_all_sorted(void (*fn) (const EVP_CIPHER *ciph,
     struct doall_cipher dc;
 
     /* Ignore errors */
-    OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS, NULL);
+    OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS, 0);
 
     dc.fn = fn;
     dc.arg = arg;
@@ -156,7 +156,7 @@ void EVP_MD_do_all(void (*fn) (const EVP_MD *md,
     struct doall_md dc;
 
     /* Ignore errors */
-    OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_DIGESTS, NULL);
+    OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_DIGESTS, 0);
 
     dc.fn = fn;
     dc.arg = arg;
@@ -169,7 +169,7 @@ void EVP_MD_do_all_sorted(void (*fn) (const EVP_MD *md,
 {
     struct doall_md dc;
 
-    OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_DIGESTS, NULL);
+    OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_DIGESTS, 0);
 
     dc.fn = fn;
     dc.arg = arg;

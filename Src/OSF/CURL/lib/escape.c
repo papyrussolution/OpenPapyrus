@@ -72,7 +72,7 @@ char * curl_escape(const char * string, int inlength)
 /* for ABI-compatibility with previous versions */
 char * curl_unescape(const char * string, int length)
 {
-	return curl_easy_unescape(NULL, string, length, NULL);
+	return curl_easy_unescape(NULL, string, length, 0);
 }
 
 char * curl_easy_escape(struct Curl_easy * data, const char * string,

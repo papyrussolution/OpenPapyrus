@@ -251,7 +251,7 @@ static int des_ede3_unwrap(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, 
 	int rv = -1;
 	if(inl < 24)
 		return -1;
-	if(out == NULL)
+	if(!out)
 		return inl - 16;
 	memcpy(EVP_CIPHER_CTX_iv_noconst(ctx), wrap_iv, 8);
 	/* Decrypt first block which will end up as icv */
@@ -291,7 +291,7 @@ static int des_ede3_unwrap(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, 
 static int des_ede3_wrap(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl)
 {
 	uchar sha1tmp[SHA_DIGEST_LENGTH];
-	if(out == NULL)
+	if(!out)
 		return inl + 16;
 	/* Copy input to output buffer + 8 so we have space for IV */
 	memmove(out + 8, in, inl);

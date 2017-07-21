@@ -4300,6 +4300,7 @@ int SLAPI PPViewBill::UpdateAttributes()
 		PPID   PayerID;
 		PPID   ObjectID;
 		PPID   Object2ID;
+		long   ModCodeStartCounter;
 	};
 	int    ok = 1, frrl_tag = 0;
 	UpdAttr ua;
@@ -4308,6 +4309,11 @@ int SLAPI PPViewBill::UpdateAttributes()
 	PPIDArray ary;
 	PPID   obj_sheet_id = Filt.AccSheetID;
 	PPID   obj_sheet2_id = 0;
+	int    enable_mod_code = 0;
+	SString temp_buf;
+	SString mod_code_template;
+	PPObjOpCounter opc_obj;
+	PPOpCounter opc_rec;
 	THROW(P_BObj->CheckRights(BILLOPRT_MULTUPD, 1));
 	if(Filt.OpID)
 		GetOpCommonAccSheet(Filt.OpID, obj_sheet_id ? 0 : &obj_sheet_id, &obj_sheet2_id);
@@ -4317,13 +4323,31 @@ int SLAPI PPViewBill::UpdateAttributes()
 	SetupArCombo(dlg, CTLSEL_UPDBLIST_AGENT,   ua.AgentID,   OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 	SetupArCombo(dlg, CTLSEL_UPDBLIST_OBJECT,  ua.ObjectID,  OLW_CANINSERT, obj_sheet_id,       sacfDisableIfZeroSheet);
 	SetupArCombo(dlg, CTLSEL_UPDBLIST_OBJECT2, ua.Object2ID, OLW_CANINSERT, obj_sheet2_id,      sacfDisableIfZeroSheet);
+	if(Filt.OpID && !IsGenericOp(Filt.OpID)) {
+		PPOprKind op_rec;
+		GetOpData(Filt.OpID, &op_rec);
+		if(op_rec.OpCounterID) {
+			if(opc_obj.Search(op_rec.OpCounterID, &opc_rec) > 0 && opc_rec.CodeTemplate[0]) {
+				mod_code_template = opc_rec.CodeTemplate;
+				dlg->setCtrlLong(CTL_UPDBLIST_MODCODEST, ua.ModCodeStartCounter);
+				enable_mod_code = 1;
+			}
+		}
+	}
+	dlg->disableCtrl(CTL_UPDBLIST_MODCODEST, !enable_mod_code);
 	if(ExecView(dlg) == cmOK) {
 		uint   i = 0;
+		long   upd_code_counter = 0;
+		SString org_code_buf;
 		IterCounter counter;
 		dlg->getCtrlData(CTLSEL_UPDBLIST_PAYER, &ua.PayerID);
 		dlg->getCtrlData(CTLSEL_UPDBLIST_AGENT, &ua.AgentID);
 		dlg->getCtrlData(CTLSEL_UPDBLIST_OBJECT, &ua.ObjectID);
 		dlg->getCtrlData(CTLSEL_UPDBLIST_OBJECT2, &ua.Object2ID);
+		if(enable_mod_code) {
+			ua.ModCodeStartCounter = dlg->getCtrlLong(CTL_UPDBLIST_MODCODEST);
+			upd_code_counter = ua.ModCodeStartCounter;
+		}
 		PPWait(1);
 		{
 			PPTransaction tra(1);
@@ -4338,25 +4362,62 @@ int SLAPI PPViewBill::UpdateAttributes()
 				if(ua.ObjectID || ua.Object2ID) {
 					PPBillPacket pack;
 					if(P_BObj->ExtractPacket(bill_id, &pack) > 0) {
-						if(ua.ObjectID && pack.Rec.Object != ua.ObjectID)
+						int    do_upd = 0;
+						const long org_rec_flags = pack.Rec.Flags;
+						const long org_rec_flags2 = pack.Rec.Flags2;
+						if(ua.ObjectID && pack.Rec.Object != ua.ObjectID) {
 							pack.Rec.Object = ua.ObjectID;
-						if(ua.Object2ID && pack.Rec.Object2 != ua.Object2ID)
+							do_upd = 1;
+						}
+						if(ua.Object2ID && pack.Rec.Object2 != ua.Object2ID) {
 							pack.Rec.Object2 = ua.Object2ID;
-						THROW(P_BObj->FillTurnList(&pack));
-						THROW(P_BObj->UpdatePacket(&pack, 0));
+							do_upd = 1;
+						}
+						if(ua.ModCodeStartCounter && mod_code_template.NotEmpty()) {
+							opc_obj.CodeByTemplate(mod_code_template, upd_code_counter-1, temp_buf);
+							upd_code_counter++;
+							STRNSCPY(pack.Rec.Code, temp_buf);
+							BillCore::SetCode(pack.Rec.Code, pack.Rec.Flags);
+							do_upd = 1;
+						}
+						if(do_upd) {
+							THROW(P_BObj->FillTurnList(&pack));
+							THROW(P_BObj->UpdatePacket(&pack, 0));
+						}
 					}
 				}
 				else {
 					PPBillExt ext;
 					THROW(P_BObj->P_Tbl->GetExtraData(bill_id, &ext));
 					if(P_BObj->Search(bill_id, &rec) > 0) {
-						if((ua.AgentID && ext.AgentID != ua.AgentID) || (ua.PayerID && ext.PayerID != ua.PayerID)) {
+						org_code_buf = rec.Code;
+						const long org_rec_flags = rec.Flags;
+						const long org_rec_flags2 = rec.Flags2;
+						int   do_upd = 0;
+						if(ua.AgentID && ext.AgentID != ua.AgentID) {
 							ext.AgentID = ua.AgentID;
+							do_upd = 1;
+						}
+						if(ua.PayerID && ext.PayerID != ua.PayerID) {
 							ext.PayerID = ua.PayerID;
-							SETFLAG(rec.Flags, BILLF_EXTRA, !ext.IsEmpty());
-							BillCore::SetCode(rec.Code, rec.Flags);
-							rec.Flags &= ~BILLF_NOLOADTRFR;
-							rec.Flags2 &= ~BILLF2_DONTCLOSDRAFT; // @v8.3.2
+							do_upd = 1;
+						}
+						SETFLAG(rec.Flags, BILLF_EXTRA, !ext.IsEmpty());
+						if(ua.ModCodeStartCounter && mod_code_template.NotEmpty()) {
+							opc_obj.CodeByTemplate(mod_code_template, upd_code_counter-1, temp_buf);
+							upd_code_counter++;
+							STRNSCPY(rec.Code, temp_buf);
+							do_upd = 1;
+						}
+						BillCore::SetCode(rec.Code, rec.Flags);
+						if(org_code_buf != rec.Code) {
+							do_upd = 1;
+						}
+						rec.Flags &= ~BILLF_NOLOADTRFR;
+						rec.Flags2 &= ~BILLF2_DONTCLOSDRAFT; // @v8.3.2
+						if(rec.Flags != org_rec_flags || rec.Flags2 != org_rec_flags2)
+							do_upd = 1;
+						if(do_upd) {
 							THROW_DB(P_BObj->P_Tbl->updateRecBuf(&rec));
 							THROW(P_BObj->P_Tbl->PutExtraData(bill_id, ((rec.Flags & BILLF_EXTRA) ? &ext : 0), 0));
 							DS.LogAction(PPACN_UPDBILLEXT, PPOBJ_BILL, bill_id, 0, 0);
@@ -4532,6 +4593,8 @@ struct PrvdrDllLink {
 	ImpExpParamDllStruct ParamDll;
 };
 
+int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const char * pPath); // @prototype
+
 int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam)
 {
 	int    ok = -1, r = 0;
@@ -4583,7 +4646,23 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 				bill_param.FileName = b_e.GetIEBill()->GetPreservedOrgFileName();
 			if(b_e.GetIEBRow())
 				brow_param.FileName = b_e.GetIEBRow()->GetPreservedOrgFileName();
-			if(b_e.Flags & PPBillImpExpBaseProcessBlock::fPaymOrdersExp) {
+			if(b_e.BillParam.PredefFormat) {
+				if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_Invoice) {
+					// @construction 
+					PPWait(1);
+					for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
+						const  PPID bill_id = bill_id_list.get(_idx);
+						int    err = 0;
+						if(P_BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
+							THROW(r = b_e.Init(&bill_param, &brow_param, &pack, &result_file_list));
+							WriteBill_NalogRu2_Invoice(pack, b_e.BillParam.FileName);
+						}
+						PPWaitPercent(_idx+1, bill_id_list.getCount());
+					}
+					PPWait(0);
+				}
+			}
+			else if(b_e.Flags & PPBillImpExpBaseProcessBlock::fPaymOrdersExp) {
 				THROW(Helper_ExportBnkOrder(b_e.CfgNameBill, logger));
 			}
 			else if(b_e.Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp) {

@@ -13,7 +13,7 @@
 //#include <openssl/objects.h>
 //#include <openssl/evp.h>
 //#include <openssl/x509.h>
-#include "internal/x509_int.h"
+//#include "internal/x509_int.h"
 
 int X509_NAME_get_text_by_NID(X509_NAME * name, int nid, char * buf, int len)
 {
@@ -204,7 +204,7 @@ int X509_NAME_add_entry(X509_NAME * name, const X509_NAME_ENTRY * ne, int loc, i
 		for(i = loc + 1; i < n; i++)
 			sk_X509_NAME_ENTRY_value(sk, i - 1)->set += 1;
 	}
-	return (1);
+	return 1;
 err:
 	X509_NAME_ENTRY_free(new_name);
 	return 0;
@@ -290,7 +290,7 @@ int X509_NAME_ENTRY_set_data(X509_NAME_ENTRY * ne, int type, const uchar * bytes
 		else
 			ne->value->type = type;
 	}
-	return (1);
+	return 1;
 }
 
 ASN1_OBJECT * X509_NAME_ENTRY_get_object(const X509_NAME_ENTRY * ne)

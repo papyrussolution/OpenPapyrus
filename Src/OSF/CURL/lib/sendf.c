@@ -230,7 +230,7 @@ void Curl_infof(struct Curl_easy * data, const char * fmt, ...)
 		vsnprintf(print_buffer, sizeof(print_buffer), fmt, ap);
 		va_end(ap);
 		len = strlen(print_buffer);
-		Curl_debug(data, CURLINFO_TEXT, print_buffer, len, NULL);
+		Curl_debug(data, CURLINFO_TEXT, print_buffer, len, 0);
 	}
 }
 
@@ -256,7 +256,7 @@ void Curl_failf(struct Curl_easy * data, const char * fmt, ...)
 			data->state.buffer[len] = '\n';
 			data->state.buffer[++len] = '\0';
 		}
-		Curl_debug(data, CURLINFO_TEXT, data->state.buffer, len, NULL);
+		Curl_debug(data, CURLINFO_TEXT, data->state.buffer, len, 0);
 	}
 
 	va_end(ap);

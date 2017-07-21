@@ -1026,9 +1026,9 @@ static cairo_status_t curve_to_dashed(void * closure, const cairo_point_t * b, c
 	cairo_status_t status;
 	cairo_spline_add_point_func_t func = (cairo_spline_add_point_func_t)line_to_dashed;
 	if(stroker->has_bounds && !_cairo_spline_intersects(&stroker->current_face.point, b, c, d, &stroker->line_bounds))
-		return func(closure, d, NULL);
+		return func(closure, d, 0);
 	if(!_cairo_spline_init(&spline, func, stroker, &stroker->current_face.point, b, c, d))
-		return func(closure, d, NULL);
+		return func(closure, d, 0);
 	// Temporarily modify the stroker to use round joins to guarantee smooth stroked curves.
 	line_join_save = stroker->line_join;
 	stroker->line_join = CAIRO_LINE_JOIN_ROUND;

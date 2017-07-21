@@ -578,7 +578,7 @@ int Curl_resolv_timeout(struct connectdata * conn, const char * hostname, int po
 		sigact.sa_flags &= ~SA_RESTART;
 #endif
 		/* now set the new struct */
-		sigaction(SIGALRM, &sigact, NULL);
+		sigaction(SIGALRM, &sigact, 0);
 #else /* HAVE_SIGACTION */
 		/* no sigaction(), revert to the much lamer signal() */
 #ifdef HAVE_SIGNAL
@@ -616,7 +616,7 @@ clean_up:
 	if(keep_copysig) {
 		/* we got a struct as it looked before, now put that one back nice
 		   and clean */
-		sigaction(SIGALRM, &keep_sigact, NULL); /* put it back */
+		sigaction(SIGALRM, &keep_sigact, 0); /* put it back */
 	}
 #else
 #ifdef HAVE_SIGNAL

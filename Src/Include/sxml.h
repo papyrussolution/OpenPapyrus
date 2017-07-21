@@ -37,6 +37,7 @@ public:
         WNode(xmlTextWriter * pWriter, const char * pName, const char * pValue);
         ~WNode();
         int    PutAttrib(const char * pName, const char * pValue);
+        int    PutAttribSkipEmpty(const char * pName, const char * pValue);
         int    PutInner(const char * pInnerName, const char * pInnerValue);
         int    PutInnerSkipEmpty(const char * pInnerName, const char * pInnerValue);
         int    SetValue(const SString & rText);

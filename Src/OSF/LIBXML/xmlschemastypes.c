@@ -366,7 +366,7 @@ void xmlSchemaInitTypes()
 	/*
 	 * 3.4.7 Built-in Complex Type Definition
 	 */
-	xmlSchemaTypeAnyTypeDef = xmlSchemaInitBasicType("anyType", XML_SCHEMAS_ANYTYPE, NULL);
+	xmlSchemaTypeAnyTypeDef = xmlSchemaInitBasicType("anyType", XML_SCHEMAS_ANYTYPE, 0);
 	xmlSchemaTypeAnyTypeDef->baseType = xmlSchemaTypeAnyTypeDef;
 	xmlSchemaTypeAnyTypeDef->contentType = XML_SCHEMA_CONTENT_MIXED;
 	/*

@@ -2162,7 +2162,7 @@ public:
 	//   переменные, представленные наименованиями полей структуры импорта/экспорта.
 	//   Для этого следует использовать вспомогательную статическую функцию PPImpExp::ResolveVarName.
 	//
-	int    SetExprContext(ExprEvalContext * pCtx);
+	void   SetExprContext(ExprEvalContext * pCtx);
 	int    SetHeaderData(const Sdr_ImpExpHeader * pData);
 	const  PPImpExpParam & GetParam() const;
 	//
@@ -5899,7 +5899,7 @@ public:
 	SString AddedMsgStrNoRights; // Дополнительная строка контекста сообщения PPERR_NORIGHTS
 	SString TempLogFile;         // Имя временного файла журнала, в котором дублируются все записи в журналы.
 		// Используется для формирования файла отчета, который будет отправлен администратору по e-mail
-	SString DL600XMLEntityParam; // @v7.8.0 Строка ограничения трансляции символов строк в сущности XML при экспорте в XML
+	SString DL600XMLEntityParam; // Строка ограничения трансляции символов строк в сущности XML при экспорте в XML
 	SStringTag SCardPatterns;    // Образцы разбора номеров дисконтных карт.
 		// Загружаются из файла конфигурации pp.ini ([config] SCardPatterns).
 		// Если SCardPatterns.Id != 0, то строка не загружена из конфигурации.
@@ -5908,6 +5908,7 @@ public:
 	// Используются для быстрого обновления строки статуса.
 	//
 	SStringTag MainOrgName;
+	SString MainOrgCountryCode; // @v9.7.8 Код страны главной организации. Используется для идентификации собственной страны в адресах
 	SStringTag CurDbDivName;
 	BarcodeArrangeConfig Bac;
 	SurKeyArray    SurIdList;    // Массив динамически идентифицируемых записей, используемых
@@ -11315,7 +11316,9 @@ struct PPLotFault {
 		PackDifferentGSE,     // @v8.8.1 Емкость упаковки лота отличается от ненулевой емкости упаковки поставки товара
 		InadqLotWoTaxFlagOn,  // @v8.9.0 В лоте установлен флаг LOTF_PRICEWOTAXES в то время как товар не имеет флага GF_PRICEWOTAXES
 		InadqTrfrWoTaxFlagOn, // @v8.9.0 В строке Transfer устанолен флаг PPTFR_PRICEWOTAXES в то время как товар не имеет флага GF_PRICEWOTAXES
-		EgaisCodeAlone        // @v9.3.1 Лот содержит тег кода продукции ЕГАИС, но ни один товар не имеет такого кода
+		EgaisCodeAlone,       // @v9.3.1 Лот содержит тег кода продукции ЕГАИС, но ни один товар не имеет такого кода
+		NoEgaisCode,          // @v9.7.8 Лот не содержит тега кода алкогольной продукции в то время как товар содержит такой код
+		NoEgaisCodeAmbig      // @v9.7.8 Лот не содержит тега кода алкогольной продукции в то время как товар содержит более одного ЕГАИС-кода
 	};
 	int    Fault;
 	LDATE  Dt;
@@ -11691,6 +11694,8 @@ public:
 #define TLRF_REPAIRWOTAXFLAGS  0x0200 // @v8.9.0
 #define TLRF_SETALCCODETOGOODS 0x0400 // @v9.3.1 Если лот содержит тег PPTAG_LOT_FSRARLOTGOODSCODE то добавлять такой код
 	// в список кодов товара, если ни один из товаров не содержит такой код
+#define TLRF_SETALCCODETOLOTS  0x0800 // @v9.7.8 Если товар содержит код алкогольной продукции, а лот - нет, то в тег лота
+	// PPTAG_LOT_FSRARLOTGOODSCODE переносить этот код.
 //
 // Флаги функции Transfer::MoveLotOps
 //
@@ -13516,8 +13521,9 @@ private:
 #define CCHKF_ALTREG       0x00000800L // @v9.6.11 Чек отпечатан на альтернативном регистраторе
 // @v9.7.5 #define CCHKF_NOTICE       0x00001000L // @v9.0.1 Специальный вид чека, используемый только для пометки некоторого события с одним или
 	// несколькими товарами. Чек с таким флагом автоматически получает флаги CCHKF_SKIP, CCHKF_SUSPENDED
-#define CCHKF_SPFINISHED   0x00000800L // @v9.7.5 Специальный признак окончательного финиширования чека. Применяется, например,
+#define CCHKF_SPFINISHED   0x00001000L // @v9.7.5 Специальный признак окончательного финиширования чека. Применяется, например,
 	// для пометки факта доставки и(или) окончательной оплаты по чеку со стороны покупателя.
+	// @v9.7.8 @fix 0x00000800L-->0x00001000L
 #define CCHKF_SYNC         0x00010000L // Чек сформирован синхронной сессией
 #define CCHKF_NOTUSED      0x00020000L // Чек не просуммирован в таблице CGoodsLine
 #define CCHKF_PRINTED      0x00040000L // Чек был отпечатан (пробит на ККМ)
@@ -16954,6 +16960,7 @@ public:
 	// @v8.5.4 virtual int  SLAPI Browse(void * extraPtr);
 	int    SLAPI Fetch(PPID id, PPAccSheet * pRec);
 	int    SLAPI IsAssoc(PPID acsID, PPID objType, PPAccSheet *);
+	int    SLAPI IsLinkedToMainOrg(PPID acsID);
 private:
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
@@ -21959,6 +21966,8 @@ struct PPLocationConfig {  // @transient @store(PropertyTbl)
 struct PPCountryBlock {
 	PPCountryBlock & Clear();
 
+	int    IsNative; // @v9.7.8 Если код страны совпадает с кодом страны фактического (или юридического,
+		// если фактический пуст) адреса главной организации.
 	SString Name;
 	SString Code;
 	SString Abbr;
@@ -29056,6 +29065,13 @@ public:
 		fRestrictByMatrix    = 0x0004, // @v9.0.4
 		fExpOneByOne         = 0x0008  // @v9.3.10 Экспортировать документы по-одному в каждом файле
 	};
+	//
+	// Descr: Предопределенный форматы импорт/экспорта документов
+	//
+	enum { // @persistent
+		pfUndef = 0,
+		pfNalogR_Invoice = 1 //
+	};
 	PPBillImpExpParam(uint recId = 0, long flags = 0);
 	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
@@ -29066,6 +29082,7 @@ public:
 
 	long   Flags;             // @persistent
 	PPID   ImpOpID;           // @persistent
+	long   PredefFormat;      // @persistent @v9.7.8
 	SString Object1SrchCode;  // @persistent
 	SString Object2SrchCode;  // @persistent
 };
@@ -43737,7 +43754,7 @@ private:
 	int    SLAPI LogSended(const Packet & rPack);
 	int    SLAPI CheckBillForMainOrgID(const BillTbl::Rec & rRec, const PPOprKind & rOpRec);
 	int    SLAPI ExpandBaseOpList(const PPIDArray & rBaseOpList, PPIDArray & rResultList);
-	int    SLAPI IsAcsLinkedToMainOrg(PPID acsID);
+	//int    SLAPI IsAcsLinkedToMainOrg(PPID acsID);
 
 	enum {
 		stError             = 0x0001, // Во время выполнения какой-то функции произошла критическая ошибка

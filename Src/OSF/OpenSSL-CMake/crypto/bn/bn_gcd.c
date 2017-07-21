@@ -16,23 +16,19 @@ int BN_gcd(BIGNUM * r, const BIGNUM * in_a, const BIGNUM * in_b, BN_CTX * ctx)
 {
 	BIGNUM * a, * b, * t;
 	int ret = 0;
-
 	bn_check_top(in_a);
 	bn_check_top(in_b);
-
 	BN_CTX_start(ctx);
 	a = BN_CTX_get(ctx);
 	b = BN_CTX_get(ctx);
 	if(a == NULL || b == NULL)
 		goto err;
-
 	if(BN_copy(a, in_a) == NULL)
 		goto err;
 	if(BN_copy(b, in_b) == NULL)
 		goto err;
 	a->neg = 0;
 	b->neg = 0;
-
 	if(BN_cmp(a, b) < 0) {
 		t = a;
 		a = b;
@@ -41,7 +37,6 @@ int BN_gcd(BIGNUM * r, const BIGNUM * in_a, const BIGNUM * in_b, BN_CTX * ctx)
 	t = euclid(a, b);
 	if(t == NULL)
 		goto err;
-
 	if(BN_copy(r, t) == NULL)
 		goto err;
 	ret = 1;
@@ -236,7 +231,6 @@ BIGNUM * int_bn_mod_inverse(BIGNUM * in,
 			shift = 0;
 			while(!BN_is_bit_set(A, shift)) { /* note that 0 < A */
 				shift++;
-
 				if(BN_is_odd(Y)) {
 					if(!BN_uadd(Y, Y, n))
 						goto err;
@@ -288,10 +282,8 @@ BIGNUM * int_bn_mod_inverse(BIGNUM * in,
 	}
 	else {
 		/* general inversion algorithm */
-
 		while(!BN_is_zero(B)) {
 			BIGNUM * tmp;
-
 			/*-
 			 *      0 < B < A,
 			 * (*) -sign*X*a  ==  B   (mod |n|),
@@ -453,28 +445,23 @@ BIGNUM * int_bn_mod_inverse(BIGNUM * in,
 	}
 	ret = R;
 err:
-	if((ret == NULL) && (in == NULL))
+	if(!ret && !in)
 		BN_free(R);
 	BN_CTX_end(ctx);
 	bn_check_top(ret);
 	return ret;
 }
-
 /*
  * BN_mod_inverse_no_branch is a special version of BN_mod_inverse. It does
  * not contain branches that may leak sensitive information.
  */
-static BIGNUM * BN_mod_inverse_no_branch(BIGNUM * in,
-    const BIGNUM * a, const BIGNUM * n,
-    BN_CTX * ctx)
+static BIGNUM * BN_mod_inverse_no_branch(BIGNUM * in, const BIGNUM * a, const BIGNUM * n, BN_CTX * ctx)
 {
 	BIGNUM * A, * B, * X, * Y, * M, * D, * T, * R = NULL;
 	BIGNUM * ret = NULL;
 	int sign;
-
 	bn_check_top(a);
 	bn_check_top(n);
-
 	BN_CTX_start(ctx);
 	A = BN_CTX_get(ctx);
 	B = BN_CTX_get(ctx);
@@ -485,14 +472,9 @@ static BIGNUM * BN_mod_inverse_no_branch(BIGNUM * in,
 	T = BN_CTX_get(ctx);
 	if(T == NULL)
 		goto err;
-
-	if(!in)
-		R = BN_new();
-	else
-		R = in;
+	R = in ? in : BN_new();;
 	if(R == NULL)
 		goto err;
-
 	BN_one(X);
 	BN_zero(Y);
 	if(BN_copy(B, a) == NULL)
@@ -500,7 +482,6 @@ static BIGNUM * BN_mod_inverse_no_branch(BIGNUM * in,
 	if(BN_copy(A, n) == NULL)
 		goto err;
 	A->neg = 0;
-
 	if(B->neg || (BN_ucmp(B, A) >= 0)) {
 		/*
 		 * Turn BN_FLG_CONSTTIME flag on, so that when BN_div is invoked,
@@ -523,10 +504,8 @@ static BIGNUM * BN_mod_inverse_no_branch(BIGNUM * in,
 	 *     -sign*X*a  ==  B   (mod |n|),
 	 *      sign*Y*a  ==  A   (mod |n|).
 	 */
-
 	while(!BN_is_zero(B)) {
 		BIGNUM * tmp;
-
 		/*-
 		 *      0 < B < A,
 		 * (*) -sign*X*a  ==  B   (mod |n|),
@@ -541,23 +520,18 @@ static BIGNUM * BN_mod_inverse_no_branch(BIGNUM * in,
 			BIGNUM local_A;
 			bn_init(&local_A);
 			BN_with_flags(&local_A, A, BN_FLG_CONSTTIME);
-
 			/* (D, M) := (A/B, A%B) ... */
 			if(!BN_div(D, M, &local_A, B, ctx))
 				goto err;
 			/* Ensure local_A goes out of scope before any further use of A */
 		}
-
 		/*-
 		 * Now
 		 *      A = D*B + M;
 		 * thus we have
 		 * (**)  sign*Y*a  ==  D*B + M   (mod |n|).
 		 */
-
-		tmp = A;        /* keep the BIGNUM object, the value does not
-		                 * matter */
-
+		tmp = A; // keep the BIGNUM object, the value does not matter 
 		/* (A, B) := (B, A mod B) ... */
 		A = B;
 		B = M;
@@ -582,14 +556,11 @@ static BIGNUM * BN_mod_inverse_no_branch(BIGNUM * in,
 		 *       sign*Y*a  ==  A   (mod |n|).
 		 * Note that  X  and  Y  stay non-negative all the time.
 		 */
-
 		if(!BN_mul(tmp, D, X, ctx))
 			goto err;
 		if(!BN_add(tmp, tmp, Y))
 			goto err;
-
-		M = Y;          /* keep the BIGNUM object, the value does not
-		                 * matter */
+		M = Y; // keep the BIGNUM object, the value does not matter 
 		Y = X;
 		X = tmp;
 		sign = -sign;

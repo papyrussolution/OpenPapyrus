@@ -675,7 +675,7 @@ void _cairo_gstate_path_extents(cairo_gstate_t * gstate, cairo_path_fixed_t * pa
 		py1 = _cairo_fixed_to_double(box.p1.y);
 		px2 = _cairo_fixed_to_double(box.p2.x);
 		py2 = _cairo_fixed_to_double(box.p2.y);
-		_cairo_gstate_backend_to_user_rectangle(gstate, &px1, &py1, &px2, &py2, NULL);
+		_cairo_gstate_backend_to_user_rectangle(gstate, &px1, &py1, &px2, &py2, 0);
 	}
 	else {
 		px1 = 0.0;
@@ -1024,7 +1024,7 @@ static void _cairo_gstate_extents_to_user_rectangle(cairo_gstate_t   * gstate,
 	double py1 = _cairo_fixed_to_double(extents->p1.y);
 	double px2 = _cairo_fixed_to_double(extents->p2.x);
 	double py2 = _cairo_fixed_to_double(extents->p2.y);
-	_cairo_gstate_backend_to_user_rectangle(gstate, &px1, &py1, &px2, &py2, NULL);
+	_cairo_gstate_backend_to_user_rectangle(gstate, &px1, &py1, &px2, &py2, 0);
 	ASSIGN_PTR(x1, px1);
 	ASSIGN_PTR(y1, py1);
 	ASSIGN_PTR(x2, px2);
@@ -1139,7 +1139,7 @@ cairo_bool_t _cairo_gstate_clip_extents(cairo_gstate_t * gstate, double * x1, do
 	py1 = extents.y;
 	px2 = extents.x + (int)extents.width;
 	py2 = extents.y + (int)extents.height;
-	_cairo_gstate_backend_to_user_rectangle(gstate, &px1, &py1, &px2, &py2, NULL);
+	_cairo_gstate_backend_to_user_rectangle(gstate, &px1, &py1, &px2, &py2, 0);
 	ASSIGN_PTR(x1, px1);
 	ASSIGN_PTR(y1, py1);
 	ASSIGN_PTR(x2, px2);
@@ -1401,7 +1401,7 @@ cairo_status_t _cairo_gstate_show_text_glyphs(cairo_gstate_t * gstate, const cai
 	}
 	else {
 		_cairo_gstate_transform_glyphs_to_backend(gstate, glyphs, num_glyphs, NULL, 0, 
-			CAIRO_TEXT_CLUSTER_FLAG_NONE, transformed_glyphs, &num_glyphs, NULL);
+			CAIRO_TEXT_CLUSTER_FLAG_NONE, transformed_glyphs, &num_glyphs, 0);
 	}
 	if(num_glyphs == 0)
 		goto CLEANUP_GLYPHS;
@@ -1468,7 +1468,7 @@ cairo_status_t _cairo_gstate_glyph_path(cairo_gstate_t * gstate,
 		if(unlikely(transformed_glyphs == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
-	_cairo_gstate_transform_glyphs_to_backend(gstate, glyphs, num_glyphs, NULL, 0, CAIRO_TEXT_CLUSTER_FLAG_NONE, transformed_glyphs, &num_glyphs, NULL);
+	_cairo_gstate_transform_glyphs_to_backend(gstate, glyphs, num_glyphs, NULL, 0, CAIRO_TEXT_CLUSTER_FLAG_NONE, transformed_glyphs, &num_glyphs, 0);
 	status = _cairo_scaled_font_glyph_path(gstate->scaled_font, transformed_glyphs, num_glyphs, path);
 	if(transformed_glyphs != stack_transformed_glyphs)
 		cairo_glyph_free(transformed_glyphs);

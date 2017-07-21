@@ -104,7 +104,7 @@ static int slg_new(BIO * bi)
 	bi->num = 0;
 	bi->ptr = NULL;
 	xopenlog(bi, "application", LOG_DAEMON);
-	return (1);
+	return 1;
 }
 
 static int slg_free(BIO * a)
@@ -112,7 +112,7 @@ static int slg_free(BIO * a)
 	if(!a)
 		return 0;
 	xcloselog(a);
-	return (1);
+	return 1;
 }
 
 static int slg_write(BIO * b, const char * in, int inl)
@@ -266,7 +266,7 @@ static void xsyslog(BIO * bp, int priority, const char * string)
 	sprintf(pidbuf, "[%lu] ", GetCurrentProcessId());
 	lpszStrings[0] = pidbuf;
 	lpszStrings[1] = string;
-	ReportEventA(bp->ptr, evtype, 0, 1024, NULL, 2, 0, lpszStrings, NULL);
+	ReportEventA(bp->ptr, evtype, 0, 1024, NULL, 2, 0, lpszStrings, 0);
 }
 
 static void xcloselog(BIO * bp)

@@ -578,7 +578,7 @@ int SUsbDevice::Open()
 	}
 	// new {
 	// Создаем события с пользовательским сбросом
-	Event = CreateEvent(NULL, TRUE, TRUE, NULL);
+	Event = CreateEvent(NULL, TRUE, TRUE, 0);
 	THROW_S(Event != INVALID_HANDLE_VALUE, SLERR_USB);
 	Ovl.hEvent = Event;
 	Ovl.Offset = 0;
@@ -714,7 +714,7 @@ SString & GetErrorStr()
 	static SString err_msg;
 	char   buf[256];
 	ulong  code = GetLastError();
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT), buf, sizeof(buf), NULL); // @unicodeproblem
+	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT), buf, sizeof(buf), 0); // @unicodeproblem
 	return (err_msg = buf).ToOem();
 }
 

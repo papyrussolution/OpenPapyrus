@@ -1867,12 +1867,12 @@ void fann_seed_rand()
 	uint foo;
 	struct timeval t;
 	if(!fp) {
-		gettimeofday(&t, NULL);
+		gettimeofday(&t, 0);
 		foo = t.tv_usec;
 	}
 	else {
 		if(fread(&foo, sizeof(foo), 1, fp) != 1) {
-			gettimeofday(&t, NULL);
+			gettimeofday(&t, 0);
 			foo = t.tv_usec;
 		}
 		fclose(fp);

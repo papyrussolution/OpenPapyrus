@@ -59,7 +59,7 @@ int ASN1_sign(i2d_of_void * i2d, X509_ALGOR * algor1, X509_ALGOR * algor2,
 			goto err;
 		}
 	}
-	inl = i2d(data, NULL);
+	inl = i2d(data, 0);
 	buf_in = (uchar*)OPENSSL_malloc((uint)inl);
 	outll = outl = EVP_PKEY_size(pkey);
 	buf_out = (uchar*)OPENSSL_malloc((uint)outl);
@@ -168,9 +168,9 @@ int ASN1_item_sign_ctx(const ASN1_ITEM * it, X509_ALGOR * algor1, X509_ALGOR * a
 			paramtype = V_ASN1_UNDEF;
 
 		if(algor1)
-			X509_ALGOR_set0(algor1, OBJ_nid2obj(signid), paramtype, NULL);
+			X509_ALGOR_set0(algor1, OBJ_nid2obj(signid), paramtype, 0);
 		if(algor2)
-			X509_ALGOR_set0(algor2, OBJ_nid2obj(signid), paramtype, NULL);
+			X509_ALGOR_set0(algor2, OBJ_nid2obj(signid), paramtype, 0);
 	}
 
 	inl = ASN1_item_i2d((ASN1_VALUE*)asn, &buf_in, it);

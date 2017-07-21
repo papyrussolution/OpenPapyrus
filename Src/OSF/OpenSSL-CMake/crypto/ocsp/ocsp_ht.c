@@ -284,7 +284,7 @@ next_io:
 		    rctx->state = OHS_ASN1_WRITE_INIT;
 
 		case OHS_ASN1_WRITE_INIT:
-		    rctx->asn1_len = BIO_get_mem_data(rctx->mem, NULL);
+		    rctx->asn1_len = BIO_get_mem_data(rctx->mem, 0);
 		    rctx->state = OHS_ASN1_WRITE;
 
 		case OHS_ASN1_WRITE:
@@ -437,7 +437,7 @@ next_line:
 		/* Fall thru */
 
 		case OHS_ASN1_CONTENT:
-		    n = BIO_get_mem_data(rctx->mem, NULL);
+		    n = BIO_get_mem_data(rctx->mem, 0);
 		    if(n < (int)rctx->asn1_len)
 			    goto next_io;
 
@@ -468,7 +468,7 @@ OCSP_RESPONSE * OCSP_sendreq_bio(BIO * b, const char * path, OCSP_REQUEST * req)
 
 	ctx = OCSP_sendreq_new(b, path, req, -1);
 
-	if(ctx == NULL)
+	if(!ctx)
 		return NULL;
 
 	do {

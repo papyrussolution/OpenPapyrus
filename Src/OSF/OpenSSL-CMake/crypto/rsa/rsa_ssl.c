@@ -42,7 +42,7 @@ int RSA_padding_add_SSLv23(uchar * to, int tlen, const uchar * from, int flen)
 	*(p++) = '\0';
 
 	memcpy(p, from, (uint)flen);
-	return (1);
+	return 1;
 }
 
 int RSA_padding_check_SSLv23(uchar * to, int tlen,

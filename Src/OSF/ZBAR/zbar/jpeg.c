@@ -40,7 +40,6 @@
 
 typedef struct errenv_s {
 	struct jpeg_error_mgr err;
-
 	int valid;
 	jmp_buf env;
 } errenv_t;

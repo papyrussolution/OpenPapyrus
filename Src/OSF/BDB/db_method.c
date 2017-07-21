@@ -71,7 +71,7 @@ int db_create(DB ** dbpp, DB_ENV * dbenv, uint32 flags)
 	    case 0:
 			break;
 	    case DB_XA_CREATE:
-			if(dbenv != NULL) {
+			if(dbenv) {
 				__db_errx(env, DB_STR("0504", "XA applications may not specify an environment to db_create"));
 				return EINVAL;
 			}
@@ -559,7 +559,7 @@ static int __db_set_feedback(DB * dbp, void (*feedback)__P((DB*, int, int)))
  */
 static void __db_map_flags(DB * dbp, uint32 * inflagsp, uint32 * outflagsp)
 {
-	COMPQUIET(dbp, NULL);
+	COMPQUIET(dbp, 0);
 	if(FLD_ISSET(*inflagsp, DB_CHKSUM)) {
 		FLD_SET(*outflagsp, DB_AM_CHKSUM);
 		FLD_CLR(*inflagsp, DB_CHKSUM);

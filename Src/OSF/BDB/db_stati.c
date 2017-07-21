@@ -354,8 +354,8 @@ static int __db_print_citem(DBC * dbc)
 
 int __db_stat_pp(DB * dbp, DB_TXN * txn, void * spp, uint32 flags)
 {
-	COMPQUIET(spp, NULL);
-	COMPQUIET(txn, NULL);
+	COMPQUIET(spp, 0);
+	COMPQUIET(txn, 0);
 	COMPQUIET(flags, 0);
 	return __db_stat_not_built(dbp->env);
 }

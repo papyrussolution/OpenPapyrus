@@ -492,15 +492,15 @@ static CURLcode imap_perform_upgrade_tls(struct connectdata * conn)
 static CURLcode imap_perform_login(struct connectdata * conn)
 {
 	CURLcode result = CURLE_OK;
-	// Check we have a username and password to authenticate with and end the connect phase if we don't 
+	// Check we have a username and password to authenticate with and end the connect phase if we don't
 	if(!conn->bits.user_passwd) {
 		state(conn, IMAP_STOP);
 	}
 	else {
-		// Make sure the username and password are in the correct atom format 
+		// Make sure the username and password are in the correct atom format
 		char * user = imap_atom(conn->user, false);
 		char * passwd = imap_atom(conn->passwd, false);
-		// Send the LOGIN command 
+		// Send the LOGIN command
 		result = imap_sendf(conn, "LOGIN %s %s", user ? user : "", passwd ? passwd : "");
 		SAlloc::F(user);
 		SAlloc::F(passwd);
@@ -520,10 +520,10 @@ static CURLcode imap_perform_login(struct connectdata * conn)
 static CURLcode imap_perform_authenticate(struct connectdata * conn, const char * mech, const char * initresp)
 {
 	CURLcode result = CURLE_OK;
-	if(initresp) { // Send the AUTHENTICATE command with the initial response 
+	if(initresp) { // Send the AUTHENTICATE command with the initial response
 		result = imap_sendf(conn, "AUTHENTICATE %s %s", mech, initresp);
 	}
-	else { // Send the AUTHENTICATE command 
+	else { // Send the AUTHENTICATE command
 		result = imap_sendf(conn, "AUTHENTICATE %s", mech);
 	}
 	return result;
@@ -731,7 +731,7 @@ static CURLcode imap_perform_search(struct connectdata * conn)
  */
 static CURLcode imap_perform_logout(struct connectdata * conn)
 {
-	// Send the LOGOUT command 
+	// Send the LOGOUT command
 	CURLcode result = imap_sendf(conn, "LOGOUT");
 	if(!result)
 		state(conn, IMAP_LOGOUT);
@@ -769,16 +769,13 @@ static CURLcode imap_state_capability_resp(struct connectdata * conn, int imapco
 		line += 2;
 		/* Loop through the data line */
 		for(;; ) {
-			while(*line &&
-			    (*line == ' ' || *line == '\t' ||
-				    *line == '\r' || *line == '\n')) {
+			while(*line && oneof4(*line, ' ', '\t', '\r', '\n')) {
 				line++;
 			}
 			if(!*line)
 				break;
 			/* Extract the word */
-			for(wordlen = 0; line[wordlen] && line[wordlen] != ' ' && line[wordlen] != '\t' && line[wordlen] != '\r' &&
-			    line[wordlen] != '\n'; )
+			for(wordlen = 0; line[wordlen] && !oneof4(line[wordlen], ' ', '\t', '\r', '\n'); )
 				wordlen++;
 			/* Does the server support the STARTTLS capability? */
 			if(wordlen == 8 && !memcmp(line, "STARTTLS", 8))
@@ -886,7 +883,7 @@ static CURLcode imap_state_login_resp(struct connectdata * conn, int imapcode, i
 		failf(data, "Access denied. %c", imapcode);
 		result = CURLE_LOGIN_DENIED;
 	}
-	else // End of connect phase 
+	else // End of connect phase
 		state(conn, IMAP_STOP);
 	return result;
 }
@@ -1023,11 +1020,11 @@ static CURLcode imap_state_fetch_resp(struct connectdata * conn, int imapcode, i
 
 		if(data->req.bytecount == size)
 			/* The entire data is already transferred! */
-			Curl_setup_transfer(conn, -1, -1, FALSE, NULL, -1, NULL);
+			Curl_setup_transfer(conn, -1, -1, FALSE, NULL, -1, 0);
 		else {
 			/* IMAP download */
 			data->req.maxdownload = size;
-			Curl_setup_transfer(conn, FIRSTSOCKET, size, FALSE, NULL, -1, NULL);
+			Curl_setup_transfer(conn, FIRSTSOCKET, size, FALSE, NULL, -1, 0);
 		}
 	}
 	else {
@@ -1077,7 +1074,7 @@ static CURLcode imap_state_append_resp(struct connectdata * conn, int imapcode,
 		Curl_pgrsSetUploadSize(data, data->state.infilesize);
 
 		/* IMAP upload */
-		Curl_setup_transfer(conn, -1, -1, FALSE, NULL, FIRSTSOCKET, NULL);
+		Curl_setup_transfer(conn, -1, -1, FALSE, NULL, FIRSTSOCKET, 0);
 
 		/* End of DO phase */
 		state(conn, IMAP_STOP);
@@ -1479,7 +1476,7 @@ static CURLcode imap_dophase_done(struct connectdata * conn, bool connected)
 	(void)connected;
 	if(imap->transfer != FTPTRANSFER_BODY)
 		/* no data to transfer */
-		Curl_setup_transfer(conn, -1, -1, FALSE, NULL, -1, NULL);
+		Curl_setup_transfer(conn, -1, -1, FALSE, NULL, -1, 0);
 	return CURLE_OK;
 }
 
@@ -1623,14 +1620,14 @@ static CURLcode imap_sendf(struct connectdata * conn, const char * fmt, ...)
  */
 static char * imap_atom(const char * str, bool escape_only)
 {
-	// !checksrc! disable PARENBRACE 1 
+	// !checksrc! disable PARENBRACE 1
 	const char atom_specials[] = "(){ %*]";
 	size_t backsp_count = 0;
 	size_t quote_count = 0;
 	bool others_exists = FALSE;
 	char * newstr = NULL;
 	if(str) {
-		// Look for "atom-specials", counting the backslash and quote characters as these will need escapping 
+		// Look for "atom-specials", counting the backslash and quote characters as these will need escapping
 		const char * p1 = str;
 		while(*p1) {
 			if(*p1 == '\\')
@@ -1647,23 +1644,23 @@ static char * imap_atom(const char * str, bool escape_only)
 			}
 			p1++;
 		}
-		// Does the input contain any "atom-special" characters? 
+		// Does the input contain any "atom-special" characters?
 		if(!backsp_count && !quote_count && !others_exists)
 			newstr = _strdup(str);
 		else {
-			// Calculate the new string length 
+			// Calculate the new string length
 			size_t newlen = strlen(str) + backsp_count + quote_count + (others_exists ? 2 : 0);
-			// Allocate the new string 
+			// Allocate the new string
 			newstr = (char*)SAlloc::M((newlen + 1) * sizeof(char));
 			if(newstr) {
-				// Surround the string in quotes if necessary 
+				// Surround the string in quotes if necessary
 				char * p2 = newstr;
 				if(others_exists) {
 					newstr[0] = '"';
 					newstr[newlen - 1] = '"';
 					p2++;
 				}
-				// Copy the string, escaping backslash and quote characters along the way 
+				// Copy the string, escaping backslash and quote characters along the way
 				p1 = str;
 				while(*p1) {
 					if(*p1 == '\\' || *p1 == '"') {
@@ -1674,7 +1671,7 @@ static char * imap_atom(const char * str, bool escape_only)
 					p1++;
 					p2++;
 				}
-				newstr[newlen] = '\0'; // Terminate the string 
+				newstr[newlen] = '\0'; // Terminate the string
 			}
 		}
 	}

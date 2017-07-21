@@ -9,12 +9,10 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include <openssl/pkcs12.h>
-#include "internal/x509_int.h"
+//#include "internal/x509_int.h"
 
-X509_SIG * PKCS8_encrypt(int pbe_nid, const EVP_CIPHER * cipher,
-    const char * pass, int passlen,
-    uchar * salt, int saltlen, int iter,
-    PKCS8_PRIV_KEY_INFO * p8inf)
+X509_SIG * PKCS8_encrypt(int pbe_nid, const EVP_CIPHER * cipher, const char * pass, int passlen,
+    uchar * salt, int saltlen, int iter, PKCS8_PRIV_KEY_INFO * p8inf)
 {
 	X509_SIG * p8 = NULL;
 	X509_ALGOR * pbe;

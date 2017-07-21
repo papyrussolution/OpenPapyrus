@@ -119,7 +119,7 @@ int TS_RESP_verify_signature(PKCS7 * token, STACK_OF(X509) * certs,
 		goto err;
 	if(!ts_check_signing_certs(si, chain))
 		goto err;
-	p7bio = PKCS7_dataInit(token, NULL);
+	p7bio = PKCS7_dataInit(token, 0);
 
 	/* We now have to 'read' from p7bio to calculate digests etc. */
 	while((i = BIO_read(p7bio, buf, sizeof(buf))) > 0)
@@ -241,7 +241,7 @@ static int ts_find_cert(STACK_OF(ESS_CERT_ID) * cert_ids, X509 * cert)
 	if(!cert_ids || !cert)
 		return -1;
 
-	X509_digest(cert, EVP_sha1(), cert_sha1, NULL);
+	X509_digest(cert, EVP_sha1(), cert_sha1, 0);
 
 	/* Recompute SHA1 hash of certificate if necessary (side effect). */
 	X509_check_purpose(cert, -1, 0);

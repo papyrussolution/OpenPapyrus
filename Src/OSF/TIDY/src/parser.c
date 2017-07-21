@@ -769,7 +769,7 @@ void TY_(ParseBlock) (TidyDocImpl* doc, Node *element, GetTokenMode mode)
 	}
 
 	if(!(element->tag->model & CM_MIXED))
-		TY_(InlineDup) (doc, NULL);
+		TY_(InlineDup) (doc, 0);
 
 	mode = IgnoreWhitespace;
 
@@ -782,7 +782,7 @@ void TY_(ParseBlock) (TidyDocImpl* doc, Node *element, GetTokenMode mode)
 			if(element->tag->model & CM_OBJECT) {
 				/* pop inline stack */
 				while(lexer->istacksize > lexer->istackbase)
-					TY_(PopInline) (doc, NULL);
+					TY_(PopInline) (doc, 0);
 				lexer->istackbase = istackbase;
 			}
 
@@ -851,7 +851,7 @@ void TY_(ParseBlock) (TidyDocImpl* doc, Node *element, GetTokenMode mode)
 						if(element->tag->model & CM_OBJECT) {
 							/* pop inline stack */
 							while(lexer->istacksize > lexer->istackbase)
-								TY_(PopInline) (doc, NULL);
+								TY_(PopInline) (doc, 0);
 							lexer->istackbase = istackbase;
 						}
 
@@ -1092,7 +1092,7 @@ void TY_(ParseBlock) (TidyDocImpl* doc, Node *element, GetTokenMode mode)
 				else if(TY_(nodeHasCM) (element, CM_OBJECT) ) {
 					/* pop inline stack */
 					while(lexer->istacksize > lexer->istackbase)
-						TY_(PopInline) (doc, NULL);
+						TY_(PopInline) (doc, 0);
 					lexer->istackbase = istackbase;
 					TrimSpaces(doc, element);
 					return;
@@ -1152,7 +1152,7 @@ void TY_(ParseBlock) (TidyDocImpl* doc, Node *element, GetTokenMode mode)
 	if(element->tag->model & CM_OBJECT) {
 		/* pop inline stack */
 		while(lexer->istacksize > lexer->istackbase)
-			TY_(PopInline) (doc, NULL);
+			TY_(PopInline) (doc, 0);
 		lexer->istackbase = istackbase;
 	}
 
@@ -1185,7 +1185,7 @@ void TY_(ParseInline) (TidyDocImpl* doc, Node *element, GetTokenMode mode)
 	 */
 	if((TY_(nodeHasCM) (element, CM_BLOCK) || nodeIsDT(element)) &&
 	    !TY_(nodeHasCM) (element, CM_MIXED))
-		TY_(InlineDup) (doc, NULL);
+		TY_(InlineDup) (doc, 0);
 	else if(TY_(nodeHasCM) (element, CM_INLINE))
 		TY_(PushInline) (doc, element);
 
@@ -2089,7 +2089,7 @@ void TY_(ParseRow) (TidyDocImpl* doc, Node *row, GetTokenMode ARG_UNUSED(mode))
 		/* pop inline stack */
 
 		while(lexer->istacksize > lexer->istackbase)
-			TY_(PopInline) (doc, NULL);
+			TY_(PopInline) (doc, 0);
 	}
 }
 
@@ -2419,7 +2419,7 @@ void TY_(ParsePre) (TidyDocImpl* doc, Node *pre, GetTokenMode ARG_UNUSED(mode) )
 	if(pre->tag->model & CM_EMPTY)
 		return;
 
-	TY_(InlineDup) (doc, NULL); /* tell lexer to insert inlines if needed */
+	TY_(InlineDup) (doc, 0); /* tell lexer to insert inlines if needed */
 
 	while((node = TY_(GetToken) (doc, Preformatted)) != NULL) {
 		if(node->type == EndTag &&

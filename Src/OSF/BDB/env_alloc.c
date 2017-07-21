@@ -235,7 +235,7 @@ int __env_alloc(REGINFO * infop, size_t len, void * retp)
 	head = (ALLOC_LAYOUT *)infop->head;
 	total_len = DB_ALLOC_SIZE(len);
 	/* Find the first size queue that could satisfy the request. */
-	COMPQUIET(q, NULL);
+	COMPQUIET(q, 0);
 #ifdef HAVE_MMAP_EXTEND
 retry:
 #endif

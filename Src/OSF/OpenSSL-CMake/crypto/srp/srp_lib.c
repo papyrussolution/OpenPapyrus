@@ -32,7 +32,7 @@ static BIGNUM * srp_Calc_xy(const BIGNUM * x, const BIGNUM * y, const BIGNUM * N
 	    || BN_bn2binpad(y, tmp + numN, numN) < 0
 	    || !EVP_Digest(tmp, numN * 2, digest, NULL, EVP_sha1(), NULL))
 		goto err;
-	res = BN_bin2bn(digest, sizeof(digest), NULL);
+	res = BN_bin2bn(digest, sizeof(digest), 0);
 err:
 	OPENSSL_free(tmp);
 	return res;
@@ -143,7 +143,7 @@ BIGNUM * SRP_Calc_x(const BIGNUM * s, const char * user, const char * pass)
 	    || !EVP_DigestFinal_ex(ctxt, dig, NULL))
 		goto err;
 
-	res = BN_bin2bn(dig, sizeof(dig), NULL);
+	res = BN_bin2bn(dig, sizeof(dig), 0);
 err:
 	OPENSSL_free(cs);
 	EVP_MD_CTX_free(ctxt);

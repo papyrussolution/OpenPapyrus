@@ -1380,7 +1380,7 @@ ZIP_EXTERN const char * zip_file_get_comment(zip_t * za, uint64 idx, uint32 * le
 
 int zip_file_get_external_attributes(zip_t * za, uint64 idx, zip_flags_t flags, uint8 * opsys, uint32 * attributes)
 {
-	zip_dirent_t * de = _zip_get_dirent(za, idx, flags, NULL);
+	zip_dirent_t * de = _zip_get_dirent(za, idx, flags, 0);
 	if(de == NULL)
 		return -1;
 	else {
@@ -1458,7 +1458,7 @@ int64 _zip_file_replace(zip_t * za, uint64 idx, const char * name, zip_source_t 
 	if(idx == ZIP_UINT64_MAX) {
 		int64 i = -1;
 		if(flags & ZIP_FL_OVERWRITE)
-			i = _zip_name_locate(za, name, flags, NULL);
+			i = _zip_name_locate(za, name, flags, 0);
 		if(i == -1) {
 			// create and use new entry, used by zip_add 
 			if((i = _zip_add_entry(za)) < 0)
@@ -2145,7 +2145,7 @@ ZIP_EXTERN zip_source_t * zip_source_zip(zip_t * za, zip_t * srcza, uint64 srcid
 	if(len == -1)
 		len = 0;
 	SETFLAG(flags, ZIP_FL_COMPRESSED, (start == 0 && len == 0));
-	return _zip_source_zip_new(za, srcza, srcidx, flags, start, (uint64)len, NULL);
+	return _zip_source_zip_new(za, srcza, srcidx, flags, start, (uint64)len, 0);
 }
 
 ZIP_EXTERN int zip_source_begin_write(zip_source_t * src)
@@ -2340,7 +2340,7 @@ int _zip_set_name(zip_t * za, uint64 idx, const char * name, zip_flags_t flags)
 		return -1;
 	}
 	if(old_name) {
-		_zip_hash_delete(za->names, old_name, NULL);
+		_zip_hash_delete(za->names, old_name, 0);
 	}
 	if(same_as_orig) {
 		if(e->changes) {
@@ -2656,7 +2656,7 @@ int _zip_unchange(zip_t * za, uint64 idx, int allow_duplicates)
 			if((orig_name = _zip_get_name(za, idx, ZIP_FL_UNCHANGED, &za->error)) == NULL) {
 				return -1;
 			}
-			i = _zip_name_locate(za, orig_name, 0, NULL);
+			i = _zip_name_locate(za, orig_name, 0, 0);
 			if(i >= 0 && (uint64)i != idx)
 				return zip_error_set(&za->error, SLERR_ZIP_EXISTS, 0);
 		}
@@ -2672,7 +2672,7 @@ int _zip_unchange(zip_t * za, uint64 idx, int allow_duplicates)
 			}
 		}
 		if(_zip_hash_delete(za->names, (const uint8*)changed_name, &za->error) == false) {
-			_zip_hash_delete(za->names, (const uint8*)orig_name, NULL);
+			_zip_hash_delete(za->names, (const uint8*)orig_name, 0);
 			return -1;
 		}
 	}
@@ -3112,7 +3112,7 @@ static zip_string_t * _zip_dirent_process_ef_utf_8(const zip_dirent_t * de, uint
 	uint16 ef_len;
 	uint32 ef_crc;
 	zip_buffer_t * buffer;
-	const uint8 * ef = _zip_ef_get_by_id(de->extra_fields, &ef_len, id, 0, ZIP_EF_BOTH, NULL);
+	const uint8 * ef = _zip_ef_get_by_id(de->extra_fields, &ef_len, id, 0, ZIP_EF_BOTH, 0);
 	if(ef == NULL || ef_len < 5 || ef[0] != 1) {
 		return str;
 	}
@@ -3123,7 +3123,7 @@ static zip_string_t * _zip_dirent_process_ef_utf_8(const zip_dirent_t * de, uint
 	ef_crc = _zip_buffer_get_32(buffer);
 	if(_zip_string_crc32(str) == ef_crc) {
 		uint16 len = (uint16)_zip_buffer_left(buffer);
-		zip_string_t * ef_str = _zip_string_new(_zip_buffer_get(buffer, len), len, ZIP_FL_ENC_UTF_8, NULL);
+		zip_string_t * ef_str = _zip_string_new(_zip_buffer_get(buffer, len), len, ZIP_FL_ENC_UTF_8, 0);
 		if(ef_str != NULL) {
 			_zip_string_free(str);
 			str = ef_str;

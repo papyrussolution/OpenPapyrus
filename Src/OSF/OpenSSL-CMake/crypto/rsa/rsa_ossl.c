@@ -754,7 +754,7 @@ err:
 static int rsa_ossl_init(RSA * rsa)
 {
 	rsa->flags |= RSA_FLAG_CACHE_PUBLIC | RSA_FLAG_CACHE_PRIVATE;
-	return (1);
+	return 1;
 }
 
 static int rsa_ossl_finish(RSA * rsa)
@@ -762,7 +762,7 @@ static int rsa_ossl_finish(RSA * rsa)
 	BN_MONT_CTX_free(rsa->_method_mod_n);
 	BN_MONT_CTX_free(rsa->_method_mod_p);
 	BN_MONT_CTX_free(rsa->_method_mod_q);
-	return (1);
+	return 1;
 }
 
 #endif

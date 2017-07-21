@@ -86,7 +86,7 @@ int __qam_incfirst_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	db_pgno_t metapg;
 	int ret;
 
-	COMPQUIET(meta, NULL);
+	COMPQUIET(meta, 0);
 
 	ip = ((DB_TXNHEAD *)info)->thread_info;
 	REC_PRINT(__qam_incfirst_print);
@@ -282,7 +282,7 @@ int __qam_del_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * i
 	db_pgno_t metapg;
 	int cmp_n, ret, t_ret;
 
-	COMPQUIET(pagep, NULL);
+	COMPQUIET(pagep, 0);
 	meta = NULL;
 	pagep = NULL;
 
@@ -387,7 +387,7 @@ int __qam_delext_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 	db_pgno_t metapg;
 	int cmp_n, ret, t_ret;
 
-	COMPQUIET(pagep, NULL);
+	COMPQUIET(pagep, 0);
 	meta = NULL;
 	pagep = NULL;
 
@@ -487,7 +487,7 @@ int __qam_add_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * i
 	QPAGE * pagep;
 	db_pgno_t metapg;
 	int cmp_n, ret;
-	COMPQUIET(pagep, NULL);
+	COMPQUIET(pagep, 0);
 	ip = ((DB_TXNHEAD *)info)->thread_info;
 	REC_PRINT(__qam_add_print);
 	REC_INTRO(__qam_add_read, ip, 1);

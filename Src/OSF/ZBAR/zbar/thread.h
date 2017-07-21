@@ -85,7 +85,7 @@ static inline void _zbar_thread_init (zbar_thread_t *thr)
 {
     sigset_t sigs;
     sigfillset(&sigs);
-    pthread_sigmask(SIG_BLOCK, &sigs, NULL);
+    pthread_sigmask(SIG_BLOCK, &sigs, 0);
     thr->running = 1;
     _zbar_event_trigger(&thr->activity);
 }

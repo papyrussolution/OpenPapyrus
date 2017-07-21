@@ -65,7 +65,7 @@ static int eckey_pub_encode(X509_PUBKEY * pk, const EVP_PKEY * pkey)
 		ECerr(EC_F_ECKEY_PUB_ENCODE, ERR_R_EC_LIB);
 		return 0;
 	}
-	penclen = i2o_ECPublicKey(ec_key, NULL);
+	penclen = i2o_ECPublicKey(ec_key, 0);
 	if(penclen <= 0)
 		goto err;
 	penc = (uchar*)OPENSSL_malloc(penclen);
@@ -173,7 +173,7 @@ static int eckey_pub_cmp(const EVP_PKEY * a, const EVP_PKEY * b)
 	* pb = EC_KEY_get0_public_key(b->pkey.ec);
 	if(group == NULL || pa == NULL || pb == NULL)
 		return -2;
-	r = EC_POINT_cmp(group, pa, pb, NULL);
+	r = EC_POINT_cmp(group, pa, pb, 0);
 	if(r == 0)
 		return 1;
 	if(r == 1)
@@ -236,7 +236,7 @@ static int eckey_priv_encode(PKCS8_PRIV_KEY_INFO * p8, const EVP_PKEY * pkey)
 	old_flags = EC_KEY_get_enc_flags(&ec_key);
 	EC_KEY_set_enc_flags(&ec_key, old_flags | EC_PKEY_NO_PARAMETERS);
 
-	eplen = i2d_ECPrivateKey(&ec_key, NULL);
+	eplen = i2d_ECPrivateKey(&ec_key, 0);
 	if(!eplen) {
 		ECerr(EC_F_ECKEY_PRIV_ENCODE, ERR_R_EC_LIB);
 		return 0;
@@ -348,7 +348,7 @@ static int do_EC_KEY_print(BIO * bp, const EC_KEY * x, int off, ec_print_t ktype
 	}
 
 	if(ktype != EC_KEY_PRINT_PARAM && EC_KEY_get0_public_key(x) != NULL) {
-		publen = EC_KEY_key2buf(x, EC_KEY_get_conv_form(x), &pub, NULL);
+		publen = EC_KEY_key2buf(x, EC_KEY_get_conv_form(x), &pub, 0);
 		if(publen == 0)
 			goto err;
 	}
@@ -503,10 +503,10 @@ static int ec_pkey_ctrl(EVP_PKEY * pkey, int op, long arg1, void * arg2)
 		    return 2;
 
 		case ASN1_PKEY_CTRL_SET1_TLS_ENCPT:
-		    return EC_KEY_oct2key(EVP_PKEY_get0_EC_KEY(pkey), (uchar*)arg2, arg1, NULL);
+		    return EC_KEY_oct2key(EVP_PKEY_get0_EC_KEY(pkey), (uchar*)arg2, arg1, 0);
 
 		case ASN1_PKEY_CTRL_GET1_TLS_ENCPT:
-		    return EC_KEY_key2buf(EVP_PKEY_get0_EC_KEY(pkey), POINT_CONVERSION_UNCOMPRESSED, (uchar**)arg2, NULL);
+		    return EC_KEY_key2buf(EVP_PKEY_get0_EC_KEY(pkey), POINT_CONVERSION_UNCOMPRESSED, (uchar**)arg2, 0);
 
 		default:
 		    return -2;
@@ -764,7 +764,7 @@ static int ecdh_cms_encrypt(CMS_RecipientInfo * ri)
 		/* Set the key */
 		uchar * p;
 
-		penclen = i2o_ECPublicKey(eckey, NULL);
+		penclen = i2o_ECPublicKey(eckey, 0);
 		if(penclen <= 0)
 			goto err;
 		penc = (uchar*)OPENSSL_malloc(penclen);
@@ -780,7 +780,7 @@ static int ecdh_cms_encrypt(CMS_RecipientInfo * ri)
 
 		penc = NULL;
 		X509_ALGOR_set0(talg, OBJ_nid2obj(NID_X9_62_id_ecPublicKey),
-		    V_ASN1_UNDEF, NULL);
+		    V_ASN1_UNDEF, 0);
 	}
 
 	/* See if custom parameters set */

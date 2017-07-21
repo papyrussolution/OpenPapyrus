@@ -133,7 +133,7 @@ static cairo_surface_t * get_clip_surface(const cairo_spans_compositor_t * compo
 	}
 	_cairo_polygon_translate(&polygon, -extents->x, -extents->y);
 	status = _cairo_composite_rectangles_init_for_polygon(&composite, surface,
-	    CAIRO_OPERATOR_ADD, &_cairo_pattern_white.base, &polygon, NULL);
+	    CAIRO_OPERATOR_ADD, &_cairo_pattern_white.base, &polygon, 0);
 	if(unlikely(status))
 		goto cleanup_polygon;
 	status = composite_polygon(compositor, &composite, &polygon, fill_rule, antialias);
@@ -170,7 +170,7 @@ static cairo_surface_t * get_clip_surface(const cairo_spans_compositor_t * compo
 	if(polygon.num_edges) {
 		_cairo_polygon_translate(&polygon, -extents->x, -extents->y);
 		status = _cairo_composite_rectangles_init_for_polygon(&composite, surface,
-		    CAIRO_OPERATOR_IN, &_cairo_pattern_white.base, &polygon, NULL);
+		    CAIRO_OPERATOR_IN, &_cairo_pattern_white.base, &polygon, 0);
 		if(unlikely(status))
 			goto cleanup_polygon;
 		status = composite_polygon(compositor, &composite, &polygon, fill_rule, antialias);
@@ -201,7 +201,7 @@ static cairo_int_status_t fixup_unbounded_mask(const cairo_spans_compositor_t * 
 		return clip->status;
 	}
 	status = _cairo_composite_rectangles_init_for_boxes(&composite,
-	    extents->surface, CAIRO_OPERATOR_CLEAR, &_cairo_pattern_clear.base, boxes, NULL);
+	    extents->surface, CAIRO_OPERATOR_CLEAR, &_cairo_pattern_clear.base, boxes, 0);
 	if(unlikely(status))
 		goto cleanup_clip;
 	_cairo_pattern_init_for_surface(&composite.mask_pattern.surface, clip);
@@ -236,7 +236,7 @@ static cairo_int_status_t fixup_unbounded_polygon(const cairo_spans_compositor_t
 	if(unlikely(status))
 		goto cleanup_polygon;
 	status = _cairo_composite_rectangles_init_for_polygon(&composite,
-	    extents->surface, CAIRO_OPERATOR_CLEAR, &_cairo_pattern_clear.base, &polygon, NULL);
+	    extents->surface, CAIRO_OPERATOR_CLEAR, &_cairo_pattern_clear.base, &polygon, 0);
 	if(unlikely(status))
 		goto cleanup_polygon;
 	status = composite_polygon(compositor, &composite, &polygon, fill_rule, antialias);
@@ -306,7 +306,7 @@ static cairo_int_status_t fixup_unbounded_boxes(const cairo_spans_compositor_t *
 		else {
 			cairo_composite_rectangles_t composite;
 			status = _cairo_composite_rectangles_init_for_boxes(&composite,
-			    extents->surface, CAIRO_OPERATOR_CLEAR, &_cairo_pattern_clear.base, &clear, NULL);
+			    extents->surface, CAIRO_OPERATOR_CLEAR, &_cairo_pattern_clear.base, &clear, 0);
 			if(likely(status == CAIRO_INT_STATUS_SUCCESS)) {
 				status = composite_boxes(compositor, &composite, &clear);
 				_cairo_composite_rectangles_fini(&composite);

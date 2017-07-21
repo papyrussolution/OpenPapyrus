@@ -382,7 +382,7 @@ static CURLcode ldap_do(struct connectdata *conn, bool *done)
     return CURLE_OUT_OF_MEMORY;
   lr->msgid = msgid;
   data->req.protop = lr;
-  Curl_setup_transfer(conn, FIRSTSOCKET, -1, FALSE, NULL, -1, NULL);
+  Curl_setup_transfer(conn, FIRSTSOCKET, -1, FALSE, NULL, -1, 0);
   *done = TRUE;
   return CURLE_OK;
 }

@@ -103,7 +103,7 @@ int __ham_add_dup(DBC * dbc, DBT * nval, uint32 flags, db_pgno_t * pgnop)
 	if(HPAGE_PTYPE(hk) != H_OFFDUP && (HPAGE_PTYPE(hk) == H_OFFPAGE || ISBIG(hcp, new_size) || add_bytes > P_FREESPACE(dbp, hcp->page))) {
 		if((ret = __ham_dup_convert(dbc)) != 0)
 			return ret;
-		return hcp->opd->am_put(hcp->opd, NULL, nval, flags, NULL);
+		return hcp->opd->am_put(hcp->opd, NULL, nval, flags, 0);
 	}
 	/* There are two separate cases here: on page and off page. */
 	if(HPAGE_PTYPE(hk) != H_OFFDUP) {
@@ -244,7 +244,7 @@ int __ham_dup_convert(DBC * dbc)
 		bo.tlen = ho.tlen;
 		dbt.size = BOVERFLOW_SIZE;
 		dbt.data = &bo;
-		ret = __db_pitem(dbc, dp, 0, dbt.size, &dbt, NULL);
+		ret = __db_pitem(dbc, dp, 0, dbt.size, &dbt, 0);
 finish:
 		if(ret == 0) {
 			/* Update any other cursors. */

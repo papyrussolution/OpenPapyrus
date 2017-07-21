@@ -1172,7 +1172,7 @@ static ssize_t schannel_recv(struct connectdata * conn, int sockindex,
 		/* https://msdn.microsoft.com/en-us/library/windows/desktop/aa375348.aspx
 		 */
 		sspi_status = s_pSecFn->DecryptMessage(&connssl->ctxt->ctxt_handle,
-		    &inbuf_desc, 0, NULL);
+		    &inbuf_desc, 0, 0);
 
 		/* check if everything went fine (server may want to renegotiate
 		   or shutdown the connection context) */

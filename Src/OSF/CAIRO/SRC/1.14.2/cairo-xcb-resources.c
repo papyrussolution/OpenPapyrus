@@ -224,7 +224,7 @@ static void get_resources(xcb_connection_t * connection, xcb_screen_t * screen, 
 	has_more_data = FALSE;
 	do {
 		cookie = xcb_get_property(connection, 0, screen->root, XCB_ATOM_RESOURCE_MANAGER, XCB_ATOM_STRING, offset, 1024);
-		reply = xcb_get_property_reply(connection, cookie, NULL);
+		reply = xcb_get_property_reply(connection, cookie, 0);
 
 		if(reply) {
 			if(reply->format == 8 && reply->type == XCB_ATOM_STRING) {

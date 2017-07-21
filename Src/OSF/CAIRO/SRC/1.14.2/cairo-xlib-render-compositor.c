@@ -887,7 +887,7 @@ static cairo_int_status_t composite_boxes(void * abstract_dst,
 	    extents->x - dst_x,  extents->y - dst_y,
 	    extents->width,      extents->height);
 
-	set_clip_region(dst, NULL);
+	set_clip_region(dst, 0);
 
 	return CAIRO_STATUS_SUCCESS;
 }
@@ -1316,7 +1316,7 @@ BAIL:
 	 * the cache
 	 */
 	if(!already_had_glyph_surface)
-		_cairo_scaled_glyph_set_surface(glyph, font, NULL);
+		_cairo_scaled_glyph_set_surface(glyph, font, 0);
 
 	return status;
 }

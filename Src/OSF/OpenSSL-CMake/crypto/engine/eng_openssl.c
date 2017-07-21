@@ -400,7 +400,7 @@ static EVP_PKEY * openssl_load_privkey(ENGINE * eng, const char * key_id,
 	in = BIO_new_file(key_id, "r");
 	if(!in)
 		return NULL;
-	key = PEM_read_bio_PrivateKey(in, NULL, 0, NULL);
+	key = PEM_read_bio_PrivateKey(in, NULL, 0, 0);
 	BIO_free(in);
 	return key;
 }
@@ -472,7 +472,7 @@ static void ossl_hmac_cleanup(EVP_PKEY_CTX * ctx)
 		HMAC_CTX_free(hctx->ctx);
 		OPENSSL_clear_free(hctx->ktmp.data, hctx->ktmp.length);
 		OPENSSL_free(hctx);
-		EVP_PKEY_CTX_set_data(ctx, NULL);
+		EVP_PKEY_CTX_set_data(ctx, 0);
 	}
 }
 

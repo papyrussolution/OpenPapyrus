@@ -1349,6 +1349,8 @@ PPERR_ELOT_NONSINGLERCPTOP      "@{lotfault}: (дата %s оп %ld) к лоту
 PPERR_ELOT_INADQLOTWOTAXFLAGON  "@{lotfault}: у лота установлен флаг 'Цена без налогов' в то время как у товара такого флага нет"
 PPERR_ELOT_INADQTRFRWOTAXFLAGON "@{lotfault}: (дата %s оп %ld) у операции установлен флаг 'Цена без налогов' в то время как у товара такого флага нет"
 PPERR_ELOT_EGAISCODEALONE       "Замечание по лоту %s: имеет @{egaiscode}, которого нет ни у одного из товаров"
+PPERR_ELOT_NOEGAISCODE          "Замечание по лоту %s: не имеет @{egaiscode}, в то время как товар имеет такой код"
+PPERR_ELOT_NOEGAISCODEAMBIG     "Замечание по лоту %s: не имеет @{egaiscode}, в то время как товар имеет более одного такого кода"
 
 PPERR_UNDEFBILLFUNC             "Неизвестная функция '%s' в контексте документа"
 PPERR_SIEVEFUNC_DUPDEF          "В функции sieve значение по умолчанию определено более одного раза"
@@ -1941,6 +1943,7 @@ PPERR_ESME_RINVOPTPARAMVAL       "Invalid Optional Parameter Value"
 PPERR_ESME_RDELIVERYFAILURE      "Delivery Failure (used for data_sm_resp)"
 PPERR_ESME_RUNKNOWNERR           "Unknown Error"
 #!}
+PPERR_SARTREDBUNDEF              "Не определен путь к базе данных SartreDB"
 // LastError
 
 [102] // confirmation
@@ -2406,34 +2409,6 @@ memory;codepage;load;file;serxnom;wrap"
 123 "Формирование документов"
 124 "Тестирование чеков"
 
-131 "1,@{director};2,@{chiefaccountant};3,@{cashier}"
-
-132 "1,Присвоить персоналии вид;\
-2,Отозвать вид у персоналии;\
-3,Установить тег персоналии;\
-4,Снять тег у персоналии;\
-5,Присвоить персоналии должность;\
-6,Отозвать должность у персоналии;\
-7,Присвоить персоналии регистр;\
-8,Отозвать у персоналии регистр;\
-9,Запись в календаре;\
-10,Заполнить календарь от парной операции;\
-11,Увеличить тег;\
-12,Уменьшить тег;\
-13,Установить календарь в протяженное состояние;\
-14,Установить календарь в протяженное состояние пропуска;\
-15,Отменить протяженное состояние календаря;\
-16,Запись пропуска в календаре;\
-17,Заполнить календарь пропусками от парной операции;\
-18,Установить отношение со вторичной персоналией;\
-19,Отозвать отношение со вторичной персоналией;\
-20,Начисление на персональную карту;\
-21,Списание с персональной карты;\
-22,Команда на устройство;\
-23,Информация на StyloDisplay;\
-24,Звуковой сигнал;\
-25,Проверка просроченности долга по документам"
-
 #!{ // dont_translate
 
 /* @v9.0.5
@@ -2773,6 +2748,7 @@ PPINIPARAM_CLIENTSOCKETTIMEOUT         "ClientSocketTimeout"
 PPINIPARAM_UILANGUAGE                  "UiLanguage"
 PPINIPARAM_RESERVEDOBJECTS             "reservedobjects" // [selfbuild]
 PPINIPARAM_WORKBOOKINTERCHANGEUHTT     "workbookinterchangeuhtt"
+PPINIPARAM_SARTREDB                    "sartredb" // [path]
 
 PPTXT_NEEDEDFILES "Reference2;\
 Property;\
@@ -3604,7 +3580,7 @@ prThisYear,С начала этого года"
 631 "##@@&&;$$$CLR;$$$RPL;$$$ADD;$$$DEL"
 #!}
 632 "Сегодня;Вчера;Последние 7 дней;Прошлая неделя (пнд-вскр);Прошлая рабочая неделя (пнд-птц);Текущий месяц;Прошедший месяц"
-633 /!/ "ImpOpSymb;Flags;SrchCode1;SrchCode2"
+633 /!/ "ImpOpSymb;Flags;SrchCode1;SrchCode2;PredefFormat"
 634 "1,@{oprkind};2,@{date};3,@{warehouse};4,@{article};5,@{addarticle};6,@{status};7,@{agent};8,@{payer};9,Долговая размерность;10,Место хранения (фрахт);11,@{daddress}"
 636 /!/ "Despatch;VendReceipt;VendReturn;CustReturn;ProdReceipt;ProdReturn;MovingNoteFrom;MovingNoteTo"
 637 "Установка соединения"
@@ -3626,6 +3602,17 @@ prThisYear,С начала этого года"
 656 /!/ "Flags;CSessTag;CCheckTag;CCLineTag;CCPaymTag"
 657 "Метапеременная;@{documents};Оплаты по документам;Кассовые чеки;Товарные остатки;@{personevent_pl};Долги;Бизнес-показатели"
 658 /!/ "DefQuotKind;DefCurrency;DefArticle;DefLoc;Flags"
+
+PPTXT_FIXSTAFFLIST "1,@{director};2,@{chiefaccountant};3,@{cashier}" // Список фиксированных должностей
+PPTXT_POVERB       "1,Присвоить персоналии вид;2,Отозвать вид у персоналии;3,Установить тег персоналии;\
+4,Снять тег у персоналии;5,Присвоить персоналии должность;6,Отозвать должность у персоналии;\
+7,Присвоить персоналии регистр;8,Отозвать у персоналии регистр;9,Запись в календаре;\
+10,Заполнить календарь от парной операции;11,Увеличить тег;12,Уменьшить тег;13,Установить календарь в протяженное состояние;\
+14,Установить календарь в протяженное состояние пропуска;15,Отменить протяженное состояние календаря;\
+16,Запись пропуска в календаре;17,Заполнить календарь пропусками от парной операции;\
+18,Установить отношение со вторичной персоналией;19,Отозвать отношение со вторичной персоналией;\
+20,Начисление на персональную карту;21,Списание с персональной карты;22,Команда на устройство;\
+23,Информация на StyloDisplay;24,Звуковой сигнал;25,Проверка просроченности долга по документам"
 
 PPTXT_CFGNAMES               "@{cfg_goods};@{cfg_bill};@{cfg_project};@{cfg_techsess};@{cfg_predictsales};@{cfg_predictholydays};@{cfg_albatros};@{cfg_inetconn};\
 @{cfg_vatbooksell};@{cfg_vatbookbuy};@{cfg_simpleledger};@{cfg_pricelist};@{cfg_dbxchng};@{cfg_equip};@{cfg_stylopalm};@{cfg_clibnkas};\
@@ -3649,44 +3636,44 @@ PPTXT_SELECTOPRTYPE          "Выберите тип операции"
 PPTXT_SELECTPSNOP            "Выберите вид персональной операции"
 PPTXT_SELECTOBJTAG           "Выберите тег"
 // Типы счетов
-PPTXT_ACCTITLES              "Бухгалтерский счет;Балансовый счет;Забалансовый счет;Агрегирующий счет;Бухгалтерский регистр;\
+PPTXT_ACCTITLES                           "Бухгалтерский счет;Балансовый счет;Забалансовый счет;Агрегирующий счет;Бухгалтерский регистр;\
 	Персональный счет;@{accountalias};Бюджетный счет"
-PPTXT_ACCKIND                "1,Активный;2,@{passive};3,Активно-пассивный"
-PPTXT_BILLTYPES              "1,Товарный документ;2,Документ заказа;3,Бухгалтерский документ;4,Документ инвентаризации;8,@{draftdocument}"
+PPTXT_ACCKIND                             "1,Активный;2,@{passive};3,Активно-пассивный"
+PPTXT_BILLTYPES                           "1,Товарный документ;2,Документ заказа;3,Бухгалтерский документ;4,Документ инвентаризации;8,@{draftdocument}"
 
 // Команды диалога синхронного кассового узла
-PPTXT_SYNCCASHNODECOMMANDS   "1,@{posnodecmd_sync_opensess};2,@{posnodecmd_sync_closesess};3,@{check_pl};4,@{posnodecmd_sync_lock};\
+PPTXT_SYNCCASHNODECOMMANDS                "1,@{posnodecmd_sync_opensess};2,@{posnodecmd_sync_closesess};3,@{check_pl};4,@{posnodecmd_sync_lock};\
 5,@{posnodecmd_sync_unlock};6,@{posnodecmd_sync_xreport};7,@{posnodecmd_sync_zreportcopy};8,@{posnodecmd_sync_encashment}"
 // Команды диалога асинхронного кассового узла
-PPTXT_ASYNCCASHNODECOMMANDS  "1,@{posnodecmd_async_opensess};2,@{posnodecmd_async_updsess};3,@{posnodecmd_async_closesess};\
+PPTXT_ASYNCCASHNODECOMMANDS               "1,@{posnodecmd_async_opensess};2,@{posnodecmd_async_updsess};3,@{posnodecmd_async_closesess};\
 4,@{posnodecmd_async_ccheckview};5,@{posnodecmd_async_exc}"
 
-PPTXT_MENU_CHKPAN            "@{posnodecmd_sync_xreport};@{posnodecmd_sync_opensess};@{posnodecmd_sync_zreportcopy};\
+PPTXT_MENU_CHKPAN                         "@{posnodecmd_sync_xreport};@{posnodecmd_sync_opensess};@{posnodecmd_sync_zreportcopy};\
 @{posnodecmd_sync_encashment};@{posnodecmd_sync_lock};@{posnodecmd_sync_unlock};@{posnodecmd_sync_opendrawer};@{posnodecmd_sync_markcheckmode}"
 PPTXT_GOODSMATRIXRESTR       "Ограничение товарной матрицы"
 PPTXT_MENU_DESKTOP           "Добавить иконку;Редактировать иконку;Удалить иконку;Переименовать;Выбрать рабочий стол;\
 Редактирование рабочих столов;Показать бизнес-показатели"
-PPTXT_MENU_LISTBOX           "@{add}\tInsert;@{edit}\tF11;@{delete}\tDelete;@{sendemail}\tF10"
-PPTXT_QUOTUPD_RTDECLINED     "Изменение котировки (%s) отклонено по причине нарушения прав доступа"
-PPTXT_QUOTSDUPD_RTDECLINED   "Изменение контрактной цены (%s) отклонено по причине нарушения прав доступа"
-PPTXT_QUOTMTXUPD_RTDECLINED  "Изменение матрицы (%s) отклонено по причине нарушения прав доступа"
-PPTXT_QUOTMTXRUPD_RTDECLINED "Изменение ограничения матрицы (%s) отклонено по причине нарушения прав доступа"
-PPTXT_GOODSMATRIX_IS_USED    "Используется товарная матрица"
-PPTXT_CCGENINIT              "Инициализация генератора чеков"
-PPTXT_CCGENCHECKDELAY        "Задержка генерации %s секунд"
-PPTXT_UNABLEDISTRIBCCHECKDIS "Не удалось полностью распределить скидку по чеку '%s'"
-PPTXT_SHTRIH_RUNNGTOTALGTAMT "Сумма по строкам чека превышает общую сумму чека (%s)"
-PPTXT_DEBTTRNOVR_NOTSTOP     /!/ "0,X;1,"
-PPTXT_ACC_ACSUSED            "Нельзя менять таблицу статей: используется в проводках"
-PPTXT_TERMSESSION            "Сессия была принудительно завершена"
-PPTXT_ALLWAREHOUSES          "@{allwarehouses}"
-PPTXT_IMPSPOIL_CLEAR         "Очистка внутренней таблицы бракованных серий"
-PPTXT_IMPSPOIL_DUP           "Найдена аналогичная запись в таблице (%s)"
-PPTXT_IMPSPOIL_ACCEPT        "Принята новая запись (%s)"
-PPTXT_ATOL_SCARDCAT          "PAPYRUS - скидка %02.2f%%"
-PPTXT_ARHASNTAGREEMENT       "@{msg_arhasntagreement}"
-PPTXT_LOG_DEBTRATE_SETSTOP   "STOP установить: @article: @{debt}=@real; Не зачтенные оплаты=@real; Максимальная просроченность=@int @{days}"
-PPTXT_LOG_DEBTRATE_RESETSTOP "STOP снять: @article: @{debt}=@real; Не зачтенные оплаты=@real; Максимальная просроченность=@int @{days}"
+PPTXT_MENU_LISTBOX                        "@{add}\tInsert;@{edit}\tF11;@{delete}\tDelete;@{sendemail}\tF10"
+PPTXT_QUOTUPD_RTDECLINED                  "Изменение котировки (%s) отклонено по причине нарушения прав доступа"
+PPTXT_QUOTSDUPD_RTDECLINED                "Изменение контрактной цены (%s) отклонено по причине нарушения прав доступа"
+PPTXT_QUOTMTXUPD_RTDECLINED               "Изменение матрицы (%s) отклонено по причине нарушения прав доступа"
+PPTXT_QUOTMTXRUPD_RTDECLINED              "Изменение ограничения матрицы (%s) отклонено по причине нарушения прав доступа"
+PPTXT_GOODSMATRIX_IS_USED                 "Используется товарная матрица"
+PPTXT_CCGENINIT                           "Инициализация генератора чеков"
+PPTXT_CCGENCHECKDELAY                     "Задержка генерации %s секунд"
+PPTXT_UNABLEDISTRIBCCHECKDIS              "Не удалось полностью распределить скидку по чеку '%s'"
+PPTXT_SHTRIH_RUNNGTOTALGTAMT              "Сумма по строкам чека превышает общую сумму чека (%s)"
+PPTXT_DEBTTRNOVR_NOTSTOP     /!/          "0,X;1,"
+PPTXT_ACC_ACSUSED                         "Нельзя менять таблицу статей: используется в проводках"
+PPTXT_TERMSESSION                         "Сессия была принудительно завершена"
+PPTXT_ALLWAREHOUSES                       "@{allwarehouses}"
+PPTXT_IMPSPOIL_CLEAR                      "Очистка внутренней таблицы бракованных серий"
+PPTXT_IMPSPOIL_DUP                        "Найдена аналогичная запись в таблице (%s)"
+PPTXT_IMPSPOIL_ACCEPT                     "Принята новая запись (%s)"
+PPTXT_ATOL_SCARDCAT                       "PAPYRUS - скидка %02.2f%%"
+PPTXT_ARHASNTAGREEMENT                    "@{msg_arhasntagreement}"
+PPTXT_LOG_DEBTRATE_SETSTOP                "STOP установить: @article: @{debt}=@real; Не зачтенные оплаты=@real; Максимальная просроченность=@int @{days}"
+PPTXT_LOG_DEBTRATE_RESETSTOP              "STOP снять: @article: @{debt}=@real; Не зачтенные оплаты=@real; Максимальная просроченность=@int @{days}"
 PPTXT_LOG_DEBTRATE_DIMSETSTOP             "STOP по размерности установить: @article:@debtdim"
 PPTXT_LOG_DEBTRATE_DIMRESETSTOP           "STOP по размерности снять: @article:@debtdim"
 PPTXT_LOG_DEBTRATE_DIMCRSTOP              "Создать размерность и установить STOP: @article:@debtdim"
@@ -4613,6 +4600,8 @@ PPTXT_BNKTRM_TESTCONN             "@{op}: ТЕСТ СВЯЗИ"
 PPTXT_BNKTRM_PAYMENT              "@{op}: @{payment}\n@{processing}..."
 PPTXT_BNKTRM_RETURN               "@{op}: @{return}\n@{processing}..."
 PPTXT_BNKTRM_CLOSESESS            "@{op}: ЗАКРЫТИЕ ДНЯ\n@{processing}..."
+
+PPTXT_PREDEFIMPEXPBILLFMT         "1,Nalog.ru Счет-фактура (ON_SFAKT)"
 //
 // LastText
 
@@ -5783,6 +5772,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @groupdefault           "Группа по умолчанию"
 @altgroup               "Альтернативная группа"
 @altgroup_pl            "Альтернативные группы"
+@excludegroup           "Исключить эту группу"
 @salarychargegroup      "Группа начислений"
 @tax                    "Налог"
 @tax_pl                 "Налоги"
@@ -6799,6 +6789,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_buildlocaldl600                      "Компиляция локальных структур DL600"
 @cmd_queryegais                           "Запрос к @{brand_egais} (интерактивный)"
 @cmd_workbookinterchange                  "Синхронизация рабочих книг (@{brand_uhtt})"
+@cmd_testlogwindow                        "Тестирование окна вывода сообщений"
+@cmd_importsartre                         "Импорт данных проекта Sartre (construction)"
+
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"
 @cmdpu_accounting      			          "Бухгалтерия"
@@ -7087,7 +7080,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bht_symb                                 "@{symbol}"
 @bht_tag                                  "@{tag}"
 @bill_ackdt                               "Дата платежа"
-@bill_agent                               "@{freightagent}"
+@bill_agent                               "@{agent}"
 @bill_agtbill                             "Соглашение с контрагентом"
 @bill_amount                              "Начисленная сумма"
 @bill_arrivaldate                         "@{acceptdate}"
@@ -7138,6 +7131,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bill_object                              "@{object}"
 @bill_object2                             "@{extobject}"
 @bill_op                                  "@{oprkind}"
+@bill_payer                               "@{payer}"
 @bill_payerstatus                         "Статус плательщика"
 @bill_paymamount                          "Дублирование суммы оплаты"
 @bill_periodlow                           "Начало периода действия"
@@ -7154,6 +7148,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bill_vatrate                             "@{vatrate}"
 @bill_extension                           "Расширение данных документа" // Группа атрибутов документа (агент, плательщик, и т.д.)
 @billprelude                              "Выберите вид операции нового документа" // Заголовок диалога, предшествующего вводу нового документа
+@billupdattributes                        "Изменение атрибутов документа" // Операция массового изменения некоторых атрибутов документов
+@billupdattributes_modcodestart           "Изменить нумерацию начинаю со счетчика"
 
 @total_bill                               "Итоги по документам"
 @total_bill_count                         "Количество документов"
@@ -7410,6 +7406,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccheck_cchkf_transmit                    "Перемещен из другого раздела БД"
 @ccheck_cchkf_zcheck                      "Z-отчет"
 @ccheck_cchkf_spfinished                  "Финишированный чек"
+@ccheck_cchkf_altreg                      "Альтернативный регистратор"
 @ccheck_code                              "@{code}"
 @ccheck_discount                          "@{discount}"
 @ccheck_dt                                "@{date}"
@@ -7877,7 +7874,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgpricelist_orgname                     "Название организации"
 @cfgpricelist_plistf_byquot               "По котировкам"
 @cfgpricelist_plistf_calcrest             "Рассчитывать остатки"
-@cfgpricelist_plistf_exclggrp             "Исключить эту группу"
+@cfgpricelist_plistf_exclggrp             "@{excludegroup}"
 @cfgpricelist_plistf_ignzeroquot          "Показывать товары для которых нет котировки"
 @cfgpricelist_plistf_notcfmdel            "Не выводить предупреждение при удалении строк"
 @cfgpricelist_plistf_presentonly          "Только то, что на складе"
@@ -8235,7 +8232,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @dfcreaterule_costalg                     "Алгоритм установки цен поступления"
 @dfcreaterule_cpctval                     "% величина"
 @dfcreaterule_cquot                       "Котировка (ц. поступления)"
-@dfcreaterule_fexclgoodsgrp               "Исключить эту группу"
+@dfcreaterule_fexclgoodsgrp               "@{excludegroup}"
 @dfcreaterule_fexcludescardser            "Иключить эту серию"
 @dfcreaterule_flags                       "@{flags}"
 @dfcreaterule_fusegoodslocassoc           "Использовать ассоциации товар-склад"
@@ -8711,6 +8708,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lotrecoverparam_frepairpackuncond        "Безусловно заменять емкость упаковки по значению в товаре"
 @lotrecoverparam_frepairwotaxflags        "Корректировать признак 'Цены реализации без налогов'"
 @lotrecoverparam_fsetalccodetogoods       "Переносить @{brand_egais}-код в товар"
+@lotrecoverparam_fsetalccodetolots        "Переносить @{brand_egais}-код из товара в лот"
 @lotrecoverparam_minuscompensop           "Вид операции компенсации отрицательных остатков"
 @lotrecoverparam_minuscompensop_hint      "Действует только если в фильтре установлен склад"
 @lotrecoverparam_logfile                  "@{logfilename}"
@@ -9020,7 +9018,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @pricelist_memo                           "@{memo}"
 @pricelist_plistf_byquot                  "По котировкам"
 @pricelist_plistf_calcrest                "Рассчитывать остатки"
-@pricelist_plistf_exclggrp                "Исключить эту группу"
+@pricelist_plistf_exclggrp                "@{excludegroup}"
 @pricelist_plistf_ignzeroquot             "Показывать товары для которых нет котировки"
 @pricelist_plistf_notcfmdel               "Не выводить предупреждение при удалении строк"
 @pricelist_plistf_presentonly             "Только то, что на складе"
@@ -10219,7 +10217,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @pricelistfilt_loc                        "@{warehouse}"
 @pricelistfilt_memo                       "@{memo}"
 @pricelistfilt_plistf_calcrest            "Рассчитывать остатки"
-@pricelistfilt_plistf_exclggrp            "Исключить эту группу"
+@pricelistfilt_plistf_exclggrp            "@{excludegroup}"
 @pricelistfilt_plistf_ignzeroquot         "Показывать товары для которых нет котировки"
 @pricelistfilt_plistf_presentonly         "Только то, что на складе"
 @pricelistfilt_plistf_usecommon           "Общий прайс-лист"
@@ -11248,4 +11246,39 @@ PPHS_WEEKDAY                   "weekday"
 PPHS_WORKBOOK                  "workbook"
 PPHS_WORLD                     "world"
 
+#!}
+
+[124:hash] // PPSTR_HASHTOKEN_C
+#!{
+PPHSC_RU_FILE                  "Файл"
+PPHSC_RU_IDFILE                "ИдФайл"
+PPHSC_RU_VERPROG               "ВерсПрог"
+PPHSC_RU_VERFORM               "ВерсФорм"
+PPHSC_RU_DOCUMENT              "Документ"
+PPHSC_RU_KND                   "КНД"
+PPHSC_RU_DATEINFZAK            "ДатаИнфЗак"
+PPHSC_RU_TIMEINFZAK            "ВремИнфЗак"
+PPHSC_RU_NAMEECSUBJCOMP        "НаимЭконСубСост"
+PPHSC_RU_REASONECSUBJCOMP      "ОснДоверОргСост"
+PPHSC_RU_INVOICEHEADER         "СвСчФакт"
+PPHSC_RU_INVOICENUMBER         "НомерСчФ"
+PPHSC_RU_INVOICEDATE           "ДатаСчФ"
+PPHSC_RU_CODEOKV               "КодОКВ"
+PPHSC_RU_WAREINFO              "СведТов"
+PPHSC_RU_LINENUMBER            "НомСтр"
+PPHSC_RU_WAREQTTY              "КолТов"
+PPHSC_RU_WARENAME              "НаимТов"
+PPHSC_RU_WAREOKEI              "ОКЕИ_Тов"
+PPHSC_RU_TAXRATE               "НалСт"
+PPHSC_RU_WAREPRICE             "ЦенаТов"
+PPHSC_RU_WAREAMTWOVAT          "СтТовБезНДС"
+PPHSC_RU_WAREAMT               "СтТовУчНал"
+PPHSC_RU_EXCISE                "Акциз"
+PPHSC_RU_AMTEXCISE             "СумАкциз"
+PPHSC_RU_NOEXCISE_TAG          "БезАкциз"
+PPHSC_RU_NOEXCISE_VAL          "без акциза"
+PPHSC_RU_AMTTAX                "СумНал"
+PPHSC_RU_NOVAT_TAG             "БезНДС"
+PPHSC_RU_NOVAT_VAL             "без НДС"
+PPHSC_RU_ADDRESS               "Адрес"
 #!}

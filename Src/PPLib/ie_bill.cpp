@@ -46,6 +46,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 {
 	Flags = 0;
 	ImpOpID = 0;
+	PredefFormat = pfUndef;
 	Object1SrchCode = 0;
 	Object2SrchCode = 0;
 }
@@ -209,10 +210,15 @@ int PPBillImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & r
 			param_list.Add(IMPEXPPARAM_BILH_SRCHCODE1, (temp_buf = Object1SrchCode).Strip());
 		if(Object2SrchCode.NotEmpty())
 			param_list.Add(IMPEXPPARAM_BILH_SRCHCODE2, (temp_buf = Object2SrchCode).Strip());
+		// @v9.7.8 {
+		if(PredefFormat)
+			param_list.Add(IMPEXPPARAM_BILH_PREDEFFMT, (temp_buf = 0).Cat(PredefFormat));
+		// } @v9.7.8
 	}
 	THROW_SL(pSCtx->Serialize(dir, param_list, rTail));
 	if(dir < 0) {
 		Flags = 0;
+		PredefFormat = pfUndef; // @v9.7.8
 		ImpOpID = 0;
 		Object1SrchCode = 0;
 		Object2SrchCode = 0;
@@ -237,6 +243,9 @@ int PPBillImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & r
 					break;
 				case IMPEXPPARAM_BILH_SRCHCODE2:
 					Object2SrchCode = temp_buf;
+					break;
+				case IMPEXPPARAM_BILH_PREDEFFMT: // @v9.7.8
+					PredefFormat = temp_buf.ToLong();
 					break;
 			}
 		}
@@ -275,6 +284,10 @@ int PPBillImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	}
 	PPGetSubStr(params, IMPEXPPARAM_BILH_FLAGS, fld_name);
 	pFile->AppendParam(pSect, fld_name, (param_val = 0).Cat(Flags), 1);
+	// @v9.7.8 {
+	PPGetSubStr(params, IMPEXPPARAM_BILH_PREDEFFMT, fld_name);
+	pFile->AppendParam(pSect, fld_name, (param_val = 0).Cat(PredefFormat), 1);
+	// } @v9.7.8
 	CATCHZOK
 	return ok;
 }
@@ -283,6 +296,7 @@ int PPBillImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const Stri
 {
 	ImpOpID = 0;
 	Flags = 0;
+	PredefFormat = pfUndef; // @v9.7.8
 
 	int    ok = 1;
 	SString params, fld_name, param_val;
@@ -317,6 +331,13 @@ int PPBillImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const Stri
 		if(pFile->GetParam(pSect, fld_name, param_val) > 0)
 			Object2SrchCode = param_val;
 	}
+	// @v9.7.8 {
+	if(PPGetSubStr(params, IMPEXPPARAM_BILH_PREDEFFMT, fld_name)) {
+		excl.add(fld_name);
+		if(pFile->GetParam(pSect, fld_name, param_val) > 0)
+			PredefFormat = param_val.ToLong();
+	}
+	// } @v9.7.8
 	THROW(PPImpExpParam::ReadIni(pFile, pSect, &excl));
 	CATCHZOK
 	return ok;
@@ -354,7 +375,7 @@ int BillHdrImpExpDialog::setDTS(const PPBillImpExpParam * pData)
 {
 	Data = *pData;
 	ImpExpParamDialog::setDTS(&Data);
-
+	SetupStringCombo(this, CTLSEL_IMPEXPBILH_PDFMT, PPTXT_PREDEFIMPEXPBILLFMT, Data.PredefFormat); // @v9.7.8
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 0, PPBillImpExpParam::fImpRowsFromSameFile);
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 1, PPBillImpExpParam::fImpRowsOnly); // @v8.4.8
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 2, PPBillImpExpParam::fRestrictByMatrix); // @v9.0.4
@@ -375,6 +396,7 @@ int BillHdrImpExpDialog::getDTS(PPBillImpExpParam * pData)
 {
 	int    ok = 1;
 	THROW(ImpExpParamDialog::getDTS(&Data));
+	getCtrlData(CTLSEL_IMPEXPBILH_PDFMT, &Data.PredefFormat); // @v9.7.8
 	GetClusterData(CTL_IMPEXPBILH_FLAGS, &Data.Flags);
 	getCtrlData(CTLSEL_IMPEXPBILH_IMPOP, &Data.ImpOpID);
 	getCtrlString(CTL_IMPEXPBILH_SRCHCODE1, Data.Object1SrchCode);
@@ -606,7 +628,7 @@ public:
 					P_Data->BillParam.ProcessName(1, sect);
 					THROW(P_Data->BillParam.ReadIni(P_IniFile, sect, 0));
 					id = getCtrlLong(CTLSEL_IEBILLSEL_BROW);
-					if(!(P_Data->BillParam.BaseFlags & PPImpExpParam::bfDLL)) {
+					if(!(P_Data->BillParam.BaseFlags & PPImpExpParam::bfDLL) && !P_Data->BillParam.PredefFormat) { // @v9.7.8 (!P_Data->BillParam.PredefFormat)
 						if(id || GetOpType(P_Data->OpID) != PPOPT_ACCTURN) { // @v8.4.10
 							THROW_PP(id, PPERR_INVBILLIMPEXPCFG);
 							LineList.Get(id, sect);
@@ -1720,7 +1742,6 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 										}
 									}
 								}
-								// @v7.4.10 {
 								else if(temp_buf.CmpNC("costformula") == 0) {
 									scan.Skip();
 									if(scan[0] == '.') {
@@ -1740,7 +1761,6 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 										}
 									}
 								}
-								// } @v7.4.10
 								else if(temp_buf.CmpNC("priceformula") == 0) {
 									scan.Skip();
 									if(scan[0] == '.') {
@@ -2792,7 +2812,7 @@ int SLAPI PPBillImporter::ResolveINN(const char * pINN, PPID dlvrLocID, const ch
 			stub[0] = 0;
 			pBillId = stub;
 		}
-		Logger.Log(err.Printf((const char*)msg, pBillId, pINN));
+		Logger.Log(err.Printf(msg.cptr(), pBillId, pINN));
 	}
 	CATCHZOK
 	return ok;
@@ -2844,7 +2864,7 @@ int SLAPI PPBillImporter::ResolveGLN(const char * pGLN, const char * pLocCode, c
 			stub[0] = 0;
 			pBillId = stub;
 		}
-		Logger.Log(err.Printf((const char*)msg, pBillId, ""));
+		Logger.Log(err.Printf(msg.cptr(), pBillId, ""));
 	}
 	CATCHZOK
 	return ok;
@@ -3463,7 +3483,12 @@ int SLAPI PPBillExporter::Init(const PPBillImpExpParam * pBillParam, const PPBil
 			THROW_MEM(P_IEBill = new PPImpExp(&BillParam, pFirstPack));
 			THROW(!P_IEBill->IsCtrError());
 			if(!(BillParam.BaseFlags & PPImpExpParam::bfDLL) && !(Flags & fEgaisImpExp)) {
-				if(BillParam.DataFormat == PPImpExpParam::dfXml && BRowParam.DataFormat == PPImpExpParam::dfXml && BillParam.FileName.CmpNC(BRowParam.FileName) == 0) {
+				if(BillParam.PredefFormat) {
+					if(BillParam.PredefFormat == BillParam.pfNalogR_Invoice) {
+						P_IEBill->GetParam().DataFormat == PPImpExpParam::dfXml;
+					}
+				}
+				else if(BillParam.DataFormat == PPImpExpParam::dfXml && BRowParam.DataFormat == PPImpExpParam::dfXml && BillParam.FileName.CmpNC(BRowParam.FileName) == 0) {
 					P_IEBRow = P_IEBill;
 				}
 				else {
@@ -3473,7 +3498,8 @@ int SLAPI PPBillExporter::Init(const PPBillImpExpParam * pBillParam, const PPBil
 				}
 				// Если имя файла задано шаблоном, то оно могло измениться { //
 				BillParam.FileName = P_IEBill->GetParam().FileName;
-				BRowParam.FileName = P_IEBRow->GetParam().FileName;
+				if(P_IEBRow) // @v9.7.8
+					BRowParam.FileName = P_IEBRow->GetParam().FileName;
 				// }
 				THROW(P_IEBill->OpenFileForWriting(0, 1, pResultFileList));
 			}
@@ -4204,3 +4230,455 @@ int SLAPI PPBillExporter::CheckBillsWasExported(ImpExpDll * pExpDll)
 	CATCHZOK
 	return ok;
 }
+//
+//
+//
+class Generator_DocNalogRu {
+public:
+	struct File {
+		File(Generator_DocNalogRu & rG, const char * pId) : N(rG.P_X, "Файл")
+		{
+			N.PutAttrib("ИдФайл", pId);
+			{
+				SString temp_buf;
+				SString ver_buf;
+				PPVersionInfo vi = DS.GetVersionInfo();
+				SVerT ver = vi.GetVersion();
+				vi.GetProductName(ver_buf);
+				ver_buf.Space().Cat(ver.ToStr(temp_buf));
+				N.PutAttrib("ВерсПрог", ver_buf);
+			}
+			N.PutAttrib("ВерсФорм", "5.01");
+		}
+		SXml::WNode N;
+	};
+	struct Document {
+		Document(Generator_DocNalogRu & rG, const char * pK, const LDATETIME & rDtm, const char * pSubj, const char * pSubjReason) : N(rG.P_X, "Документ")
+		{
+			SString temp_buf;
+			N.PutAttrib("КНД", pK); // Код по Классификатору налоговой документации
+			if(!!rDtm) {
+				(temp_buf = 0).Cat(rDtm.d, DATF_GERMAN|DATF_CENTURY);
+                N.PutAttrib("ДатаИнфЗак", temp_buf);
+				(temp_buf = 0).Cat(rDtm.t, TIMF_HMS);
+                N.PutAttrib("ВремИнфЗак", temp_buf);
+			}
+			if(!isempty(pSubj)) {
+				temp_buf = pSubj;
+				N.PutAttrib("НаимЭконСубСост", temp_buf);
+				if(!isempty(pSubjReason)) {
+					temp_buf = pSubjReason;
+					N.PutAttrib("ОснДоверОргСост", temp_buf);
+				}
+			}
+		}
+		SXml::WNode N;
+	};
+	struct Invoice {
+		Invoice(Generator_DocNalogRu & rG, const PPBillPacket & rBp) : N(rG.P_X, "СвСчФакт")
+		{
+			SString temp_buf;
+			BillCore::GetCode(temp_buf = rBp.Rec.Code);
+            N.PutAttrib("НомерСчФ", temp_buf);
+            (temp_buf = 0).Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY);
+            N.PutAttrib("ДатаСчФ", temp_buf);
+            N.PutAttrib("КодОКВ", "643");
+		}
+		SXml::WNode N;
+	};
+	int WriteInvoiceItems(const PPBillPacket & rBp)
+	{
+		int    ok = 1;
+		SString temp_buf;
+		SXml::WNode n_t(P_X, "ТаблСчФакт");
+		for(uint item_idx = 0; item_idx < rBp.GetTCount(); item_idx++) {
+		// <СведТов НалСт="18%" НомСтр="1" НаимТов="Товар" ОКЕИ_Тов="796" КолТов="5" ЦенаТов="1.00" СтТовБезНДС="5.00" СтТовУчНал="5.90">
+			double vat_sum = 0.0;
+			double excise_sum = 0.0;
+			const PPTransferItem & r_ti = rBp.ConstTI(item_idx);
+
+			SXml::WNode n_item(P_X, "СведТов");
+			(temp_buf = 0).Cat(r_ti.RByBill);
+			n_item.PutAttrib("НомСтр", temp_buf);
+			(temp_buf = 0).Cat(r_ti.Qtty(), MKSFMTD(0, 6, NMBF_NOTRAILZ));
+			n_item.PutAttrib("КолТов", temp_buf);
+			{
+				Goods2Tbl::Rec goods_rec;
+				if(GObj.Fetch(r_ti.GoodsID, &goods_rec) > 0) {
+					PPUnit u_rec;
+					PPGoodsTaxEntry gte;
+					temp_buf = goods_rec.Name;
+					n_item.PutAttrib("НаимТов", EncText(temp_buf));
+					if(GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0 && u_rec.Code[0]) {
+						temp_buf = u_rec.Code;
+						n_item.PutAttrib("ОКЕИ_Тов", temp_buf);
+					}
+					else {
+						n_item.PutAttrib("ОКЕИ_Тов", "0000");
+					}
+					if(GObj.FetchTax(r_ti.GoodsID, rBp.Rec.Dt, rBp.Rec.OpID, &gte) > 0) {
+
+					}
+				}
+			}
+			{
+				GTaxVect vect;
+				long   exclude_tax_flags = GTAXVF_SALESTAX;
+				vect.CalcTI(&r_ti, rBp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags);
+				double vat_rate = vect.GetTaxRate(GTAX_VAT, 0);
+				(temp_buf = 0).Cat(vat_rate, MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
+				n_item.PutAttrib("НалСт", temp_buf);
+				//
+				double amt_wo_tax = vect.GetValue(GTAXVF_AFTERTAXES);
+				(temp_buf = 0).Cat(amt_wo_tax / fabs(r_ti.Quantity_), MKSFMTD(0, 11, NMBF_NOTRAILZ));
+				n_item.PutAttrib("ЦенаТов", temp_buf);
+				//
+				(temp_buf = 0).Cat(amt_wo_tax, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+				n_item.PutAttrib("СтТовБезНДС", temp_buf);
+				//
+				double amt = vect.GetValue(GTAXVF_BEFORETAXES);
+				(temp_buf = 0).Cat(amt, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+				n_item.PutAttrib("СтТовУчНал", temp_buf);
+
+				vat_sum = vect.GetValue(GTAXVF_VAT);
+				excise_sum = vect.GetValue(GTAXVF_EXCISE);
+			}
+			{
+				SXml::WNode n_e(P_X, "Акциз");
+				{
+					if(excise_sum != 0.0) {
+						(temp_buf = 0).Cat(fabs(excise_sum), MKSFMTD(0, 2, 0));
+						n_e.PutInner("СумАкциз", temp_buf);
+					}
+					else {
+						n_e.PutInner("БезАкциз", "без акциза");
+					}
+				}
+			}
+			{
+				SXml::WNode n_e(P_X, "СумНал");
+				{
+					if(vat_sum != 0.0) {
+						(temp_buf = 0).Cat(fabs(vat_sum), MKSFMTD(0, 2, 0));
+						n_e.PutInner("СумНал", temp_buf);
+					}
+					else {
+						n_e.PutInner("БезНДС", "без НДС");
+					}
+				}
+			}
+		}
+		return ok;
+	}
+	int SLAPI WriteAddress(const PPLocationPacket & rP, int regionCode)
+	{
+		int    ok = 1;
+		PPID   country_id = 0;
+		PPCountryBlock cb;
+		SString temp_buf;
+		SString addr_text;
+		LocationCore::GetAddress(rP, 0, addr_text);
+
+		SXml::WNode n__(P_X, "Адрес");
+		if(PsnObj.LocObj.GetCountry(&rP, &country_id, &cb) > 0 && !cb.IsNative) {
+			// Иностранец
+			SXml::WNode n_i(P_X, "АдрИно");
+			n_i.PutAttrib("КодСтр", cb.Code);
+			n_i.PutAttrib("АдрТекст", EncText(addr_text));
+		}
+		else {
+			// Резидент
+			SXml::WNode n_i(P_X, "АдрРФ");
+			LocationCore::GetExField(&rP, LOCEXSTR_ZIP, temp_buf);
+			n_i.PutAttribSkipEmpty("Индекс", EncText(temp_buf));
+			(temp_buf = 0).CatLongZ(regionCode, 2);
+			n_i.PutAttrib("КодРегион", temp_buf); // req
+			//n_i.PutAttrib("Район", "");
+			if(rP.CityID) {
+				//n_i.PutAttrib("Город", "");
+				//n_i.PutAttrib("НаселПункт", "");
+			}
+			//n_i.PutAttrib("Улица", "");
+			//n_i.PutAttrib("Дом", "");
+			//n_i.PutAttrib("Корпус", "");
+			//n_i.PutAttrib("Кварт", "");
+		}
+		return ok;
+	}
+	int SLAPI WriteOrgInfo(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags)
+	{
+        int    ok = 1;
+        int    region_code = 0;
+        int    j_status = 0; // 1 - росс юр, 2 - росс ип, 3 - иностранец (не ТС), 4 - иностранец (таможенный союз)
+        SString inn, kpp;
+        SString temp_buf;
+		RegisterTbl::Rec reg_rec;
+        PPPersonPacket psn_pack;
+        THROW(PsnObj.GetPacket(personID, &psn_pack, PGETPCKF_USEINHERITENCE) > 0);
+		if(psn_pack.Regs.GetRegister(PPREGT_TPID, actualDate, 0, &reg_rec) > 0) {
+			(inn = reg_rec.Num).Strip();
+			inn.Sub(0, 2, temp_buf = 0);
+			region_code = temp_buf.ToLong();
+		}
+		if(psn_pack.Regs.GetRegister(PPREGT_KPP, actualDate, 0, &reg_rec) > 0)
+			(kpp = reg_rec.Num).Strip();
+		if(inn.Len() == 12) {
+			j_status = 2;
+		}
+		else {
+			j_status = 1;
+		}
+        {
+			SXml::WNode n__(P_X, pScopeXmlTag);
+			{
+				if(j_status == 2) {
+					SXml::WNode n_p(P_X, "СвФЛ");
+					n_p.PutAttrib("ИННФЛ", inn);
+					//n_p.PutAttrib("ФИОИП", EncText(temp_buf = psn_pack.Rec.Name))
+				}
+				else {
+					SXml::WNode n_p(P_X, "СвЮЛ");
+					n_p.PutAttrib("НаимОрг", EncText(temp_buf = psn_pack.Rec.Name));
+					n_p.PutAttrib("ИННЮЛ", inn);
+					n_p.PutAttribSkipEmpty("КПП", kpp);
+				}
+			}
+			{
+				PPLocationPacket loc_pack;
+				if(psn_pack.Rec.RLoc && PsnObj.LocObj.GetPacket(psn_pack.Rec.RLoc, &loc_pack) > 0) {
+					WriteAddress(loc_pack, region_code);
+				}
+				else if(psn_pack.Rec.MainLoc && PsnObj.LocObj.GetPacket(psn_pack.Rec.MainLoc, &loc_pack) > 0) {
+					WriteAddress(loc_pack, region_code);
+				}
+			}
+        }
+        CATCHZOK
+        return ok;
+	}
+	SLAPI  Generator_DocNalogRu()
+	{
+		P_X = 0;
+		P_Doc = 0;
+	}
+	SLAPI ~Generator_DocNalogRu()
+	{
+		EndDoc();
+	}
+	int   StartDoc(const char * pFileName)
+	{
+		int    ok = 1;
+		ZDELETE(P_Doc);
+		xmlFreeTextWriter(P_X);
+		P_X = 0;
+		THROW(P_X = xmlNewTextWriterFilename(pFileName, 0));
+		xmlTextWriterSetIndent(P_X, 1);
+		xmlTextWriterSetIndentString(P_X, (const xmlChar*)"\t");
+		THROW_SL(P_Doc = new SXml::WDoc(P_X, cp1251));
+		CATCHZOK
+		return ok;
+	}
+	int   EndDoc()
+	{
+		ZDELETE(P_Doc);
+		xmlFreeTextWriter(P_X);
+		P_X = 0;
+		return 1;
+	}
+	int   Underwriter()
+	{
+		int    ok = 1;
+		return ok;
+	}
+	const SString & FASTCALL EncText(const SString & rS)
+	{
+		EncBuf = rS;
+		EncBuf.ReplaceChar('\x07', ' ');
+		XMLReplaceSpecSymb(EncBuf, "&<>\'");
+		return EncBuf.Transf(CTRANSF_INNER_TO_OUTER);
+	}
+//private:
+	PPObjGoods GObj;
+	PPObjPerson PsnObj;
+	SXml::WDoc * P_Doc;
+	xmlTextWriter * P_X;
+
+private:
+	SString EncBuf;
+};
+
+int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const char * pPath)
+{
+	int    ok = 1;
+	Generator_DocNalogRu g;
+	{
+		PPObjAccSheet acs_obj;
+		PPOprKind op_rec;
+		PPOprKind link_op_rec;
+		THROW(GetOpData(rBp.Rec.OpID, &op_rec) > 0);
+		if(op_rec.LinkOpID) {
+			THROW(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0);
+		}
+		THROW(g.StartDoc(pPath));
+        {
+			Generator_DocNalogRu::File f(g, "000");
+			Generator_DocNalogRu::Document d(g, "1", ZERODATETIME, 0, 0);
+			Generator_DocNalogRu::Invoice inv(g, rBp);
+			{
+				PPID   main_org_id = 0;
+				PPID   consignee_psn_id = 0;
+				PPID   consignee_loc_id = 0;
+				PPID   shipper_psn_id = 0;
+				PPID   shipper_loc_id = 0;
+				PPID   suppl_psn_id = 0;
+				PPID   suppl_loc_id = 0;
+				PPID   buyer_psn_id = 0;
+				int    do_skip = 0;
+				int    is_intrexpend = 0;
+				rBp.GetMainOrgID_(&main_org_id);
+				{
+					if(oneof2(rBp.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)) {
+						//wb_type = wbtInvcFromMe;
+						PPID   ar2_main_org_id = 0;
+						if(IsIntrExpndOp(rBp.Rec.OpID)) {
+							consignee_psn_id = main_org_id;
+							consignee_loc_id = PPObjLocation::ObjToWarehouse(rBp.Rec.Object);
+							buyer_psn_id = consignee_psn_id;
+							shipper_psn_id = main_org_id;
+							shipper_loc_id = rBp.Rec.LocID;
+							is_intrexpend = 1;
+						}
+						else {
+							consignee_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
+							consignee_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+							buyer_psn_id = consignee_psn_id;
+							shipper_psn_id = main_org_id;
+							shipper_loc_id = rBp.Rec.LocID;
+						}
+					}
+					else if(oneof2(rBp.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
+						//wb_type = wbtInvcToMe;
+						consignee_psn_id = main_org_id;
+						consignee_loc_id = rBp.Rec.LocID;
+						buyer_psn_id = consignee_psn_id;
+						shipper_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
+						shipper_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+					}
+					else if(rBp.OpTypeID == PPOPT_GOODSRETURN) {
+						if(op_rec.LinkOpID) {
+							if(link_op_rec.OpTypeID == PPOPT_GOODSRECEIPT) {
+								//wb_type = wbtRetFromMe;
+								consignee_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
+								consignee_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+								buyer_psn_id = consignee_psn_id;
+								shipper_psn_id = main_org_id;
+								shipper_loc_id = rBp.Rec.LocID;
+							}
+							else if(link_op_rec.OpTypeID == PPOPT_GOODSEXPEND) {
+								//wb_type = wbtRetToMe;
+								consignee_psn_id = main_org_id;
+								consignee_loc_id = rBp.Rec.LocID;
+								buyer_psn_id = consignee_psn_id;
+								shipper_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
+								shipper_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+							}
+						}
+					}
+				}
+				g.WriteOrgInfo("СвПрод", shipper_psn_id, shipper_loc_id, rBp.Rec.Dt, 0);
+				g.WriteOrgInfo("СвПокуп", buyer_psn_id, 0, rBp.Rec.Dt, 0);
+			}
+			g.WriteInvoiceItems(rBp);
+        }
+		g.EndDoc();
+	}
+	CATCHZOK
+	return ok;
+}
+
+#if 0 // {
+int WriteBill_NalogRu(const PPBillPacket & rBp, const char * pPath)
+{
+	int    ok = 1;
+	SString id_file;
+	SString temp_buf;
+	SString left, right;
+	xmlTextWriter * p_writer = 0;
+	THROW(p_writer = xmlNewTextWriterFilename(pPath, 0));
+	{
+		xmlTextWriterSetIndent(p_writer, 1);
+		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
+		//xmlTextWriterStartDocument(p_writer, 0, "windows-1251", 0);
+		SXml::WDoc _doc(p_writer, cp1251);
+		//
+		{
+			SXml::WNode n_file(_doc, "Файл");
+			n_file.PutAttrib("ИдФайл", id_file);
+			{
+				PPVersionInfo vi = DS.GetVersionInfo();
+				SVerT ver = vi.GetVersion();
+				vi.GetProductName(temp_buf);
+				left.Space().Cat(ver.ToStr(temp_buf));
+				n_file.PutAttrib("ВерсПрог", left);
+			}
+			n_file.PutAttrib("ВерсФорм", "5.01");
+			{
+				SXml::WNode n_(_doc, "СвУчДокОбор");
+				n_.PutAttrib("ИдОтпр", "");
+				n_.PutAttrib("ИдПол", "");
+				{
+					SXml::WNode n_i(_doc, "СвОЭДОтпр");
+					n_i.PutAttrib("НаимОрг", "");
+					n_i.PutAttrib("ИННЮЛ", "");
+					n_i.PutAttrib("ИдЭДО", "");
+				}
+			}
+			{
+				SXml::WNode n_d(_doc, "Документ");
+				//
+				// DP_REZRUISP_1_990_01_05_01_01.xsd
+				//
+				n_d.PutAttrib("КНД", ""); // Код по Классификатору налоговой документации
+				n_d.PutAttrib("ДатаИнфИсп", ""); // Дата формирования документа о передаче результатов работ (документа об оказании услуг), информация исполнителя
+				n_d.PutAttrib("ВремИнфИсп", ""); // Время формирования документа о передаче результатов работ (документа об оказании услуг), информация исполнителя
+				n_d.PutAttrib("НаимЭконСубСост", ""); // Наименование экономического субъекта – составителя информации исполнителя
+				n_d.PutAttrib("ОснДоверОргСост", ""); // Основание, по которому экономический субъект является составителем информации исполнителя
+				{
+					SXml::WNode n_1(_doc, "СвДокПРУ"); // Сведения документа кроме сведений о передаче результатов работ (о предъявлении оказанных услуг)
+					SXml::WNode n_2(_doc, "СодФХЖ2"); // Содержание факта хозяйственной жизни (2) - сведения о передаче результатов работ (о предъявлении оказанных услуг)
+				}
+				{
+					SXml::WNode n_uw(_doc, "Подписант"); // Сведения о лице, подписавшем информацию исполнителя в электронном виде
+				}
+				//
+				// DP_REZRUZAK_1_990_02_05_01_01.xsd
+				//
+				{
+					SXml::WNode n_1(_doc, "ИдДокПРУИсп"); // Идентификация документа о передаче результатов работ (документа об оказании услуг), информация исполнителя
+					SXml::WNode n_2(_doc, "СодФХЖ3"); // Содержание факта хозяйственной жизни (3) - сведения о приемке результатов работ (подтверждение факта оказания услуг)
+					{
+						SXml::WNode n_3(_doc, "РезПринял"); // Сведения о приемке результатов работ (подтверждение факта оказания услуг)
+						SXml::WNode n_4(_doc, "СвПолВещи"); // Сведения о получении вещи, изготовленной  по договору подряда
+						SXml::WNode n_5(_doc, "ВидОперации"); // Дополнительная информация, позволяющая в автоматизированном режиме определять необходимый для конкретного случая порядок использования информации документа у заказчика
+						{
+							SXml::WNode n_6(_doc, "ИнфПолФХЖ3"); // Информационное поле факта хозяйственной жизни (3)
+							n_6.PutAttrib("ИдФайлИнфПол", ""); // GUID Идентификатор  файла информационного поля
+							{ // []
+								SXml::WNode n_7(_doc, "ТекстИнф"); // Текстовая информация
+								n_7.PutAttrib("Идентиф", ""); // [1..50] Идентификатор
+								n_7.PutAttrib("Значен", ""); // [1..2000] Значение
+							}
+						}
+					}
+				}
+				{
+					SXml::WNode n_uw(_doc, "Подписант"); // Сведения о лице, подписавшем информацию исполнителя в электронном виде
+				}
+			}
+		}
+	}
+	CATCHZOK
+	xmlFreeTextWriter(p_writer);
+	return ok;
+}
+#endif // } 0

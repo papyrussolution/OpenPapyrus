@@ -561,7 +561,7 @@ struct Cookie * Curl_cookie_add(struct Curl_easy * data,
 		else if(co->expirestr) {
 			/* Note that if the date couldn't get parsed for whatever reason,
 			   the cookie will be treated as a session cookie */
-			co->expires = curl_getdate(co->expirestr, NULL);
+			co->expires = curl_getdate(co->expirestr, 0);
 
 			/* Session cookies have expires set to 0 so if we get that back
 			   from the date parser let's add a second to make it a

@@ -674,7 +674,7 @@ static int xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, in
 		ns = cur->ns;
 	}
 	else {
-		ns = xmlSearchNs(cur->doc, cur, NULL);
+		ns = xmlSearchNs(cur->doc, cur, 0);
 		has_visibly_utilized_empty_ns = 1;
 	}
 	if((ns != NULL) && !xmlC14NIsXmlNs(ns)) {
@@ -1188,36 +1188,34 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent
  */
 static int xmlC14NCheckForRelativeNamespaces(xmlC14NCtxPtr ctx, xmlNodePtr cur)
 {
-	xmlNsPtr ns;
 	if(!ctx || (cur == NULL) || (cur->type != XML_ELEMENT_NODE)) {
 		xmlC14NErrParam("checking for relative namespaces");
 		return -1;
 	}
-	ns = cur->nsDef;
-	while(ns != NULL) {
-		if(sstrlen(ns->href) > 0) {
-			xmlURIPtr uri = xmlParseURI((const char*)ns->href);
-			if(uri == NULL) {
-				xmlC14NErrInternal("parsing namespace uri");
-				return -1;
+	else {
+		for(xmlNs * ns = cur->nsDef; ns; ns = ns->next) {
+			if(sstrlen(ns->href)) {
+				xmlURIPtr uri = xmlParseURI((const char*)ns->href);
+				if(uri == NULL) {
+					xmlC14NErrInternal("parsing namespace uri");
+					return -1;
+				}
+				else if(!sstrlen(uri->scheme)) {
+					xmlC14NErrRelativeNamespace(uri->scheme);
+					xmlFreeURI(uri);
+					return -1;
+				}
+				else if((xmlStrcasecmp((const xmlChar*)uri->scheme, BAD_CAST "urn") != 0) && (xmlStrcasecmp((const xmlChar*)uri->scheme, BAD_CAST "dav") !=0) && !sstrlen(uri->server)) {
+					xmlC14NErrRelativeNamespace(uri->scheme);
+					xmlFreeURI(uri);
+					return -1;
+				}
+				else
+					xmlFreeURI(uri);
 			}
-			if(sstrlen((const xmlChar*)uri->scheme) == 0) {
-				xmlC14NErrRelativeNamespace(uri->scheme);
-				xmlFreeURI(uri);
-				return -1;
-			}
-			if((xmlStrcasecmp((const xmlChar*)uri->scheme, BAD_CAST "urn") != 0)
-			    && (xmlStrcasecmp((const xmlChar*)uri->scheme, BAD_CAST "dav") !=0)
-			    && (sstrlen((const xmlChar*)uri->server) == 0)) {
-				xmlC14NErrRelativeNamespace(uri->scheme);
-				xmlFreeURI(uri);
-				return -1;
-			}
-			xmlFreeURI(uri);
 		}
-		ns = ns->next;
+		return 0;
 	}
-	return 0;
 }
 
 /**

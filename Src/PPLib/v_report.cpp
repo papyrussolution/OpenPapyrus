@@ -733,7 +733,7 @@ int SLAPI PPViewReport::CallCR(long id)
 			setLastSlash(crr_path);
 			strcat(crr_path, "crw32.exe");
 			THROW(GetAltPath(r_rec.Type, r_rec.Path, r_rec.StdName, alt_path));
-			ok = spawnl(_P_NOWAIT, crr_path, (const char*)alt_path, (const char*)alt_path, NULL);
+			ok = spawnl(_P_NOWAIT, crr_path, (const char*)alt_path, (const char*)alt_path, 0);
 		}
 	}
 	CATCHZOK

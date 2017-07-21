@@ -2426,8 +2426,7 @@ int SLAPI PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStruc
 					cstruc_name = gstruc.Rec.Name;
 				else
 					ideqvalstr(gstruc.Rec.ID, cstruc_name = 0);
-				buf.Printf((const char *)msg, (const char*)g_name, (const char*)struc_name,
-					(const char*)cg_name, (const char*)cstruc_name);
+				buf.Printf(msg.cptr(), g_name.cptr(), struc_name.cptr(), cg_name.cptr(), cstruc_name.cptr());
 				if(pLog)
 					pLog->Log(buf);
 			}

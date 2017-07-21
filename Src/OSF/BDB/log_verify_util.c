@@ -192,7 +192,7 @@ static int __lv_seccbk_fname(DB * secdb, const DBT * key, const DBT * data, DBT 
 	char * buf;
 	size_t buflen, slen;
 	ret = tret = 0;
-	COMPQUIET(key, NULL);
+	COMPQUIET(key, 0);
 	if((ret = __lv_unpack_filereg(data, &freg)) != 0)
 		goto out;
 	if(freg->fname == NULL || (slen = strlen(freg->fname)) == 0) {
@@ -215,8 +215,8 @@ out:
 /* Seocndary index callback function for DB_LOG_VRFY_INFO->txnpg. */
 static int __lv_seccbk_txnpg(DB * secdb, const DBT * key, const DBT * data, DBT * result)
 {
-	COMPQUIET(key, NULL);
-	COMPQUIET(secdb, NULL);
+	COMPQUIET(key, 0);
+	COMPQUIET(secdb, 0);
 	/* Txnid is the secondary key, and it's all the data dbt has. */
 	result->data = data->data;
 	result->size = data->size;
@@ -227,8 +227,8 @@ static int __lv_seccbk_txnpg(DB * secdb, const DBT * key, const DBT * data, DBT 
 static int __lv_seccbk_lsn(DB * secdb, const DBT * key, const DBT * data, DBT * result)
 {
 	VRFY_TIMESTAMP_INFO * lvti;
-	COMPQUIET(key, NULL);
-	COMPQUIET(secdb, NULL);
+	COMPQUIET(key, 0);
+	COMPQUIET(secdb, 0);
 	lvti = (VRFY_TIMESTAMP_INFO *)data->data;
 	result->data = &(lvti->timestamp);
 	result->size = sizeof(lvti->timestamp);
@@ -265,7 +265,7 @@ static int __lv_open_db(DB_ENV * dbenv, DB ** dbpp, DB_THREAD_INFO * ip, const c
 	*dbpp = dbp;
 	return 0;
 err:
-	if(dbenv != NULL && ret != 0)
+	if(dbenv && ret != 0)
 		__db_err(dbenv->env, ret, "__lv_open_db");
 	__db_close(dbp, NULL, 0);
 	return ret;
@@ -277,7 +277,7 @@ static int __lv_fidpgno_cmp(DB * db, const DBT * dbt1, const DBT * dbt2)
 	db_pgno_t pgno1, pgno2;
 	int ret;
 	size_t len;
-	COMPQUIET(db, NULL);
+	COMPQUIET(db, 0);
 	len = DB_FILE_ID_LEN;
 	ret = memcmp(dbt1->data, dbt2->data, len);
 	if(ret == 0) {
@@ -292,7 +292,7 @@ static int __lv_fidpgno_cmp(DB * db, const DBT * dbt1, const DBT * dbt2)
 static int __lv_i32_cmp(DB * db, const DBT * dbt1, const DBT * dbt2)
 {
 	int32 k1, k2;
-	COMPQUIET(db, NULL);
+	COMPQUIET(db, 0);
 	memcpy(&k1, dbt1->data, sizeof(k1));
 	memcpy(&k2, dbt2->data, sizeof(k2));
 	return NUMCMP(k1, k2);
@@ -302,7 +302,7 @@ static int __lv_i32_cmp(DB * db, const DBT * dbt1, const DBT * dbt2)
 static int __lv_ui32_cmp(DB * db, const DBT * dbt1, const DBT * dbt2)
 {
 	uint32 k1, k2;
-	COMPQUIET(db, NULL);
+	COMPQUIET(db, 0);
 	memcpy(&k1, dbt1->data, sizeof(k1));
 	memcpy(&k2, dbt2->data, sizeof(k2));
 	return NUMCMP(k1, k2);

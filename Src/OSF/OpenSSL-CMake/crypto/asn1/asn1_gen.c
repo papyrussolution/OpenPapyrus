@@ -75,7 +75,7 @@ ASN1_TYPE * ASN1_generate_nconf(const char * str, CONF * nconf)
 {
 	X509V3_CTX cnf;
 	if(!nconf)
-		return ASN1_generate_v3(str, NULL);
+		return ASN1_generate_v3(str, 0);
 	X509V3_set_nconf(&cnf, nconf);
 	return ASN1_generate_v3(str, &cnf);
 }

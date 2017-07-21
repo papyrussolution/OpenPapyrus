@@ -55,7 +55,7 @@ int __heap_pgout(DB * dbp, db_pgno_t pg, void * pp, DBT * cookie)
 int __heap_mswap(ENV * env, PAGE * pg)
 {
 	uint8 * p;
-	COMPQUIET(env, NULL);
+	COMPQUIET(env, 0);
 	__db_metaswap(pg);
 	p = (uint8 *)pg+sizeof(DBMETA);
 	SWAP32(p);              /* curregion */

@@ -284,8 +284,7 @@ BIO * cms_DigestAlgorithm_init_bio(X509_ALGOR * digestAlgorithm)
 	X509_ALGOR_get0(&digestoid, NULL, NULL, digestAlgorithm);
 	digest = EVP_get_digestbyobj(digestoid);
 	if(!digest) {
-		CMSerr(CMS_F_CMS_DIGESTALGORITHM_INIT_BIO,
-		    CMS_R_UNKNOWN_DIGEST_ALGORIHM);
+		CMSerr(CMS_F_CMS_DIGESTALGORITHM_INIT_BIO, CMS_R_UNKNOWN_DIGEST_ALGORIHM);
 		goto err;
 	}
 	mdbio = BIO_new(BIO_f_md());
@@ -301,8 +300,7 @@ err:
 
 /* Locate a message digest content from a BIO chain based on SignerInfo */
 
-int cms_DigestAlgorithm_find_ctx(EVP_MD_CTX * mctx, BIO * chain,
-    X509_ALGOR * mdalg)
+int cms_DigestAlgorithm_find_ctx(EVP_MD_CTX * mctx, BIO * chain, X509_ALGOR * mdalg)
 {
 	int nid;
 	const ASN1_OBJECT * mdoid;
@@ -313,15 +311,13 @@ int cms_DigestAlgorithm_find_ctx(EVP_MD_CTX * mctx, BIO * chain,
 		EVP_MD_CTX * mtmp;
 		chain = BIO_find_type(chain, BIO_TYPE_MD);
 		if(chain == NULL) {
-			CMSerr(CMS_F_CMS_DIGESTALGORITHM_FIND_CTX,
-			    CMS_R_NO_MATCHING_DIGEST);
+			CMSerr(CMS_F_CMS_DIGESTALGORITHM_FIND_CTX, CMS_R_NO_MATCHING_DIGEST);
 			return 0;
 		}
 		BIO_get_md_ctx(chain, &mtmp);
 		if(EVP_MD_CTX_type(mtmp) == nid
 		    /*
-		     * Workaround for broken implementations that use signature
-		     * algorithm OID instead of digest.
+		     * Workaround for broken implementations that use signature algorithm OID instead of digest.
 		     */
 		    || EVP_MD_pkey_type(EVP_MD_CTX_md(mtmp)) == nid)
 			return EVP_MD_CTX_copy_ex(mctx, mtmp);

@@ -363,7 +363,7 @@ master:         LOG_SYSTEM_LOCK(env);
 	rep->vote1.data_gen = data_gen;
 	REP_SYSTEM_UNLOCK(env);
 	__rep_send_vote(env, &lsn, nsites, ack, priority, tiebreaker, egen, data_gen, DB_EID_BROADCAST, REP_VOTE1, ctlflags);
-	DB_ENV_TEST_RECOVERY(env, DB_TEST_ELECTVOTE1, ret, NULL);
+	DB_ENV_TEST_RECOVERY(env, DB_TEST_ELECTVOTE1, ret, 0);
 	if(done) {
 		REP_SYSTEM_LOCK(env);
 		goto vote;
@@ -991,7 +991,7 @@ static int __rep_elect_init(ENV * env, uint32 nsites, uint32 nvotes, int * begin
 		 */
 		if(nsites > rep->asites && (ret = __rep_grow_sites(env, nsites)) != 0)
 			goto err;
-		DB_ENV_TEST_RECOVERY(env, DB_TEST_ELECTINIT, ret, NULL);
+		DB_ENV_TEST_RECOVERY(env, DB_TEST_ELECTINIT, ret, 0);
 		rep->spent_egen = rep->egen;
 		STAT_INC(env, rep, election, rep->stat.st_elections, rep->egen);
 		/*
@@ -1035,7 +1035,7 @@ static int __rep_fire_elected(ENV*env, REP * rep, uint32 egen)
 {
 	REP_EVENT_LOCK(env);
 	if(rep->notified_egen < egen) {
-		__rep_fire_event(env, DB_EVENT_REP_ELECTED, NULL);
+		__rep_fire_event(env, DB_EVENT_REP_ELECTED, 0);
 		rep->notified_egen = egen;
 	}
 	REP_EVENT_UNLOCK(env);

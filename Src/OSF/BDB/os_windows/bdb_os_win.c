@@ -60,7 +60,7 @@ int __os_mkdir(ENV * env, const char * name, int mode)
 	DB_ENV * dbenv = env ? env->dbenv : 0;
 	_TCHAR * tname;
 	int ret;
-	if(dbenv != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
+	if(dbenv && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR_A("0013", "fileops: mkdir %s", "%s"), name);
 	/* Make the directory, with paranoid permissions. */
 	TO_TSTRING(env, name, tname, ret);
@@ -634,7 +634,7 @@ char * __os_strerror(int error, char * buf, size_t len)
 	DB_ASSERT(NULL, error != 0);
 	memzero(tbuf, sizeof(_TCHAR)*MAX_TMPBUF_LEN);
 	maxlen = (len > MAX_TMPBUF_LEN ? MAX_TMPBUF_LEN : len);
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, (DWORD)error, 0, tbuf, maxlen-1, NULL);
+	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, (DWORD)error, 0, tbuf, maxlen-1, 0);
 	if(WideCharToMultiByte(CP_UTF8, 0, tbuf, -1, buf, len, 0, NULL) == 0)
 		strncpy(buf, DB_STR("0035", "Error message translation failed."), len);
 #else
@@ -643,7 +643,7 @@ char * __os_strerror(int error, char * buf, size_t len)
 	 * Explicitly call FormatMessageA, since we want to receive a char
 	 * string back, not a tchar string.
 	 */
-	FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, 0, (DWORD)error, 0, buf, (DWORD)(len-1), NULL);
+	FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, 0, (DWORD)error, 0, buf, (DWORD)(len-1), 0);
 	buf[len-1] = '\0';
 #endif
 	return buf;
@@ -982,7 +982,7 @@ int __os_fileid(ENV * env, const char * fname, int unique_okay, uint8 * fidp)
 		 * base 2.
 		 */
 		if(DB_GLOBAL(fid_serial) == 0) {
-			__os_id(env->dbenv, &pid, NULL);
+			__os_id(env->dbenv, &pid, 0);
 			DB_GLOBAL(fid_serial) = (uint32)pid;
 		}
 		else
@@ -1016,7 +1016,7 @@ int __os_fdlock(ENV * env, DB_FH * fhp, off_t offset, int acquire, int nowait)
 	int ret;
 	DB_ENV * dbenv = env ? env->dbenv : 0;
 	DB_ASSERT(env, F_ISSET(fhp, DB_FH_OPENED) && fhp->handle != INVALID_HANDLE_VALUE);
-	if(dbenv != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))
+	if(dbenv && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR_A("0020", "fileops: flock %s %s offset %lu", "%s %s %lu"),
 			fhp->name, acquire ? DB_STR_P("acquire") : DB_STR_P("release"), (ulong)offset);
 	/*
@@ -1064,7 +1064,7 @@ int __os_fsync(ENV * env, DB_FH * fhp)
 	//
 	if(F_ISSET(fhp, DB_FH_NOSYNC))
 		return 0;
-	if(dbenv != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))
+	if(dbenv && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR_A("0023", "fileops: flush %s", "%s"), fhp->name);
 	RETRY_CHK((!FlushFileBuffers(fhp->handle)), ret);
 	if(ret != 0) {
@@ -1079,7 +1079,7 @@ int __os_fsync(ENV * env, DB_FH * fhp)
 int __os_getenv(ENV * env, const char * name, char ** bpp, size_t buflen)
 {
 #ifdef DB_WINCE
-	COMPQUIET(name, NULL);
+	COMPQUIET(name, 0);
 	/* WinCE does not have a getenv implementation. */
 	return 0;
 #else
@@ -1390,7 +1390,7 @@ int __os_mapfile(ENV*env, char * path, DB_FH * fhp, size_t len, int is_rdonly, v
 	return EFAULT;
 #else
 	DB_ENV * dbenv = env ? env->dbenv : 0;
-	if(dbenv != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
+	if(dbenv && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR_A("0008", "fileops: mmap %s", "%s"), path);
 	return __os_map(env, path, NULL, fhp, len, 0, 0, is_rdonly, addr);
 #endif
@@ -1402,7 +1402,7 @@ int __os_mapfile(ENV*env, char * path, DB_FH * fhp, size_t len, int is_rdonly, v
 int __os_unmapfile(ENV*env, void * addr, size_t len)
 {
 	DB_ENV * dbenv = env ? env->dbenv : 0;
-	if(dbenv != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
+	if(dbenv && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR("0009", "fileops: munmap"));
 	return !UnmapViewOfFile(addr) ? __os_posix_err(__os_get_syserr()) : 0;
 }
@@ -1532,7 +1532,7 @@ static int __os_map(ENV * env, char * path, REGINFO * infop, DB_FH * fhp, size_t
 #endif
 	}
 	else {
-		hMemory = CreateFileMapping(fhp->handle, 0, is_rdonly ? PAGE_READONLY : PAGE_READWRITE, (DWORD)(len64>>32), (DWORD)len64, NULL);
+		hMemory = CreateFileMapping(fhp->handle, 0, is_rdonly ? PAGE_READONLY : PAGE_READWRITE, (DWORD)(len64>>32), (DWORD)len64, 0);
 #ifdef DB_WINCE
 		/*
 		 * WinCE automatically closes the handle passed in.
@@ -1627,7 +1627,7 @@ int __os_io(ENV * env, int op, DB_FH * fhp, db_pgno_t pgno, uint32 pgsize, uint3
 		over.Offset = (DWORD)(off&0xffffffff);
 		over.OffsetHigh = (DWORD)(off>>32);
 		over.hEvent = 0; /* we don't want asynchronous notifications */
-		if(dbenv != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))
+		if(dbenv && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))
 			__db_msg(env, DB_STR_A("0014", "fileops: %s %s: %lu bytes at offset %lu", "%s %s %lu %lu"), op == DB_IO_READ ?
 				DB_STR_P("read") : DB_STR_P("write"), fhp->name, (ulong)io_len, (ulong)off);
 		LAST_PANIC_CHECK_BEFORE_IO(env);
@@ -1682,7 +1682,7 @@ int __os_read(ENV * env, DB_FH * fhp, void * addr, size_t len, size_t * nrp)
 #if defined(HAVE_STATISTICS)
 	++fhp->read_count;
 #endif
-	if(dbenv != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))
+	if(dbenv && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR_A("0015", "fileops: read %s: %lu bytes", "%s %lu"), fhp->name, (ulong)len);
 	for(taddr = (uint8 *)addr, offset = 0; offset < len; taddr += nr, offset += nr) {
 		LAST_PANIC_CHECK_BEFORE_IO(env);
@@ -1724,7 +1724,7 @@ int __os_physwrite(ENV * env, DB_FH * fhp, void * addr, size_t len, size_t * nwp
 #if defined(HAVE_STATISTICS)
 	++fhp->write_count;
 #endif
-	if(dbenv != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))
+	if(dbenv && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR_A("0017", "fileops: write %s: %lu bytes", "%s %lu"), fhp->name, (ulong)len);
 	for(taddr = (uint8 *)addr, offset = 0; offset < len; taddr += nw, offset += nw) {
 		LAST_PANIC_CHECK_BEFORE_IO(env);
@@ -1737,7 +1737,7 @@ int __os_physwrite(ENV * env, DB_FH * fhp, void * addr, size_t len, size_t * nwp
 	if(ret != 0) {
 		__db_syserr(env, ret, DB_STR_A("0018", "write: %#lx, %lu", "%#lx %lu"), P_TO_ULONG(taddr), (ulong)len-offset);
 		ret = __os_posix_err(ret);
-		DB_EVENT(env, DB_EVENT_WRITE_FAILED, NULL);
+		DB_EVENT(env, DB_EVENT_WRITE_FAILED, 0);
 	}
 	return ret;
 }
@@ -1761,7 +1761,7 @@ int __os_seek(ENV * env, DB_FH * fhp, db_pgno_t pgno, uint32 pgsize, off_t relat
 	++fhp->seek_count;
 #endif
 	offset = (off_t)pgsize*pgno+relative;
-	if(dbenv != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))
+	if(dbenv && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR_A("0038", "fileops: seek %s to %lu", "%s %lu"), fhp->name, (ulong)offset);
 	offbytes.bigint = offset;
 	ret = (SetFilePointer(fhp->handle, offbytes.low, &offbytes.high, FILE_BEGIN) == (DWORD)-1) ? __os_get_syserr() : 0;
@@ -1833,7 +1833,7 @@ int __os_get_cluster_size(const char * path, uint32 * psize)
 	/* Create a handle to the volume. */
 	vhandle = CreateFile(name_buffer, FILE_READ_ATTRIBUTES|FILE_READ_DATA,
 		FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL, NULL);
+		FILE_ATTRIBUTE_NORMAL, 0);
 	/* If open failed, return error */
 	if(vhandle == INVALID_HANDLE_VALUE)
 		return __os_posix_err(__os_get_syserr());
@@ -1911,7 +1911,7 @@ int __os_exists(ENV * env, const char * path, int * isdirp)
 	TO_TSTRING(env, path, tpath, ret);
 	if(ret != 0)
 		return ret;
-	if(dbenv != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
+	if(dbenv && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR_A("0033", "fileops: stat %s", "%s"), path);
 	RETRY_CHK(((attrs = GetFileAttributes(tpath)) == (DWORD)-1 ? 1 : 0), ret);
 	if(ret == 0) {
@@ -1975,7 +1975,7 @@ int __os_truncate(ENV * env, DB_FH * fhp, db_pgno_t pgno, uint32 pgsize)
 	DB_ENV * dbenv = env ? env->dbenv : 0;
 	off_t offset = (off_t)pgsize*pgno;
 	int ret = 0;
-	if(dbenv != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
+	if(dbenv && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR_A("0021", "fileops: truncate %s to %lu", "%s %lu"), fhp->name, (ulong)offset);
 #ifdef HAVE_FILESYSTEM_NOTZERO
 	/*
@@ -2115,7 +2115,7 @@ skipdel:
 //
 void __os_yield(ENV * env, ulong secs, ulong usecs /* Seconds and microseconds. */)
 {
-	COMPQUIET(env, NULL);
+	COMPQUIET(env, 0);
 	/* Don't require the values be normalized. */
 	for(; usecs >= US_PER_SEC; usecs -= US_PER_SEC)
 		++secs;

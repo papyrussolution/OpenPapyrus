@@ -147,9 +147,9 @@ const char *OpenSSL_version(int type);
 
 int OPENSSL_issetugid(void);
 
-typedef void CRYPTO_EX_new (void *parent, void *ptr, CRYPTO_EX_DATA *ad, int idx, long argl, void *argp);
-typedef void CRYPTO_EX_free (void *parent, void *ptr, CRYPTO_EX_DATA *ad, int idx, long argl, void *argp);
-typedef int CRYPTO_EX_dup (CRYPTO_EX_DATA *to, const CRYPTO_EX_DATA *from, void *srcp, int idx, long argl, void *argp);
+typedef void CRYPTO_EX_new(void *parent, void *ptr, CRYPTO_EX_DATA *ad, int idx, long argl, void *argp);
+typedef void CRYPTO_EX_free(void *parent, void *ptr, CRYPTO_EX_DATA *ad, int idx, long argl, void *argp);
+typedef int CRYPTO_EX_dup(CRYPTO_EX_DATA *to, const CRYPTO_EX_DATA *from, void *srcp, int idx, long argl, void *argp);
 __owur int CRYPTO_get_ex_new_index(int class_index, long argl, void *argp, CRYPTO_EX_new *new_func, CRYPTO_EX_dup *dup_func, CRYPTO_EX_free *free_func);
 /* No longer use an index. */
 int CRYPTO_free_ex_index(int class_index, int idx);
@@ -322,11 +322,7 @@ int CRYPTO_memcmp(const volatile void * volatile in_a, const volatile void * vol
 /* Max OPENSSL_INIT flag value is 0x80000000 */
 
 /* openssl and dasync not counted as builtin */
-# define OPENSSL_INIT_ENGINE_ALL_BUILTIN \
-    (OPENSSL_INIT_ENGINE_RDRAND | OPENSSL_INIT_ENGINE_DYNAMIC \
-    | OPENSSL_INIT_ENGINE_CRYPTODEV | OPENSSL_INIT_ENGINE_CAPI | \
-    OPENSSL_INIT_ENGINE_PADLOCK)
-
+#define OPENSSL_INIT_ENGINE_ALL_BUILTIN (OPENSSL_INIT_ENGINE_RDRAND|OPENSSL_INIT_ENGINE_DYNAMIC|OPENSSL_INIT_ENGINE_CRYPTODEV|OPENSSL_INIT_ENGINE_CAPI|OPENSSL_INIT_ENGINE_PADLOCK)
 
 /* Library initialisation functions */
 void OPENSSL_cleanup(void);

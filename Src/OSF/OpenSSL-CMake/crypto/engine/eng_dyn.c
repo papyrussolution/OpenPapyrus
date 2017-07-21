@@ -406,7 +406,7 @@ static int dynamic_load(ENGINE * e, dynamic_data_ctx * ctx)
 		if(!ctx->engine_id)
 			return 0;
 		DSO_ctrl(ctx->dynamic_dso, DSO_CTRL_SET_FLAGS,
-		    DSO_FLAG_NAME_TRANSLATION_EXT_ONLY, NULL);
+		    DSO_FLAG_NAME_TRANSLATION_EXT_ONLY, 0);
 		ctx->DYNAMIC_LIBNAME =
 		    DSO_convert_filename(ctx->dynamic_dso, ctx->engine_id);
 	}

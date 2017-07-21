@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "internal/x509_int.h"
+//#include "internal/x509_int.h"
 #include "x509_lcl.h"
 
 X509_LOOKUP * X509_LOOKUP_new(X509_LOOKUP_METHOD * method)
@@ -441,7 +441,7 @@ static int x509_object_idx_cnt(STACK_OF(X509_OBJECT) * h, X509_LOOKUP_TYPE type,
 
 int X509_OBJECT_idx_by_subject(STACK_OF(X509_OBJECT) * h, X509_LOOKUP_TYPE type, X509_NAME * name)
 {
-	return x509_object_idx_cnt(h, type, name, NULL);
+	return x509_object_idx_cnt(h, type, name, 0);
 }
 
 X509_OBJECT * X509_OBJECT_retrieve_by_subject(STACK_OF(X509_OBJECT) * h, X509_LOOKUP_TYPE type, X509_NAME * name)

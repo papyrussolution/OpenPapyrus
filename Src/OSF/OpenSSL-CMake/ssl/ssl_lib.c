@@ -485,7 +485,7 @@ int SSL_clear(SSL * s)
 	s->dane.mtlsa = NULL;
 
 	/* Clear the verification result peername */
-	X509_VERIFY_PARAM_move_peername(s->param, NULL);
+	X509_VERIFY_PARAM_move_peername(s->param, 0);
 
 	/*
 	 * Check to see if we were changed into a different method, if so, revert
@@ -4244,9 +4244,9 @@ int SSL_CTX_enable_ct(SSL_CTX * ctx, int validation_mode)
 		    SSLerr(SSL_F_SSL_CTX_ENABLE_CT, SSL_R_INVALID_CT_VALIDATION_TYPE);
 		    return 0;
 		case SSL_CT_VALIDATION_PERMISSIVE:
-		    return SSL_CTX_set_ct_validation_callback(ctx, ct_permissive, NULL);
+		    return SSL_CTX_set_ct_validation_callback(ctx, ct_permissive, 0);
 		case SSL_CT_VALIDATION_STRICT:
-		    return SSL_CTX_set_ct_validation_callback(ctx, ct_strict, NULL);
+		    return SSL_CTX_set_ct_validation_callback(ctx, ct_strict, 0);
 	}
 }
 
@@ -4257,9 +4257,9 @@ int SSL_enable_ct(SSL * s, int validation_mode)
 		    SSLerr(SSL_F_SSL_ENABLE_CT, SSL_R_INVALID_CT_VALIDATION_TYPE);
 		    return 0;
 		case SSL_CT_VALIDATION_PERMISSIVE:
-		    return SSL_set_ct_validation_callback(s, ct_permissive, NULL);
+		    return SSL_set_ct_validation_callback(s, ct_permissive, 0);
 		case SSL_CT_VALIDATION_STRICT:
-		    return SSL_set_ct_validation_callback(s, ct_strict, NULL);
+		    return SSL_set_ct_validation_callback(s, ct_strict, 0);
 	}
 }
 

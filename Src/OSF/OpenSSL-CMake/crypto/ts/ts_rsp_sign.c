@@ -264,23 +264,19 @@ void TS_RESP_CTX_set_extension_cb(TS_RESP_CTX * ctx,
 	ctx->extension_cb_data = data;
 }
 
-int TS_RESP_CTX_set_status_info(TS_RESP_CTX * ctx,
-    int status, const char * text)
+int TS_RESP_CTX_set_status_info(TS_RESP_CTX * ctx, int status, const char * text)
 {
 	TS_STATUS_INFO * si = NULL;
 	ASN1_UTF8STRING * utf8_text = NULL;
 	int ret = 0;
-
 	if((si = TS_STATUS_INFO_new()) == NULL)
 		goto err;
 	if(!ASN1_INTEGER_set(si->status, status))
 		goto err;
 	if(text) {
-		if((utf8_text = ASN1_UTF8STRING_new()) == NULL
-		    || !ASN1_STRING_set(utf8_text, text, strlen(text)))
+		if((utf8_text = ASN1_UTF8STRING_new()) == NULL || !ASN1_STRING_set(utf8_text, text, strlen(text)))
 			goto err;
-		if(si->text == NULL
-		    && (si->text = sk_ASN1_UTF8STRING_new_null()) == NULL)
+		if(si->text == NULL && (si->text = sk_ASN1_UTF8STRING_new_null()) == NULL)
 			goto err;
 		if(!sk_ASN1_UTF8STRING_push(si->text, utf8_text))
 			goto err;
@@ -297,12 +293,10 @@ err:
 	return ret;
 }
 
-int TS_RESP_CTX_set_status_info_cond(TS_RESP_CTX * ctx,
-    int status, const char * text)
+int TS_RESP_CTX_set_status_info_cond(TS_RESP_CTX * ctx, int status, const char * text)
 {
 	int ret = 1;
 	TS_STATUS_INFO * si = ctx->response->status_info;
-
 	if(ASN1_INTEGER_get(si->status) == TS_STATUS_GRANTED) {
 		ret = TS_RESP_CTX_set_status_info(ctx, status, text);
 	}
@@ -312,8 +306,7 @@ int TS_RESP_CTX_set_status_info_cond(TS_RESP_CTX * ctx,
 int TS_RESP_CTX_add_failure_info(TS_RESP_CTX * ctx, int failure)
 {
 	TS_STATUS_INFO * si = ctx->response->status_info;
-	if(si->failure_info == NULL
-	    && (si->failure_info = ASN1_BIT_STRING_new()) == NULL)
+	if(si->failure_info == NULL && (si->failure_info = ASN1_BIT_STRING_new()) == NULL)
 		goto err;
 	if(!ASN1_BIT_STRING_set_bit(si->failure_info, failure, 1))
 		goto err;
@@ -333,8 +326,7 @@ TS_TST_INFO * TS_RESP_CTX_get_tst_info(TS_RESP_CTX * ctx)
 	return ctx->tst_info;
 }
 
-int TS_RESP_CTX_set_clock_precision_digits(TS_RESP_CTX * ctx,
-    unsigned precision)
+int TS_RESP_CTX_set_clock_precision_digits(TS_RESP_CTX * ctx, unsigned precision)
 {
 	if(precision > TS_MAX_CLOCK_PRECISION_DIGITS)
 		return 0;
@@ -348,16 +340,13 @@ TS_RESP * TS_RESP_create_response(TS_RESP_CTX * ctx, BIO * req_bio)
 	ASN1_OBJECT * policy;
 	TS_RESP * response;
 	int result = 0;
-
 	ts_RESP_CTX_init(ctx);
-
 	if((ctx->response = TS_RESP_new()) == NULL) {
 		TSerr(TS_F_TS_RESP_CREATE_RESPONSE, ERR_R_MALLOC_FAILURE);
 		goto end;
 	}
 	if((ctx->request = d2i_TS_REQ_bio(req_bio, NULL)) == NULL) {
-		TS_RESP_CTX_set_status_info(ctx, TS_STATUS_REJECTION,
-		    "Bad request format or system error.");
+		TS_RESP_CTX_set_status_info(ctx, TS_STATUS_REJECTION, "Bad request format or system error.");
 		TS_RESP_CTX_add_failure_info(ctx, TS_INFO_BAD_DATA_FORMAT);
 		goto end;
 	}
@@ -379,10 +368,7 @@ end:
 	if(!result) {
 		TSerr(TS_F_TS_RESP_CREATE_RESPONSE, TS_R_RESPONSE_SETUP_ERROR);
 		if(ctx->response != NULL) {
-			if(TS_RESP_CTX_set_status_info_cond(ctx,
-				    TS_STATUS_REJECTION,
-				    "Error during response "
-				    "generation.") == 0) {
+			if(TS_RESP_CTX_set_status_info_cond(ctx, TS_STATUS_REJECTION, "Error during response generation.") == 0) {
 				TS_RESP_free(ctx->response);
 				ctx->response = NULL;
 			}
@@ -423,10 +409,8 @@ static int ts_RESP_check_request(TS_RESP_CTX * ctx)
 	const ASN1_OCTET_STRING * digest;
 	const EVP_MD * md = NULL;
 	int i;
-
 	if(TS_REQ_get_version(request) != 1) {
-		TS_RESP_CTX_set_status_info(ctx, TS_STATUS_REJECTION,
-		    "Bad request version.");
+		TS_RESP_CTX_set_status_info(ctx, TS_STATUS_REJECTION, "Bad request version.");
 		TS_RESP_CTX_add_failure_info(ctx, TS_INFO_BAD_REQUEST);
 		return 0;
 	}
@@ -440,28 +424,21 @@ static int ts_RESP_check_request(TS_RESP_CTX * ctx)
 			md = current_md;
 	}
 	if(!md) {
-		TS_RESP_CTX_set_status_info(ctx, TS_STATUS_REJECTION,
-		    "Message digest algorithm is "
-		    "not supported.");
+		TS_RESP_CTX_set_status_info(ctx, TS_STATUS_REJECTION, "Message digest algorithm is not supported.");
 		TS_RESP_CTX_add_failure_info(ctx, TS_INFO_BAD_ALG);
 		return 0;
 	}
-
 	if(md_alg->parameter && ASN1_TYPE_get(md_alg->parameter) != V_ASN1_NULL) {
-		TS_RESP_CTX_set_status_info(ctx, TS_STATUS_REJECTION,
-		    "Superfluous message digest "
-		    "parameter.");
+		TS_RESP_CTX_set_status_info(ctx, TS_STATUS_REJECTION, "Superfluous message digest parameter.");
 		TS_RESP_CTX_add_failure_info(ctx, TS_INFO_BAD_ALG);
 		return 0;
 	}
 	digest = msg_imprint->hashed_msg;
 	if(digest->length != EVP_MD_size(md)) {
-		TS_RESP_CTX_set_status_info(ctx, TS_STATUS_REJECTION,
-		    "Bad message digest.");
+		TS_RESP_CTX_set_status_info(ctx, TS_STATUS_REJECTION, "Bad message digest.");
 		TS_RESP_CTX_add_failure_info(ctx, TS_INFO_BAD_DATA_FORMAT);
 		return 0;
 	}
-
 	return 1;
 }
 
@@ -471,7 +448,6 @@ static ASN1_OBJECT * ts_RESP_get_policy(TS_RESP_CTX * ctx)
 	ASN1_OBJECT * requested = ctx->request->policy_id;
 	ASN1_OBJECT * policy = NULL;
 	int i;
-
 	if(ctx->default_policy == NULL) {
 		TSerr(TS_F_TS_RESP_GET_POLICY, TS_R_INVALID_NULL_POINTER);
 		return NULL;
@@ -487,16 +463,14 @@ static ASN1_OBJECT * ts_RESP_get_policy(TS_RESP_CTX * ctx)
 	}
 	if(!policy) {
 		TSerr(TS_F_TS_RESP_GET_POLICY, TS_R_UNACCEPTABLE_POLICY);
-		TS_RESP_CTX_set_status_info(ctx, TS_STATUS_REJECTION,
-		    "Requested policy is not " "supported.");
+		TS_RESP_CTX_set_status_info(ctx, TS_STATUS_REJECTION, "Requested policy is not supported.");
 		TS_RESP_CTX_add_failure_info(ctx, TS_INFO_UNACCEPTED_POLICY);
 	}
 	return policy;
 }
 
 /* Creates the TS_TST_INFO object based on the settings of the context. */
-static TS_TST_INFO * ts_RESP_create_tst_info(TS_RESP_CTX * ctx,
-    ASN1_OBJECT * policy)
+static TS_TST_INFO * ts_RESP_create_tst_info(TS_RESP_CTX * ctx, ASN1_OBJECT * policy)
 {
 	int result = 0;
 	TS_TST_INFO * tst_info = NULL;
@@ -506,7 +480,6 @@ static TS_TST_INFO * ts_RESP_create_tst_info(TS_RESP_CTX * ctx,
 	TS_ACCURACY * accuracy = NULL;
 	const ASN1_INTEGER * nonce;
 	GENERAL_NAME * tsa_name = NULL;
-
 	if((tst_info = TS_TST_INFO_new()) == NULL)
 		goto end;
 	if(!TS_TST_INFO_set_version(tst_info, 1))
@@ -515,18 +488,11 @@ static TS_TST_INFO * ts_RESP_create_tst_info(TS_RESP_CTX * ctx,
 		goto end;
 	if(!TS_TST_INFO_set_msg_imprint(tst_info, ctx->request->msg_imprint))
 		goto end;
-	if((serial = ctx->serial_cb(ctx, ctx->serial_cb_data)) == NULL
-	    || !TS_TST_INFO_set_serial(tst_info, serial))
+	if((serial = ctx->serial_cb(ctx, ctx->serial_cb_data)) == NULL || !TS_TST_INFO_set_serial(tst_info, serial))
 		goto end;
-	if(!ctx->time_cb(ctx, ctx->time_cb_data, &sec, &usec)
-	    || (asn1_time =
-			    TS_RESP_set_genTime_with_precision(NULL, sec, usec,
-			    ctx->clock_precision_digits)) == NULL
-	    || !TS_TST_INFO_set_time(tst_info, asn1_time))
+	if(!ctx->time_cb(ctx, ctx->time_cb_data, &sec, &usec) || (asn1_time = TS_RESP_set_genTime_with_precision(NULL, sec, usec, ctx->clock_precision_digits)) == NULL || !TS_TST_INFO_set_time(tst_info, asn1_time))
 		goto end;
-
-	if((ctx->seconds || ctx->millis || ctx->micros)
-	    && (accuracy = TS_ACCURACY_new()) == NULL)
+	if((ctx->seconds || ctx->millis || ctx->micros) && (accuracy = TS_ACCURACY_new()) == NULL)
 		goto end;
 	if(ctx->seconds && !TS_ACCURACY_set_seconds(accuracy, ctx->seconds))
 		goto end;
@@ -536,53 +502,41 @@ static TS_TST_INFO * ts_RESP_create_tst_info(TS_RESP_CTX * ctx,
 		goto end;
 	if(accuracy && !TS_TST_INFO_set_accuracy(tst_info, accuracy))
 		goto end;
-
-	if((ctx->flags & TS_ORDERING)
-	    && !TS_TST_INFO_set_ordering(tst_info, 1))
+	if((ctx->flags & TS_ORDERING) && !TS_TST_INFO_set_ordering(tst_info, 1))
 		goto end;
-
-	if((nonce = ctx->request->nonce) != NULL
-	    && !TS_TST_INFO_set_nonce(tst_info, nonce))
+	if((nonce = ctx->request->nonce) != NULL && !TS_TST_INFO_set_nonce(tst_info, nonce))
 		goto end;
-
 	if(ctx->flags & TS_TSA_NAME) {
 		if((tsa_name = GENERAL_NAME_new()) == NULL)
 			goto end;
 		tsa_name->type = GEN_DIRNAME;
-		tsa_name->d.dirn =
-		    X509_NAME_dup(X509_get_subject_name(ctx->signer_cert));
+		tsa_name->d.dirn = X509_NAME_dup(X509_get_subject_name(ctx->signer_cert));
 		if(!tsa_name->d.dirn)
 			goto end;
 		if(!TS_TST_INFO_set_tsa(tst_info, tsa_name))
 			goto end;
 	}
-
 	result = 1;
 end:
 	if(!result) {
 		TS_TST_INFO_free(tst_info);
 		tst_info = NULL;
 		TSerr(TS_F_TS_RESP_CREATE_TST_INFO, TS_R_TST_INFO_SETUP_ERROR);
-		TS_RESP_CTX_set_status_info_cond(ctx, TS_STATUS_REJECTION,
-		    "Error during TSTInfo "
-		    "generation.");
+		TS_RESP_CTX_set_status_info_cond(ctx, TS_STATUS_REJECTION, "Error during TSTInfo generation.");
 	}
 	GENERAL_NAME_free(tsa_name);
 	TS_ACCURACY_free(accuracy);
 	ASN1_GENERALIZEDTIME_free(asn1_time);
 	ASN1_INTEGER_free(serial);
-
 	return tst_info;
 }
 
 /* Processing the extensions of the request. */
 static int ts_RESP_process_extensions(TS_RESP_CTX * ctx)
 {
-	STACK_OF(X509_EXTENSION) *exts = ctx->request->extensions;
-	int i;
+	STACK_OF(X509_EXTENSION) * exts = ctx->request->extensions;
 	int ok = 1;
-
-	for(i = 0; ok && i < sk_X509_EXTENSION_num(exts); ++i) {
+	for(int i = 0; ok && i < sk_X509_EXTENSION_num(exts); ++i) {
 		X509_EXTENSION * ext = sk_X509_EXTENSION_value(exts, i);
 		/*
 		 * The last argument was previously (void *)ctx->extension_cb,
@@ -590,9 +544,8 @@ static int ts_RESP_process_extensions(TS_RESP_CTX * ctx)
 		 * For lack of better information, I'm placing a NULL there instead.
 		 * The callback can pick its own address out from the ctx anyway...
 		 */
-		ok = (*ctx->extension_cb)(ctx, ext, NULL);
+		ok = (*ctx->extension_cb)(ctx, ext, 0);
 	}
-
 	return ok;
 }
 
@@ -607,12 +560,10 @@ static int ts_RESP_sign(TS_RESP_CTX * ctx)
 	ASN1_OBJECT * oid;
 	BIO * p7bio = NULL;
 	int i;
-
 	if(!X509_check_private_key(ctx->signer_cert, ctx->signer_key)) {
 		TSerr(TS_F_TS_RESP_SIGN, TS_R_PRIVATE_KEY_DOES_NOT_MATCH_CERTIFICATE);
 		goto err;
 	}
-
 	if((p7 = PKCS7_new()) == NULL) {
 		TSerr(TS_F_TS_RESP_SIGN, ERR_R_MALLOC_FAILURE);
 		goto err;
@@ -631,20 +582,15 @@ static int ts_RESP_sign(TS_RESP_CTX * ctx)
 			}
 		}
 	}
-
-	if((si = PKCS7_add_signature(p7, ctx->signer_cert,
-			    ctx->signer_key, ctx->signer_md)) == NULL) {
+	if((si = PKCS7_add_signature(p7, ctx->signer_cert, ctx->signer_key, ctx->signer_md)) == NULL) {
 		TSerr(TS_F_TS_RESP_SIGN, TS_R_PKCS7_ADD_SIGNATURE_ERROR);
 		goto err;
 	}
-
 	oid = OBJ_nid2obj(NID_id_smime_ct_TSTInfo);
-	if(!PKCS7_add_signed_attribute(si, NID_pkcs9_contentType,
-		    V_ASN1_OBJECT, oid)) {
+	if(!PKCS7_add_signed_attribute(si, NID_pkcs9_contentType, V_ASN1_OBJECT, oid)) {
 		TSerr(TS_F_TS_RESP_SIGN, TS_R_PKCS7_ADD_SIGNED_ATTR_ERROR);
 		goto err;
 	}
-
 	certs = ctx->flags & TS_ESS_CERT_ID_CHAIN ? ctx->certs : NULL;
 	if((sc = ess_SIGNING_CERT_new_init(ctx->signer_cert, certs)) == NULL)
 		goto err;
@@ -652,7 +598,6 @@ static int ts_RESP_sign(TS_RESP_CTX * ctx)
 		TSerr(TS_F_TS_RESP_SIGN, TS_R_ESS_ADD_SIGNING_CERT_ERROR);
 		goto err;
 	}
-
 	if(!ts_TST_INFO_content_new(p7))
 		goto err;
 	if((p7bio = PKCS7_dataInit(p7, NULL)) == NULL) {
@@ -670,42 +615,32 @@ static int ts_RESP_sign(TS_RESP_CTX * ctx)
 	TS_RESP_set_tst_info(ctx->response, p7, ctx->tst_info);
 	p7 = NULL;              /* Ownership is lost. */
 	ctx->tst_info = NULL;   /* Ownership is lost. */
-
 	ret = 1;
 err:
 	if(!ret)
-		TS_RESP_CTX_set_status_info_cond(ctx, TS_STATUS_REJECTION,
-		    "Error during signature "
-		    "generation.");
+		TS_RESP_CTX_set_status_info_cond(ctx, TS_STATUS_REJECTION, "Error during signature generation.");
 	BIO_free_all(p7bio);
 	ESS_SIGNING_CERT_free(sc);
 	PKCS7_free(p7);
 	return ret;
 }
 
-static ESS_SIGNING_CERT * ess_SIGNING_CERT_new_init(X509 * signcert,
-    STACK_OF(X509) * certs)
+static ESS_SIGNING_CERT * ess_SIGNING_CERT_new_init(X509 * signcert, STACK_OF(X509) * certs)
 {
 	ESS_CERT_ID * cid;
 	ESS_SIGNING_CERT * sc = NULL;
 	int i;
-
 	if((sc = ESS_SIGNING_CERT_new()) == NULL)
 		goto err;
-	if(sc->cert_ids == NULL
-	    && (sc->cert_ids = sk_ESS_CERT_ID_new_null()) == NULL)
+	if(sc->cert_ids == NULL && (sc->cert_ids = sk_ESS_CERT_ID_new_null()) == NULL)
 		goto err;
-
-	if((cid = ess_CERT_ID_new_init(signcert, 0)) == NULL
-	    || !sk_ESS_CERT_ID_push(sc->cert_ids, cid))
+	if((cid = ess_CERT_ID_new_init(signcert, 0)) == NULL || !sk_ESS_CERT_ID_push(sc->cert_ids, cid))
 		goto err;
 	for(i = 0; i < sk_X509_num(certs); ++i) {
 		X509 * cert = sk_X509_value(certs, i);
-		if((cid = ess_CERT_ID_new_init(cert, 1)) == NULL
-		    || !sk_ESS_CERT_ID_push(sc->cert_ids, cid))
+		if((cid = ess_CERT_ID_new_init(cert, 1)) == NULL || !sk_ESS_CERT_ID_push(sc->cert_ids, cid))
 			goto err;
 	}
-
 	return sc;
 err:
 	ESS_SIGNING_CERT_free(sc);
@@ -718,19 +653,17 @@ static ESS_CERT_ID * ess_CERT_ID_new_init(X509 * cert, int issuer_needed)
 	ESS_CERT_ID * cid = NULL;
 	GENERAL_NAME * name = NULL;
 	uchar cert_sha1[SHA_DIGEST_LENGTH];
-
 	/* Call for side-effect of computing hash and caching extensions */
 	X509_check_purpose(cert, -1, 0);
 	if((cid = ESS_CERT_ID_new()) == NULL)
 		goto err;
-	X509_digest(cert, EVP_sha1(), cert_sha1, NULL);
+	X509_digest(cert, EVP_sha1(), cert_sha1, 0);
 	if(!ASN1_OCTET_STRING_set(cid->hash, cert_sha1, SHA_DIGEST_LENGTH))
 		goto err;
 
 	/* Setting the issuer/serial if requested. */
 	if(issuer_needed) {
-		if(cid->issuer_serial == NULL
-		    && (cid->issuer_serial = ESS_ISSUER_SERIAL_new()) == NULL)
+		if(cid->issuer_serial == NULL && (cid->issuer_serial = ESS_ISSUER_SERIAL_new()) == NULL)
 			goto err;
 		if((name = GENERAL_NAME_new()) == NULL)
 			goto err;
@@ -741,11 +674,9 @@ static ESS_CERT_ID * ess_CERT_ID_new_init(X509 * cert, int issuer_needed)
 			goto err;
 		name = NULL;    /* Ownership is lost. */
 		ASN1_INTEGER_free(cid->issuer_serial->serial);
-		if(!(cid->issuer_serial->serial =
-				    ASN1_INTEGER_dup(X509_get_serialNumber(cert))))
+		if(!(cid->issuer_serial->serial = ASN1_INTEGER_dup(X509_get_serialNumber(cert))))
 			goto err;
 	}
-
 	return cid;
 err:
 	GENERAL_NAME_free(name);
@@ -758,7 +689,6 @@ static int ts_TST_INFO_content_new(PKCS7 * p7)
 {
 	PKCS7 * ret = NULL;
 	ASN1_OCTET_STRING * octet_string = NULL;
-
 	/* Create new encapsulated NID_id_smime_ct_TSTInfo content. */
 	if((ret = PKCS7_new()) == NULL)
 		goto err;
@@ -769,11 +699,9 @@ static int ts_TST_INFO_content_new(PKCS7 * p7)
 		goto err;
 	ASN1_TYPE_set(ret->d.other, V_ASN1_OCTET_STRING, octet_string);
 	octet_string = NULL;
-
 	/* Add encapsulated content to signed PKCS7 structure. */
 	if(!PKCS7_set_content(p7, ret))
 		goto err;
-
 	return 1;
 err:
 	ASN1_OCTET_STRING_free(octet_string);
@@ -785,9 +713,7 @@ static int ESS_add_signing_cert(PKCS7_SIGNER_INFO * si, ESS_SIGNING_CERT * sc)
 {
 	ASN1_STRING * seq = NULL;
 	uchar * p, * pp = NULL;
-	int len;
-
-	len = i2d_ESS_SIGNING_CERT(sc, NULL);
+	int len = i2d_ESS_SIGNING_CERT(sc, 0);
 	if((pp = (uchar*)OPENSSL_malloc(len)) == NULL) {
 		TSerr(TS_F_ESS_ADD_SIGNING_CERT, ERR_R_MALLOC_FAILURE);
 		goto err;
@@ -800,32 +726,24 @@ static int ESS_add_signing_cert(PKCS7_SIGNER_INFO * si, ESS_SIGNING_CERT * sc)
 	}
 	OPENSSL_free(pp);
 	pp = NULL;
-	return PKCS7_add_signed_attribute(si,
-	    NID_id_smime_aa_signingCertificate,
-	    V_ASN1_SEQUENCE, seq);
+	return PKCS7_add_signed_attribute(si, NID_id_smime_aa_signingCertificate, V_ASN1_SEQUENCE, seq);
 err:
 	ASN1_STRING_free(seq);
 	OPENSSL_free(pp);
-
 	return 0;
 }
 
-static ASN1_GENERALIZEDTIME
-* TS_RESP_set_genTime_with_precision(ASN1_GENERALIZEDTIME * asn1_time,
-    long sec, long usec, unsigned precision)
+static ASN1_GENERALIZEDTIME * TS_RESP_set_genTime_with_precision(ASN1_GENERALIZEDTIME * asn1_time, long sec, long usec, unsigned precision)
 {
 	time_t time_sec = (time_t)sec;
 	struct tm * tm = NULL;
 	char genTime_str[17 + TS_MAX_CLOCK_PRECISION_DIGITS];
 	char * p = genTime_str;
 	char * p_end = genTime_str + sizeof(genTime_str);
-
 	if(precision > TS_MAX_CLOCK_PRECISION_DIGITS)
 		goto err;
-
 	if((tm = gmtime(&time_sec)) == NULL)
 		goto err;
-
 	/*
 	 * Put "genTime_str" in GeneralizedTime format.  We work around the
 	 * restrictions imposed by rfc3280 (i.e. "GeneralizedTime values MUST
@@ -833,10 +751,8 @@ static ASN1_GENERALIZEDTIME
 	 * meet the rfc3161 requirement: "GeneralizedTime syntax can include
 	 * fraction-of-second details".
 	 */
-	p += BIO_snprintf(p, p_end - p,
-	    "%04d%02d%02d%02d%02d%02d",
-	    tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
-	    tm->tm_hour, tm->tm_min, tm->tm_sec);
+	p += BIO_snprintf(p, p_end - p, "%04d%02d%02d%02d%02d%02d",
+	    tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
 	if(precision > 0) {
 		BIO_snprintf(p, 2 + precision, ".%06ld", usec);
 		p += strlen(p);
@@ -863,18 +779,14 @@ static ASN1_GENERALIZEDTIME
 	}
 	*p++ = 'Z';
 	*p++ = '\0';
-
-	if(asn1_time == NULL
-	    && (asn1_time = ASN1_GENERALIZEDTIME_new()) == NULL)
+	if(asn1_time == NULL && (asn1_time = ASN1_GENERALIZEDTIME_new()) == NULL)
 		goto err;
 	if(!ASN1_GENERALIZEDTIME_set_string(asn1_time, genTime_str)) {
 		ASN1_GENERALIZEDTIME_free(asn1_time);
 		goto err;
 	}
 	return asn1_time;
-
 err:
 	TSerr(TS_F_TS_RESP_SET_GENTIME_WITH_PRECISION, TS_R_COULD_NOT_SET_TIME);
 	return NULL;
 }
-

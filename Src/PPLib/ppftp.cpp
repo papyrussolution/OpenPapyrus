@@ -253,7 +253,7 @@ int SLAPI PPFTP::FileTransfer(const char * pLocalPath, const char * pServerPath,
 					}
 					fclose(p_file);
 					if(not_exist_onftp != -1) {
-						HANDLE srchdl = ::CreateFile(pLocalPath, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL); // @unicodeproblem
+						HANDLE srchdl = ::CreateFile(pLocalPath, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0); // @unicodeproblem
 						SLS.SetError(SLERR_OPENFAULT, pLocalPath);
 						THROW_SL(srchdl >= 0);
 						SFile::SetTime((int)srchdl, &ftp_file_dttm, &ftp_file_dttm, &ftp_file_dttm);

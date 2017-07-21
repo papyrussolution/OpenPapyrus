@@ -58,7 +58,7 @@ static int __cdsgroup_commit(DB_TXN * txn, uint32 flags)
 	/* We may be holding handle locks; release them. */
 	lreq.op = DB_LOCK_PUT_ALL;
 	lreq.obj = NULL;
-	ret = __lock_vec(env, txn->locker, 0, &lreq, 1, NULL);
+	ret = __lock_vec(env, txn->locker, 0, &lreq, 1, 0);
 	env = txn->mgrp->env;
 	locker = txn->locker;
 	__os_free(env, txn->mgrp);
@@ -81,19 +81,19 @@ static uint32 __cdsgroup_id(DB_TXN * txn)
 
 static int __cdsgroup_prepare(DB_TXN * txn, uint8 * gid)
 {
-	COMPQUIET(gid, NULL);
+	COMPQUIET(gid, 0);
 	return __cdsgroup_notsup(txn->mgrp->env, "prepare");
 }
 
 static int __cdsgroup_get_name(DB_TXN * txn, const char ** namep)
 {
-	COMPQUIET(namep, NULL);
+	COMPQUIET(namep, 0);
 	return __cdsgroup_notsup(txn->mgrp->env, "get_name");
 }
 
 static int __cdsgroup_set_name(DB_TXN * txn, const char * name)
 {
-	COMPQUIET(name, NULL);
+	COMPQUIET(name, 0);
 	return __cdsgroup_notsup(txn->mgrp->env, "set_name");
 }
 
