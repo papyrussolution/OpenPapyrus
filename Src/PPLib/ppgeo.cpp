@@ -3,8 +3,8 @@
 //
 #include <pp.h>
 #pragma hdrstop
+#include <sartre.h>
 #include <BerkeleyDB.h>
-#include "..\sartr\sartr.h"
 //
 //
 //

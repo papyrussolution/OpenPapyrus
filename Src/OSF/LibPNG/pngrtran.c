@@ -2704,34 +2704,23 @@ static int png_do_rgb_to_gray(png_structrp png_ptr, png_row_infop row_info, png_
 				png_bytep sp = row;
 				png_bytep dp = row;
 				uint32 i;
-
 				for(i = 0; i < row_width; i++) {
 					png_uint_16 red, green, blue, w;
 					uint8 hi, lo;
-
 					hi = *(sp)++; lo = *(sp)++; red   = (png_uint_16)((hi << 8) | (lo));
 					hi = *(sp)++; lo = *(sp)++; green = (png_uint_16)((hi << 8) | (lo));
 					hi = *(sp)++; lo = *(sp)++; blue  = (png_uint_16)((hi << 8) | (lo));
-
 					if(red == green && red == blue) {
 						if(png_ptr->gamma_16_table != NULL)
-							w = png_ptr->gamma_16_table[(red & 0xff)
-							    >> png_ptr->gamma_shift][red >> 8];
-
+							w = png_ptr->gamma_16_table[(red & 0xff) >> png_ptr->gamma_shift][red >> 8];
 						else
 							w = red;
 					}
-
 					else {
-						png_uint_16 red_1   = png_ptr->gamma_16_to_1[(red & 0xff)
-						    >> png_ptr->gamma_shift][red>>8];
-						png_uint_16 green_1 =
-						    png_ptr->gamma_16_to_1[(green & 0xff) >>
-						    png_ptr->gamma_shift][green>>8];
-						png_uint_16 blue_1  = png_ptr->gamma_16_to_1[(blue & 0xff)
-						    >> png_ptr->gamma_shift][blue>>8];
-						png_uint_16 gray16  = (png_uint_16)((rc*red_1 + gc*green_1
-							    + bc*blue_1 + 16384)>>15);
+						png_uint_16 red_1   = png_ptr->gamma_16_to_1[(red & 0xff) >> png_ptr->gamma_shift][red>>8];
+						png_uint_16 green_1 = png_ptr->gamma_16_to_1[(green & 0xff) >> png_ptr->gamma_shift][green>>8];
+						png_uint_16 blue_1  = png_ptr->gamma_16_to_1[(blue & 0xff) >> png_ptr->gamma_shift][blue>>8];
+						png_uint_16 gray16  = (png_uint_16)((rc*red_1 + gc*green_1 + bc*blue_1 + 16384)>>15);
 						w = png_ptr->gamma_16_from_1[(gray16 & 0xff) >>
 						    png_ptr->gamma_shift][gray16 >> 8];
 						rgb_error |= 1;
@@ -2768,8 +2757,7 @@ static int png_do_rgb_to_gray(png_structrp png_ptr, png_row_infop row_info, png_
 					 * in the 'fast' case - this is because this is where the code
 					 * ends up when handling linear 16-bit data.
 					 */
-					gray16  = (png_uint_16)((rc*red + gc*green + bc*blue + 16384) >>
-					    15);
+					gray16  = (png_uint_16)((rc*red + gc*green + bc*blue + 16384) >> 15);
 					*(dp++) = (uint8)((gray16 >> 8) & 0xff);
 					*(dp++) = (uint8)(gray16 & 0xff);
 
@@ -2816,9 +2804,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 	uint32 i;
 	uint32 row_width = row_info->width;
 	int shift;
-
 	png_debug(1, "in png_do_compose");
-
 	{
 		switch(row_info->color_type) {
 			case PNG_COLOR_TYPE_GRAY:
@@ -2854,8 +2840,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 						sp = row;
 						shift = 6;
 						for(i = 0; i < row_width; i++) {
-							if((png_uint_16)((*sp >> shift) & 0x03)
-								    == png_ptr->trans_color.gray) {
+							if((png_uint_16)((*sp >> shift) & 0x03) == png_ptr->trans_color.gray) {
 								unsigned int tmp = *sp & (0x3f3f >> (6 - shift));
 								tmp |= png_ptr->background.gray << shift;
 								*sp = (uint8)(tmp & 0xff);
@@ -2886,18 +2871,15 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 						sp = row;
 						shift = 6;
 						for(i = 0; i < row_width; i++) {
-							if((png_uint_16)((*sp >> shift) & 0x03)
-								    == png_ptr->trans_color.gray) {
+							if((png_uint_16)((*sp >> shift) & 0x03) == png_ptr->trans_color.gray) {
 								unsigned int tmp = *sp & (0x3f3f >> (6 - shift));
 								tmp |= png_ptr->background.gray << shift;
 								*sp = (uint8)(tmp & 0xff);
 							}
-
 							if(shift == 0) {
 								shift = 6;
 								sp++;
 							}
-
 							else
 								shift -= 2;
 						}

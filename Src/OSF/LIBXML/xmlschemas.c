@@ -25974,27 +25974,23 @@ struct _xmlSchemaSplitSAXData {
 #define XML_SAX_PLUG_MAGIC 0xdc43ba21
 
 struct _xmlSchemaSAXPlug {
-	uint magic;
-	/* the original callbacks informations */
-	xmlSAXHandlerPtr     * user_sax_ptr;
+	uint   magic;
+	// the original callbacks informations 
+	xmlSAXHandlerPtr * user_sax_ptr;
 	xmlSAXHandlerPtr user_sax;
-	void                ** user_data_ptr;
-	void                 * user_data;
-
-	/* the block plugged back and validation informations */
+	void ** user_data_ptr;
+	void * user_data;
+	// the block plugged back and validation informations 
 	xmlSAXHandler schemas_sax;
 	xmlSchemaValidCtxtPtr ctxt;
 };
 
 /* All those functions just bounces to the user provided SAX handlers */
-static void internalSubsetSplit(void * ctx, const xmlChar * name,
-    const xmlChar * ExternalID, const xmlChar * SystemID)
+static void internalSubsetSplit(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID)
 {
 	xmlSchemaSAXPlugPtr ctxt = (xmlSchemaSAXPlugPtr)ctx;
-	if(ctxt && ctxt->user_sax &&
-	    (ctxt->user_sax->internalSubset != NULL))
-		ctxt->user_sax->internalSubset(ctxt->user_data, name, ExternalID,
-		    SystemID);
+	if(ctxt && ctxt->user_sax && (ctxt->user_sax->internalSubset != NULL))
+		ctxt->user_sax->internalSubset(ctxt->user_data, name, ExternalID, SystemID);
 }
 
 static int isStandaloneSplit(void * ctx)
@@ -26053,17 +26049,14 @@ static xmlEntityPtr getParameterEntitySplit(void * ctx, const xmlChar * name)
 	return 0;
 }
 
-static void entityDeclSplit(void * ctx, const xmlChar * name, int type,
-    const xmlChar * publicId, const xmlChar * systemId, xmlChar * content)
+static void entityDeclSplit(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content)
 {
 	xmlSchemaSAXPlugPtr ctxt = (xmlSchemaSAXPlugPtr)ctx;
 	if(ctxt && ctxt->user_sax && (ctxt->user_sax->entityDecl != NULL))
 		ctxt->user_sax->entityDecl(ctxt->user_data, name, type, publicId, systemId, content);
 }
 
-static void attributeDeclSplit(void * ctx, const xmlChar * elem,
-    const xmlChar * name, int type, int def,
-    const xmlChar * defaultValue, xmlEnumerationPtr tree)
+static void attributeDeclSplit(void * ctx, const xmlChar * elem, const xmlChar * name, int type, int def, const xmlChar * defaultValue, xmlEnumerationPtr tree)
 {
 	xmlSchemaSAXPlugPtr ctxt = (xmlSchemaSAXPlugPtr)ctx;
 	if(ctxt && ctxt->user_sax && (ctxt->user_sax->attributeDecl != NULL)) {
@@ -26077,8 +26070,7 @@ static void attributeDeclSplit(void * ctx, const xmlChar * elem,
 static void elementDeclSplit(void * ctx, const xmlChar * name, int type, xmlElementContentPtr content)
 {
 	xmlSchemaSAXPlugPtr ctxt = (xmlSchemaSAXPlugPtr)ctx;
-	if(ctxt && ctxt->user_sax &&
-	    (ctxt->user_sax->elementDecl != NULL))
+	if(ctxt && ctxt->user_sax && (ctxt->user_sax->elementDecl != NULL))
 		ctxt->user_sax->elementDecl(ctxt->user_data, name, type, content);
 }
 
@@ -26089,8 +26081,7 @@ static void notationDeclSplit(void * ctx, const xmlChar * name, const xmlChar * 
 		ctxt->user_sax->notationDecl(ctxt->user_data, name, publicId, systemId);
 }
 
-static void unparsedEntityDeclSplit(void * ctx, const xmlChar * name,
-    const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName)
+static void unparsedEntityDeclSplit(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName)
 {
 	xmlSchemaSAXPlugPtr ctxt = (xmlSchemaSAXPlugPtr)ctx;
 	if(ctxt && ctxt->user_sax && ctxt->user_sax->unparsedEntityDecl)

@@ -1417,8 +1417,7 @@ xmlParserInputPtr xmlNewInputFromFile(xmlParserCtxtPtr ctxt, const char * filena
 
 int xmlInitParserCtxt(xmlParserCtxtPtr ctxt)
 {
-	xmlParserInputPtr input;
-	if(ctxt==NULL) {
+	if(!ctxt) {
 		xmlErrInternal(NULL, "Got NULL parser context\n", 0);
 		return -1;
 	}
@@ -1436,7 +1435,6 @@ int xmlInitParserCtxt(xmlParserCtxtPtr ctxt)
 	}
 	else
 		xmlSAXVersion(ctxt->sax, 2);
-
 	ctxt->maxatts = 0;
 	ctxt->atts = NULL;
 	/* Allocate the Input stack */
@@ -1451,8 +1449,11 @@ int xmlInitParserCtxt(xmlParserCtxtPtr ctxt)
 		ctxt->input = NULL;
 		return -1;
 	}
-	while((input = inputPop(ctxt)) != NULL) { /* Non consuming */
-		xmlFreeInputStream(input);
+	{
+		xmlParserInput * p_input;
+		while((p_input = inputPop(ctxt)) != NULL) { // Non consuming 
+			xmlFreeInputStream(p_input);
+		}
 	}
 	ctxt->inputNr = 0;
 	ctxt->input = NULL;
@@ -1557,10 +1558,7 @@ int xmlInitParserCtxt(xmlParserCtxtPtr ctxt)
 	ctxt->vctxt.error = xmlParserValidityError;
 	ctxt->vctxt.warning = xmlParserValidityWarning;
 	if(ctxt->validate) {
-		if(xmlGetWarningsDefaultValue == 0)
-			ctxt->vctxt.warning = NULL;
-		else
-			ctxt->vctxt.warning = xmlParserValidityWarning;
+		ctxt->vctxt.warning = xmlGetWarningsDefaultValue ? xmlParserValidityWarning : 0;
 		ctxt->vctxt.nodeMax = 0;
 		ctxt->options |= XML_PARSE_DTDVALID;
 	}

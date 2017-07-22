@@ -4,9 +4,9 @@
 //
 #include <pp.h>
 #pragma hdrstop
+#include <sartre.h>
 #include <scintilla.h>
 #include <scilexer.h>
-#include "..\sartr\sartr.h"
 //
 //
 //

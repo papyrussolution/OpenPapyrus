@@ -493,7 +493,6 @@ static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 					szDo[0] = szDo[1];
 					szDo[1] = static_cast<char>(tolower(ch));
 					szDo[2] = '\0';
-
 					if(strcmp(szDo, "do") == 0)
 						isDoLastWord = true;
 				}
@@ -565,15 +564,10 @@ static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 				if(stylePrev != style && IsStreamCommentStyle(styleNext) && styleNext == style) {
 					levelNext++;
 				} // fold till the last line for normal comment lines
-				else if(IsStreamCommentStyle(stylePrev)
-				    && styleNext != SCE_POWERPRO_COMMENTLINE
-				    && stylePrev == SCE_POWERPRO_COMMENTLINE
-				    && style == SCE_POWERPRO_COMMENTLINE) {
+				else if(IsStreamCommentStyle(stylePrev) && styleNext != SCE_POWERPRO_COMMENTLINE && stylePrev == SCE_POWERPRO_COMMENTLINE && style == SCE_POWERPRO_COMMENTLINE) {
 					levelNext--;
 				} // fold till the one but last line for Blockcomment lines
-				else if(IsStreamCommentStyle(stylePrev)
-				    && styleNext != SCE_POWERPRO_COMMENTBLOCK
-				    && style == SCE_POWERPRO_COMMENTBLOCK) {
+				else if(IsStreamCommentStyle(stylePrev) && styleNext != SCE_POWERPRO_COMMENTBLOCK && style == SCE_POWERPRO_COMMENTBLOCK) {
 					levelNext--;
 					levelCurrent--;
 				}

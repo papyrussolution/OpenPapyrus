@@ -1,0 +1,1965 @@
+//
+// Набор концепций для загрузки в семантическую базу данных
+// UTF-8 (65001)
+//
+// Символьные обозначения понятия обозначаются строчными буквами с префиксом ':'
+// Наименования для обозначения понятий берутся из латинского и английского языков.
+// Обобщенные понятия имеют приставку 'gener_'
+//
+// Унифицированные обозначения понятий не должны иметь пробелов. В качестве разделителей
+// можно использовать символы '_' и '-'.
+//
+// Если для какого либо понятия существует международный стандартизованный символ, то
+// преимущественно, такие понятия обознаются этим символом с некоторым префиксом.
+// Например :ling_ru - русский язык (префикс ling и ISO-символ русского языка ru).
+//
+
+//
+// Зарезервированные свойства концепций
+//
+:crp_type      // (property of property) Тип значения свойства. Все варианты зарезервированы. Тип значение самого этого свойства - #int
+	//
+	// Типы свойств:
+	// #int
+	// #real
+	// #str
+	// #hdate
+	// #hperiod
+	//
+:crp_ngram     // Обозначение понятия на естественном языке (=:)
+:crp_instance  // Концепция является экземпляром концепции-класса (:)
+:crp_subclass  // Концепция является поклассом другой концепции-класса (::)
+//
+// Другие свойства концепций
+//
+:cp_startdate(#hdate)        // Дата рождения, основания, возникновения и т.д. //
+:cp_finishdate(#hdate)       // Дата смерти, исчезновения, упразднения и т.д. //
+:cp_dscvrdate(#hdate)        // Дата открытия //
+:geolat(#real)
+:geolong(#real)
+//
+//
+//
+:lingua     // Язык
+:geoloc+(:geolat latitude, :geolong longitude) // Географическое наименование
+:statu::geoloc                    // Государство
+:wregion::geoloc                  // Регион мира
+:cregion+(:statu statu)::geoloc   // Регион государства
+:urbs+(:statu statu)::geoloc      // Город (населенный пункт)
+:gener_vici // Обобщенная улица (площадь, проспект и т.д.) как адресное подразделение населенного пункта
+
+//:urbs+(:statu statu)
+//:person+(:cp_startdate birthdate, :person father, :person mother)
+//:cregion+(:statu statu)
+
+:numerales  // Числительное
+:dimension  // Размерность (физическая величина)
+:atom       // Химический элемент
+
+//{
+//	:cregion_ru_
+//}:cregion(:statu_ru)
+
+:corpus_caeleste          // Небесное тело
+:stella::corpus_caeleste  // Звезда (является подклассом небесного тела)
+:planeta::corpus_caeleste // Планета (является подклассом небесного тела)
+:planeta_terra:planeta    // Земля (является экземпляром планеты)
+//
+// Языки
+//
+{
+	:ling_aa // Afar
+	:ling_ab // Abkhazian
+	:ling_ace // Achinese
+	:ling_ach // Acoli
+	:ling_ada // Adangme
+	:ling_ady // Adyghe
+	:ling_ae // Avestan
+	:ling_af // Afrikaans
+	:ling_afa // Afro-Asiatic Language
+	:ling_afh // Afrihili
+	:ling_agq // Aghem
+	:ling_ain // Ainu
+	:ling_ak // Akan
+	:ling_akk // Akkadian
+	:ling_ale // Aleut
+	:ling_alg // Algonquian Language
+	:ling_alt // Southern Altai
+	:ling_am // Amharic
+	:ling_an // Aragonese
+	:ling_ang // Old English
+	:ling_anp // Angika
+	:ling_apa // Apache Language
+	:ling_ar // Arabic
+	:ling_arc // Aramaic
+	:ling_arn // Araucanian
+	:ling_arp // Arapaho
+	:ling_art // Artificial Language
+	:ling_arw // Arawak
+	:ling_as // Assamese
+	:ling_asa // Asu
+	:ling_ast // Asturian
+	:ling_ath // Athapascan Language
+	:ling_aus // Australian Language
+	:ling_av // Avaric
+	:ling_awa // Awadhi
+	:ling_ay // Aymara
+	:ling_az // Azerbaijani
+	:ling_ba // Bashkir
+	:ling_bad // Banda
+	:ling_bai // Bamileke Language
+	:ling_bal // Baluchi
+	:ling_ban // Balinese
+	:ling_bas // Basaa
+	:ling_bat // Baltic Language
+	:ling_be // Belarusian
+	:ling_bej // Beja
+	:ling_bem // Bemba
+	:ling_ber // Berber
+	:ling_bez // Bena
+	:ling_bg // Bulgarian
+	:ling_bh // Bihari
+	:ling_bho // Bhojpuri
+	:ling_bi // Bislama
+	:ling_bik // Bikol
+	:ling_bin // Bini
+	:ling_bla // Siksika
+	:ling_bm // Bambara
+	:ling_bn // Bengali
+	:ling_bnt // Bantu
+	:ling_bo // Tibetan
+	:ling_br // Breton
+	:ling_bra // Braj
+	:ling_brx // Bodo
+	:ling_bs // Bosnian
+	:ling_btk // Batak
+	:ling_bua // Buriat
+	:ling_bug // Buginese
+	:ling_byn // Blin
+	:ling_ca // Catalan
+	:ling_cad // Caddo
+	:ling_cai // Central American Indian Language
+	:ling_car // Carib
+	:ling_cau // Caucasian Language
+	:ling_cay // Cayuga
+	:ling_cch // Atsam
+	:ling_ce // Chechen
+	:ling_ceb // Cebuano
+	:ling_cel // Celtic Language
+	:ling_cgg // Chiga
+	:ling_ch // Chamorro
+	:ling_chb // Chibcha
+	:ling_chg // Chagatai
+	:ling_chk // Chuukese
+	:ling_chm // Mari
+	:ling_chn // Chinook Jargon
+	:ling_cho // Choctaw
+	:ling_chp // Chipewyan
+	:ling_chr // Cherokee
+	:ling_chy // Cheyenne
+	:ling_cmc // Chamic Language
+	:ling_co // Corsican
+	:ling_cop // Coptic
+	:ling_cpe // English-based Creole or Pidgin
+	:ling_cpf // French-based Creole or Pidgin
+	:ling_cpp // Portuguese-based Creole or Pidgin
+	:ling_cr // Cree
+	:ling_crh // Crimean Turkish
+	:ling_crp // Creole or Pidgin
+	:ling_cs // Czech
+	:ling_csb // Kashubian
+	:ling_cu // Church Slavic
+	:ling_cus // Cushitic Language
+	:ling_cv // Chuvash
+	:ling_cy // Welsh
+	:ling_da // Danish
+	:ling_dak // Dakota
+	:ling_dar // Dargwa
+	:ling_dav // Taita
+	:ling_day // Dayak
+	:ling_de // German
+	:ling_de_AT // Austrian German
+	:ling_de_CH // Swiss High German
+	:ling_del // Delaware
+	:ling_den // Slave
+	:ling_dgr // Dogrib
+	:ling_din // Dinka
+	:ling_dje // Zarma
+	:ling_doi // Dogri
+	:ling_dra // Dravidian Language
+	:ling_dsb // Lower Sorbian
+	:ling_dua // Duala
+	:ling_dum // Middle Dutch
+	:ling_dv // Divehi
+	:ling_dyo // Jola-Fonyi
+	:ling_dyu // Dyula
+	:ling_dz // Dzongkha
+	:ling_ebu // Embu
+	:ling_ee // Ewe
+	:ling_efi // Efik
+	:ling_egy // Ancient Egyptian
+	:ling_eka // Ekajuk
+	:ling_el // Greek
+	:ling_elx // Elamite
+	:ling_en // English
+	:ling_en_AU // Australian English
+	:ling_en_CA // Canadian English
+	:ling_en_GB // British English
+	:ling_en_US // U.S. English
+	:ling_enm // Middle English
+	:ling_eo // Esperanto
+	:ling_es // Spanish
+	:ling_es_419 // Latin American Spanish
+	:ling_es_ES // Iberian Spanish
+	:ling_et // Estonian
+	:ling_eu // Basque
+	:ling_ewo // Ewondo
+	:ling_fa // Persian
+	:ling_fan // Fang
+	:ling_fat // Fanti
+	:ling_ff // Fulah
+	:ling_fi // Finnish
+	:ling_fil // Filipino
+	:ling_fiu // Finno-Ugrian Language
+	:ling_fj // Fijian
+	:ling_fo // Faroese
+	:ling_fon // Fon
+	:ling_fr // French
+	:ling_fr_CA // Canadian French
+	:ling_fr_CH // Swiss French
+	:ling_frm // Middle French
+	:ling_fro // Old French
+	:ling_frr // Northern Frisian
+	:ling_frs // Eastern Frisian
+	:ling_fur // Friulian
+	:ling_fy // Western Frisian
+	:ling_ga // Irish
+	:ling_gaa // Ga
+	:ling_gay // Gayo
+	:ling_gba // Gbaya
+	:ling_gd // Scottish Gaelic
+	:ling_gem // Germanic Language
+	:ling_gez // Geez
+	:ling_gil // Gilbertese
+	:ling_gl // Galician
+	:ling_gmh // Middle High German
+	:ling_gn // Guarani
+	:ling_goh // Old High German
+	:ling_gon // Gondi
+	:ling_gor // Gorontalo
+	:ling_got // Gothic
+	:ling_grb // Grebo
+	:ling_grc // Ancient Greek
+	:ling_gsw // Swiss German
+	:ling_gu // Gujarati
+	:ling_guz // Gusii
+	:ling_gv // Manx
+	:ling_gwi // Gwichʼin
+	:ling_ha // Hausa
+	:ling_hai // Haida
+	:ling_haw // Hawaiian
+	:ling_he // Hebrew
+	:ling_hi // Hindi
+	:ling_hil // Hiligaynon
+	:ling_him // Himachali
+	:ling_hit // Hittite
+	:ling_hmn // Hmong
+	:ling_ho // Hiri Motu
+	:ling_hr // Croatian
+	:ling_hsb // Upper Sorbian
+	:ling_ht // Haitian
+	:ling_hu // Hungarian
+	:ling_hup // Hupa
+	:ling_hy // Armenian
+	:ling_hz // Herero
+	:ling_ia // Interlingua
+	:ling_iba // Iban
+	:ling_id // Indonesian
+	:ling_ie // Interlingue
+	:ling_ig // Igbo
+	:ling_ii // Sichuan Yi
+	:ling_ijo // Ijo
+	:ling_ik // Inupiaq
+	:ling_ilo // Iloko
+	:ling_inc // Indic Language
+	:ling_ine // Indo-European Language
+	:ling_inh // Ingush
+	:ling_io // Ido
+	:ling_ira // Iranian Language
+	:ling_iro // Iroquoian Language
+	:ling_is // Icelandic
+	:ling_it // Italian
+	:ling_iu // Inuktitut
+	:ling_ja // Japanese
+	:ling_jbo // Lojban
+	:ling_jmc // Machame
+	:ling_jpr // Judeo-Persian
+	:ling_jrb // Judeo-Arabic
+	:ling_jv // Javanese
+	:ling_ka // Georgian
+	:ling_kaa // Kara-Kalpak
+	:ling_kab // Kabyle
+	:ling_kac // Kachin
+	:ling_kaj // Jju
+	:ling_kam // Kamba
+	:ling_kar // Karen
+	:ling_kaw // Kawi
+	:ling_kbd // Kabardian
+	:ling_kcg // Tyap
+	:ling_kde // Makonde
+	:ling_kea // Kabuverdianu
+	:ling_kfo // Koro
+	:ling_kg // Kongo
+	:ling_kha // Khasi
+	:ling_khi // Khoisan Language
+	:ling_kho // Khotanese
+	:ling_khq // Koyra Chiini
+	:ling_ki // Kikuyu
+	:ling_kj // Kuanyama
+	:ling_kk // Kazakh
+	:ling_kl // Kalaallisut
+	:ling_kln // Kalenjin
+	:ling_km // Khmer
+	:ling_kmb // Kimbundu
+	:ling_kn // Kannada
+	:ling_ko // Korean
+	:ling_kok // Konkani
+	:ling_kos // Kosraean
+	:ling_kpe // Kpelle
+	:ling_kr // Kanuri
+	:ling_krc // Karachay-Balkar
+	:ling_krl // Karelian
+	:ling_kro // Kru
+	:ling_kru // Kurukh
+	:ling_ks // Kashmiri
+	:ling_ksb // Shambala
+	:ling_ksf // Bafia
+	:ling_ksh // Colognian
+	:ling_ku // Kurdish
+	:ling_kum // Kumyk
+	:ling_kut // Kutenai
+	:ling_kv // Komi
+	:ling_kw // Cornish
+	:ling_ky // Kirghiz
+	:ling_la // Latin
+	:ling_lad // Ladino
+	:ling_lag // Langi
+	:ling_lah // Lahnda
+	:ling_lam // Lamba
+	:ling_lb // Luxembourgish
+	:ling_lez // Lezghian
+	:ling_lg // Ganda
+	:ling_li // Limburgish
+	:ling_ln // Lingala
+	:ling_lo // Lao
+	:ling_lol // Mongo
+	:ling_loz // Lozi
+	:ling_lt // Lithuanian
+	:ling_lu // Luba-Katanga
+	:ling_lua // Luba-Lulua
+	:ling_lui // Luiseno
+	:ling_lun // Lunda
+	:ling_luo // Luo
+	:ling_lus // Lushai
+	:ling_luy // Luyia
+	:ling_lv // Latvian
+	:ling_mad // Madurese
+	:ling_mag // Magahi
+	:ling_mai // Maithili
+	:ling_mak // Makasar
+	:ling_man // Mandingo
+	:ling_map // Austronesian Language
+	:ling_mas // Masai
+	:ling_mdf // Moksha
+	:ling_mdr // Mandar
+	:ling_men // Mende
+	:ling_mer // Meru
+	:ling_mfe // Morisyen
+	:ling_mg // Malagasy
+	:ling_mga // Middle Irish
+	:ling_mgh // Makhuwa-Meetto
+	:ling_mh // Marshallese
+	:ling_mi // Maori
+	:ling_mic // Micmac
+	:ling_min // Minangkabau
+	:ling_mis // Miscellaneous Language
+	:ling_mk // Macedonian
+	:ling_mkh // Mon-Khmer Language
+	:ling_ml // Malayalam
+	:ling_mn // Mongolian
+	:ling_mnc // Manchu
+	:ling_mni // Manipuri
+	:ling_mno // Manobo Language
+	:ling_mo // Moldavian
+	:ling_moh // Mohawk
+	:ling_mos // Mossi
+	:ling_mr // Marathi
+	:ling_ms // Malay
+	:ling_mt // Maltese
+	:ling_mua // Mundang
+	:ling_mul // Multiple Languages
+	:ling_mun // Munda Language
+	:ling_mus // Creek
+	:ling_mwl // Mirandese
+	:ling_mwr // Marwari
+	:ling_my // Burmese
+	:ling_myn // Mayan Language
+	:ling_myv // Erzya
+	:ling_na // Nauru
+	:ling_nah // Nahuatl
+	:ling_nai // North American Indian Language
+	:ling_nap // Neapolitan
+	:ling_naq // Nama
+	:ling_nb // Norwegian Bokmål
+	:ling_nd // North Ndebele
+	:ling_nds // Low German
+	:ling_ne // Nepali
+	:ling_new // Newari
+	:ling_ng // Ndonga
+	:ling_nia // Nias
+	:ling_nic // Niger-Kordofanian Language
+	:ling_niu // Niuean
+	:ling_nl // Dutch
+	:ling_nl_BE // Flemish
+	:ling_nmg // Kwasio
+	:ling_nn // Norwegian Nynorsk
+	:ling_no // Norwegian
+	:ling_nog // Nogai
+	:ling_non // Old Norse
+	:ling_nqo // N’Ko
+	:ling_nr // South Ndebele
+	:ling_nso // Northern Sotho
+	:ling_nub // Nubian Language
+	:ling_nus // Nuer
+	:ling_nv // Navajo
+	:ling_nwc // Classical Newari
+	:ling_ny // Nyanja
+	:ling_nym // Nyamwezi
+	:ling_nyn // Nyankole
+	:ling_nyo // Nyoro
+	:ling_nzi // Nzima
+	:ling_oc // Occitan
+	:ling_oj // Ojibwa
+	:ling_om // Oromo
+	:ling_or // Oriya
+	:ling_os // Ossetic
+	:ling_osa // Osage
+	:ling_ota // Ottoman Turkish
+	:ling_oto // Otomian Language
+	:ling_pa // Punjabi
+	:ling_paa // Papuan Language
+	:ling_pag // Pangasinan
+	:ling_pal // Pahlavi
+	:ling_pam // Pampanga
+	:ling_pap // Papiamento
+	:ling_pau // Palauan
+	:ling_peo // Old Persian
+	:ling_phi // Philippine Language
+	:ling_phn // Phoenician
+	:ling_pi // Pali
+	:ling_pl // Polish
+	:ling_pon // Pohnpeian
+	:ling_pra // Prakrit Language
+	:ling_pro // Old Provençal
+	:ling_ps // Pashto
+	:ling_pt // Portuguese
+	:ling_pt_BR // Brazilian Portuguese
+	:ling_pt_PT // Iberian Portuguese
+	:ling_qu // Quechua
+	:ling_raj // Rajasthani
+	:ling_rap // Rapanui
+	:ling_rar // Rarotongan
+	:ling_rm // Romansh
+	:ling_rn // Rundi
+	:ling_ro // Romanian
+	:ling_roa // Romance Language
+	:ling_rof // Rombo
+	:ling_rom // Romany
+	:ling_root // Root
+	:ling_ru // Russian
+	:ling_rup // Aromanian
+	:ling_rw // Kinyarwanda
+	:ling_rwk // Rwa
+	:ling_sa // Sanskrit
+	:ling_sad // Sandawe
+	:ling_sah // Sakha
+	:ling_sai // South American Indian Language
+	:ling_sal // Salishan Language
+	:ling_sam // Samaritan Aramaic
+	:ling_saq // Samburu
+	:ling_sas // Sasak
+	:ling_sat // Santali
+	:ling_sbp // Sangu
+	:ling_sc // Sardinian
+	:ling_scn // Sicilian
+	:ling_sco // Scots
+	:ling_sd // Sindhi
+	:ling_se // Northern Sami
+	:ling_see // Seneca
+	:ling_seh // Sena
+	:ling_sel // Selkup
+	:ling_sem // Semitic Language
+	:ling_ses // Koyraboro Senni
+	:ling_sg // Sango
+	:ling_sga // Old Irish
+	:ling_sgn // Sign Language
+	:ling_sh // Serbo-Croatian
+	:ling_shi // Tachelhit
+	:ling_shn // Shan
+	:ling_si // Sinhala
+	:ling_sid // Sidamo
+	:ling_sio // Siouan Language
+	:ling_sit // Sino-Tibetan Language
+	:ling_sk // Slovak
+	:ling_sl // Slovenian
+	:ling_sla // Slavic Language
+	:ling_sm // Samoan
+	:ling_sma // Southern Sami
+	:ling_smi // Sami Language
+	:ling_smj // Lule Sami
+	:ling_smn // Inari Sami
+	:ling_sms // Skolt Sami
+	:ling_sn // Shona
+	:ling_snk // Soninke
+	:ling_so // Somali
+	:ling_sog // Sogdien
+	:ling_son // Songhai
+	:ling_sq // Albanian
+	:ling_sr // Serbian
+	:ling_srn // Sranan Tongo
+	:ling_srr // Serer
+	:ling_ss // Swati
+	:ling_ssa // Nilo-Saharan Language
+	:ling_ssy // Saho
+	:ling_st // Southern Sotho
+	:ling_su // Sundanese
+	:ling_suk // Sukuma
+	:ling_sus // Susu
+	:ling_sux // Sumerian
+	:ling_sv // Swedish
+	:ling_sw // Swahili
+	:ling_swb // Comorian
+	:ling_swc // Congo Swahili
+	:ling_syc // Classical Syriac
+	:ling_syr // Syriac
+	:ling_ta // Tamil
+	:ling_tai // Tai Language
+	:ling_te // Telugu
+	:ling_tem // Timne
+	:ling_teo // Teso
+	:ling_ter // Tereno
+	:ling_tet // Tetum
+	:ling_tg // Tajik
+	:ling_th // Thai
+	:ling_ti // Tigrinya
+	:ling_tig // Tigre
+	:ling_tiv // Tiv
+	:ling_tk // Turkmen
+	:ling_tkl // Tokelau
+	:ling_tl // Tagalog
+	:ling_tlh // Klingon
+	:ling_tli // Tlingit
+	:ling_tmh // Tamashek
+	:ling_tn // Tswana
+	:ling_to // Tongan
+	:ling_tog // Nyasa Tonga
+	:ling_tpi // Tok Pisin
+	:ling_tr // Turkish
+	:ling_trv // Taroko
+	:ling_ts // Tsonga
+	:ling_tsi // Tsimshian
+	:ling_tt // Tatar
+	:ling_tum // Tumbuka
+	:ling_tup // Tupi Language
+	:ling_tut // Altaic Language
+	:ling_tvl // Tuvalu
+	:ling_tw // Twi
+	:ling_twq // Tasawaq
+	:ling_ty // Tahitian
+	:ling_tyv // Tuvinian
+	:ling_tzm // Central Morocco Tamazight
+	:ling_udm // Udmurt
+	:ling_ug // Uighur
+	:ling_uga // Ugaritic
+	:ling_uk // Ukrainian
+	:ling_umb // Umbundu
+	:ling_und // Unknown Language
+	:ling_ur // Urdu
+	:ling_uz // Uzbek
+	:ling_vai // Vai
+	:ling_ve // Venda
+	:ling_vi // Vietnamese
+	:ling_vo // Volapük
+	:ling_vot // Votic
+	:ling_vun // Vunjo
+	:ling_wa // Walloon
+	:ling_wae // Walser
+	:ling_wak // Wakashan Language
+	:ling_wal // Walamo
+	:ling_war // Waray
+	:ling_was // Washo
+	:ling_wen // Sorbian Language
+	:ling_wo // Wolof
+	:ling_xal // Kalmyk
+	:ling_xh // Xhosa
+	:ling_xog // Soga
+	:ling_yao // Yao
+	:ling_yap // Yapese
+	:ling_yav // Yangben
+	:ling_yi // Yiddish
+	:ling_yo // Yoruba
+	:ling_ypk // Yupik Language
+	:ling_yue // Cantonese
+	:ling_za // Zhuang
+	:ling_zap // Zapotec
+	:ling_zbl // Blissymbols
+	:ling_zen // Zenaga
+	:ling_zh // Chinese
+	:ling_zh_Hans // Simplified Chinese
+	:ling_zh_Hant // Traditional Chinese
+	:ling_znd // Zande
+	:ling_zu // Zulu
+	:ling_zun // Zuni
+	:ling_zxx // No linguistic content
+	:ling_zza // Zaza
+}:lingua
+//
+// Регионы мира
+//
+{
+	:wregion_world // world
+	:wregion_africa // africa
+	:wregion_north_america // north america
+	:wregion_south_america // south america
+	:wregion_oceania // oceania
+	:wregion_western_africa // western africa
+	:wregion_central_america // central america
+	:wregion_eastern_africa // eastern africa
+	:wregion_northern_africa // northern africa
+	:wregion_middle_africa // middle africa
+	:wregion_southern_africa // southern africa
+	:wregion_americas // americas
+	:wregion_northern_america // northern america
+	:wregion_caribbean // caribbean
+	:wregion_eastern_asia // eastern asia
+	:wregion_southern_asia // southern asia
+	:wregion_south-eastern_asia // south-eastern asia
+	:wregion_southern_europe // southern europe
+	:wregion_australia_and_new_zealand // australia and new zealand
+	:wregion_melanesia // melanesia
+	:wregion_micronesian_region // micronesian region
+	:wregion_polynesia // polynesia
+	:wregion_south-central_asia // south-central asia
+	:wregion_asia // asia
+	:wregion_central_asia // central asia
+	:wregion_western_asia // western asia
+	:wregion_europe // europe
+	:wregion_eastern_europe // eastern europe
+	:wregion_northern_europe // northern europe
+	:wregion_western_europe // western europe
+	:wregion_commonwealth_of_independent_states // commonwealth of independent states
+	:wregion_czechoslovakia // czechoslovakia
+	:wregion_latin_america // latin america
+	:wregion_channel_islands // channel islands
+}:wregion
+//
+// Государства
+//
+{        
+	:statu_ac // ascension island
+	:statu_ad // andorra
+	:statu_ae // united arab emirates
+	:statu_af // afghanistan
+	:statu_ag // antigua and barbuda
+	:statu_ai // anguilla
+	:statu_al // albania
+	:statu_am // armenia
+	:statu_an // netherlands antilles
+	:statu_ao // angola
+	:statu_aq // antarctica
+	:statu_ar // argentina
+	:statu_as // american samoa
+	:statu_at // austria
+	:statu_au // australia
+	:statu_aw // aruba
+	:statu_ax // åland islands
+	:statu_az // azerbaijan
+	:statu_ba // bosnia and herzegovina
+	:statu_bb // barbados
+	:statu_bd // bangladesh
+	:statu_be // belgium
+	:statu_bf // burkina faso
+	:statu_bg // bulgaria
+	:statu_bh // bahrain
+	:statu_bi // burundi
+	:statu_bj // benin
+	:statu_bl // saint barthélemy
+	:statu_bm // bermuda
+	:statu_bn // brunei
+	:statu_bo // bolivia
+	:statu_br // brazil
+	:statu_bs // bahamas
+	:statu_bt // bhutan
+	:statu_bv // bouvet island
+	:statu_bw // botswana
+	:statu_by // belarus
+	:statu_bz // belize
+	:statu_ca // canada
+	:statu_cc // cocos [keeling] islands
+	:statu_cd // congo - kinshasa
+	:statu_cf // central african republic
+	:statu_cg // congo - brazzaville
+	:statu_ch // switzerland
+	:statu_ci // côte d’ivoire
+	:statu_ck // cook islands
+	:statu_cl // chile
+	:statu_cm // cameroon
+	:statu_cn // china
+	:statu_co // colombia
+	:statu_cp // clipperton island
+	:statu_cr // costa rica
+	:statu_cs // serbia and montenegro
+	:statu_cu // cuba
+	:statu_cv // cape verde
+	:statu_cw // curaçao
+	:statu_cx // christmas island
+	:statu_cy // cyprus
+	:statu_cz // czech republic
+	:statu_de // germany
+	:statu_dg // diego garcia
+	:statu_dj // djibouti
+	:statu_dk // denmark
+	:statu_dm // dominica
+	:statu_do // dominican republic
+	:statu_dz // algeria
+	:statu_ea // ceuta and melilla
+	:statu_ec // ecuador
+	:statu_ee // estonia
+	:statu_eg // egypt
+	:statu_eh // western sahara
+	:statu_er // eritrea
+	:statu_es // spain
+	:statu_et // ethiopia
+	:statu_eu // european union
+	:statu_fi // finland
+	:statu_fj // fiji
+	:statu_fk // falkland islands
+	:statu_fm // micronesia
+	:statu_fo // faroe islands
+	:statu_fr // france
+	:statu_ga // gabon
+	:statu_gb // united kingdom
+	:statu_gd // grenada
+	:statu_ge // georgia
+	:statu_gf // french guiana
+	:statu_gg // guernsey
+	:statu_gh // ghana
+	:statu_gi // gibraltar
+	:statu_gl // greenland
+	:statu_gm // gambia
+	:statu_gn // guinea
+	:statu_gp // guadeloupe
+	:statu_gq // equatorial guinea
+	:statu_gr // greece
+	:statu_gs // south georgia and the south sandwich islands
+	:statu_gt // guatemala
+	:statu_gu // guam
+	:statu_gw // guinea-bissau
+	:statu_gy // guyana
+	:statu_hk // hong kong sar china
+	:statu_hm // heard island and mcdonald islands
+	:statu_hn // honduras
+	:statu_hr // croatia
+	:statu_ht // haiti
+	:statu_hu // hungary
+	:statu_ic // canary islands
+	:statu_id // indonesia
+	:statu_ie // ireland
+	:statu_il // israel
+	:statu_im // isle of man
+	:statu_in // india
+	:statu_io // british indian ocean territory
+	:statu_iq // iraq
+	:statu_ir // iran
+	:statu_is // iceland
+	:statu_it // italy
+	:statu_je // jersey
+	:statu_jm // jamaica
+	:statu_jo // jordan
+	:statu_jp // japan
+	:statu_ke // kenya
+	:statu_kg // kyrgyzstan
+	:statu_kh // cambodia
+	:statu_ki // kiribati
+	:statu_km // comoros
+	:statu_kn // saint kitts and nevis
+	:statu_kp // north korea
+	:statu_kr // south korea
+	:statu_kw // kuwait
+	:statu_ky // cayman islands
+	:statu_kz // kazakhstan
+	:statu_la // laos
+	:statu_lb // lebanon
+	:statu_lc // saint lucia
+	:statu_li // liechtenstein
+	:statu_lk // sri lanka
+	:statu_lr // liberia
+	:statu_ls // lesotho
+	:statu_lt // lithuania
+	:statu_lu // luxembourg
+	:statu_lv // latvia
+	:statu_ly // libya
+	:statu_ma // morocco
+	:statu_mc // monaco
+	:statu_md // moldova
+	:statu_me // montenegro
+	:statu_mf // saint martin
+	:statu_mg // madagascar
+	:statu_mh // marshall islands
+	:statu_mk // macedonia
+	:statu_ml // mali
+	:statu_mm // myanmar [burma]
+	:statu_mn // mongolia
+	:statu_mo // macau sar china
+	:statu_mp // northern mariana islands
+	:statu_mq // martinique
+	:statu_mr // mauritania
+	:statu_ms // montserrat
+	:statu_mt // malta
+	:statu_mu // mauritius
+	:statu_mv // maldives
+	:statu_mw // malawi
+	:statu_mx // mexico
+	:statu_my // malaysia
+	:statu_mz // mozambique
+	:statu_na // namibia
+	:statu_nc // new caledonia
+	:statu_ne // niger
+	:statu_nf // norfolk island
+	:statu_ng // nigeria
+	:statu_ni // nicaragua
+	:statu_nl // netherlands
+	:statu_no // norway
+	:statu_np // nepal
+	:statu_nr // nauru
+	:statu_nu // niue
+	:statu_nz // new zealand
+	:statu_om // oman
+	:statu_pa // panama
+	:statu_pe // peru
+	:statu_pf // french polynesia
+	:statu_pg // papua new guinea
+	:statu_ph // philippines
+	:statu_pk // pakistan
+	:statu_pl // poland
+	:statu_pm // saint pierre and miquelon
+	:statu_pn // pitcairn islands
+	:statu_pr // puerto rico
+	:statu_ps // palestinian territories
+	:statu_pt // portugal
+	:statu_pw // palau
+	:statu_py // paraguay
+	:statu_qa // qatar
+	:statu_qo // outlying oceania
+	:statu_re // réunion
+	:statu_ro // romania
+	:statu_rs // serbia
+	:statu_ru // russia
+	:statu_rw // rwanda
+	:statu_sa // saudi arabia
+	:statu_sb // solomon islands
+	:statu_sc // seychelles
+	:statu_sd // sudan
+	:statu_se // sweden
+	:statu_sg // singapore
+	:statu_sh // saint helena
+	:statu_si // slovenia
+	:statu_sj // svalbard and jan mayen
+	:statu_sk // slovakia
+	:statu_sl // sierra leone
+	:statu_sm // san marino
+	:statu_sn // senegal
+	:statu_so // somalia
+	:statu_sr // suriname
+	:statu_st // são tomé and príncipe
+	:statu_sv // el salvador
+	:statu_sx // sint maarten
+	:statu_sy // syria
+	:statu_sz // swaziland
+	:statu_ta // tristan da cunha
+	:statu_tc // turks and caicos islands
+	:statu_td // chad
+	:statu_tf // french southern territories
+	:statu_tg // togo
+	:statu_th // thailand
+	:statu_tj // tajikistan
+	:statu_tk // tokelau
+	:statu_tl // timor-leste
+	:statu_tm // turkmenistan
+	:statu_tn // tunisia
+	:statu_to // tonga
+	:statu_tr // turkey
+	:statu_tt // trinidad and tobago
+	:statu_tv // tuvalu
+	:statu_tw // taiwan
+	:statu_tz // tanzania
+	:statu_ua // ukraine
+	:statu_ug // uganda
+	:statu_um // u.s. minor outlying islands
+	:statu_us // united states
+	:statu_uy // uruguay
+	:statu_uz // uzbekistan
+	:statu_va // vatican city
+	:statu_vc // saint vincent and the grenadines
+	:statu_ve // venezuela
+	:statu_vg // british virgin islands
+	:statu_vi // u.s. virgin islands
+	:statu_vn // vietnam
+	:statu_vu // vanuatu
+	:statu_wf // wallis and futuna
+	:statu_ws // samoa
+	:statu_ye // yemen
+	:statu_yt // mayotte
+	:statu_za // south africa
+	:statu_zm // zambia
+	:statu_zw // zimbabwe
+	:statu_zz // unknown region
+}:statu
+//
+// Химические элементы
+//
+{
+	:atom_h
+	:atom_he
+	:atom_li
+	:atom_be
+	:atom_b
+	:atom_c
+	:atom_n
+	:atom_o
+	:atom_f
+	:atom_ne
+	:atom_na
+	:atom_mg
+	:atom_al
+	:atom_si
+	:atom_p
+	:atom_s
+	:atom_cl
+	:atom_ar
+	:atom_k
+	:atom_ca
+	:atom_sc
+	:atom_ti
+	:atom_v
+	:atom_cr
+	:atom_mn
+	:atom_fe
+	:atom_co
+	:atom_ni
+	:atom_cu
+	:atom_zn
+	:atom_ga
+	:atom_ge
+	:atom_as
+	:atom_se
+	:atom_br
+	:atom_kr
+	:atom_rb
+	:atom_sr
+	:atom_y
+	:atom_zr
+	:atom_nb
+	:atom_mo
+	:atom_tc
+	:atom_ru
+	:atom_rh
+	:atom_pd
+	:atom_ag
+	:atom_cd
+	:atom_in
+	:atom_sn
+	:atom_sb
+	:atom_te
+	:atom_i
+	:atom_xe
+	:atom_cs
+	:atom_ba
+	:atom_la
+	:atom_ce
+	:atom_pr
+	:atom_nd
+	:atom_pm
+	:atom_sm
+	:atom_eu
+	:atom_gd
+	:atom_tb
+	:atom_dy
+	:atom_ho
+	:atom_er
+	:atom_tm
+	:atom_yb
+	:atom_lu
+	:atom_hf
+	:atom_ta
+	:atom_w
+	:atom_re
+	:atom_os
+	:atom_ir
+	:atom_pt
+	:atom_au
+	:atom_hg
+	:atom_tl
+	:atom_pb
+	:atom_bi
+	:atom_po
+	:atom_at
+	:atom_rn
+	:atom_fr
+	:atom_ra
+	:atom_ac
+	:atom_th
+	:atom_pa
+	:atom_u
+	:atom_np
+	:atom_pu
+	:atom_am
+	:atom_cm
+	:atom_bk
+	:atom_cf
+	:atom_es
+	:atom_fm
+	:atom_md
+	:atom_no
+	:atom_lr
+	:atom_rf
+	:atom_db
+	:atom_sg
+	:atom_bh
+	:atom_hs
+	:atom_mt
+	:atom_ds
+	:atom_rg
+	:atom_cn
+	:atom_uut
+	:atom_fl
+	:atom_uup
+	:atom_lv
+	:atom_uus
+	:atom_uuo
+}:atom
+//
+// Русские наименования химических элементов
+//
+[ru]{
+	водород=:atom_h
+	гелий=:atom_he
+	литий=:atom_li
+	бериллий=:atom_be
+	бор=:atom_b
+	углерод=:atom_c
+	азот=:atom_n
+	кислород=:atom_o
+	фтор=:atom_f
+	неон=:atom_ne
+	натрий=:atom_na
+	магний=:atom_mg
+	алюминий=:atom_al
+	кремний=:atom_si
+	фосфор=:atom_p
+	сера=:atom_s
+	хлор=:atom_cl
+	аргон=:atom_ar
+	калий=:atom_k
+	кальций=:atom_ca
+	скандий=:atom_sc
+	титан=:atom_ti
+	ванадий=:atom_v
+	хром=:atom_cr
+	марганец=:atom_mn
+	железо=:atom_fe
+	кобальт=:atom_co
+	никель=:atom_ni
+	медь=:atom_cu
+	цинк=:atom_zn
+	галлий=:atom_ga
+	германий=:atom_ge
+	мышьяк=:atom_as
+	селен=:atom_se
+	бром=:atom_br
+	криптон=:atom_kr
+	рубидий=:atom_rb
+	стронций=:atom_sr
+	иттрий=:atom_y
+	цирконий=:atom_zr
+	ниобий=:atom_nb
+	молибден=:atom_mo
+	технеций=:atom_tc
+	рутений=:atom_ru
+	родий=:atom_rh
+	палладий=:atom_pd
+	серебро=:atom_ag
+	кадмий=:atom_cd
+	индий=:atom_in
+	олово=:atom_sn
+	сурьма=:atom_sb
+	теллур=:atom_te
+	иод=:atom_i
+	ксенон=:atom_xe
+	цезий=:atom_cs
+	барий=:atom_ba
+	лантан=:atom_la
+	церий=:atom_ce
+	празеодим=:atom_pr
+	неодим=:atom_nd
+	прометий=:atom_pm
+	самарий=:atom_sm
+	европий=:atom_eu
+	гадолиний=:atom_gd
+	тербий=:atom_tb
+	диспрозий=:atom_dy
+	гольмий=:atom_ho
+	эрбий=:atom_er
+	тулий=:atom_tm
+	иттербий=:atom_yb
+	лютеций=:atom_lu
+	гафний=:atom_hf
+	тантал=:atom_ta
+	вольфрам=:atom_w
+	рений=:atom_re
+	осмий=:atom_os
+	иридий=:atom_ir
+	платина=:atom_pt
+	золото=:atom_au
+	ртуть=:atom_hg
+	таллий=:atom_tl
+	свинец=:atom_pb
+	висмут=:atom_bi
+	полоний=:atom_po
+	астат=:atom_at
+	радон=:atom_rn
+	франций=:atom_fr
+	радий=:atom_ra
+	актиний=:atom_ac
+	торий=:atom_th
+	протактиний=:atom_pa
+	уран=:atom_u
+	нептуний=:atom_np
+	плутоний=:atom_pu
+	америций=:atom_am
+	кюрий=:atom_cm
+	берклий=:atom_bk
+	калифорний=:atom_cf
+	эйнштейний=:atom_es
+	фермий=:atom_fm
+	менделевий=:atom_md
+	нобелий=:atom_no
+	лоуренсий=:atom_lr
+	резерфордий=:atom_rf
+	дубний=:atom_db
+	сиборгий=:atom_sg
+	борий=:atom_bh
+	хассий=:atom_hs
+	мейтнерий=:atom_mt
+	дармштадтий=:atom_ds
+	рентгений=:atom_rg
+	коперниций=:atom_cn
+	унунтрий=:atom_uut
+	флеровий=:atom_fl
+	унунпентий=:atom_uup
+	ливерморий=:atom_lv
+	унунсептий=:atom_uus
+	унуноктий=:atom_uuo
+}
+//
+// Латинские наименования химических элементов
+//
+[la]{
+	hydrogenium=:atom_h
+	helium=:atom_he
+	lithium=:atom_li
+	beryllium=:atom_be
+	borum=:atom_b
+	carboneum=:atom_c
+	nitrogenium=:atom_n
+	oxygenium=:atom_o
+	ftorum=:atom_f
+	neon=:atom_ne
+	natrium=:atom_na
+	magnesium=:atom_mg
+	aluminium=:atom_al
+	silicium=:atom_si
+	phosphorum=:atom_p
+	sulfurum=:atom_s
+	chlorum=:atom_cl
+	argon=:atom_ar
+	kalium=:atom_k
+	calium=:atom_k
+	calcium=:atom_ca
+	scandium=:atom_sc
+	titanium=:atom_ti
+	vanadium=:atom_v
+	chromium=:atom_cr
+	manganum=:atom_mn
+	manganesium=:atom_mn
+	ferrum=:atom_fe
+	cobaltum=:atom_co
+	niccolum=:atom_ni
+	cuprum=:atom_cu
+	zincum=:atom_zn
+	gallium=:atom_ga
+	germanium=:atom_ge
+	arsenicum=:atom_as
+	selenium=:atom_se
+	bromum=:atom_br
+	krypton=:atom_kr 
+	crypton=:atom_kr
+	rubidium=:atom_rb
+	strontium=:atom_sr
+	yttrium=:atom_y
+	zirconium=:atom_zr
+	niobium=:atom_nb
+	molybdaenum=:atom_mo
+	technetium=:atom_tc
+	ruthenium=:atom_ru
+	rhodium=:atom_rh
+	palladium=:atom_pd
+	argentum=:atom_ag
+	cadmium=:atom_cd
+	indium=:atom_in
+	stannum=:atom_sn
+	stibium=:atom_sb
+	tellurium=:atom_te
+	iodium=:atom_i
+	jodium=:atom_i
+	xenon=:atom_xe
+	caesium=:atom_cs
+	barium=:atom_ba
+	lantanum=:atom_la
+	cerium=:atom_ce
+	prasaeodymum=:atom_pr
+	neodymum=:atom_nd
+	prometium=:atom_pm
+	samarium=:atom_sm
+	europium=:atom_eu
+	gadolinium=:atom_gd
+	terbium=:atom_tb
+	dysprosium=:atom_dy
+	holmium=:atom_ho
+	erbium=:atom_er
+	thulium=:atom_tm
+	ytterbium=:atom_yb
+	lutetium=:atom_lu
+	hafnium=:atom_hf
+	tantalum=:atom_ta
+	wolfrahmium=:atom_w
+	rhenium=:atom_re
+	osmium=:atom_os
+	iridium=:atom_ir
+	platinum=:atom_pt
+	aurum=:atom_au
+	hydrargyrum=:atom_hg
+	thallium=:atom_tl
+	plumbum=:atom_pb
+	bismuthum=:atom_bi
+	wismatum=:atom_bi
+}
+//
+// Числительные //
+//
+{
+	:unum          // 1
+	:duo           // 2
+	:tres          // 3
+	:quattuor      // 4 
+	:quinque       // 5 
+	:sex           // 6
+	:septem        // 7
+	:octo          // 8
+	:novem         // 9
+	:decem         // 10
+	:undecim       // 11
+	:duodecim      // 12
+	:tredecim      // 13
+	:quattuordecim // 14 
+	:quindecim     // 15
+	:sedecim       // 16
+	:septendecim   // 17
+	:decemetocto   // 18
+	:undeviginti   // 19
+	:viginti       // 20
+	:triginta      // 30
+	:quadraginta   // 40
+	:quinquaginta  // 50
+	:sexaginta     // 60
+	:septuaginta   // 70
+	:octoginta     // 80
+	:nonaginta     // 90
+	:centum        // 100
+	:mille         // 1000
+	:million       // 1E6
+}:numerales
+
+[en]{
+	one=:unum
+	two=:duo
+	three=:tres
+	four=:quattuor
+	five=:quinque
+	six=:sex
+	seven=:septem
+	eight=:octo
+	nine=:novem
+	ten=:decem
+	eleven=:undecim
+	twelve=:duodecim
+	thirteen=:tredecim
+	fourteen=:quattuordecim
+	fifteen=:quindecim
+	sixteen=:sedecim
+	seventeen=:septendecim
+	eighteen=:decemetocto
+	nineteen=:undeviginti
+	twenty=:viginti
+	thirty=:triginta
+	forty=:quadraginta
+	fifty=:quinquaginta
+	sixty=:sexaginta
+	seventy=:septuaginta
+	eighty=:octoginta
+	ninety=:nonaginta
+	hundred=:centum
+	thousand=:mille
+	million=:million
+}
+
+[ru] {
+	один=:unum          // 1
+	два=:duo           // 2
+	три=:tres          // 3
+	четыре=:quattuor      // 4 
+	пять=:quinque       // 5 
+	шесть=:sex           // 6
+	семь=:septem        // 7
+	восемь=:octo          // 8
+	девять=:novem         // 9
+	десять=:decem         // 10
+	одинадцать=:undecim       // 11
+	двенадцать=:duodecim      // 12
+	тринадцать=:tredecim      // 13
+	четырнадцать=:quattuordecim // 14 
+	пятнадцать=:quindecim     // 15
+	шестнадцать=:sedecim       // 16
+	семнадцать=:septendecim   // 17
+	восемнадцать=:decemetocto   // 18
+	девятнадцать=:undeviginti   // 19
+	двадцать=:viginti       // 20
+	тридцать=:triginta      // 30
+	сорок=:quadraginta   // 40
+	пятьдесят=:quinquaginta  // 50
+	шестьдесят=:sexaginta     // 60
+	семьдесят=:septuaginta   // 70
+	восемьдесят=:octoginta     // 80
+	девяносто=:nonaginta     // 90
+	сто=:centum        // 100
+	тысяча=:mille         // 1000
+	миллион=:million       // 1E6
+}
+//
+// Размерности
+//
+{
+	:dim_quantity                // Количество 
+	:dim_length                  // Длина   meter
+	:dim_area                    // Площадь length^2
+	:dim_volume                  // Объем   length^3
+	:dim_mass                    // Масса   kilogram
+	:dim_current                 // Сила тока ampere
+	:dim_amount                  // Количество вещества mole
+	:dim_angle                   // Угол radian
+	:dim_solid_angle             // Сплошной угол steradian
+	:dim_force                   // Сила newton
+	:dim_pressure                // Давление force / area
+	:dim_charge                  // Электрический заряд coulomb
+	:dim_capacitance             // Электрическая емкость farad
+	:dim_resistance              // Электрическое сопротивление ohm
+	:dim_conductance             // Электрическая проводимость siemens
+	:dim_inductance              // Электрическая индуктивность henry
+	:dim_frequency               // Частота колебаний hertz
+	:dim_velocity                // Скорость length / time
+	:dim_acceleration            // Ускорение velocity / time
+	:dim_density                 // Плотность вещества mass / volume
+	:dim_linear_density          // Линейная плотность вещества mass / length
+	:dim_viscosity               // Вязкость вещества force time / area
+	:dim_kinematic_viscosity     // Кинематическая вязкость вещества viscosity / density
+}:dimension
+//
+//
+//
+:dim_money::dimention // Денежная размерность us$
+:currency::dim_money  // Валюта
+//
+// Валюты
+//
+{
+	:curr_adp // andorran peseta
+	:curr_aed // united arab emirates dirham
+	:curr_afa // afghan afghani (1927-2002)
+	:curr_afn // afghan afghani
+	:curr_alk // albanian lek (1946-1965)
+	:curr_all // albanian lek
+	:curr_amd // armenian dram
+	:curr_ang // netherlands antillean guilder
+	:curr_aoa // angolan kwanza
+	:curr_aok // angolan kwanza (1977-1991)
+	:curr_aon // angolan new kwanza (1990-2000)
+	:curr_aor // angolan readjusted kwanza (1995-1999)
+	:curr_ara // argentine austral
+	:curr_arl // argentine peso ley (1970-1983)
+	:curr_arm // argentine peso (1881-1970)
+	:curr_arp // argentine peso (1983-1985)
+	:curr_ars // argentine peso
+	:curr_ats // austrian schilling
+	:curr_aud // australian dollar
+	:curr_awg // aruban florin
+	:curr_azm // azerbaijani manat (1993-2006)
+	:curr_azn // azerbaijani manat
+	:curr_bad // bosnia-herzegovina dinar (1992-1994)
+	:curr_bam // bosnia-herzegovina convertible mark
+	:curr_ban // bosnia-herzegovina new dinar (1994-1997)
+	:curr_bbd // barbadian dollar
+	:curr_bdt // bangladeshi taka
+	:curr_bec // belgian franc (convertible)
+	:curr_bef // belgian franc
+	:curr_bel // belgian franc (financial)
+	:curr_bgl // bulgarian hard lev
+	:curr_bgm // bulgarian socialist lev
+	:curr_bgn // bulgarian lev
+	:curr_bgo // bulgarian lev (1879-1952)
+	:curr_bhd // bahraini dinar
+	:curr_bif // burundian franc
+	:curr_bmd // bermudan dollar
+	:curr_bnd // brunei dollar
+	:curr_bob // bolivian boliviano
+	:curr_bol // bolivian boliviano (1863-1963)
+	:curr_bop // bolivian peso
+	:curr_bov // bolivian mvdol
+	:curr_brb // brazilian new cruzeiro (1967-1986)
+	:curr_brc // brazilian cruzado (1986-1989)
+	:curr_bre // brazilian cruzeiro (1990-1993)
+	:curr_brl // brazilian real
+	:curr_brn // brazilian new cruzado (1989-1990)
+	:curr_brr // brazilian cruzeiro (1993-1994)
+	:curr_brz // brazilian cruzeiro (1942-1967)
+	:curr_bsd // bahamian dollar
+	:curr_btn // bhutanese ngultrum
+	:curr_buk // burmese kyat
+	:curr_bwp // botswanan pula
+	:curr_byb // belarusian new ruble (1994-1999)
+	:curr_byr // belarusian ruble
+	:curr_bzd // belize dollar
+	:curr_cad // canadian dollar
+	:curr_cdf // congolese franc
+	:curr_che // wir euro
+	:curr_chf // swiss franc
+	:curr_chw // wir franc
+	:curr_cle // chilean escudo
+	:curr_clf // chilean unit of account (uf)
+	:curr_clp // chilean peso
+	:curr_cnx // chinese people’s bank dollar
+	:curr_cny // chinese yuan
+	:curr_cop // colombian peso
+	:curr_cou // colombian real value unit
+	:curr_crc // costa rican colón
+	:curr_csd // serbian dinar (2002-2006)
+	:curr_csk // czechoslovak hard koruna
+	:curr_cuc // cuban convertible peso
+	:curr_cup // cuban peso
+	:curr_cve // cape verdean escudo
+	:curr_cyp // cypriot pound
+	:curr_czk // czech republic koruna
+	:curr_ddm // east german mark
+	:curr_dem // german mark
+	:curr_djf // djiboutian franc
+	:curr_dkk // danish krone
+	:curr_dop // dominican peso
+	:curr_dzd // algerian dinar
+	:curr_ecs // ecuadorian sucre
+	:curr_ecv // ecuadorian unit of constant value
+	:curr_eek // estonian kroon
+	:curr_egp // egyptian pound
+	:curr_ern // eritrean nakfa
+	:curr_esa // spanish peseta (a account)
+	:curr_esb // spanish peseta (convertible account)
+	:curr_esp // spanish peseta
+	:curr_etb // ethiopian birr
+	:curr_eur // euro
+	:curr_fim // finnish markka
+	:curr_fjd // fijian dollar
+	:curr_fkp // falkland islands pound
+	:curr_frf // french franc
+	:curr_gbp // british pound sterling
+	:curr_gek // georgian kupon larit
+	:curr_gel // georgian lari
+	:curr_ghc // ghanaian cedi (1979-2007)
+	:curr_ghs // ghanaian cedi
+	:curr_gip // gibraltar pound
+	:curr_gmd // gambian dalasi
+	:curr_gnf // guinean franc
+	:curr_gns // guinean syli
+	:curr_gqe // equatorial guinean ekwele
+	:curr_grd // greek drachma
+	:curr_gtq // guatemalan quetzal
+	:curr_gwe // portuguese guinea escudo
+	:curr_gwp // guinea-bissau peso
+	:curr_gyd // guyanaese dollar
+	:curr_hkd // hong kong dollar
+	:curr_hnl // honduran lempira
+	:curr_hrd // croatian dinar
+	:curr_hrk // croatian kuna
+	:curr_htg // haitian gourde
+	:curr_huf // hungarian forint
+	:curr_idr // indonesian rupiah
+	:curr_iep // irish pound
+	:curr_ilp // israeli pound
+	:curr_ilr // israeli sheqel (1980-1985)
+	:curr_ils // israeli new sheqel
+	:curr_inr // indian rupee
+	:curr_iqd // iraqi dinar
+	:curr_irr // iranian rial
+	:curr_isj // icelandic króna (1918-1981)
+	:curr_isk // icelandic króna
+	:curr_itl // italian lira
+	:curr_jmd // jamaican dollar
+	:curr_jod // jordanian dinar
+	:curr_jpy // japanese yen
+	:curr_kes // kenyan shilling
+	:curr_kgs // kyrgystani som
+	:curr_khr // cambodian riel
+	:curr_kmf // comorian franc
+	:curr_kpw // north korean won
+	:curr_krh // south korean hwan (1953-1962)
+	:curr_kro // south korean won (1945-1953)
+	:curr_krw // south korean won
+	:curr_kwd // kuwaiti dinar
+	:curr_kyd // cayman islands dollar
+	:curr_kzt // kazakhstani tenge
+	:curr_lak // laotian kip
+	:curr_lbp // lebanese pound
+	:curr_lkr // sri lankan rupee
+	:curr_lrd // liberian dollar
+	:curr_lsl // lesotho loti
+	:curr_ltl // lithuanian litas
+	:curr_ltt // lithuanian talonas
+	:curr_luc // luxembourgian convertible franc
+	:curr_luf // luxembourgian franc
+	:curr_lul // luxembourg financial franc
+	:curr_lvl // latvian lats
+	:curr_lvr // latvian ruble
+	:curr_lyd // libyan dinar
+	:curr_mad // moroccan dirham
+	:curr_maf // moroccan franc
+	:curr_mcf // monegasque franc
+	:curr_mdc // moldovan cupon
+	:curr_mdl // moldovan leu
+	:curr_mga // malagasy ariary
+	:curr_mgf // malagasy franc
+	:curr_mkd // macedonian denar
+	:curr_mkn // macedonian denar (1992-1993)
+	:curr_mlf // malian franc
+	:curr_mmk // myanma kyat
+	:curr_mnt // mongolian tugrik
+	:curr_mop // macanese pataca
+	:curr_mro // mauritanian ouguiya
+	:curr_mtl // maltese lira
+	:curr_mtp // maltese pound
+	:curr_mur // mauritian rupee
+	:curr_mvp // maldivian rupee
+	:curr_mvr // maldivian rufiyaa
+	:curr_mwk // malawian kwacha
+	:curr_mxn // mexican peso
+	:curr_mxp // mexican silver peso (1861-1992)
+	:curr_mxv // mexican investment unit
+	:curr_myr // malaysian ringgit
+	:curr_mze // mozambican escudo
+	:curr_mzm // mozambican metical (1980-2006)
+	:curr_mzn // mozambican metical
+	:curr_nad // namibian dollar
+	:curr_ngn // nigerian naira
+	:curr_nic // nicaraguan córdoba (1988-1991)
+	:curr_nio // nicaraguan córdoba
+	:curr_nlg // dutch guilder
+	:curr_nok // norwegian krone
+	:curr_npr // nepalese rupee
+	:curr_nzd // new zealand dollar
+	:curr_omr // omani rial
+	:curr_pab // panamanian balboa
+	:curr_pei // peruvian inti
+	:curr_pen // peruvian nuevo sol
+	:curr_pes // peruvian sol (1863-1965)
+	:curr_pgk // papua new guinean kina
+	:curr_php // philippine peso
+	:curr_pkr // pakistani rupee
+	:curr_pln // polish zloty
+	:curr_plz // polish zloty (1950-1995)
+	:curr_pte // portuguese escudo
+	:curr_pyg // paraguayan guarani
+	:curr_qar // qatari rial
+	:curr_rhd // rhodesian dollar
+	:curr_rol // romanian leu (1952-2006)
+	:curr_ron // romanian leu
+	:curr_rsd // serbian dinar
+	:curr_rub // russian ruble
+	:curr_rur // russian ruble (1991-1998)
+	:curr_rwf // rwandan franc
+	:curr_sar // saudi riyal
+	:curr_sbd // solomon islands dollar
+	:curr_scr // seychellois rupee
+	:curr_sdd // sudanese dinar (1992-2007)
+	:curr_sdg // sudanese pound
+	:curr_sdp // sudanese pound (1957-1998)
+	:curr_sek // swedish krona
+	:curr_sgd // singapore dollar
+	:curr_shp // saint helena pound
+	:curr_sit // slovenian tolar
+	:curr_skk // slovak koruna
+	:curr_sll // sierra leonean leone
+	:curr_sos // somali shilling
+	:curr_srd // surinamese dollar
+	:curr_srg // surinamese guilder
+	:curr_std // são tomé and príncipe dobra
+	:curr_sur // soviet rouble
+	:curr_svc // salvadoran colón
+	:curr_syp // syrian pound
+	:curr_szl // swazi lilangeni
+	:curr_thb // thai baht
+	:curr_tjr // tajikistani ruble
+	:curr_tjs // tajikistani somoni
+	:curr_tmm // turkmenistani manat (1993-2009)
+	:curr_tmt // turkmenistani manat
+	:curr_tnd // tunisian dinar
+	:curr_top // tongan paʻanga
+	:curr_tpe // timorese escudo
+	:curr_trl // turkish lira (1922-2005)
+	:curr_try // turkish lira
+	:curr_ttd // trinidad and tobago dollar
+	:curr_twd // new taiwan dollar
+	:curr_tzs // tanzanian shilling
+	:curr_uah // ukrainian hryvnia
+	:curr_uak // ukrainian karbovanets
+	:curr_ugs // ugandan shilling (1966-1987)
+	:curr_ugx // ugandan shilling
+	:curr_usd // us dollar
+	:curr_usn // us dollar (next day)
+	:curr_uss // us dollar (same day)
+	:curr_uyi // uruguayan peso (indexed units)
+	:curr_uyp // uruguayan peso (1975-1993)
+	:curr_uyu // uruguayan peso
+	:curr_uzs // uzbekistan som
+	:curr_veb // venezuelan bolívar (1871-2008)
+	:curr_vef // venezuelan bolívar
+	:curr_vnd // vietnamese dong
+	:curr_vnn // vietnamese dong (1978-1985)
+	:curr_vuv // vanuatu vatu
+	:curr_wst // samoan tala
+	:curr_xaf // cfa franc beac
+	:curr_xag // silver
+	:curr_xau // gold
+	:curr_xba // european composite unit
+	:curr_xbb // european monetary unit
+	:curr_xbc // european unit of account (xbc)
+	:curr_xbd // european unit of account (xbd)
+	:curr_xcd // east caribbean dollar
+	:curr_xdr // special drawing rights
+	:curr_xeu // european currency unit
+	:curr_xfo // french gold franc
+	:curr_xfu // french uic-franc
+	:curr_xof // cfa franc bceao
+	:curr_xpd // palladium
+	:curr_xpf // cfp franc
+	:curr_xpt // platinum
+	:curr_xre // rinet funds
+	:curr_xts // testing currency code
+	:curr_xxx // unknown currency
+	:curr_ydd // yemeni dinar
+	:curr_yer // yemeni rial
+	:curr_yud // yugoslavian hard dinar (1966-1990)
+	:curr_yum // yugoslavian new dinar (1994-2002)
+	:curr_yun // yugoslavian convertible dinar (1990-1992)
+	:curr_yur // yugoslavian reformed dinar (1992-1993)
+	:curr_zal // south african rand (financial)
+	:curr_zar // south african rand
+	:curr_zmk // zambian kwacha
+	:curr_zrn // zairean new zaire (1993-1998)
+	:curr_zrz // zairean zaire (1971-1993)
+	:curr_zwd // zimbabwean dollar (1980-2008)
+	:curr_zwl // zimbabwean dollar (2009)
+	:curr_zwr // zimbabwean dollar (2008)
+}:currency
+//
+// urischeme (https://en.wikipedia.org/wiki/URI_scheme)
+//
+:urischeme // Схема URI
+
+{
+	aaa
+	aaas
+	about
+	acap
+	acct
+	acr
+	adiumxtra
+	afp
+	afs
+	aim
+	app
+	apt
+	attachment
+	aw
+	barion
+	beshare
+	bitcoin
+	bolo
+	callto
+	cap
+	chrome
+	chrome
+	chrome-extension
+	cid
+	coap
+	coaps
+	com-eventbrite-attendee
+	content
+	crid
+	cvs
+	data
+	dav
+	dict
+	dlna-playcontainer
+	dlna-playsingle
+	dns
+	doi
+	dtn
+	dvb
+	ed2k
+	example
+	facetime
+	fax
+	feed
+	file
+	finger
+	fish
+	ftp
+	geo
+	gg
+	git
+	gizmoproject
+	go
+	gopher
+	gtalk
+	h323
+	hcp
+	http
+	https
+	iax
+	icap
+	icon
+	im
+	imap
+	info
+	ipn
+	ipp
+	ipps
+	irc
+	irc6
+	ircs
+	iris
+	iris.beep
+	iris.lws
+	iris.xpc
+	iris.xpcs
+	itms
+	jabber
+	jar
+	javascript
+	jdbc
+	jms
+	keyparc
+	lastfm
+	ldap
+	ldaps
+	magnet
+	mailserver
+	mailto
+	maps
+	market
+	message
+	mid
+	mms
+	modem
+	ms-help
+	msnim
+	msrp
+	msrps
+	ms-settings-cloudstorage
+	ms-settings-power
+	mtqp
+	mumble
+	mupdate
+	mvn
+	news
+	nfs
+	ni
+	nih
+	nntp
+	notes
+	odbc
+	oid
+	opaquelocktoken
+	pack
+	palm
+	paparazzi
+	pkcs11
+	platform
+	pop
+	pres
+	prospero
+	proxy
+	psyc
+	query
+	reload
+	res
+	resource
+	rmi
+	rsync
+	rtmfp
+	rtmp
+	rtsp
+	scheme
+	secondlife
+	service
+	session
+	sftp
+	sgn
+	shttp
+	sieve
+	sip
+	sips
+	skype
+	smb
+	sms
+	snews
+	snmp
+	soap.beep
+	soap.beeps
+	soldat
+	spotify
+	ssh
+	steam
+	stratum
+	stun
+	stuns
+	svn
+	tag
+	teamspeak
+	tel
+	telnet
+	tftp
+	things
+	thismessage
+	tip
+	tn3270
+	turn
+	turns
+	tv
+	udp
+	udp
+	unreal
+	urn
+	ut2004
+	vemmi
+	ventrilo
+	videotex
+	view-source
+	vnc
+	wais
+	webcal
+	ws
+	wss
+	wtai
+	wyciwyg
+	xcon
+	xcon-userid
+	xfire
+	xmlrpc.beep
+	xmlrpc.beeps
+	xmpp
+	xri
+	ymsgr
+	z39.50
+	z39.50r
+	z39.50s
+}:urischeme
+//
+//
+//
+:month
+:dayofweek
+
+[ru]{
+	январь
+	февраль
+	март
+	апрель
+	март
+	июнь
+	июль
+	август
+	сентябрь
+	октябрь
+	ноябрь
+	декабрь
+}:month
+
+[ru]{
+	понедельник
+	вторник
+	среда
+	четверг
+	пятница
+	суббота
+	воскресенье
+}:dayofweek
+//
+// Примеры синтаксиса определения понятия на натуральном языке //
+//
+[ru]широта=:geolat
+[ru]долгота=:geolong
+
+[ru]петрозаводск:urbs(:statu_ru, latitude=61.6, longitude=34.5)
+[ru]ростов-на-дону:urbs(:statu_ru)
+
+[ru]вологодская область:cregion(statu= :statu_ru)
+
+[ru] рубль{ =:curr_rub =:curr_rur =:curr_sur }
+
+[ru]{
+	россия=:statu_ru
+	украина=:statu_ua
+	бразилия=:statu_br
+	соединенные штаты америки=:statu_us
+	сша=:statu_us	
+}
+
+[ru]{
+	республика карелия
+	москва
+	московскя область
+}:cregion(:statu_ru)
+
+[ru]{
+	техас
+	аляска
+	мичиган
+	аризона
+}:cregion(:statu_us)

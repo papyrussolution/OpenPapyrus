@@ -37,8 +37,8 @@ typedef uchar xmlChar;
 /*
  * xmlChar handling
  */
-XMLPUBFUN xmlChar * XMLCALL xmlStrdup(const xmlChar * cur);
-XMLPUBFUN xmlChar * XMLCALL xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len);
+XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlStrdup(const xmlChar * cur);
+XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len);
 XMLPUBFUN xmlChar * XMLCALL xmlCharStrndup(const char * cur, int len);
 XMLPUBFUN xmlChar * XMLCALL xmlCharStrdup(const char * cur);
 XMLPUBFUN xmlChar * XMLCALL xmlStrsub(const xmlChar * str, int start, int len);

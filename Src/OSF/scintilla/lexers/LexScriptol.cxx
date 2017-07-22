@@ -27,7 +27,7 @@ static void ClassifyWordSol(Sci_PositionU start, Sci_PositionU end, WordList &ke
 		s[i + 1] = '\0';
 	}
 	char chAttr = SCE_SCRIPTOL_IDENTIFIER;
-	if(0 == strcmp(prevWord, "class")) chAttr = SCE_SCRIPTOL_CLASSNAME;
+	if(sstreq(prevWord, "class")) chAttr = SCE_SCRIPTOL_CLASSNAME;
 	else if(wordIsNumber) chAttr = SCE_SCRIPTOL_NUMBER;
 	else if(keywords.InList(s)) chAttr = SCE_SCRIPTOL_KEYWORD;
 	else for(Sci_PositionU i = 0; i < end - start + 1; i++) { // test dotted idents

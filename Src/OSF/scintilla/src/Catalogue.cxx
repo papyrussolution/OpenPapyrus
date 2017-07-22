@@ -40,7 +40,7 @@ const LexerModule * FASTCALL Catalogue::Find(const char * languageName)
 	if(languageName) {
 		for(std::vector<LexerModule *>::iterator it = lexerCatalogue.begin();
 		    it != lexerCatalogue.end(); ++it) {
-			if((*it)->languageName && (0 == strcmp((*it)->languageName, languageName))) {
+			if((*it)->languageName && (sstreq((*it)->languageName, languageName))) {
 				return *it;
 			}
 		}

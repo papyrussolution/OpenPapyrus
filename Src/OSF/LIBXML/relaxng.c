@@ -7122,13 +7122,13 @@ static void xmlRelaxNGValidateCompiledCallback(xmlRegExecCtxtPtr exec ATTRIBUTE_
 		if(token[0] == '#')
 			return;
 		fprintf(stderr, "callback on %s missing define\n", token);
-		if(ctxt && (ctxt->errNo == XML_RELAXNG_OK))
+		if(ctxt && ctxt->errNo == XML_RELAXNG_OK)
 			ctxt->errNo = XML_RELAXNG_ERR_INTERNAL;
 		return;
 	}
 	if(!ctxt || (define == NULL)) {
 		fprintf(stderr, "callback on %s missing info\n", token);
-		if(ctxt && (ctxt->errNo == XML_RELAXNG_OK))
+		if(ctxt && ctxt->errNo == XML_RELAXNG_OK)
 			ctxt->errNo = XML_RELAXNG_ERR_INTERNAL;
 		return;
 	}
@@ -7338,14 +7338,14 @@ static void xmlRelaxNGValidateProgressiveCallback(xmlRegExecCtxtPtr exec
 		if(token[0] == '#')
 			return;
 		fprintf(stderr, "callback on %s missing define\n", token);
-		if(ctxt && (ctxt->errNo == XML_RELAXNG_OK))
+		if(ctxt && ctxt->errNo == XML_RELAXNG_OK)
 			ctxt->errNo = XML_RELAXNG_ERR_INTERNAL;
 		ctxt->pstate = -1;
 		return;
 	}
 	if(!ctxt || (define == NULL)) {
 		fprintf(stderr, "callback on %s missing info\n", token);
-		if(ctxt && (ctxt->errNo == XML_RELAXNG_OK))
+		if(ctxt && ctxt->errNo == XML_RELAXNG_OK)
 			ctxt->errNo = XML_RELAXNG_ERR_INTERNAL;
 		ctxt->pstate = -1;
 		return;

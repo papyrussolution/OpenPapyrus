@@ -111,7 +111,7 @@ static int xmlParserEntityCheck(xmlParserCtxtPtr ctxt, size_t size, xmlEntityPtr
 	 * entities problems
 	 */
 	if(ent && (ent->etype != XML_INTERNAL_PREDEFINED_ENTITY) && ent->content && (ent->checked == 0)) {
-		unsigned long oldnbent = ctxt->nbentities;
+		ulong oldnbent = ctxt->nbentities;
 		xmlChar * rep;
 		ent->checked = 1;
 		rep = xmlStringDecodeEntities(ctxt, ent->content, XML_SUBSTITUTE_REF, 0, 0, 0);
@@ -1822,9 +1822,9 @@ static void xmlSHRINK(xmlParserCtxtPtr ctxt)
 
 static void xmlGROW(xmlParserCtxtPtr ctxt) 
 {
-	unsigned long curEnd = ctxt->input->end - ctxt->input->cur;
-	unsigned long curBase = ctxt->input->cur - ctxt->input->base;
-	if(((curEnd > (unsigned long)XML_MAX_LOOKUP_LIMIT) || (curBase > (unsigned long)XML_MAX_LOOKUP_LIMIT)) &&
+	ulong  curEnd = ctxt->input->end - ctxt->input->cur;
+	ulong  curBase = ctxt->input->cur - ctxt->input->base;
+	if(((curEnd > (ulong)XML_MAX_LOOKUP_LIMIT) || (curBase > (ulong)XML_MAX_LOOKUP_LIMIT)) &&
 	    ((ctxt->input->buf) && (ctxt->input->buf->readcallback != (xmlInputReadCallback)xmlNop)) &&
 	    ((ctxt->options & XML_PARSE_HUGE) == 0)) {
 		xmlFatalErr(ctxt, XML_ERR_INTERNAL_ERROR, "Huge input lookup");
@@ -2893,14 +2893,13 @@ xmlChar * xmlSplitQName(xmlParserCtxtPtr ctxt, const xmlChar * name, xmlChar ** 
 *									*
 ************************************************************************/
 #ifdef DEBUG
-static unsigned long nbParseName = 0;
-static unsigned long nbParseNmToken = 0;
-static unsigned long nbParseNCName = 0;
-static unsigned long nbParseNCNameComplex = 0;
-static unsigned long nbParseNameComplex = 0;
-static unsigned long nbParseStringName = 0;
+	static ulong nbParseName = 0;
+	static ulong nbParseNmToken = 0;
+	static ulong nbParseNCName = 0;
+	static ulong nbParseNCNameComplex = 0;
+	static ulong nbParseNameComplex = 0;
+	static ulong nbParseStringName = 0;
 #endif
-
 /*
  * The two following functions are related to the change of accepted
  * characters for Name and NmToken in the Revision 5 of XML-1.0
@@ -3073,8 +3072,7 @@ static const xmlChar * xmlParseNameComplex(xmlParserCtxtPtr ctxt)
 			}
 		}
 	}
-	if((len > XML_MAX_NAME_LENGTH) &&
-	    ((ctxt->options & XML_PARSE_HUGE) == 0)) {
+	if((len > XML_MAX_NAME_LENGTH) && ((ctxt->options & XML_PARSE_HUGE) == 0)) {
 		xmlFatalErr(ctxt, XML_ERR_NAME_TOO_LONG, "Name");
 		return 0;
 	}
@@ -3736,7 +3734,7 @@ static xmlChar * xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int * attlen, in
 					 * entities problems
 					 */
 					if((ent->etype != XML_INTERNAL_PREDEFINED_ENTITY) && ent->content && !ent->checked) {
-						unsigned long oldnbent = ctxt->nbentities;
+						ulong oldnbent = ctxt->nbentities;
 						rep = xmlStringDecodeEntities(ctxt, ent->content, XML_SUBSTITUTE_REF, 0, 0, 0);
 						ent->checked = (ctxt->nbentities - oldnbent + 1) * 2;
 						if(rep != NULL) {
@@ -6622,7 +6620,7 @@ void xmlParseReference(xmlParserCtxtPtr ctxt)
 	 * the document entity by default.
 	 */
 	if((ent->checked == 0) && ((ent->etype != XML_EXTERNAL_GENERAL_PARSED_ENTITY) || (ctxt->options & (XML_PARSE_NOENT | XML_PARSE_DTDVALID)))) {
-		unsigned long oldnbent = ctxt->nbentities;
+		ulong oldnbent = ctxt->nbentities;
 		/*
 		 * This is a bit hackish but this seems the best
 		 * way to make sure both SAX and DOM entity support
@@ -8433,7 +8431,7 @@ static const xmlChar * xmlParseStartTag2(xmlParserCtxtPtr ctxt, const xmlChar **
 	int nratts, nbatts, nbdef;
 	int i, j, nbNs, attval, oldline, oldcol;
 	const xmlChar * base;
-	unsigned long cur;
+	ulong cur;
 	int nsNr = ctxt->nsNr;
 	if(RAW != '<')
 		return 0;

@@ -2553,23 +2553,19 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input, FILE *
 	while(1) {
 		if(ctxt->node == (xmlNode *)ctxt->doc)
 			snprintf(prompt, sizeof(prompt), "%s > ", "/");
-		else if(ctxt->node && (ctxt->node->name) &&
-		    (ctxt->node->ns) && (ctxt->node->ns->prefix))
-			snprintf(prompt, sizeof(prompt), "%s:%s > ",
-			    (ctxt->node->ns->prefix), ctxt->node->name);
+		else if(ctxt->node && (ctxt->node->name) && (ctxt->node->ns) && (ctxt->node->ns->prefix))
+			snprintf(prompt, sizeof(prompt), "%s:%s > ", (ctxt->node->ns->prefix), ctxt->node->name);
 		else if(ctxt->node && (ctxt->node->name))
 			snprintf(prompt, sizeof(prompt), "%s > ", ctxt->node->name);
 		else
 			snprintf(prompt, sizeof(prompt), "? > ");
 		prompt[sizeof(prompt) - 1] = 0;
-
 		/*
 		 * Get a new command line
 		 */
 		cmdline = ctxt->input(prompt);
 		if(cmdline == NULL)
 			break;
-
 		/*
 		 * Parse the command itself
 		 */

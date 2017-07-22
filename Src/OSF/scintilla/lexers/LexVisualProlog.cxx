@@ -311,7 +311,7 @@ void SCI_METHOD LexerVisualProlog::Lex(Sci_PositionU startPos, Sci_Position leng
 			    if(!isIdChar(sc.ch)) {
 				    char s[1000];
 				    sc.GetCurrent(s, sizeof(s));
-				    if(0 == strcmp(s, "end")) {
+				    if(sstreq(s, "end")) {
 					    endLookAhead(s, styler, sc.currentPos);
 				    }
 				    if(majorKeywords.InList(s)) {

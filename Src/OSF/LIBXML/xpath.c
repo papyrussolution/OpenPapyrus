@@ -2208,7 +2208,7 @@ static xmlXPathObjectPtr xmlXPathCacheWrapString(xmlXPathContextPtr ctxt, xmlCha
  */
 static xmlXPathObjectPtr xmlXPathCacheNewNodeSet(xmlXPathContextPtr ctxt, xmlNodePtr val)
 {
-	if(ctxt && (ctxt->cache)) {
+	if(ctxt && ctxt->cache) {
 		xmlXPathContextCachePtr cache = (xmlXPathContextCachePtr)ctxt->cache;
 		if(cache->nodesetObjs && (cache->nodesetObjs->number != 0)) {
 			/*
@@ -2265,7 +2265,7 @@ static xmlXPathObjectPtr xmlXPathCacheNewNodeSet(xmlXPathContextPtr ctxt, xmlNod
  */
 static xmlXPathObjectPtr xmlXPathCacheNewCString(xmlXPathContextPtr ctxt, const char * val)
 {
-	if(ctxt && (ctxt->cache)) {
+	if(ctxt && ctxt->cache) {
 		xmlXPathContextCachePtr cache = (xmlXPathContextCachePtr)ctxt->cache;
 		if(cache->stringObjs && (cache->stringObjs->number != 0)) {
 			xmlXPathObjectPtr ret = (xmlXPathObjectPtr)cache->stringObjs->items[--cache->stringObjs->number];
@@ -2301,7 +2301,7 @@ static xmlXPathObjectPtr xmlXPathCacheNewCString(xmlXPathContextPtr ctxt, const 
  */
 static xmlXPathObjectPtr xmlXPathCacheNewString(xmlXPathContextPtr ctxt, const xmlChar * val)
 {
-	if(ctxt && (ctxt->cache)) {
+	if(ctxt && ctxt->cache) {
 		xmlXPathContextCachePtr cache = (xmlXPathContextCachePtr)ctxt->cache;
 		if(cache->stringObjs && (cache->stringObjs->number != 0)) {
 			xmlXPathObjectPtr ret = (xmlXPathObjectPtr)cache->stringObjs->items[--cache->stringObjs->number];
@@ -2343,7 +2343,7 @@ static xmlXPathObjectPtr xmlXPathCacheNewString(xmlXPathContextPtr ctxt, const x
  */
 static xmlXPathObjectPtr xmlXPathCacheNewBoolean(xmlXPathContextPtr ctxt, int val)
 {
-	if(ctxt && (ctxt->cache)) {
+	if(ctxt && ctxt->cache) {
 		xmlXPathContextCachePtr cache = (xmlXPathContextCachePtr)ctxt->cache;
 		if(cache->booleanObjs && (cache->booleanObjs->number != 0)) {
 			xmlXPathObjectPtr ret = (xmlXPathObjectPtr)cache->booleanObjs->items[--cache->booleanObjs->number];
@@ -2379,7 +2379,7 @@ static xmlXPathObjectPtr xmlXPathCacheNewBoolean(xmlXPathContextPtr ctxt, int va
  */
 static xmlXPathObjectPtr xmlXPathCacheNewFloat(xmlXPathContextPtr ctxt, double val)
 {
-	if(ctxt && (ctxt->cache)) {
+	if(ctxt && ctxt->cache) {
 		xmlXPathContextCachePtr cache = (xmlXPathContextCachePtr)ctxt->cache;
 		if(cache->numberObjs && (cache->numberObjs->number != 0)) {
 			xmlXPathObjectPtr ret = (xmlXPathObjectPtr)cache->numberObjs->items[--cache->numberObjs->number];

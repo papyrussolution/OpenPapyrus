@@ -1340,6 +1340,7 @@
     <ClCompile Include="..\PPLib\reptdlg.cpp" />
     <ClCompile Include="..\PPLib\rfldcorr.cpp" />
     <ClCompile Include="..\PPLib\salary.cpp" />
+    <ClCompile Include="..\PPLib\sartre.cpp" />
     <ClCompile Include="..\PPLib\SCARD.CPP" />
     <ClCompile Include="..\PPLib\scoclass.cpp" />
     <ClCompile Include="..\PPLib\Securdlg.cpp" />
@@ -1483,7 +1484,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Sartr\Sartr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\berkeleydb.h" />
@@ -1492,8 +1492,8 @@
     <ClInclude Include="..\Include\ppbrow.H" />
     <ClInclude Include="..\Include\Ppdefs.h" />
     <ClInclude Include="..\Include\ppsoapclient.h" />
+    <ClInclude Include="..\Include\sartre.h" />
     <ClInclude Include="..\PPMain\resrc1.h" />
-    <ClInclude Include="..\Sartr\sartr.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\Clipart\R\etc\gear-0001.gif" />

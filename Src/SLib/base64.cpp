@@ -46,7 +46,7 @@ int SLAPI encode64(const char * pIn, size_t inLen, char * pOut, size_t outMax, s
 {
 	int    ok = 1;
 	char   basis_64[256];
-	uchar * out = (unsigned char *)pOut;
+	uchar * out = (uchar *)pOut;
 	uchar  oval;
 	const  uchar * in = (const uchar *)pIn;
 	size_t olen = (inLen + 2) / 3 * 4;

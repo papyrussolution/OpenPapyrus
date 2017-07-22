@@ -118,8 +118,7 @@ static int disambiguateBareword(LexAccessor &styler, Sci_PositionU bk, Sci_Posit
 	}
 	// next, scan forward after word past tab/spaces only;
 	// if ch isn't one of '[{(,' we can skip the test
-	if((ch == '{' || ch == '(' || ch == '['|| ch == ',')
-	    && fw < endPos) {
+	if((ch == '{' || ch == '(' || ch == '['|| ch == ',') && fw < endPos) {
 		while(ch = static_cast<uchar>(styler.SafeGetCharAt(fw)),
 		    IsASpaceOrTab(ch) && fw < endPos) {
 			fw++;
@@ -203,8 +202,7 @@ static int styleCheckIdentifier(LexAccessor &styler, Sci_PositionU bk)
 	}
 	while(bk > 0) {
 		int bkstyle = styler.StyleAt(bk);
-		if(bkstyle == SCE_PL_DEFAULT
-		    || bkstyle == SCE_PL_COMMENTLINE) {
+		if(bkstyle == SCE_PL_DEFAULT || bkstyle == SCE_PL_COMMENTLINE) {
 			// skip whitespace, comments
 		}
 		else if(bkstyle == SCE_PL_OPERATOR) {

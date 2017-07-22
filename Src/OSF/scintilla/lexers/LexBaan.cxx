@@ -563,10 +563,10 @@ void SCI_METHOD LexerBaan::Lex(Sci_PositionU startPos, Sci_Position length, int 
 				    }
 				    if((keywords.kwHasSection && (sc.ch == ':')) ? keywords.Contains(s1) : keywords.Contains(s)) {
 					    sc.ChangeState(SCE_BAAN_WORD);
-					    if(0 == strcmp(s, "domain")) {
+					    if(sstreq(s, "domain")) {
 						    lineHasDomain = true;
 					    }
-					    else if(0 == strcmp(s, "function")) {
+					    else if(sstreq(s, "function")) {
 						    lineHasFunction = true;
 					    }
 				    }

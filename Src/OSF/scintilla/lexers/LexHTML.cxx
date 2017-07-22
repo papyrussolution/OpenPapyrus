@@ -327,7 +327,7 @@ static int classifyTagHTML(Sci_PositionU start, Sci_PositionU end,
 	}
 	styler.ColourTo(end, chAttr);
 	if(chAttr == SCE_H_TAG) {
-		if(allowScripts && 0 == strcmp(s, "script")) {
+		if(allowScripts && sstreq(s, "script")) {
 			// check to see if this is a self-closing tag by sniffing ahead
 			bool isSelfClose = false;
 			for(Sci_PositionU cPos = end; cPos <= end + 200; cPos++) {
@@ -344,7 +344,7 @@ static int classifyTagHTML(Sci_PositionU start, Sci_PositionU end,
 			if(!isSelfClose)
 				chAttr = SCE_H_SCRIPT;
 		}
-		else if(!isXml && 0 == strcmp(s, "comment")) {
+		else if(!isXml && sstreq(s, "comment")) {
 			chAttr = SCE_H_COMMENT;
 		}
 	}
@@ -406,15 +406,15 @@ static void classifyWordHTPy(Sci_PositionU start, Sci_PositionU end, WordList &k
 	}
 	s[i] = '\0';
 	char chAttr = SCE_HP_IDENTIFIER;
-	if(0 == strcmp(prevWord, "class"))
+	if(sstreq(prevWord, "class"))
 		chAttr = SCE_HP_CLASSNAME;
-	else if(0 == strcmp(prevWord, "def"))
+	else if(sstreq(prevWord, "def"))
 		chAttr = SCE_HP_DEFNAME;
 	else if(wordIsNumber)
 		chAttr = SCE_HP_NUMBER;
 	else if(keywords.InList(s))
 		chAttr = SCE_HP_WORD;
-	else if(isMako && 0 == strcmp(s, "block"))
+	else if(isMako && sstreq(s, "block"))
 		chAttr = SCE_HP_WORD;
 	styler.ColourTo(end, statePrintForState(chAttr, inScriptType));
 	strcpy(prevWord, s);
@@ -457,7 +457,7 @@ static bool isWordCdata(Sci_PositionU start, Sci_PositionU end, Accessor &styler
 		s[i] = styler[start + i];
 	}
 	s[i] = '\0';
-	return (0 == strcmp(s, "[CDATA["));
+	return (sstreq(s, "[CDATA["));
 }
 
 // Return the first state to reach when entering a scripting language
@@ -514,19 +514,19 @@ static bool FASTCALL isLineEnd(int ch)
 
 static bool isMakoBlockEnd(const int ch, const int chNext, const char * blockType)
 {
-	if(strlen(blockType) == 0) {
+	if(sstrlen(blockType) == 0) {
 		return ((ch == '%') && (chNext == '>'));
 	}
-	else if((0 == strcmp(blockType, "inherit")) || (0 == strcmp(blockType, "namespace")) || (0 == strcmp(blockType, "include")) || (0 == strcmp(blockType, "page"))) {
+	else if((sstreq(blockType, "inherit")) || (sstreq(blockType, "namespace")) || (sstreq(blockType, "include")) || (sstreq(blockType, "page"))) {
 		return ((ch == '/') && (chNext == '>'));
 	}
-	else if(0 == strcmp(blockType, "%")) {
+	else if(sstreq(blockType, "%")) {
 		if(ch == '/' && isLineEnd(chNext))
 			return 1;
 		else
 			return isLineEnd(ch);
 	}
-	else if(0 == strcmp(blockType, "{")) {
+	else if(sstreq(blockType, "{")) {
 		return ch == '}';
 	}
 	else {
@@ -536,13 +536,13 @@ static bool isMakoBlockEnd(const int ch, const int chNext, const char * blockTyp
 
 static bool isDjangoBlockEnd(const int ch, const int chNext, const char * blockType)
 {
-	if(strlen(blockType) == 0) {
+	if(sstrlen(blockType) == 0) {
 		return 0;
 	}
-	else if(0 == strcmp(blockType, "%")) {
+	else if(sstreq(blockType, "%")) {
 		return ((ch == '%') && (chNext == '}'));
 	}
-	else if(0 == strcmp(blockType, "{")) {
+	else if(sstreq(blockType, "{")) {
 		return ((ch == '}') && (chNext == '}'));
 	}
 	else {
@@ -1182,7 +1182,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				i++;
 				visibleChars++;
 			}
-			else if(0 == strcmp(makoBlockType, "%") && ch == '/') {
+			else if(sstreq(makoBlockType, "%") && ch == '/') {
 				i++;
 				visibleChars++;
 			}

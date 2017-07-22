@@ -101,7 +101,7 @@ struct VarChain {
 	}
 	bool contains(const char * testVar) const
 	{
-		return (var && (0 == strcmp(var, testVar))) || (link && link->contains(testVar));
+		return (var && (sstreq(var, testVar))) || (link && link->contains(testVar));
 	}
 	const char * var;
 	const VarChain * link;

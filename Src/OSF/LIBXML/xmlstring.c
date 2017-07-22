@@ -34,7 +34,7 @@
  *
  * Returns a new xmlChar * or NULL
  */
-xmlChar * xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len) 
+xmlChar * FASTCALL xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len) 
 {
 	xmlChar * ret = 0;
 	if(cur && len >= 0) {
@@ -60,7 +60,7 @@ xmlChar * xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len)
  *
  * Returns a new xmlChar * or NULL
  */
-xmlChar * xmlStrdup(const xmlChar * cur) 
+xmlChar * FASTCALL xmlStrdup(const xmlChar * cur) 
 {
 	if(!cur) 
 		return 0;

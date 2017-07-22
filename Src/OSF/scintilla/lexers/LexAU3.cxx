@@ -144,9 +144,7 @@ static int GetSendKey(const char * szLine, char * szKey)
 	// Check if the second portion is either a number or one of these keywords
 	szKey[nKeyPos] = '\0';
 	szSpecial[nSpecPos] = '\0';
-	if(strcmp(szSpecial, "down")== 0    || strcmp(szSpecial, "up")== 0  ||
-	    strcmp(szSpecial, "on")== 0      || strcmp(szSpecial, "off")== 0 ||
-	    strcmp(szSpecial, "toggle")== 0  || nSpecNum == 1) {
+	if(sstreq(szSpecial, "down") || sstreq(szSpecial, "up") || sstreq(szSpecial, "on") || sstreq(szSpecial, "off") || sstreq(szSpecial, "toggle") || nSpecNum == 1) {
 		nFlag = 0;
 	}
 	else{
@@ -235,14 +233,13 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 		}
 		// **********************************************
 		//
-		switch(sc.state)
-		{
+		switch(sc.state) {
 			case SCE_AU3_COMMENTBLOCK:
 		    {
 			    //Reset at line end
 			    if(sc.atLineEnd) {
 				    ci = 0;
-				    if(strcmp(s, "#ce")== 0 || strcmp(s, "#comments-end")== 0) {
+				    if(sstreq(s, "#ce") || sstreq(s, "#comments-end")) {
 					    if(sc.atLineEnd)
 						    sc.SetState(SCE_AU3_DEFAULT);
 					    else
@@ -266,8 +263,8 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 				    }
 				    break;
 			    }
-			    if(!(IsAWordChar(sc.ch) || (sc.ch == '-' && strcmp(s, "#comments") == 0))) {
-				    if((strcmp(s, "#ce")== 0 || strcmp(s, "#comments-end")== 0))
+			    if(!(IsAWordChar(sc.ch) || (sc.ch == '-' && sstreq(s, "#comments")))) {
+				    if(sstreq(s, "#ce") || sstreq(s, "#comments-end"))
 					    sc.SetState(SCE_AU3_COMMENT);              // set to comment line for the rest of the line
 				    else
 					    ci = 2;    // line doesn't begin with #CE so skip the rest of the line
@@ -304,9 +301,9 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 		    }
 			case SCE_AU3_KEYWORD:
 		    {
-			    if(!(IsAWordChar(sc.ch) || (sc.ch == '-' && (strcmp(s, "#comments") == 0 || strcmp(s, "#include") == 0)))) {
+			    if(!(IsAWordChar(sc.ch) || (sc.ch == '-' && (sstreq(s, "#comments") || sstreq(s, "#include"))))) {
 				    if(!IsTypeCharacter(sc.ch)) {
-					    if(strcmp(s, "#cs")== 0 || strcmp(s, "#comments-start")== 0) {
+					    if(sstreq(s, "#cs") || sstreq(s, "#comments-start")) {
 						    sc.ChangeState(SCE_AU3_COMMENTBLOCK);
 						    sc.SetState(SCE_AU3_COMMENTBLOCK);
 						    break;
@@ -326,7 +323,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 					    else if(keywords5.InList(s)) {
 						    sc.ChangeState(SCE_AU3_PREPROCESSOR);
 						    sc.SetState(SCE_AU3_DEFAULT);
-						    if(strcmp(s, "#include")== 0) {
+						    if(sstreq(s, "#include")) {
 							    si = 3;       // use to determine string start for #inlude <>
 						    }
 					    }
@@ -342,7 +339,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 						    sc.ChangeState(SCE_AU3_UDF);
 						    sc.SetState(SCE_AU3_DEFAULT);
 					    }
-					    else if(strcmp(s, "_") == 0) {
+					    else if(sstreq(s, "_")) {
 						    sc.ChangeState(SCE_AU3_OPERATOR);
 						    sc.SetState(SCE_AU3_DEFAULT);
 					    }
@@ -362,7 +359,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 			    // Numeric indicator error=9 normal=0 normal+dec=1 hex=2 E-not=3
 			    //
 			    // test for Hex notation
-			    if(strcmp(s, "0") == 0 && (sc.ch == 'x' || sc.ch == 'X') && ni == 0) {
+			    if(sstreq(s, "0") && (sc.ch == 'x' || sc.ch == 'X') && ni == 0) {
 				    ni = 2;
 				    break;
 			    }
@@ -561,7 +558,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 	// Colourize the last word correctly
 	//*************************************
 	if(sc.state == SCE_AU3_KEYWORD) {
-		if(strcmp(s_save, "#cs")== 0 || strcmp(s_save, "#comments-start")== 0) {
+		if(sstreq(s_save, "#cs") || sstreq(s_save, "#comments-start")) {
 			sc.ChangeState(SCE_AU3_COMMENTBLOCK);
 			sc.SetState(SCE_AU3_COMMENTBLOCK);
 		}
@@ -732,13 +729,13 @@ static void FoldAU3Doc(Sci_PositionU startPos, Sci_Position length, int, WordLis
 				}
 			}
 			// find out if the word "then" is the last on a "if" line
-			if(FirstWordEnd && strcmp(szKeyword, "if") == 0) {
+			if(FirstWordEnd && sstreq(szKeyword, "if")) {
 				if(szThenlen == 4) {
 					szThen[0] = szThen[1];
 					szThen[1] = szThen[2];
 					szThen[2] = szThen[3];
 					szThen[3] = static_cast<char>(tolower(ch));
-					if(strcmp(szThen, "then") == 0) {
+					if(sstreq(szThen, "then")) {
 						ThenFoundLast = true;
 					}
 				}
@@ -757,45 +754,39 @@ static void FoldAU3Doc(Sci_PositionU startPos, Sci_Position length, int, WordLis
 			// **************************
 			// if a keyword is found on the current line and the line doesn't end with _ (continuation)
 			//    and we are not inside a commentblock.
-			if(szKeywordlen > 0 && (!(chPrev == '_')) &&
-			    ((!(IsStreamCommentStyle(style)) || foldInComment)) ) {
+			if(szKeywordlen > 0 && (!(chPrev == '_')) && ((!(IsStreamCommentStyle(style)) || foldInComment)) ) {
 				szKeyword[szKeywordlen] = '\0';
 				// only fold "if" last keyword is "then"  (else its a one line if)
-				if(strcmp(szKeyword, "if") == 0  && ThenFoundLast) {
+				if(sstreq(szKeyword, "if")  && ThenFoundLast) {
 					levelNext++;
 				}
 				// create new fold for these words
-				if(strcmp(szKeyword, "do") == 0   || strcmp(szKeyword, "for") == 0 ||
-				    strcmp(szKeyword, "func") == 0 || strcmp(szKeyword, "while") == 0||
-				    strcmp(szKeyword, "with") == 0 || strcmp(szKeyword, "#region") == 0) {
+				if(sstreq(szKeyword, "do") || sstreq(szKeyword, "for") || sstreq(szKeyword, "func") || sstreq(szKeyword, "while") || sstreq(szKeyword, "with") || sstreq(szKeyword, "#region")) {
 					levelNext++;
 				}
 				// create double Fold for select&switch because Case will subtract one of the current level
-				if(strcmp(szKeyword, "select") == 0 || strcmp(szKeyword, "switch") == 0) {
+				if(sstreq(szKeyword, "select") || sstreq(szKeyword, "switch")) {
 					levelNext++;
 					levelNext++;
 				}
 				// end the fold for these words before the current line
-				if(strcmp(szKeyword, "endfunc") == 0 || strcmp(szKeyword, "endif") == 0 ||
-				    strcmp(szKeyword, "next") == 0    || strcmp(szKeyword, "until") == 0 ||
-				    strcmp(szKeyword, "endwith") == 0 ||strcmp(szKeyword, "wend") == 0) {
+				if(sstreq(szKeyword, "endfunc") || sstreq(szKeyword, "endif") || sstreq(szKeyword, "next") || sstreq(szKeyword, "until") || sstreq(szKeyword, "endwith") || sstreq(szKeyword, "wend")) {
 					levelNext--;
 					levelCurrent--;
 				}
 				// end the fold for these words before the current line and Start new fold
-				if(strcmp(szKeyword, "case") == 0      || strcmp(szKeyword, "else") == 0 ||
-				    strcmp(szKeyword, "elseif") == 0) {
+				if(sstreq(szKeyword, "case") || sstreq(szKeyword, "else") || sstreq(szKeyword, "elseif")) {
 					levelCurrent--;
 				}
 				// end the double fold for this word before the current line
-				if(strcmp(szKeyword, "endselect") == 0 || strcmp(szKeyword, "endswitch") == 0) {
+				if(sstreq(szKeyword, "endselect") || sstreq(szKeyword, "endswitch")) {
 					levelNext--;
 					levelNext--;
 					levelCurrent--;
 					levelCurrent--;
 				}
 				// end the fold for these words on the current line
-				if(strcmp(szKeyword, "#endregion") == 0) {
+				if(sstreq(szKeyword, "#endregion")) {
 					levelNext--;
 				}
 			}

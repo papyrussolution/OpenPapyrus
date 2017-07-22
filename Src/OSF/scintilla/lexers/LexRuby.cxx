@@ -117,11 +117,11 @@ static int ClassifyWordRb(Sci_PositionU start, Sci_PositionU end, WordList &keyw
 	}
 	s[j] = '\0';
 	int chAttr;
-	if(0 == strcmp(prevWord, "class"))
+	if(sstreq(prevWord, "class"))
 		chAttr = SCE_RB_CLASSNAME;
-	else if(0 == strcmp(prevWord, "module"))
+	else if(sstreq(prevWord, "module"))
 		chAttr = SCE_RB_MODULE_NAME;
-	else if(0 == strcmp(prevWord, "def"))
+	else if(sstreq(prevWord, "def"))
 		chAttr = SCE_RB_DEFNAME;
 	else if(keywords.InList(s) && ((start == 0) || !followsDot(start - 1, styler))) {
 		if(keywordIsAmbiguous(s)

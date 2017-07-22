@@ -2388,8 +2388,7 @@ xmlParserInputBufferPtr __xmlParserInputBufferCreateFilename(const char * URI, x
 		ret->readcallback = xmlInputCallbackTable[i].readcallback;
 		ret->closecallback = xmlInputCallbackTable[i].closecallback;
 #ifdef HAVE_ZLIB_H
-		if((xmlInputCallbackTable[i].opencallback == xmlGzfileOpen) &&
-		    (strcmp(URI, "-") != 0)) {
+		if((xmlInputCallbackTable[i].opencallback == xmlGzfileOpen) && (strcmp(URI, "-") != 0)) {
 #if defined(ZLIB_VERNUM) && ZLIB_VERNUM >= 0x1230
 			ret->compressed = !gzdirect(context);
 #else
@@ -2408,8 +2407,7 @@ xmlParserInputBufferPtr __xmlParserInputBufferCreateFilename(const char * URI, x
 		}
 #endif
 #ifdef HAVE_LZMA_H
-		if((xmlInputCallbackTable[i].opencallback == xmlXzfileOpen) &&
-		    (strcmp(URI, "-") != 0)) {
+		if((xmlInputCallbackTable[i].opencallback == xmlXzfileOpen) && (strcmp(URI, "-") != 0)) {
 			ret->compressed = __libxml2_xzcompressed(context);
 		}
 #endif

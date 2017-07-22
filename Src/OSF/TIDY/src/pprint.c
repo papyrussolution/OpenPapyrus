@@ -336,29 +336,24 @@ static int ToggleInString(TidyPrintImpl* pprint)
 static bool IsInString(TidyPrintImpl* pprint)
 {
 	TidyIndent * ind = pprint->indent + 0; /* Always 1st */
-	return ( ind->attrStringStart >= 0 &&
-	    ind->attrStringStart < (int)pprint->linelen );
+	return ( ind->attrStringStart >= 0 && ind->attrStringStart < (int)pprint->linelen );
 }
 
 static bool IsWrapInString(TidyPrintImpl* pprint)
 {
 	TidyIndent * ind = pprint->indent + 0; /* Always 1st */
 	int wrap = (int)pprint->wraphere;
-	return ( ind->attrStringStart == 0 ||
-	    (ind->attrStringStart > 0 && ind->attrStringStart < wrap));
+	return ( ind->attrStringStart == 0 || (ind->attrStringStart > 0 && ind->attrStringStart < wrap));
 }
 
 static bool HasMixedContent(Node * element)
 {
 	Node * node;
-
 	if(!element)
 		return false;
-
 	for(node = element->content; node; node = node->next)
 		if(TY_(nodeIsText) (node) )
 			return true;
-
 	return false;
 }
 

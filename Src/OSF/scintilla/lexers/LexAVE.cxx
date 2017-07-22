@@ -191,10 +191,10 @@ static void FoldAveDoc(Sci_PositionU startPos, Sci_Position length, int /* initS
 					s[j + 1] = '\0';
 				}
 
-				if((strcmp(s, "then") == 0) || (strcmp(s, "for") == 0) || (strcmp(s, "while") == 0)) {
+				if(sstreq(s, "then") || sstreq(s, "for") || sstreq(s, "while")) {
 					levelCurrent++;
 				}
-				if((strcmp(s, "end") == 0) || (strcmp(s, "elseif") == 0)) {
+				if(sstreq(s, "end") || sstreq(s, "elseif")) {
 					// Normally "elseif" and "then" will be on the same line and will cancel
 					// each other out.  // As implemented, this does not support fold.at.else.
 					levelCurrent--;

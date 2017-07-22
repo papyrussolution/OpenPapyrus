@@ -1414,9 +1414,7 @@ xmlElementPtr xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCh
 	 * and flag it by setting a special parent value
 	 * so the parser doesn't unallocate it.
 	 */
-	if(ctxt &&
-	    ((ctxt->finishDtd == XML_CTXT_FINISH_DTD_0) ||
-		    (ctxt->finishDtd == XML_CTXT_FINISH_DTD_1))) {
+	if(ctxt && ((ctxt->finishDtd == XML_CTXT_FINISH_DTD_0) || (ctxt->finishDtd == XML_CTXT_FINISH_DTD_1))) {
 		ret->content = content;
 		if(content != NULL)
 			content->parent = (xmlElementContentPtr)1;
@@ -1424,7 +1422,6 @@ xmlElementPtr xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCh
 	else {
 		ret->content = xmlCopyDocElementContent(dtd->doc, content);
 	}
-
 	/*
 	 * Link it to the DTD
 	 */

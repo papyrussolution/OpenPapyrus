@@ -127,28 +127,23 @@ ASN1_INTEGER * s2i_ASN1_INTEGER(X509V3_EXT_METHOD * method, const char * value)
 	}
 	else
 		isneg = 0;
-
 	if(value[0] == '0' && ((value[1] == 'x') || (value[1] == 'X'))) {
 		value += 2;
 		ishex = 1;
 	}
 	else
 		ishex = 0;
-
 	if(ishex)
 		ret = BN_hex2bn(&bn, value);
 	else
 		ret = BN_dec2bn(&bn, value);
-
 	if(!ret || value[ret]) {
 		BN_free(bn);
 		X509V3err(X509V3_F_S2I_ASN1_INTEGER, X509V3_R_BN_DEC2BN_ERROR);
 		return NULL;
 	}
-
 	if(isneg && BN_is_zero(bn))
 		isneg = 0;
-
 	aint = BN_to_ASN1_INTEGER(bn, 0);
 	BN_free(bn);
 	if(!aint) {
@@ -160,12 +155,10 @@ ASN1_INTEGER * s2i_ASN1_INTEGER(X509V3_EXT_METHOD * method, const char * value)
 	return aint;
 }
 
-int X509V3_add_value_int(const char * name, const ASN1_INTEGER * aint,
-    STACK_OF(CONF_VALUE) ** extlist)
+int X509V3_add_value_int(const char * name, const ASN1_INTEGER * aint, STACK_OF(CONF_VALUE) ** extlist)
 {
 	char * strtmp;
 	int ret;
-
 	if(!aint)
 		return 1;
 	if((strtmp = i2s_ASN1_INTEGER(NULL, aint)) == NULL)
@@ -178,24 +171,13 @@ int X509V3_add_value_int(const char * name, const ASN1_INTEGER * aint,
 int X509V3_get_value_bool(const CONF_VALUE * value, int * asn1_bool)
 {
 	const char * btmp;
-
 	if((btmp = value->value) == NULL)
 		goto err;
-	if(strcmp(btmp, "TRUE") == 0
-	    || strcmp(btmp, "true") == 0
-	    || strcmp(btmp, "Y") == 0
-	    || strcmp(btmp, "y") == 0
-	    || strcmp(btmp, "YES") == 0
-	    || strcmp(btmp, "yes") == 0) {
+	if(sstreqi_ascii(btmp, "true") || sstreqi_ascii(btmp, "y") || sstreqi_ascii(btmp, "yes")) {
 		*asn1_bool = 0xff;
 		return 1;
 	}
-	if(strcmp(btmp, "FALSE") == 0
-	    || strcmp(btmp, "false") == 0
-	    || strcmp(btmp, "N") == 0
-	    || strcmp(btmp, "n") == 0
-	    || strcmp(btmp, "NO") == 0
-	    || strcmp(btmp, "no") == 0) {
+	if(sstreqi_ascii(btmp, "false") || sstreqi_ascii(btmp, "n") || sstreqi_ascii(btmp, "no")) {
 		*asn1_bool = 0;
 		return 1;
 	}
@@ -328,22 +310,19 @@ static char * strip_spaces(char * name)
 		return NULL;
 	return p;
 }
-
 /*
  * V2I name comparison function: returns zero if 'name' matches cmp or cmp.*
  */
-
-int name_cmp(const char * name, const char * cmp)
+int FASTCALL name_cmp(const char * name, const char * cmp)
 {
-	int len, ret;
-	char c;
-	len = strlen(cmp);
-	if((ret = strncmp(name, cmp, len)))
+	int len = strlen(cmp);
+	int ret = strncmp(name, cmp, len);
+	if(ret)
 		return ret;
-	c = name[len];
-	if(!c || (c == '.'))
-		return 0;
-	return 1;
+	else {
+		char c = name[len];
+		return (!c || c == '.') ? 0 : 1;
+	}
 }
 
 static int sk_strcmp(const char * const * a, const char * const * b)
@@ -353,29 +332,24 @@ static int sk_strcmp(const char * const * a, const char * const * b)
 
 STACK_OF(OPENSSL_STRING) *X509_get1_email(X509 *x)
 {
-	GENERAL_NAMES * gens;
-	STACK_OF(OPENSSL_STRING) *ret;
-
-	gens = (GENERAL_NAMES*)X509_get_ext_d2i(x, NID_subject_alt_name, 0, 0);
-	ret = get_email(X509_get_subject_name(x), gens);
+	GENERAL_NAMES * gens = (GENERAL_NAMES*)X509_get_ext_d2i(x, NID_subject_alt_name, 0, 0);
+	STACK_OF(OPENSSL_STRING) * ret = get_email(X509_get_subject_name(x), gens);
 	sk_GENERAL_NAME_pop_free(gens, GENERAL_NAME_free);
 	return ret;
 }
 
 STACK_OF(OPENSSL_STRING) *X509_get1_ocsp(X509 *x)
 {
-	AUTHORITY_INFO_ACCESS * info;
 	STACK_OF(OPENSSL_STRING) *ret = NULL;
 	int i;
-	info = (AUTHORITY_INFO_ACCESS*)X509_get_ext_d2i(x, NID_info_access, 0, 0);
+	AUTHORITY_INFO_ACCESS * info = (AUTHORITY_INFO_ACCESS*)X509_get_ext_d2i(x, NID_info_access, 0, 0);
 	if(!info)
 		return NULL;
 	for(i = 0; i < sk_ACCESS_DESCRIPTION_num(info); i++) {
 		ACCESS_DESCRIPTION * ad = sk_ACCESS_DESCRIPTION_value(info, i);
 		if(OBJ_obj2nid(ad->method) == NID_ad_OCSP) {
 			if(ad->location->type == GEN_URI) {
-				if(!append_ia5
-					    (&ret, ad->location->d.uniformResourceIdentifier))
+				if(!append_ia5(&ret, ad->location->d.uniformResourceIdentifier))
 					break;
 			}
 		}
@@ -386,20 +360,15 @@ STACK_OF(OPENSSL_STRING) *X509_get1_ocsp(X509 *x)
 
 STACK_OF(OPENSSL_STRING) *X509_REQ_get1_email(X509_REQ *x)
 {
-	GENERAL_NAMES * gens;
-	STACK_OF(X509_EXTENSION) *exts;
-	STACK_OF(OPENSSL_STRING) *ret;
-
-	exts = X509_REQ_get_extensions(x);
-	gens = (GENERAL_NAMES*)X509V3_get_d2i(exts, NID_subject_alt_name, 0, 0);
-	ret = get_email(X509_REQ_get_subject_name(x), gens);
+	STACK_OF(X509_EXTENSION) * exts = X509_REQ_get_extensions(x);
+	GENERAL_NAMES * gens = (GENERAL_NAMES*)X509V3_get_d2i(exts, NID_subject_alt_name, 0, 0);
+	STACK_OF(OPENSSL_STRING) * ret = get_email(X509_REQ_get_subject_name(x), gens);
 	sk_GENERAL_NAME_pop_free(gens, GENERAL_NAME_free);
 	sk_X509_EXTENSION_pop_free(exts, X509_EXTENSION_free);
 	return ret;
 }
 
-static STACK_OF(OPENSSL_STRING) *get_email(X509_NAME *name,
-    GENERAL_NAMES *gens)
+static STACK_OF(OPENSSL_STRING) *get_email(X509_NAME * name, GENERAL_NAMES * gens)
 {
 	STACK_OF(OPENSSL_STRING) *ret = NULL;
 	X509_NAME_ENTRY * ne;
@@ -409,8 +378,7 @@ static STACK_OF(OPENSSL_STRING) *get_email(X509_NAME *name,
 	/* Now add any email address(es) to STACK */
 	i = -1;
 	/* First supplied X509_NAME */
-	while((i = X509_NAME_get_index_by_NID(name,
-			    NID_pkcs9_emailAddress, i)) >= 0) {
+	while((i = X509_NAME_get_index_by_NID(name, NID_pkcs9_emailAddress, i)) >= 0) {
 		ne = X509_NAME_get_entry(name, i);
 		email = X509_NAME_ENTRY_get_data(ne);
 		if(!append_ia5(&ret, email))
@@ -461,18 +429,13 @@ void X509_email_free(STACK_OF(OPENSSL_STRING) * sk)
 	sk_OPENSSL_STRING_pop_free(sk, str_free);
 }
 
-typedef int (*equal_fn)(const uchar * pattern, size_t pattern_len,
-    const uchar * subject, size_t subject_len,
-    uint flags);
+typedef int (*equal_fn)(const uchar * pattern, size_t pattern_len, const uchar * subject, size_t subject_len, uint flags);
 
 /* Skip pattern prefix to match "wildcard" subject */
-static void skip_prefix(const uchar ** p, size_t * plen,
-    size_t subject_len,
-    uint flags)
+static void skip_prefix(const uchar ** p, size_t * plen, size_t subject_len, uint flags)
 {
 	const uchar * pattern = *p;
 	size_t pattern_len = *plen;
-
 	/*
 	 * If subject starts with a leading '.' followed by more octets, and
 	 * pattern is longer, compare just an equal-length suffix with the
@@ -498,9 +461,7 @@ static void skip_prefix(const uchar ** p, size_t * plen,
 }
 
 /* Compare while ASCII ignoring case. */
-static int equal_nocase(const uchar * pattern, size_t pattern_len,
-    const uchar * subject, size_t subject_len,
-    uint flags)
+static int equal_nocase(const uchar * pattern, size_t pattern_len, const uchar * subject, size_t subject_len, uint flags)
 {
 	skip_prefix(&pattern, &pattern_len, subject_len, flags);
 	if(pattern_len != subject_len)
@@ -527,23 +488,18 @@ static int equal_nocase(const uchar * pattern, size_t pattern_len,
 }
 
 /* Compare using memcmp. */
-static int equal_case(const uchar * pattern, size_t pattern_len,
-    const uchar * subject, size_t subject_len,
-    uint flags)
+static int equal_case(const uchar * pattern, size_t pattern_len, const uchar * subject, size_t subject_len, uint flags)
 {
 	skip_prefix(&pattern, &pattern_len, subject_len, flags);
 	if(pattern_len != subject_len)
 		return 0;
 	return !memcmp(pattern, subject, pattern_len);
 }
-
 /*
  * RFC 5280, section 7.5, requires that only the domain is compared in a
  * case-insensitive manner.
  */
-static int equal_email(const uchar * a, size_t a_len,
-    const uchar * b, size_t b_len,
-    uint unused_flags)
+static int equal_email(const uchar * a, size_t a_len, const uchar * b, size_t b_len, uint unused_flags)
 {
 	size_t i = a_len;
 	if(a_len != b_len)
@@ -561,26 +517,20 @@ static int equal_email(const uchar * a, size_t a_len,
 			break;
 		}
 	}
-	if(i == 0)
-		i = a_len;
+	SETIFZ(i, a_len);
 	return equal_case(a, i, b, i, 0);
 }
-
 /*
  * Compare the prefix and suffix with the subject, and check that the
  * characters in-between are valid.
  */
-static int wildcard_match(const uchar * prefix, size_t prefix_len,
-    const uchar * suffix, size_t suffix_len,
-    const uchar * subject, size_t subject_len,
-    uint flags)
+static int wildcard_match(const uchar * prefix, size_t prefix_len, const uchar * suffix, size_t suffix_len, const uchar * subject, size_t subject_len, uint flags)
 {
 	const uchar * wildcard_start;
 	const uchar * wildcard_end;
 	const uchar * p;
 	int allow_multi = 0;
 	int allow_idna = 0;
-
 	if(subject_len < prefix_len + suffix_len)
 		return 0;
 	if(!equal_nocase(prefix, prefix_len, subject, prefix_len, flags))
@@ -601,8 +551,7 @@ static int wildcard_match(const uchar * prefix, size_t prefix_len,
 			allow_multi = 1;
 	}
 	/* IDNA labels cannot match partial wildcards */
-	if(!allow_idna &&
-	    subject_len >= 4 && strncasecmp((char*)subject, "xn--", 4) == 0)
+	if(!allow_idna && subject_len >= 4 && strncasecmp((char*)subject, "xn--", 4) == 0)
 		return 0;
 	/* The wildcard may match a literal '*' */
 	if(wildcard_end == wildcard_start + 1 && *wildcard_start == '*')
@@ -613,10 +562,7 @@ static int wildcard_match(const uchar * prefix, size_t prefix_len,
 	 * allow_multi is set.
 	 */
 	for(p = wildcard_start; p != wildcard_end; ++p)
-		if(!(('0' <= *p && *p <= '9') ||
-			    ('A' <= *p && *p <= 'Z') ||
-			    ('a' <= *p && *p <= 'z') ||
-			    *p == '-' || (allow_multi && *p == '.')))
+		if(!(('0' <= *p && *p <= '9') || ('A' <= *p && *p <= 'Z') || ('a' <= *p && *p <= 'z') || *p == '-' || (allow_multi && *p == '.')))
 			return 0;
 	return 1;
 }
@@ -626,8 +572,7 @@ static int wildcard_match(const uchar * prefix, size_t prefix_len,
 #define LABEL_HYPHEN    (1 << 2)
 #define LABEL_IDNA      (1 << 3)
 
-static const uchar * valid_star(const uchar * p, size_t len,
-    uint flags)
+static const uchar * valid_star(const uchar * p, size_t len, uint flags)
 {
 	const uchar * star = 0;
 	size_t i;
@@ -649,8 +594,7 @@ static const uchar * valid_star(const uchar * p, size_t len,
 			if(star != NULL || (state & LABEL_IDNA) != 0 || dots)
 				return NULL;
 			/* Only full-label '*.example.com' wildcards? */
-			if((flags & X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS)
-			    && (!atstart || !atend))
+			if((flags & X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS) && (!atstart || !atend))
 				return NULL;
 			/* No 'foo*bar' wildcards */
 			if(!atstart && !atend)
@@ -658,11 +602,8 @@ static const uchar * valid_star(const uchar * p, size_t len,
 			star = &p[i];
 			state &= ~LABEL_START;
 		}
-		else if(('a' <= p[i] && p[i] <= 'z')
-		    || ('A' <= p[i] && p[i] <= 'Z')
-		    || ('0' <= p[i] && p[i] <= '9')) {
-			if((state & LABEL_START) != 0
-			    && len - i >= 4 && strncasecmp((char*)&p[i], "xn--", 4) == 0)
+		else if(('a' <= p[i] && p[i] <= 'z') || ('A' <= p[i] && p[i] <= 'Z') || ('0' <= p[i] && p[i] <= '9')) {
+			if((state & LABEL_START) != 0 && len - i >= 4 && strncasecmp((char*)&p[i], "xn--", 4) == 0)
 				state |= LABEL_IDNA;
 			state &= ~(LABEL_HYPHEN | LABEL_START);
 		}
@@ -681,7 +622,6 @@ static const uchar * valid_star(const uchar * p, size_t len,
 		else
 			return NULL;
 	}
-
 	/*
 	 * The final label must not end in a hyphen or ".", and
 	 * there must be at least two dots after the star.
@@ -692,12 +632,9 @@ static const uchar * valid_star(const uchar * p, size_t len,
 }
 
 /* Compare using wildcards. */
-static int equal_wildcard(const uchar * pattern, size_t pattern_len,
-    const uchar * subject, size_t subject_len,
-    uint flags)
+static int equal_wildcard(const uchar * pattern, size_t pattern_len, const uchar * subject, size_t subject_len, uint flags)
 {
 	const uchar * star = NULL;
-
 	/*
 	 * Subject names starting with '.' can only match a wildcard pattern
 	 * via a subject sub-domain pattern suffix match.
@@ -705,25 +642,16 @@ static int equal_wildcard(const uchar * pattern, size_t pattern_len,
 	if(!(subject_len > 1 && subject[0] == '.'))
 		star = valid_star(pattern, pattern_len, flags);
 	if(star == NULL)
-		return equal_nocase(pattern, pattern_len,
-		    subject, subject_len, flags);
-	return wildcard_match(pattern, star - pattern,
-	    star + 1, (pattern + pattern_len) - star - 1,
-	    subject, subject_len, flags);
+		return equal_nocase(pattern, pattern_len, subject, subject_len, flags);
+	return wildcard_match(pattern, star - pattern, star + 1, (pattern + pattern_len) - star - 1, subject, subject_len, flags);
 }
-
 /*
  * Compare an ASN1_STRING to a supplied string. If they match return 1. If
- * cmp_type > 0 only compare if string matches the type, otherwise convert it
- * to UTF8.
+ * cmp_type > 0 only compare if string matches the type, otherwise convert it to UTF8.
  */
-
-static int do_check_string(const ASN1_STRING * a, int cmp_type, equal_fn equal,
-    uint flags, const char * b, size_t blen,
-    char ** peername)
+static int do_check_string(const ASN1_STRING * a, int cmp_type, equal_fn equal, uint flags, const char * b, size_t blen, char ** peername)
 {
 	int rv = 0;
-
 	if(!a->data || !a->length)
 		return 0;
 	if(cmp_type > 0) {
@@ -737,9 +665,8 @@ static int do_check_string(const ASN1_STRING * a, int cmp_type, equal_fn equal,
 			*peername = OPENSSL_strndup((char*)a->data, a->length);
 	}
 	else {
-		int astrlen;
 		uchar * astr;
-		astrlen = ASN1_STRING_to_UTF8(&astr, a);
+		int astrlen = ASN1_STRING_to_UTF8(&astr, a);
 		if(astrlen < 0) {
 			/*
 			 * -1 could be an internal malloc failure or a decoding error from
@@ -755,8 +682,7 @@ static int do_check_string(const ASN1_STRING * a, int cmp_type, equal_fn equal,
 	return rv;
 }
 
-static int do_x509_check(X509 * x, const char * chk, size_t chklen,
-    uint flags, int check_type, char ** peername)
+static int do_x509_check(X509 * x, const char * chk, size_t chklen, uint flags, int check_type, char ** peername)
 {
 	GENERAL_NAMES * gens = NULL;
 	X509_NAME * name = NULL;
@@ -819,27 +745,22 @@ static int do_x509_check(X509 * x, const char * chk, size_t chklen,
 		if(san_present && !(flags & X509_CHECK_FLAG_ALWAYS_CHECK_SUBJECT))
 			return 0;
 	}
-
 	/* We're done if CN-ID is not pertinent */
 	if(cnid == NID_undef || (flags & X509_CHECK_FLAG_NEVER_CHECK_SUBJECT))
 		return 0;
-
 	i = -1;
 	name = X509_get_subject_name(x);
 	while((i = X509_NAME_get_index_by_NID(name, cnid, i)) >= 0) {
 		const X509_NAME_ENTRY * ne = X509_NAME_get_entry(name, i);
 		const ASN1_STRING * str = X509_NAME_ENTRY_get_data(ne);
-
 		/* Positive on success, negative on error! */
-		if((rv = do_check_string(str, -1, equal, flags,
-				    chk, chklen, peername)) != 0)
+		if((rv = do_check_string(str, -1, equal, flags, chk, chklen, peername)) != 0)
 			return rv;
 	}
 	return 0;
 }
 
-int X509_check_host(X509 * x, const char * chk, size_t chklen,
-    uint flags, char ** peername)
+int X509_check_host(X509 * x, const char * chk, size_t chklen, uint flags, char ** peername)
 {
 	if(chk == NULL)
 		return -2;
@@ -857,8 +778,7 @@ int X509_check_host(X509 * x, const char * chk, size_t chklen,
 	return do_x509_check(x, chk, chklen, flags, GEN_DNS, peername);
 }
 
-int X509_check_email(X509 * x, const char * chk, size_t chklen,
-    uint flags)
+int X509_check_email(X509 * x, const char * chk, size_t chklen, uint flags)
 {
 	if(chk == NULL)
 		return -2;
@@ -876,8 +796,7 @@ int X509_check_email(X509 * x, const char * chk, size_t chklen,
 	return do_x509_check(x, chk, chklen, flags, GEN_EMAIL, 0);
 }
 
-int X509_check_ip(X509 * x, const uchar * chk, size_t chklen,
-    uint flags)
+int X509_check_ip(X509 * x, const uchar * chk, size_t chklen, uint flags)
 {
 	if(chk == NULL)
 		return -2;
@@ -888,7 +807,6 @@ int X509_check_ip_asc(X509 * x, const char * ipasc, uint flags)
 {
 	uchar ipout[16];
 	size_t iplen;
-
 	if(ipasc == NULL)
 		return -2;
 	iplen = (size_t)a2i_ipadd(ipout, ipasc);
@@ -906,15 +824,10 @@ ASN1_OCTET_STRING * a2i_IPADDRESS(const char * ipasc)
 {
 	uchar ipout[16];
 	ASN1_OCTET_STRING * ret;
-	int iplen;
-
 	/* If string contains a ':' assume IPv6 */
-
-	iplen = a2i_ipadd(ipout, ipasc);
-
+	int iplen = a2i_ipadd(ipout, ipasc);
 	if(!iplen)
 		return NULL;
-
 	ret = ASN1_OCTET_STRING_new();
 	if(!ret)
 		return NULL;
@@ -939,28 +852,20 @@ ASN1_OCTET_STRING * a2i_IPADDRESS_NC(const char * ipasc)
 		return NULL;
 	p = iptmp + (p - ipasc);
 	*p++ = 0;
-
 	iplen1 = a2i_ipadd(ipout, iptmp);
-
 	if(!iplen1)
 		goto err;
-
 	iplen2 = a2i_ipadd(ipout + iplen1, p);
-
 	OPENSSL_free(iptmp);
 	iptmp = NULL;
-
 	if(!iplen2 || (iplen1 != iplen2))
 		goto err;
-
 	ret = ASN1_OCTET_STRING_new();
 	if(!ret)
 		goto err;
 	if(!ASN1_OCTET_STRING_set(ret, ipout, iplen1 + iplen2))
 		goto err;
-
 	return ret;
-
 err:
 	OPENSSL_free(iptmp);
 	ASN1_OCTET_STRING_free(ret);
@@ -970,16 +875,11 @@ err:
 int a2i_ipadd(uchar * ipout, const char * ipasc)
 {
 	/* If string contains a ':' assume IPv6 */
-
 	if(strchr(ipasc, ':')) {
-		if(!ipv6_from_asc(ipout, ipasc))
-			return 0;
-		return 16;
+		return ipv6_from_asc(ipout, ipasc) ? 16 : 0;
 	}
 	else {
-		if(!ipv4_from_asc(ipout, ipasc))
-			return 0;
-		return 4;
+		return ipv4_from_asc(ipout, ipasc) ? 4 : 0;
 	}
 }
 
@@ -988,8 +888,7 @@ static int ipv4_from_asc(uchar * v4, const char * in)
 	int a0, a1, a2, a3;
 	if(sscanf(in, "%d.%d.%d.%d", &a0, &a1, &a2, &a3) != 4)
 		return 0;
-	if((a0 < 0) || (a0 > 255) || (a1 < 0) || (a1 > 255)
-	    || (a2 < 0) || (a2 > 255) || (a3 < 0) || (a3 > 255))
+	if((a0 < 0) || (a0 > 255) || (a1 < 0) || (a1 > 255) || (a2 < 0) || (a2 > 255) || (a3 < 0) || (a3 > 255))
 		return 0;
 	v4[0] = a0;
 	v4[1] = a1;
@@ -1022,9 +921,7 @@ static int ipv6_from_asc(uchar * v6, const char * in)
 	 */
 	if(!CONF_parse_list(in, ':', 0, ipv6_cb, &v6stat))
 		return 0;
-
 	/* Now for some sanity checks */
-
 	if(v6stat.zero_pos == -1) {
 		/* If no '::' must have exactly 16 bytes */
 		if(v6stat.total != 16)
@@ -1044,20 +941,16 @@ static int ipv6_from_asc(uchar * v6, const char * in)
 		}
 		/* Can only have two zeroes if at start or end */
 		else if(v6stat.zero_cnt == 2) {
-			if((v6stat.zero_pos != 0)
-			    && (v6stat.zero_pos != v6stat.total))
+			if((v6stat.zero_pos != 0) && (v6stat.zero_pos != v6stat.total))
 				return 0;
 		}
 		else{
 			/* Can only have one zero if *not* start or end */
-			if((v6stat.zero_pos == 0)
-			    || (v6stat.zero_pos == v6stat.total))
+			if((v6stat.zero_pos == 0) || (v6stat.zero_pos == v6stat.total))
 				return 0;
 		}
 	}
-
 	/* Format result */
-
 	if(v6stat.zero_pos >= 0) {
 		/* Copy initial part */
 		memcpy(v6, v6stat.tmp, v6stat.zero_pos);
@@ -1108,17 +1001,14 @@ static int ipv6_cb(const char * elem, int len, void * usr)
 	}
 	return 1;
 }
-
 /*
  * Convert a string of up to 4 hex digits into the corresponding IPv6 form.
  */
-
 static int ipv6_hex(uchar * out, const char * in, int inlen)
 {
 	uchar c;
 	uint num = 0;
 	int x;
-
 	if(inlen > 4)
 		return 0;
 	while(inlen--) {
@@ -1134,15 +1024,13 @@ static int ipv6_hex(uchar * out, const char * in, int inlen)
 	return 1;
 }
 
-int X509V3_NAME_from_section(X509_NAME * nm, STACK_OF(CONF_VALUE) * dn_sk,
-    ulong chtype)
+int X509V3_NAME_from_section(X509_NAME * nm, STACK_OF(CONF_VALUE) * dn_sk, ulong chtype)
 {
 	CONF_VALUE * v;
 	int i, mval, spec_char, plus_char;
 	char * p, * type;
 	if(!nm)
 		return 0;
-
 	for(i = 0; i < sk_CONF_VALUE_num(dn_sk); i++) {
 		v = sk_CONF_VALUE_value(dn_sk, i);
 		type = v->name;
@@ -1153,8 +1041,7 @@ int X509V3_NAME_from_section(X509_NAME * nm, STACK_OF(CONF_VALUE) * dn_sk,
 #ifndef CHARSET_EBCDIC
 			spec_char = ((*p == ':') || (*p == ',') || (*p == '.'));
 #else
-			spec_char = ((*p == os_toascii[':']) || (*p == os_toascii[','])
-			    || (*p == os_toascii['.']));
+			spec_char = ((*p == os_toascii[':']) || (*p == os_toascii[',']) || (*p == os_toascii['.']));
 #endif
 			if(spec_char) {
 				p++;
@@ -1174,9 +1061,7 @@ int X509V3_NAME_from_section(X509_NAME * nm, STACK_OF(CONF_VALUE) * dn_sk,
 		}
 		else
 			mval = 0;
-		if(!X509_NAME_add_entry_by_txt(nm, type, chtype,
-			    (uchar*)v->value, -1, -1,
-			    mval))
+		if(!X509_NAME_add_entry_by_txt(nm, type, chtype, (uchar*)v->value, -1, -1, mval))
 			return 0;
 	}
 	return 1;

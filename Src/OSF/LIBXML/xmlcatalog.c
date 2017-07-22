@@ -163,17 +163,13 @@ static void usershell() {
 				cur++;
 			}
 		}
-
 		/*
 		 * start interpreting the command
 		 */
-		if(sstreq(command, "exit") ||
-		    !strcmp(command, "quit") ||
-		    !strcmp(command, "bye")) {
+		if(sstreq(command, "exit") || sstreq(command, "quit") || sstreq(command, "bye")) {
 			SAlloc::F(cmdline);
 			break;
 		}
-
 		if(sstreq(command, "public")) {
 			if(nbargs != 1) {
 				printf("public requires 1 arguments\n");
@@ -335,7 +331,8 @@ Usage : %s [options] catalogfile entities...\n\
 \t-v --verbose : provide debug informations\n"                                                                                                                                                                                                                                                                                                               );
 }
 
-int main(int argc, char ** argv) {
+int main(int argc, char ** argv) 
+{
 	int i;
 	int ret;
 	int exit_value = 0;
@@ -352,47 +349,37 @@ int main(int argc, char ** argv) {
 
 		if(argv[i][0] != '-')
 			break;
-		if((!strcmp(argv[i], "-verbose")) ||
-		    (!strcmp(argv[i], "-v")) ||
-		    (!strcmp(argv[i], "--verbose"))) {
+		if(sstreq(argv[i], "-verbose") || sstreq(argv[i], "-v") || sstreq(argv[i], "--verbose")) {
 			verbose++;
 			xmlCatalogSetDebug(verbose);
 		}
-		else if((!strcmp(argv[i], "-noout")) ||
-		    (!strcmp(argv[i], "--noout"))) {
+		else if(sstreq(argv[i], "-noout") || sstreq(argv[i], "--noout")) {
 			noout = 1;
 		}
-		else if((!strcmp(argv[i], "-shell")) ||
-		    (!strcmp(argv[i], "--shell"))) {
+		else if(sstreq(argv[i], "-shell") || sstreq(argv[i], "--shell")) {
 			shell++;
 			noout = 1;
 		}
-		else if((!strcmp(argv[i], "-sgml")) ||
-		    (!strcmp(argv[i], "--sgml"))) {
+		else if(sstreq(argv[i], "-sgml") || sstreq(argv[i], "--sgml")) {
 			sgml++;
 		}
-		else if((!strcmp(argv[i], "-create")) ||
-		    (!strcmp(argv[i], "--create"))) {
+		else if(sstreq(argv[i], "-create") || sstreq(argv[i], "--create")) {
 			create++;
 		}
-		else if((!strcmp(argv[i], "-convert")) ||
-		    (!strcmp(argv[i], "--convert"))) {
+		else if(sstreq(argv[i], "-convert") || sstreq(argv[i], "--convert")) {
 			convert++;
 		}
-		else if((!strcmp(argv[i], "-no-super-update")) ||
-		    (!strcmp(argv[i], "--no-super-update"))) {
+		else if(sstreq(argv[i], "-no-super-update") || sstreq(argv[i], "--no-super-update")) {
 			no_super_update++;
 		}
-		else if((!strcmp(argv[i], "-add")) ||
-		    (!strcmp(argv[i], "--add"))) {
+		else if(sstreq(argv[i], "-add") || sstreq(argv[i], "--add")) {
 			if(sgml)
 				i += 2;
 			else
 				i += 3;
 			add++;
 		}
-		else if((!strcmp(argv[i], "-del")) ||
-		    (!strcmp(argv[i], "--del"))) {
+		else if(sstreq(argv[i], "-del") || sstreq(argv[i], "--del")) {
 			i += 1;
 			del++;
 		}
@@ -404,25 +391,21 @@ int main(int argc, char ** argv) {
 	}
 
 	for(i = 1; i < argc; i++) {
-		if((!strcmp(argv[i], "-add")) ||
-		    (!strcmp(argv[i], "--add"))) {
+		if(sstreq(argv[i], "-add") || sstreq(argv[i], "--add")) {
 			if(sgml)
 				i += 2;
 			else
 				i += 3;
 			continue;
 		}
-		else if((!strcmp(argv[i], "-del")) ||
-		    (!strcmp(argv[i], "--del"))) {
+		else if(sstreq(argv[i], "-del") || sstreq(argv[i], "--del")) {
 			i += 1;
-
 			/* No catalog entry specified */
 			if(i == argc || (sgml && i + 1 == argc)) {
 				fprintf(stderr, "No catalog entry specified to remove from\n");
 				usage(argv[0]);
 				return 1;
 			}
-
 			continue;
 		}
 		else if(argv[i][0] == '-')
@@ -434,44 +417,30 @@ int main(int argc, char ** argv) {
 		}
 		break;
 	}
-
 	if(convert)
 		ret = xmlCatalogConvert();
-
 	if((add) || (del)) {
 		for(i = 1; i < argc; i++) {
 			if(sstreq(argv[i], "-"))
 				break;
-
 			if(argv[i][0] != '-')
 				continue;
-			if(strcmp(argv[i], "-add") && strcmp(argv[i], "--add") &&
-			    strcmp(argv[i], "-del") && strcmp(argv[i], "--del"))
+			if(strcmp(argv[i], "-add") && strcmp(argv[i], "--add") && strcmp(argv[i], "-del") && strcmp(argv[i], "--del"))
 				continue;
-
 			if(sgml) {
 				/*
 				 * Maintenance of SGML catalogs.
 				 */
-				xmlCatalogPtr catal = NULL;
 				xmlCatalogPtr super = NULL;
-
-				catal = xmlLoadSGMLSuperCatalog(argv[i + 1]);
-
-				if((!strcmp(argv[i], "-add")) ||
-				    (!strcmp(argv[i], "--add"))) {
+				xmlCatalogPtr catal = xmlLoadSGMLSuperCatalog(argv[i + 1]);
+				if((!strcmp(argv[i], "-add")) || (!strcmp(argv[i], "--add"))) {
 					if(catal == NULL)
 						catal = xmlNewCatalog(1);
-					xmlACatalogAdd(catal, BAD_CAST "CATALOG",
-					    BAD_CAST argv[i + 2], 0);
-
+					xmlACatalogAdd(catal, BAD_CAST "CATALOG", BAD_CAST argv[i + 2], 0);
 					if(!no_super_update) {
 						super = xmlLoadSGMLSuperCatalog(XML_SGML_DEFAULT_CATALOG);
-						if(super == NULL)
-							super = xmlNewCatalog(1);
-
-						xmlACatalogAdd(super, BAD_CAST "CATALOG",
-						    BAD_CAST argv[i + 1], 0);
+						SETIFZ(super, xmlNewCatalog(1));
+						xmlACatalogAdd(super, BAD_CAST "CATALOG", BAD_CAST argv[i + 1], 0);
 					}
 				}
 				else {
@@ -480,21 +449,15 @@ int main(int argc, char ** argv) {
 					else
 						ret = -1;
 					if(ret < 0) {
-						fprintf(stderr, "Failed to remove entry from %s\n",
-						    argv[i + 1]);
+						fprintf(stderr, "Failed to remove entry from %s\n", argv[i + 1]);
 						exit_value = 1;
 					}
-					if((!no_super_update) && (noout) && (catal != NULL) &&
-					    (xmlCatalogIsEmpty(catal))) {
-						super = xmlLoadSGMLSuperCatalog(
-						    XML_SGML_DEFAULT_CATALOG);
+					if((!no_super_update) && (noout) && (catal != NULL) && (xmlCatalogIsEmpty(catal))) {
+						super = xmlLoadSGMLSuperCatalog(XML_SGML_DEFAULT_CATALOG);
 						if(super != NULL) {
-							ret = xmlACatalogRemove(super,
-							    BAD_CAST argv[i + 1]);
+							ret = xmlACatalogRemove(super, BAD_CAST argv[i + 1]);
 							if(ret < 0) {
-								fprintf(stderr,
-								    "Failed to remove entry from %s\n",
-								    XML_SGML_DEFAULT_CATALOG);
+								fprintf(stderr, "Failed to remove entry from %s\n", XML_SGML_DEFAULT_CATALOG);
 								exit_value = 1;
 							}
 						}
@@ -502,15 +465,13 @@ int main(int argc, char ** argv) {
 				}
 				if(noout) {
 					FILE * out;
-
 					if(xmlCatalogIsEmpty(catal)) {
 						remove(argv[i + 1]);
 					}
 					else {
 						out = fopen(argv[i + 1], "w");
 						if(out == NULL) {
-							fprintf(stderr, "could not open %s for saving\n",
-							    argv[i + 1]);
+							fprintf(stderr, "could not open %s for saving\n", argv[i + 1]);
 							exit_value = 2;
 							noout = 0;
 						}
@@ -526,9 +487,7 @@ int main(int argc, char ** argv) {
 						else {
 							out = fopen(XML_SGML_DEFAULT_CATALOG, "w");
 							if(out == NULL) {
-								fprintf(stderr,
-								    "could not open %s for saving\n",
-								    XML_SGML_DEFAULT_CATALOG);
+								fprintf(stderr, "could not open %s for saving\n", XML_SGML_DEFAULT_CATALOG);
 								exit_value = 2;
 								noout = 0;
 							}
@@ -545,27 +504,21 @@ int main(int argc, char ** argv) {
 				i += 2;
 			}
 			else {
-				if((!strcmp(argv[i], "-add")) ||
-				    (!strcmp(argv[i], "--add"))) {
+				if((!strcmp(argv[i], "-add")) || (!strcmp(argv[i], "--add"))) {
 					if((argv[i + 3] == NULL) || (argv[i + 3][0] == 0))
-						ret = xmlCatalogAdd(BAD_CAST argv[i + 1], NULL,
-						    BAD_CAST argv[i + 2]);
+						ret = xmlCatalogAdd(BAD_CAST argv[i + 1], NULL, BAD_CAST argv[i + 2]);
 					else
-						ret = xmlCatalogAdd(BAD_CAST argv[i + 1],
-						    BAD_CAST argv[i + 2],
-						    BAD_CAST argv[i + 3]);
+						ret = xmlCatalogAdd(BAD_CAST argv[i + 1], BAD_CAST argv[i + 2], BAD_CAST argv[i + 3]);
 					if(ret != 0) {
 						printf("add command failed\n");
 						exit_value = 3;
 					}
 					i += 3;
 				}
-				else if((!strcmp(argv[i], "-del")) ||
-				    (!strcmp(argv[i], "--del"))) {
+				else if((!strcmp(argv[i], "-del")) || (!strcmp(argv[i], "--del"))) {
 					ret = xmlCatalogRemove(BAD_CAST argv[i + 1]);
 					if(ret < 0) {
-						fprintf(stderr, "Failed to remove entry %s\n",
-						    argv[i + 1]);
+						fprintf(stderr, "Failed to remove entry %s\n", argv[i + 1]);
 						exit_value = 1;
 					}
 					i += 1;

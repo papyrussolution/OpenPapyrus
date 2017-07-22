@@ -1,0 +1,5 @@
+MRD_FILE 	GerSrc/morphs.mrd
+LANG	        GERMAN
+DICTS		+#,=#,g#,n#,o#
+ANCODE_ORDER	ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+USERS           gri,alex,boris,masha,af,oleg,nim

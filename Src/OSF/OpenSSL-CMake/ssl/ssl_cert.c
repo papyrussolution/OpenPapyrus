@@ -523,7 +523,7 @@ static int xname_cmp(const X509_NAME * a, const X509_NAME * b)
 	return X509_NAME_cmp(a, b);
 }
 
-static unsigned long xname_hash(const X509_NAME * a)
+static ulong xname_hash(const X509_NAME * a)
 {
 	return X509_NAME_hash((X509_NAME*)a);
 }
@@ -693,7 +693,7 @@ err:
 
 /* Add a certificate to a BUF_MEM structure */
 
-static int ssl_add_cert_to_buf(BUF_MEM * buf, unsigned long * l, X509 * x)
+static int ssl_add_cert_to_buf(BUF_MEM * buf, ulong * l, X509 * x)
 {
 	uchar * p;
 	int n = i2d_X509(x, 0);
@@ -810,7 +810,7 @@ int ssl_build_cert_chain(SSL * s, SSL_CTX * ctx, int flags)
 	STACK_OF(X509) *chain = NULL, *untrusted = NULL;
 	X509 * x;
 	int i, rv = 0;
-	unsigned long error;
+	ulong  error;
 	if(!cpk->x509) {
 		SSLerr(SSL_F_SSL_BUILD_CERT_CHAIN, SSL_R_NO_CERTIFICATE_SET);
 		goto err;
@@ -923,17 +923,14 @@ int ssl_cert_set_cert_store(CERT * c, X509_STORE * store, int chain, int ref)
 static int ssl_security_default_callback(const SSL * s, const SSL_CTX * ctx,
     int op, int bits, int nid, void * other, void * ex)
 {
-	int level, minbits;
+	int minbits;
 	static const int minbits_table[5] = { 80, 112, 128, 192, 256 };
-	level = ctx ? SSL_CTX_get_security_level(ctx) : SSL_get_security_level(s);
+	int level = ctx ? SSL_CTX_get_security_level(ctx) : SSL_get_security_level(s);
 	if(level <= 0) {
-		/*
-		 * No EDH keys weaker than 1024-bits even at level 0, otherwise,
-		 * anything goes.
-		 */
-		if(op == SSL_SECOP_TMP_DH && bits < 80)
-			return 0;
-		return 1;
+		// 
+		// No EDH keys weaker than 1024-bits even at level 0, otherwise, anything goes.
+		// 
+		return (op == SSL_SECOP_TMP_DH && bits < 80) ? 0 : 1;
 	}
 	SETMIN(level, 5);
 	minbits = minbits_table[level - 1];
@@ -981,7 +978,6 @@ static int ssl_security_default_callback(const SSL * s, const SSL_CTX * ctx,
 				    return 0;
 		    }
 		    break;
-
 		case SSL_SECOP_COMPRESSION:
 		    if(level >= 2)
 			    return 0;

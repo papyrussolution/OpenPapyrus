@@ -5236,7 +5236,7 @@ xmlRegexpPtr xmlRegexpCompile(const xmlChar * regexp)
 	if(CUR != 0) {
 		ERROR("xmlFAParseRegExp: extra characters");
 	}
-	if(ctxt->error != 0) {
+	if(ctxt->error) {
 		xmlRegFreeParserCtxt(ctxt);
 		return 0;
 	}
@@ -5246,7 +5246,7 @@ xmlRegexpPtr xmlRegexpCompile(const xmlChar * regexp)
 
 	/* remove the Epsilon except for counted transitions */
 	xmlFAEliminateEpsilonTransitions(ctxt);
-	if(ctxt->error != 0) {
+	if(ctxt->error) {
 		xmlRegFreeParserCtxt(ctxt);
 		return 0;
 	}

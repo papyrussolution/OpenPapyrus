@@ -958,7 +958,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 		}
 		NEXT;
 		xmlCompileAttributeTest(ctxt);
-		if(ctxt->error != 0)
+		if(ctxt->error)
 			goto error;
 		return;
 	}
@@ -1102,7 +1102,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 					goto error;
 				}
 				xmlCompileAttributeTest(ctxt);
-				if(ctxt->error != 0)
+				if(ctxt->error)
 					goto error;
 				return;
 			}
@@ -1177,7 +1177,7 @@ static void xmlCompilePathPattern(xmlPatParserContextPtr ctxt)
 		/* TODO: check for incompleteness */
 		if(CUR != 0) {
 			xmlCompileStepPattern(ctxt);
-			if(ctxt->error != 0)
+			if(ctxt->error)
 				goto error;
 		}
 	}
@@ -1194,7 +1194,7 @@ static void xmlCompilePathPattern(xmlPatParserContextPtr ctxt)
 			}
 		}
 		xmlCompileStepPattern(ctxt);
-		if(ctxt->error != 0)
+		if(ctxt->error)
 			goto error;
 		SKIP_BLANKS;
 		while(CUR == '/') {
@@ -1204,7 +1204,7 @@ static void xmlCompilePathPattern(xmlPatParserContextPtr ctxt)
 				NEXT;
 				SKIP_BLANKS;
 				xmlCompileStepPattern(ctxt);
-				if(ctxt->error != 0)
+				if(ctxt->error)
 					goto error;
 			}
 			else {
@@ -1217,7 +1217,7 @@ static void xmlCompilePathPattern(xmlPatParserContextPtr ctxt)
 					goto error;
 				}
 				xmlCompileStepPattern(ctxt);
-				if(ctxt->error != 0)
+				if(ctxt->error)
 					goto error;
 			}
 		}
@@ -1287,7 +1287,7 @@ error:
 					 */
 					do {
 						xmlCompileStepPattern(ctxt);
-						if(ctxt->error != 0)
+						if(ctxt->error)
 							goto error;
 						SKIP_BLANKS;
 						if(CUR != '/')
@@ -2245,7 +2245,7 @@ xmlPatternPtr xmlPatterncompile(const xmlChar * pattern, xmlDict * dict, int fla
 			xmlCompileIDCXPathPath(ctxt);
 		else
 			xmlCompilePathPattern(ctxt);
-		if(ctxt->error != 0)
+		if(ctxt->error)
 			goto error;
 		xmlFreePatParserContext(ctxt);
 		ctxt = NULL;

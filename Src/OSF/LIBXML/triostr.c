@@ -363,7 +363,7 @@ TRIO_STRING_PUBLIC int trio_equal_case TRIO_ARGS2((first, second), TRIO_CONST ch
 	assert(first);
 	assert(second);
 	if((first != NULL) && (second != NULL)) {
-		return (0 == strcmp(first, second));
+		return (sstreq(first, second));
 	}
 	return FALSE;
 }

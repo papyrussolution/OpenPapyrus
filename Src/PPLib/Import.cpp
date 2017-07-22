@@ -6,7 +6,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include "..\sartr\sartr.h"
+#include <sartre.h>
 #include <zlib\zlib.h>
 /*
 import.ini
