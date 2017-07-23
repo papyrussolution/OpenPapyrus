@@ -106,10 +106,10 @@ Support paid.
 
 ### Last release links
 
-[OpenPapyrus Server](http://uhtt.ru/dispatcher/dc/download?key=openpapyrus-setup-server)
-[OpenPapyrus Client](http://uhtt.ru/dispatcher/dc/download?key=openpapyrus-setup-client)
-[OpenPapyrus Update](http://uhtt.ru/dispatcher/dc/download?key=openpapyrus-setup-update)
-[OpenPapyrus JobServer](http://uhtt.ru/dispatcher/dc/download?key=openpapyrus-setup-jobserver)
+* [OpenPapyrus Server](http://uhtt.ru/dispatcher/dc/download?key=openpapyrus-setup-server)
+* [OpenPapyrus Client](http://uhtt.ru/dispatcher/dc/download?key=openpapyrus-setup-client)
+* [OpenPapyrus Update](http://uhtt.ru/dispatcher/dc/download?key=openpapyrus-setup-update)
+* [OpenPapyrus JobServer](http://uhtt.ru/dispatcher/dc/download?key=openpapyrus-setup-jobserver)
 
-[OpenPapyrus Features (pdf)](http://uhtt.ru/dispatcher/dc/download?key=papyrus-features)
-[OpenPapyrus Manual (pdf)](http://uhtt.ru/dispatcher/dc/download?key=papyrus-manual)
+* [OpenPapyrus Features (pdf)](http://uhtt.ru/dispatcher/dc/download?key=papyrus-features)
+* [OpenPapyrus Manual (pdf)](http://uhtt.ru/dispatcher/dc/download?key=papyrus-manual)
