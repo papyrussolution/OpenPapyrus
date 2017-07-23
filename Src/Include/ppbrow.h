@@ -1420,7 +1420,7 @@
 #define PPCMD_ALCREPORTCFG                1325
 #define PPCMD_PROCESSOSM                  1326
 #define PPCMD_TESTLOGWINDOW               1327
-#define PPCMD_IMPORTSARTRE                1328
+#define PPCMD_PROCESSSARTRE               1328
 //
 // PPJOB definitions
 //
@@ -1773,6 +1773,7 @@
 #define PPFILT_GCT                         1101
 #define PPFILT_PRCSSROSMPARAM              1111
 #define PPFILT_BILLAUTOCREATEPARAM         1121
+#define PPFILT_PRCSSRSARTREPARAM           1131
 //
 // RECORD definitions
 //

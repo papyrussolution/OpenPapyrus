@@ -312,7 +312,7 @@ private:
 	};
 };
 //
-//
+// Descr: Ассоциация, связывающая базовую часть слова с модельными позициями (префиксами, суффиксами и т.д.)
 //
 struct SrWordAssoc {
 	SLAPI  SrWordAssoc();
@@ -420,6 +420,7 @@ public:
 //
 // Descr: Таблица N-грамм. Содержит идентифицированные списки ссылок на слова, составлющие выражения.
 //   Например: "Мария Стюарт" хранится как пара ссылок на слова "мария" и "стюарт" в таблице SrWordTbl.
+// @todo Индексацию N-грамм следует организовать по принципу обратного индекса. То есть: слово -> список N-грамм его содержащих
 //
 class SrNGramTbl : public BDbTable {
 public:
@@ -441,7 +442,9 @@ private:
 #define SRPROPT_REAL      3
 #define SRPROPT_HDATE     4
 #define SRPROPT_HPERIOD   5
-
+// 
+// Descr: Декларация свойства концепции
+//
 class SrCPropDecl {
 public:
 	SrCPropDecl();
@@ -452,7 +455,9 @@ public:
 	LEXID  SymbID;    // Опциональный идентификатор символа свойства
 	SBaseBuffer Tail; // Вариабельная часть спецификации свойства, которая может содержать ограничения значений параметров
 };
-
+//
+// Descr: Список деклараций свойства концепции
+//
 class SrCPropDeclList {
 public:
 	SrCPropDeclList();
@@ -535,9 +540,9 @@ public:
 	int    FASTCALL Get(int64 & rIntVal) const;
 	int    FASTCALL Get(double & rRealVal) const;
 
-	CONCEPTID CID;
-	CONCEPTID PropID;
-	SBuffer Value;
+	CONCEPTID CID;     // Ид концепции
+	CONCEPTID PropID;  // Ид свойства (тоже концепция)
+	SBuffer Value;     // Значение свойства
 };
 //
 // Descr: Список значений свойств концепции

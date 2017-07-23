@@ -922,20 +922,20 @@ int xmlHasFeature(xmlFeature feature)
  *
  * Do the SAX2 detection and specific intialization
  */
-/* @sobolev static*/ void xmlDetectSAX2(xmlParserCtxtPtr ctxt)
+/* @sobolev static*/ void xmlDetectSAX2(xmlParserCtxt * pCtxt)
 {
-	if(ctxt) {
+	if(pCtxt) {
 	#ifdef LIBXML_SAX1_ENABLED
-		if((ctxt->sax) && (ctxt->sax->initialized == XML_SAX2_MAGIC) && ((ctxt->sax->startElementNs != NULL) || (ctxt->sax->endElementNs != NULL)))
-			ctxt->sax2 = 1;
+		if((pCtxt->sax) && (pCtxt->sax->initialized == XML_SAX2_MAGIC) && ((pCtxt->sax->startElementNs != NULL) || (pCtxt->sax->endElementNs != NULL)))
+			pCtxt->sax2 = 1;
 	#else
 		ctxt->sax2 = 1;
 	#endif /* LIBXML_SAX1_ENABLED */
-		ctxt->str_xml = xmlDictLookup(ctxt->dict, BAD_CAST "xml", 3);
-		ctxt->str_xmlns = xmlDictLookup(ctxt->dict, BAD_CAST "xmlns", 5);
-		ctxt->str_xml_ns = xmlDictLookup(ctxt->dict, XML_XML_NAMESPACE, 36);
-		if(!ctxt->str_xml || !ctxt->str_xmlns || !ctxt->str_xml_ns)
-			xmlErrMemory(ctxt, 0);
+		pCtxt->str_xml = xmlDictLookup(pCtxt->dict, BAD_CAST "xml", 3);
+		pCtxt->str_xmlns = xmlDictLookup(pCtxt->dict, BAD_CAST "xmlns", 5);
+		pCtxt->str_xml_ns = xmlDictLookup(pCtxt->dict, XML_XML_NAMESPACE, 36);
+		if(!pCtxt->str_xml || !pCtxt->str_xmlns || !pCtxt->str_xml_ns)
+			xmlErrMemory(pCtxt, 0);
 	}
 }
 
@@ -5812,16 +5812,15 @@ static xmlElementContentPtr xmlParseElementChildrenContentDeclPriv(xmlParserCtxt
 			 */
 			else if(type != CUR) {
 				xmlFatalErrMsgInt(ctxt, XML_ERR_SEPARATOR_REQUIRED, "xmlParseElementChildrenContentDecl : '%c' expected\n", type);
-				if((last != NULL) && (last != ret))
+				if(last && last != ret)
 					xmlFreeDocElementContent(ctxt->myDoc, last);
-				if(ret)
-					xmlFreeDocElementContent(ctxt->myDoc, ret);
+				xmlFreeDocElementContent(ctxt->myDoc, ret);
 				return 0;
 			}
 			NEXT;
 			op = xmlNewDocElementContent(ctxt->myDoc, NULL, XML_ELEMENT_CONTENT_SEQ);
 			if(op == NULL) {
-				if((last != NULL) && (last != ret))
+				if(last && last != ret)
 					xmlFreeDocElementContent(ctxt->myDoc, last);
 				xmlFreeDocElementContent(ctxt->myDoc, ret);
 				return 0;
@@ -5846,24 +5845,19 @@ static xmlElementContentPtr xmlParseElementChildrenContentDeclPriv(xmlParserCtxt
 		else if(RAW == '|') {
 			if(type == 0)
 				type = CUR;
-			/*
-			 * Detect "Name , Name | Name" error
-			 */
-			else if(type != CUR) {
+			else if(type != CUR) { // Detect "Name , Name | Name" error
 				xmlFatalErrMsgInt(ctxt, XML_ERR_SEPARATOR_REQUIRED, "xmlParseElementChildrenContentDecl : '%c' expected\n", type);
-				if((last != NULL) && (last != ret))
+				if(last && last != ret)
 					xmlFreeDocElementContent(ctxt->myDoc, last);
-				if(ret)
-					xmlFreeDocElementContent(ctxt->myDoc, ret);
+				xmlFreeDocElementContent(ctxt->myDoc, ret);
 				return 0;
 			}
 			NEXT;
 			op = xmlNewDocElementContent(ctxt->myDoc, NULL, XML_ELEMENT_CONTENT_OR);
 			if(op == NULL) {
-				if((last != NULL) && (last != ret))
+				if(last && last != ret)
 					xmlFreeDocElementContent(ctxt->myDoc, last);
-				if(ret)
-					xmlFreeDocElementContent(ctxt->myDoc, ret);
+				xmlFreeDocElementContent(ctxt->myDoc, ret);
 				return 0;
 			}
 			if(last == NULL) {
@@ -5885,10 +5879,9 @@ static xmlElementContentPtr xmlParseElementChildrenContentDeclPriv(xmlParserCtxt
 		}
 		else {
 			xmlFatalErr(ctxt, XML_ERR_ELEMCONTENT_NOT_FINISHED, 0);
-			if((last != NULL) && (last != ret))
+			if(last && last != ret)
 				xmlFreeDocElementContent(ctxt->myDoc, last);
-			if(ret)
-				xmlFreeDocElementContent(ctxt->myDoc, ret);
+			xmlFreeDocElementContent(ctxt->myDoc, ret);
 			return 0;
 		}
 		GROW;
@@ -5906,14 +5899,12 @@ static xmlElementContentPtr xmlParseElementChildrenContentDeclPriv(xmlParserCtxt
 			elem = xmlParseName(ctxt);
 			if(elem == NULL) {
 				xmlFatalErr(ctxt, XML_ERR_ELEMCONTENT_NOT_STARTED, 0);
-				if(ret)
-					xmlFreeDocElementContent(ctxt->myDoc, ret);
+				xmlFreeDocElementContent(ctxt->myDoc, ret);
 				return 0;
 			}
 			last = xmlNewDocElementContent(ctxt->myDoc, elem, XML_ELEMENT_CONTENT_ELEMENT);
 			if(last == NULL) {
-				if(ret)
-					xmlFreeDocElementContent(ctxt->myDoc, ret);
+				xmlFreeDocElementContent(ctxt->myDoc, ret);
 				return 0;
 			}
 			if(RAW == '?') {
@@ -6153,15 +6144,12 @@ int xmlParseElementDecl(xmlParserCtxtPtr ctxt)
 		SKIP_BLANKS;
 		if(RAW != '>') {
 			xmlFatalErr(ctxt, XML_ERR_GT_REQUIRED, 0);
-			if(content != NULL) {
-				xmlFreeDocElementContent(ctxt->myDoc, content);
-			}
+			xmlFreeDocElementContent(ctxt->myDoc, content);
 		}
 		else {
 			if(input != ctxt->input) {
 				xmlFatalErrMsg(ctxt, XML_ERR_ENTITY_BOUNDARY, "Element declaration doesn't start and stop in the same entity\n");
 			}
-
 			NEXT;
 			if(ctxt->sax && !ctxt->disableSAX && ctxt->sax->elementDecl) {
 				if(content)
@@ -6177,9 +6165,8 @@ int xmlParseElementDecl(xmlParserCtxtPtr ctxt)
 					xmlFreeDocElementContent(ctxt->myDoc, content);
 				}
 			}
-			else if(content) {
+			else
 				xmlFreeDocElementContent(ctxt->myDoc, content);
-			}
 		}
 	}
 	return ret;

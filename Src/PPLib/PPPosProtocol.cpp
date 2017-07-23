@@ -2373,7 +2373,7 @@ int PPPosProtocol::Characters(const char * pS, size_t len)
 }
 
 extern "C" xmlParserCtxtPtr xmlCreateURLParserCtxt(const char * filename, int options);
-void xmlDetectSAX2(xmlParserCtxtPtr ctxt); // @prototype
+void xmlDetectSAX2(xmlParserCtxt * ctxt); // @prototype
 
 SLAPI PPPosProtocol::ReadBlock::ReadBlock()
 {

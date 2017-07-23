@@ -725,7 +725,7 @@ void htmlNodeDumpFormatOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlNodePtr 
 		htmlAttrDumpOutput(buf, doc, (xmlAttrPtr)cur, encoding);
 	}
 	else if(cur->type == HTML_TEXT_NODE) {
-		if(cur->content != NULL) {
+		if(cur->content) {
 			if(((cur->name == (const xmlChar*)xmlStringText) || (cur->name != (const xmlChar*)xmlStringTextNoenc)) &&
 			    ((cur->parent == NULL) || ((xmlStrcasecmp(cur->parent->name, BAD_CAST "script")) && (xmlStrcasecmp(cur->parent->name, BAD_CAST "style"))))) {
 				xmlChar * buffer = xmlEncodeEntitiesReentrant(doc, cur->content);
@@ -740,7 +740,7 @@ void htmlNodeDumpFormatOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlNodePtr 
 		}
 	}
 	else if(cur->type == HTML_COMMENT_NODE) {
-		if(cur->content != NULL) {
+		if(cur->content) {
 			xmlOutputBufferWriteString(buf, "<!--");
 			xmlOutputBufferWriteString(buf, (const char*)cur->content);
 			xmlOutputBufferWriteString(buf, "-->");
@@ -750,7 +750,7 @@ void htmlNodeDumpFormatOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlNodePtr 
 		if(cur->name) {
 			xmlOutputBufferWriteString(buf, "<?");
 			xmlOutputBufferWriteString(buf, (const char*)cur->name);
-			if(cur->content != NULL) {
+			if(cur->content) {
 				xmlOutputBufferWriteString(buf, " ");
 				xmlOutputBufferWriteString(buf, (const char*)cur->content);
 			}
@@ -819,7 +819,7 @@ void htmlNodeDumpFormatOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlNodePtr 
 					xmlOutputBufferWriteString(buf, "\n");
 			}
 			xmlOutputBufferWriteString(buf, "</");
-			if(cur->ns && (cur->ns->prefix != NULL)) {
+			if(cur->ns && cur->ns->prefix) {
 				xmlOutputBufferWriteString(buf, (const char*)cur->ns->prefix);
 				xmlOutputBufferWriteString(buf, ":");
 			}

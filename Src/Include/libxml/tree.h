@@ -661,8 +661,8 @@ XMLPUBFUN void /*XMLCALL*/FASTCALL xmlBufferFree(xmlBuffer * pBuf);
 XMLPUBFUN int XMLCALL xmlBufferDump(FILE * file, xmlBufferPtr buf);
 XMLPUBFUN int XMLCALL xmlBufferAdd(xmlBufferPtr buf, const xmlChar * str, int len);
 XMLPUBFUN int XMLCALL xmlBufferAddHead(xmlBufferPtr buf, const xmlChar * str, int len);
-XMLPUBFUN int XMLCALL xmlBufferCat(xmlBufferPtr buf, const xmlChar * str);
-XMLPUBFUN int XMLCALL xmlBufferCCat(xmlBufferPtr buf, const char * str);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlBufferCat(xmlBuffer * pBuf, const xmlChar * pStr);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlBufferCCat(xmlBuffer * pBuf, const char * pStr);
 XMLPUBFUN int XMLCALL xmlBufferShrink(xmlBufferPtr buf, uint len);
 XMLPUBFUN int XMLCALL xmlBufferGrow(xmlBufferPtr buf, uint len);
 XMLPUBFUN void XMLCALL xmlBufferEmpty(xmlBufferPtr buf);
@@ -832,7 +832,7 @@ XMLPUBFUN int XMLCALL xmlUnsetProp(xmlNodePtr node, const xmlChar * name);
  * Internal, don't use.
  */
 XMLPUBFUN void XMLCALL xmlBufferWriteCHAR(xmlBufferPtr buf, const xmlChar * string);
-XMLPUBFUN void XMLCALL xmlBufferWriteChar(xmlBufferPtr buf, const char * string);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlBufferWriteChar(xmlBuffer * pBuf, const char * pString);
 XMLPUBFUN void XMLCALL xmlBufferWriteQuotedString(xmlBufferPtr buf, const xmlChar * string);
 
 #ifdef LIBXML_OUTPUT_ENABLED

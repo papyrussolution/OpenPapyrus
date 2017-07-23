@@ -359,7 +359,7 @@ class TSessAutoSmsParamsDialog : public TDialog {
 public:
 	TSessAutoSmsParamsDialog() : TDialog(DLG_TSASMS)
 	{
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_TSASMS_FILENAME, CTL_TSASMS_TDDOPATH, 1, 0, 0, FileBrowseCtrlGroup::fbcgfFile);
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_TSASMS_FILENAME, CTL_TSASMS_TDDOPATH, 1, 0, PPTXT_FILPAT_TDDO, FileBrowseCtrlGroup::fbcgfFile);
 	}
 	int    setDTS(const PPTSessConfig * pData);
 	int    getDTS(PPTSessConfig * pData);

@@ -1990,7 +1990,7 @@ xmlNodePtr xmlNewDocPI(xmlDocPtr doc, const xmlChar * name, const xmlChar * cont
 		cur->name = xmlDictLookup(doc->dict, name, -1);
 	else
 		cur->name = xmlStrdup(name);
-	if(content != NULL) {
+	if(content) {
 		cur->content = xmlStrdup(content);
 	}
 	cur->doc = doc;
@@ -2109,7 +2109,7 @@ xmlNodePtr xmlNewDocNode(xmlDocPtr doc, xmlNsPtr ns, const xmlChar * name, const
 	xmlNodePtr cur = (doc && doc->dict) ? xmlNewNodeEatName(ns, (xmlChar*)xmlDictLookup(doc->dict, name, -1)) : xmlNewNode(ns, name);
 	if(cur) {
 		cur->doc = doc;
-		if(content != NULL) {
+		if(content) {
 			cur->children = xmlStringGetNodeList(doc, content);
 			UPDATE_LAST_CHILD_AND_PARENT(cur)
 		}
@@ -2138,7 +2138,7 @@ xmlNodePtr xmlNewDocNodeEatName(xmlDocPtr doc, xmlNsPtr ns, xmlChar * name, cons
 	xmlNodePtr cur = xmlNewNodeEatName(ns, name);
 	if(cur) {
 		cur->doc = doc;
-		if(content != NULL) {
+		if(content) {
 			cur->children = xmlStringGetNodeList(doc, content);
 			UPDATE_LAST_CHILD_AND_PARENT(cur)
 		}
@@ -2169,7 +2169,7 @@ xmlNodePtr xmlNewDocRawNode(xmlDocPtr doc, xmlNsPtr ns, const xmlChar * name, co
 	xmlNodePtr cur = xmlNewDocNode(doc, ns, name, 0);
 	if(cur) {
 		cur->doc = doc;
-		if(content != NULL) {
+		if(content) {
 			cur->children = xmlNewDocText(doc, content);
 			UPDATE_LAST_CHILD_AND_PARENT(cur)
 		}
@@ -2223,7 +2223,7 @@ xmlNodePtr xmlNewText(const xmlChar * content)
 		memzero(cur, sizeof(xmlNode));
 		cur->type = XML_TEXT_NODE;
 		cur->name = xmlStringText;
-		if(content != NULL) {
+		if(content) {
 			cur->content = xmlStrdup(content);
 		}
 		if((__xmlRegisterCallbacks) && (xmlRegisterNodeDefaultValue))
@@ -2437,7 +2437,7 @@ xmlNodePtr xmlNewTextLen(const xmlChar * content, int len) {
 	cur->type = XML_TEXT_NODE;
 
 	cur->name = xmlStringText;
-	if(content != NULL) {
+	if(content) {
 		cur->content = xmlStrndup(content, len);
 	}
 
@@ -2486,7 +2486,7 @@ xmlNodePtr xmlNewComment(const xmlChar * content) {
 	cur->type = XML_COMMENT_NODE;
 
 	cur->name = xmlStringComment;
-	if(content != NULL) {
+	if(content) {
 		cur->content = xmlStrdup(content);
 	}
 
@@ -2519,7 +2519,7 @@ xmlNodePtr xmlNewCDataBlock(xmlDocPtr doc, const xmlChar * content, int len) {
 	cur->type = XML_CDATA_SECTION_NODE;
 	cur->doc = doc;
 
-	if(content != NULL) {
+	if(content) {
 		cur->content = xmlStrndup(content, len);
 	}
 
@@ -5115,7 +5115,7 @@ xmlChar * xmlNodeGetContent(const xmlNode * cur)
 		    return(xmlGetPropNodeValueInternal((xmlAttrPtr)cur));
 		case XML_COMMENT_NODE:
 		case XML_PI_NODE:
-		    if(cur->content != NULL)
+		    if(cur->content)
 			    return (xmlStrdup(cur->content));
 		    return 0;
 		case XML_ENTITY_REF_NODE: {
@@ -5175,7 +5175,7 @@ xmlChar * xmlNodeGetContent(const xmlNode * cur)
 		    return 0;
 		case XML_CDATA_SECTION_NODE:
 		case XML_TEXT_NODE:
-		    if(cur->content != NULL)
+		    if(cur->content)
 			    return (xmlStrdup(cur->content));
 		    return 0;
 	}
@@ -5364,7 +5364,7 @@ void xmlNodeAddContentLen(xmlNodePtr cur, const xmlChar * content, int len) {
 		case XML_PI_NODE:
 		case XML_COMMENT_NODE:
 		case XML_NOTATION_NODE:
-		    if(content != NULL) {
+		    if(content) {
 			    if((cur->content == (xmlChar*)&(cur->properties)) ||
 			    ((cur->doc != NULL) && (cur->doc->dict != NULL) &&
 				    xmlDictOwns(cur->doc->dict, cur->content))) {
@@ -6796,8 +6796,7 @@ int xmlBufferDump(FILE * file, xmlBufferPtr buf)
 #endif
 		return 0;
 	}
-	if(file == NULL)
-		file = stdout;
+	SETIFZ(file, stdout);
 	ret = fwrite(buf->content, sizeof(xmlChar), buf->use, file);
 	return ret;
 }
@@ -6824,12 +6823,10 @@ const xmlChar * xmlBufferContent(const xmlBuffer * buf)
  *
  * Returns the length of data in the internal content
  */
-
 int xmlBufferLength(const xmlBuffer * buf)
 {
 	return buf ? buf->use : 0;
 }
-
 /**
  * xmlBufferResize:
  * @buf:  the buffer to resize
@@ -7046,7 +7043,6 @@ int xmlBufferAddHead(xmlBufferPtr buf, const xmlChar * str, int len)
 	buf->content[buf->use] = 0;
 	return 0;
 }
-
 /**
  * xmlBufferCat:
  * @buf:  the buffer to add to
@@ -7057,10 +7053,10 @@ int xmlBufferAddHead(xmlBufferPtr buf, const xmlChar * str, int len)
  * Returns 0 successful, a positive error code number otherwise
  *         and -1 in case of internal or API error.
  */
-int xmlBufferCat(xmlBufferPtr buf, const xmlChar * str)
+int FASTCALL xmlBufferCat(xmlBuffer * pBuf, const xmlChar * pStr)
 {
-	if(buf && str)
-		return (buf->alloc == XML_BUFFER_ALLOC_IMMUTABLE) ? -1 : xmlBufferAdd(buf, str, -1);
+	if(pBuf && pStr)
+		return (pBuf->alloc == XML_BUFFER_ALLOC_IMMUTABLE) ? -1 : xmlBufferAdd(pBuf, pStr, -1);
 	else
 		return -1;
 }
@@ -7074,28 +7070,27 @@ int xmlBufferCat(xmlBufferPtr buf, const xmlChar * str)
  * Returns 0 successful, a positive error code number otherwise
  *         and -1 in case of internal or API error.
  */
-int xmlBufferCCat(xmlBufferPtr buf, const char * str)
+int FASTCALL xmlBufferCCat(xmlBuffer * pBuf, const char * pStr)
 {
 	const char * cur;
-	if(buf == NULL)
+	if(!pBuf || pBuf->alloc == XML_BUFFER_ALLOC_IMMUTABLE) 
 		return -1;
-	if(buf->alloc == XML_BUFFER_ALLOC_IMMUTABLE) return -1;
-	if(str == NULL) {
+	if(pStr == NULL) {
 #ifdef DEBUG_BUFFER
 		xmlGenericError(0, "xmlBufferCCat: str == NULL\n");
 #endif
 		return -1;
 	}
-	for(cur = str; *cur != 0; cur++) {
-		if(buf->use  + 10 >= buf->size) {
-			if(!xmlBufferResize(buf, buf->use+10)) {
+	for(cur = pStr; *cur != 0; cur++) {
+		if(pBuf->use  + 10 >= pBuf->size) {
+			if(!xmlBufferResize(pBuf, pBuf->use+10)) {
 				xmlTreeErrMemory("growing buffer");
 				return XML_ERR_NO_MEMORY;
 			}
 		}
-		buf->content[buf->use++] = *cur;
+		pBuf->content[pBuf->use++] = *cur;
 	}
-	buf->content[buf->use] = 0;
+	pBuf->content[pBuf->use] = 0;
 	return 0;
 }
 /**
@@ -7119,10 +7114,10 @@ void xmlBufferWriteCHAR(xmlBufferPtr buf, const xmlChar * string)
  * routine which manage and grows an output buffer. This one add
  * C chars at the end of the array.
  */
-void xmlBufferWriteChar(xmlBufferPtr buf, const char * string) 
+void FASTCALL xmlBufferWriteChar(xmlBuffer * pBuf, const char * pString) 
 {
-	if(buf && buf->alloc != XML_BUFFER_ALLOC_IMMUTABLE) 
-		xmlBufferCCat(buf, string);
+	if(pBuf && pBuf->alloc != XML_BUFFER_ALLOC_IMMUTABLE) 
+		xmlBufferCCat(pBuf, pString);
 }
 /**
  * xmlBufferWriteQuotedString:
@@ -7136,42 +7131,41 @@ void xmlBufferWriteChar(xmlBufferPtr buf, const char * string)
 void xmlBufferWriteQuotedString(xmlBufferPtr buf, const xmlChar * string) 
 {
 	const xmlChar * cur, * base;
-	if(buf == NULL)
-		return;
-	if(buf->alloc == XML_BUFFER_ALLOC_IMMUTABLE) return;
-	if(xmlStrchr(string, '\"')) {
-		if(xmlStrchr(string, '\'')) {
-#ifdef DEBUG_BUFFER
-			xmlGenericError(0, "xmlBufferWriteQuotedString: string contains quote and double-quotes !\n");
-#endif
-			xmlBufferCCat(buf, "\"");
-			base = cur = string;
-			while(*cur != 0) {
-				if(*cur == '"') {
-					if(base != cur)
-						xmlBufferAdd(buf, base, cur - base);
-					xmlBufferAdd(buf, BAD_CAST "&quot;", 6);
-					cur++;
-					base = cur;
+	if(buf && buf->alloc != XML_BUFFER_ALLOC_IMMUTABLE) {
+		if(xmlStrchr(string, '\"')) {
+			if(xmlStrchr(string, '\'')) {
+	#ifdef DEBUG_BUFFER
+				xmlGenericError(0, "xmlBufferWriteQuotedString: string contains quote and double-quotes !\n");
+	#endif
+				xmlBufferCCat(buf, "\"");
+				base = cur = string;
+				while(*cur != 0) {
+					if(*cur == '"') {
+						if(base != cur)
+							xmlBufferAdd(buf, base, cur - base);
+						xmlBufferAdd(buf, BAD_CAST "&quot;", 6);
+						cur++;
+						base = cur;
+					}
+					else {
+						cur++;
+					}
 				}
-				else {
-					cur++;
-				}
+				if(base != cur)
+					xmlBufferAdd(buf, base, cur - base);
+				xmlBufferCCat(buf, "\"");
 			}
-			if(base != cur)
-				xmlBufferAdd(buf, base, cur - base);
-			xmlBufferCCat(buf, "\"");
+			else {
+				xmlBufferCCat(buf, "\'");
+				xmlBufferCat(buf, string);
+				xmlBufferCCat(buf, "\'");
+			}
 		}
 		else {
-			xmlBufferCCat(buf, "\'");
+			xmlBufferCCat(buf, "\"");
 			xmlBufferCat(buf, string);
-			xmlBufferCCat(buf, "\'");
+			xmlBufferCCat(buf, "\"");
 		}
-	}
-	else {
-		xmlBufferCCat(buf, "\"");
-		xmlBufferCat(buf, string);
-		xmlBufferCCat(buf, "\"");
 	}
 }
 

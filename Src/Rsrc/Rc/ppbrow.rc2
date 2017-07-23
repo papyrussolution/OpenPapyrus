@@ -4495,13 +4495,13 @@ browser SSTAT north(100), 3, 1, "Статистика по продажам товаров {%s}", OWNER|GRI
 	"@ware",                 2, notype, 0, 25
 	"Количество\nэлементов", 3, notype, NMBF_NOTRAILZ, 10
 	group "По реализованному количеству" {
-		"Среднее",           4, notype, NMBF_NOTRAILZ, 10.4
+		"@average",          4, notype, NMBF_NOTRAILZ, 10.4
 		"Ст отклонение",     5, notype, NMBF_NOTRAILZ, 10.4
 		"Вариация",          6, notype, NMBF_NOTRAILZ, 10.4
 		"Оборачиваемость",   7, notype, NMBF_NOTRAILZ, 10.4
 	}
 	group "По сумме реализации" {
-		"Среднее",           8, notype, NMBF_NOTRAILZ, 10.4
+		"@average",          8, notype, NMBF_NOTRAILZ, 10.4
 		"Ст отклонение",     9, notype, NMBF_NOTRAILZ, 10.4
 		"Вариация",         10, notype, NMBF_NOTRAILZ, 10.4
 		"Оборачиваемость",  11, notype, NMBF_NOTRAILZ, 10.4
@@ -4529,13 +4529,13 @@ browser SSTAT_CYCLE north(100), 3, 1, "Статистика по продажам товаров {%s}", OWN
 	"@cycle",                1, notype, 0,  8
 	"Количество\nэлементов", 3, notype, NMBF_NOTRAILZ, 10
 	group "По реализованному количеству" {
-		"Среднее",          4, notype, NMBF_NOTRAILZ, 10.4
+		"@average",         4, notype, NMBF_NOTRAILZ, 10.4
 		"Ст отклонение",    5, notype, NMBF_NOTRAILZ, 10.4
 		"Вариация",         6, notype, NMBF_NOTRAILZ, 10.4
 		"Оборачиваемость",  7, notype, NMBF_NOTRAILZ, 10.4
 	}
 	group "По сумме реализации" {
-		"Среднее",          8, notype, NMBF_NOTRAILZ, 10.4
+		"@average",         8, notype, NMBF_NOTRAILZ, 10.4
 		"Ст отклонение",    9, notype, NMBF_NOTRAILZ, 10.4
 		"Вариация",        10, notype, NMBF_NOTRAILZ, 10.4
 		"Оборачиваемость", 11, notype, NMBF_NOTRAILZ, 10.4
@@ -5634,7 +5634,7 @@ browser DEBTORSTAT north(100), 3, 1, "Статистика по дебиторам", OWNER|GRID, 0
 	"@appellation", 13, notype, 0, 20
 	"@date",         1, notype, DATF_DMY, 8
 	group "Задержки платежей" {
-		"Среднее",                2, notype, NMBF_NOZERO, 8.1
+		"@average",               2, notype, NMBF_NOZERO, 8.1
 		"Отклонение",             3, notype, NMBF_NOZERO, 8.1
 		"Gamma-тест",             4, notype, NMBF_NOZERO, 8.1
 	}
@@ -6402,7 +6402,7 @@ cmd GoodsValRestr         { "@{cmd_goodsvalrestr}"                         none 
 cmd CreateTechSess        { "Создать технологическую сессию"               ICON_TSESS            none cmCreateTechSess }
 cmd ConstructionTest      { "В разработке"                                 none                  none cmConstructionTest }
 cmd SCardPane             { "Информация о персональной карте"              none                  none cmSCardPane }
-cmd CreateDraftBySupplOrder {"@{cmd_createdraftbysupplorder}"              none          none cmCreateDraftBySupplOrder }
+cmd CreateDraftBySupplOrder {"@{cmd_createdraftbysupplorder}"              none                  none cmCreateDraftBySupplOrder }
 cmd Budget                { "@{cmd_budgeting}"                             none                  none cmBudgeting }
 cmd BizScTempl            { "@{cmd_viewbizsctempl}"                        none                  none cmViewBizScTempl }
 cmd BizScValByTempl       { "@{cmd_bizscvalbytempl}"                       none                  none cmBizScValByTempl }
@@ -6413,7 +6413,7 @@ cmd CTblOrdCreate         { "Заказ стола в ресторане"                      ICON_
 cmd CTblOrdGraph          { "Диаграмма заказов столов в ресторане"         ICON_CTBLORD          none cmCTblOrdTimeGraph }
 cmd SearchBillByCtx       { "Поиск документа по контексту"                 none                  none cmSearchBillByCtx }
 cmd StockOpt              { "Оптимизация запасов (construction)"           none                  none cmStockOpt view = StockOpt }
-cmd StockOptCfg           { "@{cmd_stockoptcfg}"                           none               none cmStockOptCfg }
+cmd StockOptCfg           { "@{cmd_stockoptcfg}"                           none                  none cmStockOptCfg }
 cmd RFIDDevice            { "@{cmd_rfiddevice}"                            none                  none cmRFIDDevice }
 cmd ReplacePersonCat      { "@{cmd_replacepersoncat}"                      none                  none cmReplacePersonCat }
 cmd ViewDialog            { "Диалоги"                                      ICON_UI_DIALOG        none cmViewDialog view = Dialog }
@@ -6465,7 +6465,7 @@ cmd WorkbookInterchange   { "@{cmd_workbookinterchange}"                   none 
 cmd AlcReportCfg          { "@{cmd_alcreportcfg}"                          none                   none cmAlcReportCfg } // @v9.4.5
 cmd ProcessOsm            { "@{prcssrosm}"                                 none                   none cmProcessOsm }   // @v9.5.9
 cmd TestLogWindow         { "@{cmd_testlogwindow}"                         ICON_TEST              none cmTestLogWindow } // @v9.7.0
-cmd ImportSartre          { "@{cmd_importsartre}"                          none                   none cmImportSartre } // @v9.7.8
+cmd ProcessSartre         { "@{cmd_importsartre}"                          none                   none cmProcessSartre } // @v9.7.8
 //
 // -------------- Описания серверных задач
 //
@@ -6632,6 +6632,7 @@ view   OprKind                 { "@{view_oprkind}" } // @v9.3.6
 filter GCT                     { "@{filter_gct}"   } // @v9.3.6
 filter PrcssrOsmParam          { "@{filter_prcssrosm}" } // @v9.5.9
 filter BillAutoCreateParam     { "@{filter_billautocreateparam}" } // @v9.7.8
+filter PrcssrSartreParam       { "@{filter_prcssrsartre}" } // @v9.7.8
 //
 // lastviewfilter ATTENTION: New view && filt befor this line!
 //

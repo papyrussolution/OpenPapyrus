@@ -64,6 +64,18 @@
 :stella::corpus_caeleste  // Звезда (является подклассом небесного тела)
 :planeta::corpus_caeleste // Планета (является подклассом небесного тела)
 :planeta_terra:planeta    // Земля (является экземпляром планеты)
+
+:gender // Пол (род)
+:gender_masculum::gender // Мужской
+:gender_feminam::gender  // Женский
+:gender_neutro::gender   // Средний род
+
+:hum_name_freq(#int) // Относительная популярность человеческого имени. Значение само по себе бессмысленное, имеет значение только в сравнении с другим именем
+                      
+:hum_name+(:gender gender, :hum_name_freq freq) // Человеческое имя (generic)
+:hum_fname::hum_name // Имя человека (first name)
+:hum_sname::hum_name // Фамилия человека (surname)
+:hum_pname::hum_name // Отчество человека (patronimic)
 //
 // Языки
 //
@@ -1700,7 +1712,6 @@
 // urischeme (https://en.wikipedia.org/wiki/URI_scheme)
 //
 :urischeme // Схема URI
-
 {
 	aaa
 	aaas
@@ -1963,3 +1974,13 @@
 	мичиган
 	аризона
 }:cregion(:statu_us)
+
+[ru]{
+	иосиф(:gender_masculum)
+	анна(:gender_feminam)
+	максим(:gender_masculum)
+	антон(:gender_masculum)
+	дарья(:gender_feminam)
+	дмитрий(:gender_masculum)
+}:hum_fname
+

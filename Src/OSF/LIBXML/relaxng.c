@@ -3358,11 +3358,9 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParseData(xmlRelaxNGParserCtxtPtr ctxt, xml
 	/*
 	 * Handle optional except
 	 */
-	if((content != NULL)
-	    && (sstreq(content->name, BAD_CAST "except"))) {
+	if((content != NULL) && (sstreq(content->name, BAD_CAST "except"))) {
 		xmlNodePtr child;
 		xmlRelaxNGDefinePtr tmp2, last = NULL;
-
 		except = xmlRelaxNGNewDefine(ctxt, node);
 		if(except == NULL) {
 			return (def);
@@ -3388,10 +3386,10 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParseData(xmlRelaxNGParserCtxtPtr ctxt, xml
 		}
 		content = content->next;
 	}
-	/*
-	 * Check there is no unhandled data
-	 */
-	if(content != NULL) {
+	//
+	// Check there is no unhandled data
+	//
+	if(content) {
 		xmlRngPErr(ctxt, content, XML_RNGP_DATA_CONTENT, "Element data has unexpected content %s\n", content->name, 0);
 	}
 	return (def);
@@ -3548,69 +3546,53 @@ static int xmlRelaxNGCompareElemDefLists(xmlRelaxNGParserCtxtPtr ctxt
  *
  * Returns 1 if yes, 0 if no and -1 in case of error.
  */
-static int xmlRelaxNGGenerateAttributes(xmlRelaxNGParserCtxtPtr ctxt,
-    xmlRelaxNGDefinePtr def)
+static int xmlRelaxNGGenerateAttributes(xmlRelaxNGParserCtxtPtr ctxt, xmlRelaxNGDefinePtr def)
 {
-	xmlRelaxNGDefinePtr parent, cur, tmp;
-
-	/*
-	 * Don't run that check in case of error. Infinite recursion
-	 * becomes possible.
-	 */
-	if(ctxt->nbErrors != 0)
+	//
+	// Don't run that check in case of error. Infinite recursion becomes possible.
+	//
+	if(ctxt->nbErrors)
 		return -1;
-
-	parent = NULL;
-	cur = def;
-	while(cur) {
-		if((cur->type == XML_RELAXNG_ELEMENT) ||
-		    (cur->type == XML_RELAXNG_TEXT) ||
-		    (cur->type == XML_RELAXNG_DATATYPE) ||
-		    (cur->type == XML_RELAXNG_PARAM) ||
-		    (cur->type == XML_RELAXNG_LIST) ||
-		    (cur->type == XML_RELAXNG_VALUE) ||
-		    (cur->type == XML_RELAXNG_EMPTY))
-			return 0;
-		if((cur->type == XML_RELAXNG_CHOICE) ||
-		    (cur->type == XML_RELAXNG_INTERLEAVE) ||
-		    (cur->type == XML_RELAXNG_GROUP) ||
-		    (cur->type == XML_RELAXNG_ONEORMORE) ||
-		    (cur->type == XML_RELAXNG_ZEROORMORE) ||
-		    (cur->type == XML_RELAXNG_OPTIONAL) ||
-		    (cur->type == XML_RELAXNG_PARENTREF) ||
-		    (cur->type == XML_RELAXNG_EXTERNALREF) ||
-		    (cur->type == XML_RELAXNG_REF) ||
-		    (cur->type == XML_RELAXNG_DEF)) {
-			if(cur->content != NULL) {
-				parent = cur;
-				cur = cur->content;
-				tmp = cur;
-				while(tmp) {
-					tmp->parent = parent;
-					tmp = tmp->next;
+	else {
+		xmlRelaxNGDefine * parent = NULL;
+		xmlRelaxNGDefine * cur = def;
+		while(cur) {
+			if(oneof7(cur->type, XML_RELAXNG_ELEMENT, XML_RELAXNG_TEXT, XML_RELAXNG_DATATYPE, XML_RELAXNG_PARAM, XML_RELAXNG_LIST, XML_RELAXNG_VALUE, XML_RELAXNG_EMPTY))
+				return 0;
+			else {
+				if(oneof10(cur->type, XML_RELAXNG_CHOICE, XML_RELAXNG_INTERLEAVE, XML_RELAXNG_GROUP, XML_RELAXNG_ONEORMORE, XML_RELAXNG_ZEROORMORE, XML_RELAXNG_OPTIONAL,
+					XML_RELAXNG_PARENTREF, XML_RELAXNG_EXTERNALREF, XML_RELAXNG_REF, XML_RELAXNG_DEF)) {
+					if(cur->content) {
+						parent = cur;
+						cur = cur->content;
+						for(xmlRelaxNGDefine * tmp = cur; tmp; tmp = tmp->next)
+							tmp->parent = parent;
+						continue;
+					}
 				}
-				continue;
+				if(cur == def)
+					break;
+				else if(cur->next) {
+					cur = cur->next;
+					continue;
+				}
+				else {
+					do {
+						cur = cur->parent;
+						if(!cur)
+							break;
+						if(cur == def)
+							return 1;
+						if(cur->next) {
+							cur = cur->next;
+							break;
+						}
+					} while(cur);
+				}
 			}
 		}
-		if(cur == def)
-			break;
-		if(cur->next != NULL) {
-			cur = cur->next;
-			continue;
-		}
-		do {
-			cur = cur->parent;
-			if(!cur)
-				break;
-			if(cur == def)
-				return 1;
-			if(cur->next != NULL) {
-				cur = cur->next;
-				break;
-			}
-		} while(cur);
+		return 1;
 	}
-	return 1;
 }
 
 /**
@@ -3670,7 +3652,7 @@ static xmlRelaxNGDefinePtr * xmlRelaxNGGetElements(xmlRelaxNGParserCtxtPtr ctxt,
 			 * Don't go within elements or attributes or string values.
 			 * Just gather the element top list
 			 */
-			if(cur->content != NULL) {
+			if(cur->content) {
 				parent = cur;
 				cur = cur->content;
 				tmp = cur;
@@ -5438,7 +5420,7 @@ static void xmlRelaxNGSimplify(xmlRelaxNGParserCtxtPtr ctxt,
 		}
 		else {
 			cur->parent = parent;
-			if(cur->content != NULL)
+			if(cur->content)
 				xmlRelaxNGSimplify(ctxt, cur->content, cur);
 			if((cur->type != XML_RELAXNG_VALUE) && (cur->attrs != NULL))
 				xmlRelaxNGSimplify(ctxt, cur->attrs, cur);
@@ -9545,7 +9527,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 			    child = child->next;
 		    }
 		    if(ret == -1) {
-			    if(content != NULL)
+			    if(content)
 				    SAlloc::F(content);
 			    break;
 		    }
@@ -9565,7 +9547,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    else if(ret == 0) {
 			    ctxt->state->seq = NULL;
 		    }
-		    if(content != NULL)
+		    if(content)
 			    SAlloc::F(content);
 		    break;
 	    }
@@ -9590,7 +9572,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 			    child = child->next;
 		    }
 		    if(ret == -1) {
-			    if(content != NULL)
+			    if(content)
 				    SAlloc::F(content);
 			    break;
 		    }
@@ -9612,7 +9594,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    else if(ret == 0) {
 			    ctxt->state->seq = NULL;
 		    }
-		    if(content != NULL)
+		    if(content)
 			    SAlloc::F(content);
 		    break;
 	    }
@@ -9643,7 +9625,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 			    child = child->next;
 		    }
 		    if(ret == -1) {
-			    if(content != NULL)
+			    if(content)
 				    SAlloc::F(content);
 			    break;
 		    }
@@ -9669,7 +9651,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    else if((ret == 0) && (node != NULL)) {
 			    ctxt->state->seq = node->next;
 		    }
-		    if(content != NULL)
+		    if(content)
 			    SAlloc::F(content);
 		    break;
 	    }

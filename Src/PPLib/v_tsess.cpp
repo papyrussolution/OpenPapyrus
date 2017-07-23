@@ -1278,8 +1278,8 @@ int SLAPI PPViewTSession::SendAutoSms()
 	//
  	if(PPAlbatrosCfgMngr::Get(&albtr_cfg) > 0) {
 		GetSmsLists(psn_list, phone_list, tsess_list);
- 		if(phone_list.getCount() != 0) {
-			if(!BeginDelivery(albtr_cfg.Hdr.SmsAccID, psn_list, phone_list, PPOBJ_TSESSION, tsess_list))
+ 		if(phone_list.getCount()) {
+			if(!PPObjSmsAccount::BeginDelivery(albtr_cfg.Hdr.SmsAccID, psn_list, phone_list, PPOBJ_TSESSION, tsess_list))
  				PPError();
  		}
  		else {

@@ -608,6 +608,9 @@ int FASTCALL RecognizeLinguaSymb(const char * pSymb, int word)
 			}
 		}
 	}
+	if(!ret_ident) {
+		SLS.SetError(SLERR_LANGSYMBNFOUND, pSymb);
+	}
 	return ret_ident;
 }
 

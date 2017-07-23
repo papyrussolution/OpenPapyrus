@@ -366,59 +366,60 @@ typedef enum  {
 	DB_LSTAT_PENDING = 5,             /* Lock was waiting and has been promoted; waiting for the owner to run and upgrade it to held. */
 	DB_LSTAT_WAITING = 6              /* Lock is on the wait queue. */
 }db_status_t;
-
-/* Lock statistics structure. */
+//
+// Lock statistics structure.
+//
 struct __db_lock_stat { /* SHARED */
-	uint32 st_id;                /* Last allocated locker ID. */
-	uint32 st_cur_maxid;         /* Current maximum unused ID. */
-	uint32 st_initlocks;         /* Initial number of locks in table. */
-	uint32 st_initlockers;       /* Initial num of lockers in table. */
-	uint32 st_initobjects;       /* Initial num of objects in table. */
-	uint32 st_locks;             /* Current number of locks in table. */
-	uint32 st_lockers;           /* Current num of lockers in table. */
-	uint32 st_objects;           /* Current num of objects in table. */
-	uint32 st_maxlocks;          /* Maximum number of locks in table. */
-	uint32 st_maxlockers;        /* Maximum num of lockers in table. */
-	uint32 st_maxobjects;        /* Maximum num of objects in table. */
-	uint32 st_partitions;        /* number of partitions. */
-	uint32 st_tablesize;         /* Size of object hash table. */
-	int32 st_nmodes;              /* Number of lock modes. */
-	uint32 st_nlockers;          /* Current number of lockers. */
+	uint32 st_id;                // Last allocated locker ID.
+	uint32 st_cur_maxid;         // Current maximum unused ID.
+	uint32 st_initlocks;         // Initial number of locks in table.
+	uint32 st_initlockers;       // Initial num of lockers in table.
+	uint32 st_initobjects;       // Initial num of objects in table.
+	uint32 st_locks;             // Current number of locks in table.
+	uint32 st_lockers;           // Current num of lockers in table.
+	uint32 st_objects;           // Current num of objects in table.
+	uint32 st_maxlocks;          // Maximum number of locks in table.
+	uint32 st_maxlockers;        // Maximum num of lockers in table.
+	uint32 st_maxobjects;        // Maximum num of objects in table.
+	uint32 st_partitions;        // number of partitions.
+	uint32 st_tablesize;         // Size of object hash table.
+	int32 st_nmodes;              // Number of lock modes.
+	uint32 st_nlockers;          // Current number of lockers.
  #ifndef __TEST_DB_NO_STATISTICS
-	uint32 st_nlocks;            /* Current number of locks. */
-	uint32 st_maxnlocks;         /* Maximum number of locks so far. */
-	uint32 st_maxhlocks;         /* Maximum number of locks in any bucket. */
-	uintmax_t st_locksteals;        /* Number of lock steals so far. */
-	uintmax_t st_maxlsteals;        /* Maximum number steals in any partition. */
-	uint32 st_maxnlockers;       /* Maximum number of lockers so far. */
-	uint32 st_nobjects;          /* Current number of objects. */
-	uint32 st_maxnobjects;       /* Maximum number of objects so far. */
-	uint32 st_maxhobjects;       /* Maximum number of objectsin any bucket. */
-	uintmax_t st_objectsteals;      /* Number of objects steals so far. */
-	uintmax_t st_maxosteals;        /* Maximum number of steals in any partition. */
-	uintmax_t st_nrequests;         /* Number of lock gets. */
-	uintmax_t st_nreleases;         /* Number of lock puts. */
-	uintmax_t st_nupgrade;          /* Number of lock upgrades. */
-	uintmax_t st_ndowngrade;        /* Number of lock downgrades. */
-	uintmax_t st_lock_wait;         /* Lock conflicts w/ subsequent wait */
-	uintmax_t st_lock_nowait;       /* Lock conflicts w/o subsequent wait */
-	uintmax_t st_ndeadlocks;        /* Number of lock deadlocks. */
-	db_timeout_t st_locktimeout;    /* Lock timeout. */
-	uintmax_t st_nlocktimeouts;     /* Number of lock timeouts. */
-	db_timeout_t st_txntimeout;     /* Transaction timeout. */
-	uintmax_t st_ntxntimeouts;      /* Number of transaction timeouts. */
-	uintmax_t st_part_wait;         /* Partition lock granted after wait. */
-	uintmax_t st_part_nowait;       /* Partition lock granted without wait. */
-	uintmax_t st_part_max_wait;     /* Max partition lock granted after wait. */
-	uintmax_t st_part_max_nowait;   /* Max partition lock granted without wait. */
-	uintmax_t st_objs_wait; /*      Object lock granted after wait. */
-	uintmax_t st_objs_nowait;       /* Object lock granted without wait. */
-	uintmax_t st_lockers_wait;      /* Locker lock granted after wait. */
-	uintmax_t st_lockers_nowait;    /* Locker lock granted without wait. */
-	uintmax_t st_region_wait;       /* Region lock granted after wait. */
-	uintmax_t st_region_nowait;     /* Region lock granted without wait. */
-	uint32 st_hash_len;          /* Max length of bucket. */
-	roff_t st_regsize;              /* Region size. */
+	uint32 st_nlocks;            // Current number of locks.
+	uint32 st_maxnlocks;         // Maximum number of locks so far.
+	uint32 st_maxhlocks;         // Maximum number of locks in any bucket.
+	uintmax_t st_locksteals;     // Number of lock steals so far.
+	uintmax_t st_maxlsteals;     // Maximum number steals in any partition.
+	uint32 st_maxnlockers;       // Maximum number of lockers so far.
+	uint32 st_nobjects;          // Current number of objects.
+	uint32 st_maxnobjects;       // Maximum number of objects so far.
+	uint32 st_maxhobjects;       // Maximum number of objectsin any bucket.
+	uintmax_t st_objectsteals;      // Number of objects steals so far.
+	uintmax_t st_maxosteals;        // Maximum number of steals in any partition.
+	uintmax_t st_nrequests;         // Number of lock gets.
+	uintmax_t st_nreleases;         // Number of lock puts.
+	uintmax_t st_nupgrade;          // Number of lock upgrades.
+	uintmax_t st_ndowngrade;        // Number of lock downgrades.
+	uintmax_t st_lock_wait;         // Lock conflicts w/ subsequent wait
+	uintmax_t st_lock_nowait;       // Lock conflicts w/o subsequent wait
+	uintmax_t st_ndeadlocks;        // Number of lock deadlocks.
+	db_timeout_t st_locktimeout;    // Lock timeout.
+	uintmax_t st_nlocktimeouts;     // Number of lock timeouts.
+	db_timeout_t st_txntimeout;     // Transaction timeout.
+	uintmax_t st_ntxntimeouts;      // Number of transaction timeouts.
+	uintmax_t st_part_wait;         // Partition lock granted after wait.
+	uintmax_t st_part_nowait;       // Partition lock granted without wait.
+	uintmax_t st_part_max_wait;     // Max partition lock granted after wait.
+	uintmax_t st_part_max_nowait;   // Max partition lock granted without wait.
+	uintmax_t st_objs_wait;         // Object lock granted after wait.
+	uintmax_t st_objs_nowait;       // Object lock granted without wait.
+	uintmax_t st_lockers_wait;      // Locker lock granted after wait.
+	uintmax_t st_lockers_nowait;    // Locker lock granted without wait.
+	uintmax_t st_region_wait;       // Region lock granted after wait.
+	uintmax_t st_region_nowait;     // Region lock granted without wait.
+	uint32 st_hash_len;             // Max length of bucket.
+	roff_t st_regsize;              // Region size.
  #endif
 };
 
@@ -464,14 +465,14 @@ struct __db_ilock { /* SHARED */
 //  The structure is allocated by the caller and filled in during a
 //  lock_get request (or a lock_vec/DB_LOCK_GET).
 //
-struct __db_lock_u_base { // SHARED 
+struct __db_lock_u_base { // SHARED
 	roff_t off; // Offset of the lock in the region
 	uint32 ndx; // Index of the object referenced by this lock; used for locking.
 	uint32 gen; // Generation number of this lock
 	db_lockmode_t mode; // mode of this lock
 };
 
-struct __db_lock_u : public __db_lock_u_base { // SHARED 
+struct __db_lock_u : public __db_lock_u_base { // SHARED
 	__db_lock_u()
 	{
 		off = 0;
@@ -491,11 +492,11 @@ struct __db_lockreq {
 /*******************************************************
 * Logging.
 *******************************************************/
- #define DB_LOGVERSION   18             /* Current log version. */
- #define DB_LOGVERSION_LATCHING 15      /* Log version using latching. */
- #define DB_LOGCHKSUM    12             /* Check sum headers. */
- #define DB_LOGOLDVER    8              /* Oldest log version supported. */
- #define DB_LOGMAGIC     0x040988
+#define DB_LOGVERSION   18             /* Current log version. */
+#define DB_LOGVERSION_LATCHING 15      /* Log version using latching. */
+#define DB_LOGCHKSUM    12             /* Check sum headers. */
+#define DB_LOGOLDVER    8              /* Oldest log version supported. */
+#define DB_LOGMAGIC     0x040988
 /*
  * A DB_LSN has two parts, a fileid which identifies a specific file, and an
  * offset within that file.  The fileid is an unsigned 4-byte quantity that
@@ -504,7 +505,7 @@ struct __db_lockreq {
  * log manager guarantees the offset is never more than 4 bytes by switching
  * to a new log file before the maximum length imposed by an unsigned 4-byte offset is reached.
  */
-struct __db_lsn { // SHARED 
+struct __db_lsn { // SHARED
 	void   Clear()
 	{
 		file = 0;
@@ -529,7 +530,6 @@ struct __db_lsn { // SHARED
  */
  #define DB_user_BEGIN           10000
  #define DB_debug_FLAG           0x80000000
-
 /*
  * DB_LOGC --
  *	Log cursor.
@@ -735,52 +735,52 @@ struct __db_mpoolfile {
 //
 // Mpool statistics structure
 //
-struct __db_mpool_stat { // SHARED 
-	uint32 st_gbytes;            // Total cache size: GB. 
-	uint32 st_bytes;             // Total cache size: B. 
-	uint32 st_ncache;            // Number of cache regions. 
-	uint32 st_max_ncache;        // Maximum number of regions. 
-	db_size_t st_mmapsize;          // Maximum file size for mmap. 
-	int32 st_maxopenfd;           // Maximum number of open fd's. 
-	int32 st_maxwrite;            // Maximum buffers to write. 
-	db_timeout_t st_maxwrite_sleep; // Sleep after writing max buffers. 
-	uint32 st_pages;             // Total number of pages. 
+struct __db_mpool_stat { // SHARED
+	uint32 st_gbytes;            // Total cache size: GB.
+	uint32 st_bytes;             // Total cache size: B.
+	uint32 st_ncache;            // Number of cache regions.
+	uint32 st_max_ncache;        // Maximum number of regions.
+	db_size_t st_mmapsize;          // Maximum file size for mmap.
+	int32 st_maxopenfd;           // Maximum number of open fd's.
+	int32 st_maxwrite;            // Maximum buffers to write.
+	db_timeout_t st_maxwrite_sleep; // Sleep after writing max buffers.
+	uint32 st_pages;             // Total number of pages.
  #ifndef __TEST_DB_NO_STATISTICS
-	uint32 st_map;               // Pages from mapped files. 
-	uintmax_t st_cache_hit; // Pages found in the cache. 
-	uintmax_t st_cache_miss;        // Pages not found in the cache. 
-	uintmax_t st_page_create;       // Pages created in the cache. 
-	uintmax_t st_page_in;           // Pages read in. 
-	uintmax_t st_page_out;          // Pages written out. 
-	uintmax_t st_ro_evict;          // Clean pages forced from the cache. 
-	uintmax_t st_rw_evict;          // Dirty pages forced from the cache. 
-	uintmax_t st_page_trickle;      // Pages written by memp_trickle. 
-	uint32 st_page_clean;        // Clean pages. 
-	uint32 st_page_dirty;        // Dirty pages. 
-	uint32 st_hash_buckets;      // Number of hash buckets. 
-	uint32 st_hash_mutexes;      // Number of hash bucket mutexes. 
-	uint32 st_pagesize;          // Assumed page size. 
-	uint32 st_hash_searches;     // Total hash chain searches. 
-	uint32 st_hash_longest;      // Longest hash chain searched. 
-	uintmax_t st_hash_examined;     // Total hash entries searched. 
-	uintmax_t st_hash_nowait;       // Hash lock granted with nowait. 
-	uintmax_t st_hash_wait;         // Hash lock granted after wait. 
-	uintmax_t st_hash_max_nowait;   // Max hash lock granted with nowait. 
-	uintmax_t st_hash_max_wait;     // Max hash lock granted after wait. 
-	uintmax_t st_region_nowait;     // Region lock granted with nowait. 
-	uintmax_t st_region_wait;       // Region lock granted after wait. 
-	uintmax_t st_mvcc_frozen;       // Buffers frozen. 
-	uintmax_t st_mvcc_thawed;       // Buffers thawed. 
-	uintmax_t st_mvcc_freed;        // Frozen buffers freed. 
-	uintmax_t st_alloc;             // Number of page allocations. 
-	uintmax_t st_alloc_buckets;     // Buckets checked during allocation. 
-	uintmax_t st_alloc_max_buckets; // Max checked during allocation. 
-	uintmax_t st_alloc_pages;       // Pages checked during allocation. 
-	uintmax_t st_alloc_max_pages;   // Max checked during allocation. 
-	uintmax_t st_io_wait;           // Thread waited on buffer I/O. 
-	uintmax_t st_sync_interrupted;  // Number of times sync interrupted. 
-	roff_t st_regsize;              // Region size. 
-	roff_t st_regmax;               // Region max. 
+	uint32 st_map;               // Pages from mapped files.
+	uintmax_t st_cache_hit; // Pages found in the cache.
+	uintmax_t st_cache_miss;        // Pages not found in the cache.
+	uintmax_t st_page_create;       // Pages created in the cache.
+	uintmax_t st_page_in;           // Pages read in.
+	uintmax_t st_page_out;          // Pages written out.
+	uintmax_t st_ro_evict;          // Clean pages forced from the cache.
+	uintmax_t st_rw_evict;          // Dirty pages forced from the cache.
+	uintmax_t st_page_trickle;      // Pages written by memp_trickle.
+	uint32 st_page_clean;        // Clean pages.
+	uint32 st_page_dirty;        // Dirty pages.
+	uint32 st_hash_buckets;      // Number of hash buckets.
+	uint32 st_hash_mutexes;      // Number of hash bucket mutexes.
+	uint32 st_pagesize;          // Assumed page size.
+	uint32 st_hash_searches;     // Total hash chain searches.
+	uint32 st_hash_longest;      // Longest hash chain searched.
+	uintmax_t st_hash_examined;     // Total hash entries searched.
+	uintmax_t st_hash_nowait;       // Hash lock granted with nowait.
+	uintmax_t st_hash_wait;         // Hash lock granted after wait.
+	uintmax_t st_hash_max_nowait;   // Max hash lock granted with nowait.
+	uintmax_t st_hash_max_wait;     // Max hash lock granted after wait.
+	uintmax_t st_region_nowait;     // Region lock granted with nowait.
+	uintmax_t st_region_wait;       // Region lock granted after wait.
+	uintmax_t st_mvcc_frozen;       // Buffers frozen.
+	uintmax_t st_mvcc_thawed;       // Buffers thawed.
+	uintmax_t st_mvcc_freed;        // Frozen buffers freed.
+	uintmax_t st_alloc;             // Number of page allocations.
+	uintmax_t st_alloc_buckets;     // Buckets checked during allocation.
+	uintmax_t st_alloc_max_buckets; // Max checked during allocation.
+	uintmax_t st_alloc_pages;       // Pages checked during allocation.
+	uintmax_t st_alloc_max_pages;   // Max checked during allocation.
+	uintmax_t st_io_wait;           // Thread waited on buffer I/O.
+	uintmax_t st_sync_interrupted;  // Number of times sync interrupted.
+	roff_t st_regsize;              // Region size.
+	roff_t st_regmax;               // Region max.
  #endif
 };
 /*
@@ -1358,53 +1358,55 @@ typedef enum {
  * possible, so pick a base error value that's hopefully not common.  We
  * document that we own the error name space from -30,800 to -30,999.
  */
-/* DB (public) error return codes. */
- #define DB_BUFFER_SMALL         (-30999) /* User memory too small for return. */
- #define DB_DONOTINDEX           (-30998) /* "Null" return from 2ndary callbk. */
- #define DB_FOREIGN_CONFLICT     (-30997) /* A foreign db constraint triggered. */
- #define DB_HEAP_FULL            (-30996) /* No free space in a heap file. */
- #define DB_KEYEMPTY             (-30995) /* Key/data deleted or never created. */
- #define DB_KEYEXIST             (-30994) /* The key/data pair already exists. */
- #define DB_LOCK_DEADLOCK        (-30993) /* Deadlock. */
- #define DB_LOCK_NOTGRANTED      (-30992) /* Lock unavailable. */
- #define DB_LOG_BUFFER_FULL      (-30991) /* In-memory log buffer full. */
- #define DB_LOG_VERIFY_BAD       (-30990) /* Log verification failed. */
- #define DB_NOSERVER             (-30989) /* Server panic return. */
- #define DB_NOTFOUND             (-30988) /* Key/data pair not found (EOF). */
- #define DB_OLD_VERSION          (-30987) /* Out-of-date version. */
- #define DB_PAGE_NOTFOUND        (-30986) /* Requested page not found. */
- #define DB_REP_DUPMASTER        (-30985) /* There are two masters. */
- #define DB_REP_HANDLE_DEAD      (-30984) /* Rolled back a commit. */
- #define DB_REP_HOLDELECTION     (-30983) /* Time to hold an election. */
- #define DB_REP_IGNORE           (-30982) /* This msg should be ignored.*/
- #define DB_REP_ISPERM           (-30981) /* Cached not written perm written.*/
- #define DB_REP_JOIN_FAILURE     (-30980) /* Unable to join replication group. */
- #define DB_REP_LEASE_EXPIRED    (-30979) /* Master lease has expired. */
- #define DB_REP_LOCKOUT          (-30978) /* API/Replication lockout now. */
- #define DB_REP_NEWSITE          (-30977) /* New site entered system. */
- #define DB_REP_NOTPERM          (-30976) /* Permanent log record not written. */
- #define DB_REP_UNAVAIL          (-30975) /* Site cannot currently be reached. */
- #define DB_REP_WOULDROLLBACK    (-30974) /* UNDOC: rollback inhibited by app. */
- #define DB_RUNRECOVERY          (-30973) /* Panic return. */
- #define DB_SECONDARY_BAD        (-30972) /* Secondary index corrupt. */
- #define DB_TIMEOUT              (-30971) /* Timed out on read consistency. */
- #define DB_VERIFY_BAD           (-30970) /* Verify failed; bad format. */
- #define DB_VERSION_MISMATCH     (-30969) /* Environment version mismatch. */
-
-/* DB (private) error return codes. */
- #define DB_ALREADY_ABORTED      (-30899)
- #define DB_DELETED              (-30898) /* Recovery file marked deleted. */
- #define DB_EVENT_NOT_HANDLED    (-30897) /* Forward event to application. */
- #define DB_NEEDSPLIT            (-30896) /* Page needs to be split. */
- #define DB_REP_BULKOVF          (-30895) /* Rep bulk buffer overflow. */
- #define DB_REP_LOGREADY         (-30894) /* Rep log ready for recovery. */
- #define DB_REP_NEWMASTER        (-30893) /* We have learned of a new master. */
- #define DB_REP_PAGEDONE         (-30892) /* This page was already done. */
- #define DB_SURPRISE_KID         (-30891) /* Child commit where parent
-	                                     didn't know it was a parent. */
- #define DB_SWAPBYTES            (-30890) /* Database needs byte swapping. */
- #define DB_TXN_CKP              (-30889) /* Encountered ckp record in log. */
- #define DB_VERIFY_FATAL         (-30888) /* DB->verify cannot proceed. */
+//
+// DB (public) error return codes.
+//
+#define DB_BUFFER_SMALL         (-30999) // User memory too small for return.
+#define DB_DONOTINDEX           (-30998) // "Null" return from 2ndary callbk.
+#define DB_FOREIGN_CONFLICT     (-30997) // A foreign db constraint triggered.
+#define DB_HEAP_FULL            (-30996) // No free space in a heap file.
+#define DB_KEYEMPTY             (-30995) // Key/data deleted or never created.
+#define DB_KEYEXIST             (-30994) // The key/data pair already exists.
+#define DB_LOCK_DEADLOCK        (-30993) // Deadlock.
+#define DB_LOCK_NOTGRANTED      (-30992) // Lock unavailable.
+#define DB_LOG_BUFFER_FULL      (-30991) // In-memory log buffer full.
+#define DB_LOG_VERIFY_BAD       (-30990) // Log verification failed.
+#define DB_NOSERVER             (-30989) // Server panic return.
+#define DB_NOTFOUND             (-30988) // Key/data pair not found (EOF).
+#define DB_OLD_VERSION          (-30987) // Out-of-date version.
+#define DB_PAGE_NOTFOUND        (-30986) // Requested page not found.
+#define DB_REP_DUPMASTER        (-30985) // There are two masters.
+#define DB_REP_HANDLE_DEAD      (-30984) // Rolled back a commit.
+#define DB_REP_HOLDELECTION     (-30983) // Time to hold an election.
+#define DB_REP_IGNORE           (-30982) // This msg should be ignored.
+#define DB_REP_ISPERM           (-30981) // Cached not written perm written.
+#define DB_REP_JOIN_FAILURE     (-30980) // Unable to join replication group.
+#define DB_REP_LEASE_EXPIRED    (-30979) // Master lease has expired.
+#define DB_REP_LOCKOUT          (-30978) // API/Replication lockout now.
+#define DB_REP_NEWSITE          (-30977) // New site entered system.
+#define DB_REP_NOTPERM          (-30976) // Permanent log record not written.
+#define DB_REP_UNAVAIL          (-30975) // Site cannot currently be reached.
+#define DB_REP_WOULDROLLBACK    (-30974) // UNDOC: rollback inhibited by app.
+#define DB_RUNRECOVERY          (-30973) // Panic return.
+#define DB_SECONDARY_BAD        (-30972) // Secondary index corrupt.
+#define DB_TIMEOUT              (-30971) // Timed out on read consistency.
+#define DB_VERIFY_BAD           (-30970) // Verify failed; bad format.
+#define DB_VERSION_MISMATCH     (-30969) // Environment version mismatch.
+//
+// DB (private) error return codes.
+//
+#define DB_ALREADY_ABORTED      (-30899)
+#define DB_DELETED              (-30898) // Recovery file marked deleted.
+#define DB_EVENT_NOT_HANDLED    (-30897) // Forward event to application.
+#define DB_NEEDSPLIT            (-30896) // Page needs to be split.
+#define DB_REP_BULKOVF          (-30895) // Rep bulk buffer overflow.
+#define DB_REP_LOGREADY         (-30894) // Rep log ready for recovery.
+#define DB_REP_NEWMASTER        (-30893) // We have learned of a new master.
+#define DB_REP_PAGEDONE         (-30892) // This page was already done.
+#define DB_SURPRISE_KID         (-30891) // Child commit where parent didn't know it was a parent.
+#define DB_SWAPBYTES            (-30890) // Database needs byte swapping.
+#define DB_TXN_CKP              (-30889) // Encountered ckp record in log.
+#define DB_VERIFY_FATAL         (-30888) // DB->verify cannot proceed.
 
 struct __cq_fq {
 	struct __dbc * tqh_first;
@@ -1420,8 +1422,9 @@ struct __cq_jq {
 	struct __dbc * tqh_first;
 	struct __dbc ** tqh_last;
 };
-
-/* Database handle. */
+//
+// Database handle
+//
 struct __db {
 	/*******************************************************
 	* Public: owned by the application.
@@ -2184,7 +2187,7 @@ struct __db_env {
 	void (*db_msgcall)(const DB_ENV*, const char *); /* Other message callback */
 	FILE * db_msgfile;              /* Other message file stream */
 	//
-	// Other application callback functions 
+	// Other application callback functions
 	//
 	int   (*app_dispatch)(DB_ENV*, DBT*, DB_LSN*, db_recops);
 	void  (*db_event_func)(DB_ENV*, uint32, void *);
@@ -2232,12 +2235,12 @@ struct __db_env {
 	uint32 lk_partitions;       /* Number of object partitions */
 	db_timeout_t lk_timeout;        /* Lock timeout period */
 	//
-	// Used during initialization 
+	// Used during initialization
 	//
 	uint32 locker_t_size;        /* Locker hash table size. */
 	uint32 object_t_size;        /* Object hash table size. */
 	//
-	// Logging configuration 
+	// Logging configuration
 	//
 	uint32 lg_bsize;             /* Buffer size */
 	uint32 lg_fileid_init;       /* Initial allocation for fname structs */
@@ -2260,7 +2263,7 @@ struct __db_env {
 	                                /* Sleep after writing max buffers */
 	db_timeout_t mp_maxwrite_sleep;
 	//
-	// Transaction configuration 
+	// Transaction configuration
 	//
 	uint32 tx_init;              /* Initial number of transactions */
 	uint32 tx_max;               /* Maximum number of transactions */

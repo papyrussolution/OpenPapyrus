@@ -10180,6 +10180,10 @@
 	#define CTL_WOBARCODE_ANGLE       (3 + WINDOWS_ID_BIAS)
 #define DLG_INVITEMQ              1323 // Быстрый ввод строки инвентаризации по коду с количесвом
 	// CTL_INVITEM_XXX
+#define DLG_PRCRSARTR             1324
+	#define CTL_PRCRSARTR_SRCPATH     (1 + WINDOWS_ID_BIAS)
+	#define CTLBRW_PRCRSARTR_SRCPATH  (2 + WINDOWS_ID_BIAS)
+	#define CTL_PRCRSARTR_FLAGS       (3 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

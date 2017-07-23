@@ -764,7 +764,7 @@ int SendSmsDialog::AutoSmsSending()
 	return SendSmsText();
 }
 
-int SendSmsDialog::GetAutoSmsText(PPID prsn_id, PPID objId, SString & rText)
+int SendSmsDialog::GetAutoSmsText(PPID psnID, PPID objID, SString & rText)
 {
 	int    ok = 1;
 	Tddo   t;
@@ -776,30 +776,28 @@ int SendSmsDialog::GetAutoSmsText(PPID prsn_id, PPID objId, SString & rText)
 			{
 				// Прочитаем конфигурацию для автоматической рассылки
 				PPObjTSession tsess_obj;
-				PPObjGoods goods_obj;
+				//PPObjGoods goods_obj;
 				PPTSessConfig tsess_cfg;
 				TSessionTbl::Rec tsess_rec;
-				Goods2Tbl::Rec goods_rec;
+				//Goods2Tbl::Rec goods_rec;
 				THROW(tsess_obj.ReadConfig(&tsess_cfg));
 				THROW(Tddo::LoadFile(tsess_cfg.SmsConfig.TddoPath, temp_buf));
 				t.SetInputFileName(tsess_cfg.SmsConfig.TddoPath);
 				// Заполняем список дополнительных параметров
 				param_list.setDelim(",");
-				if(tsess_obj.Search(objId, &tsess_rec) > 0) {
+				if(tsess_obj.Search(objID, &tsess_rec) > 0) {
 					TechTbl::Rec tech_rec;
 					tsess_obj.GetTech(tsess_rec.TechID, &tech_rec);
-					goods_obj.Search(tech_rec.GoodsID, &goods_rec);
-					(buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
-					param_list.add(buf); // ${1} Имя товара в сессии (технологии)
-					(buf = 0).Cat(tsess_rec.StDt);
-					param_list.add(buf); // ${2}
-					(buf = 0).Cat(tsess_rec.StTm);
-					param_list.add(buf); // ${3}
+					//goods_obj.Search(tech_rec.GoodsID, &goods_rec);
+					//(buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
+					param_list.add(GetGoodsName(tech_rec.GoodsID, buf).Transf(CTRANSF_INNER_TO_OUTER)); // ${1} Имя товара в сессии (технологии)
+					param_list.add((buf = 0).Cat(tsess_rec.StDt)); // ${2}
+					param_list.add((buf = 0).Cat(tsess_rec.StTm)); // ${3}
 				}
 				{
 					DlRtm::ExportParam ep;
 					PPFilt _pf;
-					_pf.ID = prsn_id;
+					_pf.ID = psnID;
 					_pf.Ptr = 0;
 					ep.P_F = &_pf;
 					THROW(t.Process("Person", temp_buf, /*prsn_id, 0*/ep, &param_list, text));
@@ -2174,7 +2172,7 @@ int SmsClient::GetStatusCode(SString & rDestNum, SString & rStatus, size_t pos) 
 {
 	int    ok = 0;
 	SString status_msg;
-	if((pos < StatusCodesArr.getCount()) && (StatusCodesArr.getCount() != 0)) {
+	if((pos < StatusCodesArr.getCount()) && StatusCodesArr.getCount()) {
 		StatusCodesArr.Get(pos, status_msg);
 		status_msg.Divide(';', rDestNum, rStatus);
 		ok = 1;
@@ -2296,8 +2294,8 @@ int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 }
 //
 // Descr: Инициализирует смс-клиента и устанавливает соединение с СМСЦ для обычной рассылки через диалог
-//
-int BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr)
+// static
+int SLAPI PPObjSmsAccount::BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr)
 {
 	int    ok = 1;
 	PPSendSmsParam send_sms;
@@ -2313,8 +2311,8 @@ int BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhone
 }
 //
 // Descr: Инициализирует смс-клиента и устанавливает соединение с СМСЦ для автоматической рассылки через шаблон tddo
-//
-int BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr, PPID objTypeId, StrAssocArray & rObjIdArr)
+// static
+int SLAPI PPObjSmsAccount::BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr, PPID objTypeId, StrAssocArray & rObjIdArr)
 {
 	int    ok = 1;
 	PPSendSmsParam send_sms;

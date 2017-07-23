@@ -2006,7 +2006,9 @@ public:
 		PPID   DefCityID;
 		SString CfgName;
 	};
-	SLAPI  PrcssrPhoneListImport();
+	SLAPI  PrcssrPhoneListImport()
+	{
+	}
 	int    SLAPI InitParam(Param *);
 	int    SLAPI EditParam(Param *);
 	int    SLAPI Init(const Param *);
@@ -2016,10 +2018,6 @@ private:
 	Param  P;
 	PPPhoneListImpExpParam IeParam;
 };
-
-SLAPI PrcssrPhoneListImport::PrcssrPhoneListImport()
-{
-}
 
 int SLAPI PrcssrPhoneListImport::InitParam(Param * pParam)
 {
@@ -2032,50 +2030,45 @@ int SLAPI PrcssrPhoneListImport::InitParam(Param * pParam)
 	return ok;
 }
 
-class PhoneListImportDialog : public TDialog {
-public:
-	PhoneListImportDialog() : TDialog(DLG_IEPHONE)
-	{
-		PPPhoneListImpExpParam param;
-		GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_PHONELIST, &param, &CfgList, 2 /* import */);
-	}
-	int    setDTS(const PrcssrPhoneListImport::Param * pData);
-	int    getDTS(PrcssrPhoneListImport::Param * pData);
-private:
-	PrcssrPhoneListImport::Param Data;
-	StrAssocArray CfgList;
-};
-
-int PhoneListImportDialog::setDTS(const PrcssrPhoneListImport::Param * pData)
-{
-	Data = *pData;
-	int    ok = 1;
-	long   cfg_id = 0;
-	if(CfgList.getCount() == 1)
-		cfg_id = CfgList.at(0).Id;
-	SetupStrAssocCombo(this, CTLSEL_IEPHONE_CFG, &CfgList, cfg_id, 0, 0, 0);
-	SetupPPObjCombo(this, CTLSEL_IEPHONE_DEFCITY, PPOBJ_WORLD, Data.DefCityID, 0, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
-	return ok;
-}
-
-int PhoneListImportDialog::getDTS(PrcssrPhoneListImport::Param * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	long   cfg_id = getCtrlLong(sel = CTLSEL_IEPHONE_CFG);
-	SString temp_buf;
-	THROW_PP(cfg_id, PPERR_CFGNEEDED);
-	THROW_PP(CfgList.Get(cfg_id, Data.CfgName) > 0, PPERR_CFGNEEDED);
-	Data.DefCityID = getCtrlLong(sel = CTLSEL_IEPHONE_DEFCITY);
-	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
-	return ok;
-}
-
 int PrcssrPhoneListImport::EditParam(Param * pParam)
 {
+	class PhoneListImportDialog : public TDialog {
+	public:
+		PhoneListImportDialog() : TDialog(DLG_IEPHONE)
+		{
+			PPPhoneListImpExpParam param;
+			GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_PHONELIST, &param, &CfgList, 2 /* import */);
+		}
+		int    setDTS(const PrcssrPhoneListImport::Param * pData)
+		{
+			Data = *pData;
+			int    ok = 1;
+			long   cfg_id = 0;
+			if(CfgList.getCount() == 1)
+				cfg_id = CfgList.at(0).Id;
+			SetupStrAssocCombo(this, CTLSEL_IEPHONE_CFG, &CfgList, cfg_id, 0, 0, 0);
+			SetupPPObjCombo(this, CTLSEL_IEPHONE_DEFCITY, PPOBJ_WORLD, Data.DefCityID, 0, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
+			return ok;
+		}
+		int    getDTS(PrcssrPhoneListImport::Param * pData)
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			long   cfg_id = getCtrlLong(sel = CTLSEL_IEPHONE_CFG);
+			SString temp_buf;
+			THROW_PP(cfg_id, PPERR_CFGNEEDED);
+			THROW_PP(CfgList.Get(cfg_id, Data.CfgName) > 0, PPERR_CFGNEEDED);
+			Data.DefCityID = getCtrlLong(sel = CTLSEL_IEPHONE_DEFCITY);
+			ASSIGN_PTR(pData, Data);
+			CATCH
+				ok = PPErrorByDialog(this, sel);
+			ENDCATCH
+			return ok;
+		}
+	private:
+		PrcssrPhoneListImport::Param Data;
+		StrAssocArray CfgList;
+	};
 	DIALOG_PROC_BODY(PhoneListImportDialog, pParam);
 }
 
@@ -2403,8 +2396,15 @@ public:
 		long   Flags;
 		SString ParentCodeString;
 	};
-	SLAPI  PrcssrImportKLADR();
-	SLAPI ~PrcssrImportKLADR();
+	SLAPI  PrcssrImportKLADR() : StatusList(sizeof(Status))
+	{
+		MEMSZERO(P);
+		P_TempTbl = 0;
+	}
+	SLAPI ~PrcssrImportKLADR()
+	{
+		ZDELETE(P_TempTbl);
+	}
 	int    SLAPI EditParam(Param *);
 	int    SLAPI Run();
 private:
@@ -2426,17 +2426,6 @@ private:
 };
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempKLADR_File, TempKLADR);
-
-SLAPI PrcssrImportKLADR::PrcssrImportKLADR() : StatusList(sizeof(Status))
-{
-	MEMSZERO(P);
-	P_TempTbl = 0;
-}
-
-SLAPI PrcssrImportKLADR::~PrcssrImportKLADR()
-{
-	ZDELETE(P_TempTbl);
-}
 
 int SLAPI PrcssrImportKLADR::EditParam(Param * pData)
 {
@@ -2732,7 +2721,7 @@ int SLAPI PrcssrImportKLADR::PreImport()
 
 int SLAPI PrcssrImportKLADR::Import()
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	PPID   native_country_id = 0;
 	SString temp_buf, code_buf;
 	StringSet parent_list;
@@ -2751,94 +2740,92 @@ int SLAPI PrcssrImportKLADR::Import()
 		TempKLADRTbl::Key1 k1, k1_;
 		DBQ * dbq = 0;
 		BExtQuery q(P_TempTbl, 1);
-		THROW(PPStartTransaction(&ta, 1));
-		if(!(P.Flags & Param::fStreet))
-			dbq = &(*dbq && P_TempTbl->StatusCode < 500L);
-		q.selectAll().where(*dbq);
-		MEMSZERO(k1);
-		k1_ = k1;
-		cntr.Init(q.countIterations(0, &k1_, spFirst));
-		for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
-			const TempKLADRTbl::Rec kladr = P_TempTbl->data;
-			int do_process = 0;
-			code_buf = kladr.Code;
-			for(uint i = 0; !do_process && parent_list.get(&i, temp_buf);) {
-				if(code_buf.CmpPrefix(temp_buf, 0) == 0) {
-					if(!(P.Flags & Param::fSkipSmallItems))
-						do_process = 1;
-					else {
-						KLADRCODE kc;
-						kc.FromStr(code_buf, (temp_buf = 0));
-						if(kc.Cit == 0)
+		{
+			PPTransaction tra(1);
+			THROW(tra);
+			if(!(P.Flags & Param::fStreet))
+				dbq = &(*dbq && P_TempTbl->StatusCode < 500L);
+			q.selectAll().where(*dbq);
+			MEMSZERO(k1);
+			k1_ = k1;
+			cntr.Init(q.countIterations(0, &k1_, spFirst));
+			for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
+				const TempKLADRTbl::Rec kladr = P_TempTbl->data;
+				int do_process = 0;
+				code_buf = kladr.Code;
+				for(uint i = 0; !do_process && parent_list.get(&i, temp_buf);) {
+					if(code_buf.CmpPrefix(temp_buf, 0) == 0) {
+						if(!(P.Flags & Param::fSkipSmallItems))
 							do_process = 1;
-						else
-							break;
-					}
-				}
-			}
-			if(do_process) {
-				PPID   id = 0;
-				uint   status_pos = 0;
-				long   status_code = kladr.StatusCode;
-				PPWorldPacket pack;
-				if(StatusList.bsearch(&status_code, &status_pos, CMPF_LONG)) {
-					long kind = 0;
-					Status * p_status = (Status *)StatusList.at(status_pos);
-					if(code_buf.Len() > 13)
-						kind = WORLDOBJ_STREET;
-					// @v6.2.8 {
-					else if(status_code == 103)
-						kind = WORLDOBJ_CITY;
-					// } @v6.2.8
-					else if(status_code < 300)
-						kind = WORLDOBJ_REGION;
-					else if(status_code < 500)
-						kind = WORLDOBJ_CITY;
-					else
-						kind = WORLDOBJ_STREET;
-					if(p_status->ID == 0) {
-						THROW(WosObj.AddSimple(&p_status->ID, p_status->Name, p_status->Abbr, kind, p_status->Code, 0));
-					}
-					pack.Rec.Kind      = kind;
-					pack.Rec.CountryID = native_country_id;
-					if(kladr.ParentID) {
-						TempKLADRTbl::Rec prec;
-						if(SearchByID(P_TempTbl, 0, kladr.ParentID, &prec) > 0) {
-							WorldTbl::Rec pwrec;
-							if(WObj.SearchByCode(prec.Code, &pwrec) > 0)
-								pack.Rec.ParentID = pwrec.ID;
+						else {
+							KLADRCODE kc;
+							kc.FromStr(code_buf, (temp_buf = 0));
+							if(kc.Cit == 0)
+								do_process = 1;
+							else
+								break;
 						}
 					}
-					SETIFZ(pack.Rec.ParentID, native_country_id);
-					pack.Rec.Status = p_status->ID;
-					STRNSCPY(pack.Rec.Name, kladr.Name);
-					STRNSCPY(pack.Rec.Code, kladr.Code);
-					STRNSCPY(pack.Rec.ZIP,  kladr.ZIP);
-					int    r = WObj.SearchMaxLike(&pack,
-						PPObjWorld::smlCode|PPObjWorld::smlName|PPObjWorld::smlCheckCountry, &id);
-					THROW(r);
-					if(r < 0) {
-						THROW(WObj.PutPacket(&(id = 0), &pack, 0));
-					}
-					else {
-						PPWorldPacket ex_pack;
-						THROW(WObj.GetPacket(id, &ex_pack) > 0);
-						ex_pack.Rec.ParentID = pack.Rec.ParentID;
-						ex_pack.Rec.Status   = pack.Rec.Status;
-						STRNSCPY(ex_pack.Rec.ZIP, pack.Rec.ZIP);
-						STRNSCPY(ex_pack.Rec.Code, pack.Rec.Code);
-						THROW(WObj.PutPacket(&id, &ex_pack, 0));
+				}
+				if(do_process) {
+					PPID   id = 0;
+					uint   status_pos = 0;
+					long   status_code = kladr.StatusCode;
+					PPWorldPacket pack;
+					if(StatusList.bsearch(&status_code, &status_pos, CMPF_LONG)) {
+						long kind = 0;
+						Status * p_status = (Status *)StatusList.at(status_pos);
+						if(code_buf.Len() > 13)
+							kind = WORLDOBJ_STREET;
+						else if(status_code == 103)
+							kind = WORLDOBJ_CITY;
+						else if(status_code < 300)
+							kind = WORLDOBJ_REGION;
+						else if(status_code < 500)
+							kind = WORLDOBJ_CITY;
+						else
+							kind = WORLDOBJ_STREET;
+						if(p_status->ID == 0) {
+							THROW(WosObj.AddSimple(&p_status->ID, p_status->Name, p_status->Abbr, kind, p_status->Code, 0));
+						}
+						pack.Rec.Kind      = kind;
+						pack.Rec.CountryID = native_country_id;
+						if(kladr.ParentID) {
+							TempKLADRTbl::Rec prec;
+							if(SearchByID(P_TempTbl, 0, kladr.ParentID, &prec) > 0) {
+								WorldTbl::Rec pwrec;
+								if(WObj.SearchByCode(prec.Code, &pwrec) > 0)
+									pack.Rec.ParentID = pwrec.ID;
+							}
+						}
+						SETIFZ(pack.Rec.ParentID, native_country_id);
+						pack.Rec.Status = p_status->ID;
+						STRNSCPY(pack.Rec.Name, kladr.Name);
+						STRNSCPY(pack.Rec.Code, kladr.Code);
+						STRNSCPY(pack.Rec.ZIP,  kladr.ZIP);
+						int    r = WObj.SearchMaxLike(&pack,
+							PPObjWorld::smlCode|PPObjWorld::smlName|PPObjWorld::smlCheckCountry, &id);
+						THROW(r);
+						if(r < 0) {
+							THROW(WObj.PutPacket(&(id = 0), &pack, 0));
+						}
+						else {
+							PPWorldPacket ex_pack;
+							THROW(WObj.GetPacket(id, &ex_pack) > 0);
+							ex_pack.Rec.ParentID = pack.Rec.ParentID;
+							ex_pack.Rec.Status   = pack.Rec.Status;
+							STRNSCPY(ex_pack.Rec.ZIP, pack.Rec.ZIP);
+							STRNSCPY(ex_pack.Rec.Code, pack.Rec.Code);
+							THROW(WObj.PutPacket(&id, &ex_pack, 0));
+						}
 					}
 				}
+				PPWaitPercent(cntr.Increment());
 			}
-			PPWaitPercent(cntr.Increment());
+			THROW(tra.Commit());
 		}
-		THROW(PPCommitWork(&ta));
 	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	PPWait(0);
 	return ok;
 }
@@ -2921,21 +2908,11 @@ int PPPersonImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader &
 			StrAssocArray::Item item = param_list.at_WithoutParent(i);
 			temp_buf = item.Txt;
 			switch(item.Id) {
-				case IMPEXPPARAM_PERSON_DEFKINDID:
-					DefKindID = temp_buf.ToLong();
-					break;
-				case IMPEXPPARAM_PERSON_DEFCATEGORYID:
-					DefCategoryID = temp_buf.ToLong();
-					break;
-				case IMPEXPPARAM_PERSON_DEFCITYID:
-					DefCityID = temp_buf.ToLong();
-					break;
-				case IMPEXPPARAM_PERSON_SRCHREGTYPEID:
-					SrchRegTypeID = temp_buf.ToLong();
-					break;
-				case IMPEXPPARAM_PERSON_FLAGS:
-					Flags = temp_buf.ToLong();
-					break;
+				case IMPEXPPARAM_PERSON_DEFKINDID: DefKindID = temp_buf.ToLong(); break;
+				case IMPEXPPARAM_PERSON_DEFCATEGORYID: DefCategoryID = temp_buf.ToLong(); break;
+				case IMPEXPPARAM_PERSON_DEFCITYID: DefCityID = temp_buf.ToLong(); break;
+				case IMPEXPPARAM_PERSON_SRCHREGTYPEID: SrchRegTypeID = temp_buf.ToLong(); break;
+				case IMPEXPPARAM_PERSON_FLAGS: Flags = temp_buf.ToLong(); break;
 			}
 		}
 	}
@@ -3038,7 +3015,7 @@ int PersonImpExpDialog::getDTS(PPPersonImpExpParam * pData)
 	THROW(ImpExpParamDialog::getDTS(&Data));
 	if(Data.Direction != 0) {
 		getCtrlData(CTLSEL_IMPEXPPSN_KIND, &Data.DefKindID);
-		getCtrlData(CTLSEL_IMPEXPPSN_CAT,  &Data.DefCategoryID); // @v7.6.2
+		getCtrlData(CTLSEL_IMPEXPPSN_CAT,  &Data.DefCategoryID);
 		getCtrlData(CTLSEL_IMPEXPPSN_SREG, &Data.SrchRegTypeID);
 		getCtrlData(CTLSEL_IMPEXPPSN_CITY, &Data.DefCityID);
 		GetClusterData(CTL_IMPEXPPSN_FLAGS, &Data.Flags);
@@ -3286,7 +3263,7 @@ int SLAPI PrcssrPersonImport::ProcessComplexEMailText(const char * pText, PPPers
 			if(!pPack->ELA.SearchByText(temp_buf, 0))
 				pPack->ELA.AddItem(PPELK_EMAIL, temp_buf);
 			scan.Skip();
-			while(scan[0] == ',' || scan[0] == ';') {
+			while(oneof2(scan[0], ',', ';')) {
 				scan.Incr();
 				scan.Skip();
 			}
@@ -3432,7 +3409,7 @@ int SLAPI PrcssrPersonImport::Run()
 				THROW(PsnObj.AddRegisterToPacket(pack, PPREGT_OKPO, (temp_buf = rec.OKPO).Strip(), 0));
 				THROW(PsnObj.AddRegisterToPacket(pack, PPREGT_KPP, (temp_buf = rec.KPP).Strip(), 0));
 				{
-					const long sml_flags = (PsnObj.GetConfig().Flags & PPPersonConfig::fSyncByName) ? 0 : PPObjPerson::smlRegisterOnly; // @v7.9.9
+					const long sml_flags = (PsnObj.GetConfig().Flags & PPPersonConfig::fSyncByName) ? 0 : PPObjPerson::smlRegisterOnly;
 					if(PsnObj.SearchMaxLike(&pack, &psn_id, sml_flags, NZOR(IeParam.SrchRegTypeID, PPREGT_TPID)) > 0) {
 						PPPersonPacket inner_pack;
 						THROW(PsnObj.GetPacket(psn_id, &inner_pack, 0) > 0);
@@ -3518,30 +3495,24 @@ int SLAPI PrcssrPersonImport::Run()
 				}
 				{
 					temp_buf = rec.Phone;
-					if(temp_buf.NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0)) {
+					if(temp_buf.NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0))
 						pack.ELA.AddItem(PPELK_WORKPHONE, temp_buf);
-					}
 					temp_buf = rec.Phone2;
-					if(temp_buf.NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0)) {
+					if(temp_buf.NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0))
 						pack.ELA.AddItem(PPELK_ALTPHONE, temp_buf);
-					}
 					// @v8.0.0 {
 					temp_buf = rec.PhoneMobile;
-					if(temp_buf.NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0)) {
+					if(temp_buf.NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0))
 						pack.ELA.AddItem(PPELK_MOBILE, temp_buf);
-					}
 					// } @v8.0.0
 					temp_buf = rec.EMail;
-					if(temp_buf.NotEmptyS()) {
+					if(temp_buf.NotEmptyS())
 						ProcessComplexEMailText(temp_buf, &pack);
-					}
 					temp_buf = rec.HTTP;
-					if(temp_buf.NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0)) {
+					if(temp_buf.NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0))
 						pack.ELA.AddItem(PPELK_WWW, temp_buf);
-					}
-					if(rec.ComplELink[0]) {
+					if(rec.ComplELink[0])
 						ProcessComplexELinkText(rec.ComplELink, &pack);
-					}
 				}
 				if(!pack.Rec.ID) {
 					if(rec.VatFree > 0) {
@@ -4171,7 +4142,7 @@ int SLAPI ImportCompGS()
 //
 //xmlParserCtxtPtr xmlCreateFileParserCtxt(const char * pFileName); // @prototype
 extern "C" xmlParserCtxtPtr xmlCreateURLParserCtxt(const char * filename, int options);
-void xmlDetectSAX2(xmlParserCtxtPtr ctxt); // @prototype
+void xmlDetectSAX2(xmlParserCtxt * ctxt); // @prototype
 
 FiasImporter::Param::Param()
 {
@@ -6710,1812 +6681,3 @@ int SLAPI DoProcessOsm(PrcssrOsmFilt * pFilt)
 	}
 	return ok;
 }
-//
-//
-//
-#if 1 // {
-//
-// Field wire types.
-//
-// \see [Message Structure] in the Protocol Buffers documentation.
-//
-// [Message Structure]: https://developers.google.com/protocol-buffers/docs/encoding#structure
-//
-enum ProtobufCWireType {
-	PROTOBUF_C_WIRE_TYPE_VARINT = 0,
-	PROTOBUF_C_WIRE_TYPE_64BIT = 1,
-	PROTOBUF_C_WIRE_TYPE_LENGTH_PREFIXED = 2,
-	PROTOBUF_C_WIRE_TYPE_32BIT = 5, // "Start group" and "end group" wire types are unsupported
-};
-//
-// Values for the `flags` word in `ProtobufCFieldDescriptor`.
-//
-enum ProtobufCFieldFlag {
-	PROTOBUF_C_FIELD_FLAG_PACKED     = (1 << 0), // Set if the field is repeated and marked with the `packed` option
-	PROTOBUF_C_FIELD_FLAG_DEPRECATED = (1 << 1), // Set if the field is marked with the `deprecated` option
-	PROTOBUF_C_FIELD_FLAG_ONEOF      = (1 << 2), // Set if the field is a member of a oneof (union)
-};
-//
-// Message field rules.
-//
-// \see [Defining A Message Type] in the Protocol Buffers documentation.
-//
-// [Defining A Message Type]: https://developers.google.com/protocol-buffers/docs/proto#simple
-//
-enum ProtobufCLabel {
-	PROTOBUF_C_LABEL_REQUIRED, // A well-formed message must have exactly one of this field.
-	PROTOBUF_C_LABEL_OPTIONAL, // A well-formed message can have zero or one of this field (but not more than one).
-	/**
-	 * This field can be repeated any number of times (including zero) in a
-	 * well-formed message. The order of the repeated values will be preserved.
-	 */
-	PROTOBUF_C_LABEL_REPEATED,
-};
-//
-// Field value types.
-//
-// \see [Scalar Value Types] in the Protocol Buffers documentation.
-//
-// [Scalar Value Types]: https://developers.google.com/protocol-buffers/docs/proto#scalar
-//
-enum ProtobufCType {
-	PROTOBUF_C_TYPE_INT32,      /**< int32 */
-	PROTOBUF_C_TYPE_SINT32,     /**< signed int32 */
-	PROTOBUF_C_TYPE_SFIXED32,   /**< signed int32 (4 bytes) */
-	PROTOBUF_C_TYPE_INT64,      /**< int64 */
-	PROTOBUF_C_TYPE_SINT64,     /**< signed int64 */
-	PROTOBUF_C_TYPE_SFIXED64,   /**< signed int64 (8 bytes) */
-	PROTOBUF_C_TYPE_UINT32,     /**< unsigned int32 */
-	PROTOBUF_C_TYPE_FIXED32,    /**< unsigned int32 (4 bytes) */
-	PROTOBUF_C_TYPE_UINT64,     /**< unsigned int64 */
-	PROTOBUF_C_TYPE_FIXED64,    /**< unsigned int64 (8 bytes) */
-	PROTOBUF_C_TYPE_FLOAT,      /**< float */
-	PROTOBUF_C_TYPE_DOUBLE,     /**< double */
-	PROTOBUF_C_TYPE_BOOL,       /**< boolean */
-	PROTOBUF_C_TYPE_ENUM,       /**< enumerated type */
-	PROTOBUF_C_TYPE_STRING,     /**< UTF-8 or ASCII string */
-	PROTOBUF_C_TYPE_BYTES,      /**< arbitrary byte sequence */
-	PROTOBUF_C_TYPE_MESSAGE,    /**< nested message */
-};
-//
-// An unknown message field.
-//
-struct ProtobufCMessageUnknownField {
-	uint32 tag; // The tag number
-	ProtobufCWireType wire_type; // The wire type of the field
-	size_t len; // Number of bytes in `data`
-	uint8 * data; // Field data
-};
-//
-// Describes a single field in a message.
-//
-struct ProtobufCFieldDescriptor {
-	const char * name; // Name of the field as given in the .proto file.
-	uint32 id; // Tag value of the field as given in the .proto file
-	ProtobufCLabel label; // Whether the field is `REQUIRED`, `OPTIONAL`, or `REPEATED`
-	ProtobufCType  type; // The type of the field
-	/**
-	 * The offset in bytes of the message's C structure's quantifier field
-	 * (the `has_MEMBER` field for optional members or the `n_MEMBER` field
-	 * for repeated members or the case enum for oneofs).
-	 */
-	uint   quantifier_offset;
-	uint   offset; // The offset in bytes into the message's C structure for the member itself.
-	/**
-	 * A type-specific descriptor.
-	 *
-	 * If `type` is `PROTOBUF_C_TYPE_ENUM`, then `descriptor` points to the
-	 * corresponding `ProtobufCEnumDescriptor`.
-	 *
-	 * If `type` is `PROTOBUF_C_TYPE_MESSAGE`, then `descriptor` points to
-	 * the corresponding `ProtobufCMessageDescriptor`.
-	 *
-	 * Otherwise this field is NULL.
-	 */
-	const void * descriptor; // for MESSAGE and ENUM types
-	const void * default_value; // The default value for this field, if defined. May be NULL
-	uint32 flags; // A flag word. Zero or more of the bits defined in the `ProtobufCFieldFlag` enum may be set.
-	uint   reserved_flags; // Reserved for future use
-	void * reserved2; // Reserved for future use
-	void * reserved3; // Reserved for future use
-};
-//
-// Helper structure for optimizing int => index lookups in the case
-// where the keys are mostly consecutive values, as they presumably are for
-// enums and fields.
-//
-// The data structures requires that the values in the original array are sorted.
-//
-struct ProtobufCIntRange {
-	int    start_value;
-	uint   orig_index;
-	//
-	// NOTE: the number of values in the range can be inferred by looking
-	// at the next element's orig_index. A dummy element is added to make this simple.
-	//
-};
-
-struct ProtobufCMessage;
-typedef void (*ProtobufCMessageInit)(ProtobufCMessage *);
-//
-// Describes a message.
-//
-struct ProtobufCMessageDescriptor {
-	uint32     magic; // Magic value checked to ensure that the API is used correctly
-	const char * name; // The qualified name (e.g., "namespace.Type").
-	const char * short_name; /** The unqualified name as given in the .proto file (e.g., "Type"). */
-	const char * c_name; /** Identifier used in generated C code. */
-	const char * package_name; /** The dot-separated namespace. */
-	size_t sizeof_message; // Size in bytes of the C structure representing an instance of this type of message.
-	uint   n_fields; /** Number of elements in `fields`. */
-	const ProtobufCFieldDescriptor * fields; /** Field descriptors, sorted by tag number. */
-	const uint * fields_sorted_by_name; /** Used for looking up fields by name. */
-	uint   n_field_ranges; /** Number of elements in `field_ranges`. */
-	const ProtobufCIntRange * field_ranges; /** Used for looking up fields by id. */
-	ProtobufCMessageInit message_init; /** Message initialisation function. */
-	void * reserved1; /** Reserved for future use. */
-	void * reserved2; /** Reserved for future use. */
-	void * reserved3; /** Reserved for future use. */
-};
-//
-// An instance of a message.
-//
-// `ProtobufCMessage` is a light-weight "base class" for all messages.
-//
-// In particular, `ProtobufCMessage` doesn't have any allocation policy
-// associated with it. That's because it's common to create `ProtobufCMessage`
-// objects on the stack. In fact, that's what we recommend for sending messages.
-// If the object is allocated from the stack, you can't really have a memory leak.
-//
-// This means that calls to functions like protobuf_c_message_unpack() which
-// return a `ProtobufCMessage` must be paired with a call to a free function,
-// like protobuf_c_message_free_unpacked().
-//
-struct ProtobufCMessage {
-	const  ProtobufCMessageDescriptor * descriptor; // The descriptor for this message type
-	uint   n_unknown_fields; // The number of elements in `unknown_fields`
-	ProtobufCMessageUnknownField * unknown_fields; // The fields that weren't recognized by the parser.
-};
-//
-// Structure for the protobuf `bytes` scalar type.
-//
-// The data contained in a `ProtobufCBinaryData` is an arbitrary sequence of
-// bytes. It may contain embedded `NUL` characters and is not required to be
-// `NUL`-terminated.
-//
-struct ProtobufCBinaryData {
-	size_t len;    // Number of bytes in the `data` field
-	uint8 * data;  // Data bytes
-};
-
-struct  _OSMPBF__Blob {
-	ProtobufCMessage base;
-	int    has_raw; // bool
-	ProtobufCBinaryData raw;
-	int    has_raw_size; // bool
-	int32 raw_size;
-	int    has_zlib_data; // bool
-	ProtobufCBinaryData zlib_data;
-	int    has_lzma_data; // bool
-	ProtobufCBinaryData lzma_data;
-	int    has_obsolete_bzip2_data; // bool PROTOBUF_C__DEPRECATED
-	ProtobufCBinaryData obsolete_bzip2_data; // PROTOBUF_C__DEPRECATED
-};
-
-struct  _OSMPBF__BlobHeader {
-	ProtobufCMessage base;
-	char * type;
-	int    has_indexdata; // bool
-	ProtobufCBinaryData indexdata;
-	int32 datasize;
-};
-#endif // } 0
-
-#if 0 // {
-
-#define hash__M 3
-#define po__strM (4*1024*1024) // maximum number of strings within each block
-
-class Pbf {
-	struct border__edge_t {
-		struct Chain {
-			border__edge_t * edge;
-			Chain * next;
-		};
-		int32  x1;
-		int32  y1;
-		int32  x2;
-		int32  y2; // coordinates of the edge; always: x1<x2;
-		Chain * chain;
-	};
-	Pbf() : border__nil(2000000000L)
-	{
-		hash__initialized = false;
-		memzero(hash__mem, sizeof(hash__mem));
-		memzero(hash__max, sizeof(hash__max));
-
-		po_drophistory = false;  // exclude history information
-		po_dropbrokenrefs = false; // exclude broken references
-		po_dropnodes = false; // exclude nodes section
-		po_dropways = false; // exclude ways section
-		po_droprelations = false; // exclude relations section
-		po_emulateosmosis = false; // emulate osmosis compatible output
-		po_emulatepbf2osm = false; // emulate pbf2osm compatible output
-		border_active = false;
-		po_testsequence = false;
-		po__sequencetype = -1;
-		po__sequenceid = (int64)(-0x7fffffffffffffff);
-		po__stage = 0;
-		po__changed = false;
-		border__edge = 0;
-		border__edge_n = 0;
-
-		border__bx1 = 2000000000L;
-		border__by1 = 0;
-		border__bx2 = 0;
-		border__by2 = 0;
-	}
-	bool   hash__initialized;
-	uchar * hash__mem[hash__M]; // start of the hash fields for each object type (node, way, relation);
-	uint32 hash__max[hash__M];  // size of the hash fields for each object type (node, way, relation);
-
-	bool   po_drophistory;    // exclude history information
-	bool   po_dropbrokenrefs; // exclude broken references
-	bool   po_dropnodes;      // exclude nodes section
-	bool   po_dropways;       // exclude ways section
-	bool   po_droprelations;  // exclude relations section
-	bool   po_emulateosmosis; // emulate osmosis compatible output
-	bool   po_emulatepbf2osm; // emulate pbf2osm compatible output
-	bool   border_active;     // borders are to be considered; this variable must not be written from outside of the module;
-	bool   po_testsequence;   // test for sequence:
-		// first, all nodes, then all way, and finally all relations;
-		// within each of these groups, the ids must be ordered in ascending sequence;
-		// any errors in this sequence will be reported to standard output;
-	int    po__sequencetype; // type of last object which has been processed; -1: no object yet; 0: node; 1: way; 2: relation;
-	int64  po__sequenceid;   // id of last object which has been processed;
-	int    po__stage;        // stage of processing;
-		// only valid if borders are to be applied and relation shall be processed recursively;
-		// 0: no recursive processing at all;
-		// 1: write nodes and ways, change stage to 2 as soon as first relation has been encountered;
-		// 2: do not write anything, just process relations;
-		// 3: write only relations;
-	bool   po__changed;      // only valid if po__stage==2: the flag for a relation has been changed, i.e., the recursive
-		// processing will continue; if none of the relations' flags has been changed, the stage will increase to 3;
-	border__edge_t * border__edge;
-	int    border__edge_n;  // number of elements in border__edge[0]
-	const  int32 border__nil = 2000000000L;
-	int32  border__bx1 = 2000000000L;
-	int32  border__by1;
-	int32  border__bx2;
-	int32  border__by2;
-
-	uint32 pbf_uint32(const uint8 ** pp)
-	{
-		// get the value of an unsigned integer;
-		// pp: see module header;
-		uint32 fac;
-		const uint8 * p = *pp;
-		uint32 i = *p;
-		if((*p & 0x80)==0) { // just one byte
-			(*pp)++;
-		}
-		else {
-			i &= 0x7f;
-			fac = 0x80;
-			while(*++p & 0x80) { // more byte(s) will follow
-				i += (*p & 0x7f)*fac;
-				fac <<= 7;
-			}
-			i += *p++ *fac;
-			*pp = p;
-		}
-		return i;
-	}
-	int32 pbf_sint32(const uint8 ** pp)
-	{
-		// get the value of an unsigned integer;
-		// pp: see module header;
-		const uint8 * p = *pp;
-		int32 i = *p;
-		if((*p & 0x80)==0) { // just one byte
-			(*pp)++;
-			return (i & 1) ? (-1-(i>>1)) : (i>>1);
-		}
-		else {
-			int sig = i & 1; // negative
-			int32 fac = 0x40;
-			i = (i & 0x7e)>>1;
-			while(*++p & 0x80) { // more byte(s) will follow
-				i += (*p & 0x7f)*fac;
-				fac <<= 7;
-			}
-			i += *p++ *fac;
-			*pp = p;
-			return sig ? (-1-i) : i;
-		}
-	}
-	uint64 pbf_uint64(const uint8 ** pp)
-	{
-		// get the value of an unsigned integer;
-		// pp: see module header;
-		const uint8 * p = *pp;
-		uint64 i = *p;
-		if((*p & 0x80) == 0) { // just one byte
-			(*pp)++;
-		}
-		else {
-			uint64 fac = 0x80;
-			i &= 0x7f;
-			while(*++p & 0x80) { // more byte(s) will follow
-				i += (*p & 0x7f)*fac;
-				fac <<= 7;
-			}
-			i += *p++ *fac;
-			*pp = p;
-		}
-		return i;
-	}
-	int64 pbf_sint64(const uint8 ** pp)
-	{
-		// get the value of an unsigned integer;
-		// pp: see module header;
-		int64 fac;
-		int sig; // negative
-		const uint8 * p = *pp;
-		int64 i = *p;
-		if((*p & 0x80)==0) { // just one byte
-			(*pp)++;
-			return (i & 1) ? /*negative*/ (-1-(i>>1)) : (i>>1);
-		}
-		else {
-			sig = i & 1;
-			i = (i & 0x7e)>>1;
-			fac = 0x40;
-			while(*++p & 0x80) { // more byte(s) will follow
-				i += (*p & 0x7f)*fac;
-				fac <<= 7;
-			}
-			i += *p++ *fac;
-			*pp = p;
-			return sig ? (-1-i) : i;
-		}
-	}
-	bool pbf_jump(const uint8 ** pp)
-	{
-		// jump over a protobuf formatted element - no matter
-		// which kind of element;
-		// pp: see module header;
-		// return: the data do not meet protobuf specifications (error);
-		const uint8 * p = *pp;
-		int type = *p & 0x07;
-		switch(type) { // protobuf type
-			case 0: // Varint
-				while(*p & 80)
-					p++;
-				p++; // jump over id
-				while(*p & 80)
-					p++;
-				p++; // jump over data
-				break;
-			case 1: // fixed 64 bit;
-				while(*p & 80)
-					p++;
-				p++; // jump over id
-				p += 4; // jump over data
-				break;
-			case 2: // String
-				while(*p & 80)
-					p++;
-				p++; // jump over id
-				p += pbf_uint32(&p); // jump over string contents
-				break;
-			case 5: // fixed 32 bit;
-				while(*p & 80)
-					p++;
-				p++; // jump over id
-				p += 2; // jump over data
-				break;
-			default: // unknown id
-				//fprintf(stderr, "pbftoosm: Format error: 0x%02X.\n", *p);
-				(*pp)++;
-				return true;
-		}
-		*pp = p;
-		return false;
-	}
-	void pbf_intjump(const uint8 ** pp)
-	{
-		// jump over a protobuf formatted integer;
-		// pp: see module header;
-		// we do not care about a possibly existing identifier,
-		// therefore as the start address *pp the address of the
-		// integer value is expected;
-		const uint8 * p = *pp;
-		while(*p & 0x80)
-			p++;
-		p++;
-		*pp = p;
-	}
-	int po__decompress(uint8 * ibuf, uint isiz, uint8 * obuf, uint osizm, uint * osizp)
-	{
-		// decompress a block of data;
-		// return: 0: decompression was successful;
-		//         !=0: error number from zlib;
-		// *osizp: size of uncompressed data;
-		z_stream strm;
-		int r, i;
-		// initialization
-		strm.zalloc = 0;
-		strm.zfree = 0;
-		strm.opaque = 0;
-		strm.next_in = 0;
-		strm.total_in = 0;
-		strm.avail_out = 0;
-		strm.next_out = 0;
-		strm.total_out = 0;
-		strm.msg = 0;
-		r = inflateInit(&strm);
-		if(r != Z_OK)
-			return r;
-		// read data
-		strm.next_in = ibuf;
-		strm.avail_in = isiz;
-		// decompress
-		strm.next_out = obuf;
-		strm.avail_out = osizm;
-		r = inflate(&strm, Z_FINISH);
-		if(r != Z_OK && r != Z_STREAM_END) {
-			inflateEnd(&strm);
-			*osizp = 0;
-			return r;
-		}
-		inflateEnd(&strm);
-		obuf += *osizp = osizm-(i = strm.avail_out);
-		// add some zero bytes
-		SETMIN(i, 4);
-		while(--i >= 0)
-			*obuf++ = 0;
-		return 0;
-	}
-	void write_str(const char * s)
-	{
-	}
-	void write_xmlstr(const char * s)
-	{
-	}
-	void write_uint32(uint32)
-	{
-	}
-	void write_sint64(int64)
-	{
-	}
-	void write_timestamp(int64)
-	{
-	}
-	void write_sfix7o(int32)
-	{
-	}
-	void write_sfix7(int32)
-	{
-	}
-	void hash_seti(int o, int64 idi)
-	{
-		// set a flag for a specific object type and ID;
-		// o: object type; 0: node; 1: way; 2: relation;
-		//    caution: due to performance reasons the boundaries
-		//    are not checked;
-		// id: id of the object;
-		uchar * mem; // address of byte in hash table
-		uint ido; // bit offset to idi;
-		if(!hash__initialized)
-			return;  // error prevention
-		idi += hash__max[o]<<3; // consider small negative numbers
-		ido = idi&0x7; // extract bit number (0..7)
-		idi >>= 3; // calculate byte offset
-		idi %= hash__max[o]; // consider length of hash table
-		mem = hash__mem[o]; // get start address of hash table
-		mem += idi; // calculate address of the byte
-		*mem |= (1<<ido); // set bit
-	}
-	bool hash_geti(int o, int64 idi)
-	{
-		// get the status of a flag for a specific object type and ID;
-		// (same as previous procedure, but id must be given as number);
-		// o: object type; 0: node; 1: way; 2: relation;
-		//    caution: due to performance reasons the boundaries are not checked;
-		// id: id of the object; the id is given as a string of decimal digits;
-		//     a specific string terminator is not necessary, it is assumed
-		//     that the id number ends with the first non-digit character;
-		uchar * mem;
-		uint ido; // bit offset to idi;
-		bool flag;
-		if(!hash__initialized)
-			return 0;  // error prevention
-		idi += hash__max[o]<<3; // consider small negative numbers
-		ido = idi&0x7; // extract bit number (0..7)
-		idi >>= 3; // calculate byte offset
-		idi %= hash__max[o]; // consider length of hash table
-		mem = hash__mem[o]; // get start address of hash table
-		mem += idi; // calculate address of the byte
-		flag = (*mem&(1<<ido))!=0; // get status of the addressed bit
-		return flag;
-	}
-	bool border_queryinside(int32 x, int32 y)
-	{
-		// determine if the given coordinate lies inside or outside the
-		// border polygon(s);
-		// x,y: coordinates of the given point in 0.0000001 degrees;
-		// return: point lies inside the border polygon(s);
-		static int32 nil;
-		nil = border__nil;
- #if MAXLOGLEVEL>=3
-		if(loglevel>=3)
-			fprintf(stderr, "# %li,%li\n", x, y);
- #endif
-		// first, consider border box (if any)
-		if(border__bx1 != nil) { // there is a border box
-			if(x<border__bx1 || x>border__bx2 || y<border__by1 || y>border__by2)
-				return false; // point lies outside the border box
-		}
-		{ /* second, consider border polygon (if any) */
-			border__edge_t  * bep; // pointer in border__edge[]
-			border__edge_t::Chain * bcp; // pointer in border__chain[]
-			int cross; // number of the crossings a line from the point
-			// to the north pole would have ageinst the border lines
-			// in border__coord[][];
-			if(border__edge==NULL)
-				return true;
-			cross = 0;
-			{ // binary-search the edge with the closest x1
-				int i; // iteration indexes
-				int i1 = 0;
-				int i2 = border__edge_n;
-				while(i2>i1+1) {
-					i = (i1+i2)/2;
-					bep = border__edge+i;
-					//fprintf(stderr,"s %i %i %i   %li\n",i1,i,i2,bep->x1); ///
-					if(bep->x1 > x)
-						i2 = i;
-					else
-						i1 = i;
-					//fprintf(stderr,"  %i %i %i\n",i1,i,i2); ///
-				}
-				bep = border__edge+i1;
-			}
-			bcp = NULL;
-			// (default, because we want to examine the own edge first)
-			for(;; ) { // for own edge and each edge in chain
-				if(bep->x1 <= x && bep->x2 > x) { // point lies inside x-range
-					if(bep->y1 > y && bep->y2 > y) { // line lies completely north of point
-						cross++;
-		  #if MAXLOGLEVEL>=3
-						if(loglevel>=3)
-							fprintf(stderr, "= %i %li,%li,%li,%li\n", (int)(bep-border__edge), bep->x1, bep->y1, bep->x2, bep->y2);
-		  #endif
-					}
-					else if(bep->y1 > y || bep->y2 > y) {
-						// one line end lies north of point
-						if((int64)(y-bep->y1)*(int64)(bep->x2-bep->x1) < (int64)(x-bep->x1)*(int64)(bep->y2-bep->y1) ) {
-							// point lies south of the line
-							cross++;
-#if MAXLOGLEVEL>=3
-							if(loglevel>=3)
-								fprintf(stderr, "/ %i %li,%li,%li,%li\n", (int)(bep-border__edge), bep->x1, bep->y1, bep->x2, bep->y2);
-#endif
-						}
- #if MAXLOGLEVEL>=3
-						else if(loglevel>=3)
-							fprintf(stderr, ". %i %li,%li,%li,%li\n", (int)(bep-border__edge), bep->x1, bep->y1, bep->x2, bep->y2);
- #endif
-					}
-#if MAXLOGLEVEL>=3
-					else if(loglevel>=3)
-						fprintf(stderr, "_ %i %li,%li,%li,%li\n", (int)(bep-border__edge), bep->x1, bep->y1, bep->x2, bep->y2);
-#endif
-				}
-				if(bcp == NULL) // chain has not been examined
-					bcp = bep->chain;  // get the first chain link
-				else
-					bcp = bcp->next;  // get the next chain link
-				if(bcp == NULL) // no more chain links
-					break;
-				bep = bcp->edge;
-			}
-			//if(loglevel>=3) fprintf(stderr,"# %li,%li cross %i\n",x,y,cross);
-			return (cross&1)!=0; // odd number of crossings
-		}
-	}
-	int po__d_pg_dn(const uint8 * pBuf, const uint8 * bufe, char ** str, uint strm)
-	{
-		// decode dense node part of primitive group of Data block
-		const uint8 * bp = pBuf;
-		uint l;
-		const uint8 * bhise; // end of history section in buf[]
-		const uint8 * nodeid = 0, * nodeide = 0; // start and end of node ids
-		const uint8 * nodever = 0, * nodevere = 0; // start and end of version
-		const uint8 * nodetime = 0, * nodetimee = 0; // start and end of times
-		const uint8 * nodecset = 0, * nodecsete = 0; // start and end of change sets
-		const uint8 * nodeuid = 0, * nodeuide = 0; // start and end of user ids
-		const uint8 * nodeuser = 0, * nodeusere = 0; // start and end of user names
-		const uint8 * nodelat = 0, * nodelate = 0; // start and end of node latitudes
-		const uint8 * nodelon = 0, * nodelone = 0; // start and end of node longitudes
-		const uint8 * nodetags = 0, * nodetagse = 0; // start and end of node tag pairs
-		int64 id; // (delta coded)
-		int32 lat, lon; // (delta coded)
-		int64 histime; // time (dalta coded)
-		int32 hiscset; // changeset (delta coded)
-		uint32_t hisuid; // uid (delta coded)
-		uint32_t hisuser; // string index of user name (delta coded)
-		uint key, val;
-		// place pointers at every first element
-		// of the supplied data tables
-		while(bp < bufe) { // for every element in this loop
-			switch(bp[0]) { // first byte of element
-				case 0x0a: // S 1, ids
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > bufe) {
-						fprintf(stderr, "pbftoosm Error: node id table too large: %u\n", l);
-						return 1;
-					}
-					nodeid = bp;
-					nodeide = (bp += l);
-					break;
-				case 0x2a: // S 5, history - with subelements
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > bufe) {
-						fprintf(stderr, "pbftoosm Error: node history section too large: %u\n", l);
-						return 1;
-					}
-					if(po_drophistory) { // history information is not required
-						bp += l; // jump over this section and ignore it
-						break;
-					}
-					bhise = bp+l;
-					while(bp < bhise) { // for each history subelement
-						switch(bp[0]) { // first byte of element in history section
-							case 0x0a: // S 1, versions
-								bp++;
-								l = pbf_uint32(&bp);
-								if((bp+l) > bhise) {
-									fprintf(stderr, "pbftoosm Error: node version table too large: %u\n", l);
-									return 1;
-								}
-								nodever = bp;
-								nodevere = (bp += l);
-								break;
-							case 0x12: // S 2, times
-								bp++;
-								l = pbf_uint32(&bp);
-								if(bp+l>bhise) {
-									fprintf(stderr, "pbftoosm Error: node time table too large: %u\n", l);
-									return 1;
-								}
-								nodetime = bp;
-								nodetimee = (bp += l);
-								break;
-							case 0x1a: // S 3, change sets
-								bp++;
-								l = pbf_uint32(&bp);
-								if(bp+l>bhise) {
-									fprintf(stderr, "pbftoosm Error: node change set table too large: %u\n", l);
-									return 1;
-								}
-								nodecset = bp;
-								nodecsete = (bp += l);
-								break;
-							case 0x22: // S 4, user ids
-								bp++;
-								l = pbf_uint32(&bp);
-								if(bp+l>bhise) {
-									fprintf(stderr, "pbftoosm Error: node user id table too large: %u\n", l);
-									return 1;
-								}
-								nodeuid = bp;
-								nodeuide = (bp += l);
-								break;
-							case 0x2a: // S 5, user names
-								bp++;
-								l = pbf_uint32(&bp);
-								if(bp+l>bhise) {
-									fprintf(stderr, "pbftoosm Error: node user name table too large: %u\n", l);
-									return 1;
-								}
-								nodeuser = bp;
-								nodeusere = (bp += l);
-								break;
-							default:
-								{ /* block */
-									static int msgn = 3;
-									if(--msgn>=0) {
-										fprintf(stderr, "pbftoosm Warning: node history element type unknown: 0x%02X 0x%02X.\n", bp[0], bp[1]);
-									}
-								}
-								if(pbf_jump(&bp))
-									return 1;
-						}
-					}
-					if(bp>bhise) {
-						fprintf(stderr, "pbftoosm Error: node history format length.\n");
-						return 1;
-					}
-					bp = bhise;
-					break; // end   history - with subelements
-				case 0x42: // S 8, latitudes
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > bufe) {
-						fprintf(stderr, "pbftoosm Error: node latitude table too large: %u\n", l);
-						return 1;
-					}
-					nodelat = bp;
-					nodelate = (bp += l);
-					break;
-				case 0x4a: // S 9, longitudes
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > bufe) {
-						fprintf(stderr, "pbftoosm Error: node longitude table too large: %u\n", l);
-						return 1;
-					}
-					nodelon = bp;
-					nodelone = (bp += l);
-					break;
-				case 0x52: // S 10, tag pairs
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > bufe) {
-						fprintf(stderr, "pbftoosm Error: node tag pair table too large: %u\n", l);
-						return 1;
-					}
-					nodetags = bp;
-					nodetagse = (bp += l);
-					break;
-				default:
-					{ /* block */
-						static int msgn = 3;
-						if(--msgn>=0) {
-							fprintf(stderr, "pbftoosm Warning: dense node element type unknown: 0x%02X 0x%02X.\n", bp[0], bp[1]);
-						}
-					}
-					if(pbf_jump(&bp))
-						return 1;
-			}
-			if(bp>bufe) {
-				fprintf(stderr, "pbftoosm Error: dense node format length.\n");
-				return 1;
-			}
-		}
-		// write all the supplied data to standard output
-		id = 0;
-		lat = lon = 0;
-		histime = 0;
-		hiscset = 0;
-		hisuid = hisuser = 0;
-		if(nodeid!=NULL && nodelat!=NULL && nodelon!=NULL) {
-			// minimum contents available
-			while(nodeid<nodeide && nodelat<nodelate &&
-				nodelon<nodelone) { // still nodes to write
-				// get node data
-				id += pbf_sint64(&nodeid);
-				lat += pbf_sint32(&nodelat);
-				lon += pbf_sint32(&nodelon);
-				// check sequence, if necessary
-				if(po_testsequence) {
-					static int64 oldid = (int64)(-0x7fffffffffffffff);
-					static int msgn = 3;
-					if((po__sequencetype>0 || id<=oldid) && --msgn>=0)
-						fprintf(stderr, "pbftoosm Warning: wrong sequence at node %lld.\n", id);
-					oldid = id;
-				}
-				po__sequencetype = 0;
-				po__sequenceid = id;
-				// write the node
-				if(border_active && !border_queryinside(lon, lat)) {
-					// node lies outside a predefined border
-					// jump over unused node information
-					if(nodever<nodevere && nodetime<nodetimee && nodecset<nodecsete && nodeuid<nodeuide && nodeuser<nodeusere) {
-						// history information available
-						pbf_intjump(&nodever);
-						hiscset += pbf_sint32(&nodecset);
-						hisuser += pbf_sint32(&nodeuser);
-						hisuid += pbf_sint32(&nodeuid);
-						histime += pbf_sint64(&nodetime);
-					} // end   history information available
-					if(nodetags < nodetagse && (key = pbf_uint32(&nodetags))!=0) {
-						// there are key/val pairs
-						do { // for every key/val pair
-							pbf_intjump(&nodetags);
-							key = pbf_uint32(&nodetags);
-						} while(key!=0); // end   for every key/val pair
-					} // end   there are key/val pairs
-				} // end   node lies outside a predefined border
-				else { // no border to be applied OR node lies inside
-					if(border_active) // border are to be applied
-						hash_seti(0, id);  // mark this node id as 'inside'
-					if(!po_dropnodes) { // not to drop
-						if(po_emulateosmosis) { // emulate osmosis
-							write_str("  <node id=\"");
-							write_sint64(id);
-							if(nodever<nodevere && nodetime<nodetimee && nodecset<nodecsete && nodeuid<nodeuide && nodeuser<nodeusere) {
-								// history information available
-								write_str("\" version=\"");
-								write_uint32(pbf_uint32(&nodever));
-								histime += pbf_sint64(&nodetime);
-								write_str("\" timestamp=\"");
-								write_timestamp(histime);
-								hisuser += pbf_sint32(&nodeuser);
-								if(hisuser>=strm) {
-									fprintf(stderr, "pbftoosm Error: node user string index overflow: %u->%u\n", strm, hisuser);
-									return 1;
-								} // end   user name available
-								hisuid += pbf_sint32(&nodeuid);
-								if(hisuser!=0 && str[hisuser][0]!=0) {
-									// user name available
-									write_str("\" uid=\"");
-									write_uint32(hisuid);
-									write_str("\" user=\"");
-									write_xmlstr(str[hisuser]);
-								}
-								hiscset += pbf_sint32(&nodecset);
-								write_str("\" changeset=\""); write_uint32(hiscset);
-							} // end   history information available
-							write_str("\" lat=\"");
-							write_sfix7(lat);
-							write_str("\" lon=\"");
-							write_sfix7(lon);
-						} // end   emulate osmosis
-						else { // not emulate osmosis
-							write_str("\t<node id=\"");
-							write_sint64(id);
-							if(po_emulatepbf2osm) {
-								write_str("\" lat=\"");
-								write_sfix7o(lat);
-								write_str("\" lon=\"");
-								write_sfix7o(lon);
-							}
-							else {
-								write_str("\" lat=\"");
-								write_sfix7(lat);
-								write_str("\" lon=\"");
-								write_sfix7(lon);
-							}
-							if(nodever < nodevere && nodetime < nodetimee && nodecset < nodecsete && nodeuid < nodeuide && nodeuser < nodeusere) {
-								// history information available
-								write_str("\" version=\"");
-								write_uint32(pbf_uint32(&nodever));
-								hiscset += pbf_sint32(&nodecset);
-								write_str("\" changeset=\"");
-								write_uint32(hiscset);
-								hisuser += pbf_sint32(&nodeuser);
-								if(hisuser>=strm) {
-									fprintf(stderr, "pbftoosm Error: node user string index overflow: %u->%u\n", strm, hisuser);
-									return 1;
-								} // end   user name available
-								hisuid += pbf_sint32(&nodeuid);
-								if(hisuser!=0 && str[hisuser][0]!=0) {
-									// user name available
-									write_str("\" user=\"");
-									write_xmlstr(str[hisuser]);
-									write_str("\" uid=\""); write_uint32(hisuid);
-								}
-								histime += pbf_sint64(&nodetime);
-								write_str("\" timestamp=\"");
-								write_timestamp(histime);
-							}
-						}
-						if(nodetags>=nodetagse || (key = pbf_uint32(&nodetags))==0) // no (more) tag pairs
-							write_str("\"/>\n");  // make node tag a short tag
-						else { // there are key/val pairs
-							write_str("\">\n"); // do not terminate node tag
-							do { // for every key/val pair
-								val = pbf_uint32(&nodetags);
-								if(key>=strm || val>=strm) {
-									fprintf(stderr, "pbftoosm Error: key/val string index overflow: %u->%u,%u\n", strm, key, val);
-									return 1;
-								}
-								write_str("\t\t<tag k=\"");
-								write_xmlstr(str[key]);
-								write_str("\" v=\"");
-								write_xmlstr(str[val]);
-								write_str("\" />\n");
-								key = pbf_uint32(&nodetags);
-							} while(key!=0); // end   for every key/val pair
-							write_str("\t</node>\n"); // terminate node tag
-						}
-					}
-				}
-			}
-		}
-		return 0;
-	}
-	int po__d_pg_ways(const uint8 * pBuf, const uint8 * bufe, char** str, uint strm)
-	{
-		// ways-part of primitive group of Data block
-		uint l;
-		const uint8 * bhise; // end of history section in buf[]
-		int64 id;
-		uint32_t hisver;
-		int64 histime;
-		uint32_t hiscset;
-		uint32_t hisuid;
-		uint32_t hisuser;
-		int complete = 0; // flags which determine if the dataset is complete
-		int hiscomplete = 0; // flags which determine if the history is complete
-		const byte * bp = pBuf;
-		const byte * waynode = 0;
-		const byte * waynodee = 0;
-		const byte * waykey = 0; // start and end of keys
-		const byte * waykeye = 0;
-		const byte * wayval = 0; // start and end of vals
-		const byte * wayvale = 0;
-		while(bp<bufe) { // for every element in this loop
-			switch(bp[0]) { // first byte of element
-				case 0x08: // V 1, id
-					bp++;
-					id = pbf_uint64(&bp);
-					complete |= 1;
-					break;
-				case 0x12: // S 2, keys
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > bufe) {
-						fprintf(stderr, "pbftoosm Error: way key table too large: %u\n", l);
-						return 1;
-					}
-					waykey = bp;
-					waykeye = (bp += l);
-					complete |= 2;
-					break;
-				case 0x1a: // S 3, vals
-					bp++;
-					l = pbf_uint32(&bp);
-					{ // deal with strange S 3 element at data set end
-						if(complete & (4|16)) { // already have vals or node refs
-							fprintf(stderr, "pbftoosm Warning: format 0x1a found: %02X\n", complete);
-							//,,,
-							break; // ignore this element
-						}
-					}
-					if((bp+l) > bufe) {
-						fprintf(stderr, "pbftoosm Error: way val table too large: %u\n", l);
-						return 1;
-					}
-					wayval = bp;
-					wayvale = (bp += l);
-					complete |= 4;
-					break;
-				case 0x22: // S 4, history - with subelements
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > bufe) {
-						fprintf(stderr, "pbftoosm Error: way history section too large: %u\n", l);
-						return 1;
-					}
-					if(po_drophistory) { // history information is not required
-						bp += l; // jump over this section and ignore it
-						break;
-					}
-					bhise = bp+l;
-					while(bp<bhise) { // for each history subelement
-						switch(bp[0]) { // first byte of element in history section
-							case 0x08: // V 1, version
-								bp++;
-								hisver = pbf_uint32(&bp);
-								hiscomplete |= 1;
-								break;
-							case 0x10: // V 2, timestamp
-								bp++;
-								histime = pbf_uint64(&bp);
-								hiscomplete |= 2;
-								break;
-							case 0x18: // V 3, cset
-								bp++;
-								hiscset = pbf_uint32(&bp);
-								hiscomplete |= 4;
-								break;
-							case 0x20: // V 4, uid
-								bp++;
-								hisuid = pbf_uint32(&bp);
-								hiscomplete |= 8;
-								break;
-							case 0x28: // V 5, user
-								bp++;
-								hisuser = pbf_uint32(&bp);
-								hiscomplete |= 16;
-								break;
-							default:
-								{ /* block */
-									static int msgn = 3;
-									if(--msgn>=0) {
-										fprintf(stderr, "pbftoosm Warning: way history element type unknown: 0x%02X 0x%02X.\n", bp[0], bp[1]);
-									}
-								}
-								if(pbf_jump(&bp))
-									return 1;
-						}
-					}
-					if(bp > bhise) {
-						fprintf(stderr, "pbftoosm Error: way history format length.\n");
-						return 1;
-					}
-					bp = bhise;
-					complete |= 8;
-					break; // end   history - with subelements
-				case 0x42: // S 8, node refs
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > bufe) {
-						fprintf(stderr, "pbftoosm Error: way noderef table too large: %u\n", l);
-						return 1;
-					}
-					waynode = bp;
-					waynodee = (bp += l);
-					complete |= 16;
-					break;
-				default:
-					{ /* block */
-						static int msgn = 3;
-						if(--msgn>=0) {
-							fprintf(stderr, "pbftoosm Warning: way element type unknown: 0x%02X 0x%02X 0x%02X 0x%02X + %i.\n", bp[0], bp[1], bp[2], bp[3], complete);
-						}
-					}
-					if(pbf_jump(&bp))
-						return 1;
-			}
-			if(bp>bufe) {
-				fprintf(stderr, "pbftoosm Error: way format length.\n");
-				return 1;
-			}
-			// write supplied data of this way to standard output
-			if((complete & 17)==17) { // have at least id and node refs
-				int64 noderef;
-				bool inside; // way lies inside borders, if appl.
-				int64 reftab[50000]; // table for temporarily stored noderefs
-				int64 * reftabp;
-				int64 * reftabe;
-				int64 * reftabee;
-				const uint8 * waynode_dyn;
-				// check sequence, if necessary
-				if(po_testsequence) {
-					static int64 oldid = (int64)(-0x7fffffffffffffff);
-					static int msgn = 3;
-					if((po__sequencetype>1 || id<=oldid) && --msgn>=0)
-						fprintf(stderr, "pbftoosm Warning: wrong sequence at way %lld.\n", id);
-					oldid = id;
-				}
-				po__sequencetype = 1;
-				po__sequenceid = id;
-				reftabp = reftabe = reftab;
-				noderef = 0;
-				if(!border_active) // no borders shall be applied
-					inside = true;
-				else { // borders are to be applied
-					reftabee = (int64*)(((char*)reftab)+sizeof(reftab));
-					inside = false; // (default)
-					reftabe = reftab;
-					noderef = 0;
-					while(waynode<waynodee && reftabe<reftabee) {
-						// still node refs AND space in reftab[]
-						noderef += pbf_sint64(&waynode);
-						*reftabe++ = noderef;
-						if(hash_geti(0, noderef)) {
-							//{static int msgn=3; if(--msgn>=0) fprintf(stderr,"X %lli\n",id);}
-							inside = true;
-							goto po__d_pg_ways_inside;
-						}
-					}
-					waynode_dyn = waynode;
-					while(waynode_dyn<waynodee) {
-						// still node refs which did not fit into reftab[]
-						noderef += pbf_sint64(&waynode_dyn);
-						if(hash_geti(0, noderef)) {
-							//{static int msgn=3; if(--msgn>=0) fprintf(stderr,"Y %lli\n",id);}
-							inside = true;
-							goto po__d_pg_ways_inside;
-						}
-					}
-po__d_pg_ways_inside:;
-				}
-				if(inside) {
-					// no borders OR at least one node inside
-					if(border_active)
-						hash_seti(1, id);  // memorize that this way lies inside
-					if(!po_dropways) { // not ways to drop
-						write_str("\t<way id=\"");
-						write_sint64(id);
-						if((hiscomplete&7)==7) { // history information is complete
-							write_str("\" version=\"");
-							write_uint32(hisver);
-							write_str("\" changeset=\"");
-							write_uint32(hiscset);
-							if((hiscomplete&24)==24 && str[hisuser][0]!=0) {
-								// user name available
-								if(hisuser>=strm) {
-									if(hisuser==32767)
-										hisuser = 0;
-									else {
-										fprintf(stderr, "pbftoosm Error: way user string index overflow: %u->%u\n", strm, hisuser);
-										return 1;
-									}
-								}
-								write_str("\" uid=\""); write_uint32(hisuid);
-								write_str("\" user=\""); write_xmlstr(str[hisuser]);
-							}
-							write_str("\" timestamp=\""); write_timestamp(histime);
-						}
-						write_str("\">\n");
-						noderef = 0;
-						while(reftabp<reftabe) { // still node refs in reftab[]
-							noderef = *reftabp++;
-							if(!po_dropbrokenrefs || hash_geti(0, noderef)) {
-								// referenced node lies inside the borders
-								write_str("\t\t<nd ref=\""); write_sint64(noderef);
-								write_str("\"/>\n");
-							} // end   referenced node lies inside the borders
-						}
-						while(waynode<waynodee) { // still node refs to write
-							noderef += pbf_sint64(&waynode);
-							if(!po_dropbrokenrefs || hash_geti(0, noderef)) {
-								// referenced node lies inside the borders
-								write_str("\t\t<nd ref=\"");
-								write_sint64(noderef);
-								write_str("\"/>\n");
-							} // end   referenced node lies inside the borders
-						}
-						while(waykey<waykeye && wayval<wayvale) {
-							// still key/val pairs to write
-							uint key = pbf_uint32(&waykey);
-							uint val = pbf_uint32(&wayval);
-							if(key>=strm || val>=strm) {
-								fprintf(stderr, "pbftoosm Error: way key/val string index overflow: %u->%u,%u\n", strm, key, val);
-								return 1;
-							}
-							write_str("\t\t<tag k=\""); write_xmlstr(str[key]);
-							write_str("\" v=\""); write_xmlstr(str[val]);
-							write_str("\" />\n");
-						}
-						write_str("\t</way>\n");
-					}
-				}
-				complete = hiscomplete = 0;
-			}
-		}
-		return 0;
-	}
-	int po__d_pg_rels(const uint8 * pBuf, const uint8 * pBufEnd, char ** ppStr, uint strM)
-	{
-		// rels-part of primitive group of Data block
-		uint l;
-		int64 id;
-		const uint8 * bhise; // end of history section in buf[]
-		const uint8 * relkey, * relkeye; // start and end of keys
-		const uint8 * relval, * relvale; // start and end of vals
-		const uint8 * relrefrole, * relrefrolee; // start and end of ref roles
-		const uint8 * relrefid, * relrefide; // start and end of ref ids
-		const uint8 * relreftype, * relreftypee; // start and end of ref types
-		uint32_t hisver;
-		int64 histime;
-		uint32_t hiscset;
-		uint32_t hisuid;
-		uint32_t hisuser;
-		int complete; // flags which determine if the dataset is complete
-		int hiscomplete; // flags which determine if the history is complete
-		//write_flush(); write_testmode= false;
-		const byte * bp = pBuf;
-		relkey = relkeye = NULL;
-		relval = relvale = NULL;
-		relrefrole = relrefrolee = NULL;
-		relrefid = relrefide = NULL;
-		relreftype = relreftypee = NULL;
-		complete = hiscomplete = 0;
-		while(bp < pBufEnd) { // for every element in this loop
-			switch(bp[0]) { // first byte of element
-				case 0x08: // V 1, id
-					bp++;
-					id = pbf_uint64(&bp);
-					complete |= 1;
-					break;
-				case 0x12: // S 2, keys
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > pBufEnd) {
-						fprintf(stderr, "pbftoosm Error: rel key table too large: %u\n", l);
-						return 1;
-					}
-					relkey = bp;
-					relkeye = (bp += l);
-					complete |= 2;
-					break;
-				case 0x1a: // S 3, vals
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > pBufEnd) {
-						fprintf(stderr, "pbftoosm Error: rel val table too large: %u\n", l);
-						return 1;
-					}
-					relval = bp;
-					relvale = (bp += l);
-					complete |= 4;
-					break;
-				case 0x22: // S 4, history - with subelements
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > pBufEnd) {
-						fprintf(stderr, "pbftoosm Error: rel history section too large: %u\n", l);
-						return 1;
-					}
-					if(po_drophistory) { // history information is not required
-						bp += l; // jump over this section and ignore it
-						break;
-					}
-					bhise = bp+l;
-					while(bp < bhise) { // for each history subelement
-						switch(bp[0]) { // first byte of element in history section
-							case 0x08: // V 1, version
-								bp++;
-								hisver = pbf_uint32(&bp);
-								hiscomplete |= 1;
-								break;
-							case 0x10: // V 2, timestamp
-								bp++;
-								histime = pbf_uint64(&bp);
-								hiscomplete |= 2;
-								break;
-							case 0x18: // V 3, cset
-								bp++;
-								hiscset = pbf_uint32(&bp);
-								hiscomplete |= 4;
-								break;
-							case 0x20: // V 4, uid
-								bp++;
-								hisuid = pbf_uint32(&bp);
-								hiscomplete |= 8;
-								break;
-							case 0x28: // V 5, user
-								bp++;
-								hisuser = pbf_uint32(&bp);
-								hiscomplete |= 16;
-								break;
-							default:
-								{ /* block */
-									static int msgn = 3;
-									if(--msgn>=0) {
-										fprintf(stderr, "pbftoosm Warning: rel history element type unknown: 0x%02X 0x%02X.\n", bp[0], bp[1]);
-									}
-								}
-								if(pbf_jump(&bp))
-									return 1;
-						}
-					}
-					if(bp > bhise) {
-						fprintf(stderr, "pbftoosm Error: rel history format length.\n");
-						return 1;
-					}
-					bp = bhise;
-					complete |= 8;
-					break; // end   history - with subelements
-				case 0x42: // S 8, refroles
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > pBufEnd) {
-						fprintf(stderr, "pbftoosm Error: rel role table too large: %u\n", l);
-						return 1;
-					}
-					relrefrole = bp;
-					relrefrolee = (bp += l);
-					complete |= 16;
-					break;
-				case 0x4a: // S 9, refids
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > pBufEnd) {
-						fprintf(stderr, "pbftoosm Error: rel id table too large: %u\n", l);
-						return 1;
-					}
-					relrefid = bp;
-					relrefide = (bp += l);
-					complete |= 32;
-					break;
-				case 0x52: // S 10, reftypes
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > pBufEnd) {
-						fprintf(stderr, "pbftoosm Error: rel type table too large: %u\n", l);
-						return 1;
-					}
-					relreftype = bp;
-					relreftypee = (bp += l);
-					complete |= 64;
-					break;
-				default:
-					{ /* block */
-						static int msgn = 3;
-						if(--msgn>=0) {
-							fprintf(stderr, "pbftoosm Warning: rel element type unknown: 0x%02X 0x%02X 0x%02X 0x%02X + %i.\n", bp[0], bp[1], bp[2], bp[3], complete);
-						}
-					}
-					if(pbf_jump(&bp))
-						return 1;
-			}
-			if(bp > pBufEnd) {
-				fprintf(stderr, "pbftoosm Error: rel format length.\n");
-				return 1;
-			}
-			// write supplied data of this relation to standard output
-			if((complete & 113)==113) {
-				// have at least id and refs (1|16|32|64)
-				int64 refid;
-				bool inside; // relation lies inside borders, if appl.
-				int64 reftab[50000]; // table for temporarily stored noderefs
-				byte reftypetab[50000]; // table for temp. stored noderef types;
-				// must have the same maximum number of elements as reftab[];
-				int64 * reftabp;
-				int64 * reftabe;
-				int64 * reftabee;
-				byte * reftypetabp;
-				byte * reftypetabe;
-				const byte * relrefid_dyn;
-				const byte * relreftype_dyn;
-				// check sequence, if necessary
-				if(po_testsequence) {
-					static int64 oldid = (int64)(-0x7fffffffffffffff);
-					static int msgn = 3;
-					if((po__sequencetype>2 || id<=oldid) && --msgn>=0)
-						fprintf(stderr, "pbftoosm Warning: wrong sequence at relation %lld.\n", id);
-					oldid = id;
-				}
-				po__sequencetype = 2;
-				po__sequenceid = id;
-				reftabp = reftabe = reftab;
-				reftypetabp = reftypetab;
-				refid = 0;
-				if(!border_active || hash_geti(2, id))
-					inside = true; // no borders shall be applied OR this relation has been determined to lie inside the borders
-				else { // borders are to be applied
-					reftabee = (int64*)(((char*)reftab)+sizeof(reftab));
-					reftabe = reftab;
-					reftypetabe = reftypetab;
-					refid = 0;
-	//if(id==1070811) fprintf(stderr,"X %lli %lli\n",id,refid);
-					while(relrefid<relrefide && relreftype<relreftypee && reftabe<reftabee) { // still refs AND space in reftab[]
-						refid += pbf_sint64(&relrefid);
-						*reftabe++ = refid;
-						int reftype = pbf_uint32(&relreftype);
-						*reftypetabe++ = reftype;
-						if((po__stage==0 && reftype==2 && refid>=id) || hash_geti(reftype, refid))
-							// referenced relation has higher id
-							// (i.e., we do not know if that relation lies inside
-							// because we did not inspect it yet, therefore we
-							// decide to keep the presently processed relation)
-							// OR referenced object lies inside
-							goto po__d_pg_refs_inside;
-					}
-					relrefid_dyn = relrefid;
-					relreftype_dyn = relreftype;
-					while(relrefid_dyn<relrefide && relreftype_dyn<relreftypee) {
-						// still refs which did not fit into reftab[]
-						refid += pbf_sint64(&relrefid_dyn);
-						int reftype = pbf_uint32(&relreftype_dyn);
-						if((po__stage == 0 && reftype == 2 && refid >= id) || hash_geti(reftype, refid))
-							// referenced relation has higher id (see above)
-							// OR referenced object lies inside
-							goto po__d_pg_refs_inside;
-					}
-					inside = false;
-					goto po__d_pg_refs_outside;
-po__d_pg_refs_inside:;
-					inside = true;
-					hash_seti(2, id); // memorize that this relation lies inside the borders
-					po__changed = true; // memorize that the flag has been changed from 0 to 1;
-po__d_pg_refs_outside:;
-				}
-				if(inside) { // no borders OR at least one node inside
-					write_str("\t<relation id=\"");
-					write_sint64(id);
-					if(!po_drophistory && (hiscomplete&7)==7) {
-						// history shall be written to standard output AND
-						// history information is complete
-						write_str("\" version=\""); write_uint32(hisver);
-						write_str("\" changeset=\""); write_uint32(hiscset);
-						if((hiscomplete & 24)==24 && ppStr[hisuser][0]!=0) {
-							// user name available
-							if(hisuser >= strM) {
-								fprintf(stderr, "pbftoosm Error: rel user string index overflow: %u->%u\n", strM, hisuser);
-								return 1;
-							}
-							write_str("\" uid=\"");
-							write_uint32(hisuid);
-							write_str("\" user=\"");
-							write_xmlstr(ppStr[hisuser]);
-						}
-						write_str("\" timestamp=\"");
-						write_timestamp(histime);
-					}
-					write_str("\">\n");
-					refid = 0;
-					while((reftabp<reftabe || (relrefid<relrefide && relreftype<relreftypee)) && relrefrole<relrefrolee) { // still refs to write
-						int reftype, refrole;
-						if(reftabp < reftabe) { // still node refs in reftab[]
-							refid = *reftabp++;
-							reftype = *reftypetabp++;
-						}
-						else {
-							refid += pbf_sint64(&relrefid);
-							reftype = pbf_uint32(&relreftype);
-						}
-						refrole = pbf_uint32(&relrefrole);
-						if(refrole >= strM) {
-							fprintf(stderr, "pbftoosm Error: rel refrole string index overflow: %u->%u\n", strM, refrole);
-							return 1;
-						}
-						if(!po_dropbrokenrefs || hash_geti(reftype, refid)) {
-							// referenced object lies inside the borders
-							if(reftype==0)
-								write_str("\t\t<member type=\"node\" ref=\"");
-							else if(reftype==1)
-								write_str("\t\t<member type=\"way\" ref=\"");
-							else
-								write_str("\t\t<member type=\"relation\" ref=\"");
-							write_sint64(refid);
-							write_str("\" role=\""); write_xmlstr(ppStr[refrole]);
-							write_str("\"/>\n");
-						}
-					}
-					while(relkey<relkeye && relval<relvale) {
-						// still key/val pairs to write
-						uint key = pbf_uint32(&relkey);
-						uint val = pbf_uint32(&relval);
-						if(key >= strM || val >= strM) {
-							fprintf(stderr, "pbftoosm Error: rel key/val string index overflow: %u->%u,%u\n", strM, key, val);
-							return 1;
-						}
-						write_str("\t\t<tag k=\""); write_xmlstr(ppStr[key]);
-						write_str("\" v=\""); write_xmlstr(ppStr[val]);
-						write_str("\" />\n");
-					}
-					write_str("\t</relation>\n");
-				}
-				complete = hiscomplete = 0;
-			}
-		}
-	#if 0
-		fprintf(stderr, "X %p %p %p %u\n", buf, bufe, str, strm);
-		int i = 3000;
-		while(--i>0 && bp<bufe)
-			putchar(*bp++);
-		static int j = 3;
-		if(--j<0) exit(0);
-	#endif
-	#if 0
-		int i = 0;
-		do
-			printf("str[%2i]: %s\n", i, str[i]);
-		while(++i<=40 && i<strm);
-		exit(0);
-	#endif
-		return 0;
-	}
-	int po__d_pg_rels_analyze(const uint8 * pBuf, const uint8 * bufe, char ** str, uint strm)
-	{
-		// analyze rels-part of primitive group of Data block;
-		// same as preceding procedure po__d_pg_rels(), but no writing
-		// is done; relation data are decoded and analyzed to get
-		// information about which relations lie inside the borders;
-		uint l;
-		int64 id;
-		const uint8 * relrefid = 0;
-		const uint8 * relrefide = 0; // start and end of ref ids
-		const uint8 * relreftype = 0;
-		const uint8 * relreftypee = 0; // start and end of ref types
-		int    complete = 0; // flags which determine if the dataset is complete
-		const uint8 * bp = pBuf;
-		while(bp<bufe) { // for every element in this loop
-			switch(bp[0]) { // first byte of element
-				case 0x08: // V 1, id
-					bp++;
-					id = pbf_uint64(&bp);
-					complete |= 1;
-					break;
-				case 0x12: // S 2, keys
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > bufe) {
-						fprintf(stderr, "pbftoosm Error: rela key table too large: %u\n", l);
-						return 1;
-					}
-					bp += l; // jump over this section and ignore it
-					complete |= 2;
-					break;
-				case 0x1a: // S 3, vals
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > bufe) {
-						fprintf(stderr, "pbftoosm Error: rela val table too large: %u\n", l);
-						return 1;
-					}
-					bp += l; // jump over this section and ignore it
-					complete |= 4;
-					break;
-				case 0x22: // S 4, history - with subelements
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > bufe) {
-						fprintf(stderr, "pbftoosm Error: rela history section too large: %u\n", l);
-						return 1;
-					}
-					bp += l; // jump over this section and ignore it
-					complete |= 8;
-					break; // end   history - with subelements
-				case 0x42: // S 8, refroles
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > bufe) {
-						fprintf(stderr, "pbftoosm Error: rela role table too large: %u\n", l);
-						return 1;
-					}
-					bp += l; // jump over this section and ignore it
-					complete |= 16;
-					break;
-				case 0x4a: // S 9, refids
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > bufe) {
-						fprintf(stderr, "pbftoosm Error: rela id table too large: %u\n", l);
-						return 1;
-					}
-					relrefid = bp;
-					relrefide = (bp += l);
-					complete |= 32;
-					break;
-				case 0x52: // S 10, reftypes
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > bufe) {
-						fprintf(stderr, "pbftoosm Error: rela type table too large: %u\n", l);
-						return 1;
-					}
-					relreftype = bp;
-					relreftypee = (bp += l);
-					complete |= 64;
-					break;
-				default:
-					/* block */ {
-					static int msgn = 3;
-					if(--msgn>=0) {
-						fprintf(stderr, "pbftoosm Warning: rela element type unknown: 0x%02X 0x%02X 0x%02X 0x%02X + %i.\n", bp[0], bp[1], bp[2], bp[3], complete);
-					}
-				}
-					if(pbf_jump(&bp))
-						return 1;
-			} // end   first byte of element
-			if(bp>bufe) {
-				fprintf(stderr, "pbftoosm Error: rela format length.\n");
-				return 1;
-			}
-			// analyze supplied data of this relation
-			if((complete & 113)==113) {
-				// have at least id and refs (1|16|32|64)
-				if(!hash_geti(2, id)) { // not already marked as 'inside'
-					int reftype;
-					int64 refid = 0;
-					while(relrefid<relrefide && relreftype<relreftypee) {
-						// still refs
-						refid += pbf_sint64(&relrefid);
-						reftype = pbf_uint32(&relreftype);
-						if(hash_geti(reftype, refid)) {
-							// referenced object lies inside
-							hash_seti(2, id);
-							// memorize that this relation lies inside the borders
-							po__changed = true;
-							// memorize that the flag has been changed from 0 to 1;
-							break;
-						}
-					}
-				}
-				complete = 0;
-			}
-		}
-		return 0;
-	}
-	int po__d(const uint8 * pBuf, uint8 * bufe)
-	{
-		// decode compressed part of Data block
-		static char * str[po__strM]; // string table
-		const uint8 * bstre; // end of string table in buf[]
-		const byte * bpge; // end of primitive group in buf[]
-		uint l;
-		const byte * bp = pBuf;
-		char ** stre = str; // end of data in str[]
-		char ** stree = str+po__strM; // end of str[]
-		while(bp<bufe) { // for every element in this loop
-			switch(bp[0]) { // first byte of element
-				case 0x0a: // S 1, string table
-					bp++;
-					l = pbf_uint32(&bp);
-					if((bp+l) > bufe) {
-						fprintf(stderr, "pbftoosm Error: string table too large: %u\n", l);
-						return 1;
-					}
-					bstre = bp+l;
-					while(bp < bstre) { // for each element in string table
-						if(bp[0]==0x0a) { // S 1, string
-							*(uint8 *)bp++ = 0; // set null terminator for previous string @badcast
-							l = pbf_uint32(&bp);
-							if(bp+l>bstre) { // string too large
-								fprintf(stderr, "pbftoosm Error: string too large: %u\n", l);
-								return 1;
-							}
-							if(stre>=stree) {
-								fprintf(stderr, "pbftoosm Error: too many strings: %i\n", po__strM);
-								return 1;
-							}
-							*stre++ = (char*)bp;
-							bp += l;
-						} // end   S 1, string
-						else { // element type unknown
-							const uint8 * p;
-							{ // block
-								static int msgn = 3;
-								if(--msgn>=0) {
-									fprintf(stderr, "pbftoosm Warning: string table element type unknown: 0x%02X 0x%02X.\n", bp[0], bp[1]);
-								}
-							}
-							p = bp;
-							if(pbf_jump(&bp))
-								return 1;
-							*(uint8 *)p = 0; // @badcast
-						}
-					}
-					bp = bstre;
-					break;
-				case 0x12: // S 2, primitive group
-					*(uint8 *)bp++ = 0; // set null terminator for previous string @badcast
-					l = pbf_uint32(&bp);
-					if((bp+l) > bufe) {
-						fprintf(stderr, "pbftoosm Error: primitive group too large: %u\n", l);
-						return 1;
-					}
-					bpge = bp+l;
-					while(bp<bpge) { // for each element in primitive group
-						switch(bp[0]) { // first byte of primitive group element
-							case 0x0a: // S 1, normal nodes
-								fprintf(stderr, "pbftoosm Error: can only process dense nodes\n");
-								return 1;
-							case 0x12: // S 2, dense nodes
-								bp++;
-								l = pbf_uint32(&bp);
-								if((bp+l) > bufe) {
-									fprintf(stderr, "pbftoosm Error: dense nodes too large: %u\n", l);
-									return 1;
-								}
-								if((border_active || !po_dropnodes)  && po__stage<=1)
-									if(po__d_pg_dn(bp, bp+l, str, stre-str))
-										return 1;
-								bp += l;
-								break;
-							case 0x1a: // S 3, ways
-								bp++;
-								l = pbf_uint32(&bp);
-								if((bp+l) > bufe) {
-									fprintf(stderr, "pbftoosm Error: ways too large: %u\n", l);
-									return 1;
-								}
-								if((border_active || !po_dropways) && po__stage<=1)
-									if(po__d_pg_ways(bp, bp+l, str, stre-str))
-										return 1;
-								bp += l;
-								break;
-							case 0x22: // S 4, rels
-								bp++;
-								l = pbf_uint32(&bp);
-								if((bp+l) > bufe) {
-									fprintf(stderr, "pbftoosm Error: rels too large: %u\n", l);
-									return 1;
-								}
-								if(!po_droprelations) { // relations are required
-									//,,,
-									if(po__stage==1) {
-										po__stage = 2; // write nodes and ways, change stage to 2 as soon as first relation has been encountered
-										po__changed = false; // do not write anything, just process relations
-									}
-									if(po__stage==2) {
-										// do not write anything, just process relations
-										if(po__d_pg_rels_analyze(bp, bp+l, str, stre-str))
-											return 1;
-									}
-									else {
-										if(po__d_pg_rels(bp, bp+l, str, stre-str))
-											return 1;
-									}
-								}
-								bp += l;
-								break;
-							default:
-								{ /* block */
-									static int msgn = 3;
-									if(--msgn>=0) {
-										fprintf(stderr, "pbftoosm Warning: primitive group element type unknown: 0x%02X 0x%02X.\n", bp[0], bp[1]);
-									}
-								}
-								if(pbf_jump(&bp))
-									return 1;
-						}
-					}
-					bp = bpge;
-					break;
-				case 0x88: // 0x01 V 17, nanodegrees
-					if(bp[1]!=0x01)
-						goto po__d_unknown;
-					bp += 2;
-					l = pbf_uint32(&bp);
-					if(l!=100) {
-						fprintf(stderr, "pbftoosm Error: node nanodegrees must be 100: %u\n", l);
-						return 1;
-					}
-					break;
-				case 0x90: // 0x01 V 18, millisec
-					if(bp[1]!=0x01)
-						goto po__d_unknown;
-					bp += 2;
-					l = pbf_uint32(&bp);
-					if(l!=1000) {
-						fprintf(stderr, "pbftoosm Error: node milliseconds must be 1000: %u\n", l);
-						return 1;
-					}
-					break;
-				case 0x98: // 0x01 V 19, latitude offset
-					if(bp[1]!=0x01)
-						goto po__d_unknown;
-					bp += 2;
-					if(pbf_sint64(&bp)!=0) {
-						fprintf(stderr, "pbftoosm Error: cannot process latitude offsets.\n");
-						return 1;
-					}
-					break;
-				case 0xa0: // 0x01 V 20, longitude offset
-					if(bp[1]!=0x01)
-						goto po__d_unknown;
-					bp += 2;
-					if(pbf_sint64(&bp)!=0) {
-						fprintf(stderr, "pbftoosm Error: cannot process longitude offsets.\n");
-						return 1;
-					}
-					break;
-po__d_unknown:
-				default:
-					/* block */ {
-					static int msgn = 3;
-					const uint8 * p;
-					if(--msgn>=0) {
-						fprintf(stderr, "pbftoosm Warning: data block element type unknown: 0x%02X 0x%02X.\n", bp[0], bp[1]);
-					}
-					p = bp;
-					if(pbf_jump(&bp))
-						return 1;
-					*(uint8 *)p = 0; // set null terminator for previous string @badcast
-				}
-			}
-			if(bp>bufe) {
-				fprintf(stderr, "pbftoosm Error: data block format length.\n");
-				return 1;
-			}
-		}
-		return 0;
-	}
-};
-
-int ReadPBF(const char * pFileName)
-{
-	int    ok = 1;
-    SFile  f_in(pFileName, SFile::mRead|SFile::mBinary|SFile::mNoStd|SFile::mBuffRd);
-	THROW_SL(f_in.IsValid());
-	{
-		//f_in.Read(rbuf);
-	}
-	CATCHZOK
-	return ok;
-}
-
-#endif

@@ -80,12 +80,12 @@ int SrSList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	int    ok = 1;
 	if(dir < 0)
 		Clear();
-	THROW(pCtx->Serialize(dir, Type, rBuf));
-	THROW(pCtx->Serialize(dir, Len, rBuf));
+	THROW_SL(pCtx->Serialize(dir, Type, rBuf));
+	THROW_SL(pCtx->Serialize(dir, Len, rBuf));
 	if(dir < 0) {
-		THROW(Alloc(Len));
+		THROW_SL(Alloc(Len));
 	}
-	THROW(pCtx->SerializeBlock(dir, Len, P_Buf, rBuf, 0));
+	THROW_SL(pCtx->SerializeBlock(dir, Len, P_Buf, rBuf, 0));
 	CATCHZOK
 	return ok;
 }
@@ -656,17 +656,17 @@ int SrGrammarTbl::Helper_Add(SrSList * pL, long * pID)
 	BDbTable::Buffer key_buf, data_buf;
 	int32  id = 0;
 	int64  __id = 0;
-	THROW(P_Db->GetSequence(SeqID, &__id));
+	THROW_DB(P_Db->GetSequence(SeqID, &__id));
 	id = (int32)__id;
 	key_buf = id;
 	{
 		SBuffer l_buf;
 		SSerializeContext * p_sctx = GetSCtx();
-		THROW(p_sctx);
+		THROW_DB(p_sctx);
 		THROW(pL->Serialize(+1, l_buf, p_sctx));
 		data_buf = l_buf;
 	}
-	THROW(InsertRec(key_buf, data_buf));
+	THROW_DB(InsertRec(key_buf, data_buf));
 	ASSIGN_PTR(pID, id);
 	CATCHZOK
 	return ok;
@@ -679,7 +679,7 @@ int SrGrammarTbl::Helper_Search(SrSList * pL, long * pID)
 	{
 		SBuffer l_buf;
 		SSerializeContext * p_sctx = GetSCtx();
-		THROW(p_sctx);
+		THROW_DB(p_sctx);
 		THROW(pL->Serialize(+1, l_buf, p_sctx));
 		key_buf = l_buf;
 	}
@@ -702,7 +702,7 @@ int SrGrammarTbl::Helper_Search(long id, SrSList * pL)
 		if(pL) {
 			SBuffer wf_buf;
 			SSerializeContext * p_sctx = GetSCtx();
-			THROW(p_sctx);
+			THROW_DB(p_sctx);
 			data_buf.Get(wf_buf);
 			THROW(pL->Serialize(-1, wf_buf, p_sctx));
 		}
@@ -804,10 +804,10 @@ int SrWordTbl::Add(const char * pWordUtf8, LEXID * pID)
 	}
 	else {
 		int64 __id = 0;
-		THROW(P_Db->GetSequence(SeqID, &__id));
+		THROW_DB(P_Db->GetSequence(SeqID, &__id));
 		id = (LEXID)__id;
 		data_buf.Set(&id, sizeof(id));
-		THROW(InsertRec(key_buf, data_buf));
+		THROW_DB(InsertRec(key_buf, data_buf));
 	}
 	CATCH
 		id = 0;
@@ -827,7 +827,9 @@ int SrWordTbl::MakeSpecial(int spcTag, const char * pWordUtf8, SString & rBuf)
 		case spcAffix: rBuf.Cat("/-").Cat(pWordUtf8); break;
 		case spcConcept: rBuf.Cat("/:").Cat(pWordUtf8); break;
 		case spcCPropSymb: rBuf.Cat("/.").Cat(pWordUtf8); break;
-		default: ok = 0; // @err "Invalid special word tag"
+		default: 
+			ok = PPSetError(PPERR_SR_INVSPCWORDTAG, (long)spcTag);
+			break;
 	}
 	return ok;
 }
@@ -864,6 +866,10 @@ int SrWordTbl::Search(const char * pWordUtf8, LEXID * pID)
 		data_buf.Get(&id, sizeof(id));
 		ok = 1;
 	}
+	else {
+		SString msg_buf;
+		PPSetError(PPERR_SR_WORDNFOUND, (msg_buf = pWordUtf8).Transf(CTRANSF_UTF8_TO_INNER));
+	}
 	ASSIGN_PTR(pID, id);
 	return ok;
 }
@@ -879,6 +885,8 @@ int SrWordTbl::Search(LEXID id, SString & rBuf)
 		key_buf.Get(rBuf);
 		ok = 1;
 	}
+	else
+		PPSetErrorDB();
 	return ok;
 }
 //
@@ -925,10 +933,10 @@ int SrNGramTbl::SerializeRecBuf(int dir, SrNGram * pRec, SBuffer & rBuf)
 	int    ok = 1;
 	uint32 _c = 0;
 	SSerializeContext * p_sctx = GetSCtx();
-	THROW(p_sctx);
+	THROW_DB(p_sctx);
 	//THROW(p_sctx->Serialize(dir, pRec->ID, rBuf));
-	THROW(p_sctx->Serialize(dir, pRec->Ver, rBuf));
-	THROW(p_sctx->Serialize(dir, &pRec->WordIdList, rBuf));
+	THROW_SL(p_sctx->Serialize(dir, pRec->Ver, rBuf));
+	THROW_SL(p_sctx->Serialize(dir, &pRec->WordIdList, rBuf));
 	CATCHZOK
 	return ok;
 }
@@ -939,12 +947,12 @@ int SrNGramTbl::Add(SrNGram & rRec)
 	SBuffer rec_buf;
 	BDbTable::Buffer key_buf, data_buf;
 	int64 __id = 0;
-	THROW(P_Db->GetSequence(SeqID, &__id));
+	THROW_DB(P_Db->GetSequence(SeqID, &__id));
 	rRec.ID = __id;
 	key_buf = __id;
 	THROW(SerializeRecBuf(+1, &rRec, rec_buf));
 	data_buf = rec_buf;
-	THROW(InsertRec(key_buf, data_buf));
+	THROW_DB(InsertRec(key_buf, data_buf));
 	CATCH
 		rRec.ID = 0;
 		ok = 0;
@@ -1175,12 +1183,12 @@ int SrCPropDeclList::GetBySymbID(LEXID id, SrCPropDecl & rP) const
 int SrCPropDeclList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
-	THROW(pCtx->Serialize(dir, &D, rBuf));
-	THROW(pCtx->Serialize(dir, PoolP, rBuf));
+	THROW_SL(pCtx->Serialize(dir, &D, rBuf));
+	THROW_SL(pCtx->Serialize(dir, PoolP, rBuf));
 	if(dir < 0) {
-		THROW(Pool.Alloc(ALIGNSIZE(PoolP, 4)));
+		THROW_SL(Pool.Alloc(ALIGNSIZE(PoolP, 4)));
 	}
-	THROW(pCtx->SerializeBlock(dir, PoolP, Pool.P_Buf, rBuf, 1));
+	THROW_SL(pCtx->SerializeBlock(dir, PoolP, Pool.P_Buf, rBuf, 1));
 	CATCHZOK
 	return ok;
 }
@@ -1313,10 +1321,10 @@ int SrConceptTbl::SerializeRecBuf(int dir, SrConcept * pRec, SBuffer & rBuf)
 	int    ok = 1;
 	uint32 _c = 0;
 	SSerializeContext * p_sctx = GetSCtx();
-	THROW(p_sctx);
+	THROW_DB(p_sctx);
 	//THROW(p_sctx->Serialize(dir, pRec->ID, rBuf));
-	THROW(p_sctx->Serialize(dir, pRec->SymbID, rBuf));
-	THROW(p_sctx->Serialize(dir, pRec->Ver, rBuf));
+	THROW_SL(p_sctx->Serialize(dir, pRec->SymbID, rBuf));
+	THROW_SL(p_sctx->Serialize(dir, pRec->Ver, rBuf));
 	THROW(pRec->Pdl.Serialize(dir, rBuf, p_sctx));
 	CATCHZOK
 	return ok;
@@ -1367,12 +1375,12 @@ int SrConceptTbl::Add(SrConcept & rRec)
 	SBuffer rec_buf;
 	BDbTable::Buffer key_buf, data_buf;
 	int64 __id = 0;
-	THROW(P_Db->GetSequence(SeqID, &__id));
+	THROW_DB(P_Db->GetSequence(SeqID, &__id));
 	rRec.ID = __id;
 	key_buf = __id;
 	THROW(SerializeRecBuf(+1, &rRec, rec_buf));
 	data_buf = rec_buf;
-	THROW(InsertRec(key_buf, data_buf));
+	THROW_DB(InsertRec(key_buf, data_buf));
 	CATCH
 		rRec.ID = 0;
 		ok = 0;
@@ -1388,7 +1396,7 @@ int SrConceptTbl::Update(SrConcept & rRec)
 	BDbTable::Buffer key_buf, data_buf;
 	key_buf = rRec.ID;
 	data_buf.Alloc(512);
-	THROW(BDbTable::Search(key_buf, data_buf));
+	THROW_DB(BDbTable::Search(key_buf, data_buf));
 	data_buf.Get(rec_buf);
 	THROW(SerializeRecBuf(-1, &org_rec, rec_buf));
 	org_rec.ID = rRec.ID;
@@ -1398,7 +1406,7 @@ int SrConceptTbl::Update(SrConcept & rRec)
 		rec_buf.Clear();
 		THROW(SerializeRecBuf(+1, &rRec, rec_buf));
 		data_buf = rec_buf;
-		THROW(InsertRec(key_buf, data_buf));
+		THROW_DB(UpdateRec(key_buf, data_buf));
 	}
 	CATCHZOK
 	return ok;
@@ -1744,12 +1752,14 @@ int SrConceptPropTbl::Set(SrCProp & rProp)
 	data_buf.Alloc(512);
 	if(BDbTable::Search(key_buf, data_buf)) {
 		data_buf.Get(rec_buf);
+		org_rec.CID = rProp.CID;
+		org_rec.PropID = rProp.PropID;
 		THROW(SerializeRecBuf(-1, &org_rec, rec_buf));
 		org_rec.CID = rProp.CID;
 		org_rec.PropID = rProp.PropID;
 		if(!org_rec.IsEqual(rProp)) {
 			THROW(SerializeRecBuf(+1, &rProp, rec_buf.Clear()));
-			THROW(InsertRec(key_buf, data_buf = rec_buf));
+			THROW_DB(UpdateRec(key_buf, data_buf = rec_buf));
 		}
 		else
 			ok = -1;
@@ -1757,7 +1767,7 @@ int SrConceptPropTbl::Set(SrCProp & rProp)
 	else {
 		EncodePrimeKey(key_buf, rProp);
 		THROW(SerializeRecBuf(+1, &rProp, rec_buf.Clear()));
-		THROW(InsertRec(key_buf, data_buf = rec_buf));
+		THROW_DB(InsertRec(key_buf, data_buf = rec_buf));
 	}
 	CATCHZOK
 	return ok;
@@ -1769,7 +1779,7 @@ int SrConceptPropTbl::SerializeRecBuf(int dir, SrCProp * pRec, SBuffer & rBuf)
 	uint32 _c = 0;
 	int    type = 0;
 	SSerializeContext * p_sctx = GetSCtx();
-	THROW(p_sctx);
+	THROW_DB(p_sctx);
 	//THROW(p_sctx->Serialize(dir, pRec->CID, rBuf));
 	//THROW(p_sctx->Serialize(dir, pRec->PropID, rBuf));
 	type = R_Sr.GetPropType(pRec->PropID);
@@ -1778,12 +1788,12 @@ int SrConceptPropTbl::SerializeRecBuf(int dir, SrCProp * pRec, SBuffer & rBuf)
 			{
 				int64 val;
 				if(dir < 0) {
-					THROW(p_sctx->Serialize(dir, val, rBuf));
+					THROW_SL(p_sctx->Serialize(dir, val, rBuf));
 					pRec->Value.Write(val);
 				}
 				else if(dir > 0) {
 					pRec->Value.Read(val);
-					THROW(p_sctx->Serialize(dir, val, rBuf));
+					THROW_SL(p_sctx->Serialize(dir, val, rBuf));
 				}
 			}
 			break;
@@ -1791,12 +1801,12 @@ int SrConceptPropTbl::SerializeRecBuf(int dir, SrCProp * pRec, SBuffer & rBuf)
 			{
 				SString val;
 				if(dir < 0) {
-					THROW(p_sctx->Serialize(dir, val, rBuf));
+					THROW_SL(p_sctx->Serialize(dir, val, rBuf));
 					pRec->Value.Write(val);
 				}
 				else if(dir > 0) {
 					pRec->Value.Read(val);
-					THROW(p_sctx->Serialize(dir, val, rBuf));
+					THROW_SL(p_sctx->Serialize(dir, val, rBuf));
 				}
 			}
 			break;
@@ -1804,12 +1814,12 @@ int SrConceptPropTbl::SerializeRecBuf(int dir, SrCProp * pRec, SBuffer & rBuf)
 			{
 				double val;
 				if(dir < 0) {
-					THROW(p_sctx->Serialize(dir, val, rBuf));
+					THROW_SL(p_sctx->Serialize(dir, val, rBuf));
 					pRec->Value.Write(val);
 				}
 				else if(dir > 0) {
 					pRec->Value.Read(val);
-					THROW(p_sctx->Serialize(dir, val, rBuf));
+					THROW_SL(p_sctx->Serialize(dir, val, rBuf));
 				}
 			}
 			break;
@@ -1872,7 +1882,7 @@ int SrConceptNgTbl::Set(CONCEPTID cID, NGID ngID)
 	else {
 		key_buf.Set(&rec, sizeof(rec));
 		data_buf.Reset();
-		THROW(InsertRec(key_buf, data_buf));
+		THROW_DB(InsertRec(key_buf, data_buf));
 	}
 	CATCHZOK
 	return ok;
@@ -2873,10 +2883,10 @@ SrWordAssocTbl::SrWordAssocTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("w
 	};
 
 	SeqID = 0;
-	new BDbTable(BDbTable::Config("words.db->wordassoc_idx01", BDbTable::idxtypHash, cfDup, 0, 0), pDb, new Idx01, this);
-	new BDbTable(BDbTable::Config("words.db->wordassoc_idx02", BDbTable::idxtypHash, 0, 0, 0), pDb, new Idx02, this);
+	THROW_SL(new BDbTable(BDbTable::Config("words.db->wordassoc_idx01", BDbTable::idxtypHash, cfDup, 0, 0), pDb, new Idx01, this));
+	THROW_SL(new BDbTable(BDbTable::Config("words.db->wordassoc_idx02", BDbTable::idxtypHash, 0, 0, 0), pDb, new Idx02, this));
 	if(P_Db)
-		THROW(SeqID = P_Db->CreateSequence("seq_wordassoc_id", 0));
+		THROW_DB(SeqID = P_Db->CreateSequence("seq_wordassoc_id", 0));
 	CATCH
 		Close();
 	ENDCATCH
@@ -2902,11 +2912,11 @@ int SrWordAssocTbl::Add(SrWordAssoc * pWa, int32 * pID)
 	}
 	else {
 		int64 __id = 0;
-		THROW(P_Db->GetSequence(SeqID, &__id));
+		THROW_DB(P_Db->GetSequence(SeqID, &__id));
 		id = (LEXID)__id;
 		key_buf = id;
 		data_buf = buf;
-		THROW(InsertRec(key_buf, data_buf));
+		THROW_DB(InsertRec(key_buf, data_buf));
 	}
 	pWa->ID = id;
 	CATCH
@@ -2971,21 +2981,21 @@ int SrWordAssocTbl::SerializeRecBuf(int dir, SrWordAssoc * pWa, SBuffer & rBuf)
 {
 	int    ok = 1;
 	SSerializeContext * p_sctx = GetSCtx();
-	THROW(p_sctx);
-	THROW(p_sctx->Serialize(dir, pWa->Flags, rBuf));
-	THROW(p_sctx->Serialize(dir, pWa->WordID, rBuf));
-	THROW(p_sctx->Serialize(dir, pWa->BaseDescrID, rBuf));
+	THROW_DB(p_sctx);
+	THROW_SL(p_sctx->Serialize(dir, pWa->Flags, rBuf));
+	THROW_SL(p_sctx->Serialize(dir, pWa->WordID, rBuf));
+	THROW_SL(p_sctx->Serialize(dir, pWa->BaseDescrID, rBuf));
 	if(pWa->Flags & SrWordAssoc::fHasFlexiaModel) {
-		THROW(p_sctx->Serialize(dir, pWa->FlexiaModelID, rBuf));
+		THROW_SL(p_sctx->Serialize(dir, pWa->FlexiaModelID, rBuf));
 	}
 	if(pWa->Flags & SrWordAssoc::fHasAccentModel) {
-		THROW(p_sctx->Serialize(dir, pWa->AccentModelID, rBuf));
+		THROW_SL(p_sctx->Serialize(dir, pWa->AccentModelID, rBuf));
 	}
 	if(pWa->Flags & SrWordAssoc::fHasPrefix) {
-		THROW(p_sctx->Serialize(dir, pWa->PrefixID, rBuf));
+		THROW_SL(p_sctx->Serialize(dir, pWa->PrefixID, rBuf));
 	}
 	if(pWa->Flags & SrWordAssoc::fHasAffixModel) {
-		THROW(p_sctx->Serialize(dir, pWa->AffixModelID, rBuf));
+		THROW_SL(p_sctx->Serialize(dir, pWa->AffixModelID, rBuf));
 	}
 	CATCHZOK
 	return ok;
@@ -3204,10 +3214,10 @@ int SLAPI SrGeoNodeTbl::Helper_Set(PPOsm::NodeCluster & rNc, uint64 outerID, int
 		THROW(DataBuf.Set(p_buf, buf_size));
 	}
 	if(update) {
-		THROW(UpdateRec(KeyBuf, DataBuf));
+		THROW_DB(UpdateRec(KeyBuf, DataBuf));
 	}
 	else {
-		THROW(InsertRec(KeyBuf, DataBuf));
+		THROW_DB(InsertRec(KeyBuf, DataBuf));
 	}
 	CATCHZOK
 	return ok;
@@ -3259,7 +3269,7 @@ int SLAPI SrGeoWayTbl::Add(PPOsm::Way & rW, PPOsm::WayBuffer * pBuffer)
 		THROW(p_buf);
 		THROW(DataBuf.Set(p_buf, buf_size));
 	}
-	THROW(InsertRec(KeyBuf, DataBuf));
+	THROW_DB(InsertRec(KeyBuf, DataBuf));
 	CATCHZOK
 	return ok;
 }
@@ -4687,9 +4697,9 @@ public:
 
 	static int FASTCALL _IsWordbreakChar(int c);
 
-	SrConceptParser();
+	SrConceptParser(SrDatabase & rDb);
 	~SrConceptParser();
-	int    Run(const char * pDbPath, const char * pFileName);
+	int    Run(const char * pFileName);
 	int    _ReadLine();
 	int    FASTCALL _GetToken(SString & rExtBuf);
 	int    _SkipSpaces(int * pToken, SString & rExtBuf);
@@ -4707,18 +4717,19 @@ public:
 	int OpenInput(const char * pFileName)
 	{
 		CloseInput();
+		LineBuf = 0;
+		LineNo = 0;
 		if(F.Open(pFileName, SFile::mRead)) {
 			return 1;
 		}
 		else
 			return 0;
 	}
-	int CloseInput()
+	void CloseInput()
 	{
 		F.Close();
-		LineBuf = 0;
-		LineNo = 0;
-		return 1;
+		//LineBuf = 0;
+		//LineNo = 0;
 	}
 
 	SFile  F;
@@ -4729,7 +4740,7 @@ public:
 	long   ReH_Concept;
 	long   ReH_SubclsOf;
 	long   ReH_ExprOf;
-	SrDatabase * P_Db;
+	SrDatabase & R_Db;
 };
 
 SrConceptParser::Operator::Operator(SrConceptParser & rMaster) : R_Master(rMaster)
@@ -4785,6 +4796,8 @@ SrConceptParser::Operator * SrConceptParser::Operator::CreateNext()
 		P_Next = p_next;
 		p_next->P_Prev = this;
 	}
+	else
+		PPSetErrorNoMem();
 	return p_next;
 }
 
@@ -4796,6 +4809,8 @@ SrConceptParser::Operator * SrConceptParser::Operator::CreateChild()
 		P_Child = p_child;
 		p_child->P_Parent = this;
 	}
+	else 
+		PPSetErrorNoMem();
 	return p_child;
 }
 
@@ -4815,9 +4830,8 @@ SrConceptParser::Operator * SrConceptParser::Operator::FindParent()
 //
 //
 //
-SrConceptParser::SrConceptParser()
+SrConceptParser::SrConceptParser(SrDatabase & rDb) : R_Db(rDb)
 {
-	P_Db = 0;
 	LineNo = 0;
 	ReH_BrDescr = 0;
 	ReH_Concept = 0;
@@ -4831,7 +4845,6 @@ SrConceptParser::SrConceptParser()
 
 SrConceptParser::~SrConceptParser()
 {
-	delete P_Db;
 }
 
 int SrConceptParser::_ReadLine()
@@ -5070,9 +5083,9 @@ int SrConceptParser::PostprocessOpList(Operator * pRoot)
 {
 	int    ok = 1;
 	SString temp_buf;
-	CONCEPTID prop_instance = P_Db->GetReservedConcept(P_Db->rcInstance);
-	CONCEPTID prop_subclass = P_Db->GetReservedConcept(P_Db->rcSubclass);
-	CONCEPTID prop_crtype   = P_Db->GetReservedConcept(P_Db->rcType);
+	CONCEPTID prop_instance = R_Db.GetReservedConcept(R_Db.rcInstance);
+	CONCEPTID prop_subclass = R_Db.GetReservedConcept(R_Db.rcSubclass);
+	CONCEPTID prop_crtype   = R_Db.GetReservedConcept(R_Db.rcType);
 	THROW(prop_instance);
 	THROW(prop_subclass);
 	THROW(prop_crtype);
@@ -5081,24 +5094,24 @@ int SrConceptParser::PostprocessOpList(Operator * pRoot)
 			if(p_current->CID) {
 				if(p_current->Pdl.GetCount()) {
 					SrConcept cp;
-					THROW(P_Db->P_CT->SearchByID(p_current->CID, &cp) > 0);
+					THROW(R_Db.P_CT->SearchByID(p_current->CID, &cp) > 0);
 					THROW(cp.Pdl.Merge(p_current->Pdl));
-					THROW(P_Db->P_CT->Update(cp));
+					THROW(R_Db.P_CT->Update(cp));
 				}
 				if(p_current->InstanceOf) {
 					SrCProp cp(p_current->CID, prop_instance);
 					cp = p_current->InstanceOf;
-					THROW(P_Db->P_CpT->Set(cp));
+					THROW(R_Db.P_CpT->Set(cp));
 				}
 				if(p_current->SubclassOf) {
 					SrCProp cp(p_current->CID, prop_subclass);
 					cp = p_current->SubclassOf;
-					THROW(P_Db->P_CpT->Set(cp));
+					THROW(R_Db.P_CpT->Set(cp));
 				}
 				if(p_current->CrType) {
 					SrCProp cp(p_current->CID, prop_crtype);
 					cp = p_current->CrType;
-					THROW(P_Db->P_CpT->Set(cp));
+					THROW(R_Db.P_CpT->Set(cp));
 				}
 			}
 			if(p_current->EqToList.getCount()) {
@@ -5106,7 +5119,7 @@ int SrConceptParser::PostprocessOpList(Operator * pRoot)
 					for(uint i = 0; i < p_current->EqToList.getCount(); i++) {
 						CONCEPTID cid = p_current->EqToList.get(i);
 						if(cid) {
-							THROW(P_Db->P_CNgT->Set(cid, p_current->NgID));
+							THROW(R_Db.P_CNgT->Set(cid, p_current->NgID));
 						}
 					}
 				}
@@ -5127,7 +5140,7 @@ int SrConceptParser::ApplyConceptPropList(const StrAssocArray & rTokList, CONCEP
 	SString temp_buf, ident_buf;
 	SrCPropDeclList pdl;
 	LongArray ngram;
-	THROW(P_Db->GetPropDeclList(cid, pdl));
+	THROW(R_Db.GetPropDeclList(cid, pdl));
 	uint   i = 0;
 	for(int do_get_next_prop = 1; do_get_next_prop;) {
 		StrAssocArray::Item titem = rTokList.at_WithoutParent(i++);
@@ -5145,21 +5158,20 @@ int SrConceptParser::ApplyConceptPropList(const StrAssocArray & rTokList, CONCEP
 		// prop_symb = number                 // #6
 		// #type                              // #7
 		//
-
 		do_get_next_prop = 0;
 		SrCProp prop(cid, 0);
 		if(tok == tokConcept) { // #4
-			THROW(P_Db->MakeConceptPropC(pdl, 0, prop, temp_buf));
-			THROW(P_Db->P_CpT->Set(prop));
+			THROW(R_Db.MakeConceptPropC(pdl, 0, prop, temp_buf));
+			THROW(R_Db.P_CpT->Set(prop));
 		}
 		else if(_IsTypeToken(tok)) {
 			int    type = _GetTypeByToken(tok);
 			THROW(type);
-			CONCEPTID prop_crtype = P_Db->GetReservedConcept(P_Db->rcType);
+			CONCEPTID prop_crtype = R_Db.GetReservedConcept(R_Db.rcType);
 			THROW(prop_crtype);
 			prop.PropID = prop_crtype;
 			prop = type;
-			THROW(P_Db->P_CpT->Set(prop));
+			THROW(R_Db.P_CpT->Set(prop));
 		}
 		else if(tok == tokWord) {
 			LEXID  symb_id = 0;
@@ -5172,7 +5184,7 @@ int SrConceptParser::ApplyConceptPropList(const StrAssocArray & rTokList, CONCEP
 					temp_buf = titem.Txt;
 				}
 				if(tok == tokEq) {
-					if(P_Db->SearchWord(SrWordTbl::spcCPropSymb, ident_buf, &symb_id) > 0) {
+					if(R_Db.SearchWord(SrWordTbl::spcCPropSymb, ident_buf, &symb_id) > 0) {
 						{
 							THROW(i < rTokList.getCount()); // Неожиданное завершение файла
 							titem = rTokList.at_WithoutParent(i++);
@@ -5180,14 +5192,14 @@ int SrConceptParser::ApplyConceptPropList(const StrAssocArray & rTokList, CONCEP
 							temp_buf = titem.Txt;
 						}
 						if(tok == tokConcept) { // #1
-							THROW(P_Db->MakeConceptPropC(pdl, ident_buf, prop, temp_buf));
-							THROW(P_Db->P_CpT->Set(prop));
+							THROW(R_Db.MakeConceptPropC(pdl, ident_buf, prop, temp_buf));
+							THROW(R_Db.P_CpT->Set(prop));
 						}
 						else if(tok == tokWord) {
 							ngram.clear();
 							do {
 								LEXID word_id = 0;
-								THROW(P_Db->ResolveWord(temp_buf, &word_id));
+								THROW(R_Db.ResolveWord(temp_buf, &word_id));
 								assert(word_id);
 								THROW(word_id);
 								ngram.add(word_id);
@@ -5204,12 +5216,12 @@ int SrConceptParser::ApplyConceptPropList(const StrAssocArray & rTokList, CONCEP
 									temp_buf = titem.Txt;
 								}
 							} while(tok == tokWord);
-							THROW(P_Db->MakeConceptPropNg(pdl, ident_buf, prop, ngram));
-							THROW(P_Db->P_CpT->Set(prop));
+							THROW(R_Db.MakeConceptPropNg(pdl, ident_buf, prop, ngram));
+							THROW(R_Db.P_CpT->Set(prop));
 						}
 						else if(tok == tokNumber) {
-							THROW(P_Db->MakeConceptPropN(pdl, ident_buf, prop, temp_buf.ToReal()));
-							THROW(P_Db->P_CpT->Set(prop));
+							THROW(R_Db.MakeConceptPropN(pdl, ident_buf, prop, temp_buf.ToReal()));
+							THROW(R_Db.P_CpT->Set(prop));
 						}
 					}
 					else {
@@ -5217,8 +5229,8 @@ int SrConceptParser::ApplyConceptPropList(const StrAssocArray & rTokList, CONCEP
 					}
 				}
 				else if(tok == tokExprOf) { // #2
-					THROW(P_Db->MakeConceptPropC(pdl, ident_buf, prop, temp_buf));
-					THROW(P_Db->P_CpT->Set(prop));
+					THROW(R_Db.MakeConceptPropC(pdl, ident_buf, prop, temp_buf));
+					THROW(R_Db.P_CpT->Set(prop));
 				}
 			}
 			else {
@@ -5247,7 +5259,7 @@ int SrConceptParser::ApplyConceptPropList(const StrAssocArray & rTokList, CONCEP
 	return ok;
 }
 
-int SrConceptParser::Run(const char * pDbPath, const char * pFileName)
+int SrConceptParser::Run(const char * pFileName)
 {
 	int    ok = 1;
 	int    finish = 0;
@@ -5257,12 +5269,8 @@ int SrConceptParser::Run(const char * pDbPath, const char * pFileName)
 	Operator root(*this);
 	Operator * p_current = &root;
 	THROW(OpenInput(pFileName));
-	if(!P_Db) {
-		THROW(P_Db = new SrDatabase);
-		THROW(P_Db->Open(pDbPath));
-	}
 	{
-		BDbTransaction tra((BDbDatabase *)*P_Db, 1);
+		BDbTransaction tra((BDbDatabase *)R_Db, 1);
 		THROW(tra);
 		if(_ReadLine()) {
 			int    tok = 0;
@@ -5277,7 +5285,7 @@ int SrConceptParser::Run(const char * pDbPath, const char * pFileName)
 					NGID   ngram_id = 0;
 					do {
 						LEXID word_id = 0;
-						THROW(P_Db->ResolveWord(temp_buf, &word_id));
+						THROW(R_Db.ResolveWord(temp_buf, &word_id));
 						if(word_id)
 							ngram.add(word_id);
 						else {
@@ -5290,7 +5298,7 @@ int SrConceptParser::Run(const char * pDbPath, const char * pFileName)
 							tok = _GetToken(temp_buf);
 						}
 					} while(tok == tokWord);
-					THROW(P_Db->ResolveNGram(ngram, &ngram_id));
+					THROW(R_Db.ResolveNGram(ngram, &ngram_id));
 					if(ngram_id) {
 						p_current->NgID = ngram_id;
 					}
@@ -5325,17 +5333,13 @@ int SrConceptParser::Run(const char * pDbPath, const char * pFileName)
 					case tokRBrace:
 						{
 							Operator * p_par = p_current->FindParent();
-							if(p_par) {
-								p_current = p_par;
-								if(p_current->LangID) {
-									for(Operator * p_child = p_current->P_Child; p_child; p_child = p_child->P_Next) {
-										if(!p_child->LangID)
-											p_child->LangID = p_current->LangID;
-									}
+							THROW_PP(p_par, PPERR_SR_C_PAROPNFOUND);
+							p_current = p_par;
+							if(p_current->LangID) {
+								for(Operator * p_child = p_current->P_Child; p_child; p_child = p_child->P_Next) {
+									if(!p_child->LangID)
+										p_child->LangID = p_current->LangID;
 								}
-							}
-							else {
-								; // @error
 							}
 						}
 						break;
@@ -5344,62 +5348,55 @@ int SrConceptParser::Run(const char * pDbPath, const char * pFileName)
 							if(p_current->Close(1) > 0) {
 								THROW(p_current = p_current->CreateNext());
 							}
-							p_current->LangID = RecognizeLinguaSymb(temp_buf, 1);
-							if(!p_current->LangID) {
-								; // @error
-							}
+							THROW_SL(p_current->LangID = RecognizeLinguaSymb(temp_buf, 1));
 						}
 						break;
 					case tokConcept:
 						{
 							CONCEPTID cid = 0;
-							THROW(P_Db->ResolveConcept(temp_buf, &cid));
-							if(!cid) {
-								; // @error
+							THROW(R_Db.ResolveConcept(temp_buf, &cid));
+							assert(cid);
+							if(prev_tok == tokConcept) {
+								p_current->InstanceOf = cid;
 							}
-							else {
-								if(prev_tok == tokConcept) {
+							else if(prev_tok == tokWord) {
+								if(p_current->NgID && !p_current->CID) {
+									Int64Array _clist;
+									if(R_Db.GetNgConceptList(p_current->NgID, R_Db.ngclAnonymOnly, _clist) > 0) {
+										assert(_clist.getCount());
+										p_current->CID = _clist.get(0);
+									}
+									else {
+										THROW(R_Db.CreateAnonymConcept(&p_current->CID));
+										THROW(R_Db.P_CNgT->Set(p_current->CID, p_current->NgID));
+									}
 									p_current->InstanceOf = cid;
 								}
-								else if(prev_tok == tokWord) {
-									if(p_current->NgID && !p_current->CID) {
-										Int64Array _clist;
-										if(P_Db->GetNgConceptList(p_current->NgID, P_Db->ngclAnonymOnly, _clist) > 0) {
-											assert(_clist.getCount());
-											p_current->CID = _clist.get(0);
-										}
-										else {
-											THROW(P_Db->CreateAnonymConcept(&p_current->CID));
-											THROW(P_Db->P_CNgT->Set(p_current->CID, p_current->NgID));
-										}
-										p_current->InstanceOf = cid;
-									}
-								}
-								else if(prev_tok == tokRBrace) {
-									Int64Array _clist;
-									for(Operator * p_child = p_current->P_Child; p_child; p_child = p_child->P_Next) {
-										if(!p_child->InstanceOf) {
-											if(p_child->NgID && !p_child->CID) {
-												_clist.clear();
-												if(P_Db->GetNgConceptList(p_child->NgID, P_Db->ngclAnonymOnly, _clist) > 0) {
-													assert(_clist.getCount());
-													p_child->CID = _clist.get(0);
-												}
-												else {
-													THROW(P_Db->CreateAnonymConcept(&p_child->CID));
-													THROW(P_Db->P_CNgT->Set(p_child->CID, p_child->NgID));
-												}
+							}
+							else if(prev_tok == tokRBrace) {
+								Int64Array _clist;
+								for(Operator * p_child = p_current->P_Child; p_child; p_child = p_child->P_Next) {
+									if(!p_child->InstanceOf) {
+										if(p_child->NgID && !p_child->CID) {
+											_clist.clear();
+											if(R_Db.GetNgConceptList(p_child->NgID, R_Db.ngclAnonymOnly, _clist) > 0) {
+												assert(_clist.getCount());
+												p_child->CID = _clist.get(0);
 											}
-											p_child->InstanceOf = cid;
+											else {
+												THROW(R_Db.CreateAnonymConcept(&p_child->CID));
+												THROW(R_Db.P_CNgT->Set(p_child->CID, p_child->NgID));
+											}
 										}
+										p_child->InstanceOf = cid;
 									}
 								}
-								else {
-									if(p_current->Close(1) > 0) {
-										THROW(p_current = p_current->CreateNext());
-									}
-									p_current->CID = cid;
+							}
+							else {
+								if(p_current->Close(1) > 0) {
+									THROW(p_current = p_current->CreateNext());
 								}
+								p_current->CID = cid;
 							}
 						}
 						break;
@@ -5413,7 +5410,7 @@ int SrConceptParser::Run(const char * pDbPath, const char * pFileName)
 									; // @error
 								}
 								else {
-									THROW(P_Db->ResolveConcept(temp_buf, &p_current->SubclassOf));
+									THROW(R_Db.ResolveConcept(temp_buf, &p_current->SubclassOf));
 									if(!p_current->SubclassOf) {
 										; // @error
 									}
@@ -5443,6 +5440,7 @@ int SrConceptParser::Run(const char * pDbPath, const char * pFileName)
 								THROW(_SkipSpaces(&tok, temp_buf)); // @error Неожиданное завершение файла
 								temp_token_list.Add(tok, temp_buf, -1);
 								if(tok == tokConcept) { // #4
+									// @construction temp_token_list.Add(tok, temp_buf, -1);
 								}
 								else if(_IsTypeToken(tok)) { // #7
 									temp_token_list.Add(tok, temp_buf, -1);
@@ -5472,11 +5470,11 @@ int SrConceptParser::Run(const char * pDbPath, const char * pFileName)
 										}
 									}
 									else {
-										; // @error Ожидается идентификатор свойства
+										CALLEXCEPT_PP_S(PPERR_SR_C_PROPIDEXPECTED, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 									}
 								}
 								else {
-									; // @error Ожидается идентификатор свойства или концепт
+									CALLEXCEPT_PP_S(PPERR_SR_C_PROPIDORCONCEXPECTED, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 								}
 								THROW(_SkipSpaces(&tok, temp_buf)); // Неожиданное завершение файла
 								temp_token_list.Add(tok, temp_buf, -1);
@@ -5524,13 +5522,13 @@ int SrConceptParser::Run(const char * pDbPath, const char * pFileName)
 								ss = _SkipSpaces(&tok, temp_buf);
 								if(tok == tokConcept) {
 									SrCPropDecl pd;
-									THROW(P_Db->ResolveConcept(temp_buf, &pd.PropID));
+									THROW(R_Db.ResolveConcept(temp_buf, &pd.PropID));
 									prev_tok = tok;
 									ss = _SkipSpaces(&tok, temp_buf);
 									if(ss) {
 										if(tok == tokWord) {
 											if(_IsIdent(temp_buf)) {
-												THROW(P_Db->ResolveCPropSymb(temp_buf, &pd.SymbID));
+												THROW(R_Db.ResolveCPropSymb(temp_buf, &pd.SymbID));
 												THROW(pdl.Add(pd));
 												ss = _SkipSpaces(&tok, temp_buf);
 												if(tok == tokComma) {
@@ -5562,7 +5560,7 @@ int SrConceptParser::Run(const char * pDbPath, const char * pFileName)
 									; // @error
 								}
 							}
-							THROW(P_Db->P_CT->SetPropDeclList(p_current->CID, &pdl));
+							THROW(R_Db.P_CT->SetPropDeclList(p_current->CID, &pdl));
 						}
 						else {
 							; // @error
@@ -5575,7 +5573,7 @@ int SrConceptParser::Run(const char * pDbPath, const char * pFileName)
 							}
 							else {
 								CONCEPTID cid = 0;
-								THROW(P_Db->ResolveConcept(temp_buf, &cid));
+								THROW(R_Db.ResolveConcept(temp_buf, &cid));
 								if(!cid) {
 									; // @error
 								}
@@ -5609,192 +5607,10 @@ int SrConceptParser::Run(const char * pDbPath, const char * pFileName)
 			THROW(PostprocessOpList(&root));
 		}
 		THROW(tra.Commit());
-		THROW(P_Db->P_Db->TransactionCheckPoint()); // @v9.7.8
+		THROW(R_Db.P_Db->TransactionCheckPoint()); // @v9.7.8
 	}
 	CATCHZOK
 	CloseInput();
-	return ok;
-}
-
-static int TestImportConceptFile(const char * pDbPath, const char * pFileName)
-{
-	SrConceptParser parser;
-	return parser.Run(pDbPath, pFileName);
-}
-
-static int TestSearchWords(const char * pDbPath)
-{
-	int    ok = 1;
-	SString line_buf, temp_buf;
-	TSArray <SrWordInfo> info_list;
-	SrDatabase db;
-	THROW(db.Open(pDbPath));
-	{
-		SFile out_file("/PAPYRUS/PPY/BIN/Sartr_TestSearchWords.txt", SFile::mWrite);
-		{
-			const char * p_words[] = {
-				"ЧАЙКА",
-				"СЕМЬЮ",
-				"ЁЖИК",
-				"ПЕТРОПАВЛОВСКАЯ",
-				"Петропавловские",
-				"МАРКСА",
-				"ТЕХНОЛОГИЧЕСКУЮ",
-				"ТЕХНОЛОГИЧЕСКИЕ",
-				"МОРОЗОУСТОЙЧИВОГО",
-				"КАК-БЫ",
-				"СОБОЛЕВЫХ",
-				"МАКСИМЕ",
-				"ПОМЕНЬШЕ",
-				"ЗЕЛЕНОГЛАЗУЮ",
-				"КРАСИВОГЛАЗАЯ",
-				"ПРЕДЛОЖЕНИЕМ",
-				"СУПЕРПРЕДЛОЖЕНИЕМ",
-				"ПОГОВОРИЛ",
-				"РАСТОПЛЮ",
-				"ОТЫГРАЕШЬСЯ",
-				"ПРОВОНЯЛИ",
-				"МЫ",
-				"ОНИ",
-				"Я",
-				"ОПЯТЬ",
-				"ТРИДЦАТИ",
-				"БЛЯДЯМ",
-				"ПЕРВЫЙ",
-				"ПЕРВОГО",
-				"ВТОРОМ",
-				"ТРЕТЬЕГО",
-				"СВЕРХПРОВОДИМОСТЬЮ",
-				"СВЕРХПРОВОДНИКОВЫМ",
-				"ГЕОГИЕВИЧУ",
-				"САВВИШНА",
-				"ПОДУМАЮ",
-				"ХОТЯТ",
-
-				"algorithms",
-				"management",
-				"going",
-				"damn"
-			};
-			for(uint i = 0; i < SIZEOFARRAY(p_words); i++) {
-				temp_buf = p_words[i];
-				temp_buf.ToUtf8();
-				info_list.clear();
-				if(db.GetWordInfo(temp_buf, 0, info_list) > 0) {
-					for(uint j = 0; j < info_list.getCount(); j++) {
-						db.WordInfoToStr(info_list.at(j), temp_buf);
-						temp_buf.Utf8ToChar();
-						(line_buf = p_words[i]).Cat("\t-->\t").Cat(temp_buf).CR();
-						out_file.WriteLine(line_buf);
-					}
-				}
-				else {
-					(line_buf = p_words[i]).Cat("\t-->\t").Cat("not found").CR();
-					out_file.WriteLine(line_buf);
-				}
-			}
-		}
-		out_file.WriteLine(0);
-		{
-			const char * p_word = "Я"; /*"ТЕХНОЛОГИЧЕСКАЯ";*/ /*"КОНСТАНТИНОВИЧУ";*/
-			SrWordForm wf;
-			temp_buf = p_word;
-			temp_buf.ToUtf8();
-			info_list.clear();
-			wf.SetTag(SRWG_CASE, SRCASE_DATIVE);
-			wf.SetTag(SRWG_COUNT, SRCNT_PLURAL);
-			if(db.Transform(temp_buf, &wf, info_list) > 0) {
-				for(uint j = 0; j < info_list.getCount(); j++) {
-					db.WordInfoToStr(info_list.at(j), temp_buf);
-					temp_buf.Utf8ToChar();
-					(line_buf = p_word).Cat("\t-->\t").Cat(temp_buf).CR();
-					out_file.WriteLine(line_buf);
-				}
-			}
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
-static int TestConcept(const char * pDbPath)
-{
-	int    ok = 1;
-	SString line_buf, temp_buf, symb;
-	SrDatabase db;
-	THROW(db.Open(pDbPath));
-	{
-		const char * p_words[] = {
-			"россия",
-			"неодим",
-			"рубль",
-			"москва",
-			"вологодская область",
-			"аризона",
-			"широта",
-			"долгота",
-			"петрозаводск"
-		};
-		SFile out_file("/PAPYRUS/PPY/BIN/Sartr_TestConcept.txt", SFile::mWrite);
-		StringSet tok_list;
-		for(uint i = 0; i < SIZEOFARRAY(p_words); i++) {
-			temp_buf = p_words[i];
-			(line_buf = 0).Cat(temp_buf).CR();
-			tok_list.clear(1);
-			temp_buf.Tokenize(0, tok_list);
-			int    unkn_word = 0;
-			LongArray ng;
-			for(uint sp = 0; !unkn_word && tok_list.get(&sp, temp_buf);) {
-				temp_buf.ToUtf8();
-				LEXID word_id = 0;
-				if(db.SearchWord(0, temp_buf, &word_id) > 0)
-					ng.add(word_id);
-				else
-					unkn_word = 1;
-			}
-			if(!unkn_word) {
-				NGID  ng_id = 0;
-				if(db.SearchNGram(ng, &ng_id) > 0) {
-					Int64Array clist, hlist;
-					if(db.GetNgConceptList(ng_id, 0, clist) > 0) {
-						for(uint j = 0; j < clist.getCount(); j++) {
-							CONCEPTID cid = clist.get(j);
-							SrCPropList cpl;
-							SrCProp cp;
-							db.GetConceptSymb(cid, symb);
-							line_buf.Tab().Cat((temp_buf = symb).Utf8ToChar());
-							line_buf.CatChar('(');
-							if(db.GetConceptPropList(cid, cpl) > 0) {
-								for(uint k = 0; k < cpl.GetCount(); k++) {
-									if(cpl.GetProp(k, cp)) {
-										db.FormatProp(cp, 0, temp_buf);
-										if(k)
-											line_buf.CatDiv(',', 2);
-										line_buf.Cat(temp_buf);
-									}
-								}
-							}
-							line_buf.CatChar(')');
-							if(db.GetConceptHier(cid, hlist) > 0 && hlist.getCount()) {
-								line_buf.Space().CatDiv(':', 2);
-								for(uint k = 0; k < hlist.getCount(); k++) {
-									CONCEPTID hcid = hlist.get(k);
-									db.GetConceptSymb(hcid, symb);
-									if(k)
-										line_buf.CatDiv(',', 2);
-									line_buf.Cat((temp_buf = symb).Utf8ToChar());
-								}
-							}
-							line_buf.CR();
-						}
-					}
-				}
-			}
-			line_buf.CR();
-			out_file.WriteLine(line_buf);
-		}
-	}
-	CATCHZOK
 	return ok;
 }
 //
@@ -6112,6 +5928,388 @@ int SrDatabase::ImportNames(const SrImportParam & rParam)
     return ok;
 }
 
+IMPLEMENT_PPFILT_FACTORY(PrcssrSartre); SLAPI PrcssrSartreFilt::PrcssrSartreFilt() : PPBaseFilt(PPFILT_PRCSSRSARTREPARAM, 0, 0)
+{
+	SetFlatChunk(offsetof(PrcssrSartreFilt, ReserveStart),
+		offsetof(PrcssrSartreFilt, SrcPath)-offsetof(PrcssrSartreFilt, ReserveStart));
+	SetBranchSString(offsetof(PrcssrSartreFilt, SrcPath));
+	Init(1, 0);
+}
+
+PrcssrSartreFilt & FASTCALL PrcssrSartreFilt::operator = (const PrcssrSartreFilt & rS)
+{
+	Copy(&rS, 0);
+	return *this;
+}
+
+int SLAPI PrcssrSartreFilt::IsEmpty() const
+{
+	if(Flags)
+		return 0;
+	else if(SrcPath.NotEmpty())
+		return 0;
+	else
+		return 1;
+}
+
+class PrcssrSartreFiltDialog : public TDialog {
+public:
+	PrcssrSartreFiltDialog() : TDialog(DLG_PRCRSARTR)
+	{
+	}
+	int    setDTS(const PrcssrSartreFilt * pData)
+	{
+		int    ok = 1;
+		Data = *pData;
+		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 0, Data.fImportFlexia);
+		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 1, Data.fImportConcepts);
+		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 2, Data.fImportHumNames);
+		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 3, Data.fTestFlexia);
+		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 4, Data.fTestConcepts);
+		SetClusterData(CTL_PRCRSARTR_FLAGS, Data.Flags);
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_PRCRSARTR_SRCPATH, CTL_PRCRSARTR_SRCPATH, 1, 0,
+			0, FileBrowseCtrlGroup::fbcgfPath|FileBrowseCtrlGroup::fbcgfSaveLastPath);
+		setCtrlString(CTL_PRCRSARTR_SRCPATH, Data.SrcPath);
+		return ok;
+	}
+	int    getDTS(PrcssrSartreFilt * pData)
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		GetClusterData(CTL_PRCRSARTR_FLAGS, &Data.Flags);
+		getCtrlString(sel = CTL_PRCRSARTR_SRCPATH, Data.SrcPath);
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
+private:
+	PrcssrSartreFilt Data;
+};
+
+SLAPI PrcssrSartre::PrcssrSartre(const char * pDbPath)
+{
+}
+
+SLAPI PrcssrSartre::~PrcssrSartre()
+{
+}
+
+int SLAPI PrcssrSartre::InitParam(PPBaseFilt * pBaseFilt)
+{
+	int    ok = 1;
+	if(P.IsA(pBaseFilt)) {
+		PrcssrSartreFilt * p_filt = (PrcssrSartreFilt *)pBaseFilt;
+		if(p_filt->IsEmpty()) {
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int SLAPI PrcssrSartre::Init(const PPBaseFilt * pBaseFilt)
+{
+	int    ok = 1;
+	THROW(P.IsA(pBaseFilt));
+	P = *(PrcssrSartreFilt *)pBaseFilt;
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PrcssrSartre::EditParam(PPBaseFilt * pBaseFilt)
+{
+	if(!P.IsA(pBaseFilt))
+		return 0;
+	PrcssrSartreFilt * p_filt = (PrcssrSartreFilt *)pBaseFilt;
+	DIALOG_PROC_BODY(PrcssrSartreFiltDialog, p_filt);
+}
+
+int SLAPI PrcssrSartre::TestSearchWords()
+{
+	int    ok = 1;
+	SString line_buf, temp_buf;
+	TSArray <SrWordInfo> info_list;
+	SrDatabase db;
+	THROW(db.Open(0));
+	{
+		PPGetFilePath(PPPATH_OUT, "Sartr_TestSearchWords.txt", temp_buf);
+		SFile out_file(temp_buf, SFile::mWrite);
+		{
+			const char * p_words[] = {
+				"ЧАЙКА",
+				"СЕМЬЮ",
+				"ЁЖИК",
+				"ПЕТРОПАВЛОВСКАЯ",
+				"Петропавловские",
+				"МАРКСА",
+				"ТЕХНОЛОГИЧЕСКУЮ",
+				"ТЕХНОЛОГИЧЕСКИЕ",
+				"МОРОЗОУСТОЙЧИВОГО",
+				"КАК-БЫ",
+				"СОБОЛЕВЫХ",
+				"МАКСИМЕ",
+				"ПОМЕНЬШЕ",
+				"ЗЕЛЕНОГЛАЗУЮ",
+				"КРАСИВОГЛАЗАЯ",
+				"ПРЕДЛОЖЕНИЕМ",
+				"СУПЕРПРЕДЛОЖЕНИЕМ",
+				"ПОГОВОРИЛ",
+				"РАСТОПЛЮ",
+				"ОТЫГРАЕШЬСЯ",
+				"ПРОВОНЯЛИ",
+				"МЫ",
+				"ОНИ",
+				"Я",
+				"ОПЯТЬ",
+				"ТРИДЦАТИ",
+				"БЛЯДЯМ",
+				"ПЕРВЫЙ",
+				"ПЕРВОГО",
+				"ВТОРОМ",
+				"ТРЕТЬЕГО",
+				"СВЕРХПРОВОДИМОСТЬЮ",
+				"СВЕРХПРОВОДНИКОВЫМ",
+				"ГЕОГИЕВИЧУ",
+				"САВВИШНА",
+				"ПОДУМАЮ",
+				"ХОТЯТ",
+
+				"algorithms",
+				"management",
+				"going",
+				"damn"
+			};
+			for(uint i = 0; i < SIZEOFARRAY(p_words); i++) {
+				temp_buf = p_words[i];
+				temp_buf.ToUtf8();
+				info_list.clear();
+				if(db.GetWordInfo(temp_buf, 0, info_list) > 0) {
+					for(uint j = 0; j < info_list.getCount(); j++) {
+						db.WordInfoToStr(info_list.at(j), temp_buf);
+						temp_buf.Utf8ToChar();
+						(line_buf = p_words[i]).Cat("\t-->\t").Cat(temp_buf).CR();
+						out_file.WriteLine(line_buf);
+					}
+				}
+				else {
+					(line_buf = p_words[i]).Cat("\t-->\t").Cat("not found").CR();
+					out_file.WriteLine(line_buf);
+				}
+			}
+		}
+		out_file.WriteLine(0);
+		{
+			const char * p_word = "Я"; /*"ТЕХНОЛОГИЧЕСКАЯ";*/ /*"КОНСТАНТИНОВИЧУ";*/
+			SrWordForm wf;
+			temp_buf = p_word;
+			temp_buf.ToUtf8();
+			info_list.clear();
+			wf.SetTag(SRWG_CASE, SRCASE_DATIVE);
+			wf.SetTag(SRWG_COUNT, SRCNT_PLURAL);
+			if(db.Transform(temp_buf, &wf, info_list) > 0) {
+				for(uint j = 0; j < info_list.getCount(); j++) {
+					db.WordInfoToStr(info_list.at(j), temp_buf);
+					temp_buf.Utf8ToChar();
+					(line_buf = p_word).Cat("\t-->\t").Cat(temp_buf).CR();
+					out_file.WriteLine(line_buf);
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PrcssrSartre::TestConcept()
+{
+	int    ok = 1;
+	SString line_buf, temp_buf, symb;
+	SrDatabase db;
+	THROW(db.Open(0));
+	{
+		const char * p_words[] = {
+			"россия",
+			"неодим",
+			"рубль",
+			"москва",
+			"вологодская область",
+			"аризона",
+			"широта",
+			"долгота",
+			"петрозаводск",
+			"дарья",
+			"максим"
+		};
+		PPGetFilePath(PPPATH_OUT, "Sartr_TestConcept.txt", temp_buf);
+		SFile out_file(temp_buf, SFile::mWrite);
+		StringSet tok_list;
+		for(uint i = 0; i < SIZEOFARRAY(p_words); i++) {
+			temp_buf = p_words[i];
+			(line_buf = 0).Cat(temp_buf).CR();
+			tok_list.clear(1);
+			temp_buf.Tokenize(0, tok_list);
+			int    unkn_word = 0;
+			LongArray ng;
+			for(uint sp = 0; !unkn_word && tok_list.get(&sp, temp_buf);) {
+				temp_buf.ToUtf8();
+				LEXID word_id = 0;
+				if(db.SearchWord(0, temp_buf, &word_id) > 0)
+					ng.add(word_id);
+				else
+					unkn_word = 1;
+			}
+			if(!unkn_word) {
+				NGID  ng_id = 0;
+				if(db.SearchNGram(ng, &ng_id) > 0) {
+					Int64Array clist, hlist;
+					if(db.GetNgConceptList(ng_id, 0, clist) > 0) {
+						for(uint j = 0; j < clist.getCount(); j++) {
+							CONCEPTID cid = clist.get(j);
+							SrCPropList cpl;
+							SrCProp cp;
+							db.GetConceptSymb(cid, symb);
+							line_buf.Tab().Cat((temp_buf = symb).Utf8ToChar());
+							line_buf.CatChar('(');
+							if(db.GetConceptPropList(cid, cpl) > 0) {
+								for(uint k = 0; k < cpl.GetCount(); k++) {
+									if(cpl.GetProp(k, cp)) {
+										db.FormatProp(cp, 0, temp_buf);
+										if(k)
+											line_buf.CatDiv(',', 2);
+										line_buf.Cat(temp_buf);
+									}
+								}
+							}
+							line_buf.CatChar(')');
+							if(db.GetConceptHier(cid, hlist) > 0 && hlist.getCount()) {
+								line_buf.Space().CatDiv(':', 2);
+								for(uint k = 0; k < hlist.getCount(); k++) {
+									CONCEPTID hcid = hlist.get(k);
+									db.GetConceptSymb(hcid, symb);
+									if(k)
+										line_buf.CatDiv(',', 2);
+									line_buf.Cat((temp_buf = symb).Utf8ToChar());
+								}
+							}
+							line_buf.CR();
+						}
+					}
+				}
+			}
+			line_buf.CR();
+			out_file.WriteLine(line_buf);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PrcssrSartre::Run()
+{
+	int    ok = 1;
+	//const char * p_src_data_path = "\\PAPYRUS\\Src\\SARTR\\data";
+	SString temp_buf;
+	SString msg_buf;
+	SString src_file_name;
+	PPLogger logger;
+	PPWait(1);
+	THROW_SL(pathValid(P.SrcPath, 1));
+	{
+		char * p_loc = setlocale(LC_CTYPE, "rus_rus.1251");
+		//
+		// Извлекает из текстовых файлов базы данных geonames концепции и записывает их в результирующий файл
+		// Process_geonames("/PAPYRUS/Universe-HTT/DATA/GEO/geonames.org", "\\PAPYRUS\\Src\\SARTR\\data\\concept-geonames.txt");
+		/*{
+			BDbDatabase * p_rcv_db = new BDbDatabase(p_db_path, 0, BDbDatabase::oRecover);
+			ZDELETE(p_rcv_db);
+		}*/
+		if(P.Flags & P.fImportFlexia) {
+			SrDatabase db;
+			THROW(db.Open(/*sartre_db_path*/0));
+			{
+				SrImportParam impp;
+				impp.InputKind = impp.inpFlexiaModel;
+				impp.LangID = slangEN;
+				impp.CpID = cp1251;
+				impp.Flags |= impp.fTest;
+				(src_file_name = P.SrcPath).SetLastSlash().Cat("gramtab-en.tab");
+				impp.SetField(impp.fldAncodeFileName, src_file_name);
+				(src_file_name = P.SrcPath).SetLastSlash().Cat("morphs-en.mrd");
+				impp.SetField(impp.fldFlexiaModelFileName, src_file_name);
+				if(!db.ImportFlexiaModel(impp))
+					logger.LogLastError();
+			}
+			{
+				SrImportParam impp;
+				impp.InputKind = impp.inpFlexiaModel;
+				impp.LangID = slangRU;
+				impp.CpID = cp1251;
+				impp.Flags |= impp.fTest;
+				(src_file_name = P.SrcPath).SetLastSlash().Cat("gramtab-ru.tab");
+				impp.SetField(impp.fldAncodeFileName, src_file_name);
+				(src_file_name = P.SrcPath).SetLastSlash().Cat("morphs-ru.mrd");
+				impp.SetField(impp.fldFlexiaModelFileName, src_file_name);
+				if(!db.ImportFlexiaModel(impp))
+					logger.LogLastError();
+			}
+		}
+		if(P.Flags & P.fImportConcepts) {
+			SrDatabase db;
+			THROW(db.Open(/*sartre_db_path*/0));
+			SrConceptParser parser(db);
+			(src_file_name = P.SrcPath).SetLastSlash().Cat("concept.txt");
+			if(!parser.Run(src_file_name)) {
+				//PPGetMessage(mfError, )
+				PPGetLastErrorMessage(1, temp_buf);
+				(msg_buf = src_file_name).CatChar('(').Cat(parser.LineNo).CatChar(')').Space().Cat(temp_buf);
+				logger.Log(msg_buf);
+			}
+		}
+		if(P.Flags & P.fImportHumNames) {
+			;
+		}
+		if(P.Flags & P.fTestFlexia) {
+			TestSearchWords();
+		}
+		if(P.Flags & P.fTestConcepts) {
+			TestConcept();
+		}
+		/*if(!TestImport_Words_MySpell())
+			ret = -1;*/
+		/*if(!TestImport_AncodeCollection())
+			ret = -1;*/
+	}
+	CATCH
+		logger.LogLastError();
+		ok = 0;
+	ENDCATCH
+	PPWait(0);
+	return ok;
+}
+
+int SLAPI DoProcessSartre(PrcssrSartreFilt * pFilt)
+{
+	int    ok = -1;
+	PrcssrSartre prcssr(0);
+	if(pFilt) {
+		if(prcssr.Init(pFilt) && prcssr.Run())
+			ok = 1;
+		else
+			ok = PPErrorZ();
+	}
+	else {
+		PrcssrSartreFilt param;
+		prcssr.InitParam(&param);
+		if(prcssr.EditParam(&param) > 0)
+			if(prcssr.Init(&param) && prcssr.Run())
+				ok = 1;
+			else
+				ok = PPErrorZ();
+	}
+	return ok;
+}
+
+
+#if 0 // {
 int SLAPI ImportSartre()
 {
 	int    ok = 1;
@@ -6177,7 +6375,7 @@ int SLAPI ImportSartre()
 	PPWait(0);
 	return ok;
 }
-
+#endif // } 
 #if 0 // {
 
 int main(int argc, char * argv[])

@@ -293,14 +293,14 @@ int SLAPI PPConfigDatabase::CObjTbl::SerializeKeyBuf(int dir, CObjHeader * pRec,
 {
 	int    ok = 1;
 	SSerializeContext * p_sctx = GetSCtx();
-	THROW(p_sctx);
-	THROW(p_sctx->Serialize(dir, pRec->Ver, rBuf));
-	THROW(p_sctx->Serialize(dir, pRec->Type, rBuf));
-	THROW(p_sctx->Serialize(dir, pRec->Flags, rBuf));
-	THROW(p_sctx->Serialize(dir, pRec->Name, rBuf));
-	THROW(p_sctx->Serialize(dir, pRec->SubSymb, rBuf));
-	THROW(p_sctx->Serialize(dir, pRec->DbSymb, rBuf));
-	THROW(p_sctx->Serialize(dir, pRec->OwnerSymb, rBuf));
+	THROW_DB(p_sctx);
+	THROW_SL(p_sctx->Serialize(dir, pRec->Ver, rBuf));
+	THROW_SL(p_sctx->Serialize(dir, pRec->Type, rBuf));
+	THROW_SL(p_sctx->Serialize(dir, pRec->Flags, rBuf));
+	THROW_SL(p_sctx->Serialize(dir, pRec->Name, rBuf));
+	THROW_SL(p_sctx->Serialize(dir, pRec->SubSymb, rBuf));
+	THROW_SL(p_sctx->Serialize(dir, pRec->DbSymb, rBuf));
+	THROW_SL(p_sctx->Serialize(dir, pRec->OwnerSymb, rBuf));
 	CATCHZOK
 	return ok;
 }

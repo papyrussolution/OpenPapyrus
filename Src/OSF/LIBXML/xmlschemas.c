@@ -2797,7 +2797,7 @@ static void xmlSchemaPContentErr(xmlSchemaParserCtxtPtr ctxt, xmlParserErrors er
 	if(message != NULL)
 		xmlSchemaPErr2(ctxt, ownerElem, child, error, "%s: %s.\n", BAD_CAST des, BAD_CAST message);
 	else {
-		if(content != NULL) {
+		if(content) {
 			xmlSchemaPErr2(ctxt, ownerElem, child, error, "%s: The content is not valid. Expected is %s.\n", BAD_CAST des, BAD_CAST content);
 		}
 		else {
@@ -3727,7 +3727,7 @@ static void xmlSchemaAnnotDump(FILE * output, xmlSchemaAnnotPtr annot)
 		return;
 
 	content = xmlNodeGetContent(annot->content);
-	if(content != NULL) {
+	if(content) {
 		fprintf(output, "  Annot: %s\n", content);
 		SAlloc::F(content);
 	}

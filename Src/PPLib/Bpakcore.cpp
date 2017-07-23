@@ -2036,7 +2036,7 @@ int SLAPI PPBillPacket::GetCurTransit(PPCurTransit * pTrans) const
 	pTrans->TransitCRate = Rec.CRate;
 	Amounts.GetCurList(PPAMT_BUYING, &cur_list);
 	if(Rec.ID) {
-		THROW_PP(cur_list.getCount() != 0, PPERR_UNDEFCTINCUR);
+		THROW_PP(cur_list.getCount(), PPERR_UNDEFCTINCUR);
 		THROW_PP(cur_list.getCount() == 1, PPERR_DUPCTINCUR);
 		THROW_PP((pTrans->InCurID = cur_list.at(0)) != 0, PPERR_UNDEFCTINCUR);
 	}
@@ -2048,7 +2048,7 @@ int SLAPI PPBillPacket::GetCurTransit(PPCurTransit * pTrans) const
 	cur_list.freeAll();
 	Amounts.GetCurList(PPAMT_SELLING, &cur_list);
 	if(Rec.ID) {
-		THROW_PP(cur_list.getCount() != 0, PPERR_UNDEFCTOUTCUR);
+		THROW_PP(cur_list.getCount(), PPERR_UNDEFCTOUTCUR);
 		THROW_PP(cur_list.getCount() == 1, PPERR_DUPCTOUTCUR);
 		THROW_PP((pTrans->OutCurID = cur_list.at(0)) != 0, PPERR_UNDEFCTOUTCUR);
 	}

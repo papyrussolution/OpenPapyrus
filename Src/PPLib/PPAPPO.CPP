@@ -29,7 +29,7 @@ int SLAPI TestEGAIS(PPEgaisProcessor::TestParam *); // egais.cpp
 int SLAPI BuildLocalDL600(); // ppbuild.cpp
 int SLAPI TestLogWindow(); // pplog.cpp
 int SLAPI RecoverAbsenceTrfr();
-int SLAPI ImportSartre();
+//int SLAPI ImportSartre();
 // } @prototype
 //
 //
@@ -738,7 +738,7 @@ int PPApp::processCommand(uint cmd)
 				pp.ProcessInput(pib);
 			}
 			break; // @v9.0.8
-		case cmImportSartre:          ImportSartre();                    break;
+		case cmProcessSartre:         DoProcessSartre(0);                break;
 		case cmChainDatabase:         SetDatabaseChain();                break;
 		case cmDeleteTmpFiles:        DeleteTmpFiles();                  break;
 		case cmCreateNewFiles:        MakeDatabase();                    break;

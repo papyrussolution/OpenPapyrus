@@ -146,7 +146,7 @@ static xmlEntityPtr xmlCreateEntity(xmlDictPtr dict, const xmlChar * name, int t
 		if(SystemID != NULL)
 			ret->SystemID = xmlDictLookup(dict, SystemID, -1);
 	}
-	if(content != NULL) {
+	if(content) {
 		ret->length = sstrlen(content);
 		ret->content = (dict && (ret->length < 5)) ? (xmlChar*)xmlDictLookup(dict, content, ret->length) : xmlStrndup(content, ret->length);
 	}

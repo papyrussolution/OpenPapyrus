@@ -3587,15 +3587,11 @@ public:
 	virtual int SLAPI Run(SBuffer * pParam, long, long)
 	{
 		int    ok = -1;
-		if(pParam) {
-			PrcssrOsmFilt filt;
-			if(filt.Read(*pParam, 0)) {
-				PrcssrOsm prc(0);
-				if(!prc.Init(&filt) || !prc.Run())
-					ok = PPErrorZ();
-			}
-			else
-				ok = DoProcessOsm(0);
+		PrcssrOsmFilt filt;
+		if(pParam && filt.Read(*pParam, 0)) {
+			PrcssrOsm prc(0);
+			if(!prc.Init(&filt) || !prc.Run())
+				ok = PPErrorZ();
 		}
 		else
 			ok = DoProcessOsm(0);
@@ -3604,3 +3600,44 @@ public:
 };
 
 IMPLEMENT_CMD_HDL_FACTORY(PROCESSOSM);
+//
+//
+//
+class CMD_HDL_CLS(PROCESSSARTRE) : public PPCommandHandler {
+public:
+	SLAPI  CMD_HDL_CLS(PROCESSSARTRE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	{
+		int    ok = -1;
+		if(pParam) {
+			PrcssrSartre prc(0);
+			PrcssrSartreFilt filt;
+			if(!filt.Read(*pParam, 0))
+				prc.InitParam(&filt);
+			if(prc.EditParam(&filt) > 0) {
+				pParam->Clear();
+				if(filt.Write(*pParam, 0)) {
+					ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
+	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	{
+		int    ok = -1;
+		PrcssrSartreFilt filt;
+		if(pParam && filt.Read(*pParam, 0)) {
+			PrcssrSartre prc(0);
+			if(!prc.Init(&filt) || !prc.Run())
+				ok = PPErrorZ();
+		}
+		else
+			ok = DoProcessSartre(0);
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(PROCESSSARTRE);

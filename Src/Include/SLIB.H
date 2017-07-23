@@ -2026,6 +2026,7 @@ private:
 #define SLERR_WMI_EXECMETHOD           216 // Ошибка вызова метода WMI ExecMethod '%s'
 #define SLERR_WMI_EXECMETHODRETVAL     217 // Код возврата созданного процесса '%s' не равен 0
 #define SLERR_GLOBOBJIDXNFOUNT         218 // Не найден глобальный объект SLib по индексу %s
+#define SLERR_LANGSYMBNFOUND           219 // Не найден символ языка '%s'
 //
 //
 //

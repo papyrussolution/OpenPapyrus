@@ -87,53 +87,53 @@ int BDbDatabase::GetCurrentConfig(Config & rCfg)
 		{
 			uint32 gb = 0, b = 0;
 			int    n = 0;
-			THROW(ProcessError(E->get_cachesize(E, &gb, &b, &n)));
+			THROW(ProcessError(E->get_cachesize(E, &gb, &b, &n), 0, 0));
 			rCfg.CacheSize = ((int64)gb * 1024i64 * 1024i64 * 1024i64) + b;
 			rCfg.CacheCount = (uint)n;
 		}
 		{
 			uint32 v = 0;
-			THROW(ProcessError(E->get_memory_init(E, DB_MEM_LOCK, &v)));
+			THROW(ProcessError(E->get_memory_init(E, DB_MEM_LOCK, &v), 0, 0));
 			rCfg.MaxLocks = v;
 		}
 		{
 			uint32 v = 0;
-			THROW(ProcessError(E->get_memory_init(E, DB_MEM_LOCKOBJECT, &v)));
+			THROW(ProcessError(E->get_memory_init(E, DB_MEM_LOCKOBJECT, &v), 0, 0));
 			rCfg.MaxLockObjs = v;
 		}
 		{
 			uint32 v = 0;
-			THROW(ProcessError(E->get_memory_init(E, DB_MEM_LOCKER, &v)));
+			THROW(ProcessError(E->get_memory_init(E, DB_MEM_LOCKER, &v), 0, 0));
 			rCfg.MaxLockers = v;
 		}
 		{
 			uint32 v = 0;
-			THROW(ProcessError(E->mutex_get_init(E, &v)));
+			THROW(ProcessError(E->mutex_get_init(E, &v), 0, 0));
 			rCfg.MutexCountInit = v;
 		}
 		{
 			uint32 v = 0;
-			THROW(ProcessError(E->mutex_get_max(E, &v)));
+			THROW(ProcessError(E->mutex_get_max(E, &v), 0, 0));
 			rCfg.MutexCountMax = v;
 		}
 		{
 			uint32 v = 0;
-			THROW(ProcessError(E->mutex_get_increment(E, &v)));
+			THROW(ProcessError(E->mutex_get_increment(E, &v), 0, 0));
 			rCfg.MutexCountIncr = v;
 		}
 		{
 			uint32 v = 0;
-			THROW(ProcessError(E->get_lg_bsize(E, &v)));
+			THROW(ProcessError(E->get_lg_bsize(E, &v), 0, 0));
 			rCfg.LogBufSize = v;
 		}
 		{
 			uint32 v = 0;
-			THROW(ProcessError(E->get_lg_max(E, &v)));
+			THROW(ProcessError(E->get_lg_max(E, &v), 0, 0));
 			rCfg.LogFileSize = v;
 		}
 		{
 			const char * p_log_dir = 0;
-			THROW(ProcessError(E->get_lg_dir(E, &p_log_dir)));
+			THROW(ProcessError(E->get_lg_dir(E, &p_log_dir), 0, 0));
 			rCfg.LogSubDir = p_log_dir;
 		}
 		{
@@ -159,7 +159,7 @@ int BDbDatabase::Helper_SetConfig(const char * pHomeDir, Config & rCfg)
 			int    n_ = 0, n = 0;
 			uint32 gb_ = 0, gb = 0;
 			uint32 b_ = 0, b = 0;
-			THROW(ProcessError(E->get_cachesize(E, &gb_, &b_, &n_)));
+			THROW(ProcessError(E->get_cachesize(E, &gb_, &b_, &n_), 0, 0));
 			if(rCfg.CacheSize != 0) {
 				gb = (uint32)(rCfg.CacheSize / (1024i64 * 1024i64 * 1024i64));
 				b = (uint32)(rCfg.CacheSize % (1024i64 * 1024i64 * 1024i64));
@@ -169,39 +169,39 @@ int BDbDatabase::Helper_SetConfig(const char * pHomeDir, Config & rCfg)
 				b = b_;
 			}
 			n = (int)NZOR(rCfg.CacheCount, n_);
-			THROW(ProcessError(E->set_cachesize(E, gb, b, n)));
+			THROW(ProcessError(E->set_cachesize(E, gb, b, n), 0, 0));
 		}
 		if(rCfg.MaxLockers) {
-			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCKER, rCfg.MaxLockers)));
+			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCKER, rCfg.MaxLockers), 0, 0));
 		}
 		// @v9.6.4 {
 		if(rCfg.MaxLocks) {
-			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCK, rCfg.MaxLocks)));
+			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCK, rCfg.MaxLocks), 0, 0));
 		}
 		if(rCfg.MaxLockObjs) {
-			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCKOBJECT, rCfg.MaxLockObjs)));
+			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCKOBJECT, rCfg.MaxLockObjs), 0, 0));
 		}
 		// } @v9.6.4
 		if(rCfg.MutexCountInit) {
-			THROW(ProcessError(E->mutex_set_init(E, rCfg.MutexCountInit)));
+			THROW(ProcessError(E->mutex_set_init(E, rCfg.MutexCountInit), 0, 0));
 		}
 		if(rCfg.MutexCountMax) {
-			THROW(ProcessError(E->mutex_set_max(E, rCfg.MutexCountMax)));
+			THROW(ProcessError(E->mutex_set_max(E, rCfg.MutexCountMax), 0, 0));
 		}
 		if(rCfg.MutexCountIncr) {
-			THROW(ProcessError(E->mutex_set_increment(E, rCfg.MutexCountIncr)));
+			THROW(ProcessError(E->mutex_set_increment(E, rCfg.MutexCountIncr), 0, 0));
 		}
 		if(rCfg.LogBufSize) {
-			THROW(ProcessError(E->set_lg_bsize(E, (uint32)rCfg.LogBufSize)));
+			THROW(ProcessError(E->set_lg_bsize(E, (uint32)rCfg.LogBufSize), 0, 0));
 		}
 		if(rCfg.LogFileSize) {
-			THROW(ProcessError(E->set_lg_max(E, rCfg.LogFileSize)));
+			THROW(ProcessError(E->set_lg_max(E, rCfg.LogFileSize), 0, 0));
 		}
 		if(rCfg.LogSubDir.NotEmpty()) {
 			const char * p_log_dir = 0;
 			(temp_buf = pHomeDir).SetLastSlash().Cat(rCfg.LogSubDir);
 			THROW(::createDir(temp_buf));
-			THROW(ProcessError(E->set_lg_dir(E, temp_buf)));
+			THROW(ProcessError(E->set_lg_dir(E, temp_buf), 0, 0));
 		}
 		if(rCfg.Flags & (rCfg.fLogNoSync | rCfg.fLogAutoRemove | rCfg.fLogInMemory)) {
 			E->log_set_config(E, DB_LOG_NOSYNC,      BIN(rCfg.Flags & rCfg.fLogNoSync));
@@ -226,7 +226,7 @@ BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options)
 	temp_buf = pHomeDir;
 	if(temp_buf.NotEmptyS())
 		StrPool.add(temp_buf, &HomePathPos);
-	THROW(ProcessError(db_env_create(&E, 0), pHomeDir));
+	THROW(ProcessError(db_env_create(&E, 0), 0, pHomeDir));
 	THROW(::createDir(pHomeDir));
 	if(pCfg) {
 		THROW(Helper_SetConfig(pHomeDir, *pCfg));
@@ -250,7 +250,7 @@ BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options)
 		Config temp_cfg;
 		THROW(GetCurrentConfig(temp_cfg));
 	}
-	THROW(ProcessError(r, pHomeDir));
+	THROW(ProcessError(r, 0, pHomeDir));
 	LockDetect();
 	CATCH
 		State |= stError;
@@ -291,7 +291,7 @@ BDbDatabase::operator DB_TXN * ()
 }
 
 // static
-int FASTCALL BDbDatabase::ProcessError(int bdbErrCode, const char * pAddedMsg)
+int FASTCALL BDbDatabase::ProcessError(int bdbErrCode, const DB * pDb, const char * pAddedMsg)
 {
 	int    ok = 0;
 	if(bdbErrCode) {
@@ -308,6 +308,57 @@ int FASTCALL BDbDatabase::ProcessError(int bdbErrCode, const char * pAddedMsg)
 			case DB_NOTFOUND:          DBS.SetError(BE_KEYNFOUND); break;
 			case DB_BUFFER_SMALL:      DBS.SetError(BE_UBUFLEN); break;
 			case DB_REP_LEASE_EXPIRED: DBS.SetError(BE_DBD_REPLEASEEXPIRED); break;
+			case DB_KEYEXIST:          
+				DBS.SetError(BE_DUP, pDb ? pDb->dname : pAddedMsg); 
+				break;
+			/* @todo
+			//#define DB_BUFFER_SMALL         (-30999) // User memory too small for return.
+			#define DB_DONOTINDEX           (-30998) // "Null" return from 2ndary callbk.
+			#define DB_FOREIGN_CONFLICT     (-30997) // A foreign db constraint triggered.
+			#define DB_HEAP_FULL            (-30996) // No free space in a heap file.
+			#define DB_KEYEMPTY             (-30995) // Key/data deleted or never created.
+			//#define DB_KEYEXIST             (-30994) // The key/data pair already exists.
+			#define DB_LOCK_DEADLOCK        (-30993) // Deadlock.
+			#define DB_LOCK_NOTGRANTED      (-30992) // Lock unavailable.
+			#define DB_LOG_BUFFER_FULL      (-30991) // In-memory log buffer full.
+			#define DB_LOG_VERIFY_BAD       (-30990) // Log verification failed.
+			#define DB_NOSERVER             (-30989) // Server panic return.
+			#define DB_NOTFOUND             (-30988) // Key/data pair not found (EOF).
+			#define DB_OLD_VERSION          (-30987) // Out-of-date version.
+			#define DB_PAGE_NOTFOUND        (-30986) // Requested page not found.
+			#define DB_REP_DUPMASTER        (-30985) // There are two masters.
+			#define DB_REP_HANDLE_DEAD      (-30984) // Rolled back a commit.
+			#define DB_REP_HOLDELECTION     (-30983) // Time to hold an election.
+			#define DB_REP_IGNORE           (-30982) // This msg should be ignored.
+			#define DB_REP_ISPERM           (-30981) // Cached not written perm written.
+			#define DB_REP_JOIN_FAILURE     (-30980) // Unable to join replication group.
+			#define DB_REP_LEASE_EXPIRED    (-30979) // Master lease has expired.
+			#define DB_REP_LOCKOUT          (-30978) // API/Replication lockout now.
+			#define DB_REP_NEWSITE          (-30977) // New site entered system.
+			#define DB_REP_NOTPERM          (-30976) // Permanent log record not written.
+			#define DB_REP_UNAVAIL          (-30975) // Site cannot currently be reached.
+			#define DB_REP_WOULDROLLBACK    (-30974) // UNDOC: rollback inhibited by app.
+			#define DB_RUNRECOVERY          (-30973) // Panic return.
+			#define DB_SECONDARY_BAD        (-30972) // Secondary index corrupt.
+			#define DB_TIMEOUT              (-30971) // Timed out on read consistency.
+			#define DB_VERIFY_BAD           (-30970) // Verify failed; bad format.
+			#define DB_VERSION_MISMATCH     (-30969) // Environment version mismatch.
+			//
+			// DB (private) error return codes.
+			//
+			#define DB_ALREADY_ABORTED      (-30899)
+			#define DB_DELETED              (-30898) // Recovery file marked deleted.
+			#define DB_EVENT_NOT_HANDLED    (-30897) // Forward event to application.
+			#define DB_NEEDSPLIT            (-30896) // Page needs to be split.
+			#define DB_REP_BULKOVF          (-30895) // Rep bulk buffer overflow.
+			#define DB_REP_LOGREADY         (-30894) // Rep log ready for recovery.
+			#define DB_REP_NEWMASTER        (-30893) // We have learned of a new master.
+			#define DB_REP_PAGEDONE         (-30892) // This page was already done.
+			#define DB_SURPRISE_KID         (-30891) // Child commit where parent didn't know it was a parent.
+			#define DB_SWAPBYTES            (-30890) // Database needs byte swapping.
+			#define DB_TXN_CKP              (-30889) // Encountered ckp record in log.
+			#define DB_VERIFY_FATAL         (-30888) // DB->verify cannot proceed.
+			*/
 			default:                   DBS.SetError(BE_BDB_UNKN, pAddedMsg); break;
 		}
 	}
@@ -327,7 +378,7 @@ int BDbDatabase::RemoveUnusedLogs()
 {
 	int    ok = 1;
 	THROW(E);
-	THROW(ProcessError(E->log_archive(E, 0, DB_ARCH_REMOVE)));
+	THROW(ProcessError(E->log_archive(E, 0, DB_ARCH_REMOVE), 0, 0));
 	CATCHZOK
 	return ok;
 }
@@ -340,7 +391,7 @@ int BDbDatabase::StartTransaction()
 	{
 		const uint32 ta_flags = DB_TXN_SNAPSHOT | DB_TXN_BULK;
 		int r = E->txn_begin(E, 0, &T.T, ta_flags);
-		THROW(ProcessError(r));
+		THROW(ProcessError(r, 0, 0));
 	}
 	CATCHZOK
 	return ok;
@@ -360,7 +411,7 @@ int BDbDatabase::RollbackWork()
 		}
 		T.TblList.freeAll();
 		//
-		THROW(ProcessError(r));
+		THROW(ProcessError(r, 0, 0));
 	}
 	else
 		ok = -1;
@@ -383,7 +434,7 @@ int BDbDatabase::CommitWork()
 		}
 		T.TblList.freeAll();
 		//
-		THROW(ProcessError(r));
+		THROW(ProcessError(r, 0, 0));
 	}
 	else
 		ok = -1;
@@ -394,7 +445,7 @@ int BDbDatabase::CommitWork()
 int BDbDatabase::TransactionCheckPoint()
 {
 	int    ok = 1;
-	THROW(ProcessError(E->txn_checkpoint(E, 0/*kbyte*/, 0/*min*/, 0/*flags*/)));  
+	THROW(ProcessError(E->txn_checkpoint(E, 0/*kbyte*/, 0/*min*/, 0/*flags*/), 0, 0));  
 	CATCHZOK
 	return ok;
 }
@@ -404,9 +455,9 @@ int BDbDatabase::LockDetect()
 	int    ok = -1;
 	int    rejected = 0, rej_ = 0;
 	THROW(E);
-	THROW(ProcessError(E->lock_detect(E, 0, DB_LOCK_DEFAULT, &rej_)));
+	THROW(ProcessError(E->lock_detect(E, 0, DB_LOCK_DEFAULT, &rej_), 0, 0));
 	rejected += rej_;
-	THROW(ProcessError(E->lock_detect(E, 0, DB_LOCK_EXPIRE, &(rej_ = 0))));
+	THROW(ProcessError(E->lock_detect(E, 0, DB_LOCK_EXPIRE, &(rej_ = 0)), 0, 0));
 	rejected += rej_;
 	ok = (rejected > 0) ? 1 : -1;
 	CATCHZOK
@@ -419,7 +470,7 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl)
 	DB   * p_db = 0;
 	SString file_name, tbl_name;
 	int    r2 = BDbDatabase::SplitFileName(pFileName, file_name, tbl_name);
-	THROW(ProcessError(db_create(&p_db, E, 0)));
+	THROW(ProcessError(db_create(&p_db, E, 0), 0, pFileName));
 	if(pTbl) {
 		if(pTbl->Implement_Cmp(0, 0) == 1) {
 			DBTYPE db_type = (DBTYPE)0;
@@ -447,7 +498,7 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl)
 #endif
 		r = p_db->open(p_db, T.T, (r2 > 0) ? file_name.cptr() : 0, (r2 == 2) ? tbl_name.cptr() : 0, DB_UNKNOWN, opf, 0 /*mode*/);
 	}
-	THROW(ProcessError(r));
+	THROW(ProcessError(r, p_db, pFileName));
 	CATCH
 		if(r != 0) {
 			p_db->close(p_db, 0);
@@ -485,12 +536,12 @@ int BDbDatabase::Helper_Create(const char * pFileName, int createMode, BDbTable:
 			DBS.SetError(BE_BDB_UNKNDBTYPE, (temp_buf = 0).Cat(pCfg->IdxType));
 			CALLEXCEPT();
 	}
-	THROW(ProcessError(db_create(&p_db, E, 0)));
+	THROW(ProcessError(db_create(&p_db, E, 0), 0, pFileName));
 	if(pCfg->Flags & (BDbTable::cfDup/*|BDbTable::cfEncrypt*/)) {
-		THROW(ProcessError(p_db->set_flags(p_db, DB_DUP)));
+		THROW(ProcessError(p_db->set_flags(p_db, DB_DUP), p_db, 0));
 	}
 	if(pCfg->PageSize) {
-		THROW(ProcessError(p_db->set_pagesize(p_db, pCfg->PageSize)));
+		THROW(ProcessError(p_db->set_pagesize(p_db, pCfg->PageSize), p_db, 0));
 	}
 	{
 		int    opf = (DB_CREATE|DB_AUTO_COMMIT);
@@ -499,7 +550,7 @@ int BDbDatabase::Helper_Create(const char * pFileName, int createMode, BDbTable:
 #endif
 		r = p_db->open(p_db, T.T, (r2 > 0) ? file_name.cptr() : 0, (r2 == 2) ? tbl_name.cptr() : 0, dbtype, opf, 0 /*mode*/);
 	}
-	THROW(ProcessError(r));
+	THROW(ProcessError(r, p_db, 0));
 	CATCHZOK
 	Helper_Close(p_db);
 	return ok;
@@ -578,16 +629,16 @@ long BDbDatabase::CreateSequence(const char * pName, int64 initVal)
 		else {
 			DB_SEQUENCE * p_seq = 0;
 			BDbTable::Buffer key;
-			THROW(ProcessError(db_sequence_create(&p_seq, P_SeqT->H, 0), pName));
+			THROW(ProcessError(db_sequence_create(&p_seq, P_SeqT->H, 0), P_SeqT->H, pName));
 			SETIFZ(initVal, 1);
-			THROW(ProcessError(p_seq->initial_value(p_seq, initVal)));
+			THROW(ProcessError(p_seq->initial_value(p_seq, initVal), 0, 0));
 			key = pName;
 			{
 				int    opf = DB_CREATE;
 #ifdef _MT
 				opf |= DB_THREAD;
 #endif
-				THROW(ProcessError(p_seq->open(p_seq, 0/*TXN*/, key, opf)));
+				THROW(ProcessError(p_seq->open(p_seq, 0/*TXN*/, key, opf), 0, 0));
 			}
 			{
 				Seq seq_item;
@@ -616,7 +667,7 @@ int FASTCALL BDbDatabase::Helper_CloseSequence(uint pos)
 	if(pos < SeqList.getCount()) {
 		Seq  & r_item = SeqList.at(pos);
 		if(r_item.H) {
-			THROW(ProcessError(r_item.H->close(r_item.H, 0)));
+			THROW(ProcessError(r_item.H->close(r_item.H, 0), 0, 0));
 		}
 		SeqList.atFree(pos);
 	}
@@ -647,7 +698,7 @@ int BDbDatabase::GetSequence(long seqId, int64 * pVal)
 			DB_SEQUENCE * p_seq = SeqList.at(i).H;
 			if(p_seq) {
 				db_seq_t _v = 0;
-				THROW(ProcessError(p_seq->get(p_seq, T.T, 1, &_v, DB_TXN_NOSYNC)));
+				THROW(ProcessError(p_seq->get(p_seq, T.T, 1, &_v, DB_TXN_NOSYNC), 0, 0));
 				val = (int64)_v;
 				ok = 1;
 			}
@@ -662,6 +713,11 @@ int BDbDatabase::GetSequence(long seqId, int64 * pVal)
 	CATCHZOK
 	ASSIGN_PTR(pVal, val);
 	return ok;
+}
+
+SSerializeContext * BDbDatabase::GetSCtx() const
+{
+	return P_SCtx ? P_SCtx : (DBS.SetError(BE_BDB_UNDEFSERIALIZECTX), 0);
 }
 
 //static
@@ -1074,7 +1130,7 @@ BDbTable::BDbTable(const Config & rCfg, BDbDatabase * pDb, SecondaryIndex * pIdx
 			P_IdxHandle->P_MainT = pMainTbl;
 			P_MainT = pMainTbl;
 			State |= stIndex;
-			THROW(BDbDatabase::ProcessError(P_MainT->H->associate(P_MainT->H, 0 /*TXN*/, H, BDbTable::ScndIdxCallback, 0)));
+			THROW(BDbDatabase::ProcessError(P_MainT->H->associate(P_MainT->H, 0 /*TXN*/, H, BDbTable::ScndIdxCallback, 0), P_MainT->H, 0));
 			P_MainT->IdxList.insert(this); // this становится собственностью P_MainT
 		}
 	}
@@ -1141,7 +1197,7 @@ int BDbTable::Helper_GetConfig(BDbTable * pT, Config & rCfg)
 		DB * p_db = pT->H;
 		{
 			DBTYPE _t = DB_UNKNOWN;
-			THROW(BDbDatabase::ProcessError(p_db->get_type(p_db, &_t)));
+			THROW(BDbDatabase::ProcessError(p_db->get_type(p_db, &_t), p_db, 0));
 			rCfg.IdxType = _t;
 			switch(_t) {
 				case DB_BTREE: rCfg.IdxType = BDbTable::idxtypBTree; break;
@@ -1156,26 +1212,26 @@ int BDbTable::Helper_GetConfig(BDbTable * pT, Config & rCfg)
 		}
 		{
 			uint32 _f = 0;
-			THROW(BDbDatabase::ProcessError(p_db->get_flags(p_db, &_f)));
+			THROW(BDbDatabase::ProcessError(p_db->get_flags(p_db, &_f), p_db, 0));
 			SETFLAG(rCfg.Flags, cfEncrypt, _f & DB_ENCRYPT);
 			SETFLAG(rCfg.Flags, cfDup, _f & DB_DUP);
 		}
 		{
 			const char * p_db_name = 0;
 			const char * p_file_name = 0;
-			THROW(BDbDatabase::ProcessError(p_db->get_dbname(p_db, &p_file_name, &p_db_name)));
+			THROW(BDbDatabase::ProcessError(p_db->get_dbname(p_db, &p_file_name, &p_db_name), p_db, 0));
 			rCfg.Name = p_file_name;
 		}
 		{
 			uint32 _gb = 0;
 			uint32 _b = 0;
 			int    _c = 0;
-			THROW(BDbDatabase::ProcessError(p_db->get_cachesize(p_db, &_gb, &_b, &_c)));
+			THROW(BDbDatabase::ProcessError(p_db->get_cachesize(p_db, &_gb, &_b, &_c), p_db, 0));
 			rCfg.CacheSize = (_gb * 1024 * 1024) + _b / 1024;
 		}
 		{
 			uint32 _ps = 0;
-			THROW(BDbDatabase::ProcessError(p_db->get_pagesize(p_db, &_ps)));
+			THROW(BDbDatabase::ProcessError(p_db->get_pagesize(p_db, &_ps), p_db, 0));
 			rCfg.PageSize = _ps;
 		}
 	}
@@ -1260,12 +1316,12 @@ static uint32 FASTCALL _GetBDBSearchFlags(int sp)
 int BDbTable::Helper_Search(Buffer & rKey, Buffer & rData, uint32 flags)
 {
 	DB_TXN * p_txn = P_Db ? (DB_TXN *)*P_Db : (DB_TXN *)0;
-	int    r = BDbDatabase::ProcessError(H->get(H, p_txn, rKey, rData, flags));
+	int    r = BDbDatabase::ProcessError(H->get(H, p_txn, rKey, rData, flags), H, 0);
 	if(!r && BtrError == BE_UBUFLEN) {
 		int    r2 = 0;
 		r2 = rData.Realloc();
 		if(r2 > 0)
-			r = BDbDatabase::ProcessError(H->get(H, p_txn, rKey, rData, flags));
+			r = BDbDatabase::ProcessError(H->get(H, p_txn, rKey, rData, flags), H, 0);
 	}
 	return r;
 }
@@ -1296,13 +1352,13 @@ int BDbTable::Search(int idx, Buffer & rKey, Buffer & rData)
 			THROW_D(p_idx_tbl, BE_INVKEY);
 			{
 				DB_TXN * p_txn = P_Db ? (DB_TXN *)*P_Db : (DB_TXN *)0;
-				int r = BDbDatabase::ProcessError(p_idx_tbl->H->pget(p_idx_tbl->H, p_txn, rKey, pkey, rData, flags));
+				int r = BDbDatabase::ProcessError(p_idx_tbl->H->pget(p_idx_tbl->H, p_txn, rKey, pkey, rData, flags), p_idx_tbl->H, 0);
 				if(!r && BtrError == BE_UBUFLEN) {
 					int r1 = 0, r2 = 0;
 					THROW(r1 = pkey.Realloc());
 					THROW(r2 = rData.Realloc());
 					if(r1 > 0 || r2 > 0)
-						r = BDbDatabase::ProcessError(p_idx_tbl->H->pget(p_idx_tbl->H, p_txn, rKey, pkey, rData, flags));
+						r = BDbDatabase::ProcessError(p_idx_tbl->H->pget(p_idx_tbl->H, p_txn, rKey, pkey, rData, flags), p_idx_tbl->H, 0);
 				}
 				THROW(r);
 			}
@@ -1316,7 +1372,7 @@ int BDbTable::Search(int idx, Buffer & rKey, Buffer & rData)
 int BDbTable::Helper_Put(Buffer & rKey, Buffer & rData, uint32 flags)
 {
 	DB_TXN * p_txn = P_Db ? (DB_TXN *)*P_Db : (DB_TXN *)0;
-	return BDbDatabase::ProcessError(H->put(H, p_txn, rKey, rData, flags));
+	return BDbDatabase::ProcessError(H->put(H, p_txn, rKey, rData, flags), H, 0);
 }
 
 int BDbTable::InsertRec(Buffer & rKey, Buffer & rData)
@@ -1334,7 +1390,7 @@ int BDbTable::DeleteRec(Buffer & rKey)
 	int    ok = 1;
 	DB_TXN * p_txn = P_Db ? (DB_TXN *)*P_Db : (DB_TXN *)0;
 	//int DB->del(DB *db, DB_TXN *txnid, DBT *key, uint32 flags);
-	THROW(BDbDatabase::ProcessError(H->del(H, p_txn, rKey, 0 /*flags*/)));
+	THROW(BDbDatabase::ProcessError(H->del(H, p_txn, rKey, 0 /*flags*/), H, 0));
 	CATCHZOK
 	return ok;
 }
@@ -1393,23 +1449,23 @@ int BDbCursor::Search(BDbTable::Buffer & rKey, BDbTable::Buffer & rData, int sp)
 	THROW_D(C, BE_BDB_INVALID_CURSOR);
 	THROW(flags);
 	if(Idx == 0) {
-		ok = BDbDatabase::ProcessError(C->get(C, rKey, rData, flags));
+		ok = BDbDatabase::ProcessError(C->get(C, rKey, rData, flags), (DB *)R_Tbl, 0);
 		if(!ok && BtrError == BE_UBUFLEN) {
 			int    r2 = rData.Realloc();
 			if(r2 > 0)
-				ok = BDbDatabase::ProcessError(C->get(C, rKey, rData, flags));
+				ok = BDbDatabase::ProcessError(C->get(C, rKey, rData, flags), (DB *)R_Tbl, 0);
 		}
 	}
 	else {
 		BDbTable::Buffer pkey;
 		pkey.Alloc(256);
-		ok = BDbDatabase::ProcessError(C->pget(C, rKey, pkey, rData, flags));
+		ok = BDbDatabase::ProcessError(C->pget(C, rKey, pkey, rData, flags), (DB *)R_Tbl, 0);
 		if(!ok && BtrError == BE_UBUFLEN) {
 			int r1 = 0, r2 = 0;
 			THROW(r1 = pkey.Realloc());
 			THROW(r2 = rData.Realloc());
 			if(r1 > 0 || r2 > 0)
-				ok = BDbDatabase::ProcessError(C->pget(C, rKey, pkey, rData, flags));
+				ok = BDbDatabase::ProcessError(C->pget(C, rKey, pkey, rData, flags), (DB *)R_Tbl, 0);
 		}
 		THROW(ok);
 		rKey = pkey;
@@ -1423,7 +1479,7 @@ int BDbCursor::Insert(BDbTable::Buffer & rKey, BDbTable::Buffer & rData, int cur
 	int    ok = 1;
 	THROW(R_Tbl.IsConsistent());
 	THROW_D(C, BE_BDB_INVALID_CURSOR);
-	THROW(BDbDatabase::ProcessError(C->put(C, rKey, rData, current ? DB_CURRENT : DB_KEYLAST)));
+	THROW(BDbDatabase::ProcessError(C->put(C, rKey, rData, current ? DB_CURRENT : DB_KEYLAST), (DB *)R_Tbl, 0));
 	CATCHZOK
 	return ok;
 }
@@ -1433,7 +1489,7 @@ int BDbCursor::Delete()
 	int    ok = 1;
 	THROW(R_Tbl.IsConsistent());
 	THROW_D(C, BE_BDB_INVALID_CURSOR);
-	THROW(BDbDatabase::ProcessError(C->del(C, 0)));
+	THROW(BDbDatabase::ProcessError(C->del(C, 0), (DB *)R_Tbl, 0));
 	CATCHZOK
 	return ok;
 }

@@ -821,7 +821,7 @@ private:
 		StrAssocArray * p_list = 0;
 		TDialog * p_dlg = new TDialog(DLG_RTPOSLI);
 		if(CheckDialogPtrErr(&p_dlg)) {
-			int    others = (pItem->ObjID == 0 && isNew == 0) ? 1 : 0;
+			int    others = BIN(pItem->ObjID == 0 && isNew == 0);
 			p_list = CnObj.MakeStrAssocList(0);
 			if(p_list) {
 				for(uint i = 0; i < Data.getCount(); i++)

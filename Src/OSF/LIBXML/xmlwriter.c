@@ -1164,7 +1164,7 @@ int xmlTextWriterWriteRawLen(xmlTextWriterPtr writer, const xmlChar * content, i
 	}
 	if(writer->indent)
 		writer->doindent = 0;
-	if(content != NULL) {
+	if(content) {
 		count = xmlOutputBufferWrite(writer->out, len, (const char*)content);
 		if(count < 0)
 			return -1;
@@ -1847,7 +1847,7 @@ int xmlTextWriterWriteElement(xmlTextWriterPtr writer, const xmlChar * name, con
 	if(count == -1)
 		return -1;
 	sum += count;
-	if(content != NULL) {
+	if(content) {
 		count = xmlTextWriterWriteString(writer, content);
 		if(count == -1)
 			return -1;

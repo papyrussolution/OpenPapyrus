@@ -954,6 +954,7 @@ int btrnfound__();
 #define BE_BDB_INVALSP                    10011 // Недопустимое значение параметра поиска записи
 #define BE_DBD_REPLEASEEXPIRED            10012 // (DB_REP_LEASE_EXPIRED) Master lease has expired
 #define BE_DBD_INNERTXN                   10013 // Другая транзакция BDB еще активна
+#define BE_BDB_UNDEFSERIALIZECTX          10014 // Не определен контекст синхронизации для экземпляра BDbDatabase
 //
 // Database library error codes (18/06/99)
 //
@@ -4166,7 +4167,7 @@ public:
 
 	static SString & MakeFileName(const char * pFile, const char * pTblName, SString & rFileName);
 	static int SplitFileName(const char * pFileName, SString & rFile, SString & rTbl);
-	static int FASTCALL ProcessError(int bdbErrCode, const char * pAddedMsg = 0);
+	static int FASTCALL ProcessError(int bdbErrCode, const DB * pDb, const char * pAddedMsg);
 
 	BDbDatabase(const char * pHomeDir, Config * pCfg = 0, long options = 0);
 	~BDbDatabase();
@@ -4194,10 +4195,7 @@ public:
 	int    CloseSequence(long seqId);
 	int    GetSequence(long seqId, int64 * pVal);
 
-	SSerializeContext * GetSCtx() const
-	{
-		return P_SCtx;
-	}
+	SSerializeContext * GetSCtx() const;
 private:
 	int    Helper_Create(const char * pFileName, int createMode, BDbTable::Config * pCfg);
 	int    Helper_SetConfig(const char * pHomeDir, Config & rCfg);

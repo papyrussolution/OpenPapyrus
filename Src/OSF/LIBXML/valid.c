@@ -983,40 +983,38 @@ xmlElementContentPtr xmlCopyElementContent(xmlElementContentPtr cur)
  *
  * Free an element content structure. The whole subtree is removed.
  */
-void xmlFreeDocElementContent(xmlDocPtr doc, xmlElementContentPtr cur) 
+void FASTCALL xmlFreeDocElementContent(xmlDoc * pDoc, xmlElementContent * pCur) 
 {
-	xmlElementContentPtr next;
-	xmlDictPtr dict = NULL;
-	if(doc)
-		dict = doc->dict;
-	while(cur) {
-		next = cur->c2;
-		switch(cur->type) {
-			case XML_ELEMENT_CONTENT_PCDATA:
-			case XML_ELEMENT_CONTENT_ELEMENT:
-			case XML_ELEMENT_CONTENT_SEQ:
-			case XML_ELEMENT_CONTENT_OR:
-			    break;
-			default:
-			    xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, "Internal: ELEMENT content corrupted invalid type\n", 0);
-			    return;
+	if(pCur) {
+		xmlDict * dict = pDoc ? pDoc->dict : 0;
+		while(pCur) {
+			xmlElementContent * next = pCur->c2;
+			switch(pCur->type) {
+				case XML_ELEMENT_CONTENT_PCDATA:
+				case XML_ELEMENT_CONTENT_ELEMENT:
+				case XML_ELEMENT_CONTENT_SEQ:
+				case XML_ELEMENT_CONTENT_OR:
+					break;
+				default:
+					xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, "Internal: ELEMENT content corrupted invalid type\n", 0);
+					return;
+			}
+			xmlFreeDocElementContent(pDoc, pCur->c1); // @recursion
+			if(dict) {
+				if(pCur->name && (!xmlDictOwns(dict, pCur->name)))
+					SAlloc::F((xmlChar*)pCur->name);
+				if(pCur->prefix && (!xmlDictOwns(dict, pCur->prefix)))
+					SAlloc::F((xmlChar*)pCur->prefix);
+			}
+			else {
+				SAlloc::F((xmlChar*)pCur->name);
+				SAlloc::F((xmlChar*)pCur->prefix);
+			}
+			SAlloc::F(pCur);
+			pCur = next;
 		}
-		if(cur->c1 != NULL) xmlFreeDocElementContent(doc, cur->c1);
-		if(dict) {
-			if((cur->name != NULL) && (!xmlDictOwns(dict, cur->name)))
-				SAlloc::F((xmlChar*)cur->name);
-			if((cur->prefix != NULL) && (!xmlDictOwns(dict, cur->prefix)))
-				SAlloc::F((xmlChar*)cur->prefix);
-		}
-		else {
-			if(cur->name != NULL) SAlloc::F((xmlChar*)cur->name);
-			if(cur->prefix != NULL) SAlloc::F((xmlChar*)cur->prefix);
-		}
-		SAlloc::F(cur);
-		cur = next;
 	}
 }
-
 /**
  * xmlFreeElementContent:
  * @cur:  the element content tree to free
@@ -1024,7 +1022,8 @@ void xmlFreeDocElementContent(xmlDocPtr doc, xmlElementContentPtr cur)
  * Free an element content structure. The whole subtree is removed.
  * Deprecated, use xmlFreeDocElementContent instead
  */
-void xmlFreeElementContent(xmlElementContentPtr cur) {
+void xmlFreeElementContent(xmlElementContentPtr cur) 
+{
 	xmlFreeDocElementContent(NULL, cur);
 }
 
@@ -1037,63 +1036,62 @@ void xmlFreeElementContent(xmlElementContentPtr cur) {
  *
  * This will dump the content of the element table as an XML DTD definition
  */
-static void xmlDumpElementContent(xmlBufferPtr buf, xmlElementContentPtr content, int glob) {
-	if(content == NULL) return;
-
-	if(glob) xmlBufferWriteChar(buf, "(");
-	switch(content->type) {
-		case XML_ELEMENT_CONTENT_PCDATA:
-		    xmlBufferWriteChar(buf, "#PCDATA");
-		    break;
-		case XML_ELEMENT_CONTENT_ELEMENT:
-		    if(content->prefix != NULL) {
-			    xmlBufferWriteCHAR(buf, content->prefix);
-			    xmlBufferWriteChar(buf, ":");
-		    }
-		    xmlBufferWriteCHAR(buf, content->name);
-		    break;
-		case XML_ELEMENT_CONTENT_SEQ:
-		    if((content->c1->type == XML_ELEMENT_CONTENT_OR) ||
-		    (content->c1->type == XML_ELEMENT_CONTENT_SEQ))
-			    xmlDumpElementContent(buf, content->c1, 1);
-		    else
-			    xmlDumpElementContent(buf, content->c1, 0);
-		    xmlBufferWriteChar(buf, " , ");
-		    if((content->c2->type == XML_ELEMENT_CONTENT_OR) ||
-		    ((content->c2->type == XML_ELEMENT_CONTENT_SEQ) &&
-			    (content->c2->ocur != XML_ELEMENT_CONTENT_ONCE)))
-			    xmlDumpElementContent(buf, content->c2, 1);
-		    else
-			    xmlDumpElementContent(buf, content->c2, 0);
-		    break;
-		case XML_ELEMENT_CONTENT_OR:
-		    if((content->c1->type == XML_ELEMENT_CONTENT_OR) || (content->c1->type == XML_ELEMENT_CONTENT_SEQ))
-			    xmlDumpElementContent(buf, content->c1, 1);
-		    else
-			    xmlDumpElementContent(buf, content->c1, 0);
-		    xmlBufferWriteChar(buf, " | ");
-		    if((content->c2->type == XML_ELEMENT_CONTENT_SEQ) || ((content->c2->type == XML_ELEMENT_CONTENT_OR) && (content->c2->ocur != XML_ELEMENT_CONTENT_ONCE)))
-			    xmlDumpElementContent(buf, content->c2, 1);
-		    else
-			    xmlDumpElementContent(buf, content->c2, 0);
-		    break;
-		default:
-		    xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, "Internal: ELEMENT content corrupted invalid type\n", 0);
-	}
-	if(glob)
-		xmlBufferWriteChar(buf, ")");
-	switch(content->ocur) {
-		case XML_ELEMENT_CONTENT_ONCE:
-		    break;
-		case XML_ELEMENT_CONTENT_OPT:
-		    xmlBufferWriteChar(buf, "?");
-		    break;
-		case XML_ELEMENT_CONTENT_MULT:
-		    xmlBufferWriteChar(buf, "*");
-		    break;
-		case XML_ELEMENT_CONTENT_PLUS:
-		    xmlBufferWriteChar(buf, "+");
-		    break;
+static void xmlDumpElementContent(xmlBufferPtr buf, xmlElementContentPtr content, int glob) 
+{
+	if(content) {
+		if(glob) 
+			xmlBufferWriteChar(buf, "(");
+		switch(content->type) {
+			case XML_ELEMENT_CONTENT_PCDATA:
+				xmlBufferWriteChar(buf, "#PCDATA");
+				break;
+			case XML_ELEMENT_CONTENT_ELEMENT:
+				if(content->prefix != NULL) {
+					xmlBufferWriteCHAR(buf, content->prefix);
+					xmlBufferWriteChar(buf, ":");
+				}
+				xmlBufferWriteCHAR(buf, content->name);
+				break;
+			case XML_ELEMENT_CONTENT_SEQ:
+				if((content->c1->type == XML_ELEMENT_CONTENT_OR) || (content->c1->type == XML_ELEMENT_CONTENT_SEQ))
+					xmlDumpElementContent(buf, content->c1, 1);
+				else
+					xmlDumpElementContent(buf, content->c1, 0);
+				xmlBufferWriteChar(buf, " , ");
+				if((content->c2->type == XML_ELEMENT_CONTENT_OR) || ((content->c2->type == XML_ELEMENT_CONTENT_SEQ) && (content->c2->ocur != XML_ELEMENT_CONTENT_ONCE)))
+					xmlDumpElementContent(buf, content->c2, 1);
+				else
+					xmlDumpElementContent(buf, content->c2, 0);
+				break;
+			case XML_ELEMENT_CONTENT_OR:
+				if((content->c1->type == XML_ELEMENT_CONTENT_OR) || (content->c1->type == XML_ELEMENT_CONTENT_SEQ))
+					xmlDumpElementContent(buf, content->c1, 1);
+				else
+					xmlDumpElementContent(buf, content->c1, 0);
+				xmlBufferWriteChar(buf, " | ");
+				if((content->c2->type == XML_ELEMENT_CONTENT_SEQ) || ((content->c2->type == XML_ELEMENT_CONTENT_OR) && (content->c2->ocur != XML_ELEMENT_CONTENT_ONCE)))
+					xmlDumpElementContent(buf, content->c2, 1);
+				else
+					xmlDumpElementContent(buf, content->c2, 0);
+				break;
+			default:
+				xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, "Internal: ELEMENT content corrupted invalid type\n", 0);
+		}
+		if(glob)
+			xmlBufferWriteChar(buf, ")");
+		switch(content->ocur) {
+			case XML_ELEMENT_CONTENT_ONCE:
+				break;
+			case XML_ELEMENT_CONTENT_OPT:
+				xmlBufferWriteChar(buf, "?");
+				break;
+			case XML_ELEMENT_CONTENT_MULT:
+				xmlBufferWriteChar(buf, "*");
+				break;
+			case XML_ELEMENT_CONTENT_PLUS:
+				xmlBufferWriteChar(buf, "+");
+				break;
+		}
 	}
 }
 
@@ -1267,13 +1265,13 @@ xmlElementPtr xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCh
 
 	switch(type) {
 		case XML_ELEMENT_TYPE_EMPTY:
-		    if(content != NULL) {
+		    if(content) {
 			    xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, "xmlAddElementDecl: content != NULL for EMPTY\n", 0);
 			    return 0;
 		    }
 		    break;
 		case XML_ELEMENT_TYPE_ANY:
-		    if(content != NULL) {
+		    if(content) {
 			    xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, "xmlAddElementDecl: content != NULL for ANY\n", 0);
 			    return 0;
 		    }
@@ -1416,7 +1414,7 @@ xmlElementPtr xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCh
 	 */
 	if(ctxt && ((ctxt->finishDtd == XML_CTXT_FINISH_DTD_0) || (ctxt->finishDtd == XML_CTXT_FINISH_DTD_1))) {
 		ret->content = content;
-		if(content != NULL)
+		if(content)
 			content->parent = (xmlElementContentPtr)1;
 	}
 	else {

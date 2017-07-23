@@ -1443,7 +1443,7 @@ static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNodePtr cur)
 			    else {
 				    xmlOutputBufferWriteString(ctx->buf, "<!--");
 			    }
-			    if(cur->content != NULL) {
+			    if(cur->content) {
 				    // todo: do we need to normalize comment? 
 				    xmlChar * buffer = xmlC11NNormalizeComment(cur->content);
 				    if(buffer != NULL) {

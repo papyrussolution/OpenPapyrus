@@ -877,7 +877,7 @@ static void xmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNodePtr cur)
 			xmlBufDumpEntityDecl(p_buf->buffer, (xmlEntityPtr)cur);
 		}
 		else if(cur->type == XML_TEXT_NODE) {
-			if(cur->content != NULL) {
+			if(cur->content) {
 				if(cur->name != xmlStringTextNoenc) {
 					xmlOutputBufferWriteEscape(p_buf, cur->content, ctxt->escape);
 				}
@@ -888,10 +888,10 @@ static void xmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNodePtr cur)
 			}
 		}
 		else if(cur->type == XML_PI_NODE) {
-			if(cur->content != NULL) {
+			if(cur->content) {
 				xmlOutputBufferWrite(p_buf, 2, "<?");
 				xmlOutputBufferWriteString(p_buf, (const char*)cur->name);
-				if(cur->content != NULL) {
+				if(cur->content) {
 					if(ctxt->format == 2)
 						xmlOutputBufferWriteWSNonSig(ctxt, 0);
 					else
@@ -909,7 +909,7 @@ static void xmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNodePtr cur)
 			}
 		}
 		else if(cur->type == XML_COMMENT_NODE) {
-			if(cur->content != NULL) {
+			if(cur->content) {
 				xmlOutputBufferWrite(p_buf, 4, "<!--");
 				xmlOutputBufferWriteString(p_buf, (const char*)cur->content);
 				xmlOutputBufferWrite(p_buf, 3, "-->");
@@ -1376,7 +1376,7 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 		return;
 	}
 	if(cur->type == XML_TEXT_NODE) {
-		if(cur->content != NULL) {
+		if(cur->content) {
 			if((cur->name == xmlStringText) ||
 			    (cur->name != xmlStringTextNoenc)) {
 				xmlOutputBufferWriteEscape(buf, cur->content, ctxt->escape);
@@ -1392,10 +1392,10 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 		return;
 	}
 	if(cur->type == XML_PI_NODE) {
-		if(cur->content != NULL) {
+		if(cur->content) {
 			xmlOutputBufferWrite(buf, 2, "<?");
 			xmlOutputBufferWriteString(buf, (const char*)cur->name);
-			if(cur->content != NULL) {
+			if(cur->content) {
 				xmlOutputBufferWrite(buf, 1, " ");
 				xmlOutputBufferWriteString(buf, (const char*)cur->content);
 			}
@@ -1409,7 +1409,7 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 		return;
 	}
 	if(cur->type == XML_COMMENT_NODE) {
-		if(cur->content != NULL) {
+		if(cur->content) {
 			xmlOutputBufferWrite(buf, 4, "<!--");
 			xmlOutputBufferWriteString(buf, (const char*)cur->content);
 			xmlOutputBufferWrite(buf, 3, "-->");

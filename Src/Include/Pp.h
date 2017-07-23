@@ -19694,6 +19694,8 @@ typedef TSCollection <PPSmsAccount> PPSmsAccntArray;
 class PPObjSmsAccount : public PPObjReference {
 public:
 	static int SLAPI VerifyString(const SString & rStr, int options);
+	static int SLAPI BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr);
+	static int SLAPI BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr, PPID objTypeId, StrAssocArray & rObjIdArr);
 
 	SLAPI  PPObjSmsAccount(void * extraPtr = 0);
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
@@ -19703,8 +19705,6 @@ public:
 };
 
 int    GetSmsConfig(PPSmsAccPacket & rPack, StConfig & rConfig);
-int    BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr);
-int    BeginDelivery(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr, PPID objTypeId, StrAssocArray & rObjIdArr);
 int    FormatPhone(const char * pOldPhone, SString & rNewPhone, SString & rMsg);
 
 class PPSmsSender {
@@ -46043,6 +46043,42 @@ private:
 	PPLogger Logger;
 };
 //
+//
+//
+class PrcssrSartreFilt : public PPBaseFilt { // @persistent
+public:
+	SLAPI  PrcssrSartreFilt();
+	PrcssrSartreFilt & FASTCALL operator = (const PrcssrSartreFilt & rS);
+	int    SLAPI IsEmpty() const;
+
+	enum {
+		fImportFlexia      = 0x0001,
+        fImportConcepts    = 0x0002,
+        fImportHumNames    = 0x0004,
+        fTestFlexia        = 0x0008,
+        fTestConcepts      = 0x0010
+	};
+	uint8  ReserveStart[32]; // @ancor
+	long   Flags;
+	uint8  ReserveEnd[32];
+	SString SrcPath;         // @anchor
+};
+
+class PrcssrSartre {
+public:
+	SLAPI  PrcssrSartre(const char * pDbPath);
+	SLAPI ~PrcssrSartre();
+	int    SLAPI InitParam(PPBaseFilt * pBaseFilt);
+	int    SLAPI EditParam(PPBaseFilt * pBaseFilt);
+	int    SLAPI Init(const PPBaseFilt * pBaseFilt);
+	int    SLAPI Run();
+private:
+	int    SLAPI TestSearchWords();
+	int    SLAPI TestConcept();
+
+	PrcssrSartreFilt P;
+};
+//
 // Descr: Шаблон функции получения указателя на объектный кэш, локальный по отношению к базе данных
 //   Используется при обращении объекта PPObject к кэшу.
 // Example:
@@ -50193,6 +50229,7 @@ int SLAPI DoDebtRate();
 int SLAPI DoBizScore(PPID bzsID);
 int SLAPI DoProcessObjText(PrcssrObjTextFilt * pFilt);
 int SLAPI DoProcessOsm(PrcssrOsmFilt * pFilt);
+int SLAPI DoProcessSartre(PrcssrSartreFilt * pFilt);
 int SLAPI DoConstructionTest();
 
 template <typename Dlg, typename D> int PPDialogProcBodyID(uint dlgID, D * pData)

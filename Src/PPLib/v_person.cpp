@@ -2806,10 +2806,10 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
  						StrAssocArray phone_list;
  						if(PPAlbatrosCfgMngr::Get(&albtr_cfg) > 0) {
 							GetSmsLists(psn_list, phone_list, what);
- 							if(phone_list.getCount() != 0) {
+ 							if(phone_list.getCount()) {
 								if(what > 0)
 									SendMail(albtr_cfg.Hdr.MailAccID, &phone_list, &logger);
-								else if(!BeginDelivery(albtr_cfg.Hdr.SmsAccID, psn_list, phone_list))
+								else if(!PPObjSmsAccount::BeginDelivery(albtr_cfg.Hdr.SmsAccID, psn_list, phone_list))
 									PPError();
  							}
  							else {

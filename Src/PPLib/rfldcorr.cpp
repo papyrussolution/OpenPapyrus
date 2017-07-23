@@ -913,11 +913,11 @@ int PPImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr,
 int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 {
 	int    ok = 1;
-	const  int preserve_win_coding = BIN(pFile->GetFlags() & SIniFile::fWinCoding); // @v7.0.3
+	const  int preserve_win_coding = BIN(pFile->GetFlags() & SIniFile::fWinCoding);
 	SString temp_buf, fld_buf, symb_buf;
 	SdbField fld, inner_fld;
 	PPSymbTranslator tsl_par(PPSSYM_IMPEXPPAR);
-	pFile->SetFlag(SIniFile::fWinCoding, 0); // @v7.0.3
+	pFile->SetFlag(SIniFile::fWinCoding, 0);
 	pFile->ClearSection(pSect);
 	if(FileName.NotEmpty()) {
 		THROW(tsl_par.Retranslate(iefFileName, symb_buf));
@@ -1014,8 +1014,8 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		THROW(pFile->AppendParam(pSect, symb_buf, XdfParam.RootTag, 0));
 		THROW(tsl_par.Retranslate(iefRecTag, symb_buf));
 		THROW(pFile->AppendParam(pSect, symb_buf, XdfParam.RecTag, 0));
-		THROW(tsl_par.Retranslate(iefHdrTag, symb_buf)); // @v7.2.6
-		THROW(pFile->AppendParam(pSect, symb_buf, XdfParam.HdrTag, 0));      // @v7.2.6
+		THROW(tsl_par.Retranslate(iefHdrTag, symb_buf));
+		THROW(pFile->AppendParam(pSect, symb_buf, XdfParam.HdrTag, 0));
 		THROW(tsl_par.Retranslate(iefUseDTD, symb_buf));
 		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XdfParam.Flags & XmlDbFile::Param::fUseDTD)));
 		THROW(tsl_par.Retranslate(iefUtf8Codepage, symb_buf));
@@ -1026,8 +1026,7 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 			for(uint i = 0; HdrOtrRec.EnumFields(&i, &fld);)
 				if(fld.T.Flags & STypEx::fFormula) {
 					THROW(tsl_par.Retranslate(iefHdrFormula, symb_buf));
-					temp_buf = symb_buf;
-					temp_buf.Space().CatParStr(fld.Formula);
+					(temp_buf = symb_buf).Space().CatParStr(fld.Formula);
 					fld.PutToString(3, fld_buf);
 					THROW(pFile->AppendParam(pSect, temp_buf, fld_buf, 0));
 				}
@@ -1059,31 +1058,20 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 			THROW(tsl_par.Retranslate(iefXlsOrient, symb_buf));
 			THROW(pFile->AppendParam(pSect, symb_buf, "VERTICAL", 1));
 		}
-
 		THROW(tsl_par.Retranslate(iefXlsFldNameRec, symb_buf));
 		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XlsdfParam.Flags & ExcelDbFile::fFldNameRec)));
-
 		THROW(tsl_par.Retranslate(iefXlsQuotStr, symb_buf));
 		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XlsdfParam.Flags & ExcelDbFile::fQuotText)));
-
 		THROW(tsl_par.Retranslate(iefOneRecPerFile, symb_buf));
 		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XlsdfParam.Flags & ExcelDbFile::fOneRecPerFile)));
-
 		THROW(tsl_par.Retranslate(iefXlsHdrLinesCount, symb_buf));
-		(temp_buf = 0).Cat(XlsdfParam.HdrLinesCount);
-		THROW(pFile->AppendParam(pSect, symb_buf, temp_buf, 1));
-
+		THROW(pFile->AppendParam(pSect, symb_buf, (temp_buf = 0).Cat(XlsdfParam.HdrLinesCount), 1));
 		THROW(tsl_par.Retranslate(iefColumnsCount, symb_buf));
-		(temp_buf = 0).Cat(XlsdfParam.ColumnsCount);
-		THROW(pFile->AppendParam(pSect, symb_buf, temp_buf, 1));
-
+		THROW(pFile->AppendParam(pSect, symb_buf, (temp_buf = 0).Cat(XlsdfParam.ColumnsCount), 1));
 		THROW(tsl_par.Retranslate(iefSheetNum, symb_buf));
-		(temp_buf = 0).Cat(XlsdfParam.SheetNum);
-		THROW(pFile->AppendParam(pSect, symb_buf, temp_buf, 1));
-
+		THROW(pFile->AppendParam(pSect, symb_buf, (temp_buf = 0).Cat(XlsdfParam.SheetNum), 1));
 		THROW(tsl_par.Retranslate(iefSheetName, symb_buf));
 		THROW(pFile->AppendParam(pSect, symb_buf, XlsdfParam.SheetName_, 1));
-
 		THROW(tsl_par.Retranslate(iefEndStr, symb_buf));
 		THROW(pFile->AppendParam(pSect, symb_buf, XlsdfParam.EndStr_, 1));
 	}
@@ -1350,7 +1338,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 			TdfParam.FooterLine = footer_line;
 	}
 	CATCHZOK
-	pFile->SetFlag(SIniFile::fWinCoding, preserve_win_coding); // @v7.0.3
+	pFile->SetFlag(SIniFile::fWinCoding, preserve_win_coding);
 	return ok;
 }
 
@@ -1519,7 +1507,7 @@ PPImpExp::PPImpExp(const PPImpExpParam * pParam, const void * extraPtr)
 	R_RecNo = 0;
 	W_RecNo = 0;
 	P_ExprContext = 0;
-	P_HdrData = 0; // @v7.4.6
+	P_HdrData = 0;
 	RVALUEPTR(P, pParam);
 	R_SaveRecNo = 0;
 	// @v9.3.10 SaveParam.Init();
@@ -1998,26 +1986,13 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 					scan.Incr();
 					long   sym  = st.Translate(scan);
 					switch(sym) {
-						case iefrmEmpty:
-							break;
-						case iefrmRecNo:
-							rResult.Cat(W_RecNo);
-							break;
-						case iefrmCurDate:
-							rResult.Cat(getcurdate_(), DATF_DMY|DATF_CENTURY);
-							break;
-						case iefrmCurYear:
-							rResult.Cat(getcurdate_().year());
-							break;
-						case iefrmCurMonth:
-							rResult.Cat(getcurdate_().month());
-							break;
-						case iefrmCurDay:
-							rResult.Cat(getcurdate_().day());
-							break;
-						case iefrmCurTime:
-							rResult.Cat(getcurtime_(), TIMF_HMS);
-							break;
+						case iefrmEmpty: break;
+						case iefrmRecNo: rResult.Cat(W_RecNo); break;
+						case iefrmCurDate: rResult.Cat(getcurdate_(), DATF_DMY|DATF_CENTURY); break;
+						case iefrmCurYear: rResult.Cat(getcurdate_().year()); break;
+						case iefrmCurMonth: rResult.Cat(getcurdate_().month()); break;
+						case iefrmCurDay: rResult.Cat(getcurdate_().day()); break;
+						case iefrmCurTime: rResult.Cat(getcurtime_(), TIMF_HMS); break;
 						case iefrmCat:
 						case iefrmCats:
 							scan.IncrLen();
@@ -2457,8 +2432,7 @@ int SLAPI GetImpExpSections(uint fileNameId, uint sdRecID, PPImpExpParam * pPara
 	return ok;
 }
 
-int SLAPI GetImpExpSections(uint fileNameId, uint sdRecID, PPImpExpParam * pParam,
-	StringSet * pSectNames, int kind /*0 - all, 1 - export, 2 - import*/)
+int SLAPI GetImpExpSections(uint fileNameId, uint sdRecID, PPImpExpParam * pParam, StringSet * pSectNames, int kind /*0 - all, 1 - export, 2 - import*/)
 {
 	int    ok = 1;
 	SString ini_file_name, section;
@@ -2767,7 +2741,7 @@ ImpExpParamDialog * ImpExpCfgsListDialog::GetParamDlg(uint cfgPos)
 			case PPREC_GOODS2:
 				p_dlg = new GoodsImpExpDialog;
 				break;
-			case PPREC_PERSON: // @v7.6.1
+			case PPREC_PERSON:
 				p_dlg = new PersonImpExpDialog;
 				break;
 			case PPREC_BILL:
@@ -2788,10 +2762,10 @@ ImpExpParamDialog * ImpExpCfgsListDialog::GetParamDlg(uint cfgPos)
 			case PPREC_LOT: // @Muxa
 				p_dlg = new LotImpExpDialog;
 				break;
-			case PPREC_PHONELIST: // @v7.3.3
+			case PPREC_PHONELIST:
 				p_dlg = new PhoneListImpExpDialog;
 				break;
-			case PPREC_SCARD: // @v7.3.12
+			case PPREC_SCARD:
 				p_dlg = new SCardImpExpDialog;
 				break;
 			case PPREC_QUOTVAL: // @v8.5.11
@@ -2810,7 +2784,7 @@ int ImpExpCfgsListDialog::SetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, 
 			case PPREC_GOODS2:
 				ok = ((GoodsImpExpDialog*)pDlg)->setDTS((PPGoodsImpExpParam*)pParam);
 				break;
-			case PPREC_PERSON: // @v7.6.1
+			case PPREC_PERSON:
 				ok = ((PersonImpExpDialog*)pDlg)->setDTS((PPPersonImpExpParam*)pParam);
 				break;
 			case PPREC_BILL:
@@ -2831,10 +2805,10 @@ int ImpExpCfgsListDialog::SetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, 
 			case PPREC_LOT: // @Muxa
 				ok = ((LotImpExpDialog *)pDlg)->setDTS((PPLotImpExpParam *)pParam);
 				break;
-			case PPREC_PHONELIST: // @v7.3.3
+			case PPREC_PHONELIST:
 				ok = ((PhoneListImpExpDialog*)pDlg)->setDTS((PPPhoneListImpExpParam*)pParam);
 				break;
-			case PPREC_SCARD: // @v7.3.12
+			case PPREC_SCARD:
 				ok = ((SCardImpExpDialog*)pDlg)->setDTS((PPSCardImpExpParam*)pParam);
 				break;
 			case PPREC_QUOTVAL: // @v8.5.11
@@ -2853,7 +2827,7 @@ int ImpExpCfgsListDialog::GetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, 
 			case PPREC_GOODS2:
 				ok = ((GoodsImpExpDialog*)pDlg)->getDTS((PPGoodsImpExpParam*)pParam);
 				break;
-			case PPREC_PERSON: // @v7.6.1
+			case PPREC_PERSON:
 				ok = ((PersonImpExpDialog*)pDlg)->getDTS((PPPersonImpExpParam*)pParam);
 				break;
 			case PPREC_BILL:
@@ -2874,10 +2848,10 @@ int ImpExpCfgsListDialog::GetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, 
 			case PPREC_LOT: // @Muxa
 				ok = ((LotImpExpDialog *)pDlg)->getDTS((PPLotImpExpParam *)pParam);
 				break;
-			case PPREC_PHONELIST: // @v7.3.3
+			case PPREC_PHONELIST:
 				ok = ((PhoneListImpExpDialog*)pDlg)->getDTS((PPPhoneListImpExpParam*)pParam);
 				break;
-			case PPREC_SCARD: // @v7.3.12
+			case PPREC_SCARD:
 				ok = ((SCardImpExpDialog*)pDlg)->getDTS((PPSCardImpExpParam*)pParam);
 				break;
 			case PPREC_QUOTVAL: // @v8.5.11
@@ -3316,8 +3290,7 @@ int ImpExpDll::InitLibrary(const char * pDllName, uint op)
 
 void ImpExpDll::ReleaseLibrary()
 {
-	if(P_Lib)
-		ZDELETE(P_Lib);
+	ZDELETE(P_Lib);
 	InitExport = 0;
 	SetExportObj = 0;
 	InitExportIter = 0;
