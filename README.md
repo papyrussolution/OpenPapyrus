@@ -4,7 +4,7 @@ www.petroglif.ru
 
 ### [Ru]
 
-Система управления предприятием OpenPapyrus
+### Система управления предприятием OpenPapyrus
 
 Развитая система для управления малым и средним предприятием. Включает очень обширный функционал ERP, CRM, Point-Of-Sale.
 Превосходно работает в следующих сегментах бизнеса:
@@ -55,7 +55,7 @@ empty - пустая база данных для реального испол�
 
 ### [En]
 
-The enterprise management system OpenPapyrus
+### The enterprise management system OpenPapyrus
 
 The developed system for management of small and medium enterprises. It includes a very extensive functionality of ERP, CRM, Point-Of-Sale.
 Perfectly operates in the following business segments:
@@ -104,3 +104,12 @@ because of different encryption keys.
 
 Support paid.
 
+### Last release links
+
+[OpenPapyrus Server](http://uhtt.ru/dispatcher/dc/download?key=openpapyrus-setup-server)
+[OpenPapyrus Client](http://uhtt.ru/dispatcher/dc/download?key=openpapyrus-setup-client)
+[OpenPapyrus Update](http://uhtt.ru/dispatcher/dc/download?key=openpapyrus-setup-update)
+[OpenPapyrus JobServer](http://uhtt.ru/dispatcher/dc/download?key=openpapyrus-setup-jobserver)
+
+[OpenPapyrus Features (pdf)](http://uhtt.ru/dispatcher/dc/download?key=papyrus-features)
+[OpenPapyrus Manual (pdf)](http://uhtt.ru/dispatcher/dc/download?key=papyrus-manual)
