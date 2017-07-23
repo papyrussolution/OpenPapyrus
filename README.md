@@ -2,25 +2,19 @@
 
 www.petroglif.ru
 
-
-[Ru]
+### [Ru]
 
 Система управления предприятием OpenPapyrus
 
 Развитая система для управления малым и средним предприятием. Включает очень обширный функционал ERP, CRM, Point-Of-Sale.
 Превосходно работает в следующих сегментах бизнеса:
 
--- Оптовая торговля
-
--- Розничная торговля
-
--- Аптечный бизнес
-
--- Рестораны и кафе
-
--- Салоны красоты
-
--- Фитнес-клубы
+* Оптовая торговля
+* Розничная торговля
+* Аптечный бизнес
+* Рестораны и кафе
+* Салоны красоты
+* Фитнес-клубы
 
 Одна из лучших систем аналогичного класса на российском рынке.
 Поддерживает большое количество типов оборудования и умеет взаимодействовать со множеством популярных систем.
@@ -41,9 +35,8 @@ OPpyJobSrvr_x.x.xx.xxxxx.exe: опциональный серверный ком
 
 Для инсталляции с нуля:
 
--- Сначала установите OPpyServer_x.x.xx.xxxxx.exe
-
--- Затем установите OPpyClient_x.x.xx.xxxxx.exe
+* Сначала установите OPpyServer_x.x.xx.xxxxx.exe
+* Затем установите OPpyClient_x.x.xx.xxxxx.exe
 
 Можно начинать работать. С дистрибутивом прилагаются 2 базы данных:
 
@@ -60,24 +53,19 @@ empty - пустая база данных для реального испол�
 
 Поддержка платная.
 
-[En]
+### [En]
 
 The enterprise management system OpenPapyrus
 
 The developed system for management of small and medium enterprises. It includes a very extensive functionality of ERP, CRM, Point-Of-Sale.
 Perfectly operates in the following business segments:
 
--- Wholesale
-
--- Retail
-
--- Pharmacy
-
--- Restaurants and cafes
-
--- Beauty salons
-
--- Fitness clubs
+* Wholesale
+* Retail
+* Pharmacy
+* Restaurants and cafes
+* Beauty salons
+* Fitness clubs
 
 One of the best in its class systems in the Russian market.
 It supports a large number of types of equipment and is able to interact with a variety of popular systems.
@@ -98,9 +86,8 @@ OPpyJobSrvr_x.x.xx.xxxxx.exe: optional server component JobServer, ensuring the 
 
 To install from scratch:
 
--- First setup OPpyServer_x.x.xx.xxxxx.exe
-
--- Then setup OPpyClient_x.x.xx.xxxxx.exe
+* First setup OPpyServer_x.x.xx.xxxxx.exe
+* Then setup OPpyClient_x.x.xx.xxxxx.exe
 
 You can start working. With 2 attached distribution database:
 
