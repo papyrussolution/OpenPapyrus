@@ -81,8 +81,7 @@ int ExcelDbFile::Open(const char * pFileName, const Param * pParam, int readOnly
 	int    ok = 1;
 	Close();
 	FileName = pFileName;
-	if(pParam)
-		P = *pParam;
+	RVALUEPTR(P, pParam);
 	P.SheetNum = MAX(P.SheetNum, 1);
 	THROW(P_App = new ComExcelApp);
 	THROW(P_App->Init() > 0);

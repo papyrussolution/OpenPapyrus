@@ -857,7 +857,7 @@ static void _cairo_bo_sweep_line_insert(cairo_bo_sweep_line_t      * sweep_line,
 			prev->next = edge;
 			edge->prev = prev;
 			edge->next = next;
-			if(next != NULL)
+			if(next)
 				next->prev = edge;
 		}
 		else if(cmp > 0) {

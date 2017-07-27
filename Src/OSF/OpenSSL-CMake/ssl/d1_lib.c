@@ -735,17 +735,12 @@ int DTLSv1_listen(SSL * s, BIO_ADDR * client)
 
 			/* Length */
 			s2n(reclen, p);
-
 			/*
-			 * Set reclen equal to length of whole record including record
-			 * header
+			 * Set reclen equal to length of whole record including record header
 			 */
 			reclen += DTLS1_RT_HEADER_LENGTH;
-
 			if(s->msg_callback)
-				s->msg_callback(1, 0, SSL3_RT_HEADER, buf,
-				    DTLS1_RT_HEADER_LENGTH, s, s->msg_callback_arg);
-
+				s->msg_callback(1, 0, SSL3_RT_HEADER, buf, DTLS1_RT_HEADER_LENGTH, s, s->msg_callback_arg);
 			if((tmpclient = BIO_ADDR_new()) == NULL) {
 				SSLerr(SSL_F_DTLSV1_LISTEN, ERR_R_MALLOC_FAILURE);
 				goto end;
@@ -832,11 +827,7 @@ static int dtls1_set_handshake_header(SSL * s, int htype, unsigned long len)
 	s->init_num = (int)len + DTLS1_HM_HEADER_LENGTH;
 	s->init_off = 0;
 	/* Buffer the message to handle re-xmits */
-
-	if(!dtls1_buffer_message(s, 0))
-		return 0;
-
-	return 1;
+	return dtls1_buffer_message(s, 0) ? 1 : 0;
 }
 
 static int dtls1_handshake_write(SSL * s)
@@ -859,37 +850,29 @@ int dtls1_process_heartbeat(SSL * s, uchar * p, uint length)
 	unsigned short hbtype;
 	uint payload;
 	uint padding = 16; /* Use minimum padding */
-
 	if(s->msg_callback)
-		s->msg_callback(0, s->version, DTLS1_RT_HEARTBEAT,
-		    p, length, s, s->msg_callback_arg);
-
+		s->msg_callback(0, s->version, DTLS1_RT_HEARTBEAT, p, length, s, s->msg_callback_arg);
 	/* Read type and payload length */
 	if(HEARTBEAT_SIZE_STD(0) > length)
 		return 0;       /* silently discard */
 	if(length > SSL3_RT_MAX_PLAIN_LENGTH)
 		return 0;       /* silently discard per RFC 6520 sec. 4 */
-
 	hbtype = *p++;
 	n2s(p, payload);
 	if(HEARTBEAT_SIZE_STD(payload) > length)
 		return 0;       /* silently discard per RFC 6520 sec. 4 */
 	pl = p;
-
 	if(hbtype == TLS1_HB_REQUEST) {
 		uchar * buffer, * bp;
 		uint write_length = HEARTBEAT_SIZE(payload, padding);
 		int r;
-
 		if(write_length > SSL3_RT_MAX_PLAIN_LENGTH)
 			return 0;
-
 		/* Allocate memory for the response. */
 		buffer = OPENSSL_malloc(write_length);
 		if(!buffer)
 			return -1;
 		bp = buffer;
-
 		/* Enter response type, length and copy payload */
 		*bp++ = TLS1_HB_RESPONSE;
 		s2n(payload, bp);
@@ -900,12 +883,9 @@ int dtls1_process_heartbeat(SSL * s, uchar * p, uint length)
 			OPENSSL_free(buffer);
 			return -1;
 		}
-
 		r = dtls1_write_bytes(s, DTLS1_RT_HEARTBEAT, buffer, write_length);
-
 		if(r >= 0 && s->msg_callback)
-			s->msg_callback(1, s->version, DTLS1_RT_HEARTBEAT,
-			    buffer, write_length, s, s->msg_callback_arg);
+			s->msg_callback(1, s->version, DTLS1_RT_HEARTBEAT, buffer, write_length, s, s->msg_callback_arg);
 
 		OPENSSL_free(buffer);
 
@@ -1010,18 +990,13 @@ int dtls1_shutdown(SSL * s)
 {
 	int ret;
 #ifndef OPENSSL_NO_SCTP
-	BIO * wbio;
-
-	wbio = SSL_get_wbio(s);
-	if(wbio != NULL && BIO_dgram_is_sctp(wbio) &&
-	    !(s->shutdown & SSL_SENT_SHUTDOWN)) {
+	BIO * wbio = SSL_get_wbio(s);
+	if(wbio != NULL && BIO_dgram_is_sctp(wbio) && !(s->shutdown & SSL_SENT_SHUTDOWN)) {
 		ret = BIO_dgram_sctp_wait_for_dry(wbio);
 		if(ret < 0)
 			return -1;
-
 		if(ret == 0)
-			BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_SAVE_SHUTDOWN, 1,
-			    NULL);
+			BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SCTP_SAVE_SHUTDOWN, 1, NULL);
 	}
 #endif
 	ret = ssl3_shutdown(s);
@@ -1034,16 +1009,14 @@ int dtls1_shutdown(SSL * s)
 int dtls1_query_mtu(SSL * s)
 {
 	if(s->d1->link_mtu) {
-		s->d1->mtu =
-		    s->d1->link_mtu - BIO_dgram_get_mtu_overhead(SSL_get_wbio(s));
+		s->d1->mtu = s->d1->link_mtu - BIO_dgram_get_mtu_overhead(SSL_get_wbio(s));
 		s->d1->link_mtu = 0;
 	}
 
 	/* AHA!  Figure out the MTU, and stick to the right size */
 	if(s->d1->mtu < dtls1_min_mtu(s)) {
 		if(!(SSL_get_options(s) & SSL_OP_NO_QUERY_MTU)) {
-			s->d1->mtu =
-			    BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_QUERY_MTU, 0, 0);
+			s->d1->mtu = BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_QUERY_MTU, 0, 0);
 
 			/*
 			 * I've seen the kernel return bogus numbers when it doesn't know
@@ -1052,8 +1025,7 @@ int dtls1_query_mtu(SSL * s)
 			if(s->d1->mtu < dtls1_min_mtu(s)) {
 				/* Set to min mtu */
 				s->d1->mtu = dtls1_min_mtu(s);
-				BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SET_MTU,
-				    s->d1->mtu, 0);
+				BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SET_MTU, s->d1->mtu, 0);
 			}
 		}
 		else
@@ -1064,8 +1036,7 @@ int dtls1_query_mtu(SSL * s)
 
 static uint dtls1_link_min_mtu(void)
 {
-	return (g_probable_mtu[(sizeof(g_probable_mtu) /
-			    sizeof(g_probable_mtu[0])) - 1]);
+	return (g_probable_mtu[(sizeof(g_probable_mtu) / sizeof(g_probable_mtu[0])) - 1]);
 }
 
 uint dtls1_min_mtu(SSL * s)

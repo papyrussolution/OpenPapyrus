@@ -42,7 +42,7 @@
 #include "curl_multibyte.h"
 #include "warnless.h"
 #include "rand.h"
-#include "vtls/vtls.h"
+//#include "vtls/vtls.h"
 
 #ifdef USE_NSS
 #include "vtls/nssg.h" /* for Curl_nss_force_init() */

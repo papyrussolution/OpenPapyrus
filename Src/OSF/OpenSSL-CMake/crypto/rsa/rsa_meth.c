@@ -36,7 +36,7 @@ void RSA_meth_free(RSA_METHOD * meth)
 RSA_METHOD * RSA_meth_dup(const RSA_METHOD * meth)
 {
 	RSA_METHOD * ret = (RSA_METHOD *)OPENSSL_malloc(sizeof(*ret));
-	if(ret != NULL) {
+	if(ret) {
 		memcpy(ret, meth, sizeof(*meth));
 		ret->name = OPENSSL_strdup(meth->name);
 		if(ret->name != NULL)

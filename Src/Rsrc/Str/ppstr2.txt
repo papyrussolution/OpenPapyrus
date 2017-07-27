@@ -1945,10 +1945,18 @@ PPERR_ESME_RUNKNOWNERR           "Unknown Error"
 #!}
 PPERR_SARTREDBUNDEF              "Sartre: не определен путь к базе данных"
 PPERR_SR_WORDNFOUND              "Sartre: слово '%s' в базе данных не найдено"
+PPERR_SR_C_ENEXPECTEDEOF         "SartreConcept: неожиданное завершение файла"
 PPERR_SR_C_PAROPNFOUND           "SartreConcept: не найден родительский оператор"
-PPERR_SR_INVSPCWORDTAG           "Sartre: не допустимый специальный тег слова %s"
+PPERR_SR_C_CLOSEDCUR_2CC         "SartreConcept: закрытый текущий элемент перед ::concept"
+PPERR_SR_C_HASSUBCLS_2CC         "SartreConcept: текущий элемент перед ::concept уже является субклассом"
+PPERR_SR_C_CLOSEDCUR_2EC         "SartreConcept: закрытый текущий элемент перед =:concept"
+PPERR_SR_C_UNEXPAFTER_2EC        "SartreConcept: неожиданная конструкция после =:concept. Ожидается concept или word или '}' или space"
+PPERR_SR_C_RPARORCOMEXPECTED     "SartreConcept: ожидается ')' или ','"
+PPERR_SR_C_CCONCEXPECTED         "SartreConcept: ожидается :concept"
+PPERR_SR_C_UNDEFCONCEPT_PROP     "SartreConcept: не определенная концепция перед списком свойств +()"
 PPERR_SR_C_PROPIDEXPECTED        "Sartre: ожидается идентификатор свойства (%s)"
 PPERR_SR_C_PROPIDORCONCEXPECTED  "Sartre: ожидается идентификатор свойства или концепт (%s)"
+PPERR_SR_INVSPCWORDTAG           "Sartre: не допустимый специальный тег слова %s"
 // LastError
 
 [102] // confirmation

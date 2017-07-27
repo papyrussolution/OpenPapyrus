@@ -182,7 +182,7 @@ int ec_GFp_simple_group_get_curve(const EC_GROUP * group, BIGNUM * p, BIGNUM * a
 {
 	int ret = 0;
 	BN_CTX * new_ctx = NULL;
-	if(p != NULL) {
+	if(p) {
 		if(!BN_copy(p, group->field))
 			return 0;
 	}

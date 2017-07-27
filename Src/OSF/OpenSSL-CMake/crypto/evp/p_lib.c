@@ -20,9 +20,7 @@ static void EVP_PKEY_free_it(EVP_PKEY * x);
 
 int EVP_PKEY_bits(const EVP_PKEY * pkey)
 {
-	if(pkey && pkey->ameth && pkey->ameth->pkey_bits)
-		return pkey->ameth->pkey_bits(pkey);
-	return 0;
+	return (pkey && pkey->ameth && pkey->ameth->pkey_bits) ? pkey->ameth->pkey_bits(pkey) : 0;
 }
 
 int EVP_PKEY_security_bits(const EVP_PKEY * pkey)
@@ -36,9 +34,7 @@ int EVP_PKEY_security_bits(const EVP_PKEY * pkey)
 
 int EVP_PKEY_size(EVP_PKEY * pkey)
 {
-	if(pkey && pkey->ameth && pkey->ameth->pkey_size)
-		return pkey->ameth->pkey_size(pkey);
-	return 0;
+	return (pkey && pkey->ameth && pkey->ameth->pkey_size) ? pkey->ameth->pkey_size(pkey) : 0;
 }
 
 int EVP_PKEY_save_parameters(EVP_PKEY * pkey, int mode)
@@ -90,9 +86,7 @@ err:
 
 int EVP_PKEY_missing_parameters(const EVP_PKEY * pkey)
 {
-	if(pkey->ameth && pkey->ameth->param_missing)
-		return pkey->ameth->param_missing(pkey);
-	return 0;
+	return (pkey->ameth && pkey->ameth->param_missing) ? pkey->ameth->param_missing(pkey) : 0;
 }
 
 int EVP_PKEY_cmp_parameters(const EVP_PKEY * a, const EVP_PKEY * b)
@@ -254,7 +248,7 @@ RSA * EVP_PKEY_get0_RSA(EVP_PKEY * pkey)
 RSA * EVP_PKEY_get1_RSA(EVP_PKEY * pkey)
 {
 	RSA * ret = EVP_PKEY_get0_RSA(pkey);
-	if(ret != NULL)
+	if(ret)
 		RSA_up_ref(ret);
 	return ret;
 }
@@ -282,7 +276,7 @@ DSA * EVP_PKEY_get0_DSA(EVP_PKEY * pkey)
 DSA * EVP_PKEY_get1_DSA(EVP_PKEY * pkey)
 {
 	DSA * ret = EVP_PKEY_get0_DSA(pkey);
-	if(ret != NULL)
+	if(ret)
 		DSA_up_ref(ret);
 	return ret;
 }
@@ -311,7 +305,7 @@ EC_KEY * EVP_PKEY_get0_EC_KEY(EVP_PKEY * pkey)
 EC_KEY * EVP_PKEY_get1_EC_KEY(EVP_PKEY * pkey)
 {
 	EC_KEY * ret = EVP_PKEY_get0_EC_KEY(pkey);
-	if(ret != NULL)
+	if(ret)
 		EC_KEY_up_ref(ret);
 	return ret;
 }
@@ -340,7 +334,7 @@ DH * EVP_PKEY_get0_DH(EVP_PKEY * pkey)
 DH * EVP_PKEY_get1_DH(EVP_PKEY * pkey)
 {
 	DH * ret = EVP_PKEY_get0_DH(pkey);
-	if(ret != NULL)
+	if(ret)
 		DH_up_ref(ret);
 	return ret;
 }

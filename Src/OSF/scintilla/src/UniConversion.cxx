@@ -19,6 +19,31 @@ using namespace Scintilla;
 namespace Scintilla {
 #endif
 
+bool FASTCALL UTF8IsTrailByte(int ch) 
+{
+	return (ch >= 0x80) && (ch < 0xc0);
+}
+
+bool FASTCALL UTF8IsAscii(int ch) 
+{
+	return ch < 0x80;
+}
+
+bool FASTCALL UTF8IsSeparator(const uchar *us) 
+{
+	return (us[0] == 0xe2) && (us[1] == 0x80) && ((us[2] == 0xa8) || (us[2] == 0xa9));
+}
+
+bool FASTCALL UTF8IsNEL(const uchar *us) 
+{
+	return (us[0] == 0xc2) && (us[1] == 0x85);
+}
+
+uint FASTCALL UTF16CharLength(wchar_t uch) 
+{
+	return ((uch >= SURROGATE_LEAD_FIRST) && (uch <= SURROGATE_LEAD_LAST)) ? 2 : 1;
+}
+
 uint UTF8Length(const wchar_t * uptr, uint tlen)
 {
 	uint len = 0;
@@ -246,7 +271,7 @@ void UTF8BytesOfLeadInitialise()
 // the non-characters *FFFE, *FFFF and FDD0 .. FDEF return 3 or 4 as they can be
 // reasonably treated as code points in some circumstances. They will, however,
 // not have associated glyphs.
-int UTF8Classify(const uchar * us, int len)
+int FASTCALL UTF8Classify(const uchar * us, int len)
 {
 	// For the rules: http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
 	if(*us < 0x80) {
@@ -341,7 +366,7 @@ int UTF8Classify(const uchar * us, int len)
 	}
 }
 
-int UTF8DrawBytes(const uchar * us, int len)
+int FASTCALL UTF8DrawBytes(const uchar * us, int len)
 {
 	int utf8StatusNext = UTF8Classify(us, len);
 	return (utf8StatusNext & UTF8MaskInvalid) ? 1 : (utf8StatusNext & UTF8MaskWidth);

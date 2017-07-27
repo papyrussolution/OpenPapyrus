@@ -2121,8 +2121,7 @@ int PPCSessComplexImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, co
 	int    ok = 1;
 	SString params, fld_name, param_val;
 	StringSet excl;
-	if(pExclParamList)
-		excl = *pExclParamList;
+	RVALUEPTR(excl, pExclParamList);
 	THROW(PPLoadText(PPTXT_CSESSCPARAMS, params));
 	{
 		PPGetSubStr(params, CSESSCPARAMS_FLAGS, fld_name);

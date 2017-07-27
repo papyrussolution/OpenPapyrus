@@ -108,7 +108,7 @@ static int fd_free(BIO * a)
 static int fd_read(BIO * b, char * out, int outl)
 {
 	int ret = 0;
-	if(out != NULL) {
+	if(out) {
 		clear_sys_error();
 		ret = UP_read(b->num, out, outl);
 		BIO_clear_retry_flags(b);

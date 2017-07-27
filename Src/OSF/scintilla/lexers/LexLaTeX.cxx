@@ -141,26 +141,24 @@ static bool latexNextNotBlankIs(Sci_Position i, Accessor &styler, char needle) {
 	return false;
 }
 
-static bool latexLastWordIs(Sci_Position start, Accessor &styler, const char * needle) {
+static bool latexLastWordIs(Sci_Position start, Accessor &styler, const char * needle) 
+{
 	Sci_PositionU i = 0;
 	Sci_PositionU l = static_cast<Sci_PositionU>(strlen(needle));
 	Sci_Position ini = start-l+1;
 	char s[32];
-
 	while(i < l && i < 31) {
 		s[i] = styler.SafeGetCharAt(ini + i);
 		i++;
 	}
 	s[i] = '\0';
-
 	return (strcmp(s, needle) == 0);
 }
 
 static bool latexLastWordIsMathEnv(Sci_Position pos, Accessor &styler) {
 	Sci_Position i, j;
 	char s[32];
-	const char * mathEnvs[] = { "align", "alignat", "flalign", "gather",
-				    "multiline", "displaymath", "eqnarray", "equation" };
+	const char * mathEnvs[] = { "align", "alignat", "flalign", "gather", "multiline", "displaymath", "eqnarray", "equation" };
 	if(styler.SafeGetCharAt(pos) != '}') return false;
 	for(i = pos - 1; i >= 0; --i) {
 		if(styler.SafeGetCharAt(i) == '{') break;

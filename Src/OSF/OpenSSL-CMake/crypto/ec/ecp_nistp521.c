@@ -1683,7 +1683,7 @@ static NISTP521_PRE_COMP * nistp521_pre_comp_new()
 NISTP521_PRE_COMP * EC_nistp521_pre_comp_dup(NISTP521_PRE_COMP * p)
 {
 	int i;
-	if(p != NULL)
+	if(p)
 		CRYPTO_atomic_add(&p->references, 1, &i, p->lock);
 	return p;
 }
@@ -1691,16 +1691,13 @@ NISTP521_PRE_COMP * EC_nistp521_pre_comp_dup(NISTP521_PRE_COMP * p)
 void EC_nistp521_pre_comp_free(NISTP521_PRE_COMP * p)
 {
 	int i;
-
 	if(!p)
 		return;
-
 	CRYPTO_atomic_add(&p->references, -1, &i, p->lock);
 	REF_PRINT_COUNT("EC_nistp521", x);
 	if(i > 0)
 		return;
 	REF_ASSERT_ISNT(i < 0);
-
 	CRYPTO_THREAD_lock_free(p->lock);
 	OPENSSL_free(p);
 }

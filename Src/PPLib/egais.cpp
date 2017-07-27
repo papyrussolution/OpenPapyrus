@@ -2479,6 +2479,14 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 												n_h.PutInner("wa:IsAccept", EncText(temp_buf));
 											}
 										}
+										// @v9.7.9 {
+										else {
+											if(doc_type == PPEDIOP_EGAIS_WAYBILLACT_V2) {
+												temp_buf = "Accepted";
+												n_h.PutInner("wa:IsAccept", EncText(temp_buf));
+											}
+										}
+										// } @v9.7.9
 										// } @v9.5.10
 										(temp_buf = bill_code).CatChar('-').Cat("ACT");
 										n_h.PutInner("wa:ACTNUMBER", EncText(temp_buf));
@@ -2667,7 +2675,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							StringSet ss_ext_codes;
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
-								const PPID lot_id = r_ti.LotID;
+								const PPID lot_id = (PPID)r_ti.QuotPrice; // @v9.7.9 @fix r_ti.LotID-->r_ti.QuotPrice
 								if(lot_id && IsAlcGoods(r_ti.GoodsID)) {
 									ObjTagList tag_list;
 									p_ref->Ot.GetList(PPOBJ_LOT, lot_id, &tag_list);

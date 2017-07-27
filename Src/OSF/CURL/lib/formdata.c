@@ -30,8 +30,8 @@
 	#include <libgen.h>
 #endif
 //#include "urldata.h" /* for struct Curl_easy */
-#include "formdata.h"
-#include "vtls/vtls.h"
+//#include "formdata.h"
+//#include "vtls/vtls.h"
 //#include "strcase.h"
 //#include "sendf.h"
 //#include "strdup.h"
@@ -588,35 +588,19 @@ CURLFORMcode FormAdd(struct curl_httppost ** httppost,
 	}
 
 	if(CURL_FORMADD_OK == return_value) {
-		/* go through the list, check for completeness and if everything is
-		 * alright add the HttpPost item otherwise set return_value accordingly */
-
+		// go through the list, check for completeness and if everything is
+		// alright add the HttpPost item otherwise set return_value accordingly 
 		post = NULL;
-		for(form = first_form;
-		    form != NULL;
-		    form = form->more) {
-			if(((!form->name || !form->value) && !post) ||
-			    ( (form->contentslength) &&
-				    (form->flags & HTTPPOST_FILENAME) ) ||
-			    ( (form->flags & HTTPPOST_FILENAME) &&
-				    (form->flags & HTTPPOST_PTRCONTENTS) ) ||
-
-			    ( (!form->buffer) &&
-				    (form->flags & HTTPPOST_BUFFER) &&
-				    (form->flags & HTTPPOST_PTRBUFFER) ) ||
-
-			    ( (form->flags & HTTPPOST_READFILE) &&
-				    (form->flags & HTTPPOST_PTRCONTENTS) )
-			    ) {
+		for(form = first_form; form != NULL; form = form->more) {
+			if(((!form->name || !form->value) && !post) || ((form->contentslength) && (form->flags & HTTPPOST_FILENAME)) ||
+			    ((form->flags & HTTPPOST_FILENAME) && (form->flags & HTTPPOST_PTRCONTENTS) ) ||
+			    ((!form->buffer) && (form->flags & HTTPPOST_BUFFER) && (form->flags & HTTPPOST_PTRBUFFER)) ||
+			    ((form->flags & HTTPPOST_READFILE) && (form->flags & HTTPPOST_PTRCONTENTS))) {
 				return_value = CURL_FORMADD_INCOMPLETE;
 				break;
 			}
-			if(((form->flags & HTTPPOST_FILENAME) ||
-				    (form->flags & HTTPPOST_BUFFER)) &&
-			    !form->contenttype) {
-				char * f = form->flags & HTTPPOST_BUFFER ?
-				    form->showfilename : form->value;
-
+			if(((form->flags & HTTPPOST_FILENAME) || (form->flags & HTTPPOST_BUFFER)) && !form->contenttype) {
+				char * f = form->flags & HTTPPOST_BUFFER ? form->showfilename : form->value;
 				/* our contenttype is missing */
 				form->contenttype = _strdup(ContentTypeForFilename(f, prevtype));
 				if(!form->contenttype) {

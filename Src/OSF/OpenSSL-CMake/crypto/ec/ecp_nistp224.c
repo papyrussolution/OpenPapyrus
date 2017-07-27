@@ -1239,7 +1239,7 @@ static NISTP224_PRE_COMP * nistp224_pre_comp_new()
 NISTP224_PRE_COMP * EC_nistp224_pre_comp_dup(NISTP224_PRE_COMP * p)
 {
 	int i;
-	if(p != NULL)
+	if(p)
 		CRYPTO_atomic_add(&p->references, 1, &i, p->lock);
 	return p;
 }

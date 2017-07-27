@@ -1521,12 +1521,9 @@ static int ssl_io_intern(void * vargs)
 	buf = args->buf;
 	num = args->num;
 	switch(args->type) {
-		case ssl_async_args::READFUNC:
-		    return args->f.func_read(s, buf, num);
-		case ssl_async_args::WRITEFUNC:
-		    return args->f.func_write(s, buf, num);
-		case ssl_async_args::OTHERFUNC:
-		    return args->f.func_other(s);
+		case ssl_async_args::READFUNC: return args->f.func_read(s, buf, num);
+		case ssl_async_args::WRITEFUNC: return args->f.func_write(s, buf, num);
+		case ssl_async_args::OTHERFUNC: return args->f.func_other(s);
 	}
 	return -1;
 }
@@ -1537,12 +1534,10 @@ int SSL_read(SSL * s, void * buf, int num)
 		SSLerr(SSL_F_SSL_READ, SSL_R_UNINITIALIZED);
 		return -1;
 	}
-
 	if(s->shutdown & SSL_RECEIVED_SHUTDOWN) {
 		s->rwstate = SSL_NOTHING;
 		return 0;
 	}
-
 	if((s->mode & SSL_MODE_ASYNC) && ASYNC_get_current_job() == NULL) {
 		struct ssl_async_args args;
 
@@ -3418,17 +3413,13 @@ SSL_CTX * SSL_set_SSL_CTX(SSL * ssl, SSL_CTX * ctx)
 	 * not match (i.e., it was set per-ssl with SSL_set_session_id_context),
 	 * leave it unchanged.
 	 */
-	if((ssl->ctx != NULL) &&
-	    (ssl->sid_ctx_length == ssl->ctx->sid_ctx_length) &&
-	    (memcmp(ssl->sid_ctx, ssl->ctx->sid_ctx, ssl->sid_ctx_length) == 0)) {
+	if(ssl->ctx && (ssl->sid_ctx_length == ssl->ctx->sid_ctx_length) && (memcmp(ssl->sid_ctx, ssl->ctx->sid_ctx, ssl->sid_ctx_length) == 0)) {
 		ssl->sid_ctx_length = ctx->sid_ctx_length;
 		memcpy(&ssl->sid_ctx, &ctx->sid_ctx, sizeof(ssl->sid_ctx));
 	}
-
 	SSL_CTX_up_ref(ctx);
 	SSL_CTX_free(ssl->ctx); /* decrement reference count */
 	ssl->ctx = ctx;
-
 	return ssl->ctx;
 }
 

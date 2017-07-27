@@ -65,7 +65,7 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep != NULL)
+	if(pagep)
 		__memp_fput(mpf, ip, pagep, dbc->priority);
 	REC_CLOSE;
 }
@@ -120,7 +120,7 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep != NULL)
+	if(pagep)
 		__memp_fput(mpf, ip, pagep, dbc->priority);
 	REC_CLOSE;
 }
@@ -403,7 +403,7 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep != NULL)
+	if(pagep)
 		__memp_fput(mpf, ip, pagep, file_dbp->priority);
 	REC_CLOSE;
 }
@@ -454,7 +454,7 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep != NULL)
+	if(pagep)
 		__memp_fput(mpf, ip, pagep, file_dbp->priority);
 	REC_CLOSE;
 }
@@ -518,7 +518,7 @@ int __db_noop_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 done:
 	*lsnp = argp->prev_lsn;
 out:
-	if(pagep != NULL)
+	if(pagep)
 		__memp_fput(mpf, ip, pagep, file_dbp->priority);
 	REC_CLOSE;
 }
@@ -688,7 +688,7 @@ do_truncate:
 	 */
 	if((pagep == NULL || IS_ZERO_LSN(LSN(pagep))) && IS_ZERO_LSN(argp->page_lsn) && DB_UNDO(op)) {
 		/* Discard the page. */
-		if(pagep != NULL) {
+		if(pagep) {
 			if((ret = __memp_fput(mpf, ip, pagep, DB_PRIORITY_VERY_LOW)) != 0)
 				goto out;
 			pagep = NULL;
@@ -697,7 +697,7 @@ do_truncate:
 		if(meta->last_pgno <= argp->pgno && (ret = __memp_ftruncate(mpf, NULL, ip, argp->pgno, MP_TRUNC_RECOVER)) != 0)
 			goto out;
 	}
-	if(pagep != NULL) {
+	if(pagep) {
 		ret = __memp_fput(mpf, ip, pagep, file_dbp->priority);
 		pagep = NULL;
 		if(ret != 0)

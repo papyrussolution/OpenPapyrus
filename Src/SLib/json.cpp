@@ -966,7 +966,7 @@ int lexer(const char * buffer, char ** p, uint * state, RcString ** text)
 				}
 				break;
 			case 1:	// inside a JSON string
-				assert(*text != NULL);
+				assert(*text);
 				switch(**p) {
 					case 1:
 					case 2:
@@ -1019,7 +1019,7 @@ int lexer(const char * buffer, char ** p, uint * state, RcString ** text)
 				++*p;
 				break;
 			case 2: // inside a JSON string: start escape sequence
-				assert(*text != NULL);
+				assert(*text);
 				switch(**p) {
 					case '\\':
 					case '\"':
@@ -1042,7 +1042,7 @@ int lexer(const char * buffer, char ** p, uint * state, RcString ** text)
 				++*p;
 				break;
 			case 3: // inside a JSON string: escape unicode
-				assert(*text != NULL);
+				assert(*text);
 				if((**p >= 'a') && (**p <= 'f')) {
 					rcs_catc(*text, **p);
 					*state = 4; // inside a JSON string: escape unicode
@@ -1060,7 +1060,7 @@ int lexer(const char * buffer, char ** p, uint * state, RcString ** text)
 				++*p;
 				break;
 			case 4:	// inside a JSON string: escape unicode
-				assert(*text != NULL);
+				assert(*text);
 				if((**p >= 'a') && (**p <= 'f')) {
 					rcs_catc(*text, **p);
 					*state = 5;	// inside a JSON string: escape unicode
@@ -1078,7 +1078,7 @@ int lexer(const char * buffer, char ** p, uint * state, RcString ** text)
 				++*p;
 				break;
 			case 5:	// inside a JSON string: escape unicode
-				assert(*text != NULL);
+				assert(*text);
 				if((**p >= 'a') && (**p <= 'f')) {
 					rcs_catc(*text, **p);
 					*state = 6;	// inside a JSON string: escape unicode
@@ -1096,7 +1096,7 @@ int lexer(const char * buffer, char ** p, uint * state, RcString ** text)
 				++*p;
 				break;
 			case 6:	// inside a JSON string: escape unicode
-				assert(*text != NULL);
+				assert(*text);
 				if((**p >= 'a') && (**p <= 'f')) {
 					rcs_catc(*text, **p);
 					*state = 1;	/* inside a JSON string: escape unicode */
@@ -1217,7 +1217,7 @@ int lexer(const char * buffer, char ** p, uint * state, RcString ** text)
 				}
 				break;
 			case 17: // number: minus sign
-				assert(*text != NULL);
+				assert(*text);
 				switch(**p) {
 					case '0':
 						rcs_catc(*text, **p);
@@ -1235,7 +1235,7 @@ int lexer(const char * buffer, char ** p, uint * state, RcString ** text)
 				}
 				break;
 			case 18:	/* number: '0' */
-				assert(*text != NULL);
+				assert(*text);
 				switch(**p) {
 					case '\x20':	/* space */
 					case '\x09':	/* horizontal tab */
@@ -1268,7 +1268,7 @@ int lexer(const char * buffer, char ** p, uint * state, RcString ** text)
 				}
 				break;
 			case 19:	/* number: int followup */
-				assert(*text != NULL);
+				assert(*text);
 				switch(**p) {
 					case '\x20':	/* space */
 					case '\x09':	/* horizontal tab */
@@ -1303,7 +1303,7 @@ int lexer(const char * buffer, char ** p, uint * state, RcString ** text)
 				break;
 			case 20: // number: frac start
 				{
-					assert(*text != NULL);
+					assert(*text);
 					switch(**p) {
 						case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
 							rcs_catc(*text, **p);
@@ -1318,7 +1318,7 @@ int lexer(const char * buffer, char ** p, uint * state, RcString ** text)
 				break;
 			case 21: // number: frac continue
 				{
-					assert(*text != NULL);
+					assert(*text);
 					switch(**p) {
 						case '\x20': // space
 						case '\x09': // horizontal tab
@@ -1349,7 +1349,7 @@ int lexer(const char * buffer, char ** p, uint * state, RcString ** text)
 				break;
 			case 22: // number: exp start
 			{
-				assert(*text != NULL);
+				assert(*text);
 				switch(**p) {
 					case '-':
 					case '+':
@@ -1370,7 +1370,7 @@ int lexer(const char * buffer, char ** p, uint * state, RcString ** text)
 			break;
 			case 23: // number: exp continue
 			{
-				assert(*text != NULL);
+				assert(*text);
 				switch(**p) {
 					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
 						rcs_catc(*text, **p);
@@ -1385,7 +1385,7 @@ int lexer(const char * buffer, char ** p, uint * state, RcString ** text)
 			break;
 			case 24: // number: exp end
 			{
-				assert(*text != NULL);
+				assert(*text);
 				switch(**p) {
 					case '\x20':	/* space */
 					case '\x09':	/* horizontal tab */
@@ -1465,7 +1465,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 					//
 					// perform tree sanity checks
 					//
-					assert(info->cursor != NULL);
+					assert(info->cursor);
 					assert(info->cursor->Type == json_t::tOBJECT);
 					switch(lexer (buffer, &info->p, &info->lex_state, &info->lex_text)) {
 						case LEX_STRING:
@@ -1517,7 +1517,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 			case 3: // finished adding a field to an object
 				{
 					// perform tree sanity checks
-					assert(info->cursor != NULL);
+					assert(info->cursor);
 					assert(info->cursor->Type == json_t::tOBJECT);
 					switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
 						case LEX_VALUE_SEPARATOR:
@@ -1580,7 +1580,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 			case 5:	/* label, pre name separator */
 				{
 					/* perform tree sanity checks */
-					assert(info->cursor != NULL);
+					assert(info->cursor);
 					assert(info->cursor->Type == json_t::tSTRING);
 					switch(lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
 						case LEX_NAME_SEPARATOR: info->state = 6; break; /* label, pos label:value separator */
@@ -1596,7 +1596,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 				{
 					uint value;	/* to avoid redundant code */
 					/* perform tree sanity checks */
-					assert(info->cursor != NULL);
+					assert(info->cursor);
 					assert(info->cursor->Type == json_t::tSTRING);
 					switch(value = lexer(buffer, &info->p, &info->lex_state, &info->lex_text)) {
 						case LEX_STRING:
@@ -1704,7 +1704,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 			case 8: // just entered an array
 				{
 					// perform tree sanity checks
-					assert(info->cursor != NULL);
+					assert(info->cursor);
 					assert(info->cursor->Type == json_t::tARRAY);
 					switch(lexer (buffer, &info->p, &info->lex_state, &info->lex_text)) {
 					case LEX_STRING:
@@ -1786,7 +1786,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 			case 9: // followup to adding child to array
 				{
 					/*TODO perform tree sanity checks */
-					assert(info->cursor != NULL);
+					assert(info->cursor);
 					switch(lexer (buffer, &info->p, &info->lex_state, &info->lex_text)) {
 					case LEX_VALUE_SEPARATOR:
 						info->state = 8;

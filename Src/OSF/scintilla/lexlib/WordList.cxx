@@ -78,7 +78,7 @@ WordList::operator bool() const
 	return len ? true : false;
 }
 
-bool WordList::operator!=(const WordList &other) const
+bool FASTCALL WordList::operator != (const WordList &other) const
 {
 	if(len != other.len)
 		return true;
@@ -126,7 +126,7 @@ static void SortWordList(char ** words, uint len)
 
 #endif
 
-void WordList::Set(const char * s)
+void FASTCALL WordList::Set(const char * s)
 {
 	Clear();
 	const size_t lenS = strlen(s) + 1;
@@ -150,39 +150,39 @@ void WordList::Set(const char * s)
  * Prefix elements start with '^' and match all strings that start with the rest of the element
  * so '^GTK_' matches 'GTK_X', 'GTK_MAJOR_VERSION', and 'GTK_'.
  */
-bool WordList::InList(const char * s) const
+bool FASTCALL WordList::InList(const char * s) const
 {
-	if(0 == words)
-		return false;
-	uchar firstChar = s[0];
-	int j = starts[firstChar];
-	if(j >= 0) {
-		while(static_cast<uchar>(words[j][0]) == firstChar) {
-			if(s[1] == words[j][1]) {
+	if(words) {
+		uchar firstChar = s[0];
+		int j = starts[firstChar];
+		if(j >= 0) {
+			while(static_cast<uchar>(words[j][0]) == firstChar) {
+				if(s[1] == words[j][1]) {
+					const char * a = words[j] + 1;
+					const char * b = s + 1;
+					while(*a && *a == *b) {
+						a++;
+						b++;
+					}
+					if(!*a && !*b)
+						return true;
+				}
+				j++;
+			}
+		}
+		j = starts[static_cast<uint>('^')];
+		if(j >= 0) {
+			while(words[j][0] == '^') {
 				const char * a = words[j] + 1;
-				const char * b = s + 1;
+				const char * b = s;
 				while(*a && *a == *b) {
 					a++;
 					b++;
 				}
-				if(!*a && !*b)
+				if(!*a)
 					return true;
+				j++;
 			}
-			j++;
-		}
-	}
-	j = starts[static_cast<uint>('^')];
-	if(j >= 0) {
-		while(words[j][0] == '^') {
-			const char * a = words[j] + 1;
-			const char * b = s;
-			while(*a && *a == *b) {
-				a++;
-				b++;
-			}
-			if(!*a)
-				return true;
-			j++;
 		}
 	}
 	return false;
@@ -299,7 +299,7 @@ bool WordList::InListAbridged(const char * s, const char marker) const
 	return false;
 }
 
-const char * WordList::WordAt(int n) const
+const char * FASTCALL WordList::WordAt(int n) const
 {
 	return words[n];
 }

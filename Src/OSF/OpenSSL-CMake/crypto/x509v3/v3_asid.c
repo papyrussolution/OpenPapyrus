@@ -115,24 +115,14 @@ static int i2r_ASIdentifiers(const X509V3_EXT_METHOD * method,
 static int ASIdOrRange_cmp(const ASIdOrRange * const * a_, const ASIdOrRange * const * b_)
 {
 	const ASIdOrRange * a = *a_, * b = *b_;
-
-	OPENSSL_assert((a->type == ASIdOrRange_id && a->u.id != NULL) ||
-	    (a->type == ASIdOrRange_range && a->u.range != NULL &&
-		    a->u.range->min != NULL && a->u.range->max != NULL));
-
-	OPENSSL_assert((b->type == ASIdOrRange_id && b->u.id != NULL) ||
-	    (b->type == ASIdOrRange_range && b->u.range != NULL &&
-		    b->u.range->min != NULL && b->u.range->max != NULL));
-
+	OPENSSL_assert((a->type == ASIdOrRange_id && a->u.id) || (a->type == ASIdOrRange_range && a->u.range && a->u.range->min && a->u.range->max));
+	OPENSSL_assert((b->type == ASIdOrRange_id && b->u.id) || (b->type == ASIdOrRange_range && b->u.range && b->u.range->min && b->u.range->max));
 	if(a->type == ASIdOrRange_id && b->type == ASIdOrRange_id)
 		return ASN1_INTEGER_cmp(a->u.id, b->u.id);
-
 	if(a->type == ASIdOrRange_range && b->type == ASIdOrRange_range) {
 		int r = ASN1_INTEGER_cmp(a->u.range->min, b->u.range->min);
-		return r != 0 ? r : ASN1_INTEGER_cmp(a->u.range->max,
-		    b->u.range->max);
+		return r != 0 ? r : ASN1_INTEGER_cmp(a->u.range->max, b->u.range->max);
 	}
-
 	if(a->type == ASIdOrRange_id)
 		return ASN1_INTEGER_cmp(a->u.id, b->u.range->min);
 	else
@@ -590,11 +580,7 @@ const X509V3_EXT_METHOD v3_asid = {
  */
 int X509v3_asid_inherits(ASIdentifiers * asid)
 {
-	return (asid != NULL &&
-	    ((asid->asnum != NULL &&
-			    asid->asnum->type == ASIdentifierChoice_inherit) ||
-		    (asid->rdi != NULL &&
-			    asid->rdi->type == ASIdentifierChoice_inherit)));
+	return (asid && ((asid->asnum && asid->asnum->type == ASIdentifierChoice_inherit) || (asid->rdi && asid->rdi->type == ASIdentifierChoice_inherit)));
 }
 
 /*
@@ -604,12 +590,10 @@ static int asid_contains(ASIdOrRanges * parent, ASIdOrRanges * child)
 {
 	ASN1_INTEGER * p_min = NULL, * p_max = NULL, * c_min = NULL, * c_max = NULL;
 	int p, c;
-
 	if(child == NULL || parent == child)
 		return 1;
 	if(parent == NULL)
 		return 0;
-
 	p = 0;
 	for(c = 0; c < sk_ASIdOrRange_num(child); c++) {
 		extract_min_max(sk_ASIdOrRange_value(child, c), &c_min, &c_max);
@@ -624,7 +608,6 @@ static int asid_contains(ASIdOrRanges * parent, ASIdOrRanges * child)
 			break;
 		}
 	}
-
 	return 1;
 }
 

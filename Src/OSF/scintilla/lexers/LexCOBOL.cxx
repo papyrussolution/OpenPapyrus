@@ -113,24 +113,24 @@ static int classifyWordCOBOL(Sci_PositionU start,
 		}
 	}
 	if(*bAarea) {
-		if(strcmp(s, "division") == 0) {
+		if(sstreq(s, "division")) {
 			ret = IN_DIVISION;
 			// we've determined the containment, anything else is just ignored for those purposes
 			*bAarea = false;
 		}
-		else if(strcmp(s, "declaratives") == 0) {
+		else if(sstreq(s, "declaratives")) {
 			ret = IN_DIVISION | IN_DECLARATIVES;
 			if(nContainment & IN_DECLARATIVES)
 				ret |= NOT_HEADER | IN_SECTION;
 			// we've determined the containment, anything else is just ignored for those purposes
 			*bAarea = false;
 		}
-		else if(strcmp(s, "section") == 0) {
+		else if(sstreq(s, "section")) {
 			ret = (nContainment &~IN_PARAGRAPH) | IN_SECTION;
 			// we've determined the containment, anything else is just ignored for those purposes
 			*bAarea = false;
 		}
-		else if(strcmp(s, "end") == 0 && (nContainment & IN_DECLARATIVES)) {
+		else if(sstreq(s, "end") && (nContainment & IN_DECLARATIVES)) {
 			ret = IN_DIVISION | IN_DECLARATIVES | IN_SECTION | NOT_HEADER;
 		}
 		else {
@@ -141,19 +141,16 @@ static int classifyWordCOBOL(Sci_PositionU start,
 	return ret;
 }
 
-static void ColouriseCOBOLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor &styler) {
+static void ColouriseCOBOLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler) 
+{
 	styler.StartAt(startPos);
-
 	int state = initStyle;
 	if(state == SCE_C_CHARACTER) // Does not leak onto next line
 		state = SCE_C_DEFAULT;
 	char chPrev = ' ';
 	char chNext = styler[startPos];
 	Sci_PositionU lengthDoc = startPos + length;
-
 	int nContainment;
-
 	Sci_Position currentLine = styler.GetLine(startPos);
 	if(currentLine > 0) {
 		styler.SetLineState(currentLine, styler.GetLineState(currentLine-1));
@@ -164,18 +161,14 @@ static void ColouriseCOBOLDoc(Sci_PositionU startPos, Sci_Position length, int i
 		styler.SetLineState(currentLine, 0);
 		nContainment = 0;
 	}
-
 	styler.StartSegment(startPos);
 	bool bNewLine = true;
 	bool bAarea = !isspacechar(chNext);
 	int column = 0;
 	for(Sci_PositionU i = startPos; i < lengthDoc; i++) {
 		char ch = chNext;
-
 		chNext = styler.SafeGetCharAt(i + 1);
-
 		++column;
-
 		if(bNewLine) {
 			column = 0;
 		}
@@ -197,14 +190,12 @@ static void ColouriseCOBOLDoc(Sci_PositionU startPos, Sci_Position length, int i
 			if(nContainment & NOT_HEADER)
 				nContainment &= ~(NOT_HEADER | IN_DECLARATIVES | IN_SECTION);
 		}
-
 		if(styler.IsLeadByte(ch)) {
 			chNext = styler.SafeGetCharAt(i + 2);
 			chPrev = ' ';
 			i += 1;
 			continue;
 		}
-
 		if(state == SCE_C_DEFAULT) {
 			if(isCOBOLwordstart(ch) || (ch == '$' && IsASCII(chNext) && isalpha(chNext))) {
 				ColourTo(styler, i-1, state);
@@ -255,14 +246,11 @@ static void ColouriseCOBOLDoc(Sci_PositionU startPos, Sci_Position length, int i
 		}
 		else if(state == SCE_C_IDENTIFIER) {
 			if(!isCOBOLwordchar(ch)) {
-				int lStateChange = classifyWordCOBOL(
-				    styler.GetStartSegment(), i - 1, keywordlists, styler, nContainment, &bAarea);
-
+				int lStateChange = classifyWordCOBOL(styler.GetStartSegment(), i - 1, keywordlists, styler, nContainment, &bAarea);
 				if(lStateChange != 0) {
 					styler.SetLineState(currentLine, lStateChange);
 					nContainment = lStateChange;
 				}
-
 				state = SCE_C_DEFAULT;
 				chNext = styler.SafeGetCharAt(i + 1);
 				if(ch == '"') {
@@ -291,9 +279,7 @@ static void ColouriseCOBOLDoc(Sci_PositionU startPos, Sci_Position length, int i
 			}
 			else if(state == SCE_C_COMMENTDOC) {
 				if(ch == '\r' || ch == '\n') {
-					if(((i > styler.GetStartSegment() + 2) || (
-							    (initStyle == SCE_C_COMMENTDOC) &&
-							    (styler.GetStartSegment() == static_cast<Sci_PositionU>(startPos))))) {
+					if(((i > styler.GetStartSegment() + 2) || ((initStyle == SCE_C_COMMENTDOC) && (styler.GetStartSegment() == static_cast<Sci_PositionU>(startPos))))) {
 						ColourTo(styler, i, state);
 						state = SCE_C_DEFAULT;
 					}

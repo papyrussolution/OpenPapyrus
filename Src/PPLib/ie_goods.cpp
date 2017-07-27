@@ -594,8 +594,7 @@ int PPGoodsImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const Str
 	int    ok = 1;
 	SString params, fld_name, param_val;
 	StringSet excl;
-	if(pExclParamList)
-		excl = *pExclParamList;
+	RVALUEPTR(excl, pExclParamList);
 	THROW(PPLoadText(PPTXT_GOODSPARAMS, params));
 	if(PPGetSubStr(params, PPGOODSPAR_SUBCODE, fld_name)) {
 		excl.add(fld_name);
@@ -894,9 +893,7 @@ SLAPI PPGoodsExporter::~PPGoodsExporter()
 int SLAPI PPGoodsExporter::Init(const PPGoodsImpExpParam * pParam)
 {
 	int    ok = 1;
-	if(pParam)
-		Param = *pParam;
-	else {
+	if(!RVALUEPTR(Param, pParam)) {
 		THROW(LoadSdRecord(PPREC_GOODS2, &Param.InrRec));
 		ok = SelectGoodsImportCfgs(&Param, 0);
 	}

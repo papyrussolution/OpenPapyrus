@@ -25,7 +25,7 @@
 #pragma hdrstop
 #ifdef USE_LIBRTMP
 //#include "urldata.h"
-#include "nonblock.h" /* for curlx_nonblock */
+//#include "nonblock.h" /* for curlx_nonblock */
 //#include "progress.h" /* for Curl_pgrsSetUploadSize */
 //#include "transfer.h"
 #include "warnless.h"

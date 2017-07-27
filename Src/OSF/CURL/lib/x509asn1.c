@@ -27,7 +27,7 @@
 //#include "urldata.h"
 //#include "strcase.h"
 #include "hostcheck.h"
-#include "vtls/vtls.h"
+//#include "vtls/vtls.h"
 //#include "sendf.h"
 #include "inet_pton.h"
 //#include "curl_base64.h"

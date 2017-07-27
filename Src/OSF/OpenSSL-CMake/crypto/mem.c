@@ -127,7 +127,7 @@ void * CRYPTO_clear_realloc(void * str, size_t old_len, size_t num, const char *
 		return str;
 	}
 	ret = CRYPTO_malloc(num, file, line);
-	if(ret != NULL) {
+	if(ret) {
 		memcpy(ret, str, old_len);
 		CRYPTO_clear_free(str, old_len, file, line);
 	}

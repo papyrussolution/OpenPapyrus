@@ -364,7 +364,7 @@ static xmlSaveCtxtPtr xmlNewSaveCtxt(const char * encoding, int options)
 	}
 	memzero(ret, sizeof(xmlSaveCtxt));
 
-	if(encoding != NULL) {
+	if(encoding) {
 		ret->handler = xmlFindCharEncodingHandler(encoding);
 		if(ret->handler == NULL) {
 			xmlSaveErr(XML_SAVE_UNKNOWN_ENCODING, NULL, encoding);
@@ -1165,7 +1165,7 @@ static int xmlDocContentDumpOutput(xmlSaveCtxtPtr ctxt, xmlDocPtr cur)
  */
 static int xhtmlIsEmpty(xmlNodePtr node)
 {
-	if(node == NULL)
+	if(!node)
 		return -1;
 	if(node->type != XML_ELEMENT_NODE)
 		return 0;
@@ -1735,7 +1735,7 @@ xmlSaveCtxtPtr xmlSaveToBuffer(xmlBufferPtr buffer, const char * encoding, int o
 	xmlSaveCtxtPtr ret = xmlNewSaveCtxt(encoding, options);
 	if(!ret)
 		return 0;
-	if(encoding != NULL) {
+	if(encoding) {
 		handler = xmlFindCharEncodingHandler(encoding);
 		if(handler == NULL) {
 			SAlloc::F(ret);
@@ -2511,7 +2511,7 @@ int xmlSaveFormatFileEnc(const char * filename, xmlDocPtr cur, const char * enco
 	xmlCharEncodingHandlerPtr handler = NULL;
 	if(cur) {
 		SETIFZ(encoding, (const char *)cur->encoding);
-		if(encoding != NULL) {
+		if(encoding) {
 			handler = xmlFindCharEncodingHandler(encoding);
 			if(handler == NULL)
 				return -1;

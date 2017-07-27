@@ -162,7 +162,7 @@ XMLPUBFUN xmlParserInputBufferPtr XMLCALL xmlParserInputBufferCreateIO(xmlInputR
 XMLPUBFUN int XMLCALL xmlParserInputBufferRead(xmlParserInputBufferPtr in, int len);
 XMLPUBFUN int XMLCALL xmlParserInputBufferGrow(xmlParserInputBufferPtr in, int len);
 XMLPUBFUN int XMLCALL xmlParserInputBufferPush(xmlParserInputBufferPtr in, int len, const char *buf);
-XMLPUBFUN void XMLCALL xmlFreeParserInputBuffer(xmlParserInputBufferPtr in);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeParserInputBuffer(xmlParserInputBuffer * pIn);
 XMLPUBFUN char * XMLCALL xmlParserGetDirectory(const char *filename);
 XMLPUBFUN int XMLCALL xmlRegisterInputCallbacks(xmlInputMatchCallback matchFunc, xmlInputOpenCallback openFunc, xmlInputReadCallback readFunc, xmlInputCloseCallback closeFunc);
 xmlParserInputBufferPtr __xmlParserInputBufferCreateFilename(const char *URI, xmlCharEncoding enc);
@@ -197,7 +197,7 @@ XMLPUBFUN void XMLCALL xmlRegisterHTTPPostCallbacks	(void );
 
 #endif /* LIBXML_OUTPUT_ENABLED */
 
-XMLPUBFUN xmlParserInputPtr XMLCALL xmlCheckHTTPInput(xmlParserCtxtPtr ctxt, xmlParserInputPtr ret);
+XMLPUBFUN xmlParserInputPtr XMLCALL xmlCheckHTTPInput(xmlParserCtxt * ctxt, xmlParserInputPtr ret);
 
 /*
  * A predefined entity loader disabling network accesses

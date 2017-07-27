@@ -667,7 +667,7 @@ static cairo_status_t clip_and_composite(const cairo_mask_compositor_t * composi
 		    _cairo_composite_rectangles_can_reduce_clip(extents,
 			    extents->clip))
 			clip_region = NULL;
-		if(clip_region != NULL) {
+		if(clip_region) {
 			status = compositor->set_clip_region(dst, clip_region);
 			if(unlikely(status)) {
 				compositor->release(dst);

@@ -25,8 +25,8 @@
 #ifndef CURL_DISABLE_HTTP
 //#include "urldata.h" /* it includes http_chunks.h */
 //#include "sendf.h"   /* for the client write stuff */
-#include "content_encoding.h"
-#include "http.h"
+//#include "content_encoding.h"
+//#include "http.h"
 //#include "non-ascii.h" /* for Curl_convert_to_network prototype */
 //#include "strtoofft.h"
 #include "warnless.h"

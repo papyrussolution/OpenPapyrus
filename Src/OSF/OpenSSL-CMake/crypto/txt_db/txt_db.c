@@ -111,7 +111,7 @@ TXT_DB * TXT_DB_read(BIO * in, int num)
 	return ret;
 err:
 	BUF_MEM_free(buf);
-	if(ret != NULL) {
+	if(ret) {
 		sk_OPENSSL_PSTRING_free(ret->data);
 		OPENSSL_free(ret->index);
 		OPENSSL_free(ret->qual);

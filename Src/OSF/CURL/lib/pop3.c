@@ -65,12 +65,12 @@
 //#include "progress.h"
 //#include "transfer.h"
 //#include "escape.h"
-#include "http.h" /* for HTTP proxy tunnel stuff */
+//#include "http.h" /* for HTTP proxy tunnel stuff */
 //#include "socks.h"
 #include "pop3.h"
 //#include "strtoofft.h"
 //#include "strcase.h"
-#include "vtls/vtls.h"
+//#include "vtls/vtls.h"
 //#include "connect.h"
 //#include "strerror.h"
 //#include "select.h"

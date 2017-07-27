@@ -39,8 +39,20 @@ public:
 	int    SelStarted2;
 	int    SelStarted3;
 	int    RowCount;
-	int    c_i, c_j, c_minfirst, c_maxlast, c_maxrow,
-		   y_tw, y_bl, y_br, y_bw, y_th, y_t, y_w;
+	
+	int    c_i;
+	int    c_j;
+	int    c_minfirst;
+	int    c_maxlast;
+	int    c_maxrow;
+	int    y_tw;
+	int    y_bl;
+	int    y_br;
+	int    y_bw;
+	int    y_th;
+	int    y_t;
+	int    y_w;
+
 	_TCHAR C[7][7][12];
 	TDialog * P_Dlg;
 	uint   DateCtlID;
@@ -242,8 +254,7 @@ void TCalendar::SetupCalendar()
 
 void TDateCalendar::CloseCalendar()
 {
-	if(P_Dlg)
-		P_Dlg->setCtrlData(DateCtlID, &D);
+	CALLPTRMEMB(P_Dlg, setCtrlData(DateCtlID, &D));
 }
 
 int TDateCalendar::setDTS(LDATE dt)
@@ -290,8 +301,8 @@ INT_PTR CALLBACK TDateCalendar::CalendarDlgProc(HWND hWnd, UINT message, WPARAM 
 						y = ((rect.top < sizey) ? sy : rect.top) - sizey;
 					MoveWindow(hWnd, rect.left, y, this_rect.right - this_rect.left, sizey, 0);
 				}
-				TView::PreprocessWindowCtrlText(hWnd); // @v9.1.1
 			}
+			TView::PreprocessWindowCtrlText(hWnd); // @v9.1.1
 			break;
 		case WM_CREATE:
 			dc = (TDateCalendar *)TView::GetWindowUserData(hWnd);

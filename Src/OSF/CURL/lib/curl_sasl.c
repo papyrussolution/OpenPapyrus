@@ -36,7 +36,7 @@
 //#include "curl_base64.h"
 #include "curl_md5.h"
 #include "vauth/vauth.h"
-#include "vtls/vtls.h"
+//#include "vtls/vtls.h"
 #include "curl_hmac.h"
 #include "curl_sasl.h"
 #include "warnless.h"

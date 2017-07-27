@@ -1341,6 +1341,7 @@
     <ClCompile Include="..\PPLib\rfldcorr.cpp" />
     <ClCompile Include="..\PPLib\salary.cpp" />
     <ClCompile Include="..\PPLib\sartre.cpp" />
+    <ClCompile Include="..\PPLib\sartre_db.cpp" />
     <ClCompile Include="..\PPLib\SCARD.CPP" />
     <ClCompile Include="..\PPLib\scoclass.cpp" />
     <ClCompile Include="..\PPLib\Securdlg.cpp" />

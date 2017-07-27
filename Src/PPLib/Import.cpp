@@ -1910,8 +1910,7 @@ int PPPhoneListImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const
 	int    ok = 1;
 	SString params, fld_name, param_val;
 	StringSet excl;
-	if(pExclParamList)
-		excl = *pExclParamList;
+	RVALUEPTR(excl, pExclParamList);
 	excl.add("DefCityPhonePrefix");
 	if(pFile->GetParam(pSect, "DefCityPhonePrefix", param_val) > 0)
 		DefCityPhonePrefix = param_val;
@@ -2965,8 +2964,7 @@ int PPPersonImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const St
 	DefCityID = 0;
 	SrchRegTypeID = 0;
 	Flags = 0;
-	if(pExclParamList)
-		excl = *pExclParamList;
+	RVALUEPTR(excl, pExclParamList);
 	for(uint i = 0; i < SIZEOFARRAY(PersonIeCfgParamList); i++) {
 		IeCfgParamItem & r_item = PersonIeCfgParamList[i];
 		excl.add(r_item.P_Txt);

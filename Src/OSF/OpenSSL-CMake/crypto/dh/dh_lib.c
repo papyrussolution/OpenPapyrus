@@ -173,7 +173,7 @@ int DH_security_bits(const DH * dh)
 void DH_get0_pqg(const DH * dh,
     const BIGNUM ** p, const BIGNUM ** q, const BIGNUM ** g)
 {
-	if(p != NULL)
+	if(p)
 		*p = dh->p;
 	if(q != NULL)
 		*q = dh->q;
@@ -190,7 +190,7 @@ int DH_set0_pqg(DH * dh, BIGNUM * p, BIGNUM * q, BIGNUM * g)
 	    || (dh->g == NULL && g == NULL))
 		return 0;
 
-	if(p != NULL) {
+	if(p) {
 		BN_free(dh->p);
 		dh->p = p;
 	}

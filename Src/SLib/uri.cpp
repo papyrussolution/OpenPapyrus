@@ -677,7 +677,7 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 		}
 		queryList = queryList->next;
 	}
-	if(dest != NULL) {
+	if(dest) {
 		write[0] = _UT('\0');
 		if(charsWritten)
 			*charsWritten = (int)(write-dest)+1;     /* .. for terminator */
@@ -2258,7 +2258,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 	}
 	maxChars--; /* So we don't have to substract 1 for '\0' all the time */
 	/* [01/19]	result = "" */
-	if(dest != NULL) {
+	if(dest) {
 		dest[0] = _UT('\0');
 	}
 	else {
@@ -2268,7 +2268,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 	if(uri->scheme.first != NULL) {
 		/* [03/19]		append scheme to result; */
 		const int charsToWrite =(int)(uri->scheme.afterLast-uri->scheme.first);
-		if(dest != NULL) {
+		if(dest) {
 			if(written+charsToWrite <= maxChars) {
 				memcpy(dest+written, uri->scheme.first, charsToWrite*sizeof(char));
 				written += charsToWrite;
@@ -2283,7 +2283,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			(*charsRequired) += charsToWrite;
 		}
 		/* [04/19]		append ":" to result; */
-		if(dest != NULL) {
+		if(dest) {
 			if(written+1 <= maxChars) {
 				memcpy(dest+written, _UT(":"), 1*sizeof(char));
 				written += 1;
@@ -2302,7 +2302,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 	/* [06/19]	if defined(authority) then */
 	if(UriIsHostSet(uri)) {
 		/* [07/19]		append "//" to result; */
-		if(dest != NULL) {
+		if(dest) {
 			if(written+2 <= maxChars) {
 				memcpy(dest+written, _UT("//"), 2*sizeof(char));
 				written += 2;
@@ -2320,7 +2320,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		/* UserInfo */
 		if(uri->userInfo.first != NULL) {
 			const int charsToWrite =(int)(uri->userInfo.afterLast-uri->userInfo.first);
-			if(dest != NULL) {
+			if(dest) {
 				if(written+charsToWrite <= maxChars) {
 					memcpy(dest+written, uri->userInfo.first, charsToWrite*sizeof(char));
 					written += charsToWrite;
@@ -2351,7 +2351,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			for(; i < 4; i++) {
 				const uchar value = uri->hostData.ip4->data[i];
 				const int charsToWrite =(value > 99) ? 3 :((value > 9) ? 2 : 1);
-				if(dest != NULL) {
+				if(dest) {
 					if(written+charsToWrite <= maxChars) {
 						char text[4];
 						if(value > 99) {
@@ -2395,7 +2395,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		else if(uri->hostData.ip6 != NULL) {
 			/* IPv6 */
 			int i = 0;
-			if(dest != NULL) {
+			if(dest) {
 				if(written+1 <= maxChars) {
 					memcpy(dest+written, _UT("["), 1*sizeof(char));
 					written += 1;
@@ -2411,7 +2411,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			}
 			for(; i < 16; i++) {
 				const uchar value = uri->hostData.ip6->data[i];
-				if(dest != NULL) {
+				if(dest) {
 					if(written+2 <= maxChars) {
 						char text[3];
 						text[0] = UriHexToLetterEx(value/16, FALSE);
@@ -2430,7 +2430,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					(*charsRequired) += 2;
 				}
 				if(((i&1) == 1) &&(i < 15)) {
-					if(dest != NULL) {
+					if(dest) {
 						if(written+1 <= maxChars) {
 							memcpy(dest+written, _UT(":"), 1*sizeof(char));
 							written += 1;
@@ -2446,7 +2446,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 					}
 				}
 			}
-			if(dest != NULL) {
+			if(dest) {
 				if(written+1 <= maxChars) {
 					memcpy(dest+written, _UT("]"), 1*sizeof(char));
 					written += 1;
@@ -2464,7 +2464,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		else if(uri->hostData.ipFuture.first != NULL) {
 			/* IPvFuture */
 			const int charsToWrite =(int)(uri->hostData.ipFuture.afterLast-uri->hostData.ipFuture.first);
-			if(dest != NULL) {
+			if(dest) {
 				if(written+1 <= maxChars) {
 					memcpy(dest+written, _UT("["), 1*sizeof(char));
 					written += 1;
@@ -2500,7 +2500,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		else if(uri->hostText.first != NULL) {
 			/* Regname */
 			const int charsToWrite =(int)(uri->hostText.afterLast-uri->hostText.first);
-			if(dest != NULL) {
+			if(dest) {
 				if(written+charsToWrite <= maxChars) {
 					memcpy(dest+written, uri->hostText.first, charsToWrite*sizeof(char));
 					written += charsToWrite;
@@ -2518,7 +2518,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		/* Port */
 		if(uri->portText.first != NULL) {
 			const int charsToWrite =(int)(uri->portText.afterLast-uri->portText.first);
-			if(dest != NULL) {
+			if(dest) {
 				/* Leading ':' */
 				if(written+1 <= maxChars) {
 					memcpy(dest+written, _UT(":"), 1*sizeof(char));
@@ -2549,7 +2549,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 	/* [10/19]	append path to result; */
 	/* Slash needed here? */
 	if(uri->absolutePath ||((uri->pathHead != NULL) && UriIsHostSet(uri))) {
-		if(dest != NULL) {
+		if(dest) {
 			if(written+1 <= maxChars) {
 				memcpy(dest+written, _UT("/"), 1*sizeof(char));
 				written += 1;
@@ -2568,7 +2568,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		UriPathSegment*walker = uri->pathHead;
 		do {
 			const int charsToWrite =(int)(walker->text.afterLast-walker->text.first);
-			if(dest != NULL) {
+			if(dest) {
 				if(written+charsToWrite <= maxChars) {
 					memcpy(dest+written, walker->text.first, charsToWrite*sizeof(char));
 					written += charsToWrite;
@@ -2584,7 +2584,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			}
 			/* Not last segment -> append slash */
 			if(walker->next != NULL) {
-				if(dest != NULL) {
+				if(dest) {
 					if(written+1 <= maxChars) {
 						memcpy(dest+written, _UT("/"), 1*sizeof(char));
 						written += 1;
@@ -2605,7 +2605,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 	/* [11/19]	if defined(query) then */
 	if(uri->query.first != NULL) {
 		/* [12/19]		append "?" to result; */
-		if(dest != NULL) {
+		if(dest) {
 			if(written+1 <= maxChars) {
 				memcpy(dest+written, _UT("?"),
 					1*sizeof(char));
@@ -2623,7 +2623,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		/* [13/19]		append query to result; */
 		{
 			const int charsToWrite = (int)(uri->query.afterLast-uri->query.first);
-			if(dest != NULL) {
+			if(dest) {
 				if(written+charsToWrite <= maxChars) {
 					memcpy(dest+written, uri->query.first, charsToWrite*sizeof(char));
 					written += charsToWrite;
@@ -2643,7 +2643,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 	/* [15/19]	if defined(fragment) then */
 	if(uri->fragment.first != NULL) {
 		/* [16/19]		append "#" to result; */
-		if(dest != NULL) {
+		if(dest) {
 			if(written+1 <= maxChars) {
 				memcpy(dest+written, _UT("#"), 1*sizeof(char));
 				written += 1;
@@ -2660,7 +2660,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		/* [17/19]		append fragment to result; */
 		{
 			const int charsToWrite = (int)(uri->fragment.afterLast-uri->fragment.first);
-			if(dest != NULL) {
+			if(dest) {
 				if(written+charsToWrite <= maxChars) {
 					memcpy(dest+written, uri->fragment.first, charsToWrite*sizeof(char));
 					written += charsToWrite;
@@ -2678,7 +2678,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		/* [18/19]	endif; */
 	}
 	/* [19/19]	return result; */
-	if(dest != NULL) {
+	if(dest) {
 		dest[written++] = _UT('\0');
 		ASSIGN_PTR(charsWritten, written);
 	}

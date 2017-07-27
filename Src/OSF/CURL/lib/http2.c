@@ -26,7 +26,7 @@
 #include <nghttp2/nghttp2.h>
 //#include "urldata.h"
 #include "http2.h"
-#include "http.h"
+//#include "http.h"
 //#include "sendf.h"
 //#include "curl_base64.h"
 //#include "strcase.h"

@@ -477,7 +477,7 @@ static cairo_status_t _cairo_xcb_surface_acquire_source_image(void * abstract_su
 
 	image = _cairo_surface_has_snapshot(&surface->base,
 	    &_cairo_image_surface_backend);
-	if(image != NULL) {
+	if(image) {
 		image = cairo_surface_reference(image);
 		goto DONE;
 	}

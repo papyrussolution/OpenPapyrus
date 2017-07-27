@@ -245,8 +245,7 @@ retry:
 		 * around until the last cursor referencing the empty tree is
 		 * are closed, and then clean it up.
 		 */
-		if(NUM_ENT(cp->page) == 0 &&
-		   PGNO(cp->page) != BAM_ROOT_PGNO(dbc)) {
+		if(NUM_ENT(cp->page) == 0 && PGNO(cp->page) != BAM_ROOT_PGNO(dbc)) {
 			/*
 			 * We want to delete a single item out of the last page
 			 * that we're not deleting.
@@ -1138,8 +1137,7 @@ retry:
 	 * The application may modify the data based on the selected record
 	 * number.
 	 */
-	if(flags == DB_APPEND && dbc->dbp->db_append_recno != NULL &&
-	   (ret = dbc->dbp->db_append_recno(dbc->dbp, data, *recnop)) != 0)
+	if(flags == DB_APPEND && dbc->dbp->db_append_recno && (ret = dbc->dbp->db_append_recno(dbc->dbp, data, *recnop)) != 0)
 		goto err;
 	/*
 	 * Select the arguments for __bam_iitem() and do the insert.  If the

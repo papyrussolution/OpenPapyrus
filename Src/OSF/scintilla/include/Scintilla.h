@@ -314,14 +314,14 @@ namespace Scintilla {
 		explicit WordList(bool onlyLineEnds_ = false);
 		~WordList();
 		operator bool() const;
-		bool operator!=(const WordList &other) const;
+		bool   FASTCALL operator != (const WordList &other) const;
 		int    Length() const;
 		void   Clear();
-		void   Set(const char *s);
-		bool   InList(const char *s) const;
+		void   FASTCALL Set(const char *s);
+		bool   FASTCALL InList(const char *s) const;
 		bool   InListAbbreviated(const char *s, const char marker) const;
 		bool   InListAbridged(const char *s, const char marker) const;
-		const char * WordAt(int n) const;
+		const char * FASTCALL WordAt(int n) const;
 	};
 
 	//class Accessor;
@@ -354,6 +354,13 @@ namespace Scintilla {
 		virtual void Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor &styler) const;
 		virtual void Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor &styler) const;
 		friend class Catalogue;
+	};
+
+	class Catalogue {
+	public:
+		static const LexerModule * FASTCALL Find(int language);
+		static const LexerModule * FASTCALL Find(const char *languageName);
+		static void AddLexerModule(LexerModule *plm);
 	};
 
 	/*inline int Maximum(int a, int b) 

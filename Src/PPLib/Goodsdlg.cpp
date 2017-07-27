@@ -3183,8 +3183,7 @@ int GoodsFiltDialog::vatFilt()
 int GoodsFiltDialog::editSysjFilt()
 {
 	SysJournalFilt sj_filt;
-	if(Data.P_SjF)
-		sj_filt = *Data.P_SjF;
+	RVALUEPTR(sj_filt, Data.P_SjF);
 	sj_filt.ObjType = PPOBJ_GOODS;
 	if(EditSysjFilt2(&sj_filt) > 0) {
 		SETIFZ(Data.P_SjF, new SysJournalFilt);

@@ -54,20 +54,20 @@
 	bool curl_win32_idn_to_ascii(const char * in, char ** out);
 #endif  /* USE_LIBIDN2 */
 //#include "urldata.h"
-#include "netrc.h"
-#include "formdata.h"
-#include "vtls/vtls.h"
+//#include "netrc.h"
+//#include "formdata.h"
+//#include "vtls/vtls.h"
 //#include "hostip.h"
 //#include "transfer.h"
 //#include "sendf.h"
 //#include "progress.h"
-#include "cookie.h"
+//#include "cookie.h"
 //#include "strcase.h"
 //#include "strerror.h"
 //#include "escape.h"
 //#include "strtok.h"
-#include "share.h"
-#include "content_encoding.h"
+//#include "share.h"
+//#include "content_encoding.h"
 #include "http_digest.h"
 #include "http_negotiate.h"
 //#include "select.h"
@@ -84,7 +84,7 @@
 //#include "dict.h"
 #include "telnet.h"
 #include "tftp.h"
-#include "http.h"
+//#include "http.h"
 #include "http2.h"
 //#include "file.h"
 #include "curl_ldap.h"
@@ -101,8 +101,8 @@
 #include "http_proxy.h"
 //#include "conncache.h"
 //#include "multihandle.h"
-#include "pipeline.h"
-#include "dotdot.h"
+//#include "pipeline.h"
+//#include "dotdot.h"
 //#include "strdup.h"
 // The last 3 #include files should be in this order 
 #include "curl_printf.h"
@@ -110,24 +110,16 @@
 #include "memdebug.h"
 
 /* Local static prototypes */
-static struct connectdata * find_oldest_idle_connection_in_bundle(struct Curl_easy * data,
-    struct connectbundle * bundle);
+static struct connectdata * find_oldest_idle_connection_in_bundle(struct Curl_easy * data, struct connectbundle * bundle);
 static void conn_free(struct connectdata * conn);
 static void free_fixed_hostname(struct hostname * host);
 static void signalPipeClose(struct curl_llist * pipeline, bool pipe_broke);
-static CURLcode parse_url_login(struct Curl_easy * data,
-    struct connectdata * conn,
-    char ** userptr, char ** passwdptr,
-    char ** optionsptr);
-static CURLcode parse_login_details(const char * login, const size_t len,
-    char ** userptr, char ** passwdptr,
-    char ** optionsptr);
+static CURLcode parse_url_login(struct Curl_easy * data, struct connectdata * conn, char ** userptr, char ** passwdptr, char ** optionsptr);
+static CURLcode parse_login_details(const char * login, const size_t len, char ** userptr, char ** passwdptr, char ** optionsptr);
 static uint get_protocol_family(uint protocol);
-
 /*
  * Protocol table.
  */
-
 static const struct Curl_handler * const protocols[] = {
 #ifndef CURL_DISABLE_HTTP
 	&Curl_handler_http,
@@ -149,9 +141,9 @@ static const struct Curl_handler * const protocols[] = {
 #endif
 #ifndef CURL_DISABLE_LDAP
 	&Curl_handler_ldap,
-#if !defined(CURL_DISABLE_LDAPS) && ((defined(USE_OPENLDAP) && defined(USE_SSL)) ||	(!defined(USE_OPENLDAP) && defined(HAVE_LDAP_SSL)))
-	&Curl_handler_ldaps,
-#endif
+	#if !defined(CURL_DISABLE_LDAPS) && ((defined(USE_OPENLDAP) && defined(USE_SSL)) ||	(!defined(USE_OPENLDAP) && defined(HAVE_LDAP_SSL)))
+		&Curl_handler_ldaps,
+	#endif
 #endif
 #ifndef CURL_DISABLE_FILE
 	&Curl_handler_file,
@@ -165,30 +157,27 @@ static const struct Curl_handler * const protocols[] = {
 #endif
 #ifndef CURL_DISABLE_IMAP
 	&Curl_handler_imap,
-#ifdef USE_SSL
-	&Curl_handler_imaps,
-#endif
+	#ifdef USE_SSL
+		&Curl_handler_imaps,
+	#endif
 #endif
 #ifndef CURL_DISABLE_POP3
 	&Curl_handler_pop3,
-#ifdef USE_SSL
-	&Curl_handler_pop3s,
+	#ifdef USE_SSL
+		&Curl_handler_pop3s,
+	#endif
 #endif
-#endif
-
-#if !defined(CURL_DISABLE_SMB) && defined(USE_NTLM) && \
-	(CURL_SIZEOF_CURL_OFF_T > 4) &&	\
-	(!defined(USE_WINDOWS_SSPI) || defined(USE_WIN32_CRYPTO))
+#if !defined(CURL_DISABLE_SMB) && defined(USE_NTLM) && (CURL_SIZEOF_CURL_OFF_T > 4) &&	(!defined(USE_WINDOWS_SSPI) || defined(USE_WIN32_CRYPTO))
 	&Curl_handler_smb,
-#ifdef USE_SSL
-	&Curl_handler_smbs,
-#endif
+	#ifdef USE_SSL
+		&Curl_handler_smbs,
+	#endif
 #endif
 #ifndef CURL_DISABLE_SMTP
 	&Curl_handler_smtp,
-#ifdef USE_SSL
-	&Curl_handler_smtps,
-#endif
+	#ifdef USE_SSL
+		&Curl_handler_smtps,
+	#endif
 #endif
 
 #ifndef CURL_DISABLE_RTSP
@@ -259,18 +248,13 @@ static CURLcode setstropt(char ** charp, const char * s)
 {
 	/* Release the previous storage at `charp' and replace by a dynamic storage
 	   copy of `s'. Return CURLE_OK or CURLE_OUT_OF_MEMORY. */
-
 	ZFREE(*charp);
-
 	if(s) {
 		char * str = _strdup(s);
-
 		if(!str)
 			return CURLE_OUT_OF_MEMORY;
-
 		*charp = str;
 	}
-
 	return CURLE_OK;
 }
 
@@ -279,16 +263,11 @@ static CURLcode setstropt_userpwd(char * option, char ** userp, char ** passwdp)
 	CURLcode result = CURLE_OK;
 	char * user = NULL;
 	char * passwd = NULL;
-
 	/* Parse the login details if specified. It not then we treat NULL as a hint
 	   to clear the existing data */
 	if(option) {
-		result = parse_login_details(option, strlen(option),
-		    (userp ? &user : NULL),
-		    (passwdp ? &passwd : NULL),
-		    NULL);
+		result = parse_login_details(option, strlen(option), (userp ? &user : NULL), (passwdp ? &passwd : NULL), NULL);
 	}
-
 	if(!result) {
 		/* Store the username part of option if required */
 		if(userp) {
@@ -298,18 +277,15 @@ static CURLcode setstropt_userpwd(char * option, char ** userp, char ** passwdp)
 				if(!user)
 					result = CURLE_OUT_OF_MEMORY;
 			}
-
 			ZFREE(*userp);
 			*userp = user;
 		}
-
 		/* Store the password part of option if required */
 		if(passwdp) {
 			ZFREE(*passwdp);
 			*passwdp = passwd;
 		}
 	}
-
 	return result;
 }
 

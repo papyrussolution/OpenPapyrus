@@ -68,10 +68,8 @@ static int rc4_hmac_md5_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 	extern uint OPENSSL_ia32cap_P[];
 # endif
 	size_t plen = key->payload_length;
-
 	if(plen != NO_PAYLOAD_LENGTH && len != (plen + MD5_DIGEST_LENGTH))
 		return 0;
-
 	if(EVP_CIPHER_CTX_encrypting(ctx)) {
 		if(plen == NO_PAYLOAD_LENGTH)
 			plen = len;
@@ -79,9 +77,7 @@ static int rc4_hmac_md5_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 		/* cipher has to "fall behind" */
 		if(rc4_off > md5_off)
 			md5_off += MD5_CBLOCK;
-
-		if(plen > md5_off && (blocks = (plen - md5_off) / MD5_CBLOCK) &&
-		    (OPENSSL_ia32cap_P[0] & (1 << 20)) == 0) {
+		if(plen > md5_off && (blocks = (plen - md5_off) / MD5_CBLOCK) && (OPENSSL_ia32cap_P[0] & (1 << 20)) == 0) {
 			MD5_Update(&key->md, in, md5_off);
 			RC4(&key->ks, rc4_off, in, out);
 

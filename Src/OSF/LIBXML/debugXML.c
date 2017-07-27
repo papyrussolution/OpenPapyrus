@@ -681,7 +681,7 @@ static void xmlCtxtDumpAttrList(xmlDebugCtxt * ctxt, xmlAttrPtr attr)
 static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNodePtr node)
 {
 	SString temp_buf;
-	if(node == NULL) {
+	if(!node) {
 		if(!ctxt->check) {
 			xmlCtxtDumpSpaces(ctxt);
 			(temp_buf = "node is NULL").CR();
@@ -859,7 +859,7 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNodePtr node)
  */
 static void xmlCtxtDumpNode(xmlDebugCtxt * ctxt, xmlNodePtr node)
 {
-	if(node == NULL) {
+	if(!node) {
 		if(!ctxt->check) {
 			xmlCtxtDumpSpaces(ctxt);
 			fprintf(ctxt->output, "node is NULL\n");
@@ -1286,7 +1286,7 @@ int xmlLsCountNode(xmlNodePtr node)
 {
 	int ret = 0;
 	xmlNodePtr list = NULL;
-	if(node == NULL)
+	if(!node)
 		return 0;
 	switch(node->type) {
 		case XML_ELEMENT_NODE:
@@ -1340,7 +1340,7 @@ int xmlLsCountNode(xmlNodePtr node)
 void xmlLsOneNode(FILE * output, xmlNodePtr node) 
 {
 	if(output)  {
-		if(node == NULL) {
+		if(!node) {
 			fprintf(output, "NULL\n");
 			return;
 		}
@@ -1583,7 +1583,7 @@ int xmlShellList(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr n
 {
 	xmlNodePtr cur;
 	if(ctxt) {
-		if(node == NULL) {
+		if(!node) {
 			fprintf(ctxt->output, "NULL\n");
 		}
 		else {
@@ -1627,7 +1627,7 @@ int xmlShellBase(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr n
 	xmlChar * base;
 	if(!ctxt)
 		return 0;
-	if(node == NULL) {
+	if(!node) {
 		fprintf(ctxt->output, "NULL\n");
 		return 0;
 	}
@@ -1697,14 +1697,12 @@ static int xmlShellRegisterNamespace(xmlShellCtxtPtr ctxt, char * arg, xmlNodePt
 			return -1;
 		}
 		*(next++) = '\0';
-
 		/* find href */
 		href = next;
 		next = (xmlChar*)xmlStrchr(next, ' ');
-		if(next != NULL) {
+		if(next) {
 			*(next++) = '\0';
 		}
-
 		/* do register namespace */
 		if(xmlXPathRegisterNs(ctxt->pctxt, prefix, href) != 0) {
 			fprintf(ctxt->output, "Error: unable to register NS with prefix=\"%s\" and href=\"%s\"\n", prefix, href);
@@ -1712,11 +1710,9 @@ static int xmlShellRegisterNamespace(xmlShellCtxtPtr ctxt, char * arg, xmlNodePt
 			return -1;
 		}
 	}
-
 	SAlloc::F(nsListDup);
 	return 0;
 }
-
 /**
  * xmlShellRegisterRootNamespaces:
  * @ctxt:  the shell context
@@ -1763,7 +1759,7 @@ static int xmlShellGrep(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg, xmlNo
 {
 	if(!ctxt)
 		return 0;
-	if(node == NULL)
+	if(!node)
 		return 0;
 	if(arg == NULL)
 		return 0;
@@ -1833,7 +1829,7 @@ static int xmlShellGrep(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg, xmlNo
 int xmlShellDir(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg ATTRIBUTE_UNUSED, xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
 {
 	if(ctxt) {
-		if(node == NULL) {
+		if(!node) {
 			fprintf(ctxt->output, "NULL\n");
 		}
 		else {
@@ -1950,7 +1946,7 @@ int xmlShellCat(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr no
 {
 	if(!ctxt)
 		return 0;
-	if(node == NULL) {
+	if(!node) {
 		fprintf(ctxt->output, "NULL\n");
 		return 0;
 	}
@@ -2048,7 +2044,7 @@ int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNodePtr node ATTRIBUT
  */
 int xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
 {
-	if(node == NULL)
+	if(!node)
 		return -1;
 	if((filename == NULL) || (filename[0] == 0)) {
 		return -1;

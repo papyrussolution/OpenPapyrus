@@ -1029,7 +1029,7 @@ int GSDialog::setDTS(const PPGoodsStruc * pData)
 		PPLoadText(PPTXT_DYNGENGSTRUC, temp_buf);
 	setStaticText(CTL_GSTRUC_INFO, temp_buf);
 	setCtrlData(CTL_GSTRUC_NAME, Data.Rec.Name);
-	setCtrlLong(CTL_GSTRUC_ID, Data.Rec.ID); // @v7.2.4
+	setCtrlLong(CTL_GSTRUC_ID, Data.Rec.ID);
 	SetupObjListCombo(this, CTLSEL_GSTRUC_VAROBJ, Data.Rec.VariedPropObjType);
 	setCtrlData(CTL_GSTRUC_COMMDENOM, &Data.Rec.CommDenom);
 	SetPeriodInput(this, CTL_GSTRUC_PERIOD, &Data.Rec.Period);

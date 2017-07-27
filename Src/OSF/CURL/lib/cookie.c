@@ -87,11 +87,11 @@
 	#include <libpsl.h>
 #endif
 //#include "urldata.h"
-#include "cookie.h"
+//#include "cookie.h"
 //#include "strtok.h"
 //#include "sendf.h"
 //#include "slist.h"
-#include "share.h"
+//#include "share.h"
 //#include "strtoofft.h"
 //#include "strcase.h"
 #include "curl_memrchr.h"

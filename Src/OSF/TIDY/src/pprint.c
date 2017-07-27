@@ -1819,7 +1819,7 @@ void TY_(PPrintTree) (TidyDocImpl* doc, uint mode, uint indent, Node *node)
 	uint spaces = cfg(doc, TidyIndentSpaces);
 	bool xhtml = cfgBool(doc, TidyXhtmlOut);
 
-	if(node == NULL)
+	if(!node)
 		return;
 
 	if(node->type == TextNode) {
@@ -2033,7 +2033,7 @@ void TY_(PPrintTree) (TidyDocImpl* doc, uint mode, uint indent, Node *node)
 void TY_(PPrintXMLTree) (TidyDocImpl* doc, uint mode, uint indent, Node *node)
 {
 	bool xhtmlOut = cfgBool(doc, TidyXhtmlOut);
-	if(node == NULL)
+	if(!node)
 		return;
 
 	if(node->type == TextNode) {

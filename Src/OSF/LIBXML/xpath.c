@@ -2418,7 +2418,7 @@ static xmlXPathObjectPtr xmlXPathCacheNewFloat(xmlXPathContextPtr ctxt, double v
 static xmlXPathObjectPtr xmlXPathCacheConvertString(xmlXPathContextPtr ctxt, xmlXPathObjectPtr val)
 {
 	xmlChar * res = NULL;
-	if(val == NULL)
+	if(!val)
 		return(xmlXPathCacheNewCString(ctxt, ""));
 	switch(val->type) {
 		case XPATH_UNDEFINED:
@@ -2463,7 +2463,7 @@ static xmlXPathObjectPtr xmlXPathCacheConvertString(xmlXPathContextPtr ctxt, xml
  */
 static xmlXPathObjectPtr xmlXPathCacheObjectCopy(xmlXPathContextPtr ctxt, xmlXPathObjectPtr val)
 {
-	if(val == NULL)
+	if(!val)
 		return 0;
 	if(XP_HAS_CACHE(ctxt)) {
 		switch(val->type) {
@@ -2490,7 +2490,7 @@ static xmlXPathObjectPtr xmlXPathCacheObjectCopy(xmlXPathContextPtr ctxt, xmlXPa
 static xmlXPathObjectPtr xmlXPathCacheConvertBoolean(xmlXPathContextPtr ctxt, xmlXPathObjectPtr val)
 {
 	xmlXPathObjectPtr ret;
-	if(val == NULL)
+	if(!val)
 		return xmlXPathCacheNewBoolean(ctxt, 0);
 	if(val->type == XPATH_BOOLEAN)
 		return val;
@@ -2513,7 +2513,7 @@ static xmlXPathObjectPtr xmlXPathCacheConvertBoolean(xmlXPathContextPtr ctxt, xm
 static xmlXPathObjectPtr xmlXPathCacheConvertNumber(xmlXPathContextPtr ctxt, xmlXPathObjectPtr val)
 {
 	xmlXPathObjectPtr ret;
-	if(val == NULL)
+	if(!val)
 		return xmlXPathCacheNewFloat(ctxt, 0.0);
 	if(val->type == XPATH_NUMBER)
 		return val;
@@ -3788,7 +3788,7 @@ void xmlXPathNodeSetDel(xmlNodeSetPtr cur, xmlNodePtr val)
 {
 	int i;
 	if(!cur) return;
-	if(val == NULL) return;
+	if(!val) return;
 	/*
 	 * find node in nodeTab
 	 */
@@ -4250,7 +4250,7 @@ xmlNodeSetPtr xmlXPathNodeLeadingSorted(xmlNodeSetPtr nodes, xmlNodePtr node)
 	int i, l;
 	xmlNodePtr cur;
 	xmlNodeSetPtr ret;
-	if(node == NULL)
+	if(!node)
 		return nodes;
 	ret = xmlXPathNodeSetCreate(NULL);
 	if(!ret)
@@ -4934,7 +4934,7 @@ xmlXPathObjectPtr xmlXPathWrapExternal(void * val)
 xmlXPathObjectPtr xmlXPathObjectCopy(xmlXPathObjectPtr val)
 {
 	xmlXPathObjectPtr ret;
-	if(val == NULL)
+	if(!val)
 		return 0;
 	ret = (xmlXPathObjectPtr)SAlloc::M(sizeof(xmlXPathObject));
 	if(!ret) {
@@ -5274,7 +5274,7 @@ xmlChar * xmlXPathCastNodeSetToString(xmlNodeSetPtr ns)
 xmlChar * xmlXPathCastToString(xmlXPathObjectPtr val)
 {
 	xmlChar * ret = NULL;
-	if(val == NULL)
+	if(!val)
 		return(xmlStrdup((const xmlChar*)""));
 	switch(val->type) {
 		case XPATH_UNDEFINED:
@@ -5319,7 +5319,7 @@ xmlChar * xmlXPathCastToString(xmlXPathObjectPtr val)
 xmlXPathObjectPtr xmlXPathConvertString(xmlXPathObjectPtr val) 
 {
 	xmlChar * res = NULL;
-	if(val == NULL)
+	if(!val)
 		return xmlXPathNewCString("");
 	else {
 		switch(val->type) {
@@ -5428,7 +5428,7 @@ double xmlXPathCastNodeSetToNumber(xmlNodeSetPtr ns)
 double xmlXPathCastToNumber(xmlXPathObjectPtr val)
 {
 	double ret = 0.0;
-	if(val == NULL)
+	if(!val)
 		ret = xmlXPathNAN;
 	else {
 		switch(val->type) {
@@ -5474,7 +5474,7 @@ double xmlXPathCastToNumber(xmlXPathObjectPtr val)
 xmlXPathObjectPtr xmlXPathConvertNumber(xmlXPathObjectPtr val)
 {
 	xmlXPathObjectPtr ret;
-	if(val == NULL)
+	if(!val)
 		return(xmlXPathNewFloat(0.0));
 	if(val->type == XPATH_NUMBER)
 		return val;
@@ -5532,7 +5532,7 @@ int xmlXPathCastNodeSetToBoolean(xmlNodeSetPtr ns)
 int xmlXPathCastToBoolean(xmlXPathObjectPtr val)
 {
 	int ret = 0;
-	if(val == NULL)
+	if(!val)
 		return 0;
 	switch(val->type) {
 		case XPATH_UNDEFINED:
@@ -5576,7 +5576,7 @@ int xmlXPathCastToBoolean(xmlXPathObjectPtr val)
  */
 xmlXPathObjectPtr xmlXPathConvertBoolean(xmlXPathObjectPtr val)
 {
-	if(val == NULL)
+	if(!val)
 		return xmlXPathNewBoolean(0);
 	else if(val->type == XPATH_BOOLEAN)
 		return val;
@@ -5776,7 +5776,7 @@ static uint xmlXPathNodeValHash(xmlNodePtr node)
 	const xmlChar * string = NULL;
 	xmlNodePtr tmp = NULL;
 	uint ret = 0;
-	if(node == NULL)
+	if(!node)
 		return 0;
 	if(node->type == XML_DOCUMENT_NODE) {
 		tmp = xmlDocGetRootElement((xmlDocPtr)node);
@@ -5784,7 +5784,7 @@ static uint xmlXPathNodeValHash(xmlNodePtr node)
 			node = node->children;
 		else
 			node = tmp;
-		if(node == NULL)
+		if(!node)
 			return 0;
 	}
 	switch(node->type) {
@@ -12630,7 +12630,7 @@ error:
 				    total += xmlXPathCompOpEval(ctxt, &comp->steps[op->ch1]);
 			    if(op->value5 == NULL) {
 				    val = xmlXPathVariableLookup(ctxt->context, (const xmlChar *)op->value4);
-				    if(val == NULL) {
+				    if(!val) {
 					    ctxt->error = XPATH_UNDEF_VARIABLE_ERROR;
 					    return 0;
 				    }
@@ -12646,7 +12646,7 @@ error:
 					    return (total);
 				    }
 				    val = xmlXPathVariableLookupNS(ctxt->context, (const xmlChar *)op->value4, URI);
-				    if(val == NULL) {
+				    if(!val) {
 					    ctxt->error = XPATH_UNDEF_VARIABLE_ERROR;
 					    return 0;
 				    }

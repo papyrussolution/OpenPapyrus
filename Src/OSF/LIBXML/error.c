@@ -591,7 +591,7 @@ void __xmlSimpleError(int domain, int code, xmlNodePtr node, const char * msg, c
  */
 void XMLCDECL xmlParserError(void * ctx, const char * msg, ...)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlParserInputPtr input = NULL;
 	xmlParserInputPtr cur = NULL;
 	char * str;
@@ -628,7 +628,7 @@ void XMLCDECL xmlParserError(void * ctx, const char * msg, ...)
  */
 void XMLCDECL xmlParserWarning(void * ctx, const char * msg, ...)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlParserInputPtr input = NULL;
 	xmlParserInputPtr cur = NULL;
 	char * str;
@@ -671,7 +671,7 @@ void XMLCDECL xmlParserWarning(void * ctx, const char * msg, ...)
  */
 void XMLCDECL xmlParserValidityError(void * ctx, const char * msg, ...)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlParserInputPtr input = NULL;
 	char * str;
 	int len = sstrlen((const xmlChar*)msg);
@@ -712,7 +712,7 @@ void XMLCDECL xmlParserValidityError(void * ctx, const char * msg, ...)
  */
 void XMLCDECL xmlParserValidityWarning(void * ctx, const char * msg, ...)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlParserInputPtr input = NULL;
 	char * str;
 	int len = sstrlen((const xmlChar*)msg);
@@ -796,7 +796,7 @@ void xmlResetLastError()
  */
 xmlErrorPtr xmlCtxtGetLastError(void * ctx)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 
 	if(!ctxt)
 		return 0;
@@ -814,7 +814,7 @@ xmlErrorPtr xmlCtxtGetLastError(void * ctx)
  */
 void xmlCtxtResetLastError(void * ctx)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 
 	if(!ctxt)
 		return;

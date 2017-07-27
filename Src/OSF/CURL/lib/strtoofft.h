@@ -39,36 +39,31 @@
  * On systems where the size of curl_off_t is smaller or equal than the size
  * of 'long' the conversion function to use is strtol().
  */
-
 #if (CURL_SIZEOF_CURL_OFF_T > CURL_SIZEOF_LONG)
-#  ifdef HAVE_STRTOLL
-#    define curlx_strtoofft strtoll
-#  else
-#    if defined(_MSC_VER) && (_MSC_VER >= 1300) && (_INTEGRAL_MAX_BITS >= 64)
-#      if defined(_SAL_VERSION)
-         _Check_return_ _CRTIMP __int64 __cdecl _strtoi64(
-             _In_z_ const char *_String,
-             _Out_opt_ _Deref_post_z_ char **_EndPtr, _In_ int _Radix);
-#      else
-         _CRTIMP __int64 __cdecl _strtoi64(const char *_String,
-                                           char **_EndPtr, int _Radix);
-#      endif
-#      define curlx_strtoofft _strtoi64
-#    else
-       curl_off_t curlx_strtoll(const char *nptr, char **endptr, int base);
-#      define curlx_strtoofft curlx_strtoll
-#      define NEED_CURL_STRTOLL 1
-#    endif
-#  endif
+	#ifdef HAVE_STRTOLL
+		#define curlx_strtoofft strtoll
+	#else
+		#if defined(_MSC_VER) && (_MSC_VER >= 1300) && (_INTEGRAL_MAX_BITS >= 64)
+			#if defined(_SAL_VERSION)
+				_Check_return_ _CRTIMP __int64 __cdecl _strtoi64(_In_z_ const char *_String, _Out_opt_ _Deref_post_z_ char **_EndPtr, _In_ int _Radix);
+			#else
+				_CRTIMP __int64 __cdecl _strtoi64(const char *_String, char **_EndPtr, int _Radix);
+			#endif
+				#define curlx_strtoofft _strtoi64
+		#else
+			curl_off_t curlx_strtoll(const char *nptr, char **endptr, int base);
+			#define curlx_strtoofft curlx_strtoll
+			#define NEED_CURL_STRTOLL 1
+		#endif
+	#endif
 #else
-#  define curlx_strtoofft strtol
+	#define curlx_strtoofft strtol
 #endif
-
 #if (CURL_SIZEOF_CURL_OFF_T == 4)
-#  define CURL_OFF_T_MAX CURL_OFF_T_C(0x7FFFFFFF)
+	#define CURL_OFF_T_MAX CURL_OFF_T_C(0x7FFFFFFF)
 #else
-   /* assume CURL_SIZEOF_CURL_OFF_T == 8 */
-#  define CURL_OFF_T_MAX CURL_OFF_T_C(0x7FFFFFFFFFFFFFFF)
+	// assume CURL_SIZEOF_CURL_OFF_T == 8 
+	#define CURL_OFF_T_MAX CURL_OFF_T_C(0x7FFFFFFFFFFFFFFF)
 #endif
 #define CURL_OFF_T_MIN (-CURL_OFF_T_MAX - CURL_OFF_T_C(1))
 

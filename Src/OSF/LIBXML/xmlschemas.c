@@ -4107,17 +4107,11 @@ static xmlAttrPtr xmlSchemaGetPropNode(xmlNodePtr node, const char * name)
  */
 static xmlAttrPtr xmlSchemaGetPropNodeNs(xmlNodePtr node, const char * uri, const char * name)
 {
-	xmlAttrPtr prop;
-
-	if((node == NULL) || (name == NULL))
-		return 0;
-	prop = node->properties;
-	while(prop != NULL) {
-		if((prop->ns != NULL) &&
-		    sstreq(prop->name, BAD_CAST name) &&
-		    sstreq(prop->ns->href, BAD_CAST uri))
-			return(prop);
-		prop = prop->next;
+	if(node && name) {
+		for(xmlAttr * prop = node->properties; prop; prop = prop->next) {
+			if(prop->ns && sstreq(prop->name, BAD_CAST name) && sstreq(prop->ns->href, BAD_CAST uri))
+				return prop;
+		}
 	}
 	return 0;
 }
@@ -4126,7 +4120,7 @@ static const xmlChar * xmlSchemaGetNodeContent(xmlSchemaParserCtxtPtr ctxt, xmlN
 {
 	const xmlChar * ret;
 	xmlChar * val = xmlNodeGetContent(node);
-	if(val == NULL)
+	if(!val)
 		val = xmlStrdup((xmlChar*)"");
 	ret = xmlDictLookup(ctxt->dict, val, -1);
 	SAlloc::F(val);
@@ -4191,7 +4185,7 @@ static xmlSchemaElementPtr xmlSchemaGetElem(xmlSchemaPtr schema, const xmlChar *
 	xmlSchemaElementPtr ret = NULL;
 	if((name == NULL) || (schema == NULL))
 		return 0;
-	if(schema != NULL) {
+	if(schema) {
 		WXS_FIND_GLOBAL_ITEM(elemDecl, xmlSchemaElementPtr)
 	}
 exit:
@@ -4233,7 +4227,7 @@ static xmlSchemaTypePtr xmlSchemaGetType(xmlSchemaPtr schema, const xmlChar * na
 		 * TODO: Can we optimize this?
 		 */
 	}
-	if(schema != NULL) {
+	if(schema) {
 		WXS_FIND_GLOBAL_ITEM(typeDecl, xmlSchemaTypePtr)
 	}
 exit:
@@ -4263,7 +4257,7 @@ static xmlSchemaAttributePtr xmlSchemaGetAttributeDecl(xmlSchemaPtr schema, cons
 	xmlSchemaAttributePtr ret = NULL;
 	if((name == NULL) || (schema == NULL))
 		return 0;
-	if(schema != NULL) {
+	if(schema) {
 		WXS_FIND_GLOBAL_ITEM(attrDecl, xmlSchemaAttributePtr)
 	}
 exit:
@@ -4293,7 +4287,7 @@ static xmlSchemaAttributeGroupPtr xmlSchemaGetAttributeGroup(xmlSchemaPtr schema
 	xmlSchemaAttributeGroupPtr ret = NULL;
 	if((name == NULL) || (schema == NULL))
 		return 0;
-	if(schema != NULL) {
+	if(schema) {
 		WXS_FIND_GLOBAL_ITEM(attrgrpDecl, xmlSchemaAttributeGroupPtr)
 	}
 exit:
@@ -4329,7 +4323,7 @@ static xmlSchemaModelGroupDefPtr xmlSchemaGetGroup(xmlSchemaPtr schema, const xm
 	xmlSchemaModelGroupDefPtr ret = NULL;
 	if((name == NULL) || (schema == NULL))
 		return 0;
-	if(schema != NULL) {
+	if(schema) {
 		WXS_FIND_GLOBAL_ITEM(groupDecl, xmlSchemaModelGroupDefPtr)
 	}
 exit:
@@ -4350,7 +4344,7 @@ static xmlSchemaNotationPtr xmlSchemaGetNotation(xmlSchemaPtr schema, const xmlC
 	xmlSchemaNotationPtr ret = NULL;
 	if((name == NULL) || (schema == NULL))
 		return 0;
-	if(schema != NULL) {
+	if(schema) {
 		WXS_FIND_GLOBAL_ITEM(notaDecl, xmlSchemaNotationPtr)
 	}
 exit:
@@ -4362,7 +4356,7 @@ static xmlSchemaIDCPtr xmlSchemaGetIDC(xmlSchemaPtr schema, const xmlChar * name
 	xmlSchemaIDCPtr ret = NULL;
 	if((name == NULL) || (schema == NULL))
 		return 0;
-	if(schema != NULL) {
+	if(schema) {
 		WXS_FIND_GLOBAL_ITEM(idcDef, xmlSchemaIDCPtr)
 	}
 exit:
@@ -5450,7 +5444,7 @@ static int xmlGetBooleanProp(xmlSchemaParserCtxtPtr ctxt,
 	const xmlChar * val;
 
 	val = xmlSchemaGetProp(ctxt, node, name);
-	if(val == NULL)
+	if(!val)
 		return (def);
 	/*
 	 * 3.2.2.1 Lexical representation
@@ -21751,7 +21745,7 @@ static int xmlSchemaBubbleIDCNodeTables(xmlSchemaValidCtxtPtr vctxt)
 			nbFields = bind->definition->nbFields;
 			for(i = 0; i < bind->nbNodes; i++) {
 				node = bind->nodeTable[i];
-				if(node == NULL)
+				if(!node)
 					continue;
 				/*
 				 * ...with every key-sequence of the parent node, already
@@ -22338,7 +22332,7 @@ static int xmlSchemaValidateFacets(xmlSchemaAbstractCtxtPtr actxt,
 	 * anySimpleType based types), then use the provided
 	 * type.
 	 */
-	if(val == NULL)
+	if(!val)
 		valType = valType;
 	else
 		valType = xmlSchemaGetValType(val);
@@ -22790,7 +22784,7 @@ static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxtPtr actxt,
 				/*
 				 * Add to list of computed values.
 				 */
-				if(val == NULL)
+				if(!val)
 					val = curVal;
 				else
 					xmlSchemaValueAppend(prevVal, curVal);
@@ -26417,7 +26411,7 @@ void xmlSchemaValidateSetLocator(xmlSchemaValidCtxtPtr vctxt, xmlSchemaValidityL
  */
 static int xmlSchemaValidateStreamLocator(void * ctx, const char ** file, unsigned long * line)
 {
-	xmlParserCtxtPtr ctxt;
+	xmlParserCtxt * ctxt;
 	if(!ctx || ((file == NULL) && (line == NULL)))
 		return -1;
 	if(file != NULL)

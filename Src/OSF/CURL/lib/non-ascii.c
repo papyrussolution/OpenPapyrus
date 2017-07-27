@@ -26,7 +26,7 @@
 
 //#include <curl/curl.h>
 //#include "non-ascii.h"
-#include "formdata.h"
+//#include "formdata.h"
 //#include "sendf.h"
 //#include "urldata.h"
 //#include "curl_memory.h"

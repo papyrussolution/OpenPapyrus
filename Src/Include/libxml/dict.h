@@ -45,7 +45,7 @@ XMLPUBFUN void XMLCALL xmlDictFree(xmlDictPtr dict);
 XMLPUBFUN const xmlChar * XMLCALL xmlDictLookup(xmlDictPtr dict, const xmlChar *name, int len);
 XMLPUBFUN const xmlChar * XMLCALL xmlDictExists(xmlDictPtr dict, const xmlChar *name, int len);
 XMLPUBFUN const xmlChar * XMLCALL xmlDictQLookup(xmlDictPtr dict, const xmlChar *prefix, const xmlChar *name);
-XMLPUBFUN int XMLCALL xmlDictOwns(xmlDictPtr dict, const xmlChar *str);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlDictOwns(xmlDict * pDict, const xmlChar * pStr);
 XMLPUBFUN int XMLCALL xmlDictSize(xmlDictPtr dict);
 
 /*

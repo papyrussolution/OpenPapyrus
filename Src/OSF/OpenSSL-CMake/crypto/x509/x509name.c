@@ -18,9 +18,7 @@
 int X509_NAME_get_text_by_NID(X509_NAME * name, int nid, char * buf, int len)
 {
 	ASN1_OBJECT * obj = OBJ_nid2obj(nid);
-	if(obj == NULL)
-		return (-1);
-	return (X509_NAME_get_text_by_OBJ(name, obj, buf, len));
+	return obj ? X509_NAME_get_text_by_OBJ(name, obj, buf, len) : -1;
 }
 
 int X509_NAME_get_text_by_OBJ(X509_NAME * name, const ASN1_OBJECT * obj, char * buf, int len)
@@ -40,17 +38,13 @@ int X509_NAME_get_text_by_OBJ(X509_NAME * name, const ASN1_OBJECT * obj, char * 
 
 int X509_NAME_entry_count(const X509_NAME * name)
 {
-	if(name == NULL)
-		return 0;
-	return (sk_X509_NAME_ENTRY_num(name->entries));
+	return name ? sk_X509_NAME_ENTRY_num(name->entries) : 0;
 }
 
 int X509_NAME_get_index_by_NID(X509_NAME * name, int nid, int lastpos)
 {
 	ASN1_OBJECT * obj = OBJ_nid2obj(nid);
-	if(obj == NULL)
-		return (-2);
-	return (X509_NAME_get_index_by_OBJ(name, obj, lastpos));
+	return obj ? X509_NAME_get_index_by_OBJ(name, obj, lastpos) : -2;
 }
 //
 // NOTE: you should be passing -1, not 0 as lastpos 
@@ -119,34 +113,34 @@ X509_NAME_ENTRY * X509_NAME_delete_entry(X509_NAME * name, int loc)
 
 int X509_NAME_add_entry_by_OBJ(X509_NAME * name, const ASN1_OBJECT * obj, int type, const uchar * bytes, int len, int loc, int set)
 {
-	int ret;
+	int ret = 0;
 	X509_NAME_ENTRY * ne = X509_NAME_ENTRY_create_by_OBJ(NULL, obj, type, bytes, len);
-	if(!ne)
-		return 0;
-	ret = X509_NAME_add_entry(name, ne, loc, set);
-	X509_NAME_ENTRY_free(ne);
+	if(ne) {
+		ret = X509_NAME_add_entry(name, ne, loc, set);
+		X509_NAME_ENTRY_free(ne);
+	}
 	return ret;
 }
 
 int X509_NAME_add_entry_by_NID(X509_NAME * name, int nid, int type, const uchar * bytes, int len, int loc, int set)
 {
-	int ret;
+	int ret = 0;
 	X509_NAME_ENTRY * ne = X509_NAME_ENTRY_create_by_NID(NULL, nid, type, bytes, len);
-	if(!ne)
-		return 0;
-	ret = X509_NAME_add_entry(name, ne, loc, set);
-	X509_NAME_ENTRY_free(ne);
+	if(ne) {
+		ret = X509_NAME_add_entry(name, ne, loc, set);
+		X509_NAME_ENTRY_free(ne);
+	}
 	return ret;
 }
 
 int X509_NAME_add_entry_by_txt(X509_NAME * name, const char * field, int type, const uchar * bytes, int len, int loc, int set)
 {
-	int ret;
+	int ret = 0;
 	X509_NAME_ENTRY * ne = X509_NAME_ENTRY_create_by_txt(NULL, field, type, bytes, len);
-	if(!ne)
-		return 0;
-	ret = X509_NAME_add_entry(name, ne, loc, set);
-	X509_NAME_ENTRY_free(ne);
+	if(ne) {
+		ret = X509_NAME_add_entry(name, ne, loc, set);
+		X509_NAME_ENTRY_free(ne);
+	}
 	return ret;
 }
 /*
@@ -274,7 +268,6 @@ int X509_NAME_ENTRY_set_object(X509_NAME_ENTRY * ne, const ASN1_OBJECT * obj)
 int X509_NAME_ENTRY_set_data(X509_NAME_ENTRY * ne, int type, const uchar * bytes, int len)
 {
 	int i;
-
 	if((ne == NULL) || ((bytes == NULL) && (len != 0)))
 		return 0;
 	if((type > 0) && (type & MBSTRING_FLAG))
@@ -285,10 +278,7 @@ int X509_NAME_ENTRY_set_data(X509_NAME_ENTRY * ne, int type, const uchar * bytes
 	if(!i)
 		return 0;
 	if(type != V_ASN1_UNDEF) {
-		if(type == V_ASN1_APP_CHOOSE)
-			ne->value->type = ASN1_PRINTABLE_type(bytes, len);
-		else
-			ne->value->type = type;
+		ne->value->type = (type == V_ASN1_APP_CHOOSE) ? ASN1_PRINTABLE_type(bytes, len) : type;
 	}
 	return 1;
 }

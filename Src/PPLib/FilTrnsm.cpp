@@ -101,9 +101,7 @@ IMPL_HANDLE_EVENT(ObjReceiveParamDialog)
 int ObjReceiveParamDialog::setDTS(const ObjReceiveParam * pParam)
 {
 	ushort v = 0;
-	if(pParam)
-		Data = *pParam;
-	else
+	if(!RVALUEPTR(Data, pParam))
 		Data.Init();
 	if(EditOptions) {
 		if(Data.Flags & ObjReceiveParam::fGetFromOutSrcr)

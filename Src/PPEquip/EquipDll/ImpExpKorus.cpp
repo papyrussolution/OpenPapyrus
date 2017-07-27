@@ -2232,10 +2232,8 @@ int ImportCls::ListMessageBox(uint messageType)
 		SysLogMessage(SYSLOG_LISTMESSAGEBOX);
 		ok = 0;
 	ENDCATCH
-	if(p_input)
-		xmlFreeParserInputBuffer(p_input);
-	if(p_xml_ptr)
-		xmlFreeTextReader(p_xml_ptr);
+	xmlFreeParserInputBuffer(p_input);
+	xmlFreeTextReader(p_xml_ptr);
 	//delete p_info_blk;
 	return ok;
 }

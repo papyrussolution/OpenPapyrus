@@ -181,8 +181,7 @@ retry:
 				return ret;
 			goto try_again;
 		}
-		else if(atomic_read(&mpf->mfp->multiversion) != 0 &&
-			lock_mode == DB_LOCK_WRITE && (ret = __memp_dirty(mpf, &h, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0) {
+		else if(atomic_read(&mpf->mfp->multiversion) && lock_mode == DB_LOCK_WRITE && (ret = __memp_dirty(mpf, &h, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0) {
 			__memp_fput(mpf, dbc->thread_info, h, dbc->priority);
 			__LPUT(dbc, lock);
 		}

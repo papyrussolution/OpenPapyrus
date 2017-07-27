@@ -299,7 +299,7 @@ static int dgram_read(BIO * b, char * out, int outl)
 	BIO_ADDR peer;
 	socklen_t len = sizeof(peer);
 
-	if(out != NULL) {
+	if(out) {
 		clear_socket_error();
 		memzero(&peer, sizeof(peer));
 		dgram_adjust_rcv_timeout(b);
@@ -567,7 +567,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    ret = num;
 		    break;
 		case BIO_CTRL_DGRAM_SET_CONNECTED:
-		    if(ptr != NULL) {
+		    if(ptr) {
 			    data->connected = 1;
 			    BIO_ADDR_make(&data->peer, BIO_ADDR_sockaddr((BIO_ADDR*)ptr));
 		    }
@@ -1005,7 +1005,7 @@ static int dgram_sctp_read(BIO * b, char * out, int outl)
 
 	char cmsgbuf[512];
 
-	if(out != NULL) {
+	if(out) {
 		clear_socket_error();
 
 		do {

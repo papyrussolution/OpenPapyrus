@@ -249,7 +249,7 @@ static long mem_ctrl(BIO * b, int cmd, long num, void * ptr)
 		case BIO_CTRL_INFO:
 		    bm = bbm->readp;
 		    ret = (long)bm->length;
-		    if(ptr != NULL) {
+		    if(ptr) {
 			    pptr = (char**)ptr;
 			    *pptr = (char*)&(bm->data[0]);
 		    }
@@ -262,7 +262,7 @@ static long mem_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    b->ptr = bbm;
 		    break;
 		case BIO_C_GET_BUF_MEM_PTR:
-		    if(ptr != NULL) {
+		    if(ptr) {
 			    mem_buf_sync(b);
 			    bm = bbm->readp;
 			    pptr = (char**)ptr;

@@ -208,7 +208,7 @@ static int x509_name_ex_i2d(ASN1_VALUE ** val, uchar ** out,
 			return ret;
 	}
 	ret = a->bytes->length;
-	if(out != NULL) {
+	if(out) {
 		memcpy(*out, a->bytes->data, ret);
 		*out += ret;
 	}
@@ -464,7 +464,7 @@ int X509_NAME_set(X509_NAME ** xn, X509_NAME * name)
 		return 0;
 	if(*xn != name) {
 		in = X509_NAME_dup(name);
-		if(in != NULL) {
+		if(in) {
 			X509_NAME_free(*xn);
 			*xn = in;
 		}

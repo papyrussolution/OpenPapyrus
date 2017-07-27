@@ -3358,7 +3358,7 @@ void TY_(ParseHTML) (TidyDocImpl* doc, Node *html, GetTokenMode mode)
 	for(;; ) {
 		node = TY_(GetToken) (doc, IgnoreWhitespace);
 
-		if(node == NULL) {
+		if(!node) {
 			node = TY_(InferredTag) (doc, TidyTag_HEAD);
 			break;
 		}
@@ -3395,7 +3395,7 @@ void TY_(ParseHTML) (TidyDocImpl* doc, Node *html, GetTokenMode mode)
 	for(;; ) {
 		node = TY_(GetToken) (doc, IgnoreWhitespace);
 
-		if(node == NULL) {
+		if(!node) {
 			if(frameset == NULL) { /* implied body */
 				node = TY_(InferredTag) (doc, TidyTag_BODY);
 				TY_(InsertNodeAtEnd) (html, node);

@@ -282,7 +282,7 @@ done:
 err:
 		__partition_close(dbp, txn, 0);
 	}
-	if(name != NULL)
+	if(name)
 		__os_free(env, name);
 	return ret;
 }

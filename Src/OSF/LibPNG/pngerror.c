@@ -509,7 +509,7 @@ PNG_FUNCTION(void, png_fixed_error, (png_const_structrp png_ptr, const char * na
 	char msg[fixed_message_ln+PNG_MAX_ERROR_TEXT];
 	memcpy(msg, fixed_message, fixed_message_ln);
 	iin = 0;
-	if(name != NULL)
+	if(name)
 		while(iin < (PNG_MAX_ERROR_TEXT-1) && name[iin] != 0) {
 			msg[fixed_message_ln + iin] = name[iin];
 			++iin;
@@ -777,7 +777,7 @@ PNG_FUNCTION(void /* PRIVATE */, (PNGCBAPI png_safe_error), (png_structp png_non
 	/* An error is always logged here, overwriting anything (typically a warning)
 	 * that is already there:
 	 */
-	if(image != NULL) {
+	if(image) {
 		png_safecat(image->message, (sizeof image->message), 0, error_message);
 		image->warning_or_error |= PNG_IMAGE_ERROR;
 		/* Retrieve the jmp_buf from within the png_control, making this work for

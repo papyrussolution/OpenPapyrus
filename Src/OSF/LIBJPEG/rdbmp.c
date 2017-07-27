@@ -208,7 +208,7 @@ METHODDEF(JDIMENSION) preload_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo
 
 	/* Read the data into a virtual array in input-file row order. */
 	for(row = 0; row < cinfo->image_height; row++) {
-		if(progress != NULL) {
+		if(progress) {
 			progress->pub.pass_counter = (long)row;
 			progress->pub.pass_limit = (long)cinfo->image_height;
 			(*progress->pub.progress_monitor)((j_common_ptr)cinfo);
@@ -224,7 +224,7 @@ METHODDEF(JDIMENSION) preload_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo
 			*out_ptr++ = (JSAMPLE)c;
 		}
 	}
-	if(progress != NULL)
+	if(progress)
 		progress->completed_extra_passes++;
 
 	/* Set up to read from the virtual array in top-to-bottom order */
@@ -400,7 +400,7 @@ METHODDEF(void) start_input_bmp(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	/* Allocate space for inversion array, prepare for preload pass */
 	source->whole_image = (*cinfo->mem->request_virt_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE, row_width, (JDIMENSION)biHeight, (JDIMENSION)1);
 	source->pub.get_pixel_rows = preload_image;
-	if(cinfo->progress != NULL) {
+	if(cinfo->progress) {
 		cd_progress_ptr progress = (cd_progress_ptr)cinfo->progress;
 		progress->total_extra_passes++; /* count file input as separate pass */
 	}

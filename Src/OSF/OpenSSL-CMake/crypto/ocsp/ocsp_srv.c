@@ -77,12 +77,8 @@ err:
 	return NULL;
 }
 
-OCSP_SINGLERESP * OCSP_basic_add1_status(OCSP_BASICRESP * rsp,
-    OCSP_CERTID * cid,
-    int status, int reason,
-    ASN1_TIME * revtime,
-    ASN1_TIME * thisupd,
-    ASN1_TIME * nextupd)
+OCSP_SINGLERESP * OCSP_basic_add1_status(OCSP_BASICRESP * rsp, OCSP_CERTID * cid, int status, int reason,
+    ASN1_TIME * revtime, ASN1_TIME * thisupd, ASN1_TIME * nextupd)
 {
 	OCSP_SINGLERESP * single = NULL;
 	OCSP_CERTSTATUS * cs;
@@ -93,8 +89,7 @@ OCSP_SINGLERESP * OCSP_basic_add1_status(OCSP_BASICRESP * rsp,
 		goto err;
 	if(!ASN1_TIME_to_generalizedtime(thisupd, &single->thisUpdate))
 		goto err;
-	if(nextupd &&
-	    !ASN1_TIME_to_generalizedtime(nextupd, &single->nextUpdate))
+	if(nextupd && !ASN1_TIME_to_generalizedtime(nextupd, &single->nextUpdate))
 		goto err;
 	OCSP_CERTID_free(single->certId);
 	if((single->certId = OCSP_CERTID_dup(cid)) == NULL)

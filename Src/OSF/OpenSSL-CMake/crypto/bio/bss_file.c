@@ -295,7 +295,7 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    break;
 		case BIO_C_GET_FILE_PTR:
 		    /* the ptr parameter is actually a FILE ** in this case. */
-		    if(ptr != NULL) {
+		    if(ptr) {
 			    fpp = (FILE**)ptr;
 			    *fpp = (FILE*)b->ptr;
 		    }

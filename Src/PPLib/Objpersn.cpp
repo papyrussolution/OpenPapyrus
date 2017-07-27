@@ -5468,8 +5468,7 @@ int SLAPI PPObjPerson::AddRelationList(PPID * pPrmrID, PPIDArray * pScndList, PP
 	THROW(CheckRights(PPR_MOD));
 	pl_item.PrmrPersonID = (pPrmrID)    ? *pPrmrID    : 0;
 	pl_item.LinkTypeID   = (pRelTypeID) ? *pRelTypeID : 0;
-	if(pScndList)
-		pl_item.ScndPersonList = *pScndList;
+	RVALUEPTR(pl_item.ScndPersonList, pScndList);
 	SETFLAG(pl_item.Flags, PersonLink::fLockPrmr, pl_item.PrmrPersonID);
 	SETFLAG(pl_item.Flags, PersonLink::fLockScnd, pl_item.ScndPersonList.getCount());
 	SETFLAG(pl_item.Flags, PersonLink::fSwapPerson, reverse);

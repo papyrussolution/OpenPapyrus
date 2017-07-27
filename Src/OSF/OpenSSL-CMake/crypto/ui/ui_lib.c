@@ -423,29 +423,20 @@ int UI_process(UI * ui)
 {
 	int i, ok = 0;
 	const char * state = "processing";
-
-	if(ui->meth->ui_open_session != NULL
-	    && ui->meth->ui_open_session(ui) <= 0) {
+	if(ui->meth->ui_open_session != NULL && ui->meth->ui_open_session(ui) <= 0) {
 		state = "opening session";
 		ok = -1;
 		goto err;
 	}
-
 	if(ui->flags & UI_FLAG_PRINT_ERRORS)
-		ERR_print_errors_cb((int (*)(const char *, size_t, void *))
-		    print_error, (void*)ui);
-
+		ERR_print_errors_cb((int (*)(const char *, size_t, void *))print_error, (void*)ui);
 	for(i = 0; i < sk_UI_STRING_num(ui->strings); i++) {
-		if(ui->meth->ui_write_string != NULL
-		    && (ui->meth->ui_write_string(ui,
-				    sk_UI_STRING_value(ui->strings, i))
-			    <= 0)) {
+		if(ui->meth->ui_write_string != NULL && (ui->meth->ui_write_string(ui, sk_UI_STRING_value(ui->strings, i)) <= 0)) {
 			state = "writing strings";
 			ok = -1;
 			goto err;
 		}
 	}
-
 	if(ui->meth->ui_flush != NULL)
 		switch(ui->meth->ui_flush(ui)) {
 			case -1: /* Interrupt/Cancel/something... */

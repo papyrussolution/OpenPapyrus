@@ -141,11 +141,11 @@ XMLPUBFUN htmlDocPtr XMLCALL htmlReadFile(const char * URL, const char * encodin
 XMLPUBFUN htmlDocPtr XMLCALL htmlReadMemory(const char * buffer, int size, const char * URL, const char * encoding, int options);
 XMLPUBFUN htmlDocPtr XMLCALL htmlReadFd(int fd, const char * URL, const char * encoding, int options);
 XMLPUBFUN htmlDocPtr XMLCALL htmlReadIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, void * ioctx, const char * URL, const char * encoding, int options);
-XMLPUBFUN htmlDocPtr XMLCALL htmlCtxtReadDoc(xmlParserCtxtPtr ctxt, const xmlChar * cur, const char * URL, const char * encoding, int options);
-XMLPUBFUN htmlDocPtr XMLCALL htmlCtxtReadFile(xmlParserCtxtPtr ctxt, const char * filename, const char * encoding, int options);
-XMLPUBFUN htmlDocPtr XMLCALL htmlCtxtReadMemory(xmlParserCtxtPtr ctxt, const char * buffer, int size, const char * URL, const char * encoding, int options);
-XMLPUBFUN htmlDocPtr XMLCALL htmlCtxtReadFd(xmlParserCtxtPtr ctxt, int fd, const char * URL, const char * encoding, int options);
-XMLPUBFUN htmlDocPtr XMLCALL htmlCtxtReadIO(xmlParserCtxtPtr ctxt, xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, void * ioctx, const char * URL,
+XMLPUBFUN htmlDocPtr XMLCALL htmlCtxtReadDoc(xmlParserCtxt * ctxt, const xmlChar * cur, const char * URL, const char * encoding, int options);
+XMLPUBFUN htmlDocPtr XMLCALL htmlCtxtReadFile(xmlParserCtxt * ctxt, const char * filename, const char * encoding, int options);
+XMLPUBFUN htmlDocPtr XMLCALL htmlCtxtReadMemory(xmlParserCtxt * ctxt, const char * buffer, int size, const char * URL, const char * encoding, int options);
+XMLPUBFUN htmlDocPtr XMLCALL htmlCtxtReadFd(xmlParserCtxt * ctxt, int fd, const char * URL, const char * encoding, int options);
+XMLPUBFUN htmlDocPtr XMLCALL htmlCtxtReadIO(xmlParserCtxt * ctxt, xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, void * ioctx, const char * URL,
     const char * encoding, int options);
 
 /* NRK/Jan2003: further knowledge of HTML structure

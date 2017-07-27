@@ -992,7 +992,7 @@ static cairo_status_t clip_and_composite(const cairo_traps_compositor_t * compos
 			    limit) == CAIRO_REGION_OVERLAP_IN)
 			clip_region = NULL;
 
-		if(clip_region != NULL) {
+		if(clip_region) {
 			status = compositor->set_clip_region(dst, clip_region);
 			if(unlikely(status)) {
 				compositor->release(dst);
@@ -1429,12 +1429,11 @@ static cairo_status_t clip_and_composite_polygon(const cairo_traps_compositor_t 
 
 	if(polygon->num_edges == 0) {
 		status = CAIRO_INT_STATUS_SUCCESS;
-
 		if(!extents->is_bounded) {
 			cairo_region_t * clip_region = _cairo_clip_get_region(extents->clip);
 			if(clip_region && cairo_region_contains_rectangle(clip_region, &extents->unbounded) == CAIRO_REGION_OVERLAP_IN)
 				clip_region = NULL;
-			if(clip_region != NULL) {
+			if(clip_region) {
 				status = compositor->set_clip_region(dst, clip_region);
 				if(unlikely(status))
 					return status;
@@ -1443,12 +1442,12 @@ static cairo_status_t clip_and_composite_polygon(const cairo_traps_compositor_t 
 				status = fixup_unbounded_with_mask(compositor, extents);
 			else
 				status = fixup_unbounded(compositor, extents, 0);
-			if(clip_region != NULL)
+			if(clip_region)
 				compositor->set_clip_region(dst, 0);
 		}
 		return status;
 	}
-	if(extents->clip->path != NULL && extents->is_bounded) {
+	if(extents->clip->path && extents->is_bounded) {
 		cairo_polygon_t clipper;
 		CairoFillRule clipper_fill_rule;
 		cairo_antialias_t clipper_antialias;

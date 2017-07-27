@@ -443,7 +443,7 @@ METHODDEF(void) prepare_for_output_pass(j_decompress_ptr cinfo)
 	}
 
 	/* Set up progress monitor's pass info if present */
-	if(cinfo->progress != NULL) {
+	if(cinfo->progress) {
 		cinfo->progress->completed_passes = master->pass_number;
 		cinfo->progress->total_passes = master->pass_number +
 		    (master->pub.is_dummy_pass ? 2 : 1);

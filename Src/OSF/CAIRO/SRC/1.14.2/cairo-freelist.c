@@ -70,7 +70,7 @@ void * FASTCALL _cairo_freepool_alloc_from_pool(cairo_freepool_t * freepool)
 void * FASTCALL _cairo_freepool_alloc(cairo_freepool_t * freepool)
 {
 	cairo_freelist_node_t * node = freepool->first_free_node;
-	if(node == NULL)
+	if(!node)
 		return _cairo_freepool_alloc_from_pool(freepool);
 	else {
 		VG(VALGRIND_MAKE_MEM_DEFINED(node, sizeof(node->next)));

@@ -22,9 +22,7 @@ PPOpCounterPacket::~PPOpCounterPacket()
 int SLAPI PPOpCounterPacket::Init(const PPOpCounter * pHead, const LAssocArray * pItems)
 {
     int    ok = 1;
-	if(pHead)
-		Head = *pHead;
-	else
+	if(!RVALUEPTR(Head, pHead))
 		MEMSZERO(Head);
 	if(*strip(Head.CodeTemplate) == 0) {
 		Head.CodeTemplate[0] = '%';

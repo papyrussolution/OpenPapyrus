@@ -23,7 +23,7 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include <curl/curl.h>
-#include "dotdot.h"
+//#include "dotdot.h"
 //#include "curl_memory.h"
 #include "memdebug.h" /* The last #include file should be: */
 /*

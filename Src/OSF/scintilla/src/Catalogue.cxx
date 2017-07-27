@@ -13,7 +13,7 @@
 //#include "ILexer.h"
 //#include "SciLexer.h"
 //#include "LexerModule.h"
-#include "Catalogue.h"
+//#include "Catalogue.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

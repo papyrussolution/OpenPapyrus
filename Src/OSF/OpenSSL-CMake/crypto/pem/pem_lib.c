@@ -259,7 +259,7 @@ int PEM_ASN1_write_bio(i2d_of_void * i2d, const char * name, BIO * bp, void * x,
 	char buf[PEM_BUFSIZE];
 	uchar key[EVP_MAX_KEY_LENGTH];
 	uchar iv[EVP_MAX_IV_LENGTH];
-	if(enc != NULL) {
+	if(enc) {
 		objstr = OBJ_nid2sn(EVP_CIPHER_nid(enc));
 		if(objstr == NULL || EVP_CIPHER_iv_length(enc) == 0) {
 			PEMerr(PEM_F_PEM_ASN1_WRITE_BIO, PEM_R_UNSUPPORTED_CIPHER);
@@ -280,7 +280,7 @@ int PEM_ASN1_write_bio(i2d_of_void * i2d, const char * name, BIO * bp, void * x,
 	}
 	p = data;
 	i = i2d(x, &p);
-	if(enc != NULL) {
+	if(enc) {
 		if(kstr == NULL) {
 			if(callback == NULL)
 				klen = PEM_def_callback(buf, PEM_BUFSIZE, 1, u);

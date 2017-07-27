@@ -47,7 +47,7 @@ void * _freed_pool_get_search(freed_pool_t * pool)
 	int i;
 	for(i = SIZEOFARRAY(pool->pool); i--; ) {
 		ptr = _atomic_fetch(&pool->pool[i]);
-		if(ptr != NULL) {
+		if(ptr) {
 			pool->top = i;
 			return ptr;
 		}

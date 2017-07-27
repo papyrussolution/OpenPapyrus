@@ -1042,7 +1042,7 @@ int __ham_groupalloc_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op,
 		 * If the last page was allocated then truncate back
 		 * to the first page.
 		 */
-		if(pagep != NULL) {
+		if(pagep) {
 			if((ret = __memp_fput(mpf, ip, pagep, DB_PRIORITY_VERY_LOW)) != 0)
 				goto out;
 			if((ret = __memp_ftruncate(mpf, NULL, ip, argp->start_pgno, 0)) != 0)

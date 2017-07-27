@@ -72,9 +72,9 @@ void xmlCheckVersion(int version)
  *
  * Handle a redefinition of attribute error
  */
-void xmlErrMemory(xmlParserCtxtPtr ctxt, const char * extra)
+void xmlErrMemory(xmlParserCtxt * ctxt, const char * extra)
 {
-	if((ctxt) && (ctxt->disableSAX != 0) && (ctxt->instate == XML_PARSER_EOF))
+	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
 	if(ctxt) {
 		ctxt->errNo = XML_ERR_NO_MEMORY;
@@ -97,9 +97,9 @@ void xmlErrMemory(xmlParserCtxtPtr ctxt, const char * extra)
  *
  * Handle an encoding error
  */
-void __xmlErrEncoding(xmlParserCtxtPtr ctxt, xmlParserErrors xmlerr, const char * msg, const xmlChar * str1, const xmlChar * str2)
+void __xmlErrEncoding(xmlParserCtxt * ctxt, xmlParserErrors xmlerr, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
-	if((ctxt) && (ctxt->disableSAX != 0) && (ctxt->instate == XML_PARSER_EOF))
+	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
 	if(ctxt)
 		ctxt->errNo = xmlerr;
@@ -118,9 +118,9 @@ void __xmlErrEncoding(xmlParserCtxtPtr ctxt, xmlParserErrors xmlerr, const char 
  *
  * Handle an internal error
  */
-static void xmlErrInternal(xmlParserCtxtPtr ctxt, const char * msg, const xmlChar * str)
+static void xmlErrInternal(xmlParserCtxt * ctxt, const char * msg, const xmlChar * str)
 {
-	if((ctxt) && (ctxt->disableSAX != 0) && (ctxt->instate == XML_PARSER_EOF))
+	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
 	if(ctxt)
 		ctxt->errNo = XML_ERR_INTERNAL_ERROR;
@@ -141,9 +141,9 @@ static void xmlErrInternal(xmlParserCtxtPtr ctxt, const char * msg, const xmlCha
  *
  * n encoding error
  */
-static void xmlErrEncodingInt(xmlParserCtxtPtr ctxt, xmlParserErrors error, const char * msg, int val)
+static void xmlErrEncodingInt(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, int val)
 {
-	if((ctxt) && (ctxt->disableSAX != 0) && (ctxt->instate == XML_PARSER_EOF))
+	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
 	if(ctxt)
 		ctxt->errNo = error;
@@ -211,10 +211,10 @@ void check_buffer(xmlParserInputPtr in) {
  *
  * Returns -1 as this is an error to use it.
  */
-int xmlParserInputRead(xmlParserInputPtr in ATTRIBUTE_UNUSED, int len ATTRIBUTE_UNUSED) {
+int xmlParserInputRead(xmlParserInputPtr in ATTRIBUTE_UNUSED, int len ATTRIBUTE_UNUSED) 
+{
 	return -1;
 }
-
 /**
  * xmlParserInputGrow:
  * @in:  an XML parser input
@@ -341,7 +341,7 @@ void xmlParserInputShrink(xmlParserInputPtr in)
  * Skip to the next char input char.
  */
 
-void xmlNextChar(xmlParserCtxtPtr ctxt)
+void xmlNextChar(xmlParserCtxt * ctxt)
 {
 	if(!ctxt || (ctxt->instate == XML_PARSER_EOF) ||
 	    (ctxt->input == NULL))
@@ -515,7 +515,7 @@ encoding_error:
  * Returns the current char value and its length
  */
 
-int xmlCurrentChar(xmlParserCtxtPtr ctxt, int * len) {
+int xmlCurrentChar(xmlParserCtxt * ctxt, int * len) {
 	if(!ctxt || (len == NULL) || (ctxt->input == NULL)) return 0;
 	if(ctxt->instate == XML_PARSER_EOF)
 		return 0;
@@ -675,7 +675,7 @@ encoding_error:
  * Returns the current char value and its length
  */
 
-int xmlStringCurrentChar(xmlParserCtxtPtr ctxt, const xmlChar * cur, int * len)
+int xmlStringCurrentChar(xmlParserCtxt * ctxt, const xmlChar * cur, int * len)
 {
 	if((len == NULL) || (cur == NULL)) return 0;
 	if(!ctxt || (ctxt->charset == XML_CHAR_ENCODING_UTF8)) {
@@ -849,9 +849,9 @@ int xmlCopyChar(int len ATTRIBUTE_UNUSED, xmlChar * out, int val)
 *									*
 ************************************************************************/
 
-static int xmlSwitchToEncodingInt(xmlParserCtxtPtr ctxt,
+static int xmlSwitchToEncodingInt(xmlParserCtxt * ctxt,
     xmlCharEncodingHandlerPtr handler, int len);
-static int xmlSwitchInputEncodingInt(xmlParserCtxtPtr ctxt, xmlParserInputPtr input,
+static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInputPtr input,
     xmlCharEncodingHandlerPtr handler, int len);
 /**
  * xmlSwitchEncoding:
@@ -863,7 +863,7 @@ static int xmlSwitchInputEncodingInt(xmlParserCtxtPtr ctxt, xmlParserInputPtr in
  *
  * Returns 0 in case of success, -1 otherwise
  */
-int xmlSwitchEncoding(xmlParserCtxtPtr ctxt, xmlCharEncoding enc)
+int xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc)
 {
 	xmlCharEncodingHandlerPtr handler;
 	int len = -1;
@@ -1014,7 +1014,7 @@ int xmlSwitchEncoding(xmlParserCtxtPtr ctxt, xmlCharEncoding enc)
  *
  * Returns 0 in case of success, -1 otherwise
  */
-static int xmlSwitchInputEncodingInt(xmlParserCtxtPtr ctxt, xmlParserInputPtr input, xmlCharEncodingHandlerPtr handler, int len)
+static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInputPtr input, xmlCharEncodingHandlerPtr handler, int len)
 {
 	int nbchars;
 	if(handler == NULL)
@@ -1130,7 +1130,7 @@ static int xmlSwitchInputEncodingInt(xmlParserCtxtPtr ctxt, xmlParserInputPtr in
  *
  * Returns 0 in case of success, -1 otherwise
  */
-int xmlSwitchInputEncoding(xmlParserCtxtPtr ctxt, xmlParserInputPtr input, xmlCharEncodingHandlerPtr handler)
+int xmlSwitchInputEncoding(xmlParserCtxt * ctxt, xmlParserInputPtr input, xmlCharEncodingHandlerPtr handler)
 {
 	return xmlSwitchInputEncodingInt(ctxt, input, handler, -1);
 }
@@ -1148,7 +1148,7 @@ int xmlSwitchInputEncoding(xmlParserCtxtPtr ctxt, xmlParserInputPtr input, xmlCh
  *
  * Returns 0 in case of success, -1 otherwise
  */
-static int xmlSwitchToEncodingInt(xmlParserCtxtPtr ctxt, xmlCharEncodingHandlerPtr handler, int len)
+static int xmlSwitchToEncodingInt(xmlParserCtxt * ctxt, xmlCharEncodingHandlerPtr handler, int len)
 {
 	int ret = 0;
 	if(handler) {
@@ -1179,7 +1179,7 @@ static int xmlSwitchToEncodingInt(xmlParserCtxtPtr ctxt, xmlCharEncodingHandlerP
  *
  * Returns 0 in case of success, -1 otherwise
  */
-int xmlSwitchToEncoding(xmlParserCtxtPtr ctxt, xmlCharEncodingHandlerPtr handler)
+int xmlSwitchToEncoding(xmlParserCtxt * ctxt, xmlCharEncodingHandlerPtr handler)
 {
 	return (xmlSwitchToEncodingInt(ctxt, handler, -1));
 }
@@ -1205,8 +1205,7 @@ void xmlFreeInputStream(xmlParserInputPtr input)
 		SAlloc::F((char*)input->version);
 		if(input->free && input->base)
 			input->free((xmlChar*)input->base);
-		if(input->buf)
-			xmlFreeParserInputBuffer(input->buf);
+		xmlFreeParserInputBuffer(input->buf);
 		SAlloc::F(input);
 	}
 }
@@ -1219,7 +1218,7 @@ void xmlFreeInputStream(xmlParserInputPtr input)
  *
  * Returns the new input stream or NULL
  */
-xmlParserInputPtr xmlNewInputStream(xmlParserCtxtPtr ctxt)
+xmlParserInputPtr xmlNewInputStream(xmlParserCtxt * ctxt)
 {
 	xmlParserInputPtr input = (xmlParserInputPtr)SAlloc::M(sizeof(xmlParserInput));
 	if(input == NULL) {
@@ -1251,7 +1250,7 @@ xmlParserInputPtr xmlNewInputStream(xmlParserCtxtPtr ctxt)
  *
  * Returns the new input stream or NULL
  */
-xmlParserInputPtr xmlNewIOInputStream(xmlParserCtxtPtr ctxt, xmlParserInputBufferPtr input, xmlCharEncoding enc)
+xmlParserInputPtr xmlNewIOInputStream(xmlParserCtxt * ctxt, xmlParserInputBufferPtr input, xmlCharEncoding enc)
 {
 	xmlParserInputPtr inputStream;
 	if(input == NULL)
@@ -1280,7 +1279,7 @@ xmlParserInputPtr xmlNewIOInputStream(xmlParserCtxtPtr ctxt, xmlParserInputBuffe
  *
  * Returns the new input stream or NULL
  */
-xmlParserInputPtr xmlNewEntityInputStream(xmlParserCtxtPtr ctxt, xmlEntityPtr entity)
+xmlParserInputPtr xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntityPtr entity)
 {
 	xmlParserInputPtr input = 0;
 	if(entity == NULL) {
@@ -1331,7 +1330,7 @@ xmlParserInputPtr xmlNewEntityInputStream(xmlParserCtxtPtr ctxt, xmlEntityPtr en
  * Create a new input stream based on a memory buffer.
  * Returns the new input stream
  */
-xmlParserInputPtr xmlNewStringInputStream(xmlParserCtxtPtr ctxt, const xmlChar * buffer)
+xmlParserInputPtr xmlNewStringInputStream(xmlParserCtxt * ctxt, const xmlChar * buffer)
 {
 	xmlParserInputPtr input = 0;
 	if(!buffer) {
@@ -1363,7 +1362,7 @@ xmlParserInputPtr xmlNewStringInputStream(xmlParserCtxtPtr ctxt, const xmlChar *
  *
  * Returns the new input stream or NULL in case of error
  */
-xmlParserInputPtr xmlNewInputFromFile(xmlParserCtxtPtr ctxt, const char * filename)
+xmlParserInputPtr xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filename)
 {
 	xmlParserInputPtr inputStream = 0;
 	if(xmlParserDebugEntities)
@@ -1415,7 +1414,7 @@ xmlParserInputPtr xmlNewInputFromFile(xmlParserCtxtPtr ctxt, const char * filena
  * Returns 0 in case of success and -1 in case of error
  */
 
-int xmlInitParserCtxt(xmlParserCtxtPtr ctxt)
+int xmlInitParserCtxt(xmlParserCtxt * ctxt)
 {
 	if(!ctxt) {
 		xmlErrInternal(NULL, "Got NULL parser context\n", 0);
@@ -1590,7 +1589,7 @@ int xmlInitParserCtxt(xmlParserCtxtPtr ctxt)
  * document in ctxt->myDoc is not freed.
  */
 
-void xmlFreeParserCtxt(xmlParserCtxtPtr ctxt)
+void xmlFreeParserCtxt(xmlParserCtxt * ctxt)
 {
 	xmlParserInputPtr input;
 	if(ctxt) {
@@ -1622,17 +1621,15 @@ void xmlFreeParserCtxt(xmlParserCtxtPtr ctxt)
 		xmlHashFree(ctxt->attsDefault, (xmlHashDeallocator)free);
 		xmlHashFree(ctxt->attsSpecial, 0);
 		if(ctxt->freeElems) {
-			xmlNodePtr cur = ctxt->freeElems;
-			while(cur) {
-				xmlNodePtr next = cur->next;
+			for(xmlNode * cur = ctxt->freeElems; cur;) {
+				xmlNode * next = cur->next;
 				SAlloc::F(cur);
 				cur = next;
 			}
 		}
-		if(ctxt->freeAttrs != NULL) {
-			xmlAttrPtr cur = ctxt->freeAttrs;
-			while(cur) {
-				xmlAttrPtr next = cur->next;
+		if(ctxt->freeAttrs) {
+			for(xmlAttr * cur = ctxt->freeAttrs; cur;) {
+				xmlAttr * next = cur->next;
 				SAlloc::F(cur);
 				cur = next;
 			}
@@ -1662,7 +1659,7 @@ void xmlFreeParserCtxt(xmlParserCtxtPtr ctxt)
 
 xmlParserCtxtPtr xmlNewParserCtxt()
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)SAlloc::M(sizeof(xmlParserCtxt));
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)SAlloc::M(sizeof(xmlParserCtxt));
 	if(!ctxt) {
 		xmlErrMemory(NULL, "cannot allocate parser context\n");
 	}
@@ -1689,7 +1686,7 @@ xmlParserCtxtPtr xmlNewParserCtxt()
  * Clear (release owned resources) and reinitialize a parser context
  */
 
-void xmlClearParserCtxt(xmlParserCtxtPtr ctxt)
+void xmlClearParserCtxt(xmlParserCtxt * ctxt)
 {
 	if(ctxt) {
 		xmlClearNodeInfoSeq(&ctxt->node_seq);
@@ -1792,7 +1789,7 @@ unsigned long xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeqPtr seq, cons
  *
  * Insert node info record into the sorted sequence
  */
-void xmlParserAddNodeInfo(xmlParserCtxtPtr ctxt, const xmlParserNodeInfoPtr info)
+void xmlParserAddNodeInfo(xmlParserCtxt * ctxt, const xmlParserNodeInfoPtr info)
 {
 	if(ctxt && info) {
 		/* Find pos and check to see if node is already in the sequence */

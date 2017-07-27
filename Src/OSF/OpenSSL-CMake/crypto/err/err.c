@@ -308,10 +308,14 @@ void err_free_strings_int(void)
 
 /********************************************************/
 
+void ERR_put_error_NFL(int lib, int func, int reason)
+{
+	ERR_put_error(lib, func, reason, "", 0);
+}
+
 void ERR_put_error(int lib, int func, int reason, const char * file, int line)
 {
 	ERR_STATE * es;
-
 #ifdef _OSD_POSIX
 	/*
 	 * In the BS2000-OSD POSIX subsystem, the compiler generates path names
@@ -320,8 +324,7 @@ void ERR_put_error(int lib, int func, int reason, const char * file, int line)
 	 */
 	if(strncmp(file, "*POSIX(", sizeof("*POSIX(") - 1) == 0) {
 		char * end;
-
-		/* Skip the "*POSIX(" prefix */
+		// Skip the "*POSIX(" prefix 
 		file += sizeof("*POSIX(") - 1;
 		end = &file[strlen(file) - 1];
 		if(*end == ')')

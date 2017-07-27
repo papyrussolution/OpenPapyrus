@@ -313,24 +313,20 @@ static int get_cryptodev_ciphers(const int ** cnids)
 {
 	static int nids[CRYPTO_ALGORITHM_MAX];
 	struct session_op sess;
-
 	int fd, i, count = 0;
-
 	if((fd = get_dev_crypto()) < 0) {
 		*cnids = NULL;
 		return 0;
 	}
 	memzero(&sess, sizeof(sess));
 	sess.key = (caddr_t)"123456789abcdefghijklmno";
-
 	for(i = 0; ciphers[i].id && count < CRYPTO_ALGORITHM_MAX; i++) {
 		if(ciphers[i].nid == NID_undef)
 			continue;
 		sess.cipher = ciphers[i].id;
 		sess.keylen = ciphers[i].keylen;
 		sess.mac = 0;
-		if(ioctl(fd, CIOCGSESSION, &sess) != -1 &&
-		    ioctl(fd, CIOCFSESSION, &sess.ses) != -1)
+		if(ioctl(fd, CIOCGSESSION, &sess) != -1 && ioctl(fd, CIOCFSESSION, &sess.ses) != -1)
 			nids[count++] = ciphers[i].nid;
 	}
 	put_dev_crypto(fd);
@@ -353,9 +349,7 @@ static int get_cryptodev_digests(const int ** cnids)
 {
 	static int nids[CRYPTO_ALGORITHM_MAX];
 	struct session_op sess;
-
 	int fd, i, count = 0;
-
 	if((fd = get_dev_crypto()) < 0) {
 		*cnids = NULL;
 		return 0;
@@ -368,8 +362,7 @@ static int get_cryptodev_digests(const int ** cnids)
 		sess.mac = digests[i].id;
 		sess.mackeylen = digests[i].keylen;
 		sess.cipher = 0;
-		if(ioctl(fd, CIOCGSESSION, &sess) != -1 &&
-		    ioctl(fd, CIOCFSESSION, &sess.ses) != -1)
+		if(ioctl(fd, CIOCGSESSION, &sess) != -1 && ioctl(fd, CIOCFSESSION, &sess.ses) != -1)
 			nids[count++] = digests[i].nid;
 	}
 	put_dev_crypto(fd);
@@ -482,41 +475,31 @@ static int cryptodev_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 			iiv = out + inl - EVP_CIPHER_CTX_iv_length(ctx);
 		else
 			iiv = save_iv;
-		memcpy(EVP_CIPHER_CTX_iv_noconst(ctx), iiv,
-		    EVP_CIPHER_CTX_iv_length(ctx));
+		memcpy(EVP_CIPHER_CTX_iv_noconst(ctx), iiv, EVP_CIPHER_CTX_iv_length(ctx));
 	}
 	return 1;
 }
 
-static int cryptodev_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
-    const uchar * iv, int enc)
+static int cryptodev_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc)
 {
 	struct dev_crypto_state * state = EVP_CIPHER_CTX_get_cipher_data(ctx);
 	struct session_op * sess = &state->d_sess;
 	int cipher = -1, i;
-
 	for(i = 0; ciphers[i].id; i++)
-		if(EVP_CIPHER_CTX_nid(ctx) == ciphers[i].nid &&
-		    EVP_CIPHER_CTX_iv_length(ctx) <= ciphers[i].ivmax &&
-		    EVP_CIPHER_CTX_key_length(ctx) == ciphers[i].keylen) {
+		if(EVP_CIPHER_CTX_nid(ctx) == ciphers[i].nid && EVP_CIPHER_CTX_iv_length(ctx) <= ciphers[i].ivmax && EVP_CIPHER_CTX_key_length(ctx) == ciphers[i].keylen) {
 			cipher = ciphers[i].id;
 			break;
 		}
-
 	if(!ciphers[i].id) {
 		state->d_fd = -1;
 		return 0;
 	}
-
 	memzero(sess, sizeof(*sess));
-
 	if((state->d_fd = get_dev_crypto()) < 0)
 		return 0;
-
 	sess->key = (caddr_t)key;
 	sess->keylen = EVP_CIPHER_CTX_key_length(ctx);
 	sess->cipher = cipher;
-
 	if(ioctl(state->d_fd, CIOCGSESSION, sess) == -1) {
 		put_dev_crypto(state->d_fd);
 		state->d_fd = -1;

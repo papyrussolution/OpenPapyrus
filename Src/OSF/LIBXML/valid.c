@@ -832,7 +832,7 @@ xmlElementContentPtr xmlNewDocElementContent(xmlDocPtr doc, const xmlChar * name
 		case XML_ELEMENT_CONTENT_PCDATA:
 		case XML_ELEMENT_CONTENT_SEQ:
 		case XML_ELEMENT_CONTENT_OR:
-		    if(name != NULL) {
+		    if(name) {
 			    xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, "xmlNewElementContent : name != NULL !\n", 0);
 		    }
 		    break;
@@ -848,7 +848,7 @@ xmlElementContentPtr xmlNewDocElementContent(xmlDocPtr doc, const xmlChar * name
 	memzero(ret, sizeof(xmlElementContent));
 	ret->type = type;
 	ret->ocur = XML_ELEMENT_CONTENT_ONCE;
-	if(name != NULL) {
+	if(name) {
 		int l;
 		const xmlChar * tmp;
 
@@ -1599,7 +1599,7 @@ xmlEnumerationPtr xmlCreateEnumeration(const xmlChar * name)
 	}
 	else {
 		memzero(ret, sizeof(xmlEnumeration));
-		if(name != NULL)
+		if(name)
 			ret->name = xmlStrdup(name);
 	}
 	return ret;
@@ -4676,7 +4676,7 @@ static void xmlSnprintfElements(char * buf, int size, xmlNodePtr node, int glob)
 {
 	xmlNodePtr cur;
 	int len;
-	if(node == NULL) 
+	if(!node) 
 		return;
 	if(glob) 
 		strcat(buf, "(");
@@ -4985,7 +4985,7 @@ fail:
 			else
 #endif /* LIBXML_REGEXP_ENABLED */
 			xmlSnprintfElements(&list[0], 5000, child, 1);
-			if(name != NULL) {
+			if(name) {
 				xmlErrValidNode(ctxt, parent, XML_DTD_CONTENT_MODEL, "Element %s content does not follow the DTD, expecting %s, got %s\n", name, BAD_CAST expr, BAD_CAST list);
 			}
 			else {
@@ -4993,7 +4993,7 @@ fail:
 			}
 		}
 		else {
-			if(name != NULL) {
+			if(name) {
 				xmlErrValidNode(ctxt, parent, XML_DTD_CONTENT_MODEL, "Element %s content does not follow the DTD\n", name, 0, 0);
 			}
 			else {

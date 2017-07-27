@@ -56,7 +56,7 @@ int x509_set1_time(ASN1_TIME ** ptm, const ASN1_TIME * tm)
 	ASN1_TIME * in = *ptm;
 	if(in != tm) {
 		in = ASN1_STRING_dup(tm);
-		if(in != NULL) {
+		if(in) {
 			ASN1_TIME_free(*ptm);
 			*ptm = in;
 		}

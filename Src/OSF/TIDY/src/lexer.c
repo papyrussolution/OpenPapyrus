@@ -1307,7 +1307,7 @@ Node * TY_(FindBody) (TidyDocImpl* doc)
 	Node * node = ( doc ? doc->root.content : NULL );
 	while(node && !nodeIsHTML(node) )
 		node = node->next;
-	if(node == NULL)
+	if(!node)
 		return NULL;
 	node = node->content;
 	while(node && !nodeIsBODY(node) && !nodeIsFRAMESET(node) )

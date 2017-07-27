@@ -23,13 +23,13 @@ using namespace Scintilla;
 #endif
 
 // Is an end of line character
-inline bool IsEOL(const int ch)
+/*inline*/ bool FASTCALL IsEOL(const int ch)
 {
 	return(ch == '\n');
 }
 
 // Convert character to uppercase
-static char CharacterUpper(char chChar)
+static char FASTCALL CharacterUpper(char chChar)
 {
 	if(chChar < 'a' || chChar > 'z') {
 		return(chChar);
@@ -40,7 +40,7 @@ static char CharacterUpper(char chChar)
 }
 
 // Convert string to uppercase
-static void StringUpper(char * szString)
+static void FASTCALL StringUpper(char * szString)
 {
 	while(*szString) {
 		*szString = CharacterUpper(*szString);
@@ -49,25 +49,25 @@ static void StringUpper(char * szString)
 }
 
 // Is a label start character
-inline bool IsALabelStart(const int iChar)
+/*inline*/ bool FASTCALL IsALabelStart(const int iChar)
 {
 	return(isalpha(iChar) || iChar == '_');
 }
 
 // Is a label character
-inline bool IsALabelCharacter(const int iChar)
+/*inline*/ bool FASTCALL IsALabelCharacter(const int iChar)
 {
 	return(isalnum(iChar) || iChar == '_' || iChar == ':');
 }
 
 // Is the character is a ! and the the next character is not a !
-inline bool IsACommentStart(const int iChar)
+/*inline*/ bool FASTCALL IsACommentStart(const int iChar)
 {
 	return(iChar == '!');
 }
 
 // Is the character a Clarion hex character (ABCDEF)
-inline bool IsAHexCharacter(const int iChar, bool bCaseSensitive)
+/*inline*/ bool FASTCALL IsAHexCharacter(const int iChar, bool bCaseSensitive)
 {
 	// Case insensitive.
 	if(!bCaseSensitive) {
@@ -85,7 +85,7 @@ inline bool IsAHexCharacter(const int iChar, bool bCaseSensitive)
 }
 
 // Is the character a Clarion base character (B=Binary, O=Octal, H=Hex)
-inline bool IsANumericBaseCharacter(const int iChar, bool bCaseSensitive)
+/*inline*/ bool FASTCALL IsANumericBaseCharacter(const int iChar, bool bCaseSensitive)
 {
 	// Case insensitive.
 	if(!bCaseSensitive) {
@@ -105,7 +105,7 @@ inline bool IsANumericBaseCharacter(const int iChar, bool bCaseSensitive)
 }
 
 // Set the correct numeric constant state
-inline bool SetNumericConstantState(StyleContext &scDoc)
+/*inline*/ bool FASTCALL SetNumericConstantState(StyleContext &scDoc)
 {
 	int iPoints = 0;                        // Point counter
 	char cNumericString[512];       // Numeric string buffer
@@ -136,10 +136,9 @@ inline bool SetNumericConstantState(StyleContext &scDoc)
 }
 
 // Get the next word in uppercase from the current position (keyword lookahead)
-inline bool GetNextWordUpper(Accessor &styler, Sci_PositionU uiStartPos, Sci_Position iLength, char * cWord)
+/*inline*/ bool GetNextWordUpper(Accessor &styler, Sci_PositionU uiStartPos, Sci_Position iLength, char * cWord)
 {
 	Sci_PositionU iIndex = 0;               // Buffer Index
-
 	// Loop through the remaining string from the current position
 	for(Sci_Position iOffset = uiStartPos; iOffset < iLength; iOffset++) {
 		// Get the character from the buffer using the offset
@@ -193,18 +192,13 @@ static void ColouriseClarionDoc(Sci_PositionU uiStartPos,
 	WordList wlProcReservedKeywords;
 	wlProcReservedKeywords.Set(wlProcReservedKeywordList);
 
-	const char wlCompilerKeywordList[] =
-	    "COMPILE OMIT";
+	const char wlCompilerKeywordList[] = "COMPILE OMIT";
 	WordList wlCompilerKeywords;
 	wlCompilerKeywords.Set(wlCompilerKeywordList);
-
-	const char wlLegacyStatementsList[] =
-	    "BOF EOF FUNCTION POINTER SHARE";
+	const char wlLegacyStatementsList[] = "BOF EOF FUNCTION POINTER SHARE";
 	WordList wlLegacyStatements;
 	wlLegacyStatements.Set(wlLegacyStatementsList);
-
 	StyleContext scDoc(uiStartPos, iLength, iInitStyle, accStyler);
-
 	// lex source code
 	for(; scDoc.More(); scDoc.Forward()) {
 		//
@@ -543,7 +537,6 @@ static void ColouriseClarionDocInsensitive(Sci_PositionU uiStartPos,
 static void FillBuffer(Sci_PositionU uiStart, Sci_PositionU uiEnd, Accessor &accStyler, char * szBuffer, Sci_PositionU uiLength)
 {
 	Sci_PositionU uiPos = 0;
-
 	while((uiPos < uiEnd - uiStart + 1) && (uiPos < uiLength-1)) {
 		szBuffer[uiPos] = static_cast<char>(toupper(accStyler[uiStart + uiPos]));
 		uiPos++;
@@ -556,48 +549,25 @@ static void FillBuffer(Sci_PositionU uiStart, Sci_PositionU uiEnd, Accessor &acc
 static int ClassifyClarionFoldPoint(int iLevel, const char* szString)
 {
 	if(!(isdigit(szString[0]) || (szString[0] == '.'))) {
-		if(strcmp(szString, "PROCEDURE") == 0) {
+		if(sstreq(szString, "PROCEDURE")) {
 			//		iLevel = SC_FOLDLEVELBASE + 1;
 		}
-		else if(strcmp(szString, "MAP") == 0 ||
-		    strcmp(szString, "ACCEPT") == 0 ||
-		    strcmp(szString, "BEGIN") == 0 ||
-		    strcmp(szString, "CASE") == 0 ||
-		    strcmp(szString, "EXECUTE") == 0 ||
-		    strcmp(szString, "IF") == 0 ||
-		    strcmp(szString, "ITEMIZE") == 0 ||
-		    strcmp(szString, "INTERFACE") == 0 ||
-		    strcmp(szString, "JOIN") == 0 ||
-		    strcmp(szString, "LOOP") == 0 ||
-		    strcmp(szString, "MODULE") == 0 ||
-		    strcmp(szString, "RECORD") == 0) {
+		else if(sstreq(szString, "MAP") || sstreq(szString, "ACCEPT") || sstreq(szString, "BEGIN") ||
+		    sstreq(szString, "CASE") || sstreq(szString, "EXECUTE") || sstreq(szString, "IF") ||
+		    sstreq(szString, "ITEMIZE") || sstreq(szString, "INTERFACE") || sstreq(szString, "JOIN") ||
+		    sstreq(szString, "LOOP") || sstreq(szString, "MODULE") || sstreq(szString, "RECORD")) {
 			iLevel++;
 		}
-		else if(strcmp(szString, "APPLICATION") == 0 ||
-		    strcmp(szString, "CLASS") == 0 ||
-		    strcmp(szString, "DETAIL") == 0 ||
-		    strcmp(szString, "FILE") == 0 ||
-		    strcmp(szString, "FOOTER") == 0 ||
-		    strcmp(szString, "FORM") == 0 ||
-		    strcmp(szString, "GROUP") == 0 ||
-		    strcmp(szString, "HEADER") == 0 ||
-		    strcmp(szString, "INTERFACE") == 0 ||
-		    strcmp(szString, "MENU") == 0 ||
-		    strcmp(szString, "MENUBAR") == 0 ||
-		    strcmp(szString, "OLE") == 0 ||
-		    strcmp(szString, "OPTION") == 0 ||
-		    strcmp(szString, "QUEUE") == 0 ||
-		    strcmp(szString, "REPORT") == 0 ||
-		    strcmp(szString, "SHEET") == 0 ||
-		    strcmp(szString, "TAB") == 0 ||
-		    strcmp(szString, "TOOLBAR") == 0 ||
-		    strcmp(szString, "VIEW") == 0 ||
-		    strcmp(szString, "WINDOW") == 0) {
+		else if(sstreq(szString, "APPLICATION") || sstreq(szString, "CLASS") || sstreq(szString, "DETAIL") ||
+		    sstreq(szString, "FILE") || sstreq(szString, "FOOTER") || sstreq(szString, "FORM") ||
+		    sstreq(szString, "GROUP") || sstreq(szString, "HEADER") || sstreq(szString, "INTERFACE") ||
+		    sstreq(szString, "MENU") || sstreq(szString, "MENUBAR") || sstreq(szString, "OLE") ||
+		    sstreq(szString, "OPTION") || sstreq(szString, "QUEUE") || sstreq(szString, "REPORT") ||
+		    sstreq(szString, "SHEET") || sstreq(szString, "TAB") || sstreq(szString, "TOOLBAR") ||
+		    sstreq(szString, "VIEW") || sstreq(szString, "WINDOW")) {
 			iLevel++;
 		}
-		else if(strcmp(szString, "END") == 0 ||
-		    strcmp(szString, "UNTIL") == 0 ||
-		    strcmp(szString, "WHILE") == 0) {
+		else if(sstreq(szString, "END") || sstreq(szString, "UNTIL") || sstreq(szString, "WHILE")) {
 			iLevel--;
 		}
 	}

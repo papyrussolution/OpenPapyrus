@@ -28,7 +28,7 @@
 //#include "url.h"
 //#include "progress.h"
 //#include "multiif.h"
-#include "pipeline.h"
+//#include "pipeline.h"
 //#include "sendf.h"
 //#include "strcase.h"
 //#include "curl_memory.h"

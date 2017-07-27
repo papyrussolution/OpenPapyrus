@@ -76,7 +76,7 @@ CONF_METHOD * NCONF_WIN32()
 static CONF * def_create(CONF_METHOD * meth)
 {
 	CONF * ret = (CONF*)OPENSSL_malloc(sizeof(*ret));
-	if(ret != NULL)
+	if(ret)
 		if(meth->init(ret) == 0) {
 			OPENSSL_free(ret);
 			ret = NULL;
@@ -343,15 +343,14 @@ again:
 err:
 	BUF_MEM_free(buff);
 	OPENSSL_free(section);
-	if(line != NULL)
-		*line = eline;
+	ASSIGN_PTR(line, eline);
 	BIO_snprintf(btmp, sizeof btmp, "%ld", eline);
 	ERR_add_error_data(2, "line ", btmp);
 	if(h != conf->data) {
 		CONF_free(conf->data);
 		conf->data = NULL;
 	}
-	if(v != NULL) {
+	if(v) {
 		OPENSSL_free(v->name);
 		OPENSSL_free(v->value);
 		OPENSSL_free(v);

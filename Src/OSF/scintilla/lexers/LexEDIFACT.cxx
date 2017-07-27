@@ -59,17 +59,17 @@ public:
 
 	const char * SCI_METHOD DescribeProperty(const char * name)
 	{
-		if(strcmp(name, "fold"))
-			return NULL;
-		return "Whether to apply folding to document or not";
+		return sstreq(name, "fold") ? "Whether to apply folding to document or not" :  NULL;
 	}
 
 	virtual Sci_Position SCI_METHOD PropertySet(const char * key, const char * val)
 	{
-		if(strcmp(key, "fold"))
+		if(!sstreq(key, "fold"))
 			return -1;
-		m_bFold = strcmp(val, "0") ? true : false;
-		return 0;
+		else {
+			m_bFold = sstreq(val, "0") ? false : true;
+			return 0;
+		}
 	}
 
 	const char * SCI_METHOD DescribeWordListSets()

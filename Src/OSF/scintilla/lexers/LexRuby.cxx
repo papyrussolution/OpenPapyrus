@@ -1725,7 +1725,7 @@ static bool keywordIsModifier(const char * word,
 		    //XXX: Make a list of other keywords where 'if' isn't a modifier
 		    //     and can appear legitimately
 		    // Formulate this to avoid warnings from most compilers
-		    if(strcmp(word, "if") == 0) {
+		    if(sstreq(word, "if")) {
 			    char prevWord[MAX_KEYWORD_LENGTH + 1];
 			    getPrevWord(pos, prevWord, styler, SCE_RB_WORD);
 			    return strcmp(prevWord, "else") != 0;

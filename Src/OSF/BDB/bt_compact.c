@@ -266,13 +266,11 @@ next:   /*
 	saved_pgno = PGNO_INVALID;
 	prev_pgno = PGNO_INVALID;
 	nnext_pgno = PGNO_INVALID;
-
 	/*
 	 * We must lock the metadata page first because we cannot block
 	 * while holding interior nodes of the tree pinned.
 	 */
-	if(!LOCK_ISSET(metalock) && pgs_free == c_data->compact_pages_free &&
-	   (ret = __db_lget(dbc, LCK_ALWAYS, metapgno, DB_LOCK_WRITE, 0, &metalock)) != 0)
+	if(!LOCK_ISSET(metalock) && pgs_free == c_data->compact_pages_free && (ret = __db_lget(dbc, LCK_ALWAYS, metapgno, DB_LOCK_WRITE, 0, &metalock)) != 0)
 		goto err;
 	/*
 	 * Setup the cursor stack. There are 3 cases:
@@ -664,8 +662,7 @@ retry:
 		saved_pgno = PGNO_INVALID;
 		if((ret = __memp_fget(dbmp, &npgno, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &npg)) != 0)
 			goto err1;
-		if(check_trunc &&
-		   PGNO(pg) > c_data->compact_truncate) {
+		if(check_trunc && PGNO(pg) > c_data->compact_truncate) {
 			if(PREV_PGNO(pg) != PGNO_INVALID) {
 				TRY_LOCK(dbc, PREV_PGNO(pg), prev_pgno, prev_lock, DB_LOCK_WRITE, retry);
 				if(ret != 0)

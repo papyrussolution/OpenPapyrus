@@ -46,7 +46,7 @@
   curlx_tvdiff_secs()
 */
 
-#include "nonblock.h" // "nonblock.h" provides curlx_nonblock() 
+//#include "nonblock.h" // "nonblock.h" provides curlx_nonblock() 
 #include "warnless.h" // "warnless.h" provides functions: curlx_ultous(), curlx_ultouc(), curlx_uztosi()
 
 /* Now setup curlx_ * names for the functions that are to become curlx_ and

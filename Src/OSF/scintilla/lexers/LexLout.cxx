@@ -159,14 +159,12 @@ static void FoldLoutDoc(Sci_PositionU startPos, Sci_Position length, int, WordLi
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 	int styleNext = styler.StyleAt(startPos);
 	char s[10] = "";
-
 	for(Sci_PositionU i = startPos; i < endPos; i++) {
 		char ch = chNext;
 		chNext = styler.SafeGetCharAt(i + 1);
 		int style = styleNext;
 		styleNext = styler.StyleAt(i + 1);
 		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
-
 		if(style == SCE_LOUT_WORD) {
 			if(ch == '@') {
 				for(Sci_PositionU j = 0; j < 8; j++) {
@@ -176,10 +174,10 @@ static void FoldLoutDoc(Sci_PositionU startPos, Sci_Position length, int, WordLi
 					s[j] = styler[i + j];
 					s[j + 1] = '\0';
 				}
-				if(strcmp(s, "@Begin") == 0) {
+				if(sstreq(s, "@Begin")) {
 					levelCurrent++;
 				}
-				else if(strcmp(s, "@End") == 0) {
+				else if(sstreq(s, "@End")) {
 					levelCurrent--;
 				}
 			}

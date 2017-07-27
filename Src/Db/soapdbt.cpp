@@ -1,5 +1,5 @@
 // SOAPDBT.CPP
-// Copyright (c) A.Starodub 2007, 2008, 2010, 2015
+// Copyright (c) A.Starodub 2007, 2008, 2010, 2015, 2017
 //
 #include <db.h>
 #pragma hdrstop
@@ -34,9 +34,7 @@ int SoapDbFile::Open(const char * pPath, const Param * pParam, int readOnly)
 {
 	int ok = 0;
 	Pos = 0;
-	if(pParam)
-		P = *pParam;
-	else
+	if(!RVALUEPTR(P, pParam))
 		P.Init(0, 0, 0);
 	if(!readOnly) {
 	}

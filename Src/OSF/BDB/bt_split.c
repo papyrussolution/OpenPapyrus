@@ -360,8 +360,7 @@ static int __bam_page(DBC * dbc, EPG * pp, EPG * cp)
 	 * the split page.  Our caller has already write locked the page so
 	 * we can get it without deadlocking on the parent latch.
 	 */
-	if(ISLEAF(cp->page) && NEXT_PGNO(cp->page) != PGNO_INVALID &&
-	   (ret = __memp_fget(mpf, &NEXT_PGNO(cp->page), dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &tp)) != 0)
+	if(ISLEAF(cp->page) && NEXT_PGNO(cp->page) != PGNO_INVALID && (ret = __memp_fget(mpf, &NEXT_PGNO(cp->page), dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &tp)) != 0)
 		goto err;
 	PERFMON5(env, alloc, btree_split, dbp->fname, dbp->dname, cp->page->pgno, pp->page->pgno, cp->page->level);
 	/*
@@ -1026,14 +1025,12 @@ sort:
 	switch(TYPE(pp)) {
 	    case P_IBTREE:
 		iflag = 1;
-		isbigkey =
-		        B_TYPE(GET_BINTERNAL(dbp, pp, off)->type) != B_KEYDATA;
+		isbigkey = B_TYPE(GET_BINTERNAL(dbp, pp, off)->type) != B_KEYDATA;
 		break;
 	    case P_LBTREE:
 	    case P_LDUP:
 		iflag = 0;
-		isbigkey = B_TYPE(GET_BKEYDATA(dbp, pp, off)->type) !=
-		           B_KEYDATA;
+		isbigkey = B_TYPE(GET_BKEYDATA(dbp, pp, off)->type) != B_KEYDATA;
 		break;
 	    default:
 		iflag = isbigkey = 0;
@@ -1041,21 +1038,14 @@ sort:
 	if(isbigkey)
 		for(cnt = 1; cnt <= 3; ++cnt) {
 			off = splitp+cnt*adjust;
-			if(off < (db_indx_t)NUM_ENT(pp) &&
-			   ((iflag && B_TYPE(
-				     GET_BINTERNAL(dbp, pp, off)->type) == B_KEYDATA) ||
-			    B_TYPE(GET_BKEYDATA(dbp, pp, off)->type) ==
-			    B_KEYDATA)) {
+			if(off < (db_indx_t)NUM_ENT(pp) && ((iflag && B_TYPE(GET_BINTERNAL(dbp, pp, off)->type) == B_KEYDATA) || B_TYPE(GET_BKEYDATA(dbp, pp, off)->type) == B_KEYDATA)) {
 				splitp = off;
 				break;
 			}
 			if(splitp <= (db_indx_t)(cnt*adjust))
 				continue;
 			off = splitp-cnt*adjust;
-			if(iflag ? B_TYPE(
-				   GET_BINTERNAL(dbp, pp, off)->type) == B_KEYDATA :
-			   B_TYPE(GET_BKEYDATA(dbp, pp, off)->type) ==
-			   B_KEYDATA) {
+			if(iflag ? B_TYPE(GET_BINTERNAL(dbp, pp, off)->type) == B_KEYDATA : B_TYPE(GET_BKEYDATA(dbp, pp, off)->type) == B_KEYDATA) {
 				splitp = off;
 				break;
 			}
@@ -1066,12 +1056,10 @@ sort:
 	 * because that's the point where we push it off onto a duplicate
 	 * page set.  So, this loop can't be unbounded.
 	 */
-	if(TYPE(pp) == P_LBTREE &&
-	   inp[splitp] == inp[splitp-adjust])
+	if(TYPE(pp) == P_LBTREE && inp[splitp] == inp[splitp-adjust])
 		for(cnt = 1;; ++cnt) {
 			off = splitp+cnt*adjust;
-			if(off < NUM_ENT(pp) &&
-			   inp[splitp] != inp[off]) {
+			if(off < NUM_ENT(pp) && inp[splitp] != inp[off]) {
 				splitp = off;
 				break;
 			}

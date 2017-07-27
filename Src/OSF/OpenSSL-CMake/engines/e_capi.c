@@ -1530,12 +1530,9 @@ CAPI_KEY * capi_find_key(CAPI_CTX * ctx, const char * id)
 		    if(sizeof(TCHAR) != sizeof(char)) {
 			    WCHAR * contname, * provname;
 			    DWORD len;
-			    if((len = MultiByteToWideChar(CP_ACP, 0, id, -1, NULL, 0)) &&
-			    (contname = (WCHAR*)alloca(len * sizeof(WCHAR)),
-				    MultiByteToWideChar(CP_ACP, 0, id, -1, contname, len)) &&
-			    (len = MultiByteToWideChar(CP_ACP, 0, ctx->cspname, -1, NULL, 0))
-			    && (provname = (WCHAR*)alloca(len * sizeof(WCHAR)), MultiByteToWideChar(CP_ACP,
-					    0, ctx->cspname, -1, provname, len)))
+			    if((len = MultiByteToWideChar(CP_ACP, 0, id, -1, NULL, 0)) && (contname = (WCHAR*)alloca(len * sizeof(WCHAR)),
+				    MultiByteToWideChar(CP_ACP, 0, id, -1, contname, len)) && (len = MultiByteToWideChar(CP_ACP, 0, ctx->cspname, -1, NULL, 0)) && 
+					(provname = (WCHAR*)alloca(len * sizeof(WCHAR)), MultiByteToWideChar(CP_ACP, 0, ctx->cspname, -1, provname, len)))
 				    key = capi_get_key(ctx, (TCHAR*)contname, (TCHAR*)provname, ctx->csptype, ctx->keytype);
 		    }
 		    else

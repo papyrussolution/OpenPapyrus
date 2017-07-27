@@ -1,5 +1,5 @@
 // V_STCAL.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -460,8 +460,8 @@ int FASTCALL PPViewStaffCal::NextIteration(StaffCalViewItem * pItem)
 			pItem->Duration = r_rec.TmVal;
 			pItem->LinkObj.Obj = Filt.LinkObjType;
 			pItem->LinkObj.Id  = r_rec.LinkObjID;
-			pItem->Count       = r_rec.Count; // @v6.0.2 AHTOXA
-			STRNSCPY(pItem->DtText, r_rec.DtText); // @6.0.2 AHTOXA
+			pItem->Count       = r_rec.Count;
+			STRNSCPY(pItem->DtText, r_rec.DtText);
 			uint pos = 0;
 			if(ObjNameList.Search(r_rec.LinkObjID, &pos))
 				STRNSCPY(pItem->LinkObjName, ObjNameList.at(pos).Txt);
@@ -592,7 +592,7 @@ int SLAPI PPViewStaffCal::EditEntry(PPID calID, PPID objID, LDATETIME dtm, LTIME
 					uint   new_pos = 0;
 					THROW(pack.AddItem(&entry, &new_pos));
 					THROW(Obj.PutPacket(&child_cal_id, &pack, 1));
-					THROW(CreateEntryByObj(Filt.LinkObjType, objID, &ObjNameList, 1));  // @v6.7.11
+					THROW(CreateEntryByObj(Filt.LinkObjType, objID, &ObjNameList, 1));
             		ok = 1;
 				}
 			}
@@ -838,8 +838,8 @@ int PPALDD_StaffCalView::NextIteration(long iterId)
 	I.Flags       = item.Flags;
 	I.LinkObjType = item.LinkObj.Obj;
 	I.LinkObjID   = item.LinkObj.Id;
-	I.Count       = item.Count;      // @v6.0.2 AHTOXA
-	STRNSCPY(I.DtText, item.DtText); // @v6.0.2 AHTOXA
+	I.Count       = item.Count;
+	STRNSCPY(I.DtText, item.DtText);
 	if(I.LinkObjType && I.LinkObjID)
 		GetObjectName(I.LinkObjType, I.LinkObjID, temp_buf);
 	temp_buf.CopyTo(I.LinkObjName, sizeof(I.LinkObjName));

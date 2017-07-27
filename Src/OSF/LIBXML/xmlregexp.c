@@ -1405,8 +1405,7 @@ static int xmlFAGenerateTransitions(xmlRegParserCtxtPtr ctxt, xmlRegStatePtr fro
 		if(xmlRegAtomPush(ctxt, atom) < 0) {
 			return -1;
 		}
-		if((to != NULL) && (atom->stop != to) &&
-		    (atom->quant != XML_REGEXP_QUANT_RANGE)) {
+		if((to != NULL) && (atom->stop != to) && (atom->quant != XML_REGEXP_QUANT_RANGE)) {
 			/*
 			 * Generate an epsilon transition to link to the target
 			 */
@@ -3550,10 +3549,7 @@ static int xmlRegExecPushStringInternal(xmlRegExecCtxtPtr exec, const xmlChar * 
 #endif
 	}
 
-	while((exec->status == 0) &&
-	    ((value != NULL) ||
-		    ((final == 1) &&
-			    (exec->state->type != XML_REGEXP_FINAL_STATE)))) {
+	while((exec->status == 0) && ((value != NULL) || ((final == 1) && (exec->state->type != XML_REGEXP_FINAL_STATE)))) {
 		/*
 		 * End of input on non-terminal state, rollback, however we may
 		 * still have epsilon like transition for counted transitions
@@ -3561,7 +3557,6 @@ static int xmlRegExecPushStringInternal(xmlRegExecCtxtPtr exec, const xmlChar * 
 		 */
 		if((value == NULL) && (exec->counts == NULL))
 			goto rollback;
-
 		exec->transcount = 0;
 		for(; exec->transno < exec->state->nbTrans; exec->transno++) {
 			trans = &exec->state->trans[exec->transno];
@@ -3760,9 +3755,7 @@ static int xmlRegExecPushStringInternal(xmlRegExecCtxtPtr exec, const xmlChar * 
 #ifdef DEBUG_PUSH
 				printf("entering state %d\n", trans->to);
 #endif
-				if((exec->comp->states[trans->to] != NULL) &&
-				    (exec->comp->states[trans->to]->type ==
-					    XML_REGEXP_SINK_STATE)) {
+				if((exec->comp->states[trans->to] != NULL) && (exec->comp->states[trans->to]->type == XML_REGEXP_SINK_STATE)) {
 					/*
 					 * entering a sink state, save the current state as error
 					 * state.
@@ -3815,17 +3808,13 @@ rollback:
 			 * if we didn't yet rollback on the current input
 			 * store the current state as the error state.
 			 */
-			if((progress) && (exec->state != NULL) &&
-			    (exec->state->type != XML_REGEXP_SINK_STATE)) {
+			if((progress) && (exec->state != NULL) && (exec->state->type != XML_REGEXP_SINK_STATE)) {
 				progress = 0;
-				if(exec->errString != NULL)
-					SAlloc::F(exec->errString);
+				SAlloc::F(exec->errString);
 				exec->errString = xmlStrdup(value);
 				exec->errState = exec->state;
-				memcpy(exec->errCounts, exec->counts,
-				    exec->comp->nbCounters * sizeof(int));
+				memcpy(exec->errCounts, exec->counts, exec->comp->nbCounters * sizeof(int));
 			}
-
 			/*
 			 * Failed to find a way out
 			 */
@@ -6177,7 +6166,7 @@ static ushort xmlExpHashNameComputeKey(const xmlChar * name)
 {
 	ushort value = 0L;
 	char ch;
-	if(name != NULL) {
+	if(name) {
 		value += 30 * (*name);
 		while((ch = *name++) != 0) {
 			value = (ushort)(value ^ ((value << 5) + (value >> 3) + (unsigned long)ch));
@@ -7561,7 +7550,7 @@ static xmlExpNodePtr xmlExpParseOr(xmlExpCtxtPtr ctxt)
 	    (CUR != '*') && (CUR != '+') && (CUR != '?') && (CUR != '}'))
 		NEXT;
 	val = xmlDictLookup(ctxt->dict, BAD_CAST base, ctxt->cur - base);
-	if(val == NULL)
+	if(!val)
 		return 0;
 	ret = xmlExpHashGetEntry(ctxt, XML_EXP_ATOM, NULL, NULL, val, 0, 0);
 	if(!ret)

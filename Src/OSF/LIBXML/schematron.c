@@ -736,7 +736,7 @@ static void xmlSchematronParseRule(xmlSchematronParserCtxtPtr ctxt, xmlSchematro
 	if(!ctxt || (rule == NULL))
 		return;
 	context = xmlGetNoNsProp(rule, BAD_CAST "context");
-	if(context == NULL) {
+	if(!context) {
 		xmlSchematronPErr(ctxt, rule, XML_SCHEMAP_NOROOT, "rule has no context attribute", 0, 0);
 		return;
 	}

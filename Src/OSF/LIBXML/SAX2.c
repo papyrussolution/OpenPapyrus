@@ -40,7 +40,7 @@
  * @ctxt:  an XML validation parser context
  * @msg:   a string to accompany the error message
  */
-static void xmlSAX2ErrMemory(xmlParserCtxtPtr ctxt, const char * msg)
+static void xmlSAX2ErrMemory(xmlParserCtxt * ctxt, const char * msg)
 {
 	xmlStructuredErrorFunc schannel = NULL;
 	const char * str1 = "out of memory\n";
@@ -70,10 +70,10 @@ static void xmlSAX2ErrMemory(xmlParserCtxtPtr ctxt, const char * msg)
  *
  * Handle a validation error
  */
-static void xmlErrValid(xmlParserCtxtPtr ctxt, xmlParserErrors error, const char * msg, const char * str1, const char * str2)
+static void xmlErrValid(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const char * str1, const char * str2)
 {
 	xmlStructuredErrorFunc schannel = NULL;
-	if((ctxt) && (ctxt->disableSAX != 0) && (ctxt->instate == XML_PARSER_EOF))
+	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
 	if(ctxt) {
 		ctxt->errNo = error;
@@ -99,7 +99,7 @@ static void xmlErrValid(xmlParserCtxtPtr ctxt, xmlParserErrors error, const char
  *
  * Handle a fatal parser error, i.e. violating Well-Formedness constraints
  */
-static void xmlFatalErrMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
+static void xmlFatalErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
 	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
@@ -124,9 +124,9 @@ static void xmlFatalErrMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error, const c
  *
  * Handle a parser warning
  */
-static void xmlWarnMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1)
+static void xmlWarnMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1)
 {
-	if((ctxt) && (ctxt->disableSAX != 0) && (ctxt->instate == XML_PARSER_EOF))
+	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
 	if(ctxt)
 		ctxt->errNo = error;
@@ -142,9 +142,9 @@ static void xmlWarnMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error, const char 
  *
  * Handle a namespace__ error
  */
-static void xmlNsErrMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
+static void xmlNsErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
-	if((ctxt) && (ctxt->disableSAX != 0) && (ctxt->instate == XML_PARSER_EOF))
+	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
 	if(ctxt)
 		ctxt->errNo = error;
@@ -160,9 +160,9 @@ static void xmlNsErrMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error, const char
  *
  * Handle a namespace__ warning
  */
-static void xmlNsWarnMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
+static void xmlNsWarnMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
-	if((ctxt) && (ctxt->disableSAX != 0) && (ctxt->instate == XML_PARSER_EOF))
+	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
 	if(ctxt)
 		ctxt->errNo = error;
@@ -179,7 +179,7 @@ static void xmlNsWarnMsg(xmlParserCtxtPtr ctxt, xmlParserErrors error, const cha
  */
 const xmlChar * xmlSAX2GetPublicId(void * ctx ATTRIBUTE_UNUSED)
 {
-	/* xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr) ctx; */
+	/* xmlParserCtxt * ctxt = (xmlParserCtxt *) ctx; */
 	return 0;
 }
 
@@ -194,7 +194,7 @@ const xmlChar * xmlSAX2GetPublicId(void * ctx ATTRIBUTE_UNUSED)
  */
 const xmlChar * xmlSAX2GetSystemId(void * ctx)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	if(!ctx || (ctxt->input == NULL)) return 0;
 	return((const xmlChar*)ctxt->input->filename);
 }
@@ -209,7 +209,7 @@ const xmlChar * xmlSAX2GetSystemId(void * ctx)
  */
 int xmlSAX2GetLineNumber(void * ctx)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	if(!ctx || (ctxt->input == NULL)) return 0;
 	return(ctxt->input->line);
 }
@@ -224,7 +224,7 @@ int xmlSAX2GetLineNumber(void * ctx)
  */
 int xmlSAX2GetColumnNumber(void * ctx)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	if(!ctx || (ctxt->input == NULL)) return 0;
 	return(ctxt->input->col);
 }
@@ -239,7 +239,7 @@ int xmlSAX2GetColumnNumber(void * ctx)
  */
 int xmlSAX2IsStandalone(void * ctx)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	if(!ctx || (ctxt->myDoc == NULL)) return 0;
 	return(ctxt->myDoc->standalone == 1);
 }
@@ -254,7 +254,7 @@ int xmlSAX2IsStandalone(void * ctx)
  */
 int xmlSAX2HasInternalSubset(void * ctx)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	if(!ctxt || (ctxt->myDoc == NULL)) return 0;
 	return(ctxt->myDoc->intSubset != NULL);
 }
@@ -269,7 +269,7 @@ int xmlSAX2HasInternalSubset(void * ctx)
  */
 int xmlSAX2HasExternalSubset(void * ctx)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	if(!ctxt || (ctxt->myDoc == NULL)) return 0;
 	return(ctxt->myDoc->extSubset != NULL);
 }
@@ -285,7 +285,7 @@ int xmlSAX2HasExternalSubset(void * ctx)
  */
 void xmlSAX2InternalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	if(ctx) {
 #ifdef DEBUG_SAX
 		xmlGenericError(0, "SAX.xmlSAX2InternalSubset(%s, %s, %s)\n", name, ExternalID, SystemID);
@@ -317,7 +317,7 @@ void xmlSAX2InternalSubset(void * ctx, const xmlChar * name, const xmlChar * Ext
  */
 void xmlSAX2ExternalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	if(!ctx) return;
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2ExternalSubset(%s, %s, %s)\n", name, ExternalID, SystemID);
@@ -423,7 +423,7 @@ void xmlSAX2ExternalSubset(void * ctx, const xmlChar * name, const xmlChar * Ext
  */
 xmlParserInputPtr xmlSAX2ResolveEntity(void * ctx, const xmlChar * publicId, const xmlChar * systemId)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlParserInputPtr ret;
 	xmlChar * URI;
 	const char * base = NULL;
@@ -453,7 +453,7 @@ xmlParserInputPtr xmlSAX2ResolveEntity(void * ctx, const xmlChar * publicId, con
  */
 xmlEntityPtr xmlSAX2GetEntity(void * ctx, const xmlChar * name)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlEntityPtr ret = NULL;
 	if(!ctx)
 		return 0;
@@ -524,7 +524,7 @@ xmlEntityPtr xmlSAX2GetEntity(void * ctx, const xmlChar * name)
  */
 xmlEntityPtr xmlSAX2GetParameterEntity(void * ctx, const xmlChar * name)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlEntityPtr ret = 0;
 	if(ctx) {
 #ifdef DEBUG_SAX
@@ -549,7 +549,7 @@ xmlEntityPtr xmlSAX2GetParameterEntity(void * ctx, const xmlChar * name)
 void xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content)
 {
 	xmlEntityPtr ent;
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	if(!ctx) return;
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2EntityDecl(%s, %d, %s, %s, %s)\n", name, type, publicId, systemId, content);
@@ -602,7 +602,7 @@ void xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type, const xmlChar
 void xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * fullname,
     int type, int def, const xmlChar * defaultValue, xmlEnumerationPtr tree)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlAttributePtr attr;
 	xmlChar * name = NULL, * prefix = NULL;
 	if(!ctxt || (ctxt->myDoc == NULL))
@@ -651,7 +651,7 @@ void xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * full
  */
 void xmlSAX2ElementDecl(void * ctx, const xmlChar * name, int type, xmlElementContentPtr content)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlElementPtr elem = NULL;
 	if(!ctxt || (ctxt->myDoc == NULL))
 		return;
@@ -685,7 +685,7 @@ void xmlSAX2ElementDecl(void * ctx, const xmlChar * name, int type, xmlElementCo
  */
 void xmlSAX2NotationDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlNotationPtr nota = NULL;
 	if(!ctxt || (ctxt->myDoc == NULL))
 		return;
@@ -725,7 +725,7 @@ void xmlSAX2NotationDecl(void * ctx, const xmlChar * name, const xmlChar * publi
 void xmlSAX2UnparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName)
 {
 	xmlEntityPtr ent;
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	if(!ctx) return;
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2UnparsedEntityDecl(%s, %s, %s, %s)\n", name, publicId, systemId, notationName);
@@ -769,7 +769,7 @@ void xmlSAX2UnparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar *
  */
 void xmlSAX2SetDocumentLocator(void * ctx ATTRIBUTE_UNUSED, xmlSAXLocatorPtr loc ATTRIBUTE_UNUSED)
 {
-	/* xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr) ctx; */
+	/* xmlParserCtxt * ctxt = (xmlParserCtxt *) ctx; */
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2SetDocumentLocator()\n");
 #endif
@@ -783,7 +783,7 @@ void xmlSAX2SetDocumentLocator(void * ctx ATTRIBUTE_UNUSED, xmlSAXLocatorPtr loc
  */
 void xmlSAX2StartDocument(void * ctx)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlDocPtr doc;
 	if(!ctx)
 		return;
@@ -840,17 +840,15 @@ void xmlSAX2StartDocument(void * ctx)
  */
 void xmlSAX2EndDocument(void * ctx)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2EndDocument()\n");
 #endif
 	if(!ctx) return;
 #ifdef LIBXML_VALID_ENABLED
-	if(ctxt->validate && ctxt->wellFormed &&
-	    ctxt->myDoc && ctxt->myDoc->intSubset)
+	if(ctxt->validate && ctxt->wellFormed && ctxt->myDoc && ctxt->myDoc->intSubset)
 		ctxt->valid &= xmlValidateDocumentFinal(&ctxt->vctxt, ctxt->myDoc);
 #endif /* LIBXML_VALID_ENABLED */
-
 	/*
 	 * Grab the encoding if it was added on-the-fly
 	 */
@@ -858,12 +856,10 @@ void xmlSAX2EndDocument(void * ctx)
 		ctxt->myDoc->encoding = ctxt->encoding;
 		ctxt->encoding = NULL;
 	}
-	if(ctxt->inputTab && (ctxt->inputNr > 0) && ctxt->inputTab[0] &&
-	    ctxt->inputTab[0]->encoding && ctxt->myDoc && (ctxt->myDoc->encoding == NULL)) {
+	if(ctxt->inputTab && (ctxt->inputNr > 0) && ctxt->inputTab[0] && ctxt->inputTab[0]->encoding && ctxt->myDoc && (ctxt->myDoc->encoding == NULL)) {
 		ctxt->myDoc->encoding = xmlStrdup(ctxt->inputTab[0]->encoding);
 	}
-	if((ctxt->charset != XML_CHAR_ENCODING_NONE) && (ctxt->myDoc != NULL) &&
-	    (ctxt->myDoc->charset == XML_CHAR_ENCODING_NONE)) {
+	if((ctxt->charset != XML_CHAR_ENCODING_NONE) && ctxt->myDoc && (ctxt->myDoc->charset == XML_CHAR_ENCODING_NONE)) {
 		ctxt->myDoc->charset = ctxt->charset;
 	}
 }
@@ -884,7 +880,7 @@ void xmlSAX2EndDocument(void * ctx)
  */
 static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const xmlChar * value, const xmlChar * prefix ATTRIBUTE_UNUSED)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlAttrPtr ret;
 	xmlChar * name;
 	xmlChar * ns;
@@ -953,7 +949,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 			ctxt->depth++;
 			val = xmlStringDecodeEntities(ctxt, value, XML_SUBSTITUTE_REF, 0, 0, 0);
 			ctxt->depth--;
-			if(val == NULL) {
+			if(!val) {
 				xmlSAX2ErrMemory(ctxt, "xmlSAX2StartElement");
 				SAlloc::F(name);
 				return;
@@ -976,10 +972,8 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 				xmlFreeURI(uri);
 			}
 		}
-
 		/* a default namespace__ definition */
 		nsret = xmlNewNs(ctxt->node, val, 0);
-
 #ifdef LIBXML_VALID_ENABLED
 		/*
 		 * Validate also for namespace__ decls, they are attributes from
@@ -1001,7 +995,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 			ctxt->depth++;
 			val = xmlStringDecodeEntities(ctxt, value, XML_SUBSTITUTE_REF, 0, 0, 0);
 			ctxt->depth--;
-			if(val == NULL) {
+			if(!val) {
 				xmlSAX2ErrMemory(ctxt, "xmlSAX2StartElement");
 				SAlloc::F(ns);
 				SAlloc::F(name);
@@ -1100,7 +1094,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 			ctxt->depth++;
 			val = xmlStringDecodeEntities(ctxt, value, XML_SUBSTITUTE_REF, 0, 0, 0);
 			ctxt->depth--;
-			if(val == NULL)
+			if(!val)
 				ctxt->valid &= xmlValidateOneAttribute(&ctxt->vctxt, ctxt->myDoc, ctxt->node, ret, value);
 			else {
 				/*
@@ -1155,7 +1149,7 @@ error:
  *
  * Check defaulted attributes from the DTD
  */
-static void xmlCheckDefaultedAttributes(xmlParserCtxtPtr ctxt, const xmlChar * name,
+static void xmlCheckDefaultedAttributes(xmlParserCtxt * ctxt, const xmlChar * name,
     const xmlChar * prefix, const xmlChar ** atts) {
 	xmlElementPtr elemDecl;
 	const xmlChar * att;
@@ -1286,7 +1280,7 @@ process_external_subset:
  */
 void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** atts)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlNodePtr ret;
 	xmlNodePtr parent;
 	xmlNsPtr ns;
@@ -1469,7 +1463,7 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
  */
 void xmlSAX2EndElement(void * ctx, const xmlChar * name ATTRIBUTE_UNUSED)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	if(ctx) {
 		xmlNode * cur = ctxt->node;
 #ifdef DEBUG_SAX
@@ -1512,7 +1506,7 @@ void xmlSAX2EndElement(void * ctx, const xmlChar * name ATTRIBUTE_UNUSED)
  *
  * Returns the newly allocated string or NULL if not needed or error
  */
-static xmlNodePtr xmlSAX2TextNode(xmlParserCtxtPtr ctxt, const xmlChar * str, int len)
+static xmlNodePtr xmlSAX2TextNode(xmlParserCtxt * ctxt, const xmlChar * str, int len)
 {
 	xmlNodePtr ret;
 	const xmlChar * intern = NULL;
@@ -1595,7 +1589,7 @@ skip:
  *
  * Returns the newly allocated string or NULL if not needed or error
  */
-static xmlChar * xmlSAX2DecodeAttrEntities(xmlParserCtxtPtr ctxt, const xmlChar * str, const xmlChar * end) 
+static xmlChar * xmlSAX2DecodeAttrEntities(xmlParserCtxt * ctxt, const xmlChar * str, const xmlChar * end) 
 {
 	xmlChar * ret;
 	const xmlChar * in = str;
@@ -1626,7 +1620,7 @@ decode:
  * DOM subtree and past it in a new xmlAttr element added to
  * the element.
  */
-static void xmlSAX2AttributeNs(xmlParserCtxtPtr ctxt, const xmlChar * localname, const xmlChar * prefix, const xmlChar * value, const xmlChar * valueend)
+static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, const xmlChar * prefix, const xmlChar * value, const xmlChar * valueend)
 {
 	xmlAttrPtr ret;
 	xmlNsPtr namespace__ = NULL;
@@ -1839,7 +1833,7 @@ void xmlSAX2StartElementNs(void * ctx,
     int nb_defaulted,
     const xmlChar ** attributes)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlNodePtr ret;
 	xmlNodePtr parent;
 	xmlNsPtr last = NULL, ns;
@@ -2065,7 +2059,7 @@ void xmlSAX2EndElementNs(void * ctx,
     const xmlChar * prefix ATTRIBUTE_UNUSED,
     const xmlChar * URI ATTRIBUTE_UNUSED)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlParserNodeInfo node_info;
 	xmlNodePtr cur;
 
@@ -2098,7 +2092,7 @@ void xmlSAX2EndElementNs(void * ctx,
  */
 void xmlSAX2Reference(void * ctx, const xmlChar * name)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlNodePtr ret;
 	if(!ctx)
 		return;
@@ -2127,7 +2121,7 @@ void xmlSAX2Reference(void * ctx, const xmlChar * name)
  */
 void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlNodePtr lastChild;
 	if(!ctx)
 		return;
@@ -2248,7 +2242,7 @@ void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len)
  */
 void xmlSAX2IgnorableWhitespace(void * ctx ATTRIBUTE_UNUSED, const xmlChar * ch ATTRIBUTE_UNUSED, int len ATTRIBUTE_UNUSED)
 {
-	/* xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr) ctx; */
+	/* xmlParserCtxt * ctxt = (xmlParserCtxt *) ctx; */
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2IgnorableWhitespace(%.30s, %d)\n", ch, len);
 #endif
@@ -2264,7 +2258,7 @@ void xmlSAX2IgnorableWhitespace(void * ctx ATTRIBUTE_UNUSED, const xmlChar * ch 
  */
 void xmlSAX2ProcessingInstruction(void * ctx, const xmlChar * target, const xmlChar * data)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlNodePtr ret;
 	xmlNodePtr parent;
 	if(!ctx)
@@ -2319,7 +2313,7 @@ void xmlSAX2ProcessingInstruction(void * ctx, const xmlChar * target, const xmlC
  */
 void xmlSAX2Comment(void * ctx, const xmlChar * value)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlNodePtr ret;
 	xmlNodePtr parent;
 
@@ -2375,7 +2369,7 @@ void xmlSAX2Comment(void * ctx, const xmlChar * value)
  */
 void xmlSAX2CDataBlock(void * ctx, const xmlChar * value, int len)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlNodePtr ret, lastChild;
 	if(!ctx) return;
 #ifdef DEBUG_SAX

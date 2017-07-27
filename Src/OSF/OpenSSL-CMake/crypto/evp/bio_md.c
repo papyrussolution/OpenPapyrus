@@ -104,7 +104,7 @@ static int md_write(BIO * b, const char * in, int inl)
 			}
 		}
 	}
-	if(next != NULL) {
+	if(next) {
 		BIO_clear_retry_flags(b);
 		BIO_copy_next_retry(b);
 	}

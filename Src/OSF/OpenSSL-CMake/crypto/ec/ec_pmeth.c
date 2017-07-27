@@ -227,8 +227,7 @@ static int pkey_ec_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 				    return dctx->cofactor_mode;
 			    else {
 				    EC_KEY * ec_key = ctx->pkey->pkey.ec;
-				    return EC_KEY_get_flags(ec_key) & EC_FLAG_COFACTOR_ECDH ? 1 :
-					   0;
+				    return EC_KEY_get_flags(ec_key) & EC_FLAG_COFACTOR_ECDH ? 1 : 0;
 			    }
 		    }
 		    else if(p1 < -1 || p1 > 1)
@@ -257,7 +256,6 @@ static int pkey_ec_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 		    }
 		    return 1;
 #endif
-
 		case EVP_PKEY_CTRL_EC_KDF_TYPE:
 		    if(p1 == -2)
 			    return dctx->kdf_type;
@@ -265,25 +263,20 @@ static int pkey_ec_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 			    return -2;
 		    dctx->kdf_type = p1;
 		    return 1;
-
 		case EVP_PKEY_CTRL_EC_KDF_MD:
 		    dctx->kdf_md = (EVP_MD*)p2;
 		    return 1;
-
 		case EVP_PKEY_CTRL_GET_EC_KDF_MD:
 		    *(const EVP_MD**)p2 = dctx->kdf_md;
 		    return 1;
-
 		case EVP_PKEY_CTRL_EC_KDF_OUTLEN:
 		    if(p1 <= 0)
 			    return -2;
 		    dctx->kdf_outlen = (size_t)p1;
 		    return 1;
-
 		case EVP_PKEY_CTRL_GET_EC_KDF_OUTLEN:
 		    *(int*)p2 = dctx->kdf_outlen;
 		    return 1;
-
 		case EVP_PKEY_CTRL_EC_KDF_UKM:
 		    OPENSSL_free(dctx->kdf_ukm);
 		    dctx->kdf_ukm = (uchar*)p2;
@@ -292,28 +285,24 @@ static int pkey_ec_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 		    else
 			    dctx->kdf_ukmlen = 0;
 		    return 1;
-
 		case EVP_PKEY_CTRL_GET_EC_KDF_UKM:
 		    *(uchar**)p2 = dctx->kdf_ukm;
 		    return dctx->kdf_ukmlen;
-
 		case EVP_PKEY_CTRL_MD:
-		    if(EVP_MD_type((const EVP_MD*)p2) != NID_sha1 &&
-		    EVP_MD_type((const EVP_MD*)p2) != NID_ecdsa_with_SHA1 &&
-		    EVP_MD_type((const EVP_MD*)p2) != NID_sha224 &&
-		    EVP_MD_type((const EVP_MD*)p2) != NID_sha256 &&
-		    EVP_MD_type((const EVP_MD*)p2) != NID_sha384 &&
-		    EVP_MD_type((const EVP_MD*)p2) != NID_sha512) {
-			    ECerr(EC_F_PKEY_EC_CTRL, EC_R_INVALID_DIGEST_TYPE);
-			    return 0;
-		    }
-		    dctx->md = (EVP_MD*)p2;
-		    return 1;
-
+			{
+				const int evp_md_type = EVP_MD_type((const EVP_MD*)p2);
+				if(!oneof6(evp_md_type, NID_sha1, NID_ecdsa_with_SHA1, NID_sha224, NID_sha256, NID_sha384, NID_sha512)) {
+					ECerr(EC_F_PKEY_EC_CTRL, EC_R_INVALID_DIGEST_TYPE);
+					return 0;
+				}
+				else {
+					dctx->md = (EVP_MD*)p2;
+					return 1;
+				}
+			}
 		case EVP_PKEY_CTRL_GET_MD:
 		    *(const EVP_MD**)p2 = dctx->md;
 		    return 1;
-
 		case EVP_PKEY_CTRL_PEER_KEY:
 		/* Default behaviour is OK */
 		case EVP_PKEY_CTRL_DIGESTINIT:

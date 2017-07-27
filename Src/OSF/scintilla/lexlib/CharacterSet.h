@@ -37,22 +37,22 @@ public:
 
 // Functions for classifying characters
 
-inline bool IsASpace(int ch)
+inline bool FASTCALL IsASpace(int ch)
 {
 	return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
 }
 
-inline bool IsASpaceOrTab(int ch)
+inline bool FASTCALL IsASpaceOrTab(int ch)
 {
 	return (ch == ' ') || (ch == '\t');
 }
 
-inline bool IsADigit(int ch)
+inline bool FASTCALL IsADigit(int ch)
 {
 	return (ch >= '0') && (ch <= '9');
 }
 
-inline bool IsADigit(int ch, int base)
+inline bool FASTCALL IsADigit(int ch, int base)
 {
 	if(base <= 10) {
 		return (ch >= '0') && (ch < '0' + base);
@@ -62,45 +62,45 @@ inline bool IsADigit(int ch, int base)
 	}
 }
 
-inline bool IsASCII(int ch)
+inline bool FASTCALL IsASCII(int ch)
 {
 	return (ch >= 0) && (ch < 0x80);
 }
 
-inline bool IsLowerCase(int ch)
+inline bool FASTCALL IsLowerCase(int ch)
 {
 	return (ch >= 'a') && (ch <= 'z');
 }
 
-inline bool IsUpperCase(int ch)
+inline bool FASTCALL IsUpperCase(int ch)
 {
 	return (ch >= 'A') && (ch <= 'Z');
 }
 
-inline bool IsAlphaNumeric(int ch)
+inline bool FASTCALL IsAlphaNumeric(int ch)
 {
 	return ((ch >= '0') && (ch <= '9')) || ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z'));
 }
-/**
- * Check if a character is a space.
- * This is ASCII specific but is safe with chars >= 0x80.
- */
-inline bool isspacechar(int ch)
+//
+// Check if a character is a space.
+// This is ASCII specific but is safe with chars >= 0x80.
+//
+inline bool FASTCALL isspacechar(int ch)
 {
 	return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
 }
 
-inline bool iswordchar(int ch)
+inline bool FASTCALL iswordchar(int ch)
 {
 	return IsAlphaNumeric(ch) || ch == '.' || ch == '_';
 }
 
-inline bool iswordstart(int ch)
+inline bool FASTCALL iswordstart(int ch)
 {
 	return IsAlphaNumeric(ch) || ch == '_';
 }
 
-inline bool isoperator(int ch)
+inline bool FASTCALL isoperator(int ch)
 {
 	if(IsAlphaNumeric(ch))
 		return false;
@@ -109,15 +109,15 @@ inline bool isoperator(int ch)
 	else
 		return false;
 }
-
+//
 // Simple case functions for ASCII.
-
-inline int MakeUpperCase(int ch)
+//
+inline int FASTCALL MakeUpperCase(int ch)
 {
 	return (ch < 'a' || ch > 'z') ? ch : static_cast<char>(ch - 'a' + 'A');
 }
 
-inline int MakeLowerCase(int ch)
+inline int FASTCALL MakeLowerCase(int ch)
 {
 	return (ch < 'A' || ch > 'Z') ? ch : (ch - 'A' + 'a');
 }

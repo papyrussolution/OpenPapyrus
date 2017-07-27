@@ -144,7 +144,7 @@ GLOBAL(void) jpeg_finish_compress(j_compress_ptr cinfo)
 	while(!cinfo->master->is_last_pass) {
 		(*cinfo->master->prepare_for_pass)(cinfo);
 		for(iMCU_row = 0; iMCU_row < cinfo->total_iMCU_rows; iMCU_row++) {
-			if(cinfo->progress != NULL) {
+			if(cinfo->progress) {
 				cinfo->progress->pass_counter = (long)iMCU_row;
 				cinfo->progress->pass_limit = (long)cinfo->total_iMCU_rows;
 				(*cinfo->progress->progress_monitor)((j_common_ptr)cinfo);

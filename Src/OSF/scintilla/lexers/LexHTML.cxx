@@ -457,7 +457,7 @@ static bool isWordCdata(Sci_PositionU start, Sci_PositionU end, Accessor &styler
 		s[i] = styler[start + i];
 	}
 	s[i] = '\0';
-	return (sstreq(s, "[CDATA["));
+	return sstreq(s, "[CDATA[") ? true : false;
 }
 
 // Return the first state to reach when entering a scripting language

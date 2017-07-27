@@ -21,8 +21,7 @@
  * KIND, either express or implied.
  *
  ***************************************************************************/
-#include "curl_setup.h"
-
+//#include "curl_setup.h"
 /*
  * Comma-separated list all supported Content-Encodings ('identity' is implied)
  */

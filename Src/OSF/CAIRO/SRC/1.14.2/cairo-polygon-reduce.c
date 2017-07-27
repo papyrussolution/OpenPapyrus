@@ -1014,7 +1014,7 @@ static cairo_status_t _cairo_bo_sweep_line_insert(cairo_bo_sweep_line_t      * s
 			prev->next = edge;
 			edge->prev = prev;
 			edge->next = next;
-			if(next != NULL)
+			if(next)
 				next->prev = edge;
 		}
 		else if(cmp > 0) {

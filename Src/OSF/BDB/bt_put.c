@@ -241,8 +241,7 @@ int __bam_iitem(DBC * dbc, DBT * key, DBT * data, uint32 op, uint32 flags)
 	 * Check to see if we will convert to off page duplicates -- if
 	 * so, we'll need a page.
 	 */
-	if(F_ISSET(dbp, DB_AM_DUP) && TYPE(h) == P_LBTREE && op != DB_KEYFIRST &&
-	   P_FREESPACE(dbp, h)-needed <= dbp->pgsize/2 && __bam_dup_check(dbc, op, h, indx, needed, &cnt)) {
+	if(F_ISSET(dbp, DB_AM_DUP) && TYPE(h) == P_LBTREE && op != DB_KEYFIRST && P_FREESPACE(dbp, h)-needed <= dbp->pgsize/2 && __bam_dup_check(dbc, op, h, indx, needed, &cnt)) {
 		pages = 1;
 		dupadjust = 1;
 	}

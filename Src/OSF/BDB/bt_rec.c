@@ -889,7 +889,7 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep != NULL)
+	if(pagep)
 		__memp_fput(mpf, ip, pagep, dbc->priority);
 	REC_CLOSE;
 }
@@ -945,7 +945,7 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep != NULL)
+	if(pagep)
 		__memp_fput(mpf, ip, pagep, dbc->priority);
 	REC_CLOSE;
 }
@@ -1022,7 +1022,7 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep != NULL)
+	if(pagep)
 		__memp_fput(mpf, ip, pagep, file_dbp->priority);
 	REC_CLOSE;
 }
@@ -1084,7 +1084,7 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep != NULL)
+	if(pagep)
 		__memp_fput(mpf, ip, pagep, file_dbp->priority);
 	REC_CLOSE;
 }
@@ -1187,7 +1187,7 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep != NULL)
+	if(pagep)
 		__memp_fput(mpf, ip, pagep, dbc->priority);
 	REC_CLOSE;
 }
@@ -1696,7 +1696,7 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep != NULL)
+	if(pagep)
 		__memp_fput(mpf, ip, pagep, file_dbp->priority);
 	REC_CLOSE;
 }

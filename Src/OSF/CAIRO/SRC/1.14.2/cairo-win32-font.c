@@ -598,7 +598,7 @@ static cairo_int_status_t _cairo_win32_scaled_font_type1_text_to_glyphs(cairo_wi
 		goto FAIL1;
 	}
 	hdc = _get_global_font_dc();
-	assert(hdc != NULL);
+	assert(hdc);
 	status = cairo_win32_scaled_font_select_font(&scaled_font->base, hdc);
 	if(status)
 		goto FAIL2;
@@ -697,7 +697,7 @@ static cairo_int_status_t _cairo_win32_scaled_font_text_to_glyphs(void * abstrac
 	}
 
 	hdc = _get_global_font_dc();
-	assert(hdc != NULL);
+	assert(hdc);
 
 	status = cairo_win32_scaled_font_select_font(&scaled_font->base, hdc);
 	if(status)
@@ -775,7 +775,7 @@ static ulong _cairo_win32_scaled_font_ucs4_to_index(void * abstract_font,
 	cairo_status_t status;
 
 	hdc = _get_global_font_dc();
-	assert(hdc != NULL);
+	assert(hdc);
 
 	status = cairo_win32_scaled_font_select_font(&scaled_font->base, hdc);
 	if(status)
@@ -797,13 +797,9 @@ static cairo_status_t _cairo_win32_scaled_font_set_metrics(cairo_win32_scaled_fo
 {
 	cairo_status_t status;
 	cairo_font_extents_t extents;
-
 	TEXTMETRIC metrics;
-	HDC hdc;
-
-	hdc = _get_global_font_dc();
-	assert(hdc != NULL);
-
+	HDC hdc = _get_global_font_dc();
+	assert(hdc);
 	if(scaled_font->preserve_axes || scaled_font->base.options.hint_metrics == CAIRO_HINT_METRICS_OFF) {
 		/* For 90-degree rotations (including 0), we get the metrics
 		 * from the GDI in logical space, then convert back to font space
@@ -869,7 +865,7 @@ static cairo_status_t _cairo_win32_scaled_font_init_glyph_metrics(cairo_win32_sc
 	cairo_status_t status;
 	cairo_text_extents_t extents;
 	HDC    hdc = _get_global_font_dc();
-	assert(hdc != NULL);
+	assert(hdc);
 	if(scaled_font->is_bitmap) {
 		/* GetGlyphOutline will not work. Assume that the glyph does not extend outside the font box. */
 		cairo_font_extents_t font_extents;
@@ -987,7 +983,7 @@ static cairo_status_t _cairo_win32_scaled_font_glyph_bbox(void * abstract_font,
 		int i;
 
 		hdc = _get_global_font_dc();
-		assert(hdc != NULL);
+		assert(hdc);
 
 		status = cairo_win32_scaled_font_select_font(&scaled_font->base, hdc);
 		if(status)
@@ -1191,7 +1187,7 @@ static cairo_int_status_t _cairo_win32_scaled_font_load_truetype_table(void * ab
 	cairo_status_t status;
 	DWORD ret;
 	HDC hdc = _get_global_font_dc();
-	assert(hdc != NULL);
+	assert(hdc);
 	tag = (tag&0x000000ff)<<24 | (tag&0x0000ff00)<<8 | (tag&0x00ff0000)>>8 | (tag&0xff000000)>>24;
 	status = cairo_win32_scaled_font_select_font(&scaled_font->base, hdc);
 	if(status)
@@ -1215,7 +1211,7 @@ static cairo_int_status_t _cairo_win32_scaled_font_index_to_ucs4(void * abstract
 	uint i, j, num_glyphs;
 	cairo_status_t status;
 	HDC hdc = _get_global_font_dc();
-	assert(hdc != NULL);
+	assert(hdc);
 	status = cairo_win32_scaled_font_select_font(&scaled_font->base, hdc);
 	if(status)
 		return status;
@@ -1437,7 +1433,7 @@ static cairo_status_t _cairo_win32_scaled_font_init_glyph_path(cairo_win32_scale
 	if(scaled_font->is_bitmap)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	hdc = _get_global_font_dc();
-	assert(hdc != NULL);
+	assert(hdc);
 	path = _cairo_path_fixed_create();
 	if(!path)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);

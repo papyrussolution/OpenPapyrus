@@ -369,7 +369,7 @@ int ec_wNAF_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
 	 * subarray of 'pre_comp->points' if we already have precomputation.
 	 */
 	val = (EC_POINT**)OPENSSL_malloc((num_val + 1) * sizeof val[0]);
-	if(val == NULL) {
+	if(!val) {
 		ECerr(EC_F_EC_WNAF_MUL, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

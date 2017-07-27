@@ -79,8 +79,8 @@
  */
 #define RESP_TIMEOUT (1800*1000)
 
-#include "cookie.h"
-#include "formdata.h"
+//#include "cookie.h"
+//#include "formdata.h"
 
 #ifdef USE_OPENSSL
 	#include <openssl/ssl.h>
@@ -150,7 +150,7 @@
 	#endif
 #endif
 //#include <curl/curl.h>
-#include "http_chunks.h" /* for the structs and enum stuff */
+//#include "http_chunks.h" /* for the structs and enum stuff */
 //#include "hostip.h"
 //#include "hash.h"
 #include "splay.h"
@@ -160,8 +160,8 @@
 #include "ftp.h"
 #include "file.h"
 #include "ssh.h"
-#include "http.h"
-#include "rtsp.h"
+//#include "http.h"
+//#include "rtsp.h"
 //#include "smb.h"
 //#include "wildcard.h"
 //#include "multihandle.h"

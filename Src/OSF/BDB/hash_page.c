@@ -1518,9 +1518,7 @@ next_page:
 	 * from_pagep is the starting point in the bucket at which records
 	 * are moved to the new bucket.
 	 */
-	if(from_pagep == NULL &&
-	   (ret = __memp_fget(mpf, &from_pgno, dbc->thread_info,
-		    dbc->txn, DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &from_pagep)) != 0)
+	if(!from_pagep && (ret = __memp_fget(mpf, &from_pgno, dbc->thread_info, dbc->txn, DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &from_pagep)) != 0)
 		goto err;
 	if((ret = __ham_get_clist(dbp, from_pgno, NDX_INVALID, &carray)) != 0)
 		goto err;
@@ -1533,12 +1531,7 @@ next_page:
 		 * Figure out how many bytes we need on the from
 		 * page to store the key/data pair.
 		 */
-		len = LEN_HITEM(dbp, from_pagep,
-			dbp->pgsize, H_DATAINDEX(hcp->indx))+
-		      LEN_HITEM(dbp, from_pagep,
-			dbp->pgsize, H_KEYINDEX(hcp->indx))+
-		      2*sizeof(db_indx_t);
-
+		len = LEN_HITEM(dbp, from_pagep, dbp->pgsize, H_DATAINDEX(hcp->indx))+LEN_HITEM(dbp, from_pagep, dbp->pgsize, H_KEYINDEX(hcp->indx))+2*sizeof(db_indx_t);
 		/*
 		 * Find a page that will fit this data.  We don't go back
 		 * to a page, so we may leave some space if there is a big
@@ -1603,9 +1596,7 @@ next_page:
 		 * Otherwise we will just free the page after the loop.
 		 */
 		if(PREV_PGNO(from_pagep) == PGNO_INVALID) {
-			if((ret = __ham_del_pair(dbc,
-				    HAM_DEL_IGNORE_OFFPAGE|HAM_DEL_NO_CURSOR,
-				    from_pagep)) != 0)
+			if((ret = __ham_del_pair(dbc, HAM_DEL_IGNORE_OFFPAGE|HAM_DEL_NO_CURSOR, from_pagep)) != 0)
 				goto err;
 			if(!STD_LOCKING(dbc)) {
 				if((ret = __ham_dirty_meta(dbc, 0)) != 0)
@@ -1624,10 +1615,7 @@ next_page:
 	from_pgno = NEXT_PGNO(from_pagep);
 	if(PREV_PGNO(from_pagep) != PGNO_INVALID) {
 		if(DBC_LOGGING(dbc)) {
-			if((ret = __db_relink_log(dbp, dbc->txn,
-				    &LSN(prev_pagep), 0, PGNO(from_pagep),
-				    PGNO_INVALID, PGNO(prev_pagep),
-				    &LSN(prev_pagep), PGNO_INVALID, NULL)) != 0)
+			if((ret = __db_relink_log(dbp, dbc->txn, &LSN(prev_pagep), 0, PGNO(from_pagep), PGNO_INVALID, PGNO(prev_pagep), &LSN(prev_pagep), PGNO_INVALID, NULL)) != 0)
 				goto err;
 		}
 		else
@@ -1702,39 +1690,19 @@ next_page:
 		 *	next_pagep -- the next page after the list.
 		 */
 		if(DBC_LOGGING(dbc)) {
-			if((ret = __db_relink_log(dbp, dbc->txn,
-				    &LSN(to_pagep), 0, NEXT_PGNO(to_pagep),
-				    first_pgno, to_pgno, &LSN(to_pagep),
-				    PGNO_INVALID, NULL)) != 0)
+			if((ret = __db_relink_log(dbp, dbc->txn, &LSN(to_pagep), 0, NEXT_PGNO(to_pagep), first_pgno, to_pgno, &LSN(to_pagep), PGNO_INVALID, NULL)) != 0)
 				goto err;
-			if((ret = __db_relink_log(dbp, dbc->txn,
-				    &LSN(first_pagep), 0, PREV_PGNO(first_pagep),
-				    to_pgno, PGNO_INVALID, NULL, first_pgno,
-				    &LSN(first_pagep))) != 0)
+			if((ret = __db_relink_log(dbp, dbc->txn, &LSN(first_pagep), 0, PREV_PGNO(first_pagep), to_pgno, PGNO_INVALID, NULL, first_pgno, &LSN(first_pagep))) != 0)
 				goto err;
 			if(next_pagep != NULL) {
-				if((ret = __db_relink_log(dbp, dbc->txn,
-					    &LSN(next_pagep), 0, PREV_PGNO(next_pagep),
-					    PGNO(last_pagep), PGNO_INVALID, NULL,
-					    PGNO(next_pagep), &LSN(next_pagep))) != 0)
+				if((ret = __db_relink_log(dbp, dbc->txn, &LSN(next_pagep), 0, PREV_PGNO(next_pagep), PGNO(last_pagep), PGNO_INVALID, NULL, PGNO(next_pagep), &LSN(next_pagep))) != 0)
 					goto err;
-				if((ret = __db_relink_log(dbp, dbc->txn,
-					    &LSN(last_pagep), 0, NEXT_PGNO(last_pagep),
-					    PGNO(next_pagep), PGNO(last_pagep),
-					    &LSN(last_pagep), PGNO_INVALID, NULL)) != 0)
+				if((ret = __db_relink_log(dbp, dbc->txn, &LSN(last_pagep), 0, NEXT_PGNO(last_pagep), PGNO(next_pagep), PGNO(last_pagep), &LSN(last_pagep), PGNO_INVALID, NULL)) != 0)
 					goto err;
 			}
-			else if(NEXT_PGNO(last_pagep) != PGNO_INVALID &&
-			        (ret = __db_relink_log(dbp, dbc->txn,
-					 &LSN(last_pagep), 0, NEXT_PGNO(last_pagep),
-					 PGNO_INVALID, PGNO(last_pagep),
-					 &LSN(last_pagep), PGNO_INVALID, NULL)) != 0)
+			else if(NEXT_PGNO(last_pagep) != PGNO_INVALID && (ret = __db_relink_log(dbp, dbc->txn, &LSN(last_pagep), 0, NEXT_PGNO(last_pagep), PGNO_INVALID, PGNO(last_pagep), &LSN(last_pagep), PGNO_INVALID, NULL)) != 0)
 				goto err;
-			if(prev_pagep != NULL &&
-			   (ret = __db_relink_log(dbp, dbc->txn,
-				    &LSN(prev_pagep), 0, NEXT_PGNO(prev_pagep),
-				    NEXT_PGNO(last_pagep), PGNO(prev_pagep),
-				    &LSN(prev_pagep), PGNO_INVALID, NULL)) != 0)
+			if(prev_pagep != NULL && (ret = __db_relink_log(dbp, dbc->txn, &LSN(prev_pagep), 0, NEXT_PGNO(prev_pagep), NEXT_PGNO(last_pagep), PGNO(prev_pagep), &LSN(prev_pagep), PGNO_INVALID, NULL)) != 0)
 				goto err;
 		}
 		else {
@@ -1762,22 +1730,22 @@ next_page:
 			goto err;
 		first_pagep = NULL;
 	}
-	else if(last_pagep != NULL && (ret = __memp_fput(mpf, dbc->thread_info, last_pagep, dbc->priority)) != 0)
+	else if(last_pagep && (ret = __memp_fput(mpf, dbc->thread_info, last_pagep, dbc->priority)) != 0)
 		goto err;
-	if(from_pagep == NULL) {
+	if(!from_pagep) {
 		from_pagep = first_pagep;
 		first_pagep = NULL;
 	}
 	if(from_pgno != PGNO_INVALID)
 		goto next_page;
-	if(prev_pagep != NULL && (ret = __memp_fput(mpf, dbc->thread_info, prev_pagep, dbc->priority)) != 0)
+	if(prev_pagep && (ret = __memp_fput(mpf, dbc->thread_info, prev_pagep, dbc->priority)) != 0)
 		goto err;
 	ret = __memp_fput(mpf, dbc->thread_info, to_pagep, dbc->priority);
 	return ret;
 err:
-	if(last_pagep != NULL && last_pagep != first_pagep)
+	if(last_pagep && last_pagep != first_pagep)
 		__memp_fput(mpf, dbc->thread_info, last_pagep, dbc->priority);
-	if(first_pagep != NULL && first_pagep != from_pagep)
+	if(first_pagep && first_pagep != from_pagep)
 		__memp_fput(mpf, dbc->thread_info, first_pagep, dbc->priority);
 	__memp_fput(mpf, dbc->thread_info, next_pagep, dbc->priority);
 	__memp_fput(mpf, dbc->thread_info, from_pagep, dbc->priority);

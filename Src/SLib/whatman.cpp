@@ -276,9 +276,7 @@ int TWhatmanObject::Draw(TCanvas2 & rCanv)
 
 int TWhatmanObject::SetTextOptions(const TextParam * pParam)
 {
-	if(pParam)
-		TextOptions = *pParam;
-	else
+	if(!RVALUEPTR(TextOptions, pParam))
 		TextOptions.SetDefault();
 	return 1;
 }

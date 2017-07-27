@@ -1066,10 +1066,7 @@ start:
 		s->rwstate = SSL_NOTHING;
 		return 0;
 	}
-
-	if(type == SSL3_RECORD_get_type(rr)
-	    || (SSL3_RECORD_get_type(rr) == SSL3_RT_CHANGE_CIPHER_SPEC
-		    && type == SSL3_RT_HANDSHAKE && recvd_type != NULL)) {
+	if(type == SSL3_RECORD_get_type(rr) || (SSL3_RECORD_get_type(rr) == SSL3_RT_CHANGE_CIPHER_SPEC && type == SSL3_RT_HANDSHAKE && recvd_type)) {
 		/*
 		 * SSL3_RT_APPLICATION_DATA or
 		 * SSL3_RT_HANDSHAKE or
@@ -1079,34 +1076,26 @@ start:
 		 * make sure that we are not getting application data when we are
 		 * doing a handshake for the first time
 		 */
-		if(SSL_in_init(s) && (type == SSL3_RT_APPLICATION_DATA) &&
-		    (s->enc_read_ctx == NULL)) {
+		if(SSL_in_init(s) && (type == SSL3_RT_APPLICATION_DATA) && (s->enc_read_ctx == NULL)) {
 			al = SSL_AD_UNEXPECTED_MESSAGE;
 			SSLerr(SSL_F_SSL3_READ_BYTES, SSL_R_APP_DATA_IN_HANDSHAKE);
 			goto f_err;
 		}
-
-		if(type == SSL3_RT_HANDSHAKE
-		    && SSL3_RECORD_get_type(rr) == SSL3_RT_CHANGE_CIPHER_SPEC
-		    && s->rlayer.handshake_fragment_len > 0) {
+		if(type == SSL3_RT_HANDSHAKE && SSL3_RECORD_get_type(rr) == SSL3_RT_CHANGE_CIPHER_SPEC && s->rlayer.handshake_fragment_len > 0) {
 			al = SSL_AD_UNEXPECTED_MESSAGE;
 			SSLerr(SSL_F_SSL3_READ_BYTES, SSL_R_CCS_RECEIVED_EARLY);
 			goto f_err;
 		}
-
 		if(recvd_type != NULL)
 			*recvd_type = SSL3_RECORD_get_type(rr);
-
 		if(len <= 0)
 			return (len);
-
 		read_bytes = 0;
 		do {
 			if((uint)len - read_bytes > SSL3_RECORD_get_length(rr))
 				n = SSL3_RECORD_get_length(rr);
 			else
 				n = (uint)len - read_bytes;
-
 			memcpy(buf, &(rr->data[rr->off]), n);
 			buf += n;
 			if(peek) {
@@ -1123,25 +1112,20 @@ start:
 					SSL3_RECORD_set_read(rr);
 				}
 			}
-			if(SSL3_RECORD_get_length(rr) == 0
-			    || (peek && n == SSL3_RECORD_get_length(rr))) {
+			if(SSL3_RECORD_get_length(rr) == 0 || (peek && n == SSL3_RECORD_get_length(rr))) {
 				curr_rec++;
 				rr++;
 			}
 			read_bytes += n;
-		} while(type == SSL3_RT_APPLICATION_DATA && curr_rec < num_recs
-		    && read_bytes < (uint)len);
+		} while(type == SSL3_RT_APPLICATION_DATA && curr_rec < num_recs && read_bytes < (uint)len);
 		if(read_bytes == 0) {
 			/* We must have read empty records. Get more data */
 			goto start;
 		}
-		if(!peek && curr_rec == num_recs
-		    && (s->mode & SSL_MODE_RELEASE_BUFFERS)
-		    && SSL3_BUFFER_get_left(rbuf) == 0)
+		if(!peek && curr_rec == num_recs && (s->mode & SSL_MODE_RELEASE_BUFFERS) && SSL3_BUFFER_get_left(rbuf) == 0)
 			ssl3_release_read_buffer(s);
 		return read_bytes;
 	}
-
 	/*
 	 * If we get here, then type != rr->type; if we have a handshake message,
 	 * then it was unexpected (Hello Request or Client Hello) or invalid (we
@@ -1162,9 +1146,7 @@ start:
 		SSLerr(SSL_F_SSL3_READ_BYTES, ERR_R_INTERNAL_ERROR);
 		goto f_err;
 	}
-
-	if(s->method->version == TLS_ANY_VERSION
-	    && (s->server || rr->type != SSL3_RT_ALERT)) {
+	if(s->method->version == TLS_ANY_VERSION && (s->server || rr->type != SSL3_RT_ALERT)) {
 		/*
 		 * If we've got this far and still haven't decided on what version
 		 * we're using then this must be a client side alert we're dealing with
@@ -1176,7 +1158,6 @@ start:
 		SSLerr(SSL_F_SSL3_READ_BYTES, SSL_R_UNEXPECTED_MESSAGE);
 		goto f_err;
 	}
-
 	/*
 	 * In case of record types for which we have 'fragment' storage, fill
 	 * that so that we can process the data at a fixed place.
@@ -1185,7 +1166,6 @@ start:
 		uint dest_maxlen = 0;
 		uchar * dest = NULL;
 		uint * dest_len = NULL;
-
 		if(SSL3_RECORD_get_type(rr) == SSL3_RT_HANDSHAKE) {
 			dest_maxlen = sizeof s->rlayer.handshake_fragment;
 			dest = s->rlayer.handshake_fragment;
@@ -1196,27 +1176,22 @@ start:
 			dest = s->rlayer.alert_fragment;
 			dest_len = &s->rlayer.alert_fragment_len;
 		}
-
 		if(dest_maxlen > 0) {
 			n = dest_maxlen - *dest_len; /* available space in 'dest' */
 			if(SSL3_RECORD_get_length(rr) < n)
 				n = SSL3_RECORD_get_length(rr);  /* available bytes */
-
 			/* now move 'n' bytes: */
 			while(n-- > 0) {
-				dest[(*dest_len)++] =
-				    SSL3_RECORD_get_data(rr)[SSL3_RECORD_get_off(rr)];
+				dest[(*dest_len)++] = SSL3_RECORD_get_data(rr)[SSL3_RECORD_get_off(rr)];
 				SSL3_RECORD_add_off(rr, 1);
 				SSL3_RECORD_add_length(rr, -1);
 			}
-
 			if(*dest_len < dest_maxlen) {
 				SSL3_RECORD_set_read(rr);
 				goto start; /* fragment was too small */
 			}
 		}
 	}
-
 	/*-
 	 * s->rlayer.handshake_fragment_len == 4  iff  rr->type == SSL3_RT_HANDSHAKE;
 	 * s->rlayer.alert_fragment_len == 2      iff  rr->type == SSL3_RT_ALERT.
@@ -1224,28 +1199,17 @@ start:
 	 */
 
 	/* If we are a client, check for an incoming 'Hello Request': */
-	if((!s->server) &&
-	    (s->rlayer.handshake_fragment_len >= 4) &&
-	    (s->rlayer.handshake_fragment[0] == SSL3_MT_HELLO_REQUEST) &&
-	    (s->session != NULL) && (s->session->cipher != NULL)) {
+	if((!s->server) && (s->rlayer.handshake_fragment_len >= 4) &&
+	    (s->rlayer.handshake_fragment[0] == SSL3_MT_HELLO_REQUEST) && (s->session != NULL) && (s->session->cipher != NULL)) {
 		s->rlayer.handshake_fragment_len = 0;
-
-		if((s->rlayer.handshake_fragment[1] != 0) ||
-		    (s->rlayer.handshake_fragment[2] != 0) ||
-		    (s->rlayer.handshake_fragment[3] != 0)) {
+		if((s->rlayer.handshake_fragment[1] != 0) || (s->rlayer.handshake_fragment[2] != 0) || (s->rlayer.handshake_fragment[3] != 0)) {
 			al = SSL_AD_DECODE_ERROR;
 			SSLerr(SSL_F_SSL3_READ_BYTES, SSL_R_BAD_HELLO_REQUEST);
 			goto f_err;
 		}
-
 		if(s->msg_callback)
-			s->msg_callback(0, s->version, SSL3_RT_HANDSHAKE,
-			    s->rlayer.handshake_fragment, 4, s,
-			    s->msg_callback_arg);
-
-		if(SSL_is_init_finished(s) &&
-		    !(s->s3->flags & SSL3_FLAGS_NO_RENEGOTIATE_CIPHERS) &&
-		    !s->s3->renegotiate) {
+			s->msg_callback(0, s->version, SSL3_RT_HANDSHAKE, s->rlayer.handshake_fragment, 4, s, s->msg_callback_arg);
+		if(SSL_is_init_finished(s) && !(s->s3->flags & SSL3_FLAGS_NO_RENEGOTIATE_CIPHERS) && !s->s3->renegotiate) {
 			ssl3_renegotiate(s);
 			if(ssl3_renegotiate_check(s)) {
 				i = s->handshake_func(s);
@@ -1255,7 +1219,6 @@ start:
 					SSLerr(SSL_F_SSL3_READ_BYTES, SSL_R_SSL_HANDSHAKE_FAILURE);
 					return (-1);
 				}
-
 				if(!(s->mode & SSL_MODE_AUTO_RETRY)) {
 					if(SSL3_BUFFER_get_left(rbuf) == 0) {
 						/* no read-ahead left? */
@@ -1293,13 +1256,9 @@ start:
 	 * allowed send back a no renegotiation alert and carry on. WARNING:
 	 * experimental code, needs reviewing (steve)
 	 */
-	if(s->server &&
-	    SSL_is_init_finished(s) &&
-	    !s->s3->send_connection_binding &&
-	    (s->version > SSL3_VERSION) &&
-	    (s->rlayer.handshake_fragment_len >= 4) &&
-	    (s->rlayer.handshake_fragment[0] == SSL3_MT_CLIENT_HELLO) &&
-	    (s->session != NULL) && (s->session->cipher != NULL) &&
+	if(s->server && SSL_is_init_finished(s) && !s->s3->send_connection_binding &&
+	    (s->version > SSL3_VERSION) && (s->rlayer.handshake_fragment_len >= 4) &&
+	    (s->rlayer.handshake_fragment[0] == SSL3_MT_CLIENT_HELLO) && (s->session != NULL) && (s->session->cipher != NULL) &&
 	    !(s->ctx->options & SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION)) {
 		SSL3_RECORD_set_length(rr, 0);
 		SSL3_RECORD_set_read(rr);
@@ -1309,35 +1268,26 @@ start:
 	if(s->rlayer.alert_fragment_len >= 2) {
 		int alert_level = s->rlayer.alert_fragment[0];
 		int alert_descr = s->rlayer.alert_fragment[1];
-
 		s->rlayer.alert_fragment_len = 0;
-
 		if(s->msg_callback)
-			s->msg_callback(0, s->version, SSL3_RT_ALERT,
-			    s->rlayer.alert_fragment, 2, s,
-			    s->msg_callback_arg);
-
+			s->msg_callback(0, s->version, SSL3_RT_ALERT, s->rlayer.alert_fragment, 2, s, s->msg_callback_arg);
 		if(s->info_callback != NULL)
 			cb = s->info_callback;
 		else if(s->ctx->info_callback != NULL)
 			cb = s->ctx->info_callback;
-
 		if(cb != NULL) {
 			j = (alert_level << 8) | alert_descr;
 			cb(s, SSL_CB_READ_ALERT, j);
 		}
-
 		if(alert_level == SSL3_AL_WARNING) {
 			s->s3->warn_alert = alert_descr;
 			SSL3_RECORD_set_read(rr);
-
 			s->rlayer.alert_count++;
 			if(s->rlayer.alert_count == MAX_WARN_ALERT_COUNT) {
 				al = SSL_AD_UNEXPECTED_MESSAGE;
 				SSLerr(SSL_F_SSL3_READ_BYTES, SSL_R_TOO_MANY_WARN_ALERTS);
 				goto f_err;
 			}
-
 			if(alert_descr == SSL_AD_CLOSE_NOTIFY) {
 				s->shutdown |= SSL_RECEIVED_SHUTDOWN;
 				return 0;

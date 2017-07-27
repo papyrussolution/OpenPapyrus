@@ -52,7 +52,7 @@ static void htmlParseComment(htmlParserCtxtPtr ctxt);
  *
  * Handle a redefinition of attribute error
  */
-static void htmlErrMemory(xmlParserCtxtPtr ctxt, const char * extra)
+static void htmlErrMemory(xmlParserCtxt * ctxt, const char * extra)
 {
 	if(ctxt && ctxt->disableSAX && ctxt->instate == XML_PARSER_EOF)
 		return;
@@ -76,7 +76,7 @@ static void htmlErrMemory(xmlParserCtxtPtr ctxt, const char * extra)
  *
  * Handle a fatal parser error, i.e. violating Well-Formedness constraints
  */
-static void htmlParseErr(xmlParserCtxtPtr ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
+static void htmlParseErr(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
 	if(ctxt && ctxt->disableSAX && ctxt->instate == XML_PARSER_EOF)
 		return;
@@ -95,7 +95,7 @@ static void htmlParseErr(xmlParserCtxtPtr ctxt, xmlParserErrors error, const cha
  *
  * Handle a fatal parser error, i.e. violating Well-Formedness constraints
  */
-static void htmlParseErrInt(xmlParserCtxtPtr ctxt, xmlParserErrors error, const char * msg, int val)
+static void htmlParseErrInt(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, int val)
 {
 	if(ctxt && ctxt->disableSAX && ctxt->instate == XML_PARSER_EOF)
 		return;
@@ -293,7 +293,7 @@ static htmlParserNodeInfo * htmlNodeInfoPop(htmlParserCtxtPtr ctxt)
  * Returns an encoding string or NULL if not found, the string need to
  *   be freed
  */
-static xmlChar * htmlFindEncoding(xmlParserCtxtPtr ctxt)
+static xmlChar * htmlFindEncoding(xmlParserCtxt * ctxt)
 {
 	const xmlChar * start, * cur, * end;
 	if(!ctxt || (ctxt->input == NULL) || (ctxt->input->encoding != NULL) || (ctxt->input->buf == NULL) || (ctxt->input->buf->encoder != NULL))
@@ -339,7 +339,7 @@ static xmlChar * htmlFindEncoding(xmlParserCtxtPtr ctxt)
  * Returns the current char value and its length
  */
 
-static int htmlCurrentChar(xmlParserCtxtPtr ctxt, int * len)
+static int htmlCurrentChar(xmlParserCtxt * ctxt, int * len)
 {
 	if(ctxt->instate == XML_PARSER_EOF)
 		return 0;
@@ -487,7 +487,7 @@ encoding_error:
  *
  * Returns the number of space chars skipped
  */
-static int htmlSkipBlankChars(xmlParserCtxtPtr ctxt)
+static int htmlSkipBlankChars(xmlParserCtxt * ctxt)
 {
 	int res = 0;
 	while(IS_BLANK_CH(*(ctxt->input->cur))) {
@@ -2110,7 +2110,7 @@ htmlDocPtr htmlNewDoc(const xmlChar * URI, const xmlChar * ExternalID)
 *									*
 ************************************************************************/
 
-static const xmlChar * htmlParseNameComplex(xmlParserCtxtPtr ctxt);
+static const xmlChar * htmlParseNameComplex(xmlParserCtxt * ctxt);
 
 /**
  * htmlParseHTMLName:
@@ -2201,7 +2201,7 @@ static const xmlChar * FASTCALL htmlParseName(htmlParserCtxt * ctxt)
 	return htmlParseNameComplex(ctxt);
 }
 
-static const xmlChar * htmlParseNameComplex(xmlParserCtxtPtr ctxt) 
+static const xmlChar * htmlParseNameComplex(xmlParserCtxt * ctxt) 
 {
 	int len = 0, l;
 	int c;
@@ -2842,7 +2842,7 @@ static void htmlParsePI(htmlParserCtxtPtr ctxt)
 				/*
 				 * SAX: PI detected.
 				 */
-				if((ctxt->sax) && (!ctxt->disableSAX) && (ctxt->sax->processingInstruction != NULL))
+				if(ctxt->sax && (!ctxt->disableSAX) && (ctxt->sax->processingInstruction != NULL))
 					ctxt->sax->processingInstruction(ctxt->userData, target, 0);
 				ctxt->instate = state;
 				return;
@@ -2896,7 +2896,7 @@ static void htmlParsePI(htmlParserCtxtPtr ctxt)
 				/*
 				 * SAX: PI detected.
 				 */
-				if((ctxt->sax) && (!ctxt->disableSAX) && (ctxt->sax->processingInstruction != NULL))
+				if(ctxt->sax && (!ctxt->disableSAX) && (ctxt->sax->processingInstruction != NULL))
 					ctxt->sax->processingInstruction(ctxt->userData, target, buf);
 			}
 			SAlloc::F(buf);
@@ -3178,7 +3178,7 @@ static void htmlCheckEncodingDirect(htmlParserCtxtPtr ctxt, const xmlChar * enco
 	/* do not change encoding */
 	if(ctxt->input->encoding != NULL)
 		return;
-	if(encoding != NULL) {
+	if(encoding) {
 		xmlCharEncoding enc;
 		xmlCharEncodingHandlerPtr handler;
 		while((*encoding == ' ') || (*encoding == '\t'))
@@ -3245,7 +3245,7 @@ static void htmlCheckEncoding(htmlParserCtxtPtr ctxt, const xmlChar * attvalue)
 	if(!attvalue)
 		return;
 	encoding = xmlStrcasestr(attvalue, BAD_CAST "charset");
-	if(encoding != NULL) {
+	if(encoding) {
 		encoding += 7;
 	}
 	/*
@@ -4166,7 +4166,7 @@ int htmlParseDocument(htmlParserCtxtPtr ctxt)
 	/*
 	 * SAX: beginning of the document processing.
 	 */
-	if((ctxt->sax) && (ctxt->sax->setDocumentLocator))
+	if(ctxt->sax && (ctxt->sax->setDocumentLocator))
 		ctxt->sax->setDocumentLocator(ctxt->userData, &xmlDefaultSAXLocator);
 	if((ctxt->encoding == (const xmlChar*)XML_CHAR_ENCODING_NONE) && ((ctxt->input->end - ctxt->input->cur) >= 4)) {
 		/*
@@ -4190,7 +4190,7 @@ int htmlParseDocument(htmlParserCtxtPtr ctxt)
 	if(CUR == 0) {
 		htmlParseErr(ctxt, XML_ERR_DOCUMENT_EMPTY, "Document is empty\n", 0, 0);
 	}
-	if((ctxt->sax) && (ctxt->sax->startDocument) && (!ctxt->disableSAX))
+	if(ctxt->sax && (ctxt->sax->startDocument) && (!ctxt->disableSAX))
 		ctxt->sax->startDocument(ctxt->userData);
 
 	/*
@@ -4230,9 +4230,9 @@ int htmlParseDocument(htmlParserCtxtPtr ctxt)
 	/*
 	 * SAX: end of the document processing.
 	 */
-	if((ctxt->sax) && (ctxt->sax->endDocument != NULL))
+	if(ctxt->sax && ctxt->sax->endDocument)
 		ctxt->sax->endDocument(ctxt->userData);
-	if((!(ctxt->options & HTML_PARSE_NODEFDTD)) && (ctxt->myDoc != NULL)) {
+	if((!(ctxt->options & HTML_PARSE_NODEFDTD)) && ctxt->myDoc) {
 		dtd = xmlGetIntSubset(ctxt->myDoc);
 		if(dtd == NULL)
 			ctxt->myDoc->intSubset = xmlCreateIntSubset(ctxt->myDoc, BAD_CAST "html", BAD_CAST "-//W3C//DTD HTML 4.0 Transitional//EN", BAD_CAST "http://www.w3.org/TR/REC-html40/loose.dtd");
@@ -4376,7 +4376,7 @@ void htmlFreeParserCtxt(htmlParserCtxtPtr ctxt)
 
 htmlParserCtxtPtr htmlNewParserCtxt()
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)SAlloc::M(sizeof(xmlParserCtxt));
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)SAlloc::M(sizeof(xmlParserCtxt));
 	if(!ctxt)
 		htmlErrMemory(NULL, "NewParserCtxt: out of memory\n");
 	else {
@@ -4399,7 +4399,7 @@ htmlParserCtxtPtr htmlNewParserCtxt()
  */
 htmlParserCtxtPtr htmlCreateMemoryParserCtxt(const char * buffer, int size)
 {
-	xmlParserCtxtPtr ctxt;
+	xmlParserCtxt * ctxt;
 	xmlParserInputPtr input;
 	xmlParserInputBufferPtr buf;
 	if(!buffer)
@@ -4445,7 +4445,7 @@ static htmlParserCtxtPtr htmlCreateDocParserCtxt(const xmlChar * cur, const char
 	ctxt = htmlCreateMemoryParserCtxt((char*)cur, len);
 	if(!ctxt)
 		return NULL;
-	if(encoding != NULL) {
+	if(encoding) {
 		xmlCharEncoding enc;
 		xmlCharEncodingHandlerPtr handler;
 		SAlloc::F((xmlChar*)ctxt->input->encoding);
@@ -4734,7 +4734,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 				 * SAX: end of the document processing.
 				 */
 				ctxt->instate = XML_PARSER_EOF;
-				if((ctxt->sax) && (ctxt->sax->endDocument != NULL))
+				if(ctxt->sax && ctxt->sax->endDocument)
 					ctxt->sax->endDocument(ctxt->userData);
 			}
 		}
@@ -4761,9 +4761,9 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 				    SKIP_BLANKS;
 					avail = in->buf ? (xmlBufUse(in->buf->buffer) - (in->cur - in->base)) : (in->length - (in->cur - in->base));
 			    }
-			    if((ctxt->sax) && (ctxt->sax->setDocumentLocator))
+			    if(ctxt->sax && (ctxt->sax->setDocumentLocator))
 				    ctxt->sax->setDocumentLocator(ctxt->userData, &xmlDefaultSAXLocator);
-			    if((ctxt->sax) && (ctxt->sax->startDocument) && (!ctxt->disableSAX))
+			    if(ctxt->sax && (ctxt->sax->startDocument) && (!ctxt->disableSAX))
 				    ctxt->sax->startDocument(ctxt->userData);
 			    cur = in->cur[0];
 			    next = in->cur[1];
@@ -4923,7 +4923,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 #ifdef DEBUG_PUSH
 				    xmlGenericError(0, "HPP: entering EOF\n");
 #endif
-				    if((ctxt->sax) && (ctxt->sax->endDocument != NULL))
+				    if(ctxt->sax && ctxt->sax->endDocument)
 					    ctxt->sax->endDocument(ctxt->userData);
 				    goto done;
 			    }
@@ -5300,7 +5300,7 @@ done:
 			 * SAX: end of the document processing.
 			 */
 			ctxt->instate = XML_PARSER_EOF;
-			if((ctxt->sax) && (ctxt->sax->endDocument != NULL))
+			if(ctxt->sax && ctxt->sax->endDocument)
 				ctxt->sax->endDocument(ctxt->userData);
 		}
 	}
@@ -5374,7 +5374,7 @@ int htmlParseChunk(htmlParserCtxtPtr ctxt, const char * chunk, int size, int ter
 			ctxt->wellFormed = 0;
 		}
 		if(ctxt->instate != XML_PARSER_EOF) {
-			if((ctxt->sax) && (ctxt->sax->endDocument != NULL))
+			if(ctxt->sax && ctxt->sax->endDocument)
 				ctxt->sax->endDocument(ctxt->userData);
 		}
 		ctxt->instate = XML_PARSER_EOF;
@@ -5406,55 +5406,54 @@ int htmlParseChunk(htmlParserCtxtPtr ctxt, const char * chunk, int size, int ter
 htmlParserCtxtPtr htmlCreatePushParserCtxt(htmlSAXHandlerPtr sax, void * user_data,
     const char * chunk, int size, const char * filename, xmlCharEncoding enc)
 {
-	htmlParserCtxtPtr ctxt;
-	htmlParserInputPtr inputStream;
-	xmlParserInputBufferPtr buf;
+	htmlParserCtxt * ctxt = 0;
+	htmlParserInput * p_input_stream;
 	xmlInitParser();
-	buf = xmlAllocParserInputBuffer(enc);
-	if(buf == NULL)
-		return NULL;
-	ctxt = htmlNewParserCtxt();
-	if(!ctxt) {
-		xmlFreeParserInputBuffer(buf);
-		return NULL;
-	}
-	if(enc==XML_CHAR_ENCODING_UTF8 || buf->encoder)
-		ctxt->charset = XML_CHAR_ENCODING_UTF8;
-	if(sax) {
-		if(ctxt->sax != (xmlSAXHandlerPtr)&htmlDefaultSAXHandler)
-			SAlloc::F(ctxt->sax);
-		ctxt->sax = (htmlSAXHandlerPtr)SAlloc::M(sizeof(htmlSAXHandler));
-		if(ctxt->sax == NULL) {
-			SAlloc::F(buf);
-			SAlloc::F(ctxt);
-			return NULL;
+	xmlParserInputBuffer * buf = xmlAllocParserInputBuffer(enc);
+	if(buf) {
+		ctxt = htmlNewParserCtxt();
+		if(!ctxt) {
+			xmlFreeParserInputBuffer(buf);
 		}
-		memcpy(ctxt->sax, sax, sizeof(htmlSAXHandler));
-		if(user_data != NULL)
-			ctxt->userData = user_data;
+		else {
+			if(enc==XML_CHAR_ENCODING_UTF8 || buf->encoder)
+				ctxt->charset = XML_CHAR_ENCODING_UTF8;
+			if(sax) {
+				if(ctxt->sax != (xmlSAXHandlerPtr)&htmlDefaultSAXHandler)
+					SAlloc::F(ctxt->sax);
+				ctxt->sax = (htmlSAXHandlerPtr)SAlloc::M(sizeof(htmlSAXHandler));
+				if(ctxt->sax == NULL) {
+					SAlloc::F(buf);
+					SAlloc::F(ctxt);
+					return NULL;
+				}
+				memcpy(ctxt->sax, sax, sizeof(htmlSAXHandler));
+				if(user_data != NULL)
+					ctxt->userData = user_data;
+			}
+			ctxt->directory = filename ? xmlParserGetDirectory(filename) : 0;
+			p_input_stream = htmlNewInputStream(ctxt);
+			if(p_input_stream == NULL) {
+				xmlFreeParserCtxt(ctxt);
+				SAlloc::F(buf);
+				return NULL;
+			}
+			p_input_stream->filename = filename ? (char*)xmlCanonicPath((const xmlChar*)filename) : 0;
+			p_input_stream->buf = buf;
+			xmlBufResetInput(buf->buffer, p_input_stream);
+			inputPush(ctxt, p_input_stream);
+			if(size > 0 && chunk && ctxt->input && ctxt->input->buf) {
+				size_t base = xmlBufGetInputBase(ctxt->input->buf->buffer, ctxt->input);
+				size_t cur = ctxt->input->cur - ctxt->input->base;
+				xmlParserInputBufferPush(ctxt->input->buf, size, chunk);
+				xmlBufSetInputBaseCur(ctxt->input->buf->buffer, ctxt->input, base, cur);
+	#ifdef DEBUG_PUSH
+				xmlGenericError(0, "HPP: pushed %d\n", size);
+	#endif
+			}
+			ctxt->progressive = 1;
+		}
 	}
-	ctxt->directory = filename ? xmlParserGetDirectory(filename) : 0;
-	inputStream = htmlNewInputStream(ctxt);
-	if(inputStream == NULL) {
-		xmlFreeParserCtxt(ctxt);
-		SAlloc::F(buf);
-		return NULL;
-	}
-	inputStream->filename = filename ? (char*)xmlCanonicPath((const xmlChar*)filename) : 0;
-	inputStream->buf = buf;
-	xmlBufResetInput(buf->buffer, inputStream);
-	inputPush(ctxt, inputStream);
-	if(size > 0 && chunk && ctxt->input && ctxt->input->buf) {
-		size_t base = xmlBufGetInputBase(ctxt->input->buf->buffer, ctxt->input);
-		size_t cur = ctxt->input->cur - ctxt->input->base;
-		xmlParserInputBufferPush(ctxt->input->buf, size, chunk);
-		xmlBufSetInputBaseCur(ctxt->input->buf->buffer, ctxt->input, base, cur);
-#ifdef DEBUG_PUSH
-		xmlGenericError(0, "HPP: pushed %d\n", size);
-#endif
-	}
-	ctxt->progressive = 1;
-
 	return ctxt;
 }
 
@@ -5793,7 +5792,7 @@ void htmlCtxtReset(htmlParserCtxtPtr ctxt)
 		ctxt->extSubURI = NULL;
 		DICT_FREE(ctxt->extSubSystem);
 		ctxt->extSubSystem = NULL;
-		if(ctxt->myDoc != NULL)
+		if(ctxt->myDoc)
 			xmlFreeDoc(ctxt->myDoc);
 		ctxt->myDoc = NULL;
 		ctxt->standalone = -1;
@@ -6057,7 +6056,7 @@ htmlDocPtr htmlReadIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose
 	xmlInitParser();
 	input = xmlParserInputBufferCreateIO(ioread, ioclose, ioctx, XML_CHAR_ENCODING_NONE);
 	if(input == NULL) {
-		if(ioclose != NULL)
+		if(ioclose)
 			ioclose(ioctx);
 		return NULL;
 	}
@@ -6235,7 +6234,7 @@ htmlDocPtr htmlCtxtReadIO(htmlParserCtxtPtr ctxt, xmlInputReadCallback ioread, x
 	htmlCtxtReset(ctxt);
 	input = xmlParserInputBufferCreateIO(ioread, ioclose, ioctx, XML_CHAR_ENCODING_NONE);
 	if(input == NULL) {
-		if(ioclose != NULL)
+		if(ioclose)
 			ioclose(ioctx);
 		return NULL;
 	}

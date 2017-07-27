@@ -1059,8 +1059,7 @@ SLAPI PPObjArticle::PPObjArticle(void * extraPtr) : PPObject(PPOBJ_ARTICLE)
 	TLP_OPEN(P_Tbl);
 	ImplementFlags |= implStrAssocMakeList;
 	ExtraPtr = extraPtr;
-	if(ExtraPtr)
-		CurrFilt = *(ArticleFilt *)ExtraPtr;
+	RVALUEPTR(CurrFilt, (ArticleFilt *)ExtraPtr);
 }
 
 SLAPI PPObjArticle::~PPObjArticle()

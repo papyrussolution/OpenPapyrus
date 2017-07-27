@@ -40,7 +40,7 @@
 cairo_rtree_node_t * _cairo_rtree_node_create(cairo_rtree_t * rtree, cairo_rtree_node_t * parent, int x, int y, int width, int height)
 {
 	cairo_rtree_node_t * node = (cairo_rtree_node_t *)_cairo_freepool_alloc(&rtree->node_freepool);
-	if(node == NULL) {
+	if(!node) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 	}
 	else {

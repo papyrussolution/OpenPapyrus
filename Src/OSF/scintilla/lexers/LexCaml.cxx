@@ -31,11 +31,13 @@
 //#include "LexerModule.h"
 
 //	Since the Microsoft __iscsym[f] funcs are not ANSI...
-inline int  iscaml(int c) {
+/*inline*/ int FASTCALL iscaml(int c) 
+{
 	return isalnum(c) || c == '_';
 }
 
-inline int iscamlf(int c) {
+/*inline*/ int FASTCALL iscamlf(int c) 
+{
 	return isalpha(c) || c == '_';
 }
 

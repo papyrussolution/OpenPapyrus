@@ -432,10 +432,8 @@ int SLAPI PPObjCashNode::Unlock(PPID id)
 StrAssocArray * SLAPI PPObjCashNode::MakeStrAssocList(void * extraPtr)
 {
 	SelFilt f;
-	if(!extraPtr)
+	if(!RVALUEPTR(f, (SelFilt *)extraPtr))
 		MEMSZERO(f);
-	else
-		f = *(SelFilt *)extraPtr;
 	StrAssocArray * p_ary = new StrAssocArray;
 	THROW_MEM(p_ary);
 	{

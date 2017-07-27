@@ -793,53 +793,35 @@ static cairo_xcb_picture_t * _cairo_xcb_linear_picture(cairo_xcb_surface_t * tar
 	cairo_xcb_picture_t * picture;
 	cairo_status_t status;
 	uint n_stops;
-
 	_cairo_gradient_pattern_fit_to_range(&pattern->base, PIXMAN_MAX_INT >> 1, &matrix, extremes);
-
-	picture = (cairo_xcb_picture_t*)
-	    _cairo_xcb_screen_lookup_linear_picture(target->screen, pattern);
+	picture = (cairo_xcb_picture_t*)_cairo_xcb_screen_lookup_linear_picture(target->screen, pattern);
 	if(picture != NULL)
 		goto setup_picture;
-
 	stops = _gradient_to_xcb(&pattern->base, &n_stops, buf, sizeof(buf));
 	if(unlikely(stops == NULL))
 		return (cairo_xcb_picture_t*)_cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
-
-	picture = _cairo_xcb_picture_create(target->screen,
-	    target->screen->connection->standard_formats[CAIRO_FORMAT_ARGB32],
-	    PIXMAN_a8r8g8b8,
-	    -1, -1);
+	picture = _cairo_xcb_picture_create(target->screen, target->screen->connection->standard_formats[CAIRO_FORMAT_ARGB32],
+	    PIXMAN_a8r8g8b8, -1, -1);
 	if(unlikely(picture->base.status)) {
 		if(stops != (xcb_render_fixed_t*)buf)
 			SAlloc::F(stops);
 		return picture;
 	}
 	picture->filter = CAIRO_FILTER_DEFAULT;
-
 	colors = (xcb_render_color_t*)(stops + n_stops);
-
 	p1.x = _cairo_fixed_16_16_from_double(extremes[0].center.x);
 	p1.y = _cairo_fixed_16_16_from_double(extremes[0].center.y);
 	p2.x = _cairo_fixed_16_16_from_double(extremes[1].center.x);
 	p2.y = _cairo_fixed_16_16_from_double(extremes[1].center.y);
 
-	_cairo_xcb_connection_render_create_linear_gradient(target->connection,
-	    picture->picture,
-	    p1, p2,
-	    n_stops,
-	    stops, colors);
-
+	_cairo_xcb_connection_render_create_linear_gradient(target->connection, picture->picture, p1, p2, n_stops, stops, colors);
 	if(stops != (xcb_render_fixed_t*)buf)
 		SAlloc::F(stops);
-
-	status = _cairo_xcb_screen_store_linear_picture(target->screen,
-	    pattern,
-	    &picture->base);
+	status = _cairo_xcb_screen_store_linear_picture(target->screen, pattern, &picture->base);
 	if(unlikely(status)) {
 		cairo_surface_destroy(&picture->base);
 		return (cairo_xcb_picture_t*)_cairo_surface_create_in_error(status);
 	}
-
 setup_picture:
 	_cairo_xcb_picture_set_matrix(picture, &matrix,
 	    pattern->base.base.filter,
@@ -2383,7 +2365,7 @@ static cairo_status_t _clip_and_composite(cairo_xcb_surface_t        * dst,
 		    cairo_region_contains_rectangle(clip_region,
 			    &extents->unbounded) == CAIRO_REGION_OVERLAP_IN)
 			clip_region = NULL;
-		if(clip_region != NULL) {
+		if(clip_region) {
 			status = _cairo_xcb_surface_set_clip_region(dst, clip_region);
 			if(unlikely(status)) {
 				_cairo_xcb_connection_release(dst->connection);
@@ -2845,7 +2827,7 @@ static cairo_status_t _composite_polygon(cairo_xcb_surface_t * dst,
 				clip_region = NULL;
 
 			if(clip_surface == FALSE) {
-				if(clip_region != NULL) {
+				if(clip_region) {
 					status = _cairo_xcb_surface_set_clip_region(dst, clip_region);
 					if(unlikely(status))
 						return status;
@@ -2853,7 +2835,7 @@ static cairo_status_t _composite_polygon(cairo_xcb_surface_t * dst,
 
 				status = _cairo_xcb_surface_fixup_unbounded(dst, extents);
 
-				if(clip_region != NULL)
+				if(clip_region)
 					_cairo_xcb_surface_clear_clip_region(dst);
 			}
 			else {

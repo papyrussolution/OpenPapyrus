@@ -179,7 +179,7 @@ static void ColouriseLuaDoc(Sci_PositionU startPos,
 				sc.GetCurrent(s, sizeof(s));
 				if(keywords.InList(s)) {
 					sc.ChangeState(SCE_LUA_WORD);
-					if(strcmp(s, "goto") == 0) {    // goto <label> forward scan
+					if(sstreq(s, "goto")) {    // goto <label> forward scan
 						sc.SetState(SCE_LUA_DEFAULT);
 						while(IsASpaceOrTab(sc.ch) && !sc.atLineEnd)
 							sc.Forward();
@@ -378,8 +378,7 @@ static void ColouriseLuaDoc(Sci_PositionU startPos,
 	sc.Complete();
 }
 
-static void FoldLuaDoc(Sci_PositionU startPos, Sci_Position length, int /* initStyle */, WordList *[],
-    Accessor &styler)
+static void FoldLuaDoc(Sci_PositionU startPos, Sci_Position length, int /* initStyle */, WordList *[], Accessor &styler)
 {
 	Sci_PositionU lengthDoc = startPos + length;
 	int visibleChars = 0;
@@ -406,13 +405,10 @@ static void FoldLuaDoc(Sci_PositionU startPos, Sci_Position length, int /* initS
 					s[j] = styler[i + j];
 					s[j + 1] = '\0';
 				}
-
-				if((strcmp(s,
-						    "if") == 0) ||
-				    (strcmp(s, "do") == 0) || (strcmp(s, "function") == 0) || (strcmp(s, "repeat") == 0)) {
+				if(sstreq(s, "if") || sstreq(s, "do") || sstreq(s, "function") || sstreq(s, "repeat")) {
 					levelCurrent++;
 				}
-				if((strcmp(s, "end") == 0) || (strcmp(s, "elseif") == 0) || (strcmp(s, "until") == 0)) {
+				if(sstreq(s, "end") || sstreq(s, "elseif") || sstreq(s, "until")) {
 					levelCurrent--;
 				}
 			}

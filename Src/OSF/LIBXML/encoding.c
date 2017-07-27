@@ -2369,7 +2369,7 @@ int xmlCharEncCloseFunc(xmlCharEncodingHandler * handler)
  * Returns the index in bytes from the beginning of the entity or -1
  *         in case the index could not be computed.
  */
-long xmlByteConsumed(xmlParserCtxtPtr ctxt)
+long xmlByteConsumed(xmlParserCtxt * ctxt)
 {
 	xmlParserInputPtr in;
 	if(!ctxt)

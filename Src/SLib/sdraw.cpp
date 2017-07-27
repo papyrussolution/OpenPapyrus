@@ -1138,9 +1138,7 @@ int SDraw::SetupUnitContext(SDrawContext & rDCtx)
 {
 	int    ok = 1;
 	SDrawContext::UC * p_uc = rDCtx.GetUnitContext();
-	if(p_uc)
-		UCtx = *p_uc;
-	else
+	if(!RVALUEPTR(UCtx, p_uc))
 		ok = 0;
 	delete p_uc;
 	return ok;

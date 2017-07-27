@@ -44,7 +44,7 @@ extern "C" {
  *    xmlSubstituteEntitiesDefault(1);
  *
  * or corresponding parser context setting:
- *    xmlParserCtxtPtr ctxt;
+ *    xmlParserCtxt * ctxt;
  *
  *    ...
  *    ctxt->loadsubset = XML_DETECT_IDS | XML_COMPLETE_ATTRS;

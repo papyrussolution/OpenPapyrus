@@ -53,7 +53,7 @@ int __db_dumptree(DB * dbp, DB_TXN * txn, char * op, char * name, db_pgno_t firs
 		    case 'r': LF_SET(DB_PR_RECOVERYTEST); break;
 		    default: return EINVAL;
 		}
-	if(name != NULL) {
+	if(name) {
 		if((fp = fopen(name, "w")) == NULL)
 			return __os_get_errno();
 		orig_fp = dbp->dbenv->db_msgfile;

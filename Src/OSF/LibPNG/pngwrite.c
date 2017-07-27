@@ -1998,7 +1998,7 @@ int PNGAPI png_image_write_to_memory(png_imagep image, void * memory,
 		else
 			return png_image_error(image, "png_image_write_to_memory: invalid argument");
 	}
-	else if(image != NULL)
+	else if(image)
 		return png_image_error(image, "png_image_write_to_memory: incorrect PNG_IMAGE_VERSION");
 	else
 		return 0;
@@ -2036,7 +2036,7 @@ int PNGAPI png_image_write_to_stdio(png_imagep image, FILE * file, int convert_t
 		else
 			return png_image_error(image, "png_image_write_to_stdio: invalid argument");
 	}
-	else if(image != NULL)
+	else if(image)
 		return png_image_error(image, "png_image_write_to_stdio: incorrect PNG_IMAGE_VERSION");
 	else
 		return 0;
@@ -2082,7 +2082,7 @@ int PNGAPI png_image_write_to_file(png_imagep image, const char * file_name,
 		else
 			return png_image_error(image, "png_image_write_to_file: invalid argument");
 	}
-	else if(image != NULL)
+	else if(image)
 		return png_image_error(image, "png_image_write_to_file: incorrect PNG_IMAGE_VERSION");
 	else
 		return 0;

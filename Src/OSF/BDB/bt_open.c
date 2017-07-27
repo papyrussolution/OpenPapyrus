@@ -251,9 +251,7 @@ int __bam_read_root(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, db_pgno_t base_
 		t->bt_meta = base_pgno;
 		t->bt_root = meta->root;
 		t->revision = dbp->mpf->mfp->revision;
-		if(PGNO(meta) == PGNO_BASE_MD && !F_ISSET(dbp, DB_AM_RECOVER) &&
-		   (txn == NULL || !F_ISSET(txn, TXN_SNAPSHOT)) && (ret = __memp_set_last_pgno(mpf,
-				meta->dbmeta.last_pgno)) != 0)
+		if(PGNO(meta) == PGNO_BASE_MD && !F_ISSET(dbp, DB_AM_RECOVER) && (txn == NULL || !F_ISSET(txn, TXN_SNAPSHOT)) && (ret = __memp_set_last_pgno(mpf, meta->dbmeta.last_pgno)) != 0)
 			goto err;
 	}
 	else {

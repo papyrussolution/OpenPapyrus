@@ -64,7 +64,7 @@ X509_POLICY_NODE * level_add_node(X509_POLICY_LEVEL * level,
 {
 	X509_POLICY_NODE * node;
 	node = (X509_POLICY_NODE*)OPENSSL_zalloc(sizeof(*node));
-	if(node == NULL)
+	if(!node)
 		return NULL;
 	node->data = data;
 	node->parent = parent;

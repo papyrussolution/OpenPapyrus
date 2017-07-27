@@ -156,7 +156,7 @@ static void _cairo_bo_sweep_line_insert(cairo_bo_sweep_line_t      * sweep_line,
 			prev->next = edge;
 			edge->prev = prev;
 			edge->next = next;
-			if(next != NULL)
+			if(next)
 				next->prev = edge;
 		}
 		else if(cmp > 0) {
@@ -350,7 +350,7 @@ static inline cairo_status_t _active_edges_to_traps(cairo_bo_edge_t         * le
 
 					/* skip co-linear edges */
 					next = right->next;
-					if(next != NULL)
+					if(next)
 						skip = edges_collinear(right, next);
 
 					if(!skip)

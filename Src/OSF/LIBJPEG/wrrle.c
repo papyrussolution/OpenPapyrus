@@ -129,7 +129,7 @@ METHODDEF(void) start_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 	dest->pub.put_pixel_rows = rle_put_pixel_rows;
 
 #ifdef PROGRESS_REPORT
-	if(progress != NULL) {
+	if(progress) {
 		progress->total_extra_passes++; /* count file writing as separate pass */
 	}
 #endif
@@ -202,7 +202,7 @@ METHODDEF(void) finish_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 	 */
 
 #ifdef PROGRESS_REPORT
-	if(progress != NULL) {
+	if(progress) {
 		progress->pub.pass_limit = cinfo->output_height;
 		progress->pub.pass_counter = 0;
 		(*progress->pub.progress_monitor)((j_common_ptr)cinfo);
@@ -216,7 +216,7 @@ METHODDEF(void) finish_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 			    (JDIMENSION)row, (JDIMENSION)1, FALSE);
 			rle_putrow(rle_row, (int)cinfo->output_width, &header);
 #ifdef PROGRESS_REPORT
-			if(progress != NULL) {
+			if(progress) {
 				progress->pub.pass_counter++;
 				(*progress->pub.progress_monitor)((j_common_ptr)cinfo);
 			}
@@ -239,7 +239,7 @@ METHODDEF(void) finish_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 			}
 			rle_putrow(rle_row, (int)cinfo->output_width, &header);
 #ifdef PROGRESS_REPORT
-			if(progress != NULL) {
+			if(progress) {
 				progress->pub.pass_counter++;
 				(*progress->pub.progress_monitor)((j_common_ptr)cinfo);
 			}
@@ -248,7 +248,7 @@ METHODDEF(void) finish_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 	}
 
 #ifdef PROGRESS_REPORT
-	if(progress != NULL)
+	if(progress)
 		progress->completed_extra_passes++;
 #endif
 	/* Emit file trailer */

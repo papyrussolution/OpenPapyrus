@@ -47,11 +47,11 @@
 //#include "urldata.h"
 //#include <curl/curl.h>
 //#include "transfer.h"
-#include "vtls/vtls.h"
+//#include "vtls/vtls.h"
 //#include "url.h"
 //#include "getinfo.h"
 //#include "hostip.h"
-#include "share.h"
+//#include "share.h"
 //#include "strdup.h"
 //#include "progress.h"
 #include "easyif.h"

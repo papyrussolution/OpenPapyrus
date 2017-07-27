@@ -759,7 +759,7 @@ xmlSchemaValPtr xmlSchemaValueGetNext(xmlSchemaValPtr cur)
  */
 const xmlChar * xmlSchemaValueGetAsString(xmlSchemaValPtr val)
 {
-	if(val == NULL)
+	if(!val)
 		return 0;
 	switch(val->type) {
 		case XML_SCHEMAS_STRING:
@@ -813,7 +813,7 @@ xmlSchemaValPtr xmlSchemaNewStringValue(xmlSchemaValType type, const xmlChar * v
 	if(type != XML_SCHEMAS_STRING)
 		return 0;
 	val = (xmlSchemaValPtr)SAlloc::M(sizeof(xmlSchemaVal));
-	if(val == NULL) {
+	if(!val) {
 		return 0;
 	}
 	memzero(val, sizeof(xmlSchemaVal));
@@ -1822,7 +1822,7 @@ static int xmlSchemaValAtomicListNode(xmlSchemaTypePtr type, const xmlChar * val
 		return -1;
 	}
 	val = xmlStrdup(value);
-	if(val == NULL) {
+	if(!val) {
 		return -1;
 	}
 	if(ret) {
@@ -3168,26 +3168,20 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 		    goto return0;
 	    }
 	}
-
 done:
-	if(norm != NULL)
-		SAlloc::F(norm);
+	SAlloc::F(norm);
 	return ret;
 return3:
-	if(norm != NULL)
-		SAlloc::F(norm);
+	SAlloc::F(norm);
 	return (3);
 return1:
-	if(norm != NULL)
-		SAlloc::F(norm);
+	SAlloc::F(norm);
 	return 1;
 return0:
-	if(norm != NULL)
-		SAlloc::F(norm);
+	SAlloc::F(norm);
 	return 0;
 error:
-	if(norm != NULL)
-		SAlloc::F(norm);
+	SAlloc::F(norm);
 	return -1;
 }
 

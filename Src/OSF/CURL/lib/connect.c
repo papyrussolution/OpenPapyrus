@@ -50,7 +50,7 @@
 #endif
 //#include "urldata.h"
 //#include "sendf.h"
-#include "if2ip.h"
+//#include "if2ip.h"
 //#include "strerror.h"
 //#include "connect.h"
 //#include "select.h"
@@ -59,7 +59,7 @@
 //#include "sockaddr.h" /* required for Curl_sockaddr_storage */
 #include "inet_ntop.h"
 #include "inet_pton.h"
-#include "vtls/vtls.h" /* for Curl_ssl_check_cxn() */
+//#include "vtls/vtls.h" /* for Curl_ssl_check_cxn() */
 //#include "progress.h"
 #include "warnless.h"
 //#include "conncache.h"

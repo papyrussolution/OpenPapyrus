@@ -25,7 +25,7 @@ char * CRYPTO_strdup(const char * str, const char* file, int line)
 	if(str) {
 		size_t size = strlen(str) + 1;
 		ret = (char*)CRYPTO_malloc(size, file, line);
-		if(ret != NULL)
+		if(ret)
 			memcpy(ret, str, size);
 	}
 	return ret;

@@ -723,8 +723,7 @@ static cairo_int_status_t fill_boxes(void * abstract_surface,
 
 #if 0
 check_composite()
-operation = _categorize_composite_operation(dst, op, src_pattern,
-    mask_pattern != NULL);
+operation = _categorize_composite_operation(dst, op, src_pattern, mask_pattern != NULL);
 if(operation == DO_UNSUPPORTED)
 	return UNSUPPORTED("unsupported operation");
 

@@ -427,7 +427,7 @@ static void xmlIOErr(int code, const char * extra)
  */
 void __xmlLoaderErr(void * ctx, const char * msg, const char * filename)
 {
-	xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	if(!ctxt || !ctxt->disableSAX || ctxt->instate != XML_PARSER_EOF) {
 		xmlStructuredErrorFunc schannel = NULL;
 		xmlGenericErrorFunc channel = NULL;
@@ -2284,31 +2284,30 @@ xmlOutputBufferPtr xmlAllocOutputBufferInternal(xmlCharEncodingHandlerPtr encode
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
-
 /**
  * xmlFreeParserInputBuffer:
  * @in:  a buffered parser input
  *
  * Free up the memory used by a buffered parser input
  */
-void xmlFreeParserInputBuffer(xmlParserInputBufferPtr in)
+void FASTCALL xmlFreeParserInputBuffer(xmlParserInputBuffer * pIn)
 {
-	if(in) {
-		if(in->raw) {
-			xmlBufFree(in->raw);
-			in->raw = NULL;
+	if(pIn) {
+		if(pIn->raw) {
+			xmlBufFree(pIn->raw);
+			pIn->raw = NULL;
 		}
-		if(in->encoder != NULL) {
-			xmlCharEncCloseFunc(in->encoder);
+		if(pIn->encoder != NULL) {
+			xmlCharEncCloseFunc(pIn->encoder);
 		}
-		if(in->closecallback != NULL) {
-			in->closecallback(in->context);
+		if(pIn->closecallback != NULL) {
+			pIn->closecallback(pIn->context);
 		}
-		if(in->buffer != NULL) {
-			xmlBufFree(in->buffer);
-			in->buffer = NULL;
+		if(pIn->buffer != NULL) {
+			xmlBufFree(pIn->buffer);
+			pIn->buffer = NULL;
 		}
-		SAlloc::F(in);
+		SAlloc::F(pIn);
 	}
 }
 
@@ -2366,17 +2365,17 @@ xmlParserInputBufferPtr __xmlParserInputBufferCreateFilename(const char * URI, x
 	 * Try to find one of the input accept method accepting that scheme
 	 * Go in reverse to give precedence to user defined handlers.
 	 */
-	if(context == NULL) {
+	if(!context) {
 		for(i = xmlInputCallbackNr - 1; i >= 0; i--) {
 			if((xmlInputCallbackTable[i].matchcallback != NULL) && (xmlInputCallbackTable[i].matchcallback(URI) != 0)) {
 				context = xmlInputCallbackTable[i].opencallback(URI);
-				if(context != NULL) {
+				if(context) {
 					break;
 				}
 			}
 		}
 	}
-	if(context == NULL) {
+	if(!context) {
 		return 0;
 	}
 	/*
@@ -2474,7 +2473,7 @@ xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncod
 #ifdef HAVE_ZLIB_H
 		if((compression > 0) && (compression <= 9) && (is_file_uri == 1)) {
 			context = xmlGzfileOpenW(unescaped, compression);
-			if(context != NULL) {
+			if(context) {
 				ret = xmlAllocOutputBufferInternal(encoder);
 				if(ret) {
 					ret->context = context;
@@ -2495,7 +2494,7 @@ xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncod
 				else
 #endif
 				context = xmlOutputCallbackTable[i].opencallback(unescaped);
-				if(context != NULL)
+				if(context)
 					break;
 			}
 		}
@@ -2506,11 +2505,11 @@ xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncod
 	 * If this failed try with a non-escaped URI this may be a strange
 	 * filename
 	 */
-	if(context == NULL) {
+	if(!context) {
 #ifdef HAVE_ZLIB_H
 		if((compression > 0) && (compression <= 9) && (is_file_uri == 1)) {
 			context = xmlGzfileOpenW(URI, compression);
-			if(context != NULL) {
+			if(context) {
 				ret = xmlAllocOutputBufferInternal(encoder);
 				if(ret) {
 					ret->context = context;
@@ -2530,12 +2529,12 @@ xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncod
 				else
 #endif
 				context = xmlOutputCallbackTable[i].opencallback(URI);
-				if(context != NULL)
+				if(context)
 					break;
 			}
 		}
 	}
-	if(context == NULL) {
+	if(!context) {
 		return 0;
 	}
 	/*
@@ -3498,7 +3497,7 @@ char * xmlParserGetDirectory(const char * filename)
  *
  * Returns the input or NULL in case of HTTP error.
  */
-xmlParserInputPtr xmlCheckHTTPInput(xmlParserCtxtPtr ctxt, xmlParserInputPtr ret)
+xmlParserInputPtr xmlCheckHTTPInput(xmlParserCtxt * ctxt, xmlParserInputPtr ret)
 {
 #ifdef LIBXML_HTTP_ENABLED
 	if((ret != NULL) && (ret->buf != NULL) && (ret->buf->readcallback == xmlIOHTTPRead) && (ret->buf->context != NULL)) {
@@ -3519,7 +3518,7 @@ xmlParserInputPtr xmlCheckHTTPInput(xmlParserCtxtPtr ctxt, xmlParserInputPtr ret
 			mime = xmlNanoHTTPMimeType(ret->buf->context);
 			if((xmlStrstr(BAD_CAST mime, BAD_CAST "/xml")) || (xmlStrstr(BAD_CAST mime, BAD_CAST "+xml"))) {
 				encoding = xmlNanoHTTPEncoding(ret->buf->context);
-				if(encoding != NULL) {
+				if(encoding) {
 					xmlCharEncodingHandlerPtr handler = xmlFindCharEncodingHandler(encoding);
 					if(handler) {
 						xmlSwitchInputEncoding(ctxt, ret, handler);

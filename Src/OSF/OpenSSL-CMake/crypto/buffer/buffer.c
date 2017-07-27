@@ -18,7 +18,7 @@
 BUF_MEM * BUF_MEM_new_ex(ulong flags)
 {
 	BUF_MEM * ret = BUF_MEM_new();
-	if(ret != NULL)
+	if(ret)
 		ret->flags = flags;
 	return ret;
 }
@@ -54,7 +54,7 @@ static char * sec_alloc_realloc(BUF_MEM * str, size_t len)
 {
 	char * ret = (char*)OPENSSL_secure_malloc(len);
 	if(str->data != NULL) {
-		if(ret != NULL)
+		if(ret)
 			memcpy(ret, str->data, str->length);
 		OPENSSL_secure_free(str->data);
 	}

@@ -54,7 +54,6 @@ static void xmlLinkDeallocator(xmlListPtr l, xmlLinkPtr lk)
 		l->linkDeallocator(lk);
 	SAlloc::F(lk);
 }
-
 /**
  * xmlLinkCompare:
  * @data0:  first data
@@ -74,7 +73,6 @@ static int xmlLinkCompare(const void * data0, const void * data1)
 	else
 		return 1;
 }
-
 /**
  * xmlListLowerSearch:
  * @l:  a list
@@ -86,13 +84,13 @@ static int xmlLinkCompare(const void * data0, const void * data1)
  */
 static xmlLinkPtr xmlListLowerSearch(xmlListPtr l, void * data)
 {
-	xmlLinkPtr lk;
-	if(l == NULL)
-		return 0;
-	for(lk = l->sentinel->next; lk != l->sentinel && l->linkCompare(lk->data, data) <0; lk = lk->next) ;
+	xmlLink * lk = 0;
+	if(l) {
+		for(lk = l->sentinel->next; lk != l->sentinel && l->linkCompare(lk->data, data) <0; lk = lk->next) 
+			;
+	}
 	return lk;
 }
-
 /**
  * xmlListHigherSearch:
  * @l:  a list
@@ -104,7 +102,7 @@ static xmlLinkPtr xmlListLowerSearch(xmlListPtr l, void * data)
  */
 static xmlLinkPtr xmlListHigherSearch(xmlListPtr l, void * data)
 {
-	xmlLinkPtr lk;
+	xmlLink * lk;
 	if(l == NULL)
 		return 0;
 	for(lk = l->sentinel->prev; lk != l->sentinel && l->linkCompare(lk->data, data) >0; lk = lk->prev);
@@ -122,7 +120,7 @@ static xmlLinkPtr xmlListHigherSearch(xmlListPtr l, void * data)
  */
 static xmlLinkPtr xmlListLinkSearch(xmlListPtr l, void * data)
 {
-	xmlLinkPtr lk;
+	xmlLink * lk;
 	if(l == NULL)
 		return 0;
 	lk = xmlListLowerSearch(l, data);
@@ -146,7 +144,7 @@ static xmlLinkPtr xmlListLinkSearch(xmlListPtr l, void * data)
  */
 static xmlLinkPtr xmlListLinkReverseSearch(xmlListPtr l, void * data)
 {
-	xmlLinkPtr lk;
+	xmlLink * lk;
 	if(l == NULL)
 		return 0;
 	lk = xmlListHigherSearch(l, data);
@@ -343,7 +341,7 @@ int xmlListRemoveFirst(xmlListPtr l, void * data)
  */
 int xmlListRemoveLast(xmlListPtr l, void * data)
 {
-	xmlLinkPtr lk;
+	xmlLink * lk;
 	if(l == NULL)
 		return 0;
 	/*Find the last instance of this data */
@@ -439,7 +437,7 @@ xmlLinkPtr xmlListEnd(xmlListPtr l)
  */
 int xmlListSize(xmlListPtr l)
 {
-	xmlLinkPtr lk;
+	xmlLink * lk;
 	int count = 0;
 	if(l == NULL)
 		return -1;
@@ -548,7 +546,7 @@ void xmlListReverse(xmlListPtr l)
 {
 	if(l) {
 		xmlLinkPtr lkPrev = l->sentinel;
-		xmlLinkPtr lk;
+		xmlLink * lk;
 		for(lk = l->sentinel->next; lk != l->sentinel; lk = lk->next) {
 			lkPrev->next = lkPrev->prev;
 			lkPrev->prev = lk;
@@ -595,7 +593,7 @@ void xmlListSort(xmlListPtr l)
  */
 void xmlListWalk(xmlListPtr l, xmlListWalker walker, const void * user)
 {
-	xmlLinkPtr lk;
+	xmlLink * lk;
 	if((l == NULL) || (walker == NULL))
 		return;
 	for(lk = l->sentinel->next; lk != l->sentinel; lk = lk->next) {
@@ -615,7 +613,7 @@ void xmlListWalk(xmlListPtr l, xmlListWalker walker, const void * user)
  */
 void xmlListReverseWalk(xmlListPtr l, xmlListWalker walker, const void * user)
 {
-	xmlLinkPtr lk;
+	xmlLink * lk;
 	if((l == NULL) || (walker == NULL))
 		return;
 	for(lk = l->sentinel->prev; lk != l->sentinel; lk = lk->prev) {
@@ -672,7 +670,7 @@ xmlListPtr xmlListDup(const xmlListPtr old)
 int xmlListCopy(xmlListPtr cur, const xmlListPtr old)
 {
 	/* Walk the old tree and insert the data into the new one */
-	xmlLinkPtr lk;
+	xmlLink * lk;
 	if((old == NULL) || (cur == NULL))
 		return 1;
 	for(lk = old->sentinel->next; lk != old->sentinel; lk = lk->next) {

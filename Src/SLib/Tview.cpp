@@ -748,9 +748,7 @@ void TView::endModal(ushort command)
 
 void TView::getCommands(TCommandSet & commands) const
 {
-	if(P_CmdSet)
-		commands = *P_CmdSet;
-	else
+	if(!RVALUEPTR(commands, P_CmdSet))
 		commands.enableAll();
 }
 

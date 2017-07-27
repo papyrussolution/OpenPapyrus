@@ -219,8 +219,7 @@ int __bam_dpages(DBC*dbc, int use_top, int flags)
 	 * It will deadlock here.  Before we unlink the subtree, we relink the
 	 * leaf page chain.
 	 */
-	if(LF_ISSET(BTD_RELINK) && LEVEL(cp->csp->page) == 1 &&
-	   (ret = __db_relink(dbc, cp->csp->page, NULL, PGNO_INVALID)) != 0)
+	if(LF_ISSET(BTD_RELINK) && LEVEL(cp->csp->page) == 1 && (ret = __db_relink(dbc, cp->csp->page, NULL, PGNO_INVALID)) != 0)
 		goto discard;
 	/*
 	 * Delete the last item that references the underlying pages that are
@@ -230,8 +229,7 @@ int __bam_dpages(DBC*dbc, int use_top, int flags)
 	 * transactions, this lets the rest of the tree get back to business
 	 * immediately.
 	 */
-	if((ret = __memp_dirty(mpf,
-		    &epg->page, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
+	if((ret = __memp_dirty(mpf, &epg->page, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
 		goto discard;
 	if((ret = __bam_ditem(dbc, epg->page, epg->indx)) != 0)
 		goto discard;
@@ -267,8 +265,7 @@ discard:
 		goto err;
 	/* Free the rest of the pages in the stack. */
 	while(++epg <= cp->csp) {
-		if((ret = __memp_dirty(mpf, &epg->page,
-			    dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
+		if((ret = __memp_dirty(mpf, &epg->page, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0)
 			goto err;
 		/*
 		 * Delete page entries so they will be restored as part of
@@ -346,8 +343,7 @@ err:
 			 */
 			bi = GET_BINTERNAL(dbp, parent, 0);
 			if(B_TYPE(bi->type) == B_OVERFLOW)
-				if((ret = __db_doff(dbc,
-					    ((BOVERFLOW *)bi->data)->pgno)) != 0)
+				if((ret = __db_doff(dbc, ((BOVERFLOW *)bi->data)->pgno)) != 0)
 					goto stop;
 			pgno = bi->pgno;
 			break;
@@ -358,11 +354,9 @@ err:
 			goto stop;
 		}
 		/* Lock the child page. */
-		if((ret =
-		            __db_lget(dbc, 0, pgno, DB_LOCK_WRITE, 0, &c_lock)) != 0)
+		if((ret = __db_lget(dbc, 0, pgno, DB_LOCK_WRITE, 0, &c_lock)) != 0)
 			goto stop;
-		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn,
-			    DB_MPOOL_DIRTY, &child)) != 0)
+		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &child)) != 0)
 			goto stop;
 		/* Log the change. */
 		if(DBC_LOGGING(dbc)) {
@@ -371,11 +365,8 @@ err:
 			a.size = dbp->pgsize;
 			memzero(&b, sizeof(b));
 			b.data = P_ENTRY(dbp, parent, 0);
-			b.size = TYPE(parent) == P_IRECNO ? RINTERNAL_SIZE :
-			         BINTERNAL_SIZE(((BINTERNAL *)b.data)->len);
-			if((ret = __bam_rsplit_log(dbp, dbc->txn,
-				    &child->lsn, 0, PGNO(child), &a, PGNO(parent),
-				    RE_NREC(parent), &b, &parent->lsn)) != 0)
+			b.size = TYPE(parent) == P_IRECNO ? RINTERNAL_SIZE : BINTERNAL_SIZE(((BINTERNAL *)b.data)->len);
+			if((ret = __bam_rsplit_log(dbp, dbc->txn, &child->lsn, 0, PGNO(child), &a, PGNO(parent), RE_NREC(parent), &b, &parent->lsn)) != 0)
 				goto stop;
 		}
 		else

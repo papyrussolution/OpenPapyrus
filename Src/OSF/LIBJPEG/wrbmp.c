@@ -333,7 +333,7 @@ METHODDEF(void) finish_output_bmp(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 
 	/* Write the file body from our virtual array */
 	for(row = cinfo->output_height; row > 0; row--) {
-		if(progress != NULL) {
+		if(progress) {
 			progress->pub.pass_counter = (long)(cinfo->output_height - row);
 			progress->pub.pass_limit = (long)cinfo->output_height;
 			(*progress->pub.progress_monitor)((j_common_ptr)cinfo);
@@ -346,7 +346,7 @@ METHODDEF(void) finish_output_bmp(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 			data_ptr++;
 		}
 	}
-	if(progress != NULL)
+	if(progress)
 		progress->completed_extra_passes++;
 
 	/* Make sure we wrote the output file OK */
@@ -397,7 +397,7 @@ GLOBAL(djpeg_dest_ptr) jinit_write_bmp(j_decompress_ptr cinfo, boolean is_os2)
 		    ((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE,
 	    row_width, cinfo->output_height, (JDIMENSION)1);
 	dest->cur_output_row = 0;
-	if(cinfo->progress != NULL) {
+	if(cinfo->progress) {
 		cd_progress_ptr progress = (cd_progress_ptr)cinfo->progress;
 		progress->total_extra_passes++; /* count file input as separate pass */
 	}

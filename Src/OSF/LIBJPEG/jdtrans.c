@@ -50,7 +50,7 @@ GLOBAL(jvirt_barray_ptr *) jpeg_read_coefficients(j_decompress_ptr cinfo)
 		for(;; ) {
 			int retcode;
 			/* Call progress monitor hook if present */
-			if(cinfo->progress != NULL)
+			if(cinfo->progress)
 				(*cinfo->progress->progress_monitor)((j_common_ptr)cinfo);
 			/* Absorb some more input */
 			retcode = (*cinfo->inputctl->consume_input)(cinfo);
@@ -104,7 +104,7 @@ static void transdecode_master_selection(j_decompress_ptr cinfo)
 	/* Initialize input side of decompressor to consume first scan. */
 	(*cinfo->inputctl->start_input_pass)(cinfo);
 	/* Initialize progress monitoring. */
-	if(cinfo->progress != NULL) {
+	if(cinfo->progress) {
 		int nscans;
 		/* Estimate number of scans to set pass_limit. */
 		if(cinfo->progressive_mode) {

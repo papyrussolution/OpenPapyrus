@@ -55,19 +55,19 @@
 //#include "progress.h"
 //#include "transfer.h"
 //#include "escape.h"
-#include "http.h" /* for HTTP proxy tunnel stuff */
+//#include "http.h" /* for HTTP proxy tunnel stuff */
 #include "ssh.h"
 //#include "url.h"
 #include "speedcheck.h"
 //#include "getinfo.h"
 //#include "strdup.h"
 //#include "strcase.h"
-#include "vtls/vtls.h"
+//#include "vtls/vtls.h"
 //#include "connect.h"
 //#include "strerror.h"
 #include "inet_ntop.h"
 #include "parsedate.h" /* for the week day and month names */
-#include "sockaddr.h" /* required for Curl_sockaddr_storage */
+//#include "sockaddr.h" /* required for Curl_sockaddr_storage */
 //#include "strtoofft.h"
 //#include "multiif.h"
 //#include "select.h"
@@ -790,18 +790,13 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			     * with the requested type of authentication
 			     */
 			    sshc->authed = FALSE;
-
-			    if((data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) &&
-			    (strstr(sshc->authlist, "publickey") != NULL)) {
+			    if((data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) && (strstr(sshc->authlist, "publickey") != NULL)) {
 				    char * home = NULL;
 				    bool out_of_memory = FALSE;
-
 				    sshc->rsa_pub = sshc->rsa = NULL;
-
 				    /* To ponder about: should really the lib be messing about with the
 				       HOME environment variable etc? */
 				    home = curl_getenv("HOME");
-
 				    if(data->set.str[STRING_SSH_PRIVATE_KEY])
 					    sshc->rsa = _strdup(data->set.str[STRING_SSH_PRIVATE_KEY]);
 				    else {
@@ -908,8 +903,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    break;
 
 			case SSH_AUTH_PASS_INIT:
-			    if((data->set.ssh_auth_types & CURLSSH_AUTH_PASSWORD) &&
-			    (strstr(sshc->authlist, "password") != NULL)) {
+			    if((data->set.ssh_auth_types & CURLSSH_AUTH_PASSWORD) && (strstr(sshc->authlist, "password") != NULL)) {
 				    state(conn, SSH_AUTH_PASS);
 			    }
 			    else {
@@ -939,8 +933,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    break;
 
 			case SSH_AUTH_HOST_INIT:
-			    if((data->set.ssh_auth_types & CURLSSH_AUTH_HOST) &&
-			    (strstr(sshc->authlist, "hostbased") != NULL)) {
+			    if((data->set.ssh_auth_types & CURLSSH_AUTH_HOST) && (strstr(sshc->authlist, "hostbased") != NULL)) {
 				    state(conn, SSH_AUTH_HOST);
 			    }
 			    else {
@@ -954,8 +947,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 
 			case SSH_AUTH_AGENT_INIT:
 #ifdef HAVE_LIBSSH2_AGENT_API
-			    if((data->set.ssh_auth_types & CURLSSH_AUTH_AGENT)
-			    && (strstr(sshc->authlist, "publickey") != NULL)) {
+			    if((data->set.ssh_auth_types & CURLSSH_AUTH_AGENT) && (strstr(sshc->authlist, "publickey") != NULL)) {
 				    /* Connect to the ssh-agent */
 				    /* The agent could be shared by a curl thread i believe
 				       but nothing obvious as keys can be added/removed at any time */
@@ -963,7 +955,6 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 					    sshc->ssh_agent = libssh2_agent_init(sshc->ssh_session);
 					    if(!sshc->ssh_agent) {
 						    infof(data, "Could not create agent object\n");
-
 						    state(conn, SSH_AUTH_KEY_INIT);
 						    break;
 					    }
@@ -1046,8 +1037,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    break;
 
 			case SSH_AUTH_KEY_INIT:
-			    if((data->set.ssh_auth_types & CURLSSH_AUTH_KEYBOARD)
-			    && (strstr(sshc->authlist, "keyboard-interactive") != NULL)) {
+			    if((data->set.ssh_auth_types & CURLSSH_AUTH_KEYBOARD) && (strstr(sshc->authlist, "keyboard-interactive") != NULL)) {
 				    state(conn, SSH_AUTH_KEY);
 			    }
 			    else {

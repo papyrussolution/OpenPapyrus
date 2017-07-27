@@ -773,11 +773,8 @@ const static BN_ULONG def_yG[P256_LIMBS] = {
  */
 static int ecp_nistz256_is_affine_G(const EC_POINT * generator)
 {
-	return (bn_get_top(generator->X) == P256_LIMBS) &&
-	       (bn_get_top(generator->Y) == P256_LIMBS) &&
-	       is_equal(bn_get_words(generator->X), def_xG) &&
-	       is_equal(bn_get_words(generator->Y), def_yG) &&
-	       is_one(generator->Z);
+	return (bn_get_top(generator->X) == P256_LIMBS) && (bn_get_top(generator->Y) == P256_LIMBS) &&
+	       is_equal(bn_get_words(generator->X), def_xG) && is_equal(bn_get_words(generator->Y), def_yG) && is_one(generator->Z);
 }
 
 __owur static int ecp_nistz256_mult_precompute(EC_GROUP * group, BN_CTX * ctx)
@@ -1463,7 +1460,7 @@ static NISTZ256_PRE_COMP * ecp_nistz256_pre_comp_new(const EC_GROUP * group)
 NISTZ256_PRE_COMP * EC_nistz256_pre_comp_dup(NISTZ256_PRE_COMP * p)
 {
 	int i;
-	if(p != NULL)
+	if(p)
 		CRYPTO_atomic_add(&p->references, 1, &i, p->lock);
 	return p;
 }

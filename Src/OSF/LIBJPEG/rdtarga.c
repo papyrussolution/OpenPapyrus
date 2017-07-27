@@ -251,7 +251,7 @@ METHODDEF(JDIMENSION) preload_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo
 	cd_progress_ptr progress = (cd_progress_ptr)cinfo->progress;
 	/* Read the data into a virtual array in input-file row order. */
 	for(row = 0; row < cinfo->image_height; row++) {
-		if(progress != NULL) {
+		if(progress) {
 			progress->pub.pass_counter = (long)row;
 			progress->pub.pass_limit = (long)cinfo->image_height;
 			(*progress->pub.progress_monitor)((j_common_ptr)cinfo);
@@ -259,7 +259,7 @@ METHODDEF(JDIMENSION) preload_image(j_compress_ptr cinfo, cjpeg_source_ptr sinfo
 		source->pub.buffer = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, source->whole_image, row, (JDIMENSION)1, TRUE);
 		(*source->get_pixel_rows)(cinfo, sinfo);
 	}
-	if(progress != NULL)
+	if(progress)
 		progress->completed_extra_passes++;
 	/* Set up to read from the virtual array in unscrambled order */
 	source->pub.get_pixel_rows = get_memory_row;
@@ -353,7 +353,7 @@ METHODDEF(void) start_input_tga(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 		source->whole_image = (*cinfo->mem->request_virt_sarray)
 			    ((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE,
 		    (JDIMENSION)width * components, (JDIMENSION)height, (JDIMENSION)1);
-		if(cinfo->progress != NULL) {
+		if(cinfo->progress) {
 			cd_progress_ptr progress = (cd_progress_ptr)cinfo->progress;
 			progress->total_extra_passes++; /* count file input as separate pass */
 		}

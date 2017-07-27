@@ -393,7 +393,7 @@ static long acpt_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    ret = (long)acpt_state(b, data);
 		    break;
 		case BIO_C_SET_ACCEPT:
-		    if(ptr != NULL) {
+		    if(ptr) {
 			    if(num == 0) {
 				    char * hold_serv = data->param_serv;
 				    /* We affect the hostname regardless.  However, the input

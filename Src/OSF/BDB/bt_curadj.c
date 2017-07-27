@@ -334,19 +334,17 @@ int __bam_ca_undodup(DB*dbp, uint32 first, db_pgno_t fpgno, uint32 fi, uint32 ti
 
 static int __bam_ca_rsplit_func(DBC * dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t fpgno, uint32 indx, void * args)
 {
-	db_pgno_t tpgno;
 	COMPQUIET(indx, 0);
-	if(dbc->dbtype == DB_RECNO)
-		return 0;
-	tpgno = *(db_pgno_t *)args;
-	if(dbc->internal->pgno == fpgno &&
-	   !MVCC_SKIP_CURADJ(dbc, fpgno)) {
-		dbc->internal->pgno = tpgno;
-		/* [#8032]
-		   DB_ASSERT(env, !STD_LOCKING(dbc) || dbc->internal->lock_mode != DB_LOCK_NG);
-		 */
-		if(IS_SUBTRANSACTION(my_dbc->txn) && dbc->txn != my_dbc->txn)
-			*foundp = 1;
+	if(dbc->dbtype != DB_RECNO) {
+		db_pgno_t tpgno = *(db_pgno_t *)args;
+		if(dbc->internal->pgno == fpgno && !MVCC_SKIP_CURADJ(dbc, fpgno)) {
+			dbc->internal->pgno = tpgno;
+			/* [#8032]
+			   DB_ASSERT(env, !STD_LOCKING(dbc) || dbc->internal->lock_mode != DB_LOCK_NG);
+			 */
+			if(IS_SUBTRANSACTION(my_dbc->txn) && dbc->txn != my_dbc->txn)
+				*foundp = 1;
+		}
 	}
 	return 0;
 }

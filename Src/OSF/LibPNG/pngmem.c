@@ -47,7 +47,7 @@ void /* PRIVATE */ png_destroy_png_struct(png_structrp png_ptr)
 PNG_FUNCTION(void *, PNGAPI png_calloc, (png_const_structrp png_ptr, png_alloc_size_t size), PNG_ALLOCATED)
 {
 	void * ret = png_malloc(png_ptr, size);
-	/*if(ret != NULL)
+	/*if(ret)
 		memzero(ret, size);
 	return ret;*/
 	return memzero(ret, size);
@@ -165,7 +165,7 @@ PNG_FUNCTION(void *, PNGAPI png_malloc_warn, (png_const_structrp png_ptr, png_al
 {
 	if(png_ptr) {
 		void * ret = png_malloc_base(png_ptr, size);
-		if(ret != NULL)
+		if(ret)
 			return ret;
 		png_warning(png_ptr, "Out of memory");
 	}

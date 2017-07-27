@@ -359,7 +359,7 @@ const xmlChar * xmlStrcasestr(const xmlChar * str, const xmlChar * val)
 {
 	int n;
 	if(str == NULL) return 0;
-	if(val == NULL) return 0;
+	if(!val) return 0;
 	n = sstrlen(val);
 	if(n == 0) return(str);
 	while(*str != 0) { /* non input consuming */

@@ -23,28 +23,31 @@
 extern "C" {
 #endif
 
-# ifndef OPENSSL_NO_ERR
-#  define ERR_PUT_error(a,b,c,d,e)        ERR_put_error(a,b,c,d,e)
-# else
-#  define ERR_PUT_error(a,b,c,d,e)        ERR_put_error(a,b,c,NULL,0)
-# endif
+#ifndef OPENSSL_NO_ERR
+	// @sobolev #define ERR_PUT_error(a,b,c,d,e)        ERR_put_error(a,b,c,d,e)
+	#define ERR_PUT_error(a,b,c,d,e)        ERR_put_error_NFL(a,b,c) // @sobolev
+#else
+	// @sobolev #define ERR_PUT_error(a,b,c,d,e)        ERR_put_error(a,b,c,NULL,0)
+	#define ERR_PUT_error(a,b,c,d,e)        ERR_put_error_NFL(a,b,c) // @sobolev
+#endif
 
-# include <errno.h>
+#include <errno.h>
 
-# define ERR_TXT_MALLOCED        0x01
-# define ERR_TXT_STRING          0x02
+#define ERR_TXT_MALLOCED        0x01
+#define ERR_TXT_STRING          0x02
 
-# define ERR_FLAG_MARK           0x01
+#define ERR_FLAG_MARK           0x01
 
-# define ERR_NUM_ERRORS  16
+#define ERR_NUM_ERRORS  16
 typedef struct err_state_st {
-    int err_flags[ERR_NUM_ERRORS];
+    int    err_flags[ERR_NUM_ERRORS];
     unsigned long err_buffer[ERR_NUM_ERRORS];
-    char *err_data[ERR_NUM_ERRORS];
-    int err_data_flags[ERR_NUM_ERRORS];
-    const char *err_file[ERR_NUM_ERRORS];
-    int err_line[ERR_NUM_ERRORS];
-    int top, bottom;
+    char * err_data[ERR_NUM_ERRORS];
+    int    err_data_flags[ERR_NUM_ERRORS];
+    const  char * err_file[ERR_NUM_ERRORS];
+    int    err_line[ERR_NUM_ERRORS];
+    int    top;
+	int    bottom;
 } ERR_STATE;
 
 /* library */
@@ -203,6 +206,7 @@ typedef struct ERR_string_data_st {
 DEFINE_LHASH_OF(ERR_STRING_DATA);
 
 void ERR_put_error(int lib, int func, int reason, const char *file, int line);
+void ERR_put_error_NFL(int lib, int func, int reason); // @sobolev
 void ERR_set_error_data(char *data, int flags);
 
 unsigned long ERR_get_error(void);
@@ -232,16 +236,14 @@ int ERR_unload_strings(int lib, ERR_STRING_DATA str[]);
 int ERR_load_ERR_strings(void);
 
 #if OPENSSL_API_COMPAT < 0x10100000L
-# define ERR_load_crypto_strings() OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL)
-# define ERR_free_strings() while(0) continue
+	#define ERR_load_crypto_strings() OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL)
+	#define ERR_free_strings() while(0) continue
 #endif
 
 DEPRECATEDIN_1_1_0(void ERR_remove_thread_state(void *))
 DEPRECATEDIN_1_0_0(void ERR_remove_state(unsigned long pid))
 ERR_STATE *ERR_get_state(void);
-
 int ERR_get_next_error_library(void);
-
 int ERR_set_mark(void);
 int ERR_pop_to_mark(void);
 

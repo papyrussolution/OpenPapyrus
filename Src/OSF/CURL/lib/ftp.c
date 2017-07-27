@@ -46,12 +46,12 @@
 //#include <curl/curl.h>
 //#include "urldata.h"
 //#include "sendf.h"
-#include "if2ip.h"
+//#include "if2ip.h"
 //#include "hostip.h"
 //#include "progress.h"
 //#include "transfer.h"
 //#include "escape.h"
-#include "http.h" /* for HTTP proxy tunnel stuff */
+//#include "http.h" /* for HTTP proxy tunnel stuff */
 //#include "socks.h"
 #include "ftp.h"
 //#include "fileinfo.h"
@@ -59,7 +59,7 @@
 #include "curl_sec.h"
 //#include "strtoofft.h"
 //#include "strcase.h"
-#include "vtls/vtls.h"
+//#include "vtls/vtls.h"
 //#include "connect.h"
 //#include "strerror.h"
 #include "inet_ntop.h"

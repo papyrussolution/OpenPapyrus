@@ -18,11 +18,7 @@
 using namespace Scintilla;
 #endif
 
-static void GetRange(Sci_PositionU start,
-    Sci_PositionU end,
-    Accessor &styler,
-    char * s,
-    Sci_PositionU len)
+static void GetRange(Sci_PositionU start, Sci_PositionU end, Accessor &styler, char * s, Sci_PositionU len)
 {
 	Sci_PositionU i = 0;
 	while((i < end - start + 1) && (i < len-1)) {
@@ -32,18 +28,12 @@ static void GetRange(Sci_PositionU start,
 	s[i] = '\0';
 }
 
-static void ColourisePlmDoc(Sci_PositionU startPos,
-    Sci_Position length,
-    int initStyle,
-    WordList * keywordlists[],
-    Accessor &styler)
+static void ColourisePlmDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
 {
 	Sci_PositionU endPos = startPos + length;
 	int state = initStyle;
-
 	styler.StartAt(startPos);
 	styler.StartSegment(startPos);
-
 	for(Sci_PositionU i = startPos; i < endPos; i++) {
 		char ch = styler.SafeGetCharAt(i);
 		char chNext = styler.SafeGetCharAt(i + 1);
@@ -131,11 +121,7 @@ static void ColourisePlmDoc(Sci_PositionU startPos,
 	styler.ColourTo(endPos - 1, state);
 }
 
-static void FoldPlmDoc(Sci_PositionU startPos,
-    Sci_Position length,
-    int initStyle,
-    WordList *[],
-    Accessor &styler)
+static void FoldPlmDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor &styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
@@ -156,27 +142,23 @@ static void FoldPlmDoc(Sci_PositionU startPos,
 		style = styleNext;
 		styleNext = styler.StyleAt(i + 1);
 		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
-
 		if(stylePrev != SCE_PLM_KEYWORD && style == SCE_PLM_KEYWORD)
 			startKeyword = i;
 
 		if(style == SCE_PLM_KEYWORD && styleNext != SCE_PLM_KEYWORD) {
 			char word[1024];
 			GetRange(startKeyword, i, styler, word, sizeof(word));
-
-			if(strcmp(word, "procedure") == 0 || strcmp(word, "do") == 0)
+			if(sstreq(word, "procedure") || sstreq(word, "do"))
 				levelCurrent++;
-			else if(strcmp(word, "end") == 0)
+			else if(sstreq(word, "end"))
 				levelCurrent--;
 		}
-
 		if(foldComment) {
 			if(stylePrev != SCE_PLM_COMMENT && style == SCE_PLM_COMMENT)
 				levelCurrent++;
 			else if(stylePrev == SCE_PLM_COMMENT && style != SCE_PLM_COMMENT)
 				levelCurrent--;
 		}
-
 		if(atEOL) {
 			int lev = levelPrev;
 			if(visibleChars == 0 && foldCompact)

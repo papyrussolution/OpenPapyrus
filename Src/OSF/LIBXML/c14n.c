@@ -1677,20 +1677,14 @@ int xmlC14NExecute(xmlDocPtr doc, xmlC14NIsVisibleCallback is_visible_callback,
 	 *  Validate the encoding output buffer encoding
 	 */
 	if(buf->encoder != NULL) {
-		xmlC14NErr(NULL, (xmlNode *)doc, XML_C14N_REQUIRES_UTF8,
-		    "xmlC14NExecute: output buffer encoder != NULL but C14N requires UTF8 output\n");
+		xmlC14NErr(NULL, (xmlNode *)doc, XML_C14N_REQUIRES_UTF8, "xmlC14NExecute: output buffer encoder != NULL but C14N requires UTF8 output\n");
 		return -1;
 	}
-
-	ctx = xmlC14NNewCtx(doc, is_visible_callback, user_data,
-	    c14n_mode, inclusive_ns_prefixes,
-	    with_comments, buf);
+	ctx = xmlC14NNewCtx(doc, is_visible_callback, user_data, c14n_mode, inclusive_ns_prefixes, with_comments, buf);
 	if(!ctx) {
-		xmlC14NErr(NULL, (xmlNode *)doc, XML_C14N_CREATE_CTXT,
-		    "xmlC14NExecute: unable to create C14N context\n");
+		xmlC14NErr(NULL, (xmlNode *)doc, XML_C14N_CREATE_CTXT, "xmlC14NExecute: unable to create C14N context\n");
 		return -1;
 	}
-
 	/*
 	 * Root Node
 	 * The root node is the parent of the top-level document element. The

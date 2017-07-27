@@ -57,11 +57,9 @@ static bool FASTCALL IsStreamCommentStyle(int style)
 	return oneof2(style, SCE_ASM_COMMENTDIRECTIVE, SCE_ASM_COMMENTBLOCK);
 }
 
-static inline int LowerCase(int c)
+static /*inline*/ int FASTCALL LowerCase(int c)
 {
-	if(c >= 'A' && c <= 'Z')
-		return 'a' + c - 'A';
-	return c;
+	return (c >= 'A' && c <= 'Z') ? ('a' + c - 'A') : c;
 }
 
 // An individual named option for use in an OptionSet
@@ -139,36 +137,29 @@ public:
 	{
 		commentChar = commentChar_;
 	}
-
 	virtual ~LexerAsm()
 	{
 	}
-
 	void SCI_METHOD Release()
 	{
 		delete this;
 	}
-
 	int SCI_METHOD Version() const
 	{
 		return lvOriginal;
 	}
-
 	const char * SCI_METHOD PropertyNames()
 	{
 		return osAsm.PropertyNames();
 	}
-
 	int SCI_METHOD PropertyType(const char * name)
 	{
 		return osAsm.PropertyType(name);
 	}
-
 	const char * SCI_METHOD DescribeProperty(const char * name)
 	{
 		return osAsm.DescribeProperty(name);
 	}
-
 	Sci_Position SCI_METHOD PropertySet(const char * key, const char * val);
 	const char * SCI_METHOD DescribeWordListSets()
 	{
@@ -193,10 +184,7 @@ public:
 
 Sci_Position SCI_METHOD LexerAsm::PropertySet(const char * key, const char * val)
 {
-	if(osAsm.PropertySet(&options, key, val)) {
-		return 0;
-	}
-	return -1;
+	return osAsm.PropertySet(&options, key, val) ? 0 : -1;
 }
 
 Sci_Position SCI_METHOD LexerAsm::WordListSet(int n, const char * wl)
@@ -266,7 +254,6 @@ void SCI_METHOD LexerAsm::Lex(Sci_PositionU startPos, Sci_Position length, int i
 				char s[100];
 				sc.GetCurrentLowered(s, sizeof(s));
 				bool IsDirective = false;
-
 				if(cpuInstruction.InList(s)) {
 					sc.ChangeState(SCE_ASM_CPUINSTRUCTION);
 				}

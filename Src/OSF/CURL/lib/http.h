@@ -21,7 +21,7 @@
 * KIND, either express or implied.
 *
 ***************************************************************************/
-#include "curl_setup.h"
+//#include "curl_setup.h"
 #ifndef CURL_DISABLE_HTTP
 #ifdef USE_NGHTTP2
 	#include <nghttp2/nghttp2.h>
@@ -183,8 +183,7 @@ struct http_conn {
 	   nghttp2_session_mem_recv() but mem buffer is still not full. In
 	   this case, we wrongly sends the content of mem buffer if we share
 	   them for both cases. */
-	int32_t pause_stream_id; /* stream ID which paused
-	                            nghttp2_session_mem_recv */
+	int32_t pause_stream_id; /* stream ID which paused nghttp2_session_mem_recv */
 	size_t drain_total; /* sum of all stream's UrlState.drain */
 
 	/* this is a hash of all individual streams (Curl_easy structs) */
@@ -198,11 +197,7 @@ struct http_conn {
 #endif
 };
 
-CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
-    struct connectdata * conn,
-    ssize_t * nread,
-    bool * stop_reading);
-
+CURLcode Curl_http_readwrite_headers(struct Curl_easy * data, struct connectdata * conn, ssize_t * nread, bool * stop_reading);
 /**
  * Curl_http_output_auth() setups the authentication headers for the
  * host/proxy and the correct authentication
@@ -217,11 +212,8 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
  *
  * @returns CURLcode
  */
-CURLcode Curl_http_output_auth(struct connectdata * conn,
-    const char * request,
-    const char * path,
-    bool proxytunnel);                   /* TRUE if this is the request setting
-                                            up the proxy tunnel */
+CURLcode Curl_http_output_auth(struct connectdata * conn, const char * request, const char * path,
+    bool proxytunnel/* TRUE if this is the request setting up the proxy tunnel */);
 
 #endif /* HEADER_CURL_HTTP_H */
 

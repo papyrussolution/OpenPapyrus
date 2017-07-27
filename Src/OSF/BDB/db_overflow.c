@@ -373,7 +373,7 @@ int __db_doff(DBC * dbc, db_pgno_t pgno)
 			return __db_ovref(dbc, pgno);
 		}
 		if((ret = __memp_dirty(mpf, &pagep, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0) {
-			if(pagep != NULL)
+			if(pagep)
 				__memp_fput(mpf, dbc->thread_info, pagep, dbc->priority);
 			return ret;
 		}

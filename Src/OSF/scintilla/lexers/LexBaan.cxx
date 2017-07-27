@@ -83,9 +83,7 @@ struct OptionSetBaan : public OptionSet<OptionsBaan> {
 		DefineProperty("fold.compact", &OptionsBaan::foldCompact);
 		DefineProperty("fold.baan.syntax.based", &OptionsBaan::baanFoldSyntaxBased,
 			    "Set this property to 0 to disable syntax based folding, which is folding based on '{' & '('.");
-		DefineProperty(
-			    "fold.baan.keywords.based",
-			    &OptionsBaan::baanFoldKeywordsBased,
+		DefineProperty("fold.baan.keywords.based", &OptionsBaan::baanFoldKeywordsBased,
 			    "Set this property to 0 to disable keywords based folding, which is folding based on "
 			    " for, if, on (case), repeat, select, while and fold ends based on endfor, endif, endcase, until, endselect, endwhile respectively."
 			    "Also folds declarations which are grouped together.");
@@ -122,7 +120,7 @@ static bool FASTCALL IsAnOperator(int ch)
 	return false;
 }
 
-static inline int IsAnyOtherIdentifier(char * s, int sLength)
+static /*inline*/ int FASTCALL IsAnyOtherIdentifier(char * s, int sLength)
 {
 	/*	IsAnyOtherIdentifier uses standard templates used in baan.
 	   The matching template is shown as comments just above the return condition.
@@ -213,7 +211,7 @@ static inline int IsAnyOtherIdentifier(char * s, int sLength)
 	return(SCE_BAAN_DEFAULT);
 }
 
-static bool IsCommentLine(Sci_Position line, LexAccessor &styler)
+static bool FASTCALL IsCommentLine(Sci_Position line, LexAccessor &styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
@@ -228,7 +226,7 @@ static bool IsCommentLine(Sci_Position line, LexAccessor &styler)
 	return false;
 }
 
-static bool IsPreProcLine(Sci_Position line, LexAccessor &styler)
+static bool FASTCALL IsPreProcLine(Sci_Position line, LexAccessor &styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
@@ -251,7 +249,7 @@ static bool IsPreProcLine(Sci_Position line, LexAccessor &styler)
 	return false;
 }
 
-static int mainOrSubSectionLine(Sci_Position line, LexAccessor &styler)
+static int FASTCALL mainOrSubSectionLine(Sci_Position line, LexAccessor &styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
@@ -268,7 +266,7 @@ static int mainOrSubSectionLine(Sci_Position line, LexAccessor &styler)
 	return 0;
 }
 
-static bool priorSectionIsSubSection(Sci_Position line, LexAccessor &styler)
+static bool FASTCALL priorSectionIsSubSection(Sci_Position line, LexAccessor &styler)
 {
 	while(line > 0) {
 		Sci_Position pos = styler.LineStart(line);
@@ -290,7 +288,7 @@ static bool priorSectionIsSubSection(Sci_Position line, LexAccessor &styler)
 	return false;
 }
 
-static bool nextSectionIsSubSection(Sci_Position line, LexAccessor &styler)
+static bool FASTCALL nextSectionIsSubSection(Sci_Position line, LexAccessor &styler)
 {
 	while(line > 0) {
 		Sci_Position pos = styler.LineStart(line);
@@ -312,7 +310,7 @@ static bool nextSectionIsSubSection(Sci_Position line, LexAccessor &styler)
 	return false;
 }
 
-static bool IsDeclarationLine(Sci_Position line, LexAccessor &styler)
+static bool FASTCALL IsDeclarationLine(Sci_Position line, LexAccessor &styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
@@ -345,7 +343,7 @@ static bool IsDeclarationLine(Sci_Position line, LexAccessor &styler)
 	return false;
 }
 
-static bool IsInnerLevelFold(Sci_Position line, LexAccessor &styler)
+static bool FASTCALL IsInnerLevelFold(Sci_Position line, LexAccessor &styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
@@ -411,54 +409,41 @@ public:
 	LexerBaan()
 	{
 	}
-
 	virtual ~LexerBaan()
 	{
 	}
-
 	int SCI_METHOD Version() const
 	{
 		return lvOriginal;
 	}
-
 	void SCI_METHOD Release()
 	{
 		delete this;
 	}
-
 	const char * SCI_METHOD PropertyNames()
 	{
 		return osBaan.PropertyNames();
 	}
-
 	int SCI_METHOD PropertyType(const char * name)
 	{
 		return osBaan.PropertyType(name);
 	}
-
 	const char * SCI_METHOD DescribeProperty(const char * name)
 	{
 		return osBaan.DescribeProperty(name);
 	}
-
 	Sci_Position SCI_METHOD PropertySet(const char * key, const char * val);
-
 	const char * SCI_METHOD DescribeWordListSets()
 	{
 		return osBaan.DescribeWordListSets();
 	}
-
 	Sci_Position SCI_METHOD WordListSet(int n, const char * wl);
-
 	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
-
 	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
-
 	void * SCI_METHOD PrivateCall(int, void *)
 	{
 		return NULL;
 	}
-
 	static ILexer * LexerFactoryBaan()
 	{
 		return new LexerBaan();
@@ -477,33 +462,15 @@ Sci_Position SCI_METHOD LexerBaan::WordListSet(int n, const char * wl)
 {
 	WordListAbridged * WordListAbridgedN = 0;
 	switch(n) {
-		case 0:
-		    WordListAbridgedN = &keywords;
-		    break;
-		case 1:
-		    WordListAbridgedN = &keywords2;
-		    break;
-		case 2:
-		    WordListAbridgedN = &keywords3;
-		    break;
-		case 3:
-		    WordListAbridgedN = &keywords4;
-		    break;
-		case 4:
-		    WordListAbridgedN = &keywords5;
-		    break;
-		case 5:
-		    WordListAbridgedN = &keywords6;
-		    break;
-		case 6:
-		    WordListAbridgedN = &keywords7;
-		    break;
-		case 7:
-		    WordListAbridgedN = &keywords8;
-		    break;
-		case 8:
-		    WordListAbridgedN = &keywords9;
-		    break;
+		case 0: WordListAbridgedN = &keywords; break;
+		case 1: WordListAbridgedN = &keywords2; break;
+		case 2: WordListAbridgedN = &keywords3; break;
+		case 3: WordListAbridgedN = &keywords4; break;
+		case 4: WordListAbridgedN = &keywords5; break;
+		case 5: WordListAbridgedN = &keywords6; break;
+		case 6: WordListAbridgedN = &keywords7; break;
+		case 7: WordListAbridgedN = &keywords8; break;
+		case 8: WordListAbridgedN = &keywords9; break;
 	}
 	Sci_Position firstModification = -1;
 	if(WordListAbridgedN) {
@@ -524,7 +491,6 @@ void SCI_METHOD LexerBaan::Lex(Sci_PositionU startPos, Sci_Position length, int 
 {
 	if(initStyle == SCE_BAAN_STRINGEOL)     // Does not leak onto next line
 		initStyle = SCE_BAAN_DEFAULT;
-
 	int visibleChars = 0;
 	bool lineHasDomain = false;
 	bool lineHasFunction = false;
@@ -533,13 +499,9 @@ void SCI_METHOD LexerBaan::Lex(Sci_PositionU startPos, Sci_Position length, int 
 	bool lineHasDefines = false;
 	char word[1000];
 	int wordlen = 0;
-
-	std::string preProcessorTags[11] = { "#define", "#elif", "#else", "#endif",
-					     "#ident", "#if", "#ifdef", "#ifndef",
-					     "#include", "#pragma", "#undef" };
+	std::string preProcessorTags[11] = { "#define", "#elif", "#else", "#endif", "#ident", "#if", "#ifdef", "#ifndef", "#include", "#pragma", "#undef" };
 	LexAccessor styler(pAccess);
 	StyleContext sc(startPos, length, initStyle, styler);
-
 	for(; sc.More(); sc.Forward()) {
 		// Determine if the current state should terminate.
 		switch(sc.state) {
@@ -798,11 +760,9 @@ void SCI_METHOD LexerBaan::Fold(Sci_PositionU startPos, Sci_Position length, int
 		// PreProcessor Folding
 		if(options.foldPreprocessor) {
 			if(atEOL && IsPreProcLine(lineCurrent, styler)) {
-				if(!IsPreProcLine(lineCurrent - 1, styler)
-				    && IsPreProcLine(lineCurrent + 1, styler))
+				if(!IsPreProcLine(lineCurrent - 1, styler) && IsPreProcLine(lineCurrent + 1, styler))
 					levelCurrent++;
-				else if(IsPreProcLine(lineCurrent - 1, styler)
-				    && !IsPreProcLine(lineCurrent + 1, styler))
+				else if(IsPreProcLine(lineCurrent - 1, styler) && !IsPreProcLine(lineCurrent + 1, styler))
 					levelCurrent--;
 			}
 			else if(style == SCE_BAAN_PREPROCESSOR) {
@@ -827,11 +787,9 @@ void SCI_METHOD LexerBaan::Fold(Sci_PositionU startPos, Sci_Position length, int
 		//Keywords Folding
 		if(options.baanFoldKeywordsBased) {
 			if(atEOL && IsDeclarationLine(lineCurrent, styler)) {
-				if(!IsDeclarationLine(lineCurrent - 1, styler)
-				    && IsDeclarationLine(lineCurrent + 1, styler))
+				if(!IsDeclarationLine(lineCurrent - 1, styler) && IsDeclarationLine(lineCurrent + 1, styler))
 					levelCurrent++;
-				else if(IsDeclarationLine(lineCurrent - 1, styler)
-				    && !IsDeclarationLine(lineCurrent + 1, styler))
+				else if(IsDeclarationLine(lineCurrent - 1, styler) && !IsDeclarationLine(lineCurrent + 1, styler))
 					levelCurrent--;
 			}
 			else if(style == SCE_BAAN_WORD) {

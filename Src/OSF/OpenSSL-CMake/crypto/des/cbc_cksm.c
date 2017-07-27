@@ -36,7 +36,7 @@ DES_LONG DES_cbc_cksum(const uchar * in, DES_cblock * output, long length, DES_k
 		tout0 = tin[0];
 		tout1 = tin[1];
 	}
-	if(out != NULL) {
+	if(out) {
 		l2c(tout0, out);
 		l2c(tout1, out);
 	}

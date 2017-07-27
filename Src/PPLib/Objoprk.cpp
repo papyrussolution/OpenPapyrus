@@ -406,7 +406,7 @@ int SLAPI SetupOprKindCombo(TDialog * dlg, uint ctl, PPID id, uint /*olwFlags*/,
 		// } @v8.4.4
 		if(p_lw) {
 			p_combo->setListWindow(p_lw, id);
-			dlg->SetupWordSelector(ctl, 0, id, 2, 0); // @v7.5.1
+			dlg->SetupWordSelector(ctl, 0, id, 2, 0);
 			ok = 1;
 		}
 	}

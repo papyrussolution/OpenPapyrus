@@ -513,8 +513,7 @@ int SLAPI PPViewGoodsToObjAssoc::ProcessCommand(uint ppvCmd, const void * pHdr, 
 	if(ok == -2) {
 		BrwHdr hdr;
 		MEMSZERO(hdr);
-		if(pHdr)
-			hdr = *(BrwHdr *)pHdr;
+		RVALUEPTR(hdr, (BrwHdr *)pHdr);
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
 				ok = AddItem(pBrw);

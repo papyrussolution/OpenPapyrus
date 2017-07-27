@@ -103,7 +103,6 @@ void * OPENSSL_LH_delete(OPENSSL_LHASH * lh, const void * data)
 
 	lh->error = 0;
 	rn = getrn(lh, data, &hash);
-
 	if(*rn == NULL) {
 		lh->num_no_delete++;
 		return NULL;
@@ -115,12 +114,9 @@ void * OPENSSL_LH_delete(OPENSSL_LHASH * lh, const void * data)
 		OPENSSL_free(nn);
 		lh->num_delete++;
 	}
-
 	lh->num_items--;
-	if((lh->num_nodes > MIN_NODES) &&
-	    (lh->down_load >= (lh->num_items * LH_LOAD_MULT / lh->num_nodes)))
+	if((lh->num_nodes > MIN_NODES) && (lh->down_load >= (lh->num_items * LH_LOAD_MULT / lh->num_nodes)))
 		contract(lh);
-
 	return ret;
 }
 
@@ -129,10 +125,8 @@ void * OPENSSL_LH_retrieve(OPENSSL_LHASH * lh, const void * data)
 	ulong hash;
 	OPENSSL_LH_NODE ** rn;
 	void * ret;
-
 	lh->error = 0;
 	rn = getrn(lh, data, &hash);
-
 	if(*rn == NULL) {
 		lh->num_retrieve_miss++;
 		return NULL;
@@ -144,29 +138,22 @@ void * OPENSSL_LH_retrieve(OPENSSL_LHASH * lh, const void * data)
 	return ret;
 }
 
-static void doall_util_fn(OPENSSL_LHASH * lh, int use_arg,
-    OPENSSL_LH_DOALL_FUNC func,
-    OPENSSL_LH_DOALL_FUNCARG func_arg, void * arg)
+static void doall_util_fn(OPENSSL_LHASH * lh, int use_arg, OPENSSL_LH_DOALL_FUNC func, OPENSSL_LH_DOALL_FUNCARG func_arg, void * arg)
 {
-	int i;
-	OPENSSL_LH_NODE * a, * n;
-
-	if(lh == NULL)
-		return;
-
-	/*
-	 * reverse the order so we search from 'top to bottom' We were having
-	 * memory leaks otherwise
-	 */
-	for(i = lh->num_nodes - 1; i >= 0; i--) {
-		a = lh->b[i];
-		while(a != NULL) {
-			n = a->next;
-			if(use_arg)
-				func_arg(a->data, arg);
-			else
-				func(a->data);
-			a = n;
+	if(lh) {
+		/*
+		 * reverse the order so we search from 'top to bottom' We were having
+		 * memory leaks otherwise
+		 */
+		for(int i = lh->num_nodes - 1; i >= 0; i--) {
+			for(OPENSSL_LH_NODE * a = lh->b[i]; a;) {
+				OPENSSL_LH_NODE * n = a->next;
+				if(use_arg)
+					func_arg(a->data, arg);
+				else
+					func(a->data);
+				a = n;
+			}
 		}
 	}
 }

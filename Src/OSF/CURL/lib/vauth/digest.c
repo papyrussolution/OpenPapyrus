@@ -33,7 +33,7 @@
 //#include "curl_base64.h"
 #include "curl_hmac.h"
 #include "curl_md5.h"
-#include "vtls/vtls.h"
+//#include "vtls/vtls.h"
 #include "warnless.h"
 //#include "strtok.h"
 //#include "strcase.h"

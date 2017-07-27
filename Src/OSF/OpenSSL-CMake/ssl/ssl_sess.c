@@ -487,7 +487,7 @@ int ssl_get_prev_session(SSL * s, const PACKET * ext, const PACKET * session_id)
 		data.session_id_length = local_len;
 		CRYPTO_THREAD_read_lock(s->session_ctx->lock);
 		ret = lh_SSL_SESSION_retrieve(s->session_ctx->sessions, &data);
-		if(ret != NULL) {
+		if(ret) {
 			/* don't allow other threads to steal it: */
 			SSL_SESSION_up_ref(ret);
 		}
@@ -499,7 +499,7 @@ int ssl_get_prev_session(SSL * s, const PACKET * ext, const PACKET * session_id)
 	if(try_session_cache && ret == NULL && s->session_ctx->get_session_cb != NULL) {
 		int copy = 1;
 		ret = s->session_ctx->get_session_cb(s, PACKET_data(session_id), PACKET_remaining(session_id), &copy);
-		if(ret != NULL) {
+		if(ret) {
 			s->session_ctx->stats.sess_cb_hit++;
 			/*
 			 * Increment reference count now if the session callback asks us
@@ -603,7 +603,7 @@ int ssl_get_prev_session(SSL * s, const PACKET * ext, const PACKET * session_id)
 	return 1;
 
 err:
-	if(ret != NULL) {
+	if(ret) {
 		SSL_SESSION_free(ret);
 
 		if(!try_session_cache) {

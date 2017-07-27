@@ -50,7 +50,7 @@ GLOBAL(boolean) jpeg_start_decompress(j_decompress_ptr cinfo)
 			for(;; ) {
 				int retcode;
 				/* Call progress monitor hook if present */
-				if(cinfo->progress != NULL)
+				if(cinfo->progress)
 					(*cinfo->progress->progress_monitor)((j_common_ptr)cinfo);
 				/* Absorb some more input */
 				retcode = (*cinfo->inputctl->consume_input)(cinfo);
@@ -59,8 +59,7 @@ GLOBAL(boolean) jpeg_start_decompress(j_decompress_ptr cinfo)
 				if(retcode == JPEG_REACHED_EOI)
 					break;
 				/* Advance progress counter if appropriate */
-				if(cinfo->progress != NULL &&
-				    (retcode == JPEG_ROW_COMPLETED || retcode == JPEG_REACHED_SOS)) {
+				if(cinfo->progress != NULL && oneof2(retcode, JPEG_ROW_COMPLETED, JPEG_REACHED_SOS)) {
 					if(++cinfo->progress->pass_counter >= cinfo->progress->pass_limit) {
 						/* jdmaster underestimated number of scans; ratchet up one scan */
 						cinfo->progress->pass_limit += (long)cinfo->total_iMCU_rows;
@@ -100,7 +99,7 @@ LOCAL(boolean) output_pass_setup(j_decompress_ptr cinfo)
 		while(cinfo->output_scanline < cinfo->output_height) {
 			JDIMENSION last_scanline;
 			/* Call progress monitor hook if present */
-			if(cinfo->progress != NULL) {
+			if(cinfo->progress) {
 				cinfo->progress->pass_counter = (long)cinfo->output_scanline;
 				cinfo->progress->pass_limit = (long)cinfo->output_height;
 				(*cinfo->progress->progress_monitor)((j_common_ptr)cinfo);
@@ -174,7 +173,7 @@ GLOBAL(JDIMENSION) jpeg_read_raw_data(j_decompress_ptr cinfo, JSAMPIMAGE data, J
 		return 0;
 	}
 	/* Call progress monitor hook if present */
-	if(cinfo->progress != NULL) {
+	if(cinfo->progress) {
 		cinfo->progress->pass_counter = (long)cinfo->output_scanline;
 		cinfo->progress->pass_limit = (long)cinfo->output_height;
 		(*cinfo->progress->progress_monitor)((j_common_ptr)cinfo);

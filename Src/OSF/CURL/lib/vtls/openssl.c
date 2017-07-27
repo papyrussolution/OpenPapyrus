@@ -37,7 +37,7 @@
 
  //#include "urldata.h"
 //#include "sendf.h"
-#include "formdata.h" /* for the boundary function */
+//#include "formdata.h" /* for the boundary function */
 //#include "url.h" /* for the ssl config check function */
 #include "inet_pton.h"
 #include "openssl.h"

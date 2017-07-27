@@ -208,7 +208,7 @@ static int xmlXPtrCmpPoints(xmlNodePtr node1, int index1, xmlNodePtr node2, int 
 static xmlXPathObjectPtr xmlXPtrNewPoint(xmlNodePtr node, int indx)
 {
 	xmlXPathObjectPtr ret;
-	if(node == NULL)
+	if(!node)
 		return 0;
 	if(indx < 0)
 		return 0;
@@ -1539,7 +1539,7 @@ xmlNodePtr xmlXPtrBuildNodeList(xmlXPathObjectPtr obj)
 static int xmlXPtrNbLocChildren(xmlNodePtr node)
 {
 	int ret = 0;
-	if(node == NULL)
+	if(!node)
 		return -1;
 	switch(node->type) {
 		case XML_HTML_DOCUMENT_NODE:

@@ -337,21 +337,15 @@ int ssl3_get_record(SSL * s)
 		/* we have pulled in a full packet so zero things */
 		RECORD_LAYER_reset_packet_length(&s->rlayer);
 		RECORD_LAYER_clear_first_record(&s->rlayer);
-	} while(num_recs < max_recs
-	    && rr[num_recs - 1].type == SSL3_RT_APPLICATION_DATA
-	    && SSL_USE_EXPLICIT_IV(s)
-	    && s->enc_read_ctx != NULL
-	    && (EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(s->enc_read_ctx))
-		    & EVP_CIPH_FLAG_PIPELINE)
+	} while(num_recs < max_recs && rr[num_recs - 1].type == SSL3_RT_APPLICATION_DATA
+	    && SSL_USE_EXPLICIT_IV(s) && s->enc_read_ctx != NULL && (EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(s->enc_read_ctx)) & EVP_CIPH_FLAG_PIPELINE)
 	    && ssl3_record_app_data_waiting(s));
-
 	/*
 	 * If in encrypt-then-mac mode calculate mac from encrypted record. All
 	 * the details below are public so no timing details can leak.
 	 */
 	if(SSL_READ_ETM(s) && s->read_hash) {
 		uchar * mac;
-
 		imac_size = EVP_MD_CTX_size(s->read_hash);
 		assert(imac_size >= 0 && imac_size <= EVP_MAX_MD_SIZE);
 		if(imac_size < 0 || imac_size > EVP_MAX_MD_SIZE) {
@@ -360,7 +354,6 @@ int ssl3_get_record(SSL * s)
 			goto f_err;
 		}
 		mac_size = (unsigned)imac_size;
-
 		for(j = 0; j < num_recs; j++) {
 			if(rr[j].length < mac_size) {
 				al = SSL_AD_DECODE_ERROR;
@@ -372,13 +365,11 @@ int ssl3_get_record(SSL * s)
 			i = s->method->ssl3_enc->mac(s, &rr[j], md, 0 /* not send */);
 			if(i < 0 || CRYPTO_memcmp(md, mac, (size_t)mac_size) != 0) {
 				al = SSL_AD_BAD_RECORD_MAC;
-				SSLerr(SSL_F_SSL3_GET_RECORD,
-				    SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC);
+				SSLerr(SSL_F_SSL3_GET_RECORD, SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC);
 				goto f_err;
 			}
 		}
 	}
-
 	enc_err = s->method->ssl3_enc->enc(s, rr, num_recs, 0);
 	/*-
 	 * enc_err is:
@@ -394,24 +385,18 @@ int ssl3_get_record(SSL * s)
 #ifdef SSL_DEBUG
 	printf("dec %d\n", rr->length);
 	{
-		uint z;
-		for(z = 0; z < rr->length; z++)
+		for(uint z = 0; z < rr->length; z++)
 			printf("%02X%c", rr->data[z], ((z + 1) % 16) ? ' ' : '\n');
 	}
 	printf("\n");
 #endif
-
 	/* r->length is now the compressed data plus mac */
-	if((sess != NULL) &&
-	    (s->enc_read_ctx != NULL) &&
-	    (!SSL_READ_ETM(s) && EVP_MD_CTX_md(s->read_hash) != NULL)) {
+	if(sess && s->enc_read_ctx && (!SSL_READ_ETM(s) && EVP_MD_CTX_md(s->read_hash) != NULL)) {
 		/* s->read_hash != NULL => mac_size != -1 */
 		uchar * mac = NULL;
 		uchar mac_tmp[EVP_MAX_MD_SIZE];
-
 		mac_size = EVP_MD_CTX_size(s->read_hash);
 		OPENSSL_assert(mac_size <= EVP_MAX_MD_SIZE);
-
 		for(j = 0; j < num_recs; j++) {
 			/*
 			 * orig_len is the length of the record before any padding was
@@ -421,13 +406,11 @@ int ssl3_get_record(SSL * s)
 			 */
 			if(rr[j].orig_len < mac_size ||
 			    /* CBC records must have a padding length byte too. */
-			    (EVP_CIPHER_CTX_mode(s->enc_read_ctx) == EVP_CIPH_CBC_MODE &&
-				    rr[j].orig_len < mac_size + 1)) {
+			    (EVP_CIPHER_CTX_mode(s->enc_read_ctx) == EVP_CIPH_CBC_MODE && rr[j].orig_len < mac_size + 1)) {
 				al = SSL_AD_DECODE_ERROR;
 				SSLerr(SSL_F_SSL3_GET_RECORD, SSL_R_LENGTH_TOO_SHORT);
 				goto f_err;
 			}
-
 			if(EVP_CIPHER_CTX_mode(s->enc_read_ctx) == EVP_CIPH_CBC_MODE) {
 				/*
 				 * We update the length so that the TLS header bytes can be

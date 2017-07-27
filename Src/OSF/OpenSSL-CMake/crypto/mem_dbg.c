@@ -241,7 +241,7 @@ static int pop_info(void)
 	if(current != NULL) {
 		APP_INFO * next = current->next;
 
-		if(next != NULL) {
+		if(next) {
 			next->references++;
 			CRYPTO_THREAD_set_local(&appinfokey, next);
 		}
@@ -250,7 +250,7 @@ static int pop_info(void)
 		}
 		if(--(current->references) <= 0) {
 			current->next = NULL;
-			if(next != NULL)
+			if(next)
 				next->references--;
 			OPENSSL_free(current);
 		}

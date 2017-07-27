@@ -332,7 +332,7 @@ TRIO_STRING_PUBLIC int trio_equal TRIO_ARGS2((first, second), TRIO_CONST char * 
 {
 	assert(first);
 	assert(second);
-	if((first != NULL) && (second != NULL)) {
+	if(first && second) {
 #if defined(USE_STRCASECMP)
 		return (0 == strcasecmp(first, second));
 #else
@@ -362,7 +362,7 @@ TRIO_STRING_PUBLIC int trio_equal_case TRIO_ARGS2((first, second), TRIO_CONST ch
 {
 	assert(first);
 	assert(second);
-	if((first != NULL) && (second != NULL)) {
+	if(first && second) {
 		return (sstreq(first, second));
 	}
 	return FALSE;
@@ -383,7 +383,7 @@ TRIO_STRING_PUBLIC int trio_equal_case_max TRIO_ARGS3((first, max, second), TRIO
 {
 	assert(first);
 	assert(second);
-	if((first != NULL) && (second != NULL)) {
+	if(first && second) {
 		return (0 == strncmp(first, second, max));
 	}
 	return FALSE;
@@ -425,7 +425,7 @@ TRIO_STRING_PUBLIC int trio_equal_max TRIO_ARGS3((first, max, second), TRIO_CONS
 {
 	assert(first);
 	assert(second);
-	if((first != NULL) && (second != NULL)) {
+	if(first && second) {
 #if defined(USE_STRNCASECMP)
 		return (0 == strncasecmp(first, second, max));
 #else

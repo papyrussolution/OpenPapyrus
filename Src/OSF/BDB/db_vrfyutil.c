@@ -198,7 +198,7 @@ int __db_vrfy_putpageinfo(ENV * env, VRFY_DBINFO * vdp, VRFY_PAGEINFO * pip)
 	LIST_FOREACH(p, &vdp->activepips, links)
 	if(p == pip)
 		break;
-	if(p != NULL)
+	if(p)
 		LIST_REMOVE(p, links);
 	__os_ufree(env, p);
 	return 0;

@@ -1500,7 +1500,7 @@ int SLAPI PPObjTag::GetListByFlag(long mask, PPIDArray & rList)
 	return ok;
 }
 
-int SLAPI PPObjTag::NormalizeTextCritirion(PPID tagID, const char * pCrit, SString & rNormCrit)
+int SLAPI PPObjTag::NormalizeTextCriterion(PPID tagID, const char * pCrit, SString & rNormCrit)
 {
 	int    ok = 1;
 	PPObjectTag2 tag_rec;

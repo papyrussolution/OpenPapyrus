@@ -141,7 +141,7 @@ int X509_REVOKED_set_revocationDate(X509_REVOKED * x, ASN1_TIME * tm)
 	in = x->revocationDate;
 	if(in != tm) {
 		in = ASN1_STRING_dup(tm);
-		if(in != NULL) {
+		if(in) {
 			ASN1_TIME_free(x->revocationDate);
 			x->revocationDate = in;
 		}

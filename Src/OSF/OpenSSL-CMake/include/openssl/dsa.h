@@ -105,12 +105,9 @@ int DSA_bits(const DSA *d);
 int DSA_security_bits(const DSA *d);
         /* next 4 return -1 on error */
 int DSA_sign_setup(DSA *dsa, BN_CTX *ctx_in, BIGNUM **kinvp, BIGNUM **rp);
-int DSA_sign(int type, const uchar *dgst, int dlen,
-             uchar *sig, uint *siglen, DSA *dsa);
-int DSA_verify(int type, const uchar *dgst, int dgst_len,
-               const uchar *sigbuf, int siglen, DSA *dsa);
-#define DSA_get_ex_new_index(l, p, newf, dupf, freef) \
-    CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_DSA, l, p, newf, dupf, freef)
+int DSA_sign(int type, const uchar *dgst, int dlen, uchar *sig, uint *siglen, DSA *dsa);
+int DSA_verify(int type, const uchar *dgst, int dgst_len, const uchar *sigbuf, int siglen, DSA *dsa);
+#define DSA_get_ex_new_index(l, p, newf, dupf, freef) CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_DSA, l, p, newf, dupf, freef)
 int DSA_set_ex_data(DSA *d, int idx, void *arg);
 void *DSA_get_ex_data(DSA *d, int idx);
 
@@ -119,20 +116,10 @@ DSA *d2i_DSAPrivateKey(DSA **a, const uchar **pp, long length);
 DSA *d2i_DSAparams(DSA **a, const uchar **pp, long length);
 
 /* Deprecated version */
-DEPRECATEDIN_0_9_8(DSA *DSA_generate_parameters(int bits,
-                                                uchar *seed,
-                                                int seed_len,
-                                                int *counter_ret,
-                                                unsigned long *h_ret, void
-                                                 (*callback) (int, int,
-                                                              void *),
-                                                void *cb_arg))
-
+DEPRECATEDIN_0_9_8(DSA *DSA_generate_parameters(int bits, uchar *seed,
+	int seed_len, int *counter_ret, unsigned long *h_ret, void (*callback) (int, int, void *), void *cb_arg))
 /* New version */
-int DSA_generate_parameters_ex(DSA *dsa, int bits,
-                               const uchar *seed, int seed_len,
-                               int *counter_ret, unsigned long *h_ret,
-                               BN_GENCB *cb);
+int DSA_generate_parameters_ex(DSA *dsa, int bits, const uchar *seed, int seed_len, int *counter_ret, unsigned long *h_ret, BN_GENCB *cb);
 
 int DSA_generate_key(DSA *a);
 int i2d_DSAPublicKey(const DSA *a, uchar **pp);
@@ -151,8 +138,7 @@ int DSA_print_fp(FILE *bp, const DSA *x, int off);
  * Primality test according to FIPS PUB 186[-1], Appendix 2.1: 50 rounds of
  * Rabin-Miller
  */
-# define DSA_is_prime(n, callback, cb_arg) \
-        BN_is_prime(n, DSS_prime_checks, callback, NULL, cb_arg)
+# define DSA_is_prime(n, callback, cb_arg) BN_is_prime(n, DSS_prime_checks, callback, NULL, cb_arg)
 
 # ifndef OPENSSL_NO_DH
 /*
@@ -163,18 +149,15 @@ DH *DSA_dup_DH(const DSA *r);
 # endif
 
 # define EVP_PKEY_CTX_set_dsa_paramgen_bits(ctx, nbits) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DSA, EVP_PKEY_OP_PARAMGEN, \
-                                EVP_PKEY_CTRL_DSA_PARAMGEN_BITS, nbits, NULL)
+        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DSA, EVP_PKEY_OP_PARAMGEN, EVP_PKEY_CTRL_DSA_PARAMGEN_BITS, nbits, NULL)
 
 # define EVP_PKEY_CTRL_DSA_PARAMGEN_BITS         (EVP_PKEY_ALG_CTRL + 1)
 # define EVP_PKEY_CTRL_DSA_PARAMGEN_Q_BITS       (EVP_PKEY_ALG_CTRL + 2)
 # define EVP_PKEY_CTRL_DSA_PARAMGEN_MD           (EVP_PKEY_ALG_CTRL + 3)
 
-void DSA_get0_pqg(const DSA *d,
-                  const BIGNUM **p, const BIGNUM **q, const BIGNUM **g);
+void DSA_get0_pqg(const DSA *d, const BIGNUM **p, const BIGNUM **q, const BIGNUM **g);
 int DSA_set0_pqg(DSA *d, BIGNUM *p, BIGNUM *q, BIGNUM *g);
-void DSA_get0_key(const DSA *d,
-                  const BIGNUM **pub_key, const BIGNUM **priv_key);
+void DSA_get0_key(const DSA *d, const BIGNUM **pub_key, const BIGNUM **priv_key);
 int DSA_set0_key(DSA *d, BIGNUM *pub_key, BIGNUM *priv_key);
 void DSA_clear_flags(DSA *d, int flags);
 int DSA_test_flags(const DSA *d, int flags);
@@ -190,41 +173,22 @@ int DSA_meth_get_flags(DSA_METHOD *dsam);
 int DSA_meth_set_flags(DSA_METHOD *dsam, int flags);
 void *DSA_meth_get0_app_data(const DSA_METHOD *dsam);
 int DSA_meth_set0_app_data(DSA_METHOD *dsam, void *app_data);
-DSA_SIG *(*DSA_meth_get_sign(const DSA_METHOD *dsam))
-        (const uchar *, int, DSA *);
-int DSA_meth_set_sign(DSA_METHOD *dsam,
-                       DSA_SIG *(*sign) (const uchar *, int, DSA *));
-int (*DSA_meth_get_sign_setup(const DSA_METHOD *dsam))
-        (DSA *, BN_CTX *, BIGNUM **, BIGNUM **);
-int DSA_meth_set_sign_setup(DSA_METHOD *dsam,
-        int (*sign_setup) (DSA *, BN_CTX *, BIGNUM **, BIGNUM **));
-int (*DSA_meth_get_verify(const DSA_METHOD *dsam))
-        (const uchar *, int , DSA_SIG *, DSA *);
-int DSA_meth_set_verify(DSA_METHOD *dsam,
-    int (*verify) (const uchar *, int, DSA_SIG *, DSA *));
-int (*DSA_meth_get_mod_exp(const DSA_METHOD *dsam))
-        (DSA *, BIGNUM *, const BIGNUM *, const BIGNUM *, const BIGNUM *,
-         const BIGNUM *, const BIGNUM *, BN_CTX *, BN_MONT_CTX *);
-int DSA_meth_set_mod_exp(DSA_METHOD *dsam,
-    int (*mod_exp) (DSA *, BIGNUM *, const BIGNUM *, const BIGNUM *,
-                    const BIGNUM *, const BIGNUM *, const BIGNUM *, BN_CTX *,
-                    BN_MONT_CTX *));
-int (*DSA_meth_get_bn_mod_exp(const DSA_METHOD *dsam))
-    (DSA *, BIGNUM *, const BIGNUM *, const BIGNUM *, const BIGNUM *,
-     BN_CTX *, BN_MONT_CTX *);
-int DSA_meth_set_bn_mod_exp(DSA_METHOD *dsam,
-    int (*bn_mod_exp) (DSA *, BIGNUM *, const BIGNUM *, const BIGNUM *,
-                       const BIGNUM *, BN_CTX *, BN_MONT_CTX *));
+DSA_SIG *(*DSA_meth_get_sign(const DSA_METHOD *dsam))(const uchar *, int, DSA *);
+int DSA_meth_set_sign(DSA_METHOD *dsam, DSA_SIG *(*sign) (const uchar *, int, DSA *));
+int (*DSA_meth_get_sign_setup(const DSA_METHOD *dsam))(DSA *, BN_CTX *, BIGNUM **, BIGNUM **);
+int DSA_meth_set_sign_setup(DSA_METHOD *dsam, int (*sign_setup) (DSA *, BN_CTX *, BIGNUM **, BIGNUM **));
+int (*DSA_meth_get_verify(const DSA_METHOD *dsam)) (const uchar *, int , DSA_SIG *, DSA *);
+int DSA_meth_set_verify(DSA_METHOD *dsam, int (*verify) (const uchar *, int, DSA_SIG *, DSA *));
+int (*DSA_meth_get_mod_exp(const DSA_METHOD *dsam))(DSA *, BIGNUM *, const BIGNUM *, const BIGNUM *, const BIGNUM *, const BIGNUM *, const BIGNUM *, BN_CTX *, BN_MONT_CTX *);
+int DSA_meth_set_mod_exp(DSA_METHOD *dsam, int (*mod_exp) (DSA *, BIGNUM *, const BIGNUM *, const BIGNUM *, const BIGNUM *, const BIGNUM *, const BIGNUM *, BN_CTX *, BN_MONT_CTX *));
+int (*DSA_meth_get_bn_mod_exp(const DSA_METHOD *dsam))(DSA *, BIGNUM *, const BIGNUM *, const BIGNUM *, const BIGNUM *, BN_CTX *, BN_MONT_CTX *);
+int DSA_meth_set_bn_mod_exp(DSA_METHOD *dsam, int (*bn_mod_exp) (DSA *, BIGNUM *, const BIGNUM *, const BIGNUM *, const BIGNUM *, BN_CTX *, BN_MONT_CTX *));
 int (*DSA_meth_get_init(const DSA_METHOD *dsam))(DSA *);
 int DSA_meth_set_init(DSA_METHOD *dsam, int (*init)(DSA *));
 int (*DSA_meth_get_finish(const DSA_METHOD *dsam)) (DSA *);
 int DSA_meth_set_finish(DSA_METHOD *dsam, int (*finish) (DSA *));
-int (*DSA_meth_get_paramgen(const DSA_METHOD *dsam))
-        (DSA *, int, const uchar *, int, int *, unsigned long *,
-         BN_GENCB *);
-int DSA_meth_set_paramgen(DSA_METHOD *dsam,
-        int (*paramgen) (DSA *, int, const uchar *, int, int *,
-                         unsigned long *, BN_GENCB *));
+int (*DSA_meth_get_paramgen(const DSA_METHOD *dsam))(DSA *, int, const uchar *, int, int *, unsigned long *, BN_GENCB *);
+int DSA_meth_set_paramgen(DSA_METHOD *dsam, int (*paramgen) (DSA *, int, const uchar *, int, int *, unsigned long *, BN_GENCB *));
 int (*DSA_meth_get_keygen(const DSA_METHOD *dsam)) (DSA *);
 int DSA_meth_set_keygen(DSA_METHOD *dsam, int (*keygen) (DSA *));
 

@@ -1724,7 +1724,7 @@ static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	if(ctxt->incTab[nr] && ctxt->incTab[nr]->ref) {
 		encoding = xmlGetProp(ctxt->incTab[nr]->ref, XINCLUDE_PARSE_ENCODING);
 	}
-	if(encoding != NULL) {
+	if(encoding) {
 		/*
 		 * TODO: we should not have to remap to the xmlCharEncoding
 		 *       predefined set, a better interface than
@@ -2089,7 +2089,7 @@ static int xmlXIncludeIncludeNode(xmlXIncludeCtxtPtr ctxt, int nr)
  */
 static int xmlXIncludeTestNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node) 
 {
-	if(node == NULL)
+	if(!node)
 		return 0;
 	if(node->type != XML_ELEMENT_NODE)
 		return 0;

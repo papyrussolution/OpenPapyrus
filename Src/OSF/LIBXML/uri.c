@@ -1248,7 +1248,7 @@ mem_error:
 void xmlPrintURI(FILE * stream, xmlURIPtr uri)
 {
 	xmlChar * out = xmlSaveUri(uri);
-	if(out != NULL) {
+	if(out) {
 		fprintf(stream, "%s", (char*)out);
 		SAlloc::F(out);
 	}
@@ -2184,7 +2184,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	 * for the "../" groups, plus one for the terminator
 	 */
 	val = (xmlChar*)SAlloc::M(len + 3 * nbslash);
-	if(val == NULL) {
+	if(!val) {
 		xmlURIErrMemory("building relative URI\n");
 		goto done;
 	}

@@ -566,7 +566,7 @@ int tls1_export_keying_material(SSL * s, uchar * out, size_t olen,
 	}
 
 	val = (uchar*)OPENSSL_malloc(vallen);
-	if(val == NULL)
+	if(!val)
 		goto err2;
 	currentvalpos = 0;
 	memcpy(val + currentvalpos, (uchar*)label, llen);

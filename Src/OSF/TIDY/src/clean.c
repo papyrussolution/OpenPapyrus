@@ -1574,7 +1574,7 @@ static Node* PruneSection(TidyDocImpl* doc, Node * node)
 		else
 			node = TY_(DiscardElement) (doc, node);
 
-		if(node == NULL)
+		if(!node)
 			return NULL;
 
 		if(node->type == SectionTag) {
@@ -1821,7 +1821,7 @@ void TY_(CleanWord2000) (TidyDocImpl* doc, Node *node)
 					node = next;
 				}
 
-				if(node == NULL)
+				if(!node)
 					break;
 			}
 		}

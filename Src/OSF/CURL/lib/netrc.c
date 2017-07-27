@@ -26,7 +26,7 @@
 	#include <pwd.h>
 #endif
 //#include <curl/curl.h>
-#include "netrc.h"
+//#include "netrc.h"
 //#include "strtok.h"
 //#include "strcase.h"
 // The last 3 #include files should be in this order

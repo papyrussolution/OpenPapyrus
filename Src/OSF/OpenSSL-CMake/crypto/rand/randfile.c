@@ -164,7 +164,7 @@ int RAND_load_file(const char * file, long bytes)
 	}
 	OPENSSL_cleanse(buf, BUFSIZE);
 err:
-	if(in != NULL)
+	if(in)
 		fclose(in);
 	return ret;
 }

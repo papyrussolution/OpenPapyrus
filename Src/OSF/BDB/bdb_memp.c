@@ -101,7 +101,7 @@ int __memp_alloc(DB_MPOOL * dbmp, REGINFO * infop, MPOOLFILE * mfp, size_t len, 
 	 * NULL, we'll compare the underlying page sizes of the two buffers
 	 * before free-ing and re-allocating buffers.
 	 */
-	if(mfp != NULL) {
+	if(mfp) {
 		len = SSZA(BH, buf)+mfp->pagesize;
 		// Add space for alignment padding for MVCC diagnostics
 		MVCC_BHSIZE(mfp, len);
@@ -119,7 +119,7 @@ int __memp_alloc(DB_MPOOL * dbmp, REGINFO * infop, MPOOLFILE * mfp, size_t len, 
 	 */
 alloc:
 	if((ret = __env_alloc(infop, len, &p)) == 0) {
-		if(mfp != NULL) {
+		if(mfp) {
 			//
 			// For MVCC diagnostics, align the pointer so that the buffer starts on a page boundary.
 			//
@@ -309,7 +309,7 @@ retry_search:
 			if(SH_CHAIN_SINGLETON(current_bhp, vc)) {
 				if(BH_REFCOUNT(current_bhp) == 0 && bucket_priority > current_bhp->priority) {
 					bucket_priority = current_bhp->priority;
-					if(bhp != NULL)
+					if(bhp)
 						atomic_dec(env, &bhp->ref);
 					bhp = current_bhp;
 					atomic_inc(env, &bhp->ref);
@@ -324,7 +324,7 @@ retry_search:
 			for(mvcc_bhp = oldest_bhp = current_bhp; mvcc_bhp != NULL; oldest_bhp = mvcc_bhp, mvcc_bhp = SH_CHAIN_PREV(mvcc_bhp, vc, __bh)) {
 				DB_ASSERT(env, mvcc_bhp != SH_CHAIN_PREV(mvcc_bhp, vc, __bh));
 				if(aggressive > 1 && BH_REFCOUNT(mvcc_bhp) == 0 && !F_ISSET(mvcc_bhp, BH_FROZEN) && (!bhp || bhp->priority > mvcc_bhp->priority)) {
-					if(bhp != NULL)
+					if(bhp)
 						atomic_dec(env, &bhp->ref);
 					bhp = mvcc_bhp;
 					atomic_inc(env, &bhp->ref);
@@ -344,7 +344,7 @@ retry_search:
 retry_obsolete:
 			if(BH_OBSOLETE(oldest_bhp, hp->old_reader, vlsn)) {
 				obsolete = 1;
-				if(bhp != NULL)
+				if(bhp)
 					atomic_dec(env, &bhp->ref);
 				bhp = oldest_bhp;
 				atomic_inc(env, &bhp->ref);
@@ -592,7 +592,7 @@ this_buffer:
 		 */
 		if(0) {
 next_hb:
-			if(bhp != NULL) {
+			if(bhp) {
 				DB_ASSERT(env, BH_REFCOUNT(bhp) > 0);
 				atomic_dec(env, &bhp->ref);
 				if(b_lock) {
@@ -1035,7 +1035,7 @@ int __memp_bhfree(DB_MPOOL * dbmp, REGINFO * infop, MPOOLFILE * mfp, DB_MPOOL_HA
 	 */
 	env = dbmp->env;
 #ifdef DIAG_MVCC
-	if(mfp != NULL)
+	if(mfp)
 		pagesize = mfp->pagesize;
 #endif
 	DB_ASSERT(env, LF_ISSET(BH_FREE_UNLOCKED) || (hp != NULL && MUTEX_IS_OWNED(env, hp->mtx_hash)));
@@ -1072,7 +1072,7 @@ int __memp_bhfree(DB_MPOOL * dbmp, REGINFO * infop, MPOOLFILE * mfp, DB_MPOOL_HA
 	 * accessible.
 	 */
 no_hp:
-	if(mfp != NULL)
+	if(mfp)
 		MVCC_MPROTECT(bhp->buf, pagesize, PROT_READ|PROT_WRITE|PROT_EXEC);
 	/*
 	 * Discard the hash bucket's mutex, it's no longer needed, and
@@ -1567,7 +1567,7 @@ reuse:
 		 */
 		if(LF_ISSET(DB_MPOOL_FREE) && (bhp == NULL || F_ISSET(bhp, BH_FREED) || !makecopy))
 			goto done;
-		if(bhp != NULL)
+		if(bhp)
 			goto alloc;
 newpg:          /*
 		 * If DB_MPOOL_NEW is set, we have to allocate a page number.
@@ -1631,7 +1631,7 @@ alloc:
 		 * If we're doing copy-on-write, we will already have the
 		 * buffer header.  In that case, we don't need to search again.
 		 */
-		if(bhp != NULL)
+		if(bhp)
 			break;
 		/*
 		 * If we are extending the file, we'll need the mfp lock
@@ -1954,7 +1954,7 @@ alloc:
 	/*
 	 * Free the allocated memory, we no longer need it.
 	 */
-	if(alloc_bhp != NULL) {
+	if(alloc_bhp) {
 		if((ret = __memp_bhfree(dbmp, infop, NULL, NULL, alloc_bhp, BH_FREE_FREEMEM|BH_FREE_UNLOCKED)) != 0)
 			goto err;
 		alloc_bhp = NULL;
@@ -2084,7 +2084,7 @@ err:
 	 * In that case, check that it has in fact been freed.
 	 */
 	DB_ASSERT(env, ret != 0 || flags != DB_MPOOL_FREE || bhp == NULL || (F_ISSET(bhp, BH_FREED) && !SH_CHAIN_HASNEXT(bhp, vc)));
-	if(bhp != NULL) {
+	if(bhp) {
 		if(b_incr)
 			atomic_dec(env, &bhp->ref);
 		if(b_lock) {
@@ -2583,7 +2583,7 @@ int __memp_fopen(DB_MPOOLFILE * dbmfp, MPOOLFILE * mfp, const char * path, const
 			MUTEX_UNLOCK(env, hp->mtx_hash);
 			if(ret != 0)
 				goto err;
-			if(mfp != NULL)
+			if(mfp)
 				refinc = 1;
 		}
 	}
@@ -2659,13 +2659,13 @@ int __memp_fopen(DB_MPOOLFILE * dbmfp, MPOOLFILE * mfp, const char * path, const
 		 * the path name stored in the region, __memp_nameop may
 		 * be simultaneously renaming the file.
 		 */
-		if(mfp != NULL) {
+		if(mfp) {
 			MPOOL_SYSTEM_LOCK(env);
 			path = (const char *)R_ADDR(dbmp->reginfo, mfp->path_off);
 		}
 		if((ret = __db_appname(env, DB_APP_DATA, path, dirp, &rpath)) == 0)
 			ret = __os_open(env, rpath, (uint32)pagesize, oflags, mode, &dbmfp->fhp);
-		if(mfp != NULL)
+		if(mfp)
 			MPOOL_SYSTEM_UNLOCK(env);
 		if(ret != 0)
 			goto err;
@@ -2715,7 +2715,7 @@ int __memp_fopen(DB_MPOOLFILE * dbmfp, MPOOLFILE * mfp, const char * path, const
 			goto alloc;
 		}
 	}
-	if(mfp != NULL)
+	if(mfp)
 		goto have_mfp;
 	/*
 	 * We can race with another process opening the same file when
@@ -2732,7 +2732,7 @@ check:  MUTEX_LOCK(env, hp->mtx_hash);
 		alloc_mfp = NULL;
 		SH_TAILQ_INSERT_HEAD(&hp->hash_bucket, mfp, q, __mpoolfile);
 	}
-	else if(mfp != NULL) {
+	else if(mfp) {
 		/*
 		 * Some things about a file cannot be changed: the clear length,
 		 * page size, or LSN location.  However, if this is an attempt
@@ -2778,13 +2778,9 @@ alloc:          /*
 		 * ID's don't use timestamps, otherwise there'd be no
 		 * chance of any other process joining the party.
 		 */
-		if(path != NULL &&
-		   !FLD_ISSET(dbmfp->config_flags, DB_MPOOL_NOFILE) &&
-		   !F_ISSET(dbmfp, MP_FILEID_SET) && (ret =
-		                                              __os_fileid(env, rpath, 0, dbmfp->fileid)) != 0)
+		if(path != NULL && !FLD_ISSET(dbmfp->config_flags, DB_MPOOL_NOFILE) && !F_ISSET(dbmfp, MP_FILEID_SET) && (ret = __os_fileid(env, rpath, 0, dbmfp->fileid)) != 0)
 			goto err;
-		if((ret = __memp_mpf_alloc(dbmp,
-			    dbmfp, path, pagesize, flags, &alloc_mfp)) != 0)
+		if((ret = __memp_mpf_alloc(dbmp, dbmfp, path, pagesize, flags, &alloc_mfp)) != 0)
 			goto err;
 		/*
 		 * If the user specifies DB_MPOOL_LAST or DB_MPOOL_NEW on a
@@ -3967,7 +3963,7 @@ int __memp_bh_thaw(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * fr
 	DB_ASSERT(env, alloc_bhp  || SH_CHAIN_SINGLETON(frozen_bhp, vc) || (SH_CHAIN_HASNEXT(frozen_bhp, vc) && BH_OBSOLETE(frozen_bhp, hp->old_reader, vlsn)));
 	DB_ASSERT(env, !alloc_bhp || !F_ISSET(alloc_bhp, BH_FROZEN));
 	spgno = ((BH_FROZEN_PAGE *)frozen_bhp)->spgno;
-	if(alloc_bhp != NULL) {
+	if(alloc_bhp) {
 		mutex = alloc_bhp->mtx_buf;
 #ifdef DIAG_MVCC
 		memcpy(alloc_bhp, frozen_bhp, SSZ(BH, align_off));
@@ -4076,7 +4072,7 @@ int __memp_bh_thaw(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * fr
 	 * another cache lookup to find out where the new page should live.
 	 */
 	MUTEX_REQUIRED(env, hp->mtx_hash);
-	if(alloc_bhp != NULL) {
+	if(alloc_bhp) {
 		alloc_bhp->priority = c_mp->lru_priority;
 		SH_CHAIN_INSERT_AFTER(frozen_bhp, alloc_bhp, vc, __bh);
 		if(!SH_CHAIN_HASNEXT(alloc_bhp, vc)) {
@@ -4113,7 +4109,7 @@ int __memp_bh_thaw(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * fr
 		MPOOL_REGION_UNLOCK(env, infop);
 	}
 #ifdef HAVE_STATISTICS
-	if(alloc_bhp != NULL)
+	if(alloc_bhp)
 		STAT_INC_VERB(env, mpool, thaw, hp->hash_thawed, __memp_fns(dbmp, mfp), frozen_bhp->pgno);
 	else
 		STAT_INC_VERB(env, mpool, free_frozen, hp->hash_frozen_freed, __memp_fns(dbmp, mfp), frozen_bhp->pgno);
@@ -6899,17 +6895,17 @@ int __memp_nameop(ENV * env, uint8 * fileid, const char * newname, const char * 
 	}
 	else
 		hp += FNBUCKET(fileid, DB_FILE_ID_LEN);
-	if(nhp != NULL && nhp < hp)
+	if(nhp && nhp < hp)
 		MUTEX_LOCK(env, nhp->mtx_hash);
 	MUTEX_LOCK(env, hp->mtx_hash);
-	if(nhp != NULL && nhp > hp)
+	if(nhp && nhp > hp)
 		MUTEX_LOCK(env, nhp->mtx_hash);
 	locked = 1;
 	if(!op_is_remove && inmem) {
 		SH_TAILQ_FOREACH(mfp, &nhp->hash_bucket, q, __mpoolfile)
 		if(!mfp->deadfile && mfp->no_backing_file && strcmp(newname, (const char *)R_ADDR(dbmp->reginfo, mfp->path_off)) == 0)
 			break;
-		if(mfp != NULL) {
+		if(mfp) {
 			ret = EEXIST;
 			goto err;
 		}
@@ -6987,7 +6983,7 @@ fsop:
 	}
 	/* Delete the memory we no longer need. */
 err:
-	if(p != NULL) {
+	if(p) {
 		MPOOL_REGION_LOCK(env, &dbmp->reginfo[0]);
 		__memp_free(&dbmp->reginfo[0], p);
 		MPOOL_REGION_UNLOCK(env, &dbmp->reginfo[0]);
@@ -6995,7 +6991,7 @@ err:
 	/* If we have buckets locked, unlock them when done moving files. */
 	if(locked == 1) {
 		MUTEX_UNLOCK(env, hp->mtx_hash);
-		if(nhp != NULL && nhp != hp)
+		if(nhp && nhp != hp)
 			MUTEX_UNLOCK(env, nhp->mtx_hash);
 	}
 	return ret;
@@ -7006,15 +7002,11 @@ err:
  */
 int __memp_ftruncate(DB_MPOOLFILE * dbmfp, DB_TXN * txn, DB_THREAD_INFO * ip, db_pgno_t pgno, uint32 flags)
 {
-	ENV * env;
-	MPOOLFILE * mfp;
 	void * pagep;
 	db_pgno_t last_pgno, pg;
-	int ret;
-	env = dbmfp->env;
-	mfp = dbmfp->mfp;
-	ret = 0;
-
+	ENV * env = dbmfp->env;
+	MPOOLFILE * mfp = dbmfp->mfp;
+	int ret = 0;
 	MUTEX_LOCK(env, mfp->mutex);
 	last_pgno = mfp->last_pgno;
 	MUTEX_UNLOCK(env, mfp->mutex);

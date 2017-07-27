@@ -194,7 +194,7 @@ int RSA_set0_factors(RSA * r, BIGNUM * p, BIGNUM * q)
 	// If the fields p and q in r are NULL, the corresponding input parameters MUST be non-NULL.
 	if((r->p == NULL && p == NULL) || (r->q == NULL && q == NULL))
 		return 0;
-	if(p != NULL) {
+	if(p) {
 		BN_free(r->p);
 		r->p = p;
 	}

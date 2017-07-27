@@ -247,17 +247,14 @@ err:
 }
 
 /* A TJH addition */
-int PEM_X509_INFO_write_bio(BIO * bp, X509_INFO * xi, EVP_CIPHER * enc,
-    uchar * kstr, int klen,
-    pem_password_cb * cb, void * u)
+int PEM_X509_INFO_write_bio(BIO * bp, X509_INFO * xi, EVP_CIPHER * enc, uchar * kstr, int klen, pem_password_cb * cb, void * u)
 {
 	int i, ret = 0;
 	uchar * data = NULL;
 	const char * objstr = NULL;
 	char buf[PEM_BUFSIZE];
 	uchar * iv = NULL;
-
-	if(enc != NULL) {
+	if(enc) {
 		objstr = OBJ_nid2sn(EVP_CIPHER_nid(enc));
 		if(objstr == NULL) {
 			PEMerr(PEM_F_PEM_X509_INFO_WRITE_BIO, PEM_R_UNSUPPORTED_CIPHER);
@@ -270,13 +267,12 @@ int PEM_X509_INFO_write_bio(BIO * bp, X509_INFO * xi, EVP_CIPHER * enc,
 	 * able to handle a not-yet-decrypted key being written out correctly ...
 	 * if it is decrypted or it is non-encrypted then we use the base code
 	 */
-	if(xi->x_pkey != NULL) {
-		if((xi->enc_data != NULL) && (xi->enc_len > 0)) {
+	if(xi->x_pkey) {
+		if(xi->enc_data && (xi->enc_len > 0)) {
 			if(enc == NULL) {
 				PEMerr(PEM_F_PEM_X509_INFO_WRITE_BIO, PEM_R_CIPHER_IS_NULL);
 				goto err;
 			}
-
 			/* copy from weirdo names into more normal things */
 			iv = xi->enc_cipher.iv;
 			data = (uchar*)xi->enc_data;
@@ -289,20 +285,14 @@ int PEM_X509_INFO_write_bio(BIO * bp, X509_INFO * xi, EVP_CIPHER * enc,
 			 */
 			objstr = OBJ_nid2sn(EVP_CIPHER_nid(xi->enc_cipher.cipher));
 			if(objstr == NULL) {
-				PEMerr(PEM_F_PEM_X509_INFO_WRITE_BIO,
-				    PEM_R_UNSUPPORTED_CIPHER);
+				PEMerr(PEM_F_PEM_X509_INFO_WRITE_BIO, PEM_R_UNSUPPORTED_CIPHER);
 				goto err;
 			}
-
 			/* create the right magic header stuff */
-			OPENSSL_assert(strlen(objstr) + 23
-			    + 2 * EVP_CIPHER_iv_length(enc) + 13 <=
-			    sizeof buf);
+			OPENSSL_assert(strlen(objstr) + 23 + 2 * EVP_CIPHER_iv_length(enc) + 13 <= sizeof buf);
 			buf[0] = '\0';
 			PEM_proc_type(buf, PEM_TYPE_ENCRYPTED);
-			PEM_dek_info(buf, objstr, EVP_CIPHER_iv_length(enc),
-			    (char*)iv);
-
+			PEM_dek_info(buf, objstr, EVP_CIPHER_iv_length(enc), (char*)iv);
 			/* use the normal code to write things out */
 			i = PEM_write_bio(bp, PEM_STRING_RSA, buf, data, i);
 			if(i <= 0)
@@ -312,26 +302,20 @@ int PEM_X509_INFO_write_bio(BIO * bp, X509_INFO * xi, EVP_CIPHER * enc,
 			/* Add DSA/DH */
 #ifndef OPENSSL_NO_RSA
 			/* normal optionally encrypted stuff */
-			if(PEM_write_bio_RSAPrivateKey(bp,
-				    EVP_PKEY_get0_RSA(xi->x_pkey->dec_pkey),
-				    enc, kstr, klen, cb, u) <= 0)
+			if(PEM_write_bio_RSAPrivateKey(bp, EVP_PKEY_get0_RSA(xi->x_pkey->dec_pkey), enc, kstr, klen, cb, u) <= 0)
 				goto err;
 #endif
 		}
 	}
-
 	/* if we have a certificate then write it out now */
 	if((xi->x509 != NULL) && (PEM_write_bio_X509(bp, xi->x509) <= 0))
 		goto err;
-
 	/*
 	 * we are ignoring anything else that is loaded into the X509_INFO
 	 * structure for the moment ... as I don't need it so I'm not coding it
 	 * here and Eric can do it when this makes it into the base library --tjh
 	 */
-
 	ret = 1;
-
 err:
 	OPENSSL_cleanse(buf, PEM_BUFSIZE);
 	return ret;

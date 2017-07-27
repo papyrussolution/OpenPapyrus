@@ -52,23 +52,14 @@
 #define WITH_BIG_KEY
 
 #ifdef WITH_BIG_KEY
-#define xmlDictComputeKey(dict, name, len)				\
-	(((dict)->size == MIN_DICT_SIZE) ?				    \
-	    xmlDictComputeFastKey(name, len, (dict)->seed) :		       \
-	    xmlDictComputeBigKey(name, len, (dict)->seed))
-
-#define xmlDictComputeQKey(dict, prefix, plen, name, len)		\
-	(((prefix) == NULL) ?						    \
-	    (xmlDictComputeKey(dict, name, len)) :			       \
-	    (((dict)->size == MIN_DICT_SIZE) ?				      \
-		    xmlDictComputeFastQKey(prefix, plen, name, len, (dict)->seed) :  \
-		    xmlDictComputeBigQKey(prefix, plen, name, len, (dict)->seed)))
+#define xmlDictComputeKey(dict, name, len) (((dict)->size == MIN_DICT_SIZE) ? xmlDictComputeFastKey(name, len, (dict)->seed) : xmlDictComputeBigKey(name, len, (dict)->seed))
+#define xmlDictComputeQKey(dict, prefix, plen, name, len) (((prefix) == NULL) ? (xmlDictComputeKey(dict, name, len)) : \
+	(((dict)->size == MIN_DICT_SIZE) ? xmlDictComputeFastQKey(prefix, plen, name, len, (dict)->seed) : xmlDictComputeBigQKey(prefix, plen, name, len, (dict)->seed)))
 
 #else /* !WITH_BIG_KEY */
 #define xmlDictComputeKey(dict, name, len)                xmlDictComputeFastKey(name, len, (dict)->seed)
 #define xmlDictComputeQKey(dict, prefix, plen, name, len) xmlDictComputeFastQKey(prefix, plen, name, len, (dict)->seed)
 #endif /* WITH_BIG_KEY */
-
 /*
  * An entry in the dictionnary
  */
@@ -83,18 +74,17 @@ struct _xmlDictEntry {
 	ulong okey;
 };
 
-typedef struct _xmlDictStrings xmlDictStrings;
-typedef xmlDictStrings * xmlDictStringsPtr;
+//typedef struct _xmlDictStrings xmlDictStrings;
+//typedef xmlDictStrings * xmlDictStringsPtr;
 
-struct _xmlDictStrings {
-	xmlDictStringsPtr next;
+struct xmlDictStrings {
+	xmlDictStrings * next;
 	xmlChar * free;
 	xmlChar * end;
 	size_t size;
 	size_t nbStrings;
 	xmlChar array[1];
 };
-
 /*
  * The entire dictionnary
  */
@@ -103,7 +93,7 @@ struct _xmlDict {
 	struct _xmlDictEntry * dict;
 	size_t size;
 	uint nbElems;
-	xmlDictStringsPtr strings;
+	xmlDictStrings * strings;
 	struct _xmlDict * subdict;
 	/* used for randomization */
 	int seed;
@@ -220,11 +210,10 @@ void xmlDictCleanup()
  */
 static const xmlChar * xmlDictAddString(xmlDictPtr dict, const xmlChar * name, uint namelen)
 {
-	xmlDictStringsPtr pool;
+	xmlDictStrings * pool;
 	const xmlChar * ret;
 	size_t size = 0; /* + sizeof(_xmlDictStrings) == 1024 */
 	size_t limit = 0;
-
 #ifdef DICT_DEBUG_PATTERNS
 	fprintf(stderr, "-");
 #endif
@@ -249,7 +238,7 @@ static const xmlChar * xmlDictAddString(xmlDictPtr dict, const xmlChar * name, u
 			size *= 4;  /* exponential growth */
 		if(size < 4 * namelen)
 			size = 4 * namelen;  /* just in case ! */
-		pool = (xmlDictStringsPtr)SAlloc::M(sizeof(xmlDictStrings) + size);
+		pool = (xmlDictStrings *)SAlloc::M(sizeof(xmlDictStrings) + size);
 		if(pool == NULL)
 			return 0;
 		pool->size = size;
@@ -283,10 +272,9 @@ found_pool:
  *
  * Returns the pointer of the local string, or NULL in case of error.
  */
-static const xmlChar * xmlDictAddQString(xmlDictPtr dict, const xmlChar * prefix, uint plen,
-    const xmlChar * name, uint namelen)
+static const xmlChar * xmlDictAddQString(xmlDictPtr dict, const xmlChar * prefix, uint plen, const xmlChar * name, uint namelen)
 {
-	xmlDictStringsPtr pool;
+	xmlDictStrings * pool;
 	const xmlChar * ret;
 	size_t size = 0; /* + sizeof(_xmlDictStrings) == 1024 */
 	size_t limit = 0;
@@ -316,7 +304,7 @@ static const xmlChar * xmlDictAddQString(xmlDictPtr dict, const xmlChar * prefix
 			size *= 4;  /* exponential growth */
 		if(size < 4 * (namelen + plen + 1))
 			size = 4 * (namelen + plen + 1);  /* just in case ! */
-		pool = (xmlDictStringsPtr)SAlloc::M(sizeof(xmlDictStrings) + size);
+		pool = (xmlDictStrings *)SAlloc::M(sizeof(xmlDictStrings) + size);
 		if(pool == NULL)
 			return 0;
 		pool->size = size;
@@ -704,13 +692,11 @@ void xmlDictFree(xmlDictPtr dict)
 	xmlDictEntryPtr iter;
 	xmlDictEntryPtr next;
 	int inside_dict = 0;
-	xmlDictStringsPtr pool, nextp;
 	if(dict) {
 		if(!xmlDictInitialized)
 			if(!__xmlInitializeDict())
 				return;
-
-		/* decrement the counter, it may be shared by a parser and docs */
+		// decrement the counter, it may be shared by a parser and docs 
 		xmlRMutexLock(xmlDictMutex);
 		dict->ref_counter--;
 		if(dict->ref_counter > 0) {
@@ -736,9 +722,8 @@ void xmlDictFree(xmlDictPtr dict)
 				}
 				SAlloc::F(dict->dict);
 			}
-			pool = dict->strings;
-			while(pool) {
-				nextp = pool->next;
+			for(xmlDictStrings * pool = dict->strings; pool;) {
+				xmlDictStrings * nextp = pool->next;
 				SAlloc::F(pool);
 				pool = nextp;
 			}
@@ -746,7 +731,6 @@ void xmlDictFree(xmlDictPtr dict)
 		}
 	}
 }
-
 /**
  * xmlDictLookup:
  * @dict: the dictionnary
@@ -836,31 +820,30 @@ const xmlChar * xmlDictLookup(xmlDictPtr dict, const xmlChar * name, int len)
 		key = okey % dict->size;
 	}
 	ret = xmlDictAddString(dict, name, l);
-	if(!ret)
-		return 0;
-	if(insert == NULL) {
-		entry = &(dict->dict[key]);
-	}
-	else {
-		entry = (xmlDictEntryPtr)SAlloc::M(sizeof(xmlDictEntry));
-		if(entry == NULL)
-			return 0;
-	}
-	entry->name = ret;
-	entry->len = l;
-	entry->next = NULL;
-	entry->valid = 1;
-	entry->okey = okey;
-	if(insert)
-		insert->next = entry;
-	dict->nbElems++;
-	if((nbi > MAX_HASH_LEN) && (dict->size <= ((MAX_DICT_HASH / 2) / MAX_HASH_LEN))) {
-		if(xmlDictGrow(dict, MAX_HASH_LEN * 2 * dict->size) != 0)
-			return 0;
+	if(ret) {
+		if(insert == NULL) {
+			entry = &(dict->dict[key]);
+		}
+		else {
+			entry = (xmlDictEntryPtr)SAlloc::M(sizeof(xmlDictEntry));
+			if(entry == NULL)
+				return 0;
+		}
+		entry->name = ret;
+		entry->len = l;
+		entry->next = NULL;
+		entry->valid = 1;
+		entry->okey = okey;
+		if(insert)
+			insert->next = entry;
+		dict->nbElems++;
+		if((nbi > MAX_HASH_LEN) && (dict->size <= ((MAX_DICT_HASH / 2) / MAX_HASH_LEN))) {
+			if(xmlDictGrow(dict, MAX_HASH_LEN * 2 * dict->size) != 0)
+				return 0;
+		}
 	}
 	return ret; // Note that entry may have been freed at this point by xmlDictGrow 
 }
-
 /**
  * xmlDictExists:
  * @dict: the dictionnary
@@ -882,10 +865,8 @@ const xmlChar * xmlDictExists(xmlDictPtr dict, const xmlChar * name, int len)
 		l = strlen((const char*)name);
 	else
 		l = len;
-	if(((dict->limit > 0) && (l >= dict->limit)) ||
-	    (l > INT_MAX / 2))
+	if(((dict->limit > 0) && (l >= dict->limit)) || (l > INT_MAX / 2))
 		return 0;
-
 	/*
 	 * Check for duplicate and insertion location.
 	 */
@@ -925,7 +906,6 @@ const xmlChar * xmlDictExists(xmlDictPtr dict, const xmlChar * name, int len)
 			skey = xmlDictComputeKey(dict->subdict, name, l);
 		else
 			skey = okey;
-
 		key = skey % dict->subdict->size;
 		if(dict->subdict->dict[key].valid != 0) {
 			xmlDictEntryPtr tmp;
@@ -952,10 +932,8 @@ const xmlChar * xmlDictExists(xmlDictPtr dict, const xmlChar * name, int len)
 #endif
 		}
 	}
-	/* not found */
-	return 0;
+	return 0; // not found 
 }
-
 /**
  * xmlDictQLookup:
  * @dict: the dictionnary
@@ -980,7 +958,6 @@ const xmlChar * xmlDictQLookup(xmlDictPtr dict, const xmlChar * prefix, const xm
 	l = len = strlen((const char*)name);
 	plen = strlen((const char*)prefix);
 	len += 1 + plen;
-
 	/*
 	 * Check for duplicate and insertion location.
 	 */
@@ -1043,7 +1020,6 @@ const xmlChar * xmlDictQLookup(xmlDictPtr dict, const xmlChar * prefix, const xm
 	/* Note that entry may have been freed at this point by xmlDictGrow */
 	return ret;
 }
-
 /**
  * xmlDictOwns:
  * @dict: the dictionnary
@@ -1054,22 +1030,18 @@ const xmlChar * xmlDictQLookup(xmlDictPtr dict, const xmlChar * prefix, const xm
  * Returns 1 if true, 0 if false and -1 in case of error
  * -1 in case of error
  */
-int xmlDictOwns(xmlDictPtr dict, const xmlChar * str) 
+int FASTCALL xmlDictOwns(xmlDict * dict, const xmlChar * str) 
 {
-	xmlDictStringsPtr pool;
-	if((dict == NULL) || (str == NULL))
+	if(!dict || !str)
 		return -1;
-	pool = dict->strings;
-	while(pool != NULL) {
-		if((str >= &pool->array[0]) && (str <= pool->free))
-			return 1;
-		pool = pool->next;
+	else {
+		for(xmlDictStrings * pool = dict->strings; pool; pool = pool->next) {
+			if((str >= &pool->array[0]) && (str <= pool->free))
+				return 1;
+		}
+		return dict->subdict ? xmlDictOwns(dict->subdict, str) : 0;
 	}
-	if(dict->subdict)
-		return(xmlDictOwns(dict->subdict, str));
-	return 0;
 }
-
 /**
  * xmlDictSize:
  * @dict: the dictionnary
@@ -1083,11 +1055,9 @@ int xmlDictSize(xmlDictPtr dict)
 {
 	if(!dict)
 		return -1;
-	if(dict->subdict)
-		return(dict->nbElems + dict->subdict->nbElems);
-	return(dict->nbElems);
+	else
+		return dict->subdict ? (dict->nbElems + dict->subdict->nbElems) : dict->nbElems;
 }
-
 /**
  * xmlDictSetLimit:
  * @dict: the dictionnary
@@ -1107,7 +1077,6 @@ size_t xmlDictSetLimit(xmlDictPtr dict, size_t limit)
 	}
 	return ret;
 }
-
 /**
  * xmlDictGetUsage:
  * @dict: the dictionnary
@@ -1120,13 +1089,9 @@ size_t xmlDictSetLimit(xmlDictPtr dict, size_t limit)
 size_t xmlDictGetUsage(xmlDictPtr dict) 
 {
 	size_t limit = 0;
-	if(dict) {
-		xmlDictStringsPtr pool = dict->strings;
-		while(pool != NULL) {
+	if(dict)
+		for(xmlDictStrings * pool = dict->strings; pool; pool = pool->next)
 			limit += pool->size;
-			pool = pool->next;
-		}
-	}
 	return limit;
 }
 

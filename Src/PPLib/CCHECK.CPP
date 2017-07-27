@@ -4322,7 +4322,7 @@ int SLAPI CSessGrouping::TurnBill(PPBillPacket * pPack, CSessTotal * pTotal, int
 	return ok;
 }
 
-int SLAPI CSessGrouping::ConvertSign(int sign, PPID sessID, void * pData, CSessTotal * pTotal, OptimalAmountDamper * pOad)
+int SLAPI CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PPID locID, void * pData, CSessTotal * pTotal, OptimalAmountDamper * pOad)
 {
 	int    ok = 1, r;
 	const  PPID  op_id = (sign < 0) ? RetOpID : SellOpID;
@@ -4395,7 +4395,7 @@ int SLAPI CSessGrouping::ConvertSign(int sign, PPID sessID, void * pData, CSessT
 					if(r_item.Dt != prev_dt || pack.CheckLargeBill(0)) {
 						if(prev_dt)
 							THROW(TurnBill(&pack, pTotal, BIN(sign < 0), pOad));
-						THROW(pack.CreateBlank2(op_id, r_item.Dt, 0, 0));
+						THROW(pack.CreateBlank2(op_id, r_item.Dt, locID, 0));
 						pack.SetPoolMembership(PPBillPacket::bpkCSess, sessID);
 					}
 					if(qtty != 0.0 && R6(cg_rec.Qtty) != 0.0) {
@@ -4409,28 +4409,17 @@ int SLAPI CSessGrouping::ConvertSign(int sign, PPID sessID, void * pData, CSessT
 							} while(!founded_goods_id && p_sj && p_sj->GetLastObjUnifyEvent(PPOBJ_GOODS, temp_goods_id, &temp_goods_id, 0) > 0);
 						}
 						if(founded_goods_id) { // Защита от вставки в документ несуществующего товара
-							if(founded_goods_id != goods_id) {
-								//PPTXT_LOG_UNIFGOODSSUBST      "Не найденный товар #@long заменен на объединенный с ним '@goods'"
+							if(founded_goods_id != goods_id)
 								Logger.Log(PPFormatT(PPTXT_LOG_UNIFGOODSSUBST, &msg_buf, goods_id, founded_goods_id));
-							}
 							ilti.GoodsID  = founded_goods_id;
 							ilti.Price    = TR5(fabs(cg_rec.Sum / cg_rec.Qtty));
 							ilti.SetQtty(-qtty);
-							//char   serial[32];
-							//serial[0] = 0;
 							serial_buf = 0;
 							if(cg_rec.SerialID && stage != stgSubst) { // Для альтернативной подстановки серию не учитываем
-								// @v9.0.11 {
 								if(PPRef->TrT.SearchSelfRef(cg_rec.SerialID, temp_buf_u) > 0) {
 									temp_buf_u.CopyToMb(CP_UTF8, serial_buf);
 									serial_buf.Transf(CTRANSF_UTF8_TO_INNER);
 								}
-								// } @v9.0.11
-								/* @v9.0.11
-								ObjTagItem oti;
-								if(PPRef->Ot.EnumTags(PPOBJ_SERIAL, cg_rec.SerialID, PPTAG_FLOAT_SERIAL, 0, &oti) > 0 && oti.Val.PStr)
-									STRNSCPY(serial, oti.Val.PStr);
-								*/
 							}
 							if(qtty > 0.0 && sign > 0) {
 								THROW(p_bobj->ConvertILTI(&ilti, &pack, 0, cvt_flags, serial_buf));
@@ -4452,10 +4441,8 @@ int SLAPI CSessGrouping::ConvertSign(int sign, PPID sessID, void * pData, CSessT
 								THROW(GL.Update(&cg_rec, 0) > 0);
 							}
 						}
-						else {
-							//PPTXT_LOG_GOODSNFOUND         "Товар #@int не найден"
+						else
 							Logger.Log(PPFormatT(PPTXT_LOG_GOODSNFOUND, &msg_buf, goods_id));
-						}
 						if(stage != stgSubst && cg_rec.AltGoodsID && cg_rec.AltGoodsID != cg_rec.GoodsID)
 							subst_pos_list.addUnique((long)item_pos);
 					}
@@ -4702,11 +4689,11 @@ int SLAPI CSessGrouping::Convert(PPID sessID, PPID locID, void * pData, CSessTot
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(ConvertSign(-1, sessID, pData, pTotal, 0)); // Возвраты
-		THROW(ConvertSign(+1, sessID, pData, pTotal, &oad)); // Продажи
+		THROW(ConvertSign(-1, sessID, locID, pData, pTotal, 0)); // Возвраты
+		THROW(ConvertSign(+1, sessID, locID, pData, pTotal, &oad)); // Продажи
 		{
-			THROW(ConvertSign(-1, sessID, pData, pTotal, 0)); // Возвраты (Если из-за отсутствия продаж возврат не провелся)
-			THROW(ConvertSign(+1, sessID, pData, pTotal, &oad)); // Продажи
+			THROW(ConvertSign(-1, sessID, locID, pData, pTotal, 0)); // Возвраты (Если из-за отсутствия продаж возврат не провелся)
+			THROW(ConvertSign(+1, sessID, locID, pData, pTotal, &oad)); // Продажи
 		}
 		THROW(ConvertDeficit(sessID, locID, pTotal));
 		GL.CalcSessTotal(sessID, pTotal);

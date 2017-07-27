@@ -13924,7 +13924,7 @@ protected:
 	PPEquipConfig EqCfg;
 private:
 	int    SLAPI TurnBill(PPBillPacket * pPack, CSessTotal * pTotal, int isRet, OptimalAmountDamper * pOad);
-	int    SLAPI ConvertSign(int sign, PPID sessID, void * pData, CSessTotal * pTotal, OptimalAmountDamper * pOad);
+	int    SLAPI ConvertSign(const int sign, const PPID sessID, const PPID locID, void * pData, CSessTotal * pTotal, OptimalAmountDamper * pOad);
 	int    SLAPI Convert(PPID sessID, PPID locID, void * pData, CSessTotal * pTotal, int use_ta);
 	int    SLAPI ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pTotal);
 
@@ -14963,7 +14963,7 @@ public:
 	//
 	SArray * SLAPI CreateList(long current, long parent);
 	int    SLAPI GetListByFlag(long mask, PPIDArray & rList);
-	int    SLAPI NormalizeTextCritirion(PPID tagID, const char * pCrit, SString & rNormCrit);
+	int    SLAPI NormalizeTextCriterion(PPID tagID, const char * pCrit, SString & rNormCrit);
 	//
 	// Descr: Возвращает информацию о тегах, которые отсутствуют в списке pTagList либо
 	//   имеют недопустимое значение. Типы тегов, для которых проверяется условие определяется //
@@ -35799,7 +35799,7 @@ struct SupplExpFilt {
 		expSaldo          = 0x0020
 	};
 	SupplExpFilt();
-	int    Init();
+	void   Init();
 	int    Read(SBuffer & rBuf, long);
 	int    Write(SBuffer & rBuf, long) const;
 	int    OpListFromCfg(const PPSupplAgreement::ExchangeParam * pCfg);
@@ -46073,6 +46073,7 @@ public:
 	int    SLAPI Init(const PPBaseFilt * pBaseFilt);
 	int    SLAPI Run();
 private:
+	int    SLAPI ImportHumanNames(const char * pSrcFileName, const char * pLinguaSymb);
 	int    SLAPI TestSearchWords();
 	int    SLAPI TestConcept();
 
@@ -48343,7 +48344,7 @@ int     SLAPI EditStaffAmtEntry(long idx, StaffAmtList * pAmtList);
 //
 PPID    SLAPIV SelectOprKind(uint opklFlags /* OPKLF_XXX */, PPID linkOprKind, ...);
 PPID    SLAPI SelectOpKind(PPID linkOpID, PPIDArray * pOpTypesList, uint opklFlags /* OPKLF_XXX */);
-int     SLAPI SetupOprKindCombo(TDialog *, uint, PPID, uint flags, const PPIDArray *, uint opklFlags);
+int     SLAPI SetupOprKindCombo(TDialog *, uint ctlID, PPID id, uint flags, const PPIDArray *, uint opklFlags);
 int     SLAPI BillPrelude(const PPIDArray * pOpList, uint opklFlags, PPID linkOpID, PPID * pOpID, PPID * pLocID);
 int     SLAPI SetupLocationCombo(TDialog *, uint, PPID, uint flags, PPID locType, PPID owner);
 int     SLAPI SetupLocationCombo(TDialog * dlg, uint ctl, PPID id, uint flags, const LocationFilt * pFilt);

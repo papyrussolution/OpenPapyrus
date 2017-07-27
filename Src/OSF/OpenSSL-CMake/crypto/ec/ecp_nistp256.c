@@ -1852,7 +1852,7 @@ static NISTP256_PRE_COMP * nistp256_pre_comp_new()
 NISTP256_PRE_COMP * EC_nistp256_pre_comp_dup(NISTP256_PRE_COMP * p)
 {
 	int i;
-	if(p != NULL)
+	if(p)
 		CRYPTO_atomic_add(&p->references, 1, &i, p->lock);
 	return p;
 }

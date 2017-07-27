@@ -1253,23 +1253,20 @@ get_space:
 			}
 			else if(rec_key)
 				*offp-- = (int32)cp->recno;
-			*offp-- = (int32)((inp[indx+adj-1]-HOFFSET(pg))+
-			                    (dp-dbuf)+SSZA(BKEYDATA, data));
+			*offp-- = (int32)((inp[indx+adj-1]-HOFFSET(pg))+(dp-dbuf)+SSZA(BKEYDATA, data));
 			*offp-- = bk->len;
 		}
 		if(dbc->dbtype == DB_RECNO)
 			cp->recno++;
 		else if(no_dup) {
-			while(indx+adj < NUM_ENT(pg) &&
-			      pg_keyoff == inp[indx+adj])
+			while(indx+adj < NUM_ENT(pg) && pg_keyoff == inp[indx+adj])
 				indx += adj;
 		}
 		/*
 		 * Stop when we either run off the page or we move to the next key and
 		 * we are not returning multiple keys.
 		 */
-	} while((indx += adj) < NUM_ENT(pg) &&
-	        (next_key || pg_keyoff == inp[indx]));
+	} while((indx += adj) < NUM_ENT(pg) && (next_key || pg_keyoff == inp[indx]));
 	/* If we are off the page then try to the next page. */
 	if(ret == 0 && next_key && indx >= NUM_ENT(pg)) {
 		cp->indx = indx;
@@ -1285,8 +1282,7 @@ get_space:
 	 * no way to know if we did not get it all, nor any
 	 * interface to fetch the balance.
 	 */
-	if(ret == 0 && indx < pg->entries &&
-	   F_ISSET(dbc, DBC_TRANSIENT) && pg_keyoff == inp[indx]) {
+	if(ret == 0 && indx < pg->entries && F_ISSET(dbc, DBC_TRANSIENT) && pg_keyoff == inp[indx]) {
 		data->size = (data->ulen-space)+size;
 		return DB_BUFFER_SMALL;
 	}
@@ -1984,9 +1980,9 @@ done:
 	 * is why we subtract P_INDX below.
 	 */
 	t = (BTREE *)dbp->bt_internal;
-	if(ret == 0 && TYPE(cp->page) == P_LBTREE && (flags == DB_KEYFIRST || flags == DB_KEYLAST) &&
-	   !F_ISSET(cp, C_RECNUM) && (!F_ISSET(dbp, DB_AM_SUBDB) || (LOGGING_ON(dbp->env) && !F_ISSET(dbp, DB_AM_NOT_DURABLE))) &&
-	   ((NEXT_PGNO(cp->page) == PGNO_INVALID && cp->indx >= NUM_ENT(cp->page)-P_INDX) || (PREV_PGNO(cp->page) == PGNO_INVALID && cp->indx == 0))) {
+	if(!ret && TYPE(cp->page) == P_LBTREE && oneof2(flags, DB_KEYFIRST, DB_KEYLAST) && !F_ISSET(cp, C_RECNUM) && 
+		(!F_ISSET(dbp, DB_AM_SUBDB) || (LOGGING_ON(dbp->env) && !F_ISSET(dbp, DB_AM_NOT_DURABLE))) &&
+		((NEXT_PGNO(cp->page) == PGNO_INVALID && cp->indx >= NUM_ENT(cp->page)-P_INDX) || (PREV_PGNO(cp->page) == PGNO_INVALID && cp->indx == 0))) {
 		t->bt_lpgno = cp->pgno;
 		if(F_ISSET(dbp, DB_AM_SUBDB))
 			t->bt_llsn = LSN(cp->page);

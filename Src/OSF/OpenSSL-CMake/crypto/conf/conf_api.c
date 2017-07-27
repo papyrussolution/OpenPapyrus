@@ -44,7 +44,7 @@ int _CONF_add_string(CONF * conf, CONF_VALUE * section, CONF_VALUE * value)
 		return 0;
 	}
 	v = lh_CONF_VALUE_insert(conf->data, value);
-	if(v != NULL) {
+	if(v) {
 		(void)sk_CONF_VALUE_delete_ptr(ts, v);
 		OPENSSL_free(v->name);
 		OPENSSL_free(v->value);
@@ -63,7 +63,7 @@ char * _CONF_get_string(const CONF * conf, const char * section, const char * na
 			vv.name = (char*)name;
 			vv.section = (char*)section;
 			v = lh_CONF_VALUE_retrieve(conf->data, &vv);
-			if(v != NULL)
+			if(v)
 				return (v->value);
 			if(strcmp(section, "ENV") == 0) {
 				char * p = getenv(name);

@@ -142,7 +142,7 @@ int htmlSetMetaEncoding(htmlDocPtr doc, const xmlChar * encoding)
 	/* html isn't a real encoding it's just libxml2 way to get entities */
 	if(!xmlStrcasecmp(encoding, BAD_CAST "html"))
 		return -1;
-	if(encoding != NULL) {
+	if(encoding) {
 		snprintf(newcontent, sizeof(newcontent), "text/html; charset=%s", (char*)encoding);
 		newcontent[sizeof(newcontent) - 1] = 0;
 	}
@@ -419,7 +419,7 @@ int htmlNodeDumpFileFormat(FILE * out, xmlDocPtr doc, xmlNodePtr cur, const char
 	xmlCharEncodingHandlerPtr handler = NULL;
 	int ret;
 	xmlInitParser();
-	if(encoding != NULL) {
+	if(encoding) {
 		xmlCharEncoding enc = xmlParseCharEncoding(encoding);
 		if(enc != XML_CHAR_ENCODING_UTF8) {
 			handler = xmlFindCharEncodingHandler(encoding);
@@ -481,7 +481,7 @@ void htmlDocDumpMemoryFormat(xmlDocPtr cur, xmlChar** mem, int * size, int forma
 		return;
 	}
 	encoding = (const char*)htmlGetMetaEncoding(cur);
-	if(encoding != NULL) {
+	if(encoding) {
 		xmlCharEncoding enc = xmlParseCharEncoding(encoding);
 		if(enc != cur->charset) {
 			if(cur->charset != XML_CHAR_ENCODING_UTF8) {
@@ -911,7 +911,7 @@ int htmlDocDump(FILE * f, xmlDocPtr cur)
 	xmlInitParser();
 	if(cur && f) {
 		const char * encoding = (const char*)htmlGetMetaEncoding(cur);
-		if(encoding != NULL) {
+		if(encoding) {
 			xmlCharEncoding enc = xmlParseCharEncoding(encoding);
 			if(enc != cur->charset) {
 				if(cur->charset != XML_CHAR_ENCODING_UTF8) {
@@ -961,7 +961,7 @@ int htmlSaveFile(const char * filename, xmlDocPtr cur)
 		return -1;
 	xmlInitParser();
 	encoding = (const char*)htmlGetMetaEncoding(cur);
-	if(encoding != NULL) {
+	if(encoding) {
 		xmlCharEncoding enc = xmlParseCharEncoding(encoding);
 		if(enc != cur->charset) {
 			if(cur->charset != XML_CHAR_ENCODING_UTF8) {
@@ -1010,7 +1010,7 @@ int htmlSaveFileFormat(const char * filename, xmlDocPtr cur, const char * encodi
 	if(!cur || (filename == NULL))
 		return -1;
 	xmlInitParser();
-	if(encoding != NULL) {
+	if(encoding) {
 		xmlCharEncoding enc = xmlParseCharEncoding(encoding);
 		if(enc != cur->charset) {
 			if(cur->charset != XML_CHAR_ENCODING_UTF8) {

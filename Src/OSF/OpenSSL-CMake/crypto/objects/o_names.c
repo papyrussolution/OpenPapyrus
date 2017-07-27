@@ -205,7 +205,7 @@ int OBJ_NAME_add(const char * name, int type, const char * data)
 	onp->data = data;
 
 	ret = lh_OBJ_NAME_insert(names_lh, onp);
-	if(ret != NULL) {
+	if(ret) {
 		/* free things */
 		if((name_funcs_stack != NULL)
 		    && (sk_NAME_FUNCS_num(name_funcs_stack) > ret->type)) {
@@ -240,7 +240,7 @@ int OBJ_NAME_remove(const char * name, int type)
 	on.name = name;
 	on.type = type;
 	ret = lh_OBJ_NAME_delete(names_lh, &on);
-	if(ret != NULL) {
+	if(ret) {
 		/* free things */
 		if((name_funcs_stack != NULL)
 		    && (sk_NAME_FUNCS_num(name_funcs_stack) > ret->type)) {

@@ -20,7 +20,7 @@
 //#include "PropSetSimple.h"
 #ifdef SCI_LEXER
 	//#include "LexerModule.h"
-	#include "Catalogue.h"
+	//#include "Catalogue.h"
 #endif
 //#include "Position.h"
 #include "SplitVector.h"

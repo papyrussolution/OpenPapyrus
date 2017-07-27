@@ -923,29 +923,21 @@ static int hwcrhk_rsa_mod_exp(BIGNUM * r, const BIGNUM * I, RSA * rsa,
 	 * we do is provide a handle to the proper key and let HWCryptoHook take
 	 * care of the rest.
 	 */
-	if((hptr =
-			    (HWCryptoHook_RSAKeyHandle*)RSA_get_ex_data(rsa, hndidx_rsa))
-	    != NULL) {
+	if((hptr = (HWCryptoHook_RSAKeyHandle*)RSA_get_ex_data(rsa, hndidx_rsa)) != NULL) {
 		HWCryptoHook_MPI m_a, m_r;
-
 		if(!rsa->n) {
-			HWCRHKerr(HWCRHK_F_HWCRHK_RSA_MOD_EXP,
-			    HWCRHK_R_MISSING_KEY_COMPONENTS);
+			HWCRHKerr(HWCRHK_F_HWCRHK_RSA_MOD_EXP, HWCRHK_R_MISSING_KEY_COMPONENTS);
 			goto err;
 		}
-
 		/* Prepare the params */
 		bn_expand2(r, rsa->n->top); /* Check for error !! */
 		BN2MPI(m_a, I);
 		MPI2BN(r, m_r);
-
 		/* Perform the operation */
 		ret = p_hwcrhk_RSA(m_a, *hptr, &m_r, &rmsg);
-
 		/* Convert the response */
 		r->top = m_r.size / sizeof(BN_ULONG);
 		bn_fix_top(r);
-
 		if(ret < 0) {
 			/*
 			 * FIXME: When this error is returned, HWCryptoHook is telling us

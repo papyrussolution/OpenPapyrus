@@ -1286,8 +1286,8 @@ public:
 	{
 		P_Pack = pPack;
 		SetupCalDate(CTLCAL_STAFFCALD_DATE, CTL_STAFFCALD_DATE);
-		SetupTimePicker(this, CTL_STAFFCALD_TMSTART, CTLTM_STAFFCALD_TMSTART); // @v6.7.11
-		SetupTimePicker(this, CTL_STAFFCALD_TMEND, CTLTM_STAFFCALD_TMEND); // @v6.7.11
+		SetupTimePicker(this, CTL_STAFFCALD_TMSTART, CTLTM_STAFFCALD_TMSTART);
+		SetupTimePicker(this, CTL_STAFFCALD_TMEND, CTLTM_STAFFCALD_TMEND);
 		LockUpdByInput = 0;
 	}
 	int    setDTS(const StaffCalendarTbl::Rec * pData);
@@ -1299,6 +1299,22 @@ private:
 		if(TVCOMMAND) {
 			if(event.isClusterClk(CTL_STAFFCALD_KIND))
 				setupDate();
+			// @v9.7.9 {
+			else if(event.isClusterClk(CTL_STAFFCALD_FLAGS)) {
+				const long preserve_flags = Data.Flags;
+				GetClusterData(CTL_STAFFCALD_FLAGS, &Data.Flags);
+				if((Data.Flags & STCALEF_SKIP) && !(preserve_flags & STCALEF_SKIP)) {
+					LockUpdByInput = 1;
+					Data.TmStart = ZEROTIME;
+					Data.TmEnd = encodetime(24, 0, 0, 0);
+					Data.TmVal = Data.TmEnd.totalsec();
+					setCtrlData(CTL_STAFFCALD_TMSTART, &Data.TmStart);
+					setCtrlData(CTL_STAFFCALD_TMEND,   &Data.TmEnd);
+					setupWorkTime();
+					LockUpdByInput = 0;
+				}
+			}
+			// } @v9.7.9 
 			else if(cmInputUpdated) {
 				if(event.isCtlEvent(CTL_STAFFCALD_TMSTART) || event.isCtlEvent(CTL_STAFFCALD_TMEND)) {
 					if(!LockUpdByInput) {
@@ -1336,7 +1352,12 @@ private:
 			return;
 		clearEvent(event);
 	}
-	void   setupWorkTime();
+	void   setupWorkTime()
+	{
+		LTIME tm;
+		tm.settotalsec(Data.TmVal);
+		setCtrlTime(CTL_STAFFCALD_WORKTIME, tm);
+	}
 	int    setupDate();
 	int    PrevKind;
 	int    LockUpdByInput; // Блокировка пересчета времени для избежания зацикливания //
@@ -1380,18 +1401,9 @@ int StaffCalDayDialog::setupDate()
 	return 1;
 }
 
-void StaffCalDayDialog::setupWorkTime()
-{
-	LTIME tm;
-	tm.settotalsec(Data.TmVal);
-	setCtrlTime(CTL_STAFFCALD_WORKTIME, tm);
-}
-
 int StaffCalDayDialog::setDTS(const StaffCalendarTbl::Rec * pData)
 {
-	if(pData)
-		Data = *pData;
-	else
+	if(!RVALUEPTR(Data, pData))
 		MEMSZERO(Data);
 	if(P_Pack) {
 		const PPID cal_id = P_Pack->Rec.ID;
@@ -1441,6 +1453,12 @@ int StaffCalDayDialog::getDTS(StaffCalendarTbl::Rec * pData)
 	LTIME  tm;
 	getCtrlData(CTL_STAFFCALD_TMSTART, &Data.TmStart);
 	getCtrlData(CTL_STAFFCALD_TMEND,   &Data.TmEnd);
+	// @v9.7.9 {
+	if(Data.TmStart.totalsec() < 0 || Data.TmStart.totalsec() > (24*36000))
+		Data.TmStart = ZEROTIME;
+	if(!Data.TmEnd || Data.TmEnd.totalsec() < 0 || Data.TmEnd.totalsec() > (24*36000))
+		Data.TmEnd = encodetime(24, 0, 0, 0);
+	// } @v9.7.9 
 	getCtrlData(sel = CTL_STAFFCALD_WORKTIME, &tm);
 	Data.TmVal = tm.totalsec();
 	GetClusterData(CTL_STAFFCALD_KIND, &kind);
@@ -1864,7 +1882,6 @@ int SLAPI PPObjStaffCal::SearchDate(PPID calID, LDATE dt, TSArray <StaffCalendar
 		}
 	}
 	if(ok == 100) {
-		// @v7.7.12 {
 		ok = 2;
 		for(uint i = 0; i < rList.getCount(); i++) {
 			const StaffCalendarTbl::Rec & r_rec = rList.at(i);
@@ -1873,8 +1890,6 @@ int SLAPI PPObjStaffCal::SearchDate(PPID calID, LDATE dt, TSArray <StaffCalendar
 				break;
 			}
 		}
-		// } @v7.7.12
-		// @v7.7.12 ok = (rec.Flags & STCALEF_SKIP) ? 2 : 1;
 	}
 	return ok;
 }
@@ -2408,7 +2423,7 @@ int PPALDD_StaffCal::InitData(PPFilt & rFilt, long rsrv)
 			STRNSCPY(H.Symb, rec.Symb);
 			H.LinkObjType = rec.LinkObjType;
 			H.Flags       = rec.Flags;
-			H.fInherited  = (rec.Flags & PPStaffCal::fInherited) ? 1 : 0;
+			H.fInherited  = BIN(rec.Flags & PPStaffCal::fInherited);
 			H.LinkCalID   = rec.LinkCalID;
 			H.LinkObjID   = rec.LinkObjID;
 			ok = DlRtm::InitData(rFilt, rsrv);

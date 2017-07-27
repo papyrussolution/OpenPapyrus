@@ -26,7 +26,7 @@
 //#include "urldata.h"
 //#include <curl/curl.h>
 //#include "sendf.h"
-#include "content_encoding.h"
+//#include "content_encoding.h"
 //#include "strdup.h"
 //#include "curl_memory.h"
 #include "memdebug.h"

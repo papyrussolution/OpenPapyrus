@@ -11449,9 +11449,7 @@ public:
 	{
 		SString font_face;
 		SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_INFKIOSK_LOTS);
-		if(pRec)
-			Rec = *pRec;
-		else
+		if(!RVALUEPTR(Rec, pRec))
 			MEMSZERO(Rec);
 		SelGoodsGrpID = AltGoodsGrpID = defGoodsGrpID;
 		LastCtrlID = 0;

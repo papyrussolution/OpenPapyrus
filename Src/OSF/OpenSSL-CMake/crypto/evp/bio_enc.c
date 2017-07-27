@@ -341,9 +341,7 @@ again:
 		    if(!ctx->finished) {
 			    ctx->finished = 1;
 			    ctx->buf_off = 0;
-			    ret = EVP_CipherFinal_ex(ctx->cipher,
-			    (uchar*)ctx->buf,
-			    &(ctx->buf_len));
+			    ret = EVP_CipherFinal_ex(ctx->cipher, (uchar*)ctx->buf, &(ctx->buf_len));
 			    ctx->ok = (int)ret;
 			    if(ret <= 0)
 				    break;

@@ -49,7 +49,6 @@ static bool FASTCALL IsIdentifierChar(const int ch)
 {
 	return (isalnum(ch) || (ch == '_') || (ch == '@') || (ch == ':') || (ch == '.'));
 }
-
 /**
  *  GetOperatorType
  *
@@ -58,8 +57,7 @@ static bool FASTCALL IsIdentifierChar(const int ch)
  *  OPERATOR_1CHAR  if the operator is one char long
  *  OPERATOR_2CHAR  if the operator is two chars long
  */
-
-static inline int GetOperatorType(const int ch1, const int ch2)
+static int FASTCALL GetOperatorType(const int ch1, const int ch2)
 {
 	int OpType = NO_OPERATOR;
 	if((ch1 == '+') || (ch1 == '-') || (ch1 == '*') || (ch1 == '/') || (ch1 == '#') ||
@@ -71,43 +69,35 @@ static inline int GetOperatorType(const int ch1, const int ch2)
 
 	return OpType;
 }
-
 /**
  *  IsBin
  *
  *  Return true if the given char is 0 or 1
  */
-
 static bool FASTCALL IsBin(const int ch)
 {
 	return (ch == '0') || (ch == '1');
 }
-
 /**
  *  IsDoxygenChar
  *
  *  Return true if the char may be part of a Doxygen keyword
  */
-
 static bool FASTCALL IsDoxygenChar(const int ch)
 {
 	return isalpha(ch) || (ch == '$') || (ch == '[') || (ch == ']') || (ch == '{') || (ch == '}');
 }
-
 /**
  *  ColouriseA68kDoc
  *
  *  Main function, which colourises a 68k source
  */
-
 static void ColouriseA68kDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
 {
 	// Used to buffer a string, to be able to compare it using built-in functions
 	char Buffer[100];
-
 	// Used to know the length of an operator
 	int OpType;
-
 	// Get references to keywords lists
 	WordList &cpuInstruction = *keywordlists[0];
 	WordList &registers = *keywordlists[1];

@@ -1168,7 +1168,7 @@ private:
 	virtual int setupList();
 	virtual int addItem(long * pPos, long * pID);
 	virtual int delItem(long pos, long id);
-	int    disableTagsList(int disable);
+	void   disableTagsList(int disable);
 
 	PPPsnOpKindPacket Data;
 };
@@ -1222,13 +1222,12 @@ int PsnOpExVDialog::delItem(long pos, long id)
 	return ok;
 }
 
-int PsnOpExVDialog::disableTagsList(int disable)
+void PsnOpExVDialog::disableTagsList(int disable)
 {
 	disableCtrl(CTL_POKEXV_ALLOWEDTAGS, disable);
 	enableCommand(cmaInsert, !disable);
 	enableCommand(cmaEdit,   !disable);
 	enableCommand(cmaDelete, !disable);
-	return 1;
 }
 //
 //

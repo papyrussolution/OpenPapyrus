@@ -1303,7 +1303,7 @@ int PNGAPI png_image_begin_read_from_stdio(png_imagep image, FILE* file)
 		else
 			return png_image_error(image, "png_image_begin_read_from_stdio: invalid argument");
 	}
-	else if(image != NULL)
+	else if(image)
 		return png_image_error(image, "png_image_begin_read_from_stdio: incorrect PNG_IMAGE_VERSION");
 	return 0;
 }
@@ -1328,7 +1328,7 @@ int PNGAPI png_image_begin_read_from_file(png_imagep image, const char * file_na
 		else
 			return png_image_error(image, "png_image_begin_read_from_file: invalid argument");
 	}
-	else if(image != NULL)
+	else if(image)
 		return png_image_error(image, "png_image_begin_read_from_file: incorrect PNG_IMAGE_VERSION");
 	return 0;
 }
@@ -1339,23 +1339,20 @@ static void PNGCBAPI png_image_memory_read(png_structp png_ptr, png_bytep out, s
 {
 	if(png_ptr) {
 		png_imagep image = png_voidcast(png_imagep, png_ptr->io_ptr);
-		if(image != NULL) {
+		if(image) {
 			png_controlp cp = image->opaque;
 			if(cp != NULL) {
 				png_const_bytep memory = cp->memory;
 				size_t size = cp->size;
-
 				if(memory != NULL && size >= need) {
 					memcpy(out, memory, need);
 					cp->memory = memory + need;
 					cp->size = size - need;
 					return;
 				}
-
 				png_error(png_ptr, "read beyond end of data");
 			}
 		}
-
 		png_error(png_ptr, "invalid memory read");
 	}
 }
@@ -1379,7 +1376,7 @@ int PNGAPI png_image_begin_read_from_memory(png_imagep image, const void * memor
 		else
 			return png_image_error(image, "png_image_begin_read_from_memory: invalid argument");
 	}
-	else if(image != NULL)
+	else if(image)
 		return png_image_error(image, "png_image_begin_read_from_memory: incorrect PNG_IMAGE_VERSION");
 	return 0;
 }
@@ -3505,7 +3502,7 @@ int PNGAPI png_image_finish_read(png_imagep image, png_const_colorp background, 
 		else
 			return png_image_error(image, "png_image_finish_read: row_stride too large");
 	}
-	else if(image != NULL)
+	else if(image)
 		return png_image_error(image, "png_image_finish_read: damaged PNG_IMAGE_VERSION");
 	return 0;
 }

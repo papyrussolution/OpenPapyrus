@@ -277,11 +277,7 @@ static int rsa_ossl_private_encrypt(int flen, const uchar * from,
 		if(!rsa_blinding_convert(blinding, f, unblind, ctx))
 			goto err;
 	}
-
-	if((rsa->flags & RSA_FLAG_EXT_PKEY) ||
-	    ((rsa->p != NULL) &&
-		    (rsa->q != NULL) &&
-		    (rsa->dmp1 != NULL) && (rsa->dmq1 != NULL) && (rsa->iqmp != NULL))) {
+	if((rsa->flags & RSA_FLAG_EXT_PKEY) || (rsa->p && rsa->q && rsa->dmp1 && rsa->dmq1 && rsa->iqmp)) {
 		if(!rsa->meth->rsa_mod_exp(ret, f, rsa, ctx))
 			goto err;
 	}
@@ -292,16 +288,12 @@ static int rsa_ossl_private_encrypt(int flen, const uchar * from,
 			goto err;
 		}
 		BN_with_flags(d, rsa->d, BN_FLG_CONSTTIME);
-
 		if(rsa->flags & RSA_FLAG_CACHE_PUBLIC)
-			if(!BN_MONT_CTX_set_locked
-				    (&rsa->_method_mod_n, rsa->lock, rsa->n, ctx)) {
+			if(!BN_MONT_CTX_set_locked(&rsa->_method_mod_n, rsa->lock, rsa->n, ctx)) {
 				BN_free(d);
 				goto err;
 			}
-
-		if(!rsa->meth->bn_mod_exp(ret, f, d, rsa->n, ctx,
-			    rsa->_method_mod_n)) {
+		if(!rsa->meth->bn_mod_exp(ret, f, d, rsa->n, ctx, rsa->_method_mod_n)) {
 			BN_free(d);
 			goto err;
 		}
@@ -312,7 +304,6 @@ static int rsa_ossl_private_encrypt(int flen, const uchar * from,
 	if(blinding)
 		if(!rsa_blinding_invert(blinding, ret, unblind, ctx))
 			goto err;
-
 	if(padding == RSA_X931_PADDING) {
 		BN_sub(f, rsa->n, ret);
 		if(BN_cmp(ret, f) > 0)
@@ -331,7 +322,6 @@ static int rsa_ossl_private_encrypt(int flen, const uchar * from,
 	i = BN_bn2bin(res, &(to[num - j]));
 	for(k = 0; k < (num - i); k++)
 		to[k] = 0;
-
 	r = num;
 err:
 	BN_CTX_end(ctx);
@@ -340,8 +330,7 @@ err:
 	return (r);
 }
 
-static int rsa_ossl_private_decrypt(int flen, const uchar * from,
-    uchar * to, RSA * rsa, int padding)
+static int rsa_ossl_private_decrypt(int flen, const uchar * from, uchar * to, RSA * rsa, int padding)
 {
 	BIGNUM * f, * ret;
 	int j, num = 0, r = -1;

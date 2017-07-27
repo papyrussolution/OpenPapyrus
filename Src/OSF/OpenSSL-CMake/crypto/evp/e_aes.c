@@ -2098,7 +2098,7 @@ static int aes_ocb_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, s
 		return -1;
 	if(!octx->key_set)
 		return -1;
-	if(in != NULL) {
+	if(in) {
 		/*
 		 * Need to ensure we are only passing full blocks to low level OCB
 		 * routines. We do it here rather than in EVP_EncryptUpdate/
@@ -2149,7 +2149,7 @@ static int aes_ocb_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, s
 			}
 			written_len = AES_BLOCK_SIZE;
 			*buf_len = 0;
-			if(out != NULL)
+			if(out)
 				out += AES_BLOCK_SIZE;
 		}
 		/* Do we have a partial block to handle at the end? */

@@ -55,7 +55,7 @@ using namespace Scintilla;
 
 #define BASH_DELIM_STACK_MAX    7
 
-static inline int translateBashDigit(int ch)
+static /*inline*/ int FASTCALL translateBashDigit(int ch)
 {
 	if(ch >= '0' && ch <= '9') {
 		return ch - '0';
@@ -75,7 +75,7 @@ static inline int translateBashDigit(int ch)
 	return BASH_BASE_ERROR;
 }
 
-static inline int getBashNumberBase(char * s)
+static /*inline*/ int FASTCALL getBashNumberBase(char * s)
 {
 	int i = 0;
 	int base = 0;
@@ -89,7 +89,7 @@ static inline int getBashNumberBase(char * s)
 	return base;
 }
 
-static int opposite(int ch)
+static int FASTCALL opposite(int ch)
 {
 	if(ch == '(') return ')';
 	if(ch == '[') return ']';
@@ -98,7 +98,7 @@ static int opposite(int ch)
 	return ch;
 }
 
-static int GlobScan(StyleContext &sc)
+static int FASTCALL GlobScan(StyleContext &sc)
 {
 	// forward scan for a glob-like (...), no whitespace allowed
 	int c, sLen = 0;
@@ -153,13 +153,11 @@ public:
 			DelimiterLength = 0;
 			Delimiter[0] = '\0';
 		}
-
 		void Append(int ch)
 		{
 			Delimiter[DelimiterLength++] = static_cast<char>(ch);
 			Delimiter[DelimiterLength] = '\0';
 		}
-
 		~HereDocCls()
 		{
 		}
@@ -177,13 +175,13 @@ public:
 			Up    = '\0';
 			Down  = '\0';
 		}
-		void Open(int u)
+		void FASTCALL Open(int u)
 		{
 			Count++;
 			Up    = u;
 			Down  = opposite(Up);
 		}
-		void Start(int u)
+		void FASTCALL Start(int u)
 		{
 			Count = 0;
 			Open(u);
@@ -286,7 +284,7 @@ public:
 		// states BODY|TEST|ARITH persist until the end of a command segment
 		// state WORD persist, but ends with 'in' or 'do' construct keywords
 		int cmdStateNew = BASH_CMD_BODY;
-		if(cmdState == BASH_CMD_TEST || cmdState == BASH_CMD_ARITH || cmdState == BASH_CMD_WORD)
+		if(oneof3(cmdState, BASH_CMD_TEST, BASH_CMD_ARITH, BASH_CMD_WORD))
 			cmdStateNew = cmdState;
 		int stylePrev = sc.state;
 
@@ -311,9 +309,9 @@ public:
 				    bool keywordEnds = IsASpace(sc.ch) || cmdDelimiter.InList(s2);
 				    // 'in' or 'do' may be construct keywords
 				    if(cmdState == BASH_CMD_WORD) {
-					    if(strcmp(s, "in") == 0 && keywordEnds)
+					    if(sstreq(s, "in") && keywordEnds)
 						    cmdStateNew = BASH_CMD_BODY;
-					    else if(strcmp(s, "do") == 0 && keywordEnds)
+					    else if(sstreq(s, "do") && keywordEnds)
 						    cmdStateNew = BASH_CMD_START;
 					    else
 						    sc.ChangeState(SCE_SH_IDENTIFIER);
@@ -321,7 +319,7 @@ public:
 					    break;
 				    }
 				    // a 'test' keyword starts a test expression
-				    if(strcmp(s, "test") == 0) {
+				    if(sstreq(s, "test")) {
 					    if(cmdState == BASH_CMD_START && keywordEnds) {
 						    cmdStateNew = BASH_CMD_TEST;
 						    testExprType = 0;
@@ -349,8 +347,7 @@ public:
 						    sc.ChangeState(SCE_SH_IDENTIFIER);
 				    }
 				    // disambiguate keywords and identifiers
-				    else if(cmdState != BASH_CMD_START
-				    || !(keywords.InList(s) && keywordEnds)) {
+				    else if(cmdState != BASH_CMD_START || !(keywords.InList(s) && keywordEnds)) {
 					    sc.ChangeState(SCE_SH_IDENTIFIER);
 				    }
 				    sc.SetState(SCE_SH_DEFAULT);
@@ -445,8 +442,7 @@ public:
 					    HereDoc.Quoted = true;
 					    HereDoc.State = 1;
 				    }
-				    else if(setHereDoc.Contains(sc.chNext) ||
-				    (sc.chNext == '=' && cmdState != BASH_CMD_ARITH)) {
+				    else if(setHereDoc.Contains(sc.chNext) || (sc.chNext == '=' && cmdState != BASH_CMD_ARITH)) {
 					    // an unquoted here-doc delimiter, no special handling
 					    HereDoc.State = 1;
 				    }
@@ -457,8 +453,7 @@ public:
 				    else if(IsASpace(sc.chNext)) {
 					    // eat whitespace
 				    }
-				    else if(setLeftShift.Contains(sc.chNext) ||
-				    (sc.chNext == '=' && cmdState == BASH_CMD_ARITH)) {
+				    else if(setLeftShift.Contains(sc.chNext) || (sc.chNext == '=' && cmdState == BASH_CMD_ARITH)) {
 					    // left shift <<$var or <<= cases
 					    sc.ChangeState(SCE_SH_OPERATOR);
 					    sc.ForwardSetState(SCE_SH_DEFAULT);
@@ -515,14 +510,13 @@ public:
 				    char s[HERE_DELIM_MAX];
 				    sc.GetCurrent(s, sizeof(s));
 				    if(sc.LengthCurrent() == 0) {       // '' or "" delimiters
-					    if((prefixws == 0 || HereDoc.Indent) &&
-					    HereDoc.Quoted && HereDoc.DelimiterLength == 0)
+					    if((prefixws == 0 || HereDoc.Indent) && HereDoc.Quoted && HereDoc.DelimiterLength == 0)
 						    sc.SetState(SCE_SH_DEFAULT);
 					    break;
 				    }
 				    if(s[strlen(s) - 1] == '\r')
 					    s[strlen(s) - 1] = '\0';
-				    if(strcmp(HereDoc.Delimiter, s) == 0) {
+				    if(sstreq(HereDoc.Delimiter, s)) {
 					    if((prefixws == 0) ||       // indentation rule
 					    (prefixws > 0 && HereDoc.Indent)) {
 						    sc.SetState(SCE_SH_DEFAULT);
@@ -770,8 +764,7 @@ public:
 				}
 			}
 			else if(sc.ch == '-' &&         // one-char file test operators
-			    setSingleCharOp.Contains(sc.chNext) &&
-			    !setWord.Contains(sc.GetRelative(2)) &&
+			    setSingleCharOp.Contains(sc.chNext) && !setWord.Contains(sc.GetRelative(2)) &&
 			    IsASpace(sc.chPrev)) {
 				sc.SetState(SCE_SH_WORD);
 				sc.Forward();
@@ -790,8 +783,7 @@ public:
 					}
 				}
 				// handle opening delimiters for test/arithmetic expressions - ((,[[,[
-				if(cmdState == BASH_CMD_START
-				    || cmdState == BASH_CMD_BODY) {
+				if(cmdState == BASH_CMD_START || cmdState == BASH_CMD_BODY) {
 					if(sc.Match('(', '(')) {
 						cmdState = BASH_CMD_ARITH;
 						sc.Forward();
@@ -813,10 +805,7 @@ public:
 					continue;
 				}
 				// handle command delimiters in command START|BODY|WORD state, also TEST if 'test'
-				if(cmdState == BASH_CMD_START
-				    || cmdState == BASH_CMD_BODY
-				    || cmdState == BASH_CMD_WORD
-				    || (cmdState == BASH_CMD_TEST && testExprType == 0)) {
+				if(oneof3(cmdState, BASH_CMD_START, BASH_CMD_BODY, BASH_CMD_WORD) || (cmdState == BASH_CMD_TEST && testExprType == 0)) {
 					s[0] = static_cast<char>(sc.ch);
 					if(setBashOperator.Contains(sc.chNext)) {
 						s[1] = static_cast<char>(sc.chNext);
@@ -858,7 +847,7 @@ public:
 	sc.Complete();
 }
 
-static bool IsCommentLine(Sci_Position line, Accessor &styler)
+static bool FASTCALL IsCommentLine(Sci_Position line, Accessor &styler)
 {
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
@@ -872,8 +861,7 @@ static bool IsCommentLine(Sci_Position line, Accessor &styler)
 	return false;
 }
 
-static void FoldBashDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[],
-    Accessor &styler)
+static void FoldBashDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;

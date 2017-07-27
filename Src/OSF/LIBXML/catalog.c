@@ -2125,7 +2125,7 @@ static int xmlParseSGMLCatalog(xmlCatalogPtr catal, const xmlChar * value, const
 				    if(type != SGML_CATA_SYSTEM) {
 					    xmlChar * normid = xmlCatalogNormalizePublic(name);
 					    if(normid != NULL) {
-						    if(name != NULL)
+						    if(name)
 							    SAlloc::F(name);
 						    if(*normid != 0)
 							    name = normid;

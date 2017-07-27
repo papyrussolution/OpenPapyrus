@@ -121,7 +121,7 @@ void * CRYPTO_secure_malloc(size_t num, const char * file, int line)
 void * CRYPTO_secure_zalloc(size_t num, const char * file, int line)
 {
 	void * ret = CRYPTO_secure_malloc(num, file, line);
-	if(ret != NULL)
+	if(ret)
 		memzero(ret, num);
 	return ret;
 }

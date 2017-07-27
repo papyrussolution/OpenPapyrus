@@ -442,7 +442,7 @@ private:
 #define SRPROPT_REAL      3
 #define SRPROPT_HDATE     4
 #define SRPROPT_HPERIOD   5
-// 
+//
 // Descr: Декларация свойства концепции
 //
 class SrCPropDecl {
@@ -535,7 +535,6 @@ public:
 	SrCProp & FASTCALL operator = (int);
 	SrCProp & FASTCALL operator = (int64);
 	SrCProp & FASTCALL operator = (double);
-	SrCProp & FASTCALL operator = (const char *);
 
 	int    FASTCALL Get(int64 & rIntVal) const;
 	int    FASTCALL Get(double & rRealVal) const;
@@ -677,8 +676,8 @@ struct SrWordInfo {
 	LEXID  PrefixID;   // Идентификатор приставки слова
 	LEXID  AffixID;    // Идентификатор окончания слова
 	//
-	int32  BaseFormID; // Базовый дескриптор словоформы, ассоциированный с BaseID
-	int32  FormID;     // Идентификатор словоформы найденного слова
+	int32  BaseFormID; // SrGrammarTbl.ID Базовый дескриптор словоформы, ассоциированный с BaseID
+	int32  FormID;     // SrGrammarTbl.ID Идентификатор словоформы найденного слова
 	// Для того, чтобы получить итоговое описание словоформы необходимо сцепить словоформы BaseFormID и FormID
 	int32  WaID;       // Идентификатор дескриптивной ассоциации слова
 	double Score;      // Величина сопоставления данной грамматической формы с требуемой (при преобразовании слова)
@@ -686,22 +685,55 @@ struct SrWordInfo {
 
 class SrDatabase {
 public:
+	//
+	// Descr: Квази-идентификаторы зарезервированных концепций.
+	// Реальные идентификаторы таких концепций могут быть получены вызовом SrDatabase::GetReservedConcept().
+	//
 	enum {
-		rcInstance = 1,
-		rcSubclass,
-		rcType
+		rcInstance = 1, // Instance Of. Symbol: crp_instance
+		rcSubclass,     // Subclass Of. Symbol: crp_subclass
+		rcType          // Type (тип данных). Symbol: crp_type
 	};
 	SrDatabase();
 	~SrDatabase();
 	int    Open(const char * pDbPath);
-	int    Close();
+	void   Close();
 	operator BDbDatabase *()
 	{
 		return P_Db;
 	}
+	//
+	// Descr: Возвращает реальный идентификатор зарезервированной концепции с квази-идентификатором rc.
+	//
+	CONCEPTID FASTCALL GetReservedConcept(int rc);
+	//
+	// Descr: Набор функций, устанавливающий свойство propID для концепции cID.
+	//   Значение свойства определяется последним параметром.
+	// Attention: Функции не проверяют валидность идентификаторов cID и propID. Соответственно,
+	//   не осуществляется и проверка на принадлежность свойства propID домену концепции cID.
+	//
+	int    SetConceptProp(CONCEPTID cID, CONCEPTID propID, long flags, int64 propVal);
+	int    SetConceptProp(CONCEPTID cID, CONCEPTID propID, long flags, int propVal);
+	int    SetConceptProp(CONCEPTID cID, CONCEPTID propID, long flags, double propVal);
 
-	CONCEPTID GetReservedConcept(int rc);
-
+	//
+	// Descr: Реализует базовый механизм извлечения признаков слова wordID из базы данных.
+	//   При извлечении учитываются префикс (pfxID) и суффикс (afxID) слова (если не нулевые).
+	// ARG(wordID   IN): идентификатор слова
+	// ARG(pfxID    IN): идентификатор префикса слова. Если 0, то считается, что префикс либо отсутствует,
+	//   либо содержится в слове wordID.
+	// ARG(afxID    IN): идентификатор суффикса слова. Если 0, то считается, что суффикс либо отсутствует,
+	//   либо содержится в слове wordID.
+	// ARG(rWaList OUT): результирующий список грамматических ассоциаций слова wordID
+	//   (функция предварительно ОЧИЩАЕТ этот список).
+	// ARG(rInfo   OUT): результирующий список инофрмационных блоков (для различных смыслов слова)
+	//   (функция НЕ ОЧИЩАЕТ предварительно этот список).
+	// Returns:
+	//   >0 - функция идентифицировала по крайней мере одну грамматическую ассоциацию слова
+	//   <0 - функция не нашла грамматических ассоциаций слова.
+	//    0 - ошибка
+	//
+	int    GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSArray <SrWordAssoc> & rWaList, TSArray <SrWordInfo> & rInfo);
 	int    GetWordInfo(const char * pWordUtf8, long flags, TSArray <SrWordInfo> & rInfo);
 	int    WordInfoToStr(const SrWordInfo & rWi, SString & rBuf);
 	int    Transform(const char * pWordUtf8, const SrWordForm * pDestForm, TSArray <SrWordInfo> & rResult);
@@ -729,9 +761,27 @@ public:
 	int    GetConceptPropList(CONCEPTID cID, SrCPropList & rPl);
 
 	int    GetPropType(CONCEPTID propID);
-
+	//
+	// Descr: Ищет идентификатор концепции с символом pSymbUtf8. Если такая концепция не существует, то создает ее.
+	// ARG(pSymbUtf8 IN): символ концепции. Значение хранится в таблице SrWordTbl со спец префиксом "/:".
+	// ARG(pID OUT): указатель на идентификатор найденной или созданной концепции с символом pSymbUtf8.
+	// Returns:
+	//  1 - символ pSymbUtf8 найден и найдена концепция по этому символу
+	//  2 - символ pSymbUtf8 найден, но соответствующая концепция отсутсвовала в следствии чего была создана.
+	//  3 - символ pSymbUtf8 не найден и был создан. Соответственно, концепция по этому символу тоже была создана.
+	//  0 - ошибка
+	//
 	int    ResolveConcept(const char * pSymbUtf8, CONCEPTID * pID);
 	int    CreateAnonymConcept(CONCEPTID * pID);
+	//
+	// Descr: Ищет идентификатор слова pWordUtf8. Если такое слово не существует, то создает его.
+	// ARG(pWordUtf8 IN): слово в кодировке UTF-8.
+	// ARG(pID OUT): указатель на идентификатор найденного или созданного слова.
+	// Returns:
+	//   1 - слова pWordUtf8 найдено
+	//   2 - слово pWordUtf8 не существовало до вызова функции в следствии чего оно было создано.
+	//   0 - ошибка
+	//
 	int    ResolveWord(const char * pWordUtf8, LEXID * pID);
 	int    ResolveNGram(const LongArray & rList, NGID * pID);
 	int    ResolveCPropSymb(const char * pSymbUtf8, LEXID * pID);
@@ -742,7 +792,6 @@ public:
 	int    FormatProp(const SrCProp & rCp, long flags, SString & rBuf);
 
 	int    ImportFlexiaModel(const SrImportParam & rParam);
-	int    ImportNames(const SrImportParam & rParam);
 
 	int    StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, int dontCheckExist, TSArray <PPOsm::NodeClusterStatEntry> * pStat);
 	int    StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSArray <PPOsm::WayStatEntry> * pStat);
