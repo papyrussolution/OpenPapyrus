@@ -1206,13 +1206,11 @@ static void xmlXIncludeMergeEntity(xmlEntityPtr ent, xmlXIncludeMergeDataPtr dat
 		if(prev != NULL) {
 			if(ent->etype != prev->etype)
 				goto error;
-
 			if((ent->SystemID != NULL) && (prev->SystemID != NULL)) {
 				if(!sstreq(ent->SystemID, prev->SystemID))
 					goto error;
 			}
-			else if((ent->ExternalID != NULL) &&
-			    (prev->ExternalID != NULL)) {
+			else if((ent->ExternalID != NULL) && (prev->ExternalID != NULL)) {
 				if(!sstreq(ent->ExternalID, prev->ExternalID))
 					goto error;
 			}
@@ -1250,17 +1248,14 @@ error:
  *
  * Returns 0 if merge succeeded, -1 if some processing failed
  */
-static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc,
-    xmlDocPtr from) {
+static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlDocPtr from) 
+{
 	xmlNodePtr cur;
 	xmlDtdPtr target, source;
-
 	if(!ctxt)
 		return -1;
-
 	if((from == NULL) || (from->intSubset == NULL))
 		return 0;
-
 	target = doc->intSubset;
 	if(target == NULL) {
 		cur = xmlDocGetRootElement(doc);
@@ -1270,31 +1265,23 @@ static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc,
 		if(target == NULL)
 			return -1;
 	}
-
 	source = from->intSubset;
-	if((source != NULL) && (source->entities != NULL)) {
+	if(source && source->entities) {
 		xmlXIncludeMergeData data;
-
 		data.ctxt = ctxt;
 		data.doc = doc;
-
-		xmlHashScan((xmlHashTablePtr)source->entities,
-		    (xmlHashScanner)xmlXIncludeMergeEntity, &data);
+		xmlHashScan((xmlHashTablePtr)source->entities, (xmlHashScanner)xmlXIncludeMergeEntity, &data);
 	}
 	source = from->extSubset;
-	if((source != NULL) && (source->entities != NULL)) {
+	if(source && source->entities) {
 		xmlXIncludeMergeData data;
-
 		data.ctxt = ctxt;
 		data.doc = doc;
-
 		/*
 		 * don't duplicate existing stuff when external subsets are the same
 		 */
-		if((!sstreq(target->ExternalID, source->ExternalID)) &&
-		    (!sstreq(target->SystemID, source->SystemID))) {
-			xmlHashScan((xmlHashTablePtr)source->entities,
-			    (xmlHashScanner)xmlXIncludeMergeEntity, &data);
+		if(!sstreq(target->ExternalID, source->ExternalID) && !sstreq(target->SystemID, source->SystemID)) {
+			xmlHashScan((xmlHashTablePtr)source->entities, (xmlHashScanner)xmlXIncludeMergeEntity, &data);
 		}
 	}
 	return 0;
@@ -1310,7 +1297,8 @@ static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc,
  *
  * Returns 0 in case of success, -1 in case of failure
  */
-static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int nr) {
+static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int nr) 
+{
 	xmlDocPtr doc;
 	xmlURIPtr uri;
 	xmlChar * URL;
@@ -1319,7 +1307,6 @@ static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 #ifdef LIBXML_XPTR_ENABLED
 	int saveFlags;
 #endif
-
 #ifdef DEBUG_XINCLUDE
 	xmlGenericError(0, "Loading doc %s:%d\n", url, nr);
 #endif
@@ -1331,12 +1318,12 @@ static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 		xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_HREF_URI, "invalid value URI %s\n", url);
 		return -1;
 	}
-	if(uri->fragment != NULL) {
+	if(uri->fragment) {
 		fragment = (xmlChar*)uri->fragment;
 		uri->fragment = NULL;
 	}
-	if((ctxt->incTab != NULL) && (ctxt->incTab[nr] != NULL) && (ctxt->incTab[nr]->fragment != NULL)) {
-		if(fragment != NULL) SAlloc::F(fragment);
+	if(ctxt->incTab && ctxt->incTab[nr] && ctxt->incTab[nr]->fragment) {
+		SAlloc::F(fragment);
 		fragment = xmlStrdup(ctxt->incTab[nr]->fragment);
 	}
 	URL = xmlSaveUri(uri);

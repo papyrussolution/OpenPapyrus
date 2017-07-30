@@ -66,8 +66,8 @@ static RcString * FASTCALL rcs_create(size_t length)
 
 static void FASTCALL rcs_free(RcString ** rcs)
 {
-	assert(rcs != NULL);
-	if(*rcs != NULL) {
+	assert(rcs);
+	if(*rcs) {
 		ZFREE((*rcs)->P_Text);
 		ZFREE(*rcs);
 	}
@@ -75,7 +75,7 @@ static void FASTCALL rcs_free(RcString ** rcs)
 
 static rstring_code FASTCALL rcs_resize(RcString * rcs, size_t length)
 {
-	assert(rcs != NULL);
+	assert(rcs);
 	char * temp = (char *)SAlloc::R(rcs->P_Text, sizeof(char) * (length + 1)); // length plus '\0'
 	if(temp == NULL) {
 		SAlloc::F(rcs);
@@ -91,8 +91,8 @@ static rstring_code FASTCALL rcs_resize(RcString * rcs, size_t length)
 
 rstring_code rcs_catcs(RcString * pre, const char * pos, const size_t length)
 {
-	assert(pre != NULL);
-	assert(pos != NULL);
+	assert(pre);
+	assert(pos);
 	if(pre->max < (pre->length + length))
 		if(rcs_resize(pre, pre->length + length + RSTRING_INCSTEP) != RS_OK)
 			return RS_MEMORY;
@@ -104,7 +104,7 @@ rstring_code rcs_catcs(RcString * pre, const char * pos, const size_t length)
 
 static rstring_code FASTCALL rcs_catc(RcString * pre, const char c)
 {
-	assert(pre != NULL);
+	assert(pre);
 	if(pre->max <= pre->length)
 		if(rcs_resize(pre, pre->max + RSTRING_INCSTEP) != RS_OK)
 			return RS_MEMORY;
@@ -116,7 +116,7 @@ static rstring_code FASTCALL rcs_catc(RcString * pre, const char c)
 
 static char * FASTCALL rcs_unwrap(RcString * rcs)
 {
-	assert(rcs != NULL);
+	assert(rcs);
 	char * out = (rcs->P_Text == NULL) ? 0 : (char *)SAlloc::R(rcs->P_Text, sizeof(char) * (strlen(rcs->P_Text) + 1));
 	SAlloc::F(rcs);
 	return out;
@@ -125,7 +125,7 @@ static char * FASTCALL rcs_unwrap(RcString * rcs)
 /*static size_t FASTCALL rcs_length(RcString * rcs)
 {
 	// TODO account for UTF8
-	assert(rcs != NULL);
+	assert(rcs);
 	return rcs->length;
 }*/
 
@@ -152,12 +152,12 @@ enum json_error json_stream_parse(FILE * file, json_t ** document)
 	char buffer[1024];	/* hard-coded value */
 	enum json_error error = JSON_INCOMPLETE_DOCUMENT;
 	json_parsing_info state;
-	assert(file != NULL);	/* must be an open stream */
-	assert(document != NULL);	/* must be a valid pointer reference */
-	assert(*document == NULL);	/* only accepts a null json_t pointer, to avoid memory leaks */
+	assert(file); // must be an open stream 
+	assert(document); // must be a valid pointer reference 
+	assert(*document == NULL); // only accepts a null json_t pointer, to avoid memory leaks 
 	json_jpi_init(&state);	/* initializes the json_parsing_info object */
 	while((error == JSON_WAITING_FOR_EOF) || (error == JSON_INCOMPLETE_DOCUMENT)) {
-		if(fgets(buffer, 1024, file) != NULL) {
+		if(fgets(buffer, 1024, file)) {
 			switch(error = json_parse_fragment(&state, buffer)) {
 				case JSON_OK:
 				case JSON_WAITING_FOR_EOF:
@@ -191,7 +191,7 @@ json_t * FASTCALL json_new_value(/*json_value_type*/int type)
 
 json_t * json_new_string(const char * pText)
 {
-	assert(pText != NULL);
+	assert(pText);
 	//json_t * p_new_object = (json_t *)SAlloc::M(sizeof(json_t));
 	json_t * p_new_object = new json_t(json_t::tSTRING);
 	if(p_new_object) {
@@ -208,7 +208,7 @@ json_t * json_new_string(const char * pText)
 
 json_t * json_new_number(const char * pText)
 {
-	assert(pText != NULL);
+	assert(pText);
 	json_t * p_new_object = new json_t(json_t::tNUMBER);
 	if(p_new_object) {
 		size_t   length = strlen(pText) + 1;
@@ -230,8 +230,8 @@ json_t * json_new_number(const char * pText)
 
 /*static void FASTCALL intern_json_free_value(json_t ** ppValue)
 {
-	assert(ppValue != NULL);
-	assert((*ppValue) != NULL);
+	assert(ppValue);
+	assert((*ppValue));
 	assert((*ppValue)->P_Child == NULL);
 	// fixing sibling linked list connections
 	if((*ppValue)->P_Previous && (*ppValue)->P_Next) {
@@ -283,7 +283,7 @@ void json_free_value(json_t ** ppValue)
 				//intern_json_free_value(&cursor);
 				//static void FASTCALL intern_json_free_value(json_t ** ppValue)
 				{
-					assert(p_cursor != NULL);
+					assert(p_cursor);
 					assert(p_cursor->P_Child == NULL);
 					// fixing sibling linked list connections
 					if(p_cursor->P_Previous && p_cursor->P_Next) {
@@ -316,8 +316,8 @@ void json_free_value(json_t ** ppValue)
 enum json_error FASTCALL json_insert_child(json_t * pParent, json_t * pChild)
 {
 	// TODO change the child list from FIFO to LIFO, in order to get rid of the child_end pointer
-	assert(pParent != NULL); // the parent must exist
-	assert(pChild != NULL); // the child must exist
+	assert(pParent); // the parent must exist
+	assert(pChild); // the child must exist
 	assert(pParent != pChild); // parent and child must not be the same. if they are, it will enter an infinite loop
 
 	// enforce tree structure correctness
@@ -383,9 +383,9 @@ enum json_error json_insert_pair_into_object(json_t * pParent, const char * pTex
 {
 	enum     json_error error;
 	// verify if the parameters are valid
-	assert(pParent != NULL);
-	assert(pTextLabel != NULL);
-	assert(pValue != NULL);
+	assert(pParent);
+	assert(pTextLabel);
+	assert(pValue);
 	assert(pParent != pValue);
 	// enforce type coherence
 	assert(pParent->Type == json_t::tOBJECT);
@@ -404,8 +404,8 @@ enum json_error json_insert_pair_into_object(json_t * pParent, const char * pTex
 
 enum json_error json_tree_to_string(json_t * pRoot, char ** ppText)
 {
-	assert(pRoot != NULL);
-	assert(ppText != NULL);
+	assert(pRoot);
+	assert(ppText);
 	json_t * cursor = pRoot;
 	// set up the output and temporary rwstrings
 	RcString * output = rcs_create(RSTRING_DEFAULT);
@@ -525,8 +525,8 @@ end:
 
 enum json_error json_stream_output(FILE * file, json_t * root)
 {
-	assert(root != NULL);
-	assert(file != NULL); // the file stream must be opened
+	assert(root);
+	assert(file); // the file stream must be opened
 	json_t * cursor = root;
 	// set up the output and temporary rwstrings
 
@@ -633,7 +633,7 @@ end:
 
 void json_strip_white_spaces(char * text)
 {
-	assert(text != NULL);
+	assert(text);
 	size_t in = 0;
 	size_t out = 0;
 	size_t length = strlen(text);
@@ -741,43 +741,43 @@ char * json_format_string(const char * text)
 	return rcs_unwrap(output);
 }
 
-char * json_escape(const char * text)
+char * json_escape(const char * pText)
 {
 	RcString * output;
 	size_t i, length;
 	char buffer[6];
 	// check if pre-conditions are met
-	assert(text != NULL);
+	assert(pText);
 	// defining the temporary variables
-	length = strlen(text);
+	length = strlen(pText);
 	output = rcs_create(length);
 	if(!output)
 		return NULL;
 	for(i = 0; i < length; i++) {
-		if(text[i] == '\\')
+		if(pText[i] == '\\')
 			rcs_catcs(output, "\\\\", 2);
-		else if(text[i] == '\"')
+		else if(pText[i] == '\"')
 			rcs_catcs(output, "\\\"", 2);
-		else if(text[i] == '/')
+		else if(pText[i] == '/')
 			rcs_catcs(output, "\\/", 2);
-		else if(text[i] == '\b')
+		else if(pText[i] == '\b')
 			rcs_catcs(output, "\\b", 2);
-		else if(text[i] == '\f')
+		else if(pText[i] == '\f')
 			rcs_catcs(output, "\\f", 2);
-		else if(text[i] == '\n')
+		else if(pText[i] == '\n')
 			rcs_catcs(output, "\\n", 2);
-		else if(text[i] == '\r')
+		else if(pText[i] == '\r')
 			rcs_catcs(output, "\\r", 2);
-		else if(text[i] == '\t')
+		else if(pText[i] == '\t')
 			rcs_catcs(output, "\\t", 2);
-		else if(text[i] < 0) // non-BMP character
-			rcs_catc(output, text[i]);
-		else if(text[i] < 0x20) {
-			sprintf(buffer, "\\u%4.4x", text[i]);
+		else if(pText[i] < 0) // non-BMP character
+			rcs_catc(output, pText[i]);
+		else if(pText[i] < 0x20) {
+			sprintf(buffer, "\\u%4.4x", pText[i]);
 			rcs_catcs(output, buffer, 6);
 		}
 		else
-			rcs_catc(output, text[i]);
+			rcs_catc(output, pText[i]);
 	}
 	return rcs_unwrap(output);
 }
@@ -899,7 +899,7 @@ char * json_unescape(char * text)
 
 void json_jpi_init(json_parsing_info * jpi)
 {
-	assert(jpi != NULL);
+	assert(jpi);
 	jpi->state = 0;
 	jpi->lex_state = 0;
 	jpi->lex_text = NULL;
@@ -908,14 +908,14 @@ void json_jpi_init(json_parsing_info * jpi)
 	jpi->string_length_limit_reached = 0;
 }
 
-int lexer(const char * buffer, char ** p, uint * state, RcString ** text)
+int lexer(const char * pBuffer, char ** p, uint * state, RcString ** text)
 {
-	assert(buffer != NULL);
-	assert(p != NULL);
-	assert(state != NULL);
-	assert(text != NULL);
+	assert(pBuffer);
+	assert(p);
+	assert(state);
+	assert(text);
 	if(*p == NULL)
-		*p = (char *)buffer;
+		*p = (char *)pBuffer;
 	while(**p != '\0') {
 		switch(*state) {
 			case 0:	/* Root document */
@@ -1420,8 +1420,8 @@ int lexer(const char * buffer, char ** p, uint * state, RcString ** text)
 enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 {
 	json_t * p_temp = 0;
-	assert(info != NULL);
-	assert(buffer != NULL);
+	assert(info);
+	assert(buffer);
 	info->p = (char *)buffer;
 	while(*info->p != '\0') {
 		switch(info->state) {
@@ -1852,9 +1852,9 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 enum json_error json_parse_document(json_t ** root, const char *text)
 {
 	enum json_error error = JSON_OK;
-	assert(root != NULL);
+	assert(root);
 	assert(*root == NULL);
-	assert(text != NULL);
+	assert(text);
 	// initialize the parsing structure
 	json_parsing_info * jpi = (json_parsing_info *)SAlloc::M(sizeof(json_parsing_info));
 	if(jpi == NULL) {
@@ -1879,8 +1879,8 @@ enum json_error json_saxy_parse(json_saxy_parser_status *jsps, json_saxy_functio
 	// TODO handle a string instead of a single char
 	RcString * temp = 0;
 	// make sure everything is in it's place
-	assert(jsps != NULL);
-	assert(jsf != NULL);
+	assert(jsps);
+	assert(jsf);
 	// goto where we left off
 	switch(jsps->state) {
 		case 0:  goto state0;  break; // general state. everything goes.
@@ -2308,7 +2308,7 @@ state19: // parse number: fraccional part
 				if(jsf->new_number)
 					jsf->new_number((jsps->temp)->P_Text);
 				rcs_free(&jsps->temp);
-				if(jsf->label_value_separator != NULL)
+				if(jsf->label_value_separator)
 					jsf->label_value_separator();
 				jsps->state = 27;	/* sibling followup */
 				break;
@@ -2539,7 +2539,7 @@ state25:			/* open object */
 				jsps->state = 1;
 				break;
 			case '}':
-				if(jsf->close_object != NULL)
+				if(jsf->close_object)
 					jsf->close_object();
 				jsps->state = 26;	/* close object */
 				break;
@@ -2558,17 +2558,17 @@ state26: // close object/array
 			case '\x0D': // JSON insignificant white spaces
 				break;
 			case '}':
-				if(jsf->close_object != NULL)
+				if(jsf->close_object)
 					jsf->close_object();
 				// jsp->state = 26; // close object
 				break;
 			case ']':
-				if(jsf->close_array != NULL)
+				if(jsf->close_array)
 					jsf->close_array();
 				// jsps->state = 26;       // close object/array
 				break;
 			case ',':
-				if(jsf->sibling_separator != NULL)
+				if(jsf->sibling_separator)
 					jsf->sibling_separator();
 				jsps->state = 27;	/* sibling followup */
 				break;
@@ -2591,12 +2591,12 @@ state27: // sibling followup
 				jsps->temp = NULL;
 				break;
 			case '{':
-				if(jsf->open_object != NULL)
+				if(jsf->open_object)
 					jsf->open_object();
 				jsps->state = 25;	/*open object */
 				break;
 			case '[':
-				if(jsf->open_array != NULL)
+				if(jsf->open_array)
 					jsf->open_array();
 				// jsps->state = 0; // redundant
 				break;
@@ -2636,8 +2636,8 @@ state27: // sibling followup
 json_t * json_find_first_label(const json_t * object, const char * text_label)
 {
 	json_t * cursor;
-	assert(object != NULL);
-	assert(text_label != NULL);
+	assert(object);
+	assert(text_label);
 	assert(object->Type == json_t::tOBJECT);
 	for(cursor = object->P_Child; cursor; cursor = cursor->P_Next)
 		if(strcmp(cursor->P_Text, text_label) == 0)

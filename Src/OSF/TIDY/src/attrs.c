@@ -784,8 +784,7 @@ void TY_(RemoveAnchorByNode) (TidyDocImpl* doc, Node *node)
 {
 	TidyAttribImpl* attribs = &doc->attribs;
 	Anchor * delme = NULL, * curr, * prev = NULL;
-
-	for(curr = attribs->anchor_list; curr!=NULL; curr = curr->next) {
+	for(curr = attribs->anchor_list; curr; curr = curr->next) {
 		if(curr->node == node) {
 			if(prev)
 				prev->next = curr->next;

@@ -291,8 +291,8 @@ void xmlSAX2InternalSubset(void * ctx, const xmlChar * name, const xmlChar * Ext
 		xmlGenericError(0, "SAX.xmlSAX2InternalSubset(%s, %s, %s)\n", name, ExternalID, SystemID);
 #endif
 		if(ctxt->myDoc) {
-			xmlDtdPtr dtd = xmlGetIntSubset(ctxt->myDoc);
-			if(dtd != NULL) {
+			xmlDtd * dtd = xmlGetIntSubset(ctxt->myDoc);
+			if(dtd) {
 				if(ctxt->html)
 					return;
 				xmlUnlinkNode((xmlNode *)dtd);

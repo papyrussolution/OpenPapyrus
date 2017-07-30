@@ -437,44 +437,44 @@ static void xmlTextReaderFreeIDTable(xmlIDTablePtr table)
  */
 static void xmlTextReaderFreeDoc(xmlTextReaderPtr reader, xmlDocPtr cur)
 {
-	xmlDtdPtr extSubset, intSubset;
-	if(!cur)
-		return;
-	if((__xmlRegisterCallbacks) && (xmlDeregisterNodeDefaultValue))
-		xmlDeregisterNodeDefaultValue((xmlNode *)cur);
-	/*
-	 * Do this before freeing the children list to avoid ID lookups
-	 */
-	if(cur->ids)
-		xmlTextReaderFreeIDTable((xmlIDTablePtr)cur->ids);
-	cur->ids = NULL;
-	if(cur->refs)
+	xmlDtd * extSubset;
+	xmlDtd * intSubset;
+	if(cur) {
+		if((__xmlRegisterCallbacks) && (xmlDeregisterNodeDefaultValue))
+			xmlDeregisterNodeDefaultValue((xmlNode *)cur);
+		/*
+		 * Do this before freeing the children list to avoid ID lookups
+		 */
+		if(cur->ids)
+			xmlTextReaderFreeIDTable((xmlIDTablePtr)cur->ids);
+		cur->ids = NULL;
 		xmlFreeRefTable((xmlRefTablePtr)cur->refs);
-	cur->refs = NULL;
-	extSubset = cur->extSubset;
-	intSubset = cur->intSubset;
-	if(intSubset == extSubset)
-		extSubset = NULL;
-	if(extSubset) {
-		xmlUnlinkNode((xmlNode *)cur->extSubset);
-		cur->extSubset = NULL;
-		xmlFreeDtd(extSubset);
+		cur->refs = NULL;
+		extSubset = cur->extSubset;
+		intSubset = cur->intSubset;
+		if(intSubset == extSubset)
+			extSubset = NULL;
+		if(extSubset) {
+			xmlUnlinkNode((xmlNode *)cur->extSubset);
+			cur->extSubset = NULL;
+			xmlFreeDtd(extSubset);
+		}
+		if(intSubset != NULL) {
+			xmlUnlinkNode((xmlNode *)cur->intSubset);
+			cur->intSubset = NULL;
+			xmlFreeDtd(intSubset);
+		}
+		if(cur->children)
+			xmlTextReaderFreeNodeList(reader, cur->children);
+		SAlloc::F((char*)cur->version);
+		SAlloc::F((char*)cur->name);
+		SAlloc::F((char*)cur->encoding);
+		if(cur->oldNs)
+			xmlFreeNsList(cur->oldNs);
+		SAlloc::F((char*)cur->URL);
+		xmlDictFree(cur->dict);
+		SAlloc::F(cur);
 	}
-	if(intSubset != NULL) {
-		xmlUnlinkNode((xmlNode *)cur->intSubset);
-		cur->intSubset = NULL;
-		xmlFreeDtd(intSubset);
-	}
-	if(cur->children)
-		xmlTextReaderFreeNodeList(reader, cur->children);
-	SAlloc::F((char*)cur->version);
-	SAlloc::F((char*)cur->name);
-	SAlloc::F((char*)cur->encoding);
-	if(cur->oldNs)
-		xmlFreeNsList(cur->oldNs);
-	SAlloc::F((char*)cur->URL);
-	xmlDictFree(cur->dict);
-	SAlloc::F(cur);
 }
 
 /************************************************************************

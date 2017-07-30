@@ -1,5 +1,5 @@
 // PETROVI.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2008, 2010, 2011, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2008, 2010, 2011, 2013, 2015, 2016, 2017
 // @codepage windows-1251
 //
 // Интерфейс (асинхронный) с ККМ через драйвер PETROVICH (Ока)
@@ -12,6 +12,8 @@
 #pragma hdrstop
 
 #define DEFAULT_PETROVICH_GOODS_ID_BIAS 0 // @v6.3.4 200-->0
+
+#if 0 // @v9.7.9 {
 
 class ACS_PETROVICH : public CS_1 {
 public:
@@ -400,3 +402,4 @@ int SLAPI ACS_PETROVICH::StoreCashOutput(char * pFileName, long maxCopies)
 }
 
 */
+#endif // } 0 @v9.7.9

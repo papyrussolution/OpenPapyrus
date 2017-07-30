@@ -256,7 +256,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 							}
 						    else 
 								p = NULL;
-						    if(p!=NULL || sa_ctext-sa_ntext<inleft) 
+						    if(p || sa_ctext-sa_ntext<inleft) 
 								err = 1;
 						    else {
 							    memcpy(sa_text+sa_ntext, in, inleft*sizeof(*sa_text));

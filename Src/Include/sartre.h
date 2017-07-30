@@ -236,6 +236,7 @@ protected:
 class SrWordForm : public SrSList { // @transient
 public:
 	SrWordForm();
+	SrWordForm(const SrWordForm & rS);
 	SrWordForm & FASTCALL operator = (const SrWordForm & rS);
 	SrWordForm & FASTCALL Copy(const SrWordForm & rS);
 	//
@@ -249,7 +250,7 @@ public:
 	//   1 - если не существует, то ничего не делать, если уже существует - заменяется.
 	//   2 - если не существует, то создается новый, если уже существует, то ничего не делать.
 	//
-	SrWordForm & Merge(const SrWordForm & rBase, const SrWordForm & rVar, int mode = 0);
+	SrWordForm & Merge_(const SrWordForm & rBase, const SrWordForm & rVar, int mode);
 	int    Normalize();
 	int    FASTCALL IsEqual(const SrWordForm & rS) const;
 	//
@@ -290,13 +291,18 @@ private:
 };
 //
 // Descr: Представление вариантов словоформ в зависимости от окончания и, возможно, приставки.
+//   Хранится в таблице SrGrammarTbl с идентификатором ассоциации SRGRAMTYP_FLEXIAMODEL.
+//   На идентификатор SrFlexiaModel ссылается SrWordAssoc::FlexiaModelID
+// Note: Формат хранения элементов SrFlexiaModel::Item не очевидный (применяется контекстное сжатие для плотной укладки в базе данных).
+//   Любые обращения должны осуществлятся только через public-методы.
 //
 class SrFlexiaModel : public SrSList { // @transient
 public:
 	struct Item {
-		LEXID  AffixID;
-		LEXID  PrefixID;
-		int32  WordFormID;
+		Item();
+		LEXID  AffixID;    // -->SrWordTbl (special=SrWordTbl::spcAffix)
+		LEXID  PrefixID;   // -->SrWordTbl (special=SrWordTbl::spcPrefix)
+		int32  WordFormID; // -->SrGrammarTbl(Type=SRGRAMTYP_WORDFORM)
 	};
 	SrFlexiaModel();
 	int    Normalize();
@@ -326,14 +332,14 @@ struct SrWordAssoc {
 		fHasAffixModel  = 0x0008
 	};
 
-	int32  ID;             // Уникальный идент ассоциации
+	int32  ID;             // -->SrWordAssocTbl.ID Уникальный идент ассоциации 
 	LEXID  WordID;         // Идентификатор слова
 	long   Flags;          // @flags
-	int32  BaseDescrID;
-	int32  FlexiaModelID;
-	int32  AccentModelID;
-	int32  PrefixID;
-	int32  AffixModelID;
+	int32  BaseFormID;     // -->SrGrammarTbl(Type=SRGRAMTYP_WORDFORM)
+	int32  FlexiaModelID;  // -->SrGrammarTbl(Type=SRGRAMTYP_FLEXIAMODEL)
+	int32  AccentModelID;  // @todo Модель ударений 
+	int32  PrefixID;       //
+	int32  AffixModelID;   // @todo Аффиксная модель для проверки правописания 
 };
 //
 // {id;word}
@@ -369,7 +375,7 @@ private:
 // Структура записи:
 // {
 //     int32 ID;      // Идентификатор записи
-//     int16 Type;    // Тип данных, хранящихся в записи
+//     int16 Type;    // SRGRAMTYP_XXX Тип данных, хранящихся в записи
 //     uint8 Tail[];  // Собственно грамматическая конструкция. Формат хранения целиком зависит от Type.
 // }
 //
@@ -400,7 +406,7 @@ public:
 	SrWordAssocTbl(BDbDatabase * pDb);
 	~SrWordAssocTbl();
 	int    Add(SrWordAssoc * pWa, int32 * pID);
-	int    Update(int32 id, SrWordAssoc * pWa);
+	//int    Update(int32 id, SrWordAssoc * pWa);
 	int    Search(int32 id, SrWordAssoc * pWa);
 	int    Search(LEXID wordID, TSArray <SrWordAssoc> & rList);
 	int    SerializeRecBuf(int dir, SrWordAssoc * pWa, SBuffer & rBuf);
@@ -408,7 +414,7 @@ private:
 	long   SeqID;
 };
 //
-// Descr:
+// Descr: Представление N-gram (комбинация нескольких слов).
 //
 class SrNGram {
 public:
@@ -479,6 +485,7 @@ public:
 	int    FASTCALL Merge(const SrCPropDeclList & rS);
 private:
 	struct Item {
+		Item();
 		CONCEPTID PropID;
 		LEXID  SymbID;
 		uint32 TailS;  // Размер хвостовой части
@@ -556,7 +563,8 @@ public:
 	const  void * GetDataPtr(uint pos, size_t * pDataLen) const;
 	size_t GetData(uint pos, void * pData, size_t bufLen) const;
 	uint   GetCount() const;
-	int    GetProp(uint pos, SrCProp & rProp) const;
+	int    GetByPos(uint pos, SrCProp & rProp) const;
+	int    Get(CONCEPTID cID, CONCEPTID propID, SrCProp & rProp) const;
 private:
 	struct Item {
 		CONCEPTID CID;
@@ -658,7 +666,7 @@ public:
 		fTest = 0x0001
 	};
 	SrImportParam();
-	int    SetField(int fld, const char * pVal);
+	void   SetField(int fld, const char * pVal);
 	int    GetField(int fld, SString & rVal) const;
 
 	int    InputKind;
@@ -715,7 +723,15 @@ public:
 	int    SetConceptProp(CONCEPTID cID, CONCEPTID propID, long flags, int64 propVal);
 	int    SetConceptProp(CONCEPTID cID, CONCEPTID propID, long flags, int propVal);
 	int    SetConceptProp(CONCEPTID cID, CONCEPTID propID, long flags, double propVal);
-
+	//
+	// Descr: Устанавливает теги словоформы wordID в соответствии с определением rWf.
+	//   Предварительно ищет существующие дескрипторы словоформ этого слова и, если существует 
+	//   хоть один, содержащий rWf как свое подмножество, то ничего не делает. В противном случае
+	//   добавляет новый дескриптор, соответствующий rWf.
+	// Note: Функция высокоуровневая и ориентирована на завершенные слова. Дескрипторы словоформ, определенные
+	//   для составных конструкций ([prefix] [base] [suffix]) должны устанавливаются более сложными методами.
+	//
+	int    SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf);
 	//
 	// Descr: Реализует базовый механизм извлечения признаков слова wordID из базы данных.
 	//   При извлечении учитываются префикс (pfxID) и суффикс (afxID) слова (если не нулевые).
@@ -726,7 +742,7 @@ public:
 	//   либо содержится в слове wordID.
 	// ARG(rWaList OUT): результирующий список грамматических ассоциаций слова wordID
 	//   (функция предварительно ОЧИЩАЕТ этот список).
-	// ARG(rInfo   OUT): результирующий список инофрмационных блоков (для различных смыслов слова)
+	// ARG(rInfo   OUT): результирующий список информационных блоков (для различных смыслов слова)
 	//   (функция НЕ ОЧИЩАЕТ предварительно этот список).
 	// Returns:
 	//   >0 - функция идентифицировала по крайней мере одну грамматическую ассоциацию слова
@@ -736,7 +752,10 @@ public:
 	int    GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSArray <SrWordAssoc> & rWaList, TSArray <SrWordInfo> & rInfo);
 	int    GetWordInfo(const char * pWordUtf8, long flags, TSArray <SrWordInfo> & rInfo);
 	int    WordInfoToStr(const SrWordInfo & rWi, SString & rBuf);
-	int    Transform(const char * pWordUtf8, const SrWordForm * pDestForm, TSArray <SrWordInfo> & rResult);
+	//
+	// Descr: Трансформирует слово pWordUtf8 в форму, определенную параметром rDestForm
+	//
+	int    Transform_(const char * pWordUtf8, const SrWordForm & rDestForm, TSArray <SrWordInfo> & rResult);
 
 	int    SearchWord(int special, const char * pWordUtf8, LEXID * pID);
 	int    SearchNGram(const LongArray & rNg, NGID * pID);

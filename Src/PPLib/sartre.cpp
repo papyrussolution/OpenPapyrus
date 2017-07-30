@@ -96,6 +96,11 @@ SrWordForm::SrWordForm() : SrSList(SRGRAMTYP_WORDFORM)
 {
 }
 
+SrWordForm::SrWordForm(const SrWordForm & rS) : SrSList(SRGRAMTYP_WORDFORM)
+{
+	Copy(rS);
+}
+
 SrWordForm & FASTCALL SrWordForm::operator = (const SrWordForm & rS)
 {
 	return Copy(rS);
@@ -107,7 +112,7 @@ SrWordForm & FASTCALL SrWordForm::Copy(const SrWordForm & rS)
 	return *this;
 }
 
-SrWordForm & SrWordForm::Merge(const SrWordForm & rBase, const SrWordForm & rVar, int mode)
+SrWordForm & SrWordForm::Merge_(const SrWordForm & rBase, const SrWordForm & rVar, int mode)
 {
 	SrSList::Copy(rBase);
 	for(size_t p = 0; rVar.P_Buf[p]; p = rVar.Step(p))
@@ -479,6 +484,13 @@ int FASTCALL SrWordForm::FromStr(const char * pStr)
 //
 //
 //
+SrFlexiaModel::Item::Item()
+{
+	AffixID = 0;
+	PrefixID = 0;
+	WordFormID = 0;
+}
+
 SrFlexiaModel::SrFlexiaModel() : SrSList(SRGRAMTYP_FLEXIAMODEL)
 {
 }
@@ -658,6 +670,14 @@ int FASTCALL SrCPropDecl::IsEqual(const SrCPropDecl & rS) const
 //
 //
 //
+SrCPropDeclList::Item::Item()
+{
+	PropID = 0;
+	SymbID = 0;
+	TailS = 0;
+	TailP = 0;
+}
+
 SrCPropDeclList::SrCPropDeclList()
 {
 	Pool.Init();
@@ -698,9 +718,8 @@ SrCPropDeclList & SrCPropDeclList::Clear()
 
 int FASTCALL SrCPropDeclList::Add(const SrCPropDecl & rP)
 {
-	int ok = 1;
-	Item item;
-	MEMSZERO(item);
+	int    ok = 1;
+	Item   item;
 	item.PropID = rP.PropID;
 	item.SymbID = rP.SymbID;
 	const size_t added_size = rP.Tail.Size;
@@ -721,7 +740,6 @@ int SrCPropDeclList::Replace(uint pos, const SrCPropDecl & rP)
 	if(pos < D.getCount()) {
 		D.atFree(pos);
 		Item item;
-		MEMSZERO(item);
 		item.PropID = rP.PropID;
 		item.SymbID = rP.SymbID;
 		const size_t added_size = rP.Tail.Size;
@@ -800,7 +818,7 @@ int FASTCALL SrCPropDeclList::IsEqual(const SrCPropDeclList & rS) const
 			const Item & rsi = rS.D.at(i);
 			if(ri.PropID != rsi.PropID)
 				return 0;
-			else if(ri.SymbID != rsi.PropID)
+			else if(ri.SymbID != rsi.SymbID)
 				return 0;
 			else if(ri.TailS != rsi.TailS)
 				return 0;
@@ -816,34 +834,36 @@ int FASTCALL SrCPropDeclList::IsEqual(const SrCPropDeclList & rS) const
 int FASTCALL SrCPropDeclList::Merge(const SrCPropDeclList & rS)
 {
 	int    ok = -1;
-	const uint sc = rS.D.getCount();
-	for(uint i = 0; i < sc; i++) {
-		const Item & rsi = rS.D.at(i);
-		SrCPropDecl temp_pd;
-		rS.Get(i, temp_pd);
-		int    do_add = 1;
-		const uint c = D.getCount();
-		for(uint j = 0; j < c; j++) {
-			const Item & ri = D.at(j);
-			if(ri.SymbID == rsi.SymbID) {
-				if(ri.PropID == rsi.PropID) {
-					//
-					// Пара {Prop; Symb} эквивалентна. Заменяем текущий элемент тем,
-					// который находится в rS (правило переопределения более ранней
-					// декларации более поздней.
-					//
-					THROW(Replace(j, temp_pd));
-					do_add = 0;
-					ok = 1;
-				}
-				else {
-					CALLEXCEPT();
+	if(!IsEqual(rS)) { // Равенство списков свойств достаточно популярная ситуация при повторной обработке того же источника данных
+		const uint sc = rS.D.getCount();
+		for(uint i = 0; i < sc; i++) {
+			const Item & rsi = rS.D.at(i);
+			SrCPropDecl temp_pd;
+			rS.Get(i, temp_pd);
+			int    do_add = 1;
+			const uint c = D.getCount();
+			for(uint j = 0; j < c; j++) {
+				const Item & ri = D.at(j);
+				if(ri.SymbID == rsi.SymbID) {
+					if(ri.PropID == rsi.PropID) {
+						//
+						// Пара {Prop; Symb} эквивалентна. Заменяем текущий элемент тем,
+						// который находится в rS (правило переопределения более ранней
+						// декларации более поздней.
+						//
+						THROW(Replace(j, temp_pd));
+						do_add = 0;
+						ok = 1;
+					}
+					else {
+						CALLEXCEPT();
+					}
 				}
 			}
-		}
-		if(do_add) {
-			THROW(Add(temp_pd));
-			ok = 1;
+			if(do_add) {
+				THROW(Add(temp_pd));
+				ok = 1;
+			}
 		}
 	}
 	CATCHZOK
@@ -985,7 +1005,28 @@ int SrCPropList::Search(CONCEPTID cID, CONCEPTID propID, uint * pPos) const
 	return ok;
 }
 
-int SrCPropList::GetProp(uint pos, SrCProp & rProp) const
+int SrCPropList::Get(CONCEPTID cID, CONCEPTID propID, SrCProp & rProp) const
+{
+	rProp.Clear();
+	int    ok = 0;
+	const uint c = L.getCount();
+	for(uint i = 0; !ok && i < c; i++) {
+		const Item & r_item = L.at(i);
+		if(r_item.CID == cID && r_item.PropID == propID) {
+			rProp.CID = r_item.CID;
+			rProp.PropID = r_item.PropID;
+			if(r_item.P && r_item.S) {
+				const void * p_data = D.GetBuf(r_item.P);
+				if(p_data)
+					rProp.Value.Write(p_data, r_item.S);
+			}
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int SrCPropList::GetByPos(uint pos, SrCProp & rProp) const
 {
 	int    ok = 1;
 	rProp.Clear();
@@ -1076,8 +1117,6 @@ int SrCPropList::Set(CONCEPTID cID, CONCEPTID propID, const void * pData, size_t
 		Item new_item;
 		new_item.CID = cID;
 		new_item.PropID = propID;
-		new_item.P = 0;
-		new_item.S = 0;
 		uint   pos = L.getCount();
 		THROW(L.insert(&new_item));
 		THROW(SetData(pos, pData, dataLen));
@@ -1731,7 +1770,7 @@ SLAPI SrWordAssoc::SrWordAssoc()
 	ID = 0;
 	WordID = 0;
 	Flags = 0;
-	BaseDescrID = 0;
+	BaseFormID = 0;
 	FlexiaModelID = 0;
 	AccentModelID = 0;
 	PrefixID = 0;
@@ -1755,7 +1794,7 @@ SrWordAssoc & SLAPI SrWordAssoc::Normalize()
 SString & FASTCALL SrWordAssoc::ToStr(SString & rBuf) const
 {
 	return (rBuf = 0).CatChar('[').Cat(ID).CatDiv(',', 2).Cat(WordID).CatDiv(',', 2).Cat("0x").CatHex(Flags).CatDiv(',', 2).
-		Cat(BaseDescrID).CatDiv(',', 2).Cat(FlexiaModelID).CatDiv(',', 2).Cat(AccentModelID).CatDiv(',', 2).
+		Cat(BaseFormID).CatDiv(',', 2).Cat(FlexiaModelID).CatDiv(',', 2).Cat(AccentModelID).CatDiv(',', 2).
 		Cat(PrefixID).CatDiv(',', 2).Cat(AffixModelID).CatChar(']');
 }
 //
@@ -1769,10 +1808,9 @@ SrImportParam::SrImportParam()
 	Flags = 0;
 }
 
-int SrImportParam::SetField(int fld, const char * pVal)
+void SrImportParam::SetField(int fld, const char * pVal)
 {
 	StrItems.Add(fld, pVal);
-	return 1;
 }
 
 int SrImportParam::GetField(int fld, SString & rVal) const
@@ -1896,7 +1934,6 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 									if(anc_buf.NotEmptyS()) {
 										uint   anc_id = 0;
 										SrFlexiaModel::Item item;
-										MEMSZERO(item);
 										if(anc_tab.Search(anc_buf, &anc_id, 0) > 0) {
 											if(afx_buf.NotEmptyS()) {
 												afx_buf.ToUtf8().Utf8ToLower();
@@ -2034,8 +2071,8 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 											item_buf.Strip(); // базовый ancode
 											uint   anc_id = 0;
 											if(!(item_buf == "-") && anc_tab.Search(item_buf, &anc_id, 0) > 0)
-												wa.BaseDescrID = anc_id;
-											SETIFZ(wa.BaseDescrID, base_skeleton_wf_id);
+												wa.BaseFormID = anc_id;
+											SETIFZ(wa.BaseFormID, base_skeleton_wf_id);
 											if(scan.Skip().SearchChar(' ')) {
 												scan.Get(item_buf);
 												scan.IncrLen(1);
@@ -2051,7 +2088,7 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 								}
 							}
 						}
-						if(wa.FlexiaModelID || wa.BaseDescrID) {
+						if(wa.FlexiaModelID || wa.BaseFormID) {
 							THROW(P_WaT->Add(&wa.Normalize(), &wa_id));
 							if(rParam.Flags & rParam.fTest) {
 								P_WaT->Search(wa.WordID, test_wa_list);
@@ -2969,7 +3006,7 @@ int SrConceptParser::Run(const char * pFileName)
 	int    ok = 1;
 	int    finish = 0;
 	int    lang_id = 0;
-	TSArray <SrWordAssoc> wa_list;
+	//TSArray <SrWordAssoc> wa_list;
 	TSArray <SrWordInfo> word_info;
 	SString temp_buf, ident_buf;
 	SString msg_buf;
@@ -3002,12 +3039,9 @@ int SrConceptParser::Run(const char * pFileName)
 							assert(word_id);
 							const int lang_id = p_current->GetLangID();
 							if(lang_id) {
-								word_info.clear();
-								R_Db.GetBaseWordInfo(word_id, 0, 0, wa_list, word_info);
-								for(uint wii = 0; wii < word_info.getCount(); wii++) {
-									const SrWordInfo & r_wi = word_info.at(wii);
-									//if(r_wi.Lan)
-								}
+								SrWordForm wf;
+								wf.SetTag(SRWG_LANGUAGE, lang_id);
+								THROW(R_Db.SetSimpleWordFlexiaModel(word_id, wf));
 							}
 						}
 						ngram.add(word_id);
@@ -3278,9 +3312,8 @@ int SrConceptParser::Run(const char * pFileName)
 							}
 							else if(prev_tok == tokSpace) {
 								Operator * p_parent = p_current->FindParent();
-								if(p_parent && (p_parent->NgID || p_parent->CID)) {
+								if(p_parent && (p_parent->NgID || p_parent->CID))
 									p_parent->EqToList.add(cid);
-								}
 							}
 							else {
 								CALLEXCEPT_PP(PPERR_SR_C_UNEXPAFTER_2EC);
@@ -3394,78 +3427,268 @@ int SLAPI PrcssrSartre::EditParam(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(PrcssrSartreFiltDialog, p_filt);
 }
 
-int SLAPI PrcssrSartre::ImportHumanNames(const char * pSrcFileName, const char * pLinguaSymb)
+class SrImpHumanNameList : public SStrGroup {
+public:
+	struct Entry {
+		SString Name;
+		int   Gender;
+	};
+	SrImpHumanNameList() : SStrGroup()
+	{
+	}
+	uint   GetCount() const
+	{
+		return L.getCount();
+	}
+	uint   GetItem(uint p, Entry & rItem) const
+	{
+		return Helper_GetItem(p, rItem);
+	}
+	int    AddItem(Entry & rItem)
+	{
+		int    ok = 1;
+		InnerEntry int_item;
+		MEMSZERO(int_item);
+		int_item.Gender = rItem.Gender;
+		int_item.NameP = 0;
+		AddS(rItem.Name, &int_item.NameP);
+		L.insert(&int_item);
+		return ok;
+	}
+	void   Sort()
+	{
+		L.sort(PTR_CMPCFUNC(SrImpHumanNameEntry), this);
+	}
+private:
+	struct InnerEntry {
+		uint   NameP;
+		int    Gender;
+	};
+	static IMPL_CMPCFUNC(SrImpHumanNameEntry, i1, i2)
+	{
+		const InnerEntry * p1 = (const InnerEntry *)i1;
+		const InnerEntry * p2 = (const InnerEntry *)i2;
+		SString n1, n2;
+		((SrImpHumanNameList *)pExtraData)->GetS(p1->NameP, n1);
+		((SrImpHumanNameList *)pExtraData)->GetS(p2->NameP, n2);
+		SStringU nu1, nu2;
+		nu1.CopyFromUtf8(n1);
+		nu2.CopyFromUtf8(n2);
+		return nu1.Cmp(nu2);
+	}
+	int    Helper_GetItem(uint pos, Entry & rItem) const
+	{
+		int    ok = 0;
+		if(pos < L.getCount()) {
+			const InnerEntry & r_int_item = L.at(pos);
+			rItem.Gender = r_int_item.Gender;
+			GetS(r_int_item.NameP, rItem.Name);
+			ok = 1;
+		}
+		return ok;
+	}
+	TSArray <InnerEntry> L;
+};
+
+int SLAPI PrcssrSartre::ImportHumanNames(const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing)
 {
 	int    ok = 1;
+	const  uint max_items_per_tx = 256;
+	const  char * p_parent_concept = 0;
+	BDbTransaction * p_ta = 0;
 	SString temp_buf;
-	SString name;
+	SString msg_buf;
 	SString src_file_name;
 	SString line_buf;
-	int   gender = 0; // 1 - mas, 2 - fem
-	long  freq = 0;
+	SStringU uname, uname_prev;
 	int   lang_id = RecognizeLinguaSymb(pLinguaSymb, 1);
-	SrDatabase db;
-	THROW(db.Open(0));
-	{
-		(src_file_name = P.SrcPath).SetLastSlash().Cat(pSrcFileName); // utf-8
-		StringSet ss(";");
-		StringSet name_ss;
-		LongArray ngram;
-		SFile f_in(src_file_name, SFile::mRead);
-		if(f_in.IsValid()) {
-			uint   line_no = 0;
-			while(f_in.ReadLine(line_buf)) {
-				line_no++;
-				if(line_no > 1 && line_buf.Chomp().NotEmptyS()) {
-					ss.setBuf(line_buf);
-					line_buf.Transf(CTRANSF_UTF8_TO_INNER);
-					uint   fld_no = 0;
-					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-						fld_no++;
-						name = 0;
-						gender = 0;
-						freq = 0;
-						if(fld_no == 1) {
-							name = temp_buf.Strip().ToLower().Transf(CTRANSF_INNER_TO_UTF8);
+	if(properNameType == SRPROPN_PERSONNAME)
+		p_parent_concept = "hum_fname";
+	else if(properNameType == SRPROPN_FAMILYNAME)
+		p_parent_concept = "hum_sname";
+	else if(properNameType == SRPROPN_PATRONYMIC)
+		p_parent_concept = "hum_pname";
+	if(p_parent_concept) {
+		CONCEPTID parent_cid = 0;
+		CONCEPTID gender_cid = 0;
+		CONCEPTID gender_fem_cid = 0;
+		CONCEPTID gender_mas_cid = 0;
+		SrDatabase db;
+		THROW(db.Open(0));
+		THROW(db.ResolveConcept(p_parent_concept, &parent_cid));
+		THROW(db.ResolveConcept("gender", &gender_cid));
+		THROW(db.ResolveConcept("gender_mas", &gender_mas_cid));
+		THROW(db.ResolveConcept("gender_fem", &gender_fem_cid));
+		assert(parent_cid);
+		assert(gender_cid);
+		assert(gender_mas_cid);
+		assert(gender_fem_cid);
+		{
+			(src_file_name = P.SrcPath).SetLastSlash().Cat(pSrcFileName); // utf-8
+			StringSet ss(";");
+			StringSet name_ss;
+			LongArray ngram;
+			SFile f_in(src_file_name, SFile::mRead);
+			if(f_in.IsValid()) {
+				{
+					(msg_buf = "ImportHumanName").Space().Cat(src_file_name);
+					PPWaitMsg(msg_buf);
+				}
+				SrImpHumanNameList list;
+				SrImpHumanNameList::Entry entry;
+				uint   line_no = 0;
+				while(f_in.ReadLine(line_buf)) {
+					line_no++;
+					if(line_no > 1 && line_buf.Chomp().NotEmptyS()) {
+						line_buf.Transf(CTRANSF_UTF8_TO_INNER);
+						ss.setBuf(line_buf);
+						uint   fld_no = 0;
+						double freq = 0.0;
+						entry.Name = 0;
+						entry.Gender = 0;
+						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+							fld_no++;
+							if(fld_no == 1) {
+								entry.Name = temp_buf.Strip().ToLower().Transf(CTRANSF_INNER_TO_UTF8);
+							}
+							else if(fld_no == 2) {
+								temp_buf.Strip().ToLower();
+								if(temp_buf == "male")
+									entry.Gender = SRGENDER_MASCULINE;
+								else if(temp_buf == "female")
+									entry.Gender = SRGENDER_FEMININE;
+							}
+							else if(fld_no == 3) {
+								freq = temp_buf.ToReal();
+							}
 						}
-						else if(fld_no == 2) {
-							temp_buf.Strip().ToLower();
-							if(temp_buf == "male")
-								gender = 1;
-							else if(temp_buf == "female")
-								gender = 2;
+						if(entry.Name.NotEmpty()) {
+							list.AddItem(entry);
 						}
-						else if(fld_no == 3) {
-							freq = temp_buf.ToLong();
-						}
-						if(name.NotEmpty()) {
+					}
+				}
+				list.Sort();
+				{
+					uint   items_per_tx = 0;
+					SStringU this_name_u;
+					SStringU next_name_u;
+					int    coupled_gender = 0;
+					THROW_MEM(p_ta = new BDbTransaction(db, 1));
+					THROW_DB(*p_ta);
+					for(uint i = 0; i < list.GetCount(); i++) {
+						if(list.GetItem(i, entry)) {
 							NGID   ngram_id = 0;
 							ngram.clear();
-							name.Tokenize(" ", name_ss);
+							name_ss.clear(1);
+							entry.Name.Tokenize(" ", name_ss);
 							for(uint nssp = 0; name_ss.get(&nssp, temp_buf);) {
-								LEXID word_id = 0;
+								LEXID  word_id = 0;
 								THROW(db.ResolveWord(temp_buf, &word_id));
-								if(word_id)
-									ngram.add(word_id);
-								else {
-									; // @error
+								temp_buf.Transf(CTRANSF_UTF8_TO_OUTER); // @debug
+								assert(word_id);
+								ngram.add(word_id);
+							}
+							if(lang_id) {
+								if(ngram.getCount() == 1) {
+									SrWordForm wf;
+									wf.SetTag(SRWG_LANGUAGE, lang_id);
+									wf.SetTag(SRWG_CLASS, SRWC_NOUN);
+									if(properNameType)
+										wf.SetTag(SRWG_PROPERNAME, properNameType);
+									if(entry.Gender)
+										wf.SetTag(SRWG_GENDER, entry.Gender);
+									THROW(db.SetSimpleWordFlexiaModel(ngram.get(0), wf));
+								}
+								else if(ngram.getCount() > 1) {
+									for(uint j = 0; j < ngram.getCount(); j++) {
+										SrWordForm wf;
+										wf.SetTag(SRWG_LANGUAGE, lang_id);
+										THROW(db.SetSimpleWordFlexiaModel(ngram.get(j), wf));
+									}
 								}
 							}
 							THROW(db.ResolveNGram(ngram, &ngram_id));
 							if(ngram_id) {
-								//SrCPropDeclList pdl;
-								//THROW(db.GetPropDeclList(cid, pdl));
 								CONCEPTID prop_subclass = db.GetReservedConcept(db.rcSubclass);
+								SrCPropDeclList pdl;
+
+								CONCEPTID cid = 0;
+								Int64Array _clist;
+
+								SrCPropList cpl;
+								SrCProp cp, cp_gender;
 								THROW(prop_subclass);
-								//THROW(db.SetConceptProp(p_current->CID, prop_subclass, 0, p_current->SubclassOf));
+								if(db.GetNgConceptList(ngram_id, db.ngclAnonymOnly, _clist) > 0) {
+									assert(_clist.getCount());
+									for(uint cidx = 0; !cid && cidx < _clist.getCount(); cidx++) {
+										CONCEPTID _c = _clist.get(cidx);
+										if(db.GetConceptPropList(_c, cpl) > 0 && cpl.Get(_c, prop_subclass, cp)) {
+											CONCEPTID _val = 0;
+											if(cp.Get(_val) && _val == parent_cid) {
+												if(cpl.Get(_c, gender_cid, cp_gender) && cp_gender.Get(_val)) {
+													if(!entry.Gender)
+														cid = _c;
+													else if(entry.Gender == SRGENDER_MASCULINE && _val == gender_mas_cid)
+														cid = _c;
+													else if(entry.Gender == SRGENDER_FEMININE && _val == gender_fem_cid)
+														cid = _c;
+													else
+														cid = 0;
+												}
+												else {
+													cid = _c;
+													if(entry.Gender == SRGENDER_MASCULINE) {
+														THROW(db.SetConceptProp(cid, gender_cid, 0, gender_mas_cid));
+													}
+													else if(entry.Gender == SRGENDER_FEMININE) {
+														THROW(db.SetConceptProp(cid, gender_cid, 0, gender_fem_cid));
+													}
+												}
+											}
+										}
+									}
+								}
+								if(!cid) {
+									THROW(db.CreateAnonymConcept(&cid));
+									THROW(db.P_CNgT->Set(cid, ngram_id));
+									THROW(db.SetConceptProp(cid, prop_subclass, 0, parent_cid));
+									if(entry.Gender == SRGENDER_MASCULINE) {
+										THROW(db.SetConceptProp(cid, gender_cid, 0, gender_mas_cid));
+									}
+									else if(entry.Gender == SRGENDER_FEMININE) {
+										THROW(db.SetConceptProp(cid, gender_cid, 0, gender_fem_cid));
+									}
+								}
+							}
+							{
+								items_per_tx++;
+								if(items_per_tx >= max_items_per_tx) {
+									if(p_ta) {
+										THROW_DB(p_ta->Commit());
+										ZDELETE(p_ta);
+									}
+									THROW_MEM(p_ta = new BDbTransaction(db, 1));
+									THROW_DB(*p_ta);
+									items_per_tx = 0;
+								}
 							}
 						}
+						{
+							(msg_buf = "ImportHumanName").Space().Cat(src_file_name);
+							PPWaitPercent(i+1, list.GetCount(), msg_buf);
+						}
 					}
+					if(p_ta) {
+						THROW_DB(p_ta->Commit());
+						ZDELETE(p_ta);
+					}
+					THROW_DB(db.P_Db->TransactionCheckPoint());
 				}
 			}
 		}
 	}
 	CATCHZOK
+	delete p_ta;
 	return ok;
 }
 
@@ -3532,7 +3755,13 @@ int SLAPI PrcssrSartre::Run()
 			}
 		}
 		if(P.Flags & P.fImportHumNames) {
-			if(!ImportHumanNames("ru", "name-firstname-ru.csv")) {
+			if(!ImportHumanNames("name-firstname-ru.csv", "ru", SRPROPN_PERSONNAME, 0)) {
+				logger.LogLastError();
+			}
+			if(!ImportHumanNames("name-surname-ru.csv", "ru", SRPROPN_FAMILYNAME, 1)) {
+				logger.LogLastError();
+			}
+			if(!ImportHumanNames("name-firstname-en.csv", "en", SRPROPN_PERSONNAME, 0)) {
 				logger.LogLastError();
 			}
 		}
@@ -3632,12 +3861,11 @@ int SLAPI PrcssrSartre::TestSearchWords()
 		{
 			const char * p_word = "Я"; /*"ТЕХНОЛОГИЧЕСКАЯ";*/ /*"КОНСТАНТИНОВИЧУ";*/
 			SrWordForm wf;
-			temp_buf = p_word;
-			temp_buf.ToUtf8();
+			(temp_buf = p_word).ToUtf8();
 			info_list.clear();
 			wf.SetTag(SRWG_CASE, SRCASE_DATIVE);
 			wf.SetTag(SRWG_COUNT, SRCNT_PLURAL);
-			if(db.Transform(temp_buf, &wf, info_list) > 0) {
+			if(db.Transform_(temp_buf, wf, info_list) > 0) {
 				for(uint j = 0; j < info_list.getCount(); j++) {
 					db.WordInfoToStr(info_list.at(j), temp_buf);
 					temp_buf.Utf8ToChar();
@@ -3659,6 +3887,11 @@ int PrcssrSartre::TestConcept()
 	THROW(db.Open(0));
 	{
 		const char * p_words[] = {
+			"zoheret",
+			"адавье",
+			"сергей",
+			"маргарита",
+			"востриков",
 			"дарья",
 			"максим",
 			"россия",
@@ -3678,7 +3911,7 @@ int PrcssrSartre::TestConcept()
 			"oxygenium",
 			"atom_p",
 			"центральная африка",
-			"ling_cs"
+			"ling_cs",
 		};
 		PPGetFilePath(PPPATH_OUT, "Sartr_TestConcept.txt", temp_buf);
 		SFile out_file(temp_buf, SFile::mWrite);
@@ -3712,7 +3945,7 @@ int PrcssrSartre::TestConcept()
 							line_buf.CatChar('(');
 							if(db.GetConceptPropList(cid, cpl) > 0) {
 								for(uint k = 0; k < cpl.GetCount(); k++) {
-									if(cpl.GetProp(k, cp)) {
+									if(cpl.GetByPos(k, cp)) {
 										db.FormatProp(cp, 0, temp_buf);
 										if(k)
 											line_buf.CatDiv(',', 2);

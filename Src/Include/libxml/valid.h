@@ -217,7 +217,7 @@ XMLPUBFUN int XMLCALL xmlRemoveID(xmlDocPtr doc, xmlAttrPtr attr);
 
 /* IDREFs */
 XMLPUBFUN xmlRefPtr XMLCALL xmlAddRef(xmlValidCtxtPtr ctxt, xmlDocPtr doc, const xmlChar * value, xmlAttrPtr attr);
-XMLPUBFUN void XMLCALL xmlFreeRefTable(xmlRefTablePtr table);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeRefTable(xmlRefTable * table);
 XMLPUBFUN int XMLCALL xmlIsRef(xmlDocPtr doc, xmlNodePtr elem, xmlAttrPtr attr);
 XMLPUBFUN int XMLCALL xmlRemoveRef(xmlDocPtr doc, xmlAttrPtr attr);
 XMLPUBFUN xmlListPtr XMLCALL xmlGetRefs(xmlDocPtr doc, const xmlChar * ID);

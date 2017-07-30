@@ -29,19 +29,19 @@ extern "C" {
  * See: http://mail.gnome.org/archives/xml/2007-April/thread.html#00127
  */
 typedef struct _xmlURI xmlURI;
-typedef xmlURI *xmlURIPtr;
+typedef xmlURI * xmlURIPtr;
 struct _xmlURI {
-    char *scheme;	/* the URI scheme */
-    char *opaque;	/* opaque part */
-    char *authority;	/* the authority part */
-    char *server;	/* the server part */
-    char *user;		/* the user part */
-    int port;		/* the port number */
-    char *path;		/* the path string */
-    char *query;	/* the query string (deprecated - use with caution) */
-    char *fragment;	/* the fragment identifier */
-    int  cleanup;	/* parsing potentially unclean URI */
-    char *query_raw;	/* the query string (as it appears in the URI) */
+	char * scheme;  /* the URI scheme */
+	char * opaque;  /* opaque part */
+	char * authority; /* the authority part */
+	char * server;  /* the server part */
+	char * user;    /* the user part */
+	int port;       /* the port number */
+	char * path;    /* the path string */
+	char * query;   /* the query string (deprecated - use with caution) */
+	char * fragment; /* the fragment identifier */
+	int cleanup;    /* parsing potentially unclean URI */
+	char * query_raw; /* the query string (as it appears in the URI) */
 };
 
 /*
@@ -49,44 +49,21 @@ struct _xmlURI {
  * xmlChar *	xmlNodeGetBase	(xmlDocPtr doc,
  *                               xmlNodePtr cur);
  */
-XMLPUBFUN xmlURIPtr XMLCALL
-		xmlCreateURI		();
-XMLPUBFUN xmlChar * XMLCALL
-		xmlBuildURI		(const xmlChar *URI,
-					 const xmlChar *base);
-XMLPUBFUN xmlChar * XMLCALL
-		xmlBuildRelativeURI	(const xmlChar *URI,
-					 const xmlChar *base);
-XMLPUBFUN xmlURIPtr XMLCALL
-		xmlParseURI		(const char *str);
-XMLPUBFUN xmlURIPtr XMLCALL
-		xmlParseURIRaw		(const char *str,
-					 int raw);
-XMLPUBFUN int XMLCALL
-		xmlParseURIReference	(xmlURIPtr uri,
-					 const char *str);
-XMLPUBFUN xmlChar * XMLCALL
-		xmlSaveUri		(xmlURIPtr uri);
-XMLPUBFUN void XMLCALL
-		xmlPrintURI		(FILE *stream,
-					 xmlURIPtr uri);
-XMLPUBFUN xmlChar * XMLCALL
-		xmlURIEscapeStr         (const xmlChar *str,
-					 const xmlChar *list);
-XMLPUBFUN char * XMLCALL
-		xmlURIUnescapeString	(const char *str,
-					 int len,
-					 char *target);
-XMLPUBFUN int XMLCALL
-		xmlNormalizeURIPath	(char *path);
-XMLPUBFUN xmlChar * XMLCALL
-		xmlURIEscape		(const xmlChar *str);
-XMLPUBFUN void XMLCALL
-		xmlFreeURI		(xmlURIPtr uri);
-XMLPUBFUN xmlChar* XMLCALL
-		xmlCanonicPath		(const xmlChar *path);
-XMLPUBFUN xmlChar* XMLCALL
-		xmlPathToURI		(const xmlChar *path);
+XMLPUBFUN xmlURIPtr XMLCALL xmlCreateURI();
+XMLPUBFUN xmlChar * XMLCALL xmlBuildURI(const xmlChar * URI, const xmlChar * base);
+XMLPUBFUN xmlChar * XMLCALL xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base);
+XMLPUBFUN xmlURIPtr XMLCALL xmlParseURI(const char * str);
+XMLPUBFUN xmlURIPtr XMLCALL xmlParseURIRaw(const char * str, int raw);
+XMLPUBFUN int XMLCALL xmlParseURIReference(xmlURIPtr uri, const char * str);
+XMLPUBFUN xmlChar * XMLCALL xmlSaveUri(xmlURIPtr uri);
+XMLPUBFUN void XMLCALL xmlPrintURI(FILE * stream, xmlURIPtr uri);
+XMLPUBFUN xmlChar * XMLCALL xmlURIEscapeStr(const xmlChar * str, const xmlChar * list);
+XMLPUBFUN char * XMLCALL xmlURIUnescapeString(const char * str, int len, char * target);
+XMLPUBFUN int XMLCALL xmlNormalizeURIPath(char * path);
+XMLPUBFUN xmlChar * XMLCALL xmlURIEscape(const xmlChar * str);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeURI(xmlURI * pUri);
+XMLPUBFUN xmlChar* XMLCALL xmlCanonicPath(const xmlChar * path);
+XMLPUBFUN xmlChar* XMLCALL xmlPathToURI(const xmlChar * path);
 
 #ifdef __cplusplus
 }

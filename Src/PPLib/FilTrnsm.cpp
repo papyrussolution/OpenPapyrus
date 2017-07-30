@@ -344,9 +344,9 @@ int SLAPI GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDes
 		ext.Dot().Cat(sp.Ext);
 		(src_path = src_dir).Cat(file_list.at(i).Txt);
 		(dest_path = dest_dir).Cat(file_list.at(i).Txt);
-		if((filtFlags & PPMailMsg::fPpyObject) && ext.Cmp(PPSEXT, 1) == 0 ||
-			(filtFlags & PPMailMsg::fPpyCharry) && ext.Cmp(ORDEXT, 1) == 0 ||
-			(filtFlags & PPMailMsg::fPpyOrder) && ext.Cmp(CHARRYEXT, 1) == 0
+		if((filtFlags & PPMailMsg::fPpyObject) && ext.CmpNC(PPSEXT) == 0 ||
+			(filtFlags & PPMailMsg::fPpyCharry) && ext.CmpNC(ORDEXT) == 0 ||
+			(filtFlags & PPMailMsg::fPpyOrder) && ext.CmpNC(CHARRYEXT) == 0
 		) {
 			THROW(ftp.SafeGet(dest_path, src_path, 0, CallbackFTPTransfer, 0));
 			{
@@ -462,6 +462,7 @@ int SLAPI PutFilesToFtp(const PPFileNameArray * pFileList, PPID ftpAccID, const 
 int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 {
 	int    ok = 1, user_accept = 1;
+	const  PPConfig & r_cfg = LConfig;
 	int    check_email = 0, check_ftp = 0;
 	uint   i;
 	SString dest, src, msg_buf, file_path;
@@ -472,9 +473,9 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 	PPID   db_div_id = 0;
 
 	PPGetPath(PPPATH_IN, dest);
-	THROW(obj_dbdiv.Get(LConfig.DBDiv, &dbdiv_pack) > 0);
+	THROW(obj_dbdiv.Get(r_cfg.DBDiv, &dbdiv_pack) > 0);
 	while((!check_email || !check_ftp) && obj_dbdiv.EnumItems(&db_div_id, &db_div_rec) > 0) {
-		if(db_div_id != LConfig.DBDiv)
+		if(db_div_id != r_cfg.DBDiv)
 			check_email = BIN(check_email || IsEmailAddr(strip(db_div_rec.Addr)));
 		check_ftp   = BIN(check_ftp || IsFtpAddr(db_div_rec.Addr));
 	}

@@ -2704,7 +2704,7 @@ failed:
  *
  * Deallocate the memory used by an Ref hash table.
  */
-void xmlFreeRefTable(xmlRefTablePtr table)
+void FASTCALL xmlFreeRefTable(xmlRefTable * table)
 {
 	xmlHashFree(table, (xmlHashDeallocator)xmlFreeRefList);
 }
@@ -6050,10 +6050,8 @@ int xmlValidateDtd(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlDtdPtr dtd)
 		xmlFreeIDTable((xmlIDTablePtr)doc->ids);
 		doc->ids = NULL;
 	}
-	if(doc->refs != NULL) {
-		xmlFreeRefTable((xmlRefTablePtr)doc->refs);
-		doc->refs = NULL;
-	}
+	xmlFreeRefTable((xmlRefTablePtr)doc->refs);
+	doc->refs = NULL;
 	root = xmlDocGetRootElement(doc);
 	ret = xmlValidateElement(ctxt, doc, root);
 	ret &= xmlValidateDocumentFinal(ctxt, doc);
@@ -6234,10 +6232,8 @@ int xmlValidateDocument(xmlValidCtxtPtr ctxt, xmlDocPtr doc)
 		xmlFreeIDTable((xmlIDTablePtr)doc->ids);
 		doc->ids = NULL;
 	}
-	if(doc->refs != NULL) {
-		xmlFreeRefTable((xmlRefTablePtr)doc->refs);
-		doc->refs = NULL;
-	}
+	xmlFreeRefTable((xmlRefTablePtr)doc->refs);
+	doc->refs = NULL;
 	ret = xmlValidateDtdFinal(ctxt, doc);
 	if(!xmlValidateRoot(ctxt, doc)) return 0;
 

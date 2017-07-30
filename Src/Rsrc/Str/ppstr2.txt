@@ -2404,12 +2404,28 @@ description for teststring
 date;time;user;serial;billdate;billno;qtty;phqtty;pack;brutto;objname;obj2name;ext_a;ext_b;ext_c;ext_d;ext_e;prcname;goodsgrpname;\
 brand;gcdimx;gcdimy;gcdimz;gcdimw;gckind;gcgrade;gcaddprop2;gcaddprop;linecost;lineprice;manufdate;manuf;quot:;goodscode;\
 memory;codepage;load;file;serxnom;wrap"
-98 "1,ОКА-500.1;2,Електроника-92-Аквариус-Ф;3,АМС-100Ф;4,ЭКР-4110Ф;\
-5,СуперМаг УКМ;6,Эмулятор (синхронный);\
-7,Петрович (Ладога-Ф, Електроника-92, ЭКР-3102Ф);8,АМС-200Ф;\
-9,Кристалл УКМ;10,Кассовый сервер Кристалл;11,Штрих-ФР;12,Атол;\
-13,Unused;14,Papyrus;15,Атол без АТОЛ-CARD;16,Штрих-М-ФР-К;17,Фронтол;\
-18,Универсальный драйвер АТОЛ;19,Группа кассовых узлов;20,Unused;21,Распределенный кассовый узел;22,Set Start"
+98 "6,Эмулятор (синхронный);\
+19,Группа кассовых узлов;\
+10,Кассовый сервер Кристалл Сет;\
+11,Штрих-ФР;\
+5,СуперМаг УКМ;\
+14,Papyrus;\
+16,Штрих-М-ФР-К;\
+17,Фронтол;\
+18,Универсальный драйвер АТОЛ;\
+21,Распределенный кассовый узел;\
+22,Set Start;\
+9,Кристалл УКМ;\
+12,Атол;\
+15,Атол без АТОЛ-CARD;\
+2,Електроника-92-Аквариус-Ф;\
+1,ОКА-500.1;\
+3,АМС-100Ф;\
+8,АМС-200Ф;\
+4,ЭКР-4110Ф;\
+13,Unused;\
+20,Unused;\
+7,Петрович (Ладога-Ф, Електроника-92, ЭКР-3102Ф)"
 
 // @v9.5.1 13,Кристалл-АЗС-->13,Unused
 
@@ -5581,6 +5597,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @acceptdate        "Дата получения"
 @expirationdate    "Срок годности"
 @time              "Время"
+@timestart         "Время начала"
+@timefinish        "Время окончания"
 @datetime          "Дата/время"
 @daterange         "Период"
 @validity          "Период действия"
@@ -7514,7 +7532,6 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgalcreport_woswbycchecks               "Списать по кассовым чекам"
 @cfgalcreport_woswbybills                 "Списать по документам"
 
-
 @cfgbill_addfilesfolder                   "Папка для добавления файлов"
 @cfgbill_bcf_acceptgoodsbillchg           "Принимать изменения товарных документов из других разделов"
 @cfgbill_bcf_addautoqttybybrcode          "При подборе по штрихкоду - автоматическое количество 1 единица"
@@ -7563,10 +7580,12 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgbill_tdiscalcmethod                   "Метод расчета скидки по документу"
 @cfgbill_tdiscalcprec                     "@{rounding}"
 @cfgbill_uniqserialsfx                    "Суффикс уникальности серийного номера"
+@cfgbill_valuation                        "Конфигурация расценки документов" // generic
 @cfgbill_valuationquotkind                "@{quotkind}"
 @cfgbill_valuationrnddir                  "Направление округления при расценке"
 @cfgbill_valuationrndprec                 "@{roundprec}"
 @cfgbill_ver                              "@{version}"
+@cfgbill_ext                              "Дополнительные параметры конфигурации документов" // generic
 
 @cfgclibnkas_accsheet                     "@{accsheet}"
 @cfgclibnkas_addedtag                     "Установка соответствия вида операции"
@@ -8620,6 +8639,11 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @inventory_unwriteddiff                   "Не списанная величина рассогласования"
 @inventory_wroffprice                     "Цена списания"
 @inventory_actualrest                     "Фактический остаток" // generic
+
+@invitemscorr                             "Корректировка строк инвентаризации"
+@invitemscorr_rest                        "Учетные остатки"
+@invitemscorr_price                       "Учетные цены"
+@invitemscorr_emergency                   "Аварийная корректировка"
 
 @linkfiles_id                             "@{id}"
 @linkfiles_prop                           "@{properties}"

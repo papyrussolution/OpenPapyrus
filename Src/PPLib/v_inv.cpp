@@ -1789,6 +1789,71 @@ int SLAPI PPViewInventory::Detail(const void * pHdr, PPViewBrowser * pBrw)
     return ok;
 }
 
+static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+{
+	int    ok = -1;
+	PPViewBrowser * p_brw = (PPViewBrowser *)extraPtr;
+	if(p_brw) {
+		PPViewInventory * p_view = (PPViewInventory *)p_brw->P_View;
+		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
+	}
+	return ok;
+}
+
+int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
+{
+	int    ok = -1;
+	if(pBrw && pData && pStyle) {
+		const  int is_subst = Filt.HasSubst();
+		if(!is_subst) {
+			const  BrowserDef * p_def = pBrw->getDef();
+			if(col >= 0 && col < (long)p_def->getCount()) {
+				const BroColumn & r_col = p_def->at(col);
+				PPViewInventory::BrwHdr * p_hdr = (PPViewInventory::BrwHdr *)pData;
+				if(r_col.OrgOffs == 1) { // ID
+					if(p_hdr->Flags & INVENTF_WRITEDOFF) {
+						pStyle->Color = GetColorRef(SClrDodgerblue);
+						pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+						ok = 1;
+					}
+					else if(p_hdr->Flags & (INVENTF_LACK|INVENTF_SURPLUS)) {
+						pStyle->Color = GetColorRef(SClrOrange);
+						pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+						ok = 1;
+					}
+				}
+				else if(r_col.OrgOffs == 5) { // Rest
+					if(p_hdr->Flags & INVENTF_GENAUTOLINE) {
+						pStyle->Color = GetColorRef(SClrBlue);
+						pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+						ok = 1;
+					}
+				}
+				else if(r_col.OrgOffs == 10) { // Difference
+					if(p_hdr->Flags & INVENTF_LACK) {
+						pStyle->Color = GetColorRef(SClrRed);
+						pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+						ok = 1;
+					}
+					else if(p_hdr->Flags & INVENTF_SURPLUS) {
+						pStyle->Color = GetColorRef(SClrGreen);
+						pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+//virtual
+int SLAPI PPViewInventory::PreprocessBrowser(PPViewBrowser * pBrw)
+{
+	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, pBrw));
+	return 1;
+}
+
 DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q  = 0;
@@ -1803,7 +1868,7 @@ DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	DBE    dbe_goods;
 	DBE    dbe_barcode;
 	DBE    dbe_strgloc;
-	uint   brw_id = BROWSER_INVNTRYLINES;
+	uint   brw_id = 0;
 	const  PPID single_bill_id = Filt.GetSingleBillID();
 	const  int is_subst = Filt.HasSubst();
 	if(is_subst) {
@@ -1822,9 +1887,10 @@ DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSu
 			0L).from(st, 0L));
 	}
 	else {
+		brw_id = BROWSER_INVNTRYLINES;
 		tbl_l[0] = 0;
 		tbl_l[1] = 0;
-		THROW(CheckTblPtr(it = new InventoryTbl(P_TempTbl ? (const char *)P_TempTbl->fileName : (const char *)0)));
+		THROW(CheckTblPtr(it = new InventoryTbl(P_TempTbl ? P_TempTbl->fileName.cptr() : 0)));
 		if(P_TempOrd)
 			THROW(CheckTblPtr(p_tord = new TempDoubleIDTbl(P_TempOrd->fileName)));
 		dbe_tmp1 = & (it->Quantity * it->Price);
@@ -1849,16 +1915,17 @@ DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSu
 			it->BillID,     // #00
 			it->OprNo,      // #01
 			it->GoodsID,    // #02
-			dbe_goods,      // #03
-			it->Quantity,   // #04
-			it->Price,      // #05
-			it->WrOffPrice, // #06
-			*dbe_tmp1,      // #07
-			*dbe_tmp2,      // #08
-			dbe_diffqtty,   // #09
-			it->Serial,     // #10
-			dbe_barcode,    // #11 @v6.6.9
-			dbe_strgloc,    // #12 @v8.8.6
+			it->Flags,      // #03 // @v9.7.9
+			dbe_goods,      // #04 // @v9.7.9 #+1
+			it->Quantity,   // #05 // @v9.7.9 #+1
+			it->Price,      // #06 // @v9.7.9 #+1
+			it->WrOffPrice, // #07 // @v9.7.9 #+1
+			*dbe_tmp1,      // #08 // @v9.7.9 #+1
+			*dbe_tmp2,      // #09 // @v9.7.9 #+1
+			dbe_diffqtty,   // #10 // @v9.7.9 #+1
+			it->Serial,     // #11 // @v9.7.9 #+1
+			dbe_barcode,    // #12 // @v9.7.9 #+1
+			dbe_strgloc,    // #13 // @v9.7.9 #+1
 			0L).from(tbl_l[0], tbl_l[1], 0L));
 		ZDELETE(dbe_tmp1);
 		ZDELETE(dbe_tmp2);
@@ -1974,7 +2041,7 @@ int PPALDD_Invent::NextIteration(PPIterID iterId)
 	I.CSesDfctQtty  = item.CSesDfctQtty;
 	I.CSesDfctPrice = item.CSesDfctPrice;
 	item.FullGrpName.CopyTo(I.ExtGrpName, sizeof(I.ExtGrpName));
-	STRNSCPY(I.Serial, item.Serial); // @v7.7.1
+	STRNSCPY(I.Serial, item.Serial);
 	PPWaitPercent(p_v->GetCounter());
 	FINISH_PPVIEW_ALDD_ITER();
 }

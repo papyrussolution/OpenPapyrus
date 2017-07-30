@@ -1102,7 +1102,7 @@ static xmlChar * xmlSchematronFormatReport(xmlSchematronValidCtxtPtr ctxt, xmlNo
 		else if(IS_SCHEMATRON(child, "name")) {
 			xmlChar * path = xmlGetNoNsProp(child, BAD_CAST "path");
 			node = cur;
-			if(path != NULL) {
+			if(path) {
 				node = xmlSchematronGetNode(ctxt, cur, path);
 				SETIFZ(node, cur);
 				SAlloc::F(path);

@@ -264,6 +264,7 @@ int TIDlgInitData::GetTiSign() const
 
 ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : TDialog(DLG_EXTGSEL)
 {
+	const  PPConfig & r_cfg = LConfig;
 	Flags = 0;
 	P_ObjTkn = 0;
 	SETFLAGBYSAMPLE(Flags, fByName, flags);
@@ -273,7 +274,7 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 	SETFLAGBYSAMPLE(Flags, fForcePassive, flags);
 	SETFLAGBYSAMPLE(Flags, fSelectModifMode, flags); // @v8.4.12
 	OpID  = _op;
-	LocID = LConfig.Location;
+	LocID = r_cfg.Location;
 	ArID  = 0;
 	InnerSelectionID = 0;
 	Price = 0.0;
@@ -324,7 +325,7 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 			showCtrl(CTL_EXTGSEL_BRAND, 0);
 		}
 	}
-	if((LConfig.Flags & CFGFLG_USEGOODSMATRIX) && OpID && CheckOpFlags(OpID, OPKF_RESTRICTBYMTX))
+	if((r_cfg.Flags & CFGFLG_USEGOODSMATRIX) && OpID && CheckOpFlags(OpID, OPKF_RESTRICTBYMTX))
 		Flags |= fMatrix;
 	if(initGoodsID)
 		updateList(0);

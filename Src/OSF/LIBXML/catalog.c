@@ -2765,7 +2765,7 @@ void xmlInitializeCatalog()
 						while((*cur != 0) && (!xmlIsBlank_ch(*cur)))
 							cur++;
 						path = (char*)xmlStrndup((const xmlChar*)paths, cur - paths);
-						if(path != NULL) {
+						if(path) {
 							*nextent = xmlNewCatalogEntry(XML_CATA_CATALOG, NULL, NULL, BAD_CAST path, xmlCatalogDefaultPrefer, 0);
 							if(*nextent != NULL)
 								nextent = &((*nextent)->next);
@@ -2843,7 +2843,7 @@ void xmlLoadCatalogs(const char * pathss)
 					}
 				}
 #endif
-				if(path != NULL) {
+				if(path) {
 					xmlLoadCatalog((const char*)path);
 					SAlloc::F(path);
 				}

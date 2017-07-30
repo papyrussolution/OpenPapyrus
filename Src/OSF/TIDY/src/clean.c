@@ -2397,16 +2397,14 @@ void TY_(FixXhtmlNamespace) (TidyDocImpl* doc, bool wantXmlns)
  */
 void TY_(FixAnchors) (TidyDocImpl* doc, Node *node, bool wantName, bool wantId)
 {
-	Node* next;
-
+	Node * next;
 	while(node) {
 		next = node->next;
-
 		if(TY_(IsAnchorElement) (doc, node)) {
 			AttVal * name = TY_(AttrGetById) (node, TidyAttr_NAME);
 			AttVal * id = TY_(AttrGetById) (node, TidyAttr_ID);
-			bool hadName = name!=NULL;
-			bool hadId = id!=NULL;
+			bool hadName = (name != NULL);
+			bool hadId = (id != NULL);
 			bool IdEmitted = false;
 			bool NameEmitted = false;
 
@@ -2415,14 +2413,11 @@ void TY_(FixAnchors) (TidyDocImpl* doc, Node *node, bool wantName, bool wantId)
 			if(name && id) {
 				bool NameHasValue = AttrHasValue(name);
 				bool IdHasValue = AttrHasValue(id);
-				if( (NameHasValue != IdHasValue) ||
-				    (NameHasValue && IdHasValue &&
-					    TY_(tmbstrcmp) (name->value, id->value) != 0 ) )
+				if((NameHasValue != IdHasValue) || (NameHasValue && IdHasValue && TY_(tmbstrcmp) (name->value, id->value) != 0))
 					TY_(ReportAttrError) (doc, node, name, ID_NAME_MISMATCH);
 			}
 			else if(name && wantId) {
-				if(TY_(NodeAttributeVersions) (node, TidyAttr_ID)
-				    & doc->lexer->versionEmitted) {
+				if(TY_(NodeAttributeVersions) (node, TidyAttr_ID) & doc->lexer->versionEmitted) {
 					if(TY_(IsValidHTMLID) (name->value)) {
 						TY_(RepairAttrValue) (doc, node, "id", name->value);
 						IdEmitted = true;
@@ -2432,14 +2427,12 @@ void TY_(FixAnchors) (TidyDocImpl* doc, Node *node, bool wantName, bool wantId)
 				}
 			}
 			else if(id && wantName) {
-				if(TY_(NodeAttributeVersions) (node, TidyAttr_NAME)
-				    & doc->lexer->versionEmitted) {
+				if(TY_(NodeAttributeVersions) (node, TidyAttr_NAME) & doc->lexer->versionEmitted) {
 					/* todo: do not assume id is valid */
 					TY_(RepairAttrValue) (doc, node, "name", id->value);
 					NameEmitted = true;
 				}
 			}
-
 			if(id && !wantId
 			    /* make sure that Name has been emitted if requested */
 			    && (hadName || !wantName || NameEmitted) )
@@ -2450,14 +2443,11 @@ void TY_(FixAnchors) (TidyDocImpl* doc, Node *node, bool wantName, bool wantId)
 			    && (hadId || !wantId || IdEmitted) )
 				TY_(RemoveAttribute) (doc, node, name);
 
-			if(TY_(AttrGetById) (node, TidyAttr_NAME) == NULL &&
-			    TY_(AttrGetById) (node, TidyAttr_ID) == NULL)
+			if(TY_(AttrGetById) (node, TidyAttr_NAME) == NULL && TY_(AttrGetById) (node, TidyAttr_ID) == NULL)
 				TY_(RemoveAnchorByNode) (doc, node);
 		}
-
 		if(node->content)
 			TY_(FixAnchors) (doc, node->content, wantName, wantId);
-
 		node = next;
 	}
 }

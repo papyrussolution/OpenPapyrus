@@ -1,5 +1,5 @@
 // LOCTRANSF.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -320,11 +320,12 @@ int SLAPI LocTransfCore::RemoveOp(PPID locID, long rByLoc, int use_ta)
 int SLAPI LocTransfCore::UpdateCurrent(PPID locID, PPID goodsID, PPID lotID, double addendum)
 {
 	int    ok = 1, r;
+	const  PPID user_id = LConfig.User;
 	LocTransfTbl::Rec rec;
 	if(lotID) {
 		r = SearchRestByLot(lotID, locID, 0, &rec);
 		if(r > 0) {
-			rec.UserID = LConfig.User;
+			rec.UserID = user_id;
 			rec.Dt = getcurdatetime(&rec.Dt, &rec.Tm);
 			rec.RestByLot += addendum;
 			THROW_PP(rec.RestByLot >= 0.0, PPERR_LOCTRFR_FWLOTRESTBOUND_LOT);
@@ -341,7 +342,7 @@ int SLAPI LocTransfCore::UpdateCurrent(PPID locID, PPID goodsID, PPID lotID, dou
 	if(goodsID) {
 		r = SearchRestByGoods(goodsID, locID, 0, &rec);
 		if(r > 0) {
-			rec.UserID = LConfig.User;
+			rec.UserID = user_id;
 			rec.Dt = getcurdatetime(&rec.Dt, &rec.Tm);
 			rec.RestByGoods += addendum;
 			THROW_PP(rec.RestByGoods >= 0.0, PPERR_LOCTRFR_FWLOTRESTBOUND_GOODS);

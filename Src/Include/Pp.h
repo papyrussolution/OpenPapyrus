@@ -34814,12 +34814,17 @@ public:
 	int    SLAPI UpdatePacket(PPID billID);
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int   SLAPI Print(const void *);
+	// 
+	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 private:
 	struct BrwHdr {
 		PPID   BillID;
 		long   OprNo;
+		long   GoodsID;  // @v9.7.9
+		long   Flags;    // @v9.7.9
 	};
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
+	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   SLAPI ViewTotal();
 	virtual int   SLAPI Detail(const void *, PPViewBrowser * pBrw);
 	int    SLAPI CheckLineForFilt(const InventoryTbl::Rec * pRec) const;
@@ -40697,15 +40702,15 @@ class MrpTabPacket : public TSArray <MrpTabLeaf> {
 public:
 	SLAPI  MrpTabPacket();
 	MrpTabPacket & FASTCALL operator = (const MrpTabPacket &);
-	int    SLAPI Init(PPID objType, PPID objID, const char * pName);
+	void   SLAPI Init(PPID objType, PPID objID, const char * pName);
 	void   SLAPI Destroy();
 	int    SLAPI IsTree() const;
 	const  char * SLAPI GetName() const;
 	PPID   SLAPI GetBaseID() const;
-	int    SLAPI SetBaseID(PPID);
+	void   FASTCALL SetBaseID(PPID);
 	int    SLAPI GetTabID(PPID locID, LDATE dt, PPID * pTabID) const;
-	int    SLAPI AddLeaf(const MrpTabTbl::Rec *);
-	int    SLAPI CreateLeafRec(PPID locID, LDATE, MrpTabTbl::Rec *) const;
+	int    FASTCALL AddLeaf(const MrpTabTbl::Rec *);
+	void   SLAPI CreateLeafRec(PPID locID, LDATE dt, MrpTabTbl::Rec & rRec) const;
 	int    SLAPI GetLeaf(PPID tabID, MrpTabLeaf *) const;
 	int    SLAPI GetList(PPIDArray *) const;
 	//
@@ -40722,7 +40727,7 @@ public:
 	//   Предварительно очищает список pLocList и присваивает периоду pPeriod
 	//   значения pPeriod->low = MAXDATE, pPeriod->upp = ZERODATE
 	//
-	int    SLAPI GetCommonParam(PPIDArray * pLocList, DateRange * pPeriod) const; // @<<PPObjMrpTab::FinishPacket
+	void   SLAPI GetCommonParam(PPIDArray * pLocList, DateRange * pPeriod) const; // @<<PPObjMrpTab::FinishPacket
 	int    SLAPI AddLine__(PPID tabID, PPID destID, PPID srcID, double destReq, double srcReq, double price, long flags/*int term*/);
 	int    SLAPI SetTerminal(PPID tabID, PPID destID, int terminal);
 	int    SLAPI IsTerminal(PPID tabID, PPID destID) const;
@@ -40761,10 +40766,10 @@ public:
 		cfIgnoreRest = 0x0001 // Не рассчитывать остатки (считать, что доступный остаток нулевой)
 	};
 
-	static int SLAPI ReadConfig(PPMrpTabConfig *);
-	static int SLAPI GetCounter(long * pCounter, int use_ta);
-	static int SLAPI GenerateName(PPID linkObjType, PPID linkObjID, SString *, int use_ta);
-	static int SLAPI GetAvailGoodsRest(PPID goodsID, const MrpTabLeaf * pLeaf, LDATE afterDate, double * pRest);
+	static int  SLAPI ReadConfig(PPMrpTabConfig *);
+	static int  SLAPI GetCounter(long * pCounter, int use_ta);
+	static void SLAPI GenerateName(PPID linkObjType, PPID linkObjID, SString *, int use_ta);
+	static int  SLAPI GetAvailGoodsRest(PPID goodsID, const MrpTabLeaf * pLeaf, LDATE afterDate, double * pRest);
 
 	SLAPI  PPObjMrpTab(void * extraPtr = 0);
 	SLAPI ~PPObjMrpTab();
@@ -46073,7 +46078,7 @@ public:
 	int    SLAPI Init(const PPBaseFilt * pBaseFilt);
 	int    SLAPI Run();
 private:
-	int    SLAPI ImportHumanNames(const char * pSrcFileName, const char * pLinguaSymb);
+	int    SLAPI ImportHumanNames(const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing);
 	int    SLAPI TestSearchWords();
 	int    SLAPI TestConcept();
 

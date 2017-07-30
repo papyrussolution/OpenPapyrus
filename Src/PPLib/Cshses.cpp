@@ -1436,12 +1436,10 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 		if(GObj.Fetch(AcnPack.GoodsGrpID, &cn_grp_rec) > 0 && cn_grp_rec.Flags & GF_FOLDER && cn_grp_rec.Flags & GF_EXCLALTFOLD)
 			Flags |= ACGIF_EXCLALTFOLD;
 	}
-	// @v7.9.7 {
 	if(AcnPack.ExtFlags & CASHFX_SEPARATERCPPRN) {
 		P_G2DAssoc = new GoodsToObjAssoc(PPASS_GOODS2CASHNODE, PPOBJ_CASHNODE);
 		CALLPTRMEMB(P_G2DAssoc, Load());
 	}
-	// } @v7.9.7
 	{
 		RetailPriceExtractor::ExtQuotBlock eqb(AcnPack.ExtQuotID);
 		RetailExtr.Init(LocID, &eqb, 0, ZERODATETIME, 0);
@@ -1859,8 +1857,7 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 						Rec.Rest = param.Total.Rest;
 						PROFILE_END
 					}
-					// @v7.9.0 THROW(GObj.GetQuotList(Rec.ID, LocID, quot_list));
-					THROW(GObj.P_Tbl->FetchQuotList(Rec.ID, 0, LocID, quot_list)); // @v7.9.0
+					THROW(GObj.P_Tbl->FetchQuotList(Rec.ID, 0, LocID, quot_list));
 					QuotByQttyList.freeAll();
 					for(i = 0; i < quot_list.getCount(); i++) {
 						const PPQuot & r_quot = quot_list.at(i);

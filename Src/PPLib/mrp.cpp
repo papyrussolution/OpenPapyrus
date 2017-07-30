@@ -55,8 +55,7 @@ int SLAPI MrpTabCore::GetSubList(PPID tabID, PPIDArray * pList)
 	BExtQuery q(this, 3, 64);
 	q.select(this->ID, 0L).where(this->ParentID == tabID);
 	for(q.initIteration(0, &k3, spGe); q.nextIteration() > 0;) {
-		if(pList)
-			pList->addUnique(data.ID);
+		CALLPTRMEMB(pList, addUnique(data.ID));
 		ok = 1;
 	}
 	return ok;
@@ -766,14 +765,13 @@ MrpTabPacket & FASTCALL MrpTabPacket::operator = (const MrpTabPacket & s)
 	return *this;
 }
 
-int SLAPI MrpTabPacket::Init(PPID objType, PPID objID, const char * pName)
+void SLAPI MrpTabPacket::Init(PPID objType, PPID objID, const char * pName)
 {
 	Cache.freeAll();
 	ObjType = objType;
 	ObjID = objID;
 	BaseID = 0;
 	STRNSCPY(Name, pName);
-	return 1;
 }
 
 void SLAPI MrpTabPacket::Destroy()
@@ -793,7 +791,7 @@ const char * SLAPI MrpTabPacket::GetName() const
 	return Name;
 }
 
-int SLAPI MrpTabPacket::GetCommonParam(PPIDArray * pLocList, DateRange * pPeriod) const
+void SLAPI MrpTabPacket::GetCommonParam(PPIDArray * pLocList, DateRange * pPeriod) const
 {
 	MrpTabLeaf * p_item;
 	CALLPTRMEMB(pLocList, freeAll());
@@ -808,7 +806,6 @@ int SLAPI MrpTabPacket::GetCommonParam(PPIDArray * pLocList, DateRange * pPeriod
 				pLocList->addUnique(p_item->LocID);
 		CALLPTRMEMB(pPeriod, AdjustToDate(p_item->Dt));
 	}
-	return 1;
 }
 
 PPID SLAPI MrpTabPacket::GetBaseID() const
@@ -816,10 +813,9 @@ PPID SLAPI MrpTabPacket::GetBaseID() const
 	return (getCount() == 1 && !BaseID) ? at(0).TabID : BaseID;
 }
 
-int SLAPI MrpTabPacket::SetBaseID(PPID id)
+void FASTCALL MrpTabPacket::SetBaseID(PPID id)
 {
 	BaseID = id;
-	return 1;
 }
 
 int SLAPI MrpTabPacket::GetTabID(PPID locID, LDATE dt, PPID * pTabID) const
@@ -834,15 +830,14 @@ int SLAPI MrpTabPacket::GetTabID(PPID locID, LDATE dt, PPID * pTabID) const
 	return 0;
 }
 
-int SLAPI MrpTabPacket::AddLeaf(const MrpTabTbl::Rec * pRec)
+int FASTCALL MrpTabPacket::AddLeaf(const MrpTabTbl::Rec * pRec)
 {
 	MrpTabLeaf leaf;
 	MEMSZERO(leaf);
 	leaf.TabID = pRec->ID;
 	leaf.Dt    = pRec->Dt;
 	leaf.LocID = pRec->LocID;
-	insert(&leaf);
-	return 1;
+	return insert(&leaf) ? 1 : PPSetErrorSLib();
 }
 
 int SLAPI MrpTabPacket::GetLeaf(PPID tabID, MrpTabLeaf * pLeaf) const
@@ -856,15 +851,14 @@ int SLAPI MrpTabPacket::GetLeaf(PPID tabID, MrpTabLeaf * pLeaf) const
 		return 0;
 }
 
-int SLAPI MrpTabPacket::CreateLeafRec(PPID locID, LDATE dt, MrpTabTbl::Rec * pRec) const
+void SLAPI MrpTabPacket::CreateLeafRec(PPID locID, LDATE dt, MrpTabTbl::Rec & rRec) const
 {
-	memzero(pRec, sizeof(*pRec));
-	pRec->ParentID = GetBaseID();
-	pRec->LinkObjType = ObjType;
-	pRec->LinkObjID = ObjID;
-	pRec->Dt = dt;
-	pRec->LocID = locID;
-	return 1;
+	memzero(&rRec, sizeof(rRec));
+	rRec.ParentID = GetBaseID();
+	rRec.LinkObjType = ObjType;
+	rRec.LinkObjID = ObjID;
+	rRec.Dt = dt;
+	rRec.LocID = locID;
 }
 
 int SLAPI MrpTabPacket::GetList(PPIDArray * pList) const
@@ -975,7 +969,7 @@ int SLAPI PPObjMrpTab::GetCounter(long * pCounter, int use_ta)
 }
 
 //static
-int SLAPI PPObjMrpTab::GenerateName(PPID linkObjType, PPID linkObjID, SString * pName, int use_ta)
+void SLAPI PPObjMrpTab::GenerateName(PPID linkObjType, PPID linkObjID, SString * pName, int use_ta)
 {
 	if(pName) {
 		long   c = 0;
@@ -986,7 +980,6 @@ int SLAPI PPObjMrpTab::GenerateName(PPID linkObjType, PPID linkObjID, SString * 
 		}
 		pName->CatChar('#').Cat(c);
 	}
-	return 1;
 }
 
 TLP_IMPL(PPObjMrpTab, MrpTabCore, P_Tbl);
@@ -1100,6 +1093,7 @@ int SLAPI PPObjMrpTab::EditDialog(MrpTabTbl::Rec * pRec)
 int SLAPI PPObjMrpTab::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1, r = cmCancel, is_new = 0;
+	const  PPConfig & r_cfg = LConfig;
 	MrpTabTbl::Rec rec;
 	THROW(EditPrereq(pID, 0, &is_new));
 	if(!is_new) {
@@ -1107,8 +1101,8 @@ int SLAPI PPObjMrpTab::Edit(PPID * pID, void * extraPtr)
 	}
 	else {
 		MEMSZERO(rec);
-		rec.Dt = LConfig.OperDate;
-		rec.LocID = LConfig.Location;
+		rec.Dt = r_cfg.OperDate;
+		rec.LocID = r_cfg.Location;
 	}
 	if(EditDialog(&rec) > 0) {
 		if(*pID) {
@@ -1510,7 +1504,7 @@ int SLAPI PPObjMrpTab::CreateTreeLeaf(MrpTabPacket * pTree, PPID locID, LDATE dt
 	int    ok = 1;
 	PPID   tab_id = 0;
 	MrpTabTbl::Rec rec;
-	THROW(pTree->CreateLeafRec(locID, dt, &rec));
+	pTree->CreateLeafRec(locID, dt, rec);
 	THROW(P_Tbl->Create(&tab_id, &rec, 0));
 	rec.ID = tab_id;
 	THROW(pTree->AddLeaf(&rec));
@@ -1550,7 +1544,7 @@ int SLAPI PPObjMrpTab::GetTabID(MrpTabPacket * pTree, PPID locID, LDATE dt, PPID
 				//
 				uint   i;
 				PPID   base_id = 0;
-				THROW(pTree->CreateLeafRec(0, ZERODATE, &rec));
+				pTree->CreateLeafRec(0, ZERODATE, rec);
 				rec.ParentID = 0;
 				THROW(P_Tbl->Create(&base_id, &rec, 0));
 				for(i = 0; i < pTree->getCount(); i++) {

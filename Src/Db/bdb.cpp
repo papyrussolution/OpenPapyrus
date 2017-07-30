@@ -1022,6 +1022,8 @@ int BDbTable::SecondaryIndex::Implement_Cmp(BDbTable * pMainTbl, const BDbTable:
 //
 //
 //
+#if 0 // { Этот вариант функции работает как-то не стабильно.
+
 //static
 int BDbTable::ScndIdxCallback(DB * pSecondary, const DBT * pKey, const DBT * pData, DBT * pResult)
 {
@@ -1048,6 +1050,30 @@ int BDbTable::ScndIdxCallback(DB * pSecondary, const DBT * pKey, const DBT * pDa
 			p_taget_tbl->P_IdxHandle->ResultBuf.Get(pResult);
 		}
 	}
+	return r;
+}
+#endif // } 0
+
+//static
+int BDbTable::ScndIdxCallback(DB * pSecondary, const DBT * pKey, const DBT * pData, DBT * pResult)
+{
+	int    r = DB_DONOTINDEX;
+	int    _found = 0;
+	DbThreadLocalArea::DbRegList & r_reg = DBS.GetTLA().GetBDbRegList();
+	for(int i = 1; i <= r_reg.GetMaxEntries(); i++) {
+		BDbTable * p_tbl = (BDbTable *)r_reg.GetPtr(i);
+		if(p_tbl && p_tbl->H == pSecondary) {
+			if(p_tbl->P_IdxHandle) {
+				BDbTable::Buffer key(pKey);
+				BDbTable::Buffer data(pData);
+				r = p_tbl->P_IdxHandle->Cb(key, data, p_tbl->P_IdxHandle->ResultBuf);
+				p_tbl->P_IdxHandle->ResultBuf.Get(pResult);
+			}
+			_found = 1;
+			break;
+		}
+	}
+	assert(_found);
 	return r;
 }
 

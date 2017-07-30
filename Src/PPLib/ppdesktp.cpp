@@ -427,21 +427,24 @@ PPBizScoreWindow::~PPBizScoreWindow()
 
 int PPBizScoreWindow::LoadData()
 {
+	const  PPID cur_user_id = LConfig.User;
+	const  LDATE _curdate = getcurdate_();
+	uint   _scount = 0; // @debug
 	BizScoreTbl::Key0 k0;
 	BExtQuery q(&Tbl, 0, 8);
 	PPObjBizScore obj_bsc;
 	SString buf, name, value;
 	MEMSZERO(k0);
-	k0.ActualDate = getcurdate_();
+	k0.ActualDate = _curdate;
 	k0.ScoreID = MAXLONG;
 	k0.ObjID   = MAXLONG;
 	BizScoreList.Clear();
-	q.select(Tbl.ScoreID, Tbl.Val, Tbl.Dt, Tbl.Tm, Tbl.ActualDate, Tbl.Str, 0L).
-		where(Tbl.UserID == LConfig.User);
+	q.select(Tbl.ScoreID, Tbl.Val, Tbl.Dt, Tbl.Tm, Tbl.ActualDate, Tbl.Str, 0L).where(Tbl.UserID == cur_user_id/* && Tbl.ActualDate >= _curdate*/);
 	for(q.initIteration(1, &k0, spLe); q.nextIteration() > 0;) {
+		_scount++; // @debug
 		BizScoreTbl::Rec rec;
 		Tbl.copyBufTo(&rec);
-		if(!ActualDt || ActualDt <= rec.ActualDate) {
+		if((!ActualDt || ActualDt <= rec.ActualDate)) {
 			PPBizScorePacket pack;
 			if(obj_bsc.Fetch(rec.ScoreID, &pack) > 0) {
 				name = pack.Descr.Len() ? pack.Descr : pack.Rec.Name;

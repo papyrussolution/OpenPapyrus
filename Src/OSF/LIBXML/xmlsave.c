@@ -1017,7 +1017,7 @@ static void xmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNodePtr cur)
 static int xmlDocContentDumpOutput(xmlSaveCtxtPtr ctxt, xmlDocPtr cur)
 {
 #ifdef LIBXML_HTML_ENABLED
-	xmlDtdPtr dtd;
+	xmlDtd * dtd;
 	int is_xhtml = 0;
 #endif
 	const xmlChar * oldenc = cur->encoding;
@@ -2203,7 +2203,7 @@ void xmlNodeDumpOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlNodePtr cur, in
 {
 	xmlSaveCtxt ctxt;
 #ifdef LIBXML_HTML_ENABLED
-	xmlDtdPtr dtd;
+	xmlDtd * dtd;
 	int is_xhtml = 0;
 #endif
 	xmlInitParser();

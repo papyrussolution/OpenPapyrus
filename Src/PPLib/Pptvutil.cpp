@@ -1389,7 +1389,7 @@ int SLAPI SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long 
 				}
 				list_count = p_list->getCount();
 			}
-			for(int i = idx + 1; GetStrFromDrvIni(ini_sect_id, i, list_count, line_buf) > 0; i++) {
+			for(int i = (idx + 1); GetStrFromDrvIni(ini_sect_id, i, list_count, line_buf) > 0; i++) {
 				SString symbol, drv_name, drv_path;
 				int    drv_impl = 0;
 				if(PPAbstractDevice::ParseRegEntry(line_buf, symbol, drv_name, drv_path, &drv_impl)) {

@@ -2383,13 +2383,12 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 						if(P_BObj->GetConfig().Flags & BCF_PAINTSHIPPEDBILLS) {
 							if(bill_rec.Flags & BILLF_SHIPPED) {
 								pStyle->Color = LightenColor(GetColorRef(SClrBlue), 0.7);
-								// @v7.3.3 pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
 								ok = 1;
 							}
 						}
 						if(bill_rec.Flags2 & BILLF2_BHT) {
-							pStyle->Color = GetColorRef(SClrLime); // @v7.7.7 pStyle->Color2-->pStyle->Color
-							pStyle->Flags |= BrowserWindow::CellStyle::fCorner; // @v7.7.7 fLeftBottomCorner-->fCorner
+							pStyle->Color = GetColorRef(SClrLime);
+							pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
 							ok = 1;
 						}
 					}
@@ -2432,7 +2431,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 							if(edi_user_status) {
 								COLORREF edi_color = 0;
 								switch(edi_user_status) {
-									case BEDIUS_DESADV_OUT_SENDED: edi_color = GetColorRef(SClrYellow); break;
+									case BEDIUS_DESADV_OUT_SENDED: 	edi_color = GetColorRef(SClrYellow); break;
 									case BEDIUS_DESADV_OUT_PROCESSED: edi_color = GetColorRef(SClrOrange); break;
 									case BEDIUS_DESADV_OUT_RECADV_ACC: edi_color = GetColorRef(SClrGreen); break;
 									case BEDIUS_DESADV_OUT_RECADV_PACC: edi_color = GetColorRef(SClrLightgreen); break;
@@ -4648,7 +4647,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 				brow_param.FileName = b_e.GetIEBRow()->GetPreservedOrgFileName();
 			if(b_e.BillParam.PredefFormat) {
 				if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_Invoice) {
-					// @construction 
+					// @construction
 					PPWait(1);
 					for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
 						const  PPID bill_id = bill_id_list.get(_idx);

@@ -689,7 +689,7 @@ int SLAPI RemoveBadReckons()
 
 int SLAPI PPObjBill::SearchPaymWOLinkBill()
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	PPID   op_id;
 	PPOprKind  opk;
 	PPIDArray  op_ary;
@@ -721,7 +721,8 @@ int SLAPI PPObjBill::SearchPaymWOLinkBill()
 		PPLoadText(PPTXT_WAIT_SEARCHUNLINKEDPAYMS, wait_msg_buf);
 		PPWait(1);
 		PPWaitMsg(wait_msg_buf);
-		THROW(PPStartTransaction(&ta, repare > 0));
+		PPTransaction tra(repare > 0);
+		THROW(tra);
 		for(op_id = 0; EnumOperations(PPOPT_PAYMENT, &op_id, &opk) > 0;) {
 			THROW(op_ary.add(op_id));
 			THROW_SL(op_name_ary.Add(op_id, opk.Name));
@@ -758,12 +759,9 @@ int SLAPI PPObjBill::SearchPaymWOLinkBill()
 			}
 			PPWaitPercent(cntr, wait_msg_buf);
 		}
-		THROW(PPCommitWork(&ta));
+		THROW(tra.Commit());
 	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = PPErrorZ();
-	ENDCATCH
+	CATCHZOKPPERR
 	logger.Save(log_filename, 0);
 	PPWait(0);
 	return ok;

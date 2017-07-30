@@ -1420,7 +1420,7 @@ int SLAPI PPViewCSess::CreateDrafts(PPID ruleGrpID, PPID ruleID, PPID sessID)
 
 int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, const SString & rMsg2, int use_ta)
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
 	PPCashNode cn_rec;
 	PPObjCashNode cn_obj;
 	PPObjGoods g_obj;
@@ -1555,137 +1555,137 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 			//
 			//
 			//
-			THROW(PPStartTransaction(&ta, use_ta));
-			THROW(b_pack.CreateBlank(rule.Rec.OpID, 0, prev_loc_id, 0));
-			b_pack.Rec.LocID   = prev_loc_id;
-			b_pack.Rec.Object  = rule.Rec.ArID;
-			b_pack.Ext.AgentID = rule.Rec.AgentID;
-			b_pack.Rec.Dt = bill_dt;
-			STRNSCPY(b_pack.Ext.InvoiceCode, b_pack.Rec.Code); // @v7.2.11
-			b_pack.Ext.InvoiceDate = bill_dt;                  // @v7.2.11
-			PPObjCSession::MakeCodeString(&csess_rec, csess_buf);
-			(memo_buf = 0).CatChar('@').Cat("auto").CatDiv('-', 1).Cat(rule.Rec.Name).CatDiv('-', 1).Cat(csess_buf);
-			memo_buf.CopyTo(b_pack.Rec.Memo, sizeof(b_pack.Rec.Memo));
-			for(uint p = 0; goods.enumItems(&p, (void**)&p_e) > 0;) {
-				int    new_doc_by_loc = 0;
-				long   cost_alg  = rule.Rec.CostAlg;
-				long   price_alg = rule.Rec.PriceAlg;
-				PPID   loc_id = p_e->LocID;
-				PPTransferItem ti;
-				ReceiptTbl::Rec lot_rec;
-				MEMSZERO(lot_rec);
-				THROW(ti.Init(&b_pack.Rec));
-				THROW(ti.SetupGoods(p_e->GoodsID) > 0);
-				ti.Quantity_ = p_e->Qtty;
-				new_doc_by_loc = BIN(rule.Rec.Flags & PPDraftCreateRule::fUseGoodsLocAssoc && prev_loc_id != loc_id);
-				//
-				// берем цены поступлени€ и реализации из последнего лота
-				//
-				if(oneof2(price_alg, PPDraftCreateRule::pByLastLot, PPDraftCreateRule::pByQuot) ||
-					oneof2(cost_alg, PPDraftCreateRule::cByLastLot, PPDraftCreateRule::cByQuot)) {
-					int    r = 0;
-					double price = 0.0, add_summ = 0.0;
-					LDATE  oper_dt = LConfig.OperDate;
+			{
+				PPTransaction tra(use_ta);
+				THROW(tra);
+				THROW(b_pack.CreateBlank(rule.Rec.OpID, 0, prev_loc_id, 0));
+				b_pack.Rec.LocID   = prev_loc_id;
+				b_pack.Rec.Object  = rule.Rec.ArID;
+				b_pack.Ext.AgentID = rule.Rec.AgentID;
+				b_pack.Rec.Dt = bill_dt;
+				STRNSCPY(b_pack.Ext.InvoiceCode, b_pack.Rec.Code);
+				b_pack.Ext.InvoiceDate = bill_dt;
+				PPObjCSession::MakeCodeString(&csess_rec, csess_buf);
+				(memo_buf = 0).CatChar('@').Cat("auto").CatDiv('-', 1).Cat(rule.Rec.Name).CatDiv('-', 1).Cat(csess_buf);
+				memo_buf.CopyTo(b_pack.Rec.Memo, sizeof(b_pack.Rec.Memo));
+				for(uint p = 0; goods.enumItems(&p, (void**)&p_e) > 0;) {
+					int    new_doc_by_loc = 0;
+					long   cost_alg  = rule.Rec.CostAlg;
+					long   price_alg = rule.Rec.PriceAlg;
+					PPID   loc_id = p_e->LocID;
+					PPTransferItem ti;
+					ReceiptTbl::Rec lot_rec;
+					MEMSZERO(lot_rec);
+					THROW(ti.Init(&b_pack.Rec));
+					THROW(ti.SetupGoods(p_e->GoodsID) > 0);
+					ti.Quantity_ = p_e->Qtty;
+					new_doc_by_loc = BIN(rule.Rec.Flags & PPDraftCreateRule::fUseGoodsLocAssoc && prev_loc_id != loc_id);
 					//
-					// LConfig.OperDate = last_check_dt нужно дл€ того, чтобы достать последний лот до заданной даты
+					// берем цены поступлени€ и реализации из последнего лота
 					//
-					DS.SetOperDate(last_check_dtm.d);
-					//
-					r = ::GetCurGoodsPrice(p_e->GoodsID, LConfig.Location, GPRET_MOSTRECENT | GPRET_OTHERLOC, &price, &lot_rec);
-					//
-					// LConfig.OperDate = oper_dt возвращаем LConfig.OperDate в исходное состо€ние
-					//
-					DS.SetOperDate(oper_dt);
-					THROW(r != GPRET_ERROR);
-					//
-					// если цена реализации 0, то то будем брать в качестве цены среднее арифметическое по чекам
-					//
-					if(lot_rec.Price == 0 && price_alg == PPDraftCreateRule::pByLastLot)
-						price_alg = PPDraftCreateRule::pByAvgSum;
-					//
-					// если цена поступлени€ 0, то то будем брать в качестве цены - цену реализации - процент
-					//
-					if(lot_rec.Cost == 0 && cost_alg == PPDraftCreateRule::cByLastLot)
-						cost_alg  = PPDraftCreateRule::cByPricePctVal;
-				}
-				//
-				// –ассчитываем цену поступлени€ по котировке
-				//
-				if(cost_alg == PPDraftCreateRule::cByQuot) {
-					QuotIdent qi(loc_id, rule.Rec.CQuot, 0, 0);
-					THROW(g_obj.GetQuotExt(p_e->GoodsID, qi, lot_rec.Cost, lot_rec.Price, &ti.Cost, 1));
-					// если цена по котировке 0, то будем брать из последнего лота
-					if(ti.Cost == 0.0)
-						cost_alg = (lot_rec.Cost != 0.0) ? PPDraftCreateRule::cByLastLot : PPDraftCreateRule::cByPricePctVal;
-				}
-				//
-				// –ассчитываем цену реализации по котировке
-				//
-				if(price_alg == PPDraftCreateRule::pByQuot) {
-					QuotIdent qi(loc_id, rule.Rec.PQuot, 0, 0);
-					THROW(g_obj.GetQuotExt(p_e->GoodsID, qi, lot_rec.Cost, lot_rec.Price, &ti.Price, 1));
-					//
-					// если цена по котировке 0, то будем брать в качестве цены среднее арифметическое по чека
-					//
-					if(ti.Price == 0.0)
-						price_alg = PPDraftCreateRule::pByAvgSum;
-				}
-				if(price_alg == PPDraftCreateRule::pByLastLot)
-					ti.Price = lot_rec.Price;
-				else if(price_alg != PPDraftCreateRule::pByQuot && price_alg != PPDraftCreateRule::pByCostPctVal)
-					ti.Price = fdivnz(p_e->Price, p_e->Qtty);
-				if(cost_alg == PPDraftCreateRule::cByLastLot)
-					ti.Cost = lot_rec.Cost;
-				else if(cost_alg != PPDraftCreateRule::cByQuot)
-					ti.Cost = ti.Price - fdiv100r(ti.Price) * rule.Rec.CPctVal;
-				if(price_alg == PPDraftCreateRule::pByCostPctVal) {
-					ti.Cost  = (ti.Cost == 0.0) ? fdivnz(p_e->Price, p_e->Qtty) : ti.Cost;
-					ti.Price = ti.Cost + fdiv100r(ti.Cost) * rule.Rec.PPctVal;
-				}
-				ti.Cost     = R5(ti.Cost);
-				ti.Price    = R5(ti.Price);
-				ti.Quantity_ = R6(ti.Quantity_);
-				add_sum = ti.Quantity_ * (cost_nominal ? ti.Cost : ti.Price);
-				if((rule.Rec.MaxPos && pos + 1 > rule.Rec.MaxPos) || (rule.Rec.MaxSum && sum + add_sum > rule.Rec.MaxSum) || new_doc_by_loc) {
-					if((!rule.Rec.MaxSum || sum <= rule.Rec.MaxSum) && (!rule.Rec.MaxPos || pos <= rule.Rec.MaxPos) || new_doc_by_loc) {
-						THROW(BillObj->__TurnPacket(&b_pack, 0, 1, 0));
-						new_doc_by_loc = 0;
-						ok = 1;
+					if(oneof2(price_alg, PPDraftCreateRule::pByLastLot, PPDraftCreateRule::pByQuot) ||
+						oneof2(cost_alg, PPDraftCreateRule::cByLastLot, PPDraftCreateRule::cByQuot)) {
+						int    r = 0;
+						double price = 0.0, add_summ = 0.0;
+						LDATE  oper_dt = LConfig.OperDate;
+						//
+						// LConfig.OperDate = last_check_dt нужно дл€ того, чтобы достать последний лот до заданной даты
+						//
+						DS.SetOperDate(last_check_dtm.d);
+						//
+						r = ::GetCurGoodsPrice(p_e->GoodsID, LConfig.Location, GPRET_MOSTRECENT | GPRET_OTHERLOC, &price, &lot_rec);
+						//
+						// LConfig.OperDate = oper_dt возвращаем LConfig.OperDate в исходное состо€ние
+						//
+						DS.SetOperDate(oper_dt);
+						THROW(r != GPRET_ERROR);
+						//
+						// если цена реализации 0, то то будем брать в качестве цены среднее арифметическое по чекам
+						//
+						if(lot_rec.Price == 0 && price_alg == PPDraftCreateRule::pByLastLot)
+							price_alg = PPDraftCreateRule::pByAvgSum;
+						//
+						// если цена поступлени€ 0, то то будем брать в качестве цены - цену реализации - процент
+						//
+						if(lot_rec.Cost == 0 && cost_alg == PPDraftCreateRule::cByLastLot)
+							cost_alg  = PPDraftCreateRule::cByPricePctVal;
 					}
-					// @v9.5.3 (excess) b_pack.destroy();
-					THROW(b_pack.CreateBlank(rule.Rec.OpID, 0, loc_id, 0));
-					b_pack.Rec.LocID   = loc_id;
-					b_pack.Rec.Object  = rule.Rec.ArID;
-					b_pack.Ext.AgentID = rule.Rec.AgentID;
-					b_pack.Rec.Dt = bill_dt;
-					STRNSCPY(b_pack.Ext.InvoiceCode, b_pack.Rec.Code); // @v7.3.4
-					b_pack.Ext.InvoiceDate = bill_dt;                  // @v7.3.4
-					PPObjCSession::MakeCodeString(&csess_rec, csess_buf);
-					(memo_buf = 0).CatChar('@').Cat("auto").CatDiv('-', 1).Cat(rule.Rec.Name).CatDiv('-', 1).Cat(csess_buf);
-					memo_buf.CopyTo(b_pack.Rec.Memo, sizeof(b_pack.Rec.Memo));
-					pos = 0;
-					sum = 0;
+					//
+					// –ассчитываем цену поступлени€ по котировке
+					//
+					if(cost_alg == PPDraftCreateRule::cByQuot) {
+						QuotIdent qi(loc_id, rule.Rec.CQuot, 0, 0);
+						THROW(g_obj.GetQuotExt(p_e->GoodsID, qi, lot_rec.Cost, lot_rec.Price, &ti.Cost, 1));
+						// если цена по котировке 0, то будем брать из последнего лота
+						if(ti.Cost == 0.0)
+							cost_alg = (lot_rec.Cost != 0.0) ? PPDraftCreateRule::cByLastLot : PPDraftCreateRule::cByPricePctVal;
+					}
+					//
+					// –ассчитываем цену реализации по котировке
+					//
+					if(price_alg == PPDraftCreateRule::pByQuot) {
+						QuotIdent qi(loc_id, rule.Rec.PQuot, 0, 0);
+						THROW(g_obj.GetQuotExt(p_e->GoodsID, qi, lot_rec.Cost, lot_rec.Price, &ti.Price, 1));
+						//
+						// если цена по котировке 0, то будем брать в качестве цены среднее арифметическое по чека
+						//
+						if(ti.Price == 0.0)
+							price_alg = PPDraftCreateRule::pByAvgSum;
+					}
+					if(price_alg == PPDraftCreateRule::pByLastLot)
+						ti.Price = lot_rec.Price;
+					else if(price_alg != PPDraftCreateRule::pByQuot && price_alg != PPDraftCreateRule::pByCostPctVal)
+						ti.Price = fdivnz(p_e->Price, p_e->Qtty);
+					if(cost_alg == PPDraftCreateRule::cByLastLot)
+						ti.Cost = lot_rec.Cost;
+					else if(cost_alg != PPDraftCreateRule::cByQuot)
+						ti.Cost = ti.Price - fdiv100r(ti.Price) * rule.Rec.CPctVal;
+					if(price_alg == PPDraftCreateRule::pByCostPctVal) {
+						ti.Cost  = (ti.Cost == 0.0) ? fdivnz(p_e->Price, p_e->Qtty) : ti.Cost;
+						ti.Price = ti.Cost + fdiv100r(ti.Cost) * rule.Rec.PPctVal;
+					}
+					ti.Cost     = R5(ti.Cost);
+					ti.Price    = R5(ti.Price);
+					ti.Quantity_ = R6(ti.Quantity_);
+					add_sum = ti.Quantity_ * (cost_nominal ? ti.Cost : ti.Price);
+					if((rule.Rec.MaxPos && pos + 1 > rule.Rec.MaxPos) || (rule.Rec.MaxSum && sum + add_sum > rule.Rec.MaxSum) || new_doc_by_loc) {
+						if((!rule.Rec.MaxSum || sum <= rule.Rec.MaxSum) && (!rule.Rec.MaxPos || pos <= rule.Rec.MaxPos) || new_doc_by_loc) {
+							THROW(BillObj->__TurnPacket(&b_pack, 0, 1, 0));
+							new_doc_by_loc = 0;
+							ok = 1;
+						}
+						// @v9.5.3 (excess) b_pack.destroy();
+						THROW(b_pack.CreateBlank(rule.Rec.OpID, 0, loc_id, 0));
+						b_pack.Rec.LocID   = loc_id;
+						b_pack.Rec.Object  = rule.Rec.ArID;
+						b_pack.Ext.AgentID = rule.Rec.AgentID;
+						b_pack.Rec.Dt = bill_dt;
+						STRNSCPY(b_pack.Ext.InvoiceCode, b_pack.Rec.Code);
+						b_pack.Ext.InvoiceDate = bill_dt;
+						PPObjCSession::MakeCodeString(&csess_rec, csess_buf);
+						(memo_buf = 0).CatChar('@').Cat("auto").CatDiv('-', 1).Cat(rule.Rec.Name).CatDiv('-', 1).Cat(csess_buf);
+						memo_buf.CopyTo(b_pack.Rec.Memo, sizeof(b_pack.Rec.Memo));
+						pos = 0;
+						sum = 0;
+					}
+					if((!rule.Rec.MaxPos || pos + 1 <= rule.Rec.MaxPos) && (!rule.Rec.MaxSum || sum + add_sum <= rule.Rec.MaxSum)) {
+						ti.SetupSign(rule.Rec.OpID);
+						THROW(b_pack.LoadTItem(&ti, 0, 0));
+						sum += add_sum;
+						pos++;
+					}
+					prev_loc_id = loc_id;
+					PPWaitPercent(p, goods.getCount(), rMsg2);
 				}
-				if((!rule.Rec.MaxPos || pos + 1 <= rule.Rec.MaxPos) && (!rule.Rec.MaxSum || sum + add_sum <= rule.Rec.MaxSum)) {
-					ti.SetupSign(rule.Rec.OpID);
-					THROW(b_pack.LoadTItem(&ti, 0, 0));
-					sum += add_sum;
-					pos++;
+				if((!rule.Rec.MaxPos || pos <= rule.Rec.MaxPos) && (!rule.Rec.MaxSum || sum <= rule.Rec.MaxSum)) {
+					THROW(BillObj->__TurnPacket(&b_pack, 0, 1, 0));
+					ok = 1;
 				}
-				prev_loc_id = loc_id;
-				PPWaitPercent(p, goods.getCount(), rMsg2);
+				THROW(tra.Commit());
 			}
-			if((!rule.Rec.MaxPos || pos <= rule.Rec.MaxPos) && (!rule.Rec.MaxSum || sum <= rule.Rec.MaxSum)) {
-				THROW(BillObj->__TurnPacket(&b_pack, 0, 1, 0));
-				ok = 1;
-			}
-			THROW(PPCommitWork(&ta));
 		}
 	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	ZDELETE(p_gds_assc);
 	return ok;
 

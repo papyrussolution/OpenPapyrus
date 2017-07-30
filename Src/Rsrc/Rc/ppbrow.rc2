@@ -1742,16 +1742,16 @@ browser DEBTCARD north(100), 1, 2, "Долговая карточка {%s}", OWNER|GRID, 0
 browser INVNTRYLINES north(100), 1, 1, "@{view_inventory} {%s}", OWNER|GRID, 0
 {
 	"#",               1, notype, 0,  4
-	"@ware",           3, notype, 0, 25
-	"@storageplace",  12, notype, 0, 12 // @v8.8.6
-	"@barcode",       11, notype, 0, 10
-	"@serial",        10, notype, 0, 10
-	"@rest",           4, notype, NMBF_NOTRAILZ, 10.3
-	"@price",          5, notype, NMBF_NOZERO,    8.2
-	"Цена списания",   6, notype, NMBF_NOZERO,    8.2
-	"@amount",         7, notype, NMBF_NOZERO,   10.2
-	"Сумма дефицита",  8, notype, NMBF_NOZERO,   10.2
-	"@difference",     9, notype, NMBF_NOZERO,   10.3
+	"@ware",           4, notype, 0, 25
+	"@storageplace",  13, notype, 0, 12 // @v8.8.6
+	"@barcode",       12, notype, 0, 10
+	"@serial",        11, notype, 0, 10
+	"@rest",           5, notype, NMBF_NOTRAILZ, 10.3
+	"@price",          6, notype, NMBF_NOZERO,    8.2
+	"Цена списания",   7, notype, NMBF_NOZERO,    8.2
+	"@amount",         8, notype, NMBF_NOZERO,   10.2
+	"Сумма дефицита",  9, notype, NMBF_NOZERO,   10.2
+	"@difference",    10, notype, NMBF_NOZERO,   10.3
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM      : kbEnter,   TBBM_EDIT,      "@{doeditrow}\tEnter"
 		ADDITEM       : kbIns,     TBBM_INSERT,    "Стандартное добавление строки\tInsert"

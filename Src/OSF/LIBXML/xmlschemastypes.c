@@ -5506,7 +5506,7 @@ static void xmlSchemaFormatFloat(double number, char buffer[], int buffersize)
  * Returns 0 if the value could be built, 1 if the value type is
  * not supported yet and -1 in case of API errors.
  */
-int xmlSchemaGetCanonValue(xmlSchemaValPtr val, const xmlChar ** retValue)
+int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 {
 	if((retValue == NULL) || (val == NULL))
 		return -1;
@@ -5516,8 +5516,7 @@ int xmlSchemaGetCanonValue(xmlSchemaValPtr val, const xmlChar ** retValue)
 		    if(val->value.str == NULL)
 			    *retValue = BAD_CAST xmlStrdup(BAD_CAST "");
 		    else
-			    *retValue =
-			    BAD_CAST xmlStrdup((const xmlChar*)val->value.str);
+			    *retValue = BAD_CAST xmlStrdup((const xmlChar*)val->value.str);
 		    break;
 		case XML_SCHEMAS_NORMSTRING:
 		    if(val->value.str == NULL)
@@ -5541,11 +5540,9 @@ int xmlSchemaGetCanonValue(xmlSchemaValPtr val, const xmlChar ** retValue)
 		case XML_SCHEMAS_ANYURI: /* Unclear */
 		    if(val->value.str == NULL)
 			    return -1;
-		    *retValue =
-		    BAD_CAST xmlSchemaCollapseString(BAD_CAST val->value.str);
+		    *retValue = BAD_CAST xmlSchemaCollapseString(BAD_CAST val->value.str);
 		    if(*retValue == NULL)
-			    *retValue =
-			    BAD_CAST xmlStrdup((const xmlChar*)val->value.str);
+			    *retValue = BAD_CAST xmlStrdup((const xmlChar*)val->value.str);
 		    break;
 		case XML_SCHEMAS_QNAME:
 		    /* TODO: Unclear in XML Schema 1.0. */
@@ -5555,27 +5552,22 @@ int xmlSchemaGetCanonValue(xmlSchemaValPtr val, const xmlChar ** retValue)
 		    }
 		    else {
 			    *retValue = BAD_CAST xmlStrdup(BAD_CAST "{");
-			    *retValue = BAD_CAST xmlStrcat((xmlChar*)(*retValue),
-			    BAD_CAST val->value.qname.uri);
-			    *retValue = BAD_CAST xmlStrcat((xmlChar*)(*retValue),
-			    BAD_CAST "}");
-			    *retValue = BAD_CAST xmlStrcat((xmlChar*)(*retValue),
-			    BAD_CAST val->value.qname.uri);
+			    *retValue = BAD_CAST xmlStrcat((xmlChar*)(*retValue), BAD_CAST val->value.qname.uri);
+			    *retValue = BAD_CAST xmlStrcat((xmlChar*)(*retValue), BAD_CAST "}");
+			    *retValue = BAD_CAST xmlStrcat((xmlChar*)(*retValue), BAD_CAST val->value.qname.uri);
 		    }
 		    break;
 		case XML_SCHEMAS_DECIMAL:
 		    /*
 		     * TODO: Lookout for a more simple implementation.
 		     */
-		    if((val->value.decimal.total == 1) &&
-		    (val->value.decimal.lo == 0)) {
+		    if((val->value.decimal.total == 1) && (val->value.decimal.lo == 0)) {
 			    *retValue = xmlStrdup(BAD_CAST "0.0");
 		    }
 		    else {
 			    xmlSchemaValDecimal dec = val->value.decimal;
 			    int bufsize;
 			    char * buf = NULL, * offs;
-
 			    /* Add room for the decimal point as well. */
 			    bufsize = dec.total + 2;
 			    if(dec.sign)
@@ -5594,15 +5586,11 @@ int xmlSchemaGetCanonValue(xmlSchemaValPtr val, const xmlChar ** retValue)
 				    *offs++ = '.';
 			    }
 			    if(dec.hi != 0)
-				    snprintf(offs, bufsize - (offs - buf),
-				    "%lu%lu%lu", dec.hi, dec.mi, dec.lo);
+				    snprintf(offs, bufsize - (offs - buf), "%lu%lu%lu", dec.hi, dec.mi, dec.lo);
 			    else if(dec.mi != 0)
-				    snprintf(offs, bufsize - (offs - buf),
-				    "%lu%lu", dec.mi, dec.lo);
+				    snprintf(offs, bufsize - (offs - buf), "%lu%lu", dec.mi, dec.lo);
 			    else
-				    snprintf(offs, bufsize - (offs - buf),
-				    "%lu", dec.lo);
-
+				    snprintf(offs, bufsize - (offs - buf), "%lu", dec.lo);
 			    if(dec.frac != 0) {
 				    if(dec.frac != dec.total) {
 					    int diff = dec.total - dec.frac;
@@ -5887,7 +5875,7 @@ int xmlSchemaGetCanonValue(xmlSchemaValPtr val, const xmlChar ** retValue)
  * Returns 0 if the value could be built, 1 if the value type is
  * not supported yet and -1 in case of API errors.
  */
-int xmlSchemaGetCanonValueWhtsp(xmlSchemaValPtr val, const xmlChar ** retValue, xmlSchemaWhitespaceValueType ws)
+int xmlSchemaGetCanonValueWhtsp(xmlSchemaVal * val, xmlChar ** retValue, xmlSchemaWhitespaceValueType ws)
 {
 	if((retValue == NULL) || (val == NULL))
 		return -1;

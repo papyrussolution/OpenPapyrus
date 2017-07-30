@@ -627,32 +627,32 @@ int UI_method_set_prompt_constructor(UI_METHOD * method, char *(*prompt_construc
 
 int(*UI_method_get_opener(UI_METHOD *method)) (UI *)
 {
-	return (method != NULL) ? method->ui_open_session : NULL;
+	return method ? method->ui_open_session : NULL;
 }
 
 int(*UI_method_get_writer(UI_METHOD *method)) (UI *, UI_STRING *)
 {
-	return (method != NULL) ? method->ui_write_string : NULL;
+	return method ? method->ui_write_string : NULL;
 }
 
 int(*UI_method_get_flusher(UI_METHOD *method)) (UI *)
 {
-	return (method != NULL) ? method->ui_flush : NULL;
+	return method ? method->ui_flush : NULL;
 }
 
 int(*UI_method_get_reader(UI_METHOD *method)) (UI *, UI_STRING *)
 {
-	return (method != NULL) ? method->ui_read_string : NULL;
+	return method ? method->ui_read_string : NULL;
 }
 
 int(*UI_method_get_closer(UI_METHOD *method)) (UI *)
 {
-	return (method != NULL) ? method->ui_close_session : NULL;
+	return method ? method->ui_close_session : NULL;
 }
 
 char *(*UI_method_get_prompt_constructor(UI_METHOD *method))(UI *, const char *, const char *)
 {
-	return (method != NULL) ? method->ui_construct_prompt : NULL;
+	return method ? method->ui_construct_prompt : NULL;
 }
 
 enum UI_string_types UI_get_string_type(UI_STRING * uis)

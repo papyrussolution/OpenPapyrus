@@ -19,23 +19,17 @@ static int __memp_get_maxsize(DB_MPOOLFILE*, uint32*, uint32 *);
 static int __memp_set_maxsize(DB_MPOOLFILE*, uint32, uint32);
 static int __memp_set_priority(DB_MPOOLFILE*, DB_CACHE_PRIORITY);
 static int __memp_get_last_pgno_pp(DB_MPOOLFILE*, db_pgno_t *);
-
 static int __memp_mpf_alloc(DB_MPOOL*, DB_MPOOLFILE*, const char *, uint32, uint32, MPOOLFILE**);
 static int __memp_mpf_find(ENV*, DB_MPOOLFILE*, DB_MPOOL_HASH*, const char *, uint32, MPOOLFILE**);
-
 static int __pgno_cmp(const void *, const void *);
-
 static int __memp_init_config(ENV*, MPOOL *);
 static void __memp_region_size(ENV*, roff_t*, uint32 *);
-
 static int FASTCALL __memp_map_regions(DB_MPOOL *);
 static int __memp_merge_buckets(DB_MPOOL*, uint32, uint32, uint32);
-
 static int __bhcmp(const void *, const void *);
 static int __memp_close_flush_files(ENV*, int);
 static int __memp_sync_files(ENV *);
 static int __memp_sync_file(ENV*, MPOOLFILE*, void *, uint32*, uint32);
-
 static int __memp_trickle(ENV *, int, int *);
 
 #ifdef HAVE_STATISTICS // {
@@ -2797,7 +2791,7 @@ alloc:          /*
 		alloc_mfp->last_flushed_pgno = alloc_mfp->orig_last_pgno = alloc_mfp->last_pgno = last_pgno;
 		alloc_mfp->bucket = bucket;
 		/* Go back and see if someone else has opened the file. */
-		if(path != NULL)
+		if(path)
 			goto check;
 		mfp = alloc_mfp;
 		/* This is a temp, noone else can see it, put it at the end. */
@@ -3035,7 +3029,7 @@ static int __memp_mpf_alloc(DB_MPOOL * dbmp, DB_MPOOLFILE * dbmfp, const char * 
 		memcpy(p, dbmfp->fileid, DB_FILE_ID_LEN);
 	}
 	/* Copy the file path into shared memory. */
-	if(path != NULL) {
+	if(path) {
 		if((ret = __memp_alloc(dbmp, dbmp->reginfo, NULL, strlen(path)+1, &mfp->path_off, &p)) != 0)
 			goto err;
 		memcpy(p, path, strlen(path)+1);
@@ -4671,14 +4665,14 @@ int __memp_get_bucket(ENV * env, MPOOLFILE * mfp, db_pgno_t pgno, REGINFO ** inf
 	DB_MPOOL_HASH * hp;
 	MPOOL * c_mp;
 	REGINFO * infop;
-	uint32 bucket, nbuckets, new_bucket, new_nbuckets, region;
+	uint32 bucket, new_bucket, new_nbuckets, region;
 	uint32 * regids;
 	DB_MPOOL * dbmp = env->mp_handle;
 	roff_t mf_offset = R_OFFSET(dbmp->reginfo, mfp);
 	MPOOL * mp = (MPOOL *)dbmp->reginfo[0].primary;
 	int    ret = 0;
 	for(;; ) {
-		nbuckets = mp->nbuckets;
+		const uint32 nbuckets = mp->nbuckets;
 		MP_BUCKET(mf_offset, pgno, nbuckets, bucket);
 		/*
 		 * Once we work out which region we are looking in, we have to

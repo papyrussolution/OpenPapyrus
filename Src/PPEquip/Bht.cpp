@@ -3711,7 +3711,8 @@ int SLAPI GetBillRows(const char * pLName, TSArray <Sdr_SBIIBillRow> * pList)
 int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID destIntrLocID, const char * pHName, const char * pLName, PPLogger * pLog)
 {
 	int    ok = -1;
-	const  PPID loc_id = LConfig.Location;
+	const  PPConfig & r_cfg = LConfig;
+	const  PPID loc_id = r_cfg.Location;
 	long   count = 0;
 	PPObjBill * p_bobj = BillObj;
 	SString bill_code, buf, goods_name, add_info, temp_buf;
@@ -3760,7 +3761,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 				uuid.SetZero();
 			(bill_code = sdr_bill.Code).Strip();
 			bill_code.Cat(pPack->P_SBIICfg->DeviceName);
-			SETIFZ(sdr_bill.Date, LConfig.OperDate);
+			SETIFZ(sdr_bill.Date, r_cfg.OperDate);
 			if(sdr_bill.OpID == StyloBhtIIConfig::oprkInventory) {
 				op_id = pPack->Rec.InventOpID;
 				MEMSZERO(bht_inv_rec);

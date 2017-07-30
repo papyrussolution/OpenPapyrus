@@ -33,7 +33,7 @@ static void xmlURIErrMemory(const char * extra)
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_URI, XML_ERR_NO_MEMORY, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "Memory allocation failed\n");
 }
 
-static void xmlCleanURI(xmlURIPtr uri);
+static void FASTCALL xmlCleanURI(xmlURI * uri);
 
 /*
  * Old rule from 2396 used in legacy handling code
@@ -322,11 +322,8 @@ static int xmlParse3986Userinfo(xmlURIPtr uri, const char ** str)
 		NEXT(cur);
 	if(*cur == '@') {
 		if(uri) {
-			if(uri->user != NULL) SAlloc::F(uri->user);
-			if(uri->cleanup & 2)
-				uri->user = STRNDUP(*str, cur - *str);
-			else
-				uri->user = xmlURIUnescapeString(*str, cur - *str, 0);
+			SAlloc::F(uri->user);
+			uri->user = (uri->cleanup & 2) ? STRNDUP(*str, cur - *str) : xmlURIUnescapeString(*str, cur - *str, 0);
 		}
 		*str = cur;
 		return 0;
@@ -531,12 +528,9 @@ static int FASTCALL xmlParse3986PathAbEmpty(xmlURIPtr uri, const char ** str)
 			return ret;
 	}
 	if(uri) {
-		if(uri->path != NULL) SAlloc::F(uri->path);
+		SAlloc::F(uri->path);
 		if(*str != cur) {
-			if(uri->cleanup & 2)
-				uri->path = STRNDUP(*str, cur - *str);
-			else
-				uri->path = xmlURIUnescapeString(*str, cur - *str, 0);
+			uri->path = (uri->cleanup & 2) ? STRNDUP(*str, cur - *str) : xmlURIUnescapeString(*str, cur - *str, 0);
 		}
 		else {
 			uri->path = NULL;
@@ -574,12 +568,9 @@ static int FASTCALL xmlParse3986PathAbsolute(xmlURIPtr uri, const char ** str)
 		}
 	}
 	if(uri) {
-		if(uri->path != NULL) SAlloc::F(uri->path);
+		SAlloc::F(uri->path);
 		if(cur != *str) {
-			if(uri->cleanup & 2)
-				uri->path = STRNDUP(*str, cur - *str);
-			else
-				uri->path = xmlURIUnescapeString(*str, cur - *str, 0);
+			uri->path = (uri->cleanup & 2) ? STRNDUP(*str, cur - *str) : xmlURIUnescapeString(*str, cur - *str, 0);
 		}
 		else {
 			uri->path = NULL;
@@ -706,7 +697,7 @@ static int xmlParse3986HierPart(xmlURIPtr uri, const char ** str)
 	else {
 		/* path-empty is effectively empty */
 		if(uri) {
-			if(uri->path != NULL) SAlloc::F(uri->path);
+			SAlloc::F(uri->path);
 			uri->path = NULL;
 		}
 	}
@@ -751,19 +742,21 @@ static int xmlParse3986RelativeRef(xmlURIPtr uri, const char * str)
 	else {
 		/* path-empty is effectively empty */
 		if(uri) {
-			if(uri->path != NULL) SAlloc::F(uri->path);
+			SAlloc::F(uri->path);
 			uri->path = NULL;
 		}
 	}
 	if(*str == '?') {
 		str++;
 		ret = xmlParse3986Query(uri, &str);
-		if(ret != 0) return ret;
+		if(ret != 0) 
+			return ret;
 	}
 	if(*str == '#') {
 		str++;
 		ret = xmlParse3986Fragment(uri, &str);
-		if(ret != 0) return ret;
+		if(ret != 0) 
+			return ret;
 	}
 	if(*str != 0) {
 		xmlCleanURI(uri);
@@ -1253,55 +1246,36 @@ void xmlPrintURI(FILE * stream, xmlURIPtr uri)
 		SAlloc::F(out);
 	}
 }
-
 /**
  * xmlCleanURI:
  * @uri:  pointer to an xmlURI
  *
  * Make sure the xmlURI struct is free of content
  */
-static void xmlCleanURI(xmlURIPtr uri)
+static void FASTCALL xmlCleanURI(xmlURI * uri)
 {
 	if(uri) {
-		if(uri->scheme != NULL) SAlloc::F(uri->scheme);
-		uri->scheme = NULL;
-		if(uri->server != NULL) SAlloc::F(uri->server);
-		uri->server = NULL;
-		if(uri->user != NULL) SAlloc::F(uri->user);
-		uri->user = NULL;
-		if(uri->path != NULL) SAlloc::F(uri->path);
-		uri->path = NULL;
-		if(uri->fragment != NULL) SAlloc::F(uri->fragment);
-		uri->fragment = NULL;
-		if(uri->opaque != NULL) SAlloc::F(uri->opaque);
-		uri->opaque = NULL;
-		if(uri->authority != NULL) SAlloc::F(uri->authority);
-		uri->authority = NULL;
-		if(uri->query != NULL) SAlloc::F(uri->query);
-		uri->query = NULL;
-		if(uri->query_raw != NULL) SAlloc::F(uri->query_raw);
-		uri->query_raw = NULL;
+		ZFREE(uri->scheme);
+		ZFREE(uri->server);
+		ZFREE(uri->user);
+		ZFREE(uri->path);
+		ZFREE(uri->fragment);
+		ZFREE(uri->opaque);
+		ZFREE(uri->authority);
+		ZFREE(uri->query);
+		ZFREE(uri->query_raw);
 	}
 }
-
 /**
  * xmlFreeURI:
  * @uri:  pointer to an xmlURI
  *
  * Free up the xmlURI struct
  */
-void xmlFreeURI(xmlURIPtr uri)
+void FASTCALL xmlFreeURI(xmlURI * uri)
 {
 	if(uri) {
-		SAlloc::F(uri->scheme);
-		SAlloc::F(uri->server);
-		SAlloc::F(uri->user);
-		SAlloc::F(uri->path);
-		SAlloc::F(uri->fragment);
-		SAlloc::F(uri->opaque);
-		SAlloc::F(uri->authority);
-		SAlloc::F(uri->query);
-		SAlloc::F(uri->query_raw);
+		xmlCleanURI(uri);
 		SAlloc::F(uri);
 	}
 }
@@ -1404,23 +1378,21 @@ done_cd:
 	 * "current position" pointer.
 	 */
 	while(1) {
-		char * segp, * tmp;
+		char * tmp;
 
 		/* At the beginning of each iteration of this loop, "cur" points to
 		 * the first character of the segment we want to examine.
 		 */
 
 		/* Find the end of the current segment.  */
-		segp = cur;
+		char * segp = cur;
 		while((segp[0] != '/') && (segp[0] != '\0'))
 			++segp;
-
 		/* If this is the last segment, we're done (we need at least two
 		 * segments to meet the criteria for the (e) and (f) cases).
 		 */
 		if(segp[0] == '\0')
 			break;
-
 		/* If the first segment is "..", or if the next segment _isn't_ "..",
 		 * keep this segment and try the next one.
 		 */
@@ -1508,49 +1480,52 @@ done_cd:
  */
 char * xmlURIUnescapeString(const char * str, int len, char * target)
 {
-	char * ret, * out;
+	char * ret = 0;
+	char * out;
 	const char * in;
-	if(str == NULL)
-		return 0;
-	if(len <= 0) len = strlen(str);
-	if(len < 0) return 0;
-	if(target == NULL) {
-		ret = (char*)SAlloc::M(len + 1);
-		if(!ret) {
-			xmlURIErrMemory("unescaping URI value\n");
+	if(str) {
+		if(len <= 0) 
+			len = strlen(str);
+		if(len < 0) 
 			return 0;
+		if(target == NULL) {
+			ret = (char*)SAlloc::M(len + 1);
+			if(!ret) {
+				xmlURIErrMemory("unescaping URI value\n");
+				return 0;
+			}
 		}
+		else
+			ret = target;
+		in = str;
+		out = ret;
+		while(len > 0) {
+			if((len > 2) && (*in == '%') && (ishex(in[1])) && (ishex(in[2]))) {
+				in++;
+				if((*in >= '0') && (*in <= '9'))
+					*out = (*in - '0');
+				else if((*in >= 'a') && (*in <= 'f'))
+					*out = (*in - 'a') + 10;
+				else if((*in >= 'A') && (*in <= 'F'))
+					*out = (*in - 'A') + 10;
+				in++;
+				if((*in >= '0') && (*in <= '9'))
+					*out = *out * 16 + (*in - '0');
+				else if((*in >= 'a') && (*in <= 'f'))
+					*out = *out * 16 + (*in - 'a') + 10;
+				else if((*in >= 'A') && (*in <= 'F'))
+					*out = *out * 16 + (*in - 'A') + 10;
+				in++;
+				len -= 3;
+				out++;
+			}
+			else {
+				*out++ = *in++;
+				len--;
+			}
+		}
+		*out = 0;
 	}
-	else
-		ret = target;
-	in = str;
-	out = ret;
-	while(len > 0) {
-		if((len > 2) && (*in == '%') && (ishex(in[1])) && (ishex(in[2]))) {
-			in++;
-			if((*in >= '0') && (*in <= '9'))
-				*out = (*in - '0');
-			else if((*in >= 'a') && (*in <= 'f'))
-				*out = (*in - 'a') + 10;
-			else if((*in >= 'A') && (*in <= 'F'))
-				*out = (*in - 'A') + 10;
-			in++;
-			if((*in >= '0') && (*in <= '9'))
-				*out = *out * 16 + (*in - '0');
-			else if((*in >= 'a') && (*in <= 'f'))
-				*out = *out * 16 + (*in - 'a') + 10;
-			else if((*in >= 'A') && (*in <= 'F'))
-				*out = *out * 16 + (*in - 'A') + 10;
-			in++;
-			len -= 3;
-			out++;
-		}
-		else {
-			*out++ = *in++;
-			len--;
-		}
-	}
-	*out = 0;
 	return ret;
 }
 
@@ -1639,9 +1614,7 @@ xmlChar * xmlURIEscape(const xmlChar * str)
 	xmlChar * ret, * segment = NULL;
 	xmlURIPtr uri;
 	int ret2;
-
 #define NULLCHK(p) if(!p) { xmlURIErrMemory("escaping URI value\n"); xmlFreeURI(uri); return NULL; }
-
 	if(str == NULL)
 		return 0;
 	uri = xmlCreateURI();

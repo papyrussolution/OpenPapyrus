@@ -3895,9 +3895,7 @@ xmlChar * xmlParseSystemLiteral(xmlParserCtxt * ctxt)
 	while((IS_CHAR(cur)) && (cur != stop)) { /* checked */
 		if(len + 5 >= size) {
 			xmlChar * tmp;
-
-			if((size > XML_MAX_NAME_LENGTH) &&
-			    ((ctxt->options & XML_PARSE_HUGE) == 0)) {
+			if((size > XML_MAX_NAME_LENGTH) && ((ctxt->options & XML_PARSE_HUGE) == 0)) {
 				xmlFatalErr(ctxt, XML_ERR_NAME_TOO_LONG, "SystemLiteral");
 				SAlloc::F(buf);
 				ctxt->instate = (xmlParserInputState)state;
@@ -3941,7 +3939,6 @@ xmlChar * xmlParseSystemLiteral(xmlParserCtxt * ctxt)
 	}
 	return buf;
 }
-
 /**
  * xmlParsePubidLiteral:
  * @ctxt:  an XML parser context
@@ -3952,8 +3949,8 @@ xmlChar * xmlParseSystemLiteral(xmlParserCtxt * ctxt)
  *
  * Returns the PubidLiteral parsed or NULL.
  */
-
-xmlChar * xmlParsePubidLiteral(xmlParserCtxt * ctxt) {
+xmlChar * xmlParsePubidLiteral(xmlParserCtxt * ctxt) 
+{
 	xmlChar * buf = NULL;
 	int len = 0;
 	int size = XML_PARSER_BUFFER_SIZE;
@@ -3985,9 +3982,7 @@ xmlChar * xmlParsePubidLiteral(xmlParserCtxt * ctxt) {
 	while((IS_PUBIDCHAR_CH(cur)) && (cur != stop)) { /* checked */
 		if(len + 1 >= size) {
 			xmlChar * tmp;
-
-			if((size > XML_MAX_NAME_LENGTH) &&
-			    ((ctxt->options & XML_PARSE_HUGE) == 0)) {
+			if((size > XML_MAX_NAME_LENGTH) && ((ctxt->options & XML_PARSE_HUGE) == 0)) {
 				xmlFatalErr(ctxt, XML_ERR_NAME_TOO_LONG, "Public ID");
 				SAlloc::F(buf);
 				return 0;
@@ -11436,7 +11431,7 @@ xmlParserCtxtPtr xmlCreateIOParserCtxt(xmlSAXHandlerPtr sax, void * user_data, x
 
 xmlDtdPtr xmlIOParseDTD(xmlSAXHandlerPtr sax, xmlParserInputBufferPtr input, xmlCharEncoding enc)
 {
-	xmlDtdPtr ret = NULL;
+	xmlDtd * ret = NULL;
 	xmlParserCtxt * ctxt;
 	xmlParserInputPtr pinput = NULL;
 	xmlChar start[4];
@@ -11547,7 +11542,7 @@ xmlDtdPtr xmlIOParseDTD(xmlSAXHandlerPtr sax, xmlParserInputBufferPtr input, xml
 
 xmlDtdPtr xmlSAXParseDTD(xmlSAXHandlerPtr sax, const xmlChar * ExternalID, const xmlChar * SystemID)
 {
-	xmlDtdPtr ret = NULL;
+	xmlDtd * ret = NULL;
 	xmlParserCtxt * ctxt;
 	xmlParserInputPtr input = NULL;
 	xmlCharEncoding enc;
@@ -11661,8 +11656,9 @@ xmlDtdPtr xmlSAXParseDTD(xmlSAXHandlerPtr sax, const xmlChar * ExternalID, const
  * Returns the resulting xmlDtdPtr or NULL in case of error.
  */
 
-xmlDtdPtr xmlParseDTD(const xmlChar * ExternalID, const xmlChar * SystemID) {
-	return(xmlSAXParseDTD(NULL, ExternalID, SystemID));
+xmlDtdPtr xmlParseDTD(const xmlChar * ExternalID, const xmlChar * SystemID) 
+{
+	return xmlSAXParseDTD(NULL, ExternalID, SystemID);
 }
 
 #endif /* LIBXML_VALID_ENABLED */
@@ -12845,43 +12841,39 @@ xmlParserCtxtPtr xmlCreateFileParserCtxt(const char * filename)
 
 xmlDocPtr xmlSAXParseFileWithData(xmlSAXHandlerPtr sax, const char * filename, int recovery, void * data)
 {
-	xmlDocPtr ret;
+	xmlDoc * ret = 0;
 	xmlParserCtxt * ctxt;
 	xmlInitParser();
 	ctxt = xmlCreateFileParserCtxt(filename);
-	if(!ctxt) {
-		return 0;
-	}
-	if(sax) {
-		if(ctxt->sax != NULL)
+	if(ctxt) {
+		if(sax) {
 			SAlloc::F(ctxt->sax);
-		ctxt->sax = sax;
-	}
-	xmlDetectSAX2(ctxt);
-	if(data!=NULL) {
-		ctxt->_private = data;
-	}
-	if(ctxt->directory == NULL)
-		ctxt->directory = xmlParserGetDirectory(filename);
-	ctxt->recovery = recovery;
-	xmlParseDocument(ctxt);
-	if((ctxt->wellFormed) || recovery) {
-		ret = ctxt->myDoc;
-		if(ret) {
-			if(ctxt->input->buf->compressed > 0)
-				ret->compression = 9;
-			else
-				ret->compression = ctxt->input->buf->compressed;
+			ctxt->sax = sax;
 		}
+		xmlDetectSAX2(ctxt);
+		if(data)
+			ctxt->_private = data;
+		SETIFZ(ctxt->directory, xmlParserGetDirectory(filename));
+		ctxt->recovery = recovery;
+		xmlParseDocument(ctxt);
+		if((ctxt->wellFormed) || recovery) {
+			ret = ctxt->myDoc;
+			if(ret) {
+				if(ctxt->input->buf->compressed > 0)
+					ret->compression = 9;
+				else
+					ret->compression = ctxt->input->buf->compressed;
+			}
+		}
+		else {
+			ret = NULL;
+			xmlFreeDoc(ctxt->myDoc);
+			ctxt->myDoc = NULL;
+		}
+		if(sax)
+			ctxt->sax = NULL;
+		xmlFreeParserCtxt(ctxt);
 	}
-	else {
-		ret = NULL;
-		xmlFreeDoc(ctxt->myDoc);
-		ctxt->myDoc = NULL;
-	}
-	if(sax)
-		ctxt->sax = NULL;
-	xmlFreeParserCtxt(ctxt);
 	return ret;
 }
 

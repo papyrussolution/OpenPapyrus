@@ -1481,13 +1481,11 @@ TidyIterator TY_(getOptionPickList) (const TidyOptionImpl* option)
 	return (TidyIterator)ix;
 }
 
-ctmbstr      TY_(getNextOptionPick) (const TidyOptionImpl* option,
-    TidyIterator* iter)
+ctmbstr TY_(getNextOptionPick) (const TidyOptionImpl* option, TidyIterator* iter)
 {
 	size_t ix;
 	ctmbstr val = NULL;
-	assert(option!=NULL && iter != NULL);
-
+	assert(option && iter);
 	ix = (size_t)*iter;
 	if(ix > 0 && ix < 16 && option->pickList)
 		val = option->pickList[ ix-1 ];
@@ -1495,8 +1493,7 @@ ctmbstr      TY_(getNextOptionPick) (const TidyOptionImpl* option,
 	return val;
 }
 
-static int  WriteOptionString(const TidyOptionImpl* option,
-    ctmbstr sval, StreamOut* out)
+static int  WriteOptionString(const TidyOptionImpl* option, ctmbstr sval, StreamOut* out)
 {
 	ctmbstr cp = option->name;
 	while(*cp)

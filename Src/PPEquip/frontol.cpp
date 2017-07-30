@@ -820,19 +820,20 @@ int SLAPI ACS_FRONTOL::ImportFiles()
 int SLAPI ACS_FRONTOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
 {
 	int    ok = -1;
+	const  LDATE _cur_date = LConfig.OperDate;
 	TDialog * dlg = 0;
 	if(!pPrd) {
 		dlg = new TDialog(DLG_SELSESSRNG);
 		if(CheckDialogPtrErr(&dlg)) {
 			SString dt_buf;
-			ChkRepPeriod.low = LConfig.OperDate;
-			ChkRepPeriod.upp = LConfig.OperDate;
+			ChkRepPeriod.low = _cur_date;
+			ChkRepPeriod.upp = _cur_date;
 			SetupCalCtrl(CTLCAL_DATERNG_PERIOD, dlg, CTL_DATERNG_PERIOD, 1);
 			SetPeriodInput(dlg, CTL_DATERNG_PERIOD, &ChkRepPeriod);
 			PPWait(0);
 			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 				if(dlg->getCtrlString(CTL_DATERNG_PERIOD, dt_buf) && strtoperiod(dt_buf, &ChkRepPeriod, 0) && !ChkRepPeriod.IsZero()) {
-					SETIFZ(ChkRepPeriod.upp, plusdate(LConfig.OperDate, 2));
+					SETIFZ(ChkRepPeriod.upp, plusdate(_cur_date, 2));
 					if(diffdate(ChkRepPeriod.upp, ChkRepPeriod.low) >= 0)
 						ok = valid_data = 1;
 				}

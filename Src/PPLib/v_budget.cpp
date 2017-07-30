@@ -103,10 +103,11 @@ int SLAPI BudgetItemCore::Search(PPID budgetID, PPID acc, PPID kind, LDATE dt, v
 
 int SLAPI BudgetItemCore::PutItem_(PPID * pID, BudgetItemTbl::Rec * pRec, int useTa)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	if(pID) {
-		PPID tmp_id = 0;
-		THROW(PPStartTransaction(&ta, useTa));
+		PPID   tmp_id = 0;
+		PPTransaction tra(useTa);
+		THROW(tra);
 		if(*pID && pRec == 0)
 			deleteFrom(this, 0, ID == *pID);
 		else if(*pID) {
@@ -124,12 +125,9 @@ int SLAPI BudgetItemCore::PutItem_(PPID * pID, BudgetItemTbl::Rec * pRec, int us
 		}
 		if(tmp_id)
 			ASSIGN_PTR(pID, tmp_id);
-		THROW(PPCommitWork(&ta));
+		THROW(tra.Commit());
 	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 

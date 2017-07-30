@@ -778,7 +778,6 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 				param.PosNodeID = node_id;
 				param.DivisionN = 0;
 				param.PaymType = cpmCash;
-				double amt = 0.0;
 				THROW(p_cm = PPCashMachine::CreateInstance(node_id));
 				THROW(p_cm->SyncAllowPrint());
 				if(_EditCcByBillParam(param) > 0) {
@@ -820,12 +819,12 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 					else {
 						if(pack.OpTypeID == PPOPT_PAYMENT) {
 							PPBillPacket link_pack; //, * p_pack = 0;
-							double mult = 1.0;
 							THROW(ExtractPacket(pack.Rec.LinkBillID, &link_pack) > 0);
 							//p_pack = &link_pack;
-							amt = link_pack.GetAmount();
+							const double amt = link_pack.GetAmount();
 							if(amt != 0.0) {
-								mult = pack.GetAmount() / amt;
+								const double cc_req_amount = pack.GetAmount(); // Сумма платежа - сумма чека должна быть равна этому же значению
+								const double mult = cc_req_amount / amt;
 								{
 									double cc_amount = 0.0;
 									double dscnt = 0.0;
@@ -845,14 +844,16 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 									}
 									else if(prepay_goods_id) {
 										double qtty = 1.0;
-										double n_pr = pack.GetAmount();
+										double n_pr = cc_req_amount;
 										THROW(cp.InsertItem(prepay_goods_id, qtty, n_pr, 0.0, param.DivisionN));
 										cc_amount += R2(n_pr * qtty);
 									}
 									if(cp.GetCount()) {
-										LDBLTOMONEY(cc_amount, cp.Rec.Amount);
-										LDBLTOMONEY(dscnt, cp.Rec.Discount);
-										cp._Cash = cc_amount;
+										double result_amount = 0.0;
+										double result_discount = 0.0;
+										cp.CalcAmount(&result_amount, &result_discount);
+										LDBLTOMONEY(/*cc_amount*/result_amount, cp.Rec.Amount);
+										LDBLTOMONEY(/*dscnt*/result_discount, cp.Rec.Discount);
 										if(oneof3(link_pack.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN, PPOPT_DRAFTRECEIPT)) {
 											if(pack.Rec.Amount > 0.0) // @v9.7.1
 												cp.Rec.Flags |= CCHKF_RETURN;
@@ -863,6 +864,16 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 										}
 										if(param.PaymType == cpmBank)
 											cp.Rec.Flags |= CCHKF_BANKING;
+										// @v9.7.9 {
+										if(!feqeps(fabs(result_amount), fabs(cc_req_amount), 1E-8)) {
+											double fixup_discount = result_discount + (fabs(result_amount) - fabs(cc_req_amount));
+											cp.SetTotalDiscount(fabs(fixup_discount), (fixup_discount < 0.0) ? CCheckPacket::stdfPlus : 0);
+											cp.CalcAmount(&result_amount, &result_discount);
+											LDBLTOMONEY(result_amount, cp.Rec.Amount);
+											LDBLTOMONEY(result_discount, cp.Rec.Discount);
+										}
+										// } @v9.7.9 
+										cp._Cash = /*cc_amount*/result_amount;
 										ok = p_cm->SyncPrintCheck(&cp, 1);
 									}
 								}

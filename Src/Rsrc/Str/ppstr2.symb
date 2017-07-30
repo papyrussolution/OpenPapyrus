@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147489206
+LastSignatureCode=2147489214
 LastAutoCodeList=1,11001;102,10162;103,10071;110,10000;111,11636;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10077;120,10005;1001,10000;121,10000;122,10000;123,10247;1002,10000;1003,10000;1004,10000;1005,10000;124,10031
 
 [SignatureList]
@@ -270,6 +270,8 @@ arrivaldate=2147483793
 acceptdate=2147483794
 expirationdate=2147488927
 time=2147483795
+timestart=2147489213
+timefinish=2147489214
 datetime=2147487624
 daterange=2147483796
 validity=2147486837
@@ -2156,10 +2158,12 @@ cfgbill_tagindfilt=2147486422
 cfgbill_tdiscalcmethod=2147484883
 cfgbill_tdiscalcprec=2147484884
 cfgbill_uniqserialsfx=2147486555
+cfgbill_valuation=2147489207
 cfgbill_valuationquotkind=2147484885
 cfgbill_valuationrnddir=2147484886
 cfgbill_valuationrndprec=2147484887
 cfgbill_ver=2147484888
+cfgbill_ext=2147489208
 cfgclibnkas_accsheet=2147484889
 cfgclibnkas_addedtag=2147484890
 cfgclibnkas_op=2147484891
@@ -3184,6 +3188,10 @@ inventory_unitperpack=2147485730
 inventory_unwriteddiff=2147485731
 inventory_wroffprice=2147485732
 inventory_actualrest=2147488625
+invitemscorr=2147489209
+invitemscorr_rest=2147489210
+invitemscorr_price=2147489211
+invitemscorr_emergency=2147489212
 linkfiles_id=2147485733
 linkfiles_prop=2147485734
 linkfiles_size=2147485735

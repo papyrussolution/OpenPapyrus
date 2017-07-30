@@ -410,7 +410,7 @@ int SrWordAssocTbl::SerializeRecBuf(int dir, SrWordAssoc * pWa, SBuffer & rBuf)
 	THROW_DB(p_sctx);
 	THROW_SL(p_sctx->Serialize(dir, pWa->Flags, rBuf));
 	THROW_SL(p_sctx->Serialize(dir, pWa->WordID, rBuf));
-	THROW_SL(p_sctx->Serialize(dir, pWa->BaseDescrID, rBuf));
+	THROW_SL(p_sctx->Serialize(dir, pWa->BaseFormID, rBuf));
 	if(pWa->Flags & SrWordAssoc::fHasFlexiaModel) {
 		THROW_SL(p_sctx->Serialize(dir, pWa->FlexiaModelID, rBuf));
 	}
@@ -1342,7 +1342,7 @@ int SrDatabase::Open(const char * pDbPath)
 	cfg.MaxLocks    = 128*1024; // @v9.6.4
 	cfg.MaxLockObjs = 128*1024; // @v9.6.4
 	cfg.LogBufSize  = 8*1024*1024;
-	cfg.LogFileSize = 256*1024*1024;
+	//cfg.LogFileSize = 256*1024*1024;
 	//cfg.LogSubDir = "LOG";
 	cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove/*|cfg.fLogInMemory*/); // @v9.6.6
 	Close();
@@ -1550,6 +1550,60 @@ CONCEPTID FASTCALL SrDatabase::GetReservedConcept(int rc)
 	return prop;
 }
 
+int SrDatabase::SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf)
+{
+	int    ok = -1;
+	int    r;
+	if(rWf.GetLength()) {
+		SrWordAssoc wa;
+		SString word_utf8;
+		THROW(P_WdT->Search(wordID, word_utf8) > 0);
+		wa.WordID = wordID;
+		{
+			//
+			// Находим или создаем словоформу по содержанию и получаем ее идентификатор
+			//
+			SrWordForm wf_key = rWf;
+			wf_key.Normalize();
+			THROW(r = P_GrT->Search(&wf_key, &wa.BaseFormID));
+			if(r < 0)
+				THROW(P_GrT->Add(&wf_key, &wa.BaseFormID));
+		}
+		{
+			//
+			// Находим или создаем модель по содержанию и получаем ее идентификатор
+			//
+			SrFlexiaModel fm;
+			SrFlexiaModel::Item fmi;
+			fmi.WordFormID = wa.BaseFormID;
+			fm.Add(fmi);
+			fm.Normalize();
+			THROW(r = P_GrT->Search(&fm, &wa.FlexiaModelID));
+			if(r < 0)
+				THROW(P_GrT->Add(&fm, &wa.FlexiaModelID));
+		}
+		{
+			assert(wa.BaseFormID);
+			assert(wa.FlexiaModelID);
+			int32   wa_id = 0;
+			TSArray <SrWordAssoc> wa_list;
+			P_WaT->Search(wordID, wa_list);
+			for(uint i = 0; !wa_id && i < wa_list.getCount(); i++) {
+				const SrWordAssoc & r_wa = wa_list.at(i);
+				if(r_wa.WordID == wa.WordID && r_wa.BaseFormID == wa.BaseFormID && r_wa.FlexiaModelID == wa.FlexiaModelID) {
+					wa_id = r_wa.ID;
+				}
+			}
+			if(!wa_id) {
+				THROW(r = P_WaT->Add(&wa.Normalize(), &wa_id));
+			}
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SrDatabase::GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSArray <SrWordAssoc> & rWaList, TSArray <SrWordInfo> & rInfo)
 {
 	int    ok = -1;
@@ -1569,7 +1623,7 @@ int SrDatabase::GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSArray 
 						ii.BaseID = wordID;
 						ii.PrefixID = pfxID;
 						ii.AffixID = afxID;
-						ii.BaseFormID = r_wa.BaseDescrID;
+						ii.BaseFormID = r_wa.BaseFormID;
 						ii.FormID = wf_list.get(j);
 						ii.WaID = r_wa.ID;
 						rInfo.insert(&ii);
@@ -1593,8 +1647,8 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long flags, TSArray <SrWordI
 	const  uint len = word_buf.Len();
 	StrAssocArray afx_list;
 	TSArray <SrWordAssoc> wa_list;
-	SrFlexiaModel fm;
-	LongArray wf_list;
+	//SrFlexiaModel fm;
+	//LongArray wf_list;
 	for(uint pfx_len = 0; pfx_len < len; pfx_len++) {
 		int    inv_pfx = 0; // Если !0, то префикс не допустимый
 		LEXID  pfx_id = 0;
@@ -1682,7 +1736,7 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long flags, TSArray <SrWordI
 	return ok;
 }
 
-int SrDatabase::Transform(const char * pWordUtf8, const SrWordForm * pDestForm, TSArray <SrWordInfo> & rResult)
+int SrDatabase::Transform_(const char * pWordUtf8, const SrWordForm & rDestForm, TSArray <SrWordInfo> & rResult)
 {
 	int    ok = -1;
 	rResult.clear();
@@ -1692,58 +1746,56 @@ int SrDatabase::Transform(const char * pWordUtf8, const SrWordForm * pDestForm, 
 		TSArray <SrWordAssoc> wa_list;
 		for(uint j = 0; j < info_list.getCount(); j++) {
 			const SrWordInfo & r_item = info_list.at(j);
-			if(pDestForm) {
-				if(r_item.FormID) {
-					P_GrT->Search(r_item.FormID, &base_wf);
-					test_wf.Merge(base_wf, *pDestForm, 1);
-				}
-				else if(r_item.BaseFormID) {
-					P_GrT->Search(r_item.BaseFormID, &base_wf);
-					test_wf.Merge(base_wf, *pDestForm, 1);
-				}
-				else
-					test_wf = *pDestForm;
-				if(P_WaT->Search(r_item.BaseID, wa_list) > 0) {
-					for(uint i = 0; i < wa_list.getCount(); i++) {
-						const SrWordAssoc & r_wa = wa_list.at(i);
-						if(r_wa.FlexiaModelID) {
-							SrFlexiaModel model;
-							if(P_GrT->Search(r_wa.FlexiaModelID, &model) > 0) {
-								SrFlexiaModel::Item model_item;
-								for(size_t fp = 0; model.GetNext(&fp, model_item) > 0;) {
-									if(model_item.WordFormID && P_GrT->Search(model_item.WordFormID, &wf) > 0) {
-										double score1 = test_wf.MatchScore(wf);
-										double score2 = pDestForm->MatchScore(wf);
-										double score = score1+score2;
-										if(score > 0.0) {
-											uint rc = rResult.getCount();
-											int  do_insert = 0;
-											if(rc) {
-												do {
-													SrWordInfo & r_res_item = rResult.at(--rc);
-													if(score > r_res_item.Score) {
-														// if(r_res_item.Score < 1.0) // @debug
-															rResult.atFree(rc);
-														do_insert = 1;
-													}
-													else if(score == r_res_item.Score)
-														do_insert = 1;
-												} while(rc);
-											}
-											else
-												do_insert = 1;
-											if(do_insert) {
-												SrWordInfo ii;
-												ii.BaseID = r_wa.WordID;
-												ii.PrefixID = model_item.PrefixID;
-												ii.AffixID = model_item.AffixID;
-												ii.BaseFormID = r_wa.BaseDescrID;
-												ii.FormID = model_item.WordFormID;
-												ii.WaID = r_wa.ID;
-												ii.Score = score;
-												rResult.insert(&ii);
-												ok = 1;
-											}
+			if(r_item.FormID) {
+				P_GrT->Search(r_item.FormID, &base_wf);
+				test_wf.Merge_(base_wf, rDestForm, 1);
+			}
+			else if(r_item.BaseFormID) {
+				P_GrT->Search(r_item.BaseFormID, &base_wf);
+				test_wf.Merge_(base_wf, rDestForm, 1);
+			}
+			else
+				test_wf = rDestForm;
+			if(P_WaT->Search(r_item.BaseID, wa_list) > 0) {
+				for(uint i = 0; i < wa_list.getCount(); i++) {
+					const SrWordAssoc & r_wa = wa_list.at(i);
+					if(r_wa.FlexiaModelID) {
+						SrFlexiaModel model;
+						if(P_GrT->Search(r_wa.FlexiaModelID, &model) > 0) {
+							SrFlexiaModel::Item model_item;
+							for(size_t fp = 0; model.GetNext(&fp, model_item) > 0;) {
+								if(model_item.WordFormID && P_GrT->Search(model_item.WordFormID, &wf) > 0) {
+									double score1 = test_wf.MatchScore(wf);
+									double score2 = rDestForm.MatchScore(wf);
+									double score = score1+score2;
+									if(score > 0.0) {
+										uint rc = rResult.getCount();
+										int  do_insert = 0;
+										if(rc) {
+											do {
+												SrWordInfo & r_res_item = rResult.at(--rc);
+												if(score > r_res_item.Score) {
+													// if(r_res_item.Score < 1.0) // @debug
+														rResult.atFree(rc);
+													do_insert = 1;
+												}
+												else if(score == r_res_item.Score)
+													do_insert = 1;
+											} while(rc);
+										}
+										else
+											do_insert = 1;
+										if(do_insert) {
+											SrWordInfo ii;
+											ii.BaseID = r_wa.WordID;
+											ii.PrefixID = model_item.PrefixID;
+											ii.AffixID = model_item.AffixID;
+											ii.BaseFormID = r_wa.BaseFormID;
+											ii.FormID = model_item.WordFormID;
+											ii.WaID = r_wa.ID;
+											ii.Score = score;
+											rResult.insert(&ii);
+											ok = 1;
 										}
 									}
 								}
@@ -1793,7 +1845,7 @@ int SrDatabase::WordInfoToStr(const SrWordInfo & rWi, SString & rBuf)
 			P_GrT->Search(rWi.BaseFormID, &base_wf);
 		if(rWi.FormID)
 			P_GrT->Search(rWi.FormID, &var_wf);
-		wf.Merge(base_wf, var_wf);
+		wf.Merge_(base_wf, var_wf, 0);
 		wf.ToStr(temp_buf);
 	}
 	else

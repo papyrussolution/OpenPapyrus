@@ -3562,7 +3562,7 @@ static int htmlParseEndTag(htmlParserCtxtPtr ctxt)
 	 */
 	oldname = ctxt->name;
 	if((oldname != NULL) && (sstreq(oldname, name))) {
-		if(ctxt->sax && (ctxt->sax->endElement != NULL))
+		if(ctxt->sax && ctxt->sax->endElement)
 			ctxt->sax->endElement(ctxt->userData, name);
 		htmlNodeInfoPop(ctxt);
 		htmlnamePop(ctxt);
@@ -3832,7 +3832,7 @@ void htmlParseElement(htmlParserCtxtPtr ctxt)
 	 */
 	if((CUR == '/') && (NXT(1) == '>')) {
 		SKIP(2);
-		if(ctxt->sax && (ctxt->sax->endElement != NULL))
+		if(ctxt->sax && ctxt->sax->endElement)
 			ctxt->sax->endElement(ctxt->userData, name);
 		htmlnamePop(ctxt);
 		return;
@@ -3864,7 +3864,7 @@ void htmlParseElement(htmlParserCtxtPtr ctxt)
 	 * Check for an Empty Element from DTD definition
 	 */
 	if((info != NULL) && (info->empty)) {
-		if(ctxt->sax && (ctxt->sax->endElement != NULL))
+		if(ctxt->sax && ctxt->sax->endElement)
 			ctxt->sax->endElement(ctxt->userData, name);
 		htmlnamePop(ctxt);
 		return;
@@ -3961,7 +3961,7 @@ static void htmlParseElementInternal(htmlParserCtxtPtr ctxt)
 	 */
 	if((CUR == '/') && (NXT(1) == '>')) {
 		SKIP(2);
-		if(ctxt->sax && (ctxt->sax->endElement != NULL))
+		if(ctxt->sax && ctxt->sax->endElement)
 			ctxt->sax->endElement(ctxt->userData, name);
 		htmlnamePop(ctxt);
 		return;
@@ -3988,7 +3988,7 @@ static void htmlParseElementInternal(htmlParserCtxtPtr ctxt)
 	 * Check for an Empty Element from DTD definition
 	 */
 	if((info != NULL) && (info->empty)) {
-		if(ctxt->sax && (ctxt->sax->endElement != NULL))
+		if(ctxt->sax && ctxt->sax->endElement)
 			ctxt->sax->endElement(ctxt->userData, name);
 		htmlnamePop(ctxt);
 		return;
@@ -4992,7 +4992,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 			     */
 			    if((CUR == '/') && (NXT(1) == '>')) {
 				    SKIP(2);
-				    if(ctxt->sax && (ctxt->sax->endElement != NULL))
+				    if(ctxt->sax && ctxt->sax->endElement)
 					    ctxt->sax->endElement(ctxt->userData, name);
 				    htmlnamePop(ctxt);
 				    ctxt->instate = XML_PARSER_CONTENT;
@@ -5026,7 +5026,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 			     * Check for an Empty Element from DTD definition
 			     */
 			    if((info != NULL) && (info->empty)) {
-				    if(ctxt->sax && (ctxt->sax->endElement != NULL))
+				    if(ctxt->sax && ctxt->sax->endElement)
 					    ctxt->sax->endElement(ctxt->userData, name);
 				    htmlnamePop(ctxt);
 			    }

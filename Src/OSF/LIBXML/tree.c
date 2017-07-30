@@ -816,7 +816,7 @@ void xmlFreeNsList(xmlNsPtr cur)
  */
 xmlDtdPtr xmlNewDtd(xmlDocPtr doc, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID) 
 {
-	xmlDtdPtr cur;
+	xmlDtd * cur;
 	if(doc && (doc->extSubset != NULL)) {
 #ifdef DEBUG_TREE
 		xmlGenericError(0, "xmlNewDtd(%s): document %s already have a DTD %s\n", /* !!! */ (char*)name, doc->name, /* !!! */ (char*)doc->extSubset->name);
@@ -835,9 +835,9 @@ xmlDtdPtr xmlNewDtd(xmlDocPtr doc, const xmlChar * name, const xmlChar * Externa
 	cur->type = XML_DTD_NODE;
 	if(name)
 		cur->name = xmlStrdup(name);
-	if(ExternalID != NULL)
+	if(ExternalID)
 		cur->ExternalID = xmlStrdup(ExternalID);
-	if(SystemID != NULL)
+	if(SystemID)
 		cur->SystemID = xmlStrdup(SystemID);
 	if(doc)
 		doc->extSubset = cur;
@@ -860,7 +860,7 @@ xmlDtdPtr xmlGetIntSubset(const xmlDoc * doc)
 	if(!doc)
 		return 0;
     else {
-        for(xmlNodePtr cur = doc->children; cur != NULL; cur = cur->next) {
+        for(xmlNode * cur = doc->children; cur; cur = cur->next) {
             if(cur->type == XML_DTD_NODE)
                 return (xmlDtdPtr)cur;
         }
@@ -880,7 +880,7 @@ xmlDtdPtr xmlGetIntSubset(const xmlDoc * doc)
  */
 xmlDtdPtr xmlCreateIntSubset(xmlDocPtr doc, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID)
 {
-	xmlDtdPtr cur;
+	xmlDtd * cur;
 	if(doc && (xmlGetIntSubset(doc) != NULL)) {
 #ifdef DEBUG_TREE
 		xmlGenericError(0, "xmlCreateIntSubset(): document %s already have an internal subset\n", doc->name);
@@ -905,7 +905,7 @@ xmlDtdPtr xmlCreateIntSubset(xmlDocPtr doc, const xmlChar * name, const xmlChar 
 			return 0;
 		}
 	}
-	if(ExternalID != NULL) {
+	if(ExternalID) {
 		cur->ExternalID = xmlStrdup(ExternalID);
 		if(cur->ExternalID == NULL) {
 			xmlTreeErrMemory("building internal subset");
@@ -914,7 +914,7 @@ xmlDtdPtr xmlCreateIntSubset(xmlDocPtr doc, const xmlChar * name, const xmlChar 
 			return 0;
 		}
 	}
-	if(SystemID != NULL) {
+	if(SystemID) {
 		cur->SystemID = xmlStrdup(SystemID);
 		if(cur->SystemID == NULL) {
 			xmlTreeErrMemory("building internal subset");
@@ -934,18 +934,14 @@ xmlDtdPtr xmlCreateIntSubset(xmlDocPtr doc, const xmlChar * name, const xmlChar 
 		}
 		else {
 			if(doc->type == XML_HTML_DOCUMENT_NODE) {
-				xmlNodePtr prev;
-
-				prev = doc->children;
+				xmlNode * prev = doc->children;
 				prev->prev = (xmlNode *)cur;
 				cur->next = prev;
 				doc->children = (xmlNode *)cur;
 			}
 			else {
-				xmlNodePtr next;
-
-				next = doc->children;
-				while((next != NULL) && (next->type != XML_ELEMENT_NODE))
+				xmlNode * next = doc->children;
+				while(next && (next->type != XML_ELEMENT_NODE))
 					next = next->next;
 				if(next == NULL) {
 					cur->prev = doc->last;
@@ -1094,7 +1090,8 @@ xmlDocPtr xmlNewDoc(const xmlChar * version)
  */
 void FASTCALL xmlFreeDoc(xmlDoc * pDoc)
 {
-	xmlDtdPtr extSubset, intSubset;
+	xmlDtd * extSubset;
+	xmlDtd * intSubset;
 	xmlDict * p_dict = NULL;
 	if(pDoc) {
 #ifdef LIBXML_DEBUG_RUNTIME
@@ -1236,7 +1233,7 @@ xmlNodePtr xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, in
 					 */
 					val = xmlStrndup(q, cur - q);
 					ent = xmlGetDocEntity(doc, val);
-					if((ent != NULL) && (ent->etype == XML_INTERNAL_PREDEFINED_ENTITY)) {
+					if(ent && (ent->etype == XML_INTERNAL_PREDEFINED_ENTITY)) {
 						if(xmlBufCat(buf, ent->content))
 							goto out;
 					}
@@ -1247,7 +1244,7 @@ xmlNodePtr xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, in
 						if(!xmlBufIsEmpty(buf)) {
 							node = xmlNewDocText(doc, 0);
 							if(!node) {
-								if(val) SAlloc::F(val);
+								SAlloc::F(val);
 								goto out;
 							}
 							node->content = xmlBufDetach(buf);
@@ -1266,7 +1263,7 @@ xmlNodePtr xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, in
 							SAlloc::F(val);
 							goto out;
 						}
-						else if((ent != NULL) && (ent->children == NULL)) {
+						else if(ent && (ent->children == NULL)) {
 							xmlNodePtr temp;
 							ent->children = xmlStringGetNodeList(doc, (const xmlChar*)node->content);
 							ent->owner = 1;
@@ -1410,7 +1407,8 @@ xmlNodePtr xmlStringGetNodeList(const xmlDoc * doc, const xmlChar * value)
 				 */
 				cur++;
 				q = cur;
-				while((*cur != 0) && (*cur != ';')) cur++;
+				while((*cur != 0) && (*cur != ';')) 
+					cur++;
 				if(*cur == 0) {
 					xmlTreeErr(XML_TREE_UNTERMINATED_ENTITY, (xmlNode *)doc, (const char*)q);
 					goto out;
@@ -1421,8 +1419,7 @@ xmlNodePtr xmlStringGetNodeList(const xmlDoc * doc, const xmlChar * value)
 					 */
 					val = xmlStrndup(q, cur - q);
 					ent = xmlGetDocEntity(doc, val);
-					if((ent != NULL) &&
-					    (ent->etype == XML_INTERNAL_PREDEFINED_ENTITY)) {
+					if(ent && (ent->etype == XML_INTERNAL_PREDEFINED_ENTITY)) {
 						if(xmlBufCat(buf, ent->content))
 							goto out;
 					}
@@ -1433,7 +1430,6 @@ xmlNodePtr xmlStringGetNodeList(const xmlDoc * doc, const xmlChar * value)
 						if(!xmlBufIsEmpty(buf)) {
 							node = xmlNewDocText(doc, 0);
 							node->content = xmlBufDetach(buf);
-
 							if(last == NULL) {
 								last = ret = node;
 							}
@@ -1447,10 +1443,10 @@ xmlNodePtr xmlStringGetNodeList(const xmlDoc * doc, const xmlChar * value)
 						 */
 						node = xmlNewReference(doc, val);
 						if(!node) {
-							if(val) SAlloc::F(val);
+							SAlloc::F(val);
 							goto out;
 						}
-						else if((ent != NULL) && (ent->children == NULL)) {
+						else if(ent && ent->children == NULL) {
 							xmlNodePtr temp;
 							ent->children = xmlStringGetNodeList(doc, (const xmlChar*)node->content);
 							ent->owner = 1;
