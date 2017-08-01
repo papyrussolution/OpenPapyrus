@@ -41,18 +41,17 @@
 #include "cairo.h"
 
 #if HAVE_CONFIG_H
-#include "config.h"
+	#include "config.h"
 #endif
-
-/* Size in bytes of buffer to use off the stack per functions.
- * Mostly used by text functions.  For larger allocations, they'll
- * SAlloc::M(). */
+// 
+// Size in bytes of buffer to use off the stack per functions.
+// Mostly used by text functions.  For larger allocations, they'll SAlloc::M().
+// 
 #ifndef CAIRO_STACK_BUFFER_SIZE
-#define CAIRO_STACK_BUFFER_SIZE (512 * sizeof (int))
+	#define CAIRO_STACK_BUFFER_SIZE (512 * sizeof (int))
 #endif
 
 #define CAIRO_STACK_ARRAY_LENGTH(T) (CAIRO_STACK_BUFFER_SIZE / sizeof(T))
-
 /*
  * The goal of this block is to define the following macros for
  * providing faster linkage to functions in the public API for calls

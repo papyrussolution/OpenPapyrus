@@ -1163,7 +1163,7 @@ static int ReadAncodeDescrLine_Ru(const char * pLine, SString & rAncode, SrWordF
 			temp_buf.CatChar(*p++);
 		rAncode = temp_buf;
 		//
-		while(*p == ' ' || *p == '\t') 
+		while(*p == ' ' || *p == '\t')
 			p++;
 		temp_buf = 0;
 		while(*p != ' ' && *p != '\t' && *p != 0)
@@ -4408,3 +4408,200 @@ int main(int argc, char * argv[])
 }
 
 #endif // } 0
+
+
+//
+// Syntax rule
+//
+/*
+	rule ::= rule_name '=' expr ';'
+	expr ::= expr '|' expr | expr expr | '(' expr ')'
+	expr ::= concept | morph | rule_name | LITERAL
+	concept ::= ':' SYMB
+	morph ::= '[' morph_symb_list ']'
+	morph_symb_list ::= EMPTY | MORPH_SYMB morph_symb_list
+*/
+class SrSyntaxRuleSet : public SStrGroup {
+public:
+	enum {
+		opUndef = 0,
+		opOr,    // | 
+		opAnd,   // & или неявная сцепка 
+		opConcat // +
+	};
+	enum {
+		kOp = 1,
+		kLiteral,
+		kConcept,
+		kMorph,
+		kRule
+	};
+	class Rule {
+	public:
+		Rule()
+		{
+			NameP = 0;
+		}
+
+		struct ExprItem {
+			uint16 K;
+			uint16 ArgCount; // Количество аргументов (для K == kOp)
+			union {
+				uint32 SymbP; // Позиция символа в R_Set.Pool (для oneof(K, kLiteral, kConcept, kMorph, kRule))
+				uint32 Op;    // Ид операции (для K == kOp)
+			};
+			uint64 RSymb; // Идентификатор разрешенного символа SymbP в базе данных (для K == kConcept)
+		};
+		uint   NameP;
+		TSStack <ExprItem> ES; // Стэк выражения //
+	};
+
+	SrSyntaxRuleSet(): SStrGroup()
+	{
+	}
+	~SrSyntaxRuleSet()
+	{
+	}
+	void   SkipComment(SStrScan & rScan)
+	{
+		SString temp_buf;
+        while(rScan.Get("//", temp_buf)) {
+			if(rScan.Search("\x0D\x0A")) {
+				rScan.IncrLen();
+				rScan.Incr(2);
+			}
+			else if(rScan.Search("\n")) {
+				rScan.IncrLen();
+				rScan.Incr(2);
+			}
+        }
+	}
+	void   FASTCALL ScanSkip(SStrScan & rScan) const
+	{
+		rScan.Skip(SStrScan::wsSpace|SStrScan::wsTab|SStrScan::wsNewLine);
+	}
+	int    IsOperand(SStrScan & rScan) const
+	{
+		int    k = 0;
+		ScanSkip(rScan);
+		if(rScan.Is(':')) { // concept
+			k = kConcept;
+		}
+		else if(rScan.Is('[')) { // morph
+			k = kMorph;
+		}
+		else if(rScan.Is('#')) { // rule
+			k = kRule;
+		}
+		else if(rScan.Is('\"')) { // literal
+			k = kLiteral;
+		}
+		return k;
+	}
+	enum {
+		exprError = 0,
+		exprOperand,
+		exprRPar,
+		exprEOE
+	};
+	int    ParseExpression(SStrScan & rScan, Rule * pR)
+	{
+		int    ok = exprError;
+		uint   seq_count = 0; // Количество последовательных операндов (их соединяем операцией &)
+		SString temp_buf;
+		do {
+			ScanSkip(rScan);
+			if(rScan.Is('|')) {
+				THROW(seq_count); // @err Оператор | без предшественника
+				// push op
+			}
+			int    k = IsOperand(rScan);
+			if(k == kConcept) { // concept
+				rScan.Incr();
+				THROW(rScan.GetIdent(temp_buf)); // @err Ожидается идент концепции
+				ok = exprOperand;
+			}
+			else if(k == kMorph) { // morph
+				rScan.Incr();
+				StringSet ss;
+				ScanSkip(rScan);
+				while(rScan.GetIdent(temp_buf)) {
+					ss.add(temp_buf);
+					ScanSkip(rScan);
+				}
+				THROW(rScan.Is(']')); // @err Ожидается ]
+				rScan.Incr();
+				ok = exprOperand;
+			}
+			else if(k == kRule) { // rule
+				rScan.Incr();
+				THROW(rScan.GetIdent(temp_buf)); // @err Ожидается идент правила
+				ok = exprOperand;
+			}
+			else if(k == kLiteral) { // literal
+				THROW(rScan.GetQuotedString(temp_buf)); // @err Ошибка считывания литерала
+				ok = exprOperand;
+			}
+			else if(rScan.Is('(')) { // parents - inner expression
+				int    r;
+				rScan.Incr();
+				THROW(r = ParseExpression(rScan, 0)); // @recursion
+				ScanSkip(rScan);
+				THROW(rScan.Is(')')); // @err Ожидается )
+				ok = exprOperand;
+			}
+			else if(rScan.Is(')')) { // end of inner expression
+				ok = exprRPar;
+			}
+			else if(rScan.Is(';')) { // end of expression
+				ok = exprEOE;
+			}
+		} while(!oneof3(ok, exprError, exprRPar, exprEOE));
+		CATCHZOK
+		return ok;
+	}
+	int    ParseRule(SStrScan & rScan)
+	{
+		int    ok = 1;
+		//int    r;
+		SString temp_buf;
+		SkipComment(rScan);
+		ScanSkip(rScan);
+        THROW(rScan.GetIdent(temp_buf)); // @err Ожидается идент правила
+		ScanSkip(rScan);
+		THROW(rScan.Is("=")); // @err Ожидается '='
+		ScanSkip(rScan);
+		do {
+			Rule * p_rule = RL.CreateNewItem();
+			THROW_SL(p_rule);
+			THROW_SL(AddS(temp_buf, &p_rule->NameP));
+			THROW(ParseExpression(rScan, p_rule) == exprEOE);
+		} while(1);
+        CATCHZOK
+        return ok;
+	}
+	int    Parse(SString & rS)
+	{
+		int    ok = 1;
+		State = 0;
+		SStrScan scan(rS);
+		while(!(State & stEof)) {
+			THROW(ParseRule(scan));
+		}
+        CATCHZOK
+		return ok;
+	}
+
+	enum {
+		stEof = 0x0001
+	};
+	long    State;
+	TSCollection <Rule> RL;
+};
+
+class SrSyntaxRuleParser {
+public:
+	SrSyntaxRuleParser();
+	~SrSyntaxRuleParser();
+
+};

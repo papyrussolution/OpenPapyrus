@@ -37,10 +37,10 @@
 #ifndef CAIRO_CLIP_PRIVATE_H
 #define CAIRO_CLIP_PRIVATE_H
 
-#include "cairo-types-private.h"
+//#include "cairo-types-private.h"
 #include "cairo-boxes-private.h"
 #include "cairo-error-private.h"
-#include "cairo-compiler-private.h"
+//#include "cairo-compiler-private.h"
 #include "cairo-error-private.h"
 #include "cairo-path-fixed-private.h"
 #include "cairo-reference-count-private.h"

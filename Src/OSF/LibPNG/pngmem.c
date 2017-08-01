@@ -44,7 +44,7 @@ void /* PRIVATE */ png_destroy_png_struct(png_structrp png_ptr)
  * need to allocate exactly 64K, so whatever you call here must
  * have the ability to do that.
  */
-PNG_FUNCTION(void *, PNGAPI png_calloc, (png_const_structrp png_ptr, png_alloc_size_t size), PNG_ALLOCATED)
+PNG_ALLOCATED void * PNGAPI png_calloc(png_const_structrp png_ptr, png_alloc_size_t size)
 {
 	void * ret = png_malloc(png_ptr, size);
 	/*if(ret)
@@ -52,13 +52,12 @@ PNG_FUNCTION(void *, PNGAPI png_calloc, (png_const_structrp png_ptr, png_alloc_s
 	return ret;*/
 	return memzero(ret, size);
 }
-
 /* png_malloc_base, an internal function added at libpng 1.6.0, does the work of
  * allocating memory, taking into account limits and PNG_USER_MEM_SUPPORTED.
  * Checking and error handling must happen outside this routine; it returns NULL
  * if the allocation cannot be done (for any reason.)
  */
-PNG_FUNCTION(void * /* PRIVATE */, png_malloc_base, (png_const_structrp png_ptr, png_alloc_size_t size), PNG_ALLOCATED)
+PNG_ALLOCATED void * /* PRIVATE */ png_malloc_base(png_const_structrp png_ptr, png_alloc_size_t size)
 {
 	/* Moved to png_malloc_base from png_malloc_default in 1.6.0; the DOS
 	 * allocators have also been removed in 1.6.0, so any 16-bit system now has
@@ -100,15 +99,14 @@ static void * png_malloc_array_checked(png_const_structrp png_ptr, int nelements
 	return NULL; // The failure case when the request is too large 
 }
 
-PNG_FUNCTION(void * /* PRIVATE */, png_malloc_array, (png_const_structrp png_ptr, int nelements, size_t element_size), PNG_ALLOCATED)
+PNG_ALLOCATED void * /* PRIVATE */ png_malloc_array(png_const_structrp png_ptr, int nelements, size_t element_size)
 {
 	if(nelements <= 0 || element_size == 0)
 		png_error(png_ptr, "internal error: array alloc");
 	return png_malloc_array_checked(png_ptr, nelements, element_size);
 }
 
-PNG_FUNCTION(void * /* PRIVATE */, png_realloc_array, 
-	(png_const_structrp png_ptr, const void * old_array, int old_elements, int add_elements, size_t element_size), PNG_ALLOCATED)
+PNG_ALLOCATED void * /* PRIVATE */ png_realloc_array(png_const_structrp png_ptr, const void * old_array, int old_elements, int add_elements, size_t element_size)
 {
 	/* These are internal errors: */
 	if(add_elements <= 0 || element_size == 0 || old_elements < 0 || (old_array == NULL && old_elements > 0))
@@ -132,7 +130,7 @@ PNG_FUNCTION(void * /* PRIVATE */, png_realloc_array,
  * png_malloc always exists, but if PNG_USER_MEM_SUPPORTED is defined a separate
  * function png_malloc_default is also provided.
  */
-PNG_FUNCTION(void *, PNGAPI png_malloc, (png_const_structrp png_ptr, png_alloc_size_t size), PNG_ALLOCATED)
+PNG_ALLOCATED void * PNGAPI png_malloc(png_const_structrp png_ptr, png_alloc_size_t size)
 {
 	void * ret = 0;
 	if(png_ptr) {
@@ -144,7 +142,7 @@ PNG_FUNCTION(void *, PNGAPI png_malloc, (png_const_structrp png_ptr, png_alloc_s
 }
 
 #ifdef PNG_USER_MEM_SUPPORTED
-PNG_FUNCTION(void *, PNGAPI png_malloc_default, (png_const_structrp png_ptr, png_alloc_size_t size), PNG_ALLOCATED PNG_DEPRECATED)
+PNG_ALLOCATED PNG_DEPRECATED void * PNGAPI png_malloc_default(png_const_structrp png_ptr, png_alloc_size_t size)
 {
 	void * ret = 0;
 	if(png_ptr) {
@@ -161,7 +159,7 @@ PNG_FUNCTION(void *, PNGAPI png_malloc_default, (png_const_structrp png_ptr, png
  * function will issue a png_warning and return NULL instead of issuing a
  * png_error, if it fails to allocate the requested memory.
  */
-PNG_FUNCTION(void *, PNGAPI png_malloc_warn, (png_const_structrp png_ptr, png_alloc_size_t size), PNG_ALLOCATED)
+PNG_ALLOCATED void * PNGAPI png_malloc_warn(png_const_structrp png_ptr, png_alloc_size_t size)
 {
 	if(png_ptr) {
 		void * ret = png_malloc_base(png_ptr, size);
@@ -186,7 +184,7 @@ void PNGAPI png_free(png_const_structrp png_ptr, void * ptr)
 		png_free_default(png_ptr, ptr);
 }
 
-PNG_FUNCTION(void, PNGAPI png_free_default, (png_const_structrp png_ptr, void * ptr), PNG_DEPRECATED)
+PNG_DEPRECATED void PNGAPI png_free_default(png_const_structrp png_ptr, void * ptr)
 {
 	if(png_ptr == NULL || ptr == NULL)
 		return;

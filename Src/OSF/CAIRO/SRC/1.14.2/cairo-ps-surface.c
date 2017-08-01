@@ -63,11 +63,11 @@
 #include "cairo-ps-surface-private.h"
 #include "cairo-pdf-operators-private.h"
 #include "cairo-pdf-shading-private.h"
-#include "cairo-array-private.h"
+//#include "cairo-array-private.h"
 #include "cairo-composite-rectangles-private.h"
 #include "cairo-default-context-private.h"
 #include "cairo-image-surface-inline.h"
-#include "cairo-list-inline.h"
+//#include "cairo-list-inline.h"
 #include "cairo-scaled-font-subsets-private.h"
 #include "cairo-paginated-private.h"
 #include "cairo-recording-surface-private.h"
@@ -77,25 +77,21 @@
 #include "cairo-output-stream-private.h"
 #include "cairo-type3-glyph-surface-private.h"
 #include "cairo-image-info-private.h"
-#include <stdio.h>
-#include <ctype.h>
-#include <time.h>
+//#include <stdio.h>
+//#include <ctype.h>
+//#include <time.h>
 #include <zlib.h>
 #include <errno.h>
 
 #define DEBUG_PS 0
-
 #if DEBUG_PS
-#define DEBUG_FALLBACK(s) \
-	fprintf(stderr, "%s::%d -- %s\n", __FUNCTION__, __LINE__, (s))
+	#define DEBUG_FALLBACK(s) fprintf(stderr, "%s::%d -- %s\n", __FUNCTION__, __LINE__, (s))
 #else
-#define DEBUG_FALLBACK(s)
+	#define DEBUG_FALLBACK(s)
 #endif
-
 #ifndef HAVE_CTIME_R
-#define ctime_r(T, BUF) ctime(T)
+	#define ctime_r(T, BUF) ctime(T)
 #endif
-
 /**
  * SECTION:cairo-ps
  * @Title: PostScript Surfaces

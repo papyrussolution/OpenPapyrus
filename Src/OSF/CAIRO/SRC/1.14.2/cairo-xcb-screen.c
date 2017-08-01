@@ -35,7 +35,7 @@
 #if CAIRO_HAS_XCB_SURFACE // {
 
 #include "cairo-xcb-private.h"
-#include "cairo-list-inline.h"
+//#include "cairo-list-inline.h"
 #include "cairo-fontconfig-private.h"
 
 static void _cairo_xcb_init_screen_font_options(cairo_xcb_screen_t * screen)

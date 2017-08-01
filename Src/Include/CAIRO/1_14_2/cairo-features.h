@@ -15,6 +15,7 @@
 #define CAIRO_HAS_WIN32_FONT           1
 #define CAIRO_HAS_WIN32_SURFACE        1
 #define CAIRO_HAS_SCRIPT_SURFACE       1
+//#define CAIRO_HAS_GL_SURFACE           1 // @v9.7.10 
 
 #define HAVE_WIN_ATOMIC_OPS 1 // @sobolev
 

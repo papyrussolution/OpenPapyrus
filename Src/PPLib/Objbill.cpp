@@ -872,7 +872,7 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 											LDBLTOMONEY(result_amount, cp.Rec.Amount);
 											LDBLTOMONEY(result_discount, cp.Rec.Discount);
 										}
-										// } @v9.7.9 
+										// } @v9.7.9
 										cp._Cash = /*cc_amount*/result_amount;
 										ok = p_cm->SyncPrintCheck(&cp, 1);
 									}
@@ -8458,24 +8458,6 @@ int PPObjBill::ConvertUuid7601()
 	CATCHZOKPPERR
 	return ok;
 }
-//
-//
-//
-SLAPI PPBillAutoCreateParam::PPBillAutoCreateParam() : PPBaseFilt(PPFILT_BILLAUTOCREATEPARAM, 0, 0)
-{
-	P_TaF = 0;
-    P_SsF = 0;
-    P_CcF = 0;
-    P_CsF = 0;
-	SetFlatChunk(offsetof(PPBillAutoCreateParam, ReserveStart),
-		offsetof(PPBillAutoCreateParam, Reserve)-offsetof(PPBillAutoCreateParam, ReserveStart)+sizeof(Reserve));
-	SetBranchBaseFiltPtr(PPFILT_TRFRANLZ, offsetof(PPBillAutoCreateParam, P_TaF));
-	SetBranchBaseFiltPtr(PPFILT_SSTAT,    offsetof(PPBillAutoCreateParam, P_SsF));
-	SetBranchBaseFiltPtr(PPFILT_CCHECK,   offsetof(PPBillAutoCreateParam, P_CcF));
-	SetBranchBaseFiltPtr(PPFILT_CSESS,    offsetof(PPBillAutoCreateParam, P_CsF));
-	Init(1, 0);
-}
-
 
 /* @debug
 int SLAPI TestPPObjBillParseText()

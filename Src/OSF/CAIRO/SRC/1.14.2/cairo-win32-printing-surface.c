@@ -52,8 +52,8 @@
 #include "cairo-recording-surface-inline.h"
 #include "cairo-scaled-font-subsets-private.h"
 #include "cairo-image-info-private.h"
-#include "cairo-image-surface-private.h"
-#include "cairo-surface-backend-private.h"
+//#include "cairo-image-surface-private.h"
+//#include "cairo-surface-backend-private.h"
 #include "cairo-surface-clipper-private.h"
 
 #include <windows.h>

@@ -37,9 +37,7 @@
 #define TEST_COMPOSITOR_SURFACE_PRIVATE_H
 
 #include "cairo.h"
-
 #include "test-compositor-surface.h"
-
 #include "cairo-compiler-private.h"
 #include "cairo-compositor-private.h"
 

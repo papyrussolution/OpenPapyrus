@@ -37,7 +37,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-array-private.h"
+//#include "cairo-array-private.h"
 //#include "cairo-clip-inline.h"
 //#include "cairo-clip-private.h"
 #include "cairo-damage-private.h"

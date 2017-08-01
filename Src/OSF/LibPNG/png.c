@@ -62,7 +62,7 @@ int PNGAPI png_sig_cmp(png_const_bytep sig, size_t start, size_t num_to_check)
 
 #if defined(PNG_READ_SUPPORTED) || defined(PNG_WRITE_SUPPORTED)
 /* Function to allocate memory for zlib */
-PNG_FUNCTION(voidpf /* PRIVATE */, png_zalloc, (voidpf png_ptr, uInt items, uInt size), PNG_ALLOCATED)
+PNG_ALLOCATED voidpf /* PRIVATE */ png_zalloc(voidpf png_ptr, uInt items, uInt size)
 {
 	png_alloc_size_t num_bytes = size;
 	if(png_ptr == NULL)
@@ -174,12 +174,12 @@ int png_user_version_check(png_structrp png_ptr, const char * user_png_ver)
 	}
 	return 1; /* Success return. */
 }
-
-/* Generic function to create a png_struct for either read or write - this
- * contains the common initialization.
- */
-PNG_FUNCTION(png_structp /* PRIVATE */, png_create_png_struct, (const char * user_png_ver, void * error_ptr,
-	png_error_ptr error_fn, png_error_ptr warn_fn, void * mem_ptr, png_malloc_ptr malloc_fn, png_free_ptr free_fn), PNG_ALLOCATED)
+//
+// Generic function to create a png_struct for either read or write - this
+// contains the common initialization.
+// 
+PNG_ALLOCATED png_structp /* PRIVATE */ png_create_png_struct(const char * user_png_ver, void * error_ptr,
+	png_error_ptr error_fn, png_error_ptr warn_fn, void * mem_ptr, png_malloc_ptr malloc_fn, png_free_ptr free_fn)
 {
 	png_struct create_struct;
 #  ifdef PNG_SETJMP_SUPPORTED
@@ -260,9 +260,7 @@ PNG_FUNCTION(png_structp /* PRIVATE */, png_create_png_struct, (const char * use
 				create_struct.jmp_buf_size = 0;
 				create_struct.longjmp_fn = 0;
 #              endif
-
 				*png_ptr = create_struct;
-
 				/* This is the successful return point */
 				return png_ptr;
 			}
@@ -276,8 +274,7 @@ PNG_FUNCTION(png_structp /* PRIVATE */, png_create_png_struct, (const char * use
 }
 
 /* Allocate the memory for an info_struct for the application. */
-PNG_FUNCTION(png_infop, PNGAPI
-    png_create_info_struct, (png_const_structrp png_ptr), PNG_ALLOCATED)
+PNG_ALLOCATED png_infop PNGAPI png_create_info_struct(png_const_structrp png_ptr)
 {
 	png_inforp info_ptr;
 	png_debug(1, "in png_create_info_struct");
@@ -333,7 +330,7 @@ void PNGAPI png_destroy_info_struct(png_const_structrp png_ptr, png_infopp info_
  * the user-memory mechanism and the user error handling/warning mechanisms in
  * those cases where it does anything other than a memset.
  */
-PNG_FUNCTION(void, PNGAPI png_info_init_3, (png_infopp ptr_ptr, size_t png_info_struct_size), PNG_DEPRECATED)
+PNG_DEPRECATED void PNGAPI png_info_init_3(png_infopp ptr_ptr, size_t png_info_struct_size)
 {
 	png_inforp info_ptr = *ptr_ptr;
 	png_debug(1, "in png_info_init_3");
@@ -1687,13 +1684,11 @@ int /* PRIVATE */ png_colorspace_set_sRGB(png_const_structrp png_ptr, png_colors
 	 * be ignored.)
 	 */
 	if(intent < 0 || intent >= PNG_sRGB_INTENT_LAST)
-		return png_icc_profile_error(png_ptr, colorspace, "sRGB",
-		    (unsigned)intent, "invalid sRGB rendering intent");
+		return png_icc_profile_error(png_ptr, colorspace, "sRGB", (unsigned)intent, "invalid sRGB rendering intent");
 
 	if((colorspace->flags & PNG_COLORSPACE_HAVE_INTENT) != 0 &&
 	    colorspace->rendering_intent != intent)
-		return png_icc_profile_error(png_ptr, colorspace, "sRGB",
-		    (unsigned)intent, "inconsistent rendering intents");
+		return png_icc_profile_error(png_ptr, colorspace, "sRGB", (unsigned)intent, "inconsistent rendering intents");
 
 	if((colorspace->flags & PNG_COLORSPACE_FROM_sRGB) != 0) {
 		png_benign_error(png_ptr, "duplicate sRGB information ignored");
@@ -1747,9 +1742,7 @@ static const uint8 D50_nCIEXYZ[12] = { 0x00, 0x00, 0xf6, 0xd6, 0x00, 0x01, 0x00,
 
 static int /* bool */ icc_check_length(png_const_structrp png_ptr, png_colorspacerp colorspace, const char * name, uint32 profile_length)
 {
-	if(profile_length < 132)
-		return png_icc_profile_error(png_ptr, colorspace, name, profile_length, "too short");
-   return 1;
+	return (profile_length < 132) ? png_icc_profile_error(png_ptr, colorspace, name, profile_length, "too short") : 1;
 }
 
 #ifdef PNG_iCCP_SUPPORTED
@@ -1799,42 +1792,27 @@ int /* PRIVATE */ png_icc_check_header(png_const_structrp png_ptr, png_colorspac
 	 */
 	temp = png_get_uint_32(profile);
 	if(temp != profile_length)
-		return png_icc_profile_error(png_ptr, colorspace, name, temp,
-		    "length does not match profile");
-
+		return png_icc_profile_error(png_ptr, colorspace, name, temp, "length does not match profile");
 	temp = (uint32)(*(profile+8));
 	if(temp > 3 && (profile_length & 3))
-		return png_icc_profile_error(png_ptr, colorspace, name, profile_length,
-		    "invalid length");
-
+		return png_icc_profile_error(png_ptr, colorspace, name, profile_length, "invalid length");
 	temp = png_get_uint_32(profile+128); /* tag count: 12 bytes/tag */
 	if(temp > 357913930 || /* (2^32-4-132)/12: maximum possible tag count */
 	    profile_length < 132+12*temp) /* truncated tag table */
-		return png_icc_profile_error(png_ptr, colorspace, name, temp,
-		    "tag count too large");
-
-	/* The 'intent' must be valid or we can't store it, ICC limits the intent to
-	 * 16 bits.
-	 */
+		return png_icc_profile_error(png_ptr, colorspace, name, temp, "tag count too large");
+	// The 'intent' must be valid or we can't store it, ICC limits the intent to 16 bits.
 	temp = png_get_uint_32(profile+64);
 	if(temp >= 0xffff) /* The ICC limit */
-		return png_icc_profile_error(png_ptr, colorspace, name, temp,
-		    "invalid rendering intent");
-
-	/* This is just a warning because the profile may be valid in future
-	 * versions.
-	 */
+		return png_icc_profile_error(png_ptr, colorspace, name, temp, "invalid rendering intent");
+	// This is just a warning because the profile may be valid in future versions.
 	if(temp >= PNG_sRGB_INTENT_LAST)
-		(void)png_icc_profile_error(png_ptr, NULL, name, temp,
-		    "intent outside defined range");
-
+		(void)png_icc_profile_error(png_ptr, NULL, name, temp, "intent outside defined range");
 	/* At this point the tag table can't be checked because it hasn't necessarily
 	 * been loaded; however, various header fields can be checked.  These checks
 	 * are for values permitted by the PNG spec in an ICC profile; the PNG spec
 	 * restricts the profiles that can be passed in an iCCP chunk (they must be
 	 * appropriate to processing PNG data!)
 	 */
-
 	/* Data checks (could be skipped).  These checks must be independent of the
 	 * version number; however, the version number doesn't accomodate changes in
 	 * the header fields (just the known tags and the interpretation of the
@@ -1842,9 +1820,7 @@ int /* PRIVATE */ png_icc_check_header(png_const_structrp png_ptr, png_colorspac
 	 */
 	temp = png_get_uint_32(profile+36); /* signature 'ascp' */
 	if(temp != 0x61637370)
-		return png_icc_profile_error(png_ptr, colorspace, name, temp,
-		    "invalid signature");
-
+		return png_icc_profile_error(png_ptr, colorspace, name, temp, "invalid signature");
 	/* Currently the PCS illuminant/adopted white point (the computational
 	 * white point) are required to be D50,
 	 * however the profile contains a record of the illuminant so perhaps ICC
@@ -1853,9 +1829,7 @@ int /* PRIVATE */ png_icc_check_header(png_const_structrp png_ptr, png_colorspac
 	 * following is just a warning.
 	 */
 	if(memcmp(profile+68, D50_nCIEXYZ, 12) != 0)
-		(void)png_icc_profile_error(png_ptr, NULL, name, 0 /*no tag value*/,
-		    "PCS illuminant is not D50");
-
+		(void)png_icc_profile_error(png_ptr, NULL, name, 0 /*no tag value*/, "PCS illuminant is not D50");
 	/* The PNG spec requires this:
 	 * "If the iCCP chunk is present, the image samples conform to the colour
 	 * space represented by the embedded ICC profile as defined by the
@@ -1880,21 +1854,15 @@ int /* PRIVATE */ png_icc_check_header(png_const_structrp png_ptr, png_colorspac
 	switch(temp) {
 		case 0x52474220: /* 'RGB ' */
 		    if((color_type & PNG_COLOR_MASK_COLOR) == 0)
-			    return png_icc_profile_error(png_ptr, colorspace, name, temp,
-			    "RGB color space not permitted on grayscale PNG");
+			    return png_icc_profile_error(png_ptr, colorspace, name, temp, "RGB color space not permitted on grayscale PNG");
 		    break;
-
 		case 0x47524159: /* 'GRAY' */
 		    if((color_type & PNG_COLOR_MASK_COLOR) != 0)
-			    return png_icc_profile_error(png_ptr, colorspace, name, temp,
-			    "Gray color space not permitted on RGB PNG");
+			    return png_icc_profile_error(png_ptr, colorspace, name, temp, "Gray color space not permitted on RGB PNG");
 		    break;
-
 		default:
-		    return png_icc_profile_error(png_ptr, colorspace, name, temp,
-		    "invalid ICC profile color space");
+		    return png_icc_profile_error(png_ptr, colorspace, name, temp, "invalid ICC profile color space");
 	}
-
 	/* It is up to the application to check that the profile class matches the
 	 * application requirements; the spec provides no guidance, but it's pretty
 	 * weird if the profile is not scanner ('scnr'), monitor ('mntr'), printer
@@ -1915,9 +1883,7 @@ int /* PRIVATE */ png_icc_check_header(png_const_structrp png_ptr, png_colorspac
 
 		case 0x61627374: /* 'abst' */
 		    /* May not be embedded in an image */
-		    return png_icc_profile_error(png_ptr, colorspace, name, temp,
-		    "invalid embedded Abstract ICC profile");
-
+		    return png_icc_profile_error(png_ptr, colorspace, name, temp, "invalid embedded Abstract ICC profile");
 		case 0x6c696e6b: /* 'link' */
 		    /* DeviceLink profiles cannot be interpreted in a non-device specific
 		     * fashion, if an app uses the AToB0Tag in the profile the results are
@@ -1925,29 +1891,23 @@ int /* PRIVATE */ png_icc_check_header(png_const_structrp png_ptr, png_colorspac
 		     * therefore a DeviceLink profile should not be found embedded in a
 		     * PNG.
 		     */
-		    return png_icc_profile_error(png_ptr, colorspace, name, temp,
-		    "unexpected DeviceLink ICC profile class");
-
+		    return png_icc_profile_error(png_ptr, colorspace, name, temp, "unexpected DeviceLink ICC profile class");
 		case 0x6e6d636c: /* 'nmcl' */
 		    /* A NamedColor profile is also device specific, however it doesn't
 		     * contain an AToB0 tag that is open to misinterpretation.  Almost
 		     * certainly it will fail the tests below.
 		     */
-		    (void)png_icc_profile_error(png_ptr, NULL, name, temp,
-		    "unexpected NamedColor ICC profile class");
+		    (void)png_icc_profile_error(png_ptr, NULL, name, temp, "unexpected NamedColor ICC profile class");
 		    break;
-
 		default:
 		    /* To allow for future enhancements to the profile accept unrecognized
 		     * profile classes with a warning, these then hit the test below on the
 		     * tag content to ensure they are backward compatible with one of the
 		     * understood profiles.
 		     */
-		    (void)png_icc_profile_error(png_ptr, NULL, name, temp,
-		    "unrecognized ICC profile class");
+		    (void)png_icc_profile_error(png_ptr, NULL, name, temp, "unrecognized ICC profile class");
 		    break;
 	}
-
 	/* For any profile other than a device link one the PCS must be encoded
 	 * either in XYZ or Lab.
 	 */
@@ -1956,12 +1916,9 @@ int /* PRIVATE */ png_icc_check_header(png_const_structrp png_ptr, png_colorspac
 		case 0x58595a20: /* 'XYZ ' */
 		case 0x4c616220: /* 'Lab ' */
 		    break;
-
 		default:
-		    return png_icc_profile_error(png_ptr, colorspace, name, temp,
-		    "unexpected ICC PCS encoding");
+		    return png_icc_profile_error(png_ptr, colorspace, name, temp, "unexpected ICC PCS encoding");
 	}
-
 	return 1;
 }
 
@@ -1992,16 +1949,14 @@ int /* PRIVATE */ png_icc_check_tag_table(png_const_structrp png_ptr, png_colors
 			 * only a warning here because libpng does not care about the
 			 * alignment.
 			 */
-			(void)png_icc_profile_error(png_ptr, NULL, name, tag_id,
-			    "ICC profile tag start not a multiple of 4");
+			(void)png_icc_profile_error(png_ptr, NULL, name, tag_id, "ICC profile tag start not a multiple of 4");
 		}
 
 		/* This is a hard error; potentially it can cause read outside the
 		 * profile.
 		 */
 		if(tag_start > profile_length || tag_length > profile_length - tag_start)
-			return png_icc_profile_error(png_ptr, colorspace, name, tag_id,
-			    "ICC profile tag outside profile");
+			return png_icc_profile_error(png_ptr, colorspace, name, tag_id, "ICC profile tag outside profile");
 	}
 
 	return 1; /* success, maybe with warnings */
@@ -2574,11 +2529,9 @@ void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, s
 	 */
 	if(precision < 1)
 		precision = DBL_DIG;
-
 	/* Enforce the limit of the implementation precision too. */
 	if(precision > DBL_DIG+1)
 		precision = DBL_DIG+1;
-
 	/* Basic sanity checks */
 	if(size >= precision+5) { /* See the requirements below. */
 		if(fp < 0) {
@@ -2586,11 +2539,9 @@ void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, s
 			*ascii++ = 45; /* '-'  PLUS 1 TOTAL 1 */
 			--size;
 		}
-
 		if(fp >= DBL_MIN && fp <= DBL_MAX) {
 			int exp_b10; /* A base 10 exponent */
 			double base; /* 10^exp_b10 */
-
 			/* First extract a base 10 exponent of the number,
 			 * the calculation below rounds down when converting
 			 * from base 2 to base 10 (multiply by log10(2) -
@@ -2601,23 +2552,19 @@ void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, s
 			 * exponents.
 			 */
 			(void)frexp(fp, &exp_b10); /* exponent to base 2 */
-
 			exp_b10 = (exp_b10 * 77) >> 8; /* <= exponent to base 10 */
-
 			/* Avoid underflow here. */
 			base = png_pow10(exp_b10); /* May underflow */
-
 			while(base < DBL_MIN || base < fp) {
 				/* And this may overflow. */
 				double test = png_pow10(exp_b10+1);
-
-				if(test <= DBL_MAX)
-					++exp_b10, base = test;
-
+				if(test <= DBL_MAX) {
+					++exp_b10;
+					base = test;
+				}
 				else
 					break;
 			}
-
 			/* Normalize fp and correct exp_b10, after this fp is in the
 			 * range [.1,1) and exp_b10 is both the exponent and the digit
 			 * *before* which the decimal point should be inserted
@@ -2626,9 +2573,10 @@ void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, s
 			 * test on DBL_MAX above.
 			 */
 			fp /= base;
-			while(fp >= 1) 
-				fp /= 10, ++exp_b10;
-
+			while(fp >= 1) {
+				fp /= 10;
+				++exp_b10;
+			}
 			/* Because of the code above fp may, at this point, be
 			 * less than .1, this is ok because the code below can
 			 * handle the leading zeros this generates, so no attempt
@@ -2668,7 +2616,8 @@ void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, s
 						if(d > 9) {
 							// Rounding up to 10, handle that here. 
 							if(czero > 0) {
-								--czero, d = 1;
+								--czero;
+								d = 1;
 								if(cdigits == 0) 
 									--clead;
 							}
@@ -2678,7 +2627,8 @@ void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, s
 									if(exp_b10 != (-1))
 										++exp_b10;
 									else if(ch == 46) {
-										ch = *--ascii, ++size;
+										ch = *--ascii;
+										++size;
 										// Advance exp_b10 to '1', so that the decimal point happens after the previous digit.
 										exp_b10 = 1;
 									}
@@ -2696,8 +2646,10 @@ void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, s
 										 * be reentered below.
 										 */
 										int ch = *--ascii;
-										if(ch == 46)
-											++size, exp_b10 = 1;
+										if(ch == 46) {
+											++size;
+											exp_b10 = 1;
+										}
 										// Else lost a leading zero, so 'exp_b10' is still ok at (-1)
 									}
 									else
@@ -2711,7 +2663,8 @@ void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, s
 					}
 					if(d == 0) {
 						++czero;
-						if(cdigits == 0) ++clead;
+						if(cdigits == 0) 
+							++clead;
 					}
 					else {
 						// Included embedded zeros in the digit count
@@ -2722,20 +2675,26 @@ void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, s
 							// place - after the DP don't adjust 'exp_b10' any more!
 							//
 							if(exp_b10 != (-1)) {
-								if(exp_b10 == 0) 
-									*ascii++ = 46, --size;
+								if(exp_b10 == 0) {
+									*ascii++ = 46;
+									--size;
+								}
 								// PLUS 1: TOTAL 4 
 								--exp_b10;
 							}
-							*ascii++ = 48, --czero;
+							*ascii++ = 48;
+							--czero;
 						}
 
 						if(exp_b10 != (-1)) {
-							if(exp_b10 == 0)
-								*ascii++ = 46, --size;  /* counted above */
+							if(exp_b10 == 0) {
+								*ascii++ = 46;
+								--size;  /* counted above */
+							}
 							--exp_b10;
 						}
-						*ascii++ = (char)(48 + (int)d), ++cdigits;
+						*ascii++ = (char)(48 + (int)d);
+						++cdigits;
 					}
 				} while(cdigits+czero < precision+clead && fp > DBL_MIN);
 				/* The total output count (max) is now 4+precision */
@@ -2829,8 +2788,10 @@ void /* PRIVATE */ png_ascii_from_fixed(png_const_structrp png_ptr, char * ascii
 	if(size > 12) {
 		uint32 num;
 		// Avoid overflow here on the minimum integer. 
-		if(fp < 0)
-			*ascii++ = 45, num = (uint32)(-fp);
+		if(fp < 0) {
+			*ascii++ = 45;
+			num = (uint32)(-fp);
+		}
 		else
 			num = (uint32)fp;
 		if(num <= 0x80000000) { /* else overflowed */
@@ -2861,8 +2822,10 @@ void /* PRIVATE */ png_ascii_from_fixed(png_const_structrp png_ptr, char * ascii
 					*ascii++ = 46; /* decimal point */
 					// ndigits may be <5 for small numbers, output leading zeros then ndigits digits to first:
 					i = 5;
-					while(ndigits < i) 
-						*ascii++ = 48, --i;
+					while(ndigits < i) {
+						*ascii++ = 48;
+						--i;
+					}
 					while(ndigits >= first) 
 						*ascii++ = digits[--ndigits];
 					/* Don't output the trailing zeros! */
@@ -3833,9 +3796,9 @@ void /* PRIVATE */ png_build_gamma_table(png_structrp png_ptr, int bit_depth)
 int PNGAPI png_set_option(png_structrp png_ptr, int option, int onoff)
 {
 	if(png_ptr && option >= 0 && option < PNG_OPTION_NEXT && !(option & 1)) {
-		uint mask = (3U << option);
-		uint setting = (2U + (onoff != 0)) << option;
-		uint current = png_ptr->options;
+		uint32 mask = (3U << option);
+		uint32 setting = (2U + (onoff != 0)) << option;
+		uint32 current = png_ptr->options;
 		png_ptr->options = (uint32)(((current & ~mask) | setting) & 0xff); // @libpng-1629 (uint8)-->(uint32)
 		return (current & mask) >> option;
 	}

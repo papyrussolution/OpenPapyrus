@@ -54,6 +54,7 @@
 #endif
 
 #include <slib.h> // @sobolev
+#include <setjmp.h>
 // @sobolev #include <assert.h>
 // @sobolev #include <stdlib.h>
 // @sobolev #include <string.h>
@@ -70,8 +71,18 @@
 #include "cairo.h"
 // @sobolev #include <pixman.h>
 #include "cairo-compiler-private.h"
+#include "cairo-list-private.h"
+#include "cairo-atomic-private.h"
 #include "cairo-error-private.h"
 #include "cairo-pixman-private.h" // @sobolev
+#include "cairo-types-private.h"
+#include "cairo-cache-private.h"
+#include "cairo-reference-count-private.h"
+#include "cairo-spans-private.h"
+#include "cairo-surface-private.h"
+#include "cairo-surface-backend-private.h"
+#include "cairo-image-surface-private.h"
+#include "cairo-scaled-font-private.h"
 
 #if CAIRO_HAS_PDF_SURFACE || CAIRO_HAS_PS_SURFACE || CAIRO_HAS_SCRIPT_SURFACE || CAIRO_HAS_XML_SURFACE
 	#define CAIRO_HAS_DEFLATE_STREAM 1
@@ -248,12 +259,6 @@ static inline int cairo_const _cairo_isspace(int c)
 	return (c >= '0' && c <= '9');
 }*/
 
-#include "cairo-types-private.h"
-#include "cairo-cache-private.h"
-#include "cairo-reference-count-private.h"
-#include "cairo-spans-private.h"
-#include "cairo-surface-private.h"
-
 cairo_private void _cairo_box_from_doubles(cairo_box_t * box, double * x1, double * y1, double * x2, double * y2);
 cairo_private void _cairo_box_to_doubles(const cairo_box_t * box, double * x1, double * y1, double * x2, double * y2);
 
@@ -318,8 +323,6 @@ cairo_private ulong _cairo_hash_bytes(ulong hash, const void * bytes, uint lengt
 
 #define _cairo_scaled_glyph_index(g) ((g)->hash_entry.hash)
 #define _cairo_scaled_glyph_set_index(g, i)  ((g)->hash_entry.hash = (i))
-
-#include "cairo-scaled-font-private.h"
 
 struct _cairo_font_face {
 	/* hash_entry must be first */
@@ -1297,11 +1300,11 @@ CAIRO_END_DECLS
 #include "cairo-wideint-private.h"
 #include "cairo-malloc-private.h"
 #include "cairo-hash-private.h"
-
 #include "cairo-analysis-surface-private.h"
 #include "cairo-clip-private.h"
 #include "cairo-clip-inline.h"
 #include "cairo-pattern-private.h"
+#include "cairo-array-private.h"
 #include "cairo-list-inline.h"
 #include "cairo-pattern-inline.h"
 

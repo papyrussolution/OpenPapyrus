@@ -38,8 +38,8 @@
 #ifndef CAIRO_SURFACE_BACKEND_PRIVATE_H
 #define CAIRO_SURFACE_BACKEND_PRIVATE_H
 
-#include "cairo-compiler-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-compiler-private.h"
+//#include "cairo-error-private.h"
 
 CAIRO_BEGIN_DECLS
 

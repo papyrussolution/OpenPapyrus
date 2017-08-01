@@ -39,11 +39,11 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 //#include "cairo-list-inline.h"
 //#include "cairo-pattern-private.h"
-#include "cairo-scaled-font-private.h"
-#include "cairo-surface-backend-private.h"
+//#include "cairo-scaled-font-private.h"
+//#include "cairo-surface-backend-private.h"
 
 #if _XOPEN_SOURCE >= 600 || defined (_ISOC99_SOURCE)
 #define ISFINITE(x) isfinite(x)

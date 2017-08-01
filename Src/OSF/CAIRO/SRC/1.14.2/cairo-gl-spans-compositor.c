@@ -45,7 +45,7 @@
 #include "cairo-default-context-private.h"
 #include "cairo-image-surface-private.h"
 #include "cairo-spans-compositor-private.h"
-#include "cairo-surface-backend-private.h"
+//#include "cairo-surface-backend-private.h"
 
 #if CAIRO_HAS_GL_SURFACE // {
 

@@ -24,8 +24,8 @@
 
 #if defined(USE_MIPS_DSPR2) || defined(USE_LOONGSON_MMI)
 
-#include <string.h>
-#include <stdlib.h>
+//#include <string.h>
+//#include <stdlib.h>
 
 static pixman_bool_t have_feature(const char * search_string)
 {

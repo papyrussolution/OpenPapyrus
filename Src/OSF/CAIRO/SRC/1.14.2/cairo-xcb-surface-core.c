@@ -35,8 +35,8 @@
 
 #include "cairo-boxes-private.h"
 #include "cairo-xcb-private.h"
-#include "cairo-image-surface-private.h"
-#include "cairo-surface-backend-private.h"
+//#include "cairo-image-surface-private.h"
+//#include "cairo-surface-backend-private.h"
 
 /* XXX dithering */
 

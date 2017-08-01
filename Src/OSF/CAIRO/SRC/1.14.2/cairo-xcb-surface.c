@@ -48,8 +48,8 @@
 #include "cairo-composite-rectangles-private.h"
 #include "cairo-default-context-private.h"
 #include "cairo-image-surface-inline.h"
-#include "cairo-list-inline.h"
-#include "cairo-surface-backend-private.h"
+//#include "cairo-list-inline.h"
+//#include "cairo-surface-backend-private.h"
 #include "cairo-compositor-private.h"
 
 #if CAIRO_HAS_XLIB_XCB_FUNCTIONS

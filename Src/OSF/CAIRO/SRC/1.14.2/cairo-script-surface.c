@@ -74,7 +74,7 @@
 #include "cairo-output-stream-private.h"
 //#include "cairo-pattern-private.h"
 #include "cairo-recording-surface-inline.h"
-#include "cairo-scaled-font-private.h"
+//#include "cairo-scaled-font-private.h"
 #include "cairo-surface-clipper-private.h"
 #include "cairo-surface-snapshot-inline.h"
 #include "cairo-surface-subsurface-private.h"

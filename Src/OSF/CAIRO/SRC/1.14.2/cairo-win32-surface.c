@@ -48,13 +48,13 @@
 	#define _WIN32_WINNT 0x0600 // @sobolev 0x0500-->0x0600
 #endif
 #include "cairo-default-context-private.h"
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 #include "cairo-paginated-private.h"
 //#include "cairo-pattern-private.h"
 #include "cairo-win32-private.h"
 #include "cairo-scaled-font-subsets-private.h"
 #include "cairo-surface-fallback-private.h"
-#include "cairo-surface-backend-private.h"
+//#include "cairo-surface-backend-private.h"
 
 #include <wchar.h>
 #include <windows.h>

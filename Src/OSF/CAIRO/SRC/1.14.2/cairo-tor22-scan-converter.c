@@ -95,11 +95,11 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-spans-private.h"
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
-#include <setjmp.h>
+//#include "cairo-spans-private.h"
+//#include <stdlib.h>
+//#include <string.h>
+//#include <limits.h>
+//#include <setjmp.h>
 
 /*-------------------------------------------------------------------------
  * cairo specific config
@@ -177,9 +177,9 @@ I glitter_status_t glitter_scan_converter_reset(glitter_scan_converter_t * conve
 /*-------------------------------------------------------------------------
  * glitter-paths.c: Implementation internal types
  */
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <limits.h>
 
 /* All polygon coordinates are snapped onto a subsample grid. "Grid
  * scaled" numbers are fixed precision reals with multiplier GRID_X or

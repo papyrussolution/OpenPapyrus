@@ -59,7 +59,7 @@
 #include "cairo-win32-private.h"
 #include "cairo-scaled-font-subsets-private.h"
 #include "cairo-surface-fallback-private.h"
-#include "cairo-surface-backend-private.h"
+//#include "cairo-surface-backend-private.h"
 
 #include <wchar.h>
 #include <windows.h>

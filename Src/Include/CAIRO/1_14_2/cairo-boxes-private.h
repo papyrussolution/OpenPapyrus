@@ -34,9 +34,8 @@
 #ifndef CAIRO_BOXES_H
 #define CAIRO_BOXES_H
 
-#include "cairo-types-private.h"
-#include "cairo-compiler-private.h"
-
+//#include "cairo-types-private.h"
+//#include "cairo-compiler-private.h"
 //#include <stdio.h>
 //#include <stdlib.h>
 

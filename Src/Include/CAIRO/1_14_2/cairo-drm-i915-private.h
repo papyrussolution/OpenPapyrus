@@ -29,14 +29,12 @@
 #define CAIRO_DRM_I915_PRIVATE_H
 
 #include "cairo-types-private.h"
-
 #include "cairo-drm-private.h"
 #include "cairo-drm-intel-private.h"
 #include "cairo-drm-intel-command-private.h"
 #include "cairo-drm-intel-ioctl-private.h"
 #include "cairo-freelist-private.h"
-
-#include <setjmp.h>
+//#include <setjmp.h>
 
 #define I915_VERBOSE 1
 

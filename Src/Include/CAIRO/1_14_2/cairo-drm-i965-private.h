@@ -2,13 +2,10 @@
 #define CAIRO_DRM_I965_PRIVATE_H
 
 #include "cairo-drm-intel-private.h"
-
 #include "cairo-hash-private.h"
 #include "cairo-freelist-private.h"
-
 #include "cairo-drm-intel-brw-defines.h"
-
-#include <setjmp.h>
+//#include <setjmp.h>
 
 #define BRW_MI_GLOBAL_SNAPSHOT_RESET   (1 << 3)
 

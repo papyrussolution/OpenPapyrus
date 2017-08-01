@@ -39,7 +39,7 @@
 #include "cairo-compositor-private.h"
 //#include "cairo-clip-private.h"
 //#include "cairo-pattern-private.h"
-#include "cairo-surface-private.h"
+//#include "cairo-surface-private.h"
 #include "cairo-surface-offset-private.h"
 
 static cairo_int_status_t _cairo_shape_mask_compositor_stroke(const cairo_compositor_t * _compositor,

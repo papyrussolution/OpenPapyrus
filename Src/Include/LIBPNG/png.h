@@ -827,20 +827,19 @@ typedef PNG_CALLBACK(int, *png_user_chunk_ptr, (png_structp, png_unknown_chunkp)
 /* not used anywhere */
 /* typedef PNG_CALLBACK(void, *png_unknown_chunk_ptr, (png_structp)); */
 #endif
-
 #ifdef PNG_SETJMP_SUPPORTED
-/* This must match the function definition in <setjmp.h>, and the application
- * must include this before png.h to obtain the definition of jmp_buf.  The
- * function is required to be PNG_NORETURN, but this is not checked.  If the
- * function does return the application will crash via an abort() or similar
- * system level call.
- *
- * If you get a warning here while building the library you may need to make
- * changes to ensure that pnglibconf.h records the calling convention used by
- * your compiler.  This may be very difficult - try using a different compiler
- * to build the library!
- */
-PNG_FUNCTION(void, (PNGCAPI *png_longjmp_ptr), PNGARG((jmp_buf, int)), typedef);
+	/* This must match the function definition in <setjmp.h>, and the application
+	 * must include this before png.h to obtain the definition of jmp_buf.  The
+	 * function is required to be PNG_NORETURN, but this is not checked.  If the
+	 * function does return the application will crash via an abort() or similar
+	 * system level call.
+	 *
+	 * If you get a warning here while building the library you may need to make
+	 * changes to ensure that pnglibconf.h records the calling convention used by
+	 * your compiler.  This may be very difficult - try using a different compiler
+	 * to build the library!
+	 */
+	typedef void (PNGCAPI *png_longjmp_ptr)(jmp_buf, int);
 #endif
 
 /* Transform masks for the high-level interface */

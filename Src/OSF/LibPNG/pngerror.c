@@ -20,7 +20,7 @@
 
 #if defined(PNG_READ_SUPPORTED) || defined(PNG_WRITE_SUPPORTED)
 
-static PNG_FUNCTION(void, png_default_error, PNGARG((png_const_structrp png_ptr, const char * error_message)), PNG_NORETURN);
+static PNG_NORETURN void png_default_error(png_const_structrp png_ptr, const char * error_message);
 
 #ifdef PNG_WARNINGS_SUPPORTED
 static void /* PRIVATE */ png_default_warning PNGARG((png_const_structrp png_ptr, const char * warning_message));
@@ -32,9 +32,7 @@ static void /* PRIVATE */ png_default_warning PNGARG((png_const_structrp png_ptr
  * to replace the error function at run-time.
  */
 #ifdef PNG_ERROR_TEXT_SUPPORTED
-PNG_FUNCTION(void, PNGAPI
-    png_error, (png_const_structrp png_ptr, const char * error_message),
-    PNG_NORETURN)
+PNG_NORETURN void PNGAPI png_error(png_const_structrp png_ptr, const char * error_message)
 {
 #ifdef PNG_ERROR_NUMBERS_SUPPORTED
 	char msg[16];
@@ -79,8 +77,7 @@ PNG_FUNCTION(void, PNGAPI
 	png_default_error(png_ptr, error_message);
 }
 #else
-PNG_FUNCTION(void, PNGAPI
-    png_err, (png_const_structrp png_ptr), PNG_NORETURN)
+PNG_NORETURN void PNGAPI png_err(png_const_structrp png_ptr)
 {
 	/* Prior to 1.5.2 the error_fn received a NULL pointer, expressed
 	 * erroneously as '\0', instead of the empty string "".  This was
@@ -416,7 +413,7 @@ static void /* PRIVATE */ png_format_buffer(png_const_structrp png_ptr, char * b
 #endif /* WARNINGS || ERROR_TEXT */
 
 #if defined(PNG_READ_SUPPORTED) && defined(PNG_ERROR_TEXT_SUPPORTED)
-PNG_FUNCTION(void, PNGAPI png_chunk_error, (png_const_structrp png_ptr, const char * error_message), PNG_NORETURN)
+PNG_NORETURN void PNGAPI png_chunk_error(png_const_structrp png_ptr, const char * error_message)
 {
 	char msg[18+PNG_MAX_ERROR_TEXT];
 	if(png_ptr == NULL)
@@ -463,45 +460,38 @@ void PNGAPI png_chunk_benign_error(png_const_structrp png_ptr, const char *
 
 void /* PRIVATE */ png_chunk_report(png_const_structrp png_ptr, const char * message, int error)
 {
-#  ifndef PNG_WARNINGS_SUPPORTED
+#ifndef PNG_WARNINGS_SUPPORTED
 	PNG_UNUSED(message)
-#  endif
-
-	/* This is always supported, but for just read or just write it
-	 * unconditionally does the right thing.
-	 */
-#  if defined(PNG_READ_SUPPORTED) && defined(PNG_WRITE_SUPPORTED)
+#endif
+	// This is always supported, but for just read or just write it
+	// unconditionally does the right thing.
+#if defined(PNG_READ_SUPPORTED) && defined(PNG_WRITE_SUPPORTED)
 	if((png_ptr->mode & PNG_IS_READ_STRUCT) != 0)
-#  endif
-
-#  ifdef PNG_READ_SUPPORTED
+#endif
+#ifdef PNG_READ_SUPPORTED
 	{
 		if(error < PNG_CHUNK_ERROR)
 			png_chunk_warning(png_ptr, message);
-
 		else
 			png_chunk_benign_error(png_ptr, message);
 	}
-#  endif
-
-#  if defined(PNG_READ_SUPPORTED) && defined(PNG_WRITE_SUPPORTED)
+# endif
+#if defined(PNG_READ_SUPPORTED) && defined(PNG_WRITE_SUPPORTED)
 	else if((png_ptr->mode & PNG_IS_READ_STRUCT) == 0)
-#  endif
-
-#  ifdef PNG_WRITE_SUPPORTED
+#endif
+#ifdef PNG_WRITE_SUPPORTED
 	{
 		if(error < PNG_CHUNK_WRITE_ERROR)
 			png_app_warning(png_ptr, message);
-
 		else
 			png_app_error(png_ptr, message);
 	}
-#  endif
+#endif
 }
 
 #ifdef PNG_ERROR_TEXT_SUPPORTED
 #ifdef PNG_FLOATING_POINT_SUPPORTED
-PNG_FUNCTION(void, png_fixed_error, (png_const_structrp png_ptr, const char * name), PNG_NORETURN)
+PNG_NORETURN void png_fixed_error(png_const_structrp png_ptr, const char * name)
 {
 	#define fixed_message "fixed point overflow in "
 	#define fixed_message_ln ((sizeof fixed_message)-1)
@@ -524,7 +514,7 @@ PNG_FUNCTION(void, png_fixed_error, (png_const_structrp png_ptr, const char * na
 /* This API only exists if ANSI-C style error handling is used,
  * otherwise it is necessary for png_default_error to be overridden.
  */
-jmp_buf* PNGAPI png_set_longjmp_fn(png_structrp png_ptr, png_longjmp_ptr longjmp_fn, size_t jmp_buf_size)
+jmp_buf * PNGAPI png_set_longjmp_fn(png_structrp png_ptr, png_longjmp_ptr longjmp_fn, size_t jmp_buf_size)
 {
 	/* From libpng 1.6.0 the app gets one chance to set a 'jmpbuf_size' value
 	 * and it must not change after that.  Libpng doesn't care how big the
@@ -540,24 +530,17 @@ jmp_buf* PNGAPI png_set_longjmp_fn(png_structrp png_ptr, png_longjmp_ptr longjmp
 		return NULL;
 	if(png_ptr->jmp_buf_ptr == NULL) {
 		png_ptr->jmp_buf_size = 0; /* not allocated */
-
 		if(jmp_buf_size <= (sizeof png_ptr->jmp_buf_local))
 			png_ptr->jmp_buf_ptr = &png_ptr->jmp_buf_local;
-
 		else {
-			png_ptr->jmp_buf_ptr = png_voidcast(jmp_buf *,
-			    png_malloc_warn(png_ptr, jmp_buf_size));
-
+			png_ptr->jmp_buf_ptr = png_voidcast(jmp_buf *, png_malloc_warn(png_ptr, jmp_buf_size));
 			if(png_ptr->jmp_buf_ptr == NULL)
 				return NULL;  /* new NULL return on OOM */
-
 			png_ptr->jmp_buf_size = jmp_buf_size;
 		}
 	}
-
 	else { /* Already allocated: check the size */
 		size_t size = png_ptr->jmp_buf_size;
-
 		if(size == 0) {
 			size = (sizeof png_ptr->jmp_buf_local);
 			if(png_ptr->jmp_buf_ptr != &png_ptr->jmp_buf_local) {
@@ -570,13 +553,11 @@ jmp_buf* PNGAPI png_set_longjmp_fn(png_structrp png_ptr, png_longjmp_ptr longjmp
 				/* png_ptr->jmp_buf_ptr = &png_ptr->jmp_buf_local; */
 			}
 		}
-
 		if(size != jmp_buf_size) {
 			png_warning(png_ptr, "Application jmp_buf size changed");
 			return NULL; /* caller will probably crash: no choice here */
 		}
 	}
-
 	/* Finally fill in the function, now we have a satisfactory buffer. It is
 	 * valid to change the function on every call.
 	 */
@@ -588,7 +569,6 @@ void /* PRIVATE */ png_free_jmpbuf(png_structrp png_ptr)
 {
 	if(png_ptr) {
 		jmp_buf * jb = png_ptr->jmp_buf_ptr;
-
 		/* A size of 0 is used to indicate a local, stack, allocation of the
 		 * pointer; used here and in png.c
 		 */
@@ -600,7 +580,6 @@ void /* PRIVATE */ png_free_jmpbuf(png_structrp png_ptr)
 			if(jb != &png_ptr->jmp_buf_local) {
 				/* Make an internal, libpng, jmp_buf to return here */
 				jmp_buf free_jmp_buf;
-
 				if(!setjmp(free_jmp_buf)) {
 					png_ptr->jmp_buf_ptr = &free_jmp_buf; /* come back here */
 					png_ptr->jmp_buf_size = 0; /* stack allocation */
@@ -609,7 +588,6 @@ void /* PRIVATE */ png_free_jmpbuf(png_structrp png_ptr)
 				}
 			}
 		}
-
 		/* *Always* cancel everything out: */
 		png_ptr->jmp_buf_size = 0;
 		png_ptr->jmp_buf_ptr = NULL;
@@ -624,7 +602,7 @@ void /* PRIVATE */ png_free_jmpbuf(png_structrp png_ptr)
  * function is used by default, or if the program supplies NULL for the
  * error function pointer in png_set_error_fn().
  */
-static PNG_FUNCTION(void /* PRIVATE */, png_default_error, (png_const_structrp png_ptr, const char * error_message), PNG_NORETURN)
+static PNG_NORETURN void /* PRIVATE */ png_default_error(png_const_structrp png_ptr, const char * error_message)
 {
 #ifdef PNG_CONSOLE_IO_SUPPORTED
 #ifdef PNG_ERROR_NUMBERS_SUPPORTED
@@ -638,25 +616,20 @@ static PNG_FUNCTION(void /* PRIVATE */, png_default_error, (png_const_structrp p
 			if(error_message[offset] == ' ')
 				break;
 		}
-
 		if((offset > 1) && (offset < 15)) {
 			error_number[offset - 1] = '\0';
-			fprintf(stderr, "libpng error no. %s: %s",
-			    error_number, error_message + offset + 1);
+			fprintf(stderr, "libpng error no. %s: %s", error_number, error_message + offset + 1);
 			fprintf(stderr, PNG_STRING_NEWLINE);
 		}
-
 		else {
-			fprintf(stderr, "libpng error: %s, offset=%d",
-			    error_message, offset);
+			fprintf(stderr, "libpng error: %s, offset=%d", error_message, offset);
 			fprintf(stderr, PNG_STRING_NEWLINE);
 		}
 	}
 	else
 #endif
 	{
-		fprintf(stderr, "libpng error: %s", error_message ? error_message :
-		    "undefined");
+		fprintf(stderr, "libpng error: %s", error_message ? error_message : "undefined");
 		fprintf(stderr, PNG_STRING_NEWLINE);
 	}
 #else
@@ -665,7 +638,7 @@ static PNG_FUNCTION(void /* PRIVATE */, png_default_error, (png_const_structrp p
 	png_longjmp(png_ptr, 1);
 }
 
-PNG_FUNCTION(void, PNGAPI png_longjmp, (png_const_structrp png_ptr, int val), PNG_NORETURN)
+PNG_NORETURN void PNGAPI png_longjmp(png_const_structrp png_ptr, int val)
 {
 #ifdef PNG_SETJMP_SUPPORTED
 	if(png_ptr && png_ptr->longjmp_fn != NULL && png_ptr->jmp_buf_ptr != NULL)
@@ -701,23 +674,18 @@ static void /* PRIVATE */ png_default_warning(png_const_structrp png_ptr, const 
 			if(warning_message[offset] == ' ')
 				break;
 		}
-
 		if((offset > 1) && (offset < 15)) {
 			warning_number[offset + 1] = '\0';
-			fprintf(stderr, "libpng warning no. %s: %s",
-			    warning_number, warning_message + offset);
+			fprintf(stderr, "libpng warning no. %s: %s", warning_number, warning_message + offset);
 			fprintf(stderr, PNG_STRING_NEWLINE);
 		}
-
 		else {
-			fprintf(stderr, "libpng warning: %s",
-			    warning_message);
+			fprintf(stderr, "libpng warning: %s", warning_message);
 			fprintf(stderr, PNG_STRING_NEWLINE);
 		}
 	}
 	else
 #  endif
-
 	{
 		fprintf(stderr, "libpng warning: %s", warning_message);
 		fprintf(stderr, PNG_STRING_NEWLINE);
@@ -770,7 +738,7 @@ void PNGAPI png_set_strip_error_numbers(png_structrp png_ptr, uint32 strip_mode)
  * possible to implement without setjmp support just so long as there is some
  * way to handle the error return here:
  */
-PNG_FUNCTION(void /* PRIVATE */, (PNGCBAPI png_safe_error), (png_structp png_nonconst_ptr, const char * error_message), PNG_NORETURN)
+PNG_NORETURN void /* PRIVATE */ (PNGCBAPI png_safe_error)(png_structp png_nonconst_ptr, const char * error_message)
 {
 	const png_const_structrp png_ptr = png_nonconst_ptr;
 	png_imagep image = png_voidcast(png_imagep, png_ptr->error_ptr);

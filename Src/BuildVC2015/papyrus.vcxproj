@@ -1323,6 +1323,7 @@
     <ClCompile Include="..\PPLib\ppwg.cpp" />
     <ClCompile Include="..\PPLib\ppwtm.cpp" />
     <ClCompile Include="..\PPLib\prcpan.cpp" />
+    <ClCompile Include="..\PPLib\prc_billautocreate.cpp" />
     <ClCompile Include="..\PPLib\predict.cpp" />
     <ClCompile Include="..\PPLib\prnbill.cpp" />
     <ClCompile Include="..\PPLib\processr.cpp" />

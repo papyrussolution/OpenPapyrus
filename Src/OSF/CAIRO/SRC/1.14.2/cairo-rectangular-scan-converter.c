@@ -34,9 +34,9 @@
 #pragma hdrstop
 #include "cairo-combsort-inline.h"
 #include "cairo-freelist-private.h"
-#include "cairo-list-private.h"
-#include "cairo-spans-private.h"
-#include <setjmp.h>
+//#include "cairo-list-private.h"
+//#include "cairo-spans-private.h"
+//#include <setjmp.h>
 
 typedef struct _rectangle {
 	struct _rectangle * next, * prev;

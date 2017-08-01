@@ -33,15 +33,10 @@
 
 static pixman_bool_t pixman_have_vmx(void)
 {
-	int error, have_vmx;
+	int have_vmx;
 	size_t length = sizeof(have_vmx);
-
-	error = sysctlbyname("hw.optional.altivec", &have_vmx, &length, NULL, 0);
-
-	if(error)
-		return FALSE;
-
-	return have_vmx;
+	int error = sysctlbyname("hw.optional.altivec", &have_vmx, &length, NULL, 0);
+	return error ? FALSE : have_vmx;
 }
 
 #elif defined (__OpenBSD__)
@@ -51,16 +46,11 @@ static pixman_bool_t pixman_have_vmx(void)
 
 static pixman_bool_t pixman_have_vmx(void)
 {
-	int error, have_vmx;
+	int have_vmx;
 	int mib[2] = { CTL_MACHDEP, CPU_ALTIVEC };
 	size_t length = sizeof(have_vmx);
-
-	error = sysctl(mib, 2, &have_vmx, &length, NULL, 0);
-
-	if(error != 0)
-		return FALSE;
-
-	return have_vmx;
+	int error = sysctl(mib, 2, &have_vmx, &length, NULL, 0);
+	return error ? FALSE : have_vmx;
 }
 
 #elif defined (__linux__)
@@ -103,9 +93,7 @@ static pixman_bool_t pixman_have_vmx(void)
 
 static jmp_buf jump_env;
 
-static void vmx_test(int sig,
-    siginfo_t * si,
-    void *     unused)
+static void vmx_test(int sig, siginfo_t * si, void *     unused)
 {
 	longjmp(jump_env, 1);
 }
@@ -113,9 +101,7 @@ static void vmx_test(int sig,
 static pixman_bool_t pixman_have_vmx(void)
 {
 	struct sigaction sa, osa;
-
 	int jmp_result;
-
 	sa.sa_flags = SA_SIGINFO;
 	sigemptyset(&sa.sa_mask);
 	sa.sa_sigaction = vmx_test;

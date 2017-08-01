@@ -41,7 +41,7 @@
 #include "cairo-error-private.h"
 #include "cairo-types-private.h"
 #include "cairo-freelist-private.h"
-#include "cairo-list-inline.h"
+//#include "cairo-list-inline.h"
 
 enum {
     CAIRO_RTREE_NODE_AVAILABLE,

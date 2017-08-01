@@ -41,8 +41,8 @@
 #pragma hdrstop
 #include "cairo-boxes-private.h"
 #include "cairo-combsort-inline.h"
-#include "cairo-list-private.h"
-#include <setjmp.h>
+//#include "cairo-list-private.h"
+//#include <setjmp.h>
 
 typedef struct _rectangle rectangle_t;
 typedef struct _edge edge_t;

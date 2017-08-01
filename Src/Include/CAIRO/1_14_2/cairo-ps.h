@@ -41,7 +41,7 @@
 
 #if CAIRO_HAS_PS_SURFACE
 
-#include <stdio.h>
+//#include <stdio.h>
 
 CAIRO_BEGIN_DECLS
 

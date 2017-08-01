@@ -36,9 +36,9 @@
 #pragma hdrstop
 #define _BSD_SOURCE /* for snprintf() */
 #include "cairo-output-stream-private.h"
-#include "cairo-array-private.h"
-#include "cairo-compiler-private.h"
-#include <stdio.h>
+//#include "cairo-array-private.h"
+//#include "cairo-compiler-private.h"
+//#include <stdio.h>
 #include <errno.h>
 
 /* Numbers printed with %f are printed with this number of significant
@@ -107,24 +107,17 @@ typedef struct _cairo_output_stream_with_closure {
 	void * closure;
 } cairo_output_stream_with_closure_t;
 
-static cairo_status_t closure_write(cairo_output_stream_t * stream,
-    const uchar * data, uint length)
+static cairo_status_t closure_write(cairo_output_stream_t * stream, const uchar * data, uint length)
 {
-	cairo_output_stream_with_closure_t * stream_with_closure =
-	    (cairo_output_stream_with_closure_t*)stream;
-
+	cairo_output_stream_with_closure_t * stream_with_closure = (cairo_output_stream_with_closure_t*)stream;
 	if(stream_with_closure->write_func == NULL)
 		return CAIRO_STATUS_SUCCESS;
-
-	return stream_with_closure->write_func(stream_with_closure->closure,
-	    data, length);
+	return stream_with_closure->write_func(stream_with_closure->closure, data, length);
 }
 
 static cairo_status_t closure_close(cairo_output_stream_t * stream)
 {
-	cairo_output_stream_with_closure_t * stream_with_closure =
-	    (cairo_output_stream_with_closure_t*)stream;
-
+	cairo_output_stream_with_closure_t * stream_with_closure = (cairo_output_stream_with_closure_t*)stream;
 	if(stream_with_closure->close_func != NULL)
 		return stream_with_closure->close_func(stream_with_closure->closure);
 	else
@@ -153,79 +146,63 @@ cairo_output_stream_t * _cairo_output_stream_create_in_error(cairo_status_t stat
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
 	if(status == CAIRO_STATUS_WRITE_ERROR)
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil_write_error;
-
 	stream = (cairo_output_stream_t *)SAlloc::M(sizeof(cairo_output_stream_t));
 	if(unlikely(stream == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
 	}
-
 	_cairo_output_stream_init(stream, 0, 0, 0);
 	stream->status = status;
-
 	return stream;
 }
 
 cairo_status_t _cairo_output_stream_flush(cairo_output_stream_t * stream)
 {
 	cairo_status_t status;
-
 	if(stream->closed)
 		return stream->status;
-
 	if(stream == &_cairo_output_stream_nil ||
 	    stream == &_cairo_output_stream_nil_write_error) {
 		return stream->status;
 	}
-
 	if(stream->flush_func) {
 		status = stream->flush_func(stream);
 		/* Don't overwrite a pre-existing status failure. */
 		if(stream->status == CAIRO_STATUS_SUCCESS)
 			stream->status = status;
 	}
-
 	return stream->status;
 }
 
 cairo_status_t _cairo_output_stream_close(cairo_output_stream_t * stream)
 {
 	cairo_status_t status;
-
 	if(stream->closed)
 		return stream->status;
-
 	if(stream == &_cairo_output_stream_nil ||
 	    stream == &_cairo_output_stream_nil_write_error) {
 		return stream->status;
 	}
-
 	if(stream->close_func) {
 		status = stream->close_func(stream);
 		/* Don't overwrite a pre-existing status failure. */
 		if(stream->status == CAIRO_STATUS_SUCCESS)
 			stream->status = status;
 	}
-
 	stream->closed = TRUE;
-
 	return stream->status;
 }
 
 cairo_status_t _cairo_output_stream_destroy(cairo_output_stream_t * stream)
 {
 	cairo_status_t status;
-
 	assert(stream != NULL);
-
 	if(stream == &_cairo_output_stream_nil ||
 	    stream == &_cairo_output_stream_nil_write_error) {
 		return stream->status;
 	}
-
 	status = _cairo_output_stream_fini(stream);
 	SAlloc::F(stream);
-
 	return status;
 }
 
@@ -244,10 +221,8 @@ void _cairo_output_stream_write_hex_string(cairo_output_stream_t * stream, const
 	const char hex_chars[] = "0123456789abcdef";
 	char buffer[2];
 	uint i, column;
-
 	if(stream->status)
 		return;
-
 	for(i = 0, column = 0; i < length; i++, column++) {
 		if(column == 38) {
 			_cairo_output_stream_write(stream, "\n", 1);
@@ -325,7 +300,6 @@ static void _cairo_dtostr(char * buffer, size_t size, double d, cairo_bool_t lim
 		decimal_len = strlen(p + decimal_point_len);
 		memmove(p + 1, p + decimal_point_len, decimal_len);
 		p[1 + decimal_len] = 0;
-
 		/* Remove trailing zeros and decimal point if possible. */
 		for(p = p + decimal_len; *p == '0'; p--)
 			*p = 0;
@@ -349,8 +323,7 @@ enum {
  * formatting.  This functionality is only for internal use and we
  * only implement the formats we actually use.
  */
-void _cairo_output_stream_vprintf(cairo_output_stream_t * stream,
-    const char * fmt, va_list ap)
+void _cairo_output_stream_vprintf(cairo_output_stream_t * stream, const char * fmt, va_list ap)
 {
 #define SINGLE_FMT_BUFFER_SIZE 32
 	char buffer[512], single_fmt[SINGLE_FMT_BUFFER_SIZE];
@@ -474,21 +447,17 @@ void _cairo_output_stream_printf(cairo_output_stream_t * stream, const char * fm
  * are rounded down to zero. */
 #define MATRIX_ROUNDING_TOLERANCE 1e-12
 
-void _cairo_output_stream_print_matrix(cairo_output_stream_t * stream,
-    const cairo_matrix_t  * matrix)
+void _cairo_output_stream_print_matrix(cairo_output_stream_t * stream, const cairo_matrix_t  * matrix)
 {
-	cairo_matrix_t m;
-	double s, e;
-
-	m = *matrix;
-	s = fabs(m.xx);
+	double e;
+	cairo_matrix_t m = *matrix;
+	double s = fabs(m.xx);
 	if(fabs(m.xy) > s)
 		s = fabs(m.xy);
 	if(fabs(m.yx) > s)
 		s = fabs(m.yx);
 	if(fabs(m.yy) > s)
 		s = fabs(m.yy);
-
 	e = s * MATRIX_ROUNDING_TOLERANCE;
 	if(fabs(m.xx) < e)
 		m.xx = 0;
@@ -502,10 +471,7 @@ void _cairo_output_stream_print_matrix(cairo_output_stream_t * stream,
 		m.x0 = 0;
 	if(fabs(m.y0) < e)
 		m.y0 = 0;
-
-	_cairo_output_stream_printf(stream,
-	    "%f %f %f %f %f %f",
-	    m.xx, m.yx, m.xy, m.yy, m.x0, m.y0);
+	_cairo_output_stream_printf(stream, "%f %f %f %f %f %f", m.xx, m.yx, m.xy, m.yy, m.x0, m.y0);
 }
 
 long _cairo_output_stream_get_position(cairo_output_stream_t * stream)
@@ -526,23 +492,18 @@ typedef struct _stdio_stream {
 	FILE                        * file;
 } stdio_stream_t;
 
-static cairo_status_t stdio_write(cairo_output_stream_t * base,
-    const uchar * data, uint length)
+static cairo_status_t stdio_write(cairo_output_stream_t * base, const uchar * data, uint length)
 {
 	stdio_stream_t * stream = (stdio_stream_t*)base;
-
 	if(fwrite(data, 1, length, stream->file) != length)
 		return _cairo_error(CAIRO_STATUS_WRITE_ERROR);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t stdio_flush(cairo_output_stream_t * base)
 {
 	stdio_stream_t * stream = (stdio_stream_t*)base;
-
 	fflush(stream->file);
-
 	if(ferror(stream->file))
 		return _cairo_error(CAIRO_STATUS_WRITE_ERROR);
 	else
@@ -551,13 +512,9 @@ static cairo_status_t stdio_flush(cairo_output_stream_t * base)
 
 static cairo_status_t stdio_close(cairo_output_stream_t * base)
 {
-	cairo_status_t status;
 	stdio_stream_t * stream = (stdio_stream_t*)base;
-
-	status = stdio_flush(base);
-
+	cairo_status_t status = stdio_flush(base);
 	fclose(stream->file);
-
 	return status;
 }
 
@@ -611,20 +568,16 @@ typedef struct _memory_stream {
 	cairo_array_t array;
 } memory_stream_t;
 
-static cairo_status_t memory_write(cairo_output_stream_t * base,
-    const uchar * data, uint length)
+static cairo_status_t memory_write(cairo_output_stream_t * base, const uchar * data, uint length)
 {
 	memory_stream_t * stream = (memory_stream_t*)base;
-
 	return _cairo_array_append_multiple(&stream->array, data, length);
 }
 
 static cairo_status_t memory_close(cairo_output_stream_t * base)
 {
 	memory_stream_t * stream = (memory_stream_t*)base;
-
 	_cairo_array_fini(&stream->array);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

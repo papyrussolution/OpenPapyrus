@@ -291,6 +291,7 @@ class  GoodsRestFilt;
 class  SmsProtocolBuf;
 class  SrGeoNodeTbl;
 class  PPTextAnalyzerWrapper;
+class  PPViewSStat;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -34814,7 +34815,7 @@ public:
 	int    SLAPI UpdatePacket(PPID billID);
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int   SLAPI Print(const void *);
-	// 
+	//
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 private:
 	struct BrwHdr {
@@ -39382,7 +39383,7 @@ public:
 		aNone = 0,
 		aDraftByTrfrAnlz = 1, // Драфт-документы по анализу товарных операций
 		aDraftBySuspCc,       // Драфт-документы по отложенным кассовым чекам
-		aDraftBySupplOrders,  // Драфт-документы заказов опставщикам
+		aDraftBySupplOrders,  // Драфт-документы заказов поставщикам
 		aDraftByCcRule        // Драфт-документы по правилам на основе кассовых чеков
 	};
 	uint8  ReserveStart[64];
@@ -39396,6 +39397,21 @@ public:
 	SStatFilt * P_SsF;
 	CCheckFilt * P_CcF;
 	CSessFilt  * P_CsF;
+};
+
+class PrcssrBillAutoCreate {
+public:
+	SLAPI  PrcssrBillAutoCreate();
+	SLAPI ~PrcssrBillAutoCreate();
+	int    SLAPI InitParam(PPBillAutoCreateParam *);
+	int    SLAPI EditParam(PPBillAutoCreateParam *);
+	int    SLAPI Init(const PPBillAutoCreateParam *);
+	int    SLAPI Run();
+private:
+    PPViewTrfrAnlz * P_TaV;
+    PPViewSStat * P_SsV;
+    PPViewCCheck * P_CcV;
+    PPViewCSess * P_CsV;
 };
 //
 // @ModuleDecl(PPViewGoodsOpAnalyze)

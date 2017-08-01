@@ -45,15 +45,12 @@ GLOBAL(void) jpeg_CreateCompress(j_compress_ptr cinfo, int version, size_t struc
 		struct jpeg_error_mgr * err = cinfo->err;
 		void * client_data = cinfo->client_data; /* ignore Purify complaint here */
 		MEMZERO(cinfo, SIZEOF(struct jpeg_compress_struct));
-
 		cinfo->err = err;
 		cinfo->client_data = client_data;
 	}
 	cinfo->is_decompressor = FALSE;
-
 	/* Initialize a memory manager instance for this object */
 	jinit_memory_mgr((j_common_ptr)cinfo);
-
 	/* Zero out pointers to permanent structures. */
 	cinfo->progress = NULL;
 	cinfo->dest = NULL;
@@ -92,7 +89,6 @@ GLOBAL(void) jpeg_abort_compress(j_compress_ptr cinfo)
 {
 	jpeg_abort((j_common_ptr)cinfo); /* use common routine */
 }
-
 /*
  * Forcibly suppress or un-suppress all quantization and Huffman tables.
  * Marks all currently defined tables as already written (if suppress)
@@ -104,7 +100,6 @@ GLOBAL(void) jpeg_abort_compress(j_compress_ptr cinfo)
  * since it is called by jpeg_start_compress, we put it here --- otherwise
  * jcparam.o would be linked whether the application used it or not.
  */
-
 GLOBAL(void) jpeg_suppress_tables(j_compress_ptr cinfo, boolean suppress)
 {
 	int i;
@@ -121,14 +116,12 @@ GLOBAL(void) jpeg_suppress_tables(j_compress_ptr cinfo, boolean suppress)
 			htbl->sent_table = suppress;
 	}
 }
-
 /*
  * Finish JPEG compression.
  *
  * If a multipass operating mode was selected, this may do a great deal of
  * work including most of the actual output.
  */
-
 GLOBAL(void) jpeg_finish_compress(j_compress_ptr cinfo)
 {
 	JDIMENSION iMCU_row;
@@ -163,14 +156,12 @@ GLOBAL(void) jpeg_finish_compress(j_compress_ptr cinfo)
 	/* We can use jpeg_abort to release memory and reset global_state */
 	jpeg_abort((j_common_ptr)cinfo);
 }
-
 /*
  * Write a special marker.
  * This is only recommended for writing COM or APPn markers.
  * Must be called after jpeg_start_compress() and before
  * first call to jpeg_write_scanlines() or jpeg_write_raw_data().
  */
-
 GLOBAL(void) jpeg_write_marker(j_compress_ptr cinfo, int marker, const JOCTET *dataptr, uint datalen)
 {
 	JMETHOD(void, write_marker_byte, (j_compress_ptr info, int val));

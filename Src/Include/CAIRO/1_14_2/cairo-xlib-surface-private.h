@@ -36,9 +36,8 @@
 #include "cairo-xlib-xrender-private.h"
 #include "cairo-xlib.h"
 #include "cairo-xlib-private.h"
-
-#include "cairo-surface-private.h"
-#include "cairo-surface-backend-private.h"
+//#include "cairo-surface-private.h"
+//#include "cairo-surface-backend-private.h"
 
 
 #endif /* CAIRO_XLIB_SURFACE_PRIVATE_H */

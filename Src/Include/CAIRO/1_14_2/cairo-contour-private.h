@@ -36,12 +36,11 @@
 #ifndef CAIRO_CONTOUR_PRIVATE_H
 #define CAIRO_CONTOUR_PRIVATE_H
 
-#include "cairo-types-private.h"
-#include "cairo-compiler-private.h"
-#include "cairo-error-private.h"
-#include "cairo-list-private.h"
-
-#include <stdio.h>
+//#include "cairo-types-private.h"
+//#include "cairo-compiler-private.h"
+//#include "cairo-error-private.h"
+//#include "cairo-list-private.h"
+//#include <stdio.h>
 
 CAIRO_BEGIN_DECLS
 

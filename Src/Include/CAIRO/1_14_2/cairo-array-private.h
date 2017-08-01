@@ -38,8 +38,8 @@
 #ifndef CAIRO_ARRAY_PRIVATE_H
 #define CAIRO_ARRAY_PRIVATE_H
 
-#include "cairo-compiler-private.h"
-#include "cairo-types-private.h"
+//#include "cairo-compiler-private.h"
+//#include "cairo-types-private.h"
 
 CAIRO_BEGIN_DECLS
 

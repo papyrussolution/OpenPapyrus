@@ -37,12 +37,10 @@
 #define CAIRO_WIN32_PRIVATE_H
 
 #include "cairo-win32.h"
-
-#include "cairoint.h"
-
+//#include "cairoint.h"
 #include "cairo-device-private.h"
 #include "cairo-surface-clipper-private.h"
-#include "cairo-surface-private.h"
+//#include "cairo-surface-private.h"
 
 #ifndef SHADEBLENDCAPS
 #define SHADEBLENDCAPS 120

@@ -35,9 +35,9 @@
 #ifndef CAIRO_BOX_H
 #define CAIRO_BOX_H
 
-#include "cairo-types-private.h"
-#include "cairo-compiler-private.h"
-#include "cairo-fixed-private.h"
+//#include "cairo-types-private.h"
+//#include "cairo-compiler-private.h"
+//#include "cairo-fixed-private.h"
 
 static inline void _cairo_box_set(cairo_box_t * box, const cairo_point_t * p1, const cairo_point_t * p2)
 {

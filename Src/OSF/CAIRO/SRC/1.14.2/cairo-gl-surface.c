@@ -43,14 +43,13 @@
 #include "cairo-compositor-private.h"
 #include "cairo-default-context-private.h"
 #include "cairo-image-surface-inline.h"
-#include "cairo-surface-backend-private.h"
+//#include "cairo-surface-backend-private.h"
 
 #if CAIRO_HAS_GL_SURFACE // {
 
 #include "cairo-gl-private.h"
 
 static const cairo_surface_backend_t _cairo_gl_surface_backend;
-
 static cairo_status_t _cairo_gl_surface_flush(void * abstract_surface, unsigned flags);
 
 static cairo_bool_t _cairo_surface_is_gl(cairo_surface_t * surface)
@@ -59,14 +58,10 @@ static cairo_bool_t _cairo_surface_is_gl(cairo_surface_t * surface)
 }
 
 static cairo_bool_t _cairo_gl_get_image_format_and_type_gles2(pixman_format_code_t pixman_format,
-    GLenum * internal_format, GLenum * format,
-    GLenum * type, cairo_bool_t * has_alpha,
-    cairo_bool_t * needs_swap)
+    GLenum * internal_format, GLenum * format, GLenum * type, cairo_bool_t * has_alpha, cairo_bool_t * needs_swap)
 {
 	cairo_bool_t is_little_endian = _cairo_is_little_endian();
-
 	*has_alpha = TRUE;
-
 	switch((int)pixman_format) {
 		case PIXMAN_a8r8g8b8:
 		    *internal_format = GL_BGRA;
@@ -1382,9 +1377,7 @@ static cairo_int_status_t _cairo_gl_surface_glyphs(void * surface,
     cairo_scaled_font_t   * font,
     const cairo_clip_t    * clip)
 {
-	return _cairo_compositor_glyphs(get_compositor(surface), surface,
-	    op, source, glyphs, num_glyphs, font,
-	    clip);
+	return _cairo_compositor_glyphs(get_compositor(surface), surface, op, source, glyphs, num_glyphs, font, clip);
 }
 
 static const cairo_surface_backend_t _cairo_gl_surface_backend = {

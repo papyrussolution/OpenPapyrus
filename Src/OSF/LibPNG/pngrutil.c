@@ -2725,9 +2725,7 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep dp, int
 	 * pass.
 	 */
 #ifdef PNG_READ_INTERLACING_SUPPORTED
-	if(png_ptr->interlaced != 0 &&
-	    (png_ptr->transformations & PNG_INTERLACE) != 0 &&
-	    pass < 6 && (display == 0 ||
+	if(png_ptr->interlaced != 0 && (png_ptr->transformations & PNG_INTERLACE) != 0 && pass < 6 && (display == 0 ||
 	            /* The following copies everything for 'display' on passes 0, 2 and 4. */
 		    (display == 1 && (pass & 1) != 0))) {
 		/* Narrow images may have no bits in a pass; the caller should handle
@@ -2735,7 +2733,6 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep dp, int
 		 */
 		if(row_width <= PNG_PASS_START_COL(pass))
 			return;
-
 		if(pixel_depth < 8) {
 			/* For pixel depths up to 4 bpp the 8-pixel mask can be expanded to fit
 			 * into 32 bits, then a single loop over the bytes using the four byte
@@ -2797,20 +2794,20 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep dp, int
 
 			/* Hence generate the appropriate 'block' or 'sparkle' pixel copy mask.
 			 */
-#        define S_MASKx(p, x, d, s) (S_COPY(p, x) ? PIXEL_MASK(p, x, d, s) : 0)
-#        define B_MASKx(p, x, d, s) (B_COPY(p, x) ? PIXEL_MASK(p, x, d, s) : 0)
+#define S_MASKx(p, x, d, s) (S_COPY(p, x) ? PIXEL_MASK(p, x, d, s) : 0)
+#define B_MASKx(p, x, d, s) (B_COPY(p, x) ? PIXEL_MASK(p, x, d, s) : 0)
 
 			/* Combine 8 of these to get the full mask.  For the 1-bpp and 2-bpp
 			 * cases the result needs replicating, for the 4-bpp case the above
 			 * generates a full 32 bits.
 			 */
-#        define MASK_EXPAND(m, d) ((m)*((d)==1 ? 0x01010101 : ((d)==2 ? 0x00010001 : 1)))
+#define MASK_EXPAND(m, d) ((m)*((d)==1 ? 0x01010101 : ((d)==2 ? 0x00010001 : 1)))
 
-#        define S_MASK(p, d, s) MASK_EXPAND(S_MASKx(p, 0, d, s) + S_MASKx(p, 1, d, s) +	\
+#define S_MASK(p, d, s) MASK_EXPAND(S_MASKx(p, 0, d, s) + S_MASKx(p, 1, d, s) +	\
 	    S_MASKx(p, 2, d, s) + S_MASKx(p, 3, d, s) + S_MASKx(p, 4, d, s) + \
 	    S_MASKx(p, 5, d, s) + S_MASKx(p, 6, d, s) + S_MASKx(p, 7, d, s), d)
 
-#        define B_MASK(p, d, s) MASK_EXPAND(B_MASKx(p, 0, d, s) + B_MASKx(p, 1, d, s) +	\
+#define B_MASK(p, d, s) MASK_EXPAND(B_MASKx(p, 0, d, s) + B_MASKx(p, 1, d, s) +	\
 	    B_MASKx(p, 2, d, s) + B_MASKx(p, 3, d, s) + B_MASKx(p, 4, d, s) + \
 	    B_MASKx(p, 5, d, s) + B_MASKx(p, 6, d, s) + B_MASKx(p, 7, d, s), d)
 
@@ -2820,39 +2817,26 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep dp, int
 			 * (big endian bytes) or not.  Only the three odd-numbered passes are
 			 * required for the display/block algorithm.
 			 */
-#        define S_MASKS(d, s) { S_MASK(0, d, s), S_MASK(1, d, s), S_MASK(2, d, s), \
-				S_MASK(3, d, s), S_MASK(4, d, s), S_MASK(5, d, s) \
-}
-
-#        define B_MASKS(d, s) { B_MASK(1, d, s), B_MASK(3, d, s), B_MASK(5, d, s) }
-
-#        define DEPTH_INDEX(d) ((d)==1 ? 0 : ((d)==2 ? 1 : 2))
+#define S_MASKS(d, s) { S_MASK(0, d, s), S_MASK(1, d, s), S_MASK(2, d, s), S_MASK(3, d, s), S_MASK(4, d, s), S_MASK(5, d, s) }
+#define B_MASKS(d, s) { B_MASK(1, d, s), B_MASK(3, d, s), B_MASK(5, d, s) }
+#define DEPTH_INDEX(d) ((d)==1 ? 0 : ((d)==2 ? 1 : 2))
 
 			/* Hence the pre-compiled masks indexed by PACKSWAP (or not), depth and
 			 * then pass:
 			 */
 			static PNG_CONST uint32 row_mask[2 /*PACKSWAP*/][3 /*depth*/][6] =
 			{
-				/* Little-endian byte masks for PACKSWAP */
-				{ S_MASKS(1, 0), S_MASKS(2, 0), S_MASKS(4, 0) },
-				/* Normal (big-endian byte) masks - PNG format */
-				{ S_MASKS(1, 1), S_MASKS(2, 1), S_MASKS(4, 1) }
+				{ S_MASKS(1, 0), S_MASKS(2, 0), S_MASKS(4, 0) }, // Little-endian byte masks for PACKSWAP 
+				{ S_MASKS(1, 1), S_MASKS(2, 1), S_MASKS(4, 1) } // Normal (big-endian byte) masks - PNG format 
 			};
-
-			/* display_mask has only three entries for the odd passes, so index by
-			 * pass>>1.
-			 */
+			// display_mask has only three entries for the odd passes, so index by pass>>1.
 			static PNG_CONST uint32 display_mask[2][3][3] =
 			{
-				/* Little-endian byte masks for PACKSWAP */
-				{ B_MASKS(1, 0), B_MASKS(2, 0), B_MASKS(4, 0) },
-				/* Normal (big-endian byte) masks - PNG format */
-				{ B_MASKS(1, 1), B_MASKS(2, 1), B_MASKS(4, 1) }
+				{ B_MASKS(1, 0), B_MASKS(2, 0), B_MASKS(4, 0) }, // Little-endian byte masks for PACKSWAP 
+				{ B_MASKS(1, 1), B_MASKS(2, 1), B_MASKS(4, 1) } // Normal (big-endian byte) masks - PNG format 
 			};
 
-#        define MASK(pass, depth, display, png)	\
-	((display) ? display_mask[png][DEPTH_INDEX(depth)][pass>>1] : \
-	    row_mask[png][DEPTH_INDEX(depth)][pass])
+#define MASK(pass, depth, display, png)	((display) ? display_mask[png][DEPTH_INDEX(depth)][pass>>1] : row_mask[png][DEPTH_INDEX(depth)][pass])
 
 #else /* !PNG_USE_COMPILE_TIME_MASKS */
 			/* This is the runtime alternative: it seems unlikely that this will
@@ -2908,29 +2892,23 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep dp, int
 				++sp;
 			}
 		}
-
 		else { /* pixel_depth >= 8 */
 			unsigned int bytes_to_copy, bytes_to_jump;
-
 			/* Validate the depth - it must be a multiple of 8 */
 			if(pixel_depth & 7)
 				png_error(png_ptr, "invalid user transform pixel depth");
-
 			pixel_depth >>= 3; /* now in bytes */
 			row_width *= pixel_depth;
-
 			/* Regardless of pass number the Adam 7 interlace always results in a
 			 * fixed number of pixels to copy then to skip.  There may be a
 			 * different number of pixels to skip at the start though.
 			 */
 			{
 				unsigned int offset = PNG_PASS_START_COL(pass) * pixel_depth;
-
 				row_width -= offset;
 				dp += offset;
 				sp += offset;
 			}
-
 			/* Work out the bytes to copy. */
 			if(display != 0) {
 				/* When doing the 'block' algorithm the pixel in the pass gets
@@ -2938,18 +2916,14 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep dp, int
 				 * passes are skipped above - the entire expanded row is copied.
 				 */
 				bytes_to_copy = (1<<((6-pass)>>1)) * pixel_depth;
-
 				/* But don't allow this number to exceed the actual row width. */
 				if(bytes_to_copy > row_width)
 					bytes_to_copy = (unsigned int)/*SAFE*/ row_width;
 			}
-
 			else /* normal row; Adam7 only ever gives us one pixel to copy. */
 				bytes_to_copy = pixel_depth;
-
 			/* In Adam7 there is a constant offset between where the pixels go. */
 			bytes_to_jump = PNG_PASS_COL_OFFSET(pass) * pixel_depth;
-
 			/* And simply copy these bytes.  Some optimization is possible here,
 			 * depending on the value of 'bytes_to_copy'.  Special case the low
 			 * byte counts, which we know to be frequent.
@@ -2962,10 +2936,8 @@ void /* PRIVATE */ png_combine_row(png_const_structrp png_ptr, png_bytep dp, int
 				case 1:
 				    for(;; ) {
 					    *dp = *sp;
-
 					    if(row_width <= bytes_to_jump)
 						    return;
-
 					    dp += bytes_to_jump;
 					    sp += bytes_to_jump;
 					    row_width -= bytes_to_jump;

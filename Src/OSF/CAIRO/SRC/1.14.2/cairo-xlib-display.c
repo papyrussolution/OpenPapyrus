@@ -42,17 +42,15 @@
 #include "cairo-xlib-private.h"
 #include "cairo-xlib-xrender-private.h"
 #include "cairo-freelist-private.h"
-#include "cairo-list-inline.h"
+//#include "cairo-list-inline.h"
 
 #include <X11/Xlibint.h>        /* For XESetCloseDisplay */
 
-typedef int (*cairo_xlib_error_func_t)(Display     * display,
-    XErrorEvent * event);
+typedef int (*cairo_xlib_error_func_t)(Display * display, XErrorEvent * event);
 
 static cairo_xlib_display_t * _cairo_xlib_display_list;
 
-static int _noop_error_handler(Display     * display,
-    XErrorEvent * event)
+static int _noop_error_handler(Display * display, XErrorEvent * event)
 {
 	return False;           /* return value is ignored */
 }
@@ -61,32 +59,23 @@ static void _cairo_xlib_display_finish(void * abstract_display)
 {
 	cairo_xlib_display_t * display = abstract_display;
 	Display * dpy = display->display;
-
 	_cairo_xlib_display_fini_shm(display);
-
 	if(!cairo_device_acquire(&display->base)) {
 		cairo_xlib_error_func_t old_handler;
-
 		/* protect the notifies from triggering XErrors */
 		XSync(dpy, False);
 		old_handler = XSetErrorHandler(_noop_error_handler);
-
 		while(!cairo_list_is_empty(&display->fonts)) {
-			_cairo_xlib_font_close(cairo_list_first_entry(&display->fonts,
-				    cairo_xlib_font_t,
-				    link));
+			_cairo_xlib_font_close(cairo_list_first_entry(&display->fonts, cairo_xlib_font_t, link));
 		}
-
 		while(!cairo_list_is_empty(&display->screens)) {
 			_cairo_xlib_screen_destroy(display,
 			    cairo_list_first_entry(&display->screens,
 				    cairo_xlib_screen_t,
 				    link));
 		}
-
 		XSync(dpy, False);
 		XSetErrorHandler(old_handler);
-
 		cairo_device_release(&display->base);
 	}
 }
@@ -94,14 +83,12 @@ static void _cairo_xlib_display_finish(void * abstract_display)
 static void _cairo_xlib_display_destroy(void * abstract_display)
 {
 	cairo_xlib_display_t * display = abstract_display;
-
 	SAlloc::F(display);
 }
 
 static int _cairo_xlib_close_display(Display * dpy, XExtCodes * codes)
 {
 	cairo_xlib_display_t * display, ** prev, * next;
-
 	CAIRO_MUTEX_LOCK(_cairo_xlib_display_mutex);
 	for(display = _cairo_xlib_display_list; display; display = display->next)
 		if(display->display == dpy)

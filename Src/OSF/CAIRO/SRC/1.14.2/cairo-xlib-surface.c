@@ -62,7 +62,7 @@
 //#include "cairo-pattern-private.h"
 #include "cairo-pixman-private.h"
 #include "cairo-region-private.h"
-#include "cairo-scaled-font-private.h"
+//#include "cairo-scaled-font-private.h"
 #include "cairo-surface-snapshot-private.h"
 #include "cairo-surface-subsurface-private.h"
 

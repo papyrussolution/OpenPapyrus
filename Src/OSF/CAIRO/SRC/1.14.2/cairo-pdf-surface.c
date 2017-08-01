@@ -45,7 +45,7 @@
 #include "cairo-pdf-surface-private.h"
 #include "cairo-pdf-operators-private.h"
 #include "cairo-pdf-shading-private.h"
-#include "cairo-array-private.h"
+//#include "cairo-array-private.h"
 //#include "cairo-analysis-surface-private.h"
 #include "cairo-composite-rectangles-private.h"
 #include "cairo-default-context-private.h"

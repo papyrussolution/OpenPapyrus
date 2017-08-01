@@ -43,7 +43,7 @@
 
 #define _BSD_SOURCE /* for snprintf() */
 #include "cairo-svg.h"
-#include "cairo-array-private.h"
+//#include "cairo-array-private.h"
 //#include "cairo-analysis-surface-private.h"
 #include "cairo-default-context-private.h"
 #include "cairo-image-info-private.h"

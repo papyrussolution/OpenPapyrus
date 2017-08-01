@@ -49,7 +49,7 @@
 #include "cairo-pixman-private.h"
 #include "cairo-recording-surface-private.h"
 #include "cairo-region-private.h"
-#include "cairo-scaled-font-private.h"
+//#include "cairo-scaled-font-private.h"
 #include "cairo-surface-snapshot-private.h"
 #include "cairo-surface-subsurface-private.h"
 

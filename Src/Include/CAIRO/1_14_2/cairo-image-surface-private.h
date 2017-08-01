@@ -38,9 +38,8 @@
 #ifndef CAIRO_IMAGE_SURFACE_PRIVATE_H
 #define CAIRO_IMAGE_SURFACE_PRIVATE_H
 
-#include "cairo-surface-private.h"
-
-#include <pixman.h>
+//#include "cairo-surface-private.h"
+//#include <pixman.h>
 
 CAIRO_BEGIN_DECLS
 
@@ -79,7 +78,6 @@ struct _cairo_image_surface {
 /* A wrapper for holding pixman images returned by create_for_pattern */
 typedef struct _cairo_image_source {
 	cairo_surface_t base;
-
 	pixman_image_t * pixman_image;
 	unsigned is_opaque_solid : 1;
 } cairo_image_source_t;
@@ -88,9 +86,7 @@ cairo_private extern const cairo_surface_backend_t _cairo_image_surface_backend;
 cairo_private extern const cairo_surface_backend_t _cairo_image_source_backend;
 
 cairo_private const cairo_compositor_t * _cairo_image_mask_compositor_get(void);
-
 cairo_private const cairo_compositor_t * _cairo_image_traps_compositor_get(void);
-
 cairo_private const cairo_compositor_t * _cairo_image_spans_compositor_get(void);
 
 #define _cairo_image_default_compositor_get _cairo_image_spans_compositor_get

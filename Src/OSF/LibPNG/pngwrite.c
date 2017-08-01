@@ -457,33 +457,25 @@ void PNGAPI png_convert_from_time_t(png_timep ptime, time_t ttime)
 #endif
 
 /* Initialize png_ptr structure, and allocate any memory needed */
-PNG_FUNCTION(png_structp, PNGAPI
-    png_create_write_struct, (const char * user_png_ver, void * error_ptr,
-	    png_error_ptr error_fn, png_error_ptr warn_fn), PNG_ALLOCATED)
+PNG_ALLOCATED png_structp PNGAPI png_create_write_struct(const char * user_png_ver, void * error_ptr, png_error_ptr error_fn, png_error_ptr warn_fn)
 {
 #ifndef PNG_USER_MEM_SUPPORTED
-	png_structrp png_ptr = png_create_png_struct(user_png_ver, error_ptr,
-	    error_fn, warn_fn, 0, 0, 0);
+	png_structrp png_ptr = png_create_png_struct(user_png_ver, error_ptr, error_fn, warn_fn, 0, 0, 0);
 #else
-	return png_create_write_struct_2(user_png_ver, error_ptr, error_fn,
-	    warn_fn, 0, 0, 0);
+	return png_create_write_struct_2(user_png_ver, error_ptr, error_fn, warn_fn, 0, 0, 0);
 }
 
 /* Alternate initialize png_ptr structure, and allocate any memory needed */
-PNG_FUNCTION(png_structp, PNGAPI
-    png_create_write_struct_2, (const char * user_png_ver, void * error_ptr,
-	    png_error_ptr error_fn, png_error_ptr warn_fn, void * mem_ptr,
-	    png_malloc_ptr malloc_fn, png_free_ptr free_fn), PNG_ALLOCATED)
+PNG_ALLOCATED png_structp PNGAPI png_create_write_struct_2(const char * user_png_ver, void * error_ptr,
+	png_error_ptr error_fn, png_error_ptr warn_fn, void * mem_ptr, png_malloc_ptr malloc_fn, png_free_ptr free_fn)
 {
-	png_structrp png_ptr = png_create_png_struct(user_png_ver, error_ptr,
-	    error_fn, warn_fn, mem_ptr, malloc_fn, free_fn);
+	png_structrp png_ptr = png_create_png_struct(user_png_ver, error_ptr, error_fn, warn_fn, mem_ptr, malloc_fn, free_fn);
 #endif /* USER_MEM */
 	if(png_ptr) {
 		/* Set the zlib control values to defaults; they can be overridden by the
 		 * application after the struct has been created.
 		 */
 		png_ptr->zbuffer_size = PNG_ZBUF_SIZE;
-
 		/* The 'zlib_strategy' setting is irrelevant because png_default_claim in
 		 * pngwutil.c defaults it according to whether or not filters will be
 		 * used, and ignores this setting.
@@ -493,7 +485,6 @@ PNG_FUNCTION(png_structp, PNGAPI
 		png_ptr->zlib_mem_level = 8;
 		png_ptr->zlib_window_bits = 15;
 		png_ptr->zlib_method = 8;
-
 #ifdef PNG_WRITE_COMPRESSED_TEXT_SUPPORTED
 		png_ptr->zlib_text_strategy = PNG_TEXT_Z_DEFAULT_STRATEGY;
 		png_ptr->zlib_text_level = PNG_TEXT_Z_DEFAULT_COMPRESSION;

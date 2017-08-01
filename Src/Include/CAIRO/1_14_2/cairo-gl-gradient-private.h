@@ -48,7 +48,6 @@
 #include "cairo-reference-count-private.h"
 //#include "cairo-pattern-private.h"
 #include "cairo-types-private.h"
-
 #include "cairo-gl.h"
 
 #if CAIRO_HAS_GL_SURFACE

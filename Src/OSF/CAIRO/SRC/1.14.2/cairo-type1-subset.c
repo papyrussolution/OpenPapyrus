@@ -40,7 +40,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-array-private.h"
+//#include "cairo-array-private.h"
 
 #define _BSD_SOURCE /* for snprintf(), sstrdup() */
 #if CAIRO_HAS_FONT_SUBSET

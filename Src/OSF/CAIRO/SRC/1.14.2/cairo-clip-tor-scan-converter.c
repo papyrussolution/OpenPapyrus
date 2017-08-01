@@ -95,22 +95,20 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-spans-private.h"
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
-#include <setjmp.h>
+//#include "cairo-spans-private.h"
+//#include <assert.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <limits.h>
+//#include <setjmp.h>
 
 /* The input coordinate scale and the rasterisation grid scales. */
 #define GLITTER_INPUT_BITS CAIRO_FIXED_FRAC_BITS
 #define GRID_X_BITS CAIRO_FIXED_FRAC_BITS
 #define GRID_Y 15
 
-/* Set glitter up to use a cairo span renderer to do the coverage
- * blitting. */
+// Set glitter up to use a cairo span renderer to do the coverage blitting. 
 struct pool;
-
 struct cell_list;
 
 /*-------------------------------------------------------------------------
@@ -135,9 +133,9 @@ typedef struct glitter_scan_converter glitter_scan_converter_t;
 /*-------------------------------------------------------------------------
  * glitter-paths.c: Implementation internal types
  */
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <limits.h>
 
 /* All polygon coordinates are snapped onto a subsample grid. "Grid
  * scaled" numbers are fixed precision reals with multiplier GRID_X or
@@ -169,11 +167,9 @@ typedef int grid_scaled_y_t;
 #if defined(GRID_X_TO_INT_FRAC)
 /* do nothing */
 #elif defined(GRID_X_BITS)
-#  define GRID_X_TO_INT_FRAC(x, i, f) \
-	_GRID_TO_INT_FRAC_shift(x, i, f, GRID_X_BITS)
+	#define GRID_X_TO_INT_FRAC(x, i, f) _GRID_TO_INT_FRAC_shift(x, i, f, GRID_X_BITS)
 #else
-#  define GRID_X_TO_INT_FRAC(x, i, f) \
-	_GRID_TO_INT_FRAC_general(x, i, f, GRID_X)
+	#define GRID_X_TO_INT_FRAC(x, i, f) _GRID_TO_INT_FRAC_general(x, i, f, GRID_X)
 #endif
 
 #define _GRID_TO_INT_FRAC_general(t, i, f, m) do {	\
@@ -246,16 +242,11 @@ struct _pool_chunk {
 struct pool {
 	/* Chunk we're allocating from. */
 	struct _pool_chunk * current;
-
 	jmp_buf * jmp;
-
-	/* Free list of previously allocated chunks.  All have >= default
-	 * capacity. */
+	// Free list of previously allocated chunks.  All have >= default capacity. 
 	struct _pool_chunk * first_free;
-
 	/* The default capacity of a chunk. */
 	size_t default_capacity;
-
 	/* Header for the sentinel chunk.  Directly following the pool
 	 * struct should be some space for embedded elements from which
 	 * the sentinel chunk allocates from. */
@@ -395,9 +386,9 @@ struct glitter_scan_converter {
 	/* Clip box. */
 	grid_scaled_y_t ymin, ymax;
 };
-
-/* Compute the floored division a/b. Assumes / and % perform symmetric
- * division. */
+//
+// Compute the floored division a/b. Assumes / and % perform symmetric division. 
+//
 inline static struct quorem floored_divrem(int a, int b)                            
 {
 	struct quorem qr;
@@ -409,9 +400,9 @@ inline static struct quorem floored_divrem(int a, int b)
 	}
 	return qr;
 }
-
-/* Compute the floored division (x*a)/b. Assumes / and % perform symmetric
- * division. */
+//
+// Compute the floored division (x*a)/b. Assumes / and % perform symmetric division. 
+//
 static struct quorem floored_muldivrem(int x, int a, int b)                     
 {
 	struct quorem qr;

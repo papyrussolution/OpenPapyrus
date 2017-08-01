@@ -37,7 +37,7 @@
 #ifndef CAIRO_LIST_INLINE_H
 #define CAIRO_LIST_INLINE_H
 
-#include "cairo-list-private.h"
+//#include "cairo-list-private.h"
 
 #define cairo_list_entry(ptr, type, member) \
 	cairo_container_of(ptr, type, member)
@@ -106,9 +106,7 @@ static inline void cairo_list_init(cairo_list_t * entry)
 	entry->prev = entry;
 }
 
-static inline void __cairo_list_add(cairo_list_t * entry,
-    cairo_list_t * prev,
-    cairo_list_t * next)
+static inline void __cairo_list_add(cairo_list_t * entry, cairo_list_t * prev, cairo_list_t * next)
 {
 	next->prev = entry;
 	entry->next = next;

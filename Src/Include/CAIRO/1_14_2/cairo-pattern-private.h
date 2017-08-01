@@ -36,10 +36,10 @@
 #ifndef CAIRO_PATTERN_PRIVATE_H
 #define CAIRO_PATTERN_PRIVATE_H
 
-#include "cairo-error-private.h"
-#include "cairo-types-private.h"
-#include "cairo-list-private.h"
-#include "cairo-surface-private.h"
+//#include "cairo-error-private.h"
+//#include "cairo-types-private.h"
+//#include "cairo-list-private.h"
+//#include "cairo-surface-private.h"
 
 //#include <stdio.h> /* FILE* */
 

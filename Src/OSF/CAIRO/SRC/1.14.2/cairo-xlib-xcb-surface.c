@@ -45,20 +45,18 @@
 #include "cairo-xcb-private.h"
 #include "cairo-xlib-xrender-private.h"
 #include "cairo-default-context-private.h"
-#include "cairo-list-inline.h"
-#include "cairo-image-surface-private.h"
-#include "cairo-surface-backend-private.h"
+//#include "cairo-list-inline.h"
+//#include "cairo-image-surface-private.h"
+//#include "cairo-surface-backend-private.h"
 
 #include <X11/Xlib-xcb.h>
 #include <X11/Xlibint.h>        /* For XESetCloseDisplay */
 
 struct cairo_xlib_xcb_display_t {
 	cairo_device_t base;
-
 	Display        * dpy;
 	cairo_device_t * xcb_device;
 	XExtCodes      * codes;
-
 	cairo_list_t link;
 };
 
