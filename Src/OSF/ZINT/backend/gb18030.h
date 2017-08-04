@@ -29,7 +29,7 @@
     SUCH DAMAGE.
  */
 
-static const unsigned long int gb18030_twobyte_lookup[] = {
+static const /*ulong*/uint16 gb18030_twobyte_lookup[] = { // @sobolev ulong-->uint16
     0x00A4, 0xA1E8,
     0x00A7, 0xA1EC,
     0x00A8, 0xA1A7,
@@ -23972,7 +23972,7 @@ static const unsigned long int gb18030_twobyte_lookup[] = {
     0xFFE5, 0xA3A4
 };
 
-static const unsigned long int gb18030_fourbyte_lookup[] = {
+static const /*ulong*/uint16 gb18030_fourbyte_lookup[] = { // @sobolev ulong-->uint16
     0x0080, 0x8130, 0x8130,
     0x0081, 0x8130, 0x8131,
     0x0082, 0x8130, 0x8132,

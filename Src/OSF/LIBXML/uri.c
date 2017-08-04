@@ -925,7 +925,7 @@ xmlURIPtr xmlParseURIRaw(const char * str, int raw)
  */
 xmlURIPtr xmlCreateURI()
 {
-	xmlURIPtr ret = (xmlURIPtr)SAlloc::M(sizeof(xmlURI));
+	xmlURI * ret = (xmlURI *)SAlloc::M(sizeof(xmlURI));
 	if(!ret) {
 		xmlURIErrMemory("creating URI structure\n");
 		return 0;
@@ -1548,7 +1548,7 @@ xmlChar * xmlURIEscapeStr(const xmlChar * str, const xmlChar * list)
 	if(str == NULL)
 		return 0;
 	if(str[0] == 0)
-		return(xmlStrdup(str));
+		return sstrdup(str);
 	len = sstrlen(str);
 	if(!(len > 0))
 		return 0;
@@ -1754,11 +1754,11 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 	}
 	if(ret != 0)
 		goto done;
-	if((ref != NULL) && (ref->scheme != NULL)) {
+	if(ref && ref->scheme) {
 		/*
 		 * The URI is absolute don't modify.
 		 */
-		val = xmlStrdup(URI);
+		val = sstrdup(URI);
 		goto done;
 	}
 	if(base == NULL)
@@ -1778,10 +1778,7 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 		/*
 		 * the base fragment must be ignored
 		 */
-		if(bas->fragment != NULL) {
-			SAlloc::F(bas->fragment);
-			bas->fragment = NULL;
-		}
+		ZFREE(bas->fragment);
 		val = xmlSaveUri(bas);
 		goto done;
 	}
@@ -1802,28 +1799,28 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 	if(res == NULL)
 		goto done;
 	if(!ref->scheme && !ref->path && (!ref->authority && !ref->server)) {
-		if(bas->scheme != NULL)
-			res->scheme = xmlMemStrdup(bas->scheme);
-		if(bas->authority != NULL)
-			res->authority = xmlMemStrdup(bas->authority);
-		else if(bas->server != NULL) {
-			res->server = xmlMemStrdup(bas->server);
-			if(bas->user != NULL)
-				res->user = xmlMemStrdup(bas->user);
+		if(bas->scheme)
+			res->scheme = sstrdup(bas->scheme);
+		if(bas->authority)
+			res->authority = sstrdup(bas->authority);
+		else if(bas->server) {
+			res->server = sstrdup(bas->server);
+			if(bas->user)
+				res->user = sstrdup(bas->user);
 			res->port = bas->port;
 		}
-		if(bas->path != NULL)
-			res->path = xmlMemStrdup(bas->path);
-		if(ref->query_raw != NULL)
-			res->query_raw = xmlMemStrdup(ref->query_raw);
-		else if(ref->query != NULL)
-			res->query = xmlMemStrdup(ref->query);
-		else if(bas->query_raw != NULL)
-			res->query_raw = xmlMemStrdup(bas->query_raw);
-		else if(bas->query != NULL)
-			res->query = xmlMemStrdup(bas->query);
-		if(ref->fragment != NULL)
-			res->fragment = xmlMemStrdup(ref->fragment);
+		if(bas->path)
+			res->path = sstrdup(bas->path);
+		if(ref->query_raw)
+			res->query_raw = sstrdup(ref->query_raw);
+		else if(ref->query)
+			res->query = sstrdup(ref->query);
+		else if(bas->query_raw)
+			res->query_raw = sstrdup(bas->query_raw);
+		else if(bas->query)
+			res->query = sstrdup(bas->query);
+		if(ref->fragment)
+			res->fragment = sstrdup(ref->fragment);
 		goto step_7;
 	}
 	/*
@@ -1832,19 +1829,18 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 	 *    absolute URI and we are done.  Otherwise, the reference URI's
 	 *    scheme is inherited from the base URI's scheme component.
 	 */
-	if(ref->scheme != NULL) {
+	if(ref->scheme) {
 		val = xmlSaveUri(ref);
 		goto done;
 	}
-	if(bas->scheme != NULL)
-		res->scheme = xmlMemStrdup(bas->scheme);
-	if(ref->query_raw != NULL)
-		res->query_raw = xmlMemStrdup(ref->query_raw);
-	else if(ref->query != NULL)
-		res->query = xmlMemStrdup(ref->query);
-	if(ref->fragment != NULL)
-		res->fragment = xmlMemStrdup(ref->fragment);
-
+	if(bas->scheme)
+		res->scheme = sstrdup(bas->scheme);
+	if(ref->query_raw)
+		res->query_raw = sstrdup(ref->query_raw);
+	else if(ref->query)
+		res->query = sstrdup(ref->query);
+	if(ref->fragment)
+		res->fragment = sstrdup(ref->fragment);
 	/*
 	 * 4) If the authority component is defined, then the reference is a
 	 *    network-path and we skip to step 7.  Otherwise, the reference
@@ -1854,23 +1850,23 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 	 */
 	if(ref->authority || ref->server) {
 		if(ref->authority)
-			res->authority = xmlMemStrdup(ref->authority);
+			res->authority = sstrdup(ref->authority);
 		else {
-			res->server = xmlMemStrdup(ref->server);
+			res->server = sstrdup(ref->server);
 			if(ref->user)
-				res->user = xmlMemStrdup(ref->user);
+				res->user = sstrdup(ref->user);
 			res->port = ref->port;
 		}
-		if(ref->path != NULL)
-			res->path = xmlMemStrdup(ref->path);
+		if(ref->path)
+			res->path = sstrdup(ref->path);
 		goto step_7;
 	}
-	if(bas->authority != NULL)
-		res->authority = xmlMemStrdup(bas->authority);
-	else if(bas->server != NULL) {
-		res->server = xmlMemStrdup(bas->server);
-		if(bas->user != NULL)
-			res->user = xmlMemStrdup(bas->user);
+	if(bas->authority)
+		res->authority = sstrdup(bas->authority);
+	else if(bas->server) {
+		res->server = sstrdup(bas->server);
+		if(bas->user)
+			res->user = sstrdup(bas->user);
 		res->port = bas->port;
 	}
 
@@ -1878,8 +1874,8 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 	 * 5) If the path component begins with a slash character ("/"), then
 	 *    the reference is an absolute-path and we skip to step 7.
 	 */
-	if((ref->path != NULL) && (ref->path[0] == '/')) {
-		res->path = xmlMemStrdup(ref->path);
+	if(ref->path && ref->path[0] == '/') {
+		res->path = sstrdup(ref->path);
 		goto step_7;
 	}
 
@@ -1892,17 +1888,14 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 	 * Allocate a buffer large enough for the result string.
 	 */
 	len = 2; /* extra / and 0 */
-	if(ref->path != NULL)
-		len += strlen(ref->path);
-	if(bas->path != NULL)
-		len += strlen(bas->path);
+	len += sstrlen(ref->path);
+	len += sstrlen(bas->path);
 	res->path = (char*)SAlloc::M(len);
 	if(res->path == NULL) {
 		xmlURIErrMemory("resolving URI against base\n");
 		goto done;
 	}
 	res->path[0] = 0;
-
 	/*
 	 * a) All but the last segment of the base URI's path component is
 	 *    copied to the buffer.  In other words, any characters after the
@@ -1910,13 +1903,12 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 	 */
 	cur = 0;
 	out = 0;
-	if(bas->path != NULL) {
+	if(bas->path) {
 		while(bas->path[cur] != 0) {
 			while((bas->path[cur] != 0) && (bas->path[cur] != '/'))
 				cur++;
 			if(bas->path[cur] == 0)
 				break;
-
 			cur++;
 			while(out < cur) {
 				res->path[out] = bas->path[out];
@@ -1925,38 +1917,33 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 		}
 	}
 	res->path[out] = 0;
-
 	/*
 	 * b) The reference's path component is appended to the buffer
 	 *    string.
 	 */
-	if(ref->path != NULL && ref->path[0] != 0) {
+	if(ref->path && ref->path[0] != 0) {
 		indx = 0;
 		/*
 		 * Ensure the path includes a '/'
 		 */
-		if((out == 0) && (bas->server != NULL))
+		if((out == 0) && bas->server)
 			res->path[out++] = '/';
 		while(ref->path[indx] != 0) {
 			res->path[out++] = ref->path[indx++];
 		}
 	}
 	res->path[out] = 0;
-
 	/*
 	 * Steps c) to h) are really path normalization steps
 	 */
 	xmlNormalizeURIPath(res->path);
-
 step_7:
-
 	/*
 	 * 7) The resulting URI components, including any inherited from the
 	 *    base URI, are recombined to give the absolute form of the URI
 	 *    reference.
 	 */
 	val = xmlSaveUri(res);
-
 done:
 	xmlFreeURI(ref);
 	xmlFreeURI(bas);
@@ -2025,13 +2012,13 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 			goto done;  /* Error in URI, return NULL */
 	}
 	else
-		ref->path = (char*)xmlStrdup(URI);
+		ref->path = (char*)sstrdup(URI);
 
 	/*
 	 * Next parse base into the same standard form
 	 */
 	if((base == NULL) || (*base == 0)) {
-		val = xmlStrdup(URI);
+		val = sstrdup(URI);
 		goto done;
 	}
 	bas = xmlCreateURI();
@@ -2043,24 +2030,22 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 			goto done;  /* Error in base, return NULL */
 	}
 	else
-		bas->path = (char*)xmlStrdup(base);
+		bas->path = (char*)sstrdup(base);
 
 	/*
 	 * If the scheme / server on the URI differs from the base,
 	 * just return the URI
 	 */
-	if(ref->scheme && ((bas->scheme == NULL) ||
-		    (xmlStrcmp((xmlChar*)bas->scheme, (xmlChar*)ref->scheme)) ||
-		    (xmlStrcmp((xmlChar*)bas->server, (xmlChar*)ref->server)))) {
-		val = xmlStrdup(URI);
+	if(ref->scheme && ((bas->scheme == NULL) || (xmlStrcmp((xmlChar*)bas->scheme, (xmlChar*)ref->scheme)) || (xmlStrcmp((xmlChar*)bas->server, (xmlChar*)ref->server)))) {
+		val = sstrdup(URI);
 		goto done;
 	}
 	if(sstreq((xmlChar*)bas->path, (xmlChar*)ref->path)) {
-		val = xmlStrdup(BAD_CAST "");
+		val = sstrdup(BAD_CAST "");
 		goto done;
 	}
 	if(bas->path == NULL) {
-		val = xmlStrdup((xmlChar*)ref->path);
+		val = sstrdup((xmlChar*)ref->path);
 		goto done;
 	}
 	if(ref->path == NULL) {
@@ -2107,7 +2092,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 			pos++;
 
 		if(bptr[pos] == ref->path[pos]) {
-			val = xmlStrdup(BAD_CAST "");
+			val = sstrdup(BAD_CAST "");
 			goto done; /* (I can't imagine why anyone would do this) */
 		}
 
@@ -2247,9 +2232,8 @@ xmlChar * xmlCanonicPath(const xmlChar * path)
 	 * Was added specifically for OpenOffice, those paths can't be converted
 	 * to URIs anyway.
 	 */
-	if((path[0] == '\\') && (path[1] == '\\') && (path[2] == '?') &&
-	    (path[3] == '\\') )
-		return xmlStrdup((const xmlChar*)path);
+	if((path[0] == '\\') && (path[1] == '\\') && (path[2] == '?') && (path[3] == '\\') )
+		return sstrdup((const xmlChar*)path);
 #endif
 
 	/* sanitize filename starting with // so it can be used as URI */
@@ -2258,9 +2242,8 @@ xmlChar * xmlCanonicPath(const xmlChar * path)
 
 	if((uri = xmlParseURI((const char*)path)) != NULL) {
 		xmlFreeURI(uri);
-		return xmlStrdup(path);
+		return sstrdup(path);
 	}
-
 	/* Check if this is an "absolute uri" */
 	absuri = xmlStrstr(path, BAD_CAST "://");
 	if(absuri != NULL) {
@@ -2311,7 +2294,7 @@ path_processing:
 	len = sstrlen(path);
 	if((len > 2) && IS_WINDOWS_PATH(path)) {
 		/* make the scheme 'file' */
-		uri->scheme = (char *)xmlStrdup(BAD_CAST "file");
+		uri->scheme = sstrdup("file");
 		/* allocate space for leading '/' + path + string terminator */
 		uri->path = (char *)SAlloc::M(len + 2);
 		if(uri->path == NULL) {
@@ -2324,7 +2307,7 @@ path_processing:
 		strncpy((char *)p, (const char *)path, len + 1);
 	}
 	else {
-		uri->path = (char *)xmlStrdup(path);
+		uri->path = (char *)sstrdup(path);
 		if(uri->path == NULL) {
 			xmlFreeURI(uri);
 			return 0;
@@ -2338,14 +2321,14 @@ path_processing:
 		p++;
 	}
 	if(uri->scheme == NULL) {
-		ret = xmlStrdup((const xmlChar*)uri->path);
+		ret = sstrdup((const xmlChar*)uri->path);
 	}
 	else {
 		ret = xmlSaveUri(uri);
 	}
 	xmlFreeURI(uri);
 #else
-	ret = xmlStrdup((const xmlChar*)path);
+	ret = sstrdup((const xmlChar*)path);
 #endif
 	return ret;
 }
@@ -2370,7 +2353,7 @@ xmlChar * xmlPathToURI(const xmlChar * path)
 		return 0;
 	if((uri = xmlParseURI((const char*)path)) != NULL) {
 		xmlFreeURI(uri);
-		return xmlStrdup(path);
+		return sstrdup(path);
 	}
 	cal = xmlCanonicPath(path);
 	if(cal == NULL)

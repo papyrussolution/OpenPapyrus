@@ -3184,7 +3184,7 @@ static void htmlCheckEncodingDirect(htmlParserCtxtPtr ctxt, const xmlChar * enco
 		while((*encoding == ' ') || (*encoding == '\t'))
 			encoding++;
 		SAlloc::F((xmlChar*)ctxt->input->encoding);
-		ctxt->input->encoding = xmlStrdup(encoding);
+		ctxt->input->encoding = sstrdup(encoding);
 		enc = xmlParseCharEncoding((const char*)encoding);
 		/*
 		 * registered set of known encodings
@@ -3671,7 +3671,7 @@ static void htmlParseReference(htmlParserCtxtPtr ctxt) {
 static void htmlParseContent(htmlParserCtxtPtr ctxt)
 {
 	const xmlChar * name;
-	xmlChar * currentNode = xmlStrdup(ctxt->name);
+	xmlChar * currentNode = sstrdup(ctxt->name);
 	int depth = ctxt->nameNr;
 	while(1) {
 		long cons = ctxt->nbChars;
@@ -3872,7 +3872,7 @@ void htmlParseElement(htmlParserCtxtPtr ctxt)
 	/*
 	 * Parse the content of the element:
 	 */
-	currentNode = xmlStrdup(ctxt->name);
+	currentNode = sstrdup(ctxt->name);
 	depth = ctxt->nameNr;
 	while(IS_CHAR_CH(CUR)) {
 		oldptr = ctxt->input->cur;
@@ -4008,7 +4008,7 @@ static void htmlParseElementInternal(htmlParserCtxtPtr ctxt)
 static void htmlParseContentInternal(htmlParserCtxtPtr ctxt)
 {
 	const xmlChar * name;
-	xmlChar * currentNode = xmlStrdup(ctxt->name);
+	xmlChar * currentNode = sstrdup(ctxt->name);
 	int depth = ctxt->nameNr;
 	while(1) {
 		long cons = ctxt->nbChars;
@@ -4021,7 +4021,7 @@ static void htmlParseContentInternal(htmlParserCtxtPtr ctxt)
 		if((CUR == '<') && (NXT(1) == '/')) {
 			if(htmlParseEndTag(ctxt) && ((currentNode != NULL) || (ctxt->nameNr == 0))) {
 				SAlloc::F(currentNode);
-				currentNode = xmlStrdup(ctxt->name);
+				currentNode = sstrdup(ctxt->name);
 				depth = ctxt->nameNr;
 			}
 			continue; /* while */
@@ -4035,7 +4035,7 @@ static void htmlParseContentInternal(htmlParserCtxtPtr ctxt)
 					NEXT;
 				htmlParserFinishElementParsing(ctxt);
 				SAlloc::F(currentNode);
-				currentNode = xmlStrdup(ctxt->name);
+				currentNode = sstrdup(ctxt->name);
 				depth = ctxt->nameNr;
 				continue;
 			}
@@ -4053,7 +4053,7 @@ static void htmlParseContentInternal(htmlParserCtxtPtr ctxt)
 		if((ctxt->nameNr > 0) && (depth >= ctxt->nameNr) && (!sstreq(currentNode, ctxt->name))) {
 			htmlParserFinishElementParsing(ctxt);
 			SAlloc::F(currentNode);
-			currentNode = xmlStrdup(ctxt->name);
+			currentNode = sstrdup(ctxt->name);
 			depth = ctxt->nameNr;
 			continue;
 		}
@@ -4089,7 +4089,7 @@ static void htmlParseContentInternal(htmlParserCtxtPtr ctxt)
 			else if(CUR == '<') {
 				htmlParseElementInternal(ctxt);
 				SAlloc::F(currentNode);
-				currentNode = xmlStrdup(ctxt->name);
+				currentNode = sstrdup(ctxt->name);
 				depth = ctxt->nameNr;
 			}
 			/*
@@ -4449,7 +4449,7 @@ static htmlParserCtxtPtr htmlCreateDocParserCtxt(const xmlChar * cur, const char
 		xmlCharEncoding enc;
 		xmlCharEncodingHandlerPtr handler;
 		SAlloc::F((xmlChar*)ctxt->input->encoding);
-		ctxt->input->encoding = xmlStrdup((const xmlChar*)encoding);
+		ctxt->input->encoding = sstrdup((const xmlChar*)encoding);
 		enc = xmlParseCharEncoding(encoding);
 		/*
 		 * registered set of known encodings
@@ -5919,11 +5919,11 @@ static htmlDocPtr htmlDoRead(htmlParserCtxtPtr ctxt, const char * URL, const cha
 		if(hdlr) {
 			xmlSwitchToEncoding(ctxt, hdlr);
 			SAlloc::F((xmlChar*)ctxt->input->encoding);
-			ctxt->input->encoding = xmlStrdup((xmlChar*)encoding);
+			ctxt->input->encoding = sstrdup((xmlChar*)encoding);
 		}
 	}
 	if(URL && ctxt->input && (ctxt->input->filename == NULL))
-		ctxt->input->filename = (char*)xmlStrdup((const xmlChar*)URL);
+		ctxt->input->filename = sstrdup(URL);
 	htmlParseDocument(ctxt);
 	ret = ctxt->myDoc;
 	ctxt->myDoc = NULL;

@@ -599,9 +599,11 @@ int FASTCALL TDialog::getGroupData(ushort grpID, void * aData)
 CtrlGroup * FASTCALL TDialog::getGroup(ushort grpID)
 {
 	const uint _c = PP_Groups ? GrpCount : 0;
-	for(uint i = 0; i < _c; i++)
-		if(PP_Groups[i] && PP_Groups[i]->Id == grpID)
-			return PP_Groups[i];
+	for(uint i = 0; i < _c; i++) {
+		CtrlGroup * p_grp = PP_Groups[i];
+		if(p_grp && p_grp->Id == grpID)
+			return p_grp;
+	}
 	return 0;
 }
 

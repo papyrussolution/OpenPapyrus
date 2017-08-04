@@ -1421,6 +1421,7 @@
 #define PPCMD_PROCESSOSM                  1326
 #define PPCMD_TESTLOGWINDOW               1327
 #define PPCMD_PROCESSSARTRE               1328
+#define PPCMD_BILLAUTOCREATE              1329
 //
 // PPJOB definitions
 //

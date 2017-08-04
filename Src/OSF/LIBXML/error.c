@@ -435,7 +435,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 	 * Formatting the message
 	 */
 	if(msg == NULL) {
-		str = (char*)xmlStrdup(BAD_CAST "No error message provided");
+		str = sstrdup("No error message provided");
 	}
 	else {
 		XML_GET_VAR_STR(msg, str);
@@ -481,7 +481,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 	to->message = str;
 	to->level = level;
 	if(file != NULL)
-		to->file = (char*)xmlStrdup((const xmlChar*)file);
+		to->file = sstrdup(file);
 	else if(baseptr) {
 #ifdef LIBXML_XINCLUDE_ENABLED
 		/*
@@ -516,17 +516,17 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 		}
 		else
 #endif
-		to->file = (char*)xmlStrdup(baseptr->doc->URL);
+		to->file = (char *)sstrdup(baseptr->doc->URL);
 		if((to->file == NULL) && node && node->doc)
-			to->file = (char*)xmlStrdup(node->doc->URL);
+			to->file = (char*)sstrdup(node->doc->URL);
 	}
 	to->line = line;
 	if(str1)
-		to->str1 = (char*)xmlStrdup((const xmlChar*)str1);
+		to->str1 = sstrdup(str1);
 	if(str2)
-		to->str2 = (char*)xmlStrdup((const xmlChar*)str2);
+		to->str2 = sstrdup(str2);
 	if(str3)
-		to->str3 = (char*)xmlStrdup((const xmlChar*)str3);
+		to->str3 = sstrdup(str3);
 	to->int1 = int1;
 	to->int2 = col;
 	to->node = node;
@@ -833,44 +833,37 @@ void xmlCtxtResetLastError(void * ctx)
  *
  * Returns 0 in case of success and -1 in case of error.
  */
-int xmlCopyError(xmlErrorPtr from, xmlErrorPtr to) {
-	char * message, * file, * str1, * str2, * str3;
-
-	if((from == NULL) || (to == NULL))
+int xmlCopyError(xmlErrorPtr from, xmlErrorPtr to) 
+{
+	if(!from || !to)
 		return -1;
-
-	message = (char*)xmlStrdup((xmlChar*)from->message);
-	file = (char*)xmlStrdup((xmlChar*)from->file);
-	str1 = (char*)xmlStrdup((xmlChar*)from->str1);
-	str2 = (char*)xmlStrdup((xmlChar*)from->str2);
-	str3 = (char*)xmlStrdup((xmlChar*)from->str3);
-
-	if(to->message != NULL)
+	else {
+		char * message = sstrdup(from->message);
+		char * file = sstrdup(from->file);
+		char * str1 = sstrdup(from->str1);
+		char * str2 = sstrdup(from->str2);
+		char * str3 = sstrdup(from->str3);
 		SAlloc::F(to->message);
-	if(to->file != NULL)
 		SAlloc::F(to->file);
-	if(to->str1 != NULL)
 		SAlloc::F(to->str1);
-	if(to->str2 != NULL)
 		SAlloc::F(to->str2);
-	if(to->str3 != NULL)
 		SAlloc::F(to->str3);
-	to->domain = from->domain;
-	to->code = from->code;
-	to->level = from->level;
-	to->line = from->line;
-	to->node = from->node;
-	to->int1 = from->int1;
-	to->int2 = from->int2;
-	to->node = from->node;
-	to->ctxt = from->ctxt;
-	to->message = message;
-	to->file = file;
-	to->str1 = str1;
-	to->str2 = str2;
-	to->str3 = str3;
-
-	return 0;
+		to->domain = from->domain;
+		to->code = from->code;
+		to->level = from->level;
+		to->line = from->line;
+		to->node = from->node;
+		to->int1 = from->int1;
+		to->int2 = from->int2;
+		to->node = from->node;
+		to->ctxt = from->ctxt;
+		to->message = message;
+		to->file = file;
+		to->str1 = str1;
+		to->str2 = str2;
+		to->str3 = str3;
+		return 0;
+	}
 }
 
 #define bottom_error

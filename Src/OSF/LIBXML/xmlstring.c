@@ -34,7 +34,7 @@
  *
  * Returns a new xmlChar * or NULL
  */
-xmlChar * FASTCALL xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len) 
+xmlChar * xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len) 
 {
 	xmlChar * ret = 0;
 	if(cur && len >= 0) {
@@ -49,9 +49,8 @@ xmlChar * FASTCALL xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len)
 	}
 	return ret;
 }
-
 /**
- * xmlStrdup:
+ * xmlStrdup_Removed:
  * @cur:  the input xmlChar *
  *
  * a strdup for array of xmlChar's. Since they are supposed to be
@@ -60,7 +59,7 @@ xmlChar * FASTCALL xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len)
  *
  * Returns a new xmlChar * or NULL
  */
-xmlChar * FASTCALL xmlStrdup(const xmlChar * cur) 
+xmlChar * xmlStrdup_Removed(const xmlChar * cur) 
 {
 	if(!cur) 
 		return 0;
@@ -80,7 +79,6 @@ xmlChar * FASTCALL xmlStrdup(const xmlChar * cur)
  *
  * Returns a new xmlChar * or NULL
  */
-
 xmlChar * xmlCharStrndup(const char * cur, int len) 
 {
 	int i;
@@ -93,7 +91,8 @@ xmlChar * xmlCharStrndup(const char * cur, int len)
 	}
 	for(i = 0; i < len; i++) {
 		ret[i] = (xmlChar)cur[i];
-		if(ret[i] == 0) return ret;
+		if(ret[i] == 0) 
+			return ret;
 	}
 	ret[len] = 0;
 	return ret;
@@ -471,7 +470,7 @@ xmlChar * xmlStrncatNew(const xmlChar * str1, const xmlChar * str2, int len)
 	if(len < 0)
 		len = sstrlen(str2);
 	if((str2 == NULL) || (len == 0))
-		return xmlStrdup(str1);
+		return sstrdup(str1);
 	if(str1 == NULL)
 		return(xmlStrndup(str2, len));
 	size = sstrlen(str1);
@@ -504,9 +503,10 @@ xmlChar * xmlStrcat(xmlChar * cur, const xmlChar * add)
 	const xmlChar * p = add;
 	if(add == NULL) return cur;
 	if(!cur)
-		return(xmlStrdup(add));
-	while(*p != 0) p++;  /* non input consuming */
-	return(xmlStrncat(cur, add, p - add));
+		return sstrdup(add);
+	while(*p != 0) 
+		p++;  /* non input consuming */
+	return xmlStrncat(cur, add, p - add);
 }
 
 /**

@@ -3370,6 +3370,7 @@ public:
 		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 2, Data.fImportHumNames);
 		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 3, Data.fTestFlexia);
 		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 4, Data.fTestConcepts);
+		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 5, Data.fTestSyntaxParser);
 		SetClusterData(CTL_PRCRSARTR_FLAGS, Data.Flags);
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_PRCRSARTR_SRCPATH, CTL_PRCRSARTR_SRCPATH, 1, 0,
 			0, FileBrowseCtrlGroup::fbcgfPath|FileBrowseCtrlGroup::fbcgfSaveLastPath);
@@ -3770,6 +3771,9 @@ int SLAPI PrcssrSartre::Run()
 		}
 		if(P.Flags & P.fTestConcepts) {
 			TestConcept();
+		}
+		if(P.Flags & P.fTestSyntaxParser) {
+			TestSyntax();
 		}
 		/*if(!TestImport_Words_MySpell())
 			ret = -1;*/
@@ -4425,8 +4429,8 @@ class SrSyntaxRuleSet : public SStrGroup {
 public:
 	enum {
 		opUndef = 0,
-		opOr,    // | 
-		opAnd,   // & или неявная сцепка 
+		opOr,    // |
+		opAnd,   // & или неявная сцепка
 		opConcat // +
 	};
 	enum {
@@ -4436,161 +4440,44 @@ public:
 		kMorph,
 		kRule
 	};
+
+	struct ExprItem {
+		SLAPI  ExprItem();
+
+		uint16 K;
+		uint16 ArgCount; // Количество аргументов (для K == kOp)
+		union {
+			uint   SymbP; // Позиция символа в R_Set.Pool (для oneof(K, kLiteral, kConcept, kMorph, kRule))
+			uint32 Op;    // Ид операции (для K == kOp)
+		};
+		uint64 RSymb; // Идентификатор разрешенного символа SymbP в базе данных (для K == kConcept)
+	};
+
+	class ExprStack : public TSStack <ExprItem> {
+	public:
+		SLAPI  ExprStack();
+		int FASTCALL Push(const ExprStack & rS);
+	};
+
 	class Rule {
 	public:
-		Rule()
-		{
-			NameP = 0;
-		}
-
-		struct ExprItem {
-			uint16 K;
-			uint16 ArgCount; // Количество аргументов (для K == kOp)
-			union {
-				uint32 SymbP; // Позиция символа в R_Set.Pool (для oneof(K, kLiteral, kConcept, kMorph, kRule))
-				uint32 Op;    // Ид операции (для K == kOp)
-			};
-			uint64 RSymb; // Идентификатор разрешенного символа SymbP в базе данных (для K == kConcept)
-		};
+		SLAPI  Rule();
 		uint   NameP;
-		TSStack <ExprItem> ES; // Стэк выражения //
+		ExprStack ES; // Стэк выражения //
 	};
 
-	SrSyntaxRuleSet(): SStrGroup()
-	{
-	}
-	~SrSyntaxRuleSet()
-	{
-	}
-	void   SkipComment(SStrScan & rScan)
-	{
-		SString temp_buf;
-        while(rScan.Get("//", temp_buf)) {
-			if(rScan.Search("\x0D\x0A")) {
-				rScan.IncrLen();
-				rScan.Incr(2);
-			}
-			else if(rScan.Search("\n")) {
-				rScan.IncrLen();
-				rScan.Incr(2);
-			}
-        }
-	}
-	void   FASTCALL ScanSkip(SStrScan & rScan) const
-	{
-		rScan.Skip(SStrScan::wsSpace|SStrScan::wsTab|SStrScan::wsNewLine);
-	}
-	int    IsOperand(SStrScan & rScan) const
-	{
-		int    k = 0;
-		ScanSkip(rScan);
-		if(rScan.Is(':')) { // concept
-			k = kConcept;
-		}
-		else if(rScan.Is('[')) { // morph
-			k = kMorph;
-		}
-		else if(rScan.Is('#')) { // rule
-			k = kRule;
-		}
-		else if(rScan.Is('\"')) { // literal
-			k = kLiteral;
-		}
-		return k;
-	}
-	enum {
-		exprError = 0,
-		exprOperand,
-		exprRPar,
-		exprEOE
-	};
-	int    ParseExpression(SStrScan & rScan, Rule * pR)
-	{
-		int    ok = exprError;
-		uint   seq_count = 0; // Количество последовательных операндов (их соединяем операцией &)
-		SString temp_buf;
-		do {
-			ScanSkip(rScan);
-			if(rScan.Is('|')) {
-				THROW(seq_count); // @err Оператор | без предшественника
-				// push op
-			}
-			int    k = IsOperand(rScan);
-			if(k == kConcept) { // concept
-				rScan.Incr();
-				THROW(rScan.GetIdent(temp_buf)); // @err Ожидается идент концепции
-				ok = exprOperand;
-			}
-			else if(k == kMorph) { // morph
-				rScan.Incr();
-				StringSet ss;
-				ScanSkip(rScan);
-				while(rScan.GetIdent(temp_buf)) {
-					ss.add(temp_buf);
-					ScanSkip(rScan);
-				}
-				THROW(rScan.Is(']')); // @err Ожидается ]
-				rScan.Incr();
-				ok = exprOperand;
-			}
-			else if(k == kRule) { // rule
-				rScan.Incr();
-				THROW(rScan.GetIdent(temp_buf)); // @err Ожидается идент правила
-				ok = exprOperand;
-			}
-			else if(k == kLiteral) { // literal
-				THROW(rScan.GetQuotedString(temp_buf)); // @err Ошибка считывания литерала
-				ok = exprOperand;
-			}
-			else if(rScan.Is('(')) { // parents - inner expression
-				int    r;
-				rScan.Incr();
-				THROW(r = ParseExpression(rScan, 0)); // @recursion
-				ScanSkip(rScan);
-				THROW(rScan.Is(')')); // @err Ожидается )
-				ok = exprOperand;
-			}
-			else if(rScan.Is(')')) { // end of inner expression
-				ok = exprRPar;
-			}
-			else if(rScan.Is(';')) { // end of expression
-				ok = exprEOE;
-			}
-		} while(!oneof3(ok, exprError, exprRPar, exprEOE));
-		CATCHZOK
-		return ok;
-	}
-	int    ParseRule(SStrScan & rScan)
-	{
-		int    ok = 1;
-		//int    r;
-		SString temp_buf;
-		SkipComment(rScan);
-		ScanSkip(rScan);
-        THROW(rScan.GetIdent(temp_buf)); // @err Ожидается идент правила
-		ScanSkip(rScan);
-		THROW(rScan.Is("=")); // @err Ожидается '='
-		ScanSkip(rScan);
-		do {
-			Rule * p_rule = RL.CreateNewItem();
-			THROW_SL(p_rule);
-			THROW_SL(AddS(temp_buf, &p_rule->NameP));
-			THROW(ParseExpression(rScan, p_rule) == exprEOE);
-		} while(1);
-        CATCHZOK
-        return ok;
-	}
-	int    Parse(SString & rS)
-	{
-		int    ok = 1;
-		State = 0;
-		SStrScan scan(rS);
-		while(!(State & stEof)) {
-			THROW(ParseRule(scan));
-		}
-        CATCHZOK
-		return ok;
-	}
+	SLAPI  SrSyntaxRuleSet();
+	SLAPI ~SrSyntaxRuleSet();
+	void   FASTCALL SkipComment(SStrScan & rScan);
+	void   FASTCALL ScanSkip(SStrScan & rScan) const;
+	int    FASTCALL IsOperand(SStrScan & rScan) const;
+	int    SLAPI ParseExpression(SStrScan & rScan, ExprStack & rS, int untilChr);
+	int    SLAPI ParseRule(SStrScan & rScan);
+	int    SLAPI Parse(SString & rS);
+
+	int    SLAPI ExprItemToStr(ExprStack & rS, const ExprItem & rI, SString & rBuf) const;
+	int    SLAPI ExprStackToStr(ExprStack & rS, SString & rBuf) const;
+	int    SLAPI RuleToString(const Rule * pR, SString & rBuf) const;
 
 	enum {
 		stEof = 0x0001
@@ -4599,9 +4486,343 @@ public:
 	TSCollection <Rule> RL;
 };
 
-class SrSyntaxRuleParser {
-public:
-	SrSyntaxRuleParser();
-	~SrSyntaxRuleParser();
+SLAPI SrSyntaxRuleSet::ExprItem::ExprItem()
+{
+	THISZERO();
+}
 
-};
+SLAPI SrSyntaxRuleSet::ExprStack::ExprStack() : TSStack <ExprItem>()
+{
+}
+
+int FASTCALL SrSyntaxRuleSet::ExprStack::Push(const ExprStack & rS)
+{
+	int    ok = -1;
+    for(uint i = 0; i < rS.getPointer(); i++) {
+        push(*(ExprItem *)rS.at(i));
+        ok = 1;
+    }
+    return ok;
+}
+
+SLAPI SrSyntaxRuleSet::Rule::Rule()
+{
+	NameP = 0;
+}
+
+int SLAPI SrSyntaxRuleSet::ExprItemToStr(ExprStack & rS, const ExprItem & rI, SString & rBuf) const
+{
+	int    ok = 1;
+	SString temp_buf;
+	if(rI.K == kOp) {
+		uint arg_count = rI.ArgCount;
+		if(rI.Op == opAnd)
+			rBuf.CatDiv('&', 1);
+		else if(rI.Op == opOr)
+			rBuf.CatDiv('|', 1);
+		else if(rI.Op == opConcat)
+			rBuf.CatDiv('+', 1);
+		else
+			rBuf.CatDiv('?', 1);
+		rBuf.CatChar('(');
+		for(uint i = 0; i < arg_count; i++) {
+			ExprItem operand;
+			THROW(rS.pop(operand));
+			THROW(ExprItemToStr(rS, operand, rBuf));
+		}
+		rBuf.CatChar(')');
+	}
+	else if(rI.K == kLiteral) {
+		GetS(rI.SymbP, temp_buf);
+		rBuf.CatChar('\"').Cat(temp_buf).CatChar('\"');
+	}
+	else if(rI.K == kConcept) {
+		GetS(rI.SymbP, temp_buf);
+		rBuf.CatChar(':').Cat(temp_buf).Space();
+	}
+	else if(rI.K == kMorph) {
+		GetS(rI.SymbP, temp_buf);
+		rBuf.CatChar('[').Cat(temp_buf).CatChar(']');
+	}
+	else if(rI.K == kRule) {
+		GetS(rI.SymbP, temp_buf);
+		rBuf.CatChar('#').Cat(temp_buf).Space();
+	}
+	else {
+		GetS(rI.SymbP, temp_buf);
+		rBuf.Cat("???").Cat(temp_buf).Space();
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI SrSyntaxRuleSet::ExprStackToStr(ExprStack & rS, SString & rBuf) const
+{
+	int    ok = 1;
+	ExprItem item;
+	if(rS.pop(item)) {
+		THROW(ExprItemToStr(rS, item, rBuf));
+	}
+	rBuf.Semicol();
+	if(rS.getPointer()) {
+		CALLEXCEPT();
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI SrSyntaxRuleSet::RuleToString(const Rule * pR, SString & rBuf) const
+{
+	int    ok = 1;
+	rBuf = 0;
+	if(pR) {
+		SString temp_buf;
+		GetS(pR->NameP, temp_buf);
+		rBuf.Cat(temp_buf).CatChar('=');
+		{
+			ExprStack temp_es = pR->ES;
+			ExprStackToStr(temp_es, rBuf);
+		}
+	}
+	return ok;
+}
+
+SLAPI SrSyntaxRuleSet::SrSyntaxRuleSet(): SStrGroup()
+{
+}
+
+SLAPI SrSyntaxRuleSet::~SrSyntaxRuleSet()
+{
+}
+
+void FASTCALL SrSyntaxRuleSet::SkipComment(SStrScan & rScan)
+{
+	SString temp_buf;
+    while(rScan.Get("//", temp_buf)) {
+		if(rScan.Search("\x0D\x0A")) {
+			rScan.IncrLen();
+			rScan.Incr(2);
+		}
+		else if(rScan.Search("\n")) {
+			rScan.IncrLen();
+			rScan.Incr(2);
+		}
+    }
+}
+
+void FASTCALL SrSyntaxRuleSet::ScanSkip(SStrScan & rScan) const
+{
+	rScan.Skip(SStrScan::wsSpace|SStrScan::wsTab|SStrScan::wsNewLine);
+}
+
+int FASTCALL SrSyntaxRuleSet::IsOperand(SStrScan & rScan) const
+{
+	int    k = 0;
+	ScanSkip(rScan);
+	if(rScan.Is(':')) // concept
+		k = kConcept;
+	else if(rScan.Is('[')) // morph
+		k = kMorph;
+	else if(rScan.Is('#')) // rule
+		k = kRule;
+	else if(rScan.Is('\"')) // literal
+		k = kLiteral;
+	return k;
+}
+
+int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int untilChr)
+{
+	int    ok = -1;
+	uint   seq_count = 0; // Количество последовательных операндов (их соединяем операцией &)
+	SString temp_buf;
+	ExprStack stack_temp;
+	int    k = IsOperand(rScan);
+	if(k == kConcept) { // concept
+		rScan.Incr();
+		THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_CONCEPTIDEXPECTED); // @err Ожидается идент концепции
+		{
+			ExprItem item;
+			item.K = kConcept;
+			AddS(temp_buf, &item.SymbP);
+			stack_temp.push(item);
+		}
+	}
+	else if(k == kMorph) { // morph
+		rScan.Incr();
+		StringSet ss(" ");
+		ScanSkip(rScan);
+		while(rScan.GetIdent(temp_buf)) {
+			ss.add(temp_buf.ToLower());
+			ScanSkip(rScan);
+		}
+		THROW_PP(rScan.Is(']'), PPERR_SR_S_RBRACKEXPECTED); // @err Ожидается ]
+		rScan.Incr();
+		{
+			ExprItem item;
+			item.K = kMorph;
+			temp_buf = ss.getBuf();
+			AddS(temp_buf, &item.SymbP);
+			stack_temp.push(item);
+		}
+	}
+	else if(k == kRule) { // rule
+		rScan.Incr();
+		THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_RULEIDEXPECTED); // @err Ожидается идент правила
+		{
+			ExprItem item;
+			item.K = kRule;
+			AddS(temp_buf, &item.SymbP);
+			stack_temp.push(item);
+		}
+	}
+	else if(k == kLiteral) { // literal
+		THROW_PP(rScan.GetQuotedString(temp_buf), PPERR_SR_S_LITERAL); // @err Ошибка считывания литерала
+		{
+			ExprItem item;
+			item.K = kLiteral;
+			AddS(temp_buf, &item.SymbP);
+			stack_temp.push(item);
+		}
+	}
+	else if(rScan.Is('(')) { // parents - inner expression
+		int    r;
+		rScan.Incr();
+		THROW(r = ParseExpression(rScan, stack_temp, ')')); // @recursion
+	}
+	if(ok < 0) {
+		int   next_k = IsOperand(rScan);
+		int   op = 0;
+		if(next_k)
+			op = opAnd;
+		else if(rScan.Is('(')) { // Далее: сложный операнд () после неявной операции AND
+			// Символ не "съедаем" - он нужен рекурентному вызову ParseExpression следующему далее
+			op = opAnd; 
+		}
+		else if(rScan.Is('&')) {
+			rScan.Incr();
+			op = opAnd;
+		}
+		else if(rScan.Is('|')) {
+			rScan.Incr();
+			op = opOr;
+		}
+		else if(rScan.Is('+')) {
+			rScan.Incr();
+			op = opConcat;
+		}
+		else if(rScan.Is(')')) { // end of inner expression
+			THROW_PP(untilChr == ')', PPERR_SR_S_RPAREXPECTED); // @err unexpected ')'
+			if(stack_temp.getPointer()) {
+				rS.Push(stack_temp);
+			}
+			rScan.Incr();
+			ok = 1;
+		}
+		else if(rScan.Is(';')) { // end of expression
+			THROW_PP(untilChr == ';', PPERR_SR_S_SEMICOLEXPECTED); // @err unexpected ';'
+			if(stack_temp.getPointer()) {
+				rS.Push(stack_temp);
+			}
+			rScan.Incr();
+			ok = 1;
+		}
+		else {
+			ok = 0; // @err invalid construction rScan
+		}
+		if(ok < 0) {
+			THROW_PP(op, PPERR_SR_S_OPOROPDEXPECTED); // @err expected operator or operand
+			THROW_PP(stack_temp.getPointer(), PPERR_SR_S_UNEXPOPERATOR); // @err Unexpected operator (left operand is empty)
+			{
+				ExprItem op_item;
+				op_item.K = kOp;
+				op_item.Op = op;
+				op_item.ArgCount = 2;
+				//
+				ExprStack stack_right;
+				THROW(ParseExpression(rScan, stack_right, untilChr)); // @recursion
+				rS.Push(stack_right);
+				rS.Push(stack_temp);
+				rS.push(op_item);
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI SrSyntaxRuleSet::ParseRule(SStrScan & rScan)
+{
+	int    ok = 1;
+	int    r;
+	ExprStack stack_left;
+	ExprStack stack_right;
+	SString temp_buf;
+	SkipComment(rScan);
+	ScanSkip(rScan);
+    THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_RULEIDEXPECTED); // @err Ожидается идент правила
+	ScanSkip(rScan);
+	THROW_PP(rScan.Is("="), PPERR_SR_S_EQEXPECTED); // @err Ожидается '='
+	rScan.Incr();
+	ScanSkip(rScan);
+	{
+		Rule * p_rule = RL.CreateNewItem();
+		THROW_SL(p_rule);
+		THROW_SL(AddS(temp_buf, &p_rule->NameP));
+		THROW(r = ParseExpression(rScan, p_rule->ES, ';'));
+	}
+    CATCHZOK
+    return ok;
+}
+	
+int SLAPI SrSyntaxRuleSet::Parse(SString & rS)
+{
+	int    ok = 1;
+	State = 0;
+	SStrScan scan(rS);
+	do {
+		THROW(ParseRule(scan));
+		ScanSkip(scan);
+	} while(scan[0] != 0);
+    CATCHZOK
+	return ok;
+}
+
+int SLAPI SrParsSyntaxRules(const char * pFileName, SrSyntaxRuleSet & rSs)
+{
+	int    ok = -1;
+	return ok;
+}
+
+int SLAPI PrcssrSartre::TestSyntax()
+{
+	int    ok = 1;
+	SString src_file_name;
+	SString out_file_name;
+	SString line_buf;
+	SString src_buf;
+	(src_file_name = P.SrcPath).SetLastSlash().Cat("syntax-test.txt");
+	SFile f_in(src_file_name, SFile::mRead);
+	THROW_SL(f_in.IsValid());
+	while(f_in.ReadLine(line_buf)) {
+		src_buf.Cat(line_buf);
+	}
+	{
+		(src_file_name = P.SrcPath).SetLastSlash().Cat("syntax-test.out");
+		SFile f_out(src_file_name, SFile::mWrite);
+		THROW_SL(f_out.IsValid());
+		{
+			SrSyntaxRuleSet srs;
+			THROW(srs.Parse(src_buf));
+			for(uint i = 0; i < srs.RL.getCount(); i++) {
+				const SrSyntaxRuleSet::Rule * p_rule = srs.RL.at(i);
+				if(p_rule) {
+					srs.RuleToString(p_rule, line_buf);
+					line_buf.CR();
+					f_out.WriteLine(line_buf);
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}

@@ -371,7 +371,7 @@ static xmlSaveCtxtPtr xmlNewSaveCtxt(const char * encoding, int options)
 			xmlFreeSaveCtxt(ret);
 			return 0;
 		}
-		ret->encoding = xmlStrdup((const xmlChar*)encoding);
+		ret->encoding = sstrdup((const xmlChar*)encoding);
 		ret->escape = NULL;
 	}
 	xmlSaveCtxtInit(ret);
@@ -1974,7 +1974,7 @@ void xmlBufAttrSerializeTxtContent(xmlBufPtr buf, xmlDocPtr doc, xmlAttrPtr attr
 				if(*cur < 0xC0) {
 					xmlSaveErr(XML_SAVE_NOT_UTF8, (xmlNode *)attr, 0);
 					if(doc)
-						doc->encoding = xmlStrdup(BAD_CAST "ISO-8859-1");
+						doc->encoding = sstrdup(BAD_CAST "ISO-8859-1");
 					xmlSerializeHexCharRef(tmp, *cur);
 					xmlBufAdd(buf, (xmlChar*)tmp, -1);
 					cur++;
@@ -2008,7 +2008,7 @@ void xmlBufAttrSerializeTxtContent(xmlBufPtr buf, xmlDocPtr doc, xmlAttrPtr attr
 				if((l == 1) || (!IS_CHAR(val))) {
 					xmlSaveErr(XML_SAVE_CHAR_INVALID, (xmlNode *)attr, 0);
 					if(doc)
-						doc->encoding = xmlStrdup(BAD_CAST "ISO-8859-1");
+						doc->encoding = sstrdup(BAD_CAST "ISO-8859-1");
 					xmlSerializeHexCharRef(tmp, *cur);
 					xmlBufAdd(buf, (xmlChar*)tmp, -1);
 					cur++;

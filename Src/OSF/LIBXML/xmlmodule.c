@@ -72,7 +72,7 @@ xmlModulePtr xmlModuleOpen(const char * name, int options ATTRIBUTE_UNUSED)
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_OPEN, XML_ERR_FATAL, NULL, 0, 0, name, NULL, 0, 0, "failed to open %s\n", name);
 		return 0;
 	}
-	module->name = xmlStrdup((const xmlChar*)name);
+	module->name = sstrdup((const xmlChar*)name);
 	return (module);
 }
 /**

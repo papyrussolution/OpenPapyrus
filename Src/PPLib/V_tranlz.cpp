@@ -612,9 +612,9 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 		if((Filt.Flags & TrfrAnlzFilt::fCalcRest) && ((Flags & fShowSaldo) || Filt.Sgg || !oneof2(Filt.Grp, TrfrAnlzFilt::gGoods, TrfrAnlzFilt::gGoodsDate)))
 			Filt.Flags &= ~(TrfrAnlzFilt::fCalcRest|TrfrAnlzFilt::fCalcAvgRest);
 		//
-		if(Filt.CtKind == TrfrAnlzFilt::ctDate && !oneof3(Filt.Grp, TrfrAnlzFilt::gCntragentDate, TrfrAnlzFilt::gGoodsCntragentDate, TrfrAnlzFilt::gGoodsDate))
+		if(Filt.CtKind == TrfrAnlzFilt::ctDate && !Filt.HasDateGrouping())
 			Filt.CtKind = TrfrAnlzFilt::ctNone;
-		else if(Filt.CtKind == TrfrAnlzFilt::ctCntragent && !oneof5(Filt.Grp, TrfrAnlzFilt::gCntragentDate, TrfrAnlzFilt::gGoodsCntragent, TrfrAnlzFilt::gGoodsCntragentDate, TrfrAnlzFilt::gDateCntragentAgentGoods, TrfrAnlzFilt::gBillCntragent))
+		else if(Filt.CtKind == TrfrAnlzFilt::ctCntragent && !Filt.HasCntragentGrouping())
 			Filt.CtKind = TrfrAnlzFilt::ctNone;
 		if(Filt.CtKind && Filt.CtValList.CheckID(TrfrAnlzFilt::ctvLocCount) > 0)
 			Filt.Flags |= TrfrAnlzFilt::fInitLocCount;
@@ -2635,9 +2635,7 @@ int SLAPI PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 				psn_id   = rec.PersonID/* & (~ARTICLE_MASK)*/;
 				goods_id = rec.GoodsID;
 				if(!oneof2(Filt.Sgp, sgpBillAgent, sgpVesselAgent)) {
-					if(oneof6(Filt.Grp, TrfrAnlzFilt::gCntragent, TrfrAnlzFilt::gCntragentDate,
-						TrfrAnlzFilt::gGoodsCntragent, TrfrAnlzFilt::gGoodsCntragentDate,
-						TrfrAnlzFilt::gBillCntragent, TrfrAnlzFilt::gDateCntragentAgentGoods)) {
+					if(Filt.HasCntragentGrouping()) {
 						// @v9.0.9 {
 						if(Filt.Sgp == sgpCity) {
 							flt.CityID = psn_id;
@@ -2656,7 +2654,7 @@ int SLAPI PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 						}
 					}
 				}
-				if(oneof2(Filt.Grp, TrfrAnlzFilt::gBillCntragent, TrfrAnlzFilt::gGoodsBill))
+				if(Filt.HasBillGrouping())
 					flt.BillList.Add(rec.BillID);
 				if(rec.Dt)
 					ExpandSubstDate(Filt.Sgd, rec.Dt, &flt.Period);
@@ -2689,8 +2687,7 @@ int SLAPI PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 					flt.AgentList.Set(0);
 					flt.Flags |= TrfrAnlzFilt::fByZeroAgent;
 				}
-				if(oneof5(Filt.Grp, TrfrAnlzFilt::gGoods, TrfrAnlzFilt::gGoodsCntragent,
-					TrfrAnlzFilt::gGoodsCntragentDate, TrfrAnlzFilt::gGoodsDate, TrfrAnlzFilt::gDateCntragentAgentGoods)) {
+				if(Filt.HasGoodsGrouping()) {
 					switch(Filt.Sgg) {
 						case sggGroup: flt.GoodsGrpID = goods_id; break;
 						case sggBrand: flt.BrandID = goods_id; break;
@@ -3082,11 +3079,11 @@ public:
 	{
 		if(!RVALUEPTR(Data, pData))
 			Data.Init(1, 0);
-		if(!oneof3(Data.Grp, TrfrAnlzFilt::gCntragentDate, TrfrAnlzFilt::gGoodsCntragentDate, TrfrAnlzFilt::gGoodsDate)) {
+		if(!Data.HasDateGrouping()) {
 			DisableClusterItem(CTL_TAC_KIND, 1, 1);
 			Data.CtKind = (Data.CtKind == TrfrAnlzFilt::ctDate) ? TrfrAnlzFilt::ctNone : Data.CtKind;
 		}
-		if(!oneof5(Data.Grp, TrfrAnlzFilt::gCntragentDate, TrfrAnlzFilt::gGoodsCntragent, TrfrAnlzFilt::gGoodsCntragentDate, TrfrAnlzFilt::gDateCntragentAgentGoods, TrfrAnlzFilt::gBillCntragent)) {
+		if(!Data.HasCntragentGrouping()) {
 			DisableClusterItem(CTL_TAC_KIND, 2, 1);
 			Data.CtKind = (Data.CtKind == TrfrAnlzFilt::ctCntragent) ? TrfrAnlzFilt::ctNone : Data.CtKind;
 		}

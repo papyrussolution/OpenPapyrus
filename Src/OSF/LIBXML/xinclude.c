@@ -199,10 +199,7 @@ static xmlXIncludeRefPtr xmlXIncludeNewRef(xmlXIncludeCtxtPtr ctxt, const xmlCha
 		return 0;
 	}
 	memzero(ret, sizeof(xmlXIncludeRef));
-	if(URI == NULL)
-		ret->URI = NULL;
-	else
-		ret->URI = xmlStrdup(URI);
+	ret->URI = sstrdup(URI);
 	ret->fragment = NULL;
 	ret->ref = ref;
 	ret->doc = NULL;
@@ -300,7 +297,7 @@ static int xmlXIncludeURLPush(xmlXIncludeCtxtPtr ctxt, const xmlChar * value)
 			return -1;
 		}
 	}
-	ctxt->url = ctxt->urlTab[ctxt->urlNr] = xmlStrdup(value);
+	ctxt->url = ctxt->urlTab[ctxt->urlNr] = sstrdup(value);
 	return (ctxt->urlNr++);
 }
 /**
@@ -332,29 +329,29 @@ static void xmlXIncludeURLPop(xmlXIncludeCtxtPtr ctxt)
  */
 void xmlXIncludeFreeContext(xmlXIncludeCtxtPtr ctxt)
 {
-	int i;
 #ifdef DEBUG_XINCLUDE
 	xmlGenericError(0, "Freeing context\n");
 #endif
-	if(!ctxt)
-		return;
-	while(ctxt->urlNr > 0)
-		xmlXIncludeURLPop(ctxt);
-	SAlloc::F(ctxt->urlTab);
-	for(i = 0; i < ctxt->incNr; i++) {
-		if(ctxt->incTab[i] != NULL)
-			xmlXIncludeFreeRef(ctxt->incTab[i]);
-	}
-	if(ctxt->txturlTab != NULL) {
-		for(i = 0; i < ctxt->txtNr; i++) {
-			SAlloc::F(ctxt->txturlTab[i]);
+	if(ctxt) {
+		int i;
+		while(ctxt->urlNr > 0)
+			xmlXIncludeURLPop(ctxt);
+		SAlloc::F(ctxt->urlTab);
+		for(i = 0; i < ctxt->incNr; i++) {
+			if(ctxt->incTab[i] != NULL)
+				xmlXIncludeFreeRef(ctxt->incTab[i]);
 		}
+		if(ctxt->txturlTab != NULL) {
+			for(i = 0; i < ctxt->txtNr; i++) {
+				SAlloc::F(ctxt->txturlTab[i]);
+			}
+		}
+		SAlloc::F(ctxt->incTab);
+		SAlloc::F(ctxt->txtTab);
+		SAlloc::F(ctxt->txturlTab);
+		SAlloc::F(ctxt->base);
+		SAlloc::F(ctxt);
 	}
-	SAlloc::F(ctxt->incTab);
-	SAlloc::F(ctxt->txtTab);
-	SAlloc::F(ctxt->txturlTab);
-	SAlloc::F(ctxt->base);
-	SAlloc::F(ctxt);
 }
 
 /**
@@ -447,7 +444,7 @@ static int xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr cur)
 	 */
 	href = xmlXIncludeGetProp(ctxt, cur, XINCLUDE_HREF);
 	if(href == NULL) {
-		href = xmlStrdup(BAD_CAST ""); /* @@@@ href is now optional */
+		href = sstrdup(BAD_CAST ""); /* @@@@ href is now optional */
 		if(href == NULL)
 			return -1;
 	}
@@ -613,12 +610,10 @@ static void xmlXIncludeRecurseDoc(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc,
 		newctxt->urlMax = ctxt->urlMax;
 		newctxt->urlNr = ctxt->urlNr;
 		newctxt->urlTab = ctxt->urlTab;
-
 		/*
 		 * Inherit the existing base
 		 */
-		newctxt->base = xmlStrdup(ctxt->base);
-
+		newctxt->base = sstrdup(ctxt->base);
 		/*
 		 * Inherit the documents already in use by other includes
 		 */
@@ -697,7 +692,7 @@ static void xmlXIncludeAddTxt(xmlXIncludeCtxtPtr ctxt, xmlNodePtr txt, const xml
 		}
 	}
 	ctxt->txtTab[ctxt->txtNr] = txt;
-	ctxt->txturlTab[ctxt->txtNr] = xmlStrdup(url);
+	ctxt->txturlTab[ctxt->txtNr] = sstrdup(url);
 	ctxt->txtNr++;
 }
 
@@ -1158,11 +1153,17 @@ static xmlNodePtr xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDocPtr tar
 *									*
 ************************************************************************/
 
-typedef struct _xmlXIncludeMergeData xmlXIncludeMergeData;
-typedef xmlXIncludeMergeData * xmlXIncludeMergeDataPtr;
-struct _xmlXIncludeMergeData {
-	xmlDocPtr doc;
-	xmlXIncludeCtxtPtr ctxt;
+//typedef struct _xmlXIncludeMergeData xmlXIncludeMergeData;
+//typedef xmlXIncludeMergeData * xmlXIncludeMergeDataPtr;
+
+struct xmlXIncludeMergeData {
+	xmlXIncludeMergeData(xmlXIncludeCtxt * pCtx, xmlDoc * pDoc)
+	{
+		ctxt = pCtx;
+		doc = pDoc;
+	}
+	xmlDoc * doc;
+	xmlXIncludeCtxt * ctxt;
 };
 
 /**
@@ -1173,12 +1174,11 @@ struct _xmlXIncludeMergeData {
  *
  * Inplements the merge of one entity
  */
-static void xmlXIncludeMergeEntity(xmlEntityPtr ent, xmlXIncludeMergeDataPtr data,
-    xmlChar * name ATTRIBUTE_UNUSED) {
+static void xmlXIncludeMergeEntity(xmlEntityPtr ent, xmlXIncludeMergeData * data, xmlChar * name ATTRIBUTE_UNUSED) 
+{
 	xmlEntityPtr ret, prev;
 	xmlDocPtr doc;
 	xmlXIncludeCtxtPtr ctxt;
-
 	if((ent == NULL) || (data == NULL))
 		return;
 	ctxt = data->ctxt;
@@ -1195,26 +1195,25 @@ static void xmlXIncludeMergeEntity(xmlEntityPtr ent, xmlXIncludeMergeDataPtr dat
 		case XML_EXTERNAL_GENERAL_UNPARSED_ENTITY:
 		    break;
 	}
-	ret = xmlAddDocEntity(doc, ent->name, ent->etype, ent->ExternalID,
-	    ent->SystemID, ent->content);
+	ret = xmlAddDocEntity(doc, ent->name, ent->etype, ent->ExternalID, ent->SystemID, ent->content);
 	if(ret) {
 		if(ent->URI != NULL)
-			ret->URI = xmlStrdup(ent->URI);
+			ret->URI = sstrdup(ent->URI);
 	}
 	else {
 		prev = xmlGetDocEntity(doc, ent->name);
-		if(prev != NULL) {
+		if(prev) {
 			if(ent->etype != prev->etype)
 				goto error;
-			if((ent->SystemID != NULL) && (prev->SystemID != NULL)) {
+			if(ent->SystemID && prev->SystemID) {
 				if(!sstreq(ent->SystemID, prev->SystemID))
 					goto error;
 			}
-			else if((ent->ExternalID != NULL) && (prev->ExternalID != NULL)) {
+			else if(ent->ExternalID && prev->ExternalID) {
 				if(!sstreq(ent->ExternalID, prev->ExternalID))
 					goto error;
 			}
-			else if((ent->content != NULL) && (prev->content != NULL)) {
+			else if(ent->content && prev->content) {
 				if(!sstreq(ent->content, prev->content))
 					goto error;
 			}
@@ -1267,16 +1266,12 @@ static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlD
 	}
 	source = from->intSubset;
 	if(source && source->entities) {
-		xmlXIncludeMergeData data;
-		data.ctxt = ctxt;
-		data.doc = doc;
+		xmlXIncludeMergeData data(ctxt, doc);
 		xmlHashScan((xmlHashTablePtr)source->entities, (xmlHashScanner)xmlXIncludeMergeEntity, &data);
 	}
 	source = from->extSubset;
 	if(source && source->entities) {
-		xmlXIncludeMergeData data;
-		data.ctxt = ctxt;
-		data.doc = doc;
+		xmlXIncludeMergeData data(ctxt, doc);
 		/*
 		 * don't duplicate existing stuff when external subsets are the same
 		 */
@@ -1286,7 +1281,6 @@ static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlD
 	}
 	return 0;
 }
-
 /**
  * xmlXIncludeLoadDoc:
  * @ctxt:  the XInclude context
@@ -1324,12 +1318,12 @@ static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	}
 	if(ctxt->incTab && ctxt->incTab[nr] && ctxt->incTab[nr]->fragment) {
 		SAlloc::F(fragment);
-		fragment = xmlStrdup(ctxt->incTab[nr]->fragment);
+		fragment = sstrdup(ctxt->incTab[nr]->fragment);
 	}
 	URL = xmlSaveUri(uri);
 	xmlFreeURI(uri);
 	if(URL == NULL) {
-		if(ctxt->incTab != NULL)
+		if(ctxt->incTab)
 			xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_HREF_URI, "invalid value URI %s\n", url);
 		else
 			xmlXIncludeErr(ctxt, NULL, XML_XINCLUDE_HREF_URI, "invalid value URI %s\n", url);
@@ -1344,13 +1338,11 @@ static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 		doc = NULL;
 		goto loaded;
 	}
-
 	/*
 	 * Prevent reloading twice the document.
 	 */
 	for(i = 0; i < ctxt->incNr; i++) {
-		if((sstreq(URL, ctxt->incTab[i]->URI)) &&
-		    (ctxt->incTab[i]->doc != NULL)) {
+		if(sstreq(URL, ctxt->incTab[i]->URI) && ctxt->incTab[i]->doc) {
 			doc = ctxt->incTab[i]->doc;
 #ifdef DEBUG_XINCLUDE
 			printf("Already loaded %s\n", URL);
@@ -1376,15 +1368,13 @@ static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 		ctxt->parseFlags |= XML_PARSE_NOENT;
 	}
 #endif
-
 	doc = xmlXIncludeParseFile(ctxt, (const char*)URL);
 #ifdef LIBXML_XPTR_ENABLED
 	ctxt->parseFlags = saveFlags;
 #endif
 	if(!doc) {
 		SAlloc::F(URL);
-		if(fragment != NULL)
-			SAlloc::F(fragment);
+		SAlloc::F(fragment);
 		return -1;
 	}
 	ctxt->incTab[nr]->doc = doc;
@@ -1396,7 +1386,7 @@ static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	 */
 	if(!sstreq(URL, doc->URL)) {
 		SAlloc::F(URL);
-		URL = xmlStrdup(doc->URL);
+		URL = sstrdup(doc->URL);
 	}
 	for(i = nr + 1; i < ctxt->incNr; i++) {
 		if(sstreq(URL, ctxt->incTab[i]->URI)) {
@@ -1412,7 +1402,6 @@ static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	 * Make sure we have all entities fixed up
 	 */
 	xmlXIncludeMergeEntities(ctxt, ctxt->doc, doc);
-
 	/*
 	 * We don't need the DTD anymore, free up space
 	   if (doc->intSubset != NULL) {
@@ -1427,20 +1416,17 @@ static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	   }
 	 */
 	xmlXIncludeRecurseDoc(ctxt, doc, URL);
-
 loaded:
 	if(fragment == NULL) {
 		/*
 		 * Add the top children list as the replacement copy.
 		 */
 		if(!doc) {
-			/* Hopefully a DTD declaration won't be copied from
-			 * the same document */
+			// Hopefully a DTD declaration won't be copied from the same document 
 			ctxt->incTab[nr]->inc = xmlCopyNodeList(ctxt->doc->children);
 		}
 		else {
-			ctxt->incTab[nr]->inc = xmlXIncludeCopyNodeList(ctxt, ctxt->doc,
-			    doc, doc->children);
+			ctxt->incTab[nr]->inc = xmlXIncludeCopyNodeList(ctxt, ctxt->doc, doc, doc->children);
 		}
 	}
 #ifdef LIBXML_XPTR_ENABLED
@@ -1450,22 +1436,16 @@ loaded:
 		 * as the replacement copy.
 		 */
 		xmlXPathObjectPtr xptr;
-		xmlXPathContextPtr xptrctxt;
 		xmlNodeSetPtr set;
-		if(!doc) {
-			xptrctxt = xmlXPtrNewContext(ctxt->doc, ctxt->incTab[nr]->ref, 0);
-		}
-		else {
-			xptrctxt = xmlXPtrNewContext(doc, 0, 0);
-		}
-		if(xptrctxt == NULL) {
+		xmlXPathContext * xptrctxt = doc ? xmlXPtrNewContext(doc, 0, 0) : xmlXPtrNewContext(ctxt->doc, ctxt->incTab[nr]->ref, 0);
+		if(!xptrctxt) {
 			xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_XPTR_FAILED, "could not create XPointer context\n", 0);
 			SAlloc::F(URL);
 			SAlloc::F(fragment);
 			return -1;
 		}
 		xptr = xmlXPtrEval(fragment, xptrctxt);
-		if(xptr == NULL) {
+		if(!xptr) {
 			xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_XPTR_FAILED, "XPointer evaluation failed: #%s\n", fragment);
 			xmlXPathFreeContext(xptrctxt);
 			SAlloc::F(URL);
@@ -1553,46 +1533,42 @@ loaded:
 		SAlloc::F(fragment);
 	}
 #endif
-
 	/*
 	 * Do the xml:base fixup if needed
 	 */
 	if(doc && URL && (!(ctxt->parseFlags & XML_PARSE_NOBASEFIX)) && (!(doc->parseFlags & XML_PARSE_NOBASEFIX))) {
-		xmlNodePtr node;
-		xmlChar * base;
+		xmlNode * node;
 		xmlChar * curBase;
-
 		/*
 		 * The base is only adjusted if "necessary", i.e. if the xinclude node
 		 * has a base specified, or the URL is relative
 		 */
-		base = xmlGetNsProp(ctxt->incTab[nr]->ref, BAD_CAST "base",
-		    XML_XML_NAMESPACE);
-		if(base == NULL) {
+		xmlChar * base = xmlGetNsProp(ctxt->incTab[nr]->ref, BAD_CAST "base", XML_XML_NAMESPACE);
+		if(!base) {
 			/*
 			 * No xml:base on the xinclude node, so we check whether the
 			 * URI base is different than (relative to) the context base
 			 */
 			curBase = xmlBuildRelativeURI(URL, ctxt->base);
-			if(curBase == NULL) { /* Error return */
+			if(!curBase) { /* Error return */
 				xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_HREF_URI, "trying to build relative URI from %s\n", URL);
 			}
 			else {
-				/* If the URI doesn't contain a slash, it's not relative */
+				// If the URI doesn't contain a slash, it's not relative 
 				if(!xmlStrchr(curBase, (xmlChar)'/'))
 					SAlloc::F(curBase);
 				else
 					base = curBase;
 			}
 		}
-		if(base != NULL) { /* Adjustment may be needed */
+		if(base) { // Adjustment may be needed 
 			node = ctxt->incTab[nr]->inc;
 			while(node) {
 				/* Only work on element nodes */
 				if(node->type == XML_ELEMENT_NODE) {
 					curBase = xmlNodeGetBase(node->doc, node);
-					/* If no current base, set it */
-					if(curBase == NULL) {
+					// If no current base, set it 
+					if(!curBase) {
 						xmlNodeSetBase(node, base);
 					}
 					else {
@@ -1605,20 +1581,12 @@ loaded:
 							xmlNodeSetBase(node, base);
 						}
 						else {
-							/*
-							 * If the element already has an xml:base
-							 * set, then relativise it if necessary
-							 */
-							xmlChar * xmlBase;
-							xmlBase = xmlGetNsProp(node,
-							    BAD_CAST "base",
-							    XML_XML_NAMESPACE);
-							if(xmlBase != NULL) {
-								xmlChar * relBase;
-								relBase = xmlBuildURI(xmlBase, base);
-								if(relBase == NULL) { /* error */
+							// If the element already has an xml:base set, then relativise it if necessary
+							xmlChar * xmlBase = xmlGetNsProp(node, BAD_CAST "base", XML_XML_NAMESPACE);
+							if(xmlBase) {
+								xmlChar * relBase = xmlBuildURI(xmlBase, base);
+								if(!relBase) // error 
 									xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_HREF_URI, "trying to rebuild base from %s\n", xmlBase);
-								}
 								else {
 									xmlNodeSetBase(node, relBase);
 									SAlloc::F(relBase);
@@ -1659,7 +1627,6 @@ static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 {
 	xmlParserInputBufferPtr buf;
 	xmlNodePtr node;
-	xmlURIPtr uri;
 	xmlChar * URL;
 	int i;
 	xmlChar * encoding = NULL;
@@ -1667,16 +1634,15 @@ static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	xmlParserCtxtPtr pctxt;
 	xmlParserInputPtr inputStream;
 	int xinclude_multibyte_fallback_used = 0;
-
 	/*
 	 * Check the URL and remove any fragment identifier
 	 */
-	uri = xmlParseURI((const char*)url);
+	xmlURI * uri = xmlParseURI((const char*)url);
 	if(uri == NULL) {
 		xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_HREF_URI, "invalid value URI %s\n", url);
 		return -1;
 	}
-	if(uri->fragment != NULL) {
+	if(uri->fragment) {
 		xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_TEXT_FRAGMENT, "fragment identifier forbidden for text: %s\n", (const xmlChar*)uri->fragment);
 		xmlFreeURI(uri);
 		return -1;
@@ -1821,7 +1787,7 @@ static int xmlXIncludeLoadFallback(xmlXIncludeCtxtPtr ctxt, xmlNodePtr fallback,
 		if(newctxt == NULL)
 			return -1;
 		newctxt->_private = ctxt->_private;
-		newctxt->base = xmlStrdup(ctxt->base); /* Inherit the base from the existing context */
+		newctxt->base = sstrdup(ctxt->base); /* Inherit the base from the existing context */
 		xmlXIncludeSetFlags(newctxt, ctxt->parseFlags);
 		ret = xmlXIncludeDoProcess(newctxt, ctxt->doc, fallback->children);
 		if(ctxt->nbErrors > 0)
@@ -1885,13 +1851,12 @@ static int xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, int nr)
 	cur = ctxt->incTab[nr]->ref;
 	if(!cur)
 		return -1;
-
 	/*
 	 * read the attributes
 	 */
 	href = xmlXIncludeGetProp(ctxt, cur, XINCLUDE_HREF);
 	if(href == NULL) {
-		href = xmlStrdup(BAD_CAST ""); /* @@@@ href is now optional */
+		href = sstrdup(BAD_CAST ""); /* @@@@ href is now optional */
 		if(href == NULL)
 			return -1;
 	}
@@ -2246,20 +2211,23 @@ int xmlXIncludeSetFlags(xmlXIncludeCtxtPtr ctxt, int flags)
 
 int xmlXIncludeProcessTreeFlagsData(xmlNodePtr tree, int flags, void * data)
 {
-	xmlXIncludeCtxtPtr ctxt;
 	int ret = 0;
-	if((tree == NULL) || (tree->type == XML_NAMESPACE_DECL) || (tree->doc == NULL))
-		return -1;
-	ctxt = xmlXIncludeNewContext(tree->doc);
-	if(!ctxt)
-		return -1;
-	ctxt->_private = data;
-	ctxt->base = xmlStrdup((xmlChar*)tree->doc->URL);
-	xmlXIncludeSetFlags(ctxt, flags);
-	ret = xmlXIncludeDoProcess(ctxt, tree->doc, tree);
-	if((ret >= 0) && (ctxt->nbErrors > 0))
+	if(!tree || tree->type == XML_NAMESPACE_DECL || !tree->doc)
 		ret = -1;
-	xmlXIncludeFreeContext(ctxt);
+	else {
+		xmlXIncludeCtxtPtr ctxt = xmlXIncludeNewContext(tree->doc);
+		if(!ctxt)
+			ret = -1;
+		else {
+			ctxt->_private = data;
+			ctxt->base = sstrdup((xmlChar*)tree->doc->URL);
+			xmlXIncludeSetFlags(ctxt, flags);
+			ret = xmlXIncludeDoProcess(ctxt, tree->doc, tree);
+			if((ret >= 0) && (ctxt->nbErrors > 0))
+				ret = -1;
+			xmlXIncludeFreeContext(ctxt);
+		}
+	}
 	return ret;
 }
 
@@ -2283,9 +2251,8 @@ int xmlXIncludeProcessFlagsData(xmlDocPtr doc, int flags, void * data)
 	tree = xmlDocGetRootElement(doc);
 	if(tree == NULL)
 		return -1;
-	return(xmlXIncludeProcessTreeFlagsData(tree, flags, data));
+	return xmlXIncludeProcessTreeFlagsData(tree, flags, data);
 }
-
 /**
  * xmlXIncludeProcessFlags:
  * @doc: an XML document

@@ -175,10 +175,10 @@ static void xmlOnceInit();
  *
  * Returns a new simple mutex pointer or NULL in case of error
  */
-xmlMutexPtr xmlNewMutex()
+xmlMutex * xmlNewMutex()
 {
-	xmlMutexPtr tok;
-	if((tok = (xmlMutexPtr)malloc(sizeof(xmlMutex))) == NULL)
+	xmlMutex * tok;
+	if((tok = (xmlMutex *)malloc(sizeof(xmlMutex))) == NULL)
 		return 0;
 #ifdef HAVE_PTHREAD_H
 	if(libxml_is_threaded != 0)
@@ -202,70 +202,66 @@ xmlMutexPtr xmlNewMutex()
  * xmlFreeMutex() is used to reclaim resources associated with a libxml2 token
  * struct.
  */
-void xmlFreeMutex(xmlMutexPtr tok)
+void xmlFreeMutex(xmlMutex * pTok)
 {
-	if(tok == NULL)
-		return;
-
+	if(pTok) {
 #ifdef HAVE_PTHREAD_H
-	if(libxml_is_threaded != 0)
-		pthread_mutex_destroy(&tok->lock);
+		if(libxml_is_threaded != 0)
+			pthread_mutex_destroy(&tok->lock);
 #elif defined HAVE_WIN32_THREADS
-	CloseHandle(tok->mutex);
+		CloseHandle(pTok->mutex);
 #elif defined HAVE_BEOS_THREADS
-	delete_sem(tok->sem);
+		delete_sem(tok->sem);
 #endif
-	SAlloc::F(tok);
+		SAlloc::F(pTok);
+	}
 }
-
 /**
  * xmlMutexLock:
  * @tok:  the simple mutex
  *
  * xmlMutexLock() is used to lock a libxml2 token.
  */
-void xmlMutexLock(xmlMutexPtr tok)
+void xmlMutexLock(xmlMutex * pTok)
 {
-	if(tok == NULL)
-		return;
+	if(pTok) {
 #ifdef HAVE_PTHREAD_H
-	if(libxml_is_threaded != 0)
-		pthread_mutex_lock(&tok->lock);
+		if(libxml_is_threaded != 0)
+			pthread_mutex_lock(&pTok->lock);
 #elif defined HAVE_WIN32_THREADS
-	WaitForSingleObject(tok->mutex, INFINITE);
+		WaitForSingleObject(pTok->mutex, INFINITE);
 #elif defined HAVE_BEOS_THREADS
-	if(acquire_sem(tok->sem) != B_NO_ERROR) {
+		if(acquire_sem(pTok->sem) != B_NO_ERROR) {
 #ifdef DEBUG_THREADS
-		xmlGenericError(0, "xmlMutexLock():BeOS:Couldn't aquire semaphore\n");
+			xmlGenericError(0, "xmlMutexLock():BeOS:Couldn't aquire semaphore\n");
+#endif
+		}
+		pTok->tid = find_thread(NULL);
 #endif
 	}
-	tok->tid = find_thread(NULL);
-#endif
 }
-
 /**
  * xmlMutexUnlock:
  * @tok:  the simple mutex
  *
  * xmlMutexUnlock() is used to unlock a libxml2 token.
  */
-void xmlMutexUnlock(xmlMutexPtr tok)
+void xmlMutexUnlock(xmlMutex * tok)
 {
-	if(tok == NULL)
-		return;
+	if(tok) {
 #ifdef HAVE_PTHREAD_H
-	if(libxml_is_threaded != 0)
-		pthread_mutex_unlock(&tok->lock);
+		if(libxml_is_threaded)
+			pthread_mutex_unlock(&tok->lock);
 #elif defined HAVE_WIN32_THREADS
-	ReleaseMutex(tok->mutex);
+		ReleaseMutex(tok->mutex);
 #elif defined HAVE_BEOS_THREADS
-	if(tok->tid == find_thread(NULL)) {
-		tok->tid = -1;
-		release_sem(tok->sem);
-	}
+		if(tok->tid == find_thread(NULL)) {
+			tok->tid = -1;
+			release_sem(tok->sem);
+		}
 #endif
+	}
 }
-
 /**
  * xmlNewRMutex:
  *

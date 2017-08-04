@@ -870,42 +870,34 @@ void /* PRIVATE */ png_push_have_row(png_structrp png_ptr, png_bytep row)
 }
 
 #ifdef PNG_READ_INTERLACING_SUPPORTED
-void PNGAPI png_progressive_combine_row(png_const_structrp png_ptr, png_bytep old_row,
-    png_const_bytep new_row)
+void PNGAPI png_progressive_combine_row(png_const_structrp png_ptr, png_bytep old_row, png_const_bytep new_row)
 {
-	if(png_ptr == NULL)
-		return;
-
-	/* new_row is a flag here - if it is NULL then the app callback was called
-	 * from an empty row (see the calls to png_struct::row_fn below), otherwise
-	 * it must be png_ptr->row_buf+1
-	 */
-	if(new_row != NULL)
-		png_combine_row(png_ptr, old_row, 1 /*blocky display*/);
+	if(png_ptr) {
+		/* new_row is a flag here - if it is NULL then the app callback was called
+		 * from an empty row (see the calls to png_struct::row_fn below), otherwise
+		 * it must be png_ptr->row_buf+1
+		 */
+		if(new_row != NULL)
+			png_combine_row(png_ptr, old_row, 1 /*blocky display*/);
+	}
 }
 
 #endif /* READ_INTERLACING */
 
 void PNGAPI png_set_progressive_read_fn(png_structrp png_ptr, void * progressive_ptr,
-    png_progressive_info_ptr info_fn, png_progressive_row_ptr row_fn,
-    png_progressive_end_ptr end_fn)
+    png_progressive_info_ptr info_fn, png_progressive_row_ptr row_fn, png_progressive_end_ptr end_fn)
 {
-	if(png_ptr == NULL)
-		return;
-
-	png_ptr->info_fn = info_fn;
-	png_ptr->row_fn = row_fn;
-	png_ptr->end_fn = end_fn;
-
-	png_set_read_fn(png_ptr, progressive_ptr, png_push_fill_buffer);
+	if(png_ptr) {
+		png_ptr->info_fn = info_fn;
+		png_ptr->row_fn = row_fn;
+		png_ptr->end_fn = end_fn;
+		png_set_read_fn(png_ptr, progressive_ptr, png_push_fill_buffer);
+	}
 }
 
 void * PNGAPI png_get_progressive_ptr(png_const_structrp png_ptr)
 {
-	if(png_ptr == NULL)
-		return NULL;
-
-	return png_ptr->io_ptr;
+	return png_ptr ? png_ptr->io_ptr : 0;
 }
 
 #endif /* PROGRESSIVE_READ */

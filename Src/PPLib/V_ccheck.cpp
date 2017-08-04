@@ -3161,7 +3161,7 @@ int SLAPI PPViewCCheck::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 					ok = EditGoods(pHdr, 2);
 				else {
 					ok = -1;
-					CreateDraftBySuspCheck(id);
+					PPViewCCheck::CreateDraftBySuspCheck(this, id);
 				}
 				break;
 			case PPVCMD_SYSTEMINFO:
@@ -3838,14 +3838,16 @@ int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-int SLAPI PPViewCCheck::CreateDraftBySuspCheck(PPID chkID)
+// static
+int SLAPI PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 {
 	int    ok = -1;
-	const PPEquipConfig & r_eq_cfg = CsObj.GetEqCfg();
-	if(chkID && !Filt.Grp && r_eq_cfg.OpOnTempSess && GetOpType(r_eq_cfg.OpOnTempSess) == PPOPT_DRAFTEXPEND) {
-		uint  all_selection = 0;
-		if(SelectorDialog(DLG_SELDRAFTBYCHK, CTL_SELDRAFTBYCHK_SEL, &all_selection) > 0) {
-			PPID    loc_id = LConfig.Location, ar_id = 0;
+	const PPEquipConfig & r_eq_cfg = pV->CsObj.GetEqCfg();
+	if(chkID && !pV->Filt.Grp && r_eq_cfg.OpOnTempSess && GetOpType(r_eq_cfg.OpOnTempSess) == PPOPT_DRAFTEXPEND) {
+		uint  all_selection = chkID ? 0 : 1;
+		if(!chkID || SelectorDialog(DLG_SELDRAFTBYCHK, CTL_SELDRAFTBYCHK_SEL, &all_selection) > 0) {
+			PPID    loc_id = LConfig.Location;
+			PPID    ar_id = 0;
 			SString bill_memo, temp_buf;
 			CCheckViewItem chk_rec;
 			PPBillPacket  pack;
@@ -3854,15 +3856,15 @@ int SLAPI PPViewCCheck::CreateDraftBySuspCheck(PPID chkID)
 			THROW(p_bobj->CheckRights(PPR_INS));
 			if(all_selection) {
 				PPLoadText(PPTXT_CCHECKSELFORPERIOD, temp_buf);
-				b_filt.Period.SetDate(Filt.Period.low);
-				bill_memo.Cat(temp_buf).Space().Cat(Filt.Period);
-				InitIteration(0);
+				b_filt.Period.SetDate(pV->Filt.Period.low);
+				bill_memo.Cat(temp_buf).Space().Cat(pV->Filt.Period);
+				pV->InitIteration(0);
 			}
 			else {
 				CSessionTbl::Rec cs_rec;
-				THROW(P_CC->Search(chkID, &chk_rec) > 0);
+				THROW(pV->P_CC->Search(chkID, &chk_rec) > 0);
 				b_filt.Period.SetDate(chk_rec.Dt);
-				if(CsObj.Search(chk_rec.SessID, &cs_rec) > 0 && cs_rec.CashNodeID) {
+				if(pV->CsObj.Search(chk_rec.SessID, &cs_rec) > 0 && cs_rec.CashNodeID) {
 					PPObjCashNode cn_obj;
 					PPCashNode cn_rec;
 					if(cn_obj.Search(cs_rec.CashNodeID, &cn_rec) > 0 && cn_rec.LocID)
@@ -3870,7 +3872,7 @@ int SLAPI PPViewCCheck::CreateDraftBySuspCheck(PPID chkID)
 				}
 				if(chk_rec.SCardID) {
 					SCardTbl::Rec  sc_rec;
-					if(P_CC->Cards.Search(chk_rec.SCardID, &sc_rec) > 0 && sc_rec.PersonID) {
+					if(pV->P_CC->Cards.Search(chk_rec.SCardID, &sc_rec) > 0 && sc_rec.PersonID) {
 						PPOprKind  op_rec;
 						if(GetOpData(r_eq_cfg.OpOnTempSess, &op_rec) > 0) {
 							PPObjArticle ar_obj;
@@ -3878,16 +3880,16 @@ int SLAPI PPViewCCheck::CreateDraftBySuspCheck(PPID chkID)
 						}
 					}
 				}
-				P_CC->MakeCodeString(&chk_rec, bill_memo);
+				pV->P_CC->MakeCodeString(&chk_rec, bill_memo);
 			}
 			b_filt.LocList.Add(loc_id, 1);
 			THROW(pack.CreateBlankByFilt(r_eq_cfg.OpOnTempSess, &b_filt, 1));
-			while(!all_selection || NextIteration(&chk_rec) > 0) {
+			while(!all_selection || pV->NextIteration(&chk_rec) > 0) {
 				CCheckLineTbl::Rec cc_line;
 				MEMSZERO(cc_line);
 				if(diffdate(chk_rec.Dt, pack.Rec.Dt) > 0)
 					pack.Rec.Dt = chk_rec.Dt;
-				for(int i = 0; P_CC->EnumLines(chk_rec.ID, &i, &cc_line) > 0;) {
+				for(int i = 0; pV->P_CC->EnumLines(chk_rec.ID, &i, &cc_line) > 0;) {
 					ReceiptTbl::Rec lot_rec;
 					PPTransferItem ti;
 					THROW(ti.Init(&pack.Rec));

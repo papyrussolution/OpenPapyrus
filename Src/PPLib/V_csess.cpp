@@ -138,23 +138,6 @@ int SLAPI PPViewCSess::EditCreateDraftParam(CSessCrDraftParam * pParam)
 {
 	DIALOG_PROC_BODY_P1(SelectRuleDialog, DLG_CSESSCRDRAFT, pParam);
 }
-
-// static
-int SLAPI PPViewCSess::CreateDraft(const CSessCrDraftParam * pParam)
-{
-	int    ok = -1;
-	if(pParam && (pParam->RuleGrpID || pParam->RuleID) && !pParam->Period.IsZero()) {
-		PPViewCSess cs_view;
-		CSessFilt cs_filt;
-		cs_filt.Period = pParam->Period;
-		cs_filt.NodeList_ = pParam->NodeList;
-		SETFLAG(cs_filt.Flags, CSessFilt::fOnlySuperSess, pParam->Flags & CSessCrDraftParam::fSuperSessOnly);
-		THROW(cs_view.Init_(&cs_filt));
-		THROW(cs_view.CreateDrafts(pParam->RuleGrpID, pParam->RuleID, 0));
-	}
-	CATCHZOK
-	return ok;
-}
 //
 //
 //

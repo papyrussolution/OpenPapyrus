@@ -552,7 +552,7 @@ int PPApp::processCommand(uint cmd)
 				}
 			}
 			break;
-		case cmCreateDraftBySupplOrder: PPViewSStat::CreateDraftBySupplOrders(0); break;
+		case cmCreateDraftBySupplOrder: PrcssrBillAutoCreate::CreateDraftBySupplOrders(0); break;
 		case cmCreateObjLikeness:    PPViewObjLikeness::CreateLikenessTable();  break;
 		case cmChargeSalary:         DoChargeSalary();                        break;
 		case cmBizScoreCalc:         DoBizScore(0);                           break;

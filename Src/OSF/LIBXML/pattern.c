@@ -63,21 +63,15 @@
  */
 #define XML_STREAM_ANY_NODE 100
 
-#define XML_PATTERN_NOTPATTERN  (XML_PATTERN_XPATH | \
-	    XML_PATTERN_XSSEL |	\
-	    XML_PATTERN_XSFIELD)
-
-#define XML_STREAM_XS_IDC(c) ((c)->flags & \
-	    (XML_PATTERN_XSSEL | XML_PATTERN_XSFIELD))
-
+#define XML_PATTERN_NOTPATTERN  (XML_PATTERN_XPATH|XML_PATTERN_XSSEL|XML_PATTERN_XSFIELD)
+#define XML_STREAM_XS_IDC(c) ((c)->flags & (XML_PATTERN_XSSEL | XML_PATTERN_XSFIELD))
 #define XML_STREAM_XS_IDC_SEL(c) ((c)->flags & XML_PATTERN_XSSEL)
-
 #define XML_STREAM_XS_IDC_FIELD(c) ((c)->flags & XML_PATTERN_XSFIELD)
 
 #define XML_PAT_COPY_NSNAME(c, r, nsname) \
 	if((c)->comp->dict) \
 		r = (xmlChar*)xmlDictLookup((c)->comp->dict, BAD_CAST nsname, -1); \
-	else r = xmlStrdup(BAD_CAST nsname);
+	else r = sstrdup(BAD_CAST nsname);
 
 #define XML_PAT_FREE_STRING(c, r) if((c)->comp->dict == NULL) SAlloc::F(r);
 

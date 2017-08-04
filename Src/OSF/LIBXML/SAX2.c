@@ -814,7 +814,7 @@ void xmlSAX2StartDocument(void * ctx)
 			if(ctxt->options & XML_PARSE_OLD10)
 				doc->properties |= XML_DOC_OLD10;
 			doc->parseFlags = ctxt->options;
-			doc->encoding = (ctxt->encoding) ? xmlStrdup(ctxt->encoding) : 0;
+			doc->encoding = sstrdup(ctxt->encoding);
 			doc->standalone = ctxt->standalone;
 		}
 		else {
@@ -857,7 +857,7 @@ void xmlSAX2EndDocument(void * ctx)
 		ctxt->encoding = NULL;
 	}
 	if(ctxt->inputTab && (ctxt->inputNr > 0) && ctxt->inputTab[0] && ctxt->inputTab[0]->encoding && ctxt->myDoc && (ctxt->myDoc->encoding == NULL)) {
-		ctxt->myDoc->encoding = xmlStrdup(ctxt->inputTab[0]->encoding);
+		ctxt->myDoc->encoding = sstrdup(ctxt->inputTab[0]->encoding);
 	}
 	if((ctxt->charset != XML_CHAR_ENCODING_NONE) && ctxt->myDoc && (ctxt->myDoc->charset == XML_CHAR_ENCODING_NONE)) {
 		ctxt->myDoc->charset = ctxt->charset;
@@ -887,7 +887,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 	xmlChar * nval;
 	xmlNsPtr namespace__;
 	if(ctxt->html) {
-		name = xmlStrdup(fullname);
+		name = sstrdup(fullname);
 		ns = NULL;
 		namespace__ = NULL;
 	}
@@ -905,7 +905,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 			}
 			ZFREE(ns);
 			SAlloc::F(name);
-			name = xmlStrdup(fullname);
+			name = sstrdup(fullname);
 		}
 	}
 	if(name == NULL) {
@@ -915,7 +915,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 	}
 #ifdef LIBXML_HTML_ENABLED
 	if((ctxt->html) && (value == NULL) && (htmlIsBooleanAttr(fullname))) {
-		nval = xmlStrdup(fullname);
+		nval = sstrdup(fullname);
 		value = (const xmlChar*)nval;
 	}
 	else
@@ -1174,12 +1174,12 @@ process_external_subset:
 				    (xmlGetDtdQAttrDesc(ctxt->myDoc->intSubset, attr->elem, attr->name, attr->prefix) == NULL)) {
 					xmlChar * fulln;
 					if(attr->prefix != NULL) {
-						fulln = xmlStrdup(attr->prefix);
+						fulln = sstrdup(attr->prefix);
 						fulln = xmlStrcat(fulln, BAD_CAST ":");
 						fulln = xmlStrcat(fulln, attr->name);
 					}
 					else {
-						fulln = xmlStrdup(attr->name);
+						fulln = sstrdup(attr->name);
 					}
 					if(fulln == NULL) {
 						xmlSAX2ErrMemory(ctxt, "xmlSAX2StartElement");
@@ -1643,7 +1643,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 		ret->parent = ctxt->node;
 		ret->doc = ctxt->myDoc;
 		ret->ns = namespace__;
-		ret->name = ctxt->dictNames ? localname : xmlStrdup(localname);
+		ret->name = ctxt->dictNames ? localname : sstrdup(localname);
 		/* link at the end to preserv order, TODO speed up with a last */
 		if(ctxt->node->properties == NULL) {
 			ctxt->node->properties = ret;
@@ -1878,7 +1878,7 @@ void xmlSAX2StartElementNs(void * ctx,
 			ret->name = localname;
 		else {
 			if(lname == NULL)
-				ret->name = xmlStrdup(localname);
+				ret->name = sstrdup(localname);
 			else
 				ret->name = lname;
 			if(ret->name == NULL) {
@@ -2174,12 +2174,11 @@ void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len)
 			 * and recomputing length over and over.
 			 */
 			if(lastChild->content == (xmlChar*)&(lastChild->properties)) {
-				lastChild->content = xmlStrdup(lastChild->content);
+				lastChild->content = sstrdup(lastChild->content);
 				lastChild->properties = NULL;
 			}
-			else if((ctxt->nodemem == ctxt->nodelen + 1) &&
-			    (xmlDictOwns(ctxt->dict, lastChild->content))) {
-				lastChild->content = xmlStrdup(lastChild->content);
+			else if((ctxt->nodemem == ctxt->nodelen + 1) && (xmlDictOwns(ctxt->dict, lastChild->content))) {
+				lastChild->content = sstrdup(lastChild->content);
 			}
 			if(lastChild->content == NULL) {
 				xmlSAX2ErrMemory(ctxt, "xmlSAX2Characters: xmlStrdup returned NULL");

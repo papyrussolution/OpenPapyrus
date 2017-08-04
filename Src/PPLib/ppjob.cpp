@@ -1691,7 +1691,8 @@ public:
 		int    ok = 1;
 		CSessCrDraftParam param;
 		THROW(param.Read(*pParam, 0));
-		THROW(PPViewCSess::CreateDraft(&param));
+		// @v9.7.10 THROW(PPViewCSess::CreateDraft(&param));
+		THROW(PrcssrBillAutoCreate::CreateDraftByCSessRule(&param)); // @v9.7.10
 		CATCHZOK
 		return ok;
 	}
@@ -2419,7 +2420,7 @@ public:
 		int    ok = 1;
 		SStatFilt filt;
 		THROW(filt.Read(*pParam, 0));
-		THROW(PPViewSStat::CreateDraftBySupplOrders(&filt));
+		THROW(PrcssrBillAutoCreate::CreateDraftBySupplOrders(&filt));
 		CATCHZOK
 		return ok;
 	}

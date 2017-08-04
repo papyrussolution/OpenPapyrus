@@ -57,7 +57,7 @@ const char * SCT_validation_status_string(const SCT * sct)
 void SCT_print(const SCT * sct, BIO * out, int indent, const CTLOG_STORE * log_store)
 {
 	const CTLOG * log = NULL;
-	if(log_store != NULL) {
+	if(log_store) {
 		log = CTLOG_STORE_get0_log_by_id(log_store, sct->log_id, sct->log_id_len);
 	}
 	BIO_printf(out, "%*sSigned Certificate Timestamp:", indent, "");
@@ -68,7 +68,7 @@ void SCT_print(const SCT * sct, BIO * out, int indent, const CTLOG_STORE * log_s
 		return;
 	}
 	BIO_printf(out, "v1 (0x0)");
-	if(log != NULL) {
+	if(log) {
 		BIO_printf(out, "\n%*sLog       : %s", indent + 4, "", CTLOG_get0_name(log));
 	}
 	BIO_printf(out, "\n%*sLog ID    : ", indent + 4, "");
@@ -89,13 +89,10 @@ void SCT_print(const SCT * sct, BIO * out, int indent, const CTLOG_STORE * log_s
 	BIO_hex_string(out, indent + 16, 16, sct->sig, sct->sig_len);
 }
 
-void SCT_LIST_print(const STACK_OF(SCT) * sct_list, BIO * out, int indent,
-    const char * separator, const CTLOG_STORE * log_store)
+void SCT_LIST_print(const STACK_OF(SCT) * sct_list, BIO * out, int indent, const char * separator, const CTLOG_STORE * log_store)
 {
-	int sct_count = sk_SCT_num(sct_list);
-	int i;
-
-	for(i = 0; i < sct_count; ++i) {
+	const int sct_count = sk_SCT_num(sct_list);
+	for(int i = 0; i < sct_count; ++i) {
 		SCT * sct = sk_SCT_value(sct_list, i);
 		SCT_print(sct, out, indent, log_store);
 		if(i < sk_SCT_num(sct_list) - 1)

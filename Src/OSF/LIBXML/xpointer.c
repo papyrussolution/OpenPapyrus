@@ -67,22 +67,23 @@ static void xmlXPtrErr(xmlXPathParserContextPtr ctxt, int error, const char * ms
 {
 	if(ctxt)
 		ctxt->error = error;
-	if(!ctxt || (ctxt->context == NULL)) {
+	if(!ctxt || !ctxt->context) {
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_XPOINTER, error, XML_ERR_ERROR, NULL, 0, (const char*)extra, NULL, NULL, 0, 0, msg, extra);
-		return;
-	}
-	ctxt->context->lastError.domain = XML_FROM_XPOINTER;
-	ctxt->context->lastError.code = error;
-	ctxt->context->lastError.level = XML_ERR_ERROR;
-	ctxt->context->lastError.str1 = (char*)xmlStrdup(ctxt->base);
-	ctxt->context->lastError.int1 = ctxt->cur - ctxt->base;
-	ctxt->context->lastError.node = ctxt->context->debugNode;
-	if(ctxt->context->error) {
-		ctxt->context->error(ctxt->context->userData, &ctxt->context->lastError);
 	}
 	else {
-		__xmlRaiseError(0, 0, 0, 0, ctxt->context->debugNode, XML_FROM_XPOINTER, error, XML_ERR_ERROR, NULL, 0, (const char*)extra, (const char*)ctxt->base, NULL,
-		    ctxt->cur - ctxt->base, 0, msg, extra);
+		ctxt->context->lastError.domain = XML_FROM_XPOINTER;
+		ctxt->context->lastError.code = error;
+		ctxt->context->lastError.level = XML_ERR_ERROR;
+		ctxt->context->lastError.str1 = (char*)sstrdup(ctxt->base);
+		ctxt->context->lastError.int1 = ctxt->cur - ctxt->base;
+		ctxt->context->lastError.node = ctxt->context->debugNode;
+		if(ctxt->context->error) {
+			ctxt->context->error(ctxt->context->userData, &ctxt->context->lastError);
+		}
+		else {
+			__xmlRaiseError(0, 0, 0, 0, ctxt->context->debugNode, XML_FROM_XPOINTER, error, XML_ERR_ERROR, NULL, 0, (const char*)extra, (const char*)ctxt->base, NULL,
+				ctxt->cur - ctxt->base, 0, msg, extra);
+		}
 	}
 }
 
@@ -106,15 +107,12 @@ static int xmlXPtrGetArity(xmlNodePtr cur)
 		return -1;
 	cur = cur->children;
 	for(i = 0; cur; cur = cur->next) {
-		if((cur->type == XML_ELEMENT_NODE) ||
-		    (cur->type == XML_DOCUMENT_NODE) ||
-		    (cur->type == XML_HTML_DOCUMENT_NODE)) {
+		if(oneof3(cur->type, XML_ELEMENT_NODE, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE)) {
 			i++;
 		}
 	}
-	return(i);
+	return i;
 }
-
 /**
  * xmlXPtrGetIndex:
  * @cur:  the node
@@ -128,7 +126,7 @@ static int xmlXPtrGetIndex(xmlNodePtr cur)
 	if(!cur || (cur->type == XML_NAMESPACE_DECL))
 		return -1;
 	for(i = 1; cur; cur = cur->prev) {
-		if((cur->type == XML_ELEMENT_NODE) || (cur->type == XML_DOCUMENT_NODE) || (cur->type == XML_HTML_DOCUMENT_NODE)) {
+		if(oneof3(cur->type, XML_ELEMENT_NODE, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE)) {
 			i++;
 		}
 	}
@@ -151,9 +149,7 @@ static xmlNodePtr xmlXPtrGetNthChild(xmlNodePtr cur, int no)
 	for(i = 0; i <= no; cur = cur->next) {
 		if(!cur)
 			return cur;
-		if((cur->type == XML_ELEMENT_NODE) ||
-		    (cur->type == XML_DOCUMENT_NODE) ||
-		    (cur->type == XML_HTML_DOCUMENT_NODE)) {
+		if(oneof3(cur->type, XML_ELEMENT_NODE, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE)) {
 			i++;
 			if(i == no)
 				break;
@@ -193,7 +189,7 @@ static int xmlXPtrCmpPoints(xmlNodePtr node1, int index1, xmlNodePtr node2, int 
 			return -1;
 		return 0;
 	}
-	return(xmlXPathCmpNodes(node1, node2));
+	return xmlXPathCmpNodes(node1, node2);
 }
 
 /**
@@ -260,7 +256,8 @@ static void xmlXPtrRangeCheckOrder(xmlXPathObjectPtr range)
  *
  * Returns 1 if equal, 0 otherwise
  */
-static int xmlXPtrRangesEqual(xmlXPathObjectPtr range1, xmlXPathObjectPtr range2) {
+static int xmlXPtrRangesEqual(xmlXPathObjectPtr range1, xmlXPathObjectPtr range2) 
+{
 	if(range1 == range2)
 		return 1;
 	if((range1 == NULL) || (range2 == NULL))
@@ -1122,8 +1119,7 @@ static void xmlXPtrEvalXPointer(xmlXPathParserContextPtr ctxt)
 {
 	if(ctxt->valueTab == NULL) {
 		/* Allocate the value stack */
-		ctxt->valueTab = (xmlXPathObjectPtr*)
-		    SAlloc::M(10 * sizeof(xmlXPathObjectPtr));
+		ctxt->valueTab = (xmlXPathObjectPtr*)SAlloc::M(10 * sizeof(xmlXPathObjectPtr));
 		if(ctxt->valueTab == NULL) {
 			xmlXPtrErrMemory("allocating evaluation context");
 			return;

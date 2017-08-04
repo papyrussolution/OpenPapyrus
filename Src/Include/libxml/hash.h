@@ -14,12 +14,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /*
  * The hash table.
  */
 typedef struct _xmlHashTable xmlHashTable;
-typedef xmlHashTable *xmlHashTablePtr;
+typedef xmlHashTable * xmlHashTablePtr;
 
 #ifdef __cplusplus
 }

@@ -3331,7 +3331,7 @@ public:
 		if(pParam) {
 			SStatFilt filt;
 			if(filt.Read(*pParam, 0) > 0)
-				ok = PPViewSStat::CreateDraftBySupplOrders(&filt);
+				ok = PrcssrBillAutoCreate::CreateDraftBySupplOrders(&filt);
 			else
 				ok = 0;
 		}
@@ -3641,3 +3641,51 @@ public:
 };
 
 IMPLEMENT_CMD_HDL_FACTORY(PROCESSSARTRE);
+//
+//
+//
+class CMD_HDL_CLS(BILLAUTOCREATE) : public PPCommandHandler {
+public:
+	SLAPI  CMD_HDL_CLS(BILLAUTOCREATE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int SLAPI EditParam(SBuffer * pParam, long, long)
+	{
+		int    ok = -1;
+		if(pParam) {
+			PrcssrBillAutoCreate prc;
+			PPBillAutoCreateParam filt;
+			if(!filt.Read(*pParam, 0))
+				prc.InitParam(&filt);
+			if(prc.EditParam(&filt) > 0) {
+				pParam->Clear();
+				if(filt.Write(*pParam, 0)) {
+					ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
+	virtual int SLAPI Run(SBuffer * pParam, long, long)
+	{
+		int    ok = -1;
+		PPBillAutoCreateParam filt;
+		if(pParam && filt.Read(*pParam, 0)) {
+			PrcssrBillAutoCreate prc;
+			if(!prc.Init(&filt) || !prc.Run())
+				ok = PPErrorZ();
+		}
+		else {
+			PrcssrBillAutoCreate prc;
+			if(prc.EditParam(&filt) > 0) {
+				if(!prc.Init(&filt) || !prc.Run())
+					ok = PPErrorZ();
+				else
+					ok = 1;
+			}
+		}
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(BILLAUTOCREATE);

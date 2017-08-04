@@ -28,11 +28,11 @@
 #endif
 #include <libxml/threads.h>
 
-static int xmlMemInitialized = 0;
-static unsigned long debugMemSize = 0;
-static unsigned long debugMemBlocks = 0;
-static unsigned long debugMaxMemSize = 0;
-static xmlMutexPtr xmlMemMutex = NULL;
+static int   xmlMemInitialized = 0; // @global
+static ulong debugMemSize = 0; // @global
+static ulong debugMemBlocks = 0; // @global
+static ulong debugMaxMemSize = 0; // @global
+static xmlMutex * xmlMemMutex = NULL; // @global
 
 void xmlMallocBreakpoint();
 
@@ -43,17 +43,16 @@ void xmlMallocBreakpoint();
 ************************************************************************/
 
 #if !defined(LIBXML_THREAD_ENABLED) && !defined(LIBXML_THREAD_ALLOC_ENABLED)
-#ifdef xmlMalloc
-#undef xmlMalloc
+	#ifdef xmlMalloc
+		#undef xmlMalloc
+	#endif
+	#ifdef xmlRealloc
+		#undef xmlRealloc
+	#endif
+	#ifdef xmlMemStrdup_Removed
+		#undef xmlMemStrdup_Removed
+	#endif
 #endif
-#ifdef xmlRealloc
-#undef xmlRealloc
-#endif
-#ifdef xmlMemStrdup
-#undef xmlMemStrdup
-#endif
-#endif
-
 /*
  * Each of the blocks allocated begin with a header containing informations
  */
@@ -67,16 +66,16 @@ void xmlMallocBreakpoint();
 #define REALLOC_ATOMIC_TYPE 5
 
 typedef struct memnod {
-	uint mh_tag;
-	uint mh_type;
-	unsigned long mh_number;
+	uint   mh_tag;
+	uint   mh_type;
+	ulong  mh_number;
 	size_t mh_size;
 #ifdef MEM_LIST
 	struct memnod * mh_next;
 	struct memnod * mh_prev;
 #endif
-	const char    * mh_file;
-	uint mh_line;
+	const char * mh_file;
+	uint   mh_line;
 }  MEMHDR;
 
 #ifdef SUN4
@@ -133,7 +132,8 @@ void * xmlMallocLoc(size_t size, const char * file, int line)
 {
 	MEMHDR * p;
 	void * ret;
-	if(!xmlMemInitialized) xmlInitMemory();
+	if(!xmlMemInitialized) 
+		xmlInitMemory();
 #ifdef DEBUG_MEMORY
 	xmlGenericError(0, "Malloc(%d)\n", size);
 #endif
@@ -161,7 +161,8 @@ void * xmlMallocLoc(size_t size, const char * file, int line)
 #ifdef DEBUG_MEMORY
 	xmlGenericError(0, "Malloc(%d) Ok\n", size);
 #endif
-	if(xmlMemStopAtBlock == p->mh_number) xmlMallocBreakpoint();
+	if(xmlMemStopAtBlock == p->mh_number) 
+		xmlMallocBreakpoint();
 	ret = HDR_2_CLIENT(p);
 	if(xmlMemTraceBlockAt == ret) {
 		xmlGenericError(0, "%p : Malloc(%lu) Ok\n", xmlMemTraceBlockAt, (ulong)size);
@@ -906,7 +907,7 @@ void xmlCleanupMemory()
 	//xmlMalloc_ = mallocFunc;
 	//xmlMallocAtomic_ = mallocFunc;
 	//xmlRealloc_ = reallocFunc;
-	xmlMemStrdup = strdupFunc;
+	xmlMemStrdup_Removed = strdupFunc;
 #ifdef DEBUG_MEMORY
 	xmlGenericError(0, "xmlMemSetup() Ok\n");
 #endif
@@ -970,7 +971,7 @@ void xmlCleanupMemory()
 	xmlMalloc_ = mallocFunc;
 	xmlMallocAtomic_ = mallocAtomicFunc;
 	xmlRealloc_ = reallocFunc;
-	xmlMemStrdup = strdupFunc;
+	xmlMemStrdup_Removed = strdupFunc;
 #ifdef DEBUG_MEMORY
 	xmlGenericError(0, "xmlGcMemSetup() Ok\n");
 #endif
@@ -997,7 +998,7 @@ void xmlCleanupMemory()
 	if(mallocFunc != NULL) *mallocFunc = xmlMalloc;
 	if(mallocAtomicFunc != NULL) *mallocAtomicFunc = xmlMallocAtomic;
 	if(reallocFunc != NULL) *reallocFunc = xmlRealloc;
-	if(strdupFunc != NULL) *strdupFunc = xmlMemStrdup;
+	if(strdupFunc != NULL) *strdupFunc = xmlMemStrdup_Removed;
 	return 0;
 }*/
 

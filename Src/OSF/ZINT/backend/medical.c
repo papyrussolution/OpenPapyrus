@@ -56,12 +56,10 @@ int pharma_one(struct ZintSymbol * symbol, uchar source[], int length)
 
 	/* This code uses the One Track Pharamacode calculating algorithm as recommended by
 	   the specification at http://www.laetus.com/laetus.php?request=file&id=69 */
-
-	unsigned long int tester;
-	int counter, error_number, h;
-	char inter[18] = {0}; /* 131070 -> 17 bits */
-	char dest[64]; /* 17 * 2 + 1 */
-
+	ulong  tester;
+	int    counter, error_number, h;
+	char   inter[18] = {0}; /* 131070 -> 17 bits */
+	char   dest[64]; /* 17 * 2 + 1 */
 	if(length > 6) {
 		sstrcpy(symbol->errtxt, "Input too long (C50)");
 		return ZINT_ERROR_TOO_LONG;
@@ -110,14 +108,10 @@ int pharma_two_calc(struct ZintSymbol * symbol, uchar source[], char dest[])
 	   http://www.laetus.com/laetus.php?request=file&id=69 and using a modified
 	   algorithm from the One Track system. This standard accepts integet values
 	   from 4 to 64570080. */
-
-	unsigned long int tester;
-	int counter, h;
-	char inter[17];
-	int error_number;
-
-	tester = atoi((char*)source);
-
+	int    counter, h;
+	char   inter[17];
+	int    error_number;
+	ulong  tester = atoi((char*)source);
 	if((tester < 4) || (tester > 64570080)) {
 		sstrcpy(symbol->errtxt, "Data out of range (C53)");
 		return ZINT_ERROR_INVALID_DATA;

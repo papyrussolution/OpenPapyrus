@@ -67,6 +67,7 @@ static void xmlEncodingErrMemory(const char * extra)
 
 struct LibXmlEncoderBlock {
 	LibXmlEncoderBlock();
+	~LibXmlEncoderBlock();
 	void   InitCharEncodingHandlers();
 	void   CleanupEncodingAliases();
 	void   CleanupCharEncodingHandlers();
@@ -266,7 +267,7 @@ error:
 
 static void closeIcuConverter(uconv_t * conv)
 {
-	if(conv != NULL) {
+	if(conv) {
 		ucnv_close(conv->uconv);
 		ucnv_close(conv->utf8);
 		SAlloc::F(conv);
@@ -1078,15 +1079,15 @@ int xmlAddEncodingAlias(const char * name, const char * alias)
 		if(strcmp(EncBlk.xmlCharEncodingAliases[i].alias, upper) == 0) {
 			// Replace the definition.
 			SAlloc::F((char*)EncBlk.xmlCharEncodingAliases[i].name);
-			EncBlk.xmlCharEncodingAliases[i].name = xmlMemStrdup(name);
+			EncBlk.xmlCharEncodingAliases[i].name = sstrdup(name);
 			return 0;
 		}
 	}
 	//
 	// Add the definition
 	//
-	EncBlk.xmlCharEncodingAliases[EncBlk.xmlCharEncodingAliasesNb].name = xmlMemStrdup(name);
-	EncBlk.xmlCharEncodingAliases[EncBlk.xmlCharEncodingAliasesNb].alias = xmlMemStrdup(upper);
+	EncBlk.xmlCharEncodingAliases[EncBlk.xmlCharEncodingAliasesNb].name = sstrdup(name);
+	EncBlk.xmlCharEncodingAliases[EncBlk.xmlCharEncodingAliasesNb].alias = sstrdup(upper);
 	EncBlk.xmlCharEncodingAliasesNb++;
 	return 0;
 }
@@ -1113,8 +1114,7 @@ int xmlDelEncodingAlias(const char * alias)
 			SAlloc::F((char*)EncBlk.xmlCharEncodingAliases[i].name);
 			SAlloc::F((char*)EncBlk.xmlCharEncodingAliases[i].alias);
 			EncBlk.xmlCharEncodingAliasesNb--;
-			memmove(&EncBlk.xmlCharEncodingAliases[i], &EncBlk.xmlCharEncodingAliases[i + 1],
-			    sizeof(xmlCharEncodingAlias) * (EncBlk.xmlCharEncodingAliasesNb - i));
+			memmove(&EncBlk.xmlCharEncodingAliases[i], &EncBlk.xmlCharEncodingAliases[i + 1], sizeof(xmlCharEncodingAlias) * (EncBlk.xmlCharEncodingAliasesNb - i));
 			return 0;
 		}
 	}
@@ -1142,7 +1142,7 @@ xmlCharEncoding xmlParseCharEncoding(const char* name)
 	 * Do the alias resolution
 	 */
 	alias = xmlGetEncodingAlias(name);
-	if(alias != NULL)
+	if(alias)
 		name = alias;
 	for(i = 0; i < 499; i++) {
 		upper[i] = toupper(name[i]);
@@ -1212,54 +1212,30 @@ xmlCharEncoding xmlParseCharEncoding(const char* name)
 const char* xmlGetCharEncodingName(xmlCharEncoding enc)
 {
 	switch(enc) {
-		case XML_CHAR_ENCODING_ERROR:
-		    return 0;
-		case XML_CHAR_ENCODING_NONE:
-		    return 0;
-		case XML_CHAR_ENCODING_UTF8:
-		    return("UTF-8");
-		case XML_CHAR_ENCODING_UTF16LE:
-		    return("UTF-16");
-		case XML_CHAR_ENCODING_UTF16BE:
-		    return("UTF-16");
-		case XML_CHAR_ENCODING_EBCDIC:
-		    return("EBCDIC");
-		case XML_CHAR_ENCODING_UCS4LE:
-		    return("ISO-10646-UCS-4");
-		case XML_CHAR_ENCODING_UCS4BE:
-		    return("ISO-10646-UCS-4");
-		case XML_CHAR_ENCODING_UCS4_2143:
-		    return("ISO-10646-UCS-4");
-		case XML_CHAR_ENCODING_UCS4_3412:
-		    return("ISO-10646-UCS-4");
-		case XML_CHAR_ENCODING_UCS2:
-		    return("ISO-10646-UCS-2");
-		case XML_CHAR_ENCODING_8859_1:
-		    return("ISO-8859-1");
-		case XML_CHAR_ENCODING_8859_2:
-		    return("ISO-8859-2");
-		case XML_CHAR_ENCODING_8859_3:
-		    return("ISO-8859-3");
-		case XML_CHAR_ENCODING_8859_4:
-		    return("ISO-8859-4");
-		case XML_CHAR_ENCODING_8859_5:
-		    return("ISO-8859-5");
-		case XML_CHAR_ENCODING_8859_6:
-		    return("ISO-8859-6");
-		case XML_CHAR_ENCODING_8859_7:
-		    return("ISO-8859-7");
-		case XML_CHAR_ENCODING_8859_8:
-		    return("ISO-8859-8");
-		case XML_CHAR_ENCODING_8859_9:
-		    return("ISO-8859-9");
-		case XML_CHAR_ENCODING_2022_JP:
-		    return("ISO-2022-JP");
-		case XML_CHAR_ENCODING_SHIFT_JIS:
-		    return("Shift-JIS");
-		case XML_CHAR_ENCODING_EUC_JP:
-		    return("EUC-JP");
-		case XML_CHAR_ENCODING_ASCII:
-		    return 0;
+		case XML_CHAR_ENCODING_ERROR: return 0;
+		case XML_CHAR_ENCODING_NONE: return 0;
+		case XML_CHAR_ENCODING_UTF8: return("UTF-8");
+		case XML_CHAR_ENCODING_UTF16LE: return("UTF-16");
+		case XML_CHAR_ENCODING_UTF16BE: return("UTF-16");
+		case XML_CHAR_ENCODING_EBCDIC: return("EBCDIC");
+		case XML_CHAR_ENCODING_UCS4LE: return("ISO-10646-UCS-4");
+		case XML_CHAR_ENCODING_UCS4BE: return("ISO-10646-UCS-4");
+		case XML_CHAR_ENCODING_UCS4_2143: return("ISO-10646-UCS-4");
+		case XML_CHAR_ENCODING_UCS4_3412: return("ISO-10646-UCS-4");
+		case XML_CHAR_ENCODING_UCS2: return("ISO-10646-UCS-2");
+		case XML_CHAR_ENCODING_8859_1: return("ISO-8859-1");
+		case XML_CHAR_ENCODING_8859_2: return("ISO-8859-2");
+		case XML_CHAR_ENCODING_8859_3: return("ISO-8859-3");
+		case XML_CHAR_ENCODING_8859_4: return("ISO-8859-4");
+		case XML_CHAR_ENCODING_8859_5: return("ISO-8859-5");
+		case XML_CHAR_ENCODING_8859_6: return("ISO-8859-6");
+		case XML_CHAR_ENCODING_8859_7: return("ISO-8859-7");
+		case XML_CHAR_ENCODING_8859_8: return("ISO-8859-8");
+		case XML_CHAR_ENCODING_8859_9: return("ISO-8859-9");
+		case XML_CHAR_ENCODING_2022_JP: return("ISO-2022-JP");
+		case XML_CHAR_ENCODING_SHIFT_JIS: return("Shift-JIS");
+		case XML_CHAR_ENCODING_EUC_JP: return("EUC-JP");
+		case XML_CHAR_ENCODING_ASCII: return 0;
 	}
 	return 0;
 }
@@ -1283,7 +1259,7 @@ xmlCharEncodingHandlerPtr xmlNewCharEncodingHandler(const char * name, xmlCharEn
 	// Do the alias resolution
 	//
 	const char * alias = xmlGetEncodingAlias(name);
-	if(alias != NULL)
+	if(alias)
 		name = alias;
 	/*
 	 * Keep only the uppercase version of the encoding.
@@ -1298,7 +1274,7 @@ xmlCharEncodingHandlerPtr xmlNewCharEncodingHandler(const char * name, xmlCharEn
 				break;
 		}
 		upper[i] = 0;
-		up = xmlMemStrdup(upper);
+		up = sstrdup(upper);
 		if(up == NULL) {
 			xmlEncodingErrMemory("xmlNewCharEncodingHandler : out of memory !\n");
 		}
@@ -1493,7 +1469,7 @@ static int xmlUconvWrapper(uconv_t * cd, int toUnicode, uchar * out, int * outle
 	char * ucv_out = (char*)out;
 	UErrorCode err = U_ZERO_ERROR;
 	if((out == NULL) || (outlen == NULL) || (inlen == NULL) || (in == NULL)) {
-		if(outlen != NULL) *outlen = 0;
+		ASSIGN_PTR(outlen, 0);
 		return -1;
 	}
 	/*
@@ -1580,15 +1556,14 @@ int xmlCharEncFirstLineInt(xmlCharEncodingHandler * handler, xmlBufferPtr out, x
 		xmlBufferGrow(out, toconv * 2);
 		written = out->size - out->use - 1;
 	}
-
-	if(handler->input != NULL) {
+	if(handler->input) {
 		ret = handler->input(&out->content[out->use], &written, in->content, &toconv);
 		xmlBufferShrink(in, toconv);
 		out->use += written;
 		out->content[out->use] = 0;
 	}
 #ifdef LIBXML_ICONV_ENABLED
-	else if(handler->iconv_in != NULL) {
+	else if(handler->iconv_in) {
 		ret = xmlIconvWrapper(handler->iconv_in, &out->content[out->use], &written, in->content, &toconv);
 		xmlBufferShrink(in, toconv);
 		out->use += written;
@@ -1598,7 +1573,7 @@ int xmlCharEncFirstLineInt(xmlCharEncodingHandler * handler, xmlBufferPtr out, x
 	}
 #endif /* LIBXML_ICONV_ENABLED */
 #ifdef LIBXML_ICU_ENABLED
-	else if(handler->uconv_in != NULL) {
+	else if(handler->uconv_in) {
 		ret = xmlUconvWrapper(handler->uconv_in, 1, &out->content[out->use], &written, in->content, &toconv);
 		xmlBufferShrink(in, toconv);
 		out->use += written;
@@ -1710,16 +1685,15 @@ int xmlCharEncFirstLineInput(xmlParserInputBufferPtr input, int len)
 	}
 	if(written > 360)
 		written = 360;
-
 	c_in = toconv;
 	c_out = written;
-	if(input->encoder->input != NULL) {
+	if(input->encoder->input) {
 		ret = input->encoder->input(xmlBufEnd(out), &c_out, xmlBufContent(in), &c_in);
 		xmlBufShrink(in, c_in);
 		xmlBufAddLen(out, c_out);
 	}
 #ifdef LIBXML_ICONV_ENABLED
-	else if(input->encoder->iconv_in != NULL) {
+	else if(input->encoder->iconv_in) {
 		ret = xmlIconvWrapper(input->encoder->iconv_in, xmlBufEnd(out), &c_out, xmlBufContent(in), &c_in);
 		xmlBufShrink(in, c_in);
 		xmlBufAddLen(out, c_out);
@@ -1728,7 +1702,7 @@ int xmlCharEncFirstLineInput(xmlParserInputBufferPtr input, int len)
 	}
 #endif /* LIBXML_ICONV_ENABLED */
 #ifdef LIBXML_ICU_ENABLED
-	else if(input->encoder->uconv_in != NULL) {
+	else if(input->encoder->uconv_in) {
 		ret = xmlUconvWrapper(input->encoder->uconv_in, 1, xmlBufEnd(out),
 		    &c_out, xmlBufContent(in), &c_in);
 		xmlBufShrink(in, c_in);
@@ -1815,13 +1789,13 @@ int xmlCharEncInput(xmlParserInputBufferPtr input, int flush)
 
 	c_in = toconv;
 	c_out = written;
-	if(input->encoder->input != NULL) {
+	if(input->encoder->input) {
 		ret = input->encoder->input(xmlBufEnd(out), &c_out, xmlBufContent(in), &c_in);
 		xmlBufShrink(in, c_in);
 		xmlBufAddLen(out, c_out);
 	}
 #ifdef LIBXML_ICONV_ENABLED
-	else if(input->encoder->iconv_in != NULL) {
+	else if(input->encoder->iconv_in) {
 		ret = xmlIconvWrapper(input->encoder->iconv_in, xmlBufEnd(out), &c_out, xmlBufContent(in), &c_in);
 		xmlBufShrink(in, c_in);
 		xmlBufAddLen(out, c_out);
@@ -1830,7 +1804,7 @@ int xmlCharEncInput(xmlParserInputBufferPtr input, int flush)
 	}
 #endif /* LIBXML_ICONV_ENABLED */
 #ifdef LIBXML_ICU_ENABLED
-	else if(input->encoder->uconv_in != NULL) {
+	else if(input->encoder->uconv_in) {
 		ret = xmlUconvWrapper(input->encoder->uconv_in, 1, xmlBufEnd(out), &c_out, xmlBufContent(in), &c_in);
 		xmlBufShrink(in, c_in);
 		xmlBufAddLen(out, c_out);
@@ -1903,16 +1877,15 @@ int xmlCharEncInFunc(xmlCharEncodingHandler * handler, xmlBufferPtr out, xmlBuff
 		xmlBufferGrow(out, out->size + toconv * 2);
 		written = out->size - out->use - 1;
 	}
-	if(handler->input != NULL) {
+	if(handler->input) {
 		ret = handler->input(&out->content[out->use], &written, in->content, &toconv);
 		xmlBufferShrink(in, toconv);
 		out->use += written;
 		out->content[out->use] = 0;
 	}
 #ifdef LIBXML_ICONV_ENABLED
-	else if(handler->iconv_in != NULL) {
-		ret = xmlIconvWrapper(handler->iconv_in, &out->content[out->use],
-		    &written, in->content, &toconv);
+	else if(handler->iconv_in) {
+		ret = xmlIconvWrapper(handler->iconv_in, &out->content[out->use], &written, in->content, &toconv);
 		xmlBufferShrink(in, toconv);
 		out->use += written;
 		out->content[out->use] = 0;
@@ -1921,9 +1894,8 @@ int xmlCharEncInFunc(xmlCharEncodingHandler * handler, xmlBufferPtr out, xmlBuff
 	}
 #endif /* LIBXML_ICONV_ENABLED */
 #ifdef LIBXML_ICU_ENABLED
-	else if(handler->uconv_in != NULL) {
-		ret = xmlUconvWrapper(handler->uconv_in, 1, &out->content[out->use],
-		    &written, in->content, &toconv);
+	else if(handler->uconv_in) {
+		ret = xmlUconvWrapper(handler->uconv_in, 1, &out->content[out->use], &written, in->content, &toconv);
 		xmlBufferShrink(in, toconv);
 		out->use += written;
 		out->content[out->use] = 0;
@@ -2005,19 +1977,19 @@ retry:
 	if(init) {
 		c_in = 0;
 		c_out = written;
-		if(output->encoder->output != NULL) {
+		if(output->encoder->output) {
 			ret = output->encoder->output(xmlBufEnd(out), &c_out, NULL, &c_in);
 			if(ret > 0) /* Gennady: check return value */
 				xmlBufAddLen(out, c_out);
 		}
 #ifdef LIBXML_ICONV_ENABLED
-		else if(output->encoder->iconv_out != NULL) {
+		else if(output->encoder->iconv_out) {
 			ret = xmlIconvWrapper(output->encoder->iconv_out, xmlBufEnd(out), &c_out, NULL, &c_in);
 			xmlBufAddLen(out, c_out);
 		}
 #endif /* LIBXML_ICONV_ENABLED */
 #ifdef LIBXML_ICU_ENABLED
-		else if(output->encoder->uconv_out != NULL) {
+		else if(output->encoder->uconv_out) {
 			ret = xmlUconvWrapper(output->encoder->uconv_out, 0, xmlBufEnd(out), &c_out, NULL, &c_in);
 			xmlBufAddLen(out, c_out);
 		}
@@ -2043,7 +2015,7 @@ retry:
 		written = 256 * 1024;
 	c_in = toconv;
 	c_out = written;
-	if(output->encoder->output != NULL) {
+	if(output->encoder->output) {
 		ret = output->encoder->output(xmlBufEnd(out), &c_out, xmlBufContent(in), &c_in);
 		if(c_out > 0) {
 			xmlBufShrink(in, c_in);
@@ -2052,7 +2024,7 @@ retry:
 		}
 	}
 #ifdef LIBXML_ICONV_ENABLED
-	else if(output->encoder->iconv_out != NULL) {
+	else if(output->encoder->iconv_out) {
 		ret = xmlIconvWrapper(output->encoder->iconv_out, xmlBufEnd(out), &c_out, xmlBufContent(in), &c_in);
 		xmlBufShrink(in, c_in);
 		xmlBufAddLen(out, c_out);
@@ -2068,7 +2040,7 @@ retry:
 	}
 #endif // } LIBXML_ICONV_ENABLED
 #ifdef LIBXML_ICU_ENABLED
-	else if(output->encoder->uconv_out != NULL) {
+	else if(output->encoder->uconv_out) {
 		ret = xmlUconvWrapper(output->encoder->uconv_out, 0, xmlBufEnd(out), &c_out, xmlBufContent(in), &c_in);
 		xmlBufShrink(in, c_in);
 		xmlBufAddLen(out, c_out);
@@ -2192,7 +2164,7 @@ retry:
 	//
 	if(!in) {
 		toconv = 0;
-		if(handler->output != NULL) {
+		if(handler->output) {
 			ret = handler->output(&out->content[out->use], &written, NULL, &toconv);
 			if(ret >= 0) { /* Gennady: check return value */
 				out->use += written;
@@ -2200,14 +2172,14 @@ retry:
 			}
 		}
 #ifdef LIBXML_ICONV_ENABLED
-		else if(handler->iconv_out != NULL) {
+		else if(handler->iconv_out) {
 			ret = xmlIconvWrapper(handler->iconv_out, &out->content[out->use], &written, NULL, &toconv);
 			out->use += written;
 			out->content[out->use] = 0;
 		}
 #endif // LIBXML_ICONV_ENABLED
 #ifdef LIBXML_ICU_ENABLED
-		else if(handler->uconv_out != NULL) {
+		else if(handler->uconv_out) {
 			ret = xmlUconvWrapper(handler->uconv_out, 0, &out->content[out->use], &written, NULL, &toconv);
 			out->use += written;
 			out->content[out->use] = 0;
@@ -2228,7 +2200,7 @@ retry:
 		xmlBufferGrow(out, toconv * 4);
 		written = out->size - out->use - 1;
 	}
-	if(handler->output != NULL) {
+	if(handler->output) {
 		ret = handler->output(&out->content[out->use], &written, in->content, &toconv);
 		if(written > 0) {
 			xmlBufferShrink(in, toconv);
@@ -2238,7 +2210,7 @@ retry:
 		out->content[out->use] = 0;
 	}
 #ifdef LIBXML_ICONV_ENABLED
-	else if(handler->iconv_out != NULL) {
+	else if(handler->iconv_out) {
 		ret = xmlIconvWrapper(handler->iconv_out, &out->content[out->use], &written, in->content, &toconv);
 		xmlBufferShrink(in, toconv);
 		out->use += written;
@@ -2255,7 +2227,7 @@ retry:
 	}
 #endif /* LIBXML_ICONV_ENABLED */
 #ifdef LIBXML_ICU_ENABLED
-	else if(handler->uconv_out != NULL) {
+	else if(handler->uconv_out) {
 		ret = xmlUconvWrapper(handler->uconv_out, 0, &out->content[out->use], &written, in->content, &toconv);
 		xmlBufferShrink(in, toconv);
 		out->use += written;
@@ -2390,7 +2362,7 @@ long xmlByteConsumed(xmlParserCtxt * ctxt)
 			const uchar * cur = (const uchar*)in->cur;
 			int toconv = in->end - in->cur, written = 32000;
 			int ret;
-			if(handler->output != NULL) {
+			if(handler->output) {
 				do {
 					toconv = in->end - cur;
 					written = 32000;
@@ -2402,7 +2374,7 @@ long xmlByteConsumed(xmlParserCtxt * ctxt)
 				} while(ret == -2);
 #ifdef LIBXML_ICONV_ENABLED
 			}
-			else if(handler->iconv_out != NULL) {
+			else if(handler->iconv_out) {
 				do {
 					toconv = in->end - cur;
 					written = 32000;
@@ -2420,7 +2392,7 @@ long xmlByteConsumed(xmlParserCtxt * ctxt)
 #endif
 #ifdef LIBXML_ICU_ENABLED
 			}
-			else if(handler->uconv_out != NULL) {
+			else if(handler->uconv_out) {
 				do {
 					toconv = in->end - cur;
 					written = 32000;
@@ -2648,12 +2620,17 @@ LibXmlEncoderBlock::LibXmlEncoderBlock()
 	xmlDefaultCharEncodingHandler = 0;
 }
 
+LibXmlEncoderBlock::~LibXmlEncoderBlock()
+{
+	CleanupCharEncodingHandlers();
+}
+
 void LibXmlEncoderBlock::InitCharEncodingHandlers()
 {
 	if(!PP_Tab) {
 		ushort tst = 0x1234;
 		uchar * ptr = (uchar*)&tst;
-		PP_Tab = (xmlCharEncodingHandlerPtr*)SAlloc::M(MAX_ENCODING_HANDLERS * sizeof(xmlCharEncodingHandlerPtr));
+		PP_Tab = (xmlCharEncodingHandler **)SAlloc::M(MAX_ENCODING_HANDLERS * sizeof(xmlCharEncodingHandler *));
 		if(*ptr == 0x12)
 			xmlLittleEndian = 0;
 		else if(*ptr == 0x34)
@@ -2665,6 +2642,7 @@ void LibXmlEncoderBlock::InitCharEncodingHandlers()
 			xmlEncodingErrMemory("xmlInitCharEncodingHandlers : out of memory !\n");
 		}
 		else {
+			memzero(PP_Tab, MAX_ENCODING_HANDLERS * sizeof(xmlCharEncodingHandler *));
 			xmlNewCharEncodingHandler("UTF-8", UTF8ToUTF8, UTF8ToUTF8);
 #ifdef LIBXML_OUTPUT_ENABLED
 			xmlUTF16LEHandler = xmlNewCharEncodingHandler("UTF-16LE", UTF16LEToUTF8, UTF8ToUTF16LE);
@@ -2718,16 +2696,11 @@ xmlCharEncodingHandlerPtr LibXmlEncoderBlock::GetCharEncodingHandler(xmlCharEnco
 	if(!PP_Tab)
 		InitCharEncodingHandlers();
 	switch(enc) {
-		case XML_CHAR_ENCODING_ERROR:
-		    return 0;
-		case XML_CHAR_ENCODING_NONE:
-		    return 0;
-		case XML_CHAR_ENCODING_UTF8:
-		    return 0;
-		case XML_CHAR_ENCODING_UTF16LE:
-		    return xmlUTF16LEHandler;
-		case XML_CHAR_ENCODING_UTF16BE:
-		    return xmlUTF16BEHandler;
+		case XML_CHAR_ENCODING_ERROR: return 0;
+		case XML_CHAR_ENCODING_NONE: return 0;
+		case XML_CHAR_ENCODING_UTF8: return 0;
+		case XML_CHAR_ENCODING_UTF16LE: return xmlUTF16LEHandler;
+		case XML_CHAR_ENCODING_UTF16BE: return xmlUTF16BEHandler;
 		case XML_CHAR_ENCODING_EBCDIC:
 		    handler = xmlFindCharEncodingHandler("EBCDIC");
 		    if(handler)
@@ -2890,7 +2863,7 @@ xmlCharEncodingHandlerPtr LibXmlEncoderBlock::FindCharEncodingHandler(const char
 		//
 		const char * norig = name;
 		const char * nalias = xmlGetEncodingAlias(name);
-		if(nalias != NULL)
+		if(nalias)
 			name = nalias;
 		//
 		// Check first for directly registered encoding names
@@ -2929,7 +2902,7 @@ xmlCharEncodingHandlerPtr LibXmlEncoderBlock::FindCharEncodingHandler(const char
 			}
 			else {
 				memzero(enc, sizeof(xmlCharEncodingHandler));
-				enc->name = xmlMemStrdup(name);
+				enc->name = sstrdup(name);
 				enc->input = NULL;
 				enc->output = NULL;
 				enc->iconv_in = icv_in;
@@ -2956,7 +2929,7 @@ xmlCharEncodingHandlerPtr LibXmlEncoderBlock::FindCharEncodingHandler(const char
 			}
 			else {
 				memzero(encu, sizeof(xmlCharEncodingHandler));
-				encu->name = xmlMemStrdup(name);
+				encu->name = sstrdup(name);
 				encu->input = NULL;
 				encu->output = NULL;
 				encu->uconv_in = ucv_in;
@@ -3023,12 +2996,12 @@ int LibXmlEncoderBlock::CharEncCloseFunc(xmlCharEncodingHandler * handler)
 		//
 		if(!handler_in_list && (handler->iconv_out || handler->iconv_in)) {
 			tofree = 1;
-			if(handler->iconv_out != NULL) {
+			if(handler->iconv_out) {
 				if(iconv_close(handler->iconv_out))
 					ret = -1;
 				handler->iconv_out = NULL;
 			}
-			if(handler->iconv_in != NULL) {
+			if(handler->iconv_in) {
 				if(iconv_close(handler->iconv_in))
 					ret = -1;
 				handler->iconv_in = NULL;
@@ -3038,11 +3011,11 @@ int LibXmlEncoderBlock::CharEncCloseFunc(xmlCharEncodingHandler * handler)
 #ifdef LIBXML_ICU_ENABLED
 		if(!handler_in_list && (handler->uconv_out || handler->uconv_in)) {
 			tofree = 1;
-			if(handler->uconv_out != NULL) {
+			if(handler->uconv_out) {
 				closeIcuConverter(handler->uconv_out);
 				handler->uconv_out = NULL;
 			}
-			if(handler->uconv_in != NULL) {
+			if(handler->uconv_in) {
 				closeIcuConverter(handler->uconv_in);
 				handler->uconv_in = NULL;
 			}
@@ -3050,8 +3023,7 @@ int LibXmlEncoderBlock::CharEncCloseFunc(xmlCharEncodingHandler * handler)
 #endif
 		if(tofree) {
 			// free up only dynamic handlers iconv/uconv
-			SAlloc::F(handler->name);
-			handler->name = NULL;
+			ZFREE(handler->name);
 			SAlloc::F(handler);
 		}
 #ifdef DEBUG_ENCODING

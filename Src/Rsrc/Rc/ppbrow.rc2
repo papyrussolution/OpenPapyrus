@@ -6466,6 +6466,7 @@ cmd AlcReportCfg          { "@{cmd_alcreportcfg}"                          none 
 cmd ProcessOsm            { "@{prcssrosm}"                                 none                   none cmProcessOsm }   // @v9.5.9
 cmd TestLogWindow         { "@{cmd_testlogwindow}"                         ICON_TEST              none cmTestLogWindow } // @v9.7.0
 cmd ProcessSartre         { "@{cmd_importsartre}"                          none                   none cmProcessSartre } // @v9.7.8
+cmd BillAutoCreate        { "@{cmd_billautocreate}"                        none                   none cmBillAutoCreate } // @v9.7.10
 //
 // -------------- Описания серверных задач
 //

@@ -272,7 +272,7 @@ int __os_open(ENV * env, const char * name, uint32 page_size, uint32 flags, int 
 	return 0;
 err:
 	FREE_STRING(env, tname);
-	if(fhp != NULL)
+	if(fhp)
 		__os_closehandle(env, fhp);
 	return ret;
 }
@@ -530,7 +530,7 @@ err:
 		*namesp = names;
 		*cntp = cnt;
 	}
-	else if(names != NULL)
+	else if(names)
 		__os_dirfree(env, names, cnt);
 	FREE_STRING(env, tdir);
 	return ret;
@@ -1180,7 +1180,7 @@ int __os_openhandle(ENV * env, const char * name, int flags, int mode, DB_FH ** 
 		return ret;
 	if((ret = __os_strdup(env, name, &fhp->name)) != 0)
 		goto err;
-	if(env != NULL) {
+	if(env) {
 		MUTEX_LOCK(env, env->mtx_env);
 		TAILQ_INSERT_TAIL(&env->fdlist, fhp, q);
 		MUTEX_UNLOCK(env, env->mtx_env);
@@ -1238,9 +1238,9 @@ int FASTCALL __os_closehandle(ENV * env, DB_FH * fhp)
 	DB_ENV * dbenv;
 	int t_ret;
 	int ret = 0;
-	if(env != NULL) {
+	if(env) {
 		dbenv = env->dbenv;
-		if(fhp->name != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
+		if(fhp->name && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
 			__db_msg(env, DB_STR_A("0031", "fileops: %s: close", "%s"), fhp->name);
 		if(F_ISSET(fhp, DB_FH_ENVLINK)) {
 			//
@@ -1340,7 +1340,7 @@ int __os_attach(ENV * env, REGINFO * infop, REGION * rp)
 	 * If we are using sparse file, we don't need to keep the file handle
 	 * for writing or extending.
 	 */
-	if(is_sparse && infop->fhp != NULL) {
+	if(is_sparse && infop->fhp) {
 		ret = __os_closehandle(env, infop->fhp);
 		infop->fhp = NULL;
 	}
@@ -1353,11 +1353,11 @@ int __os_detach(ENV * env, REGINFO * infop, int destroy)
 {
 	int ret, t_ret;
 	DB_ENV * dbenv = env->dbenv;
-	if(infop->wnt_handle != NULL) {
+	if(infop->wnt_handle) {
 		CloseHandle(infop->wnt_handle);
 		infop->wnt_handle = NULL;
 	}
-	if(infop->fhp != NULL) {
+	if(infop->fhp) {
 		ret = __os_closehandle(env, infop->fhp);
 		infop->fhp = NULL;
 		if(ret != 0)
@@ -1566,7 +1566,7 @@ static int __os_map(ENV * env, char * path, REGINFO * infop, DB_FH * fhp, size_t
 	 * here fixes this problem.  We carry the handle around in the region
 	 * structure so we can close it when unmap is called.
 	 */
-	if(use_pagefile && infop != NULL)
+	if(use_pagefile && infop)
 		infop->wnt_handle = hMemory;
 	else
 		CloseHandle(hMemory);
@@ -1586,7 +1586,7 @@ void __os_id(DB_ENV * dbenv, pid_t * pidp, db_threadid_t * tidp)
 	 * We cache the pid in the ENV handle, getting the process ID is a
 	 * fairly slow call on lots of systems.
 	 */
-	if(pidp != NULL) {
+	if(pidp) {
 		if(!dbenv) {
 #if defined(HAVE_VXWORKS)
 			*pidp = taskIdSelf();
@@ -1597,7 +1597,7 @@ void __os_id(DB_ENV * dbenv, pid_t * pidp, db_threadid_t * tidp)
 		else
 			*pidp = dbenv->env->pid_cache;
 	}
-	if(tidp != NULL) {
+	if(tidp) {
 #if defined(DB_WIN32)
 		*tidp = GetCurrentThreadId();
 #elif defined(HAVE_MUTEX_UI_THREADS)
@@ -1941,11 +1941,9 @@ int __os_ioinfo(ENV * env, const char * path, DB_FH * fhp, uint32 * mbytesp, uin
 	}
 	filesize = ((unsigned __int64)bhfi.nFileSizeHigh<<32)+bhfi.nFileSizeLow;
 	/* Return the size of the file. */
-	if(mbytesp != NULL)
-		*mbytesp = (uint32)(filesize/MEGABYTE);
-	if(bytesp != NULL)
-		*bytesp = (uint32)(filesize%MEGABYTE);
-	if(iosizep != NULL) {
+	ASSIGN_PTR(mbytesp, (uint32)(filesize/MEGABYTE));
+	ASSIGN_PTR(bytesp, (uint32)(filesize%MEGABYTE));
+	if(iosizep) {
 		/*
 		 * Attempt to retrieve a file system cluster size, if the
 		 * call succeeds, and the value returned is reasonable,

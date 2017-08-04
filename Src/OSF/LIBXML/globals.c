@@ -28,7 +28,7 @@
 /*
  * Mutex to protect "ForNewThreads" variables
  */
-static xmlMutexPtr xmlThrDefMutex = NULL;
+static xmlMutex * xmlThrDefMutex = NULL;
 
 /**
  * xmlInitGlobals:
@@ -39,7 +39,6 @@ void xmlInitGlobals()
 {
 	SETIFZ(xmlThrDefMutex, xmlNewMutex());
 }
-
 /**
  * xmlCleanupGlobals:
  *
@@ -47,10 +46,8 @@ void xmlInitGlobals()
  */
 void xmlCleanupGlobals()
 {
-	if(xmlThrDefMutex != NULL) {
-		xmlFreeMutex(xmlThrDefMutex);
-		xmlThrDefMutex = NULL;
-	}
+	xmlFreeMutex(xmlThrDefMutex);
+	xmlThrDefMutex = NULL;
 	__xmlGlobalInitMutexDestroy();
 }
 
@@ -66,7 +63,7 @@ void xmlCleanupGlobals()
 #undef  free_
 //#undef  xmlMalloc_
 //#undef  xmlMallocAtomic_
-#undef  xmlMemStrdup
+#undef  xmlMemStrdup_Removed
 //#undef  xmlRealloc_
 
 #if defined(DEBUG_MEMORY_LOCATION) || defined(DEBUG_MEMORY)
@@ -74,7 +71,7 @@ void xmlCleanupGlobals()
 	xmlMallocFunc xmlMalloc_ = (xmlMallocFunc)xmlMemMalloc;
 	xmlMallocFunc xmlMallocAtomic_ = (xmlMallocFunc)xmlMemMalloc;
 	xmlReallocFunc xmlRealloc_ = (xmlReallocFunc)xmlMemRealloc;
-	xmlStrdupFunc xmlMemStrdup = (xmlStrdupFunc)xmlMemoryStrdup;
+	xmlStrdupFunc xmlMemStrdup_Removed = (xmlStrdupFunc)xmlMemoryStrdup;
 #else
 	/**
 	* free:
@@ -121,7 +118,7 @@ void xmlCleanupGlobals()
 	*
 	* Returns the copy of the string or NULL in case of error
 	*/
-	xmlStrdupFunc xmlMemStrdup = (xmlStrdupFunc)xmlStrdup;
+	xmlStrdupFunc xmlMemStrdup_Removed = (xmlStrdupFunc)xmlStrdup_Removed;
 #endif /* DEBUG_MEMORY_LOCATION || DEBUG_MEMORY */
 
 #include <libxml/threads.h>
@@ -514,13 +511,13 @@ void xmlInitializeGlobalState(xmlGlobalState * gs)
 	//gs->xmlMalloc_ = (xmlMallocFunc)xmlMemMalloc;
 	//gs->xmlMallocAtomic_ = (xmlMallocFunc)xmlMemMalloc;
 	gs->xmlRealloc = (xmlReallocFunc)xmlMemRealloc;
-	gs->xmlMemStrdup = (xmlStrdupFunc)xmlMemoryStrdup;
+	gs->xmlMemStrdup_Removed = (xmlStrdupFunc)xmlMemoryStrdup;
 #else
 	// @sobolev gs->xmlFree = (xmlFreeFunc)free;
 	//gs->xmlMalloc_ = (xmlMallocFunc)malloc;
 	//gs->xmlMallocAtomic_ = (xmlMallocFunc)malloc;
 	//gs->xmlRealloc_ = (xmlReallocFunc)realloc;
-	gs->xmlMemStrdup = (xmlStrdupFunc)xmlStrdup;
+	gs->xmlMemStrdup_Removed = (xmlStrdupFunc)xmlStrdup_Removed;
 #endif
 	gs->xmlGetWarningsDefaultValue = xmlGetWarningsDefaultValueThrDef;
 	gs->xmlIndentTreeOutput = xmlIndentTreeOutputThrDef;
@@ -699,7 +696,7 @@ xmlFreeFunc * __xmlFree()
 
 xmlStrdupFunc * __xmlMemStrdup()
 {
-	return IS_MAIN_THREAD ? (&xmlMemStrdup) : (&xmlGetGlobalState()->xmlMemStrdup);
+	return IS_MAIN_THREAD ? (&xmlMemStrdup_Removed) : (&xmlGetGlobalState()->xmlMemStrdup_Removed);
 }
 
 #endif

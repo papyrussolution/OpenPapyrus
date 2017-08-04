@@ -21,7 +21,7 @@ extern "C" {
  * xmlMutex are a simple mutual exception locks.
  */
 typedef struct _xmlMutex xmlMutex;
-typedef xmlMutex *xmlMutexPtr;
+//typedef xmlMutex *xmlMutexPtr;
 
 /*
  * xmlRMutex are reentrant mutual exception locks.
@@ -36,10 +36,10 @@ typedef xmlRMutex *xmlRMutexPtr;
 #ifdef __cplusplus
 extern "C" {
 #endif
-XMLPUBFUN xmlMutexPtr XMLCALL xmlNewMutex();
-XMLPUBFUN void XMLCALL xmlMutexLock(xmlMutexPtr tok);
-XMLPUBFUN void XMLCALL xmlMutexUnlock(xmlMutexPtr tok);
-XMLPUBFUN void XMLCALL xmlFreeMutex(xmlMutexPtr tok);
+XMLPUBFUN xmlMutex * XMLCALL xmlNewMutex();
+XMLPUBFUN void XMLCALL xmlMutexLock(xmlMutex * tok);
+XMLPUBFUN void XMLCALL xmlMutexUnlock(xmlMutex * tok);
+XMLPUBFUN void XMLCALL xmlFreeMutex(xmlMutex * tok);
 XMLPUBFUN xmlRMutexPtr XMLCALL xmlNewRMutex	();
 XMLPUBFUN void XMLCALL xmlRMutexLock(xmlRMutexPtr tok);
 XMLPUBFUN void XMLCALL xmlRMutexUnlock(xmlRMutexPtr tok);

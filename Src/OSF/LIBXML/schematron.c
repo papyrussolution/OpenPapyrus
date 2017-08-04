@@ -934,7 +934,7 @@ xmlSchematronPtr xmlSchematronParse(xmlSchematronParserCtxtPtr ctxt)
 			xmlSchematronPErr(ctxt, NULL, XML_SCHEMAP_FAILED_PARSE, "xmlSchematronParse: could not parse.\n", NULL, 0);
 			return 0;
 		}
-		doc->URL = xmlStrdup(BAD_CAST "in_memory_buffer");
+		doc->URL = sstrdup(BAD_CAST "in_memory_buffer");
 		ctxt->URL = xmlDictLookup(ctxt->dict, BAD_CAST "in_memory_buffer", -1);
 		ctxt->preserve = 0;
 	}
@@ -1186,10 +1186,10 @@ static void xmlSchematronReportSuccess(xmlSchematronValidCtxtPtr ctxt,
 			report = xmlSchematronFormatReport(ctxt, test->node, cur);
 		if(report == NULL) {
 			if(test->type == XML_SCHEMATRON_ASSERT) {
-				report = xmlStrdup((const xmlChar*)"node failed assert");
+				report = sstrdup((const xmlChar*)"node failed assert");
 			}
 			else {
-				report = xmlStrdup((const xmlChar*)"node failed report");
+				report = sstrdup((const xmlChar*)"node failed report");
 			}
 		}
 		snprintf(msg, 999, "%s line %ld: %s\n", (const char*)path, line, (const char*)report);

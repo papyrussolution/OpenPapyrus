@@ -2741,23 +2741,19 @@ xmlChar * xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * name, xmlChar ** p
 	xmlChar * ret = NULL;
 	const xmlChar * cur = name;
 	int c;
-
-	if(prefix == NULL) return 0;
+	if(prefix == NULL) 
+		return 0;
 	*prefix = NULL;
-
-	if(!cur) return 0;
-
+	if(!cur) 
+		return 0;
 #ifndef XML_XML_NAMESPACE
 	/* xml: prefix is not really a namespace */
-	if((cur[0] == 'x') && (cur[1] == 'm') &&
-	    (cur[2] == 'l') && (cur[3] == ':'))
-		return(xmlStrdup(name));
+	if((cur[0] == 'x') && (cur[1] == 'm') && (cur[2] == 'l') && (cur[3] == ':'))
+		return sstrdup(name);
 #endif
-
 	/* nasty but well=formed */
 	if(cur[0] == ':')
-		return(xmlStrdup(name));
-
+		return sstrdup(name);
 	c = *cur++;
 	while((c != 0) && (c != ':') && (len < max)) { /* tested bigname.xml */
 		buf[len++] = c;
@@ -2799,7 +2795,7 @@ xmlChar * xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * name, xmlChar ** p
 	if((c == ':') && (*cur == 0)) {
 		SAlloc::F(buffer);
 		*prefix = NULL;
-		return(xmlStrdup(name));
+		return sstrdup(name);
 	}
 	if(!buffer)
 		ret = xmlStrndup(buf, len);
@@ -10292,7 +10288,7 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 					    }
 					    ctxt->standalone = ctxt->input->standalone;
 					    if((ctxt->encoding == NULL) && ctxt->input->encoding)
-						    ctxt->encoding = xmlStrdup(ctxt->input->encoding);
+						    ctxt->encoding = sstrdup(ctxt->input->encoding);
 					    if(ctxt->sax && (ctxt->sax->startDocument) && (!ctxt->disableSAX))
 						    ctxt->sax->startDocument(ctxt->userData);
 					    ctxt->instate = XML_PARSER_MISC;
@@ -11733,7 +11729,7 @@ int xmlParseCtxtExternalEntity(xmlParserCtxtPtr ctx, const xmlChar * URL,
 		newDoc->extSubset = ctx->myDoc->extSubset;
 	}
 	if(ctx->myDoc->URL != NULL) {
-		newDoc->URL = xmlStrdup(ctx->myDoc->URL);
+		newDoc->URL = sstrdup(ctx->myDoc->URL);
 	}
 	newRoot = xmlNewDocNode(newDoc, NULL, BAD_CAST "pseudoroot", 0);
 	if(newRoot == NULL) {
@@ -11948,7 +11944,7 @@ static xmlParserErrors xmlParseExternalEntityPrivate(xmlDocPtr doc, xmlParserCtx
 	xmlDictReference(newDoc->dict);
 
 	if(doc->URL != NULL) {
-		newDoc->URL = xmlStrdup(doc->URL);
+		newDoc->URL = sstrdup(doc->URL);
 	}
 	newRoot = xmlNewDocNode(newDoc, NULL, BAD_CAST "pseudoroot", 0);
 	if(newRoot == NULL) {
@@ -12364,7 +12360,7 @@ xmlParserErrors xmlParseInNodeContext(xmlNodePtr node, const char * data, int da
 	if(doc->encoding) {
 		xmlCharEncodingHandlerPtr hdlr;
 		SAlloc::F((xmlChar*)ctxt->encoding);
-		ctxt->encoding = xmlStrdup((const xmlChar*)doc->encoding);
+		ctxt->encoding = sstrdup((const xmlChar*)doc->encoding);
 		hdlr = xmlFindCharEncodingHandler((const char*)doc->encoding);
 		if(hdlr != NULL) {
 			xmlSwitchToEncoding(ctxt, hdlr);
@@ -13574,7 +13570,7 @@ int xmlCtxtResetPush(xmlParserCtxt * ctxt, const char * chunk, int size, const c
 	if(encoding) {
 		xmlCharEncodingHandlerPtr hdlr;
 		SAlloc::F((xmlChar*)ctxt->encoding);
-		ctxt->encoding = xmlStrdup((const xmlChar*)encoding);
+		ctxt->encoding = sstrdup((const xmlChar*)encoding);
 		hdlr = xmlFindCharEncodingHandler(encoding);
 		if(hdlr != NULL) {
 			xmlSwitchToEncoding(ctxt, hdlr);
@@ -13606,7 +13602,7 @@ static int xmlCtxtUseOptionsInternal(xmlParserCtxt * ctxt, int options, const ch
 		return -1;
 	if(encoding) {
 		SAlloc::F((xmlChar*)ctxt->encoding);
-		ctxt->encoding = xmlStrdup((const xmlChar*)encoding);
+		ctxt->encoding = sstrdup((const xmlChar*)encoding);
 	}
 	if(options & XML_PARSE_RECOVER) {
 		ctxt->recovery = 1;
@@ -13773,7 +13769,7 @@ static xmlDocPtr xmlDoRead(xmlParserCtxt * ctxt, const char * URL, const char * 
 			xmlSwitchToEncoding(ctxt, hdlr);
 	}
 	if(URL && ctxt->input && ctxt->input->filename == 0)
-		ctxt->input->filename = (char*)xmlStrdup((const xmlChar*)URL);
+		ctxt->input->filename = (char*)sstrdup((const xmlChar*)URL);
 	xmlParseDocument(ctxt);
 	if(ctxt->wellFormed || ctxt->recovery)
 		ret = ctxt->myDoc;

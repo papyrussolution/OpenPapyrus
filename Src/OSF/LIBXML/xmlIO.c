@@ -1707,7 +1707,7 @@ void * xmlIOHTTPOpenW(const char * post_uri, int compression)
 			return 0;
 		}
 		memzero(ctxt, sizeof(xmlIOHTTPWriteCtxt));
-		ctxt->uri = (char*)xmlStrdup((const xmlChar*)post_uri);
+		ctxt->uri = sstrdup(post_uri);
 		if(ctxt->uri == NULL) {
 			xmlIOErrMemory("copying URI");
 			xmlFreeHTTPWriteCtxt(ctxt);
@@ -2705,7 +2705,7 @@ xmlParserInputBufferPtr xmlParserInputBufferCreateFd(int fd, xmlCharEncoding enc
  */
 xmlParserInputBufferPtr xmlParserInputBufferCreateMem(const char * mem, int size, xmlCharEncoding enc)
 {
-	xmlParserInputBufferPtr ret = 0;
+	xmlParserInputBuffer * ret = 0;
 	if(size > 0 && mem) {
 		ret = xmlAllocParserInputBuffer(enc);
 		if(ret) {
@@ -2713,10 +2713,8 @@ xmlParserInputBufferPtr xmlParserInputBufferCreateMem(const char * mem, int size
 			ret->readcallback = (xmlInputReadCallback)xmlNop;
 			ret->closecallback = NULL;
 			int errcode = xmlBufAdd(ret->buffer, (const xmlChar*)mem, size);
-			if(errcode) {
-				SAlloc::F(ret);
-				ret = 0;
-			}
+			if(errcode)
+				ZFREE(ret);
 		}
 	}
 	return ret;
@@ -2737,9 +2735,9 @@ xmlParserInputBufferPtr xmlParserInputBufferCreateMem(const char * mem, int size
  */
 xmlParserInputBufferPtr xmlParserInputBufferCreateStatic(const char * mem, int size, xmlCharEncoding enc)
 {
-	xmlParserInputBufferPtr ret = 0;
+	xmlParserInputBuffer * ret = 0;
 	if(size > 0 && mem) {
-		ret = (xmlParserInputBufferPtr)SAlloc::M(sizeof(xmlParserInputBuffer));
+		ret = (xmlParserInputBuffer *)SAlloc::M(sizeof(xmlParserInputBuffer));
 		if(!ret) {
 			xmlIOErrMemory("creating input buffer");
 		}
@@ -2747,8 +2745,7 @@ xmlParserInputBufferPtr xmlParserInputBufferCreateStatic(const char * mem, int s
 			memzero(ret, (size_t)sizeof(xmlParserInputBuffer));
 			ret->buffer = xmlBufCreateStatic((void*)mem, (size_t)size);
 			if(ret->buffer == NULL) {
-				SAlloc::F(ret);
-				ret = 0;
+				ZFREE(ret);
 			}
 			else {
 				ret->encoder = xmlGetCharEncodingHandler(enc);
@@ -2776,7 +2773,7 @@ xmlParserInputBufferPtr xmlParserInputBufferCreateStatic(const char * mem, int s
  */
 xmlOutputBufferPtr xmlOutputBufferCreateFd(int fd, xmlCharEncodingHandlerPtr encoder)
 {
-	xmlOutputBufferPtr ret = 0;
+	xmlOutputBuffer * ret = 0;
 	if(fd >= 0) {
 		ret = xmlAllocOutputBufferInternal(encoder);
 		if(ret) {
@@ -2804,7 +2801,7 @@ xmlOutputBufferPtr xmlOutputBufferCreateFd(int fd, xmlCharEncodingHandlerPtr enc
  */
 xmlParserInputBufferPtr xmlParserInputBufferCreateIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, void * ioctx, xmlCharEncoding enc)
 {
-	xmlParserInputBufferPtr ret = 0;
+	xmlParserInputBuffer * ret = 0;
 	if(ioread) {
 		ret = xmlAllocParserInputBuffer(enc);
 		if(ret) {
@@ -2831,7 +2828,7 @@ xmlParserInputBufferPtr xmlParserInputBufferCreateIO(xmlInputReadCallback ioread
  */
 xmlOutputBufferPtr xmlOutputBufferCreateIO(xmlOutputWriteCallback iowrite, xmlOutputCloseCallback ioclose, void * ioctx, xmlCharEncodingHandlerPtr encoder)
 {
-	xmlOutputBufferPtr ret = 0;
+	xmlOutputBuffer * ret = 0;
 	if(iowrite) {
 		ret = xmlAllocOutputBufferInternal(encoder);
 		if(ret) {
@@ -2856,10 +2853,7 @@ xmlOutputBufferPtr xmlOutputBufferCreateIO(xmlOutputWriteCallback iowrite, xmlOu
 xmlParserInputBufferCreateFilenameFunc xmlParserInputBufferCreateFilenameDefault(xmlParserInputBufferCreateFilenameFunc func)
 {
 	xmlParserInputBufferCreateFilenameFunc old = xmlParserInputBufferCreateFilenameValue;
-	if(old == NULL) {
-		old = __xmlParserInputBufferCreateFilename;
-	}
-
+	SETIFZ(old, __xmlParserInputBufferCreateFilename);
 	xmlParserInputBufferCreateFilenameValue = func;
 	return old;
 }
@@ -2876,9 +2870,7 @@ xmlOutputBufferCreateFilenameFunc xmlOutputBufferCreateFilenameDefault(xmlOutput
 {
 	xmlOutputBufferCreateFilenameFunc old = xmlOutputBufferCreateFilenameValue;
 #ifdef LIBXML_OUTPUT_ENABLED
-	if(old == NULL) {
-		old = __xmlOutputBufferCreateFilename;
-	}
+	SETIFZ(old, __xmlOutputBufferCreateFilename);
 #endif
 	xmlOutputBufferCreateFilenameValue = func;
 	return old;
@@ -2897,16 +2889,16 @@ xmlOutputBufferCreateFilenameFunc xmlOutputBufferCreateFilenameDefault(xmlOutput
  * Returns the number of chars read and stored in the buffer, or -1
  *         in case of error.
  */
-int xmlParserInputBufferPush(xmlParserInputBufferPtr in,
-    int len, const char * buf) {
+int xmlParserInputBufferPush(xmlParserInputBufferPtr in, int len, const char * buf) 
+{
 	int nbchars = 0;
 	int ret;
-
-	if(len < 0) return 0;
-	if((in == NULL) || (in->error)) return -1;
+	if(len < 0) 
+		return 0;
+	if((in == NULL) || (in->error)) 
+		return -1;
 	if(in->encoder != NULL) {
 		uint use;
-
 		/*
 		 * Store the data in the incoming raw buffer
 		 */
@@ -2916,7 +2908,6 @@ int xmlParserInputBufferPush(xmlParserInputBufferPtr in,
 		ret = xmlBufAdd(in->raw, (const xmlChar*)buf, len);
 		if(ret != 0)
 			return -1;
-
 		/*
 		 * convert as much as possible to the parser reading buffer.
 		 */
@@ -2951,7 +2942,6 @@ static int endOfInput(void * context ATTRIBUTE_UNUSED, char * buffer ATTRIBUTE_U
 {
 	return 0;
 }
-
 /**
  * xmlParserInputBufferGrow:
  * @in:  a buffered parser input
@@ -3467,12 +3457,12 @@ char * xmlParserGetDirectory(const char * filename)
 			dir[1] = 0;
 		else
 			*cur = 0;
-		ret = xmlMemStrdup(dir);
+		ret = sstrdup(dir);
 	}
 	else {
-		if(getcwd(dir, 1024) != NULL) {
+		if(getcwd(dir, 1024)) {
 			dir[1023] = 0;
-			ret = xmlMemStrdup(dir);
+			ret = sstrdup(dir);
 		}
 	}
 	return ret;
@@ -3527,7 +3517,7 @@ xmlParserInputPtr xmlCheckHTTPInput(xmlParserCtxt * ctxt, xmlParserInputPtr ret)
 						__xmlErrEncoding(ctxt, XML_ERR_UNKNOWN_ENCODING, "Unknown encoding %s", BAD_CAST encoding, 0);
 					}
 					if(ret->encoding == NULL)
-						ret->encoding = xmlStrdup(BAD_CAST encoding);
+						ret->encoding = sstrdup(BAD_CAST encoding);
 				}
 #if 0
 			}
@@ -3539,7 +3529,7 @@ xmlParserInputPtr xmlCheckHTTPInput(xmlParserCtxt * ctxt, xmlParserInputPtr ret)
 				SAlloc::F((xmlChar*)ret->filename);
 				SAlloc::F((xmlChar*)ret->directory);
 				ret->directory = NULL;
-				ret->filename = (char*)xmlStrdup((const xmlChar*)redir);
+				ret->filename = sstrdup(redir);
 			}
 		}
 	}
@@ -3606,7 +3596,7 @@ static xmlChar * xmlResolveResourceFromCatalog(const char * URL, const char * ID
 			resource = xmlCatalogResolve((const xmlChar*)ID, (const xmlChar*)URL);
 		}
 		if(!resource && URL)
-			resource = xmlStrdup((const xmlChar*)URL);
+			resource = sstrdup((const xmlChar*)URL);
 		/*
 		 * TODO: do an URI lookup on the reference
 		 */

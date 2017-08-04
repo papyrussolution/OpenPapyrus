@@ -29,7 +29,7 @@
     SUCH DAMAGE.
  */
 
-static const unsigned long int gb2312_lookup[] = {
+static const /*ulong*/uint16 gb2312_lookup[] = { // @sobolev ulong-->uint16
     0x00A4, 0xA1E8,
     0x00A7, 0xA1EC,
     0x00A8, 0xA1A7,

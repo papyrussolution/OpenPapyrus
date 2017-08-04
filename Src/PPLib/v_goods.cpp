@@ -372,57 +372,58 @@ int SLAPI GoodsFilt::IsEmpty() const
 	*/
 	if(GrpID)
 		return 0;
-	if(ManufID)
+	else if(ManufID)
 		return 0;
-	if(UnitID)
+	else if(UnitID)
 		return 0;
-	if(SupplID)
+	else if(SupplID)
 		return 0;
-	if(GoodsTypeID)
+	else if(GoodsTypeID)
 		return 0;
-	if(BrandID_)
+	else if(BrandID_)
 		return 0;
-	if(BrandOwnerID)
+	else if(BrandOwnerID)
 		return 0;
-	if(PhUnitID)
+	else if(PhUnitID)
 		return 0;
-	if(TaxGrpID)
+	else if(TaxGrpID)
 		return 0;
-	if(VatRate)
+	else if(VatRate)
 		return 0;
-	if(ManufCountryID)
+	else if(ManufCountryID)
 		return 0;
-	if(!LotPeriod.IsZero())
+	else if(!LotPeriod.IsZero())
 		return 0;
-	if(LocID_)
+	else if(LocID_)
 		return 0;
-	if(UhttStoreID)
+	else if(UhttStoreID)
 		return 0;
-	if(RestrictQuotKindID)
+	else if(RestrictQuotKindID)
 		return 0;
-	if(Flags & nemp_fl)
+	else if(Flags & nemp_fl)
 		return 0;
-	if(Flags & fShowArCode && !(Flags & fShowWoArCode))
+	else if(Flags & fShowArCode && !(Flags & fShowWoArCode))
 		return 0;
-	if(SrchStr_.NotEmpty())
+	else if(SrchStr_.NotEmpty())
 		return 0;
-	if(!GrpIDList.IsEmpty())
+	else if(!GrpIDList.IsEmpty())
 		return 0;
-	if(BarcodeLen.NotEmpty())
+	else if(BarcodeLen.NotEmpty())
 		return 0;
-	if(Ep.GdsClsID)
+	else if(Ep.GdsClsID)
 		return 0;
-	if(!LocList.IsEmpty())
+	else if(!LocList.IsEmpty())
 		return 0;
-	if(!BrandList.IsEmpty())
+	else if(!BrandList.IsEmpty())
 		return 0;
-	if(!BrandOwnerList.IsEmpty())
+	else if(!BrandOwnerList.IsEmpty())
 		return 0;
-	if(P_SjF && !P_SjF->IsEmpty())
+	else if(P_SjF && !P_SjF->IsEmpty())
 		return 0;
-	if(P_TagF && !P_TagF->IsEmpty())
+	else if(P_TagF && !P_TagF->IsEmpty())
 		return 0;
-	return 1;
+	else
+		return 1;
 }
 
 int SLAPI GoodsFilt::GetExtssData(int fldID, SString & rBuf) const

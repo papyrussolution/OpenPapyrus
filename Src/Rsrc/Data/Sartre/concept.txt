@@ -1989,15 +1989,3 @@ z39.50s:urischeme
 }
 
 
-// #alpha
-// #digit
-// #dot
-// #dot0
-// #comma
-// #comma0
-
-// #humname_f = (:hum_fname | [PERSN])
-// #humname_p = (:hum_pname | [PATRN])
-// #humname_s = (:hum_pname | [FAMN])
-// #humname = ((#humname_f|(#alpha#dot0)) (#humname_p|(#alpha#dot0)) #humname_s) | (#humname_s (#humname_f|(#alpha#dot0)) (#humname_p|(#alpha#dot0))) | 
-// 	(#humname_s #humname_f) | (#humname_f #humname_s) | (#humname_f #humname_p) | #humname_f | #humname_s;

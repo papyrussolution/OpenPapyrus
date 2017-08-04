@@ -1722,20 +1722,18 @@ static xmlChar * xmlSchemaStrip(const xmlChar * value) {
  *
  * Returns the new string or NULL if no change was required.
  */
-xmlChar * xmlSchemaWhiteSpaceReplace(const xmlChar * value) {
+xmlChar * xmlSchemaWhiteSpaceReplace(const xmlChar * value) 
+{
 	const xmlChar * cur = value;
 	xmlChar * ret = NULL, * mcur;
-
 	if(!value)
 		return 0;
-
-	while((*cur != 0) &&
-	    (((*cur) != 0xd) && ((*cur) != 0x9) && ((*cur) != 0xa))) {
+	while((*cur != 0) && (((*cur) != 0xd) && ((*cur) != 0x9) && ((*cur) != 0xa))) {
 		cur++;
 	}
 	if(*cur == 0)
 		return 0;
-	ret = xmlStrdup(value);
+	ret = sstrdup(value);
 	/* TODO FIXME: I guess gcc will bark at this. */
 	mcur = (xmlChar*)(ret + (cur - value));
 	do {
@@ -1781,7 +1779,7 @@ xmlChar * xmlSchemaCollapseString(const xmlChar * value) {
 		if((start == value) && (f == end)) return 0;
 		return(xmlStrndup(start, end - start));
 	}
-	start = xmlStrdup(start);
+	start = sstrdup(start);
 	if(start == NULL) return 0;
 	g = (xmlChar*)(start + col);
 	end = g;
@@ -1812,8 +1810,8 @@ xmlChar * xmlSchemaCollapseString(const xmlChar * value) {
  * Returns the number of items if this validates, a negative error code
  *         number otherwise
  */
-static int xmlSchemaValAtomicListNode(xmlSchemaTypePtr type, const xmlChar * value,
-    xmlSchemaValPtr * ret, xmlNodePtr node) {
+static int xmlSchemaValAtomicListNode(xmlSchemaTypePtr type, const xmlChar * value, xmlSchemaValPtr * ret, xmlNodePtr node) 
+{
 	xmlChar * val, * cur, * endval;
 	int nb_values = 0;
 	int tmp = 0;
@@ -1821,7 +1819,7 @@ static int xmlSchemaValAtomicListNode(xmlSchemaTypePtr type, const xmlChar * val
 	if(!value) {
 		return -1;
 	}
-	val = xmlStrdup(value);
+	val = sstrdup(value);
 	if(!val) {
 		return -1;
 	}
@@ -1980,7 +1978,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 		    if((createStringValue) && (val != NULL)) {
 			    v = xmlSchemaNewValue(XML_SCHEMAS_ANYSIMPLETYPE);
 			    if(v) {
-				    v->value.str = xmlStrdup(value);
+				    v->value.str = sstrdup(value);
 				    *val = v;
 			    }
 			    else {
@@ -2029,7 +2027,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    }
 			    v = xmlSchemaNewValue(XML_SCHEMAS_STRING);
 			    if(v) {
-				    v->value.str = xmlStrdup(value);
+				    v->value.str = sstrdup(value);
 				    *val = v;
 			    }
 			    else {
@@ -2062,7 +2060,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 		    if(val) {
 			    v = xmlSchemaNewValue(XML_SCHEMAS_NORMSTRING);
 			    if(v) {
-				    v->value.str = xmlStrdup(value);
+				    v->value.str = sstrdup(value);
 				    *val = v;
 			    }
 			    else {
@@ -2450,7 +2448,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 		    if(val) {
 			    v = xmlSchemaNewValue(XML_SCHEMAS_TOKEN);
 			    if(v) {
-				    v->value.str = xmlStrdup(value);
+				    v->value.str = sstrdup(value);
 				    *val = v;
 			    }
 			    else {
@@ -2469,7 +2467,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    if(val) {
 				    v = xmlSchemaNewValue(XML_SCHEMAS_LANGUAGE);
 				    if(v) {
-					    v->value.str = xmlStrdup(value);
+					    v->value.str = sstrdup(value);
 					    *val = v;
 				    }
 				    else {
@@ -2484,7 +2482,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    if(val) {
 				    v = xmlSchemaNewValue(XML_SCHEMAS_NMTOKEN);
 				    if(v) {
-					    v->value.str = xmlStrdup(value);
+					    v->value.str = sstrdup(value);
 					    *val = v;
 				    }
 				    else {
@@ -2508,9 +2506,11 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    v = xmlSchemaNewValue(XML_SCHEMAS_NAME);
 			    if(v) {
 				    const xmlChar * start = value, * end;
-				    while(IS_BLANK_CH(*start)) start++;
+				    while(IS_BLANK_CH(*start)) 
+						start++;
 				    end = start;
-				    while((*end != 0) && (!IS_BLANK_CH(*end))) end++;
+				    while((*end != 0) && (!IS_BLANK_CH(*end))) 
+						end++;
 				    v->value.str = xmlStrndup(start, end - start);
 				    *val = v;
 			    }
@@ -2522,7 +2522,6 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 		case XML_SCHEMAS_QNAME: {
 		    const xmlChar * uri = NULL;
 		    xmlChar * local = NULL;
-
 		    ret = xmlValidateQName(value, 1);
 		    if(ret != 0)
 			    goto done;
@@ -2534,31 +2533,28 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    ns = xmlSearchNs(node->doc, node, prefix);
 			    if((ns == NULL) && (prefix != NULL)) {
 				    SAlloc::F(prefix);
-				    if(local != NULL)
-					    SAlloc::F(local);
+				    SAlloc::F(local);
 				    goto return1;
 			    }
 			    if(ns)
 				    uri = ns->href;
-			    if(prefix != NULL)
-				    SAlloc::F(prefix);
+			    SAlloc::F(prefix);
 		    }
 		    if(val) {
 			    v = xmlSchemaNewValue(XML_SCHEMAS_QNAME);
 			    if(v == NULL) {
-				    if(local != NULL)
-					    SAlloc::F(local);
+				    SAlloc::F(local);
 				    goto error;
 			    }
 			    if(local != NULL)
 				    v->value.qname.name = local;
 			    else
-				    v->value.qname.name = xmlStrdup(value);
+				    v->value.qname.name = sstrdup(value);
 			    if(uri)
-				    v->value.qname.uri = xmlStrdup(uri);
+				    v->value.qname.uri = sstrdup(uri);
 			    *val = v;
 		    }
-		    else if(local != NULL)
+		    else
 			    SAlloc::F(local);
 		    goto done;
 	    }
@@ -2567,7 +2563,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 		    if((ret == 0) && (val != NULL)) {
 			    v = xmlSchemaNewValue(XML_SCHEMAS_NCNAME);
 			    if(v) {
-				    v->value.str = xmlStrdup(value);
+				    v->value.str = sstrdup(value);
 				    *val = v;
 			    }
 			    else {
@@ -2580,25 +2576,21 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 		    if((ret == 0) && (val != NULL)) {
 			    v = xmlSchemaNewValue(XML_SCHEMAS_ID);
 			    if(v) {
-				    v->value.str = xmlStrdup(value);
+				    v->value.str = sstrdup(value);
 				    *val = v;
 			    }
 			    else {
 				    goto error;
 			    }
 		    }
-		    if((ret == 0) && (node != NULL) &&
-		    (node->type == XML_ATTRIBUTE_NODE)) {
+		    if((ret == 0) && (node != NULL) && (node->type == XML_ATTRIBUTE_NODE)) {
 			    xmlAttrPtr attr = (xmlAttrPtr)node;
-
 			    /*
 			     * NOTE: the IDness might have already be declared in the DTD
 			     */
 			    if(attr->atype != XML_ATTRIBUTE_ID) {
 				    xmlIDPtr res;
-				    xmlChar * strip;
-
-				    strip = xmlSchemaStrip(value);
+				    xmlChar * strip = xmlSchemaStrip(value);
 				    if(strip != NULL) {
 					    res = xmlAddID(NULL, node->doc, strip, attr);
 					    SAlloc::F(strip);
@@ -2620,15 +2612,12 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    v = xmlSchemaNewValue(XML_SCHEMAS_IDREF);
 			    if(v == NULL)
 				    goto error;
-			    v->value.str = xmlStrdup(value);
+			    v->value.str = sstrdup(value);
 			    *val = v;
 		    }
-		    if((ret == 0) && (node != NULL) &&
-		    (node->type == XML_ATTRIBUTE_NODE)) {
+		    if((ret == 0) && (node != NULL) && (node->type == XML_ATTRIBUTE_NODE)) {
 			    xmlAttrPtr attr = (xmlAttrPtr)node;
-			    xmlChar * strip;
-
-			    strip = xmlSchemaStrip(value);
+			    xmlChar * strip = xmlSchemaStrip(value);
 			    if(strip != NULL) {
 				    xmlAddRef(NULL, node->doc, strip, attr);
 				    SAlloc::F(strip);
@@ -2704,25 +2693,20 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 		case XML_SCHEMAS_NOTATION: {
 		    xmlChar * uri = NULL;
 		    xmlChar * local = NULL;
-
 		    ret = xmlValidateQName(value, 1);
 		    if((ret == 0) && (node != NULL)) {
 			    xmlChar * prefix;
-
 			    local = xmlSplitQName2(value, &prefix);
 			    if(prefix != NULL) {
-				    xmlNsPtr ns;
-
-				    ns = xmlSearchNs(node->doc, node, prefix);
+				    xmlNs * ns = xmlSearchNs(node->doc, node, prefix);
 				    if(ns == NULL)
 					    ret = 1;
 				    else if(val)
-					    uri = xmlStrdup(ns->href);
+					    uri = sstrdup(ns->href);
 			    }
 			    if((local != NULL) && ((val == NULL) || (ret != 0)))
 				    SAlloc::F(local);
-			    if(prefix != NULL)
-				    SAlloc::F(prefix);
+			    SAlloc::F(prefix);
 		    }
 		    if((node == NULL) || (node->doc == NULL))
 			    ret = 3;
@@ -2739,10 +2723,9 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 				    if(local != NULL)
 					    v->value.qname.name = local;
 				    else
-					    v->value.qname.name = xmlStrdup(value);
+					    v->value.qname.name = sstrdup(value);
 				    if(uri)
 					    v->value.qname.uri = uri;
-
 				    *val = v;
 			    }
 			    else {
@@ -2764,7 +2747,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 				    if(norm != NULL)
 					    value = norm;
 			    }
-			    tmpval = xmlStrdup(value);
+			    tmpval = sstrdup(value);
 			    for(cur = tmpval; *cur; ++cur) {
 				    if(*cur < 32 || *cur >= 127 || *cur == ' ' ||
 					    *cur == '<' || *cur == '>' || *cur == '"' ||
@@ -2784,7 +2767,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    v = xmlSchemaNewValue(XML_SCHEMAS_ANYURI);
 			    if(v == NULL)
 				    goto error;
-			    v->value.str = xmlStrdup(value);
+			    v->value.str = sstrdup(value);
 			    *val = v;
 		    }
 		    goto return0;
@@ -3551,25 +3534,25 @@ xmlSchemaValPtr xmlSchemaCopyValue(xmlSchemaValPtr val)
 			case XML_SCHEMAS_ANYURI:
 			    cur = xmlSchemaDupVal(val);
 			    if(val->value.str != NULL)
-				    cur->value.str = xmlStrdup(BAD_CAST val->value.str);
+				    cur->value.str = sstrdup(BAD_CAST val->value.str);
 			    break;
 			case XML_SCHEMAS_QNAME:
 			case XML_SCHEMAS_NOTATION:
 			    cur = xmlSchemaDupVal(val);
 			    if(val->value.qname.name != NULL)
-				    cur->value.qname.name = xmlStrdup(BAD_CAST val->value.qname.name);
+				    cur->value.qname.name = sstrdup(BAD_CAST val->value.qname.name);
 			    if(val->value.qname.uri != NULL)
-				    cur->value.qname.uri = xmlStrdup(BAD_CAST val->value.qname.uri);
+				    cur->value.qname.uri = sstrdup(BAD_CAST val->value.qname.uri);
 			    break;
 			case XML_SCHEMAS_HEXBINARY:
 			    cur = xmlSchemaDupVal(val);
 			    if(val->value.hex.str != NULL)
-				    cur->value.hex.str = xmlStrdup(BAD_CAST val->value.hex.str);
+				    cur->value.hex.str = sstrdup(BAD_CAST val->value.hex.str);
 			    break;
 			case XML_SCHEMAS_BASE64BINARY:
 			    cur = xmlSchemaDupVal(val);
 			    if(val->value.base64.str != NULL)
-				    cur->value.base64.str = xmlStrdup(BAD_CAST val->value.base64.str);
+				    cur->value.base64.str = sstrdup(BAD_CAST val->value.base64.str);
 			    break;
 			default:
 			    cur = xmlSchemaDupVal(val);
@@ -5514,18 +5497,18 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 	switch(val->type) {
 		case XML_SCHEMAS_STRING:
 		    if(val->value.str == NULL)
-			    *retValue = BAD_CAST xmlStrdup(BAD_CAST "");
+			    *retValue = BAD_CAST sstrdup(BAD_CAST "");
 		    else
-			    *retValue = BAD_CAST xmlStrdup((const xmlChar*)val->value.str);
+			    *retValue = BAD_CAST sstrdup((const xmlChar*)val->value.str);
 		    break;
 		case XML_SCHEMAS_NORMSTRING:
 		    if(val->value.str == NULL)
-			    *retValue = BAD_CAST xmlStrdup(BAD_CAST "");
+			    *retValue = BAD_CAST sstrdup(BAD_CAST "");
 		    else {
 			    *retValue = xmlSchemaWhiteSpaceReplace(
 			    (const xmlChar*)val->value.str);
 			    if((*retValue) == NULL)
-				    *retValue = BAD_CAST xmlStrdup((const xmlChar*)val->value.str);
+				    *retValue = BAD_CAST sstrdup((const xmlChar*)val->value.str);
 		    }
 		    break;
 		case XML_SCHEMAS_TOKEN:
@@ -5542,16 +5525,16 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    return -1;
 		    *retValue = BAD_CAST xmlSchemaCollapseString(BAD_CAST val->value.str);
 		    if(*retValue == NULL)
-			    *retValue = BAD_CAST xmlStrdup((const xmlChar*)val->value.str);
+			    *retValue = BAD_CAST sstrdup((const xmlChar*)val->value.str);
 		    break;
 		case XML_SCHEMAS_QNAME:
 		    /* TODO: Unclear in XML Schema 1.0. */
 		    if(val->value.qname.uri == NULL) {
-			    *retValue = BAD_CAST xmlStrdup(BAD_CAST val->value.qname.name);
+			    *retValue = BAD_CAST sstrdup(BAD_CAST val->value.qname.name);
 			    return 0;
 		    }
 		    else {
-			    *retValue = BAD_CAST xmlStrdup(BAD_CAST "{");
+			    *retValue = BAD_CAST sstrdup(BAD_CAST "{");
 			    *retValue = BAD_CAST xmlStrcat((xmlChar*)(*retValue), BAD_CAST val->value.qname.uri);
 			    *retValue = BAD_CAST xmlStrcat((xmlChar*)(*retValue), BAD_CAST "}");
 			    *retValue = BAD_CAST xmlStrcat((xmlChar*)(*retValue), BAD_CAST val->value.qname.uri);
@@ -5562,7 +5545,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		     * TODO: Lookout for a more simple implementation.
 		     */
 		    if((val->value.decimal.total == 1) && (val->value.decimal.lo == 0)) {
-			    *retValue = xmlStrdup(BAD_CAST "0.0");
+			    *retValue = sstrdup(BAD_CAST "0.0");
 		    }
 		    else {
 			    xmlSchemaValDecimal dec = val->value.decimal;
@@ -5638,9 +5621,8 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		case XML_SCHEMAS_ULONG:
 		case XML_SCHEMAS_USHORT:
 		case XML_SCHEMAS_UBYTE:
-		    if((val->value.decimal.total == 1) &&
-		    (val->value.decimal.lo == 0))
-			    *retValue = xmlStrdup(BAD_CAST "0");
+		    if((val->value.decimal.total == 1) && (val->value.decimal.lo == 0))
+			    *retValue = sstrdup(BAD_CAST "0");
 		    else {
 			    xmlSchemaValDecimal dec = val->value.decimal;
 			    int bufsize = dec.total + 1;
@@ -5672,9 +5654,9 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    break;
 		case XML_SCHEMAS_BOOLEAN:
 		    if(val->value.b)
-			    *retValue = BAD_CAST xmlStrdup(BAD_CAST "true");
+			    *retValue = BAD_CAST sstrdup(BAD_CAST "true");
 		    else
-			    *retValue = BAD_CAST xmlStrdup(BAD_CAST "false");
+			    *retValue = BAD_CAST sstrdup(BAD_CAST "false");
 		    break;
 		case XML_SCHEMAS_DURATION: {
 		    char buf[100];
@@ -5704,12 +5686,10 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    }
 		    }
 		    if((val->value.dur.mon < 0) || (val->value.dur.sec < 0))
-			    snprintf(buf, 100, "P%luY%luM%luDT%luH%luM%.14gS",
-				    year, mon, day, hour, min, sec);
+			    snprintf(buf, 100, "P%luY%luM%luDT%luH%luM%.14gS", year, mon, day, hour, min, sec);
 		    else
-			    snprintf(buf, 100, "-P%luY%luM%luDT%luH%luM%.14gS",
-				    year, mon, day, hour, min, sec);
-		    *retValue = BAD_CAST xmlStrdup(BAD_CAST buf);
+			    snprintf(buf, 100, "-P%luY%luM%luDT%luH%luM%.14gS", year, mon, day, hour, min, sec);
+		    *retValue = BAD_CAST sstrdup(BAD_CAST buf);
 	    }
 	    break;
 		case XML_SCHEMAS_GYEAR: {
@@ -5717,7 +5697,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    /* TODO: Unclear in XML Schema 1.0 */
 		    /* TODO: What to do with the timezone? */
 		    snprintf(buf, 30, "%04ld", val->value.date.year);
-		    *retValue = BAD_CAST xmlStrdup(BAD_CAST buf);
+		    *retValue = BAD_CAST sstrdup(BAD_CAST buf);
 	    }
 	    break;
 		case XML_SCHEMAS_GMONTH: {
@@ -5755,7 +5735,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    snprintf(buf, 35, "-%04ld-%02u", labs(val->value.date.year), val->value.date.mon);
 		    else
 			    snprintf(buf, 35, "%04ld-%02u", val->value.date.year, val->value.date.mon);
-		    *retValue = BAD_CAST xmlStrdup(BAD_CAST buf);
+		    *retValue = BAD_CAST sstrdup(BAD_CAST buf);
 	    }
 	    break;
 		case XML_SCHEMAS_TIME:
@@ -5774,7 +5754,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    else {
 			    snprintf(buf, 30, "%02u:%02u:%02.14g", val->value.date.hour, val->value.date.min, val->value.date.sec);
 		    }
-		    *retValue = BAD_CAST xmlStrdup(BAD_CAST buf);
+		    *retValue = BAD_CAST sstrdup(BAD_CAST buf);
 	    }
 	    break;
 		case XML_SCHEMAS_DATE:
@@ -5794,7 +5774,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    else {
 			    snprintf(buf, 30, "%04ld:%02u:%02u", val->value.date.year, val->value.date.mon, val->value.date.day);
 		    }
-		    *retValue = BAD_CAST xmlStrdup(BAD_CAST buf);
+		    *retValue = BAD_CAST sstrdup(BAD_CAST buf);
 	    }
 	    break;
 		case XML_SCHEMAS_DATETIME:
@@ -5815,11 +5795,11 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    snprintf(buf, 50, "%04ld:%02u:%02uT%02u:%02u:%02.14g",
 				    val->value.date.year, val->value.date.mon, val->value.date.day, val->value.date.hour, val->value.date.min, val->value.date.sec);
 		    }
-		    *retValue = BAD_CAST xmlStrdup(BAD_CAST buf);
+		    *retValue = BAD_CAST sstrdup(BAD_CAST buf);
 	    }
 	    break;
 		case XML_SCHEMAS_HEXBINARY:
-		    *retValue = BAD_CAST xmlStrdup(BAD_CAST val->value.hex.str);
+		    *retValue = BAD_CAST sstrdup(BAD_CAST val->value.hex.str);
 		    break;
 		case XML_SCHEMAS_BASE64BINARY:
 		    /*
@@ -5828,7 +5808,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		     * above does not conform to [RFC 2045], which requires breaking
 		     * with linefeeds at appropriate intervals."
 		     */
-		    *retValue = BAD_CAST xmlStrdup(BAD_CAST val->value.base64.str);
+		    *retValue = BAD_CAST sstrdup(BAD_CAST val->value.base64.str);
 		    break;
 		case XML_SCHEMAS_FLOAT: {
 		    char buf[30];
@@ -5839,7 +5819,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		     * the whole range.
 		     */
 		    snprintf(buf, 30, "%01.14e", val->value.f);
-		    *retValue = BAD_CAST xmlStrdup(BAD_CAST buf);
+		    *retValue = BAD_CAST sstrdup(BAD_CAST buf);
 	    }
 	    break;
 		case XML_SCHEMAS_DOUBLE: {
@@ -5851,11 +5831,11 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		     * the whole range.
 		     */
 		    snprintf(buf, 40, "%01.14e", val->value.d);
-		    *retValue = BAD_CAST xmlStrdup(BAD_CAST buf);
+		    *retValue = BAD_CAST sstrdup(BAD_CAST buf);
 	    }
 	    break;
 		default:
-		    *retValue = BAD_CAST xmlStrdup(BAD_CAST "???");
+		    *retValue = BAD_CAST sstrdup(BAD_CAST "???");
 		    return 1;
 	}
 	if(*retValue == NULL)
@@ -5885,24 +5865,24 @@ int xmlSchemaGetCanonValueWhtsp(xmlSchemaVal * val, xmlChar ** retValue, xmlSche
 	switch(val->type) {
 		case XML_SCHEMAS_STRING:
 		    if(val->value.str == NULL)
-			    *retValue = BAD_CAST xmlStrdup(BAD_CAST "");
+			    *retValue = BAD_CAST sstrdup(BAD_CAST "");
 		    else if(ws == XML_SCHEMA_WHITESPACE_COLLAPSE)
 			    *retValue = xmlSchemaCollapseString(val->value.str);
 		    else if(ws == XML_SCHEMA_WHITESPACE_REPLACE)
 			    *retValue = xmlSchemaWhiteSpaceReplace(val->value.str);
 		    if((*retValue) == NULL)
-			    *retValue = BAD_CAST xmlStrdup(val->value.str);
+			    *retValue = BAD_CAST sstrdup(val->value.str);
 		    break;
 		case XML_SCHEMAS_NORMSTRING:
 		    if(val->value.str == NULL)
-			    *retValue = BAD_CAST xmlStrdup(BAD_CAST "");
+			    *retValue = BAD_CAST sstrdup(BAD_CAST "");
 		    else {
 			    if(ws == XML_SCHEMA_WHITESPACE_COLLAPSE)
 				    *retValue = xmlSchemaCollapseString(val->value.str);
 			    else
 				    *retValue = xmlSchemaWhiteSpaceReplace(val->value.str);
 			    if((*retValue) == NULL)
-				    *retValue = BAD_CAST xmlStrdup(val->value.str);
+				    *retValue = BAD_CAST sstrdup(val->value.str);
 		    }
 		    break;
 		default:

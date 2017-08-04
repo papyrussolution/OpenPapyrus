@@ -207,8 +207,8 @@ typedef unsigned long trio_flags_t;
 	typedef signed __int64 trio_longlong_t;
 	typedef unsigned __int64 trio_ulonglong_t;
 #else
-	typedef TRIO_SIGNED long int trio_longlong_t;
-	typedef unsigned long int trio_ulonglong_t;
+	typedef TRIO_SIGNED long trio_longlong_t;
+	typedef unsigned long trio_ulonglong_t;
 #endif
 
 /* Maximal and fixed integer types */

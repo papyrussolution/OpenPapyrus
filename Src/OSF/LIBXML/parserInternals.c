@@ -979,7 +979,7 @@ int xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc)
 			     * values for this now.
 			     */
 			    if((ctxt->inputNr == 1) && !ctxt->encoding && ctxt->input && ctxt->input->encoding) {
-				    ctxt->encoding = xmlStrdup(ctxt->input->encoding);
+				    ctxt->encoding = sstrdup(ctxt->input->encoding);
 			    }
 			    ctxt->charset = enc;
 			    return 0;
@@ -1310,8 +1310,8 @@ xmlParserInputPtr xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntityPtr ent
 		else {
 			input = xmlNewInputStream(ctxt);
 			if(input) {
-				if(entity->URI != NULL)
-					input->filename = (char*)xmlStrdup((xmlChar*)entity->URI);
+				if(entity->URI)
+					input->filename = (char *)sstrdup(entity->URI);
 				input->base = entity->content;
 				input->cur = entity->content;
 				input->length = entity->length;
@@ -1383,7 +1383,7 @@ xmlParserInputPtr xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filenam
 				inputStream->buf = buf;
 				inputStream = xmlCheckHTTPInput(ctxt, inputStream);
 				if(inputStream) {
-					xmlChar * URI = inputStream->filename ? xmlStrdup((xmlChar*)inputStream->filename) : xmlStrdup((xmlChar*)filename);
+					xmlChar * URI = inputStream->filename ? sstrdup((xmlChar*)inputStream->filename) : sstrdup((xmlChar*)filename);
 					char * directory = xmlParserGetDirectory((const char*)URI);
 					SAlloc::F((char*)inputStream->filename);
 					inputStream->filename = (char*)xmlCanonicPath((const xmlChar*)URI);
@@ -1391,7 +1391,7 @@ xmlParserInputPtr xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filenam
 					inputStream->directory = directory;
 					xmlBufResetInput(inputStream->buf->buffer, inputStream);
 					if(!ctxt->directory && directory)
-						ctxt->directory = (char*)xmlStrdup((const xmlChar*)directory);
+						ctxt->directory = sstrdup(directory);
 				}
 			}
 		}

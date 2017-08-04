@@ -256,11 +256,11 @@ static xmlCatalogEntryPtr xmlNewCatalogEntry(xmlCatalogEntryType type, const xml
 			if(normid != NULL)
 				name = (*normid != 0 ? normid : NULL);
 		}
-		ret->name = name ? xmlStrdup(name) : 0;
+		ret->name = sstrdup(name);
 		SAlloc::F(normid);
-		ret->value = value ? xmlStrdup(value) : 0;
+		ret->value = sstrdup(value);
 		SETIFZ(URL, value);
-		ret->URL = URL ? xmlStrdup(URL) : 0;
+		ret->URL = sstrdup(URL);
 		ret->prefer = prefer;
 		ret->dealloc = 0;
 		ret->depth = 0;
@@ -747,7 +747,7 @@ static xmlChar * xmlCatalogUnWrapURN(const xmlChar * urn)
 		}
 	}
 	result[i] = 0;
-	return(xmlStrdup(result));
+	return sstrdup(result);
 }
 /**
  * xmlParseCatalogFile:
@@ -909,7 +909,7 @@ static xmlChar * xmlCatalogNormalizePublic(const xmlChar * pubID)
 	}
 	if(ok && !white) /* is normalized */
 		return 0;
-	ret = xmlStrdup(pubID);
+	ret = sstrdup(pubID);
 	q = ret;
 	white = 0;
 	for(p = pubID; *p != 0; p++) {
@@ -1317,8 +1317,8 @@ static int xmlAddXMLCatalog(xmlCatalogEntryPtr catal, const xmlChar * type, cons
 					xmlGenericError(0, "Updating element %s to catalog\n", type);
 				SAlloc::F(cur->value);
 				SAlloc::F(cur->URL);
-				cur->value = xmlStrdup(replace);
-				cur->URL = xmlStrdup(replace);
+				cur->value = sstrdup(replace);
+				cur->URL = sstrdup(replace);
 				return 0;
 			}
 			if(cur->next == NULL)
@@ -1421,7 +1421,7 @@ static xmlChar * xmlCatalogXMLResolve(xmlCatalogEntryPtr catal, const xmlChar * 
 					    if(xmlDebugCatalogs)
 						    xmlGenericError(0, "Found system match %s, using %s\n", cur->name, cur->URL);
 					    catal->depth--;
-					    return xmlStrdup(cur->URL);
+					    return sstrdup(cur->URL);
 				    }
 				    break;
 				case XML_CATA_REWRITE_SYSTEM:
@@ -1446,7 +1446,7 @@ static xmlChar * xmlCatalogXMLResolve(xmlCatalogEntryPtr catal, const xmlChar * 
 		if(rewrite != NULL) {
 			if(xmlDebugCatalogs)
 				xmlGenericError(0, "Using rewriting rule %s\n", rewrite->name);
-			ret = xmlStrdup(rewrite->URL);
+			ret = sstrdup(rewrite->URL);
 			if(ret)
 				ret = xmlStrcat(ret, &sysID[lenrewrite]);
 			catal->depth--;
@@ -1506,7 +1506,7 @@ static xmlChar * xmlCatalogXMLResolve(xmlCatalogEntryPtr catal, const xmlChar * 
 					    if(xmlDebugCatalogs)
 						    xmlGenericError(0, "Found public match %s\n", cur->name);
 					    catal->depth--;
-					    return xmlStrdup(cur->URL);
+					    return sstrdup(cur->URL);
 				    }
 				    break;
 				case XML_CATA_DELEGATE_PUBLIC:
@@ -1628,7 +1628,7 @@ static xmlChar * xmlCatalogXMLResolveURI(xmlCatalogEntryPtr catal, const xmlChar
 			    if(sstreq(URI, cur->name)) {
 				    if(xmlDebugCatalogs)
 					    xmlGenericError(0, "Found URI match %s\n", cur->name);
-				    return xmlStrdup(cur->URL);
+				    return sstrdup(cur->URL);
 			    }
 			    break;
 			case XML_CATA_REWRITE_URI:
@@ -1653,7 +1653,7 @@ static xmlChar * xmlCatalogXMLResolveURI(xmlCatalogEntryPtr catal, const xmlChar
 	if(rewrite != NULL) {
 		if(xmlDebugCatalogs)
 			xmlGenericError(0, "Using rewriting rule %s\n", rewrite->name);
-		ret = xmlStrdup(rewrite->URL);
+		ret = sstrdup(rewrite->URL);
 		if(ret)
 			ret = xmlStrcat(ret, &URI[lenrewrite]);
 		return ret;
@@ -1768,7 +1768,7 @@ static xmlChar * xmlCatalogListXMLResolve(xmlCatalogEntryPtr catal, const xmlCha
 			SAlloc::F(normid);
 		}
 		else {
-			while(catal != NULL) {
+			while(catal) {
 				if(catal->type == XML_CATA_CATALOG) {
 					if(catal->children == NULL) {
 						xmlFetchXMLCatalogFile(catal);
@@ -1820,7 +1820,7 @@ static xmlChar * xmlCatalogListXMLResolveURI(xmlCatalogEntryPtr catal, const xml
 			SAlloc::F(urnID);
 		}
 		else {
-			while(catal != NULL) {
+			while(catal) {
 				if(catal->type == XML_CATA_CATALOG) {
 					if(catal->children == NULL) {
 						xmlFetchXMLCatalogFile(catal);
@@ -2029,7 +2029,7 @@ static int xmlParseSGMLCatalog(xmlCatalogPtr catal, const xmlChar * value, const
 	int res;
 	if(!cur || (file == NULL))
 		return -1;
-	base = xmlStrdup((const xmlChar*)file);
+	base = sstrdup((uchar *)file);
 	while(cur && (cur[0] != 0)) {
 		SKIP_BLANKS;
 		if(cur[0] == 0)
@@ -2166,7 +2166,7 @@ static int xmlParseSGMLCatalog(xmlCatalogPtr catal, const xmlChar * value, const
 			}
 			else if(type == SGML_CATA_BASE) {
 				SAlloc::F(base);
-				base = xmlStrdup(sysid);
+				base = sstrdup(sysid);
 			}
 			else if((type == SGML_CATA_PUBLIC) || (type == SGML_CATA_SYSTEM)) {
 				xmlChar * filename = xmlBuildURI(sysid, base);
@@ -2428,19 +2428,19 @@ static int xmlExpandCatalog(xmlCatalogPtr catal, const char * filename)
 xmlChar * xmlACatalogResolveSystem(xmlCatalogPtr catal, const xmlChar * sysID) 
 {
 	xmlChar * ret = NULL;
-	if((sysID == NULL) || (catal == NULL))
-		return 0;
-	if(xmlDebugCatalogs)
-		xmlGenericError(0, "Resolve sysID %s\n", sysID);
-	if(catal->type == XML_XML_CATALOG_TYPE) {
-		ret = xmlCatalogListXMLResolve(catal->xml, NULL, sysID);
-		if(ret == XML_CATAL_BREAK)
-			ret = NULL;
-	}
-	else {
-		const xmlChar * sgml = xmlCatalogGetSGMLSystem(catal->sgml, sysID);
-		if(sgml)
-			ret = xmlStrdup(sgml);
+	if(sysID && catal) {
+		if(xmlDebugCatalogs)
+			xmlGenericError(0, "Resolve sysID %s\n", sysID);
+		if(catal->type == XML_XML_CATALOG_TYPE) {
+			ret = xmlCatalogListXMLResolve(catal->xml, NULL, sysID);
+			if(ret == XML_CATAL_BREAK)
+				ret = NULL;
+		}
+		else {
+			const xmlChar * sgml = xmlCatalogGetSGMLSystem(catal->sgml, sysID);
+			if(sgml)
+				ret = sstrdup(sgml);
+		}
 	}
 	return ret;
 }
@@ -2458,19 +2458,19 @@ xmlChar * xmlACatalogResolveSystem(xmlCatalogPtr catal, const xmlChar * sysID)
 xmlChar * xmlACatalogResolvePublic(xmlCatalogPtr catal, const xmlChar * pubID) 
 {
 	xmlChar * ret = NULL;
-	if((pubID == NULL) || (catal == NULL))
-		return 0;
-	if(xmlDebugCatalogs)
-		xmlGenericError(0, "Resolve pubID %s\n", pubID);
-	if(catal->type == XML_XML_CATALOG_TYPE) {
-		ret = xmlCatalogListXMLResolve(catal->xml, pubID, 0);
-		if(ret == XML_CATAL_BREAK)
-			ret = NULL;
-	}
-	else {
-		const xmlChar * sgml = xmlCatalogGetSGMLPublic(catal->sgml, pubID);
-		if(sgml)
-			ret = xmlStrdup(sgml);
+	if(pubID && catal) {
+		if(xmlDebugCatalogs)
+			xmlGenericError(0, "Resolve pubID %s\n", pubID);
+		if(catal->type == XML_XML_CATALOG_TYPE) {
+			ret = xmlCatalogListXMLResolve(catal->xml, pubID, 0);
+			if(ret == XML_CATAL_BREAK)
+				ret = NULL;
+		}
+		else {
+			const xmlChar * sgml = xmlCatalogGetSGMLPublic(catal->sgml, pubID);
+			if(sgml)
+				ret = sstrdup(sgml);
+		}
 	}
 	return ret;
 }
@@ -2509,7 +2509,7 @@ xmlChar * xmlACatalogResolve(xmlCatalogPtr catal, const xmlChar * pubID, const x
 		else {
 			const xmlChar * sgml = xmlCatalogSGMLResolve(catal, pubID, sysID);
 			if(sgml)
-				ret = xmlStrdup(sgml);
+				ret = sstrdup(sgml);
 		}
 	}
 	return ret;
@@ -2539,7 +2539,7 @@ xmlChar * xmlACatalogResolveURI(xmlCatalogPtr catal, const xmlChar * URI)
 		else {
 			const xmlChar * sgml = xmlCatalogSGMLResolve(catal, NULL, URI);
 			if(sgml)
-				ret = xmlStrdup(sgml);
+				ret = sstrdup(sgml);
 		}
 	}
 	return ret;
@@ -2636,7 +2636,7 @@ xmlCatalogPtr xmlNewCatalog(int sgml)
 	xmlCatalogPtr catal = NULL;
 	if(sgml) {
 		catal = xmlCreateNewCatalog(XML_SGML_CATALOG_TYPE, xmlCatalogDefaultPrefer);
-		if((catal != NULL) && (catal->sgml == NULL))
+		if(catal && catal->sgml == NULL)
 			catal->sgml = xmlHashCreate(10);
 	}
 	else
@@ -2752,9 +2752,8 @@ void xmlInitializeCatalog()
 				catalogs = XML_XML_DEFAULT_CATALOG;
 #endif
 			catal = xmlCreateNewCatalog(XML_XML_CATALOG_TYPE, xmlCatalogDefaultPrefer);
-			if(catal != NULL) {
-				/* the XML_CATALOG_FILES envvar is allowed to contain a
-				   space-separated list of entries. */
+			if(catal) {
+				// the XML_CATALOG_FILES envvar is allowed to contain a space-separated list of entries. 
 				cur = catalogs;
 				nextent = &catal->xml;
 				while(*cur != '\0') {
@@ -2767,7 +2766,7 @@ void xmlInitializeCatalog()
 						path = (char*)xmlStrndup((const xmlChar*)paths, cur - paths);
 						if(path) {
 							*nextent = xmlNewCatalogEntry(XML_CATA_CATALOG, NULL, NULL, BAD_CAST path, xmlCatalogDefaultPrefer, 0);
-							if(*nextent != NULL)
+							if(*nextent)
 								nextent = &((*nextent)->next);
 							SAlloc::F(path);
 						}

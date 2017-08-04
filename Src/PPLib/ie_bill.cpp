@@ -3480,21 +3480,21 @@ int SLAPI PPBillExporter::Init(const PPBillImpExpParam * pBillParam, const PPBil
 		if(Flags & fPaymOrdersExp) {
 		}
 		else {
+			if(BillParam.PredefFormat && BillParam.PredefFormat == BillParam.pfNalogR_Invoice) {
+				BillParam.DataFormat = PPImpExpParam::dfXml;
+			}
 			THROW_MEM(P_IEBill = new PPImpExp(&BillParam, pFirstPack));
 			THROW(!P_IEBill->IsCtrError());
 			if(!(BillParam.BaseFlags & PPImpExpParam::bfDLL) && !(Flags & fEgaisImpExp)) {
-				if(BillParam.PredefFormat) {
-					if(BillParam.PredefFormat == BillParam.pfNalogR_Invoice) {
-						P_IEBill->GetParam().DataFormat == PPImpExpParam::dfXml;
+				if(!BillParam.PredefFormat) {
+					if(BillParam.DataFormat == PPImpExpParam::dfXml && BRowParam.DataFormat == PPImpExpParam::dfXml && BillParam.FileName.CmpNC(BRowParam.FileName) == 0) {
+						P_IEBRow = P_IEBill;
 					}
-				}
-				else if(BillParam.DataFormat == PPImpExpParam::dfXml && BRowParam.DataFormat == PPImpExpParam::dfXml && BillParam.FileName.CmpNC(BRowParam.FileName) == 0) {
-					P_IEBRow = P_IEBill;
-				}
-				else {
-					THROW_MEM(P_IEBRow = new PPImpExp(&BRowParam, pFirstPack));
-					THROW(!P_IEBRow->IsCtrError());
-					THROW(P_IEBRow->OpenFileForWriting(0, 1, pResultFileList));
+					else {
+						THROW_MEM(P_IEBRow = new PPImpExp(&BRowParam, pFirstPack));
+						THROW(!P_IEBRow->IsCtrError());
+						THROW(P_IEBRow->OpenFileForWriting(0, 1, pResultFileList));
+					}
 				}
 				// Если имя файла задано шаблоном, то оно могло измениться { //
 				BillParam.FileName = P_IEBill->GetParam().FileName;

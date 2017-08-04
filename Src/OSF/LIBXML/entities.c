@@ -133,11 +133,11 @@ static xmlEntityPtr xmlCreateEntity(xmlDictPtr dict, const xmlChar * name, int t
 	 */
 	ret->etype = (xmlEntityType)type;
 	if(!dict) {
-		ret->name = xmlStrdup(name);
+		ret->name = sstrdup(name);
 		if(ExternalID != NULL)
-			ret->ExternalID = xmlStrdup(ExternalID);
+			ret->ExternalID = sstrdup(ExternalID);
 		if(SystemID != NULL)
-			ret->SystemID = xmlStrdup(SystemID);
+			ret->SystemID = sstrdup(SystemID);
 	}
 	else {
 		ret->name = xmlDictLookup(dict, name, -1);
@@ -595,7 +595,7 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDocPtr doc, const xmlChar * input,
 				if(*cur < 0xC0) {
 					xmlEntitiesErr(XML_CHECK_NOT_UTF8, "xmlEncodeEntities: input not UTF-8");
 					if(doc)
-						doc->encoding = xmlStrdup(BAD_CAST "ISO-8859-1");
+						doc->encoding = sstrdup(BAD_CAST "ISO-8859-1");
 					snprintf(buf, sizeof(buf), "&#%d;", *cur);
 					buf[sizeof(buf) - 1] = 0;
 					ptr = buf;
@@ -630,7 +630,7 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDocPtr doc, const xmlChar * input,
 				if((l == 1) || (!IS_CHAR(val))) {
 					xmlEntitiesErr(XML_ERR_INVALID_CHAR, "xmlEncodeEntities: char out of range\n");
 					if(doc)
-						doc->encoding = xmlStrdup(BAD_CAST "ISO-8859-1");
+						doc->encoding = sstrdup(BAD_CAST "ISO-8859-1");
 					snprintf(buf, sizeof(buf), "&#%d;", *cur);
 					buf[sizeof(buf) - 1] = 0;
 					ptr = buf;
@@ -836,23 +836,18 @@ static xmlEntityPtr xmlCopyEntity(xmlEntityPtr ent)
 	xmlEntityPtr cur = (xmlEntityPtr)SAlloc::M(sizeof(xmlEntity));
 	if(!cur) {
 		xmlEntitiesErrMemory("xmlCopyEntity:: malloc failed");
-		return 0;
 	}
-	memzero(cur, sizeof(xmlEntity));
-	cur->type = XML_ENTITY_DECL;
-	cur->etype = ent->etype;
-	if(ent->name != NULL)
-		cur->name = xmlStrdup(ent->name);
-	if(ent->ExternalID != NULL)
-		cur->ExternalID = xmlStrdup(ent->ExternalID);
-	if(ent->SystemID != NULL)
-		cur->SystemID = xmlStrdup(ent->SystemID);
-	if(ent->content != NULL)
-		cur->content = xmlStrdup(ent->content);
-	if(ent->orig != NULL)
-		cur->orig = xmlStrdup(ent->orig);
-	if(ent->URI != NULL)
-		cur->URI = xmlStrdup(ent->URI);
+	else {
+		memzero(cur, sizeof(xmlEntity));
+		cur->type = XML_ENTITY_DECL;
+		cur->etype = ent->etype;
+		cur->name = sstrdup(ent->name);
+		cur->ExternalID = sstrdup(ent->ExternalID);
+		cur->SystemID = sstrdup(ent->SystemID);
+		cur->content = sstrdup(ent->content);
+		cur->orig = sstrdup(ent->orig);
+		cur->URI = sstrdup(ent->URI);
+	}
 	return cur;
 }
 

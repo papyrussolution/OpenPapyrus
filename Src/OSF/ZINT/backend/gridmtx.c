@@ -1230,7 +1230,6 @@ int grid_matrix(struct ZintSymbol * symbol, const uchar source[], int length)
 	for(i = 0; i < 1460; i++) {
 		word[i] = 0;
 	}
-
 	if((symbol->input_mode == DATA_MODE) || (symbol->eci != 3)) {
 		for(i = 0; i < length; i++) {
 			gbdata[i] = (int)source[i];
@@ -1242,7 +1241,6 @@ int grid_matrix(struct ZintSymbol * symbol, const uchar source[], int length)
 		if(error_number != 0) {
 			return error_number;
 		}
-
 		for(i = 0; i < length; i++) {
 			if(utfdata[i] <= 0xff) {
 				gbdata[i] = utfdata[i];

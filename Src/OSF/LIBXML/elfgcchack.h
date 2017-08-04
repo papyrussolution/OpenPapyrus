@@ -10845,45 +10845,41 @@ extern __typeof (xmlStrcasestr) xmlStrcasestr__internal_alias __attribute((visib
 #define xmlStrcasestr xmlStrcasestr__internal_alias
 #endif
 #endif
-
 #ifdef bottom_xmlstring
-#undef xmlStrcat
-extern __typeof (xmlStrcat) xmlStrcat __attribute((alias("xmlStrcat__internal_alias")));
+	#undef xmlStrcat
+	extern __typeof (xmlStrcat) xmlStrcat __attribute((alias("xmlStrcat__internal_alias")));
 #else
-#ifndef xmlStrcat
-extern __typeof (xmlStrcat) xmlStrcat__internal_alias __attribute((visibility("hidden")));
-#define xmlStrcat xmlStrcat__internal_alias
+	#ifndef xmlStrcat
+		extern __typeof (xmlStrcat) xmlStrcat__internal_alias __attribute((visibility("hidden")));
+		#define xmlStrcat xmlStrcat__internal_alias
+	#endif
 #endif
-#endif
-
 #ifdef bottom_xmlstring
-#undef xmlStrchr
-extern __typeof (xmlStrchr) xmlStrchr __attribute((alias("xmlStrchr__internal_alias")));
+	#undef xmlStrchr
+	extern __typeof (xmlStrchr) xmlStrchr __attribute((alias("xmlStrchr__internal_alias")));
 #else
-#ifndef xmlStrchr
-extern __typeof (xmlStrchr) xmlStrchr__internal_alias __attribute((visibility("hidden")));
-#define xmlStrchr xmlStrchr__internal_alias
+	#ifndef xmlStrchr
+		extern __typeof (xmlStrchr) xmlStrchr__internal_alias __attribute((visibility("hidden")));
+		#define xmlStrchr xmlStrchr__internal_alias
+	#endif
 #endif
-#endif
-
 #ifdef bottom_xmlstring
-#undef xmlStrcmp
-extern __typeof (xmlStrcmp) xmlStrcmp __attribute((alias("xmlStrcmp__internal_alias")));
+	#undef xmlStrcmp
+	extern __typeof (xmlStrcmp) xmlStrcmp __attribute((alias("xmlStrcmp__internal_alias")));
 #else
-#ifndef xmlStrcmp
-extern __typeof (xmlStrcmp) xmlStrcmp__internal_alias __attribute((visibility("hidden")));
-#define xmlStrcmp xmlStrcmp__internal_alias
+	#ifndef xmlStrcmp
+		extern __typeof (xmlStrcmp) xmlStrcmp__internal_alias __attribute((visibility("hidden")));
+		#define xmlStrcmp xmlStrcmp__internal_alias
+	#endif
 #endif
-#endif
-
 #ifdef bottom_xmlstring
-#undef xmlStrdup
-extern __typeof (xmlStrdup) xmlStrdup __attribute((alias("xmlStrdup__internal_alias")));
+	#undef xmlStrdup
+	extern __typeof (xmlStrdup) xmlStrdup __attribute((alias("xmlStrdup__internal_alias")));
 #else
-#ifndef xmlStrdup
-extern __typeof (xmlStrdup) xmlStrdup__internal_alias __attribute((visibility("hidden")));
-#define xmlStrdup xmlStrdup__internal_alias
-#endif
+	#ifndef xmlStrdup
+		extern __typeof (xmlStrdup) xmlStrdup__internal_alias __attribute((visibility("hidden")));
+		#define xmlStrdup xmlStrdup__internal_alias
+	#endif
 #endif
 
 #if defined(LIBXML_PATTERN_ENABLED)

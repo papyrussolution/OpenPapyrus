@@ -38,8 +38,7 @@
 ## 	Copyright (C) 2001 I'O, All Rights Reserved.
 ## 	You can use, modify, distribute this table freely.
  */
-
-unsigned long int sjis_lookup[] = {
+/*ulong*/uint16 sjis_lookup[] = { // @sobolev ulong-->uint16
     0x005C, 0x815F, // REVERSE SOLIDUS
     0x00A2, 0x8191, // CENT SIGN
     0x00A3, 0x8192, // POUND SIGN

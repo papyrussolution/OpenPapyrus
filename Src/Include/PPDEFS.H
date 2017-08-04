@@ -1620,6 +1620,7 @@
 #define STDCTL_PERSONBUTTON       156 // @v8.5.6  Кнопка "Персоналия"
 #define STDCTL_LINKOBJBUTTON      157 // @v8.9.12 Кнопка "Связанный объект"
 #define STDCTL_QKLISTBUTTON       158 // @v9.5.5  Кнопка выбора списка видов котировок
+#define STDCTL_FILTERBUTTON       159 // @v9.7.10 Кнопка "Фильтр" (только для тех диалогов, в которых есть единственный фильтр)
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
@@ -1687,6 +1688,7 @@
 #define cmQuotKindList           1163
 #define cmSendSms                1164
 #define cmVerify                 1165
+#define cmFilter                 1166 // @v9.7.10
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -10184,6 +10186,14 @@
 	#define CTL_PRCRSARTR_SRCPATH     (1 + WINDOWS_ID_BIAS)
 	#define CTLBRW_PRCRSARTR_SRCPATH  (2 + WINDOWS_ID_BIAS)
 	#define CTL_PRCRSARTR_FLAGS       (3 + WINDOWS_ID_BIAS)
+#define DLG_PRCBAUTOC             1325 // PPBillAutoCreateParam
+	#define CTL_PRCBAUTOC_WHAT        (1 + WINDOWS_ID_BIAS)
+	#define CTL_PRCBAUTOC_RULE        (2 + WINDOWS_ID_BIAS)
+	#define CTLSEL_PRCBAUTOC_RULE     (3 + WINDOWS_ID_BIAS)
+	#define CTL_PRCBAUTOC_RULEGRP     (4 + WINDOWS_ID_BIAS)
+	#define CTLSEL_PRCBAUTOC_RULEGRP  (5 + WINDOWS_ID_BIAS)
+	#define CTL_PRCBAUTOC_OP          (6 + WINDOWS_ID_BIAS)
+	#define CTLSEL_PRCBAUTOC_OP       (7 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //
@@ -10418,6 +10428,7 @@
 #define PPSTR_CURLERR             122 // Текстовые описания ошибок libcurl
 #define PPSTR_HASHTOKEN           123 // Специальный мета-символы, используемые системой для обработки данных и команд.
 #define PPSTR_HASHTOKEN_C         124 // Специальный мета-символы, используемые системой для обработки данных и команд (case seinsitive!).
+#define PPSTR_CRYSTAL_REPORT      342 // Ошибки Crystal Report
 //
 // Error codes (Don't mixing enumeration !!!)
 // PPERR_BL_XXX - висячие ссылки

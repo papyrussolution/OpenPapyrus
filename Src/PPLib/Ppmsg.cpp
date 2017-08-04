@@ -356,7 +356,7 @@ int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmv
 				case PPERR_DBQUERY:
 					break;
 				case PPERR_CRYSTAL_REPORT:
-					group = addcode = PPERR_CRYSTAL_REPORT;
+					group = addcode = PPSTR_CRYSTAL_REPORT;
 					msgcode = CrwError;
 					break;
 				case PPERR_NORIGHTS:

@@ -294,7 +294,7 @@ void xmlBufFree(xmlBuf * buf)
 	if(buf->alloc == XML_BUFFER_ALLOC_IO && buf->contentIO != NULL) {
 		SAlloc::F(buf->contentIO);
 	}
-	else if((buf->content != NULL) && (buf->alloc != XML_BUFFER_ALLOC_IMMUTABLE)) {
+	else if(buf->content && (buf->alloc != XML_BUFFER_ALLOC_IMMUTABLE)) {
 		SAlloc::F(buf->content);
 	}
 	SAlloc::F(buf);

@@ -349,7 +349,7 @@ void PNGAPI png_read_row(png_structrp png_ptr, png_bytep row, png_bytep dsp_row)
 		switch(png_ptr->pass) {
 			case 0:
 			    if(png_ptr->row_number & 0x07) {
-				    if(dsp_row != NULL)
+				    if(dsp_row)
 					    png_combine_row(png_ptr, dsp_row, 1 /*display*/);
 				    png_read_finish_row(png_ptr);
 				    return;
@@ -358,7 +358,7 @@ void PNGAPI png_read_row(png_structrp png_ptr, png_bytep row, png_bytep dsp_row)
 
 			case 1:
 			    if((png_ptr->row_number & 0x07) || png_ptr->width < 5) {
-				    if(dsp_row != NULL)
+				    if(dsp_row)
 					    png_combine_row(png_ptr, dsp_row, 1 /*display*/);
 				    png_read_finish_row(png_ptr);
 				    return;
@@ -366,7 +366,7 @@ void PNGAPI png_read_row(png_structrp png_ptr, png_bytep row, png_bytep dsp_row)
 			    break;
 			case 2:
 			    if((png_ptr->row_number & 0x07) != 4) {
-				    if(dsp_row != NULL && (png_ptr->row_number & 4))
+				    if(dsp_row && (png_ptr->row_number & 4))
 					    png_combine_row(png_ptr, dsp_row, 1 /*display*/);
 				    png_read_finish_row(png_ptr);
 				    return;

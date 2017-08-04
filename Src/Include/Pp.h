@@ -170,7 +170,6 @@ class  GoodsListDialog;
 class  PPBasketPacket;
 class  EmbedDialog;
 class  MrpTabPacket;
-class  PPViewBrowser;
 class  HierArray;
 class  PPELinkArray;
 class  PPGoodsStruc;
@@ -183,21 +182,8 @@ class  PPCommandGroup;
 class  DlContext;
 struct TaxAmountIDs;
 class  ObjCollection;
-struct RegisterFilt;
-class  SStatFilt;
 class  PPBasketCombine;
 class  PPServerSession;
-class  GoodsFilt;
-struct SysJournalFilt;
-class  FreightFilt;
-struct BudgetFilt;
-class  SpecSeriesFilt;
-struct SCardFilt;
-struct CurRateFilt;
-struct ClsdGoodsFilt;
-struct TSessionFilt;
-struct ProcessorFilt;
-struct OpGroupingFilt;
 class  UhttSCardOpFilt;
 class  UhttStatus;
 class  UhttBrandPacket;
@@ -219,13 +205,30 @@ class  UhttStyloDevicePacket;
 class  UhttProcessorPacket;
 class  UhttTSessionPacket;
 class  PersonRelFilt;
+struct SBrowserDataProcBlock;
 class  CCheckFilt;
 struct PrjTaskFilt;
-struct SBrowserDataProcBlock;
+struct RegisterFilt;
+class  SStatFilt;
+class  GoodsFilt;
+struct SysJournalFilt;
+class  FreightFilt;
+struct BudgetFilt;
+class  SpecSeriesFilt;
+struct SCardFilt;
+struct CurRateFilt;
+struct ClsdGoodsFilt;
+struct TSessionFilt;
+struct ProcessorFilt;
+struct OpGroupingFilt;
+struct MrpTabFilt;
 class  PPView;
+class  PPViewBrowser;
 class  PPViewDebtTrnovr;
 class  PPViewGoodsRest;
 class  PPViewTrfrAnlz;
+class  PPViewSStat;
+class  PPViewPrjTask;
 class  PPTransferItem;
 class  TSessionPacket;
 struct PPBillConfig;
@@ -264,7 +267,6 @@ class  DL2_Resolver;
 class  DL2_Entry;
 class  DL2_Group;
 class  DL2_Data;
-struct MrpTabFilt;
 class  CMrpTab;
 struct TagrCacheItem;
 struct GoaAddingBlock;
@@ -277,11 +279,9 @@ class  PPCheckInPersonArray;
 struct _PPRights;
 struct PPSupplExchangeCfg;
 class  EAddrCore;
-//class  PPWaitBlock;
 struct ArticleDlgData;
 class  ArticleCache;
 class  PPComplBlock;
-class  PPViewPrjTask;
 class  PPSCardPacket;
 class  SCardTransmitPacket;
 class  PPWorkbookExporter;
@@ -291,7 +291,6 @@ class  GoodsRestFilt;
 class  SmsProtocolBuf;
 class  SrGeoNodeTbl;
 class  PPTextAnalyzerWrapper;
-class  PPViewSStat;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -38489,7 +38488,7 @@ public:
 		ordByAmount
 	};
 	static int SLAPI EditCreateDraftParam(CSessCrDraftParam * pParam);
-	static int SLAPI CreateDraft(const CSessCrDraftParam * pParam);
+	// @v9.7.10 static int SLAPI CreateDraft(const CSessCrDraftParam * pParam);
 
 	SLAPI  PPViewCSess();
 	SLAPI ~PPViewCSess();
@@ -38837,12 +38836,13 @@ public:
 	int    SLAPI EditItemInfo(PPID);
 	int    SLAPI RemoveAll();
 	int    SLAPI GetPacket(PPID id, CCheckPacket * pPack); // @<<PPViewCSess::CreateDraft
-	int    SLAPI CreateDraftBySuspCheck(PPID chkID);
 	int    SLAPI ViewGraph();
 	int    SLAPI GetTabTitle(long tabID, SString & rBuf) const;
 
 	const  BVATAccmArray * GetInOutVATList() const;
 	CCheckCore * SLAPI GetCc();
+
+	static int SLAPI CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID);
 private:
 	int    SLAPI Helper_Construct();
 	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
@@ -39033,6 +39033,23 @@ private:
 //
 class TrfrAnlzFilt : public PPBaseFilt {
 public:
+	int    SLAPI HasCntragentGrouping() const
+	{
+		return oneof6(Grp, gCntragent, gCntragentDate, gGoodsCntragent, gGoodsCntragentDate, gDateCntragentAgentGoods, gBillCntragent);
+	}
+	int    SLAPI HasGoodsGrouping() const
+	{
+		return oneof6(Grp, gGoods, gGoodsCntragent, gGoodsCntragentDate, gGoodsBill, gDateCntragentAgentGoods, gGoodsDate);
+	}
+	int    SLAPI HasDateGrouping() const
+	{
+		return oneof4(Grp, gCntragentDate, gGoodsCntragentDate, gDateCntragentAgentGoods, gGoodsDate);
+	}
+	int    SLAPI HasBillGrouping() const
+	{
+		return oneof2(Grp, gGoodsBill, gBillCntragent);
+	}
+
 	enum Grouping {
 		gNone = 0,
 		gGoods,
@@ -39371,11 +39388,18 @@ private:
 //   на текущий момент по всему проекту.
 //PPViewCCheck::CreateDraftBySuspCheck(PPID chkID)
 //PPViewSStat::CreateDraftBySupplOrders(const SStatFilt *)
-//PPViewCSEss::CreateDraft(const CSessCrDraftParam *);
+//PPViewCSess::CreateDraft(const CSessCrDraftParam *);
 //
 class PPBillAutoCreateParam : public PPBaseFilt {
 public:
 	SLAPI  PPBillAutoCreateParam();
+	SLAPI  PPBillAutoCreateParam(const PPBillAutoCreateParam & rS);
+	PPBillAutoCreateParam & FASTCALL operator = (const PPBillAutoCreateParam & rS);
+	//
+	// Descr: Возвращает внутренний фильтр для обработки данных, в зависимости от
+	//   параметра a. Если a == -1, то возвращает фильтр, зависящий от текущего значения A.
+	//
+	PPBaseFilt * FASTCALL GetInnerFilt(int a) const;
 	//
 	// Descr: Типы функционала по созданию документов
 	//
@@ -39397,6 +39421,8 @@ public:
 	SStatFilt * P_SsF;
 	CCheckFilt * P_CcF;
 	CSessFilt  * P_CsF;
+private:
+	int    SLAPI InitInstance();
 };
 
 class PrcssrBillAutoCreate {
@@ -39407,11 +39433,16 @@ public:
 	int    SLAPI EditParam(PPBillAutoCreateParam *);
 	int    SLAPI Init(const PPBillAutoCreateParam *);
 	int    SLAPI Run();
+
+	int    SLAPI CreateDraftByTrfrAnlz();
+	static int SLAPI CreateDraftByCSessRule(const CSessCrDraftParam * pParam);
+	static int SLAPI CreateDraftBySupplOrders(const SStatFilt * pFilt);
 private:
     PPViewTrfrAnlz * P_TaV;
     PPViewSStat * P_SsV;
     PPViewCCheck * P_CcV;
     PPViewCSess * P_CsV;
+	PPBillAutoCreateParam P;
 };
 //
 // @ModuleDecl(PPViewGoodsOpAnalyze)
@@ -40428,7 +40459,7 @@ public:
 		OrdByPriceAvg,
 		OrdByQttyAvgCount
 	};
-	static int SLAPI CreateDraftBySupplOrders(const SStatFilt * pFilt);
+	//static int SLAPI CreateDraftBySupplOrders(const SStatFilt * pFilt);
 	SLAPI  PPViewSStat();
 	SLAPI ~PPViewSStat();
 	//
@@ -46077,7 +46108,8 @@ public:
         fImportConcepts    = 0x0002,
         fImportHumNames    = 0x0004,
         fTestFlexia        = 0x0008,
-        fTestConcepts      = 0x0010
+        fTestConcepts      = 0x0010,
+		fTestSyntaxParser  = 0x0020
 	};
 	uint8  ReserveStart[32]; // @ancor
 	long   Flags;
@@ -46097,6 +46129,7 @@ private:
 	int    SLAPI ImportHumanNames(const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing);
 	int    SLAPI TestSearchWords();
 	int    SLAPI TestConcept();
+	int    SLAPI TestSyntax();
 
 	PrcssrSartreFilt P;
 };

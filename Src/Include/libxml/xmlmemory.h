@@ -91,7 +91,7 @@ typedef char *(XMLCALL *xmlStrdupFunc)(const char *str);
 LIBXML_DLL_IMPORT xmlMallocFunc xmlMalloc_;
 LIBXML_DLL_IMPORT xmlMallocFunc xmlMallocAtomic_;
 LIBXML_DLL_IMPORT xmlReallocFunc xmlRealloc_;
-LIBXML_DLL_IMPORT xmlStrdupFunc xmlMemStrdup;
+LIBXML_DLL_IMPORT xmlStrdupFunc xmlMemStrdup_Removed;
  */
 
 /*
@@ -167,7 +167,7 @@ XMLPUBFUN char * XMLCALL xmlMemStrdupLoc(const char *str, const char *file, int 
  *
  * Returns the pointer to the allocated area or NULL in case of error.
  */
-#define xmlMemStrdup(str) xmlMemStrdupLoc((str), __FILE__, __LINE__)
+#define xmlMemStrdup_Removed(str) xmlMemStrdupLoc((str), __FILE__, __LINE__)
 
 #endif /* DEBUG_MEMORY_LOCATION */
 

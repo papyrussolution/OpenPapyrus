@@ -121,19 +121,22 @@ int SLAPI PPCashMachine::GetRegEntry(PPID cmtID, uint * pPos)
 		DYN_LINK_CMT(SETSTART); // @v8.9.1
 	}
 	CMRegArray * p_ary = (CMRegArray*)P_RegData;
-	if(p_ary)
+	if(p_ary) {
 		// @vmiller {
-		if(PPCashMachine::SyncOrAsync(cmtID, s) > 0)
+		if(PPCashMachine::SyncOrAsync(cmtID, s) > 0) {
 			if(s == 1) {
-				ASSIGN_PTR(pPos, 15); // Соответствует типу SYNCCASH // @v9.1.8 16-->15
+				ASSIGN_PTR(pPos, 14); // Соответствует типу SYNCCASH // @v9.1.8 16-->15 // @v9.7.9 15-->14
 				return 1;
 			}
+		}
 		// } @vmiller
-		for(uint i = 0; i < p_ary->getCount(); i++)
+		for(uint i = 0; i < p_ary->getCount(); i++) {
 			if(p_ary->at(i).cmt == cmtID) {
 				ASSIGN_PTR(pPos, i);
 				return 1;
 			}
+		}
+	}
 	ASSIGN_PTR(pPos, 0);
 	return PPSetError(PPERR_INVCMT);
 }

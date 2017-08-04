@@ -485,7 +485,7 @@
 #if UINT_MAX > 4294967294
 	typedef unsigned int png_uint_32_Removed;
 #elif ULONG_MAX > 4294967294
-	typedef unsigned long int png_uint_32_Removed;
+	typedef unsigned long png_uint_32_Removed;
 #else
 	#error "libpng requires an unsigned 32-bit (or more) type"
 #endif
