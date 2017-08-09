@@ -1,5 +1,6 @@
 // SNET.H
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2012, 2013, 2014, 2015
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2012, 2013, 2014, 2015, 2017
+// @codepage UTF-8
 //
 #ifndef __SNET_H
 #define __SNET_H
@@ -17,12 +18,12 @@ struct MACAddr { // size=6
 	int    SLAPI IsEmpty() const;
 	SString & FASTCALL ToStr(SString & rBuf) const;
 	//
-	// Descr: сравнивает MAC-адреса this и s.
-	//   Сравнение осуществляется побайтно, начиная с байта Addr[0]
+	// Descr: СЃСЂР°РІРЅРёРІР°РµС‚ MAC-Р°РґСЂРµСЃР° this Рё s.
+	//   РЎСЂР°РІРЅРµРЅРёРµ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РїРѕР±Р°Р№С‚РЅРѕ, РЅР°С‡РёРЅР°СЏ СЃ Р±Р°Р№С‚Р° Addr[0]
 	// Returns:
-	//   0 - адреса this и s эквивалентны
-	//  <0 - адрес this меньше адреса s
-	//  >0 - адрес this больше адреса s
+	//   0 - Р°РґСЂРµСЃР° this Рё s СЌРєРІРёРІР°Р»РµРЅС‚РЅС‹
+	//  <0 - Р°РґСЂРµСЃ this РјРµРЅСЊС€Рµ Р°РґСЂРµСЃР° s
+	//  >0 - Р°РґСЂРµСЃ this Р±РѕР»СЊС€Рµ Р°РґСЂРµСЃР° s
 	//
 	int    FASTCALL Cmp(const MACAddr & s) const;
 	uint8  Addr[6];
@@ -51,6 +52,21 @@ public:
 	static int SLAPI GetNameByAddr(const char * pIP, SString & aHost);
 
 	SLAPI  InetAddr();
+	SLAPI  InetAddr(const InetAddr & rS)
+	{
+		Copy(rS);
+	}
+	InetAddr & FASTCALL operator = (const InetAddr & rS)
+	{
+		Copy(rS);
+		return *this;
+	}
+	void   FASTCALL Copy(const InetAddr & rS)
+	{
+		V4 = rS.V4;
+		HostName = rS.HostName;
+		Port = rS.Port;
+	}
 	SLAPI  operator ulong() const { return V4; }
 	InetAddr & SLAPI Clear();
 	int    FASTCALL IsEqual(const InetAddr & rS) const;
@@ -58,8 +74,14 @@ public:
 	int    FASTCALL operator != (const InetAddr & rS) const;
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    SLAPI IsEmpty() const;
-	int    SLAPI GetPort() const { return Port; }
-	const SString & SLAPI GetHostName() const { return HostName; }
+	int    SLAPI GetPort() const 
+	{ 
+		return Port; 
+	}
+	const SString & SLAPI GetHostName() const 
+	{ 
+		return HostName; 
+	}
 	int    SLAPI Set(ulong addr, int port = 0);
 	int    SLAPI Set(const char * pHostName, int port = 0);
 	int    SLAPI Set(const sockaddr_in *);
@@ -71,6 +93,124 @@ private:
 	uint32 V4;
 	SString HostName;
 	int    Port;
+};
+//
+//
+//
+class InetUrl : public InetAddr {
+public:
+	enum { // @persistent
+		protUnkn     =  0,
+		protHttp     =  1,  // http
+		protHttps    =  2,  // https
+		protFtp      =  3,  // ftp
+		protGopher   =  4,  // gopher
+		protMailto   =  5,  // mailto
+		protNews     =  6,
+		protNntp     =  7,
+		protIrc      =  8,
+		protProspero =  9,
+		protTelnet   = 10,
+		protWais     = 11,
+		protXmpp     = 12,
+		protFile     = 13,
+		protData     = 14,
+		protSvn      = 15,
+		protSocks4   = 16,
+		protSocks5   = 17,
+		protSMTP     = 18, // РџСЂРѕС‚РѕРєРѕР» РѕС‚РїСЂР°РІРєРё РїРѕС‡С‚С‹
+		protSMTPS    = 19, // РџСЂРѕС‚РѕРєРѕР» РѕС‚РїСЂР°РІРєРё РїРѕС‡С‚С‹ (SSL)
+		protPOP3     = 20, // РџСЂРѕС‚РѕРєРѕР» РїРѕР»СѓС‡РµРЅРёСЏ РїРѕС‡С‚С‹
+		protPOP3S    = 21, // РџСЂРѕС‚РѕРєРѕР» РїРѕР»СѓС‡РµРЅРёСЏ РїРѕС‡С‚С‹ (SSL)
+		protIMAP     = 22, // Internet Message Access Protocol
+		protIMAPS    = 23, // Internet Message Access Protocol (SSL)
+		protFtps     = 24, // ftps
+		protTFtp     = 25,
+		protDict     = 26,
+		protSSH      = 27,
+		protSMB      = 28,
+		protSMBS     = 29,
+		protRTSP     = 30,
+		protRTMP     = 31,
+		protRTMPT    = 32,
+		protRTMPS    = 33,
+		protLDAP     = 34,
+		protLDAPS    = 35
+	};
+	enum { // @persistent
+		cScheme = 1,
+		cUserName,
+		cPassword,
+		cHost,
+		cPort,
+		cPath,
+		cQuery,
+		cRef
+	};
+	enum {
+		stError    = 0x80000000,
+		stEmpty    = 0x40000000,
+		stAll      = 0xffffffff,
+		stScheme   = (1 << (cScheme-1)),
+		stUserName = (1 << (cUserName-1)),
+		stPassword = (1 << (cPassword-1)),
+		stHost     = (1 << (cHost-1)),
+		stPort     = (1 << (cPort-1)),
+		stPath     = (1 << (cPath-1)),
+		stQuery    = (1 << (cQuery-1)),
+		stRef      = (1 << (cRef-1))
+	};
+	static const char * FASTCALL GetSchemeMnem(int);
+	static int FASTCALL GetSchemeId(const char * pSchemeMnem);
+	static int FASTCALL GetDefProtocolPort(int protocol);
+	static int FASTCALL ValidateComponent(int c)
+	{
+		return oneof8(c, cScheme, cUserName, cPassword, cHost, cPort, cPath, cQuery, cRef) ? 1 : SLS.SetError(SLERR_INVPARAM);
+	}
+	InetUrl(const char * pUrl = 0);
+	InetUrl(const InetUrl & rS)
+	{
+		Copy(rS);
+	}
+	InetUrl & FASTCALL operator = (const InetUrl & rS)
+	{
+		Copy(rS);
+		return *this;
+	}
+	void   FASTCALL Copy(const InetUrl & rS)
+	{
+		InetAddr::Copy(rS);
+		Protocol = rS.Protocol;
+		TermList = rS.TermList;
+		Org = rS.Org;
+		State = rS.State;
+	}
+	InetUrl & Clear();
+	long   GetState() const;
+	int    Valid() const;
+	int    IsEmpty() const;
+	int    Parse(const char * pUrl);
+	int    GetComponent(int c, SString & rBuf) const;
+	int    SetComponent(int c, const char * pBuf);
+	int    GetProtocol() const;
+	int    SetProtocol(int protocol);
+	//
+	// Descr: Р¤РѕСЂРјРёСЂСѓРµС‚ url-СЃС‚СЂРѕРєСѓ РёР· РєРѕРјРїРѕРЅРµРЅС‚РѕРІ, СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹С… РґР°РЅРЅРѕРј СЌРєР·РµРјРїР»СЏСЂРµ.
+	// ARG(flags IN): РќР°Р±РѕСЂ Р±РёС‚РѕРІС‹С… С„Р»Р°РіРѕРІ, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёС… РєРѕРјРїРѕРЅРµРЅС‚Р°Рј, РєРѕС‚РѕСЂС‹Рµ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РІРЅРµСЃРµРЅС‹ РІ СЃС‚СЂРѕРєСѓ.
+	//   Р—РЅР°С‡РµРЅРёРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РєРѕРјР±РёРЅР°С†РёРµР№ С„Р»Р°РіРѕРІ stXXX. РџСЂРё СЌС‚РѕРј flags==stError СЌРєРІРёРІР°Р»РµРЅС‚РЅРѕ flags==stEmpty,
+	//   flags==stEmpty РїСЂРѕСЃС‚Рѕ РѕР±РЅСѓР»СЏРµС‚ Р±СѓС„РµСЂ rBuf, stAll - РїСЂРµРґРїРёСЃС‹РІР°РµС‚ РІСЃС‚Р°РІРёС‚СЊ РІ СЃС‚СЂРѕРєСѓ РІСЃРµ РґРѕСЃС‚СѓРїРЅС‹Рµ
+	//   РєРѕРјРїРѕРЅРµРЅС‚С‹. flags == 0 СЌРєРІРёРІР°Р»РµРЅС‚РЅРѕ flags==stAll.
+	//   Р”Р»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РѕРїСѓСЃС‚РёС‚СЊ РѕРґРёРЅ РёР»Рё РЅРµСЃРєРѕР»СЊРєРѕ РєРѕРјРїРѕРЅРµРЅС‚РѕРІ РјРѕР¶РЅРѕ РїРµСЂРµРґР°С‚СЊ Р·РЅР°С‡РµРЅРёРµ (stAll & ~(stXXX))
+	//   РќР°РїСЂРёРјРµСЂ: (stAll & ~(stUserName|stPassword)).
+	// ARG(rBuf OUT): Р‘СѓС„РµСЂ, РІ РєРѕС‚РѕСЂРѕРј С„РѕСЂРјРёСЂСѓРµС‚СЃСЏ url.
+	// Returns: РєРѕРјР±РёРЅР°С†РёСЏ С„Р»Р°РіРѕРІ stXXX, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰Р°СЏ РЅР°Р±РѕСЂСѓ РєРѕРјРїРѕРЅРµРЅС‚РѕРІ, РІРЅРµСЃРµРЅРЅРѕРјСѓ РІ Р±СѓС„РµСЂ rBuf.
+	//
+	int    Composite(long flags, SString & rBuf) const;
+private:
+	int    Protocol;
+	StrAssocArray TermList;
+	SString Org;
+	long   State;
 };
 
 int SLAPI GetFirstHostByMACAddr(MACAddr * pItem, InetAddr * pAddr);
@@ -102,17 +242,17 @@ public:
 	int    SLAPI GetTimeout() const;
 	int    FASTCALL SetTimeout(int timeout);
 	//
-	// Descr: Копирует сокет this в rDest и сбрасывает значение
-	//   this->S. Таким образом, деструктор this не закроет сокет,
-	//   переданный в rDest.
-	// Remark: Если rDest.IsValid() != 0, то функция возвращает ошибку и ничего
-	//   не делает, поскольку в этом случае мы рискуем потерять без корректного
-	//   разрушения экземпляр сокета.
+	// Descr: РљРѕРїРёСЂСѓРµС‚ СЃРѕРєРµС‚ this РІ rDest Рё СЃР±СЂР°СЃС‹РІР°РµС‚ Р·РЅР°С‡РµРЅРёРµ
+	//   this->S. РўР°РєРёРј РѕР±СЂР°Р·РѕРј, РґРµСЃС‚СЂСѓРєС‚РѕСЂ this РЅРµ Р·Р°РєСЂРѕРµС‚ СЃРѕРєРµС‚,
+	//   РїРµСЂРµРґР°РЅРЅС‹Р№ РІ rDest.
+	// Remark: Р•СЃР»Рё rDest.IsValid() != 0, С‚Рѕ С„СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РѕС€РёР±РєСѓ Рё РЅРёС‡РµРіРѕ
+	//   РЅРµ РґРµР»Р°РµС‚, РїРѕСЃРєРѕР»СЊРєСѓ РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РјС‹ СЂРёСЃРєСѓРµРј РїРѕС‚РµСЂСЏС‚СЊ Р±РµР· РєРѕСЂСЂРµРєС‚РЅРѕРіРѕ
+	//   СЂР°Р·СЂСѓС€РµРЅРёСЏ СЌРєР·РµРјРїР»СЏСЂ СЃРѕРєРµС‚Р°.
 	// Returns:
-	//   >0 - перемещение валидного сокета завершилось успешно
-	//   <0 - копирование сокета завершилось успешно, однако this имел
-	//        инвалидное значение S (this->IsValid() == 0).
-	//   0  - ошибка.
+	//   >0 - РїРµСЂРµРјРµС‰РµРЅРёРµ РІР°Р»РёРґРЅРѕРіРѕ СЃРѕРєРµС‚Р° Р·Р°РІРµСЂС€РёР»РѕСЃСЊ СѓСЃРїРµС€РЅРѕ
+	//   <0 - РєРѕРїРёСЂРѕРІР°РЅРёРµ СЃРѕРєРµС‚Р° Р·Р°РІРµСЂС€РёР»РѕСЃСЊ СѓСЃРїРµС€РЅРѕ, РѕРґРЅР°РєРѕ this РёРјРµР»
+	//        РёРЅРІР°Р»РёРґРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ S (this->IsValid() == 0).
+	//   0  - РѕС€РёР±РєР°.
 	//
 	int    SLAPI MoveToS(TcpSocket & rDest, int force = 0); // @debug force = 0
 	int    SLAPI CopyS(TcpSocket & rDest);
@@ -122,66 +262,66 @@ public:
 	int    SLAPI GetSockName(InetAddr * pAddr, int peer);
 	int    SLAPI Disconnect();
 	//
-	// Descr: Определяет состояние сокета (через вызов ::select).
-	// ARG(mode IN): Один из вариантов: TcpSocket::mRead or TcpSocket::mWrite.
-	//   Если mode == TcpSocket::mRead, то определяется состояние сокета на чтение,
-	//   в противном случае (mode != TcpSocket::mRead) - на запись.
-	// ARG(timeout IN): Таймаут ожидания в миллисекундах.
-	//   Если timeout < 0, то используется внутреннее значение Timeout.
-	//   Если результирующее значение 0, то функция ::select получает не нулевой указатель
-	//   не TIMEVAL, в котором все поля обнулены.
-	// ARG(pAvailableSize OUT): @#{vptr0} Количество доступных для чтения (mode==TcpSocket::mRead)
-	//   или для записи в сокете.
+	// Descr: РћРїСЂРµРґРµР»СЏРµС‚ СЃРѕСЃС‚РѕСЏРЅРёРµ СЃРѕРєРµС‚Р° (С‡РµСЂРµР· РІС‹Р·РѕРІ ::select).
+	// ARG(mode IN): РћРґРёРЅ РёР· РІР°СЂРёР°РЅС‚РѕРІ: TcpSocket::mRead or TcpSocket::mWrite.
+	//   Р•СЃР»Рё mode == TcpSocket::mRead, С‚Рѕ РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ СЃРѕСЃС‚РѕСЏРЅРёРµ СЃРѕРєРµС‚Р° РЅР° С‡С‚РµРЅРёРµ,
+	//   РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ (mode != TcpSocket::mRead) - РЅР° Р·Р°РїРёСЃСЊ.
+	// ARG(timeout IN): РўР°Р№РјР°СѓС‚ РѕР¶РёРґР°РЅРёСЏ РІ РјРёР»Р»РёСЃРµРєСѓРЅРґР°С….
+	//   Р•СЃР»Рё timeout < 0, С‚Рѕ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІРЅСѓС‚СЂРµРЅРЅРµРµ Р·РЅР°С‡РµРЅРёРµ Timeout.
+	//   Р•СЃР»Рё СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РµРµ Р·РЅР°С‡РµРЅРёРµ 0, С‚Рѕ С„СѓРЅРєС†РёСЏ ::select РїРѕР»СѓС‡Р°РµС‚ РЅРµ РЅСѓР»РµРІРѕР№ СѓРєР°Р·Р°С‚РµР»СЊ
+	//   РЅРµ TIMEVAL, РІ РєРѕС‚РѕСЂРѕРј РІСЃРµ РїРѕР»СЏ РѕР±РЅСѓР»РµРЅС‹.
+	// ARG(pAvailableSize OUT): @#{vptr0} РљРѕР»РёС‡РµСЃС‚РІРѕ РґРѕСЃС‚СѓРїРЅС‹С… РґР»СЏ С‡С‚РµРЅРёСЏ (mode==TcpSocket::mRead)
+	//   РёР»Рё РґР»СЏ Р·Р°РїРёСЃРё РІ СЃРѕРєРµС‚Рµ.
 	// Returns:
-	//   >0 - сокет готов для приема или отправки данных
-	//   0  - ошибка
-	//   <0 - истекло время ожидания timeout (или TcpSocket::Timeout, если timeout<0)
-	//        В этом случае переменная SLibError получает код SLERR_SOCK_TIMEOUT
-	// Note: Обратите внимание на то, что смысл кодов возврата не совпадает со
-	//   смыслов кода возврата функции ::select
+	//   >0 - СЃРѕРєРµС‚ РіРѕС‚РѕРІ РґР»СЏ РїСЂРёРµРјР° РёР»Рё РѕС‚РїСЂР°РІРєРё РґР°РЅРЅС‹С…
+	//   0  - РѕС€РёР±РєР°
+	//   <0 - РёСЃС‚РµРєР»Рѕ РІСЂРµРјСЏ РѕР¶РёРґР°РЅРёСЏ timeout (РёР»Рё TcpSocket::Timeout, РµСЃР»Рё timeout<0)
+	//        Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РїРµСЂРµРјРµРЅРЅР°СЏ SLibError РїРѕР»СѓС‡Р°РµС‚ РєРѕРґ SLERR_SOCK_TIMEOUT
+	// Note: РћР±СЂР°С‚РёС‚Рµ РІРЅРёРјР°РЅРёРµ РЅР° С‚Рѕ, С‡С‚Рѕ СЃРјС‹СЃР» РєРѕРґРѕРІ РІРѕР·РІСЂР°С‚Р° РЅРµ СЃРѕРІРїР°РґР°РµС‚ СЃРѕ
+	//   СЃРјС‹СЃР»РѕРІ РєРѕРґР° РІРѕР·РІСЂР°С‚Р° С„СѓРЅРєС†РёРё ::select
 	//
 	int    SLAPI Select(int mode /* TcpSocket::mXXX */, int timeout = -1, size_t * pAvailableSize = 0);
 		// @>>::select
 	int    SLAPI Listen(); // @>>::listen
 	int    SLAPI Accept(TcpSocket *, InetAddr *); // @>>::accept
 	//
-	// Descr: Читает из сокета данные в буфер pBuf размер которого ограничен
-	//   величиной bufLen. По указателю pRcvdSize присваивается количество
-	//   прочитанных байт.
+	// Descr: Р§РёС‚Р°РµС‚ РёР· СЃРѕРєРµС‚Р° РґР°РЅРЅС‹Рµ РІ Р±СѓС„РµСЂ pBuf СЂР°Р·РјРµСЂ РєРѕС‚РѕСЂРѕРіРѕ РѕРіСЂР°РЅРёС‡РµРЅ
+	//   РІРµР»РёС‡РёРЅРѕР№ bufLen. РџРѕ СѓРєР°Р·Р°С‚РµР»СЋ pRcvdSize РїСЂРёСЃРІР°РёРІР°РµС‚СЃСЏ РєРѕР»РёС‡РµСЃС‚РІРѕ
+	//   РїСЂРѕС‡РёС‚Р°РЅРЅС‹С… Р±Р°Р№С‚.
 	//
 	int    SLAPI Recv(void * pBuf, size_t bufLen, size_t * pRcvdSize); // @>>::recv
 	//
-	// Descr: Читает из сокета блок данных длиной size в буфер pBuf.
-	//   Отличается от функции Recv тем, что читает в цикле до тех пор, пока не
-	//   получит требуемое количество байт, либо ошибку, либо очередное
-	//   считывние не вернет 0 байт.
+	// Descr: Р§РёС‚Р°РµС‚ РёР· СЃРѕРєРµС‚Р° Р±Р»РѕРє РґР°РЅРЅС‹С… РґР»РёРЅРѕР№ size РІ Р±СѓС„РµСЂ pBuf.
+	//   РћС‚Р»РёС‡Р°РµС‚СЃСЏ РѕС‚ С„СѓРЅРєС†РёРё Recv С‚РµРј, С‡С‚Рѕ С‡РёС‚Р°РµС‚ РІ С†РёРєР»Рµ РґРѕ С‚РµС… РїРѕСЂ, РїРѕРєР° РЅРµ
+	//   РїРѕР»СѓС‡РёС‚ С‚СЂРµР±СѓРµРјРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р°Р№С‚, Р»РёР±Рѕ РѕС€РёР±РєСѓ, Р»РёР±Рѕ РѕС‡РµСЂРµРґРЅРѕРµ
+	//   СЃС‡РёС‚С‹РІРЅРёРµ РЅРµ РІРµСЂРЅРµС‚ 0 Р±Р°Р№С‚.
 	//
 	int    SLAPI RecvBlock(void * pBuf, size_t size, size_t * pRcvdSize);
 	//
-	// Descr: Записывает в сокет данные из буфера pBuf в количестве dataLen байт.
-	//   По указателю pSendedSize возвращается количество действительно переданных
-	//   данных.
+	// Descr: Р—Р°РїРёСЃС‹РІР°РµС‚ РІ СЃРѕРєРµС‚ РґР°РЅРЅС‹Рµ РёР· Р±СѓС„РµСЂР° pBuf РІ РєРѕР»РёС‡РµСЃС‚РІРµ dataLen Р±Р°Р№С‚.
+	//   РџРѕ СѓРєР°Р·Р°С‚РµР»СЋ pSendedSize РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РєРѕР»РёС‡РµСЃС‚РІРѕ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ РїРµСЂРµРґР°РЅРЅС‹С…
+	//   РґР°РЅРЅС‹С….
 	//
 	int    SLAPI Send(const void * pBuf, size_t dataLen, size_t * pSendedSize); // @>>::send
 	int    SLAPI RecvBuf(SBuffer & rBuf, size_t frameSize, size_t * pRcvdSize);
 	//
-	// Descr: Считывает из сокета данные в буфер rBuf до тех пор, пока не
-	//   встретится терминальная последовательность pTerminator.
-	//   Если pTerminator == 0 || strlen(pTerminator) == 0, то вызывает RecvBuf(rBuf, 0, pRcvdSize)
+	// Descr: РЎС‡РёС‚С‹РІР°РµС‚ РёР· СЃРѕРєРµС‚Р° РґР°РЅРЅС‹Рµ РІ Р±СѓС„РµСЂ rBuf РґРѕ С‚РµС… РїРѕСЂ, РїРѕРєР° РЅРµ
+	//   РІСЃС‚СЂРµС‚РёС‚СЃСЏ С‚РµСЂРјРёРЅР°Р»СЊРЅР°СЏ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ pTerminator.
+	//   Р•СЃР»Рё pTerminator == 0 || strlen(pTerminator) == 0, С‚Рѕ РІС‹Р·С‹РІР°РµС‚ RecvBuf(rBuf, 0, pRcvdSize)
 	//
 	int    SLAPI RecvUntil(SBuffer & rBuf, const char * pTerminator, size_t * pRcvdSize);
 	int    SLAPI SendBuf(SBuffer & rBuf, size_t * pSendedSize);
 	int    SLAPI GetStat(long * pRdCount, long * pWrCount);
 #ifdef SLTEST_RUNNING // SLTEST_RUNNING {
-	int    SLAPI BreakSocket() // Прервать связь без отсоединения //
+	int    SLAPI BreakSocket() // РџСЂРµСЂРІР°С‚СЊ СЃРІСЏР·СЊ Р±РµР· РѕС‚СЃРѕРµРґРёРЅРµРЅРёСЏ //
 	{
 		Reset();
 		return 1;
 	}
 #endif  // } SLTEST_RUNNING
 private:
-	static size_t DefaultReadFrame;  // Размер кванта считывания из сокета по умолчанию //
-	static size_t DefaultWriteFrame; // Размер кванта записи в сокет //
+	static size_t DefaultReadFrame;  // Р Р°Р·РјРµСЂ РєРІР°РЅС‚Р° СЃС‡РёС‚С‹РІР°РЅРёСЏ РёР· СЃРѕРєРµС‚Р° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ //
+	static size_t DefaultWriteFrame; // Р Р°Р·РјРµСЂ РєРІР°РЅС‚Р° Р·Р°РїРёСЃРё РІ СЃРѕРєРµС‚ //
 
 	int    SLAPI Init(SOCKET s);
 	void   SLAPI Reset();
@@ -191,8 +331,8 @@ private:
 	struct Stat {
 		long   RdCount;
 		long   WrCount;
-		size_t RcvBufSize; // Внутренний размер буфера чтения сокета (извлекается вызовом getsockopt)
-		size_t SndBufSize; // Внутренний размер буфера записи сокета (извлекается вызовом getsockopt)
+		size_t RcvBufSize; // Р’РЅСѓС‚СЂРµРЅРЅРёР№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° С‡С‚РµРЅРёСЏ СЃРѕРєРµС‚Р° (РёР·РІР»РµРєР°РµС‚СЃСЏ РІС‹Р·РѕРІРѕРј getsockopt)
+		size_t SndBufSize; // Р’РЅСѓС‚СЂРµРЅРЅРёР№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° Р·Р°РїРёСЃРё СЃРѕРєРµС‚Р° (РёР·РІР»РµРєР°РµС‚СЃСЏ РІС‹Р·РѕРІРѕРј getsockopt)
 	};
 	struct SslBlock {
 		SslBlock();
@@ -228,7 +368,7 @@ private:
 	SslBlock * P_Ssl;
 	int    Timeout;
 	int    MaxConn;
-	int    LastSockErr; // Последний код ошибки, полученный вызовом TcpSocket::CheckErrorStatus()
+	int    LastSockErr; // РџРѕСЃР»РµРґРЅРёР№ РєРѕРґ РѕС€РёР±РєРё, РїРѕР»СѓС‡РµРЅРЅС‹Р№ РІС‹Р·РѕРІРѕРј TcpSocket::CheckErrorStatus()
 	Stat   StatData;
 	STempBuffer InBuf;
 	STempBuffer OutBuf;
@@ -285,90 +425,6 @@ private:
 //
 //
 //
-class InetUrl : public InetAddr {
-public:
-	enum { // @persistent
-		protUnkn     =  0,
-		protHttp     =  1,  // http
-		protHttps    =  2,  // https
-		protFtp      =  3,  // ftp
-		protGopher   =  4,  // gopher
-		protMailto   =  5,  // mailto
-		protNews     =  6,
-		protNntp     =  7,
-		protIrc      =  8,
-		protProspero =  9,
-		protTelnet   = 10,
-		protWais     = 11,
-		protXmpp     = 12,
-		protFile     = 13,
-		protData     = 14,
-		protSvn      = 15,
-		protSocks4   = 16,
-		protSocks5   = 17,
-		protSMTP     = 18, // Протокол отправки почты
-		protSMTPS    = 19, // Протокол отправки почты (SSL)
-		protPOP3     = 20, // Протокол получения почты
-		protPOP3S    = 21, // Протокол получения почты (SSL)
-		protIMAP     = 22, // Internet Message Access Protocol
-		protIMAPS    = 23, // Internet Message Access Protocol (SSL)
-		protFtps     = 24, // ftps
-		protTFtp     = 25,
-		protDict     = 26,
-		protSSH      = 27,
-		protSMB      = 28,
-		protSMBS     = 29,
-		protRTSP     = 30,
-		protRTMP     = 31,
-		protRTMPT    = 32,
-		protRTMPS    = 33,
-		protLDAP     = 34,
-		protLDAPS    = 35
-	};
-	enum {
-		cScheme = 1,
-		cUserName,
-		cPassword,
-		cHost,
-		cPort,
-		cPath,
-		cQuery,
-		cRef
-	};
-	enum {
-		stError    = 0x80000000,
-		stEmpty    = 0x40000000,
-		stScheme   = (1 << (cScheme-1)),
-		stUserName = (1 << (cUserName-1)),
-		stPassword = (1 << (cPassword-1)),
-		stHost     = (1 << (cHost-1)),
-		stPort     = (1 << (cPort-1)),
-		stPath     = (1 << (cPath-1)),
-		stQuery    = (1 << (cQuery-1)),
-		stRef      = (1 << (cRef-1))
-	};
-	static const char * FASTCALL GetSchemeMnem(int);
-	static int FASTCALL GetSchemeId(const char * pSchemeMnem);
-	static int FASTCALL GetDefProtocolPort(int protocol);
-
-	InetUrl(const char * pUrl = 0);
-	InetUrl & Clear();
-	long   GetState() const;
-	int    Valid() const;
-	int    IsEmpty() const;
-	int    Parse(const char * pUrl);
-	int    GetComponent(int c, SString & rBuf) const;
-	int    GetProtocol() const;
-	int    SetProtocol(int protocol);
-private:
-	int    Protocol;
-	StrAssocArray TermList;
-	SString Org;
-	long   State;
-};
-//
-//
-//
 class SMailClient {
 public:
 	enum {
@@ -411,19 +467,19 @@ public:
 	}
 	int    SLAPI Auth(int alg, const char * pName, const char * pPassword);
 	//
-	// Descr: Считывает из сокета одну или более строк.
-	//   Первая строка всегда считывается в буфер rBuf. Если pTail != 0, то
-	//   остальные строке, если имеются в сокете, считываются как последовательные элементы
+	// Descr: РЎС‡РёС‚С‹РІР°РµС‚ РёР· СЃРѕРєРµС‚Р° РѕРґРЅСѓ РёР»Рё Р±РѕР»РµРµ СЃС‚СЂРѕРє.
+	//   РџРµСЂРІР°СЏ СЃС‚СЂРѕРєР° РІСЃРµРіРґР° СЃС‡РёС‚С‹РІР°РµС‚СЃСЏ РІ Р±СѓС„РµСЂ rBuf. Р•СЃР»Рё pTail != 0, С‚Рѕ
+	//   РѕСЃС‚Р°Р»СЊРЅС‹Рµ СЃС‚СЂРѕРєРµ, РµСЃР»Рё РёРјРµСЋС‚СЃСЏ РІ СЃРѕРєРµС‚Рµ, СЃС‡РёС‚С‹РІР°СЋС‚СЃСЏ РєР°Рє РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Рµ СЌР»РµРјРµРЅС‚С‹
 	//   pTail.
-	// Note: Функция отрезает терминальные символы перевода каретки (\xD\xA) с конца считанных строк.
+	// Note: Р¤СѓРЅРєС†РёСЏ РѕС‚СЂРµР·Р°РµС‚ С‚РµСЂРјРёРЅР°Р»СЊРЅС‹Рµ СЃРёРјРІРѕР»С‹ РїРµСЂРµРІРѕРґР° РєР°СЂРµС‚РєРё (\xD\xA) СЃ РєРѕРЅС†Р° СЃС‡РёС‚Р°РЅРЅС‹С… СЃС‚СЂРѕРє.
 	//
 	int    SLAPI ReadLine(SString & rBuf);
 	int    SLAPI CheckReply(const SString & rReplyBuf, int onlyValidCode = 0);
 	//
-	// Descr: Записывает в сокет строку pBuf. Если параметр pReply != 0, то
-	//   сразу после успешной записи считывает первую строку ответа сервера в pReply.
-	// Note: Строка pBuf не должна иметь терминального перевода каретки (\xD\xA). Функция
-	//   WriteLine самостоятельно добавляет терминатор к строке аргумента.
+	// Descr: Р—Р°РїРёСЃС‹РІР°РµС‚ РІ СЃРѕРєРµС‚ СЃС‚СЂРѕРєСѓ pBuf. Р•СЃР»Рё РїР°СЂР°РјРµС‚СЂ pReply != 0, С‚Рѕ
+	//   СЃСЂР°Р·Сѓ РїРѕСЃР»Рµ СѓСЃРїРµС€РЅРѕР№ Р·Р°РїРёСЃРё СЃС‡РёС‚С‹РІР°РµС‚ РїРµСЂРІСѓСЋ СЃС‚СЂРѕРєСѓ РѕС‚РІРµС‚Р° СЃРµСЂРІРµСЂР° РІ pReply.
+	// Note: РЎС‚СЂРѕРєР° pBuf РЅРµ РґРѕР»Р¶РЅР° РёРјРµС‚СЊ С‚РµСЂРјРёРЅР°Р»СЊРЅРѕРіРѕ РїРµСЂРµРІРѕРґР° РєР°СЂРµС‚РєРё (\xD\xA). Р¤СѓРЅРєС†РёСЏ
+	//   WriteLine СЃР°РјРѕСЃС‚РѕСЏС‚РµР»СЊРЅРѕ РґРѕР±Р°РІР»СЏРµС‚ С‚РµСЂРјРёРЅР°С‚РѕСЂ Рє СЃС‚СЂРѕРєРµ Р°СЂРіСѓРјРµРЅС‚Р°.
 	//
 	int    SLAPI WriteLine(const char * pBuf, SString * pReply);
 	int    SLAPI WriteBlock(const void * pData, size_t dataSize);
@@ -661,21 +717,31 @@ public:
 	{
 		return (H == 0);
 	}
+
 	enum {
-		mfDontVerifySslPeer = 0x0001 // Устанавливает опцию CURLOPT_SSL_VERIFYPEER в FALSE
+		authServer = 1
 	};
+	int    SetAuth(int auth, const char * pUser, const char * pPassword);
+
+	enum {
+		mfDontVerifySslPeer = 0x0001, // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РѕРїС†РёСЋ CURLOPT_SSL_VERIFYPEER РІ FALSE
+		mfTcpKeepAlive      = 0x0002, // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РѕРїС†РёСЋ CURLOPT_TCP_KEEPALIVE РІ TRUE
+		mfNoProgerss        = 0x0004  // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РѕРїС†РёСЋ CURLOPT_NOPROGRESS РІ TRUE
+	};
+	
     int    HttpPost(const char * pUrl, int mflags, HttpForm & rForm, SFile * pReplyStream);
     int    HttpPost(const char * pUrl, int mflags, const StrStrAssocArray * pFields, SFile * pReplyStream);
     int    HttpGet(const char * pUrl, int mflags, SFile * pReplyStream);
     int    HttpGet(const char * pUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, SFile * pReplyStream);
 	int    HttpDelete(const char * pUrl, int mflags, SFile * pReplyStream);
 	//
-	int    FtpList(const char * pUrl, int mflags, const char * pRemotePath, SFileEntryPool & rPool);
-	int    FtpPut(const char * pUrl, int mflags, const char * pLocalFile, const char * pRemotePath, SCopyFileProgressProc pf, void * extraPtr);
-	int    FtpGet(const char * pUrl, int mflags, const char * pLocalFile, const char * pRemotePath, SCopyFileProgressProc pf, void * extraPtr);
-	int    FtpDelete(const char * pUrl, int mflags, const char * pRemotePath);
-	int    FtpChangeDir(const char * pUrl, int mflags, const char * pRemotePath);
-	int    FtpCreateDir(const char * pUrl, int mflags, const char * pRemotePath);
+	int    FtpList(const InetUrl & rUrl, int mflags, SFileEntryPool & rPool);
+	int    FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, SCopyFileProgressProc pf, void * extraPtr);
+	int    FtpGet(const InetUrl & rUrl, int mflags, const char * pLocalFile, SCopyFileProgressProc pf, void * extraPtr);
+	int    FtpDelete(const InetUrl & rUrl, int mflags);
+	int    FtpChangeDir(const InetUrl & rUrl, int mflags);
+	int    FtpCreateDir(const InetUrl & rUrl, int mflags);
+	int    FtpDeleteDir(const InetUrl & rUrl, int mflags);
 	//
 	int    Pop3List();
 private:
@@ -686,7 +752,19 @@ private:
 	int    FASTCALL SetError(int errCode);
 	int    SetupCbRead(SFile * pF);
 	int    SetupCbWrite(SFile * pF);
+	void   CleanCbRW();
+	int    SetCommonOptions(int mflags, int bufferSize, const char * pUserAgent);
+	int    Execute();
 
+	struct InnerUrlInfo {
+		SString User;
+		SString Password;
+		SString Path;
+	};
+	
+	int    PrepareURL(InetUrl & rUrl, InnerUrlInfo & rInfo);
+
+	SFile  NullWrF; // Р¤Р°Р№Р»-Р·Р°РіР»СѓС€РєР° РґР»СЏ Р·Р°РїРёСЃРё С‚РѕРіРѕ, С‡С‚Рѕ РЅРµ РІР°Р¶РЅРѕ
 	void * H;
 };
 //

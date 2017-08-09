@@ -32,7 +32,7 @@
 #include "vauth/digest.h"
 //#include "urldata.h"
 //#include "curl_base64.h"
-#include "warnless.h"
+//#include "warnless.h"
 #include "curl_multibyte.h"
 //#include "sendf.h"
 //#include "strdup.h"

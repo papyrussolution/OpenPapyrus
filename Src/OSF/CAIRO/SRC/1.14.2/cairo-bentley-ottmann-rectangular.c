@@ -38,10 +38,10 @@
 /* Provide definitions for standalone compilation */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-boxes-private.h"
-#include "cairo-combsort-inline.h"
+//#include "cairo-boxes-private.h"
+//#include "cairo-combsort-inline.h"
 //#include "cairo-list-private.h"
-#include "cairo-traps-private.h"
+//#include "cairo-traps-private.h"
 //#include <setjmp.h>
 
 typedef struct _rectangle rectangle_t;

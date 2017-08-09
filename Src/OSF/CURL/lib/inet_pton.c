@@ -19,18 +19,16 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifndef HAVE_INET_PTON
-
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+	#include <sys/param.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+	#include <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+	#include <arpa/inet.h>
 #endif
-
-#include "inet_pton.h"
+//#include "inet_pton.h"
 
 #define IN6ADDRSZ       16
 #define INADDRSZ         4

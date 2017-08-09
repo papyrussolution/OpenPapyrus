@@ -59,7 +59,7 @@
 //#include "strerror.h"
 //#include "url.h"
 //#include "multiif.h"
-#include "inet_pton.h"
+//#include "inet_pton.h"
 //#include "connect.h"
 //#include "select.h"
 //#include "progress.h"
@@ -384,25 +384,21 @@ CURLcode Curl_resolver_wait_resolv(struct connectdata * conn, struct Curl_dns_en
 		   TODO: remove this action from here, it is not a name resolver decision.
 		 */
 		connclose(conn, "c-ares resolve failed");
-
 	return result;
 }
 
 /* Connects results to the list */
-static void compound_results(struct ResolverResults * res,
-    Curl_addrinfo * ai)
+static void compound_results(struct ResolverResults * res, Curl_addrinfo * ai)
 {
 	Curl_addrinfo * ai_tail;
-	if(!ai)
-		return;
-	ai_tail = ai;
-
-	while(ai_tail->ai_next)
-		ai_tail = ai_tail->ai_next;
-
-	/* Add the new results to the list of old results. */
-	ai_tail->ai_next = res->temp_ai;
-	res->temp_ai = ai;
+	if(ai) {
+		ai_tail = ai;
+		while(ai_tail->ai_next)
+			ai_tail = ai_tail->ai_next;
+		/* Add the new results to the list of old results. */
+		ai_tail->ai_next = res->temp_ai;
+		res->temp_ai = ai;
+	}
 }
 
 /*

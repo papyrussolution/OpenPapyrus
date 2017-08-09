@@ -41,17 +41,10 @@
 #define DEFAULT_OVERFLOW_SYMB     '#'
 #define DEFAULT_PASSWORD_SYMB     '*'
 
-/* Maximum size of data types, processing by STYPE mechanism */
-#define MAXSSIZE                 255
-
-/* Remove comment if complex types are needed (see STYPE.H) */
-#define COMPLEX_TYPES
-
-/* Remove comment if ObjStore streaming is needed
-#define OBJSTORE_STREAM */
-
-/* Comment if 'typedef [un]signed [char|short|long] [u]int[8|16|32]' not needed */
-#define DECL_INTX
+#define MAXSSIZE                 255 // Maximum size of data types, processing by STYPE mechanism
+#define COMPLEX_TYPES // Remove comment if complex types are needed (see STYPE.H)
+// #define OBJSTORE_STREAM // Remove comment if ObjStore streaming is needed
+#define DECL_INTX // Comment if 'typedef [un]signed [char|short|long] [u]int[8|16|32]' not needed
 //
 // Требуется для MSVS 10.0 дабы он не выдавал замечания на использование "небезопасных" функций.
 //

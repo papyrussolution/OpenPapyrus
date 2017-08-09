@@ -94,8 +94,8 @@
 //#include "share.h"
 //#include "strtoofft.h"
 //#include "strcase.h"
-#include "curl_memrchr.h"
-#include "inet_pton.h"
+//#include "curl_memrchr.h"
+//#include "inet_pton.h"
 // The last 3 #include files should be in this order 
 #include "curl_printf.h"
 //#include "curl_memory.h"
@@ -142,14 +142,12 @@ static bool tailmatch(const char * cooke_domain, const char * hostname)
  */
 static bool pathmatch(const char * cookie_path, const char * request_uri)
 {
-	size_t cookie_path_len;
 	size_t uri_path_len;
 	char * uri_path = NULL;
 	char * pos;
 	bool ret = FALSE;
-
 	/* cookie_path must not have last '/' separator. ex: /sample */
-	cookie_path_len = strlen(cookie_path);
+	size_t cookie_path_len = strlen(cookie_path);
 	if(1 == cookie_path_len) {
 		/* cookie_path must be '/' */
 		return TRUE;
@@ -185,21 +183,17 @@ static bool pathmatch(const char * cookie_path, const char * request_uri)
 		ret = FALSE;
 		goto pathmatched;
 	}
-
 	/* The cookie-path and the uri-path are identical. */
 	if(cookie_path_len == uri_path_len) {
 		ret = TRUE;
 		goto pathmatched;
 	}
-
 	/* here, cookie_path_len < url_path_len */
 	if(uri_path[cookie_path_len] == '/') {
 		ret = TRUE;
 		goto pathmatched;
 	}
-
 	ret = FALSE;
-
 pathmatched:
 	SAlloc::F(uri_path);
 	return ret;
@@ -210,36 +204,31 @@ pathmatched:
  */
 static char * sanitize_cookie_path(const char * cookie_path)
 {
-	size_t len;
 	char * new_path = _strdup(cookie_path);
-	if(!new_path)
-		return NULL;
-	/* some stupid site sends path attribute with '"'. */
-	len = strlen(new_path);
-	if(new_path[0] == '\"') {
-		memmove((void*)new_path, (const void*)(new_path + 1), len);
-		len--;
-	}
-	if(len && (new_path[len - 1] == '\"')) {
-		new_path[len - 1] = 0x0;
-		len--;
-	}
-
-	/* RFC6265 5.2.4 The Path Attribute */
-	if(new_path[0] != '/') {
-		/* Let cookie-path be the default-path. */
-		SAlloc::F(new_path);
-		new_path = _strdup("/");
-		return new_path;
-	}
-
-	/* convert /hoge/ to /hoge */
-	if(len && new_path[len - 1] == '/') {
-		new_path[len - 1] = 0x0;
+	if(new_path) {
+		// some stupid site sends path attribute with '"'. 
+		size_t len = strlen(new_path);
+		if(new_path[0] == '\"') {
+			memmove((void*)new_path, (const void*)(new_path + 1), len);
+			len--;
+		}
+		if(len && (new_path[len - 1] == '\"')) {
+			new_path[len - 1] = 0x0;
+			len--;
+		}
+		// RFC6265 5.2.4 The Path Attribute 
+		if(new_path[0] != '/') { // Let cookie-path be the default-path. 
+			SAlloc::F(new_path);
+			new_path = _strdup("/");
+		}
+		else { // convert /hoge/ to /hoge 
+			if(len && new_path[len - 1] == '/') {
+				new_path[len - 1] = 0x0;
+			}
+		}
 	}
 	return new_path;
 }
-
 /*
  * Load cookies from all given cookie files (CURLOPT_COOKIEFILE).
  *
@@ -251,14 +240,9 @@ void Curl_cookie_loadfiles(struct Curl_easy * data)
 	if(list) {
 		Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
 		while(list) {
-			struct CookieInfo * newcookies = Curl_cookie_init(data,
-			    list->data,
-			    data->cookies,
-			    data->set.cookiesession);
+			struct CookieInfo * newcookies = Curl_cookie_init(data, list->data, data->cookies, data->set.cookiesession);
 			if(!newcookies)
-				/* Failure may be due to OOM or a bad cookie; both are ignored
-				 * but only the first should be
-				 */
+				// Failure may be due to OOM or a bad cookie; both are ignored but only the first should be
 				infof(data, "ignoring failed cookie_init for %s\n", list->data);
 			else
 				data->cookies = newcookies;
@@ -951,13 +935,13 @@ static int cookie_sort(const void * p1, const void * p2)
 	struct Cookie * c1 = *(struct Cookie**)p1;
 	struct Cookie * c2 = *(struct Cookie**)p2;
 	// 1 - compare cookie path lengths 
-	size_t l1 = c1->path ? strlen(c1->path) : 0;
-	size_t l2 = c2->path ? strlen(c2->path) : 0;
+	size_t l1 = sstrlen(c1->path);
+	size_t l2 = sstrlen(c2->path);
 	if(l1 != l2)
 		return (l2 > l1) ? 1 : -1;  /* avoid size_t <=> int conversions */
 	// 2 - compare cookie domain lengths 
-	l1 = c1->domain ? strlen(c1->domain) : 0;
-	l2 = c2->domain ? strlen(c2->domain) : 0;
+	l1 = sstrlen(c1->domain);
+	l2 = sstrlen(c2->domain);
 	if(l1 != l2)
 		return (l2 > l1) ? 1 : -1;  /* avoid size_t <=> int conversions */
 	// 3 - compare cookie names 

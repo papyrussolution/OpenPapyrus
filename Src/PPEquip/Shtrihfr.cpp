@@ -2175,11 +2175,10 @@ void SLAPI SCS_SHTRIHFRF::SetErrorMessage()
 int SLAPI SCS_SHTRIHFRF::PrintBnkTermReport(const char * pZCheck)
 {
 	int     ok = 1;
-	StringSet str_set(0x0A, pZCheck);
-	SString str;
-	SlipDocCommonParam sdc_param;
-
-	THROW(P_SlipFmt->Init("CCheck", &sdc_param));
+	StringSet str_set('\n', pZCheck);
+	SString line_buf;
+	// @v9.7.10 SlipDocCommonParam sdc_param;
+	// @v9.7.10 THROW(P_SlipFmt->Init("CCheck", &sdc_param));
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
 	THROW(ConnectFR());
@@ -2187,9 +2186,10 @@ int SLAPI SCS_SHTRIHFRF::PrintBnkTermReport(const char * pZCheck)
 	CheckForRibbonUsing(SlipLineParam::fRegRegular);
 	THROW(SetFR(DocumentName, ""));
 	THROW(ExecFRPrintOper(PrintDocumentTitle));
-	for(uint pos = 0; str_set.get(&pos, str) > 0;) {
+	for(uint pos = 0; str_set.get(&pos, line_buf) > 0;) {
 		CheckForRibbonUsing(SlipLineParam::fRegRegular);
-		THROW(SetFR(StringForPrinting, str.Trim(CheckStrLen)));
+		CutLongTail(line_buf);
+		THROW(SetFR(StringForPrinting, line_buf));
 		THROW(ExecFRPrintOper(PrintString));
 	}
 	THROW(LineFeed(3, TRUE, FALSE));

@@ -1294,7 +1294,6 @@
     <ClCompile Include="..\PPLib\ppeds.cpp" />
     <ClCompile Include="..\PPLib\Ppexport.cpp" />
     <ClCompile Include="..\PPLib\PPEXPR.CPP" />
-    <ClCompile Include="..\PPLib\ppftp.cpp" />
     <ClCompile Include="..\PPLib\ppgeo.cpp" />
     <ClCompile Include="..\PPLib\ppgplot.cpp" />
     <ClCompile Include="..\PPLib\ppidata.cpp" />

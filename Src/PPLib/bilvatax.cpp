@@ -168,10 +168,11 @@ int SLAPI BVATAccmArray::CalcBill(const PPBillPacket * pPack)
 int SLAPI BVATAccmArray::CalcBill(PPID id)
 {
 	int    r = -1;
+	PPObjBill * p_bobj = BillObj;
 	PPTransferItem ti;
 	BillTbl::Rec bill_rec;
-	if(BillObj->Search(id, &bill_rec) > 0)
-		for(int rbybill = 0; (r = BillObj->trfr->EnumItems(id, &rbybill, &ti)) > 0;)
+	if(p_bobj->Search(id, &bill_rec) > 0)
+		for(int rbybill = 0; (r = p_bobj->trfr->EnumItems(id, &rbybill, &ti)) > 0;)
 			if(!Add(&ti, bill_rec.OpID))
 				return 0;
 	return BIN(r);

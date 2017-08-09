@@ -355,23 +355,16 @@ static struct Curl_easy * duphandle(struct Curl_easy * data)
 	return second;
 }
 
-static int push_promise(struct Curl_easy * data,
-    struct connectdata * conn,
-    const nghttp2_push_promise * frame)
+static int push_promise(struct Curl_easy * data, struct connectdata * conn, const nghttp2_push_promise * frame)
 {
 	int rv;
-	DEBUGF(infof(data, "PUSH_PROMISE received, stream %u!\n",
-		    frame->promised_stream_id));
+	DEBUGF(infof(data, "PUSH_PROMISE received, stream %u!\n", frame->promised_stream_id));
 	if(data->multi->push_cb) {
 		struct HTTP * stream;
-
 		struct HTTP * newstream;
-
 		struct curl_pushheaders heads;
-
 		CURLMcode rc;
 		struct http_conn * httpc;
-
 		size_t i;
 		/* clone the parent */
 		struct Curl_easy * newhandle = duphandle(data);
@@ -380,7 +373,6 @@ static int push_promise(struct Curl_easy * data,
 			rv = 1; /* FAIL HARD */
 			goto fail;
 		}
-
 		heads.data = data;
 		heads.frame = frame;
 		/* ask the application */

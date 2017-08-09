@@ -1301,12 +1301,16 @@ CAIRO_END_DECLS
 #include "cairo-malloc-private.h"
 #include "cairo-hash-private.h"
 #include "cairo-analysis-surface-private.h"
+#include "cairo-boxes-private.h"
 #include "cairo-clip-private.h"
 #include "cairo-clip-inline.h"
 #include "cairo-pattern-private.h"
 #include "cairo-array-private.h"
 #include "cairo-list-inline.h"
 #include "cairo-pattern-inline.h"
+#include "cairo-freelist-private.h"
+#include "cairo-combsort-inline.h"
+#include "cairo-traps-private.h"
 
 #if HAVE_VALGRIND
 	#include <memcheck.h>

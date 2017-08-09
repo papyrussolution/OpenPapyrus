@@ -28,12 +28,12 @@
 #ifndef CAIRO_DRM_I915_PRIVATE_H
 #define CAIRO_DRM_I915_PRIVATE_H
 
-#include "cairo-types-private.h"
+//#include "cairo-types-private.h"
 #include "cairo-drm-private.h"
 #include "cairo-drm-intel-private.h"
 #include "cairo-drm-intel-command-private.h"
 #include "cairo-drm-intel-ioctl-private.h"
-#include "cairo-freelist-private.h"
+//#include "cairo-freelist-private.h"
 //#include <setjmp.h>
 
 #define I915_VERBOSE 1
@@ -885,7 +885,7 @@ cairo_private i915_surface_t * i915_surface_create_from_cacheable_image_internal
 
 cairo_private void i915_surface_scaled_font_fini(cairo_scaled_font_t * scaled_font);
 
-cairo_private cairo_int_status_t i915_surface_glyphs(void                       * abstract_surface,
+cairo_private cairo_int_status_t i915_surface_glyphs(void * abstract_surface,
     cairo_operator_t op,
     const cairo_pattern_t      * source,
     cairo_glyph_t              * glyphs,

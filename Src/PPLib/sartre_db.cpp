@@ -203,41 +203,12 @@ int SrWordTbl::Add(const char * pWordUtf8, LEXID * pID)
 	return ok;
 }
 
-int SrWordTbl::MakeSpecial(int spcTag, const char * pWordUtf8, SString & rBuf)
-{
-	int    ok = 1;
-	rBuf = 0;
-	switch(spcTag) {
-		case spcEmpty: rBuf.Cat("/#"); break;
-		case spcPrefix: rBuf.Cat(pWordUtf8).Cat("/-"); break;
-		case spcAffix: rBuf.Cat("/-").Cat(pWordUtf8); break;
-		case spcConcept: rBuf.Cat("/:").Cat(pWordUtf8); break;
-		case spcCPropSymb: rBuf.Cat("/.").Cat(pWordUtf8); break;
-		default:
-			ok = PPSetError(PPERR_SR_INVSPCWORDTAG, (long)spcTag);
-			break;
-	}
-	return ok;
-}
-
 int SrWordTbl::AddSpecial(int spcTag, const char * pWordUtf8, LEXID * pID)
 {
 	int    ok = 0;
 	SString temp_buf;
-	if(MakeSpecial(spcTag, pWordUtf8, temp_buf))
+	if(SrDatabase::MakeSpecialWord(spcTag, pWordUtf8, temp_buf))
 		ok = Add(temp_buf, pID);
-	return ok;
-}
-
-int SrWordTbl::SearchSpecial(int spcTag, const char * pWordUtf8, LEXID * pID)
-{
-	int    ok = 0;
-	SString temp_buf;
-	if(MakeSpecial(spcTag, pWordUtf8, temp_buf))
-		ok = Search(temp_buf, pID);
-	else {
-		ASSIGN_PTR(pID, 0);
-	}
 	return ok;
 }
 
@@ -1309,7 +1280,25 @@ int SLAPI SrGeoWayTbl::Search(uint64 id, PPOsm::Way * pW)
 //
 //
 //
-SrDatabase::SrDatabase()
+//static
+int SrDatabase::MakeSpecialWord(int spcTag, const char * pWordUtf8, SString & rBuf)
+{
+	int    ok = 1;
+	rBuf = 0;
+	switch(spcTag) {
+		case SrWordTbl::spcEmpty: rBuf.Cat("/#"); break;
+		case SrWordTbl::spcPrefix: rBuf.Cat(pWordUtf8).Cat("/-"); break;
+		case SrWordTbl::spcAffix: rBuf.Cat("/-").Cat(pWordUtf8); break;
+		case SrWordTbl::spcConcept: rBuf.Cat("/:").Cat(pWordUtf8); break;
+		case SrWordTbl::spcCPropSymb: rBuf.Cat("/.").Cat(pWordUtf8); break;
+		default:
+			ok = PPSetError(PPERR_SR_INVSPCWORDTAG, (long)spcTag);
+			break;
+	}
+	return ok;
+}
+
+SrDatabase::SrDatabase() : WordCache(128*1024, 0)
 {
 	PropInstance = 0;
 	PropSubclass = 0;
@@ -1417,11 +1406,31 @@ int SrDatabase::GetPropType(CONCEPTID propID)
 	return type;
 }
 
+int SrDatabase::SearchConcept(const char * pSymbUtf8, CONCEPTID * pID)
+{
+	int    ok = -1;
+	CONCEPTID cid = 0;
+	LEXID  lex_id = 0;
+	if(FetchSpecialWord(SrWordTbl::spcConcept, pSymbUtf8, &lex_id) > 0) {
+		SrConcept c;
+		if(P_CT->SearchBySymb(lex_id, &c) > 0) {
+			cid = c.ID;
+			ok = 1;
+		}
+		else
+			ok = -2;
+	}
+	CATCHZOK
+	ASSIGN_PTR(pID, cid);
+	return ok;
+}
+
+
 int SrDatabase::ResolveConcept(const char * pSymbUtf8, CONCEPTID * pID)
 {
 	int    ok = -1;
 	LEXID  lex_id = 0;
-	if(P_WdT->SearchSpecial(SrWordTbl::spcConcept, pSymbUtf8, &lex_id) > 0) {
+	if(SearchSpecialWord(SrWordTbl::spcConcept, pSymbUtf8, &lex_id) > 0) {
 		SrConcept c;
 		if(P_CT->SearchBySymb(lex_id, &c) > 0) {
 			ASSIGN_PTR(pID, c.ID);
@@ -1454,7 +1463,7 @@ int SrDatabase::ResolveCPropSymb(const char * pSymbUtf8, LEXID * pID)
 {
 	int    ok = -1;
 	LEXID  lex_id = 0;
-	if(P_WdT->SearchSpecial(SrWordTbl::spcCPropSymb, pSymbUtf8, &lex_id) > 0) {
+	if(SearchSpecialWord(SrWordTbl::spcCPropSymb, pSymbUtf8, &lex_id) > 0) {
 		ok = 1;
 	}
 	else {
@@ -1655,7 +1664,7 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long flags, TSArray <SrWordI
 		if(pfx_len != 0) {
 			word_buf.Sub(0, pfx_len, pfx_buf_u);
 			pfx_buf_u.CopyToUtf8(temp_buf, 0);
-			if(P_WdT->SearchSpecial(SrWordTbl::spcPrefix, temp_buf, &pfx_id) > 0) {
+			if(FetchSpecialWord(SrWordTbl::spcPrefix, temp_buf, &pfx_id) > 0) {
 				;
 			}
 			else
@@ -1673,13 +1682,13 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long flags, TSArray <SrWordI
 					base_buf_u = 0;
 					if(ZeroWordID)
 						base_id = ZeroWordID;
-					else if(P_WdT->SearchSpecial(SrWordTbl::spcEmpty, temp_buf, &base_id) > 0)
+					else if(FetchSpecialWord(SrWordTbl::spcEmpty, temp_buf, &base_id) > 0)
 						ZeroWordID = base_id;
 				}
 				else {
 					word_buf.Sub(pfx_len, base_len, base_buf_u);
 					base_buf_u.CopyToUtf8(temp_buf, 0);
-					if(P_WdT->Search(temp_buf, &base_id) > 0) {
+					if(FetchWord(temp_buf, &base_id) > 0) {
 						;
 					}
 				}
@@ -1689,7 +1698,7 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long flags, TSArray <SrWordI
 					uint   afx_pos = 0;
 					if(afx_list.SearchByText(temp_buf, 0, &afx_pos))
 						afx_id = afx_list.at(afx_pos).Id;
-					else if(pfx_len == 0 && P_WdT->SearchSpecial(SrWordTbl::spcAffix, temp_buf, &afx_id) > 0) {
+					else if(pfx_len == 0 && FetchSpecialWord(SrWordTbl::spcAffix, temp_buf, &afx_id) > 0) {
 						//
 						// ƒл€ pfx_len > 0 все возможные окончани€ уже найдены на итерации (pfx == 0)
 						//
@@ -1869,14 +1878,66 @@ int SrDatabase::WordInfoToStr(const SrWordInfo & rWi, SString & rBuf)
 	return ok;
 }
 
-int SrDatabase::SearchWord(int special, const char * pWordUtf8, LEXID * pID)
+int SrDatabase::SearchWord(const char * pWordUtf8, LEXID * pID)
 {
 	int    ok = -1;
 	LEXID  lex_id = 0;
-	if(special)
-		ok = P_WdT->SearchSpecial(special, pWordUtf8, &lex_id);
-	else if(P_WdT->Search(pWordUtf8, &lex_id) > 0)
+	if(P_WdT->Search(pWordUtf8, &lex_id) > 0) {
+		WordCache.Add(pWordUtf8, lex_id);
 		ok = 1;
+	}
+	ASSIGN_PTR(pID, lex_id);
+	return ok;
+}
+
+int SrDatabase::SearchSpecialWord(int special, const char * pWordUtf8, LEXID * pID)
+{
+	int    ok = -1;
+	LEXID  lex_id = 0;
+	SString temp_buf;
+	THROW(SrDatabase::MakeSpecialWord(special, pWordUtf8, temp_buf));
+	ok = P_WdT->Search(temp_buf, &lex_id);
+	if(ok > 0) {
+		WordCache.Add(temp_buf, lex_id);
+	}
+	CATCHZOK
+	ASSIGN_PTR(pID, lex_id);
+	return ok;
+}
+
+int SrDatabase::FetchWord(const char * pWordUtf8, LEXID * pID)
+{
+	int    ok = -1;
+	LEXID  lex_id = 0;
+	uint   _id = 0;
+	if(WordCache.Search(pWordUtf8, &_id, 0)) {
+		lex_id = _id;
+		ok = 1;
+	}
+	else if(P_WdT->Search(pWordUtf8, &lex_id) > 0) {
+		WordCache.Add(pWordUtf8, lex_id);
+		ok = 1;
+	}
+	ASSIGN_PTR(pID, lex_id);
+	return ok;
+}
+
+int SrDatabase::FetchSpecialWord(int special, const char * pWordUtf8, LEXID * pID)
+{
+	int    ok = -1;
+	LEXID  lex_id = 0;
+	uint   _id = 0;
+	SString temp_buf;
+	THROW(SrDatabase::MakeSpecialWord(special, pWordUtf8, temp_buf));
+	if(WordCache.Search(temp_buf, &_id, 0)) {
+		lex_id = _id;
+		ok = 1;
+	}
+	else if(P_WdT->Search(temp_buf, &lex_id) > 0) {
+		WordCache.Add(temp_buf, lex_id);
+		ok = 1;
+	}
+	CATCHZOK
 	ASSIGN_PTR(pID, lex_id);
 	return ok;
 }
@@ -1999,7 +2060,7 @@ int SrDatabase::Helper_MakeConceptProp(const SrCPropDeclList & rPdl, const char 
 	THROW(GetConceptHier(cID, chier));
 	if(!isempty(pPropSymb)) {
 		LEXID symb_id = 0;
-		THROW(SearchWord(SrWordTbl::spcCPropSymb, pPropSymb, &symb_id) > 0);
+		THROW(SearchSpecialWord(SrWordTbl::spcCPropSymb, pPropSymb, &symb_id) > 0);
 		THROW(rPdl.GetBySymbID(symb_id, pd) > 0);
 		if(chier.lsearch(pd.PropID)) {
 			rProp.PropID = pd.PropID;
@@ -2046,7 +2107,7 @@ int SrDatabase::MakeConceptPropN(const SrCPropDeclList & rPdl, const char * pPro
 	SrConcept prop_cp;
 	if(!isempty(pPropSymb)) {
 		LEXID symb_id = 0;
-		THROW(SearchWord(SrWordTbl::spcCPropSymb, pPropSymb, &symb_id) > 0);
+		THROW(SearchSpecialWord(SrWordTbl::spcCPropSymb, pPropSymb, &symb_id) > 0);
 		THROW(rPdl.GetBySymbID(symb_id, pd) > 0);
 		cp_type = GetPropType(pd.PropID);
 		if(cp_type == SRPROPT_REAL) {
@@ -2101,7 +2162,7 @@ int SrDatabase::MakeConceptPropC(const SrCPropDeclList & rPdl, const char * pPro
 	int    ok = 1;
 	SrConcept concept;
 	LEXID  cs_id = 0;
-	THROW(SearchWord(SrWordTbl::spcConcept, pConceptSymb, &cs_id));
+	THROW(SearchSpecialWord(SrWordTbl::spcConcept, pConceptSymb, &cs_id));
 	THROW(P_CT->SearchBySymb(cs_id, &concept) > 0);
 	THROW(Helper_MakeConceptProp(rPdl, pPropSymb, rProp, concept.ID) > 0);
 	CATCHZOK

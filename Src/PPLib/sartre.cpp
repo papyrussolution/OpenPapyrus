@@ -295,6 +295,10 @@ static SrWfToken __Tokens[] = {
 	{ SRWG_LANGUAGE, slangEN,            "ENG"  },
 	{ SRWG_LANGUAGE, slangRU,            "RUS"  },
 	{ SRWG_LANGUAGE, slangDE,            "GER"  },
+	{ SRWG_LANGUAGE, slangES,            "SPA"  },
+	{ SRWG_LANGUAGE, slangJA,            "JPN"  },
+	{ SRWG_LANGUAGE, slangZH,            "CHI"  },
+	{ SRWG_LANGUAGE, slangKO,            "KOR"  },
 
 	{ SRWG_CLASS,  SRWC_ALPHA,           "ALPHA" },
 	{ SRWG_CLASS,  SRWC_DIGIT,           "DIGIT" },
@@ -463,6 +467,19 @@ int FASTCALL SrWordForm::ToStr(SString & rBuf) const
 	return 1;
 }
 
+//static
+int FASTCALL SrWordForm::StrToToken(const char * pStr, int * pVal)
+{
+	for(uint i = 0; i < SIZEOFARRAY(__Tokens); i++) {
+		if(sstreqi_ascii(pStr, __Tokens[i].Tok)) {
+			ASSIGN_PTR(pVal, __Tokens[i].Val);
+			return __Tokens[i].Tag;
+		}
+	}
+	ASSIGN_PTR(pVal, 0);
+	return PPSetError(PPERR_SR_INVMORPHTOKEN, pStr);
+}
+
 int FASTCALL SrWordForm::FromStr(const char * pStr)
 {
 	int    ok = 1;
@@ -471,12 +488,18 @@ int FASTCALL SrWordForm::FromStr(const char * pStr)
 		SString temp_buf;
 		SStrScan scan(pStr);
 		while(scan.Skip().GetIdent(temp_buf)) {
+			int    _val = 0;
+			int    _tag = SrWordForm::StrToToken(temp_buf, &_val);
+			if(_tag)
+				SetTag(_tag, _val);
+			/*
 			temp_buf.ToUpper();
 			for(uint i = 0; i < SIZEOFARRAY(__Tokens); i++) {
 				if(temp_buf == __Tokens[i].Tok) {
 					SetTag(__Tokens[i].Tag, __Tokens[i].Val);
 				}
 			}
+			*/
 		}
 	}
 	return ok;
@@ -2927,7 +2950,7 @@ int SrConceptParser::ApplyConceptPropList(const StrAssocArray & rTokList, CONCEP
 					temp_buf = titem.Txt;
 				}
 				if(tok == tokEq) {
-					if(R_Db.SearchWord(SrWordTbl::spcCPropSymb, ident_buf, &symb_id) > 0) {
+					if(R_Db.SearchSpecialWord(SrWordTbl::spcCPropSymb, ident_buf, &symb_id) > 0) {
 						{
 							THROW_PP(i < rTokList.getCount(), PPERR_SR_C_ENEXPECTEDEOF);
 							titem = rTokList.at_WithoutParent(i++);
@@ -3930,7 +3953,7 @@ int PrcssrSartre::TestConcept()
 			for(uint sp = 0; !unkn_word && tok_list.get(&sp, temp_buf);) {
 				temp_buf.ToUtf8();
 				LEXID word_id = 0;
-				if(db.SearchWord(0, temp_buf, &word_id) > 0)
+				if(db.SearchWord(temp_buf, &word_id) > 0)
 					ng.add(word_id);
 				else
 					unkn_word = 1;
@@ -4468,6 +4491,18 @@ public:
 
 	SLAPI  SrSyntaxRuleSet();
 	SLAPI ~SrSyntaxRuleSet();
+	//
+	// Descr: ¬озвращает указатель на правило по индексу pos [0..]
+	//
+	const  Rule * FASTCALL GetRule(uint pos) const;
+	//
+	// Descr: »щет правило с именем pNameUtf8. ≈сли находит, то возвращает указатель
+	//   на этого правила.
+	// Returns:
+	//   !0 - указатель на найденное правило с именем pNameUtf8
+	//    0 - правило с именем pNameUtf8 не найдено.
+	//
+	const  Rule * FASTCALL SearchRuleByName(const char * NameUtf8) const;
 	void   FASTCALL SkipComment(SStrScan & rScan);
 	void   FASTCALL ScanSkip(SStrScan & rScan) const;
 	int    FASTCALL IsOperand(SStrScan & rScan) const;
@@ -4595,6 +4630,26 @@ SLAPI SrSyntaxRuleSet::~SrSyntaxRuleSet()
 {
 }
 
+const SrSyntaxRuleSet::Rule * FASTCALL SrSyntaxRuleSet::GetRule(uint pos) const
+{
+	return (pos < RL.getCount()) ? RL.at(pos) : 0;
+}
+
+const SrSyntaxRuleSet::Rule * FASTCALL SrSyntaxRuleSet::SearchRuleByName(const char * pNameUtf8) const
+{
+	const SrSyntaxRuleSet::Rule * p_result = 0;
+	SString temp_buf;
+	for(uint i = 0; !p_result && i < RL.getCount(); i++) {
+		const Rule * p_rule = RL.at(i);
+		if(p_rule && p_rule->NameP) {
+			GetS(p_rule->NameP, temp_buf);
+			if(temp_buf == pNameUtf8)
+				p_result = p_rule;
+		}
+	}
+	return p_result;
+}
+
 void FASTCALL SrSyntaxRuleSet::SkipComment(SStrScan & rScan)
 {
 	SString temp_buf;
@@ -4652,6 +4707,7 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 		StringSet ss(" ");
 		ScanSkip(rScan);
 		while(rScan.GetIdent(temp_buf)) {
+			THROW(SrWordForm::StrToToken(temp_buf, 0));
 			ss.add(temp_buf.ToLower());
 			ScanSkip(rScan);
 		}
@@ -4763,6 +4819,7 @@ int SLAPI SrSyntaxRuleSet::ParseRule(SStrScan & rScan)
 	ScanSkip(rScan);
 	THROW_PP(rScan.Is("="), PPERR_SR_S_EQEXPECTED); // @err ќжидаетс€ '='
 	rScan.Incr();
+	THROW_PP(SearchRuleByName(temp_buf) == 0, PPERR_SR_RULENAMEEXISTS);
 	ScanSkip(rScan);
 	{
 		Rule * p_rule = RL.CreateNewItem();
@@ -4790,6 +4847,42 @@ int SLAPI SrSyntaxRuleSet::Parse(SString & rS)
 int SLAPI SrParsSyntaxRules(const char * pFileName, SrSyntaxRuleSet & rSs)
 {
 	int    ok = -1;
+	return ok;
+}
+
+int SLAPI PrcssrSartre::ResolveSyntaxRules(SrSyntaxRuleSet & rSet, SrDatabase & rDb)
+{
+	int    ok = 1;
+	SString temp_buf;
+	for(uint i = 0; i < rSet.RL.getCount(); i++) {
+		SrSyntaxRuleSet::Rule * p_rule = rSet.RL.at(i);
+		if(p_rule) {
+			for(uint j = 0; j <= p_rule->ES.getPointer(); j++) {
+				SrSyntaxRuleSet::ExprItem & r_ei = *(SrSyntaxRuleSet::ExprItem *)p_rule->ES.at(j);
+				if(r_ei.K == SrSyntaxRuleSet::kConcept) {
+					if(!r_ei.RSymb) {
+						if(rSet.GetS(r_ei.SymbP, temp_buf)) {
+							CONCEPTID cid = 0;
+							if(rDb.SearchConcept(temp_buf, &cid))
+								r_ei.RSymb = cid;
+						}
+					}
+				}
+				else if(r_ei.K == SrSyntaxRuleSet::kMorph) {
+				}
+				else if(r_ei.K == SrSyntaxRuleSet::kRule) {
+					if(!r_ei.RSymb) {
+						if(rSet.GetS(r_ei.SymbP, temp_buf)) {
+							const SrSyntaxRuleSet::Rule * p_inner_rule = rSet.SearchRuleByName(temp_buf);
+							if(p_inner_rule) {
+								r_ei.RSymb = (uint64)p_inner_rule;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 	return ok;
 }
 
@@ -4825,4 +4918,30 @@ int SLAPI PrcssrSartre::TestSyntax()
 	}
 	CATCHZOK
 	return ok;
+}
+
+int SLAPI PrcssrSartre::ProcessTextWithSyntax(SrDatabase & rDb, const SrSyntaxRuleSet & rSet, const SString & rTextUtf8)
+{
+	int    ok = 1;
+
+	return ok;
+}
+
+int __ProcessText(SrDatabase & rDb, const SrSyntaxRuleSet & rSet, const char * pResource, const SString & rTextUtf8)
+{
+	STokenizer::Param param;
+	param.Cp = cpUTF8;
+	param.Delim = " \t\n\r(){}[]<>,.:;-\\/&$#@!?*^\"+=%";
+	param.Flags |= (STokenizer::fDivAlNum|STokenizer::fEachDelim);
+	STokenizer t(&param);
+	uint   idx_first = 0;
+	uint   idx_count = 0;
+	STokenizer::Item item_;
+	t.RunSString(pResource, 0, rTextUtf8, &idx_first, &idx_count);
+	for(uint j = 0; j < idx_count; j++) {
+		if(t.Get(idx_first+j, item_)) {
+
+		}
+	}
+	return 1;
 }

@@ -39,7 +39,7 @@
 //#include "sendf.h"
 //#include "formdata.h" /* for the boundary function */
 //#include "url.h" /* for the ssl config check function */
-#include "inet_pton.h"
+//#include "inet_pton.h"
 #include "openssl.h"
 //#include "connect.h"
 //#include "slist.h"
@@ -67,7 +67,7 @@
 #if (OPENSSL_VERSION_NUMBER >= 0x0090808fL) && !defined(OPENSSL_NO_OCSP)
 	#include <openssl/ocsp.h>
 #endif
-#include "warnless.h"
+//#include "warnless.h"
 //#include "non-ascii.h" /* for Curl_convert_from_utf8 prototype */
 /* The last #include files should be: */
 //#include "curl_memory.h"

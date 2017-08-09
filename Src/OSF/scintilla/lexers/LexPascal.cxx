@@ -170,7 +170,7 @@ static void ClassifyPascalWord(WordList * keywordlists[], StyleContext &sc, int 
 	sc.GetCurrentLowered(s, sizeof(s));
 	if(keywords.InList(s)) {
 		if(curLineState & stateInAsm) {
-			if(strcmp(s, "end") == 0 && sc.GetRelative(-4) != '@') {
+			if(sstreq(s, "end") && sc.GetRelative(-4) != '@') {
 				curLineState &= ~stateInAsm;
 				sc.ChangeState(SCE_PAS_WORD);
 			}
@@ -180,28 +180,26 @@ static void ClassifyPascalWord(WordList * keywordlists[], StyleContext &sc, int 
 		}
 		else {
 			bool ignoreKeyword = false;
-			if(strcmp(s, "asm") == 0) {
+			if(sstreq(s, "asm")) {
 				curLineState |= stateInAsm;
 			}
 			else if(bSmartHighlighting) {
-				if(strcmp(s, "property") == 0) {
+				if(sstreq(s, "property")) {
 					curLineState |= stateInProperty;
 				}
-				else if(strcmp(s, "exports") == 0) {
+				else if(sstreq(s, "exports")) {
 					curLineState |= stateInExport;
 				}
-				else if(!(curLineState & (stateInProperty | stateInExport)) && strcmp(s, "index") == 0) {
+				else if(!(curLineState & (stateInProperty | stateInExport)) && sstreq(s, "index")) {
 					ignoreKeyword = true;
 				}
-				else if(!(curLineState & stateInExport) && strcmp(s, "name") == 0) {
+				else if(!(curLineState & stateInExport) && sstreq(s, "name")) {
 					ignoreKeyword = true;
 				}
 				else if(!(curLineState & stateInProperty) &&
-				    (strcmp(s, "read") == 0 || strcmp(s, "write") == 0 ||
-					    strcmp(s, "default") == 0 || strcmp(s, "nodefault") == 0 ||
-					    strcmp(s, "stored") == 0 || strcmp(s, "implements") == 0 ||
-					    strcmp(s, "readonly") == 0 || strcmp(s, "writeonly") == 0 ||
-					    strcmp(s, "add") == 0 || strcmp(s, "remove") == 0)) {
+				    (sstreq(s, "read") || sstreq(s, "write") || sstreq(s, "default") || sstreq(s, "nodefault") ||
+					    sstreq(s, "stored") || sstreq(s, "implements") || sstreq(s, "readonly") || sstreq(s, "writeonly") ||
+					    sstreq(s, "add") || sstreq(s, "remove"))) {
 					ignoreKeyword = true;
 				}
 			}
@@ -396,25 +394,16 @@ static void ClassifyPascalPreprocessorFoldPoint(int &levelCurrent, int &lineFold
     Sci_PositionU startPos, Accessor &styler)
 {
 	CharacterSet setWord(CharacterSet::setAlpha);
-
 	char s[11];     // Size of the longest possible keyword + one additional character + null
 	GetForwardRangeLowered(startPos, setWord, styler, s, sizeof(s));
-
 	uint nestLevel = GetFoldInPreprocessorLevelFlag(lineFoldStateCurrent);
-
-	if(strcmp(s, "if") == 0 ||
-	    strcmp(s, "ifdef") == 0 ||
-	    strcmp(s, "ifndef") == 0 ||
-	    strcmp(s, "ifopt") == 0 ||
-	    strcmp(s, "region") == 0) {
+	if(sstreq(s, "if") || sstreq(s, "ifdef") || sstreq(s, "ifndef") || sstreq(s, "ifopt") || sstreq(s, "region")) {
 		nestLevel++;
 		SetFoldInPreprocessorLevelFlag(lineFoldStateCurrent, nestLevel);
 		lineFoldStateCurrent |= stateFoldInPreprocessor;
 		levelCurrent++;
 	}
-	else if(strcmp(s, "endif") == 0 ||
-	    strcmp(s, "ifend") == 0 ||
-	    strcmp(s, "endregion") == 0) {
+	else if(sstreq(s, "endif") || sstreq(s, "ifend") || sstreq(s, "endregion")) {
 		nestLevel--;
 		SetFoldInPreprocessorLevelFlag(lineFoldStateCurrent, nestLevel);
 		if(nestLevel == 0) {
@@ -427,14 +416,12 @@ static void ClassifyPascalPreprocessorFoldPoint(int &levelCurrent, int &lineFold
 	}
 }
 
-static Sci_PositionU SkipWhiteSpace(Sci_PositionU currentPos, Sci_PositionU endPos,
-    Accessor &styler, bool includeChars = false)
+static Sci_PositionU SkipWhiteSpace(Sci_PositionU currentPos, Sci_PositionU endPos, Accessor &styler, bool includeChars = false)
 {
 	CharacterSet setWord(CharacterSet::setAlphaNum, "_");
 	Sci_PositionU j = currentPos + 1;
 	char ch = styler.SafeGetCharAt(j);
-	while((j < endPos) && (IsASpaceOrTab(ch) || ch == '\r' || ch == '\n' ||
-		    IsStreamCommentStyle(styler.StyleAt(j)) || (includeChars && setWord.Contains(ch)))) {
+	while((j < endPos) && (IsASpaceOrTab(ch) || oneof2(ch, '\r', '\n') || IsStreamCommentStyle(styler.StyleAt(j)) || (includeChars && setWord.Contains(ch)))) {
 		j++;
 		ch = styler.SafeGetCharAt(j);
 	}
@@ -447,31 +434,26 @@ static void ClassifyPascalWordFoldPoint(int &levelCurrent, int &lineFoldStateCur
 {
 	char s[100];
 	GetRangeLowered(lastStart, currentPos, styler, s, sizeof(s));
-
-	if(strcmp(s, "record") == 0) {
+	if(sstreq(s, "record")) {
 		lineFoldStateCurrent |= stateFoldInRecord;
 		levelCurrent++;
 	}
-	else if(strcmp(s, "begin") == 0 ||
-	    strcmp(s, "asm") == 0 ||
-	    strcmp(s, "try") == 0 ||
-	    (strcmp(s, "case") == 0 && !(lineFoldStateCurrent & stateFoldInRecord))) {
+	else if(sstreq(s, "begin") || sstreq(s, "asm") || sstreq(s, "try") || (sstreq(s, "case") && !(lineFoldStateCurrent & stateFoldInRecord))) {
 		levelCurrent++;
 	}
-	else if(strcmp(s, "class") == 0 || strcmp(s, "object") == 0) {
+	else if(sstreq(s, "class") || sstreq(s, "object")) {
 		// "class" & "object" keywords require special handling...
 		bool ignoreKeyword = false;
 		Sci_PositionU j = SkipWhiteSpace(currentPos, endPos, styler);
 		if(j < endPos) {
 			CharacterSet setWordStart(CharacterSet::setAlpha, "_");
 			CharacterSet setWord(CharacterSet::setAlphaNum, "_");
-
 			if(styler.SafeGetCharAt(j) == ';') {
 				// Handle forward class declarations ("type TMyClass = class;")
 				// and object method declarations ("TNotifyEvent = procedure(Sender: TObject) of object;")
 				ignoreKeyword = true;
 			}
-			else if(strcmp(s, "class") == 0) {
+			else if(sstreq(s, "class")) {
 				// "class" keyword has a few more special cases...
 				if(styler.SafeGetCharAt(j) == '(') {
 					// Handle simplified complete class declarations ("type TMyClass = class(TObject);")
@@ -486,13 +468,7 @@ static void ClassifyPascalWordFoldPoint(int &levelCurrent, int &lineFoldStateCur
 				else if(setWordStart.Contains(styler.SafeGetCharAt(j))) {
 					char s2[11];    // Size of the longest possible keyword + one additional character + null
 					GetForwardRangeLowered(j, setWord, styler, s2, sizeof(s2));
-
-					if(strcmp(s2, "procedure") == 0 ||
-					    strcmp(s2, "function") == 0 ||
-					    strcmp(s2, "of") == 0 ||
-					    strcmp(s2, "var") == 0 ||
-					    strcmp(s2, "property") == 0 ||
-					    strcmp(s2, "operator") == 0) {
+					if(sstreq(s2, "procedure") || sstreq(s2, "function") || sstreq(s2, "of") || sstreq(s2, "var") || sstreq(s2, "property") || sstreq(s2, "operator")) {
 						ignoreKeyword = true;
 					}
 				}
@@ -502,13 +478,12 @@ static void ClassifyPascalWordFoldPoint(int &levelCurrent, int &lineFoldStateCur
 			levelCurrent++;
 		}
 	}
-	else if(strcmp(s, "interface") == 0) {
+	else if(sstreq(s, "interface")) {
 		// "interface" keyword requires special handling...
 		bool ignoreKeyword = true;
 		Sci_Position j = lastStart - 1;
 		char ch = styler.SafeGetCharAt(j);
-		while((j >= startPos) && (IsASpaceOrTab(ch) || ch == '\r' || ch == '\n' ||
-			    IsStreamCommentStyle(styler.StyleAt(j)))) {
+		while((j >= startPos) && (IsASpaceOrTab(ch) || oneof2(ch, '\r', '\n') || IsStreamCommentStyle(styler.StyleAt(j)))) {
 			j--;
 			ch = styler.SafeGetCharAt(j);
 		}
@@ -526,7 +501,7 @@ static void ClassifyPascalWordFoldPoint(int &levelCurrent, int &lineFoldStateCur
 			levelCurrent++;
 		}
 	}
-	else if(strcmp(s, "dispinterface") == 0) {
+	else if(sstreq(s, "dispinterface")) {
 		// "dispinterface" keyword requires special handling...
 		bool ignoreKeyword = false;
 		Sci_PositionU j = SkipWhiteSpace(currentPos, endPos, styler);
@@ -538,7 +513,7 @@ static void ClassifyPascalWordFoldPoint(int &levelCurrent, int &lineFoldStateCur
 			levelCurrent++;
 		}
 	}
-	else if(strcmp(s, "end") == 0) {
+	else if(sstreq(s, "end")) {
 		lineFoldStateCurrent &= ~stateFoldInRecord;
 		levelCurrent--;
 		if(levelCurrent < SC_FOLDLEVELBASE) {
@@ -547,8 +522,7 @@ static void ClassifyPascalWordFoldPoint(int &levelCurrent, int &lineFoldStateCur
 	}
 }
 
-static void FoldPascalDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[],
-    Accessor &styler)
+static void FoldPascalDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor &styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldPreprocessor = styler.GetPropertyInt("fold.preprocessor") != 0;

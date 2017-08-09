@@ -89,7 +89,7 @@ int LogsDialog::editItem(long pos, long id)
 		THROW(CreateVerHistLog(id - 1));
 		SLibError = SLERR_FILENOTFOUND;
 		THROW_PP_S(fileExists(path), PPERR_SLIB, path);
-		SFile::WaitForWriteSharingRelease(path, 2000); // @v7.8.7
+		SFile::WaitForWriteSharingRelease(path, 2000);
 		ok = (int)::ShellExecute(0, _T("open"), path, NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
 	}
 	CATCHZOKPPERR

@@ -8,7 +8,7 @@
 //
 //
 //
-BillFilt::FiltExtraParam::FiltExtraParam(long setupValues, BrowseBillsType bbt)
+SLAPI BillFilt::FiltExtraParam::FiltExtraParam(long setupValues, BrowseBillsType bbt)
 {
 	SetupValues = setupValues;
 	Bbt = bbt;
@@ -1682,10 +1682,8 @@ int SLAPI PPViewBill::InitIteration(IterOrder ord)
 		case OrdByOpName:     idx = 1; use_ord_tbl = 1; break;
 		default:              idx = 1;
 	}
-	// @v7.5.5 {
 	if(Filt.Flags & BillFilt::fDescOrder)
 		use_ord_tbl = 1;
-	// } @v7.5.5
 	if(use_ord_tbl) {
 		if(ord != TempOrder || !P_TempOrd)
 			THROW(CreateTempTable(ord, 0));
@@ -1721,7 +1719,7 @@ int FASTCALL PPViewBill::NextIteration(BillViewItem * pItem)
 			if(P_BObj->Search(id, &br) > 0) {
 				_IterC++;
 				if(pItem) {
-					memzero(pItem, sizeof(BillViewItem));
+					memzero(pItem, sizeof(*pItem));
 					*((BillTbl::Rec*)pItem) = br;
 					if(P_TempTbl) {
 						pItem->Debit  = P_TempTbl->data.Debit;
@@ -5946,7 +5944,7 @@ int SLAPI ViewGoodsBills(BillFilt * pFilt, int asModeless)
 	}
 	while(pFilt || p_v->EditBaseFilt(p_flt) > 0) {
 		PPWait(1);
-		if(((BillFilt*)p_flt)->Flags & BillFilt::fAsSelector)
+		if(((BillFilt *)p_flt)->Flags & BillFilt::fAsSelector)
 			modeless = 0;
 		THROW(p_v->Init_(p_flt));
 		PPCloseBrowser(p_prev_win);

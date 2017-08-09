@@ -1398,9 +1398,10 @@ static int GetImportFileList(int isAndr, const char * pPath, WinInetFTP * pFtp, 
 			PPGetFileName(PPFILNAM_PALM_OUTXML, fname);
 			SPathStruc sp;
 			sp.Split(fname);
-			mask.Printf("*%s*.%s", (const char*)sp.Nam, (const char*)sp.Ext);
+			// @v9.7.10 mask.Printf("*%s*.%s", sp.Nam.cptr(), sp.Ext.cptr());
+			mask.CatChar('*').Cat(sp.Nam).CatChar('*').Dot().Cat(sp.Ext); // @v9.7.10 
 			if(pFtp)
-				ok = pFtp->SafeGetFileList(pPath, pList, (const char*)mask, pLogger);
+				ok = pFtp->SafeGetFileList(pPath, pList, mask.cptr(), pLogger);
 			else {
 				SString path;
 				(path = pPath).SetLastSlash().Cat(mask);

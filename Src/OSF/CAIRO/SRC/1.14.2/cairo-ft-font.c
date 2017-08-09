@@ -1701,43 +1701,31 @@ static void _get_pattern_ft_options(FcPattern * pattern, cairo_ft_options_t * re
 
 #endif
 
-static void _cairo_ft_options_merge(cairo_ft_options_t * options,
-    cairo_ft_options_t * other)
+static void _cairo_ft_options_merge(cairo_ft_options_t * options, cairo_ft_options_t * other)
 {
 	int load_flags = other->load_flags;
 	int load_target = FT_LOAD_TARGET_NORMAL;
-
 	/* clear load target mode */
 	load_flags &= ~(FT_LOAD_TARGET_(FT_LOAD_TARGET_MODE(other->load_flags)));
-
 	if(load_flags & FT_LOAD_NO_HINTING)
 		other->base.hint_style = CAIRO_HINT_STYLE_NONE;
-
 	if(other->base.antialias == CAIRO_ANTIALIAS_NONE ||
 	    options->base.antialias == CAIRO_ANTIALIAS_NONE) {
 		options->base.antialias = CAIRO_ANTIALIAS_NONE;
 		options->base.subpixel_order = CAIRO_SUBPIXEL_ORDER_DEFAULT;
 	}
-
-	if(other->base.antialias == CAIRO_ANTIALIAS_SUBPIXEL &&
-	    (options->base.antialias == CAIRO_ANTIALIAS_DEFAULT ||
-		    options->base.antialias == CAIRO_ANTIALIAS_GRAY)) {
+	if(other->base.antialias == CAIRO_ANTIALIAS_SUBPIXEL && oneof2(options->base.antialias, CAIRO_ANTIALIAS_DEFAULT, CAIRO_ANTIALIAS_GRAY)) {
 		options->base.antialias = CAIRO_ANTIALIAS_SUBPIXEL;
 		options->base.subpixel_order = other->base.subpixel_order;
 	}
-
 	if(options->base.hint_style == CAIRO_HINT_STYLE_DEFAULT)
 		options->base.hint_style = other->base.hint_style;
-
 	if(other->base.hint_style == CAIRO_HINT_STYLE_NONE)
 		options->base.hint_style = CAIRO_HINT_STYLE_NONE;
-
 	if(options->base.lcd_filter == CAIRO_LCD_FILTER_DEFAULT)
 		options->base.lcd_filter = other->base.lcd_filter;
-
 	if(other->base.lcd_filter == CAIRO_LCD_FILTER_NONE)
 		options->base.lcd_filter = CAIRO_LCD_FILTER_NONE;
-
 	if(options->base.antialias == CAIRO_ANTIALIAS_NONE) {
 		if(options->base.hint_style == CAIRO_HINT_STYLE_NONE)
 			load_flags |= FT_LOAD_NO_HINTING;

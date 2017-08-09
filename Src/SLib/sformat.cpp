@@ -168,12 +168,13 @@ char * SLAPI _datefmt(int day, int mon, int year, int style, char * pBuf)
 	else if(style == DATF_INTERNET) {
 		//#define DATF_INTERNET      13  // Wed, 27 Feb 2008
 		LDATE _dt = encodedate(day, mon, year);
-		int   dow = dayofweek(&_dt, 0);
-		const char * p_dow_txt[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-		const char * p_mon_txt[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Seb", "Oct", "Nov", "Dec"};
-
-		strcat(pBuf, p_dow_txt[dow]);
-		sprintf(pBuf, "%s, %d %s %d", p_dow_txt[dow%7], day, p_mon_txt[(mon >= 12) ? 11 : ((mon < 1) ? 0 : (mon-1))], year);
+		int   dow = dayofweek(&_dt, 1); // @v9.7.10 0-->1 в связи с вводом глобальной функции STextConst::Get
+		//const char * p_dow_txt[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+		//const char * p_mon_txt[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Seb", "Oct", "Nov", "Dec"};
+		//strcat(pBuf, p_dow_txt[dow]);
+		//sprintf(pBuf, "%s, %d %s %d", p_dow_txt[dow%7], day, p_mon_txt[(mon >= 12) ? 11 : ((mon < 1) ? 0 : (mon-1))], year);
+		sprintf(pBuf, "%s, %d %s %d", STextConst::Get(STextConst::cDow_En_Sh, dow%7), day,
+			STextConst::Get(STextConst::cMon_En_Sh, (mon >= 12) ? 11 : ((mon < 1) ? 0 : (mon-1))), year);
 	}
 	else if(day == 0 && mon == 0 && year == 0)
 		pBuf[0] = 0;
@@ -416,7 +417,7 @@ char * SLAPI timefmt(LTIME t, long fmt, char * pBuf)
 				fs[4] = 0;
 				sprintf(pBuf, fs, t.sec());
 				break;
-			default: // include 1 
+			default: // include 1
 				sprintf(pBuf, fs, t.hour(), t.minut(), t.sec());
 				break;
 		}
@@ -534,7 +535,7 @@ static char * SLAPI fmtnumber(const char * ptr, int dec, int sign, long fmt, cha
 					if(flags & NMBF_EXPLFLOAT && *(b-2) == '.') { // @v9.7.8
 						break;
 					}
-					else 
+					else
 						*--b = 0;
 				}
 				if(*(b-1) == '.')

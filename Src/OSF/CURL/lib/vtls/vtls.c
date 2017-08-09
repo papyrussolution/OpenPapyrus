@@ -62,8 +62,8 @@
 //#include "share.h"
 //#include "multiif.h"
 //#include "timeval.h"
-#include "curl_md5.h"
-#include "warnless.h"
+//#include "curl_md5.h"
+//#include "warnless.h"
 //#include "curl_base64.h"
 #include "curl_printf.h"
 
@@ -572,7 +572,6 @@ void Curl_ssl_free_certinfo(struct Curl_easy * data)
 			curl_slist_free_all(ci->certinfo[i]);
 			ci->certinfo[i] = NULL;
 		}
-
 		SAlloc::F(ci->certinfo); /* free the actual array too */
 		ci->certinfo = NULL;
 		ci->num_of_certs = 0;
@@ -623,24 +622,17 @@ CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy * data, int certnum, const 
 	ci->certinfo[certnum] = nl;
 	return result;
 }
-
 /*
  * This is a convenience function for push_certinfo_len that takes a zero
  * terminated value.
  */
-CURLcode Curl_ssl_push_certinfo(struct Curl_easy * data,
-    int certnum,
-    const char * label,
-    const char * value)
+CURLcode Curl_ssl_push_certinfo(struct Curl_easy * data, int certnum, const char * label, const char * value)
 {
 	size_t valuelen = strlen(value);
-
 	return Curl_ssl_push_certinfo_len(data, certnum, label, value, valuelen);
 }
 
-CURLcode Curl_ssl_random(struct Curl_easy * data,
-    uchar * entropy,
-    size_t length)
+CURLcode Curl_ssl_random(struct Curl_easy * data, uchar * entropy, size_t length)
 {
 	return curlssl_random(data, entropy, length);
 }
@@ -691,14 +683,10 @@ static CURLcode pubkey_pem_to_der(const char * pem, uchar ** der, size_t * der_l
 	ZFREE(stripped_pem);
 	return result;
 }
-
 /*
  * Generic pinned public key check.
  */
-
-CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
-    const char * pinnedpubkey,
-    const uchar * pubkey, size_t pubkeylen)
+CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data, const char * pinnedpubkey, const uchar * pubkey, size_t pubkeylen)
 {
 	FILE * fp;
 	uchar * buf = NULL, * pem_ptr = NULL;
@@ -726,10 +714,8 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 		sha256sumdigest = (uchar *)SAlloc::M(SHA256_DIGEST_LENGTH);
 		if(!sha256sumdigest)
 			return CURLE_OUT_OF_MEMORY;
-		curlssl_sha256sum(pubkey, pubkeylen,
-		    sha256sumdigest, SHA256_DIGEST_LENGTH);
-		encode = Curl_base64_encode(data, (char*)sha256sumdigest,
-		    SHA256_DIGEST_LENGTH, &encoded, &encodedlen);
+		curlssl_sha256sum(pubkey, pubkeylen, sha256sumdigest, SHA256_DIGEST_LENGTH);
+		encode = Curl_base64_encode(data, (char*)sha256sumdigest, SHA256_DIGEST_LENGTH, &encoded, &encodedlen);
 		ZFREE(sha256sumdigest);
 
 		if(encode)
@@ -755,14 +741,11 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 			 */
 			if(end_pos)
 				end_pos[0] = '\0';
-
 			/* compare base64 sha256 digests, 8 is the length of "sha256//" */
-			if(encodedlen == strlen(begin_pos + 8) &&
-			    !memcmp(encoded, begin_pos + 8, encodedlen)) {
+			if(encodedlen == strlen(begin_pos + 8) && !memcmp(encoded, begin_pos + 8, encodedlen)) {
 				result = CURLE_OK;
 				break;
 			}
-
 			/*
 			 * change back the null-terminator we changed earlier,
 			 * and look for next begin
@@ -780,11 +763,9 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 #endif
 		return result;
 	}
-
 	fp = fopen(pinnedpubkey, "rb");
 	if(!fp)
 		return result;
-
 	do {
 		/* Determine the file's size */
 		if(fseek(fp, 0, SEEK_END))
@@ -802,7 +783,6 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 		size = curlx_sotouz((curl_off_t)filesize);
 		if(pubkeylen > size)
 			break;
-
 		/*
 		 * Allocate buffer for the pinned key
 		 * With 1 additional byte for null terminator in case of PEM key
@@ -810,18 +790,15 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 		buf = (uchar *)SAlloc::M(size + 1);
 		if(!buf)
 			break;
-
 		/* Returns number of elements read, which should be 1 */
 		if((int)fread(buf, size, 1, fp) != 1)
 			break;
-
 		/* If the sizes are the same, it can't be base64 encoded, must be der */
 		if(pubkeylen == size) {
 			if(!memcmp(pubkey, buf, pubkeylen))
 				result = CURLE_OK;
 			break;
 		}
-
 		/*
 		 * Otherwise we will assume it's PEM and try to decode it
 		 * after placing null terminator
@@ -831,7 +808,6 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 		/* if it wasn't read successfully, exit */
 		if(pem_read)
 			break;
-
 		/*
 		 * if the size of our certificate doesn't match the size of
 		 * the decoded file, they can't be the same, otherwise compare
@@ -839,27 +815,20 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 		if(pubkeylen == pem_len && !memcmp(pubkey, pem_ptr, pubkeylen))
 			result = CURLE_OK;
 	} while(0);
-
 	ZFREE(buf);
 	ZFREE(pem_ptr);
 	fclose(fp);
-
 	return result;
 }
 
 #ifndef CURL_DISABLE_CRYPTO_AUTH
-CURLcode Curl_ssl_md5sum(uchar * tmp, /* input */
-    size_t tmplen,
-    uchar * md5sum,                     /* output */
-    size_t md5len)
+CURLcode Curl_ssl_md5sum(uchar * tmp/* input */, size_t tmplen, uchar * md5sum/* output */, size_t md5len)
 {
 #ifdef curlssl_md5sum
 	curlssl_md5sum(tmp, tmplen, md5sum, md5len);
 #else
 	MD5_context * MD5pw;
-
 	(void)md5len;
-
 	MD5pw = Curl_MD5_init(Curl_DIGEST_MD5);
 	if(!MD5pw)
 		return CURLE_OUT_OF_MEMORY;

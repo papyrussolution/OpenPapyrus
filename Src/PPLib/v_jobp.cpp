@@ -45,12 +45,10 @@ IMPL_HANDLE_EVENT(JobItemDialog)
 			PPID   job_id = getCtrlLong(CTLSEL_JOBITEM_CMD);
 			if(job_id && P_Mngr->LoadResource(job_id, &job_descr) > 0) {
 				enableCommand(cmJobParam, !(job_descr.Flags & PPJobDescr::fNoParam));
-				// @v7.6.3 {
 				SString name_buf;
 				getCtrlString(CTL_JOBITEM_NAME, name_buf);
 				if(!name_buf.NotEmptyS())
 					setCtrlString(CTL_JOBITEM_NAME, name_buf = job_descr.Text);
-				// } @v7.6.3
 			}
 			else
 				enableCommand(cmJobParam, 0);
@@ -130,8 +128,8 @@ int JobItemDialog::setDTS(const PPJob * pData)
 	setCtrlLong(CTL_JOBITEM_ID, Data.ID);
 	AddClusterAssoc(CTL_JOBITEM_FLAGS, 0, PPJob::fNotifyByMail);
 	AddClusterAssoc(CTL_JOBITEM_FLAGS, 1, PPJob::fDisable);
-	AddClusterAssoc(CTL_JOBITEM_FLAGS, 2, PPJob::fOnStartUp);  // @v7.9.6
-	AddClusterAssoc(CTL_JOBITEM_FLAGS, 3, PPJob::fPermanent);  // @v7.9.6
+	AddClusterAssoc(CTL_JOBITEM_FLAGS, 2, PPJob::fOnStartUp);
+	AddClusterAssoc(CTL_JOBITEM_FLAGS, 3, PPJob::fPermanent);
 	AddClusterAssoc(CTL_JOBITEM_FLAGS, 4, PPJob::fUnSheduled); // @v8.2.5
 	AddClusterAssoc(CTL_JOBITEM_FLAGS, 5, PPJob::fSkipEmptyNotification); // @v8.2.11
 	SetClusterData(CTL_JOBITEM_FLAGS, Data.Flags);

@@ -86,7 +86,7 @@
 #endif /* CURL_BUILD_MAC */
 //#include "urldata.h"
 //#include "sendf.h"
-#include "inet_pton.h"
+//#include "inet_pton.h"
 //#include "connect.h"
 //#include "select.h"
 #include "vtls.h"
@@ -967,41 +967,30 @@ static OSStatus CopyIdentityWithLabel(char * label,
 	return status;
 }
 
-static OSStatus CopyIdentityFromPKCS12File(const char * cPath,
-    const char * cPassword,
-    SecIdentityRef * out_cert_and_key)
+static OSStatus CopyIdentityFromPKCS12File(const char * cPath, const char * cPassword, SecIdentityRef * out_cert_and_key)
 {
 	OSStatus status = errSecItemNotFound;
-	CFURLRef pkcs_url = CFURLCreateFromFileSystemRepresentation(NULL,
-	    (const UInt8*)cPath, strlen(cPath), false);
-	CFStringRef password = cPassword ? CFStringCreateWithCString(NULL,
-	    cPassword, kCFStringEncodingUTF8) : NULL;
+	CFURLRef pkcs_url = CFURLCreateFromFileSystemRepresentation(NULL, (const UInt8*)cPath, strlen(cPath), false);
+	CFStringRef password = cPassword ? CFStringCreateWithCString(NULL, cPassword, kCFStringEncodingUTF8) : NULL;
 	CFDataRef pkcs_data = NULL;
-
 	/* We can import P12 files on iOS or OS X 10.7 or later: */
 	/* These constants are documented as having first appeared in 10.6 but they
 	   raise linker errors when used on that cat for some reason. */
 #if CURL_BUILD_MAC_10_7 || CURL_BUILD_IOS
-	if(CFURLCreateDataAndPropertiesFromResource(NULL, pkcs_url, &pkcs_data,
-		    NULL, NULL, &status)) {
+	if(CFURLCreateDataAndPropertiesFromResource(NULL, pkcs_url, &pkcs_data, NULL, NULL, &status)) {
 		const void * cKeys[] = {kSecImportExportPassphrase};
 		const void * cValues[] = {password};
-		CFDictionaryRef options = CFDictionaryCreate(NULL, cKeys, cValues,
-		    password ? 1L : 0L, 0, 0);
+		CFDictionaryRef options = CFDictionaryCreate(NULL, cKeys, cValues, password ? 1L : 0L, 0, 0);
 		CFArrayRef items = NULL;
-
 		/* Here we go: */
 		status = SecPKCS12Import(pkcs_data, options, &items);
 		if(status == errSecSuccess && items && CFArrayGetCount(items)) {
 			CFDictionaryRef identity_and_trust = CFArrayGetValueAtIndex(items, 0L);
-			const void * temp_identity = CFDictionaryGetValue(identity_and_trust,
-			    kSecImportItemIdentity);
-
+			const void * temp_identity = CFDictionaryGetValue(identity_and_trust, kSecImportItemIdentity);
 			/* Retain the identity; we don't care about any other data... */
 			CFRetain(temp_identity);
 			*out_cert_and_key = (SecIdentityRef)temp_identity;
 		}
-
 		if(items)
 			CFRelease(items);
 		CFRelease(options);
@@ -1351,24 +1340,17 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 		   from the Keychain. */
 		if(is_cert_file) {
 			if(!SSL_SET_OPTION(cert_type))
-				infof(data, "WARNING: SSL: Certificate type not set, assuming "
-				    "PKCS#12 format.\n");
-			else if(strncmp(SSL_SET_OPTION(cert_type), "P12",
-				    strlen(SSL_SET_OPTION(cert_type))) != 0)
-				infof(data, "WARNING: SSL: The Security framework only supports "
-				    "loading identities that are in PKCS#12 format.\n");
-
-			err = CopyIdentityFromPKCS12File(ssl_cert,
-			    SSL_SET_OPTION(key_passwd), &cert_and_key);
+				infof(data, "WARNING: SSL: Certificate type not set, assuming PKCS#12 format.\n");
+			else if(strncmp(SSL_SET_OPTION(cert_type), "P12", strlen(SSL_SET_OPTION(cert_type))) != 0)
+				infof(data, "WARNING: SSL: The Security framework only supports loading identities that are in PKCS#12 format.\n");
+			err = CopyIdentityFromPKCS12File(ssl_cert, SSL_SET_OPTION(key_passwd), &cert_and_key);
 		}
 		else
 			err = CopyIdentityWithLabel(ssl_cert, &cert_and_key);
-
 		if(err == noErr) {
 			SecCertificateRef cert = NULL;
 			CFTypeRef certs_c[1];
 			CFArrayRef certs;
-
 			/* If we found one, print it out: */
 			err = SecIdentityCopyCertificate(cert_and_key, &cert);
 			if(err == noErr) {
@@ -1384,8 +1366,7 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 				}
 			}
 			certs_c[0] = cert_and_key;
-			certs = CFArrayCreate(NULL, (const void**)certs_c, 1L,
-			    &kCFTypeArrayCallBacks);
+			certs = CFArrayCreate(NULL, (const void**)certs_c, 1L, &kCFTypeArrayCallBacks);
 			err = SSLSetCertificate(connssl->ssl_ctx, certs);
 			if(certs)
 				CFRelease(certs);
@@ -1483,27 +1464,21 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 	* Both hostname check and SNI require SSLSetPeerDomainName().
 	* Also: the verifyhost setting influences SNI usage */
 	if(conn->ssl_config.verifyhost) {
-		err = SSLSetPeerDomainName(connssl->ssl_ctx, hostname,
-		    strlen(hostname));
-
+		err = SSLSetPeerDomainName(connssl->ssl_ctx, hostname, strlen(hostname));
 		if(err != noErr) {
-			infof(data, "WARNING: SSL: SSLSetPeerDomainName() failed: OSStatus %d\n",
-			    err);
+			infof(data, "WARNING: SSL: SSLSetPeerDomainName() failed: OSStatus %d\n", err);
 		}
-
 		if((Curl_inet_pton(AF_INET, hostname, &addr))
   #ifdef ENABLE_IPV6
 		    || (Curl_inet_pton(AF_INET6, hostname, &addr))
   #endif
 		    ) {
-			infof(data, "WARNING: using IP address, SNI is being disabled by "
-			    "the OS.\n");
+			infof(data, "WARNING: using IP address, SNI is being disabled by the OS.\n");
 		}
 	}
 	else {
 		infof(data, "WARNING: disabling hostname validation also disables SNI.\n");
 	}
-
 	/* Disable cipher suites that ST supports but are not safe. These ciphers
 	   are unlikely to be used in any case since ST gives other ciphers a much
 	   higher priority, but it's probably better that we not connect at all than
@@ -1645,20 +1620,15 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 		   to starting the handshake. */
 		else {
 			CURLcode result;
-			ssl_sessionid =
-			    aprintf("%s:%d:%d:%s:%hu", ssl_cafile,
-			    verifypeer, SSL_CONN_CONFIG(verifyhost), hostname, port);
+			ssl_sessionid = aprintf("%s:%d:%d:%s:%hu", ssl_cafile, verifypeer, SSL_CONN_CONFIG(verifyhost), hostname, port);
 			ssl_sessionid_len = strlen(ssl_sessionid);
-
 			err = SSLSetPeerID(connssl->ssl_ctx, ssl_sessionid, ssl_sessionid_len);
 			if(err != noErr) {
 				Curl_ssl_sessionid_unlock(conn);
 				failf(data, "SSL: SSLSetPeerID() failed: OSStatus %d", err);
 				return CURLE_SSL_CONNECT_ERROR;
 			}
-
-			result = Curl_ssl_addsessionid(conn, ssl_sessionid, ssl_sessionid_len,
-			    sockindex);
+			result = Curl_ssl_addsessionid(conn, ssl_sessionid, ssl_sessionid_len, sockindex);
 			Curl_ssl_sessionid_unlock(conn);
 			if(result) {
 				failf(data, "failed to store ssl session");
@@ -1666,7 +1636,6 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 			}
 		}
 	}
-
 	err = SSLSetIOFuncs(connssl->ssl_ctx, SocketRead, SocketWrite);
 	if(err != noErr) {
 		failf(data, "SSL: SSLSetIOFuncs() failed: OSStatus %d", err);

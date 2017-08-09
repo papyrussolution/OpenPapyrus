@@ -42,8 +42,8 @@
 //#include "share.h"
 //#include "strerror.h"
 //#include "url.h"
-#include "inet_ntop.h"
-#include "warnless.h"
+//#include "inet_ntop.h"
+//#include "warnless.h"
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
 //#include "curl_memory.h"
@@ -154,8 +154,7 @@ const char * Curl_printable_address(const Curl_addrinfo * ai, char * buf, size_t
 		case AF_INET:
 		    sa4 = (const struct sockaddr_in *)ai->ai_addr;
 		    ipaddr4 = &sa4->sin_addr;
-		    return Curl_inet_ntop(ai->ai_family, (const void*)ipaddr4, buf,
-		    bufsize);
+		    return Curl_inet_ntop(ai->ai_family, (const void*)ipaddr4, buf, bufsize);
 #ifdef ENABLE_IPV6
 		case AF_INET6:
 		    sa6 = (const void*)ai->ai_addr;

@@ -62,8 +62,7 @@ typedef struct _cairo_command_header {
 	cairo_recording_region_type_t region;
 	cairo_operator_t op;
 	CairoIRect extents;
-	cairo_clip_t                * clip;
-
+	cairo_clip_t * clip;
 	int index;
 	struct _cairo_command_header * chain;
 } cairo_command_header_t;

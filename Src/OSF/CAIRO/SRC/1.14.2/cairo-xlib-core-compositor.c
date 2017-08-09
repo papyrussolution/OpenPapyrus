@@ -52,7 +52,7 @@
 
 #include "cairo-xlib-private.h"
 #include "cairo-xlib-surface-private.h"
-#include "cairo-boxes-private.h"
+//#include "cairo-boxes-private.h"
 //#include "cairo-clip-inline.h"
 #include "cairo-compositor-private.h"
 #include "cairo-image-surface-private.h"

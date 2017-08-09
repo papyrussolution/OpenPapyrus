@@ -45,9 +45,9 @@
 #endif
 //#include "urldata.h"
 //#include "sendf.h"
-#include "inet_pton.h"
+//#include "inet_pton.h"
 #include "vtls.h"
-#include "parsedate.h"
+//#include "parsedate.h"
 //#include "connect.h" /* for the connect timeout */
 //#include "select.h"
 //#include "strcase.h"
@@ -308,18 +308,15 @@ static CURLcode cyassl_connect_step1(struct connectdata * conn,
 		struct in6_addr addr6;
 
 #endif
-		const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name :
-		    conn->host.name;
+		const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name : conn->host.name;
 		size_t hostname_len = strlen(hostname);
 		if((hostname_len < USHRT_MAX) &&
 		    (0 == Curl_inet_pton(AF_INET, hostname, &addr4)) &&
 #ifdef ENABLE_IPV6
 		    (0 == Curl_inet_pton(AF_INET6, hostname, &addr6)) &&
 #endif
-		    (CyaSSL_CTX_UseSNI(conssl->ctx, CYASSL_SNI_HOST_NAME, hostname,
-				    (ushort)hostname_len) != 1)) {
-			infof(data, "WARNING: failed to configure server name indication (SNI) "
-			    "TLS extension\n");
+		    (CyaSSL_CTX_UseSNI(conssl->ctx, CYASSL_SNI_HOST_NAME, hostname, (ushort)hostname_len) != 1)) {
+			infof(data, "WARNING: failed to configure server name indication (SNI) TLS extension\n");
 		}
 	}
 #endif

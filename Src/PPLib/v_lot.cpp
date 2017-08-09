@@ -1,5 +1,5 @@
 // V_LOT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -3197,12 +3197,9 @@ int SLAPI PPLotExporter::Export(const LotViewItem * pItem)
 	sdr_lot.QttyPlus = pItem->QttyPlus;
 	sdr_lot.QttyMinus = pItem->QttyMinus;
 	sdr_lot.OrgLotDt = pItem->OrgLotDt;
-	// @v7.8.6 STRNSCPY(sdr_lot.Serial, pItem->Serial);
-	// @v7.8.6 {
 	temp_buf = pItem->Serial;
 	BillObj->ReleaseSerialFromUniqSuffix(temp_buf);
 	temp_buf.CopyTo(sdr_lot.Serial, sizeof(sdr_lot.Serial));
-	// } @v7.8.6
 	if(UhttCli.HasAccount() && Param.UhttGoodsCodeArID) {
 		ArticleTbl::Rec ar_rec;
 		if(ArObj.Fetch(Param.UhttGoodsCodeArID, &ar_rec) > 0) {
@@ -3230,7 +3227,6 @@ int SLAPI PPLotExporter::Export(const LotViewItem * pItem)
 									break;
 								}
 								// } @v8.3.11
-								// @v7.9.4 {
 								else {
 									int d = 0, std = 0;
 									int r = GObj.DiagBarcode(org_code, &d, &std, &adj_code);
@@ -3241,7 +3237,6 @@ int SLAPI PPLotExporter::Export(const LotViewItem * pItem)
 										}
 									}
 								}
-								// } @v7.9.4
 							}
 						}
 					}

@@ -77,8 +77,8 @@
 //#include "multiif.h"
 //#include "url.h"
 #include "curl_sasl.h"
-#include "curl_md5.h"
-#include "warnless.h"
+//#include "curl_md5.h"
+//#include "warnless.h"
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
 //#include "curl_memory.h"

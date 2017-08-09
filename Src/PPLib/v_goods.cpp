@@ -46,13 +46,13 @@ SLAPI GoodsFilt::GoodsFilt(const GoodsFilt & s) : PPBaseFilt(PPFILT_GOODS, 0, GO
 {
 	InitInstance();
 	Copy(&s, 1);
-	ResultBrandList = s.ResultBrandList; // @v7.7.9
+	ResultBrandList = s.ResultBrandList;
 }
 
 GoodsFilt & FASTCALL GoodsFilt::operator = (const GoodsFilt & s)
 {
 	Copy(&s, 0);
-	ResultBrandList = s.ResultBrandList; // @v7.7.9
+	ResultBrandList = s.ResultBrandList;
 	return *this;
 }
 
@@ -345,14 +345,12 @@ int SLAPI GoodsFilt::Setup()
 		BrandID_ = 0;
 	}
 	BrandList.Sort();
-	// @v7.7.9 {
 	if(BrandOwnerID) {
 		BrandOwnerList.Add(BrandOwnerID);
 		BrandOwnerID = 0;
 	}
 	BrandOwnerList.Sort();
 	CalcResultBrandList(ResultBrandList);
-	// } @v7.7.9
 	if(P_SjF && P_SjF->IsEmpty())
 		ZDELETE(P_SjF);
 	if(oneof2(InitOrder, PPViewGoods::OrdByBarcode, PPViewGoods::OrdByBarcode_Name))
@@ -874,7 +872,6 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 					}
 				}
 			}
-			// @v7.2.0 {
 			if(p_buf->VerTag <= -22) {
 				int32  tf_ver = *(int32 *)p;
 				p += sizeof(int32);
@@ -891,12 +888,9 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 					P_TagF->TagsRestrict.Read(temp_ser_buf, 0);
 				}
 			}
-			// } @v7.2.0
-			// @v7.7.9 {
 			if(p_buf->VerTag <= -23) {
 				p = ReadObjIdListFilt(p, BrandOwnerList);
 			}
-			// } @v7.7.9
 		}
 		else {
 			struct GoodsFilt_0 {
@@ -1387,11 +1381,11 @@ DBQuery * SLAPI PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	PPDbqFuncPool::InitLongFunc(dbe_pack,      PPDbqFuncPool::IdGoodsStockPackage, g->ID);
 	PPDbqFuncPool::InitLongFunc(dbe_structype, PPViewGoods::DynFuncStrucType,      g->StrucID);
 	PPDbqFuncPool::InitLongFunc(dbe_brand,     PPDbqFuncPool::IdObjNameBrand,      g->BrandID);
-	PPDbqFuncPool::InitLongFunc(dbe_group,     PPDbqFuncPool::IdObjNameGoods,      g->ParentID); // @v7.2.3
+	PPDbqFuncPool::InitLongFunc(dbe_group,     PPDbqFuncPool::IdObjNameGoods,      g->ParentID);
 	if(P_TempTbl)
 		THROW(CheckTblPtr(tmp_t = new TempOrderTbl(P_TempTbl->fileName)));
 	q = & select(g->ID, 0L);                           // #00
-	q->addField(g->Flags);                             // #01 // @v7.3.x
+	q->addField(g->Flags);                             // #01
 	q->addField(g->Name);                              // #02
 	q->addField(dbe_manuf);                            // #03
 	q->addField(dbe_unit);                             // #04
@@ -1419,7 +1413,7 @@ DBQuery * SLAPI PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	q->addField(dbe_pack);                             // #13
 	q->addField(dbe_structype);                        // #14
 	q->addField(dbe_brand);                            // #15
-	q->addField(dbe_group);                            // #16 // @v7.2.3
+	q->addField(dbe_group);                            // #16
 
 	if(Filt.Flags & GoodsFilt::fShowStrucType)
 		brw_id = BROWSER_GOODSWITHSTRUC;
@@ -1675,16 +1669,8 @@ int SLAPI PPViewGoods::IsTempTblNeeded()
 					return 1;
 				if(Filt.ManufCountryID)
 					return 1;
-				// @v7.7.9 {
 				else if(!Filt.GetResultBrandList().IsEmpty())
 					return 1;
-				// } @v7.7.9
-				/* @v7.7.9
-				else if(Filt.BrandOwnerID)
-					return 1;
-				else if(!Filt.BrandList.IsEmpty())
-					return 1;
-				*/
 				else if(!Filt.LotPeriod.IsZero())
 					return 1;
 				else if(Filt.SupplID || Filt.VatRate)
@@ -5027,7 +5013,7 @@ int PPALDD_Transport::InitData(PPFilt & rFilt, long rsrv)
 		if(p_obj->Get(rFilt.ID, &rec) > 0) {
 			H.ID        = rec.ID;
 			H.TrType    = rec.TrType;
-			H.Capacity  = rec.Capacity; // @v7.2.8
+			H.Capacity  = rec.Capacity;
 			STRNSCPY(H.Name, rec.Name);
 			STRNSCPY(H.Code, rec.Code);
 			STRNSCPY(H.TrailerCode, rec.TrailerCode);

@@ -57,11 +57,11 @@
 //#include "url.h" /* for ZFREE() */
 //#include "multiif.h"
 //#include "sockaddr.h" /* required for Curl_sockaddr_storage */
-#include "inet_ntop.h"
-#include "inet_pton.h"
+//#include "inet_ntop.h"
+//#include "inet_pton.h"
 //#include "vtls/vtls.h" /* for Curl_ssl_check_cxn() */
 //#include "progress.h"
-#include "warnless.h"
+//#include "warnless.h"
 //#include "conncache.h"
 //#include "multihandle.h"
 #include "system_win32.h"
@@ -304,12 +304,9 @@ static CURLcode bindlocal(struct connectdata * conn,
 				     * Only bind to the interface when specified as interface, not just
 				     * as a hostname or ip address.
 				     */
-				    if(setsockopt(sockfd, SOL_SOCKET, SO_BINDTODEVICE,
-					    dev, (curl_socklen_t)strlen(dev)+1) != 0) {
+				    if(setsockopt(sockfd, SOL_SOCKET, SO_BINDTODEVICE, dev, (curl_socklen_t)strlen(dev)+1) != 0) {
 					    error = SOCKERRNO;
-					    infof(data, "SO_BINDTODEVICE %s failed with errno %d: %s;"
-					    " will do regular bind\n",
-					    dev, error, Curl_strerror(conn, error));
+					    infof(data, "SO_BINDTODEVICE %s failed with errno %d: %s; will do regular bind\n", dev, error, Curl_strerror(conn, error));
 					    /* This is typically "errno 1, error: Operation not permitted" if
 					       you're not running as root or another suitable privileged
 					       user */

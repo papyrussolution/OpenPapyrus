@@ -983,7 +983,8 @@ int xmlUCSIsAegeanNumbers(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsAlphabeticPresentationForms(int code) {
+int xmlUCSIsAlphabeticPresentationForms(int code) 
+{
 	return(((code >= 0xFB00) && (code <= 0xFB4F)));
 }
 
@@ -995,7 +996,8 @@ int xmlUCSIsAlphabeticPresentationForms(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsArabic(int code) {
+int xmlUCSIsArabic(int code) 
+{
 	return(((code >= 0x0600) && (code <= 0x06FF)));
 }
 
@@ -1007,7 +1009,8 @@ int xmlUCSIsArabic(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsArabicPresentationFormsA(int code) {
+int xmlUCSIsArabicPresentationFormsA(int code) 
+{
 	return(((code >= 0xFB50) && (code <= 0xFDFF)));
 }
 
@@ -1019,7 +1022,8 @@ int xmlUCSIsArabicPresentationFormsA(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsArabicPresentationFormsB(int code) {
+int xmlUCSIsArabicPresentationFormsB(int code) 
+{
 	return(((code >= 0xFE70) && (code <= 0xFEFF)));
 }
 
@@ -1031,7 +1035,8 @@ int xmlUCSIsArabicPresentationFormsB(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsArmenian(int code) {
+int xmlUCSIsArmenian(int code) 
+{
 	return(((code >= 0x0530) && (code <= 0x058F)));
 }
 
@@ -2984,14 +2989,8 @@ int xmlUCSIsCatZp(int code)
  */
 int xmlUCSIsCatZs(int code) 
 {
-	return((code == 0x20) ||
-	    (code == 0xa0) ||
-	    (code == 0x1680) ||
-	    (code == 0x180e) ||
-	    ((code >= 0x2000) && (code <= 0x200a)) ||
-	    (code == 0x202f) ||
-	    (code == 0x205f) ||
-	    (code == 0x3000));
+	return ((code == 0x20) || (code == 0xa0) || (code == 0x1680) || (code == 0x180e) || ((code >= 0x2000) && (code <= 0x200a)) ||
+	    (code == 0x202f) || (code == 0x205f) || (code == 0x3000));
 }
 
 /**

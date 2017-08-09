@@ -54,16 +54,14 @@
 //#include "cairo-list-inline.h"
 //#include "cairo-pattern-private.h"
 #include "cairo-pixman-private.h"
-#include "cairo-traps-private.h"
+//#include "cairo-traps-private.h"
 #include "cairo-tristrip-private.h"
 
 static cairo_int_status_t check_composite(const cairo_composite_rectangles_t * extents)
 {
 	cairo_xlib_display_t * display = ((cairo_xlib_surface_t*)extents->surface)->display;
-
 	if(!CAIRO_RENDER_SUPPORTS_OPERATOR(display, extents->op))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

@@ -21,18 +21,16 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifndef HAVE_INET_NTOP
-
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+	#include <sys/param.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+	#include <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+	#include <arpa/inet.h>
 #endif
-
-#include "inet_ntop.h"
+//#include "inet_ntop.h"
 #include "curl_printf.h"
 
 #define IN6ADDRSZ       16
@@ -51,16 +49,10 @@ static char * inet_ntop4(const uchar * src, char * dst, size_t size)
 {
 	char tmp[sizeof "255.255.255.255"];
 	size_t len;
-
 	DEBUGASSERT(size >= 16);
-
 	tmp[0] = '\0';
-	(void)snprintf(tmp, sizeof(tmp), "%d.%d.%d.%d",
-	    ((int)((uchar)src[0])) & 0xff,
-	    ((int)((uchar)src[1])) & 0xff,
-	    ((int)((uchar)src[2])) & 0xff,
-	    ((int)((uchar)src[3])) & 0xff);
-
+	(void)snprintf(tmp, sizeof(tmp), "%d.%d.%d.%d", ((int)((uchar)src[0])) & 0xff,
+	    ((int)((uchar)src[1])) & 0xff, ((int)((uchar)src[2])) & 0xff, ((int)((uchar)src[3])) & 0xff);
 	len = strlen(tmp);
 	if(len == 0 || len >= size) {
 		SET_ERRNO(ENOSPC);
@@ -140,8 +132,7 @@ static char * inet_ntop6(const uchar * src, char * dst, size_t size)
 
 		/* Is this address an encapsulated IPv4?
 		 */
-		if(i == 6 && best.base == 0 &&
-		    (best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
+		if(i == 6 && best.base == 0 && (best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
 			if(!inet_ntop4(src+12, tp, sizeof(tmp) - (tp - tmp))) {
 				SET_ERRNO(ENOSPC);
 				return NULL;

@@ -29,7 +29,7 @@
 #endif
 #include "hostcheck.h"
 //#include "strcase.h"
-#include "inet_pton.h"
+//#include "inet_pton.h"
 //#include "curl_memory.h"
 #include "memdebug.h" // The last #include file should be
 /*

@@ -1059,10 +1059,9 @@ int FASTCALL PPTextAnalyzer::TextIndex::Add_(uint position, int textId)
 	return ok;
 }
 
-int PPTextAnalyzer::TextIndex::Finish()
+void PPTextAnalyzer::TextIndex::Finish()
 {
 	L.sort(CMPF_LONG);
-	return 1;
 }
 
 int FASTCALL PPTextAnalyzer::TextIndex::HasTextId(int textId) const
@@ -1079,8 +1078,7 @@ const LongArray * FASTCALL PPTextAnalyzer::TextIndex::GetTextIndex(int textId) c
 int SLAPI PPTextAnalyzer::IndexText(PPTextAnalyzer::FindBlock & rBlk, uint idxFirst, uint idxLast) const
 {
 	int    ok = 1;
-	SETIFZ(rBlk.P_Idx, new TextIndex);
-	THROW_MEM(rBlk.P_Idx);
+	THROW_MEM(SETIFZ(rBlk.P_Idx, new TextIndex));
 	rBlk.P_Idx->Reset();
 	for(uint i = idxFirst; i <= idxLast; i++) {
 		Get(i, rBlk.Item_);
@@ -1104,7 +1102,7 @@ int SLAPI PPTextAnalyzer::IndexText(PPTextAnalyzer::FindBlock & rBlk, uint idxFi
 			THROW(rBlk.P_Idx->Add_(i, TextIndex::spcSpaceOrTab));
 		}
 	}
-	THROW(rBlk.P_Idx->Finish());
+	rBlk.P_Idx->Finish();
 	CATCH
 		ZDELETE(rBlk.P_Idx);
 		ok = 0;
@@ -1907,16 +1905,15 @@ SLAPI PPTextAnalyzer::~PPTextAnalyzer()
 {
 }
 
-int SLAPI PPTextAnalyzer::SetSignalProc(TextAnalyzerSignalProc proc, void * pProcExtra)
+void SLAPI PPTextAnalyzer::SetSignalProc(TextAnalyzerSignalProc proc, void * pProcExtra)
 {
 	SignalProc = proc;
 	P_SignalProcExtra = pProcExtra;
-	return 1;
 }
 
-struct NnBlock {
+/*struct NnBlock {
 	NnBlock();
-};
+};*/
 
 int SLAPI PPTextAnalyzer::ProcessGoodsNN()
 {

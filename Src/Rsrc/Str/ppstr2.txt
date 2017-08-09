@@ -1967,6 +1967,8 @@ PPERR_SR_S_RBRACKEXPECTED        "Sartre: ожидается ']'"
 PPERR_SR_S_RPAREXPECTED          "Sartre: ожидается ')'"
 PPERR_SR_S_SEMICOLEXPECTED       "Sartre: ожидается ';'"
 PPERR_SR_S_EQEXPECTED            "Sartre: ожидается '='"
+PPERR_SR_RULENAMEEXISTS          "Sartre: правило с именем '%s' уже существует"
+PPERR_SR_INVMORPHTOKEN           "Sartre: не допустимый морфологический признак '%s'"
 // LastError
 
 [102] // confirmation
@@ -4833,6 +4835,7 @@ PPSSYM_FORMAT "int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit;acc;a
 
 75  "Ошибка обращения матрицы"
 
+96  "Недопустимый параметр функции (%s)"
 97  "Ошибка совместного доступа к файлу '%s'"
 98  "Ошибка блокировки участка файла '%s'"
 99  "Прерывание пользователя"

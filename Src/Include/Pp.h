@@ -9914,7 +9914,7 @@ public:
 	int    SLAPI Add(const PUGI *, LDATE = ZERODATE);
 	int    SLAPI Add__(const PUGL *);
 	int    SLAPI Log(PPLogger * pLogger) const;
-	int    SLAPI GetItemsLocList(PPIDArray *) const;
+	void   FASTCALL GetItemsLocList(PPIDArray & rList) const;
 	int    SLAPI GetSupplSubstList(uint pos /*[1..]*/, TSArray <PUGL::SupplSubstItem> & rList) const;
 	//
 	// Descr: возвращает !0 если все элементы имеют признак PUGI::fTerminal
@@ -30158,6 +30158,7 @@ private:
 	int    SLAPI Helper_WrOffDrft_ExpModif(WrOffDraftBlock & rBlk, int use_ta);
 	int    SLAPI Helper_WrOffDrft_ExpDrftRcp(/*const PPBillPacket & rSrcDraftPack, const PPDraftOpEx * pWrOffParam, PPBillPacket * pPack*/WrOffDraftBlock & rBlk, int use_ta);
 	int    SLAPI Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPIDArray * pWrOffBills);
+	int    SLAPI Helper_WrOffDrft_Acct(WrOffDraftBlock & rBlk, int use_ta);
 	int    SLAPI Helper_PutBillToMrpTab(PPID billID, MrpTabPacket *, const PPDraftOpEx *, int use_ta);
 	int    SLAPI InitDraftWrOffPacket(const PPDraftOpEx *, const BillTbl::Rec *, PPBillPacket *, int use_ta);
 	int    SLAPI RemoveTransferItem(PPID billID, int rByBill, int force = 0);
@@ -34325,8 +34326,9 @@ enum BrowseBillsType {
 class BillFilt : public PPBaseFilt {
 public:
 	struct FiltExtraParam {
-		FiltExtraParam(long setupValues, BrowseBillsType bbt);
-		long   SetupValues;
+		SLAPI  FiltExtraParam(long setupValues, BrowseBillsType bbt);
+		long   SetupValues; // Если !0 то функция PPViewBill::CreateFilt установит в создаваемом
+			// фильтре разумные параметры, основываясь не текущем состоянии.
 		BrowseBillsType Bbt;
 	};
 
@@ -45342,7 +45344,7 @@ public:
 		TextIndex();
 		void   Reset();
 		int    FASTCALL Add_(uint position, int textId);
-		int    Finish();
+		void   Finish();
 
 		int    FASTCALL HasTextId(int textId) const;
 		const  LongArray * FASTCALL GetTextIndex(int textId) const;
@@ -45393,7 +45395,7 @@ public:
 	SLAPI  PPTextAnalyzer();
 	SLAPI ~PPTextAnalyzer();
 
-	int    SLAPI SetSignalProc(TextAnalyzerSignalProc proc, void * pProcExtra);
+	void   SLAPI SetSignalProc(TextAnalyzerSignalProc proc, void * pProcExtra);
 
 	int    SLAPI ParseReplacerLine(const SString & rLine, Replacer & rReplacer);
 	int    SLAPI ParseReplacerFile(const char * pFileName, Replacer & rRpl);
@@ -45574,26 +45576,6 @@ private:
 //
 #ifdef __WIN32__
 //
-// CurrListTagParser
-//
-typedef TSArray <PPCurrency> CurrencyArray;
-
-class CurrListTagParser : XTagParser {
-public:
-	SLAPI  CurrListTagParser();
-	SLAPI ~CurrListTagParser();
-	int    SLAPI ProcessNext(CurrencyArray * pCurrAry, const char * pPath);
-protected:
-	virtual int SLAPI ProcessTag(const char * pTag, long);
-private:
-	int    SLAPI SaveTagVal(const char * pTag);
-	CurrencyArray CurrAry;
-	PPCurrency CurrItem;
-	PPIDArray ParentTags;
-	SString TagValBuf;
-	SString TagNamesStr;
-};
-//
 // PpyInetDataPrcssr
 //
 //const static char WinInetDLLPath[] = "wininet.dll";
@@ -45607,7 +45589,7 @@ public:
 #ifdef __WIN32__
 	int    SLAPI Init();
 	void   SLAPI Uninit();
-	int    SLAPI ImportCurrencyList(ulong * pAcceptedRows, int use_ta);
+	// @v9.7.10 @obsolete int    SLAPI ImportCurrencyList(ulong * pAcceptedRows, int use_ta);
 	//int  SLAPI ImportBankList();
 #endif // __WIN32__
 	static int SLAPI EditCfg();
@@ -45615,7 +45597,7 @@ public:
 	static int SLAPI PutCfg(const PPInetConnConfig * pCfg, int use_ta);
 protected:
 #ifdef __WIN32__
-	int    SLAPI DownloadData(const char * pURL, const char * pPath);
+	// @v9.7.10 @obsolete int    SLAPI DownloadData(const char * pURL, const char * pPath);
 	void   SLAPI SetInetError();
 	HINTERNET InetSession;
 	HANDLE    WinInetDLLHandle;
@@ -45635,13 +45617,8 @@ public:
 	int    ReInit();
 	int    Connect(PPInternetAccount * pAccount);
 	int    Disconnect();
-	int    Get(const char * pLocalPath, const char * pFTPPath, int checkDtTm = 0, PercentFunc pf = 0);
-	int    Put(const char * pLocalPath, const char * pFTPPath, int checkDtTm = 0, PercentFunc pf = 0);
-	int    Delete(const char * pPath);
-	int    DeleteWOCD(const char * pPath);
-	int    CD(const char * pDir, int isFullPath = 1);
+
 	int    CreateDir(const char * pDir);
-	int    CheckSizeAfterCopy(const char * pLocalPath, const char * pFTPPath);
 	int    Exists(const char * pPath);
 	int    GetFileList(const char * pDir, StrAssocArray * pFileList, const char * pMask = 0);
 	int    SafeGet(const char * pLocalPath, const char * pFTPPath, int checkDtTm, PercentFunc pf, PPLogger * pLogger);
@@ -45654,6 +45631,13 @@ public:
 private:
 	int    TransferFile(const char * pLocalPath, const char * pFTPPath, int send, int checkDtTm, PercentFunc pf);
 	int    ReadResponse();
+
+	//int    Get(const char * pLocalPath, const char * pFTPPath, int checkDtTm = 0, PercentFunc pf = 0);
+	//int    Put(const char * pLocalPath, const char * pFTPPath, int checkDtTm = 0, PercentFunc pf = 0);
+	int    Delete(const char * pPath);
+	//int    DeleteWOCD(const char * pPath);
+	int    CheckSizeAfterCopy(const char * pLocalPath, const char * pFTPPath);
+	int    CD(const char * pDir, int isFullPath = 1);
 
 	HINTERNET InetSession, Connection;
 	PPInetConnConfig IConnCfg;
@@ -46117,6 +46101,8 @@ public:
 	SString SrcPath;         // @anchor
 };
 
+class SrSyntaxRuleSet;
+
 class PrcssrSartre {
 public:
 	SLAPI  PrcssrSartre(const char * pDbPath);
@@ -46125,6 +46111,9 @@ public:
 	int    SLAPI EditParam(PPBaseFilt * pBaseFilt);
 	int    SLAPI Init(const PPBaseFilt * pBaseFilt);
 	int    SLAPI Run();
+
+	int    SLAPI ResolveSyntaxRules(SrSyntaxRuleSet & rSet, SrDatabase & rDb);
+	int    SLAPI ProcessTextWithSyntax(SrDatabase & rDb, const SrSyntaxRuleSet & rSet, const SString & rTextUtf8);
 private:
 	int    SLAPI ImportHumanNames(const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing);
 	int    SLAPI TestSearchWords();
@@ -48813,7 +48802,7 @@ int     SLAPI FillPredictSales();
 int     SLAPI TestPredictSales();
 int     SLAPI TestReconnect();
 // @v9.3.8 @obsolete int     SLAPI ImportOrders();
-int     SLAPI ImportCurrencyList();
+// @v9.7.10 @obsolete int     SLAPI ImportCurrencyList();
 //
 //
 //

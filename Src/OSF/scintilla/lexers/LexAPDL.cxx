@@ -251,8 +251,7 @@ static void FoldAPDLDoc(Sci_PositionU startPos, Sci_Position length, int,
 			line++;
 			// reset state
 			wordlen = 0;
-			level &= ~SC_FOLDLEVELHEADERFLAG;
-			level &= ~SC_FOLDLEVELWHITEFLAG;
+			level &= ~(SC_FOLDLEVELHEADERFLAG|SC_FOLDLEVELWHITEFLAG);
 			go = 0;
 			done = 0;
 		}

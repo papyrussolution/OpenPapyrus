@@ -890,7 +890,6 @@ int SLAPI PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLoc
 				// } @v8.6.12
 				STRNSCPY(pItem->BnkAcct, p_loc_rec->Code); // Код из адреса доставки
 				pItem->CityID = p_loc_rec->CityID;
-				// @v7.3.3 {
 				if(Filt.AttribType == PPPSNATTR_STANDALONEADDR) {
 					LocationCore::GetExField(p_loc_rec, LOCEXSTR_PHONE, temp_buf);
 					temp_buf.CopyTo(pItem->Phone, sizeof(pItem->Phone));
@@ -901,7 +900,6 @@ int SLAPI PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLoc
 					LocationCore::GetExField(p_loc_rec, LOCEXSTR_CONTACT, temp_buf);
 					temp_buf.CopyTo(pItem->BnkName, sizeof(pItem->BnkName));
 				}
-				// } @v7.3.3
 				ok = 1;
 			}
 		}
@@ -1128,7 +1126,7 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 					} while(i);
 				}
 				if(rec_list.getCount() == 0) {
-					if(Filt.EmptyAttrib != EA_NOEMPTY && !Filt.CityID) { // @v7.7.7 (&& !Filt.CityID)
+					if(Filt.EmptyAttrib != EA_NOEMPTY && !Filt.CityID) {
 						MEMSZERO(vi);
 						vi.ID = id;
 						STRNSCPY(vi.Name, psn_rec.Name);
@@ -2166,8 +2164,8 @@ DBQuery * SLAPI PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 					tmp_pt->BnkAcct,   // #4 Код из адреса доставки
 					tmp_pt->RegNumber, // #5 Тип адреса (юридический | физический | доставки)
 					dbe_city,          // #6
-					tmp_pt->Phone,     // #7 @v7.3.3 Телефон (ассоциированный с адресом)
-					tmp_pt->BnkName,   // #8 @v7.3.3 Контакт (ассоциированный с адресом)
+					tmp_pt->Phone,     // #7 Телефон (ассоциированный с адресом)
+					tmp_pt->BnkName,   // #8 Контакт (ассоциированный с адресом)
 					0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], 0L);
 				break;
 			case PPPSNATTR_BNKACCT:
@@ -2565,9 +2563,9 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				{
 					PPID id = 0;
 					if(ok = AddItem(&id) > 0) {
-						pBrw->Update(); // @v7.7.7
+						pBrw->Update();
 						pBrw->search2(&id, PTR_CMPFUNC(long), srchFirst, 0);
-						ok = -1; // @v7.7.7 Не надо обновлять таблицу после этого вызова
+						ok = -1; // Не надо обновлять таблицу после этого вызова
 					}
 				}
 				break;
@@ -3172,13 +3170,11 @@ int PPALDD_PersonList::NextIteration(PPIterID iterId)
 	START_PPVIEW_ALDD_ITER(Person);
 	const  PersonFilt * p_filt = (const PersonFilt *)p_v->GetBaseFilt();
 	I.PersonID = item.ID;
-	// @v7.0.9 {
 	if(p_filt) {
 		if(oneof3(p_filt->AttribType, PPPSNATTR_ALLADDR, PPPSNATTR_DLVRADDR, PPPSNATTR_DUPDLVRADDR)) {
 			I.AddrID = item.AttrItem.TabID;
 		}
 	}
-	// } @v7.0.9
 	STRNSCPY(I.Phone,    item.AttrItem.Phone);
 	STRNSCPY(I.Address,  item.AttrItem.Address);
 	STRNSCPY(I.RAddress, item.AttrItem.RAddress);

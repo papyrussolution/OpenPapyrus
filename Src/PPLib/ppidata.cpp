@@ -13,9 +13,102 @@
 //static const char WinInetDLLPath[] = "wininet.dll";
 
 // @v8.6.1 закомментировано ради удобства навигации в Code:Blocks #ifdef __WIN32__
+// @v8.6.1 #endif // __WIN32__
+//
+// PpyInetDataPrcssr
+//
+static void SLAPI SetInetError(HMODULE handle)
+{
+	const  int os_err_code = GetLastError();
+	const  int err_code = PPErrCode;
+	if(oneof2(err_code, PPERR_RCVFROMINET, PPERR_INETCONN) && handle != 0) {
+		char   buf[256];
+		SString msg_buf;
+		memzero(buf, sizeof(buf));
+		uint32 iec = 0;
+		uint32 buf_len = sizeof(buf);
+		if(os_err_code == ERROR_INTERNET_EXTENDED_ERROR) {
+			InternetGetLastResponseInfo(&iec, buf, &buf_len); // @unicodeproblem
+		}
+		else {
+			FormatMessage(FORMAT_MESSAGE_FROM_HMODULE|FORMAT_MESSAGE_IGNORE_INSERTS, handle, os_err_code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buf, buf_len, 0); // @unicodeproblem
+		}
+		PPSetAddedMsgString((msg_buf = buf).Chomp().ToOem());
+	}
+}
+
+SLAPI PpyInetDataPrcssr::PpyInetDataPrcssr()
+{
+	WinInetDLLHandle = 0;
+	InetSession = 0;
+#ifdef __WIN32__
+	Uninit();
+#endif // __WIN32__
+}
+
+SLAPI PpyInetDataPrcssr::~PpyInetDataPrcssr()
+{
+#ifdef __WIN32__
+	Uninit();
+#endif // __WIN32__
+}
+
+// @v8.6.1 закомментировано ради удобства навигации в Code:Blocks #ifdef __WIN32__
+
+int SLAPI PpyInetDataPrcssr::Init()
+{
+	int    ok = 1;
+	char   proxy[64];
+	ulong  access_type = 0;
+	memzero(proxy, sizeof(proxy));
+	Uninit();
+	THROW(GetCfg(&IConnCfg));
+	sprintf(proxy, "%s:%s", IConnCfg.ProxyHost, IConnCfg.ProxyPort);
+	access_type = (IConnCfg.AccessType == PPINETCONN_DIRECT) ? INTERNET_OPEN_TYPE_DIRECT :
+		((IConnCfg.AccessType == PPINETCONN_PROXY) ? INTERNET_OPEN_TYPE_PROXY : INTERNET_OPEN_TYPE_PRECONFIG);
+	THROW_PP(WinInetDLLHandle = ::LoadLibrary(_T("wininet.dll")), 0);
+	THROW_PP((InetSession = InternetOpen(IConnCfg.Agent, access_type, ((access_type == INTERNET_OPEN_TYPE_PROXY) ? proxy : 0), 0, 0)) != NULL, PPERR_RCVFROMINET); // @unicodeproblem
+	THROW_PP(InternetSetOption(InetSession, INTERNET_OPTION_CONNECT_RETRIES, &IConnCfg.MaxTries, sizeof(IConnCfg.MaxTries)), PPERR_RCVFROMINET);
+	CATCH
+		SetInetError();
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+void SLAPI PpyInetDataPrcssr::Uninit()
+{
+	if(WinInetDLLHandle)
+		FreeLibrary((HMODULE)WinInetDLLHandle);
+	if(InetSession)
+		InternetCloseHandle(InetSession);
+	WinInetDLLHandle = 0;
+	InetSession = 0;
+	MEMSZERO(IConnCfg);
+}
+
+#if 0 // @v9.7.10 @obsolete {
 //
 // Currency List
 //
+typedef TSArray <PPCurrency> CurrencyArray;
+
+class CurrListTagParser : XTagParser {
+public:
+	SLAPI  CurrListTagParser();
+	SLAPI ~CurrListTagParser();
+	int    SLAPI ProcessNext(CurrencyArray * pCurrAry, const char * pPath);
+protected:
+	virtual int SLAPI ProcessTag(const char * pTag, long);
+private:
+	int    SLAPI SaveTagVal(const char * pTag);
+	CurrencyArray CurrAry;
+	PPCurrency CurrItem;
+	PPIDArray ParentTags;
+	SString TagValBuf;
+	SString TagNamesStr;
+};
+
 SLAPI CurrListTagParser::CurrListTagParser()
 {
 	PPLoadText(PPTXT_CURRLISTTAGNAMES, TagNamesStr);
@@ -101,85 +194,10 @@ int SLAPI CurrListTagParser::SaveTagVal(const char * pTag)
 	return ok ? ok : (SLibError = SLERR_INVFORMAT, ok);
 }
 
-// @v8.6.1 #endif // __WIN32__
-//
-// PpyInetDataPrcssr
-//
-static void SLAPI SetInetError(HMODULE handle)
-{
-	const  int os_err_code = GetLastError();
-	const  int err_code = PPErrCode;
-	if(oneof2(err_code, PPERR_RCVFROMINET, PPERR_INETCONN) && handle != 0) {
-		char   buf[256];
-		SString msg_buf;
-		memzero(buf, sizeof(buf));
-		uint32 iec = 0;
-		uint32 buf_len = sizeof(buf);
-		if(os_err_code == ERROR_INTERNET_EXTENDED_ERROR) {
-			InternetGetLastResponseInfo(&iec, buf, &buf_len); // @unicodeproblem
-		}
-		else {
-			FormatMessage(FORMAT_MESSAGE_FROM_HMODULE|FORMAT_MESSAGE_IGNORE_INSERTS, handle, os_err_code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buf, buf_len, 0); // @unicodeproblem
-		}
-		PPSetAddedMsgString((msg_buf = buf).Chomp().ToOem());
-	}
-}
-
-SLAPI PpyInetDataPrcssr::PpyInetDataPrcssr()
-{
-	WinInetDLLHandle = 0;
-	InetSession = 0;
-#ifdef __WIN32__
-	Uninit();
-#endif // __WIN32__
-}
-
-
-SLAPI PpyInetDataPrcssr::~PpyInetDataPrcssr()
-{
-#ifdef __WIN32__
-	Uninit();
-#endif // __WIN32__
-}
-
-// @v8.6.1 закомментировано ради удобства навигации в Code:Blocks #ifdef __WIN32__
-
-int SLAPI PpyInetDataPrcssr::Init()
-{
-	int    ok = 1;
-	char   proxy[64];
-	ulong  access_type = 0;
-	memzero(proxy, sizeof(proxy));
-	Uninit();
-	THROW(GetCfg(&IConnCfg));
-	sprintf(proxy, "%s:%s", IConnCfg.ProxyHost, IConnCfg.ProxyPort);
-	access_type = (IConnCfg.AccessType == PPINETCONN_DIRECT) ? INTERNET_OPEN_TYPE_DIRECT :
-		((IConnCfg.AccessType == PPINETCONN_PROXY) ? INTERNET_OPEN_TYPE_PROXY : INTERNET_OPEN_TYPE_PRECONFIG);
-	THROW_PP(WinInetDLLHandle = ::LoadLibrary(_T("wininet.dll")), 0);
-	THROW_PP((InetSession = InternetOpen(IConnCfg.Agent, access_type, ((access_type == INTERNET_OPEN_TYPE_PROXY) ? proxy : 0), 0, 0)) != NULL, PPERR_RCVFROMINET); // @unicodeproblem
-	THROW_PP(InternetSetOption(InetSession, INTERNET_OPTION_CONNECT_RETRIES, &IConnCfg.MaxTries, sizeof(IConnCfg.MaxTries)), PPERR_RCVFROMINET);
-	CATCH
-		SetInetError();
-		ok = 0;
-	ENDCATCH
-	return ok;
-}
-
-void SLAPI PpyInetDataPrcssr::Uninit()
-{
-	if(WinInetDLLHandle)
-		FreeLibrary((HMODULE)WinInetDLLHandle);
-	if(InetSession)
-		InternetCloseHandle(InetSession);
-	WinInetDLLHandle = 0;
-	InetSession = 0;
-	MEMSZERO(IConnCfg);
-}
-
 int SLAPI PpyInetDataPrcssr::ImportCurrencyList(ulong * pAcceptedRows, int use_ta)
 {
 	int    ok = 1;
-	char   /*path[MAXPATH],*/ filename[MAXFILE], url[256];
+	char   filename[MAXFILE], url[256];
 	SString path;
 	uint   i = 0, items_count = 0;
 	ulong  accepted_rows = 0;
@@ -254,6 +272,7 @@ int SLAPI PpyInetDataPrcssr::DownloadData(const char * pURL, const char * pPath)
 		InternetCloseHandle(h_inet_file);
 	return ok;
 }
+#endif // } @v9.7.10 @obsolete 
 
 void SLAPI PpyInetDataPrcssr::SetInetError()
 {
@@ -460,8 +479,13 @@ int WinInetFTP::SafeGet(const char * pLocalPath, const char * pFTPPath, int chec
 	if(Exists(pFTPPath)) {
 		int tries = IConnCfg.MaxTries > 0 ? IConnCfg.MaxTries : FTP_MAXTRIES;
 		for(int i = 0; !r && i < tries; i++) {
-			if(reinit)
-				r = Get(pLocalPath, pFTPPath, checkDtTm, pf);
+			if(reinit) {
+				//r = Get(pLocalPath, pFTPPath, checkDtTm, pf);
+				//int WinInetFTP::Get(const char * pLocalPath, const char * pFTPPath, int checkDtTm, PercentFunc pf)
+				{
+					r = (pLocalPath && pFTPPath) ? TransferFile(pLocalPath, pFTPPath, 0, checkDtTm, pf) : PPSetErrorInvParam();
+				}
+			}
 			if(!r)
 				reinit = FtpReInit(this, pLogger);
 		}
@@ -493,8 +517,13 @@ int WinInetFTP::SafePut(const char * pLocalPath, const char * pFTPPath, int chec
 	if(fileExists(pLocalPath)) {
 		int tries = (IConnCfg.MaxTries > 0) ? IConnCfg.MaxTries : FTP_MAXTRIES;
 		for(int i = 0; !r && i < tries; i++) {
-			if(reinit)
-				r = Put(pLocalPath, pFTPPath, checkDtTm, pf);
+			if(reinit) {
+				//r = Put(pLocalPath, pFTPPath, checkDtTm, pf);
+				//int WinInetFTP::Put(const char * pLocalPath, const char * pFTPPath, int checkDtTm, PercentFunc pf)
+				{
+					r = (pLocalPath && pFTPPath) ? TransferFile(pLocalPath, pFTPPath, 1, checkDtTm, pf) : PPSetErrorInvParam();
+				}
+			}
 			if(!r)
 				reinit = FtpReInit(this, pLogger);
 		}
@@ -548,10 +577,24 @@ int WinInetFTP::SafeDelete(const char * pPath, PPLogger * pLogger)
 int WinInetFTP::SafeDeleteWOCD(const char * pPath, PPLogger * pLogger)
 {
 	int    r = 0, reinit = 1;
-	int    tries = IConnCfg.MaxTries > 0 ? IConnCfg.MaxTries : FTP_MAXTRIES;
+	const  int tries = IConnCfg.MaxTries > 0 ? IConnCfg.MaxTries : FTP_MAXTRIES;
+	SPathStruc sp;
+	SString file_name;
 	for(int i = 0; !r && i < tries; i++) {
-		if(reinit)
-			r = DeleteWOCD(pPath);
+		if(reinit) {
+			//r = DeleteWOCD(pPath);
+			//int WinInetFTP::DeleteWOCD(const char * pPath)
+			{
+				sp.Split(pPath);
+				sp.Drv = 0;
+				sp.Dir = 0;
+				sp.Merge(file_name);
+				if(!FtpDeleteFile(Connection, file_name)) { // @unicodeproblem
+					PPSetError(PPERR_FTPSRVREPLYERR); 
+					r = ReadResponse();
+				}
+			}
+		}
 		if(!r)
 			reinit = FtpReInit(this, pLogger);
 	}
@@ -582,16 +625,6 @@ int WinInetFTP::SafeGetFileList(const char * pDir, StrAssocArray * pFileList, co
 			reinit = FtpReInit(this, pLogger);
 	}
 	return r;
-}
-
-int WinInetFTP::Get(const char * pLocalPath, const char * pFTPPath, int checkDtTm, PercentFunc pf)
-{
-	return pLocalPath && pFTPPath ? TransferFile(pLocalPath, pFTPPath, 0, checkDtTm, pf) : PPSetErrorInvParam();
-}
-
-int WinInetFTP::Put(const char * pLocalPath, const char * pFTPPath, int checkDtTm, PercentFunc pf)
-{
-	return pLocalPath && pFTPPath ? TransferFile(pLocalPath, pFTPPath, 1, checkDtTm, pf) : PPSetErrorInvParam();
 }
 
 int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int send, int checkDtTm, PercentFunc pf)
@@ -634,15 +667,15 @@ int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int
 		ftpfile_dttm.t = encodetime(st_time.wHour, st_time.wMinute, st_time.wSecond, st_time.wMilliseconds / 10);
 		if(send) {
 			if(lf_info.WriteTime.d == ftpfile_dttm.d)
-				valid_dttm = (lf_info.WriteTime.t > ftpfile_dttm.t) ? 1 : 0;
+				valid_dttm = BIN(lf_info.WriteTime.t > ftpfile_dttm.t);
 			else
-				valid_dttm = (lf_info.WriteTime.d > ftpfile_dttm.d) ? 1 : 0;
+				valid_dttm = BIN(lf_info.WriteTime.d > ftpfile_dttm.d);
 		}
 		else {
 			if(ftpfile_dttm.d == lf_info.WriteTime.d)
-				valid_dttm = (ftpfile_dttm.t > lf_info.WriteTime.t) ? 1 : 0;
+				valid_dttm = BIN(ftpfile_dttm.t > lf_info.WriteTime.t);
 			else
-				valid_dttm = (ftpfile_dttm.d > lf_info.WriteTime.d) ? 1 : 0;
+				valid_dttm = BIN(ftpfile_dttm.d > lf_info.WriteTime.d);
 		}
 	}
 	else
@@ -746,22 +779,6 @@ int WinInetFTP::Delete(const char * pPath)
         ps.Dir = 0;
         ps.Merge(file_name);
 	}
-	THROW_PP(FtpDeleteFile(Connection, file_name), PPERR_FTPSRVREPLYERR); // @unicodeproblem
-	CATCH
-		ok = ReadResponse();
-	ENDCATCH
-	return ok;
-}
-
-int WinInetFTP::DeleteWOCD(const char * pPath)
-{
-	int    ok = 1;
-	SPathStruc sp;
-	SString file_name;
-	sp.Split(pPath);
-	sp.Drv = 0;
-	sp.Dir = 0;
-	sp.Merge(file_name);
 	THROW_PP(FtpDeleteFile(Connection, file_name), PPERR_FTPSRVREPLYERR); // @unicodeproblem
 	CATCH
 		ok = ReadResponse();
@@ -923,9 +940,7 @@ int InetConnConfigDialog::setDTS(const PPInetConnConfig * pCfg)
 {
 	int ok = 1;
 	int v = 0;
-	if(pCfg)
-		Data = *pCfg;
-	else
+	if(!RVALUEPTR(Data, pCfg))
 		MEMSZERO(Data);
 	v = (PPSearchSubStr(Agents, &v, Data.Agent, 0) > 0) ? v : 0;
 	setCtrlData(CTL_ICONNCFG_AGENT,      &v);
@@ -933,8 +948,7 @@ int InetConnConfigDialog::setDTS(const PPInetConnConfig * pCfg)
 	setCtrlData(CTL_ICONNCFG_PROXYHOST,  Data.ProxyHost);
 	setCtrlData(CTL_ICONNCFG_PROXYPORT,  &Data.ProxyPort);
 	setCtrlData(CTL_ICONNCFG_URLDIR,     Data.URLDir);
-	v = (Data.AccessType == PPINETCONN_DIRECT) ? 0 :
-		((Data.AccessType == PPINETCONN_PROXY) ? 1 : 2);
+	v = (Data.AccessType == PPINETCONN_DIRECT) ? 0 : ((Data.AccessType == PPINETCONN_PROXY) ? 1 : 2);
 	setCtrlData(CTL_ICONNCFG_ACCESSTYPE, &v);
 	return ok;
 }
@@ -950,8 +964,7 @@ int InetConnConfigDialog::getDTS(PPInetConnConfig * pCfg)
 	getCtrlData(CTL_ICONNCFG_PROXYPORT,  &Data.ProxyPort);
 	getCtrlData(CTL_ICONNCFG_URLDIR,     Data.URLDir);
 	getCtrlData(CTL_ICONNCFG_ACCESSTYPE, &v);
-	Data.AccessType  = (v == 0) ? PPINETCONN_DIRECT :
-		((v == 1) ? PPINETCONN_PROXY : PPINETCONN_PRECONFIG);
+	Data.AccessType  = (v == 0) ? PPINETCONN_DIRECT : ((v == 1) ? PPINETCONN_PROXY : PPINETCONN_PRECONFIG);
 	ASSIGN_PTR(pCfg, Data);
 	ok = 1;
 	return ok;
@@ -1017,7 +1030,7 @@ int SLAPI PpyInetDataPrcssr::PutCfg(const PPInetConnConfig * pCfg, int use_ta)
 //
 //
 //
-int SLAPI ImportCurrencyList()
+/* @v9.7.10 @obsolete int SLAPI ImportCurrencyList()
 {
 	int    ok = -1;
 	ulong  accepted_rows = 0;
@@ -1033,4 +1046,4 @@ int SLAPI ImportCurrencyList()
 	ltoa(accepted_rows, str_accepted_rows, 10);
 	PPMessage(mfInfo | mfOK, PPINF_RCVCURRSCOUNT, str_accepted_rows);
 	return ok;
-}
+}*/

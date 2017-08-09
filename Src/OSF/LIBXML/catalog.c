@@ -787,9 +787,9 @@ xmlDocPtr xmlParseCatalogFile(const char * filename)
 	inputStream->buf = buf;
 	xmlBufResetInput(buf->buffer, inputStream);
 	inputPush(ctxt, inputStream);
-	if((ctxt->directory == NULL) && (directory == NULL))
+	if(!ctxt->directory && !directory)
 		directory = xmlParserGetDirectory(filename);
-	if((ctxt->directory == NULL) && (directory != NULL))
+	if(!ctxt->directory && directory)
 		ctxt->directory = directory;
 	ctxt->valid = 0;
 	ctxt->validate = 0;

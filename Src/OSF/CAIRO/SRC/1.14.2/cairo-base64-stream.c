@@ -56,7 +56,7 @@ static cairo_status_t _cairo_base64_stream_write(cairo_output_stream_t * base, c
 	uint i;
 	if(stream->in_mem + length < 3) {
 		for(i = 0; i < length; i++) {
-			src[i + stream->in_mem] = *data++;
+			src[stream->in_mem+i] = *data++;
 		}
 		stream->in_mem += length;
 		return CAIRO_STATUS_SUCCESS;
@@ -83,12 +83,10 @@ static cairo_status_t _cairo_base64_stream_write(cairo_output_stream_t * base, c
 		}
 		_cairo_output_stream_write(stream->output, dst, 4);
 	} while(length >= 3);
-
 	for(i = 0; i < length; i++) {
 		src[i] = *data++;
 	}
 	stream->in_mem = length;
-
 	return _cairo_output_stream_get_status(stream->output);
 }
 

@@ -57,13 +57,13 @@
 //#include "hostip.h"
 //#include "http.h"
 //#include "select.h"
-#include "parsedate.h" /* for the week day and month names */
+//#include "parsedate.h" /* for the week day and month names */
 //#include "strtoofft.h"
 //#include "multiif.h"
 //#include "strcase.h"
 //#include "content_encoding.h"
 #include "http_proxy.h"
-#include "warnless.h"
+//#include "warnless.h"
 //#include "non-ascii.h"
 //#include "conncache.h"
 //#include "pipeline.h"
@@ -689,7 +689,7 @@ CURLcode Curl_http_input_auth(struct connectdata * conn, bool proxy, const char 
 			if((authp->avail & CURLAUTH_NTLM) || (authp->avail & CURLAUTH_NTLM_WB) || Curl_auth_is_ntlm_supported()) {
 				*availp |= CURLAUTH_NTLM;
 				authp->avail |= CURLAUTH_NTLM;
-				if(authp->picked == CURLAUTH_NTLM || authp->picked == CURLAUTH_NTLM_WB) {
+				if(oneof2(authp->picked, CURLAUTH_NTLM, CURLAUTH_NTLM_WB)) {
 					/* NTLM authentication is picked and activated */
 					CURLcode result = Curl_input_ntlm(conn, proxy, auth);
 					if(!result) {
@@ -898,8 +898,7 @@ void Curl_add_buffer_free(Curl_send_buffer * buff)
  *
  * Returns CURLcode
  */
-CURLcode Curl_add_buffer_send(Curl_send_buffer * in,
-    struct connectdata * conn,
+CURLcode Curl_add_buffer_send(Curl_send_buffer * in, struct connectdata * conn,
     /* add the number of sent bytes to this counter */
     long * bytes_written,
     /* how much of the buffer contains body data */
@@ -1492,35 +1491,27 @@ CURLcode Curl_add_timecondition(struct Curl_easy * data,
 	 * purposes of HTTP, GMT is exactly equal to UTC (Coordinated Universal
 	 * Time)." (see page 20 of RFC2616).
 	 */
-
-	/* format: "Tue, 15 Nov 1994 12:45:26 GMT" */
-	snprintf(buf, BUFSIZE-1,
-	    "%s, %02d %s %4d %02d:%02d:%02d GMT",
-	    Curl_wkday[tm->tm_wday ? tm->tm_wday-1 : 6],
+	// format: "Tue, 15 Nov 1994 12:45:26 GMT" 
+	snprintf(buf, BUFSIZE-1, "%s, %02d %s %4d %02d:%02d:%02d GMT",
+	    // @v9.7.10 Curl_wkday[tm->tm_wday ? tm->tm_wday-1 : 6],
+		STextConst::Get(STextConst::cDow_En_Sh, tm->tm_wday ? tm->tm_wday-1 : 6), // @v9.7.10
 	    tm->tm_mday,
-	    Curl_month[tm->tm_mon],
-	    tm->tm_year + 1900,
-	    tm->tm_hour,
-	    tm->tm_min,
-	    tm->tm_sec);
-
+	    // @v9.7.10 Curl_month[tm->tm_mon],
+		STextConst::Get(STextConst::cMon_En_Sh, tm->tm_mon), // @v9.7.10
+	    tm->tm_year + 1900, tm->tm_hour, tm->tm_min, tm->tm_sec);
 	switch(data->set.timecondition) {
 		default:
 		    break;
 		case CURL_TIMECOND_IFMODSINCE:
-		    result = Curl_add_bufferf(req_buffer,
-		    "If-Modified-Since: %s\r\n", buf);
+		    result = Curl_add_bufferf(req_buffer, "If-Modified-Since: %s\r\n", buf);
 		    break;
 		case CURL_TIMECOND_IFUNMODSINCE:
-		    result = Curl_add_bufferf(req_buffer,
-		    "If-Unmodified-Since: %s\r\n", buf);
+		    result = Curl_add_bufferf(req_buffer, "If-Unmodified-Since: %s\r\n", buf);
 		    break;
 		case CURL_TIMECOND_LASTMOD:
-		    result = Curl_add_bufferf(req_buffer,
-		    "Last-Modified: %s\r\n", buf);
+		    result = Curl_add_bufferf(req_buffer, "Last-Modified: %s\r\n", buf);
 		    break;
 	}
-
 	return result;
 }
 
@@ -1534,7 +1525,6 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 	struct Curl_easy * data = conn->data;
 	CURLcode result = CURLE_OK;
 	struct HTTP * http;
-
 	const char * ppath = data->state.path;
 	bool paste_ftp_userpwd = FALSE;
 	char ftp_typecode[sizeof("/;type=?")] = "";
@@ -1556,13 +1546,10 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 	   may be parts of the request that is not yet sent, since we can deal with
 	   the rest of the request in the PERFORM phase. */
 	*done = TRUE;
-
-	if(conn->httpversion < 20) { /* unless the connection is re-used and already
-		                        http2 */
+	if(conn->httpversion < 20) { // unless the connection is re-used and already http2 
 		switch(conn->negnpn) {
 			case CURL_HTTP_VERSION_2:
 			    conn->httpversion = 20; /* we know we're on HTTP/2 now */
-
 			    result = Curl_http2_switched(conn, NULL, 0);
 			    if(result)
 				    return result;
@@ -1577,7 +1564,6 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 			    CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE) {
 				    DEBUGF(infof(data, "HTTP/2 over clean TCP\n"));
 				    conn->httpversion = 20;
-
 				    result = Curl_http2_switched(conn, NULL, 0);
 				    if(result)
 					    return result;

@@ -669,7 +669,7 @@ cairo_private cairo_int_status_t _cairo_gl_check_composite_glyphs(const cairo_co
     cairo_glyph_t * glyphs,
     int * num_glyphs);
 
-cairo_private cairo_int_status_t _cairo_gl_composite_glyphs(void                        * _dst,
+cairo_private cairo_int_status_t _cairo_gl_composite_glyphs(void * _dst,
     cairo_operator_t op,
     cairo_surface_t             * _src,
     int src_x,

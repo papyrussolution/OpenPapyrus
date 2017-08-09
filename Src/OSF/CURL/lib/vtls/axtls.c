@@ -34,9 +34,9 @@
 #include <axTLS/ssl.h>
 #include "axtls.h"
 //#include "sendf.h"
-#include "inet_pton.h"
+//#include "inet_pton.h"
 #include "vtls.h"
-#include "parsedate.h"
+//#include "parsedate.h"
 //#include "connect.h" /* for the connect timeout */
 //#include "select.h"
 #include "curl_printf.h"

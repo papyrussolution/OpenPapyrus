@@ -555,8 +555,8 @@ Section "PervasiveSQL Server" SEC_PSQL_SRV
 	;
 	SetOutPath "$SYSDIR"
 	SetOverwrite ifnewer
-	File "${SRC_3P_REDIST}\PVSWSrv\sc.exe"
-	File "${SRC_3P_REDIST}\PVSWSrv\Msvcp60.dll"	
+	; @v9.7.10 File "${SRC_3P_REDIST}\PVSWSrv\sc.exe"
+	; @v9.7.10 File "${SRC_3P_REDIST}\PVSWSrv\Msvcp60.dll"	
 	;File "${SRC_3P_REDIST}\PVSWSrv\LegacyLM.dll"
 	;
 	; Регистрирую в системе сервисы PSQL

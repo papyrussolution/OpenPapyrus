@@ -195,7 +195,7 @@ uint SLAPI SFileEntryPool::GetCount() const
 	return L.getCount();
 }
 
-int SLAPI SFileEntryPool::Get(uint pos, Entry & rEntry) const
+int SLAPI SFileEntryPool::Get(uint pos, SFileEntryPool::Entry & rEntry) const
 {
     if(pos < L.getCount()) {
 		ConvertEntry(L.at(pos), rEntry);
@@ -203,6 +203,27 @@ int SLAPI SFileEntryPool::Get(uint pos, Entry & rEntry) const
     }
     else
 		return 0;
+}
+
+int SLAPI SFileEntryPool::Add(SFileEntryPool::Entry & rDe)
+{
+	int    ok = 1;
+    InnerEntry new_entry;
+    MEMSZERO(new_entry);
+    new_entry.Attr = rDe.Attr;
+    new_entry.CreateTime = rDe.CreateTime;
+    new_entry.AccessTime = rDe.AccessTime;
+    new_entry.WriteTime = rDe.WriteTime;
+    new_entry.Size = rDe.Size;
+    if(rDe.Path.NotEmptyS()) {
+		SString temp_path;
+		SPathStruc::NormalizePath(rDe.Path, 0, temp_path);
+		THROW(AddS(temp_path, &new_entry.PathP));
+    }
+    THROW(AddS(rDe.Name, &new_entry.NameP));
+    THROW(L.insert(&new_entry));
+    CATCHZOK
+    return ok;
 }
 
 int SLAPI SFileEntryPool::Add(const char * pPath, SDirEntry & rDe)

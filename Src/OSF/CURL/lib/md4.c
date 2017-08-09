@@ -42,7 +42,7 @@
 #if defined(USE_NSS) || defined(USE_OS400CRYPTO)
 
 #include "curl_md4.h"
-#include "warnless.h"
+//#include "warnless.h"
 
 #ifndef HAVE_OPENSSL
 

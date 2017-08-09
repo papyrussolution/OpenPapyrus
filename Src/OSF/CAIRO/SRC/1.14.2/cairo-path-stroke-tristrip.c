@@ -40,33 +40,25 @@
 #pragma hdrstop
 #define _BSD_SOURCE /* for hypot() */
 #include "cairo-box-inline.h"
-#include "cairo-boxes-private.h"
+//#include "cairo-boxes-private.h"
 #include "cairo-path-fixed-private.h"
 #include "cairo-slope-private.h"
 #include "cairo-tristrip-private.h"
 
 struct stroker {
 	cairo_stroke_style_t style;
-
 	cairo_tristrip_t * strip;
-
 	const cairo_matrix_t * ctm;
 	const cairo_matrix_t * ctm_inverse;
 	double tolerance;
 	cairo_bool_t ctm_det_positive;
-
 	cairo_pen_t pen;
-
 	cairo_bool_t has_sub_path;
-
 	cairo_point_t first_point;
-
 	cairo_bool_t has_current_face;
 	cairo_stroke_face_t current_face;
-
 	cairo_bool_t has_first_face;
 	cairo_stroke_face_t first_face;
-
 	cairo_box_t limit;
 	cairo_bool_t has_limits;
 };

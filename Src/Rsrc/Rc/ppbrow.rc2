@@ -6330,7 +6330,7 @@ cmd ReceiveCharry         { "@{cmd_receivecharry}"                         none 
 cmd MailCharryFiles       { "@{cmd_mailcharryfiles}"                       none                  none cmMailCharryFiles }
 cmd ViewObjSync           { "@{cmd_viewobjsync}"                           none                  none cmViewObjSync view = ObjSync }
 cmd AnalyzeObjSyncCmp     { "@{cmd_analyzeobjsynccmp}"                     none                  none cmAnalyzeObjSyncCmp view = ObjSyncCmp }
-cmd ImportCurrList        { "@{cmd_importcurrlist}"                        none                  none cmImportCurrList }
+cmd ImportCurrList        { "@{cmd_importcurrlist} (obsolete)"             none                  none cmImportCurrList }
 cmd CorrectAccrelArRefs   { "@{cmd_correctaccrelarrefs}"                   none                  none cmCorrectAccrelArRefs }
 cmd CorrectAccTurnRest    { "@{cmd_correctaccturnrest}"                    none                  none cmCorrectAccTurnRest }
 cmd RecalcBillTurns       { "@{cmd_recalcbillturns}"                       none                  none cmRecalcBillTurns }

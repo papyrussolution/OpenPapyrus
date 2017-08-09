@@ -870,13 +870,45 @@ int SLAPI STokenizer::Write(const char * pResource, int64 orgOffs, const void * 
 	return ok;
 }
 
-int16 SLAPI STokenizer::NextChr()
+uint16 SLAPI STokenizer::NextChr()
 {
-	char  c;
-	return S.Read(c) ? (int16)c : 0;
+	uchar c;
+	uint16 result = 0;
+	if(S.Read(c)) {
+		if(P.Cp == cpUTF8) {
+			const size_t extra = SUtfConst::TrailingBytesForUTF8[c];
+			if(extra == 0)
+				result = c;
+			else if(extra == 1) {
+				union {
+					uchar  c2[2];
+					uint16 u;
+				};
+				c2[0] = c;
+				if(S.Read(c2[1]))
+					result = u;
+			}
+			else {
+				uchar  c8[8];
+				c8[0] = c;
+				S.Read(c8[1]);
+				if(extra >= 2) {
+					S.Read(c8[2]);
+					if(extra >= 3) {
+						S.Read(c8[3]);
+						assert(extra == 3);
+					}
+				}
+				result = (uint16)'?';
+			}
+		}
+		else
+			result = (uint16)c;
+	}
+	return result;
 }
 
-int FASTCALL STokenizer::IsDelim(int16 chr) const
+int FASTCALL STokenizer::IsDelim(uint16 chr) const
 {
 	if(P.Delim.NotEmpty()) {
 		if(P.Delim.HasChr(chr))
@@ -889,17 +921,28 @@ int FASTCALL STokenizer::IsDelim(int16 chr) const
 	return 0;
 }
 
-int FASTCALL STokenizer::AddToken(TSArray <int16> & rBuf, int tokType)
+void SLAPI STokenizer::_CopySrcToAddTokenBuf(const TSArray <uint16> & rBuf)
+{
+	AddTokenBuf = 0;
+	const uint bc = rBuf.getCount();
+	if(P.Cp == cpUTF8) {
+		AddTokenBuf.CopyUtf8FromUnicode((const wchar_t *)rBuf.dataPtr(), bc, 1);
+	}
+	else {
+		for(uint i = 0; i < bc; i++) {
+			AddTokenBuf.CatChar(rBuf.at(i));
+		}
+	}
+}
+
+int FASTCALL STokenizer::AddToken(TSArray <uint16> & rBuf, int tokType)
 {
 	int    ok = 1;
 	const  uint bc = rBuf.getCount();
 	if(bc) {
 		Token  tok;
 		MEMSZERO(tok);
-		AddTokenBuf = 0;
-		for(uint i = 0; i < bc; i++) {
-			AddTokenBuf.CatChar(rBuf.at(i));
-		}
+		_CopySrcToAddTokenBuf(rBuf);
 		tok.T = tokType;
 		uint   tv = 0;
 		uint   tp = 0;
@@ -979,7 +1022,7 @@ int SLAPI STokenizer::IndexResources(int force)
 	return ok;
 }
 
-int SLAPI STokenizer::ProcessSearchToken(TSArray <int16> & rBuf, int tokType, TSCollection <STokenizer::SearchBlockEntry> & rResult)
+int SLAPI STokenizer::ProcessSearchToken(TSArray <uint16> & rBuf, int tokType, TSCollection <STokenizer::SearchBlockEntry> & rResult)
 {
 	int    ok = -1;
 	if(tokType != tokDelim) {
@@ -987,10 +1030,7 @@ int SLAPI STokenizer::ProcessSearchToken(TSArray <int16> & rBuf, int tokType, TS
 		if(bc) {
 			Token  tok;
 			MEMSZERO(tok);
-			AddTokenBuf = 0;
-			for(uint i = 0; i < bc; i++) {
-				AddTokenBuf.CatChar(rBuf.at(i));
-			}
+			_CopySrcToAddTokenBuf(rBuf);
 			tok.T = tokType;
 			uint   tv = 0;
 			uint   tp = 0;
@@ -1048,10 +1088,10 @@ int SLAPI STokenizer::ProcessSearchToken(TSArray <int16> & rBuf, int tokType, TS
 int SLAPI STokenizer::Search(long flags, TSCollection <STokenizer::SearchBlockEntry> & rResult)
 {
 	int    ok = 1;
-	int16  chr = 0;
-	int16  prev_delim = 0;
+	uint16 chr = 0;
+	uint16 prev_delim = 0;
 	TokenBuf.clear();
-	for(int16  prev_chr = 0; (chr = NextChr()) != 0; prev_chr = chr) {
+	for(uint16  prev_chr = 0; (chr = NextChr()) != 0; prev_chr = chr) {
 		if(IsDelim(chr)) {
 			if(prev_delim) {
 				if(P.Flags & fEachDelim) {
@@ -1160,10 +1200,10 @@ int SLAPI STokenizer::Run(uint * pIdxFirst, uint * pIdxCount)
 	const  uint preserve_count = L.getCount();
 	uint   idx_first = preserve_count;
 	uint   idx_count = 0;
-	int16  chr = 0;
-	int16  prev_delim = 0;
+	uint16 chr = 0;
+	uint16 prev_delim = 0;
 	TokenBuf.clear();
-	for(int16  prev_chr = 0; (chr = NextChr()) != 0; prev_chr = chr) {
+	for(uint16 prev_chr = 0; (chr = NextChr()) != 0; prev_chr = chr) {
 		if(IsDelim(chr)) {
 			if(prev_delim) {
 				if(P.Flags & fEachDelim) {
@@ -1182,8 +1222,8 @@ int SLAPI STokenizer::Run(uint * pIdxFirst, uint * pIdxCount)
 				THROW(AddToken(TokenBuf, tokDelim));
 			}
 			else if(P.Flags & fDivAlNum && prev_chr) {
-				const int is_dig = BIN(isdigit((uint8)chr));
-				const int is_prev_dig = BIN(isdigit((uint8)prev_chr));
+				const int is_dig = isdec((uint8)chr);
+				const int is_prev_dig = isdec((uint8)prev_chr);
 				if(is_prev_dig != is_dig) {
 					THROW(AddToken(TokenBuf, tokWord));
 					THROW(AddToken(TokenBuf, tokDelim));
@@ -3455,6 +3495,20 @@ SString & SLAPI SString::Sub(size_t startPos, size_t len, SString & rBuf) const
 	return rBuf;
 }
 
+SString & SLAPI SString::SetLastDSlash()
+{
+	int    last = Last();
+	if(last) {
+		if(last == '\\') {
+			TrimRight();
+			CatChar('/');
+		}
+		else if(last != '/')
+			CatChar('/');
+	}
+	return *this;
+}
+
 SString & SLAPI SString::SetLastSlash()
 {
 	int    last = Last();
@@ -3992,12 +4046,53 @@ int SString::IsLegalUtf8() const
 //
 //
 //
+void FASTCALL SString::Cat_(uint8 * pChr, size_t numChr)
+{
+	if(numChr) {
+		const size_t new_len = (L ? L : 1) + numChr;
+		if(new_len <= Size || Alloc(new_len)) {
+			switch(numChr) {
+				case 1:
+					P_Buf[new_len-2] = pChr[0];
+					break;
+				case 2:
+					P_Buf[new_len-3] = pChr[0];
+					P_Buf[new_len-2] = pChr[1];
+					break;
+				case 3:
+					P_Buf[new_len-4] = pChr[0];
+					P_Buf[new_len-3] = pChr[1];
+					P_Buf[new_len-2] = pChr[2];
+					break;
+				case 4:
+					P_Buf[new_len-5] = pChr[0];
+					P_Buf[new_len-4] = pChr[1];
+					P_Buf[new_len-3] = pChr[2];
+					P_Buf[new_len-2] = pChr[3];
+					break;
+				default:
+					{
+						char * p = &P_Buf[new_len-numChr-1];
+						for(size_t i = 0; i < numChr; i++) {
+							//P_Buf[new_len-2] = chr;
+							p[i] = pChr[i];
+						}
+					}
+					break;
+			}
+			P_Buf[new_len-1] = 0;
+			L = new_len;
+		}
+	}
+}
+
 int SLAPI SString::CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion)
 {
-	CopyFrom(0);
+	CopyFrom(0); // Обрезаем строку до пустой
 	int    ok = 1;
 	const  uint32 byteMask = 0xBF;
 	const  uint32 byteMark = 0x80;
+	uint8  temp_mb[8];
 	for(size_t i = 0; i < len; i++) {
 		uint32 ch = pSrc[i];
 		// If we have a surrogate pair, convert to uint32 first
@@ -4029,25 +4124,41 @@ int SLAPI SString::CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, i
 			CatChar((uint8)ch);
 		}
 		else if(ch < (uint32)0x800) {
-			CatChar((uint8)((ch >> 6) | SUtfConst::FirstByteMark[2]));
-			CatChar((uint8)((ch | byteMark) & byteMask));
+			temp_mb[0] = (uint8)((ch >> 6) | SUtfConst::FirstByteMark[2]);
+			temp_mb[1] = (uint8)((ch | byteMark) & byteMask);
+			Cat_(temp_mb, 2);
+			//CatChar(temp_mb[0]);
+			//CatChar(temp_mb[1]);
 		}
 		else if(ch < (uint32)0x10000) {
-			CatChar((uint8)((ch >> 12) | SUtfConst::FirstByteMark[3]));
-			CatChar((uint8)(((ch >> 6) | byteMark) & byteMask));
-			CatChar((uint8)((ch | byteMark) & byteMask));
+			temp_mb[0] = (uint8)((ch >> 12) | SUtfConst::FirstByteMark[3]);
+			temp_mb[1] = (uint8)(((ch >> 6) | byteMark) & byteMask);
+			temp_mb[2] = (uint8)((ch | byteMark) & byteMask);
+			Cat_(temp_mb, 3);
+			//CatChar(temp_mb[0]);
+			//CatChar(temp_mb[1]);
+			//CatChar(temp_mb[2]);
 		}
 		else if(ch < (uint32)0x110000) {
-			CatChar((uint8)((ch >> 18) | SUtfConst::FirstByteMark[4]));
-			CatChar((uint8)(((ch >> 12) | byteMark) & byteMask));
-			CatChar((uint8)(((ch >> 6) | byteMark) & byteMask));
-			CatChar((uint8)((ch | byteMark) & byteMask));
+			temp_mb[0] = (uint8)((ch >> 18) | SUtfConst::FirstByteMark[4]);
+			temp_mb[1] = (uint8)(((ch >> 12) | byteMark) & byteMask);
+			temp_mb[2] = (uint8)(((ch >> 6) | byteMark) & byteMask);
+			temp_mb[3] = (uint8)((ch | byteMark) & byteMask);
+			Cat_(temp_mb, 4);
+			//CatChar(temp_mb[0]);
+			//CatChar(temp_mb[1]);
+			//CatChar(temp_mb[2]);
+			//CatChar(temp_mb[3]);
 		}
 		else {
 			ch = UNI_REPLACEMENT_CHAR;
-			CatChar((uint8)((ch >> 12) | SUtfConst::FirstByteMark[3]));
-			CatChar((uint8)(((ch >> 6) | byteMark) & byteMask));
-			CatChar((uint8)((ch | byteMark) & byteMask));
+			temp_mb[0] = (uint8)((ch >> 12) | SUtfConst::FirstByteMark[3]);
+			temp_mb[1] = (uint8)(((ch >> 6) | byteMark) & byteMask);
+			temp_mb[2] = (uint8)((ch | byteMark) & byteMask);
+			Cat_(temp_mb, 3);
+			//CatChar(temp_mb[0]);
+			//CatChar(temp_mb[1]);
+			//CatChar(temp_mb[2]);
 		}
 	}
 	CATCHZOK

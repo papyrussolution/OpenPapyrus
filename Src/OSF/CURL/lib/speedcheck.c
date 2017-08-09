@@ -26,7 +26,7 @@
 //#include "urldata.h"
 //#include "sendf.h"
 //#include "multiif.h"
-#include "speedcheck.h"
+//#include "speedcheck.h"
 
 void Curl_speedinit(struct Curl_easy * data)
 {

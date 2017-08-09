@@ -184,9 +184,7 @@ static const char * ContentTypeForFilename(const char * filename,
 	if(filename) { /* in case a NULL was passed in */
 		for(i = 0; i<sizeof(ctts)/sizeof(ctts[0]); i++) {
 			if(strlen(filename) >= strlen(ctts[i].extension)) {
-				if(strcasecompare(filename +
-					    strlen(filename) - strlen(ctts[i].extension),
-					    ctts[i].extension)) {
+				if(strcasecompare(filename + strlen(filename) - strlen(ctts[i].extension), ctts[i].extension)) {
 					contenttype = ctts[i].type;
 					break;
 				}
@@ -625,8 +623,7 @@ CURLFORMcode FormAdd(struct curl_httppost ** httppost,
 			if(!(form->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE | HTTPPOST_PTRCONTENTS | HTTPPOST_PTRBUFFER | HTTPPOST_CALLBACK)) && form->value) {
 				/* copy value (without strdup; possibly contains null characters) */
 				size_t clen  = (size_t)form->contentslength;
-				if(!clen)
-					clen = strlen(form->value)+1;
+				SETIFZ(clen, strlen(form->value)+1);
 				form->value = (char *)Curl_memdup(form->value, clen);
 				if(!form->value) {
 					return_value = CURL_FORMADD_MEMORY;

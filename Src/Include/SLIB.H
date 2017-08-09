@@ -205,7 +205,6 @@
 // @v9.0.1 #define SPTRCDEF(typ)       typedef const typ SFAR * PC ## typ
 // @v9.0.1 #define SPTR(type)          P ## typ
 // @v9.0.1 #define SPTRC(typ)          PC ## typ
-
 #define CALLPTRMEMB(ptr, memb)          if(ptr) ptr->memb;
 #define CALLTYPEPTRMEMB(typ, ptr, memb) if(ptr) ((typ *)ptr)->memb;
 
@@ -1946,6 +1945,7 @@ private:
 #define SLERR_MTX_INCOMPATDIM_MMADD     74 // Incompatible dim in matrix+matrix op
 #define SLERR_MTX_INVERSE               75 // Ошибка обращения матрицы.
 
+#define SLERR_INVPARAM                  96 // Недопустимый параметр функции (%s)
 #define SLERR_FILESHARINGVIOLATION      97 // Ошибка совместного доступа к файлу
 #define SLERR_FLOCKFAULT                98 // Ошибка блокировки файла //
 #define SLERR_USERBREAK                 99 // Операция прервана пользователем
@@ -2992,6 +2992,30 @@ void FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb);
 //int  FASTCALL XMLReplaceSpecSymb(SString & rBuf, int onlyStandart = 0);
 int  SLAPI XMLWriteSpecSymbEntities(FILE * pStream);
 int  SLAPI XMLWriteSpecSymbEntities(void * pWriter);
+//
+//
+//
+class STextConst {
+public:
+	enum {
+        cMon_En_Sh = 1, // [12] Наименования месяцев (en сокращенные)
+        cDow_En_Sh = 2, // [7]  Наименования дней недели (en сокращенные) [0] = "Mon", [6] = "Sun"
+		cDow_En    = 3  // [7]  Наименования дней недели (en полные) [0] = "Mon", [6] = "Sun"
+	};
+	//
+	// Descr: Возвращает текст группы c с индексом idx.
+	// Note: Если c или idx имеют инвалидное значение, то возвращает пустую строку "" (!NULL)
+	//
+	static const char * FASTCALL Get(int c, uint idx);
+	//
+	// Descr: Находит индекс текста pText в группе c.
+	//   Поиск осуществляется без учета регистра символов.
+	// Returns:
+	//   >= 0 если текст найден
+	//   -1 если текст не найден.
+	//
+	static int FASTCALL GetIdx(int c, const char * pText);
+};
 
 #ifndef _WIN32_WCE // {
 //
@@ -3468,7 +3492,20 @@ public:
 	//
 	SString & SLAPI Insert(size_t pos, const char * pStr);
 	SString & __cdecl Printf(const char * pFormat, ...);
+	//
+	// Descr: Добавляет в конец строки обратный слэш ('\\'). Если строка пустая или
+	//   в конце строки уже стоит '\\' или '/', то ничего не делает.
+	//
 	SString & SLAPI SetLastSlash();
+	//
+	// Descr: Добавляет в конец строки прямой слэш ('/'). Если строка пустая или
+	//   в конце строки уже стоит '/', то ничего не делает.
+	//   Если в конце строки стоит обратный слэш ('\\'), то заменяет его на прямой ('/').
+	//
+	SString & SLAPI SetLastDSlash();
+	//
+	// Descr: Если в конце строки стоит прямой ('/') или обратный ('\\') слэш, то убирает его.
+	//
 	SString & SLAPI RmvLastSlash();
 	//
 	// Descr: читает из потока fStream блок размером size. Считает, что
@@ -3500,6 +3537,7 @@ public:
 	SString & FormatFileParsingMessage(const char * pFileName, int lineNo, const char * pAddedText);
 private:
 	int    FASTCALL Alloc(size_t);
+	void   FASTCALL Cat_(uint8 * pChr, size_t numChr);
 	SString & SLAPI ShiftRight(size_t n, int padChar);
 	SString & SLAPI Helper_MbToMb(uint srcCodepage, uint destCodepage);
 	// @v9.0.4 L поставлен перед Size ради ускорения
@@ -4418,7 +4456,29 @@ struct SDirEntry {
 	//
 	int    SLAPI IsFile() const;
 
-	uint   Attr;
+	enum {
+		attrRdOnly = 0x00000001, // dos/win _A_RDONLY
+		attrHidden = 0x00000002, // dos/win _A_HIDDEN
+		attrSystem = 0x00000004, // dos/win _A_SYSTEM
+		attrSubdir = 0x00000010, // dos/win _A_SUBDIR / unix attr 'd'
+		attrArch   = 0x00000020, // dos/win _A_ARCH
+		//
+		// Следующие 9 флагов имеют внутренние значения не сопоставленные с иными стандартами или канонизациями.
+		//
+		attrOwpR   = 0x00010000, // unix owner permission Read
+		attrOwpW   = 0x00020000, // unix owner permission Write
+		attrOwpX   = 0x00040000, // unix owner permission Execute
+
+		attrGrpR   = 0x00080000, // unix group permission Read
+		attrGrpW   = 0x00100000, // unix group permission Write
+		attrGrpX   = 0x00200000, // unix group permission Execute
+
+		attrUsrR   = 0x00400000, // unix user permission Read
+		attrUsrW   = 0x00800000, // unix user permission Write
+		attrUsrX   = 0x01000000, // unix user permission Execute
+	};
+
+	uint32 Attr;
 	LDATETIME CreateTime;
 	LDATETIME AccessTime;
 	LDATETIME WriteTime;
@@ -6480,9 +6540,22 @@ protected:
 class SFileEntryPool : public SStrGroup {
 public:
 	friend DECL_CMPCFUNC(SFileEntryPool_Entry);
-
 	struct Entry {
-		uint   Attr;
+		Entry()
+		{
+			Clear();
+		}
+		void   Clear()
+		{
+			Attr = 0;
+			CreateTime.SetZero();
+			AccessTime.SetZero();
+			WriteTime.SetZero();
+			Size = 0;
+			Name = 0;
+			Path = 0;
+		}
+		uint32 Attr; // SDirEntry::attrXXX
 		LDATETIME CreateTime;
 		LDATETIME AccessTime;
 		LDATETIME WriteTime;
@@ -6492,8 +6565,9 @@ public:
 	};
 	SLAPI  SFileEntryPool();
 	int    SLAPI Add(const char * pPath, SDirEntry & rDe);
+	int    SLAPI Add(SFileEntryPool::Entry & rDe);
     uint   SLAPI GetCount() const;
-    int    SLAPI Get(uint pos, Entry & rEntry) const;
+    int    SLAPI Get(uint pos, /*SDirEntry*/SFileEntryPool::Entry & rEntry) const;
 
     enum {
     	scByName = 1,
@@ -7278,10 +7352,11 @@ public:
 	int    SLAPI Search(long flags, TSCollection <STokenizer::SearchBlockEntry> & rResult);
 	int    SLAPI IndexResources(int force);
 private:
-	int16  SLAPI NextChr();
-	int    FASTCALL IsDelim(int16 chr) const;
-	int    FASTCALL AddToken(TSArray <int16> & rBuf, int tok);
-	int    SLAPI ProcessSearchToken(TSArray <int16> & rBuf, int tokType, TSCollection <STokenizer::SearchBlockEntry> & rResult);
+	uint16 SLAPI NextChr();
+	int    FASTCALL IsDelim(uint16 chr) const;
+	int    FASTCALL AddToken(TSArray <uint16> & rBuf, int tok);
+	int    SLAPI ProcessSearchToken(TSArray <uint16> & rBuf, int tokType, TSCollection <STokenizer::SearchBlockEntry> & rResult);
+	void   SLAPI _CopySrcToAddTokenBuf(const TSArray <uint16> & rBuf);
 
 	struct Token {
 		int    T;  //
@@ -7289,9 +7364,7 @@ private:
 		uint   RP; // Позиция идентификатора ресурса в STokenizer::T
 		int64  SP; // Позиция токена в исходном буфере
 	};
-	//
-	//
-	//
+
 	struct CToken {
 		int    T;
 		uint   PP;
@@ -7314,8 +7387,8 @@ private:
 	TSArray <CToken> CL;
 	TSCollection <ResourceIndexItem> * P_ResourceIndex;
 	//
-	SString AddTokenBuf;      // Для ускорения AddToken() (не придется при каждом вызове распределять память)
-	TSArray <int16> TokenBuf; // Для ускорения Run() (чтобы избежать лишних распределений памяти)
+	SString  AddTokenBuf;      // @allocreuse Для ускорения AddToken()
+	TSArray <uint16> TokenBuf; // @allocreuse Для ускорения Run()
 };
 //
 #ifndef _WIN32_WCE // {
@@ -11333,15 +11406,25 @@ public:
 		kExtern,    // Объект, испольузющий внешнее описание SDrawFigure
 		kText       // Текст
 	};
+	enum {
+		fOuterToolbox = 0x0001, // Объект использует внешний SPaintToolBox. Используется порожденными классами.
+		fDraw         = 0x0002, // Устанавливается классом SDraw для того,
+			// чтобы члены контейнера могли распознать его как родителя,
+			// имеющего специфические атрибуты (SPaintToolBox, например).
+		fDefinedSize  = 0x0004, // @!{SDrawFigure::SetSize} Размер элемента определен из-вне
+			// (то есть, он не должен рассчитываться).
+		fNullBrush    = 0x0008  // @v9.7.10 Без заливки (IdBrush игнорируется)
+	};
 
 	virtual ~SDrawFigure();
 	virtual SDrawFigure * Dup() const = 0;
 	virtual void SetTransform(LMatrix2D * pMtx);
 	virtual int  Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    GetKind() const;
+	long   GetFlags() const;
 	const  SString & GetSid() const;
 	void   SetSid(const char * pSid);
-	void   SetStyle(int identPen, int identBrush);
+	void   SetStyle(int identPen, int identBrush, long flags);
 	int    GetPen() const;
 	int    GetBrush() const;
 	void   SetViewPort(SViewPort * pVp);
@@ -11364,15 +11447,6 @@ protected:
 	SDrawFigure(int kind, const char * pSid);
 	int    FASTCALL Copy(const SDrawFigure &);
 
-	enum {
-		fOuterToolbox = 0x0001, // Объект использует внешний SPaintToolBox
-			// Используется порожденными классами.
-		fDraw         = 0x0002, // Устанавливается классом SDraw для того,
-			// чтобы члены контейнера могли распознать его как родителя,
-			// имеющего специфические атрибуты (SPaintToolBox, например).
-		fDefinedSize  = 0x0004  // @!{SDrawFigure::SetSize} Размер элемента определен из-вне
-			// (то есть, он не должен рассчитываться).
-	};
 	int32  Kind;
 	int32  Flags;
 	int32  IdPen;   // Если IdPen < 0, то это означает, что при отрисовке необходимо

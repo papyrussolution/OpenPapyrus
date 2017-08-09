@@ -39,11 +39,11 @@
 #include "cairoint.h"
 #pragma hdrstop
 #include "cairo-box-inline.h"
-#include "cairo-boxes-private.h"
+//#include "cairo-boxes-private.h"
 #include "cairo-line-private.h"
 #include "cairo-region-private.h"
 #include "cairo-slope-private.h"
-#include "cairo-traps-private.h"
+//#include "cairo-traps-private.h"
 #include "cairo-spans-private.h"
 
 /* private functions */
@@ -51,38 +51,27 @@
 void _cairo_traps_init(cairo_traps_t * traps)
 {
 	VG(VALGRIND_MAKE_MEM_UNDEFINED(traps, sizeof(cairo_traps_t)));
-
 	traps->status = CAIRO_STATUS_SUCCESS;
-
 	traps->maybe_region = 1;
 	traps->is_rectilinear = 0;
 	traps->is_rectangular = 0;
-
 	traps->num_traps = 0;
-
 	traps->traps_size = SIZEOFARRAY(traps->traps_embedded);
 	traps->traps = traps->traps_embedded;
-
 	traps->num_limits = 0;
 	traps->has_intersections = FALSE;
 }
 
-void _cairo_traps_limit(cairo_traps_t       * traps,
-    const cairo_box_t   * limits,
-    int num_limits)
+void _cairo_traps_limit(cairo_traps_t * traps, const cairo_box_t * limits, int num_limits)
 {
-	int i;
-
 	traps->limits = limits;
 	traps->num_limits = num_limits;
-
 	traps->bounds = limits[0];
-	for(i = 1; i < num_limits; i++)
+	for(int i = 1; i < num_limits; i++)
 		_cairo_box_add_box(&traps->bounds, &limits[i]);
 }
 
-void _cairo_traps_init_with_clip(cairo_traps_t * traps,
-    const cairo_clip_t * clip)
+void _cairo_traps_init_with_clip(cairo_traps_t * traps, const cairo_clip_t * clip)
 {
 	_cairo_traps_init(traps);
 	if(clip)
@@ -92,11 +81,9 @@ void _cairo_traps_init_with_clip(cairo_traps_t * traps,
 void _cairo_traps_clear(cairo_traps_t * traps)
 {
 	traps->status = CAIRO_STATUS_SUCCESS;
-
 	traps->maybe_region = 1;
 	traps->is_rectilinear = 0;
 	traps->is_rectangular = 0;
-
 	traps->num_traps = 0;
 	traps->has_intersections = FALSE;
 }
@@ -135,22 +122,16 @@ static cairo_bool_t _cairo_traps_grow(cairo_traps_t * traps)
 	return TRUE;
 }
 
-void _cairo_traps_add_trap(cairo_traps_t * traps,
-    cairo_fixed_t top, cairo_fixed_t bottom,
-    const cairo_line_t * left,
-    const cairo_line_t * right)
+void _cairo_traps_add_trap(cairo_traps_t * traps, cairo_fixed_t top, cairo_fixed_t bottom, const cairo_line_t * left, const cairo_line_t * right)
 {
 	cairo_trapezoid_t * trap;
-
 	assert(left->p1.y != left->p2.y);
 	assert(right->p1.y != right->p2.y);
 	assert(bottom > top);
-
 	if(unlikely(traps->num_traps == traps->traps_size)) {
 		if(unlikely(!_cairo_traps_grow(traps)))
 			return;
 	}
-
 	trap = &traps->traps[traps->num_traps++];
 	trap->top = top;
 	trap->bottom = bottom;
@@ -219,10 +200,8 @@ static void _cairo_traps_add_clipped_trap(cairo_traps_t * traps,
 			return;
 
 		/* cheap colinearity check */
-		if(right.p1.x <= left.p1.x && right.p1.y == left.p1.y &&
-		    right.p2.x <= left.p2.x && right.p2.y == left.p2.y)
+		if(right.p1.x <= left.p1.x && right.p1.y == left.p1.y && right.p2.x <= left.p2.x && right.p2.y == left.p2.y)
 			return;
-
 		_cairo_traps_add_trap(traps, top, bottom, &left, &right);
 	}
 	else
@@ -381,32 +360,24 @@ void _cairo_traps_tessellate_convex_quad(cairo_traps_t * traps, const cairo_poin
 	}
 }
 
-static void add_tri(cairo_traps_t * traps,
-    int y1, int y2,
-    const cairo_line_t * left,
-    const cairo_line_t * right)
+static void add_tri(cairo_traps_t * traps, int y1, int y2, const cairo_line_t * left, const cairo_line_t * right)
 {
 	if(y2 < y1) {
 		int tmp = y1;
 		y1 = y2;
 		y2 = tmp;
 	}
-
 	if(cairo_lines_compare_at_y(left, right, y1) > 0) {
 		const cairo_line_t * tmp = left;
 		left = right;
 		right = tmp;
 	}
-
 	_cairo_traps_add_clipped_trap(traps, y1, y2, left, right);
 }
 
-void _cairo_traps_tessellate_triangle_with_edges(cairo_traps_t * traps,
-    const cairo_point_t t[3],
-    const cairo_point_t edges[4])
+void _cairo_traps_tessellate_triangle_with_edges(cairo_traps_t * traps, const cairo_point_t t[3], const cairo_point_t edges[4])
 {
 	cairo_line_t lines[3];
-
 	if(edges[0].y <= edges[1].y) {
 		lines[0].p1 = edges[0];
 		lines[0].p2 = edges[1];
@@ -415,7 +386,6 @@ void _cairo_traps_tessellate_triangle_with_edges(cairo_traps_t * traps,
 		lines[0].p1 = edges[1];
 		lines[0].p2 = edges[0];
 	}
-
 	if(edges[2].y <= edges[3].y) {
 		lines[1].p1 = edges[2];
 		lines[1].p2 = edges[3];
@@ -424,12 +394,10 @@ void _cairo_traps_tessellate_triangle_with_edges(cairo_traps_t * traps,
 		lines[1].p1 = edges[3];
 		lines[1].p2 = edges[2];
 	}
-
 	if(t[1].y == t[2].y) {
 		add_tri(traps, t[0].y, t[1].y, &lines[0], &lines[1]);
 		return;
 	}
-
 	if(t[1].y <= t[2].y) {
 		lines[2].p1 = t[1];
 		lines[2].p2 = t[2];
@@ -438,7 +406,6 @@ void _cairo_traps_tessellate_triangle_with_edges(cairo_traps_t * traps,
 		lines[2].p1 = t[2];
 		lines[2].p2 = t[1];
 	}
-
 	if(((t[1].y - t[0].y) < 0) ^ ((t[2].y - t[0].y) < 0)) {
 		add_tri(traps, t[0].y, t[1].y, &lines[0], &lines[2]);
 		add_tri(traps, t[0].y, t[2].y, &lines[1], &lines[2]);
@@ -528,7 +495,6 @@ cairo_status_t _cairo_traps_tessellate_rectangle(cairo_traps_t * traps,
 	if(traps->num_limits) {
 		cairo_bool_t reversed;
 		int n;
-
 		if(top >= traps->bounds.p2.y || bottom <= traps->bounds.p1.y)
 			return CAIRO_STATUS_SUCCESS;
 
@@ -546,7 +512,6 @@ cairo_status_t _cairo_traps_tessellate_rectangle(cairo_traps_t * traps,
 			const cairo_box_t * limits = &traps->limits[n];
 			cairo_line_t _left, _right;
 			cairo_fixed_t _top, _bottom;
-
 			if(top >= limits->p2.y)
 				continue;
 			if(bottom <= limits->p1.y)
@@ -578,7 +543,6 @@ cairo_status_t _cairo_traps_tessellate_rectangle(cairo_traps_t * traps,
 				_left.p2.x = limits->p1.x;
 				_left.p2.y = limits->p2.y;
 			}
-
 			_right = right;
 			if(_right.p1.x > limits->p2.x) {
 				_right.p1.x = limits->p2.x;
@@ -586,10 +550,8 @@ cairo_status_t _cairo_traps_tessellate_rectangle(cairo_traps_t * traps,
 				_right.p2.x = limits->p2.x;
 				_right.p2.y = limits->p2.y;
 			}
-
 			if(left.p1.x >= right.p1.x)
 				continue;
-
 			if(reversed)
 				_cairo_traps_add_trap(traps, _top, _bottom, &_right, &_left);
 			else
@@ -599,7 +561,6 @@ cairo_status_t _cairo_traps_tessellate_rectangle(cairo_traps_t * traps,
 	else {
 		_cairo_traps_add_trap(traps, top, bottom, &left, &right);
 	}
-
 	return traps->status;
 }
 
@@ -608,15 +569,12 @@ void _cairo_traps_translate(cairo_traps_t * traps, int x, int y)
 	cairo_fixed_t xoff, yoff;
 	cairo_trapezoid_t * t;
 	int i;
-
 	/* Ugh. The cairo_composite/(Render) interface doesn't allow
 	   an offset for the trapezoids. Need to manually shift all
 	   the coordinates to align with the offset origin of the
 	   intermediate surface. */
-
 	xoff = _cairo_fixed_from_int(x);
 	yoff = _cairo_fixed_from_int(y);
-
 	for(i = 0, t = traps->traps; i < traps->num_traps; i++, t++) {
 		t->top += yoff;
 		t->bottom += yoff;
@@ -634,11 +592,10 @@ void _cairo_traps_translate(cairo_traps_t * traps, int x, int y)
 void _cairo_trapezoid_array_translate_and_scale(cairo_trapezoid_t * offset_traps,
     cairo_trapezoid_t * src_traps, int num_traps, double tx, double ty, double sx, double sy)
 {
-	int i;
 	cairo_fixed_t xoff = _cairo_fixed_from_double(tx);
 	cairo_fixed_t yoff = _cairo_fixed_from_double(ty);
 	if(sx == 1.0 && sy == 1.0) {
-		for(i = 0; i < num_traps; i++) {
+		for(int i = 0; i < num_traps; i++) {
 			offset_traps[i].top = src_traps[i].top + yoff;
 			offset_traps[i].bottom = src_traps[i].bottom + yoff;
 			offset_traps[i].left.p1.x = src_traps[i].left.p1.x + xoff;
@@ -654,7 +611,7 @@ void _cairo_trapezoid_array_translate_and_scale(cairo_trapezoid_t * offset_traps
 	else {
 		cairo_fixed_t xsc = _cairo_fixed_from_double(sx);
 		cairo_fixed_t ysc = _cairo_fixed_from_double(sy);
-		for(i = 0; i < num_traps; i++) {
+		for(int i = 0; i < num_traps; i++) {
 			offset_traps[i].top = _cairo_fixed_mul(src_traps[i].top + yoff, ysc);
 			offset_traps[i].bottom = _cairo_fixed_mul(src_traps[i].bottom + yoff, ysc);
 			offset_traps[i].left.p1.x = _cairo_fixed_mul(src_traps[i].left.p1.x + xoff, xsc);
@@ -689,11 +646,10 @@ static cairo_bool_t _cairo_trap_contains(cairo_trapezoid_t * t, cairo_point_t * 
 
 cairo_bool_t _cairo_traps_contain(const cairo_traps_t * traps, double x, double y)
 {
-	int i;
 	cairo_point_t point;
 	point.x = _cairo_fixed_from_double(x);
 	point.y = _cairo_fixed_from_double(y);
-	for(i = 0; i < traps->num_traps; i++) {
+	for(int i = 0; i < traps->num_traps; i++) {
 		if(_cairo_trap_contains(&traps->traps[i], &point))
 			return TRUE;
 	}
@@ -707,94 +663,90 @@ static cairo_fixed_t _line_compute_intersection_x_for_y(const cairo_line_t * lin
 
 void _cairo_traps_extents(const cairo_traps_t * traps, cairo_box_t * extents)
 {
-	int i;
 	if(traps->num_traps == 0) {
 		extents->p1.x = extents->p1.y = 0;
 		extents->p2.x = extents->p2.y = 0;
-		return;
 	}
-	extents->p1.x = extents->p1.y = INT32_MAX;
-	extents->p2.x = extents->p2.y = INT32_MIN;
-	for(i = 0; i < traps->num_traps; i++) {
-		const cairo_trapezoid_t * trap =  &traps->traps[i];
-		if(trap->top < extents->p1.y)
-			extents->p1.y = trap->top;
-		if(trap->bottom > extents->p2.y)
-			extents->p2.y = trap->bottom;
-		if(trap->left.p1.x < extents->p1.x) {
-			cairo_fixed_t x = trap->left.p1.x;
-			if(trap->top != trap->left.p1.y) {
-				x = _line_compute_intersection_x_for_y(&trap->left, trap->top);
-				if(x < extents->p1.x)
+	else {
+		extents->p1.x = extents->p1.y = INT32_MAX;
+		extents->p2.x = extents->p2.y = INT32_MIN;
+		for(int i = 0; i < traps->num_traps; i++) {
+			const cairo_trapezoid_t * trap =  &traps->traps[i];
+			if(trap->top < extents->p1.y)
+				extents->p1.y = trap->top;
+			if(trap->bottom > extents->p2.y)
+				extents->p2.y = trap->bottom;
+			if(trap->left.p1.x < extents->p1.x) {
+				cairo_fixed_t x = trap->left.p1.x;
+				if(trap->top != trap->left.p1.y) {
+					x = _line_compute_intersection_x_for_y(&trap->left, trap->top);
+					if(x < extents->p1.x)
+						extents->p1.x = x;
+				}
+				else
 					extents->p1.x = x;
 			}
-			else
-				extents->p1.x = x;
-		}
-		if(trap->left.p2.x < extents->p1.x) {
-			cairo_fixed_t x = trap->left.p2.x;
-			if(trap->bottom != trap->left.p2.y) {
-				x = _line_compute_intersection_x_for_y(&trap->left, trap->bottom);
-				if(x < extents->p1.x)
+			if(trap->left.p2.x < extents->p1.x) {
+				cairo_fixed_t x = trap->left.p2.x;
+				if(trap->bottom != trap->left.p2.y) {
+					x = _line_compute_intersection_x_for_y(&trap->left, trap->bottom);
+					if(x < extents->p1.x)
+						extents->p1.x = x;
+				}
+				else
 					extents->p1.x = x;
 			}
-			else
-				extents->p1.x = x;
-		}
-		if(trap->right.p1.x > extents->p2.x) {
-			cairo_fixed_t x = trap->right.p1.x;
-			if(trap->top != trap->right.p1.y) {
-				x = _line_compute_intersection_x_for_y(&trap->right, trap->top);
-				if(x > extents->p2.x)
+			if(trap->right.p1.x > extents->p2.x) {
+				cairo_fixed_t x = trap->right.p1.x;
+				if(trap->top != trap->right.p1.y) {
+					x = _line_compute_intersection_x_for_y(&trap->right, trap->top);
+					if(x > extents->p2.x)
+						extents->p2.x = x;
+				}
+				else
 					extents->p2.x = x;
 			}
-			else
-				extents->p2.x = x;
-		}
-		if(trap->right.p2.x > extents->p2.x) {
-			cairo_fixed_t x = trap->right.p2.x;
-			if(trap->bottom != trap->right.p2.y) {
-				x = _line_compute_intersection_x_for_y(&trap->right, trap->bottom);
-				if(x > extents->p2.x)
+			if(trap->right.p2.x > extents->p2.x) {
+				cairo_fixed_t x = trap->right.p2.x;
+				if(trap->bottom != trap->right.p2.y) {
+					x = _line_compute_intersection_x_for_y(&trap->right, trap->bottom);
+					if(x > extents->p2.x)
+						extents->p2.x = x;
+				}
+				else
 					extents->p2.x = x;
 			}
-			else
-				extents->p2.x = x;
 		}
 	}
 }
 
-static cairo_bool_t _mono_edge_is_vertical(const cairo_line_t * line)
+static cairo_bool_t FASTCALL _mono_edge_is_vertical(const cairo_line_t * line)
 {
 	return _cairo_fixed_integer_round_down(line->p1.x) == _cairo_fixed_integer_round_down(line->p2.x);
 }
 
 static cairo_bool_t _traps_are_pixel_aligned(cairo_traps_t * traps, cairo_antialias_t antialias)
 {
-	int i;
 	if(antialias == CAIRO_ANTIALIAS_NONE) {
-		for(i = 0; i < traps->num_traps; i++) {
-			if(!_mono_edge_is_vertical(&traps->traps[i].left)   ||
-			    !_mono_edge_is_vertical(&traps->traps[i].right)) {
+		for(int i = 0; i < traps->num_traps; i++) {
+			const cairo_trapezoid_t & r_trap = traps->traps[i];
+			if(!_mono_edge_is_vertical(&r_trap.left) || !_mono_edge_is_vertical(&r_trap.right)) {
 				traps->maybe_region = FALSE;
 				return FALSE;
 			}
 		}
 	}
 	else {
-		for(i = 0; i < traps->num_traps; i++) {
-			if(traps->traps[i].left.p1.x != traps->traps[i].left.p2.x   ||
-			    traps->traps[i].right.p1.x != traps->traps[i].right.p2.x ||
-			    !_cairo_fixed_is_integer(traps->traps[i].top)          ||
-			    !_cairo_fixed_is_integer(traps->traps[i].bottom)       ||
-			    !_cairo_fixed_is_integer(traps->traps[i].left.p1.x)    ||
-			    !_cairo_fixed_is_integer(traps->traps[i].right.p1.x)) {
+		for(int i = 0; i < traps->num_traps; i++) {
+			const cairo_trapezoid_t & r_trap = traps->traps[i];
+			if(r_trap.left.p1.x != r_trap.left.p2.x || r_trap.right.p1.x != r_trap.right.p2.x ||
+			    !_cairo_fixed_is_integer(r_trap.top) || !_cairo_fixed_is_integer(r_trap.bottom) ||
+			    !_cairo_fixed_is_integer(r_trap.left.p1.x) || !_cairo_fixed_is_integer(r_trap.right.p1.x)) {
 				traps->maybe_region = FALSE;
 				return FALSE;
 			}
 		}
 	}
-
 	return TRUE;
 }
 

@@ -96,9 +96,9 @@
 //#include "non-ascii.h"
 //#include "strcase.h"
 #include "curl_ntlm_core.h"
-#include "curl_md5.h"
-#include "curl_hmac.h"
-#include "warnless.h"
+//#include "curl_md5.h"
+//#include "curl_hmac.h"
+//#include "warnless.h"
 #include "curl_endian.h"
 #include "curl_des.h"
 /* The last 3 #include files should be in this order */

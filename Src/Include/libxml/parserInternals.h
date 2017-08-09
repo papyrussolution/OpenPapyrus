@@ -401,7 +401,7 @@ XMLPUBFUN xmlChar * XMLCALL xmlStringLenDecodeEntities(xmlParserCtxt * ctxt, con
  */
 XMLPUBFUN int XMLCALL nodePush(xmlParserCtxt * ctxt, xmlNodePtr value);
 XMLPUBFUN xmlNodePtr XMLCALL nodePop(xmlParserCtxt * ctxt);
-XMLPUBFUN int XMLCALL inputPush(xmlParserCtxt * ctxt, xmlParserInputPtr value);
+XMLPUBFUN int /*XMLCALL*/FASTCALL inputPush(xmlParserCtxt * ctxt, xmlParserInputPtr value);
 XMLPUBFUN xmlParserInputPtr XMLCALL inputPop(xmlParserCtxt * ctxt);
 XMLPUBFUN const xmlChar * XMLCALL namePop(xmlParserCtxt * ctxt);
 XMLPUBFUN int XMLCALL namePush(xmlParserCtxt * ctxt, const xmlChar * value);

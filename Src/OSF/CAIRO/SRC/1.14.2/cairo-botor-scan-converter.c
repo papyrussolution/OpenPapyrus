@@ -43,8 +43,8 @@
 #include "cairoint.h"
 #pragma hdrstop
 //#include "cairo-list-inline.h"
-#include "cairo-freelist-private.h"
-#include "cairo-combsort-inline.h"
+//#include "cairo-freelist-private.h"
+//#include "cairo-combsort-inline.h"
 //#include <setjmp.h>
 
 #define STEP_X CAIRO_FIXED_ONE
@@ -1478,8 +1478,7 @@ cairo_always_inline static void sub_emit(cairo_botor_scan_converter_t * self,
 		if(edge->runs == NULL) {
 			if(!edge->vertical) {
 				if(edge->flags & START) {
-					sub_inc_edge(edge,
-					    STEP_Y - _cairo_fixed_fractional_part(edge->edge.top));
+					sub_inc_edge(edge, STEP_Y - _cairo_fixed_fractional_part(edge->edge.top));
 					edge->flags &= ~START;
 				}
 				else

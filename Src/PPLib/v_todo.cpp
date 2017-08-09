@@ -852,11 +852,9 @@ int SLAPI PPViewPrjTask::AddItemToTimeGrid(const PrjTaskViewItem * pItem, int rm
 		chunk.Finish.Set(NZOR(pItem->FinishDt, pItem->EstFinishDt), NZOR(pItem->FinishTm, pItem->EstFinishTm));
 		if(!chunk.Finish.d)
 			chunk.Finish.SetFar();
-		// @v7.6.10 {
 		else if(cmp(chunk.Finish, chunk.Start) < 0) {
 			(chunk.Finish = chunk.Start).addsec(60 * 60);
 		}
-		// } @v7.6.10
 		if(Grid.SetChunk(row_id, pItem->ID, MakeLong(pItem->Priority, pItem->Status), &chunk) == 2) {
 			SString name_buf;
 			if(row_id <= 0)

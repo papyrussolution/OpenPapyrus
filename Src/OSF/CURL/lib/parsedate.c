@@ -77,16 +77,16 @@
 #pragma hdrstop
 //#include <curl/curl.h>
 //#include "strcase.h"
-#include "warnless.h"
-#include "parsedate.h"
+//#include "warnless.h"
+//#include "parsedate.h"
 
-const char * const Curl_wkday[] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
-static const char * const weekday[] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
-const char * const Curl_month[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+// @v9.7.10 const char * const Curl_wkday[] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+// @v9.7.10 static const char * const weekday[] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+// @v9.7.10 const char * const Curl_month[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
 struct tzinfo {
-	char name[5];
-	int offset; /* +/- in minutes */
+	char   name[5];
+	int    offset; /* +/- in minutes */
 };
 
 /*
@@ -195,13 +195,14 @@ static int checkday(const char * check, size_t len)
 {
 	int i;
 	bool found = FALSE;
-	const char * const * what = (len > 3) ? &weekday[0] : &Curl_wkday[0];
-	for(i = 0; i<7; i++) {
-		if(strcasecompare(check, what[0])) {
+	// @v9.7.10 const char * const * what = (len > 3) ? &weekday[0] : &Curl_wkday[0];
+	for(i = 0; i < 7; i++) {
+		// @v9.7.10 if(strcasecompare(check, what[0])) {
+		if(strcasecompare(check, STextConst::Get((len > 3) ? STextConst::cDow_En : STextConst::cDow_En_Sh, i))) {
 			found = TRUE;
 			break;
 		}
-		what++;
+		// @v9.7.10 what++;
 	}
 	return found ? i : -1;
 }
@@ -210,20 +211,20 @@ static int checkmonth(const char * check)
 {
 	int i;
 	bool found = FALSE;
-	const char * const * what = &Curl_month[0];
-	for(i = 0; i<12; i++) {
-		if(strcasecompare(check, what[0])) {
+	// @v9.7.10 const char * const * what = &Curl_month[0];
+	for(i = 0; i < 12; i++) {
+		if(strcasecompare(check, /*what[0]*/STextConst::Get(STextConst::cMon_En_Sh, i))) {
 			found = TRUE;
 			break;
 		}
-		what++;
+		//what++;
 	}
 	return found ? i : -1; /* return the offset or -1, no real offset is -1 */
 }
-
-/* return the time zone offset between GMT and the input one, in number
-   of seconds or -1 if the timezone wasn't found/legal */
-
+//
+// return the time zone offset between GMT and the input one, in number
+// of seconds or -1 if the timezone wasn't found/legal */
+//
 static int checktz(const char * check)
 {
 	uint i;

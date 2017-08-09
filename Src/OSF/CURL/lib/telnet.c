@@ -53,7 +53,7 @@
 #include "arpa_telnet.h"
 //#include "select.h"
 //#include "strcase.h"
-#include "warnless.h"
+//#include "warnless.h"
 
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"

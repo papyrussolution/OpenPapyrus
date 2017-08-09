@@ -201,10 +201,7 @@ err:
 	return NULL;
 }
 
-const char * _asn1_mon[12] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-};
+const char * _asn1_mon[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
 int ASN1_GENERALIZEDTIME_print(BIO * bp, const ASN1_GENERALIZEDTIME * tm)
 {

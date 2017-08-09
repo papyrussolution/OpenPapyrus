@@ -34,8 +34,7 @@
 #if CAIRO_HAS_XCB_SURFACE // {
 
 #include "cairo-xcb-private.h"
-
-#include "cairo-boxes-private.h"
+//#include "cairo-boxes-private.h"
 //#include "cairo-clip-inline.h"
 //#include "cairo-clip-private.h"
 #include "cairo-composite-rectangles-private.h"
@@ -46,7 +45,7 @@
 #include "cairo-surface-offset-private.h"
 #include "cairo-surface-snapshot-inline.h"
 #include "cairo-surface-subsurface-private.h"
-#include "cairo-traps-private.h"
+//#include "cairo-traps-private.h"
 #include "cairo-recording-surface-inline.h"
 #include "cairo-paginated-private.h"
 //#include "cairo-pattern-inline.h"
@@ -2179,21 +2178,16 @@ static cairo_status_t _cairo_xcb_surface_fixup_unbounded_with_mask(cairo_xcb_sur
 }
 
 static cairo_status_t _cairo_xcb_surface_fixup_unbounded_boxes(cairo_xcb_surface_t * dst,
-    const cairo_composite_rectangles_t * extents,
-    cairo_clip_t * clip,
-    cairo_boxes_t * boxes)
+    const cairo_composite_rectangles_t * extents, cairo_clip_t * clip, cairo_boxes_t * boxes)
 {
 	cairo_boxes_t clear;
 	cairo_box_t box;
 	cairo_status_t status;
 	_cairo_boxes_t::_cairo_boxes_chunk * chunk;
 	int i;
-
 	if(boxes->num_boxes <= 1 && clip == NULL)
 		return _cairo_xcb_surface_fixup_unbounded(dst, extents);
-
 	_cairo_boxes_init(&clear);
-
 	box.p1.x = _cairo_fixed_from_int(extents->unbounded.x + extents->unbounded.width);
 	box.p1.y = _cairo_fixed_from_int(extents->unbounded.y);
 	box.p2.x = _cairo_fixed_from_int(extents->unbounded.x);
@@ -2201,32 +2195,21 @@ static cairo_status_t _cairo_xcb_surface_fixup_unbounded_boxes(cairo_xcb_surface
 
 	if(clip == NULL) {
 		cairo_boxes_t tmp;
-
 		_cairo_boxes_init(&tmp);
-
 		status = _cairo_boxes_add(&tmp, CAIRO_ANTIALIAS_DEFAULT, &box);
 		assert(status == CAIRO_STATUS_SUCCESS);
-
 		tmp.chunks.next = &boxes->chunks;
 		tmp.num_boxes += boxes->num_boxes;
-
-		status = _cairo_bentley_ottmann_tessellate_boxes(&tmp,
-		    CAIRO_FILL_RULE_WINDING,
-		    &clear);
-
+		status = _cairo_bentley_ottmann_tessellate_boxes(&tmp, CAIRO_FILL_RULE_WINDING, &clear);
 		tmp.chunks.next = NULL;
 	}
 	else {
 		_cairo_boxes_init_with_clip(&clear, clip);
-
 		status = _cairo_boxes_add(&clear, CAIRO_ANTIALIAS_DEFAULT, &box);
 		assert(status == CAIRO_STATUS_SUCCESS);
-
 		for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
 			for(i = 0; i < chunk->count; i++) {
-				status = _cairo_boxes_add(&clear,
-				    CAIRO_ANTIALIAS_DEFAULT,
-				    &chunk->base[i]);
+				status = _cairo_boxes_add(&clear, CAIRO_ANTIALIAS_DEFAULT, &chunk->base[i]);
 				if(unlikely(status)) {
 					_cairo_boxes_fini(&clear);
 					return status;
@@ -2715,11 +2698,9 @@ static cairo_bool_t _mono_edge_is_vertical(const cairo_line_t * line)
 	return _cairo_fixed_integer_round_down(line->p1.x) == _cairo_fixed_integer_round_down(line->p2.x);
 }
 
-static cairo_bool_t _traps_are_pixel_aligned(cairo_traps_t * traps,
-    cairo_antialias_t antialias)
+static cairo_bool_t _traps_are_pixel_aligned(cairo_traps_t * traps, cairo_antialias_t antialias)
 {
 	int i;
-
 	if(antialias == CAIRO_ANTIALIAS_NONE) {
 		for(i = 0; i < traps->num_traps; i++) {
 			if(!_mono_edge_is_vertical(&traps->traps[i].left)   ||
@@ -2746,17 +2727,12 @@ static cairo_bool_t _traps_are_pixel_aligned(cairo_traps_t * traps,
 	return TRUE;
 }
 
-static void _boxes_for_traps(cairo_boxes_t * boxes,
-    cairo_traps_t * traps,
-    cairo_antialias_t antialias)
+static void _boxes_for_traps(cairo_boxes_t * boxes, cairo_traps_t * traps, cairo_antialias_t antialias)
 {
 	int i, j;
-
 	_cairo_boxes_init(boxes);
-
 	boxes->chunks.base  = (cairo_box_t*)traps->traps;
 	boxes->chunks.size  = traps->num_traps;
-
 	if(antialias != CAIRO_ANTIALIAS_NONE) {
 		for(i = j = 0; i < traps->num_traps; i++) {
 			/* Note the traps and boxes alias so we need to take the local copies first. */
@@ -2764,26 +2740,20 @@ static void _boxes_for_traps(cairo_boxes_t * boxes,
 			cairo_fixed_t x2 = traps->traps[i].right.p1.x;
 			cairo_fixed_t y1 = traps->traps[i].top;
 			cairo_fixed_t y2 = traps->traps[i].bottom;
-
 			if(x1 == x2 || y1 == y2)
 				continue;
-
 			boxes->chunks.base[j].p1.x = x1;
 			boxes->chunks.base[j].p1.y = y1;
 			boxes->chunks.base[j].p2.x = x2;
 			boxes->chunks.base[j].p2.y = y2;
 			j++;
-
 			if(boxes->is_pixel_aligned) {
-				boxes->is_pixel_aligned =
-				    _cairo_fixed_is_integer(x1) && _cairo_fixed_is_integer(y1) &&
-				    _cairo_fixed_is_integer(x2) && _cairo_fixed_is_integer(y2);
+				boxes->is_pixel_aligned = _cairo_fixed_is_integer(x1) && _cairo_fixed_is_integer(y1) && _cairo_fixed_is_integer(x2) && _cairo_fixed_is_integer(y2);
 			}
 		}
 	}
 	else {
 		boxes->is_pixel_aligned = TRUE;
-
 		for(i = j = 0; i < traps->num_traps; i++) {
 			/* Note the traps and boxes alias so we need to take the local copies first. */
 			cairo_fixed_t x1 = traps->traps[i].left.p1.x;

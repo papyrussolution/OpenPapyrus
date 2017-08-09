@@ -159,10 +159,7 @@ static void ColouriseTADSHTMLString(StyleContext &sc, int &lineState)
 		sc.SetState(SCE_T3_HTML_STRING);
 		sc.Forward();
 	}
-	if(chQuote == '"')
-		lineState &= ~T3_HTML_SQUOTE;
-	else
-		lineState |= T3_HTML_SQUOTE;
+	SETFLAG(lineState, T3_HTML_SQUOTE, (chQuote != '"'));
 	while(sc.More()) {
 		if(IsEOL(sc.ch, sc.chNext)) {
 			return;
@@ -628,14 +625,12 @@ static void ColouriseTADS3Doc(Sci_PositionU startPos, Sci_Position length, int i
 				    ColouriseTADS3String(sc, lineState);
 				    visibleChars++;
 			    }
-			    else if(sc.state == SCE_T3_X_DEFAULT && bracketLevel == 0
-			    && sc.Match('>', '>')) {
+			    else if(sc.state == SCE_T3_X_DEFAULT && bracketLevel == 0 && sc.Match('>', '>')) {
 				    sc.Forward(2);
 				    sc.SetState(SCE_T3_D_STRING);
 				    if(lineState & T3_INT_EXPRESSION_IN_TAG)
 					    sc.SetState(SCE_T3_HTML_STRING);
-				    lineState &= ~(T3_SINGLE_QUOTE|T3_INT_EXPRESSION
-				    |T3_INT_EXPRESSION_IN_TAG);
+				    lineState &= ~(T3_SINGLE_QUOTE|T3_INT_EXPRESSION|T3_INT_EXPRESSION_IN_TAG);
 			    }
 			    else if(IsATADS3Operator(sc.ch)) {
 				    if(sc.state == SCE_T3_X_DEFAULT) {

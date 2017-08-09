@@ -426,14 +426,24 @@ SDrawImage * SDrawFigure::DupToImage(TPoint size, const SViewPort * pVp, const c
 	return p_fig;
 }
 
-void SDrawFigure::SetStyle(int identPen, int identBrush)
+void SDrawFigure::SetStyle(int identPen, int identBrush, long flags)
 {
 	IdPen = identPen;
 	IdBrush = identBrush;
+	if(flags & fNullBrush)
+		Flags |= fNullBrush;
 }
 
 int SDrawFigure::GetKind() const
-	{ return Kind; }
+{ 
+	return Kind; 
+}
+
+long SDrawFigure::GetFlags() const
+{
+	return Flags;
+}
+
 const SString & SDrawFigure::GetSid() const
 	{ return Sid; }
 const FPoint & SDrawFigure::GetSize() const

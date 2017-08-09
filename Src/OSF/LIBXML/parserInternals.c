@@ -163,8 +163,9 @@ static void xmlErrEncodingInt(xmlParserCtxt * ctxt, xmlParserErrors error, const
  *
  * Returns 0 if not, non-zero otherwise
  */
-int xmlIsLetter(int c) {
-	return(IS_BASECHAR(c) || IS_IDEOGRAPHIC(c));
+int xmlIsLetter(int c) 
+{
+	return (IS_BASECHAR(c) || IS_IDEOGRAPHIC(c));
 }
 
 /************************************************************************
@@ -183,8 +184,8 @@ int xmlIsLetter(int c) {
 #ifdef DEBUG_INPUT
 #define CHECK_BUFFER(in) check_buffer(in)
 
-static
-void check_buffer(xmlParserInputPtr in) {
+static void check_buffer(xmlParserInputPtr in) 
+{
 	if(in->base != xmlBufContent(in->buf->buffer)) {
 		xmlGenericError(0, "xmlParserInput: base mismatch problem\n");
 	}
@@ -343,14 +344,10 @@ void xmlParserInputShrink(xmlParserInputPtr in)
 
 void xmlNextChar(xmlParserCtxt * ctxt)
 {
-	if(!ctxt || (ctxt->instate == XML_PARSER_EOF) ||
-	    (ctxt->input == NULL))
+	if(!ctxt || (ctxt->instate == XML_PARSER_EOF) || !ctxt->input)
 		return;
-
 	if(ctxt->charset == XML_CHAR_ENCODING_UTF8) {
-		if((*ctxt->input->cur == 0) &&
-		    (xmlParserInputGrow(ctxt->input, INPUT_CHUNK) <= 0) &&
-		    (ctxt->instate != XML_PARSER_COMMENT)) {
+		if((*ctxt->input->cur == 0) && (xmlParserInputGrow(ctxt->input, INPUT_CHUNK) <= 0) && (ctxt->instate != XML_PARSER_COMMENT)) {
 			/*
 			 * If we are at the end of the current entity and
 			 * the context allows it, we pop consumed entities
@@ -362,7 +359,6 @@ void xmlNextChar(xmlParserCtxt * ctxt)
 		else {
 			const uchar * cur;
 			uchar c;
-
 			/*
 			 *   2.11 End-of-Line Handling
 			 *   the literal two-character sequence "#xD#xA" or a standalone
@@ -374,7 +370,6 @@ void xmlNextChar(xmlParserCtxt * ctxt)
 			}
 			else
 				ctxt->input->col++;
-
 			/*
 			 * We are supposed to handle UTF8, check it's valid
 			 * From rfc2044: encoding of the Unicode values on UTF-8:
@@ -400,7 +395,6 @@ void xmlNextChar(xmlParserCtxt * ctxt)
 					goto encoding_error;
 				if((c & 0xe0) == 0xe0) {
 					uint val;
-
 					if(cur[2] == 0) {
 						xmlParserInputGrow(ctxt->input, INPUT_CHUNK);
 						cur = ctxt->input->cur;
@@ -412,8 +406,7 @@ void xmlNextChar(xmlParserCtxt * ctxt)
 							xmlParserInputGrow(ctxt->input, INPUT_CHUNK);
 							cur = ctxt->input->cur;
 						}
-						if(((c & 0xf8) != 0xf0) ||
-						    ((cur[3] & 0xc0) != 0x80))
+						if(((c & 0xf8) != 0xf0) || ((cur[3] & 0xc0) != 0x80))
 							goto encoding_error;
 						/* 4-byte code */
 						ctxt->input->cur += 4;
@@ -515,11 +508,12 @@ encoding_error:
  * Returns the current char value and its length
  */
 
-int xmlCurrentChar(xmlParserCtxt * ctxt, int * len) {
-	if(!ctxt || (len == NULL) || (ctxt->input == NULL)) return 0;
+int xmlCurrentChar(xmlParserCtxt * ctxt, int * len) 
+{
+	if(!ctxt || (len == NULL) || (ctxt->input == NULL)) 
+		return 0;
 	if(ctxt->instate == XML_PARSER_EOF)
 		return 0;
-
 	if((*ctxt->input->cur >= 0x20) && (*ctxt->input->cur <= 0x7F)) {
 		*len = 1;
 		return((int)*ctxt->input->cur);
@@ -537,10 +531,8 @@ int xmlCurrentChar(xmlParserCtxt * ctxt, int * len) {
 		 * Check for the 0x110000 limit too
 		 */
 		const uchar * cur = ctxt->input->cur;
-		uchar c;
 		uint val;
-
-		c = *cur;
+		uchar c = *cur;
 		if(c & 0x80) {
 			if(((c & 0x40) == 0) || (c == 0xC0))
 				goto encoding_error;

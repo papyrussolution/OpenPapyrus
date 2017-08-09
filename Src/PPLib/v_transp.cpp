@@ -212,7 +212,7 @@ int SLAPI PPViewTransport::MakeTempRec(const PPTransport * pTranspRec, TempTrans
 		pTempRec->CaptainID = pTranspRec->CaptainID;
 		pTempRec->TrType    = pTranspRec->TrType;
 		pTempRec->CountryID = pTranspRec->CountryID;
-		pTempRec->Capacity  = pTranspRec->Capacity; // @v7.2.8
+		pTempRec->Capacity  = pTranspRec->Capacity;
 		STRNSCPY(pTempRec->Code,      pTranspRec->Code);
 		STRNSCPY(pTempRec->TrailCode, pTranspRec->TrailerCode);
 	}

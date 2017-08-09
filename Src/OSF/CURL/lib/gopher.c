@@ -32,7 +32,7 @@
 //#include "select.h"
 //#include "url.h"
 //#include "escape.h"
-#include "warnless.h"
+//#include "warnless.h"
 //#include "curl_memory.h"
 #include "memdebug.h" /* The last #include file should be: */
 /*

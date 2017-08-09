@@ -3966,18 +3966,17 @@ cleanup_composite:
 static cairo_int_status_t _cairo_ps_surface_stroke(void * abstract_surface,
     cairo_operator_t op,
     const cairo_pattern_t * source,
-    const cairo_path_fixed_t      * path,
-    const cairo_stroke_style_t    * style,
-    const cairo_matrix_t  * ctm,
-    const cairo_matrix_t  * ctm_inverse,
+    const cairo_path_fixed_t * path,
+    const cairo_stroke_style_t * style,
+    const cairo_matrix_t * ctm,
+    const cairo_matrix_t * ctm_inverse,
     double tolerance,
     cairo_antialias_t antialias,
-    const cairo_clip_t            * clip)
+    const cairo_clip_t * clip)
 {
 	cairo_ps_surface_t * surface = (cairo_ps_surface_t *)abstract_surface;
 	cairo_composite_rectangles_t extents;
-	cairo_int_status_t status = _cairo_composite_rectangles_init_for_stroke(&extents,
-	    &surface->base, op, source, path, style, ctm, clip);
+	cairo_int_status_t status = _cairo_composite_rectangles_init_for_stroke(&extents, &surface->base, op, source, path, style, ctm, clip);
 	if(unlikely(status))
 		return status;
 	/* use the more accurate extents */

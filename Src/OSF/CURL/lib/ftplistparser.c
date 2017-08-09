@@ -172,16 +172,13 @@ struct ftp_parselist_data {
 			pl_unix_mainstate main;
 			pl_unix_substate sub;
 		} UNIX;
-
 		struct {
 			pl_winNT_mainstate main;
 			pl_winNT_substate sub;
 		} NT;
 	} state;
-
 	CURLcode error;
 	struct curl_fileinfo * file_data;
-
 	uint item_length;
 	size_t item_offset;
 	struct {
@@ -273,7 +270,6 @@ static int ftp_pl_get_permission(const char * str)
 		permissions |= 1 << 9;
 	else if(str[8] != '-')
 		permissions |= FTP_LP_MALFORMATED_PERM;
-
 	return permissions;
 }
 
@@ -317,7 +313,6 @@ static CURLcode ftp_pl_insert_finfo(struct connectdata * conn, struct curl_filei
 	else {
 		add = FALSE;
 	}
-
 	if(add) {
 		if(!Curl_llist_insert_next(llist, llist->tail, finfo)) {
 			Curl_fileinfo_dtor(NULL, finfo);
@@ -345,18 +340,15 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 		/* scenario:
 		 * 1. call => OK..
 		 * 2. call => OUT_OF_MEMORY (or other error)
-		 * 3. (last) call => is skipped RIGHT HERE and the error is hadled later
-		 *    in wc_statemach()
+		 * 3. (last) call => is skipped RIGHT HERE and the error is hadled later in wc_statemach()
 		 */
 		return bufflen;
 	}
 
 	if(parser->os_type == OS_TYPE_UNKNOWN && bufflen > 0) {
 		/* considering info about FILE response format */
-		parser->os_type = (buffer[0] >= '0' && buffer[0] <= '9') ?
-		    OS_TYPE_WIN_NT : OS_TYPE_UNIX;
+		parser->os_type = (buffer[0] >= '0' && buffer[0] <= '9') ? OS_TYPE_WIN_NT : OS_TYPE_UNIX;
 	}
-
 	while(i < bufflen) { /* FSM */
 		char c = buffer[i];
 		if(!parser->file_data) { /* tmp file data is not allocated yet */
@@ -374,10 +366,8 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 			parser->item_offset = 0;
 			parser->item_length = 0;
 		}
-
 		finfo = parser->file_data;
 		finfo->b_data[finfo->b_used++] = c;
-
 		if(finfo->b_used >= finfo->b_size - 1) {
 			/* if it is important, extend buffer space for file data */
 			char * tmp = (char *)SAlloc::R(finfo->b_data, finfo->b_size + FTP_BUFFER_ALLOCSIZE);
@@ -443,33 +433,17 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 					break;
 				    case PL_UNIX_FILETYPE:
 					switch(c) {
-						case '-':
-						    finfo->filetype = CURLFILETYPE_FILE;
-						    break;
-						case 'd':
-						    finfo->filetype = CURLFILETYPE_DIRECTORY;
-						    break;
-						case 'l':
-						    finfo->filetype = CURLFILETYPE_SYMLINK;
-						    break;
-						case 'p':
-						    finfo->filetype = CURLFILETYPE_NAMEDPIPE;
-						    break;
-						case 's':
-						    finfo->filetype = CURLFILETYPE_SOCKET;
-						    break;
-						case 'c':
-						    finfo->filetype = CURLFILETYPE_DEVICE_CHAR;
-						    break;
-						case 'b':
-						    finfo->filetype = CURLFILETYPE_DEVICE_BLOCK;
-						    break;
-						case 'D':
-						    finfo->filetype = CURLFILETYPE_DOOR;
-						    break;
-						default:
-						    PL_ERROR(conn, CURLE_FTP_BAD_FILE_LIST);
-						    return bufflen;
+						case '-': finfo->filetype = CURLFILETYPE_FILE; break;
+						case 'd': finfo->filetype = CURLFILETYPE_DIRECTORY; break;
+						case 'l': finfo->filetype = CURLFILETYPE_SYMLINK; break;
+						case 'p': finfo->filetype = CURLFILETYPE_NAMEDPIPE; break;
+						case 's': finfo->filetype = CURLFILETYPE_SOCKET; break;
+						case 'c': finfo->filetype = CURLFILETYPE_DEVICE_CHAR; break;
+						case 'b': finfo->filetype = CURLFILETYPE_DEVICE_BLOCK; break;
+						case 'D': finfo->filetype = CURLFILETYPE_DOOR; break;
+						default: 
+							PL_ERROR(conn, CURLE_FTP_BAD_FILE_LIST); 
+							return bufflen;
 					}
 					parser->state.UNIX.main = PL_UNIX_PERMISSION;
 					parser->item_length = 0;
@@ -608,8 +582,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 							    curl_off_t fsize;
 							    finfo->b_data[parser->item_offset + parser->item_length - 1] = 0;
 							    fsize = curlx_strtoofft(finfo->b_data+parser->item_offset, &p, 10);
-							    if(p[0] == '\0' && fsize != CURL_OFF_T_MAX &&
-						    fsize != CURL_OFF_T_MIN) {
+							    if(p[0] == '\0' && fsize != CURL_OFF_T_MAX && fsize != CURL_OFF_T_MIN) {
 								    parser->file_data->flags |= CURLFINFOFLAG_KNOWN_SIZE;
 								    parser->file_data->size = fsize;
 							    }
@@ -1014,7 +987,6 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 
 		i++;
 	}
-
 	return bufflen;
 }
 

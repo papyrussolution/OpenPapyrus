@@ -688,6 +688,7 @@
 #endif
 #include <stddef.h>
 
+#include "warnless.h"
 #include "llist.h"
 #include "wildcard.h"
 #include "strtok.h"
@@ -734,7 +735,14 @@
 #include "netrc.h"
 #include "dict.h"
 #include "dotdot.h"
+#include "inet_pton.h"
+#include "inet_ntop.h"
+#include "parsedate.h"
+#include "speedcheck.h"
+#include "curl_hmac.h"
 #include "curl_base64.h"
+#include "curl_md5.h"
+#include "curl_memrchr.h"
 #include "curl_memory.h"
 // } @sobolev 
 

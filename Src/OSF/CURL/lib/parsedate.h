@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-extern const char * const Curl_wkday[7];
-extern const char * const Curl_month[12];
+// @v9.7.10 extern const char * const Curl_wkday[7];
+// @v9.7.10 extern const char * const Curl_month[12];
 
 CURLcode Curl_gmtime(time_t intime, struct tm *store);
 

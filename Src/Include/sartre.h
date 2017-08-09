@@ -1,39 +1,40 @@
 // SARTRE.H
 // Copyright (c) A.Sobolev 2011, 2012, 2016, 2017
+// @codepage UTF-8
 //
 
 /*
-	<...> - металексемы
+	<...> - РјРµС‚Р°Р»РµРєСЃРµРјС‹
 
 	//
 	//
 	//
-	Формы слов:
+	Р¤РѕСЂРјС‹ СЃР»РѕРІ:
 	<NOUN>
-		Род (Gender): Мужской (Masculine) | Женский (Feminine) | Средний (Neuter) | Общий [сирота; недотрога]
-		Специальная форма: Литературная | Разговорная | Архаическая //
-		Число (): Единственное (Singular) | Множественное (Plural)
-		Падеж (Case):
-			Именительный (Nominative) |
-			Родительный (Genitive) |
-			Дательный (Dative) |
-			Винительный (Accusative) |
-			Творительный (Ablative)  |
-			Предложный (Prepositional) |
-			(Другие падежи - всего не более 32)
+		Р РѕРґ (Gender): РњСѓР¶СЃРєРѕР№ (Masculine) | Р–РµРЅСЃРєРёР№ (Feminine) | РЎСЂРµРґРЅРёР№ (Neuter) | РћР±С‰РёР№ [СЃРёСЂРѕС‚Р°; РЅРµРґРѕС‚СЂРѕРіР°]
+		РЎРїРµС†РёР°Р»СЊРЅР°СЏ С„РѕСЂРјР°: Р›РёС‚РµСЂР°С‚СѓСЂРЅР°СЏ | Р Р°Р·РіРѕРІРѕСЂРЅР°СЏ | РђСЂС…Р°РёС‡РµСЃРєР°СЏ //
+		Р§РёСЃР»Рѕ (): Р•РґРёРЅСЃС‚РІРµРЅРЅРѕРµ (Singular) | РњРЅРѕР¶РµСЃС‚РІРµРЅРЅРѕРµ (Plural)
+		РџР°РґРµР¶ (Case):
+			РРјРµРЅРёС‚РµР»СЊРЅС‹Р№ (Nominative) |
+			Р РѕРґРёС‚РµР»СЊРЅС‹Р№ (Genitive) |
+			Р”Р°С‚РµР»СЊРЅС‹Р№ (Dative) |
+			Р’РёРЅРёС‚РµР»СЊРЅС‹Р№ (Accusative) |
+			РўРІРѕСЂРёС‚РµР»СЊРЅС‹Р№ (Ablative)  |
+			РџСЂРµРґР»РѕР¶РЅС‹Р№ (Prepositional) |
+			(Р”СЂСѓРіРёРµ РїР°РґРµР¶Рё - РІСЃРµРіРѕ РЅРµ Р±РѕР»РµРµ 32)
 
 	<ADJV>
 	<VERB>
 	//
-	// Другие термины
+	// Р”СЂСѓРіРёРµ С‚РµСЂРјРёРЅС‹
 	//
-	(pluralia tantum) - существительные, употребляемые только в мн. числе [трусы; брюки; вилы]
+	(pluralia tantum) - СЃСѓС‰РµСЃС‚РІРёС‚РµР»СЊРЅС‹Рµ, СѓРїРѕС‚СЂРµР±Р»СЏРµРјС‹Рµ С‚РѕР»СЊРєРѕ РІ РјРЅ. С‡РёСЃР»Рµ [С‚СЂСѓСЃС‹; Р±СЂСЋРєРё; РІРёР»С‹]
 */
 //
-// Грамматические признаки слов
-// Пометка @bin стоит у признаков, которым могут иметь значение 1 или отсутствовать
+// Р“СЂР°РјРјР°С‚РёС‡РµСЃРєРёРµ РїСЂРёР·РЅР°РєРё СЃР»РѕРІ
+// РџРѕРјРµС‚РєР° @bin СЃС‚РѕРёС‚ Сѓ РїСЂРёР·РЅР°РєРѕРІ, РєРѕС‚РѕСЂС‹Рј РјРѕРіСѓС‚ РёРјРµС‚СЊ Р·РЅР°С‡РµРЅРёРµ 1 РёР»Рё РѕС‚СЃСѓС‚СЃС‚РІРѕРІР°С‚СЊ
 //
-#define SRWG_LANGUAGE                 1 // Язык
+#define SRWG_LANGUAGE                 1 // РЇР·С‹Рє
 /*
 	#define SRLANG_META                   1
 	#define SRLANG_LAT                    2
@@ -41,109 +42,109 @@
 	#define SRLANG_RUS                    4
 	#define SRLANG_GER                    5
 */
-#define SRWG_CLASS                    2 // SRWC_XXX       Класс лексемы
-	#define SRWC_ALPHA                    1 // ALPHA        Буква алфавита
-	#define SRWC_DIGIT                    2 // DIGIT        Арабская цифра
-	#define SRWC_NOUN                     3 // NOUN         Существительное (Noun)
-	#define SRWC_NUMERAL                  4 // NUM          Числительное (Numeral) [One]
-	#define SRWC_NUMERALORD               5 // ORD          Порядковое числительное (Order numeral) [First]
-	#define SRWC_ADJECTIVE                6 // ADJ          Прилагательное (Adjective)
-	#define SRWC_VERB                     7 // VERB         Глагол (Verb)
-	// @v9.2.0 #define SRWC_VERBMODAL                8 // VERBMODAL    Модальный глагол (Modal verb) [Should]
-	#define SRWC_PRONOUN                  9 // PRONOUN      Местоимение (Personal pronoun)
-	#define SRWC_PRONOUNPOSS             10 // PRONOUNPOSS  Местоимение-прилагательное (Possessive pronoun) [His, Her]
-	#define SRWC_PRAEDICPRO              11 // PRAEDICPRO   Местоимение-предикатив @ex "нечего"
-	#define SRWC_PRAEDIC                 12 // PRAEDIC      Предикатив @ex "интересно"
-	#define SRWC_ADVERB                  13 // ADVERB       Наречие (Adverb) [freely; свободно]
-	#define SRWC_PREPOSITION             14 // PREP         Предлог (Preposition) [beside]
-	#define SRWC_POSTPOSITION            15 // POSTP        Послелог @ex "бога ради"
-	#define SRWC_CONJUNCTION             16 // CONJ         Союз (Conjunction) [and]
-	#define SRWC_INTERJECTION            17 // INTERJ       Междометие (Interjection) [oh]
-	#define SRWC_PARENTH                 18 // PARENTH      Вводное слово @ex "конечно"
-	#define SRWC_ARTICLE                 19 // ARTICLE      Артикль (Article) [the]
-	#define SRWC_PARTICLE                20 // PARTICLE     Частица (Particle) [to]
-	#define SRWC_PARTICIPLE              21 // PARTCP       Причастие (Participle) [reading]
-	#define SRWC_GERUND                  22 // GERUND       Герундий (Gerund) [reading books]
-	#define SRWC_GPARTICIPLE             23 // GPARTC       Деепричастие @ex "Рассказывая, он громко смеялся"
-	#define SRWC_PHRAS                   24 // PHRAS        Фразеологический токен (мне не совсем ясен детальный смысл
-		// этого классификатора - в русском словаре встречается только одно слово такого типа - "БОСУ").
-	#define SRWC_PREFIX                  25 // PREFIX       Приставка
-	#define SRWC_AFFIX                   26 // AFFIX        Окончание
-	#define SRWC_SKELETON                27 // SKEL         Неизменяемая основа слова
-	//#define SRWC_PRONOUNREFL             28 // PRONOUNREFL  Возвратное местоимение (reflexive pronoun)
-	#define SRWC_PRONOUNNOUN             29 // PRONOUNNOUN  Местоимение-существительное [all, anybody]
+#define SRWG_CLASS                    2 // SRWC_XXX       РљР»Р°СЃСЃ Р»РµРєСЃРµРјС‹
+	#define SRWC_ALPHA                    1 // ALPHA        Р‘СѓРєРІР° Р°Р»С„Р°РІРёС‚Р°
+	#define SRWC_DIGIT                    2 // DIGIT        РђСЂР°Р±СЃРєР°СЏ С†РёС„СЂР°
+	#define SRWC_NOUN                     3 // NOUN         РЎСѓС‰РµСЃС‚РІРёС‚РµР»СЊРЅРѕРµ (Noun)
+	#define SRWC_NUMERAL                  4 // NUM          Р§РёСЃР»РёС‚РµР»СЊРЅРѕРµ (Numeral) [One]
+	#define SRWC_NUMERALORD               5 // ORD          РџРѕСЂСЏРґРєРѕРІРѕРµ С‡РёСЃР»РёС‚РµР»СЊРЅРѕРµ (Order numeral) [First]
+	#define SRWC_ADJECTIVE                6 // ADJ          РџСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРµ (Adjective)
+	#define SRWC_VERB                     7 // VERB         Р“Р»Р°РіРѕР» (Verb)
+	// @v9.2.0 #define SRWC_VERBMODAL                8 // VERBMODAL    РњРѕРґР°Р»СЊРЅС‹Р№ РіР»Р°РіРѕР» (Modal verb) [Should]
+	#define SRWC_PRONOUN                  9 // PRONOUN      РњРµСЃС‚РѕРёРјРµРЅРёРµ (Personal pronoun)
+	#define SRWC_PRONOUNPOSS             10 // PRONOUNPOSS  РњРµСЃС‚РѕРёРјРµРЅРёРµ-РїСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРµ (Possessive pronoun) [His, Her]
+	#define SRWC_PRAEDICPRO              11 // PRAEDICPRO   РњРµСЃС‚РѕРёРјРµРЅРёРµ-РїСЂРµРґРёРєР°С‚РёРІ @ex "РЅРµС‡РµРіРѕ"
+	#define SRWC_PRAEDIC                 12 // PRAEDIC      РџСЂРµРґРёРєР°С‚РёРІ @ex "РёРЅС‚РµСЂРµСЃРЅРѕ"
+	#define SRWC_ADVERB                  13 // ADVERB       РќР°СЂРµС‡РёРµ (Adverb) [freely; СЃРІРѕР±РѕРґРЅРѕ]
+	#define SRWC_PREPOSITION             14 // PREP         РџСЂРµРґР»РѕРі (Preposition) [beside]
+	#define SRWC_POSTPOSITION            15 // POSTP        РџРѕСЃР»РµР»РѕРі @ex "Р±РѕРіР° СЂР°РґРё"
+	#define SRWC_CONJUNCTION             16 // CONJ         РЎРѕСЋР· (Conjunction) [and]
+	#define SRWC_INTERJECTION            17 // INTERJ       РњРµР¶РґРѕРјРµС‚РёРµ (Interjection) [oh]
+	#define SRWC_PARENTH                 18 // PARENTH      Р’РІРѕРґРЅРѕРµ СЃР»РѕРІРѕ @ex "РєРѕРЅРµС‡РЅРѕ"
+	#define SRWC_ARTICLE                 19 // ARTICLE      РђСЂС‚РёРєР»СЊ (Article) [the]
+	#define SRWC_PARTICLE                20 // PARTICLE     Р§Р°СЃС‚РёС†Р° (Particle) [to]
+	#define SRWC_PARTICIPLE              21 // PARTCP       РџСЂРёС‡Р°СЃС‚РёРµ (Participle) [reading]
+	#define SRWC_GERUND                  22 // GERUND       Р“РµСЂСѓРЅРґРёР№ (Gerund) [reading books]
+	#define SRWC_GPARTICIPLE             23 // GPARTC       Р”РµРµРїСЂРёС‡Р°СЃС‚РёРµ @ex "Р Р°СЃСЃРєР°Р·С‹РІР°СЏ, РѕРЅ РіСЂРѕРјРєРѕ СЃРјРµСЏР»СЃСЏ"
+	#define SRWC_PHRAS                   24 // PHRAS        Р¤СЂР°Р·РµРѕР»РѕРіРёС‡РµСЃРєРёР№ С‚РѕРєРµРЅ (РјРЅРµ РЅРµ СЃРѕРІСЃРµРј СЏСЃРµРЅ РґРµС‚Р°Р»СЊРЅС‹Р№ СЃРјС‹СЃР»
+		// СЌС‚РѕРіРѕ РєР»Р°СЃСЃРёС„РёРєР°С‚РѕСЂР° - РІ СЂСѓСЃСЃРєРѕРј СЃР»РѕРІР°СЂРµ РІСЃС‚СЂРµС‡Р°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РѕРґРЅРѕ СЃР»РѕРІРѕ С‚Р°РєРѕРіРѕ С‚РёРїР° - "Р‘РћРЎРЈ").
+	#define SRWC_PREFIX                  25 // PREFIX       РџСЂРёСЃС‚Р°РІРєР°
+	#define SRWC_AFFIX                   26 // AFFIX        РћРєРѕРЅС‡Р°РЅРёРµ
+	#define SRWC_SKELETON                27 // SKEL         РќРµРёР·РјРµРЅСЏРµРјР°СЏ РѕСЃРЅРѕРІР° СЃР»РѕРІР°
+	//#define SRWC_PRONOUNREFL             28 // PRONOUNREFL  Р’РѕР·РІСЂР°С‚РЅРѕРµ РјРµСЃС‚РѕРёРјРµРЅРёРµ (reflexive pronoun)
+	#define SRWC_PRONOUNNOUN             29 // PRONOUNNOUN  РњРµСЃС‚РѕРёРјРµРЅРёРµ-СЃСѓС‰РµСЃС‚РІРёС‚РµР»СЊРЅРѕРµ [all, anybody]
 	#define SRWC_POSSESSIVEGROUP         30 // POSSGRP possessive (english)
-		// выделена условная "часть речи", поскольку показатель этой грамматической категории относится не к ОДНОМУ СЛОВУ,
-		// но к целой именной группе и присоединяется просто к последнему его члену.
+		// РІС‹РґРµР»РµРЅР° СѓСЃР»РѕРІРЅР°СЏ "С‡Р°СЃС‚СЊ СЂРµС‡Рё", РїРѕСЃРєРѕР»СЊРєСѓ РїРѕРєР°Р·Р°С‚РµР»СЊ СЌС‚РѕР№ РіСЂР°РјРјР°С‚РёС‡РµСЃРєРѕР№ РєР°С‚РµРіРѕСЂРёРё РѕС‚РЅРѕСЃРёС‚СЃСЏ РЅРµ Рє РћР”РќРћРњРЈ РЎР›РћР’РЈ,
+		// РЅРѕ Рє С†РµР»РѕР№ РёРјРµРЅРЅРѕР№ РіСЂСѓРїРїРµ Рё РїСЂРёСЃРѕРµРґРёРЅСЏРµС‚СЃСЏ РїСЂРѕСЃС‚Рѕ Рє РїРѕСЃР»РµРґРЅРµРјСѓ РµРіРѕ С‡Р»РµРЅСѓ.
 		// [the King of England's daughter] [the girl I was dancing with's name]
-#define SRWG_ABBR                     3 // SRABBR_XXX     Виды аббревиатур
-	#define SRABBR_ABBR                   1 // ABBR Общее обозначение аббревиатуры без детализации
-	#define SRABBR_NARROW                 2 // NARR Сильно сокращенный вариант слова (дни недели, месяцы и т.д.)
-#define SRWG_PROPERNAME               4 // SRPROPN_XXX    Вид имени собственного
-	#define SRPROPN_PERSONNAME            1 // PERSN Имя //
-	#define SRPROPN_FAMILYNAME            2 // FAMN  Фамилия //
-	#define SRPROPN_PATRONYMIC            3 // PATRN Отчество
-	#define SRPROPN_ZOONAME               4 // ZOON  Кличка животного
-	#define SRPROPN_ORG                   5 // ORG   Наименование организации
-	#define SRPROPN_GEO                   6 // GEO   Наименование географического объекта (населенный пункт, гора, река и т.д.)
-#define SRWG_ANIMATE                  5 // SRANIM_XXX     Одушевленность
-	#define SRANIM_ANIMATE                1 // ANIM   Одушевленное
-	#define SRANIM_INANIMATE              2 // INANIM Недушевленное
-#define SRWG_USAGE                    6 // SRWU_XXX       Форма употребления слова
-	#define SRWU_LITERARY                 1 // LIT Литературная //
-	#define SRWU_PRO                      2 // PRO Профессионализм
-	#define SRWU_ARCHAIC                  3 // ARC Архаическая (устаревшая) //
-	#define SRWU_SPOKEN                   4 // SPK Разговорная  //
-	#define SRWU_VULGAR                   5 // VUL Вульгарная   //
-#define SRWG_GENDER                   7 // SRGENDER_XXX   Род
-	#define SRGENDER_MASCULINE            1 // MASC Мужской (Masculine)
-	#define SRGENDER_FEMININE             2 // FEM  Женский (Feminine)
-	#define SRGENDER_NEUTER               3 // NEU  Средний (Neuter)
-	#define SRGENDER_COMMON               4 // GCOM Общий [сирота; недотрога]
-#define SRWG_TANTUM                   8 // Классификатор, указывающий на возможность использования слова только в одном числе
-	#define SRTANTUM_SINGULAR             1 // SINGT Существительное всегда во единственном числе @ex "дичь" "мороженое"
-	#define SRTANTUM_PLURAL               2 // PLURT Существительное всегда во множественном числе @ex "весы" "азы"
-#define SRWG_COUNT                    9 // SRCNT_XXX      Число
-	#define SRCNT_SINGULAR                1 // SING Единственное число
-	#define SRCNT_PLURAL                  2 // PLUR Множественное число
-#define SRWG_CASE                    10 // SRCASE_XXX     Падеж
-	#define SRCASE_NOMINATIVE             1 // NOM    Именительный
-	#define SRCASE_GENITIVE               2 // GEN    Родительный
-	#define SRCASE_GENITIVE2              3 // GEN2   Второй родительный @ex "чашка чаю"
-	#define SRCASE_DATIVE                 4 // DAT    Дательный
-	#define SRCASE_DATIVE2                5 // DAT2   Дистрибутивный дательный @ex "[по] многу, нескольку, стольку"
-	#define SRCASE_ACCUSATIVE             6 // ACC    Винительный
-	#define SRCASE_ACCUSATIVE2            7 // ACC2   Второй винительный @ex "постричься в монахи" "по два человека"
-	#define SRCASE_INSTRUMENT             8 // INS    Творительный @ex "головой" "сыном" "степью" "санями" "которым"
-	#define SRCASE_PREPOSITIONAL          9 // PREP   Предложный
-	#define SRCASE_PREPOSITIONAL2        10 // PREP2  Второй предложный @ex "в лесу" "на оси"
-	#define SRCASE_VOCATIVE              11 // VOC    Звательный @ex "Господи" "Серёж" "ребят"
-	#define SRCASE_ADNUM                 12 // ADNUM  Счетная форма @ex "два часа" "три шара"
-	#define SRCASE_OBJECTIVE             13 // OBJCTV Объектный падеж (в английском)
-#define SRWG_TENSE                   11 // SRTENSE_XXX    Время //
-	#define SRTENSE_PRESENT               1 // PRES Настоящее
-	#define SRTENSE_PAST                  2 // PAST Прощедшее
-	#define SRTENSE_FUTURE                3 // FUTU Будущее
-	#define SRTENSE_PASTPARTICIPLE        4 // PASTPART Прощедшее время дополнительная форма (English: Past Participle)
-#define SRWG_PERSON                  12 // SRPERSON_XXX   Лицо
-	#define SRPERSON_FIRST                1 // P1   Первое лицо
-	#define SRPERSON_SECOND               2 // P2   Второе лицо
-	#define SRPERSON_THIRD                3 // P3   Третье лицо
-#define SRWG_VALENCY                 13 // SRVALENCY_XXX  Валентность глагола
-	#define SRVALENCY_AVALENT             1 // AVALENT   Авалентный (безличный) глагол. @ex "светает"
-	#define SRVALENCY_INTRANSITIVE        2 // INTRANS   Непереходный глагол. @ex "спать"
-	#define SRVALENCY_TRANSITIVE          3 // TRANS     Переходный глагол.   @ex "покупать"
-	#define SRVALENCY_DITRANSITIVE        4 // DITRANS   Переходный глагол с валентностью 3. @ex "He gives her a flower."
-#define SRWG_ASPECT                  14 // SRASPECT_XXX   Аспект глагола
-	#define SRASPECT_INFINITIVE           1 // INF       Неопределенная форма глагола
-	#define SRASPECT_PERFECTIVE           2 // PERFV     Совершенный глагол
-	#define SRASPECT_IMPERFECTIVE         3 // IMPERFV   Несовершенный глагол
-	#define SRASPECT_HABITUAL             4 // HABIT     Повторяющееся действие  @ex "I used to go there every day"
-	#define SRASPECT_CONTINUOUS           5 // CONTS     Продолжающееся действие
-	#define SRASPECT_STATIVE              6 // CSTATV    Подмножество SRASPECT_CONTINUOUS @ex "I know French"
-	#define SRASPECT_PROGRESSIVE          7 // CPROGV    Подмножество SRASPECT_CONTINUOUS @ex "I am running"
-	#define SRASPECT_PERFECT              8 // PERF      Комбинированный со временем аспект @ex "I have studied well"
-#define SRWG_MOOD                    15 // SRMOOD_XXX     Наклонение (модальность) глагола
+#define SRWG_ABBR                     3 // SRABBR_XXX     Р’РёРґС‹ Р°Р±Р±СЂРµРІРёР°С‚СѓСЂ
+	#define SRABBR_ABBR                   1 // ABBR РћР±С‰РµРµ РѕР±РѕР·РЅР°С‡РµРЅРёРµ Р°Р±Р±СЂРµРІРёР°С‚СѓСЂС‹ Р±РµР· РґРµС‚Р°Р»РёР·Р°С†РёРё
+	#define SRABBR_NARROW                 2 // NARR РЎРёР»СЊРЅРѕ СЃРѕРєСЂР°С‰РµРЅРЅС‹Р№ РІР°СЂРёР°РЅС‚ СЃР»РѕРІР° (РґРЅРё РЅРµРґРµР»Рё, РјРµСЃСЏС†С‹ Рё С‚.Рґ.)
+#define SRWG_PROPERNAME               4 // SRPROPN_XXX    Р’РёРґ РёРјРµРЅРё СЃРѕР±СЃС‚РІРµРЅРЅРѕРіРѕ
+	#define SRPROPN_PERSONNAME            1 // PERSN РРјСЏ //
+	#define SRPROPN_FAMILYNAME            2 // FAMN  Р¤Р°РјРёР»РёСЏ //
+	#define SRPROPN_PATRONYMIC            3 // PATRN РћС‚С‡РµСЃС‚РІРѕ
+	#define SRPROPN_ZOONAME               4 // ZOON  РљР»РёС‡РєР° Р¶РёРІРѕС‚РЅРѕРіРѕ
+	#define SRPROPN_ORG                   5 // ORG   РќР°РёРјРµРЅРѕРІР°РЅРёРµ РѕСЂРіР°РЅРёР·Р°С†РёРё
+	#define SRPROPN_GEO                   6 // GEO   РќР°РёРјРµРЅРѕРІР°РЅРёРµ РіРµРѕРіСЂР°С„РёС‡РµСЃРєРѕРіРѕ РѕР±СЉРµРєС‚Р° (РЅР°СЃРµР»РµРЅРЅС‹Р№ РїСѓРЅРєС‚, РіРѕСЂР°, СЂРµРєР° Рё С‚.Рґ.)
+#define SRWG_ANIMATE                  5 // SRANIM_XXX     РћРґСѓС€РµРІР»РµРЅРЅРѕСЃС‚СЊ
+	#define SRANIM_ANIMATE                1 // ANIM   РћРґСѓС€РµРІР»РµРЅРЅРѕРµ
+	#define SRANIM_INANIMATE              2 // INANIM РќРµРґСѓС€РµРІР»РµРЅРЅРѕРµ
+#define SRWG_USAGE                    6 // SRWU_XXX       Р¤РѕСЂРјР° СѓРїРѕС‚СЂРµР±Р»РµРЅРёСЏ СЃР»РѕРІР°
+	#define SRWU_LITERARY                 1 // LIT Р›РёС‚РµСЂР°С‚СѓСЂРЅР°СЏ //
+	#define SRWU_PRO                      2 // PRO РџСЂРѕС„РµСЃСЃРёРѕРЅР°Р»РёР·Рј
+	#define SRWU_ARCHAIC                  3 // ARC РђСЂС…Р°РёС‡РµСЃРєР°СЏ (СѓСЃС‚Р°СЂРµРІС€Р°СЏ) //
+	#define SRWU_SPOKEN                   4 // SPK Р Р°Р·РіРѕРІРѕСЂРЅР°СЏ  //
+	#define SRWU_VULGAR                   5 // VUL Р’СѓР»СЊРіР°СЂРЅР°СЏ   //
+#define SRWG_GENDER                   7 // SRGENDER_XXX   Р РѕРґ
+	#define SRGENDER_MASCULINE            1 // MASC РњСѓР¶СЃРєРѕР№ (Masculine)
+	#define SRGENDER_FEMININE             2 // FEM  Р–РµРЅСЃРєРёР№ (Feminine)
+	#define SRGENDER_NEUTER               3 // NEU  РЎСЂРµРґРЅРёР№ (Neuter)
+	#define SRGENDER_COMMON               4 // GCOM РћР±С‰РёР№ [СЃРёСЂРѕС‚Р°; РЅРµРґРѕС‚СЂРѕРіР°]
+#define SRWG_TANTUM                   8 // РљР»Р°СЃСЃРёС„РёРєР°С‚РѕСЂ, СѓРєР°Р·С‹РІР°СЋС‰РёР№ РЅР° РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ СЃР»РѕРІР° С‚РѕР»СЊРєРѕ РІ РѕРґРЅРѕРј С‡РёСЃР»Рµ
+	#define SRTANTUM_SINGULAR             1 // SINGT РЎСѓС‰РµСЃС‚РІРёС‚РµР»СЊРЅРѕРµ РІСЃРµРіРґР° РІРѕ РµРґРёРЅСЃС‚РІРµРЅРЅРѕРј С‡РёСЃР»Рµ @ex "РґРёС‡СЊ" "РјРѕСЂРѕР¶РµРЅРѕРµ"
+	#define SRTANTUM_PLURAL               2 // PLURT РЎСѓС‰РµСЃС‚РІРёС‚РµР»СЊРЅРѕРµ РІСЃРµРіРґР° РІРѕ РјРЅРѕР¶РµСЃС‚РІРµРЅРЅРѕРј С‡РёСЃР»Рµ @ex "РІРµСЃС‹" "Р°Р·С‹"
+#define SRWG_COUNT                    9 // SRCNT_XXX      Р§РёСЃР»Рѕ
+	#define SRCNT_SINGULAR                1 // SING Р•РґРёРЅСЃС‚РІРµРЅРЅРѕРµ С‡РёСЃР»Рѕ
+	#define SRCNT_PLURAL                  2 // PLUR РњРЅРѕР¶РµСЃС‚РІРµРЅРЅРѕРµ С‡РёСЃР»Рѕ
+#define SRWG_CASE                    10 // SRCASE_XXX     РџР°РґРµР¶
+	#define SRCASE_NOMINATIVE             1 // NOM    РРјРµРЅРёС‚РµР»СЊРЅС‹Р№
+	#define SRCASE_GENITIVE               2 // GEN    Р РѕРґРёС‚РµР»СЊРЅС‹Р№
+	#define SRCASE_GENITIVE2              3 // GEN2   Р’С‚РѕСЂРѕР№ СЂРѕРґРёС‚РµР»СЊРЅС‹Р№ @ex "С‡Р°С€РєР° С‡Р°СЋ"
+	#define SRCASE_DATIVE                 4 // DAT    Р”Р°С‚РµР»СЊРЅС‹Р№
+	#define SRCASE_DATIVE2                5 // DAT2   Р”РёСЃС‚СЂРёР±СѓС‚РёРІРЅС‹Р№ РґР°С‚РµР»СЊРЅС‹Р№ @ex "[РїРѕ] РјРЅРѕРіСѓ, РЅРµСЃРєРѕР»СЊРєСѓ, СЃС‚РѕР»СЊРєСѓ"
+	#define SRCASE_ACCUSATIVE             6 // ACC    Р’РёРЅРёС‚РµР»СЊРЅС‹Р№
+	#define SRCASE_ACCUSATIVE2            7 // ACC2   Р’С‚РѕСЂРѕР№ РІРёРЅРёС‚РµР»СЊРЅС‹Р№ @ex "РїРѕСЃС‚СЂРёС‡СЊСЃСЏ РІ РјРѕРЅР°С…Рё" "РїРѕ РґРІР° С‡РµР»РѕРІРµРєР°"
+	#define SRCASE_INSTRUMENT             8 // INS    РўРІРѕСЂРёС‚РµР»СЊРЅС‹Р№ @ex "РіРѕР»РѕРІРѕР№" "СЃС‹РЅРѕРј" "СЃС‚РµРїСЊСЋ" "СЃР°РЅСЏРјРё" "РєРѕС‚РѕСЂС‹Рј"
+	#define SRCASE_PREPOSITIONAL          9 // PREP   РџСЂРµРґР»РѕР¶РЅС‹Р№
+	#define SRCASE_PREPOSITIONAL2        10 // PREP2  Р’С‚РѕСЂРѕР№ РїСЂРµРґР»РѕР¶РЅС‹Р№ @ex "РІ Р»РµСЃСѓ" "РЅР° РѕСЃРё"
+	#define SRCASE_VOCATIVE              11 // VOC    Р—РІР°С‚РµР»СЊРЅС‹Р№ @ex "Р“РѕСЃРїРѕРґРё" "РЎРµСЂС‘Р¶" "СЂРµР±СЏС‚"
+	#define SRCASE_ADNUM                 12 // ADNUM  РЎС‡РµС‚РЅР°СЏ С„РѕСЂРјР° @ex "РґРІР° С‡Р°СЃР°" "С‚СЂРё С€Р°СЂР°"
+	#define SRCASE_OBJECTIVE             13 // OBJCTV РћР±СЉРµРєС‚РЅС‹Р№ РїР°РґРµР¶ (РІ Р°РЅРіР»РёР№СЃРєРѕРј)
+#define SRWG_TENSE                   11 // SRTENSE_XXX    Р’СЂРµРјСЏ //
+	#define SRTENSE_PRESENT               1 // PRES РќР°СЃС‚РѕСЏС‰РµРµ
+	#define SRTENSE_PAST                  2 // PAST РџСЂРѕС‰РµРґС€РµРµ
+	#define SRTENSE_FUTURE                3 // FUTU Р‘СѓРґСѓС‰РµРµ
+	#define SRTENSE_PASTPARTICIPLE        4 // PASTPART РџСЂРѕС‰РµРґС€РµРµ РІСЂРµРјСЏ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ С„РѕСЂРјР° (English: Past Participle)
+#define SRWG_PERSON                  12 // SRPERSON_XXX   Р›РёС†Рѕ
+	#define SRPERSON_FIRST                1 // P1   РџРµСЂРІРѕРµ Р»РёС†Рѕ
+	#define SRPERSON_SECOND               2 // P2   Р’С‚РѕСЂРѕРµ Р»РёС†Рѕ
+	#define SRPERSON_THIRD                3 // P3   РўСЂРµС‚СЊРµ Р»РёС†Рѕ
+#define SRWG_VALENCY                 13 // SRVALENCY_XXX  Р’Р°Р»РµРЅС‚РЅРѕСЃС‚СЊ РіР»Р°РіРѕР»Р°
+	#define SRVALENCY_AVALENT             1 // AVALENT   РђРІР°Р»РµРЅС‚РЅС‹Р№ (Р±РµР·Р»РёС‡РЅС‹Р№) РіР»Р°РіРѕР». @ex "СЃРІРµС‚Р°РµС‚"
+	#define SRVALENCY_INTRANSITIVE        2 // INTRANS   РќРµРїРµСЂРµС…РѕРґРЅС‹Р№ РіР»Р°РіРѕР». @ex "СЃРїР°С‚СЊ"
+	#define SRVALENCY_TRANSITIVE          3 // TRANS     РџРµСЂРµС…РѕРґРЅС‹Р№ РіР»Р°РіРѕР».   @ex "РїРѕРєСѓРїР°С‚СЊ"
+	#define SRVALENCY_DITRANSITIVE        4 // DITRANS   РџРµСЂРµС…РѕРґРЅС‹Р№ РіР»Р°РіРѕР» СЃ РІР°Р»РµРЅС‚РЅРѕСЃС‚СЊСЋ 3. @ex "He gives her a flower."
+#define SRWG_ASPECT                  14 // SRASPECT_XXX   РђСЃРїРµРєС‚ РіР»Р°РіРѕР»Р°
+	#define SRASPECT_INFINITIVE           1 // INF       РќРµРѕРїСЂРµРґРµР»РµРЅРЅР°СЏ С„РѕСЂРјР° РіР»Р°РіРѕР»Р°
+	#define SRASPECT_PERFECTIVE           2 // PERFV     РЎРѕРІРµСЂС€РµРЅРЅС‹Р№ РіР»Р°РіРѕР»
+	#define SRASPECT_IMPERFECTIVE         3 // IMPERFV   РќРµСЃРѕРІРµСЂС€РµРЅРЅС‹Р№ РіР»Р°РіРѕР»
+	#define SRASPECT_HABITUAL             4 // HABIT     РџРѕРІС‚РѕСЂСЏСЋС‰РµРµСЃСЏ РґРµР№СЃС‚РІРёРµ  @ex "I used to go there every day"
+	#define SRASPECT_CONTINUOUS           5 // CONTS     РџСЂРѕРґРѕР»Р¶Р°СЋС‰РµРµСЃСЏ РґРµР№СЃС‚РІРёРµ
+	#define SRASPECT_STATIVE              6 // CSTATV    РџРѕРґРјРЅРѕР¶РµСЃС‚РІРѕ SRASPECT_CONTINUOUS @ex "I know French"
+	#define SRASPECT_PROGRESSIVE          7 // CPROGV    РџРѕРґРјРЅРѕР¶РµСЃС‚РІРѕ SRASPECT_CONTINUOUS @ex "I am running"
+	#define SRASPECT_PERFECT              8 // PERF      РљРѕРјР±РёРЅРёСЂРѕРІР°РЅРЅС‹Р№ СЃРѕ РІСЂРµРјРµРЅРµРј Р°СЃРїРµРєС‚ @ex "I have studied well"
+#define SRWG_MOOD                    15 // SRMOOD_XXX     РќР°РєР»РѕРЅРµРЅРёРµ (РјРѕРґР°Р»СЊРЅРѕСЃС‚СЊ) РіР»Р°РіРѕР»Р°
 	#define SRMOOD_INDICATIVE             1 // INDCTV    Indicative   @ex "Paul is eating an apple" "John eats apples"
 	#define SRMOOD_SUBJUNCTIVE            2 // SUBJUNCTV Subjunctive  @ex "John would eat if he 'were' hungry"
 	#define SRMOOD_CONJUNCTIVE            3 // CONJUNCTV Conjunctive
@@ -151,47 +152,47 @@
 	#define SRMOOD_JUSSIVE                5 // JUSSIV    Jussive
 	#define SRMOOD_POTENTIAL              6 // POTENT    Potential
 	#define SRMOOD_PROHIBITIVE            7 // PROHIBV   Prohibitive
-	#define SRMOOD_IMPERATIVE             8 // IMPERV    Повелительное наклонение
-	#define SRMOOD_INTERROGATIVE          9 // INTERRV   Интер
-#define SRWG_VOICE                   16 // SRVOICE_XXX    Залог глагола
-	#define SRVOICE_ACTIVE                1 // ACT       Действительный залог  @ex "разрушил" "разрушивший"
-	#define SRVOICE_PASSIVE               2 // PASS      Страдательный залог   @ex "разрушаемый" "разрушенный"
-	#define SRVOICE_MEDIAL                3 // MED       Медиальный залог      @ex "разрушился"
-	// .. Существует множество иных залогов в разных языках
-#define SRWG_ADJCAT                  17 // Категория прилагательного
-	#define SRADJCAT_QUALIT               1 // ADJQUAL   Качественное прилагательное
-	#define SRADJCAT_RELATIVE             2 // ADJREL    Относительное прилагательное
-	#define SRADJCAT_POSSESSIVE           3 // ADJPOSS   Притяжательное прилагательное
-	#define SRADJCAT_NATION               4 // ADJNATION Прилагательное, означающее принадлежность к национальности
-		// @? я не уверен, что эта категория не может пересекаться с другими.
-#define SRWG_ADJCMP                  18 // SRADJCMP_XXX   Сравнительная форма прилагательного
-	#define SRADJCMP_COMPARATIVE          1 // COMP    Сравнительное прилагательное @ex "веселей" "веселее"
-	#define SRADJCMP_SUPERLATIVE          2 // SUPR    Превосходная степень прилагательного
-	#define SRADJCMP_COMPARATIVE2         3 // COMP2   Вторая сравнительная степень прилагательного @ex "повеселей" "повеселее"
-#define SRWG_SHORT                   19 // SRSHORT_XXX    Краткая форма (обычно прилагательных, но возможно и других частей речи)
-	#define SRSHORT_BREV                  1 // BREV  Краткая форма прилагательного
-	#define SRSHORT_PLEN                  2 // PLEN  Полная форма прилагательного
-#define SRWG_INVARIABLE              20 //                Неизменяемое слово (либо 0, либо 1)
-#define SRWG_ADVERBCAT               21 // SRADVCAT_XXX   Категория наречия //
-	#define SRADVCAT_INTERROGATIVE        1 // ADVINTR Вопросительное наречие
-	#define SRADVCAT_RELATIVE             2 // ADVREL  Относительное наречие
-	#define SRADVCAT_POINTING             3 // ADVPNT  Указательное наречие
-#define SRWG_LOCAT                   22 // @bin LOC Локативное прилагательное @ex "Верхнеуральский"
-#define SRWG_ERROR                   23 // @bin ERR Ошибочное написание слова, частая опечатки и т.д.
-#define SRWG_TOBE                    24 // @bin Специальный случай - глагол to be в английском. Все остальные
-	// теги словоформ соответствуют глагольным (или герундий) формам.
-#define SRWG_QUEST                   25 // @bin QUEST (Не знаю в какую категорию занести) Вопросительная форма слова (глагола)
-#define SRWG_MODAL                   26 // @bin MODAL (Не знаю в какую категорию занести) Модальный глагол.
-#define SRWG_POSSESSIVE              27 // @bin POSSTAG (Запутался с possessive в английском: надо будет еще раз перетряхнуть классификацию
-	// словоформ с таким признаком). На данный момент указанный тег может быть присвоен местоимению и существительному в english
-#define SRWG_PREDICATIVE             28 // @bin PREDICAT Признак предикативного местоимения (english) [yours]
-#define SRWG_PRONOUN                 29 // SRPRON_XXX Виды местоимений. У местоимения может не быт такого тега (generic)
-	#define SRPRON_REFL               1 // PRONREFL Возвратное местоимение (reflexive pronoun) [self]
-	#define SRPRON_DEMONSTR           2 // PRONDEM  Указательное местоимение (pronomina demonstrativa) [one]
-	#define SRPRON_PERSONAL           3 // PRONPERS Личное местоимение
-#define SRWG_COUNTAB                 30 // SRCTB_XXX Исчисляемость существительных
-	#define SRCTB_UNCOUNTABLE         1 // NUNCNT Неисчисляемое существительное (english)
-	#define SRCTB_MASS                2 // NMASS  mass-существительные (english)
+	#define SRMOOD_IMPERATIVE             8 // IMPERV    РџРѕРІРµР»РёС‚РµР»СЊРЅРѕРµ РЅР°РєР»РѕРЅРµРЅРёРµ
+	#define SRMOOD_INTERROGATIVE          9 // INTERRV   РРЅС‚РµСЂ
+#define SRWG_VOICE                   16 // SRVOICE_XXX    Р—Р°Р»РѕРі РіР»Р°РіРѕР»Р°
+	#define SRVOICE_ACTIVE                1 // ACT       Р”РµР№СЃС‚РІРёС‚РµР»СЊРЅС‹Р№ Р·Р°Р»РѕРі  @ex "СЂР°Р·СЂСѓС€РёР»" "СЂР°Р·СЂСѓС€РёРІС€РёР№"
+	#define SRVOICE_PASSIVE               2 // PASS      РЎС‚СЂР°РґР°С‚РµР»СЊРЅС‹Р№ Р·Р°Р»РѕРі   @ex "СЂР°Р·СЂСѓС€Р°РµРјС‹Р№" "СЂР°Р·СЂСѓС€РµРЅРЅС‹Р№"
+	#define SRVOICE_MEDIAL                3 // MED       РњРµРґРёР°Р»СЊРЅС‹Р№ Р·Р°Р»РѕРі      @ex "СЂР°Р·СЂСѓС€РёР»СЃСЏ"
+	// .. РЎСѓС‰РµСЃС‚РІСѓРµС‚ РјРЅРѕР¶РµСЃС‚РІРѕ РёРЅС‹С… Р·Р°Р»РѕРіРѕРІ РІ СЂР°Р·РЅС‹С… СЏР·С‹РєР°С…
+#define SRWG_ADJCAT                  17 // РљР°С‚РµРіРѕСЂРёСЏ РїСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРіРѕ
+	#define SRADJCAT_QUALIT               1 // ADJQUAL   РљР°С‡РµСЃС‚РІРµРЅРЅРѕРµ РїСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРµ
+	#define SRADJCAT_RELATIVE             2 // ADJREL    РћС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕРµ РїСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРµ
+	#define SRADJCAT_POSSESSIVE           3 // ADJPOSS   РџСЂРёС‚СЏР¶Р°С‚РµР»СЊРЅРѕРµ РїСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРµ
+	#define SRADJCAT_NATION               4 // ADJNATION РџСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРµ, РѕР·РЅР°С‡Р°СЋС‰РµРµ РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚СЊ Рє РЅР°С†РёРѕРЅР°Р»СЊРЅРѕСЃС‚Рё
+		// @? СЏ РЅРµ СѓРІРµСЂРµРЅ, С‡С‚Рѕ СЌС‚Р° РєР°С‚РµРіРѕСЂРёСЏ РЅРµ РјРѕР¶РµС‚ РїРµСЂРµСЃРµРєР°С‚СЊСЃСЏ СЃ РґСЂСѓРіРёРјРё.
+#define SRWG_ADJCMP                  18 // SRADJCMP_XXX   РЎСЂР°РІРЅРёС‚РµР»СЊРЅР°СЏ С„РѕСЂРјР° РїСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРіРѕ
+	#define SRADJCMP_COMPARATIVE          1 // COMP    РЎСЂР°РІРЅРёС‚РµР»СЊРЅРѕРµ РїСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРµ @ex "РІРµСЃРµР»РµР№" "РІРµСЃРµР»РµРµ"
+	#define SRADJCMP_SUPERLATIVE          2 // SUPR    РџСЂРµРІРѕСЃС…РѕРґРЅР°СЏ СЃС‚РµРїРµРЅСЊ РїСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРіРѕ
+	#define SRADJCMP_COMPARATIVE2         3 // COMP2   Р’С‚РѕСЂР°СЏ СЃСЂР°РІРЅРёС‚РµР»СЊРЅР°СЏ СЃС‚РµРїРµРЅСЊ РїСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРіРѕ @ex "РїРѕРІРµСЃРµР»РµР№" "РїРѕРІРµСЃРµР»РµРµ"
+#define SRWG_SHORT                   19 // SRSHORT_XXX    РљСЂР°С‚РєР°СЏ С„РѕСЂРјР° (РѕР±С‹С‡РЅРѕ РїСЂРёР»Р°РіР°С‚РµР»СЊРЅС‹С…, РЅРѕ РІРѕР·РјРѕР¶РЅРѕ Рё РґСЂСѓРіРёС… С‡Р°СЃС‚РµР№ СЂРµС‡Рё)
+	#define SRSHORT_BREV                  1 // BREV  РљСЂР°С‚РєР°СЏ С„РѕСЂРјР° РїСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРіРѕ
+	#define SRSHORT_PLEN                  2 // PLEN  РџРѕР»РЅР°СЏ С„РѕСЂРјР° РїСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРіРѕ
+#define SRWG_INVARIABLE              20 //                РќРµРёР·РјРµРЅСЏРµРјРѕРµ СЃР»РѕРІРѕ (Р»РёР±Рѕ 0, Р»РёР±Рѕ 1)
+#define SRWG_ADVERBCAT               21 // SRADVCAT_XXX   РљР°С‚РµРіРѕСЂРёСЏ РЅР°СЂРµС‡РёСЏ //
+	#define SRADVCAT_INTERROGATIVE        1 // ADVINTR Р’РѕРїСЂРѕСЃРёС‚РµР»СЊРЅРѕРµ РЅР°СЂРµС‡РёРµ
+	#define SRADVCAT_RELATIVE             2 // ADVREL  РћС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕРµ РЅР°СЂРµС‡РёРµ
+	#define SRADVCAT_POINTING             3 // ADVPNT  РЈРєР°Р·Р°С‚РµР»СЊРЅРѕРµ РЅР°СЂРµС‡РёРµ
+#define SRWG_LOCAT                   22 // @bin LOC Р›РѕРєР°С‚РёРІРЅРѕРµ РїСЂРёР»Р°РіР°С‚РµР»СЊРЅРѕРµ @ex "Р’РµСЂС…РЅРµСѓСЂР°Р»СЊСЃРєРёР№"
+#define SRWG_ERROR                   23 // @bin ERR РћС€РёР±РѕС‡РЅРѕРµ РЅР°РїРёСЃР°РЅРёРµ СЃР»РѕРІР°, С‡Р°СЃС‚Р°СЏ РѕРїРµС‡Р°С‚РєРё Рё С‚.Рґ.
+#define SRWG_TOBE                    24 // @bin РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№ - РіР»Р°РіРѕР» to be РІ Р°РЅРіР»РёР№СЃРєРѕРј. Р’СЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ
+	// С‚РµРіРё СЃР»РѕРІРѕС„РѕСЂРј СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‚ РіР»Р°РіРѕР»СЊРЅС‹Рј (РёР»Рё РіРµСЂСѓРЅРґРёР№) С„РѕСЂРјР°Рј.
+#define SRWG_QUEST                   25 // @bin QUEST (РќРµ Р·РЅР°СЋ РІ РєР°РєСѓСЋ РєР°С‚РµРіРѕСЂРёСЋ Р·Р°РЅРµСЃС‚Рё) Р’РѕРїСЂРѕСЃРёС‚РµР»СЊРЅР°СЏ С„РѕСЂРјР° СЃР»РѕРІР° (РіР»Р°РіРѕР»Р°)
+#define SRWG_MODAL                   26 // @bin MODAL (РќРµ Р·РЅР°СЋ РІ РєР°РєСѓСЋ РєР°С‚РµРіРѕСЂРёСЋ Р·Р°РЅРµСЃС‚Рё) РњРѕРґР°Р»СЊРЅС‹Р№ РіР»Р°РіРѕР».
+#define SRWG_POSSESSIVE              27 // @bin POSSTAG (Р—Р°РїСѓС‚Р°Р»СЃСЏ СЃ possessive РІ Р°РЅРіР»РёР№СЃРєРѕРј: РЅР°РґРѕ Р±СѓРґРµС‚ РµС‰Рµ СЂР°Р· РїРµСЂРµС‚СЂСЏС…РЅСѓС‚СЊ РєР»Р°СЃСЃРёС„РёРєР°С†РёСЋ
+	// СЃР»РѕРІРѕС„РѕСЂРј СЃ С‚Р°РєРёРј РїСЂРёР·РЅР°РєРѕРј). РќР° РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ СѓРєР°Р·Р°РЅРЅС‹Р№ С‚РµРі РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСЂРёСЃРІРѕРµРЅ РјРµСЃС‚РѕРёРјРµРЅРёСЋ Рё СЃСѓС‰РµСЃС‚РІРёС‚РµР»СЊРЅРѕРјСѓ РІ english
+#define SRWG_PREDICATIVE             28 // @bin PREDICAT РџСЂРёР·РЅР°Рє РїСЂРµРґРёРєР°С‚РёРІРЅРѕРіРѕ РјРµСЃС‚РѕРёРјРµРЅРёСЏ (english) [yours]
+#define SRWG_PRONOUN                 29 // SRPRON_XXX Р’РёРґС‹ РјРµСЃС‚РѕРёРјРµРЅРёР№. РЈ РјРµСЃС‚РѕРёРјРµРЅРёСЏ РјРѕР¶РµС‚ РЅРµ Р±С‹С‚ С‚Р°РєРѕРіРѕ С‚РµРіР° (generic)
+	#define SRPRON_REFL               1 // PRONREFL Р’РѕР·РІСЂР°С‚РЅРѕРµ РјРµСЃС‚РѕРёРјРµРЅРёРµ (reflexive pronoun) [self]
+	#define SRPRON_DEMONSTR           2 // PRONDEM  РЈРєР°Р·Р°С‚РµР»СЊРЅРѕРµ РјРµСЃС‚РѕРёРјРµРЅРёРµ (pronomina demonstrativa) [one]
+	#define SRPRON_PERSONAL           3 // PRONPERS Р›РёС‡РЅРѕРµ РјРµСЃС‚РѕРёРјРµРЅРёРµ
+#define SRWG_COUNTAB                 30 // SRCTB_XXX РСЃС‡РёСЃР»СЏРµРјРѕСЃС‚СЊ СЃСѓС‰РµСЃС‚РІРёС‚РµР»СЊРЅС‹С…
+	#define SRCTB_UNCOUNTABLE         1 // NUNCNT РќРµРёСЃС‡РёСЃР»СЏРµРјРѕРµ СЃСѓС‰РµСЃС‚РІРёС‚РµР»СЊРЅРѕРµ (english)
+	#define SRCTB_MASS                2 // NMASS  mass-СЃСѓС‰РµСЃС‚РІРёС‚РµР»СЊРЅС‹Рµ (english)
 //
 // --------------------------------------------------------
 //
@@ -199,14 +200,14 @@ typedef uint32 LEXID;
 typedef int64  CONCEPTID;
 typedef int64  NGID;
 //
-// Типы грамматических правил преобразования форм слова
+// РўРёРїС‹ РіСЂР°РјРјР°С‚РёС‡РµСЃРєРёС… РїСЂР°РІРёР» РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ С„РѕСЂРј СЃР»РѕРІР°
 //
 #define SRGRULETYP_AFFIXLIST          1
 #define SRGRULETYP_ACCENTLIST         2
 //
-// Descr: Типы грамматических конструкций
+// Descr: РўРёРїС‹ РіСЂР°РјРјР°С‚РёС‡РµСЃРєРёС… РєРѕРЅСЃС‚СЂСѓРєС†РёР№
 //
-#define SRGRAMTYP_WORDFORM            1 // Дескриптор словоформы => SrWordForm
+#define SRGRAMTYP_WORDFORM            1 // Р”РµСЃРєСЂРёРїС‚РѕСЂ СЃР»РѕРІРѕС„РѕСЂРјС‹ => SrWordForm
 #define SRGRAMTYP_FLEXIAMODEL         2 // FlexiaModel           => SrFlexiaModel
 //
 //
@@ -231,7 +232,7 @@ protected:
 	uint32 Len;
 };
 //
-// Descr: Обобщенное представление атрибутов словоформы.
+// Descr: РћР±РѕР±С‰РµРЅРЅРѕРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ Р°С‚СЂРёР±СѓС‚РѕРІ СЃР»РѕРІРѕС„РѕСЂРјС‹.
 //
 class SrWordForm : public SrSList { // @transient
 public:
@@ -240,41 +241,41 @@ public:
 	SrWordForm & FASTCALL operator = (const SrWordForm & rS);
 	SrWordForm & FASTCALL Copy(const SrWordForm & rS);
 	//
-	// Descr: Формирует новый дескриптор слоформы слиянием базового дескриптора и дескриптора частной формы.
-	// Note: Функция не коммутативна: Merge(base_form, var_form) != Merge(var_form, base_form)
-	//   После объединения результирующая словоформа нормализуется вызовом Normalize()
-	// ARG(rBase  IN): ссылка на базовую слоформу
-	// ARG(rVar   IN): ссылка на словоформу, тэги которой вливаются в базовую.
-	// ARG(mode   IN): режим установки тэгов:
-	//   0 - если не существует, то создается новый, если уже существует - заменяется.
-	//   1 - если не существует, то ничего не делать, если уже существует - заменяется.
-	//   2 - если не существует, то создается новый, если уже существует, то ничего не делать.
+	// Descr: Р¤РѕСЂРјРёСЂСѓРµС‚ РЅРѕРІС‹Р№ РґРµСЃРєСЂРёРїС‚РѕСЂ СЃР»РѕС„РѕСЂРјС‹ СЃР»РёСЏРЅРёРµРј Р±Р°Р·РѕРІРѕРіРѕ РґРµСЃРєСЂРёРїС‚РѕСЂР° Рё РґРµСЃРєСЂРёРїС‚РѕСЂР° С‡Р°СЃС‚РЅРѕР№ С„РѕСЂРјС‹.
+	// Note: Р¤СѓРЅРєС†РёСЏ РЅРµ РєРѕРјРјСѓС‚Р°С‚РёРІРЅР°: Merge(base_form, var_form) != Merge(var_form, base_form)
+	//   РџРѕСЃР»Рµ РѕР±СЉРµРґРёРЅРµРЅРёСЏ СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰Р°СЏ СЃР»РѕРІРѕС„РѕСЂРјР° РЅРѕСЂРјР°Р»РёР·СѓРµС‚СЃСЏ РІС‹Р·РѕРІРѕРј Normalize()
+	// ARG(rBase  IN): СЃСЃС‹Р»РєР° РЅР° Р±Р°Р·РѕРІСѓСЋ СЃР»РѕС„РѕСЂРјСѓ
+	// ARG(rVar   IN): СЃСЃС‹Р»РєР° РЅР° СЃР»РѕРІРѕС„РѕСЂРјСѓ, С‚СЌРіРё РєРѕС‚РѕСЂРѕР№ РІР»РёРІР°СЋС‚СЃСЏ РІ Р±Р°Р·РѕРІСѓСЋ.
+	// ARG(mode   IN): СЂРµР¶РёРј СѓСЃС‚Р°РЅРѕРІРєРё С‚СЌРіРѕРІ:
+	//   0 - РµСЃР»Рё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, С‚Рѕ СЃРѕР·РґР°РµС‚СЃСЏ РЅРѕРІС‹Р№, РµСЃР»Рё СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ - Р·Р°РјРµРЅСЏРµС‚СЃСЏ.
+	//   1 - РµСЃР»Рё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, С‚Рѕ РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°С‚СЊ, РµСЃР»Рё СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ - Р·Р°РјРµРЅСЏРµС‚СЃСЏ.
+	//   2 - РµСЃР»Рё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, С‚Рѕ СЃРѕР·РґР°РµС‚СЃСЏ РЅРѕРІС‹Р№, РµСЃР»Рё СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, С‚Рѕ РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°С‚СЊ.
 	//
 	SrWordForm & Merge_(const SrWordForm & rBase, const SrWordForm & rVar, int mode);
 	int    Normalize();
 	int    FASTCALL IsEqual(const SrWordForm & rS) const;
 	//
-	// Descr: Сопоставляет словоформу this со словоформой rS.
-	//   Возвращает значение эквивалентности как Real-число. Чем больше число, тем
-	//   больше сохожесть сопоставляемых словоформ.
-	// Note: Перечисление ведется по элементам this, каждый из которых сопоставляется с
-	//   аналогичным тэгом в rS. Таким образом, если необходимо сопоставить определитель словоформы A,
-	//   содержащий неполное описание, с полным описанием B, то следует вызывать функцию в виде A.MatchScore(B).
+	// Descr: РЎРѕРїРѕСЃС‚Р°РІР»СЏРµС‚ СЃР»РѕРІРѕС„РѕСЂРјСѓ this СЃРѕ СЃР»РѕРІРѕС„РѕСЂРјРѕР№ rS.
+	//   Р’РѕР·РІСЂР°С‰Р°РµС‚ Р·РЅР°С‡РµРЅРёРµ СЌРєРІРёРІР°Р»РµРЅС‚РЅРѕСЃС‚Рё РєР°Рє Real-С‡РёСЃР»Рѕ. Р§РµРј Р±РѕР»СЊС€Рµ С‡РёСЃР»Рѕ, С‚РµРј
+	//   Р±РѕР»СЊС€Рµ СЃРѕС…РѕР¶РµСЃС‚СЊ СЃРѕРїРѕСЃС‚Р°РІР»СЏРµРјС‹С… СЃР»РѕРІРѕС„РѕСЂРј.
+	// Note: РџРµСЂРµС‡РёСЃР»РµРЅРёРµ РІРµРґРµС‚СЃСЏ РїРѕ СЌР»РµРјРµРЅС‚Р°Рј this, РєР°Р¶РґС‹Р№ РёР· РєРѕС‚РѕСЂС‹С… СЃРѕРїРѕСЃС‚Р°РІР»СЏРµС‚СЃСЏ СЃ
+	//   Р°РЅР°Р»РѕРіРёС‡РЅС‹Рј С‚СЌРіРѕРј РІ rS. РўР°РєРёРј РѕР±СЂР°Р·РѕРј, РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ СЃРѕРїРѕСЃС‚Р°РІРёС‚СЊ РѕРїСЂРµРґРµР»РёС‚РµР»СЊ СЃР»РѕРІРѕС„РѕСЂРјС‹ A,
+	//   СЃРѕРґРµСЂР¶Р°С‰РёР№ РЅРµРїРѕР»РЅРѕРµ РѕРїРёСЃР°РЅРёРµ, СЃ РїРѕР»РЅС‹Рј РѕРїРёСЃР°РЅРёРµРј B, С‚Рѕ СЃР»РµРґСѓРµС‚ РІС‹Р·С‹РІР°С‚СЊ С„СѓРЅРєС†РёСЋ РІ РІРёРґРµ A.MatchScore(B).
 	//
 	double FASTCALL MatchScore(const SrWordForm & rS) const;
 	//
-	// Descr: Устанавливает тэг tag в значение val.
-	// ARG(tag  IN): идентификатор тэга словоформы.
-	// ARG(val  IN): значение тэга tag словоформы.
-	// ARG(mode IN): режим установки тэга:
-	//   0 - если не существует, то создается новый, если уже существует - заменяется.
-	//   1 - если не существует, то ничего не делать, если уже существует - заменяется.
-	//   2 - если не существует, то создается новый, если уже существует, то ничего не делать.
+	// Descr: РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ С‚СЌРі tag РІ Р·РЅР°С‡РµРЅРёРµ val.
+	// ARG(tag  IN): РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚СЌРіР° СЃР»РѕРІРѕС„РѕСЂРјС‹.
+	// ARG(val  IN): Р·РЅР°С‡РµРЅРёРµ С‚СЌРіР° tag СЃР»РѕРІРѕС„РѕСЂРјС‹.
+	// ARG(mode IN): СЂРµР¶РёРј СѓСЃС‚Р°РЅРѕРІРєРё С‚СЌРіР°:
+	//   0 - РµСЃР»Рё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, С‚Рѕ СЃРѕР·РґР°РµС‚СЃСЏ РЅРѕРІС‹Р№, РµСЃР»Рё СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ - Р·Р°РјРµРЅСЏРµС‚СЃСЏ.
+	//   1 - РµСЃР»Рё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, С‚Рѕ РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°С‚СЊ, РµСЃР»Рё СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ - Р·Р°РјРµРЅСЏРµС‚СЃСЏ.
+	//   2 - РµСЃР»Рё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, С‚Рѕ СЃРѕР·РґР°РµС‚СЃСЏ РЅРѕРІС‹Р№, РµСЃР»Рё СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, С‚Рѕ РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°С‚СЊ.
 	// Returns:
-	//   1 - значение тэга было заменено
-	//   2 - был добавлен новый тэг с указанным значением
-	//  -1 - ничего не изменилось
-	//   0 - ошибка
+	//   1 - Р·РЅР°С‡РµРЅРёРµ С‚СЌРіР° Р±С‹Р»Рѕ Р·Р°РјРµРЅРµРЅРѕ
+	//   2 - Р±С‹Р» РґРѕР±Р°РІР»РµРЅ РЅРѕРІС‹Р№ С‚СЌРі СЃ СѓРєР°Р·Р°РЅРЅС‹Рј Р·РЅР°С‡РµРЅРёРµРј
+	//  -1 - РЅРёС‡РµРіРѕ РЅРµ РёР·РјРµРЅРёР»РѕСЃСЊ
+	//   0 - РѕС€РёР±РєР°
 	//
 	int    SetTag(int tag, int val, int mode = 0);
 	int    FASTCALL RemoveTag(int tag);
@@ -282,6 +283,8 @@ public:
 	size_t CalcLength() const;
 	int    FASTCALL ToStr(SString & rBuf) const;
 	int    FASTCALL FromStr(const char * pStr);
+
+	static int FASTCALL StrToToken(const char * pStr, int * pVal);
 private:
 	void   CatTok(SString & rBuf, const char * pTok) const;
 	size_t Set(size_t pos, int val);
@@ -290,11 +293,11 @@ private:
 	size_t FASTCALL Step(size_t pos) const;
 };
 //
-// Descr: Представление вариантов словоформ в зависимости от окончания и, возможно, приставки.
-//   Хранится в таблице SrGrammarTbl с идентификатором ассоциации SRGRAMTYP_FLEXIAMODEL.
-//   На идентификатор SrFlexiaModel ссылается SrWordAssoc::FlexiaModelID
-// Note: Формат хранения элементов SrFlexiaModel::Item не очевидный (применяется контекстное сжатие для плотной укладки в базе данных).
-//   Любые обращения должны осуществлятся только через public-методы.
+// Descr: РџСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ РІР°СЂРёР°РЅС‚РѕРІ СЃР»РѕРІРѕС„РѕСЂРј РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РѕРєРѕРЅС‡Р°РЅРёСЏ Рё, РІРѕР·РјРѕР¶РЅРѕ, РїСЂРёСЃС‚Р°РІРєРё.
+//   РҐСЂР°РЅРёС‚СЃСЏ РІ С‚Р°Р±Р»РёС†Рµ SrGrammarTbl СЃ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј Р°СЃСЃРѕС†РёР°С†РёРё SRGRAMTYP_FLEXIAMODEL.
+//   РќР° РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ SrFlexiaModel СЃСЃС‹Р»Р°РµС‚СЃСЏ SrWordAssoc::FlexiaModelID
+// Note: Р¤РѕСЂРјР°С‚ С…СЂР°РЅРµРЅРёСЏ СЌР»РµРјРµРЅС‚РѕРІ SrFlexiaModel::Item РЅРµ РѕС‡РµРІРёРґРЅС‹Р№ (РїСЂРёРјРµРЅСЏРµС‚СЃСЏ РєРѕРЅС‚РµРєСЃС‚РЅРѕРµ СЃР¶Р°С‚РёРµ РґР»СЏ РїР»РѕС‚РЅРѕР№ СѓРєР»Р°РґРєРё РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С…).
+//   Р›СЋР±С‹Рµ РѕР±СЂР°С‰РµРЅРёСЏ РґРѕР»Р¶РЅС‹ РѕСЃСѓС‰РµСЃС‚РІР»СЏС‚СЃСЏ С‚РѕР»СЊРєРѕ С‡РµСЂРµР· public-РјРµС‚РѕРґС‹.
 //
 class SrFlexiaModel : public SrSList { // @transient
 public:
@@ -318,7 +321,7 @@ private:
 	};
 };
 //
-// Descr: Ассоциация, связывающая базовую часть слова с модельными позициями (префиксами, суффиксами и т.д.)
+// Descr: РђСЃСЃРѕС†РёР°С†РёСЏ, СЃРІСЏР·С‹РІР°СЋС‰Р°СЏ Р±Р°Р·РѕРІСѓСЋ С‡Р°СЃС‚СЊ СЃР»РѕРІР° СЃ РјРѕРґРµР»СЊРЅС‹РјРё РїРѕР·РёС†РёСЏРјРё (РїСЂРµС„РёРєСЃР°РјРё, СЃСѓС„С„РёРєСЃР°РјРё Рё С‚.Рґ.)
 //
 struct SrWordAssoc {
 	SLAPI  SrWordAssoc();
@@ -332,14 +335,14 @@ struct SrWordAssoc {
 		fHasAffixModel  = 0x0008
 	};
 
-	int32  ID;             // -->SrWordAssocTbl.ID Уникальный идент ассоциации 
-	LEXID  WordID;         // Идентификатор слова
+	int32  ID;             // -->SrWordAssocTbl.ID РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚ Р°СЃСЃРѕС†РёР°С†РёРё 
+	LEXID  WordID;         // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР»РѕРІР°
 	long   Flags;          // @flags
 	int32  BaseFormID;     // -->SrGrammarTbl(Type=SRGRAMTYP_WORDFORM)
 	int32  FlexiaModelID;  // -->SrGrammarTbl(Type=SRGRAMTYP_FLEXIAMODEL)
-	int32  AccentModelID;  // @todo Модель ударений 
+	int32  AccentModelID;  // @todo РњРѕРґРµР»СЊ СѓРґР°СЂРµРЅРёР№ 
 	int32  PrefixID;       //
-	int32  AffixModelID;   // @todo Аффиксная модель для проверки правописания 
+	int32  AffixModelID;   // @todo РђС„С„РёРєСЃРЅР°СЏ РјРѕРґРµР»СЊ РґР»СЏ РїСЂРѕРІРµСЂРєРё РїСЂР°РІРѕРїРёСЃР°РЅРёСЏ 
 };
 //
 // {id;word}
@@ -358,28 +361,25 @@ public:
 	int    Add(const char * pWordUtf8, LEXID * pID);
 	int    AddSpecial(int spcTag, const char * pWordUtf8, LEXID * pID);
 	int    Search(const char * pWordUtf8, LEXID * pID);
-	int    SearchSpecial(int spcTag, const char * pWordUtf8, LEXID * pID);
 	int    Search(LEXID id, SString & rBuf);
 private:
-	int    MakeSpecial(int spcTag, const char * pWordUtf8, SString & rBuf);
-
 	long   SeqID;
 };
 //
 // Descr:
-//   Таблица, хранящая сложные грамматические конструкции. Как-то:
-//     -- дескрипторы словоформ
-//     -- FlexiaModel (структура окончаний, ассоциированных со словоформами)
-//     -- Варианты суффиксов (для проверки орфографии)
-//     -- и т.д.
-// Структура записи:
+//   РўР°Р±Р»РёС†Р°, С…СЂР°РЅСЏС‰Р°СЏ СЃР»РѕР¶РЅС‹Рµ РіСЂР°РјРјР°С‚РёС‡РµСЃРєРёРµ РєРѕРЅСЃС‚СЂСѓРєС†РёРё. РљР°Рє-С‚Рѕ:
+//     -- РґРµСЃРєСЂРёРїС‚РѕСЂС‹ СЃР»РѕРІРѕС„РѕСЂРј
+//     -- FlexiaModel (СЃС‚СЂСѓРєС‚СѓСЂР° РѕРєРѕРЅС‡Р°РЅРёР№, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹С… СЃРѕ СЃР»РѕРІРѕС„РѕСЂРјР°РјРё)
+//     -- Р’Р°СЂРёР°РЅС‚С‹ СЃСѓС„С„РёРєСЃРѕРІ (РґР»СЏ РїСЂРѕРІРµСЂРєРё РѕСЂС„РѕРіСЂР°С„РёРё)
+//     -- Рё С‚.Рґ.
+// РЎС‚СЂСѓРєС‚СѓСЂР° Р·Р°РїРёСЃРё:
 // {
-//     int32 ID;      // Идентификатор записи
-//     int16 Type;    // SRGRAMTYP_XXX Тип данных, хранящихся в записи
-//     uint8 Tail[];  // Собственно грамматическая конструкция. Формат хранения целиком зависит от Type.
+//     int32 ID;      // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°РїРёСЃРё
+//     int16 Type;    // SRGRAMTYP_XXX РўРёРї РґР°РЅРЅС‹С…, С…СЂР°РЅСЏС‰РёС…СЃСЏ РІ Р·Р°РїРёСЃРё
+//     uint8 Tail[];  // РЎРѕР±СЃС‚РІРµРЅРЅРѕ РіСЂР°РјРјР°С‚РёС‡РµСЃРєР°СЏ РєРѕРЅСЃС‚СЂСѓРєС†РёСЏ. Р¤РѕСЂРјР°С‚ С…СЂР°РЅРµРЅРёСЏ С†РµР»РёРєРѕРј Р·Р°РІРёСЃРёС‚ РѕС‚ Type.
 // }
 //
-// Дополнительный индекс таблицы построен по паре {Type; Tail}.
+// Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ РёРЅРґРµРєСЃ С‚Р°Р±Р»РёС†С‹ РїРѕСЃС‚СЂРѕРµРЅ РїРѕ РїР°СЂРµ {Type; Tail}.
 //
 class SrGrammarTbl : public BDbTable {
 public:
@@ -414,7 +414,7 @@ private:
 	long   SeqID;
 };
 //
-// Descr: Представление N-gram (комбинация нескольких слов).
+// Descr: РџСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ N-gram (РєРѕРјР±РёРЅР°С†РёСЏ РЅРµСЃРєРѕР»СЊРєРёС… СЃР»РѕРІ).
 //
 class SrNGram {
 public:
@@ -424,9 +424,9 @@ public:
 	LongArray WordIdList;
 };
 //
-// Descr: Таблица N-грамм. Содержит идентифицированные списки ссылок на слова, составлющие выражения.
-//   Например: "Мария Стюарт" хранится как пара ссылок на слова "мария" и "стюарт" в таблице SrWordTbl.
-// @todo Индексацию N-грамм следует организовать по принципу обратного индекса. То есть: слово -> список N-грамм его содержащих
+// Descr: РўР°Р±Р»РёС†Р° N-РіСЂР°РјРј. РЎРѕРґРµСЂР¶РёС‚ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅРЅС‹Рµ СЃРїРёСЃРєРё СЃСЃС‹Р»РѕРє РЅР° СЃР»РѕРІР°, СЃРѕСЃС‚Р°РІР»СЋС‰РёРµ РІС‹СЂР°Р¶РµРЅРёСЏ.
+//   РќР°РїСЂРёРјРµСЂ: "РњР°СЂРёСЏ РЎС‚СЋР°СЂС‚" С…СЂР°РЅРёС‚СЃСЏ РєР°Рє РїР°СЂР° СЃСЃС‹Р»РѕРє РЅР° СЃР»РѕРІР° "РјР°СЂРёСЏ" Рё "СЃС‚СЋР°СЂС‚" РІ С‚Р°Р±Р»РёС†Рµ SrWordTbl.
+// @todo РРЅРґРµРєСЃР°С†РёСЋ N-РіСЂР°РјРј СЃР»РµРґСѓРµС‚ РѕСЂРіР°РЅРёР·РѕРІР°С‚СЊ РїРѕ РїСЂРёРЅС†РёРїСѓ РѕР±СЂР°С‚РЅРѕРіРѕ РёРЅРґРµРєСЃР°. РўРѕ РµСЃС‚СЊ: СЃР»РѕРІРѕ -> СЃРїРёСЃРѕРє N-РіСЂР°РјРј РµРіРѕ СЃРѕРґРµСЂР¶Р°С‰РёС…
 //
 class SrNGramTbl : public BDbTable {
 public:
@@ -449,7 +449,7 @@ private:
 #define SRPROPT_HDATE     4
 #define SRPROPT_HPERIOD   5
 //
-// Descr: Декларация свойства концепции
+// Descr: Р”РµРєР»Р°СЂР°С†РёСЏ СЃРІРѕР№СЃС‚РІР° РєРѕРЅС†РµРїС†РёРё
 //
 class SrCPropDecl {
 public:
@@ -457,12 +457,12 @@ public:
 	~SrCPropDecl();
 	int    FASTCALL IsEqual(const SrCPropDecl & rS) const;
 //private:
-	CONCEPTID PropID; // ИД концепции-свойства
-	LEXID  SymbID;    // Опциональный идентификатор символа свойства
-	SBaseBuffer Tail; // Вариабельная часть спецификации свойства, которая может содержать ограничения значений параметров
+	CONCEPTID PropID; // РР” РєРѕРЅС†РµРїС†РёРё-СЃРІРѕР№СЃС‚РІР°
+	LEXID  SymbID;    // РћРїС†РёРѕРЅР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРёРјРІРѕР»Р° СЃРІРѕР№СЃС‚РІР°
+	SBaseBuffer Tail; // Р’Р°СЂРёР°Р±РµР»СЊРЅР°СЏ С‡Р°СЃС‚СЊ СЃРїРµС†РёС„РёРєР°С†РёРё СЃРІРѕР№СЃС‚РІР°, РєРѕС‚РѕСЂР°СЏ РјРѕР¶РµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ РѕРіСЂР°РЅРёС‡РµРЅРёСЏ Р·РЅР°С‡РµРЅРёР№ РїР°СЂР°РјРµС‚СЂРѕРІ
 };
 //
-// Descr: Список деклараций свойства концепции
+// Descr: РЎРїРёСЃРѕРє РґРµРєР»Р°СЂР°С†РёР№ СЃРІРѕР№СЃС‚РІР° РєРѕРЅС†РµРїС†РёРё
 //
 class SrCPropDeclList {
 public:
@@ -488,11 +488,11 @@ private:
 		Item();
 		CONCEPTID PropID;
 		LEXID  SymbID;
-		uint32 TailS;  // Размер хвостовой части
-		uint32 TailP;  // Позиция хвостовой части дескриптора свойства в буфере Pool
+		uint32 TailS;  // Р Р°Р·РјРµСЂ С…РІРѕСЃС‚РѕРІРѕР№ С‡Р°СЃС‚Рё
+		uint32 TailP;  // РџРѕР·РёС†РёСЏ С…РІРѕСЃС‚РѕРІРѕР№ С‡Р°СЃС‚Рё РґРµСЃРєСЂРёРїС‚РѕСЂР° СЃРІРѕР№СЃС‚РІР° РІ Р±СѓС„РµСЂРµ Pool
 	};
 	TSArray <Item> D;
-	uint32 PoolP; // Позиция, с которой следует добавлять следующий элемент в Pool
+	uint32 PoolP; // РџРѕР·РёС†РёСЏ, СЃ РєРѕС‚РѕСЂРѕР№ СЃР»РµРґСѓРµС‚ РґРѕР±Р°РІР»СЏС‚СЊ СЃР»РµРґСѓСЋС‰РёР№ СЌР»РµРјРµРЅС‚ РІ Pool
 	SBaseBuffer Pool;
 };
 
@@ -504,15 +504,15 @@ public:
 
 	CONCEPTID ID;
 	LEXID  SymbID;
-	int32  Ver;    // Версия формата записи (0..)
+	int32  Ver;    // Р’РµСЂСЃРёСЏ С„РѕСЂРјР°С‚Р° Р·Р°РїРёСЃРё (0..)
 	SrCPropDeclList Pdl;
 };
 //
-// Descr: Таблица концепций. Концепция определяется только идентификатором.
-//   В дополнение к идентификатору запись концепции может содержать ссылку на
-//   метасимвол (из таблицы SrWordTbl) и список типов свойств.
-//   Концепция может быть создана без ссылки на символ. В таком случае одним из
-//   свойств концепции должно быть обозначение на реальном (не мета-) языке.
+// Descr: РўР°Р±Р»РёС†Р° РєРѕРЅС†РµРїС†РёР№. РљРѕРЅС†РµРїС†РёСЏ РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј.
+//   Р’ РґРѕРїРѕР»РЅРµРЅРёРµ Рє РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ Р·Р°РїРёСЃСЊ РєРѕРЅС†РµРїС†РёРё РјРѕР¶РµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ СЃСЃС‹Р»РєСѓ РЅР°
+//   РјРµС‚Р°СЃРёРјРІРѕР» (РёР· С‚Р°Р±Р»РёС†С‹ SrWordTbl) Рё СЃРїРёСЃРѕРє С‚РёРїРѕРІ СЃРІРѕР№СЃС‚РІ.
+//   РљРѕРЅС†РµРїС†РёСЏ РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃРѕР·РґР°РЅР° Р±РµР· СЃСЃС‹Р»РєРё РЅР° СЃРёРјРІРѕР». Р’ С‚Р°РєРѕРј СЃР»СѓС‡Р°Рµ РѕРґРЅРёРј РёР·
+//   СЃРІРѕР№СЃС‚РІ РєРѕРЅС†РµРїС†РёРё РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РѕР±РѕР·РЅР°С‡РµРЅРёРµ РЅР° СЂРµР°Р»СЊРЅРѕРј (РЅРµ РјРµС‚Р°-) СЏР·С‹РєРµ.
 // {id;symbol-ref;prop-decl-list}
 //
 class SrConceptTbl : public BDbTable {
@@ -531,7 +531,7 @@ private:
 	long   SeqID;
 };
 //
-// Descr: Значение свойства концепции
+// Descr: Р—РЅР°С‡РµРЅРёРµ СЃРІРѕР№СЃС‚РІР° РєРѕРЅС†РµРїС†РёРё
 //
 class SrCProp {
 public:
@@ -546,12 +546,12 @@ public:
 	int    FASTCALL Get(int64 & rIntVal) const;
 	int    FASTCALL Get(double & rRealVal) const;
 
-	CONCEPTID CID;     // Ид концепции
-	CONCEPTID PropID;  // Ид свойства (тоже концепция)
-	SBuffer Value;     // Значение свойства
+	CONCEPTID CID;     // РРґ РєРѕРЅС†РµРїС†РёРё
+	CONCEPTID PropID;  // РРґ СЃРІРѕР№СЃС‚РІР° (С‚РѕР¶Рµ РєРѕРЅС†РµРїС†РёСЏ)
+	SBuffer Value;     // Р—РЅР°С‡РµРЅРёРµ СЃРІРѕР№СЃС‚РІР°
 };
 //
-// Descr: Список значений свойств концепции
+// Descr: РЎРїРёСЃРѕРє Р·РЅР°С‡РµРЅРёР№ СЃРІРѕР№СЃС‚РІ РєРѕРЅС†РµРїС†РёРё
 //
 class SrCPropList {
 public:
@@ -569,15 +569,15 @@ private:
 	struct Item {
 		CONCEPTID CID;
 		CONCEPTID PropID;
-		uint32 P;         // Позиция данных в буфере SrCPropList::D
-		uint32 S;         // Длина данных в буфере SrCPropList::D
+		uint32 P;         // РџРѕР·РёС†РёСЏ РґР°РЅРЅС‹С… РІ Р±СѓС„РµСЂРµ SrCPropList::D
+		uint32 S;         // Р”Р»РёРЅР° РґР°РЅРЅС‹С… РІ Р±СѓС„РµСЂРµ SrCPropList::D
 	};
 	int    SetData(uint pos, const void * pData, size_t dataLen);
 	TSArray <Item> L;
 	SBuffer D;
 };
 //
-// Descr: Таблица хранения свойств концепций
+// Descr: РўР°Р±Р»РёС†Р° С…СЂР°РЅРµРЅРёСЏ СЃРІРѕР№СЃС‚РІ РєРѕРЅС†РµРїС†РёР№
 // {concept-id; prop-id; prop-value}
 //
 class SrConceptPropTbl : public BDbTable {
@@ -597,9 +597,9 @@ private:
 	SrDatabase & R_Sr; // @notowned
 };
 //
-// Descr: Таблица соответствий между N-граммами и концепциями. Фактически, это -
-//   таблица, обеспечивающая связку между словосочетаниями (словами) на естественных языках
-//   и формализованными концепциями.
+// Descr: РўР°Р±Р»РёС†Р° СЃРѕРѕС‚РІРµС‚СЃС‚РІРёР№ РјРµР¶РґСѓ N-РіСЂР°РјРјР°РјРё Рё РєРѕРЅС†РµРїС†РёСЏРјРё. Р¤Р°РєС‚РёС‡РµСЃРєРё, СЌС‚Рѕ -
+//   С‚Р°Р±Р»РёС†Р°, РѕР±РµСЃРїРµС‡РёРІР°СЋС‰Р°СЏ СЃРІСЏР·РєСѓ РјРµР¶РґСѓ СЃР»РѕРІРѕСЃРѕС‡РµС‚Р°РЅРёСЏРјРё (СЃР»РѕРІР°РјРё) РЅР° РµСЃС‚РµСЃС‚РІРµРЅРЅС‹С… СЏР·С‹РєР°С…
+//   Рё С„РѕСЂРјР°Р»РёР·РѕРІР°РЅРЅС‹РјРё РєРѕРЅС†РµРїС†РёСЏРјРё.
 // {concept-id, ngram-id}
 //
 class SrConceptNgTbl : public BDbTable {
@@ -625,8 +625,8 @@ private:
 	int    SLAPI Helper_Set(PPOsm::NodeCluster & rNc, uint64 outerID, int update);
 	int    SLAPI Helper_Search(uint64 id, PPOsm::NodeCluster * pCluster, PPOsm::Node * pNode, PPOsm::NodeRefs * pNrList, uint64 * pLogicalID);
 	//
-	// Буферы для временного использования. Определены как члены класса
-	// дабы избежать частых распределений памяти.
+	// Р‘СѓС„РµСЂС‹ РґР»СЏ РІСЂРµРјРµРЅРЅРѕРіРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ. РћРїСЂРµРґРµР»РµРЅС‹ РєР°Рє С‡Р»РµРЅС‹ РєР»Р°СЃСЃР°
+	// РґР°Р±С‹ РёР·Р±РµР¶Р°С‚СЊ С‡Р°СЃС‚С‹С… СЂР°СЃРїСЂРµРґРµР»РµРЅРёР№ РїР°РјСЏС‚Рё.
 	//
 	BDbTable::Buffer KeyBuf;
 	BDbTable::Buffer DataBuf;
@@ -640,8 +640,8 @@ public:
 	int    SLAPI Search(uint64 id, PPOsm::Way * pW);
 private:
 	//
-	// Буферы для временного использования. Определены как члены класса
-	// дабы избежать частых распределений памяти.
+	// Р‘СѓС„РµСЂС‹ РґР»СЏ РІСЂРµРјРµРЅРЅРѕРіРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ. РћРїСЂРµРґРµР»РµРЅС‹ РєР°Рє С‡Р»РµРЅС‹ РєР»Р°СЃСЃР°
+	// РґР°Р±С‹ РёР·Р±РµР¶Р°С‚СЊ С‡Р°СЃС‚С‹С… СЂР°СЃРїСЂРµРґРµР»РµРЅРёР№ РїР°РјСЏС‚Рё.
 	//
 	BDbTable::Buffer KeyBuf;
 	BDbTable::Buffer DataBuf;
@@ -670,37 +670,37 @@ public:
 	int    GetField(int fld, SString & rVal) const;
 
 	int    InputKind;
-	int    LangID;    // Идентификатор языка
-	int    CpID;      // Идентификатор кодовой страницы входных файлов
+	int    LangID;    // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЏР·С‹РєР°
+	int    CpID;      // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†С‹ РІС…РѕРґРЅС‹С… С„Р°Р№Р»РѕРІ
 	long   Flags;     // @flags
-	StrAssocArray StrItems; // Список текстовых параметров
+	StrAssocArray StrItems; // РЎРїРёСЃРѕРє С‚РµРєСЃС‚РѕРІС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ
 };
 
 struct SrWordInfo {
 	SrWordInfo();
 	SrWordInfo & Clear();
 
-	LEXID  BaseID;     // Идентификатор неизменяемой базы слова
-	LEXID  PrefixID;   // Идентификатор приставки слова
-	LEXID  AffixID;    // Идентификатор окончания слова
+	LEXID  BaseID;     // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РЅРµРёР·РјРµРЅСЏРµРјРѕР№ Р±Р°Р·С‹ СЃР»РѕРІР°
+	LEXID  PrefixID;   // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїСЂРёСЃС‚Р°РІРєРё СЃР»РѕРІР°
+	LEXID  AffixID;    // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕРєРѕРЅС‡Р°РЅРёСЏ СЃР»РѕРІР°
 	//
-	int32  BaseFormID; // SrGrammarTbl.ID Базовый дескриптор словоформы, ассоциированный с BaseID
-	int32  FormID;     // SrGrammarTbl.ID Идентификатор словоформы найденного слова
-	// Для того, чтобы получить итоговое описание словоформы необходимо сцепить словоформы BaseFormID и FormID
-	int32  WaID;       // Идентификатор дескриптивной ассоциации слова
-	double Score;      // Величина сопоставления данной грамматической формы с требуемой (при преобразовании слова)
+	int32  BaseFormID; // SrGrammarTbl.ID Р‘Р°Р·РѕРІС‹Р№ РґРµСЃРєСЂРёРїС‚РѕСЂ СЃР»РѕРІРѕС„РѕСЂРјС‹, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹Р№ СЃ BaseID
+	int32  FormID;     // SrGrammarTbl.ID РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР»РѕРІРѕС„РѕСЂРјС‹ РЅР°Р№РґРµРЅРЅРѕРіРѕ СЃР»РѕРІР°
+	// Р”Р»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РїРѕР»СѓС‡РёС‚СЊ РёС‚РѕРіРѕРІРѕРµ РѕРїРёСЃР°РЅРёРµ СЃР»РѕРІРѕС„РѕСЂРјС‹ РЅРµРѕР±С…РѕРґРёРјРѕ СЃС†РµРїРёС‚СЊ СЃР»РѕРІРѕС„РѕСЂРјС‹ BaseFormID Рё FormID
+	int32  WaID;       // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РґРµСЃРєСЂРёРїС‚РёРІРЅРѕР№ Р°СЃСЃРѕС†РёР°С†РёРё СЃР»РѕРІР°
+	double Score;      // Р’РµР»РёС‡РёРЅР° СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРёСЏ РґР°РЅРЅРѕР№ РіСЂР°РјРјР°С‚РёС‡РµСЃРєРѕР№ С„РѕСЂРјС‹ СЃ С‚СЂРµР±СѓРµРјРѕР№ (РїСЂРё РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРё СЃР»РѕРІР°)
 };
 
 class SrDatabase {
 public:
 	//
-	// Descr: Квази-идентификаторы зарезервированных концепций.
-	// Реальные идентификаторы таких концепций могут быть получены вызовом SrDatabase::GetReservedConcept().
+	// Descr: РљРІР°Р·Рё-РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹С… РєРѕРЅС†РµРїС†РёР№.
+	// Р РµР°Р»СЊРЅС‹Рµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ С‚Р°РєРёС… РєРѕРЅС†РµРїС†РёР№ РјРѕРіСѓС‚ Р±С‹С‚СЊ РїРѕР»СѓС‡РµРЅС‹ РІС‹Р·РѕРІРѕРј SrDatabase::GetReservedConcept().
 	//
 	enum {
 		rcInstance = 1, // Instance Of. Symbol: crp_instance
 		rcSubclass,     // Subclass Of. Symbol: crp_subclass
-		rcType          // Type (тип данных). Symbol: crp_type
+		rcType          // Type (С‚РёРї РґР°РЅРЅС‹С…). Symbol: crp_type
 	};
 	SrDatabase();
 	~SrDatabase();
@@ -711,67 +711,70 @@ public:
 		return P_Db;
 	}
 	//
-	// Descr: Возвращает реальный идентификатор зарезервированной концепции с квази-идентификатором rc.
+	// Descr: Р’РѕР·РІСЂР°С‰Р°РµС‚ СЂРµР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅРѕР№ РєРѕРЅС†РµРїС†РёРё СЃ РєРІР°Р·Рё-РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј rc.
 	//
 	CONCEPTID FASTCALL GetReservedConcept(int rc);
 	//
-	// Descr: Набор функций, устанавливающий свойство propID для концепции cID.
-	//   Значение свойства определяется последним параметром.
-	// Attention: Функции не проверяют валидность идентификаторов cID и propID. Соответственно,
-	//   не осуществляется и проверка на принадлежность свойства propID домену концепции cID.
+	// Descr: РќР°Р±РѕСЂ С„СѓРЅРєС†РёР№, СѓСЃС‚Р°РЅР°РІР»РёРІР°СЋС‰РёР№ СЃРІРѕР№СЃС‚РІРѕ propID РґР»СЏ РєРѕРЅС†РµРїС†РёРё cID.
+	//   Р—РЅР°С‡РµРЅРёРµ СЃРІРѕР№СЃС‚РІР° РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РїРѕСЃР»РµРґРЅРёРј РїР°СЂР°РјРµС‚СЂРѕРј.
+	// Attention: Р¤СѓРЅРєС†РёРё РЅРµ РїСЂРѕРІРµСЂСЏСЋС‚ РІР°Р»РёРґРЅРѕСЃС‚СЊ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ cID Рё propID. РЎРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ,
+	//   РЅРµ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ Рё РїСЂРѕРІРµСЂРєР° РЅР° РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚СЊ СЃРІРѕР№СЃС‚РІР° propID РґРѕРјРµРЅСѓ РєРѕРЅС†РµРїС†РёРё cID.
 	//
 	int    SetConceptProp(CONCEPTID cID, CONCEPTID propID, long flags, int64 propVal);
 	int    SetConceptProp(CONCEPTID cID, CONCEPTID propID, long flags, int propVal);
 	int    SetConceptProp(CONCEPTID cID, CONCEPTID propID, long flags, double propVal);
 	//
-	// Descr: Устанавливает теги словоформы wordID в соответствии с определением rWf.
-	//   Предварительно ищет существующие дескрипторы словоформ этого слова и, если существует 
-	//   хоть один, содержащий rWf как свое подмножество, то ничего не делает. В противном случае
-	//   добавляет новый дескриптор, соответствующий rWf.
-	// Note: Функция высокоуровневая и ориентирована на завершенные слова. Дескрипторы словоформ, определенные
-	//   для составных конструкций ([prefix] [base] [suffix]) должны устанавливаются более сложными методами.
+	// Descr: РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ С‚РµРіРё СЃР»РѕРІРѕС„РѕСЂРјС‹ wordID РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё СЃ РѕРїСЂРµРґРµР»РµРЅРёРµРј rWf.
+	//   РџСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ РёС‰РµС‚ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёРµ РґРµСЃРєСЂРёРїС‚РѕСЂС‹ СЃР»РѕРІРѕС„РѕСЂРј СЌС‚РѕРіРѕ СЃР»РѕРІР° Рё, РµСЃР»Рё СЃСѓС‰РµСЃС‚РІСѓРµС‚ 
+	//   С…РѕС‚СЊ РѕРґРёРЅ, СЃРѕРґРµСЂР¶Р°С‰РёР№ rWf РєР°Рє СЃРІРѕРµ РїРѕРґРјРЅРѕР¶РµСЃС‚РІРѕ, С‚Рѕ РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°РµС‚. Р’ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ
+	//   РґРѕР±Р°РІР»СЏРµС‚ РЅРѕРІС‹Р№ РґРµСЃРєСЂРёРїС‚РѕСЂ, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ rWf.
+	// Note: Р¤СѓРЅРєС†РёСЏ РІС‹СЃРѕРєРѕСѓСЂРѕРІРЅРµРІР°СЏ Рё РѕСЂРёРµРЅС‚РёСЂРѕРІР°РЅР° РЅР° Р·Р°РІРµСЂС€РµРЅРЅС‹Рµ СЃР»РѕРІР°. Р”РµСЃРєСЂРёРїС‚РѕСЂС‹ СЃР»РѕРІРѕС„РѕСЂРј, РѕРїСЂРµРґРµР»РµРЅРЅС‹Рµ
+	//   РґР»СЏ СЃРѕСЃС‚Р°РІРЅС‹С… РєРѕРЅСЃС‚СЂСѓРєС†РёР№ ([prefix] [base] [suffix]) РґРѕР»Р¶РЅС‹ СѓСЃС‚Р°РЅР°РІР»РёРІР°СЋС‚СЃСЏ Р±РѕР»РµРµ СЃР»РѕР¶РЅС‹РјРё РјРµС‚РѕРґР°РјРё.
 	//
 	int    SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf);
 	//
-	// Descr: Реализует базовый механизм извлечения признаков слова wordID из базы данных.
-	//   При извлечении учитываются префикс (pfxID) и суффикс (afxID) слова (если не нулевые).
-	// ARG(wordID   IN): идентификатор слова
-	// ARG(pfxID    IN): идентификатор префикса слова. Если 0, то считается, что префикс либо отсутствует,
-	//   либо содержится в слове wordID.
-	// ARG(afxID    IN): идентификатор суффикса слова. Если 0, то считается, что суффикс либо отсутствует,
-	//   либо содержится в слове wordID.
-	// ARG(rWaList OUT): результирующий список грамматических ассоциаций слова wordID
-	//   (функция предварительно ОЧИЩАЕТ этот список).
-	// ARG(rInfo   OUT): результирующий список информационных блоков (для различных смыслов слова)
-	//   (функция НЕ ОЧИЩАЕТ предварительно этот список).
+	// Descr: Р РµР°Р»РёР·СѓРµС‚ Р±Р°Р·РѕРІС‹Р№ РјРµС…Р°РЅРёР·Рј РёР·РІР»РµС‡РµРЅРёСЏ РїСЂРёР·РЅР°РєРѕРІ СЃР»РѕРІР° wordID РёР· Р±Р°Р·С‹ РґР°РЅРЅС‹С….
+	//   РџСЂРё РёР·РІР»РµС‡РµРЅРёРё СѓС‡РёС‚С‹РІР°СЋС‚СЃСЏ РїСЂРµС„РёРєСЃ (pfxID) Рё СЃСѓС„С„РёРєСЃ (afxID) СЃР»РѕРІР° (РµСЃР»Рё РЅРµ РЅСѓР»РµРІС‹Рµ).
+	// ARG(wordID   IN): РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР»РѕРІР°
+	// ARG(pfxID    IN): РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїСЂРµС„РёРєСЃР° СЃР»РѕРІР°. Р•СЃР»Рё 0, С‚Рѕ СЃС‡РёС‚Р°РµС‚СЃСЏ, С‡С‚Рѕ РїСЂРµС„РёРєСЃ Р»РёР±Рѕ РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚,
+	//   Р»РёР±Рѕ СЃРѕРґРµСЂР¶РёС‚СЃСЏ РІ СЃР»РѕРІРµ wordID.
+	// ARG(afxID    IN): РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃСѓС„С„РёРєСЃР° СЃР»РѕРІР°. Р•СЃР»Рё 0, С‚Рѕ СЃС‡РёС‚Р°РµС‚СЃСЏ, С‡С‚Рѕ СЃСѓС„С„РёРєСЃ Р»РёР±Рѕ РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚,
+	//   Р»РёР±Рѕ СЃРѕРґРµСЂР¶РёС‚СЃСЏ РІ СЃР»РѕРІРµ wordID.
+	// ARG(rWaList OUT): СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РёР№ СЃРїРёСЃРѕРє РіСЂР°РјРјР°С‚РёС‡РµСЃРєРёС… Р°СЃСЃРѕС†РёР°С†РёР№ СЃР»РѕРІР° wordID
+	//   (С„СѓРЅРєС†РёСЏ РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ РћР§РР©РђР•Рў СЌС‚РѕС‚ СЃРїРёСЃРѕРє).
+	// ARG(rInfo   OUT): СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РёР№ СЃРїРёСЃРѕРє РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅС‹С… Р±Р»РѕРєРѕРІ (РґР»СЏ СЂР°Р·Р»РёС‡РЅС‹С… СЃРјС‹СЃР»РѕРІ СЃР»РѕРІР°)
+	//   (С„СѓРЅРєС†РёСЏ РќР• РћР§РР©РђР•Рў РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ СЌС‚РѕС‚ СЃРїРёСЃРѕРє).
 	// Returns:
-	//   >0 - функция идентифицировала по крайней мере одну грамматическую ассоциацию слова
-	//   <0 - функция не нашла грамматических ассоциаций слова.
-	//    0 - ошибка
+	//   >0 - С„СѓРЅРєС†РёСЏ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°Р»Р° РїРѕ РєСЂР°Р№РЅРµР№ РјРµСЂРµ РѕРґРЅСѓ РіСЂР°РјРјР°С‚РёС‡РµСЃРєСѓСЋ Р°СЃСЃРѕС†РёР°С†РёСЋ СЃР»РѕРІР°
+	//   <0 - С„СѓРЅРєС†РёСЏ РЅРµ РЅР°С€Р»Р° РіСЂР°РјРјР°С‚РёС‡РµСЃРєРёС… Р°СЃСЃРѕС†РёР°С†РёР№ СЃР»РѕРІР°.
+	//    0 - РѕС€РёР±РєР°
 	//
 	int    GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSArray <SrWordAssoc> & rWaList, TSArray <SrWordInfo> & rInfo);
 	int    GetWordInfo(const char * pWordUtf8, long flags, TSArray <SrWordInfo> & rInfo);
 	int    WordInfoToStr(const SrWordInfo & rWi, SString & rBuf);
 	//
-	// Descr: Трансформирует слово pWordUtf8 в форму, определенную параметром rDestForm
+	// Descr: РўСЂР°РЅСЃС„РѕСЂРјРёСЂСѓРµС‚ СЃР»РѕРІРѕ pWordUtf8 РІ С„РѕСЂРјСѓ, РѕРїСЂРµРґРµР»РµРЅРЅСѓСЋ РїР°СЂР°РјРµС‚СЂРѕРј rDestForm
 	//
 	int    Transform_(const char * pWordUtf8, const SrWordForm & rDestForm, TSArray <SrWordInfo> & rResult);
 
-	int    SearchWord(int special, const char * pWordUtf8, LEXID * pID);
+	int    SearchWord(const char * pWordUtf8, LEXID * pID);
+	int    SearchSpecialWord(int special, const char * pWordUtf8, LEXID * pID);
+	int    FetchWord(const char * pWordUtf8, LEXID * pID);
+	int    FetchSpecialWord(int special, const char * pWordUtf8, LEXID * pID);
 	int    SearchNGram(const LongArray & rNg, NGID * pID);
 
 	enum {
 		ngclAnonymOnly = 0x0001
 	};
 	//
-	// Descr: Возвращает список идентификаторов концепций, ассоциированных с N-граммой ngID.
-	// ARG(ngID  IN): Идентификатор N-граммы, для которой ищутся концепции
-	// ARG(flags IN): BDbDatabase::ngclXXX Опции поиска
-	// ARG(rConceptList OUT): Список найденных идентификаторов концепций
+	// Descr: Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃРїРёСЃРѕРє РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ РєРѕРЅС†РµРїС†РёР№, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹С… СЃ N-РіСЂР°РјРјРѕР№ ngID.
+	// ARG(ngID  IN): РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ N-РіСЂР°РјРјС‹, РґР»СЏ РєРѕС‚РѕСЂРѕР№ РёС‰СѓС‚СЃСЏ РєРѕРЅС†РµРїС†РёРё
+	// ARG(flags IN): BDbDatabase::ngclXXX РћРїС†РёРё РїРѕРёСЃРєР°
+	// ARG(rConceptList OUT): РЎРїРёСЃРѕРє РЅР°Р№РґРµРЅРЅС‹С… РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ РєРѕРЅС†РµРїС†РёР№
 	// Returns:
-	//   >0 - найдена по крайней мере одна концепция, ассоциированная с ngID
-	//   <0 - не найдено ни одной концепции, удовлетворяющей условиям
-	//   0  - ошибка
+	//   >0 - РЅР°Р№РґРµРЅР° РїРѕ РєСЂР°Р№РЅРµР№ РјРµСЂРµ РѕРґРЅР° РєРѕРЅС†РµРїС†РёСЏ, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅР°СЏ СЃ ngID
+	//   <0 - РЅРµ РЅР°Р№РґРµРЅРѕ РЅРё РѕРґРЅРѕР№ РєРѕРЅС†РµРїС†РёРё, СѓРґРѕРІР»РµС‚РІРѕСЂСЏСЋС‰РµР№ СѓСЃР»РѕРІРёСЏРј
+	//   0  - РѕС€РёР±РєР°
 	//
 	int    GetNgConceptList(NGID ngID, long flags, Int64Array & rConceptList);
 	int    GetConceptHier(CONCEPTID cID, Int64Array & rConceptHier);
@@ -781,25 +784,36 @@ public:
 
 	int    GetPropType(CONCEPTID propID);
 	//
-	// Descr: Ищет идентификатор концепции с символом pSymbUtf8. Если такая концепция не существует, то создает ее.
-	// ARG(pSymbUtf8 IN): символ концепции. Значение хранится в таблице SrWordTbl со спец префиксом "/:".
-	// ARG(pID OUT): указатель на идентификатор найденной или созданной концепции с символом pSymbUtf8.
+	// Descr: РС‰РµС‚ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РєРѕРЅС†РµРїС†РёРё СЃ СЃРёРјРІРѕР»РѕРј pSymbUtf8. 
+	// ARG(pSymbUtf8 IN): СЃРёРјРІРѕР» РєРѕРЅС†РµРїС†РёРё. Р—РЅР°С‡РµРЅРёРµ С…СЂР°РЅРёС‚СЃСЏ РІ С‚Р°Р±Р»РёС†Рµ SrWordTbl СЃРѕ СЃРїРµС† РїСЂРµС„РёРєСЃРѕРј "/:".
+	// ARG(pID OUT): СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РЅР°Р№РґРµРЅРЅРѕР№ РёР»Рё СЃРѕР·РґР°РЅРЅРѕР№ РєРѕРЅС†РµРїС†РёРё СЃ СЃРёРјРІРѕР»РѕРј pSymbUtf8.
 	// Returns:
-	//  1 - символ pSymbUtf8 найден и найдена концепция по этому символу
-	//  2 - символ pSymbUtf8 найден, но соответствующая концепция отсутсвовала в следствии чего была создана.
-	//  3 - символ pSymbUtf8 не найден и был создан. Соответственно, концепция по этому символу тоже была создана.
-	//  0 - ошибка
+	//   1 - СЃРёРјРІРѕР» pSymbUtf8 РЅР°Р№РґРµРЅ Рё РЅР°Р№РґРµРЅР° РєРѕРЅС†РµРїС†РёСЏ РїРѕ СЌС‚РѕРјСѓ СЃРёРјРІРѕР»Сѓ
+	//  -1 - СЃРёРјРІРѕР» pSymbUtf8 РЅРµ РЅР°Р№РґРµРЅ
+	//  -2 - СЃРёРјРІРѕР» pSymbUtf8 РЅР°Р№РґРµРЅ, РЅРѕ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰Р°СЏ РєРѕРЅС†РµРїС†РёСЏ РѕС‚СЃСѓС‚СЃС‚РІРѕРІР°Р»Р°
+	//  0 - РѕС€РёР±РєР°
+	//
+	int    SearchConcept(const char * pSymbUtf8, CONCEPTID * pID);
+	//
+	// Descr: РС‰РµС‚ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РєРѕРЅС†РµРїС†РёРё СЃ СЃРёРјРІРѕР»РѕРј pSymbUtf8. Р•СЃР»Рё С‚Р°РєР°СЏ РєРѕРЅС†РµРїС†РёСЏ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, С‚Рѕ СЃРѕР·РґР°РµС‚ РµРµ.
+	// ARG(pSymbUtf8 IN): СЃРёРјРІРѕР» РєРѕРЅС†РµРїС†РёРё. Р—РЅР°С‡РµРЅРёРµ С…СЂР°РЅРёС‚СЃСЏ РІ С‚Р°Р±Р»РёС†Рµ SrWordTbl СЃРѕ СЃРїРµС† РїСЂРµС„РёРєСЃРѕРј "/:".
+	// ARG(pID OUT): СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РЅР°Р№РґРµРЅРЅРѕР№ РёР»Рё СЃРѕР·РґР°РЅРЅРѕР№ РєРѕРЅС†РµРїС†РёРё СЃ СЃРёРјРІРѕР»РѕРј pSymbUtf8.
+	// Returns:
+	//  1 - СЃРёРјРІРѕР» pSymbUtf8 РЅР°Р№РґРµРЅ Рё РЅР°Р№РґРµРЅР° РєРѕРЅС†РµРїС†РёСЏ РїРѕ СЌС‚РѕРјСѓ СЃРёРјРІРѕР»Сѓ
+	//  2 - СЃРёРјРІРѕР» pSymbUtf8 РЅР°Р№РґРµРЅ, РЅРѕ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰Р°СЏ РєРѕРЅС†РµРїС†РёСЏ РѕС‚СЃСѓС‚СЃС‚РІРѕРІР°Р»Р° РІ СЃР»РµРґСЃС‚РІРёРё С‡РµРіРѕ Р±С‹Р»Р° СЃРѕР·РґР°РЅР°.
+	//  3 - СЃРёРјРІРѕР» pSymbUtf8 РЅРµ РЅР°Р№РґРµРЅ Рё Р±С‹Р» СЃРѕР·РґР°РЅ. РЎРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ, РєРѕРЅС†РµРїС†РёСЏ РїРѕ СЌС‚РѕРјСѓ СЃРёРјРІРѕР»Сѓ С‚РѕР¶Рµ Р±С‹Р»Р° СЃРѕР·РґР°РЅР°.
+	//  0 - РѕС€РёР±РєР°
 	//
 	int    ResolveConcept(const char * pSymbUtf8, CONCEPTID * pID);
 	int    CreateAnonymConcept(CONCEPTID * pID);
 	//
-	// Descr: Ищет идентификатор слова pWordUtf8. Если такое слово не существует, то создает его.
-	// ARG(pWordUtf8 IN): слово в кодировке UTF-8.
-	// ARG(pID OUT): указатель на идентификатор найденного или созданного слова.
+	// Descr: РС‰РµС‚ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР»РѕРІР° pWordUtf8. Р•СЃР»Рё С‚Р°РєРѕРµ СЃР»РѕРІРѕ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, С‚Рѕ СЃРѕР·РґР°РµС‚ РµРіРѕ.
+	// ARG(pWordUtf8 IN): СЃР»РѕРІРѕ РІ РєРѕРґРёСЂРѕРІРєРµ UTF-8.
+	// ARG(pID OUT): СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РЅР°Р№РґРµРЅРЅРѕРіРѕ РёР»Рё СЃРѕР·РґР°РЅРЅРѕРіРѕ СЃР»РѕРІР°.
 	// Returns:
-	//   1 - слова pWordUtf8 найдено
-	//   2 - слово pWordUtf8 не существовало до вызова функции в следствии чего оно было создано.
-	//   0 - ошибка
+	//   1 - СЃР»РѕРІР° pWordUtf8 РЅР°Р№РґРµРЅРѕ
+	//   2 - СЃР»РѕРІРѕ pWordUtf8 РЅРµ СЃСѓС‰РµСЃС‚РІРѕРІР°Р»Рѕ РґРѕ РІС‹Р·РѕРІР° С„СѓРЅРєС†РёРё РІ СЃР»РµРґСЃС‚РІРёРё С‡РµРіРѕ РѕРЅРѕ Р±С‹Р»Рѕ СЃРѕР·РґР°РЅРѕ.
+	//   0 - РѕС€РёР±РєР°
 	//
 	int    ResolveWord(const char * pWordUtf8, LEXID * pID);
 	int    ResolveNGram(const LongArray & rList, NGID * pID);
@@ -815,6 +829,14 @@ public:
 	int    StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, int dontCheckExist, TSArray <PPOsm::NodeClusterStatEntry> * pStat);
 	int    StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSArray <PPOsm::WayStatEntry> * pStat);
 	int    StoreGeoNodeWayRefList(const LLAssocArray & rList);
+
+	//
+	// Descr: Р¤РѕСЂРјРёСЂСѓРµС‚ С‚РµРєСЃС‚ СЃРїРµС†РёР°Р»СЊРЅРѕР№ Р»РµРєСЃРµРјС‹ СЃ РїСЂРµС„РёРєСЃРѕРј, РѕРїСЂРµРґРµР»РµРЅРЅС‹Рј РїР°СЂР°РјРµС‚СЂРѕРј spcTag.
+	// Returns:
+	//   >0 - СЃРїРµС†РёР°Р»СЊРЅР°СЏ Р»РµРєСЃРµРјР° СѓСЃРїРµС€РЅРѕ СЃС„РѕСЂРјРёСЂРѕРІР°РЅР°
+	//   0  - РѕС€РёР±РєР° (РЅРµ РґРѕРїСѓСЃС‚РёРјРѕРµ Р·РЅР°С‡РµРЅРёРµ spcTag)
+	//
+	static int SLAPI MakeSpecialWord(int spcTag, const char * pWordUtf8, SString & rBuf);
 //private:
 public:
 	BDbDatabase      * P_Db;
@@ -835,4 +857,6 @@ private:
 	CONCEPTID PropInstance; // :crp_instance
 	CONCEPTID PropSubclass; // :crp_subclass
 	CONCEPTID PropType;     // :crp_type
+
+	SymbHashTable WordCache;
 };

@@ -283,7 +283,6 @@ static int dprintf_Pass1(const char * format, va_stack_t * vto, char ** endpos,
 				}
 				else
 #endif
-
 				switch(*fmt++) {
 					case ' ':
 					    flags |= FLAGS_SPACE;
@@ -372,7 +371,6 @@ static int dprintf_Pass1(const char * format, va_stack_t * vto, char ** endpos,
 					case '*': /* Special case */
 					    flags |= FLAGS_WIDTHPARAM;
 					    param_num++;
-
 					    i = dprintf_DollarString(fmt, &fmt);
 					    if(i)
 						    width = i;

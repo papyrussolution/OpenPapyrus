@@ -657,7 +657,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 			{
 				SString product_name;
 				(product_name = "Papyrus-ImpExpKorus");
-				SLS.Init(product_name, (HINSTANCE)hModule);
+				SLS.Init(product_name/*, (HINSTANCE)hModule*/);
 			}
 			break;
 #ifdef _MT
@@ -1536,7 +1536,7 @@ EXPORT int SetExportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 	P_ExportCls->CreateFileName(P_ExportCls->ObjId);
 	P_ExportCls->P_XmlWriter = xmlNewTextWriterFilename(P_ExportCls->ExpFileName, 0);
 	THROWERR(P_ExportCls->P_XmlWriter, IEERR_NULLWRIEXMLPTR);
-	xmlTextWriterSetIndent(P_ExportCls->P_XmlWriter, 1); // @v9.7.10
+	// @v9.7.10 xmlTextWriterSetIndent(P_ExportCls->P_XmlWriter, 1); // @v9.7.10
 	xmlTextWriterSetIndentString(P_ExportCls->P_XmlWriter, (const xmlChar*)"\t");
 	// UTF-8 - по требованию провайдера
 	xmlTextWriterStartDocument(P_ExportCls->P_XmlWriter, 0, "UTF-8", 0);

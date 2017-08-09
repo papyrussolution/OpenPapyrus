@@ -198,8 +198,7 @@ static inline zbar_symbol_type_t check_stop(zbar_decoder_t * dcode)
 
 #define CHKMOD (47)
 
-static inline int plusmod47(int acc,
-    int add)
+static inline int plusmod47(int acc, int add)
 {
 	acc += add;
 	if(acc >= CHKMOD)
@@ -308,7 +307,6 @@ zbar_symbol_type_t _zbar_decode_code93(zbar_decoder_t * dcode)
 {
 	code93_decoder_t * dcode93 = &dcode->code93;
 	int c;
-
 	if(dcode93->character < 0) {
 		zbar_symbol_type_t sym;
 		if(get_color(dcode) != ZBAR_BAR)

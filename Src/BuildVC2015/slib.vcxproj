@@ -3647,6 +3647,7 @@
     <ClInclude Include="..\Include\Sarray.h" />
     <ClInclude Include="..\Include\Sbrowser.h" />
     <ClInclude Include="..\Include\Schecks.h" />
+    <ClInclude Include="..\Include\SLCONFIG.H" />
     <ClInclude Include="..\Include\Slib.h" />
     <ClInclude Include="..\Include\Smath.h" />
     <ClInclude Include="..\Include\StyloConduit.h" />

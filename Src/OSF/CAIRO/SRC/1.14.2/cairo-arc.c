@@ -68,8 +68,7 @@ static double _arc_max_angle_for_tolerance_normalized(double tolerance)
 {
 	double angle, error;
 	int i;
-
-	/* Use table lookup to reduce search time in most cases. */
+	// Use table lookup to reduce search time in most cases. 
 	struct {
 		double angle;
 		double error;
@@ -87,7 +86,6 @@ static double _arc_max_angle_for_tolerance_normalized(double tolerance)
 		{ M_PI / 11.0,  9.81410988043554039085e-09 },
 	};
 	int table_size = SIZEOFARRAY(table);
-
 	for(i = 0; i < table_size; i++)
 		if(table[i].error < tolerance)
 			return table[i].angle;
@@ -97,16 +95,14 @@ static double _arc_max_angle_for_tolerance_normalized(double tolerance)
 		angle = M_PI / i++;
 		error = _arc_error_normalized(angle);
 	} while(error > tolerance);
-
 	return angle;
 }
 
 static int _arc_segments_needed(double angle, double radius, cairo_matrix_t * ctm, double tolerance)
 {
 	double major_axis, max_angle;
-	/* the error is amplified by at most the length of the
-	 * major axis of the circle; see cairo-pen.c for a more detailed analysis
-	 * of this. */
+	// the error is amplified by at most the length of the
+	// major axis of the circle; see cairo-pen.c for a more detailed analysis of this.
 	major_axis = _cairo_matrix_transformed_circle_major_axis(ctm, radius);
 	max_angle = _arc_max_angle_for_tolerance_normalized(tolerance / major_axis);
 	return (int)ceil(fabs(angle) / max_angle);
@@ -137,31 +133,15 @@ static int _arc_segments_needed(double angle, double radius, cairo_matrix_t * ct
    error expression is quite simple, (see the comment for
    _arc_error_normalized).
  */
-static void _cairo_arc_segment(cairo_t * cr,
-    double xc,
-    double yc,
-    double radius,
-    double angle_A,
-    double angle_B)
+static void _cairo_arc_segment(cairo_t * cr, double xc, double yc, double radius, double angle_A, double angle_B)
 {
-	double r_sin_A, r_cos_A;
-	double r_sin_B, r_cos_B;
-	double h;
-
-	r_sin_A = radius * sin(angle_A);
-	r_cos_A = radius * cos(angle_A);
-	r_sin_B = radius * sin(angle_B);
-	r_cos_B = radius * cos(angle_B);
-
-	h = 4.0/3.0 * tan((angle_B - angle_A) / 4.0);
-
-	cairo_curve_to(cr,
-	    xc + r_cos_A - h * r_sin_A,
-	    yc + r_sin_A + h * r_cos_A,
-	    xc + r_cos_B + h * r_sin_B,
-	    yc + r_sin_B - h * r_cos_B,
-	    xc + r_cos_B,
-	    yc + r_sin_B);
+	double r_sin_A = radius * sin(angle_A);
+	double r_cos_A = radius * cos(angle_A);
+	double r_sin_B = radius * sin(angle_B);
+	double r_cos_B = radius * cos(angle_B);
+	double h = 4.0/3.0 * tan((angle_B - angle_A) / 4.0);
+	cairo_curve_to(cr, xc + r_cos_A - h * r_sin_A, yc + r_sin_A + h * r_cos_A, xc + r_cos_B + h * r_sin_B,
+	    yc + r_sin_B - h * r_cos_B, xc + r_cos_B, yc + r_sin_B);
 }
 
 static void _cairo_arc_in_direction(cairo_t * cr, double xc, double yc, double radius, double angle_min, double angle_max, cairo_direction_t dir)

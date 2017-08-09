@@ -44,19 +44,14 @@ static bool FASTCALL IsAWordStart(int ch)
 
 static bool FASTCALL IsADoxygenChar(int ch)
 {
-	return (islower(ch) || ch == '$' || ch == '@' ||
-	    ch == '\\' || ch == '&' || ch == '<' ||
-	    ch == '>' || ch == '#' || ch == '{' ||
-	    ch == '}' || ch == '[' || ch == ']');
+	return (islower(ch) || oneof11(ch, '$', '@', '\\', '&', '<', '>', '#', '{', '}', '[', ']'));
 }
 
 static bool FASTCALL IsANumberChar(int ch, int chPrev)
 {
 	// Not exactly following number definition (several dots are seen as OK, etc.)
 	// but probably enough in most cases.
-	return (ch < 0x80) &&
-	       (isdigit(ch) || toupper(ch) == 'E' ||
-	    ch == '.' || ((ch == '-' || ch == '+') && chPrev < 0x80 && toupper(chPrev) == 'E'));
+	return (ch < 0x80) && (isdigit(ch) || toupper(ch) == 'E' || ch == '.' || ((ch == '-' || ch == '+') && chPrev < 0x80 && toupper(chPrev) == 'E'));
 }
 
 typedef uint sql_state_t;
@@ -89,33 +84,19 @@ public:
 	}
 	sql_state_t IntoMergeStatement(sql_state_t sqlStatesLine, bool enable)
 	{
-		if(enable)
-			sqlStatesLine |= MASK_MERGE_STATEMENT;
-		else
-			sqlStatesLine &= ~MASK_MERGE_STATEMENT;
-
+		SETFLAG(sqlStatesLine, MASK_MERGE_STATEMENT, enable);
 		return sqlStatesLine;
 	}
-
 	sql_state_t CaseMergeWithoutWhenFound(sql_state_t sqlStatesLine, bool found)
 	{
-		if(found)
-			sqlStatesLine |= MASK_CASE_MERGE_WITHOUT_WHEN_FOUND;
-		else
-			sqlStatesLine &= ~MASK_CASE_MERGE_WITHOUT_WHEN_FOUND;
-
+		SETFLAG(sqlStatesLine, MASK_CASE_MERGE_WITHOUT_WHEN_FOUND, found);
 		return sqlStatesLine;
 	}
-
 	sql_state_t IntoSelectStatementOrAssignment(sql_state_t sqlStatesLine, bool found)
 	{
-		if(found)
-			sqlStatesLine |= MASK_INTO_SELECT_STATEMENT_OR_ASSIGNEMENT;
-		else
-			sqlStatesLine &= ~MASK_INTO_SELECT_STATEMENT_OR_ASSIGNEMENT;
+		SETFLAG(sqlStatesLine, MASK_INTO_SELECT_STATEMENT_OR_ASSIGNEMENT, found);
 		return sqlStatesLine;
 	}
-
 	sql_state_t BeginCaseBlock(sql_state_t sqlStatesLine)
 	{
 		if((sqlStatesLine & MASK_NESTED_CASES) < MASK_NESTED_CASES) {
@@ -123,7 +104,6 @@ public:
 		}
 		return sqlStatesLine;
 	}
-
 	sql_state_t EndCaseBlock(sql_state_t sqlStatesLine)
 	{
 		if((sqlStatesLine & MASK_NESTED_CASES) > 0) {
@@ -131,101 +111,72 @@ public:
 		}
 		return sqlStatesLine;
 	}
-
 	sql_state_t IntoCreateStatement(sql_state_t sqlStatesLine, bool enable)
 	{
-		if(enable)
-			sqlStatesLine |= MASK_INTO_CREATE;
-		else
-			sqlStatesLine &= ~MASK_INTO_CREATE;
-
+		SETFLAG(sqlStatesLine, MASK_INTO_CREATE, enable);
 		return sqlStatesLine;
 	}
-
 	sql_state_t IntoCreateViewStatement(sql_state_t sqlStatesLine, bool enable)
 	{
-		if(enable)
-			sqlStatesLine |= MASK_INTO_CREATE_VIEW;
-		else
-			sqlStatesLine &= ~MASK_INTO_CREATE_VIEW;
-
+		SETFLAG(sqlStatesLine, MASK_INTO_CREATE_VIEW, enable);
 		return sqlStatesLine;
 	}
-
 	sql_state_t IntoCreateViewAsStatement(sql_state_t sqlStatesLine, bool enable)
 	{
-		if(enable)
-			sqlStatesLine |= MASK_INTO_CREATE_VIEW_AS_STATEMENT;
-		else
-			sqlStatesLine &= ~MASK_INTO_CREATE_VIEW_AS_STATEMENT;
-
+		SETFLAG(sqlStatesLine, MASK_INTO_CREATE_VIEW_AS_STATEMENT, enable);
 		return sqlStatesLine;
 	}
-
-	bool IsIgnoreWhen(sql_state_t sqlStatesLine)
+	bool IsIgnoreWhen(sql_state_t sqlStatesLine) const
 	{
 		return (sqlStatesLine & MASK_IGNORE_WHEN) != 0;
 	}
-
-	bool IsIntoCondition(sql_state_t sqlStatesLine)
+	bool IsIntoCondition(sql_state_t sqlStatesLine) const
 	{
 		return (sqlStatesLine & MASK_INTO_CONDITION) != 0;
 	}
-
-	bool IsIntoCaseBlock(sql_state_t sqlStatesLine)
+	bool IsIntoCaseBlock(sql_state_t sqlStatesLine) const
 	{
 		return (sqlStatesLine & MASK_NESTED_CASES) != 0;
 	}
-
-	bool IsIntoExceptionBlock(sql_state_t sqlStatesLine)
+	bool IsIntoExceptionBlock(sql_state_t sqlStatesLine) const
 	{
 		return (sqlStatesLine & MASK_INTO_EXCEPTION) != 0;
 	}
-
-	bool IsIntoSelectStatementOrAssignment(sql_state_t sqlStatesLine)
+	bool IsIntoSelectStatementOrAssignment(sql_state_t sqlStatesLine) const
 	{
 		return (sqlStatesLine & MASK_INTO_SELECT_STATEMENT_OR_ASSIGNEMENT) != 0;
 	}
-
-	bool IsCaseMergeWithoutWhenFound(sql_state_t sqlStatesLine)
+	bool IsCaseMergeWithoutWhenFound(sql_state_t sqlStatesLine) const
 	{
 		return (sqlStatesLine & MASK_CASE_MERGE_WITHOUT_WHEN_FOUND) != 0;
 	}
-
-	bool IsIntoDeclareBlock(sql_state_t sqlStatesLine)
+	bool IsIntoDeclareBlock(sql_state_t sqlStatesLine) const
 	{
 		return (sqlStatesLine & MASK_INTO_DECLARE) != 0;
 	}
-
-	bool IsIntoMergeStatement(sql_state_t sqlStatesLine)
+	bool IsIntoMergeStatement(sql_state_t sqlStatesLine) const
 	{
 		return (sqlStatesLine & MASK_MERGE_STATEMENT) != 0;
 	}
-
-	bool IsIntoCreateStatement(sql_state_t sqlStatesLine)
+	bool IsIntoCreateStatement(sql_state_t sqlStatesLine) const
 	{
 		return (sqlStatesLine & MASK_INTO_CREATE) != 0;
 	}
-
-	bool IsIntoCreateViewStatement(sql_state_t sqlStatesLine)
+	bool IsIntoCreateViewStatement(sql_state_t sqlStatesLine) const
 	{
 		return (sqlStatesLine & MASK_INTO_CREATE_VIEW) != 0;
 	}
-
-	bool IsIntoCreateViewAsStatement(sql_state_t sqlStatesLine)
+	bool IsIntoCreateViewAsStatement(sql_state_t sqlStatesLine) const
 	{
 		return (sqlStatesLine & MASK_INTO_CREATE_VIEW_AS_STATEMENT) != 0;
 	}
-
 	sql_state_t ForLine(Sci_Position lineNumber)
 	{
 		return sqlStatement.ValueAt(lineNumber);
 	}
-
 	SQLStates()
 	{
 	}
-
 private:
 	SparseState <sql_state_t> sqlStatement;
 	enum {

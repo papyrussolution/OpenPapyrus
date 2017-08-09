@@ -240,15 +240,13 @@ done:
 	return CURLE_REMOTE_ACCESS_DENIED;
 }
 
-static CURLcode ntlm_wb_response(struct connectdata * conn,
-    const char * input, curlntlm state)
+static CURLcode ntlm_wb_response(struct connectdata * conn, const char * input, curlntlm state)
 {
 	char * buf = SAlloc::M(NTLM_BUFSIZE);
-	size_t len_in = strlen(input), len_out = 0;
-
+	size_t len_in = strlen(input);
+	size_t len_out = 0;
 	if(!buf)
 		return CURLE_OUT_OF_MEMORY;
-
 	while(len_in > 0) {
 		ssize_t written = swrite(conn->ntlm_auth_hlpr_socket, input, len_in);
 		if(written == -1) {
@@ -263,10 +261,8 @@ static CURLcode ntlm_wb_response(struct connectdata * conn,
 	}
 	/* Read one line */
 	while(1) {
-		ssize_t size;
 		char * newbuf;
-
-		size = sread(conn->ntlm_auth_hlpr_socket, buf + len_out, NTLM_BUFSIZE);
+		ssize_t size = sread(conn->ntlm_auth_hlpr_socket, buf + len_out, NTLM_BUFSIZE);
 		if(size == -1) {
 			if(errno == EINTR)
 				continue;
@@ -274,7 +270,6 @@ static CURLcode ntlm_wb_response(struct connectdata * conn,
 		}
 		else if(size == 0)
 			goto done;
-
 		len_out += size;
 		if(buf[len_out - 1] == '\n') {
 			buf[len_out - 1] = '\0';
@@ -283,14 +278,10 @@ static CURLcode ntlm_wb_response(struct connectdata * conn,
 		newbuf = Curl_saferealloc(buf, len_out + NTLM_BUFSIZE);
 		if(!newbuf)
 			return CURLE_OUT_OF_MEMORY;
-
 		buf = newbuf;
 	}
-
 	/* Samba/winbind installed but not configured */
-	if(state == NTLMSTATE_TYPE1 &&
-	    len_out == 3 &&
-	    buf[0] == 'P' && buf[1] == 'W')
+	if(state == NTLMSTATE_TYPE1 && len_out == 3 && buf[0] == 'P' && buf[1] == 'W')
 		goto done;
 	/* invalid response */
 	if(len_out < 4)
@@ -298,11 +289,8 @@ static CURLcode ntlm_wb_response(struct connectdata * conn,
 	if(state == NTLMSTATE_TYPE1 &&
 	    (buf[0]!='Y' || buf[1]!='R' || buf[2]!=' '))
 		goto done;
-	if(state == NTLMSTATE_TYPE2 &&
-	    (buf[0]!='K' || buf[1]!='K' || buf[2]!=' ') &&
-	    (buf[0]!='A' || buf[1]!='F' || buf[2]!=' '))
+	if(state == NTLMSTATE_TYPE2 && (buf[0]!='K' || buf[1]!='K' || buf[2]!=' ') && (buf[0]!='A' || buf[1]!='F' || buf[2]!=' '))
 		goto done;
-
 	conn->response_header = aprintf("NTLM %.*s", len_out - 4, buf + 3);
 	SAlloc::F(buf);
 	return CURLE_OK;
@@ -310,13 +298,11 @@ done:
 	SAlloc::F(buf);
 	return CURLE_REMOTE_ACCESS_DENIED;
 }
-
 /*
  * This is for creating ntlm header output by delegating challenge/response
  * to Samba's winbind daemon helper ntlm_auth.
  */
-CURLcode Curl_output_ntlm_wb(struct connectdata * conn,
-    bool proxy)
+CURLcode Curl_output_ntlm_wb(struct connectdata * conn, bool proxy)
 {
 	/* point to the address of the pointer that holds the string to send to the
 	   server, which is for a plain host or for a HTTP proxy */
@@ -347,7 +333,6 @@ CURLcode Curl_output_ntlm_wb(struct connectdata * conn,
 		authp = &conn->data->state.authhost;
 	}
 	authp->done = FALSE;
-
 	/* not set means empty */
 	if(!userp)
 		userp = "";

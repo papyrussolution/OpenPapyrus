@@ -45,19 +45,18 @@
 //#include "sendf.h"
 //#include "escape.h"
 //#include "file.h"
-#include "speedcheck.h"
+//#include "speedcheck.h"
 //#include "getinfo.h"
 //#include "transfer.h"
 //#include "url.h"
-#include "parsedate.h" /* for the week day and month names */
-#include "warnless.h"
+//#include "parsedate.h" /* for the week day and month names */
+//#include "warnless.h"
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
 //#include "curl_memory.h"
 #include "memdebug.h"
 
-#if defined(WIN32) || defined(MSDOS) || defined(__EMX__) || \
-	defined(__SYMBIAN32__)
+#if defined(WIN32) || defined(MSDOS) || defined(__EMX__) || defined(__SYMBIAN32__)
 #define DOS_FILESYSTEM 1
 #endif
 
@@ -414,40 +413,30 @@ static CURLcode file_do(struct connectdata * conn, bool * done)
 			return CURLE_OK;
 		}
 	}
-	/* If we have selected NOBODY and HEADER, it means that we only want file
-	   information. Which for FILE can't be much more than the file size and
-	   date. */
+	// If we have selected NOBODY and HEADER, it means that we only want file
+	// information. Which for FILE can't be much more than the file size and date.
 	if(data->set.opt_no_body && data->set.include_header && fstated) {
 		time_t filetime;
 		struct tm buffer;
-
 		const struct tm * tm = &buffer;
-		snprintf(buf, CURL_BUFSIZE(data->set.buffer_size),
-		    "Content-Length: %" CURL_FORMAT_CURL_OFF_T "\r\n", expected_size);
+		snprintf(buf, CURL_BUFSIZE(data->set.buffer_size), "Content-Length: %" CURL_FORMAT_CURL_OFF_T "\r\n", expected_size);
 		result = Curl_client_write(conn, CLIENTWRITE_BOTH, buf, 0);
 		if(result)
 			return result;
-
-		result = Curl_client_write(conn, CLIENTWRITE_BOTH,
-		    (char*)"Accept-ranges: bytes\r\n", 0);
+		result = Curl_client_write(conn, CLIENTWRITE_BOTH, (char*)"Accept-ranges: bytes\r\n", 0);
 		if(result)
 			return result;
-
 		filetime = (time_t)statbuf.st_mtime;
 		result = Curl_gmtime(filetime, &buffer);
 		if(result)
 			return result;
-
-		/* format: "Tue, 15 Nov 1994 12:45:26 GMT" */
-		snprintf(buf, BUFSIZE-1,
-		    "Last-Modified: %s, %02d %s %4d %02d:%02d:%02d GMT\r\n",
-		    Curl_wkday[tm->tm_wday ? tm->tm_wday-1 : 6],
-		    tm->tm_mday,
-		    Curl_month[tm->tm_mon],
-		    tm->tm_year + 1900,
-		    tm->tm_hour,
-		    tm->tm_min,
-		    tm->tm_sec);
+		// format: "Tue, 15 Nov 1994 12:45:26 GMT" 
+		snprintf(buf, BUFSIZE-1, "Last-Modified: %s, %02d %s %4d %02d:%02d:%02d GMT\r\n",
+		    // @v9.7.10 Curl_wkday[tm->tm_wday ? tm->tm_wday-1 : 6], tm->tm_mday, 
+			STextConst::Get(STextConst::cDow_En_Sh, tm->tm_wday ? tm->tm_wday-1 : 6), // @v9.7.10
+			// @v9.7.10 Curl_month[tm->tm_mon],
+			STextConst::Get(STextConst::cMon_En_Sh, tm->tm_mon), // @v9.7.10 
+		    tm->tm_year + 1900, tm->tm_hour, tm->tm_min, tm->tm_sec);
 		result = Curl_client_write(conn, CLIENTWRITE_BOTH, buf, 0);
 		if(!result)
 			/* set the file size to make it available post transfer */

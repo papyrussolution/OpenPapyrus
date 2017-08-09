@@ -493,7 +493,7 @@
 			MENUITEM "@cmd_analyzeobjsynccmp",				cmAnalyzeObjSyncCmp
 			MENUITEM "@cmd_viewobjsyncqueue",				cmViewObjSyncQueue
 			MENUITEM SEPARATOR
-			MENUITEM "@cmd_importcurrlist",					cmImportCurrList
+			// @v9.7.10 @obsolete MENUITEM "@cmd_importcurrlist",					cmImportCurrList
 			MENUITEM "@cmd_importposrefs",                  cmImportPosRefs
 			MENUITEM SEPARATOR
 			// @v9.2.1 MENUITEM "@cmd_supplgoodsimport",				cmSupplGoodsImport

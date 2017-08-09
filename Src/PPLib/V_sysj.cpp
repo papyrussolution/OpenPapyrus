@@ -433,7 +433,7 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 	DBE    dbe_user;
 	DBE    dbe_objtitle;
 	DBE    dbe_action;
-	DBE    dbe_person; // @v7.5.11
+	DBE    dbe_person;
 	DBE  * dbe_extra = 0;
 	DBE    dbe_avg_tm;
 	DBQ  * dbq = 0;
@@ -461,7 +461,7 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 		THROW(CheckTblPtr(sj));
 		PPDbqFuncPool::InitObjNameFunc(dbe_user,   PPDbqFuncPool::IdObjNameUser, sj->UserID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_action, PPDbqFuncPool::IdSysJActionName, sj->Action);
-		PPDbqFuncPool::InitObjNameFunc(dbe_person, PPDbqFuncPool::IdUsrPersonName, sj->UserID); // @v7.5.11
+		PPDbqFuncPool::InitObjNameFunc(dbe_person, PPDbqFuncPool::IdUsrPersonName, sj->UserID);
 		PPDbqFuncPool::InitLongFunc(dbe_objtitle, PPDbqFuncPool::IdObjTitle, sj->ObjType);
 		if(Filt.Flags & SysJournalFilt::fShowObjects && Filt.ActionIDList.getSingle() == PPACN_SCARDDISUPD)
 			dbe_extra = & (sj->Extra / 100);
@@ -490,7 +490,7 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 				sj->Extra,    // #8
 				dbe_objtitle, // #9
 				dbe_person,   // #10
-				nm->Name,     // #11 // @v7.5.11 #10-->#11
+				nm->Name,     // #11
 				0L).from(sj, nm, 0L);
 		}
 		else

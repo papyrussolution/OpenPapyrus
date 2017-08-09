@@ -752,11 +752,9 @@ static cairo_status_t _cairo_qt_surface_clipper_intersect_clip_path(cairo_surfac
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static void _cairo_qt_surface_set_clip_region(cairo_qt_surface_t * qs,
-    const cairo_region_t * clip_region)
+static void _cairo_qt_surface_set_clip_region(cairo_qt_surface_t * qs, const cairo_region_t * clip_region)
 {
 	_cairo_surface_clipper_reset(&qs->clipper);
-
 	if(clip_region == NULL) {
 		// How the clip path is reset depends on whether we own p or not
 		if(qs->pixmap || qs->image) {
@@ -773,24 +771,18 @@ static void _cairo_qt_surface_set_clip_region(cairo_qt_surface_t * qs,
 		int num_rects = cairo_region_num_rectangles(clip_region);
 		for(int i = 0; i < num_rects; ++i) {
 			CairoIRect rect;
-
 			cairo_region_get_rectangle(clip_region, i, &rect);
-
 			QRect r(rect.x, rect.y, rect.width, rect.height);
 			qr = qr.unite(r);
 		}
-
 		qs->p->setClipRegion(qr, Qt::IntersectClip);
 	}
 }
 
-static cairo_int_status_t _cairo_qt_surface_set_clip(cairo_qt_surface_t * qs,
-    const cairo_clip_t * clip)
+static cairo_int_status_t _cairo_qt_surface_set_clip(cairo_qt_surface_t * qs, const cairo_clip_t * clip)
 {
 	cairo_int_status_t status;
-
 	D(fprintf(stderr, "q[%p] intersect_clip_path %s\n", abstract_surface, path ? "(path)" : "(clear)"));
-
 	if(clip == NULL) {
 		_cairo_surface_clipper_reset(&qs->clipper);
 		// How the clip path is reset depends on whether we own p or not
@@ -802,7 +794,6 @@ static cairo_int_status_t _cairo_qt_surface_set_clip(cairo_qt_surface_t * qs,
 			qs->p->restore();
 			qs->p->save();
 		}
-
 		return CAIRO_INT_STATUS_SUCCESS;
 	}
 

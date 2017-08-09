@@ -35,7 +35,7 @@
 
 #include "cairo-xcb-private.h"
 #include "cairo-hash-private.h"
-#include "cairo-freelist-private.h"
+//#include "cairo-freelist-private.h"
 //#include "cairo-list-inline.h"
 
 #include <xcb/xcbext.h>
@@ -309,16 +309,13 @@ static cairo_bool_t has_required_depths(cairo_xcb_connection_t * connection)
 static xcb_render_query_version_reply_t * _render_restrict_env(xcb_render_query_version_reply_t * version)
 {
 	const char * env;
-
 	if(version == NULL)
 		return NULL;
-
 	env = getenv("CAIRO_DEBUG");
-	if(env != NULL)
+	if(env)
 		env = strstr(env, "xrender-version=");
-	if(env != NULL) {
+	if(env) {
 		int max_render_major, max_render_minor;
-
 		env += sizeof("xrender-version=") - 1;
 		if(sscanf(env, "%d.%d", &max_render_major, &max_render_minor) != 2)
 			max_render_major = max_render_minor = -1;
@@ -455,13 +452,11 @@ static cairo_bool_t can_use_shm(cairo_xcb_connection_t * connection)
 	_cairo_xcb_connection_put_xid(connection, shmseg);
 
 	error = xcb_request_check(c, cookie[0]);
-	if(error != NULL)
+	if(error)
 		success = FALSE;
-
 	error = xcb_request_check(c, cookie[1]);
-	if(error != NULL)
+	if(error)
 		success = FALSE;
-
 	shmctl(shmid, IPC_RMID, 0);
 	shmdt(ptr);
 
@@ -686,7 +681,7 @@ cairo_xcb_connection_t * _cairo_xcb_connection_get(xcb_connection_t * xcb_connec
 	}
 
 	ext = xcb_get_extension_data(xcb_connection, &xcb_render_id);
-	if(ext != NULL && ext->present) {
+	if(ext && ext->present) {
 		status = _cairo_xcb_connection_query_render(connection);
 		if(unlikely(status)) {
 			CAIRO_MUTEX_UNLOCK(connection->device.mutex);
@@ -700,14 +695,13 @@ cairo_xcb_connection_t * _cairo_xcb_connection_get(xcb_connection_t * xcb_connec
 
 #if 0
 	ext = xcb_get_extension_data(connection, &xcb_cairo_id);
-	if(ext != NULL && ext->present)
+	if(ext && ext->present)
 		_cairo_xcb_connection_query_cairo(connection);
 #endif
-
 	connection->shm = NULL;
 #if CAIRO_HAS_XCB_SHM_FUNCTIONS
 	ext = xcb_get_extension_data(xcb_connection, &xcb_shm_id);
-	if(ext != NULL && ext->present) {
+	if(ext && ext->present) {
 		_cairo_xcb_connection_query_shm(connection);
 		connection->shm = ext;
 	}
@@ -746,14 +740,12 @@ xcb_render_pictformat_t _cairo_xcb_connection_get_xrender_format_for_visual(cair
 	return format ? format->xrender_format : XCB_NONE;
 }
 
-void _cairo_xcb_connection_put_xid(cairo_xcb_connection_t * connection,
-    uint32_t xid)
+void _cairo_xcb_connection_put_xid(cairo_xcb_connection_t * connection, uint32_t xid)
 {
 	cairo_xcb_xid_t * cache;
-
 	assert(CAIRO_MUTEX_IS_LOCKED(connection->device.mutex));
 	cache = _cairo_freepool_alloc(&connection->xid_pool);
-	if(likely(cache != NULL)) {
+	if(likely(cache)) {
 		cache->xid = xid;
 		cairo_list_add(&cache->link, &connection->free_xids);
 	}
@@ -762,23 +754,16 @@ void _cairo_xcb_connection_put_xid(cairo_xcb_connection_t * connection,
 uint32_t _cairo_xcb_connection_get_xid(cairo_xcb_connection_t * connection)
 {
 	uint32_t xid;
-
 	assert(CAIRO_MUTEX_IS_LOCKED(connection->device.mutex));
 	if(!cairo_list_is_empty(&connection->free_xids)) {
-		cairo_xcb_xid_t * cache;
-
-		cache = cairo_list_first_entry(&connection->free_xids,
-		    cairo_xcb_xid_t,
-		    link);
+		cairo_xcb_xid_t * cache = cairo_list_first_entry(&connection->free_xids, cairo_xcb_xid_t, link);
 		xid = cache->xid;
-
 		cairo_list_del(&cache->link);
 		_cairo_freepool_free(&connection->xid_pool, cache);
 	}
 	else {
 		xid = xcb_generate_id(connection->xcb_connection);
 	}
-
 	return xid;
 }
 
@@ -857,64 +842,43 @@ void cairo_xcb_device_debug_cap_xshm_version(cairo_device_t * device,
  *
  * Since: 1.12
  **/
-void cairo_xcb_device_debug_cap_xrender_version(cairo_device_t * device,
-    int major_version,
-    int minor_version)
+void cairo_xcb_device_debug_cap_xrender_version(cairo_device_t * device, int major_version, int minor_version)
 {
 	cairo_xcb_connection_t * connection = (cairo_xcb_connection_t*)device;
-
 	if(device->backend->type != CAIRO_DEVICE_TYPE_XCB) {
-		cairo_status_t status;
-
-		status = _cairo_device_set_error(device, CAIRO_STATUS_DEVICE_TYPE_MISMATCH);
+		cairo_status_t status = _cairo_device_set_error(device, CAIRO_STATUS_DEVICE_TYPE_MISMATCH);
 		(void)status;
 		return;
 	}
-
 	/* First reset all the RENDER flags to their original value. This works
 	 * because we only ever clear bits after the connection was created.
 	 */
 	connection->flags |= (connection->original_flags & CAIRO_XCB_RENDER_MASK);
-
 	/* clear any flags that are inappropriate for the desired version */
 	if(major_version < 0 && minor_version < 0) {
-		connection->flags &= ~(CAIRO_XCB_HAS_RENDER |
-		    CAIRO_XCB_RENDER_HAS_COMPOSITE |
-		    CAIRO_XCB_RENDER_HAS_COMPOSITE_GLYPHS |
-		    CAIRO_XCB_RENDER_HAS_FILL_RECTANGLES |
-		    CAIRO_XCB_RENDER_HAS_COMPOSITE_TRAPEZOIDS |
-		    CAIRO_XCB_RENDER_HAS_PICTURE_TRANSFORM |
-		    CAIRO_XCB_RENDER_HAS_FILTERS |
-		    CAIRO_XCB_RENDER_HAS_FILTER_GOOD |
-		    CAIRO_XCB_RENDER_HAS_FILTER_BEST |
-		    CAIRO_XCB_RENDER_HAS_PDF_OPERATORS |
-		    CAIRO_XCB_RENDER_HAS_EXTENDED_REPEAT |
-		    CAIRO_XCB_RENDER_HAS_GRADIENTS);
+		connection->flags &= ~(CAIRO_XCB_HAS_RENDER | CAIRO_XCB_RENDER_HAS_COMPOSITE |
+		    CAIRO_XCB_RENDER_HAS_COMPOSITE_GLYPHS | CAIRO_XCB_RENDER_HAS_FILL_RECTANGLES |
+		    CAIRO_XCB_RENDER_HAS_COMPOSITE_TRAPEZOIDS | CAIRO_XCB_RENDER_HAS_PICTURE_TRANSFORM |
+		    CAIRO_XCB_RENDER_HAS_FILTERS | CAIRO_XCB_RENDER_HAS_FILTER_GOOD |
+		    CAIRO_XCB_RENDER_HAS_FILTER_BEST | CAIRO_XCB_RENDER_HAS_PDF_OPERATORS |
+		    CAIRO_XCB_RENDER_HAS_EXTENDED_REPEAT | CAIRO_XCB_RENDER_HAS_GRADIENTS);
 	}
 	else {
 		xcb_render_query_version_reply_t version;
-
 		version.major_version = major_version;
 		version.minor_version = minor_version;
-
 		if(!XCB_RENDER_HAS_FILL_RECTANGLES(&version))
 			connection->flags &= ~CAIRO_XCB_RENDER_HAS_FILL_RECTANGLES;
-
 		if(!XCB_RENDER_HAS_TRAPEZOIDS(&version))
 			connection->flags &= ~CAIRO_XCB_RENDER_HAS_COMPOSITE_TRAPEZOIDS;
-
 		if(!XCB_RENDER_HAS_PICTURE_TRANSFORM(&version))
 			connection->flags &= ~CAIRO_XCB_RENDER_HAS_PICTURE_TRANSFORM;
-
 		if(!XCB_RENDER_HAS_FILTERS(&version))
 			connection->flags &= ~CAIRO_XCB_RENDER_HAS_FILTERS;
-
 		if(!XCB_RENDER_HAS_PDF_OPERATORS(&version))
 			connection->flags &= ~CAIRO_XCB_RENDER_HAS_PDF_OPERATORS;
-
 		if(!XCB_RENDER_HAS_EXTENDED_REPEAT(&version))
 			connection->flags &= ~CAIRO_XCB_RENDER_HAS_EXTENDED_REPEAT;
-
 		if(!XCB_RENDER_HAS_GRADIENTS(&version))
 			connection->flags &= ~CAIRO_XCB_RENDER_HAS_GRADIENTS;
 	}
@@ -934,19 +898,15 @@ slim_hidden_def(cairo_xcb_device_debug_cap_xrender_version);
  *
  * Since: 1.12
  **/
-void cairo_xcb_device_debug_set_precision(cairo_device_t * device,
-    int precision)
+void cairo_xcb_device_debug_set_precision(cairo_device_t * device, int precision)
 {
 	if(device == NULL || device->status)
 		return;
 	if(device->backend->type != CAIRO_DEVICE_TYPE_XCB) {
-		cairo_status_t status;
-
-		status = _cairo_device_set_error(device, CAIRO_STATUS_DEVICE_TYPE_MISMATCH);
+		cairo_status_t status = _cairo_device_set_error(device, CAIRO_STATUS_DEVICE_TYPE_MISMATCH);
 		(void)status;
 		return;
 	}
-
 	((cairo_xcb_connection_t*)device)->force_precision = precision;
 }
 

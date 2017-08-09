@@ -98,8 +98,8 @@ struct FTP {
 	curl_off_t * bytecountp;
 	char * user; /* user name string */
 	char * passwd; /* password string */
-	/* transfer a file/body or not, done as a typedefed enum just to make
-	   debuggers display the full symbol and not just the numerical value */
+	// transfer a file/body or not, done as a typedefed enum just to make
+	// debuggers display the full symbol and not just the numerical value 
 	curl_pp_transfer transfer;
 	curl_off_t downloadsize;
 };

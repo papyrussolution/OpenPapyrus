@@ -7,7 +7,7 @@
 #pragma hdrstop
 // @v9.6.3 #include <idea.h>
 // @v9.6.2 (moved to pp.h) #include <ppidata.h>
-#include <ppftp.h>
+// @v9.7.10 @obsolete #include <ppftp.h>
 #include <Lm.h>
 #include <strstore.h>
 //
@@ -756,7 +756,7 @@ int PPApp::processCommand(uint cmd)
 		case cmMailCharryFiles:       SendCharryFiles();                 break;
 		case cmAnalyzeObjSyncCmp:     AnalyzeObjSyncCmp(1);              break;
 		case cmCalcGoodsSaldo:        ProcessGoodsSaldo();               break;
-		case cmImportCurrList:        ImportCurrencyList();              break;
+		// @v9.7.10 @obsolete case cmImportCurrList:        ImportCurrencyList();              break;
 		case cmSupplGoodsImport:      SupplGoodsImport();                break;
 		case cmSupplInterchange:      DoSupplInterchange(0);             break;
 		case cmAddressBook:           ViewAddressBook();                 break;

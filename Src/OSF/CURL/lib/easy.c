@@ -61,7 +61,7 @@
 //#include "slist.h"
 #include "amigaos.h"
 //#include "non-ascii.h"
-#include "warnless.h"
+//#include "warnless.h"
 //#include "conncache.h"
 //#include "multiif.h"
 #include "sigpipe.h"
@@ -491,15 +491,11 @@ static CURLcode wait_or_timeout(struct Curl_multi * multi, struct events * ev)
 	bool done = FALSE;
 	CURLMcode mcode;
 	CURLcode result = CURLE_OK;
-
 	while(!done) {
 		CURLMsg * msg;
 		struct socketmonitor * m;
-
 		struct pollfd * f;
-
 		struct pollfd fds[4];
-
 		int numfds = 0;
 		int pollrc;
 		int i;

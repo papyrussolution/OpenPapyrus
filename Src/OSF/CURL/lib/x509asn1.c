@@ -29,7 +29,7 @@
 #include "hostcheck.h"
 //#include "vtls/vtls.h"
 //#include "sendf.h"
-#include "inet_pton.h"
+//#include "inet_pton.h"
 //#include "curl_base64.h"
 #include "x509asn1.h"
 

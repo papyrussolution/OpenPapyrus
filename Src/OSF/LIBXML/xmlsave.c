@@ -1573,9 +1573,7 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 
 		while(child != NULL) {
 			if(child->type == XML_TEXT_NODE) {
-				if((xmlStrchr(child->content, '<') == NULL) &&
-				    (xmlStrchr(child->content, '&') == NULL) &&
-				    (xmlStrstr(child->content, BAD_CAST "]]>") == NULL)) {
+				if(!xmlStrchr(child->content, '<') && !xmlStrchr(child->content, '&') && !xmlStrstr(child->content, BAD_CAST "]]>")) {
 					/* Nothing to escape, so just output as is... */
 					/* FIXME: Should we do something about "--" also? */
 					int level = ctxt->level;

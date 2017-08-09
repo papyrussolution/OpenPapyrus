@@ -708,8 +708,10 @@ int SLAPI BillCore::EditRec(PPID * pID, BillTbl::Rec * pRec, int use_ta)
 		}
 		THROW(tra.Commit());
 	}
-	if(!is_new && BillObj)
-		BillObj->Dirty(*pID);
+	if(!is_new) {
+		PPObjBill * p_bobj = BillObj;
+		CALLPTRMEMB(p_bobj, Dirty(*pID));
+	}
 	CATCHZOK
 	if(ok == 2 && CConfig.Flags & CCFLG_DEBUG) {
 		SString msg_buf, fmt_buf, obj_title;

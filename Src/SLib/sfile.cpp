@@ -1450,7 +1450,12 @@ int SLAPI SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 				//
 				Seek64(offs, SEEK_SET);
 				act_size = (int)fread(pBuf, 1, size, F);
-				THROW_S_S(act_size > 0, SLERR_READFAULT, Name);
+				if(!act_size) {
+					if(feof(F)) // @v9.7.10 @fix test for EOF added
+						ok = -1;
+					else
+						CALLEXCEPT_S_S(SLERR_READFAULT, Name); 
+				}
 			}
 		}
 		else if(IH >= 0) {

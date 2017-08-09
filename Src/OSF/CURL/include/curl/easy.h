@@ -81,9 +81,7 @@ CURL_EXTERN void curl_easy_reset(CURL *curl);
  * Receives data from the connected socket. Use after successful
  * curl_easy_perform() with CURLOPT_CONNECT_ONLY option.
  */
-CURL_EXTERN CURLcode curl_easy_recv(CURL *curl, void *buffer, size_t buflen,
-                                    size_t *n);
-
+CURL_EXTERN CURLcode curl_easy_recv(CURL *curl, void *buffer, size_t buflen, size_t *n);
 /*
  * NAME curl_easy_send()
  *
@@ -92,8 +90,7 @@ CURL_EXTERN CURLcode curl_easy_recv(CURL *curl, void *buffer, size_t buflen,
  * Sends data over the connected socket. Use after successful
  * curl_easy_perform() with CURLOPT_CONNECT_ONLY option.
  */
-CURL_EXTERN CURLcode curl_easy_send(CURL *curl, const void *buffer,
-                                    size_t buflen, size_t *n);
+CURL_EXTERN CURLcode curl_easy_send(CURL *curl, const void *buffer, size_t buflen, size_t *n);
 
 #ifdef  __cplusplus
 }

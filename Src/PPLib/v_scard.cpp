@@ -147,7 +147,7 @@ IMPLEMENT_PPFILT_FACTORY(SCard); SLAPI SCardFilt::SCardFilt() : PPBaseFilt(PPFIL
 		offsetof(SCardFilt, Reserve) - offsetof(SCardFilt, ReserveStart) + sizeof(Reserve));
 	SetBranchSString(offsetof(SCardFilt, Number));
 	SetBranchObjIdListFilt(offsetof(SCardFilt, ScsList)); // @v8.4.2
-	SetBranchBaseFiltPtr(PPFILT_SYSJOURNAL, offsetof(SCardFilt, P_SjF)); // @v7.7.11
+	SetBranchBaseFiltPtr(PPFILT_SYSJOURNAL, offsetof(SCardFilt, P_SjF));
 	SetBranchBaseFiltPtr(PPFILT_SCARD, offsetof(SCardFilt, P_ExludeOwnerF)); // @v8.4.2
 	SetBranchBaseFiltPtr(PPFILT_PERSON, offsetof(SCardFilt, P_OwnerF)); // @v8.4.2
 	Init(1, 0);
@@ -197,7 +197,7 @@ int SLAPI SCardFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 			SetFlatChunk(offsetof(SCardFilt, ReserveStart),
 				offsetof(SCardFilt, Reserve) - offsetof(SCardFilt, ReserveStart) + sizeof(Reserve));
 			SetBranchSString(offsetof(SCardFilt, Number));
-			SetBranchBaseFiltPtr(PPFILT_SYSJOURNAL, offsetof(SCardFilt, P_SjF)); // @v7.7.11
+			SetBranchBaseFiltPtr(PPFILT_SYSJOURNAL, offsetof(SCardFilt, P_SjF));
 			Init(1, 0);
 		}
 		uint8  ReserveStart[16]; // @anchor
@@ -1690,7 +1690,7 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 			p_t->Rest,      // #8
 			p_t->Dt,        // #9
 			dbe_ser,        // #10
-			dbe_autogoods,  // #11 @v7.7.0
+			dbe_autogoods,  // #11
 			dbe_phone,      // #12 @v9.6.1
 			dbe_memo,       // #13 @v9.6.1
 			0L);
@@ -3053,11 +3053,10 @@ int PPALDD_SCard::InitData(PPFilt & rFilt, long rsrv)
 			H.ID = p_ext->ScRec.ID;
 			H.SeriesID = p_ext->ScRec.SeriesID;
 			H.OwnerReqID = p_ext->ScRec.PersonID;
-			H.AutoGoodsID = p_ext->ScRec.AutoGoodsID; // @v7.9.7
+			H.AutoGoodsID = p_ext->ScRec.AutoGoodsID;
 			STRNSCPY(H.Code, p_ext->ScRec.Code);
 			H.IssueDate = p_ext->ScRec.Dt;
 			H.Expiry = p_ext->ScRec.Expiry;
-			// @v7.9.7 {
 			H.UsageTmStart = p_ext->ScRec.UsageTmStart;
 			H.UsageTmEnd   = p_ext->ScRec.UsageTmEnd;
 			if(p_ext->ScRec.UsageTmStart || p_ext->ScRec.UsageTmEnd) {
@@ -3071,7 +3070,6 @@ int PPALDD_SCard::InitData(PPFilt & rFilt, long rsrv)
 			}
 			H.PeriodTerm = p_ext->ScRec.PeriodTerm;
 			H.PeriodCount = p_ext->ScRec.PeriodCount;
-			// } @v7.9.7
 			H.PDis   = fdiv100i(p_ext->ScRec.PDis);
 			H.Overdraft = p_ext->ScRec.MaxCredit;
 			H.Debit = p_ext->ScRec.InTrnovr;
@@ -3082,9 +3080,9 @@ int PPALDD_SCard::InitData(PPFilt & rFilt, long rsrv)
 			H.Flags = _flags;
 			H.fClosed    = BIN(_flags & SCRDF_CLOSED);
 			H.fInherited = BIN(_flags & SCRDF_INHERITED);
-			H.fNoGift    = BIN(_flags & SCRDF_NOGIFT);               // @v7.9.7
-			H.fNeedActivation = BIN(_flags & SCRDF_NEEDACTIVATION);  // @v7.9.7
-			H.fAutoActivation = BIN(_flags & SCRDF_AUTOACTIVATION);  // @v7.9.7
+			H.fNoGift    = BIN(_flags & SCRDF_NOGIFT);
+			H.fNeedActivation = BIN(_flags & SCRDF_NEEDACTIVATION);
+			H.fAutoActivation = BIN(_flags & SCRDF_AUTOACTIVATION);
 			if(scs_obj.Fetch(p_ext->ScRec.SeriesID, &scs_rec) > 0)
 				H.fCredit = BIN(scs_rec.Flags & SCRDSF_CREDIT);
 			ok = DlRtm::InitData(rFilt, rsrv);

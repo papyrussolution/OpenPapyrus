@@ -1729,8 +1729,7 @@ int SLAPI PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, PPIDArr
 					if(GetLastLot_(goodsID, p.LocID, rrec) > 0) {
 						p.Total.Cost  = rrec.Cost;
 						p.Total.Price = rrec.Price;
-						// @v8.3.4 sgg_blk.SupplID = rrec.SupplID; // @v7.6.3
-						sgg_blk.P_LotRec = &rrec; // @v8.3.4
+						sgg_blk.P_LotRec = &rrec;
 					}
 				}
 				if(Filt.Sgg) {

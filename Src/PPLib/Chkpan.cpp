@@ -7407,17 +7407,19 @@ int CheckPaneDialog::SelectSuspendedCheck()
 				if(P_CcView->Init_(&cc_filt)) {
 					CCheckViewItem item;
 					for(P_CcView->InitIteration(0); P_CcView->NextIteration(&item) > 0;) {
-						if(Scf.DlvrItemsShowTag < 0) {
-							if(item.Flags & CCHKF_DELIVERY)
+						if(!(item.Flags & CCHKF_SKIP)) { // @v9.7.10
+							if(Scf.DlvrItemsShowTag < 0) {
+								if(item.Flags & CCHKF_DELIVERY)
+									continue;
+							}
+							else if(Scf.DlvrItemsShowTag > 0) {
+								if(!(item.Flags & CCHKF_DELIVERY))
+									continue;
+							}
+							if(!single_agent_id && item.AgentID && ar_obj.Fetch(item.AgentID, &ar_rec) > 0 && (ar_rec.Flags & ARTRF_STOPBILL)) // @v9.0.8
 								continue;
+							list.insert(&item);
 						}
-						else if(Scf.DlvrItemsShowTag > 0) {
-							if(!(item.Flags & CCHKF_DELIVERY))
-								continue;
-						}
-						if(!single_agent_id && item.AgentID && ar_obj.Fetch(item.AgentID, &ar_rec) > 0 && (ar_rec.Flags & ARTRF_STOPBILL)) // @v9.0.8
-							continue;
-						list.insert(&item);
 					}
 				}
 			}

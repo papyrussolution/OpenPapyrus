@@ -38,9 +38,9 @@
 /* Provide definitions for standalone compilation */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-boxes-private.h"
-#include "cairo-combsort-inline.h"
-#include "cairo-traps-private.h"
+//#include "cairo-boxes-private.h"
+//#include "cairo-combsort-inline.h"
+//#include "cairo-traps-private.h"
 
 typedef struct _cairo_bo_edge cairo_bo_edge_t;
 typedef struct _cairo_bo_trap cairo_bo_trap_t;

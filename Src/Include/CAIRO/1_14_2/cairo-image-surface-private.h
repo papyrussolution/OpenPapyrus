@@ -91,18 +91,18 @@ cairo_private const cairo_compositor_t * _cairo_image_spans_compositor_get(void)
 
 #define _cairo_image_default_compositor_get _cairo_image_spans_compositor_get
 
-cairo_private cairo_int_status_t _cairo_image_surface_paint(void                        * abstract_surface,
+cairo_private cairo_int_status_t _cairo_image_surface_paint(void * abstract_surface,
     cairo_operator_t op,
     const cairo_pattern_t       * source,
     const cairo_clip_t          * clip);
 
-cairo_private cairo_int_status_t _cairo_image_surface_mask(void                         * abstract_surface,
+cairo_private cairo_int_status_t _cairo_image_surface_mask(void * abstract_surface,
     cairo_operator_t op,
     const cairo_pattern_t        * source,
     const cairo_pattern_t        * mask,
     const cairo_clip_t           * clip);
 
-cairo_private cairo_int_status_t _cairo_image_surface_stroke(void                       * abstract_surface,
+cairo_private cairo_int_status_t _cairo_image_surface_stroke(void * abstract_surface,
     cairo_operator_t op,
     const cairo_pattern_t      * source,
     const cairo_path_fixed_t   * path,
@@ -113,7 +113,7 @@ cairo_private cairo_int_status_t _cairo_image_surface_stroke(void               
     cairo_antialias_t antialias,
     const cairo_clip_t         * clip);
 
-cairo_private cairo_int_status_t _cairo_image_surface_fill(void                         * abstract_surface,
+cairo_private cairo_int_status_t _cairo_image_surface_fill(void * abstract_surface,
     cairo_operator_t op,
     const cairo_pattern_t        * source,
     const cairo_path_fixed_t     * path,
@@ -122,7 +122,7 @@ cairo_private cairo_int_status_t _cairo_image_surface_fill(void                 
     cairo_antialias_t antialias,
     const cairo_clip_t           * clip);
 
-cairo_private cairo_int_status_t _cairo_image_surface_glyphs(void                       * abstract_surface,
+cairo_private cairo_int_status_t _cairo_image_surface_glyphs(void * abstract_surface,
     cairo_operator_t op,
     const cairo_pattern_t      * source,
     cairo_glyph_t              * glyphs,
@@ -130,31 +130,13 @@ cairo_private cairo_int_status_t _cairo_image_surface_glyphs(void               
     cairo_scaled_font_t        * scaled_font,
     const cairo_clip_t         * clip);
 
-cairo_private void _cairo_image_surface_init(cairo_image_surface_t * surface,
-    pixman_image_t       * pixman_image,
-    pixman_format_code_t pixman_format);
-
-cairo_private cairo_surface_t * _cairo_image_surface_create_similar(void              * abstract_other,
-    cairo_content_t content,
-    int width,
-    int height);
-
-cairo_private cairo_image_surface_t * _cairo_image_surface_map_to_image(void * abstract_other,
-    const CairoIRect * extents);
-
-cairo_private cairo_int_status_t _cairo_image_surface_unmap_image(void * abstract_surface,
-    cairo_image_surface_t * image);
-
-cairo_private cairo_surface_t * _cairo_image_surface_source(void                       * abstract_surface,
-    CairoIRect * extents);
-
-cairo_private cairo_status_t _cairo_image_surface_acquire_source_image(void                    * abstract_surface,
-    cairo_image_surface_t  ** image_out,
-    void                   ** image_extra);
-
-cairo_private void _cairo_image_surface_release_source_image(void                   * abstract_surface,
-    cairo_image_surface_t  * image,
-    void                   * image_extra);
+cairo_private void _cairo_image_surface_init(cairo_image_surface_t * surface, pixman_image_t * pixman_image, pixman_format_code_t pixman_format);
+cairo_private cairo_surface_t * _cairo_image_surface_create_similar(void * abstract_other, cairo_content_t content, int width, int height);
+cairo_private cairo_image_surface_t * _cairo_image_surface_map_to_image(void * abstract_other, const CairoIRect * extents);
+cairo_private cairo_int_status_t _cairo_image_surface_unmap_image(void * abstract_surface, cairo_image_surface_t * image);
+cairo_private cairo_surface_t * _cairo_image_surface_source(void * abstract_surface, CairoIRect * extents);
+cairo_private cairo_status_t _cairo_image_surface_acquire_source_image(void * abstract_surface, cairo_image_surface_t ** image_out, void ** image_extra);
+cairo_private void _cairo_image_surface_release_source_image(void * abstract_surface, cairo_image_surface_t * image, void * image_extra);
 
 cairo_private cairo_surface_t * _cairo_image_surface_snapshot(void * abstract_surface);
 cairo_private_no_warn cairo_bool_t _cairo_image_surface_get_extents(void * abstract_surface, CairoIRect * rectangle);

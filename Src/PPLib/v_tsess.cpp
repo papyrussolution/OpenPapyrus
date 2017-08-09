@@ -990,7 +990,6 @@ int SLAPI PPViewTSession::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 						ok = 1;
 				}
 				break;
-			// @v7.5.8 {
 			case PPVCMD_VIEWSUBSESS:
 				ok = -1;
 				if(TSesObj.Search(id, &rec) > 0) {
@@ -1000,7 +999,6 @@ int SLAPI PPViewTSession::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 					::ViewTSession(&filt);
 				}
 				break;
-			// } @v7.5.8
 			case PPVCMD_VIEWTSESS:
 				ok = -1;
 				if(TSesObj.Search(id, &rec) > 0 && rec.PrcID) {

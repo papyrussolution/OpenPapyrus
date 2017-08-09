@@ -43,14 +43,14 @@
 #endif
 //#include "urldata.h"
 //#include "sendf.h"
-#include "inet_pton.h"
+//#include "inet_pton.h"
 #include "gtls.h"
 #include "vtls.h"
-#include "parsedate.h"
+//#include "parsedate.h"
 //#include "connect.h" /* for the connect timeout */
 //#include "select.h"
 //#include "strcase.h"
-#include "warnless.h"
+//#include "warnless.h"
 #include "x509asn1.h"
 #include "curl_printf.h"
 //#include "curl_memory.h"
@@ -210,28 +210,20 @@ int Curl_gtls_cleanup(void)
 	return 1;
 }
 
-static void showtime(struct Curl_easy * data,
-    const char * text,
-    time_t stamp)
+static void showtime(struct Curl_easy * data, const char * text, time_t stamp)
 {
 	struct tm buffer;
-
 	const struct tm * tm = &buffer;
 	CURLcode result = Curl_gmtime(stamp, &buffer);
 	if(result)
 		return;
-
-	snprintf(data->state.buffer,
-	    BUFSIZE,
-	    "\t %s: %s, %02d %s %4d %02d:%02d:%02d GMT",
-	    text,
-	    Curl_wkday[tm->tm_wday ? tm->tm_wday-1 : 6],
+	snprintf(data->state.buffer, BUFSIZE, "\t %s: %s, %02d %s %4d %02d:%02d:%02d GMT", text,
+	    // @v9.7.10 Curl_wkday[tm->tm_wday ? tm->tm_wday-1 : 6],
+		STextConst::Get(STextConst::cDow_En_Sh, tm->tm_wday ? tm->tm_wday-1 : 6), // @v9.7.10
 	    tm->tm_mday,
-	    Curl_month[tm->tm_mon],
-	    tm->tm_year + 1900,
-	    tm->tm_hour,
-	    tm->tm_min,
-	    tm->tm_sec);
+	    // @v9.7.10 Curl_month[tm->tm_mon],
+		STextConst::Get(STextConst::cMon_En_Sh, tm->tm_mon), // @v9.7.10
+	    tm->tm_year + 1900, tm->tm_hour, tm->tm_min, tm->tm_sec);
 	infof(data, "%s\n", data->state.buffer);
 }
 
@@ -515,22 +507,14 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 #ifdef USE_TLS_SRP
 	if(SSL_SET_OPTION(authtype) == CURL_TLSAUTH_SRP) {
 		infof(data, "Using TLS-SRP username: %s\n", SSL_SET_OPTION(username));
-
-		rc = gnutls_srp_allocate_client_credentials(
-		    &conn->ssl[sockindex].srp_client_cred);
+		rc = gnutls_srp_allocate_client_credentials(&conn->ssl[sockindex].srp_client_cred);
 		if(rc != GNUTLS_E_SUCCESS) {
-			failf(data, "gnutls_srp_allocate_client_cred() failed: %s",
-			    gnutls_strerror(rc));
+			failf(data, "gnutls_srp_allocate_client_cred() failed: %s", gnutls_strerror(rc));
 			return CURLE_OUT_OF_MEMORY;
 		}
-
-		rc = gnutls_srp_set_client_credentials(conn->ssl[sockindex].
-		    srp_client_cred,
-		    SSL_SET_OPTION(username),
-		    SSL_SET_OPTION(password));
+		rc = gnutls_srp_set_client_credentials(conn->ssl[sockindex].srp_client_cred, SSL_SET_OPTION(username), SSL_SET_OPTION(password));
 		if(rc != GNUTLS_E_SUCCESS) {
-			failf(data, "gnutls_srp_set_client_cred() failed: %s",
-			    gnutls_strerror(rc));
+			failf(data, "gnutls_srp_set_client_cred() failed: %s", gnutls_strerror(rc));
 			return CURLE_BAD_FUNCTION_ARGUMENT;
 		}
 	}
@@ -538,15 +522,10 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 
 	if(SSL_CONN_CONFIG(CAfile)) {
 		/* set the trusted CA cert bundle file */
-		gnutls_certificate_set_verify_flags(conn->ssl[sockindex].cred,
-		    GNUTLS_VERIFY_ALLOW_X509_V1_CA_CRT);
-
-		rc = gnutls_certificate_set_x509_trust_file(conn->ssl[sockindex].cred,
-		    SSL_CONN_CONFIG(CAfile),
-		    GNUTLS_X509_FMT_PEM);
+		gnutls_certificate_set_verify_flags(conn->ssl[sockindex].cred, GNUTLS_VERIFY_ALLOW_X509_V1_CA_CRT);
+		rc = gnutls_certificate_set_x509_trust_file(conn->ssl[sockindex].cred, SSL_CONN_CONFIG(CAfile), GNUTLS_X509_FMT_PEM);
 		if(rc < 0) {
-			infof(data, "error reading ca cert file %s (%s)\n",
-			    SSL_CONN_CONFIG(CAfile), gnutls_strerror(rc));
+			infof(data, "error reading ca cert file %s (%s)\n", SSL_CONN_CONFIG(CAfile), gnutls_strerror(rc));
 			if(SSL_CONN_CONFIG(verifypeer))
 				return CURLE_SSL_CACERT_BADFILE;
 		}
@@ -587,8 +566,7 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 		    SSL_SET_OPTION(CRLfile),
 		    GNUTLS_X509_FMT_PEM);
 		if(rc < 0) {
-			failf(data, "error reading crl file %s (%s)",
-			    SSL_SET_OPTION(CRLfile), gnutls_strerror(rc));
+			failf(data, "error reading crl file %s (%s)", SSL_SET_OPTION(CRLfile), gnutls_strerror(rc));
 			return CURLE_SSL_CRL_BADFILE;
 		}
 		else
@@ -609,19 +587,14 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 		failf(data, "gnutls_init() failed: %d", rc);
 		return CURLE_SSL_CONNECT_ERROR;
 	}
-
 	/* convenient assign */
 	session = conn->ssl[sockindex].session;
-
 	if((0 == Curl_inet_pton(AF_INET, hostname, &addr)) &&
 #ifdef ENABLE_IPV6
 	    (0 == Curl_inet_pton(AF_INET6, hostname, &addr)) &&
 #endif
-	    sni &&
-	    (gnutls_server_name_set(session, GNUTLS_NAME_DNS, hostname,
-			    strlen(hostname)) < 0))
-		infof(data, "WARNING: failed to configure server name indication (SNI) "
-		    "TLS extension\n");
+	    sni && (gnutls_server_name_set(session, GNUTLS_NAME_DNS, hostname, strlen(hostname)) < 0))
+		infof(data, "WARNING: failed to configure server name indication (SNI) TLS extension\n");
 
 	/* Use default priorities */
 	rc = gnutls_set_default_priority(session);
@@ -639,13 +612,10 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 	rc = gnutls_certificate_type_set_priority(session, cert_type_priority);
 	if(rc != GNUTLS_E_SUCCESS)
 		return CURLE_SSL_CONNECT_ERROR;
-
 	if(SSL_CONN_CONFIG(cipher_list) != NULL) {
-		failf(data, "can't pass a custom cipher list to older GnuTLS"
-		    " versions");
+		failf(data, "can't pass a custom cipher list to older GnuTLS versions");
 		return CURLE_SSL_CONNECT_ERROR;
 	}
-
 	switch(SSL_CONN_CONFIG(version)) {
 		case CURL_SSLVERSION_SSLv3:
 		    protocol_priority[0] = GNUTLS_SSL3;
@@ -729,8 +699,7 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 		}
 	}
 	if(rc != GNUTLS_E_SUCCESS) {
-		failf(data, "Error %d setting GnuTLS cipher list starting with %s",
-		    rc, err);
+		failf(data, "Error %d setting GnuTLS cipher list starting with %s", rc, err);
 		return CURLE_SSL_CONNECT_ERROR;
 	}
 #endif
@@ -739,7 +708,6 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 	if(conn->bits.tls_enable_alpn) {
 		int cur = 0;
 		gnutls_datum_t protocols[2];
-
 #ifdef USE_NGHTTP2
 		if(data->set.httpversion >= CURL_HTTP_VERSION_2) {
 			protocols[cur].data = (uchar*)NGHTTP2_PROTO_VERSION_ID;
@@ -775,9 +743,7 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 			    SSL_SET_OPTION(key_passwd),
 			    supported_key_encryption_algorithms);
 			if(rc != GNUTLS_E_SUCCESS) {
-				failf(data,
-				    "error reading X.509 potentially-encrypted key file: %s",
-				    gnutls_strerror(rc));
+				failf(data, "error reading X.509 potentially-encrypted key file: %s", gnutls_strerror(rc));
 				return CURLE_SSL_CONNECT_ERROR;
 			}
 #else

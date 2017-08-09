@@ -317,10 +317,10 @@ static void FASTCALL _cairo_surface_detach_snapshots(cairo_surface_t * surface)
 
 void _cairo_surface_detach_snapshot(cairo_surface_t * snapshot)
 {
-	assert(snapshot->snapshot_of != NULL);
+	assert(snapshot->snapshot_of);
 	snapshot->snapshot_of = NULL;
 	cairo_list_del(&snapshot->snapshot);
-	if(snapshot->snapshot_detach != NULL)
+	if(snapshot->snapshot_detach)
 		snapshot->snapshot_detach(snapshot);
 	cairo_surface_destroy(snapshot);
 }
@@ -331,7 +331,7 @@ void _cairo_surface_attach_snapshot(cairo_surface_t * surface,
 	assert(surface != snapshot);
 	assert(snapshot->snapshot_of != surface);
 	cairo_surface_reference(snapshot);
-	if(snapshot->snapshot_of != NULL)
+	if(snapshot->snapshot_of)
 		_cairo_surface_detach_snapshot(snapshot);
 	snapshot->snapshot_of = surface;
 	snapshot->snapshot_detach = detach_func;
@@ -376,7 +376,7 @@ void _cairo_surface_init(cairo_surface_t * surface, const cairo_surface_backend_
 	surface->is_clear = FALSE;
 	surface->serial = 0;
 	surface->damage = NULL;
-	surface->owns_device = (device != NULL);
+	surface->owns_device = BIN(device);
 
 	_cairo_user_data_array_init(&surface->user_data);
 	_cairo_user_data_array_init(&surface->mime_data);
@@ -553,7 +553,7 @@ slim_hidden_def(cairo_surface_create_similar_image);
 cairo_image_surface_t * _cairo_surface_map_to_image(cairo_surface_t  * surface, const CairoIRect * extents)
 {
 	cairo_image_surface_t * image = NULL;
-	assert(extents != NULL);
+	assert(extents);
 	// TODO: require map_to_image != NULL 
 	if(surface->backend->map_to_image)
 		image = surface->backend->map_to_image(surface, extents);
@@ -588,28 +588,27 @@ cairo_int_status_t _cairo_surface_unmap_image(cairo_surface_t * surface, cairo_i
 	CairoIRect extents;
 	cairo_clip_t * clip;
 	cairo_int_status_t status;
-	/* map_to_image can return error surfaces */
+	// map_to_image can return error surfaces 
 	if(unlikely(image->base.status)) {
 		status = image->base.status;
 		goto destroy;
 	}
-	/* If the image is untouched just skip the update */
+	// If the image is untouched just skip the update 
 	if(image->base.serial == 0) {
 		status = CAIRO_STATUS_SUCCESS;
 		goto destroy;
 	}
-	/* TODO: require unmap_image != NULL */
-	if(surface->backend->unmap_image &&
-	    !_cairo_image_surface_is_clone(image)) {
+	// TODO: require unmap_image != NULL 
+	if(surface->backend->unmap_image && !_cairo_image_surface_is_clone(image)) {
 		status = surface->backend->unmap_image(surface, image);
 		if(status != CAIRO_INT_STATUS_UNSUPPORTED)
 			return status;
 	}
 	_cairo_pattern_init_for_surface(&pattern, &image->base);
 	pattern.base.filter = CAIRO_FILTER_NEAREST;
-	/* We have to apply the translate from map_to_image's extents.x and .y */
+	// We have to apply the translate from map_to_image's extents.x and .y 
 	cairo_matrix_init_translate(&pattern.base.matrix, image->base.device_transform.x0, image->base.device_transform.y0);
-	/* And we also have to clip the operation to the image's extents */
+	// And we also have to clip the operation to the image's extents 
 	extents.x = (int)image->base.device_transform_inverse.x0;
 	extents.y = (int)image->base.device_transform_inverse.y0;
 	extents.width  = image->width;
@@ -1000,7 +999,7 @@ void cairo_surface_get_mime_data(cairo_surface_t * surface, const char * mime_ty
 	num_slots = surface->mime_data.num_elements;
 	slots = (cairo_user_data_slot_t *)_cairo_array_index(&surface->mime_data, 0);
 	for(i = 0; i < num_slots; i++) {
-		if(slots[i].key != NULL && strcmp((char*)slots[i].key, mime_type) == 0) {
+		if(slots[i].key && strcmp((char*)slots[i].key, mime_type) == 0) {
 			cairo_mime_data_t * mime_data = (cairo_mime_data_t *)slots[i].user_data;
 			*data = mime_data->data;
 			*length = mime_data->length;
@@ -1304,7 +1303,7 @@ cairo_status_t _cairo_surface_flush(cairo_surface_t * surface, unsigned flags)
 {
 	// update the current snapshots *before* the user updates the surface 
 	_cairo_surface_detach_snapshots(surface);
-	if(surface->snapshot_of != NULL)
+	if(surface->snapshot_of)
 		_cairo_surface_detach_snapshot(surface);
 	_cairo_surface_detach_mime_data(surface);
 	return __cairo_surface_flush(surface, flags);
@@ -1403,7 +1402,7 @@ void cairo_surface_mark_dirty_rectangle(cairo_surface_t * surface, int x, int y,
 		box.p2.y = y + height;
 		surface->damage = _cairo_damage_add_box(surface->damage, &box);
 	}
-	if(surface->backend->mark_dirty_rectangle != NULL) {
+	if(surface->backend->mark_dirty_rectangle) {
 		/* XXX: FRAGILE: We're ignoring the scaling component of
 		 * device_transform here. I don't know what the right thing to
 		 * do would actually be if there were some scaling here, but
@@ -2027,7 +2026,7 @@ cairo_bool_t _cairo_surface_get_extents(cairo_surface_t * surface, CairoIRect   
 		goto zero_extents;
 	}
 	bounded = FALSE;
-	if(surface->backend->get_extents != NULL)
+	if(surface->backend->get_extents)
 		bounded = surface->backend->get_extents(surface, extents);
 	if(!bounded)
 		_cairo_unbounded_rectangle_init(extents);
@@ -2119,7 +2118,7 @@ cairo_status_t _cairo_surface_show_text_glyphs(cairo_surface_t * surface,
 	if(clusters) {
 		/* A real show_text_glyphs call.  Try show_text_glyphs backend
 		 * method first */
-		if(surface->backend->show_text_glyphs != NULL) {
+		if(surface->backend->show_text_glyphs) {
 			status = surface->backend->show_text_glyphs(surface, op, source, utf8, utf8_len, 
 				glyphs, num_glyphs, clusters, num_clusters, cluster_flags, scaled_font, clip);
 		}
@@ -2129,10 +2128,10 @@ cairo_status_t _cairo_surface_show_text_glyphs(cairo_surface_t * surface,
 	}
 	else {
 		/* A mere show_glyphs call.  Try show_glyphs backend method first */
-		if(surface->backend->show_glyphs != NULL) {
+		if(surface->backend->show_glyphs) {
 			status = surface->backend->show_glyphs(surface, op, source, glyphs, num_glyphs, scaled_font, clip);
 		}
-		else if(surface->backend->show_text_glyphs != NULL) {
+		else if(surface->backend->show_text_glyphs) {
 			/* Intentionally only try show_text_glyphs method for show_glyphs
 			 * calls if backend does not have show_glyphs.  If backend has
 			 * both methods implemented, we don't fallback from show_glyphs to

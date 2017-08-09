@@ -25,7 +25,7 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include "urldata.h" /* for the Curl_easy definition */
-#include "warnless.h"
+//#include "warnless.h"
 //#include "curl_base64.h"
 //#include "non-ascii.h"
 // The last 3 #include files should be in this order 
@@ -33,56 +33,43 @@
 //#include "curl_memory.h"
 #include "memdebug.h"
 
-/* ---- Base64 Encoding/Decoding Table --- */
-static const char base64[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-/* The Base 64 encoding with an URL and filename safe alphabet, RFC 4648
-   section 5 */
-static const char base64url[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+// ---- Base64 Encoding/Decoding Table --- 
+static const char base64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+// The Base 64 encoding with an URL and filename safe alphabet, RFC 4648 section 5 
+static const char base64url[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
 static size_t decodeQuantum(uchar * dest, const char * src)
 {
 	size_t padding = 0;
 	const char * s, * p;
 	ulong i, x = 0;
-
 	for(i = 0, s = src; i < 4; i++, s++) {
 		ulong v = 0;
-
 		if(*s == '=') {
 			x = (x << 6);
 			padding++;
 		}
 		else {
 			p = base64;
-
 			while(*p && (*p != *s)) {
 				v++;
 				p++;
 			}
-
 			if(*p == *s)
 				x = (x << 6) + v;
 			else
 				return 0;
 		}
 	}
-
 	if(padding < 1)
 		dest[2] = curlx_ultouc(x & 0xFFUL);
-
 	x >>= 8;
 	if(padding < 2)
 		dest[1] = curlx_ultouc(x & 0xFFUL);
-
 	x >>= 8;
 	dest[0] = curlx_ultouc(x & 0xFFUL);
-
 	return 3 - padding;
 }
-
 /*
  * Curl_base64_decode()
  *
@@ -165,8 +152,7 @@ static CURLcode base64_encode(const char * table64, struct Curl_easy * data, con
 	const char * indata = inputbuff;
 	*outptr = NULL;
 	*outlen = 0;
-	if(!insize)
-		insize = strlen(indata);
+	SETIFZ(insize, strlen(indata));
 #if SIZEOF_SIZE_T == 4
 	if(insize > UINT_MAX/4)
 		return CURLE_OUT_OF_MEMORY;
@@ -232,18 +218,13 @@ static CURLcode base64_encode(const char * table64, struct Curl_easy * data, con
 		}
 		output += 4;
 	}
-
 	/* Zero terminate */
 	*output = '\0';
-
 	/* Return the pointer to the new data (allocated memory) */
 	*outptr = base64data;
-
 	SAlloc::F(convbuf);
-
 	/* Return the length of the new data */
 	*outlen = strlen(base64data);
-
 	return CURLE_OK;
 }
 
@@ -288,9 +269,7 @@ CURLcode Curl_base64_encode(struct Curl_easy * data,
  *
  * @unittest: 1302
  */
-CURLcode Curl_base64url_encode(struct Curl_easy * data,
-    const char * inputbuff, size_t insize,
-    char ** outptr, size_t * outlen)
+CURLcode Curl_base64url_encode(struct Curl_easy * data, const char * inputbuff, size_t insize, char ** outptr, size_t * outlen)
 {
 	return base64_encode(base64url, data, inputbuff, insize, outptr, outlen);
 }

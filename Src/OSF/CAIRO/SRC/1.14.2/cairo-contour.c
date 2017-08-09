@@ -37,8 +37,8 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-freelist-private.h"
-#include "cairo-combsort-inline.h"
+//#include "cairo-freelist-private.h"
+//#include "cairo-combsort-inline.h"
 #include "cairo-contour-inline.h"
 #include "cairo-contour-private.h"
 

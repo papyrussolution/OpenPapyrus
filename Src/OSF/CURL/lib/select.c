@@ -42,7 +42,7 @@
 //#include "urldata.h"
 //#include "connect.h"
 //#include "select.h"
-#include "warnless.h"
+//#include "warnless.h"
 
 /* Convenience local macros */
 #define ELAPSED_MS()  (int)curlx_tvdiff(curlx_tvnow(), initial_tv)

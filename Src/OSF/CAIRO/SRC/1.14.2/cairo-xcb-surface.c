@@ -991,72 +991,48 @@ const cairo_surface_backend_t _cairo_xcb_surface_backend = {
 	_cairo_xcb_surface_glyphs,
 };
 
-cairo_surface_t * _cairo_xcb_surface_create_internal(cairo_xcb_screen_t          * screen,
-    xcb_drawable_t drawable,
-    cairo_bool_t owns_pixmap,
-    pixman_format_code_t pixman_format,
-    xcb_render_pictformat_t xrender_format,
-    int width,
-    int height)
+cairo_surface_t * _cairo_xcb_surface_create_internal(cairo_xcb_screen_t * screen,
+    xcb_drawable_t drawable, cairo_bool_t owns_pixmap, pixman_format_code_t pixman_format,
+    xcb_render_pictformat_t xrender_format, int width, int height)
 {
-	cairo_xcb_surface_t * surface;
-
-	surface = SAlloc::M(sizeof(cairo_xcb_surface_t));
+	cairo_xcb_surface_t * surface = SAlloc::M(sizeof(cairo_xcb_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
-
-	_cairo_surface_init(&surface->base,
-	    &_cairo_xcb_surface_backend,
-	    &screen->connection->device,
-	    _cairo_content_from_pixman_format(pixman_format));
-
+	_cairo_surface_init(&surface->base, &_cairo_xcb_surface_backend, &screen->connection->device, _cairo_content_from_pixman_format(pixman_format));
 	surface->connection = _cairo_xcb_connection_reference(screen->connection);
 	surface->screen = screen;
 	cairo_list_add(&surface->link, &screen->surfaces);
-
 	surface->drawable = drawable;
 	surface->owns_pixmap = owns_pixmap;
-
 	surface->deferred_clear = FALSE;
 	surface->deferred_clear_color = *CAIRO_COLOR_TRANSPARENT;
-
 	surface->width  = width;
 	surface->height = height;
 	surface->depth  = PIXMAN_FORMAT_DEPTH(pixman_format);
-
 	surface->picture = XCB_NONE;
 	if(screen->connection->force_precision != -1)
 		surface->precision = screen->connection->force_precision;
 	else
 		surface->precision = XCB_RENDER_POLY_MODE_IMPRECISE;
-
 	surface->pixman_format = pixman_format;
 	surface->xrender_format = xrender_format;
-
 	surface->fallback = NULL;
 	_cairo_boxes_init(&surface->fallback_damage);
-
 	return &surface->base;
 }
 
-static xcb_screen_t * _cairo_xcb_screen_from_visual(xcb_connection_t * connection,
-    xcb_visualtype_t * visual,
-    int * depth)
+static xcb_screen_t * _cairo_xcb_screen_from_visual(xcb_connection_t * connection, xcb_visualtype_t * visual, int * depth)
 {
 	xcb_depth_iterator_t d;
-	xcb_screen_iterator_t s;
-
-	s = xcb_setup_roots_iterator(xcb_get_setup(connection));
+	xcb_screen_iterator_t s = xcb_setup_roots_iterator(xcb_get_setup(connection));
 	for(; s.rem; xcb_screen_next(&s)) {
 		if(s.data->root_visual == visual->visual_id) {
 			*depth = s.data->root_depth;
 			return s.data;
 		}
-
 		d = xcb_screen_allowed_depths_iterator(s.data);
 		for(; d.rem; xcb_depth_next(&d)) {
 			xcb_visualtype_iterator_t v = xcb_depth_visuals_iterator(d.data);
-
 			for(; v.rem; xcb_visualtype_next(&v)) {
 				if(v.data->visual_id == visual->visual_id) {
 					*depth = d.data->depth;
@@ -1065,7 +1041,6 @@ static xcb_screen_t * _cairo_xcb_screen_from_visual(xcb_connection_t * connectio
 			}
 		}
 	}
-
 	return NULL;
 }
 

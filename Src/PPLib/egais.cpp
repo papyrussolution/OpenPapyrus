@@ -2169,10 +2169,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										woi_flags |= woifVersion2;
 									}
 									else {
-										if(gppf & gppfUnpacked)
-											n_h.PutInner("wb:UnitType", "Unpacked");
-										else
-											n_h.PutInner("wb:UnitType", "Packed");
+										n_h.PutInner("wb:UnitType", (gppf & gppfUnpacked) ? "Unpacked" : "Packed");
 									}
 									THROW(WriteOrgInfo(_doc, "wb:Shipper", shipper_psn_id, shipper_loc_id, p_bp->Rec.Dt, woi_flags));
 									THROW(WriteOrgInfo(_doc, "wb:Consignee", consignee_psn_id, consignee_loc_id, p_bp->Rec.Dt, woi_flags));
@@ -2237,6 +2234,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									}
 									w_p.PutInnerSkipEmpty("wb:Pack_ID", "");
 									{
+										long   qtty_fmt = MKSFMTD(0, 0, NMBF_NOTRAILZ);
 										double qtty = fabs(r_ti.Qtty());
 										// @v9.5.2 double price = (wb_type == wbtRetFromMe) ? r_ti.Cost : fabs(r_ti.NetPrice());
 										// @v9.5.2 {
@@ -2250,8 +2248,9 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											const double mult = agi.UnpackedVolume / 10.0;
 											qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
 											price = (price / mult);
+											qtty_fmt = MKSFMTD(0, 3, 0); // @v9.7.10
 										}
-										w_p.PutInner("wb:Quantity", EncText((temp_buf = 0).Cat(qtty, MKSFMTD(0, 0, NMBF_NOTRAILZ))));
+										w_p.PutInner("wb:Quantity", EncText((temp_buf = 0).Cat(qtty, qtty_fmt))); // @v9.7.10 qtty_fmt
 										w_p.PutInner("wb:Price", EncText((temp_buf = 0).Cat(price, MKSFMTD(0, 2, 0))));
 									}
 									p_bp->SnL.GetNumber(tidx, &temp_buf);

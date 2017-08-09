@@ -566,8 +566,27 @@ int SLAPI PPViewOprKind::ViewBills(PPID opID)
 	if(opID) {
 		BillFilt flt;
 		//flt.LocID = LConfig.Location;
+		// @v9.7.10 flt.OpID = opID;
+		// @v9.7.10 {
+		const PPID op_type_id = GetOpType(opID);
+		if(oneof3(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT))
+			flt.Bbt = bbtDraftBills;
+		else if(op_type_id == PPOPT_ACCTURN)
+			flt.Bbt = bbtAccturnBills;
+		else if(op_type_id == PPOPT_INVENTORY)
+			flt.Bbt = bbtInventoryBills;
+		else if(op_type_id == PPOPT_GOODSORDER)
+			flt.Bbt = bbtOrderBills;
+		else if(op_type_id == PPOPT_POOL)
+			flt.Bbt = bbtPoolBills;
+		flt.SetupBrowseBillsType(flt.Bbt);
 		flt.OpID = opID;
-		::ViewGoodsBills(&flt, 1);
+		{
+			BillFilt::FiltExtraParam p(0, flt.Bbt);
+			PPView::Execute(PPVIEW_BILL, &flt, GetModelessStatus(), &p);
+		}
+		// } @v9.7.10
+		// @v9.7.10 ::ViewGoodsBills(&flt, 1);
 	}
 	return -1;
 }

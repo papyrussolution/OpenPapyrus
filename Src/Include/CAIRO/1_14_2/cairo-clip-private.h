@@ -38,12 +38,12 @@
 #define CAIRO_CLIP_PRIVATE_H
 
 //#include "cairo-types-private.h"
-#include "cairo-boxes-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-boxes-private.h"
+//#include "cairo-error-private.h"
 //#include "cairo-compiler-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-error-private.h"
 #include "cairo-path-fixed-private.h"
-#include "cairo-reference-count-private.h"
+//#include "cairo-reference-count-private.h"
 
 extern const cairo_private cairo_rectangle_list_t _cairo_rectangles_nil;
 
@@ -53,7 +53,7 @@ struct _cairo_clip_path {
 	CairoFillRule fill_rule;
 	double tolerance;
 	cairo_antialias_t antialias;
-	cairo_clip_path_t           * prev;
+	cairo_clip_path_t * prev;
 };
 
 struct _cairo_clip {

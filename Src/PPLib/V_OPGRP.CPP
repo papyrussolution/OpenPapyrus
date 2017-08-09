@@ -748,7 +748,7 @@ DBQuery * SLAPI PPViewOpGrouping::CreateBrowserQuery(uint * pBrwId, SString * pS
 	DBQuery * q = 0;
 	TempOpGrpngTbl * p_tbl = 0;
 	if(P_TempStatTbl) {
-		if(Filt.GoodsGrpID || Filt.GoodsID || Filt.SupplAgentID) // @v7.0.11 Filt.SupplAgentID
+		if(Filt.GoodsGrpID || Filt.GoodsID || Filt.SupplAgentID)
 			brw_id = BROWSER_OPGRPNG;
 		else if(Filt.ExtGoodsTypeID)
 			brw_id = BROWSER_BILLOPGRPNGEXT;
@@ -757,7 +757,7 @@ DBQuery * SLAPI PPViewOpGrouping::CreateBrowserQuery(uint * pBrwId, SString * pS
 		p_tbl = new TempOpGrpngTbl(P_TempStatTbl->fileName);
 	}
 	else {
-		if(Filt.GoodsGrpID || Filt.GoodsID || Filt.SupplAgentID) // @v7.0.11 Filt.SupplAgentID
+		if(Filt.GoodsGrpID || Filt.GoodsID || Filt.SupplAgentID)
 			brw_id = !Filt.Cycl ? BROWSER_OPGRPNG : BROWSER_OPGRPNGCYCLE;
 		else if(Filt.ExtGoodsTypeID)
 			brw_id = !Filt.Cycl ? BROWSER_BILLOPGRPNGEXT : BROWSER_BILLOPGRPNGCYCLEEXT;
@@ -864,7 +864,7 @@ int SLAPI PPViewOpGrouping::Detail(const void * pHdr, PPViewBrowser * pBrw)
 					ViewGoodsRest(&gr_flt, 0);
 				}
 			}
-			else if(!Filt.GoodsGrpID && !Filt.GoodsID && !Filt.SupplAgentID) { // @v7.0.11 Filt.SupplAgentID
+			else if(!Filt.GoodsGrpID && !Filt.GoodsID && !Filt.SupplAgentID) {
 				BillFilt bill_flt;
 				bill_flt.Period   = detail_period;
 				bill_flt.LocList  = Filt.LocList;
@@ -887,7 +887,7 @@ int SLAPI PPViewOpGrouping::Detail(const void * pHdr, PPViewBrowser * pBrw)
 				tra_flt.SupplID    = Filt.SupplID;
 				tra_flt.GoodsGrpID = Filt.GoodsGrpID;
 				tra_flt.GoodsID    = Filt.GoodsID;
-				tra_flt.SupplAgentID = Filt.SupplAgentID; // @v7.0.11
+				tra_flt.SupplAgentID = Filt.SupplAgentID;
 				if(tra_flt.OpID == PPOPK_INTRRECEIPT) {
 					tra_flt.LocList.FreeAll();
 					tra_flt.ArList.Add(PPObjLocation::WarehouseToObj(Filt.LocList.GetSingle()), 1);

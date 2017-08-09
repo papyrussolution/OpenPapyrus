@@ -31,7 +31,7 @@
 //#include "connect.h"
 //#include "timeval.h"
 //#include "socks.h"
-#include "warnless.h"
+//#include "warnless.h"
 // The last 3 #include files should be in this order 
 #include "curl_printf.h"
 //#include "curl_memory.h"

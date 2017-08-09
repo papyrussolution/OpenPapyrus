@@ -235,11 +235,7 @@ struct PPDefinition {
 	std::string value;
 	bool isUndef;
 	std::string arguments;
-	PPDefinition(Sci_Position line_,
-		    const std::string &key_,
-		    const std::string &value_,
-		    bool isUndef_ = false,
-		    const std::string &arguments_ = "") :
+	PPDefinition(Sci_Position line_, const std::string &key_, const std::string &value_, bool isUndef_ = false, const std::string &arguments_ = "") :
 		line(line_), key(key_), value(value_), isUndef(isUndef_), arguments(arguments_)
 	{
 	}
@@ -253,42 +249,31 @@ class LinePPState {
 	{
 		return level >= 0 && level < 32;
 	}
-
 	int maskLevel() const
 	{
 		return 1 << level;
 	}
-
 public:
 	LinePPState() : state(0), ifTaken(0), level(-1)
 	{
 	}
-
 	bool IsInactive() const
 	{
 		return state != 0;
 	}
-
 	bool CurrentIfTaken() const
 	{
 		return (ifTaken & maskLevel()) != 0;
 	}
-
 	void StartSection(bool on)
 	{
 		level++;
 		if(ValidLevel()) {
-			if(on) {
-				state &= ~maskLevel();
-				ifTaken |= maskLevel();
-			}
-			else {
-				state |= maskLevel();
-				ifTaken &= ~maskLevel();
-			}
+			const int ml = maskLevel();
+			SETFLAG(state,   ml, !on);
+			SETFLAG(ifTaken, ml, on);
 		}
 	}
-
 	void EndSection()
 	{
 		if(ValidLevel()) {
@@ -297,7 +282,6 @@ public:
 		}
 		level--;
 	}
-
 	void InvertCurrentLevel()
 	{
 		if(ValidLevel()) {

@@ -454,7 +454,7 @@ xmlParserInputPtr xmlSAX2ResolveEntity(void * ctx, const xmlChar * publicId, con
 xmlEntityPtr xmlSAX2GetEntity(void * ctx, const xmlChar * name)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlEntityPtr ret = NULL;
+	xmlEntity * ret = NULL;
 	if(!ctx)
 		return 0;
 #ifdef DEBUG_SAX
@@ -493,7 +493,7 @@ xmlEntityPtr xmlSAX2GetEntity(void * ctx, const xmlChar * name)
 		 * parse the external entity
 		 */
 		xmlNodePtr children;
-		unsigned long oldnbent = ctxt->nbentities;
+		ulong  oldnbent = ctxt->nbentities;
 		val = xmlParseCtxtExternalEntity(ctxt, ret->URI, ret->ExternalID, &children);
 		if(val == 0) {
 			xmlAddChildList((xmlNode *)ret, children);
@@ -506,7 +506,7 @@ xmlEntityPtr xmlSAX2GetEntity(void * ctx, const xmlChar * name)
 		ret->owner = 1;
 		if(ret->checked == 0) {
 			ret->checked = (ctxt->nbentities - oldnbent + 1) * 2;
-			if((ret->content != NULL) && (xmlStrchr(ret->content, '<')))
+			if(ret->content && (xmlStrchr(ret->content, '<')))
 				ret->checked |= 1;
 		}
 	}
@@ -525,7 +525,7 @@ xmlEntityPtr xmlSAX2GetEntity(void * ctx, const xmlChar * name)
 xmlEntityPtr xmlSAX2GetParameterEntity(void * ctx, const xmlChar * name)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlEntityPtr ret = 0;
+	xmlEntity * ret = 0;
 	if(ctx) {
 #ifdef DEBUG_SAX
 		xmlGenericError(0, "SAX.xmlSAX2GetParameterEntity(%s)\n", name);
@@ -548,7 +548,7 @@ xmlEntityPtr xmlSAX2GetParameterEntity(void * ctx, const xmlChar * name)
  */
 void xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content)
 {
-	xmlEntityPtr ent;
+	xmlEntity * ent;
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	if(!ctx) return;
 #ifdef DEBUG_SAX
@@ -724,7 +724,7 @@ void xmlSAX2NotationDecl(void * ctx, const xmlChar * name, const xmlChar * publi
  */
 void xmlSAX2UnparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName)
 {
-	xmlEntityPtr ent;
+	xmlEntity * ent;
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	if(!ctx) return;
 #ifdef DEBUG_SAX

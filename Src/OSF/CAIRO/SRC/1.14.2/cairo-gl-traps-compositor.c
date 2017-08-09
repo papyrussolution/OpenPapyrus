@@ -268,8 +268,8 @@ static cairo_int_status_t lerp(void * dst,
 static cairo_int_status_t traps_to_operand(void * _dst,
     const CairoIRect * extents,
     cairo_antialias_t antialias,
-    cairo_traps_t         * traps,
-    cairo_gl_operand_t    * operand,
+    cairo_traps_t * traps,
+    cairo_gl_operand_t * operand,
     int dst_x, int dst_y)
 {
 	pixman_format_code_t pixman_format;

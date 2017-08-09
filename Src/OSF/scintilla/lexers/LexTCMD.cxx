@@ -505,8 +505,7 @@ static void FoldTCMDDoc(Sci_PositionU startPos, Sci_Position length, int, WordLi
 			line++;
 			// reset state
 			levelIndent = 0;
-			level &= ~SC_FOLDLEVELHEADERFLAG;
-			level &= ~SC_FOLDLEVELWHITEFLAG;
+			level &= ~(SC_FOLDLEVELHEADERFLAG|SC_FOLDLEVELWHITEFLAG);
 		}
 
 		chPrev = c;

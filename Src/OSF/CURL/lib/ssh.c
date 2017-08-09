@@ -58,20 +58,20 @@
 //#include "http.h" /* for HTTP proxy tunnel stuff */
 #include "ssh.h"
 //#include "url.h"
-#include "speedcheck.h"
+//#include "speedcheck.h"
 //#include "getinfo.h"
 //#include "strdup.h"
 //#include "strcase.h"
 //#include "vtls/vtls.h"
 //#include "connect.h"
 //#include "strerror.h"
-#include "inet_ntop.h"
-#include "parsedate.h" /* for the week day and month names */
+//#include "inet_ntop.h"
+//#include "parsedate.h" /* for the week day and month names */
 //#include "sockaddr.h" /* required for Curl_sockaddr_storage */
 //#include "strtoofft.h"
 //#include "multiif.h"
 //#include "select.h"
-#include "warnless.h"
+//#include "warnless.h"
 
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
@@ -98,9 +98,7 @@
 
 #define sftp_libssh2_last_error(s) curlx_ultosi(libssh2_sftp_last_error(s))
 
-#define sftp_libssh2_realpath(s, p, t, m) \
-	libssh2_sftp_symlink_ex((s), (p), curlx_uztoui(strlen(p)), \
-	    (t), (m), LIBSSH2_SFTP_REALPATH)
+#define sftp_libssh2_realpath(s, p, t, m) libssh2_sftp_symlink_ex((s), (p), curlx_uztoui(strlen(p)), (t), (m), LIBSSH2_SFTP_REALPATH)
 
 /* Local functions: */
 static const char * sftp_libssh2_strerror(int err);

@@ -617,8 +617,35 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 	return ok;
 }
 
-int SLAPI PPObjBill::Helper_WrOffDrft_ExpDrftRcp(/*const PPBillPacket & rSrcDraftPack, const PPDraftOpEx * pWrOffParam, PPBillPacket * pPack*/
-	WrOffDraftBlock & rBlk, int use_ta)
+
+int SLAPI PPObjBill::Helper_WrOffDrft_Acct(WrOffDraftBlock & rBlk, int use_ta)
+{
+	//
+	// Списание драфт-документа в бухгалтерский документ.
+	// Очень простая процедура: формируем бух документ, номинальная сумма равна номинальной сумме драфт-документа.
+	// Все суммы из драф-документа копируем в результирующий и фиксируем эти суммы.
+	//
+	int    ok = -1;
+	const  PPID src_bill_id = rBlk.SrcDraftPack.Rec.ID;
+	PPBillPacket * p_pack = 0;
+	THROW_MEM(p_pack = new PPBillPacket);
+	THROW(InitDraftWrOffPacket(rBlk.P_WrOffParam, &rBlk.SrcDraftPack.Rec, p_pack, use_ta));
+	{
+		p_pack->Rec.Memo[0] = 0;
+		THROW(p_pack->InitAmounts(0));
+		p_pack->Rec.Amount = rBlk.SrcDraftPack.Rec.Amount;
+		p_pack->Amounts = rBlk.SrcDraftPack.Amounts;
+		p_pack->Rec.Flags |= BILLF_FIXEDAMOUNTS;
+		rBlk.ResultList.insert(p_pack);
+		p_pack = 0;
+		ok = 1;
+	}
+	CATCHZOK
+	delete p_pack; // Разрушается, если не был вставлен в rBlk.ResultList
+	return ok;
+}
+
+int SLAPI PPObjBill::Helper_WrOffDrft_ExpDrftRcp(WrOffDraftBlock & rBlk, int use_ta)
 {
 	//
 	// Списание расходного драфт-документа в приходный драфт-документ.
@@ -911,6 +938,14 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 			const PPID wroff_op_type_id = GetOpType(blk.P_WrOffParam->WrOffOpID);
 			if(blk.SrcDraftPack.OpTypeID == PPOPT_DRAFTEXPEND) {
 				switch(wroff_op_type_id) {
+					case PPOPT_ACCTURN:
+						THROW(r = Helper_WrOffDrft_Acct(blk, 0));
+						if(r > 0) {
+							processed = 1;
+							if(r == 1000)
+								incomplete = 1;
+						}
+						break;
 					case PPOPT_DRAFTRECEIPT:
 						THROW(r = Helper_WrOffDrft_ExpDrftRcp(blk, 0));
 						if(r > 0) {
@@ -979,6 +1014,14 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 			}
 			else if(blk.SrcDraftPack.OpTypeID == PPOPT_DRAFTRECEIPT) {
 				switch(wroff_op_type_id) {
+					case PPOPT_ACCTURN:
+						THROW(r = Helper_WrOffDrft_Acct(blk, 0));
+						if(r > 0) {
+							processed = 1;
+							if(r == 1000)
+								incomplete = 1;
+						}
+						break;
 					case PPOPT_DRAFTRECEIPT:
 						THROW_MEM(p_pack = new PPBillPacket);
 						THROW(InitDraftWrOffPacket(blk.P_WrOffParam, &blk.SrcDraftPack.Rec, p_pack, 0 /*use_ta*/));
@@ -1222,7 +1265,7 @@ int SLAPI PPObjBill::ProcessDeficit(PPID compOpID, PPID compArID, const PUGL * p
 		PPID   comp_ar_id = compArID;
 		PPIDArray loc_list;
 		TSArray <PUGL::SupplSubstItem> suppl_subst_list;
-		pPugl->GetItemsLocList(&loc_list);
+		pPugl->GetItemsLocList(loc_list);
 		if(loc_list.getCount() == 0)
 			loc_list.addUnique(0L);
 		{

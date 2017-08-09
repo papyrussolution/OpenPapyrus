@@ -24,9 +24,9 @@
 #pragma hdrstop
 #ifndef CURL_DISABLE_CRYPTO_AUTH
 //#include <curl/curl.h>
-#include "curl_md5.h"
-#include "curl_hmac.h"
-#include "warnless.h"
+//#include "curl_md5.h"
+//#include "curl_hmac.h"
+//#include "warnless.h"
 
 #if defined(USE_GNUTLS_NETTLE)
 

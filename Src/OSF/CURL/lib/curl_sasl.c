@@ -34,12 +34,12 @@
 //#include <curl/curl.h>
 //#include "urldata.h"
 //#include "curl_base64.h"
-#include "curl_md5.h"
+//#include "curl_md5.h"
 #include "vauth/vauth.h"
 //#include "vtls/vtls.h"
-#include "curl_hmac.h"
+//#include "curl_hmac.h"
 #include "curl_sasl.h"
-#include "warnless.h"
+//#include "warnless.h"
 //#include "strtok.h"
 //#include "sendf.h"
 //#include "non-ascii.h" /* included for Curl_convert_... prototypes */
@@ -85,21 +85,18 @@ void Curl_sasl_cleanup(struct connectdata * conn, uint authused)
 		Curl_auth_gssapi_cleanup(&conn->krb5);
 	}
 #endif
-
 #if defined(USE_NTLM)
 	/* Cleanup the NTLM structure */
 	if(authused == SASL_MECH_NTLM) {
 		Curl_auth_ntlm_cleanup(&conn->ntlm);
 	}
 #endif
-
 #if !defined(USE_KERBEROS5) && !defined(USE_NTLM)
 	/* Reserved for future use */
 	(void)conn;
 	(void)authused;
 #endif
 }
-
 /*
  * Curl_sasl_decode_mech()
  *
@@ -129,7 +126,6 @@ uint Curl_sasl_decode_mech(const char * ptr, size_t maxlen, size_t * len)
 	}
 	return 0;
 }
-
 /*
  * Curl_sasl_parse_url_auth_option()
  *

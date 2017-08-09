@@ -42,12 +42,11 @@
 #include "cairo-path-fixed-private.h"
 #include "cairo-slope-private.h"
 #include "cairo-stroke-dash-private.h"
-#include "cairo-traps-private.h"
+//#include "cairo-traps-private.h"
 #include <float.h>
 
 struct stroker {
 	const cairo_stroke_style_t  * style;
-
 	const cairo_matrix_t * ctm;
 	const cairo_matrix_t * ctm_inverse;
 	double spline_cusp_tolerance;
@@ -56,23 +55,15 @@ struct stroker {
 	double ctm_determinant;
 	cairo_bool_t ctm_det_positive;
 	cairo_line_join_t line_join;
-
 	cairo_traps_t * traps;
-
 	cairo_pen_t pen;
-
 	cairo_point_t first_point;
-
 	cairo_bool_t has_initial_sub_path;
-
 	cairo_bool_t has_current_face;
 	cairo_stroke_face_t current_face;
-
 	cairo_bool_t has_first_face;
 	cairo_stroke_face_t first_face;
-
 	cairo_stroker_dash_t dash;
-
 	cairo_bool_t has_bounds;
 	cairo_box_t tight_bounds;
 	cairo_box_t line_bounds;
@@ -88,7 +79,6 @@ static cairo_status_t stroker_init(struct stroker            * stroker,
     cairo_traps_t             * traps)
 {
 	cairo_status_t status;
-
 	stroker->style = style;
 	stroker->ctm = ctm;
 	stroker->ctm_inverse = NULL;

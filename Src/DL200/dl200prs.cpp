@@ -1155,10 +1155,8 @@ int SLAPI PrcssrDL200::InitOutput()
 	PPGetFileName(PPFILNAM_HEAD_BTR, head_fname);
 	PPGetFileName(PPFILNAM_ITER_BTR, iter_fname);
 
-	// @v7.8.3 ini_file.Get(PPINISECT_PATH, PPINIPARAM_TEMP, path);
-	// @v7.8.3 ini_file.Get(PPINISECT_PATH, PPINIPARAM_PACK, packpath);
-	PPGetPath(PPPATH_TEMP, path); // @v7.8.3
-	PPGetPath(PPPATH_PACK, packpath); // @v7.8.3
+	PPGetPath(PPPATH_TEMP, path);
+	PPGetPath(PPPATH_PACK, packpath);
 	THROW_PP(path.NotEmptyS(), PPERR_UNDEFTEMPPATH);
 	THROW_PP(packpath.NotEmptyS(), PPERR_UNDEFPACKPATH);
 	path.RmvLastSlash();

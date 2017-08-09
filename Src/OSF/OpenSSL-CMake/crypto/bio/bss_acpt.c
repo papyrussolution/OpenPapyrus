@@ -433,10 +433,7 @@ static long acpt_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    }
 		    break;
 		case BIO_C_SET_NBIO:
-		    if(num != 0)
-			    data->accepted_mode |= BIO_SOCK_NONBLOCK;
-		    else
-			    data->accepted_mode &= ~BIO_SOCK_NONBLOCK;
+			SETFLAG(data->accepted_mode, BIO_SOCK_NONBLOCK, num != 0);
 		    break;
 		case BIO_C_SET_FD:
 		    b->init = 1;
@@ -449,8 +446,7 @@ static long acpt_ctrl(BIO * b, int cmd, long num, void * ptr)
 		case BIO_C_GET_FD:
 		    if(b->init) {
 			    ip = (int*)ptr;
-			    if(ip != NULL)
-				    *ip = data->accept_sock;
+				ASSIGN_PTR(ip, data->accept_sock);
 			    ret = data->accept_sock;
 		    }
 		    else
@@ -477,19 +473,11 @@ static long acpt_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    else if(num == 4) {
 				    switch(BIO_ADDRINFO_family(data->addr_iter)) {
 #ifdef AF_INET6
-					    case AF_INET6:
-						ret = BIO_FAMILY_IPV6;
-						break;
+					    case AF_INET6: ret = BIO_FAMILY_IPV6; break;
 #endif
-					    case AF_INET:
-						ret = BIO_FAMILY_IPV4;
-						break;
-					    case 0:
-						ret = data->accept_family;
-						break;
-					    default:
-						ret = -1;
-						break;
+					    case AF_INET: ret = BIO_FAMILY_IPV4; break;
+					    case 0: ret = data->accept_family; break;
+					    default: ret = -1; break;
 				    }
 			    }
 			    else

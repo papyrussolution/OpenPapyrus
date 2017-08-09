@@ -33,9 +33,9 @@
 #include "cairoint.h"
 #pragma hdrstop
 #include "cairo-box-inline.h"
-#include "cairo-boxes-private.h"
+//#include "cairo-boxes-private.h"
 
-void _cairo_boxes_init(cairo_boxes_t * boxes)
+void FASTCALL _cairo_boxes_init(cairo_boxes_t * boxes)
 {
 	boxes->status = CAIRO_STATUS_SUCCESS;
 	boxes->num_limits = 0;
@@ -55,7 +55,7 @@ void _cairo_boxes_init_from_rectangle(cairo_boxes_t * boxes, int x, int y, int w
 	boxes->num_boxes = 1;
 }
 
-void _cairo_boxes_init_with_clip(cairo_boxes_t * boxes, cairo_clip_t * clip)
+void FASTCALL _cairo_boxes_init_with_clip(cairo_boxes_t * boxes, cairo_clip_t * clip)
 {
 	_cairo_boxes_init(boxes);
 	if(clip)
@@ -84,12 +84,11 @@ void _cairo_boxes_init_for_array(cairo_boxes_t * boxes, cairo_box_t * array, int
 
 void _cairo_boxes_limit(cairo_boxes_t * boxes, const cairo_box_t * limits, int num_limits)
 {
-	int n;
 	boxes->limits = limits;
 	boxes->num_limits = num_limits;
 	if(boxes->num_limits) {
 		boxes->limit = limits[0];
-		for(n = 1; n < num_limits; n++) {
+		for(int n = 1; n < num_limits; n++) {
 			if(limits[n].p1.x < boxes->limit.p1.x)
 				boxes->limit.p1.x = limits[n].p1.x;
 			if(limits[n].p1.y < boxes->limit.p1.y)
@@ -209,35 +208,34 @@ cairo_status_t _cairo_boxes_add(cairo_boxes_t * boxes, cairo_antialias_t antiali
 	return boxes->status;
 }
 
-void _cairo_boxes_extents(const cairo_boxes_t * boxes, cairo_box_t * box)
+void FASTCALL _cairo_boxes_extents(const cairo_boxes_t * boxes, cairo_box_t * box)
 {
-	const _cairo_boxes_t::_cairo_boxes_chunk * chunk;
-	cairo_box_t b;
-	int i;
 	if(boxes->num_boxes == 0) {
 		box->p1.x = box->p1.y = box->p2.x = box->p2.y = 0;
-		return;
 	}
-	b = boxes->chunks.base[0];
-	for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
-		for(i = 0; i < chunk->count; i++) {
-			if(chunk->base[i].p1.x < b.p1.x)
-				b.p1.x = chunk->base[i].p1.x;
-			if(chunk->base[i].p1.y < b.p1.y)
-				b.p1.y = chunk->base[i].p1.y;
-			if(chunk->base[i].p2.x > b.p2.x)
-				b.p2.x = chunk->base[i].p2.x;
-			if(chunk->base[i].p2.y > b.p2.y)
-				b.p2.y = chunk->base[i].p2.y;
+	else {
+		cairo_box_t b = boxes->chunks.base[0];
+		for(const _cairo_boxes_t::_cairo_boxes_chunk * chunk = &boxes->chunks; chunk; chunk = chunk->next) {
+			for(int i = 0; i < chunk->count; i++) {
+				const cairo_box_t & r_box = chunk->base[i];
+				if(r_box.p1.x < b.p1.x)
+					b.p1.x = r_box.p1.x;
+				if(r_box.p1.y < b.p1.y)
+					b.p1.y = r_box.p1.y;
+				if(r_box.p2.x > b.p2.x)
+					b.p2.x = r_box.p2.x;
+				if(r_box.p2.y > b.p2.y)
+					b.p2.y = r_box.p2.y;
+			}
 		}
+		*box = b;
 	}
-	*box = b;
 }
 
-void _cairo_boxes_clear(cairo_boxes_t * boxes)
+void FASTCALL _cairo_boxes_clear(cairo_boxes_t * boxes)
 {
-	_cairo_boxes_t::_cairo_boxes_chunk * chunk, * next;
-	for(chunk = boxes->chunks.next; chunk != NULL; chunk = next) {
+	_cairo_boxes_t::_cairo_boxes_chunk * next;
+	for(_cairo_boxes_t::_cairo_boxes_chunk * chunk = boxes->chunks.next; chunk; chunk = next) {
 		next = chunk->next;
 		SAlloc::F(chunk);
 	}
@@ -271,29 +269,22 @@ cairo_box_t * _cairo_boxes_to_array(const cairo_boxes_t * boxes, int * num_boxes
 	return box;
 }
 
-void _cairo_boxes_fini(cairo_boxes_t * boxes)
+void FASTCALL _cairo_boxes_fini(cairo_boxes_t * boxes)
 {
-	_cairo_boxes_t::_cairo_boxes_chunk * chunk, * next;
-	for(chunk = boxes->chunks.next; chunk != NULL; chunk = next) {
+	_cairo_boxes_t::_cairo_boxes_chunk * next;
+	for(_cairo_boxes_t::_cairo_boxes_chunk * chunk = boxes->chunks.next; chunk; chunk = next) {
 		next = chunk->next;
 		SAlloc::F(chunk);
 	}
 }
 
-cairo_bool_t _cairo_boxes_for_each_box(cairo_boxes_t * boxes,
-    cairo_bool_t (* func)(cairo_box_t * box, void * data),
-    void * data)
+cairo_bool_t _cairo_boxes_for_each_box(cairo_boxes_t * boxes, cairo_bool_t (* func)(cairo_box_t * box, void * data), void * data)
 {
-	_cairo_boxes_t::_cairo_boxes_chunk * chunk;
-
-	int i;
-
-	for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
-		for(i = 0; i < chunk->count; i++)
+	for(_cairo_boxes_t::_cairo_boxes_chunk * chunk = &boxes->chunks; chunk; chunk = chunk->next) {
+		for(int i = 0; i < chunk->count; i++)
 			if(!func(&chunk->base[i], data))
 				return FALSE;
 	}
-
 	return TRUE;
 }
 

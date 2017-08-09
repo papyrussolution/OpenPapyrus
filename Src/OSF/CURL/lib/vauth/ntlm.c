@@ -40,7 +40,7 @@
 #include "curl_ntlm_core.h"
 //#include "curl_gethostname.h"
 #include "curl_multibyte.h"
-#include "warnless.h"
+//#include "warnless.h"
 #include "rand.h"
 //#include "vtls/vtls.h"
 

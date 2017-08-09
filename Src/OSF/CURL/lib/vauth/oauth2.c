@@ -28,7 +28,7 @@
 //#include "urldata.h"
 #include "vauth/vauth.h"
 //#include "curl_base64.h"
-#include "warnless.h"
+//#include "warnless.h"
 #include "curl_printf.h"
 /* The last #include files should be: */
 //#include "curl_memory.h"

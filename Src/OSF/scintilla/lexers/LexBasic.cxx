@@ -589,8 +589,7 @@ void SCI_METHOD LexerBasic::Fold(Sci_PositionU startPos, Sci_Position length, in
 			line++;
 			// reset state
 			wordlen = 0;
-			level &= ~SC_FOLDLEVELHEADERFLAG;
-			level &= ~SC_FOLDLEVELWHITEFLAG;
+			level &= ~(SC_FOLDLEVELHEADERFLAG|SC_FOLDLEVELWHITEFLAG);
 			go = 0;
 			done = 0;
 		}

@@ -660,8 +660,8 @@ int SLAPI PPViewPaymPlan::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	BillFilt flt;
 	GetEditIds(p_hdr, &dt, &obj_id, (pBrw) ? pBrw->GetCurColumn() : 0);
 	flt.List.InitEmpty();
-	THROW(GetBillList(obj_id, dt, &flt.List, 0, (P_Ct != 0) ? 1 : 0));
-	flt.Flags |= (BillFilt::fShowDebt | BillFilt::fPaymNeeded);
+	THROW(GetBillList(obj_id, dt, &flt.List, 0, BIN(P_Ct != 0)));
+	flt.Flags |= (BillFilt::fShowDebt|BillFilt::fPaymNeeded);
 	ViewGoodsBills(&flt, 1);
 	CATCHZOKPPERR
 	return ok;

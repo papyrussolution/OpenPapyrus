@@ -1762,8 +1762,7 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 		 * so it makes no sense to check the ignore flag (besides,
 		 * the flags variable is not set for that particular type)
 		 */
-		if((parameters[i].type != FORMAT_PARAMETER) &&
-		    (parameters[i].flags & FLAGS_IGNORE))
+		if((parameters[i].type != FORMAT_PARAMETER) && (parameters[i].flags & FLAGS_IGNORE))
 			continue;  /* for all arguments */
 
 		/*
@@ -1913,48 +1912,33 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 			     * whereas the rest (width, precision, base) uses an integer.
 			     */
 			    if(parameters[i].flags & FLAGS_USER_DEFINED)
-				    parameters[i].data.pointer = (argarray == NULL)
-				    ? va_arg(TRIO_VA_LIST_DEREF(arglist), trio_pointer_t)
-				    : argarray[num];
+				    parameters[i].data.pointer = (!argarray) ? va_arg(TRIO_VA_LIST_DEREF(arglist), trio_pointer_t) : argarray[num];
 			    else
-				    parameters[i].data.number.as_unsigned = (argarray == NULL)
-				    ? (trio_uintmax_t)va_arg(TRIO_VA_LIST_DEREF(arglist), int)
-				    : (trio_uintmax_t)(*((int*)argarray[num]));
+				    parameters[i].data.number.as_unsigned = (!argarray) ? (trio_uintmax_t)va_arg(TRIO_VA_LIST_DEREF(arglist), int) : (trio_uintmax_t)(*((int*)argarray[num]));
 			    break;
 
 			case FORMAT_DOUBLE:
 			    if(TYPE_SCAN == type) {
 				    if(parameters[i].flags & FLAGS_LONGDOUBLE)
-					    parameters[i].data.longdoublePointer = (argarray == NULL)
-					    ? va_arg(TRIO_VA_LIST_DEREF(arglist), trio_long_double_t *)
-					    : (trio_long_double_t*)argarray[num];
+					    parameters[i].data.longdoublePointer = (!argarray) ? va_arg(TRIO_VA_LIST_DEREF(arglist), trio_long_double_t *) : (trio_long_double_t*)argarray[num];
 				    else {
 					    if(parameters[i].flags & FLAGS_LONG)
-						    parameters[i].data.doublePointer = (argarray == NULL)
-						    ? va_arg(TRIO_VA_LIST_DEREF(arglist), double *)
-						    : (double*)argarray[num];
+						    parameters[i].data.doublePointer = (!argarray) ? va_arg(TRIO_VA_LIST_DEREF(arglist), double *) : (double*)argarray[num];
 					    else
-						    parameters[i].data.doublePointer = (argarray == NULL)
-						    ? (double*)va_arg(TRIO_VA_LIST_DEREF(arglist), float *)
-						    : (double*)((float*)argarray[num]);
+						    parameters[i].data.doublePointer = (!argarray) ? (double*)va_arg(TRIO_VA_LIST_DEREF(arglist), float *) : (double*)((float*)argarray[num]);
 				    }
 			    }
 			    else {
 				    if(parameters[i].flags & FLAGS_LONGDOUBLE)
-					    parameters[i].data.longdoubleNumber = (argarray == NULL)
-					    ? va_arg(TRIO_VA_LIST_DEREF(arglist), trio_long_double_t)
-					    : (trio_long_double_t)(*((trio_long_double_t*)argarray[num]));
+					    parameters[i].data.longdoubleNumber = (!argarray) ? va_arg(TRIO_VA_LIST_DEREF(arglist), trio_long_double_t) : (trio_long_double_t)(*((trio_long_double_t*)argarray[num]));
 				    else {
-					    if(argarray == NULL)
-						    parameters[i].data.longdoubleNumber =
-						    (trio_long_double_t)va_arg(TRIO_VA_LIST_DEREF(arglist), double);
+					    if(!argarray)
+						    parameters[i].data.longdoubleNumber = (trio_long_double_t)va_arg(TRIO_VA_LIST_DEREF(arglist), double);
 					    else {
 						    if(parameters[i].flags & FLAGS_SHORT)
-							    parameters[i].data.longdoubleNumber =
-							    (trio_long_double_t)(*((float*)argarray[num]));
+							    parameters[i].data.longdoubleNumber = (trio_long_double_t)(*((float*)argarray[num]));
 						    else
-							    parameters[i].data.longdoubleNumber =
-							    (trio_long_double_t)(*((double*)argarray[num]));
+							    parameters[i].data.longdoubleNumber = (trio_long_double_t)(*((double*)argarray[num]));
 					    }
 				    }
 			    }
@@ -3707,10 +3691,7 @@ int trio_get_long(trio_pointer_t ref)
 
 void trio_set_long(trio_pointer_t ref, int is_long)
 {
-	if(is_long)
-		((trio_reference_t*)ref)->parameter->flags |= FLAGS_LONG;
-	else
-		((trio_reference_t*)ref)->parameter->flags &= ~FLAGS_LONG;
+	SETFLAG(((trio_reference_t*)ref)->parameter->flags, FLAGS_LONG, is_long);
 }
 
 /*************************************************************************
@@ -3723,10 +3704,7 @@ int trio_get_longlong(trio_pointer_t ref)
 
 void trio_set_longlong(trio_pointer_t ref, int is_longlong)
 {
-	if(is_longlong)
-		((trio_reference_t*)ref)->parameter->flags |= FLAGS_QUAD;
-	else
-		((trio_reference_t*)ref)->parameter->flags &= ~FLAGS_QUAD;
+	SETFLAG(((trio_reference_t*)ref)->parameter->flags, FLAGS_QUAD, is_longlong);
 }
 
 /*************************************************************************
@@ -3739,10 +3717,7 @@ int trio_get_longdouble(trio_pointer_t ref)
 
 void trio_set_longdouble(trio_pointer_t ref, int is_longdouble)
 {
-	if(is_longdouble)
-		((trio_reference_t*)ref)->parameter->flags |= FLAGS_LONGDOUBLE;
-	else
-		((trio_reference_t*)ref)->parameter->flags &= ~FLAGS_LONGDOUBLE;
+	SETFLAG(((trio_reference_t*)ref)->parameter->flags, FLAGS_LONGDOUBLE, is_longdouble);
 }
 /*************************************************************************
  * trio_get_short / trio_set_short [public]
@@ -3754,10 +3729,7 @@ int trio_get_short(trio_pointer_t ref)
 
 void trio_set_short(trio_pointer_t ref, int is_short)
 {
-	if(is_short)
-		((trio_reference_t*)ref)->parameter->flags |= FLAGS_SHORT;
-	else
-		((trio_reference_t*)ref)->parameter->flags &= ~FLAGS_SHORT;
+	SETFLAG(((trio_reference_t*)ref)->parameter->flags, FLAGS_SHORT, is_short);
 }
 
 /*************************************************************************
@@ -3770,10 +3742,7 @@ int trio_get_shortshort(trio_pointer_t ref)
 
 void trio_set_shortshort(trio_pointer_t ref, int is_shortshort)
 {
-	if(is_shortshort)
-		((trio_reference_t*)ref)->parameter->flags |= FLAGS_SHORTSHORT;
-	else
-		((trio_reference_t*)ref)->parameter->flags &= ~FLAGS_SHORTSHORT;
+	SETFLAG(((trio_reference_t*)ref)->parameter->flags, FLAGS_SHORTSHORT, is_shortshort);
 }
 
 /*************************************************************************
@@ -3786,10 +3755,7 @@ int trio_get_alternative(trio_pointer_t ref)
 
 void trio_set_alternative TRIO_ARGS2((ref, is_alternative), trio_pointer_t ref, int is_alternative)
 {
-	if(is_alternative)
-		((trio_reference_t*)ref)->parameter->flags |= FLAGS_ALTERNATIVE;
-	else
-		((trio_reference_t*)ref)->parameter->flags &= ~FLAGS_ALTERNATIVE;
+	SETFLAG(((trio_reference_t*)ref)->parameter->flags, FLAGS_ALTERNATIVE, is_alternative);
 }
 
 /*************************************************************************
@@ -3802,10 +3768,7 @@ int trio_get_alignment(trio_pointer_t ref)
 
 void trio_set_alignment(trio_pointer_t ref, int is_leftaligned)
 {
-	if(is_leftaligned)
-		((trio_reference_t*)ref)->parameter->flags |= FLAGS_LEFTADJUST;
-	else
-		((trio_reference_t*)ref)->parameter->flags &= ~FLAGS_LEFTADJUST;
+	SETFLAG(((trio_reference_t*)ref)->parameter->flags, FLAGS_LEFTADJUST, is_leftaligned);
 }
 
 /*************************************************************************
@@ -3818,10 +3781,7 @@ int trio_get_spacing(trio_pointer_t ref)
 
 void trio_set_spacing(trio_pointer_t ref, int is_space)
 {
-	if(is_space)
-		((trio_reference_t*)ref)->parameter->flags |= FLAGS_SPACE;
-	else
-		((trio_reference_t*)ref)->parameter->flags &= ~FLAGS_SPACE;
+	SETFLAG(((trio_reference_t*)ref)->parameter->flags, FLAGS_SPACE, is_space);
 }
 
 /*************************************************************************
@@ -3834,10 +3794,7 @@ int trio_get_sign(trio_pointer_t ref)
 
 void trio_set_sign(trio_pointer_t ref, int is_sign)
 {
-	if(is_sign)
-		((trio_reference_t*)ref)->parameter->flags |= FLAGS_SHOWSIGN;
-	else
-		((trio_reference_t*)ref)->parameter->flags &= ~FLAGS_SHOWSIGN;
+	SETFLAG(((trio_reference_t*)ref)->parameter->flags, FLAGS_SHOWSIGN, is_sign);
 }
 
 /*************************************************************************
@@ -3850,10 +3807,7 @@ int trio_get_padding(trio_pointer_t ref)
 
 void trio_set_padding(trio_pointer_t ref, int is_padding)
 {
-	if(is_padding)
-		((trio_reference_t*)ref)->parameter->flags |= FLAGS_NILPADDING;
-	else
-		((trio_reference_t*)ref)->parameter->flags &= ~FLAGS_NILPADDING;
+	SETFLAG(((trio_reference_t*)ref)->parameter->flags, FLAGS_NILPADDING, is_padding);
 }
 
 /*************************************************************************
@@ -3866,10 +3820,7 @@ int trio_get_quote(trio_pointer_t ref)
 
 void trio_set_quote(trio_pointer_t ref, int is_quote)
 {
-	if(is_quote)
-		((trio_reference_t*)ref)->parameter->flags |= FLAGS_QUOTE;
-	else
-		((trio_reference_t*)ref)->parameter->flags &= ~FLAGS_QUOTE;
+	SETFLAG(((trio_reference_t*)ref)->parameter->flags, FLAGS_QUOTE, is_quote);
 }
 
 /*************************************************************************
@@ -3882,10 +3833,7 @@ int trio_get_upper(trio_pointer_t ref)
 
 void trio_set_upper(trio_pointer_t ref, int is_upper)
 {
-	if(is_upper)
-		((trio_reference_t*)ref)->parameter->flags |= FLAGS_UPPER;
-	else
-		((trio_reference_t*)ref)->parameter->flags &= ~FLAGS_UPPER;
+	SETFLAG(((trio_reference_t*)ref)->parameter->flags, FLAGS_UPPER, is_upper);
 }
 
 /*************************************************************************
@@ -3899,12 +3847,8 @@ int trio_get_largest(trio_pointer_t ref)
 
 void trio_set_largest(trio_pointer_t ref, int is_largest)
 {
-	if(is_largest)
-		((trio_reference_t*)ref)->parameter->flags |= FLAGS_INTMAX_T;
-	else
-		((trio_reference_t*)ref)->parameter->flags &= ~FLAGS_INTMAX_T;
+	SETFLAG(((trio_reference_t*)ref)->parameter->flags, FLAGS_INTMAX_T, is_largest);
 }
-
 #endif
 
 /*************************************************************************
@@ -3917,10 +3861,7 @@ int trio_get_ptrdiff(trio_pointer_t ref)
 
 void trio_set_ptrdiff(trio_pointer_t ref, int is_ptrdiff)
 {
-	if(is_ptrdiff)
-		((trio_reference_t*)ref)->parameter->flags |= FLAGS_PTRDIFF_T;
-	else
-		((trio_reference_t*)ref)->parameter->flags &= ~FLAGS_PTRDIFF_T;
+	SETFLAG(((trio_reference_t*)ref)->parameter->flags, FLAGS_PTRDIFF_T, is_ptrdiff);
 }
 
 /*************************************************************************
@@ -3934,10 +3875,7 @@ int trio_get_size(trio_pointer_t ref)
 
 void trio_set_size(trio_pointer_t ref, int is_size)
 {
-	if(is_size)
-		((trio_reference_t*)ref)->parameter->flags |= FLAGS_SIZE_T;
-	else
-		((trio_reference_t*)ref)->parameter->flags &= ~FLAGS_SIZE_T;
+	SETFLAG(((trio_reference_t*)ref)->parameter->flags, FLAGS_SIZE_T, is_size);
 }
 
 #endif

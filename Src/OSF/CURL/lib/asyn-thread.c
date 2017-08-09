@@ -61,8 +61,8 @@
 //#include "strerror.h"
 //#include "url.h"
 //#include "multiif.h"
-#include "inet_pton.h"
-#include "inet_ntop.h"
+//#include "inet_pton.h"
+//#include "inet_ntop.h"
 #include "curl_threads.h"
 //#include "connect.h"
 // The last 3 #include files should be in this order 

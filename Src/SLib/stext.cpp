@@ -8,6 +8,52 @@
 #pragma hdrstop
 #include <wchar.h>
 
+static const char * p_dow_en_sh[] = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+static const char * p_mon_en_sh[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Seb", "Oct", "Nov", "Dec"};
+static const char * p_dow_en[] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+
+//static
+const char * FASTCALL STextConst::Get(int c, uint idx)
+{
+	if(c == cMon_En_Sh) {
+		return (idx >= 0 && idx < SIZEOFARRAY(p_mon_en_sh)) ? p_mon_en_sh[idx] : "";
+	}
+	else if(c == cDow_En_Sh) {
+		return (idx >= 0 && idx < SIZEOFARRAY(p_dow_en_sh)) ? p_dow_en_sh[idx] : "";
+	}
+	else if(c == cDow_En) {
+		return (idx >= 0 && idx < SIZEOFARRAY(p_dow_en)) ? p_dow_en[idx] : "";
+	}
+	else
+		return "";
+}
+
+//static
+int FASTCALL STextConst::GetIdx(int c, const char * pText)
+{
+	if(c == cMon_En_Sh) {
+		for(uint i = 0; i < SIZEOFARRAY(p_mon_en_sh); i++) {
+			if(sstreqi_ascii(pText, p_mon_en_sh[i]))
+				return (int)i;
+		}
+	}
+	else if(c == cDow_En_Sh) {
+		for(uint i = 0; i < SIZEOFARRAY(p_dow_en_sh); i++) {
+			if(sstreqi_ascii(pText, p_dow_en_sh[i]))
+				return (int)i;
+		}
+	}
+	else if(c == cDow_En) {
+		for(uint i = 0; i < SIZEOFARRAY(p_dow_en); i++) {
+			if(sstreqi_ascii(pText, p_dow_en[i]))
+				return (int)i;
+		}
+	}
+	return -1;
+}
+//
+//
+//
 struct LinguaIdent {
 	int16  Id;
 	uint8  WinLangId;

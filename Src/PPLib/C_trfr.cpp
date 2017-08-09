@@ -129,6 +129,7 @@ int SLAPI Transfer::CorrectReverse()
 		SString LogFileName;
 	};
 	int    ok = 1;
+	PPObjBill * p_bobj = BillObj;
 	int    do_process = 0;
 	Param param;
 	param.Period.SetZero();
@@ -211,13 +212,13 @@ int SLAPI Transfer::CorrectReverse()
 						int    _rbb = rec.RByBill - 1;
 						PPTransferItem ti;
 						PPObjBill::TBlock tb_; // @v8.0.3
-						THROW(BillObj->BeginTFrame(rec.BillID, tb_)); // @v8.0.3
+						THROW(p_bobj->BeginTFrame(rec.BillID, tb_)); // @v8.0.3
 						if(EnumItems(rec.BillID, &_rbb, &ti) > 0 && UpdateItem(&ti, tb_.Rbb(), 1, 0)) {
 							// recovered
 						}
 						else
 							logger.LogLastError();
-						THROW(BillObj->FinishTFrame(rec.BillID, tb_)); // @v8.0.3
+						THROW(p_bobj->FinishTFrame(rec.BillID, tb_)); // @v8.0.3
 					}
 				}
 			}
@@ -243,10 +244,11 @@ int SLAPI Transfer::CorrectReverse()
 
 int SLAPI RecoverAbsenceLots()
 {
-	int    ok = -1, ta = 0, valid_data = 0;
+	int    ok = -1, valid_data = 0;
+	PPObjBill * p_bobj = BillObj;
 	TDialog * dlg = 0;
 	TransferTbl::Key1 k1;
-	Transfer * trfr = BillObj->trfr;
+	Transfer * trfr = p_bobj->trfr;
 	PPLogger logger;
 
 	SString log_fname;
@@ -285,57 +287,57 @@ int SLAPI RecoverAbsenceLots()
 			k1.Dt = period.low;
 			cntr.Init(q.countIterations(0, &k1, spGt));
 		}
-		THROW(PPStartTransaction(&ta, 1));
-		MEMSZERO(k1);
-		k1.Dt = period.low;
-		while(trfr->search(1, &k1, spGt) && (!period.upp || k1.Dt <= period.upp)) {
-			DBRowId pos;
-			TransferTbl::Rec rec, mirror;
-			trfr->copyBufTo(&rec);
-			THROW_DB(trfr->getPosition(&pos));
-			if(rec.Flags & PPTFR_RECEIPT && !(rec.Flags & PPTFR_ACK) && trfr->Rcpt.Search(rec.LotID) < 0) {
-				long   oprno = rec.OprNo;
-				PPID   prev_lot_id = 0, force_lot_id = 0;
-				BillTbl::Rec bill_rec;
-				PPTransferItem ti;
+		{
+			PPTransaction tra(1);
+			THROW(tra);
+			MEMSZERO(k1);
+			k1.Dt = period.low;
+			while(trfr->search(1, &k1, spGt) && (!period.upp || k1.Dt <= period.upp)) {
+				DBRowId pos;
+				TransferTbl::Rec rec, mirror;
+				trfr->copyBufTo(&rec);
+				THROW_DB(trfr->getPosition(&pos));
+				if(rec.Flags & PPTFR_RECEIPT && !(rec.Flags & PPTFR_ACK) && trfr->Rcpt.Search(rec.LotID) < 0) {
+					long   oprno = rec.OprNo;
+					PPID   prev_lot_id = 0, force_lot_id = 0;
+					BillTbl::Rec bill_rec;
+					PPTransferItem ti;
 
-				ti.SetupByRec(&rec);
-				force_lot_id = ti.LotID;
-				ti.LotID = 0;
-				if(BillObj->Search(rec.BillID, &bill_rec) > 0) {
-					// Отсутствующий лот {@goods - @loc - @int @bill}
-					logger.Log(PPFormatS(PPMSG_ERROR, PPERR_ABSLOTS, &log_buf, ti.GoodsID, ti.LocID, ti.BillID, ti.BillID));
-					if(correct) {
-						if(!trfr->data.Reverse)
-							ti.Suppl = bill_rec.Object;
-	   		            else if(trfr->SearchMirror(ti.Date, oprno, &mirror) > 0) {
-							if(trfr->Rcpt.Search(mirror.LotID) > 0) {
-								prev_lot_id = mirror.LotID;
-								ti.Suppl = trfr->Rcpt.data.SupplID;
+					ti.SetupByRec(&rec);
+					force_lot_id = ti.LotID;
+					ti.LotID = 0;
+					if(p_bobj->Search(rec.BillID, &bill_rec) > 0) {
+						// Отсутствующий лот {@goods - @loc - @int @bill}
+						logger.Log(PPFormatS(PPMSG_ERROR, PPERR_ABSLOTS, &log_buf, ti.GoodsID, ti.LocID, ti.BillID, ti.BillID));
+						if(correct) {
+							if(!trfr->data.Reverse)
+								ti.Suppl = bill_rec.Object;
+	   						else if(trfr->SearchMirror(ti.Date, oprno, &mirror) > 0) {
+								if(trfr->Rcpt.Search(mirror.LotID) > 0) {
+									prev_lot_id = mirror.LotID;
+									ti.Suppl = trfr->Rcpt.data.SupplID;
+								}
+							}
+							ti.LotID = prev_lot_id;
+							THROW(trfr->AddLotItem(&ti, force_lot_id));
+							if(trfr->data.LotID == 0) {
+								THROW_DB(trfr->getDirect(1, 0, pos));
+								trfr->data.LotID = ti.LotID;
+								THROW_DB(trfr->updateRec());
 							}
 						}
-						ti.LotID = prev_lot_id;
-						THROW(trfr->AddLotItem(&ti, force_lot_id));
-						if(trfr->data.LotID == 0) {
-							THROW_DB(trfr->getDirect(1, 0, pos));
-							trfr->data.LotID = ti.LotID;
-							THROW_DB(trfr->updateRec());
-						}
+					}
+					else {
+						logger.Log(PPFormatS(PPMSG_ERROR, PPERR_ABSLOTBILL, &log_buf, rec.BillID, ti.GoodsID, ti.LocID, force_lot_id));
 					}
 				}
-				else {
-					logger.Log(PPFormatS(PPMSG_ERROR, PPERR_ABSLOTBILL, &log_buf, rec.BillID, ti.GoodsID, ti.LocID, force_lot_id));
-				}
+				PPWaitPercent(cntr.Increment());
 			}
-			PPWaitPercent(cntr.Increment());
+			THROW(tra.Commit());
 		}
 		PPWait(0);
 	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = PPErrorZ();
-	ENDCATCH
+	CATCHZOKPPERR
 	logger.Save(log_fname, 0);
 	return ok;
 }

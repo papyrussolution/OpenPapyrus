@@ -38,10 +38,10 @@
 /* Provide definitions for standalone compilation */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-combsort-inline.h"
-#include "cairo-freelist-private.h"
+//#include "cairo-combsort-inline.h"
+//#include "cairo-freelist-private.h"
 #include "cairo-line-inline.h"
-#include "cairo-traps-private.h"
+//#include "cairo-traps-private.h"
 
 #define DEBUG_PRINT_STATE 0
 #define DEBUG_EVENTS 0
@@ -511,8 +511,7 @@ static cairo_bool_t intersect_lines(cairo_bo_edge_t * a, cairo_bo_edge_t * b, ca
 	return TRUE;
 }
 
-static int _cairo_bo_intersect_ordinate_32_compare(cairo_bo_intersect_ordinate_t a,
-    int32_t b)
+static int _cairo_bo_intersect_ordinate_32_compare(cairo_bo_intersect_ordinate_t a, int32_t b)
 {
 	/* First compare the quotient */
 	if(a.ordinate > b)
@@ -541,31 +540,22 @@ static int _cairo_bo_intersect_ordinate_32_compare(cairo_bo_intersect_ordinate_t
  * given edge and before the stop event for the edge. See the comments
  * in the implementation for more details.
  */
-static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t                * edge,
-    cairo_bo_intersect_point_t     * point)
+static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t * edge, cairo_bo_intersect_point_t * point)
 {
-	int cmp_top, cmp_bottom;
-
 	/* XXX: When running the actual algorithm, we don't actually need to
 	 * compare against edge->top at all here, since any intersection above
 	 * top is eliminated early via a slope comparison. We're leaving these
 	 * here for now only for the sake of the quadratic-time intersection
 	 * finder which needs them.
 	 */
-
-	cmp_top = _cairo_bo_intersect_ordinate_32_compare(point->y,
-	    edge->edge.top);
-	cmp_bottom = _cairo_bo_intersect_ordinate_32_compare(point->y,
-	    edge->edge.bottom);
-
+	int cmp_top = _cairo_bo_intersect_ordinate_32_compare(point->y, edge->edge.top);
+	int cmp_bottom = _cairo_bo_intersect_ordinate_32_compare(point->y, edge->edge.bottom);
 	if(cmp_top < 0 || cmp_bottom > 0) {
 		return FALSE;
 	}
-
 	if(cmp_top > 0 && cmp_bottom < 0) {
 		return TRUE;
 	}
-
 	/* At this stage, the point lies on the same y value as either
 	 * edge->top or edge->bottom, so we have to examine the x value in
 	 * order to properly determine containment. */
@@ -576,19 +566,12 @@ static cairo_bool_t _cairo_bo_edge_contains_intersect_point(cairo_bo_edge_t     
 	 * of the point is the same as the y value of the bottom of the
 	 * edge, then the x value of the point must be less to be
 	 * considered as inside. */
-
 	if(cmp_top == 0) {
-		cairo_fixed_t top_x;
-
-		top_x = _line_compute_intersection_x_for_y(&edge->edge.line,
-		    edge->edge.top);
+		cairo_fixed_t top_x = _line_compute_intersection_x_for_y(&edge->edge.line, edge->edge.top);
 		return _cairo_bo_intersect_ordinate_32_compare(point->x, top_x) > 0;
 	}
 	else { /* cmp_bottom == 0 */
-		cairo_fixed_t bot_x;
-
-		bot_x = _line_compute_intersection_x_for_y(&edge->edge.line,
-		    edge->edge.bottom);
+		cairo_fixed_t bot_x = _line_compute_intersection_x_for_y(&edge->edge.line, edge->edge.bottom);
 		return _cairo_bo_intersect_ordinate_32_compare(point->x, bot_x) < 0;
 	}
 }
@@ -635,19 +618,14 @@ static cairo_bool_t _cairo_bo_edge_intersect(cairo_bo_edge_t       * a,
 	return TRUE;
 }
 
-static inline int cairo_bo_event_compare(const cairo_bo_event_t * a,
-    const cairo_bo_event_t * b)
+static inline int cairo_bo_event_compare(const cairo_bo_event_t * a, const cairo_bo_event_t * b)
 {
-	int cmp;
-
-	cmp = _cairo_bo_point32_compare(&a->point, &b->point);
+	int cmp = _cairo_bo_point32_compare(&a->point, &b->point);
 	if(cmp)
 		return cmp;
-
 	cmp = a->type - b->type;
 	if(cmp)
 		return cmp;
-
 	return a - b;
 }
 
@@ -655,7 +633,6 @@ static inline void _pqueue_init(pqueue_t * pq)
 {
 	pq->max_size = SIZEOFARRAY(pq->elements_embedded);
 	pq->size = 0;
-
 	pq->elements = pq->elements_embedded;
 }
 
@@ -737,58 +714,42 @@ static inline cairo_status_t _cairo_bo_event_queue_insert(cairo_bo_event_queue_t
 	return _pqueue_push(&queue->pqueue, (cairo_bo_event_t*)event);
 }
 
-static void _cairo_bo_event_queue_delete(cairo_bo_event_queue_t * queue,
-    cairo_bo_event_t       * event)
+static void _cairo_bo_event_queue_delete(cairo_bo_event_queue_t * queue, cairo_bo_event_t * event)
 {
 	_cairo_freepool_free(&queue->pool, event);
 }
 
 static cairo_bo_event_t * _cairo_bo_event_dequeue(cairo_bo_event_queue_t * event_queue)
 {
-	cairo_bo_event_t * event, * cmp;
-
-	event = event_queue->pqueue.elements[PQ_FIRST_ENTRY];
-	cmp = *event_queue->start_events;
-	if(event == NULL ||
-	    (cmp != NULL && cairo_bo_event_compare(cmp, event) < 0)) {
+	cairo_bo_event_t * event = event_queue->pqueue.elements[PQ_FIRST_ENTRY];
+	cairo_bo_event_t * cmp = *event_queue->start_events;
+	if(event == NULL || (cmp != NULL && cairo_bo_event_compare(cmp, event) < 0)) {
 		event = cmp;
 		event_queue->start_events++;
 	}
 	else {
 		_pqueue_pop(&event_queue->pqueue);
 	}
-
 	return event;
 }
 
-CAIRO_COMBSORT_DECLARE(_cairo_bo_event_queue_sort,
-    cairo_bo_event_t *,
-    cairo_bo_event_compare)
+CAIRO_COMBSORT_DECLARE(_cairo_bo_event_queue_sort, cairo_bo_event_t *, cairo_bo_event_compare)
 
-static void _cairo_bo_event_queue_init(cairo_bo_event_queue_t       * event_queue,
-    cairo_bo_event_t            ** start_events,
-    int num_events)
+static void _cairo_bo_event_queue_init(cairo_bo_event_queue_t * event_queue, cairo_bo_event_t ** start_events, int num_events)
 {
 	event_queue->start_events = start_events;
-
 	_cairo_freepool_init(&event_queue->pool,
 	    sizeof(cairo_bo_queue_event_t));
 	_pqueue_init(&event_queue->pqueue);
 	event_queue->pqueue.elements[PQ_FIRST_ENTRY] = NULL;
 }
 
-static cairo_status_t _cairo_bo_event_queue_insert_stop(cairo_bo_event_queue_t       * event_queue,
-    cairo_bo_edge_t              * edge)
+static cairo_status_t _cairo_bo_event_queue_insert_stop(cairo_bo_event_queue_t * event_queue, cairo_bo_edge_t * edge)
 {
 	cairo_bo_point32_t point;
-
 	point.y = edge->edge.bottom;
-	point.x = _line_compute_intersection_x_for_y(&edge->edge.line,
-	    point.y);
-	return _cairo_bo_event_queue_insert(event_queue,
-	    CAIRO_BO_EVENT_TYPE_STOP,
-	    edge, NULL,
-	    &point);
+	point.x = _line_compute_intersection_x_for_y(&edge->edge.line, point.y);
+	return _cairo_bo_event_queue_insert(event_queue, CAIRO_BO_EVENT_TYPE_STOP, edge, NULL, &point);
 }
 
 static void _cairo_bo_event_queue_fini(cairo_bo_event_queue_t * event_queue)
@@ -797,19 +758,14 @@ static void _cairo_bo_event_queue_fini(cairo_bo_event_queue_t * event_queue)
 	_cairo_freepool_fini(&event_queue->pool);
 }
 
-static inline cairo_status_t _cairo_bo_event_queue_insert_if_intersect_below_current_y(cairo_bo_event_queue_t       * event_queue,
-    cairo_bo_edge_t      * left,
-    cairo_bo_edge_t * right)
+static inline cairo_status_t _cairo_bo_event_queue_insert_if_intersect_below_current_y(cairo_bo_event_queue_t * event_queue,
+    cairo_bo_edge_t * left, cairo_bo_edge_t * right)
 {
 	cairo_bo_point32_t intersection;
-
-	if(MAX(left->edge.line.p1.x, left->edge.line.p2.x) <=
-	    MIN(right->edge.line.p1.x, right->edge.line.p2.x))
+	if(MAX(left->edge.line.p1.x, left->edge.line.p2.x) <= MIN(right->edge.line.p1.x, right->edge.line.p2.x))
 		return CAIRO_STATUS_SUCCESS;
-
 	if(cairo_lines_equal(&left->edge.line, &right->edge.line))
 		return CAIRO_STATUS_SUCCESS;
-
 	/* The names "left" and "right" here are correct descriptions of
 	 * the order of the two edges within the active edge list. So if a
 	 * slope comparison also puts left less than right, then we know
@@ -817,14 +773,9 @@ static inline cairo_status_t _cairo_bo_event_queue_insert_if_intersect_below_cur
 	 * occurred before the current sweep line position. */
 	if(_slope_compare(left, right) <= 0)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(!_cairo_bo_edge_intersect(left, right, &intersection))
 		return CAIRO_STATUS_SUCCESS;
-
-	return _cairo_bo_event_queue_insert(event_queue,
-	    CAIRO_BO_EVENT_TYPE_INTERSECTION,
-	    left, right,
-	    &intersection);
+	return _cairo_bo_event_queue_insert(event_queue, CAIRO_BO_EVENT_TYPE_INTERSECTION, left, right, &intersection);
 }
 
 static void _cairo_bo_sweep_line_init(cairo_bo_sweep_line_t * sweep_line)
@@ -1416,9 +1367,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_polygon(cairo_traps_t         *
 	for(i = 0; i < num_events; i++) {
 		events[i].type = CAIRO_BO_EVENT_TYPE_START;
 		events[i].point.y = polygon->edges[i].top;
-		events[i].point.x =
-		    _line_compute_intersection_x_for_y(&polygon->edges[i].line,
-		    events[i].point.y);
+		events[i].point.x = _line_compute_intersection_x_for_y(&polygon->edges[i].line, events[i].point.y);
 
 		events[i].edge.edge = polygon->edges[i];
 		events[i].edge.deferred_trap.right = NULL;
@@ -1722,23 +1671,16 @@ static test_t
     }
    };
  */
-
-static int run_test(const char            * test_name,
-    cairo_bo_edge_t       * test_edges,
-    int num_edges)
+static int run_test(const char * test_name, cairo_bo_edge_t * test_edges, int num_edges)
 {
 	int i, intersections, passes;
 	cairo_bo_edge_t * edges;
 	cairo_array_t intersected_edges;
-
 	printf("Testing: %s\n", test_name);
-
 	_cairo_array_init(&intersected_edges, sizeof(cairo_bo_edge_t));
-
 	intersections = _cairo_bentley_ottmann_intersect_edges(test_edges, num_edges, &intersected_edges);
 	if(intersections)
 		printf("Pass 1 found %d intersections:\n", intersections);
-
 	/* XXX: Multi-pass Bentley-Ottmmann. Preferable would be to add a
 	 * pass of Hobby's tolerance-square algorithm instead. */
 	passes = 1;
@@ -1752,7 +1694,6 @@ static int run_test(const char            * test_name,
 		_cairo_array_init(&intersected_edges, sizeof(cairo_bo_edge_t));
 		intersections = _cairo_bentley_ottmann_intersect_edges(edges, num_edges, &intersected_edges);
 		SAlloc::F(edges);
-
 		if(intersections) {
 			printf("Pass %d found %d remaining intersections:\n", passes, intersections);
 		}
@@ -1763,15 +1704,11 @@ static int run_test(const char            * test_name,
 			printf("No remainining intersections found after pass %d\n", passes);
 		}
 	}
-
-	if(edges_have_an_intersection_quadratic(_cairo_array_index(&intersected_edges, 0),
-		    _cairo_array_num_elements(&intersected_edges)))
+	if(edges_have_an_intersection_quadratic(_cairo_array_index(&intersected_edges, 0), _cairo_array_num_elements(&intersected_edges)))
 		printf("*** FAIL ***\n");
 	else
 		printf("PASS\n");
-
 	_cairo_array_fini(&intersected_edges);
-
 	return 0;
 }
 

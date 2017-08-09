@@ -44,7 +44,7 @@
 #include "cairo-composite-rectangles-private.h"
 #include "cairo-compositor-private.h"
 #include "cairo-path-private.h"
-#include "cairo-traps-private.h"
+//#include "cairo-traps-private.h"
 
 #if CAIRO_HAS_GL_SURFACE // {
 
@@ -180,28 +180,20 @@ static cairo_int_status_t _clip_to_traps(cairo_clip_t * clip,
 	 * antialiased polygon is open to interpretation. And we choose the fast
 	 * option.
 	 */
-
 	_cairo_traps_init(traps);
-	status = _cairo_bentley_ottmann_tessellate_polygon(traps,
-	    &polygon,
-	    fill_rule);
+	status = _cairo_bentley_ottmann_tessellate_polygon(traps, &polygon, fill_rule);
 	_cairo_polygon_fini(&polygon);
-
 	return status;
 }
 
-cairo_int_status_t _cairo_gl_msaa_compositor_draw_clip(cairo_gl_context_t * ctx,
-    cairo_gl_composite_t * setup,
-    cairo_clip_t * clip)
+cairo_int_status_t _cairo_gl_msaa_compositor_draw_clip(cairo_gl_context_t * ctx, cairo_gl_composite_t * setup, cairo_clip_t * clip)
 {
 	cairo_int_status_t status;
 	cairo_traps_t traps;
-
 	status = _clip_to_traps(clip, &traps);
 	if(unlikely(status))
 		return status;
 	status = _draw_traps(ctx, setup, &traps);
-
 	_cairo_traps_fini(&traps);
 	return status;
 }

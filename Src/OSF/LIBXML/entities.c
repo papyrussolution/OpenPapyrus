@@ -165,7 +165,7 @@ static xmlEntityPtr xmlCreateEntity(xmlDictPtr dict, const xmlChar * name, int t
 static xmlEntityPtr xmlAddEntity(xmlDtdPtr dtd, const xmlChar * name, int type,
     const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content)
 {
-	xmlEntityPtr ret = 0;
+	xmlEntity * ret = 0;
 	xmlDictPtr dict = NULL;
 	xmlEntitiesTablePtr table = NULL;
 	if(name && dtd) {
@@ -256,7 +256,7 @@ xmlEntityPtr xmlGetPredefinedEntity(const xmlChar * name)
 xmlEntityPtr xmlAddDtdEntity(xmlDocPtr doc, const xmlChar * name, int type,
     const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content) 
 {
-	xmlEntityPtr ret;
+	xmlEntity * ret;
 	xmlDtdPtr dtd;
 	if(!doc) {
 		xmlEntitiesErr(XML_DTD_NO_DOC, "xmlAddDtdEntity: document is NULL");
@@ -302,7 +302,7 @@ xmlEntityPtr xmlAddDtdEntity(xmlDocPtr doc, const xmlChar * name, int type,
 xmlEntityPtr xmlAddDocEntity(xmlDocPtr doc, const xmlChar * name, int type,
     const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content) 
 {
-	xmlEntityPtr ret = 0;
+	xmlEntity * ret = 0;
 	if(!doc) {
 		xmlEntitiesErr(XML_DTD_NO_DOC, "xmlAddDocEntity: document is NULL");
 	}
@@ -353,7 +353,7 @@ xmlEntityPtr xmlNewEntity(xmlDocPtr doc, const xmlChar * name, int type, const x
 	}
 	else {
 		xmlDictPtr dict = doc ? doc->dict : 0;
-		xmlEntityPtr ret = xmlCreateEntity(dict, name, type, ExternalID, SystemID, content);
+		xmlEntity * ret = xmlCreateEntity(dict, name, type, ExternalID, SystemID, content);
 		if(ret)
 			ret->doc = doc;
 		return ret;
@@ -372,7 +372,7 @@ xmlEntityPtr xmlNewEntity(xmlDocPtr doc, const xmlChar * name, int type, const x
  */
 static xmlEntityPtr xmlGetEntityFromTable(xmlEntitiesTablePtr table, const xmlChar * name)
 {
-	return (xmlEntityPtr)xmlHashLookup(table, name);
+	return (xmlEntity *)xmlHashLookup(table, name);
 }
 
 /**
@@ -388,7 +388,7 @@ static xmlEntityPtr xmlGetEntityFromTable(xmlEntitiesTablePtr table, const xmlCh
 xmlEntityPtr xmlGetParameterEntity(xmlDocPtr doc, const xmlChar * name)
 {
 	xmlEntitiesTablePtr table;
-	xmlEntityPtr ret;
+	xmlEntity * ret;
 	if(doc) {
 		if(doc->intSubset && doc->intSubset->pentities) {
 			table = (xmlEntitiesTablePtr)doc->intSubset->pentities;
@@ -436,7 +436,7 @@ xmlEntityPtr xmlGetDtdEntity(xmlDocPtr doc, const xmlChar * name)
  */
 xmlEntityPtr xmlGetDocEntity(const xmlDoc * doc, const xmlChar * name)
 {
-	xmlEntityPtr cur;
+	xmlEntity * cur;
 	xmlEntitiesTablePtr table;
 	if(doc) {
 		if((doc->intSubset != NULL) && (doc->intSubset->entities != NULL)) {
@@ -833,7 +833,7 @@ void xmlFreeEntitiesTable(xmlEntitiesTablePtr table)
  */
 static xmlEntityPtr xmlCopyEntity(xmlEntityPtr ent)
 {
-	xmlEntityPtr cur = (xmlEntityPtr)SAlloc::M(sizeof(xmlEntity));
+	xmlEntity * cur = (xmlEntity *)SAlloc::M(sizeof(xmlEntity));
 	if(!cur) {
 		xmlEntitiesErrMemory("xmlCopyEntity:: malloc failed");
 	}
@@ -917,83 +917,85 @@ static void xmlDumpEntityContent(xmlBufferPtr buf, const xmlChar * content) {
  *
  * This will dump the content of the entity table as an XML DTD definition
  */
-void xmlDumpEntityDecl(xmlBufferPtr buf, xmlEntityPtr ent) {
-	if((buf == NULL) || (ent == NULL)) return;
-	switch(ent->etype) {
-		case XML_INTERNAL_GENERAL_ENTITY:
-		    xmlBufferWriteChar(buf, "<!ENTITY ");
-		    xmlBufferWriteCHAR(buf, ent->name);
-		    xmlBufferWriteChar(buf, " ");
-		    if(ent->orig != NULL)
-			    xmlBufferWriteQuotedString(buf, ent->orig);
-		    else
-			    xmlDumpEntityContent(buf, ent->content);
-		    xmlBufferWriteChar(buf, ">\n");
-		    break;
-		case XML_EXTERNAL_GENERAL_PARSED_ENTITY:
-		    xmlBufferWriteChar(buf, "<!ENTITY ");
-		    xmlBufferWriteCHAR(buf, ent->name);
-		    if(ent->ExternalID != NULL) {
-			    xmlBufferWriteChar(buf, " PUBLIC ");
-			    xmlBufferWriteQuotedString(buf, ent->ExternalID);
-			    xmlBufferWriteChar(buf, " ");
-			    xmlBufferWriteQuotedString(buf, ent->SystemID);
-		    }
-		    else {
-			    xmlBufferWriteChar(buf, " SYSTEM ");
-			    xmlBufferWriteQuotedString(buf, ent->SystemID);
-		    }
-		    xmlBufferWriteChar(buf, ">\n");
-		    break;
-		case XML_EXTERNAL_GENERAL_UNPARSED_ENTITY:
-		    xmlBufferWriteChar(buf, "<!ENTITY ");
-		    xmlBufferWriteCHAR(buf, ent->name);
-		    if(ent->ExternalID != NULL) {
-			    xmlBufferWriteChar(buf, " PUBLIC ");
-			    xmlBufferWriteQuotedString(buf, ent->ExternalID);
-			    xmlBufferWriteChar(buf, " ");
-			    xmlBufferWriteQuotedString(buf, ent->SystemID);
-		    }
-		    else {
-			    xmlBufferWriteChar(buf, " SYSTEM ");
-			    xmlBufferWriteQuotedString(buf, ent->SystemID);
-		    }
-		    if(ent->content != NULL) { /* Should be true ! */
-			    xmlBufferWriteChar(buf, " NDATA ");
-			    if(ent->orig != NULL)
-				    xmlBufferWriteCHAR(buf, ent->orig);
-			    else
-				    xmlBufferWriteCHAR(buf, ent->content);
-		    }
-		    xmlBufferWriteChar(buf, ">\n");
-		    break;
-		case XML_INTERNAL_PARAMETER_ENTITY:
-		    xmlBufferWriteChar(buf, "<!ENTITY % ");
-		    xmlBufferWriteCHAR(buf, ent->name);
-		    xmlBufferWriteChar(buf, " ");
-		    if(ent->orig == NULL)
-			    xmlDumpEntityContent(buf, ent->content);
-		    else
-			    xmlBufferWriteQuotedString(buf, ent->orig);
-		    xmlBufferWriteChar(buf, ">\n");
-		    break;
-		case XML_EXTERNAL_PARAMETER_ENTITY:
-		    xmlBufferWriteChar(buf, "<!ENTITY % ");
-		    xmlBufferWriteCHAR(buf, ent->name);
-		    if(ent->ExternalID != NULL) {
-			    xmlBufferWriteChar(buf, " PUBLIC ");
-			    xmlBufferWriteQuotedString(buf, ent->ExternalID);
-			    xmlBufferWriteChar(buf, " ");
-			    xmlBufferWriteQuotedString(buf, ent->SystemID);
-		    }
-		    else {
-			    xmlBufferWriteChar(buf, " SYSTEM ");
-			    xmlBufferWriteQuotedString(buf, ent->SystemID);
-		    }
-		    xmlBufferWriteChar(buf, ">\n");
-		    break;
-		default:
-		    xmlEntitiesErr(XML_DTD_UNKNOWN_ENTITY, "xmlDumpEntitiesDecl: internal: unknown type entity type");
+void xmlDumpEntityDecl(xmlBufferPtr buf, xmlEntityPtr ent) 
+{
+	if(buf && ent) {
+		switch(ent->etype) {
+			case XML_INTERNAL_GENERAL_ENTITY:
+				xmlBufferWriteChar(buf, "<!ENTITY ");
+				xmlBufferWriteCHAR(buf, ent->name);
+				xmlBufferWriteChar(buf, " ");
+				if(ent->orig)
+					xmlBufferWriteQuotedString(buf, ent->orig);
+				else
+					xmlDumpEntityContent(buf, ent->content);
+				xmlBufferWriteChar(buf, ">\n");
+				break;
+			case XML_EXTERNAL_GENERAL_PARSED_ENTITY:
+				xmlBufferWriteChar(buf, "<!ENTITY ");
+				xmlBufferWriteCHAR(buf, ent->name);
+				if(ent->ExternalID) {
+					xmlBufferWriteChar(buf, " PUBLIC ");
+					xmlBufferWriteQuotedString(buf, ent->ExternalID);
+					xmlBufferWriteChar(buf, " ");
+					xmlBufferWriteQuotedString(buf, ent->SystemID);
+				}
+				else {
+					xmlBufferWriteChar(buf, " SYSTEM ");
+					xmlBufferWriteQuotedString(buf, ent->SystemID);
+				}
+				xmlBufferWriteChar(buf, ">\n");
+				break;
+			case XML_EXTERNAL_GENERAL_UNPARSED_ENTITY:
+				xmlBufferWriteChar(buf, "<!ENTITY ");
+				xmlBufferWriteCHAR(buf, ent->name);
+				if(ent->ExternalID) {
+					xmlBufferWriteChar(buf, " PUBLIC ");
+					xmlBufferWriteQuotedString(buf, ent->ExternalID);
+					xmlBufferWriteChar(buf, " ");
+					xmlBufferWriteQuotedString(buf, ent->SystemID);
+				}
+				else {
+					xmlBufferWriteChar(buf, " SYSTEM ");
+					xmlBufferWriteQuotedString(buf, ent->SystemID);
+				}
+				if(ent->content != NULL) { /* Should be true ! */
+					xmlBufferWriteChar(buf, " NDATA ");
+					if(ent->orig)
+						xmlBufferWriteCHAR(buf, ent->orig);
+					else
+						xmlBufferWriteCHAR(buf, ent->content);
+				}
+				xmlBufferWriteChar(buf, ">\n");
+				break;
+			case XML_INTERNAL_PARAMETER_ENTITY:
+				xmlBufferWriteChar(buf, "<!ENTITY % ");
+				xmlBufferWriteCHAR(buf, ent->name);
+				xmlBufferWriteChar(buf, " ");
+				if(ent->orig == NULL)
+					xmlDumpEntityContent(buf, ent->content);
+				else
+					xmlBufferWriteQuotedString(buf, ent->orig);
+				xmlBufferWriteChar(buf, ">\n");
+				break;
+			case XML_EXTERNAL_PARAMETER_ENTITY:
+				xmlBufferWriteChar(buf, "<!ENTITY % ");
+				xmlBufferWriteCHAR(buf, ent->name);
+				if(ent->ExternalID) {
+					xmlBufferWriteChar(buf, " PUBLIC ");
+					xmlBufferWriteQuotedString(buf, ent->ExternalID);
+					xmlBufferWriteChar(buf, " ");
+					xmlBufferWriteQuotedString(buf, ent->SystemID);
+				}
+				else {
+					xmlBufferWriteChar(buf, " SYSTEM ");
+					xmlBufferWriteQuotedString(buf, ent->SystemID);
+				}
+				xmlBufferWriteChar(buf, ">\n");
+				break;
+			default:
+				xmlEntitiesErr(XML_DTD_UNKNOWN_ENTITY, "xmlDumpEntitiesDecl: internal: unknown type entity type");
+		}
 	}
 }
 /**

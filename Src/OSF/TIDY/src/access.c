@@ -1826,7 +1826,6 @@ static void CheckFrameSet(TidyDocImpl* doc, Node* node)
 		for(temp = node->content; temp != NULL; temp = temp->next) {
 			if(nodeIsNOFRAMES(temp) ) {
 				HasNoFrames = true;
-
 				if(temp->content && nodeIsP(temp->content->content) ) {
 					Node* para = temp->content->content;
 					if(TY_(nodeIsText) (para->content) ) {

@@ -872,6 +872,7 @@ int InetUrl::IsEmpty() const
 
 InetUrl & InetUrl::Clear()
 {
+	InetAddr::Clear();
 	State = stEmpty;
 	TermList.Clear();
 	Org = 0;
@@ -956,32 +957,36 @@ int InetUrl::Parse(const char * pUrl)
 			temp_buf.CopyFromN(uri.scheme.first, (uri.scheme.afterLast-uri.scheme.first));
 			if(temp_buf.NotEmpty()) {
 				Protocol = GetSchemeId(temp_buf);
-				TermList.Add(cScheme, temp_buf);
+				TermList.Add(cScheme, temp_buf, 1);
 			}
 			temp_buf.CopyFromN(uri.userInfo.first, (uri.userInfo.afterLast-uri.userInfo.first));
 			if(temp_buf.NotEmpty()) {
 				SString user_name, pw;
 				temp_buf.Divide(':', user_name, pw);
 				if(user_name.NotEmptyS())
-					TermList.Add(cUserName, user_name);
+					TermList.Add(cUserName, user_name, 1);
 				if(pw.NotEmptyS())
-					TermList.Add(cPassword, pw);
+					TermList.Add(cPassword, pw, 1);
 			}
 			temp_buf.CopyFromN(uri.hostText.first, (uri.hostText.afterLast-uri.hostText.first));
 			if(temp_buf.NotEmpty())
-				TermList.Add(cHost, temp_buf);
+				TermList.Add(cHost, temp_buf, 1);
 			temp_buf.CopyFromN(uri.portText.first, (uri.portText.afterLast-uri.portText.first));
 			if(temp_buf.NotEmpty())
-				TermList.Add(cPort, temp_buf);
-			temp_buf = uri.pathHead ? uri.pathHead->text.first : 0;
+				TermList.Add(cPort, temp_buf, 1);
+			//temp_buf = uri.pathHead ? uri.pathHead->text.first : 0;
+			if(uri.pathHead)
+				temp_buf.CopyFromN(uri.pathHead->text.first, (uri.pathHead->text.afterLast-uri.pathHead->text.first));
+			else
+				temp_buf = 0;
 			if(temp_buf.NotEmpty())
-				TermList.Add(cPath, temp_buf);
+				TermList.Add(cPath, temp_buf, 1);
 			temp_buf.CopyFromN(uri.query.first, (uri.query.afterLast-uri.query.first));
 			if(temp_buf.NotEmpty())
-				TermList.Add(cQuery, temp_buf);
+				TermList.Add(cQuery, temp_buf, 1);
 			temp_buf.CopyFromN(uri.fragment.first, (uri.fragment.afterLast-uri.fragment.first));
 			if(temp_buf.NotEmpty())
-				TermList.Add(cRef, temp_buf);
+				TermList.Add(cRef, temp_buf, 1);
 		}
 		else {
 			State |= stError;
@@ -1006,9 +1011,87 @@ int InetUrl::GetProtocol() const
 
 int InetUrl::GetComponent(int c, SString & rBuf) const
 {
-	int    ok = 1;
 	rBuf = 0;
-	return TermList.Get(c, rBuf);
+	return BIN(TermList.Get(c, rBuf) > 0);
+}
+
+int InetUrl::SetComponent(int c, const char * pBuf)
+{
+	int    ok = 0;
+	if(ValidateComponent(c)) {
+		ok = TermList.Add(c, pBuf, 1);
+	}
+	return ok;
+}
+
+int InetUrl::Composite(long flags, SString & rBuf) const
+{
+	rBuf = 0;
+	int    result = 0;
+	const  long _f = (flags == 0) ? stAll : flags;
+	if(_f == stEmpty)
+		result = 0;
+	else {
+		SString temp_buf;
+		if(_f & stScheme) {
+			if(GetComponent(cScheme, temp_buf)) {
+				if(sstreqi_ascii(temp_buf, "file"))
+					rBuf.Cat(temp_buf).CatChar(':').CatCharN('/', 3);
+				else if(sstreqi_ascii(temp_buf, "mailto"))
+					rBuf.Cat(temp_buf).CatChar(':');
+				else
+					rBuf.Cat(temp_buf).CatChar(':').CatCharN('/', 2);
+				result |= cScheme;
+			}
+			else if(Protocol) {
+				const char * p_scheme = GetSchemeMnem(Protocol);
+				if(p_scheme) {
+					if(Protocol == protFile)
+						rBuf.Cat(temp_buf).CatChar(':').CatCharN('/', 3);
+					else if(Protocol == protMailto)
+						rBuf.Cat(temp_buf).CatChar(':');
+					else
+						rBuf.Cat(p_scheme).CatChar(':').CatCharN('/', 2);
+					result |= cScheme;
+				}
+			}
+		}
+		if(_f & stUserName && GetComponent(cUserName, temp_buf)) {
+			rBuf.Cat(temp_buf);
+			result |= cUserName;
+		}
+		if(_f & stPassword && GetComponent(cPassword, temp_buf)) {
+			rBuf.CatChar(':').Cat(temp_buf);
+			result |= cPassword;
+		}
+		if(result & (stUserName|stPassword))
+			rBuf.CatChar(':');
+		if(_f & stHost && GetComponent(cHost, temp_buf)) {
+            rBuf.Cat(temp_buf);
+            result |= cHost;
+            if(_f & stPort && GetComponent(cPort, temp_buf)) {
+				rBuf.CatChar(':').Cat(temp_buf);
+				result |= cPort;
+            }
+		}
+		if(_f & stPath && GetComponent(cPath, temp_buf)) {
+			if(temp_buf.C(0) == '/')
+				rBuf.RmvLastSlash();
+			else
+				rBuf.SetLastDSlash();
+			rBuf.Cat(temp_buf);
+			result |= cPath;
+		}
+		if(_f & stQuery && GetComponent(cQuery, temp_buf)) {
+            rBuf.CatChar('?').Cat(temp_buf);
+            result |= cQuery;
+		}
+		if(_f & stRef && GetComponent(cRef, temp_buf)) {
+			rBuf.CatChar('#').Cat(temp_buf);
+			result |= cRef;
+		}
+	}
+	return result;
 }
 //
 //
@@ -1253,7 +1336,7 @@ int SHttpClient::GetHeaderId(const char * pTitle)
 	int   id = 0;
 	if(!isempty(pTitle)) {
 		for(uint i = 1; !id && i < SIZEOFARRAY(HttpHeader); i++) {
-			if(stricmp(HttpHeader[i], pTitle) == 0)
+			if(sstreqi_ascii(HttpHeader[i], pTitle))
 				id = (int)i;
 		}
 	}
@@ -1271,14 +1354,11 @@ int SHttpClient::TolkToServer(int method, const char * pUrl)
 	{
 		url.GetComponent(InetUrl::cPort, temp_buf);
 		int    port = temp_buf.ToLong();
-		if(port == 0) {
-			url.GetComponent(InetUrl::cScheme, temp_buf);
-			if(InetUrl::GetSchemeId(temp_buf) == InetUrl::protHttp)
-				port = 80;
-			else if(InetUrl::GetSchemeId(temp_buf) == InetUrl::protHttps)
-				port = 443;
-			else
-				port = 80;
+		if(!port) {
+			if(url.GetComponent(InetUrl::cScheme, temp_buf))
+				port = InetUrl::GetDefProtocolPort(InetUrl::GetSchemeId(temp_buf));
+			else if(url.GetProtocol())
+				port = InetUrl::GetDefProtocolPort(url.GetProtocol());
 		}
 		url.Set(host_buf, port);
 	}
@@ -1550,210 +1630,6 @@ read_header:                   /* for errorcode: 100 (continue) */
 //
 //
 //
-class SFtpClient {
-public:
-	enum {
-		stConnected = 0x0001,
-		stError     = 0x0002
-	};
-	SFtpClient();
-	SFtpClient(const char * pAddr, const char * pLogin, const char * pPassword);
-	~SFtpClient();
-    int    operator !() const
-    {
-    	return BIN(State & stError);
-    }
-	int    Connect(const char * pAddr, const char * pLogin, const char * pPassword);
-	int    Disconnect();
-	int    PutFile(const char * pLocSrc, const char * pFtpDst);
-	int    GetFile(const char * pFtpSrc, const char * pLocDst);
-	int    DeleteFile(const char * pFtpFile);
-	int    RenameFile(const char * pFtpFileName, const char * pNewFtpFileName);
-
-    class Enum : public SEnumImp {
-	public:
-		Enum(SFtpClient * pCli, const char * pWildcard);
-		virtual ~Enum();
-        virtual int Next(void * pDirEntry);
-	private:
-        void * P;
-        enum {
-        	stFirst     = 0x0001,
-        	stNothing   = 0x0002,
-        	stConnected = 0x0004
-        };
-        long   State;
-		SDirEntry CEntry; // Последняя найденная запись
-    };
-private:
-	friend class SFtpClient::Enum;
-
-	long   State;
-	void * H_Conn;
-	void * H_Sess;
-};
-
-SFtpClient::Enum::Enum(SFtpClient * pCli, const char * pWildcard)
-{
-	P = 0;
-	State = 0;
-	if(pCli->State & SFtpClient::stConnected) {
-		State |= stConnected;
-		WIN32_FIND_DATA find_data;
-		HINTERNET h = FtpFindFirstFile((HINTERNET)pCli->H_Sess, pWildcard, &find_data, 0, 0);
-		if(h) {
-			P = (void *)h;
-			CEntry = find_data;
-			State |= stFirst;
-		}
-		else {
-			State |= stNothing;
-		}
-	}
-}
-
-SFtpClient::Enum::~Enum()
-{
-	if(P)
-		InternetCloseHandle((HINTERNET)P);
-}
-
-int SFtpClient::Enum::Next(void * pDirEntry)
-{
-	int    ok = 0;
-	if(P) {
-        if(State & stFirst) {
-        	ASSIGN_PTR((SDirEntry *)pDirEntry, CEntry);
-        	State &= ~stFirst;
-        	ok = 1;
-        }
-        else if(!(State & stNothing)) {
-        	WIN32_FIND_DATA find_data;
-			if(InternetFindNextFile((HINTERNET)P, &find_data)) {
-				CEntry = find_data;
-				ASSIGN_PTR((SDirEntry *)pDirEntry, CEntry);
-				ok = 1;
-			}
-			else {
-				State |= stNothing;
-			}
-        }
-	}
-	return ok;
-}
-
-SFtpClient::SFtpClient()
-{
-	State = 0;
-	H_Conn = 0;
-	H_Sess = 0;
-}
-
-SFtpClient::SFtpClient(const char * pAddr, const char * pLogin, const char * pPassword)
-{
-	State = 0;
-	H_Conn = 0;
-	H_Sess = 0;
-	Connect(pAddr, pLogin, pPassword);
-}
-
-SFtpClient::~SFtpClient()
-{
-	Disconnect();
-}
-
-int SFtpClient::Connect(const char * pAddr, const char * pLogin, const char * pPassword)
-{
-	int    ok = 1;
-	State &= ~stError;
-	if(State & stConnected) {
-		Disconnect();
-	}
-	{
-		HINTERNET h = ::InternetOpen(0, INTERNET_OPEN_TYPE_DIRECT, 0, 0, 0);
-		THROW_S(h, SLERR_WINDOWS);
-		H_Conn = (void *)h;
-		h = ::InternetConnect((HINTERNET)H_Conn, pAddr, INTERNET_DEFAULT_FTP_PORT, pLogin, pPassword, INTERNET_SERVICE_FTP, INTERNET_FLAG_PASSIVE, 0);
-		THROW_S(h, SLERR_WINDOWS);
-		H_Sess = (void *)h;
-		State |= stConnected;
-	}
-    CATCH
-		if(H_Conn) {
-			::InternetCloseHandle((HINTERNET)H_Conn);
-			H_Conn = 0;
-		}
-		State |= stError;
-		ok = 0;
-	ENDCATCH;
-	return ok;
-}
-
-int SFtpClient::Disconnect()
-{
-	int    ok = -1;
-	State &= ~stError;
-	if(State & stConnected) {
-		::InternetCloseHandle((HINTERNET)H_Sess);
-		H_Sess = 0;
-		::InternetCloseHandle((HINTERNET)H_Conn);
-		H_Conn = 0;
-		State &= ~stConnected;
-		ok = 1;
-	}
-	return ok;
-}
-
-int SFtpClient::PutFile(const char * pLocSrc, const char * pFtpDst)
-{
-	int    ok = 1;
-	THROW_S(State & stConnected, SLERR_FTP_NOTCONNECTED);
-	THROW_S(FtpPutFile((HINTERNET)H_Sess, pLocSrc, pFtpDst, FTP_TRANSFER_TYPE_BINARY, 0), SLERR_WINDOWS);
-	CATCH
-		State |= stError;
-		ok = 0;
-	ENDCATCH;
-	return ok;
-}
-
-int SFtpClient::GetFile(const char * pFtpSrc, const char * pLocDst)
-{
-	int    ok = 1;
-	THROW_S(State & stConnected, SLERR_FTP_NOTCONNECTED);
-	THROW_S(FtpGetFile((HINTERNET)H_Sess, pFtpSrc, pLocDst, 0, 0, 0, NULL), SLERR_WINDOWS);
-	CATCH
-		State |= stError;
-		ok = 0;
-	ENDCATCH;
-    return ok;
-}
-
-int SFtpClient::DeleteFile(const char * pFtpFile)
-{
-	int    ok = 1;
-	THROW_S(State & stConnected, SLERR_FTP_NOTCONNECTED);
-	THROW_S(FtpDeleteFile((HINTERNET)H_Sess, pFtpFile), SLERR_WINDOWS);
-	CATCH
-		State |= stError;
-		ok = 0;
-	ENDCATCH;
-    return ok;
-}
-
-int SFtpClient::RenameFile(const char * pFtpFileName, const char * pNewFtpFileName)
-{
-	int    ok = 1;
-	THROW_S(State & stConnected, SLERR_FTP_NOTCONNECTED);
-	THROW_S(FtpRenameFile((HINTERNET)H_Sess, pFtpFileName, pNewFtpFileName), SLERR_WINDOWS);
-	CATCH
-		State |= stError;
-		ok = 0;
-	ENDCATCH;
-    return ok;
-}
-//
-//
-//
 #define CURL_STATICLIB
 #include <curl/curl.h>
 
@@ -1850,7 +1726,7 @@ size_t ScURL::CbWrite(char * pBuffer, size_t size, size_t nmemb, void * pExtra)
 
 #define _CURLH ((CURL *)H)
 
-ScURL::ScURL()
+ScURL::ScURL() : NullWrF(0, SFile::mNullWrite)
 {
 	if(!_GlobalInitDone) {
 		ENTER_CRITICAL_SECTION
@@ -1892,8 +1768,18 @@ int ScURL::SetupCbRead(SFile * pF)
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_READFUNCTION, ScURL::CbRead)));
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_READDATA, pF)));
 	}
+	else {
+		curl_easy_setopt(_CURLH, CURLOPT_READFUNCTION, 0);
+		curl_easy_setopt(_CURLH, CURLOPT_READDATA, 0);
+	}
 	CATCHZOK
 	return ok;
+}
+
+void ScURL::CleanCbRW()
+{
+	SetupCbRead(0);
+	SetupCbWrite(0);
 }
 
 int ScURL::SetupCbWrite(SFile * pF)
@@ -1903,21 +1789,51 @@ int ScURL::SetupCbWrite(SFile * pF)
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_WRITEFUNCTION, ScURL::CbWrite)));
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_WRITEDATA, pF)));
 	}
+	else {
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_WRITEFUNCTION, ScURL::CbWrite)));
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_WRITEDATA, &NullWrF)));
+	}
 	CATCHZOK
 	return ok;
+}
+
+int ScURL::SetCommonOptions(int mflags, int bufferSize, const char * pUserAgent)
+{
+	int    ok = 1;
+	if(mflags & mfDontVerifySslPeer) {
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSL_VERIFYPEER, 0)));
+	}
+	if(mflags & mfTcpKeepAlive) {
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_TCP_KEEPALIVE, 1L)));
+	}
+	if(mflags & mfNoProgerss) {
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_NOPROGRESS, 1L)));
+	}
+	if(bufferSize > 0) {
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_BUFFERSIZE, bufferSize)));
+	}
+	if(!isempty(pUserAgent)) {
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_USERAGENT, pUserAgent)));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int ScURL::Execute()
+{
+	return SetError(curl_easy_perform(_CURLH));
 }
 
 int ScURL::HttpPost(const char * pUrl, int mflags, HttpForm & rF, SFile * pReplyStream)
 {
 	int    ok = 1;
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, pUrl)));
-	if(mflags & mfDontVerifySslPeer) {
-		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSL_VERIFYPEER, 0)));
-	}
+	THROW(SetCommonOptions(mflags, 0, 0))
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_HTTPPOST, (struct curl_httppost *)rF.FH)));
 	THROW(SetupCbWrite(pReplyStream));
-	THROW(SetError(curl_easy_perform(_CURLH)));
+	THROW(Execute());
 	CATCHZOK
+	CleanCbRW();
 	return ok;
 }
 
@@ -1942,14 +1858,13 @@ int ScURL::HttpPost(const char * pUrl, int mflags, const StrStrAssocArray * pFie
 		}
 	}
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, pUrl)));
-	if(mflags & mfDontVerifySslPeer) {
-		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSL_VERIFYPEER, 0)));
-	}
+	THROW(SetCommonOptions(mflags, 0, 0))
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDSIZE, flds_buf.Len())));
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDS, (const char *)flds_buf)));
 	THROW(SetupCbWrite(pReplyStream));
-	THROW(SetError(curl_easy_perform(_CURLH)));
+	THROW(Execute());
 	CATCHZOK
+	CleanCbRW();
 	return ok;
 }
 
@@ -1957,13 +1872,12 @@ int ScURL::HttpGet(const char * pUrl, int mflags, SFile * pReplyStream)
 {
 	int    ok = 1;
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, pUrl)));
-	if(mflags & mfDontVerifySslPeer) {
-		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSL_VERIFYPEER, 0)));
-	}
+	THROW(SetCommonOptions(mflags, 0, 0))
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "GET")));
 	THROW(SetupCbWrite(pReplyStream));
-	THROW(SetError(curl_easy_perform(_CURLH)));
+	THROW(Execute());
 	CATCHZOK
+	CleanCbRW();
 	return ok;
 }
 
@@ -1973,9 +1887,7 @@ int ScURL::HttpGet(const char * pUrl, int mflags, const StrStrAssocArray * pHttp
 	uint   flds_count = 0;
 	struct curl_slist * p_chunk = 0;
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, pUrl)));
-	if(mflags & mfDontVerifySslPeer) {
-		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSL_VERIFYPEER, 0)));
-	}
+	THROW(SetCommonOptions(mflags, 0, 0))
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "GET")));
 	THROW(SetupCbWrite(pReplyStream));
 	if(pHttpHeaderFields && pHttpHeaderFields->getCount()) {
@@ -2001,9 +1913,10 @@ int ScURL::HttpGet(const char * pUrl, int mflags, const StrStrAssocArray * pHttp
 		if(p_chunk)
 			curl_easy_setopt(_CURLH, CURLOPT_HTTPHEADER, p_chunk);
 	}
-	THROW(SetError(curl_easy_perform(_CURLH)));
+	THROW(Execute());
 	CATCHZOK
 	curl_slist_free_all(p_chunk);
+	CleanCbRW();
 	return ok;
 }
 
@@ -2022,29 +1935,516 @@ int ScURL::HttpDelete(const char * pUrl, int flags, SFile * pReplyStream)
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, pUrl)));
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "DELETE")));
 	THROW(SetupCbWrite(pReplyStream));
-	THROW(SetError(curl_easy_perform(_CURLH)));
+	THROW(Execute());
+	CATCHZOK
+	CleanCbRW();
+	return ok;
+}
+
+int ScURL::SetAuth(int auth, const char * pUser, const char * pPassword)
+{
+    int    ok = 1;
+    SString temp_buf;
+    THROW_S(auth == authServer, SLERR_INVPARAM);
+    temp_buf.Cat(pUser).CatChar(':').Cat(pPassword);
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_USERPWD, temp_buf.cptr())));
+    CATCHZOK
+    return ok;
+}
+
+int SLAPI ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rEntry)
+{
+	/*
+		drwxr-xr-x   1 ftp      ftp             0 Aug 11  2015 Altarix
+		drwxr-xr-x   1 ftp      ftp             0 May 15 11:54 ANONYMOUS
+		drwxr-xr-x   1 ftp      ftp             0 Sep 22  2013 DataExch
+		drwxr-xr-x   1 ftp      ftp             0 May 15 11:43 DISTRIB
+		drwxr-xr-x   1 ftp      ftp             0 May 12  2014 frontol
+		drwxr-xr-x   1 ftp      ftp             0 Aug 07 16:49 test
+
+		-rw-r--r--   1 ftp      ftp             0 Aug 07 16:51 file-ascii.txt
+		-rw-r--r--   1 ftp      ftp             0 Aug 07 16:52 file-cp1251-русские буквы.txt
+	*/
+	int    ok = 1;
+	SString temp_buf;
+	SStrScan scan(rLine);
+	{ // attributes
+		scan.Skip().GetWord(" \t", temp_buf = 0);
+		THROW(temp_buf.Len() == 10);
+		if(temp_buf[0] == 'd')
+			rEntry.Attr |= SDirEntry::attrSubdir;
+		if(temp_buf[1] == 'r')
+			rEntry.Attr |= SDirEntry::attrOwpR;
+		if(temp_buf[2] == 'w')
+			rEntry.Attr |= SDirEntry::attrOwpW;
+		if(temp_buf[3] == 'x')
+			rEntry.Attr |= SDirEntry::attrOwpX;
+		if(temp_buf[4] == 'r')
+			rEntry.Attr |= SDirEntry::attrGrpR;
+		if(temp_buf[5] == 'w')
+			rEntry.Attr |= SDirEntry::attrGrpW;
+		if(temp_buf[6] == 'x')
+			rEntry.Attr |= SDirEntry::attrGrpX;
+		if(temp_buf[7] == 'r')
+			rEntry.Attr |= SDirEntry::attrUsrR;
+		if(temp_buf[8] == 'w')
+			rEntry.Attr |= SDirEntry::attrUsrW;
+		if(temp_buf[9] == 'x')
+			rEntry.Attr |= SDirEntry::attrUsrX;
+	}
+	// ? number
+	scan.Skip().GetWord(" \t", temp_buf = 0);
+	// owner
+	scan.Skip().GetWord(" \t", temp_buf = 0);
+	// group
+	scan.Skip().GetWord(" \t", temp_buf = 0);
+	// size
+	scan.Skip().GetWord(" \t", temp_buf = 0);
+	rEntry.Size = temp_buf.ToInt64();
+	{ // time: mon day [year] time
+		const LDATE curdt = getcurdate_();
+		int    mon = 0;
+		int    day = 0;
+		int    year = 0;
+		LTIME  t = ZEROTIME;
+		{ // mon
+			scan.Skip().GetWord(" \t", temp_buf = 0);
+			int mi = STextConst::GetIdx(STextConst::cMon_En_Sh, temp_buf);
+			if(mi >= 0 && mi <= 11)
+				mon = mi+1;
+		}
+		{ // day
+			scan.Skip().GetWord(" \t", temp_buf = 0);
+			day = temp_buf.ToLong();
+			if(day < 1 || day > 31)
+				day = 0;
+		}
+		{ // year or time
+			scan.Skip().GetWord(" \t", temp_buf = 0);
+			if(temp_buf.StrChr(':', 0)) {
+				strtotime(temp_buf, TIMF_HMS, &t);
+			}
+			else {
+				year = temp_buf.ToLong();
+				if(year < 1990 && year > 2100)
+					year = 0;
+			}
+		}
+		SETIFZ(day, curdt.day());
+		SETIFZ(mon, curdt.month());
+		SETIFZ(year, curdt.year());
+		rEntry.WriteTime.d = encodedate(day, mon, year);
+		rEntry.WriteTime.t = t;
+	}
+	{ // name
+		scan.Skip().GetWord("" /*unitl EOL*/, temp_buf = 0);
+		rEntry.Name = temp_buf;
+	}
 	CATCHZOK
 	return ok;
+}
+
+int ScURL::PrepareURL(InetUrl & rUrl, ScURL::InnerUrlInfo & rInfo)
+{
+	int    ok = 1;
+	SString temp_buf;
+	rUrl.GetComponent(InetUrl::cUserName, rInfo.User);
+	rUrl.GetComponent(InetUrl::cPassword, rInfo.Password);
+	if(rInfo.User.NotEmpty()) {
+		THROW(SetAuth(authServer, rInfo.User, rInfo.Password));
+	}
+	{
+		int prot = 0;
+		if(rUrl.GetComponent(InetUrl::cScheme, temp_buf)) {
+			prot = rUrl.GetSchemeId(temp_buf);
+			rUrl.SetProtocol(prot);
+		}
+		else {
+			prot = rUrl.GetProtocol();
+			if(prot)
+				rUrl.SetComponent(InetUrl::cScheme, InetUrl::GetSchemeMnem(prot));
+		}
+		if(prot == 0) {
+			prot = InetUrl::protFtp;
+			rUrl.SetProtocol(prot);
+			rUrl.SetComponent(InetUrl::cScheme, InetUrl::GetSchemeMnem(prot));
+		}
+		THROW(oneof3(prot, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp));
+	}
+	rUrl.GetComponent(InetUrl::cPath, temp_buf);
+	SPathStruc::NormalizePath(temp_buf, SPathStruc::npfSlash, rInfo.Path);
+	if(temp_buf != rInfo.Path)
+		rUrl.SetComponent(InetUrl::cPath, rInfo.Path);
+	CATCHZOK
+	return ok;
+}
+
+int ScURL::FtpList(const InetUrl & rUrl, int mflags, SFileEntryPool & rPool)
+{
+	int    ok = 1;
+	SString temp_buf;
+	InetUrl url_local = rUrl;
+	InnerUrlInfo url_info;
+	THROW(PrepareURL(url_local, url_info));
+	{
+		if(url_info.Path.NotEmptyS()) {
+			url_info.Path.SetLastDSlash();
+			url_local.SetComponent(InetUrl::cPath, url_info.Path);
+		}
+		url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+	}
+	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 256 * 1024, 0))
+	{
+		SBuffer reply_buf;
+		SFile reply_stream(reply_buf, SFile::mWrite);
+		THROW(SetupCbWrite(&reply_stream));
+		THROW(Execute());
+		{
+			SString line_buf;
+			SBuffer * p_result_buf = (SBuffer *)reply_stream;
+			SFileEntryPool::Entry entry;
+			if(p_result_buf) {
+				while(p_result_buf->ReadTermStr("\x0D\x0A", line_buf)) {
+					(temp_buf = line_buf).Chomp();
+					entry.Clear();
+					ParseFtpDirEntryLine(temp_buf, entry);
+					if(url_info.Path.NotEmpty())
+						entry.Path = url_info.Path;
+					rPool.Add(entry);
+				}
+				temp_buf = ""; // @debug
+			}
+		}
+	}
+	CATCHZOK
+	CleanCbRW();
+	return ok;
+}
+
+int ScURL::FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, SCopyFileProgressProc pf, void * extraPtr)
+{
+	int    ok = 1;
+	SString temp_buf;
+	InetUrl url_local = rUrl;
+	InnerUrlInfo url_info;
+	THROW(fileExists(pLocalFile));
+	THROW(PrepareURL(url_local, url_info));
+	{
+		SPathStruc ps;
+		ps.Split(pLocalFile);
+		ps.Drv = 0;
+		ps.Dir = 0;
+		ps.Merge(temp_buf);
+		url_info.Path.SetLastDSlash().Cat(temp_buf);
+		url_local.SetComponent(InetUrl::cPath, url_info.Path);
+		{
+			url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+		}
+	}
+	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 256 * 1024, 0))
+	{
+		SBuffer reply_buf;
+		SFile reply_stream(reply_buf, SFile::mWrite);
+		SFile f_in(pLocalFile, SFile::mRead|SFile::mBinary);
+		THROW(SetupCbRead(&f_in));
+		THROW(SetupCbWrite(&reply_stream));
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_UPLOAD, 1L)));
+		THROW(Execute());
+		{
+			SString line_buf;
+			SBuffer * p_result_buf = (SBuffer *)reply_stream;
+			SFileEntryPool::Entry entry;
+			if(p_result_buf) {
+				while(p_result_buf->ReadTermStr("\x0D\x0A", line_buf)) {
+					(temp_buf = line_buf).Chomp();
+				}
+				temp_buf = ""; // @debug
+			}
+		}
+	}
+	CATCHZOK
+	CleanCbRW();
+	return ok;
+}
+
+int ScURL::FtpGet(const InetUrl & rUrl, int mflags, const char * pLocalFile, SCopyFileProgressProc pf, void * extraPtr)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString local_file_path = pLocalFile;
+	InetUrl url_local = rUrl;
+	InnerUrlInfo url_info;
+	THROW(PrepareURL(url_local, url_info));
+	{
+		SPathStruc ps_local;
+		SPathStruc ps_remote;
+		ps_local.Split(pLocalFile);
+		ps_remote.Split(url_info.Path);
+		if(ps_remote.Nam.NotEmpty()) {
+			if(ps_local.Nam.Empty()) {
+				ps_local.Nam = ps_remote.Nam;
+				ps_local.Ext = ps_remote.Ext;
+				ps_local.Merge(local_file_path);
+			}
+		}
+		{
+			url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+		}
+	}
+	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 256 * 1024, 0))
+	{
+		SFile f_out(local_file_path, SFile::mWrite|SFile::mBinary);
+		THROW(SetupCbWrite(&f_out));
+		THROW(Execute());
+	}
+	CATCHZOK
+	CleanCbRW();
+	return ok;
+}
+
+int ScURL::FtpDelete(const InetUrl & rUrl, int mflags)
+{
+	int    ok = 1;
+	struct curl_slist * p_chunk = 0;
+	SString temp_buf;
+	SString file_name_to_delete;
+	InetUrl url_local = rUrl;
+	InnerUrlInfo url_info;
+	THROW(PrepareURL(url_local, url_info));
+	{
+		file_name_to_delete = url_info.Path;
+		THROW(file_name_to_delete.NotEmptyS());
+		{
+			url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword|InetUrl::stPath), temp_buf); // @notebene InetUrl::stPath
+			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+		}
+	}
+	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 0, 0))
+	{
+		(temp_buf = 0).Cat("DELE").Space().Cat(file_name_to_delete);
+		p_chunk = curl_slist_append(p_chunk, temp_buf);
+		THROW(SetError(curl_easy_setopt(_CURLH,  CURLOPT_QUOTE, p_chunk)));
+		THROW(Execute());
+	}
+	CATCHZOK
+	curl_slist_free_all(p_chunk);
+	return ok;
+}
+
+int ScURL::FtpDeleteDir(const InetUrl & rUrl, int mflags)
+{
+	int    ok = 1;
+	struct curl_slist * p_chunk = 0;
+	SString temp_buf;
+	SString file_name_to_delete;
+	InetUrl url_local = rUrl;
+	InnerUrlInfo url_info;
+	THROW(PrepareURL(url_local, url_info));
+	{
+		file_name_to_delete = url_info.Path;
+		THROW(file_name_to_delete.NotEmptyS());
+		{
+			url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword|InetUrl::stPath), temp_buf); // @notebene InetUrl::stPath
+			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+		}
+	}
+	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 0, 0))
+	{
+		(temp_buf = 0).Cat("RMD").Space().Cat(file_name_to_delete);
+		p_chunk = curl_slist_append(p_chunk, temp_buf);
+		THROW(SetError(curl_easy_setopt(_CURLH,  CURLOPT_QUOTE, p_chunk)));
+		THROW(Execute());
+	}
+	CATCHZOK
+	curl_slist_free_all(p_chunk);
+	return ok;
+}
+
+int ScURL::FtpChangeDir(const InetUrl & rUrl, int mflags)
+{
+	int    ok = 1;
+	struct curl_slist * p_chunk = 0;
+	SString temp_buf;
+	SString path_to_cwd;
+	InetUrl url_local = rUrl;
+	InnerUrlInfo url_info;
+	CleanCbRW();
+	THROW(PrepareURL(url_local, url_info));
+	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 0, 0))
+	{
+		url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword|InetUrl::stPath), temp_buf); // @notebene InetUrl::stPath
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+	}
+	{
+		path_to_cwd.ShiftLeftChr('/');
+		path_to_cwd.RmvLastSlash();
+		if(path_to_cwd.NotEmptyS()) {
+			StringSet ss_cwd('/', path_to_cwd);
+			SString new_cmd_buf;
+			int    to_do = 0;
+			for(uint ssp = 0; ss_cwd.get(&ssp, temp_buf);) {
+				(new_cmd_buf = 0).Cat("CWD").Space().Cat(temp_buf.Strip());
+				p_chunk = curl_slist_append(p_chunk, new_cmd_buf.cptr());
+				to_do = 1;
+			}
+			if(to_do) {
+				THROW(SetError(curl_easy_setopt(_CURLH,  CURLOPT_QUOTE, p_chunk)));
+				THROW(Execute());
+			}
+		}
+	}
+	CATCHZOK
+	curl_slist_free_all(p_chunk);
+	return ok;
+}
+
+int ScURL::FtpCreateDir(const InetUrl & rUrl, int mflags)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString path_to_cwd;
+	InetUrl url_local = rUrl;
+	InnerUrlInfo url_info;
+	CleanCbRW();
+	THROW(PrepareURL(url_local, url_info));
+	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 0, 0));
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_FTP_CREATE_MISSING_DIRS, 1)));
+	{
+		url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+	}
+	THROW(Execute());
+	CATCHZOK
+	return ok;
+#if 0 // {
+int main(int argc, char *argv[])
+{
+  CURLcode ret;
+  CURL *hnd = curl_easy_init();
+  curl_easy_setopt(hnd, CURLOPT_BUFFERSIZE, 102400L);
+  curl_easy_setopt(hnd, CURLOPT_URL, "ftp://petroglif.ru/test/abc/");
+  curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
+  curl_easy_setopt(hnd, CURLOPT_USERPWD, "test:1wQ1303WKwJX");
+  curl_easy_setopt(hnd, CURLOPT_USERAGENT, "curl/7.54.1");
+  curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 50L);
+  curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, (long)CURL_HTTP_VERSION_2TLS);
+  curl_easy_setopt(hnd, CURLOPT_CAINFO, "D:\\DEV\\NETWORK\\cURL\\curl-7.54.1-win64-mingw\\bin\\curl-ca-bundle.crt");
+  curl_easy_setopt(hnd, CURLOPT_SSH_KNOWNHOSTS, "C:\\Users\\sobolev\\AppData\\Roaming/_ssh/known_hosts");
+  curl_easy_setopt(hnd, CURLOPT_FTP_CREATE_MISSING_DIRS, 2L);
+  curl_easy_setopt(hnd, CURLOPT_TCP_KEEPALIVE, 1L);
+
+  /* Here is a list of options the curl code used that cannot get generated
+     as source easily. You may select to either not use them or implement
+     them yourself.
+  CURLOPT_WRITEDATA set to a objectpointer
+  CURLOPT_INTERLEAVEDATA set to a objectpointer
+  CURLOPT_WRITEFUNCTION set to a functionpointer
+  CURLOPT_READDATA set to a objectpointer
+  CURLOPT_READFUNCTION set to a functionpointer
+  CURLOPT_SEEKDATA set to a objectpointer
+  CURLOPT_SEEKFUNCTION set to a functionpointer
+  CURLOPT_ERRORBUFFER set to a objectpointer
+  CURLOPT_STDERR set to a objectpointer
+  CURLOPT_HEADERFUNCTION set to a functionpointer
+  CURLOPT_HEADERDATA set to a objectpointer
+  */
+  ret = curl_easy_perform(hnd);
+  curl_easy_cleanup(hnd);
+  hnd = NULL;
+  return (int)ret;
+}
+#endif // } 0
 }
 //
 //
 //
 #if SLTEST_RUNNING // {
 
+SLTEST_R(ScURL_Ftp)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString url_text;
+	InetUrl url;
+	{
+		uint   arg_no = 0;
+		if(EnumArg(&arg_no, temp_buf)) {
+			url.Parse(temp_buf);
+			if(EnumArg(&arg_no, temp_buf)) {
+				url.SetComponent(url.cUserName, temp_buf);
+				if(EnumArg(&arg_no, temp_buf))
+					url.SetComponent(url.cPassword, temp_buf);
+			}
+		}
+	}
+	SFileEntryPool pool;
+	{
+		ScURL curl;
+		THROW(SLTEST_CHECK_NZ(curl.FtpList(url, 0, pool)));
+	}
+	{
+		ScURL curl;
+		url.SetComponent(InetUrl::cPath, "test/");
+		THROW(SLTEST_CHECK_NZ(curl.FtpChangeDir(url, 0)));
+	}
+	{
+		ScURL curl;
+		url.SetComponent(InetUrl::cPath, "test/abc/");
+		THROW(SLTEST_CHECK_NZ(curl.FtpCreateDir(url, 0)));
+	}
+	{
+		ScURL curl;
+		url.SetComponent(InetUrl::cPath, "test/abc");
+		THROW(SLTEST_CHECK_NZ(curl.FtpDeleteDir(url, 0)));
+	}
+	{
+		ScURL curl;
+		url.SetComponent(InetUrl::cPath, "test/subdir01/subdir02/");
+		THROW(SLTEST_CHECK_NZ(curl.FtpChangeDir(url, 0)));
+	}
+	{
+		ScURL curl;
+		THROW(SLTEST_CHECK_NZ(curl.FtpPut(url, 0, MakeInputFilePath("binfile"), 0, 0)));
+	}
+	{
+		ScURL curl;
+		url.GetComponent(InetUrl::cPath, temp_buf);
+		temp_buf.SetLastDSlash().Cat("binfile");
+		url.SetComponent(InetUrl::cPath, temp_buf);
+		THROW(SLTEST_CHECK_NZ(curl.FtpGet(url, 0, MakeOutputFilePath("binfile-from-ftp"), 0, 0)));
+		//THROW(SLTEST_CHECK_NZ(curl.FtpDelete(url, 0)));
+	}
+	{
+		ScURL curl;
+		//url.GetComponent(InetUrl::cPath, temp_buf);
+		//temp_buf.SetLastDSlash().Cat("binfile");
+		//url.SetComponent(InetUrl::cPath, temp_buf);
+		THROW(SLTEST_CHECK_NZ(curl.FtpDelete(url, 0)));
+	}
+	CATCH
+		CurrentStatus = 0;
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
 SLTEST_R(Uri)
 {
 	const char * p_url_text[] = {
 		"mailto:user@host?subject=blah",
+		"https://www.yahoo.com/",
 		"file:///C:/DEV/Haskell/lib/HXmlToolbox-3.01/examples/",
 		"http://www.yahoo.com?name=%00%01",
-		"https://www.yahoo.com/",
 		"http://www.yahoo.com#bottom",
 		"ftp://www.yahoo.com/hello",
 		"http://www.yahoo.com?name=obi+wan&status=jedi",
 		"http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html",
 		"uhtt.ru",
 		"uhtt.ru:8080",
-		"server:80"
+		"server:80",
 		"\\\\adv16\\spii\file.xml"
 	};
 	int    ok = 1;
@@ -2079,6 +2479,11 @@ SLTEST_R(Uri)
 
 			url.GetComponent(InetUrl::cRef, temp_buf);
 			out_buf.Tab().Cat(temp_buf);
+
+			{
+				url.Composite(url.stAll, temp_buf);
+				out_buf.Tab().Cat(temp_buf);
+			}
 
 			f_out.WriteLine(out_buf.CR());
 		}

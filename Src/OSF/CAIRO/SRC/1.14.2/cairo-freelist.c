@@ -22,7 +22,7 @@
 
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-freelist-private.h"
+//#include "cairo-freelist-private.h"
 
 void _cairo_freelist_init(cairo_freelist_t * freelist, unsigned nodesize)
 {

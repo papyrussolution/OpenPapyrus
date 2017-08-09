@@ -156,8 +156,9 @@ int SLAPI PUGL::Add(const PUGI * pItem, LDATE dt)
 		item.Price      = pItem->Price;
 		if(dt && (Dt == 0 || Dt > dt))
 			Dt = dt;
+		ok = insert(&item) ? 1 : PPSetErrorSLib(); // @v9.7.10 @fix
 	}
-	ok = insert(&item) ? 1 : PPSetErrorSLib();
+	// @v9.7.10 @fix ok = insert(&item) ? 1 : PPSetErrorSLib();
 	return ok;
 }
 
@@ -190,13 +191,12 @@ int SLAPI PUGL::Log(PPLogger * pLogger) const
 	return ok;
 }
 
-int SLAPI PUGL::GetItemsLocList(PPIDArray * pList) const
+void FASTCALL PUGL::GetItemsLocList(PPIDArray & rList) const
 {
 	PUGI * p_item;
 	for(uint i = 0; enumItems(&i, (void**)&p_item);)
 		if(p_item->LocID)
-			pList->addUnique(p_item->LocID);
-	return 1;
+			rList.addUnique(p_item->LocID);
 }
 
 int SLAPI PUGL::GetSupplSubstList(uint pos /*[1..]*/, TSArray <PUGL::SupplSubstItem> & rList) const
@@ -322,9 +322,8 @@ private:
 		int    ok = -1;
 		if(id > 0 && id <= (long)Data.SupplSubstList.getCount()) {
 			int    _pos = id-1;
-			if(EditItem(&_pos) > 0) {
+			if(EditItem(&_pos) > 0)
 				ok = 1;
-			}
 		}
 		return ok;
 	}

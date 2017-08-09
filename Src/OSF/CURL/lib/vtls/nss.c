@@ -65,7 +65,7 @@
 	#include <ocsp.h>
 #endif
 //#include "strcase.h"
-#include "warnless.h"
+//#include "warnless.h"
 #include "x509asn1.h"
 /* The last #include files should be: */
 //#include "curl_memory.h"

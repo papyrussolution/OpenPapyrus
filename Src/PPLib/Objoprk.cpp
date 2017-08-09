@@ -1378,12 +1378,10 @@ void OprKindDialog::setup()
 	int    modatt = OpObj.CheckRights(OPKRT_MODIFYATT);
 	setCtrlData(CTL_OPRKIND_NAME, P_Data->Rec.Name);
 	setCtrlData(CTL_OPRKIND_SYMB, P_Data->Rec.Symb);
-	// @v7.3.5 {
 	{
 		P_Data->GetExtStrData(OPKEXSTR_EXPSYMB, temp_buf);
 		setCtrlString(CTL_OPRKIND_EXPSYMB, temp_buf);
 	}
-	// } @v7.3.5
 	setCtrlData(CTL_OPRKIND_ID,   &P_Data->Rec.ID);
 	setCtrlData(CTL_OPRKIND_RANK, &P_Data->Rec.Rank);
 	setCtrlUInt16(CTL_OPRKIND_PASSIVE, BIN(P_Data->Rec.Flags & OPKF_PASSIVE));
@@ -1408,8 +1406,7 @@ void OprKindDialog::setup()
 	else {
 		types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, 0L);
 		if(P_Data->Rec.OpTypeID == PPOPT_PAYMENT) {
-			types.addzlist(PPOPT_ACCTURN, PPOPT_CHARGE, PPOPT_GOODSACK, PPOPT_POOL, PPOPT_GOODSORDER,
-				PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, 0L);
+			types.addzlist(PPOPT_ACCTURN, PPOPT_CHARGE, PPOPT_GOODSACK, PPOPT_POOL, PPOPT_GOODSORDER, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, 0L);
 		}
 		else if(P_Data->Rec.OpTypeID == PPOPT_CHARGE)
 			types.add(PPOPT_ACCTURN);
@@ -1427,6 +1424,7 @@ void OprKindDialog::setup()
 			types.addzlist(PPOPT_GOODSEXPEND, PPOPT_GOODSMODIF, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, 0L); // @v8.6.2 PPOPT_DRAFTRECEIPT
 		if(P_Data->Rec.SubType == OPSUBT_TRADEPLAN)
 			types.add(PPOPT_GENERIC);
+		types.add(PPOPT_ACCTURN); // @v9.7.10
 		SetupOprKindCombo(this, CTLSEL_OPRKIND_WROFFOP, opex_rec.WrOffOpID, 0, &types, 0);
 		setupAccSheet(CTLSEL_OPRKIND_WROFFOP, CTLSEL_OPRKIND_WROFFOBJ, opex_rec.WrOffObjID);
 		types.freeAll();
