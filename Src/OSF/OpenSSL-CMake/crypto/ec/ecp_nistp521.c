@@ -1773,7 +1773,7 @@ int ec_GFp_nistp521_point_get_affine_coordinates(const EC_GROUP * group,
 	felem_mul(tmp, x_in, z1);
 	felem_reduce(x_in, tmp);
 	felem_contract(x_out, x_in);
-	if(x != NULL) {
+	if(x) {
 		if(!felem_to_BN(x, x_out)) {
 			ECerr(EC_F_EC_GFP_NISTP521_POINT_GET_AFFINE_COORDINATES,
 			    ERR_R_BN_LIB);
@@ -1785,7 +1785,7 @@ int ec_GFp_nistp521_point_get_affine_coordinates(const EC_GROUP * group,
 	felem_mul(tmp, y_in, z1);
 	felem_reduce(y_in, tmp);
 	felem_contract(y_out, y_in);
-	if(y != NULL) {
+	if(y) {
 		if(!felem_to_BN(y, y_out)) {
 			ECerr(EC_F_EC_GFP_NISTP521_POINT_GET_AFFINE_COORDINATES,
 			    ERR_R_BN_LIB);

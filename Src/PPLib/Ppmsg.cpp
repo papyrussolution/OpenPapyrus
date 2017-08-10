@@ -425,6 +425,13 @@ int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmv
 					}
 					goto __loadstring;
 				}
+				// @v9.7.10 {
+				else if(addcode == PPSTR_CRYSTAL_REPORT) {
+					PPLoadString("err_crpe", base_msg_buf);
+					base_msg_buf.Space().CatParStr(msgcode);
+					strnzcpy(p_tmp_buf+1, base_msg_buf, PP_MSGLEN);
+				}
+				// } @v9.7.10 
 				else {
 					// @v9.0.4 sprintf(p_tmp_buf+1, "Невозможно загрузить сообщение: (%d)%d", group, msgcode);
 					// @v9.0.4 {

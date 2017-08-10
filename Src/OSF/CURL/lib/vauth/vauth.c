@@ -24,7 +24,7 @@
 #pragma hdrstop
 //#include <curl/curl.h>
 #include "vauth.h"
-#include "curl_multibyte.h"
+//#include "curl_multibyte.h"
 #include "curl_printf.h"
 
 /* The last #include files should be: */
@@ -49,32 +49,26 @@
  * Returns a pointer to the newly allocated SPN.
  */
 #if !defined(USE_WINDOWS_SSPI)
-char * Curl_auth_build_spn(const char * service, const char * host,
-    const char * realm)
+char * Curl_auth_build_spn(const char * service, const char * host, const char * realm)
 {
 	char * spn = NULL;
-
-	/* Generate our SPN */
+	// Generate our SPN 
 	if(host && realm)
 		spn = aprintf("%s/%s@%s", service, host, realm);
 	else if(host)
 		spn = aprintf("%s/%s", service, host);
 	else if(realm)
 		spn = aprintf("%s@%s", service, realm);
-
-	/* Return our newly allocated SPN */
+	// Return our newly allocated SPN 
 	return spn;
 }
 
 #else
-TCHAR * Curl_auth_build_spn(const char * service, const char * host,
-    const char * realm)
+TCHAR * Curl_auth_build_spn(const char * service, const char * host, const char * realm)
 {
 	char * utf8_spn = NULL;
 	TCHAR * tchar_spn = NULL;
-
 	(void)realm;
-
 	/* Note: We could use DsMakeSPN() or DsClientMakeSpnForTargetServer() rather
 	   than doing this ourselves but the first is only available in Windows XP
 	   and Windows Server 2003 and the latter is only available in Windows 2000
@@ -140,7 +134,6 @@ bool Curl_auth_user_contains_domain(const char * user)
 		   currently logged in user from Windows */
 		valid = TRUE;
 #endif
-
 	return valid;
 }
 

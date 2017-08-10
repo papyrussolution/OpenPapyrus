@@ -2790,6 +2790,7 @@ PPINIPARAM_UILANGUAGE                  "UiLanguage"
 PPINIPARAM_RESERVEDOBJECTS             "reservedobjects" // [selfbuild]
 PPINIPARAM_WORKBOOKINTERCHANGEUHTT     "workbookinterchangeuhtt"
 PPINIPARAM_SARTREDB                    "sartredb" // [path]
+PPINIPARAM_ALTERNATEREGPASS            "alternateregpass" // [config]
 
 PPTXT_NEEDEDFILES "Reference2;\
 Property;\
@@ -7449,6 +7450,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cashnode_sync_downbill                   ""
 @cashnode_sync_touchscreen                "Сенсорный экран"
 @cashnode_sync_extcashnode                "Спаренный кассовый узел"
+@cashnode_sync_altregister                "Альтернативный регистратор"
 @cashnode_sync_papyrusnode                "Узел Papyrus"
 @cashnode_sync_scale                      "@{scales}"
 @cashnode_sync_custdisp                   "Дисплей покупателя" // generic

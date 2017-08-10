@@ -1133,7 +1133,7 @@ cairo_int_status_t _cairo_scaled_font_subset_create_glyph_names(cairo_scaled_fon
 				snprintf(buf, sizeof(buf), "uni%04X", (int)utf16[0]);
 			_cairo_string_init_key(&key, buf);
 			entry = (cairo_string_entry_t *)_cairo_hash_table_lookup(names, &key.base);
-			if(entry != NULL)
+			if(entry)
 				snprintf(buf, sizeof(buf), "g%d", i);
 		}
 		else {

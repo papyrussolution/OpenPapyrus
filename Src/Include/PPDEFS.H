@@ -8257,6 +8257,8 @@
 	#define CTL_EXTDEV_EGAISMODE        (21 + WINDOWS_ID_BIAS)
 	#define CTL_EXTDEV_MANUFSERIAL      (22 + WINDOWS_ID_BIAS)
 	#define CTL_EXTDEV_EXTNODEASALT     (23 + WINDOWS_ID_BIAS)
+	#define CTL_EXTDEV_ALTREG           (24 + WINDOWS_ID_BIAS)
+	#define CTLSEL_EXTDEV_ALTREG        (25 + WINDOWS_ID_BIAS)
 
 #define DLG_STAFFCALFLT           991 // F_STCAL Фильтр штатных календарей
 	#define cmStaffCalFiltObjList       101

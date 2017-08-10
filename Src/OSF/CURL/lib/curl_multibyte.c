@@ -29,7 +29,7 @@
 /*
  * MultiByte conversions using Windows kernel32 library.
  */
-#include "curl_multibyte.h"
+//#include "curl_multibyte.h"
 //#include "curl_memory.h"
 #include "memdebug.h" // The last #include file should be
 

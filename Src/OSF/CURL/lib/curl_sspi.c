@@ -25,7 +25,7 @@
 #ifdef USE_WINDOWS_SSPI
 //#include <curl/curl.h>
 #include "curl_sspi.h"
-#include "curl_multibyte.h"
+//#include "curl_multibyte.h"
 #include "system_win32.h"
 //#include "warnless.h"
 // The last #include files should be: 

@@ -338,7 +338,7 @@ int ssl3_get_record(SSL * s)
 		RECORD_LAYER_reset_packet_length(&s->rlayer);
 		RECORD_LAYER_clear_first_record(&s->rlayer);
 	} while(num_recs < max_recs && rr[num_recs - 1].type == SSL3_RT_APPLICATION_DATA
-	    && SSL_USE_EXPLICIT_IV(s) && s->enc_read_ctx != NULL && (EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(s->enc_read_ctx)) & EVP_CIPH_FLAG_PIPELINE)
+	    && SSL_USE_EXPLICIT_IV(s) && s->enc_read_ctx && (EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(s->enc_read_ctx)) & EVP_CIPH_FLAG_PIPELINE)
 	    && ssl3_record_app_data_waiting(s));
 	/*
 	 * If in encrypt-then-mac mode calculate mac from encrypted record. All
@@ -391,7 +391,7 @@ int ssl3_get_record(SSL * s)
 	printf("\n");
 #endif
 	/* r->length is now the compressed data plus mac */
-	if(sess && s->enc_read_ctx && (!SSL_READ_ETM(s) && EVP_MD_CTX_md(s->read_hash) != NULL)) {
+	if(sess && s->enc_read_ctx && (!SSL_READ_ETM(s) && EVP_MD_CTX_md(s->read_hash))) {
 		/* s->read_hash != NULL => mac_size != -1 */
 		uchar * mac = NULL;
 		uchar mac_tmp[EVP_MAX_MD_SIZE];
@@ -457,7 +457,7 @@ int ssl3_get_record(SSL * s)
 
 	for(j = 0; j < num_recs; j++) {
 		/* rr[j].length is now just compressed */
-		if(s->expand != NULL) {
+		if(s->expand) {
 			if(rr[j].length > SSL3_RT_MAX_COMPRESSED_LENGTH) {
 				al = SSL_AD_RECORD_OVERFLOW;
 				SSLerr(SSL_F_SSL3_GET_RECORD, SSL_R_COMPRESSED_LENGTH_TOO_LONG);
@@ -615,11 +615,9 @@ int ssl3_enc(SSL * s, SSL3_RECORD * inrecs, uint n_recs, int send)
 				return 0;
 			/* otherwise, rec->length >= bs */
 		}
-
 		if(EVP_Cipher(ds, rec->data, rec->input, l) < 1)
 			return -1;
-
-		if(EVP_MD_CTX_md(s->read_hash) != NULL)
+		if(EVP_MD_CTX_md(s->read_hash))
 			mac_size = EVP_MD_CTX_size(s->read_hash);
 		if((bs != 1) && !send)
 			return ssl3_cbc_remove_padding(rec, bs, mac_size);
@@ -792,9 +790,8 @@ int tls1_enc(SSL * s, SSL3_RECORD * recs, uint n_recs, int send)
 				}
 			}
 		}
-
 		ret = 1;
-		if(!SSL_READ_ETM(s) && EVP_MD_CTX_md(s->read_hash) != NULL)
+		if(!SSL_READ_ETM(s) && EVP_MD_CTX_md(s->read_hash))
 			mac_size = EVP_MD_CTX_size(s->read_hash);
 		if((bs != 1) && !send) {
 			int tmpret;
@@ -1309,14 +1306,12 @@ int dtls1_process_record(SSL * s, DTLS1_BITMAP * bitmap)
 #endif
 
 	/* r->length is now the compressed data plus mac */
-	if((sess != NULL) &&
-	    (s->enc_read_ctx != NULL) && (EVP_MD_CTX_md(s->read_hash) != NULL)) {
+	if(sess && s->enc_read_ctx && EVP_MD_CTX_md(s->read_hash)) {
 		/* s->read_hash != NULL => mac_size != -1 */
 		uchar * mac = NULL;
 		uchar mac_tmp[EVP_MAX_MD_SIZE];
 		mac_size = EVP_MD_CTX_size(s->read_hash);
 		OPENSSL_assert(mac_size <= EVP_MAX_MD_SIZE);
-
 		/*
 		 * orig_len is the length of the record before any padding was
 		 * removed. This is public information, as is the MAC in use,
@@ -1325,8 +1320,7 @@ int dtls1_process_record(SSL * s, DTLS1_BITMAP * bitmap)
 		 */
 		if(rr->orig_len < mac_size ||
 		    /* CBC records must have a padding length byte too. */
-		    (EVP_CIPHER_CTX_mode(s->enc_read_ctx) == EVP_CIPH_CBC_MODE &&
-			    rr->orig_len < mac_size + 1)) {
+		    (EVP_CIPHER_CTX_mode(s->enc_read_ctx) == EVP_CIPH_CBC_MODE && rr->orig_len < mac_size + 1)) {
 			al = SSL_AD_DECODE_ERROR;
 			SSLerr(SSL_F_DTLS1_PROCESS_RECORD, SSL_R_LENGTH_TOO_SHORT);
 			goto f_err;
@@ -1369,11 +1363,10 @@ int dtls1_process_record(SSL * s, DTLS1_BITMAP * bitmap)
 	}
 
 	/* r->length is now just compressed */
-	if(s->expand != NULL) {
+	if(s->expand) {
 		if(rr->length > SSL3_RT_MAX_COMPRESSED_LENGTH) {
 			al = SSL_AD_RECORD_OVERFLOW;
-			SSLerr(SSL_F_DTLS1_PROCESS_RECORD,
-			    SSL_R_COMPRESSED_LENGTH_TOO_LONG);
+			SSLerr(SSL_F_DTLS1_PROCESS_RECORD, SSL_R_COMPRESSED_LENGTH_TOO_LONG);
 			goto f_err;
 		}
 		if(!ssl3_do_uncompress(s, rr)) {

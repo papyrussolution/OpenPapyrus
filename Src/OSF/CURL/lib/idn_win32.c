@@ -27,7 +27,7 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifdef USE_WIN32_IDN
-#include "curl_multibyte.h"
+//#include "curl_multibyte.h"
 //#include "curl_memory.h"
 //#include "warnless.h"
 #include "memdebug.h" // The last #include file should be

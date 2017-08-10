@@ -17405,7 +17405,9 @@ public:
 	PPID   CurSessID;        // ->Bill.ID Текущая кассовая сессия //
 	PPID   TouchScreenID;    //
 	PPID   ExtCashNodeID;    //
-	PPID   PapyrusNodeID_unused; // ИД кассового узла Папирус @v9.6.8 unused
+	//PPID   PapyrusNodeID_unused; // ИД кассового узла Папирус @v9.6.8 unused
+	PPID   AlternateRegID;   // @v9.7.10 Явно обозначенный альтернативный регистратор 
+		// (if ExtFlags & CASHFX_EXTNODEASALT && !AlternateRegID) то альтернативным регистратором является ExtCashNodeID
 	PPID   ScaleID;          //
 	PPID   CustDispType;     // Тип дисплея покупателя //
 	char   CustDispPort[8];  // Имя порта дисплея покупателя (COM)
@@ -19080,7 +19082,7 @@ public:
 	int    SLAPI GetPacket(PPID id, PPStyloPalmPacket * pPack);
 	int    SLAPI PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int use_ta);
 	int    SLAPI CheckSignalForInput(const char * pPath);
-	int    SLAPI ClearInputSemaphore(const char * pPath);
+	void   SLAPI ClearInputSemaphore(const char * pPath);
 	int    SLAPI ReadInput(PPID id, PalmInputParam * pParam, long flags, PPLogger * pLogger, long * pOrdCount);
 		// @<<PPObjStyloPalm::ImportData, @<<PalmImportWaiter::Activate
 	int    SLAPI ExportData(const PalmPaneData & rParam);

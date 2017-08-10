@@ -280,7 +280,7 @@ static int state_machine(SSL * s, int server)
 		}
 
 		s->server = server;
-		if(cb != NULL)
+		if(cb)
 			cb(s, SSL_CB_HANDSHAKE_START, 1);
 
 		if(SSL_IS_DTLS(s)) {
@@ -434,7 +434,7 @@ end:
 #endif
 
 	BUF_MEM_free(buf);
-	if(cb != NULL) {
+	if(cb) {
 		if(server)
 			cb(s, SSL_CB_ACCEPT_EXIT, ret);
 		else
@@ -545,7 +545,7 @@ static SUB_STATE_RETURN read_state_machine(SSL * s)
 				    return SUB_STATE_ERROR;
 			    }
 
-			    if(cb != NULL) {
+			    if(cb) {
 				    /* Notify callback of an impending state change */
 				    if(s->server)
 					    cb(s, SSL_CB_ACCEPT_LOOP, 1);
@@ -738,7 +738,7 @@ static SUB_STATE_RETURN write_state_machine(SSL * s)
 	while(1) {
 		switch(st->write_state) {
 			case WRITE_STATE_TRANSITION:
-			    if(cb != NULL) {
+			    if(cb) {
 				    /* Notify callback of an impending state change */
 				    if(s->server)
 					    cb(s, SSL_CB_ACCEPT_LOOP, 1);

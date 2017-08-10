@@ -1319,12 +1319,10 @@ int ec_GFp_nistp224_point_get_affine_coordinates(const EC_GROUP * group,
 	widefelem tmp;
 
 	if(EC_POINT_is_at_infinity(group, point)) {
-		ECerr(EC_F_EC_GFP_NISTP224_POINT_GET_AFFINE_COORDINATES,
-		    EC_R_POINT_AT_INFINITY);
+		ECerr(EC_F_EC_GFP_NISTP224_POINT_GET_AFFINE_COORDINATES, EC_R_POINT_AT_INFINITY);
 		return 0;
 	}
-	if((!BN_to_felem(x_in, point->X)) || (!BN_to_felem(y_in, point->Y)) ||
-	    (!BN_to_felem(z1, point->Z)))
+	if((!BN_to_felem(x_in, point->X)) || (!BN_to_felem(y_in, point->Y)) || (!BN_to_felem(z1, point->Z)))
 		return 0;
 	felem_inv(z2, z1);
 	felem_square(tmp, z2);
@@ -1332,10 +1330,9 @@ int ec_GFp_nistp224_point_get_affine_coordinates(const EC_GROUP * group,
 	felem_mul(tmp, x_in, z1);
 	felem_reduce(x_in, tmp);
 	felem_contract(x_out, x_in);
-	if(x != NULL) {
+	if(x) {
 		if(!felem_to_BN(x, x_out)) {
-			ECerr(EC_F_EC_GFP_NISTP224_POINT_GET_AFFINE_COORDINATES,
-			    ERR_R_BN_LIB);
+			ECerr(EC_F_EC_GFP_NISTP224_POINT_GET_AFFINE_COORDINATES, ERR_R_BN_LIB);
 			return 0;
 		}
 	}
@@ -1344,18 +1341,16 @@ int ec_GFp_nistp224_point_get_affine_coordinates(const EC_GROUP * group,
 	felem_mul(tmp, y_in, z1);
 	felem_reduce(y_in, tmp);
 	felem_contract(y_out, y_in);
-	if(y != NULL) {
+	if(y) {
 		if(!felem_to_BN(y, y_out)) {
-			ECerr(EC_F_EC_GFP_NISTP224_POINT_GET_AFFINE_COORDINATES,
-			    ERR_R_BN_LIB);
+			ECerr(EC_F_EC_GFP_NISTP224_POINT_GET_AFFINE_COORDINATES, ERR_R_BN_LIB);
 			return 0;
 		}
 	}
 	return 1;
 }
 
-static void make_points_affine(size_t num, felem points[] /* num */  [3],
-    felem tmp_felems[] /* num+1 */)
+static void make_points_affine(size_t num, felem points[] /* num */  [3], felem tmp_felems[] /* num+1 */)
 {
 	/*
 	 * Runs in constant time, unless an input is the point at infinity (which

@@ -66,7 +66,6 @@ char * Curl_dedotdotify(const char * input)
 	}
 	orgclone = clone;
 	outptr = out;
-
 	if(!*clone) {
 		/* zero length string, return that */
 		SAlloc::F(out);
@@ -157,17 +156,14 @@ char * Curl_dedotdotify(const char * input)
 			*outptr = 0;
 		}
 	} while(*clone);
-
 	if(queryp) {
-		size_t qlen;
 		/* There was a query part, append that to the output. The 'clone' string
 		   may now have been altered so we copy from the original input string
 		   from the correct index. */
 		size_t oindex = queryp - orgclone;
-		qlen = strlen(&input[oindex]);
+		size_t qlen = strlen(&input[oindex]);
 		memcpy(outptr, &input[oindex], qlen+1); /* include the ending zero byte */
 	}
-
 	SAlloc::F(orgclone);
 	return out;
 }

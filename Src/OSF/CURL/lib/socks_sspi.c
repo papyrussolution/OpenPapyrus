@@ -32,7 +32,7 @@
 //#include "timeval.h"
 //#include "socks.h"
 #include "curl_sspi.h"
-#include "curl_multibyte.h"
+//#include "curl_multibyte.h"
 //#include "warnless.h"
 //#include "strdup.h"
 // The last 3 #include files should be in this order 

@@ -387,59 +387,43 @@ cairo_status_t _cairo_xcb_screen_store_linear_picture(cairo_xcb_screen_t * scree
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_surface_t * _cairo_xcb_screen_lookup_linear_picture(cairo_xcb_screen_t * screen,
-    const cairo_linear_pattern_t * linear)
+cairo_surface_t * _cairo_xcb_screen_lookup_linear_picture(cairo_xcb_screen_t * screen, const cairo_linear_pattern_t * linear)
 {
 	cairo_surface_t * picture = NULL;
 	struct pattern_cache_entry tmpl;
-
 	struct pattern_cache_entry * entry;
-
 	assert(CAIRO_MUTEX_IS_LOCKED(screen->connection->device.mutex));
-
 	tmpl.key.hash = _cairo_linear_pattern_hash(_CAIRO_HASH_INIT_VALUE, linear);
 	_cairo_pattern_init_static_copy(&tmpl.pattern.base, &linear->base.base);
-
 	entry = _cairo_cache_lookup(&screen->linear_pattern_cache, &tmpl.key);
-	if(entry != NULL)
+	if(entry)
 		picture = cairo_surface_reference(entry->picture);
-
 	return picture;
 }
 
-cairo_status_t _cairo_xcb_screen_store_radial_picture(cairo_xcb_screen_t * screen,
-    const cairo_radial_pattern_t * radial,
-    cairo_surface_t * picture)
+cairo_status_t _cairo_xcb_screen_store_radial_picture(cairo_xcb_screen_t * screen, const cairo_radial_pattern_t * radial, cairo_surface_t * picture)
 {
 	struct pattern_cache_entry * entry;
-
 	cairo_status_t status;
-
 	assert(CAIRO_MUTEX_IS_LOCKED(screen->connection->device.mutex));
-
 	entry = _cairo_freelist_alloc(&screen->pattern_cache_entry_freelist);
 	if(unlikely(entry == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	entry->key.hash = _cairo_radial_pattern_hash(_CAIRO_HASH_INIT_VALUE, radial);
 	entry->key.size = 1;
-
 	status = _cairo_pattern_init_copy(&entry->pattern.base, &radial->base.base);
 	if(unlikely(status)) {
 		_cairo_freelist_free(&screen->pattern_cache_entry_freelist, entry);
 		return status;
 	}
-
 	entry->picture = cairo_surface_reference(picture);
 	entry->screen = screen;
-
 	status = _cairo_cache_insert(&screen->radial_pattern_cache, &entry->key);
 	if(unlikely(status)) {
 		cairo_surface_destroy(picture);
 		_cairo_freelist_free(&screen->pattern_cache_entry_freelist, entry);
 		return status;
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -457,7 +441,7 @@ cairo_surface_t * _cairo_xcb_screen_lookup_radial_picture(cairo_xcb_screen_t * s
 	_cairo_pattern_init_static_copy(&tmpl.pattern.base, &radial->base.base);
 
 	entry = _cairo_cache_lookup(&screen->radial_pattern_cache, &tmpl.key);
-	if(entry != NULL)
+	if(entry)
 		picture = cairo_surface_reference(entry->picture);
 
 	return picture;

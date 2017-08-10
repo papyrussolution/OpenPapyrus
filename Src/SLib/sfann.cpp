@@ -2651,7 +2651,7 @@ void fann_error(FannError * errdat, int errno_f, ...)
 	size_t errstr_max = FANN_ERRSTR_MAX + PATH_MAX - 1;
 	char   errstr[FANN_ERRSTR_MAX + PATH_MAX];
 	FILE * error_log = 0; // fann_default_error_log;
-	if(errdat != NULL)
+	if(errdat)
 		errdat->errno_f = errno_f;
 	va_start(ap, errno_f);
 	switch(errno_f) {
@@ -2731,9 +2731,8 @@ void fann_error(FannError * errdat, int errno_f, ...)
 		fprintf(stderr, "FANN Error %d: %s", errno_f, errstr);
 	}
 	else*/
-	if(error_log != NULL && ((int)error_log) != -1) {
+	if(error_log && ((int)error_log) != -1)
 		fprintf(error_log, "FANN Error %d: %s", errno_f, errstr);
-	}
 }
 //
 // INTERNAL FUNCTION

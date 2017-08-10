@@ -18348,7 +18348,7 @@ static int xmlSchemaAreValuesEqual(xmlSchemaValPtr x,
 		 * Lists.
 		 */
 		x = xmlSchemaValueGetNext(x);
-		if(x != NULL) {
+		if(x) {
 			y = xmlSchemaValueGetNext(y);
 			if(y == NULL)
 				return 0;

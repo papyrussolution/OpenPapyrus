@@ -1413,13 +1413,13 @@ __owur static int ecp_nistz256_get_affine(const EC_GROUP * group,
 	ecp_nistz256_sqr_mont(z_inv2, z_inv3);
 	ecp_nistz256_mul_mont(x_aff, z_inv2, point_x);
 
-	if(x != NULL) {
+	if(x) {
 		ecp_nistz256_from_mont(x_ret, x_aff);
 		if(!bn_set_words(x, x_ret, P256_LIMBS))
 			return 0;
 	}
 
-	if(y != NULL) {
+	if(y) {
 		ecp_nistz256_mul_mont(z_inv3, z_inv3, z_inv2);
 		ecp_nistz256_mul_mont(y_aff, z_inv3, point_y);
 		ecp_nistz256_from_mont(y_ret, y_aff);

@@ -361,7 +361,7 @@ int ec_GFp_simple_set_Jprojective_coordinates_GFp(const EC_GROUP * group,
 			return 0;
 	}
 
-	if(x != NULL) {
+	if(x) {
 		if(!BN_nnmod(point->X, x, group->field, ctx))
 			goto err;
 		if(group->meth->field_encode) {
@@ -370,7 +370,7 @@ int ec_GFp_simple_set_Jprojective_coordinates_GFp(const EC_GROUP * group,
 		}
 	}
 
-	if(y != NULL) {
+	if(y) {
 		if(!BN_nnmod(point->Y, y, group->field, ctx))
 			goto err;
 		if(group->meth->field_encode) {
@@ -421,11 +421,11 @@ int ec_GFp_simple_get_Jprojective_coordinates_GFp(const EC_GROUP * group,
 				return 0;
 		}
 
-		if(x != NULL) {
+		if(x) {
 			if(!group->meth->field_decode(group, x, point->X, ctx))
 				goto err;
 		}
-		if(y != NULL) {
+		if(y) {
 			if(!group->meth->field_decode(group, y, point->Y, ctx))
 				goto err;
 		}
@@ -435,11 +435,11 @@ int ec_GFp_simple_get_Jprojective_coordinates_GFp(const EC_GROUP * group,
 		}
 	}
 	else {
-		if(x != NULL) {
+		if(x) {
 			if(!BN_copy(x, point->X))
 				goto err;
 		}
-		if(y != NULL) {
+		if(y) {
 			if(!BN_copy(y, point->Y))
 				goto err;
 		}
@@ -517,21 +517,21 @@ int ec_GFp_simple_point_get_affine_coordinates(const EC_GROUP * group,
 
 	if(BN_is_one(Z_)) {
 		if(group->meth->field_decode) {
-			if(x != NULL) {
+			if(x) {
 				if(!group->meth->field_decode(group, x, point->X, ctx))
 					goto err;
 			}
-			if(y != NULL) {
+			if(y) {
 				if(!group->meth->field_decode(group, y, point->Y, ctx))
 					goto err;
 			}
 		}
 		else {
-			if(x != NULL) {
+			if(x) {
 				if(!BN_copy(x, point->X))
 					goto err;
 			}
-			if(y != NULL) {
+			if(y) {
 				if(!BN_copy(y, point->Y))
 					goto err;
 			}
@@ -553,7 +553,7 @@ int ec_GFp_simple_point_get_affine_coordinates(const EC_GROUP * group,
 			if(!BN_mod_sqr(Z_2, Z_1, group->field, ctx))
 				goto err;
 		}
-		if(x != NULL) {
+		if(x) {
 			/*
 			 * in the Montgomery case, field_mul will cancel out Montgomery
 			 * factor in X:
@@ -561,7 +561,7 @@ int ec_GFp_simple_point_get_affine_coordinates(const EC_GROUP * group,
 			if(!group->meth->field_mul(group, x, point->X, Z_2, ctx))
 				goto err;
 		}
-		if(y != NULL) {
+		if(y) {
 			if(group->meth->field_encode == 0) {
 				/*
 				 * field_mul works on standard representation

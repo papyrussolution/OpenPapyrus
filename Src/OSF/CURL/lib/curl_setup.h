@@ -694,6 +694,7 @@
 #include "strtok.h"
 #include "strcase.h"
 #include "strerror.h"
+#include "curl_multibyte.h"
 #include "curl_addrinfo.h"
 #include "curl_gethostname.h"
 #include "smb.h"

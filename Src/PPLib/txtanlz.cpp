@@ -3996,12 +3996,12 @@ int SLAPI PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSec
 						p_next = p_cur->P_Child;
 						break;
 					case json_t::tSTRING:
-						if(p_cur->P_Text && p_cur->P_Child) {
-							if(sstreqi_ascii(p_cur->P_Text, "statusCode")) {
-								LastStatusCode = (temp_buf = p_cur->P_Child->P_Text).Unescape().ToLong();
+						if(p_cur->P_Child) {
+							if(sstreqi_ascii(p_cur->Text, "statusCode")) {
+								LastStatusCode = (temp_buf = p_cur->P_Child->Text).Unescape().ToLong();
 							}
-							else if(sstreqi_ascii(p_cur->P_Text, "message")) {
-								LastStatusMessage = (temp_buf = p_cur->P_Child->P_Text).Unescape();
+							else if(sstreqi_ascii(p_cur->Text, "message")) {
+								LastStatusMessage = (temp_buf = p_cur->P_Child->Text).Unescape();
 							}
 						}
 						break;

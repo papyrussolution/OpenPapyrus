@@ -259,23 +259,19 @@ int /* PRIVATE */ png_crc_error(png_structrp png_ptr)
 static png_bytep png_read_buffer(png_structrp png_ptr, png_alloc_size_t new_size, int warn)
 {
 	png_bytep buffer = png_ptr->read_buffer;
-
-	if(buffer != NULL && new_size > png_ptr->read_buffer_size) {
+	if(buffer && new_size > png_ptr->read_buffer_size) {
 		png_ptr->read_buffer = NULL;
 		png_ptr->read_buffer = NULL;
 		png_ptr->read_buffer_size = 0;
 		png_free(png_ptr, buffer);
 		buffer = NULL;
 	}
-
 	if(!buffer) {
 		buffer = png_voidcast(png_bytep, png_malloc_base(png_ptr, new_size));
-
-		if(buffer != NULL) {
+		if(buffer) {
 			png_ptr->read_buffer = buffer;
 			png_ptr->read_buffer_size = new_size;
 		}
-
 		else if(warn < 2) { /* else silent */
 			if(warn != 0)
 				png_chunk_warning(png_ptr, "insufficient memory to read chunk");
@@ -451,9 +447,8 @@ static int png_inflate(png_structrp png_ptr, uint32 owner, int finish,
 		/* Read directly into the output if it is available (this is set to
 		 * a local buffer below if output is NULL).
 		 */
-		if(output != NULL)
+		if(output)
 			png_ptr->zstream.next_out = output;
-
 		do {
 			uInt avail;
 			Byte local_buffer[PNG_INFLATE_BUF_SIZE];
@@ -601,27 +596,18 @@ static int png_decompress_chunk(png_structrp png_ptr,
 					 * extra OOM message.
 					 */
 					png_alloc_size_t new_size = *newlength;
-					png_alloc_size_t buffer_size = prefix_size + new_size +
-					    (terminate != 0);
-					png_bytep text = png_voidcast(png_bytep, png_malloc_base(png_ptr,
-						    buffer_size));
-
-					if(text != NULL) {
-						ret = png_inflate(png_ptr, png_ptr->chunk_name, 1 /*finish*/,
-						    png_ptr->read_buffer + prefix_size, &lzsize,
-						    text + prefix_size, newlength);
-
+					png_alloc_size_t buffer_size = prefix_size + new_size + (terminate != 0);
+					png_bytep text = png_voidcast(png_bytep, png_malloc_base(png_ptr, buffer_size));
+					if(text) {
+						ret = png_inflate(png_ptr, png_ptr->chunk_name, 1 /*finish*/, png_ptr->read_buffer + prefix_size, &lzsize, text + prefix_size, newlength);
 						if(ret == Z_STREAM_END) {
 							if(new_size == *newlength) {
 								if(terminate != 0)
 									text[prefix_size + *newlength] = 0;
-
 								if(prefix_size > 0)
 									memcpy(text, png_ptr->read_buffer, prefix_size);
-
 								{
 									png_bytep old_ptr = png_ptr->read_buffer;
-
 									png_ptr->read_buffer = text;
 									png_ptr->read_buffer_size = buffer_size;
 									text = old_ptr; /* freed below */
@@ -958,14 +944,13 @@ void /* PRIVATE */ png_handle_PLTE(png_structrp png_ptr, png_inforp info_ptr, ui
 	 * maintainers to ignore it.
 	 */
 #ifdef PNG_READ_tRNS_SUPPORTED
-	if(png_ptr->num_trans > 0 ||
-	    (info_ptr != NULL && (info_ptr->valid & PNG_INFO_tRNS) != 0)) {
+	if(png_ptr->num_trans > 0 || (info_ptr && (info_ptr->valid & PNG_INFO_tRNS) != 0)) {
 		/* Cancel this because otherwise it would be used if the transforms
 		 * require it.  Don't cancel the 'valid' flag because this would prevent
 		 * detection of duplicate chunks.
 		 */
 		png_ptr->num_trans = 0;
-		if(info_ptr != NULL)
+		if(info_ptr)
 			info_ptr->num_trans = 0;
 		png_chunk_benign_error(png_ptr, "tRNS must be after");
 	}
@@ -1277,7 +1262,7 @@ void /* PRIVATE */ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, ui
 								 */
 								const uint32 tag_count = png_get_uint_32(profile_header+128);
 								png_bytep profile = png_read_buffer(png_ptr, profile_length, 2 /*silent*/);
-								if(profile != NULL) {
+								if(profile) {
 									memcpy(profile, profile_header, (sizeof profile_header));
 									size = 12 * tag_count;
 									(void)png_inflate_read(png_ptr, local_buffer, (sizeof local_buffer), &length, profile + (sizeof profile_header), &size, 0);
@@ -1322,10 +1307,10 @@ void /* PRIVATE */ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, ui
 #                                   endif
 
 												/* Steal the profile for info_ptr. */
-												if(info_ptr != NULL) {
+												if(info_ptr) {
 													png_free_data(png_ptr, info_ptr, PNG_FREE_ICCP, 0);
 													info_ptr->iccp_name = png_voidcast(char*, png_malloc_base(png_ptr, keyword_length+1));
-													if(info_ptr->iccp_name != NULL) {
+													if(info_ptr->iccp_name) {
 														memcpy(info_ptr->iccp_name, keyword, keyword_length+1);
 														info_ptr->iccp_proflen = profile_length;
 														info_ptr->iccp_profile = profile;
@@ -1342,7 +1327,7 @@ void /* PRIVATE */ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, ui
 												/* else the profile remains in the read
 												 * buffer which gets reused for subsequent chunks.
 												 */
-												if(info_ptr != NULL)
+												if(info_ptr)
 													png_colorspace_sync(png_ptr, info_ptr);
 												if(errmsg == NULL) {
 													png_ptr->zowner = 0;
@@ -1403,7 +1388,7 @@ void /* PRIVATE */ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, ui
 
 	png_ptr->colorspace.flags |= PNG_COLORSPACE_INVALID;
 	png_colorspace_sync(png_ptr, info_ptr);
-	if(errmsg != NULL) /* else already output */
+	if(errmsg) /* else already output */
 		png_chunk_benign_error(png_ptr, errmsg);
 }
 
@@ -2239,16 +2224,13 @@ void /* PRIVATE */ png_handle_zTXt(png_structrp png_ptr, png_inforp info_ptr, ui
 			text.itxt_length = 0;
 			text.lang = NULL;
 			text.lang_key = NULL;
-
 			if(png_set_text_2(png_ptr, info_ptr, &text, 1) != 0)
 				errmsg = "insufficient memory";
 		}
-
 		else
 			errmsg = png_ptr->zstream.msg;
 	}
-
-	if(errmsg != NULL)
+	if(errmsg)
 		png_chunk_benign_error(png_ptr, errmsg);
 }
 
@@ -2380,16 +2362,13 @@ void /* PRIVATE */ png_handle_iTXt(png_structrp png_ptr, png_inforp info_ptr, ui
 			text.text = (char *)buffer + prefix_length;
 			text.text_length = 0;
 			text.itxt_length = uncompressed_length;
-
 			if(png_set_text_2(png_ptr, info_ptr, &text, 1) != 0)
 				errmsg = "insufficient memory";
 		}
 	}
-
 	else
 		errmsg = "bad compression info";
-
-	if(errmsg != NULL)
+	if(errmsg)
 		png_chunk_benign_error(png_ptr, errmsg);
 }
 
@@ -2400,15 +2379,12 @@ void /* PRIVATE */ png_handle_iTXt(png_structrp png_ptr, png_inforp info_ptr, ui
 static int png_cache_unknown_chunk(png_structrp png_ptr, uint32 length)
 {
 	png_alloc_size_t limit = PNG_SIZE_MAX;
-
-	if(png_ptr->unknown_chunk.data != NULL) {
+	if(png_ptr->unknown_chunk.data) {
 		png_free(png_ptr, png_ptr->unknown_chunk.data);
 		png_ptr->unknown_chunk.data = NULL;
 	}
-
 #  ifdef PNG_SET_USER_LIMITS_SUPPORTED
-	if(png_ptr->user_chunk_malloc_max > 0 &&
-	    png_ptr->user_chunk_malloc_max < limit)
+	if(png_ptr->user_chunk_malloc_max > 0 && png_ptr->user_chunk_malloc_max < limit)
 		limit = png_ptr->user_chunk_malloc_max;
 
 #  elif PNG_USER_CHUNK_MALLOC_MAX > 0
@@ -2481,7 +2457,7 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 	/* The user callback takes precedence over the chunk keep value, but the
 	 * keep value is still required to validate a save of a critical chunk.
 	 */
-	if(png_ptr->read_user_chunk_fn != NULL) {
+	if(png_ptr->read_user_chunk_fn) {
 		if(png_cache_unknown_chunk(png_ptr, length) != 0) {
 			/* Callback to user unknown chunk handler */
 			int ret = (*(png_ptr->read_user_chunk_fn))(png_ptr,
@@ -2622,7 +2598,7 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 	 * freed now.  Notice that the data is not freed if there is a png_error, but
 	 * it will be freed by destroy_read_struct.
 	 */
-	if(png_ptr->unknown_chunk.data != NULL)
+	if(png_ptr->unknown_chunk.data)
 		png_free(png_ptr, png_ptr->unknown_chunk.data);
 	png_ptr->unknown_chunk.data = NULL;
 
@@ -3476,7 +3452,7 @@ void /* PRIVATE */ png_read_IDAT_data(png_structrp png_ptr, png_bytep output, pn
 		}
 
 		/* And set up the output side. */
-		if(output != NULL) { /* standard read */
+		if(output) { /* standard read */
 			uInt out = ZLIB_IO_MAX;
 			if(out > avail_out)
 				out = (uInt)avail_out;
@@ -3498,7 +3474,7 @@ void /* PRIVATE */ png_read_IDAT_data(png_structrp png_ptr, png_bytep output, pn
 		 */
 		ret = PNG_INFLATE(png_ptr, Z_NO_FLUSH);
 		/* Take the unconsumed output back. */
-		if(output != NULL)
+		if(output)
 			avail_out += png_ptr->zstream.avail_out;
 
 		else /* avail_out counts the extra bytes */
@@ -3520,10 +3496,8 @@ void /* PRIVATE */ png_read_IDAT_data(png_structrp png_ptr, png_bytep output, pn
 
 		if(ret != Z_OK) {
 			png_zstream_error(png_ptr, ret);
-
-			if(output != NULL)
+			if(output)
 				png_chunk_error(png_ptr, png_ptr->zstream.msg);
-
 			else { /* checking */
 				png_chunk_benign_error(png_ptr, png_ptr->zstream.msg);
 				return;
@@ -3535,9 +3509,8 @@ void /* PRIVATE */ png_read_IDAT_data(png_structrp png_ptr, png_bytep output, pn
 		/* The stream ended before the image; this is the same as too few IDATs so
 		 * should be handled the same way.
 		 */
-		if(output != NULL)
+		if(output)
 			png_error(png_ptr, "Not enough image data");
-
 		else /* the deflate stream contained extra data */
 			png_chunk_benign_error(png_ptr, "Too much image data");
 	}

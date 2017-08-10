@@ -194,7 +194,7 @@ int SLAPI CRC32::MakeTab()
 	// terms of polynomial defining this crc (except x^32):
 	//
 	static const uint8 p[] = {0,1,2,4,5,7,8,10,11,12,16,22,23,26};
-	if(P_Tab != NULL)
+	if(P_Tab)
 		return 1;
 	P_Tab = new ulong[256];
 	if(P_Tab) {

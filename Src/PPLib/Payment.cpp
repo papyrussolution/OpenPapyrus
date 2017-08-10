@@ -1,5 +1,5 @@
 // PAYMENT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -7,12 +7,12 @@
 struct _PaymentEntry {
 	LDATE  Date;           // Дата документа
 	char   Code[24];       // Номер документа
-	char   StatusName[48]; // @v6.6.4
+	char   StatusName[48]; // 
 	char   OpName[48];     // Наименование вида операции
-	double Amount;         // @v6.6.4 Сумма документа
+	double Amount;         // Сумма документа
 	double Payment;        // Сумма учтенная как оплата
 	double Rest;           // Остаток долга
-	char   Memo[256];      // @v6.5.1 Примечание
+	char   Memo[256];      // Примечание
 	//
 	PPID   ID;
 	PPID   CurID;
@@ -32,81 +32,6 @@ struct PaymBillFilt {
 };
 
 typedef _PaymentEntry PaymBillViewItem;
-
-class PPViewPaymBill {
-public:
-	SLAPI  PPViewPaymBill();
-	SLAPI ~PPViewPaymBill();
-	int    SLAPI Init(const PaymBillFilt *);
-	int    SLAPI InitIteration();
-	int    FASTCALL NextIteration(PaymBillViewItem *);
-	const  PaymBillFilt * SLAPI GetFilt() const { return &Filt; }
-	const  IterCounter & SLAPI GetIterCounter() const { return Counter; }
-private:
-	PPObjBill * P_BObj;
-	PaymBillFilt Filt;
-	IterCounter Counter;
-	SArray * P_PaymBillList;
-};
-
-SLAPI PPViewPaymBill::PPViewPaymBill()
-{
-	P_BObj = BillObj;
-	P_PaymBillList = 0;
-}
-
-SLAPI PPViewPaymBill::~PPViewPaymBill()
-{
-	ZDELETE(P_PaymBillList);
-}
-
-int SLAPI PPViewPaymBill::Init(const PaymBillFilt * pFilt)
-{
-	if(pFilt)
-		Filt = *pFilt;
-	else
-		MEMSZERO(Filt);
-	return 1;
-}
-
-int SLAPI PPViewPaymBill::InitIteration()
-{
-	int    ok = -1;
-	if(P_BObj) {
-		delete P_PaymBillList;
-		P_PaymBillList = P_BObj->MakePaymentList(Filt.LinkBillID, Filt.Kind);
-		Counter.Init(P_PaymBillList->getCount());
-		ok = 1;
-	}
-	return ok;
-}
-
-int FASTCALL PPViewPaymBill::NextIteration(PaymBillViewItem * pItem)
-{
-	int    ok = -1;
-	if(pItem && P_PaymBillList && P_BObj) {
-		if(Counter < Counter.GetTotal()) {
-			const _PaymentEntry * p_be = (const PaymBillViewItem *)P_PaymBillList->at(Counter);
-			BillTbl::Rec bill_rec;
-			if(P_BObj->Search(p_be->ID, &bill_rec) > 0)
-				STRNSCPY(pItem->Memo, bill_rec.Memo);
-			STRNSCPY(pItem->Code, p_be->Code);
-			STRNSCPY(pItem->StatusName, p_be->StatusName);
-			STRNSCPY(pItem->OpName, p_be->OpName);
-			pItem->Amount  = p_be->Amount;
-			pItem->Payment = p_be->Payment;
-			pItem->Rest    = p_be->Rest;
-			pItem->ID      = p_be->ID;
-			pItem->LinkBillID = p_be->LinkBillID;
-			pItem->RcknBillID = p_be->RcknBillID;
-			pItem->CurID   = p_be->CurID;
-			pItem->Date    = p_be->Date;
-			Counter.Increment();
-			ok = 1;
-		}
-	}
-	return ok;
-}
 //
 // ARG(id   ID): Документ, привязки к которому следует показать
 // ARG(kind IN):
@@ -551,6 +476,7 @@ int SLAPI PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 		long   update_pos = cur_pos;
 		PPID   update_id = 0;
 		PPID   bill_id = pHdr ? *(long *)pHdr : 0;
+		BillTbl::Rec bill_rec;
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
 				ok = -1;
@@ -561,7 +487,6 @@ int SLAPI PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 					else if(Filt.Kind == LinkedBillFilt::lkCharge)
 	   					op_type_id = PPOPT_CHARGE;
 					else if(Filt.Kind == LinkedBillFilt::lkWrOffDraft) {
-						BillTbl::Rec bill_rec;
 						if(P_BObj->Search(Filt.BillID, &bill_rec) > 0) {
 							PPObjOprKind op_obj;
 							PPDraftOpEx doe;
@@ -601,7 +526,6 @@ int SLAPI PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 				ok = -1;
 				{
 					int    done = 0;
-					BillTbl::Rec bill_rec;
 					if(bill_id && P_BObj->Search(bill_id, &bill_rec) > 0) {
 						if(oneof3(Filt.Kind, LinkedBillFilt::lkPayments, LinkedBillFilt::lkReckon, LinkedBillFilt::lkWrOffDraft)) {
 							if(!IsOpPaymOrRetn(bill_rec.OpID)) {
@@ -660,6 +584,12 @@ int SLAPI PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 			case PPVCMD_ACCTURNSBYBILL:
 				ok = -1;
 				P_BObj->ViewAccturns(bill_id);
+				break;
+			case PPVCMD_VIEWOP:
+				{
+					PPObjOprKind op_obj;
+					ok = (P_BObj->Search(bill_id, &bill_rec) > 0 && op_obj.Edit(&bill_rec.OpID, 0) == cmOK) ? 1 : -1;
+				}
 				break;
 			case PPVCMD_TOGGLE:
 				if(PrevKind >= 0) {
@@ -732,259 +662,6 @@ int SLAPI PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 		}
 	}
 	return ok;
-}
-
-class PaymentBrowser : public BrowserWindow { // @obsolete
-public:
-	PaymentBrowser(uint rezID, PPID _id, int _kind, PPObjBill * _ppobj) :
-		BrowserWindow(rezID, _ppobj->MakePaymentList(_id, _kind))
-	{
-		BillTbl::Rec rec;
-		PrevKind = -1;
-		Kind   = _kind;
-		P_BObj  = _ppobj;
-		LinkBillID  = _id;
-		LinkOpID = (P_BObj->Search(LinkBillID, &rec) > 0) ? rec.OpID : 0;
-	}
-private:
-	DECL_HANDLE_EVENT;
-	void   print();
-	void   updateList(long);
-	PPID   getCurrID();
-
-	int    Kind;
-	int    PrevKind;  // Значение Kind до переключения вида
-	PPID   LinkBillID;
-	PPID   LinkOpID;
-	PPObjBill * P_BObj;
-};
-
-IMPL_HANDLE_EVENT(PaymentBrowser)
-{
-	BrowserWindow::handleEvent(event);
-	if(TVCOMMAND) {
-		switch(TVCMD) {
-			case cmaInsert:
-				if(oneof2(Kind, 0, 1)) {
-					PPID   op_type_id = 0;
-					if(Kind == 1)
-	   					op_type_id = PPOPT_CHARGE;
-					else if(Kind == 0)
-						op_type_id = PPOPT_PAYMENT;
-					/*
-					else if(Kind == 5) {
-						BillTbl::Rec bill_rec;
-						if(P_BObj->Fetch(LinkBillID, &bill_rec) > 0) {
-							PPObjOprKind op_obj;
-							PPDraftOpEx doe;
-							if(op_obj.GetDraftExData(bill_rec.OpID, &doe) > 0) {
-								if(bill_rec.Flags & BILLF_WRITEDOFF) {
-
-								}
-							}
-						}
-					}
-					*/
-					if(op_type_id) {
-						PPObjBill::AddBlock ab;
-						ab.LinkBillID = LinkBillID;
-						ab.OpID = SelectOprKind(0, LinkOpID, op_type_id, 0L);
-						if(ab.OpID == 0)
-							PPError();
-						else if(ab.OpID > 0 && P_BObj->AddGoodsBill(0, &ab) == cmOK)
-							updateList(MAXLONG);
-					}
-				}
-				break;
-			case cmaDelete:
-				{
-					int    done = 0;
-					PPID   c = getCurrID();
-					BillTbl::Rec bill_rec;
-					if(c && P_BObj->Search(c, &bill_rec) > 0) {
-						if(oneof2(Kind, 0, 2)) {
-							if(!IsOpPaymOrRetn(bill_rec.OpID)) {
-								uint   v = 0;
-								if(SelectorDialog(DLG_SELRMVPAYM, CTL_SELRMVPAYM_WHAT, &v) > 0) {
-									if(v == 1) {
-										_PaymentEntry * d = (_PaymentEntry *)view->getCurItem();
-										if(d && P_BObj->P_Tbl->BreakOffLink(c, LinkBillID, d->LinkKind, 1) > 0)
-											updateList(-1);
-									}
-									else if(v == 0) {
-										if(P_BObj->RemoveObjV(c, 0, PPObject::rmv_default, 0) > 0)
-											updateList(-1);
-									}
-								}
-								done = 1;
-							}
-						}
-						if(!done && P_BObj->RemoveObjV(c, 0, PPObject::rmv_default, 0) > 0)
-							updateList(-1);
-					}
-				}
-				break;
-			case cmaEdit:
-				{
-					PPID   c = getCurrID();
-					if(c && P_BObj->EditGoodsBill(c, 0) == cmOK)
-						updateList(-1);
-				}
-				break;
-			case cmPrint:
-				print();
-				break;
-			default:
-				return;
-		}
-	}
-	else if(TVKEYDOWN) {
-		switch(TVKEY) {
-			case kbAltF2:
-				{
-					PPObjBill::AddBlock ab;
-					ab.SampleBillID = getCurrID();
-					if(oneof2(Kind, 0, 1) && ab.SampleBillID) {
-						PPID   bill_id = 0;
-						if(P_BObj->AddGoodsBill(&bill_id, &ab) == cmOK)
-							updateList(MAXLONG);
-					}
-				}
-				break;
-			case kbCtrlF6:
-				if(P_BObj->EditBillStatus(getCurrID()) > 0)
-					updateList(-1);
-				break;
-			case kbF5:
-				if(Kind == 1 && P_BObj->ViewPayments(getCurrID(), LinkedBillFilt::lkPayments) > 0)
-					updateList(-1);
-				break;
-			case kbF6:
-				if(Kind == 1 && LinkBillID && P_BObj->AutoCharge(LinkBillID) > 0)
-					updateList(MAXLONG);
-				break;
-			case kbF7:
-				print();
-				break;
-			case kbAltF7:
-				{
-					uint   rpt_id = REPORT_PAYMBILLLIST;
-					PaymBillFilt flt;
-					PPViewPaymBill v;
-					flt.LinkBillID = LinkBillID;
-					flt.LinkOpID   = LinkOpID;
-					flt.Kind       = Kind;
-					v.Init(&flt);
-					PView  pf(&v);
-					PPReportEnv env;
-					env.PrnFlags = SReport::DisableGrouping;
-					PPAlddPrint(rpt_id, &pf, &env);
-				}
-				break;
-			case kbF8:
-				{
-					PPID   bill_id = getCurrID();
-					if(bill_id) {
-						P_BObj->SetWLabel(bill_id, -1);
-						updateList(-1);
-					}
-				}
-				break;
-			case kbF9:
-				{
-					TDialog * dlg = 0;
-					if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_PAYMTOTAL)))) {
-						AryBrowserDef * p_def = (AryBrowserDef *)view->getDef();
-						long   count = 0;
-						double amount = 0.0;
-						for(long i = 0; i < p_def->getRecsCount(); i++) {
-							_PaymentEntry * p_entry = (_PaymentEntry *)p_def->getRow(i);
-							count++;
-							amount += p_entry->Payment;
-						}
-						dlg->setCtrlLong(CTL_PAYMTOTAL_COUNT, count);
-						dlg->setCtrlReal(CTL_PAYMTOTAL_AMOUNT, amount);
-						ExecViewAndDestroy(dlg);
-					}
-				}
-				break;
-			default:
-				if(TVCHR == kbCtrlA)
-					P_BObj->ViewAccturns(getCurrID());
-				else if(TVCHR == kbCtrlT) {
-					int    upd = 1;
-					if(PrevKind >= 0) {
-						Kind = PrevKind;
-						PrevKind = -1;
-					}
-					else if(Kind == 0) {
-						PrevKind = Kind;
-						Kind = 3;
-					}
-					else if(Kind == 2) {
-						PrevKind = Kind;
-						Kind = 3;
-					}
-					else if(Kind == 3) {
-						PrevKind = Kind;
-						Kind = 2;
-					}
-					else
-						upd = 0;
-					if(upd)
-						updateList(-1);
-				}
-				else if(TVCHR == kbCtrlZ)
-					P_BObj->PosPrintByBill(getCurrID());
-				else
-					return;
-		}
-	}
-	else
-		return;
-	clearEvent(event);
-}
-
-void PaymentBrowser::updateList(long pos)
-{
-	AryBrowserDef * p_def = (AryBrowserDef *)view->getDef();
-	if(p_def) {
-		long   c = p_def->_curItem();
-		p_def->setArray(0, 0, 1);
-		SArray * p_list = P_BObj->MakePaymentList(LinkBillID, Kind);
-		if(p_list) {
-			lock();
-			p_def->setArray(p_list, 0, 1);
-			view->setRange(p_list->getCount());
-			if(pos < 0)
-				view->go(c);
-			else if(pos == MAXLONG)
-				view->go(p_list->getCount() - 1);
-			unlock();
-		}
-		else
-			PPError();
-	}
-}
-
-PPID PaymentBrowser::getCurrID()
-{
-	void * d = view->getCurItem();
-	return d ? ((_PaymentEntry*)d)->ID : 0;
-}
-
-void PaymentBrowser::print()
-{
-	PPBillPacket pack;
-	PPID   cur_id = getCurrID();
-	if(cur_id)
-		if(P_BObj->ExtractPacket(cur_id, &pack))
-			if(pack.Rec.Flags & BILLF_BANKING || CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_INVOICE))
-				PrintGoodsBill(&pack);
-			else
-				PrintCashOrderByGoodsBill(&pack);
-		else
-			PPError();
 }
 
 int SLAPI PPObjBill::ViewPayments(PPID id, int kind)
@@ -2248,6 +1925,81 @@ int SLAPI PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags
 	return ok;
 }
 //
+// @obsolete Используется только для обслуживания экспортной структуры данных PaymBillList
+//
+class PPViewPaymBill {
+public:
+	SLAPI  PPViewPaymBill();
+	SLAPI ~PPViewPaymBill();
+	int    SLAPI Init(const PaymBillFilt *);
+	int    SLAPI InitIteration();
+	int    FASTCALL NextIteration(PaymBillViewItem *);
+	const  PaymBillFilt * SLAPI GetFilt() const { return &Filt; }
+	const  IterCounter & SLAPI GetIterCounter() const { return Counter; }
+private:
+	PPObjBill * P_BObj;
+	PaymBillFilt Filt;
+	IterCounter Counter;
+	SArray * P_PaymBillList;
+};
+
+SLAPI PPViewPaymBill::PPViewPaymBill()
+{
+	P_BObj = BillObj;
+	P_PaymBillList = 0;
+}
+
+SLAPI PPViewPaymBill::~PPViewPaymBill()
+{
+	ZDELETE(P_PaymBillList);
+}
+
+int SLAPI PPViewPaymBill::Init(const PaymBillFilt * pFilt)
+{
+	if(!RVALUEPTR(Filt, pFilt))
+		MEMSZERO(Filt);
+	return 1;
+}
+
+int SLAPI PPViewPaymBill::InitIteration()
+{
+	int    ok = -1;
+	if(P_BObj) {
+		delete P_PaymBillList;
+		P_PaymBillList = P_BObj->MakePaymentList(Filt.LinkBillID, Filt.Kind);
+		Counter.Init(P_PaymBillList->getCount());
+		ok = 1;
+	}
+	return ok;
+}
+
+int FASTCALL PPViewPaymBill::NextIteration(PaymBillViewItem * pItem)
+{
+	int    ok = -1;
+	if(pItem && P_PaymBillList && P_BObj) {
+		if(Counter < Counter.GetTotal()) {
+			const _PaymentEntry * p_be = (const PaymBillViewItem *)P_PaymBillList->at(Counter);
+			BillTbl::Rec bill_rec;
+			if(P_BObj->Search(p_be->ID, &bill_rec) > 0)
+				STRNSCPY(pItem->Memo, bill_rec.Memo);
+			STRNSCPY(pItem->Code, p_be->Code);
+			STRNSCPY(pItem->StatusName, p_be->StatusName);
+			STRNSCPY(pItem->OpName, p_be->OpName);
+			pItem->Amount  = p_be->Amount;
+			pItem->Payment = p_be->Payment;
+			pItem->Rest    = p_be->Rest;
+			pItem->ID      = p_be->ID;
+			pItem->LinkBillID = p_be->LinkBillID;
+			pItem->RcknBillID = p_be->RcknBillID;
+			pItem->CurID   = p_be->CurID;
+			pItem->Date    = p_be->Date;
+			Counter.Increment();
+			ok = 1;
+		}
+	}
+	return ok;
+}
+//
 // Implementation of PPALDD_PaymBillList
 //
 PPALDD_CONSTRUCTOR(PaymBillList)
@@ -2297,3 +2049,261 @@ void PPALDD_PaymBillList::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(PaymBill);
 }
+//
+//
+//
+#if 0 // @v9.7.10 @obsolete {
+
+class PaymentBrowser : public BrowserWindow { // @obsolete
+public:
+	PaymentBrowser(uint rezID, PPID _id, int _kind, PPObjBill * _ppobj) :
+		BrowserWindow(rezID, _ppobj->MakePaymentList(_id, _kind))
+	{
+		BillTbl::Rec rec;
+		PrevKind = -1;
+		Kind   = _kind;
+		P_BObj  = _ppobj;
+		LinkBillID  = _id;
+		LinkOpID = (P_BObj->Search(LinkBillID, &rec) > 0) ? rec.OpID : 0;
+	}
+private:
+	DECL_HANDLE_EVENT;
+	void   print();
+	void   updateList(long);
+	PPID   getCurrID();
+
+	int    Kind;
+	int    PrevKind;  // Значение Kind до переключения вида
+	PPID   LinkBillID;
+	PPID   LinkOpID;
+	PPObjBill * P_BObj;
+};
+
+IMPL_HANDLE_EVENT(PaymentBrowser)
+{
+	BrowserWindow::handleEvent(event);
+	if(TVCOMMAND) {
+		switch(TVCMD) {
+			case cmaInsert:
+				if(oneof2(Kind, 0, 1)) {
+					PPID   op_type_id = 0;
+					if(Kind == 1)
+	   					op_type_id = PPOPT_CHARGE;
+					else if(Kind == 0)
+						op_type_id = PPOPT_PAYMENT;
+					/*
+					else if(Kind == 5) {
+						BillTbl::Rec bill_rec;
+						if(P_BObj->Fetch(LinkBillID, &bill_rec) > 0) {
+							PPObjOprKind op_obj;
+							PPDraftOpEx doe;
+							if(op_obj.GetDraftExData(bill_rec.OpID, &doe) > 0) {
+								if(bill_rec.Flags & BILLF_WRITEDOFF) {
+
+								}
+							}
+						}
+					}
+					*/
+					if(op_type_id) {
+						PPObjBill::AddBlock ab;
+						ab.LinkBillID = LinkBillID;
+						ab.OpID = SelectOprKind(0, LinkOpID, op_type_id, 0L);
+						if(ab.OpID == 0)
+							PPError();
+						else if(ab.OpID > 0 && P_BObj->AddGoodsBill(0, &ab) == cmOK)
+							updateList(MAXLONG);
+					}
+				}
+				break;
+			case cmaDelete:
+				{
+					int    done = 0;
+					PPID   c = getCurrID();
+					BillTbl::Rec bill_rec;
+					if(c && P_BObj->Search(c, &bill_rec) > 0) {
+						if(oneof2(Kind, 0, 2)) {
+							if(!IsOpPaymOrRetn(bill_rec.OpID)) {
+								uint   v = 0;
+								if(SelectorDialog(DLG_SELRMVPAYM, CTL_SELRMVPAYM_WHAT, &v) > 0) {
+									if(v == 1) {
+										_PaymentEntry * d = (_PaymentEntry *)view->getCurItem();
+										if(d && P_BObj->P_Tbl->BreakOffLink(c, LinkBillID, d->LinkKind, 1) > 0)
+											updateList(-1);
+									}
+									else if(v == 0) {
+										if(P_BObj->RemoveObjV(c, 0, PPObject::rmv_default, 0) > 0)
+											updateList(-1);
+									}
+								}
+								done = 1;
+							}
+						}
+						if(!done && P_BObj->RemoveObjV(c, 0, PPObject::rmv_default, 0) > 0)
+							updateList(-1);
+					}
+				}
+				break;
+			case cmaEdit:
+				{
+					PPID   c = getCurrID();
+					if(c && P_BObj->EditGoodsBill(c, 0) == cmOK)
+						updateList(-1);
+				}
+				break;
+			case cmPrint:
+				print();
+				break;
+			default:
+				return;
+		}
+	}
+	else if(TVKEYDOWN) {
+		switch(TVKEY) {
+			case kbAltF2:
+				{
+					PPObjBill::AddBlock ab;
+					ab.SampleBillID = getCurrID();
+					if(oneof2(Kind, 0, 1) && ab.SampleBillID) {
+						PPID   bill_id = 0;
+						if(P_BObj->AddGoodsBill(&bill_id, &ab) == cmOK)
+							updateList(MAXLONG);
+					}
+				}
+				break;
+			case kbCtrlF6:
+				if(P_BObj->EditBillStatus(getCurrID()) > 0)
+					updateList(-1);
+				break;
+			case kbF5:
+				if(Kind == 1 && P_BObj->ViewPayments(getCurrID(), LinkedBillFilt::lkPayments) > 0)
+					updateList(-1);
+				break;
+			case kbF6:
+				if(Kind == 1 && LinkBillID && P_BObj->AutoCharge(LinkBillID) > 0)
+					updateList(MAXLONG);
+				break;
+			case kbF7:
+				print();
+				break;
+			case kbAltF7:
+				{
+					uint   rpt_id = REPORT_PAYMBILLLIST;
+					PaymBillFilt flt;
+					PPViewPaymBill v;
+					flt.LinkBillID = LinkBillID;
+					flt.LinkOpID   = LinkOpID;
+					flt.Kind       = Kind;
+					v.Init(&flt);
+					PView  pf(&v);
+					PPReportEnv env;
+					env.PrnFlags = SReport::DisableGrouping;
+					PPAlddPrint(rpt_id, &pf, &env);
+				}
+				break;
+			case kbF8:
+				{
+					PPID   bill_id = getCurrID();
+					if(bill_id) {
+						P_BObj->SetWLabel(bill_id, -1);
+						updateList(-1);
+					}
+				}
+				break;
+			case kbF9:
+				{
+					TDialog * dlg = 0;
+					if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_PAYMTOTAL)))) {
+						AryBrowserDef * p_def = (AryBrowserDef *)view->getDef();
+						long   count = 0;
+						double amount = 0.0;
+						for(long i = 0; i < p_def->getRecsCount(); i++) {
+							_PaymentEntry * p_entry = (_PaymentEntry *)p_def->getRow(i);
+							count++;
+							amount += p_entry->Payment;
+						}
+						dlg->setCtrlLong(CTL_PAYMTOTAL_COUNT, count);
+						dlg->setCtrlReal(CTL_PAYMTOTAL_AMOUNT, amount);
+						ExecViewAndDestroy(dlg);
+					}
+				}
+				break;
+			default:
+				if(TVCHR == kbCtrlA)
+					P_BObj->ViewAccturns(getCurrID());
+				else if(TVCHR == kbCtrlT) {
+					int    upd = 1;
+					if(PrevKind >= 0) {
+						Kind = PrevKind;
+						PrevKind = -1;
+					}
+					else if(Kind == 0) {
+						PrevKind = Kind;
+						Kind = 3;
+					}
+					else if(Kind == 2) {
+						PrevKind = Kind;
+						Kind = 3;
+					}
+					else if(Kind == 3) {
+						PrevKind = Kind;
+						Kind = 2;
+					}
+					else
+						upd = 0;
+					if(upd)
+						updateList(-1);
+				}
+				else if(TVCHR == kbCtrlZ)
+					P_BObj->PosPrintByBill(getCurrID());
+				else
+					return;
+		}
+	}
+	else
+		return;
+	clearEvent(event);
+}
+
+void PaymentBrowser::updateList(long pos)
+{
+	AryBrowserDef * p_def = (AryBrowserDef *)view->getDef();
+	if(p_def) {
+		long   c = p_def->_curItem();
+		p_def->setArray(0, 0, 1);
+		SArray * p_list = P_BObj->MakePaymentList(LinkBillID, Kind);
+		if(p_list) {
+			lock();
+			p_def->setArray(p_list, 0, 1);
+			view->setRange(p_list->getCount());
+			if(pos < 0)
+				view->go(c);
+			else if(pos == MAXLONG)
+				view->go(p_list->getCount() - 1);
+			unlock();
+		}
+		else
+			PPError();
+	}
+}
+
+PPID PaymentBrowser::getCurrID()
+{
+	void * d = view->getCurItem();
+	return d ? ((_PaymentEntry*)d)->ID : 0;
+}
+
+void PaymentBrowser::print()
+{
+	PPBillPacket pack;
+	PPID   cur_id = getCurrID();
+	if(cur_id)
+		if(P_BObj->ExtractPacket(cur_id, &pack))
+			if(pack.Rec.Flags & BILLF_BANKING || CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_INVOICE))
+				PrintGoodsBill(&pack);
+			else
+				PrintCashOrderByGoodsBill(&pack);
+		else
+			PPError();
+}
+#endif // } 0 @v9.7.10 @obsolete 

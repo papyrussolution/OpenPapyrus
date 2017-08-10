@@ -1117,7 +1117,8 @@ int CPosProcessor::InitCashMachine()
 	);*/
 	THROW(P_CM || (P_CM = PPCashMachine::CreateInstance(CashNodeID)) != 0);
 	THROW(!ExtCashNodeID || P_CM_EXT || (P_CM_EXT = PPCashMachine::CreateInstance(ExtCashNodeID)) != 0);
-	THROW(ExtCashNodeID || !AltRegisterID || P_CM_ALT || (P_CM_ALT = PPCashMachine::CreateInstance(AltRegisterID)) != 0); // @v9.6.11
+	// @v9.7.10 THROW(ExtCashNodeID || !AltRegisterID || P_CM_ALT || (P_CM_ALT = PPCashMachine::CreateInstance(AltRegisterID)) != 0); // @v9.6.11
+	THROW(!AltRegisterID || P_CM_ALT || (P_CM_ALT = PPCashMachine::CreateInstance(AltRegisterID)) != 0); // @v9.7.10
 	CATCHZOK
 	return ok;
 }
@@ -3141,16 +3142,24 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 				CnSleepTimeout  = scn.SleepTimeout * CLOCKS_PER_SEC;
 				P_BNKTERM       = GetBnkTerm(scn.BnkTermType, scn.BnkTermLogNum, scn.BnkTermPort, scn.BnkTermPath);
 				TouchScreenID   = NZOR(scn.LocalTouchScrID, scn.TouchScreenID);
+				AltRegisterID   = scn.AlternateRegID; // @v9.7.10
 				if(scn.ExtCashNodeID) {
-					if(scn.ExtFlags & CASHFX_EXTNODEASALT)
+					if(scn.ExtFlags & CASHFX_EXTNODEASALT && !AltRegisterID)
 						AltRegisterID = scn.ExtCashNodeID;
 					else
 						ExtCashNodeID = scn.ExtCashNodeID;
 				}
 				else {
-					AltRegisterID = 0;
+					// @v9.7.10 AltRegisterID = 0;
 					ExtCashNodeID = 0;
 				}
+				// @v9.7.10 { 
+				if(AltRegisterID) {
+					ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_ALTERNATEREGPASS, temp_buf = 0);
+					if(temp_buf.CmpNC("yes") != 0)
+						AltRegisterID = 0;
+				}
+				// } @v9.7.10 
 				ScaleID         = scn.ScaleID;
 				// @v8.6.12 перенесено в CPosProcessor Scf             = scn.Scf;
 				BonusMaxPart    = (scn.BonusMaxPart > 0 && scn.BonusMaxPart <= 1000) ? R3(((double)scn.BonusMaxPart) / 1000.0) : 1.0;

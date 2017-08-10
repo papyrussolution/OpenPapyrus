@@ -777,8 +777,8 @@ int DlRtm::SetByJSON_Helper(json_t * pNode, SetScopeBlk & rBlk)
 {
 	int    ok = 1;
 	void * p_buf = NULL;
-	char * fld_name;
-	char * p_value = 0;
+	const  char * fld_name = 0;
+	//char * p_value = 0;
 	SdbField fld;
 	SFormatParam fp;
 	SString temp_buf;
@@ -792,17 +792,18 @@ int DlRtm::SetByJSON_Helper(json_t * pNode, SetScopeBlk & rBlk)
 				THROW(Set(rBlk.GetScopeID(), 0));
 				break;
 			case json_t::tSTRING:
-				if(p_cur->P_Text && p_cur->P_Child) {
-					fld_name = p_cur->P_Text;
+				if(p_cur->P_Child) {
+					fld_name = p_cur->Text;
 					switch(p_cur->P_Child->Type) {
 						case json_t::tNUMBER:
 						case json_t::tSTRING:
 							THROW(rBlk.GetFieldByName(fld_name, &fld));
 							if(!(fld.T.Flags & STypEx::fFormula)) {
-								p_value = json_unescape(p_cur->P_Child->P_Text);
+								//p_value = json_unescape(p_cur->P_Child->P_Text);
+								(temp_buf = p_cur->P_Child->Text).Unescape();
 								THROW(p_buf = rBlk.GetBuffer());
-								THROW(fld.PutFieldDataToBuf(p_value, p_buf, fp));
-								ZFREE(p_value);
+								THROW(fld.PutFieldDataToBuf(temp_buf, p_buf, fp));
+								//ZFREE(p_value);
 							}
 							break;
 						default:
@@ -819,7 +820,7 @@ int DlRtm::SetByJSON_Helper(json_t * pNode, SetScopeBlk & rBlk)
 		}
 	}
 	CATCHZOK
-	SAlloc::F(p_value);
+	//SAlloc::F(p_value);
 	return ok;
 }
 

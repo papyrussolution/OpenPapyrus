@@ -330,7 +330,7 @@ WORK_STATE tls_finish_handshake(SSL * s, WORK_STATE wst)
 		else if(s->ctx->info_callback != NULL)
 			cb = s->ctx->info_callback;
 
-		if(cb != NULL)
+		if(cb)
 			cb(s, SSL_CB_HANDSHAKE_DONE, 1);
 
 		if(SSL_IS_DTLS(s)) {

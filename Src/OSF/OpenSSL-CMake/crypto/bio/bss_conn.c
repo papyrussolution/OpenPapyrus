@@ -203,7 +203,7 @@ static int conn_state(BIO * b, BIO_CONNECT * c)
 			    goto exit_loop;
 		}
 
-		if(cb != NULL) {
+		if(cb) {
 			if((ret = cb((BIO*)b, c->state, ret)) == 0)
 				goto end;
 		}
@@ -211,7 +211,7 @@ static int conn_state(BIO * b, BIO_CONNECT * c)
 
 	/* Loop does not exit */
 exit_loop:
-	if(cb != NULL)
+	if(cb)
 		ret = cb((BIO*)b, c->state, ret);
 end:
 	return ret;

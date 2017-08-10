@@ -918,25 +918,19 @@ typedef enum {
 	 * sizes to handle larger files.  See below for INFILESIZE_LARGE.
 	 */
 	CINIT(INFILESIZE, LONG, 14),
-
-	/* POST static input fields. */
-	CINIT(POSTFIELDS, OBJECTPOINT, 15),
-	/* Set the referrer page (needed by some CGIs) */
-	CINIT(REFERER, STRINGPOINT, 16),
+	CINIT(POSTFIELDS, OBJECTPOINT, 15), /* POST static input fields. */
+	CINIT(REFERER, STRINGPOINT, 16), /* Set the referrer page (needed by some CGIs) */
 	/* Set the FTP PORT string (interface name, named or numerical IP address)
 	   Use i.e '-' to use default address. */
 	CINIT(FTPPORT, STRINGPOINT, 17),
-	/* Set the User-Agent string (examined by some CGIs) */
-	CINIT(USERAGENT, STRINGPOINT, 18),
+	CINIT(USERAGENT, STRINGPOINT, 18), /* Set the User-Agent string (examined by some CGIs) */
 	/* If the download receives less than "low speed limit" bytes/second
 	 * during "low speed time" seconds, the operations is aborted.
 	 * You could i.e if you have a pretty high speed connection, abort if
 	 * it is less than 2000 bytes/sec during 20 seconds.
 	 */
-	/* Set the "low speed limit" */
-	CINIT(LOW_SPEED_LIMIT, LONG, 19),
-	/* Set the "low speed time" */
-	CINIT(LOW_SPEED_TIME, LONG, 20),
+	CINIT(LOW_SPEED_LIMIT, LONG, 19), /* Set the "low speed limit" */
+	CINIT(LOW_SPEED_TIME, LONG, 20), /* Set the "low speed time" */
 	/* Set the continuation offset.
 	 *
 	 * Note there is also a _LARGE version of this key which uses
@@ -944,27 +938,18 @@ typedef enum {
 	 * use larger-than-32-bit off_t's.  Look below for RESUME_FROM_LARGE.
 	 */
 	CINIT(RESUME_FROM, LONG, 21),
-	/* Set cookie in request: */
-	CINIT(COOKIE, STRINGPOINT, 22),
-	/* This points to a linked list of headers, struct curl_slist kind. This
-	   list is also used for RTSP (in spite of its name) */
+	CINIT(COOKIE, STRINGPOINT, 22), /* Set cookie in request: */
+	// This points to a linked list of headers, struct curl_slist kind. This list is also used for RTSP (in spite of its name) 
 	CINIT(HTTPHEADER, OBJECTPOINT, 23),
-	/* This points to a linked list of post entries, struct curl_httppost */
-	CINIT(HTTPPOST, OBJECTPOINT, 24),
-	/* name of the file keeping your private SSL-certificate */
-	CINIT(SSLCERT, STRINGPOINT, 25),
-	/* password for the SSL or SSH private key */
-	CINIT(KEYPASSWD, STRINGPOINT, 26),
-	/* send TYPE parameter? */
-	CINIT(CRLF, LONG, 27),
-	/* send linked-list of QUOTE commands */
-	CINIT(QUOTE, OBJECTPOINT, 28),
-	/* send FILE * or void * to store headers to, if you use a callback it
-	   is simply passed to the callback unmodified */
+	CINIT(HTTPPOST, OBJECTPOINT, 24), /* This points to a linked list of post entries, struct curl_httppost */
+	CINIT(SSLCERT, STRINGPOINT, 25), /* name of the file keeping your private SSL-certificate */
+	CINIT(KEYPASSWD, STRINGPOINT, 26), /* password for the SSL or SSH private key */
+	CINIT(CRLF, LONG, 27), /* send TYPE parameter? */
+	CINIT(QUOTE, OBJECTPOINT, 28), /* send linked-list of QUOTE commands */
+	// send FILE * or void * to store headers to, if you use a callback it is simply passed to the callback unmodified 
 	CINIT(HEADERDATA, OBJECTPOINT, 29),
 	CINIT(COOKIEFILE, STRINGPOINT, 31), // point to a file to read the initial cookies from, also enables "cookie awareness" 
-	/* What version to specifically try to use.
-	   See CURL_SSLVERSION defines below. */
+	// What version to specifically try to use. See CURL_SSLVERSION defines below. 
 	CINIT(SSLVERSION, LONG, 32),
 	CINIT(TIMECONDITION, LONG, 33), // What kind of HTTP time condition to use, see defines 
 	CINIT(TIMEVALUE, LONG, 34), // Time to use with the above condition. Specified in number of seconds since 1 Jan 1970 
@@ -1028,14 +1013,10 @@ typedef enum {
 	CINIT(CAINFO, STRINGPOINT, 65),
 	/* 66 = OBSOLETE */
 	/* 67 = OBSOLETE */
-	/* Maximum number of http redirects to follow */
-	CINIT(MAXREDIRS, LONG, 68),
-	// Pass a long set to 1 to get the date of the requested document (if possible)! Pass a zero to shut it off. 
-	CINIT(FILETIME, LONG, 69),
-	/* This points to a linked list of telnet options */
-	CINIT(TELNETOPTIONS, OBJECTPOINT, 70),
-	/* Max amount of cached alive connections */
-	CINIT(MAXCONNECTS, LONG, 71),
+	CINIT(MAXREDIRS, LONG, 68), // Maximum number of http redirects to follow 
+	CINIT(FILETIME, LONG, 69), // Pass a long set to 1 to get the date of the requested document (if possible)! Pass a zero to shut it off. 
+	CINIT(TELNETOPTIONS, OBJECTPOINT, 70), /* This points to a linked list of telnet options */
+	CINIT(MAXCONNECTS, LONG, 71), /* Max amount of cached alive connections */
 	CINIT(OBSOLETE72, LONG, 72), /* OBSOLETE, do not use! */
 	/* 73 = OBSOLETE */
 
@@ -1089,78 +1070,39 @@ typedef enum {
 	   default, that one will always be attempted before the more traditional
 	   PASV command. */
 	CINIT(FTP_USE_EPSV, LONG, 85),
-
-	/* type of the file keeping your SSL-certificate ("DER", "PEM", "ENG") */
-	CINIT(SSLCERTTYPE, STRINGPOINT, 86),
-
-	/* name of the file keeping your private SSL-key */
-	CINIT(SSLKEY, STRINGPOINT, 87),
-
-	/* type of the file keeping your private SSL-key ("DER", "PEM", "ENG") */
-	CINIT(SSLKEYTYPE, STRINGPOINT, 88),
-
-	/* crypto engine for the SSL-sub system */
-	CINIT(SSLENGINE, STRINGPOINT, 89),
-
-	/* set the crypto engine for the SSL-sub system as default
-	   the param has no meaning...
-	 */
-	CINIT(SSLENGINE_DEFAULT, LONG, 90),
-
+	CINIT(SSLCERTTYPE, STRINGPOINT, 86), /* type of the file keeping your SSL-certificate ("DER", "PEM", "ENG") */
+	CINIT(SSLKEY, STRINGPOINT, 87), /* name of the file keeping your private SSL-key */
+	CINIT(SSLKEYTYPE, STRINGPOINT, 88), /* type of the file keeping your private SSL-key ("DER", "PEM", "ENG") */
+	CINIT(SSLENGINE, STRINGPOINT, 89), /* crypto engine for the SSL-sub system */
+	CINIT(SSLENGINE_DEFAULT, LONG, 90), /* set the crypto engine for the SSL-sub system as default the param has no meaning... */
 	/* Non-zero value means to use the global dns cache */
 	CINIT(DNS_USE_GLOBAL_CACHE, LONG, 91), /* DEPRECATED, do not use! */
-
-	/* DNS cache timeout */
-	CINIT(DNS_CACHE_TIMEOUT, LONG, 92),
-
-	/* send linked-list of pre-transfer QUOTE commands */
-	CINIT(PREQUOTE, OBJECTPOINT, 93),
-
-	/* set the debug function */
-	CINIT(DEBUGFUNCTION, FUNCTIONPOINT, 94),
-
-	/* set the data for the debug function */
-	CINIT(DEBUGDATA, OBJECTPOINT, 95),
-
-	/* mark this as start of a cookie session */
-	CINIT(COOKIESESSION, LONG, 96),
-
-	/* The CApath directory used to validate the peer certificate
-	   this option is used only if SSL_VERIFYPEER is true */
-	CINIT(CAPATH, STRINGPOINT, 97),
-
-	/* Instruct libcurl to use a smaller receive buffer */
-	CINIT(BUFFERSIZE, LONG, 98),
-
+	CINIT(DNS_CACHE_TIMEOUT, LONG, 92), /* DNS cache timeout */
+	CINIT(PREQUOTE, OBJECTPOINT, 93), /* send linked-list of pre-transfer QUOTE commands */
+	CINIT(DEBUGFUNCTION, FUNCTIONPOINT, 94), /* set the debug function */
+	CINIT(DEBUGDATA, OBJECTPOINT, 95), /* set the data for the debug function */
+	CINIT(COOKIESESSION, LONG, 96), /* mark this as start of a cookie session */
+	CINIT(CAPATH, STRINGPOINT, 97), // The CApath directory used to validate the peer certificate this option is used only if SSL_VERIFYPEER is true 
+	CINIT(BUFFERSIZE, LONG, 98), // Instruct libcurl to use a smaller receive buffer 
 	/* Instruct libcurl to not use any signal/alarm handlers, even when using
 	   timeouts. This option is useful for multi-threaded applications.
 	   See libcurl-the-guide for more background information. */
 	CINIT(NOSIGNAL, LONG, 99),
-
-	/* Provide a CURLShare for mutexing non-ts data */
-	CINIT(SHARE, OBJECTPOINT, 100),
-
+	CINIT(SHARE, OBJECTPOINT, 100), // Provide a CURLShare for mutexing non-ts data 
 	/* indicates type of proxy. accepted values are CURLPROXY_HTTP (default),
 	   CURLPROXY_HTTPS, CURLPROXY_SOCKS4, CURLPROXY_SOCKS4A and
 	   CURLPROXY_SOCKS5. */
 	CINIT(PROXYTYPE, LONG, 101),
-
 	/* Set the Accept-Encoding string. Use this to tell a server you would like
 	   the response to be compressed. Before 7.21.6, this was known as
 	   CURLOPT_ENCODING */
 	CINIT(ACCEPT_ENCODING, STRINGPOINT, 102),
-
-	/* Set pointer to private data */
-	CINIT(PRIVATE, OBJECTPOINT, 103),
-
-	/* Set aliases for HTTP 200 in the HTTP Response header */
-	CINIT(HTTP200ALIASES, OBJECTPOINT, 104),
-
+	CINIT(PRIVATE, OBJECTPOINT, 103), // Set pointer to private data 
+	CINIT(HTTP200ALIASES, OBJECTPOINT, 104), // Set aliases for HTTP 200 in the HTTP Response header 
 	/* Continue to send authentication (user+password) when following locations,
 	   even when hostname changed. This can potentially send off the name
 	   and password to whatever host the server decides. */
 	CINIT(UNRESTRICTED_AUTH, LONG, 105),
-
 	/* Specifically switch on or off the FTP engine's use of the EPRT command (
 	   it also disables the LPRT attempt). By default, those ones will always be
 	   attempted before the good old traditional PORT command. */
@@ -1175,11 +1117,7 @@ typedef enum {
 	   in second argument. The function must be matching the
 	   curl_ssl_ctx_callback proto. */
 	CINIT(SSL_CTX_FUNCTION, FUNCTIONPOINT, 108),
-
-	/* Set the userdata for the ssl context callback function's third
-	   argument */
-	CINIT(SSL_CTX_DATA, OBJECTPOINT, 109),
-
+	CINIT(SSL_CTX_DATA, OBJECTPOINT, 109), // Set the userdata for the ssl context callback function's third argument 
 	/* FTP Option that causes missing dirs to be created on the remote server.
 	   In 7.19.4 we introduced the convenience enums for this option using the
 	   CURLFTP_CREATE_DIR prefix.
@@ -1237,13 +1175,8 @@ typedef enum {
 	   CURLUSESSL_ALL     - SSL for all communication or fail
 	 */
 	CINIT(USE_SSL, LONG, 119),
-
-	/* The _LARGE version of the standard POSTFIELDSIZE option */
-	CINIT(POSTFIELDSIZE_LARGE, OFF_T, 120),
-
-	/* Enable/disable the TCP Nagle algorithm */
-	CINIT(TCP_NODELAY, LONG, 121),
-
+	CINIT(POSTFIELDSIZE_LARGE, OFF_T, 120), /* The _LARGE version of the standard POSTFIELDSIZE option */
+	CINIT(TCP_NODELAY, LONG, 121), /* Enable/disable the TCP Nagle algorithm */
 	/* 122 OBSOLETE, used in 7.12.3. Gone in 7.13.0 */
 	/* 123 OBSOLETE. Gone in 7.16.0 */
 	/* 124 OBSOLETE, used in 7.12.3. Gone in 7.13.0 */
@@ -1586,16 +1519,12 @@ typedef enum {
 
 /* These enums are for use with the CURLOPT_HTTP_VERSION option. */
 enum {
-	CURL_HTTP_VERSION_NONE, /* setting this means we don't care, and that we'd
-	                           like the library to choose the best possible
-	                           for us! */
+	CURL_HTTP_VERSION_NONE, /* setting this means we don't care, and that we'd like the library to choose the best possible for us! */
 	CURL_HTTP_VERSION_1_0, /* please use HTTP 1.0 in the request */
 	CURL_HTTP_VERSION_1_1, /* please use HTTP 1.1 in the request */
 	CURL_HTTP_VERSION_2_0, /* please use HTTP 2 in the request */
 	CURL_HTTP_VERSION_2TLS, /* use version 2 for HTTPS, version 1.1 for HTTP */
-	CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE, /* please use HTTP 2 without HTTP/1.1
-	                                        Upgrade */
-
+	CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE, /* please use HTTP 2 without HTTP/1.1 Upgrade */
 	CURL_HTTP_VERSION_LAST /* *ILLEGAL* http version */
 };
 
@@ -1625,13 +1554,9 @@ enum {
 
 /* These enums are for use with the CURLOPT_NETRC option. */
 enum CURL_NETRC_OPTION {
-	CURL_NETRC_IGNORED, /* The .netrc will never be read.
-	                     * This is the default. */
-	CURL_NETRC_OPTIONAL, /* A user:password in the URL will be preferred
-	                      * to one in the .netrc. */
-	CURL_NETRC_REQUIRED, /* A user:password in the URL will be ignored.
-	                      * Unless one is set programmatically, the .netrc
-	                      * will be queried. */
+	CURL_NETRC_IGNORED, /* The .netrc will never be read. * This is the default. */
+	CURL_NETRC_OPTIONAL, /* A user:password in the URL will be preferred to one in the .netrc. */
+	CURL_NETRC_REQUIRED, /* A user:password in the URL will be ignored. Unless one is set programmatically, the .netrc will be queried. */
 	CURL_NETRC_LAST
 };
 
@@ -1675,16 +1600,13 @@ enum CURL_TLSAUTH {
 #define CURL_REDIR_POST_301 1
 #define CURL_REDIR_POST_302 2
 #define CURL_REDIR_POST_303 4
-#define CURL_REDIR_POST_ALL \
-	(CURL_REDIR_POST_301|CURL_REDIR_POST_302|CURL_REDIR_POST_303)
+#define CURL_REDIR_POST_ALL (CURL_REDIR_POST_301|CURL_REDIR_POST_302|CURL_REDIR_POST_303)
 
 typedef enum {
 	CURL_TIMECOND_NONE,
-
 	CURL_TIMECOND_IFMODSINCE,
 	CURL_TIMECOND_IFUNMODSINCE,
 	CURL_TIMECOND_LASTMOD,
-
 	CURL_TIMECOND_LAST
 } curl_TimeCond;
 
@@ -1807,8 +1729,7 @@ typedef size_t (*curl_formget_callback)(void * arg, const char * buf, size_t len
  * the curl_formget_callback function.
  * Returns 0 on success.
  */
-CURL_EXTERN int curl_formget(struct curl_httppost * form, void * arg,
-    curl_formget_callback append);
+CURL_EXTERN int curl_formget(struct curl_httppost * form, void * arg, curl_formget_callback append);
 /*
  * NAME curl_formfree()
  *
@@ -1817,7 +1738,6 @@ CURL_EXTERN int curl_formget(struct curl_httppost * form, void * arg,
  * Free a multipart formpost previously built with curl_formadd().
  */
 CURL_EXTERN void curl_formfree(struct curl_httppost * form);
-
 /*
  * NAME curl_getenv()
  *
@@ -1827,7 +1747,6 @@ CURL_EXTERN void curl_formfree(struct curl_httppost * form);
  * complete. DEPRECATED - see lib/README.curlx
  */
 CURL_EXTERN char * curl_getenv(const char * variable);
-
 /*
  * NAME curl_version()
  *
@@ -1836,7 +1755,6 @@ CURL_EXTERN char * curl_getenv(const char * variable);
  * Returns a static ascii string of the libcurl version.
  */
 CURL_EXTERN char * curl_version(void);
-
 /*
  * NAME curl_easy_escape()
  *
@@ -1846,14 +1764,9 @@ CURL_EXTERN char * curl_version(void);
  * %XX versions). This function returns a new allocated string or NULL if an
  * error occurred.
  */
-CURL_EXTERN char * curl_easy_escape(CURL * handle,
-    const char * string,
-    int length);
-
+CURL_EXTERN char * curl_easy_escape(CURL * handle, const char * string, int length);
 /* the previous version: */
-CURL_EXTERN char * curl_escape(const char * string,
-    int length);
-
+CURL_EXTERN char * curl_escape(const char * string, int length);
 /*
  * NAME curl_easy_unescape()
  *
@@ -1865,15 +1778,9 @@ CURL_EXTERN char * curl_escape(const char * string,
  * Conversion Note: On non-ASCII platforms the ASCII %XX codes are
  * converted into the host encoding.
  */
-CURL_EXTERN char * curl_easy_unescape(CURL * handle,
-    const char * string,
-    int length,
-    int * outlength);
-
+CURL_EXTERN char * curl_easy_unescape(CURL * handle, const char * string, int length, int * outlength);
 /* the previous version */
-CURL_EXTERN char * curl_unescape(const char * string,
-    int length);
-
+CURL_EXTERN char * curl_unescape(const char * string, int length);
 /*
  * NAME curl_free()
  *
@@ -1883,7 +1790,6 @@ CURL_EXTERN char * curl_unescape(const char * string,
  * allocation. Added in libcurl 7.10
  */
 CURL_EXTERN void curl_free(void * p);
-
 /*
  * NAME curl_global_init()
  *
@@ -1895,7 +1801,6 @@ CURL_EXTERN void curl_free(void * p);
  * This function is not thread-safe!
  */
 CURL_EXTERN CURLcode curl_global_init(long flags);
-
 /*
  * NAME curl_global_init_mem()
  *
@@ -1909,12 +1814,7 @@ CURL_EXTERN CURLcode curl_global_init(long flags);
  * callback routines with be invoked by this library instead of the system
  * memory management routines like malloc, free etc.
  */
-CURL_EXTERN CURLcode curl_global_init_mem(long flags,
-    curl_malloc_callback m,
-    curl_free_callback f,
-    curl_realloc_callback r,
-    curl_strdup_callback s,
-    curl_calloc_callback c);
+CURL_EXTERN CURLcode curl_global_init_mem(long flags, curl_malloc_callback m, curl_free_callback f, curl_realloc_callback r, curl_strdup_callback s, curl_calloc_callback c);
 /*
  * NAME curl_global_cleanup()
  *

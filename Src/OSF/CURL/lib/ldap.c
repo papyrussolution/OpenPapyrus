@@ -71,7 +71,7 @@
 //#include "strcase.h"
 //#include "strtok.h"
 #include "curl_ldap.h"
-#include "curl_multibyte.h"
+//#include "curl_multibyte.h"
 //#include "curl_base64.h"
 //#include "connect.h"
 /* The last 3 #include files should be in this order */
@@ -108,8 +108,7 @@ typedef struct {
 #undef LDAPURLDesc
 #define LDAPURLDesc             CURL_LDAPURLDesc
 
-static int  _ldap_url_parse(const struct connectdata * conn,
-    LDAPURLDesc ** ludp);
+static int  _ldap_url_parse(const struct connectdata * conn, LDAPURLDesc ** ludp);
 static void _ldap_free_urldesc(LDAPURLDesc * ludp);
 
 #undef ldap_free_urldesc
@@ -117,10 +116,7 @@ static void _ldap_free_urldesc(LDAPURLDesc * ludp);
 #endif
 
 #ifdef DEBUG_LDAP
-  #define LDAP_TRACE(x)   do { \
-		_ldap_trace("%u: ", __LINE__); \
-		_ldap_trace x; \
-} WHILE_FALSE
+  #define LDAP_TRACE(x)   do { _ldap_trace("%u: ", __LINE__); _ldap_trace x; } WHILE_FALSE
 
 static void _ldap_trace(const char * fmt, ...);
 #else
@@ -208,8 +204,7 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 #endif
 
 	*done = TRUE; /* unconditionally */
-	infof(data, "LDAP local: LDAP Vendor = %s ; LDAP Version = %d\n",
-	    LDAP_VENDOR_NAME, LDAP_VENDOR_VERSION);
+	infof(data, "LDAP local: LDAP Vendor = %s ; LDAP Version = %d\n", LDAP_VENDOR_NAME, LDAP_VENDOR_VERSION);
 	infof(data, "LDAP local: %s\n", data->change.url);
 
 #ifdef HAVE_LDAP_URL_PARSE
@@ -226,29 +221,24 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 	/* Get the URL scheme (either ldap or ldaps) */
 	if(conn->given->flags & PROTOPT_SSL)
 		ldap_ssl = 1;
-	infof(data, "LDAP local: trying to establish %s connection\n",
-	    ldap_ssl ? "encrypted" : "cleartext");
+	infof(data, "LDAP local: trying to establish %s connection\n", ldap_ssl ? "encrypted" : "cleartext");
 
 #if defined(USE_WIN32_LDAP)
 	host = Curl_convert_UTF8_to_tchar(conn->host.name);
 	if(!host) {
 		result = CURLE_OUT_OF_MEMORY;
-
 		goto quit;
 	}
-
 	if(conn->bits.user_passwd) {
 		user = Curl_convert_UTF8_to_tchar(conn->user);
 		passwd = Curl_convert_UTF8_to_tchar(conn->passwd);
 		if(!user || !passwd) {
 			result = CURLE_OUT_OF_MEMORY;
-
 			goto quit;
 		}
 	}
 #else
 	host = conn->host.name;
-
 	if(conn->bits.user_passwd) {
 		user = conn->user;
 		passwd = conn->passwd;
@@ -410,16 +400,12 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 		result = CURLE_LDAP_CANNOT_BIND;
 		goto quit;
 	}
-
-	rc = ldap_search_s(server, ludp->lud_dn, ludp->lud_scope,
-	    ludp->lud_filter, ludp->lud_attrs, 0, &ldapmsg);
-
+	rc = ldap_search_s(server, ludp->lud_dn, ludp->lud_scope, ludp->lud_filter, ludp->lud_attrs, 0, &ldapmsg);
 	if(rc != 0 && rc != LDAP_SIZELIMIT_EXCEEDED) {
 		failf(data, "LDAP remote: %s", ldap_err2string(rc));
 		result = CURLE_LDAP_SEARCH_FAILED;
 		goto quit;
 	}
-
 	for(num = 0, entryIterator = ldap_first_entry(server, ldapmsg);
 	    entryIterator;
 	    entryIterator = ldap_next_entry(server, entryIterator), num++) {
@@ -430,7 +416,6 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 		char  * attribute; /*! suspicious that this isn't 'const' */
 #endif
 		int i;
-
 		/* Get the DN and write it to the client */
 		{
 			char * name;
@@ -449,50 +434,38 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 			char * dn = name = ldap_get_dn(server, entryIterator);
 #endif
 			name_len = strlen(name);
-
 			result = Curl_client_write(conn, CLIENTWRITE_BODY, (char*)"DN: ", 4);
 			if(result) {
 #if defined(USE_WIN32_LDAP)
 				Curl_unicodefree(name);
 #endif
 				ldap_memfree(dn);
-
 				goto quit;
 			}
-
-			result = Curl_client_write(conn, CLIENTWRITE_BODY, (char*)name,
-			    name_len);
+			result = Curl_client_write(conn, CLIENTWRITE_BODY, (char*)name, name_len);
 			if(result) {
 #if defined(USE_WIN32_LDAP)
 				Curl_unicodefree(name);
 #endif
 				ldap_memfree(dn);
-
 				goto quit;
 			}
-
 			result = Curl_client_write(conn, CLIENTWRITE_BODY, (char*)"\n", 1);
 			if(result) {
 #if defined(USE_WIN32_LDAP)
 				Curl_unicodefree(name);
 #endif
 				ldap_memfree(dn);
-
 				goto quit;
 			}
-
 			dlsize += name_len + 5;
-
 #if defined(USE_WIN32_LDAP)
 			Curl_unicodefree(name);
 #endif
 			ldap_memfree(dn);
 		}
-
 		/* Get the attributes and write them to the client */
-		for(attribute = ldap_first_attribute(server, entryIterator, &ber);
-		    attribute;
-		    attribute = ldap_next_attribute(server, entryIterator, ber)) {
+		for(attribute = ldap_first_attribute(server, entryIterator, &ber); attribute; attribute = ldap_next_attribute(server, entryIterator, ber)) {
 			BerValue ** vals;
 			size_t attr_len;
 #if defined(USE_WIN32_LDAP)
@@ -500,9 +473,7 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 			if(!attr) {
 				if(ber)
 					ber_free(ber, 0);
-
 				result = CURLE_OUT_OF_MEMORY;
-
 				goto quit;
 			}
 #else
@@ -558,11 +529,7 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 					if((attr_len > 7) &&
 					    (strcmp(";binary", (char*)attr + (attr_len - 7)) == 0)) {
 						/* Binary attribute, encode to base64. */
-						result = Curl_base64_encode(data,
-						    vals[i]->bv_val,
-						    vals[i]->bv_len,
-						    &val_b64,
-						    &val_b64_sz);
+						result = Curl_base64_encode(data, vals[i]->bv_val, vals[i]->bv_len, &val_b64, &val_b64_sz);
 						if(result) {
 							ldap_value_free_len(vals);
 #if defined(USE_WIN32_LDAP)
@@ -571,13 +538,10 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 							ldap_memfree(attribute);
 							if(ber)
 								ber_free(ber, 0);
-
 							goto quit;
 						}
-
 						if(val_b64_sz > 0) {
-							result = Curl_client_write(conn, CLIENTWRITE_BODY, val_b64,
-							    val_b64_sz);
+							result = Curl_client_write(conn, CLIENTWRITE_BODY, val_b64, val_b64_sz);
 							SAlloc::F(val_b64);
 							if(result) {
 								ldap_value_free_len(vals);
@@ -637,18 +601,15 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 			Curl_unicodefree(attr);
 #endif
 			ldap_memfree(attribute);
-
 			result = Curl_client_write(conn, CLIENTWRITE_BODY, (char*)"\n", 1);
 			if(result)
 				goto quit;
 			dlsize++;
 			Curl_pgrsSetDownloadCounter(data, dlsize);
 		}
-
 		if(ber)
 			ber_free(ber, 0);
 	}
-
 quit:
 	if(ldapmsg) {
 		ldap_msgfree(ldapmsg);

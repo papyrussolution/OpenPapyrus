@@ -27,8 +27,7 @@
  * Only "raw" case insensitive strings. This is meant to be locale independent
  * and only compare strings we know are safe for this.
  *
- * The function is capable of comparing a-z case insensitively even for
- * non-ascii.
+ * The function is capable of comparing a-z case insensitively even for non-ascii.
  */
 #define strcasecompare(a,b) Curl_strcasecompare(a,b)
 #define strncasecompare(a,b,c) Curl_strncasecompare(a,b,c)

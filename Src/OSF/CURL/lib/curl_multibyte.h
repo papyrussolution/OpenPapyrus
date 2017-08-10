@@ -1,43 +1,39 @@
 #ifndef HEADER_CURL_MULTIBYTE_H
 #define HEADER_CURL_MULTIBYTE_H
 /***************************************************************************
- *                                  _   _ ____  _
- *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
- *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
- *
- * This software is licensed as described in the file COPYING, which
- * you should have received as part of this distribution. The terms
- * are also available at https://curl.haxx.se/docs/copyright.html.
- *
- * You may opt to use, copy, modify, merge, publish, distribute and/or sell
- * copies of the Software, and permit persons to whom the Software is
- * furnished to do so, under the terms of the COPYING file.
- *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
- * KIND, either express or implied.
- *
- ***************************************************************************/
+*                                  _   _ ____  _
+*  Project                     ___| | | |  _ \| |
+*                             / __| | | | |_) | |
+*                            | (__| |_| |  _ <| |___
+*                             \___|\___/|_| \_\_____|
+*
+* Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+*
+* This software is licensed as described in the file COPYING, which
+* you should have received as part of this distribution. The terms
+* are also available at https://curl.haxx.se/docs/copyright.html.
+*
+* You may opt to use, copy, modify, merge, publish, distribute and/or sell
+* copies of the Software, and permit persons to whom the Software is
+* furnished to do so, under the terms of the COPYING file.
+*
+* This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
+* KIND, either express or implied.
+*
+***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(USE_WIN32_IDN) || ((defined(USE_WINDOWS_SSPI) || \
-                                defined(USE_WIN32_LDAP)) && defined(UNICODE))
+#if defined(USE_WIN32_IDN) || ((defined(USE_WINDOWS_SSPI) || defined(USE_WIN32_LDAP)) && defined(UNICODE))
+/*
+ * MultiByte conversions using Windows kernel32 library.
+ */
 
- /*
-  * MultiByte conversions using Windows kernel32 library.
-  */
-
-wchar_t *Curl_convert_UTF8_to_wchar(const char *str_utf8);
-char *Curl_convert_wchar_to_UTF8(const wchar_t *str_w);
+wchar_t * Curl_convert_UTF8_to_wchar(const char * str_utf8);
+char * Curl_convert_wchar_to_UTF8(const wchar_t * str_w);
 
 #endif /* USE_WIN32_IDN || ((USE_WINDOWS_SSPI || USE_WIN32_LDAP) && UNICODE) */
 
-
-#if defined(USE_WIN32_IDN) || defined(USE_WINDOWS_SSPI) || \
-    defined(USE_WIN32_LDAP)
+#if defined(USE_WIN32_IDN) || defined(USE_WINDOWS_SSPI) || defined(USE_WIN32_LDAP)
 
 /*
  * Macros Curl_convert_UTF8_to_tchar(), Curl_convert_tchar_to_UTF8()
@@ -61,32 +57,28 @@ char *Curl_convert_wchar_to_UTF8(const wchar_t *str_w);
 
 #define Curl_convert_UTF8_to_tchar(ptr) Curl_convert_UTF8_to_wchar((ptr))
 #define Curl_convert_tchar_to_UTF8(ptr) Curl_convert_wchar_to_UTF8((ptr))
-#define Curl_unicodefree(ptr) \
-  do {if((ptr)) {SAlloc::F((ptr)); (ptr) = NULL;}} WHILE_FALSE
+#define Curl_unicodefree(ptr) do {if((ptr)) {SAlloc::F((ptr)); (ptr) = NULL; }} WHILE_FALSE
 
 typedef union {
-  ushort       *tchar_ptr;
-  const ushort *const_tchar_ptr;
-  ushort       *tbyte_ptr;
-  const ushort *const_tbyte_ptr;
+	ushort       * tchar_ptr;
+	const ushort * const_tchar_ptr;
+	ushort       * tbyte_ptr;
+	const ushort * const_tbyte_ptr;
 } xcharp_u;
 
 #else
 
 #define Curl_convert_UTF8_to_tchar(ptr) (ptr)
 #define Curl_convert_tchar_to_UTF8(ptr) (ptr)
-#define Curl_unicodefree(ptr) \
-  do {(ptr) = NULL;} WHILE_FALSE
+#define Curl_unicodefree(ptr) do { (ptr) = NULL; } WHILE_FALSE
 
 typedef union {
-  char                *tchar_ptr;
-  const char          *const_tchar_ptr;
-  uchar       *tbyte_ptr;
-  const uchar *const_tbyte_ptr;
+	char * tchar_ptr;
+	const char * const_tchar_ptr;
+	uchar * tbyte_ptr;
+	const uchar * const_tbyte_ptr;
 } xcharp_u;
 
 #endif /* UNICODE */
-
 #endif /* USE_WIN32_IDN || USE_WINDOWS_SSPI || USE_WIN32_LDAP */
-
 #endif /* HEADER_CURL_MULTIBYTE_H */

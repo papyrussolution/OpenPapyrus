@@ -339,15 +339,12 @@ int SLAPI GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDes
 		SString src_path, dest_path;
 		SString    ext;
 		SPathStruc sp;
-
 		sp.Split(file_list.at(i).Txt);
 		ext.Dot().Cat(sp.Ext);
 		(src_path = src_dir).Cat(file_list.at(i).Txt);
 		(dest_path = dest_dir).Cat(file_list.at(i).Txt);
-		if((filtFlags & PPMailMsg::fPpyObject) && ext.CmpNC(PPSEXT) == 0 ||
-			(filtFlags & PPMailMsg::fPpyCharry) && ext.CmpNC(ORDEXT) == 0 ||
-			(filtFlags & PPMailMsg::fPpyOrder) && ext.CmpNC(CHARRYEXT) == 0
-		) {
+		if((filtFlags & PPMailMsg::fPpyObject) && ext.CmpNC(PPSEXT) == 0 || (filtFlags & PPMailMsg::fPpyCharry) && ext.CmpNC(ORDEXT) == 0 ||
+			(filtFlags & PPMailMsg::fPpyOrder) && ext.CmpNC(CHARRYEXT) == 0) {
 			THROW(ftp.SafeGet(dest_path, src_path, 0, CallbackFTPTransfer, 0));
 			{
 				int accept_file = 1;

@@ -81,7 +81,7 @@ int dtls1_dispatch_alert(SSL * s)
 		else if(s->ctx->info_callback != NULL)
 			cb = s->ctx->info_callback;
 
-		if(cb != NULL) {
+		if(cb) {
 			j = (s->s3->send_alert[0] << 8) | s->s3->send_alert[1];
 			cb(s, SSL_CB_WRITE_ALERT, j);
 		}

@@ -1733,8 +1733,7 @@ MSG_PROCESS_RETURN tls_process_key_exchange(SSL * s, PACKET * pkt)
 		if(PACKET_remaining(&signature) > (size_t)maxsig) {
 			/* wrong packet length */
 			al = SSL_AD_DECODE_ERROR;
-			SSLerr(SSL_F_TLS_PROCESS_KEY_EXCHANGE,
-			    SSL_R_WRONG_SIGNATURE_LENGTH);
+			SSLerr(SSL_F_TLS_PROCESS_KEY_EXCHANGE, SSL_R_WRONG_SIGNATURE_LENGTH);
 			goto err;
 		}
 
@@ -1745,20 +1744,15 @@ MSG_PROCESS_RETURN tls_process_key_exchange(SSL * s, PACKET * pkt)
 			goto err;
 		}
 
-		if(EVP_VerifyInit_ex(md_ctx, md, NULL) <= 0
-		    || EVP_VerifyUpdate(md_ctx, &(s->s3->client_random[0]),
-			    SSL3_RANDOM_SIZE) <= 0
-		    || EVP_VerifyUpdate(md_ctx, &(s->s3->server_random[0]),
-			    SSL3_RANDOM_SIZE) <= 0
-		    || EVP_VerifyUpdate(md_ctx, PACKET_data(&params),
-			    PACKET_remaining(&params)) <= 0) {
+		if(EVP_VerifyInit_ex(md_ctx, md, NULL) <= 0 || EVP_VerifyUpdate(md_ctx, &(s->s3->client_random[0]), SSL3_RANDOM_SIZE) <= 0
+		    || EVP_VerifyUpdate(md_ctx, &(s->s3->server_random[0]), SSL3_RANDOM_SIZE) <= 0
+		    || EVP_VerifyUpdate(md_ctx, PACKET_data(&params), PACKET_remaining(&params)) <= 0) {
 			EVP_MD_CTX_free(md_ctx);
 			al = SSL_AD_INTERNAL_ERROR;
 			SSLerr(SSL_F_TLS_PROCESS_KEY_EXCHANGE, ERR_R_EVP_LIB);
 			goto err;
 		}
-		if(EVP_VerifyFinal(md_ctx, PACKET_data(&signature),
-			    PACKET_remaining(&signature), pkey) <= 0) {
+		if(EVP_VerifyFinal(md_ctx, PACKET_data(&signature), PACKET_remaining(&signature), pkey) <= 0) {
 			/* bad signature */
 			EVP_MD_CTX_free(md_ctx);
 			al = SSL_AD_DECRYPT_ERROR;
@@ -1769,8 +1763,7 @@ MSG_PROCESS_RETURN tls_process_key_exchange(SSL * s, PACKET * pkt)
 	}
 	else {
 		/* aNULL, aSRP or PSK do not need public keys */
-		if(!(s->s3->tmp.new_cipher->algorithm_auth & (SSL_aNULL | SSL_aSRP))
-		    && !(alg_k & SSL_PSK)) {
+		if(!(s->s3->tmp.new_cipher->algorithm_auth & (SSL_aNULL | SSL_aSRP)) && !(alg_k & SSL_PSK)) {
 			/* Might be wrong key type, check it */
 			if(ssl3_check_cert_and_algorithm(s)) {
 				/* Otherwise this shouldn't happen */
@@ -1839,8 +1832,7 @@ MSG_PROCESS_RETURN tls_process_certificate_request(SSL * s, PACKET * pkt)
 		if(!PACKET_get_net_2(pkt, &list_len)
 		    || !PACKET_get_bytes(pkt, &data, list_len)) {
 			ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_DECODE_ERROR);
-			SSLerr(SSL_F_TLS_PROCESS_CERTIFICATE_REQUEST,
-			    SSL_R_LENGTH_MISMATCH);
+			SSLerr(SSL_F_TLS_PROCESS_CERTIFICATE_REQUEST, SSL_R_LENGTH_MISMATCH);
 			goto err;
 		}
 
@@ -1851,8 +1843,7 @@ MSG_PROCESS_RETURN tls_process_certificate_request(SSL * s, PACKET * pkt)
 		}
 		if((list_len & 1) || !tls1_save_sigalgs(s, data, list_len)) {
 			ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_DECODE_ERROR);
-			SSLerr(SSL_F_TLS_PROCESS_CERTIFICATE_REQUEST,
-			    SSL_R_SIGNATURE_ALGORITHMS_ERROR);
+			SSLerr(SSL_F_TLS_PROCESS_CERTIFICATE_REQUEST, SSL_R_SIGNATURE_ALGORITHMS_ERROR);
 			goto err;
 		}
 		if(!tls1_process_sigalgs(s)) {
@@ -1864,37 +1855,28 @@ MSG_PROCESS_RETURN tls_process_certificate_request(SSL * s, PACKET * pkt)
 	else {
 		ssl_set_default_md(s);
 	}
-
 	/* get the CA RDNs */
-	if(!PACKET_get_net_2(pkt, &list_len)
-	    || PACKET_remaining(pkt) != list_len) {
+	if(!PACKET_get_net_2(pkt, &list_len) || PACKET_remaining(pkt) != list_len) {
 		ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_DECODE_ERROR);
 		SSLerr(SSL_F_TLS_PROCESS_CERTIFICATE_REQUEST, SSL_R_LENGTH_MISMATCH);
 		goto err;
 	}
 
 	while(PACKET_remaining(pkt)) {
-		if(!PACKET_get_net_2(pkt, &name_len)
-		    || !PACKET_get_bytes(pkt, &namebytes, name_len)) {
+		if(!PACKET_get_net_2(pkt, &name_len) || !PACKET_get_bytes(pkt, &namebytes, name_len)) {
 			ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_DECODE_ERROR);
-			SSLerr(SSL_F_TLS_PROCESS_CERTIFICATE_REQUEST,
-			    SSL_R_LENGTH_MISMATCH);
+			SSLerr(SSL_F_TLS_PROCESS_CERTIFICATE_REQUEST, SSL_R_LENGTH_MISMATCH);
 			goto err;
 		}
-
 		namestart = namebytes;
-
-		if((xn = d2i_X509_NAME(NULL, (const uchar**)&namebytes,
-				    name_len)) == NULL) {
+		if((xn = d2i_X509_NAME(NULL, (const uchar**)&namebytes, name_len)) == NULL) {
 			ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_DECODE_ERROR);
 			SSLerr(SSL_F_TLS_PROCESS_CERTIFICATE_REQUEST, ERR_R_ASN1_LIB);
 			goto err;
 		}
-
 		if(namebytes != (namestart + name_len)) {
 			ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_DECODE_ERROR);
-			SSLerr(SSL_F_TLS_PROCESS_CERTIFICATE_REQUEST,
-			    SSL_R_CA_DN_LENGTH_MISMATCH);
+			SSLerr(SSL_F_TLS_PROCESS_CERTIFICATE_REQUEST, SSL_R_CA_DN_LENGTH_MISMATCH);
 			goto err;
 		}
 		if(!sk_X509_NAME_push(ca_sk, xn)) {
@@ -1931,19 +1913,14 @@ MSG_PROCESS_RETURN tls_process_new_session_ticket(SSL * s, PACKET * pkt)
 	int al;
 	uint ticklen;
 	unsigned long ticket_lifetime_hint;
-
-	if(!PACKET_get_net_4(pkt, &ticket_lifetime_hint)
-	    || !PACKET_get_net_2(pkt, &ticklen)
-	    || PACKET_remaining(pkt) != ticklen) {
+	if(!PACKET_get_net_4(pkt, &ticket_lifetime_hint) || !PACKET_get_net_2(pkt, &ticklen) || PACKET_remaining(pkt) != ticklen) {
 		al = SSL_AD_DECODE_ERROR;
 		SSLerr(SSL_F_TLS_PROCESS_NEW_SESSION_TICKET, SSL_R_LENGTH_MISMATCH);
 		goto f_err;
 	}
-
 	/* Server is allowed to change its mind and send an empty ticket. */
 	if(ticklen == 0)
 		return MSG_PROCESS_CONTINUE_READING;
-
 	if(s->session->session_id_length > 0) {
 		int i = s->session_ctx->session_cache_mode;
 		SSL_SESSION * new_sess;
@@ -1957,20 +1934,16 @@ MSG_PROCESS_RETURN tls_process_new_session_ticket(SSL * s, PACKET * pkt)
 			 */
 			SSL_CTX_remove_session(s->session_ctx, s->session);
 		}
-
 		if((new_sess = ssl_session_dup(s->session, 0)) == 0) {
 			al = SSL_AD_INTERNAL_ERROR;
 			SSLerr(SSL_F_TLS_PROCESS_NEW_SESSION_TICKET, ERR_R_MALLOC_FAILURE);
 			goto f_err;
 		}
-
 		SSL_SESSION_free(s->session);
 		s->session = new_sess;
 	}
-
 	OPENSSL_free(s->session->tlsext_tick);
 	s->session->tlsext_ticklen = 0;
-
 	s->session->tlsext_tick = (uchar*)OPENSSL_malloc(ticklen);
 	if(s->session->tlsext_tick == NULL) {
 		SSLerr(SSL_F_TLS_PROCESS_NEW_SESSION_TICKET, ERR_R_MALLOC_FAILURE);
@@ -1995,9 +1968,7 @@ MSG_PROCESS_RETURN tls_process_new_session_ticket(SSL * s, PACKET * pkt)
 	 * elsewhere in OpenSSL. The session ID is set to the SHA256 (or SHA1 is
 	 * SHA256 is disabled) hash of the ticket.
 	 */
-	if(!EVP_Digest(s->session->tlsext_tick, ticklen,
-		    s->session->session_id, &s->session->session_id_length,
-		    EVP_sha256(), NULL)) {
+	if(!EVP_Digest(s->session->tlsext_tick, ticklen, s->session->session_id, &s->session->session_id_length, EVP_sha256(), NULL)) {
 		SSLerr(SSL_F_TLS_PROCESS_NEW_SESSION_TICKET, ERR_R_EVP_LIB);
 		goto err;
 	}
@@ -2014,15 +1985,12 @@ MSG_PROCESS_RETURN tls_process_cert_status(SSL * s, PACKET * pkt)
 	int al;
 	unsigned long resplen;
 	uint type;
-
-	if(!PACKET_get_1(pkt, &type)
-	    || type != TLSEXT_STATUSTYPE_ocsp) {
+	if(!PACKET_get_1(pkt, &type) || type != TLSEXT_STATUSTYPE_ocsp) {
 		al = SSL_AD_DECODE_ERROR;
 		SSLerr(SSL_F_TLS_PROCESS_CERT_STATUS, SSL_R_UNSUPPORTED_STATUS_TYPE);
 		goto f_err;
 	}
-	if(!PACKET_get_net_3(pkt, &resplen)
-	    || PACKET_remaining(pkt) != resplen) {
+	if(!PACKET_get_net_3(pkt, &resplen) || PACKET_remaining(pkt) != resplen) {
 		al = SSL_AD_DECODE_ERROR;
 		SSLerr(SSL_F_TLS_PROCESS_CERT_STATUS, SSL_R_LENGTH_MISMATCH);
 		goto f_err;

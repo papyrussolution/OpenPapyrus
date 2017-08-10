@@ -89,8 +89,17 @@ struct json_t {
 	};
 	json_t(int aType);
 	~json_t();
+	void   FASTCALL AssignAllocatedText(RcString * pRcs)
+	{
+		assert(pRcs);
+		if(pRcs) {
+			Text = pRcs->P_Text;
+			SAlloc::F(pRcs);
+		}
+	}
 	int    Type; // the type of node
-	char * P_Text; // The text stored by the node. It stores UTF-8 strings and is used exclusively by the json_t::tSTRING and JSON_NUMBER node types
+	//char * P_Text; // The text stored by the node. It stores UTF-8 strings and is used exclusively by the json_t::tSTRING and JSON_NUMBER node types
+	SString Text;
 	//
 	// FIFO queue data
 	//
@@ -218,7 +227,7 @@ enum json_error json_tree_to_string(json_t * root, char **text);
 // @param root The document's root node
 // @return  a json_error code describing how the operation went
 //
-enum json_error json_stream_output(FILE * file, json_t * root);
+enum json_error json_stream_output(/*FILE * file,*/json_t * root, SString & rBuf);
 //
 // Strips all JSON white spaces from the text string
 // @param text a char string holding a JSON document or document snippet
@@ -235,7 +244,7 @@ char *json_format_string(const char *text);
 // @param text an UTF8 char text string
 // @return an UTF-8 c-string holding the same text string but with escaped characters
 //
-char * json_escape(const char *text);
+// @v9.7.10 @obsolte char * json_escape(const char *text);
 //
 // Outputs a new UTF-8 c-string which has all escaped characters replaced by
 // their unescaped, UTF-8 encoded variants.
@@ -243,7 +252,7 @@ char * json_escape(const char *text);
 // @param test a UTF-8 c-string
 // @return a newly allocated UTF-8 c-string; free with free()
 //
-char * json_unescape(char *text);
+// @v9.7.10 @obsolte char * json_unescape(char *text);
 //
 // This function takes care of the tedious task of initializing any instance of json_parsing_info
 // @param jpi a pointer to a struct json_parsing_info instance
@@ -281,7 +290,7 @@ json_t *json_find_first_label(const json_t * object, const char *text_label);
 //
 // Helper
 //
-char   * json_get_value(const json_t *object, const char *text_label);
+const char * json_get_value(const json_t *object, const char *text_label);
 json_t * json_process(json_t *object);
 
 #ifdef __cplusplus

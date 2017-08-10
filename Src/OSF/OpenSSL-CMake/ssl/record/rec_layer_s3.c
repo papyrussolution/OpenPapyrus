@@ -1275,7 +1275,7 @@ start:
 			cb = s->info_callback;
 		else if(s->ctx->info_callback != NULL)
 			cb = s->ctx->info_callback;
-		if(cb != NULL) {
+		if(cb) {
 			j = (alert_level << 8) | alert_descr;
 			cb(s, SSL_CB_READ_ALERT, j);
 		}

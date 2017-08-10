@@ -175,7 +175,7 @@ int FASTCALL BIO_read(BIO * b, void * out, int outl)
 	i = b->method->bread(b, (char*)out, outl);
 	if(i > 0)
 		b->num_read += (uint64_t)i;
-	if(cb != NULL)
+	if(cb)
 		i = (int)cb(b, BIO_CB_READ | BIO_CB_RETURN, (const char*)out, outl, 0L, (long)i);
 	return (i);
 }
@@ -223,7 +223,7 @@ int FASTCALL BIO_puts(BIO * b, const char * in)
 	i = b->method->bputs(b, in);
 	if(i > 0)
 		b->num_write += (uint64_t)i;
-	if(cb != NULL)
+	if(cb)
 		i = (int)cb(b, BIO_CB_PUTS | BIO_CB_RETURN, in, 0, 0L, (long)i);
 	return (i);
 }
@@ -244,7 +244,7 @@ int FASTCALL BIO_gets(BIO * b, char * in, int inl)
 		return (-2);
 	}
 	i = b->method->bgets(b, in, inl);
-	if(cb != NULL)
+	if(cb)
 		i = (int)cb(b, BIO_CB_GETS | BIO_CB_RETURN, in, inl, 0L, (long)i);
 	return (i);
 }

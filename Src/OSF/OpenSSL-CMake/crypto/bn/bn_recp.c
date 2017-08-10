@@ -59,7 +59,7 @@ int BN_mod_mul_reciprocal(BIGNUM * r, const BIGNUM * x, const BIGNUM * y,
 	BN_CTX_start(ctx);
 	if((a = BN_CTX_get(ctx)) == NULL)
 		goto err;
-	if(y != NULL) {
+	if(y) {
 		if(x == y) {
 			if(!BN_sqr(a, x, ctx))
 				goto err;

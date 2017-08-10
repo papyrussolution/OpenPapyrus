@@ -52,7 +52,7 @@
 //#include "strerror.h"
 //#include "select.h" /* for the socket readyness */
 //#include "inet_pton.h" /* for IP addr SNI check */
-#include "curl_multibyte.h"
+//#include "curl_multibyte.h"
 //#include "warnless.h"
 #include "x509asn1.h"
 #include "curl_printf.h"

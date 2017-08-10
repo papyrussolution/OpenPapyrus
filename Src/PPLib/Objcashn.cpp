@@ -208,7 +208,8 @@ struct __PPExtDevices {     // @persistent
 	char   CustDispPort[8]; // Порт дисплея покупателя (COM)
 	uint16 CustDispFlags;	// flXXX
 
-	PPID   PapyrusNodeID;   // ИД кассового узла Папирус
+	// @v9.7.10 PPID   PapyrusNodeID;   // ИД кассового узла Папирус
+	PPID   AlternateRegID;  // @v9.7.10
 	PPID   ScaleID;         // ИД весов
 	int16  ClearCDYTimeout; // Таймаут очистки дисплея покупателя после печати чека
 	int16  EgaisMode;       // @v9.0.9 Режим работы с УТМ ЕГАИС. 0 - не использовать, 1 - использовать, 2 - тестовый режим
@@ -255,7 +256,8 @@ SLAPI PPSyncCashNode::PPSyncCashNode() : PPGenCashNode()
 	CurSessID = 0;
 	TouchScreenID = 0;
 	ExtCashNodeID = 0;
-	PapyrusNodeID_unused = 0;
+	// @v9.7.10 PapyrusNodeID_unused = 0;
+	AlternateRegID = 0; // @v9.7.10
 	ScaleID       = 0;
 	CustDispType  = 0;
 	CustDispFlags = 0;
@@ -695,7 +697,8 @@ int SLAPI PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 				pSCN->TouchScreenID = p_ed->TouchScreenID;
 				pSCN->ExtCashNodeID = p_ed->ExtCashNodeID;
 				// @v9.6.9 pSCN->PapyrusNodeID = p_ed->PapyrusNodeID;
-				pSCN->PapyrusNodeID_unused = 0; // @v9.6.9
+				// @v9.7.10 pSCN->PapyrusNodeID_unused = 0; // @v9.6.9
+				pSCN->AlternateRegID = p_ed->AlternateRegID; // @v9.7.10
 				pSCN->ScaleID       = p_ed->ScaleID;
 				pSCN->CustDispType  = p_ed->CustDispType;
 				STRNSCPY(pSCN->CustDispPort, p_ed->CustDispPort);
@@ -723,7 +726,8 @@ int SLAPI PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 		else {
 			pSCN->TouchScreenID   = 0;
 			pSCN->ExtCashNodeID   = 0;
-			pSCN->PapyrusNodeID_unused = 0;
+			// @v9.7.10 pSCN->PapyrusNodeID_unused = 0;
+			pSCN->AlternateRegID  = 0; // @v9.7.10
 			pSCN->ScaleID         = 0;
 			pSCN->CustDispType    = 0;
 			pSCN->CustDispPort[0] = 0;
@@ -964,7 +968,8 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 
 					p_ed->TouchScreenID = p_scn->TouchScreenID;
 					p_ed->ExtCashNodeID = p_scn->ExtCashNodeID;
-					p_ed->PapyrusNodeID = 0; // @v9.6.9 p_scn->PapyrusNodeID-->0
+					// @v9.7.10 p_ed->PapyrusNodeID = 0; // @v9.6.9 p_scn->PapyrusNodeID-->0
+					p_ed->AlternateRegID = p_scn->AlternateRegID; // @v9.7.10
 					p_ed->ScaleID       = p_scn->ScaleID;
 					p_ed->CustDispType  = p_scn->CustDispType;
 					STRNSCPY(p_ed->CustDispPort, p_scn->CustDispPort);
@@ -978,7 +983,7 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 					STRNSCPY(p_ed->BnkTermPort, p_scn->BnkTermPort);
 					p_scn->ExtString.CopyTo(p_ed->ExtStrBuf, 0); // Размер буфера p_ed точно отмерен для того, чтобы вместить p_scn->ExtString: см. выше
 					if(p_ed->TouchScreenID || p_ed->ExtCashNodeID || p_ed->CustDispType || p_ed->BnkTermType ||
-						p_ed->PapyrusNodeID || p_ed->ScaleID || p_ed->PhnSvcID || p_ed->ExtStrBuf[0] || p_ed->EgaisMode) {
+						/*p_ed->PapyrusNodeID*/p_ed->AlternateRegID || p_ed->ScaleID || p_ed->PhnSvcID || p_ed->ExtStrBuf[0] || p_ed->EgaisMode) {
 						THROW(ref->PutProp(Obj, *pID, CNPRP_EXTDEVICES, p_ed, ed_size, 0));
 					}
 					else {
@@ -1258,10 +1263,11 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_TCHSCREEN, PPOBJ_TOUCHSCREEN, Data.TouchScreenID, OLW_CANINSERT, 0);
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_LOCTCHSCR, PPOBJ_TOUCHSCREEN, Data.LocalTouchScrID, OLW_CANINSERT, 0);
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_CASHNODE,  PPOBJ_CASHNODE, Data.ExtCashNodeID, 0, 0);
+			SetupPPObjCombo(this, CTLSEL_EXTDEV_ALTREG,    PPOBJ_CASHNODE, Data.AlternateRegID, 0, 0); // @v9.7.10
 			// @v9.6.9 {
 			AddClusterAssoc(CTL_EXTDEV_EXTNODEASALT, 0, CASHFX_EXTNODEASALT);
 			SetClusterData(CTL_EXTDEV_EXTNODEASALT, Data.ExtFlags);
-			DisableClusterItem(CTL_EXTDEV_EXTNODEASALT, 0, !Data.ExtCashNodeID);
+			DisableClusterItem(CTL_EXTDEV_EXTNODEASALT, 0, (!Data.ExtCashNodeID || Data.AlternateRegID));
 			// } @v9.6.9
 			// @v9.6.9 SetupPPObjCombo(this, CTLSEL_EXTDEV_PAPYRUS,   PPOBJ_CASHNODE, Data.PapyrusNodeID, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_SCALE,     PPOBJ_SCALE, Data.ScaleID, 0, 0);
@@ -1302,8 +1308,9 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			getCtrlData(CTLSEL_EXTDEV_TCHSCREEN, &Data.TouchScreenID);
 			getCtrlData(CTLSEL_EXTDEV_LOCTCHSCR, &Data.LocalTouchScrID);
 			getCtrlData(CTLSEL_EXTDEV_CASHNODE,  &Data.ExtCashNodeID);
+			getCtrlData(CTLSEL_EXTDEV_ALTREG,    &Data.AlternateRegID); // @v9.7.10
 			// @v9.6.9 {
-			if(Data.ExtCashNodeID)
+			if(Data.ExtCashNodeID && !Data.AlternateRegID)
 				GetClusterData(CTL_EXTDEV_EXTNODEASALT, &Data.ExtFlags);
 			else
 				Data.ExtFlags &= ~CASHFX_EXTNODEASALT;
@@ -1359,10 +1366,12 @@ static int EditExtDevices(PPSyncCashNode * pData)
 				EditBnkTerm();
 			}
 			// @v9.6.9 {
-			else if(event.isCbSelected(CTLSEL_EXTDEV_CASHNODE)) {
+			else if(event.isCbSelected(CTLSEL_EXTDEV_CASHNODE) || event.isCbSelected(CTLSEL_EXTDEV_ALTREG)) {
 				PPID   ext_node_id = 0;
+				PPID   alt_reg_id = 0;
 				getCtrlData(CTLSEL_EXTDEV_CASHNODE,  &ext_node_id);
-				DisableClusterItem(CTL_EXTDEV_EXTNODEASALT, 0, !ext_node_id);
+				getCtrlData(CTLSEL_EXTDEV_ALTREG,    &alt_reg_id); // @v9.7.10
+				DisableClusterItem(CTL_EXTDEV_EXTNODEASALT, 0, (!ext_node_id || alt_reg_id));
 			}
 			// } @v9.6.9
 			else if(TVKEYDOWN) {

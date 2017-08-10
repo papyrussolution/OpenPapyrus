@@ -2730,7 +2730,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										if(ext_code_count) {
 											SXml::WNode n_makr(_doc, "ainp:MarkCodeInfo");
 											for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);)
-												n_makr.PutInner("ainp:MarkCode", EncText(temp_buf));
+												n_makr.PutInner(/*"ainp:MarkCode"*/"MarkCode", EncText(temp_buf));
 										}
 									}
 								}

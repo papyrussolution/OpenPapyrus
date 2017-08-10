@@ -1002,11 +1002,10 @@ int SLAPI PPObjStyloPalm::CheckSignalForInput(const char * pPath)
 		return 0;
 }
 
-int SLAPI PPObjStyloPalm::ClearInputSemaphore(const char * pPath)
+void SLAPI PPObjStyloPalm::ClearInputSemaphore(const char * pPath)
 {
 	SString sig_file_name;
 	SFile::Remove((sig_file_name = pPath).SetLastSlash().Cat("sp_ready"));
-	return 1;
 }
 
 /*static char * GetImpFileName__(const char * pPath, uint fnameID, char * pBuf, size_t bufLen)

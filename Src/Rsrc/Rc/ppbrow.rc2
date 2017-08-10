@@ -2167,6 +2167,7 @@ browser PAYMENTS south(56), 1, 0, "Оплаты документа (%s)", OWNER|GRID, 0
 		SETWLABEL        :  kbF8,       TBBM_MARK,            "Пометить\tF8"
 		separator
 		TOGGLE           :  kbCtrlT,    TBBM_TEST,            "Переключить отображение\tCtrl-T"
+		VIEWOP           :  kbCtrlQ,    TBBM_OPLIST,          "@{oprkind}\tCtrl-Q"
 		ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "Проводки по документу\tCtrl-A"
 		PRINT            :  kbF7,       TBBM_PRINT,           "Печать текущего документа\tF7"
 		POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        "Печать чека на POS-принтер\tCtrl-Z"
@@ -2193,6 +2194,7 @@ browser RECKONINGS south(56), 1, 0, "Зачеты документа (%s)", OWNER|GRID, 0
 		SETWLABEL        :  kbF8,       TBBM_MARK,            "Пометить\tF8"
 		separator
 		TOGGLE           :  kbCtrlT,    TBBM_TEST,            "Переключить отображение\tCtrl-T"
+		VIEWOP           :  kbCtrlQ,    TBBM_OPLIST,          "@{oprkind}\tCtrl-Q"
 		ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "Проводки по документу\tCtrl-A"
 		PRINT            :  kbF7,       TBBM_PRINT,           "Печать текущего документа\tF7"
 		PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "Печать выборки документов\tAlt-F7"
@@ -2220,6 +2222,7 @@ browser CHARGES south(73), 1, 0, "Начисления по документу (%s)", OWNER|GRID, 0
 		SETWLABEL        :  kbF8,       TBBM_MARK,            "Пометить\tF8"
 		separator
 		TOGGLE           :  kbCtrlT,    TBBM_TEST,            "Переключить отображение\tCtrl-T"
+		VIEWOP           :  kbCtrlQ,    TBBM_OPLIST,          "@{oprkind}\tCtrl-Q"
 		ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "Проводки по документу\tCtrl-A"
 		PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
 		CHARGE           :  kbF6,       TBBM_CHARGE,          "Автоначисление\tF6"
@@ -2249,6 +2252,7 @@ browser DRAFTWROFFS south(73), 1, 0, "Документы списания драфт-документа (%s)", 
 		PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
 		WROFFDRAFT       :  kbCtrlW,    TBBM_NOICON,          "Списание драфт-документа\tCtrl-W"
 		COMPARE          :  kbCtrlC,    TBBM_COMPARE,         "Сравнение документов\tCtrl-C"
+		VIEWOP           :  kbCtrlQ,    TBBM_OPLIST,          "@{oprkind}\tCtrl-Q"
 		separator
 		PRINT            :  kbF7,       TBBM_PRINT,           "Печать текущего документа\tF7"
 		PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "Печать выборки документов\tAlt-F7"
