@@ -875,7 +875,7 @@ int CRegExp::Find(const char * pText)
 	if(UCHARAT(P_Program) != MAGIC)
 		return (ErrCode = SLERR_RE_BUFCORRUPT, 0);
 	// If there is a "must appear" pText, look for it.
-	if(P_RegMust != NULL) {
+	if(P_RegMust) {
 		for(s = pText; (s = strchr(s, P_RegMust[0])) != NULL; s++)
 			if(strncmp(s, P_RegMust, RegMLen) == 0)
 				break; // Found it.

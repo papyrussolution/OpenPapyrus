@@ -64,7 +64,6 @@ int SLAPI PPViewCashNode::MakeTempEntry(const PPCashNode * pRec, TempCashNodeTbl
 {
 	int    ok = -1;
 	if(pRec && pTempRec) {
-		SString buf, buf1, buf2;
 		memzero(pTempRec, sizeof(*pTempRec)); // @fix @v8.2.11
 		pTempRec->ID = pRec->ID;
 		STRNSCPY(pTempRec->Name, pRec->Name);
@@ -80,9 +79,21 @@ int SLAPI PPViewCashNode::MakeTempEntry(const PPCashNode * pRec, TempCashNodeTbl
 		pTempRec->LocID = pRec->LocID;
 		pTempRec->CashTypeID = pRec->CashType;
 		pTempRec->Flags = pRec->Flags;
-		PPGetSubStr(CashTypeNames, pTempRec->CashTypeID - 1, buf);
-		buf.Divide(',', buf1, buf2);
-		buf2.CopyTo(pTempRec->CashTypeName, sizeof(pTempRec->CashTypeName));
+		/* @v9.7.11
+		{
+			SString buf, buf1, buf2;
+			PPGetSubStr(CashTypeNames, pTempRec->CashTypeID - 1, buf);
+			buf.Divide(',', buf1, buf2);
+			buf2.CopyTo(pTempRec->CashTypeName, sizeof(pTempRec->CashTypeName));
+		}	
+		*/
+		// @v9.7.11 {
+		{
+			SString temp_buf;
+			GetDeviceTypeName(DVCCLS_SYNCPOS, pTempRec->CashTypeID, temp_buf);
+			STRNSCPY(pTempRec->CashTypeName, temp_buf);
+		}
+		// } @v9.7.11 
 		ok = 1;
 	}
 	return ok;

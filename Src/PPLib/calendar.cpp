@@ -39,7 +39,7 @@ public:
 	int    SelStarted2;
 	int    SelStarted3;
 	int    RowCount;
-	
+
 	int    c_i;
 	int    c_j;
 	int    c_minfirst;
@@ -434,7 +434,7 @@ void TDateCalendar::DrawMonthGrid(HDC hdc)
 					PaintMonthRect(canv, p, j, C_SELPCOL, C_TEXT2COL);
 				}
 				if(i == c_i && j == c_j)
-					PaintMonthRect(canv, p, c_j, C_SELCOL, RGB(255, 255, 255));
+					PaintMonthRect(canv, p, c_j, C_SELCOL, GetColorRef(SClrWhite));
 				if(PeriodSelect == 1) {
 					if(i > 0) {
 						if(dd == dd1 || dd == dd2 || (is_year && tmpd == D.day()))
@@ -558,7 +558,7 @@ void TDateCalendar::OnPaint(HWND hWnd)
 	{
 		int    c_cell_h = C_CELLH * y_th / 13;
 		HPEN   black_pen = CreatePen(PS_SOLID, 1, 0);
-		HPEN   white_pen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
+		HPEN   white_pen = CreatePen(PS_SOLID, 1, GetColorRef(SClrWhite));
 		HPEN   gray_pen  = CreatePen(PS_SOLID, 1, RGB(127, 127, 127));
 
 		oldpen = (HPEN)SelectObject(hdc, black_pen);
@@ -971,7 +971,7 @@ int TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 				SendToEditBox(D1, D2, 1);
 		}
 		else
-			SetTextColor(hdc, RGB(255, 255, 255));
+			SetTextColor(hdc, GetColorRef(SClrWhite));
 		x = Left + c_j * c_cell_w;
 		y = Top  + c_i * c_cell_h;
 		pen = CreatePen(PS_SOLID, 3, C_SELCOL);
@@ -1236,8 +1236,8 @@ int TDateCalendar::OnRButtonDown(HWND hWnd)
 		SelStarted3 = 0;
 		HWND ctl_edit = GetDlgItem(parent_hWnd, 1031);
 		// @v9.1.5 SendMessage(ctl_edit, WM_SETTEXT, 0, (LPARAM) "..");
-		SString temp_buf = ".."; // @v9.1.5 
-		TView::SSetWindowText(ctl_edit, temp_buf); // @v9.1.5 
+		SString temp_buf = ".."; // @v9.1.5
+		TView::SSetWindowText(ctl_edit, temp_buf); // @v9.1.5
 		InvalidateRect(hWnd, NULL, true);
 	}
 	return 1;
@@ -1357,7 +1357,7 @@ void TCalendar::SendToEditBox(LDATE d1, LDATE d2, int need_check)
 	SString temp_buf;
 	temp_buf.Cat(period, 0).Transf(CTRANSF_INNER_TO_OUTER);
 	TView::SSetWindowText(GetDlgItem(parent_hWnd, CTL_CALENDAR_PERIODEDIT), temp_buf);
-	// } @v9.1.5 
+	// } @v9.1.5
 }
 //
 // Weeks
@@ -1417,7 +1417,7 @@ void TCalendar::SendToEditBox(int m1, int y1, int m2, int y2, int opt)
 		s.CatCharN('.', 2).Cat(dd2.month()).CatChar('/').Cat(dd2.year());
 	// @v9.1.5 HWND   edit = GetDlgItem(parent_hWnd, CTL_CALENDAR_PERIODEDIT);
 	// @v9.1.5 SendMessage(edit, WM_SETTEXT, 0, (LPARAM)(const char *)s);
-	TView::SSetWindowText(GetDlgItem(parent_hWnd, CTL_CALENDAR_PERIODEDIT), s); // @v9.1.5 
+	TView::SSetWindowText(GetDlgItem(parent_hWnd, CTL_CALENDAR_PERIODEDIT), s); // @v9.1.5
 }
 //
 // Years
@@ -1431,7 +1431,7 @@ void TCalendar::SendToEditBox(int y1, int y2)
 		s.Cat(y1);
 	else
 		s.Cat(y1).CatCharN('.', 2).Cat(y2);
-	TView::SSetWindowText(GetDlgItem(parent_hWnd, CTL_CALENDAR_PERIODEDIT), s); // @v9.1.5 
+	TView::SSetWindowText(GetDlgItem(parent_hWnd, CTL_CALENDAR_PERIODEDIT), s); // @v9.1.5
 }
 
 const char * GetCalCtrlSignature(int type)
@@ -1513,7 +1513,7 @@ void SLAPI SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, uint T)
 				::MoveWindow(hwnd, p.x, p.y, cr.right-cr.left, r.bottom-r.top, TRUE);
 			}
 		}
-		// } @v9.1.11 
+		// } @v9.1.11
 		if(!hbm_daterange || !hbm_calendar) {
 			ENTER_CRITICAL_SECTION
 			SETIFZ(hbm_daterange, APPL->LoadBitmap(IDB_DATERANGE));

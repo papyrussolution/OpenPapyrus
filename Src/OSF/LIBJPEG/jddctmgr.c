@@ -249,8 +249,7 @@ METHODDEF(void) start_pass(j_decompress_ptr cinfo)
 			    }
 			    break;
 			default:
-			    ERREXIT2(cinfo, JERR_BAD_DCTSIZE,
-			    compptr->DCT_h_scaled_size, compptr->DCT_v_scaled_size);
+			    ERREXIT2(cinfo, JERR_BAD_DCTSIZE, compptr->DCT_h_scaled_size, compptr->DCT_v_scaled_size);
 			    break;
 		}
 		idct->pub.inverse_DCT[ci] = method_ptr;

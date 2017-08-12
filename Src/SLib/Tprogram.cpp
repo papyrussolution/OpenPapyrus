@@ -1,6 +1,7 @@
 // TPROGRAM.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -85,8 +86,8 @@ int TStatusWin::Update()
 		if(icon_id) {
 			HICON h_icon = LoadIcon(TProgram::GetInst(), MAKEINTRESOURCE(icon_id)); // @1
 			// @construction
-			// Вместо строки выше (@1) следует использовать этот блок, однако, предварительно
-			// решив проблему кэширования изображения (DestroyIcon (@2) не дает отрисовать изображение)
+			// Р’РјРµСЃС‚Рѕ СЃС‚СЂРѕРєРё РІС‹С€Рµ (@1) СЃР»РµРґСѓРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЌС‚РѕС‚ Р±Р»РѕРє, РѕРґРЅР°РєРѕ, РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ
+			// СЂРµС€РёРІ РїСЂРѕР±Р»РµРјСѓ РєСЌС€РёСЂРѕРІР°РЅРёСЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ (DestroyIcon (@2) РЅРµ РґР°РµС‚ РѕС‚СЂРёСЃРѕРІР°С‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ)
 			// HICON h_icon = (HICON)::LoadImage(TProgram::GetInst(), MAKEINTRESOURCE(icon_id), IMAGE_ICON, 0, 0, 0);
 			//
 			::SendMessage(hw, SB_SETICON, i, (LPARAM)h_icon);
@@ -794,7 +795,7 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 				p_pgm->H_MainWnd = hWnd;
 				BrowserWindow::RegWindowClass(TProgram::GetInst());
 				STimeChunkBrowser::RegWindowClass(TProgram::GetInst());
-				// @v9.1.3 (перенесено в PPApp::PPApp()) STextBrowser::RegWindowClass(TProgram::GetInst());
+				// @v9.1.3 (РїРµСЂРµРЅРµСЃРµРЅРѕ РІ PPApp::PPApp()) STextBrowser::RegWindowClass(TProgram::GetInst());
 				SetTimer(hWnd, 1, 500, 0);
 				p_pgm->P_TreeWnd = new TreeWindow(hWnd);
 				p_pgm->H_FrameWnd = APPL->CreateDlg(4101, hWnd, FrameWndProc, 0);
@@ -877,9 +878,9 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 				}
 				if(LOWORD(wParam) && hmW) {
 					/*
-					// Все броузеры имеют ZOrder одинаковый, поэтому при перерисовке происходят некоторые неприятные коллизии
-					// Для их устранения существует данный кусок кода, но он вызывает некоторые не менее неприятные события:
-					// невозможность переключения между броузерами по Ctrl+Tab, поэтому пока закоментирован.
+					// Р’СЃРµ Р±СЂРѕСѓР·РµСЂС‹ РёРјРµСЋС‚ ZOrder РѕРґРёРЅР°РєРѕРІС‹Р№, РїРѕСЌС‚РѕРјСѓ РїСЂРё РїРµСЂРµСЂРёСЃРѕРІРєРµ РїСЂРѕРёСЃС…РѕРґСЏС‚ РЅРµРєРѕС‚РѕСЂС‹Рµ РЅРµРїСЂРёСЏС‚РЅС‹Рµ РєРѕР»Р»РёР·РёРё
+					// Р”Р»СЏ РёС… СѓСЃС‚СЂР°РЅРµРЅРёСЏ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РґР°РЅРЅС‹Р№ РєСѓСЃРѕРє РєРѕРґР°, РЅРѕ РѕРЅ РІС‹Р·С‹РІР°РµС‚ РЅРµРєРѕС‚РѕСЂС‹Рµ РЅРµ РјРµРЅРµРµ РЅРµРїСЂРёСЏС‚РЅС‹Рµ СЃРѕР±С‹С‚РёСЏ:
+					// РЅРµРІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РїРµСЂРµРєР»СЋС‡РµРЅРёСЏ РјРµР¶РґСѓ Р±СЂРѕСѓР·РµСЂР°РјРё РїРѕ Ctrl+Tab, РїРѕСЌС‚РѕРјСѓ РїРѕРєР° Р·Р°РєРѕРјРµРЅС‚РёСЂРѕРІР°РЅ.
 					int brw_count = GetMenuItemCount(hmW);
 					for(int idx = 0; idx < brw_count; idx++) {
 						mii.fMask = MIIM_DATA|MIIM_ID;
@@ -1068,7 +1069,7 @@ IMPL_HANDLE_EVENT(TProgram)
 {
 	TGroup::handleEvent(event);
 	if(event.what == evCommand && event.message.command == cmQuit) {
-		// @v9.0.4 (бессмысленная строка) endModal(cmQuit);
+		// @v9.0.4 (Р±РµСЃСЃРјС‹СЃР»РµРЅРЅР°СЏ СЃС‚СЂРѕРєР°) endModal(cmQuit);
 		::DestroyWindow(H_MainWnd);
 		clearEvent(event);
 	}
@@ -1386,53 +1387,53 @@ void TProgram::DrawTransparentBitmap(HDC hdc, HBITMAP hBitmap, const RECT & rDes
 	POINT  ptSize;
 	HDC    hdcTemp = CreateCompatibleDC(hdc);
 	SelectObject(hdcTemp, hBitmap);
-	// Выбираем битмап
+	// Р’С‹Р±РёСЂР°РµРј Р±РёС‚РјР°Рї
 	GetObject(hBitmap, sizeof(BITMAP), (LPSTR)&bm);
-	ptSize.x = bm.bmWidth;            // Получаем ширину битмапа
-	ptSize.y = bm.bmHeight;           // Получаем высоту битмапа
-	DPtoLP(hdcTemp, &ptSize, 1);      // Конвертируем из координат устройства в логические точки
+	ptSize.x = bm.bmWidth;            // РџРѕР»СѓС‡Р°РµРј С€РёСЂРёРЅСѓ Р±РёС‚РјР°РїР°
+	ptSize.y = bm.bmHeight;           // РџРѕР»СѓС‡Р°РµРј РІС‹СЃРѕС‚Сѓ Р±РёС‚РјР°РїР°
+	DPtoLP(hdcTemp, &ptSize, 1);      // РљРѕРЅРІРµСЂС‚РёСЂСѓРµРј РёР· РєРѕРѕСЂРґРёРЅР°С‚ СѓСЃС‚СЂРѕР№СЃС‚РІР° РІ Р»РѕРіРёС‡РµСЃРєРёРµ С‚РѕС‡РєРё
 	y_pos = ((fmt & DT_VCENTER) ? ((rDestRect.bottom - rDestRect.top - ptSize.y) / 2) : rDestRect.top)  + yOffs;
 	x_pos = ((fmt & DT_CENTER)  ? ((rDestRect.right - rDestRect.left - ptSize.x) / 2) : rDestRect.left) + xOffs;
 	//
-	// Создаём несколько DC для хранения временных данных.
+	// РЎРѕР·РґР°С‘Рј РЅРµСЃРєРѕР»СЊРєРѕ DC РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РІСЂРµРјРµРЅРЅС‹С… РґР°РЅРЅС‹С….
 	hdcBack   = CreateCompatibleDC(hdc);
 	hdcObject = CreateCompatibleDC(hdc);
 	hdcMem    = CreateCompatibleDC(hdc);
 	hdcSave   = CreateCompatibleDC(hdc);
-	// Создаём битмап для каждого DC.
-	// Монохромный DC
+	// РЎРѕР·РґР°С‘Рј Р±РёС‚РјР°Рї РґР»СЏ РєР°Р¶РґРѕРіРѕ DC.
+	// РњРѕРЅРѕС…СЂРѕРјРЅС‹Р№ DC
 	bmAndBack   = CreateBitmap(ptSize.x, ptSize.y, 1, 1, 0);
-	// Монохромный DC
+	// РњРѕРЅРѕС…СЂРѕРјРЅС‹Р№ DC
 	bmAndObject = CreateBitmap(ptSize.x, ptSize.y, 1, 1, 0);
 	bmAndMem    = CreateCompatibleBitmap(hdc, ptSize.x, ptSize.y);
 	bmSave      = CreateCompatibleBitmap(hdc, ptSize.x, ptSize.y);
-	// В каждом DC должен быть выбран объект битмапа для хранения пикселей.
+	// Р’ РєР°Р¶РґРѕРј DC РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РІС‹Р±СЂР°РЅ РѕР±СЉРµРєС‚ Р±РёС‚РјР°РїР° РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РїРёРєСЃРµР»РµР№.
 	bmBackOld   = (HBITMAP)SelectObject(hdcBack, bmAndBack);
 	bmObjectOld = (HBITMAP)SelectObject(hdcObject, bmAndObject);
 	bmMemOld    = (HBITMAP)SelectObject(hdcMem, bmAndMem);
 	bmSaveOld   = (HBITMAP)SelectObject(hdcSave, bmSave);
-	SetMapMode(hdcTemp, GetMapMode(hdc)); // Устанавливаем режим маппинга.
-	BitBlt(hdcSave, 0, 0, ptSize.x, ptSize.y, hdcTemp, 0, 0, SRCCOPY); // Сохраняем битмап, переданный в параметре функции, так как он будет изменён.
-	cColor = SetBkColor(hdcTemp, cTransparentColor); // Устанавливаем фоновый цвет (в исходном DC) тех частей, которые будут прозрачными.
+	SetMapMode(hdcTemp, GetMapMode(hdc)); // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЂРµР¶РёРј РјР°РїРїРёРЅРіР°.
+	BitBlt(hdcSave, 0, 0, ptSize.x, ptSize.y, hdcTemp, 0, 0, SRCCOPY); // РЎРѕС…СЂР°РЅСЏРµРј Р±РёС‚РјР°Рї, РїРµСЂРµРґР°РЅРЅС‹Р№ РІ РїР°СЂР°РјРµС‚СЂРµ С„СѓРЅРєС†РёРё, С‚Р°Рє РєР°Рє РѕРЅ Р±СѓРґРµС‚ РёР·РјРµРЅС‘РЅ.
+	cColor = SetBkColor(hdcTemp, cTransparentColor); // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С„РѕРЅРѕРІС‹Р№ С†РІРµС‚ (РІ РёСЃС…РѕРґРЅРѕРј DC) С‚РµС… С‡Р°СЃС‚РµР№, РєРѕС‚РѕСЂС‹Рµ Р±СѓРґСѓС‚ РїСЂРѕР·СЂР°С‡РЅС‹РјРё.
 	/*
 	if(newBkgndColor >= 0)
 		cColor = newBkgndColor;
 	*/
-	BitBlt(hdcObject, 0, 0, ptSize.x, ptSize.y, hdcTemp, 0, 0, SRCCOPY); // Создаём маску для битмапа путём вызова BitBlt из исходного битмапа на монохромный битмап.
-	SetBkColor(hdcTemp, cColor); // Устанавливаем фоновый цвет исходного DC обратно в оригинальный цвет.
-	BitBlt(hdcBack, 0, 0, ptSize.x, ptSize.y, hdcObject, 0, 0, NOTSRCCOPY); // Создаём инверсию маски.
-	BitBlt(hdcMem, 0, 0, ptSize.x, ptSize.y, hdc, x_pos, y_pos, SRCCOPY); // Копируем фон главного DC в конечный.
-	BitBlt(hdcMem, 0, 0, ptSize.x, ptSize.y, hdcObject, 0, 0, SRCAND); // Накладываем маску на те места, где будет помещён битмап.
-	BitBlt(hdcTemp, 0, 0, ptSize.x, ptSize.y, hdcBack, 0, 0, SRCAND); // Накладываем маску на прозрачные пиксели битмапа.
-	BitBlt(hdcMem, 0, 0, ptSize.x, ptSize.y, hdcTemp, 0, 0, SRCPAINT); // XOR-им битмап с фоном на конечном DC.
-	BitBlt(hdc, x_pos, y_pos, ptSize.x, ptSize.y, hdcMem, 0, 0, SRCCOPY); // Копируем на экран.
-	BitBlt(hdcTemp, 0, 0, ptSize.x, ptSize.y, hdcSave, 0, 0, SRCCOPY); // Помещаем оригинальный битмап обратно в битмап, переданный в параметре функции.
-	// Удаляем битмапы из памяти.
+	BitBlt(hdcObject, 0, 0, ptSize.x, ptSize.y, hdcTemp, 0, 0, SRCCOPY); // РЎРѕР·РґР°С‘Рј РјР°СЃРєСѓ РґР»СЏ Р±РёС‚РјР°РїР° РїСѓС‚С‘Рј РІС‹Р·РѕРІР° BitBlt РёР· РёСЃС…РѕРґРЅРѕРіРѕ Р±РёС‚РјР°РїР° РЅР° РјРѕРЅРѕС…СЂРѕРјРЅС‹Р№ Р±РёС‚РјР°Рї.
+	SetBkColor(hdcTemp, cColor); // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С„РѕРЅРѕРІС‹Р№ С†РІРµС‚ РёСЃС…РѕРґРЅРѕРіРѕ DC РѕР±СЂР°С‚РЅРѕ РІ РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Р№ С†РІРµС‚.
+	BitBlt(hdcBack, 0, 0, ptSize.x, ptSize.y, hdcObject, 0, 0, NOTSRCCOPY); // РЎРѕР·РґР°С‘Рј РёРЅРІРµСЂСЃРёСЋ РјР°СЃРєРё.
+	BitBlt(hdcMem, 0, 0, ptSize.x, ptSize.y, hdc, x_pos, y_pos, SRCCOPY); // РљРѕРїРёСЂСѓРµРј С„РѕРЅ РіР»Р°РІРЅРѕРіРѕ DC РІ РєРѕРЅРµС‡РЅС‹Р№.
+	BitBlt(hdcMem, 0, 0, ptSize.x, ptSize.y, hdcObject, 0, 0, SRCAND); // РќР°РєР»Р°РґС‹РІР°РµРј РјР°СЃРєСѓ РЅР° С‚Рµ РјРµСЃС‚Р°, РіРґРµ Р±СѓРґРµС‚ РїРѕРјРµС‰С‘РЅ Р±РёС‚РјР°Рї.
+	BitBlt(hdcTemp, 0, 0, ptSize.x, ptSize.y, hdcBack, 0, 0, SRCAND); // РќР°РєР»Р°РґС‹РІР°РµРј РјР°СЃРєСѓ РЅР° РїСЂРѕР·СЂР°С‡РЅС‹Рµ РїРёРєСЃРµР»Рё Р±РёС‚РјР°РїР°.
+	BitBlt(hdcMem, 0, 0, ptSize.x, ptSize.y, hdcTemp, 0, 0, SRCPAINT); // XOR-РёРј Р±РёС‚РјР°Рї СЃ С„РѕРЅРѕРј РЅР° РєРѕРЅРµС‡РЅРѕРј DC.
+	BitBlt(hdc, x_pos, y_pos, ptSize.x, ptSize.y, hdcMem, 0, 0, SRCCOPY); // РљРѕРїРёСЂСѓРµРј РЅР° СЌРєСЂР°РЅ.
+	BitBlt(hdcTemp, 0, 0, ptSize.x, ptSize.y, hdcSave, 0, 0, SRCCOPY); // РџРѕРјРµС‰Р°РµРј РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Р№ Р±РёС‚РјР°Рї РѕР±СЂР°С‚РЅРѕ РІ Р±РёС‚РјР°Рї, РїРµСЂРµРґР°РЅРЅС‹Р№ РІ РїР°СЂР°РјРµС‚СЂРµ С„СѓРЅРєС†РёРё.
+	// РЈРґР°Р»СЏРµРј Р±РёС‚РјР°РїС‹ РёР· РїР°РјСЏС‚Рё.
 	::DeleteObject(SelectObject(hdcBack, bmBackOld));
 	::DeleteObject(SelectObject(hdcObject, bmObjectOld));
 	::DeleteObject(SelectObject(hdcMem, bmMemOld));
 	::DeleteObject(SelectObject(hdcSave, bmSaveOld));
-	// Удаляем DC из памяти.
+	// РЈРґР°Р»СЏРµРј DC РёР· РїР°РјСЏС‚Рё.
 	DeleteDC(hdcMem);
 	DeleteDC(hdcBack);
 	DeleteDC(hdcObject);
@@ -1470,7 +1471,7 @@ int DrawCluster(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	RECT   out_r = p_di->rcItem, elem_r = p_di->rcItem;
 	COLORREF brush_color = RGB(0xD5, 0xD5, 0xE6);
 	COLORREF pen_color = _GetAssetColor(_assetCtrlBorderColor);
-	COLORREF text_color = RGB(0x00, 0x00, 0x00);
+	COLORREF text_color = GetColorRef(SClrBlack);
 	COLORREF adv_brush_color = RGB(0xF2, 0xF2, 0xF7);
 	COLORREF adv_pen_color = pen_color;
 	HBRUSH brush = 0, old_brush = 0;
@@ -1525,7 +1526,7 @@ int DrawCluster(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			ok = Ellipse(p_di->hDC, elem_r.left, elem_r.top, elem_r.left + checkbox_size, elem_r.top + checkbox_size);
 			if(p_di->itemState & ODS_SELECTED) {
 				ZDeleteWinGdiObject(&pen);
-				SETIFZ((pen = 0), CreatePen(PS_SOLID, 3, RGB(0x00, 0x00, 0x00)));
+				SETIFZ((pen = 0), CreatePen(PS_SOLID, 3, GetColorRef(SClrBlack)));
 				SelectObject(p_di->hDC, pen);
 				ok = Ellipse(p_di->hDC, elem_r.left + checkbox_size / 2, elem_r.top + checkbox_size / 2,  elem_r.left + checkbox_size / 2 + 2, elem_r.top + checkbox_size / 2 + 2);
 			}
@@ -1562,7 +1563,7 @@ int DrawButton(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	RECT   elem_r = pDi->rcItem;
 	COLORREF brush_color = RGB(0xDC, 0xD9, 0xD1);
 	COLORREF pen_color = _GetAssetColor(_assetCtrlBorderColor);
-	COLORREF text_color = RGB(0x00, 0x00, 0x00);
+	COLORREF text_color = GetColorRef(SClrBlack);
 	HBITMAP hbmp = 0;
 	HBRUSH brush = 0, old_brush = 0;
 	HPEN   pen   = 0, old_pen   = 0;
@@ -1573,7 +1574,7 @@ int DrawButton(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	{
 		TButton * p_btn = (TButton *)TView::GetWindowUserData(pDi->hwndItem);
 		if(disabled)
-			text_color = RGB(0xFF, 0xFF, 0xFF);
+			text_color = GetColorRef(SClrWhite);
 		else if(selected) {
 			out_r.top  += (style & BS_BITMAP) ? 1 : 2;
 			out_r.left += (style & BS_BITMAP) ? 1 : 2;
@@ -1935,12 +1936,12 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 								case STDCTL_IMGPSTBUTTON:    dv_id = PPDV_CLIPBOARDPASTE01; break;
 								case STDCTL_INSBUTTON:
 									dv_id = PPDV_ADDFILE02;
-									if(text_buf == "+") // Специальный случай: иногда кнопка "Добавить" содержит текст "+" - его надо элиминировать
+									if(text_buf == "+") // РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№: РёРЅРѕРіРґР° РєРЅРѕРїРєР° "Р”РѕР±Р°РІРёС‚СЊ" СЃРѕРґРµСЂР¶РёС‚ С‚РµРєСЃС‚ "+" - РµРіРѕ РЅР°РґРѕ СЌР»РёРјРёРЅРёСЂРѕРІР°С‚СЊ
 										erase_text = 1;
 									break;
 								case STDCTL_DELBUTTON:
 									dv_id = PPDV_DELETEFILE02;
-									if(text_buf == "-") // Специальный случай: иногда кнопка "Удалить" содержит текст "-" - его надо элиминировать
+									if(text_buf == "-") // РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№: РёРЅРѕРіРґР° РєРЅРѕРїРєР° "РЈРґР°Р»РёС‚СЊ" СЃРѕРґРµСЂР¶РёС‚ С‚РµРєСЃС‚ "-" - РµРіРѕ РЅР°РґРѕ СЌР»РёРјРёРЅРёСЂРѕРІР°С‚СЊ
 										erase_text = 1;
 									break;
 								default:
@@ -2594,7 +2595,7 @@ int UserInterfaceSettings::Restore()
 			TableFont.Face = blk_b7909.BrwFontName;
 			TableFont.Size = (int16)blk_b7909.BrwFontHeight;
 			TableFont.Weight = (float)blk_b7909.BrwFontWeight;
-			ListFont.Init(); // В предыдущих версиях не было определения этого шрифта.
+			ListFont.Init(); // Р’ РїСЂРµРґС‹РґСѓС‰РёС… РІРµСЂСЃРёСЏС… РЅРµ Р±С‹Р»Рѕ РѕРїСЂРµРґРµР»РµРЅРёСЏ СЌС‚РѕРіРѕ С€СЂРёС„С‚Р°.
 			SupportMail = blk_b7909.SupportMail;
 		}
 		else

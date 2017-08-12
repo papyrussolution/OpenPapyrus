@@ -1127,7 +1127,7 @@ static void _calc_control_point(cairo_mesh_patch_t * patch, int control_point)
 	 *
 	 * The equations below are defined in the ISO32000 standard.
 	 */
-	cairo_point_double_t * p[3][3];
+	RPoint * p[3][3];
 	int cp_i, cp_j, i, j;
 
 	cp_i = mesh_control_point_i[control_point];
@@ -1313,7 +1313,7 @@ slim_hidden_def(cairo_mesh_pattern_curve_to);
 void cairo_mesh_pattern_line_to(cairo_pattern_t * pattern, double x, double y)
 {
 	cairo_mesh_pattern_t * mesh;
-	cairo_point_double_t last_point;
+	RPoint last_point;
 	int last_point_idx, i, j;
 	if(unlikely(pattern->status))
 		return;

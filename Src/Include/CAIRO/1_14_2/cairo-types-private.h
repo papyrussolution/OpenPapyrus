@@ -267,14 +267,15 @@ typedef struct _cairo_slope {
     cairo_fixed_t dy;
 } cairo_slope_t, cairo_distance_t;
 
-typedef struct _cairo_point_double {
+/*typedef struct _cairo_point_double {
     double x;
     double y;
-} cairo_point_double_t;
+} cairo_point_double_t_ReplacedWith_RPoint;
+*/
 
 typedef struct _cairo_circle_double {
-    cairo_point_double_t center;
-    double               radius;
+    RPoint center;
+    double radius;
 } cairo_circle_double_t;
 
 typedef struct _cairo_distance_double {
@@ -283,8 +284,8 @@ typedef struct _cairo_distance_double {
 } cairo_distance_double_t;
 
 typedef struct _cairo_box_double {
-    cairo_point_double_t p1;
-    cairo_point_double_t p2;
+    RPoint p1;
+    RPoint p2;
 } cairo_box_double_t;
 
 typedef struct _cairo_line {

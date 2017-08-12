@@ -1730,7 +1730,7 @@ int SLAPI ObjLinkFiles::IsChanged(PPID id, PPID addedID /*=0*/) const
 	int    r = BIN(lnk_files.FilesNums == FilesNums && _c == GetCount());
 	if(r) {
 		for(uint i = 0; r && i < _c; i++)
-			r = (stricmp866(Files.at(i), lnk_files.Files.at(i)) == 0) ? 1 : 0;
+			r = BIN(stricmp866(Files.at(i), lnk_files.Files.at(i)) == 0);
 	}
 	return !r;
 }

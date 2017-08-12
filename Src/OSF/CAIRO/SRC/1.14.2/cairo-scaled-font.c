@@ -205,11 +205,11 @@ static void _cairo_scaled_glyph_fini(cairo_scaled_font_t * scaled_font, cairo_sc
 		p_private->destroy(p_private, scaled_glyph, scaled_font);
 	}
 	_cairo_image_scaled_glyph_fini(scaled_font, scaled_glyph);
-	if(scaled_glyph->surface != NULL)
+	if(scaled_glyph->surface)
 		cairo_surface_destroy(&scaled_glyph->surface->base);
-	if(scaled_glyph->path != NULL)
+	if(scaled_glyph->path)
 		_cairo_path_fixed_destroy(scaled_glyph->path);
-	if(scaled_glyph->recording_surface != NULL) {
+	if(scaled_glyph->recording_surface) {
 		cairo_surface_finish(scaled_glyph->recording_surface);
 		cairo_surface_destroy(scaled_glyph->recording_surface);
 	}
@@ -387,16 +387,13 @@ void _cairo_scaled_font_map_destroy(void)
 {
 	cairo_scaled_font_map_t * font_map;
 	cairo_scaled_font_t * scaled_font;
-
 	CAIRO_MUTEX_LOCK(_cairo_scaled_font_map_mutex);
-
 	font_map = cairo_scaled_font_map;
 	if(unlikely(font_map == NULL)) {
 		goto CLEANUP_MUTEX_LOCK;
 	}
-
 	scaled_font = font_map->mru_scaled_font;
-	if(scaled_font != NULL) {
+	if(scaled_font) {
 		CAIRO_MUTEX_UNLOCK(_cairo_scaled_font_map_mutex);
 		cairo_scaled_font_destroy(scaled_font);
 		CAIRO_MUTEX_LOCK(_cairo_scaled_font_map_mutex);
@@ -767,7 +764,7 @@ static void _cairo_scaled_font_fini_internal(cairo_scaled_font_t * scaled_font)
 		cairo_scaled_font_private_t * p_private = cairo_list_first_entry(&scaled_font->dev_privates, cairo_scaled_font_private_t, link);
 		p_private->destroy(p_private, scaled_font);
 	}
-	if(scaled_font->backend != NULL && scaled_font->backend->fini != NULL)
+	if(scaled_font->backend && scaled_font->backend->fini)
 		scaled_font->backend->fini(scaled_font);
 	_cairo_user_data_array_fini(&scaled_font->user_data);
 }
@@ -876,7 +873,7 @@ cairo_scaled_font_t * cairo_scaled_font_create(cairo_font_face_t          * font
 	if(unlikely(font_map == NULL))
 		return _cairo_scaled_font_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	scaled_font = font_map->mru_scaled_font;
-	if(scaled_font != NULL && _cairo_scaled_font_matches(scaled_font, font_face, font_matrix, ctm, options)) {
+	if(scaled_font && _cairo_scaled_font_matches(scaled_font, font_face, font_matrix, ctm, options)) {
 		assert(scaled_font->hash_entry.hash != ZOMBIE);
 		assert(!scaled_font->placeholder);
 		if(likely(scaled_font->status == CAIRO_STATUS_SUCCESS)) {
@@ -902,7 +899,7 @@ cairo_scaled_font_t * cairo_scaled_font_create(cairo_font_face_t          * font
 		 * just wait until it's done, then retry */
 		_cairo_scaled_font_placeholder_wait_for_creation_to_finish(scaled_font);
 	}
-	if(scaled_font != NULL) {
+	if(scaled_font) {
 		/* If the original reference count is 0, then this font must have
 		 * been found in font_map->holdovers, (which means this caching is
 		 * actually working). So now we remove it from the holdovers
@@ -945,7 +942,7 @@ cairo_scaled_font_t * cairo_scaled_font_create(cairo_font_face_t          * font
 		scaled_font->hash_entry.hash = ZOMBIE;
 	}
 	/* Otherwise create it and insert it into the hash table. */
-	if(font_face->backend->get_implementation != NULL) {
+	if(font_face->backend->get_implementation) {
 		font_face = font_face->backend->get_implementation(font_face, font_matrix, ctm, options);
 		if(unlikely(font_face->status)) {
 			_cairo_scaled_font_map_unlock();
@@ -958,7 +955,7 @@ cairo_scaled_font_t * cairo_scaled_font_create(cairo_font_face_t          * font
 		_cairo_scaled_font_map_unlock();
 		if(font_face != original_font_face)
 			cairo_font_face_destroy(font_face);
-		if(dead != NULL)
+		if(dead)
 			cairo_scaled_font_destroy(dead);
 		status = _cairo_font_face_set_error(font_face, status);
 		return _cairo_scaled_font_create_in_error(status);
@@ -968,7 +965,7 @@ cairo_scaled_font_t * cairo_scaled_font_create(cairo_font_face_t          * font
 		_cairo_scaled_font_map_unlock();
 		if(font_face != original_font_face)
 			cairo_font_face_destroy(font_face);
-		if(dead != NULL)
+		if(dead)
 			cairo_scaled_font_destroy(dead);
 		return scaled_font;
 	}
@@ -1119,14 +1116,12 @@ void cairo_scaled_font_destroy(cairo_scaled_font_t * scaled_font)
 			/* Another thread may have already inserted us into the holdovers */
 			if(scaled_font->holdover)
 				goto unlock;
-
 			/* Rather than immediately destroying this object, we put it into
 			 * the font_map->holdovers array in case it will get used again
 			 * soon (and is why we must hold the lock over the atomic op on
 			 * the reference count). To make room for it, we do actually
 			 * destroy the least-recently-used holdover.
 			 */
-
 			if(font_map->num_holdovers == CAIRO_SCALED_FONT_MAX_HOLDOVERS) {
 				lru = font_map->holdovers[0];
 				assert(!CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&lru->ref_count));
@@ -1148,7 +1143,7 @@ unlock:
 	 * safely call fini on it without any lock held. This is desirable
 	 * as we never want to call into any backend function with a lock
 	 * held. */
-	if(lru != NULL) {
+	if(lru) {
 		_cairo_scaled_font_fini_internal(lru);
 		SAlloc::F(lru);
 	}

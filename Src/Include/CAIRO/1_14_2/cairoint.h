@@ -557,8 +557,8 @@ typedef struct _cairo_stroke_face {
 	cairo_point_t point;
 	cairo_point_t cw;
 	cairo_slope_t dev_vector;
-	cairo_point_double_t dev_slope;
-	cairo_point_double_t usr_vector;
+	RPoint dev_slope;
+	RPoint usr_vector;
 	double length;
 } cairo_stroke_face_t;
 

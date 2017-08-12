@@ -493,8 +493,7 @@ int SLAPI PackageCore::SearchByCode(PPID pckgTypeID, const char * pCode, PPIDArr
 	STRNSCPY(k.Code, pCode);
 	k.PckgTypeID = (pckgTypeID >= 0) ? pckgTypeID : 0;
 	k.UniqCntr = 0;
-	while(search(1, &k, sp) && k.Closed == 0 && stricmp866(k.Code, pCode) == 0 &&
-		(pckgTypeID < 0 || k.PckgTypeID == pckgTypeID)) {
+	while(search(1, &k, sp) && k.Closed == 0 && stricmp866(k.Code, pCode) == 0 && (pckgTypeID < 0 || k.PckgTypeID == pckgTypeID)) {
 		if(pList)
 			pList->add(data.ID);
 		sp = spGt;

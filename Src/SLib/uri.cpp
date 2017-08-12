@@ -215,7 +215,7 @@ static int UriAddBaseUriImpl(UriUri * absDest, const UriUri * relSource, const U
 		return SLERR_URI_ADDBASE_REL_BASE;
 	}
 	/* [01/32]	if defined(R.scheme) then */
-	if(relSource->scheme.first != NULL) {
+	if(relSource->scheme.first) {
 		/* [02/32]		T.scheme = R.scheme; */
 		absDest->scheme = relSource->scheme;
 		/* [03/32]		T.authority = R.authority; */
@@ -263,7 +263,7 @@ static int UriAddBaseUriImpl(UriUri * absDest, const UriUri * relSource, const U
 					return SLERR_NOMEM;
 				}
 				/* [14/32]				if defined(R.query) then */
-				if(relSource->query.first != NULL) {
+				if(relSource->query.first) {
 					/* [15/32]					T.query = R.query; */
 					absDest->query = relSource->query;
 					/* [16/32]				else */
@@ -355,20 +355,20 @@ static int UriAppendSegment(UriUri*uri, const char * first, const char * afterLa
 static int FASTCALL UriEqualsAuthority(const UriUri * first, const UriUri * second)
 {
 	/* IPv4 */
-	if(first->hostData.ip4 != NULL) {
-		return((second->hostData.ip4 != NULL) && !memcmp(first->hostData.ip4->data, second->hostData.ip4->data, 4)) ? TRUE : FALSE;
+	if(first->hostData.ip4) {
+		return (second->hostData.ip4 && !memcmp(first->hostData.ip4->data, second->hostData.ip4->data, 4)) ? TRUE : FALSE;
 	}
 	/* IPv6 */
-	if(first->hostData.ip6 != NULL) {
-		return((second->hostData.ip6 != NULL) && !memcmp(first->hostData.ip6->data, second->hostData.ip6->data, 16)) ? TRUE : FALSE;
+	if(first->hostData.ip6) {
+		return (second->hostData.ip6 && !memcmp(first->hostData.ip6->data, second->hostData.ip6->data, 16)) ? TRUE : FALSE;
 	}
 	/* IPvFuture */
-	if(first->hostData.ipFuture.first != NULL) {
-		return((second->hostData.ipFuture.first != NULL) && !strncmp(first->hostData.ipFuture.first,
+	if(first->hostData.ipFuture.first) {
+		return(second->hostData.ipFuture.first && !strncmp(first->hostData.ipFuture.first,
 				second->hostData.ipFuture.first, first->hostData.ipFuture.afterLast-first->hostData.ipFuture.first)) ? TRUE : FALSE;
 	}
-	if(first->hostText.first != NULL) {
-		return((second->hostText.first != NULL) && !strncmp(first->hostText.first, second->hostText.first,
+	if(first->hostText.first) {
+		return(second->hostText.first && !strncmp(first->hostText.first, second->hostText.first,
 			first->hostText.afterLast-first->hostText.first)) ? TRUE : FALSE;
 	}
 	return second->hostText.first == NULL;
@@ -453,11 +453,8 @@ int UriRemoveBaseUriImpl(UriUri * dest, const UriUri * absSource, const UriUri *
 				/* [21/50]	         T.path = ""; */
 				dest->absolutePath = FALSE;
 				/* [22/50]	         while(first(A.path) == first(Base.path)) do */
-				while((sourceSeg != NULL) &&(baseSeg != NULL) &&
-				      !strncmp(sourceSeg->text.first, baseSeg->text.first,
-					      sourceSeg->text.afterLast-sourceSeg->text.first) &&
-				      !((sourceSeg->text.first == sourceSeg->text.afterLast) &&
-				       ((sourceSeg->next == NULL) !=(baseSeg->next == NULL)))) {
+				while(sourceSeg && baseSeg && !strncmp(sourceSeg->text.first, baseSeg->text.first, sourceSeg->text.afterLast-sourceSeg->text.first) &&
+				      !((sourceSeg->text.first == sourceSeg->text.afterLast) && ((sourceSeg->next == NULL) !=(baseSeg->next == NULL)))) {
 					/* [23/50]	            A.path++; */
 					sourceSeg = sourceSeg->next;
 					/* [24/50]	            Base.path++; */
@@ -465,7 +462,7 @@ int UriRemoveBaseUriImpl(UriUri * dest, const UriUri * absSource, const UriUri *
 					/* [25/50]	         endwhile; */
 				}
 				/* [26/50]	         while defined(first(Base.path)) do */
-				while((baseSeg != NULL) &&(baseSeg->next != NULL)) {
+				while(baseSeg && baseSeg->next) {
 					/* [27/50]	            Base.path++; */
 					baseSeg = baseSeg->next;
 					/* [28/50]	            T.path += "../"; */
@@ -477,7 +474,7 @@ int UriRemoveBaseUriImpl(UriUri * dest, const UriUri * absSource, const UriUri *
 					/* [30/50]	         endwhile; */
 				}
 				/* [31/50]	         while defined(first(A.path)) do */
-				while(sourceSeg != NULL) {
+				while(sourceSeg) {
 					/* [32/50]	            if pathNaked then */
 					if(pathNaked == TRUE) {
 						/* [33/50]	               if(first(A.path) contains ":") then */
@@ -537,7 +534,7 @@ int UriRemoveBaseUriImpl(UriUri * dest, const UriUri * absSource, const UriUri *
 int UriRemoveBaseUri(UriUri * dest, const UriUri * absSource, const UriUri * absBase, int domainRootMode)
 {
 	const int res = UriRemoveBaseUriImpl(dest, absSource, absBase, domainRootMode);
-	if((res != SLERR_SUCCESS) &&(dest != NULL)) {
+	if((res != SLERR_SUCCESS) && dest) {
 		UriFreeUriMembers(dest);
 	}
 	return res;
@@ -632,7 +629,7 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 	else {
 		maxChars--;
 	}
-	while(queryList != NULL) {
+	while(queryList) {
 		const char * const key = queryList->key;
 		const char * const value = queryList->value;
 		const int worstCase =(normalizeBreaks == TRUE ? 6 : 3);
@@ -662,7 +659,7 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 			}
 			afterKey = UriEscapeEx(key, key+keyLen, write, spaceToPlus, normalizeBreaks);
 			write +=(afterKey-write);
-			if(value != NULL) {
+			if(value) {
 				char * afterValue;
 				if((write-dest)+1+valueRequiredChars > maxChars) {
 					return SLERR_URI_OUTPUT_TOO_LARGE;
@@ -1324,7 +1321,7 @@ int UriEqualsUri(const UriUri * a, const UriUri * b)
 	if((a->pathHead == NULL) !=(b->pathHead == NULL)) {
 		return FALSE;
 	}
-	if(a->pathHead != NULL) {
+	if(a->pathHead) {
 		UriPathSegment * walkA = a->pathHead;
 		UriPathSegment * walkB = b->pathHead;
 		do {
@@ -1338,7 +1335,7 @@ int UriEqualsUri(const UriUri * a, const UriUri * b)
 				walkA = walkA->next;
 				walkB = walkB->next;
 			}
-		} while(walkA != NULL);
+		} while(walkA);
 	}
 	if(UriCompareRange(&(a->query), &(b->query))) { // query 
 		return FALSE;
@@ -1608,7 +1605,7 @@ int UriCopyPath(UriUri * dest, const UriUri * source)
 			UriPathSegment * cur =(UriPathSegment *)SAlloc::M(sizeof(UriPathSegment));
 			if(cur == NULL) {
 				// Fix broken list 
-				if(destPrev != NULL)
+				if(destPrev)
 					destPrev->next = NULL;
 				return FALSE; // Raises SAlloc::M error 
 			}
@@ -1624,7 +1621,7 @@ int UriCopyPath(UriUri * dest, const UriUri * source)
 				destPrev = cur;
 				sourceWalker = sourceWalker->next;
 			}
-		} while(sourceWalker != NULL);
+		} while(sourceWalker);
 		dest->pathTail = destPrev;
 		dest->pathTail->next = NULL;
 	}
@@ -1643,7 +1640,7 @@ int UriCopyAuthority(UriUri*dest, const UriUri*source)
 	/* Copy hostText */
 	dest->hostText = source->hostText;
 	/* Copy hostData */
-	if(source->hostData.ip4 != NULL) {
+	if(source->hostData.ip4) {
 		dest->hostData.ip4 =(UriIp4 *)SAlloc::M(sizeof(UriIp4));
 		if(dest->hostData.ip4 == NULL) {
 			return FALSE; /* Raises SAlloc::M error */
@@ -1653,7 +1650,7 @@ int UriCopyAuthority(UriUri*dest, const UriUri*source)
 		dest->hostData.ipFuture.first = NULL;
 		dest->hostData.ipFuture.afterLast = NULL;
 	}
-	else if(source->hostData.ip6 != NULL) {
+	else if(source->hostData.ip6) {
 		dest->hostData.ip4 = NULL;
 		dest->hostData.ip6 =(UriIp6 *)SAlloc::M(sizeof(UriIp6));
 		if(dest->hostData.ip6 == NULL) {
@@ -1677,11 +1674,10 @@ int UriFixAmbiguity(UriUri*uri)
 {
 	UriPathSegment*segment;
 	if(     /* Case 1: absolute path, empty first segment */
-	       (uri->absolutePath &&(uri->pathHead != NULL) &&(uri->pathHead->text.afterLast == uri->pathHead->text.first))
+	       (uri->absolutePath && uri->pathHead &&(uri->pathHead->text.afterLast == uri->pathHead->text.first))
 
 	        /* Case 2: relative path, empty first and second segment */
-	        ||(!uri->absolutePath &&(uri->pathHead != NULL) &&(uri->pathHead->next != NULL) &&
-	           (uri->pathHead->text.afterLast == uri->pathHead->text.first) &&
+	        ||(!uri->absolutePath && uri->pathHead && uri->pathHead->next && (uri->pathHead->text.afterLast == uri->pathHead->text.first) &&
 	           (uri->pathHead->next->text.afterLast == uri->pathHead->next->text.first))) {
 		/* NOOP */
 	}
@@ -1703,7 +1699,7 @@ int UriFixAmbiguity(UriUri*uri)
 void UriFixEmptyTrailSegment(UriUri*uri)
 {
 	/* Fix path if only one empty segment */
-	if(!uri->absolutePath && !UriIsHostSet(uri) && (uri->pathHead != NULL) &&
+	if(!uri->absolutePath && !UriIsHostSet(uri) && uri->pathHead &&
 	  (uri->pathHead->next == NULL) && (uri->pathHead->text.first == uri->pathHead->text.afterLast)) {
 		ZFREE(uri->pathHead);
 		uri->pathTail = NULL;
@@ -1735,7 +1731,7 @@ static void UriPreventLeakage(UriUri*uri, uint revertMask)
 		uri->userInfo.afterLast = NULL;
 	}
 	if(revertMask&URI_NORMALIZE_HOST) {
-		if(uri->hostData.ipFuture.first != NULL) {
+		if(uri->hostData.ipFuture.first) {
 			/* IPvFuture */
 			SAlloc::F((char *)uri->hostData.ipFuture.first);
 			uri->hostData.ipFuture.first = NULL;
@@ -1743,7 +1739,7 @@ static void UriPreventLeakage(UriUri*uri, uint revertMask)
 			uri->hostText.first = NULL;
 			uri->hostText.afterLast = NULL;
 		}
-		else if((uri->hostText.first != NULL) &&(uri->hostData.ip4 == NULL) &&(uri->hostData.ip6 == NULL)) {
+		else if(uri->hostText.first &&(uri->hostData.ip4 == NULL) &&(uri->hostData.ip6 == NULL)) {
 			/* Regname */
 			SAlloc::F((char *)uri->hostText.first);
 			uri->hostText.first = NULL;
@@ -1753,8 +1749,8 @@ static void UriPreventLeakage(UriUri*uri, uint revertMask)
 	/* NOTE: Port cannot happen! */
 	if(revertMask&URI_NORMALIZE_PATH) {
 		UriPathSegment*walker = uri->pathHead;
-		while(walker != NULL) {
-			UriPathSegment*const next = walker->next;
+		while(walker) {
+			UriPathSegment * const next = walker->next;
 			if(walker->text.afterLast > walker->text.first) {
 				SAlloc::F((char *)walker->text.first);
 			}
@@ -1778,7 +1774,7 @@ static void UriPreventLeakage(UriUri*uri, uint revertMask)
 
 static int FASTCALL UriContainsUppercaseLetters(const char * first, const char * afterLast)
 {
-	if((first != NULL) && (afterLast != NULL) && (afterLast > first)) {
+	if(first && afterLast && (afterLast > first)) {
 		const char * i = first;
 		for(; i < afterLast; i++) {
 			// 6.2.2.1 Case Normalization: uppercase letters in scheme or host 
@@ -1792,7 +1788,7 @@ static int FASTCALL UriContainsUppercaseLetters(const char * first, const char *
 
 static int FASTCALL UriContainsUglyPercentEncoding(const char * first, const char * afterLast)
 {
-	if((first != NULL) && (afterLast != NULL) && (afterLast > first)) {
+	if(first && afterLast && (afterLast > first)) {
 		const char * i = first;
 		for(; i+2 < afterLast; i++) {
 			if(i[0] == _UT('%')) {
@@ -1820,7 +1816,7 @@ static int FASTCALL UriContainsUglyPercentEncoding(const char * first, const cha
 
 static void FASTCALL UriLowercaseInplace(const char * first, const char * afterLast)
 {
-	if((first != NULL) && (afterLast != NULL) && (afterLast > first)) {
+	if(first && afterLast && (afterLast > first)) {
 		char * i =(char *)first;
 		const int lowerUpperDiff =(_UT('a')-_UT('A'));
 		for(; i < afterLast; i++) {
@@ -1951,7 +1947,7 @@ static int FASTCALL UriFixPercentEncodingMalloc(const char ** first, const char 
 
 static int UriMakeRangeOwner(uint * doneMask, uint maskTest, UriTextRange*range)
 {
-	if(((*doneMask&maskTest) == 0) &&(range->first != NULL) &&(range->afterLast != NULL) &&(range->afterLast > range->first)) {
+	if(((*doneMask&maskTest) == 0) && range->first && range->afterLast &&(range->afterLast > range->first)) {
 		const int lenInChars =(int)(range->afterLast-range->first);
 		const int lenInBytes = lenInChars*sizeof(char);
 		char * dup =(char *)SAlloc::M(lenInBytes);
@@ -1977,13 +1973,13 @@ static int FASTCALL UriMakeOwner(UriUri * uri, uint * doneMask)
 	// Host 
 	if(!(*doneMask & URI_NORMALIZE_HOST)) {
 		if(!uri->hostData.ip4 && !uri->hostData.ip6) {
-			if(uri->hostData.ipFuture.first != NULL) {
+			if(uri->hostData.ipFuture.first) {
 				// IPvFuture 
 				THROW(UriMakeRangeOwner(doneMask, URI_NORMALIZE_HOST, &(uri->hostData.ipFuture)));
 				uri->hostText.first = uri->hostData.ipFuture.first;
 				uri->hostText.afterLast = uri->hostData.ipFuture.afterLast;
 			}
-			else if(uri->hostText.first != NULL) {
+			else if(uri->hostText.first) {
 				// Regname 
 				THROW(UriMakeRangeOwner(doneMask, URI_NORMALIZE_HOST, &(uri->hostText)));
 			}
@@ -2051,7 +2047,7 @@ static int UriNormalizeSyntaxEngine(UriUri * uri, uint inMask, uint * outMask)
 {
 	uint doneMask = URI_NORMALIZED;
 	if(uri == NULL) {
-		if(outMask != NULL) {
+		if(outMask) {
 			*outMask = URI_NORMALIZED;
 			return SLERR_SUCCESS;
 		}
@@ -2078,7 +2074,7 @@ static int UriNormalizeSyntaxEngine(UriUri * uri, uint inMask, uint * outMask)
 	}
 	else {
 		/* Scheme */
-		if((inMask&URI_NORMALIZE_SCHEME) &&(uri->scheme.first != NULL)) {
+		if((inMask&URI_NORMALIZE_SCHEME) && uri->scheme.first) {
 			if(uri->owner) {
 				UriLowercaseInplace(uri->scheme.first, uri->scheme.afterLast);
 			}
@@ -2123,14 +2119,14 @@ static int UriNormalizeSyntaxEngine(UriUri * uri, uint inMask, uint * outMask)
 		}
 	}
 	/* User info */
-	if(outMask != NULL) {
+	if(outMask) {
 		const int normalizeUserInfo = UriContainsUglyPercentEncoding(uri->userInfo.first, uri->userInfo.afterLast);
 		if(normalizeUserInfo) {
 			*outMask |= URI_NORMALIZE_USER_INFO;
 		}
 	}
 	else {
-		if((inMask&URI_NORMALIZE_USER_INFO) &&(uri->userInfo.first != NULL)) {
+		if((inMask&URI_NORMALIZE_USER_INFO) && uri->userInfo.first) {
 			if(uri->owner) {
 				UriFixPercentEncodingInplace(uri->userInfo.first, &(uri->userInfo.afterLast));
 			}
@@ -2265,7 +2261,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		(*charsRequired) = 0;
 	}
 	/* [02/19]	if defined(scheme) then */
-	if(uri->scheme.first != NULL) {
+	if(uri->scheme.first) {
 		/* [03/19]		append scheme to result; */
 		const int charsToWrite =(int)(uri->scheme.afterLast-uri->scheme.first);
 		if(dest) {
@@ -2318,7 +2314,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 		}
 		/* [08/19]		append authority to result; */
 		/* UserInfo */
-		if(uri->userInfo.first != NULL) {
+		if(uri->userInfo.first) {
 			const int charsToWrite =(int)(uri->userInfo.afterLast-uri->userInfo.first);
 			if(dest) {
 				if(written+charsToWrite <= maxChars) {
@@ -2345,7 +2341,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			}
 		}
 		/* Host */
-		if(uri->hostData.ip4 != NULL) {
+		if(uri->hostData.ip4) {
 			/* IPv4 */
 			int i = 0;
 			for(; i < 4; i++) {
@@ -2392,7 +2388,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				}
 			}
 		}
-		else if(uri->hostData.ip6 != NULL) {
+		else if(uri->hostData.ip6) {
 			/* IPv6 */
 			int i = 0;
 			if(dest) {
@@ -2461,7 +2457,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				(*charsRequired) += 1;
 			}
 		}
-		else if(uri->hostData.ipFuture.first != NULL) {
+		else if(uri->hostData.ipFuture.first) {
 			/* IPvFuture */
 			const int charsToWrite =(int)(uri->hostData.ipFuture.afterLast-uri->hostData.ipFuture.first);
 			if(dest) {
@@ -2497,7 +2493,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				(*charsRequired) += 1+charsToWrite+1;
 			}
 		}
-		else if(uri->hostText.first != NULL) {
+		else if(uri->hostText.first) {
 			/* Regname */
 			const int charsToWrite =(int)(uri->hostText.afterLast-uri->hostText.first);
 			if(dest) {
@@ -2516,7 +2512,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			}
 		}
 		/* Port */
-		if(uri->portText.first != NULL) {
+		if(uri->portText.first) {
 			const int charsToWrite =(int)(uri->portText.afterLast-uri->portText.first);
 			if(dest) {
 				/* Leading ':' */
@@ -2548,7 +2544,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 	}
 	/* [10/19]	append path to result; */
 	/* Slash needed here? */
-	if(uri->absolutePath ||((uri->pathHead != NULL) && UriIsHostSet(uri))) {
+	if(uri->absolutePath || (uri->pathHead && UriIsHostSet(uri))) {
 		if(dest) {
 			if(written+1 <= maxChars) {
 				memcpy(dest+written, _UT("/"), 1*sizeof(char));

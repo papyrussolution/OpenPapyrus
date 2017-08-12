@@ -3938,6 +3938,7 @@ int    FASTCALL ToLower1251(int ch);
 int    FASTCALL ToUpper1251(int ch);
 char * FASTCALL strlwr1251(char *);
 char * FASTCALL strupr1251(char *);
+int    FASTCALL stricmp1251(const char *, const char *);
 int    FASTCALL IsLetter866(int ch);
 int    FASTCALL ToLower866(int ch);
 int    FASTCALL ToUpper866(int ch);

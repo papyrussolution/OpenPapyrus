@@ -1,7 +1,7 @@
 // SETSTART.CPP
 // Copyright (c) A.Sobolev 2016, 2017
-// @codepage windows-1251
-// Интерфейс (асинхронный) к драйверу SetStart (аналогичен ФРОНТОЛ'у)
+// @codepage UTF-8
+// РРЅС‚РµСЂС„РµР№СЃ (Р°СЃРёРЅС…СЂРѕРЅРЅС‹Р№) Рє РґСЂР°Р№РІРµСЂСѓ SetStart (Р°РЅР°Р»РѕРіРёС‡РµРЅ Р¤Р РћРќРўРћР›'Сѓ)
 //
 #include <pp.h>
 #pragma hdrstop
@@ -125,7 +125,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 	SString   path_goods, path_flag;
 	//
 	PPID      gc_alc_id = 0;
-	SString   gc_alc_code; // Код класса товаров, относящихся к алкоголю
+	SString   gc_alc_code; // РљРѕРґ РєР»Р°СЃСЃР° С‚РѕРІР°СЂРѕРІ, РѕС‚РЅРѕСЃСЏС‰РёС…СЃСЏ Рє Р°Р»РєРѕРіРѕР»СЋ
 	PPIDArray alc_goods_list;
 	//
 	PPUnit    unit_rec;
@@ -150,7 +150,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 		p_load_symb = "#";
 	//
 	// @v8.2.0 {
-	// Извлечем информацию о классе алкогольного товара
+	// РР·РІР»РµС‡РµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РєР»Р°СЃСЃРµ Р°Р»РєРѕРіРѕР»СЊРЅРѕРіРѕ С‚РѕРІР°СЂР°
 	//
 	if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSALC, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 		StringSet ss(',', temp_buf);
@@ -161,8 +161,8 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 				gc_alc_id = gc_pack.Rec.ID;
 				(temp_buf = gc_pack.Rec.Symb).Strip();
 				//
-				// Если код товарного класса числовой, то используем для загрузки его, иначе - идентификатор
-				// (фронтол требует цифрового кода, но использование идентификатора не желательно из-за возможного разнобоя между разделами БД).
+				// Р•СЃР»Рё РєРѕРґ С‚РѕРІР°СЂРЅРѕРіРѕ РєР»Р°СЃСЃР° С‡РёСЃР»РѕРІРѕР№, С‚Рѕ РёСЃРїРѕР»СЊР·СѓРµРј РґР»СЏ Р·Р°РіСЂСѓР·РєРё РµРіРѕ, РёРЅР°С‡Рµ - РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
+				// (С„СЂРѕРЅС‚РѕР» С‚СЂРµР±СѓРµС‚ С†РёС„СЂРѕРІРѕРіРѕ РєРѕРґР°, РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° РЅРµ Р¶РµР»Р°С‚РµР»СЊРЅРѕ РёР·-Р·Р° РІРѕР·РјРѕР¶РЅРѕРіРѕ СЂР°Р·РЅРѕР±РѕСЏ РјРµР¶РґСѓ СЂР°Р·РґРµР»Р°РјРё Р‘Р”).
 				//
 				if(temp_buf.ToLong() > 0)
 					gc_alc_code = temp_buf;
@@ -189,7 +189,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 	}
 	{
 		//
-		// Экспорт дисконтных карт
+		// Р­РєСЃРїРѕСЂС‚ РґРёСЃРєРѕРЅС‚РЅС‹С… РєР°СЂС‚
 		//
 		AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, StatID);
 		scard_quot_list.freeAll();
@@ -212,9 +212,9 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 					f_str.Cat(NZOR(info.Rec.Dt, encodedate(1, 1, 2000)), DATF_GERMAN|DATF_CENTURY).Semicol();
 					f_str.Cat(NZOR(info.Rec.Expiry, encodedate(1, 1, 3000)), DATF_GERMAN|DATF_CENTURY).Semicol();
 					f_str.Cat(info.IsClosed ? 0 : 1).Semicol();  // Passive | Active
-					f_str.Cat(0L).Semicol();                     // Скидка уменьшающая цену в процентах (0)
+					f_str.Cat(0L).Semicol();                     // РЎРєРёРґРєР° СѓРјРµРЅСЊС€Р°СЋС‰Р°СЏ С†РµРЅСѓ РІ РїСЂРѕС†РµРЅС‚Р°С… (0)
 					f_str.Cat(fdiv100i(info.Rec.PDis), MKSFMTD(0, 2, NMBF_NOTRAILZ)).Semicol();
-					f_str.Cat(1L).Semicol();                     // Скидка на сумму чека
+					f_str.Cat(1L).Semicol();                     // РЎРєРёРґРєР° РЅР° СЃСѓРјРјСѓ С‡РµРєР°
 					f_str.CatCharN(';', 7);
 					f_str.CR();
 					fputs(f_str, p_file);
@@ -227,26 +227,26 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 	if(!CrdCardAsDsc) {
 		PPIDArray scs_list;
 		//
-		// Экспорт серий кредитных карт
+		// Р­РєСЃРїРѕСЂС‚ СЃРµСЂРёР№ РєСЂРµРґРёС‚РЅС‹С… РєР°СЂС‚
 		//
 		for(PPID ser_id = 0; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;) {
 			if(ser_rec.GetType() == scstCredit) {
 				/*
-					№ поля Тип поля Назначение
-					1 Целое Код
-					2 Строка Наименование
-					3 Строка Текст для чека
-					4 Целое
-						Ввод сертификата:
-						0 — вручную;
-						1 — визуально;
-						2 — ридером магнитных карт;
-						3 — сканером штрихкода
-					5 Целое
-						Сумма к расчету:
-						1 — номинал;
-						2 — номинал с количеством
-					6 Целое Не используетс
+					в„– РїРѕР»СЏ РўРёРї РїРѕР»СЏ РќР°Р·РЅР°С‡РµРЅРёРµ
+					1 Р¦РµР»РѕРµ РљРѕРґ
+					2 РЎС‚СЂРѕРєР° РќР°РёРјРµРЅРѕРІР°РЅРёРµ
+					3 РЎС‚СЂРѕРєР° РўРµРєСЃС‚ РґР»СЏ С‡РµРєР°
+					4 Р¦РµР»РѕРµ
+						Р’РІРѕРґ СЃРµСЂС‚РёС„РёРєР°С‚Р°:
+						0 вЂ” РІСЂСѓС‡РЅСѓСЋ;
+						1 вЂ” РІРёР·СѓР°Р»СЊРЅРѕ;
+						2 вЂ” СЂРёРґРµСЂРѕРј РјР°РіРЅРёС‚РЅС‹С… РєР°СЂС‚;
+						3 вЂ” СЃРєР°РЅРµСЂРѕРј С€С‚СЂРёС…РєРѕРґР°
+					5 Р¦РµР»РѕРµ
+						РЎСѓРјРјР° Рє СЂР°СЃС‡РµС‚Сѓ:
+						1 вЂ” РЅРѕРјРёРЅР°Р»;
+						2 вЂ” РЅРѕРјРёРЅР°Р» СЃ РєРѕР»РёС‡РµСЃС‚РІРѕРј
+					6 Р¦РµР»РѕРµ РќРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃ
 				*/
 				if(scs_list.getCount() == 0) {
 					if(!updOnly) {
@@ -257,9 +257,9 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 				f_str = 0;
 				f_str.Cat(ser_rec.ID).Semicol();   // #1 Series ID
 				f_str.Cat(ser_rec.Name).Semicol(); // #2 Name
-				f_str.Cat(ser_rec.Name).Semicol(); // #3 Текст для чека
-				f_str.Cat(0L).Semicol();           // #4 Ввод сертификата: 0 — вручную; 1 — визуально; 2 — ридером магнитных карт; 3 — сканером штрихкода
-				f_str.Cat(1L).Semicol();           // #5 Сумма к расчету: 1 — номинал; 2 — номинал с количеством
+				f_str.Cat(ser_rec.Name).Semicol(); // #3 РўРµРєСЃС‚ РґР»СЏ С‡РµРєР°
+				f_str.Cat(0L).Semicol();           // #4 Р’РІРѕРґ СЃРµСЂС‚РёС„РёРєР°С‚Р°: 0 вЂ” РІСЂСѓС‡РЅСѓСЋ; 1 вЂ” РІРёР·СѓР°Р»СЊРЅРѕ; 2 вЂ” СЂРёРґРµСЂРѕРј РјР°РіРЅРёС‚РЅС‹С… РєР°СЂС‚; 3 вЂ” СЃРєР°РЅРµСЂРѕРј С€С‚СЂРёС…РєРѕРґР°
+				f_str.Cat(1L).Semicol();           // #5 РЎСѓРјРјР° Рє СЂР°СЃС‡РµС‚Сѓ: 1 вЂ” РЅРѕРјРёРЅР°Р»; 2 вЂ” РЅРѕРјРёРЅР°Р» СЃ РєРѕР»РёС‡РµСЃС‚РІРѕРј
 				f_str.Cat(0L).Semicol();           // #6 Reserved
 				f_str.Transf(CTRANSF_INNER_TO_OUTER).CR();
 				fputs(f_str, p_file);
@@ -269,7 +269,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 		}
 		if(scs_list.getCount()) {
 			//
-			// Экспорт кредитных карт (сертификатов)
+			// Р­РєСЃРїРѕСЂС‚ РєСЂРµРґРёС‚РЅС‹С… РєР°СЂС‚ (СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ)
 			//
 			AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, StatID);
 			scard_quot_list.freeAll();
@@ -285,38 +285,38 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 					AsyncCashSCardInfo info;
 					for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
 						/*
-							№ поля Тип поля Назначение
-							1 Целое Код группы сертификатов
-							2 Целое Код сертификата
-							3 Строка Наименование
-							4 Строка Текст для чека
-							5 Целое Начало диапазона длин сертификатов
-							6 Целое Конец диапазона длин сертификатов
-							7 Строка Начало диапазона префиксов
-							8 Строка Конец диапазона префиксов
-							9 Дата Начальная дата действия сертификата
-							10 Дата Конечная дата действия сертификата
-							11 Целое Не используетс
-							12 Целое Номинал
-							13 Целое
-							Состояние:
-							0 — неактивный;
-							1 — активный
+							в„– РїРѕР»СЏ РўРёРї РїРѕР»СЏ РќР°Р·РЅР°С‡РµРЅРёРµ
+							1 Р¦РµР»РѕРµ РљРѕРґ РіСЂСѓРїРїС‹ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ
+							2 Р¦РµР»РѕРµ РљРѕРґ СЃРµСЂС‚РёС„РёРєР°С‚Р°
+							3 РЎС‚СЂРѕРєР° РќР°РёРјРµРЅРѕРІР°РЅРёРµ
+							4 РЎС‚СЂРѕРєР° РўРµРєСЃС‚ РґР»СЏ С‡РµРєР°
+							5 Р¦РµР»РѕРµ РќР°С‡Р°Р»Рѕ РґРёР°РїР°Р·РѕРЅР° РґР»РёРЅ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ
+							6 Р¦РµР»РѕРµ РљРѕРЅРµС† РґРёР°РїР°Р·РѕРЅР° РґР»РёРЅ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ
+							7 РЎС‚СЂРѕРєР° РќР°С‡Р°Р»Рѕ РґРёР°РїР°Р·РѕРЅР° РїСЂРµС„РёРєСЃРѕРІ
+							8 РЎС‚СЂРѕРєР° РљРѕРЅРµС† РґРёР°РїР°Р·РѕРЅР° РїСЂРµС„РёРєСЃРѕРІ
+							9 Р”Р°С‚Р° РќР°С‡Р°Р»СЊРЅР°СЏ РґР°С‚Р° РґРµР№СЃС‚РІРёСЏ СЃРµСЂС‚РёС„РёРєР°С‚Р°
+							10 Р”Р°С‚Р° РљРѕРЅРµС‡РЅР°СЏ РґР°С‚Р° РґРµР№СЃС‚РІРёСЏ СЃРµСЂС‚РёС„РёРєР°С‚Р°
+							11 Р¦РµР»РѕРµ РќРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃ
+							12 Р¦РµР»РѕРµ РќРѕРјРёРЅР°Р»
+							13 Р¦РµР»РѕРµ
+							РЎРѕСЃС‚РѕСЏРЅРёРµ:
+							0 вЂ” РЅРµР°РєС‚РёРІРЅС‹Р№;
+							1 вЂ” Р°РєС‚РёРІРЅС‹Р№
 						*/
 						f_str = 0;
 						f_str.Cat(ser_rec.ID).Semicol();    // #1 Series ID
 						f_str.Cat(info.Rec.ID).Semicol();   // #2 Card ID
 						f_str.Cat(info.Rec.Code).Semicol(); // #3 Code
-						f_str.Cat(info.Rec.Code).Semicol(); // #4 Текст для чека
+						f_str.Cat(info.Rec.Code).Semicol(); // #4 РўРµРєСЃС‚ РґР»СЏ С‡РµРєР°
 						const long len = (long)strlen(info.Rec.Code);
-						f_str.Cat(len).Semicol();           // #5 Начало диапазона длин сертификатов
-						f_str.Cat(len).Semicol();           // #6 Конец диапазона длин сертификатов
-						f_str.Cat(info.Rec.Code).Semicol(); // #7 Начало диапазона префиксов
-						f_str.Cat(info.Rec.Code).Semicol(); // #8 Конец диапазона префиксов
-						f_str.Cat(NZOR(info.Rec.Dt, encodedate(1, 1, 2000)), DATF_GERMAN | DATF_CENTURY).Semicol();     // #09 Начальная дата действия сертификата
-						f_str.Cat(NZOR(info.Rec.Expiry, encodedate(1, 1, 3000)), DATF_GERMAN | DATF_CENTURY).Semicol(); // #10 Конечная дата действия сертификата
-						f_str.Semicol();                       // #11 Не используется //
-						f_str.Cat((long)R0(info.Rest)).Semicol(); // #12 Конец диапазона длин сертификатов
+						f_str.Cat(len).Semicol();           // #5 РќР°С‡Р°Р»Рѕ РґРёР°РїР°Р·РѕРЅР° РґР»РёРЅ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ
+						f_str.Cat(len).Semicol();           // #6 РљРѕРЅРµС† РґРёР°РїР°Р·РѕРЅР° РґР»РёРЅ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ
+						f_str.Cat(info.Rec.Code).Semicol(); // #7 РќР°С‡Р°Р»Рѕ РґРёР°РїР°Р·РѕРЅР° РїСЂРµС„РёРєСЃРѕРІ
+						f_str.Cat(info.Rec.Code).Semicol(); // #8 РљРѕРЅРµС† РґРёР°РїР°Р·РѕРЅР° РїСЂРµС„РёРєСЃРѕРІ
+						f_str.Cat(NZOR(info.Rec.Dt, encodedate(1, 1, 2000)), DATF_GERMAN | DATF_CENTURY).Semicol();     // #09 РќР°С‡Р°Р»СЊРЅР°СЏ РґР°С‚Р° РґРµР№СЃС‚РІРёСЏ СЃРµСЂС‚РёС„РёРєР°С‚Р°
+						f_str.Cat(NZOR(info.Rec.Expiry, encodedate(1, 1, 3000)), DATF_GERMAN | DATF_CENTURY).Semicol(); // #10 РљРѕРЅРµС‡РЅР°СЏ РґР°С‚Р° РґРµР№СЃС‚РІРёСЏ СЃРµСЂС‚РёС„РёРєР°С‚Р°
+						f_str.Semicol();                       // #11 РќРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ //
+						f_str.Cat((long)R0(info.Rest)).Semicol(); // #12 РљРѕРЅРµС† РґРёР°РїР°Р·РѕРЅР° РґР»РёРЅ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ
 						f_str.Cat(info.IsClosed ? 0 : 1).Semicol();  // #13 Passive | Active
 						f_str.CR();
 						fputs(f_str, p_file);
@@ -351,19 +351,19 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 			if(p_group_iter) {
 				while(p_group_iter->Next(&grp_info) > 0) {
 					f_str = 0;
-					f_str.Cat(grp_info.ID).CatCharN(';', 2);      // #1 - ИД группы товаров, #2 - не используется //
+					f_str.Cat(grp_info.ID).CatCharN(';', 2);      // #1 - РР” РіСЂСѓРїРїС‹ С‚РѕРІР°СЂРѕРІ, #2 - РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ //
 					tail = grp_info.Name;
 					tail.Transf(CTRANSF_INNER_TO_OUTER).ReplaceChar(';', 0xA4).Semicol();
-					f_str.Cat(tail);                              // #3 - Наименование группы товаров
-					f_str.Cat(tail);                              // #4 - Текст для чека (?)
-					f_str.CatCharN(';', 8);                       // #5-#12 - Не используем
-					f_str.Cat(ATOL_OUTER_SCHEME).Semicol();       // #13 - Код схемы внешней автоматической скидки
-					f_str.CatCharN(';', 2);                       // #14-#15 - Не используем
-					f_str.Cat(grp_info.ParentID).Semicol();       // #16 - ИД родительской группы
-					f_str.CatChar('0').Semicol();                 // #17 - Признак товарной группы (0)
-					f_str.Cat((long)grp_info.Level).Semicol();    // #18 - Номер уровня иерархического списка
-					f_str.CatCharN(';', 4);                       // #19-#22 - Не используем
-					f_str.Semicol();                              // #23 - Налоговую группу не грузим
+					f_str.Cat(tail);                              // #3 - РќР°РёРјРµРЅРѕРІР°РЅРёРµ РіСЂСѓРїРїС‹ С‚РѕРІР°СЂРѕРІ
+					f_str.Cat(tail);                              // #4 - РўРµРєСЃС‚ РґР»СЏ С‡РµРєР° (?)
+					f_str.CatCharN(';', 8);                       // #5-#12 - РќРµ РёСЃРїРѕР»СЊР·СѓРµРј
+					f_str.Cat(ATOL_OUTER_SCHEME).Semicol();       // #13 - РљРѕРґ СЃС…РµРјС‹ РІРЅРµС€РЅРµР№ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕР№ СЃРєРёРґРєРё
+					f_str.CatCharN(';', 2);                       // #14-#15 - РќРµ РёСЃРїРѕР»СЊР·СѓРµРј
+					f_str.Cat(grp_info.ParentID).Semicol();       // #16 - РР” СЂРѕРґРёС‚РµР»СЊСЃРєРѕР№ РіСЂСѓРїРїС‹
+					f_str.CatChar('0').Semicol();                 // #17 - РџСЂРёР·РЅР°Рє С‚РѕРІР°СЂРЅРѕР№ РіСЂСѓРїРїС‹ (0)
+					f_str.Cat((long)grp_info.Level).Semicol();    // #18 - РќРѕРјРµСЂ СѓСЂРѕРІРЅСЏ РёРµСЂР°СЂС…РёС‡РµСЃРєРѕРіРѕ СЃРїРёСЃРєР°
+					f_str.CatCharN(';', 4);                       // #19-#22 - РќРµ РёСЃРїРѕР»СЊР·СѓРµРј
+					f_str.Semicol();                              // #23 - РќР°Р»РѕРіРѕРІСѓСЋ РіСЂСѓРїРїСѓ РЅРµ РіСЂСѓР·РёРј
 					THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
 					grp_n_level_ary.Add(grp_info.ID, grp_info.Level, 0);
 				}
@@ -396,7 +396,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 						}
 						// } @v8.2.0
 						//
-						// Формирование массива скидок по котировкам
+						// Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ РјР°СЃСЃРёРІР° СЃРєРёРґРѕРє РїРѕ РєРѕС‚РёСЂРѕРІРєР°Рј
 						//
 						{
 							AtolGoodsDiscountEntry ent;
@@ -424,65 +424,65 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 						}
 						next_barcode = 0;
 						f_str = 0;
-						f_str.Cat(gds_info.ID).Semicol();               // #1 - ИД товара
+						f_str.Cat(gds_info.ID).Semicol();               // #1 - РР” С‚РѕРІР°СЂР°
 						tail = gds_info.Name;
-						tail.Transf(CTRANSF_INNER_TO_OUTER).ReplaceChar(';', 0xA4).Semicol(); // #3 - Наименование товара
-						tail.Cat(tail);                                 // #4 - Текст для чека
-						tail.Cat(gds_info.Price, SFMT_MONEY).Semicol(); // #5 - Цена товара
+						tail.Transf(CTRANSF_INNER_TO_OUTER).ReplaceChar(';', 0xA4).Semicol(); // #3 - РќР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РѕРІР°СЂР°
+						tail.Cat(tail);                                 // #4 - РўРµРєСЃС‚ РґР»СЏ С‡РµРєР°
+						tail.Cat(gds_info.Price, SFMT_MONEY).Semicol(); // #5 - Р¦РµРЅР° С‚РѕРІР°СЂР°
 						if(CheckCnFlag(CASHF_EXPGOODSREST))
 							tail.Cat(gds_info.Rest, SFMT_QTTY);
-						tail.Semicol();                                 // #6 - Остаток
+						tail.Semicol();                                 // #6 - РћСЃС‚Р°С‚РѕРє
 						if(dscnt_scheme_id && gds_info.NoDis <= 0)      // && gds_info.NoDis <= 0 - @v6.0.1 VADIM
 							tail.Cat(dscnt_scheme_id);
-						tail.Semicol();                                 // #7 - Код схемы внутренней автоматической скидки
-						// #8 - Флаги {
+						tail.Semicol();                                 // #7 - РљРѕРґ СЃС…РµРјС‹ РІРЅСѓС‚СЂРµРЅРЅРµР№ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕР№ СЃРєРёРґРєРё
+						// #8 - Р¤Р»Р°РіРё {
 		   				if(unit_obj.Fetch(gds_info.UnitID, &unit_rec) > 0)
-							tail.CatChar((unit_rec.Flags & PPUnit::IntVal) ? '0' : '1'); // Разрешить дробное кол-во
+							tail.CatChar((unit_rec.Flags & PPUnit::IntVal) ? '0' : '1'); // Р Р°Р·СЂРµС€РёС‚СЊ РґСЂРѕР±РЅРѕРµ РєРѕР»-РІРѕ
 						else {
 							//
-							// Если для товара не определена единица измерения (правда, так быть не должно),
-							// то НЕ разрешаем дробное количество
+							// Р•СЃР»Рё РґР»СЏ С‚РѕРІР°СЂР° РЅРµ РѕРїСЂРµРґРµР»РµРЅР° РµРґРёРЅРёС†Р° РёР·РјРµСЂРµРЅРёСЏ (РїСЂР°РІРґР°, С‚Р°Рє Р±С‹С‚СЊ РЅРµ РґРѕР»Р¶РЅРѕ),
+							// С‚Рѕ РќР• СЂР°Р·СЂРµС€Р°РµРј РґСЂРѕР±РЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ
 							//
 							tail.CatChar('0');
 						}
 						for(i = 0; i < 4; i++)
-							tail.Comma().CatChar('1'); // Разрешить продажи, возврат, отриц.остатки, регистрацию без указания кол-ва
+							tail.Comma().CatChar('1'); // Р Р°Р·СЂРµС€РёС‚СЊ РїСЂРѕРґР°Р¶Рё, РІРѕР·РІСЂР°С‚, РѕС‚СЂРёС†.РѕСЃС‚Р°С‚РєРё, СЂРµРіРёСЃС‚СЂР°С†РёСЋ Р±РµР· СѓРєР°Р·Р°РЅРёСЏ РєРѕР»-РІР°
 						tail.Semicol();
 						// }
 						if(gds_info.NoDis > 0)
-							tail.Cat(gds_info.Price, SFMT_MONEY); // #9 - Min цена товара
+							tail.Cat(gds_info.Price, SFMT_MONEY); // #9 - Min С†РµРЅР° С‚РѕРІР°СЂР°
 						tail.Semicol();
-						tail.CatCharN(';', 3);                          // #10-#12 - Не используем
+						tail.CatCharN(';', 3);                          // #10-#12 - РќРµ РёСЃРїРѕР»СЊР·СѓРµРј
 						if(gds_info.NoDis <= 0)                         // @v6.0.1 VADIM
-							tail.Cat(ATOL_OUTER_SCHEME);                // #13 - Код схемы внешней автоматической скидки
+							tail.Cat(ATOL_OUTER_SCHEME);                // #13 - РљРѕРґ СЃС…РµРјС‹ РІРЅРµС€РЅРµР№ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕР№ СЃРєРёРґРєРё
 						tail.Semicol();
-						tail.CatCharN(';', 2);                          // #14-#15 - Не используем
+						tail.CatCharN(';', 2);                          // #14-#15 - РќРµ РёСЃРїРѕР»СЊР·СѓРµРј
 						if(cn_data.Flags & CASHF_EXPGOODSGROUPS && gds_info.ParentID && grp_n_level_ary.Search(gds_info.ParentID, &level, 0) > 0)
-							tail.Cat(gds_info.ParentID);               // #16 - ИД группы товаров
+							tail.Cat(gds_info.ParentID);               // #16 - РР” РіСЂСѓРїРїС‹ С‚РѕРІР°СЂРѕРІ
 						else
 							tail.CatChar('0');
 						tail.Semicol();
-						tail.CatChar('1').Semicol();                    // #17 - Признак товара (1)
-						tail.Cat(level + 1).Semicol();                  // #18 - Номер уровня иерархического списка
-						tail.CatCharN(';', 3);                          // #19-#21 - Не используем                                     @v7.9.7 tail.CatCharN(';', 4)-->tail.CatCharN(';', 3)
-						tail.Cat(gds_info.AsscPosNodeSymb).Semicol();   // #22 - Символ кассового аппарата, ассоциированного с товаром @v7.9.7
-						tail.Semicol();                                 // #23 Налоговую группу не грузим
-						tail.CatCharN(';', 6);                          // #24-#29 - Не используем
-						tail.Cat(strip(gds_info.LocPrnSymb)).Semicol(); // #30 - Символ локального принтера, ассоциированного с товаром
-						tail.CatCharN(';', 22);                         // @v8.9.8 #31-#52 - Не используем
+						tail.CatChar('1').Semicol();                    // #17 - РџСЂРёР·РЅР°Рє С‚РѕРІР°СЂР° (1)
+						tail.Cat(level + 1).Semicol();                  // #18 - РќРѕРјРµСЂ СѓСЂРѕРІРЅСЏ РёРµСЂР°СЂС…РёС‡РµСЃРєРѕРіРѕ СЃРїРёСЃРєР°
+						tail.CatCharN(';', 3);                          // #19-#21 - РќРµ РёСЃРїРѕР»СЊР·СѓРµРј                                     @v7.9.7 tail.CatCharN(';', 4)-->tail.CatCharN(';', 3)
+						tail.Cat(gds_info.AsscPosNodeSymb).Semicol();   // #22 - РЎРёРјРІРѕР» РєР°СЃСЃРѕРІРѕРіРѕ Р°РїРїР°СЂР°С‚Р°, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅРѕРіРѕ СЃ С‚РѕРІР°СЂРѕРј @v7.9.7
+						tail.Semicol();                                 // #23 РќР°Р»РѕРіРѕРІСѓСЋ РіСЂСѓРїРїСѓ РЅРµ РіСЂСѓР·РёРј
+						tail.CatCharN(';', 6);                          // #24-#29 - РќРµ РёСЃРїРѕР»СЊР·СѓРµРј
+						tail.Cat(strip(gds_info.LocPrnSymb)).Semicol(); // #30 - РЎРёРјРІРѕР» Р»РѕРєР°Р»СЊРЅРѕРіРѕ РїСЂРёРЅС‚РµСЂР°, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅРѕРіРѕ СЃ С‚РѕРІР°СЂРѕРј
+						tail.CatCharN(';', 22);                         // @v8.9.8 #31-#52 - РќРµ РёСЃРїРѕР»СЊР·СѓРµРј
 						if(goods_iter.GetAlcoGoodsExtension(gds_info.ID, 0, agi) > 0) {
-							tail.Cat(agi.CategoryCode).Semicol();                               // #53 Код вида алкогольной продукции
-                            tail.Cat(agi.Volume, MKSFMTD(0, 3, NMBF_NOZERO)).Semicol();         // #54 Емкость тары
-                            tail.Cat(1L).Semicol();                                             // #55 Признак алкогольной продукции
-                            tail.Cat((agi.StatusFlags & agi.stMarkWanted) ? 0L : 1L).Semicol(); // #56 Признак маркированной алкогольной продукции (0 - маркированная)
-                            tail.Cat(agi.Proof, MKSFMTD(0, 1, NMBF_NOZERO)).Semicol();          // #57 Крепость алкогольной продукции
+							tail.Cat(agi.CategoryCode).Semicol();                               // #53 РљРѕРґ РІРёРґР° Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РїСЂРѕРґСѓРєС†РёРё
+                            tail.Cat(agi.Volume, MKSFMTD(0, 3, NMBF_NOZERO)).Semicol();         // #54 Р•РјРєРѕСЃС‚СЊ С‚Р°СЂС‹
+                            tail.Cat(1L).Semicol();                                             // #55 РџСЂРёР·РЅР°Рє Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РїСЂРѕРґСѓРєС†РёРё
+                            tail.Cat((agi.StatusFlags & agi.stMarkWanted) ? 0L : 1L).Semicol(); // #56 РџСЂРёР·РЅР°Рє РјР°СЂРєРёСЂРѕРІР°РЅРЅРѕР№ Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РїСЂРѕРґСѓРєС†РёРё (0 - РјР°СЂРєРёСЂРѕРІР°РЅРЅР°СЏ)
+                            tail.Cat(agi.Proof, MKSFMTD(0, 1, NMBF_NOZERO)).Semicol();          // #57 РљСЂРµРїРѕСЃС‚СЊ Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РїСЂРѕРґСѓРєС†РёРё
 						}
 						else {
-							tail.Semicol();         // #53 Код вида алкогольной продукции
-							tail.Semicol();         // #54 Емкость тары
-							tail.Semicol();         // #55 Признак алкогольной продукции
-							tail.Semicol();         // #56 Признак маркированной алкогольной продукции (пока НЕТ)
-							tail.Semicol();         // #57 Крепость алкогольной продукции
+							tail.Semicol();         // #53 РљРѕРґ РІРёРґР° Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РїСЂРѕРґСѓРєС†РёРё
+							tail.Semicol();         // #54 Р•РјРєРѕСЃС‚СЊ С‚Р°СЂС‹
+							tail.Semicol();         // #55 РџСЂРёР·РЅР°Рє Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РїСЂРѕРґСѓРєС†РёРё
+							tail.Semicol();         // #56 РџСЂРёР·РЅР°Рє РјР°СЂРєРёСЂРѕРІР°РЅРЅРѕР№ Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РїСЂРѕРґСѓРєС†РёРё (РїРѕРєР° РќР•Рў)
+							tail.Semicol();         // #57 РљСЂРµРїРѕСЃС‚СЊ Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РїСЂРѕРґСѓРєС†РёРё
 						}
 					}
 					if((bclen = strlen(gds_info.BarCode)) != 0) {
@@ -497,7 +497,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 						if(next_barcode)
 							f_str.Comma();
 						next_barcode = 1;
-						f_str.Cat(gds_info.BarCode); // #2 - Список штрихкодов через запятую
+						f_str.Cat(gds_info.BarCode); // #2 - РЎРїРёСЃРѕРє С€С‚СЂРёС…РєРѕРґРѕРІ С‡РµСЂРµР· Р·Р°РїСЏС‚СѓСЋ
 					}
 				}
 	   			prev_goods_id = gds_info.ID;
@@ -509,19 +509,19 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 			}
 			//
 			// @v7.4.12 {
-			// Список товаров на удаление.
+			// РЎРїРёСЃРѕРє С‚РѕРІР°СЂРѕРІ РЅР° СѓРґР°Р»РµРЅРёРµ.
 			//
 			if(rmv_goods_list.getCount()) {
 				fputs((f_str = "$$$DELETEWARESBYWARECODE").CR(), p_file);
 				for(i = 0; i < rmv_goods_list.getCount(); i++) {
-					(f_str = 0).Cat(rmv_goods_list.get(i));  // #1 - ИД товара
+					(f_str = 0).Cat(rmv_goods_list.get(i));  // #1 - РР” С‚РѕРІР°СЂР°
 					fputs(f_str.CR(), p_file);
 				}
 			}
 			// } @v7.4.12
 			//
 			// @v8.2.0 {
-			// Список алкогольных товаров
+			// РЎРїРёСЃРѕРє Р°Р»РєРѕРіРѕР»СЊРЅС‹С… С‚РѕРІР°СЂРѕРІ
 			//
 			if(alc_goods_list.getCount()) {
 				alc_goods_list.sortAndUndup();
@@ -557,21 +557,21 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 								is_first = 0;
 							}
 							f_str = 0;
-							// Для Сет-Старт default-scheme = 999999
-							f_str.Cat(default_scheme_id).Semicol();               // #1 - код схемы внутренней авт.скидки
-							f_str.Cat(scs_id).Semicol();                          // #2 - код скидки
+							// Р”Р»СЏ РЎРµС‚-РЎС‚Р°СЂС‚ default-scheme = 999999
+							f_str.Cat(default_scheme_id).Semicol();               // #1 - РєРѕРґ СЃС…РµРјС‹ РІРЅСѓС‚СЂРµРЅРЅРµР№ Р°РІС‚.СЃРєРёРґРєРё
+							f_str.Cat(scs_id).Semicol();                          // #2 - РєРѕРґ СЃРєРёРґРєРё
 							f_str.Semicol();                                      // #3 - unused
 							(temp_buf = ser_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
-							f_str.Cat(temp_buf).Semicol();                        // #4 - наименование скидки (код карты)
-							f_str.Cat(0L).Semicol();                              // #5 - тип скидки (0 - percent, 1 - absolute)
-							f_str.Cat(fdiv100i(scs_pack.Rec.PDis)).Semicol();     // #6 - значение скидки
+							f_str.Cat(temp_buf).Semicol();                        // #4 - РЅР°РёРјРµРЅРѕРІР°РЅРёРµ СЃРєРёРґРєРё (РєРѕРґ РєР°СЂС‚С‹)
+							f_str.Cat(0L).Semicol();                              // #5 - С‚РёРї СЃРєРёРґРєРё (0 - percent, 1 - absolute)
+							f_str.Cat(fdiv100i(scs_pack.Rec.PDis)).Semicol();     // #6 - Р·РЅР°С‡РµРЅРёРµ СЃРєРёРґРєРё
 							//
-							// #7-#8 Период действия цены
+							// #7-#8 РџРµСЂРёРѕРґ РґРµР№СЃС‚РІРёСЏ С†РµРЅС‹
 							//
 							f_str.CatCharN(';', 2);
 							f_str.Semicol();                                      // #9 reserve
-							f_str.Cat(scs_pack.Eb.UsageTmStart, TIMF_HMS).Semicol(); // #10 время начала действия скидки
-							if(scs_pack.Eb.UsageTmEnd) {                             // #11 время окончания действия скидки
+							f_str.Cat(scs_pack.Eb.UsageTmStart, TIMF_HMS).Semicol(); // #10 РІСЂРµРјСЏ РЅР°С‡Р°Р»Р° РґРµР№СЃС‚РІРёСЏ СЃРєРёРґРєРё
+							if(scs_pack.Eb.UsageTmEnd) {                             // #11 РІСЂРµРјСЏ РѕРєРѕРЅС‡Р°РЅРёСЏ РґРµР№СЃС‚РІРёСЏ СЃРєРёРґРєРё
 								f_str.Cat(scs_pack.Eb.UsageTmEnd, TIMF_HMS).Semicol();
 							}
 							else {
@@ -579,14 +579,14 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 							}
 							//f_str.Semicol();                                          // #12 reserve
 							//
-							//                                                        #12 - #24 - не используем
+							//                                                        #12 - #24 - РЅРµ РёСЃРїРѕР»СЊР·СѓРµРј
 							//
 							(temp_buf = 0).CatCharN(';', 2).CatChar('0').Semicol();
 							f_str.Cat(temp_buf);
 							f_str.Cat(temp_buf);
 							f_str.Cat(temp_buf);
 							f_str.Cat(temp_buf);
-							f_str.Cat(p_prefix_range->Low).Semicol();              // #25, #26 Диапазон номеров карт
+							f_str.Cat(p_prefix_range->Low).Semicol();              // #25, #26 Р”РёР°РїР°Р·РѕРЅ РЅРѕРјРµСЂРѕРІ РєР°СЂС‚
 							f_str.Cat(p_prefix_range->Upp).Semicol();
 							f_str.CatChar('0').Semicol();                         // #27 - reserve
 							//
@@ -598,7 +598,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 							f_str.Semicol();                                      // #31
 							f_str.Semicol();                                      // #32
 							f_str.Semicol();                                      // #33
-							f_str.Semicol();                                      // #34 - ИД товара
+							f_str.Semicol();                                      // #34 - РР” С‚РѕРІР°СЂР°
 							f_str.Semicol();                                      // #35
 							f_str.Semicol();                                      // #36
 							f_str.Semicol();                                      // #37
@@ -627,9 +627,9 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 				for(i = 0; i < retail_quot_list.getCount(); i++) {
 					const PPID qk_id = retail_quot_list.get(i);
 					if(used_retail_quot.get(i) && qk_obj.Fetch(qk_id, &qk_rec) > 0) {
-						(f_str = 0).Cat(qk_id).Semicol();                     // #1 - код схемы внутренней авт.скидки
-						f_str.Cat(qk_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CatCharN(';', 2);     // #2 - наименование схемы, #3 - не используется //
-						f_str.CatChar('0').Semicol();                         // #4 - тип операции объединения (0 - не объединять)
+						(f_str = 0).Cat(qk_id).Semicol();                     // #1 - РєРѕРґ СЃС…РµРјС‹ РІРЅСѓС‚СЂРµРЅРЅРµР№ Р°РІС‚.СЃРєРёРґРєРё
+						f_str.Cat(qk_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CatCharN(';', 2);     // #2 - РЅР°РёРјРµРЅРѕРІР°РЅРёРµ СЃС…РµРјС‹, #3 - РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ //
+						f_str.CatChar('0').Semicol();                         // #4 - С‚РёРї РѕРїРµСЂР°С†РёРё РѕР±СЉРµРґРёРЅРµРЅРёСЏ (0 - РЅРµ РѕР±СЉРµРґРёРЅСЏС‚СЊ)
 						THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
 					}
 				}
@@ -644,10 +644,10 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 						scard_quot_list.SearchByVal(r_ent.QuotKindID, &sc_ser_id, 0);
 					TimeRange tmr;
 					f_str = 0;
-					// Для Сет-Старт default-scheme = default_scheme_id
-					f_str.Cat(NZOR(r_ent.QuotKindID, default_scheme_id)).Semicol(); // #1 - код схемы внутренней авт.скидки
-					f_str.Cat(++dscnt_code).Semicol();                    // #2 - код скидки
-					                                                      // #3 - наименование скидки (код карты) {
+					// Р”Р»СЏ РЎРµС‚-РЎС‚Р°СЂС‚ default-scheme = default_scheme_id
+					f_str.Cat(NZOR(r_ent.QuotKindID, default_scheme_id)).Semicol(); // #1 - РєРѕРґ СЃС…РµРјС‹ РІРЅСѓС‚СЂРµРЅРЅРµР№ Р°РІС‚.СЃРєРёРґРєРё
+					f_str.Cat(++dscnt_code).Semicol();                    // #2 - РєРѕРґ СЃРєРёРґРєРё
+					                                                      // #3 - РЅР°РёРјРµРЅРѕРІР°РЅРёРµ СЃРєРёРґРєРё (РєРѕРґ РєР°СЂС‚С‹) {
 					temp_buf = 0;
 					if(qk_obj.Fetch(r_ent.QuotKindID, &qk_rec) > 0)
 						temp_buf.Cat(qk_rec.Name);
@@ -656,12 +656,12 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 						temp_buf.Cat("EXT DISCOUNT");
 					}
 					f_str.Cat(temp_buf).Semicol();
-					// } #3 - наименование скидки (код карты)
-					f_str.Cat(temp_buf).Semicol();                           // #4 - текст для чека
-					f_str.Cat((r_ent.AbsDiscount > 0.0) ? 1 : 3).Semicol();  // #5 - тип скидки
-					f_str.Cat(fabs(r_ent.AbsDiscount)).Semicol();            // #6 - значение скидки
+					// } #3 - РЅР°РёРјРµРЅРѕРІР°РЅРёРµ СЃРєРёРґРєРё (РєРѕРґ РєР°СЂС‚С‹)
+					f_str.Cat(temp_buf).Semicol();                           // #4 - С‚РµРєСЃС‚ РґР»СЏ С‡РµРєР°
+					f_str.Cat((r_ent.AbsDiscount > 0.0) ? 1 : 3).Semicol();  // #5 - С‚РёРї СЃРєРёРґРєРё
+					f_str.Cat(fabs(r_ent.AbsDiscount)).Semicol();            // #6 - Р·РЅР°С‡РµРЅРёРµ СЃРєРёРґРєРё
 					//
-					// #7-#8 Период действия цены
+					// #7-#8 РџРµСЂРёРѕРґ РґРµР№СЃС‚РІРёСЏ С†РµРЅС‹
 					//
 					if(qk_rec.ID && !qk_rec.Period.IsZero()) {
 						f_str.Cat(qk_rec.Period.low, DATF_GERMAN|DATF_CENTURY).Semicol();
@@ -671,7 +671,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 						f_str.CatCharN(';', 2);
 					f_str.Semicol();                                         // #9 reserve
 					//
-					//                                                       #10-#11 время начала и окончания действия скидки
+					//                                                       #10-#11 РІСЂРµРјСЏ РЅР°С‡Р°Р»Р° Рё РѕРєРѕРЅС‡Р°РЅРёСЏ РґРµР№СЃС‚РІРёСЏ СЃРєРёРґРєРё
 					//
 					if(qk_rec.ID && qk_rec.GetTimeRange(tmr) > 0)
 						f_str.Cat(tmr.low, TIMF_HMS).Semicol().Cat(tmr.upp, TIMF_HMS).Semicol();
@@ -679,7 +679,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 						f_str.CatCharN(';', 2);
 					f_str.Semicol(); // #12 reserve
 					//
-					//                                                       #13 - #24 - не используем
+					//                                                       #13 - #24 - РЅРµ РёСЃРїРѕР»СЊР·СѓРµРј
 					//
 					(temp_buf = 0).CatCharN(';', 2).CatChar('0').Semicol();
 					f_str.Cat(temp_buf);
@@ -687,7 +687,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 					f_str.Cat(temp_buf);
 					f_str.Cat(temp_buf);
 					//
-					//                                                       #24, #26 Диапазон номеров карт
+					//                                                       #24, #26 Р”РёР°РїР°Р·РѕРЅ РЅРѕРјРµСЂРѕРІ РєР°СЂС‚
 					//
 					if(sc_ser_id) {
 						if(scs_obj.GetCodeRange(sc_ser_id, card_code_low, card_code_upp) > 0) {
@@ -711,7 +711,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 					f_str.Semicol();                                      // #31
 					f_str.Semicol();                                      // #32
 					f_str.Semicol();                                      // #33
-					f_str.Cat(r_ent.GoodsID).Semicol();                   // #34 - ИД товара
+					f_str.Cat(r_ent.GoodsID).Semicol();                   // #34 - РР” С‚РѕРІР°СЂР°
 					f_str.Semicol();                                      // #35
 					f_str.Semicol();                                      // #36
 					f_str.Semicol();                                      // #37
@@ -731,7 +731,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 	SFile::ZClose(&p_file);
 	PPWait(0);
 	PPWait(1);
-	(email_subj = SUBJECTFRONTOL).Cat("001"); // Пока только для кассы с номером 1
+	(email_subj = SUBJECTFRONTOL).Cat("001"); // РџРѕРєР° С‚РѕР»СЊРєРѕ РґР»СЏ РєР°СЃСЃС‹ СЃ РЅРѕРјРµСЂРѕРј 1
 	THROW(DistributeFile(path_goods, 0, 0, email_subj));
 	THROW(DistributeFile(path_flag,  0));
 	if(StatID)
@@ -746,8 +746,8 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 
 int SLAPI ACS_SETSTART::ImportFiles()
 {
-	const  long   delay_quant = 5 * 60 * 1000; // 5 мин
-	const  int    notify_timeout = (ImpExpTimeout) ? ImpExpTimeout : (1 * 60 * 60 * 1000); // таймаут по умолчанию - 1 час.
+	const  long   delay_quant = 5 * 60 * 1000; // 5 РјРёРЅ
+	const  int    notify_timeout = (ImpExpTimeout) ? ImpExpTimeout : (1 * 60 * 60 * 1000); // С‚Р°Р№РјР°СѓС‚ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ - 1 С‡Р°СЃ.
 	const  double timeouts_c = (double)notify_timeout / (double)delay_quant;
 	const  char * p_ftp_flag = "ftp:";
 	const  char * p_email_flag = "email";
@@ -873,7 +873,7 @@ int SLAPI ACS_SETSTART::ImportFiles()
 				SPathStruc sp;
 				sp.Split(path);
 				// sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, temp_dir);
-				// удаление временных файлов, если их кол-во стало больше 30 {
+				// СѓРґР°Р»РµРЅРёРµ РІСЂРµРјРµРЅРЅС‹С… С„Р°Р№Р»РѕРІ, РµСЃР»Рё РёС… РєРѕР»-РІРѕ СЃС‚Р°Р»Рѕ Р±РѕР»СЊС€Рµ 30 {
 				{
 					uint   files_count = 0;
 					LDATETIME dtm;
@@ -1013,7 +1013,7 @@ int SLAPI ACS_SETSTART::GetZRepList(const char * pPath, _FrontolZRepArray * pZRe
 	_FrontolZRepArray zrep_list;
 	uint   pos = 0;
 	long   op_type = 0, nsmena = 0, cash_no = 0;
-	LAssocArray zrep_ary; // Пара {номер_файла; номер_смены}
+	LAssocArray zrep_ary; // РџР°СЂР° {РЅРѕРјРµСЂ_С„Р°Р№Р»Р°; РЅРѕРјРµСЂ_СЃРјРµРЅС‹}
 	SString imp_file_name = pPath;
 	SFile  imp_file(imp_file_name, SFile::mRead); // PathRpt-->imp_file_name
 
@@ -1023,9 +1023,9 @@ int SLAPI ACS_SETSTART::GetZRepList(const char * pPath, _FrontolZRepArray * pZRe
 		imp_file.ReadLine(buf);
 	//
 	// #loop01
-	// Собираем список Z-отчетов в массив zrep_ary.
-	// Для каждого найденного Z-отчета создаем запись в таблице кассовых сессий (CS)
-	// и заносим идентификатор сессии в массив ACS_ATOS::SessAry.
+	// РЎРѕР±РёСЂР°РµРј СЃРїРёСЃРѕРє Z-РѕС‚С‡РµС‚РѕРІ РІ РјР°СЃСЃРёРІ zrep_ary.
+	// Р”Р»СЏ РєР°Р¶РґРѕРіРѕ РЅР°Р№РґРµРЅРЅРѕРіРѕ Z-РѕС‚С‡РµС‚Р° СЃРѕР·РґР°РµРј Р·Р°РїРёСЃСЊ РІ С‚Р°Р±Р»РёС†Рµ РєР°СЃСЃРѕРІС‹С… СЃРµСЃСЃРёР№ (CS)
+	// Рё Р·Р°РЅРѕСЃРёРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРµСЃСЃРёРё РІ РјР°СЃСЃРёРІ ACS_ATOS::SessAry.
 	//
 	while(imp_file.ReadLine(buf) > 0) {
 		LDATETIME dtm;
@@ -1033,15 +1033,15 @@ int SLAPI ACS_SETSTART::GetZRepList(const char * pPath, _FrontolZRepArray * pZRe
 
 		ss.clear();
 		ss.add(buf);
-		ss.get(&(pos = 0), buf);     // #01 Код транзакции (не используем)
-		ss.get(&pos, buf);           // #02 Дата транзакции
+		ss.get(&(pos = 0), buf);     // #01 РљРѕРґ С‚СЂР°РЅР·Р°РєС†РёРё (РЅРµ РёСЃРїРѕР»СЊР·СѓРµРј)
+		ss.get(&pos, buf);           // #02 Р”Р°С‚Р° С‚СЂР°РЅР·Р°РєС†РёРё
 		strtodate(buf.Strip(), DATF_DMY, &dtm.d);
-		ss.get(&pos, buf);           // #03 Время транзакции
+		ss.get(&pos, buf);           // #03 Р’СЂРµРјСЏ С‚СЂР°РЅР·Р°РєС†РёРё
 		strtotime(buf.Strip(), TIMF_HMS, &dtm.t);
-		ss.get(&pos, buf);           // #04 Тип транзакции (операции)
+		ss.get(&pos, buf);           // #04 РўРёРї С‚СЂР°РЅР·Р°РєС†РёРё (РѕРїРµСЂР°С†РёРё)
 		op_type = buf.ToLong();
 		if(op_type == FRONTOL_OPTYPE_ZREPORT) {
-			ss.get(&pos, buf);       // #05 Номер ККМ
+			ss.get(&pos, buf);       // #05 РќРѕРјРµСЂ РљРљРњ
 			cash_no = buf.ToLong();
 			if(LogNumList.lsearch(cash_no)) {
 				PPID   sess_id;
@@ -1053,7 +1053,7 @@ int SLAPI ACS_SETSTART::GetZRepList(const char * pPath, _FrontolZRepArray * pZRe
 				ss.get(&pos, buf);           // #11
 				ss.get(&pos, buf);           // #12
 				ss.get(&pos, buf);           // #13
-				ss.get(&pos, buf);           // #14 Номер смены
+				ss.get(&pos, buf);           // #14 РќРѕРјРµСЂ СЃРјРµРЅС‹
 				nsmena = buf.ToLong(); //
 				if(CS.SearchByNumber(&sess_id, NodeID, cash_no, nsmena, dtm) > 0) {
 					if(CS.data.Temporary)
@@ -1086,11 +1086,11 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 	long   count = 0;
 	PPID   grp_id = 0, goods_id = 0;
 	PPIDArray   new_goods;
-	//LAssocArray zrep_ary; // Пара {номер_кассы; номер_смены}
+	//LAssocArray zrep_ary; // РџР°СЂР° {РЅРѕРјРµСЂ_РєР°СЃСЃС‹; РЅРѕРјРµСЂ_СЃРјРµРЅС‹}
 	LDATETIME dtm;
 	SString   buf, card_code, wait_msg;
 	SString   barcode, goods_name, arcode;
-	SString   goods_ident_txt; // Текстовый идентификатор товара
+	SString   goods_ident_txt; // РўРµРєСЃС‚РѕРІС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚РѕРІР°СЂР°
 	StringSet ss(';', 0);
 	IterCounter   cntr;
 	PPObjSCard sc_obj;
@@ -1098,9 +1098,9 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 	PPGoodsPacket gds_pack;
 	PPObjGoods    goods_obj;
 	PPGoodsConfig goods_cfg;
-	UintHashTable closed_check_list; // Список идентификаторов закрытых чеков.
-		// Необходим для предотвращения повторного сброса строк одного чека, если
-		// во входном файле дублируются чеки.
+	UintHashTable closed_check_list; // РЎРїРёСЃРѕРє РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ Р·Р°РєСЂС‹С‚С‹С… С‡РµРєРѕРІ.
+		// РќРµРѕР±С…РѕРґРёРј РґР»СЏ РїСЂРµРґРѕС‚РІСЂР°С‰РµРЅРёСЏ РїРѕРІС‚РѕСЂРЅРѕРіРѕ СЃР±СЂРѕСЃР° СЃС‚СЂРѕРє РѕРґРЅРѕРіРѕ С‡РµРєР°, РµСЃР»Рё
+		// РІРѕ РІС…РѕРґРЅРѕРј С„Р°Р№Р»Рµ РґСѓР±Р»РёСЂСѓСЋС‚СЃСЏ С‡РµРєРё.
 	FrontolCcPayment cc_payment;
 	SString   imp_file_name = PathRpt;
 	// SPathStruc::ReplacePath(imp_file_name, pImpPath, 1);
@@ -1121,32 +1121,32 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 		while(imp_file.ReadLine(buf) > 0) {
 			ss.clear();
 			ss.add(buf);
-			ss.get(&(pos = 0), buf);     // #01 Код транзакции (не используем)
-			ss.get(&pos, buf);           // #02 Дата транзакции
+			ss.get(&(pos = 0), buf);     // #01 РљРѕРґ С‚СЂР°РЅР·Р°РєС†РёРё (РЅРµ РёСЃРїРѕР»СЊР·СѓРµРј)
+			ss.get(&pos, buf);           // #02 Р”Р°С‚Р° С‚СЂР°РЅР·Р°РєС†РёРё
 			strtodate(buf.Strip(), DATF_DMY, &dtm.d);
-			ss.get(&pos, buf);           // #03 Время транзакции
+			ss.get(&pos, buf);           // #03 Р’СЂРµРјСЏ С‚СЂР°РЅР·Р°РєС†РёРё
 			strtotime(buf.Strip(), TIMF_HMS, &dtm.t);
-			ss.get(&pos, buf);           // #04 Тип транзакции (операции)
+			ss.get(&pos, buf);           // #04 РўРёРї С‚СЂР°РЅР·Р°РєС†РёРё (РѕРїРµСЂР°С†РёРё)
 			op_type = buf.ToLong();
 			if(op_type == FRONTOL_OPTYPE_CHKCLOSED) {
-				ss.get(&pos, buf);       // #05 Номер ККМ
+				ss.get(&pos, buf);       // #05 РќРѕРјРµСЂ РљРљРњ
 				cash_no = buf.ToLong();
 				if(LogNumList.lsearch(cash_no)) {
 					int    hour, min;
 					long   chk_type;
 					PPID   id = 0;
 					LDATETIME dttm2;
-					ss.get(&pos, buf);   // #06 Номер чека
+					ss.get(&pos, buf);   // #06 РќРѕРјРµСЂ С‡РµРєР°
 					chk_no = buf.ToLong();
 					chk_no = ModifDup(cash_no, chk_no);
 					decodetime(&hour, &min, 0, 0, &dtm.t);
 					dtm.t = encodetime(hour, min, (int)(chk_no % 60), 0);
 					dttm2 = dtm;
-					ss.get(&pos, buf);       // #07 пропускаем
-					ss.get(&pos, card_code); // #08 Код дисконтной карты
-					for(field_no = 8; field_no < 13 && ss.get(&pos, buf) > 0; field_no++); // #9-12 пропускаем
-					chk_type = buf.ToLong(); // #13 Тип чека
-					ss.get(&pos, buf);       // #14 Номер смены
+					ss.get(&pos, buf);       // #07 РїСЂРѕРїСѓСЃРєР°РµРј
+					ss.get(&pos, card_code); // #08 РљРѕРґ РґРёСЃРєРѕРЅС‚РЅРѕР№ РєР°СЂС‚С‹
+					for(field_no = 8; field_no < 13 && ss.get(&pos, buf) > 0; field_no++); // #9-12 РїСЂРѕРїСѓСЃРєР°РµРј
+					chk_type = buf.ToLong(); // #13 РўРёРї С‡РµРєР°
+					ss.get(&pos, buf);       // #14 РќРѕРјРµСЂ СЃРјРµРЅС‹
 					nsmena = buf.ToLong();
 					if(oneof2(chk_type, FRONTOL_CHK_SALE, FRONTOL_CHK_RETURN)) {
 						long   fl  = (chk_type == FRONTOL_CHK_RETURN) ? CCHKF_RETURN : 0;
@@ -1165,9 +1165,9 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 		cntr.Init(ZRepList.getCount());
 		PPLoadText(PPTXT_ACSCLS_IMPORT, wait_msg);
 		//
-		// Значение cur_zrep_list_pos соответствует текущему Z-отчету. Позиция смещается аналогично
-		// порядку считывания записей о Z-отчетах в цикле выше (#loop01) при обнаружении записи с типом
-		// транзакции FRONTOL_OPTYPE_ZREPORT
+		// Р—РЅР°С‡РµРЅРёРµ cur_zrep_list_pos СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ С‚РµРєСѓС‰РµРјСѓ Z-РѕС‚С‡РµС‚Сѓ. РџРѕР·РёС†РёСЏ СЃРјРµС‰Р°РµС‚СЃСЏ Р°РЅР°Р»РѕРіРёС‡РЅРѕ
+		// РїРѕСЂСЏРґРєСѓ СЃС‡РёС‚С‹РІР°РЅРёСЏ Р·Р°РїРёСЃРµР№ Рѕ Z-РѕС‚С‡РµС‚Р°С… РІ С†РёРєР»Рµ РІС‹С€Рµ (#loop01) РїСЂРё РѕР±РЅР°СЂСѓР¶РµРЅРёРё Р·Р°РїРёСЃРё СЃ С‚РёРїРѕРј
+		// С‚СЂР°РЅР·Р°РєС†РёРё FRONTOL_OPTYPE_ZREPORT
 		//
 		for(uint cur_zrep_list_pos = 0; imp_file.ReadLine(buf) > 0;) {
 			int    r;
@@ -1176,23 +1176,23 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 			ss.clear();
 			ss.add(buf);
 			pos = 0;
-			//   № транзакции, дата транзакции, время транзакции - пропускаем, выбираем тип транзакции (операции)
+			//   в„– С‚СЂР°РЅР·Р°РєС†РёРё, РґР°С‚Р° С‚СЂР°РЅР·Р°РєС†РёРё, РІСЂРµРјСЏ С‚СЂР°РЅР·Р°РєС†РёРё - РїСЂРѕРїСѓСЃРєР°РµРј, РІС‹Р±РёСЂР°РµРј С‚РёРї С‚СЂР°РЅР·Р°РєС†РёРё (РѕРїРµСЂР°С†РёРё)
 			for(field_no = 0; field_no < 4 && ss.get(&pos, buf) > 0; field_no++);
-										 // #01 Номер транзакции
-										 // #02 Дата транзакции
-										 // #03 Время транзакции
-			op_type = buf.ToLong();      // #04 Тип операции
-			ss.get(&pos, buf);           // #05 Номер ККМ
+										 // #01 РќРѕРјРµСЂ С‚СЂР°РЅР·Р°РєС†РёРё
+										 // #02 Р”Р°С‚Р° С‚СЂР°РЅР·Р°РєС†РёРё
+										 // #03 Р’СЂРµРјСЏ С‚СЂР°РЅР·Р°РєС†РёРё
+			op_type = buf.ToLong();      // #04 РўРёРї РѕРїРµСЂР°С†РёРё
+			ss.get(&pos, buf);           // #05 РќРѕРјРµСЂ РљРљРњ
 			cash_no = buf.ToLong();
-			ss.get(&pos, buf);           // #06 Номер чека
+			ss.get(&pos, buf);           // #06 РќРѕРјРµСЂ С‡РµРєР°
 			chk_no = buf.ToLong();
 			chk_no = ModifDup(cash_no, chk_no);
-			ss.get(&pos, buf);           // #07 Код кассира - пропускаем
+			ss.get(&pos, buf);           // #07 РљРѕРґ РєР°СЃСЃРёСЂР° - РїСЂРѕРїСѓСЃРєР°РµРј
 			if(op_type == FRONTOL_OPTYPE_ZREPORT) {
 				if(LogNumList.lsearch(cash_no)) {
 					const  uint preserve_pos = pos;
 					ss.get(&pos, buf);   // #08 skip
-					ss.get(&pos, buf);   // #09 Номер смены (no)
+					ss.get(&pos, buf);   // #09 РќРѕРјРµСЂ СЃРјРµРЅС‹ (no)
 
 					ss.get(&pos, buf);   // #10
 					ss.get(&pos, buf);   // #11
@@ -1213,32 +1213,32 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 					}
 				}
 			}
-			else if(oneof4(op_type, FRONTOL_OPTYPE_CHKLINE, FRONTOL_OPTYPE_STORNO, FRONTOL_OPTYPE_CHKLINEFREE, FRONTOL_OPTYPE_STORNOFREE)) { // Строка чека или сторно строки
+			else if(oneof4(op_type, FRONTOL_OPTYPE_CHKLINE, FRONTOL_OPTYPE_STORNO, FRONTOL_OPTYPE_CHKLINEFREE, FRONTOL_OPTYPE_STORNOFREE)) { // РЎС‚СЂРѕРєР° С‡РµРєР° РёР»Рё СЃС‚РѕСЂРЅРѕ СЃС‚СЂРѕРєРё
 				double qtty = 0.0;
 				double price = 0.0;
 				double dscnt_price = 0.0;
 				double dscnt = 0.0;
-				int    div = 0; // @v8.8.6 Номер отдела
+				int    div = 0; // @v8.8.6 РќРѕРјРµСЂ РѕС‚РґРµР»Р°
 				const  int is_free_price = oneof2(op_type, FRONTOL_OPTYPE_CHKLINEFREE, FRONTOL_OPTYPE_STORNOFREE);
-				ss.get(&pos, goods_ident_txt); // #08 ID товара
-				ss.get(&pos, buf);          // #09 Коды значений разрезов
-				ss.get(&pos, buf);          // #10 Цена
+				ss.get(&pos, goods_ident_txt); // #08 ID С‚РѕРІР°СЂР°
+				ss.get(&pos, buf);          // #09 РљРѕРґС‹ Р·РЅР°С‡РµРЅРёР№ СЂР°Р·СЂРµР·РѕРІ
+				ss.get(&pos, buf);          // #10 Р¦РµРЅР°
 				price = buf.ToReal();
-				ss.get(&pos, buf);          // #11 Количество
+				ss.get(&pos, buf);          // #11 РљРѕР»РёС‡РµСЃС‚РІРѕ
 				qtty = buf.ToReal();        
-				ss.get(&pos, buf);          // #12 Сумма товара + сумма округления (пропускаем)
-				ss.get(&pos, buf);          // #13 Операция (пропускаем)
-				ss.get(&pos, buf);          // #14 Номер смены (пропускаем)
-				ss.get(&pos, buf);          // #15 Цена  со скидками
+				ss.get(&pos, buf);          // #12 РЎСѓРјРјР° С‚РѕРІР°СЂР° + СЃСѓРјРјР° РѕРєСЂСѓРіР»РµРЅРёСЏ (РїСЂРѕРїСѓСЃРєР°РµРј)
+				ss.get(&pos, buf);          // #13 РћРїРµСЂР°С†РёСЏ (РїСЂРѕРїСѓСЃРєР°РµРј)
+				ss.get(&pos, buf);          // #14 РќРѕРјРµСЂ СЃРјРµРЅС‹ (РїСЂРѕРїСѓСЃРєР°РµРј)
+				ss.get(&pos, buf);          // #15 Р¦РµРЅР°  СЃРѕ СЃРєРёРґРєР°РјРё
 				dscnt_price = buf.ToReal(); // 
-				ss.get(&pos, buf);          // #16 Сумма со скидками
+				ss.get(&pos, buf);          // #16 РЎСѓРјРјР° СЃРѕ СЃРєРёРґРєР°РјРё
 				dscnt = buf.ToReal();       
 				// @v8.8.6 {
-				ss.get(&pos, buf);          // #17 пропускаем
-				ss.get(&pos, buf);          // #18 пропускаем
+				ss.get(&pos, buf);          // #17 РїСЂРѕРїСѓСЃРєР°РµРј
+				ss.get(&pos, buf);          // #18 РїСЂРѕРїСѓСЃРєР°РµРј
 				ss.get(&pos, barcode);          // #19 barcode
-				ss.get(&pos, buf);          // #20 пропускаем
-				ss.get(&pos, buf = 0);      // #21 Номер отдела
+				ss.get(&pos, buf);          // #20 РїСЂРѕРїСѓСЃРєР°РµРј
+				ss.get(&pos, buf = 0);      // #21 РќРѕРјРµСЂ РѕС‚РґРµР»Р°
 				div = buf.ToLong();
 				// } @v8.8.6
 				THROW(r = SearchTempCheckByCode(cash_no, chk_no, cur_zrep_n));
@@ -1330,13 +1330,13 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 					}
 				}
 			}
-			else if(oneof2(op_type, FRONTOL_OPTYPE_PAYM1, FRONTOL_OPTYPE_PAYM2)) { // Оплата
+			else if(oneof2(op_type, FRONTOL_OPTYPE_PAYM1, FRONTOL_OPTYPE_PAYM2)) { // РћРїР»Р°С‚Р°
 				long   paym_type;
 				PPID   crd_card_id = 0;
 				double _amount = 0.0;
-				ss.get(&pos, buf);        // #8 - пропускаем
-				ss.get(&pos, buf);        // #9 - тип оплаты
-				paym_type = buf.ToLong(); // Тип оплаты (1 - наличные)
+				ss.get(&pos, buf);        // #8 - РїСЂРѕРїСѓСЃРєР°РµРј
+				ss.get(&pos, buf);        // #9 - С‚РёРї РѕРїР»Р°С‚С‹
+				paym_type = buf.ToLong(); // РўРёРї РѕРїР»Р°С‚С‹ (1 - РЅР°Р»РёС‡РЅС‹Рµ)
 				ss.get(&pos, buf);        // #10
 				ss.get(&pos, buf);        // #11
 				ss.get(&pos, buf);        // #12
@@ -1366,7 +1366,7 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 				}
 				cc_payment.Amount += _amount;
 			}
-			else if(op_type == FRONTOL_OPTYPE_CANCEL) { // Отмена чека
+			else if(op_type == FRONTOL_OPTYPE_CANCEL) { // РћС‚РјРµРЅР° С‡РµРєР°
 				THROW(r = SearchTempCheckByCode(cash_no, chk_no, cur_zrep_n));
 				if(r > 0) {
 					TempCCheckLineTbl::Key2 ccl_k2;
@@ -1472,14 +1472,14 @@ int SLAPI ACS_SETSTART::QueryFile(uint setNo, const char * pImpPath)
 					query_file.WriteLine(buf);
 					query_file.Close();
 					//
-					// Задержка для Windows Vista (and above) чтобы убедиться что файл на сетевом диске виден
+					// Р—Р°РґРµСЂР¶РєР° РґР»СЏ Windows Vista (and above) С‡С‚РѕР±С‹ СѓР±РµРґРёС‚СЊСЃСЏ С‡С‚Рѕ С„Р°Р№Р» РЅР° СЃРµС‚РµРІРѕРј РґРёСЃРєРµ РІРёРґРµРЅ
 					//
 					while(!fileExists(tmp_name)) {
 						SDelay(50);
 					}
 					SFile::Rename(tmp_name, path_flag);
 					//
-					// Задержка для Windows Vist (and above) чтобы убедиться что файл на сетевом диске виден
+					// Р—Р°РґРµСЂР¶РєР° РґР»СЏ Windows Vist (and above) С‡С‚РѕР±С‹ СѓР±РµРґРёС‚СЊСЃСЏ С‡С‚Рѕ С„Р°Р№Р» РЅР° СЃРµС‚РµРІРѕРј РґРёСЃРєРµ РІРёРґРµРЅ
 					//
 					while(!fileExists(path_flag)) {
 						SDelay(50);
@@ -1525,7 +1525,7 @@ int SLAPI ACS_SETSTART::ImportSession(int)
 int SLAPI ACS_SETSTART::FinishImportSession(PPIDArray * pSessList)
 {
 	//
-	// Удалим файлы импорта.
+	// РЈРґР°Р»РёРј С„Р°Р№Р»С‹ РёРјРїРѕСЂС‚Р°.
 	//
 	StringSet ss(';', ImportedFiles);
 	SString path, backup_path, backup_file_name;

@@ -1016,7 +1016,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 	int    codetohex = 0;
 	PPID   warehouse_id = 0;
 	int    matrix_action = -1;
-	LAssoc subcode; // @v5.2.12
+	LAssoc subcode;
 	subcode.Key = subcode.Val = 0;
 
 	PPLoadText(PPTXT_IMPGOODS, wait_msg);
@@ -1103,7 +1103,11 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 					int    skip = 0;
 					int    is_found = 0;
 					PPID   goods_id = 0, parent_id = 0;
-					char   added_code[32], temp_buf[256], goods_name[128], barcode[32], subc[32];
+					char   added_code[32];
+					char   temp_buf[256];
+					char   goods_name[128];
+					char   barcode[32];
+					char   subc[32];
 					SString obj_code, parent_code, ar_code;
 					double added_code_qtty = 1.0, rest = 0.0;
 					PPGoodsPacket  pack;
@@ -1141,7 +1145,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 							if(added_code_qtty <= 0.0)
 								added_code_qtty = 1.0;
 						}
-						rec.get(fldn_article, ar_code, 1); // @v6.0.12
+						rec.get(fldn_article, ar_code, 1);
 						if(SearchByName(goods_name, &goods_id, 0) > 0) {
 							if(added_code[0] && SearchByBarcode(added_code, &barcode_rec, 0, 0) > 0)
 								added_code[0] = 0;
@@ -1247,19 +1251,21 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 										strip(val_buf);
 									}
 									if(val_buf[0]) {
-										if(stricmp866(val_buf, "ƒ") == 0 || stricmp866(val_buf, "£à") == 0) {
-											strcpy(val_buf, "ª£");
+										if(stricmp1251(val_buf, "ã") == 0 || stricmp1251(val_buf, "ãð") == 0) {
+											(temp_buf2 = "êã").Transf(CTRANSF_OUTER_TO_INNER);
+											STRNSCPY(val_buf, temp_buf2);
 											phperu /= 1000L;
 										}
-										else if(stricmp866(val_buf, "‹") == 0) {
-											strcpy(val_buf, "‹¨âà");
+										else if(stricmp1251(val_buf, "ë") == 0) {
+											(temp_buf2 = "Ëèòð").Transf(CTRANSF_OUTER_TO_INNER);
+											STRNSCPY(val_buf, temp_buf2);
 										}
-										else if(stricmp866(val_buf, "¬«") == 0) {
-											strcpy(val_buf, "‹¨âà");
+										else if(stricmp1251(val_buf, "ìë") == 0) {
+											(temp_buf2 = "Ëèòð").Transf(CTRANSF_OUTER_TO_INNER);
+											STRNSCPY(val_buf, temp_buf2);
 											phperu /= 1000L;
 										}
-										THROW(unit_obj.AddSimple(&pack.Rec.PhUnitID, val_buf,
-											PPUnit::Trade | PPUnit::Phisical, 0));
+										THROW(unit_obj.AddSimple(&pack.Rec.PhUnitID, val_buf, PPUnit::Trade | PPUnit::Phisical, 0));
 									}
 									else
 										pack.Rec.PhUnitID = igp.PhUnitID;

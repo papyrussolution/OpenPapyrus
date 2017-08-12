@@ -102,8 +102,7 @@ typedef struct {
 
 typedef struct {
 	/* These two fields directly represent the contents of a JPEG DHT marker */
-	uint8 bits[17];         /* bits[k] = # of symbols with codes of */
-	                        /* length k bits; bits[0] is unused */
+	uint8 bits[17];         /* bits[k] = # of symbols with codes of length k bits; bits[0] is unused */
 	uint8 huffval[256];     /* The symbols, in order of incr code length */
 	/* This field is used only during compression.  It's initialized FALSE when
 	 * the table is created, and set TRUE when it's been output to the file.
@@ -165,7 +164,6 @@ typedef struct {
 	 * in initial_setup, and then adapted in color conversion setup.
 	 */
 	boolean component_needed;
-
 	/* These values are computed before starting a scan of the component. */
 	/* The decompressor output side may not use these variables. */
 	int MCU_width;          /* number of blocks per MCU, horizontally */
@@ -174,15 +172,12 @@ typedef struct {
 	int MCU_sample_width; /* MCU width in samples: MCU_width * DCT_h_scaled_size */
 	int last_col_width;     /* # of non-dummy blocks across in last MCU */
 	int last_row_height;    /* # of non-dummy blocks down in last MCU */
-
 	/* Saved quantization table for component; NULL if none yet saved.
 	 * See jdinput.c comments about the need for this information.
 	 * This field is currently used only for decompression.
 	 */
 	JQUANT_TBL * quant_table;
-
-	/* Private per-component storage for DCT or IDCT subsystem. */
-	void * dct_table;
+	void * dct_table; // Private per-component storage for DCT or IDCT subsystem. 
 } jpeg_component_info;
 
 /* The script for encoding a multiple-scan file is an array of these: */

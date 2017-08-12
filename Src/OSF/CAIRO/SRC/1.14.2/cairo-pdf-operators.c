@@ -354,45 +354,54 @@ typedef struct _pdf_path_info {
 static cairo_status_t _cairo_pdf_path_move_to(void * closure, const cairo_point_t * point)
 {
 	pdf_path_info_t * info = (pdf_path_info_t *)closure;
-	double x = _cairo_fixed_to_double(point->x);
-	double y = _cairo_fixed_to_double(point->y);
+	//double x = _cairo_fixed_to_double(point->x);
+	//double y = _cairo_fixed_to_double(point->y);
+	RPoint _p;
+	_p.Set(_cairo_fixed_to_double(point->x), _cairo_fixed_to_double(point->y));
 	info->last_move_to_point = *point;
 	info->has_sub_path = FALSE;
-	cairo_matrix_transform_point(info->path_transform, &x, &y);
-	_cairo_output_stream_printf(info->output, "%g %g m ", x, y);
+	cairo_matrix_transform_point(info->path_transform, &_p.x, &_p.y);
+	_cairo_output_stream_printf(info->output, "%g %g m ", _p.x, _p.y);
 	return _cairo_output_stream_get_status(info->output);
 }
 
 static cairo_status_t _cairo_pdf_path_line_to(void * closure, const cairo_point_t * point)
 {
 	pdf_path_info_t * info = (pdf_path_info_t *)closure;
-	double x = _cairo_fixed_to_double(point->x);
-	double y = _cairo_fixed_to_double(point->y);
-	if(info->line_cap != CAIRO_LINE_CAP_ROUND && !info->has_sub_path &&
-	    point->x == info->last_move_to_point.x && point->y == info->last_move_to_point.y) {
+	//double x = _cairo_fixed_to_double(point->x);
+	//double y = _cairo_fixed_to_double(point->y);
+	RPoint _p;
+	_p.Set(_cairo_fixed_to_double(point->x), _cairo_fixed_to_double(point->y));
+	if(info->line_cap != CAIRO_LINE_CAP_ROUND && !info->has_sub_path && point->x == info->last_move_to_point.x && point->y == info->last_move_to_point.y) {
 		return CAIRO_STATUS_SUCCESS;
 	}
 	info->has_sub_path = TRUE;
-	cairo_matrix_transform_point(info->path_transform, &x, &y);
-	_cairo_output_stream_printf(info->output, "%g %g l ", x, y);
+	cairo_matrix_transform_point(info->path_transform, &_p.x, &_p.y);
+	_cairo_output_stream_printf(info->output, "%g %g l ", _p.x, _p.y);
 	return _cairo_output_stream_get_status(info->output);
 }
 
 static cairo_status_t _cairo_pdf_path_curve_to(void * closure, const cairo_point_t * b, const cairo_point_t * c, const cairo_point_t * d)
 {
 	pdf_path_info_t * info = (pdf_path_info_t *)closure;
-	double bx = _cairo_fixed_to_double(b->x);
-	double by = _cairo_fixed_to_double(b->y);
-	double cx = _cairo_fixed_to_double(c->x);
-	double cy = _cairo_fixed_to_double(c->y);
-	double dx = _cairo_fixed_to_double(d->x);
-	double dy = _cairo_fixed_to_double(d->y);
+	//double bx = _cairo_fixed_to_double(b->x);
+	//double by = _cairo_fixed_to_double(b->y);
+	//double cx = _cairo_fixed_to_double(c->x);
+	//double cy = _cairo_fixed_to_double(c->y);
+	//double dx = _cairo_fixed_to_double(d->x);
+	//double dy = _cairo_fixed_to_double(d->y);
+	RPoint _b;
+	RPoint _c;
+	RPoint _d;
+	_b.Set(_cairo_fixed_to_double(b->x), _cairo_fixed_to_double(b->y));
+	_c.Set(_cairo_fixed_to_double(c->x), _cairo_fixed_to_double(c->y));
+	_d.Set(_cairo_fixed_to_double(d->x), _cairo_fixed_to_double(d->y));
 
 	info->has_sub_path = TRUE;
-	cairo_matrix_transform_point(info->path_transform, &bx, &by);
-	cairo_matrix_transform_point(info->path_transform, &cx, &cy);
-	cairo_matrix_transform_point(info->path_transform, &dx, &dy);
-	_cairo_output_stream_printf(info->output, "%g %g %g %g %g %g c ", bx, by, cx, cy, dx, dy);
+	cairo_matrix_transform_point(info->path_transform, &_b.x, &_b.y);
+	cairo_matrix_transform_point(info->path_transform, &_c.x, &_c.y);
+	cairo_matrix_transform_point(info->path_transform, &_d.x, &_d.y);
+	_cairo_output_stream_printf(info->output, "%g %g %g %g %g %g c ", _b.x, _b.y, _c.x, _c.y, _d.x, _d.y);
 	return _cairo_output_stream_get_status(info->output);
 }
 

@@ -1,5 +1,6 @@
 // OBJCSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -570,7 +571,7 @@ int SLAPI PPObjCSession::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack,
 	CSessionTbl::Rec rec;
 	if(Search(id, &rec) > 0) {
 		if(rec.Temporary) {
-			// Кассовая сессия '%s' не передана поскольку является временной
+			// РљР°СЃСЃРѕРІР°СЏ СЃРµСЃСЃРёСЏ '%s' РЅРµ РїРµСЂРµРґР°РЅР° РїРѕСЃРєРѕР»СЊРєСѓ СЏРІР»СЏРµС‚СЃСЏ РІСЂРµРјРµРЅРЅРѕР№
 			PPLoadText(PPTXT_LOG_NTRANS_CSESTEMP, fmt_buf);
 			ok = -1;
 		}
@@ -579,13 +580,13 @@ int SLAPI PPObjCSession::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack,
 			PPCashNode cn_rec;
 			if(cn_obj.Search(rec.CashNodeID, &cn_rec) > 0) {
 				if(cn_rec.CurSessID == id) {
-					// Кассовая сессия '%s' не передана поскольку не закрыта
+					// РљР°СЃСЃРѕРІР°СЏ СЃРµСЃСЃРёСЏ '%s' РЅРµ РїРµСЂРµРґР°РЅР° РїРѕСЃРєРѕР»СЊРєСѓ РЅРµ Р·Р°РєСЂС‹С‚Р°
 					PPLoadText(PPTXT_LOG_NTRANS_CSESNCL, fmt_buf);
 					ok = -1;
 				}
 			}
 			else {
-				// Кассовая сессия '%s' не передана поскольку не найден узел, которому она принадлежит
+				// РљР°СЃСЃРѕРІР°СЏ СЃРµСЃСЃРёСЏ '%s' РЅРµ РїРµСЂРµРґР°РЅР° РїРѕСЃРєРѕР»СЊРєСѓ РЅРµ РЅР°Р№РґРµРЅ СѓР·РµР», РєРѕС‚РѕСЂРѕРјСѓ РѕРЅР° РїСЂРёРЅР°РґР»РµР¶РёС‚
 				PPLoadText(PPTXT_LOG_NTRANS_CSESNFN, fmt_buf);
 				ok = -1;
 			}
@@ -603,7 +604,7 @@ int SLAPI PPObjCSession::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack,
 	return ok;
 }
 /*
-	Формат представления чеков в потоке передачи данных между разделами
+	Р¤РѕСЂРјР°С‚ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ С‡РµРєРѕРІ РІ РїРѕС‚РѕРєРµ РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С… РјРµР¶РґСѓ СЂР°Р·РґРµР»Р°РјРё
 
 	Header:
 		int8   HdrByte;    // 0x01 - Discount != 0; 0x02 - SCardID != 0
@@ -618,13 +619,13 @@ int SLAPI PPObjCSession::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack,
 
 	Items: // Size <= 30
 		int8   HdrByte;      // 0x01 - Quantity != 1; 0x02 - Discount != 0
-		uint16 GoodsIdx;     // Индекс в таблице идентификаторов товаров
-		money  Price[8];     // Цена
-		double Quantity;     // Количество товара if !(HdrByte & 0x01) then implicit Quantity == 1
+		uint16 GoodsIdx;     // РРЅРґРµРєСЃ РІ С‚Р°Р±Р»РёС†Рµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ С‚РѕРІР°СЂРѕРІ
+		money  Price[8];     // Р¦РµРЅР°
+		double Quantity;     // РљРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРІР°СЂР° if !(HdrByte & 0x01) then implicit Quantity == 1
 		money  Discount[8];  // if HdrByte & 0x02
 
-	@todo В некоторых случаях uint16 для индекса в таблице товаров может быть мало.
-	  Следует предусмотреть дополнительный бит в HdrByte для индикации использования uint32-индекса
+	@todo Р’ РЅРµРєРѕС‚РѕСЂС‹С… СЃР»СѓС‡Р°СЏС… uint16 РґР»СЏ РёРЅРґРµРєСЃР° РІ С‚Р°Р±Р»РёС†Рµ С‚РѕРІР°СЂРѕРІ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјР°Р»Рѕ.
+	  РЎР»РµРґСѓРµС‚ РїСЂРµРґСѓСЃРјРѕС‚СЂРµС‚СЊ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ Р±РёС‚ РІ HdrByte РґР»СЏ РёРЅРґРёРєР°С†РёРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ uint32-РёРЅРґРµРєСЃР°
 */
 
 struct CChkTransm {
@@ -646,11 +647,11 @@ struct CChkTransm {
 
 struct CChkItemTransm {
 	int8   HdrByte;      // 0x01 - Quantity != 1; 0x02 - Discount != 0; 0x04 - Serial
-	uint16 GoodsIdx;     // Индекс в таблице идентификаторов товаров
-	long   Price;        // Цена
-	//double Quantity;     // Количество товара if !(ItmByte & 0x01) then implicit Quantity == 1
+	uint16 GoodsIdx;     // РРЅРґРµРєСЃ РІ С‚Р°Р±Р»РёС†Рµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ С‚РѕРІР°СЂРѕРІ
+	long   Price;        // Р¦РµРЅР°
+	//double Quantity;     // РљРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРІР°СЂР° if !(ItmByte & 0x01) then implicit Quantity == 1
 	//long   Discount;     // if ItmByte & 0x02
-	//char   Serial[]      // Серийный номер
+	//char   Serial[]      // РЎРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ
 };
 
 class CSessTransmitPacket {
@@ -671,11 +672,11 @@ public:
 private:
 	PPObjCSession SessObj;
 	CCheckCore Cc;
-	PPIDArray ChildIdList; // Подчиненные сессии (используется только для //
-		// форсирования передачи этих сессий вместе с суперсессией:
-		// 1. Функция LoadSession загружает этот список из БД
-		// 2. Функция ProcessRefs передает модулю обмена данными этот список
-		// 3. Модуль обмена данными форсирует передачу подчиненных сессий
+	PPIDArray ChildIdList; // РџРѕРґС‡РёРЅРµРЅРЅС‹Рµ СЃРµСЃСЃРёРё (РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ //
+		// С„РѕСЂСЃРёСЂРѕРІР°РЅРёСЏ РїРµСЂРµРґР°С‡Рё СЌС‚РёС… СЃРµСЃСЃРёР№ РІРјРµСЃС‚Рµ СЃ СЃСѓРїРµСЂСЃРµСЃСЃРёРµР№:
+		// 1. Р¤СѓРЅРєС†РёСЏ LoadSession Р·Р°РіСЂСѓР¶Р°РµС‚ СЌС‚РѕС‚ СЃРїРёСЃРѕРє РёР· Р‘Р”
+		// 2. Р¤СѓРЅРєС†РёСЏ ProcessRefs РїРµСЂРµРґР°РµС‚ РјРѕРґСѓР»СЋ РѕР±РјРµРЅР° РґР°РЅРЅС‹РјРё СЌС‚РѕС‚ СЃРїРёСЃРѕРє
+		// 3. РњРѕРґСѓР»СЊ РѕР±РјРµРЅР° РґР°РЅРЅС‹РјРё С„РѕСЂСЃРёСЂСѓРµС‚ РїРµСЂРµРґР°С‡Сѓ РїРѕРґС‡РёРЅРµРЅРЅС‹С… СЃРµСЃСЃРёР№
 		//
 	SBuffer Bs;
 	int    Valid;
@@ -706,8 +707,8 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 				Rec.Incomplete = CSESSINCMPL_CHECKS;
 			//
 			// @v7.1.6 {
-			// Очень редко, но бывает, что суперсессия не принимается из другого раздела по
-			// причине того, что суперсессия по другому разделу имеет ту же временную метку.
+			// РћС‡РµРЅСЊ СЂРµРґРєРѕ, РЅРѕ Р±С‹РІР°РµС‚, С‡С‚Рѕ СЃСѓРїРµСЂСЃРµСЃСЃРёСЏ РЅРµ РїСЂРёРЅРёРјР°РµС‚СЃСЏ РёР· РґСЂСѓРіРѕРіРѕ СЂР°Р·РґРµР»Р° РїРѕ
+			// РїСЂРёС‡РёРЅРµ С‚РѕРіРѕ, С‡С‚Рѕ СЃСѓРїРµСЂСЃРµСЃСЃРёСЏ РїРѕ РґСЂСѓРіРѕРјСѓ СЂР°Р·РґРµР»Сѓ РёРјРµРµС‚ С‚Сѓ Р¶Рµ РІСЂРµРјРµРЅРЅСѓСЋ РјРµС‚РєСѓ.
 			//
 			if(Rec.SuperSessID == 0 && Rec.CashNumber == 0)
 				SessObj.P_Tbl->CheckUniqueDateTime(Rec.SuperSessID, Rec.CashNumber, &Rec.Dt, &Rec.Tm);
@@ -806,7 +807,7 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 															Cc.PaymT.data.SCardID = r_ae.AddedID;
 															THROW_DB(Cc.PaymT.updateRec());
 															//
-															// PPTXT_CCPAYMSCARDCORRECTED  "Скорректирована карта оплаты в чеке %s"
+															// PPTXT_CCPAYMSCARDCORRECTED  "РЎРєРѕСЂСЂРµРєС‚РёСЂРѕРІР°РЅР° РєР°СЂС‚Р° РѕРїР»Р°С‚С‹ РІ С‡РµРєРµ %s"
 															PPLoadText(PPTXT_CCPAYMSCARDCORRECTED, err_msg_fmt);
 															CCheckCore::MakeCodeString(&pack.Rec, ccheck_code);
 															pCtx->Output(msg_buf.Printf(err_msg_fmt, ccheck_code.cptr()));
@@ -898,7 +899,7 @@ int SLAPI CSessTransmitPacket::ProcessRefs(PPObjIDArray * ary, int replace, ObjT
 	return ok;
 }
 //
-// Извлекает сессию из потока передачи данных
+// РР·РІР»РµРєР°РµС‚ СЃРµСЃСЃРёСЋ РёР· РїРѕС‚РѕРєР° РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С…
 //
 int SLAPI CSessTransmitPacket::GetFromStream(FILE * stream, ObjTransmContext * pCtx)
 {
@@ -909,7 +910,7 @@ int SLAPI CSessTransmitPacket::GetFromStream(FILE * stream, ObjTransmContext * p
 	return ok;
 }
 //
-// Сохраняет сессию в потоке передачи данных
+// РЎРѕС…СЂР°РЅСЏРµС‚ СЃРµСЃСЃРёСЋ РІ РїРѕС‚РѕРєРµ РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С…
 //
 int SLAPI CSessTransmitPacket::PutToStream(FILE * stream)
 {
@@ -920,7 +921,7 @@ int SLAPI CSessTransmitPacket::PutToStream(FILE * stream)
 	return ok;
 }
 //
-// Извлекает сессию из базы данных
+// РР·РІР»РµРєР°РµС‚ СЃРµСЃСЃРёСЋ РёР· Р±Р°Р·С‹ РґР°РЅРЅС‹С…
 //
 int SLAPI CSessTransmitPacket::LoadSession(PPID sessID, ObjTransmContext * pCtx)
 {
@@ -991,10 +992,10 @@ int SLAPI PPObjCSession::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 	return (p && p->Data) ? ((CSessTransmitPacket *)p->Data)->ProcessRefs(ary, replace, pCtx) : -1;
 }
 //
-//  @VADIM Регламентация операционных прав кассира с помощью клавиатуры с ключом
+//  @VADIM Р РµРіР»Р°РјРµРЅС‚Р°С†РёСЏ РѕРїРµСЂР°С†РёРѕРЅРЅС‹С… РїСЂР°РІ РєР°СЃСЃРёСЂР° СЃ РїРѕРјРѕС‰СЊСЋ РєР»Р°РІРёР°С‚СѓСЂС‹ СЃ РєР»СЋС‡РѕРј
 //
 struct _RightNKeyPosEntry { // @persistent @size=8
-	long   OperRightFlag; // CSESSRT_XXX || CSESSOPRT_XXX (к счастью, они не пересекаются)
+	long   OperRightFlag; // CSESSRT_XXX || CSESSOPRT_XXX (Рє СЃС‡Р°СЃС‚СЊСЋ, РѕРЅРё РЅРµ РїРµСЂРµСЃРµРєР°СЋС‚СЃСЏ)
 	long   KeyPos;
 };
 
@@ -1004,7 +1005,7 @@ struct _PPKeybordWKeyCfg { // @persistent @store(PropertyTbl) @size=84
 	PPID   Tag;            // Const=PPOBJ_CONFIG
 	PPID   ID;             // Const=PPCFG_MAIN
 	PPID   Prop;           // Const=PPPRP_KEYBWKEYCFG
-	_RightNKeyPosEntry OperRights[WKEYRTCOUNT]; // Соответствие операционных прав положениям ключа
+	_RightNKeyPosEntry OperRights[WKEYRTCOUNT]; // РЎРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РѕРїРµСЂР°С†РёРѕРЅРЅС‹С… РїСЂР°РІ РїРѕР»РѕР¶РµРЅРёСЏРј РєР»СЋС‡Р°
 	// @v7.0.5 char   Reserve[16];    // @reserve
 };
 
@@ -1079,7 +1080,7 @@ int SLAPI EditDueToKeyboardRights()
 			KWKCfg.OperRights[5].OperRightFlag = CSESSOPRT_COPYCHECK;
 			KWKCfg.OperRights[6].OperRightFlag = CSESSOPRT_COPYZREPT;
 			KWKCfg.OperRights[7].OperRightFlag = CSESSOPRT_ROWDISCOUNT;
-			KWKCfg.OperRights[8].OperRightFlag = (CSESSOPRT_XREP << 16);   // CSESSOPRT_XREP пересекается с CSESSRT_CLOSE
+			KWKCfg.OperRights[8].OperRightFlag = (CSESSOPRT_XREP << 16);   // CSESSOPRT_XREP РїРµСЂРµСЃРµРєР°РµС‚СЃСЏ СЃ CSESSRT_CLOSE
 			KWKCfg.OperRights[9].OperRightFlag = CSESSOPRT_SPLITCHK;
 			KWKCfg.OperRights[10].OperRightFlag = CSESSOPRT_MERGECHK;      // @v8.5.5
 			KWKCfg.OperRights[11].OperRightFlag = CSESSOPRT_CHGPRINTEDCHK;
@@ -1472,7 +1473,7 @@ int CTableOrder::CheckTableBusyStatus(long tableNo, const STimeChunk & rChunk)
 	return 1;
 }
 //
-// Может изменить: номер стола, время начала и время завершения, примечание.
+// РњРѕР¶РµС‚ РёР·РјРµРЅРёС‚СЊ: РЅРѕРјРµСЂ СЃС‚РѕР»Р°, РІСЂРµРјСЏ РЅР°С‡Р°Р»Р° Рё РІСЂРµРјСЏ Р·Р°РІРµСЂС€РµРЅРёСЏ, РїСЂРёРјРµС‡Р°РЅРёРµ.
 //
 int CTableOrder::Update(const Packet * pPack, int use_ta)
 {
@@ -1879,7 +1880,6 @@ int CTableOrder::SetupGrid(PPID posNodeID)
 		for(j = 0; j < status_list.getCount(); j++) {
 			table_list.addUnique(status_list.at(j).TableNo);
 		}
-		// @v7.6.11 {
 		if(posNodeID) {
 			PPObjCashNode cn_obj;
 			PPCashNode cn_rec;
@@ -1889,7 +1889,6 @@ int CTableOrder::SetupGrid(PPID posNodeID)
 					table_list.addUnique(&scn.CTblList);
 			}
 		}
-		// } @v7.6.11
 		table_list.sort();
 		for(i = 0; i < table_list.getCount(); i++) {
 			const long table_no = table_list.get(i);
@@ -2063,7 +2062,7 @@ public:
 };
 #endif // } 0
 
-#if 0 // @v9.1.3 Подход провальный - полностью заменяется на PPPosProtocol {
+#if 0 // @v9.1.3 РџРѕРґС…РѕРґ РїСЂРѕРІР°Р»СЊРЅС‹Р№ - РїРѕР»РЅРѕСЃС‚СЊСЋ Р·Р°РјРµРЅСЏРµС‚СЃСЏ РЅР° PPPosProtocol {
 
 IMPLEMENT_IMPEXP_HDL_FACTORY(CSESSCOMPLEX, PPCSessComplexImpExpParam);
 
@@ -2400,8 +2399,8 @@ int SLAPI PrcssrCSessComplexExport::ExportSession(PPID sessID)
 					sdr_ccheck.CheckTime = cc_pack.Rec.Tm;
 					sdr_ccheck.CcAmt     = MONEYTOLDBL(cc_pack.Rec.Amount);
 					sdr_ccheck.CcDscnt   = MONEYTOLDBL(cc_pack.Rec.Discount);
-					//sdr_ccheck.CcBnkAmt     double       format(13.2) "Сумма оплаты чека по банковской карте";
-					//sdr_ccheck.CcCrdAmt     double       format(13.2) "Сумма оплаты чека по корпоративной карте";
+					//sdr_ccheck.CcBnkAmt     double       format(13.2) "РЎСѓРјРјР° РѕРїР»Р°С‚С‹ С‡РµРєР° РїРѕ Р±Р°РЅРєРѕРІСЃРєРѕР№ РєР°СЂС‚Рµ";
+					//sdr_ccheck.CcCrdAmt     double       format(13.2) "РЎСѓРјРјР° РѕРїР»Р°С‚С‹ С‡РµРєР° РїРѕ РєРѕСЂРїРѕСЂР°С‚РёРІРЅРѕР№ РєР°СЂС‚Рµ";
 					if(cc_pack.Rec.SCardID) {
 						SCardTbl::Rec sc_rec;
 						if(Cc.Cards.Search(cc_pack.Rec.SCardID, &sc_rec) > 0) {
@@ -2502,4 +2501,4 @@ int SLAPI PrcssrCSessComplexExport::ExportSession(PPID sessID)
 class PrcssrCSessComplexImport {
 };
 
-#endif // } 0 @v9.1.3 Подход провальный - полностью заменяется на PPPosProtocol
+#endif // } 0 @v9.1.3 РџРѕРґС…РѕРґ РїСЂРѕРІР°Р»СЊРЅС‹Р№ - РїРѕР»РЅРѕСЃС‚СЊСЋ Р·Р°РјРµРЅСЏРµС‚СЃСЏ РЅР° PPPosProtocol

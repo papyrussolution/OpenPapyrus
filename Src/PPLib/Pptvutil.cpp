@@ -1360,6 +1360,47 @@ IMPL_HANDLE_EVENT(WLDialog)
 		clearEvent(event);
 	}
 }
+
+int SLAPI GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf)
+{
+	rBuf = 0;
+	int    ok = -1;
+	int    str_id = 0;
+	int    ini_sect_id = PPAbstractDevice::GetDrvIniSectByDvcClass(dvcClass, &str_id, 0);
+	if(ini_sect_id) {
+		int    idx = 0;
+		uint   old_dev_count = 0;
+		SString line_buf, item_buf, id_buf, txt_buf;
+		if(str_id && PPLoadText(str_id, line_buf)) {
+			for(idx = 0; PPGetSubStr(line_buf, idx, item_buf) > 0; idx++) {
+				long   id = 0;
+				if(item_buf.Divide(',', id_buf, txt_buf) > 0)
+					id = id_buf.ToLong();
+				else {
+					id = (idx+1);
+					txt_buf = item_buf;
+				}
+				if(id == deviceTypeID) {
+					rBuf = txt_buf;
+					ok = 1;
+				}
+				old_dev_count++;
+			}
+		}
+		if(ok < 0 && GetStrFromDrvIni(ini_sect_id, deviceTypeID, old_dev_count, line_buf)) {
+			SString symbol, drv_name, drv_path;
+			int    drv_impl = 0;
+			if(PPAbstractDevice::ParseRegEntry(line_buf, symbol, drv_name, drv_path, &drv_impl)) {
+				rBuf = drv_name.Transf(CTRANSF_OUTER_TO_INNER);
+				ok = 1;
+			}
+		}
+		if(ok <= 0)
+			(rBuf = 0).CatEq("Unkn device type", deviceTypeID);
+	}
+	return ok;
+}
+
 //
 //
 // @vmiller {
@@ -5547,7 +5588,7 @@ TimePickerDialog::TimePickerDialog() : TDialog(DLG_TMPICKR)
 {
 	const long def_font_size = 18;
 	Ptb.SetColor(clrClear,        RGB(0x20, 0xAC, 0x90));
-	Ptb.SetColor(clrText,         RGB(0xFF, 0xFF, 0xFF));
+	Ptb.SetColor(clrText,         GetColorRef(SClrWhite));
 	Ptb.SetBrush(brClear,         SPaintObj::psSolid, Ptb.GetColor(clrClear), 0);
 	Ptb.SetBrush(brSelected,      SPaintObj::psSolid, GetColorRef(SClrBlack), 0);
 	Ptb.SetBrush(brMainRect,      SPaintObj::psSolid, RGB(0xC0, 0xC0, 0xC0), 0);

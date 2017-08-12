@@ -48637,6 +48637,7 @@ int     SLAPI SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char
 // id = <string offset> + 1
 // @v9.5.0 int     SLAPI SetupStringCombo(TDialog *, uint ctlID, StringSet *, long initID, uint /*flags*/);
 int     SLAPI SetupStringComboDevice(TDialog *, uint ctlID, uint dvcClass, long initID, uint /*flags*/); //@vmiller
+int     SLAPI GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf);
 int		SLAPI GetStrFromDrvIni(int iniSectID, long devTypeId, int numOfOldDev, SString & str); // @vmiller
 // @v9.3.4 (используется только в одном месте - теперь static) int     SLAPI SetupTaggedStringCombo(TDialog * dlg, uint ctlID, const SArray * pStrings, long initID, uint /*flags*/, size_t offs = 0, int ownerDrawListBox = 0);
 int     SLAPI SetupStrAssocCombo(TDialog * dlg, uint ctlID, const StrAssocArray * pList, long initID, uint flags, size_t offs = 0, int ownerDrawListBox = 0);

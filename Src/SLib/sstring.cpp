@@ -1,5 +1,6 @@
 // SSTRING.CPP
 // Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -45,8 +46,8 @@ int SRegExpSet::RegisterRe(const char * pRe, long * pHandler)
 int SRegExpSet::InitReNumber()
 {
 	if(!P_ReNumber) {
-		// [0-9]+ означает, что число должно содержать как минимум одну цифру до возможной точки.
-		// То есть вариант ".02" не будет восприниматься как число
+		// [0-9]+ РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ С‡РёСЃР»Рѕ РґРѕР»Р¶РЅРѕ СЃРѕРґРµСЂР¶Р°С‚СЊ РєР°Рє РјРёРЅРёРјСѓРј РѕРґРЅСѓ С†РёС„СЂСѓ РґРѕ РІРѕР·РјРѕР¶РЅРѕР№ С‚РѕС‡РєРё.
+		// РўРѕ РµСЃС‚СЊ РІР°СЂРёР°РЅС‚ ".02" РЅРµ Р±СѓРґРµС‚ РІРѕСЃРїСЂРёРЅРёРјР°С‚СЊСЃСЏ РєР°Рє С‡РёСЃР»Рѕ
 		P_ReNumber = new CRegExp("^[+-]?[0-9]+([\\.][0-9]*)?([Ee][+-]?[0-9]+)?");
 	}
 	return P_ReNumber ? 1 : (SLibError = SLERR_NOMEM, 0);
@@ -55,8 +56,8 @@ int SRegExpSet::InitReNumber()
 int SRegExpSet::InitReHex()
 {
 	if(!P_ReHex) {
-		// [0-9]+ означает, что число должно содержать как минимум одну цифру до возможной точки.
-		// То есть вариан ".02" не будет восприниматься как число
+		// [0-9]+ РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ С‡РёСЃР»Рѕ РґРѕР»Р¶РЅРѕ СЃРѕРґРµСЂР¶Р°С‚СЊ РєР°Рє РјРёРЅРёРјСѓРј РѕРґРЅСѓ С†РёС„СЂСѓ РґРѕ РІРѕР·РјРѕР¶РЅРѕР№ С‚РѕС‡РєРё.
+		// РўРѕ РµСЃС‚СЊ РІР°СЂРёР°РЅ ".02" РЅРµ Р±СѓРґРµС‚ РІРѕСЃРїСЂРёРЅРёРјР°С‚СЊСЃСЏ РєР°Рє С‡РёСЃР»Рѕ
 		P_ReHex = new CRegExp("^[+-]?0[xX][0-9a-fA-F]+");
 	}
 	return P_ReHex ? 1 : (SLibError = SLERR_NOMEM, 0);
@@ -156,8 +157,8 @@ int SStrScan::IsLegalUtf8() const
 		return 1;
 	else {
 		//
-		// Чтобы не вызывать лишний раз функцию strlen для наиболее частых случаев (extra == 1 и extra == 2)
-		// сделаем отдельные ветки алгоритма.
+		// Р§С‚РѕР±С‹ РЅРµ РІС‹Р·С‹РІР°С‚СЊ Р»РёС€РЅРёР№ СЂР°Р· С„СѓРЅРєС†РёСЋ strlen РґР»СЏ РЅР°РёР±РѕР»РµРµ С‡Р°СЃС‚С‹С… СЃР»СѓС‡Р°РµРІ (extra == 1 Рё extra == 2)
+		// СЃРґРµР»Р°РµРј РѕС‚РґРµР»СЊРЅС‹Рµ РІРµС‚РєРё Р°Р»РіРѕСЂРёС‚РјР°.
 		//
 		if(extra == 1) {
 			return (p[1] != 0 && SUnicode::IsLegalUtf8(p, 2)) ? 2 : 0;
@@ -209,7 +210,7 @@ int FASTCALL SStrScan::GetQuotedString(SString & rBuf)
 		Offs++;   // "
 		Len -= 2; // ""
 		Get(rBuf);
-		Len++; // Убрать завершающую кавычку
+		Len++; // РЈР±СЂР°С‚СЊ Р·Р°РІРµСЂС€Р°СЋС‰СѓСЋ РєР°РІС‹С‡РєСѓ
 		IncrLen();
 		return 1;
 	}
@@ -495,7 +496,7 @@ int FASTCALL SStrScan::GetTagBrace(SString & rText, int * pKind)
 	char   c = P_Buf[p];
 	if(c == '<') {
 		c = P_Buf[++p];
-		if(c == '/') { // конец тега вида </tag>
+		if(c == '/') { // РєРѕРЅРµС† С‚РµРіР° РІРёРґР° </tag>
 			kind = 1;
 			c = P_Buf[++p];
 		}
@@ -504,7 +505,7 @@ int FASTCALL SStrScan::GetTagBrace(SString & rText, int * pKind)
 			c = P_Buf[++p];
 		}
 		if(kind == -1) {
-			if(c == '/' && P_Buf[p+1] == '>') { // учитываем теги вида <tag/>, т.е. без закрывающего тега
+			if(c == '/' && P_Buf[p+1] == '>') { // СѓС‡РёС‚С‹РІР°РµРј С‚РµРіРё РІРёРґР° <tag/>, С‚.Рµ. Р±РµР· Р·Р°РєСЂС‹РІР°СЋС‰РµРіРѕ С‚РµРіР°
 				kind = 2;
 				p += 2;
 			}
@@ -675,8 +676,8 @@ SLAPI SString::~SString()
 {
 	L = Size = 0;
 	//
-	// Обнуление членов класса осуществляется для того, чтобы
-	// при ссылке на разрушенный экземпляр объекта не возникало исключения.
+	// РћР±РЅСѓР»РµРЅРёРµ С‡Р»РµРЅРѕРІ РєР»Р°СЃСЃР° РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹
+	// РїСЂРё СЃСЃС‹Р»РєРµ РЅР° СЂР°Р·СЂСѓС€РµРЅРЅС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РѕР±СЉРµРєС‚Р° РЅРµ РІРѕР·РЅРёРєР°Р»Рѕ РёСЃРєР»СЋС‡РµРЅРёСЏ.
 	//
 	if(P_Buf) // @speedcritical
 		ZFREE(P_Buf);
@@ -964,7 +965,7 @@ int FASTCALL STokenizer::AddToken(TSArray <uint16> & rBuf, int tokType)
 		}
 		else {
 			//
-			// Неявный разделитель
+			// РќРµСЏРІРЅС‹Р№ СЂР°Р·РґРµР»РёС‚РµР»СЊ
 			//
 			assert(tokType == tokDelim);
 			tok.PP = 0;
@@ -1073,7 +1074,7 @@ int SLAPI STokenizer::ProcessSearchToken(TSArray <uint16> & rBuf, int tokType, T
 			}
 			else {
 				//
-				// Неявный разделитель
+				// РќРµСЏРІРЅС‹Р№ СЂР°Р·РґРµР»РёС‚РµР»СЊ
 				//
 				assert(tokType == tokDelim);
 				tok.PP = 0;
@@ -1567,7 +1568,7 @@ int  SLAPI SString::GetIdxBySub(const char * pSubStr, int div)
 char * FASTCALL SString::CopyTo(char * pS, size_t bufLen) const
 {
 	// @v9.6.3 return strnzcpy(pS, P_Buf, bufLen);
-	/* @construction @todo (такой вариант предпочтительнее поскольку функция критична по быстродействию, но нужен тест) */
+	/* @construction @todo (С‚Р°РєРѕР№ РІР°СЂРёР°РЅС‚ РїСЂРµРґРїРѕС‡С‚РёС‚РµР»СЊРЅРµРµ РїРѕСЃРєРѕР»СЊРєСѓ С„СѓРЅРєС†РёСЏ РєСЂРёС‚РёС‡РЅР° РїРѕ Р±С‹СЃС‚СЂРѕРґРµР№СЃС‚РІРёСЋ, РЅРѕ РЅСѓР¶РµРЅ С‚РµСЃС‚) */
 	// @v9.6.3 (test has been done) {
 	if(pS) {
 		const size_t src_len = Len();
@@ -2282,8 +2283,8 @@ SString & SLAPI SString::FromUrl()
 				for(i = cvt_offs; i < _len; i++) {
 					const char c = P_Buf[i];
 					if(c == '%') {
-						// Выше мы убедились, что "плохих" сочетаний нет. Следовательно, в этом цикле
-						// мы их встретить не можем.
+						// Р’С‹С€Рµ РјС‹ СѓР±РµРґРёР»РёСЃСЊ, С‡С‚Рѕ "РїР»РѕС…РёС…" СЃРѕС‡РµС‚Р°РЅРёР№ РЅРµС‚. РЎР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ, РІ СЌС‚РѕРј С†РёРєР»Рµ
+						// РјС‹ РёС… РІСЃС‚СЂРµС‚РёС‚СЊ РЅРµ РјРѕР¶РµРј.
 						assert((i+2) < _len && ishex(P_Buf[i+1]) && ishex(P_Buf[i+2]));
                         const uint8 real_c = hextobyte(P_Buf+i+1);
                         temp_buf.CatChar((char)real_c);
@@ -2345,10 +2346,10 @@ SString & SLAPI SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
 	char  text[middle_buf_len];
 	if(srcCodepage == CP_UTF8) {
 		//
-		// Для UTF8 сделан специальный блок кода по причине того, что
-		// отрезками преобразовывать UTF8 нельзя из-за потенциальной опасности
-		// исказить конвертируемую строку на конце отдельного отрезка:
-		// размер символа UTF8 - не фиксированный.
+		// Р”Р»СЏ UTF8 СЃРґРµР»Р°РЅ СЃРїРµС†РёР°Р»СЊРЅС‹Р№ Р±Р»РѕРє РєРѕРґР° РїРѕ РїСЂРёС‡РёРЅРµ С‚РѕРіРѕ, С‡С‚Рѕ
+		// РѕС‚СЂРµР·РєР°РјРё РїСЂРµРѕР±СЂР°Р·РѕРІС‹РІР°С‚СЊ UTF8 РЅРµР»СЊР·СЏ РёР·-Р·Р° РїРѕС‚РµРЅС†РёР°Р»СЊРЅРѕР№ РѕРїР°СЃРЅРѕСЃС‚Рё
+		// РёСЃРєР°Р·РёС‚СЊ РєРѕРЅРІРµСЂС‚РёСЂСѓРµРјСѓСЋ СЃС‚СЂРѕРєСѓ РЅР° РєРѕРЅС†Рµ РѕС‚РґРµР»СЊРЅРѕРіРѕ РѕС‚СЂРµР·РєР°:
+		// СЂР°Р·РјРµСЂ СЃРёРјРІРѕР»Р° UTF8 - РЅРµ С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹Р№.
 		//
 		SStringU temp_ustr;
 		temp_ustr.CopyFromUtf8(P_Buf, Len());
@@ -2379,8 +2380,8 @@ SString & SLAPI SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
 					assert(offs <= len);
 					if(offs == len) {
 						//
-						// Отдельная проверка на окончание цикла для того, чтобы
-						// избежать лишнего копирования во временный буфер.
+						// РћС‚РґРµР»СЊРЅР°СЏ РїСЂРѕРІРµСЂРєР° РЅР° РѕРєРѕРЅС‡Р°РЅРёРµ С†РёРєР»Р° РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹
+						// РёР·Р±РµР¶Р°С‚СЊ Р»РёС€РЅРµРіРѕ РєРѕРїРёСЂРѕРІР°РЅРёСЏ РІРѕ РІСЂРµРјРµРЅРЅС‹Р№ Р±СѓС„РµСЂ.
 						//
 						return CopyFrom(temp_buf).CatN(text, (size_t)ret);
 					}
@@ -3320,7 +3321,7 @@ ulong SLAPI SString::ToULong() const
 long SLAPI SString::ToLong() const
 {
 	// @v9.6.1 return (long)ToULong();
-	// @v9.6.1 Более корректная реализация. И в добавок - значительно быстрее. {
+	// @v9.6.1 Р‘РѕР»РµРµ РєРѕСЂСЂРµРєС‚РЅР°СЏ СЂРµР°Р»РёР·Р°С†РёСЏ. Р РІ РґРѕР±Р°РІРѕРє - Р·РЅР°С‡РёС‚РµР»СЊРЅРѕ Р±С‹СЃС‚СЂРµРµ. {
 	long   result = 0;
 	if(L > 1) {
 		const char * _p = P_Buf;
@@ -3365,7 +3366,7 @@ int64 SLAPI SString::ToInt64() const
 	else
 		return 0;
 	*/
-	// @v9.6.1 Более корректная реализация. И в добавок - значительно быстрее. {
+	// @v9.6.1 Р‘РѕР»РµРµ РєРѕСЂСЂРµРєС‚РЅР°СЏ СЂРµР°Р»РёР·Р°С†РёСЏ. Р РІ РґРѕР±Р°РІРѕРє - Р·РЅР°С‡РёС‚РµР»СЊРЅРѕ Р±С‹СЃС‚СЂРµРµ. {
 	int64  result = 0;
 	if(L > 1) {
 		const char * _p = P_Buf;
@@ -3610,7 +3611,7 @@ SString & SString::EncodeString(const char * pSrc, const char * pEncodeStr, int 
 	StringSet ss(';', pEncodeStr);
 	uint   p;
 	for(p = 0; ss.get(&p, buf) > 0;)
-		list.AddFast(MAXLONG - (long)buf.Len(), buf); // Без проверки на дублирование идентификатора
+		list.AddFast(MAXLONG - (long)buf.Len(), buf); // Р‘РµР· РїСЂРѕРІРµСЂРєРё РЅР° РґСѓР±Р»РёСЂРѕРІР°РЅРёРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°
 	list.SortByID();
 	ss.setDelim(",");
 	for(p = 0; p < list.getCount(); p++) {
@@ -3883,10 +3884,10 @@ SStringU & FASTCALL SStringU::CopyFromMb(int cp, const char * pS, size_t srcLen)
 	WCHAR wtext[middle_buf_len];
 	if(cp == CP_UTF8) {
 		//
-		// Для UTF8 сделан специальный блок кода по причине того, что
-		// отрезками преобразовывать UTF8 нельзя из-за потенциальной опасности
-		// исказить конвертируемую строку на конце отдельного отрезка:
-		// размер символа UTF8 - не фиксированный.
+		// Р”Р»СЏ UTF8 СЃРґРµР»Р°РЅ СЃРїРµС†РёР°Р»СЊРЅС‹Р№ Р±Р»РѕРє РєРѕРґР° РїРѕ РїСЂРёС‡РёРЅРµ С‚РѕРіРѕ, С‡С‚Рѕ
+		// РѕС‚СЂРµР·РєР°РјРё РїСЂРµРѕР±СЂР°Р·РѕРІС‹РІР°С‚СЊ UTF8 РЅРµР»СЊР·СЏ РёР·-Р·Р° РїРѕС‚РµРЅС†РёР°Р»СЊРЅРѕР№ РѕРїР°СЃРЅРѕСЃС‚Рё
+		// РёСЃРєР°Р·РёС‚СЊ РєРѕРЅРІРµСЂС‚РёСЂСѓРµРјСѓСЋ СЃС‚СЂРѕРєСѓ РЅР° РєРѕРЅС†Рµ РѕС‚РґРµР»СЊРЅРѕРіРѕ РѕС‚СЂРµР·РєР°:
+		// СЂР°Р·РјРµСЂ СЃРёРјРІРѕР»Р° UTF8 - РЅРµ С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹Р№.
 		//
 		Helper_CopyFromUtf8(pS, srcLen, 0, 0);
 	}
@@ -4088,7 +4089,7 @@ void FASTCALL SString::Cat_(uint8 * pChr, size_t numChr)
 
 int SLAPI SString::CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion)
 {
-	CopyFrom(0); // Обрезаем строку до пустой
+	CopyFrom(0); // РћР±СЂРµР·Р°РµРј СЃС‚СЂРѕРєСѓ РґРѕ РїСѓСЃС‚РѕР№
 	int    ok = 1;
 	const  uint32 byteMask = 0xBF;
 	const  uint32 byteMark = 0x80;
@@ -4521,7 +4522,7 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 		temp_buf.Strip();
 		SStrScan scan(temp_buf);
 		const  char * p = 0;
-		if(strpbrk(pPath, "*?") == 0) { // @v9.1.8 Следующая проверка возможна только если в пути нет wildcard-символов
+		if(strpbrk(pPath, "*?") == 0) { // @v9.1.8 РЎР»РµРґСѓСЋС‰Р°СЏ РїСЂРѕРІРµСЂРєР° РІРѕР·РјРѕР¶РЅР° С‚РѕР»СЊРєРѕ РµСЃР»Рё РІ РїСѓС‚Рё РЅРµС‚ wildcard-СЃРёРјРІРѕР»РѕРІ
 			SString buf;
 			fname_as_dir_part = isDir((buf = pPath).RmvLastSlash()) ? 1 : 0;
 		}
@@ -4541,7 +4542,7 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 				scan.Get(Drv);
 				Flags |= fDrv;
 				scan.IncrLen();
-				scan.Incr(); // Пропускаем двоеточие
+				scan.Incr(); // РџСЂРѕРїСѓСЃРєР°РµРј РґРІРѕРµС‚РѕС‡РёРµ
 			}
 		}
 		size_t start = scan.Offs;
@@ -4897,7 +4898,7 @@ int FASTCALL SStringPool::Free(const BitArray & rMap)
 //
 // @Muxa {
 //
-// Функции для изменения регистра unicode символов
+// Р¤СѓРЅРєС†РёРё РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ СЂРµРіРёСЃС‚СЂР° unicode СЃРёРјРІРѕР»РѕРІ
 //
 #define UCHR_STATUS_C	0x01
 #define UCHR_STATUS_F	0x02
@@ -5931,7 +5932,7 @@ static const CaseFoldingItem u_case_folding_tbl[] = {
 };
 
 //
-// Создание вторичной таблицы (для перевода из строчной и заглавную букву)
+// РЎРѕР·РґР°РЅРёРµ РІС‚РѕСЂРёС‡РЅРѕР№ С‚Р°Р±Р»РёС†С‹ (РґР»СЏ РїРµСЂРµРІРѕРґР° РёР· СЃС‚СЂРѕС‡РЅРѕР№ Рё Р·Р°РіР»Р°РІРЅСѓСЋ Р±СѓРєРІСѓ)
 //
 static const CaseFoldingItem * u_get_sec_table()
 {
@@ -5956,7 +5957,7 @@ static const CaseFoldingItem * u_get_sec_table()
 	return (const CaseFoldingItem *)tbl.dataPtr();
 }
 //
-// Бинарный поиск
+// Р‘РёРЅР°СЂРЅС‹Р№ РїРѕРёСЃРє
 //
 static int FASTCALL u_bsearch(wchar_t code, const CaseFoldingItem * pTbl, uint * pIdx)
 {
@@ -5991,14 +5992,14 @@ static int FASTCALL u_get_char_case(wchar_t code, const CaseFoldingItem ** pItem
 {
 	int    r = 0;
 	uint   idx = 0;
-	// Ищем код по заглавным
+	// РС‰РµРј РєРѕРґ РїРѕ Р·Р°РіР»Р°РІРЅС‹Рј
 	int    cmp = u_bsearch(code, u_case_folding_tbl, &idx);
 	if(cmp == 0) {
 		ASSIGN_PTR(pItem, &u_case_folding_tbl[idx]);
 		r = 2;
 	}
 	else {
-		// Ищем код по строчным
+		// РС‰РµРј РєРѕРґ РїРѕ СЃС‚СЂРѕС‡РЅС‹Рј
 		const CaseFoldingItem * p_sec_tbl = u_get_sec_table();
 		if(p_sec_tbl) {
 			cmp = u_bsearch(code, p_sec_tbl, &idx);
@@ -6067,7 +6068,7 @@ SLTEST_R(SString)
 		out.WriteLine(out_buf.Printf("%u\t\t%s\n", i, (const char *)str));
 	}
 	//
-	// Тестирование функции CopyTo
+	// РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ С„СѓРЅРєС†РёРё CopyTo
 	//
 	{
 		char   buffer[1024];
@@ -6106,7 +6107,7 @@ SLTEST_R(SString)
 		}
 	}
 	//
-	// Тестирование функций EncodeMime64 и DecodeMime64
+	// РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ С„СѓРЅРєС†РёР№ EncodeMime64 Рё DecodeMime64
 	//
 	{
 		SString org_bin_file_name;
@@ -6149,9 +6150,9 @@ SLTEST_R(SString)
 		}
 		SLTEST_CHECK_LT(0L, SFile::Compare(org_bin_file_name, test_bin_file_name, 0));
 		//
-		// Тестирование функций конвертации между различными кодировкам
-		// Файл rustext.txt должен быть размером более 2048 байт и содержать русский
-		// текст в кодировке windows-1251
+		// РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ С„СѓРЅРєС†РёР№ РєРѕРЅРІРµСЂС‚Р°С†РёРё РјРµР¶РґСѓ СЂР°Р·Р»РёС‡РЅС‹РјРё РєРѕРґРёСЂРѕРІРєР°Рј
+		// Р¤Р°Р№Р» rustext.txt РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЂР°Р·РјРµСЂРѕРј Р±РѕР»РµРµ 2048 Р±Р°Р№С‚ Рё СЃРѕРґРµСЂР¶Р°С‚СЊ СЂСѓСЃСЃРєРёР№
+		// С‚РµРєСЃС‚ РІ РєРѕРґРёСЂРѕРІРєРµ windows-1251
 		//
 		{
 			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("rustext.txt");
@@ -6190,7 +6191,7 @@ SLTEST_R(SString)
 			outf.WriteLine(out_buf);
 		}
 		//
-		// Тестирование функции Tokenize
+		// РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ С„СѓРЅРєС†РёРё Tokenize
 		//
 		{
 			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("tokenize.txt");
@@ -6215,9 +6216,9 @@ SLTEST_R(SString)
 			}
 		}
 		//
-		// Тестирование распознавания и валидации email адресов и одновременное тестирование функций
-		// sstreq и sstreqi_ascii (воспользуемся теми фактами, что все адреса написаны латиницей и
-		// имеют разбросанную длину).
+		// РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ СЂР°СЃРїРѕР·РЅР°РІР°РЅРёСЏ Рё РІР°Р»РёРґР°С†РёРё email Р°РґСЂРµСЃРѕРІ Рё РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕРµ С‚РµСЃС‚РёСЂРѕРІР°РЅРёРµ С„СѓРЅРєС†РёР№
+		// sstreq Рё sstreqi_ascii (РІРѕСЃРїРѕР»СЊР·СѓРµРјСЃСЏ С‚РµРјРё С„Р°РєС‚Р°РјРё, С‡С‚Рѕ РІСЃРµ Р°РґСЂРµСЃР° РЅР°РїРёСЃР°РЅС‹ Р»Р°С‚РёРЅРёС†РµР№ Рё
+		// РёРјРµСЋС‚ СЂР°Р·Р±СЂРѕСЃР°РЅРЅСѓСЋ РґР»РёРЅСѓ).
 		//
 		{
 			SStrScan scan;
@@ -6250,11 +6251,20 @@ SLTEST_R(SString)
 			}
 		}
 		{
-			const char * p_test_string_1251 = "Захавай еще этих тупых французских булок";
-            str = p_test_string_1251;
-            SLTEST_CHECK_Z(str.IsLegalUtf8());
-            str.Transf(CTRANSF_OUTER_TO_UTF8);
-            SLTEST_CHECK_NZ(str.IsLegalUtf8());
+			//
+			// РўРµСЃС‚ С„СѓРЅРєС†РёРё IsLegalUtf8
+			//
+			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("phrases-ru-1251.txt");
+			SFile inf(in_buf, SFile::mRead);
+			while(inf.ReadLine(str)) {
+				//const char * p_test_string_1251 = "Р—Р°С…Р°РІР°Р№ РµС‰Рµ СЌС‚РёС… С‚СѓРїС‹С… С„СЂР°РЅС†СѓР·СЃРєРёС… Р±СѓР»РѕРє";
+				//str = p_test_string_1251;
+				if(str.Chomp().NotEmptyS()) {
+					SLTEST_CHECK_Z(str.IsLegalUtf8());
+					str.Transf(CTRANSF_OUTER_TO_UTF8);
+					SLTEST_CHECK_NZ(str.IsLegalUtf8());
+				}
+			}
 		}
 		{
 			SLTEST_CHECK_EQ((str = "0").ToLong(), 0);
@@ -6263,7 +6273,7 @@ SLTEST_R(SString)
 			SLTEST_CHECK_EQ((str = " -197 ").ToLong(), -197);
 			SLTEST_CHECK_EQ((str = "0xbeefZ").ToLong(), 0xbeef);
 			SLTEST_CHECK_EQ((str = " -0x2BcD7a92 ").ToLong(), -0x2BCD7A92);
-			SLTEST_CHECK_EQ((str = " - 17 ").ToLong(), 0); // Между знаком - и числом не должно быть пробелов
+			SLTEST_CHECK_EQ((str = " - 17 ").ToLong(), 0); // РњРµР¶РґСѓ Р·РЅР°РєРѕРј - Рё С‡РёСЃР»РѕРј РЅРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїСЂРѕР±РµР»РѕРІ
 			SLTEST_CHECK_EQ((str = "0").ToInt64(), 0);
 			SLTEST_CHECK_EQ((str = "abc").ToInt64(), 0);
 			SLTEST_CHECK_EQ((str = "\t 0x1ABCDEF234567890").ToInt64(), 0x1ABCDEF234567890LL);
@@ -6301,7 +6311,7 @@ SLTEST_R(SString)
 			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_SQL), "DATE '2016-02-29'");
 			SLTEST_CHECK_EQ(strtodate_(str, DATF_SQL), dtm.d);
 			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_INTERNET), "Mon, 29 Feb 2016");
-			// (Такой формат не распознается) SLTEST_CHECK_EQ(strtodate_(str, DATF_INTERNET), dtm.d);
+			// (РўР°РєРѕР№ С„РѕСЂРјР°С‚ РЅРµ СЂР°СЃРїРѕР·РЅР°РµС‚СЃСЏ) SLTEST_CHECK_EQ(strtodate_(str, DATF_INTERNET), dtm.d);
 			SLTEST_CHECK_EQ((str = 0).Cat(ZERODATE, DATF_DMY), "");
 			SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY), ZERODATE);
 			SLTEST_CHECK_EQ((str = 0).Cat(ZERODATE, DATF_DMY|DATF_NOZERO), "");
@@ -6334,7 +6344,7 @@ SLTEST_R(SString)
 				SLTEST_CHECK_EQ(ir.upp, 987);
 			}
 			{
-				// Здесь .. не будет распознано как разделитель границ (SString::torfHyphen)
+				// Р—РґРµСЃСЊ .. РЅРµ Р±СѓРґРµС‚ СЂР°СЃРїРѕР·РЅР°РЅРѕ РєР°Рє СЂР°Р·РґРµР»РёС‚РµР»СЊ РіСЂР°РЅРёС† (SString::torfHyphen)
 				r = (str = "12..987").ToIntRange(ir, SString::torfHyphen);
 				SLTEST_CHECK_NZ(r);
 				SLTEST_CHECK_EQ(r, (long)2);

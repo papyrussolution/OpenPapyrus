@@ -52,7 +52,7 @@ static uchar * encode_coordinate(uchar * p, double c)
 	return p;
 }
 
-static uchar * encode_point(uchar * p, const cairo_point_double_t * point)
+static uchar * encode_point(uchar * p, const RPoint * point)
 {
 	p = encode_coordinate(p, point->x);
 	p = encode_coordinate(p, point->y);
@@ -173,7 +173,7 @@ static cairo_status_t _cairo_pdf_shading_generate_data(cairo_pdf_shading_t      
 
 		/* 16 points */
 		for(j = 0; j < 16; j++) {
-			cairo_point_double_t point;
+			RPoint point;
 			int pi, pj;
 
 			pi = pdf_points_order_i[j];

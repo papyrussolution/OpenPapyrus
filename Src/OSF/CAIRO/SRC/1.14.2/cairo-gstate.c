@@ -1160,7 +1160,7 @@ cairo_rectangle_list_t * _cairo_gstate_copy_clip_rectangle_list(cairo_gstate_t *
 static void FASTCALL _cairo_gstate_unset_scaled_font(cairo_gstate_t * gstate)
 {
 	if(gstate->scaled_font) {
-		if(gstate->previous_scaled_font != NULL)
+		if(gstate->previous_scaled_font)
 			cairo_scaled_font_destroy(gstate->previous_scaled_font);
 		gstate->previous_scaled_font = gstate->scaled_font;
 		gstate->scaled_font = NULL;
@@ -1425,13 +1425,13 @@ cairo_status_t _cairo_gstate_show_text_glyphs(cairo_gstate_t * gstate, const cai
 	 * Needless to say, do this only if show_text_glyphs is not available. */
 	if(cairo_surface_has_show_text_glyphs(gstate->target) ||
 	    _cairo_scaled_font_get_max_scale(gstate->scaled_font) <= 10240) {
-		if(info != NULL) {
-			status = _cairo_surface_show_text_glyphs(gstate->target, op, pattern, info->utf8, info->utf8_len, transformed_glyphs, num_glyphs,
-			    transformed_clusters, info->num_clusters, info->cluster_flags, gstate->scaled_font, gstate->clip);
+		if(info) {
+			status = _cairo_surface_show_text_glyphs(gstate->target, op, pattern, 
+				info->utf8, info->utf8_len, transformed_glyphs, num_glyphs, transformed_clusters, info->num_clusters, info->cluster_flags, gstate->scaled_font, gstate->clip);
 		}
 		else {
-			status = _cairo_surface_show_text_glyphs(gstate->target, op, pattern,
-			    NULL, 0, transformed_glyphs, num_glyphs, NULL, 0, CAIRO_TEXT_CLUSTER_FLAG_NONE, gstate->scaled_font, gstate->clip);
+			status = _cairo_surface_show_text_glyphs(gstate->target, op, pattern, 
+				NULL, 0, transformed_glyphs, num_glyphs, NULL, 0, CAIRO_TEXT_CLUSTER_FLAG_NONE, gstate->scaled_font, gstate->clip);
 		}
 	}
 	else {
@@ -1656,9 +1656,10 @@ static void _cairo_gstate_transform_glyphs_to_backend(cairo_gstate_t * gstate,
 	*num_transformed_glyphs = j;
 	if(num_clusters != 0 && cluster_flags & CAIRO_TEXT_CLUSTER_FLAG_BACKWARD) {
 		for(i = 0; i < --j; i++) {
-			cairo_glyph_t tmp = transformed_glyphs[i];
-			transformed_glyphs[i] = transformed_glyphs[j];
-			transformed_glyphs[j] = tmp;
+			//cairo_glyph_t tmp = transformed_glyphs[i];
+			//transformed_glyphs[i] = transformed_glyphs[j];
+			//transformed_glyphs[j] = tmp;
+			memswap(transformed_glyphs+i, transformed_glyphs+j, sizeof(transformed_glyphs[i]));
 		}
 	}
 }

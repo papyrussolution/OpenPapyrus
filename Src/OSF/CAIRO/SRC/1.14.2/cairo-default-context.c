@@ -70,7 +70,7 @@ void _cairo_default_context_fini(cairo_default_context_t * cr)
 	}
 	_cairo_gstate_fini(cr->gstate);
 	cr->gstate_freelist = cr->gstate_freelist->next; /* skip over tail[1] */
-	while(cr->gstate_freelist != NULL) {
+	while(cr->gstate_freelist) {
 		cairo_gstate_t * gstate = cr->gstate_freelist;
 		cr->gstate_freelist = gstate->next;
 		SAlloc::F(gstate);
@@ -134,11 +134,9 @@ static cairo_status_t _cairo_default_context_push_group(void * abstract_cr, cair
 			return _cairo_error(CAIRO_STATUS_SURFACE_FINISHED);
 		/* Get the extents that we'll use in creating our new group surface */
 		bounded = _cairo_surface_get_extents(parent_surface, &extents);
-		if(clip)
-			/* XXX: This assignment just fixes a compiler warning? */
+		if(clip) // XXX: This assignment just fixes a compiler warning? 
 			is_empty = _cairo_rectangle_intersect(&extents, _cairo_clip_get_extents(clip));
-		if(!bounded) {
-			/* XXX: Generic solution? */
+		if(!bounded) { // XXX: Generic solution? 
 			group_surface = cairo_recording_surface_create(content, 0);
 			extents.x = extents.y = 0;
 		}

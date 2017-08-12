@@ -1721,7 +1721,7 @@ static void project_line_x_onto_16_16(const cairo_line_t * line,
     cairo_fixed_t bottom,
     XLineFixed * out)
 {
-	cairo_point_double_t p1, p2;
+	RPoint p1, p2;
 	double m;
 
 	p1.x = _cairo_fixed_to_double(line->p1.x);

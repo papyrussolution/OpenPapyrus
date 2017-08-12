@@ -431,7 +431,7 @@ int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmv
 					base_msg_buf.Space().CatParStr(msgcode);
 					strnzcpy(p_tmp_buf+1, base_msg_buf, PP_MSGLEN);
 				}
-				// } @v9.7.10 
+				// } @v9.7.10
 				else {
 					// @v9.0.4 sprintf(p_tmp_buf+1, "Невозможно загрузить сообщение: (%d)%d", group, msgcode);
 					// @v9.0.4 {
@@ -521,14 +521,14 @@ static int SLAPI PPCriticalWarning(SString & rMsg, uint /*options*/)
 {
 	if(!CS_SERVER) {
 		int    yes = cmCancel;
-		char   answ[32];
+		SString answ;
 		rMsg.ReplaceChar('\003', ' ');
 		TDialog * dlg = new TDialog(DLG_CRITWARN);
 		if(CheckDialogPtrErr(&dlg)){
 			dlg->setStaticText(CTL_CRITWARN_HEAD, rMsg);
 			if(ExecView(dlg) == cmOK) {
-				dlg->getCtrlData(CTL_CRITWARN_ANSWER, answ);
-				yes = (stricmp866(answ, "да") !=0) ? cmCancel : cmYes;
+				dlg->getCtrlString(CTL_CRITWARN_ANSWER, answ);
+				yes = (stricmp1251(answ, "фр") !=0) ? cmCancel : cmYes;
 			}
 		}
 		else

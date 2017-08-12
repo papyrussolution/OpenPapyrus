@@ -173,8 +173,7 @@ int BIO_ADDR_rawaddress(const BIO_ADDR * ap, void * p, size_t * l)
 	if(p) {
 		memcpy(p, addrptr, len);
 	}
-	if(l != NULL)
-		*l = len;
+	ASSIGN_PTR(l, len);
 	return 1;
 }
 
@@ -236,27 +235,24 @@ static int addr_strings(const BIO_ADDR * ap, int numeric, char ** hostname, char
 		if(serv[0] == '\0') {
 			BIO_snprintf(serv, sizeof(serv), "%d", ntohs(BIO_ADDR_rawport(ap)));
 		}
-		if(hostname != NULL)
-			*hostname = OPENSSL_strdup(host);
-		if(service != NULL)
-			*service = OPENSSL_strdup(serv);
+		ASSIGN_PTR(hostname, OPENSSL_strdup(host));
+		ASSIGN_PTR(service, OPENSSL_strdup(serv));
 	}
 	else {
 #endif
-		if(hostname != NULL)
-			*hostname = OPENSSL_strdup(inet_ntoa(ap->s_in.sin_addr));
-		if(service != NULL) {
+		ASSIGN_PTR(hostname, OPENSSL_strdup(inet_ntoa(ap->s_in.sin_addr)));
+		if(service) {
 			char serv[6]; /* port is 16 bits => max 5 decimal digits */
 			BIO_snprintf(serv, sizeof(serv), "%d", ntohs(ap->s_in.sin_port));
 			*service = OPENSSL_strdup(serv);
 		}
 	}
-	if((hostname != NULL && *hostname == NULL) || (service != NULL && *service == NULL)) {
-		if(hostname != NULL) {
+	if((hostname && *hostname == NULL) || (service && *service == NULL)) {
+		if(hostname) {
 			OPENSSL_free(*hostname);
 			*hostname = NULL;
 		}
-		if(service != NULL) {
+		if(service) {
 			OPENSSL_free(*service);
 			*service = NULL;
 		}
@@ -419,7 +415,7 @@ void BIO_ADDRINFO_free(BIO_ADDRINFO * bai)
 		/* Free manually when we know that addrinfo_wrap() was used.
 		 * See further comment above addrinfo_wrap()
 		 */
-		while(bai != NULL) {
+		while(bai) {
 			BIO_ADDRINFO * next = bai->bai_next;
 			OPENSSL_free(bai->bai_addr);
 			OPENSSL_free(bai);
@@ -504,13 +500,10 @@ int BIO_parse_hostserv(const char * hostserv, char ** host, char ** service, enu
 			pl = strlen(p);
 		}
 	}
-
-	if(p != NULL && strchr(p, ':'))
+	if(p && strchr(p, ':'))
 		goto spec_err;
-
-	if(h != NULL && host != NULL) {
-		if(hl == 0
-		    || (hl == 1 && h[0] == '*')) {
+	if(h && host) {
+		if(hl == 0 || (hl == 1 && h[0] == '*')) {
 			*host = NULL;
 		}
 		else {
@@ -519,9 +512,8 @@ int BIO_parse_hostserv(const char * hostserv, char ** host, char ** service, enu
 				goto memerr;
 		}
 	}
-	if(p != NULL && service != NULL) {
-		if(pl == 0
-		    || (pl == 1 && p[0] == '*')) {
+	if(p && service) {
+		if(pl == 0 || (pl == 1 && p[0] == '*')) {
 			*service = NULL;
 		}
 		else {
@@ -552,8 +544,7 @@ memerr:
  * the return value is 1 on success, or 0 on failure, which
  * only happens if a memory allocation error occurred.
  */
-static int addrinfo_wrap(int family, int socktype, const void * where, size_t wherelen, unsigned short port,
-    BIO_ADDRINFO ** bai)
+static int addrinfo_wrap(int family, int socktype, const void * where, size_t wherelen, unsigned short port, BIO_ADDRINFO ** bai)
 {
 	OPENSSL_assert(bai != NULL);
 	*bai = (BIO_ADDRINFO*)OPENSSL_zalloc(sizeof(**bai));
@@ -576,7 +567,7 @@ static int addrinfo_wrap(int family, int socktype, const void * where, size_t wh
 		   creating a memory leak here, we are not.  It will be
 		   all right. */
 		BIO_ADDR * addr = BIO_ADDR_new();
-		if(addr != NULL) {
+		if(addr) {
 			BIO_ADDR_rawmake(addr, family, where, wherelen, port);
 			(*bai)->bai_addr = BIO_ADDR_sockaddr_noconst(addr);
 		}
@@ -594,7 +585,7 @@ DEFINE_RUN_ONCE_STATIC(do_bio_lookup_init)
 {
 	OPENSSL_init_crypto(0, 0);
 	bio_lookup_lock = CRYPTO_THREAD_lock_new();
-	return bio_lookup_lock != NULL;
+	return (bio_lookup_lock != NULL);
 }
 
 /*-
@@ -826,7 +817,7 @@ int BIO_lookup(const char * host, const char * service, enum BIO_lookup_type loo
 			BIO_ADDRINFO * tmp_bai = NULL;
 			/* The easiest way to create a linked list from an
 			   array is to start from the back */
-			for(addrlistp = he->h_addr_list; *addrlistp != NULL; addrlistp++)
+			for(addrlistp = he->h_addr_list; *addrlistp; addrlistp++)
 				;
 			for(addresses = addrlistp - he->h_addr_list;
 			    addrlistp--, addresses-- > 0; ) {

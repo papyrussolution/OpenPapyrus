@@ -1,12 +1,13 @@
 // STCHBRW.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
+// @codepage UTF-8
 // TimeChunkBrowser
 //
 
 // STimeChunkArray STimeChunk
 //
 // @todo
-// Расцветка
+// Р Р°СЃС†РІРµС‚РєР°
 //
 #include <slib.h>
 #include <tv.h>
@@ -510,11 +511,11 @@ STimeChunkBrowser::STimeChunkBrowser() : TBaseBrowserWindow(WndClsName)
 	Flags = 0;
 	P_Data = &DataStub;
 	MEMSZERO(St);
-	Ptb.SetColor(colorHeader,     RGB(0x77, 0x88, 0x99) /*темно-темно-серый*/);  // Цвет отрисовки заголовка таблицы
-	Ptb.SetColor(colorMain,       RGB(0xEE, 0xEE, 0xEE));  // Основной цвет фона
-	Ptb.SetColor(colorInterleave, RGB(0xDD, 0xDD, 0xDD));  // Цвет фона черезстрочных линий
-	Ptb.SetColor(colorWhiteText,  GetColorRef(SClrWhite)); // Белый цвет текста
-	Ptb.SetColor(colorBlackText,  GetColorRef(SClrBlack)); // Черный цвет текста
+	Ptb.SetColor(colorHeader,     RGB(0x77, 0x88, 0x99) /*С‚РµРјРЅРѕ-С‚РµРјРЅРѕ-СЃРµСЂС‹Р№*/);  // Р¦РІРµС‚ РѕС‚СЂРёСЃРѕРІРєРё Р·Р°РіРѕР»РѕРІРєР° С‚Р°Р±Р»РёС†С‹
+	Ptb.SetColor(colorMain,       RGB(0xEE, 0xEE, 0xEE));  // РћСЃРЅРѕРІРЅРѕР№ С†РІРµС‚ С„РѕРЅР°
+	Ptb.SetColor(colorInterleave, RGB(0xDD, 0xDD, 0xDD));  // Р¦РІРµС‚ С„РѕРЅР° С‡РµСЂРµР·СЃС‚СЂРѕС‡РЅС‹С… Р»РёРЅРёР№
+	Ptb.SetColor(colorWhiteText,  GetColorRef(SClrWhite)); // Р‘РµР»С‹Р№ С†РІРµС‚ С‚РµРєСЃС‚Р°
+	Ptb.SetColor(colorBlackText,  GetColorRef(SClrBlack)); // Р§РµСЂРЅС‹Р№ С†РІРµС‚ С‚РµРєСЃС‚Р°
 	Ptb.SetPen(penMainQuantSeparator, SPaintObj::psDot,   1, GetColorRef(SClrSilver));
 	Ptb.SetPen(penQuantSeparator,     SPaintObj::psSolid, 1, GetColorRef(SClrSilver));
 	Ptb.SetPen(penDaySeparator,     SPaintObj::psSolid, 1, GetColorRef(SClrDarkgrey));
@@ -836,7 +837,7 @@ void STimeChunkBrowser::OnUpdateData()
 const STimeChunkBrowser::RowState & FASTCALL STimeChunkBrowser::GetRowState(long id) const
 {
 	uint   rs_pos = 0;
-	int    rsf = RowStateList.bsearch(&id, &rs_pos, CMPF_LONG); // Функция OnUpdateData отсортировала список
+	int    rsf = RowStateList.bsearch(&id, &rs_pos, CMPF_LONG); // Р¤СѓРЅРєС†РёСЏ OnUpdateData РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°Р»Р° СЃРїРёСЃРѕРє
 	assert(rsf);
 	return *RowStateList.at(rs_pos);
 }
@@ -950,7 +951,7 @@ int STimeChunkBrowser::Scroll(int sbType, int sbEvent, int thumbPos)
 			case SB_PAGEUP:
 				{
 					GetArea(a2);
-					delta = a2.Right.width() / a2.PixQuant; // Ширина области видимости в квантах
+					delta = a2.Right.width() / a2.PixQuant; // РЁРёСЂРёРЅР° РѕР±Р»Р°СЃС‚Рё РІРёРґРёРјРѕСЃС‚Рё РІ РєРІР°РЅС‚Р°С…
 					if(St.QBounds > 32000)
 						delta = (delta * St.QBounds / 32000);
 					else {
@@ -979,7 +980,7 @@ int STimeChunkBrowser::Scroll(int sbType, int sbEvent, int thumbPos)
 			case SB_PAGEDOWN:
 				{
 					GetArea(a2);
-					delta = a2.Right.width() / a2.PixQuant; // Ширина области видимости в квантах
+					delta = a2.Right.width() / a2.PixQuant; // РЁРёСЂРёРЅР° РѕР±Р»Р°СЃС‚Рё РІРёРґРёРјРѕСЃС‚Рё РІ РєРІР°РЅС‚Р°С…
 					if(St.QBounds > 32000)
 						delta = (delta * St.QBounds / 32000);
 					else {
@@ -1075,8 +1076,8 @@ int STimeChunkBrowser::SetupDate(LDATE dt)
 			LDATETIME t;
 			t.Set(dt, (dt == getcurdate_()) ? getcurtime_() : encodetime(8, 0, 0, 0));
 			//
-			// Здесь следует использовать diffdatetime (а не STimeChunkBrowser::DiffTime) поскольку функция Scroll самостоятельно
-			// сделает поправку на коллапсированные периоды
+			// Р—РґРµСЃСЊ СЃР»РµРґСѓРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ diffdatetime (Р° РЅРµ STimeChunkBrowser::DiffTime) РїРѕСЃРєРѕР»СЊРєСѓ С„СѓРЅРєС†РёСЏ Scroll СЃР°РјРѕСЃС‚РѕСЏС‚РµР»СЊРЅРѕ
+			// СЃРґРµР»Р°РµС‚ РїРѕРїСЂР°РІРєСѓ РЅР° РєРѕР»Р»Р°РїСЃРёСЂРѕРІР°РЅРЅС‹Рµ РїРµСЂРёРѕРґС‹
 			//
 			long s = diffdatetimesec(t, St.Bounds.Start);
 			//
@@ -1103,8 +1104,8 @@ int STimeChunkBrowser::ProcessDblClk(TPoint p)
 			if(P.Flags & Param::fSnapToQuant) {
 				long s = t.t.totalsec();
 				long r = (s % P.Quant);
-				t.t.settotalsec(s - r); // Округление в меньшую сторону
-				/* округление до ближайшего
+				t.t.settotalsec(s - r); // РћРєСЂСѓРіР»РµРЅРёРµ РІ РјРµРЅСЊС€СѓСЋ СЃС‚РѕСЂРѕРЅСѓ
+				/* РѕРєСЂСѓРіР»РµРЅРёРµ РґРѕ Р±Р»РёР¶Р°Р№С€РµРіРѕ
 				if(r < (long)(P.Quant / 2))
 					t.t.settotalsec(s - r);
 				else
@@ -1184,7 +1185,7 @@ int STimeChunkBrowser::Resize(int mode, TPoint p)
 	STimeChunkBrowser::Loc loc;
 	if(mode == 1) {
 		//
-		// Запуск режима изменения размеров
+		// Р—Р°РїСѓСЃРє СЂРµР¶РёРјР° РёР·РјРµРЅРµРЅРёСЏ СЂР°Р·РјРµСЂРѕРІ
 		//
 		if(St.Rsz.Kind == 0) {
 			if(Locate(p, &loc) > 0) {
@@ -1258,7 +1259,7 @@ int STimeChunkBrowser::Resize(int mode, TPoint p)
 	}
 	else if(mode == 0) {
 		//
-		// Завершение режима изменения размеров
+		// Р—Р°РІРµСЂС€РµРЅРёРµ СЂРµР¶РёРјР° РёР·РјРµРЅРµРЅРёСЏ СЂР°Р·РјРµСЂРѕРІ
 		//
 		if(St.Rsz.Kind) {
 			if(St.Rsz.Kind == ResizeState::kSwitchMode) {
@@ -1362,7 +1363,7 @@ int STimeChunkBrowser::Resize(int mode, TPoint p)
 	}
 	else if(mode == 2) {
 		//
-		// изменение размеров
+		// РёР·РјРµРЅРµРЅРёРµ СЂР°Р·РјРµСЂРѕРІ
 		//
 		if(St.Rsz.Kind == ResizeState::kRescale) {
 			int    delta = -(int)(p.x - St.Rsz.Org.x);
@@ -1489,7 +1490,7 @@ int STimeChunkBrowser::Locate(TPoint p, Loc * pLoc) const
 				y += P.HdrLevelHeight;
 				if(p.y >= (int)(y - P.HdrLevelHeight) && p.y <= y) {
 					//
-					// Вертикальные засечки
+					// Р’РµСЂС‚РёРєР°Р»СЊРЅС‹Рµ Р·Р°СЃРµС‡РєРё
 					//
 					for(LDATETIME dtm = St.Bounds.Start; ok < 0 && cmp(dtm, view_time_bounds.Finish) <= 0; dtm.addsec(unit)) {
 						s = DiffTime(dtm, view_time_bounds.Start);
@@ -1834,7 +1835,7 @@ static int AddIntersectRectPair(uint p1, uint p2, TSCollection <LongArray> & rLi
 			}
 			else {
 				//
-				// Объединяем списки s1 и s2
+				// РћР±СЉРµРґРёРЅСЏРµРј СЃРїРёСЃРєРё s1 Рё s2
 				//
 				LongArray & r_item = *rList.at(s1);
 				LongArray * p_item2 = rList.at(s2);
@@ -2193,7 +2194,7 @@ STimeChunk FASTCALL STimeChunkBrowser::GetBoundsTime(const Area & rArea) const
 	}
 	else {
 		const uint area_pix_width = rArea.Right.width();
-		uint width = area_pix_width / P.PixQuant; // Ширина области видимости в квантах
+		uint width = area_pix_width / P.PixQuant; // РЁРёСЂРёРЅР° РѕР±Р»Р°СЃС‚Рё РІРёРґРёРјРѕСЃС‚Рё РІ РєРІР°РЅС‚Р°С…
 		(view_time_bounds.Start = St.Bounds.Start).addsec(St.ScrollX * P.Quant);
 		if(p_collapse_list) {
 			uint   added_quant_width = 0;
@@ -2208,7 +2209,7 @@ STimeChunk FASTCALL STimeChunkBrowser::GetBoundsTime(const Area & rArea) const
 						pix_width += diffdatetimesec(p_chunk->Start, start_tm) / P.Quant * P.PixQuant;
 						start_tm = p_chunk->Finish;
 					}
-					if(pix_width > (area_pix_width + 64)) // (+64) - допуск для безопасности
+					if(pix_width > (area_pix_width + 64)) // (+64) - РґРѕРїСѓСЃРє РґР»СЏ Р±РµР·РѕРїР°СЃРЅРѕСЃС‚Рё
 						break;
 				}
 			}
@@ -2242,7 +2243,7 @@ int STimeChunkBrowser::SelectChunkColor(const STimeChunkAssoc * pChunk, HBRUSH *
 	else {
 		STimeChunkGrid::Color clr;
 		clr.Status = -1;
-		clr.C = RGB(0, 0, 0);
+		clr.C = GetColorRef(SClrBlack);
 		if(P_Data->GetColor(pChunk->Id, &clr) > 0) {
 			if(ColorBrushList.Search((long)clr.C, &val, 0) > 0) {
 				b = (HBRUSH)val;
@@ -2318,8 +2319,8 @@ void STimeChunkBrowser::Paint()
 		canv.SelectObjectAndPush(Ptb.Get(fontHeader));
 		//
 		// Main area background
-		// Отрисовываем здесь из-за того, что при отрисовке заголовка выводятся вертикальные линии
-		// высотой в полное окно - они не должны затираться отрисовкой фона
+		// РћС‚СЂРёСЃРѕРІС‹РІР°РµРј Р·РґРµСЃСЊ РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ РїСЂРё РѕС‚СЂРёСЃРѕРІРєРµ Р·Р°РіРѕР»РѕРІРєР° РІС‹РІРѕРґСЏС‚СЃСЏ РІРµСЂС‚РёРєР°Р»СЊРЅС‹Рµ Р»РёРЅРёРё
+		// РІС‹СЃРѕС‚РѕР№ РІ РїРѕР»РЅРѕРµ РѕРєРЅРѕ - РѕРЅРё РЅРµ РґРѕР»Р¶РЅС‹ Р·Р°С‚РёСЂР°С‚СЊСЃСЏ РѕС‚СЂРёСЃРѕРІРєРѕР№ С„РѕРЅР°
 		//
 		canv.SetBkColor(Ptb.GetColor(colorMain));
 		canv.SetTextColor(Ptb.GetColor(colorBlackText));
@@ -2352,14 +2353,14 @@ void STimeChunkBrowser::Paint()
 		//
 		{
 			//
-			// Заливка фона заголовка
+			// Р—Р°Р»РёРІРєР° С„РѕРЅР° Р·Р°РіРѕР»РѕРІРєР°
 			//
 			TRect ir(a2.LeftHeader.a.x, a2.RightHeader.a.y, a2.RightHeader.b.x, a2.RightHeader.b.y);
 			canv.FillRect(ir, (HBRUSH)Ptb.Get(brushHeader));
 			canv.SetBkColor(Ptb.GetColor(colorHeader));
 		}
 		//
-		// Заголовок (дни)
+		// Р—Р°РіРѕР»РѕРІРѕРє (РґРЅРё)
 		//
 		canv.SetTextColor(Ptb.GetColor(colorWhiteText));
 
@@ -2385,7 +2386,7 @@ void STimeChunkBrowser::Paint()
 				break;
 		}
 		//
-		// Сепаратор
+		// РЎРµРїР°СЂР°С‚РѕСЂ
 		//
 		if(a2.Separator.b.x) {
 			canv.FillRect(a2.Separator, (HBRUSH)Ptb.Get(brushHeader));
@@ -2394,8 +2395,8 @@ void STimeChunkBrowser::Paint()
 		// Main area
 		//
 		{
-			TPoint move_spot; // Пятно в активном отрезке, при нажатии на которое его можно двигать
-			move_spot = 0;    // Отрисовывается после общего цикла рисования основной области, дабы текст не затирал пятно.
+			TPoint move_spot; // РџСЏС‚РЅРѕ РІ Р°РєС‚РёРІРЅРѕРј РѕС‚СЂРµР·РєРµ, РїСЂРё РЅР°Р¶Р°С‚РёРё РЅР° РєРѕС‚РѕСЂРѕРµ РµРіРѕ РјРѕР¶РЅРѕ РґРІРёРіР°С‚СЊ
+			move_spot = 0;    // РћС‚СЂРёСЃРѕРІС‹РІР°РµС‚СЃСЏ РїРѕСЃР»Рµ РѕР±С‰РµРіРѕ С†РёРєР»Р° СЂРёСЃРѕРІР°РЅРёСЏ РѕСЃРЅРѕРІРЅРѕР№ РѕР±Р»Р°СЃС‚Рё, РґР°Р±С‹ С‚РµРєСЃС‚ РЅРµ Р·Р°С‚РёСЂР°Р» РїСЏС‚РЅРѕ.
 			canv.SelectObjectAndPush(Ptb.Get(fontChunkText));
 			canv.SelectObjectAndPush(Ptb.Get(penDefChunk));
 			canv.SelectObjectAndPush(Ptb.Get(brushDefChunk)); // {
@@ -2404,7 +2405,7 @@ void STimeChunkBrowser::Paint()
 				int    bs;
 				HBRUSH brush_chunk;
 				//
-				// Установить цвет заливки отрезка
+				// РЈСЃС‚Р°РЅРѕРІРёС‚СЊ С†РІРµС‚ Р·Р°Р»РёРІРєРё РѕС‚СЂРµР·РєР°
 				bs = SelectChunkColor(&r_sr.C, &brush_chunk);
 				if(bs)
 					canv.SelectObjectAndPush(brush_chunk);
@@ -2421,7 +2422,7 @@ void STimeChunkBrowser::Paint()
 					canv.PopObject();
 				}
 				//
-				// Восстановление после установки цвета заливки отрезка
+				// Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РїРѕСЃР»Рµ СѓСЃС‚Р°РЅРѕРІРєРё С†РІРµС‚Р° Р·Р°Р»РёРІРєРё РѕС‚СЂРµР·РєР°
 				if(bs)
 					canv.PopObject();
 				//
@@ -2442,8 +2443,8 @@ void STimeChunkBrowser::Paint()
 		long   s;
 		//
 		// Main area background
-		// Отрисовываем здесь из-за того, что при отрисовке заголовка выводятся вертикальные линии
-		// высотой в полное окно - они не должны затираться отрисовкой фона
+		// РћС‚СЂРёСЃРѕРІС‹РІР°РµРј Р·РґРµСЃСЊ РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ РїСЂРё РѕС‚СЂРёСЃРѕРІРєРµ Р·Р°РіРѕР»РѕРІРєР° РІС‹РІРѕРґСЏС‚СЃСЏ РІРµСЂС‚РёРєР°Р»СЊРЅС‹Рµ Р»РёРЅРёРё
+		// РІС‹СЃРѕС‚РѕР№ РІ РїРѕР»РЅРѕРµ РѕРєРЅРѕ - РѕРЅРё РЅРµ РґРѕР»Р¶РЅС‹ Р·Р°С‚РёСЂР°С‚СЊСЃСЏ РѕС‚СЂРёСЃРѕРІРєРѕР№ С„РѕРЅР°
 		//
 		canv.SetBkColor(Ptb.GetColor(colorMain));
 		for(i = St.ScrollY; upp_edge <= (uint)a2.Right.b.y && i < P_Data->getCount(); i++) {
@@ -2463,7 +2464,7 @@ void STimeChunkBrowser::Paint()
 			upp_edge += row_full_height;
 		}
 		//
-		// Завершающая нижняя горизонтальная полоса
+		// Р—Р°РІРµСЂС€Р°СЋС‰Р°СЏ РЅРёР¶РЅСЏСЏ РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅР°СЏ РїРѕР»РѕСЃР°
 		//
 		if(upp_edge < (uint)a2.Right.b.y) {
 			const  uint row_full_height = P.PixRow + 2 * P.PixRowMargin;
@@ -2485,7 +2486,7 @@ void STimeChunkBrowser::Paint()
 			uint   dot_per_sec = (P.PixQuant / P.Quant);
 			{
 				//
-				// Заливка фона заголовка
+				// Р—Р°Р»РёРІРєР° С„РѕРЅР° Р·Р°РіРѕР»РѕРІРєР°
 				//
 				TRect ir(a2.LeftHeader.a.x, a2.RightHeader.a.y, a2.RightHeader.b.x, a2.RightHeader.b.y);
 				canv.FillRect(ir, (HBRUSH)Ptb.Get(brushHeader));
@@ -2503,18 +2504,18 @@ void STimeChunkBrowser::Paint()
 				else
 					canv.LineHorz(a2.Right.a.x, a2.Right.b.x, y);
 				//
-				// Вертикальные засечки
+				// Р’РµСЂС‚РёРєР°Р»СЊРЅС‹Рµ Р·Р°СЃРµС‡РєРё
 				//
 				canv.SelectObjectAndPush(Ptb.Get(fontHeader));
 				//
-				// Следующие три переменные необходимы для идентификации крайнего левого элемента шкалы,
-				// если его левый край не находится в области отрисовки
+				// РЎР»РµРґСѓСЋС‰РёРµ С‚СЂРё РїРµСЂРµРјРµРЅРЅС‹Рµ РЅРµРѕР±С…РѕРґРёРјС‹ РґР»СЏ РёРґРµРЅС‚РёС„РёРєР°С†РёРё РєСЂР°Р№РЅРµРіРѕ Р»РµРІРѕРіРѕ СЌР»РµРјРµРЅС‚Р° С€РєР°Р»С‹,
+				// РµСЃР»Рё РµРіРѕ Р»РµРІС‹Р№ РєСЂР°Р№ РЅРµ РЅР°С…РѕРґРёС‚СЃСЏ РІ РѕР±Р»Р°СЃС‚Рё РѕС‚СЂРёСЃРѕРІРєРё
 				//
 				uint   first_x = a2.Right.b.x;
 				long   prev_s = MAXLONG;
 				LDATETIME prev_dtm;
 				prev_dtm.SetZero();
-				LDATE  prev_date = ZERODATE; // Используется для идентификации нового дня.
+				LDATE  prev_date = ZERODATE; // РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РёРґРµРЅС‚РёС„РёРєР°С†РёРё РЅРѕРІРѕРіРѕ РґРЅСЏ.
 
 				LAssocArray last_collapsed_day_list; // key - x, val - date
 
@@ -2561,7 +2562,7 @@ void STimeChunkBrowser::Paint()
 					}
 					else if(unit >= (3600 * 24) && i != 0) {
 						//
-						// Для "коллапсированных" периодов необходимо отрисовывать переход от даты к дате.
+						// Р”Р»СЏ "РєРѕР»Р»Р°РїСЃРёСЂРѕРІР°РЅРЅС‹С…" РїРµСЂРёРѕРґРѕРІ РЅРµРѕР±С…РѕРґРёРјРѕ РѕС‚СЂРёСЃРѕРІС‹РІР°С‚СЊ РїРµСЂРµС…РѕРґ РѕС‚ РґР°С‚С‹ Рє РґР°С‚Рµ.
 						//
 						s = DiffTime(dtm, view_time_bounds.Start);
 						if(s >= 0) {
@@ -2607,7 +2608,7 @@ void STimeChunkBrowser::Paint()
 					}
 				}
 				//
-				// Отрисовка подписей засечки шкалы, которая находится левее крайнего обреза области. {
+				// РћС‚СЂРёСЃРѕРІРєР° РїРѕРґРїРёСЃРµР№ Р·Р°СЃРµС‡РєРё С€РєР°Р»С‹, РєРѕС‚РѕСЂР°СЏ РЅР°С…РѕРґРёС‚СЃСЏ Р»РµРІРµРµ РєСЂР°Р№РЅРµРіРѕ РѕР±СЂРµР·Р° РѕР±Р»Р°СЃС‚Рё. {
 				//
 				if(i != 0 && first_x > (left_edge+4) && prev_s < 0) {
 					if(unit >= 3600 * 24) {
@@ -2627,7 +2628,7 @@ void STimeChunkBrowser::Paint()
 		}
 		if(view_time_bounds.Has(current)) {
 			//
-			// Отрисовка вертикальной красной черты, обозначающей текущий момент
+			// РћС‚СЂРёСЃРѕРІРєР° РІРµСЂС‚РёРєР°Р»СЊРЅРѕР№ РєСЂР°СЃРЅРѕР№ С‡РµСЂС‚С‹, РѕР±РѕР·РЅР°С‡Р°СЋС‰РµР№ С‚РµРєСѓС‰РёР№ РјРѕРјРµРЅС‚
 			//
 			const int x = left_edge + SecToPix(DiffTime(current, view_time_bounds.Start));
 			canv.SelectObjectAndPush(Ptb.Get(penCurrent));
@@ -2642,10 +2643,10 @@ void STimeChunkBrowser::Paint()
 		canv.SelectObjectAndPush(Ptb.Get(fontLeftText));
 		canv.SelectObjectAndPush(Ptb.Get(penDefChunk));
 		canv.SelectObjectAndPush(Ptb.Get(brushDefChunk));
-		TPoint move_spot; // Пятно в активном отрезке, при нажатии на которое его можно двигать
-		move_spot = 0;    // Отрисовывается после общего цикла рисования основной области, дабы текст не затирал пятно.
+		TPoint move_spot; // РџСЏС‚РЅРѕ РІ Р°РєС‚РёРІРЅРѕРј РѕС‚СЂРµР·РєРµ, РїСЂРё РЅР°Р¶Р°С‚РёРё РЅР° РєРѕС‚РѕСЂРѕРµ РµРіРѕ РјРѕР¶РЅРѕ РґРІРёРіР°С‚СЊ
+		move_spot = 0;    // РћС‚СЂРёСЃРѕРІС‹РІР°РµС‚СЃСЏ РїРѕСЃР»Рµ РѕР±С‰РµРіРѕ С†РёРєР»Р° СЂРёСЃРѕРІР°РЅРёСЏ РѕСЃРЅРѕРІРЅРѕР№ РѕР±Р»Р°СЃС‚Рё, РґР°Р±С‹ С‚РµРєСЃС‚ РЅРµ Р·Р°С‚РёСЂР°Р» РїСЏС‚РЅРѕ.
 		int    is_move_rect = 0;
-		TRect  move_rect; // Область перемещаемого отрезка (рисуется в самом конце процедуры для того, чтобы быть на переднем плане)
+		TRect  move_rect; // РћР±Р»Р°СЃС‚СЊ РїРµСЂРµРјРµС‰Р°РµРјРѕРіРѕ РѕС‚СЂРµР·РєР° (СЂРёСЃСѓРµС‚СЃСЏ РІ СЃР°РјРѕРј РєРѕРЅС†Рµ РїСЂРѕС†РµРґСѓСЂС‹ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ Р±С‹С‚СЊ РЅР° РїРµСЂРµРґРЅРµРј РїР»Р°РЅРµ)
 		for(i = St.ScrollY; upp_edge <= (uint)a2.Right.b.y && i < P_Data->getCount(); i++) {
 			const  STimeChunkAssocArray * p_row = P_Data->at(i);
 			const  STimeChunkArray * p_holidays = P_Data->GetHolidayList(p_row->Id);
@@ -2687,7 +2688,7 @@ void STimeChunkBrowser::Paint()
 			}
 			if(St.Rsz.Kind == ResizeState::kMoveChunk && St.Rsz.RowId == p_row->Id) {
 				//
-				// Отрисовываем перемещаемый отрезок
+				// РћС‚СЂРёСЃРѕРІС‹РІР°РµРј РїРµСЂРµРјРµС‰Р°РµРјС‹Р№ РѕС‚СЂРµР·РѕРє
 				//
 				STimeChunk sect;
 				STimeChunkAssoc mc;
@@ -2712,7 +2713,7 @@ void STimeChunkBrowser::Paint()
 				int    bs;
 				HBRUSH brush_chunk;
 				//
-				// Установить цвет заливки отрезка
+				// РЈСЃС‚Р°РЅРѕРІРёС‚СЊ С†РІРµС‚ Р·Р°Р»РёРІРєРё РѕС‚СЂРµР·РєР°
 				bs = SelectChunkColor(&r_sr.C, &brush_chunk);
 				if(bs)
 					canv.SelectObjectAndPush(brush_chunk);
@@ -2729,7 +2730,7 @@ void STimeChunkBrowser::Paint()
 					canv.PopObject();
 				}
 				//
-				// Восстановление после установки цвета заливки отрезка
+				// Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РїРѕСЃР»Рµ СѓСЃС‚Р°РЅРѕРІРєРё С†РІРµС‚Р° Р·Р°Р»РёРІРєРё РѕС‚СЂРµР·РєР°
 				if(bs)
 					canv.PopObject();
 				//

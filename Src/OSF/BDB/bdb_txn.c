@@ -67,7 +67,7 @@ int __txn_begin_pp(DB_ENV*dbenv, DB_TXN * parent, DB_TXN ** txnpp, uint32 flags)
 		return ret;
 	if((ret = __db_fcchk(env, "txn_begin", flags, DB_TXN_WRITE_NOSYNC, DB_TXN_NOSYNC)) != 0)
 		return ret;
-	if(parent != NULL && LF_ISSET(DB_TXN_FAMILY)) {
+	if(parent && LF_ISSET(DB_TXN_FAMILY)) {
 		__db_errx(env, DB_STR("4521", "Family transactions cannot have parents"));
 		return EINVAL;
 	}
@@ -121,7 +121,7 @@ int __txn_begin(ENV*env, DB_THREAD_INFO * ip, DB_TXN * parent, DB_TXN ** txnpp, 
 	dbenv = env->dbenv;
 	txn->mgrp = env->tx_handle;
 	txn->parent = parent;
-	if(parent != NULL && F_ISSET(parent, TXN_FAMILY))
+	if(parent && F_ISSET(parent, TXN_FAMILY))
 		parent = NULL;
 	TAILQ_INIT(&txn->kids);
 	TAILQ_INIT(&txn->events);
@@ -129,7 +129,7 @@ int __txn_begin(ENV*env, DB_THREAD_INFO * ip, DB_TXN * parent, DB_TXN ** txnpp, 
 	TAILQ_INIT(&txn->my_cursors);
 	TAILQ_INIT(&txn->femfs);
 	txn->flags = TXN_MALLOC;
-	txn->thread_info = ip != NULL ? ip : (parent != NULL ? parent->thread_info : NULL);
+	txn->thread_info = (ip ? ip : (parent ? parent->thread_info : NULL));
 	/*
 	 * Set the sync mode for commit.  Any local bits override those
 	 * in the environment.  SYNC is the default.
@@ -154,7 +154,7 @@ int __txn_begin(ENV*env, DB_THREAD_INFO * ip, DB_TXN * parent, DB_TXN ** txnpp, 
 		F_SET(txn, TXN_READ_UNCOMMITTED);
 	if(LF_ISSET(DB_TXN_FAMILY))
 		F_SET(txn, TXN_FAMILY|TXN_INFAMILY|TXN_READONLY);
-	if(LF_ISSET(DB_TXN_SNAPSHOT) || F_ISSET(dbenv, DB_ENV_TXN_SNAPSHOT) || (parent != NULL && F_ISSET(parent, TXN_SNAPSHOT)))
+	if(LF_ISSET(DB_TXN_SNAPSHOT) || F_ISSET(dbenv, DB_ENV_TXN_SNAPSHOT) || (parent && F_ISSET(parent, TXN_SNAPSHOT)))
 		F_SET(txn, TXN_SNAPSHOT);
 	if(LF_ISSET(DB_IGNORE_LEASE))
 		F_SET(txn, TXN_IGNORE_LEASE);
@@ -283,7 +283,7 @@ static int __txn_begin_int(DB_TXN*txn)
 	ZERO_LSN(td->last_lsn);
 	ZERO_LSN(td->begin_lsn);
 	SH_TAILQ_INIT(&td->kids);
-	if(txn->parent != NULL && !F_ISSET(txn->parent, TXN_FAMILY))
+	if(txn->parent && !F_ISSET(txn->parent, TXN_FAMILY))
 		td->parent = R_OFFSET(&mgr->reginfo, txn->parent->td);
 	else
 		td->parent = INVALID_ROFF;
@@ -342,7 +342,7 @@ static int __txn_begin_int(DB_TXN*txn)
 	 * If this is a transaction family, we must link the child to the
 	 * maximal grandparent in the lock table for deadlock detection.
 	 */
-	if(txn->parent != NULL) {
+	if(txn->parent) {
 		if(LOCKING_ON(env) && (ret = __lock_addfamilylocker(env, txn->parent->txnid, txn->txnid, F_ISSET(txn->parent, TXN_FAMILY))) != 0)
 			goto err;
 		/*
@@ -368,7 +368,7 @@ err:
 		if(F_ISSET(txn, TXN_BULK))
 			((DB_TXNREGION *)env->tx_handle->reginfo.primary)->n_bulk_txn--;
 	}
-	if(td != NULL)
+	if(td)
 		__env_alloc_free(&mgr->reginfo, td);
 	TXN_SYSTEM_UNLOCK(env);
 	return ret;
@@ -595,7 +595,7 @@ int __txn_commit(DB_TXN*txn, uint32 flags)
 				}
 #endif
 			}
-			if(request.obj != NULL && request.obj->data != NULL)
+			if(request.obj && request.obj->data)
 				__os_free(env, request.obj->data);
 			if(ret != 0)
 				goto err;
@@ -618,9 +618,9 @@ int __txn_commit(DB_TXN*txn, uint32 flags)
 			F_SET(txn->parent, TXN_CHILDCOMMIT);
 		}
 	}
-	if(txn->token_buffer != NULL && ret == 0 && DBENV_LOGGING(env))
+	if(txn->token_buffer && ret == 0 && DBENV_LOGGING(env))
 		__txn_build_token(txn, &token_lsn);
-	if(txn->txn_list != NULL) {
+	if(txn->txn_list) {
 		__db_txnlist_end(env, (DB_TXNHEAD *)txn->txn_list);
 		txn->txn_list = NULL;
 	}
@@ -704,7 +704,7 @@ static int __txn_set_commit_token(DB_TXN * txn, DB_TXN_TOKEN * tokenp)
 {
 	ENV * env = txn->mgrp->env;
 	ENV_REQUIRES_CONFIG(env, env->lg_handle, "DB_TXN->set_commit_token", DB_INIT_LOG);
-	if(txn->parent != NULL) {
+	if(txn->parent) {
 		__db_errx(env, DB_STR("4526", "commit token unavailable for nested txn"));
 		return EINVAL;
 	}
@@ -968,7 +968,7 @@ int __txn_prepare(DB_TXN*txn, uint8 * gid)
 		lflags = DB_LOG_COMMIT|DB_FLUSH;
 		if((ret = __txn_prepare_log(env, txn, &td->last_lsn, lflags, TXN_PREPARE, &gid_dbt, &td->begin_lsn, request.obj)) != 0)
 			__db_err(env, ret, DB_STR("4528", "DB_TXN->prepare: log_write failed"));
-		if(request.obj != NULL && request.obj->data != NULL)
+		if(request.obj && request.obj->data)
 			__os_free(env, request.obj->data);
 		if(ret != 0)
 			goto err;
@@ -1121,14 +1121,13 @@ static int __txn_isvalid(const DB_TXN*txn, txnop_t op)
 		 * What we've got had better be either a prepared or
 		 * restored transaction.
 		 */
-		if(td->status != TXN_PREPARED &&
-		   !F_ISSET(td, TXN_DTL_RESTORED)) {
+		if(td->status != TXN_PREPARED && !F_ISSET(td, TXN_DTL_RESTORED)) {
 			__db_errx(env, DB_STR("4532", "not a restored transaction"));
 			return __env_panic(env, EINVAL);
 		}
 		return 0;
 	    case TXN_OP_PREPARE:
-		if(txn->parent != NULL) {
+		if(txn->parent) {
 			/*
 			 * This is not fatal, because you could imagine an
 			 * application that simply prepares everybody because
@@ -1246,7 +1245,7 @@ static int __txn_end(DB_TXN*txn, int is_commit)
 	}
 	if(td->nlog_slots != TXN_NSLOTS)
 		__env_alloc_free(&mgr->reginfo, R_ADDR(&mgr->reginfo, td->log_dbs));
-	if(txn->parent != NULL) {
+	if(txn->parent) {
 		ptd = (TXN_DETAIL *)txn->parent->td;
 		SH_TAILQ_REMOVE(&ptd->kids, td, klinks, __txn_detail);
 	}
@@ -1268,11 +1267,11 @@ static int __txn_end(DB_TXN*txn, int is_commit)
 			td = NULL;
 		}
 		MUTEX_UNLOCK(env, mvcc_mtx);
-		if(td != NULL)
+		if(td)
 			if((ret = __mutex_free(env, &td->mvcc_mtx)) != 0)
 				return __env_panic(env, ret);
 	}
-	if(td != NULL)
+	if(td)
 		__env_alloc_free(&mgr->reginfo, td);
 #ifdef HAVE_STATISTICS
 	if(is_commit)
@@ -1290,14 +1289,14 @@ static int __txn_end(DB_TXN*txn, int is_commit)
 	//
 	if(LOCKING_ON(env) && (ret = __lock_freelocker(env->lk_handle, txn->locker)) != 0)
 		return __env_panic(env, ret);
-	if(txn->parent != NULL)
+	if(txn->parent)
 		TAILQ_REMOVE(&txn->parent->kids, txn, klinks);
 	/* Free the space. */
 	while((lr = STAILQ_FIRST(&txn->logs)) != NULL) {
 		STAILQ_REMOVE(&txn->logs, lr, __txn_logrec, links);
 		__os_free(env, lr);
 	}
-	if(txn->name != NULL) {
+	if(txn->name) {
 		__os_free(env, txn->name);
 		txn->name = NULL;
 	}
@@ -1372,15 +1371,15 @@ static int __txn_undo(DB_TXN*txn)
 	 * so that aborted pages are recovered when that transaction
 	 * is committed or aborted.
 	 */
-	for(ptxn = txn->parent; ptxn != NULL && ptxn->parent != NULL; )
+	for(ptxn = txn->parent; ptxn && ptxn->parent; )
 		ptxn = ptxn->parent;
-	if(ptxn != NULL && ptxn->txn_list != NULL)
+	if(ptxn && ptxn->txn_list)
 		txnlist = (DB_TXNHEAD *)ptxn->txn_list;
-	else if(txn->txn_list != NULL)
+	else if(txn->txn_list)
 		txnlist = (DB_TXNHEAD *)txn->txn_list;
 	else if((ret = __db_txnlist_init(env, txn->thread_info, 0, 0, NULL, &txnlist)) != 0)
 		return ret;
-	else if(ptxn != NULL)
+	else if(ptxn)
 		ptxn->txn_list = txnlist;
 	// 
 	// Take log records from the linked list stored in the transaction, then from the log.
@@ -1412,7 +1411,7 @@ static int __txn_undo(DB_TXN*txn)
 		}
 	}
 err:
-	if(logc != NULL && (t_ret = __logc_close(logc)) != 0 && ret == 0)
+	if(logc && (t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
 	if(ptxn == NULL)
 		__db_txnlist_end(env, txnlist);
@@ -1498,7 +1497,7 @@ int __txn_preclose(ENV*env)
 	DB_TXNREGION * region = (DB_TXNREGION *)mgr->reginfo.primary;
 	do_closefiles = 0;
 	TXN_SYSTEM_LOCK(env);
-	if(region != NULL && region->stat.st_nrestores <= mgr->n_discards && mgr->n_discards != 0)
+	if(region && region->stat.st_nrestores <= mgr->n_discards && mgr->n_discards != 0)
 		do_closefiles = 1;
 	TXN_SYSTEM_UNLOCK(env);
 	if(do_closefiles) {
@@ -1535,7 +1534,7 @@ static void __txn_set_txn_lsnp(DB_TXN*txn, DB_LSN ** blsnp, DB_LSN ** llsnp)
 {
 	TXN_DETAIL * td = (TXN_DETAIL *)txn->td;
 	*llsnp = &td->last_lsn;
-	while(txn->parent != NULL)
+	while(txn->parent)
 		txn = txn->parent;
 	td = (TXN_DETAIL *)txn->td;
 	if(IS_ZERO_LSN(td->begin_lsn))
@@ -1739,7 +1738,7 @@ int __txn_checkpoint(ENV * env, uint32 kbytes, uint32 minutes, uint32 flags)
 			if(env->rep_handle->send == NULL && F_ISSET(env, ENV_THREAD) && APP_IS_REPMGR(env) && (ret = __repmgr_autostart(env)) != 0)
 				goto err;
 	#endif
-			if(env->rep_handle->send != NULL)
+			if(env->rep_handle->send)
 				__rep_send_message(env, DB_EID_BROADCAST, REP_START_SYNC, &ckp_lsn, NULL, 0, 0);
 		}
 		/* Flush the cache. */
@@ -1761,8 +1760,7 @@ int __txn_checkpoint(ENV * env, uint32 kbytes, uint32 minutes, uint32 flags)
 		 * take a long time to run.
 		 */
 	#ifndef CONFIG_TEST
-		if(LOGGING_ON(env) && IS_REP_MASTER(env) && env->rep_handle->send != NULL && !LF_ISSET(DB_CKP_INTERNAL) &&
-		   env->rep_handle->region->chkpt_delay != 0)
+		if(LOGGING_ON(env) && IS_REP_MASTER(env) && env->rep_handle->send && !LF_ISSET(DB_CKP_INTERNAL) && env->rep_handle->region->chkpt_delay != 0)
 			__os_yield(env, 0, env->rep_handle->region->chkpt_delay);
 	#endif
 		/*
@@ -2449,14 +2447,12 @@ int __txn_get_prepared(ENV*env, XID * xids, DB_PREPLIST * txns, long count, long
 	ENV_GET_THREAD_INFO(env, ip);
 
 	/* Now begin collecting active transactions. */
-	for(td = SH_TAILQ_FIRST(&region->active_txn, __txn_detail);
-	    td != NULL && *retp < count;
-	    td = SH_TAILQ_NEXT(td, links, __txn_detail)) {
+	for(td = SH_TAILQ_FIRST(&region->active_txn, __txn_detail); td && *retp < count; td = SH_TAILQ_NEXT(td, links, __txn_detail)) {
 		if(td->status != TXN_PREPARED || (flags != DB_FIRST && F_ISSET(td, TXN_DTL_COLLECTED)))
 			continue;
 		if(F_ISSET(td, TXN_DTL_RESTORED))
 			restored = 1;
-		if(xids != NULL) {
+		if(xids) {
 			xidp->formatID = td->format;
 			/*
 			 * XID structure uses longs; use use uint32's as we
@@ -2467,7 +2463,7 @@ int __txn_get_prepared(ENV*env, XID * xids, DB_PREPLIST * txns, long count, long
 			memcpy(xidp->data, td->gid, sizeof(td->gid));
 			xidp++;
 		}
-		if(txns != NULL) {
+		if(txns) {
 			if((ret = __os_calloc(env, 1, sizeof(DB_TXN), &prepp->txn)) != 0) {
 				TXN_SYSTEM_UNLOCK(env);
 				goto err;
@@ -2482,13 +2478,13 @@ int __txn_get_prepared(ENV*env, XID * xids, DB_PREPLIST * txns, long count, long
 		F_SET(td, TXN_DTL_COLLECTED);
 	}
 	if(flags == DB_FIRST)
-		for(; td != NULL; td = SH_TAILQ_NEXT(td, links, __txn_detail))
+		for(; td; td = SH_TAILQ_NEXT(td, links, __txn_detail))
 			F_CLR(td, TXN_DTL_COLLECTED);
 	TXN_SYSTEM_UNLOCK(env);
 	/*
 	 * Now link all the transactions into the transaction manager's list.
 	 */
-	if(txns != NULL && *retp != 0) {
+	if(txns && *retp != 0) {
 		MUTEX_LOCK(env, mgr->mutex);
 		for(i = 0; i < *retp; i++) {
 			if((ret = __txn_continue(env, txns[i].txn, (TXN_DETAIL *)txns[i].txn->td, ip, 0)) != 0)
@@ -2578,7 +2574,7 @@ int __txn_openfiles(ENV*env, DB_THREAD_INFO * ip, DB_LSN * min, int force)
 	ret = __env_openfiles(env, logc, txninfo, &data, &open_lsn, NULL, (double)0, 0);
 	__db_txnlist_end(env, txninfo);
 err:
-	if(logc != NULL && (t_ret = __logc_close(logc)) != 0 && ret == 0)
+	if(logc && (t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }
@@ -2616,7 +2612,7 @@ int __txn_open(ENV * env)
 	return 0;
 err:
 	env->tx_handle = NULL;
-	if(mgr->reginfo.addr != NULL)
+	if(mgr->reginfo.addr)
 		__env_region_detach(env, &mgr->reginfo, 0);
 	__mutex_free(env, &mgr->mutex);
 	__os_free(env, mgr);
@@ -3260,7 +3256,7 @@ struct __txn_event {
 	} u;
 };
 
-#define TXN_TOP_PARENT(txn) do { while(txn->parent != NULL) txn = txn->parent; } while(0)
+#define TXN_TOP_PARENT(txn) do { while(txn->parent) txn = txn->parent; } while(0)
 //
 // Creates a close event that can be added to the [so-called] commit list, so
 // that we can redo a failed DB handle close once we've aborted the transaction.
@@ -3288,7 +3284,7 @@ int __txn_remevent(ENV*env, DB_TXN * txn, const char * name, uint8 * fileid, int
 		return ret;
 	if((ret = __os_strdup(env, name, &e->u.r.name)) != 0)
 		goto err;
-	if(fileid != NULL) {
+	if(fileid) {
 		if((ret = __os_calloc(env, 1, DB_FILE_ID_LEN, &e->u.r.fileid)) != 0) {
 			__os_free(env, e->u.r.name);
 			goto err;
@@ -3310,7 +3306,7 @@ err:
 void __txn_remrem(ENV*env, DB_TXN * txn, const char * name)
 {
 	TXN_EVENT * next_e;
-	for(TXN_EVENT * e = TAILQ_FIRST(&txn->events); e != NULL; e = next_e) {
+	for(TXN_EVENT * e = TAILQ_FIRST(&txn->events); e; e = next_e) {
 		next_e = TAILQ_NEXT(e, links);
 		if(e->op != TXN_REMOVE || strcmp(name, e->u.r.name) != 0)
 			continue;
@@ -3351,7 +3347,7 @@ int __txn_lockevent(ENV * env, DB_TXN * txn, DB * dbp, DB_LOCK * lock, DB_LOCKER
 void __txn_remlock(ENV*env, DB_TXN * txn, DB_LOCK * lock, DB_LOCKER * locker)
 {
 	TXN_EVENT * e, * next_e;
-	for(e = TAILQ_FIRST(&txn->events); e != NULL; e = next_e) {
+	for(e = TAILQ_FIRST(&txn->events); e; e = next_e) {
 		next_e = TAILQ_NEXT(e, links);
 		if((e->op != TXN_TRADE && e->op != TXN_TRADED) || (e->u.t.lock.off != lock->off && e->u.t.locker != locker))
 			continue;
@@ -3404,12 +3400,12 @@ int __txn_doevents(ENV*env, DB_TXN * txn, int opcode, int preprocess)
 	 * we don't try the trade again.
 	 */
 	if(preprocess) {
-		for(e = TAILQ_FIRST(&txn->events); e != NULL; e = enext) {
+		for(e = TAILQ_FIRST(&txn->events); e; e = enext) {
 			enext = TAILQ_NEXT(e, links);
 			if(e->op != TXN_TRADE || IS_WRITELOCK(e->u.t.lock.mode))
 				continue;
 			DO_TRADE;
-			if(txn->parent != NULL) {
+			if(txn->parent) {
 				TAILQ_REMOVE(&txn->events, e, links);
 				TAILQ_INSERT_HEAD(&txn->parent->events, e, links);
 			}
@@ -3437,9 +3433,9 @@ int __txn_doevents(ENV*env, DB_TXN * txn, int opcode, int preprocess)
 				ret = t_ret;
 			break;
 		    case TXN_REMOVE:
-			if(txn->parent != NULL)
+			if(txn->parent)
 				TAILQ_INSERT_TAIL(&txn->parent->events, e, links);
-			else if(e->u.r.fileid != NULL) {
+			else if(e->u.r.fileid) {
 				if((t_ret = __memp_nameop(env, e->u.r.fileid, NULL, e->u.r.name, NULL, e->u.r.inmem)) != 0 && ret == 0)
 					ret = t_ret;
 			}
@@ -3448,7 +3444,7 @@ int __txn_doevents(ENV*env, DB_TXN * txn, int opcode, int preprocess)
 			break;
 		    case TXN_TRADE:
 			DO_TRADE;
-			if(txn->parent != NULL) {
+			if(txn->parent) {
 				TAILQ_INSERT_HEAD(&txn->parent->events, e, links);
 				continue;
 			}
@@ -3466,7 +3462,7 @@ dofree:
 		// Free resources here
 		switch(e->op) {
 		    case TXN_REMOVE:
-				if(txn->parent != NULL)
+				if(txn->parent)
 					continue;
 				__os_free(env, e->u.r.fileid);
 				__os_free(env, e->u.r.name);
@@ -3536,13 +3532,13 @@ int __txn_dref_fname(ENV*env, DB_TXN * txn)
 	if(td->nlog_dbs) {
 		DB_TXNMGR * mgr = env->tx_handle;
 		DB_LOG * dblp = env->lg_handle;
-		TXN_DETAIL * ptd = (txn->parent != NULL) ? (TXN_DETAIL *)txn->parent->td : NULL;
+		TXN_DETAIL * ptd = (txn->parent ? (TXN_DETAIL *)txn->parent->td : NULL);
 		roff_t * np = (roff_t *)R_ADDR(&mgr->reginfo, td->log_dbs);
 		np += td->nlog_dbs-1;
 		for(i = 0; i < td->nlog_dbs; i++, np--) {
 			FNAME * fname = (FNAME *)R_ADDR(&dblp->reginfo, *np);
 			MUTEX_LOCK(env, fname->mutex);
-			if(ptd != NULL) {
+			if(ptd) {
 				ret = __txn_record_fname(env, txn->parent, fname);
 				fname->txn_ref--;
 				MUTEX_UNLOCK(env, fname->mutex);

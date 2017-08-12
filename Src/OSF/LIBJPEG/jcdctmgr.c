@@ -342,14 +342,12 @@ METHODDEF(void) start_pass_fdctmgr(j_compress_ptr cinfo)
 			    }
 			    break;
 			default:
-			    ERREXIT2(cinfo, JERR_BAD_DCTSIZE,
-			    compptr->DCT_h_scaled_size, compptr->DCT_v_scaled_size);
+			    ERREXIT2(cinfo, JERR_BAD_DCTSIZE, compptr->DCT_h_scaled_size, compptr->DCT_v_scaled_size);
 			    break;
 		}
 		qtblno = compptr->quant_tbl_no;
 		/* Make sure specified quantization table is present */
-		if(qtblno < 0 || qtblno >= NUM_QUANT_TBLS ||
-		    cinfo->quant_tbl_ptrs[qtblno] == NULL)
+		if(qtblno < 0 || qtblno >= NUM_QUANT_TBLS || cinfo->quant_tbl_ptrs[qtblno] == NULL)
 			ERREXIT1(cinfo, JERR_NO_QUANT_TABLE, qtblno);
 		qtbl = cinfo->quant_tbl_ptrs[qtblno];
 		/* Create divisor table from quant table */
@@ -361,8 +359,7 @@ METHODDEF(void) start_pass_fdctmgr(j_compress_ptr cinfo)
 			     */
 			    dtbl = (DCTELEM*)compptr->dct_table;
 			    for(i = 0; i < DCTSIZE2; i++) {
-				    dtbl[i] =
-				    ((DCTELEM)qtbl->quantval[i]) << (compptr->component_needed ? 4 : 3);
+				    dtbl[i] = ((DCTELEM)qtbl->quantval[i]) << (compptr->component_needed ? 4 : 3);
 			    }
 			    fdct->pub.forward_DCT[ci] = forward_DCT;
 			    break;
@@ -392,8 +389,7 @@ METHODDEF(void) start_pass_fdctmgr(j_compress_ptr cinfo)
 
 				dtbl = (DCTELEM*)compptr->dct_table;
 			    for(i = 0; i < DCTSIZE2; i++) {
-				    dtbl[i] = (DCTELEM)DESCALE(MULTIPLY16V16((INT32)qtbl->quantval[i], (INT32)aanscales[i]),
-					    compptr->component_needed ? CONST_BITS-4 : CONST_BITS-3);
+				    dtbl[i] = (DCTELEM)DESCALE(MULTIPLY16V16((INT32)qtbl->quantval[i], (INT32)aanscales[i]), compptr->component_needed ? CONST_BITS-4 : CONST_BITS-3);
 			    }
 		    }
 			    fdct->pub.forward_DCT[ci] = forward_DCT;

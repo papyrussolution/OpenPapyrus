@@ -97,8 +97,8 @@ typedef struct _cairo_gradient_pattern {
 
 typedef struct _cairo_linear_pattern {
     cairo_gradient_pattern_t base;
-    cairo_point_double_t pd1;
-    cairo_point_double_t pd2;
+    RPoint pd1;
+    RPoint pd2;
 } cairo_linear_pattern_t;
 
 typedef struct _cairo_radial_pattern {
@@ -144,7 +144,7 @@ typedef union {
  */
 
 typedef struct _cairo_mesh_patch {
-    cairo_point_double_t points[4][4];
+    RPoint points[4][4];
     cairo_color_t colors[4];
 } cairo_mesh_patch_t;
 

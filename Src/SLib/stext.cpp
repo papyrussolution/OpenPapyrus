@@ -1526,6 +1526,20 @@ int FASTCALL stricmp866(const char * s1, const char * s2)
 	return 0;
 }
 
+int FASTCALL stricmp1251(const char * s1, const char * s2)
+{
+	int    c1, c2;
+	do {
+		c1 = ToUpper1251(*s1++);
+		c2 = ToUpper1251(*s2++);
+		if(c1 > c2)
+			return 1;
+		else if(c1 < c2)
+			return -1;
+	} while(c1 && c2);
+	return 0;
+}
+
 //int FASTCALL rus_strnicmp(const char * s1, const char * s2, size_t maxlen)
 int FASTCALL strnicmp866(const char * s1, const char * s2, size_t maxlen)
 {

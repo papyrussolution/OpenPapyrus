@@ -334,7 +334,7 @@ int __mutex_open(ENV * env, int create_ok)
 	return 0;
 err:
 	env->mutex_handle = NULL;
-	if(mtxmgr->reginfo.addr != NULL)
+	if(mtxmgr->reginfo.addr)
 		__env_region_detach(env, &mtxmgr->reginfo, 0);
 	__os_free(env, mtxmgr);
 	return ret;
@@ -1927,7 +1927,7 @@ loop:   /* Attempt to acquire the mutex mutex_tas_spins times, if waiting. */
 		else
 			++mutexp->mutex_set_wait;
 #endif
-		if(event != NULL) {
+		if(event) {
 			CloseHandle(event);
 			InterlockedDecrement(&mutexp->nwaiters);
 #ifdef MUTEX_DIAG
@@ -1956,7 +1956,7 @@ loop:   /* Attempt to acquire the mutex mutex_tas_spins times, if waiting. */
 	if(timeout != 0) {
 		timespecclear(&now);
 		if(__clock_expired(env, &now, &timeoutspec)) {
-			if(event != NULL) {
+			if(event) {
 				CloseHandle(event);
 				InterlockedDecrement(&mutexp->nwaiters);
 			}
@@ -2087,7 +2087,7 @@ retry:
 		else
 			++mutexp->mutex_set_rd_wait;
  #endif
-		if(event != NULL) {
+		if(event) {
 			CloseHandle(event);
 			InterlockedDecrement(&mutexp->nwaiters);
  #ifdef MUTEX_DIAG

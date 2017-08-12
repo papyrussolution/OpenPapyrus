@@ -1,6 +1,6 @@
 // Toolbar.cpp
 // There's a mine born by Osolotkin, 2000, 2001
-// Modified by A.Sobolev, 2002, 2003, 2005, 2010, 2011, 2013, 2014, 2015, 2016
+// Modified by A.Sobolev, 2002, 2003, 2005, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -36,7 +36,7 @@ TToolbar::TToolbar(HWND hWnd, DWORD style)
 		0, 0, 0, 0, hWnd, (HMENU)0, TProgram::GetInst(), 0); // @unicodeproblem
 	//SetWindowLong(H_Wnd, GWLP_USERDATA, (long)this);
 	TView::SetWindowProp(H_Wnd, GWLP_USERDATA, this);
-	H_Toolbar = CreateWindowEx(WS_EX_TOOLWINDOW, TOOLBARCLASSNAME, (LPSTR) NULL,
+	H_Toolbar = CreateWindowEx(WS_EX_TOOLWINDOW, TOOLBARCLASSNAME, (LPSTR)NULL,
 		WS_CHILD | TBSTYLE_TOOLTIPS | TBSTYLE_FLAT | CCS_NORESIZE | WS_CLIPSIBLINGS,
 		0, 0, 0, 0, H_Wnd, (HMENU)0, TProgram::GetInst(), 0);
 	//SetWindowLong(H_Toolbar, GWLP_USERDATA, (long)this);
@@ -154,6 +154,14 @@ LRESULT TToolbar::OnNotify(WPARAM wParam, LPARAM lParam)
 		if(Items.searchKeyCode(wParam, &idx))
 			STRNSCPY(((TOOLTIPTEXT *)lParam)->szText, Items.getItem(idx).ToolTipText);
 	}
+	// @v9.7.11 (experimental) {
+	/*
+	else if(phm->code == NM_CUSTOMDRAW) {
+		LPNMCUSTOMDRAW lpNMCustomDraw = (LPNMCUSTOMDRAW)lParam;
+		return CDRF_DODEFAULT;
+	}
+	*/
+	// } @v9.7.11 
 	return 0;
 }
 
@@ -375,6 +383,17 @@ LRESULT CALLBACK TToolbar::ToolbarProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 {
 	if(oneof4(msg, WM_LBUTTONDOWN, WM_LBUTTONDBLCLK, WM_LBUTTONUP, WM_NCLBUTTONUP))
 		PostMessage(GetParent(hWnd), msg, wParam, lParam);
+	// @v9.7.11 (experimental) {
+	/*
+	else if(msg == WM_NOTIFY) {
+		NMHDR * phm = (NMHDR *)lParam;
+		if(phm->code == NM_CUSTOMDRAW) {
+			LPNMCUSTOMDRAW lpNMCustomDraw = (LPNMCUSTOMDRAW)lParam;
+			return CDRF_DODEFAULT;
+		}
+	}
+	*/
+	// } @v9.7.11 
 	TToolbar * p_tb = (TToolbar *)TView::GetWindowUserData(hWnd);
 	return CallWindowProc(p_tb->PrevToolProc, hWnd, msg, wParam, lParam);
 }
@@ -495,7 +514,6 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 	}
 	if(Items.getItemsCount()) {
 		himl = ImageList_Create(GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), ILC_COLORDDB, 0, 64);
-
 		HMENU  h_menu = GetMenu(H_MainWnd);
 		ToolbarItem item;
 		int    prev_separator = 0;

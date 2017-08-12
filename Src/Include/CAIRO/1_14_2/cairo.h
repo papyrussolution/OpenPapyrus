@@ -928,7 +928,7 @@ typedef struct _cairo_font_face cairo_font_face_t;
  * Since: 1.0
  **/
 typedef struct {
-	ulong index;
+	ulong  index;
 	double x;
 	double y;
 } cairo_glyph_t;

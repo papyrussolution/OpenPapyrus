@@ -63,12 +63,8 @@ struct stroker {
 	cairo_bool_t has_limits;
 };
 
-static inline double normalize_slope(double * dx, double * dy);
-
-static void compute_face(const cairo_point_t * point,
-    const cairo_slope_t * dev_slope,
-    struct stroker * stroker,
-    cairo_stroke_face_t * face);
+//static inline double normalize_slope(double * dx, double * dy);
+static void compute_face(const cairo_point_t * point, const cairo_slope_t * dev_slope, struct stroker * stroker, cairo_stroke_face_t * face);
 
 static void translate_point(cairo_point_t * point, const cairo_point_t * offset)
 {
@@ -266,9 +262,13 @@ static void outer_close(struct stroker * stroker, const cairo_stroke_face_t * in
 		     *
 		     */
 		    if(2 <= ml * ml * (1 - in_dot_out)) {
-			    double x1, y1, x2, y2;
+			    //double x1, y1, x2, y2;
+				RPoint _p1;
+				RPoint _p2;
 			    double mx, my;
-			    double dx1, dx2, dy1, dy2;
+			    //double dx1, dx2, dy1, dy2;
+				RPoint _d1;
+				RPoint _d2;
 			    double ix, iy;
 			    double fdx1, fdy1, fdx2, fdy2;
 			    double mdx, mdy;
@@ -280,19 +280,22 @@ static void outer_close(struct stroker * stroker, const cairo_stroke_face_t * in
 			     * device space
 			     */
 			    /* outer point of incoming line face */
-			    x1 = _cairo_fixed_to_double(inpt->x);
-			    y1 = _cairo_fixed_to_double(inpt->y);
-			    dx1 = in->usr_vector.x;
-			    dy1 = in->usr_vector.y;
-			    cairo_matrix_transform_distance(stroker->ctm, &dx1, &dy1);
+			    //x1 = _cairo_fixed_to_double(inpt->x);
+			    //y1 = _cairo_fixed_to_double(inpt->y);
+				_p1.Set(_cairo_fixed_to_double(inpt->x), _cairo_fixed_to_double(inpt->y));
+			    //dx1 = in->usr_vector.x;
+			    //dy1 = in->usr_vector.y;
+				_d1 = in->usr_vector;
+			    cairo_matrix_transform_distance(stroker->ctm, &_d1.x, &_d1.y);
 
 			    /* outer point of outgoing line face */
-			    x2 = _cairo_fixed_to_double(outpt->x);
-			    y2 = _cairo_fixed_to_double(outpt->y);
-			    dx2 = out->usr_vector.x;
-			    dy2 = out->usr_vector.y;
-			    cairo_matrix_transform_distance(stroker->ctm, &dx2, &dy2);
-
+			    //x2 = _cairo_fixed_to_double(outpt->x);
+			    //y2 = _cairo_fixed_to_double(outpt->y);
+				_p2.Set(_cairo_fixed_to_double(outpt->x), _cairo_fixed_to_double(outpt->y));
+			    //dx2 = out->usr_vector.x;
+			    //dy2 = out->usr_vector.y;
+				_d2 = out->usr_vector;
+			    cairo_matrix_transform_distance(stroker->ctm, &_d2.x, &_d2.y);
 			    /*
 			     * Compute the location of the outer corner of the miter.
 			     * That's pretty easy -- just the intersection of the two
@@ -301,11 +304,11 @@ static void outer_close(struct stroker * stroker, const cairo_stroke_face_t * in
 			     * mx by using the edge with the larger dy; that avoids
 			     * dividing by values close to zero.
 			     */
-			    my = (((x2 - x1) * dy1 * dy2 - y2 * dx2 * dy1 + y1 * dx1 * dy2) / (dx1 * dy2 - dx2 * dy1));
-			    if(fabs(dy1) >= fabs(dy2))
-				    mx = (my - y1) * dx1 / dy1 + x1;
+			    my = (((_p2.x - _p1.x) * _d1.y * _d2.y - _p2.y * _d2.x * _d1.y + _p1.y * _d1.x * _d2.y) / (_d1.x * _d2.y - _d2.x * _d1.y));
+			    if(fabs(_d1.y) >= fabs(_d2.y))
+				    mx = (my - _p1.y) * _d1.x / _d1.y + _p1.x;
 			    else
-				    mx = (my - y2) * dx2 / dy2 + x2;
+				    mx = (my - _p2.y) * _d2.x / _d2.y + _p2.x;
 			    /*
 			     * When the two outer edges are nearly parallel, slight
 			     * perturbations in the position of the outer points of the lines
@@ -316,27 +319,23 @@ static void outer_close(struct stroker * stroker, const cairo_stroke_face_t * in
 			     */
 			    ix = _cairo_fixed_to_double(in->point.x);
 			    iy = _cairo_fixed_to_double(in->point.y);
-
-			    /* slope of one face */
-			    fdx1 = x1 - ix; fdy1 = y1 - iy;
-
-			    /* slope of the other face */
-			    fdx2 = x2 - ix; fdy2 = y2 - iy;
-
-			    /* slope from the intersection to the miter point */
-			    mdx = mx - ix; mdy = my - iy;
-
+			    // slope of one face 
+			    fdx1 = _p1.x - ix; 
+				fdy1 = _p1.y - iy;
+			    // slope of the other face 
+			    fdx2 = _p2.x - ix; 
+				fdy2 = _p2.y - iy;
+			    // slope from the intersection to the miter point 
+			    mdx = mx - ix; 
+				mdy = my - iy;
 			    /*
 			     * Make sure the miter point line lies between the two
 			     * faces by comparing the slopes
 			     */
-			    if(slope_compare_sgn(fdx1, fdy1, mdx, mdy) !=
-				    slope_compare_sgn(fdx2, fdy2, mdx, mdy)) {
+			    if(slope_compare_sgn(fdx1, fdy1, mdx, mdy) != slope_compare_sgn(fdx2, fdy2, mdx, mdy)) {
 				    cairo_point_t p;
-
 				    p.x = _cairo_fixed_from_double(mx);
 				    p.y = _cairo_fixed_from_double(my);
-
 				    //*_cairo_contour_last_point (&outer->contour) = p;
 				    //*_cairo_contour_first_point (&outer->contour) = p;
 				    return;
@@ -563,7 +562,7 @@ static void add_leading_cap(struct stroker * stroker, const cairo_stroke_face_t 
 {
 	cairo_point_t t;
 	cairo_stroke_face_t reversed = *face;
-	/* The initial cap needs an outward facing vector. Reverse everything */
+	// The initial cap needs an outward facing vector. Reverse everything 
 	reversed.usr_vector.x = -reversed.usr_vector.x;
 	reversed.usr_vector.y = -reversed.usr_vector.y;
 	reversed.dev_vector.dx = -reversed.dev_vector.dx;
@@ -579,57 +578,65 @@ static void add_trailing_cap(struct stroker * stroker, const cairo_stroke_face_t
 	add_cap(stroker, face);
 }
 
-static inline double normalize_slope(double * dx, double * dy)
+static /*inline*/ double FASTCALL normalize_slope(/*double * dx, double * dy*/RPoint & rD)
 {
-	double dx0 = *dx, dy0 = *dy;
+	//double dx0 = *dx;
+	//double dy0 = *dy;
+	double dx0 = rD.x;
+	double dy0 = rD.y;
 	double mag;
 	assert(dx0 != 0.0 || dy0 != 0.0);
 	if(dx0 == 0.0) {
-		*dx = 0.0;
+		//*dx = 0.0;
+		rD.x = 0.0;
 		if(dy0 > 0.0) {
 			mag = dy0;
-			*dy = 1.0;
+			//*dy = 1.0;
+			rD.y = 1.0;
 		}
 		else {
 			mag = -dy0;
-			*dy = -1.0;
+			//*dy = -1.0;
+			rD.y = -1.0;
 		}
 	}
 	else if(dy0 == 0.0) {
-		*dy = 0.0;
+		//*dy = 0.0;
+		rD.y = 0.0;
 		if(dx0 > 0.0) {
 			mag = dx0;
-			*dx = 1.0;
+			//*dx = 1.0;
+			rD.x = 1.0;
 		}
 		else {
 			mag = -dx0;
-			*dx = -1.0;
+			//*dx = -1.0;
+			rD.x = -1.0;
 		}
 	}
 	else {
 		mag = hypot(dx0, dy0);
-		*dx = dx0 / mag;
-		*dy = dy0 / mag;
+		//*dx = dx0 / mag;
+		//*dy = dy0 / mag;
+		rD.Set(dx0 / mag, dy0 / mag);
 	}
-
 	return mag;
 }
 
-static void compute_face(const cairo_point_t * point,
-    const cairo_slope_t * dev_slope,
-    struct stroker * stroker,
-    cairo_stroke_face_t * face)
+static void compute_face(const cairo_point_t * point, const cairo_slope_t * dev_slope, struct stroker * stroker, cairo_stroke_face_t * face)
 {
 	double face_dx, face_dy;
 	cairo_point_t offset_ccw, offset_cw;
-	double slope_dx, slope_dy;
-
-	slope_dx = _cairo_fixed_to_double(dev_slope->dx);
-	slope_dy = _cairo_fixed_to_double(dev_slope->dy);
-	face->length = normalize_slope(&slope_dx, &slope_dy);
-	face->dev_slope.x = slope_dx;
-	face->dev_slope.y = slope_dy;
-
+	//double slope_dx, slope_dy;
+	//slope_dx = _cairo_fixed_to_double(dev_slope->dx);
+	//slope_dy = _cairo_fixed_to_double(dev_slope->dy);
+	RPoint _slope_d;
+	_slope_d.Set(_cairo_fixed_to_double(dev_slope->dx), _cairo_fixed_to_double(dev_slope->dy));
+	//face->length = normalize_slope(&_slope_d.x, &_slope_d.y);
+	face->length = normalize_slope(_slope_d);
+	//face->dev_slope.x = slope_dx;
+	//face->dev_slope.y = slope_dy;
+	face->dev_slope = _slope_d;
 	/*
 	 * rotate to get a line_width/2 vector along the face, note that
 	 * the vector must be rotated the right direction in device space,
@@ -638,44 +645,37 @@ static void compute_face(const cairo_point_t * point,
 	 * by looking at the determinant of the matrix.
 	 */
 	if(!_cairo_matrix_is_identity(stroker->ctm_inverse)) {
-		/* Normalize the matrix! */
-		cairo_matrix_transform_distance(stroker->ctm_inverse,
-		    &slope_dx, &slope_dy);
-		normalize_slope(&slope_dx, &slope_dy);
-
+		// Normalize the matrix! 
+		cairo_matrix_transform_distance(stroker->ctm_inverse, &_slope_d.x, &_slope_d.y);
+		//normalize_slope(&_slope_d.x, &_slope_d.y);
+		normalize_slope(_slope_d);
 		if(stroker->ctm_det_positive) {
-			face_dx = -slope_dy * (stroker->style.line_width / 2.0);
-			face_dy = slope_dx * (stroker->style.line_width / 2.0);
+			face_dx = -_slope_d.y * (stroker->style.line_width / 2.0);
+			face_dy = _slope_d.x * (stroker->style.line_width / 2.0);
 		}
 		else {
-			face_dx = slope_dy * (stroker->style.line_width / 2.0);
-			face_dy = -slope_dx * (stroker->style.line_width / 2.0);
+			face_dx = _slope_d.y * (stroker->style.line_width / 2.0);
+			face_dy = -_slope_d.x * (stroker->style.line_width / 2.0);
 		}
-
-		/* back to device space */
+		// back to device space 
 		cairo_matrix_transform_distance(stroker->ctm, &face_dx, &face_dy);
 	}
 	else {
-		face_dx = -slope_dy * (stroker->style.line_width / 2.0);
-		face_dy = slope_dx * (stroker->style.line_width / 2.0);
+		face_dx = -_slope_d.y * (stroker->style.line_width / 2.0);
+		face_dy = _slope_d.x * (stroker->style.line_width / 2.0);
 	}
-
 	offset_ccw.x = _cairo_fixed_from_double(face_dx);
 	offset_ccw.y = _cairo_fixed_from_double(face_dy);
 	offset_cw.x = -offset_ccw.x;
 	offset_cw.y = -offset_ccw.y;
-
 	face->ccw = *point;
 	translate_point(&face->ccw, &offset_ccw);
-
 	face->point = *point;
-
 	face->cw = *point;
 	translate_point(&face->cw, &offset_cw);
-
-	face->usr_vector.x = slope_dx;
-	face->usr_vector.y = slope_dy;
-
+	//face->usr_vector.x = slope_dx;
+	//face->usr_vector.y = slope_dy;
+	face->usr_vector = _slope_d;
 	face->dev_vector = *dev_slope;
 }
 

@@ -1716,16 +1716,16 @@ int SLAPI PPGoodsImporter::PutUnit(const Sdr_Goods2 & rRec, PPID defPhUnitID, PP
 				temp_buf = rRec.PhUnitName;
 				if(temp_buf.NotEmptyS()) {
 					val_buf = temp_buf;
-					if(val_buf.CmpNC("g") == 0 || stricmp866(val_buf, "Г") == 0 || stricmp866(val_buf, "£а") == 0) {
+					if(val_buf.CmpNC("g") == 0 || stricmp1251(val_buf, "г") == 0 || stricmp1251(val_buf, "гр") == 0) {
 						(val_buf = "кг").Transf(CTRANSF_OUTER_TO_INNER);
 						phperu /= 1000L;
 					}
 					else if(val_buf.CmpNC("kg") == 0)
 						(val_buf = "кг").Transf(CTRANSF_OUTER_TO_INNER);
-					else if(stricmp866(val_buf, "Л") == 0) {
+					else if(stricmp1251(val_buf, "л") == 0) {
 						(val_buf = "литр").Transf(CTRANSF_OUTER_TO_INNER);
 					}
-					else if(stricmp866(val_buf, "ђЂ") == 0) {
+					else if(stricmp1251(val_buf, "мл") == 0) {
 						(val_buf = "литр").Transf(CTRANSF_OUTER_TO_INNER);
 						phperu /= 1000L;
 					}

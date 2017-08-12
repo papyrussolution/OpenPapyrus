@@ -155,26 +155,19 @@
 #define STEPS_CLIP_U 64.0
 
 /* Utils */
-static inline double sqlen(cairo_point_double_t p0, cairo_point_double_t p1)
+static inline double sqlen(RPoint p0, RPoint p1)
 {
-	cairo_point_double_t delta;
-
-	delta.x = p0.x - p1.x;
-	delta.y = p0.y - p1.y;
-
+	RPoint delta;
+	delta.Set(p0.x - p1.x, p0.y - p1.y);
 	return delta.x * delta.x + delta.y * delta.y;
 }
 
 static inline int16_t _color_delta_to_shifted_short(int32_t from, int32_t to, int shift)
 {
 	int32_t delta = to - from;
-
-	/* We need to round toward zero, because otherwise adding the
-	 * delta 2^shift times can overflow */
-	if(delta >= 0)
-		return delta >> shift;
-	else
-		return -((-delta) >> shift);
+	// We need to round toward zero, because otherwise adding the
+	// delta 2^shift times can overflow 
+	return (delta >= 0) ? (delta >> shift) : (-((-delta) >> shift));
 }
 
 /*
@@ -327,7 +320,7 @@ static inline void fd_fixed_fwd(int32_t f[4])
  *
  *   3 max (|p1-p0|, |p2-p0|/2, |p3-p1|/2, |p3-p2|) sqrt(2) steps
  */
-static inline double bezier_steps_sq(cairo_point_double_t p[4])
+static inline double bezier_steps_sq(RPoint p[4])
 {
 	double tmp = sqlen(p[0], p[1]);
 	tmp = MAX(tmp, sqlen(p[2], p[3]));
@@ -376,14 +369,11 @@ static inline void split_bezier_1D(double x,  double y,  double z,  double w,
  * fst_half and snd_half must be different, but they can be the same as
  * nodes.
  */
-static void split_bezier(cairo_point_double_t p[4],
-    cairo_point_double_t fst_half[4],
-    cairo_point_double_t snd_half[4])
+static void split_bezier(RPoint p[4], RPoint fst_half[4], RPoint snd_half[4])
 {
 	split_bezier_1D(p[0].x, p[1].x, p[2].x, p[3].x,
 	    &fst_half[0].x, &fst_half[1].x, &fst_half[2].x, &fst_half[3].x,
 	    &snd_half[0].x, &snd_half[1].x, &snd_half[2].x, &snd_half[3].x);
-
 	split_bezier_1D(p[0].y, p[1].y, p[2].y, p[3].y,
 	    &fst_half[0].y, &fst_half[1].y, &fst_half[2].y, &fst_half[3].y,
 	    &snd_half[0].y, &snd_half[1].y, &snd_half[2].y, &snd_half[3].y);
@@ -555,33 +545,27 @@ static inline void rasterize_bezier_curve(uchar * data, int width, int height, i
  * consecutive points (which is needed to ensure that no hole can
  * appear when using this function to rasterize a patch).
  */
-static void draw_bezier_curve(uchar * data, int width, int height, int stride,
-    cairo_point_double_t p[4], double c0[4], double c3[4])
+static void draw_bezier_curve(uchar * data, int width, int height, int stride, RPoint p[4], double c0[4], double c3[4])
 {
 	double top, bottom, left, right, steps_sq;
 	int i, v;
-
 	top = bottom = p[0].y;
 	for(i = 1; i < 4; ++i) {
 		top    = MIN(top,    p[i].y);
 		bottom = MAX(bottom, p[i].y);
 	}
-
 	/* Check visibility */
 	v = intersect_interval(top, bottom, 0, height);
 	if(v == OUTSIDE)
 		return;
-
 	left = right = p[0].x;
 	for(i = 1; i < 4; ++i) {
 		left  = MIN(left,  p[i].x);
 		right = MAX(right, p[i].x);
 	}
-
 	v &= intersect_interval(left, right, 0, width);
 	if(v == OUTSIDE)
 		return;
-
 	steps_sq = bezier_steps_sq(p);
 	if(steps_sq >= (v == INSIDE ? STEPS_MAX_U * STEPS_MAX_U : STEPS_CLIP_U * STEPS_CLIP_U)) {
 		/*
@@ -590,7 +574,7 @@ static void draw_bezier_curve(uchar * data, int width, int height, int stride,
 		 * directly rasterized it or that we can probably save some
 		 * time by splitting the curve and clipping part of it
 		 */
-		cairo_point_double_t first[4], second[4];
+		RPoint first[4], second[4];
 		double midc[4];
 		split_bezier(p, first, second);
 		midc[0] = (c0[0] + c3[0]) * 0.5;
@@ -676,7 +660,7 @@ static void draw_bezier_curve(uchar * data, int width, int height, int stride,
  * [0,1] (including both extremes).
  */
 static inline void rasterize_bezier_patch(uchar * data, int width, int height, int stride, int vshift,
-    cairo_point_double_t p[4][4], double col[4][4])
+    RPoint p[4][4], double col[4][4])
 {
 	double pv[4][2][4], cstart[4], cend[4], dcstart[4], dcend[4];
 	int v, i, k;
@@ -712,7 +696,7 @@ static inline void rasterize_bezier_patch(uchar * data, int width, int height, i
 
 	v++;
 	while(v--) {
-		cairo_point_double_t nodes[4];
+		RPoint nodes[4];
 		for(i = 0; i < 4; ++i) {
 			nodes[i].x = pv[i][0][0];
 			nodes[i].y = pv[i][1][0];
@@ -771,7 +755,7 @@ static inline void rasterize_bezier_patch(uchar * data, int width, int height, i
  * shadings (see http://www.adobe.com/devnet/pdf/pdf_reference.html).
  */
 static void draw_bezier_patch(uchar * data, int width, int height, int stride,
-    cairo_point_double_t p[4][4], double c[4][4])
+    RPoint p[4][4], double c[4][4])
 {
 	double top, bottom, left, right, steps_sq;
 	int i, j, v;
@@ -813,7 +797,7 @@ static void draw_bezier_patch(uchar * data, int width, int height, int stride,
 		 * rasterizing each part will overwrite parts with low v with
 		 * overlapping parts with higher v. */
 
-		cairo_point_double_t first[4][4], second[4][4];
+		RPoint first[4][4], second[4][4];
 		double subc[4][4];
 
 		for(i = 0; i < 4; ++i)
@@ -857,29 +841,20 @@ static void draw_bezier_patch(uchar * data, int width, int height, int stride,
  * This function can be used to rasterize a PDF type 7 shading (see
  * http://www.adobe.com/devnet/pdf/pdf_reference.html).
  */
-void _cairo_mesh_pattern_rasterize(const cairo_mesh_pattern_t * mesh,
-    void * data,
-    int width,
-    int height,
-    int stride,
-    double x_offset,
-    double y_offset)
+void _cairo_mesh_pattern_rasterize(const cairo_mesh_pattern_t * mesh, void * data, int width, int height, int stride, double x_offset, double y_offset)
 {
-	cairo_point_double_t nodes[4][4];
+	RPoint nodes[4][4];
 	double colors[4][4];
 	cairo_matrix_t p2u;
 	uint i, j, k, n;
 	cairo_status_t status;
 	const cairo_mesh_patch_t * patch;
 	const cairo_color_t * c;
-
 	assert(mesh->base.status == CAIRO_STATUS_SUCCESS);
 	assert(mesh->current_patch == NULL);
-
 	p2u = mesh->base.matrix;
 	status = cairo_matrix_invert(&p2u);
 	assert(status == CAIRO_STATUS_SUCCESS);
-
 	n = _cairo_array_num_elements(&mesh->patches);
 	patch = (const cairo_mesh_patch_t *)_cairo_array_index_const(&mesh->patches, 0);
 	for(i = 0; i < n; i++) {

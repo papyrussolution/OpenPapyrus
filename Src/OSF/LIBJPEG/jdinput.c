@@ -217,38 +217,27 @@ static void initial_setup(j_decompress_ptr cinfo)
 {
 	int ci;
 	jpeg_component_info * compptr;
-
 	/* Make sure image isn't bigger than I can handle */
-	if((long)cinfo->image_height > (long)JPEG_MAX_DIMENSION ||
-	    (long)cinfo->image_width > (long)JPEG_MAX_DIMENSION)
+	if((long)cinfo->image_height > (long)JPEG_MAX_DIMENSION || (long)cinfo->image_width > (long)JPEG_MAX_DIMENSION)
 		ERREXIT1(cinfo, JERR_IMAGE_TOO_BIG, (uint)JPEG_MAX_DIMENSION);
-
 	/* Only 8 to 12 bits data precision are supported for DCT based JPEG */
 	if(cinfo->data_precision < 8 || cinfo->data_precision > 12)
 		ERREXIT1(cinfo, JERR_BAD_PRECISION, cinfo->data_precision);
-
 	/* Check that number of components won't exceed internal array sizes */
 	if(cinfo->num_components > MAX_COMPONENTS)
-		ERREXIT2(cinfo, JERR_COMPONENT_COUNT, cinfo->num_components,
-		    MAX_COMPONENTS);
-
+		ERREXIT2(cinfo, JERR_COMPONENT_COUNT, cinfo->num_components, MAX_COMPONENTS);
 	/* Compute maximum sampling factors; check factor validity */
 	cinfo->max_h_samp_factor = 1;
 	cinfo->max_v_samp_factor = 1;
 	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components;
 	    ci++, compptr++) {
-		if(compptr->h_samp_factor<=0 || compptr->h_samp_factor>MAX_SAMP_FACTOR ||
-		    compptr->v_samp_factor<=0 || compptr->v_samp_factor>MAX_SAMP_FACTOR)
+		if(compptr->h_samp_factor<=0 || compptr->h_samp_factor>MAX_SAMP_FACTOR || compptr->v_samp_factor<=0 || compptr->v_samp_factor>MAX_SAMP_FACTOR)
 			ERREXIT(cinfo, JERR_BAD_SAMPLING);
-		cinfo->max_h_samp_factor = MAX(cinfo->max_h_samp_factor,
-		    compptr->h_samp_factor);
-		cinfo->max_v_samp_factor = MAX(cinfo->max_v_samp_factor,
-		    compptr->v_samp_factor);
+		cinfo->max_h_samp_factor = MAX(cinfo->max_h_samp_factor, compptr->h_samp_factor);
+		cinfo->max_v_samp_factor = MAX(cinfo->max_v_samp_factor, compptr->v_samp_factor);
 	}
-
 	/* Derive block_size, natural_order, and lim_Se */
-	if(cinfo->is_baseline || (cinfo->progressive_mode &&
-		    cinfo->comps_in_scan)) { /* no pseudo SOS marker */
+	if(cinfo->is_baseline || (cinfo->progressive_mode && cinfo->comps_in_scan)) { /* no pseudo SOS marker */
 		cinfo->block_size = DCTSIZE;
 		cinfo->natural_order = jpeg_natural_order;
 		cinfo->lim_Se = DCTSIZE2-1;
@@ -397,15 +386,12 @@ static void per_scan_setup(j_decompress_ptr cinfo)
 {
 	int ci, mcublks, tmp;
 	jpeg_component_info * compptr;
-
 	if(cinfo->comps_in_scan == 1) {
 		/* Noninterleaved (single-component) scan */
 		compptr = cinfo->cur_comp_info[0];
-
 		/* Overall image size in MCUs */
 		cinfo->MCUs_per_row = compptr->width_in_blocks;
 		cinfo->MCU_rows_in_scan = compptr->height_in_blocks;
-
 		/* For noninterleaved scan, always one block per MCU */
 		compptr->MCU_width = 1;
 		compptr->MCU_height = 1;
@@ -416,29 +402,20 @@ static void per_scan_setup(j_decompress_ptr cinfo)
 		 * as the number of block rows present in the last iMCU row.
 		 */
 		tmp = (int)(compptr->height_in_blocks % compptr->v_samp_factor);
-		if(tmp == 0) tmp = compptr->v_samp_factor;
+		SETIFZ(tmp, compptr->v_samp_factor);
 		compptr->last_row_height = tmp;
-
-		/* Prepare array describing MCU composition */
+		// Prepare array describing MCU composition 
 		cinfo->blocks_in_MCU = 1;
 		cinfo->MCU_membership[0] = 0;
 	}
 	else {
 		/* Interleaved (multi-component) scan */
 		if(cinfo->comps_in_scan <= 0 || cinfo->comps_in_scan > MAX_COMPS_IN_SCAN)
-			ERREXIT2(cinfo, JERR_COMPONENT_COUNT, cinfo->comps_in_scan,
-			    MAX_COMPS_IN_SCAN);
-
+			ERREXIT2(cinfo, JERR_COMPONENT_COUNT, cinfo->comps_in_scan, MAX_COMPS_IN_SCAN);
 		/* Overall image size in MCUs */
-		cinfo->MCUs_per_row = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width,
-		    (long)(cinfo->max_h_samp_factor * cinfo->block_size));
-		cinfo->MCU_rows_in_scan = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height,
-		    (long)(cinfo->max_v_samp_factor * cinfo->block_size));
-
+		cinfo->MCUs_per_row = (JDIMENSION)jdiv_round_up((long)cinfo->image_width, (long)(cinfo->max_h_samp_factor * cinfo->block_size));
+		cinfo->MCU_rows_in_scan = (JDIMENSION)jdiv_round_up((long)cinfo->image_height, (long)(cinfo->max_v_samp_factor * cinfo->block_size));
 		cinfo->blocks_in_MCU = 0;
-
 		for(ci = 0; ci < cinfo->comps_in_scan; ci++) {
 			compptr = cinfo->cur_comp_info[ci];
 			/* Sampling factors give # of blocks of component in each MCU */

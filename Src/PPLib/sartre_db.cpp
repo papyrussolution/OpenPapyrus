@@ -1645,7 +1645,31 @@ int SrDatabase::GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSArray 
 	return ok;
 }
 
-int SrDatabase::GetWordInfo(const char * pWordUtf8, long flags, TSArray <SrWordInfo> & rInfo)
+int SrDatabase::IsWordInForm(const char * pWordUtf8, const SrWordForm & rForm)
+{
+	int    ok = -1;
+	TSArray <SrWordInfo> info_list;
+	SrWordForm base_wf, var_wf, wf;
+	GetWordInfo(pWordUtf8, 0, info_list);
+	for(uint i = 0; ok < 0 && i < info_list.getCount(); i++) {
+		const SrWordInfo & r_wi = info_list.at(i);
+		if(r_wi.FormID || r_wi.BaseFormID) {
+			base_wf.Clear();
+			var_wf.Clear();
+			wf.Clear();
+			if(r_wi.BaseFormID)
+				P_GrT->Search(r_wi.BaseFormID, &base_wf);
+			if(r_wi.FormID)
+				P_GrT->Search(r_wi.FormID, &var_wf);
+			wf.Merge_(base_wf, var_wf, 0);
+			if(rForm.IsSubsetOf(wf))
+				ok = 1;
+		}
+	}
+	return ok;
+}
+
+int SrDatabase::GetWordInfo(const char * pWordUtf8, long /*flags*/, TSArray <SrWordInfo> & rInfo)
 {
 	int    ok = -1;
 	SStringU word_buf, base_buf_u, afx_buf_u, pfx_buf_u;
@@ -1656,12 +1680,10 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long flags, TSArray <SrWordI
 	const  uint len = word_buf.Len();
 	StrAssocArray afx_list;
 	TSArray <SrWordAssoc> wa_list;
-	//SrFlexiaModel fm;
-	//LongArray wf_list;
 	for(uint pfx_len = 0; pfx_len < len; pfx_len++) {
 		int    inv_pfx = 0; // Если !0, то префикс не допустимый
 		LEXID  pfx_id = 0;
-		if(pfx_len != 0) {
+		if(pfx_len) {
 			word_buf.Sub(0, pfx_len, pfx_buf_u);
 			pfx_buf_u.CopyToUtf8(temp_buf, 0);
 			if(FetchSpecialWord(SrWordTbl::spcPrefix, temp_buf, &pfx_id) > 0) {
