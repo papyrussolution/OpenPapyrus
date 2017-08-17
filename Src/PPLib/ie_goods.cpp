@@ -1,5 +1,6 @@
 // IE_GOODS.CPP
 // Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// @codepage windows-1251
 //
 #include <pp.h>
 #pragma hdrstop
@@ -13,13 +14,12 @@ SLAPI PPQuotImpExpParam::PPQuotImpExpParam(uint recId, long flags) : PPImpExpPar
 	Clear();
 }
 
-int SLAPI PPQuotImpExpParam::Clear()
+void SLAPI PPQuotImpExpParam::Clear()
 {
 	QuotKindID = 0;
 	CurrID = 0;
 	ArID = 0;
 	LocID = 0;
-	return 1;
 }
 
 //virtual
@@ -31,15 +31,15 @@ int PPQuotImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & r
 	THROW(PPImpExpParam::SerializeConfig(dir, rHdr, rTail, pSCtx));
 	if(dir > 0) {
 		if(QuotKindID)
-			param_list.Add(PPQUOTPAR_QUOTKIND, (temp_buf = 0).Cat(QuotKindID));
+			param_list.Add(PPQUOTPAR_QUOTKIND, temp_buf.Z().Cat(QuotKindID));
 		if(CurrID)
-			param_list.Add(PPQUOTPAR_CURRENCY, (temp_buf = 0).Cat(CurrID));
+			param_list.Add(PPQUOTPAR_CURRENCY, temp_buf.Z().Cat(CurrID));
 		if(ArID)
-			param_list.Add(PPQUOTPAR_ARTICLE, (temp_buf = 0).Cat(ArID));
+			param_list.Add(PPQUOTPAR_ARTICLE, temp_buf.Z().Cat(ArID));
 		if(LocID)
-			param_list.Add(PPQUOTPAR_LOC, (temp_buf = 0).Cat(LocID));
+			param_list.Add(PPQUOTPAR_LOC, temp_buf.Z().Cat(LocID));
 		if(Flags)
-			param_list.Add(PPQUOTPAR_FLAGS, (temp_buf = 0).Cat(Flags));
+			param_list.Add(PPQUOTPAR_FLAGS, temp_buf.Z().Cat(Flags));
 	}
 	THROW_SL(pSCtx->Serialize(dir, param_list, rTail));
 	if(dir < 0) {
@@ -318,7 +318,7 @@ int SLAPI PPQuotImporter::Run(const char * pCfgName, int use_ta)
 		THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
 		for(uint i = 1; i < list.getCount(); i++) {
-			list.Get(i, temp_buf = 0);
+			list.Get(i, temp_buf.Z());
 			if(temp_buf.CmpPrefix(pCfgName, 1) == 0) {
 				Param.ProcessName(1, temp_buf);
 				Param.ReadIni(&ini_file, temp_buf, 0);
@@ -466,7 +466,7 @@ SLAPI PPGoodsImpExpParam::PPGoodsImpExpParam(uint recId, long flags) : PPImpExpP
 	Clear();
 }
 
-int SLAPI PPGoodsImpExpParam::Clear()
+void SLAPI PPGoodsImpExpParam::Clear()
 {
 	AccSheetID    = 0;
 	SupplID       = 0;
@@ -478,7 +478,6 @@ int SLAPI PPGoodsImpExpParam::Clear()
 	LocID         = 0;
 	MatrixAction  = 0;
 	SubCode = 0;
-	return 1;
 }
 
 //virtual
@@ -492,23 +491,23 @@ int PPGoodsImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & 
 		if(SubCode.NotEmptyS())
 			param_list.Add(PPGOODSPAR_SUBCODE, temp_buf = SubCode);
 		if(AccSheetID)
-			param_list.Add(PPGOODSPAR_ACCSHEET, (temp_buf = 0).Cat(AccSheetID));
+			param_list.Add(PPGOODSPAR_ACCSHEET, temp_buf.Z().Cat(AccSheetID));
 		if(SupplID)
-			param_list.Add(PPGOODSPAR_SUPPL, (temp_buf = 0).Cat(SupplID));
+			param_list.Add(PPGOODSPAR_SUPPL, temp_buf.Z().Cat(SupplID));
 		if(DefUnitID)
-			param_list.Add(PPGOODSPAR_DEFUNIT, (temp_buf = 0).Cat(DefUnitID));
+			param_list.Add(PPGOODSPAR_DEFUNIT, temp_buf.Z().Cat(DefUnitID));
 		if(PhUnitID)
-			param_list.Add(PPGOODSPAR_PHUNIT, (temp_buf = 0).Cat(PhUnitID));
+			param_list.Add(PPGOODSPAR_PHUNIT, temp_buf.Z().Cat(PhUnitID));
 		if(DefParentID)
-			param_list.Add(PPGOODSPAR_DEFPARENT, (temp_buf = 0).Cat(DefParentID));
+			param_list.Add(PPGOODSPAR_DEFPARENT, temp_buf.Z().Cat(DefParentID));
 		if(RcptOpID)
-			param_list.Add(PPGOODSPAR_RCPTOP, (temp_buf = 0).Cat(RcptOpID));
+			param_list.Add(PPGOODSPAR_RCPTOP, temp_buf.Z().Cat(RcptOpID));
 		if(Flags)
-			param_list.Add(PPGOODSPAR_FLAGS, (temp_buf = 0).Cat(Flags));
+			param_list.Add(PPGOODSPAR_FLAGS, temp_buf.Z().Cat(Flags));
 		if(LocID)
-			param_list.Add(PPGOODSPAR_LOC, (temp_buf = 0).Cat(LocID));
+			param_list.Add(PPGOODSPAR_LOC, temp_buf.Z().Cat(LocID));
 		if(MatrixAction)
-			param_list.Add(PPGOODSPAR_MATRIXACTION, (temp_buf = 0).Cat(MatrixAction));
+			param_list.Add(PPGOODSPAR_MATRIXACTION, temp_buf.Z().Cat(MatrixAction));
 	}
 	THROW_SL(pSCtx->Serialize(dir, param_list, rTail));
 	if(dir < 0) {
@@ -1070,7 +1069,7 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 			}
 			if(P_GObj->FetchUnit(pPack->Rec.PhUnitID, &u_rec) > 0)
 				(temp_buf = u_rec.Name).CopyTo(sdr_goods.PhUnitName, sizeof(sdr_goods.PhUnitName));
-			(temp_buf = 0).Cat(pPack->Rec.PhUPerU).CopyTo(sdr_goods.PhUPerU, sizeof(sdr_goods.PhUPerU));
+			temp_buf.Z().Cat(pPack->Rec.PhUPerU).CopyTo(sdr_goods.PhUPerU, sizeof(sdr_goods.PhUPerU));
 		}
 		//
 		// Экспорт информации о штрихкодах
@@ -1149,9 +1148,9 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 			if(P_GObj->IsAltGroup(altGrpID) > 0 && p_ref->Assc.Search(PPASS_ALTGOODSGRP, altGrpID, pPack->Rec.ID) > 0)
 				plu = p_ref->Assc.data.InnerNum;
 			sdr_goods.AltGrpPLU = plu;
-			GetObjectName(PPOBJ_GOODSGROUP, altGrpID, temp_buf = 0);
+			GetObjectName(PPOBJ_GOODSGROUP, altGrpID, temp_buf.Z());
 			temp_buf.CopyTo(sdr_goods.GrpName, sizeof(sdr_goods.GrpName));
-			((temp_buf = 0).Cat(altGrpID)).CopyTo(sdr_goods.GrpCode, sizeof(sdr_goods.GrpCode));
+			(temp_buf.Z().Cat(altGrpID)).CopyTo(sdr_goods.GrpCode, sizeof(sdr_goods.GrpCode));
 		}
 		//
 		// Идентификатор товара
@@ -1382,11 +1381,11 @@ int FASTCALL TextFieldAnalyzer::ScanLex(SString & rBuf)
 		lex = reDiv;
 	else if(Scan[0] == 0) {
 		lex = 0;
-		rBuf = 0;
+		rBuf.Z();
 	}
 	else {
 		lex = lexSymb;
-		(rBuf = 0).CatChar(Scan[0]);
+		rBuf.Z().CatChar(Scan[0]);
 		Scan.Incr();
 	}
 	return lex;
@@ -1546,7 +1545,7 @@ int SLAPI TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 				TempBuf.ShiftLeft(1);
 			}
 			if(new_text.NotEmpty() && !(TempBuf.Len() == 1 && oneof2(first, '.', ',')) &&
-				!(prev_is_mult && isdigit(first)) && !(this_is_mult && isdigit(last)) &&
+				!(prev_is_mult && isdec(first)) && !(this_is_mult && isdec(last)) &&
 				!oneof4(last, ' ', '/', '-', '(') && !oneof2(first, '/', ')'))
 				new_text.Space();
 			new_text.Cat(TempBuf);
@@ -1647,9 +1646,9 @@ int SLAPI PPGoodsImporter::PutQCert(Sdr_Goods2 * pRec, PPID * pQcertID)
 		MEMSZERO(qc_rec);
 		STRNSCPY(qc_rec.Code,      strip(pRec->QCNumber));
 		STRNSCPY(qc_rec.BlankCode, strip(pRec->QCBlank));
-		if(checkdate(pRec->QCDate, 1)) // @v7.1.10
+		if(checkdate(pRec->QCDate, 1))
 			qc_rec.InitDate = pRec->QCDate;
-		if(checkdate(pRec->QCExpiry, 1)) // @v7.1.10
+		if(checkdate(pRec->QCExpiry, 1))
 			qc_rec.Expiry   = pRec->QCExpiry;
 		STRNSCPY(qc_rec.GoodsName, strip(pRec->QCManuf));
 		STRNSCPY(qc_rec.InnerCode, strip(pRec->QCInnerCode));
@@ -1717,16 +1716,17 @@ int SLAPI PPGoodsImporter::PutUnit(const Sdr_Goods2 & rRec, PPID defPhUnitID, PP
 				if(temp_buf.NotEmptyS()) {
 					val_buf = temp_buf;
 					if(val_buf.CmpNC("g") == 0 || stricmp1251(val_buf, "г") == 0 || stricmp1251(val_buf, "гр") == 0) {
-						(val_buf = "кг").Transf(CTRANSF_OUTER_TO_INNER);
+						PPLoadString("munit_kg", val_buf);
 						phperu /= 1000L;
 					}
-					else if(val_buf.CmpNC("kg") == 0)
-						(val_buf = "кг").Transf(CTRANSF_OUTER_TO_INNER);
+					else if(val_buf.CmpNC("kg") == 0) {
+						PPLoadString("munit_kg", val_buf);
+					}
 					else if(stricmp1251(val_buf, "л") == 0) {
-						(val_buf = "литр").Transf(CTRANSF_OUTER_TO_INNER);
+						PPLoadString("munit_liter", val_buf);
 					}
 					else if(stricmp1251(val_buf, "мл") == 0) {
-						(val_buf = "литр").Transf(CTRANSF_OUTER_TO_INNER);
+						PPLoadString("munit_liter", val_buf);
 						phperu /= 1000L;
 					}
 					THROW(UnitObj.AddSimple(&pPack->Rec.PhUnitID, val_buf, PPUnit::Trade | PPUnit::Phisical, 0));
@@ -2202,7 +2202,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 							THROW(tra);
 							for(uint i = 0; i < blk.List.getCount(); i++) {
 								const ImageFileBlock::Entry & r_entry = blk.List.at(i);
-								(line_buf = 0).Cat(GetGoodsName(r_entry.GoodsID, temp_buf2)).Tab();
+								line_buf.Z().Cat(GetGoodsName(r_entry.GoodsID, temp_buf2)).Tab();
 								blk.GetS(r_entry.FnP, temp_buf2);
 								line_buf.Cat(temp_buf2).CR();
 								listf.WriteLine(line_buf);
@@ -2469,7 +2469,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 									int    r = PPObjGoods::DiagBarcode(barcode, &diag, &std, &temp_buf2);
 									if(r <= 0) {
 										PPObjGoods::GetBarcodeDiagText(diag, err_msg_buf);
-										(msg_buf = 0).Cat(std).Semicol().
+										msg_buf.Z().Cat(std).Semicol().
 											Cat(temp_buf2).Semicol().Cat(barcode).Semicol().Cat(err_msg_buf/*.ToOem()*/).CR();
 										logger.Log(msg_buf);
 										if(Param.Flags & PPGoodsImpExpParam::fUHTT) {
@@ -2486,7 +2486,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 									int    r = PPObjGoods::DiagBarcode(sdr_rec.AddedCode, &diag, &std, &temp_buf2);
 									if(r <= 0) {
 										PPObjGoods::GetBarcodeDiagText(diag, err_msg_buf);
-										(msg_buf = 0).Cat(std).Semicol().
+										msg_buf.Z().Cat(std).Semicol().
 											Cat(temp_buf2).Semicol().Cat(sdr_rec.AddedCode).Semicol().Cat(err_msg_buf/*.ToOem()*/).CR();
 										logger.Log(msg_buf);
 										if(Param.Flags & PPGoodsImpExpParam::fUHTT)

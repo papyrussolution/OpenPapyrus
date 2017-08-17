@@ -131,7 +131,7 @@ static int qr_finder_vline_cmp(const void * _a, const void * _b)
 {
 	const qr_finder_line * a = (const qr_finder_line*)_a;
 	const qr_finder_line * b = (const qr_finder_line*)_b;
-	return ((a->pos[0] > b->pos[0]) - (a->pos[0] < b->pos[0])<<1) + (a->pos[1] > b->pos[1]) - (a->pos[1] < b->pos[1]);
+	return ((a->pos[0] > b->pos[0]) - (a->pos[0] < b->pos[0]) << 1) + (a->pos[1] > b->pos[1]) - (a->pos[1] < b->pos[1]);
 }
 
 /*Clusters adjacent lines into groups that are large enough to be crossing a

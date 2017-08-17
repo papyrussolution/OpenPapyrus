@@ -106,16 +106,16 @@ int SLAPI ExecVDos(ExecVDosParam & rParam)
 			*/
 			SFile f_cfg(config_filename, SFile::mWrite);
 			THROW(f_cfg.IsValid());
-			(temp_buf = 0).CatEq("font", "cour").CR();
+			temp_buf.Z().CatEq("font", "cour").CR();
 			THROW(f_cfg.WriteLine(temp_buf));
-			(temp_buf = 0).CatEq("mouse", "on").CR();
+			temp_buf.Z().CatEq("mouse", "on").CR();
 			THROW(f_cfg.WriteLine(temp_buf));
 		}
 		{
 			SFile f_ae(autoexec_filename, SFile::mWrite);
 			THROW(f_ae.IsValid());
 			if(startup_path.NotEmptyS()) {
-				(temp_buf = 0).Cat("use").Space().Cat("c:").Space().Cat(startup_path).CR();
+				temp_buf.Z().Cat("use").Space().Cat("c:").Space().Cat(startup_path).CR();
 				THROW(f_ae.WriteLine(temp_buf));
 			}
 			//

@@ -346,7 +346,7 @@ void SmartListBox::setHorzRange(int)
 int SmartListBox::getText(long itemN  /* 0.. */, SString & rBuf)
 {
 	int    ok = 0;
-	rBuf = 0;
+	rBuf.Z();
 	if(def) {
 		def->getText(itemN, rBuf);
 		ok = 1;
@@ -696,7 +696,7 @@ int SmartListBox::SetupTreeWnd2(uint32 parentP)
 
 int SmartListBox::GetStringByID(long id, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	return def ? ((StdTreeListBoxDef*)def)->GetStringByID(id, rBuf) : 0;
 }
 
@@ -859,7 +859,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 								GetStringByID(lptvdi->item.lParam, temp_buf);
 								// @debug {
 								if(!temp_buf.NotEmptyS())
-									(temp_buf = 0).CatChar('#').Cat(lptvdi->item.lParam);
+									temp_buf.Z().CatChar('#').Cat(lptvdi->item.lParam);
 								// } @debug
 								temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(lptvdi->item.pszText, 0);
 							}

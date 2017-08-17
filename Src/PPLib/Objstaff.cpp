@@ -538,7 +538,7 @@ int SLAPI PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int
 			// Проверяем, чтобы персоналия не назначалась дважды на одну должность.
 			//
 			THROW(r = GetPersonPost(0, pPack->Rec.StaffID, pPack->Rec.PersonID, &post_rec));
-			(msg_buf = 0).Cat(psn_rec.Name).CatDiv('-', 1).Cat(sl_rec.Name);
+			msg_buf.Z().Cat(psn_rec.Name).CatDiv('-', 1).Cat(sl_rec.Name);
 			THROW_PP_S(r < 0, PPERR_DUPPERSONPOST, msg_buf);
 			THROW(AddObjRecByID(P_PostTbl, PPOBJ_PERSONPOST, pID, &pPack->Rec, 0));
 			THROW(ref->PutPropArray(PPOBJ_PERSONPOST, *pID, PSNPPPRP_AMTLIST, &pPack->Amounts, 0));
@@ -559,7 +559,7 @@ int SLAPI PPObjStaffList::MakeCodeString(const PersonPostTbl::Rec * pRec, SStrin
 {
 	PPStaffEntry sl_rec;
 	PersonTbl::Rec psn_rec;
-	rBuf = 0;
+	rBuf.Z();
 	if(Fetch(pRec->StaffID, &sl_rec) > 0)
 		rBuf.Cat(sl_rec.Name);
 	else

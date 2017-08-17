@@ -76,7 +76,7 @@ static char FASTCALL wchar_to_1251(int16 src)
 
 SString & SLAPI TVRez::getString(SString & rBuf, int kind /*0 - 866, 1 - w_char, 2 - 1251*/)
 {
-	rBuf = 0;
+	rBuf.Z();
 	for(char c = !0; c != 0;) {
 		if(kind == 1 && HeaderType == hdr32) {
 			int16 wc;

@@ -454,7 +454,7 @@ void SLAPI PPCheckInPersonArray::Normalize(int kind, PPID prmrID)
 		r_item.Kind = kind;
 		r_item.PrmrID = prmrID;
 		if(r_item.MemoPos) {
-			MemoPool.getnz(r_item.MemoPos, temp_buf = 0);
+			MemoPool.getnz(r_item.MemoPos, temp_buf.Z());
 			temp_memo_pool.add(temp_buf, &r_item.MemoPos);
 		}
 	}
@@ -1249,15 +1249,15 @@ int CheckInPersonListDialog::setupList()
 			PPLoadString("registered", temp_buf);
 		ss.add(temp_buf);
 		if(r_item.Flags & PPCheckInPersonItem::fCheckedIn) {
-			ss.add((temp_buf = 0).Cat(r_item.CiCount));
+			ss.add(temp_buf.Z().Cat(r_item.CiCount));
 			r_item.CalcAmount(&Cfg, &price, &amt);
-			ss.add((temp_buf = 0).Cat(amt, MKSFMTD(0, 2, NMBF_NOZERO)));
-			ss.add((temp_buf = 0).Cat(r_item.CiDtm, DATF_DMY, TIMF_HM));
+			ss.add(temp_buf.Z().Cat(amt, MKSFMTD(0, 2, NMBF_NOZERO)));
+			ss.add(temp_buf.Z().Cat(r_item.CiDtm, DATF_DMY, TIMF_HM));
 		}
 		else {
-			ss.add((temp_buf = 0).Cat(r_item.RegCount));
+			ss.add(temp_buf.Z().Cat(r_item.RegCount));
 			ss.add(temp_buf = 0);
-			ss.add((temp_buf = 0).Cat(r_item.RegDtm, DATF_DMY, TIMF_HM));
+			ss.add(temp_buf.Z().Cat(r_item.RegDtm, DATF_DMY, TIMF_HM));
 		}
 		if(!addStringToList(i, ss.getBuf()))
 			ok = 0;

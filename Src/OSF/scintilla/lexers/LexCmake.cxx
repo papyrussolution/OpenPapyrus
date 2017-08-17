@@ -179,20 +179,15 @@ static void ColouriseCmakeDoc(Sci_PositionU startPos, Sci_Position length, int, 
 				    bClassicVarInString = false;
 				    break;
 			    }
-
 			    // CMake Variable
 			    if(cCurrChar == '$' || isCmakeChar(cCurrChar)) {
 				    styler.ColourTo(i-1, state);
 				    state = SCE_CMAKE_VARIABLE;
-
 				    // If it is a number, we must check and set style here first...
-				    if(isCmakeNumber(cCurrChar) &&
-				    (cNextChar == '\t' || cNextChar == ' ' || cNextChar == '\r' || cNextChar == '\n' ) )
+				    if(isCmakeNumber(cCurrChar) && oneof4(cNextChar, ' ', '\t', '\r', '\n' ))
 					    styler.ColourTo(i, SCE_CMAKE_NUMBER);
-
 				    break;
 			    }
-
 			    break;
 			case SCE_CMAKE_COMMENT:
 			    if(cCurrChar == '\n' || cCurrChar == '\r') {
@@ -209,50 +204,40 @@ static void ColouriseCmakeDoc(Sci_PositionU startPos, Sci_Position length, int, 
 			case SCE_CMAKE_STRINGDQ:
 			case SCE_CMAKE_STRINGLQ:
 			case SCE_CMAKE_STRINGRQ:
-
 			    if(styler.SafeGetCharAt(i-1) == '\\' && styler.SafeGetCharAt(i-2) == '$')
 				    break;  // Ignore the next character, even if it is a quote of some sort
-
 			    if(cCurrChar == '"' && state == SCE_CMAKE_STRINGDQ) {
 				    styler.ColourTo(i, state);
 				    state = SCE_CMAKE_DEFAULT;
 				    break;
 			    }
-
 			    if(cCurrChar == '`' && state == SCE_CMAKE_STRINGLQ) {
 				    styler.ColourTo(i, state);
 				    state = SCE_CMAKE_DEFAULT;
 				    break;
 			    }
-
 			    if(cCurrChar == '\'' && state == SCE_CMAKE_STRINGRQ) {
 				    styler.ColourTo(i, state);
 				    state = SCE_CMAKE_DEFAULT;
 				    break;
 			    }
-
 			    if(cNextChar == '\r' || cNextChar == '\n') {
 				    Sci_Position nCurLine = styler.GetLine(i+1);
 				    Sci_Position nBack = i;
 				    // We need to check if the previous line has a \ in it...
 				    bool bNextLine = false;
-
 				    while(nBack > 0) {
 					    if(styler.GetLine(nBack) != nCurLine)
 						    break;
-
 					    char cTemp = styler.SafeGetCharAt(nBack, 'a'); // Letter 'a' is safe here
-
 					    if(cTemp == '\\') {
 						    bNextLine = true;
 						    break;
 					    }
-					    if(cTemp != '\r' && cTemp != '\n' && cTemp != '\t' && cTemp != ' ')
+					    if(!oneof4(cTemp, ' ', '\t', '\r', '\n'))
 						    break;
-
 					    nBack--;
 				    }
-
 				    if(bNextLine) {
 					    styler.ColourTo(i+1, state);
 				    }
@@ -305,20 +290,15 @@ static void ColouriseCmakeDoc(Sci_PositionU startPos, Sci_Position length, int, 
 
 		if(state == SCE_CMAKE_STRINGDQ || state == SCE_CMAKE_STRINGLQ || state == SCE_CMAKE_STRINGRQ) {
 			bool bIngoreNextDollarSign = false;
-
 			if(bVarInString && cCurrChar == '$') {
 				bVarInString = false;
 				bIngoreNextDollarSign = true;
 			}
-			else if(bVarInString && cCurrChar == '\\' &&
-			    (cNextChar == 'n' || cNextChar == 'r' || cNextChar == 't' || cNextChar == '"' || cNextChar == '`' ||
-				    cNextChar ==
-				    '\'' ) ) {
+			else if(bVarInString && cCurrChar == '\\' && oneof6(cNextChar, 'n', 'r', 't', '"', '`', '\'' )) {
 				styler.ColourTo(i+1, SCE_CMAKE_STRINGVAR);
 				bVarInString = false;
 				bIngoreNextDollarSign = false;
 			}
-
 			else if(bVarInString && !isCmakeChar(cNextChar) ) {
 				int nWordState = classifyWordCmake(styler.GetStartSegment(), i, keywordLists, styler);
 				if(nWordState == SCE_CMAKE_VARIABLE)
@@ -330,7 +310,6 @@ static void ColouriseCmakeDoc(Sci_PositionU startPos, Sci_Position length, int, 
 				styler.ColourTo(i+1, SCE_CMAKE_STRINGVAR);
 				bClassicVarInString = false;
 			}
-
 			// Start of var in string
 			if(!bIngoreNextDollarSign && cCurrChar == '$' && cNextChar == '{') {
 				styler.ColourTo(i-1, state);
@@ -344,7 +323,6 @@ static void ColouriseCmakeDoc(Sci_PositionU startPos, Sci_Position length, int, 
 			}
 		}
 	}
-
 	// Colourise remaining document
 	styler.ColourTo(nLengthDoc-1, state);
 }
@@ -354,30 +332,23 @@ static void FoldCmakeDoc(Sci_PositionU startPos, Sci_Position length, int, WordL
 	// No folding enabled, no reason to continue...
 	if(styler.GetPropertyInt("fold") == 0)
 		return;
-
 	bool foldAtElse = styler.GetPropertyInt("fold.at.else", 0) == 1;
-
 	Sci_Position lineCurrent = styler.GetLine(startPos);
 	Sci_PositionU safeStartPos = styler.LineStart(lineCurrent);
-
 	bool bArg1 = true;
 	Sci_Position nWordStart = -1;
-
 	int levelCurrent = SC_FOLDLEVELBASE;
 	if(lineCurrent > 0)
 		levelCurrent = styler.LevelAt(lineCurrent-1) >> 16;
 	int levelNext = levelCurrent;
-
 	for(Sci_PositionU i = safeStartPos; i < startPos + length; i++) {
 		char chCurr = styler.SafeGetCharAt(i);
-
 		if(bArg1) {
 			if(nWordStart == -1 && (isCmakeLetter(chCurr)) ) {
 				nWordStart = i;
 			}
 			else if(isCmakeLetter(chCurr) == false && nWordStart > -1) {
 				int newLevel = calculateFoldCmake(nWordStart, i-1, levelNext, styler, foldAtElse);
-
 				if(newLevel == levelNext) {
 					if(foldAtElse) {
 						if(CmakeNextLineHasElse(i, startPos + length, styler) )
@@ -389,13 +360,11 @@ static void FoldCmakeDoc(Sci_PositionU startPos, Sci_Position length, int, WordL
 				bArg1 = false;
 			}
 		}
-
 		if(chCurr == '\n') {
 			if(bArg1 && foldAtElse) {
 				if(CmakeNextLineHasElse(i, startPos + length, styler) )
 					levelNext--;
 			}
-
 			// If we are on a new line...
 			int levelUse = levelCurrent;
 			int lev = levelUse | levelNext << 16;
@@ -403,14 +372,12 @@ static void FoldCmakeDoc(Sci_PositionU startPos, Sci_Position length, int, WordL
 				lev |= SC_FOLDLEVELHEADERFLAG;
 			if(lev != styler.LevelAt(lineCurrent))
 				styler.SetLevel(lineCurrent, lev);
-
 			lineCurrent++;
 			levelCurrent = levelNext;
 			bArg1 = true; // New line, lets look at first argument again
 			nWordStart = -1;
 		}
 	}
-
 	int levelUse = levelCurrent;
 	int lev = levelUse | levelNext << 16;
 	if(levelUse < levelNext)

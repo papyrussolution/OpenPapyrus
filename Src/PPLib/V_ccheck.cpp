@@ -202,7 +202,7 @@ protected:
 
 int SLAPI PPViewCCheck::GetTabTitle(long tabID, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(Filt.CtKind == CCheckFilt::ctDate) {
 		LDATE dt = ZERODATE;
 		dt.v = tabID;
@@ -667,7 +667,8 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 				return 0;
 			else if(ff_ & CCheckFilt::fCTableStatus && !(f & (CCHKF_SUSPENDED|CCHKF_ORDER)))
 				return 0;
-			else if(ff_ & CCheckFilt::fWithoutSkipTag && f & CCHKF_SKIP)
+			// @v9.7.11 дополнение по состоянию stSkipUnprinted
+			else if(ff_ & CCheckFilt::fWithoutSkipTag && ((f & CCHKF_SKIP) || (State & stSkipUnprinted && !(f & CCHKF_PRINTED))))
 				return 0;
 			else if(ff_ & CCheckFilt::fNotSpFinished && f & CCHKF_SPFINISHED) // @v9.7.5
 				return 0;
@@ -1179,7 +1180,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 	SessIdList.Set(0);
 	NodeIdList.Set(0); // @v8.2.11
 	GoodsList.Clear();
-	State &= ~stUseGoodsList;
+	State &= ~(stUseGoodsList|stSkipUnprinted); // @v9.7.11 stSkipUnprinted
 	Gsl.Init(1, 0);
 	ZDELETE(P_InOutVATList);
 	THROW_MEM(P_InOutVATList = new BVATAccmArray(BVATF_SUMZEROVAT));
@@ -1189,8 +1190,19 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 	PPObjSCardSeries * p_serobj = 0;
 	if(Filt.NodeList.GetCount()) {
 		PPIDArray node_id_list;
-		if(cn_obj.ResolveList(&Filt.NodeList.Get(), node_id_list) > 0)
+		if(cn_obj.ResolveList(&Filt.NodeList.Get(), node_id_list) > 0) {
 			NodeIdList.Set(&node_id_list);
+			// @v9.7.11 {
+			if(node_id_list.getCount()) {
+				State |= stSkipUnprinted;
+				for(i = 0; State & stSkipUnprinted && i < node_id_list.getCount(); i++) {
+					PPCashNode cn_rec;
+					if(cn_obj.Fetch(node_id_list.get(i), &cn_rec) > 0 && !(cn_rec.Flags & CASHF_SKIPUNPRINTEDCHECKS))
+						State &= ~stSkipUnprinted;
+				}
+			}
+			// } @v9.7.11
+		}
 	}
 	if(Filt.SCardID)
 		SCardList.Add(Filt.SCardID, 1);
@@ -1777,7 +1789,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 			P_Ct->AddTotalRow(total_list, 0, temp_buf);
 			uint ss_pos = 0;
 			for(uint i = 0; i < total_list.GetCount(); i++) {
-				total_title_list.get(&ss_pos, temp_buf = 0);
+				total_title_list.get(&ss_pos, temp_buf.Z());
 				P_Ct->AddTotalColumn(total_list.Get(i), 0, temp_buf);
 			}
 		}
@@ -2402,7 +2414,13 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 			dbq = ppcheckflag(dbq, t->Flags, CCHKF_ORDER,    (Filt.Flags & CCheckFilt::fOrderOnly) ? 1 : 0);
 			dbq = ppcheckflag(dbq, t->Flags, CCHKF_DELIVERY, (Filt.Flags & (CCheckFilt::fDlvrOnly|CCheckFilt::fDlvrOutstandOnly)) ? 1 : 0);
 			dbq = ppcheckflag(dbq, t->Flags, CCHKF_CLOSEDORDER, (Filt.Flags & CCheckFilt::fDlvrOutstandOnly) ? -1 : 0);
-			dbq = ppcheckflag(dbq, t->Flags, CCHKF_SKIP,     (Filt.Flags & CCheckFilt::fWithoutSkipTag) ? -1 : 0);
+			{
+				dbq = ppcheckflag(dbq, t->Flags, CCHKF_SKIP, (Filt.Flags & CCheckFilt::fWithoutSkipTag) ? -1 : 0);
+				// @v9.7.11 {
+				if(State & stSkipUnprinted)
+					dbq = ppcheckflag(dbq, t->Flags, CCHKF_PRINTED, (Filt.Flags & CCheckFilt::fWithoutSkipTag) ? 1 : 0);
+				// } @v9.7.11
+			}
 			dbq = ppcheckflag(dbq, t->Flags, CCHKF_SPFINISHED, (Filt.Flags & CCheckFilt::fNotSpFinished) ? -1 : 0); // @v9.7.5
 			dbq = &(*dbq && intrange(t->Code, Filt.CodeR));
 			if(!Filt.PcntR.IsZero()) {
@@ -3459,7 +3477,7 @@ public:
 					ss.clear(1);
 					r_entry.GetTypeText(temp_buf);
 					ss.add(temp_buf);
-					(temp_buf = 0).Cat(r_entry.Amount, SFMT_MONEY);
+					temp_buf.Z().Cat(r_entry.Amount, SFMT_MONEY);
 					ss.add(temp_buf);
 					temp_buf = 0;
 					if(r_entry.AddedID) {
@@ -4419,7 +4437,7 @@ void PPALDD_CCheckDetail::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmS
 	if(pF->Name == "?GetPrefixedCode") {
 		PPEquipConfig eq_cfg;
 		ReadEquipConfig(&eq_cfg);
-		(_RET_STR = 0).Cat(eq_cfg.SuspCcPrefix).CatLongZ(H.CheckNumber, 6);
+		_RET_STR.Z().Cat(eq_cfg.SuspCcPrefix).CatLongZ(H.CheckNumber, 6);
 	}
 	else if(pF->Name == "?GetPrintablePrefixedCode") {
 		char   code_buf[128];
@@ -4476,8 +4494,8 @@ int PPALDD_CCheckPacket::InitData(PPFilt & rFilt, long rsrv)
 	H.OrderStartTm  = p_pack->Ext.StartOrdDtm.t;
 	H.OrderEndDt    = p_pack->Ext.EndOrdDtm.d;
 	H.OrderEndTm    = p_pack->Ext.EndOrdDtm.t;
-	(temp_buf = 0).Cat(p_pack->Ext.StartOrdDtm.t).CopyTo(H.OrderStartTmText, sizeof(H.OrderStartTmText));
-	(temp_buf = 0).Cat(p_pack->Ext.EndOrdDtm.t).CopyTo(H.OrderEndTmText, sizeof(H.OrderEndTmText));
+	temp_buf.Z().Cat(p_pack->Ext.StartOrdDtm.t).CopyTo(H.OrderStartTmText, sizeof(H.OrderStartTmText));
+	temp_buf.Z().Cat(p_pack->Ext.EndOrdDtm.t).CopyTo(H.OrderEndTmText, sizeof(H.OrderEndTmText));
 	STRNSCPY(H.Memo, p_pack->Ext.Memo);
 	return DlRtm::InitData(rFilt, rsrv);
 }

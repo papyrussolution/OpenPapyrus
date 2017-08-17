@@ -21,7 +21,7 @@ PUGL::SupplSubstItem::SupplSubstItem(uint pos)
 
 SString & FASTCALL PUGL::SupplSubstItem::QttyToStr(SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(Qtty > 0.0) {
 		rBuf.Cat(Qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
 		if(Unit == uPct)
@@ -183,7 +183,7 @@ int SLAPI PUGL::Log(PPLogger * pLogger) const
 		SString msg_buf, goods_name;
 		for(uint n = 0; enumItems(&n, (void **)&p_di);) {
 			GetGoodsName(p_di->GoodsID, goods_name);
-			(msg_buf = 0).CatCharN(' ', 4).Cat(goods_name);
+			msg_buf.Z().CatCharN(' ', 4).Cat(goods_name);
 			pLogger->Log(msg_buf.CatCharN(' ', 4).Cat(p_di->DeficitQty, MKSFMTD(0, 6, 0)));
 			ok = 1;
 		}
@@ -519,8 +519,8 @@ int PuglDialog::setupList()
 		ss.clear();
 		GetGoodsName(p_item->GoodsID, sub);
 		ss.add(sub);
-		ss.add((sub = 0).Cat(p_item->NeededQty,  fmt));
-		ss.add((sub = 0).Cat(p_item->DeficitQty, fmt));
+		ss.add(sub.Z().Cat(p_item->NeededQty,  fmt));
+		ss.add(sub.Z().Cat(p_item->DeficitQty, fmt));
 		THROW(addStringToList(i, ss.getBuf()));
 	}
 	CATCHZOK
@@ -558,7 +558,7 @@ int SLAPI ProcessUnsuffisientGoods(PPID goods, PUGP param)
 		SString fmt, buf, goods_name;
 		if(dlg->getStaticText(CTL_MSGNCMPL_LINE1, fmt) > 0) {
 			GetGoodsName(goods, goods_name);
-			dlg->setStaticText(CTL_MSGNCMPL_LINE1, buf.Printf(fmt, (const char *)goods_name));
+			dlg->setStaticText(CTL_MSGNCMPL_LINE1, buf.Printf(fmt, goods_name.cptr()));
 		}
 		dlg->setCtrlData(CTL_MSGNCMPL_ACTION, &v);
 		if(ExecView(dlg) == cmOK) {

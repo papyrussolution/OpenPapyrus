@@ -202,7 +202,7 @@ int MailSession::haveLine()
 
 int MailSession::getLine(SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = -1;
 	int    zero_bytes_readed = 0;
 	// read data into a buffer
@@ -434,7 +434,7 @@ int SLAPI SMailClient::Auth(int authtype, const char * pName, const char * pPass
 					param[p++] = 0;
 					for(i = 0; i < pw_len; i++)
 						param[p++] = pPassword[i];
-					(temp_buf = 0).EncodeMime64(param, p);
+					temp_buf.Z().EncodeMime64(param, p);
 					(cmd_buf = "AUTH PLAIN").Space().Cat(temp_buf);
 					THROW(WriteLine(cmd_buf, &reply_buf));
 					THROW(CheckReply(reply_buf, 235));
@@ -501,7 +501,7 @@ int SLAPI SMailClient::Auth(int authtype, const char * pName, const char * pPass
 
 int SLAPI SMailClient::ReadLine(SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 
 	int    ok = 1;
 	size_t rd_size = 0;

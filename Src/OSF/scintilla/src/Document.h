@@ -297,38 +297,38 @@ public:
 	void SCI_METHOD SetErrorStatus(int status);
 
 	Sci_Position SCI_METHOD LineFromPosition(Sci_Position pos) const;
-	int ClampPositionIntoDocument(int pos) const;
+	int  FASTCALL ClampPositionIntoDocument(int pos) const;
 	bool ContainsLineEnd(const char * s, int length) const
 	{
 		return cb.ContainsLineEnd(s, length);
 	}
 
-	bool IsCrLf(int pos) const;
-	int LenChar(int pos);
+	bool FASTCALL IsCrLf(int pos) const;
+	int  FASTCALL LenChar(int pos);
 	bool InGoodUTF8(int pos, int &start, int &end) const;
-	int MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd = true) const;
-	int NextPosition(int pos, int moveDir) const;
+	int  MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd = true) const;
+	int  NextPosition(int pos, int moveDir) const;
 	bool NextCharacter(int &pos, int moveDir) const;        // Returns true if pos changed
-	Document::CharacterExtracted CharacterAfter(int position) const;
-	Document::CharacterExtracted CharacterBefore(int position) const;
+	Document::CharacterExtracted FASTCALL CharacterAfter(int position) const;
+	Document::CharacterExtracted FASTCALL CharacterBefore(int position) const;
 	Sci_Position SCI_METHOD GetRelativePosition(Sci_Position positionStart, Sci_Position characterOffset) const;
-	int GetRelativePositionUTF16(int positionStart, int characterOffset) const;
-	int SCI_METHOD GetCharacterAndWidth(Sci_Position position, Sci_Position * pWidth) const;
-	int SCI_METHOD CodePage() const;
+	int  GetRelativePositionUTF16(int positionStart, int characterOffset) const;
+	int  SCI_METHOD GetCharacterAndWidth(Sci_Position position, Sci_Position * pWidth) const;
+	int  SCI_METHOD CodePage() const;
 	bool SCI_METHOD IsDBCSLeadByte(char ch) const;
-	int SafeSegment(const char * text, int length, int lengthSegment) const;
+	int  SafeSegment(const char * text, int length, int lengthSegment) const;
 	EncodingFamily CodePageFamily() const;
 
 	// Gateways to modifying document
-	void ModifiedAt(int pos);
+	void FASTCALL ModifiedAt(int pos);
 	void CheckReadOnly();
 	bool DeleteChars(int pos, int len);
-	int InsertString(int position, const char * s, int insertLength);
+	int  InsertString(int position, const char * s, int insertLength);
 	void ChangeInsertion(const char * s, int length);
-	int SCI_METHOD AddData(char * data, Sci_Position length);
+	int  SCI_METHOD AddData(char * data, Sci_Position length);
 	void * SCI_METHOD ConvertToDocument();
-	int Undo();
-	int Redo();
+	int  Undo();
+	int  Redo();
 	bool CanUndo() const
 	{
 		return cb.CanUndo();
@@ -394,7 +394,7 @@ public:
 	int SCI_METHOD GetLineIndentation(Sci_Position line);
 	int SetLineIndentation(int line, int indent);
 	int GetLineIndentPosition(int line) const;
-	int GetColumn(int position);
+	int FASTCALL GetColumn(int position);
 	int CountCharacters(int startPos, int endPos) const;
 	int CountUTF16(int startPos, int endPos) const;
 	int FindColumn(int line, int column);
@@ -510,20 +510,20 @@ public:
 	void AnnotationSetText(int line, const char * text);
 	void AnnotationSetStyle(int line, int style);
 	void AnnotationSetStyles(int line, const uchar * styles);
-	int AnnotationLines(int line) const;
+	int  FASTCALL AnnotationLines(int line) const;
 	void AnnotationClearAll();
 	bool AddWatcher(DocWatcher * watcher, void * userData);
 	bool RemoveWatcher(DocWatcher * watcher, void * userData);
-	bool IsASCIIWordByte(uchar ch) const;
+	bool FASTCALL IsASCIIWordByte(uchar ch) const;
 	CharClassify::cc WordCharacterClass(uint ch) const;
 	bool IsWordPartSeparator(uint ch) const;
-	int WordPartLeft(int pos) const;
-	int WordPartRight(int pos) const;
-	int ExtendStyleRange(int pos, int delta, bool singleLine = false);
-	bool IsWhiteLine(int line) const;
-	int ParaUp(int pos) const;
-	int ParaDown(int pos) const;
-	int IndentSize() const
+	int  WordPartLeft(int pos) const;
+	int  WordPartRight(int pos) const;
+	int  ExtendStyleRange(int pos, int delta, bool singleLine = false);
+	bool FASTCALL IsWhiteLine(int line) const;
+	int  FASTCALL ParaUp(int pos) const;
+	int  FASTCALL ParaDown(int pos) const;
+	int  IndentSize() const
 	{
 		return actualIndentInChars;
 	}
@@ -540,15 +540,13 @@ class UndoGroup {
 public:
 	UndoGroup(Document * pdoc_, bool groupNeeded_ = true) : pdoc(pdoc_), groupNeeded(groupNeeded_)
 	{
-		if(groupNeeded) {
+		if(groupNeeded)
 			pdoc->BeginUndoAction();
-		}
 	}
 	~UndoGroup()
 	{
-		if(groupNeeded) {
+		if(groupNeeded)
 			pdoc->EndUndoAction();
-		}
 	}
 	bool Needed() const
 	{

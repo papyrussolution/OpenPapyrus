@@ -510,7 +510,7 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 			removable_drive = IsRemovableDrive(toupper(drive));
 			if(removable_drive > 0) {
 				(file_path = 0).CatChar(drive).CatChar(':').CatChar('\\');
-				PPSetAddedMsgString((msg_buf = 0).CatChar(toupper(drive)));
+				PPSetAddedMsgString(msg_buf.Z().CatChar(toupper(drive)));
 				while(::access(file_path, 0) != 0)
 					THROW_PP(CONFIRM(PPCFM_INSERTDISK), PPERR_DRIVEUNAVELAIBLE);
 			}

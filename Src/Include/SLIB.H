@@ -3172,6 +3172,7 @@ public:
 	char * FASTCALL CopyTo(char *, size_t) const;
 	BSTR   FASTCALL CopyToOleStr(BSTR * pBuf) const;
 	SString & FASTCALL CopyFromOleStr(const BSTR s);
+	SString & SLAPI Z();
 
 	size_t SLAPI Len() const { return L ? (L-1) : 0; }
 	size_t SLAPI BufSize() const;
@@ -3187,7 +3188,7 @@ public:
 	//   0 - не все символы из строки принадлежат указанному диапазону
 	//   1 - все символы из строки принадлежат указанному диапазону
 	//
-	int    SLAPI IsLatin() const; // @v5.3.6 AHTOXA
+	int    SLAPI IsLatin() const;
 	//
 	// Descr: Сканирует слово, начиная с позиции *pPos. Если pPos == 0,
 	//   то начинает сканирование с позиции 0. Разделителями слов являются все символы,
@@ -3562,6 +3563,11 @@ public:
 	int    FASTCALL IsEqual(const wchar_t * pS) const;
 	int    FASTCALL Cmp(const SStringU & rS) const;
 	//
+	// Descr: Определяет факт наличия в строке this символа c.
+	//
+	int    FASTCALL HasChr(wchar_t c) const;
+	SStringU & SLAPI Z();
+	//
 	// Descr: Возвращает символ, находящийся в позиции n (n = 0..)
 	//   Если n больше длины строки, то возвращает 0.
 	//
@@ -3918,6 +3924,7 @@ int    FASTCALL ishex(char c);
 // Descr: Возвращает !0 если символ c является десятичным знаком [0-9]
 //
 int    FASTCALL isdec(char c);
+int    FASTCALL isdecw(wchar_t c);
 //
 // Descr: Возвращает значение шестнадцатиричного знака c. Если c не является шестнацдатиричным знком,
 //   то возвращает 0 (для того, чтобы избежать путаницы с hex('0') следует проверять
@@ -4751,7 +4758,7 @@ public:
 	//
 	// Descr: Считывает в буфер pBuf, начиная со смещения RdOffs, доступное количество
 	//   байт данных, но не более чем bufLen.
-	//   Увеличивае указатель RdOffs на количество байт, скопированных в буфер pBuf.
+	//   Увеличивает указатель RdOffs на количество байт, скопированных в буфер pBuf.
 	// Returns:
 	//   Количество считанных байт.
 	//
@@ -7276,11 +7283,8 @@ public:
 		coClearSymbTab = 0x0001 //
 	};
 	struct Param {
-		Param()
-		{
-			Flags = 0;
-			Cp = 0;
-		}
+		SLAPI  Param();
+		SLAPI  Param(long flags, int cp, const char * pDelim);
 		long   Flags;
 		int    Cp;
 		SString Delim; // Список символов-разделителей. Если строка пустая, то используется " \t\n\r"
@@ -7292,7 +7296,8 @@ public:
 		SString Resource;
 		SString Text;
 	};
-	SLAPI  STokenizer(const Param * pParam);
+	SLAPI  STokenizer();
+	SLAPI  STokenizer(const Param & rParam);
 	SLAPI ~STokenizer();
 	void   SLAPI GetParam(Param * pParam) const;
 	int    SLAPI SetParam(const Param * pParam);
@@ -7390,6 +7395,7 @@ private:
 	//
 	SString  AddTokenBuf;      // @allocreuse Для ускорения AddToken()
 	TSArray <uint16> TokenBuf; // @allocreuse Для ускорения Run()
+	SStringU DelimU; // Для входящего потока в UTF-формате список разделителей должен быть в Unicode-формате
 };
 //
 #ifndef _WIN32_WCE // {
@@ -8335,6 +8341,7 @@ struct SStrScan : public SRegExpSet {
 	//
 	int    FASTCALL IncrChr(int chr);
 	SStrScan & FASTCALL Skip(int ws);
+	SStrScan & SLAPI Skip(int ws, uint * pLineCount);
 	//
 	// Descr: В большинстве случаев Skip(int) вызывается с параметром (wsSpace|wsTab) потому
 	//   для оптимизации кода сделана эта функция.

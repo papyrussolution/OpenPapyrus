@@ -53,7 +53,7 @@ long SLAPI SetXORFlags(long v, long f1, long f2, long f)
 
 SString & SLAPI DateToStr(LDATE dt, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(dt) {
 		//char   temp[256];//, txt_month[64];
 		SString txt_month;
@@ -117,7 +117,7 @@ int SLAPI PPGetSubStr(const char * pStr, int idx, char * pBuf, size_t bufLen)
 int SLAPI PPGetSubStrById(int strId, int subId, SString & rBuf)
 {
 	int    ok = 0;
-	rBuf = 0;
+	rBuf.Z();
 	SString line_buf, item_buf, id_buf, txt_buf;
 	if(PPLoadText(strId, line_buf)) {
 		for(int idx = 0; !ok && PPGetSubStr(line_buf, idx, item_buf) > 0; idx++) {
@@ -781,7 +781,7 @@ int FASTCALL CheckTblPtr(DBTable * tbl)
 {
 	if(tbl == 0)
 		return PPSetErrorNoMem();
-	else if(tbl->isOpen() == 0)
+	else if(tbl->IsOpened() == 0)
 		return PPSetErrorDB();
 	else
 		return 1;
@@ -815,12 +815,11 @@ int SLAPI PPTblEnumList::RegisterIterHandler(BExtQuery * pQ, long * pHandle)
 	long   handle = -1;
 	for(uint i = 0; handle < 0 && i < Tab.getCount(); i++)
 		if(Tab.at(i) == 0) {
-			Tab.at(i) = (long)pQ;
+			Tab.at(i) = pQ;
 			handle = (long)i;
 		}
 	if(handle < 0) {
-		long ptr = (long)pQ;
-		Tab.add(ptr);
+		Tab.insert(&pQ);
 		handle = (long)(Tab.getCount()-1);
 	}
 	ASSIGN_PTR(pHandle, handle);
@@ -863,10 +862,11 @@ int FASTCALL PPTblEnumList::NextIter(long handle)
 //
 PPID SLAPI GetSupplAccSheet()
 {
-	PPID   acs_id = CConfig.SupplAccSheet;
+	const  PPCommConfig & r_ccfg = CConfig;
+	PPID   acs_id = r_ccfg.SupplAccSheet;
 	if(!acs_id) {
 		PPOprKind op_rec;
-		if(CConfig.ReceiptOp && GetOpData(CConfig.ReceiptOp, &op_rec) > 0)
+		if(r_ccfg.ReceiptOp && GetOpData(r_ccfg.ReceiptOp, &op_rec) > 0)
 			acs_id = op_rec.AccSheetID;
 		if(!acs_id) {
 			if(GetOpData(PPOPK_RECEIPT, &op_rec) > 0)
@@ -878,15 +878,16 @@ PPID SLAPI GetSupplAccSheet()
 
 PPID SLAPI GetSellAccSheet()
 {
+	const  PPCommConfig & r_ccfg = CConfig;
 	PPID   acc_sheet_id = 0;
-	if(CConfig.SellAccSheet == 0) {
+	if(r_ccfg.SellAccSheet == 0) {
 		PPOprKind opk;
 		acc_sheet_id = GetOpData(PPOPK_SELL, &opk) ? opk.AccSheetID : 0;
 	}
 	else
-		acc_sheet_id = CConfig.SellAccSheet;
+		acc_sheet_id = r_ccfg.SellAccSheet;
 	if(!acc_sheet_id)
-		PPErrCode = PPERR_UNDEFCLIACCSHEET;
+		PPSetError(PPERR_UNDEFCLIACCSHEET);
 	return acc_sheet_id;
 }
 
@@ -1102,7 +1103,7 @@ char * SLAPI QttyToStr(double qtty, double upp, long fmt, char * buf, int noabs)
 
 SString & SLAPI GetCurSymbText(PPID curID, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(curID >= 0) {
 		PPID   cur_id = NZOR(curID, LConfig.BaseCurID);
 		if(cur_id) {
@@ -1263,7 +1264,7 @@ int SLAPI PPSymbTranslator::Retranslate(long sym, SString & rBuf) const
 {
 	const  char * p = Coll;
 	int    count = 0;
-	rBuf = 0;
+	rBuf.Z();
 	do {
 		if(++count == sym) {
 			while(oneof2(*p, ' ', '\t'))
@@ -1430,7 +1431,7 @@ int PPExtStringStorage::Put(SString & rLine, int fldID, const char * pBuf)
 int PPExtStringStorage::Get(const SString & rLine, int fldID, SString & rBuf)
 {
 	int    ok = -2;
-	rBuf = 0;
+	rBuf.Z();
 	if(rLine.NotEmpty()) {
 		SStrScan scan(rLine);
 		SString temp_buf;
@@ -1454,7 +1455,7 @@ int PPExtStringStorage::Get(const SString & rLine, int fldID, SString & rBuf)
 
 int PPExtStringStorage::Enum(const SString & rLine, uint * pPos, int * pFldID, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 
 	int    ok = -1;
 	int    fld_id = 0;
@@ -2190,7 +2191,7 @@ static SString & SLAPIV Helper_PPFormat(const SString & rFmt, SString * pBuf, /*
 							LocationTbl::Rec loc_rec;
 							if(loc_obj.Fetch(obj_id, &loc_rec) > 0) {
 								buf.Cat(loc_rec.Name);
-								LocationCore::GetAddress(loc_rec, 0, temp_buf = 0);
+								LocationCore::GetAddress(loc_rec, 0, temp_buf.Z());
 								if(temp_buf.NotEmptyS())
 									buf.CatDivIfNotEmpty(';', 2).Cat(temp_buf);
 							}

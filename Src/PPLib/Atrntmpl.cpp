@@ -901,7 +901,7 @@ int SLAPI PPAccTurnTempl::SubstToString(SString & rBuf, int * lp, int skipzobj)
 {
 	int    ok = 1;
 	int    is_first = 1;
-	rBuf = 0;
+	rBuf.Z();
 	SString temp_buf;
 	if(skipzobj)
 		rBuf.CatChar('!').Space();

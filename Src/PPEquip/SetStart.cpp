@@ -154,7 +154,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 	//
 	if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSALC, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 		StringSet ss(',', temp_buf);
-		ss.get(&(i = 0), temp_buf = 0);
+		ss.get(&(i = 0), temp_buf.Z());
 		if(gc_obj.SearchBySymb(temp_buf, &gc_alc_id) > 0) {
 			PPGdsClsPacket gc_pack;
 			if(gc_obj.Fetch(gc_alc_id, &gc_pack) > 0) {
@@ -581,7 +581,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 							//
 							//                                                        #12 - #24 - не используем
 							//
-							(temp_buf = 0).CatCharN(';', 2).CatChar('0').Semicol();
+							temp_buf.Z().CatCharN(';', 2).CatChar('0').Semicol();
 							f_str.Cat(temp_buf);
 							f_str.Cat(temp_buf);
 							f_str.Cat(temp_buf);
@@ -681,7 +681,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 					//
 					//                                                       #13 - #24 - не используем
 					//
-					(temp_buf = 0).CatCharN(';', 2).CatChar('0').Semicol();
+					temp_buf.Z().CatCharN(';', 2).CatChar('0').Semicol();
 					f_str.Cat(temp_buf);
 					f_str.Cat(temp_buf);
 					f_str.Cat(temp_buf);

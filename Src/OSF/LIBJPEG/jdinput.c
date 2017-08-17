@@ -19,14 +19,13 @@
 
 typedef struct {
 	struct jpeg_input_controller pub; /* public fields */
-
 	int inheaders;          /* Nonzero until first SOS is reached */
 } my_input_controller;
 
 typedef my_input_controller * my_inputctl_ptr;
 
-/* Forward declarations */
-METHODDEF(int) consume_markers JPP((j_decompress_ptr cinfo));
+// Forward declarations
+METHODDEF(int) consume_markers(j_decompress_ptr cinfo);
 
 /*
  * Routines to calculate various quantities related to the size of the image.
@@ -470,7 +469,7 @@ static void latch_quant_tables(j_decompress_ptr cinfo)
 	for(ci = 0; ci < cinfo->comps_in_scan; ci++) {
 		compptr = cinfo->cur_comp_info[ci];
 		/* No work if we already saved Q-table for this component */
-		if(compptr->quant_table != NULL)
+		if(compptr->quant_table)
 			continue;
 		/* Make sure specified quantization table is present */
 		qtblno = compptr->quant_tbl_no;

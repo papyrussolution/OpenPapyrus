@@ -235,10 +235,10 @@ int Accessor::IndentAmount(Sci_Position line, int * flags, PFNIsCommentLeader pf
 	int indent = 0;
 	bool inPrevPrefix = line > 0;
 	Sci_Position posPrev = inPrevPrefix ? LineStart(line-1) : 0;
-	while((ch == ' ' || ch == '\t') && (pos < end)) {
+	while(oneof2(ch, ' ', '\t') && (pos < end)) {
 		if(inPrevPrefix) {
 			char chPrev = (*this)[posPrev++];
-			if(chPrev == ' ' || chPrev == '\t') {
+			if(oneof2(chPrev, ' ', '\t')) {
 				if(chPrev != ch)
 					spaceFlags |= wsInconsistent;
 			}

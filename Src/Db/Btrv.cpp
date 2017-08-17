@@ -350,7 +350,7 @@ int SLAPI DbDict_Btrieve::LoadTableSpec(DBTable * pTbl, const char * pTblName)
 static BTBLID SLAPI getUniqueKey(DBTable * tbl, BTBLID idx)
 {
 	int16  k = SHRT_MAX;
-	if(tbl->searchKey(idx, &k, spLast))
+	if(tbl->searchKey(idx, &k, spLast)) {
 		if((k + 1) < SHRT_MAX)
 			return (k + 1);
 		else
@@ -358,6 +358,7 @@ static BTBLID SLAPI getUniqueKey(DBTable * tbl, BTBLID idx)
 				if(tbl->searchKey(idx, &(k = i), spEq) == 0)
 					return BTRNFOUND ? i : 0;
 			}
+	}
 	else if(BtrError == BE_EOF)
 		return 1;
 	return 0;
@@ -473,7 +474,7 @@ int SLAPI DbDict_Btrieve::DropTableSpec(const char * pTblName, DbTableStat * pSt
 	DbTableStat stat;
 	Btrieve::StartTransaction(1);
 	t = 1;
-	if(GetTableID(pTblName, &tbl_id, &stat)) { // @v6.3.5 THROW --> if()
+	if(GetTableID(pTblName, &tbl_id, &stat)) {
 		THROW(!(stat.Flags & XTF_DICT));
 		THROW(xfile.deleteRec());
 		i = tbl_id;

@@ -357,17 +357,15 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv,
 			usage(); /* bogus switch */
 		}
 	}
-
 	/* Post-switch-scanning cleanup */
-
 	if(for_real) {
 #ifdef C_PROGRESSIVE_SUPPORTED
-		if(simple_progressive) /* process -progressive; -scans can override */
+		if(simple_progressive) // process -progressive; -scans can override 
 			jpeg_simple_progression(cinfo);
 #endif
 
 #ifdef C_MULTISCAN_FILES_SUPPORTED
-		if(scansarg != NULL) /* process -scans if it was present */
+		if(scansarg) // process -scans if it was present 
 			if(!read_scan_script(cinfo, scansarg))
 				usage();
 #endif
@@ -475,22 +473,16 @@ int main(int argc, char ** argv)
 #ifdef PROGRESS_REPORT
 	start_progress_monitor((j_common_ptr) &dstinfo, &progress);
 #endif
-
-	/* Specify data source for decompression */
+	// Specify data source for decompression 
 	jpeg_stdio_src(&srcinfo, fp);
-
-	/* Enable saving of extra markers that we want to copy */
+	// Enable saving of extra markers that we want to copy 
 	jcopy_markers_setup(&srcinfo, copyoption);
-
-	/* Read file header */
+	// Read file header 
 	(void)jpeg_read_header(&srcinfo, TRUE);
-
-	/* Adjust default decompression parameters */
-	if(scaleoption != NULL)
-		if(sscanf(scaleoption, "%u/%u",
-			    &srcinfo.scale_num, &srcinfo.scale_denom) < 1)
+	// Adjust default decompression parameters 
+	if(scaleoption)
+		if(sscanf(scaleoption, "%u/%u", &srcinfo.scale_num, &srcinfo.scale_denom) < 1)
 			usage();
-
 	/* Any space needed by a transform option must be requested before
 	 * jpeg_read_coefficients so that memory allocation will be done right.
 	 */
@@ -529,9 +521,8 @@ int main(int argc, char ** argv)
 	 */
 	if(fp != stdin)
 		fclose(fp);
-
 	/* Open the output file. */
-	if(outfilename != NULL) {
+	if(outfilename) {
 		if((fp = fopen(outfilename, WRITE_BINARY)) == NULL) {
 			fprintf(stderr, "%s: can't open %s for writing\n", progname, outfilename);
 			exit(EXIT_FAILURE);
@@ -541,32 +532,23 @@ int main(int argc, char ** argv)
 		/* default output file is stdout */
 		fp = write_stdout();
 	}
-
 	/* Adjust default compression parameters by re-parsing the options */
 	file_index = parse_switches(&dstinfo, argc, argv, 0, TRUE);
-
 	/* Specify data destination for compression */
 	jpeg_stdio_dest(&dstinfo, fp);
-
 	/* Start compressor (note no image data is actually written here) */
 	jpeg_write_coefficients(&dstinfo, dst_coef_arrays);
-
 	/* Copy to the output file any extra markers that we want to preserve */
 	jcopy_markers_execute(&srcinfo, &dstinfo, copyoption);
-
 	/* Execute image transformation, if any */
 #if TRANSFORMS_SUPPORTED
-	jtransform_execute_transformation(&srcinfo, &dstinfo,
-	    src_coef_arrays,
-	    &transformoption);
+	jtransform_execute_transformation(&srcinfo, &dstinfo, src_coef_arrays, &transformoption);
 #endif
-
 	/* Finish compression and release memory */
 	jpeg_finish_compress(&dstinfo);
 	jpeg_destroy_compress(&dstinfo);
 	(void)jpeg_finish_decompress(&srcinfo);
 	jpeg_destroy_decompress(&srcinfo);
-
 	/* Close output file, if we opened it */
 	if(fp != stdout)
 		fclose(fp);

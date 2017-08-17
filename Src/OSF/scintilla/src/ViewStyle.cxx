@@ -18,7 +18,7 @@
 #include "Indicator.h"
 #include "XPM.h"
 #include "LineMarker.h"
-#include "Style.h"
+//#include "Style.h"
 #include "ViewStyle.h"
 
 #ifdef SCI_NAMESPACE
@@ -406,9 +406,12 @@ void ViewStyle::EnsureStyle(size_t index)
 
 void ViewStyle::ResetDefaultStyle()
 {
+	/*styles[STYLE_DEFAULT].Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff),
+	    Platform::DefaultFontSize() * SC_FONT_SIZE_MULTIPLIER, fontNames.Save(Platform::DefaultFont()),
+	    SC_CHARSET_DEFAULT, SC_WEIGHT_NORMAL, false, false, false, Style::caseMixed, true, true, false);*/
 	styles[STYLE_DEFAULT].Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff),
 	    Platform::DefaultFontSize() * SC_FONT_SIZE_MULTIPLIER, fontNames.Save(Platform::DefaultFont()),
-	    SC_CHARSET_DEFAULT, SC_WEIGHT_NORMAL, false, false, false, Style::caseMixed, true, true, false);
+	    SC_CHARSET_DEFAULT, SC_WEIGHT_NORMAL, false, Style::caseMixed, Style::fVisible|Style::fChangeable);
 }
 
 void ViewStyle::ClearStyles()

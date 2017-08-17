@@ -8,6 +8,25 @@
 //
 //
 //
+SLAPI PPOsm::NodeCluster::Put__Param::Put__Param(const Node * pN, uint nodeCount)
+{
+	P_N = pN;
+	P_NrWayRefs = 0;
+	P_NrRelRefs = 0;
+	NCount = nodeCount;
+	NrWayRefsCount = 0;
+	NrRelRefsCount = 0;
+}
+
+SLAPI PPOsm::NodeCluster::Put__Result::Put__Result()
+{
+	ActualCount = 0;
+	ActualNrWayCount = 0;
+	ActualNrRelCount = 0;
+	NrWayShift = 0;
+	NrRelShift = 0;
+}
+
 SLAPI PPOsm::NodeCluster::NodeCluster() : SBuffer(32)
 {
 }
@@ -1186,7 +1205,7 @@ int SLAPI PPOsm::OpenDatabase(const char * pDbPath)
 	ZDELETE(P_SrDb);
 	if(!isempty(pDbPath)) {
 		P_SrDb = new SrDatabase;
-		if(!P_SrDb->Open(pDbPath)) {
+		if(!P_SrDb->Open(pDbPath, 0)) { // @todo Режим открытия
 			ZDELETE(P_SrDb);
 			ok = 0;
 		}
@@ -1710,7 +1729,7 @@ int SLAPI PPViewGeoTracking::Export()
 				(schema_loc = p_schema_url).Cat(gpx_ver_major).CatChar('/').Cat(gpx_ver_minor);
 				SXml::WNode n_gpx(p_writer, "gpx");
 					n_gpx.PutAttrib("xmlns", schema_loc);
-					(temp_buf = 0).Cat(gpx_ver_major).CatChar('.').Cat(gpx_ver_minor);
+					temp_buf.Z().Cat(gpx_ver_major).CatChar('.').Cat(gpx_ver_minor);
 					n_gpx.PutAttrib("version", temp_buf);
 					{
 						PPVersionInfo vi = DS.GetVersionInfo();

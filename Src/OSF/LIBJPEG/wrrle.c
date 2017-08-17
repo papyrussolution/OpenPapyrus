@@ -58,9 +58,8 @@ typedef struct {
 
 typedef rle_dest_struct * rle_dest_ptr;
 
-/* Forward declarations */
-METHODDEF(void) rle_put_pixel_rows JPP((j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied));
-
+// Forward declarations
+METHODDEF(void) rle_put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied);
 /*
  * Write the file header.
  *

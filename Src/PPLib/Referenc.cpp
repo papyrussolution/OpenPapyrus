@@ -1,6 +1,6 @@
 // REFERENC.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
@@ -135,7 +135,7 @@ int SLAPI Reference::GetPassword(const PPSecur * pSecur, char * pBuf, size_t buf
 		SString temp_buf;
 		Reference::Decrypt(Reference::crymRef2, pSecur->Password, sizeof(pSecur->Password), temp_buf);
 		temp_buf.CopyTo(pBuf, bufLen);
-		(temp_buf = 0).CatCharN(' ', 96);
+		temp_buf.Z().CatCharN(' ', 96);
 	}
 	else
 		ok = -1;
@@ -174,7 +174,7 @@ int SLAPI Reference::VerifySecur(PPSecur2 * pSecur, int set)
 	}
 	else if(pSecur->Crc != crc) {
 		//
-		// Исправление ошибки: вычисляем crc с учетом первых 8 байт записи
+		// РСЃРїСЂР°РІР»РµРЅРёРµ РѕС€РёР±РєРё: РІС‹С‡РёСЃР»СЏРµРј crc СЃ СѓС‡РµС‚РѕРј РїРµСЂРІС‹С… 8 Р±Р°Р№С‚ Р·Р°РїРёСЃРё
 		//
 		offs = offsetof(PPSecur2, Crc);
 		uint32 crc2 = c.Calc(0, ((const uint8 *)pSecur), offs);
@@ -192,7 +192,7 @@ int SLAPI Reference::VerifySecur(PPSecur2 * pSecur, int set)
 int SLAPI Reference::GetExField(const PPConfigPrivate * pRec, int fldId, SString & rBuf)
 {
 	int    ok = -1;
-	rBuf = 0;
+	rBuf.Z();
 	if(fldId == PCFGEXSTR_DESKTOPNAME) {
 		SString temp_buf = pRec->Tail;
 		ok = PPGetExtStrData(fldId, temp_buf, rBuf);
@@ -280,14 +280,14 @@ int SLAPI Reference::_GetFreeID(PPID objType, PPID * pID, PPID firstID)
 		else
 			potential_key = firstID;
 		//
-		// Проверяем не является ли новый идент дубликатом удаленного до этого
-		// (и имеющего общий синхронизирующий идентификатор). Если "да", то
-		// сдвигаем значение на единицу до тех пор, пока не найдем подходящее значение.
+		// РџСЂРѕРІРµСЂСЏРµРј РЅРµ СЏРІР»СЏРµС‚СЃСЏ Р»Рё РЅРѕРІС‹Р№ РёРґРµРЅС‚ РґСѓР±Р»РёРєР°С‚РѕРј СѓРґР°Р»РµРЅРЅРѕРіРѕ РґРѕ СЌС‚РѕРіРѕ
+		// (Рё РёРјРµСЋС‰РµРіРѕ РѕР±С‰РёР№ СЃРёРЅС…СЂРѕРЅРёР·РёСЂСѓСЋС‰РёР№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ). Р•СЃР»Рё "РґР°", С‚Рѕ
+		// СЃРґРІРёРіР°РµРј Р·РЅР°С‡РµРЅРёРµ РЅР° РµРґРёРЅРёС†Сѓ РґРѕ С‚РµС… РїРѕСЂ, РїРѕРєР° РЅРµ РЅР°Р№РґРµРј РїРѕРґС…РѕРґСЏС‰РµРµ Р·РЅР°С‡РµРЅРёРµ.
 		//
 		while((r2 = DS.GetTLA().P_ObjSync->SearchPrivate(objType, potential_key+inc, 0, &objsync_rec)) > 0) {
 			//
-			// Мы должны одновременно прочитать запись (блокировка страницы в транзакции) и удостовериться //
-			// в том, что наш ключ не перехвачен другим пользователем
+			// РњС‹ РґРѕР»Р¶РЅС‹ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ РїСЂРѕС‡РёС‚Р°С‚СЊ Р·Р°РїРёСЃСЊ (Р±Р»РѕРєРёСЂРѕРІРєР° СЃС‚СЂР°РЅРёС†С‹ РІ С‚СЂР°РЅР·Р°РєС†РёРё) Рё СѓРґРѕСЃС‚РѕРІРµСЂРёС‚СЊСЃСЏ //
+			// РІ С‚РѕРј, С‡С‚Рѕ РЅР°С€ РєР»СЋС‡ РЅРµ РїРµСЂРµС…РІР°С‡РµРЅ РґСЂСѓРіРёРј РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј
 			//
 			do {
 				++inc;
@@ -364,8 +364,8 @@ int SLAPI Reference::UpdateItem(PPID obj, PPID id, const void * b, int logAction
 					if(!r) {
 						THROW_DB(BtrError == BE_CONFLICT && try_count > 0);
 						//
-						// Если встречаем ошибку "Конфликт блокировок на уровне записи", то
-						// повторяем попытку чтения-изменения try_count раз.
+						// Р•СЃР»Рё РІСЃС‚СЂРµС‡Р°РµРј РѕС€РёР±РєСѓ "РљРѕРЅС„Р»РёРєС‚ Р±Р»РѕРєРёСЂРѕРІРѕРє РЅР° СѓСЂРѕРІРЅРµ Р·Р°РїРёСЃРё", С‚Рѕ
+						// РїРѕРІС‚РѕСЂСЏРµРј РїРѕРїС‹С‚РєСѓ С‡С‚РµРЅРёСЏ-РёР·РјРµРЅРµРЅРёСЏ try_count СЂР°Р·.
 						//
 						unlock(0); // @v9.0.4
 						SDelay(10);
@@ -417,7 +417,7 @@ int SLAPI Reference::EnumItems(PPID obj, PPID * pID, void * b)
 int SLAPI Reference::InitEnum(PPID objType, int flags, long * pHandle)
 {
 	BExtQuery * q = new BExtQuery(this, 0);
-	// @todo (требуется доработка BExtQuery) q->setMaxReject(8);
+	// @todo (С‚СЂРµР±СѓРµС‚СЃСЏ РґРѕСЂР°Р±РѕС‚РєР° BExtQuery) q->setMaxReject(8);
 	if(flags & (eoIdName|eoIdSymb)) {
 		q->select(this->ObjID, 0L);
 		if(flags & eoIdName)
@@ -723,7 +723,7 @@ struct PropVlrString {
 
 int SLAPI Reference::GetPropVlrString(PPID obj, PPID id, PPID prop, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 1;
 	PropVlrString * pm = 0;
 	PropertyTbl::Key0 k;
@@ -736,7 +736,7 @@ int SLAPI Reference::GetPropVlrString(PPID obj, PPID id, PPID prop, SString & rB
 		Prop.getRecSize(&fix_size);
 		Prop.getLobSize(Prop.VT, &actual_size);
 		actual_size += fix_size;
-		THROW_MEM(pm = (PropVlrString*)SAlloc::M(actual_size + 32)); // +32 - страховка
+		THROW_MEM(pm = (PropVlrString*)SAlloc::M(actual_size + 32)); // +32 - СЃС‚СЂР°С…РѕРІРєР°
 		ReadPropBuf(pm, actual_size, &test_actual_size);
 		assert(actual_size == test_actual_size);
 		(rBuf = (const char *)(pm + 1)).Strip();
@@ -795,7 +795,7 @@ int FASTCALL Reference::GetPropSBuffer_Current(SBuffer & rBuf)
 	Prop.getRecSize(&fix_size);
 	Prop.getLobSize(Prop.VT, &actual_size);
 	actual_size += fix_size;
-	THROW_MEM(pm = (PropVlrString*)SAlloc::M(actual_size + 32)); // +32 - страховка
+	THROW_MEM(pm = (PropVlrString*)SAlloc::M(actual_size + 32)); // +32 - СЃС‚СЂР°С…РѕРІРєР°
 	ReadPropBuf(pm, actual_size, &test_actual_size);
 	assert(actual_size == test_actual_size);
 	// @v9.1.11 if(actual_size == test_actual_size && actual_size == (pm->Size+sizeof(*pm))) {
@@ -843,7 +843,7 @@ int SLAPI Reference::GetPropArrayFromRecBuf(SArray * pAry)
 		Prop.getLobSize(Prop.VT, &actual_size);
 		actual_size += fix_size;
 
-		THROW_MEM(p_rec = (PropPPIDArray *)SAlloc::C(1, actual_size + 32)); // +32 - страховка
+		THROW_MEM(p_rec = (PropPPIDArray *)SAlloc::C(1, actual_size + 32)); // +32 - СЃС‚СЂР°С…РѕРІРєР°
 		ReadPropBuf(p_rec, actual_size, &test_actual_size);
 		assert(actual_size == test_actual_size);
 		for(int i = 0; i < p_rec->Count; i++) {
@@ -1010,37 +1010,37 @@ int SLAPI Reference::RemoveSecur(PPID obj, PPID id, int use_ta)
 	return ok;
 }
 //
-// Права доступа
+// РџСЂР°РІР° РґРѕСЃС‚СѓРїР°
 //
 struct _PPRights {         // @persistent @store(PropertyTbl)
 	PPID   SecurObj;       //
 	PPID   SecurID;        //
 	PPID   RightsID;       // Const = (PPPRP_BIAS + 0)
-	ushort WeekDays;       // Допустимые дни работы (биты: 0 - вскр, 1 - пнд ...)
-	LTIME  TimeBeg;        // Допустимое начало рабочей сессии (0..23:59:59)
-	LTIME  TimeEnd;        // Допустимый конец рабочей сессии
-	uchar  PwMinLen;       // Минимальная длина пароля
-	uchar  PwPeriod;       // Продолжительность действия пароля (дней)
-	long   CFlags;         // PPAccessRestriction::cfXXX Общие флаги прав доступу
-	//LDATE  LowRBillDate;   // Дата, до которой R-доступ к документам запрещен
-	//LDATE  UppRBillDate;   // Дата, после которой R-доступ к документам запрещен
+	ushort WeekDays;       // Р”РѕРїСѓСЃС‚РёРјС‹Рµ РґРЅРё СЂР°Р±РѕС‚С‹ (Р±РёС‚С‹: 0 - РІСЃРєСЂ, 1 - РїРЅРґ ...)
+	LTIME  TimeBeg;        // Р”РѕРїСѓСЃС‚РёРјРѕРµ РЅР°С‡Р°Р»Рѕ СЂР°Р±РѕС‡РµР№ СЃРµСЃСЃРёРё (0..23:59:59)
+	LTIME  TimeEnd;        // Р”РѕРїСѓСЃС‚РёРјС‹Р№ РєРѕРЅРµС† СЂР°Р±РѕС‡РµР№ СЃРµСЃСЃРёРё
+	uchar  PwMinLen;       // РњРёРЅРёРјР°Р»СЊРЅР°СЏ РґР»РёРЅР° РїР°СЂРѕР»СЏ
+	uchar  PwPeriod;       // РџСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚СЊ РґРµР№СЃС‚РІРёСЏ РїР°СЂРѕР»СЏ (РґРЅРµР№)
+	long   CFlags;         // PPAccessRestriction::cfXXX РћР±С‰РёРµ С„Р»Р°РіРё РїСЂР°РІ РґРѕСЃС‚СѓРїСѓ
+	//LDATE  LowRBillDate;   // Р”Р°С‚Р°, РґРѕ РєРѕС‚РѕСЂРѕР№ R-РґРѕСЃС‚СѓРї Рє РґРѕРєСѓРјРµРЅС‚Р°Рј Р·Р°РїСЂРµС‰РµРЅ
+	//LDATE  UppRBillDate;   // Р”Р°С‚Р°, РїРѕСЃР»Рµ РєРѕС‚РѕСЂРѕР№ R-РґРѕСЃС‚СѓРї Рє РґРѕРєСѓРјРµРЅС‚Р°Рј Р·Р°РїСЂРµС‰РµРЅ
 	DateRange RBillPeriod;
-	short  AccessLevel;    // Уровень доступа
+	short  AccessLevel;    // РЈСЂРѕРІРµРЅСЊ РґРѕСЃС‚СѓРїР°
 	char   Reserve2[6];    // @reserve
-	ushort ORTailSize;     // Размер хвоста с правами доступа по объектам
-	//LDATE  LowWBillDate;   // Дата, до которой W-доступ к документам запрещен
-	//LDATE  UppWBillDate;   // Дата, после которой W-доступ к документам запрещен
+	ushort ORTailSize;     // Р Р°Р·РјРµСЂ С…РІРѕСЃС‚Р° СЃ РїСЂР°РІР°РјРё РґРѕСЃС‚СѓРїР° РїРѕ РѕР±СЉРµРєС‚Р°Рј
+	//LDATE  LowWBillDate;   // Р”Р°С‚Р°, РґРѕ РєРѕС‚РѕСЂРѕР№ W-РґРѕСЃС‚СѓРї Рє РґРѕРєСѓРјРµРЅС‚Р°Рј Р·Р°РїСЂРµС‰РµРЅ
+	//LDATE  UppWBillDate;   // Р”Р°С‚Р°, РїРѕСЃР»Рµ РєРѕС‚РѕСЂРѕР№ W-РґРѕСЃС‚СѓРї Рє РґРѕРєСѓРјРµРЅС‚Р°Рј Р·Р°РїСЂРµС‰РµРЅ
 	DateRange WBillPeriod;
-	ulong  ChkSumOpList;   // Контрольная сумма списка доступных операций
-	ulong  ChkSumLocList;  // Контрольная сумма списка доступных складов
-	ulong  ChkSumCfgList;  // Контрольная сумма списка доступных конфигураций
-	ulong  ChkSumAccList;  // Контрольная сумма списка доступных счетов
-	uint8  RtDesktop;      // Права доступа к рабочим столам (на изменение, на создание)
-		// Если RtDesktop & 0x80, то флаги перенесены в поле CFlags
+	ulong  ChkSumOpList;   // РљРѕРЅС‚СЂРѕР»СЊРЅР°СЏ СЃСѓРјРјР° СЃРїРёСЃРєР° РґРѕСЃС‚СѓРїРЅС‹С… РѕРїРµСЂР°С†РёР№
+	ulong  ChkSumLocList;  // РљРѕРЅС‚СЂРѕР»СЊРЅР°СЏ СЃСѓРјРјР° СЃРїРёСЃРєР° РґРѕСЃС‚СѓРїРЅС‹С… СЃРєР»Р°РґРѕРІ
+	ulong  ChkSumCfgList;  // РљРѕРЅС‚СЂРѕР»СЊРЅР°СЏ СЃСѓРјРјР° СЃРїРёСЃРєР° РґРѕСЃС‚СѓРїРЅС‹С… РєРѕРЅС„РёРіСѓСЂР°С†РёР№
+	ulong  ChkSumAccList;  // РљРѕРЅС‚СЂРѕР»СЊРЅР°СЏ СЃСѓРјРјР° СЃРїРёСЃРєР° РґРѕСЃС‚СѓРїРЅС‹С… СЃС‡РµС‚РѕРІ
+	uint8  RtDesktop;      // РџСЂР°РІР° РґРѕСЃС‚СѓРїР° Рє СЂР°Р±РѕС‡РёРј СЃС‚РѕР»Р°Рј (РЅР° РёР·РјРµРЅРµРЅРёРµ, РЅР° СЃРѕР·РґР°РЅРёРµ)
+		// Р•СЃР»Рё RtDesktop & 0x80, С‚Рѕ С„Р»Р°РіРё РїРµСЂРµРЅРµСЃРµРЅС‹ РІ РїРѕР»Рµ CFlags
 	uint8  Reserve;        // @reserve
-	long   OnlyGoodsGrpID; // Единственная товарная группа, с которой может оперировать пользователь.
-	ushort Flags;          // Общие флаги
-	ushort OprFlags;       // Операционные флаги
+	long   OnlyGoodsGrpID; // Р•РґРёРЅСЃС‚РІРµРЅРЅР°СЏ С‚РѕРІР°СЂРЅР°СЏ РіСЂСѓРїРїР°, СЃ РєРѕС‚РѕСЂРѕР№ РјРѕР¶РµС‚ РѕРїРµСЂРёСЂРѕРІР°С‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ.
+	ushort Flags;          // РћР±С‰РёРµ С„Р»Р°РіРё
+	ushort OprFlags;       // РћРїРµСЂР°С†РёРѕРЅРЅС‹Рµ С„Р»Р°РіРё
 	ulong  CheckSum;       //
 	// ... (ObjRights: size = ORTailSize - sizeof(_PPRights)) //
 };
@@ -1091,13 +1091,13 @@ int SLAPI PPRights::Merge(const PPRights & rS, long flags)
 {
 	int    ok = 1;
 	//
-	// Функция Merge сливает права доступа this с rS таким образом, что
-	// this получает максимум прав, заданных одновременно и в this и в rS
+	// Р¤СѓРЅРєС†РёСЏ Merge СЃР»РёРІР°РµС‚ РїСЂР°РІР° РґРѕСЃС‚СѓРїР° this СЃ rS С‚Р°РєРёРј РѕР±СЂР°Р·РѕРј, С‡С‚Рѕ
+	// this РїРѕР»СѓС‡Р°РµС‚ РјР°РєСЃРёРјСѓРј РїСЂР°РІ, Р·Р°РґР°РЅРЅС‹С… РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ Рё РІ this Рё РІ rS
 	//
 	CALLPTRMEMB(P_OpList, Merge(rS.P_OpList, ObjRestrictArray::moEmptyListIsFull));
 	CALLPTRMEMB(P_LocList, Merge(rS.P_LocList, ObjRestrictArray::moEmptyListIsFull));
 	//
-	// Пустой список доступных конфигураций означет отсутствие доступа
+	// РџСѓСЃС‚РѕР№ СЃРїРёСЃРѕРє РґРѕСЃС‚СѓРїРЅС‹С… РєРѕРЅС„РёРіСѓСЂР°С†РёР№ РѕР·РЅР°С‡РµС‚ РѕС‚СЃСѓС‚СЃС‚РІРёРµ РґРѕСЃС‚СѓРїР°
 	//
 	if(P_CfgList) {
 		P_CfgList->Merge(rS.P_CfgList, 0);
@@ -1198,7 +1198,7 @@ int SLAPI PPRights::ReadRights(PPID securType, PPID securID, int ignoreCheckSum)
 			THROW_PP(CheckSum() == P_Rt->CheckSum, PPERR_INVRTCHKSUM);
 		{
 			//
-			// Процедура конвертации прав доступа по объектам в формат v8.5.5 (увеличился фиксированный размер ObjRights)
+			// РџСЂРѕС†РµРґСѓСЂР° РєРѕРЅРІРµСЂС‚Р°С†РёРё РїСЂР°РІ РґРѕСЃС‚СѓРїР° РїРѕ РѕР±СЉРµРєС‚Р°Рј РІ С„РѕСЂРјР°С‚ v8.5.5 (СѓРІРµР»РёС‡РёР»СЃСЏ С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹Р№ СЂР°Р·РјРµСЂ ObjRights)
 			//
 			int    do_convert = 0;
 			uint   s = 0;
@@ -1253,9 +1253,9 @@ int SLAPI PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
 			P_Rt->OprFlags |= PPORF_INHERITED;
 		if(oneof2(P_Rt->SecurObj, PPOBJ_USRGRP, PPOBJ_USR)) {
 			//
-			// Необходимо унаследовать от более высоких уровней иерархии
-			// права по объектам, которые не определены на заданном уровне
-			// (Рекурсия)
+			// РќРµРѕР±С…РѕРґРёРјРѕ СѓРЅР°СЃР»РµРґРѕРІР°С‚СЊ РѕС‚ Р±РѕР»РµРµ РІС‹СЃРѕРєРёС… СѓСЂРѕРІРЅРµР№ РёРµСЂР°СЂС…РёРё
+			// РїСЂР°РІР° РїРѕ РѕР±СЉРµРєС‚Р°Рј, РєРѕС‚РѕСЂС‹Рµ РЅРµ РѕРїСЂРµРґРµР»РµРЅС‹ РЅР° Р·Р°РґР°РЅРЅРѕРј СѓСЂРѕРІРЅРµ
+			// (Р РµРєСѓСЂСЃРёСЏ)
 			//
 			PPRights temp;
 			PPID   prevType = (P_Rt->SecurObj == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
@@ -1346,8 +1346,8 @@ int SLAPI PPRights::Put(PPID securType, PPID securID)
 		P_Rt->RightsID  = PPPRP_RTCOMM;
 		memzero(P_Rt->Reserve2, sizeof(P_Rt->Reserve2));
 		//
-		// Удаляем все права по объектам с признаком "по умолчанию"
-		// и у оставшихся сбрасываем признак "наследованный"
+		// РЈРґР°Р»СЏРµРј РІСЃРµ РїСЂР°РІР° РїРѕ РѕР±СЉРµРєС‚Р°Рј СЃ РїСЂРёР·РЅР°РєРѕРј "РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ"
+		// Рё Сѓ РѕСЃС‚Р°РІС€РёС…СЃСЏ СЃР±СЂР°СЃС‹РІР°РµРј РїСЂРёР·РЅР°Рє "РЅР°СЃР»РµРґРѕРІР°РЅРЅС‹Р№"
 		//
 		for(uint s = 0; s < P_Rt->ORTailSize;) {
 			ObjRights * o = (ObjRights *)(PTR8(P_Rt + 1) + s);
@@ -1473,10 +1473,10 @@ int SLAPI PPRights::SetObjRights(PPID objType, const ObjRights * rt, int replace
 			size_t os = o->Size;
 			if(o->ObjType == 0 || os == 0) {
 				//
-				// Такая ситуация встречаться не должна, но на всякий
-				// случай обработать ее стоит. В этом случае будем
-				// считать, что достигли конца структуры и не нашли
-				// права для заданного объекта.
+				// РўР°РєР°СЏ СЃРёС‚СѓР°С†РёСЏ РІСЃС‚СЂРµС‡Р°С‚СЊСЃСЏ РЅРµ РґРѕР»Р¶РЅР°, РЅРѕ РЅР° РІСЃСЏРєРёР№
+				// СЃР»СѓС‡Р°Р№ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ РµРµ СЃС‚РѕРёС‚. Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ Р±СѓРґРµРј
+				// СЃС‡РёС‚Р°С‚СЊ, С‡С‚Рѕ РґРѕСЃС‚РёРіР»Рё РєРѕРЅС†Р° СЃС‚СЂСѓРєС‚СѓСЂС‹ Рё РЅРµ РЅР°С€Р»Рё
+				// РїСЂР°РІР° РґР»СЏ Р·Р°РґР°РЅРЅРѕРіРѕ РѕР±СЉРµРєС‚Р°.
 				//
 				ts = s;
 				P_Rt->ORTailSize = (ushort)s;
@@ -1864,8 +1864,8 @@ int SLAPI GetCommConfig(PPCommConfig * pCfg)
 		pCfg->SellAcct.ac  = DEFAC_SELL;
 		pCfg->CashAcct.ac  = DEFAC_CASH;
 	}
-	// @v9.7.0 { Теперь вместо кода товара хранится его идентификатора.
-	// Для прозрачной обратной совместимости, сформируем значение идентификатора из кода, если таковой задан.
+	// @v9.7.0 { РўРµРїРµСЂСЊ РІРјРµСЃС‚Рѕ РєРѕРґР° С‚РѕРІР°СЂР° С…СЂР°РЅРёС‚СЃСЏ РµРіРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°.
+	// Р”Р»СЏ РїСЂРѕР·СЂР°С‡РЅРѕР№ РѕР±СЂР°С‚РЅРѕР№ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё, СЃС„РѕСЂРјРёСЂСѓРµРј Р·РЅР°С‡РµРЅРёРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° РёР· РєРѕРґР°, РµСЃР»Рё С‚Р°РєРѕРІРѕР№ Р·Р°РґР°РЅ.
 	if(!pCfg->PrepayInvoiceGoodsID && pCfg->PrepayInvoiceGoodsCode_obsolete[0]) {
 		PPObjGoods goods_obj;
 		Goods2Tbl::Rec goods_rec;
@@ -2052,10 +2052,10 @@ int SLAPI UuidRefCore::SearchUuid(const S_GUID & rUuid, int useCache, long * pID
 int SLAPI UuidRefCore::GetUuid(const S_GUID & rUuid, long * pID, int options, int use_ta)
 {
 	//
-	// Если option & sgoOptimistic то не предпринимаем попыток предварительного поиска записи (считая, что
-	// с высокой вероятностью такого GUID в таблице нет. Если он все-таки есть, то реагируем
-	// на ошибку BE_DUP попыткой найти эту запись.
-	// Цель опции - снизить затраты времени на поиск (поиск по GUID очень медленный)
+	// Р•СЃР»Рё option & sgoOptimistic С‚Рѕ РЅРµ РїСЂРµРґРїСЂРёРЅРёРјР°РµРј РїРѕРїС‹С‚РѕРє РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕРіРѕ РїРѕРёСЃРєР° Р·Р°РїРёСЃРё (СЃС‡РёС‚Р°СЏ, С‡С‚Рѕ
+	// СЃ РІС‹СЃРѕРєРѕР№ РІРµСЂРѕСЏС‚РЅРѕСЃС‚СЊСЋ С‚Р°РєРѕРіРѕ GUID РІ С‚Р°Р±Р»РёС†Рµ РЅРµС‚. Р•СЃР»Рё РѕРЅ РІСЃРµ-С‚Р°РєРё РµСЃС‚СЊ, С‚Рѕ СЂРµР°РіРёСЂСѓРµРј
+	// РЅР° РѕС€РёР±РєСѓ BE_DUP РїРѕРїС‹С‚РєРѕР№ РЅР°Р№С‚Рё СЌС‚Сѓ Р·Р°РїРёСЃСЊ.
+	// Р¦РµР»СЊ РѕРїС†РёРё - СЃРЅРёР·РёС‚СЊ Р·Р°С‚СЂР°С‚С‹ РІСЂРµРјРµРЅРё РЅР° РїРѕРёСЃРє (РїРѕРёСЃРє РїРѕ GUID РѕС‡РµРЅСЊ РјРµРґР»РµРЅРЅС‹Р№)
 	//
 	int    ok = 1;
 	if(rUuid.IsZero()) {
@@ -2209,7 +2209,7 @@ int SLAPI SelfTextRefCache::FetchText(const char * pText, PPID * pID)
 			if(P_T) {
 				TcRwl.Unlock();
 				TcRwl.WriteLock();
-				if(TextCache.Search(pattern, &hval, &hpos)) { // Повторная попытка после получения блокировки
+				if(TextCache.Search(pattern, &hval, &hpos)) { // РџРѕРІС‚РѕСЂРЅР°СЏ РїРѕРїС‹С‚РєР° РїРѕСЃР»Рµ РїРѕР»СѓС‡РµРЅРёСЏ Р±Р»РѕРєРёСЂРѕРІРєРё
 					_id = (long)hval;
 					ok = 1;
 				}
@@ -2463,11 +2463,11 @@ int FASTCALL UnxTextRefCore::PostprocessRead(SStringU & rBuf)
 int SLAPI UnxTextRefCore::Search(const TextRefIdent & rI, SStringU & rBuf)
 {
 	//
-	// Так как текст в этой таблице по определению не индексируемый, то
-	// с версии 9.0.0 в записях хранится не "сырой" unicode, а utf8 (ради экономии пространства и производительности).
-	// При этом интерфейсные функции по-прежнему оперируют форматом unicode (для совместимости с TextRefCore).
+	// РўР°Рє РєР°Рє С‚РµРєСЃС‚ РІ СЌС‚РѕР№ С‚Р°Р±Р»РёС†Рµ РїРѕ РѕРїСЂРµРґРµР»РµРЅРёСЋ РЅРµ РёРЅРґРµРєСЃРёСЂСѓРµРјС‹Р№, С‚Рѕ
+	// СЃ РІРµСЂСЃРёРё 9.0.0 РІ Р·Р°РїРёСЃСЏС… С…СЂР°РЅРёС‚СЃСЏ РЅРµ "СЃС‹СЂРѕР№" unicode, Р° utf8 (СЂР°РґРё СЌРєРѕРЅРѕРјРёРё РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° Рё РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚Рё).
+	// РџСЂРё СЌС‚РѕРј РёРЅС‚РµСЂС„РµР№СЃРЅС‹Рµ С„СѓРЅРєС†РёРё РїРѕ-РїСЂРµР¶РЅРµРјСѓ РѕРїРµСЂРёСЂСѓСЋС‚ С„РѕСЂРјР°С‚РѕРј unicode (РґР»СЏ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё СЃ TextRefCore).
 	//
-	rBuf = 0;
+	rBuf.Z();
 
 	int    ok = 1;
 	UnxTextRefTbl::Key0 k0;
@@ -2485,7 +2485,7 @@ int SLAPI UnxTextRefCore::Search(const TextRefIdent & rI, SStringU & rBuf)
 
 int SLAPI UnxTextRefCore::GetText(const TextRefIdent & rI, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	SStringU temp_buf;
 	int    ok = Search(rI, temp_buf);
 	if(ok > 0) {
@@ -2511,9 +2511,9 @@ int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const char * pText, i
 int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, int use_ta)
 {
 	//
-	// Так как текст в этой таблице по определению не индексируемый, то
-	// с версии 9.0.0 в записях хранится не "сырой" unicode, а utf8 (ради экономии пространства и производительности).
-	// При этом интерфейсные функции по-прежнему оперируют форматом unicode (для совместимости с TextRefCore).
+	// РўР°Рє РєР°Рє С‚РµРєСЃС‚ РІ СЌС‚РѕР№ С‚Р°Р±Р»РёС†Рµ РїРѕ РѕРїСЂРµРґРµР»РµРЅРёСЋ РЅРµ РёРЅРґРµРєСЃРёСЂСѓРµРјС‹Р№, С‚Рѕ
+	// СЃ РІРµСЂСЃРёРё 9.0.0 РІ Р·Р°РїРёСЃСЏС… С…СЂР°РЅРёС‚СЃСЏ РЅРµ "СЃС‹СЂРѕР№" unicode, Р° utf8 (СЂР°РґРё СЌРєРѕРЅРѕРјРёРё РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° Рё РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚Рё).
+	// РџСЂРё СЌС‚РѕРј РёРЅС‚РµСЂС„РµР№СЃРЅС‹Рµ С„СѓРЅРєС†РёРё РїРѕ-РїСЂРµР¶РЅРµРјСѓ РѕРїРµСЂРёСЂСѓСЋС‚ С„РѕСЂРјР°С‚РѕРј unicode (РґР»СЏ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё СЃ TextRefCore).
 	//
 
 	// @v9.0.0 const  size_t tl = sstrlen(pText) * sizeof(wchar_t);
@@ -2543,7 +2543,7 @@ int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText
 			else {
 				THROW_DB(rereadForUpdate(0, 0)); // @v9.0.5 @fix index 1-->0
 				{
-					assert(tl); // Ранее мы проверили длину текста на 0
+					assert(tl); // Р Р°РЅРµРµ РјС‹ РїСЂРѕРІРµСЂРёР»Рё РґР»РёРЅСѓ С‚РµРєСЃС‚Р° РЅР° 0
 					THROW(writeLobData(VT, (const char *)utf_buf, tl));
 					data.Size = (long)tl;
 				}
@@ -2560,7 +2560,7 @@ int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText
 			data.Prop = rI.P;
 			data.Lang = rI.L;
 			{
-				assert(tl); // Ранее мы проверили длину текста на 0
+				assert(tl); // Р Р°РЅРµРµ РјС‹ РїСЂРѕРІРµСЂРёР»Рё РґР»РёРЅСѓ С‚РµРєСЃС‚Р° РЅР° 0
 				THROW(writeLobData(VT, (const char *)utf_buf, tl));
 				data.Size = (long)tl;
 			}
@@ -2633,8 +2633,8 @@ SLTEST_R(Reference_EnumItems)
 {
 	int    ok = 1;
 	long   hdl_enum = -1;
-	SArray item_list1(sizeof(ReferenceTbl::Rec)); // Элементы, полученные методом EnumItems
-	SArray item_list2(sizeof(ReferenceTbl::Rec)); // Элементы, полученные методом NextEnum
+	SArray item_list1(sizeof(ReferenceTbl::Rec)); // Р­Р»РµРјРµРЅС‚С‹, РїРѕР»СѓС‡РµРЅРЅС‹Рµ РјРµС‚РѕРґРѕРј EnumItems
+	SArray item_list2(sizeof(ReferenceTbl::Rec)); // Р­Р»РµРјРµРЅС‚С‹, РїРѕР»СѓС‡РµРЅРЅС‹Рµ РјРµС‚РѕРґРѕРј NextEnum
 	// ReferenceTbl
 	SRng * p_rng = 0;
 	PPIDArray obj_type_list;
@@ -2646,7 +2646,7 @@ SLTEST_R(Reference_EnumItems)
 			obj_type_list.addUnique(p_tbl->data.ObjType);
 		} while(p_tbl->search(0, &k0, spNext));
 	//
-	// Перестраиваем массив типов объектов в случайном порядке
+	// РџРµСЂРµСЃС‚СЂР°РёРІР°РµРј РјР°СЃСЃРёРІ С‚РёРїРѕРІ РѕР±СЉРµРєС‚РѕРІ РІ СЃР»СѓС‡Р°Р№РЅРѕРј РїРѕСЂСЏРґРєРµ
 	//
 	{
 		PPIDArray temp_list;
@@ -2668,7 +2668,7 @@ SLTEST_R(Reference_EnumItems)
 	}
 	if(!pBenchmark || sstreqi_ascii(pBenchmark, "EnumItems")) {
 		//
-		// Перебираем все записи всех объектов методом Reference::EnumItems
+		// РџРµСЂРµР±РёСЂР°РµРј РІСЃРµ Р·Р°РїРёСЃРё РІСЃРµС… РѕР±СЉРµРєС‚РѕРІ РјРµС‚РѕРґРѕРј Reference::EnumItems
 		//
 		for(uint i = 0; i < obj_type_list.getCount(); i++) {
 			ReferenceTbl::Rec rec;
@@ -2679,7 +2679,7 @@ SLTEST_R(Reference_EnumItems)
 	}
 	if(!pBenchmark || sstreqi_ascii(pBenchmark, "NextEnum")) {
 		//
-		// Перебираем все записи всех объектов методами Reference::InitEnum, Reference::NextEnum
+		// РџРµСЂРµР±РёСЂР°РµРј РІСЃРµ Р·Р°РїРёСЃРё РІСЃРµС… РѕР±СЉРµРєС‚РѕРІ РјРµС‚РѕРґР°РјРё Reference::InitEnum, Reference::NextEnum
 		//
 		for(uint i = 0; i < obj_type_list.getCount(); i++) {
 			ReferenceTbl::Rec rec;

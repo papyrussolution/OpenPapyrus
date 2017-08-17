@@ -1875,7 +1875,7 @@ int FASTCALL SFontDescr::IsEqual(const SFontDescr & rS) const
 
 int SFontDescr::ToStr(SString & rBuf, long fmt) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	rBuf.Cat(Face);
 	if(Size > 0 || (Flags & (fItalic|fUnderline|fStrikeOut|fBold))) {
 		rBuf.CatChar('(').Cat(Size);

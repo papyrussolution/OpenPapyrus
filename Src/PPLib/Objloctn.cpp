@@ -415,7 +415,7 @@ SLAPI PPObjLocation::~PPObjLocation()
 
 SString & PPObjLocation::MakeCodeString(const LocationTbl::Rec * pRec, int options, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	SString temp_buf;
 	LocationTbl::Rec rec = *pRec;
 	PPLocationConfig cfg;
@@ -424,7 +424,7 @@ SString & PPObjLocation::MakeCodeString(const LocationTbl::Rec * pRec, int optio
 	if(oneof3(rec.Type, LOCTYP_WHZONE, LOCTYP_WHCOLUMN, LOCTYP_WHCELL)) {
 		while(rec.ParentID && Fetch(rec.ParentID, &rec) > 0 && rec.Type != LOCTYP_WAREHOUSEGROUP) {
 			if(rec.Code[0] && (rec.Type != LOCTYP_WAREHOUSE || options & mcsWhCodePrefix)) {
-				(temp_buf = 0).Cat(rec.Code);
+				temp_buf.Z().Cat(rec.Code);
 				if(cfg.WhCodingDiv == 0)
 					temp_buf.CatChar('.');
 				else if(cfg.WhCodingDiv == 1)
@@ -488,7 +488,7 @@ int SLAPI PPObjLocation::ReqAutoName(PPID id)
 
 int SLAPI PPObjLocation::GetAddress(PPID locID, uint flags, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	LocationTbl::Rec loc_rec;
 	return (!locID || Fetch(locID, &loc_rec) > 0) ? LocationCore::GetAddress(loc_rec, flags, rBuf) : 0;
 }
@@ -856,7 +856,7 @@ StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zer
 	if(zeroParentId) {
 		MEMSZERO(loc_rec);
 		loc_rec.ID = zeroParentId;
-		PPLoadText(PPTXT_ALLWAREHOUSES, temp_buf = 0);
+		PPLoadText(PPTXT_ALLWAREHOUSES, temp_buf.Z());
 		temp_buf.CopyTo(loc_rec.Name, sizeof(loc_rec.Name));
 		PPIDArray recur_trace;
 		THROW(AddListItem(p_list, &loc_rec, 0, &recur_trace));
@@ -1460,7 +1460,7 @@ int LocationExtFieldsDialog::setupList()
 	for(uint i = 0; i < FieldNames.getCount(); i++) {
 		TaggedString item = FieldNames.at(i);
 		ss.clear();
-		(temp_buf = 0).Cat(item.Id);
+		temp_buf.Z().Cat(item.Id);
 		ss.add(temp_buf, 0);
 		temp_buf = item.Txt;
 		if(temp_buf.Empty())
@@ -3471,7 +3471,7 @@ int PPALDD_Location::InitData(PPFilt & rFilt, long rsrv)
 			LocationCore::GetExField(&rec, LOCEXSTR_ZIP, temp_buf);
 			temp_buf.CopyTo(H.ZIP, sizeof(H.ZIP));
 			// @v7.6.1 {
-			LocationCore::GetExField(&rec, LOCEXSTR_SHORTADDR, temp_buf = 0);
+			LocationCore::GetExField(&rec, LOCEXSTR_SHORTADDR, temp_buf.Z());
 			temp_buf.CopyTo(H.Text, sizeof(H.Text));
 			// } @v7.6.1
 			// @v7.0.9 {
@@ -4305,7 +4305,7 @@ int SLAPI PPLocAddrStruc::GetTok(AddrTok & rTok)
 				temp_buf.CatChar(c);
 				Scan.Incr();
 				c = Scan[0];
-			} while(isdigit((uchar)c));
+			} while(isdec((uchar)c));
 			//
 			// Пытаемся засечь порядковое числительное с последующим текстом.
 			// Это - обычно улица либо поселок.
@@ -5117,40 +5117,40 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
 			}
 		}
 		if(FiasCityID)
-			Add(tFiasCityID, (temp_buf = 0).Cat(FiasCityID));
+			Add(tFiasCityID, temp_buf.Z().Cat(FiasCityID));
 		else if(do_enforce_fias) {
 
 		}
 		if(FiasStreetID)
-			Add(tFiasStreetID, (temp_buf = 0).Cat(FiasStreetID));
+			Add(tFiasStreetID, temp_buf.Z().Cat(FiasStreetID));
 		else if(do_enforce_fias) {
 			if(FiasCityID) {
 				if(P_Fr->GetRandomAddress(0, FiasCityID, &FiasStreetID, &FiasHouseID) > 0) {
-					Add(tFiasStreetID, (temp_buf = 0).Cat(FiasStreetID));
+					Add(tFiasStreetID, temp_buf.Z().Cat(FiasStreetID));
 					ok = 102;
 				}
 			}
 		}
 		if(FiasHouseID)
-			Add(tFiasHouseID, (temp_buf = 0).Cat(FiasHouseID));
+			Add(tFiasHouseID, temp_buf.Z().Cat(FiasHouseID));
 		else if(do_enforce_fias) {
 			if(FiasStreetID) {
 				int rhr = P_Fr->GetRandomHouse(0, FiasStreetID, &FiasHouseID);
 				if(rhr > 0) {
-					Add(tFiasHouseID, (temp_buf = 0).Cat(FiasHouseID));
+					Add(tFiasHouseID, temp_buf.Z().Cat(FiasHouseID));
 					ok = 103;
 				}
 				else if(rhr < 0 && FiasCityID) {
 					if(P_Fr->GetRandomAddress(0, FiasCityID, &FiasStreetID, &FiasHouseID) > 0) {
-						Add(tFiasStreetID, (temp_buf = 0).Cat(FiasStreetID));
-						Add(tFiasHouseID, (temp_buf = 0).Cat(FiasHouseID));
+						Add(tFiasStreetID, temp_buf.Z().Cat(FiasStreetID));
+						Add(tFiasHouseID, temp_buf.Z().Cat(FiasHouseID));
 						ok = 102;
 					}
 				}
 			}
 		}
 		if(FiasTerminalID)
-			Add(tFiasTerminalID, (temp_buf = 0).Cat(FiasTerminalID));
+			Add(tFiasTerminalID, temp_buf.Z().Cat(FiasTerminalID));
 	}
 	CATCHZOK
 	return ok;
@@ -5158,7 +5158,7 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
 
 int SLAPI PPLocAddrStruc::Output(SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	SString temp_buf, temp_buf2;
 	if(Get(tCountry, temp_buf)) {
 		rBuf.CatDivIfNotEmpty(',', 2).Cat(temp_buf);
@@ -5337,17 +5337,17 @@ public:
 	AddrStrucDialog() : TDialog(DLG_ADDRSTRUC), Las(0, &Fr)
 	{
 		SString text;
-		getLabelText(CTL_ADDRSTRUC_CITY, text = 0);
+		getLabelText(CTL_ADDRSTRUC_CITY, text.Z());
 		OrgLabels.Add(Las.tCityKind, text.Transf(CTRANSF_INNER_TO_OUTER));
-		getLabelText(CTL_ADDRSTRUC_LOCALAREA, text = 0);
+		getLabelText(CTL_ADDRSTRUC_LOCALAREA, text.Z());
 		OrgLabels.Add(Las.tLocalAreaKind, text.Transf(CTRANSF_INNER_TO_OUTER));
-		getLabelText(CTL_ADDRSTRUC_STREET, text = 0);
+		getLabelText(CTL_ADDRSTRUC_STREET, text.Z());
 		OrgLabels.Add(Las.tStreetKind, text.Transf(CTRANSF_INNER_TO_OUTER));
-		getLabelText(CTL_ADDRSTRUC_HOUSE, text = 0);
+		getLabelText(CTL_ADDRSTRUC_HOUSE, text.Z());
 		OrgLabels.Add(Las.tHouseKind, text.Transf(CTRANSF_INNER_TO_OUTER));
-		getLabelText(CTL_ADDRSTRUC_HOUSEADD, text = 0);
+		getLabelText(CTL_ADDRSTRUC_HOUSEADD, text.Z());
 		OrgLabels.Add(Las.tHouseAddendumKind, text.Transf(CTRANSF_INNER_TO_OUTER));
-		getLabelText(CTL_ADDRSTRUC_APART, text = 0);
+		getLabelText(CTL_ADDRSTRUC_APART, text.Z());
 		OrgLabels.Add(Las.tApartKind, text.Transf(CTRANSF_INNER_TO_OUTER));
 	}
 	int    setDTS(const SString * pStr)
@@ -5384,55 +5384,55 @@ private:
 		(text = SrcLine).Transf(CTRANSF_INNER_TO_OUTER);
 		Las.Recognize(text);
 
-		Las.Get(Las.tCountry, text = 0);
+		Las.Get(Las.tCountry, text.Z());
 		setCtrlString(CTL_ADDRSTRUC_COUNTRY, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tCity, text = 0);
+		Las.Get(Las.tCity, text.Z());
 		setCtrlString(CTL_ADDRSTRUC_CITY, text.Transf(CTRANSF_OUTER_TO_INNER));
 		text = 0;
 		if(Las.Get(Las.tCityKind, text) || OrgLabels.Get(Las.tCityKind, text))
 			setLabelText(CTL_ADDRSTRUC_CITY, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tLocalArea, text = 0);
+		Las.Get(Las.tLocalArea, text.Z());
 		setCtrlString(CTL_ADDRSTRUC_LOCALAREA, text.Transf(CTRANSF_OUTER_TO_INNER));
 		text = 0;
 		if(Las.Get(Las.tLocalAreaKind, text) || OrgLabels.Get(Las.tLocalAreaKind, text))
 			setLabelText(CTL_ADDRSTRUC_LOCALAREA, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tZip, text = 0);
+		Las.Get(Las.tZip, text.Z());
 		setCtrlString(CTL_ADDRSTRUC_ZIP, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tStreet, text = 0);
+		Las.Get(Las.tStreet, text.Z());
 		setCtrlString(CTL_ADDRSTRUC_STREET, text.Transf(CTRANSF_OUTER_TO_INNER));
 		text = 0;
 		if(Las.Get(Las.tStreetKind, text) || OrgLabels.Get(Las.tStreetKind, text))
 			setLabelText(CTL_ADDRSTRUC_STREET, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tHouse, text = 0);
+		Las.Get(Las.tHouse, text.Z());
 		setCtrlString(CTL_ADDRSTRUC_HOUSE, text.Transf(CTRANSF_OUTER_TO_INNER));
 		text = 0;
 		if(Las.Get(Las.tHouseKind, text) || OrgLabels.Get(Las.tHouseKind, text))
 			setLabelText(CTL_ADDRSTRUC_HOUSE, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tHouseAddendum, text = 0);
+		Las.Get(Las.tHouseAddendum, text.Z());
 		setCtrlString(CTL_ADDRSTRUC_HOUSEADD, text.Transf(CTRANSF_OUTER_TO_INNER));
 		text = 0;
 		if(Las.Get(Las.tHouseAddendumKind, text) || OrgLabels.Get(Las.tHouseAddendumKind, text))
 			setLabelText(CTL_ADDRSTRUC_HOUSEADD, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tApart, text = 0);
+		Las.Get(Las.tApart, text.Z());
 		setCtrlString(CTL_ADDRSTRUC_APART, text.Transf(CTRANSF_OUTER_TO_INNER));
 		text = 0;
 		if(Las.Get(Las.tApartKind, text) || OrgLabels.Get(Las.tApartKind, text))
 			setLabelText(CTL_ADDRSTRUC_APART, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tFloor, text = 0);
+		Las.Get(Las.tFloor, text.Z());
 		setCtrlString(CTL_ADDRSTRUC_FLOOR, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tPostBox, text = 0);
+		Las.Get(Las.tPostBox, text.Z());
 		setCtrlString(CTL_ADDRSTRUC_POSTBOX, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tAddendum, text = 0);
+		Las.Get(Las.tAddendum, text.Z());
 		setCtrlString(CTL_ADDRSTRUC_ADDENDUM, text.Transf(CTRANSF_OUTER_TO_INNER));
 		{
 			text = 0;
@@ -6081,7 +6081,7 @@ int SLAPI PPFiasReference::GetRandomAddress(long extValue, PPID cityID, PPID * p
 
 int SLAPI PPFiasReference::MakeAddressText(PPID terminalID, long flags, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = -1;
 	SString name, sn;
 	FiasHouseObjTbl::Rec hse_rec;

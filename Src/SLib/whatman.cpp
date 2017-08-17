@@ -488,12 +488,11 @@ int TWhatman::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	return ok;
 }
 
-int TWhatman::Clear()
+void TWhatman::Clear()
 {
 	ObjList.freeAll();
 	CurObjPos = -1;
 	SelArea.set(0, 0, 0, 0);
-	return 1;
 }
 
 TWindow * TWhatman::GetOwnerWindow() const
@@ -1729,7 +1728,7 @@ uint TWhatmanToolArray::GetCount() const
 SString & TWhatmanToolArray::MakeUniqueSymb(SString & rBuf) const
 {
 	do {
-		(rBuf = 0).CatChar('S').Cat(SLS.GetTLA().Rg.GetUniformInt(9999999));
+		rBuf.Z().CatChar('S').Cat(SLS.GetTLA().Rg.GetUniformInt(9999999));
 	} while(SearchBySymb(rBuf, 0));
 	return rBuf;
 }
@@ -1891,7 +1890,7 @@ int TWhatmanToolArray::Set(Item & rItem, uint * pPos)
 			const uint32 extsz = rItem.ExtSize;
 			if(ex_item.ExtSize != extsz || (extsz && memcmp(ex_item.ExtData, rItem.ExtData, extsz) != 0)) {
 				if(extsz) {
-					(temp_buf = 0).EncodeMime64(rItem.ExtData, extsz);
+					temp_buf.Z().EncodeMime64(rItem.ExtData, extsz);
 					Pool.add(temp_buf, (uint *)&r_entry.ExtDataP);
 				}
 				else
@@ -1932,7 +1931,7 @@ int TWhatmanToolArray::Set(Item & rItem, uint * pPos)
 		if(rItem.PicPath.NotEmpty())
 			Pool.add(rItem.PicPath, (uint *)&entry.PicPathP);
 		if(rItem.ExtSize) {
-			(temp_buf = 0).EncodeMime64(rItem.ExtData, rItem.ExtSize);
+			temp_buf.Z().EncodeMime64(rItem.ExtData, rItem.ExtSize);
 			Pool.add(temp_buf, (uint *)&entry.ExtDataP);
 		}
 		THROW(UpdateFigures(rItem));

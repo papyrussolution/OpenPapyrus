@@ -1343,7 +1343,7 @@ int SLAPI PPViewBudget::UpdateTempTable(PPIDArray & rIdList)
 
 int SLAPI PPViewBudget::GetTabTitle(long tabID, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(tabID) {
 		LDATE dt;
 		dt.v = tabID;

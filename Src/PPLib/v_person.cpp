@@ -872,7 +872,7 @@ int SLAPI PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLoc
 						FiasAddrObjTbl::Rec fa_rec;
 						if(P_Fr->FT.SearchAddrByID(las.FiasStreetID, &fa_rec) > 0) {
 							if(P_Fr->FT.UrT.Search(fa_rec.IdUuRef, uuid) > 0) {
-								uuid.ToStr(S_GUID::fmtIDL, temp_buf = 0);
+								uuid.ToStr(S_GUID::fmtIDL, temp_buf.Z());
 								STRNSCPY(pItem->FiasAddrGuid, temp_buf);
 							}
 						}
@@ -881,7 +881,7 @@ int SLAPI PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLoc
 						FiasHouseObjTbl::Rec fh_rec;
 						if(P_Fr->FT.SearchHouse(las.FiasHouseID, &fh_rec) > 0) {
 							if(P_Fr->FT.UrT.Search(fh_rec.IdUuRef, uuid) > 0) {
-								uuid.ToStr(S_GUID::fmtIDL, temp_buf = 0);
+								uuid.ToStr(S_GUID::fmtIDL, temp_buf.Z());
 								STRNSCPY(pItem->FiasHouseGuid, temp_buf);
 							}
 						}
@@ -1714,7 +1714,7 @@ int SLAPI PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 			getCtrlData(CTLSEL_PSNFLT_STATUS, &Data.Status);
 			GetExtRegData(this, CTLSEL_PSNFLT_ATTR, &Data.AttribType, &Data.RegTypeID);
 			getCtrlData(CTL_PSNFLT_EMPTY, &Data.EmptyAttrib);
-			getCtrlString(CTL_PSNFLT_NAMESTR, temp_buf = 0);
+			getCtrlString(CTL_PSNFLT_NAMESTR, temp_buf.Z());
 			Data.PutExtssData(PersonFilt::extssNameText, temp_buf);
 			SETFLAG(Data.Flags, PersonFilt::fVatFree, getCtrlUInt16(CTL_PSNFLT_VATFREE));
 			GetClusterData(CTL_PSNFLT_FLAGS, &Data.Flags);

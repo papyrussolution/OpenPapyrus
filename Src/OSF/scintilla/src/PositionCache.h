@@ -14,7 +14,7 @@ namespace Scintilla {
 
 static inline bool IsEOLChar(char ch)
 {
-	return (ch == '\r') || (ch == '\n');
+	return oneof2(ch, '\r', '\n');
 }
 
 /**
@@ -233,10 +233,7 @@ public:
 	    const char * s, uint len, XYPOSITION * positions, Document * pdoc);
 };
 
-inline bool IsSpaceOrTab(int ch)
-{
-	return ch == ' ' || ch == '\t';
-}
+// inline bool IsSpaceOrTab_Removed(int ch) { return oneof2(ch, ' ', '\t'); }
 
 #ifdef SCI_NAMESPACE
 }

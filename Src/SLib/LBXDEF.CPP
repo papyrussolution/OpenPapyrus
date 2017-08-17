@@ -113,7 +113,7 @@ const char * SLAPI ListBoxDef::getText(long item, SString & rBuf)
 		rBuf = temp_buf;
 	}
 	else
-		rBuf = 0;
+		rBuf.Z();
 	return rBuf;
 }
 
@@ -787,7 +787,7 @@ int SLAPI StdTreeListBoxDef::GetStringByID(long id, SString & rBuf)
 {
 	int    ok = -1;
 	uint   pos = 0;
-	rBuf = 0;
+	rBuf.Z();
 	if(valid()) {
 		if(P_SaList) {
 			ok = BIN(P_SaList->Get(id, rBuf));

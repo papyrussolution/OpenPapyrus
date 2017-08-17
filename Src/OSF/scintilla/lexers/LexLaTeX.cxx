@@ -29,14 +29,15 @@ using namespace Scintilla;
 using namespace std;
 
 struct latexFoldSave {
-	latexFoldSave() : structLev(0) {
-		for(int i = 0; i < 8; ++i) openBegins[i] = 0;
+	latexFoldSave() : structLev(0) 
+	{
+		MEMSZERO(openBegins);
 	}
-
-	latexFoldSave(const latexFoldSave &save) : structLev(save.structLev) {
-		for(int i = 0; i < 8; ++i) openBegins[i] = save.openBegins[i];
+	latexFoldSave(const latexFoldSave &save) : structLev(save.structLev) 
+	{
+		for(int i = 0; i < 8; ++i) 
+			openBegins[i] = save.openBegins[i];
 	}
-
 	int openBegins[8];
 	int structLev;
 };
@@ -44,67 +45,73 @@ struct latexFoldSave {
 class LexerLaTeX : public LexerBase {
 private:
 	vector<int> modes;
-	void setMode(Sci_Position line, int mode) {
-		if(line >= static_cast<Sci_Position>(modes.size())) modes.resize(line + 1, 0);
+	void setMode(Sci_Position line, int mode) 
+	{
+		if(line >= static_cast<Sci_Position>(modes.size())) 
+			modes.resize(line + 1, 0);
 		modes[line] = mode;
 	}
-
-	int getMode(Sci_Position line) {
-		if(line >= 0 && line < static_cast<Sci_Position>(modes.size())) return modes[line];
+	int getMode(Sci_Position line) 
+	{
+		if(line >= 0 && line < static_cast<Sci_Position>(modes.size())) 
+			return modes[line];
 		return 0;
 	}
-
-	void truncModes(Sci_Position numLines) {
+	void truncModes(Sci_Position numLines) 
+	{
 		if(static_cast<Sci_Position>(modes.size()) > numLines * 2 + 256)
 			modes.resize(numLines + 128);
 	}
 
 	vector<latexFoldSave> saves;
-	void setSave(Sci_Position line, const latexFoldSave &save) {
-		if(line >= static_cast<Sci_Position>(saves.size())) saves.resize(line + 1);
+	void setSave(Sci_Position line, const latexFoldSave &save) 
+	{
+		if(line >= static_cast<Sci_Position>(saves.size())) 
+			saves.resize(line + 1);
 		saves[line] = save;
 	}
-
-	void getSave(Sci_Position line, latexFoldSave &save) {
-		if(line >= 0 && line < static_cast<Sci_Position>(saves.size())) save = saves[line];
+	void getSave(Sci_Position line, latexFoldSave &save) 
+	{
+		if(line >= 0 && line < static_cast<Sci_Position>(saves.size())) 
+			save = saves[line];
 		else {
 			save.structLev = 0;
 			for(int i = 0; i < 8; ++i) save.openBegins[i] = 0;
 		}
 	}
-
-	void truncSaves(Sci_Position numLines) {
+	void truncSaves(Sci_Position numLines) 
+	{
 		if(static_cast<Sci_Position>(saves.size()) > numLines * 2 + 256)
 			saves.resize(numLines + 128);
 	}
-
 public:
-	static ILexer * LexerFactoryLaTeX() {
+	static ILexer * LexerFactoryLaTeX() 
+	{
 		return new LexerLaTeX();
 	}
-
 	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
 	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
 };
 
-static bool latexIsSpecial(int ch) {
-	return (ch == '#') || (ch == '$') || (ch == '%') || (ch == '&') || (ch == '_') ||
-	       (ch == '{') || (ch == '}') || (ch == ' ');
+static bool latexIsSpecial(int ch) 
+{
+	return oneof8(ch, '#', '$', '%', '&', '_', '{', '}', ' ');
 }
 
-static bool latexIsBlank(int ch) {
-	return (ch == ' ') || (ch == '\t');
-}
+/*static bool latexIsBlank(int ch) { return (ch == ' ') || (ch == '\t'); }*/
 
-static bool latexIsBlankAndNL(int ch) {
+static bool latexIsBlankAndNL(int ch) 
+{
 	return (ch == ' ') || (ch == '\t') || (ch == '\r') || (ch == '\n');
 }
 
-static bool latexIsLetter(int ch) {
+static bool latexIsLetter(int ch) 
+{
 	return IsASCII(ch) && isalpha(ch);
 }
 
-static bool latexIsTagValid(Sci_Position &i, Sci_Position l, Accessor &styler) {
+static bool latexIsTagValid(Sci_Position &i, Sci_Position l, Accessor &styler) 
+{
 	while(i < l) {
 		if(styler.SafeGetCharAt(i) == '{') {
 			while(i < l) {
@@ -112,13 +119,12 @@ static bool latexIsTagValid(Sci_Position &i, Sci_Position l, Accessor &styler) {
 				if(styler.SafeGetCharAt(i) == '}') {
 					return true;
 				}
-				else if(!latexIsLetter(styler.SafeGetCharAt(i)) &&
-				    styler.SafeGetCharAt(i)!='*') {
+				else if(!latexIsLetter(styler.SafeGetCharAt(i)) && styler.SafeGetCharAt(i)!='*') {
 					return false;
 				}
 			}
 		}
-		else if(!latexIsBlank(styler.SafeGetCharAt(i))) {
+		else if(!IsASpaceOrTab(styler.SafeGetCharAt(i))) {
 			return false;
 		}
 		i++;
@@ -126,7 +132,8 @@ static bool latexIsTagValid(Sci_Position &i, Sci_Position l, Accessor &styler) {
 	return false;
 }
 
-static bool latexNextNotBlankIs(Sci_Position i, Accessor &styler, char needle) {
+static bool latexNextNotBlankIs(Sci_Position i, Accessor &styler, char needle) 
+{
 	char ch;
 	while(i < styler.Length()) {
 		ch = styler.SafeGetCharAt(i);
@@ -155,28 +162,37 @@ static bool latexLastWordIs(Sci_Position start, Accessor &styler, const char * n
 	return (strcmp(s, needle) == 0);
 }
 
-static bool latexLastWordIsMathEnv(Sci_Position pos, Accessor &styler) {
+static bool latexLastWordIsMathEnv(Sci_Position pos, Accessor &styler) 
+{
 	Sci_Position i, j;
 	char s[32];
 	const char * mathEnvs[] = { "align", "alignat", "flalign", "gather", "multiline", "displaymath", "eqnarray", "equation" };
-	if(styler.SafeGetCharAt(pos) != '}') return false;
+	if(styler.SafeGetCharAt(pos) != '}') 
+		return false;
 	for(i = pos - 1; i >= 0; --i) {
-		if(styler.SafeGetCharAt(i) == '{') break;
-		if(pos - i >= 20) return false;
+		if(styler.SafeGetCharAt(i) == '{') 
+			break;
+		if(pos - i >= 20) 
+			return false;
 	}
-	if(i < 0 || i == pos - 1) return false;
+	if(i < 0 || i == pos - 1) 
+		return false;
 	++i;
 	for(j = 0; i + j < pos; ++j)
 		s[j] = styler.SafeGetCharAt(i + j);
 	s[j] = '\0';
-	if(j == 0) return false;
-	if(s[j - 1] == '*') s[--j] = '\0';
+	if(j == 0) 
+		return false;
+	if(s[j - 1] == '*') 
+		s[--j] = '\0';
 	for(i = 0; i < static_cast<int>(sizeof(mathEnvs) / sizeof(const char *)); ++i)
-		if(strcmp(s, mathEnvs[i]) == 0) return true;
+		if(strcmp(s, mathEnvs[i]) == 0) 
+			return true;
 	return false;
 }
 
-static inline void latexStateReset(int &mode, int &state) {
+static inline void latexStateReset(int &mode, int &state) 
+{
 	switch(mode) {
 		case 1:     state = SCE_L_MATH; break;
 		case 2:     state = SCE_L_MATH2; break;
@@ -186,7 +202,8 @@ static inline void latexStateReset(int &mode, int &state) {
 
 // There are cases not handled correctly, like $abcd\textrm{what is $x+y$}z+w$.
 // But I think it's already good enough.
-void SCI_METHOD LexerLaTeX::Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess) {
+void SCI_METHOD LexerLaTeX::Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess) 
+{
 	// startPos is assumed to be the first character of a line
 	Accessor styler(pAccess, &props);
 	styler.StartAt(startPos);
@@ -203,16 +220,13 @@ void SCI_METHOD LexerLaTeX::Lex(Sci_PositionU startPos, Sci_Position length, int
 	for(Sci_Position i = startPos; i < lengthDoc; i++) {
 		char ch = chNext;
 		chNext = styler.SafeGetCharAt(i + 1);
-
 		if(styler.IsLeadByte(ch)) {
 			i++;
 			chNext = styler.SafeGetCharAt(i + 1);
 			continue;
 		}
-
 		if(ch == '\r' || ch == '\n')
 			setMode(styler.GetLine(i), mode);
-
 		switch(state) {
 			case SCE_L_DEFAULT:
 			    switch(ch) {
@@ -487,7 +501,8 @@ void SCI_METHOD LexerLaTeX::Lex(Sci_PositionU startPos, Sci_Position length, int
 	styler.Flush();
 }
 
-static int latexFoldSaveToInt(const latexFoldSave &save) {
+static int latexFoldSaveToInt(const latexFoldSave &save) 
+{
 	int sum = 0;
 	for(int i = 0; i <= save.structLev; ++i)
 		sum += save.openBegins[i];
@@ -496,9 +511,9 @@ static int latexFoldSaveToInt(const latexFoldSave &save) {
 
 // Change folding state while processing a line
 // Return the level before the first relevant command
-void SCI_METHOD LexerLaTeX::Fold(Sci_PositionU startPos, Sci_Position length, int, IDocument * pAccess) {
-	const char * structWords[7] = {"part", "chapter", "section", "subsection",
-				       "subsubsection", "paragraph", "subparagraph"};
+void SCI_METHOD LexerLaTeX::Fold(Sci_PositionU startPos, Sci_Position length, int, IDocument * pAccess) 
+{
+	const char * structWords[7] = {"part", "chapter", "section", "subsection", "subsubsection", "paragraph", "subparagraph"};
 	Accessor styler(pAccess, &props);
 	Sci_PositionU endPos = startPos + length;
 	Sci_Position curLine = styler.GetLine(startPos);

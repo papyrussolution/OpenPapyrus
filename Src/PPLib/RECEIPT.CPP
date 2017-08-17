@@ -63,7 +63,7 @@ void SLAPI ReceiptCore::LotDimensions::Clear()
 
 SString & FASTCALL ReceiptCore::LotDimensions::ToString(SString & rBuf) const
 {
-    rBuf = 0;
+    rBuf.Z();
     rBuf.CatEq("x", X, MKSFMTD(0, 6, NMBF_NOTRAILZ)).Space();
     rBuf.CatEq("y", Y, MKSFMTD(0, 6, NMBF_NOTRAILZ)).Space();
     rBuf.CatEq("z", Z, MKSFMTD(0, 6, NMBF_NOTRAILZ));
@@ -95,7 +95,7 @@ int FASTCALL ReceiptCore::LotDimensions::FromString(const char * pBuf)
 SString & SLAPI ReceiptCore::MakeCodeString(const ReceiptTbl::Rec * pRec, int options, SString & rBuf)
 {
 	// "@goods - @date - @int - @article"
-	rBuf = 0;
+	rBuf.Z();
 	return PPFormatT(PPTXT_CODELOT, &rBuf, pRec->GoodsID, pRec->Dt, pRec->OprNo, pRec->SupplID);
 }
 

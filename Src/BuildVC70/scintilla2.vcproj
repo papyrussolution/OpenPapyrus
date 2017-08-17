@@ -886,12 +886,6 @@
 				RelativePath="..\Osf\scintilla\src\CaseConvert.h">
 			</File>
 			<File
-				RelativePath="..\Osf\scintilla\src\CaseFolder.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\Catalogue.h">
-			</File>
-			<File
 				RelativePath="..\Osf\scintilla\src\CellBuffer.h">
 			</File>
 			<File
@@ -946,9 +940,6 @@
 				RelativePath="..\Osf\scintilla\include\Platform.h">
 			</File>
 			<File
-				RelativePath="..\Osf\scintilla\src\Position.h">
-			</File>
-			<File
 				RelativePath="..\Osf\scintilla\src\PositionCache.h">
 			</File>
 			<File
@@ -980,9 +971,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\scintilla\src\UnicodeFromUTF8.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\UniConversion.h">
 			</File>
 			<File
 				RelativePath="..\Osf\scintilla\src\ViewStyle.h">

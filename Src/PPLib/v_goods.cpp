@@ -1655,11 +1655,11 @@ int SLAPI PPViewGoods::IsTempTblNeeded()
 		return 1;
 	else {
 		SString temp_buf;
-		Filt.GetExtssData(Filt.extssNameText, temp_buf = 0);
+		Filt.GetExtssData(Filt.extssNameText, temp_buf.Z());
 		if(temp_buf.NotEmptyS())
 			return 1;
 		else {
-			Filt.GetExtssData(Filt.extssBarcodeText, temp_buf = 0);
+			Filt.GetExtssData(Filt.extssBarcodeText, temp_buf.Z());
 			if(temp_buf.NotEmptyS())
 				return 1;
 			else {
@@ -2197,7 +2197,7 @@ int SLAPI PPViewGoods::RemoveAll()
 						ext_fld_buf = 0;
                         for(uint i = 0; i < src_fld_id_list.getCount(); i++) {
 							const int src_fld_id = src_fld_id_list.get(i);
-							pack.GetExtStrData(src_fld_id, temp_buf = 0);
+							pack.GetExtStrData(src_fld_id, temp_buf.Z());
 							if(temp_buf.NotEmptyS()) {
 								if(ext_fld_buf.NotEmpty())
 									ext_fld_buf.CRB();
@@ -2205,7 +2205,7 @@ int SLAPI PPViewGoods::RemoveAll()
 							}
                         }
                         ext_fld_buf.Trim(4000-1);
-                        pack.GetExtStrData(dest_fld_id, temp_buf = 0);
+                        pack.GetExtStrData(dest_fld_id, temp_buf.Z());
                         if(temp_buf != ext_fld_buf) {
                         	pack.PutExtStrData(dest_fld_id, ext_fld_buf);
 							if(GObj.PutPacket(&item.ID, &pack, 1))
@@ -2227,23 +2227,23 @@ int SLAPI PPViewGoods::RemoveAll()
 					if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
 						int do_update = 0;
 						if(_flags & GoodsMoveParam::fRemoveExtTextA && pack.GetExtStrData(GDSEXSTR_A, temp_buf) && temp_buf.NotEmpty()) {
-							pack.PutExtStrData(GDSEXSTR_A, temp_buf = 0);
+							pack.PutExtStrData(GDSEXSTR_A, temp_buf.Z());
 							do_update = 1;
 						}
 						if(_flags & GoodsMoveParam::fRemoveExtTextB && pack.GetExtStrData(GDSEXSTR_B, temp_buf) && temp_buf.NotEmpty()) {
-							pack.PutExtStrData(GDSEXSTR_B, temp_buf = 0);
+							pack.PutExtStrData(GDSEXSTR_B, temp_buf.Z());
 							do_update = 1;
 						}
 						if(_flags & GoodsMoveParam::fRemoveExtTextC && pack.GetExtStrData(GDSEXSTR_C, temp_buf) && temp_buf.NotEmpty()) {
-							pack.PutExtStrData(GDSEXSTR_C, temp_buf = 0);
+							pack.PutExtStrData(GDSEXSTR_C, temp_buf.Z());
 							do_update = 1;
 						}
 						if(_flags & GoodsMoveParam::fRemoveExtTextD && pack.GetExtStrData(GDSEXSTR_D, temp_buf) && temp_buf.NotEmpty()) {
-							pack.PutExtStrData(GDSEXSTR_D, temp_buf = 0);
+							pack.PutExtStrData(GDSEXSTR_D, temp_buf.Z());
 							do_update = 1;
 						}
 						if(_flags & GoodsMoveParam::fRemoveExtTextE && pack.GetExtStrData(GDSEXSTR_E, temp_buf) && temp_buf.NotEmpty()) {
-							pack.PutExtStrData(GDSEXSTR_E, temp_buf = 0);
+							pack.PutExtStrData(GDSEXSTR_E, temp_buf.Z());
 							do_update = 1;
 						}
 						if(do_update) {
@@ -3546,7 +3546,7 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 			case PPVCMD_INPUTCHAR:
 				{
 					char c = *(const char *)pHdr;
-					if(isdigit(c)) {
+					if(isdec(c)) {
 						int    r = 0;
 						Goods2Tbl::Rec goods_rec;
 						double qtty = 0.0;
@@ -4588,9 +4588,9 @@ int PPALDD_GoodsFilt::InitData(PPFilt & rFilt, long rsrv)
 			H.InitOrder = filt.InitOrder;
 			H.VatRate = filt.VatRate;
 			H.VatDate = filt.VatDate;
-			filt.GetExtssData(GoodsFilt::extssNameText, temp_buf = 0);
+			filt.GetExtssData(GoodsFilt::extssNameText, temp_buf.Z());
 			STRNSCPY(H.SrchName, temp_buf);
-			filt.GetExtssData(GoodsFilt::extssBarcodeText, temp_buf = 0);
+			filt.GetExtssData(GoodsFilt::extssBarcodeText, temp_buf.Z());
 			STRNSCPY(H.SrchBarcode, temp_buf);
 			STRNSCPY(H.BarcodeLen, filt.BarcodeLen);
 			ok = DlRtm::InitData(rFilt, rsrv);
@@ -4846,7 +4846,7 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 			int   r = PPObjGoods::DiagBarcode(strip(I_BarcodeList.Code), &diag, &std, &norm_code);
 			if(r == 0 || (r < 0 && diag == PPObjGoods::cddFreePrefixEan13)) {
 				PPObjGoods::GetBarcodeDiagText(diag, err_msg_buf);
-				(msg_buf = 0).Cat(std).Semicol().
+				msg_buf.Z().Cat(std).Semicol().
 					Cat(norm_code).Semicol().Cat(I_BarcodeList.Code).Semicol().Cat(err_msg_buf).CR();
 				CALLEXCEPT_PP_S(PPERR_UNSTRICTBARCODE, msg_buf);
 			}

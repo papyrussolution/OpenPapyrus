@@ -456,7 +456,7 @@ void SLAPI SCS_ATOLDRV::WriteLogFile(PPID id)
 		if(err_msg.StrChr('\n', &pos))
 			err_msg.Trim(pos);
 		GetProp(AdvancedMode, &adv_mode);
-		msg.Printf(msg_fmt, (const char *)oper_name, (const char *)err_msg, (const char*)mode_descr, adv_mode);
+		msg.Printf(msg_fmt, oper_name.cptr(), err_msg.cptr(), mode_descr.cptr(), adv_mode);
 		PPLogMessage(PPFILNAM_SHTRIH_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);
 	}
 }

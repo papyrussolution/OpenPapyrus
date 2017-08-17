@@ -1349,7 +1349,7 @@ int SCodepageIdent::FromStr(const char * pStr)
 
 int SCodepageIdent::ToStr(int fmt, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(oneof2(fmt, fmtCLibLocale, fmtXML)) {
 		for(uint i = 0; i < SIZEOFARRAY(__SCpL); i++) {
 			const SCpEntry & r_entry = __SCpL[i];
@@ -1389,6 +1389,11 @@ int FASTCALL ishex(char c)
 int FASTCALL isdec(char c)
 {
 	return BIN(c >= '0' && c <= '9');
+}
+
+int FASTCALL isdecw(wchar_t c)
+{
+	return BIN(c >= L'0' && c <= L'9');
 }
 
 uint FASTCALL hex(char c)

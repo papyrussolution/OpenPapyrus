@@ -85,7 +85,7 @@ int SLAPI PPGoodsPacket::AddCode(const char * code, long codeType, double uPerP)
 
 int FASTCALL PPGoodsPacket::GetGroupCode(SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(Codes.getCount()) {
 		(rBuf = Codes.at(0).Code).Strip();
 		rBuf.ShiftLeftChr('@');
@@ -228,7 +228,7 @@ int SLAPI PPGoodsPacket::PrepareAddedMsgStrings(const char * pSign, long flags, 
 				else if(c == 'E')
 					fld_id = GDSEXSTR_E;
 				if(fld_id) {
-					GetExtStrData(fld_id, temp_buf = 0);
+					GetExtStrData(fld_id, temp_buf.Z());
 					PreprocessDataStr(temp_buf.Strip());
 					if(par_open) {
 						if(temp_buf.NotEmptyS())
@@ -241,7 +241,7 @@ int SLAPI PPGoodsPacket::PrepareAddedMsgStrings(const char * pSign, long flags, 
 				}
 				else if(c == 'M') {
 					if(pManufDtm && pManufDtm->d) {
-						(temp_buf = 0).Cat(*pManufDtm, DATF_DMY, TIMF_HMS|TIMF_NOZERO);
+						temp_buf.Z().Cat(*pManufDtm, DATF_DMY, TIMF_HMS|TIMF_NOZERO);
 						if(par_open) {
 							cat_buf.Space().Cat(temp_buf);
 						}
@@ -479,7 +479,7 @@ int FASTCALL PPGdsClsPacket::Copy(const PPGdsClsPacket & s)
 int SLAPI PPGdsClsPacket::GetPropName(int prop, SString & rBuf) const
 {
 	int    ok = 0;
-	rBuf = 0;
+	rBuf.Z();
 	switch(prop) {
 		case PPGdsCls::eKind:
 			if(Rec.Flags & PPGdsCls::fUsePropKind) {
@@ -551,7 +551,7 @@ int SLAPI PPGdsClsPacket::GetPropName(int prop, SString & rBuf) const
 
 int SLAPI PPGdsClsPacket::FormatProp(const PPGdsClsProp * pProp, PPID propVal, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(propVal && pProp->ItemsListID)
 		if(GetObjectName(pProp->ItemsListID, propVal, rBuf) > 0)
 			return 1;
@@ -562,7 +562,7 @@ int SLAPI PPGdsClsPacket::FormatDim(const PPGdsClsDim * pDim, long dimVal, SStri
 {
 	int    scale = (int)pDim->Scale;
 	double v = round(((double)dimVal) / fpow10i(scale), scale);
-	(rBuf = 0).Cat(v, MKSFMTD(0, scale, NMBF_NOTRAILZ));
+	rBuf.Z().Cat(v, MKSFMTD(0, scale, NMBF_NOTRAILZ));
 	return 1;
 }
 
@@ -636,7 +636,7 @@ int SLAPI PPGdsClsPacket::GetExtProp(const GoodsExtTbl::Rec * pRec, int prop, lo
 	int    ok = -1;
 	PPID   id = 0;
 	PPID   ot = 0;
-	rBuf = 0;
+	rBuf.Z();
 	if(pRec->GoodsClsID == Rec.ID) {
 		switch(prop) {
 			case PPGdsCls::eKind : id = pRec->KindID;    ot = PropKind.ItemsListID;   break;

@@ -371,7 +371,7 @@ int SLAPI DlScope::GetQualif(DLSYMBID id, const char * pDiv, int inverse, SStrin
 		ok = 1;
 	}
 	else {
-		rBuf = 0;
+		rBuf.Z();
 		uint c = ChildList.getCount();
 		SString temp_buf;
 		if(c) do {

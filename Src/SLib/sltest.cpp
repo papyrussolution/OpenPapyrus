@@ -765,7 +765,7 @@ int STestSuite::ReportTestEntry(int title, const Entry * pEntry)
 			const Benchmark * p_bm = (Benchmark *)pEntry->BmrList.at(i);
 			ulong inc_mem_blk  = p_bm->HeapAfter.UsedBlockCount - p_bm->HeapBefore.UsedBlockCount;
 			ulong inc_mem_size = p_bm->HeapAfter.UsedSize - p_bm->HeapBefore.UsedSize;
-			(line_buf = 0).Cat("BENCHMARK").Semicol();
+			line_buf.Z().Cat("BENCHMARK").Semicol();
 			for(uint j = 0, k = 0; pEntry->BenchmarkList.get(&k, bm_buf); j++) {
 				if(j == i)
 					break;

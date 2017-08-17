@@ -456,11 +456,11 @@ void FASTCALL SlSession::SetAddedMsgString(const char * pStr)
 
 SString & SlSession::GetStopEventName(SString & rBuf) const
 {
-	// @v8.1.11 return (rBuf = 0).Cat(AppName).CatChar('_').Cat("Stop").CatChar('_').Cat((long)H_Inst);
+	// @v8.1.11 return rBuf.Z().Cat(AppName).CatChar('_').Cat("Stop").CatChar('_').Cat((long)H_Inst);
 	// @v8.1.11 {
 	SString temp_buf;
 	SessUuid.ToStr(S_GUID::fmtIDL, temp_buf);
-	return (rBuf = 0).Cat(AppName).CatChar('_').Cat("Stop").CatChar('_').Cat(temp_buf);
+	return rBuf.Z().Cat(AppName).CatChar('_').Cat("Stop").CatChar('_').Cat(temp_buf);
 	// } @v8.1.11
 }
 

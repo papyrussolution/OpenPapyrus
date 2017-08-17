@@ -169,7 +169,7 @@ int SLAPI SIniSectBuffer::GetParam(const char * pParam, SString & rBuf) const
 	if(p_ss) {
 		uint   pos = 0;
 		if(!p_ss->get(&pos, 0, 0) || !p_ss->get(&pos, rBuf))
-			rBuf = 0;
+			rBuf.Z();
 		return 1;
 	}
 	else
@@ -318,14 +318,14 @@ int SLAPI SIniFile::FlashIniBuf()
 		THROW(Create(FileName));
 		Flags &= ~fIniBufInited;
 		for(uint i = 0; P_IniBuf->EnumSections(&i, &p_sect) > 0;) {
-			(temp_buf = 0).CR().CatBrackStr(p_sect->Name).CR();
+			temp_buf.Z().CR().CatBrackStr(p_sect->Name).CR();
 			if(Flags & fWinCoding)
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 			THROW(File.WriteLine(temp_buf));
 			for(uint j = 0; p_sect->EnumParams(&j, &par, &val) > 0;) {
 				if(Flags & fWinCoding)
 					par.Transf(CTRANSF_INNER_TO_OUTER);
-				THROW(File.WriteLine((temp_buf = 0).CatEq(par, val).CR()));
+				THROW(File.WriteLine(temp_buf.Z().CatEq(par, val).CR()));
 			}
 		}
 		Flags |= fIniBufInited;
@@ -598,7 +598,7 @@ int SLAPI SIniFile::SetParam(const char * pSect, const char * pParam, const char
 			int    r = IsSection(line_buf, sect, 0);
 			if(r > 0) {
 				if(this_sect && !param_added && pVal) {
-					THROW(out_file.WriteLine((temp_buf = 0).CatEq(param, pVal).CR().CR()));
+					THROW(out_file.WriteLine(temp_buf.Z().CatEq(param, pVal).CR().CR()));
 					param_added = 1;
 				}
 				this_sect = (r == 2) ? 1 : 0;
@@ -618,7 +618,7 @@ int SLAPI SIniFile::SetParam(const char * pSect, const char * pParam, const char
 					if(*Scan != ';' && temp_buf.Divide('=', temp_key, temp_val) > 0) {
 						if(temp_key.CmpNC(param) == 0) {
 							if(pVal)
-								THROW(out_file.WriteLine((temp_buf = 0).CatEq(param, pVal).CR()));
+								THROW(out_file.WriteLine(temp_buf.Z().CatEq(param, pVal).CR()));
 							do_write_org_line = 0;
 						}
 					}
@@ -629,8 +629,8 @@ int SLAPI SIniFile::SetParam(const char * pSect, const char * pParam, const char
 		}
 		if(!param_added && pParam && pVal) {
 			if(!is_sect_founded)
-				THROW(out_file.WriteLine((temp_buf = 0).CR().CatBrackStr(sect).CR()));
-			THROW(out_file.WriteLine((temp_buf = 0).CatEq(param, pVal).CR()));
+				THROW(out_file.WriteLine(temp_buf.Z().CR().CatBrackStr(sect).CR()));
+			THROW(out_file.WriteLine(temp_buf.Z().CatEq(param, pVal).CR()));
 		}
 		Close();
 		temp_buf = out_file.GetName();

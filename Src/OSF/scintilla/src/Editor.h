@@ -66,17 +66,11 @@ public:
 		items = static_cast<workItems>(items | items_);
 	}
 };
-
 /**
  * Hold a piece of text selected for copying or dragging, along with encoding and selection format information.
  */
 class SelectionText {
-	std::string s;
 public:
-	bool rectangular;
-	bool lineCopy;
-	int codePage;
-	int characterSet;
 	SelectionText() : rectangular(false), lineCopy(false), codePage(0), characterSet(0)
 	{
 	}
@@ -120,6 +114,22 @@ public:
 	{
 		return s.empty();
 	}
+	bool IsRectangular() const
+	{
+		return rectangular;
+	}
+	bool IsLineCopy() const
+	{
+		return lineCopy;
+	}
+	int  GetCp() const
+	{
+		return codePage;
+	}
+	int  GetCharSet() const
+	{
+		return characterSet;
+	}
 private:
 	void FixSelectionForClipboard()
 	{
@@ -127,6 +137,11 @@ private:
 		// clipboard contains NUL characters, replace NUL characters by spaces.
 		std::replace(s.begin(), s.end(), '\0', ' ');
 	}
+	bool   rectangular;
+	bool   lineCopy;
+	int    codePage;
+	int    characterSet;
+	std::string s;
 };
 
 struct WrapPending {

@@ -718,7 +718,7 @@ int SLAPI PPViewStaffCal::GetTimeGridItemText(PPID id, SString & rBuf)
 	if(P_TempTbl && P_TempTbl->search(0, &id, spEq) > 0) {
 		LDATETIME duration;
 		duration.settotalsec(P_TempTbl->data.TmVal);
-		(rBuf = 0).Cat(duration.t);
+		rBuf.Z().Cat(duration.t);
 		ok = 1;
 	}
 	return ok;

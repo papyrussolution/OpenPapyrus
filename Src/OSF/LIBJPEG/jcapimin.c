@@ -79,12 +79,10 @@ GLOBAL(void) jpeg_destroy_compress(j_compress_ptr cinfo)
 {
 	jpeg_destroy((j_common_ptr)cinfo); /* use common routine */
 }
-
 /*
  * Abort processing of a JPEG compression operation,
  * but don't destroy the object itself.
  */
-
 GLOBAL(void) jpeg_abort_compress(j_compress_ptr cinfo)
 {
 	jpeg_abort((j_common_ptr)cinfo); /* use common routine */
@@ -165,7 +163,7 @@ GLOBAL(void) jpeg_finish_compress(j_compress_ptr cinfo)
 GLOBAL(void) jpeg_write_marker(j_compress_ptr cinfo, int marker, const JOCTET *dataptr, uint datalen)
 {
 	JMETHOD(void, write_marker_byte, (j_compress_ptr info, int val));
-	if(cinfo->next_scanline != 0 || (cinfo->global_state != CSTATE_SCANNING && cinfo->global_state != CSTATE_RAW_OK && cinfo->global_state != CSTATE_WRCOEFS))
+	if(cinfo->next_scanline || (cinfo->global_state != CSTATE_SCANNING && cinfo->global_state != CSTATE_RAW_OK && cinfo->global_state != CSTATE_WRCOEFS))
 		ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
 	(*cinfo->marker->write_marker_header)(cinfo, marker, datalen);
 	write_marker_byte = cinfo->marker->write_marker_byte; /* copy for speed */
@@ -174,12 +172,12 @@ GLOBAL(void) jpeg_write_marker(j_compress_ptr cinfo, int marker, const JOCTET *d
 		dataptr++;
 	}
 }
-
-/* Same, but piecemeal. */
-
+//
+// Same, but piecemeal
+//
 GLOBAL(void) jpeg_write_m_header(j_compress_ptr cinfo, int marker, uint datalen)
 {
-	if(cinfo->next_scanline != 0 || (cinfo->global_state != CSTATE_SCANNING && cinfo->global_state != CSTATE_RAW_OK && cinfo->global_state != CSTATE_WRCOEFS))
+	if(cinfo->next_scanline || (cinfo->global_state != CSTATE_SCANNING && cinfo->global_state != CSTATE_RAW_OK && cinfo->global_state != CSTATE_WRCOEFS))
 		ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
 	(*cinfo->marker->write_marker_header)(cinfo, marker, datalen);
 }
@@ -188,7 +186,6 @@ GLOBAL(void) jpeg_write_m_byte(j_compress_ptr cinfo, int val)
 {
 	(*cinfo->marker->write_marker_byte)(cinfo, val);
 }
-
 /*
  * Alternate compression function: just write an abbreviated table file.
  * Before calling this, all parameters and a data destination must be set up.

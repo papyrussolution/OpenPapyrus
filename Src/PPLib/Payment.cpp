@@ -993,10 +993,10 @@ int CfmReckoningDialog::updateList()
 				double paym;
 				PPBillExt ext;
 				P_BObj->P_Tbl->CalcPayment(bill_rec.ID, 0, 0, Data.CurID, &paym);
-				ss.add((sub = 0).Cat(bill_rec.Dt, DATF_DMY));
+				ss.add(sub.Z().Cat(bill_rec.Dt, DATF_DMY));
 				ss.add(bill_rec.Code);
-				ss.add((sub = 0).Cat(amt, SFMT_MONEY));
-				ss.add((sub = 0).Cat(amt-paym, SFMT_MONEY));
+				ss.add(sub.Z().Cat(amt, SFMT_MONEY));
+				ss.add(sub.Z().Cat(amt-paym, SFMT_MONEY));
 				// @v7.0.6 {
 				if(P_BObj->FetchExt(bill_id, &ext) > 0 && ext.AgentID) {
 					GetArticleName(ext.AgentID, sub = 0);
@@ -1007,7 +1007,7 @@ int CfmReckoningDialog::updateList()
 				// } @v7.0.6
 			}
 			else
-				ss.add((sub = 0).Cat(bill_id));
+				ss.add(sub.Z().Cat(bill_id));
 			P_List->addItem(i+1, ss.getBuf());
 		}
 		P_List->Draw_();

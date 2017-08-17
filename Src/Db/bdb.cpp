@@ -1,5 +1,6 @@
 // BDB.CPP
 // Copyright (c) A.Sobolev 2011, 2012, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <db.h>
 #pragma hdrstop
@@ -240,7 +241,7 @@ BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options)
 		if(options & oPrivate)
 			opf |= DB_PRIVATE;
 		// } @v9.6.4
-		// @todo Организовать восстановление транзакций (DB_RECOVER) при запуске приложения.
+		// @todo РћСЂРіР°РЅРёР·РѕРІР°С‚СЊ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ С‚СЂР°РЅР·Р°РєС†РёР№ (DB_RECOVER) РїСЂРё Р·Р°РїСѓСЃРєРµ РїСЂРёР»РѕР¶РµРЅРёСЏ.
 #ifdef _MT
 		opf |= DB_THREAD;
 #endif
@@ -464,7 +465,7 @@ int BDbDatabase::LockDetect()
 	return ok;
 }
 
-void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl)
+void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int flags)
 {
 	int    r = 0;
 	DB   * p_db = 0;
@@ -496,9 +497,18 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl)
 #ifdef _MT
 		opf |= DB_THREAD;
 #endif
+		// @v9.7.11 {
+		if(flags & BDbTable::ofReadOnly)
+			opf |= DB_RDONLY;
+		// } @v9.7.11 
 		r = p_db->open(p_db, T.T, (r2 > 0) ? file_name.cptr() : 0, (r2 == 2) ? tbl_name.cptr() : 0, DB_UNKNOWN, opf, 0 /*mode*/);
 	}
 	THROW(ProcessError(r, p_db, pFileName));
+	// @v9.7.11 {
+	if(pTbl) {
+		SETFLAG(pTbl->State, BDbTable::stReadOnly, (flags & BDbTable::ofReadOnly)); 
+	}
+	// } @v9.7.11
 	CATCH
 		if(r != 0) {
 			p_db->close(p_db, 0);
@@ -511,7 +521,7 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl)
 int BDbDatabase::IsFileExists(const char * pFileName)
 {
 	int    yes = 0;
-	DB * p_db = (DB *)Helper_Open(pFileName, 0);
+	DB * p_db = (DB *)Helper_Open(pFileName, 0, BDbTable::ofReadOnly); // @v9.7.11 BDbTable::ofReadOnly
 	if(p_db) {
 		Helper_Close(p_db);
 		yes = 1;
@@ -533,7 +543,7 @@ int BDbDatabase::Helper_Create(const char * pFileName, int createMode, BDbTable:
 		case BDbTable::idxtypQueue: dbtype = DB_QUEUE; break;
 		case BDbTable::idxtypDefault: dbtype = DB_BTREE; break;
 		default:
-			DBS.SetError(BE_BDB_UNKNDBTYPE, (temp_buf = 0).Cat(pCfg->IdxType));
+			DBS.SetError(BE_BDB_UNKNDBTYPE, temp_buf.Z().Cat(pCfg->IdxType));
 			CALLEXCEPT();
 	}
 	THROW(ProcessError(db_create(&p_db, E, 0), 0, pFileName));
@@ -564,7 +574,7 @@ int BDbDatabase::CreateDataFile(const char * pFileName, int createMode, BDbTable
 int BDbDatabase::Implement_Open(BDbTable * pTbl, const char * pFileName, int openMode, char * pPassword)
 {
 	int    ok = 1;
-	pTbl->H = (DB *)Helper_Open(pFileName, pTbl);
+	pTbl->H = (DB *)Helper_Open(pFileName, pTbl, 0); // @todo РЈС‡РµСЃС‚СЊ СЂРµР¶РёРј РѕС‚РєСЂС‹С‚РёСЏ
 	if(pTbl->H) {
 		CheckInTxnTable(pTbl);
 		pTbl->State |= BDbTable::stOpened;
@@ -894,7 +904,7 @@ BDbTable::Buffer & FASTCALL BDbTable::Buffer::Set(const void * pData, size_t sz)
 {
 	const size_t src_size = sz;
 	if(src_size) {
-		// Alloc вызывает Reset потому здесь его вызывать не надо (быстродействие критично)
+		// Alloc РІС‹Р·С‹РІР°РµС‚ Reset РїРѕС‚РѕРјСѓ Р·РґРµСЃСЊ РµРіРѕ РІС‹Р·С‹РІР°С‚СЊ РЅРµ РЅР°РґРѕ (Р±С‹СЃС‚СЂРѕРґРµР№СЃС‚РІРёРµ РєСЂРёС‚РёС‡РЅРѕ)
 		if(Alloc(ALIGNSIZE(src_size, 6))) {
 			if(pData)
 				memcpy(B, pData, src_size);
@@ -935,7 +945,7 @@ int FASTCALL BDbTable::Buffer::Get(SString & rBuf) const
 	int    ok = 1;
 	assert(InvariantC(0));
 	if(Size) {
-		(rBuf = 0).CatN((const char *)P_Data, Size);
+		rBuf.Z().CatN((const char *)P_Data, Size);
 	}
 	return ok;
 }
@@ -945,7 +955,7 @@ int FASTCALL BDbTable::Buffer::Get(SStringU & rBuf) const
 	int    ok = 1;
 	assert(InvariantC(0));
 	if(Size) {
-		(rBuf = 0).CatN((const wchar_t *)(const char *)P_Data, Size/2);
+		rBuf.Z().CatN((const wchar_t *)(const char *)P_Data, Size/2);
 	}
 	return ok;
 }
@@ -1022,7 +1032,7 @@ int BDbTable::SecondaryIndex::Implement_Cmp(BDbTable * pMainTbl, const BDbTable:
 //
 //
 //
-#if 0 // { Этот вариант функции работает как-то не стабильно.
+#if 0 // { Р­С‚РѕС‚ РІР°СЂРёР°РЅС‚ С„СѓРЅРєС†РёРё СЂР°Р±РѕС‚Р°РµС‚ РєР°Рє-С‚Рѕ РЅРµ СЃС‚Р°Р±РёР»СЊРЅРѕ.
 
 //static
 int BDbTable::ScndIdxCallback(DB * pSecondary, const DBT * pKey, const DBT * pData, DBT * pResult)
@@ -1105,7 +1115,7 @@ int BDbTable::CmpCallback(DB * pDb, const DBT * pDbt1, const DBT * pDbt2)
 	return c;
 }
 
-int BDbTable::InitInstance(BDbDatabase * pDb)
+int BDbTable::InitInstance(BDbDatabase * pDb, int flags)
 {
 	int    ok = 1;
 	BDbTable::VerifyStatic();
@@ -1116,7 +1126,7 @@ int BDbTable::InitInstance(BDbDatabase * pDb)
 	P_MainT = 0;
 	P_IdxHandle = 0;
 	//
-	// Инициализируем контекст сериализации // {
+	// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РєРѕРЅС‚РµРєСЃС‚ СЃРµСЂРёР°Р»РёР·Р°С†РёРё // {
 	//
 	P_SCtx = 0;
 	if(P_Db)
@@ -1130,7 +1140,7 @@ int BDbTable::InitInstance(BDbDatabase * pDb)
 		if(!P_Db->IsFileExists(Cfg.Name)) {
 			THROW(P_Db->CreateDataFile(Cfg.Name, 0, &Cfg));
 		}
-		THROW(Open(Cfg.Name));
+		THROW(Open(Cfg.Name, flags));
 	}
 	CATCHZOK
 	return ok;
@@ -1141,13 +1151,13 @@ int BDbTable::InitInstance(BDbDatabase * pDb)
 BDbTable::BDbTable(const Config & rCfg, BDbDatabase * pDb) : Cfg(rCfg)
 {
 	Sign = BDBT_SIGNATURE;
-	InitInstance(pDb);
+	InitInstance(pDb, 0); // @todo Р РµР¶РёРј РѕС‚РєСЂС‹С‚РёСЏ
 }
 
 BDbTable::BDbTable(const Config & rCfg, BDbDatabase * pDb, SecondaryIndex * pIdxHandle, BDbTable * pMainTbl) : Cfg(rCfg)
 {
 	Sign = BDBT_SIGNATURE;
-	if(InitInstance(pDb)) {
+	if(InitInstance(pDb, 0)) { // @todo Р РµР¶РёРј РѕС‚РєСЂС‹С‚РёСЏ
 		if(pIdxHandle) {
 			THROW_D_S(GetState(stOpened), BE_FILNOPEN, Cfg.Name);
 			THROW_D_S(pMainTbl, BE_BDB_IDX_ZEROMAINTBL, Cfg.Name);
@@ -1157,7 +1167,7 @@ BDbTable::BDbTable(const Config & rCfg, BDbDatabase * pDb, SecondaryIndex * pIdx
 			P_MainT = pMainTbl;
 			State |= stIndex;
 			THROW(BDbDatabase::ProcessError(P_MainT->H->associate(P_MainT->H, 0 /*TXN*/, H, BDbTable::ScndIdxCallback, 0), P_MainT->H, 0));
-			P_MainT->IdxList.insert(this); // this становится собственностью P_MainT
+			P_MainT->IdxList.insert(this); // this СЃС‚Р°РЅРѕРІРёС‚СЃСЏ СЃРѕР±СЃС‚РІРµРЅРЅРѕСЃС‚СЊСЋ P_MainT
 		}
 	}
 	CATCH
@@ -1232,7 +1242,7 @@ int BDbTable::Helper_GetConfig(BDbTable * pT, Config & rCfg)
 				case DB_QUEUE: rCfg.IdxType = BDbTable::idxtypQueue; break;
 				case DB_UNKNOWN: rCfg.IdxType = BDbTable::idxtypDefault; break;
 				default:
-					DBS.SetError(BE_BDB_UNKNDBTYPE, (temp_buf = 0).Cat(_t));
+					DBS.SetError(BE_BDB_UNKNDBTYPE, temp_buf.Z().Cat(_t));
 					CALLEXCEPT();
 			}
 		}
@@ -1283,7 +1293,7 @@ int BDbTable::GetConfig(int idx, Config & rCfg)
 	return ok;
 }
 
-int BDbTable::Open(const char * pFileName)
+int BDbTable::Open(const char * pFileName, int flags)
 {
 	int    ok = 1;
 	int    r = 0;
@@ -1596,7 +1606,7 @@ SLTEST_R(BerkeleyDB)
 				THROW(SLTEST_CHECK_NZ(tbl));
 				{
 					//
-					// Тест транзактивной вставки нескольких записей
+					// РўРµСЃС‚ С‚СЂР°РЅР·Р°РєС‚РёРІРЅРѕР№ РІСЃС‚Р°РІРєРё РЅРµСЃРєРѕР»СЊРєРёС… Р·Р°РїРёСЃРµР№
 					//
 					StrAssocArray test_list;
 					THROW(SLTEST_CHECK_NZ(bdb.StartTransaction()));
@@ -1621,7 +1631,7 @@ SLTEST_R(BerkeleyDB)
 					}
 					{
 						//
-						// Тест транзактивного удаления вставленных записей
+						// РўРµСЃС‚ С‚СЂР°РЅР·Р°РєС‚РёРІРЅРѕРіРѕ СѓРґР°Р»РµРЅРёСЏ РІСЃС‚Р°РІР»РµРЅРЅС‹С… Р·Р°РїРёСЃРµР№
 						//
 						THROW(SLTEST_CHECK_NZ(bdb.StartTransaction()));
 						for(i = 0; i < test_list.getCount(); i++) {
@@ -1643,7 +1653,7 @@ SLTEST_R(BerkeleyDB)
 				}
 				{
 					//
-					// Тест отмены транзакции во время вставки записей
+					// РўРµСЃС‚ РѕС‚РјРµРЅС‹ С‚СЂР°РЅР·Р°РєС†РёРё РІРѕ РІСЂРµРјСЏ РІСЃС‚Р°РІРєРё Р·Р°РїРёСЃРµР№
 					//
 					StrAssocArray test_list;
 					THROW(SLTEST_CHECK_NZ(bdb.StartTransaction()));
@@ -1657,7 +1667,7 @@ SLTEST_R(BerkeleyDB)
 						val_buf = ru_buf;
 						THROW(SLTEST_CHECK_NZ(tbl.InsertRec(key_buf, val_buf)));
 						//
-						// До отмены транзакции мы должны видеть вставленные записи
+						// Р”Рѕ РѕС‚РјРµРЅС‹ С‚СЂР°РЅР·Р°РєС†РёРё РјС‹ РґРѕР»Р¶РЅС‹ РІРёРґРµС‚СЊ РІСЃС‚Р°РІР»РµРЅРЅС‹Рµ Р·Р°РїРёСЃРё
 						//
 						THROW(SLTEST_CHECK_NZ(tbl.Search(key_buf, val_buf)));
 						val_buf.Get(test_buf);
@@ -1665,7 +1675,7 @@ SLTEST_R(BerkeleyDB)
 					}
 					THROW(SLTEST_CHECK_NZ(bdb.RollbackWork()));
 					//
-					// Ни одной записи из добавленных записей не должно быть в базе данных
+					// РќРё РѕРґРЅРѕР№ Р·Р°РїРёСЃРё РёР· РґРѕР±Р°РІР»РµРЅРЅС‹С… Р·Р°РїРёСЃРµР№ РЅРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С…
 					//
 					for(i = 0; i < test_list.getCount(); i++) {
 						line_buf = test_list.at(i).Txt;
@@ -1677,7 +1687,7 @@ SLTEST_R(BerkeleyDB)
 				}
 				{
 					//
-					// Наконец, мы просто вставляем все записи из файла в таблицу БД.
+					// РќР°РєРѕРЅРµС†, РјС‹ РїСЂРѕСЃС‚Рѕ РІСЃС‚Р°РІР»СЏРµРј РІСЃРµ Р·Р°РїРёСЃРё РёР· С„Р°Р№Р»Р° РІ С‚Р°Р±Р»РёС†Сѓ Р‘Р”.
 					//
 					StrAssocArray test_list;
 					count = 0;

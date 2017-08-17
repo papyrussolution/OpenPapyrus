@@ -129,7 +129,7 @@ int DbLoginBlockArray::Add(long id, const DbLoginBlock * pBlk, int replaceDup)
 	DbLoginBlock * p_blk = new DbLoginBlock;
 	THROW_S(p_blk, SLERR_NOMEM);
 	*p_blk = *pBlk;
-	p_blk->SetAttr(DbLoginBlock::attrID, (temp_buf = 0).Cat(id));
+	p_blk->SetAttr(DbLoginBlock::attrID, temp_buf.Z().Cat(id));
 	//
 	// Проверяем уникальность атрибутов ID и DbSymb. Эти атрибуты являются ключевыми
 	// при поиске, поэтому они не должны дублироваться у разных элементов массива.

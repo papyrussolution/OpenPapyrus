@@ -122,52 +122,51 @@ typedef enum {
  * calling jtransform_request_workspace.
  */
 typedef struct {
-	/* Options: set by caller */
-	JXFORM_CODE transform;  /* image transform operator */
-	boolean perfect;        /* if TRUE, fail if partial MCUs are requested */
-	boolean trim;           /* if TRUE, trim partial MCUs as needed */
-	boolean force_grayscale; /* if TRUE, convert color image to grayscale */
-	boolean crop;           /* if TRUE, crop or wipe source image */
-
-	/* Crop parameters: application need not set these unless crop is TRUE.
-	 * These can be filled in by jtransform_parse_crop_spec().
-	 */
-	JDIMENSION crop_width;  /* Width of selected region */
-	JCROP_CODE crop_width_set; /* (forced disables adjustment) */
-	JDIMENSION crop_height; /* Height of selected region */
-	JCROP_CODE crop_height_set; /* (forced disables adjustment) */
-	JDIMENSION crop_xoffset; /* X offset of selected region */
-	JCROP_CODE crop_xoffset_set; /* (negative measures from right edge) */
-	JDIMENSION crop_yoffset; /* Y offset of selected region */
-	JCROP_CODE crop_yoffset_set; /* (negative measures from bottom edge) */
-
-	/* Internal workspace: caller should not touch these */
-	int num_components;     /* # of components in workspace */
-	jvirt_barray_ptr * workspace_coef_arrays; /* workspace for transformations */
-	JDIMENSION output_width; /* cropped destination dimensions */
+	// Options: set by caller 
+	JXFORM_CODE transform;  // image transform operator 
+	boolean perfect;        // if TRUE, fail if partial MCUs are requested 
+	boolean trim;           // if TRUE, trim partial MCUs as needed 
+	boolean force_grayscale; // if TRUE, convert color image to grayscale 
+	boolean crop;           // if TRUE, crop or wipe source image 
+	//
+	// Crop parameters: application need not set these unless crop is TRUE.
+	// These can be filled in by jtransform_parse_crop_spec().
+	//
+	JDIMENSION crop_width;  // Width of selected region 
+	JCROP_CODE crop_width_set; // (forced disables adjustment) 
+	JDIMENSION crop_height; // Height of selected region 
+	JCROP_CODE crop_height_set; // (forced disables adjustment) 
+	JDIMENSION crop_xoffset; // X offset of selected region 
+	JCROP_CODE crop_xoffset_set; // (negative measures from right edge) 
+	JDIMENSION crop_yoffset; // Y offset of selected region 
+	JCROP_CODE crop_yoffset_set; // (negative measures from bottom edge) 
+	// Internal workspace: caller should not touch these 
+	int num_components;     // # of components in workspace 
+	jvirt_barray_ptr * workspace_coef_arrays; // workspace for transformations 
+	JDIMENSION output_width; // cropped destination dimensions 
 	JDIMENSION output_height;
-	JDIMENSION x_crop_offset; /* destination crop offsets measured in iMCUs */
+	JDIMENSION x_crop_offset; // destination crop offsets measured in iMCUs 
 	JDIMENSION y_crop_offset;
-	JDIMENSION drop_width;  /* drop/wipe dimensions measured in iMCUs */
+	JDIMENSION drop_width;  // drop/wipe dimensions measured in iMCUs 
 	JDIMENSION drop_height;
-	int iMCU_sample_width;  /* destination iMCU size */
+	int iMCU_sample_width;  // destination iMCU size 
 	int iMCU_sample_height;
 } jpeg_transform_info;
 
 #if TRANSFORMS_SUPPORTED
 
 /* Parse a crop specification (written in X11 geometry style) */
-EXTERN(boolean) jtransform_parse_crop_spec JPP((jpeg_transform_info *info, const char * spec));
+EXTERN(boolean) jtransform_parse_crop_spec(jpeg_transform_info *info, const char * spec);
 /* Request any required workspace */
-EXTERN(boolean) jtransform_request_workspace JPP((j_decompress_ptr srcinfo, jpeg_transform_info *info));
+EXTERN(boolean) jtransform_request_workspace(j_decompress_ptr srcinfo, jpeg_transform_info *info);
 /* Adjust output image parameters */
-EXTERN(jvirt_barray_ptr *) jtransform_adjust_parameters JPP((j_decompress_ptr srcinfo, j_compress_ptr dstinfo, jvirt_barray_ptr *src_coef_arrays, jpeg_transform_info *info));
+EXTERN(jvirt_barray_ptr *) jtransform_adjust_parameters(j_decompress_ptr srcinfo, j_compress_ptr dstinfo, jvirt_barray_ptr *src_coef_arrays, jpeg_transform_info *info);
 /* Execute the actual transformation, if any */
-EXTERN(void) jtransform_execute_transform JPP((j_decompress_ptr srcinfo, j_compress_ptr dstinfo, jvirt_barray_ptr *src_coef_arrays, jpeg_transform_info *info));
+EXTERN(void) jtransform_execute_transform(j_decompress_ptr srcinfo, j_compress_ptr dstinfo, jvirt_barray_ptr *src_coef_arrays, jpeg_transform_info *info);
 /* Determine whether lossless transformation is perfectly
  * possible for a specified image and transformation.
  */
-EXTERN(boolean) jtransform_perfect_transform JPP((JDIMENSION image_width, JDIMENSION image_height, int MCU_width, int MCU_height, JXFORM_CODE transform));
+EXTERN(boolean) jtransform_perfect_transform(JDIMENSION image_width, JDIMENSION image_height, int MCU_width, int MCU_height, JXFORM_CODE transform);
 
 /* jtransform_execute_transform used to be called
  * jtransform_execute_transformation, but some compilers complain about
@@ -188,7 +187,7 @@ typedef enum {
 
 #define JCOPYOPT_DEFAULT  JCOPYOPT_COMMENTS     /* recommended default */
 
-/* Setup decompression object to save desired markers in memory */
-EXTERN(void) jcopy_markers_setup JPP((j_decompress_ptr srcinfo, JCOPY_OPTION option));
-/* Copy markers saved in the given source object to the destination object */
-EXTERN(void) jcopy_markers_execute JPP((j_decompress_ptr srcinfo, j_compress_ptr dstinfo, JCOPY_OPTION option));
+// Setup decompression object to save desired markers in memory 
+EXTERN(void) jcopy_markers_setup(j_decompress_ptr srcinfo, JCOPY_OPTION option);
+// Copy markers saved in the given source object to the destination object 
+EXTERN(void) jcopy_markers_execute(j_decompress_ptr srcinfo, j_compress_ptr dstinfo, JCOPY_OPTION option);

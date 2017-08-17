@@ -416,7 +416,7 @@ int SLAPI PPViewPaymPlan::GetTabTitle(long tabID, SString & rBuf) const
 			rBuf = buf;
 		}
 		else
-			(rBuf = 0).Cat(dt);
+			rBuf.Z().Cat(dt);
 		ok = 1;
 	}
 	return ok;

@@ -732,7 +732,7 @@ int Generator_GnuPlot::Plot(const PlotParam * pParam)
 						LineBuf.CatDiv(',', 2);
 					LineBuf.CatQStr((i == 0) ? data_file_name : "").Space(); // data source
 					LineBuf.Cat("using").Space().Cat(Param.Legend.at(i).Id).CatChar(':').Cat("xtic(1)");
-					(temp_buf = 0).Cat(Param.Legend.at(i).Id);
+					temp_buf.Z().Cat(Param.Legend.at(i).Id);
 					LineBuf.Space().Cat("title").Space().CatQStr(temp_buf); // title
 				}
 			}

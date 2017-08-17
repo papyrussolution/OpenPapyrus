@@ -699,7 +699,7 @@ int SLAPI PPObjBHT::Edit(PPID * pID, void * extraPtr)
 	else {
 		SString temp_buf;
 		for(int i = 1; i <= 32; i++) {
-			(temp_buf = 0).Cat("BHT").Space().CatChar('#').Cat(i).CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
+			temp_buf.Z().Cat("BHT").Space().CatChar('#').Cat(i).CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
 			if(CheckDupName(*pID, pack.Rec.Name))
 				break;
 			else
@@ -2903,7 +2903,7 @@ int SLAPI PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char 
 					if(!skip) {
 						ss.clear();
 						ss.add(temp_buf);                     // barcode
-						ss.add((temp_buf = 0).Cat(goods_id)); // goodsid
+						ss.add(temp_buf.Z().Cat(goods_id)); // goodsid
 						p_tmp_tbl->clearDataBuf();
 						memcpy(p_tmp_tbl->data.Name, ss.getBuf(), ss.getDataLen());
 						p_tmp_tbl->data.ID = ++pos_id;
@@ -3343,7 +3343,7 @@ int SLAPI PPObjBHT::AcceptBillsToGBasketPalm(const char * pHName, const char * p
 				b_rec.get(fldn_suppl, suppl_id);
 				GetArticleName(suppl_id, suppl_name);
 				datefmt(&dt, DATF_DMY, str_dt);
-				(temp_buf = 0).Cat(bid).Space().Cat(str_dt).Space().Cat(suppl_name);
+				temp_buf.Z().Cat(bid).Space().Cat(str_dt).Space().Cat(suppl_name);
 				THROW((r = gb_obj.SearchByName(&gb_id, temp_buf, &gb_packet)));
 				if(r != 1) {
 					MEMSZERO(gb_packet.Head);
@@ -3598,7 +3598,7 @@ int SLAPI PPObjBHT::AcceptBillsPalm(const char * pHName, const char * pLName, PP
 										PPGoodsPacket gp;
 										THROW(gg_obj.InitPacket(&gp, gpkndAltGroup, 0, 0, 0));
 										datefmt(&dt, DATF_DMY, str_dt);
-										(temp_buf = 0).Cat(bid).Space().Cat(str_dt).Space().Cat(suppl_name);
+										temp_buf.Z().Cat(bid).Space().Cat(str_dt).Space().Cat(suppl_name);
 										STRNSCPY(gp.Rec.Name, temp_buf);
 										if(gg_obj.SearchByName(gp.Rec.Name, &temp_id, 0) <= 0) {
 											PPWaitMsg(gp.Rec.Name);
@@ -4278,7 +4278,7 @@ int SLAPI PPObjBHT::AcceptBills(const char * pHName, const char * pLName, PPLogg
 						PPID   temp_id = 0;
 						PPGoodsPacket gp;
 						THROW(gg_obj.InitPacket(&gp, gpkndAltGroup, 0, 0, 0));
-						(temp_buf = 0).Cat(bid).Space().Cat(bdate).Space().Cat(suppl_name);
+						temp_buf.Z().Cat(bid).Space().Cat(bdate).Space().Cat(suppl_name);
 						STRNSCPY(gp.Rec.Name, temp_buf);
 						if(gg_obj.SearchByName(gp.Rec.Name, &temp_id, 0) <= 0) {
 							PPWaitMsg(gp.Rec.Name);
@@ -4458,7 +4458,7 @@ int SLAPI PPObjBHT::AcceptBillsToGBasket(const char * pHName, const char * pLNam
 				br_bill.GetStr(1, bdate, sizeof(bdate));
 				br_bill.GetInt(2, &suppl_id);
 				GetArticleName(suppl_id, suppl_name);
-				(temp_buf = 0).Cat(bid).Space().Cat(bdate).Space().Cat(suppl_name);
+				temp_buf.Z().Cat(bid).Space().Cat(bdate).Space().Cat(suppl_name);
 				basket_name = temp_buf;
 				for(long basket_idx = 0; gb_obj.SearchByName(&gb_id, basket_name, &gb_packet) > 0; basket_idx++)
 					(basket_name = temp_buf).Space().CatChar('#').Cat(basket_idx + 1);
@@ -4599,7 +4599,7 @@ int SLAPI PPObjBHT::AcceptInvent(const char * pHName, const char * pLName, PPID 
 					else if(pLog) {
 						SString log_msg, fmt_buf, temp_buf;
 						if(goods_id == 0) {
-							(temp_buf = 0).CatEq("InvNo", lbid);
+							temp_buf.Z().CatEq("InvNo", lbid);
 							temp_buf.CatDiv(':', 1).CatEq("Dt", inv_dt);
 							if(barcode.Len())
 								temp_buf.CatDiv(':', 1).CatEq("Barcode", barcode);
@@ -4607,7 +4607,7 @@ int SLAPI PPObjBHT::AcceptInvent(const char * pHName, const char * pLName, PPID 
 							pLog->Log(log_msg.Printf(PPLoadTextS(PPTXT_LOG_IMPINV_GOODSNOTIDD, fmt_buf), temp_buf.cptr()));
 						}
 						else if(qtty <= 0.0) {
-							(temp_buf = 0).Cat(qtty, SFMT_QTTY);
+							temp_buf.Z().Cat(qtty, SFMT_QTTY);
 							log_msg.Printf(PPLoadTextS(PPTXT_LOG_IMPINV_INVQTTY, fmt_buf), goods_rec.Name, temp_buf.cptr());
 							pLog->Log(log_msg);
 						}

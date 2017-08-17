@@ -1716,7 +1716,7 @@ int SLAPI PPObjMrpTab::DoMaintain(LDATE toDt)
 		ps.Drv = 0;
 		ps.Dir = 0;
 		ps.Merge(file_name);
-		msg.Printf(fmt_buf, (const char *)file_name);
+		msg.Printf(fmt_buf, file_name.cptr());
 	}
 	k.Dt = toDt;
 	k.LocID = MAXLONG;

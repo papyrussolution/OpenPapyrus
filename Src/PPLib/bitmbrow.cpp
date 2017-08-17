@@ -270,7 +270,7 @@ public:
 				if(P_Item->CodePos)
 					CodeList.get(P_Item->CodePos, rBuf);
 				else
-					rBuf = 0;
+					rBuf.Z();
 				ok = 1;
 			}
 			else
@@ -1441,7 +1441,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					break;
 				case 29:
 					if(is_total) {
-						(temp_buf = 0).Cat(Total.PckgCount, MKSFMTD(0, 0, NMBF_NOZERO));
+						temp_buf.Z().Cat(Total.PckgCount, MKSFMTD(0, 0, NMBF_NOZERO));
 						pBlk->Set(temp_buf);
 					}
 					else if(p_item->UnitPerPack > 0.0) {

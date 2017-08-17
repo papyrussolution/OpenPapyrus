@@ -10,7 +10,7 @@
 #include <Scintilla.h>
 #pragma hdrstop
 #include <windows.h>
-#include "UniConversion.h"
+//#include "UniConversion.h"
 #include "HanjaDic.h"
 
 #ifdef SCI_NAMESPACE

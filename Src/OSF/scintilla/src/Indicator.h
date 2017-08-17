@@ -26,18 +26,22 @@ struct StyleAndColour {
 		return (style == other.style) && (fore == other.fore);
 	}
 };
-
-/**
- */
+//
+//
+//
 class Indicator {
 public:
-	enum DrawState { drawNormal, drawHover };
+	enum DrawState { 
+		drawNormal, 
+		drawHover 
+	};
 	StyleAndColour sacNormal;
 	StyleAndColour sacHover;
 	bool under;
-	int fillAlpha;
-	int outlineAlpha;
-	int attributes;
+	int  fillAlpha;
+	int  outlineAlpha;
+	int  attributes;
+
 	Indicator() : under(false), fillAlpha(30), outlineAlpha(50), attributes(0) 
 	{
 	}

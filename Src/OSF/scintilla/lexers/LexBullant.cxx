@@ -27,7 +27,7 @@ static int classifyWordBullant(Sci_PositionU start, Sci_PositionU end, WordList 
 	}
 	int lev = 0;
 	char chAttr = SCE_C_IDENTIFIER;
-	if(isdigit(s[0]) || (s[0] == '.')) {
+	if(isdec(s[0]) || (s[0] == '.')) {
 		chAttr = SCE_C_NUMBER;
 	}
 	else {

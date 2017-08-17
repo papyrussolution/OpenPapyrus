@@ -468,9 +468,9 @@ int DebtLimListDialog::setupList()
 		PPClientAgreement::DebtLimit debt_lim = Data.at(i);
 		GetObjectName(PPOBJ_DEBTDIM, debt_lim.DebtDimID, temp_buf);
 		ss.add(temp_buf, 0);
-		(temp_buf = 0).Cat(debt_lim.Limit, SFMT_MONEY);
+		temp_buf.Z().Cat(debt_lim.Limit, SFMT_MONEY);
 		ss.add(temp_buf, 0);
-		(temp_buf = 0).CatChar((debt_lim.Flags & PPClientAgreement::DebtLimit::fStop) ? 'X' : ' ');
+		temp_buf.Z().CatChar((debt_lim.Flags & PPClientAgreement::DebtLimit::fStop) ? 'X' : ' ');
 		ss.add(temp_buf, 0);
 		if(!addStringToList(debt_lim.DebtDimID, ss.getBuf()))
 			ok = PPErrorZ();
@@ -1501,8 +1501,8 @@ private:
 				GetPersonName(r_entry.MngrID, sub);
 			ss.add(sub);
 			*/
-			ss.add((sub = 0).Cat(r_entry.OrdPrdDays));
-			ss.add((sub = 0).Cat(r_entry.Fb.DuePrdDays));
+			ss.add(sub.Z().Cat(r_entry.OrdPrdDays));
+			ss.add(sub.Z().Cat(r_entry.Fb.DuePrdDays));
 			ss.add(r_entry.Dr.Format(0, sub = 0));
 			THROW(addStringToList(i+1, ss.getBuf()));
 		}
@@ -1838,7 +1838,7 @@ int SupplAgtDialog::EditExchangeCfg()
 			getCtrlData(sel = CTLSEL_SUPLEXCHCFG_GGRP, &Data.GoodsGrpID);
 			getCtrlData(sel = CTLSEL_SUPLEXCHCFG_STYLO, &Data.Fb.StyloPalmID); // @v9.5.5
 			{
-				getCtrlString(CTL_SUPLEXCHCFG_PRVDR, temp_buf = 0);
+				getCtrlString(CTL_SUPLEXCHCFG_PRVDR, temp_buf.Z());
 				Data.PutExtStrData(PPSupplAgreement::ExchangeParam::extssEDIPrvdrSymb, temp_buf);
 				// @v9.1.3 if(temp_buf.Empty()) // @vmiller Если указан EDI провайдер, то группу товаров указывать не обязательно
 				// @v9.1.3 THROW_PP(Data.GoodsGrpID, PPERR_INVGOODSGRP);
@@ -1862,23 +1862,23 @@ int SupplAgtDialog::EditExchangeCfg()
 			}
 			{
 				int16  port = 0;
-				getCtrlString(sel = CTL_SUPLEXCHCFG_IP, temp_buf = 0);
+				getCtrlString(sel = CTL_SUPLEXCHCFG_IP, temp_buf.Z());
 				THROW_PP(temp_buf.NotEmptyS(), PPERR_INVIP);
 				getCtrlData(CTL_SUPLEXCHCFG_PORT, &port);
 				THROW_SL(Data.ConnAddr.Set(temp_buf, port));
 			}
 			getCtrlData(CTL_SUPLEXCHCFG_LASTDT,  &Data.LastDt);
 			{
-				getCtrlString(CTL_SUPLEXCHCFG_CLICODE, temp_buf = 0);
+				getCtrlString(CTL_SUPLEXCHCFG_CLICODE, temp_buf.Z());
 				Data.PutExtStrData(PPSupplAgreement::ExchangeParam::extssClientCode, temp_buf);
 			}
 			// @v9.2.0 {
 			{
-				getCtrlString(CTL_SUPLEXCHCFG_TADDR, temp_buf = 0);
+				getCtrlString(CTL_SUPLEXCHCFG_TADDR, temp_buf.Z());
 				Data.PutExtStrData(PPSupplAgreement::ExchangeParam::extssRemoveAddr, temp_buf);
-				getCtrlString(CTL_SUPLEXCHCFG_TNAME, temp_buf = 0);
+				getCtrlString(CTL_SUPLEXCHCFG_TNAME, temp_buf.Z());
 				Data.PutExtStrData(PPSupplAgreement::ExchangeParam::extssAccsName, temp_buf);
-				getCtrlString(CTL_SUPLEXCHCFG_TPW, temp_buf = 0);
+				getCtrlString(CTL_SUPLEXCHCFG_TPW, temp_buf.Z());
 				Data.PutExtStrData(PPSupplAgreement::ExchangeParam::extssAccsPassw, temp_buf);
 			}
 			// } @v9.2.0
@@ -2083,7 +2083,7 @@ int PPALDD_Agreement::InitData(PPFilt & rFilt, long rsrv)
 					H.DefDlvrTerm  = suppl_agt.DefDlvrTerm;
 					H.PctRet       = suppl_agt.PctRet;
 					// @v8.5.0 {
-                    suppl_agt.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssEDIPrvdrSymb, temp_buf = 0);
+                    suppl_agt.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssEDIPrvdrSymb, temp_buf.Z());
                     temp_buf.CopyTo(H.EDIPrvdrSymb, sizeof(H.EDIPrvdrSymb));
                     // } @v8.5.0
 					// @v8.5.0 STRNSCPY(H.EDIPrvdrSymb, suppl_agt.ExchCfg.PrvdrSymb); // @v8.0.6

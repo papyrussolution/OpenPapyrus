@@ -254,7 +254,7 @@ int PriceChecker::InitLogFile()
 	}
 	ps.Merge(temp_buf);
 	ps.ReplaceExt(temp_buf, "log", 1);
-	//ps.ReplaceExt((temp_buf = 0).Cat(fname), "log", 1);
+	//ps.ReplaceExt(temp_buf.Z().Cat(fname), "log", 1);
 	(FileLogName = 0).Cat(temp_buf);
 	//LogFile.Open(/*temp_buf*/FileLogName, SFile::mAppend | SFile::mWrite);
 	return 1;
@@ -378,7 +378,7 @@ int PriceChecker::GetGoodsPrice(long goodsID, double * price)
 			long ret = 0;
 			for(i = 0; i < IniParam.ArrStorage.getCount(); i++) {
 				MEMSZERO(rec_loc);
-				(str = 0).Cat(IniParam.ArrStorage.at(i).Txt).CopyToOleStr(&loc_name);
+				str.Z().Cat(IniParam.ArrStorage.at(i).Txt).CopyToOleStr(&loc_name);
 				p_loc_obj->SearchByCode(loc_name, loctWarehouse, &rec_loc, &ret);
 				if(ret > 0) {
 					//LogMessage("GetGoodsPrice: LocId for ", (const char *)str, " found", "");	// @vmiller

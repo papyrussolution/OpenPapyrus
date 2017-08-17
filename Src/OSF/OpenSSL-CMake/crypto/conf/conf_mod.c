@@ -213,7 +213,6 @@ static CONF_MODULE * module_add(DSO * dso, const char * name, conf_init_func * i
  */
 static CONF_MODULE * module_find(const char * name)
 {
-	CONF_MODULE * tmod;
 	const char * p = strrchr(name, '.');
 	int nchar = p ? (p - name) : strlen(name);
 	for(int i = 0; i < sk_CONF_MODULE_num(supported_modules); i++) {

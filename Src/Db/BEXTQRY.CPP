@@ -1,7 +1,7 @@
 // BEXTQRY.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2004, 2006, 2007, 2008, 2009, 2010, 2013, 2015
-//
-// Интерфейс к расширенным операциям поиска Btrieve
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2004, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2017
+// @codepage UTF-8
+// РРЅС‚РµСЂС„РµР№СЃ Рє СЂР°СЃС€РёСЂРµРЅРЅС‹Рј РѕРїРµСЂР°С†РёСЏРј РїРѕРёСЃРєР° Btrieve
 //
 #include <db.h>
 #pragma hdrstop
@@ -9,7 +9,7 @@
 #define EG_sign 0x4745U
 #define UC_sign 0x4355U
 
-int SLAPI BExtQuery::Init(DBTable * pTbl, int idx, uint aBufSize)
+void SLAPI BExtQuery::Init(DBTable * pTbl, int idx, uint aBufSize)
 {
 	P_Tbl    = pTbl;
 	index    = idx;
@@ -26,7 +26,6 @@ int SLAPI BExtQuery::Init(DBTable * pTbl, int idx, uint aBufSize)
 	P_Stmt = 0;
 	if(P_Tbl->GetDb() && P_Tbl->GetDb()->GetCapability() & DbProvider::cSQL)
 		State |= stSqlProvider;
-	return 1;
 }
 
 SLAPI BExtQuery::BExtQuery(DBTable * pTbl, int idx, uint aBufSize) : Buf(0)
@@ -69,8 +68,8 @@ int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char 
 	int _where_tok = 0;
 	if(pInitKey && initSpMode != -1) {
 		//
-		// Oracle не "хочет" применять hint INDEX если в ограничениях не присутствует поле из
-		// этого индекса.
+		// Oracle РЅРµ "С…РѕС‡РµС‚" РїСЂРёРјРµРЅСЏС‚СЊ hint INDEX РµСЃР»Рё РІ РѕРіСЂР°РЅРёС‡РµРЅРёСЏС… РЅРµ РїСЂРёСЃСѓС‚СЃС‚РІСѓРµС‚ РїРѕР»Рµ РёР·
+		// СЌС‚РѕРіРѕ РёРЅРґРµРєСЃР°.
 		//
 		BNKey  key = P_Tbl->indexes[index];
 		int    ns = key.getNumSeg();
@@ -82,17 +81,17 @@ int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char 
 		for(int i = 0; i < ns; i++) {
 			int fldid = key.getFieldID(i);
 			const BNField fld = P_Tbl->indexes.field(index, i);
-			if(i > 0) { // НЕ первый сегмент
+			if(i > 0) { // РќР• РїРµСЂРІС‹Р№ СЃРµРіРјРµРЅС‚
 				pSg->Tok(Generator_SQL::tokAnd).Sp();
 				if(initSpMode != spEq)
 					pSg->LPar();
 			}
 			if(key.getFlags(i) & XIF_ACS) {
 				//
-				// Для ORACLE нечувствительность к регистру символов
-				// реализуется функциональным сегментом индекса nls_lower(fld).
-				// Аналогичная конструкция применяется при генерации скрипта создания индекса
-				// См. Generator_SQL::CreateIndex(const DBTable &, const char *, uint)
+				// Р”Р»СЏ ORACLE РЅРµС‡СѓРІСЃС‚РІРёС‚РµР»СЊРЅРѕСЃС‚СЊ Рє СЂРµРіРёСЃС‚СЂСѓ СЃРёРјРІРѕР»РѕРІ
+				// СЂРµР°Р»РёР·СѓРµС‚СЃСЏ С„СѓРЅРєС†РёРѕРЅР°Р»СЊРЅС‹Рј СЃРµРіРјРµРЅС‚РѕРј РёРЅРґРµРєСЃР° nls_lower(fld).
+				// РђРЅР°Р»РѕРіРёС‡РЅР°СЏ РєРѕРЅСЃС‚СЂСѓРєС†РёСЏ РїСЂРёРјРµРЅСЏРµС‚СЃСЏ РїСЂРё РіРµРЅРµСЂР°С†РёРё СЃРєСЂРёРїС‚Р° СЃРѕР·РґР°РЅРёСЏ РёРЅРґРµРєСЃР°
+				// РЎРј. Generator_SQL::CreateIndex(const DBTable &, const char *, uint)
 				//
 				pSg->Func(Generator_SQL::tokNlsLower, fld.Name);
 			}
@@ -116,11 +115,11 @@ int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char 
 
 			if(i > 0 && initSpMode != spEq) {
 				//
-				// При каскадном сравнении ключа второй и последующие сегменты
-				// должны удовлетворять условиям неравенства только при равенстве
-				// всех предыдущих сегментов.
+				// РџСЂРё РєР°СЃРєР°РґРЅРѕРј СЃСЂР°РІРЅРµРЅРёРё РєР»СЋС‡Р° РІС‚РѕСЂРѕР№ Рё РїРѕСЃР»РµРґСѓСЋС‰РёРµ СЃРµРіРјРµРЅС‚С‹
+				// РґРѕР»Р¶РЅС‹ СѓРґРѕРІР»РµС‚РІРѕСЂСЏС‚СЊ СѓСЃР»РѕРІРёСЏРј РЅРµСЂР°РІРµРЅСЃС‚РІР° С‚РѕР»СЊРєРѕ РїСЂРё СЂР°РІРµРЅСЃС‚РІРµ
+				// РІСЃРµС… РїСЂРµРґС‹РґСѓС‰РёС… СЃРµРіРјРµРЅС‚РѕРІ.
 				//
-				// Пример:
+				// РџСЂРёРјРµСЂ:
 				//
 				// index {X, Y, Z}
 				// X > :A and (Y > :B or (X <> :A)) and (Z > :C or (X <> :A and Y <> :B))
@@ -159,7 +158,7 @@ int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char 
 int SLAPI BExtQuery::initIteration(int reverse, void * pInitKey, int initSpMode)
 {
 	int    ok = 1;
-	State &= (stSqlProvider | 0); // Обнуляем все признаки кроме stSqlProvider
+	State &= (stSqlProvider | 0); // РћР±РЅСѓР»СЏРµРј РІСЃРµ РїСЂРёР·РЅР°РєРё РєСЂРѕРјРµ stSqlProvider
 	State |= (stFirst | stFillBuf);
 	for(uint i = 0; i < Fields.GetCount(); i++)
 		if(GETSTYPE(Fields.GetField(i).T) == S_NOTE)
@@ -194,7 +193,7 @@ int SLAPI BExtQuery::nextIteration()
 		if(!ok)
 			State |= stFirstFail;
 		//
-		// fetchFirst сама заполняет буфер данных таблицы. По этому здесь fillTblBuf не нужен
+		// fetchFirst СЃР°РјР° Р·Р°РїРѕР»РЅСЏРµС‚ Р±СѓС„РµСЂ РґР°РЅРЅС‹С… С‚Р°Р±Р»РёС†С‹. РџРѕ СЌС‚РѕРјСѓ Р·РґРµСЃСЊ fillTblBuf РЅРµ РЅСѓР¶РµРЅ
 		//
 	}
 	else {
@@ -223,7 +222,7 @@ long SLAPI BExtQuery::countIterations(int reverse, void * pInitKey, int initSpMo
 {
 	long   c = 0;
 	initIteration(reverse, pInitKey, initSpMode);
-	State &= ~stFillBuf; // Для ускорения не будем заполнять буфер данных
+	State &= ~stFillBuf; // Р”Р»СЏ СѓСЃРєРѕСЂРµРЅРёСЏ РЅРµ Р±СѓРґРµРј Р·Р°РїРѕР»РЅСЏС‚СЊ Р±СѓС„РµСЂ РґР°РЅРЅС‹С…
 	while(nextIteration() > 0)
 		c++;
 	State |= stFillBuf;
@@ -254,11 +253,11 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 			THROW_V(P_Stmt = new SSqlStmt(P_Tbl->GetDb(), (const SString &)sg), BE_NOMEM);
 			THROW(P_Stmt->Exec(0, OCI_DEFAULT));
 			//
-			// Распределяем буфер для хранения записи.
+			// Р Р°СЃРїСЂРµРґРµР»СЏРµРј Р±СѓС„РµСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ Р·Р°РїРёСЃРё.
 			//
-			// Для SQL-провайдера не надо распределять буфер на все записи, но лишь только
-			// на одну запись. Поскольку SSqlStmt сам содержит внутренний буфер, в котором
-			// все извлеченные записи и так успешно храняться.
+			// Р”Р»СЏ SQL-РїСЂРѕРІР°Р№РґРµСЂР° РЅРµ РЅР°РґРѕ СЂР°СЃРїСЂРµРґРµР»СЏС‚СЊ Р±СѓС„РµСЂ РЅР° РІСЃРµ Р·Р°РїРёСЃРё, РЅРѕ Р»РёС€СЊ С‚РѕР»СЊРєРѕ
+			// РЅР° РѕРґРЅСѓ Р·Р°РїРёСЃСЊ. РџРѕСЃРєРѕР»СЊРєСѓ SSqlStmt СЃР°Рј СЃРѕРґРµСЂР¶РёС‚ РІРЅСѓС‚СЂРµРЅРЅРёР№ Р±СѓС„РµСЂ, РІ РєРѕС‚РѕСЂРѕРј
+			// РІСЃРµ РёР·РІР»РµС‡РµРЅРЅС‹Рµ Р·Р°РїРёСЃРё Рё С‚Р°Рє СѓСЃРїРµС€РЅРѕ С…СЂР°РЅСЏС‚СЊСЃСЏ.
 			//
 			if(fields_count) {
 				for(uint i = 0; i < fields_count; i++)
@@ -266,9 +265,9 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 			}
 			else {
 				//
-				// Здесь нельзя использовать tbl->fields.getRecSize() поскольку
-				// эта функция возвращает размер записи без полей переменной длины
-				// и без NOTE-полей.
+				// Р—РґРµСЃСЊ РЅРµР»СЊР·СЏ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ tbl->fields.getRecSize() РїРѕСЃРєРѕР»СЊРєСѓ
+				// СЌС‚Р° С„СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ СЂР°Р·РјРµСЂ Р·Р°РїРёСЃРё Р±РµР· РїРѕР»РµР№ РїРµСЂРµРјРµРЅРЅРѕР№ РґР»РёРЅС‹
+				// Рё Р±РµР· NOTE-РїРѕР»РµР№.
 				//
 				for(uint i = 0; i < P_Tbl->fields.getCount(); i++)
 					RecSize += P_Tbl->fields[i].size();
@@ -339,7 +338,7 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 			ok = -1;
 		}
 		else {
-			State &= ~stPosSaved; // Не следует пытаться восстанавливать позицию
+			State &= ~stPosSaved; // РќРµ СЃР»РµРґСѓРµС‚ РїС‹С‚Р°С‚СЊСЃСЏ РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ РїРѕР·РёС†РёСЋ
 			ok = _search(((spMode == spFirst) ? spNext : spPrev), UC_sign);
 		}
 	}
@@ -366,8 +365,8 @@ __again:
 	else {
 		P_QHead->signature = signature;
 		//
-		// Распределяем память для данных. Размер буфера кратен максимальному числу
-		// извлекаемых за один раз записей.
+		// Р Р°СЃРїСЂРµРґРµР»СЏРµРј РїР°РјСЏС‚СЊ РґР»СЏ РґР°РЅРЅС‹С…. Р Р°Р·РјРµСЂ Р±СѓС„РµСЂР° РєСЂР°С‚РµРЅ РјР°РєСЃРёРјР°Р»СЊРЅРѕРјСѓ С‡РёСЃР»Сѓ
+		// РёР·РІР»РµРєР°РµРјС‹С… Р·Р° РѕРґРёРЅ СЂР°Р· Р·Р°РїРёСЃРµР№.
 		//
 		uint   s = sizeof(BExtResultHeader) + (sizeof(BExtResultItem) + RecSize) * MaxRecs;
 		SETMAX(s, P_QHead->bufLen);
@@ -376,7 +375,7 @@ __again:
 			((BExtTail *)(P_QBuf + TailOfs))->numRecs = MaxRecs;
 			SBaseBuffer saved_buf = P_Tbl->getBuffer();
 			//
-			// Если до этого текущая позиция записи была сохранена, то восстанавливаем ее
+			// Р•СЃР»Рё РґРѕ СЌС‚РѕРіРѕ С‚РµРєСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ Р·Р°РїРёСЃРё Р±С‹Р»Р° СЃРѕС…СЂР°РЅРµРЅР°, С‚Рѕ РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј РµРµ
 			//
 			if(State & stPosSaved && !P_Tbl->getDirect(index, 0, Position) && BtrError != BE_UBUFLEN) {
 				P_Tbl->setBuffer(saved_buf);
@@ -408,7 +407,7 @@ __again:
 					}
 				int    saved_err = BtrError;
 				//
-				// Сохраняем текущую позицию записи
+				// РЎРѕС…СЂР°РЅСЏРµРј С‚РµРєСѓС‰СѓСЋ РїРѕР·РёС†РёСЋ Р·Р°РїРёСЃРё
 				//
 				if(P_Tbl->getPosition(&Position)) {
 					State |= stPosSaved;
@@ -612,7 +611,7 @@ int SLAPI BExtQuery::fillTblBuf()
 		}
 		else {
 			memcpy(b, p, RecSize);
-			// @todo Обработать поля переменной длины
+			// @todo РћР±СЂР°Р±РѕС‚Р°С‚СЊ РїРѕР»СЏ РїРµСЂРµРјРµРЅРЅРѕР№ РґР»РёРЅС‹
 		}
 		return 1;
 	}

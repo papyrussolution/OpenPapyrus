@@ -924,7 +924,7 @@ int SLAPI PrcssrPrediction::Run()
 			period.upp = last_dt;
 		if(!period.low)
 			period.low = plusdate(period.upp, -1);
-		THROW_PP_S(period.upp >= period.low, PPERR_INVPERIOD, (msg_buf = 0).Cat(period, 0));
+		THROW_PP_S(period.upp >= period.low, PPERR_INVPERIOD, msg_buf.Z().Cat(period, 0));
 		P.SetPeriod(period);
 		if(P.Flags & Param::fTestUpdatedItems) {
 			LDATETIME since;
@@ -1060,7 +1060,7 @@ int SLAPI PrcssrPrediction::Run()
 						LTIME  rest_time;
 						rest_time.settotalsec(total - Stat.Time);
 						(rest_time_buf = 0).Cat(rest_time);
-						(msg_buf = 0).Cat(pct).CatChar('%').Space().CatParStr(rest_time_buf);
+						msg_buf.Z().Cat(pct).CatChar('%').Space().CatParStr(rest_time_buf);
 						msg_buf.Printf(process_fmt_buf, pct, rest_time_buf.cptr());
 						PPLogMessage(PPFILNAM_PSALES_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 						PPWaitMsg(msg_buf);
@@ -1112,7 +1112,7 @@ int SLAPI PrcssrPrediction::Run()
 			LTIME  rest_time;
 			rest_time.settotalsec(total - Stat.Time);
 			(rest_time_buf = 0).Cat(rest_time);
-			(msg_buf = 0).Cat(pct).CatChar('%').Space().CatParStr(rest_time_buf);
+			msg_buf.Z().Cat(pct).CatChar('%').Space().CatParStr(rest_time_buf);
 			msg_buf.Printf(process_fmt_buf, pct, rest_time_buf.cptr());
 			PPLogMessage(PPFILNAM_PSALES_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 			PPWaitMsg(msg_buf);
@@ -1125,7 +1125,7 @@ int SLAPI PrcssrPrediction::Run()
 				Stat.AvgTimeGD = fdivnz(Stat.Time, Stat.GoodsCount * Stat.DayCount);
 				Stat.AvgTimeGL = fdivnz(Stat.Time, Stat.GoodsCount * Stat.LocCount);
 				Stat.AvgTimeGDL = fdivnz(Stat.Time, Stat.GoodsCount * Stat.DayCount * Stat.LocCount);
-				(msg_buf = 0).Cat("Stat").CatDiv(':', 2).
+				msg_buf.Z().Cat("Stat").CatDiv(':', 2).
 					CatEq("Time", Stat.Time).CatDiv(';', 0).
 					CatEq("DayCount", Stat.DayCount).CatDiv(';', 0).
 					CatEq("LocCount", Stat.LocCount).CatDiv(';', 0).
@@ -1136,7 +1136,7 @@ int SLAPI PrcssrPrediction::Run()
 					CatEq("AvgTimeGL", Stat.AvgTimeGL, MKSFMTD(0, 8, NMBF_NOTRAILZ)).CatDiv(';', 0).
 					CatEq("AvgTimeGDL", Stat.AvgTimeGDL, MKSFMTD(0, 8, NMBF_NOTRAILZ));
 				PPLogMessage(PPFILNAM_PSALES_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
-				(msg_buf = 0).Cat("StoreErr").CatDiv(':', 2).
+				msg_buf.Z().Cat("StoreErr").CatDiv(':', 2).
 					CatEq("Count", Stat.Sse.Count).CatDiv(';', 0).
 					CatEq("QttySum", Stat.Sse.QttySum, MKSFMTD(0, 6, NMBF_NOTRAILZ)).CatDiv(';', 0).
 					CatEq("QttySqSum", Stat.Sse.QttySqSum, MKSFMTD(0, 6, NMBF_NOTRAILZ)).CatDiv(';', 0).

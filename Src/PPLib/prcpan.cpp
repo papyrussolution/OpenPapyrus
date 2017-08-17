@@ -588,7 +588,7 @@ void PrcPaneDialog::ProcessEnter()
 			Input.TrimRight();
 			acceptQuantity(1);
 		}
-		else if(isdigit((uchar)Input.C(0))) {
+		else if(isdec((uchar)Input.C(0))) {
 			selectGoods(2);
 		}
 		else {

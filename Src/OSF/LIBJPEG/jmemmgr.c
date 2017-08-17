@@ -33,13 +33,11 @@
 //#include "jinclude.h"
 //#include "jpeglib.h"
 #include "jmemsys.h"            /* import the system-dependent declarations */
-
 #ifndef NO_GETENV
 	#ifndef HAVE_STDLIB_H           /* <stdlib.h> should declare getenv() */
-extern char * getenv JPP((const char* name));
+		extern char * getenv(const char* name);
 	#endif
 #endif
-
 /*
  * Some important notes:
  *   The allocation routines provided here must never return NULL.
@@ -187,25 +185,16 @@ static void print_mem_stats(j_common_ptr cinfo, int pool_id)
 	my_mem_ptr mem = (my_mem_ptr)cinfo->mem;
 	small_pool_ptr shdr_ptr;
 	large_pool_ptr lhdr_ptr;
-
 	/* Since this is only a debugging stub, we can cheat a little by using
 	 * fprintf directly rather than going through the trace message code.
 	 * This is helpful because message parm array can't handle longs.
 	 */
-	fprintf(stderr, "Freeing pool %d, total space = %ld\n",
-	    pool_id, mem->total_space_allocated);
-
-	for(lhdr_ptr = mem->large_list[pool_id]; lhdr_ptr != NULL;
-	    lhdr_ptr = lhdr_ptr->hdr.next) {
-		fprintf(stderr, "  Large chunk used %ld\n",
-		    (long)lhdr_ptr->hdr.bytes_used);
+	fprintf(stderr, "Freeing pool %d, total space = %ld\n", pool_id, mem->total_space_allocated);
+	for(lhdr_ptr = mem->large_list[pool_id]; lhdr_ptr; lhdr_ptr = lhdr_ptr->hdr.next) {
+		fprintf(stderr, "  Large chunk used %ld\n", (long)lhdr_ptr->hdr.bytes_used);
 	}
-
-	for(shdr_ptr = mem->small_list[pool_id]; shdr_ptr != NULL;
-	    shdr_ptr = shdr_ptr->hdr.next) {
-		fprintf(stderr, "  Small chunk used %ld free %ld\n",
-		    (long)shdr_ptr->hdr.bytes_used,
-		    (long)shdr_ptr->hdr.bytes_left);
+	for(shdr_ptr = mem->small_list[pool_id]; shdr_ptr; shdr_ptr = shdr_ptr->hdr.next) {
+		fprintf(stderr, "  Small chunk used %ld free %ld\n", (long)shdr_ptr->hdr.bytes_used, (long)shdr_ptr->hdr.bytes_left);
 	}
 }
 
@@ -270,7 +259,7 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
 		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id);  /* safety check */
 	prev_hdr_ptr = NULL;
 	hdr_ptr = mem->small_list[pool_id];
-	while(hdr_ptr != NULL) {
+	while(hdr_ptr) {
 		if(hdr_ptr->hdr.bytes_left >= sizeofobject)
 			break;  /* found pool with enough space */
 		prev_hdr_ptr = hdr_ptr;
@@ -291,7 +280,7 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
 		/* Try to get space, if fail reduce slop and try again */
 		for(;; ) {
 			hdr_ptr = (small_pool_ptr)jpeg_get_small(cinfo, min_request + slop);
-			if(hdr_ptr != NULL)
+			if(hdr_ptr)
 				break;
 			slop /= 2;
 			if(slop < MIN_SLOP) /* give up when it gets real small */
@@ -570,7 +559,7 @@ METHODDEF(void) realize_virt_arrays(j_common_ptr cinfo)
 	 */
 	space_per_minheight = 0;
 	maximum_space = 0;
-	for(sptr = mem->virt_sarray_list; sptr != NULL; sptr = sptr->next) {
+	for(sptr = mem->virt_sarray_list; sptr; sptr = sptr->next) {
 		if(sptr->mem_buffer == NULL) { /* if not realized yet */
 			space_per_minheight += (long)sptr->maxaccess *
 			    (long)sptr->samplesperrow * SIZEOF(JSAMPLE);
@@ -578,7 +567,7 @@ METHODDEF(void) realize_virt_arrays(j_common_ptr cinfo)
 			    (long)sptr->samplesperrow * SIZEOF(JSAMPLE);
 		}
 	}
-	for(bptr = mem->virt_barray_list; bptr != NULL; bptr = bptr->next) {
+	for(bptr = mem->virt_barray_list; bptr; bptr = bptr->next) {
 		if(bptr->mem_buffer == NULL) { /* if not realized yet */
 			space_per_minheight += (long)bptr->maxaccess *
 			    (long)bptr->blocksperrow * SIZEOF(JBLOCK);
@@ -608,10 +597,8 @@ METHODDEF(void) realize_virt_arrays(j_common_ptr cinfo)
 		if(max_minheights <= 0)
 			max_minheights = 1;
 	}
-
 	/* Allocate the in-memory buffers and initialize backing store as needed. */
-
-	for(sptr = mem->virt_sarray_list; sptr != NULL; sptr = sptr->next) {
+	for(sptr = mem->virt_sarray_list; sptr; sptr = sptr->next) {
 		if(sptr->mem_buffer == NULL) { /* if not realized yet */
 			minheights = ((long)sptr->rows_in_array - 1L) / sptr->maxaccess + 1L;
 			if(minheights <= max_minheights) {
@@ -635,8 +622,7 @@ METHODDEF(void) realize_virt_arrays(j_common_ptr cinfo)
 			sptr->dirty = FALSE;
 		}
 	}
-
-	for(bptr = mem->virt_barray_list; bptr != NULL; bptr = bptr->next) {
+	for(bptr = mem->virt_barray_list; bptr; bptr = bptr->next) {
 		if(bptr->mem_buffer == NULL) { /* if not realized yet */
 			minheights = ((long)bptr->rows_in_array - 1L) / bptr->maxaccess + 1L;
 			if(minheights <= max_minheights) {
@@ -916,15 +902,14 @@ METHODDEF(void) free_pool(j_common_ptr cinfo, int pool_id)
 	if(pool_id == JPOOL_IMAGE) {
 		jvirt_sarray_ptr sptr;
 		jvirt_barray_ptr bptr;
-
-		for(sptr = mem->virt_sarray_list; sptr != NULL; sptr = sptr->next) {
+		for(sptr = mem->virt_sarray_list; sptr; sptr = sptr->next) {
 			if(sptr->b_s_open) { /* there may be no backing store */
 				sptr->b_s_open = FALSE; /* prevent recursive close if error */
 				(*sptr->b_s_info.close_backing_store)(cinfo, &sptr->b_s_info);
 			}
 		}
 		mem->virt_sarray_list = NULL;
-		for(bptr = mem->virt_barray_list; bptr != NULL; bptr = bptr->next) {
+		for(bptr = mem->virt_barray_list; bptr; bptr = bptr->next) {
 			if(bptr->b_s_open) { /* there may be no backing store */
 				bptr->b_s_open = FALSE; /* prevent recursive close if error */
 				(*bptr->b_s_info.close_backing_store)(cinfo, &bptr->b_s_info);
@@ -936,26 +921,19 @@ METHODDEF(void) free_pool(j_common_ptr cinfo, int pool_id)
 	/* Release large objects */
 	lhdr_ptr = mem->large_list[pool_id];
 	mem->large_list[pool_id] = NULL;
-
-	while(lhdr_ptr != NULL) {
+	while(lhdr_ptr) {
 		large_pool_ptr next_lhdr_ptr = lhdr_ptr->hdr.next;
-		space_freed = lhdr_ptr->hdr.bytes_used +
-		    lhdr_ptr->hdr.bytes_left +
-		    SIZEOF(large_pool_hdr);
+		space_freed = lhdr_ptr->hdr.bytes_used + lhdr_ptr->hdr.bytes_left + SIZEOF(large_pool_hdr);
 		jpeg_free_large(cinfo, (void FAR*)lhdr_ptr, space_freed);
 		mem->total_space_allocated -= space_freed;
 		lhdr_ptr = next_lhdr_ptr;
 	}
-
-	/* Release small objects */
+	// Release small objects 
 	shdr_ptr = mem->small_list[pool_id];
 	mem->small_list[pool_id] = NULL;
-
-	while(shdr_ptr != NULL) {
+	while(shdr_ptr) {
 		small_pool_ptr next_shdr_ptr = shdr_ptr->hdr.next;
-		space_freed = shdr_ptr->hdr.bytes_used +
-		    shdr_ptr->hdr.bytes_left +
-		    SIZEOF(small_pool_hdr);
+		space_freed = shdr_ptr->hdr.bytes_used + shdr_ptr->hdr.bytes_left + SIZEOF(small_pool_hdr);
 		jpeg_free_small(cinfo, (void*)shdr_ptr, space_freed);
 		mem->total_space_allocated -= space_freed;
 		shdr_ptr = next_shdr_ptr;
@@ -1063,11 +1041,10 @@ GLOBAL(void) jinit_memory_mgr(j_common_ptr cinfo)
 	 * this feature.
 	 */
 #ifndef NO_GETENV
-	{ char * memenv;
-
-	  if((memenv = getenv("JPEGMEM")) != NULL) {
+	{ 
+		char * memenv;
+		if((memenv = getenv("JPEGMEM")) != NULL) {
 		  char ch = 'x';
-
 		  if(sscanf(memenv, "%ld%c", &max_to_use, &ch) > 0) {
 			  if(ch == 'm' || ch == 'M')
 				  max_to_use *= 1000L;

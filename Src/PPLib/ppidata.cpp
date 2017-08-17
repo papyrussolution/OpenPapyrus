@@ -691,8 +691,8 @@ int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int
 		PPSetAddedMsgString(file_name);
 		THROW_PP(file_conn = FtpOpenFile(Connection, file_name, send ? GENERIC_WRITE : GENERIC_READ, FTP_TRANSFER_TYPE_BINARY, 0), PPERR_FTPSRVREPLYERR); // @unicodeproblem
 		THROW_PP((p_file = fopen(pLocalPath, send ? "rb" : "wb")) != NULL, PPERR_SLIB);
-		PPLoadText(send ? PPTXT_PUTFILETOFTP : PPTXT_GETFILEFROMFTP, temp_buf = 0);
-		msg_buf.Printf(temp_buf, (const char *)file_name);
+		PPLoadText(send ? PPTXT_PUTFILETOFTP : PPTXT_GETFILEFROMFTP, temp_buf.Z());
+		msg_buf.Printf(temp_buf, file_name.cptr());
 		if(send) {
 			while((len = (DWORD)fread(buf, 1, sizeof(buf), p_file))) {
 				DWORD sended = 0;

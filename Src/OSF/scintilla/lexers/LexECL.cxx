@@ -174,7 +174,7 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 				    }
 				    else{       //Data types are of from KEYWORD##
 					    int i = static_cast<int>(strlen(s)) - 1;
-					    while(i >= 0 && (isdigit(s[i]) || s[i] == '_'))
+					    while(i >= 0 && (isdec(s[i]) || s[i] == '_'))
 						    --i;
 
 					    char s2[1000];
@@ -381,7 +381,7 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 				// Skip whitespace between # and preprocessor word
 				do {
 					sc.Forward();
-				} while((sc.ch == ' ' || sc.ch == '\t') && sc.More());
+				} while(oneof2(sc.ch, ' ', '\t') && sc.More());
 				if(sc.atLineEnd) {
 					sc.SetState(SCE_ECL_DEFAULT);
 				}

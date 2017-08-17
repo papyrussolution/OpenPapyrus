@@ -438,16 +438,16 @@ void ExportCls::CreateFileName(long DocType, const char * pContragName, const ch
 			//	Kvart = KVARTAL_4;
 			//rFileName.CatChar('0').Cat(Kvart);
 			//// Первая цифра года
-			//(fmt = 0).Cat(BillDate.year());
+			//fmt.Z().Cat(BillDate.year());
 			//rFileName.CatChar(fmt.C(0)).CatChar('_');
 			// Дата отгрузки
 			/*LDATE date;
 			getcurdate(&date);
-			(fmt = 0).Cat(date.day());
+			fmt.Z().Cat(date.day());
 			if(fmt.Len() == 1)
 				fmt.PadLeft(1, '0');
 			rFileName.Cat(fmt);
-			(fmt = 0).Cat(date.month());
+			fmt.Z().Cat(date.month());
 			if(fmt.Len() == 1)
 				fmt.PadLeft(1, '0');
 			rFileName.Cat(fmt).Cat(date.year());*/
@@ -550,15 +550,15 @@ int ExportCls::SaveInfo(TSCollection <GoodInfoSt> * pArr, xmlTextWriter * pXmlPt
 	xmlTextWriterStartElement(pXmlPtr, (const xmlChar*)ELEMENT_NAME_FILE);
 		xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar*)ATRIBUTE_NAME_DATEDOC);
 			getcurdate(&date);
-			(fmt = 0).Cat(date.day());
+			fmt.Z().Cat(date.day());
 			if(fmt.Len() == 1)
 				fmt.PadLeft(1, '0');
-			(str = 0).Cat(fmt);
-			(fmt = 0).Cat(date.month());
+			str.Z().Cat(fmt);
+			fmt.Z().Cat(date.month());
 			if(fmt.Len() == 1)
 				fmt.PadLeft(1, '0');
 			str.Dot().Cat(fmt).Dot().Cat(date.year());
-			xmlTextWriterWriteString(pXmlPtr, (const xmlChar*)(const char *)str);
+			xmlTextWriterWriteString(pXmlPtr, str.ucptr());
 		xmlTextWriterEndAttribute(pXmlPtr); //ДатаДок
 		xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar*)ATRIBUTE_NAME_VERSFORM);
 			xmlTextWriterWriteString(pXmlPtr, (const xmlChar*)"4.20"); // Версия ДекларантАлко @v8.6.12 "4.20"-->"4.30"; @v8.7.11 "4.30"-->"4.20"
@@ -581,10 +581,10 @@ int ExportCls::SaveInfo(TSCollection <GoodInfoSt> * pArr, xmlTextWriter * pXmlPt
 				//
 				xmlTextWriterStartElement(pXmlPtr, (const xmlChar*)ELEMENT_NAME_TURN);
 					xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar*)ATRIBUTE_NAME_PN);
-						xmlTextWriterWriteString(pXmlPtr, (str = 0).Cat(index).ucptr());
+						xmlTextWriterWriteString(pXmlPtr, str.Z().Cat(index).ucptr());
 					xmlTextWriterEndAttribute(pXmlPtr); //ПN
 					xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar*)ATRIBUTE_NAME_P000000000003);
-						xmlTextWriterWriteString(pXmlPtr, (str = 0).Cat(good_kind_code).ucptr());
+						xmlTextWriterWriteString(pXmlPtr, str.Z().Cat(good_kind_code).ucptr());
 					xmlTextWriterEndAttribute(pXmlPtr); //П0000000003
 				for(uint j = 0; j < pArr->getCount();) {
 					one_grp.freeAll();
@@ -638,15 +638,15 @@ int ExportCls::SaveInfo(TSCollection <GoodInfoSt> * pArr, xmlTextWriter * pXmlPt
 									const  GoodInfoSt * p_item_k = one_grp.at(k);
 									xmlTextWriterStartElement(pXmlPtr, (const xmlChar*)ELEMENT_NAME_PRODUCT);
 										xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar*)ATRIBUTE_NAME_P200000000013);
-											(fmt = 0).Cat(p_item_k->ReceiptDate.day());
+											fmt.Z().Cat(p_item_k->ReceiptDate.day());
 											if(fmt.Len() == 1)
 												fmt.PadLeft(1, '0');
-											(str = 0).Cat(fmt);
-											(fmt = 0).Cat(p_item_k->ReceiptDate.month());
+											str.Z().Cat(fmt);
+											fmt.Z().Cat(p_item_k->ReceiptDate.month());
 											if(fmt.Len() == 1)
 												fmt.PadLeft(1, '0');
 											str.Dot().Cat(fmt).Dot().Cat(p_item_k->ReceiptDate.year());
-											xmlTextWriterWriteString(pXmlPtr, (const xmlChar*)(const char *)str);
+											xmlTextWriterWriteString(pXmlPtr, str.ucptr());
 										xmlTextWriterEndAttribute(pXmlPtr); //П20000000013
 										xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar*)ATRIBUTE_NAME_P200000000014);
 											xmlTextWriterWriteString(pXmlPtr, (const xmlChar*)(const char *)p_item_k->TTN);
@@ -656,9 +656,9 @@ int ExportCls::SaveInfo(TSCollection <GoodInfoSt> * pArr, xmlTextWriter * pXmlPt
 											xmlTextWriterWriteString(pXmlPtr, (const xmlChar*)(const char *)/*p_item_k->GTD*/str);
 										xmlTextWriterEndAttribute(pXmlPtr); //П20000000015
 										xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar*)ATRIBUTE_NAME_P200000000016);
-											(str = 0).Cat(p_item_k->Quantity / 10); // В декалитрах
+											str.Z().Cat(p_item_k->Quantity / 10); // В декалитрах
 											total_qtt += p_item_k->Quantity / 10;
-											xmlTextWriterWriteString(pXmlPtr, (const xmlChar*)(const char *)str);
+											xmlTextWriterWriteString(pXmlPtr, str.ucptr());
 										xmlTextWriterEndAttribute(pXmlPtr); //П20000000016
 									xmlTextWriterEndElement(pXmlPtr); //Продукция
 								}
@@ -687,7 +687,7 @@ int ExportCls::SaveContragInfo(TSCollection <ContragInfoSt> * pArr)
 		const ContragInfoSt * p_item = pArr->at(i);
 		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar*)ELEMENT_NAME_CONTRAGS);
 			xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar*)ATRIBUTE_NAME_IDCONTR);
-				xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)(str = 0).Cat(i + 1));
+				xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)str.Z().Cat(i + 1));
 			xmlTextWriterEndAttribute(P_WXmlContrag); //ИдКонтр
 			xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar*)ATRIBUTE_NAME_P000000000007);
 				xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)p_item->ContragName);
@@ -700,30 +700,30 @@ int ExportCls::SaveContragInfo(TSCollection <ContragInfoSt> * pArr)
 								xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)p_item->LicOrgName);
 							xmlTextWriterEndAttribute(P_WXmlContrag); //П000000000014
 							xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar*)ATRIBUTE_NAME_P000000000013);
-								(fmt = 0).Cat(p_item->Expiry.day());
+								fmt.Z().Cat(p_item->Expiry.day());
 								if(fmt.Len() == 1)
 									fmt.PadLeft(1, '0');
-								(str = 0).Cat(fmt);
-								(fmt = 0).Cat(p_item->Expiry.month());
+								str.Z().Cat(fmt);
+								fmt.Z().Cat(p_item->Expiry.month());
 								if(fmt.Len() == 1)
 									fmt.PadLeft(1, '0');
 								str.Dot().Cat(fmt).Dot().Cat(p_item->Expiry.year());
-								xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)str);
+								xmlTextWriterWriteString(P_WXmlContrag, str.ucptr());
 							xmlTextWriterEndAttribute(P_WXmlContrag); //П000000000013
 							xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar*)ATRIBUTE_NAME_P000000000012);
-								(fmt = 0).Cat(p_item->Date.day());
+								fmt.Z().Cat(p_item->Date.day());
 								if(fmt.Len() == 1)
 									fmt.PadLeft(1, '0');
-								(str = 0).Cat(fmt);
-								(fmt = 0).Cat(p_item->Date.month());
+								str.Z().Cat(fmt);
+								fmt.Z().Cat(p_item->Date.month());
 								if(fmt.Len() == 1)
 									fmt.PadLeft(1, '0');
 								str.Dot().Cat(fmt).Dot().Cat(p_item->Date.year());
-								xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)str);
+								xmlTextWriterWriteString(P_WXmlContrag, str.ucptr());
 							xmlTextWriterEndAttribute(P_WXmlContrag); //П000000000012
 							xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar*)ATRIBUTE_NAME_P000000000011);
 								(str = p_item->LicSerial).Comma().Cat(p_item->LicNum);
-								xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)str);
+								xmlTextWriterWriteString(P_WXmlContrag, str.ucptr());
 							xmlTextWriterEndAttribute(P_WXmlContrag); //П000000000011
 							xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar*)ATRIBUTE_NAME_IDLICENSE);
 								xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)"1"); // 1 - Производство, хранение и поставки произведенного этилового
@@ -734,13 +734,13 @@ int ExportCls::SaveContragInfo(TSCollection <ContragInfoSt> * pArr)
 				}
 				xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar*)ELEMENT_NAME_P000000000008);
 					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar*)ELEMENT_NAME_COUNTRYCODE);
-						xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)(str = 0).Cat(p_item->CountryCode));
+						xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)str.Z().Cat(p_item->CountryCode));
 					xmlTextWriterEndElement(P_WXmlContrag); //КодСтраны
 					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar*)ELEMENT_NAME_INDEX);
-						xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)(str = 0).Cat(p_item->Index));
+						xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)str.Z().Cat(p_item->Index));
 					xmlTextWriterEndElement(P_WXmlContrag); //Индекс
 					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar*)ELEMENT_NAME_REGIONCODE);
-						xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)(str = 0).Cat(p_item->RegionCode));
+						xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)str.Z().Cat(p_item->RegionCode));
 					xmlTextWriterEndElement(P_WXmlContrag); //КодРегион
 					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar*)ELEMENT_NAME_DISTRICT);
 						xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)p_item->District);
@@ -755,7 +755,7 @@ int ExportCls::SaveContragInfo(TSCollection <ContragInfoSt> * pArr)
 						xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)p_item->Street);
 					xmlTextWriterEndElement(P_WXmlContrag); //Улица
 					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar*)ELEMENT_NAME_HOUSE);
-						xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)(str = 0).Cat(p_item->House));
+						xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)str.Z().Cat(p_item->House));
 					xmlTextWriterEndElement(P_WXmlContrag); //Дом
 					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar*)ELEMENT_NAME_HOUSING);
 						xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar*)(const char *)p_item->Housing);

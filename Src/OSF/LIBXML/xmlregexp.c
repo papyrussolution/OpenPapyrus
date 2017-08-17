@@ -7501,7 +7501,7 @@ static xmlExpNodePtr xmlExpParseExpr(xmlExpCtxtPtr ctxt);
 #undef NEXT
 #define NEXT ctxt->cur++;
 #undef IS_BLANK
-#define IS_BLANK(c) ((c == ' ') || (c == '\n') || (c == '\r') || (c == '\t'))
+#define IS_BLANK(c) oneof4(c, ' ', '\t', '\n', '\r')
 #define SKIP_BLANKS while(IS_BLANK(*ctxt->cur)) ctxt->cur++;
 
 static int xmlExpParseNumber(xmlExpCtxtPtr ctxt)

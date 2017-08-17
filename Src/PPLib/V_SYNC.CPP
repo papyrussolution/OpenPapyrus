@@ -960,11 +960,11 @@ int SLAPI ViewObjSyncTab(PPObjID oid)
 				// @lbt_objsynctab        "20,L,Раздел;8,R,Общий ИД;8,R,Собственный ИД;12,L,Дата модификации"
 				const _ObjSyncEntry & r_entry = Data.at(i);
 				ss.clear(1);
-				GetObjectName(PPOBJ_DBDIV, r_entry.DBDivID, temp_buf = 0);
+				GetObjectName(PPOBJ_DBDIV, r_entry.DBDivID, temp_buf.Z());
 				ss.add(temp_buf);
 				ss.add(r_entry.CommID.ToStr(0, temp_buf = 0));
-				ss.add((temp_buf = 0).Cat(r_entry.PrivID));
-				ss.add((temp_buf = 0).Cat(r_entry.ModDtm));
+				ss.add(temp_buf.Z().Cat(r_entry.PrivID));
+				ss.add(temp_buf.Z().Cat(r_entry.ModDtm));
 				addStringToList(i+1, ss.getBuf());
 			}
 			return ok;

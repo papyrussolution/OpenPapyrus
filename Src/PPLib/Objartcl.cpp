@@ -82,7 +82,7 @@ PPID FASTCALL ObjectToPerson(PPID objID, PPID * pAccSheetID)
 int FASTCALL GetArticleName(PPID arID, SString & rBuf)
 {
 	int    ok = -1;
-	rBuf = 0;
+	rBuf.Z();
 	if(arID) {
 		PPObjArticle ar_obj;
 		ArticleTbl::Rec rec;
@@ -107,7 +107,7 @@ int SLAPI GetArticleText(PPID arID, PPArticleType artyp, SString & rBuf)
 		ok = 1;
 	}
 	else
-		rBuf = 0;
+		rBuf.Z();
 	return ok;
 }
 
@@ -1891,7 +1891,7 @@ int SLAPI PPObjArticle::GetRelPersonSingle(PPID arID, PPID relTypeID, int revers
 
 SString & SLAPI PPObjArticle::MakeCodeString(const ArticleTbl::Rec * pRec, long options, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	rBuf.Cat(pRec->Name);
 	if(options & 0x0001) {
 		PPObjAccSheet acs_obj;

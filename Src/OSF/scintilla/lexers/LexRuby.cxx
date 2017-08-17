@@ -48,7 +48,7 @@ static bool FASTCALL isSafeAlnumOrHigh(char ch)
 
 static bool FASTCALL isSafeDigit(char ch)
 {
-	return isSafeASCII(ch) && isdigit(ch);
+	return isSafeASCII(ch) && isdec(ch);
 }
 
 static bool FASTCALL isSafeWordcharOrHigh(char ch)
@@ -59,10 +59,10 @@ static bool FASTCALL isSafeWordcharOrHigh(char ch)
 	return isHighBitChar(ch) || isalnum(ch) || ch == '_';
 }
 
-static bool inline iswhitespace(char ch)
+/*static bool inline iswhitespace(char ch)
 {
 	return ch == ' ' || ch == '\t';
-}
+}*/
 
 #define MAX_KEYWORD_LENGTH 200
 
@@ -358,7 +358,7 @@ static bool RE_CanFollowKeyword(const char * keyword)
 static int skipWhitespace(Sci_Position startPos, Sci_Position endPos, Accessor &styler)
 {
 	for(Sci_Position i = startPos; i < endPos; i++) {
-		if(!iswhitespace(styler[i])) {
+		if(!IsASpaceOrTab(styler[i])) {
 			return i;
 		}
 	}
@@ -1111,7 +1111,7 @@ public:
 					advance_char(i, ch, chNext, chNext2); // pass by ref
 					have_string = true;
 				}
-				else if(!isSafeWordcharOrHigh(chNext) && !iswhitespace(chNext) && !isEOLChar(chNext)) {
+				else if(!isSafeWordcharOrHigh(chNext) && !IsASpaceOrTab(chNext) && !isEOLChar(chNext)) {
 					// Ruby doesn't allow high bit chars here,
 					// but the editor host might
 					Quote.New();
@@ -1128,7 +1128,7 @@ public:
 			}
 			else if(ch == '?') {
 				styler.ColourTo(i - 1, state);
-				if(iswhitespace(chNext) || chNext == '\n' || chNext == '\r') {
+				if(IsASpaceOrTab(chNext) || chNext == '\n' || chNext == '\r') {
 					styler.ColourTo(i, SCE_RB_OPERATOR);
 				}
 				else {
@@ -1672,12 +1672,11 @@ static bool keywordIsModifier(const char * word,
 			break;
 		}
 	}
-
 	styler.Flush();
 	while(--pos >= lineStartPosn) {
 		style = actual_style(styler.StyleAt(pos));
 		if(style == SCE_RB_DEFAULT) {
-			if(iswhitespace(ch = styler[pos])) {
+			if(IsASpaceOrTab(ch = styler[pos])) {
 				//continue
 			}
 			else if(ch == '\r' || ch == '\n') {

@@ -60,7 +60,7 @@ bool FASTCALL IsASpace(int ch)
 }
 bool FASTCALL IsASpaceOrTab(int ch)
 {
-	return (ch == ' ') || (ch == '\t');
+	return oneof2(ch, ' ', '\t');
 }
 bool FASTCALL IsADigit(int ch)
 {

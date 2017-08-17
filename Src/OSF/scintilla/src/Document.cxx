@@ -29,7 +29,7 @@
 //#include "Scintilla.h"
 //#include "Position.h"
 //#include "CharacterSet.h"
-#include "CharacterCategory.h"
+//#include "CharacterCategory.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -37,10 +37,10 @@
 #include "PerLine.h"
 #include "CharClassify.h"
 #include "Decoration.h"
-#include "CaseFolder.h"
+//#include "CaseFolder.h"
 #include "Document.h"
 #include "RESearch.h"
-#include "UniConversion.h"
+//#include "UniConversion.h"
 #include "UnicodeFromUTF8.h"
 
 #ifdef SCI_NAMESPACE
@@ -133,12 +133,9 @@ Document::~Document()
 		delete perLineData[j];
 		perLineData[j] = 0;
 	}
-	delete regex;
-	regex = 0;
-	delete pli;
-	pli = 0;
-	delete pcf;
-	pcf = 0;
+	ZDELETE(regex);
+	ZDELETE(pli);
+	ZDELETE(pcf);
 }
 
 void Document::Init()
@@ -432,7 +429,7 @@ int Document::VCHomePosition(int position) const
 	int startPosition = LineStart(line);
 	int endLine = LineEnd(line);
 	int startText = startPosition;
-	while(startText < endLine && (cb.CharAt(startText) == ' ' || cb.CharAt(startText) == '\t'))
+	while(startText < endLine && IsASpaceOrTab(cb.CharAt(startText)))
 		startText++;
 	return (position == startText) ? startPosition : startText;
 }
@@ -512,13 +509,11 @@ void Document::GetHighlightDelimiters(HighlightDelimiter &highlightDelimiter, in
 		lookLineLevel = GetLevel(--lookLine);
 		lookLineLevelNum = LevelNumber(lookLineLevel);
 	}
-
 	int beginFoldBlock = (lookLineLevel & SC_FOLDLEVELHEADERFLAG) ? lookLine : GetFoldParent(lookLine);
 	if(beginFoldBlock == -1) {
 		highlightDelimiter.Clear();
 		return;
 	}
-
 	int endFoldBlock = GetLastChild(beginFoldBlock, -1, lookLastLine);
 	int firstChangeableLineBefore = -1;
 	if(endFoldBlock < line) {
@@ -533,8 +528,7 @@ void Document::GetHighlightDelimiters(HighlightDelimiter &highlightDelimiter, in
 					firstChangeableLineBefore = line - 1;
 				}
 			}
-			if((lookLine > 0) && (lookLineLevelNum == SC_FOLDLEVELBASE) &&
-			    (LevelNumber(GetLevel(lookLine - 1)) > lookLineLevelNum))
+			if((lookLine > 0) && (lookLineLevelNum == SC_FOLDLEVELBASE) && (LevelNumber(GetLevel(lookLine - 1)) > lookLineLevelNum))
 				break;
 			lookLineLevel = GetLevel(--lookLine);
 			lookLineLevelNum = LevelNumber(lookLineLevel);
@@ -571,21 +565,22 @@ void Document::GetHighlightDelimiters(HighlightDelimiter &highlightDelimiter, in
 	highlightDelimiter.firstChangeableLineAfter = firstChangeableLineAfter;
 }
 
-int Document::ClampPositionIntoDocument(int pos) const
+int FASTCALL Document::ClampPositionIntoDocument(int pos) const
 {
 	return Platform::Clamp(pos, 0, Length());
 }
 
-bool Document::IsCrLf(int pos) const
+bool FASTCALL Document::IsCrLf(int pos) const
 {
 	if(pos < 0)
 		return false;
-	if(pos >= (Length() - 1))
+	else if(pos >= (Length() - 1))
 		return false;
-	return (cb.CharAt(pos) == '\r') && (cb.CharAt(pos + 1) == '\n');
+	else
+		return (cb.CharAt(pos) == '\r') && (cb.CharAt(pos + 1) == '\n');
 }
 
-int Document::LenChar(int pos)
+int FASTCALL Document::LenChar(int pos)
 {
 	if(pos < 0) {
 		return 1;
@@ -810,81 +805,70 @@ bool Document::NextCharacter(int &pos, int moveDir) const
 	}
 }
 
-Document::CharacterExtracted Document::CharacterAfter(int position) const
+Document::CharacterExtracted FASTCALL Document::CharacterAfter(int position) const
 {
-	if(position >= Length()) {
+	if(position >= Length())
 		return CharacterExtracted(unicodeReplacementChar, 0);
-	}
-	const uchar leadByte = static_cast<uchar>(cb.CharAt(position));
-	if(!dbcsCodePage || UTF8IsAscii(leadByte)) {
-		// Common case: ASCII character
-		return CharacterExtracted(leadByte, 1);
-	}
-	if(SC_CP_UTF8 == dbcsCodePage) {
-		const int widthCharBytes = UTF8BytesOfLead[leadByte];
-		uchar charBytes[UTF8MaxBytes] = { leadByte, 0, 0, 0 };
-		for(int b = 1; b<widthCharBytes; b++)
-			charBytes[b] = static_cast<uchar>(cb.CharAt(position + b));
-		int utf8status = UTF8Classify(charBytes, widthCharBytes);
-		if(utf8status & UTF8MaskInvalid) {
-			// Treat as invalid and use up just one byte
-			return CharacterExtracted(unicodeReplacementChar, 1);
-		}
-		else {
-			return CharacterExtracted(UnicodeFromUTF8(charBytes), utf8status & UTF8MaskWidth);
-		}
-	}
 	else {
-		if(IsDBCSLeadByte(leadByte) && ((position + 1) < Length())) {
-			return CharacterExtracted::DBCS(leadByte, static_cast<uchar>(cb.CharAt(position + 1)));
-		}
-		else {
+		const uchar leadByte = static_cast<uchar>(cb.CharAt(position));
+		if(!dbcsCodePage || UTF8IsAscii(leadByte)) // Common case: ASCII character
 			return CharacterExtracted(leadByte, 1);
+		else if(SC_CP_UTF8 == dbcsCodePage) {
+			const int widthCharBytes = UTF8BytesOfLead[leadByte];
+			uchar charBytes[UTF8MaxBytes] = { leadByte, 0, 0, 0 };
+			for(int b = 1; b<widthCharBytes; b++)
+				charBytes[b] = static_cast<uchar>(cb.CharAt(position + b));
+			int utf8status = UTF8Classify(charBytes, widthCharBytes);
+			if(utf8status & UTF8MaskInvalid) // Treat as invalid and use up just one byte
+				return CharacterExtracted(unicodeReplacementChar, 1);
+			else
+				return CharacterExtracted(UnicodeFromUTF8(charBytes), utf8status & UTF8MaskWidth);
 		}
+		else if(IsDBCSLeadByte(leadByte) && ((position + 1) < Length()))
+			return CharacterExtracted::DBCS(leadByte, static_cast<uchar>(cb.CharAt(position + 1)));
+		else
+			return CharacterExtracted(leadByte, 1);
 	}
 }
 
-Document::CharacterExtracted Document::CharacterBefore(int position) const
+Document::CharacterExtracted FASTCALL Document::CharacterBefore(int position) const
 {
-	if(position <= 0) {
+	if(position <= 0)
 		return CharacterExtracted(unicodeReplacementChar, 0);
-	}
-	const uchar previousByte = static_cast<uchar>(cb.CharAt(position - 1));
-	if(0 == dbcsCodePage) {
-		return CharacterExtracted(previousByte, 1);
-	}
-	if(SC_CP_UTF8 == dbcsCodePage) {
-		if(UTF8IsAscii(previousByte)) {
-			return CharacterExtracted(previousByte, 1);
-		}
-		position--;
-		// If previousByte is not a trail byte then its invalid
-		if(UTF8IsTrailByte(previousByte)) {
-			// If previousByte is a trail byte in a valid UTF-8 character then find start of character
-			int startUTF = position;
-			int endUTF = position;
-			if(InGoodUTF8(position, startUTF, endUTF)) {
-				const int widthCharBytes = endUTF - startUTF;
-				uchar charBytes[UTF8MaxBytes] = { 0, 0, 0, 0 };
-				for(int b = 0; b<widthCharBytes; b++)
-					charBytes[b] = static_cast<uchar>(cb.CharAt(startUTF + b));
-				int utf8status = UTF8Classify(charBytes, widthCharBytes);
-				if(utf8status & UTF8MaskInvalid) {
-					// Treat as invalid and use up just one byte
-					return CharacterExtracted(unicodeReplacementChar, 1);
-				}
-				else {
-					return CharacterExtracted(UnicodeFromUTF8(charBytes), utf8status & UTF8MaskWidth);
-				}
-			}
-			// Else invalid UTF-8 so return position of isolated trail byte
-		}
-		return CharacterExtracted(unicodeReplacementChar, 1);
-	}
 	else {
-		// Moving backwards in DBCS is complex so use NextPosition
-		const int posStartCharacter = NextPosition(position, -1);
-		return CharacterAfter(posStartCharacter);
+		const uchar previousByte = static_cast<uchar>(cb.CharAt(position - 1));
+		if(0 == dbcsCodePage)
+			return CharacterExtracted(previousByte, 1);
+		else if(SC_CP_UTF8 == dbcsCodePage) {
+			if(UTF8IsAscii(previousByte))
+				return CharacterExtracted(previousByte, 1);
+			else {
+				position--;
+				// If previousByte is not a trail byte then its invalid
+				if(UTF8IsTrailByte(previousByte)) {
+					// If previousByte is a trail byte in a valid UTF-8 character then find start of character
+					int startUTF = position;
+					int endUTF = position;
+					if(InGoodUTF8(position, startUTF, endUTF)) {
+						const int widthCharBytes = endUTF - startUTF;
+						uchar charBytes[UTF8MaxBytes] = { 0, 0, 0, 0 };
+						for(int b = 0; b<widthCharBytes; b++)
+							charBytes[b] = static_cast<uchar>(cb.CharAt(startUTF + b));
+						int utf8status = UTF8Classify(charBytes, widthCharBytes);
+						if(utf8status & UTF8MaskInvalid) // Treat as invalid and use up just one byte
+							return CharacterExtracted(unicodeReplacementChar, 1);
+						else
+							return CharacterExtracted(UnicodeFromUTF8(charBytes), utf8status & UTF8MaskWidth);
+					}
+					// Else invalid UTF-8 so return position of isolated trail byte
+				}
+				return CharacterExtracted(unicodeReplacementChar, 1);
+			}
+		}
+		else { // Moving backwards in DBCS is complex so use NextPosition
+			const int posStartCharacter = NextPosition(position, -1);
+			return CharacterAfter(posStartCharacter);
+		}
 	}
 }
 
@@ -1004,10 +988,7 @@ bool SCI_METHOD Document::IsDBCSLeadByte(char ch) const
 	return false;
 }
 
-static bool FASTCALL IsSpaceOrTab(int ch)
-{
-	return (ch == ' ' || ch == '\t');
-}
+//static bool FASTCALL IsSpaceOrTab_Removed(int ch) { return oneof2(ch, ' ', '\t'); }
 
 // Need to break text into segments near lengthSegment but taking into
 // account the encoding to not break inside a UTF-8 or DBCS character
@@ -1030,7 +1011,7 @@ int Document::SafeSegment(const char * text, int length, int lengthSegment) cons
 	for(int j = 0; j < lengthSegment; ) {
 		uchar ch = static_cast<uchar>(text[j]);
 		if(j > 0) {
-			if(IsSpaceOrTab(text[j - 1]) && !IsSpaceOrTab(text[j])) {
+			if(IsASpaceOrTab(text[j - 1]) && !IsASpaceOrTab(text[j])) {
 				lastSpaceBreak = j;
 			}
 			if(ch < 'A') {
@@ -1068,7 +1049,7 @@ EncodingFamily Document::CodePageFamily() const
 		return efEightBit;
 }
 
-void Document::ModifiedAt(int pos)
+void FASTCALL Document::ModifiedAt(int pos)
 {
 	SETMIN(endStyled, pos);
 }
@@ -1412,13 +1393,13 @@ int Document::GetLineIndentPosition(int line) const
 		return 0;
 	int pos = LineStart(line);
 	int length = Length();
-	while((pos < length) && IsSpaceOrTab(cb.CharAt(pos))) {
+	while((pos < length) && IsASpaceOrTab(cb.CharAt(pos))) {
 		pos++;
 	}
 	return pos;
 }
 
-int Document::GetColumn(int pos)
+int FASTCALL Document::GetColumn(int pos)
 {
 	int column = 0;
 	int line = LineFromPosition(pos);
@@ -1429,15 +1410,12 @@ int Document::GetColumn(int pos)
 				column = NextTab(column, tabInChars);
 				i++;
 			}
-			else if(ch == '\r') {
+			else if(ch == '\r')
 				return column;
-			}
-			else if(ch == '\n') {
+			else if(ch == '\n')
 				return column;
-			}
-			else if(i >= Length()) {
+			else if(i >= Length())
 				return column;
-			}
 			else {
 				column++;
 				i = NextPosition(i, 1);
@@ -1591,12 +1569,12 @@ void Document::ConvertLineEnds(int eolModeSet)
 	}
 }
 
-bool Document::IsWhiteLine(int line) const
+bool FASTCALL Document::IsWhiteLine(int line) const
 {
 	int currentChar = LineStart(line);
 	int endLine = LineEnd(line);
 	while(currentChar < endLine) {
-		if(cb.CharAt(currentChar) != ' ' && cb.CharAt(currentChar) != '\t') {
+		if(!IsASpaceOrTab(cb.CharAt(currentChar))) {
 			return false;
 		}
 		++currentChar;
@@ -1604,7 +1582,7 @@ bool Document::IsWhiteLine(int line) const
 	return true;
 }
 
-int Document::ParaUp(int pos) const
+int FASTCALL Document::ParaUp(int pos) const
 {
 	int line = LineFromPosition(pos);
 	line--;
@@ -1618,7 +1596,7 @@ int Document::ParaUp(int pos) const
 	return LineStart(line);
 }
 
-int Document::ParaDown(int pos) const
+int FASTCALL Document::ParaDown(int pos) const
 {
 	int line = LineFromPosition(pos);
 	while(line < LinesTotal() && !IsWhiteLine(line)) {  // skip non-empty lines
@@ -1633,7 +1611,7 @@ int Document::ParaDown(int pos) const
 		return LineEnd(line-1);
 }
 
-bool Document::IsASCIIWordByte(uchar ch) const
+bool FASTCALL Document::IsASCIIWordByte(uchar ch) const
 {
 	return IsASCII(ch) ? (charClass.GetClass(ch) == CharClassify::ccWord) : false;
 }
@@ -2235,8 +2213,7 @@ void SCI_METHOD Document::ChangeLexerState(Sci_Position start, Sci_Position end)
 StyledText Document::MarginStyledText(int line) const
 {
 	LineAnnotation * pla = static_cast<LineAnnotation *>(perLineData[ldMargin]);
-	return StyledText(pla->Length(line), pla->Text(line),
-	    pla->MultipleStyles(line), pla->Style(line), pla->Styles(line));
+	return StyledText(pla->Length(line), pla->Text(line), pla->MultipleStyles(line), pla->Style(line), pla->Styles(line));
 }
 
 void Document::MarginSetText(int line, const char * text)
@@ -2270,8 +2247,7 @@ void Document::MarginClearAll()
 StyledText Document::AnnotationStyledText(int line) const
 {
 	LineAnnotation * pla = static_cast<LineAnnotation *>(perLineData[ldAnnotation]);
-	return StyledText(pla->Length(line), pla->Text(line),
-	    pla->MultipleStyles(line), pla->Style(line), pla->Styles(line));
+	return StyledText(pla->Length(line), pla->Text(line), pla->MultipleStyles(line), pla->Style(line), pla->Styles(line));
 }
 
 void Document::AnnotationSetText(int line, const char * text)
@@ -2300,7 +2276,7 @@ void Document::AnnotationSetStyles(int line, const uchar * styles)
 	}
 }
 
-int Document::AnnotationLines(int line) const
+int FASTCALL Document::AnnotationLines(int line) const
 {
 	return static_cast<LineAnnotation *>(perLineData[ldAnnotation])->Lines(line);
 }
@@ -2322,8 +2298,7 @@ void Document::IncrementStyleClock()
 void SCI_METHOD Document::DecorationFillRange(Sci_Position position, int value, Sci_Position fillLength)
 {
 	if(decorations.FillRange(position, value, fillLength)) {
-		DocModification mh(SC_MOD_CHANGEINDICATOR | SC_PERFORMED_USER,
-		    position, fillLength);
+		DocModification mh(SC_MOD_CHANGEINDICATOR | SC_PERFORMED_USER, position, fillLength);
 		NotifyModified(mh);
 	}
 }
@@ -2331,23 +2306,24 @@ void SCI_METHOD Document::DecorationFillRange(Sci_Position position, int value, 
 bool Document::AddWatcher(DocWatcher * watcher, void * userData)
 {
 	WatcherWithUserData wwud(watcher, userData);
-	std::vector<WatcherWithUserData>::iterator it =
-	    std::find(watchers.begin(), watchers.end(), wwud);
+	std::vector<WatcherWithUserData>::iterator it = std::find(watchers.begin(), watchers.end(), wwud);
 	if(it != watchers.end())
 		return false;
-	watchers.push_back(wwud);
-	return true;
+	else {
+		watchers.push_back(wwud);
+		return true;
+	}
 }
 
 bool Document::RemoveWatcher(DocWatcher * watcher, void * userData)
 {
-	std::vector<WatcherWithUserData>::iterator it =
-	    std::find(watchers.begin(), watchers.end(), WatcherWithUserData(watcher, userData));
+	std::vector<WatcherWithUserData>::iterator it = std::find(watchers.begin(), watchers.end(), WatcherWithUserData(watcher, userData));
 	if(it != watchers.end()) {
 		watchers.erase(it);
 		return true;
 	}
-	return false;
+	else
+		return false;
 }
 
 void Document::NotifyModifyAttempt()
@@ -2381,38 +2357,10 @@ void Document::NotifyModified(DocModification mh)
 static bool FASTCALL IsASCIIPunctuationCharacter(uint ch)
 {
 	switch(ch) {
-		case '!':
-		case '"':
-		case '#':
-		case '$':
-		case '%':
-		case '&':
-		case '\'':
-		case '(':
-		case ')':
-		case '*':
-		case '+':
-		case ',':
-		case '-':
-		case '.':
-		case '/':
-		case ':':
-		case ';':
-		case '<':
-		case '=':
-		case '>':
-		case '?':
-		case '@':
-		case '[':
-		case '\\':
-		case ']':
-		case '^':
-		case '_':
-		case '`':
-		case '{':
-		case '|':
-		case '}':
-		case '~':
+		case '!': case '"': case '#': case '$': case '%': case '&': case '\'': case '(':
+		case ')': case '*': case '+': case ',': case '-': case '.': case '/': case ':':
+		case ';': case '<': case '=': case '>': case '?': case '@': case '[': case '\\':
+		case ']': case '^': case '_': case '`': case '{': case '|': case '}': case '~':
 		    return true;
 		default:
 		    return false;

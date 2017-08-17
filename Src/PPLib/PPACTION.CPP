@@ -67,7 +67,7 @@ int SLAPI SysJournal::LogEvent(PPID action, PPID obj, PPID id, long extData, int
 						TempBuf.CatParStr("R1");
 					else
 						TempBuf.CatParStr("R0");
-					(MsgBuf = 0).Printf(TempBuf.Space().Cat(FmtBuf), (const char *)AddedBuf);
+					(MsgBuf = 0).Printf(TempBuf.Space().Cat(FmtBuf), AddedBuf.cptr());
 					PPLogMessage(PPFILNAM_ERR_LOG, MsgBuf, LOGMSGF_TIME|LOGMSGF_USER);
 				}
 			}
@@ -437,7 +437,7 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 						PPGetLastErrorMessage(1, msg_buf);
 						(added_buf = 0).Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
 							Semicol().Cat(rsrv_rec.Extra).Semicol().Cat(msg_buf);
-						(msg_buf = 0).Printf(fmt_buf, (const char *)added_buf);
+						msg_buf.Z().Printf(fmt_buf, (const char *)added_buf);
 						if(pLogger)
 							pLogger->Log(msg_buf);
 						else
@@ -453,7 +453,7 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 						PPGetLastErrorMessage(1, msg_buf);
 						(added_buf = 0).Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
 							Semicol().Cat(rsrv_rec.Extra).Semicol().Cat(msg_buf);
-						(msg_buf = 0).Printf(fmt_buf, (const char *)added_buf);
+						msg_buf.Z().Printf(fmt_buf, (const char *)added_buf);
 						if(pLogger)
 							pLogger->Log(msg_buf);
 						else

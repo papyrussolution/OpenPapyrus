@@ -1249,7 +1249,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 								LocationTbl::Rec loc_rec;
 								PPID   addr_id = p_ccp->Ext.AddrID;
 								if(P_Od->PsnObj.LocObj.Search(p_ccp->Ext.AddrID, &loc_rec) > 0) {
-									LocationCore::GetExField(&loc_rec, LOCEXSTR_SHORTADDR, temp_buf = 0);
+									LocationCore::GetExField(&loc_rec, LOCEXSTR_SHORTADDR, temp_buf.Z());
 									rResult.Cat(temp_buf);
 								}
 							}
@@ -1263,7 +1263,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 								LocationTbl::Rec loc_rec;
 								PPID   addr_id = p_ccp->Ext.AddrID;
 								if(P_Od->PsnObj.LocObj.Search(p_ccp->Ext.AddrID, &loc_rec) > 0) {
-									LocationCore::GetExField(&loc_rec, LOCEXSTR_PHONE, temp_buf = 0);
+									LocationCore::GetExField(&loc_rec, LOCEXSTR_PHONE, temp_buf.Z());
 									rResult.Cat(temp_buf);
 								}
 							}
@@ -1471,7 +1471,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 {
 	int    ok = -1;
 	SString result;
-	rBuf = 0;
+	rBuf.Z();
 	if(pIter && pIter->P_Zone) {
 		SString temp_buf;
 		Goods2Tbl::Rec goods_rec;
@@ -1583,7 +1583,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 								ok = 1;
 							}
 						}
-						rBuf = 0;
+						rBuf.Z();
 						pIter->EntryNo++;
 					}
 				}
@@ -2538,7 +2538,7 @@ SLTEST_R(PPSlipFormatOutput)
 		if(fmt.InitIteration(PPSlipFormatZone::kFooter, &iter))
 			while(fmt.NextIteration(&iter, line_buf) > 0)
 				f_out.WriteLine(line_buf.CR());
-		(line_buf = 0).CatCharN('*', 32).CR();
+		line_buf.Z().CatCharN('*', 32).CR();
 		f_out.WriteLine(line_buf);
 		c++;
 	}

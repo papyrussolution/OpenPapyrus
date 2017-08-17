@@ -577,8 +577,8 @@ private:
 				ss.add(rtrec.Name);
 				ss.add(r_reg_rec.Serial);
 				ss.add(r_reg_rec.Num);
-				ss.add((temp_buf = 0).Cat(r_reg_rec.Dt));
-				ss.add((temp_buf = 0).Cat(r_reg_rec.Expiry));
+				ss.add(temp_buf.Z().Cat(r_reg_rec.Dt));
+				ss.add(temp_buf.Z().Cat(r_reg_rec.Expiry));
 				THROW(addStringToList(i+1, ss.getBuf()));
 			}
 		}
@@ -949,7 +949,7 @@ int SLAPI PPObjRegister::Format(PPID id, const char * pFormat, char * pBuf, size
 // static
 int SLAPI PPObjRegister::Format(const RegisterTbl::Rec & rRec, const char * pFormat, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 1;
 	SString intr_fmt, temp_buf;
 	PPSymbTranslator st;
@@ -986,7 +986,7 @@ int SLAPI PPObjRegister::Format(const RegisterTbl::Rec & rRec, const char * pFor
 
 int SLAPI PPObjRegister::Format(PPID id, const char * pFormat, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 1;
 	RegisterTbl::Rec rec;
 	if(id < 0 || (id > 0 && Search(id, &rec) > 0)) {
@@ -1033,7 +1033,7 @@ int PPObjRegister::PreventDup(RegisterTbl::Rec & rRec, PPID linkObjType, PPID li
 		if(*p == '#')
 			do {
 				p++;
-			} while(isdigit(*p));
+			} while(isdec(*p));
 		strip(STRNSCPY(serial, p));
 		while(SearchByNumber(&reg_id, rRec.RegTypeID, rRec.Serial, rRec.Num, &rec) > 0) {
 			int    skip = 0;

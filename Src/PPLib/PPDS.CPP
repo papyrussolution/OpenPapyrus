@@ -53,7 +53,7 @@ int SLAPI PPDeclStruc::TransferData(int32 * pData, Tfd dir, SString & rBuf, int 
 	if(dir == tfdDataToBuf) {
 		if(skipZero && (*pData) == 0)
 			ok = -1;
-		(rBuf = 0).Cat(*pData);
+		rBuf.Z().Cat(*pData);
 	}
 	else if(dir == tfdBufToData)
 		*pData = rBuf.ToLong();
@@ -90,7 +90,7 @@ int SLAPI PPDeclStruc::TransferData(int16 * pData, Tfd dir, SString & rBuf, int 
 	if(dir == tfdDataToBuf) {
 		if(skipZero && (*pData) == 0)
 			ok = -1;
-		(rBuf = 0).Cat((long)*pData);
+		rBuf.Z().Cat((long)*pData);
 	}
 	else if(dir == tfdBufToData)
 		*pData = (int16)rBuf.ToLong();
@@ -105,7 +105,7 @@ int SLAPI PPDeclStruc::TransferData(uint16 * pData, Tfd dir, SString & rBuf, int
 	if(dir == tfdDataToBuf) {
 		if(skipZero && (*pData) == 0)
 			ok = -1;
-		(rBuf = 0).Cat((long)*pData);
+		rBuf.Z().Cat((long)*pData);
 	}
 	else if(dir == tfdBufToData)
 		*pData = (uint16)rBuf.ToLong();
@@ -120,7 +120,7 @@ int SLAPI PPDeclStruc::TransferData(uint8 * pData, Tfd dir, SString & rBuf, int 
 	if(dir == tfdDataToBuf) {
 		if(skipZero && (*pData) == 0)
 			ok = -1;
-		(rBuf = 0).Cat((long)*pData);
+		rBuf.Z().Cat((long)*pData);
 	}
 	else if(dir == tfdBufToData)
 		*pData = (uint8)rBuf.ToLong();
@@ -136,7 +136,7 @@ int SLAPI PPDeclStruc::TransferData(double * pData, Tfd dir, SString & rBuf, int
 	if(dir == tfdDataToBuf) {
 		if(skipZero && (*pData) == 0)
 			ok = -1;
-		(rBuf = 0).Cat(*pData, MKSFMTD(0, 10, NMBF_NOTRAILZ));
+		rBuf.Z().Cat(*pData, MKSFMTD(0, 10, NMBF_NOTRAILZ));
 	}
 	else if(dir == tfdBufToData)
 		*pData = rBuf.ToReal();
@@ -149,7 +149,7 @@ int SLAPI PPDeclStruc::TransferData(SString & rData, Tfd dir, SString & rBuf, in
 {
 	int    ok = 1;
 	if(dir == tfdDataToBuf) {
-		rBuf = 0;
+		rBuf.Z();
 		if(skipZero && rData.Empty())
 			ok = -1;
 		for(uint i = 0; i < rData.Len(); i++) {
@@ -235,7 +235,7 @@ int SLAPI PPDeclStruc::TransferData(DateRange * pData, Tfd dir, SString & rBuf, 
 	if(dir == tfdDataToBuf) {
 		if(skipZero && !pData->IsZero())
 			ok = -1;
-		(rBuf = 0).Cat(*pData);
+		rBuf.Z().Cat(*pData);
 	}
 	else if(dir == tfdBufToData)
 		strtoperiod(rBuf, pData, 0);
@@ -250,7 +250,7 @@ int SLAPI PPDeclStruc::TransferData(LDATE * pData, Tfd dir, SString & rBuf, int 
 	if(dir == tfdDataToBuf) {
 		if(skipZero && !*pData)
 			ok = -1;
-		(rBuf = 0).Cat(*pData, DATF_DMY|DATF_CENTURY);
+		rBuf.Z().Cat(*pData, DATF_DMY|DATF_CENTURY);
 	}
 	else if(dir == tfdBufToData)
 		strtodate(rBuf, DATF_DMY|DATF_CENTURY, pData);
@@ -265,7 +265,7 @@ int SLAPI PPDeclStruc::TransferData(LTIME * pData, Tfd dir, SString & rBuf, int 
 	if(dir == tfdDataToBuf) {
 		if(skipZero && !*pData)
 			ok = -1;
-		(rBuf = 0).Cat(*pData, TIMF_HMS);
+		rBuf.Z().Cat(*pData, TIMF_HMS);
 	}
 	else if(dir == tfdBufToData)
 		strtotime(rBuf, TIMF_HMS, pData);
@@ -280,7 +280,7 @@ int SLAPI PPDeclStruc::TransferData(long * pData, long flag, Tfd dir, SString & 
 	if(dir == tfdDataToBuf) {
 		if(skipZero && !(*pData & flag))
 			ok = -1;
-		(rBuf = 0).CatChar((*pData & flag) ? '1' : '0');
+		rBuf.Z().CatChar((*pData & flag) ? '1' : '0');
 	}
 	else if(dir == tfdBufToData) {
 		SETFLAG(*pData, flag, rBuf.ToLong());
@@ -295,13 +295,12 @@ int SLAPI PPDeclStruc::TransferData(PPIDArray * pList, Tfd dir, uint iter, SStri
 	int    ok = -1;
 	if(dir == tfdDataToBuf) {
 		if(pList && iter < pList->getCount()) {
-			(rBuf = 0).Cat(pList->at(iter));
+			rBuf.Z().Cat(pList->at(iter));
 			ok = 1;
 		}
 	}
 	else if(dir == tfdBufToData) {
-		if(pList)
-			pList->add(rBuf.ToLong());
+		CALLPTRMEMB(pList, add(rBuf.ToLong()));
 		ok = 1;
 	}
 	else
@@ -313,7 +312,7 @@ int SLAPI PPDeclStruc::TransferField(long, Tfd dir, uint *, SString & rBuf)
 {
 	int    ok = -1;
 	if(dir == tfdDataToBuf) {
-		rBuf = 0;
+		rBuf.Z();
 		ok = -1;
 	}
 	else if(dir == tfdBufToData)

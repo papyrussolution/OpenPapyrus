@@ -23,10 +23,10 @@ int SLAPI ViewQuotValueInfo(const PPQuot & rQuot)
 	PPFormatPeriod(&rQuot.Period, temp_buf);
 	dlg->setCtrlString(CTL_QUOT_PERIOD, temp_buf);
 
-	(temp_buf = 0).Cat(rQuot.Dtm, DATF_DMY, TIMF_HMS);
+	temp_buf.Z().Cat(rQuot.Dtm, DATF_DMY, TIMF_HMS);
 	dlg->setCtrlString(CTL_QUOT_DATETIME, temp_buf);
 
-	(temp_buf = 0).Cat(rQuot.Quot, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+	temp_buf.Z().Cat(rQuot.Quot, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 	dlg->setCtrlString(CTL_QUOT_VALUE, temp_buf);
 
 	temp_buf = 0;
@@ -173,7 +173,7 @@ int QuotUpdDialog::setDTS(const QuotUpdFilt * pFilt)
 	}
 	setCtrlString(CTL_QUOTUPD_PCT, temp_buf);
 	// @v7.3.5 {
-	(temp_buf = 0).Cat(Data.QuotValPeriod, 1);
+	temp_buf.Z().Cat(Data.QuotValPeriod, 1);
 	setStaticText(CTL_QUOTUPD_ST_VALEXT, temp_buf);
 	// } @v7.3.5
 	return 1;
@@ -228,7 +228,7 @@ int QuotUpdDialog::getDTS(QuotUpdFilt * pFilt)
 	else
 		Data.Flags |= QuotUpdFilt::fExistOnly;
 	GetClusterData(CTL_QUOTUPD_WARN, &Data.Flags);
-	getCtrlString(sel = CTL_QUOTUPD_PCT, temp_buf = 0);
+	getCtrlString(sel = CTL_QUOTUPD_PCT, temp_buf.Z());
 	if(Data.ByWhat == QuotUpdFilt::byFormula) {
 		Data.Formula = temp_buf;
 		{
@@ -279,7 +279,7 @@ void QuotUpdDialog::setupQuot()
 		if(EditQuotVal(&quot, QuotCls) > 0) {
 			Data.QuotValPeriod = quot.Period;
 			setCtrlString(CTL_QUOTUPD_PCT, quot.PutValToStr(temp_buf));
-			(temp_buf = 0).Cat(Data.QuotValPeriod, 1);
+			temp_buf.Z().Cat(Data.QuotValPeriod, 1);
 			setStaticText(CTL_QUOTUPD_ST_VALEXT, temp_buf);
 		}
 	}

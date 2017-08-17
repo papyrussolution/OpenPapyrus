@@ -180,7 +180,7 @@ int FASTCALL STimeChunkGrid::GetBounds(STimeChunk & rBounds) const
 int STimeChunkGrid::GetText(int item, long id, SString & rBuf)
 {
 	int    ok = 1;
-	rBuf = 0;
+	rBuf.Z();
 	if(item == iRow) {
 		if(NameList.Get(id, rBuf))
 			ok = 1;
@@ -2343,7 +2343,7 @@ void STimeChunkBrowser::Paint()
 				canv.PopObject();
 			}
 			canv.SetBkColor(Ptb.GetColor((!hinterlace || (i % 2)) ? colorMain : colorInterleave));
-			(temp_buf = 0).Cat(encodetime(i, 0, 0, 0), TIMF_HM);
+			temp_buf.Z().Cat(encodetime(i, 0, 0, 0), TIMF_HM);
 			TRect tr(x + 5, y + 2, x + a2.Right.b.x - 5, y + a2.PixPerHour - 2);
 			canv.DrawText(tr, temp_buf, DT_LEFT | DT_END_ELLIPSIS);
 			y += a2.PixPerHour;
@@ -2377,7 +2377,7 @@ void STimeChunkBrowser::Paint()
 					canv.PopObject();
 
 					GetDayOfWeekText(4, dayofweek(&dt, 1), dow_buf);
-					(temp_buf = 0).Cat(dt, DATF_DMY).Space().Cat(dow_buf);
+					temp_buf.Z().Cat(dt, DATF_DMY).Space().Cat(dow_buf);
 					TRect tr(x - a2.PixQuant + 2, y + 2, x - 2, y + P.HdrLevelHeight - 2);
 					canv.DrawText(tr, temp_buf, DT_CENTER|DT_END_ELLIPSIS);
 				}
@@ -2529,10 +2529,10 @@ void STimeChunkBrowser::Paint()
 							if(i != 0) {
 								if(unit >= (3600 * 24)) {
 									GetDayOfWeekText(4, dayofweek(&dtm.d, 1), dow_buf);
-									(temp_buf = 0).Cat(dtm.d, DATF_DMY).Space().Cat(dow_buf);
+									temp_buf.Z().Cat(dtm.d, DATF_DMY).Space().Cat(dow_buf);
 								}
 								else
-									(temp_buf = 0).Cat(dtm.t, (unit % 60) ? TIMF_HMS : TIMF_HM);
+									temp_buf.Z().Cat(dtm.t, (unit % 60) ? TIMF_HMS : TIMF_HM);
 								TRect tr(x+2, y - P.HdrLevelHeight*5/6, left_edge + SecToPix(s+unit), y);
 								canv.DrawText(tr, temp_buf, DT_LEFT|DT_END_ELLIPSIS);
 							}
@@ -2572,7 +2572,7 @@ void STimeChunkBrowser::Paint()
 							/*
 							canv.LineVert(x, y, y-5);
 							GetDayOfWeekText(4, dayofweek(&dtm.d, 1), dow_buf);
-							(temp_buf = 0).Cat(dtm.d).Space().Cat(dow_buf);
+							temp_buf.Z().Cat(dtm.d).Space().Cat(dow_buf);
 							TRect tr(x+2, y - P.HdrLevelHeight*5/6, left_edge + SecToPix(s+unit), y);
 							canv.DrawText(tr, temp_buf, DT_LEFT | DT_END_ELLIPSIS);
 							{
@@ -2597,7 +2597,7 @@ void STimeChunkBrowser::Paint()
 
 						canv.LineVert(x, y, y-5);
 						GetDayOfWeekText(4, dayofweek(&dt, 1), dow_buf);
-						(temp_buf = 0).Cat(dt, DATF_DMY).Space().Cat(dow_buf);
+						temp_buf.Z().Cat(dt, DATF_DMY).Space().Cat(dow_buf);
 						TRect tr(x+2, y - P.HdrLevelHeight*5/6, left_edge + SecToPix(s+unit), y);
 						canv.DrawText(tr, temp_buf, DT_LEFT | DT_END_ELLIPSIS);
 						{
@@ -2613,10 +2613,10 @@ void STimeChunkBrowser::Paint()
 				if(i != 0 && first_x > (left_edge+4) && prev_s < 0) {
 					if(unit >= 3600 * 24) {
 						GetDayOfWeekText(4, dayofweek(&prev_dtm.d, 1), dow_buf);
-						(temp_buf = 0).Cat(prev_dtm.d, DATF_DMY).Space().Cat(dow_buf);
+						temp_buf.Z().Cat(prev_dtm.d, DATF_DMY).Space().Cat(dow_buf);
 					}
 					else
-						(temp_buf = 0).Cat(prev_dtm.t, (unit % 60) ? TIMF_HMS : TIMF_HM);
+						temp_buf.Z().Cat(prev_dtm.t, (unit % 60) ? TIMF_HMS : TIMF_HM);
 					TRect tr(left_edge+2, y - P.HdrLevelHeight*5/6, first_x-2, y);
 					canv.DrawText(tr, temp_buf, DT_LEFT|DT_END_ELLIPSIS);
 				}

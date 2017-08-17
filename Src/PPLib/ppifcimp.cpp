@@ -1,7 +1,8 @@
 // PPIFCIMP.CPP
 // Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// @codepage UTF-8
 //
-// Реализация интерфейсов
+// Р РµР°Р»РёР·Р°С†РёСЏ РёРЅС‚РµСЂС„РµР№СЃРѕРІ
 //
 #include <pp.h>
 #pragma hdrstop
@@ -622,7 +623,7 @@ int32 DL6ICLS_PPSFile::WriteLine2(SString & rBuf, ISCodepage cp)
 		else if(cp == cpUTF8)
 			rBuf.Transf(CTRANSF_INNER_TO_UTF8);
 		else
-			; // asis Строка в эту функцию передана в кодировке OEM
+			; // asis РЎС‚СЂРѕРєР° РІ СЌС‚Сѓ С„СѓРЅРєС†РёСЋ РїРµСЂРµРґР°РЅР° РІ РєРѕРґРёСЂРѕРІРєРµ OEM
 		ok = p_f->WriteLine(rBuf);
 	}
 	return ok;
@@ -1420,7 +1421,7 @@ SString & DL6ICLS_PPUtil::GetObjectName(PpyObjectIdent objType, long objID)
 		case ppoBrand:          ppy_objtyp = PPOBJ_BRAND;         break;
 		case ppoCCheck:         ppy_objtyp = PPOBJ_CCHECK;        break;
 		default:
-			(msg_buf = 0).Cat(objType);
+			msg_buf.Z().Cat(objType);
 			break;
 	}
 	::GetObjectName(ppy_objtyp, objID, RetStrBuf);
@@ -1884,7 +1885,7 @@ IPapyrusObject * DL6ICLS_PPSession::CreateObject(PpyObjectIdent objType)
 		case ppoSCardSeries:    p_cls_name = "PPObjSCardSeries";    break; // @v8.7.1
 		case ppoSCard:          p_cls_name = "PPObjSCard";          break; // @v8.7.1
 		default:
-			(msg_buf = 0).Cat(objType);
+			msg_buf.Z().Cat(objType);
 			break;
 	}
 	THROW_PP_S(p_cls_name, PPERR_UNDEFPPOBJTYPE, msg_buf);
@@ -1944,7 +1945,7 @@ IUnknown * DL6ICLS_PPSession::CreateSpecClass(PpySpecClassIdent clsType)
 			p_ifc_name = "IPapyrusObjCCheck";
 			break;
 		default:
-			(msg_buf = 0).Cat(clsType);
+			msg_buf.Z().Cat(clsType);
 			break;
 	}
 	THROW_PP_S(p_cls_name && p_ifc_name, PPERR_UNDEFCLSTYPE, msg_buf);
@@ -1977,7 +1978,7 @@ IPapyrusView * DL6ICLS_PPSession::CreateView(PpyViewIdent viewID)
 		case ppvDebtTrnovr:  p_cls_name = "PPViewDebtTrnovr";     break;
 		case ppvLotOp:       p_cls_name = "PPViewLotOp";          break;
 		default:
-			(msg_buf = 0).Cat(viewID);
+			msg_buf.Z().Cat(viewID);
 			break;
 	}
 	THROW_PP_S(p_cls_name, PPERR_UNKNOWNVIEWID, msg_buf);
@@ -2832,8 +2833,8 @@ int32 DL6ICLS_PPObjArticle::Update(int32 id, int32 flags, PPYOBJREC rec)
 		THROW(p_obj->GetPacket(id, &pack) > 0);
 		THROW(acs_obj.Fetch(pack.Rec.AccSheetID, &acs_rec) > 0);
 		{
-			pack.DontUpdateAliasSubst = 1; // Извне нам не могут прислать подстановку алиасов.
-				// Следовательно, не меняем ее.
+			pack.DontUpdateAliasSubst = 1; // РР·РІРЅРµ РЅР°Рј РЅРµ РјРѕРіСѓС‚ РїСЂРёСЃР»Р°С‚СЊ РїРѕРґСЃС‚Р°РЅРѕРІРєСѓ Р°Р»РёР°СЃРѕРІ.
+				// РЎР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ, РЅРµ РјРµРЅСЏРµРј РµРµ.
 			temp_buf.CopyFromOleStr(p_rec->Name);
 			if(temp_buf.NotEmptyS())
 				temp_buf.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
@@ -3579,7 +3580,7 @@ static void FillGoodsRec(PPGoodsPacket * pInner, SPpyO_Goods * pOuter)
 	#undef FLD
 	#define FLD(f) pOuter->f = pInner->ExtRec.f
 	//
-	// Поля расширения товара
+	// РџРѕР»СЏ СЂР°СЃС€РёСЂРµРЅРёСЏ С‚РѕРІР°СЂР°
 	//
 	FLD(GoodsClsID);
 	FLD(UniqCntr);
@@ -3605,7 +3606,7 @@ static void FillGoodsRec(PPGoodsPacket * pInner, SPpyO_Goods * pOuter)
 	#undef FLD
 	#define FLD(f) pOuter->f = pInner->Stock.f
 	//
-	// Размерности товара
+	// Р Р°Р·РјРµСЂРЅРѕСЃС‚Рё С‚РѕРІР°СЂР°
 	//
 	FLD(Brutto);
 	pOuter->Length = pInner->Stock.PckgDim.Length;
@@ -3618,7 +3619,7 @@ static void FillGoodsRec(PPGoodsPacket * pInner, SPpyO_Goods * pOuter)
 	#undef FLD
 	pOuter->GseFlags = (PpyGseFlags)pInner->Stock.GseFlags; // @v8.6.8
 	//
-	// Дополнительные поля //
+	// Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РїРѕР»СЏ //
 	//
 	pInner->GetExtStrData(GDSEXSTR_STORAGE, temp_buf);
 	temp_buf.CopyToOleStr(&pOuter->Storage);
@@ -3635,7 +3636,7 @@ static void FillGoodsRec(PPGoodsPacket * pInner, SPpyO_Goods * pOuter)
 }
 
 //
-// Заполняем только те поля, которые нужны для формирования алкодекларации
+// Р—Р°РїРѕР»РЅСЏРµРј С‚РѕР»СЊРєРѕ С‚Рµ РїРѕР»СЏ, РєРѕС‚РѕСЂС‹Рµ РЅСѓР¶РЅС‹ РґР»СЏ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ Р°Р»РєРѕРґРµРєР»Р°СЂР°С†РёРё
 //
 static void FillGoodsRec_AlcRep(const Goods2Tbl::Rec * pRec, const PPGdsClsPacket * pGCPack, GoodsStockExt * pStock, const GoodsExtTbl::Rec * pExt, SPpyO_Goods * pOuter)
 {
@@ -3661,7 +3662,7 @@ static void FillGoodsRec_AlcRep(const Goods2Tbl::Rec * pRec, const PPGdsClsPacke
 	#undef FLD
 	#define FLD(f) pOuter->f = pExt->f
 	//
-	// Поля расширения товара
+	// РџРѕР»СЏ СЂР°СЃС€РёСЂРµРЅРёСЏ С‚РѕРІР°СЂР°
 	//
 	FLD(GoodsClsID);
 	FLD(UniqCntr);
@@ -3683,7 +3684,7 @@ static void FillGoodsRec_AlcRep(const Goods2Tbl::Rec * pRec, const PPGdsClsPacke
 	#undef FLD
 	#define FLD(f) pOuter->f = pStock->f
 	//
-	// Размерности товара
+	// Р Р°Р·РјРµСЂРЅРѕСЃС‚Рё С‚РѕРІР°СЂР°
 	//
 	FLD(Brutto);
 	pOuter->Length   = pStock->PckgDim.Length;
@@ -3695,7 +3696,7 @@ static void FillGoodsRec_AlcRep(const Goods2Tbl::Rec * pRec, const PPGdsClsPacke
 	FLD(ExpiryPeriod);
 	#undef FLD
 	//
-	// Дополнительные поля //
+	// Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РїРѕР»СЏ //
 	//
 	/*
 	pInner->GetExtStrData(GDSEXSTR_STORAGE, temp_buf);
@@ -3828,7 +3829,7 @@ IStrAssocList* DL6ICLS_PPObjGoods::GetQuotations(int32 goodsID)
 			THROW_MEM(p_list = new StrAssocArray);
 			for(uint i = 0; i < quots.getCount(); i++) {
 				const PPQuot & r_q = quots.at(i);
-				(temp_buf = 0).Cat(r_q.Quot);
+				temp_buf.Z().Cat(r_q.Quot);
 				p_list->Add(r_q.ID, temp_buf);
 			}
 		}
@@ -4537,7 +4538,7 @@ struct InnerExtraObjPerson {
 	PPObjPerson * P_Obj;
 	PPPersonPacket * P_Pack;
 	//
-	// Descr: Список отношений
+	// Descr: РЎРїРёСЃРѕРє РѕС‚РЅРѕС€РµРЅРёР№
 	//
 	struct RelEntry {
 		RelEntry(PPID id, PPID relTypeID, int reverse)
@@ -4590,8 +4591,8 @@ int InnerExtraObjPerson::EnumRel(PPID id, PPID relTypeID, int reverse, PPID * pR
 			i = p_entry->List.getCount();
 			if(i) {
 				//
-				// Удаляем из списка все нулевые идентификаторы и записи, не относящиеся //
-				// к заданному типу персонального отношения.
+				// РЈРґР°Р»СЏРµРј РёР· СЃРїРёСЃРєР° РІСЃРµ РЅСѓР»РµРІС‹Рµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ Рё Р·Р°РїРёСЃРё, РЅРµ РѕС‚РЅРѕСЃСЏС‰РёРµСЃСЏ //
+				// Рє Р·Р°РґР°РЅРЅРѕРјСѓ С‚РёРїСѓ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕРіРѕ РѕС‚РЅРѕС€РµРЅРёСЏ.
 				//
 				do {
 					--i;
@@ -5106,7 +5107,7 @@ IStrAssocList * DL6ICLS_PPObjPerson::GetRegList(int32 psnID, int32 regType)
 			for(uint i = 0; i < count; i++) {
 				const RegisterTbl::Rec & r_reg = reg_list.at(i);
 				if(r_reg.RegTypeID == regType) {
-					(temp_buf = 0).Cat(r_reg.Dt).Cat("..").Cat(r_reg.Expiry);
+					temp_buf.Z().Cat(r_reg.Dt).Cat("..").Cat(r_reg.Expiry);
 					p_reg_list->Add(i + 1, 0, (const char*)temp_buf);
 				}
 			}
@@ -5131,7 +5132,7 @@ static void FillBillRec(const PPBillPacket * pInner, SPpyO_Bill * pOuter)
 {
 	SString temp_buf;
 	//
-	// Основные поля документа
+	// РћСЃРЅРѕРІРЅС‹Рµ РїРѕР»СЏ РґРѕРєСѓРјРµРЅС‚Р°
 	//
 #define FLD(f) pOuter->f = pInner->Rec.f
 	FLD(ID);
@@ -5156,7 +5157,7 @@ static void FillBillRec(const PPBillPacket * pInner, SPpyO_Bill * pOuter)
 	(temp_buf = pInner->Rec.Memo).CopyToOleStr(&pOuter->Memo);
 #undef FLD
 	//
-	// Дополнительные поля документа
+	// Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РїРѕР»СЏ РґРѕРєСѓРјРµРЅС‚Р°
 	//
 #define FLD(f) pOuter->f = pInner->Ext.f
 	FLD(PayerID);
@@ -5171,7 +5172,7 @@ static void FillBillRec(const PPBillPacket * pInner, SPpyO_Bill * pOuter)
 	pOuter->DlvrAddrID = pInner->P_Freight ? pInner->P_Freight->DlvrAddrID : 0;
 #undef FLD
 	//
-	// Условия ренты
+	// РЈСЃР»РѕРІРёСЏ СЂРµРЅС‚С‹
 	//
 #define FLD(f) pOuter->f = pInner->Rent.f
 	pOuter->PeriodLow = (OleDate)pInner->Rent.Period.low;
@@ -5183,7 +5184,7 @@ static void FillBillRec(const PPBillPacket * pInner, SPpyO_Bill * pOuter)
 	FLD(ChargeDayOffs);
 #undef FLD
 	//
-	// Остальные поля //
+	// РћСЃС‚Р°Р»СЊРЅС‹Рµ РїРѕР»СЏ //
 	//
 #define FLD(f) pOuter->f = pInner->f
 	FLD(OutAmtType);
@@ -5200,7 +5201,7 @@ static void FillBillRec(const PPBillPacket * pInner, SPpyO_Bill * pOuter)
 static void FillBillPacket(const SPpyO_Bill * pInner, PPBillPacket * pOuter, int fillNotZero = 0)
 {
 	SString temp_buf;
-	// Основные поля документа
+	// РћСЃРЅРѕРІРЅС‹Рµ РїРѕР»СЏ РґРѕРєСѓРјРµРЅС‚Р°
 	#define FLD(f) (pInner->f || !fillNotZero) ? pOuter->Rec.f = pInner->f : pOuter->Rec.f = pOuter->Rec.f;
 	FLD(ID);
 	FLD(Dt);
@@ -5230,7 +5231,7 @@ static void FillBillPacket(const SPpyO_Bill * pInner, PPBillPacket * pOuter, int
 	if(temp_buf.Len() || fillNotZero == 0)
 		temp_buf.CopyTo(pOuter->Rec.Memo, sizeof(pOuter->Rec.Memo));
 	#undef FLD
-	// Дополнительные поля документа
+	// Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РїРѕР»СЏ РґРѕРєСѓРјРµРЅС‚Р°
 	#define FLD(f) pOuter->Ext.f = pInner->f;
 	FLD(PayerID);
 	FLD(AgentID);
@@ -5246,7 +5247,7 @@ static void FillBillPacket(const SPpyO_Bill * pInner, PPBillPacket * pOuter, int
 		pOuter->P_Freight->DlvrAddrID = pInner->DlvrAddrID;
 	}
 	#undef FLD
-	// Условия ренты
+	// РЈСЃР»РѕРІРёСЏ СЂРµРЅС‚С‹
 	#define FLD(f) pOuter->Rent.f = pInner->f
 	pOuter->Rent.Period.low = pInner->PeriodLow;
 	pOuter->Rent.Period.upp = pInner->PeriodUpp;
@@ -5256,7 +5257,7 @@ static void FillBillPacket(const SPpyO_Bill * pInner, PPBillPacket * pOuter, int
 	pOuter->Rent.Flags = (long)pInner->RentFlags;
 	FLD(ChargeDayOffs);
 	#undef FLD
-	// Остальные поля //
+	// РћСЃС‚Р°Р»СЊРЅС‹Рµ РїРѕР»СЏ //
 	#define FLD(f) (pInner->f || !fillNotZero) ? pOuter->f = pInner->f : pOuter->f = pOuter->f;
 	FLD(OutAmtType);
 	FLD(QuotKindID);
@@ -6131,7 +6132,7 @@ int32 DL6ICLS_PPObjBill::PutTagValue(int32 billID, int32 tagID, SString & rValue
 	SString val;
 	InnerBillExtra * p_e = (InnerBillExtra*)ExtraPtr;
 	if(p_e && p_e->P_BObj) {
-		// @todo Неэффективная реализация - можно просто изменить тег не гоняя весь документ из БД и обратно
+		// @todo РќРµСЌС„С„РµРєС‚РёРІРЅР°СЏ СЂРµР°Р»РёР·Р°С†РёСЏ - РјРѕР¶РЅРѕ РїСЂРѕСЃС‚Рѕ РёР·РјРµРЅРёС‚СЊ С‚РµРі РЅРµ РіРѕРЅСЏСЏ РІРµСЃСЊ РґРѕРєСѓРјРµРЅС‚ РёР· Р‘Р” Рё РѕР±СЂР°С‚РЅРѕ
 		PPBillPacket pack;
 		if(p_e->P_BObj->ExtractPacket(billID, &pack) > 0) {
 			pack.BTagL.PutItemStr(tagID, rValue);
@@ -6307,7 +6308,7 @@ int SLAPI MakeLotQuery(ReceiptCore & rRcpt, LotQueryBlock & rBlk, int lcr, ulong
 		else if(!oneof2(rBlk.Idx, 3, 7))
 			dbq = & (*dbq && rRcpt.Closed == 0L);
 	//
-	// Гарантируем, что Idx и SpMode инициализированы
+	// Р“Р°СЂР°РЅС‚РёСЂСѓРµРј, С‡С‚Рѕ Idx Рё SpMode РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅС‹
 	//
 	assert(rBlk.Idx != -1);
 	assert(rBlk.SpMode != -1);
@@ -6387,12 +6388,12 @@ ILotList * DL6ICLS_PPObjBill::GetCurLotList(LDATE lowDt, LDATE uppDt, int32 good
 				if(r)
 					r_lot_rec.Rest = rest;
 				else
-					r_lot_rec.Rest = 0.0; // @err Такого не должно быть.
+					r_lot_rec.Rest = 0.0; // @err РўР°РєРѕРіРѕ РЅРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ.
 			}
 		}
 		{
 			//
-			// Открытые лоты
+			// РћС‚РєСЂС‹С‚С‹Рµ Р»РѕС‚С‹
 			//
 			LotQueryBlock q_blk;
 			SString temp_buf;
@@ -8071,7 +8072,7 @@ int32 DL6ICLS_PrcssrAlcReport::PreprocessGoodsItem(int32 goodsID, int32 lotID, i
 			pItem->Brutto = item.Brutto;
 			SString temp_buf;
 			(temp_buf = item.CategoryCode).CopyToOleStr(&pItem->CategoryCode);
-			(temp_buf = item.CategoryName).Transf(CTRANSF_OUTER_TO_INNER).CopyToOleStr(&pItem->CategoryName); // Эта строка изначально в CHAR-кодировке
+			(temp_buf = item.CategoryName).Transf(CTRANSF_OUTER_TO_INNER).CopyToOleStr(&pItem->CategoryName); // Р­С‚Р° СЃС‚СЂРѕРєР° РёР·РЅР°С‡Р°Р»СЊРЅРѕ РІ CHAR-РєРѕРґРёСЂРѕРІРєРµ
 			(temp_buf = item.MsgPool).CopyToOleStr(&pItem->MsgPool);
 		}
 	}
@@ -8203,7 +8204,7 @@ IStrAssocList * DL6ICLS_PrcssrAlcReport::GetWkrRegisterList(int32 wkr, int32 psn
 		uint count = reg_list.getCount();
 		for(uint i = 0; i < count; i++) {
 			const RegisterTbl::Rec & r_reg = reg_list.at(i);
-			(temp_buf = 0).Cat(r_reg.Dt).Cat("..").Cat(r_reg.Expiry);
+			temp_buf.Z().Cat(r_reg.Dt).Cat("..").Cat(r_reg.Expiry);
 			p_reg_list->Add(i + 1, 0, (const char*)temp_buf);
 		}
 	}
@@ -9251,7 +9252,7 @@ static void FillTransportRec(const PPTransport * pInner, SPpyO_Transport * pOute
 	FLD(OwnerID);
 	FLD(CountryID);
 	FLD(CaptainID);
-	FLD(Capacity); // @v7.2.8
+	FLD(Capacity);
 	(temp_buf = pInner->Name).CopyToOleStr(&pOuter->Name);
 	(temp_buf = pInner->Code).CopyToOleStr(&pOuter->Code);
 	(temp_buf = pInner->TrailerCode).CopyToOleStr(&pOuter->TrailerCode);
@@ -9270,7 +9271,7 @@ static int AcceptTransportRec(const SPpyO_Transport * pOuter, PPTransport * pInn
 	FLD(OwnerID);
 	FLD(CountryID);
 	FLD(CaptainID);
-	pInner->Capacity = (long)pOuter->Capacity; // @v7.2.8
+	pInner->Capacity = (long)pOuter->Capacity;
 	temp_buf.CopyFromOleStr(pOuter->Name).CopyTo(pInner->Name, sizeof(pInner->Name));
 	temp_buf.CopyFromOleStr(pOuter->Code).CopyTo(pInner->Code, sizeof(pInner->Code));
 	temp_buf.CopyFromOleStr(pOuter->TrailerCode).CopyTo(pInner->TrailerCode, sizeof(pInner->TrailerCode));
@@ -9431,9 +9432,9 @@ int32 DL6ICLS_PPObjProcessor::Search(int32 id, PPYOBJREC rec)
 	return ok;
 }
 //
-// ARG(extraParam IN): PpyOProcessorKind Вид процессора. Если extraParam == 0, то функция будет искать
-//   сначала собственно процессоры с указанным именем, а затем группы процессоров.
-//   Используется только для kind == 0 (поиск по миени, но не по коду).
+// ARG(extraParam IN): PpyOProcessorKind Р’РёРґ РїСЂРѕС†РµСЃСЃРѕСЂР°. Р•СЃР»Рё extraParam == 0, С‚Рѕ С„СѓРЅРєС†РёСЏ Р±СѓРґРµС‚ РёСЃРєР°С‚СЊ
+//   СЃРЅР°С‡Р°Р»Р° СЃРѕР±СЃС‚РІРµРЅРЅРѕ РїСЂРѕС†РµСЃСЃРѕСЂС‹ СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РёРјРµРЅРµРј, Р° Р·Р°С‚РµРј РіСЂСѓРїРїС‹ РїСЂРѕС†РµСЃСЃРѕСЂРѕРІ.
+//   РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ kind == 0 (РїРѕРёСЃРє РїРѕ РјРёРµРЅРё, РЅРѕ РЅРµ РїРѕ РєРѕРґСѓ).
 //
 int32 DL6ICLS_PPObjProcessor::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec)
 {
@@ -10484,12 +10485,12 @@ int32 DL6ICLS_PPFias::SearchAddr(int32 id, SPpyO_FiasAddr* pRec)
 					uuid.ToStr(S_GUID::fmtIDL, temp_buf);
                 temp_buf.CopyToOleStr(&pRec->RecUuid);
                 //
-                (temp_buf = 0).CatLongZ(rec.PostalCode, 6).CopyToOleStr(&pRec->PostalCode);
-				p->GetText(rec.NameTRef, temp_buf = 0);
+                temp_buf.Z().CatLongZ(rec.PostalCode, 6).CopyToOleStr(&pRec->PostalCode);
+				p->GetText(rec.NameTRef, temp_buf.Z());
 				temp_buf.CopyToOleStr(&pRec->Name);
-				p->GetText(rec.OfcNameTRef, temp_buf = 0);
+				p->GetText(rec.OfcNameTRef, temp_buf.Z());
 				temp_buf.CopyToOleStr(&pRec->OfcName);
-				p->GetText(rec.SnTRef, temp_buf = 0);
+				p->GetText(rec.SnTRef, temp_buf.Z());
 				temp_buf.CopyToOleStr(&pRec->ShortDescr);
 
 				descr_buf = 0;
@@ -10517,7 +10518,7 @@ int32 DL6ICLS_PPFias::SearchHouse(int32 id, SPpyO_FiasHouse* pRec)
             if(pRec) {
 				SString temp_buf;
 				S_GUID uuid;
-				p->GetText(rec.NumTRef, temp_buf = 0);
+				p->GetText(rec.NumTRef, temp_buf.Z());
 				StringSet num_ss(':', temp_buf);
 				pRec->ID = rec.IdUuRef;
 				pRec->AddrID = rec.ParentUuRef;
@@ -10529,7 +10530,7 @@ int32 DL6ICLS_PPFias::SearchHouse(int32 id, SPpyO_FiasHouse* pRec)
                 temp_buf.CopyToOleStr(&pRec->HouseUuid);
                 //
 				pRec->RecUuid = 0;
-				(temp_buf = 0).CatLongZ(rec.PostalCode, 6).CopyToOleStr(&pRec->PostalCode);
+				temp_buf.Z().CatLongZ(rec.PostalCode, 6).CopyToOleStr(&pRec->PostalCode);
 				uint   num_p = 0;
 				if(num_ss.get(&num_p, temp_buf)) {
 					temp_buf.CopyToOleStr(&pRec->HouseN);
@@ -10577,12 +10578,12 @@ int32 DL6ICLS_PPFias::SearchAddrByGuid(SString & pGuidStr, SPpyO_FiasAddr* pRec)
 						uuid.ToStr(S_GUID::fmtIDL, temp_buf);
 					temp_buf.CopyToOleStr(&pRec->RecUuid);
 					//
-					(temp_buf = 0).CatLongZ(rec.PostalCode, 6).CopyToOleStr(&pRec->PostalCode);
-					p->GetText(rec.NameTRef, temp_buf = 0);
+					temp_buf.Z().CatLongZ(rec.PostalCode, 6).CopyToOleStr(&pRec->PostalCode);
+					p->GetText(rec.NameTRef, temp_buf.Z());
 					temp_buf.CopyToOleStr(&pRec->Name);
-					p->GetText(rec.OfcNameTRef, temp_buf = 0);
+					p->GetText(rec.OfcNameTRef, temp_buf.Z());
 					temp_buf.CopyToOleStr(&pRec->OfcName);
-					p->GetText(rec.SnTRef, temp_buf = 0);
+					p->GetText(rec.SnTRef, temp_buf.Z());
 					temp_buf.CopyToOleStr(&pRec->ShortDescr);
 
 					descr_buf = 0;
@@ -10613,7 +10614,7 @@ int32 DL6ICLS_PPFias::SearchHouseByGuid(SString & pGuidStr, SPpyO_FiasHouse* pRe
 				if(pRec) {
 					SString temp_buf;
 					S_GUID uuid;
-					p->GetText(rec.NumTRef, temp_buf = 0);
+					p->GetText(rec.NumTRef, temp_buf.Z());
 					StringSet num_ss(':', temp_buf);
 					pRec->ID = rec.IdUuRef;
 					pRec->AddrID = rec.ParentUuRef;
@@ -10625,7 +10626,7 @@ int32 DL6ICLS_PPFias::SearchHouseByGuid(SString & pGuidStr, SPpyO_FiasHouse* pRe
 					temp_buf.CopyToOleStr(&pRec->HouseUuid);
 					//
 					pRec->RecUuid = 0;
-					(temp_buf = 0).CatLongZ(rec.PostalCode, 6).CopyToOleStr(&pRec->PostalCode);
+					temp_buf.Z().CatLongZ(rec.PostalCode, 6).CopyToOleStr(&pRec->PostalCode);
 					uint   num_p = 0;
 					if(num_ss.get(&num_p, temp_buf)) {
 						temp_buf.CopyToOleStr(&pRec->HouseN);
@@ -11004,7 +11005,7 @@ static void FillSCardRec(const SCardTbl::Rec * pInner, SPpyO_SCard * pOuter)
 	FLD(PeriodCount);
 
 	(temp_buf = pInner->Code).CopyToOleStr(&pOuter->Code);
-	(temp_buf = 0).CopyToOleStr(&pOuter->Password); // Передаем пустую строку
+	temp_buf.Z().CopyToOleStr(&pOuter->Password); // РџРµСЂРµРґР°РµРј РїСѓСЃС‚СѓСЋ СЃС‚СЂРѕРєСѓ
 #undef FLD
 }
 

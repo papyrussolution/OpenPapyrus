@@ -409,12 +409,12 @@ int BnkIngVTB::Pay()
 	memcpy(P_BnkIngVtb->Transaction.amount, P_BnkIngVtb->Amount, lnAmount);
 	result = ProcessOw(&P_BnkIngVtb->Transaction);
 
-	(str = 0).Cat(P_BnkIngVtb->Transaction.responseCode);
-	(str = 0).Cat(P_BnkIngVtb->Transaction.text_message);
-	(str = 0).Cat(P_BnkIngVtb->Transaction.currency);
-	(str = 0).Cat(P_BnkIngVtb->Transaction.amount);
-	(str = 0).Cat(P_BnkIngVtb->Transaction.rrn);
-	(str = 0).Cat(P_BnkIngVtb->Transaction.authCode);
+	str.Z().Cat(P_BnkIngVtb->Transaction.responseCode);
+	str.Z().Cat(P_BnkIngVtb->Transaction.text_message);
+	str.Z().Cat(P_BnkIngVtb->Transaction.currency);
+	str.Z().Cat(P_BnkIngVtb->Transaction.amount);
+	str.Z().Cat(P_BnkIngVtb->Transaction.rrn);
+	str.Z().Cat(P_BnkIngVtb->Transaction.authCode);
 	(TransErrStr = 0).Cat(P_BnkIngVtb->Transaction.text_message);
 
 	THROWERR(result == 0, INGVTB_TRANSERR);
@@ -435,12 +435,12 @@ int BnkIngVTB::Refund()
 	memcpy(P_BnkIngVtb->Transaction.amount, P_BnkIngVtb->Amount, lnAmount);
 	result = ProcessOw(&P_BnkIngVtb->Transaction);
 
-	(str = 0).Cat(P_BnkIngVtb->Transaction.responseCode);
-	(str = 0).Cat(P_BnkIngVtb->Transaction.text_message);
-	(str = 0).Cat(P_BnkIngVtb->Transaction.currency);
-	(str = 0).Cat(P_BnkIngVtb->Transaction.amount);
-	(str = 0).Cat(P_BnkIngVtb->Transaction.rrn);
-	(str = 0).Cat(P_BnkIngVtb->Transaction.authCode);
+	str.Z().Cat(P_BnkIngVtb->Transaction.responseCode);
+	str.Z().Cat(P_BnkIngVtb->Transaction.text_message);
+	str.Z().Cat(P_BnkIngVtb->Transaction.currency);
+	str.Z().Cat(P_BnkIngVtb->Transaction.amount);
+	str.Z().Cat(P_BnkIngVtb->Transaction.rrn);
+	str.Z().Cat(P_BnkIngVtb->Transaction.authCode);
 	(TransErrStr = 0).Cat(P_BnkIngVtb->Transaction.text_message);
 
 	THROWERR(result == 0, INGVTB_TRANSERR);
@@ -462,10 +462,10 @@ int BnkIngVTB::GetSessReport(char * pZCheck, size_t bufSize)
 	P_BnkIngVtb->Transaction.operType = OPER_CLOSEDAY;
 	result = ProcessOw(&P_BnkIngVtb->Transaction);
 
-	(str = 0).Cat(P_BnkIngVtb->Transaction.responseCode);
-	(str = 0).Cat(P_BnkIngVtb->Transaction.text_message);
-	(str = 0).Cat(P_BnkIngVtb->Transaction.rrn);
-	(str = 0).Cat(P_BnkIngVtb->Transaction.authCode);
+	str.Z().Cat(P_BnkIngVtb->Transaction.responseCode);
+	str.Z().Cat(P_BnkIngVtb->Transaction.text_message);
+	str.Z().Cat(P_BnkIngVtb->Transaction.rrn);
+	str.Z().Cat(P_BnkIngVtb->Transaction.authCode);
 	(TransErrStr = 0).Cat(P_BnkIngVtb->Transaction.text_message);
 
 	THROWERR(result == 0, INGVTB_TRANSERR);

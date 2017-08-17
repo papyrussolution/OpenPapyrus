@@ -875,7 +875,7 @@ int SLAPI PPViewPrjTask::GetTabTitle(PPID tabID, SString & rBuf)
 		MEMSZERO(k0);
 		k0.TabID = tabID;
 		if(P_TempTbl->search(0, &k0, spGe) > 0 && k0.TabID == tabID) {
-			rBuf = 0;
+			rBuf.Z();
 			if(oneof2(Filt.TabType, PrjTaskFilt::crstDateHour, PrjTaskFilt::crstEmployerHour))
 				rBuf.Printf("%02ld:00", P_TempTbl->data.TabID);
 			else if(oneof2(Filt.TabType, PrjTaskFilt::crstClientDate, PrjTaskFilt::crstEmployerDate)) {
@@ -891,7 +891,7 @@ int SLAPI PPViewPrjTask::GetTabTitle(PPID tabID, SString & rBuf)
 			ok = 1;
 		}
 		else
-			rBuf = 0;
+			rBuf.Z();
 	}
 	return ok;
 }

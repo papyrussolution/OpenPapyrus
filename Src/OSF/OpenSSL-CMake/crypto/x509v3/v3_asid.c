@@ -178,7 +178,7 @@ int X509v3_asid_add_id_or_range(ASIdentifiers * asid,
 		default:
 		    return 0;
 	}
-	if(*choice != NULL && (*choice)->type == ASIdentifierChoice_inherit)
+	if(*choice && (*choice)->type == ASIdentifierChoice_inherit)
 		return 0;
 	if(*choice == NULL) {
 		if((*choice = ASIdentifierChoice_new()) == NULL)
@@ -216,8 +216,7 @@ err:
 /*
  * Extract min and max values from an ASIdOrRange.
  */
-static void extract_min_max(ASIdOrRange * aor,
-    ASN1_INTEGER ** min, ASN1_INTEGER ** max)
+static void extract_min_max(ASIdOrRange * aor, ASN1_INTEGER ** min, ASN1_INTEGER ** max)
 {
 	OPENSSL_assert(aor != NULL && min != NULL && max != NULL);
 	switch(aor->type) {
@@ -291,7 +290,7 @@ static int ASIdentifierChoice_is_canonical(ASIdentifierChoice * choice)
 	{
 		ASIdOrRange * a = sk_ASIdOrRange_value(choice->u.asIdsOrRanges, i);
 		ASN1_INTEGER * a_min, * a_max;
-		if(a != NULL && a->type == ASIdOrRange_range) {
+		if(a && a->type == ASIdOrRange_range) {
 			extract_min_max(a, &a_min, &a_max);
 			if(ASN1_INTEGER_cmp(a_min, a_max) > 0)
 				goto done;
@@ -409,7 +408,6 @@ static int ASIdentifierChoice_canonize(ASIdentifierChoice * choice)
 			continue;
 		}
 	}
-
 	/*
 	 * Check for final inverted range.
 	 */
@@ -417,17 +415,14 @@ static int ASIdentifierChoice_canonize(ASIdentifierChoice * choice)
 	{
 		ASIdOrRange * a = sk_ASIdOrRange_value(choice->u.asIdsOrRanges, i);
 		ASN1_INTEGER * a_min, * a_max;
-		if(a != NULL && a->type == ASIdOrRange_range) {
+		if(a && a->type == ASIdOrRange_range) {
 			extract_min_max(a, &a_min, &a_max);
 			if(ASN1_INTEGER_cmp(a_min, a_max) > 0)
 				goto done;
 		}
 	}
-
 	OPENSSL_assert(ASIdentifierChoice_is_canonical(choice)); /* Paranoia */
-
 	ret = 1;
-
 done:
 	ASN1_INTEGER_free(a_max_plus_one);
 	BN_free(bn);
@@ -625,7 +620,7 @@ int X509v3_asid_subset(ASIdentifiers * a, ASIdentifiers * b)
  */
 #define validation_err(_err_)		\
 	do {				      \
-		if(ctx != NULL) {		   \
+		if(ctx) {		   \
 			ctx->error = _err_;		  \
 			ctx->error_depth = i;		  \
 			ctx->current_cert = x;		  \
@@ -654,7 +649,7 @@ static int asid_validate_path_internal(X509_STORE_CTX * ctx, STACK_OF(X509) * ch
 	 * check, we're done.  Otherwise, check canonical form and
 	 * set up for walking up the chain.
 	 */
-	if(ext != NULL) {
+	if(ext) {
 		i = -1;
 		x = NULL;
 	}
@@ -667,13 +662,13 @@ static int asid_validate_path_internal(X509_STORE_CTX * ctx, STACK_OF(X509) * ch
 	}
 	if(!X509v3_asid_is_canonical(ext))
 		validation_err(X509_V_ERR_INVALID_EXTENSION);
-	if(ext->asnum != NULL) {
+	if(ext->asnum) {
 		switch(ext->asnum->type) {
 			case ASIdentifierChoice_inherit: inherit_as = 1; break;
 			case ASIdentifierChoice_asIdsOrRanges: child_as = ext->asnum->u.asIdsOrRanges; break;
 		}
 	}
-	if(ext->rdi != NULL) {
+	if(ext->rdi) {
 		switch(ext->rdi->type) {
 			case ASIdentifierChoice_inherit: inherit_rdi = 1; break;
 			case ASIdentifierChoice_asIdsOrRanges: child_rdi = ext->rdi->u.asIdsOrRanges; break;
@@ -687,18 +682,18 @@ static int asid_validate_path_internal(X509_STORE_CTX * ctx, STACK_OF(X509) * ch
 		x = sk_X509_value(chain, i);
 		OPENSSL_assert(x != NULL);
 		if(x->rfc3779_asid == NULL) {
-			if(child_as != NULL || child_rdi != NULL)
+			if(child_as || child_rdi)
 				validation_err(X509_V_ERR_UNNESTED_RESOURCE);
 			continue;
 		}
 		if(!X509v3_asid_is_canonical(x->rfc3779_asid))
 			validation_err(X509_V_ERR_INVALID_EXTENSION);
-		if(x->rfc3779_asid->asnum == NULL && child_as != NULL) {
+		if(x->rfc3779_asid->asnum == NULL && child_as) {
 			validation_err(X509_V_ERR_UNNESTED_RESOURCE);
 			child_as = NULL;
 			inherit_as = 0;
 		}
-		if(x->rfc3779_asid->asnum != NULL && x->rfc3779_asid->asnum->type == ASIdentifierChoice_asIdsOrRanges) {
+		if(x->rfc3779_asid->asnum && x->rfc3779_asid->asnum->type == ASIdentifierChoice_asIdsOrRanges) {
 			if(inherit_as || asid_contains(x->rfc3779_asid->asnum->u.asIdsOrRanges, child_as)) {
 				child_as = x->rfc3779_asid->asnum->u.asIdsOrRanges;
 				inherit_as = 0;
@@ -707,12 +702,12 @@ static int asid_validate_path_internal(X509_STORE_CTX * ctx, STACK_OF(X509) * ch
 				validation_err(X509_V_ERR_UNNESTED_RESOURCE);
 			}
 		}
-		if(x->rfc3779_asid->rdi == NULL && child_rdi != NULL) {
+		if(x->rfc3779_asid->rdi == NULL && child_rdi) {
 			validation_err(X509_V_ERR_UNNESTED_RESOURCE);
 			child_rdi = NULL;
 			inherit_rdi = 0;
 		}
-		if(x->rfc3779_asid->rdi != NULL && x->rfc3779_asid->rdi->type == ASIdentifierChoice_asIdsOrRanges) {
+		if(x->rfc3779_asid->rdi && x->rfc3779_asid->rdi->type == ASIdentifierChoice_asIdsOrRanges) {
 			if(inherit_rdi || asid_contains(x->rfc3779_asid->rdi->u.asIdsOrRanges, child_rdi)) {
 				child_rdi = x->rfc3779_asid->rdi->u.asIdsOrRanges;
 				inherit_rdi = 0;
@@ -727,10 +722,10 @@ static int asid_validate_path_internal(X509_STORE_CTX * ctx, STACK_OF(X509) * ch
 	 * Trust anchor can't inherit.
 	 */
 	OPENSSL_assert(x != NULL);
-	if(x->rfc3779_asid != NULL) {
-		if(x->rfc3779_asid->asnum != NULL && x->rfc3779_asid->asnum->type == ASIdentifierChoice_inherit)
+	if(x->rfc3779_asid) {
+		if(x->rfc3779_asid->asnum && x->rfc3779_asid->asnum->type == ASIdentifierChoice_inherit)
 			validation_err(X509_V_ERR_UNNESTED_RESOURCE);
-		if(x->rfc3779_asid->rdi != NULL && x->rfc3779_asid->rdi->type == ASIdentifierChoice_inherit)
+		if(x->rfc3779_asid->rdi && x->rfc3779_asid->rdi->type == ASIdentifierChoice_inherit)
 			validation_err(X509_V_ERR_UNNESTED_RESOURCE);
 	}
 

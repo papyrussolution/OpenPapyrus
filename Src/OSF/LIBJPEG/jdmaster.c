@@ -293,16 +293,12 @@ static void master_selection(j_decompress_ptr cinfo)
 			cinfo->enable_2pass_quant = FALSE;
 			cinfo->colormap = NULL;
 		}
-		else if(cinfo->colormap != NULL) {
+		else if(cinfo->colormap)
 			cinfo->enable_external_quant = TRUE;
-		}
-		else if(cinfo->two_pass_quantize) {
+		else if(cinfo->two_pass_quantize)
 			cinfo->enable_2pass_quant = TRUE;
-		}
-		else {
+		else
 			cinfo->enable_1pass_quant = TRUE;
-		}
-
 		if(cinfo->enable_1pass_quant) {
 #ifdef QUANT_1PASS_SUPPORTED
 			jinit_1pass_quantizer(cinfo);
@@ -368,8 +364,7 @@ static void master_selection(j_decompress_ptr cinfo)
 	 * progress monitoring appropriately.  The input step is counted
 	 * as one pass.
 	 */
-	if(cinfo->progress != NULL && !cinfo->buffered_image &&
-	    cinfo->inputctl->has_multiple_scans) {
+	if(cinfo->progress && !cinfo->buffered_image && cinfo->inputctl->has_multiple_scans) {
 		int nscans;
 		/* Estimate number of scans to set pass_limit. */
 		if(cinfo->progressive_mode) {
@@ -478,13 +473,10 @@ METHODDEF(void) finish_output_pass(j_decompress_ptr cinfo)
 GLOBAL(void) jpeg_new_colormap(j_decompress_ptr cinfo)
 {
 	my_master_ptr master = (my_master_ptr)cinfo->master;
-
-	/* Prevent application from calling me at wrong times */
+	// Prevent application from calling me at wrong times 
 	if(cinfo->global_state != DSTATE_BUFIMAGE)
 		ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
-
-	if(cinfo->quantize_colors && cinfo->enable_external_quant &&
-	    cinfo->colormap != NULL) {
+	if(cinfo->quantize_colors && cinfo->enable_external_quant && cinfo->colormap) {
 		/* Select 2-pass quantizer for external colormap use */
 		cinfo->cquantize = master->quantizer_2pass;
 		/* Notify quantizer of colormap change */

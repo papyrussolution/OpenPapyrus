@@ -1,7 +1,7 @@
 // DBTABLEC.CPP
 // Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
-// Классы и функции DBTable, не зависящие от провайдера DBMS
+// @codepage UTF-8
+// РљР»Р°СЃСЃС‹ Рё С„СѓРЅРєС†РёРё DBTable, РЅРµ Р·Р°РІРёСЃСЏС‰РёРµ РѕС‚ РїСЂРѕРІР°Р№РґРµСЂР° DBMS
 //
 #include <db.h>
 #pragma hdrstop
@@ -71,11 +71,11 @@ SString & FASTCALL DBRowId::ToStr(SString & rBuf) const
 {
 	if(B != 0)
 		if(PTR32(S)[1] == 0)
-			(rBuf = 0).Cat(B);
+			rBuf.Z().Cat(B);
 		else
 			rBuf = (const char *)S;
 	else
-		rBuf = 0;
+		rBuf.Z();
 	return rBuf;
 }
 
@@ -88,7 +88,7 @@ int FASTCALL DBRowId::FromStr(const char * pStr)
 		for(uint i = 0; i < len; i++) {
 			if(!isdec(pStr[i])) {
 				//
-				// В строке есть не цифровой символ: трактуем ИД просто как текстовый идентификатор
+				// Р’ СЃС‚СЂРѕРєРµ РµСЃС‚СЊ РЅРµ С†РёС„СЂРѕРІРѕР№ СЃРёРјРІРѕР»: С‚СЂР°РєС‚СѓРµРј РР” РїСЂРѕСЃС‚Рѕ РєР°Рє С‚РµРєСЃС‚РѕРІС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
 				//
 				strnzcpy((char *)S, pStr, sizeof(S));
 				ok = 2;
@@ -97,7 +97,7 @@ int FASTCALL DBRowId::FromStr(const char * pStr)
 		}
 		if(ok < 0) {
 			//
-			// В строке все символы цифровые (см. выше): трактуем ИД как беззнаковое целое
+			// Р’ СЃС‚СЂРѕРєРµ РІСЃРµ СЃРёРјРІРѕР»С‹ С†РёС„СЂРѕРІС‹Рµ (СЃРј. РІС‹С€Рµ): С‚СЂР°РєС‚СѓРµРј РР” РєР°Рє Р±РµР·Р·РЅР°РєРѕРІРѕРµ С†РµР»РѕРµ
 			//
 			strtoulong(pStr, &B);
 			PTR32(S)[1] = 0;
@@ -429,7 +429,7 @@ int DBTable::Debug_Output(SString & rBuf) const
 {
 	int    ok = 1;
 	uint   i;
-	rBuf = 0;
+	rBuf.Z();
 	CAT_FLD(handle, rBuf).CR();
 	CAT_FLD(flags, rBuf).CR();
 	CAT_FLD(tableID, rBuf).CR();
@@ -520,7 +520,7 @@ int SLAPI DBTable::close()
 	return 1;
 }
 
-int SLAPI DBTable::isOpen() const
+int SLAPI DBTable::IsOpened() const
 {
 	return (handle != 0);
 }
@@ -577,7 +577,7 @@ int SLAPI DBTable::setFieldValByName(const char * pName, const void * pVal)
 
 int SLAPI DBTable::putRecToString(SString & rBuf, int withFieldNames)
 {
-	rBuf = 0;
+	rBuf.Z();
 	for(uint i = 0; i < fields.getCount(); i++) {
 		char   temp_buf[1024];
 		const BNField & f = fields[i];
@@ -823,7 +823,7 @@ int DBTable::writeLobData(DBField fld, const void * pBuf, size_t dataSize, int f
 	int    ok = -1, r;
 	size_t sz;
 	//
-	// Проверка на то, что поле fld действительно является LOB'ом
+	// РџСЂРѕРІРµСЂРєР° РЅР° С‚Рѕ, С‡С‚Рѕ РїРѕР»Рµ fld РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ СЏРІР»СЏРµС‚СЃСЏ LOB'РѕРј
 	//
 	THROW(r = LobB.GetSize((uint)fld.fld, &sz));
 	if(r > 0) {
@@ -833,9 +833,9 @@ int DBTable::writeLobData(DBField fld, const void * pBuf, size_t dataSize, int f
 		STempBuffer temp_buf(0);
 		if(ptr == pBuf && (dataSize > flat_size || forceCanonical)) {
 			//
-			// Если исходный указатель равен указателю на данные LOB, то необходимо
-			// предпринять меры по сохранению данных перед тем, как функция InitPtr
-			// преобразует SLob в структуру с отвлетвлением.
+			// Р•СЃР»Рё РёСЃС…РѕРґРЅС‹Р№ СѓРєР°Р·Р°С‚РµР»СЊ СЂР°РІРµРЅ СѓРєР°Р·Р°С‚РµР»СЋ РЅР° РґР°РЅРЅС‹Рµ LOB, С‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ
+			// РїСЂРµРґРїСЂРёРЅСЏС‚СЊ РјРµСЂС‹ РїРѕ СЃРѕС…СЂР°РЅРµРЅРёСЋ РґР°РЅРЅС‹С… РїРµСЂРµРґ С‚РµРј, РєР°Рє С„СѓРЅРєС†РёСЏ InitPtr
+			// РїСЂРµРѕР±СЂР°Р·СѓРµС‚ SLob РІ СЃС‚СЂСѓРєС‚СѓСЂСѓ СЃ РѕС‚РІР»РµС‚РІР»РµРЅРёРµРј.
 			//
 			THROW(temp_buf.Alloc(dataSize));
 			memcpy(temp_buf, pBuf, dataSize);
@@ -1038,7 +1038,7 @@ int SLAPI DBTable::rereadForUpdate(int idx, void * pKey)
 	int    ok = 1;
 	DbSession::Config dbcfg;
 	DBS.GetConfig(dbcfg);
-	if(dbcfg.NWaitLockTries != BTR_RECLOCKDISABLE) { // @v8.6.5 нет необходимости перечитывать запись, если блокировки не применяются
+	if(dbcfg.NWaitLockTries != BTR_RECLOCKDISABLE) { // @v8.6.5 РЅРµС‚ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё РїРµСЂРµС‡РёС‚С‹РІР°С‚СЊ Р·Р°РїРёСЃСЊ, РµСЃР»Рё Р±Р»РѕРєРёСЂРѕРІРєРё РЅРµ РїСЂРёРјРµРЅСЏСЋС‚СЃСЏ
 		uint8  _key[512];
 		if(!pKey) {
 			MEMSZERO(_key);
@@ -1134,7 +1134,7 @@ int SLAPI DBTable::SerializeArrayOfRecords(int dir, SArray * pList, SBuffer & rB
 	THROW(pCtx->Serialize(dir, c, rBuf));
 	for(int32 i = 0; i < c; i++) {
 		if(pList) {
-			THROW(temp_buf.Alloc(pList->getItemSize()+4096)); // +4096 страховка
+			THROW(temp_buf.Alloc(pList->getItemSize()+4096)); // +4096 СЃС‚СЂР°С…РѕРІРєР°
 		}
 		else {
 			THROW(temp_buf.Alloc(8192));

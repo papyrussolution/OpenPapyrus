@@ -29,7 +29,8 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL IsAWordChar(const uint ch) {
+static bool FASTCALL IsAWordChar(const uint ch) 
+{
 	/* FIXME:
 	 * The CSS spec allows "ISO 10646 characters U+00A1 and higher" to be treated as word chars.
 	 * Unfortunately, we are only getting string bytes here, and not full unicode characters. We cannot guarantee
@@ -39,9 +40,9 @@ static bool FASTCALL IsAWordChar(const uint ch) {
 	return ch >= 0x80 || isalnum(ch) || ch == '-' || ch == '_';
 }
 
-inline bool IsCssOperator(const int ch) {
-	if(!((ch < 0x80) && isalnum(ch)) &&
-	    (ch == '{' || ch == '}' || ch == ':' || ch == ',' || ch == ';' ||
+inline bool IsCssOperator(const int ch) 
+{
+	if(!((ch < 0x80) && isalnum(ch)) && (ch == '{' || ch == '}' || ch == ':' || ch == ',' || ch == ';' ||
 		    ch == '.' || ch == '#' || ch == '!' || ch == '@' ||
 	            /* CSS2 */
 		    ch == '*' || ch == '>' || ch == '+' || ch == '=' || ch == '~' || ch == '|' ||
@@ -52,10 +53,10 @@ inline bool IsCssOperator(const int ch) {
 }
 
 // look behind (from start of document to our start position) to determine current nesting level
-inline int NestingLevelLookBehind(Sci_PositionU startPos, Accessor &styler) {
+inline int NestingLevelLookBehind(Sci_PositionU startPos, Accessor &styler) 
+{
 	int ch;
 	int nestingLevel = 0;
-
 	for(Sci_PositionU i = 0; i < startPos; i++) {
 		ch = styler.SafeGetCharAt(i);
 		if(ch == '{')
@@ -63,11 +64,11 @@ inline int NestingLevelLookBehind(Sci_PositionU startPos, Accessor &styler) {
 		else if(ch == '}')
 			nestingLevel--;
 	}
-
 	return nestingLevel;
 }
 
-static void ColouriseCssDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler) {
+static void ColouriseCssDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler) 
+{
 	WordList &css1Props = *keywordlists[0];
 	WordList &pseudoClasses = *keywordlists[1];
 	WordList &css2Props = *keywordlists[2];

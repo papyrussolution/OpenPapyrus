@@ -41,7 +41,7 @@ static struct __RtToS {
 //static
 int PPObjCSession::RightsToString(long rt, long opRt, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	for(uint i = 0; i < SIZEOFARRAY(RtToS); i++) {
 		if((rt & RtToS[i].R && !RtToS[i].IsOpr) || (opRt & RtToS[i].R && RtToS[i].IsOpr)) {
 			rBuf.Cat(RtToS[i].S);
@@ -105,7 +105,7 @@ int SLAPI PPObjCSession::Search(PPID id, void * b)
 //static
 SString & SLAPI PPObjCSession::MakeCodeString(const CSessionTbl::Rec * pRec, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	rBuf.Cat(pRec->Dt).CatDiv('-', 1).Cat(pRec->SessNumber).CatDiv('-', 1).Cat(pRec->CashNumber).CatDiv('-', 1);
 	GetObjectName(PPOBJ_CASHNODE, pRec->CashNodeID, rBuf, 1);
 	return rBuf;
@@ -305,7 +305,7 @@ int SLAPI PPObjCSession::Recover(const PPIDArray & rSessList)
 						ok = -1;
 					THROW(Search(sess_id, &sub_rec) > 0);
 					if(sub_rec.WrOffAmount > 0.0 || P_Tbl->HasChild(sess_id) > 0) {
-						MakeCodeString(&sub_rec, temp_buf = 0);
+						MakeCodeString(&sub_rec, temp_buf.Z());
 						MakeCodeString(&sess_rec, added_msg_buf).CatChar('-').CatChar('>').Cat(temp_buf);
 						logger.LogMsgCode(mfError, PPERR_CSES_INNERSUPER, added_msg_buf);
 						ok = -1;
@@ -1723,7 +1723,7 @@ CTableTimeChunkGrid::CTableTimeChunkGrid(PPID posNodeID, CTableOrder * pTo) : ST
 int CTableTimeChunkGrid::GetText(int item, long id, SString & rBuf)
 {
 	int    ok = -1;
-	rBuf = 0;
+	rBuf.Z();
 	if(item == iTitle) {
 		rBuf = "TEST";
 		ok = 1;
@@ -2169,7 +2169,7 @@ int PPCSessComplexImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHe
 	THROW(PPImpExpParam::SerializeConfig(dir, rHdr, rTail, pSCtx));
 	if(dir > 0) {
 		if(Flags) {
-			param_list.Add(CSESSCPARAMS_FLAGS, (temp_buf = 0).Cat(Flags));
+			param_list.Add(CSESSCPARAMS_FLAGS, temp_buf.Z().Cat(Flags));
 		}
 		for(uint i = 0; i < SIZEOFARRAY(s_items); i++) {
 			if((temp_buf = s_items[i].R_Val).NotEmptyS()) {

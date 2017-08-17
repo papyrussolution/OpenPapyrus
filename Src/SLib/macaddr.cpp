@@ -84,7 +84,7 @@ int  SLAPI MACAddr::IsEmpty() const
 
 SString & FASTCALL MACAddr::ToStr(SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	for(size_t i = 0; i < sizeof(Addr); i++) {
 		char   item_buf[64];
 		sprintf(item_buf, "%.2X", Addr[i]);

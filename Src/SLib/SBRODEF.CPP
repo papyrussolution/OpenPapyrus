@@ -353,7 +353,7 @@ char * SLAPI BrowserDef::getText(long row, int column, char * pBuf)
 
 SString & SLAPI BrowserDef::getFullText(const void * pRowData, int column, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(pRowData && column >= 0 && column < (int)getCount()) {
 		const  BroColumn & r_c = at(column);
 		int    r = 1;
@@ -396,7 +396,7 @@ SString & SLAPI BrowserDef::getFullText(long row, int column, SString & rBuf)
 {
 	return getFullText(getRow(row), column, rBuf); // @v9.5.5
 	/* @v9.5.5
-	rBuf = 0;
+	rBuf.Z();
 	const char * p_src_data = (const char *)getRow(row);
 	if(p_src_data && column >= 0 && column < (int)getCount()) {
 		const  BroColumn & c = at(column);

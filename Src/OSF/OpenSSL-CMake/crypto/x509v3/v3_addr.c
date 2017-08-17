@@ -393,7 +393,7 @@ static IPAddressFamily * make_IPAddressFamily(IPAddrBlocks * addr, const unsigne
 	int i;
 	key[0] = (afi >> 8) & 0xFF;
 	key[1] = afi & 0xFF;
-	if(safi != NULL) {
+	if(safi) {
 		key[2] = *safi & 0xFF;
 		keylen = 3;
 	}
@@ -428,10 +428,9 @@ err:
 int X509v3_addr_add_inherit(IPAddrBlocks * addr, const unsigned afi, const unsigned * safi)
 {
 	IPAddressFamily * f = make_IPAddressFamily(addr, afi, safi);
-	if(f == NULL || f->ipAddressChoice == NULL || (f->ipAddressChoice->type == IPAddressChoice_addressesOrRanges &&
-		f->ipAddressChoice->u.addressesOrRanges != NULL))
+	if(!f || !f->ipAddressChoice || (f->ipAddressChoice->type == IPAddressChoice_addressesOrRanges && f->ipAddressChoice->u.addressesOrRanges))
 		return 0;
-	if(f->ipAddressChoice->type == IPAddressChoice_inherit && f->ipAddressChoice->u.inherit != NULL)
+	if(f->ipAddressChoice->type == IPAddressChoice_inherit && f->ipAddressChoice->u.inherit)
 		return 1;
 	if(f->ipAddressChoice->u.inherit == NULL && (f->ipAddressChoice->u.inherit = ASN1_NULL_new()) == NULL)
 		return 0;
@@ -446,11 +445,11 @@ static IPAddressOrRanges * make_prefix_or_range(IPAddrBlocks * addr, const unsig
 {
 	IPAddressFamily * f = make_IPAddressFamily(addr, afi, safi);
 	IPAddressOrRanges * aors = NULL;
-	if(!f || !f->ipAddressChoice || (f->ipAddressChoice->type == IPAddressChoice_inherit && f->ipAddressChoice->u.inherit != NULL))
+	if(!f || !f->ipAddressChoice || (f->ipAddressChoice->type == IPAddressChoice_inherit && f->ipAddressChoice->u.inherit))
 		return NULL;
 	if(f->ipAddressChoice->type == IPAddressChoice_addressesOrRanges)
 		aors = f->ipAddressChoice->u.addressesOrRanges;
-	if(aors != NULL)
+	if(aors)
 		return aors;
 	if((aors = sk_IPAddressOrRange_new_null()) == NULL)
 		return NULL;
@@ -621,7 +620,7 @@ int X509v3_addr_is_canonical(IPAddrBlocks * addr)
 		j = sk_IPAddressOrRange_num(aors) - 1;
 		{
 			IPAddressOrRange * a = sk_IPAddressOrRange_value(aors, j);
-			if(a != NULL && a->type == IPAddressOrRange_addressRange) {
+			if(a && a->type == IPAddressOrRange_addressRange) {
 				if(!extract_min_max(a, a_min, a_max, length))
 					return 0;
 				if(memcmp(a_min, a_max, length) > 0 ||
@@ -689,7 +688,7 @@ static int IPAddressOrRanges_canonize(IPAddressOrRanges * aors, const unsigned a
 	j = sk_IPAddressOrRange_num(aors) - 1;
 	{
 		IPAddressOrRange * a = sk_IPAddressOrRange_value(aors, j);
-		if(a != NULL && a->type == IPAddressOrRange_addressRange) {
+		if(a && a->type == IPAddressOrRange_addressRange) {
 			uchar a_min[ADDR_RAW_BUF_LEN], a_max[ADDR_RAW_BUF_LEN];
 			if(!extract_min_max(a, a_min, a_max, length))
 				return 0;
@@ -764,7 +763,7 @@ static void * v2i_IPAddrBlocks(const struct v3_ext_method * method, struct v3_ex
 		 * Handle SAFI, if any, and OPENSSL_strdup() so we can null-terminate
 		 * the other input values.
 		 */
-		if(safi != NULL) {
+		if(safi) {
 			*safi = strtoul(val->value, &t, 0);
 			t += strspn(t, " \t");
 			if(*safi > 0xFF || *t++ != ':') {
@@ -953,7 +952,7 @@ int X509v3_addr_subset(IPAddrBlocks * a, IPAddrBlocks * b)
  */
 #define validation_err(_err_)		\
 	do {				      \
-		if(ctx != NULL) {		   \
+		if(ctx) {		   \
 			ctx->error = _err_;		  \
 			ctx->error_depth = i;		  \
 			ctx->current_cert = x;		  \
@@ -986,7 +985,7 @@ static int addr_validate_path_internal(X509_STORE_CTX * ctx, STACK_OF(X509) * ch
 	 * check, we're done.  Otherwise, check canonical form and
 	 * set up for walking up the chain.
 	 */
-	if(ext != NULL) {
+	if(ext) {
 		i = -1;
 		x = NULL;
 	}
@@ -1049,7 +1048,7 @@ static int addr_validate_path_internal(X509_STORE_CTX * ctx, STACK_OF(X509) * ch
 	 * Trust anchor can't inherit.
 	 */
 	OPENSSL_assert(x != NULL);
-	if(x->rfc3779_addr != NULL) {
+	if(x->rfc3779_addr) {
 		for(j = 0; j < sk_IPAddressFamily_num(x->rfc3779_addr); j++) {
 			IPAddressFamily * fp = sk_IPAddressFamily_value(x->rfc3779_addr, j);
 			if(fp->ipAddressChoice->type == IPAddressChoice_inherit && sk_IPAddressFamily_find(child, fp) >= 0)

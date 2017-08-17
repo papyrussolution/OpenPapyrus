@@ -203,7 +203,7 @@ int SLAPI PPViewPrcBusy::ProcessPrc(PPID prcID, BExtInsert * pBei)
 			else
 				temp_buf.CatCharN('#', 3);
 			temp_buf.CopyTo(rec.TxtDuration, sizeof(rec.TxtDuration));
-			entry.ToStr(temp_buf = 0).CopyTo(rec.TxtPeriod, sizeof(rec.TxtPeriod));
+			entry.ToStr(temp_buf.Z()).CopyTo(rec.TxtPeriod, sizeof(rec.TxtPeriod));
 			if(pBei) {
 				THROW_DB(pBei->insert(&rec));
 			}
@@ -791,7 +791,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 	SString temp_buf;
 	TSessionTbl::Rec ses_rec;
 	PPCheckInPersonMngr cip_mgr;
-	rBuf = 0;
+	rBuf.Z();
 	if(item == iTitle) {
 		rBuf = "TEST";
 		ok = 1;
@@ -825,7 +825,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 						if(reg_count) {
 							PPLoadString("registered", temp_buf);
 							rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf).CatDiv(':', 2);
-							(temp_buf = 0).Cat((long)reg_count);
+							temp_buf.Z().Cat((long)reg_count);
 							if(ci_count || canceled_count)
 								temp_buf.CatChar('/').Cat((long)ci_count);
 								if(canceled_count)
@@ -894,7 +894,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 					if(reg_count) {
 						PPLoadString("registered", temp_buf);
 						rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf).CatDiv(':', 2);
-						(temp_buf = 0).Cat((long)reg_count);
+						temp_buf.Z().Cat((long)reg_count);
 						if(ci_count || canceled_count)
 							temp_buf.CatChar('/').Cat((long)ci_count);
 							if(canceled_count)

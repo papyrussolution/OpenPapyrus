@@ -1535,7 +1535,7 @@ public:
 					{
                 		RetailGoodsInfo rgi;
                 		P_Prcssr->GetRgi(CmdBlk.U.GoodsID, 0.0, PPObjGoods::rgifPriceOnly, rgi);
-                		rReply.WriteString((temp_buf = 0).Cat(rgi.Price));
+                		rReply.WriteString(temp_buf.Z().Cat(rgi.Price));
 					}
 					break;
 				case PPSCMD_POS_GETCURRENTSTATE:
@@ -2254,13 +2254,13 @@ PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char 
 		if(file_ext.Empty())
 			file_ext = ".";
 		if(blk.TransmType == blk.ttObjImage) {
-			THROW_PP_S(oneof5(blk.ObjType, PPOBJ_GOODS, PPOBJ_BRAND, PPOBJ_PERSON, PPOBJ_TSESSION, PPOBJ_WORKBOOK), PPERR_JOBSRV_OBJTYPENOTSUPP, (temp_buf = 0).Cat(blk.ObjType));
+			THROW_PP_S(oneof5(blk.ObjType, PPOBJ_GOODS, PPOBJ_BRAND, PPOBJ_PERSON, PPOBJ_TSESSION, PPOBJ_WORKBOOK), PPERR_JOBSRV_OBJTYPENOTSUPP, temp_buf.Z().Cat(blk.ObjType));
 			m |= SFile::mBinary;
 			// @v9.4.11 PPGetPath(PPPATH_TEMP, temp_buf);
 			PPMakeTempFileName("oimg", file_ext, 0, file_path);
 		}
 		else if(blk.TransmType == blk.ttWorkbookContent) {
-			THROW_PP_S(blk.ObjType = PPOBJ_WORKBOOK, PPERR_JOBSRV_OBJTYPENOTSUPP, (temp_buf = 0).Cat(blk.ObjType));
+			THROW_PP_S(blk.ObjType = PPOBJ_WORKBOOK, PPERR_JOBSRV_OBJTYPENOTSUPP, temp_buf.Z().Cat(blk.ObjType));
 			m |= SFile::mBinary;
 			// @v9.4.11 PPGetPath(PPPATH_TEMP, temp_buf);
 			PPMakeTempFileName("wbc", file_ext, 0, file_path);
@@ -2296,7 +2296,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char 
 					FtbList.insert(p_ftb);
 
 					ftb_pos_todel = (long)FtbList.getCount() - 1;
-					rReply.WriteString((temp_buf = 0).Cat(blk.Cookie));
+					rReply.WriteString(temp_buf.Z().Cat(blk.Cookie));
 				}
 				else {
 					file_path = p_f->GetName();
@@ -2326,7 +2326,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char 
 					p_ftb->Cookie = blk.Cookie;
 					p_ftb->Offs = rd_offs;
 					p_ftb->Tfb = blk;
-					rReply.WriteString((temp_buf = 0).Cat(cookie));
+					rReply.WriteString(temp_buf.Z().Cat(cookie));
 				}
 				else {
 					THROW(FinishReceivingFile(blk, p_ftb->P_F->GetName(), rReply)); // @v8.7.10 p_f-->p_ftb->P_F
@@ -2614,7 +2614,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::Testing()
 
 SString & SLAPI PPServerSession::GetTxtCmdTermMnemonic(SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(P_TxtCmdTerminal == 0) {
 		rBuf = "none";
 	}
@@ -2696,10 +2696,10 @@ PPServerSession::CmdRet SLAPI PPServerSession::Helper_QueryNaturalToken(PPServer
 							const PPNaturalToken & r_nt = nta.at(i);
 							SXml::WNode n_item(p_writer, "TokenType");
 							{
-								n_item.PutInner("TokenTypeId", (temp_buf = 0).Cat(r_nt.ID));
-								PPGetSubStrById(PPTXT_NATURALTOKENID, r_nt.ID, temp_buf = 0);
+								n_item.PutInner("TokenTypeId", temp_buf.Z().Cat(r_nt.ID));
+								PPGetSubStrById(PPTXT_NATURALTOKENID, r_nt.ID, temp_buf.Z());
 								n_item.PutInner("TokenTypeSymb", temp_buf);
-								n_item.PutInner("TokenTypeProb", (temp_buf = 0).Cat((double)r_nt.Prob, MKSFMTD(0, 12, NMBF_NOTRAILZ)));
+								n_item.PutInner("TokenTypeProb", temp_buf.Z().Cat((double)r_nt.Prob, MKSFMTD(0, 12, NMBF_NOTRAILZ)));
 							}
 						}
 					}
@@ -2712,8 +2712,8 @@ PPServerSession::CmdRet SLAPI PPServerSession::Helper_QueryNaturalToken(PPServer
 							SXml::WNode n_obj(p_writer, "RelObj");
 							const LAssoc item = rel_obj_list.at(i);
 							const PPID obj_type = item.Key;
-							n_obj.PutInner("Obj", (temp_buf = 0).Cat(obj_type));
-							n_obj.PutInner("Id", (temp_buf = 0).Cat(item.Val));
+							n_obj.PutInner("Obj", temp_buf.Z().Cat(obj_type));
+							n_obj.PutInner("Id", temp_buf.Z().Cat(item.Val));
 							if(obj_type == PPOBJ_PERSON) {
 								if(p_psn_obj->Fetch(item.Val, &psn_rec) > 0) {
 									n_obj.PutInner("Name", (temp_buf = psn_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
@@ -2782,7 +2782,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 				//
 				//
 				if(SpiiExchange(&p_e, 0, 0))
-					rReply.SetString((temp_buf = 0).Cat(100));
+					rReply.SetString(temp_buf.Z().Cat(100));
 				else if(!disable_err_reply)
 					rReply.SetError();
 				ok = cmdretQuit;
@@ -2818,14 +2818,14 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 				int   lr = DS.Login(db_symb, name, pwd);
 				pwd = 0;
 				if(!lr) {
-					rReply.SetString((temp_buf = 0).CatChar('0'));
+					rReply.SetString(temp_buf.Z().CatChar('0'));
 					ok = cmdretQuit;
 				}
 				else {
-					rReply.SetString((temp_buf = 0).CatChar('1'));
+					rReply.SetString(temp_buf.Z().CatChar('1'));
 					/*
 					StyloBhtIIExchanger exch(pSo);
-					(buf = 0).Cat((long)1);
+					buf.Z().Cat((long)1);
 					THROW(pSo->Send(buf.cptr(), buf.Len(), 0));
 					THROW(exch.Run());
 					*/
@@ -2854,7 +2854,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 			}
 			break;
 		case PPSCMD_HSH:
-			rReply.SetString((temp_buf = 0).Cat(DS.GetTLA().GetId()));
+			rReply.SetString(temp_buf.Z().Cat(DS.GetTLA().GetId()));
 			break;
 		case PPSCMD_GETLASTERRMSG:
 			PPGetLastErrorMessage(1, temp_buf);
@@ -2885,7 +2885,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 			PPGetExtStrData(3, pEv->Params, temp_buf);
 			THROW(DS.Login(db_symb, name, temp_buf) > 0);
 			State |= stLoggedIn;
-			rReply.SetString((temp_buf = 0).Cat(LConfig.SessionID));
+			rReply.SetString(temp_buf.Z().Cat(LConfig.SessionID));
 			{
 				(temp_buf = db_symb).CatChar(':').Cat(name);
 				DS.SetThreadNotification(PPSession::stntText, temp_buf);
@@ -2897,7 +2897,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 				if(timeout > 0 && timeout <= 1000000)
 					SuspendTimeout = timeout * 1000;
 			}
-			rReply.SetString((temp_buf = 0).Cat(DS.GetTLA().GetId()));
+			rReply.SetString(temp_buf.Z().Cat(DS.GetTLA().GetId()));
 			ok = cmdretSuspend;
 			break;
 		case PPSCMD_RESUME:
@@ -3320,7 +3320,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 						if(temp_buf.NotEmptyS())
 							terminal = temp_buf;
 						else
-							(terminal = 0).CRB().CRB();
+							terminal.Z().CRB().CRB();
 						ulong c = SLS.GetTLA().Rg.GetUniformInt(100);
 						temp_buf = 0;
 						for(ulong i = 0; i < c; i++) {
@@ -3430,7 +3430,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 					PPSetErrorSLib();
 					SLS.SetError(SLERR_FILENOTFOUND, path);
 					{
-						PPGetLastErrorMessage(DS.CheckExtFlag(ECF_SYSSERVICE), temp_buf = 0);
+						PPGetLastErrorMessage(DS.CheckExtFlag(ECF_SYSSERVICE), temp_buf.Z());
 						SyncTable::LogMessage(log_path, (msg_buf = "SPII FAIL: ").Cat(temp_buf));
 					}
 					CALLEXCEPT();
@@ -3541,13 +3541,13 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 						THROW(buf.IsValid());
 						THROW(message.DecodeMime64(buf, buf.GetSize(), &bin_size));
 						buf[bin_size] = 0;
-						(message = 0).Cat((const char *)buf).Transf(CTRANSF_UTF8_TO_INNER);
+						message.Z().Cat((const char *)buf).Transf(CTRANSF_UTF8_TO_INNER);
 					}
 					THROW(client.SmsInit_(albtr_cfg.Hdr.SmsAccID, from));
 					// @v8.5.4 client.SetRecvTimeout(0);
 					if(FormatPhone(old_phone, new_phone, err_msg)) {
-						THROW(client.SendSms(new_phone, message, (result = 0)));
-						(temp_buf = 0).Cat(new_phone).Space().Cat(result);
+						THROW(client.SendSms(new_phone, message, result.Z()));
+						temp_buf.Z().Cat(new_phone).Space().Cat(result);
 						logger.Log(temp_buf);
 					}
 					client.SmsRelease_();
@@ -3606,7 +3606,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 				PPGetExtStrData(1, pEv->Params, temp_buf);
 				const PPID ar_id = temp_buf.ToLong();
 				const PPID psn_id = ar_id ? ObjectToPerson(ar_id, 0) : 0;
-				rReply.SetString((temp_buf = 0).Cat(psn_id));
+				rReply.SetString(temp_buf.Z().Cat(psn_id));
 				ok = cmdretOK;
 			}
 			break;
@@ -3629,7 +3629,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 						ar_obj.P_Tbl->PersonToArticle(psn_id, acs_id, &ar_id);
 					}
 				}
-				rReply.SetString((temp_buf = 0).Cat(ar_id));
+				rReply.SetString(temp_buf.Z().Cat(ar_id));
 				ok = cmdretOK;
 			}
 			break;
@@ -3687,7 +3687,7 @@ const int16 PPJobSrvProtocol::CurrentProtocolVer = 1;
 
 SString & FASTCALL PPJobSrvProtocol::Header::ToStr(SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(Zero == 0) {
 		rBuf.CatEq("ProtocolVer", (long)ProtocolVer).CatDiv(';', 2).
 			CatEq("DataLen", DataLen).CatDiv(';', 2).
@@ -3764,7 +3764,7 @@ SString & FASTCALL PPJobSrvProtocol::ToStr(SString & rBuf) const
 	}
 	else {
 		size_t avl_sz = MIN(GetWrOffs(), 255);
-		(rBuf = 0).CatN((const char *)GetBuf(), avl_sz);
+		rBuf.Z().CatN((const char *)GetBuf(), avl_sz);
 		rBuf.Chomp();
 	}
 	return rBuf;
@@ -4239,7 +4239,7 @@ void SLAPI PPServerSession::Run()
 										cmdret = ProcessCommand(&cmd, reply);
 										if(log_level) {
 											const uint64 tm_finish = DS.GetProfileTime();
-											(log_buf = 0).Cat("CMD").CatDiv(':', 2);
+											log_buf.Z().Cat("CMD").CatDiv(':', 2);
 											if(log_level == 2) { // LOGIN вносим в журнал без пароля //
 												PPGetExtStrData(1, cmd.Params, fmt_buf);
 												log_buf.Cat("LOGIN").Space().Cat(fmt_buf);
@@ -4603,7 +4603,7 @@ int SLAPI PPJobSrvClient::Reconnect(const char * pAddr, int port)
 			PPJobSrvReply reply;
 			SString temp_buf;
 			(temp_buf = "RESUME").Space().Cat(AuthCookie);
-			if(Exec(temp_buf, reply) && reply.StartReading(&(temp_buf = 0)) && reply.CheckRepError()) {
+			if(Exec(temp_buf, reply) && reply.StartReading(&temp_buf.Z()) && reply.CheckRepError()) {
 				if(reply.GetH().Flags & PPJobSrvReply::hfAck)
 					ok = 2;
 			}
@@ -4635,7 +4635,7 @@ int SLAPI PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, const char * pTerminal, PPJob
 	THROW_PP(State & stConnected, PPERR_JOBSRVCLI_NOTCONN);
 	// @v8.3.4 {
 	if(State & stDebugMode) {
-		(log_buf = 0).Cat("CLIENT REQ").CatDiv(':', 2);
+		log_buf.Z().Cat("CLIENT REQ").CatDiv(':', 2);
 		log_buf.Cat(rCmd.ToStr(temp_buf));
 		PPLogMessage(DebugLogFileName, log_buf, LOGMSGF_TIME|LOGMSGF_THREADINFO);
 	}
@@ -4662,7 +4662,7 @@ int SLAPI PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, const char * pTerminal, PPJob
 			//
 		}
 		else if(State & stDebugMode) {
-			(log_buf = 0).Cat("CLIENT REP").CatDiv(':', 2);
+			log_buf.Z().Cat("CLIENT REP").CatDiv(':', 2);
 			log_buf.Cat(rReply.ToStr(temp_buf));
 			PPLogMessage(DebugLogFileName, log_buf, LOGMSGF_TIME|LOGMSGF_THREADINFO);
 		}
@@ -4794,7 +4794,7 @@ int SLAPI run_client()
 						}
 						else if(r == 1) {
 							const PPJobSrvProtocol::Header & hdr = reply.GetH();
-							(reply_str = 0).Cat("Binary reply").CatDiv(':', 2).
+							reply_str.Z().Cat("Binary reply").CatDiv(':', 2).
 								CatEq("Protocol Ver", (long)hdr.ProtocolVer).CatDiv(';', 2).
 								CatEq("Data Len", hdr.DataLen).CatDiv(';', 2).
 								CatEq("Data Type", hdr.Type).CatDiv(';', 2).
@@ -4805,7 +4805,7 @@ int SLAPI run_client()
 						}
 						else {
 							PPGetLastErrorMessage(1, msg_buf);
-							(reply_str = 0).Cat("Error").CatDiv(':', 2).Cat(msg_buf);
+							reply_str.Z().Cat("Error").CatDiv(':', 2).Cat(msg_buf);
 						}
 						printf(reply_str.cptr());
 					}
@@ -4830,7 +4830,7 @@ int SLAPI run_client()
 						}
 						else if(r == 1) {
 							const PPJobSrvProtocol::Header & hdr = reply.GetH();
-							(reply_str = 0).Cat("Binary reply").CatDiv(':', 2).
+							reply_str.Z().Cat("Binary reply").CatDiv(':', 2).
 								CatEq("Protocol Ver", (long)hdr.ProtocolVer).CatDiv(';', 2).
 								CatEq("Data Len", hdr.DataLen).CatDiv(';', 2).
 								CatEq("Data Type", hdr.Type).CatDiv(';', 2).
@@ -4841,7 +4841,7 @@ int SLAPI run_client()
 						}
 						else {
 							PPGetLastErrorMessage(1, msg_buf);
-							(reply_str = 0).Cat("Error").CatDiv(':', 2).Cat(msg_buf);
+							reply_str.Z().Cat("Error").CatDiv(':', 2).Cat(msg_buf);
 						}
 						printf(reply_str.cptr());
 					}
@@ -4853,7 +4853,7 @@ int SLAPI run_client()
 	}
 	else {
 		PPGetLastErrorMessage(1, msg_buf);
-		(reply_str = 0).Cat("Error").CatDiv(':', 2).Cat(msg_buf).CR();
+		reply_str.Z().Cat("Error").CatDiv(':', 2).Cat(msg_buf).CR();
 		printf(reply_str.cptr());
 		err = -1;
 	}
@@ -4983,8 +4983,8 @@ int SLAPI RFIDPrcssr()
 		while(1) {
 			char data[32];
 			DWORD sz = 0;
-			// (query_str = 0).CatChar((char)170).CatChar((char)1).CatChar((char)1).CatChar((char)1^1);
-			(query_str = 0).CatChar((char)170).CatChar((char)1).CatChar((char)6);
+			// query_str.Z().CatChar((char)170).CatChar((char)1).CatChar((char)1).CatChar((char)1^1);
+			query_str.Z().CatChar((char)170).CatChar((char)1).CatChar((char)6);
 			STRNSCPY(data, "1234567890123456789012345678901");
 			crc = 1^6;
 			for(uint i = 0; i < strlen(data); i++)

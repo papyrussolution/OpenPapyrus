@@ -2062,7 +2062,7 @@ int SLAPI PPViewGoodsOpAnalyze::GetTabTitle(long tabID, SString & rBuf)
 		if(LocObj.Search(tabID, &loc_rec) > 0)
 			rBuf = loc_rec.Name;
 		else
-			(rBuf = 0).Cat(tabID);
+			rBuf.Z().Cat(tabID);
 	}
 	return 1;
 }
@@ -2609,7 +2609,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			P_Ct->AddAggrField(P_TempTbl->Quantity);
 			total_row_list.Add(P_TempTbl->Quantity);
 		}
-		PPGetWord(PPWORD_TOTAL, 0, temp_buf = 0);
+		PPGetWord(PPWORD_TOTAL, 0, temp_buf.Z());
 		P_Ct->AddTotalRow(total_row_list, 0, temp_buf);
 		// P_Ct->AddTotalColumn(total_row_list, 0, temp_buf);
 		THROW(P_Ct->Create(1));
@@ -2703,7 +2703,7 @@ int SLAPI PPViewGoodsOpAnalyze::FlashCacheItem(BExtInsert * pBei, const GoaCache
 		rec.Object   = pItem->ArID;
 		rec.LocID    = pItem->LocID;
 		if(!!Filt.Sgb) {
-			P_BObj->GetSubstText(pItem->GoodsID, &Bsp, temp_buf = 0);
+			P_BObj->GetSubstText(pItem->GoodsID, &Bsp, temp_buf.Z());
 			temp_buf.CopyTo(rec.Text, sizeof(rec.Text));
 		}
 		else {
@@ -2760,7 +2760,7 @@ int SLAPI PPViewGoodsOpAnalyze::FlashCacheItem(BExtInsert * pBei, const GoaCache
 		rec.RestCostSum  = pItem->RestCostSum;
 		rec.RestPriceSum = pItem->RestPriceSum;
 		if(Filt.Sgg == sggNone && !Filt.Sgb) {
-			GObj.FetchSingleBarcode(rec.GoodsID, temp_buf = 0);
+			GObj.FetchSingleBarcode(rec.GoodsID, temp_buf.Z());
 			temp_buf.CopyTo(rec.Barcode, sizeof(rec.Barcode));
 		}
 		THROW_DB(pBei->insert(&rec));

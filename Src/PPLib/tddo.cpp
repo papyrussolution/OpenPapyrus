@@ -88,7 +88,7 @@ int SLAPI Tddo::GetFileName(const char * pFileName, int fileType, const char * p
 // static
 int SLAPI Tddo::LoadFile(const char * pFileName, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 1;
 	SString temp_buf;
 	THROW(Tddo::GetFileName(pFileName, ftTddo, 0, temp_buf));
@@ -212,7 +212,7 @@ int SLAPI Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 				if(rScan.Skip()[0] != ')') {
 					THROW(ResolveExpr(pCallerRtm, pScope, pCallerRtm, rScan, temp_result)); // @recursion
 					if(temp_result.RefID)
-						(temp_buf = 0).Cat(temp_result.RefID);
+						temp_buf.Z().Cat(temp_result.RefID);
 					else
 						temp_buf = temp_result.S;
 					arg_list.Add(++arg_count, temp_buf);
@@ -419,7 +419,7 @@ int SLAPI Tddo::GetVar(const SString & rInput, SString & rBuf) const
 {
 	uint   i = 1;
 	int    c;
-	rBuf = 0;
+	rBuf.Z();
 	if(rInput.C(i) == '{')
 		i++;
 	for(; (c = rInput.C(i)) != '}' && c != 0; i++)
@@ -637,11 +637,11 @@ int SLAPI Tddo::ResolveVar(const SString & rText, const DlScope * pScope, Result
 		THROW_PP(pScope, PPERR_TDDO_ZEROVARSCOPE);
 		THROW(P_Ctx->ResolveVar(pScope, 1, rText, &cv));
 		const DlScope * p_var_scope = P_Ctx->GetEvaluatedVarScope(pScope, cv.ScopeID);
-		THROW_PP_S(p_var_scope, PPERR_TDDO_INVFLDSCOPE, (temp_buf = 0).Cat(pScope->GetName()).Space().Cat(cv.ScopeID));
+		THROW_PP_S(p_var_scope, PPERR_TDDO_INVFLDSCOPE, temp_buf.Z().Cat(pScope->GetName()).Space().Cat(cv.ScopeID));
 		fp.FReal  = MKSFMTD(0, 4, 0);
 		fp.FDate  = DATF_DMY|DATF_CENTURY;
 		fp.Flags |= SFormatParam::fFloatSize;
-		THROW_PP_S(p_var_scope->GetFieldByPos(cv.Pos, &fld), PPERR_TDDO_INVFLDPOS, (temp_buf = 0).Cat(cv.Pos));
+		THROW_PP_S(p_var_scope->GetFieldByPos(cv.Pos, &fld), PPERR_TDDO_INVFLDPOS, temp_buf.Z().Cat(cv.Pos));
 		fld.GetFieldDataFromBuf(rR.S, p_var_scope->GetDataC(0), fp);
 		if(fld.T.Mod == STypEx::modLink && fld.T.Link) {
 			const DlScope * p_scope = P_Ctx->GetScope_Const(fld.T.Link, 0);
@@ -886,7 +886,7 @@ int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta
 			}
 			else if(rMeta.Tok == tIter) {
 				assert(rBlk.P_Rtm);
-				(temp_buf = 0).Cat("iter").CatChar('@').Cat(rMeta.Text.NotEmpty() ? rMeta.Text : "def");
+				temp_buf.Z().Cat("iter").CatChar('@').Cat(rMeta.Text.NotEmpty() ? rMeta.Text : "def");
 				iter_id = rBlk.P_Rtm->GetIterID(temp_buf);
 				THROW_PP_S(iter_id, PPERR_TDDO_UNDEFITERNAME, temp_buf);
 				{
@@ -1168,7 +1168,7 @@ SLTEST_R(Tddo)
 		in_buf.Cat(temp_buf);
 	for(uint i = 0; i < id_list.getCount(); i++) {
 		ext_param_list.clear(1);
-		ext_param_list.add((temp_buf = 0).Cat(id_list.get(i)), 0);
+		ext_param_list.add(temp_buf.Z().Cat(id_list.get(i)), 0);
 		ext_param_list.add("Param 02", 0);
 		ext_param_list.add("Param 03", 0);
 		ext_param_list.add("Param 04", 0);

@@ -1034,7 +1034,7 @@ int SLAPI UhttGoodsValueMgr::Set(const UhttGoodsValue * pRec, int use_ta)
 	UhttPriceTbl::Key0 k0;
 	THROW_INVARG(pRec);
 	THROW_PP_S(pRec->SellerLocID, PPERR_UHTTPRICE_INVSELLERLOCID, pRec->SellerLocID);
-	THROW_PP_S(pRec->Price >= 0.0 && pRec->Price < 1.e9, PPERR_UHTTPRICE_INVPRICE, (temp_buf = 0).Cat(pRec->Price, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+	THROW_PP_S(pRec->Price >= 0.0 && pRec->Price < 1.e9, PPERR_UHTTPRICE_INVPRICE, temp_buf.Z().Cat(pRec->Price, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);

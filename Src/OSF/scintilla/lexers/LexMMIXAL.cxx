@@ -82,7 +82,7 @@ static void ColouriseMMIXALDoc(Sci_PositionU startPos, Sci_Position length, int 
 			sc.SetState(SCE_MMIXAL_OPERANDS);
 		}
 		else if(sc.state == SCE_MMIXAL_NUMBER) {                // NUMBER
-			if(!isdigit(sc.ch)) {
+			if(!isdec(sc.ch)) {
 				if(IsAWordChar(sc.ch)) {
 					char s[100];
 					sc.GetCurrent(s, sizeof(s));
@@ -152,7 +152,7 @@ static void ColouriseMMIXALDoc(Sci_PositionU startPos, Sci_Position length, int 
 			}
 		}
 		else if(sc.state == SCE_MMIXAL_REGISTER) {              // REGISTER
-			if(!isdigit(sc.ch)) {
+			if(!isdec(sc.ch)) {
 				sc.SetState(SCE_MMIXAL_OPERANDS);
 			}
 		}
@@ -170,7 +170,7 @@ static void ColouriseMMIXALDoc(Sci_PositionU startPos, Sci_Position length, int 
 					sc.SetState(SCE_MMIXAL_COMMENT);
 				}
 			}
-			else if(isdigit(sc.ch)) {
+			else if(isdec(sc.ch)) {
 				sc.SetState(SCE_MMIXAL_NUMBER);
 			}
 			else if(IsAWordChar(sc.ch) || sc.Match('@')) {

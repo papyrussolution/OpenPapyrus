@@ -174,7 +174,7 @@ int SLAPI SetComboBoxListText(TDialog * dlg, uint comboBoxCtlID)
 
 SString & SLAPI PPFormatPeriod(const DateRange * pPeriod, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(pPeriod) {
 		LDATE  beg = pPeriod->low;
 		LDATE  end = pPeriod->upp;
@@ -194,7 +194,7 @@ SString & SLAPI PPFormatPeriod(const DateRange * pPeriod, SString & rBuf)
 
 SString & SLAPI PPFormatPeriod(const LDATETIME & rBeg, LDATETIME & rEnd, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(rBeg.d) {
 		if(rBeg.d != rEnd.d)
 			rBuf.CatChar('с').Space();
@@ -321,7 +321,7 @@ int SLAPI GetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, LTIME * pLow, LT
 			SString tm_buf;
 			buf.Sub(0, pos, tm_buf);
 			strtotime(tm_buf, format, &low);
-			buf.Sub(pos + delim_len, buf.Len() - pos - delim_len, (tm_buf = 0));
+			buf.Sub(pos + delim_len, buf.Len() - pos - delim_len, tm_buf.Z());
 			strtotime(tm_buf, format, &upp);
 		}
 		else {
@@ -1071,13 +1071,13 @@ void Lst2LstObjDialog::GetItemText(long id, SString & rBuf)
 		Data.P_SrcList->Get(id, rBuf);
 	}
 	else if(P_Object) {
-		rBuf = 0;
+		rBuf.Z();
 		P_Object->GetName(id, &rBuf);
 		if(rBuf.Empty())
 			ideqvalstr(id, rBuf);
 	}
 	else
-		ideqvalstr(id, rBuf = 0);
+		ideqvalstr(id, rBuf.Z());
 }
 
 int Lst2LstObjDialog::setupRightTList()
@@ -1363,7 +1363,7 @@ IMPL_HANDLE_EVENT(WLDialog)
 
 int SLAPI GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = -1;
 	int    str_id = 0;
 	int    ini_sect_id = PPAbstractDevice::GetDrvIniSectByDvcClass(dvcClass, &str_id, 0);
@@ -1396,7 +1396,7 @@ int SLAPI GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf)
 			}
 		}
 		if(ok <= 0)
-			(rBuf = 0).CatEq("Unkn device type", deviceTypeID);
+			rBuf.Z().CatEq("Unkn device type", deviceTypeID);
 	}
 	return ok;
 }
@@ -1598,7 +1598,7 @@ int SLAPI SetupSubstPersonCombo(TDialog * pDlg, uint ctlID, SubstGrpPerson sgp)
 	PPObjPersonRelType relt_obj;
 	PPLoadText(PPTXT_SUBSTPERSONLIST, buf);
 	StringSet ss(';', buf);
-	for(uint i = 0; ss.get(&i, (buf = 0)) > 0;)
+	for(uint i = 0; ss.get(&i, buf.Z()) > 0;)
 		if(buf.Divide(',', id_buf, txt_buf) > 0)
 			ary.Add(id_buf.ToLong(), txt_buf);
 	PPGetWord(PPWORD_RELATION, 0, word_rel);
@@ -1651,7 +1651,7 @@ int SLAPI SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
 			PPObjectTag2 tag_rec;
 			for(SEnum en = PPRef->Enum(PPOBJ_TAG, 0); en.Next(&tag_rec) > 0;) {
 				if(tag_rec.ObjTypeID == PPOBJ_GOODS && tag_rec.TagDataType != OTTYP_GROUP) {
-					(txt_buf = 0).Cat("Tag").CatDiv(':', 2).Cat(tag_rec.Name);
+					txt_buf.Z().Cat("Tag").CatDiv(':', 2).Cat(tag_rec.Name);
 					p_lw->listBox()->addItem(tag_rec.ID + sggTagBias, txt_buf);
 				}
 			}
@@ -2365,7 +2365,7 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		pDlg->clearEvent(event);
 	}
 	else if(event.isCmd(CmDelImage)) {
-		pDlg->setCtrlString(CtlImage, Data.Path = 0);
+		pDlg->setCtrlString(CtlImage, Data.Path.Z());
 		Data.Flags |= Rec::fUpdated;
 		pDlg->clearEvent(event);
 	}
@@ -2432,7 +2432,7 @@ int SLAPI BarcodeInputDialog(int initChar, SString & rBuf)
 			SString buf;
 			getCtrlString(CTL_SRCHBCODE_CODE, buf);
 			const int cd = CalcBarcodeCheckDigit(buf);
-			setCtrlString(CTL_SRCHBCODE_CHKDIG, (buf = 0).Cat(cd));
+			setCtrlString(CTL_SRCHBCODE_CHKDIG, buf.Z().Cat(cd));
 		}
 		PPObjGoods GObj;
 	};
@@ -2895,7 +2895,7 @@ SpecialInputCtrlGroup::SpecialInputCtrlGroup(uint ctlId, uint rdDelay) : CtrlGro
 				P_Ad->PCpb.Cls = gd_pack.Rec.DeviceClass;
 				THROW(P_Ad->IdentifyDevice(gd_pack.Rec.DeviceClass, temp_buf));
 				THROW(P_Ad->RunCmd("INIT", Out.Clear()));
-				gd_pack.GetExtStrData(GENDVCEXSTR_INITSTR, temp_buf = 0);
+				gd_pack.GetExtStrData(GENDVCEXSTR_INITSTR, temp_buf.Z());
 				if(temp_buf.NotEmptyS()) {
 					THROW(P_Ad->RunCmd(temp_buf, Out.Clear()));
 				}
@@ -3307,7 +3307,7 @@ StrAssocArray * ObjTagSelExtra::GetList(const char * pText)
 								do_add = 1;
 							}
 							if(do_add) {
-								(temp_buf = 0).Cat(item.Txt);
+								temp_buf.Z().Cat(item.Txt);
 								if(obj_name_buf.NotEmptyS())
 									temp_buf.CatDiv('-', 1).Cat(obj_name_buf);
 								p_list->Add(item.Id, temp_buf);
@@ -3345,7 +3345,7 @@ int ObjTagSelExtra::SearchText(const char * pText, long * pID, SString & rBuf)
 
 int ObjTagSelExtra::Search(long id, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 0;
 	ObjTagItem tag_item;
 	if(TagObj.FetchTag(id, TagID, &tag_item) > 0) {
@@ -3431,7 +3431,7 @@ StrAssocArray * PersonSelExtra::GetList(const char * pText)
 							if(p_locc->GetEAddr(temp_phone_list.get(i), &ea_rec) > 0) {
 								if(ea_rec.LinkObjType == PPOBJ_PERSON && ea_rec.LinkObjID > 0) {
 									psn_list.add(ea_rec.LinkObjID);
-									((PPEAddr*)ea_rec.Addr)->GetPhone(phone_buf = 0);
+									((PPEAddr*)ea_rec.Addr)->GetPhone(phone_buf.Z());
 									phone_list.Add(ea_rec.LinkObjID, (const char*)phone_buf);
 								}
 							}
@@ -3471,7 +3471,7 @@ StrAssocArray * PersonSelExtra::GetList(const char * pText)
 						else
 							id = psn_id;
 						if(id > 0) {
-							GetObjectName((AccSheetID) ? PPOBJ_ARTICLE : PPOBJ_PERSON, id, (name = 0));
+							GetObjectName((AccSheetID) ? PPOBJ_ARTICLE : PPOBJ_PERSON, id, name.Z());
 							if(use_phone_list) {
 								(temp_name = phone_list.at(i).Txt).Space().Cat(name);
 								name = temp_name;
@@ -3549,7 +3549,7 @@ StrAssocArray * PhoneSelExtra::GetList(const char * pText)
 					if(p_locc->GetEAddr(ea_id, &ea_rec) > 0) {
 						if(ea_rec.LinkObjType == PPOBJ_PERSON && LocalFlags & lfPerson && PsnObj.Fetch(ea_rec.LinkObjID, &psn_rec) > 0) {
 							eac_list.add(ea_rec.ID);
-							((PPEAddr*)ea_rec.Addr)->GetPhone(phone_buf = 0);
+							((PPEAddr*)ea_rec.Addr)->GetPhone(phone_buf.Z());
 							(temp_name = phone_buf).Space().Cat(psn_rec.Name);
 							p_list->Add(ea_id, 0, temp_name);
 						}
@@ -3557,7 +3557,7 @@ StrAssocArray * PhoneSelExtra::GetList(const char * pText)
 							PsnObj.LocObj.Fetch(ea_rec.LinkObjID, &loc_rec) > 0) {
 							if(!(LocalFlags & lfStandaloneLocOnly) || (loc_rec.Type == LOCTYP_ADDRESS && loc_rec.Flags & LOCF_STANDALONE)) {
 								eac_list.add(ea_rec.ID);
-								((PPEAddr*)ea_rec.Addr)->GetPhone(phone_buf = 0);
+								((PPEAddr*)ea_rec.Addr)->GetPhone(phone_buf.Z());
 
 								temp_name = phone_buf;
 								name = 0;
@@ -3589,7 +3589,7 @@ StrAssocArray * PhoneSelExtra::GetList(const char * pText)
 int PhoneSelExtra::Search(long id, SString & rBuf)
 {
 	int    ok = -1;
-	rBuf = 0;
+	rBuf.Z();
 	EAddrTbl::Rec ea_rec;
 	if(PsnObj.LocObj.P_Tbl->GetEAddr(id, &ea_rec) > 0) {
 		((PPEAddr*)ea_rec.Addr)->GetPhone(rBuf);
@@ -3600,7 +3600,7 @@ int PhoneSelExtra::Search(long id, SString & rBuf)
 
 int PhoneSelExtra::SearchText(const char * pText, long * pID, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = -1;
 	PPID   result_id = 0;
 	if(!isempty(pText)) {
@@ -5717,7 +5717,7 @@ void TimePickerDialog::DrawHourText(TCanvas * pCanv)
 		TPoint text_point;
 		TRect  h_rect = TmRects.Hours.at(0);
 		text_point.Set(h_rect.a.x, 10);
-		PPGetWord(PPWORD_HOURS, 1, temp_buf = 0);
+		PPGetWord(PPWORD_HOURS, 1, temp_buf.Z());
 		pCanv->SelectObjectAndPush((HFONT)Ptb.Get(fontTexts));
 		pCanv->SetBkColor(Ptb.GetColor(clrClear));
 		pCanv->SetTextColor(GetColorRef(SClrBlack));
@@ -5762,7 +5762,7 @@ void TimePickerDialog::DrawMinutText(TCanvas * pCanv)
 		SString temp_buf;
 		TRect  m_rect = TmRects.Minuts.at(0);
 		text_point.Set(m_rect.a.x, m_rect.a.y - 20);
-		PPGetWord(PPWORD_MINUTES, 1, temp_buf = 0);
+		PPGetWord(PPWORD_MINUTES, 1, temp_buf.Z());
 		pCanv->SelectObjectAndPush((HFONT)Ptb.Get(fontTexts));
 		pCanv->SetBkColor(Ptb.GetColor(clrClear));
 		pCanv->SetTextColor(GetColorRef(SClrBlack));
@@ -5803,7 +5803,7 @@ void TimePickerDialog::Implement_Draw()
 				COLORREF color;
 				TPoint round_pt;
 				TRect text_rect(x + 1, y + 1, x + delta - 1, y + delta - 1);
-				(temp_buf = 0).Cat(h_);
+				temp_buf.Z().Cat(h_);
 				round_pt.Set(6, 6);
 				canv.SelectObjectAndPush((HPEN)Ptb.Get(penSquare));
 				if(h_ == h)
@@ -5838,7 +5838,7 @@ void TimePickerDialog::Implement_Draw()
 				COLORREF color;
 				TPoint round_pt;
 				TRect  text_rect(x + 1, y + 1, x + delta - 1, y + delta -1);
-				(temp_buf = 0).Cat(min5);
+				temp_buf.Z().Cat(min5);
 				round_pt.Set(6, 6);
 				canv.SelectObjectAndPush((HPEN)Ptb.Get(penSquare));
 				if(m >= min5 && m < min5 + 5)
@@ -6514,18 +6514,18 @@ int SLAPI ExportDialogs(const char * pFileName)
 			prop_list.Clear();
 			dlg->GetCtlSymb(-1000, symb);
 			if(symb.Empty()) {
-				(dlg_symb_body = 0).Cat(dlg->GetId());
-				(symb = 0).Cat("DLG").CatChar('_').Cat(dlg_symb_body);
+				dlg_symb_body.Z().Cat(dlg->GetId());
+				symb.Z().Cat("DLG").CatChar('_').Cat(dlg_symb_body);
 			}
 			else
 				TDialog::GetSymbolBody(symb, dlg_symb_body);
 			// @v9.1.5 SendMessage(dlg->H(), WM_GETTEXT, sizeof(text_buf), (long)text_buf);
 			TView::SGetWindowText(dlg->H(), dlg_title_buf); // @v9.1.5
 			{
-				(text_line_buf = 0).Cat(symb).Tab().Cat(dlg_title_buf).CR();
+				text_line_buf.Z().Cat(symb).Tab().Cat(dlg_title_buf).CR();
 				f_out_text.WriteLine(text_line_buf);
 			}
-			(line_buf = 0).CR().Cat("dialog").Space().Cat(symb).Space().CatQStr(dlg_title_buf);
+			line_buf.Z().CR().Cat("dialog").Space().Cat(symb).Space().CatQStr(dlg_title_buf);
 			if(GetWindowInfo(dlg->H(), &wi))
 				_RectToLine(wi.rcWindow, line_buf.Space());
 			{
@@ -6551,16 +6551,16 @@ int SLAPI ExportDialogs(const char * pFileName)
 			f_out.WriteLine(line_buf);
 			{
 				// %topic(DLG_BILLSTATUS)
-                (line_buf = 0).Cat("%topic").CatParStr(dlg_symb_body).CR();
+                line_buf.Z().Cat("%topic").CatParStr(dlg_symb_body).CR();
                 f_out_manual.WriteLine(line_buf);
                 // \ppypict{dlg-billstatus}{Диалог редактирования статуса документов}
                 PreprocessCtrlText(dlg_title_buf, ctl_text_processed);
                 (temp_buf = dlg_symb_body).ReplaceStr("_", "-", 0).ToLower();
-                (line_buf = 0).CatChar('\\').Cat("ppypict").CatChar('{').Cat(temp_buf).CatChar('}');
+                line_buf.Z().CatChar('\\').Cat("ppypict").CatChar('{').Cat(temp_buf).CatChar('}');
 				line_buf.CatChar('{').Cat(ctl_text_processed).CatChar('}').CR();
 				f_out_manual.WriteLine(line_buf);
 				// \begin{description}
-				(line_buf = 0).CatChar('\\').Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
+				line_buf.Z().CatChar('\\').Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
 				f_out_manual.WriteLine(line_buf);
 			}
 			if(EnumChildWindows(dlg->H(), GetChildWindowsList, (LPARAM)&child_list)) {
@@ -6583,7 +6583,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 							symb = 0; //p_view ? p_view->GetSymb() : 0;
 							dlg->GetCtlSymb(ctl_id, symb);
 							if(symb.Empty())
-								(symb = 0).Cat(ctl_id);
+								symb.Z().Cat(ctl_id);
 							TLabel * p_label = dlg->getCtlLabel(ctl_id);
 							RECT   label_rect;
 							if(p_label) {
@@ -6594,7 +6594,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 									label_text.ReplaceStr("\n", 0, 0);
 									label_rect = label_wi.rcWindow;
 									if(label_text.NotEmpty()) {
-										(text_line_buf = 0).Cat(symb).Tab().Cat(label_text).CR();
+										text_line_buf.Z().Cat(symb).Tab().Cat(label_text).CR();
 										f_out_text.WriteLine(text_line_buf);
 									}
 								}
@@ -6602,7 +6602,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 									p_label = 0;
 							}
 							else if(ctl_text.NotEmpty() && symb != "0" && symb.ToLong() == 0) {
-								(text_line_buf = 0).Cat(symb).Tab().Cat(ctl_text).CR();
+								text_line_buf.Z().Cat(symb).Tab().Cat(ctl_text).CR();
 								f_out_text.WriteLine(text_line_buf);
 							}
 							TView::SGetWindowClassName(h, cls_name);
@@ -6621,7 +6621,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 											line_buf.Tab().Cat("combobox").Space().Cat(symb).Space().CatQStr(ctl_text);
 											_RectToLine(wi.rcWindow, line_buf.Space());
 											if(p_label) {
-												_RectToLine(label_rect, temp_buf = 0);
+												_RectToLine(label_rect, temp_buf.Z());
 												prop_list.Add(DlScope::cuifLabelRect, temp_buf);
 											}
 											DlScope::PropListToLine(prop_list, 2, line_buf).Semicol().CR();
@@ -6631,14 +6631,14 @@ int SLAPI ExportDialogs(const char * pFileName)
 										{
 											// \item[\dlgcombo{Счетчик}]
 											PreprocessCtrlText(ctl_text, ctl_text_processed);
-											(line_buf = 0).Tab().CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgcombo").
+											line_buf.Z().Tab().CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgcombo").
 												CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
 											f_out_manual.WriteLine(line_buf);
 										}
 									}
 									else {
 										if(wi.dwStyle & ES_READONLY) {
-											prop_list.Add(DlScope::cuifReadOnly, temp_buf = 0);
+											prop_list.Add(DlScope::cuifReadOnly, temp_buf.Z());
 										}
 										line_buf.Tab().Cat("input").Space().Cat(symb).Space().CatQStr(ctl_text);
 										_RectToLine(wi.rcWindow, line_buf.Space());
@@ -6648,7 +6648,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 										}
 										line_buf.Space().Cat(temp_buf);
 										if(p_label) {
-											_RectToLine(label_rect, temp_buf = 0);
+											_RectToLine(label_rect, temp_buf.Z());
 											prop_list.Add(DlScope::cuifLabelRect, temp_buf);
 										}
 										DlScope::PropListToLine(prop_list, 2, line_buf).Semicol().CR();
@@ -6656,7 +6656,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 										{
 											// \item[Наименование]
 											PreprocessCtrlText(ctl_text, ctl_text_processed);
-											(line_buf = 0).Tab().CatChar('\\').Cat("item").CatBrackStr(ctl_text_processed).CR().CR();
+											line_buf.Z().Tab().CatChar('\\').Cat("item").CatBrackStr(ctl_text_processed).CR().CR();
 											f_out_manual.WriteLine(line_buf);
 										}
 									}
@@ -6686,7 +6686,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 											{
 												// \item[\dlgradioc{Сортировать по}]
 												PreprocessCtrlText(ctl_text, ctl_text_processed);
-												(line_buf = 0).Tab().CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgradioc").
+												line_buf.Z().Tab().CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgradioc").
 													CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
 												f_out_manual.WriteLine(line_buf);
 											}
@@ -6695,7 +6695,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 											p_kind = "checkcluster";
 										}
 										if(p_kind) {
-											(line_buf = 0).Tab().Cat(p_kind).Space().Cat(symb).Space().CatQStr(ctl_text);
+											line_buf.Z().Tab().Cat(p_kind).Space().Cat(symb).Space().CatQStr(ctl_text);
 											_RectToLine(wi.rcWindow, line_buf.Space());
 											line_buf.Space().CatChar('{').CR();
 											f_out.WriteLine(line_buf);
@@ -6708,25 +6708,25 @@ int SLAPI ExportDialogs(const char * pFileName)
 													if(GetWindowInfo(h_item, &wi_item)) {
 														// @v9.1.5 SendMessage(h_item, WM_GETTEXT, sizeof(text_buf), (long)text_buf);
 														TView::SGetWindowText(h_item, temp_buf); // @v9.1.5
-														(line_buf = 0).Tab(2).CatQStr(temp_buf);
+														line_buf.Z().Tab(2).CatQStr(temp_buf);
 														_RectToLine(wi_item.rcWindow, line_buf.Space());
 														line_buf.Semicol().CR();
 														f_out.WriteLine(line_buf);
 														if(temp_buf.NotEmpty()) {
-															(text_line_buf = 0).Cat(symb).Tab().Cat(temp_buf).CR();
+															text_line_buf.Z().Cat(symb).Tab().Cat(temp_buf).CR();
 															f_out_text.WriteLine(text_line_buf);
 															{
 																if(p_clu->getKind() == RADIOBUTTONS) {
 																	// \item[\dlgradioc{Сортировать по}]
 																	PreprocessCtrlText(temp_buf, ctl_text_processed);
-																	(line_buf = 0).Tab(2).CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgradioi").
+																	line_buf.Z().Tab(2).CatChar('\\').Cat("item").CatChar('[').CatChar('\\').Cat("dlgradioi").
 																		CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
 																	f_out_manual.WriteLine(line_buf);
 																}
 																else if(p_clu->getKind() == CHECKBOXES) {
 																	// \dlgflag{Просмотр}
 																	PreprocessCtrlText(temp_buf, ctl_text_processed);
-																	(line_buf = 0).Tab(2).CatChar('\\').Cat("dlgflag").CatChar('{').Cat(ctl_text_processed).CatChar('}').CR().CR();
+																	line_buf.Z().Tab(2).CatChar('\\').Cat("dlgflag").CatChar('{').Cat(ctl_text_processed).CatChar('}').CR().CR();
 																	f_out_manual.WriteLine(line_buf);
 																}
 															}
@@ -6736,7 +6736,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 												TakeInCountCtrl(h_item, child_list, seen_pos_list);
 											}
 											//
-											(line_buf = 0).Tab().CatChar('}').CR();
+											line_buf.Z().Tab().CatChar('}').CR();
 											f_out.WriteLine(line_buf);
 										}
 										TakeInCountCtrl(h, child_list, seen_pos_list);
@@ -6766,7 +6766,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 										else if(temp_buf.CmpPrefix("cm", 0) == 0)
 											offs = 2;
 										if(symb.ToLong() != 0) {
-											(symb = 0).Cat("CTL").CatChar('_').Cat("CMD").CatChar('_').Cat(temp_buf+offs).ToUpper();
+											symb.Z().Cat("CTL").CatChar('_').Cat("CMD").CatChar('_').Cat(temp_buf+offs).ToUpper();
 										}
 										line_buf.Tab().Cat("button").Space().Cat(symb).Space().CatQStr(ctl_text);
 										_RectToLine(wi.rcWindow, line_buf.Space());
@@ -6783,12 +6783,12 @@ int SLAPI ExportDialogs(const char * pFileName)
 								//
 								if(!(p_view && p_view->IsSubSign(TV_SUBSIGN_LABEL))) {
 									if(wi.dwExStyle & WS_EX_STATICEDGE) {
-										prop_list.Add(DlScope::cuifStaticEdge, temp_buf = 0);
+										prop_list.Add(DlScope::cuifStaticEdge, temp_buf.Z());
 									}
 									if(!p_view || !p_view->IsSubSign(TV_SUBSIGN_STATIC))
 										symb = 0;
 									else if(symb.ToLong())
-										(symb = 0).Cat("CTL").CatChar('_').Cat(dlg_symb_body).CatChar('_').Cat("ST").CatChar('_').CatLongZ(symb.ToLong(), 3);
+										symb.Z().Cat("CTL").CatChar('_').Cat(dlg_symb_body).CatChar('_').Cat("ST").CatChar('_').CatLongZ(symb.ToLong(), 3);
 									line_buf.Tab().Cat("statictext").Space();
 									if(symb.NotEmpty())
 										line_buf.Cat(symb).Space();
@@ -6835,14 +6835,14 @@ int SLAPI ExportDialogs(const char * pFileName)
 					}
 				}
 			}
-			(line_buf = 0).CatChar('}').CR();
+			line_buf.Z().CatChar('}').CR();
 			f_out.WriteLine(line_buf);
 			{
 				// \end{description}
-				(line_buf = 0).CatChar('\\').Cat("end").CatChar('{').Cat("description").CatChar('}').CR().CR();
+				line_buf.Z().CatChar('\\').Cat("end").CatChar('{').Cat("description").CatChar('}').CR().CR();
 				f_out_manual.WriteLine(line_buf);
 				// %endtopic
-                (line_buf = 0).Cat("%endtopic").CR().CR();
+                line_buf.Z().Cat("%endtopic").CR().CR();
                 f_out_manual.WriteLine(line_buf);
 			}
 		}

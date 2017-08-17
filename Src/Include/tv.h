@@ -2397,7 +2397,7 @@ public:
 	TWindow * GetOwnerWindow() const;
 	const  Param & GetParam() const;
 	int    SetParam(const Param &);
-	int    Clear();
+	void   Clear();
 	int    InsertObject(TWhatmanObject * pObj, int beforeIdx = -1);
 	int    EditObject(int objIdx);
 	int    RemoveObject(int idx);
@@ -5116,7 +5116,7 @@ private:
 	long   ToolBarWidth;
 	uint   ToolbarId;
 	WNDPROC OrgScintillaWndProc;
-	SrDatabase * P_SrDb; // @v9.2.0 База данных SARTR
+	// @v9.7.11 SrDatabase * P_SrDb; // @v9.2.0 База данных SARTR
 };
 //
 //

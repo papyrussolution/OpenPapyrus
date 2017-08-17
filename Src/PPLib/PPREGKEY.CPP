@@ -446,15 +446,15 @@ SLTEST_R(CreatePapyrusLic)
 		if(!_check_nz(PPCreateLic(&param), temp_buf))
 			ok = 0;
 		else {
-			(temp_buf = 0).CR().Tab().Cat(param.RegName).CatDiv(':', 1).Cat("PPCheckRegisterKey");
+			temp_buf.Z().CR().Tab().Cat(param.RegName).CatDiv(':', 1).Cat("PPCheckRegisterKey");
 			if(!_check_nz(PPCheckRegisterKey(param.RegName, param.RegCode), temp_buf))
 				ok = 0;
 			else {
-				(temp_buf = 0).CR().Tab().Cat(param.RegName).CatDiv(':', 1).Cat("PPReadLicData");
+				temp_buf.Z().CR().Tab().Cat(param.RegName).CatDiv(':', 1).Cat("PPReadLicData");
 				if(!_check_nz(PPReadLicData(param.OutFileName, &data), temp_buf))
 					ok = 0;
 				else {
-					(temp_buf = 0).CR().Tab().Cat(param.RegName).CatDiv(':', 1).Cat("PPCheckRegisterKey 2");
+					temp_buf.Z().CR().Tab().Cat(param.RegName).CatDiv(':', 1).Cat("PPCheckRegisterKey 2");
 					if(!_check_nz(PPCheckRegisterKey(data.RegName, data.RegNumber), temp_buf))
 						ok = 0;
 				}

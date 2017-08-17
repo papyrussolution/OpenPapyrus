@@ -571,17 +571,16 @@ void UI_destroy_method(UI_METHOD * ui_method)
 
 int UI_method_set_opener(UI_METHOD * method, int (* opener)(UI * ui))
 {
-	if(method != NULL) {
+	if(method) {
 		method->ui_open_session = opener;
 		return 0;
 	}
 	return -1;
 }
 
-int UI_method_set_writer(UI_METHOD * method,
-    int (* writer)(UI * ui, UI_STRING * uis))
+int UI_method_set_writer(UI_METHOD * method, int (* writer)(UI * ui, UI_STRING * uis))
 {
-	if(method != NULL) {
+	if(method) {
 		method->ui_write_string = writer;
 		return 0;
 	}
@@ -590,7 +589,7 @@ int UI_method_set_writer(UI_METHOD * method,
 
 int UI_method_set_flusher(UI_METHOD * method, int (* flusher)(UI * ui))
 {
-	if(method != NULL) {
+	if(method) {
 		method->ui_flush = flusher;
 		return 0;
 	}
@@ -599,7 +598,7 @@ int UI_method_set_flusher(UI_METHOD * method, int (* flusher)(UI * ui))
 
 int UI_method_set_reader(UI_METHOD * method, int (* reader)(UI * ui, UI_STRING * uis))
 {
-	if(method != NULL) {
+	if(method) {
 		method->ui_read_string = reader;
 		return 0;
 	}
@@ -608,17 +607,16 @@ int UI_method_set_reader(UI_METHOD * method, int (* reader)(UI * ui, UI_STRING *
 
 int UI_method_set_closer(UI_METHOD * method, int (* closer)(UI * ui))
 {
-	if(method != NULL) {
+	if(method) {
 		method->ui_close_session = closer;
 		return 0;
 	}
 	return -1;
 }
 
-int UI_method_set_prompt_constructor(UI_METHOD * method, char *(*prompt_constructor)(UI *ui,
-	const char * object_desc, const char * object_name))
+int UI_method_set_prompt_constructor(UI_METHOD * method, char *(*prompt_constructor)(UI *ui, const char * object_desc, const char * object_name))
 {
-	if(method != NULL) {
+	if(method) {
 		method->ui_construct_prompt = prompt_constructor;
 		return 0;
 	}
@@ -695,10 +693,8 @@ const char * UI_get0_result_string(UI_STRING * uis)
 const char * UI_get0_test_string(UI_STRING * uis)
 {
 	switch(uis->type) {
-		case UIT_VERIFY:
-		    return uis->_.string_data.test_buf;
-		default:
-		    return NULL;
+		case UIT_VERIFY: return uis->_.string_data.test_buf;
+		default: return NULL;
 	}
 }
 
@@ -706,10 +702,8 @@ int UI_get_result_minsize(UI_STRING * uis)
 {
 	switch(uis->type) {
 		case UIT_PROMPT:
-		case UIT_VERIFY:
-		    return uis->_.string_data.result_minsize;
-		default:
-		    return -1;
+		case UIT_VERIFY: return uis->_.string_data.result_minsize;
+		default: return -1;
 	}
 }
 
@@ -717,10 +711,8 @@ int UI_get_result_maxsize(UI_STRING * uis)
 {
 	switch(uis->type) {
 		case UIT_PROMPT:
-		case UIT_VERIFY:
-		    return uis->_.string_data.result_maxsize;
-		default:
-		    return -1;
+		case UIT_VERIFY: return uis->_.string_data.result_maxsize;
+		default: return -1;
 	}
 }
 

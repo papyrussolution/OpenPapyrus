@@ -87,7 +87,7 @@ int SLAPI InetAddr::IsEmpty() const
 
 SString & SLAPI InetAddr::ToStr(long flags, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(flags & fmtAddr || !(flags & (fmtAddr | fmtHost)))
 		rBuf.Cat(V4 & 0xff).Dot().Cat((V4 >> 8) & 0xff).Dot().Cat((V4 >> 16) & 0xff).Dot().Cat((V4 >> 24) & 0xff);
 	else if(flags & fmtHost)
@@ -1011,7 +1011,7 @@ int InetUrl::GetProtocol() const
 
 int InetUrl::GetComponent(int c, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	return BIN(TermList.Get(c, rBuf) > 0);
 }
 
@@ -1026,7 +1026,7 @@ int InetUrl::SetComponent(int c, const char * pBuf)
 
 int InetUrl::Composite(long flags, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    result = 0;
 	const  long _f = (flags == 0) ? stAll : flags;
 	if(_f == stEmpty)
@@ -1116,12 +1116,12 @@ int SProxiAuthParam::ToStr(long fmt, SString & rBuf) const
 	StringSet ss("\001");
 	SString temp_buf;
 	ss.add("SPAP");
-	ss.add((temp_buf = 0).Cat(Ver));
+	ss.add(temp_buf.Z().Cat(Ver));
 	for(uint i = 0; i < List.getCount(); i++) {
 		const Entry * p_entry = List.at(i);
 		ss.add(temp_buf = InetUrl::GetSchemeMnem(p_entry->Protocol));
-		ss.add((temp_buf = 0).Cat(p_entry->Mode));
-		ss.add((temp_buf = 0).Cat(p_entry->Flags));
+		ss.add(temp_buf.Z().Cat(p_entry->Mode));
+		ss.add(temp_buf.Z().Cat(p_entry->Flags));
 		ss.add(p_entry->Addr.ToStr(InetAddr::fmtHost|InetAddr::fmtPort, temp_buf));
 		ss.add(p_entry->UserName);
 		{
@@ -1133,7 +1133,7 @@ int SProxiAuthParam::ToStr(long fmt, SString & rBuf) const
 			temp_buf.CopyTo(pw_buf2, sizeof(pw_buf2));
 			IdeaRandMem(pw_buf, sizeof(pw_buf));
 			IdeaEncrypt(0, pw_buf2, bin_pw_size);
-			(temp_buf = 0).EncodeMime64(pw_buf2, bin_pw_size);
+			temp_buf.Z().EncodeMime64(pw_buf2, bin_pw_size);
 			ss.add(temp_buf);
 		}
 	}
@@ -1969,7 +1969,7 @@ int SLAPI ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rE
 	SString temp_buf;
 	SStrScan scan(rLine);
 	{ // attributes
-		scan.Skip().GetWord(" \t", temp_buf = 0);
+		scan.Skip().GetWord(" \t", temp_buf.Z());
 		THROW(temp_buf.Len() == 10);
 		if(temp_buf[0] == 'd')
 			rEntry.Attr |= SDirEntry::attrSubdir;
@@ -1993,13 +1993,13 @@ int SLAPI ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rE
 			rEntry.Attr |= SDirEntry::attrUsrX;
 	}
 	// ? number
-	scan.Skip().GetWord(" \t", temp_buf = 0);
+	scan.Skip().GetWord(" \t", temp_buf.Z());
 	// owner
-	scan.Skip().GetWord(" \t", temp_buf = 0);
+	scan.Skip().GetWord(" \t", temp_buf.Z());
 	// group
-	scan.Skip().GetWord(" \t", temp_buf = 0);
+	scan.Skip().GetWord(" \t", temp_buf.Z());
 	// size
-	scan.Skip().GetWord(" \t", temp_buf = 0);
+	scan.Skip().GetWord(" \t", temp_buf.Z());
 	rEntry.Size = temp_buf.ToInt64();
 	{ // time: mon day [year] time
 		const LDATE curdt = getcurdate_();
@@ -2008,19 +2008,19 @@ int SLAPI ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rE
 		int    year = 0;
 		LTIME  t = ZEROTIME;
 		{ // mon
-			scan.Skip().GetWord(" \t", temp_buf = 0);
+			scan.Skip().GetWord(" \t", temp_buf.Z());
 			int mi = STextConst::GetIdx(STextConst::cMon_En_Sh, temp_buf);
 			if(mi >= 0 && mi <= 11)
 				mon = mi+1;
 		}
 		{ // day
-			scan.Skip().GetWord(" \t", temp_buf = 0);
+			scan.Skip().GetWord(" \t", temp_buf.Z());
 			day = temp_buf.ToLong();
 			if(day < 1 || day > 31)
 				day = 0;
 		}
 		{ // year or time
-			scan.Skip().GetWord(" \t", temp_buf = 0);
+			scan.Skip().GetWord(" \t", temp_buf.Z());
 			if(temp_buf.StrChr(':', 0)) {
 				strtotime(temp_buf, TIMF_HMS, &t);
 			}
@@ -2037,7 +2037,7 @@ int SLAPI ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rE
 		rEntry.WriteTime.t = t;
 	}
 	{ // name
-		scan.Skip().GetWord("" /*unitl EOL*/, temp_buf = 0);
+		scan.Skip().GetWord("" /*unitl EOL*/, temp_buf.Z());
 		rEntry.Name = temp_buf;
 	}
 	CATCHZOK
@@ -2224,7 +2224,7 @@ int ScURL::FtpDelete(const InetUrl & rUrl, int mflags)
 	}
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 0, 0))
 	{
-		(temp_buf = 0).Cat("DELE").Space().Cat(file_name_to_delete);
+		temp_buf.Z().Cat("DELE").Space().Cat(file_name_to_delete);
 		p_chunk = curl_slist_append(p_chunk, temp_buf);
 		THROW(SetError(curl_easy_setopt(_CURLH,  CURLOPT_QUOTE, p_chunk)));
 		THROW(Execute());
@@ -2253,7 +2253,7 @@ int ScURL::FtpDeleteDir(const InetUrl & rUrl, int mflags)
 	}
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 0, 0))
 	{
-		(temp_buf = 0).Cat("RMD").Space().Cat(file_name_to_delete);
+		temp_buf.Z().Cat("RMD").Space().Cat(file_name_to_delete);
 		p_chunk = curl_slist_append(p_chunk, temp_buf);
 		THROW(SetError(curl_easy_setopt(_CURLH,  CURLOPT_QUOTE, p_chunk)));
 		THROW(Execute());

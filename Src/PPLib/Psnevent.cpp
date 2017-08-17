@@ -209,7 +209,7 @@ SLAPI PPObjPersonEvent::~PPObjPersonEvent()
 // static
 SString & SLAPI PPObjPersonEvent::MakeCodeString(const PersonEventTbl::Rec * pRec, int options, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(pRec) {
 		rBuf.Cat(pRec->Dt).Space().Cat(pRec->Tm);
 		if(pRec->PersonID) {
@@ -289,7 +289,7 @@ SString & SLAPI PPObjPersonEvent::MakeCodeString(const PersonEventTbl::Rec * pRe
 	PersonTbl::Rec psn_rec;
 	PPObjPsnOpKind pok_obj;
 	PPPsnOpKind pok_rec;
-	(rBuf = 0).Cat(pRec->Dt).CatDiv('-', 1).Cat(pRec->Tm);
+	rBuf.Z().Cat(pRec->Dt).CatDiv('-', 1).Cat(pRec->Tm);
 	if(pok_obj.Search(pRec->OpID, &pok_rec) > 0)
 		rBuf.CatDiv('-', 1).Cat(pok_rec.Name);
 	if(PsnObj.Fetch(pRec->PersonID, &psn_rec) > 0)
@@ -1250,7 +1250,7 @@ int SLAPI PPObjPersonEvent::CheckRestrictions(const PPPsnEventPacket * pPack, co
 					uint   _c = 0;
 					SString temp_buf;
 					P_Tbl->CalcCountForPeriod(pPack->Rec.OpID, pPack->Rec.PersonID, r_chunk, &_c);
-					THROW_PP_S(_c < (uint)pPokPack->Rec.RscMaxTimes, PPERR_PSNEV_OVERCOUNTCALENTRY, (temp_buf = 0).Cat((long)pPokPack->Rec.RscMaxTimes));
+					THROW_PP_S(_c < (uint)pPokPack->Rec.RscMaxTimes, PPERR_PSNEV_OVERCOUNTCALENTRY, temp_buf.Z().Cat((long)pPokPack->Rec.RscMaxTimes));
 				}
 			}
 		}
@@ -2358,7 +2358,7 @@ int SLAPI AddPersonEventFilt::Edit()
 	// инициализируем
 	THROW(ExecOper(P_AbstrDvc, DVCCMD_INIT, in_params, out_params.Clear()));
 	// соедин€емс€
-	in_params.Add(DVCPARAM_PORT, (temp_buf = 0).Cat(/*port_no*/7)); // @vmiller ѕока напишем порт устройства - 7 (ибо все равно через эмул€тор)
+	in_params.Add(DVCPARAM_PORT, temp_buf.Z().Cat(/*port_no*/7)); // @vmiller ѕока напишем порт устройства - 7 (ибо все равно через эмул€тор)
 	THROW(ExecOper(P_AbstrDvc, DVCCMD_CONNECT, in_params, out_params.Clear()));
 	// читаем с устройства
 	THROW(ExecOper(P_AbstrDvc, DVCCMD_LISTEN, in_params.Clear(), out_params.Clear()));
@@ -2414,7 +2414,7 @@ int SLAPI PPObjPersonEvent::InitProcessDeviceInput(ProcessDeviceInputBlock & rBl
 		THROW(rBlk.Ad.RunCmd("INIT", rBlk.Out.Clear()));
 		rBlk.State |= rBlk.stInitialized;
 
-		gd_pack.GetExtStrData(GENDVCEXSTR_INITSTR, temp_buf = 0);
+		gd_pack.GetExtStrData(GENDVCEXSTR_INITSTR, temp_buf.Z());
 		if(temp_buf.NotEmptyS()) {
 			THROW(rBlk.Ad.RunCmd(temp_buf, rBlk.Out.Clear()));
 		}

@@ -26,13 +26,13 @@
 #include "Indicator.h"
 #include "XPM.h"
 #include "LineMarker.h"
-#include "Style.h"
+//#include "Style.h"
 #include "ViewStyle.h"
 #include "CharClassify.h"
 #include "Decoration.h"
-#include "CaseFolder.h"
+//#include "CaseFolder.h"
 #include "Document.h"
-#include "UniConversion.h"
+//#include "UniConversion.h"
 #include "Selection.h"
 #include "PositionCache.h"
 #include "EditModel.h"
@@ -109,31 +109,22 @@ MarginView::MarginView()
 void MarginView::DropGraphics(bool freeObjects)
 {
 	if(freeObjects) {
-		delete pixmapSelMargin;
-		pixmapSelMargin = 0;
-		delete pixmapSelPattern;
-		pixmapSelPattern = 0;
-		delete pixmapSelPatternOffset1;
-		pixmapSelPatternOffset1 = 0;
+		ZDELETE(pixmapSelMargin);
+		ZDELETE(pixmapSelPattern);
+		ZDELETE(pixmapSelPatternOffset1);
 	}
 	else {
-		if(pixmapSelMargin)
-			pixmapSelMargin->Release();
-		if(pixmapSelPattern)
-			pixmapSelPattern->Release();
-		if(pixmapSelPatternOffset1)
-			pixmapSelPatternOffset1->Release();
+		CALLPTRMEMB(pixmapSelMargin, Release());
+		CALLPTRMEMB(pixmapSelPattern, Release());
+		CALLPTRMEMB(pixmapSelPatternOffset1, Release());
 	}
 }
 
 void MarginView::AllocateGraphics(const ViewStyle &vsDraw)
 {
-	if(!pixmapSelMargin)
-		pixmapSelMargin = Surface::Allocate(vsDraw.technology);
-	if(!pixmapSelPattern)
-		pixmapSelPattern = Surface::Allocate(vsDraw.technology);
-	if(!pixmapSelPatternOffset1)
-		pixmapSelPatternOffset1 = Surface::Allocate(vsDraw.technology);
+	SETIFZ(pixmapSelMargin, Surface::Allocate(vsDraw.technology));
+	SETIFZ(pixmapSelPattern, Surface::Allocate(vsDraw.technology));
+	SETIFZ(pixmapSelPatternOffset1, Surface::Allocate(vsDraw.technology));
 }
 
 void MarginView::RefreshPixMaps(Surface * surfaceWindow, WindowID wid, const ViewStyle &vsDraw)
@@ -151,13 +142,11 @@ void MarginView::RefreshPixMaps(Surface * surfaceWindow, WindowID wid, const Vie
 		// Initialize default colours based on the chrome colour scheme.  Typically the highlight is white.
 		ColourDesired colourFMFill = vsDraw.selbar;
 		ColourDesired colourFMStripes = vsDraw.selbarlight;
-
 		if(!(vsDraw.selbarlight == ColourDesired(0xff, 0xff, 0xff))) {
 			// User has chosen an unusual chrome colour scheme so just use the highlight edge colour.
 			// (Typically, the highlight colour is white.)
 			colourFMFill = vsDraw.selbarlight;
 		}
-
 		if(vsDraw.foldmarginColour.isSet) {
 			// override default fold margin colour
 			colourFMFill = vsDraw.foldmarginColour;
@@ -166,7 +155,6 @@ void MarginView::RefreshPixMaps(Surface * surfaceWindow, WindowID wid, const Vie
 			// override default fold margin highlight colour
 			colourFMStripes = vsDraw.foldmarginHighlightColour;
 		}
-
 		pixmapSelPattern->FillRectangle(rcPattern, colourFMFill);
 		pixmapSelPatternOffset1->FillRectangle(rcPattern, colourFMStripes);
 		for(int y = 0; y < patternSize; y++) {
@@ -181,9 +169,7 @@ void MarginView::RefreshPixMaps(Surface * surfaceWindow, WindowID wid, const Vie
 
 static int SubstituteMarkerIfEmpty(int markerCheck, int markerDefault, const ViewStyle &vs)
 {
-	if(vs.markers[markerCheck].markType == SC_MARK_EMPTY)
-		return markerDefault;
-	return markerCheck;
+	return (vs.markers[markerCheck].markType == SC_MARK_EMPTY) ? markerDefault : markerCheck;
 }
 
 void MarginView::PaintMargin(Surface * surface, int topLine, PRectangle rc, PRectangle rcMargin,
@@ -193,7 +179,6 @@ void MarginView::PaintMargin(Surface * surface, int topLine, PRectangle rc, PRec
 	rcSelMargin.right = rcMargin.left;
 	if(rcSelMargin.bottom < rc.bottom)
 		rcSelMargin.bottom = rc.bottom;
-
 	Point ptOrigin = model.GetVisibleOriginInMain();
 	FontAlias fontLineNumber = vs.styles[STYLE_LINENUMBER].font;
 	for(size_t margin = 0; margin < vs.ms.size(); margin++) {

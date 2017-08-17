@@ -136,7 +136,7 @@ int FASTCALL PPLoadString(const char * pSignature, SString & rBuf)
 	// Эта функция @threadsafe поскольку StrStore2::GetString является const-функцией
 	//
 	int    ok = 1;
-	rBuf = 0;
+	rBuf.Z();
 	if(isempty(pSignature))
 		ok = -1;
 	else {
@@ -271,7 +271,7 @@ int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmv
 	int    group = 0;
 	int    addcode = 0;
 	int    is_win_msg = 0; // 1 as win32 msg, 2 as socket msg
-	rBuf = 0;
+	rBuf.Z();
 	switch(options & 0x00ff) {
 		case mfError:
 			group = PPMSG_ERROR;

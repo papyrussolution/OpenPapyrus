@@ -65,9 +65,9 @@ typedef struct _xmlSchemaValDecimal xmlSchemaValDecimal;
 typedef xmlSchemaValDecimal * xmlSchemaValDecimalPtr;
 struct _xmlSchemaValDecimal {
 	/* would use long long but not portable */
-	unsigned long lo;
-	unsigned long mi;
-	unsigned long hi;
+	ulong lo;
+	ulong mi;
+	ulong hi;
 	uint extra;
 	uint sign : 1;
 	uint frac : 7;
@@ -1879,15 +1879,13 @@ static int xmlSchemaValAtomicListNode(xmlSchemaTypePtr type, const xmlChar * val
  * Returns the number of significant digits in the number or
  * -1 if overflow of the capacity and -2 if it's not a number.
  */
-static int xmlSchemaParseUInt(const xmlChar ** str, unsigned long * llo,
-    unsigned long * lmi, unsigned long * lhi) {
-	unsigned long lo = 0, mi = 0, hi = 0;
+static int xmlSchemaParseUInt(const xmlChar ** str, ulong * llo, ulong * lmi, ulong * lhi) 
+{
+	ulong lo = 0, mi = 0, hi = 0;
 	const xmlChar * tmp, * cur = *str;
 	int ret = 0, i = 0;
-
 	if(!((*cur >= '0') && (*cur <= '9')))
 		return -2;
-
 	while(*cur == '0') {     /* ignore leading zeroes */
 		cur++;
 	}
@@ -2955,9 +2953,8 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 		case XML_SCHEMAS_NINTEGER:
 		case XML_SCHEMAS_NNINTEGER: {
 		    const xmlChar * cur = value;
-		    unsigned long lo, mi, hi;
+		    ulong lo, mi, hi;
 		    int sign = 0;
-
 		    if(!cur)
 			    goto return1;
 		    if(normOnTheFly)
@@ -3017,7 +3014,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 		case XML_SCHEMAS_SHORT:
 		case XML_SCHEMAS_INT: {
 		    const xmlChar * cur = value;
-		    unsigned long lo, mi, hi;
+		    ulong lo, mi, hi;
 		    int sign = 0;
 		    if(!cur)
 			    goto return1;
@@ -3093,8 +3090,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 		case XML_SCHEMAS_USHORT:
 		case XML_SCHEMAS_UBYTE: {
 		    const xmlChar * cur = value;
-		    unsigned long lo, mi, hi;
-
+		    ulong lo, mi, hi;
 		    if(!cur)
 			    goto return1;
 		    ret = xmlSchemaParseUInt(&cur, &lo, &mi, &hi);
@@ -3237,8 +3233,7 @@ static int xmlSchemaCompareDecimals(xmlSchemaValPtr x, xmlSchemaValPtr y)
 {
 	xmlSchemaValPtr swp;
 	int order = 1, integx, integy, dlen;
-	unsigned long hi, mi, lo;
-
+	ulong hi, mi, lo;
 	/*
 	 * First test: If x is -ve and not zero
 	 */
@@ -3344,7 +3339,7 @@ static int xmlSchemaCompareDecimals(xmlSchemaValPtr x, xmlSchemaValPtr y)
 		dlen -= 8;
 	}
 	while(dlen > 0) {
-		unsigned long rem1, rem2;
+		ulong rem1, rem2;
 		rem1 = (hi % 10) * 100000000L;
 		hi = hi / 10;
 		rem2 = (mi % 10) * 100000000L;
@@ -4511,14 +4506,8 @@ static int xmlSchemaCompareFloats(xmlSchemaValPtr x, xmlSchemaValPtr y) {
  * Returns -1 if x < y, 0 if x == y, 1 if x > y, 2 if x <> y, 3 if not
  * comparable and -2 in case of error
  */
-static int xmlSchemaCompareValuesInternal(xmlSchemaValType xtype,
-    xmlSchemaValPtr x,
-    const xmlChar * xvalue,
-    xmlSchemaWhitespaceValueType xws,
-    xmlSchemaValType ytype,
-    xmlSchemaValPtr y,
-    const xmlChar * yvalue,
-    xmlSchemaWhitespaceValueType yws)
+static int xmlSchemaCompareValuesInternal(xmlSchemaValType xtype, xmlSchemaValPtr x, const xmlChar * xvalue,
+    xmlSchemaWhitespaceValueType xws, xmlSchemaValType ytype, xmlSchemaValPtr y, const xmlChar * yvalue, xmlSchemaWhitespaceValueType yws)
 {
 	switch(xtype) {
 		case XML_SCHEMAS_UNKNOWN:
@@ -4753,9 +4742,9 @@ static int xmlSchemaCompareValuesInternal(xmlSchemaValType xtype,
  * Returns -1 if x < y, 0 if x == y, 1 if x > y, 2 if x <> y, and -2 in
  * case of error
  */
-int xmlSchemaCompareValues(xmlSchemaValPtr x, xmlSchemaValPtr y) {
+int xmlSchemaCompareValues(xmlSchemaValPtr x, xmlSchemaValPtr y) 
+{
 	xmlSchemaWhitespaceValueType xws, yws;
-
 	if((x == NULL) || (y == NULL))
 		return -2;
 	if(x->type == XML_SCHEMAS_STRING)
@@ -4764,18 +4753,14 @@ int xmlSchemaCompareValues(xmlSchemaValPtr x, xmlSchemaValPtr y) {
 		xws = XML_SCHEMA_WHITESPACE_REPLACE;
 	else
 		xws = XML_SCHEMA_WHITESPACE_COLLAPSE;
-
 	if(y->type == XML_SCHEMAS_STRING)
 		yws = XML_SCHEMA_WHITESPACE_PRESERVE;
 	else if(y->type == XML_SCHEMAS_NORMSTRING)
 		yws = XML_SCHEMA_WHITESPACE_REPLACE;
 	else
 		yws = XML_SCHEMA_WHITESPACE_COLLAPSE;
-
-	return(xmlSchemaCompareValuesInternal(x->type, x, NULL, xws, y->type,
-		    y, NULL, yws));
+	return(xmlSchemaCompareValuesInternal(x->type, x, NULL, xws, y->type, y, NULL, yws));
 }
-
 /**
  * xmlSchemaCompareValuesWhtsp:
  * @x:  a first value
@@ -4881,14 +4866,14 @@ static int xmlSchemaNormLen(const xmlChar * value) {
  *
  * Returns the value as a long
  */
-unsigned long xmlSchemaGetFacetValueAsULong(xmlSchemaFacetPtr facet)
+ulong xmlSchemaGetFacetValueAsULong(xmlSchemaFacetPtr facet)
 {
 	/*
 	 * TODO: Check if this is a decimal.
 	 */
 	if(facet == NULL)
 		return 0;
-	return ((unsigned long)facet->val->value.decimal.lo);
+	return ((ulong)facet->val->value.decimal.lo);
 }
 
 /**
@@ -4903,10 +4888,7 @@ unsigned long xmlSchemaGetFacetValueAsULong(xmlSchemaFacetPtr facet)
  * Returns 0 if the value is valid, a positive error code
  * number otherwise and -1 in case of an internal error.
  */
-int xmlSchemaValidateListSimpleTypeFacet(xmlSchemaFacetPtr facet,
-    const xmlChar * value,
-    unsigned long actualLen,
-    unsigned long * expectedLen)
+int xmlSchemaValidateListSimpleTypeFacet(xmlSchemaFacetPtr facet, const xmlChar * value, ulong actualLen, ulong * expectedLen)
 {
 	if(facet == NULL)
 		return -1;
@@ -4961,7 +4943,7 @@ int xmlSchemaValidateListSimpleTypeFacet(xmlSchemaFacetPtr facet,
  * otherwise and -1 in case of an internal or API error.
  */
 static int xmlSchemaValidateLengthFacetInternal(xmlSchemaFacetPtr facet,
-    xmlSchemaValType valType, const xmlChar * value, xmlSchemaValPtr val, unsigned long * length, xmlSchemaWhitespaceValueType ws)
+    xmlSchemaValType valType, const xmlChar * value, xmlSchemaValPtr val, ulong * length, xmlSchemaWhitespaceValueType ws)
 {
 	uint len = 0;
 	if((length == NULL) || (facet == NULL))
@@ -5031,7 +5013,7 @@ static int xmlSchemaValidateLengthFacetInternal(xmlSchemaFacetPtr facet,
 			    TODO
 		}
 	}
-	*length = (unsigned long)len;
+	*length = (ulong)len;
 	/*
 	 * TODO: Return the whole expected value, i.e. "lo", "mi" and "hi".
 	 */
@@ -5065,17 +5047,11 @@ static int xmlSchemaValidateLengthFacetInternal(xmlSchemaFacetPtr facet,
  * Returns 0 if the value is valid, a positive error code
  * otherwise and -1 in case of an internal or API error.
  */
-int xmlSchemaValidateLengthFacet(xmlSchemaTypePtr type,
-    xmlSchemaFacetPtr facet,
-    const xmlChar * value,
-    xmlSchemaValPtr val,
-    unsigned long * length)
+int xmlSchemaValidateLengthFacet(xmlSchemaTypePtr type, xmlSchemaFacetPtr facet, const xmlChar * value, xmlSchemaValPtr val, ulong * length)
 {
 	if(type == NULL)
 		return -1;
-	return (xmlSchemaValidateLengthFacetInternal(facet,
-		    type->builtInType, value, val, length,
-		    XML_SCHEMA_WHITESPACE_UNKNOWN));
+	return (xmlSchemaValidateLengthFacetInternal(facet, type->builtInType, value, val, length, XML_SCHEMA_WHITESPACE_UNKNOWN));
 }
 
 /**
@@ -5093,15 +5069,10 @@ int xmlSchemaValidateLengthFacet(xmlSchemaTypePtr type,
  * Returns 0 if the value is valid, a positive error code
  * otherwise and -1 in case of an internal or API error.
  */
-int xmlSchemaValidateLengthFacetWhtsp(xmlSchemaFacetPtr facet,
-    xmlSchemaValType valType,
-    const xmlChar * value,
-    xmlSchemaValPtr val,
-    unsigned long * length,
-    xmlSchemaWhitespaceValueType ws)
+int xmlSchemaValidateLengthFacetWhtsp(xmlSchemaFacetPtr facet, xmlSchemaValType valType, const xmlChar * value,
+    xmlSchemaValPtr val, ulong * length, xmlSchemaWhitespaceValueType ws)
 {
-	return (xmlSchemaValidateLengthFacetInternal(facet, valType, value, val,
-		    length, ws));
+	return (xmlSchemaValidateLengthFacetInternal(facet, valType, value, val, length, ws));
 }
 
 /**
@@ -5660,8 +5631,8 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    break;
 		case XML_SCHEMAS_DURATION: {
 		    char buf[100];
-		    unsigned long year;
-		    unsigned long mon, day, hour = 0, min = 0;
+		    ulong year;
+		    ulong mon, day, hour = 0, min = 0;
 		    double sec = 0, left;
 
 		    /* TODO: Unclear in XML Schema 1.0 */
@@ -5672,16 +5643,16 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		     * recoverable. Think about extending the structure to
 		     * provide a field for every property.
 		     */
-		    year = (unsigned long)FQUOTIENT(labs(val->value.dur.mon), 12);
+		    year = (ulong)FQUOTIENT(labs(val->value.dur.mon), 12);
 		    mon = labs(val->value.dur.mon) - 12 * year;
 
-		    day = (unsigned long)FQUOTIENT(fabs(val->value.dur.sec), 86400);
+		    day = (ulong)FQUOTIENT(fabs(val->value.dur.sec), 86400);
 		    left = fabs(val->value.dur.sec) - day * 86400;
 		    if(left > 0) {
-			    hour = (unsigned long)FQUOTIENT(left, 3600);
+			    hour = (ulong)FQUOTIENT(left, 3600);
 			    left = left - (hour * 3600);
 			    if(left > 0) {
-				    min = (unsigned long)FQUOTIENT(left, 60);
+				    min = (ulong)FQUOTIENT(left, 60);
 				    sec = left - (min * 60);
 			    }
 		    }

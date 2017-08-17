@@ -195,7 +195,7 @@ int SLAPI PPObjProject::EditConfig()
 //static
 SString & SLAPI PPObjProject::MakeCodeString(const ProjectTbl::Rec * pRec, SString & rBuf)
 {
-	return (rBuf = 0).Cat(pRec->Code).CatDiv('-', 1).Cat(pRec->Name);
+	return rBuf.Z().Cat(pRec->Code).CatDiv('-', 1).Cat(pRec->Name);
 }
 
 TLP_IMPL(PPObjProject, ProjectTbl, P_Tbl);
@@ -253,7 +253,7 @@ int SLAPI PPObjProject::GetFullName(PPID id, SString & rBuf)
 {
 	int    ok = -1;
 	ProjectTbl::Rec rec;
-	rBuf = 0;
+	rBuf.Z();
 	if(Search(id, &rec) > 0) {
 		PPID   parent_id = 0;
 		char   name_buf[64];
@@ -1091,7 +1091,7 @@ static SString & SLAPI _GetEnumText(uint strId, int i, SString & rBuf)
 		}
 	}
 	if(!ok)
-		rBuf = 0;
+		rBuf.Z();
 	return rBuf;
 }
 
@@ -1295,7 +1295,7 @@ StrAssocArray * SLAPI PPObjPrjTask::MakeStrAssocList(void * extraPtr)
 		if(P_Tbl->data.Code[0])
 			temp_buf = P_Tbl->data.Code;
 		else
-			ideqvalstr(P_Tbl->data.ID, temp_buf = 0);
+			ideqvalstr(P_Tbl->data.ID, temp_buf.Z());
 		THROW_SL(p_list->Add(P_Tbl->data.ID, temp_buf));
 	}
 	CATCH

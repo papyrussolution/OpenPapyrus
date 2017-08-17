@@ -50,7 +50,7 @@ const LAssoc & FASTCALL GoodsToObjAssoc::at(uint pos) const
 SString & SLAPI GoodsToObjAssoc::GetKeyName(PPID id, SString & rBuf)
 {
 	Goods2Tbl::Rec goods_rec;
-	rBuf = 0;
+	rBuf.Z();
 	if(GObj.Fetch(id, &goods_rec) > 0) {
 		if(goods_rec.Kind == PPGDSK_GROUP)
 			rBuf.CatChar('@');
@@ -305,7 +305,7 @@ int FASTCALL PPViewGoodsToObjAssoc::NextIteration(GoodsToObjAssocViewItem * pIte
 			pItem->ObjID = r_item.Val;
 			P_Assoc->GetKeyName(r_item.Key, temp_buf);
 			STRNSCPY(pItem->GoodsName, temp_buf);
-			GetObjectName(Filt.ObjType, r_item.Val, temp_buf = 0);
+			GetObjectName(Filt.ObjType, r_item.Val, temp_buf.Z());
 			STRNSCPY(pItem->ObjName, temp_buf);
 		}
 		IterIdx++;

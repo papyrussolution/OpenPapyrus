@@ -16,34 +16,35 @@ namespace Scintilla {
  */
 class MarginStyle {
 public:
-	int style;
-	ColourDesired back;
-	int width;
-	int mask;
-	bool sensitive;
-	int cursor;
 	MarginStyle();
+
+	int    style;
+	ColourDesired back;
+	int    width;
+	int    mask;
+	bool   sensitive;
+	int    cursor;
 };
 
 /**
  */
 class FontNames {
+public:
+	FontNames();
+	~FontNames();
+	void Clear();
+	const char * Save(const char *name);
 private:
 	std::vector<char *> names;
 
 	// Private so FontNames objects can not be copied
 	FontNames(const FontNames &);
-public:
-	FontNames();
-	~FontNames();
-	void Clear();
-	const char *Save(const char *name);
 };
 
 class FontRealised : public FontMeasurements {
 	// Private so FontRealised objects can not be copied
 	FontRealised(const FontRealised &);
-	FontRealised &operator=(const FontRealised &);
+	FontRealised & operator=(const FontRealised &);
 public:
 	Font font;
 	FontRealised();
@@ -51,15 +52,33 @@ public:
 	void Realise(Surface &surface, int zoomLevel, int technology, const FontSpecification &fs);
 };
 
-enum IndentView {ivNone, ivReal, ivLookForward, ivLookBoth};
+enum IndentView {
+	ivNone, 
+	ivReal, 
+	ivLookForward, 
+	ivLookBoth
+};
 
-enum WhiteSpaceVisibility {wsInvisible=0, wsVisibleAlways=1, wsVisibleAfterIndent=2, wsVisibleOnlyInIndent=3};
+enum WhiteSpaceVisibility {
+	wsInvisible=0, 
+	wsVisibleAlways=1, 
+	wsVisibleAfterIndent=2, 
+	wsVisibleOnlyInIndent=3
+};
 
-enum TabDrawMode {tdLongArrow=0, tdStrikeOut=1};
+enum TabDrawMode {
+	tdLongArrow=0, 
+	tdStrikeOut=1
+};
 
 typedef std::map<FontSpecification, FontRealised *> FontMap;
 
-enum WrapMode { eWrapNone, eWrapWord, eWrapChar, eWrapWhitespace };
+enum WrapMode { 
+	eWrapNone, 
+	eWrapWord, 
+	eWrapChar, 
+	eWrapWhitespace 
+};
 
 class ColourOptional : public ColourDesired {
 public:
@@ -76,14 +95,14 @@ struct ForeBackColours {
 };
 
 struct EdgeProperties {
-	int column;
+	EdgeProperties(int column_ = 0, ColourDesired colour_ = ColourDesired(0)) : column(column_), colour(colour_) 
+	{
+	}
+	EdgeProperties(uptr_t wParam, sptr_t lParam) : column(static_cast<int>(wParam)), colour(static_cast<long>(lParam)) 
+	{
+	}
+	int    column;
 	ColourDesired colour;
-	EdgeProperties(int column_ = 0, ColourDesired colour_ = ColourDesired(0)) :
-		column(column_), colour(colour_) {
-	}
-	EdgeProperties(uptr_t wParam, sptr_t lParam) :
-		column(static_cast<int>(wParam)), colour(static_cast<long>(lParam)) {
-	}
 };
 
 /**
@@ -95,15 +114,15 @@ public:
 	std::vector<Style> styles;
 	size_t nextExtendedStyle;
 	LineMarker markers[MARKER_MAX + 1];
-	int largestMarkerHeight;
+	int    largestMarkerHeight;
 	Indicator indicators[INDIC_MAX + 1];
-	uint indicatorsDynamic;
-	uint indicatorsSetFore;
-	int technology;
-	int lineHeight;
-	int lineOverlap;
-	uint maxAscent;
-	uint maxDescent;
+	uint   indicatorsDynamic;
+	uint   indicatorsSetFore;
+	int    technology;
+	int    lineHeight;
+	int    lineOverlap;
+	uint   maxAscent;
+	uint   maxDescent;
 	XYPOSITION aveCharWidth;
 	XYPOSITION spaceWidth;
 	XYPOSITION tabWidth;
@@ -111,67 +130,69 @@ public:
 	ColourDesired selAdditionalForeground;
 	ColourDesired selAdditionalBackground;
 	ColourDesired selBackground2;
-	int selAlpha;
-	int selAdditionalAlpha;
-	bool selEOLFilled;
+	int    selAlpha;
+	int    selAdditionalAlpha;
 	ForeBackColours whitespaceColours;
-	int controlCharSymbol;
+	int    controlCharSymbol;
 	XYPOSITION controlCharWidth;
 	ColourDesired selbar;
 	ColourDesired selbarlight;
 	ColourOptional foldmarginColour;
 	ColourOptional foldmarginHighlightColour;
 	ForeBackColours hotspotColours;
-	bool hotspotUnderline;
-	bool hotspotSingleLine;
 	/// Margins are ordered: Line Numbers, Selection Margin, Spacing Margin
-	int leftMarginWidth;	///< Spacing margin on left of text
-	int rightMarginWidth;	///< Spacing margin on right of text
-	int maskInLine;	///< Mask for markers to be put into text because there is nowhere for them to go in margin
-	int maskDrawInText;	///< Mask for markers that always draw in text
+	int    leftMarginWidth;	///< Spacing margin on left of text
+	int    rightMarginWidth;	///< Spacing margin on right of text
+	int    maskInLine;	///< Mask for markers to be put into text because there is nowhere for them to go in margin
+	int    maskDrawInText;	///< Mask for markers that always draw in text
 	std::vector<MarginStyle> ms;
-	int fixedColumnWidth;	///< Total width of margins
-	bool marginInside;	///< true: margin included in text view, false: separate views
-	int textStart;	///< Starting x position of text within the view
-	int zoomLevel;
+	int    fixedColumnWidth;	///< Total width of margins
+	int    textStart;	///< Starting x position of text within the view
+	int    zoomLevel;
 	WhiteSpaceVisibility viewWhitespace;
 	TabDrawMode tabDrawMode;
-	int whitespaceSize;
+	int    whitespaceSize;
 	IndentView viewIndentationGuides;
-	bool viewEOL;
 	ColourDesired caretcolour;
 	ColourDesired additionalCaretColour;
-	bool showCaretLineBackground;
-	bool alwaysShowCaretLineBackground;
 	ColourDesired caretLineBackground;
-	int caretLineAlpha;
-	int caretStyle;
-	int caretWidth;
-	bool someStylesProtected;
-	bool someStylesForceCase;
-	int extraFontFlag;
-	int extraAscent;
-	int extraDescent;
-	int marginStyleOffset;
-	int annotationVisible;
-	int annotationStyleOffset;
-	bool braceHighlightIndicatorSet;
-	int braceHighlightIndicator;
-	bool braceBadLightIndicatorSet;
-	int braceBadLightIndicator;
-	int edgeState;
+	int    caretLineAlpha;
+	int    caretStyle;
+	int    caretWidth;
+	int    extraFontFlag;
+	int    extraAscent;
+	int    extraDescent;
+	int    marginStyleOffset;
+	int    annotationVisible;
+	int    annotationStyleOffset;
+	int    braceHighlightIndicator;
+	int    braceBadLightIndicator;
+	int    edgeState;
 	EdgeProperties theEdge;
-	std::vector<EdgeProperties> theMultiEdge;
-	int marginNumberPadding; // the right-side padding of the number margin
-	int ctrlCharPadding; // the padding around control character text blobs
-	int lastSegItalicsOffset; // the offset so as not to clip italic characters at EOLs
+	std::vector <EdgeProperties> theMultiEdge;
+	int    marginNumberPadding; // the right-side padding of the number margin
+	int    ctrlCharPadding; // the padding around control character text blobs
+	int    lastSegItalicsOffset; // the offset so as not to clip italic characters at EOLs
 
 	// Wrapping support
 	WrapMode wrapState;
-	int wrapVisualFlags;
-	int wrapVisualFlagsLocation;
-	int wrapVisualStartIndent;
-	int wrapIndentMode; // SC_WRAPINDENT_FIXED, _SAME, _INDENT
+	int    wrapVisualFlags;
+	int    wrapVisualFlagsLocation;
+	int    wrapVisualStartIndent;
+	int    wrapIndentMode; // SC_WRAPINDENT_FIXED, _SAME, _INDENT
+
+	bool   selEOLFilled;
+	bool   hotspotUnderline;
+	bool   hotspotSingleLine;
+	bool   marginInside;	///< true: margin included in text view, false: separate views
+	bool   viewEOL;
+	bool   showCaretLineBackground;
+	bool   alwaysShowCaretLineBackground;
+	bool   someStylesProtected;
+	bool   someStylesForceCase;
+	bool   braceHighlightIndicatorSet;
+	bool   braceBadLightIndicatorSet;
+	uint8  Reserve; // @alignment
 
 	ViewStyle();
 	ViewStyle(const ViewStyle &source);
@@ -209,7 +230,7 @@ private:
 	FontRealised *Find(const FontSpecification &fs);
 	void FindMaxAscentDescent();
 	// Private so can only be copied through copy constructor which ensures font names initialised correctly
-	ViewStyle &operator=(const ViewStyle &);
+	ViewStyle & operator = (const ViewStyle &);
 };
 
 #ifdef SCI_NAMESPACE

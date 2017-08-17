@@ -528,7 +528,7 @@ int SLAPI StringSet::getnz(uint pos, SString & rBuf) const
 	if(pos)
 		return get(&pos, rBuf);
 	else {
-		rBuf = 0;
+		rBuf.Z();
 		return 1;
 	}
 }

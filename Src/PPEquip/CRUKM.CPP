@@ -715,7 +715,7 @@ static char * SLAPI MakeMsgByCheck(const LDATETIME * pDT, long cashCode, long ch
 
 static SString & SLAPI MakeMsgByCheck(const LDATETIME * pDT, long cashCode, long chkNumber, SString & rBuf)
 {
-	return (rBuf = 0).Cat(*pDT, DATF_DMY, TIMF_HMS|TIMF_MSEC).CatDiv(':', 1).Cat(cashCode).CatDiv(':', 1).Cat(chkNumber);
+	return rBuf.Z().Cat(*pDT, DATF_DMY, TIMF_HMS|TIMF_MSEC).CatDiv(':', 1).Cat(cashCode).CatDiv(':', 1).Cat(chkNumber);
 }
 
 static void SLAPI WaitMsgByCheck(const LDATETIME * pDT, long cashCode, long chkNumber)

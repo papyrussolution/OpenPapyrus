@@ -290,7 +290,7 @@ void SCI_METHOD LexerRegistry::Lex(Sci_PositionU startPos,
 			    }
 			    if(context.state == SCE_REG_STRING &&
 				    context.ch == '%' &&
-				    (isdigit(context.chNext) || context.chNext == '*')) {
+				    (isdec(context.chNext) || context.chNext == '*')) {
 				    context.SetState(SCE_REG_PARAMETER);
 			    }
 		    }

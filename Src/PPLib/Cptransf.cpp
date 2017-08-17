@@ -33,11 +33,11 @@ int FASTCALL CpTransfCore::GetExt(CpTransfTbl::Rec & rRec, CpTrfrExt * pExt)
 		pExt->PartNo[0] = 0;
 		pExt->Clb[0] = 0;
 	}
-	PPGetExtStrData(CPTFREXSTR_SERIAL, ext_buf, temp_buf = 0);
+	PPGetExtStrData(CPTFREXSTR_SERIAL, ext_buf, temp_buf.Z());
     if(pExt) {
 		STRNSCPY(pExt->PartNo, temp_buf);
     }
-	PPGetExtStrData(CPTFREXSTR_CLB, ext_buf, temp_buf = 0);
+	PPGetExtStrData(CPTFREXSTR_CLB, ext_buf, temp_buf.Z());
     if(pExt) {
 		STRNSCPY(pExt->Clb, temp_buf);
     }

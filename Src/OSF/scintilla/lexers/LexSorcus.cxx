@@ -27,7 +27,7 @@ using namespace Scintilla;
 //additionally numbers that follow 'M' can be contained in a keyword
 static bool FASTCALL IsSWordStart(const int ch, const int prev_ch)
 {
-	if(isalpha(ch) || (ch == '_') || ((isdigit(ch)) && (prev_ch == 'M')))
+	if(isalpha(ch) || (ch == '_') || ((isdec(ch)) && (prev_ch == 'M')))
 		return true;
 
 	return false;
@@ -36,7 +36,7 @@ static bool FASTCALL IsSWordStart(const int ch, const int prev_ch)
 //only digits that are not preceded by 'M' count as a number
 static bool FASTCALL IsSorcusNumber(const int ch, const int prev_ch)
 {
-	if((isdigit(ch)) && (prev_ch != 'M'))
+	if((isdec(ch)) && (prev_ch != 'M'))
 		return true;
 
 	return false;

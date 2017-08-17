@@ -480,7 +480,7 @@ public:
 	// @v9.3.3 int    SLAPI UpdateLicense(const PPRegistrInfo *, const char * , const char *);
 private:
 	int    SLAPI Decrypt();
-	int    SLAPI Clear();
+	void   SLAPI Clear();
 
 	void * P_Info_Pre9303;
 	PapyrusPrivateBlock * P_Info_;
@@ -735,7 +735,7 @@ public:
 	int    SLAPI DestroyIterHandler(long handle);
 	int    FASTCALL NextIter(long handle);
 private:
-	PPIDArray Tab;
+	TSArray <void *> Tab;
 };
 //
 //
@@ -5093,6 +5093,7 @@ struct AccTurnParam {
 #define CCFLG2_USECCHECKEXTPAYM    0x00000020L // @v8.0.0 Использовать расширение оплат по чекам
 #define CCFLG2_DONTUSE3TIERGMTX    0x00000040L // @v8.1.9 Не использовать извлечение товарной матрицы с сервера при 3-tier режиме работы
 #define CCFLG2_USEOMTPAYMAMT       0x00000080L // @v8.5.8 Использовать включенную сумму оплаты по документам
+#define CCFLG2_USESARTREDB         0x00000100L // @v9.7.11 Использовать базу данных Sartre (экпериментальная опция)
 //
 // Общие параметры конфигурации
 //
@@ -5776,6 +5777,8 @@ public:
     //
     int    SLAPI SetIfcConfigParam(const char * pParam, const char * pValue);
     int    SLAPI GetIfcConfigParam(const char * pParam, SString & rValue) const;
+    //
+    SrDatabase * SLAPI GetSrDatabase();
 private:
 	int    SLAPI RegisterAdviseObjects();
 	void   SLAPI OnLogout();
@@ -5812,6 +5815,7 @@ private:
 	PtrEntry * P_PtrVect;
 	ErrContext * P_ErrCtx;
 	PPThread * P_AeqThrd;
+	SrDatabase * P_SrDb; // @v9.7.11
 public:
 	class WaitBlock {
 	public:
@@ -9239,7 +9243,7 @@ int SLAPI IsUnlimWoLot(const TransferTbl::Rec & rRec);
 //
 struct ILTI { // @persistent(DBX) @size=80
 	SLAPI  ILTI(const PPTransferItem * = 0);
-	void   FASTCALL Init__(const PPTransferItem *);
+	void   FASTCALL Init(const PPTransferItem * pTi);
 	int    SLAPI Setup(PPID goodsID, int sign, double qtty, double cost, double price);
 	//
 	// Descr: Устанавливает поля Qtty и Rest в значение qtty с поправкой на флаги.
@@ -9735,7 +9739,7 @@ public:
 	int    SLAPI AddStorageForm(const AdvBillItemTbl::Rec *);
 	int    SLAPI Add(const PPAdvBillItem *);
 	int    SLAPI Remove(uint);
-	int    SLAPI Clear();
+	void   SLAPI Clear();
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 };
 //
@@ -13973,12 +13977,12 @@ private:
 //
 #define PP_CREATE_TEMP_FILE_PROC(proc,nam)                 \
 static nam##Tbl * SLAPI proc() { nam##Tbl * t = new nam##Tbl(DBTable::CrTempFileNamePtr); \
-  if(t && t->isOpen()) return t; else { delete t; t = 0; return (PPSetErrorDB(), (nam##Tbl *)0); }}
+  if(t && t->IsOpened()) return t; else { delete t; t = 0; return (PPSetErrorDB(), (nam##Tbl *)0); }}
 
 template <class T> inline T * CreateTempFile()
 {
 	T * t = new T(DBTable::CrTempFileNamePtr);
-	if(!t || !t->isOpen()) {
+	if(!t || !t->IsOpened()) {
 		ZDELETE(t);
 		PPSetErrorDB();
 	}
@@ -14408,8 +14412,8 @@ public:
 	SLAPI  PPCommandMngr(const char * pFileName, int readOnly);
 	SLAPI ~PPCommandMngr();
 	int    SLAPI IsValid_() const;
-	int    SLAPI Save_(const PPCommandGroup *);
-	int    SLAPI Load(PPCommandGroup *);
+	int    SLAPI Save__(const PPCommandGroup *);
+	int    SLAPI Load__(PPCommandGroup *);
 private:
 	struct Hdr {
 		long   Signature;
@@ -17406,7 +17410,7 @@ public:
 	PPID   TouchScreenID;    //
 	PPID   ExtCashNodeID;    //
 	//PPID   PapyrusNodeID_unused; // ИД кассового узла Папирус @v9.6.8 unused
-	PPID   AlternateRegID;   // @v9.7.10 Явно обозначенный альтернативный регистратор 
+	PPID   AlternateRegID;   // @v9.7.10 Явно обозначенный альтернативный регистратор
 		// (if ExtFlags & CASHFX_EXTNODEASALT && !AlternateRegID) то альтернативным регистратором является ExtCashNodeID
 	PPID   ScaleID;          //
 	PPID   CustDispType;     // Тип дисплея покупателя //
@@ -25341,7 +25345,7 @@ public:
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    SLAPI AddItem(const GoodsSubstItem & rItem, const AssocItem & rAssocItem, PPID * pID);
 	int    SLAPI GetItem(PPID id, GoodsSubstItem * pItem) const;
-	int    SLAPI Clear();
+	void   SLAPI Clear();
 	long   SLAPI GetAssocCount(PPID substID) const;
 	//
 	// Descr: Заполняет список идентификаторов подстановок.
@@ -27648,7 +27652,7 @@ public:
 		fForceUpdateManuf = 0x0080  // @v8.9.1
 	};
 	SLAPI  PPGoodsImpExpParam(uint recId = 0, long flags = 0);
-	int    SLAPI Clear();
+	void   SLAPI Clear();
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
 	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
@@ -27685,7 +27689,7 @@ private:
 class PPQuotImpExpParam : public PPImpExpParam {
 public:
 	SLAPI  PPQuotImpExpParam(uint recId = 0, long flags = 0);
-	int    SLAPI Clear();
+	void   SLAPI Clear();
 	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
@@ -34349,7 +34353,7 @@ public:
 	//   0  - ошибка
 	//
 	// int    SLAPI Init(int setupValues, long extraParam);
-	int    SLAPI SetupBrowseBillsType(BrowseBillsType);
+	void   FASTCALL SetupBrowseBillsType(BrowseBillsType);
 	enum bff_tag {
 		fShowDebt       = 0x00000001, // Показывать долг
 		fDebtOnly       = 0x00000002, // Выводить только неоплаченные документы
@@ -34621,7 +34625,7 @@ private:
 	int    SLAPI GetOpList(const BillFilt *, PPIDArray *, PPID * pSingleOpID) const;
 	int    FASTCALL CheckFlagsForFilt(const BillTbl::Rec * pRec) const;
 	int    SLAPI InitOrderRec(IterOrder ord, const BillTbl::Rec *, TempOrderTbl::Rec *);
-	int    SLAPI InitTempRec(BillTbl::Rec *, TempBillTbl::Rec *);
+	void   SLAPI InitTempRec(BillTbl::Rec *, TempBillTbl::Rec *);
 	int    SLAPI SelectBillListForm(uint * form, int * ext, IterOrder * order);
 	int    SLAPI InsertIntoPool(PPID billID, int use_ta);
 	int    SLAPI RemoveFromPool(PPID, int use_ta);
@@ -36230,6 +36234,7 @@ public:
 		double DraftRcpt;     //
 		uint32 Counter;
 		uint   SerialP;       // @v8.1.0 Позиция серийного номера в пуле строк
+		uint   LotTagP;       // @v9.7.11 Позиция строки тега лота в пуле строк
 		DBRowId  DBPos;
 	};
 private:
@@ -36239,6 +36244,8 @@ private:
 		Cache & SLAPI Clear();
 		int    SLAPI SetupCacheItemSerial(PPViewGoodsRest::CacheItem & rItem, const char * pSerial);
 		int    SLAPI GetCacheItemSerial(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const;
+		int    SLAPI SetupCacheItemLotTag(PPViewGoodsRest::CacheItem & rItem, const char * pTagVal);
+		int    SLAPI GetCacheItemLotTag(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const;
 	};
 
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
@@ -36267,7 +36274,7 @@ private:
 	int    SLAPI NextOuterIteration();
 	int    SLAPI InitAppBuff(const TempGoodsRestTbl::Rec *, GoodsRestViewItem *);
 
-	int    SLAPI InitCache();
+	void   SLAPI InitCache();
 	int    FASTCALL AddCacheItem(PPViewGoodsRest::CacheItem & rItem);
 	int    SLAPI CompareNthCacheItem(uint n, const PPViewGoodsRest::CacheItem *) const;
 	int    SLAPI FlashCacheItem(BExtInsert *, const PPViewGoodsRest::CacheItem & rItem);
@@ -38885,10 +38892,13 @@ private:
 	TempCCheckGdsCorrTbl * P_TmpGdsCorrTbl;
 	CCheckFilt  Filt;
 	enum {
-		stHasExt       = 0x0001,
-		stUseGoodsList = 0x0002,
-		stIterLines    = 0x0004, // @v8.3.7
-		stOuterCc      = 0x0008  // @v8.6.12
+		stHasExt        = 0x0001,
+		stUseGoodsList  = 0x0002,
+		stIterLines     = 0x0004, // @v8.3.7
+		stOuterCc       = 0x0008, // @v8.6.12
+		stSkipUnprinted = 0x0010  // @v9.7.11 Если в фильтре заданы конкретные кассовые узлы
+			// и все они имеют установленный флаг CASHF_SKIPUNPRINTEDCHECKS, то чеки, не имеющие
+			// флага CCHKF_PRINTF считаются неучитываемым (как будто имеют флаг CCHKF_SKIP).
 	};
 	long   State;              // @*Init_
 	CCheckPacket CcPack;       //
@@ -45757,15 +45767,8 @@ public:
         static uint SLAPI GetPossiblePackCount(const Node * pN, size_t count, uint * pPossibleCountLogic);
 
 		struct Put__Param {
-			Put__Param(const Node * pN, uint nodeCount)
-			{
-				P_N = pN;
-				P_NrWayRefs = 0;
-				P_NrRelRefs = 0;
-				NCount = nodeCount;
-				NrWayRefsCount = 0;
-				NrRelRefsCount = 0;
-			}
+			SLAPI  Put__Param(const Node * pN, uint nodeCount);
+
 			const  Node * P_N;
 			const  LLAssoc * P_NrWayRefs;
 			const  LLAssoc * P_NrRelRefs;
@@ -45774,14 +45777,8 @@ public:
 			uint   NrRelRefsCount;
 		};
 		struct Put__Result {
-			Put__Result()
-			{
-				ActualCount = 0;
-				ActualNrWayCount = 0;
-				ActualNrRelCount = 0;
-				NrWayShift = 0;
-				NrRelShift = 0;
-			}
+			SLAPI  Put__Result();
+
 			uint   ActualCount;
 			uint   ActualNrWayCount;
 			uint   ActualNrRelCount;
@@ -46114,8 +46111,7 @@ public:
 	int    SLAPI Init(const PPBaseFilt * pBaseFilt);
 	int    SLAPI Run();
 
-	int    SLAPI ResolveSyntaxRules(SrSyntaxRuleSet & rSet, SrDatabase & rDb);
-	int    SLAPI ProcessTextWithSyntax(SrDatabase & rDb, const SrSyntaxRuleSet & rSet, const SString & rTextUtf8);
+	//int    SLAPI ResolveSyntaxRules(SrSyntaxRuleSet & rSet, SrDatabase & rDb);
 private:
 	int    SLAPI ImportHumanNames(const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing);
 	int    SLAPI TestSearchWords();
@@ -49723,7 +49719,7 @@ class PPDesktopAssocCmdPool { // @persistent
 public:
 	PPDesktopAssocCmdPool();
 	~PPDesktopAssocCmdPool();
-	int    Init(PPID desktopId);
+	void   Init(PPID desktopId);
 	PPID   GetDesktopID() const;
 	void   SetDesktopID(PPID id);
 	uint   GetCount() const;
@@ -49767,7 +49763,7 @@ public:
 
 	PPDesktop();
 	~PPDesktop();
-	int    Init(long desktopID);
+	int    Init__(long desktopID);
 	int    Destroy(int dontAssignToDb);
 
 	TRect & CalcIconRect(TPoint lrp, TRect & rResult) const;
@@ -49787,7 +49783,6 @@ public:
 	int    EditIconName(long id);
 	int    DoCommand(TPoint p);
 	int    ArrangeIcons();
-	ushort insert();
 	PPBizScoreWindow * GetBizScoreWnd();
 	int    CreateBizScoreWnd();
 	int    LoadBizScoreData();
@@ -49816,6 +49811,7 @@ private:
 		//
 		SString DvcNameBuf_;
 	};
+	ushort Execute();
 	void   WMHCreate(LPCREATESTRUCT);
 	int    DrawIcon(TCanvas & rC, long cmdID, int isSelected);
 	int    DrawIcon(TCanvas & rC, long id, TPoint coord, const SString & rText, const SString & rIcon, int isSelected);
@@ -49828,12 +49824,17 @@ private:
 	int    ProcessRawInput(long rawInputHandle);
 	int    ProcessCommandItem(const PPDesktop::InputArray * pInp, const PPDesktopAssocCmd & rCpItem);
 	int    Helper_AcceptInputString(const PPDesktop::InputArray * pInp, const PPDesktopAssocCmd & rCpItem, SString & rBuf);
+
 	int    IconSize; // default=32
 	int    IconGap;  // default=8
-
-	long   IsIconMove;
 	long   Selected;
-	int    IsChanged;           // Рабочий стол был изменен и его нужно сохранить в файле
+	//long   IsIconMove;
+	//int    IsChanged;           // Рабочий стол был изменен и его нужно сохранить в файле
+	enum {
+		stChanged  = 0x0001, // Рабочий стол был изменен и его нужно сохранить в файле
+		stIconMove = 0x0002  // Состояние перемещения иконки
+	};
+	long   State;
 	SImage Logotype;
 	TPoint MoveIconCoord;
 	TPoint CoordOffs;
@@ -49860,10 +49861,8 @@ private:
 	PPIDArray Cookies;
 	PPCommandGroup * P_ActiveDesktop;
 	TSCollection <SUsbDevice> UsbList; // @vmiller
-
 	PPDesktopAssocCmdPool PrivateCp;
 	PPDesktopAssocCmdPool CommonCp;
-
 	RawInputBlock Rib;
 	PPObjSCard * P_ScObj;
 	PPObjGoods * P_GObj;

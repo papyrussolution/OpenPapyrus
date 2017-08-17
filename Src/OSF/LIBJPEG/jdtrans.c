@@ -14,9 +14,8 @@
 #include "cdjpeg.h"
 #pragma hdrstop
 
-/* Forward declarations */
-static void transdecode_master_selection JPP((j_decompress_ptr cinfo));
-
+// Forward declarations
+static void transdecode_master_selection(j_decompress_ptr cinfo);
 /*
  * Read the coefficient arrays from a JPEG file.
  * jpeg_read_header must be completed before calling this.

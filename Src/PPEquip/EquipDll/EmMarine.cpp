@@ -70,7 +70,7 @@ uint8 PPDrvReader::CalcCheckCode(const uint8 * pBuf, size_t dataLen) const
 
 int PPDrvReader::CardCodeToString(const uint8 * pCardCode, SString & rBuf) const
 {
-	(rBuf = 0).CatLongZ((long)pCardCode[2], 3).CatChar(',').Cat(swapw(*(uint16 *)(pCardCode+3)));
+	rBuf.Z().CatLongZ((long)pCardCode[2], 3).CatChar(',').Cat(swapw(*(uint16 *)(pCardCode+3)));
 	return 1;
 }
 //

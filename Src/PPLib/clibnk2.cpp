@@ -31,7 +31,7 @@ int PPCliBnkImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader &
 			param_list.Add(PPCLBNKPAR_PAYMMETHODTRANSL, (temp_buf = PaymMethodTransl));
 		SETFLAG(flags, 0x0001, DefPayerByAmtSign);
 		if(flags)
-			param_list.Add(PPCLBNKPAR_FLAGS, (temp_buf = 0).Cat(flags));
+			param_list.Add(PPCLBNKPAR_FLAGS, temp_buf.Z().Cat(flags));
 	}
 	THROW_SL(pSCtx->Serialize(dir, param_list, rTail));
 	if(dir < 0) {
@@ -228,7 +228,7 @@ struct BankStmntItem : public Sdr_CliBnkData { // @flat
 
 SString & SLAPI BankStmntItem::MakeDescrText(SString & rBuf) const
 {
-	return (rBuf = 0).Cat(Date, DATF_DMY|DATF_CENTURY).CatDiv('-', 1).Cat(Code).CatDiv('-', 1).
+	return rBuf.Z().Cat(Date, DATF_DMY|DATF_CENTURY).CatDiv('-', 1).Cat(Code).CatDiv('-', 1).
 		Cat(GetContragentName()).Space().Eq().Cat(Amount, SFMT_MONEY);
 }
 
@@ -1216,7 +1216,7 @@ int SetupCliBnkAssocDialog::setupList()
 		}
 		THROW(PPGetSubStr(PPTXT_SIGN, k, temp_buf));
 		ss.add(temp_buf + 2);
-		ss.add((temp_buf = 0).Cat(p_assoc_item->AddedTag));
+		ss.add(temp_buf.Z().Cat(p_assoc_item->AddedTag));
 		GetOpData(p_assoc_item->OpID, &op_rec);
 		ss.add(op_rec.Name);
 		THROW(addStringToList(i - 1, ss.getBuf()));

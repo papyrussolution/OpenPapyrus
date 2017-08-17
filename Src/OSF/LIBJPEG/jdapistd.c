@@ -18,9 +18,8 @@
 #include "cdjpeg.h"
 #pragma hdrstop
 
-/* Forward declarations */
-LOCAL(boolean) output_pass_setup JPP((j_decompress_ptr cinfo));
-
+// Forward declarations
+LOCAL(boolean) output_pass_setup(j_decompress_ptr cinfo);
 /*
  * Decompression initialization.
  * jpeg_read_header must be completed before calling this.
@@ -59,7 +58,7 @@ GLOBAL(boolean) jpeg_start_decompress(j_decompress_ptr cinfo)
 				if(retcode == JPEG_REACHED_EOI)
 					break;
 				/* Advance progress counter if appropriate */
-				if(cinfo->progress != NULL && oneof2(retcode, JPEG_ROW_COMPLETED, JPEG_REACHED_SOS)) {
+				if(cinfo->progress && oneof2(retcode, JPEG_ROW_COMPLETED, JPEG_REACHED_SOS)) {
 					if(++cinfo->progress->pass_counter >= cinfo->progress->pass_limit) {
 						/* jdmaster underestimated number of scans; ratchet up one scan */
 						cinfo->progress->pass_limit += (long)cinfo->total_iMCU_rows;

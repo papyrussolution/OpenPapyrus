@@ -84,7 +84,7 @@ static int classifyWordTAL(Sci_PositionU start,
 	getRange(start, end, styler, s, sizeof(s));
 
 	char chAttr = SCE_C_IDENTIFIER;
-	if(isdigit(s[0]) || (s[0] == '.')) {
+	if(isdec(s[0]) || (s[0] == '.')) {
 		chAttr = SCE_C_NUMBER;
 	}
 	else {
@@ -112,7 +112,7 @@ static int classifyWordTAL(Sci_PositionU start,
 static int classifyFoldPointTAL(const char* s)
 {
 	int lev = 0;
-	if(!(isdigit(s[0]) || (s[0] == '.'))) {
+	if(!(isdec(s[0]) || (s[0] == '.'))) {
 		if(strcmp(s, "begin") == 0 ||
 		    strcmp(s, "block") == 0) {
 			lev = 1;

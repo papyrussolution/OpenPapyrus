@@ -47,35 +47,28 @@ typedef struct {
 
 typedef my_main_controller * my_main_ptr;
 
-/* Forward declarations */
-METHODDEF(void) process_data_simple_main JPP((j_compress_ptr cinfo, JSAMPARRAY input_buf,
-	    JDIMENSION *in_row_ctr, JDIMENSION in_rows_avail));
+// Forward declarations 
+METHODDEF(void) process_data_simple_main(j_compress_ptr cinfo, JSAMPARRAY input_buf, JDIMENSION *in_row_ctr, JDIMENSION in_rows_avail);
 #ifdef FULL_MAIN_BUFFER_SUPPORTED
-METHODDEF(void) process_data_buffer_main JPP((j_compress_ptr cinfo, JSAMPARRAY input_buf,
-	    JDIMENSION *in_row_ctr, JDIMENSION in_rows_avail));
+	METHODDEF(void) process_data_buffer_main(j_compress_ptr cinfo, JSAMPARRAY input_buf, JDIMENSION *in_row_ctr, JDIMENSION in_rows_avail);
 #endif
-
 /*
  * Initialize for a processing pass.
  */
-
 METHODDEF(void) start_pass_main(j_compress_ptr cinfo, J_BUF_MODE pass_mode)
 {
 	my_main_ptr mainp = (my_main_ptr)cinfo->main;
-
 	/* Do nothing in raw-data mode. */
 	if(cinfo->raw_data_in)
 		return;
-
 	mainp->cur_iMCU_row = 0; /* initialize counters */
 	mainp->rowgroup_ctr = 0;
 	mainp->suspended = FALSE;
 	mainp->pass_mode = pass_mode; /* save mode for use by process_data */
-
 	switch(pass_mode) {
 		case JBUF_PASS_THRU:
 #ifdef FULL_MAIN_BUFFER_SUPPORTED
-		    if(mainp->whole_image[0] != NULL)
+		    if(mainp->whole_image[0])
 			    ERREXIT(cinfo, JERR_BAD_BUFFER_MODE);
 #endif
 		    mainp->pub.process_data = process_data_simple_main;

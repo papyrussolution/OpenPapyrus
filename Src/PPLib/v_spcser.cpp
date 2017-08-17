@@ -288,9 +288,9 @@ int SpecSerDlg::setDTS(const SpecSeries2Tbl::Rec * pData)
 
 	SpecSeriesCore::GetExField(&Data, SPCSNEXSTR_GOODSNAME, temp_buf);
 	setCtrlString(CTL_SPCSER_GOODSNAME, temp_buf);
-	SpecSeriesCore::GetExField(&Data, SPCSNEXSTR_MANUFNAME, temp_buf = 0);
+	SpecSeriesCore::GetExField(&Data, SPCSNEXSTR_MANUFNAME, temp_buf.Z());
 	setCtrlString(CTL_SPCSER_MANUFNAME, temp_buf);
-	SpecSeriesCore::GetExField(&Data, SPCSNEXSTR_DESCRIPTION, temp_buf = 0);
+	SpecSeriesCore::GetExField(&Data, SPCSNEXSTR_DESCRIPTION, temp_buf.Z());
 	setCtrlString(CTL_SPCSER_INFO, temp_buf);
 
 	AddClusterAssoc(CTL_SPCSER_FLAGS, 0, SPCSELIF_FALSIFICATION);
@@ -315,14 +315,14 @@ int SpecSerDlg::getDTS(SpecSeries2Tbl::Rec * pData)
 	getCtrlData(sel = CTL_SPCSER_BARCODE, Data.Barcode);
 	getCtrlData(sel = CTL_SPCSER_SERIAL, Data.Serial);
 	THROW_PP(strlen(Data.Serial) > 0, PPERR_SERIALNEEDED);
-	getCtrlString(sel = CTL_SPCSER_GOODSNAME, temp_buf = 0);
+	getCtrlString(sel = CTL_SPCSER_GOODSNAME, temp_buf.Z());
 	THROW_PP(temp_buf.NotEmptyS(), PPERR_GOODSNEEDED);
 	SpecSeriesCore::SetExField(&Data, SPCSNEXSTR_GOODSNAME, temp_buf);
 	getCtrlData(CTLSEL_SPCSER_GOODS, &Data.GoodsID);
-	getCtrlString(sel = CTL_SPCSER_MANUFNAME, temp_buf = 0);
+	getCtrlString(sel = CTL_SPCSER_MANUFNAME, temp_buf.Z());
 	THROW_PP(temp_buf.NotEmptyS(), PPERR_MANUFACTURERNEEDED);
 	SpecSeriesCore::SetExField(&Data, SPCSNEXSTR_MANUFNAME, temp_buf);
-	getCtrlString(CTL_SPCSER_INFO, temp_buf = 0);
+	getCtrlString(CTL_SPCSER_INFO, temp_buf.Z());
 	SpecSeriesCore::SetExField(&Data, SPCSNEXSTR_DESCRIPTION, temp_buf);
 	getCtrlData(CTLSEL_SPCSER_MANUF, &Data.ManufID);
 	GetClusterData(CTL_SPCSER_FLAGS, &Data.Flags);
@@ -462,7 +462,7 @@ int SLAPI PPViewSpecSeries::ImportUhtt()
 					strtodate(p_pack->InfoDate, DATF_YMD, &dt);
 					if((p_pack->Serial == rec.Serial) && (p_pack->Barcode == rec.Barcode) &&
 						(p_pack->InfoIdent == rec.InfoIdent) && (rec.InfoDate == dt)) {
-							(temp_buf = 0).Cat(p_pack->GoodsName).CatDiv(':', 1).Cat(p_pack->Serial).CatDiv(':', 1).Cat(p_pack->InfoDate);
+							temp_buf.Z().Cat(p_pack->GoodsName).CatDiv(':', 1).Cat(p_pack->Serial).CatDiv(':', 1).Cat(p_pack->InfoDate);
 							logger.LogString(PPTXT_IMPSPOIL_DUP, temp_buf);
 							dup = 1;
 							break;
@@ -495,7 +495,7 @@ int SLAPI PPViewSpecSeries::ImportUhtt()
 					if(id > 0) {
 						accepted_count++;
 						logger.Log(PPFormatT(PPTXT_LOG_UHTT_SPECSERIESIMP, &msg_buf, (const char *)rec.Serial,
-							(temp_buf = 0).Cat(rec.InfoDate).cptr(), p_pack->GoodsName.cptr(), (const char *)rec.Barcode));
+							temp_buf.Z().Cat(rec.InfoDate).cptr(), p_pack->GoodsName.cptr(), (const char *)rec.Barcode));
 					}
 					else {
 						PPGetLastErrorMessage(0, temp_buf);
@@ -506,7 +506,7 @@ int SLAPI PPViewSpecSeries::ImportUhtt()
 			PPWaitPercent(cntr.Increment());
 		}
 		PPWait(0);
-		PPMessage(mfInfo|mfOK, PPINF_RCVCURRSCOUNT, (temp_buf = 0).Cat(accepted_count));
+		PPMessage(mfInfo|mfOK, PPINF_RCVCURRSCOUNT, temp_buf.Z().Cat(accepted_count));
 	}
 	CATCHZOKPPERR
 	return ok;

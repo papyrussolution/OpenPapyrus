@@ -3644,6 +3644,7 @@
   <ItemGroup>
     <ClInclude Include="..\Include\fann.h" />
     <ClInclude Include="..\Include\json.h" />
+    <ClInclude Include="..\Include\layout-2d.h" />
     <ClInclude Include="..\Include\Sarray.h" />
     <ClInclude Include="..\Include\Sbrowser.h" />
     <ClInclude Include="..\Include\Schecks.h" />

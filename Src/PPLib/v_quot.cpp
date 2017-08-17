@@ -612,7 +612,7 @@ int SLAPI PPViewQuot::MakeOrderEntry(IterOrder ord, const TempQuotTbl::Rec & rSr
 		if(rSrcRec.ArticleID)
 			GetArticleName(rSrcRec.ArticleID, temp_buf);
 		else
-			(temp_buf = 0).CatChar('\xFF');
+			temp_buf.Z().CatChar('\xFF');
 		GetGoodsName(rSrcRec.GoodsID, goods_name);
 		while((temp_buf.Len() + goods_name.Len() + 1) > sizeof(rDestRec.Name)) {
 			if(temp_buf.Len() > goods_name.Len())
@@ -1219,7 +1219,7 @@ int SLAPI PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotI
 						GoodsIterator::GetListByFilt(&gf, &temp_goods_list);
 						count = r_item.Val - temp_goods_list.getCount();
 						QuotKindList.Search(0, &rest_pos);
-						(temp_buf = 0).Cat(count, SFMT_MONEY).CopyTo(GetQuotTblBuf(&rec, rest_pos), QUOT_BUF_SIZE);
+						temp_buf.Z().Cat(count, SFMT_MONEY).CopyTo(GetQuotTblBuf(&rec, rest_pos), QUOT_BUF_SIZE);
 					}
 				}
 				if((i & 0xff) == 0)
@@ -1271,7 +1271,7 @@ int SLAPI PPViewQuot::GetTabTitle(long tabID, SString & rBuf)
 		if(LocObj.Search(tabID, &loc_rec) > 0)
 			rBuf.CopyFrom(loc_rec.Name);
 		else
-			(rBuf = 0).Cat(tabID);
+			rBuf.Z().Cat(tabID);
 	}
 	else {
 		// @v9.3.10 PPGetWord(PPWORD_ALLLOCS, 0, rBuf);
@@ -1599,7 +1599,7 @@ int SLAPI PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 		switch(ppvCmd) {
 			case PPVCMD_INPUTCHAR:
 				ok = -1;
-				if(Filt.QkCls != PPQuot::clsMtxRestr && pHdr && isdigit(*(const char *)pHdr)) {
+				if(Filt.QkCls != PPQuot::clsMtxRestr && pHdr && isdec(*(const char *)pHdr)) {
 					int    init_char = *(const char *)pHdr;
 					int    r = 0;
 					Goods2Tbl::Rec goods_rec;

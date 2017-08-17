@@ -249,7 +249,7 @@ void * FASTCALL DlContext::GetStackPtr(uint sp)
 int SLAPI DlContext::FormatVar(CtmVar v, SString & rBuf) const
 {
 	int    ok = 0;
-	rBuf = 0;
+	rBuf.Z();
 	const DlScope * p_scope = GetScope_Const(v.ScopeID, 0);
 	if(p_scope) {
 		rBuf.Cat(p_scope->Name);
@@ -808,7 +808,7 @@ int DlRtm::SetByJSON_Helper(json_t * pNode, SetScopeBlk & rBlk)
 							break;
 						default:
 							THROW(Set(rBlk.GetScopeID(), 0));
-							THROW(rBlk.ToChild((temp_buf = 0).Cat("iter@").Cat(fld_name)));
+							THROW(rBlk.ToChild(temp_buf.Z().Cat("iter@").Cat(fld_name)));
 							THROW(SetByJSON_Helper(p_cur->P_Child, rBlk));	// @recursion
 							THROW(rBlk.ToHeader());
 							break;
@@ -1107,7 +1107,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
 
-	rBuf = 0;
+	rBuf.Z();
 	data_name = (rParam.Flags & ExportParam::fInheritedTblNames && p_data->GetBase()) ? p_data->GetBase()->Name : p_data->Name;
 	head_name = data_name;
 	data_name.Dot().Cat("xml");
@@ -1264,7 +1264,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 					else if(p_child->Name.CmpNC("iter@def") == 0)
 						suffix = "Iter";
 					else if(p_child->Name.Divide('@', temp_buf, suffix) > 0) {
-						(temp_buf = 0).CatChar('_').Cat(suffix);
+						temp_buf.Z().CatChar('_').Cat(suffix);
 						suffix = temp_buf;
 					}
 					else
@@ -1282,7 +1282,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 				else if(p_child->Name.CmpNC("iter@def") == 0)
 					suffix = "Iter";
 				else if(p_child->Name.Divide('@', temp_buf, suffix) > 0) {
-					(temp_buf = 0).CatChar('_').Cat(suffix);
+					temp_buf.Z().CatChar('_').Cat(suffix);
 					suffix = temp_buf;
 				}
 				else
@@ -1339,7 +1339,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 				suffix = "Iter";
 			}
 			else if(p_child->Name.Divide('@', temp_buf, suffix) > 0) {
-				(temp_buf = 0).CatChar('_').Cat(suffix);
+				temp_buf.Z().CatChar('_').Cat(suffix);
 				suffix = temp_buf;
 			}
 			else
@@ -1445,7 +1445,7 @@ int SLAPI DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags
 			THROW(Helper_PutItemToJson(&filt, p_root_ary));
 	}
 	json_tree_to_string(p_root_ary, &temp_buf);
-	(rBuf = 0).Cat(temp_buf);
+	rBuf.Z().Cat(temp_buf);
 	CATCHZOK
 	SAlloc::F(temp_buf);
 	json_free_value(&p_root_ary);
@@ -1463,7 +1463,7 @@ int SLAPI DlRtm::PutToJsonBuffer(void * ptr, SString & rBuf, int flags)
 	filt.Ptr = ptr;
 	THROW(Helper_PutItemToJson(&filt, p_root_ary));
 	json_tree_to_string(p_root_ary, &temp_buf);
-	(rBuf = 0).Cat(temp_buf);
+	rBuf.Z().Cat(temp_buf);
 	CATCHZOK
 	SAlloc::F(temp_buf);
 	json_free_value(&p_root_ary);

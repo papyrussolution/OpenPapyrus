@@ -447,7 +447,7 @@ static int SLAPI read_row(FILE * pF, LVect * pVect)
 		size_t p = 0;
 		char buf[64];
 		while((c = fgetc(pF)) != ',' && c != '\n' && c != 0) {
-			THROW(isdigit(c) || c == '.' || c == '-' || c == 'e' || c == 'E');
+			THROW(isdigit(c) || oneof4(c, '.', '-', 'e', 'E'));
 			buf[p++] = c;
 		}
 		buf[p] = 0;

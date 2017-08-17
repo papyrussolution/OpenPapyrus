@@ -2106,7 +2106,7 @@ static int SLAPI XmlWriteTag(FILE * pStream, const char * pTag, int start, int n
 // WriteHelper(p_xml_file, "<!ELEMENT Name          (#PCDATA)>\n", s_i.Name         , 0);
 static SString & XmlDeclElement(const char * pFieldName, SString & rBuf)
 {
-	(rBuf = 0).CatChar('<').CatChar('!').Cat("ELEMENT").Space().Cat(pFieldName).Space().
+	rBuf.Z().CatChar('<').CatChar('!').Cat("ELEMENT").Space().Cat(pFieldName).Space().
 		CatChar('(').CatChar('#').Cat("PCDATA").CatChar(')').CatChar('>').CR();
 	return rBuf;
 }
@@ -2204,7 +2204,7 @@ int SLAPI PPViewPriceList::SendPListInXmlFormat()
 		XmlConvertStr(plist_cfg.PublisherMail, 1, s_i.Email, sizeof(s_i.Email));
 		STRNSCPY(s_i.EmailAlbatros, s_i.Email);
 	}
-	(temp_buf = 0).Cat(LConfig.OperDate, MKSFMT(0, DATF_DMY | DATF_CENTURY));
+	temp_buf.Z().Cat(LConfig.OperDate, MKSFMT(0, DATF_DMY | DATF_CENTURY));
 	XMLReplaceSpecSymb(temp_buf, 0);
 	temp_buf.CopyTo(s_i.OperDate, sizeof(s_i.OperDate));
 
@@ -2326,11 +2326,11 @@ int SLAPI PPViewPriceList::SendPListInXmlFormat()
 		uobj.Fetch(item.UnitID, &unit_rec);
 		XMLReplaceSpecSymb((temp_buf = unit_rec.Name).Transf(CTRANSF_INNER_TO_OUTER), 0);
 		XmlWriteData(p_xml_file, "UnitName", temp_buf, 0);
-		XMLReplaceSpecSymb((temp_buf = 0).Cat(item.UnitsPerPack).Transf(CTRANSF_INNER_TO_OUTER), 0);
+		XMLReplaceSpecSymb(temp_buf.Z().Cat(item.UnitsPerPack).Transf(CTRANSF_INNER_TO_OUTER), 0);
 		XmlWriteData(p_xml_file, "UnitsPerPack", temp_buf, 0);
-		XMLReplaceSpecSymb((temp_buf = 0).Cat(item.Price), 0);
+		XMLReplaceSpecSymb(temp_buf.Z().Cat(item.Price), 0);
 		XmlWriteData(p_xml_file, "Price", temp_buf, 0);
-		XMLReplaceSpecSymb((temp_buf = 0).Cat(item.Price * item.UnitsPerPack), 0);
+		XMLReplaceSpecSymb(temp_buf.Z().Cat(item.Price * item.UnitsPerPack), 0);
 		XmlWriteData(p_xml_file, "Price2", temp_buf, 0);
 		XMLReplaceSpecSymb((temp_buf = item.Memo_).Transf(CTRANSF_INNER_TO_OUTER), 0);
 		XmlWriteData(p_xml_file, "Description", temp_buf, 0);

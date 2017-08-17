@@ -177,7 +177,7 @@ int SLAPI PPObjBill::CheckAmounts(PPID id, PPLogger & rLogger)
 				if(PPLoadString(PPMSG_ERROR, PPERR_NMATCHBILLAMT, fmt_buf)) {
 					MakeCodeString(&pack.Rec, 1, bill_buf);
 					GetObjectName(PPOBJ_AMOUNTTYPE, t, amt_buf);
-					log_buf.Printf(fmt_buf, bill_buf.cptr(), t, (const char *)amt_buf, bamt, ramt, bamt-ramt);
+					log_buf.Printf(fmt_buf, bill_buf.cptr(), t, amt_buf.cptr(), bamt, ramt, bamt-ramt);
 					rLogger.Log(log_buf);
 				}
 			}

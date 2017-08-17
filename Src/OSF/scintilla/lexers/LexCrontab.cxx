@@ -54,7 +54,7 @@ static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, i
 		}
 		switch(state) {
 			case SCE_NNCRONTAB_DEFAULT:
-			    if(ch == '\n' || ch == '\r' || ch == '\t' || ch == ' ') {
+			    if(oneof4(ch, '\n', '\r', '\t', ' ')) {
 				    // whitespace is simply ignored here...
 				    styler.ColourTo(i, SCE_NNCRONTAB_DEFAULT);
 				    break;
@@ -99,13 +99,13 @@ static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, i
 				    // no state jump necessary for this simple case...
 				    styler.ColourTo(i, SCE_NNCRONTAB_ASTERISK);
 			    }
-			    else if( (IsASCII(ch) && isalpha(ch)) || ch == '<') {
+			    else if((IsASCII(ch) && isalpha(ch)) || ch == '<') {
 				    // signals the start of an identifier
 				    bufferCount = 0;
 				    buffer[bufferCount++] = ch;
 				    state = SCE_NNCRONTAB_IDENTIFIER;
 			    }
-			    else if(IsASCII(ch) && isdigit(ch) ) {
+			    else if(IsASCII(ch) && isdec(ch)) {
 				    // signals the start of a number
 				    bufferCount = 0;
 				    buffer[bufferCount++] = ch;
@@ -208,7 +208,7 @@ static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, i
 
 			case SCE_NNCRONTAB_NUMBER:
 			    // stay  in CONF_NUMBER state until we find a non-numeric
-			    if(IsASCII(ch) && isdigit(ch) /* || ch == '.' */) {
+			    if(IsASCII(ch) && isdec(ch) /* || ch == '.' */) {
 				    buffer[bufferCount++] = ch;
 			    }
 			    else {

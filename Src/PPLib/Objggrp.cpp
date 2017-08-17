@@ -390,7 +390,7 @@ int SLAPI PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogg
 							THROW(P_Tbl->Update(&goods_id, &rec, 0));
 							DS.LogAction(PPACN_OBJUPD, PPOBJ_GOODS, goods_id, 0, 0);
 							PPLoadText(PPTXT_LOG_GGRPHASGOODS_CORR, fmt_buf);
-							pLogger->Log(msg_buf.Printf(fmt_buf, rec.Name, (const char *)dest_grp_name));
+							pLogger->Log(msg_buf.Printf(fmt_buf, rec.Name, dest_grp_name.cptr()));
 						}
 					}
 				}
@@ -420,7 +420,7 @@ int SLAPI PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogg
 								}
 								else {
 									PPGetSubStr(line_buf, 1, fmt_buf);
-									msg_buf.CatDiv(':', 2).Cat(temp_buf.Printf(fmt_buf, (const char *)ega_folder_name));
+									msg_buf.CatDiv(':', 2).Cat(temp_buf.Printf(fmt_buf, ega_folder_name.cptr()));
 									process_empty_list.addUnique(grp_rec.ID);
 								}
 							}
@@ -1722,7 +1722,7 @@ int SLAPI PPObjTransport::GetNameByTemplate(PPTransport * pPack, const char * pT
 		ok = 1;
 	}
 	else {
-		rBuf = 0;
+		rBuf.Z();
 		ok = -1;
 	}
 	return ok;
@@ -2662,14 +2662,13 @@ int SLAPI SuprWareListDialog::setupList()
 	StringSet ss(SLBColumnDelim);
 	SString str;
 	PPUnit unit;
-
 	for(uint i = 0; i < P_SuprWarePack.Items.getCount(); i++) {
 		MEMSZERO(goods_rec);
 		if(goods_o.Search(P_SuprWarePack.Items.at(i).CompID, &goods_rec) > 0) {
 			ss.clear(1);
 			ss.add(goods_rec.Name);
 			if(P_SuprWarePack.Items.at(i).Qtty || P_SuprWarePack.Items.at(i).UnitID) {
-				(str = 0).Cat(P_SuprWarePack.Items.at(i).Qtty);
+				str.Z().Cat(P_SuprWarePack.Items.at(i).Qtty);
 				ss.add(str);
 				MEMSZERO(unit);
 				if(goods_o.FetchUnit(P_SuprWarePack.Items.at(i).UnitID, &unit))

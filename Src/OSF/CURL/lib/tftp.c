@@ -138,7 +138,7 @@ typedef struct tftp_state_data {
 	tftp_packet_t spacket;
 } tftp_state_data_t;
 
-/* Forward declarations */
+// Forward declarations
 static CURLcode tftp_rx(tftp_state_data_t * state, tftp_event_t event);
 static CURLcode tftp_tx(tftp_state_data_t * state, tftp_event_t event);
 static CURLcode tftp_connect(struct connectdata * conn, bool * done);

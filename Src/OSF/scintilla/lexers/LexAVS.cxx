@@ -34,7 +34,7 @@ static bool FASTCALL IsANumberChar(int ch) {
 	// Not exactly following number definition (several dots are seen as OK, etc.)
 	// but probably enough in most cases.
 	return (ch < 0x80) &&
-	       (isdigit(ch) || ch == '.' || ch == '-' || ch == '+');
+	       (isdec(ch) || ch == '.' || ch == '-' || ch == '+');
 }
 
 static void ColouriseAvsDoc(Sci_PositionU startPos,

@@ -1282,7 +1282,7 @@ static void transpose_critical_parameters(j_compress_ptr dstinfo)
 	/* Transpose quantization tables */
 	for(tblno = 0; tblno < NUM_QUANT_TBLS; tblno++) {
 		qtblptr = dstinfo->quant_tbl_ptrs[tblno];
-		if(qtblptr != NULL) {
+		if(qtblptr) {
 			for(i = 0; i < DCTSIZE; i++) {
 				for(j = 0; j < i; j++) {
 					qtemp = qtblptr->quantval[i*DCTSIZE+j];
@@ -1523,30 +1523,20 @@ GLOBAL(jvirt_barray_ptr *) jtransform_adjust_parameters(j_decompress_ptr srcinfo
 		default:
 		    break;
 	}
-
 	/* Adjust Exif properties */
-	if(srcinfo->marker_list != NULL &&
-	    srcinfo->marker_list->marker == JPEG_APP0+1 &&
-	    srcinfo->marker_list->data_length >= 6 &&
-	    GETJOCTET(srcinfo->marker_list->data[0]) == 0x45 &&
-	    GETJOCTET(srcinfo->marker_list->data[1]) == 0x78 &&
-	    GETJOCTET(srcinfo->marker_list->data[2]) == 0x69 &&
-	    GETJOCTET(srcinfo->marker_list->data[3]) == 0x66 &&
-	    GETJOCTET(srcinfo->marker_list->data[4]) == 0 &&
-	    GETJOCTET(srcinfo->marker_list->data[5]) == 0) {
+	if(srcinfo->marker_list && srcinfo->marker_list->marker == JPEG_APP0+1 && srcinfo->marker_list->data_length >= 6 &&
+	    GETJOCTET(srcinfo->marker_list->data[0]) == 0x45 && GETJOCTET(srcinfo->marker_list->data[1]) == 0x78 &&
+	    GETJOCTET(srcinfo->marker_list->data[2]) == 0x69 && GETJOCTET(srcinfo->marker_list->data[3]) == 0x66 &&
+	    GETJOCTET(srcinfo->marker_list->data[4]) == 0 && GETJOCTET(srcinfo->marker_list->data[5]) == 0) {
 		/* Suppress output of JFIF marker */
 		dstinfo->write_JFIF_header = FALSE;
 		/* Adjust Exif image parameters */
-		if(dstinfo->jpeg_width != srcinfo->image_width ||
-		    dstinfo->jpeg_height != srcinfo->image_height)
+		if(dstinfo->jpeg_width != srcinfo->image_width || dstinfo->jpeg_height != srcinfo->image_height)
 			/* Align data segment to start of TIFF structure for parsing */
-			adjust_exif_parameters(srcinfo->marker_list->data + 6,
-			    srcinfo->marker_list->data_length - 6,
-			    dstinfo->jpeg_width, dstinfo->jpeg_height);
+			adjust_exif_parameters(srcinfo->marker_list->data + 6, srcinfo->marker_list->data_length - 6, dstinfo->jpeg_width, dstinfo->jpeg_height);
 	}
-
 	/* Return the appropriate output data set */
-	if(info->workspace_coef_arrays != NULL)
+	if(info->workspace_coef_arrays)
 		return info->workspace_coef_arrays;
 	return src_coef_arrays;
 }
@@ -1699,22 +1689,16 @@ GLOBAL(void) jcopy_markers_execute(j_decompress_ptr srcinfo, j_compress_ptr dsti
 	 * But to avoid confusion, we do not output JFIF and Adobe APP14 markers
 	 * if the encoder library already wrote one.
 	 */
-	for(marker = srcinfo->marker_list; marker != NULL; marker = marker->next) {
+	for(marker = srcinfo->marker_list; marker; marker = marker->next) {
 		if(dstinfo->write_JFIF_header && marker->marker == JPEG_APP0 && marker->data_length >= 5 &&
-		    GETJOCTET(marker->data[0]) == 0x4A &&
-		    GETJOCTET(marker->data[1]) == 0x46 &&
-		    GETJOCTET(marker->data[2]) == 0x49 &&
-		    GETJOCTET(marker->data[3]) == 0x46 &&
+		    GETJOCTET(marker->data[0]) == 0x4A && GETJOCTET(marker->data[1]) == 0x46 &&
+		    GETJOCTET(marker->data[2]) == 0x49 && GETJOCTET(marker->data[3]) == 0x46 &&
 		    GETJOCTET(marker->data[4]) == 0)
 			continue;  /* reject duplicate JFIF */
-		if(dstinfo->write_Adobe_marker &&
-		    marker->marker == JPEG_APP0+14 &&
-		    marker->data_length >= 5 &&
-		    GETJOCTET(marker->data[0]) == 0x41 &&
-		    GETJOCTET(marker->data[1]) == 0x64 &&
-		    GETJOCTET(marker->data[2]) == 0x6F &&
-		    GETJOCTET(marker->data[3]) == 0x62 &&
-		    GETJOCTET(marker->data[4]) == 0x65)
+		if(dstinfo->write_Adobe_marker && marker->marker == JPEG_APP0+14 &&
+		    marker->data_length >= 5 && GETJOCTET(marker->data[0]) == 0x41 &&
+		    GETJOCTET(marker->data[1]) == 0x64 && GETJOCTET(marker->data[2]) == 0x6F &&
+		    GETJOCTET(marker->data[3]) == 0x62 && GETJOCTET(marker->data[4]) == 0x65)
 			continue;  /* reject duplicate Adobe */
 #ifdef NEED_FAR_POINTERS
 		/* We could use jpeg_write_marker if the data weren't FAR... */

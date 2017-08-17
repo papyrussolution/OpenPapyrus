@@ -607,7 +607,7 @@ int ExtFieldsDialog::setupList()
 	for(uint i = 0; i < Data.getCount(); i++) {
 		StringSet ss(SLBColumnDelim);
 		TaggedString item = Data.at(i);
-		ss.add((temp_buf = 0).Cat(item.Id), 0);
+		ss.add(temp_buf.Z().Cat(item.Id), 0);
 		ss.add(item.Txt, 0);
 		if(!addStringToList(item.Id, ss.getBuf())) {
 			ok = 0;
@@ -826,12 +826,12 @@ int NewPersMarksDialog::setupList()
 		}
 		else if(item.Obj == PPOBJ_OPRKIND) {
 			PPOprKind op_kind;
-			GetOpName(item.Id, temp_buf = 0);
+			GetOpName(item.Id, temp_buf.Z());
 			ss.add(temp_buf, 0);
 		}
 		else if(item.Obj == PPOBJ_SCARDSERIES) {
 			if(item.Id)
-				GetObjectName(item.Obj, item.Id, temp_buf = 0);
+				GetObjectName(item.Obj, item.Id, temp_buf.Z());
 			else
 				PPLoadString("all", temp_buf);
 			ss.add(temp_buf, 0);
@@ -1376,7 +1376,7 @@ int SLAPI PPObjPerson::GetAddress(PPID id, SString & rBuf)
 		return LocObj.GetAddress(P_Tbl->data.MainLoc, 0, rBuf); // @v9.5.5
 	}
 	else {
-		rBuf = 0;
+		rBuf.Z();
 		return -1;
 	}
 }
@@ -1677,14 +1677,14 @@ int SLAPI PPObjPerson::GetRegister(PPID personID, PPID regType, LDATE actualDate
 int SLAPI PPObjPerson::GetRegNumber(PPID personID, PPID regType, SString & rBuf)
 {
 	RegisterArray reg_list;
-	rBuf = 0;
+	rBuf.Z();
 	return (GetRegList(personID, &reg_list, 1) > 0) ? reg_list.GetRegNumber(regType, rBuf) : -1;
 }
 
 int SLAPI PPObjPerson::GetRegNumber(PPID personID, PPID regType, LDATE actualDate, SString & rBuf)
 {
 	RegisterArray reg_list;
-	rBuf = 0;
+	rBuf.Z();
 	return (GetRegList(personID, &reg_list, 1) > 0) ? reg_list.GetRegNumber(regType, actualDate, rBuf) : -1;
 }
 
@@ -3321,7 +3321,7 @@ int SLAPI PPObjPerson::GetSubstObjType(long id, const SubstParam * pParam, PPObj
 
 int SLAPI PPObjPerson::GetSubstText(PPID id, PPID dlvrLocID, SubstParam * pParam, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	SString temp_buf, addr_buf;
 	if(id & sgpArticleMask)
 		GetArticleName((id & ~sgpArticleMask), rBuf);
@@ -3407,15 +3407,15 @@ int AddrListDialog::setupList()
 	for(uint i = 0; ok && Data.EnumDlvrLoc(&i, &loc_pack);) {
 		WorldTbl::Rec w_rec;
 		ss.clear(1);
-		ss.add((temp_buf = 0).Cat(loc_pack.ID));
+		ss.add(temp_buf.Z().Cat(loc_pack.ID));
 		ss.add((w_obj.Fetch(loc_pack.CityID, &w_rec) > 0) ? w_rec.Name : 0);
-		LocationCore::GetExField(&loc_pack, LOCEXSTR_SHORTADDR, temp_buf = 0);
+		LocationCore::GetExField(&loc_pack, LOCEXSTR_SHORTADDR, temp_buf.Z());
 		if(!temp_buf.NotEmptyS()) {
-			LocationCore::GetExField(&loc_pack, LOCEXSTR_FULLADDR, temp_buf = 0);
+			LocationCore::GetExField(&loc_pack, LOCEXSTR_FULLADDR, temp_buf.Z());
 			if(!temp_buf.NotEmptyS()) {
-				LocationCore::GetExField(&loc_pack, LOCEXSTR_CONTACT, temp_buf = 0);
+				LocationCore::GetExField(&loc_pack, LOCEXSTR_CONTACT, temp_buf.Z());
 				if(!temp_buf.NotEmptyS()) {
-					LocationCore::GetExField(&loc_pack, LOCEXSTR_EMAIL, temp_buf = 0);
+					LocationCore::GetExField(&loc_pack, LOCEXSTR_EMAIL, temp_buf.Z());
 				}
 			}
 		}
@@ -3847,7 +3847,7 @@ private:
 				if(p_sc_pack) {
 					PPSCardPacket sc_pack = *p_sc_pack;
 					if(ScObj.EditDialog(&sc_pack, PPObjSCard::edfDisableCode) > 0) {
-						setStaticText(CTL_PERSON_ST_SCARDINFO, temp_buf = 0);
+						setStaticText(CTL_PERSON_ST_SCARDINFO, temp_buf.Z());
 						setCtrlString(CTL_PERSON_SCARD, temp_buf = sc_pack.Rec.Code);
 						setCtrlLong(CTLSEL_PERSON_SCARDSER, SCardSerID = sc_pack.Rec.SeriesID);
 						setCtrlDate(CTL_PERSON_SCEXPIRY, sc_pack.Rec.Expiry);
@@ -3877,7 +3877,7 @@ private:
 		else if(event.isCmd(cmCreateSCard)) {
 			if(SCardID) {
 				SCardID = 0;
-				setCtrlString(CTL_PERSON_SCARD, temp_buf = 0);
+				setCtrlString(CTL_PERSON_SCARD, temp_buf.Z());
 				SetupSCardSeries(1, 1);
 				disableCtrl(CTL_PERSON_SCARD, 0);
 				showButton(cmCreateSCard, 0);
@@ -3888,7 +3888,7 @@ private:
 		else if(event.isClusterClk(CTL_PERSON_SCARDAUTO)) {
 			int    sca = BIN(getCtrlUInt16(CTL_PERSON_SCARDAUTO));
 			disableCtrl(CTL_PERSON_SCARD, sca);
-			setCtrlString(CTL_PERSON_SCARD, temp_buf = 0);
+			setCtrlString(CTL_PERSON_SCARD, temp_buf.Z());
 		}
 		else if(TVBROADCAST && TVCMD == cmChangedFocus && TVINFOVIEW->TestId(CTL_PERSON_NAME)) {
 			if(!Data.Rec.ID) {
@@ -3998,7 +3998,7 @@ private:
 	void   SetupSCard()
 	{
 		SString temp_buf;
-		setStaticText(CTL_PERSON_ST_SCARDINFO, temp_buf = 0);
+		setStaticText(CTL_PERSON_ST_SCARDINFO, temp_buf.Z());
 		getCtrlString(CTL_PERSON_SCARD, temp_buf);
 		SCardTbl::Rec sc_rec;
 		if(temp_buf.NotEmptyS() && ScObj.SearchCode(0, temp_buf, &sc_rec) > 0) {
@@ -5854,7 +5854,7 @@ int SLAPI MessagePersonBirthDay(TDialog * pDlg, PPID psnID)
 		SString name_buf, msg_buf, fmt_buf;
 		if(GetPersonName(psnID, name_buf) > 0) {
 			PPLoadText(PPTXT_BIRTHDAYINFO, fmt_buf);
-			msg_buf.Printf(fmt_buf, (const char *)name_buf);
+			msg_buf.Printf(fmt_buf, name_buf.cptr());
 			PPTooltipMessage(msg_buf, 0, pDlg->H(), 20000, GetColorRef(SClrPink),
 				SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus/*|SMessageWindow::fLargeText*/);
 			ok = 1;
@@ -6056,7 +6056,7 @@ int SLAPI PPObjPersonKind::Fetch(PPID id, PPPersonKind * pRec)
 int FASTCALL GetPersonName(PPID id, SString & rBuf)
 {
 	int    ok = -1;
-	rBuf = 0;
+	rBuf.Z();
 	if(id) {
 		PPObjPerson psn_obj;
 		PersonTbl::Rec rec;
@@ -7176,7 +7176,7 @@ int SLAPI PPObjPerson::TestSearchEmail()
 					const PPID psn_id = psn_list.get(i);
 					PersonTbl::Rec psn_rec;
 					if(psn_obj.Search(psn_id, &psn_rec) > 0) {
-                        (msg_buf = 0).CatEq("PersonID", psn_id).CatDiv('-', 1).CatEq("Name", psn_rec.Name);
+                        msg_buf.Z().CatEq("PersonID", psn_id).CatDiv('-', 1).CatEq("Name", psn_rec.Name);
                         PPELinkArray ela;
 						psn_obj.P_Tbl->GetELinks(psn_id, &ela);
 						ss_email.clear();
@@ -7194,8 +7194,8 @@ int SLAPI PPObjPerson::TestSearchEmail()
 					const PPID loc_id = loc_list.get(i);
 					LocationTbl::Rec loc_rec;
 					if(psn_obj.LocObj.Search(loc_id, &loc_rec) > 0) {
-                        (msg_buf = 0).CatEq("LocID", loc_id);
-                        LocationCore::GetExField(&loc_rec, LOCEXSTR_EMAIL, temp_buf = 0);
+                        msg_buf.Z().CatEq("LocID", loc_id);
+                        LocationCore::GetExField(&loc_rec, LOCEXSTR_EMAIL, temp_buf.Z());
                         msg_buf.CatDiv('-', 1).Cat(temp_buf);
                         logger.Log(msg_buf);
 					}

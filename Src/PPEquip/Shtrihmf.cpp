@@ -118,7 +118,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 				// Эскпорт схем автоматических скидок/надбавок
 				//
 				{
-					(temp_buf = 0).CatChar('!');
+					temp_buf.Z().CatChar('!');
 					temp_buf.Cat(scheme_id).Semicol();                     // #1 Код схемы
 					temp_buf.Cat(card_rec.Code).Cat(psn_name).Semicol();   // #2 Название схемы
 					temp_buf.Cat(1L);                                         // #3 Применяется по карте
@@ -128,7 +128,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 				// Эскпорт автоматических скидок/надбавок
 				//
 				{
-					(temp_buf = 0).CatChar('@');
+					temp_buf.Z().CatChar('@');
 					temp_buf.Cat(scheme_id).Semicol();                                  // #1  Код схемы
 					temp_buf.Cat(card_rec.ID).Semicol();                                // #2  Код
 					temp_buf.Cat(psn_name).Semicol();                                   // #3  Наименование
@@ -152,7 +152,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 				// Экспорт дисконтных карт
 				//
 				{
-					(temp_buf = 0).CatChar('%');
+					temp_buf.Z().CatChar('%');
 					// (buf = 0).CatCharN(' ', AC_DEF_CARD_CODE_LEN - strlen(card_rec.Code)).Cat(card_rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
 					temp_buf.Cat(card_rec.Code).Semicol();            // #1 Номер карты
 					temp_buf.Cat(psn_name).Semicol();                 // #2 Владелец карты
@@ -353,7 +353,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 					// Эскпорт схем автоматических скидок/надбавок
 					//
 					{
-						(temp_buf = 0).CatChar('!');
+						temp_buf.Z().CatChar('!');
 						temp_buf.Cat(scheme_id).Semicol();                         // #1 Код схемы
 						temp_buf.Cat(info.Rec.Code).Cat(psn_name).Semicol();       // #2 Название схемы
 						temp_buf.Cat(1L);                                          // #3 Применяется по карте
@@ -363,7 +363,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 					// Эскпорт автоматических скидок/надбавок
 					//
 					{
-						(temp_buf = 0).CatChar('@');
+						temp_buf.Z().CatChar('@');
 						temp_buf.Cat(scheme_id).Semicol();                                  // #1  Код схемы
 						temp_buf.Cat(info.Rec.ID).Semicol();                                // #2  Код
 						temp_buf.Cat(psn_name).Semicol();                                   // #3  Наименование
@@ -388,7 +388,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 					// Экспорт дисконтных карт
 					//
 					{
-						(temp_buf = 0).CatChar('%');
+						temp_buf.Z().CatChar('%');
 						// (buf = 0).CatCharN(' ', AC_DEF_CARD_CODE_LEN - strlen(info.Rec.Code)).Cat(info.Rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
 						temp_buf.Cat(info.Rec.Code).Semicol();            // #1 Номер карты
 						temp_buf.Cat(psn_name).Semicol();                 // #2 Владелец карты
@@ -432,7 +432,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 
 				if(rtl_extr.GetPrice(goods_id, 0, 1, &price_item) > 0 && price_item.Price > 0.0) {
 					SString temp_buf;
-					(temp_buf = 0).CatChar('?');
+					temp_buf.Z().CatChar('?');
 					temp_buf.Cat(goods_id).Semicol();         // #1 Код
 					temp_buf.Cat(quot_kind_id).Semicol();     // #2 Код доп цены.
 					temp_buf.Cat(quot_name).Semicol();        // #3 Наименование

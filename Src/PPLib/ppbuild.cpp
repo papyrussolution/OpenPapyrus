@@ -52,7 +52,7 @@ public:
 		}
 		SString & GetVerLabel(SString & rBuf) const
 		{
-			(rBuf = 0).Cat(Ver.Major).Dot().Cat(Ver.Minor).Dot().CatLongZ(Ver.Revision, 2).
+			rBuf.Z().Cat(Ver.Major).Dot().Cat(Ver.Minor).Dot().CatLongZ(Ver.Revision, 2).
 				CatChar('(').Cat(Ver.Asm).CatChar(')');
 			return rBuf;
 		}
@@ -99,41 +99,41 @@ int	SLAPI PrcssrBuild::InitConfigEntry(PPIniFile & rIniFile, const char * pSecti
 	int    ok = 1;
 	SString temp_buf;
 	SString full_path_buf;
-	rIniFile.Get(pSection, PPINIPARAM_BUILDROOT, temp_buf = 0);
+	rIniFile.Get(pSection, PPINIPARAM_BUILDROOT, temp_buf.Z());
 	THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDROOT);
 	THROW_SL(fileExists(temp_buf));
 	pEntry->RootPath = temp_buf;
 	//
-	rIniFile.Get(pSection, PPINIPARAM_BUILDSRC, temp_buf = 0);
+	rIniFile.Get(pSection, PPINIPARAM_BUILDSRC, temp_buf.Z());
 	THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDSRC);
 	(full_path_buf = pEntry->RootPath).SetLastSlash().Cat(temp_buf);
 	THROW_SL(fileExists(full_path_buf));
 	pEntry->SrcPath = full_path_buf;
 	//
-	rIniFile.Get(pSection, PPINIPARAM_BUILDSOLUTION, temp_buf = 0);
+	rIniFile.Get(pSection, PPINIPARAM_BUILDSOLUTION, temp_buf.Z());
 	THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDSLN);
 	(full_path_buf = pEntry->RootPath).SetLastSlash().Cat(temp_buf);
 	THROW_SL(fileExists(full_path_buf));
 	pEntry->SlnPath = full_path_buf;
 	//
-	rIniFile.Get(pSection, PPINIPARAM_BUILDTARGET, temp_buf = 0);
+	rIniFile.Get(pSection, PPINIPARAM_BUILDTARGET, temp_buf.Z());
 	THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDTARGET);
 	THROW_SL(fileExists(temp_buf));
 	pEntry->TargetRootPath = temp_buf;
 	//
-	rIniFile.Get(pSection, PPINIPARAM_BUILDNSIS, temp_buf = 0);
+	rIniFile.Get(pSection, PPINIPARAM_BUILDNSIS, temp_buf.Z());
 	if(temp_buf.Empty()) {
 		(temp_buf = pEntry->RootPath).SetLastSlash().Cat("tools").SetLastSlash().Cat("nsis").SetLastSlash().Cat("makensis.exe");
 	}
 	THROW_SL(fileExists(temp_buf));
 	pEntry->NsisPath = temp_buf;
 	//
-	rIniFile.Get(pSection, PPINIPARAM_BUILDDISTRIB, temp_buf = 0);
+	rIniFile.Get(pSection, PPINIPARAM_BUILDDISTRIB, temp_buf.Z());
 	THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDDISTRIB);
 	THROW_SL(fileExists(temp_buf));
 	pEntry->DistribPath = temp_buf;
 	//
-	rIniFile.Get(pSection, PPINIPARAM_PREFMSVSVER, temp_buf = 0);
+	rIniFile.Get(pSection, PPINIPARAM_PREFMSVSVER, temp_buf.Z());
 	if(temp_buf.NotEmptyS()) {
 		pEntry->PrefMsvsVerMajor = temp_buf.ToLong();
 	}
@@ -254,7 +254,7 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 			AddClusterAssoc(CTL_SELFBUILD_FLAGS, 6, PrcssrBuild::Param::fCopyToUhtt);
 			Setup();
 			if(CloseTimeout >= 0)
-				setStaticText(CTL_SELFBUILD_TIMEOUT, (temp_buf = 0).Cat(CloseTimeout));
+				setStaticText(CTL_SELFBUILD_TIMEOUT, temp_buf.Z().Cat(CloseTimeout));
 			StartClock = clock();
 			return ok;
 		}
@@ -287,7 +287,7 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 					clock_t diff = clock() - StartClock;
 					long   timeout_rest = CloseTimeout - diff / CLOCKS_PER_SEC;
 					if(PrevTimeoutRest != timeout_rest)
-						setStaticText(CTL_SELFBUILD_TIMEOUT, (temp_buf = 0).Cat(timeout_rest));
+						setStaticText(CTL_SELFBUILD_TIMEOUT, temp_buf.Z().Cat(timeout_rest));
 					PrevTimeoutRest = timeout_rest;
 					if(diff >= (CloseTimeout * CLOCKS_PER_SEC)) {
 						if(IsInState(sfModal)) {
@@ -497,7 +497,7 @@ int	SLAPI PrcssrBuild::Run()
 					MEMSZERO(si);
 					si.cb = sizeof(si);
 					MEMSZERO(pi);
-					(temp_buf = 0).CatQStr(msvs_path).Space().Cat(r_sln_entry.P_Sln).Space().Cat("/rebuild").Space().
+					temp_buf.Z().CatQStr(msvs_path).Space().Cat(r_sln_entry.P_Sln).Space().Cat("/rebuild").Space().
 						Cat(r_sln_entry.P_Config).Space().Cat("/out").Space().Cat(build_log_path);
 					STempBuffer cmd_line(temp_buf.Len()*2);
 					strnzcpy(cmd_line, temp_buf, cmd_line.GetSize());
@@ -602,7 +602,7 @@ int	SLAPI PrcssrBuild::Run()
 				target_file_name.Cat(r_nsis_entry.P_Name).CatChar('_').Cat(ver_label).Dot().Cat("exe");
 				PPGetPath(PPPATH_LOG, build_log_path);
 				build_log_path.SetLastSlash().Cat("build").CatChar('-').Cat("nsis").CatChar('-').Cat(r_nsis_entry.P_Name).Dot().Cat("log");
-				(temp_buf = 0).CatQStr(p_config_entry->NsisPath).Space().CatEq("/DPRODUCT_VERSION", ver_label).Space().
+				temp_buf.Z().CatQStr(p_config_entry->NsisPath).Space().CatEq("/DPRODUCT_VERSION", ver_label).Space().
 					CatEq("/DSRC_ROOT", p_config_entry->RootPath).Space().Cat("/NOCD").Space().Cat("/V2").Space().Cat("/P1").Space();
 				if(r_nsis_entry.P_Config) {
 					temp_buf.Cat("/D").Cat(r_nsis_entry.P_Config).Space();

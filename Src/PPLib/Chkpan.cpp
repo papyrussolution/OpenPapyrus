@@ -330,7 +330,7 @@ int CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack) const
 int CPosProcessor::Packet::SetupInfo(SString & rBuf)
 {
 	SString word;
-	rBuf = 0;
+	rBuf.Z();
 	if(GetAgentID(1)) {
 		//PPGetWord(PPWORD_SALER, 0, rBuf).CatDiv(':', 2);
 		PPLoadString("seller", rBuf);
@@ -675,7 +675,7 @@ int CPosProcessor::Backend_GetCCheckList(long ctblId, TSArray <CCheckViewItem> &
 
 int CPosProcessor::ExportCTblList(SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 1;
 	int    use_def_ctbl = 0;
 	uint   i;
@@ -709,8 +709,8 @@ int CPosProcessor::ExportCTblList(SString & rBuf)
 			for(i = 0; i < ctbl_list.getCount(); i++) {
 				const long ctbl_id = ctbl_list.get(i);
 				SXml::WNode n_item(p_writer, "CPosProcessorCTable");
-				n_item.PutInner("ID", (temp_buf = 0).Cat(ctbl_id));
-				PPObjCashNode::GetCafeTableName(ctbl_id, temp_buf = 0);
+				n_item.PutInner("ID", temp_buf.Z().Cat(ctbl_id));
+				PPObjCashNode::GetCafeTableName(ctbl_id, temp_buf.Z());
 				n_item.PutInner("Name", temp_buf);
 				n_item.PutInner("State", (temp_buf = (long)0));
 				{
@@ -731,9 +731,9 @@ int CPosProcessor::ExportCTblList(SString & rBuf)
 							cc_amount += MONEYTOLDBL(cc_list.at(p).Amount);
 						}
 					}
-					n_item.PutInner("CCCount", (temp_buf = 0).Cat(cc_count));
-					n_item.PutInner("CCAmount", (temp_buf = 0).Cat(cc_amount, MKSFMTD(0, 2, 0)));
-					n_item.PutInner("CCGuestCount", (temp_buf = 0).Cat(cc_guest_count));
+					n_item.PutInner("CCCount", temp_buf.Z().Cat(cc_count));
+					n_item.PutInner("CCAmount", temp_buf.Z().Cat(cc_amount, MKSFMTD(0, 2, 0)));
+					n_item.PutInner("CCGuestCount", temp_buf.Z().Cat(cc_guest_count));
 				}
 			}
 		}
@@ -749,7 +749,7 @@ int CPosProcessor::ExportCTblList(SString & rBuf)
 
 int CPosProcessor::ExportCCheckList(long ctblId, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 1;
 	uint   i;
 	SString temp_buf;
@@ -772,15 +772,15 @@ int CPosProcessor::ExportCCheckList(long ctblId, SString & rBuf)
 			for(i = 0; i < cc_list.getCount(); i++) {
 				const CCheckViewItem & r_item = cc_list.at(i);
 				SXml::WNode n_item(p_writer, "CPosProcessorCCheck");
-				n_item.PutInner("ID", (temp_buf = 0).Cat(r_item.ID));
-				n_item.PutInner("Code", (temp_buf = 0).Cat(r_item.Code));
-				n_item.PutInner("Flags", (temp_buf = 0).Cat(r_item.Flags));
-				n_item.PutInner("AgentID", (temp_buf = 0).Cat(r_item.AgentID));
+				n_item.PutInner("ID", temp_buf.Z().Cat(r_item.ID));
+				n_item.PutInner("Code", temp_buf.Z().Cat(r_item.Code));
+				n_item.PutInner("Flags", temp_buf.Z().Cat(r_item.Flags));
+				n_item.PutInner("AgentID", temp_buf.Z().Cat(r_item.AgentID));
 				temp_buf = 0;
 				if(r_item.AgentID)
 					GetArticleName(r_item.AgentID, temp_buf);
 				n_item.PutInner("AgentName", temp_buf);
-				n_item.PutInner("SCardID", (temp_buf = 0).Cat(r_item.SCardID));
+				n_item.PutInner("SCardID", temp_buf.Z().Cat(r_item.SCardID));
 				{
 					temp_buf = 0;
 					SCardTbl::Rec sc_rec;
@@ -788,13 +788,13 @@ int CPosProcessor::ExportCCheckList(long ctblId, SString & rBuf)
 						temp_buf = sc_rec.Code;
 					n_item.PutInner("SCardCode", temp_buf);
 				}
-				n_item.PutInner("CTableID", (temp_buf = 0).Cat(r_item.TableCode));
-				PPObjCashNode::GetCafeTableName(r_item.TableCode, temp_buf = 0);
+				n_item.PutInner("CTableID", temp_buf.Z().Cat(r_item.TableCode));
+				PPObjCashNode::GetCafeTableName(r_item.TableCode, temp_buf.Z());
 				n_item.PutInner("CTableName", temp_buf);
-				n_item.PutInner("GuestCount", (temp_buf = 0).Cat(r_item.GuestCount));
-				n_item.PutInner("Amount", (temp_buf = 0).Cat(MONEYTOLDBL(r_item.Amount), MKSFMTD(0, 2, 0)));
-				n_item.PutInner("Discount", (temp_buf = 0).Cat(MONEYTOLDBL(r_item.Discount), MKSFMTD(0, 2, 0)));
-				n_item.PutInner("CreationTime", (temp_buf = 0).Cat(r_item.CreationDtm, DATF_ISO8601|DATF_CENTURY, 0));
+				n_item.PutInner("GuestCount", temp_buf.Z().Cat(r_item.GuestCount));
+				n_item.PutInner("Amount", temp_buf.Z().Cat(MONEYTOLDBL(r_item.Amount), MKSFMTD(0, 2, 0)));
+				n_item.PutInner("Discount", temp_buf.Z().Cat(MONEYTOLDBL(r_item.Discount), MKSFMTD(0, 2, 0)));
+				n_item.PutInner("CreationTime", temp_buf.Z().Cat(r_item.CreationDtm, DATF_ISO8601|DATF_CENTURY, 0));
 			}
 		}
 		xmlTextWriterFlush(p_writer);
@@ -814,7 +814,7 @@ int CPosProcessor::ExportCurrentState(SString & rBuf) const
 	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
 
-	rBuf = 0;
+	rBuf.Z();
 	THROW(p_xml_buf = xmlBufferCreate());
 	THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
 	{
@@ -825,8 +825,8 @@ int CPosProcessor::ExportCurrentState(SString & rBuf) const
 		{
 			SXml::WNode n_state(p_writer, "CPosProcessorState");
 			{
-				#define PUTNODE_F(f) SXml::WNode(p_writer, #f, (temp_buf = 0).Cat(f))
-				#define PUTNODE_TF(t, f) SXml::WNode(p_writer, #t, (temp_buf = 0).Cat(f))
+				#define PUTNODE_F(f) SXml::WNode(p_writer, #f, temp_buf.Z().Cat(f))
+				#define PUTNODE_TF(t, f) SXml::WNode(p_writer, #t, temp_buf.Z().Cat(f))
 				PUTNODE_F(AuthAgentID);
 				PUTNODE_F(CheckID);
 				PUTNODE_F(SuspCheckID);
@@ -840,9 +840,9 @@ int CPosProcessor::ExportCurrentState(SString & rBuf) const
 				{
 					SXml::WNode n_cardstate(p_writer, "CardState");
 					{
-						SXml::WNode(p_writer, "ID", (temp_buf = 0).Cat(CSt.GetID()));
-						SXml::WNode(p_writer, "Code", (temp_buf = 0).Cat(CSt.GetCode()));
-						#define PUTNODE_F(f) SXml::WNode(p_writer, #f, (temp_buf = 0).Cat(CSt.f))
+						SXml::WNode(p_writer, "ID", temp_buf.Z().Cat(CSt.GetID()));
+						SXml::WNode(p_writer, "Code", temp_buf.Z().Cat(CSt.GetCode()));
+						#define PUTNODE_F(f) SXml::WNode(p_writer, #f, temp_buf.Z().Cat(CSt.f))
 						PUTNODE_F(Flags);
 						PUTNODE_F(Discount);
 						PUTNODE_F(SettledDiscount);
@@ -858,19 +858,19 @@ int CPosProcessor::ExportCurrentState(SString & rBuf) const
 				{
 					SXml::WNode n_packet(p_writer, "Packet");
 					{
-						#define PUTNODE_F(f) SXml::WNode(p_writer, #f, (temp_buf = 0).Cat(P.f))
-						SXml::WNode(p_writer, "CTableID", (temp_buf = 0).Cat(P.TableCode));
+						#define PUTNODE_F(f) SXml::WNode(p_writer, #f, temp_buf.Z().Cat(P.f))
+						SXml::WNode(p_writer, "CTableID", temp_buf.Z().Cat(P.TableCode));
 						PUTNODE_F(GuestCount);
 						PUTNODE_F(OrderCheckID);
 						PUTNODE_F(CurPos);
-						SXml::WNode(p_writer, "Rest", (temp_buf = 0).Cat(P.GetRest()));
-						SXml::WNode(p_writer, "AgentID", (temp_buf = 0).Cat(P.GetAgentID()));
+						SXml::WNode(p_writer, "Rest", temp_buf.Z().Cat(P.GetRest()));
+						SXml::WNode(p_writer, "AgentID", temp_buf.Z().Cat(P.GetAgentID()));
 						#undef PUTNODE_F
 						for(uint i = 0; i < P.getCount(); i++) {
 							SXml::WNode n_row(p_writer, "CCRow");
 							{
 								const CCheckItem & r_item = P.at(i);
-								#define PUTNODE_F(f) SXml::WNode(p_writer, #f, (temp_buf = 0).Cat(r_item.f))
+								#define PUTNODE_F(f) SXml::WNode(p_writer, #f, temp_buf.Z().Cat(r_item.f))
 								PUTNODE_F(GoodsID);
 								PUTNODE_F(Quantity);
 								PUTNODE_F(PhQtty);
@@ -892,7 +892,7 @@ int CPosProcessor::ExportCurrentState(SString & rBuf) const
 							SXml::WNode n_row(p_writer, "CCRowCurrent");
 							{
 								const CCheckItem & r_item = P.GetCurC();
-								#define PUTNODE_F(f) SXml::WNode(p_writer, #f, (temp_buf = 0).Cat(r_item.f))
+								#define PUTNODE_F(f) SXml::WNode(p_writer, #f, temp_buf.Z().Cat(r_item.f))
 								PUTNODE_F(GoodsID);
 								PUTNODE_F(Quantity);
 								PUTNODE_F(PhQtty);
@@ -931,7 +931,7 @@ int CPosProcessor::ExportModifList(PPID goodsID, SString & rBuf)
 	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
 
-	rBuf = 0;
+	rBuf.Z();
 	THROW(p_xml_buf = xmlBufferCreate());
 	THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
 	{
@@ -942,18 +942,18 @@ int CPosProcessor::ExportModifList(PPID goodsID, SString & rBuf)
 		{
 			SXml::WNode n_list(p_writer, "CPosProcessorModifList");
 			SaModif mlist;
-			n_list.PutInner("GoodsID", (temp_buf = 0).Cat(goodsID));
+			n_list.PutInner("GoodsID", temp_buf.Z().Cat(goodsID));
 			if(LoadModifiers(goodsID, mlist) > 0) {
 				Goods2Tbl::Rec goods_rec;
 				for(uint i = 0; i < mlist.getCount(); i++) {
 					const SaModifEntry & r_item = mlist.at(i);
 					if(GObj.Fetch(r_item.GoodsID, &goods_rec) > 0) {
 						SXml::WNode n_item(p_writer, "Item");
-						n_item.PutInner("GoodsID", (temp_buf = 0).Cat(r_item.GoodsID));
+						n_item.PutInner("GoodsID", temp_buf.Z().Cat(r_item.GoodsID));
 						n_item.PutInner("GoodsName", (temp_buf = goods_rec.Name));
-						n_item.PutInner("Flags", (temp_buf = 0).Cat(r_item.Flags));
-						n_item.PutInner("Price", (temp_buf = 0).Cat(r_item.Price, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
-						n_item.PutInner("Qtty",  (temp_buf = 0).Cat(r_item.Qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+						n_item.PutInner("Flags", temp_buf.Z().Cat(r_item.Flags));
+						n_item.PutInner("Price", temp_buf.Z().Cat(r_item.Price, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
+						n_item.PutInner("Qtty",  temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
 					}
 				}
 			}
@@ -2447,7 +2447,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 							PPEgaisProcessor::Ack eg_ack;
 							THROW(P_EgPrc->PutCCheck(epb.Pack, CnLocID, eg_ack));
                             if(eg_ack.Sign[0] && eg_ack.SignSize) {
-								(msg_buf = 0).CatN((const char *)eg_ack.Sign, eg_ack.SignSize);
+								msg_buf.Z().CatN((const char *)eg_ack.Sign, eg_ack.SignSize);
                                 epb.Pack.PutExtStrData(CCheckPacket::extssSign, msg_buf);
                             }
                             // @v9.1.8 {
@@ -2460,7 +2460,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 							PPEgaisProcessor::Ack eg_ack;
 							THROW(P_EgPrc->PutCCheck(epb.ExtPack, ExtCnLocID, eg_ack));
                             if(eg_ack.Sign[0] && eg_ack.SignSize) {
-								(msg_buf = 0).CatN((const char *)eg_ack.Sign, eg_ack.SignSize);
+								msg_buf.Z().CatN((const char *)eg_ack.Sign, eg_ack.SignSize);
                                 epb.ExtPack.PutExtStrData(CCheckPacket::extssSign, msg_buf);
                             }
                             // @v9.1.8 {
@@ -3155,7 +3155,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 				}
 				// @v9.7.10 { 
 				if(AltRegisterID) {
-					ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_ALTERNATEREGPASS, temp_buf = 0);
+					ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_ALTERNATEREGPASS, temp_buf.Z());
 					if(temp_buf.CmpNC("yes") != 0)
 						AltRegisterID = 0;
 				}
@@ -3892,7 +3892,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 									}
                                 }
                                 else {
-									(temp_buf = 0).Cat(bis.PosId).Space().Cat(bis.CcCode);
+									temp_buf.Z().Cat(bis.PosId).Space().Cat(bis.CcCode);
 									MessageError(PPERR_CHKPAN_SUSPCHKNFOUND, temp_buf, eomBeep|eomStatusLine);
                                 }
 							}
@@ -4363,7 +4363,7 @@ IMPL_HANDLE_EVENT(ComplexDinnerDialog)
 						ss.clear(1);
 						GetGoodsName(goods_id, temp_buf);
 						ss.add(temp_buf);
-						ss.add((temp_buf = 0).Cat(r_entry.GenericList.at(i).Val, SFMT_MONEY));
+						ss.add(temp_buf.Z().Cat(r_entry.GenericList.at(i).Val, SFMT_MONEY));
 						p_box->addItem(i+1, ss.getBuf());
 						if(r_entry.FinalGoodsID == goods_id)
 							focus_pos = (long)i;
@@ -4446,9 +4446,9 @@ int ComplexDinnerDialog::setupList()
 		ss.clear(1);
 		GetGoodsName(goods_id, temp_buf);
 		ss.add(temp_buf);
-		ss.add((temp_buf = 0).Cat(r_entry.Qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ)));
-		ss.add((temp_buf = 0).Cat(r_entry.OrgPrice, SFMT_MONEY));
-		ss.add((temp_buf = 0).Cat(r_entry.FinalPrice, SFMT_MONEY));
+		ss.add(temp_buf.Z().Cat(r_entry.Qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ)));
+		ss.add(temp_buf.Z().Cat(r_entry.OrgPrice, SFMT_MONEY));
+		ss.add(temp_buf.Z().Cat(r_entry.FinalPrice, SFMT_MONEY));
 		total += (r_entry.FinalPrice * r_entry.Qtty);
 		addStringToList(i+1, ss.getBuf());
 	}
@@ -4741,7 +4741,7 @@ int SelCheckListDialog::setupList()
 			LDATETIME dtm;
 			dtm.Set(r_chk_rec.Dt, r_chk_rec.Tm);
 			if(!(State & stTblOrders)) {
-				ss.add((temp_buf = 0).Cat(dtm, DATF_DMY, TIMF_HMS));
+				ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS));
 				/*
 				if(p_item->Flags & cifGift)
 					p_list->def->SetItemColor(i, SClrBlack, SClrGreen);
@@ -4758,7 +4758,7 @@ int SelCheckListDialog::setupList()
 						temp_buf.CatDiv('*', 2);
 					ss.add(temp_buf.Cat(r_chk_rec.Code));
 				}
-				ss.add((temp_buf = 0).Cat(MONEYTOLDBL(r_chk_rec.Amount), SFMT_MONEY));
+				ss.add(temp_buf.Z().Cat(MONEYTOLDBL(r_chk_rec.Amount), SFMT_MONEY));
 				{
 					temp_buf = 0;
 					if(r_chk_rec.TableCode) {
@@ -4816,8 +4816,8 @@ int SelCheckListDialog::setupList()
 					}
 					ss.add(temp_buf);
 				}
-				ss.add((temp_buf = 0).Cat(dtm, DATF_DMY, TIMF_HMS));
-				ss.add((temp_buf = 0).Cat(r_chk_rec.Code));
+				ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS));
+				ss.add(temp_buf.Z().Cat(r_chk_rec.Code));
 			}
 			THROW(addStringToList(r_chk_rec.ID, ss.getBuf()));
 		}
@@ -4869,9 +4869,9 @@ int SelCheckListDialog::SetupItemList()
 						double sum = R2(cclr.Quantity * (price - cclr.Dscnt));
 						GetGoodsName(cclr.GoodsID, sub);
 						ss.add(sub);
-						ss.add((sub = 0).Cat(price, SFMT_MONEY));
-						ss.add((sub = 0).Cat(cclr.Quantity, SFMT_QTTY));
-						ss.add((sub = 0).Cat(sum, SFMT_MONEY));
+						ss.add(sub.Z().Cat(price, SFMT_MONEY));
+						ss.add(sub.Z().Cat(cclr.Quantity, SFMT_QTTY));
+						ss.add(sub.Z().Cat(sum, SFMT_MONEY));
 						THROW(p_list->addItem(i, ss.getBuf()));
 					}
 				}
@@ -5024,8 +5024,8 @@ int SplitSuspCheckDialog::SetupList(SArray * pList, SmartListBox * pListBox)
 			ss.clear(1);
 			GetGoodsName(p_item->GoodsID, temp_buf);
 			ss.add(temp_buf, 0);
-			ss.add((temp_buf = 0).Cat(p_item->Price), 0);
-			ss.add((temp_buf = 0).Cat(p_item->Quantity), 0);
+			ss.add(temp_buf.Z().Cat(p_item->Price), 0);
+			ss.add(temp_buf.Z().Cat(p_item->Quantity), 0);
 			if(!pListBox->addItem(p_item->LineNo, ss.getBuf()))
 				ok = (PPSetErrorSLib(), 0);
 		}
@@ -5568,8 +5568,8 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 					Data.Addr_.Flags |= LOCF_STANDALONE;
 					SETIFZ(Data.Addr_.Type, LOCTYP_ADDRESS);
 				}
-				setStaticText(CTL_CCHKDLVR_ST_ADDRID,  (temp_buf = 0).Cat(Data.Addr_.ID));
-				setStaticText(CTL_CCHKDLVR_ST_ADDRMOD, temp_buf = 0);
+				setStaticText(CTL_CCHKDLVR_ST_ADDRID,  temp_buf.Z().Cat(Data.Addr_.ID));
+				setStaticText(CTL_CCHKDLVR_ST_ADDRMOD, temp_buf.Z());
 				// @v9.4.5 {
 				{
 					PPIDArray sc_list;
@@ -5648,9 +5648,9 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 							ScObj.P_Tbl->GetListByPerson(r_entry.ObjID, 0, &sc_list);
 						}
 						else
-							(temp_buf = 0).Cat(r_entry.ObjType);
+							temp_buf.Z().Cat(r_entry.ObjType);
 						ss.add(temp_buf);
-						ss.add((temp_buf = 0).Cat(r_entry.ObjID));
+						ss.add(temp_buf.Z().Cat(r_entry.ObjID));
 						ss.add(temp_buf = r_entry.Contact);
 						ss.add(temp_buf = r_entry.Addr);
 						{
@@ -7005,7 +7005,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 					}
 					else {
 						if(Input.Len() >= INSTVSRCH_THRESHOLD)
-							(temp_buf = 0).CatChar('!').Cat(Input);
+							temp_buf.Z().CatChar('!').Cat(Input);
 						else
 							temp_buf = Input;
 						p_ts_ary = new StrAssocArray;
@@ -7578,7 +7578,7 @@ void CheckPaneDialog::setupRetCheck(int ret)
 							r_cur_item.GoodsID = cclr.GoodsID;
 							if(GObj.Fetch(r_cur_item.GoodsID, &goods_rec) > 0) {
 								STRNSCPY(r_cur_item.GoodsName, goods_rec.Name);
-								GObj.FetchSingleBarcode(r_cur_item.GoodsID, temp_buf = 0); // @v8.0.10 GetSingleBarcode-->FetchSingleBarcode
+								GObj.FetchSingleBarcode(r_cur_item.GoodsID, temp_buf.Z()); // @v8.0.10 GetSingleBarcode-->FetchSingleBarcode
 								temp_buf.CopyTo(r_cur_item.BarCode, sizeof(r_cur_item.BarCode));
 							}
 							else
@@ -8452,8 +8452,8 @@ void CheckPaneDialog::SelectGoods__(int mode)
 								SaModifEntry & r_entry = List.at(i);
 								GetGoodsName(r_entry.GoodsID, sub);
 								ss.add(sub);
-								ss.add((sub = 0).Cat(r_entry.Qtty, MKSFMTD(0, 3, 0)));
-								ss.add((sub = 0).Cat(r_entry.Price, SFMT_MONEY));
+								ss.add(sub.Z().Cat(r_entry.Qtty, MKSFMTD(0, 3, 0)));
+								ss.add(sub.Z().Cat(r_entry.Price, SFMT_MONEY));
 								addStringToList(i+1, ss.getBuf());
 							}
 							return ok;
@@ -8658,7 +8658,7 @@ void CheckPaneDialog::AcceptQuantity()
 							const double _r = round(qtty, u_rec.Rounding, 0); // @v8.8.1 direction: -1-->0
 							// @v8.8.1 if(_r != qtty) {
 							if(!feqeps(_r, qtty, 1E-7)) { // @v8.8.1
-								(temp_buf = 0).Cat(u_rec.Rounding, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+								temp_buf.Z().Cat(u_rec.Rounding, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 								ok = MessageError(PPERR_QTTYMUSTBERND, temp_buf, eomStatusLine|eomBeep);
 							}
 						}
@@ -9004,7 +9004,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 	OwnerID = 0;
 	LocalState &= ~(stCreditCard|stWarnCardInfo|stNeedActivation|stAutoActivation);
 	MEMSZERO(sc_rec);
-	setStaticText(CTL_SCARDVIEW_SCINFO, info_buf = 0);
+	setStaticText(CTL_SCARDVIEW_SCINFO, info_buf.Z());
 	setStaticText(CTL_SCARDVIEW_OWNERINFO, info_buf);
 	if(ScObj.Search(SCardID, &sc_rec) > 0) {
 		SETFLAG(LocalState, stCreditCard, ScObj.IsCreditSeries(sc_rec.SeriesID));
@@ -9154,12 +9154,12 @@ int SCardInfoDialog::setupList()
 			for(view.InitIteration(0); view.NextIteration(&item) > 0;) {
 				if(!(item.Flags & CCHKF_SKIP)) {
 					ss.clear();
-					ss.add((buf = 0).Cat(item.Dt), 0);                                // Дата
-					ss.add((buf = 0).Cat(item.Tm), 0);                                // Время //
-					ss.add((buf = 0).Cat(item.CashID), 0);                            // Касса
-					ss.add((buf = 0).Cat(item.Code), 0);                              // Номер чека
-					ss.add((buf = 0).Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY), 0);   // Сумма
-					ss.add((buf = 0).Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY), 0); // Скидка
+					ss.add(buf.Z().Cat(item.Dt), 0);                                // Дата
+					ss.add(buf.Z().Cat(item.Tm), 0);                                // Время //
+					ss.add(buf.Z().Cat(item.CashID), 0);                            // Касса
+					ss.add(buf.Z().Cat(item.Code), 0);                              // Номер чека
+					ss.add(buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY), 0);   // Сумма
+					ss.add(buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY), 0); // Скидка
 					THROW(addStringToList(item.ID, ss.getBuf()));
 				}
 			}
@@ -9176,17 +9176,17 @@ int SCardInfoDialog::setupList()
 			view.InitIteration();
 			for(uint i = 1; view.NextIteration(&item) > 0; i++) {
 				ss.clear();
-				ss.add((buf = 0).Cat(item.Dt), 0);                 // Дата
-				ss.add((buf = 0).Cat(item.Tm), 0);                 // Время //
+				ss.add(buf.Z().Cat(item.Dt), 0);                 // Дата
+				ss.add(buf.Z().Cat(item.Tm), 0);                 // Время //
 				if(item.Flags & SCARDOPF_FREEZING) {
 					DateRange frz_prd;
 					frz_prd.Set(item.FreezingStart, item.FreezingEnd);
-					ss.add((buf = 0).Cat(frz_prd));
-					ss.add(buf = 0);
+					ss.add(buf.Z().Cat(frz_prd));
+					ss.add(buf.Z());
 				}
 				else {
-					ss.add((buf = 0).Cat(item.Amount, SFMT_MONEY|NMBF_NOZERO), 0); // Сумма
-					ss.add((buf = 0).Cat(item.Rest, SFMT_MONEY|NMBF_NOZERO), 0);   // Остаток
+					ss.add(buf.Z().Cat(item.Amount, SFMT_MONEY|NMBF_NOZERO), 0); // Сумма
+					ss.add(buf.Z().Cat(item.Rest, SFMT_MONEY|NMBF_NOZERO), 0);   // Остаток
 				}
 				THROW(addStringToList(i, ss.getBuf()));
 			}
@@ -9217,8 +9217,8 @@ int SCardInfoDialog::setupList()
 			ss.clear();
 			ss.add(card_code);
 			ss.add(ser_name);
-			ss.add((buf = 0).Cat(rest, MKSFMTD(0, 2, NMBF_NOZERO)));
-			ss.add((buf = 0).Cat(amount, MKSFMTD(0, 2, NMBF_NOZERO)));
+			ss.add(buf.Z().Cat(rest, MKSFMTD(0, 2, NMBF_NOZERO)));
+			ss.add(buf.Z().Cat(amount, MKSFMTD(0, 2, NMBF_NOZERO)));
 			THROW(addStringToList(card_id, ss.getBuf()));
 		}
 	}
@@ -9375,7 +9375,7 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 							SetupCard(sc_rec.ID);
 					}
 				}
-				setCtrlString(CTL_SCARDVIEW_INPUT, code = 0);
+				setCtrlString(CTL_SCARDVIEW_INPUT, code.Z());
 			}
 		}
 		clearEvent(event);
@@ -9453,7 +9453,7 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 					SetupMode(modeSelectByOwner, 1);
 				}
 			}
-			setCtrlString(CTL_SCARDVIEW_INPUT, text = 0);
+			setCtrlString(CTL_SCARDVIEW_INPUT, text.Z());
 		}
 		else if(TVCMD == cmSCardMovCrd) {
 			if(SCardID && LocalState & stCreditCard) {
@@ -9668,7 +9668,7 @@ int CPosProcessor::Backend_AcceptSCard(PPID scardID, int ignoreRights)
 					else if(cr == 2) {
 						/*
 						SString msg_buf;
-						PPLoadText(PPTXT_SCARDISAUTOACTIVATED, temp_buf = 0);
+						PPLoadText(PPTXT_SCARDISAUTOACTIVATED, temp_buf.Z());
 						msg_buf.Printf(temp_buf, sc_rec.Code);
 						PPTooltipMessage(msg_buf, 0, hWnd, 10000, GetColorRef(SClrOrange),
 							SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
@@ -9839,7 +9839,7 @@ void CheckPaneDialog::AcceptSCard(int fromInput, PPID scardID, int ignoreRights)
 							}
 							if(cr == 2) {
 								SString msg_buf;
-								PPLoadText(PPTXT_SCARDISAUTOACTIVATED, temp_buf = 0);
+								PPLoadText(PPTXT_SCARDISAUTOACTIVATED, temp_buf.Z());
 								msg_buf.Printf(temp_buf, sc_rec.Code);
 								PPTooltipMessage(msg_buf, 0, H(), 10000, GetColorRef(SClrOrange),
 									SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
@@ -9890,7 +9890,7 @@ void CheckPaneDialog::SetupRowData(int calcRest)
 		buf.CatChar('}');
 	}
 	setCtrlString(CTL_CHKPAN_GOODS, buf);
-	(buf = 0).Cat(r_item.Quantity);
+	buf.Z().Cat(r_item.Quantity);
 	if(r_item.PhQtty)
 		buf.CatChar('(').Cat(r_item.PhQtty).CatChar(')');
 	setCtrlString(CTL_CHKPAN_QTTY, buf);
@@ -10020,7 +10020,7 @@ void CheckPaneDialog::ClearInput(int selectOnly)
 		CALLPTRMEMB(p_il, selectAll(true));
 	}
 	else {
-		setCtrlString(CTL_CHKPAN_INPUT, Input = 0);
+		setCtrlString(CTL_CHKPAN_INPUT, Input.Z());
 		selectCtrl(CTL_CHKPAN_INPUT);
 	}
 }
@@ -10590,7 +10590,7 @@ int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, int
 			cc_item.Flags    |= cc_item.Quantity ? 0 : cifGift;
 			if(GObj.Fetch(cc_item.GoodsID, &goods_rec) > 0) {
 				STRNSCPY(cc_item.GoodsName, goods_rec.Name);
-				GObj.FetchSingleBarcode(cc_item.GoodsID, temp_buf = 0); // @v8.0.10 GetSingleBarcode-->FetchSingleBarcode
+				GObj.FetchSingleBarcode(cc_item.GoodsID, temp_buf.Z()); // @v8.0.10 GetSingleBarcode-->FetchSingleBarcode
 				temp_buf.CopyTo(cc_item.BarCode, sizeof(cc_item.BarCode));
 			}
 			if(!P.insert(&cc_item)) {
@@ -10600,11 +10600,11 @@ int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, int
 		}
 		if(!notShow) {
 			if(P_ChkPack) {
-				setStaticText(CTL_CHKPAN_CHKID,   (temp_buf = 0).Cat(P_ChkPack->Rec.ID));
-				setStaticText(CTL_CHKPAN_CHKDTTM, (temp_buf = 0).Cat(P_ChkPack->Rec.Dt).Space().Cat(P_ChkPack->Rec.Tm));
-				setStaticText(CTL_CHKPAN_CHKNUM,  (temp_buf = 0).Cat(P_ChkPack->Rec.Code));
-				setStaticText(CTL_CHKPAN_CASHNUM, (temp_buf = 0).Cat(P_ChkPack->Rec.CashID));
-				setStaticText(CTL_CHKPAN_INITDTM, (temp_buf = 0).Cat(P_ChkPack->Ext.CreationDtm, DATF_DMY|DATF_NOZERO, TIMF_HMS|TIMF_NOZERO));
+				setStaticText(CTL_CHKPAN_CHKID,   temp_buf.Z().Cat(P_ChkPack->Rec.ID));
+				setStaticText(CTL_CHKPAN_CHKDTTM, temp_buf.Z().Cat(P_ChkPack->Rec.Dt).Space().Cat(P_ChkPack->Rec.Tm));
+				setStaticText(CTL_CHKPAN_CHKNUM,  temp_buf.Z().Cat(P_ChkPack->Rec.Code));
+				setStaticText(CTL_CHKPAN_CASHNUM, temp_buf.Z().Cat(P_ChkPack->Rec.CashID));
+				setStaticText(CTL_CHKPAN_INITDTM, temp_buf.Z().Cat(P_ChkPack->Ext.CreationDtm, DATF_DMY|DATF_NOZERO, TIMF_HMS|TIMF_NOZERO));
 				temp_buf = 0;
 				const long f = P_ChkPack->Rec.Flags;
 				CatCharByFlag(f, CCHKF_NOTUSED,   'G', temp_buf, 1);
@@ -10620,7 +10620,7 @@ int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, int
 				if(P_ChkPack->Rec.SCardID) {
 					SCardTbl::Rec sc_rec;
 					if(ScObj.Search(P_ChkPack->Rec.SCardID, &sc_rec) > 0) {
-						(temp_buf = 0).Cat(sc_rec.Code);
+						temp_buf.Z().Cat(sc_rec.Code);
 						setStaticText(CTL_CHKPAN_SCARDCODE, temp_buf);
 					}
 				}
@@ -11725,7 +11725,7 @@ int InfoKioskDialog::GetInput()
 
 void InfoKioskDialog::ClearInput()
 {
-	setCtrlString(CTL_INFKIOSK_INPUT, Input = 0);
+	setCtrlString(CTL_INFKIOSK_INPUT, Input.Z());
 	selectCtrl(CTL_INFKIOSK_INPUT);
 }
 
@@ -12364,13 +12364,13 @@ int SLAPI PrcssrCCheckGenerator::Run()
 		}
 		if(P.MaxCheckDelay) {
 			uint t = P_RngDelay->GetUniformInt(P.MaxCheckDelay);
-			(temp_buf = 0).Cat(t);
+			temp_buf.Z().Cat(t);
 			PPWaitMsg(PPSTR_TEXT, PPTXT_CCGENCHECKDELAY, temp_buf);
 			SDelay(t * 1000);
 		}
 		cc_count++;
 		tm_cur = getcurdatetime_();
-		PPWaitMsg((temp_buf = 0).Cat(cc_count));
+		PPWaitMsg(temp_buf.Z().Cat(cc_count));
 	}
 	P.P_Pan->EnableBeep(1);
 	PPWait(0);

@@ -47,66 +47,62 @@ inline bool isGCOperator(int ch)
 	if(isalnum(ch))
 		return false;
 	// '.' left out as it is used to make up numbers
-	if(ch == '*' || ch == '/' || ch == '-' || ch == '+' ||
-	    ch == '(' || ch == ')' || ch == '=' || ch == '%' ||
-	    ch == '[' || ch == ']' || ch == '<' || ch == '>' ||
-	    ch == ',' || ch == ';' || ch == ':')
+	if(ch == '*' || ch == '/' || ch == '-' || ch == '+' || ch == '(' || ch == ')' || ch == '=' || ch == '%' ||
+	    ch == '[' || ch == ']' || ch == '<' || ch == '>' || ch == ',' || ch == ';' || ch == ':')
 		return true;
 	return false;
 }
 
-#define isSpace(x)              ((x)==' ' || (x)=='\t')
-#define isNL(x)                 ((x)=='\n' || (x)=='\r')
-#define isSpaceOrNL(x)  (isSpace(x) || isNL(x))
+#define isSpaceOrNL(x)  (oneof4(x, ' ', '\t', '\n', '\r'))
 #define BUFFSIZE 500
 #define isFoldPoint(x)  ((styler.LevelAt(x) & SC_FOLDLEVELNUMBERMASK) == 1024)
 
-static void colorFirstWord(WordList * keywordlists[], Accessor &styler,
-    StyleContext * sc, char * buff, Sci_Position length, int)
+static void colorFirstWord(WordList * keywordlists[], Accessor &styler, StyleContext * sc, char * buff, Sci_Position length, int)
 {
 	Sci_Position c = 0;
 	while(sc->More() && isSpaceOrNL(sc->ch)) {
 		sc->Forward();
 	}
 	styler.ColourTo(sc->currentPos - 1, sc->state);
-
-	if(!IsAWordChar(sc->ch))  // comment, marker, etc..
-		return;
-
-	while(sc->More() && !isSpaceOrNL(sc->ch) && (c < length-1) && !isGCOperator(sc->ch)) {
-		buff[c] = static_cast<char>(sc->ch);
-		++c; sc->Forward();
+	if(IsAWordChar(sc->ch)) { // comment, marker, etc..
+		while(sc->More() && !isSpaceOrNL(sc->ch) && (c < length-1) && !isGCOperator(sc->ch)) {
+			buff[c] = static_cast<char>(sc->ch);
+			++c; sc->Forward();
+		}
+		buff[c] = '\0';
+		char * p = buff;
+		while(*p) {     // capitalize..
+			if(islower(*p)) *p = static_cast<char>(toupper(*p));
+			++p;
+		}
+		WordList &kGlobal               = *keywordlists[0];     // keyword lists set by the user
+		WordList &kEvent                = *keywordlists[1];
+		WordList &kAttribute    = *keywordlists[2];
+		WordList &kControl      = *keywordlists[3];
+		WordList &kCommand      = *keywordlists[4];
+		int state = 0;
+		// int level = styler.LevelAt(line) & SC_FOLDLEVELNUMBERMASK;
+		// debug ("line = %d, level = %d", line, level);
+		if(kGlobal.InList(buff)) 
+			state = SCE_GC_GLOBAL;
+		else if(kAttribute.InList(buff)) 
+			state = SCE_GC_ATTRIBUTE;
+		else if(kControl.InList(buff)) 
+			state = SCE_GC_CONTROL;
+		else if(kCommand.InList(buff)) 
+			state = SCE_GC_COMMAND;
+		else if(kEvent.InList(buff)) 
+			state = SCE_GC_EVENT;
+		if(state) {
+			sc->ChangeState(state);
+			styler.ColourTo(sc->currentPos - 1, sc->state);
+			sc->ChangeState(SCE_GC_DEFAULT);
+		}
+		else {
+			sc->ChangeState(SCE_GC_DEFAULT);
+			styler.ColourTo(sc->currentPos - 1, sc->state); 
+		}
 	}
-	buff[c] = '\0';
-	char * p = buff;
-	while(*p) {     // capitalize..
-		if(islower(*p)) *p = static_cast<char>(toupper(*p));
-		++p;
-	}
-
-	WordList &kGlobal               = *keywordlists[0];     // keyword lists set by the user
-	WordList &kEvent                = *keywordlists[1];
-	WordList &kAttribute    = *keywordlists[2];
-	WordList &kControl      = *keywordlists[3];
-	WordList &kCommand      = *keywordlists[4];
-
-	int state = 0;
-	// int level = styler.LevelAt(line) & SC_FOLDLEVELNUMBERMASK;
-	// debug ("line = %d, level = %d", line, level);
-
-	if(kGlobal.InList(buff)) state = SCE_GC_GLOBAL;
-	else if(kAttribute.InList(buff)) state = SCE_GC_ATTRIBUTE;
-	else if(kControl.InList(buff)) state = SCE_GC_CONTROL;
-	else if(kCommand.InList(buff)) state = SCE_GC_COMMAND;
-	else if(kEvent.InList(buff)) state = SCE_GC_EVENT;
-
-	if(state) {
-		sc->ChangeState(state);
-		styler.ColourTo(sc->currentPos - 1, sc->state);
-		sc->ChangeState(SCE_GC_DEFAULT);
-	}
-	else{   sc->ChangeState(SCE_GC_DEFAULT);
-		styler.ColourTo(sc->currentPos - 1, sc->state); }
 }
 
 // Main colorizing function called by Scintilla

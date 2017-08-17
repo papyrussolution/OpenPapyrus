@@ -1281,7 +1281,7 @@ int SOraDbProvider::OhAttrGet(OH o, uint attr, SString & rBuf)
 		return 1;
 	}
 	else {
-		rBuf = 0;
+		rBuf.Z();
 		return 0;
 	}
 }
@@ -1335,7 +1335,7 @@ int SOraDbProvider::SetDateTime(OCIDateTime * pOciDtm, LDATETIME dtm)
 
 int SOraDbProvider::RowidToStr(OD rowid, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	OraText buf[64];
 	uint16  buf_len = sizeof(buf);
 	int     ok = ProcessError(OCIRowidToChar(rowid, buf, &buf_len, Err));
@@ -2029,7 +2029,7 @@ int SLAPI SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pK
 	// temp_buf будет содержать список переменных, в которые должны заносится возвращаемые значения //
 	//
 	let_buf.NumberToLat(subst_no++);
-	(temp_buf = 0).CatChar(':').Cat(let_buf);
+	temp_buf.Z().CatChar(':').Cat(let_buf);
 	stmt.BindRowId(-subst_no, 1, pTbl->getCurRowIdPtr());
 	if(pKeyBuf && idx >= 0 && idx < (int)pTbl->indexes.getNumKeys()) {
 		map_ret_key = 1;

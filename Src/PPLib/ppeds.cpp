@@ -1436,7 +1436,7 @@ int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 	SString sstr;
 	sstr = 0;
 
-	(str = 0).Cat(strToEncode);
+	str.Z().Cat(strToEncode);
 	while(str.Search(".", start, 1, &pos)) {
 		start = pos + 1;
 		count++;
@@ -1449,7 +1449,7 @@ int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 	while(str.NotEmpty()) {
 		str.Divide('.', l_str, r_str);
 		vals[i++] = l_str.ToLong();
-		(str = 0).Cat(r_str);
+		str.Z().Cat(r_str);
 	}
 	// Посмотрим, есть ли числа больше 127 и сколько байт они занимают
 	for(i = 0; i < arr_size; i++) {
@@ -1960,19 +1960,19 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	WSAStartup(MAKEWORD(1, 0), &wsdata);
 	inet_addr.Set(HOST, 80);
 	THROW_SL(sock.Connect(inet_addr));
-	(str = 0).Cat("POST ").Cat(URL).Space().Cat("HTTP/1.1\r\n");
+	str.Z().Cat("POST ").Cat(URL).Space().Cat("HTTP/1.1\r\n");
 	THROW_SL(sock.Send(str, str.Len(), NULL));
 	printf("%s", (const char*)str);
-	(str = 0).Cat("Host: ").Cat(HOST).Cat("\r\n");
+	str.Z().Cat("Host: ").Cat(HOST).Cat("\r\n");
 	THROW_SL(sock.Send(str, str.Len(), NULL));
 	printf("%s", (const char*)str);
-	(str = 0).Cat("Content-Type: application/timestamp-query\r\n");
+	str.Z().Cat("Content-Type: application/timestamp-query\r\n");
 	THROW_SL(sock.Send(str, str.Len(), NULL));
 	printf("%s", (const char*)str);
-	(str = 0).Cat("Content-Length: ").Cat((uint)request.Len()).Cat("\r\n");
+	str.Z().Cat("Content-Length: ").Cat((uint)request.Len()).Cat("\r\n");
 	THROW_SL(sock.Send(str, str.Len(), NULL));
 	printf("%s", (const char*)str);
-	(str = 0).Cat("\r\n");
+	str.Z().Cat("\r\n");
 	THROW_SL(sock.Send(str, str.Len(), NULL));
 	printf("%s", (const char*)str);
 	THROW_SL(sock.Send(request, request.Len(), NULL));

@@ -644,7 +644,7 @@ int SLAPI PPLotTagContainer::SearchString(const char * pPattern, PPID tagID, lon
 
 int SLAPI PPLotTagContainer::GetTagStr(int rowIdx, PPID tagID, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	uint   pos = 0;
 	int32  key = rowIdx;
 	const ObjTagItem * p_item = (lsearch(&key, &pos, CMPF_LONG)) ? ((Item *)at(pos))->List.GetItem(tagID) : 0;
@@ -1171,7 +1171,7 @@ int SLAPI PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 
 int SLAPI PPBillPacket::GetContextEmailAddr(SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = -1;
 	if(Rec.Object) {
 		PPID   psn_id = ObjectToPerson(Rec.Object);
@@ -1875,7 +1875,7 @@ int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int
 		SString msg_buf;
 		BillTbl::Rec link_rec;
 		PPFreight freight;
-		THROW_PP_S(P_BObj->Search(Rec.LinkBillID, &link_rec) > 0, PPERR_LINKBILLNFOUND, (msg_buf = 0).Cat(Rec.LinkBillID));
+		THROW_PP_S(P_BObj->Search(Rec.LinkBillID, &link_rec) > 0, PPERR_LINKBILLNFOUND, msg_buf.Z().Cat(Rec.LinkBillID));
 		// @v9.4.3 {
 		if(OpTypeID == PPOPT_CORRECTION /* && GetOpType(link_rec.OpID) == PPOPT_GOODSEXPEND */) {
 			THROW_MEM(SETIFZ(P_LinkPack, new PPBillPacket));
@@ -2317,7 +2317,7 @@ int SLAPI PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int 
 		ok = 0;
 	else if((flags & cgrfObject) && (ProcessFlags & pfRestrictByArCodes) && goods_obj.P_Tbl->GetArCode(Rec.Object, labs(goodsID), temp_buf, 0) <= 0) {
 		GetArticleName(Rec.Object, temp_buf);
-		(msg_buf = 0).Cat(goods_rec.Name).CatDiv('-', 1).Cat(temp_buf);
+		msg_buf.Z().Cat(goods_rec.Name).CatDiv('-', 1).Cat(temp_buf);
 		ok = PPSetError(PPERR_BILLGOODSRESTRICTBYARCODE, msg_buf);
 	}
 	else if((flags & cgrfGoodsGrpRestrict) && P_GoodsGrpRestrict) {
@@ -2326,7 +2326,7 @@ int SLAPI PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int 
 			const PPID grp_id = r_item.Key;
 			if(r_item.Val > 0) {
 				if(!goods_obj.BelongToGroup(goodsID, grp_id)) {
-					(msg_buf = 0).Cat(goods_rec.Name).Space().Cat(">>").Space();
+					msg_buf.Z().Cat(goods_rec.Name).Space().Cat(">>").Space();
 					// @v9.5.5 GetGoodsName(grp_id, temp_buf);
 					goods_obj.FetchNameR(grp_id, temp_buf); // @v9.5.5
 					msg_buf.Cat(temp_buf);
@@ -2335,7 +2335,7 @@ int SLAPI PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int 
 			}
 			else if(r_item.Val < 0) {
 				if(goods_obj.BelongToGroup(goodsID, grp_id)) {
-					(msg_buf = 0).Cat(goods_rec.Name).Space().Cat(">>").Space();
+					msg_buf.Z().Cat(goods_rec.Name).Space().Cat(">>").Space();
 					// @v9.5.5 GetGoodsName(grp_id, temp_buf);
 					goods_obj.FetchNameR(grp_id, temp_buf); // @v9.5.5
 					msg_buf.Cat(temp_buf);
@@ -2443,12 +2443,12 @@ int SLAPI PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int 
 			if(gvr_obj.FetchBarList(gvr_list) > 0) {
 				if((flags & cgrfObject) && !gvr_list.TestGvrBillArPair(gt_rec.PriceRestrID, Rec.Object)) {
 					GetArticleName(Rec.Object, temp_buf);
-					(msg_buf = 0).Cat(goods_rec.Name).CatDiv('-', 1).Cat(temp_buf);
+					msg_buf.Z().Cat(goods_rec.Name).CatDiv('-', 1).Cat(temp_buf);
 					ok = PPSetError(PPERR_BILLGOODSRESTRBARMAIN, msg_buf);
 				}
 				if((flags & cgrfObject2) && !gvr_list.TestGvrBillExtArPair(gt_rec.PriceRestrID, Rec.Object2)) {
 					GetArticleName(Rec.Object2, temp_buf);
-					(msg_buf = 0).Cat(goods_rec.Name).CatDiv('-', 1).Cat(temp_buf);
+					msg_buf.Z().Cat(goods_rec.Name).CatDiv('-', 1).Cat(temp_buf);
 					ok = PPSetError(PPERR_BILLGOODSRESTRBAREXT, msg_buf);
 				}
 			}
@@ -2538,7 +2538,7 @@ int SLAPI PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int 
 											} while(gctiter.Next(&trfr_rec, &bill_rec) > 0);
 											if(((shipm_qtty - this_bill_ex_qtty) + qtty) > lim_by_plan) {
 												GetArticleName(Rec.Object, temp_buf);
-												(msg_buf = 0).Cat(goods_rec.Name).CatDiv('-', 1).Cat(temp_buf).CatDiv('-', 1).Cat(plan_bill_rec.Code);
+												msg_buf.Z().Cat(goods_rec.Name).CatDiv('-', 1).Cat(temp_buf).CatDiv('-', 1).Cat(plan_bill_rec.Code);
 												ok = PPSetError(PPERR_BILLGOODSRESTRLIMSHPM, msg_buf);
 											}
 										}
@@ -3749,7 +3749,7 @@ int SLAPI TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 					if(Flags & ETIEF_DISPOSE) {
 						for(uint j = 0; j < DispList.getCount(); j++) {
 							if(DispList.at(j).RByBill == p_ti->RByBill) {
-								ord_list.Add(++uniq_counter, (temp_buf = 0).Cat(goods_name), 1);
+								ord_list.Add(++uniq_counter, temp_buf.Z().Cat(goods_name), 1);
 								ext.Uc = uniq_counter;
 								ext.Pos = i-1;
 								ext.Extra = 0;
@@ -3776,7 +3776,7 @@ int SLAPI TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 						for(SEnum en = PPRef->Assc.Enum(PPASS_ALTGOODSGRP, goods_rec.ID, 1); en.Next(&assc_rec) > 0;) {
 							const PPID grp_id = assc_rec.PrmrObjID;
 							if(scale_alt_grp_list.lsearch(grp_id) && goods_obj.Fetch(grp_id, &grp_rec) > 0) {
-								ord_list.Add(++uniq_counter, (temp_buf = 0).Cat(grp_rec.Name).Cat(goods_name), 1);
+								ord_list.Add(++uniq_counter, temp_buf.Z().Cat(grp_rec.Name).Cat(goods_name), 1);
 								ext.Uc = uniq_counter;
 								ext.Pos = i-1;
 								ext.Extra = assc_rec.ID;
@@ -3793,7 +3793,7 @@ int SLAPI TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 						for(DateIter di; BillObj->trfr->Rcpt.EnumByGoods(goods_rec.ID, &di, &lot_rec) > 0;)
 							if(lot_rec.QCertID && p_qcert_obj->Search(lot_rec.QCertID, &qcert_rec) > 0) {
 								if(!qcert_rec.Passive && !qcert_list.lsearch(qcert_rec.ID)) {
-									ord_list.Add(++uniq_counter, (temp_buf = 0).Cat(qcert_rec.Code).Cat(goods_name), 1);
+									ord_list.Add(++uniq_counter, temp_buf.Z().Cat(qcert_rec.Code).Cat(goods_name), 1);
 									ext.Uc = uniq_counter;
 									ext.Pos = i-1;
 									ext.Extra = qcert_rec.ID;
@@ -3815,7 +3815,7 @@ int SLAPI TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 								// @v8.3.0 if(p_loc_obj->Fetch(_loc_id, &wp_rec) > 0 && wp_rec.ParentID == pPack->Rec.LocID) {
 								if(p_loc_obj->Fetch(_loc_id, &wp_rec) > 0 && p_loc_obj->GetParentWarehouse(_loc_id, &_wh_id) > 0 && _wh_id == pPack->Rec.LocID) { // @v8.3.0
 									goods_obj.P_Tbl->MakeFullName(goods_rec.ParentID, 0, grp_name);
-									(temp_buf = 0).Cat(wp_rec.Name).Cat(grp_name).Cat(goods_name);
+									temp_buf.Z().Cat(wp_rec.Name).Cat(grp_name).Cat(goods_name);
 									ord_list.Add(++uniq_counter, temp_buf, 1);
 									ext.Uc = uniq_counter;
 									ext.Pos = i-1;
@@ -3828,7 +3828,7 @@ int SLAPI TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 						}
 						if(to_add_entry) {
 							goods_obj.P_Tbl->MakeFullName(goods_rec.ParentID, 0, grp_name);
-							(temp_buf = 0).CatCharN('0', 20).Cat(grp_name);
+							temp_buf.Z().CatCharN('0', 20).Cat(grp_name);
 							grp_name = temp_buf;
 						}
 					}

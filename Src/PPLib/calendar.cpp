@@ -608,7 +608,7 @@ void TDateCalendar::OnPaint(HWND hWnd)
 	for(i = 1; i <= 12; i++) {
 		//char   buf[64];
 		//getMonthText(i, MONF_SHORT, buf);
-		SGetMonthText(i, MONF_SHORT, temp_buf = 0);
+		SGetMonthText(i, MONF_SHORT, temp_buf.Z());
 		::GetTextExtentPoint32(hdc, temp_buf, 3, &ts); // @unicodeproblem
 		x = Left + (((i <= 6) ? i : i - 6) - 1) * m_cell_w;
 		(dd1 = D1).setday(1);

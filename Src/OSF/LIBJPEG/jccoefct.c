@@ -54,39 +54,35 @@ typedef struct {
 
 typedef my_coef_controller * my_coef_ptr;
 
-/* Forward declarations */
-METHODDEF(boolean) compress_data JPP((j_compress_ptr cinfo, JSAMPIMAGE input_buf));
+// Forward declarations
+METHODDEF(boolean) compress_data(j_compress_ptr cinfo, JSAMPIMAGE input_buf);
 #ifdef FULL_COEF_BUFFER_SUPPORTED
-METHODDEF(boolean) compress_first_pass JPP((j_compress_ptr cinfo, JSAMPIMAGE input_buf));
-METHODDEF(boolean) compress_output JPP((j_compress_ptr cinfo, JSAMPIMAGE input_buf));
+	METHODDEF(boolean) compress_first_pass(j_compress_ptr cinfo, JSAMPIMAGE input_buf);
+	METHODDEF(boolean) compress_output(j_compress_ptr cinfo, JSAMPIMAGE input_buf);
 #endif
-
+//
+// Reset within-iMCU-row counters for a new row 
+//
 static void start_iMCU_row(j_compress_ptr cinfo)
-/* Reset within-iMCU-row counters for a new row */
 {
 	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
 	/* In an interleaved scan, an MCU row is the same as an iMCU row.
 	 * In a noninterleaved scan, an iMCU row has v_samp_factor MCU rows.
 	 * But at the bottom of the image, process only what's left.
 	 */
-	if(cinfo->comps_in_scan > 1) {
+	if(cinfo->comps_in_scan > 1)
 		coef->MCU_rows_per_iMCU_row = 1;
-	}
-	else {
+	else
 		if(coef->iMCU_row_num < (cinfo->total_iMCU_rows-1))
 			coef->MCU_rows_per_iMCU_row = cinfo->cur_comp_info[0]->v_samp_factor;
 		else
 			coef->MCU_rows_per_iMCU_row = cinfo->cur_comp_info[0]->last_row_height;
-	}
-
 	coef->mcu_ctr = 0;
 	coef->MCU_vert_offset = 0;
 }
-
 /*
  * Initialize for a processing pass.
  */
-
 METHODDEF(void) start_pass_coef(j_compress_ptr cinfo, J_BUF_MODE pass_mode)
 {
 	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
@@ -94,7 +90,7 @@ METHODDEF(void) start_pass_coef(j_compress_ptr cinfo, J_BUF_MODE pass_mode)
 	start_iMCU_row(cinfo);
 	switch(pass_mode) {
 		case JBUF_PASS_THRU:
-		    if(coef->whole_image[0] != NULL)
+		    if(coef->whole_image[0])
 			    ERREXIT(cinfo, JERR_BAD_BUFFER_MODE);
 		    coef->pub.compress_data = compress_data;
 		    break;
@@ -115,7 +111,6 @@ METHODDEF(void) start_pass_coef(j_compress_ptr cinfo, J_BUF_MODE pass_mode)
 		    break;
 	}
 }
-
 /*
  * Process some data in the single-pass case.
  * We process the equivalent of one fully interleaved MCU row ("iMCU" row)
@@ -125,7 +120,6 @@ METHODDEF(void) start_pass_coef(j_compress_ptr cinfo, J_BUF_MODE pass_mode)
  * NB: input_buf contains a plane for each component in image,
  * which we index according to the component's SOF position.
  */
-
 METHODDEF(boolean) compress_data(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
 {
 	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;

@@ -51,7 +51,7 @@ static bool FASTCALL IsANumberChar(int ch, int chPrev)
 {
 	// Not exactly following number definition (several dots are seen as OK, etc.)
 	// but probably enough in most cases.
-	return (ch < 0x80) && (isdigit(ch) || toupper(ch) == 'E' || ch == '.' || ((ch == '-' || ch == '+') && chPrev < 0x80 && toupper(chPrev) == 'E'));
+	return (ch < 0x80) && (isdec(ch) || toupper(ch) == 'E' || ch == '.' || ((ch == '-' || ch == '+') && chPrev < 0x80 && toupper(chPrev) == 'E'));
 }
 
 typedef uint sql_state_t;

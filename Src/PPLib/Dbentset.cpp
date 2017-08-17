@@ -51,7 +51,7 @@ int SLAPI PPDbEntrySet2::MakeProfileLine(const DbLoginBlock * pBlk, SString & rB
 	int    server_type = sqlstNone;
 	SString temp_buf;
 
-	rBuf = 0;
+	rBuf.Z();
 	pBlk->GetAttr(DbLoginBlock::attrServerType, temp_buf);
 	if(temp_buf.CmpNC("ORACLE") == 0 || temp_buf.CmpNC("ORA") == 0) {
 		server_type = sqlstORA;

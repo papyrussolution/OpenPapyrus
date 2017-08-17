@@ -110,7 +110,7 @@ char * SLAPI Acct::ToStr(long format, char * pBuf) const // ACCBIN_NATURE
 //SString & SLAPI AccToStr(const Acct * acc, long format, SString & rBuf)
 SString & SLAPI Acct::ToStr(long format, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    dlm = delim(format);
 	if(ac != 0) {
 		if(format & ACCF_PADACC)

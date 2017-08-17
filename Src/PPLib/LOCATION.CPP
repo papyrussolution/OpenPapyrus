@@ -41,7 +41,7 @@ LocationFilt & FASTCALL LocationFilt::operator = (const LocationFilt & rS)
 
 int SLAPI LocationFilt::GetExField(int fldId, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	return (fldId == exfPhone) ? PPGetExtStrData(fldId, ExtString, rBuf) : -1;
 }
 
@@ -146,7 +146,7 @@ int SLAPI LocationCore::IsEqualRec(const LocationTbl::Rec & rRec1, const Locatio
 int SLAPI LocationCore::GetExField(const LocationTbl::Rec * pRec, int fldId, SString & rBuf)
 {
 	int    ok = -1;
-	rBuf = 0;
+	rBuf.Z();
 	if(oneof6(fldId, LOCEXSTR_ZIP, LOCEXSTR_SHORTADDR, LOCEXSTR_FULLADDR, LOCEXSTR_EMAIL, LOCEXSTR_PHONE, LOCEXSTR_CONTACT) || fldId > LOCEXSTR_EXTFLDSOFFS) {
 		const SString temp_buf = pRec->Tail;
 		ok = PPGetExtStrData(fldId, temp_buf, rBuf);
@@ -227,7 +227,7 @@ int SLAPI LocationCore::SearchCode(PPID locTyp, const char * pCode, PPID * pID, 
 
 static SString & FormatCode(const char * pPrfx, const char * pSfx, int len, long n, SString & rBuf)
 {
-	return (rBuf = 0).Cat(pPrfx).CatLongZ(n, len).Cat(pSfx);
+	return rBuf.Z().Cat(pPrfx).CatLongZ(n, len).Cat(pSfx);
 }
 
 int SLAPI LocationCore::Helper_GetCodeByTempl(const char * pPrfx, const char * pSfx, int len,
@@ -284,7 +284,7 @@ int SLAPI LocationCore::Helper_GetCodeByTempl(const char * pPrfx, const char * p
 
 int SLAPI LocationCore::GetCodeByTemplate(const char * pTempl, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 
 	int    ok = -1;
 	size_t x_len = 0, r_len = 0;
@@ -304,12 +304,12 @@ int SLAPI LocationCore::GetCodeByTemplate(const char * pTempl, SString & rBuf)
 	if(*p) {
 		memzero(pfx, sizeof(pfx));
 		while(*p) {
-			if(isdigit(*p))
+			if(isdec(*p))
 				*c++ = *p++;
 			else if(*p == '%') {
 				SString sfx, code;
 				x_len = strlen(pfx);
-				for(++p, x = t; isdigit(*p);)
+				for(++p, x = t; isdec(*p);)
 					*x++ = *p++;
 				*x = 0;
 				r_len = atoi(t);
@@ -339,7 +339,7 @@ int SLAPI LocationCore::GetCodeByTemplate(const char * pTempl, SString & rBuf)
 		}
 	}
 	if(ok < 0) {
-		(rBuf = 0).CatCharN('0', x_len + r_len);
+		rBuf.Z().CatCharN('0', x_len + r_len);
 		ok = 0;
 	}
 	delete p_dup_templ;
@@ -547,7 +547,7 @@ int SLAPI LocationCore::SearchRef(PPID locType, PPID objType, PPID objID, PPID *
 // static
 int SLAPI LocationCore::GetAddress(const LocationTbl::Rec & rRec, uint, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(rRec.Flags & LOCF_MANUALADDR)
 		LocationCore::GetExField(&rRec, LOCEXSTR_FULLADDR, rBuf);
 	else {
@@ -569,7 +569,7 @@ int SLAPI LocationCore::GetAddress(const LocationTbl::Rec & rRec, uint, SString 
 
 int SLAPI LocationCore::GetAddress_(PPID id, uint f, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	return (!id || Search(id) > 0) ? LocationCore::GetAddress(data, f, rBuf) : 0;
 }
 
@@ -677,7 +677,7 @@ SString & FASTCALL PPEAddr::Phone::ToStr(long fmt, SString & rBuf) const
 {
 	assert(EADDR_PHONE_MAXCHAR % 2 == 0);
 
-	rBuf = 0;
+	rBuf.Z();
 	int    zero = 1;
 	for(size_t i = 0; i < EADDR_PHONE_MAXCHAR; i+=2) {
 		uint8 p = A[i/2];
@@ -841,7 +841,7 @@ int PPEAddr::SetPhone(const char * pPhone)
 int PPEAddr::GetPhone(SString & rBuf) const
 {
 	int    ok = 1;
-	rBuf = 0;
+	rBuf.Z();
 	if(Type == tPhone)
 		U.P.ToStr(0, rBuf);
 	else

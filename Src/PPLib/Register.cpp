@@ -227,7 +227,7 @@ int SLAPI RegisterArray::SelectRegNumber(PPID regTyp, LDATE dt, SString & rBuf) 
         rBuf = r_reg.Num;
 	}
 	else
-		rBuf = 0;
+		rBuf.Z();
 	return r;
 }
 
@@ -368,7 +368,7 @@ int SLAPI RegisterArray::GetRegNumber(PPID regTyp, SString & rBuf) const
 
 int SLAPI RegisterArray::GetRegNumber(PPID regTyp, LDATE dt, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = -1;
 	uint   p = 0;
 	if(GetRegister(regTyp, dt, &p, 0) > 0) {
@@ -547,7 +547,7 @@ int SLAPI RegisterCore::SetByPerson(PPID personID, PPID regTypeID, const Registe
 // static
 int FASTCALL RegisterCore::GetText(const RegisterTbl::Rec & rRec, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 1;
 	SString temp_buf;
 	PPID   obj_id = 0;

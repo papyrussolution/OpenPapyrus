@@ -630,7 +630,7 @@ int FASTCALL DBDataCell::getValue(DBConst * val)
 
 int SLAPI DBDataCell::toString(SString & rBuf, long options) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(i.id > 0) {
 		rBuf.Cat(f.getTable()->tableName).Dot().Cat(f.getField().Name);
 	}

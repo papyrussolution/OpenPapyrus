@@ -19,7 +19,7 @@ int SSrchPattern::Cmp_Vect(const uint16 * pV1, const uint16 * pV2) const
 
 SString & SSrchPattern::OutputPattern(SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	for(size_t i = 0; i < Len; i++)
 		rBuf.Space().CatChar(P_Pat[i]);
 	return rBuf.CR();
@@ -27,7 +27,7 @@ SString & SSrchPattern::OutputPattern(SString & rBuf) const
 
 SString & SSrchPattern::OutputVect(const uint16 * pVect, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	for(size_t i = 0; i < Len; i++)
 		rBuf.CatLongZ(pVect[i], 2);
 	return rBuf.CR();

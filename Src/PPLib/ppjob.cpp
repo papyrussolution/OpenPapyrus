@@ -1633,7 +1633,7 @@ public:
 			MEMSZERO(si);
 			si.cb = sizeof(si);
 			MEMSZERO(pi);
-			(temp_buf = 0).CatQStr(param.App);
+			temp_buf.Z().CatQStr(param.App);
 			if(param.Arg.NotEmptyS())
 				temp_buf.Space().Cat(param.Arg);
 			STempBuffer cmd_line(temp_buf.Len()*2);
@@ -1647,7 +1647,7 @@ public:
 		}
 #if 0 // {
 		else if(param.Arg.NotEmptyS()) {
-			(temp_buf = 0).Space().Cat(param.Arg);
+			temp_buf.Z().Space().Cat(param.Arg);
 			_spawnl((param.Flags & LaunchAppParam::fWait) ? _P_WAIT : _P_NOWAIT, param.App, (const char *)temp_buf, 0);
 		}
 		else {
@@ -1926,9 +1926,9 @@ public:
 				for(uint i = 0, f_exit = 0; ss.get(&i, buf) && !f_exit;) {
 					uint j = 0;
 					StringSet ss1(',', buf);
-					ss1.get(&j, (buf = 0));
-					ss1.get(&j, (buf = 0));
-					ss1.get(&j, (buf = 0));
+					ss1.get(&j, buf.Z());
+					ss1.get(&j, buf.Z());
+					ss1.get(&j, buf.Z());
 					if(buf.CmpNC(pBillParamName) == 0) {
 						pBillParam->BaseFlags |= PPImpExpParam::bfDLL;
 						f_exit = 1;
@@ -2056,10 +2056,10 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 				for(uint i = 0; ss.get(&i, buf);) {
 					uint j = 0;
 					StringSet ss1(',', buf);
-					ss1.get(&j, (buf = 0));
+					ss1.get(&j, buf.Z());
 					id = buf.ToLong();
-					ss1.get(&j, (buf = 0));
-					ss1.get(&j, (buf = 0));
+					ss1.get(&j, buf.Z());
+					ss1.get(&j, buf.Z());
 					HdrList.Add(id, buf);
 				}
 				GetParamsByName(Data.BillParam, Data.BRowParam, &bill_param, &brow_param);
@@ -2116,10 +2116,10 @@ int ExportBillsFiltDialog::setDTS(const ExpBillsFilt * pData)
 		for(uint i = 0; ss.get(&i, buf);) {
 			uint j = 0;
 			StringSet ss1(',', buf);
-			ss1.get(&j, (buf = 0));
+			ss1.get(&j, buf.Z());
 			id = buf.ToLong();
-			ss1.get(&j, (buf = 0));
-			ss1.get(&j, (buf = 0));
+			ss1.get(&j, buf.Z());
+			ss1.get(&j, buf.Z());
 			HdrList.Add(id, buf);
 		}
 		GetParamsByName(Data.BillParam, Data.BRowParam, &bill_param, &brow_param);
@@ -2563,7 +2563,7 @@ int SLAPI PPObjRFIDDevice::Test(const PPRFIDDevice & rRec, SString & rRetBuf)
 			//in_params.Clear().Add(DVCCMDPAR_TEXT, "ОТЛИЧНО КАРТА СЧИТАНА!");
 			//THROW(p_dvc->RunCmd(DVCCMD_SETTEXT, in_params, out_params));
 			in_params.Clear().Add(DVCCMDPAR_TEXT, "ОТЛИЧНО ВКЛЮЧАЕМ!");
-			in_params.Add(DVCCMDPAR_COUNT, (temp_buf = 0).Cat(3)); // 3 щелчка
+			in_params.Add(DVCCMDPAR_COUNT, temp_buf.Z().Cat(3)); // 3 щелчка
 			THROW(p_dvc->RunCmd(DVCCMD_TOGGLE, in_params, out_params));
 		}
 		else {
@@ -2598,7 +2598,7 @@ int SLAPI PPObjRFIDDevice::Test(const PPRFIDDevice & rRec, SString & rRetBuf)
 	// инициализируем
 	THROW(ExecOper(P_AbstrDvc, DVCCMD_INIT, in_params, out_params.Clear()));
 	// соединяемся
-	in_params.Add(DVCPARAM_PORT, (temp_buf = 0).Cat(/*port_no*/7)); // @vmiller Пока напишем порт устройства - 7 (ибо все равно через эмулятор)
+	in_params.Add(DVCPARAM_PORT, temp_buf.Z().Cat(/*port_no*/7)); // @vmiller Пока напишем порт устройства - 7 (ибо все равно через эмулятор)
 	THROW(ExecOper(P_AbstrDvc, DVCCMD_CONNECT, in_params, out_params.Clear()));
 	// читаем с устройства
 	THROW(ExecOper(P_AbstrDvc, DVCCMD_LISTEN, in_params.Clear(), out_params.Clear()));
@@ -2908,7 +2908,7 @@ int RFIDDevPrcssr::Run()
 						else
 							msg.Printf(CardNotFound.cptr(), temp_buf.cptr());
 						in_params.Clear().Add(DVCCMDPAR_TEXT, msg.cptr());
-						in_params.Add(DVCCMDPAR_COUNT, (temp_buf = 0).Cat(rele_count));
+						in_params.Add(DVCCMDPAR_COUNT, temp_buf.Z().Cat(rele_count));
 
 						/*
 						LTIME tm;

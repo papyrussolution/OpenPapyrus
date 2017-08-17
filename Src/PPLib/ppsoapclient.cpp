@@ -607,7 +607,7 @@ SString & FASTCALL UhttLocationPacket::GetCode(SString & rBuf) const
 {
 	rBuf = Code;
 	if(!rBuf.NotEmptyS())
-		(rBuf = 0).CatChar('#').Cat("UHTT").CatLongZ(ID, 6);
+		rBuf.Z().CatChar('#').Cat("UHTT").CatLongZ(ID, 6);
 	return rBuf;
 }
 //
@@ -700,7 +700,7 @@ UhttPersonPacket & UhttPersonPacket::operator = (const UhttPersonPacket & rS)
 
 SString & UhttPersonPacket::GetUhttContragentCode(SString & rBuf) const
 {
-	(rBuf = 0).CatChar('#').Cat("UHTT").CatLongZ(ID, 6);
+	rBuf.Z().CatChar('#').Cat("UHTT").CatLongZ(ID, 6);
 	return rBuf;
 }
 

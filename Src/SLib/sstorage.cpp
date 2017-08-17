@@ -68,7 +68,7 @@ private:
 
 		int    Debug_Output(SString & rBuf) const
 		{
-			rBuf = 0;
+			rBuf.Z();
 			rBuf.CatEq("PgIndex", PgIndex).CatDiv(';', 2).CatEq("PgSize", PgSize).CatDiv(';', 2).CatEq("RcSize", RcSize).CatDiv(';', 2).CatEq("Flags", Flags).CR();
 			if(Flags & fFixRcSize) {
 				for(uint i = 0; i < FixRcCount; i++) {

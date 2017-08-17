@@ -525,13 +525,11 @@ static void select_scan_parameters(j_compress_ptr cinfo)
 /* Set up the scan parameters for the current scan */
 {
 	int ci;
-
 #ifdef C_MULTISCAN_FILES_SUPPORTED
-	if(cinfo->scan_info != NULL) {
+	if(cinfo->scan_info) {
 		/* Prepare for current scan --- the script is already validated */
 		my_master_ptr master = (my_master_ptr)cinfo->master;
 		const jpeg_scan_info * scanptr = cinfo->scan_info + master->scan_number;
-
 		cinfo->comps_in_scan = scanptr->comps_in_scan;
 		for(ci = 0; ci < scanptr->comps_in_scan; ci++) {
 			cinfo->cur_comp_info[ci] =
@@ -790,21 +788,15 @@ METHODDEF(void) finish_pass_master(j_compress_ptr cinfo)
 
 GLOBAL(void) jinit_c_master_control(j_compress_ptr cinfo, boolean transcode_only)
 {
-	my_master_ptr master;
-
-	master = (my_master_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    SIZEOF(my_comp_master));
+	my_master_ptr master = (my_master_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(my_comp_master));
 	cinfo->master = &master->pub;
 	master->pub.prepare_for_pass = prepare_for_pass;
 	master->pub.pass_startup = pass_startup;
 	master->pub.finish_pass = finish_pass_master;
 	master->pub.is_last_pass = FALSE;
-
 	/* Validate parameters, determine derived values */
 	initial_setup(cinfo, transcode_only);
-
-	if(cinfo->scan_info != NULL) {
+	if(cinfo->scan_info) {
 #ifdef C_MULTISCAN_FILES_SUPPORTED
 		validate_script(cinfo);
 		if(cinfo->block_size < DCTSIZE)

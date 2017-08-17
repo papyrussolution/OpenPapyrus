@@ -151,7 +151,7 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 	//
 	if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSALC, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 		StringSet ss(',', temp_buf);
-		ss.get(&(i = 0), temp_buf = 0);
+		ss.get(&(i = 0), temp_buf.Z());
 		if(gc_obj.SearchBySymb(temp_buf, &gc_alc_id) > 0) {
 			PPGdsClsPacket gc_pack;
 			if(gc_obj.Fetch(gc_alc_id, &gc_pack) > 0) {
@@ -164,7 +164,7 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 				if(temp_buf.ToLong() > 0)
 					gc_alc_code = temp_buf;
 				else
-					(gc_alc_code = 0).Cat(gc_alc_id);
+					gc_alc_code.Z().Cat(gc_alc_id);
 			}
 		}
 	}
@@ -519,7 +519,7 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 			if(rmv_goods_list.getCount()) {
 				fputs((f_str = "$$$DELETEWARESBYWARECODE").CR(), p_file);
 				for(i = 0; i < rmv_goods_list.getCount(); i++) {
-					(f_str = 0).Cat(rmv_goods_list.get(i));  // #1 - ИД товара
+					f_str.Z().Cat(rmv_goods_list.get(i));  // #1 - ИД товара
 					fputs(f_str.CR(), p_file);
 				}
 			}
@@ -532,7 +532,7 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 				alc_goods_list.sortAndUndup();
 				fputs((f_str = "$$$ADDCLASSIFIERLINKS").CR(), p_file);
 				for(i = 0; i < alc_goods_list.getCount(); i++) {
-					(f_str = 0).Cat(gc_alc_code).Semicol().Cat(1L).Semicol().Cat(alc_goods_list.get(i)).CR();
+					f_str.Z().Cat(gc_alc_code).Semicol().Cat(1L).Semicol().Cat(alc_goods_list.get(i)).CR();
 					fputs(f_str, p_file);
 				}
 			}
@@ -548,7 +548,7 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 				for(i = 0; i < retail_quot_list.getCount(); i++) {
 					const PPID qk_id = retail_quot_list.get(i);
 					if(used_retail_quot.get(i) && qk_obj.Fetch(qk_id, &qk_rec) > 0) {
-						(f_str = 0).Cat(qk_id).Semicol();                     // #1 - код схемы внутренней авт.скидки
+						f_str.Z().Cat(qk_id).Semicol();                       // #1 - код схемы внутренней авт.скидки
 						f_str.Cat(qk_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CatCharN(';', 2);     // #2 - наименование схемы, #3 - не используется //
 						f_str.CatChar('0').Semicol();                         // #4 - тип операции объединения (0 - не объединять)
 						THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
@@ -601,7 +601,7 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 					//
 					//                                                       #13 - #24 - не используем
 					//
-					(temp_buf = 0).CatCharN(';', 2).CatChar('0').Semicol();
+					temp_buf.Z().CatCharN(';', 2).CatChar('0').Semicol();
 					f_str.Cat(temp_buf);
 					f_str.Cat(temp_buf);
 					f_str.Cat(temp_buf);
@@ -716,7 +716,7 @@ int SLAPI ACS_FRONTOL::ImportFiles()
 				sp.Merge(0, SPathStruc::fDrv|SPathStruc::fDir|SPathStruc::fExt, file_name);
 				(ftp_path_flag = ftp_dir).SetLastSlash().Cat(file_name);
 			}
-			MakeTempFileName(dir_in, "front", "txt", 0, path_rpt = 0);
+			MakeTempFileName(dir_in, "front", "txt", 0, path_rpt.Z());
 			// path_rpt = PathRpt;
 			for(double j = 0; j < timeouts_c; j++) {
 				if(ftp.SafeGet(path_rpt, ftp_path, 0, 0, 0) > 0) {
@@ -761,11 +761,11 @@ int SLAPI ACS_FRONTOL::ImportFiles()
 				msg_counter.Init(msg_list.getCount());
 				for(i = 0; i < msg_list.getCount(); i++) {
 					PPMailMsg msg;
-					PPMakeTempFileName(0, "msg", 0, temp_fname = 0);
+					PPMakeTempFileName(0, "msg", 0, temp_fname.Z());
 					msg_counter.Increment();
 					THROW(mail.GetMsg(msg_list.at(i), &msg, temp_fname, RcvMailCallback, msg_counter));
 					{
-						MakeTempFileName(dir_in, "front", "txt", 0, path_rpt = 0);
+						MakeTempFileName(dir_in, "front", "txt", 0, path_rpt.Z());
 						THROW(mail.SaveAttachment(temp_fname, PathRpt, dir_in));
 						(temp_fname = dir_in).SetLastSlash().Cat(PathRpt);
 						rename(temp_fname, path_rpt);
@@ -1125,7 +1125,7 @@ int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 						Goods2Tbl::Rec goods_rec;
 						buf.Divide('|', arcode, goods_name);
 						if(!goods_name.NotEmptyS())
-							(goods_name = 0).CatEq("ID", goods_id);
+							goods_name.Z().CatEq("ID", goods_id);
 						else
 							goods_name.Transf(CTRANSF_OUTER_TO_INNER);
 						if(goods_obj.P_Tbl->SearchByArCode(0, arcode, 0, &goods_rec) > 0)
@@ -1169,7 +1169,7 @@ int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 				dscnt = buf.ToReal();       // #16 Сумма со скидками
 				// @v8.8.6 {
 				for(field_no = 17; field_no <= 20 && ss.get(&pos, buf) > 0; field_no++); // #17-20 пропускаем
-				ss.get(&pos, buf = 0);      // #21 Номер отдела
+				ss.get(&pos, buf.Z());      // #21 Номер отдела
 				div = buf.ToLong();
 				// } @v8.8.6
 				THROW(r = SearchTempCheckByCode(cash_no, chk_no, cur_zrep_n));
@@ -1345,7 +1345,7 @@ int SLAPI ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 				buf = "$$$TRANSACTIONSBYDATETIMERANGE";
 				query_file.WriteLine(buf.CR());
 				decodedate(&d, &m, &y, &first_date);
-				(buf = 0).Printf(date_mask, d, m, y).Semicol();
+				buf.Z().Printf(date_mask, d, m, y).Semicol();
 				decodedate(&d, &m, &y, &last_date);
 				buf.Cat(tmp_buf.Printf(date_mask, d, m, y)).CR();
 				query_file.WriteLine(buf);
@@ -1389,7 +1389,7 @@ int SLAPI ACS_FRONTOL::ImportSession(int)
 	{
 		SString path;
 		StringSet ss(';', ImportedFiles);
-		for(uint i = 0; ss.get(&i, path = 0);) {
+		for(uint i = 0; ss.get(&i, path.Z());) {
 			ZRepList.freeAll();
 			if(fileExists(path)) {
 				THROW(GetZRepList(path, &ZRepList));

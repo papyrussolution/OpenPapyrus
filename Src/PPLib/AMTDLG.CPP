@@ -144,7 +144,7 @@ int AmtListDialog::setupListEntry(PPID idx, AmtEntry * pEntry)
 			ideqvalstr(pEntry->CurID, sub = 0);
 		ss.add(sub);
 	}
-	ss.add((sub = 0).Cat(pEntry->Amt, SFMT_MONEY));
+	ss.add(sub.Z().Cat(pEntry->Amt, SFMT_MONEY));
 	if(addStringToList(pEntry->AmtTypeID, ss.getBuf())) {
 		PosList.add(idx);
 		return 1;
@@ -295,8 +295,8 @@ int StaffAmtListDialog::setupList()
 				sub = 0;
 			ss.add(sub);
 		}
-		ss.add((sub = 0).Cat(p_entry->Period, 1));
-		ss.add((sub = 0).Cat(p_entry->Amt, SFMT_MONEY));
+		ss.add(sub.Z().Cat(p_entry->Period, 1));
+		ss.add(sub.Z().Cat(p_entry->Amt, SFMT_MONEY));
 		THROW(addStringToList(i, ss.getBuf()));
 	}
 	CATCHZOK

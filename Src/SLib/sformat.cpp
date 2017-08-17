@@ -81,7 +81,7 @@ SString & FASTCALL _commfmt(long fmt, SString & rBuf)
 		const size_t src_len = rBuf.Len();
 		if(src_len > len) {
 			if(SFMTFLAG(fmt) & COMF_FILLOVF)
-				(rBuf = 0).CatCharN(DEFAULT_OVERFLOW_SYMB, len);
+				rBuf.Z().CatCharN(DEFAULT_OVERFLOW_SYMB, len);
 			rBuf.Trim(len);
 		}
 		else if(src_len < len) {

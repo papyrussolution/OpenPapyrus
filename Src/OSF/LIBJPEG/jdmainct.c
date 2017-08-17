@@ -130,11 +130,11 @@ typedef my_main_controller * my_main_ptr;
 #define CTX_PROCESS_IMCU        1       /* feeding iMCU to postprocessor */
 #define CTX_POSTPONED_ROW       2       /* feeding postponed row group */
 
-/* Forward declarations */
-METHODDEF(void) process_data_simple_main JPP((j_decompress_ptr cinfo, JSAMPARRAY output_buf, JDIMENSION *out_row_ctr, JDIMENSION out_rows_avail));
-METHODDEF(void) process_data_context_main JPP((j_decompress_ptr cinfo, JSAMPARRAY output_buf, JDIMENSION *out_row_ctr, JDIMENSION out_rows_avail));
+// Forward declarations
+METHODDEF(void) process_data_simple_main(j_decompress_ptr cinfo, JSAMPARRAY output_buf, JDIMENSION *out_row_ctr, JDIMENSION out_rows_avail);
+METHODDEF(void) process_data_context_main(j_decompress_ptr cinfo, JSAMPARRAY output_buf, JDIMENSION *out_row_ctr, JDIMENSION out_rows_avail);
 #ifdef QUANT_2PASS_SUPPORTED
-METHODDEF(void) process_data_crank_post JPP((j_decompress_ptr cinfo, JSAMPARRAY output_buf, JDIMENSION *out_row_ctr, JDIMENSION out_rows_avail));
+	METHODDEF(void) process_data_crank_post(j_decompress_ptr cinfo, JSAMPARRAY output_buf, JDIMENSION *out_row_ctr, JDIMENSION out_rows_avail);
 #endif
 
 static void alloc_funny_pointers(j_decompress_ptr cinfo)

@@ -1,6 +1,6 @@
 // OBJBILL.CPP
 // Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -46,9 +46,9 @@ int SLAPI PPObjBill::Lock(PPID id)
 			if(!locks.bsearch(&link_id, 0, CMPF_LONG)) {
 				if(Fetch(link_id, &link_bill_rec) > 0) {
 					//
-					// При открытии документа списания драфт-документа, если драфт-документ допускает
-					// множественное списание, не следует блокировать драфт-документ (это помешает
-					// редактированию других документов списания).
+					// РџСЂРё РѕС‚РєСЂС‹С‚РёРё РґРѕРєСѓРјРµРЅС‚Р° СЃРїРёСЃР°РЅРёСЏ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚Р°, РµСЃР»Рё РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚ РґРѕРїСѓСЃРєР°РµС‚
+					// РјРЅРѕР¶РµСЃС‚РІРµРЅРЅРѕРµ СЃРїРёСЃР°РЅРёРµ, РЅРµ СЃР»РµРґСѓРµС‚ Р±Р»РѕРєРёСЂРѕРІР°С‚СЊ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚ (СЌС‚Рѕ РїРѕРјРµС€Р°РµС‚
+					// СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЋ РґСЂСѓРіРёС… РґРѕРєСѓРјРµРЅС‚РѕРІ СЃРїРёСЃР°РЅРёСЏ).
 					//
 					if(IsDraftOp(link_bill_rec.OpID)) {
 						PPObjOprKind op_obj;
@@ -165,14 +165,14 @@ int SLAPI PPObjBill::SearchByGuid(const S_GUID & rUuid, BillTbl::Rec * pRec)
 		PPID  _id = 0;
 		long  _n = 0;
 		//
-		// Следующий цикл решает параноидальную проблему существования нескольких документов с одинаковым UUID'ом
+		// РЎР»РµРґСѓСЋС‰РёР№ С†РёРєР» СЂРµС€Р°РµС‚ РїР°СЂР°РЅРѕРёРґР°Р»СЊРЅСѓСЋ РїСЂРѕР±Р»РµРјСѓ СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёСЏ РЅРµСЃРєРѕР»СЊРєРёС… РґРѕРєСѓРјРµРЅС‚РѕРІ СЃ РѕРґРёРЅР°РєРѕРІС‹Рј UUID'РѕРј
 		//
 		for(uint i = 0; i < id_list.getCount(); i++) {
 			BillTbl::Rec temp_rec;
 			const PPID temp_id = id_list.get(i);
 			if(Search(temp_id, &temp_rec) > 0) {
 				if(temp_rec.Dt > max_date || (temp_rec.Dt == max_date && temp_rec.BillNo > _n)) {
-					ok = max_date ? 2 : 1; // Найдено более одного документа - код возврата 2 сигнализирует о том.
+					ok = max_date ? 2 : 1; // РќР°Р№РґРµРЅРѕ Р±РѕР»РµРµ РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° - РєРѕРґ РІРѕР·РІСЂР°С‚Р° 2 СЃРёРіРЅР°Р»РёР·РёСЂСѓРµС‚ Рѕ С‚РѕРј.
 					_id = temp_id;
 					_rec = temp_rec;
 					max_date = temp_rec.Dt;
@@ -180,7 +180,7 @@ int SLAPI PPObjBill::SearchByGuid(const S_GUID & rUuid, BillTbl::Rec * pRec)
 				}
 			}
 			else if(!_id) {
-				ok = -2; // Сигнализирует о существовании висячей записи тега.
+				ok = -2; // РЎРёРіРЅР°Р»РёР·РёСЂСѓРµС‚ Рѕ СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРё РІРёСЃСЏС‡РµР№ Р·Р°РїРёСЃРё С‚РµРіР°.
 			}
 		}
 	}
@@ -236,7 +236,7 @@ SString & SLAPI PPObjBill::MakeCodeString(const BillTbl::Rec * pRec, int options
 	char   code[64];
 	SString name;
 	STRNSCPY(code, pRec->Code);
-	rBuf = 0;
+	rBuf.Z();
 	rBuf.Cat(pRec->Dt, DATF_DMY|DATF_CENTURY).CatDiv('-', 1).Cat(BillCore::GetCode(code));
 	if(options == 1 || options & mcsAddOpName) {
 		GetOpName(pRec->OpID, name = 0);
@@ -341,7 +341,7 @@ int SLAPI PPObjBill::IsPacketEq(const PPBillPacket & rS1, const PPBillPacket & r
 		eq = 0;
 	else if(!rS1.BTagL.IsEqual(rS2.BTagL))
 		eq = 0;
-	else if(rS1.LnkFiles.getCount()) // Увы, если есть хоть один прикрепленный файл, то придется признать документ изменившимся в любом случае. @todo Решить это проблему.
+	else if(rS1.LnkFiles.getCount()) // РЈРІС‹, РµСЃР»Рё РµСЃС‚СЊ С…РѕС‚СЊ РѕРґРёРЅ РїСЂРёРєСЂРµРїР»РµРЅРЅС‹Р№ С„Р°Р№Р», С‚Рѕ РїСЂРёРґРµС‚СЃСЏ РїСЂРёР·РЅР°С‚СЊ РґРѕРєСѓРјРµРЅС‚ РёР·РјРµРЅРёРІС€РёРјСЃСЏ РІ Р»СЋР±РѕРј СЃР»СѓС‡Р°Рµ. @todo Р РµС€РёС‚СЊ СЌС‚Рѕ РїСЂРѕР±Р»РµРјСѓ.
 		eq = 0;
 	if(eq) {
 		const uint c1 = rS1.Turns.getCount();
@@ -430,7 +430,7 @@ int SLAPI PPObjBill::ValidatePacket(const PPBillPacket * pPack, long flags)
 			THROW_SL(checkdate(pPack->Rec.Dt, 0));
 			THROW_SL(checkdate(pPack->Rec.DueDate, 1));
 		}
-		if(pPack->Rec.OpID) // Для теневого документа не проверяем период доступа
+		if(pPack->Rec.OpID) // Р”Р»СЏ С‚РµРЅРµРІРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РЅРµ РїСЂРѕРІРµСЂСЏРµРј РїРµСЂРёРѕРґ РґРѕСЃС‚СѓРїР°
 			THROW(ObjRts.CheckBillDate(pPack->Rec.Dt));
 		if(pPack->Rec.StatusID) {
 			PPObjBillStatus bs_obj;
@@ -598,7 +598,7 @@ int SLAPI PPObjBill::Edit(PPID * pID, void * extraPtr)
 		else if(State & BILLST_ACCBONLY)
 			ok = AddAccturn(pID, &ab);
 		else
-			ok = AddGoodsBill(pID, &ab); // @todo всегда вызывает ошибку - недопустимый вид операции
+			ok = AddGoodsBill(pID, &ab); // @todo РІСЃРµРіРґР° РІС‹Р·С‹РІР°РµС‚ РѕС€РёР±РєСѓ - РЅРµРґРѕРїСѓСЃС‚РёРјС‹Р№ РІРёРґ РѕРїРµСЂР°С†РёРё
 	}
 	else {
 		BillTbl::Rec bill_rec;
@@ -657,7 +657,7 @@ void SLAPI PPObjBill::DiagGoodsTurnError(const PPBillPacket * pPack)
 		PPOutputMessage(msg_buf, mfInfo | mfOK);
 	}
 	else if(pPack->ErrCause == PPBillPacket::err_on_advline && ln < (int)pPack->AdvList.GetCount()) {
-		// PPINF_BILLADVLINE     "Строка расширения документа @int. Вид: @zstr; сумма: @real; счет: @zstr"
+		// PPINF_BILLADVLINE     "РЎС‚СЂРѕРєР° СЂР°СЃС€РёСЂРµРЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р° @int. Р’РёРґ: @zstr; СЃСѓРјРјР°: @real; СЃС‡РµС‚: @zstr"
 		const PPAdvBillItem & r_item = pPack->AdvList.Get(ln);
 		SString advbillkind_buf, acc_buf;
 		GetObjectName(PPOBJ_ADVBILLKIND, r_item.AdvBillKindID, advbillkind_buf, 0);
@@ -674,7 +674,7 @@ void SLAPI PPObjBill::DiagGoodsTurnError(const PPBillPacket * pPack)
 	}
 }
 //
-// Конвертированный чек пригоден только для печати
+// РљРѕРЅРІРµСЂС‚РёСЂРѕРІР°РЅРЅС‹Р№ С‡РµРє РїСЂРёРіРѕРґРµРЅ С‚РѕР»СЊРєРѕ РґР»СЏ РїРµС‡Р°С‚Рё
 //
 int SLAPI PPBillPacket::ConvertToCheck(CCheckPacket * pCheckPack) const
 {
@@ -823,7 +823,7 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 							//p_pack = &link_pack;
 							const double amt = link_pack.GetAmount();
 							if(amt != 0.0) {
-								const double cc_req_amount = pack.GetAmount(); // Сумма платежа - сумма чека должна быть равна этому же значению
+								const double cc_req_amount = pack.GetAmount(); // РЎСѓРјРјР° РїР»Р°С‚РµР¶Р° - СЃСѓРјРјР° С‡РµРєР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СЂР°РІРЅР° СЌС‚РѕРјСѓ Р¶Рµ Р·РЅР°С‡РµРЅРёСЋ
 								const double mult = cc_req_amount / amt;
 								{
 									double cc_amount = 0.0;
@@ -1190,8 +1190,8 @@ int SLAPI PPObjBill::AddDraftByOrder(PPID * pBillID, PPID sampleBillID, const Se
 			pack.Ext.AgentID = sample_pack.Ext.AgentID;
 		STRNSCPY(pack.Rec.Memo, sample_pack.Rec.Memo);
 		{
-			pack.Rec.LinkBillID = sample_pack.Rec.ID; // Сохраняем привязку драфт-документа к документу заказа.
-				// По этой привязке при списании драфт-документа мы учтем исполнение заказа.
+			pack.Rec.LinkBillID = sample_pack.Rec.ID; // РЎРѕС…СЂР°РЅСЏРµРј РїСЂРёРІСЏР·РєСѓ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚Р° Рє РґРѕРєСѓРјРµРЅС‚Сѓ Р·Р°РєР°Р·Р°.
+				// РџРѕ СЌС‚РѕР№ РїСЂРёРІСЏР·РєРµ РїСЂРё СЃРїРёСЃР°РЅРёРё РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚Р° РјС‹ СѓС‡С‚РµРј РёСЃРїРѕР»РЅРµРЅРёРµ Р·Р°РєР°Р·Р°.
 			PPTransferItem * p_ti = 0;
 			for(uint i = 0; sample_pack.EnumTItems(&i, &p_ti);) {
 				double qtty = 0.0;
@@ -1242,10 +1242,10 @@ int SLAPI PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, 
 		}
 	if(op_type == PPOPT_GOODSMODIF || (op_type == PPOPT_GOODSRECEIPT && op_rec.AccSheetID == 0)) {
 		//
-		// Так как чаще всего при модификации товаров в
-		// образующихся лотах поставщиком выступает главная //
-		// организация, проверим наличие соответствующей
-		// статьи и, если отсутствует - создадим.
+		// РўР°Рє РєР°Рє С‡Р°С‰Рµ РІСЃРµРіРѕ РїСЂРё РјРѕРґРёС„РёРєР°С†РёРё С‚РѕРІР°СЂРѕРІ РІ
+		// РѕР±СЂР°Р·СѓСЋС‰РёС…СЃСЏ Р»РѕС‚Р°С… РїРѕСЃС‚Р°РІС‰РёРєРѕРј РІС‹СЃС‚СѓРїР°РµС‚ РіР»Р°РІРЅР°СЏ //
+		// РѕСЂРіР°РЅРёР·Р°С†РёСЏ, РїСЂРѕРІРµСЂРёРј РЅР°Р»РёС‡РёРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµР№
+		// СЃС‚Р°С‚СЊРё Рё, РµСЃР»Рё РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ - СЃРѕР·РґР°РґРёРј.
 		//
 		PPID   moas = 0;
 		THROW(ArObj.GetMainOrgAsSuppl(&moas, 1, 1));
@@ -1414,10 +1414,10 @@ int SLAPI PPObjBill::AddGoodsBill(PPID * pBillID, const AddBlock * pBlk)
 			DS.SetLocation(loc_id);
 			if(op_type == PPOPT_GOODSMODIF || (op_type == PPOPT_GOODSRECEIPT && op_rec.AccSheetID == 0)) {
 				//
-				// Так как чаще всего при модификации товаров в
-				// образующихся лотах поставщиком выступает главная //
-				// организация, проверим наличие соответствующей
-				// статьи и, если отсутствует - создадим.
+				// РўР°Рє РєР°Рє С‡Р°С‰Рµ РІСЃРµРіРѕ РїСЂРё РјРѕРґРёС„РёРєР°С†РёРё С‚РѕРІР°СЂРѕРІ РІ
+				// РѕР±СЂР°Р·СѓСЋС‰РёС…СЃСЏ Р»РѕС‚Р°С… РїРѕСЃС‚Р°РІС‰РёРєРѕРј РІС‹СЃС‚СѓРїР°РµС‚ РіР»Р°РІРЅР°СЏ //
+				// РѕСЂРіР°РЅРёР·Р°С†РёСЏ, РїСЂРѕРІРµСЂРёРј РЅР°Р»РёС‡РёРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµР№
+				// СЃС‚Р°С‚СЊРё Рё, РµСЃР»Рё РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ - СЃРѕР·РґР°РґРёРј.
 				//
 				PPID moas = 0;
 				THROW(ArObj.GetMainOrgAsSuppl(&moas, 1, 1));
@@ -1865,7 +1865,7 @@ int SLAPI PPObjBill::ReplyArticleReplace(PPID dest, PPID src)
 int SLAPI PPObjBill::ReplyArticleDel(PPID id)
 {
 	for(DateIter diter; P_Tbl->EnumByObj(id, &diter) > 0;)
-		if(P_Tbl->data.OpID) // В теневом док-те Object имеет спец. назначение
+		if(P_Tbl->data.OpID) // Р’ С‚РµРЅРµРІРѕРј РґРѕРє-С‚Рµ Object РёРјРµРµС‚ СЃРїРµС†. РЅР°Р·РЅР°С‡РµРЅРёРµ
 			return RetRefsExistsErr(Obj, P_Tbl->data.ID);
 	{
 		PPID   k = 0;
@@ -2142,9 +2142,9 @@ int SLAPI PPObjBill::SetStatus(PPID id, PPID statusID, int use_ta)
 	int    ok = -1, is_locked = 0;
 	LocTransfDisposer * p_disposer = 0;
 	if(id) {
-		int    set_noaturn_flag = -1; // 1 - установить флаг, 0 - снять флаг, -1 - оставить как есть.
-		int    set_nopaym_flag  = -1; // 1 - установить флаг, 0 - снять флаг, -1 - оставить как есть.
-		int    set_counter = -1;      // 1 - обновить номер документа в соответствии со счетчиком статуса
+		int    set_noaturn_flag = -1; // 1 - СѓСЃС‚Р°РЅРѕРІРёС‚СЊ С„Р»Р°Рі, 0 - СЃРЅСЏС‚СЊ С„Р»Р°Рі, -1 - РѕСЃС‚Р°РІРёС‚СЊ РєР°Рє РµСЃС‚СЊ.
+		int    set_nopaym_flag  = -1; // 1 - СѓСЃС‚Р°РЅРѕРІРёС‚СЊ С„Р»Р°Рі, 0 - СЃРЅСЏС‚СЊ С„Р»Р°Рі, -1 - РѕСЃС‚Р°РІРёС‚СЊ РєР°Рє РµСЃС‚СЊ.
+		int    set_counter = -1;      // 1 - РѕР±РЅРѕРІРёС‚СЊ РЅРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р° РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё СЃРѕ СЃС‡РµС‚С‡РёРєРѕРј СЃС‚Р°С‚СѓСЃР°
 		BillTbl::Rec rec;
 		PPObjBillStatus bs_obj;
 		PPBillStatus bs_rec, prev_bs_rec;
@@ -2188,17 +2188,17 @@ int SLAPI PPObjBill::SetStatus(PPID id, PPID statusID, int use_ta)
 						set_nopaym_flag = 1;
 				}
 				//
-				// Сверяем требование установки/снятия флага BILLF_NOATURN с тем, что установлено
-				// на текущий момент в документе.
+				// РЎРІРµСЂСЏРµРј С‚СЂРµР±РѕРІР°РЅРёРµ СѓСЃС‚Р°РЅРѕРІРєРё/СЃРЅСЏС‚РёСЏ С„Р»Р°РіР° BILLF_NOATURN СЃ С‚РµРј, С‡С‚Рѕ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ
+				// РЅР° С‚РµРєСѓС‰РёР№ РјРѕРјРµРЅС‚ РІ РґРѕРєСѓРјРµРЅС‚Рµ.
 				//
 				if(set_noaturn_flag > 0 && rec.Flags & BILLF_NOATURN)
-					set_noaturn_flag = -1; // Флаг уже и так установлен
+					set_noaturn_flag = -1; // Р¤Р»Р°Рі СѓР¶Рµ Рё С‚Р°Рє СѓСЃС‚Р°РЅРѕРІР»РµРЅ
 				else if(set_noaturn_flag == 0 && !(rec.Flags & BILLF_NOATURN))
-					set_noaturn_flag = -1; // Флаг уже и так снят
+					set_noaturn_flag = -1; // Р¤Р»Р°Рі СѓР¶Рµ Рё С‚Р°Рє СЃРЅСЏС‚
 				if(set_noaturn_flag >= 0) {
 					//
-					// Если требуется изменить флаг BILLF_NOATURN то придется перепровести
-					// документ поскольку изменение этого флага влечет удаление или проведение бух проводок
+					// Р•СЃР»Рё С‚СЂРµР±СѓРµС‚СЃСЏ РёР·РјРµРЅРёС‚СЊ С„Р»Р°Рі BILLF_NOATURN С‚Рѕ РїСЂРёРґРµС‚СЃСЏ РїРµСЂРµРїСЂРѕРІРµСЃС‚Рё
+					// РґРѕРєСѓРјРµРЅС‚ РїРѕСЃРєРѕР»СЊРєСѓ РёР·РјРµРЅРµРЅРёРµ СЌС‚РѕРіРѕ С„Р»Р°РіР° РІР»РµС‡РµС‚ СѓРґР°Р»РµРЅРёРµ РёР»Рё РїСЂРѕРІРµРґРµРЅРёРµ Р±СѓС… РїСЂРѕРІРѕРґРѕРє
 					//
 					PPBillPacket pack;
 					THROW(ExtractPacket(id, &pack) > 0);
@@ -2216,8 +2216,8 @@ int SLAPI PPObjBill::SetStatus(PPID id, PPID statusID, int use_ta)
 					rec.StatusID = statusID;
 					if(bs_rec.CheckFields) {
 						//
-						// Если новый статус требует проверки заполнения полей, то придется извлечь
-						// пакет документа полностью.
+						// Р•СЃР»Рё РЅРѕРІС‹Р№ СЃС‚Р°С‚СѓСЃ С‚СЂРµР±СѓРµС‚ РїСЂРѕРІРµСЂРєРё Р·Р°РїРѕР»РЅРµРЅРёСЏ РїРѕР»РµР№, С‚Рѕ РїСЂРёРґРµС‚СЃСЏ РёР·РІР»РµС‡СЊ
+						// РїР°РєРµС‚ РґРѕРєСѓРјРµРЅС‚Р° РїРѕР»РЅРѕСЃС‚СЊСЋ.
 						//
 						PPBillPacket pack;
 						THROW(ExtractPacket(id, &pack) > 0);
@@ -2254,9 +2254,9 @@ int SLAPI PPObjBill::SetStatus(PPID id, PPID statusID, int use_ta)
 int SLAPI PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID,
 	const ClbNumberList * pExclList, const char * pTempl, SString & rBuf)
 {
-	const  long sGR  = 0x00524740L; // "@GR" Код группы товаров
-	const  long sGS  = 0x00534740L; // "@GS" Штрихкод товара
-	const  long sBN  = 0x004E4240L; // "@BN" Номер документа
+	const  long sGR  = 0x00524740L; // "@GR" РљРѕРґ РіСЂСѓРїРїС‹ С‚РѕРІР°СЂРѕРІ
+	const  long sGS  = 0x00534740L; // "@GS" РЁС‚СЂРёС…РєРѕРґ С‚РѕРІР°СЂР°
+	const  long sBN  = 0x004E4240L; // "@BN" РќРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р°
 
 	int    ok = 1;
 	size_t x_len = 0, r_len = 0;
@@ -2269,7 +2269,7 @@ int SLAPI PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID,
 	const  char * p = 0;
 	Goods2Tbl::Rec goods_rec;
 
-	rBuf = 0;
+	rBuf.Z();
 
 	PPObjOpCounter opc_obj;
 	PPOpCounterPacket opc_pack;
@@ -2278,7 +2278,7 @@ int SLAPI PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID,
 		THROW(tra);
 		{
 			//
-			// Обратная совместимость с версиями, меньшими, чем @v5.0.0
+			// РћР±СЂР°С‚РЅР°СЏ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚СЊ СЃ РІРµСЂСЃРёСЏРјРё, РјРµРЅСЊС€РёРјРё, С‡РµРј @v5.0.0
 			//
 			if(Cfg.SnCntrID == 0) {
 				STRNSCPY(opc_pack.Head.CodeTemplate, Cfg.SnTemplt);
@@ -2299,7 +2299,7 @@ int SLAPI PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID,
 		if(*p) {
 			memzero(pfx, sizeof(pfx));
 			while(*p) {
-				if(isdigit(*p))
+				if(isdec(*p))
 					*c++ = *p++;
 				else if(strnicmp(p, (char*)&sGR, 3) == 0) {
 					if(GObj.Fetch(goodsID, &goods_rec) > 0) {
@@ -2321,7 +2321,7 @@ int SLAPI PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID,
 				}
 				else if(*p == '%') {
 					x_len = strlen(pfx);
-					for(++p, x = t; isdigit(*p);)
+					for(++p, x = t; isdec(*p);)
 						*x++ = *p++;
 					*x = 0;
 					r_len = atoi(t);
@@ -2412,8 +2412,8 @@ int SLAPI PPObjBill::GetLabelLotInfo(PPID lotID, RetailGoodsInfo * pData)
 		GetSerialNumberByLot(lotID, temp_buf, 0);
 		temp_buf.CopyTo(rgi.Serial, sizeof(rgi.Serial));
 		//
-		// Цены поступления и реализации должны в данной ситуации безусловно
-		// браться из строки (если, конечно, они в ней определены).
+		// Р¦РµРЅС‹ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ Рё СЂРµР°Р»РёР·Р°С†РёРё РґРѕР»Р¶РЅС‹ РІ РґР°РЅРЅРѕР№ СЃРёС‚СѓР°С†РёРё Р±РµР·СѓСЃР»РѕРІРЅРѕ
+		// Р±СЂР°С‚СЊСЃСЏ РёР· СЃС‚СЂРѕРєРё (РµСЃР»Рё, РєРѕРЅРµС‡РЅРѕ, РѕРЅРё РІ РЅРµР№ РѕРїСЂРµРґРµР»РµРЅС‹).
 		//
 		rgi.LineCost = lot_rec.Cost;
 		rgi.LinePrice = lot_rec.Price;
@@ -2527,8 +2527,8 @@ struct __PPBillConfig {    // @persistent @store(PropertyTbl)
 	PPID   ClCodeRegTypeID;  //
 	long   Flags;          //
 	PPID   CashNodeID;     //
-	PPID   InitStatusID;   // Статус, присваиваемый новым документам
-	int16  GoodsSubstMethod; // Способ подстановки товара вместо дефицитного
+	PPID   InitStatusID;   // РЎС‚Р°С‚СѓСЃ, РїСЂРёСЃРІР°РёРІР°РµРјС‹Р№ РЅРѕРІС‹Рј РґРѕРєСѓРјРµРЅС‚Р°Рј
+	int16  GoodsSubstMethod; // РЎРїРѕСЃРѕР± РїРѕРґСЃС‚Р°РЅРѕРІРєРё С‚РѕРІР°СЂР° РІРјРµСЃС‚Рѕ РґРµС„РёС†РёС‚РЅРѕРіРѕ
 	PPID   LnkFilesCntrID; //
 	LDATE  SwitchedTDisCalcMethodDate; //
 	uint8  TDisCalcMethod; //
@@ -2538,11 +2538,11 @@ struct __PPBillConfig {    // @persistent @store(PropertyTbl)
 	char   SnTemplt[16];   // @obsolete since @v5.0.0
 	char   InvSnTemplt[16];  //
 
-	int16  ValuationRndDir;    // Направление округления при расценке
+	int16  ValuationRndDir;    // РќР°РїСЂР°РІР»РµРЅРёРµ РѕРєСЂСѓРіР»РµРЅРёСЏ РїСЂРё СЂР°СЃС†РµРЅРєРµ
 	int16  Reserve;            // @reserve
-	PPID   ValuationQuotKindID; // ->Ref(PPOBJ_QUOTKIND) Вид котировки для расценки приходных документов
-	float  ValuationRndPrec;   // Точность округления при расценке
-	char   UniqSerialSfx[16];  // Сигнатура суффикса, присоединяемого к серийному номеру для обеспечения его уникальности.
+	PPID   ValuationQuotKindID; // ->Ref(PPOBJ_QUOTKIND) Р’РёРґ РєРѕС‚РёСЂРѕРІРєРё РґР»СЏ СЂР°СЃС†РµРЅРєРё РїСЂРёС…РѕРґРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
+	float  ValuationRndPrec;   // РўРѕС‡РЅРѕСЃС‚СЊ РѕРєСЂСѓРіР»РµРЅРёСЏ РїСЂРё СЂР°СЃС†РµРЅРєРµ
+	char   UniqSerialSfx[16];  // РЎРёРіРЅР°С‚СѓСЂР° СЃСѓС„С„РёРєСЃР°, РїСЂРёСЃРѕРµРґРёРЅСЏРµРјРѕРіРѕ Рє СЃРµСЂРёР№РЅРѕРјСѓ РЅРѕРјРµСЂСѓ РґР»СЏ РѕР±РµСЃРїРµС‡РµРЅРёСЏ РµРіРѕ СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚Рё.
 	//
 	SVerT Ver;                // @anchor
 	PPID   ContractRegTypeID;  // @v8.4.0
@@ -2568,14 +2568,14 @@ int SLAPI PPObjBill::ReadConfig(PPBillConfig * pCfg)
 		MEMSZERO(temp);
 		if(sz <= fix_size) {
 			ok = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_BILLCFG, &temp, sz);
-			assert(ok > 0); // Раз нам удалось считать размер буфера, то последующая ошибка чтения - критична
+			assert(ok > 0); // Р Р°Р· РЅР°Рј СѓРґР°Р»РѕСЃСЊ СЃС‡РёС‚Р°С‚СЊ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°, С‚Рѕ РїРѕСЃР»РµРґСѓСЋС‰Р°СЏ РѕС€РёР±РєР° С‡С‚РµРЅРёСЏ - РєСЂРёС‚РёС‡РЅР°
 			THROW(ok > 0);
 			p_temp = &temp;
 		}
 		else {
 			THROW_SL(temp_buf.Alloc(sz));
 			ok = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_BILLCFG, (char *)temp_buf, sz);
-			assert(ok > 0); // Раз нам удалось считать размер буфера, то последующая ошибка чтения - критична
+			assert(ok > 0); // Р Р°Р· РЅР°Рј СѓРґР°Р»РѕСЃСЊ СЃС‡РёС‚Р°С‚СЊ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°, С‚Рѕ РїРѕСЃР»РµРґСѓСЋС‰Р°СЏ РѕС€РёР±РєР° С‡С‚РµРЅРёСЏ - РєСЂРёС‚РёС‡РЅР°
 			THROW(ok > 0);
 			p_temp = (__PPBillConfig *)(const char *)temp_buf;
 		}
@@ -2767,7 +2767,7 @@ static int SLAPI EditBillCfgValuationParam(PPBillConfig * pData)
 			return 1;
 		}
 		enum {
-			_fStrict     = 0x0001, // Параметры расценки устанавливать только по конфигурации //
+			_fStrict     = 0x0001, // РџР°СЂР°РјРµС‚СЂС‹ СЂР°СЃС†РµРЅРєРё СѓСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ С‚РѕР»СЊРєРѕ РїРѕ РєРѕРЅС„РёРіСѓСЂР°С†РёРё //
 			_fByContract = 0x0002
 		};
 		long   _Flags;
@@ -2903,8 +2903,8 @@ int SLAPI PPObjBill::EditConfig()
 	BillConfigDialog * dlg = 0;
 	THROW(CheckCfgRights(PPCFGOBJ_BILL, PPR_READ, 0));
 	THROW(ReadConfig(&cfg));
-	if(!opc_obj.GetPacket(cfg.SnCntrID, &sn_cntr)) // THROW не используем чтобы не заблокировать
-		PPError();                                 // доступ ко всей конфигурации только из-за счетчика
+	if(!opc_obj.GetPacket(cfg.SnCntrID, &sn_cntr)) // THROW РЅРµ РёСЃРїРѕР»СЊР·СѓРµРј С‡С‚РѕР±С‹ РЅРµ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°С‚СЊ
+		PPError();                                 // РґРѕСЃС‚СѓРї РєРѕ РІСЃРµР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё С‚РѕР»СЊРєРѕ РёР·-Р·Р° СЃС‡РµС‚С‡РёРєР°
 	if(sn_cntr.Head.ID == 0) {
 		STRNSCPY(sn_cntr.Head.CodeTemplate, cfg.SnTemplt);
 		sn_cntr.Head.Counter = cfg.SnrCounter;
@@ -3216,8 +3216,8 @@ int SLAPI PPObjBill::CalcDraftTransitRest(PPID restOpID, PPID orderOpID, PPID go
 				}
 				else if(p_entry->OpID == restOpID) {
 					//
-					// Последний документ с остатками считается последней фиксацией ВСЕх остатков по складу.
-					// Следовательно, мы сразу покидаем цикл (заказы, принятые до записи с остатками не учитываем ???).
+					// РџРѕСЃР»РµРґРЅРёР№ РґРѕРєСѓРјРµРЅС‚ СЃ РѕСЃС‚Р°С‚РєР°РјРё СЃС‡РёС‚Р°РµС‚СЃСЏ РїРѕСЃР»РµРґРЅРµР№ С„РёРєСЃР°С†РёРµР№ Р’РЎР•С… РѕСЃС‚Р°С‚РєРѕРІ РїРѕ СЃРєР»Р°РґСѓ.
+					// РЎР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ, РјС‹ СЃСЂР°Р·Сѓ РїРѕРєРёРґР°РµРј С†РёРєР» (Р·Р°РєР°Р·С‹, РїСЂРёРЅСЏС‚С‹Рµ РґРѕ Р·Р°РїРёСЃРё СЃ РѕСЃС‚Р°С‚РєР°РјРё РЅРµ СѓС‡РёС‚С‹РІР°РµРј ???).
 					//
 					rest += p_entry->Qtty;
 					dt = p_entry->Dt;
@@ -3343,14 +3343,14 @@ int SLAPI PPObjBill::Helper_PutBillToMrpTab(PPID billID, MrpTabPacket * pMrpPack
 							const double req_qtty = fabs(src_ti.Quantity_);
 							const double req_price = src_ti.NetPrice() * req_qtty;
 							THROW(mrp_obj.AddIndep(pMrpPack, mrp_tab_id, src_ti.GoodsID, req_qtty, req_price, 0/*IgnoreRest*/));
-							// Инициализация приходов на склад-приемник
+							// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїСЂРёС…РѕРґРѕРІ РЅР° СЃРєР»Р°Рґ-РїСЂРёРµРјРЅРёРє
 							if(intr_tab_id)
 								THROW(mrp_obj.AddIndep(pMrpPack, intr_tab_id, src_ti.GoodsID, -req_qtty, -req_price, 0/*IgnoreRest*/));
 						}
 						ok = 1;
 					}
 					else if(wroff_op_type_id == PPOPT_GOODSMODIF) {
-						; // Не обрабатывается //
+						; // РќРµ РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ //
 					}
 					break;
 				case PPOPT_DRAFTRECEIPT:
@@ -3408,7 +3408,7 @@ int SLAPI PPObjBill::CreateMrpTab(const PPIDArray * pList, MrpTabPacket * pMrpPa
 				if(Search(bill_id, &bill_rec) > 0) {
 					const PPID op_type_id = GetOpType(bill_rec.OpID);
 					const int  is_draft = IsDraftOp(bill_rec.OpID);
-					PPWaitPercent(cntr.Increment(), GetNamePtr()); // @! GetNamePtr вызывается сразу после Search
+					PPWaitPercent(cntr.Increment(), GetNamePtr()); // @! GetNamePtr РІС‹Р·С‹РІР°РµС‚СЃСЏ СЃСЂР°Р·Сѓ РїРѕСЃР»Рµ Search
 					if(op_type_id == PPOPT_GOODSORDER || (is_draft && !(bill_rec.Flags & BILLF_WRITEDOFF))) {
 						PPOprKindPacket op_pack;
 						THROW(P_OpObj->GetPacket(bill_rec.OpID, &op_pack) > 0);
@@ -3459,7 +3459,7 @@ int SLAPI PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 		Goods2Tbl::Rec goods_rec;
 		if(GObj.Fetch(lot_rec.GoodsID, &goods_rec) > 0 && goods_rec.Flags & GF_ASSETS) {
 			//
-			// Расчет поправки на НДС {
+			// Р Р°СЃС‡РµС‚ РїРѕРїСЂР°РІРєРё РЅР° РќР”РЎ {
 			//
 			double tax_factor = 1.0;
 			PPID   tax_grp_id = lot_rec.InTaxGrpID ? lot_rec.InTaxGrpID : goods_rec.TaxGrpID;
@@ -3471,7 +3471,7 @@ int SLAPI PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 			// }
 			pCard->LotID = lotID;
 			//
-			// Определяем балансовый счет основных средств
+			// РћРїСЂРµРґРµР»СЏРµРј Р±Р°Р»Р°РЅСЃРѕРІС‹Р№ СЃС‡РµС‚ РѕСЃРЅРѕРІРЅС‹С… СЃСЂРµРґСЃС‚РІ
 			//
 			AcctID accid;
 			PPID   acc_sheet_id = 0;
@@ -3537,7 +3537,7 @@ int SLAPI PPObjBill::Helper_GetShipmentByLot(PPID lotID, const DateRange * pPeri
 	double shipment = 0.0;
 	TransferTbl::Rec rec, mirror_rec;
 	if(pRecurTrace && pRecurTrace->addUnique(lotID) < 0)
-		ok = -1; // Засекли рекурсию
+		ok = -1; // Р—Р°СЃРµРєР»Рё СЂРµРєСѓСЂСЃРёСЋ
 	else {
 		for(DateIter di; trfr->EnumByLot(lotID, &di, &rec) > 0;) {
 			BillTbl::Rec bill_rec;
@@ -3664,24 +3664,24 @@ int SLAPI PPObjBill::SetupImportedPrice(const PPBillPacket * pPack, PPTransferIt
 	if(pTi->Price <= 0.0) {
 		if(oneof2(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
 			//
-			// Для приходных документов пытаемся назначить цену реализации
-			// при помощи механизма расценки
+			// Р”Р»СЏ РїСЂРёС…РѕРґРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ РїС‹С‚Р°РµРјСЃСЏ РЅР°Р·РЅР°С‡РёС‚СЊ С†РµРЅСѓ СЂРµР°Р»РёР·Р°С†РёРё
+			// РїСЂРё РїРѕРјРѕС‰Рё РјРµС…Р°РЅРёР·РјР° СЂР°СЃС†РµРЅРєРё
 			//
 			if(CheckOpFlags(pPack->Rec.OpID, OPKF_NEEDVALUATION) && pTi->Valuation(GetConfig(), 0, 0) > 0)
 				result = 3;
 		}
 		if(pTi->Price < 0.0 || (!(flags & sipfAllowZeroPrice) && pTi->Price == 0.0)) {
 			//
-			// Если цена реализации (даже после попытки расценки) не определена,
-			// то используем правило последнего лота.
+			// Р•СЃР»Рё С†РµРЅР° СЂРµР°Р»РёР·Р°С†РёРё (РґР°Р¶Рµ РїРѕСЃР»Рµ РїРѕРїС‹С‚РєРё СЂР°СЃС†РµРЅРєРё) РЅРµ РѕРїСЂРµРґРµР»РµРЅР°,
+			// С‚Рѕ РёСЃРїРѕР»СЊР·СѓРµРј РїСЂР°РІРёР»Рѕ РїРѕСЃР»РµРґРЅРµРіРѕ Р»РѕС‚Р°.
 			//
 			THROW(GetCurGoodsPrice(pTi->GoodsID, pPack->Rec.LocID, GPRET_MOSTRECENT, &pTi->Price, 0));
 			if(pTi->Price > 0.0)
 				result = 1;
 			else {
 				//
-				// Наконец, если ничего не помогло для определения цены реализации,
-				// то приравниваем ее цене поступления.
+				// РќР°РєРѕРЅРµС†, РµСЃР»Рё РЅРёС‡РµРіРѕ РЅРµ РїРѕРјРѕРіР»Рѕ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ С†РµРЅС‹ СЂРµР°Р»РёР·Р°С†РёРё,
+				// С‚Рѕ РїСЂРёСЂР°РІРЅРёРІР°РµРј РµРµ С†РµРЅРµ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ.
 				//
 				pTi->Price = pTi->Cost;
 				result = 2;
@@ -3866,9 +3866,9 @@ int PPObjBill::AutoCalcPrices(PPBillPacket * pPack, int interactive, int * pIsMo
 						// @v9.5.5 GetGoodsName(p_item->GoodsID, sub);
 						goods_obj.FetchNameR(p_item->GoodsID, sub); // @v9.5.5
 						ss.add(sub);
-						ss.add((sub = 0).Cat(old_price, SFMT_MONEY));
-						ss.add((sub = 0).Cat(new_price, SFMT_MONEY));
-						ss.add((sub = 0).Cat(diff,      SFMT_MONEY));
+						ss.add(sub.Z().Cat(old_price, SFMT_MONEY));
+						ss.add(sub.Z().Cat(new_price, SFMT_MONEY));
+						ss.add(sub.Z().Cat(diff,      SFMT_MONEY));
 						THROW(addStringToList(i, ss.getBuf()));
 					}
 				}
@@ -3907,7 +3907,7 @@ int PPObjBill::AutoCalcPrices(PPBillPacket * pPack, int interactive, int * pIsMo
 	if(r > 0 || (interactive && AutoCalcSelectQuot(this, &param) > 0)) {
 		if(r < 0) {
 			//
-			// В "строгом" режиме расценки не сохраняем опции, посколько их никто не уставливал в ручную
+			// Р’ "СЃС‚СЂРѕРіРѕРј" СЂРµР¶РёРјРµ СЂР°СЃС†РµРЅРєРё РЅРµ СЃРѕС…СЂР°РЅСЏРµРј РѕРїС†РёРё, РїРѕСЃРєРѕР»СЊРєРѕ РёС… РЅРёРєС‚Рѕ РЅРµ СѓСЃС‚Р°РІР»РёРІР°Р» РІ СЂСѓС‡РЅСѓСЋ
 			//
 			param.Save();
 		}
@@ -4010,7 +4010,7 @@ int SLAPI PPObjBill::SelectQuotKind(PPBillPacket * pPack, const PPTransferItem *
 		const  PPID loc_id = IsIntrExpndOp(pPack->Rec.OpID) ? PPObjLocation::ObjToWarehouse(pPack->Rec.Object) : pPack->Rec.LocID;
 		Goods2Tbl::Rec g_rec;
 		PPQuotArray q_ary, parent_q_ary;
-		THROW(GObj.GetQuotList(goods_id, 0, q_ary)); // если список пустой, то извлекаем котировки для группы
+		THROW(GObj.GetQuotList(goods_id, 0, q_ary)); // РµСЃР»Рё СЃРїРёСЃРѕРє РїСѓСЃС‚РѕР№, С‚Рѕ РёР·РІР»РµРєР°РµРј РєРѕС‚РёСЂРѕРІРєРё РґР»СЏ РіСЂСѓРїРїС‹
 		if(GObj.Fetch(goods_id, &g_rec) > 0)
 			THROW(GObj.GetQuotList(g_rec.ParentID, 0, parent_q_ary));
 		if(pTi->LotID && !(pTi->Flags & PPTFR_RECEIPT)) {
@@ -4047,7 +4047,7 @@ int SLAPI PPObjBill::SelectQuotKind(PPBillPacket * pPack, const PPTransferItem *
 			else if(qks_list.getCount() == 0)
 				qk_id = 0;
 			else {
-				PPID   agt_qk_id = 0; // Вид котировки, определенный соглашением
+				PPID   agt_qk_id = 0; // Р’РёРґ РєРѕС‚РёСЂРѕРІРєРё, РѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ СЃРѕРіР»Р°С€РµРЅРёРµРј
 				if(pPack->AgtQuotKindID && qks_list.lsearch(&pPack->AgtQuotKindID, 0, CMPF_LONG, offsetof(QuotKindSelItem, ID))) {
 					if(interactive && GetConfig().Flags & BCF_OVRRDAGTQUOT)
 						agt_qk_id = pPack->AgtQuotKindID;
@@ -4066,7 +4066,7 @@ int SLAPI PPObjBill::SelectQuotKind(PPBillPacket * pPack, const PPTransferItem *
 						for(i = 0; qks_list.enumItems(&i, (void **)&p_item);) {
 							ss.clear(1);
 							ss.add(p_item->Name);
-							ss.add((sub = 0).Cat(p_item->Price, SFMT_MONEY));
+							ss.add(sub.Z().Cat(p_item->Price, SFMT_MONEY));
 							p_lbx->addItem(p_item->ID, ss.getBuf());
 						}
 						if(agt_qk_id)
@@ -4131,8 +4131,8 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 		if(p_qbo_ary->getCount() > 0) {
 			for(uint i = 0; is_quot == 0 && pPack->EnumTItems(&i, &p_ti);) {
 				//
-				// Проверяем, чтобы хотя бы для одного товара из документа существовала
-				// возможность установки цены по любой котировке из списка p_qbo_ary
+				// РџСЂРѕРІРµСЂСЏРµРј, С‡С‚РѕР±С‹ С…РѕС‚СЏ Р±С‹ РґР»СЏ РѕРґРЅРѕРіРѕ С‚РѕРІР°СЂР° РёР· РґРѕРєСѓРјРµРЅС‚Р° СЃСѓС‰РµСЃС‚РІРѕРІР°Р»Р°
+				// РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ СѓСЃС‚Р°РЅРѕРІРєРё С†РµРЅС‹ РїРѕ Р»СЋР±РѕР№ РєРѕС‚РёСЂРѕРІРєРµ РёР· СЃРїРёСЃРєР° p_qbo_ary
 				//
 				for(uint c = 0; !is_quot && c < p_qbo_ary->getCount(); c++) {
 					const PPID qk_id = ((PPObjQuotKind::ListEntry *)p_qbo_ary->at(c))->ID;
@@ -4185,8 +4185,8 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 					if(GObj.GetQuotExt(p_ti->GoodsID, qi, p_ti->Cost, p_ti->Price, &quot, 1) > 0) {
 						// @v9.2.7 {
 						//
-						// Специальный случай - для отгрузки, привязанной к заказу, принятому из некоторых
-						// систем, требуется поправлять конечную цену на величину процентной скидки из заказа
+						// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№ - РґР»СЏ РѕС‚РіСЂСѓР·РєРё, РїСЂРёРІСЏР·Р°РЅРЅРѕР№ Рє Р·Р°РєР°Р·Сѓ, РїСЂРёРЅСЏС‚РѕРјСѓ РёР· РЅРµРєРѕС‚РѕСЂС‹С…
+						// СЃРёСЃС‚РµРј, С‚СЂРµР±СѓРµС‚СЃСЏ РїРѕРїСЂР°РІР»СЏС‚СЊ РєРѕРЅРµС‡РЅСѓСЋ С†РµРЅСѓ РЅР° РІРµР»РёС‡РёРЅСѓ РїСЂРѕС†РµРЅС‚РЅРѕР№ СЃРєРёРґРєРё РёР· Р·Р°РєР°Р·Р°
 						//
 						TransferTbl::Rec ord_item;
 						double ord_pct_dis = 0.0;
@@ -4443,15 +4443,15 @@ private:
 	};
 	//
 	BillCache_ExtText_Block EmBlk;
-	ReadWriteLock CrbLock; // Блокировка списка CrBillList
-	ReadWriteLock FslLock; // Блокировка полного списка серийных номеров лотов
+	ReadWriteLock CrbLock; // Р‘Р»РѕРєРёСЂРѕРІРєР° СЃРїРёСЃРєР° CrBillList
+	ReadWriteLock FslLock; // Р‘Р»РѕРєРёСЂРѕРІРєР° РїРѕР»РЅРѕРіРѕ СЃРїРёСЃРєР° СЃРµСЂРёР№РЅС‹С… РЅРѕРјРµСЂРѕРІ Р»РѕС‚РѕРІ
 	BillExtCache ExtCache;
 	BillFreightCache FreightCache;
 	TSCollection <CrBillEntry> CrBillList;
 	FslArray FullSerialList;
 
 	PPProjectConfig PrjCfg;   // @v8.0.2
-	ReadWriteLock PrjCfgLock; // @v8.0.2 Блокировка конфигурации проектов
+	ReadWriteLock PrjCfgLock; // @v8.0.2 Р‘Р»РѕРєРёСЂРѕРІРєР° РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїСЂРѕРµРєС‚РѕРІ
 };
 
 int SLAPI BillCache::Dirty(PPID id)
@@ -4576,8 +4576,8 @@ int SLAPI BillCache::SetCrBillEntry(long tempID, PPBillPacket * pPack)
 }
 //
 // @v8.0.2 {
-// Три метода управляения кэшированием конфигурации проектов. В сязи с тем, что PPObjProject не
-// имеет собственного класса кэша, (надеюсь) временно хранением конфигурации проектов будет заниматься класс BillCache.
+// РўСЂРё РјРµС‚РѕРґР° СѓРїСЂР°РІР»СЏРµРЅРёСЏ РєСЌС€РёСЂРѕРІР°РЅРёРµРј РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїСЂРѕРµРєС‚РѕРІ. Р’ СЃСЏР·Рё СЃ С‚РµРј, С‡С‚Рѕ PPObjProject РЅРµ
+// РёРјРµРµС‚ СЃРѕР±СЃС‚РІРµРЅРЅРѕРіРѕ РєР»Р°СЃСЃР° РєСЌС€Р°, (РЅР°РґРµСЋСЃСЊ) РІСЂРµРјРµРЅРЅРѕ С…СЂР°РЅРµРЅРёРµРј РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїСЂРѕРµРєС‚РѕРІ Р±СѓРґРµС‚ Р·Р°РЅРёРјР°С‚СЊСЃСЏ РєР»Р°СЃСЃ BillCache.
 //
 int SLAPI BillCache::GetPrjConfig(PPProjectConfig * pCfg, int enforce)
 {
@@ -5055,7 +5055,7 @@ int SLAPI PPObjBill::GetSubstText(PPID srcID, SubstParam * pParam, SString & rBu
 	int    ok = 1;
 	long   val = srcID;
 	int    ar = 0;
-	rBuf = 0;
+	rBuf.Z();
 	switch(pParam->Sgb.S) {
 		case SubstGrpBill::sgbNone: break;
 		case SubstGrpBill::sgbObject:
@@ -5220,7 +5220,7 @@ int SLAPI PPObjBill::Helper_GetPayoutPartOfLot(PPID lotID, PplBlock & rBlk, doub
 		PPID   org_lot_id = 0;
 		ReceiptTbl::Rec org_lot_rec;
 		if(trfr->Rcpt.SearchOrigin(lotID, &org_lot_id, 0, &org_lot_rec) > 0) {
-			const int non_org = BIN(org_lot_id != lotID); // Признак того, что лот не является оригинальным (порожден от другого).
+			const int non_org = BIN(org_lot_id != lotID); // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ Р»РѕС‚ РЅРµ СЏРІР»СЏРµС‚СЃСЏ РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Рј (РїРѕСЂРѕР¶РґРµРЅ РѕС‚ РґСЂСѓРіРѕРіРѕ).
 			double tp = 0.0;
 			if(rBlk.OrgPartList.Search(org_lot_id, &tp, 0)) {
 				rBlk.Part = tp;
@@ -5274,8 +5274,8 @@ int SLAPI PPObjBill::Helper_GetPayoutPartOfLot(PPID lotID, PplBlock & rBlk, doub
 							}
 						}
 						else {
-							// @v7.3.0 @debug Проверка влияния ошибки на результат rBlk.AddPaym(exp_rec); // @v7.2.10 paym_rec-->exp_rec (defect)
-							// @v9.0.6 rBlk.AddPaym(paym_rec); // @v7.3.0 @debug Проверка влияния ошибки на результат
+							// @v7.3.0 @debug РџСЂРѕРІРµСЂРєР° РІР»РёСЏРЅРёСЏ РѕС€РёР±РєРё РЅР° СЂРµР·СѓР»СЊС‚Р°С‚ rBlk.AddPaym(exp_rec); // @v7.2.10 paym_rec-->exp_rec (defect)
+							// @v9.0.6 rBlk.AddPaym(paym_rec); // @v7.3.0 @debug РџСЂРѕРІРµСЂРєР° РІР»РёСЏРЅРёСЏ РѕС€РёР±РєРё РЅР° СЂРµР·СѓР»СЊС‚Р°С‚
 							// @v9.0.6 {
 							MEMSZERO(paym_rec);
 							paym_rec.OpID = exp_rec.OpID;
@@ -5308,7 +5308,7 @@ int SLAPI PPObjBill::Helper_GetExpendedPartOfReceipt(PPID lotID, const DateIter 
 	rRecurList.add(lotID);
 	while(trfr->EnumByLot(lotID, &di, &rec) > 0) {
 		if(rec.Flags & PPTFR_RECEIPT && rec.LotID == lotID) {
-			// Строку собственно прихода пропускаем, но фиксируем ИД документа для специального учета возвратов
+			// РЎС‚СЂРѕРєСѓ СЃРѕР±СЃС‚РІРµРЅРЅРѕ РїСЂРёС…РѕРґР° РїСЂРѕРїСѓСЃРєР°РµРј, РЅРѕ С„РёРєСЃРёСЂСѓРµРј РР” РґРѕРєСѓРјРµРЅС‚Р° РґР»СЏ СЃРїРµС†РёР°Р»СЊРЅРѕРіРѕ СѓС‡РµС‚Р° РІРѕР·РІСЂР°С‚РѕРІ
 			org_bill_id = rec.BillID;
 		}
 		else {
@@ -5317,7 +5317,7 @@ int SLAPI PPObjBill::Helper_GetExpendedPartOfReceipt(PPID lotID, const DateIter 
 					if(trfr->SearchMirror(rec.Dt, rec.OprNo, &rec) > 0 && rec.Flags & PPTFR_RECEIPT) {
 						if(rRecurList.lsearch(rec.LotID)) {
 							SString added_msg_buf;
-							//PPERR_LOTERR_RECURINTROP "Обнаружена рекурсивная петля во внутренних перемещениях Transfer: %s"
+							//PPERR_LOTERR_RECURINTROP "РћР±РЅР°СЂСѓР¶РµРЅР° СЂРµРєСѓСЂСЃРёРІРЅР°СЏ РїРµС‚Р»СЏ РІРѕ РІРЅСѓС‚СЂРµРЅРЅРёС… РїРµСЂРµРјРµС‰РµРЅРёСЏС… Transfer: %s"
 							(added_msg_buf = 0).CatEq("LotID", rec.LotID).CatDiv(';', 2).CatEq("Date", rec.Dt).CatDiv(';', 2).CatEq("OprNo", rec.OprNo);
 							PPSetError(PPERR_LOTERR_RECURINTROP, added_msg_buf);
 							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
@@ -5335,7 +5335,7 @@ int SLAPI PPObjBill::Helper_GetExpendedPartOfReceipt(PPID lotID, const DateIter 
 						double cost = rec.Cost;
 						double qtty = (PPTransferItem::GetSign(bill_rec.OpID, rec.Flags) >= 0) ? -fabs(rec.Quantity) : +fabs(rec.Quantity);
 						/* @construction if(GetOpType(bill_rec.OpID) == PPOPT_GOODSRETURN && bill_rec.LinkBillID == org_bill_id) {
-							// Возвраты поставщику убираем как будто и не было товара.
+							// Р’РѕР·РІСЂР°С‚С‹ РїРѕСЃС‚Р°РІС‰РёРєСѓ СѓР±РёСЂР°РµРј РєР°Рє Р±СѓРґС‚Рѕ Рё РЅРµ Р±С‹Р»Рѕ С‚РѕРІР°СЂР°.
 							rBlk.Amount -= (cost * qtty);
 						}
 						else @construction */ {
@@ -5417,7 +5417,7 @@ int SLAPI PPObjBill::GetTagListByLot(PPID lotID, int skipReserveTags, ObjTagList
 int SLAPI PPObjBill::GetClbNumberByLot(PPID lotID, int * pIsParentLot, SString & rBuf)
 {
 	int    ok = -1, is_parent_lot = 0;
-	rBuf = 0;
+	rBuf.Z();
 	if(lotID) {
 		ObjTagItem oti;
 		PPIDArray lot_id_list;
@@ -5444,7 +5444,7 @@ int SLAPI PPObjBill::GetClbNumberByLot(PPID lotID, int * pIsParentLot, SString &
 int SLAPI PPObjBill::GetSerialNumberByLot(PPID lotID, SString & rBuf, int useCache)
 {
 	int    ok = -1;
-	rBuf = 0;
+	rBuf.Z();
 	if(lotID) {
 		ObjTagItem oti;
 		if(useCache) {
@@ -5544,7 +5544,7 @@ int SLAPI PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 						GetTagListByLot(p_ti->LotID, 1, &tag_list);
 						pPack->LTagL.Set(row_idx, tag_list.GetCount() ? &tag_list : 0);
 					}
-					/* @v9.5.5 if(!is_intrexpnd) */ { // @v9.5.5 Уже не вспомнить зачем это ограничение вводилось
+					/* @v9.5.5 if(!is_intrexpnd) */ { // @v9.5.5 РЈР¶Рµ РЅРµ РІСЃРїРѕРјРЅРёС‚СЊ Р·Р°С‡РµРј СЌС‚Рѕ РѕРіСЂР°РЅРёС‡РµРЅРёРµ РІРІРѕРґРёР»РѕСЃСЊ
 						GetClbNumberByLot(p_ti->LotID, 0, b);
 						THROW(pPack->ClbL.AddNumber(row_idx, b));
 					}
@@ -5762,7 +5762,7 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 					THROW(SetSerialNumberByLot(p_ti->LotID, p_clb, 0));
 				}
 				//
-				// Сохраняем серийные номера и пользовательские теги для порожденных лотов
+				// РЎРѕС…СЂР°РЅСЏРµРј СЃРµСЂРёР№РЅС‹Рµ РЅРѕРјРµСЂР° Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёРµ С‚РµРіРё РґР»СЏ РїРѕСЂРѕР¶РґРµРЅРЅС‹С… Р»РѕС‚РѕРІ
 				//
 				else if(is_intrexpnd) {
 					if(trfr->SearchByBill(p_ti->BillID, 1, p_ti->RByBill, 0) > 0) {
@@ -5806,7 +5806,7 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 												ObjLinkFiles _lf_dest(PPOBJ_TAG);
 												_lf_dest.SetMode_IgnoreCheckStorageDir(1);
 												_lf_dest.Replace(0, img_path);
-												_lf_dest.SaveSingle(p_item->TagID, (temp_buf = 0).Cat(mirror_lot_id), 0, &fname);
+												_lf_dest.SaveSingle(p_item->TagID, temp_buf.Z().Cat(mirror_lot_id), 0, &fname);
 												tag_item.SetStr(p_item->TagID, fname);
 												mirror_tag_list.PutItem(tag_item.TagID, &tag_item);
 											}
@@ -5903,7 +5903,7 @@ int SLAPI PPObjBill::ProcessLink(BillTbl::Rec * pRec, PPID paymLinkID, const Bil
 			const int org_lock_paym = BIN(!pOrgRec || (pOrgRec->StatusID && CheckStatusFlag(pOrgRec->StatusID, BILSTF_LOCK_PAYMENT)));
 			const int new_lock_paym = BIN(pOrgRec == pRec || (pRec->StatusID && CheckStatusFlag(pRec->StatusID, BILSTF_LOCK_PAYMENT)));
 			//
-			// Следующая конструкция должна охватить все четыре комбинации org_lock_paym = 0|1; new_lock_paym = 0|1 {
+			// РЎР»РµРґСѓСЋС‰Р°СЏ РєРѕРЅСЃС‚СЂСѓРєС†РёСЏ РґРѕР»Р¶РЅР° РѕС…РІР°С‚РёС‚СЊ РІСЃРµ С‡РµС‚С‹СЂРµ РєРѕРјР±РёРЅР°С†РёРё org_lock_paym = 0|1; new_lock_paym = 0|1 {
 			//
 			if(org_lock_paym) {
 				org_amount = 0.0;
@@ -5920,11 +5920,11 @@ int SLAPI PPObjBill::ProcessLink(BillTbl::Rec * pRec, PPID paymLinkID, const Bil
 		}
 		if(link_id) {
 			BillTbl::Rec link_rec;
-			THROW_PP_S(P_Tbl->Search(link_id, &link_rec) > 0, PPERR_LINKBILLNFOUND, (msg_buf = 0).Cat(link_id));
+			THROW_PP_S(P_Tbl->Search(link_id, &link_rec) > 0, PPERR_LINKBILLNFOUND, msg_buf.Z().Cat(link_id));
 			THROW_PP_S(pRec->Dt >= link_rec.Dt, PPERR_LNKBILLDT, PPObjBill::MakeCodeString(&link_rec, 1, msg_buf));
 			//
-			// Если добавляемый документ - оплата или возврат, то в связанном
-			// документе (если он требует оплаты) изменяем оплаченную сумму
+			// Р•СЃР»Рё РґРѕР±Р°РІР»СЏРµРјС‹Р№ РґРѕРєСѓРјРµРЅС‚ - РѕРїР»Р°С‚Р° РёР»Рё РІРѕР·РІСЂР°С‚, С‚Рѕ РІ СЃРІСЏР·Р°РЅРЅРѕРј
+			// РґРѕРєСѓРјРµРЅС‚Рµ (РµСЃР»Рё РѕРЅ С‚СЂРµР±СѓРµС‚ РѕРїР»Р°С‚С‹) РёР·РјРµРЅСЏРµРј РѕРїР»Р°С‡РµРЅРЅСѓСЋ СЃСѓРјРјСѓ
 			//
 			if(paym_t) {
 				if(CcFlags & CCFLG_SETWLONLINK)
@@ -5941,7 +5941,7 @@ int SLAPI PPObjBill::ProcessLink(BillTbl::Rec * pRec, PPID paymLinkID, const Bil
 			}
 		}
 		if(paymLinkID && paym_t == PPOPT_PAYMENT) {
-			THROW_PP_S(P_Tbl->Search(paymLinkID) > 0, PPERR_LINKBILLNFOUND, (msg_buf = 0).Cat(link_id));
+			THROW_PP_S(P_Tbl->Search(paymLinkID) > 0, PPERR_LINKBILLNFOUND, msg_buf.Z().Cat(link_id));
 			THROW(P_Tbl->UpdatePaymAmount(paymLinkID, pRec->CurID, amount, org_amount));
 		}
 	}
@@ -6037,7 +6037,7 @@ int SLAPI PPBillPacket::CreateShadowPacket(PPBillPacket * pShadow)
 					order = pShadow->Rec.Object = p_ti->BillID;
 				}
 	   	        ti = *p_ti;
-				ti.BillID = ti.OrdLotID; // @ordlotid (? почему ti.BillID ?)
+				ti.BillID = ti.OrdLotID; // @ordlotid (? РїРѕС‡РµРјСѓ ti.BillID ?)
 				if(pShadow->Rec.ID == 0)
 					pShadow->Rec.ID = ti.BillID;
 				else if(ti.BillID == 0)
@@ -6120,8 +6120,8 @@ int SLAPI PPObjBill::ProcessShadowPacket(PPBillPacket * pPack, int doUpdate)
 				closed = BIN(lot_rec.Closed);
 		}
 		//
-		// Флаг BILLF_CLOSEDORDER (Закрытый заказ) здесь не следует снимать - только устанавливать.
-		// Связано это с тем, что данный признак мог быть установлен в ручную.
+		// Р¤Р»Р°Рі BILLF_CLOSEDORDER (Р—Р°РєСЂС‹С‚С‹Р№ Р·Р°РєР°Р·) Р·РґРµСЃСЊ РЅРµ СЃР»РµРґСѓРµС‚ СЃРЅРёРјР°С‚СЊ - С‚РѕР»СЊРєРѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ.
+		// РЎРІСЏР·Р°РЅРѕ СЌС‚Рѕ СЃ С‚РµРј, С‡С‚Рѕ РґР°РЅРЅС‹Р№ РїСЂРёР·РЅР°Рє РјРѕРі Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ РІ СЂСѓС‡РЅСѓСЋ.
 		//
 		if(closed) {
 			THROW(P_Tbl->SetRecFlag(order_id, BILLF_CLOSEDORDER, closed, 0));
@@ -6624,10 +6624,10 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 	// } @v8.0.6
 	// @v9.4.3 {
 	PPIDArray correction_exp_chain;
-	const PPTrfrArray preserve_lots(pPack->GetLots()); // @v9.4.3 Сохраняем строки на случай аварии в проведении документа
+	const PPTrfrArray preserve_lots(pPack->GetLots()); // @v9.4.3 РЎРѕС…СЂР°РЅСЏРµРј СЃС‚СЂРѕРєРё РЅР° СЃР»СѓС‡Р°Р№ Р°РІР°СЂРёРё РІ РїСЂРѕРІРµРґРµРЅРёРё РґРѕРєСѓРјРµРЅС‚Р°
 	// } @v9.4.3
 	pPack->ErrCause = pPack->ErrLine = 0;
-	if(pPack->Rec.OpID) { // Для теневого документа не проверяем период доступа
+	if(pPack->Rec.OpID) { // Р”Р»СЏ С‚РµРЅРµРІРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РЅРµ РїСЂРѕРІРµСЂСЏРµРј РїРµСЂРёРѕРґ РґРѕСЃС‚СѓРїР°
 		THROW(ObjRts.CheckBillDate(pPack->Rec.Dt));
 		THROW(ObjRts.CheckOpID(pPack->Rec.OpID, PPR_INS)); // @v9.6.1
 		// @v9.4.3 {
@@ -6806,7 +6806,7 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 			}
 		}
 		// } @v8.7.8
-		if(pPack->Rec.OpID) // Проводку теневых документов в журнале не отмечаем
+		if(pPack->Rec.OpID) // РџСЂРѕРІРѕРґРєСѓ С‚РµРЅРµРІС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ РІ Р¶СѓСЂРЅР°Р»Рµ РЅРµ РѕС‚РјРµС‡Р°РµРј
 			DS.LogAction(PPACN_TURNBILL, PPOBJ_BILL, pPack->Rec.ID, 0, 0);
 		THROW(PPCommitWork(&ta));
 	}
@@ -6819,8 +6819,8 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 		UnlockFRR(&frrl_tag, 1, 0);
 		PPRollbackWork(&ta);
 		//
-		// Если пакет не был проведен корректно, то очищаем признаки
-		// успешной проводки тех элементов пакета, которые были проведены
+		// Р•СЃР»Рё РїР°РєРµС‚ РЅРµ Р±С‹Р» РїСЂРѕРІРµРґРµРЅ РєРѕСЂСЂРµРєС‚РЅРѕ, С‚Рѕ РѕС‡РёС‰Р°РµРј РїСЂРёР·РЅР°РєРё
+		// СѓСЃРїРµС€РЅРѕР№ РїСЂРѕРІРѕРґРєРё С‚РµС… СЌР»РµРјРµРЅС‚РѕРІ РїР°РєРµС‚Р°, РєРѕС‚РѕСЂС‹Рµ Р±С‹Р»Рё РїСЂРѕРІРµРґРµРЅС‹
 		//
 		pPack->Rec.ID = 0;
 		pPack->Rec.BillNo = 0;
@@ -6894,9 +6894,9 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	const  PPRights & r_rt = ObjRts;
 	const  PPID  id = pPack->Rec.ID;
 	TBlock tb_;
-	PPIDArray added_lot_items; // Список позиций товарных строк с признаком
-		// PPTFR_RECEIPT, которые были добавлены. Нобходим для корректной очистки после ошибки.
-	PPIDArray _debug_org_ord_bill_list; // @v9.5.2 @debug Список документов заказов, к которым до изменения был привязан данный документ
+	PPIDArray added_lot_items; // РЎРїРёСЃРѕРє РїРѕР·РёС†РёР№ С‚РѕРІР°СЂРЅС‹С… СЃС‚СЂРѕРє СЃ РїСЂРёР·РЅР°РєРѕРј
+		// PPTFR_RECEIPT, РєРѕС‚РѕСЂС‹Рµ Р±С‹Р»Рё РґРѕР±Р°РІР»РµРЅС‹. РќРѕР±С…РѕРґРёРј РґР»СЏ РєРѕСЂСЂРµРєС‚РЅРѕР№ РѕС‡РёСЃС‚РєРё РїРѕСЃР»Рµ РѕС€РёР±РєРё.
+	PPIDArray _debug_org_ord_bill_list; // @v9.5.2 @debug РЎРїРёСЃРѕРє РґРѕРєСѓРјРµРЅС‚РѕРІ Р·Р°РєР°Р·РѕРІ, Рє РєРѕС‚РѕСЂС‹Рј РґРѕ РёР·РјРµРЅРµРЅРёСЏ Р±С‹Р» РїСЂРёРІСЏР·Р°РЅ РґР°РЅРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚
 	SString wait_msg, bill_code, clb;
 	SString fmt_buf, msg_buf, temp_buf;
 	DateIter diter;
@@ -6917,7 +6917,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 			PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName, bill_code));
 	}
 	THROW(CheckParentStatus(pPack->Rec.ID));
-	if(pPack->Rec.OpID) { // Для теневого документа не проверяем период доступа
+	if(pPack->Rec.OpID) { // Р”Р»СЏ С‚РµРЅРµРІРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РЅРµ РїСЂРѕРІРµСЂСЏРµРј РїРµСЂРёРѕРґ РґРѕСЃС‚СѓРїР°
 		THROW(r_rt.CheckBillDate(pPack->Rec.Dt));
 		THROW(r_rt.CheckOpID(pPack->Rec.OpID, PPR_MOD)); // @v9.6.1
 		// @v9.4.3 {
@@ -6961,9 +6961,9 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		THROW(BeginTFrame(id, tb_)); // @v8.0.3
 		THROW(LockFRR(pPack->Rec.Dt, &frrl_tag, 0));
 		//
-		// Получаем оригинальную запись. Допускаем, что Идент документа может
-		// измениться (хотя и не должен), поэтому сначала изменяем сам документ,
-		// а затем приводим строки документа в соответствие изменениям
+		// РџРѕР»СѓС‡Р°РµРј РѕСЂРёРіРёРЅР°Р»СЊРЅСѓСЋ Р·Р°РїРёСЃСЊ. Р”РѕРїСѓСЃРєР°РµРј, С‡С‚Рѕ РРґРµРЅС‚ РґРѕРєСѓРјРµРЅС‚Р° РјРѕР¶РµС‚
+		// РёР·РјРµРЅРёС‚СЊСЃСЏ (С…РѕС‚СЏ Рё РЅРµ РґРѕР»Р¶РµРЅ), РїРѕСЌС‚РѕРјСѓ СЃРЅР°С‡Р°Р»Р° РёР·РјРµРЅСЏРµРј СЃР°Рј РґРѕРєСѓРјРµРЅС‚,
+		// Р° Р·Р°С‚РµРј РїСЂРёРІРѕРґРёРј СЃС‚СЂРѕРєРё РґРѕРєСѓРјРµРЅС‚Р° РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РёР·РјРµРЅРµРЅРёСЏРј
 		//
 		THROW(P_Tbl->Search(id, &org) > 0);
 		THROW(r_rt.CheckBillDate(org.Dt));
@@ -7005,8 +7005,8 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 			if(pPack->IsDraft()) {
 				CpTrfrExt cte;
 				for(rbybill = 0; (r = P_CpTrfr->EnumItems(id, &rbybill, &ti, &cte)) > 0;) {
-					ti.Date = org.Dt; // @v8.9.10 P_CpTrfr->EnumItems не инициализирует дату, а это пагубно сказывается на
-						// сравнении PPTransferItem::IsEqual()
+					ti.Date = org.Dt; // @v8.9.10 P_CpTrfr->EnumItems РЅРµ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РґР°С‚Сѓ, Р° СЌС‚Рѕ РїР°РіСѓР±РЅРѕ СЃРєР°Р·С‹РІР°РµС‚СЃСЏ РЅР°
+						// СЃСЂР°РІРЅРµРЅРёРё PPTransferItem::IsEqual()
 					for(found = i = 0; !found && pPack->EnumTItems(&i, &p_ti);) {
 						if(p_ti->BillID == id && p_ti->RByBill == rbybill && !(p_ti->Flags & PPTransferItem::tfForceReplace)) {
 							pPack->ErrLine = i-1;
@@ -7028,7 +7028,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 				}
 				THROW(r);
 				//
-				// Добавляем или модифицируем строки
+				// Р”РѕР±Р°РІР»СЏРµРј РёР»Рё РјРѕРґРёС„РёС†РёСЂСѓРµРј СЃС‚СЂРѕРєРё
 				//
 				not_changed_lines.sort();
 				for(i = 0; pPack->EnumTItems(&i, &p_ti);) {
@@ -7054,7 +7054,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 			}
 			else {
 				//
-				// Вычищаем удаленные и сильно измененные товарные строки
+				// Р’С‹С‡РёС‰Р°РµРј СѓРґР°Р»РµРЅРЅС‹Рµ Рё СЃРёР»СЊРЅРѕ РёР·РјРµРЅРµРЅРЅС‹Рµ С‚РѕРІР°СЂРЅС‹Рµ СЃС‚СЂРѕРєРё
 				//
 				int    chg_closedorder_tag = BIN(pPack->OpTypeID == PPOPT_GOODSORDER && !TESTFLAG(org.Flags, pPack->Rec.Flags, BILLF_CLOSEDORDER));
 				for(rbybill = 0; (r = trfr->EnumItems(id, &rbybill, &ti)) > 0;) {
@@ -7078,7 +7078,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 				}
 				THROW(r);
 				//
-				// Добавляем или модифицируем строки
+				// Р”РѕР±Р°РІР»СЏРµРј РёР»Рё РјРѕРґРёС„РёС†РёСЂСѓРµРј СЃС‚СЂРѕРєРё
 				//
 				not_changed_lines.sort();
 				for(i = 0; pPack->EnumTItems(&i, &p_ti);) {
@@ -7117,7 +7117,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		THROW(TurnAdvList(id, pPack, 0));
 		THROW(pPack->LnkFiles.WriteToProp(pPack->Rec.ID, 0));
 		//
-		// Вычищаем и модифицируем проводки.
+		// Р’С‹С‡РёС‰Р°РµРј Рё РјРѕРґРёС„РёС†РёСЂСѓРµРј РїСЂРѕРІРѕРґРєРё.
 		//
 		if(!(CcFlags & CCFLG_DISABLEACCTURN)) {
 			if(!(pPack->Rec.Flags & BILLF_NOATURN)) {
@@ -7158,8 +7158,8 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 					}
 				} while(r == 0);
 				//
-				// Восстанавливаем первоначальное значение статуса проверки
-				// остатков по счетам и заносим все оставшиеся проводки
+				// Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРµСЂРІРѕРЅР°С‡Р°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ СЃС‚Р°С‚СѓСЃР° РїСЂРѕРІРµСЂРєРё
+				// РѕСЃС‚Р°С‚РєРѕРІ РїРѕ СЃС‡РµС‚Р°Рј Рё Р·Р°РЅРѕСЃРёРј РІСЃРµ РѕСЃС‚Р°РІС€РёРµСЃСЏ РїСЂРѕРІРѕРґРєРё
 				//
 				DS.RestCheckingStatus(rest_checking);
 				for(i = 0; pPack->Turns.enumItems(&i, (void**)&p_at);) {
@@ -7183,12 +7183,12 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		THROW(Helper_StoreClbList(pPack));
 		THROW(PutSCardOp(pPack, 0));
 		//
-		// При необходимости, изменяем привязанные документы (оплаты, возвраты, подтверждения)
+		// РџСЂРё РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё, РёР·РјРµРЅСЏРµРј РїСЂРёРІСЏР·Р°РЅРЅС‹Рµ РґРѕРєСѓРјРµРЅС‚С‹ (РѕРїР»Р°С‚С‹, РІРѕР·РІСЂР°С‚С‹, РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ)
 		//
 		// @CAUTION
-		//    Этот процесс несет в себе потенциальную опасность рекурентного
-		//    зацикливания, поскольку изменение привязанного документа может
-		//    повлечь за собой изменение самого документа и так далее.
+		//    Р­С‚РѕС‚ РїСЂРѕС†РµСЃСЃ РЅРµСЃРµС‚ РІ СЃРµР±Рµ РїРѕС‚РµРЅС†РёР°Р»СЊРЅСѓСЋ РѕРїР°СЃРЅРѕСЃС‚СЊ СЂРµРєСѓСЂРµРЅС‚РЅРѕРіРѕ
+		//    Р·Р°С†РёРєР»РёРІР°РЅРёСЏ, РїРѕСЃРєРѕР»СЊРєСѓ РёР·РјРµРЅРµРЅРёРµ РїСЂРёРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РјРѕР¶РµС‚
+		//    РїРѕРІР»РµС‡СЊ Р·Р° СЃРѕР±РѕР№ РёР·РјРµРЅРµРЅРёРµ СЃР°РјРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° Рё С‚Р°Рє РґР°Р»РµРµ.
 		//
 		if(org.Object != pPack->Rec.Object) {
 			for(diter.Init(); P_Tbl->EnumLinks(id, &diter, BLNK_ALL & ~BLNK_SHADOW) > 0;) {
@@ -7219,7 +7219,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		}
 		THROW(UnlockFRR(&frrl_tag, 0, 0));
 		THROW(FinishTFrame(id, tb_)); // @v8.0.3
-		if(pPack->Rec.OpID) { // Проводку теневого документа не регистрируем
+		if(pPack->Rec.OpID) { // РџСЂРѕРІРѕРґРєСѓ С‚РµРЅРµРІРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РЅРµ СЂРµРіРёСЃС‚СЂРёСЂСѓРµРј
 			PPID   h_id = 0;
 			if(TLP(HistBill).IsOpened()) {
 				THROW(HistBill->PutPacket(&h_id, &hist_pack, 0, 0));
@@ -7236,7 +7236,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 						PPLoadText(PPTXT_LOG_BILLCHGLINKTOORD, fmt_buf);
 						{
 							uint _i;
-							(temp_buf = 0).CatChar('[');
+							temp_buf.Z().CatChar('[');
 							for(_i = 0; _i < _debug_org_ord_bill_list.getCount(); _i++) {
 								const PPID _ord_bill_id = _debug_org_ord_bill_list.get(_i);
 								if(_i)
@@ -7321,7 +7321,7 @@ int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 		PPUserFuncProfiler ufp(GetBillOpUserProfileFunc(brec.OpID, PPACN_RMVBILL));
 		// } @v8.0.6
 		const int is_shadow = BIN(brec.OpID == 0);
-		if(!is_shadow) { // Для теневого документа не проверяем период доступа и права на удаление
+		if(!is_shadow) { // Р”Р»СЏ С‚РµРЅРµРІРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РЅРµ РїСЂРѕРІРµСЂСЏРµРј РїРµСЂРёРѕРґ РґРѕСЃС‚СѓРїР° Рё РїСЂР°РІР° РЅР° СѓРґР°Р»РµРЅРёРµ
 			THROW(CheckRights(PPR_DEL));
 			THROW(ObjRts.CheckBillDate(brec.Dt));
 			THROW(ObjRts.CheckOpID(brec.OpID, PPR_DEL)); // @v9.6.1
@@ -7343,7 +7343,7 @@ int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 		THROW(PPStartTransaction(&ta, use_ta));
 		THROW(LockFRR(brec.Dt, &frrl_tag, 0));
 		for(diter.Init(); (r = P_Tbl->EnumLinks(id, &diter, BLNK_ALL)) > 0;) {
-			if(P_Tbl->data.OpID == 0) { // Теневые документы удаляем
+			if(P_Tbl->data.OpID == 0) { // РўРµРЅРµРІС‹Рµ РґРѕРєСѓРјРµРЅС‚С‹ СѓРґР°Р»СЏРµРј
 				THROW(RemovePacket(P_Tbl->data.ID, 0));
 			}
 			else
@@ -7409,7 +7409,7 @@ int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 		}
 		THROW(r && P_Tbl->Remove(id, 0));
 		THROW(p_ref->PutPropVlrString(PPOBJ_BILL, id, PPPRP_BILLMEMO, 0));
-		// @v7.6.1 (GUID документа теперь в тегах) THROW(PutGuid(id, 0, 0));
+		// @v7.6.1 (GUID РґРѕРєСѓРјРµРЅС‚Р° С‚РµРїРµСЂСЊ РІ С‚РµРіР°С…) THROW(PutGuid(id, 0, 0));
 		THROW(p_ref->Ot.PutList(Obj, id, 0, 0));
 		THROW(RemoveSync(id));
 		THROW(UnlockFRR(&frrl_tag, 0, 0));
@@ -7463,7 +7463,7 @@ int SLAPI PPObjBill::SetupSpecialAmounts(PPBillPacket * pPack)
 	if(pPack) {
 		if(pPack->CSessID) {
 			long   pool_type = 0;
-			/* Временно, инициировать сумму будем только по техн сессиям (но не по кассовым)
+			/* Р’СЂРµРјРµРЅРЅРѕ, РёРЅРёС†РёРёСЂРѕРІР°С‚СЊ СЃСѓРјРјСѓ Р±СѓРґРµРј С‚РѕР»СЊРєРѕ РїРѕ С‚РµС…РЅ СЃРµСЃСЃРёСЏРј (РЅРѕ РЅРµ РїРѕ РєР°СЃСЃРѕРІС‹Рј)
 			if(pPack->Rec.Flags & (BILLF_CSESSWROFF|BILLF_CDFCTWROFF)) {
 				PPObjCSession cs_obj;
 				CSessionTbl::Rec cs_rec;
@@ -7494,7 +7494,7 @@ int SLAPI PPObjBill::SetupSpecialAmounts(PPBillPacket * pPack)
 		}
 		{
 			//
-			// Расчет и установка сумм документа, определяемых формулами
+			// Р Р°СЃС‡РµС‚ Рё СѓСЃС‚Р°РЅРѕРІРєР° СЃСѓРјРј РґРѕРєСѓРјРµРЅС‚Р°, РѕРїСЂРµРґРµР»СЏРµРјС‹С… С„РѕСЂРјСѓР»Р°РјРё
 			//
 			PPObjAmountType at_obj;
 			StrAssocArray fa_list;
@@ -7600,9 +7600,9 @@ int SLAPI PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl
 		pPack->AccSheetID = opk.AccSheetID;
 	}
 	//
-	// Несмотря на то, что признаки товарной операции должны быть
-	// установлены при занесении документа в БД, здесь мы продублируем
-	// операцию инициализации этих флагов для надежности
+	// РќРµСЃРјРѕС‚СЂСЏ РЅР° С‚Рѕ, С‡С‚Рѕ РїСЂРёР·РЅР°РєРё С‚РѕРІР°СЂРЅРѕР№ РѕРїРµСЂР°С†РёРё РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ
+	// СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹ РїСЂРё Р·Р°РЅРµСЃРµРЅРёРё РґРѕРєСѓРјРµРЅС‚Р° РІ Р‘Р”, Р·РґРµСЃСЊ РјС‹ РїСЂРѕРґСѓР±Р»РёСЂСѓРµРј
+	// РѕРїРµСЂР°С†РёСЋ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё СЌС‚РёС… С„Р»Р°РіРѕРІ РґР»СЏ РЅР°РґРµР¶РЅРѕСЃС‚Рё
 	//
 	r = IsExpendOp(pPack->Rec.OpID);
 	SETFLAG(pPack->Rec.Flags, BILLF_GEXPEND,  r > 0);
@@ -7610,7 +7610,7 @@ int SLAPI PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl
 	SETFLAG(pPack->Rec.Flags, BILLF_GREVAL,   pPack->OpTypeID == PPOPT_GOODSREVAL);
 	if(pPack->Rec.LinkBillID) {
 		BillTbl::Rec link_bill_rec;
-		(msg_buf = 0).Cat(pPack->Rec.LinkBillID);
+		msg_buf.Z().Cat(pPack->Rec.LinkBillID);
 		THROW(r = P_Tbl->Search(pPack->Rec.LinkBillID, &link_bill_rec));
 		THROW_PP_S(r > 0, PPERR_LINKBILLNFOUND, msg_buf);
 		THROW(GetOpData(link_bill_rec.OpID, &link_opk));
@@ -7645,8 +7645,8 @@ int SLAPI PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl
 		pPack->ProcessFlags |= PPBillPacket::pfUpdateProhibited;
 		// @v8.5.11 {
 		//
-		// Эти функции вызываются в pPack->LoadClbList, однако при (fl & BPLD_SKIPTRFR)
-		// LoadClbList не вызывается, потому приходится делать это здесь.
+		// Р­С‚Рё С„СѓРЅРєС†РёРё РІС‹Р·С‹РІР°СЋС‚СЃСЏ РІ pPack->LoadClbList, РѕРґРЅР°РєРѕ РїСЂРё (fl & BPLD_SKIPTRFR)
+		// LoadClbList РЅРµ РІС‹Р·С‹РІР°РµС‚СЃСЏ, РїРѕС‚РѕРјСѓ РїСЂРёС…РѕРґРёС‚СЃСЏ РґРµР»Р°С‚СЊ СЌС‚Рѕ Р·РґРµСЃСЊ.
 		//
 		pPack->BTagL.Destroy();
 		THROW(GetTagList(pPack->Rec.ID, &pPack->BTagL));
@@ -7675,12 +7675,12 @@ int SLAPI PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl
 					p_ti->BillID   = shadow.Rec.Object;
 					p_ti->QCert    = 0;
 					//
-					// Попытка установить соответствие между строками документа и лотами теневого документа
+					// РџРѕРїС‹С‚РєР° СѓСЃС‚Р°РЅРѕРІРёС‚СЊ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РјРµР¶РґСѓ СЃС‚СЂРѕРєР°РјРё РґРѕРєСѓРјРµРЅС‚Р° Рё Р»РѕС‚Р°РјРё С‚РµРЅРµРІРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 					//
 					int    corr_item_founded = 0;
 					uint   j;
 					//
-					// На первой итерации пытаемся установить соответствие с учетом количества
+					// РќР° РїРµСЂРІРѕР№ РёС‚РµСЂР°С†РёРё РїС‹С‚Р°РµРјСЃСЏ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ СЃ СѓС‡РµС‚РѕРј РєРѕР»РёС‡РµСЃС‚РІР°
 					//
 					for(j = 0; !corr_item_founded && pPack->SearchGoods(labs(p_ti->GoodsID), &j); j++) {
 						PPTransferItem & r_loc_ti = pPack->TI(j);
@@ -7692,8 +7692,8 @@ int SLAPI PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl
 						}
 					}
 					//
-					// На второй итерации, если с учетом количества ничего не вышло (мало ли какие сбои случаются),
-					// устанавливаем соответствие без учета количества
+					// РќР° РІС‚РѕСЂРѕР№ РёС‚РµСЂР°С†РёРё, РµСЃР»Рё СЃ СѓС‡РµС‚РѕРј РєРѕР»РёС‡РµСЃС‚РІР° РЅРёС‡РµРіРѕ РЅРµ РІС‹С€Р»Рѕ (РјР°Р»Рѕ Р»Рё РєР°РєРёРµ СЃР±РѕРё СЃР»СѓС‡Р°СЋС‚СЃСЏ),
+					// СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ Р±РµР· СѓС‡РµС‚Р° РєРѕР»РёС‡РµСЃС‚РІР°
 					//
 					for(j = 0; /* @v9.3.10 !corr_item_founded &&*/ pPack->SearchGoods(labs(p_ti->GoodsID), &j); j++) {
 						PPTransferItem & r_loc_ti = pPack->TI(j);
@@ -7707,7 +7707,7 @@ int SLAPI PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl
 				}
 			}
 			// @v9.5.3 {
-			/* Проблема решена - привязка терялась из-за неинициализированных членов PPBillPacket: OpTypeID AccSheetID (скорее всего, OpTypeID)
+			/* РџСЂРѕР±Р»РµРјР° СЂРµС€РµРЅР° - РїСЂРёРІСЏР·РєР° С‚РµСЂСЏР»Р°СЃСЊ РёР·-Р·Р° РЅРµРёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹С… С‡Р»РµРЅРѕРІ PPBillPacket: OpTypeID AccSheetID (СЃРєРѕСЂРµРµ РІСЃРµРіРѕ, OpTypeID)
 			if(CConfig.Flags & CCFLG_DEBUG) {
 				if(is_there_shadow_bill) {
 					PPLoadText(PPTXT_LOG_BILLHASLORDEMPTYSHL, fmt_buf);
@@ -7729,7 +7729,7 @@ int SLAPI PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl
 	return ok;
 }
 //
-// Descr: Пересчитывает долговые атрибуты результирующего документа
+// Descr: РџРµСЂРµСЃС‡РёС‚С‹РІР°РµС‚ РґРѕР»РіРѕРІС‹Рµ Р°С‚СЂРёР±СѓС‚С‹ СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РµРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 //
 int SLAPI PPObjBill::RecalcPayment(PPID id, int use_ta)
 {
@@ -7822,9 +7822,9 @@ int SLAPI IsBillsCompatible(BillTbl::Rec * pBillPack1, BillTbl::Rec * pBillPack2
 	return ok;
 }
 //
-// Функция реализована пока только для документов розничной торговли
-// Бухгалтерские проводки не пересчитывает.
-// Это должна сделать вызывающая функция.
+// Р¤СѓРЅРєС†РёСЏ СЂРµР°Р»РёР·РѕРІР°РЅР° РїРѕРєР° С‚РѕР»СЊРєРѕ РґР»СЏ РґРѕРєСѓРјРµРЅС‚РѕРІ СЂРѕР·РЅРёС‡РЅРѕР№ С‚РѕСЂРіРѕРІР»Рё
+// Р‘СѓС…РіР°Р»С‚РµСЂСЃРєРёРµ РїСЂРѕРІРѕРґРєРё РЅРµ РїРµСЂРµСЃС‡РёС‚С‹РІР°РµС‚.
+// Р­С‚Рѕ РґРѕР»Р¶РЅР° СЃРґРµР»Р°С‚СЊ РІС‹Р·С‹РІР°СЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ.
 //
 int SLAPI PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int use_ta)
 {
@@ -7832,7 +7832,7 @@ int SLAPI PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int us
 	uint   i, j;
 	short  rbybill;
 	int    done;
-	int    is_intrexnd = 0; // Признак того, что объединяются документы внутреннего перемещения - сложный случай.
+	int    is_intrexnd = 0; // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РѕР±СЉРµРґРёРЅСЏСЋС‚СЃСЏ РґРѕРєСѓРјРµРЅС‚С‹ РІРЅСѓС‚СЂРµРЅРЅРµРіРѕ РїРµСЂРµРјРµС‰РµРЅРёСЏ - СЃР»РѕР¶РЅС‹Р№ СЃР»СѓС‡Р°Р№.
 	DateIter diter;
 	PPBillPacket add_pack;
 	PPTransferItem ti, * pti, * ati;
@@ -7845,13 +7845,13 @@ int SLAPI PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int us
 			pPack->Rec.OpID == GetCashOp() || pPack->Rec.OpID == GetCashRetOp(), PPERR_UNITERETAIL);
 		if(IsIntrOp(pPack->Rec.OpID) == INTREXPND) {
 			CALLEXCEPT_PP(PPERR_UNITEINTREXPND);
-			// @todo Сделать объединение документов внутренней передачи
+			// @todo РЎРґРµР»Р°С‚СЊ РѕР±СЉРµРґРёРЅРµРЅРёРµ РґРѕРєСѓРјРµРЅС‚РѕРІ РІРЅСѓС‚СЂРµРЅРЅРµР№ РїРµСЂРµРґР°С‡Рё
 		}
 		else {
 			TBlock tb_;
 			THROW(BeginTFrame(pPack->Rec.ID, tb_));
 			//
-			// Цикл по строкам исходного документа (который будет удален)
+			// Р¦РёРєР» РїРѕ СЃС‚СЂРѕРєР°Рј РёСЃС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° (РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ СѓРґР°Р»РµРЅ)
 			//
 			for(i = 0; add_pack.EnumTItems(&i, &ati);) {
 				for(done = 0, j = 0; !done && pPack->SearchLot(ati->LotID, &j); j++) {
@@ -7891,7 +7891,7 @@ int SLAPI PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int us
 			pPack->Rec.LastRByBill = tb_.Rbb();      // @v8.0.3
 		}
 		//
-		// Для всех документов, слинкованных с addBill, перекидываем ссылки на pPack->Rec.ID.
+		// Р”Р»СЏ РІСЃРµС… РґРѕРєСѓРјРµРЅС‚РѕРІ, СЃР»РёРЅРєРѕРІР°РЅРЅС‹С… СЃ addBill, РїРµСЂРµРєРёРґС‹РІР°РµРј СЃСЃС‹Р»РєРё РЅР° pPack->Rec.ID.
 		//
 		THROW_DB(updateFor(P_Tbl, 0, (P_Tbl->LinkBillID == addBillID), set(P_Tbl->LinkBillID, dbconst(pPack->Rec.ID))));
 		THROW(RemovePacket(addBillID, 0));
@@ -7975,8 +7975,8 @@ int SLAPI PPObjBill::UniteReceiptBill(PPID destBillID, PPIDArray * pSrcList, int
 	if(ok == 0)
 		PPSaveErrContext();
 	// @Caution @v4.0.7
-	// Если этот вызов завершится с ошибкой, то остатки по
-	// счетам останутся неправильными.
+	// Р•СЃР»Рё СЌС‚РѕС‚ РІС‹Р·РѕРІ Р·Р°РІРµСЂС€РёС‚СЃСЏ СЃ РѕС€РёР±РєРѕР№, С‚Рѕ РѕСЃС‚Р°С‚РєРё РїРѕ
+	// СЃС‡РµС‚Р°Рј РѕСЃС‚Р°РЅСѓС‚СЃСЏ РЅРµРїСЂР°РІРёР»СЊРЅС‹РјРё.
 	if(!atobj->P_Tbl->LockingFRR(0, &frrl_tag, use_ta))
 		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
 	if(ok == 0)
@@ -8053,7 +8053,7 @@ int SLAPI PPObjBill::ParseText(const char * pText, const char * pTemplate, StrAs
 				long   sym  = st.Translate(p, &next);
 				field_value = 0;
 				if(sym == 0) {
-					assert(next == 1); // Если подстановка не удалась, то PPSymbTranslator::Translate не должен сдвигать позицию
+					assert(next == 1); // Р•СЃР»Рё РїРѕРґСЃС‚Р°РЅРѕРІРєР° РЅРµ СѓРґР°Р»Р°СЃСЊ, С‚Рѕ PPSymbTranslator::Translate РЅРµ РґРѕР»Р¶РµРЅ СЃРґРІРёРіР°С‚СЊ РїРѕР·РёС†РёСЋ
 					next = 1;
 					THROW(*p_text == *p);
 					p_text++;
@@ -8196,7 +8196,7 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 				long   sym  = st.Translate(p, &next);
 				if(sym == 0) {
 					rResult.CatChar(*p);
-					assert(next == 1); // Если подстановка не удалась, то PPSymbTranslator::Translate не должен сдвигать позицию
+					assert(next == 1); // Р•СЃР»Рё РїРѕРґСЃС‚Р°РЅРѕРІРєР° РЅРµ СѓРґР°Р»Р°СЃСЊ, С‚Рѕ PPSymbTranslator::Translate РЅРµ РґРѕР»Р¶РµРЅ СЃРґРІРёРіР°С‚СЊ РїРѕР·РёС†РёСЋ
 					next = 1;
 				}
 				else {
@@ -8371,7 +8371,7 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 						case PPSYM_AGTCODE:
 							if(agt_blk.Init(pk->Rec.Object) == 1) {
 								//
-								// В @v5.7.12 номера есть только у соглашений с покупателями
+								// Р’ @v5.7.12 РЅРѕРјРµСЂР° РµСЃС‚СЊ С‚РѕР»СЊРєРѕ Сѓ СЃРѕРіР»Р°С€РµРЅРёР№ СЃ РїРѕРєСѓРїР°С‚РµР»СЏРјРё
 								//
 								subst_buf = agt_blk.P_CliAgt->Code;
 							}
@@ -8451,7 +8451,7 @@ int PPObjBill::ConvertUuid7601()
 				THROW(tag.SetGuid(PPTAG_BILL_UUID, &uuid));
 				THROW(p_ref->Ot.PutTag(PPOBJ_BILL, bill_id, &tag, 0));
 			}
-			// @temp(Временно не будем удалять старые записи) THROW_DB(p_ref->Prop.deleteRec()); // @sfu
+			// @temp(Р’СЂРµРјРµРЅРЅРѕ РЅРµ Р±СѓРґРµРј СѓРґР°Р»СЏС‚СЊ СЃС‚Р°СЂС‹Рµ Р·Р°РїРёСЃРё) THROW_DB(p_ref->Prop.deleteRec()); // @sfu
 		}
 		THROW(tra.Commit());
 	}
@@ -8567,7 +8567,7 @@ SLTEST_R(PPBillFormula)
 								if(obj_bill.P_Tbl->SearchAnalog(&bill_rec, &id, 0) > 0)
 									bill_list.add(id);
 								else {
-									out_msg.Printf("FAIL: Bill not found code=%s", (const char*)temp_buf).CR();
+									out_msg.Printf("FAIL: Bill not found code=%s", temp_buf.cptr()).CR();
 									out_file.WriteLine(out_msg);
 								}
 							}

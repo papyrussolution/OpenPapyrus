@@ -73,7 +73,7 @@ int SLAPI SWmi::Connect(const char * pServer, const char * pUserName, const char
 int SLAPI SWmi::GetSvcError(SString & rBuf)
 {
 	int    ok = 0;
-	rBuf = 0;
+	rBuf.Z();
 	IErrorInfo * p_err_info = 0;
 	GetErrorInfo(0, &p_err_info);
 	if(p_err_info) {

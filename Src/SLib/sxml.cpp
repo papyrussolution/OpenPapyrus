@@ -116,7 +116,7 @@ SXml::WDoc::WDoc(xmlTextWriter * pWriter, SCodepage cp)
 			cp = cpUTF8;
 		SCodepageIdent cpi(cp);
 		SCodepageIdent temp_cp = cp;
-		temp_cp.ToStr(SCodepageIdent::fmtXML, temp_buf = 0);
+		temp_cp.ToStr(SCodepageIdent::fmtXML, temp_buf.Z());
 		xmlTextWriterStartDocument(Lx, 0, temp_buf, 0);
 		State |= stStarted;
 	}
@@ -1367,7 +1367,7 @@ int SoapPacket::Parse(const char * pMethodName, void * pDoc, const char * pDebug
 									}
 								}
 								else {
-									(temp_buf = 0).Cat(item_id_buf).CatDiv(':', 1).Cat(item_type_buf);
+									temp_buf.Z().Cat(item_id_buf).CatDiv(':', 1).Cat(item_type_buf);
 									CALLEXCEPT_S_S(SLERR_SOAPR_ITEMREFTYPECONFL, temp_buf);
 								}
 							}
@@ -1444,7 +1444,7 @@ int SoapPacketStruc::ResolveRefs(const SoapPacketStruc & rResolveList)
 		else if(!(p_item->Flags & SOAPIF_RESOLVED)) {
 			int    resolved = 0;
 			R_R.GetString(p_item->RefP, item_name_buf);
-			(temp_buf = 0).Cat(array_type_buf).CatDiv(':', 1).Cat(struc_ref_buf).CatDiv(':', 1).Cat(item_name_buf);
+			temp_buf.Z().Cat(array_type_buf).CatDiv(':', 1).Cat(struc_ref_buf).CatDiv(':', 1).Cat(item_name_buf);
 			THROW_S_S(p_item->RefP, SLERR_SOPAR_UNRESITEMHASNTREF, temp_buf);
 			for(uint k = 0; !resolved && k < rResolveList.getCount(); k++) {
 				SoapPacketStruc::InnerItem * p_ritem = (SoapPacketStruc::InnerItem *)rResolveList.at(k);
@@ -1538,7 +1538,7 @@ int SoapPacket::Write(const char * pUrn, const char * pMethodName, void ** ppXml
 						// <token xsi:type="xsd:string">AuthToken</token>
 						xmlNode * p_node = xmlNewDocNode(p_doc, 0, spi.Name.ucptr(), spi.Value.ucptr());
 						THROW(p_node);
-						(temp_buf = 0).Cat(p_nss_xsi).CatChar(':').Cat("type");
+						temp_buf.Z().Cat(p_nss_xsi).CatChar(':').Cat("type");
 						(type_buf = 0).Cat(p_nss_xsd).CatChar(':').Cat(spi.TypeName);
 						xmlNewProp(p_node, temp_buf.ucptr(), type_buf.ucptr());
 						xmlAddChild(p_method_node, p_node);

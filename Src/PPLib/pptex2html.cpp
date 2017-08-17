@@ -562,24 +562,24 @@ int PPTex2HtmlPrcssr::Helper_Debug_OutputTextBlock(const PPTex2HtmlPrcssr::TextB
 		if(pBlk->P_ArgBrk) {
 			for(TextBlock * p_arg = pBlk->P_ArgBrk; p_arg; p_arg = p_arg->P_Next) {
 				if(p_arg->Text.Len() <= 80) {
-					WriteText(rF, (line_buf = 0).CatBrackStr(p_arg->Text).CR());
+					WriteText(rF, line_buf.Z().CatBrackStr(p_arg->Text).CR());
 				}
 				else {
-					WriteText(rF, (line_buf = 0).CatChar('[').CR());
+					WriteText(rF, line_buf.Z().CatChar('[').CR());
 					THROW(Helper_Debug_OutputTextBlock(p_arg, rF, 1));
-					WriteText(rF, (line_buf = 0).CatChar(']').CR());
+					WriteText(rF, line_buf.Z().CatChar(']').CR());
 				}
 			}
 		}
 		if(pBlk->P_ArgBrc) {
 			for(TextBlock * p_arg = pBlk->P_ArgBrc; p_arg; p_arg = p_arg->P_Next) {
 				if(p_arg->Text.Len() <= 80) {
-					WriteText(rF, (line_buf = 0).CatChar('{').Cat(p_arg->Text).CatChar('}').CR());
+					WriteText(rF, line_buf.Z().CatChar('{').Cat(p_arg->Text).CatChar('}').CR());
 				}
 				else {
-					WriteText(rF, (line_buf = 0).CatChar('{').CR());
+					WriteText(rF, line_buf.Z().CatChar('{').CR());
 					THROW(Helper_Debug_OutputTextBlock(p_arg, rF, 1));
-					WriteText(rF, (line_buf = 0).CatChar('}').CR());
+					WriteText(rF, line_buf.Z().CatChar('}').CR());
 				}
 			}
 		}
@@ -772,19 +772,19 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 									(file_name_buf = 0).CatQStr(temp_buf2);
 									(temp_buf2 = 0).CatChar('<').Cat("a").Space().CatEq("name", file_name_buf).CatChar('>');
 									{
-										(temp_buf = 0).CatQStr(line_buf);
-										(line_buf = 0).Cat(temp_buf2).CatChar('<').Cat("img").Space().CatEq("src", temp_buf);
-										// line_buf.Space().CatEq("align", (temp_buf = 0).CatQStr("left"));
+										temp_buf.Z().CatQStr(line_buf);
+										line_buf.Z().Cat(temp_buf2).CatChar('<').Cat("img").Space().CatEq("src", temp_buf);
+										// line_buf.Space().CatEq("align", temp_buf.Z().CatQStr("left"));
 										if(p_first_brc_arg->P_Next) {
 											if(p_first_brc_arg->P_Next->Text.NotEmpty()) {
-												(temp_buf = 0).CatQStr(p_first_brc_arg->P_Next->Text);
+												temp_buf.Z().CatQStr(p_first_brc_arg->P_Next->Text);
 												line_buf.Space().CatEq("alt", temp_buf).Space().CatEq("title", temp_buf);
 											}
 											if(p_first_brc_arg->P_Next->P_Next && p_first_brc_arg->P_Next->P_Next->Text.NotEmpty()) {
 												/*
 												double sc = p_first_brc_arg->P_Next->P_Next->Text.ToReal();
 												if(sc > 0.0) {
-													(temp_buf = 0).CatChar('\"').Cat(sc * 100.0, MKSFMTD(0, 0, 0)).CatChar('%').CatChar('\"');
+													temp_buf.Z().CatChar('\"').Cat(sc * 100.0, MKSFMTD(0, 0, 0)).CatChar('%').CatChar('\"');
 													line_buf.Space().CatEq("width", temp_buf);
 													line_buf.Space().CatEq("height", temp_buf);
 												}
@@ -864,8 +864,8 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 				}
 				else if(p_blk->Text.CmpNC("ref") == 0 || p_blk->Text.CmpNC("pageref") == 0) {
 					if(p_first_brc_arg) {
-						//(temp_buf = 0).CatChar('\"').CatChar('#').Cat(p_first_brc_arg->Text).CatChar('\"');
-						//(line_buf = 0).CatChar('<').Cat("a").Space().CatEq("href", temp_buf).CatChar('>').Cat("link").CatTagBrace("a", 1);
+						//temp_buf.Z().CatChar('\"').CatChar('#').Cat(p_first_brc_arg->Text).CatChar('\"');
+						//line_buf.Z().CatChar('<').Cat("a").Space().CatEq("href", temp_buf).CatChar('>').Cat("link").CatTagBrace("a", 1);
 						//WriteText(rOut, line_buf);
 					}
 				}
@@ -1034,10 +1034,10 @@ int PPTex2HtmlPrcssr::ResolvePict(const char * pOrgSymb, const char * pName, uin
 			SPathStruc::GetRelativePath(out_file_name, 0, p_result->DestFileName, 0, rel_path);
 		}
 		if(rel_path.NotEmpty()) {
-			(temp_buf = 0).Cat("pic").CatChar('-').Cat(org_symb);
+			temp_buf.Z().Cat("pic").CatChar('-').Cat(org_symb);
 			rRef.CatChar('<').Cat("a").Space().CatEqQ("name", temp_buf).CatChar('>').
 				CatChar('<').Cat("img").Space().CatEqQ("src", rel_path);
-			// line_buf.Space().CatEq("align", (temp_buf = 0).CatQStr("left"));
+			// line_buf.Space().CatEq("align", temp_buf.Z().CatQStr("left"));
 			if(!isempty(pName))
 				rRef.Space().CatEqQ("alt", pName).Space().CatEqQ("title", pName);
 			rRef.CatChar('>').CatTagBrace("a", 1);
@@ -1079,7 +1079,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 				if(p) {
 					if(paragraph)
 						Paragraph(&rOut, paragraph);
-					(line_buf = 0).CatTagBrace(p->P_HtmlTag, 0).CR();
+					line_buf.Z().CatTagBrace(p->P_HtmlTag, 0).CR();
 					WriteText(rOut, line_buf);
 				}
 				_TexEnvItem env_item;
@@ -1098,15 +1098,15 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 					//
 					if(p_first_brc_arg->Text.CmpNC("description") == 0 || p_first_brc_arg->Text.CmpNC("itemize") == 0 || p_first_brc_arg->Text.CmpNC("enumerate") == 0) {
 						if(list_item == 2)
-							WriteText(rOut, (line_buf = 0).CatTagBrace("dd", 1));
+							WriteText(rOut, line_buf.Z().CatTagBrace("dd", 1));
 						else
-							WriteText(rOut, (line_buf = 0).CatTagBrace("li", 1));
+							WriteText(rOut, line_buf.Z().CatTagBrace("li", 1));
 						list_item = 0;
 					}
 				}
 				if(env_item.P_StartBlk && env_item.P_StartBlk->P_ArgBrc && env_item.P_StartBlk->P_ArgBrc->Text.CmpNC(p_first_brc_arg->Text) == 0) {
 					if(env_item.P_ThEntry) {
-						(line_buf = 0).CatTagBrace(env_item.P_ThEntry->P_HtmlTag, 1).CR();
+						line_buf.Z().CatTagBrace(env_item.P_ThEntry->P_HtmlTag, 1).CR();
 						WriteText(rOut, line_buf);
 					}
 				}
@@ -1126,7 +1126,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 				}
 				else if(p_blk->Text.CmpNC("ref") == 0 || p_blk->Text.CmpNC("pageref") == 0) {
 					if(p_first_brc_arg) {
-						(temp_buf = 0).CatChar('\"');
+						temp_buf.Z().CatChar('\"');
 						uint i;
 						const StateBlock::OutPart * p_this_part = 0;
 						for(i = 0; i < St.OutPartList.getCount(); i++) {
@@ -1170,34 +1170,34 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 							}
 						}
 						temp_buf.CatChar('#').Cat(p_first_brc_arg->Text).CatChar('\"');
-						(line_buf = 0).CatChar('<').Cat("a").Space().CatEq("href", temp_buf).CatChar('>').Cat("link").CatTagBrace("a", 1);
+						line_buf.Z().CatChar('<').Cat("a").Space().CatEq("href", temp_buf).CatChar('>').Cat("link").CatTagBrace("a", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
 				else if(p_blk->Text == "$") { // formula
 					if(p_first_brc_arg) {
-						WriteText(rOut, (line_buf = 0).CatTagBrace("i", 0).CatTagBrace("strong", 0));
+						WriteText(rOut, line_buf.Z().CatTagBrace("i", 0).CatTagBrace("strong", 0));
 						THROW(Helper_Output(rOut, p_first_brc_arg, _thfDisablePara|_thfFormula)); // @recursion
-						WriteText(rOut, (line_buf = 0).CatTagBrace("strong", 1).CatTagBrace("i", 1));
+						WriteText(rOut, line_buf.Z().CatTagBrace("strong", 1).CatTagBrace("i", 1));
 					}
 				}
 				else if(p_blk->Text == "$$") { // formula
 					if(p_first_brc_arg) {
-						WriteText(rOut, (line_buf = 0).CatTagBrace("i", 0).CatTagBrace("strong", 0));
+						WriteText(rOut, line_buf.Z().CatTagBrace("i", 0).CatTagBrace("strong", 0));
 						for(const TextBlock * p_blk_ = p_first_brc_arg; p_blk_; p_blk_ = p_blk_->P_Next) {
 							THROW(Helper_Output(rOut, p_blk_, _thfFormula|_thfSingle)); // @recursion
 						}
-						WriteText(rOut, (line_buf = 0).CatTagBrace("strong", 1).CatTagBrace("i", 1));
+						WriteText(rOut, line_buf.Z().CatTagBrace("strong", 1).CatTagBrace("i", 1));
 					}
 				}
 				else if(p_blk->Text.CmpNC("ppybrand") == 0) {
 					WriteText(rOut, (line_buf = "Papyrus").Space());
 				}
 				else if(p_blk->Text.CmpNC("newline") == 0) {
-					WriteText(rOut, (line_buf = 0).CatTagBrace("br", 0));
+					WriteText(rOut, line_buf.Z().CatTagBrace("br", 0));
 				}
 				else if(p_blk->Text.CmpNC("indent") == 0) {
-					WriteText(rOut, (line_buf = 0).Tab());
+					WriteText(rOut, line_buf.Z().Tab());
 				}
 				else if(p_blk->Text.CmpNC("sum") == 0) {
 					WriteText(rOut, line_buf = "&Sigma;");
@@ -1208,7 +1208,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 						if(flags & _thfFormula)
 							_thf |= _thfFormula;
 						THROW(Helper_Output(rOut, p_first_brc_arg, _thf)); // @recursion
-						WriteText(rOut, (line_buf = 0).Space().CatChar('/').Space());
+						WriteText(rOut, line_buf.Z().Space().CatChar('/').Space());
 						if(p_first_brc_arg->P_Next) {
 							THROW(Helper_Output(rOut, p_first_brc_arg->P_Next, _thf)); // @recursion
 						}
@@ -1216,24 +1216,24 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 				}
 				else if(p_blk->Text.CmpNC("underline") == 0) {
 					if(p_first_brc_arg) {
-						WriteText(rOut, (line_buf = 0).CatTagBrace("u", 0));
+						WriteText(rOut, line_buf.Z().CatTagBrace("u", 0));
 						THROW(Helper_Output(rOut, p_first_brc_arg, _thfDisablePara)); // @recursion
-						WriteText(rOut, (line_buf = 0).CatTagBrace("u", 1));
+						WriteText(rOut, line_buf.Z().CatTagBrace("u", 1));
 					}
 				}
 				else if(p_blk->Text.CmpNC("trademark") == 0) {
 					if(p_first_brc_arg) {
 						THROW(Helper_Output(rOut, p_first_brc_arg, _thfDisablePara)); // @recursion
-						WriteText(rOut, (line_buf = 0).CatTagBrace("sup", 0).Cat("&trade;").CatTagBrace("sup", 1));
+						WriteText(rOut, line_buf.Z().CatTagBrace("sup", 0).Cat("&trade;").CatTagBrace("sup", 1));
 					}
 				}
 				else if(p_blk->Text.CmpNC("rdir") == 0) {
-					WriteText(rOut, (line_buf = 0).Cat("&#8594;"));
+					WriteText(rOut, line_buf.Z().Cat("&#8594;"));
 				}
 				else if(p_blk->Text.CmpNC("symbol") == 0) {
 					if(p_first_brc_arg) {
 						long sc = p_first_brc_arg->Text.ToLong();
-						(line_buf = 0).CatChar('&').CatChar('#').Cat(sc).Semicol();
+						line_buf.Z().CatChar('&').CatChar('#').Cat(sc).Semicol();
 						WriteText(rOut, line_buf);
 					}
 				}
@@ -1244,104 +1244,104 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 				}
 				else if(p_blk->Text.CmpNC("ppynote") == 0) {
 					if(p_first_brc_arg) {
-						(temp_buf = 0).CatQStr("ppynote");
-						(line_buf = 0).CatChar('<').Cat("div").Space().CatEq("class", temp_buf).CatChar('>');
+						temp_buf.Z().CatQStr("ppynote");
+						line_buf.Z().CatChar('<').Cat("div").Space().CatEq("class", temp_buf).CatChar('>');
 						WriteText(rOut, line_buf);
 						THROW(Helper_Output(rOut, p_first_brc_arg, 0)); // @recursion
-						(line_buf = 0).CatTagBrace("div", 1);
+						line_buf.Z().CatTagBrace("div", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
 				else if(p_blk->Text.CmpNC("ppyexample") == 0 || p_blk->Text.CmpNC("ppyexampletitle") == 0) {
 					if(p_first_brc_arg) {
-						(temp_buf = 0).CatQStr("ppyexample");
-						(line_buf = 0).CatChar('<').Cat("div").Space().CatEq("class", temp_buf).CatChar('>');
+						temp_buf.Z().CatQStr("ppyexample");
+						line_buf.Z().CatChar('<').Cat("div").Space().CatEq("class", temp_buf).CatChar('>');
 						WriteText(rOut, line_buf);
 						THROW(Helper_Output(rOut, p_first_brc_arg, 0)); // @recursion
-						(line_buf = 0).CatTagBrace("div", 1);
+						line_buf.Z().CatTagBrace("div", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
 				else if(p_blk->Text.CmpNC("keyb") == 0) {
 					if(p_first_brc_arg) {
-						(line_buf = 0).CatTagBrace("kbd", 0).Cat("&lt;").Cat(p_first_brc_arg->Text).Cat("&gt;").CatTagBrace("kbd", 1).Space();
+						line_buf.Z().CatTagBrace("kbd", 0).Cat("&lt;").Cat(p_first_brc_arg->Text).Cat("&gt;").CatTagBrace("kbd", 1).Space();
 						WriteText(rOut, line_buf);
 					}
 				}
 				else if(p_blk->Text.CmpNC("dlgbutton") == 0) {
 					if(p_first_brc_arg) {
-						(line_buf = 0).CatTagBrace("em", 0).CatChar('[').Cat(p_first_brc_arg->Text).CatChar(']').CatTagBrace("em", 1);
+						line_buf.Z().CatTagBrace("em", 0).CatChar('[').Cat(p_first_brc_arg->Text).CatChar(']').CatTagBrace("em", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
 				else if(p_blk->Text.CmpNC("dlgcombo") == 0) {
 					if(p_first_brc_arg) {
-						(line_buf = 0).CatTagBrace("em", 0).Cat("&#9660;").Cat(p_first_brc_arg->Text).CatTagBrace("em", 1);
+						line_buf.Z().CatTagBrace("em", 0).Cat("&#9660;").Cat(p_first_brc_arg->Text).CatTagBrace("em", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
 				else if(p_blk->Text.CmpNC("dlgflag") == 0) {
 					if(p_first_brc_arg) {
-						(line_buf = 0).CatTagBrace("em", 0).Cat("&#10003;").Cat(p_first_brc_arg->Text).CatTagBrace("em", 1);
+						line_buf.Z().CatTagBrace("em", 0).Cat("&#10003;").Cat(p_first_brc_arg->Text).CatTagBrace("em", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
 				else if(p_blk->Text.CmpNC("dlgradioi") == 0) {
 					if(p_first_brc_arg) {
-						(line_buf = 0).CatTagBrace("em", 0).Cat("&#9675;").Cat(p_first_brc_arg->Text).CatTagBrace("em", 1);
+						line_buf.Z().CatTagBrace("em", 0).Cat("&#9675;").Cat(p_first_brc_arg->Text).CatTagBrace("em", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
 				else if(p_blk->Text.CmpNC("ppysyntax") == 0) {
 					if(p_first_brc_arg) {
-						(line_buf = 0).CatTagBrace("em", 0).Cat(p_first_brc_arg->Text).CatTagBrace("em", 1);
+						line_buf.Z().CatTagBrace("em", 0).Cat(p_first_brc_arg->Text).CatTagBrace("em", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
 				else if(p_blk->Text.CmpNC("ppyterm") == 0) {
 					if(p_first_brc_arg) {
-						(line_buf = 0).CatTagBrace("dfn", 0).Cat(p_first_brc_arg->Text).CatTagBrace("dfn", 1);
+						line_buf.Z().CatTagBrace("dfn", 0).Cat(p_first_brc_arg->Text).CatTagBrace("dfn", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
 				else if(p_blk->Text.CmpNC("ppyrsrv") == 0) {
 					if(p_first_brc_arg) {
-						(line_buf = 0).CatTagBrace("dfn", 0).Cat(p_first_brc_arg->Text).CatTagBrace("dfn", 1);
+						line_buf.Z().CatTagBrace("dfn", 0).Cat(p_first_brc_arg->Text).CatTagBrace("dfn", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
 				else if(p_blk->Text.CmpNC("qu") == 0) {
 					if(p_first_brc_arg) {
-						(line_buf = 0).Cat("&ldquo;").Cat(p_first_brc_arg->Text).Cat("&rdquo;");
+						line_buf.Z().Cat("&ldquo;").Cat(p_first_brc_arg->Text).Cat("&rdquo;");
 						WriteText(rOut, line_buf);
 					}
 				}
 				else if(p_blk->Text.CmpNC("label") == 0) {
 					if(p_first_brc_arg) {
-						(temp_buf = 0).CatChar('\"').Cat(p_first_brc_arg->Text).CatChar('\"');
-						(line_buf = 0).CatChar('<').Cat("a").Space().CatEq("name", temp_buf).CatChar('>').CatTagBrace("a", 1);
+						temp_buf.Z().CatChar('\"').Cat(p_first_brc_arg->Text).CatChar('\"');
+						line_buf.Z().CatChar('<').Cat("a").Space().CatEq("name", temp_buf).CatChar('>').CatTagBrace("a", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
 				else if(p_blk->Text.CmpNC("item") == 0) {
 					if(list_item) {
 						if(list_item == 2) {
-							WriteText(rOut, (line_buf = 0).CatTagBrace("dd", 1));
+							WriteText(rOut, line_buf.Z().CatTagBrace("dd", 1));
 						}
 						else {
-							WriteText(rOut, (line_buf = 0).CatTagBrace("li", 1));
+							WriteText(rOut, line_buf.Z().CatTagBrace("li", 1));
 						}
 						list_item = 0;
 					}
 					if(p_blk->P_ArgBrk) {
-						WriteText(rOut, (line_buf = 0).CatTagBrace("dt", 0));
+						WriteText(rOut, line_buf.Z().CatTagBrace("dt", 0));
 						THROW(Helper_Output(rOut, p_blk->P_ArgBrk, _thfSuppressPara)); // @recursion
-						WriteText(rOut, (line_buf = 0).CatTagBrace("dt", 1));
-						WriteText(rOut, (line_buf = 0).CatTagBrace("dd", 0));
+						WriteText(rOut, line_buf.Z().CatTagBrace("dt", 1));
+						WriteText(rOut, line_buf.Z().CatTagBrace("dd", 0));
 						list_item = 2;
 					}
 					else {
-						WriteText(rOut, (line_buf = 0).CatTagBrace("li", 0));
+						WriteText(rOut, line_buf.Z().CatTagBrace("li", 0));
 						list_item = 1;
 					}
 				}
@@ -1360,11 +1360,11 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 						if(p && p->P_HtmlTag) {
 							if(thf & _thfEndPara && paragraph)
 								Paragraph(&rOut, paragraph);
-							WriteText(rOut, (line_buf = 0).CatTagBrace(p->P_HtmlTag, 0));
+							WriteText(rOut, line_buf.Z().CatTagBrace(p->P_HtmlTag, 0));
 						}
 						THROW(Helper_Output(rOut, p_first_brc_arg, thf)); // @recursion
 						if(p && p->P_HtmlTag) {
-							WriteText(rOut, (line_buf = 0).CatTagBrace(p->P_HtmlTag, 1));
+							WriteText(rOut, line_buf.Z().CatTagBrace(p->P_HtmlTag, 1));
 						}
 					}
 				}
@@ -1424,8 +1424,8 @@ int PPTex2HtmlPrcssr::OutputStyles(SFile & rOut)
 	</style>
 #endif // } 0
 	SString line_buf, temp_buf;
-	(temp_buf = 0).CatQStr("text/css");
-	(line_buf = 0).CatChar('<').Cat("style").Space().CatEq("type", temp_buf).CatChar('>');
+	temp_buf.Z().CatQStr("text/css");
+	line_buf.Z().CatChar('<').Cat("style").Space().CatEq("type", temp_buf).CatChar('>');
 
 		line_buf.Space().CatChar('.').Cat("ppynote").Space().CatChar('{').Space();
 		line_buf.Cat("width").CatDiv(':', 2).Cat("600px").Semicol();
@@ -2131,7 +2131,7 @@ static SString & MakeHtmlImg(const char * pPath, const char * pName, SString & r
 {
 	SString img_file_name;
 	(img_file_name = pPath).SetLastSlash().RmvLastSlash().CatChar('/').Cat(pName);
-	return (rBuf = 0).CatChar('<').Cat("img").Space().CatEqQ("src", img_file_name).CatChar('>');
+	return rBuf.Z().CatChar('<').Cat("img").Space().CatEqQ("src", img_file_name).CatChar('>');
 }
 
 PPID PPVer2HtmlPrcssr::AttachEntryToWorkbook(const VersionEntry * pEntry, const char * pFileName, int rank, PPID parentWbID, PPObjWorkbook & rWbObj)
@@ -2224,8 +2224,8 @@ PPID PPVer2HtmlPrcssr::AttachEntryToWorkbook(const VersionEntry * pEntry, const 
 int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath)
 {
 	/*
-		(temp_buf = 0).CatQStr(line_buf);
-		(line_buf = 0).Cat(temp_buf2).CatChar('<').Cat("img").Space().CatEq("src", temp_buf);
+		temp_buf.Z().CatQStr(line_buf);
+		line_buf.Z().Cat(temp_buf2).CatChar('<').Cat("img").Space().CatEq("src", temp_buf);
 	*/
 
 	int    ok = 1;
@@ -2247,30 +2247,30 @@ int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath
 				//
 				THROW(root_wb_id = AttachEntryToWorkbook(0, 0, -10000, 0, wb_obj));
 			}
-			(line_buf = 0).CatChar('<').Cat("table").Space().CatEqQ("rules", "groups").CatChar('>').CR();
+			line_buf.Z().CatChar('<').Cat("table").Space().CatEqQ("rules", "groups").CatChar('>').CR();
 			WriteText(f_out, line_buf);
 			for(uint i = 0; i < Entries.getCount(); i++) {
 				const VersionEntry * p_entry = Entries.at(i);
 				if(p_entry) {
 					entry_buf = 0;
-					entry_buf.Cat((line_buf = 0).Tab().CatTagBrace("thead", 0).CR());
-					entry_buf.Cat((line_buf = 0).Tab().CatTagBrace("tr", 0).CR());
-						entry_buf.Cat((line_buf = 0).Tab(2).CatTagBrace("td", 0).CR());
-							entry_buf.Cat((line_buf = 0).Tab(3).Cat(p_entry->Ver.ToStr(temp_buf = 0)).CR());
-						entry_buf.Cat((line_buf = 0).Tab(2).CatTagBrace("td", 1).CR());
-						entry_buf.Cat((line_buf = 0).Tab(2).CatTagBrace("td", 0).CR());
-							entry_buf.Cat((line_buf = 0).Tab(3).Cat(p_entry->Dt, DATF_DMY|DATF_CENTURY).CR());
-						entry_buf.Cat((line_buf = 0).Tab(2).CatTagBrace("td", 1).CR());
-						entry_buf.Cat((line_buf = 0).Tab(2).CatTagBrace("td", 0).CR());
+					entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("thead", 0).CR());
+					entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("tr", 0).CR());
+						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 0).CR());
+							entry_buf.Cat(line_buf.Z().Tab(3).Cat(p_entry->Ver.ToStr(temp_buf = 0)).CR());
+						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 1).CR());
+						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 0).CR());
+							entry_buf.Cat(line_buf.Z().Tab(3).Cat(p_entry->Dt, DATF_DMY|DATF_CENTURY).CR());
+						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 1).CR());
+						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 0).CR());
 							// empty
-						entry_buf.Cat((line_buf = 0).Tab(2).CatTagBrace("td", 1).CR());
-					entry_buf.Cat((line_buf = 0).Tab().CatTagBrace("tr", 1).CR());
-					entry_buf.Cat((line_buf = 0).Tab().CatTagBrace("thead", 1).CR());
+						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 1).CR());
+					entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("tr", 1).CR());
+					entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("thead", 1).CR());
 					//
-					entry_buf.Cat((line_buf = 0).Tab().CatTagBrace("tbody", 0).CR());
+					entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("tbody", 0).CR());
 					for(Paragraph * p_para = p_entry->P_Body; p_para; p_para = p_para->P_Next) {
-						entry_buf.Cat((line_buf = 0).Tab().CatTagBrace("tr", 0).CR());
-						entry_buf.Cat((line_buf = 0).Tab(2).CatTagBrace("td", 0).CR());
+						entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("tr", 0).CR());
+						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 0).CR());
 							line_buf = 0;
 							if(p_para->Type == p_para->tRegular) {
 								if(p_para->Flags & p_para->fExclam) {
@@ -2306,16 +2306,16 @@ int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath
 								line_buf.Cat("$INVALID$");
 							}
 							entry_buf.Cat(line_buf.CR());
-						entry_buf.Cat((line_buf = 0).Tab(2).CatTagBrace("td", 1).CR());
-						entry_buf.Cat((line_buf = 0).Tab(2).CatTagBrace("td", 0).CR());
-							(line_buf = 0).Tab(3).CatTagBrace("p", 0);
+						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 1).CR());
+						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 0).CR());
+							line_buf.Z().Tab(3).CatTagBrace("p", 0);
 							if(p_para->Topic.NotEmpty()) {
 								line_buf.Cat(p_para->Topic);
 							}
 							line_buf.CatTagBrace("p", 1);
 							entry_buf.Cat(line_buf.CR());
-						entry_buf.Cat((line_buf = 0).Tab(2).CatTagBrace("td", 1).CR());
-						entry_buf.Cat((line_buf = 0).Tab(2).CatTagBrace("td", 0).CR());
+						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 1).CR());
+						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 0).CR());
 						{
 							Paragraph * p_next = 0;
 							do {
@@ -2324,24 +2324,24 @@ int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath
 								p_next = p_para->P_Next;
 								if(p_para->Flags & Paragraph::fListItem) {
 									Paragraph * p_li_next = 0;
-									entry_buf.Cat((line_buf = 0).Tab(3).CatTagBrace("ul", 0).CR());
+									entry_buf.Cat(line_buf.Z().Tab(3).CatTagBrace("ul", 0).CR());
 									do {
 										if(p_li_next)
 											p_para = p_li_next;
 										p_next = p_li_next = p_para->P_Next;
-										entry_buf.Cat((line_buf = 0).Tab(4).CatTagBrace("li", 0).CR());
-										(line_buf = 0).Tab(5).CatTagBrace("p", 0);
+										entry_buf.Cat(line_buf.Z().Tab(4).CatTagBrace("li", 0).CR());
+										line_buf.Z().Tab(5).CatTagBrace("p", 0);
 										if(p_para->Text.NotEmpty()) {
 											line_buf.Cat((temp_buf = p_para->Text).ReplaceSpecSymb(SFileFormat::Html));
 										}
 										line_buf.CatTagBrace("p", 1);
 										entry_buf.Cat(line_buf.CR());
-										entry_buf.Cat((line_buf = 0).Tab(4).CatTagBrace("li", 1).CR());
+										entry_buf.Cat(line_buf.Z().Tab(4).CatTagBrace("li", 1).CR());
 									} while(p_li_next && p_li_next->Type == Paragraph::tContinuation && p_li_next->Flags & Paragraph::fListItem);
-									entry_buf.Cat((line_buf = 0).Tab(3).CatTagBrace("ul", 1).CR());
+									entry_buf.Cat(line_buf.Z().Tab(3).CatTagBrace("ul", 1).CR());
 								}
 								else {
-									(line_buf = 0).Tab(3).CatTagBrace("p", 0);
+									line_buf.Z().Tab(3).CatTagBrace("p", 0);
 									if(p_para->Text.NotEmpty()) {
 										line_buf.Cat((temp_buf = p_para->Text).ReplaceSpecSymb(SFileFormat::Html));
 									}
@@ -2350,11 +2350,11 @@ int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath
 								}
 							} while(p_next && p_next->Type == Paragraph::tContinuation);
 						}
-						entry_buf.Cat((line_buf = 0).Tab(2).CatTagBrace("td", 1).CR());
+						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 1).CR());
 
-						entry_buf.Cat((line_buf = 0).Tab().CatTagBrace("tr", 1).CR());
+						entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("tr", 1).CR());
 					}
-					entry_buf.Cat((line_buf = 0).Tab().CatTagBrace("tbody", 1).CR());
+					entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("tbody", 1).CR());
 
 					WriteText(f_out, entry_buf);
 					if(P.Flags & Param::fDivide) {
@@ -2367,10 +2367,10 @@ int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath
 						ps.Merge(part_file_name);
 						SFile f_part_out(part_file_name, SFile::mWrite);
 
-						(line_buf = 0).CatChar('<').Cat("table").Space().CatEqQ("rules", "groups").CatChar('>').CR();
+						line_buf.Z().CatChar('<').Cat("table").Space().CatEqQ("rules", "groups").CatChar('>').CR();
 						WriteText(f_part_out, line_buf);
 						WriteText(f_part_out, entry_buf);
-						WriteText(f_part_out, (line_buf = 0).CatTagBrace("table", 1).CR());
+						WriteText(f_part_out, line_buf.Z().CatTagBrace("table", 1).CR());
 						if(P.Flags & Param::fAttachToWorkbook) {
 							f_part_out.Close();
 							THROW(AttachEntryToWorkbook(p_entry, part_file_name, i+1, root_wb_id, wb_obj));
@@ -2378,7 +2378,7 @@ int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath
 					}
 				}
 			}
-			WriteText(f_out, (line_buf = 0).CatTagBrace("table", 1).CR());
+			WriteText(f_out, line_buf.Z().CatTagBrace("table", 1).CR());
 			if(P.Flags & Param::fAttachToWorkbook) {
 				f_out.Close();
 				// Осталось подцепить общий файл к корневому узлу.

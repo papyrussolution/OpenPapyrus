@@ -534,7 +534,7 @@ int PPSync::GetLockingText(PPID mutexID, int resolveHostName, SString & rBuf)
 {
 	int    ok = -1;
 	SString addr_buf, ip_buf, mac_addr;
-	rBuf = 0;
+	rBuf.Z();
 	PPSyncItem item;
 	if(GetItem(mutexID, &item) > 0) {
 		InetAddr addr;

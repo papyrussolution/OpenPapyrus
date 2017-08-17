@@ -459,7 +459,7 @@ void SCI_METHOD LexerABL::Lex(Sci_PositionU startPos, Sci_Position length, int i
 				// Skip whitespace between & and preprocessor word
 				do {
 					sc.Forward();
-				} while((sc.ch == ' ' || sc.ch == '\t') && sc.More());
+				} while(oneof2(sc.ch, ' ', '\t') && sc.More());
 				if(sc.atLineEnd) {
 					sc.SetState(SCE_ABL_DEFAULT);
 				}
@@ -470,7 +470,7 @@ void SCI_METHOD LexerABL::Lex(Sci_PositionU startPos, Sci_Position length, int i
 				// Skip whitespace between // and preprocessor word
 				do {
 					sc.Forward();
-				} while((sc.ch == ' ' || sc.ch == '\t') && sc.More());
+				} while(oneof2(sc.ch, ' ', '\t') && sc.More());
 				if(sc.atLineEnd) {
 					sc.SetState(SCE_ABL_DEFAULT);
 				}

@@ -1169,7 +1169,7 @@ int PosPaymentBlock::EditDialog2()
 					else
 						ideqvalstr(0, temp_buf);
 					ss.add(temp_buf);
-					(temp_buf = 0).Cat(r_entry.Amount);
+					temp_buf.Z().Cat(r_entry.Amount);
 					ss.add(temp_buf);
 					temp_buf = 0;
 					temp_buf.Cat(ScRestList.Get(r_entry.AddedID, 0) - r_entry.Amount, SFMT_MONEY);
@@ -1210,7 +1210,7 @@ int PosPaymentBlock::EditDialog2()
 									PPErrorByDialog(dlg, CTL_EDITCCAMT_AMT);
                                 }
                                 else if(new_value > TotalConst) {
-									PPSetError(PPERR_OVERPAYMENT, (temp_buf = 0).Cat(TotalConst, MKSFMTD(0, 2, 0)));
+									PPSetError(PPERR_OVERPAYMENT, temp_buf.Z().Cat(TotalConst, MKSFMTD(0, 2, 0)));
 									PPErrorByDialog(dlg, CTL_EDITCCAMT_AMT);
                                 }
                                 else {
@@ -1295,7 +1295,7 @@ int PosPaymentBlock::EditDialog2()
 						}
 					}
 				}
-				setCtrlString(CTL_CPPAYM_CRDCARD, temp_buf = 0);
+				setCtrlString(CTL_CPPAYM_CRDCARD, temp_buf.Z());
 			}
 			else
 				ok = -1;
@@ -1355,7 +1355,7 @@ int PosPaymentBlock::EditDialog2()
 				{
 					SString temp_buf;
 					if(Data.SCardID)
-						(temp_buf = 0).Cat(R2(Data.SCardRest - Data.ScAmt), MKSFMTD(0, 2, NMBF_NOZERO));
+						temp_buf.Z().Cat(R2(Data.SCardRest - Data.ScAmt), MKSFMTD(0, 2, NMBF_NOZERO));
 					setStaticText(CTL_CPPAYM_CRDCARDREST, temp_buf);
 				}
 				if(lockCtl != CTL_CPPAYM_CASH)

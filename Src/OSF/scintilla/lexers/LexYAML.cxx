@@ -171,7 +171,7 @@ static void ColouriseYAMLLine(char * lineBuffer,
 			}
 			Sci_PositionU i2 = i;
 			while((i < startComment) && lineBuffer[i]) {
-				if(!(IsASCII(lineBuffer[i]) && isdigit(lineBuffer[i])) && lineBuffer[i] != '-'
+				if(!(IsASCII(lineBuffer[i]) && isdec(lineBuffer[i])) && lineBuffer[i] != '-'
 				    && lineBuffer[i] != '.' && lineBuffer[i] != ',' && lineBuffer[i] != ' ') {
 					styler.ColourTo(startLine + startComment - 1, SCE_YAML_DEFAULT);
 					if(startComment < lengthLine)

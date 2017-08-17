@@ -147,7 +147,7 @@ Generator_SQL & FASTCALL Generator_SQL::_Symb(int s)
 
 SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int _t = GETSTYPE(typ);
 	int _s = GETSSIZE(typ);
 	switch(Sqlst) {
@@ -248,7 +248,7 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 		if(!(fl & XIF_DUP))
 			Tok(tokUnique).Sp();
 		Tok(tokIndex).Sp();
-		PrefixName((temp_buf = 0).Cat(p_name).Cat("Key").Cat(n), pfxIndex, Temp, 0);
+		PrefixName(temp_buf.Z().Cat(p_name).Cat("Key").Cat(n), pfxIndex, Temp, 0);
 		Buf.Cat(Temp).Space();
 		Tok(tokOn).Sp();
 		Buf.Cat(p_name);
@@ -297,10 +297,10 @@ int Generator_SQL::CreateSequenceOnField(const DBTable & rTbl, const char * pFil
 		const BNField & r_fld = rTbl.fields[fldN];
 		const char * p_name = NZOR(pFileName, rTbl.fileName);
 		Tok(tokCreate).Sp().Tok(tokSequence).Sp();
-		PrefixName((temp_buf = 0).Cat(p_name).CatChar('_').Cat(r_fld.Name), pfxSequence, Temp, 0);
+		PrefixName(temp_buf.Z().Cat(p_name).CatChar('_').Cat(r_fld.Name), pfxSequence, Temp, 0);
 		Buf.Cat(Temp);
 		if(newVal) {
-			(temp_buf = 0).Cat(newVal);
+			temp_buf.Z().Cat(newVal);
 			Sp().Text("START").Sp().Text("WITH").Sp().Text(temp_buf);
 		}
 		//Buf.Semicol();
@@ -313,7 +313,7 @@ int Generator_SQL::CreateSequenceOnField(const DBTable & rTbl, const char * pFil
 int Generator_SQL::GetSequenceNameOnField(const DBTable & rTbl, uint fldN, SString & rBuf)
 {
 	int    ok = 1;
-	rBuf = 0;
+	rBuf.Z();
 	if(fldN < rTbl.fields.getCount())
 		PrefixName((Temp = 0).Cat(rTbl.fileName).CatChar('_').Cat(rTbl.fields[fldN].Name), pfxSequence, rBuf, 0);
 	else

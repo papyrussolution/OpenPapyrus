@@ -30,17 +30,11 @@ protected:
 		if(position != part1Length) {
 			if(position < part1Length) {
 				// Moving the gap towards start so moving elements towards end
-				std::copy_backward(
-				    body + position,
-				    body + part1Length,
-				    body + gapLength + part1Length);
+				std::copy_backward(body + position, body + part1Length, body + gapLength + part1Length);
 			}
 			else {          // position > part1Length
 				// Moving the gap towards end so moving elements towards start
-				std::copy(
-				    body + part1Length + gapLength,
-				    body + gapLength + position,
-				    body + part1Length);
+				std::copy(body + part1Length + gapLength, body + gapLength + position, body + part1Length);
 			}
 			part1Length = position;
 		}
@@ -94,7 +88,7 @@ public:
 			// Move the gap to the end
 			GapTo(lengthBody);
 			T * newBody = new T[newSize];
-			if((size != 0) && (body != 0)) {
+			if(size && body) {
 				std::copy(body, body + lengthBody, newBody);
 				delete []body;
 			}
@@ -206,10 +200,8 @@ public:
 	void Delete(int position)
 	{
 		PLATFORM_ASSERT((position >= 0) && (position < lengthBody));
-		if((position < 0) || (position >= lengthBody)) {
-			return;
-		}
-		DeleteRange(position, 1);
+		if(position >= 0 && position < lengthBody)
+			DeleteRange(position, 1);
 	}
 	/// Delete a range from the buffer.
 	/// Deleting positions outside the current range fails.

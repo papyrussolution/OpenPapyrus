@@ -617,7 +617,7 @@ int SLAPI TWindow::getStaticText(ushort ctlID, SString & rBuf)
 	if(p_st)
 		p_st->getText(rBuf);
 	else {
-		rBuf = 0;
+		rBuf.Z();
 		ok = 0;
 	}
 	return ok;

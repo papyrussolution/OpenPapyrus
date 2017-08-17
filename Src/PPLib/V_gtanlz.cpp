@@ -1013,14 +1013,14 @@ int SLAPI PPViewGoodsTaxAnalyze::ViewTotal()
 					THROW(p_list = (SmartListBox*)getCtrlView(CTL_GTANLZTOTAL_INOUTVL));
 					for(uint i = 0; p_inout_vatlist->enumItems(&i, (void**)&p_item) > 0;) {
 						ss.clear();
-						ss.add((sub = 0).Cat(p_item->PRate, MKSFMTD(0, 1, 0)).CatChar('%'));
+						ss.add(sub.Z().Cat(p_item->PRate, MKSFMTD(0, 1, 0)).CatChar('%'));
 						if(p_item->IsVatFree || p_item->PRate == 0.0) {
-							ss.add((sub = 0).Cat(p_item->Cost,  MKSFMTD(0, 2, NMBF_TRICOMMA|ALIGN_RIGHT)));
-							ss.add((sub = 0).Cat(p_item->Price, MKSFMTD(0, 2, NMBF_TRICOMMA|ALIGN_RIGHT)));
+							ss.add(sub.Z().Cat(p_item->Cost,  MKSFMTD(0, 2, NMBF_TRICOMMA|ALIGN_RIGHT)));
+							ss.add(sub.Z().Cat(p_item->Price, MKSFMTD(0, 2, NMBF_TRICOMMA|ALIGN_RIGHT)));
 						}
 						else {
-							ss.add((sub = 0).Cat(p_item->CVATSum, MKSFMTD(0, 2, NMBF_TRICOMMA|ALIGN_RIGHT)));
-							ss.add((sub = 0).Cat(p_item->PVATSum, MKSFMTD(0, 2, NMBF_TRICOMMA|ALIGN_RIGHT)));
+							ss.add(sub.Z().Cat(p_item->CVATSum, MKSFMTD(0, 2, NMBF_TRICOMMA|ALIGN_RIGHT)));
+							ss.add(sub.Z().Cat(p_item->PVATSum, MKSFMTD(0, 2, NMBF_TRICOMMA|ALIGN_RIGHT)));
 						}
 						THROW_SL(p_list->addItem(i, ss.getBuf()));
 					}

@@ -762,6 +762,7 @@ struct _xmlSchemaType {
 
 typedef struct _xmlSchemaElement xmlSchemaElement;
 typedef xmlSchemaElement *xmlSchemaElementPtr;
+
 struct _xmlSchemaElement {
     xmlSchemaTypeType type; /* The kind of type */
     struct _xmlSchemaType *next; /* Not used? */
@@ -769,13 +770,12 @@ struct _xmlSchemaElement {
     const xmlChar *id; /* Deprecated; not used */
     const xmlChar *ref; /* Deprecated; not used */
     const xmlChar *refNs; /* Deprecated; not used */
-    xmlSchemaAnnotPtr annot;
-    xmlSchemaTypePtr subtypes; /* the type definition */
-    xmlSchemaAttributePtr attributes;
-    xmlNodePtr node;
+    xmlSchemaAnnot * annot;
+    xmlSchemaType * subtypes; /* the type definition */
+    xmlSchemaAttribute * attributes;
+    xmlNode * P_Node;
     int minOccurs; /* Deprecated; not used */
     int maxOccurs; /* Deprecated; not used */
-
     int flags;
     const xmlChar *targetNamespace;
     const xmlChar *namedType;
@@ -784,15 +784,13 @@ struct _xmlSchemaElement {
     const xmlChar *substGroupNs;
     const xmlChar *scope;
     const xmlChar *value; /* The original value of the value constraint. */
-    struct _xmlSchemaElement *refDecl; /* This will now be used for the
-                                          substitution group affiliation */
-    xmlRegexpPtr contModel; /* Obsolete for WXS, maybe used for RelaxNG */
+    struct _xmlSchemaElement *refDecl; // This will now be used for the substitution group affiliation 
+    xmlRegexp * contModel; /* Obsolete for WXS, maybe used for RelaxNG */
     xmlSchemaContentType contentType;
     const xmlChar *refPrefix; /* Deprecated; not used */
-    xmlSchemaValPtr defVal; /* The compiled value contraint. */
+    xmlSchemaVal * defVal; /* The compiled value contraint. */
     void *idcs; /* The identity-constraint defs */
 };
-
 /*
  * XML_SCHEMAS_FACET_UNKNOWN:
  *

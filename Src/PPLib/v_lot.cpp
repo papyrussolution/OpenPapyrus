@@ -2957,9 +2957,9 @@ int PPLotImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rH
 	THROW(PPImpExpParam::SerializeConfig(dir, rHdr, rTail, pSCtx));
 	if(dir > 0) {
 		if(Flags)
-			param_list.Add(PPLOTPAR_FLAGS, (temp_buf = 0).Cat(Flags));
+			param_list.Add(PPLOTPAR_FLAGS, temp_buf.Z().Cat(Flags));
 		if(UhttGoodsCodeArID)
-			param_list.Add(PPLOTPAR_UHTTGOODSCODEAR, (temp_buf = 0).Cat(UhttGoodsCodeArID));
+			param_list.Add(PPLOTPAR_UHTTGOODSCODEAR, temp_buf.Z().Cat(UhttGoodsCodeArID));
 	}
 	THROW_SL(pSCtx->Serialize(dir, param_list, rTail));
 	if(dir < 0) {
@@ -3264,7 +3264,7 @@ int SLAPI EditLotExtCode(LotExtCodeTbl::Rec & rRec, char firstChar)
 	THROW(CheckDialogPtr(&dlg));
 	THROW(r_rcpt.Search(rRec.LotID, &lot_rec) > 0);
 	if(firstChar) {
-		(temp_buf = 0).CatChar(firstChar);
+		temp_buf.Z().CatChar(firstChar);
 	}
 	else
 		(temp_buf = rRec.Code).Strip();

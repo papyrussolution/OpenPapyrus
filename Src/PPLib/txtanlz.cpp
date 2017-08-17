@@ -578,10 +578,10 @@ int SLAPI PPTextAnalyzer::GetTrT(const PPTextAnalyzer::Replacer & rReplacer, SSt
 						}
 					}
 					else if(term == PPTextAnalyzer::Replacer::stOpPragma) {
-						rScan.GetIdent(rExtBuf = 0);
+						rScan.GetIdent(rExtBuf.Z());
 					}
 					else if(term == PPTextAnalyzer::Replacer::stOpCortege) {
-						rScan.GetIdent(rExtBuf = 0);
+						rScan.GetIdent(rExtBuf.Z());
 					}
 					else if(term == PPTextAnalyzer::Replacer::stNumL) {
 						char c = rScan[0];
@@ -630,7 +630,7 @@ int SLAPI PPTextAnalyzer::GetTrT(const PPTextAnalyzer::Replacer & rReplacer, SSt
 
 static int FASTCALL GetTrText(int term, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(term >= 1 && term <= 9) {
 		rBuf.CatChar('%').CatChar('0'+term);
 		return 1;
@@ -1118,7 +1118,7 @@ int SLAPI PPTextAnalyzer::FindReplacerSrcItem(PPTextAnalyzer::FindBlock & rBlk) 
 
 int SLAPI PPTextAnalyzer::DoReplacement(const PPTextAnalyzer::Replacer & rR, PPTextAnalyzer::FindBlock & rBlk, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 
 	int    ok = -1;
 	const  Replacer::SrcItem * p_src_item = rBlk.P_Item;
@@ -1316,7 +1316,7 @@ int SLAPI PPTextAnalyzer::Helper_ReplacerSrcItemToStr(const PPTextAnalyzer::Repl
 int SLAPI PPTextAnalyzer::ReplacerSrcItemToStr(const PPTextAnalyzer::Replacer & rR, const PPTextAnalyzer::Replacer::SrcItem * pItem, SString & rBuf) const
 {
 	int    ok = 1;
-	rBuf = 0;
+	rBuf.Z();
 	if(pItem) {
 		SString temp_buf;
 		if(pItem->Flags & Replacer::SrcItem::fContext) {
@@ -1890,7 +1890,7 @@ int SLAPI PPTextAnalyzer::ParseReplacerFile(const char * pFileName, Replacer & r
 
 #endif // } 0
 
-SLAPI PPTextAnalyzer::PPTextAnalyzer() : STokenizer(0)
+SLAPI PPTextAnalyzer::PPTextAnalyzer() : STokenizer()
 {
 	SignalProc = 0;
 	P_SignalProcExtra = 0;
@@ -2091,7 +2091,7 @@ int SLAPI PPTextAnalyzer::ProcessGoodsNN()
 								}
 							}
 							if(code_list.getCount() == 0) {
-								(temp_buf = 0).CatChar('.');
+								temp_buf.Z().CatChar('.');
 								code_list.add(temp_buf);
 							}
 							for(uint j = 0; code_list.get(&j, norm_code);) {
@@ -2126,7 +2126,7 @@ int SLAPI PPTextAnalyzer::ProcessGoodsNN()
 								p_ann->TrainWithOutput(p_nn_input, p_nn_output, p_nn_test_output);
 								{
 									temp_result_list.clear();
-									//(output_log_buf = 0).Tab();
+									//output_log_buf.Z().Tab();
 									for(uint oi = 0; oi < output_count; oi++) {
 										if(p_nn_test_output[oi] != 0.0f) {
 											const PPID _rid = group_list.get(oi);
@@ -2138,7 +2138,7 @@ int SLAPI PPTextAnalyzer::ProcessGoodsNN()
 									temp_result_list.SortByValRev();
 									for(uint rli = 0; rli < temp_result_list.getCount(); rli++) {
 										const RAssoc & r_a = temp_result_list.at(rli);
-										(output_log_buf = 0).Tab().Cat(r_a.Val, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+										output_log_buf.Z().Tab().Cat(r_a.Val, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 										GetGoodsName(r_a.Key, temp_buf);
 										output_log_buf.Tab().Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
 										f_out.WriteLine(output_log_buf.CR());
@@ -2303,9 +2303,8 @@ struct TestSignalProcExtra {
 static int TestSignalProc(const char * pResource, int64 orgOffs, const char * pOrgStr, const char * pSignalStr, void * pExtraPtr)
 {
 	TestSignalProcExtra * p_blk = (TestSignalProcExtra *)pExtraPtr;
-	if(p_blk) {
-		p_blk->OutF.WriteLine((p_blk->LineBuf = 0).Cat(pResource).Tab().Cat(pOrgStr).Tab().Cat(pSignalStr).CR());
-	}
+	if(p_blk)
+		p_blk->OutF.WriteLine(p_blk->LineBuf.Z().Cat(pResource).Tab().Cat(pOrgStr).Tab().Cat(pSignalStr).CR());
 	return 1;
 }
 
@@ -2377,7 +2376,7 @@ int SLAPI PPTextAnalyzer::Test()
 		{
 			for(uint i = 0; i < GetCommCount(); i++) {
 				if(GetComm(i, item)) {
-					(line_buf = 0).Tab().Cat(item.Token).Tab().Cat(item.Text).CR();
+					line_buf.Z().Tab().Cat(item.Token).Tab().Cat(item.Text).CR();
 					f_out.WriteLine(line_buf);
 				}
 			}
@@ -2385,7 +2384,7 @@ int SLAPI PPTextAnalyzer::Test()
 		{
 			for(uint i = 0; i < GetCount(); i++) {
 				if(Get(i, item)) {
-					(line_buf = 0).Cat(item.Resource).Tab().Cat(item.Token).Tab().Cat(item.Text).CR();
+					line_buf.Z().Cat(item.Resource).Tab().Cat(item.Token).Tab().Cat(item.Text).CR();
 					f_out.WriteLine(line_buf);
 				}
 			}
@@ -2627,7 +2626,7 @@ int SLAPI PrcssrObjText::Init(const PPBaseFilt * pBaseFilt)
 			LogF.Close();
 			LogF.Open(temp_buf, SFile::mWrite);
 			if(LogF.IsValid()) {
-				(line_buf = 0).Cat(getcurdatetime_());
+				line_buf.Z().Cat(getcurdatetime_());
 				//
 				if(!SGetComputerName(temp_buf))
 					temp_buf = "?COMP?";
@@ -2703,7 +2702,7 @@ int SLAPI PrcssrObjText::Run()
 				THROW(r = Ta.ProcessString(*P_Rpl, resource_buf, text_buf, result_buf, &fb, 0/*&outf*/));
 				if(LogF.IsValid()) {
 					(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
-					(line_buf = 0).Cat("goods").Tab().CatChar('#').Cat(goods_rec.ID).Tab().Cat(temp_buf).Tab().Cat(result_buf).CR();
+					line_buf.Z().Cat("goods").Tab().CatChar('#').Cat(goods_rec.ID).Tab().Cat(temp_buf).Tab().Cat(result_buf).CR();
 					LogF.WriteLine(line_buf);
 				}
 				if(r > 0 && P.Flags & P.fReplace) {
@@ -2753,7 +2752,7 @@ int SLAPI PrcssrObjText::Run()
 						THROW(r = Ta.ProcessString(*P_Rpl, resource_buf, text_buf, result_buf, &fb, 0));
 						if(LogF.IsValid()) {
 							(temp_buf = psn_item.Name).Transf(CTRANSF_INNER_TO_OUTER);
-							(line_buf = 0).Cat("person").Tab().CatChar('#').Cat(psn_id).Tab().Cat(temp_buf).Tab().Cat(result_buf).CR();
+							line_buf.Z().Cat("person").Tab().CatChar('#').Cat(psn_id).Tab().Cat(temp_buf).Tab().Cat(result_buf).CR();
 							LogF.WriteLine(line_buf);
 						}
 						if(r > 0 && P.Flags & P.fReplace) {
@@ -2817,7 +2816,7 @@ SLAPI PPObjectTokenizer::~PPObjectTokenizer()
 
 SString & FASTCALL EncodeTokenizerResourceObj(PPObjID oi, SString & rBuf)
 {
-	return (rBuf = 0).CatChar('#').Cat("OBJ").Dot().Cat(oi.Obj).Dot().Cat(oi.Id);
+	return rBuf.Z().CatChar('#').Cat("OBJ").Dot().Cat(oi.Obj).Dot().Cat(oi.Id);
 }
 
 int FASTCALL DecodeTokenizerResourceObj(const SString & rBuf, PPObjID & rOi)
@@ -2848,7 +2847,7 @@ int SLAPI PPObjectTokenizer::AddObject(PPObjID oi, const char * pName)
 	int    ok = 1;
 	(TextBuf = pName).Strip().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
 	if(TextBuf.NotEmpty()) {
-		THROW_SL(RunSString(EncodeTokenizerResourceObj(oi, IdentBuf = 0), 0, TextBuf, 0, 0));
+		THROW_SL(RunSString(EncodeTokenizerResourceObj(oi, IdentBuf.Z()), 0, TextBuf, 0, 0));
 	}
 	else
 		ok = -1;
@@ -2917,18 +2916,18 @@ int SLAPI PPObjectTokenizer::SearchObjects(const char * pText, PPID objType, lon
 				const int _digital = BIN(src_word_buf.IsDigit());
 				if(debug_output)
 					if(sw_r > 0)
-						PPLogMessage(PPFILNAM_DEBUG_LOG, (msg_buf = 0).Tab().Cat((temp_buf = src_word_buf).ToOem()), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf.Z().Tab().Cat((temp_buf = src_word_buf).ToOem()), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 					else
-						PPLogMessage(PPFILNAM_DEBUG_LOG, (msg_buf = 0).Tab().CatChar('$').Cat(p_entry->T), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf.Z().Tab().CatChar('$').Cat(p_entry->T), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 				for(uint j = 0; j < p_entry->RL.getCount(); j++) {
 					if(GetTextById(p_entry->RL.at(j).RP, temp_buf) > 0) {
 						PPObjID oi;
 						if(DecodeTokenizerResourceObj(temp_buf, oi) && (!objType || objType == oi.Obj)) {
 							if(debug_output) {
-								if(objType && GetObjectName(objType, oi.Id, name_buf = 0) > 0)
-									PPLogMessage(PPFILNAM_DEBUG_LOG, (msg_buf = 0).Tab().Tab().Cat(name_buf), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+								if(objType && GetObjectName(objType, oi.Id, name_buf.Z()) > 0)
+									PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf.Z().Tab().Tab().Cat(name_buf), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 								else
-									PPLogMessage(PPFILNAM_DEBUG_LOG, (msg_buf = 0).Tab().Tab().Cat(temp_buf), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+									PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf.Z().Tab().Tab().Cat(temp_buf), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 							}
 							double score = (_digital ? 0.03 : 1.0) * order_coeff;
 							rObjIdScoreList.Add(oi.Id, score);
@@ -2941,8 +2940,8 @@ int SLAPI PPObjectTokenizer::SearchObjects(const char * pText, PPID objType, lon
 			if(debug_output) {
 				for(i = 0; i < rObjIdScoreList.getCount(); i++) {
 					const RAssoc & r_rai = rObjIdScoreList.at(i);
-					if(objType && GetObjectName(objType, r_rai.Key, name_buf = 0) > 0) {
-						(msg_buf = 0).Tab().Cat(name_buf).Tab().Cat(r_rai.Val, SFMT_MONEY);
+					if(objType && GetObjectName(objType, r_rai.Key, name_buf.Z()) > 0) {
+						msg_buf.Z().Tab().Cat(name_buf).Tab().Cat(r_rai.Val, SFMT_MONEY);
 						PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 					}
 				}
@@ -3225,7 +3224,7 @@ private:
         }
         int    FASTCALL GetWord(uint idx, SString & rBuf) const
         {
-        	rBuf = 0;
+        	rBuf.Z();
         	if(idx < Idx.getCount()) {
 				const uint pos = (uint)Idx.get(idx);
         		GetS(pos, rBuf);
@@ -3281,7 +3280,7 @@ int SLAPI PPKeywordListGenerator::RandWordBlock::ReadData(const char * pFileName
 
 int SLAPI PPKeywordListGenerator::GetRandomWord(SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(!Rwb.GetCount()) {
 		if(DataFileName.NotEmpty()) {
 			SString rw_file_name;
@@ -3811,7 +3810,7 @@ public:
 		SString line_buf;
 		for(uint i = 0; i < Series.getCount(); i++) {
 			const SerItem * p_item = Series.at(i);
-			(line_buf = 0).Cat(p_item->P, MKSFMTD(0, 5, 0)).CatDiv(';', 2).Cat(p_item->S.GetExp(), MKSFMTD(0, 6, 0)).CatDiv(':', 2);
+			line_buf.Z().Cat(p_item->P, MKSFMTD(0, 5, 0)).CatDiv(';', 2).Cat(p_item->S.GetExp(), MKSFMTD(0, 6, 0)).CatDiv(':', 2);
 			for(long j = 0; j < p_item->S.GetCount(); j++) {
 				double _p;
 				if(p_item->S.GetValue(j, &_p) > 0) {
@@ -3852,7 +3851,7 @@ int SLAPI Test_KeywordListGenerator()
 			context_buf = "org_addr";
 			for(uint i = 0; i < 1000; i++) {
 				if(PPGenerateKeywordSequence(context_buf, word_buf, &stat) > 0) {
-					(temp_buf = 0).Cat(stat.LastRunWordCount).Tab().Cat(word_buf).CR();
+					temp_buf.Z().Cat(stat.LastRunWordCount).Tab().Cat(word_buf).CR();
 					f_out.WriteLine(temp_buf);
 				}
 				else
@@ -3862,12 +3861,12 @@ int SLAPI Test_KeywordListGenerator()
 		/*
 		{
 			f_out.WriteLine((temp_buf = "===STATISTICS===").CR());
-			(temp_buf = 0).CatEq("RunCount", (long)stat.RunCount).Space().CatEq("WordCount", (long)stat.WordCount).CR();
+			temp_buf.Z().CatEq("RunCount", (long)stat.RunCount).Space().CatEq("WordCount", (long)stat.WordCount).CR();
 			f_out.WriteLine(temp_buf);
 			for(uint i = 0; i < stat.getCount(); i++) {
 				const PPKeywordListGenerator::RunStatEntry & r_entry = stat.at(i);
 				temp_buf = 0;
-				g.GetWord(r_entry.WordP, word_buf = 0);
+				g.GetWord(r_entry.WordP, word_buf.Z());
 				temp_buf.Cat(word_buf).Tab().Cat(r_entry.Count).Tab().Cat((double)r_entry.Count / (double)stat.RunCount, MKSFMTD(0, 6, 0)).
 					Tab().Cat((double)r_entry.Count / (double)stat.WordCount, MKSFMTD(0, 6, 0)).CR();
 				f_out.WriteLine(temp_buf);
@@ -3879,9 +3878,9 @@ int SLAPI Test_KeywordListGenerator()
 			WorkbookTbl::Rec wb_rec;
 			for(SEnum en = wb_obj.P_Tbl->EnumByType(PPWBTYP_KEYWORD, 0); en.Next(&wb_rec) > 0;) {
 				{
-					(context_buf = 0).CatChar('@').CatEq("kwid", wb_rec.ID);
+					context_buf.Z().CatChar('@').CatEq("kwid", wb_rec.ID);
 					if(PPGenerateKeywordSequence(context_buf, word_buf, 0) > 0) {
-						(temp_buf = 0).Cat(context_buf).Tab().Cat(word_buf);
+						temp_buf.Z().Cat(context_buf).Tab().Cat(word_buf);
 					}
 					else {
 						(temp_buf = "Error on context").CatDiv(':', 2).Cat(context_buf);
@@ -3889,9 +3888,9 @@ int SLAPI Test_KeywordListGenerator()
 					f_out.WriteLine(temp_buf.CR());
 				}
 				{
-					(context_buf = 0).CatChar('@').CatEq("kws", wb_rec.Symb);
+					context_buf.Z().CatChar('@').CatEq("kws", wb_rec.Symb);
 					if(PPGenerateKeywordSequence(context_buf, word_buf, 0) > 0) {
-						(temp_buf = 0).Cat(context_buf).Tab().Cat(word_buf);
+						temp_buf.Z().Cat(context_buf).Tab().Cat(word_buf);
 					}
 					else {
 						(temp_buf = "Error on context").CatDiv(':', 2).Cat(context_buf);
@@ -3899,9 +3898,9 @@ int SLAPI Test_KeywordListGenerator()
 					f_out.WriteLine(temp_buf.CR());
 				}
 				{
-					(context_buf = 0).CatChar('@').CatEq("kwid", wb_rec.ID).Semicol().CatEq("locs", "6300000100000");
+					context_buf.Z().CatChar('@').CatEq("kwid", wb_rec.ID).Semicol().CatEq("locs", "6300000100000");
 					if(PPGenerateKeywordSequence(context_buf, word_buf, 0) > 0) {
-						(temp_buf = 0).Cat(context_buf).Tab().Cat(word_buf);
+						temp_buf.Z().Cat(context_buf).Tab().Cat(word_buf);
 					}
 					else {
 						(temp_buf = "Error on context").CatDiv(':', 2).Cat(context_buf);
@@ -3909,9 +3908,9 @@ int SLAPI Test_KeywordListGenerator()
 					f_out.WriteLine(temp_buf.CR());
 				}
 				{
-					(context_buf = 0).CatChar('@').CatEq("kws", wb_rec.Symb).Semicol().CatEq("locn", "чебоксары");
+					context_buf.Z().CatChar('@').CatEq("kws", wb_rec.Symb).Semicol().CatEq("locn", "чебоксары");
 					if(PPGenerateKeywordSequence(context_buf, word_buf, 0) > 0) {
-						(temp_buf = 0).Cat(context_buf).Tab().Cat(word_buf);
+						temp_buf.Z().Cat(context_buf).Tab().Cat(word_buf);
 					}
 					else {
 						(temp_buf = "Error on context").CatDiv(':', 2).Cat(context_buf);
@@ -4090,7 +4089,7 @@ int SLAPI PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SS
 	url.CatChar('&').CatEq("text", (temp_buf = rSrcText).ToUrl());
 	log_buf.Cat((temp_buf = rSrcText).Transf(CTRANSF_UTF8_TO_INNER)).Tab();
 	// $authHeader = "Authorization: Bearer ". $accessToken;
-	http_header.Add("Authorization", (temp_buf = 0).Cat("Bearer").Space().Cat(Token));
+	http_header.Add("Authorization", temp_buf.Z().Cat("Bearer").Space().Cat(Token));
 	http_header.Add("Content-Type", "text/xml");
 	{
 		const uint64 at_start = DS.GetProfileTime();
@@ -4198,7 +4197,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 				if(ffr > 0) {
                     SFileFormat::GetExt(ff, file_type_symb);
 				}
-				(temp_buf = 0).CatLongZ((long)ff, 3).Tab().CatLongZ((long)ffr, 3).Tab().Cat(file_type_symb).Tab().Cat(dest_path).CR();
+				temp_buf.Z().CatLongZ((long)ff, 3).Tab().CatLongZ((long)ffr, 3).Tab().Cat(file_type_symb).Tab().Cat(dest_path).CR();
 				pDetectTypeOutFile->WriteLine(temp_buf);
 			}
 			aa.Clear();
@@ -4225,7 +4224,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 					(item_buf = ps.Ext).Align(10, ADJ_LEFT);
 					temp_buf.Cat(item_buf);
 
-					(item_buf = 0).Cat(count);
+					item_buf.Z().Cat(count);
 					item_buf.Align(11, ADJ_RIGHT);
 					temp_buf.Space().Cat(item_buf);
 					temp_buf.Space().CatLongZ((long)zbits, 2);
@@ -4247,18 +4246,18 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 						else
 							item_buf.CatHex(c);
                         temp_buf.Cat(item_buf);
-                        (item_buf = 0).Cat(item.Val, MKSFMTD(8, 6, 0));
+                        item_buf.Z().Cat(item.Val, MKSFMTD(8, 6, 0));
                         temp_buf.Space().Cat(item_buf);
-                        (item_buf = 0).Cat(aa.GetPeriodExp(c), MKSFMTD(8, 6, 0));
+                        item_buf.Z().Cat(aa.GetPeriodExp(c), MKSFMTD(8, 6, 0));
                         temp_buf.Space().Cat(item_buf);
-                        (item_buf = 0).Cat(aa.GetPeriodStdDev(c), MKSFMTD(8, 6, 0));
+                        item_buf.Z().Cat(aa.GetPeriodStdDev(c), MKSFMTD(8, 6, 0));
                         temp_buf.Space().Cat(item_buf);
                         temp_buf.Space();
 					}
 					pOutFile->WriteLine(temp_buf.CR());
 				}
 				if(ffr > 0 && pFileTypeToFreqOrderOutFile) {
-					(temp_buf = 0).CatLongZ((long)ff, 3).Tab().CatLongZ((long)ffr, 3).Tab().Cat(file_type_symb).Tab();
+					temp_buf.Z().CatLongZ((long)ff, 3).Tab().CatLongZ((long)ffr, 3).Tab().Cat(file_type_symb).Tab();
 					for(uint i = 0; i < freq_list.getCount(); i++) {
 						const RAssoc item = freq_list.at(i);
 						uchar c = (uchar)item.Key;
@@ -6154,7 +6153,7 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt)
 						if(cpj != cpidx && GetByPos(cpj, &map2)) {
 							uint cmpr = Compare(map, map2);
 							if((cmpr & 0x02) /*|| !(cmpr & 0x01)*/) {
-								(line_buf = 0).Tab().Cat("compare").Space().Cat(map2.Name).CatDiv('=', 1).CatHex((ulong)cmpr);
+								line_buf.Z().Tab().Cat("compare").Space().Cat(map2.Name).CatDiv('=', 1).CatHex((ulong)cmpr);
 								f_out.WriteLine(line_buf.CR());
 								out_line_no++;
 							}
@@ -6218,8 +6217,8 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt)
 											*/
 										}
 									}
-									(line_buf = 0).Cat(map.Name).Align(prefix_len, ADJ_LEFT);
-									(line_buf2 = 0).Cat(map2.Name).Align(prefix_len, ADJ_LEFT);
+									line_buf.Z().Cat(map.Name).Align(prefix_len, ADJ_LEFT);
+									line_buf2.Z().Cat(map2.Name).Align(prefix_len, ADJ_LEFT);
 									for(uint ti = 0; ti < cmt_list.getCount(); ti++) {
 										const CMapTranslEntry & r_cmt = cmt_list.at(ti);
 										if(!(r_cmt.F & CMapTranslEntry::fNone)) {
@@ -6247,8 +6246,8 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt)
 								/*
 								if(cmt_list.MaxSLen && cmt_list.MaxDLen) {
 									const uint ml = MAX(cmt_list.MaxSLen, cmt_list.MaxDLen);
-									(line_buf = 0).Cat(map.Name).Align(prefix_len, ADJ_LEFT);
-									(line_buf2 = 0).Cat(map2.Name).Align(prefix_len, ADJ_LEFT);
+									line_buf.Z().Cat(map.Name).Align(prefix_len, ADJ_LEFT);
+									line_buf2.Z().Cat(map2.Name).Align(prefix_len, ADJ_LEFT);
 									for(uint ti = 0; ti < cmt_list.getCount(); ti++) {
 										const CMapTranslEntry & r_cmt = cmt_list.at(ti);
 										if(!(r_cmt.F & CMapTranslEntry::fNone)) {

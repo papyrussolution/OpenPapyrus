@@ -443,7 +443,7 @@ int SLAPI DbSession::GetDbPath(long dbPathID, SString & rBuf) const
 		ok = 1;
 	}
 	else
-		rBuf = 0;
+		rBuf.Z();
 	return ok;
 }
 

@@ -1419,7 +1419,7 @@ int FASTCALL SColorBase::FromStr(const char * pStr)
 
 SString & SColorBase::ToStr(SString & rBuf, int format) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(format & fmtName) {
 		const uint32 c = (R << 16) | (G << 8) | B;
 		for(uint i = 0; i < SIZEOFARRAY(ColorNameList); i++) {

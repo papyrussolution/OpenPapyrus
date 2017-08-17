@@ -2193,7 +2193,7 @@ int SLAPI PPViewDebtTrnovr::ViewArticleInfo(const BrwHdr * pHdr, int what)
 int SLAPI PPViewDebtTrnovr::GetTabTitle(long tabID, SString & rBuf) const
 {
 	int    ok = 0;
-	rBuf = 0;
+	rBuf.Z();
 	if(oneof2(Filt.CycleKind, DebtTrnovrFilt::ckExpiry, DebtTrnovrFilt::ckDelay)) {
 		const long n = (long)DaySieve.getCount();
 		if(tabID && tabID <= n) {
@@ -2673,7 +2673,7 @@ int SLAPI PPDebtorStatConfig::Edit()
 	dlg->AddClusterAssoc(CTL_DSTATCFG_FLAGS, 3, PPDebtorStatConfig::fSimpleLimitAlg);
 	dlg->SetClusterData(CTL_DSTATCFG_FLAGS, cfg.Flags);
 	SetPeriodInput(dlg, CTL_DSTATCFG_PERIOD, &cfg.Period);
-	dlg->setCtrlString(CTL_DSTATCFG_LASTTIME, (temp_buf = 0).Cat(cfg.LastDtm, DATF_DMY|DATF_CENTURY, TIMF_HMS));
+	dlg->setCtrlString(CTL_DSTATCFG_LASTTIME, temp_buf.Z().Cat(cfg.LastDtm, DATF_DMY|DATF_CENTURY, TIMF_HMS));
 	while(ok < 0 && ExecView(dlg) == cmOK) {
 		uint   sel = 0;
 		THROW(CheckCfgRights(cfg_obj_type, PPR_MOD, 0));
@@ -3532,7 +3532,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 					}
 				}
 			}
-			PPWaitMsg((line_buf = 0).Cat(op_name).CatDiv('-', 1).Cat(bill_rec.Dt));
+			PPWaitMsg(line_buf.Z().Cat(op_name).CatDiv('-', 1).Cat(bill_rec.Dt));
 		}
 	}
 	//
@@ -3546,7 +3546,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 		for(SEnum en = p_bobj->P_Tbl->EnumByOp(op_id, 0, 0); en.Next(&bill_rec) > 0;) {
 			PPID   agent_id = 0;
 			PPID   debt_dim_id = 0;
-			PPWaitMsg((line_buf = 0).Cat(op_name).CatDiv('-', 1).Cat(bill_rec.Dt));
+			PPWaitMsg(line_buf.Z().Cat(op_name).CatDiv('-', 1).Cat(bill_rec.Dt));
 			PPDebtorStat * p_entry = list.Get(bill_rec.Object);
 			entry_set.clear();
 			entry_set.AddEntry(p_entry, 0);
@@ -3611,7 +3611,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 		SFile stat_file(stat_file_name, SFile::mWrite);
 		list.sort(CMPF_LONG); // Сортируем список по идентификатору статьи
 		if(stat_file.IsValid()) {
-			(line_buf = 0).
+			line_buf.Z().
 				Cat("ArID").Semicol().
 				Cat("ArName").Semicol().
 				Cat("DelayMean").Semicol().
@@ -3633,7 +3633,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 			PPWaitMsg(line_buf);
 			p_item->Finish();
 			if(stat_file.IsValid()) {
-				(line_buf = 0).
+				line_buf.Z().
 					Cat(p_item->ArID).Semicol().
 					Cat(ar_name).Semicol().
 					Cat(p_item->DelayMean, SFMT_QTTY).Semicol().
@@ -3649,7 +3649,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 			}
 			if(file.IsValid()) {
 				for(uint j = 0; j < p_item->DelayList.getCount(); j++) {
-					(line_buf = 0).Cat(p_item->ArID).Semicol().Cat(p_item->DelayList.get(j)).CR();
+					line_buf.Z().Cat(p_item->ArID).Semicol().Cat(p_item->DelayList.get(j)).CR();
 					file.WriteLine(line_buf);
 				}
 			}

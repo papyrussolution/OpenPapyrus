@@ -2383,7 +2383,7 @@ int SLAPI PPObjGlobalUserAcc::CheckPassword(const char * pName, const char * pPa
 
 static SString & MakeMsgStr(int fmtId, const char * pName, const char * pUuid, PPID localId, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	SString fmt_buf, temp_buf, info_buf;
 	if(fmtId)
 		PPLoadText(fmtId, fmt_buf);
@@ -3538,7 +3538,7 @@ int SLAPI PPUhttStoreSelDescr::GetEntry(uint pos, Entry & rEntry) const
 int SLAPI PPUhttStoreSelDescr::GetDefaultEntryTitle(uint pos, SString & rBuf) const
 {
 	int    ok = 1;
-	rBuf = 0;
+	rBuf.Z();
 	if(pos < L.getCount()) {
 		const InnerEntry & r_item = L.at(pos);
 		switch(r_item.Attr) {
@@ -3775,12 +3775,12 @@ int SLAPI PPObjEdiProvider::Edit(PPID * pID, void * extraPtr)
 			THROW(P_Obj->CheckDupSymb(Data.Rec.ID, strip(Data.Rec.Symb)));
 			GetClusterData(CTL_EDIPRV_SUPPOPS, &Data.Rec.SuppOpFlags);
 			GetClusterData(CTL_EDIPRV_FLAGS, &Data.Rec.Flags);
-			getCtrlString(CTL_EDIPRV_MODULE, temp_buf = 0);
+			getCtrlString(CTL_EDIPRV_MODULE, temp_buf.Z());
 			Data.PutExtStrData(PPEdiProviderPacket::extssDllModuleName, temp_buf);
-			getCtrlString(CTL_EDIPRV_ADDR1, temp_buf = 0);
+			getCtrlString(CTL_EDIPRV_ADDR1, temp_buf.Z());
 			Data.PutExtStrData(PPEdiProviderPacket::extssAddr, temp_buf);
 			Data.Rec.AddrPort  = getCtrlLong(CTL_EDIPRV_PORT1);
-			getCtrlString(CTL_EDIPRV_ADDR2, temp_buf = 0);
+			getCtrlString(CTL_EDIPRV_ADDR2, temp_buf.Z());
 			Data.PutExtStrData(PPEdiProviderPacket::extssAddr2, temp_buf);
 			Data.Rec.AddrPort2 = getCtrlLong(CTL_EDIPRV_PORT2);
 			Data.Rec.GuaID = getCtrlLong(CTLSEL_EDIPRV_GUA);

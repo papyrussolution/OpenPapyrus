@@ -1,8 +1,8 @@
 // CSHMCHN.CPP
 // Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 //
-// Механизм работы с кассовыми машинами
+// РњРµС…Р°РЅРёР·Рј СЂР°Р±РѕС‚С‹ СЃ РєР°СЃСЃРѕРІС‹РјРё РјР°С€РёРЅР°РјРё
 //
 #include <pp.h>
 #pragma hdrstop
@@ -30,7 +30,7 @@ DECLARE_CMT(ATOLDRV);
 DECLARE_CMT(SYNCCASH); // @vmiller
 DECLARE_CMT(SETSTART); // @v8.9.1
 //
-// Регистрация интерфейсов кассовых аппаратов
+// Р РµРіРёСЃС‚СЂР°С†РёСЏ РёРЅС‚РµСЂС„РµР№СЃРѕРІ РєР°СЃСЃРѕРІС‹С… Р°РїРїР°СЂР°С‚РѕРІ
 //
 void * PPCashMachine::P_RegData = 0; // @global @threadsafe
 
@@ -125,7 +125,7 @@ int SLAPI PPCashMachine::GetRegEntry(PPID cmtID, uint * pPos)
 		// @vmiller {
 		if(PPCashMachine::SyncOrAsync(cmtID, s) > 0) {
 			if(s == 1) {
-				ASSIGN_PTR(pPos, 14); // Соответствует типу SYNCCASH // @v9.1.8 16-->15 // @v9.7.9 15-->14
+				ASSIGN_PTR(pPos, 14); // РЎРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ С‚РёРїСѓ SYNCCASH // @v9.1.8 16-->15 // @v9.7.9 15-->14
 				return 1;
 			}
 		}
@@ -254,7 +254,7 @@ int SLAPI PPCashMachine::GetAsyncIntrf()
 	return 1;
 }
 //
-// Синхронные методы
+// РЎРёРЅС…СЂРѕРЅРЅС‹Рµ РјРµС‚РѕРґС‹
 //
 int SLAPI PPCashMachine::NewDayDialog(LDATE * pDt)
 {
@@ -349,7 +349,7 @@ int SLAPI PPCashMachine::_SyncCloseBill(int ret, int use_ta)
 				if(count == 0 && NodeRec.DownBill == 0) {
 					THROW(p_bobj->TurnPacket(&pack, 0));
 					//
-					// Засекаем ид. результирующего документа
+					// Р—Р°СЃРµРєР°РµРј РёРґ. СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РµРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 					//
 					NodeRec.DownBill = pack.Rec.ID;
 					THROW(UpdateNode(0));
@@ -453,7 +453,7 @@ int SLAPI PPCashMachine::SyncCloseSession()
 				THROW(r = csg.AttachSessToSupersess(NodeID, NodeRec.CurSessID, &super_id, 0));
 				if(r < 0) {
 					//
-					// Группируем и списываем сессию только в том случае, если она не вошла в суперсессию
+					// Р“СЂСѓРїРїРёСЂСѓРµРј Рё СЃРїРёСЃС‹РІР°РµРј СЃРµСЃСЃРёСЋ С‚РѕР»СЊРєРѕ РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РѕРЅР° РЅРµ РІРѕС€Р»Р° РІ СЃСѓРїРµСЂСЃРµСЃСЃРёСЋ
 					//
 					THROW(csg.Grouping(NodeRec.CurSessID, &total, 0, 0));
 					THROW(csg.ConvertToBills(NodeRec.CurSessID, NodeRec.LocID, 0, 1, 1, 0));
@@ -492,11 +492,11 @@ struct CashStat {
 	double BegSum;
 	double Income;
 	double Cash;
-	double AmtCash;       // Сумма наличных оплат
-	double AmtBank;       // Сумма безналичных оплат
-	double AmtReturn;     // Сумма возвратов
-	double Discount;      // Сумма скидок
-	double AmtSCard;      // Сумма по кредитным картам
+	double AmtCash;       // РЎСѓРјРјР° РЅР°Р»РёС‡РЅС‹С… РѕРїР»Р°С‚
+	double AmtBank;       // РЎСѓРјРјР° Р±РµР·РЅР°Р»РёС‡РЅС‹С… РѕРїР»Р°С‚
+	double AmtReturn;     // РЎСѓРјРјР° РІРѕР·РІСЂР°С‚РѕРІ
+	double Discount;      // РЎСѓРјРјР° СЃРєРёРґРѕРє
+	double AmtSCard;      // РЎСѓРјРјР° РїРѕ РєСЂРµРґРёС‚РЅС‹Рј РєР°СЂС‚Р°Рј
 };
 
 class CashStatDialog : public TDialog {
@@ -684,14 +684,14 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 	LDATE  cur_date = ZERODATE;
 	PPSyncCashNode  scn;
 	PPObjCashNode   cn_obj;
-	PPID   ext_cash_node_id = 0;  // ИД спаренного узла
-	PPCashMachine * p_cm_ext = 0; // Движок спаренного узла
-	CmLocking     * p_cml_x = 0;  // Блокировка для спаренного узла
+	PPID   ext_cash_node_id = 0;  // РР” СЃРїР°СЂРµРЅРЅРѕРіРѕ СѓР·Р»Р°
+	PPCashMachine * p_cm_ext = 0; // Р”РІРёР¶РѕРє СЃРїР°СЂРµРЅРЅРѕРіРѕ СѓР·Р»Р°
+	CmLocking     * p_cml_x = 0;  // Р‘Р»РѕРєРёСЂРѕРІРєР° РґР»СЏ СЃРїР°СЂРµРЅРЅРѕРіРѕ СѓР·Р»Р°
 	THROW(p_bobj->CheckRights(BILLRT_CASH));
 	THROW(GetSyncIntrf());
 	THROW(GetNode() > 0);
 	{
-		const long cnf = NodeRec.Flags; // Флаги основного кассового узла
+		const long cnf = NodeRec.Flags; // Р¤Р»Р°РіРё РѕСЃРЅРѕРІРЅРѕРіРѕ РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р°
 		CmLocking cml(NodeRec);
 		if(!cml) {
 			if(pCheckPanInitStr) {
@@ -724,7 +724,7 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 			THROW(p_cm_ext = PPCashMachine::CreateInstance(ext_cash_node_id));
 			THROW(p_cm_ext->GetNode() > 0);
 			cn_ext = p_cm_ext->GetNodeData();
-			const long cnxf = cn_ext.Flags; // Флаги спаренного кассового узла
+			const long cnxf = cn_ext.Flags; // Р¤Р»Р°РіРё СЃРїР°СЂРµРЅРЅРѕРіРѕ РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р°
 			if(cn_ext.CashType == PPCMT_PAPYRUS) {
 				p_cm_ext->SetParentNode(NodeID);
 				p_cm_ext->AsyncOpenSession(0, 0);
@@ -955,7 +955,7 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 					out_buf.Tab().CatChar('}').CR();
 				}
 				else {
-					// Ошибка инициализации формата чека
+					// РћС€РёР±РєР° РёРЅРёС†РёР°Р»РёР·Р°С†РёРё С„РѕСЂРјР°С‚Р° С‡РµРєР°
 					out_buf.Tab(2).Cat("Error in format").Space().Cat(format_name).CR();
 				}
 				if(running_total > sum)
@@ -1133,8 +1133,8 @@ int SLAPI PPCashMachine::SyncPrintXReport()
 	int    ok = 0, r = 0;
 	PPObjCSession cs_obj;
 	//
-	// @v7.0.0 Проверка права должна осуществляться в вызывающей функции.
-	// Причина в том, что регламент CSESSOPRT_XREP может быть переопределен в кассовой панели.
+	// @v7.0.0 РџСЂРѕРІРµСЂРєР° РїСЂР°РІР° РґРѕР»Р¶РЅР° РѕСЃСѓС‰РµСЃС‚РІР»СЏС‚СЊСЃСЏ РІ РІС‹Р·С‹РІР°СЋС‰РµР№ С„СѓРЅРєС†РёРё.
+	// РџСЂРёС‡РёРЅР° РІ С‚РѕРј, С‡С‚Рѕ СЂРµРіР»Р°РјРµРЅС‚ CSESSOPRT_XREP РјРѕР¶РµС‚ Р±С‹С‚СЊ РїРµСЂРµРѕРїСЂРµРґРµР»РµРЅ РІ РєР°СЃСЃРѕРІРѕР№ РїР°РЅРµР»Рё.
 	// THROW(cs_obj.CheckRights(CSESSOPRT_XREP, 1));
 	//
 	{
@@ -1232,7 +1232,7 @@ int SLAPI PPCashMachine::SyncPrintBnkTermReport(long pinpad, const char * pZChec
 	return (pinpad & PPSyncCashNode::btfPinpad) ? (GetSyncIntrf() && P_SyncIntrf->PrintBnkTermReport(pZCheck)) : 1;
 }
 //
-// Асинхронные методы
+// РђСЃРёРЅС…СЂРѕРЅРЅС‹Рµ РјРµС‚РѕРґС‹
 //
 int SLAPI PPCashMachine::AsyncUpdateSession()
 {
@@ -1293,7 +1293,7 @@ int SLAPI PPCashMachine::AsyncBrowseExcess()
 	return PPView::Execute(PPVIEW_CSESSEXC, &flt, 0, 0);
 }
 //
-// Общие методы
+// РћР±С‰РёРµ РјРµС‚РѕРґС‹
 //
 int SLAPI PPCashMachine::GetNode()
 {
@@ -1306,7 +1306,7 @@ int SLAPI PPCashMachine::UpdateNode(int use_ta)
 	return PPRef->UpdateItem(PPOBJ_CASHNODE, NodeID, &NodeRec, 1, use_ta);
 }
 //
-// Панель операций с кассовыми сессиями
+// РџР°РЅРµР»СЊ РѕРїРµСЂР°С†РёР№ СЃ РєР°СЃСЃРѕРІС‹РјРё СЃРµСЃСЃРёСЏРјРё
 //
 CSPanel::CSPanel(uint rezID, PPID aNodeID, char * nodeName, int fZReport) : TDialog(rezID)
 {
@@ -1348,7 +1348,7 @@ IMPL_HANDLE_EVENT(CSPanel)
 			oneof6(c, cmSCSLock, cmSCSUnlock, cmSCSXReport, cmSCSIncasso, cmSCSZReportCopy, cmPosNodeQuery)) {
 			if(IsInState(sfModal)) {
 				endModal(c);
-				return; // После endModal не следует обращаться к this
+				return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 			}
 		}
 	}

@@ -33,8 +33,8 @@ static j_common_ptr sig_cinfo;
 
 void signal_catcher(int signum) /* must be global for Manx C */
 {
-	if(sig_cinfo != NULL) {
-		if(sig_cinfo->err != NULL) /* turn off trace output */
+	if(sig_cinfo) {
+		if(sig_cinfo->err) // turn off trace output 
 			sig_cinfo->err->trace_level = 0;
 		jpeg_destroy(sig_cinfo); /* clean up memory allocation & temp files */
 	}

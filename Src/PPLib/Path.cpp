@@ -142,7 +142,7 @@ int SLAPI PPPaths::Resize(size_t sz)
 
 int SLAPI PPPaths::GetPath(PPID pathID, short * pFlags, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(P) {
 		for(uint s = 0; s < P->TailSize;) {
 			const PathItem * p = (const PathItem*)(((const char*)(P + 1)) + s);
@@ -297,7 +297,7 @@ int SLAPI PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
 	}
 	CATCH
 		ok = 0;
-		rBuf = 0;
+		rBuf.Z();
 	ENDCATCH
 	return ok;
 }
@@ -414,7 +414,7 @@ int FASTCALL PPGetPath(PPID pathID, SString & rBuf)
 
 int FASTCALL PPGetFilePath(PPID pathID, const char * pFileName, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(PPGetPath(pathID, rBuf)) {
 		rBuf.SetLastSlash().Cat(pFileName);
 		return 1;

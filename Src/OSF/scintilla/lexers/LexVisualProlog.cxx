@@ -29,7 +29,7 @@
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
 //#include "LexerModule.h"
-#include "CharacterCategory.h"
+//#include "CharacterCategory.h"
 #include "OptionSet.h"
 
 #ifdef SCI_NAMESPACE

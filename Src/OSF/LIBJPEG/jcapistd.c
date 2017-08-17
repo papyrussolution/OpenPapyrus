@@ -40,20 +40,16 @@ GLOBAL(void) jpeg_start_compress(j_compress_ptr cinfo, boolean write_all_tables)
 {
 	if(cinfo->global_state != CSTATE_START)
 		ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
-
 	if(write_all_tables)
-		jpeg_suppress_tables(cinfo, FALSE);  /* mark all tables to be written */
-
-	/* (Re)initialize error mgr and destination modules */
+		jpeg_suppress_tables(cinfo, FALSE); // mark all tables to be written 
+	// (Re)initialize error mgr and destination modules 
 	(*cinfo->err->reset_error_mgr)((j_common_ptr)cinfo);
 	(*cinfo->dest->init_destination)(cinfo);
-	/* Perform master selection of active modules */
+	// Perform master selection of active modules 
 	jinit_compress_master(cinfo);
-	/* Set up for the first pass */
+	// Set up for the first pass 
 	(*cinfo->master->prepare_for_pass)(cinfo);
-	/* Ready for application to drive first pass through jpeg_write_scanlines
-	 * or jpeg_write_raw_data.
-	 */
+	// Ready for application to drive first pass through jpeg_write_scanlines or jpeg_write_raw_data.
 	cinfo->next_scanline = 0;
 	cinfo->global_state = (cinfo->raw_data_in ? CSTATE_RAW_OK : CSTATE_SCANNING);
 }
@@ -93,12 +89,9 @@ GLOBAL(JDIMENSION) jpeg_write_scanlines(j_compress_ptr cinfo, JSAMPARRAY scanlin
 	 */
 	if(cinfo->master->call_pass_startup)
 		(*cinfo->master->pass_startup)(cinfo);
-
-	/* Ignore any extra scanlines at bottom of image. */
+	// Ignore any extra scanlines at bottom of image. 
 	rows_left = cinfo->image_height - cinfo->next_scanline;
-	if(num_lines > rows_left)
-		num_lines = rows_left;
-
+	SETMIN(num_lines, rows_left);
 	row_ctr = 0;
 	(*cinfo->main->process_data)(cinfo, scanlines, &row_ctr, num_lines);
 	cinfo->next_scanline += row_ctr;
@@ -131,18 +124,14 @@ GLOBAL(JDIMENSION) jpeg_write_raw_data(j_compress_ptr cinfo, JSAMPIMAGE data, JD
 	 */
 	if(cinfo->master->call_pass_startup)
 		(*cinfo->master->pass_startup)(cinfo);
-
-	/* Verify that at least one iMCU row has been passed. */
+	// Verify that at least one iMCU row has been passed. 
 	lines_per_iMCU_row = cinfo->max_v_samp_factor * cinfo->min_DCT_v_scaled_size;
 	if(num_lines < lines_per_iMCU_row)
 		ERREXIT(cinfo, JERR_BUFFER_SIZE);
-
-	/* Directly compress the row. */
-	if(!(*cinfo->coef->compress_data)(cinfo, data)) {
-		/* If compressor did not consume the whole row, suspend processing. */
+	// Directly compress the row. 
+	if(!(*cinfo->coef->compress_data)(cinfo, data)) { // If compressor did not consume the whole row, suspend processing. 
 		return 0;
 	}
-
 	/* OK, we processed one iMCU row. */
 	cinfo->next_scanline += lines_per_iMCU_row;
 	return lines_per_iMCU_row;

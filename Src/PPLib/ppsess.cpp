@@ -8,6 +8,7 @@
 #include <float.h>
 #include <signal.h>
 #include <ppsoapclient.h>
+#include <sartre.h>
 //
 //
 //
@@ -365,6 +366,7 @@ SLAPI PPThreadLocalArea::~PPThreadLocalArea()
 	PtrVectDim = 0;
 	ZDELETE(P_ExpCtx);
 	ZDELETE(P_IfcCtx);
+	ZDELETE(P_SrDb); // @v9.7.11
 	Sign = 0;
 }
 
@@ -676,7 +678,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
                         PPAdviseEvent & r_ev = EvqList.at(i);
                         (msg_buf = "AdviseEvent").CatDiv(':', 2).CatEq("Ident", r_ev.Ident).Space().CatEq("Dtm", r_ev.Dtm).Space().
 							CatEq("Action", r_ev.Action).Space();
-						r_ev.Oid.ToStr(0, temp_buf = 0);
+						r_ev.Oid.ToStr(0, temp_buf.Z());
 						msg_buf.CatEq("Oid", temp_buf).Space().CatEq("UserID", r_ev.UserID).Space().
 							CatEq("SjExtra", r_ev.SjExtra).Space().CatEq("Flags", r_ev.Flags);
 						PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_THREADINFO);
@@ -986,6 +988,27 @@ int SLAPI PPThreadLocalArea::SetIfcConfigParam(const char * pParam, const char *
 	else
 		ok = -1;
 	return ok;
+}
+
+SrDatabase * SLAPI PPThreadLocalArea::GetSrDatabase()
+{
+	SrDatabase * p_db = 0;
+	if(P_SrDb)
+		p_db = P_SrDb;
+    else if(Cc.Flags2 & CCFLG2_USESARTREDB) {
+		SString db_path;
+		PPGetPath(PPPATH_SARTREDB, db_path);
+		if(isDir(db_path.RmvLastSlash())) {
+            p_db = new SrDatabase();
+            if(p_db) {
+				if(p_db->Open(db_path, SrDatabase::oReadOnly))
+					P_SrDb = p_db;
+				else
+					ZDELETE(p_db);
+            }
+		}
+    }
+    return p_db;
 }
 
 int SLAPI PPThreadLocalArea::GetIfcConfigParam(const char * pParam, SString & rValue) const
@@ -1665,9 +1688,9 @@ static int PPGetGlobalSecureConfig(SGlobalSecureConfig * pCfg)
 	if(pCfg) {
 		PPIniFile ini_file;
 		SString temp_buf;
-		ini_file.Get(PPINISECT_GLOBALSECURE, PPINIPARAM_CAPATH, temp_buf = 0);
+		ini_file.Get(PPINISECT_GLOBALSECURE, PPINIPARAM_CAPATH, temp_buf.Z());
 		pCfg->CaPath = temp_buf.Strip();
-		ini_file.Get(PPINISECT_GLOBALSECURE, PPINIPARAM_CAFILE, temp_buf = 0);
+		ini_file.Get(PPINISECT_GLOBALSECURE, PPINIPARAM_CAFILE, temp_buf.Z());
 		pCfg->CaFile = temp_buf.Strip();
 	}
 	return 1;
@@ -1789,7 +1812,7 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 				{
 					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_LOG, temp_buf) > 0) ? temp_buf : (const char *)0;
 					if(!path.NotEmptyS()) {
-						PPIniFile::GetParamSymb(PPINIPARAM_LOG, temp_buf = 0);
+						PPIniFile::GetParamSymb(PPINIPARAM_LOG, temp_buf.Z());
 						(path = root_path).SetLastSlash().Cat(temp_buf);
 					}
 					if(!isDir(path) && !createDir(path))
@@ -3062,7 +3085,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				memzero(domain_user, sizeof(domain_user));
 				if(!::GetUserName(domain_user, &duser_len)) // @unicodeproblem
 					STRNSCPY(domain_user, "!undefined");
-				PPLoadText(PPTXT_LOGININFO, temp_buf = 0);
+				PPLoadText(PPTXT_LOGININFO, temp_buf.Z());
 				msg_buf.Printf(temp_buf, domain_user);
 				PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_COMP);
 			}
@@ -3612,7 +3635,7 @@ int SLAPI PPSession::GetLocalPath(SString & rBuf)
 	SString comp_name;
 	if(!SGetComputerName(comp_name))
 		comp_name = "COMMON";
-	rBuf = 0;
+	rBuf.Z();
 	GetPath(PPPATH_BIN, rBuf);
 	rBuf.SetLastSlash().Cat("LOCAL").SetLastSlash().Cat(comp_name);
 	return 1;
@@ -3669,7 +3692,7 @@ int SLAPI PPSession::GetPath(PPID pathID, SString & rBuf)
 	if(ok > 0)
 		ConvertPathToUnc(rBuf);
 	else
-		rBuf = 0;
+		rBuf.Z();
 	return ok;
 }
 
@@ -4031,7 +4054,7 @@ PPSession::ObjIdentBlock::ObjIdentBlock() /*: SymbList(256, 1)*/
 
 /*int SLAPI PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	long   ext = 0;
 	if(!P_ObjIdentBlk)
 		DO_CRITICAL(SETIFZ(P_ObjIdentBlk, new ObjIdentBlock));
@@ -4061,7 +4084,7 @@ PPID SLAPI PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam
 
 int SLAPI PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 0;
 	if(!P_ObjIdentBlk)
 		DO_CRITICAL(SETIFZ(P_ObjIdentBlk, new ObjIdentBlock));
@@ -4196,18 +4219,18 @@ int SLAPI PPSession::GetObjectTitle(PPID objType, SString & rBuf)
 		if(p_ref && p_ref->GetItem(PPOBJ_DYNAMICOBJS, objType, &ref_rec) > 0) {
 			rBuf = ref_rec.ObjName;
 			if(!rBuf.NotEmptyS())
-				(rBuf = 0).CatEq("DYN OBJ", objType);
+				rBuf.Z().CatEq("DYN OBJ", objType);
 			ok = 1;
 		}
 		else
-			(rBuf = 0).Cat(objType);
+			rBuf.Z().Cat(objType);
 	}
 	else if(P_ObjIdentBlk) {
 		if(objType >= PPOBJ_FIRST_CFG_OBJ && objType < PPOBJ_LAST_CFG_OBJ) {
 			if(P_ObjIdentBlk->TitleList.Get(objType, rBuf) > 0)
 				ok = 2;
 			else
-				(rBuf = 0).Cat(objType);
+				rBuf.Z().Cat(objType);
 		}
 		else if(P_ObjIdentBlk->TitleList.Get(objType, rBuf) > 0)
 			ok = 1;
@@ -4229,7 +4252,7 @@ int SLAPI PPSession::GetObjectTitle(PPID objType, SString & rBuf)
 				LEAVE_CRITICAL_SECTION
 			}
 			if(!found)
-				(rBuf = 0).Cat(objType);
+				rBuf.Z().Cat(objType);
 		}
 	}
 	return ok;

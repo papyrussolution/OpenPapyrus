@@ -161,7 +161,7 @@ int SLAPI PPObjOpCounter::CodeByTemplate(const char * pTempl, long counter, SStr
 			*n++ = *p++;
 			if(*p == '-')
 				*n++ = *p++;
-			while(isdigit(*p))
+			while(isdec(*p))
 				*n++ = *p++;
 			*n++ = 'l';
 			*n++ = 'd';

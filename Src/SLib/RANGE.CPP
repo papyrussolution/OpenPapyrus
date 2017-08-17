@@ -117,7 +117,7 @@ int SLAPI IntRange::Intersect(const IntRange & rD, IntRange * pResult) const
 
 SString & SLAPI IntRange::Format(long fmt, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(low)
 		rBuf.Cat(low);
 	if(upp) {

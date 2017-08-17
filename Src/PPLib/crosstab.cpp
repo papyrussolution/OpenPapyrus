@@ -53,7 +53,7 @@ int Crosstab::Summary::AddLine(uint32 aggrFldPosMask, const char * pTitle)
 
 int Crosstab::Summary::GetTitle(uint lineN, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 0;
 	if(lineN < Data.getCount()) {
 		rBuf = Data.at(lineN)->Title;
@@ -712,7 +712,7 @@ DBQuery * SLAPI Crosstab::CreateBrowserQuery()
 int SLAPI Crosstab::GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 {
 	int    ok = 0;
-	rBuf = 0;
+	rBuf.Z();
 	if(pVal) {
 		char   temp_buf[256];
 		if(sttostr(typ, pVal, 0, temp_buf)) {

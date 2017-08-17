@@ -9,7 +9,7 @@
 #include <Scintilla.h>
 #pragma hdrstop
 //#include <stdexcept>
-#include "UniConversion.h"
+//#include "UniConversion.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -101,18 +101,14 @@ void UTF8FromUTF16(const wchar_t * uptr, uint tlen, char * putf, uint len)
 
 uint UTF8CharLength(uchar ch)
 {
-	if(ch < 0x80) {
+	if(ch < 0x80)
 		return 1;
-	}
-	else if(ch < 0x80 + 0x40 + 0x20) {
+	else if(ch < 0x80 + 0x40 + 0x20)
 		return 2;
-	}
-	else if(ch < 0x80 + 0x40 + 0x20 + 0x10) {
+	else if(ch < 0x80 + 0x40 + 0x20 + 0x10)
 		return 3;
-	}
-	else {
+	else
 		return 4;
-	}
 }
 
 size_t UTF16Length(const char * s, size_t len)
@@ -236,23 +232,16 @@ static bool initialisedBytesOfLead = false;
 
 static int BytesFromLead(int leadByte)
 {
-	if(leadByte < 0xC2) {
-		// Single byte or invalid
+	if(leadByte < 0xC2) // Single byte or invalid
 		return 1;
-	}
-	else if(leadByte < 0xE0) {
+	else if(leadByte < 0xE0)
 		return 2;
-	}
-	else if(leadByte < 0xF0) {
+	else if(leadByte < 0xF0)
 		return 3;
-	}
-	else if(leadByte < 0xF5) {
+	else if(leadByte < 0xF5)
 		return 4;
-	}
-	else {
-		// Characters longer than 4 bytes not possible in current UTF-8
+	else // Characters longer than 4 bytes not possible in current UTF-8
 		return 1;
-	}
 }
 
 void UTF8BytesOfLeadInitialise()

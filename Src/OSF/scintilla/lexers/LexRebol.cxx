@@ -35,7 +35,7 @@ static bool FASTCALL IsAWordChar(const int ch)
 
 static bool FASTCALL IsAWordStart(const int ch, const int ch2)
 {
-	return ((ch == '+' || ch == '-' || ch == '.') && !isdigit(ch2)) ||
+	return ((ch == '+' || ch == '-' || ch == '.') && !isdec(ch2)) ||
 	       (isalpha(ch) || ch == '?' || ch == '!' || ch == '\'' || ch == '*' || ch == '&' || ch == '|' || ch == '=' || ch == '_' ||
 	    ch == '~');
 }

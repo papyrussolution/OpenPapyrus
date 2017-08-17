@@ -377,7 +377,7 @@ void LogMessage(const char * pMsg)
 	if(file.IsValid()) {
 		 getcurdate(&date);
 		 getcurtime(&time);
-		(str = 0).Cat(date.day()).Dot().Cat(date.month()).Dot().Cat(date.year()).Space().Cat(time.hour()).
+		str.Z().Cat(date.day()).Dot().Cat(date.month()).Dot().Cat(date.year()).Space().Cat(time.hour()).
 			CatChar(':').Cat(time.minut()).CatChar(':').Cat(time.sec()).Tab().Cat(pMsg).CR();
         file.WriteLine(str);
 	}
@@ -393,7 +393,7 @@ void SysLogMessage(const char * pMsg)
 	if(file.IsValid()) {
 		 getcurdate(&date);
 		 getcurtime(&time);
-		(str = 0).Cat(date.day()).Dot().Cat(date.month()).Dot().Cat(date.year()).Space().Cat(time.hour()).
+		str.Z().Cat(date.day()).Dot().Cat(date.month()).Dot().Cat(date.year()).Space().Cat(time.hour()).
 			CatChar(':').Cat(time.minut()).CatChar(':').Cat(time.sec()).Tab().Cat(pMsg).CR();
         file.WriteLine(str);
 	}
@@ -419,7 +419,7 @@ void GetErrorMsg(SString & rMsg)
 	}
 	if((ErrorCode == IEERR_SOAP) || (ErrorCode == IEERR_IMPFILENOTFOUND) || (ErrorCode == IEERR_INVMESSAGEYTYPE) || (ErrorCode  == IEERR_NOCFGFORGLN))
 		str.Cat(StrError);
-	(rMsg = 0).CopyFrom(str);
+	rMsg.Z().CopyFrom(str);
 }
 
 // Переделывает строку логина в строку GLN (то есть без EC на конце)
@@ -609,7 +609,7 @@ ExportCls::~ExportCls()
 
 void ExportCls::CreateFileName(uint num)
 {
-	(ExpFileName = 0).Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
+	ExpFileName.Z().Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
 }
 //
 // Работа с форматами документов и сообщений
@@ -628,11 +628,11 @@ int ExportCls::OrderHeader()
 		{
 			n_hdr.PutInner("OrderNumber", (str = Bill.Code).ToUtf8()); // Номер заказа
 			{
-				(fmt = 0).Cat(Bill.Date.month());
+				fmt.Z().Cat(Bill.Date.month());
 				if(fmt.Len() == 1)
 					fmt.PadLeft(1, '0');
-				(str = 0).Cat(Bill.Date.year()).CatChar('-').Cat(fmt);
-				(fmt = 0).Cat(Bill.Date.day());
+				str.Z().Cat(Bill.Date.year()).CatChar('-').Cat(fmt);
+				fmt.Z().Cat(Bill.Date.day());
 				if(fmt.Len() == 1)
 					fmt.PadLeft(1, '0');
                 str.CatChar('-').Cat(fmt);
@@ -645,11 +645,11 @@ int ExportCls::OrderHeader()
 					date = Bill.DueDate;
 				else
 					date = Bill.Date;
-				(fmt = 0).Cat(date.month());
+				fmt.Z().Cat(date.month());
 				if(fmt.Len() == 1)
 					fmt.PadLeft(1, '0');
-				(str = 0).Cat(date.year()).CatChar('-').Cat(fmt);
-				(fmt = 0).Cat(date.day());
+				str.Z().Cat(date.year()).CatChar('-').Cat(fmt);
+				fmt.Z().Cat(date.day());
 				if(fmt.Len() == 1)
 					fmt.PadLeft(1, '0');
 				str.CatChar('-').Cat(fmt);
@@ -679,29 +679,29 @@ int ExportCls::RecadvHeader()
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"ReceivingAdviceNumber"); // Номер документа уведомления
 			//{
 			//	SString str1;
-			//	(str1 = 0).Cat(Bill.Code).ToUtf8();
-			//	(str = 0).Cat("<![CDATA[").Cat(str1).Cat("]]>"); // Делаем конструкцию <![CDATA[какая-то строка]]>, ибо благодаря этому спец символы воспринимаются системой как обычные
-			//	xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+			//	str1.Z().Cat(Bill.Code).ToUtf8();
+			//	str.Z().Cat("<![CDATA[").Cat(str1).Cat("]]>"); // Делаем конструкцию <![CDATA[какая-то строка]]>, ибо благодаря этому спец символы воспринимаются системой как обычные
+			//	xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 			//}
 				xmlTextWriterWriteString(P_XmlWriter, (str = Bill.Code).ToUtf8().ucptr());
 			xmlTextWriterEndElement(P_XmlWriter); // RECADVNUMBER
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"ReceivingAdviceDate"); // Дата создания уведомления
-				(fmt = 0).Cat(Bill.Date.month());
+				fmt.Z().Cat(Bill.Date.month());
 				if(fmt.Len() == 1)
 					fmt.PadLeft(1, '0');
-				(str = 0).Cat(Bill.Date.year()).CatChar('-').Cat(fmt);
-				(fmt = 0).Cat(Bill.Date.day());
+				str.Z().Cat(Bill.Date.year()).CatChar('-').Cat(fmt);
+				fmt.Z().Cat(Bill.Date.day());
 				if(fmt.Len() == 1)
 					fmt.PadLeft(1, '0');
                 str.CatChar('-').Cat(fmt);
 				xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 			xmlTextWriterEndElement(P_XmlWriter); // RECADVDATE
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"GoodsReceiptDate"); // Фактическая дата приема товара
-				(fmt = 0).Cat(Bill.Date.month());
+				fmt.Z().Cat(Bill.Date.month());
 				if(fmt.Len() == 1)
 					fmt.PadLeft(1, '0');
-				(str = 0).Cat(Bill.Date.year()).CatChar('-').Cat(fmt);
-				(fmt = 0).Cat(Bill.Date.day());
+				str.Z().Cat(Bill.Date.year()).CatChar('-').Cat(fmt);
+				fmt.Z().Cat(Bill.Date.day());
 				if(fmt.Len() == 1)
 					fmt.PadLeft(1, '0');
                 str.CatChar('-').Cat(fmt);
@@ -745,7 +745,7 @@ int ExportCls::DocParties()
 					// В EDISoft GLN отправителя совпадает с логином за некотрой разницей
 					// Пошла таким путем, чтобы в настройках в Папирусе лишний раз ничего не менять, ибо в Папирусе
 					// в GLN организации указан GLN склада, то есть точки доставки
-					FormatLoginToGLN(Header.EdiLogin, sender_gln = 0);
+					FormatLoginToGLN(Header.EdiLogin, sender_gln.Z());
 					n_sender.PutInner("ILN", sender_gln); // GLN отправителя
 					//// Если GLN агента пусто, то пишем GLN главной организации (оставила по-старому, ибо иначе будут проблемы при получении входящих документов)
 					//if(!isempty(Bill.AgentGLN))
@@ -765,7 +765,7 @@ int ExportCls::DocParties()
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"ReceivingAdvice-Parties");
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_BUYER); // Покупатель
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"ILN"); // GLN покупателя
-					FormatLoginToGLN(Header.EdiLogin, login = 0);
+					FormatLoginToGLN(Header.EdiLogin, login.Z());
 					xmlTextWriterWriteString(P_XmlWriter, login.ucptr());
 					//// Если GLN агента пусто, то пишем GLN главной организации
 					//if(!isempty(Bill.AgentGLN))
@@ -787,9 +787,9 @@ int ExportCls::DocParties()
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"DeliveryPoint"); // Точка доставки
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"ILN"); // GLN точки доставки
 					if(!isempty(Bill.DlvrAddrCode))
-						(str = 0).Cat(Bill.DlvrAddrCode);
+						str.Z().Cat(Bill.DlvrAddrCode);
 					else
-						(str = 0).Cat(Bill.LocCode);
+						str.Z().Cat(Bill.LocCode);
 					xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 				xmlTextWriterEndElement(P_XmlWriter); // ILN
 				//xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_NAME); // Название точки доставки (опционально)
@@ -844,10 +844,10 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Line");
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Line-Item");
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"LineNumber"); // Порядковый номер товара в заказе
-						xmlTextWriterWriteString(P_XmlWriter, (str = 0).Cat(Itr.GetCount() + 1).ucptr());
+						xmlTextWriterWriteString(P_XmlWriter, str.Z().Cat(Itr.GetCount() + 1).ucptr());
 					xmlTextWriterEndElement(P_XmlWriter); // LINENUMBER
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"EAN"); // Штрихкод товара
-						xmlTextWriterWriteString(P_XmlWriter, (str = 0).Cat(pBRow->Barcode).ucptr());
+						xmlTextWriterWriteString(P_XmlWriter, str.Z().Cat(pBRow->Barcode).ucptr());
 					xmlTextWriterEndElement(P_XmlWriter); // EAN
 					if(!isempty(pBRow->ArCode)) {
 						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"SupplierItemCode"); // Артикул товара поставщика
@@ -856,7 +856,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 					}
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_ITEMDISCR); // Описание товара (имя) (опционально)
 						{
-							(str = 0).Cat(pBRow->GoodsName).ToUtf8(); // Провайдер требует эту кодировку
+							str.Z().Cat(pBRow->GoodsName).ToUtf8(); // Провайдер требует эту кодировку
 							xmlTextWriterWriteString(P_XmlWriter, SXml::WNode::CDATA(str).ucptr()); // Наименование товара
 						}
 					xmlTextWriterEndElement(P_XmlWriter); // ITEMDISCR
@@ -867,12 +867,12 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 							// В этом документообороте нужно учитывать количество упаковок, ибо есть тут такие единицы измерения
 							//if(pBRow->UnitPerPack) {
 							//	double qtty_pack = pBRow->Quantity / pBRow->UnitPerPack;
-							//	(str = 0).Cat(qtty_pack);
+							//	str.Z().Cat(qtty_pack);
 							//	str.Printf("%.3f", qtty_pack); // Число знаков после запятой должно быть не больше 3-х
 							//	TotalGoodsCount += qtty_pack;
 							//}
 							//else {
-								(str = 0).Cat(pBRow->Quantity);
+								str.Z().Cat(pBRow->Quantity);
 								TotalGoodsCount += pBRow->Quantity;
 							//}
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
@@ -882,8 +882,8 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 							xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"OrderedUnitPacksize"); // Количество в упаковке (заказанное)
 						else if(MessageType == PPEDIOP_RECADV)
 							xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_UNITPACKSZ); // Количество в упаковке (пришедшее)
-							//(str = 0).Cat(pBRow->UnitPerPack);
-							//xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+							//str.Z().Cat(pBRow->UnitPerPack);
+							//xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 							xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)"1");
 						xmlTextWriterEndElement(P_XmlWriter); // ORDEREDPACKSZ/UNITPACKSZ
 					}
@@ -910,38 +910,38 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"OrderedUnitNetPrice"); // Цена без НДС (заказ)
 							//double cost = pBRow->Cost - (pBRow->Cost / (pBRow->VatRate + 100) * 100);
 							double cost = (pBRow->Cost / (pBRow->VatRate + 100) * 100);
-							(str = 0).Printf("%.3f", cost); // Число знаков после запятой должно быть не больше 3-х
+							str.Z().Printf("%.3f", cost); // Число знаков после запятой должно быть не больше 3-х
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); // ORDEREDNETPRICE
 						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"OrderedUnitGrossPrice"); // Цена с НДС (заказ)
-							(str = 0).Printf("%.3f", pBRow->Cost); // Число знаков после запятой должно быть не больше 3-х
+							str.Z().Printf("%.3f", pBRow->Cost); // Число знаков после запятой должно быть не больше 3-х
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); // ORDEREDGROSSPRICE
 						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"OrderedNetAmount"); // Сумма без НДС
 							//double amount = (pBRow->Cost - (pBRow->Cost / (pBRow->VatRate + 100) * 100)) * pBRow->Quantity;
 							double amount = ((pBRow->Cost / (pBRow->VatRate + 100) * 100)) * pBRow->Quantity;
-							(str = 0).Printf("%.3f", amount); // Число знаков после запятой должно быть не больше 3-х
+							str.Z().Printf("%.3f", amount); // Число знаков после запятой должно быть не больше 3-х
 							BillSumWithoutVat += str.ToReal();
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); // ORDEREDNETAMOUNT
 						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"OrderedGrossAmount"); // Сумма с НДС
-							(str = 0).Printf("%.3f", pBRow->Cost * pBRow->Quantity); // Число знаков после запятой должно быть не больше 3-х
+							str.Z().Printf("%.3f", pBRow->Cost * pBRow->Quantity); // Число знаков после запятой должно быть не больше 3-х
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); // ORDEREDGROSSAMOUNT
 						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_TAXRATE); // Налоговая ставка % (опционально)
-							(str = 0).Printf("%.3f", pBRow->VatRate); // Число знаков после запятой должно быть не больше 3-х
+							str.Z().Printf("%.3f", pBRow->VatRate); // Число знаков после запятой должно быть не больше 3-х
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr()); // Ставка НДС
 						xmlTextWriterEndElement(P_XmlWriter); // TAXRATE
 					}
 					else if(MessageType == PPEDIOP_RECADV) {
 						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_UNITGROSSPRICE); // Цена с НДС (приход)
-							(str = 0).Printf("%.3f", pBRow->Cost); // Число знаков после запятой должно быть не больше 3-х
+							str.Z().Printf("%.3f", pBRow->Cost); // Число знаков после запятой должно быть не больше 3-х
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); // UNITGROSSPRICE
 						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_UNITNETPRICE); // Цена без НДС (приход)
 							//double price = pBRow->Cost - (pBRow->Cost / (pBRow->VatRate + 100) * 100);
 							double price = (pBRow->Cost / (pBRow->VatRate + 100) * 100);
-							(str = 0).Printf("%.3f", price); // Число знаков после запятой должно быть не больше 3-х
+							str.Z().Printf("%.3f", price); // Число знаков после запятой должно быть не больше 3-х
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); // UNITNETPRICE
 						{
@@ -964,16 +964,16 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_NETAMOUNT); // Сумма без НДС
 							//double amount = (pBRow->Cost - (pBRow->Cost / (pBRow->VatRate + 100) * 100)) * pBRow->Quantity;
 							double amount = ((pBRow->Cost / (pBRow->VatRate + 100) * 100)) * pBRow->Quantity;
-							(str = 0).Printf("%.3f", amount); // Число знаков после запятой должно быть не больше 3-х
+							str.Z().Printf("%.3f", amount); // Число знаков после запятой должно быть не больше 3-х
 							BillSumWithoutVat += str.ToReal();
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); // NETAMOUNT
 						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_GROSSAMOUNT); // Сумма с НДС
-							(str = 0).Printf("%.3f", pBRow->Cost * pBRow->Quantity); // Число знаков после запятой должно быть не больше 3-х
+							str.Z().Printf("%.3f", pBRow->Cost * pBRow->Quantity); // Число знаков после запятой должно быть не больше 3-х
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); // GROSSAMOUNT
 						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_TAXRATE); // Налоговая ставка % (опционально)
-							(str = 0).Printf("%.3f", pBRow->VatRate); // Число знаков после запятой должно быть не больше 3-х
+							str.Z().Printf("%.3f", pBRow->VatRate); // Число знаков после запятой должно быть не больше 3-х
 							xmlTextWriterWriteString(P_XmlWriter, str.ucptr()); // Ставка НДС
 						xmlTextWriterEndElement(P_XmlWriter); // TAXRATE
 					}
@@ -989,9 +989,9 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 				//			xmlTextWriterEndElement(P_XmlWriter); // PARTYTYPE
 				//			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_NAME);
 				//				SString str1;
-				//				(str1 = 0).Cat(pBRow->LotManuf).ToUtf8();
-				//				(str = 0).Cat("<![CDATA[").Cat(str1).Cat("]]>");
-				//				xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str); // Наименование производителя
+				//				str1.Z().Cat(pBRow->LotManuf).ToUtf8();
+				//				str.Z().Cat("<![CDATA[").Cat(str1).Cat("]]>");
+				//				xmlTextWriterWriteString(P_XmlWriter, str.ucptr()); // Наименование производителя
 				//			xmlTextWriterEndElement(P_XmlWriter); // NAME
 				//		xmlTextWriterEndElement(P_XmlWriter); // LINEPARTY
 				//	xmlTextWriterEndElement(P_XmlWriter); // LINEPARTIES
@@ -1007,7 +1007,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 										xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_REFTYPE_YA1); // Тип поля - код вида продукции
 									xmlTextWriterEndElement(P_XmlWriter); // REFTYPE
 									xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Reference-Id");
-										xmlTextWriterWriteString(P_XmlWriter, (str = 0).Cat(pBRow->GoodKindCode).ucptr()); // Код вида продукции
+										xmlTextWriterWriteString(P_XmlWriter, str.Z().Cat(pBRow->GoodKindCode).ucptr()); // Код вида продукции
 									xmlTextWriterEndElement(P_XmlWriter); // REFID
 								}
 							}
@@ -1019,7 +1019,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 										xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_REFTYPE_ABT); // Тип поля - ГТД
 									xmlTextWriterEndElement(P_XmlWriter); // REFTYPE
 									xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Reference-Id");
-										xmlTextWriterWriteString(P_XmlWriter, (str = 0).Cat(pBRow->CLB).ucptr()); // ГТД
+										xmlTextWriterWriteString(P_XmlWriter, str.Z().Cat(pBRow->CLB).ucptr()); // ГТД
 									xmlTextWriterEndElement(P_XmlWriter); // REFID
 								}
 							}
@@ -1031,7 +1031,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 										xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_REFTYPE_SER); // Тип поля - серия
 									xmlTextWriterEndElement(P_XmlWriter); // REFTYPE
 									xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"Reference-Id");
-										xmlTextWriterWriteString(P_XmlWriter, (str = 0).Cat(pBRow->Serial).ucptr()); // Серия
+										xmlTextWriterWriteString(P_XmlWriter, str.Z().Cat(pBRow->Serial).ucptr()); // Серия
 									xmlTextWriterEndElement(P_XmlWriter); // REFID
 								}
 							}
@@ -1063,20 +1063,20 @@ int ExportCls::EndDoc()
 		else if(MessageType == PPEDIOP_RECADV)
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"ReceivingAdvice-Summary");
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_TOTALLINES); // Общее количество товарных линий
-				xmlTextWriterWriteString(P_XmlWriter, (str = 0).Cat(Itr.GetCount()).ucptr());
+				xmlTextWriterWriteString(P_XmlWriter, str.Z().Cat(Itr.GetCount()).ucptr());
 			xmlTextWriterEndElement(P_XmlWriter); // TOTALLINES
 			if(MessageType == PPEDIOP_ORDER)
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"TotalOrderedAmount"); // Общее количество заказанного товара
 			else if(MessageType == PPEDIOP_RECADV)
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"TotalGoodsReceiptAmount"); // Общее количество принятого товара
-			xmlTextWriterWriteString(P_XmlWriter, (str = 0).Printf("%.3f", TotalGoodsCount).ucptr()); // Число знаков после запятой должно быть не больше 3-х
+			xmlTextWriterWriteString(P_XmlWriter, str.Z().Printf("%.3f", TotalGoodsCount).ucptr()); // Число знаков после запятой должно быть не больше 3-х
 			xmlTextWriterEndElement(P_XmlWriter); // TOTALORDEREDAMT/TOTALGOODSRECAMT
 
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_TOTALNETAMOUNT); // Сумма всего заказа без НДС
-				xmlTextWriterWriteString(P_XmlWriter, (str = 0).Printf("%.3f", BillSumWithoutVat).ucptr()); // Число знаков после запятой должно быть не больше 3-х
+				xmlTextWriterWriteString(P_XmlWriter, str.Z().Printf("%.3f", BillSumWithoutVat).ucptr()); // Число знаков после запятой должно быть не больше 3-х
 			xmlTextWriterEndElement(P_XmlWriter); // TOTALNETAMOUNT
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_TOTALGROSSAMOUNT); // Сумма всего заказа с НДС
-				(str = 0).Printf("%.3f", Bill.Amount); // Число знаков после запятой должно быть не больше 3-х
+				str.Z().Printf("%.3f", Bill.Amount); // Число знаков после запятой должно быть не больше 3-х
 				xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 			xmlTextWriterEndElement(P_XmlWriter); // TOTALGROSSAMOUNT
 		xmlTextWriterEndElement(P_XmlWriter); // ORDERSUMMARY/RECADVSUMMARY
@@ -1129,7 +1129,7 @@ int ExportCls::SendDoc()
 		}
 	}*/
 	//if(pos < RlnCfgList.getCount()) { // @vmiller comment
-		FormatLoginToLogin(Header.EdiLogin, login = 0); // ИД пользователя
+		FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
 		param.Name = (char *)(const char *)login;
 		//param.Name = Header.EdiLogin;			// ИД пользователя
 		param.Password = Header.EdiPassword;	// Пароль
@@ -1145,7 +1145,7 @@ int ExportCls::SendDoc()
 		//param.ControlNumber = (char *)Bill.Code; // Контрольный номер документа (просто номер документа)
 		buf = new char[(size_t)file_size + 1];
 		memzero(buf, (size_t)file_size + 1);
-		file.ReadLine(str = 0); // Пропускаем первую строку <?xml version="1.0" encoding="UTF-8" ?>
+		file.ReadLine(str.Z()); // Пропускаем первую строку <?xml version="1.0" encoding="UTF-8" ?>
 		file.Seek((long)str.Len());
 		file.ReadV(buf, (size_t)file_size + 1);
 		param.DocumentContent = buf; // Содержание документа
@@ -1171,7 +1171,7 @@ int ExportCls::SendDoc()
 	// @vmiller comment
 	/*}
 	else {
-		(str = 0).Cat(Bill.GLN).CR().Cat("Документ ").Cat(Bill.Code);
+		str.Z().Cat(Bill.GLN).CR().Cat("Документ ").Cat(Bill.Code);
 		SetError(IEERR_NOCFGFORGLN, str);
 		ok = -1;
 	}*/
@@ -1212,9 +1212,9 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 		log_path.Copy(&P_ExportCls->PathStruct, SPathStruc::fDrv | SPathStruc::fDir | SPathStruc::fNam | SPathStruc::fExt);
 		log_path.Nam = "export_log";
 		log_path.Ext = "txt";
-		log_path.Merge(LogName = 0);
+		log_path.Merge(LogName.Z());
 		log_path.Nam = "system_log";
-		log_path.Merge(SysLogName = 0);
+		log_path.Merge(SysLogName.Z());
 		P_ExportCls->Id = 1;
 		*pId = P_ExportCls->Id; // ИД сеанса экспорта
 		P_ExportCls->Inited = 1;
@@ -1222,7 +1222,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 	THROWERR(P_ExportCls, IEERR_IMPEXPCLSNOTINTD);
 	CATCH
 		SysLogMessage(SYSLOG_INITEXPORT);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;
@@ -1253,7 +1253,7 @@ EXPORT int SetExportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 		// Делаем без THROW, чтобы отправка остальных документов не прерывалась, но ошибку все равно запомним
 		if(!P_ExportCls->SendDoc()) {
 			SysLogMessage(SYSLOG_SETEXPORTOBJ);
-			GetErrorMsg(str = 0);
+			GetErrorMsg(str.Z());
 			SysLogMessage(str);
 			LogMessage(str);
 			ok = 0;
@@ -1281,7 +1281,7 @@ EXPORT int SetExportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 	// } @vmiller comment
 	CATCH
 		SysLogMessage(SYSLOG_SETEXPORTOBJ);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;
@@ -1299,7 +1299,7 @@ EXPORT int InitExportObjIter(uint idSess, uint objId)
 	P_ExportCls->Itr.Init();
 	CATCH
 		SysLogMessage(SYSLOG_INITEXPORTOBJITER);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;
@@ -1319,7 +1319,7 @@ EXPORT int NextExportObjIter(uint idSess, uint objId, void * pRow)
 	P_ExportCls->Itr.Next();
 	CATCH
 		SysLogMessage(SYSLOG_NEXTEXPORTOBJITER);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;
@@ -1342,7 +1342,7 @@ EXPORT int EnumExpReceipt(void * pReceipt)
 			// Делаем без THROW, чтобы у отправленных документов проставились тэги, но ошибку запомним
 			if(!P_ExportCls->SendDoc()) {
 				SysLogMessage(SYSLOG_ENUMEXPRECEIPT);
-				GetErrorMsg(str = 0);
+				GetErrorMsg(str.Z());
 				SysLogMessage(str);
 				LogMessage(str);
 				ok = 0;
@@ -1356,7 +1356,7 @@ EXPORT int EnumExpReceipt(void * pReceipt)
 	}
 	CATCH
 		SysLogMessage(SYSLOG_ENUMEXPRECEIPT);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;
@@ -1455,7 +1455,7 @@ ImportCls::~ImportCls()
 
 void ImportCls::CreateFileName(uint num)
 {
-	(ImpFileName = 0).Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
+	ImpFileName.Z().Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
 }
 
 EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
@@ -1485,9 +1485,9 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 		log_path.Copy(&P_ImportCls->PathStruct, SPathStruc::fDrv | SPathStruc::fDir | SPathStruc::fNam | SPathStruc::fExt);
 		log_path.Nam = "import_log";
 		log_path.Ext = "txt";
-		log_path.Merge(LogName = 0);
+		log_path.Merge(LogName.Z());
 		log_path.Nam = "system_log";
-		log_path.Merge(SysLogName = 0);
+		log_path.Merge(SysLogName.Z());
 		P_ImportCls->Id = 1;
 		*pId = P_ImportCls->Id; // ИД сеанса импорта
 		P_ImportCls->Inited = 1;
@@ -1495,7 +1495,7 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 	THROWERR(P_ImportCls, IEERR_IMPEXPCLSNOTINTD);
 	CATCH
 		SysLogMessage(SYSLOG_INITIMPORT);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok =0;
@@ -1543,7 +1543,7 @@ EXPORT int GetImportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 	}
 	CATCH
 		SysLogMessage(SYSLOG_GETIMPORTOBJ);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		LogMessage(str);
 		SysLogMessage(str);
 		ok = 0;
@@ -1563,7 +1563,7 @@ EXPORT int InitImportObjIter(uint idSess, uint objId)
 
 	CATCH
 		SysLogMessage(SYSLOG_INITIMPORTOBJITER);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		LogMessage(str);
 		SysLogMessage(str);
 		ok = 0;
@@ -1591,7 +1591,7 @@ EXPORT int NextImportObjIter(uint idSess, uint objId, void * pRow)
 	P_ImportCls->Itr.Next();
 	CATCH
 		SysLogMessage(SYSLOG_NEXTIMPORTOBJITER);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		LogMessage(str);
 		SysLogMessage(str);
 		ok = 0;
@@ -1610,7 +1610,7 @@ EXPORT int ReplyImportObjStatus(uint idSess, uint objId, void * pObjStatus)
 		if(P_ImportCls) {
 			if(P_ImportCls->MessageType == PPEDIOP_APERAK) {
 				// Что-нибудь делаем с этим статусом
-				(str = 0).Cat(P_ImportCls->AperakInfo.OrderNum.Transf(CTRANSF_INNER_TO_OUTER)).CatChar(':').Space().Cat(P_ImportCls->AperakInfo.Msg.Utf8ToChar());
+				str.Z().Cat(P_ImportCls->AperakInfo.OrderNum.Transf(CTRANSF_INNER_TO_OUTER)).CatChar(':').Space().Cat(P_ImportCls->AperakInfo.Msg.Utf8ToChar());
 				LogMessage(str);
 			}
 			// Иначе ничего не делаем
@@ -1685,7 +1685,7 @@ int ImportCls::ReceiveDoc()
 		//	}
 		//}
 		//if(pos < RlnCfgList.getCount()) { // @vmiller comment
-			FormatLoginToLogin(Header.EdiLogin, login = 0); // ИД пользователя
+			FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
 			param.Name = (char *)(const char *)login;
 			//param.Name = Header.EdiLogin;			// ИД пользователя в системе
 			param.Password = Header.EdiPassword;	// Пароль
@@ -1749,7 +1749,7 @@ int ImportCls::ReceiveDoc()
 		// @vmiller comment
 		/*}
 		else {
-			(str = 0).Cat(partner_iln);
+			str.Z().Cat(partner_iln);
 			SetError(IEERR_NOCFGFORGLN, str);
 			ok = -1;
 		}*/
@@ -1777,8 +1777,8 @@ int ImportCls::SetNewStatus(SString & rErrTrackIdList)
 	gSoapClientInit(&proxy, 0, 0);
 	rErrTrackIdList = 0;
 	for(size_t pos = 0; pos < TrackIds.getCount(); pos++) {
-		FormatLoginToLogin(Header.EdiLogin, login = 0); // ИД пользователя
-		param.Name = (char *)(const char *)login;
+		FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
+		param.Name = (char *)(const char *)login; // @badcast
 		//param.Name = Header.EdiLogin;			// ИД пользователя в системе
 		param.Password = Header.EdiPassword;	// Пароль
 		param.TrackingId = (char *)(const char *)TrackIds.at(pos).Txt; // ИД документа в системе
@@ -1818,7 +1818,7 @@ int ImportCls::SetReadStatus(SString & trackID)
 	_ns1__ChangeDocumentStatusResponse resp;
 	EDIServiceSoapProxy proxy(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
 	gSoapClientInit(&proxy, 0, 0);
-	FormatLoginToLogin(Header.EdiLogin, login = 0); // ИД пользователя
+	FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
 	param.Name = (char *)(const char *)login;
 	//param.Name = Header.EdiLogin;			// ИД пользователя в системе
 	param.Password = Header.EdiPassword;	// Пароль
@@ -1875,7 +1875,7 @@ int ImportCls::ListMessageBox(SString & rResp)
 		//	(!RlnCfgList.at(pos).DocType.CmpNC(WEB_ELEMENT_CODE_TYPE_DESADV) && (MessageType == PPEDIOP_DESADV))) && // Если DESADV
 		//	!RlnCfgList.at(pos).Direction.CmpNC(WEB_ELEMENT_CODE_DIRECTION_IN)) ||
 		//	(!RlnCfgList.at(pos).DocType.CmpNC(WEB_ELEMENT_CODE_TYPE_APERAK) && (MessageType == PPEDIOP_APERAK))) { // Если APERAK
-			FormatLoginToLogin(Header.EdiLogin, login = 0); // ИД пользователя
+			FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
 			param.Name = (char *)(const char *)login;
 			//param.Name = Header.EdiLogin;			// ИД пользователя
 			param.Password = Header.EdiPassword;	// Пароль пользователя
@@ -1893,18 +1893,18 @@ int ImportCls::ListMessageBox(SString & rResp)
 			param.DocumentStatus = "N";	// Статус выбираемых документов (подтверждений, статусов) (только новые)
 			param.Timeout = 10000;		// Таймаут на выполнение вызова метода (мс) (значение рекомендовано)
 			if((Header.PeriodLow != ZERODATE) && (Header.PeriodUpp != ZERODATE)) {
-				(low = 0).Cat(Header.PeriodLow.year());
-				if((fmt = 0).Cat(Header.PeriodLow.month()).Len() == 1)
+				low.Z().Cat(Header.PeriodLow.year());
+				if(fmt.Z().Cat(Header.PeriodLow.month()).Len() == 1)
 					fmt.PadLeft(1, '0');
 				low.CatChar('-').Cat(fmt);
-				if((fmt = 0).Cat(Header.PeriodLow.day()).Len() == 1)
+				if(fmt.Z().Cat(Header.PeriodLow.day()).Len() == 1)
 					fmt.PadLeft(1, '0');
 				low.CatChar('-').Cat(fmt);
-				(upp = 0).Cat(Header.PeriodUpp.year());
-				if((fmt = 0).Cat(Header.PeriodUpp.month()).Len() == 1)
+				upp.Z().Cat(Header.PeriodUpp.year());
+				if(fmt.Z().Cat(Header.PeriodUpp.month()).Len() == 1)
 					fmt.PadLeft(1, '0');
 				upp.CatChar('-').Cat(fmt);
-				if((fmt = 0).Cat(Header.PeriodUpp.day()).Len() == 1)
+				if(fmt.Z().Cat(Header.PeriodUpp.day()).Len() == 1)
 					fmt.PadLeft(1, '0');
 				upp.CatChar('-').Cat(fmt);
 				param.DateFrom = (char *)(const char *)low;
@@ -2511,7 +2511,7 @@ EXPORT int FinishImpExp()
 		}
 	}
 	if(P_ImportCls) {
-		THROW(P_ImportCls->SetNewStatus(err_track_id_list = 0));
+		THROW(P_ImportCls->SetNewStatus(err_track_id_list.Z()));
 		if(!P_ImportCls->IncomMessagesCounter && ((P_ImportCls->MessageType == PPEDIOP_ORDERRSP) || (P_ImportCls->MessageType == PPEDIOP_DESADV))) {
 			SysLogMessage(LOG_NOINCOMDOC);
 			LogMessage(LOG_NOINCOMDOC);
@@ -2519,7 +2519,7 @@ EXPORT int FinishImpExp()
 	}
 	CATCH
 		SysLogMessage(SYSLOG_FINISHIMPEXP);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;

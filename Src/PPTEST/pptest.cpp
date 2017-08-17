@@ -1139,14 +1139,14 @@ int TestFann()
 					if(iter < (iter_count-1)) {
 						p_ann1->TrainWithOutput(input, pre_result2, result1);
 						p_ann2->TrainWithOutput(input, pre_result1, result2);
-						(line_buf = 0).Cat(iter).CatChar('/').Cat(i).Tab().
+						line_buf.Z().Cat(iter).CatChar('/').Cat(i).Tab().
 							Cat(result1[0], MKSFMTD(0, 10, 0)).Tab().
 							Cat(result2[0], MKSFMTD(0, 10, 0)).Tab().
 							Cat(result2[0]-result1[0], MKSFMTD(0, 10, 0)).Tab().
 							Cat(input_buf).CR();
 					}
 					else {
-						(line_buf = 0).Cat(iter).CatChar('/').Cat(i).Tab().
+						line_buf.Z().Cat(iter).CatChar('/').Cat(i).Tab().
 							Cat(pre_result1[0], MKSFMTD(0, 10, 0)).Tab().
 							Cat(pre_result2[0], MKSFMTD(0, 10, 0)).Tab().
 							Tab().

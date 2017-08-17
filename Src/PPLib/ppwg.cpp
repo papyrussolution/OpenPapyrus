@@ -457,7 +457,7 @@ void DutySchedDialog::updateCountPointList(long pos)
 		int    sav_pos = (int)p_list->def->_curItem();
 		p_list->freeAll();
 		for(uint i = 0; Data.CpList.enumItems(&i, (void **)&p_point);) {
-			(sub = 0).Cat(p_point->Dtm.d, DATF_DMY);
+			sub.Z().Cat(p_point->Dtm.d, DATF_DMY);
 			p_list->addItem(i, sub);
 		}
 	   	p_list->focusItem((pos < 0) ? sav_pos : pos);

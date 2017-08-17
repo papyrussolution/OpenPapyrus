@@ -238,7 +238,7 @@ int SLAPI WinRegKey::GetString(const char * pParam, char * pBuf, size_t bufLen)
 int SLAPI WinRegKey::GetString(const char * pParam, SString & rBuf)
 {
 	int    ok = 1;
-	rBuf = 0;
+	rBuf.Z();
 	if(Key == 0)
 		ok = 0;
 	else {

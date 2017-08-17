@@ -256,7 +256,7 @@ int SLAPI PPViewAccount::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					if(AccObj.Fetch(p_item->ID, &acc_rec) > 0)
 						temp_buf = acc_rec.Name;
 					else
-						ideqvalstr(p_item->ID, temp_buf = 0);
+						ideqvalstr(p_item->ID, temp_buf.Z());
 				}
 				pBlk->Set(temp_buf);
 				break;
@@ -273,7 +273,7 @@ int SLAPI PPViewAccount::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				pBlk->Set(temp_buf);
 				break;
 			case 6:
-				(temp_buf = 0).CatHex(p_item->Flags);
+				temp_buf.Z().CatHex(p_item->Flags);
 				pBlk->Set(temp_buf);
 				break;
 			case 7:

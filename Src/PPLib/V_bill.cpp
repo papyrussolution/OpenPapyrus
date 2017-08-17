@@ -1,6 +1,6 @@
 // V_BILL.CPP
 // Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -238,7 +238,7 @@ BillFilt & FASTCALL BillFilt::operator = (const BillFilt & s)
 	return *this;
 }
 
-int SLAPI BillFilt::SetupBrowseBillsType(BrowseBillsType bbt)
+void FASTCALL BillFilt::SetupBrowseBillsType(BrowseBillsType bbt)
 {
 	switch(bbt) {
 		case bbtGoodsBills:
@@ -284,7 +284,6 @@ int SLAPI BillFilt::SetupBrowseBillsType(BrowseBillsType bbt)
 			Flags |= fWmsOnly;
 			break;
 	}
-	return 1;
 }
 
 #define GRP_LOC 1
@@ -442,8 +441,8 @@ IMPL_HANDLE_EVENT(BillFiltDialog)
 		}
 		if(Data.P_SjF) {
 			//
-			// Ôóíêöèÿ SysJournalFilt::IsEmpty ñ÷èòàåò ôèëüòð, â êîòîðîì óñòàíîâëåí ObjType
-			// íå ïóñòûì. Â äàííîì ñëó÷àå ýòî - íå âåðíî.
+			// Ð¤ÑƒÐ½ÐºÑ†Ð¸Ñ SysJournalFilt::IsEmpty ÑÑ‡Ð¸Ñ‚Ð°ÐµÑ‚ Ñ„Ð¸Ð»ÑŒÑ‚Ñ€, Ð² ÐºÐ¾Ñ‚Ð¾Ñ€Ð¾Ð¼ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð»ÐµÐ½ ObjType
+			// Ð½Ðµ Ð¿ÑƒÑÑ‚Ñ‹Ð¼. Ð’ Ð´Ð°Ð½Ð½Ð¾Ð¼ ÑÐ»ÑƒÑ‡Ð°Ðµ ÑÑ‚Ð¾ - Ð½Ðµ Ð²ÐµÑ€Ð½Ð¾.
 			//
 			Data.P_SjF->ObjType = 0;
 			if(Data.P_SjF->IsEmpty()) {
@@ -786,8 +785,8 @@ int SLAPI PPViewBill::Init_(const PPBaseFilt * pFilt)
 	}
 	{
 		//
-		// Èíèöèàëèçàöèÿ ñïèñêà ñêëàäîâ LocList_. Åñëè îò÷åò äîëæåí ñòðîèòüñÿ ïî âñåì ñêëàäàì,
-		// òî ñïèñîê LocList_ - ïóñòîé.
+		// Ð˜Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ ÑÐ¿Ð¸ÑÐºÐ° ÑÐºÐ»Ð°Ð´Ð¾Ð² LocList_. Ð•ÑÐ»Ð¸ Ð¾Ñ‚Ñ‡ÐµÑ‚ Ð´Ð¾Ð»Ð¶ÐµÐ½ ÑÑ‚Ñ€Ð¾Ð¸Ñ‚ÑŒÑÑ Ð¿Ð¾ Ð²ÑÐµÐ¼ ÑÐºÐ»Ð°Ð´Ð°Ð¼,
+		// Ñ‚Ð¾ ÑÐ¿Ð¸ÑÐ¾Ðº LocList_ - Ð¿ÑƒÑÑ‚Ð¾Ð¹.
 		//
 		int    draft_transit_only = 0;
 		SingleLocID = 0;
@@ -959,7 +958,7 @@ PPBaseFilt * SLAPI PPViewBill::CreateFilt(void * extraPtr) const
 		}
 	}
 	else
-		PPErrCode = PPERR_BASEFILTUNSUPPORTED;
+		PPSetError(PPERR_BASEFILTUNSUPPORTED);
 	return (PPBaseFilt*)p_filt;
 }
 
@@ -1059,7 +1058,7 @@ int SLAPI PPViewBill::GetOpList(const BillFilt * pFilt, PPIDArray * pList, PPID 
 		}
 	}
 	else if(IsGenericOp(pFilt->OpID) > 0) {
-		// @todo @v4.6.9 Â ýòó òî÷êó ïðîãðàììà íå ïîïàäàåò (ñì if âûøå)
+		// @todo @v4.6.9 Ð’ ÑÑ‚Ñƒ Ñ‚Ð¾Ñ‡ÐºÑƒ Ð¿Ñ€Ð¾Ð³Ñ€Ð°Ð¼Ð¼Ð° Ð½Ðµ Ð¿Ð¾Ð¿Ð°Ð´Ð°ÐµÑ‚ (ÑÐ¼ if Ð²Ñ‹ÑˆÐµ)
 		PPIDArray gen_op_list;
 		GetGenericOpList(pFilt->OpID, &gen_op_list);
 		r_orts.MaskOpRightsByOps(&gen_op_list, pList);
@@ -1228,7 +1227,7 @@ int SLAPI PPViewBill::InitOrderRec(IterOrder ord, const BillTbl::Rec * pBillRec,
 	return ok;
 }
 
-int SLAPI PPViewBill::InitTempRec(BillTbl::Rec * pBillRec, TempBillTbl::Rec * pTmpRec)
+void SLAPI PPViewBill::InitTempRec(BillTbl::Rec * pBillRec, TempBillTbl::Rec * pTmpRec)
 {
 	memzero(pTmpRec, sizeof(TempBillTbl::Rec));
 	pTmpRec->BillID  = pBillRec->ID;
@@ -1237,10 +1236,7 @@ int SLAPI PPViewBill::InitTempRec(BillTbl::Rec * pBillRec, TempBillTbl::Rec * pT
 	pTmpRec->OpID    = pBillRec->OpID;
 	pTmpRec->Object  = pBillRec->Object;
 	pTmpRec->DueDate = pBillRec->DueDate;
-	if(P_Arp) {
-        P_Arp->GetBillLic(pBillRec->ID, &pTmpRec->LicRegID, 0);
-	}
-	return 1;
+	CALLPTRMEMB(P_Arp, GetBillLic(pBillRec->ID, &pTmpRec->LicRegID, 0));
 }
 
 int SLAPI PPViewBill::CalcDebtCardInSaldo(double * pSaldo)
@@ -1271,7 +1267,7 @@ int SLAPI PPViewBill::EnumerateDebtCard(BillViewEnumProc proc, long param)
 	PPIDArray payable_op_list;
 	PPIDArray bill_id_list, lookup_list;
 	PPIDArray pool_list;
-	ObjIdListFilt ext_bill_list; // Ñïèñîê äîêóìåíòîâ, ñîîòâåòñòâóþùèõ ðàñøèðåíèþ ôèëüòà (AgentID, PayerID)
+	ObjIdListFilt ext_bill_list; // Ð¡Ð¿Ð¸ÑÐ¾Ðº Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð¾Ð², ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÑƒÑŽÑ‰Ð¸Ñ… Ñ€Ð°ÑÑˆÐ¸Ñ€ÐµÐ½Ð¸ÑŽ Ñ„Ð¸Ð»ÑŒÑ‚Ð° (AgentID, PayerID)
 	PPObjOprKind op_obj;
 	ArticleTbl::Rec ar_rec;
 	BillTbl::Rec bill_rec;
@@ -1926,7 +1922,7 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 							}
 						}
 						else if(wroff_bill_list.getCount() > 1) {
-							; // Íå ïîíÿòíî ÷òî äåëàòü - íå äåëàåì íè÷åãî
+							; // ÐÐµ Ð¿Ð¾Ð½ÑÑ‚Ð½Ð¾ Ñ‡Ñ‚Ð¾ Ð´ÐµÐ»Ð°Ñ‚ÑŒ - Ð½Ðµ Ð´ÐµÐ»Ð°ÐµÐ¼ Ð½Ð¸Ñ‡ÐµÐ³Ð¾
 						}
 					}
 				}
@@ -1963,13 +1959,13 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 
 #if 0 // @v8.9.11 {
 //
-// @v5.2.0 VADIM Ýêñïîðò â ÅÃÀÈÑ
+// @v5.2.0 VADIM Ð­ÐºÑÐ¿Ð¾Ñ€Ñ‚ Ð² Ð•Ð“ÐÐ˜Ð¡
 //
-//   Òèïû íàêëàäíûõ â ÅÃÀÈÑ
-#define EGAIS_RECEIPT       1   // Ïðèõîäíàÿ íàêëàäíà
-#define EGAIS_EXPEND        2   // Ðàñõîäíàÿ íàêëàäíà
-#define EGAIS_RET_RECEIPT   3   // Âîçâðàòíàÿ ïðèõîäíàÿ íàêëàäíà
-#define EGAIS_RET_EXPEND    4   // Âîçâðàòíàÿ ðàñõîäíàÿ íàêëàäíà
+//   Ð¢Ð¸Ð¿Ñ‹ Ð½Ð°ÐºÐ»Ð°Ð´Ð½Ñ‹Ñ… Ð² Ð•Ð“ÐÐ˜Ð¡
+#define EGAIS_RECEIPT       1   // ÐŸÑ€Ð¸Ñ…Ð¾Ð´Ð½Ð°Ñ Ð½Ð°ÐºÐ»Ð°Ð´Ð½Ð°
+#define EGAIS_EXPEND        2   // Ð Ð°ÑÑ…Ð¾Ð´Ð½Ð°Ñ Ð½Ð°ÐºÐ»Ð°Ð´Ð½Ð°
+#define EGAIS_RET_RECEIPT   3   // Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‚Ð½Ð°Ñ Ð¿Ñ€Ð¸Ñ…Ð¾Ð´Ð½Ð°Ñ Ð½Ð°ÐºÐ»Ð°Ð´Ð½Ð°
+#define EGAIS_RET_EXPEND    4   // Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‚Ð½Ð°Ñ Ñ€Ð°ÑÑ…Ð¾Ð´Ð½Ð°Ñ Ð½Ð°ÐºÐ»Ð°Ð´Ð½Ð°
 
 int SLAPI PPViewBill::ExportToEGAIS()
 {
@@ -2078,17 +2074,17 @@ int SLAPI PPViewBill::ExportToEGAIS()
 
 #if 0 // @v5.2.0 VADIM Obsolete
 //
-//   Ýêñïîðò â ÏÈÊ "Ãîñìîíîïîëèÿ ÐÑÌ" (ÍÒÖ Àòëàñ)
+//   Ð­ÐºÑÐ¿Ð¾Ñ€Ñ‚ Ð² ÐŸÐ˜Ðš "Ð“Ð¾ÑÐ¼Ð¾Ð½Ð¾Ð¿Ð¾Ð»Ð¸Ñ Ð Ð¡Ðœ" (ÐÐ¢Ð¦ ÐÑ‚Ð»Ð°Ñ)
 //
-//   Òèïû íàêëàäíûõ â "Àòëàñ"
-#define AGBT_RECEIPT_M         1   // Ïðèõîä ìàðêèðîâàííîé ïðîäóêöèè
-#define AGBT_RECEIPT_NM        4   // Ïðèõîä íåìàðêèðîâàííîîé ïðîäóêöèè
-#define AGBT_EXPEND_M          9   // Ðàñõîä ìàðêèðîâàííîé ïðîäóêöèè
-#define AGBT_EXPEND_NM        10   // Ðàñõîä íåìàðêèðîâàííîîé ïðîäóêöèè
-#define AGBT_RET_CSGNEE_M     11   // Âîçâðàò ìàðêèðîâàííîé ïðîäóêöèè ïîëó÷àòåëåì
-#define AGBT_RET_CSGNEE_NM    12   // Âîçâðàò íåìàðêèðîâàííîîé ïðîäóêöèè ïîëó÷àòåëåì
-#define AGBT_RET_CSGNER_M     13   // Âîçâðàò ìàðêèðîâàííîé ïðîäóêöèè ïîñòàâùèêó
-#define AGBT_RET_CSGNER_NM    14   // Âîçâðàò íåìàðêèðîâàííîîé ïðîäóêöèè ïîñòàâùèêó
+//   Ð¢Ð¸Ð¿Ñ‹ Ð½Ð°ÐºÐ»Ð°Ð´Ð½Ñ‹Ñ… Ð² "ÐÑ‚Ð»Ð°Ñ"
+#define AGBT_RECEIPT_M         1   // ÐŸÑ€Ð¸Ñ…Ð¾Ð´ Ð¼Ð°Ñ€ÐºÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ð¾Ð¹ Ð¿Ñ€Ð¾Ð´ÑƒÐºÑ†Ð¸Ð¸
+#define AGBT_RECEIPT_NM        4   // ÐŸÑ€Ð¸Ñ…Ð¾Ð´ Ð½ÐµÐ¼Ð°Ñ€ÐºÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ð¾Ð¾Ð¹ Ð¿Ñ€Ð¾Ð´ÑƒÐºÑ†Ð¸Ð¸
+#define AGBT_EXPEND_M          9   // Ð Ð°ÑÑ…Ð¾Ð´ Ð¼Ð°Ñ€ÐºÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ð¾Ð¹ Ð¿Ñ€Ð¾Ð´ÑƒÐºÑ†Ð¸Ð¸
+#define AGBT_EXPEND_NM        10   // Ð Ð°ÑÑ…Ð¾Ð´ Ð½ÐµÐ¼Ð°Ñ€ÐºÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ð¾Ð¾Ð¹ Ð¿Ñ€Ð¾Ð´ÑƒÐºÑ†Ð¸Ð¸
+#define AGBT_RET_CSGNEE_M     11   // Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‚ Ð¼Ð°Ñ€ÐºÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ð¾Ð¹ Ð¿Ñ€Ð¾Ð´ÑƒÐºÑ†Ð¸Ð¸ Ð¿Ð¾Ð»ÑƒÑ‡Ð°Ñ‚ÐµÐ»ÐµÐ¼
+#define AGBT_RET_CSGNEE_NM    12   // Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‚ Ð½ÐµÐ¼Ð°Ñ€ÐºÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ð¾Ð¾Ð¹ Ð¿Ñ€Ð¾Ð´ÑƒÐºÑ†Ð¸Ð¸ Ð¿Ð¾Ð»ÑƒÑ‡Ð°Ñ‚ÐµÐ»ÐµÐ¼
+#define AGBT_RET_CSGNER_M     13   // Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‚ Ð¼Ð°Ñ€ÐºÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ð¾Ð¹ Ð¿Ñ€Ð¾Ð´ÑƒÐºÑ†Ð¸Ð¸ Ð¿Ð¾ÑÑ‚Ð°Ð²Ñ‰Ð¸ÐºÑƒ
+#define AGBT_RET_CSGNER_NM    14   // Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‚ Ð½ÐµÐ¼Ð°Ñ€ÐºÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ð¾Ð¾Ð¹ Ð¿Ñ€Ð¾Ð´ÑƒÐºÑ†Ð¸Ð¸ Ð¿Ð¾ÑÑ‚Ð°Ð²Ñ‰Ð¸ÐºÑƒ
 
 int SLAPI PPViewBill::ExportToAtlas()
 {
@@ -2165,7 +2161,7 @@ int SLAPI PPViewBill::ExportToAtlas()
 								dbfrr.empty();
 								dbfrr.put(1, p_ti->GoodsID);
 								dbfrr.put(2, bv_item.ID);
-								dbfrr.put(4, ZERODATE); // Äàòà ïðèõîäà
+								dbfrr.put(4, ZERODATE); // Ð”Ð°Ñ‚Ð° Ð¿Ñ€Ð¸Ñ…Ð¾Ð´Ð°
 								if(oneof2(agb_type, AGBT_RET_CSGNEE_M, AGBT_RET_CSGNEE_NM))
 									dbfrr.put(5, bv_item.Dt);
 								if(GObj.Search(p_ti->GoodsID, &goods_rec) > 0) {
@@ -2186,7 +2182,7 @@ int SLAPI PPViewBill::ExportToAtlas()
 								}
 								dbfrr.put(10, fabs(p_ti->Quantity));
 								dbfrr.put(11, p_ti->NetPrice());
-								//dbfrr.put(12, 0); // Öåíà ïîñòóïëåíèÿ //
+								//dbfrr.put(12, 0); // Ð¦ÐµÐ½Ð° Ð¿Ð¾ÑÑ‚ÑƒÐ¿Ð»ÐµÐ½Ð¸Ñ //
 								dbfrr.put(13, gtx.GetVatRate());
 								if(!head_is_written) {
 									THROW_PP(p_out_tbl_gb_hdrs->appendRec(&dbfrh), PPERR_DBFWRFAULT);
@@ -2212,7 +2208,7 @@ int SLAPI PPViewBill::ExportToAtlas()
 //
 struct Bill2MrpParam {
 	enum {
-		fAllSelection = 0x0001 // Ñîçäàòü MRP-òàáëèöó ïî âñåé âûáîðêå
+		fAllSelection = 0x0001 // Ð¡Ð¾Ð·Ð´Ð°Ñ‚ÑŒ MRP-Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñƒ Ð¿Ð¾ Ð²ÑÐµÐ¹ Ð²Ñ‹Ð±Ð¾Ñ€ÐºÐµ
 	};
 	char   MrpName[48];
 	long   Flags;
@@ -2515,8 +2511,8 @@ int SLAPI PPViewBill::PreprocessBrowser(PPViewBrowser * pBrw)
 					PPID   bs_id = 0;
 					if(bs_obj.EnumItems(&bs_id, 0) > 0) {
 						//
-						// Îïðåäåëåí ïî êðàéíåé ìåðå îäèí ñòàòóñ äîêóìåíòà,
-						// ñëåäîâàòåëüíî â òàáëèöå íóæíà êîëîíêà ñòàòóñà äîêóìåíòà
+						// ÐžÐ¿Ñ€ÐµÐ´ÐµÐ»ÐµÐ½ Ð¿Ð¾ ÐºÑ€Ð°Ð¹Ð½ÐµÐ¹ Ð¼ÐµÑ€Ðµ Ð¾Ð´Ð¸Ð½ ÑÑ‚Ð°Ñ‚ÑƒÑ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°,
+						// ÑÐ»ÐµÐ´Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŒÐ½Ð¾ Ð² Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ðµ Ð½ÑƒÐ¶Ð½Ð° ÐºÐ¾Ð»Ð¾Ð½ÐºÐ° ÑÑ‚Ð°Ñ‚ÑƒÑÐ° Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°
 						//
 						// @v9.1.11 pBrw->InsColumnWord(bs_col, PPWORD_STATUS, 10, 0, MKSFMT(6, 0), 0);
 						pBrw->InsColumn(bs_col, "@status", 10, 0, MKSFMT(6, 0), 0); // @v9.1.11
@@ -2825,7 +2821,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 			if(!(Filt.Flags & BillFilt::fAllCurrencies) && Filt.CurID >= 0 && !IdList.IsExists())
 				dbq = & (*dbq && bll->CurID == Filt.CurID);
 			dbq = & (*dbq && realrange(bll->Amount, Filt.AmtRange.low, Filt.AmtRange.upp));
-			if(Filt.Flags & BillFilt::fShowDebt && t_amt) // Ïðè use_omt_paymamt t_amt==0 àâòîìàòè÷åñêè
+			if(Filt.Flags & BillFilt::fShowDebt && t_amt) // ÐŸÑ€Ð¸ use_omt_paymamt t_amt==0 Ð°Ð²Ñ‚Ð¾Ð¼Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸
 				dbq = & (*dbq && (t_amt->BillID += bll->ID) && t_amt->AmtTypeID == PPAMT_PAYMENT);
 			dbq = ppcheckfiltid(dbq, bll->Object2, Filt.Object2ID);
 			dbq = ppcheckfiltid(dbq, bll->StatusID, Filt.StatusID);
@@ -3442,10 +3438,10 @@ int SLAPI PPViewBill::AttachBillToOrder(PPID billID)
 		PPID   op_id = 0;
 		if(op_rec.AccSheetID == LConfig.LocAccSheetID) {
 			//
-			// Åñëè òàáëèöà ñòàòåé äîêóìåíòà - "ñêëàäû", òî çàêàç ïîäáèðàåì íåñêîëüêî ïî-èíîìó:
-			// âûáèðàåì îïåðàöèþ çàêàçà ïî òàêîé æå òàáëèöå ñòàòåé ñ ïðèçíàêîì "Çàêàç ïðèâÿçàí ê ñêëàäó".
-			// Ïðè ýòîì íå îãðàíè÷èâàåì âûáîðêó êîíòðàãåíòîì (èç-çà ìåæñêëàäñêèõ ïåðåìåùåíèé),
-			// íî îãðàíè÷èâàåì ñêëàäîì.
+			// Ð•ÑÐ»Ð¸ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ð° ÑÑ‚Ð°Ñ‚ÐµÐ¹ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° - "ÑÐºÐ»Ð°Ð´Ñ‹", Ñ‚Ð¾ Ð·Ð°ÐºÐ°Ð· Ð¿Ð¾Ð´Ð±Ð¸Ñ€Ð°ÐµÐ¼ Ð½ÐµÑÐºÐ¾Ð»ÑŒÐºÐ¾ Ð¿Ð¾-Ð¸Ð½Ð¾Ð¼Ñƒ:
+			// Ð²Ñ‹Ð±Ð¸Ñ€Ð°ÐµÐ¼ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸ÑŽ Ð·Ð°ÐºÐ°Ð·Ð° Ð¿Ð¾ Ñ‚Ð°ÐºÐ¾Ð¹ Ð¶Ðµ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ðµ ÑÑ‚Ð°Ñ‚ÐµÐ¹ Ñ Ð¿Ñ€Ð¸Ð·Ð½Ð°ÐºÐ¾Ð¼ "Ð—Ð°ÐºÐ°Ð· Ð¿Ñ€Ð¸Ð²ÑÐ·Ð°Ð½ Ðº ÑÐºÐ»Ð°Ð´Ñƒ".
+			// ÐŸÑ€Ð¸ ÑÑ‚Ð¾Ð¼ Ð½Ðµ Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡Ð¸Ð²Ð°ÐµÐ¼ Ð²Ñ‹Ð±Ð¾Ñ€ÐºÑƒ ÐºÐ¾Ð½Ñ‚Ñ€Ð°Ð³ÐµÐ½Ñ‚Ð¾Ð¼ (Ð¸Ð·-Ð·Ð° Ð¼ÐµÐ¶ÑÐºÐ»Ð°Ð´ÑÐºÐ¸Ñ… Ð¿ÐµÑ€ÐµÐ¼ÐµÑ‰ÐµÐ½Ð¸Ð¹),
+			// Ð½Ð¾ Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡Ð¸Ð²Ð°ÐµÐ¼ ÑÐºÐ»Ð°Ð´Ð¾Ð¼.
 			//
 			for(PPID id = 0; (r = EnumOperations(PPOPT_GOODSORDER, &id, &op_rec)) > 0;)
 				if(op_rec.AccSheetID == acc_sheet_id && op_rec.Flags & OPKF_ORDERBYLOC)
@@ -4464,9 +4460,9 @@ int SLAPI PPViewBill::ViewVATaxList()
 	BVATAccmArray dest;
 	uint   i;
 	double vat_cost   = 0.0, vat_price   = 0.0, tmp;
-	double vatnf_cost = 0.0, vatnf_price = 0.0; // Ñóììà ÍÄÑ äëÿ òåõ, êòî ïëàòèò
+	double vatnf_cost = 0.0, vatnf_price = 0.0; // Ð¡ÑƒÐ¼Ð¼Ð° ÐÐ”Ð¡ Ð´Ð»Ñ Ñ‚ÐµÑ…, ÐºÑ‚Ð¾ Ð¿Ð»Ð°Ñ‚Ð¸Ñ‚
 	double s_cost     = 0.0, s_price     = 0.0;
-	double snf_cost   = 0.0, snf_price   = 0.0; // Ñóììà ïî äîêóìåíòàì äëÿ òåõ, êòî ïëàòèò
+	double snf_cost   = 0.0, snf_price   = 0.0; // Ð¡ÑƒÐ¼Ð¼Ð° Ð¿Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°Ð¼ Ð´Ð»Ñ Ñ‚ÐµÑ…, ÐºÑ‚Ð¾ Ð¿Ð»Ð°Ñ‚Ð¸Ñ‚
 	SString sub;
 	BVATAccm     * p_item, total;
 	StrAssocArray * p_ary = 0;
@@ -4487,16 +4483,16 @@ int SLAPI PPViewBill::ViewVATaxList()
 		vat_cost  += p_item->Cost  * tmp;
 		vat_price += p_item->Price * tmp;
 		if(p_item->IsVatFree)
-			ss.add((sub = 0).Cat(p_item->PRate, SFMT_QTTY).Space().Cat("(0)"));
+			ss.add(sub.Z().Cat(p_item->PRate, SFMT_QTTY).Space().Cat("(0)"));
 		else {
-			ss.add((sub = 0).Cat(p_item->PRate, SFMT_QTTY));
+			ss.add(sub.Z().Cat(p_item->PRate, SFMT_QTTY));
 			snf_cost    += p_item->Cost;
 			snf_price   += p_item->Price;
 			vatnf_cost  += p_item->Cost  * tmp;
 			vatnf_price += p_item->Price * tmp;
 		}
-		ss.add((sub = 0).Cat(p_item->Cost,  MKSFMTD(0, 2, NMBF_TRICOMMA)));
-		ss.add((sub = 0).Cat(p_item->Price, MKSFMTD(0, 2, NMBF_TRICOMMA)));
+		ss.add(sub.Z().Cat(p_item->Cost,  MKSFMTD(0, 2, NMBF_TRICOMMA)));
+		ss.add(sub.Z().Cat(p_item->Price, MKSFMTD(0, 2, NMBF_TRICOMMA)));
 		THROW_SL(p_ary->Add(i+1, ss.getBuf()));
 	}
 	vat_cost    = CalcVATRate(s_cost,    vat_cost);
@@ -4627,8 +4623,8 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 	if(bill_id_list.getCount()) {
 		PPBillPacket pack;
 		//
-		// Ïåðâûé äîêóìåíò íåîáõîäèìî èçâëå÷ü èç ÁÄ äëÿ òîãî, ÷òîáû èíèöèàëèçèðîâàòü âîçìîæíûå øàáëîíû ïåðåìåííûõ
-		// â íàèìåíîâàíèè ôàéëà ýêñïîðòà.
+		// ÐŸÐµÑ€Ð²Ñ‹Ð¹ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚ Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ð¾ Ð¸Ð·Ð²Ð»ÐµÑ‡ÑŒ Ð¸Ð· Ð‘Ð” Ð´Ð»Ñ Ñ‚Ð¾Ð³Ð¾, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ñ‹Ðµ ÑˆÐ°Ð±Ð»Ð¾Ð½Ñ‹ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ñ‹Ñ…
+		// Ð² Ð½Ð°Ð¸Ð¼ÐµÐ½Ð¾Ð²Ð°Ð½Ð¸Ð¸ Ñ„Ð°Ð¹Ð»Ð° ÑÐºÑÐ¿Ð¾Ñ€Ñ‚Ð°.
 		//
 		THROW(P_BObj->ExtractPacketWithFlags(bill_id_list.get(0), &pack, BPLD_FORCESERIALS) > 0); // @v8.8.6 BPLD_FORCESERIALS
 		if(!is_there_bnkpaym)
@@ -4685,10 +4681,10 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 				SString edi_prvdr_symb;
 				PPWait(1);
 				// @vmiller {
-				// Çàïîìíèì íà÷àëüíîå çíà÷åíèå êîíôèãóðàöèè
+				// Ð—Ð°Ð¿Ð¾Ð¼Ð½Ð¸Ð¼ Ð½Ð°Ñ‡Ð°Ð»ÑŒÐ½Ð¾Ðµ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ ÐºÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸Ð¸
 				{
 					const PPImpExp * p_iebill = b_e.GetIEBill();
-					doc_type = p_iebill ? p_iebill->GetParam().Name.cptr() : 0; // Òèï äîêóìåíòà (ïåðå÷èñëåíèå â PPTXT_EDIEXPCMD)
+					doc_type = p_iebill ? p_iebill->GetParam().Name.cptr() : 0; // Ð¢Ð¸Ð¿ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° (Ð¿ÐµÑ€ÐµÑ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ðµ Ð² PPTXT_EDIEXPCMD)
 				}
 				if(b_e.BillParam.BaseFlags & PPImpExpParam::bfDLL) {
 					SString prev_bill_code;
@@ -4696,9 +4692,9 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 					THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 					PPIniFile ini_file(ini_file_name, 0, 1, 1);
 					//
-					// Ïðîâåðêà èç-çà ýêñïîðòà ÷åðåç job-ñåðâåð, èáî òàì îò íåãî íå ïåðåäàåòñÿ ôëàã fEdiImpExp
-					// Åñëè èìÿ doc_type ñîîòâåòñòâóåò îäíîé èç ñòðîê ïåðå÷èñëåíèÿ PPTXT_EDIEXPCMD, òî ýêñïîðò
-					// ïðîèñõîäèò â ðåæèìå EDI
+					// ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð¸Ð·-Ð·Ð° ÑÐºÑÐ¿Ð¾Ñ€Ñ‚Ð° Ñ‡ÐµÑ€ÐµÐ· job-ÑÐµÑ€Ð²ÐµÑ€, Ð¸Ð±Ð¾ Ñ‚Ð°Ð¼ Ð¾Ñ‚ Ð½ÐµÐ³Ð¾ Ð½Ðµ Ð¿ÐµÑ€ÐµÐ´Ð°ÐµÑ‚ÑÑ Ñ„Ð»Ð°Ð³ fEdiImpExp
+					// Ð•ÑÐ»Ð¸ Ð¸Ð¼Ñ doc_type ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÑƒÐµÑ‚ Ð¾Ð´Ð½Ð¾Ð¹ Ð¸Ð· ÑÑ‚Ñ€Ð¾Ðº Ð¿ÐµÑ€ÐµÑ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ PPTXT_EDIEXPCMD, Ñ‚Ð¾ ÑÐºÑÐ¿Ð¾Ñ€Ñ‚
+					// Ð¿Ñ€Ð¾Ð¸ÑÑ…Ð¾Ð´Ð¸Ñ‚ Ð² Ñ€ÐµÐ¶Ð¸Ð¼Ðµ EDI
 					//
 					if(!(b_e.Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp)) {
 						StringSet ss(';', PPLoadTextS(PPTXT_EDIEXPCMD, temp_buf));
@@ -4718,23 +4714,23 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 						const  PPID bill_id = bill_id_list.get(_idx);
 						int    err = 0;
 						if(P_BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
-							// Áåðåì íà÷àëüíîå çíà÷åíèå BillParam
+							// Ð‘ÐµÑ€ÐµÐ¼ Ð½Ð°Ñ‡Ð°Ð»ÑŒÐ½Ð¾Ðµ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ BillParam
 							b_e.BillParam = bill_param;
 							PPSupplAgreement suppl_agt;
 							//
-							// Ïîëó÷àåì ñîãëàøåíèå ïîñòàâùèêà
-							// @v8.1.8 (êîíñòðóêòîð PPSupplAgreement èíèöèàëèçèðóåò îáúåêò) MEMSZERO(suppl_agr);
+							// ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÐ¼ ÑÐ¾Ð³Ð»Ð°ÑˆÐµÐ½Ð¸Ðµ Ð¿Ð¾ÑÑ‚Ð°Ð²Ñ‰Ð¸ÐºÐ°
+							// @v8.1.8 (ÐºÐ¾Ð½ÑÑ‚Ñ€ÑƒÐºÑ‚Ð¾Ñ€ PPSupplAgreement Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð¸Ñ€ÑƒÐµÑ‚ Ð¾Ð±ÑŠÐµÐºÑ‚) MEMSZERO(suppl_agr);
 							//
 							PPObjArticle::GetSupplAgreement(pack.Rec.Object, &suppl_agt, 1);
 							suppl_agt.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssEDIPrvdrSymb, edi_prvdr_symb);
 							//
-							// Òàê êàê â ñïèñêå äîêóìåíòîâ ìîãóò áûòü äîêóìåíòû ñ ðàçíûìè ïîñòàâùèêàìè è, ñîîòâåòñòâåííî,
-							// ïðîâàéäåðàìè, òî, ÷òîáû 100500 ðàç íå èíèöèàëèçèðîâàòü è ðàçðóøàòü dll, èíèöèàëèçèðóåì
-							// åå äëÿ êàæäîãî ïðîâàéäåðà ïî îäíîìó ðàçó è çàïîìíèì óêàçàòåëü íà áèáëèîòåêó â êîëëåêöèþ.
-							// Ñìîòðèì êîëëåêöèþ íà íàëè÷èå èíèöèàëèçèðîâàííîé áèáèëèîòåêè
+							// Ð¢Ð°Ðº ÐºÐ°Ðº Ð² ÑÐ¿Ð¸ÑÐºÐµ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð¾Ð² Ð¼Ð¾Ð³ÑƒÑ‚ Ð±Ñ‹Ñ‚ÑŒ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ Ñ Ñ€Ð°Ð·Ð½Ñ‹Ð¼Ð¸ Ð¿Ð¾ÑÑ‚Ð°Ð²Ñ‰Ð¸ÐºÐ°Ð¼Ð¸ Ð¸, ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÐµÐ½Ð½Ð¾,
+							// Ð¿Ñ€Ð¾Ð²Ð°Ð¹Ð´ÐµÑ€Ð°Ð¼Ð¸, Ñ‚Ð¾, Ñ‡Ñ‚Ð¾Ð±Ñ‹ 100500 Ñ€Ð°Ð· Ð½Ðµ Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ Ð¸ Ñ€Ð°Ð·Ñ€ÑƒÑˆÐ°Ñ‚ÑŒ dll, Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð¸Ñ€ÑƒÐµÐ¼
+							// ÐµÐµ Ð´Ð»Ñ ÐºÐ°Ð¶Ð´Ð¾Ð³Ð¾ Ð¿Ñ€Ð¾Ð²Ð°Ð¹Ð´ÐµÑ€Ð° Ð¿Ð¾ Ð¾Ð´Ð½Ð¾Ð¼Ñƒ Ñ€Ð°Ð·Ñƒ Ð¸ Ð·Ð°Ð¿Ð¾Ð¼Ð½Ð¸Ð¼ ÑƒÐºÐ°Ð·Ð°Ñ‚ÐµÐ»ÑŒ Ð½Ð° Ð±Ð¸Ð±Ð»Ð¸Ð¾Ñ‚ÐµÐºÑƒ Ð² ÐºÐ¾Ð»Ð»ÐµÐºÑ†Ð¸ÑŽ.
+							// Ð¡Ð¼Ð¾Ñ‚Ñ€Ð¸Ð¼ ÐºÐ¾Ð»Ð»ÐµÐºÑ†Ð¸ÑŽ Ð½Ð° Ð½Ð°Ð»Ð¸Ñ‡Ð¸Ðµ Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ð¾Ð¹ Ð±Ð¸Ð±Ð¸Ð»Ð¸Ð¾Ñ‚ÐµÐºÐ¸
 							//
 							if((b_e.Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp) && !edi_prvdr_symb.NotEmptyS()) {
-								GetArticleName(pack.Rec.Object, temp_buf = 0);
+								GetArticleName(pack.Rec.Object, temp_buf.Z());
 								PPSetError(PPERR_EMPTY_EDISYMB, temp_buf);
 								err = 1;
 							}
@@ -4759,16 +4755,16 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 								edi_prvdr_symb.CopyTo(p_prvd_dll_link->PrvdrSymb, sizeof(p_prvd_dll_link->PrvdrSymb));
 								p_prvd_dll_link->P_ExpDll = p_exp_dll;
 								//
-								// Ñ÷èòûâàåì íóæíóþ êîíôèãóðàöèþ
-								// Ïðè÷åì ñ÷èòûâàåì âñåãäà! Èáî â b_e.BillParam äîëæíà áûòü àêòóàëüíàÿ äëÿ òåêóùåãî ïðîâàéäåðà èíôà
-								// Íà ñëåäóþùåì êðóãå ïðîâàéäåð ìîæåò ïîìåíÿòüñÿ, è, ñîîòâåòñòâåííî, íàñòðîéêè òîæå.
-								// Ïðè ýòîì íå âàæíî, âòðå÷àåòñÿ íàì ïðîâàéäåð ïåðâûé ðàç èëè ìû óæå ñ íèì ðàáîòàëè.
-								// Ñíà÷àëà ñôîðìðóåì íàçâàíèå êîíôèãóðàöèè
+								// Ð¡Ñ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÐµÐ¼ Ð½ÑƒÐ¶Ð½ÑƒÑŽ ÐºÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸ÑŽ
+								// ÐŸÑ€Ð¸Ñ‡ÐµÐ¼ ÑÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÐµÐ¼ Ð²ÑÐµÐ³Ð´Ð°! Ð˜Ð±Ð¾ Ð² b_e.BillParam Ð´Ð¾Ð»Ð¶Ð½Ð° Ð±Ñ‹Ñ‚ÑŒ Ð°ÐºÑ‚ÑƒÐ°Ð»ÑŒÐ½Ð°Ñ Ð´Ð»Ñ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ³Ð¾ Ð¿Ñ€Ð¾Ð²Ð°Ð¹Ð´ÐµÑ€Ð° Ð¸Ð½Ñ„Ð°
+								// ÐÐ° ÑÐ»ÐµÐ´ÑƒÑŽÑ‰ÐµÐ¼ ÐºÑ€ÑƒÐ³Ðµ Ð¿Ñ€Ð¾Ð²Ð°Ð¹Ð´ÐµÑ€ Ð¼Ð¾Ð¶ÐµÑ‚ Ð¿Ð¾Ð¼ÐµÐ½ÑÑ‚ÑŒÑÑ, Ð¸, ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÐµÐ½Ð½Ð¾, Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸ Ñ‚Ð¾Ð¶Ðµ.
+								// ÐŸÑ€Ð¸ ÑÑ‚Ð¾Ð¼ Ð½Ðµ Ð²Ð°Ð¶Ð½Ð¾, Ð²Ñ‚Ñ€ÐµÑ‡Ð°ÐµÑ‚ÑÑ Ð½Ð°Ð¼ Ð¿Ñ€Ð¾Ð²Ð°Ð¹Ð´ÐµÑ€ Ð¿ÐµÑ€Ð²Ñ‹Ð¹ Ñ€Ð°Ð· Ð¸Ð»Ð¸ Ð¼Ñ‹ ÑƒÐ¶Ðµ Ñ Ð½Ð¸Ð¼ Ñ€Ð°Ð±Ð¾Ñ‚Ð°Ð»Ð¸.
+								// Ð¡Ð½Ð°Ñ‡Ð°Ð»Ð° ÑÑ„Ð¾Ñ€Ð¼Ñ€ÑƒÐµÐ¼ Ð½Ð°Ð·Ð²Ð°Ð½Ð¸Ðµ ÐºÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸Ð¸
 								//
 								if(b_e.Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp) {
-									b_e.BillParam.ProcessName(1, temp_buf = 0);
+									b_e.BillParam.ProcessName(1, temp_buf.Z());
 									temp_buf.Cat("DLL_").Cat(edi_prvdr_symb).CatChar('_').Cat(doc_type);
-									// Òåïåðü ÷èòàåì ïàðàìåòðû êîíôèãóðàöèè èç ini-ôàéëà
+									// Ð¢ÐµÐ¿ÐµÑ€ÑŒ Ñ‡Ð¸Ñ‚Ð°ÐµÐ¼ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ñ‹ ÐºÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸Ð¸ Ð¸Ð· ini-Ñ„Ð°Ð¹Ð»Ð°
 									if(!b_e.BillParam.ReadIni(&ini_file, temp_buf, 0)) {
 										PPSetError(PPERR_IMPEXPCFGRDFAULT, temp_buf);
 										err = 1;
@@ -4809,10 +4805,10 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 								ImpExpDll * p_exp_dll = p_prvdr_item ? p_prvdr_item->P_ExpDll : 0;
 								if(!b_e.PutPacket(&pack, (p_prvdr_item ? p_prvdr_item->SessId : 0), p_exp_dll)) {
 									if(b_e.Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp) {
-										// Â ìåòîäå PutPacket() âûçûâàåòñÿ âíåøíèé ìåòîä dll SetExportObj(), êîòîðûé
-										// íà÷èíàåò ôîðìèðîâàòü íîâûé äîêóìåíò äëÿ îòïðàâêè, íî ïðåäâàðèòåëüíî
-										// îí îòïðàâëÿåò ñòàðûé. Òî åñòü åñëè íà ýòîì ýòàïå íå îòïðàâèëñÿ äîêóìåíò, òî ýòî
-										// ýòî íå òåêóùèé, à ïðåäûäóùèé
+										// Ð’ Ð¼ÐµÑ‚Ð¾Ð´Ðµ PutPacket() Ð²Ñ‹Ð·Ñ‹Ð²Ð°ÐµÑ‚ÑÑ Ð²Ð½ÐµÑˆÐ½Ð¸Ð¹ Ð¼ÐµÑ‚Ð¾Ð´ dll SetExportObj(), ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ð¹
+										// Ð½Ð°Ñ‡Ð¸Ð½Ð°ÐµÑ‚ Ñ„Ð¾Ñ€Ð¼Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ Ð½Ð¾Ð²Ñ‹Ð¹ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚ Ð´Ð»Ñ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²ÐºÐ¸, Ð½Ð¾ Ð¿Ñ€ÐµÐ´Ð²Ð°Ñ€Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾
+										// Ð¾Ð½ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²Ð»ÑÐµÑ‚ ÑÑ‚Ð°Ñ€Ñ‹Ð¹. Ð¢Ð¾ ÐµÑÑ‚ÑŒ ÐµÑÐ»Ð¸ Ð½Ð° ÑÑ‚Ð¾Ð¼ ÑÑ‚Ð°Ð¿Ðµ Ð½Ðµ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²Ð¸Ð»ÑÑ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚, Ñ‚Ð¾ ÑÑ‚Ð¾
+										// ÑÑ‚Ð¾ Ð½Ðµ Ñ‚ÐµÐºÑƒÑ‰Ð¸Ð¹, Ð° Ð¿Ñ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰Ð¸Ð¹
 										logger.LogMsgCode(mfError, PPERR_IMPEXP_BILL, prev_bill_code);
 									}
 									else
@@ -4840,13 +4836,13 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 							if(!b_e.CheckBillsWasExported(p_item->P_ExpDll)) {
 								errmsg_[0] = 0;
 								p_item->P_ExpDll->GetErrorMessage(errmsg_, sizeof(errmsg_));
-								PPSetError(PPERR_IMPEXP_DLL, (msg_buf = 0).Cat(errmsg_).Transf(CTRANSF_OUTER_TO_INNER));
+								PPSetError(PPERR_IMPEXP_DLL, msg_buf.Z().Cat(errmsg_).Transf(CTRANSF_OUTER_TO_INNER));
 								logger.LogLastError();
 							}
 							else if(!p_item->P_ExpDll->FinishImpExp()) {
 								errmsg_[0] = 0;
 								p_item->P_ExpDll->GetErrorMessage(errmsg_, sizeof(errmsg_));
-								PPSetError(PPERR_IMPEXP_DLL, (msg_buf = 0).Cat(errmsg_).Transf(CTRANSF_OUTER_TO_INNER));
+								PPSetError(PPERR_IMPEXP_DLL, msg_buf.Z().Cat(errmsg_).Transf(CTRANSF_OUTER_TO_INNER));
 								logger.LogLastError();
 							}
 						}
@@ -4934,7 +4930,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 			if(p_ied && p_ied->IsInited()) {
 				errmsg_[0] = 0;
 				p_ied->GetErrorMessage(errmsg_, sizeof(errmsg_));
-				PPSetError(PPERR_IMPEXP_DLL, (msg_buf = 0).Cat(errmsg_).Transf(CTRANSF_OUTER_TO_INNER));
+				PPSetError(PPERR_IMPEXP_DLL, msg_buf.Z().Cat(errmsg_).Transf(CTRANSF_OUTER_TO_INNER));
 			}
 		}
 		logger.LogLastError(); // @v9.2.10
@@ -5371,7 +5367,7 @@ int SLAPI PPViewBill::TransmitByFilt(const BillFilt * pFilt, const ObjTransmitPa
 	return ok;
 }
 //
-// Descr: Áëîê äàííûõ äëÿ ïå÷àòè èòîãîâ âûáîðêè äîêóìåíòîâ, ïåðåäàâàåìûé îáúåêòó PPALDD_BillTotal
+// Descr: Ð‘Ð»Ð¾Ðº Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð´Ð»Ñ Ð¿ÐµÑ‡Ð°Ñ‚Ð¸ Ð¸Ñ‚Ð¾Ð³Ð¾Ð² Ð²Ñ‹Ð±Ð¾Ñ€ÐºÐ¸ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð¾Ð², Ð¿ÐµÑ€ÐµÐ´Ð°Ð²Ð°ÐµÐ¼Ñ‹Ð¹ Ð¾Ð±ÑŠÐµÐºÑ‚Ñƒ PPALDD_BillTotal
 //
 struct BillTotalPrintData {
 	const BillTotal * P_Total;
@@ -5394,7 +5390,7 @@ int SLAPI PPViewBill::GetPacket(PPID billID, PPBillPacket * pPack) const
 	return P_BObj ? P_BObj->ExtractPacket(billID, pPack) : 0;
 }
 //
-// Descr: Áëîê äàííûõ äëÿ ïå÷àòè ñïåöèàëüíîé èíôîðìàöèè ïî ñïèñêó äîêóìåíòîâ
+// Descr: Ð‘Ð»Ð¾Ðº Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð´Ð»Ñ Ð¿ÐµÑ‡Ð°Ñ‚Ð¸ ÑÐ¿ÐµÑ†Ð¸Ð°Ð»ÑŒÐ½Ð¾Ð¹ Ð¸Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ð¸ Ð¿Ð¾ ÑÐ¿Ð¸ÑÐºÑƒ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð¾Ð²
 //
 struct BillInfoListPrintData {
 	BillInfoListPrintData(PPViewBill * pV, PPBillPacket * pPack)
@@ -5531,8 +5527,6 @@ int SLAPI PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPV
 	return ok;
 }
 
-
-
 // virtual
 int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
@@ -5569,8 +5563,8 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					if(options & OLW_CANINSERT && (ok = AddItemBySample(&new_bill_id, hdr.ID)) > 0) {
 						// @v9.0.11 {
 						if(CheckIDForFilt(new_bill_id, 0)) {
-							// Åñëè âíîâü ñîçäàííûé äîêóìåíò ïîïàäàåò â âûáîðêó, òî
-							// ñëåäóþùåå ïðèñâîåíèå îáåñïå÷èò ïåðåâîä êóðñîðà íà ýòîò äîêóìåíò.
+							// Ð•ÑÐ»Ð¸ Ð²Ð½Ð¾Ð²ÑŒ ÑÐ¾Ð·Ð´Ð°Ð½Ð½Ñ‹Ð¹ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚ Ð¿Ð¾Ð¿Ð°Ð´Ð°ÐµÑ‚ Ð² Ð²Ñ‹Ð±Ð¾Ñ€ÐºÑƒ, Ñ‚Ð¾
+							// ÑÐ»ÐµÐ´ÑƒÑŽÑ‰ÐµÐµ Ð¿Ñ€Ð¸ÑÐ²Ð¾ÐµÐ½Ð¸Ðµ Ð¾Ð±ÐµÑÐ¿ÐµÑ‡Ð¸Ñ‚ Ð¿ÐµÑ€ÐµÐ²Ð¾Ð´ ÐºÑƒÑ€ÑÐ¾Ñ€Ð° Ð½Ð° ÑÑ‚Ð¾Ñ‚ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚.
 							id = new_bill_id;
 						}
 						// } @v9.0.11
@@ -6211,8 +6205,8 @@ int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 			H.fSupplIsVatExempt = 0;
 	}
 	//
-	// Ôîðìèðîâàíèå âèðòóàëüíûõ ñòðîê äëÿ áóõãàëòåðñêèõ äîêóìåíòîâ, îïëàò, íà÷èñëåíèé è íåêîòîðûõ èíûõ ñëó÷àåâ.
-	// Ôóíêöèÿ SetupVirtualTItems ñàìîñòîÿòåëüíî ïðîâåðÿåò íåîáõîäèìûå óñëîâèÿ.
+	// Ð¤Ð¾Ñ€Ð¼Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ Ð²Ð¸Ñ€Ñ‚ÑƒÐ°Ð»ÑŒÐ½Ñ‹Ñ… ÑÑ‚Ñ€Ð¾Ðº Ð´Ð»Ñ Ð±ÑƒÑ…Ð³Ð°Ð»Ñ‚ÐµÑ€ÑÐºÐ¸Ñ… Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð¾Ð², Ð¾Ð¿Ð»Ð°Ñ‚, Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ð¹ Ð¸ Ð½ÐµÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ñ… Ð¸Ð½Ñ‹Ñ… ÑÐ»ÑƒÑ‡Ð°ÐµÐ².
+	// Ð¤ÑƒÐ½ÐºÑ†Ð¸Ñ SetupVirtualTItems ÑÐ°Ð¼Ð¾ÑÑ‚Ð¾ÑÑ‚ÐµÐ»ÑŒÐ½Ð¾ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÑÐµÑ‚ Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ñ‹Ðµ ÑƒÑÐ»Ð¾Ð²Ð¸Ñ.
 	//
 	p_pack->SetupVirtualTItems();
 	{
@@ -6267,9 +6261,9 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 	IterProlog(iterId, 0);
 	PPBillPacket   * p_pack = (PPBillPacket *)(Extra[0].Ptr);
 	//
-	// Âîçìîæíû äâà àëãîðèòìà ðàñ÷åòà íàëîãîâ ïî îáúåäèíåííûì ñòðîêàì äîêóìåíòà:
-	// 1. Îáúåäèíåííàÿ ñòðîêà îáñ÷èòûâàåòñÿ ñàìà ïî ñåáå, êàê åäèíàÿ
-	// 2. Êàæäàÿ èç ñòðîê, âêëþ÷åííûõ â îáúåäèíåííóþ, îáñ÷èòûâàþòñÿ ïîðîçíü, à ðåçóëüòàò ñêëàäûâàåòñÿ.
+	// Ð’Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ñ‹ Ð´Ð²Ð° Ð°Ð»Ð³Ð¾Ñ€Ð¸Ñ‚Ð¼Ð° Ñ€Ð°ÑÑ‡ÐµÑ‚Ð° Ð½Ð°Ð»Ð¾Ð³Ð¾Ð² Ð¿Ð¾ Ð¾Ð±ÑŠÐµÐ´Ð¸Ð½ÐµÐ½Ð½Ñ‹Ð¼ ÑÑ‚Ñ€Ð¾ÐºÐ°Ð¼ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°:
+	// 1. ÐžÐ±ÑŠÐµÐ´Ð¸Ð½ÐµÐ½Ð½Ð°Ñ ÑÑ‚Ñ€Ð¾ÐºÐ° Ð¾Ð±ÑÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÐµÑ‚ÑÑ ÑÐ°Ð¼Ð° Ð¿Ð¾ ÑÐµÐ±Ðµ, ÐºÐ°Ðº ÐµÐ´Ð¸Ð½Ð°Ñ
+	// 2. ÐšÐ°Ð¶Ð´Ð°Ñ Ð¸Ð· ÑÑ‚Ñ€Ð¾Ðº, Ð²ÐºÐ»ÑŽÑ‡ÐµÐ½Ð½Ñ‹Ñ… Ð² Ð¾Ð±ÑŠÐµÐ´Ð¸Ð½ÐµÐ½Ð½ÑƒÑŽ, Ð¾Ð±ÑÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÑŽÑ‚ÑÑ Ð¿Ð¾Ñ€Ð¾Ð·Ð½ÑŒ, Ð° Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚ ÑÐºÐ»Ð°Ð´Ñ‹Ð²Ð°ÐµÑ‚ÑÑ.
 	//
 	int   merge_line_tax_alg = 1;
 	const PPCommConfig & r_ccfg = CConfig;
@@ -6287,7 +6281,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 	PPObjQuotKind qk_obj;
 	PPQuotKind qk_rec;
 	double ext_price = 0.0;
-	double upp = 0.0; // Åìêîñòü óïàêîâêè
+	double upp = 0.0; // Ð•Ð¼ÐºÐ¾ÑÑ‚ÑŒ ÑƒÐ¿Ð°ÐºÐ¾Ð²ÐºÐ¸
 	int    tiamt, price_chng = 1;
 	uint   n = (uint)I.nn;
 	const  PPID qk_id = p_pack->Ext.ExtPriceQuotKindID;
@@ -6295,7 +6289,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 	const  int  extprice_by_base = BIN(qk_obj.Fetch(qk_id, &qk_rec) > 0 && qk_rec.Flags & QUOTKF_EXTPRICEBYBASE);
 	int    treat_as_unlim = 0;
 	do {
-		price_chng = 1; // Öåíà èçìåíèëàñü ïî îòíîøåíèþ ê ïðåäûäóùåìó ëîòó. Åñëè íå óñòàíîâëåí ôëàã pfPrintChangedPriceOnly, òî èãíîðèðóåòñÿ.
+		price_chng = 1; // Ð¦ÐµÐ½Ð° Ð¸Ð·Ð¼ÐµÐ½Ð¸Ð»Ð°ÑÑŒ Ð¿Ð¾ Ð¾Ñ‚Ð½Ð¾ÑˆÐµÐ½Ð¸ÑŽ Ðº Ð¿Ñ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰ÐµÐ¼Ñƒ Ð»Ð¾Ñ‚Ñƒ. Ð•ÑÐ»Ð¸ Ð½Ðµ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð»ÐµÐ½ Ñ„Ð»Ð°Ð³ pfPrintChangedPriceOnly, Ñ‚Ð¾ Ð¸Ð³Ð½Ð¾Ñ€Ð¸Ñ€ÑƒÐµÑ‚ÑÑ.
 		treat_as_unlim = 0;
 		if(p_pack->EnumTItemsExt(0, &temp_ti, &tiie) > 0) {
 			n++;
@@ -6315,7 +6309,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 			}
 			if(p_pack->ProcessFlags & PPBillPacket::pfPrintChangedPriceOnly) {
 				//
-				// Áóäåì ïå÷àòàòü òîëüêî òå òîâàðû, öåíû íà êîòîðûå èçìåíèëèñü.
+				// Ð‘ÑƒÐ´ÐµÐ¼ Ð¿ÐµÑ‡Ð°Ñ‚Ð°Ñ‚ÑŒ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ñ‚Ðµ Ñ‚Ð¾Ð²Ð°Ñ€Ñ‹, Ñ†ÐµÐ½Ñ‹ Ð½Ð° ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ðµ Ð¸Ð·Ð¼ÐµÐ½Ð¸Ð»Ð¸ÑÑŒ.
 				//
 				if(p_rcpt) {
 					ReceiptTbl::Rec prev_rec, rec;
@@ -6390,7 +6384,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 		I.MainPrice = p_ti->NetPrice();
 	}
 	I.ExtPrice     = ext_price;
-    if(oneof2(H.OprKindID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON)) // Äëÿ äîêóìåíòà îñòàòêîâ êîëè÷åñòâî äîëæíî áûòü ñî çíàêîì "êàê îí åñòü"
+    if(oneof2(H.OprKindID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON)) // Ð”Ð»Ñ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° Ð¾ÑÑ‚Ð°Ñ‚ÐºÐ¾Ð² ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð´Ð¾Ð»Ð¶Ð½Ð¾ Ð±Ñ‹Ñ‚ÑŒ ÑÐ¾ Ð·Ð½Ð°ÐºÐ¾Ð¼ "ÐºÐ°Ðº Ð¾Ð½ ÐµÑÑ‚ÑŒ"
 		I.Qtty = p_ti->Quantity_;
 	else
 		I.Qtty = p_ti->Qtty();
@@ -6675,7 +6669,7 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 	GTaxVect vect;
 	SString temp_buf;
 	double ext_price = 0.0;
-	double upp = 0.0; // Åìêîñòü óïàêîâêè
+	double upp = 0.0; // Ð•Ð¼ÐºÐ¾ÑÑ‚ÑŒ ÑƒÐ¿Ð°ÐºÐ¾Ð²ÐºÐ¸
 	long   exclude_tax_flags = H.fSupplIsVatExempt ? GTAXVF_VAT : 0L;
 	int    tiamt, price_chng = 1;
 	uint   n = (uint)I.nn;
@@ -6867,9 +6861,9 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 						case PPAMT_CVAT:
 							if(accs_cost) {
 								//
-								// Åñëè äîñòóïà ê öåíàì ïîñòóïëåíèÿ íåò, òî
-								// ïîêàçûâàòü ÍÄÑ â öåíàõ ïîñòóëåíèÿ - çíà÷èò ïîçâîëèòü
-								// ðàññ÷èòàòü ñóììó â öåíàõ ïîñòóïëåíèÿ (ñòàâêà îáû÷íî èçâåñòíà).
+								// Ð•ÑÐ»Ð¸ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ðº Ñ†ÐµÐ½Ð°Ð¼ Ð¿Ð¾ÑÑ‚ÑƒÐ¿Ð»ÐµÐ½Ð¸Ñ Ð½ÐµÑ‚, Ñ‚Ð¾
+								// Ð¿Ð¾ÐºÐ°Ð·Ñ‹Ð²Ð°Ñ‚ÑŒ ÐÐ”Ð¡ Ð² Ñ†ÐµÐ½Ð°Ñ… Ð¿Ð¾ÑÑ‚ÑƒÐ»ÐµÐ½Ð¸Ñ - Ð·Ð½Ð°Ñ‡Ð¸Ñ‚ Ð¿Ð¾Ð·Ð²Ð¾Ð»Ð¸Ñ‚ÑŒ
+								// Ñ€Ð°ÑÑÑ‡Ð¸Ñ‚Ð°Ñ‚ÑŒ ÑÑƒÐ¼Ð¼Ñƒ Ð² Ñ†ÐµÐ½Ð°Ñ… Ð¿Ð¾ÑÑ‚ÑƒÐ¿Ð»ÐµÐ½Ð¸Ñ (ÑÑ‚Ð°Ð²ÐºÐ° Ð¾Ð±Ñ‹Ñ‡Ð½Ð¾ Ð¸Ð·Ð²ÐµÑÑ‚Ð½Ð°).
 								//
 								H.CVat = p_ae->Amt;
 							}
@@ -7365,7 +7359,7 @@ int PPALDD_GoodsReval::InitData(PPFilt & rFilt, long rsrv)
 	H.Dt         = rec.Dt;
 	H.ArticleID  = object_id;
 	H.LocID      = rec.LocID;
-	H.ExpendFlag = 0; // Ïðèõîä (ïîä âîïðîñîì, íî ïåðåîöåíêà è êîððåêòèðîâêà â áîëüøèíñòâå ñëó÷àåâ òðàêòóþòñÿ êàê ïðèõîä)
+	H.ExpendFlag = 0; // ÐŸÑ€Ð¸Ñ…Ð¾Ð´ (Ð¿Ð¾Ð´ Ð²Ð¾Ð¿Ñ€Ð¾ÑÐ¾Ð¼, Ð½Ð¾ Ð¿ÐµÑ€ÐµÐ¾Ñ†ÐµÐ½ÐºÐ° Ð¸ ÐºÐ¾Ñ€Ñ€ÐµÐºÑ‚Ð¸Ñ€Ð¾Ð²ÐºÐ° Ð² Ð±Ð¾Ð»ÑŒÑˆÐ¸Ð½ÑÑ‚Ð²Ðµ ÑÐ»ÑƒÑ‡Ð°ÐµÐ² Ñ‚Ñ€Ð°ÐºÑ‚ÑƒÑŽÑ‚ÑÑ ÐºÐ°Ðº Ð¿Ñ€Ð¸Ñ…Ð¾Ð´)
 	STRNSCPY(H.Code, rec.Code);
 	STRNSCPY(H.Memo, rec.Memo);
 	{
@@ -8200,7 +8194,7 @@ int PPALDD_BnkPaymOrder::InitData(PPFilt & rFilt, long rsrv)
 			temp_buf = 0;
 			if(pack->P_PaymOrder->PayerStatus) {
 				// @v9.7.0 longfmtz(pack->P_PaymOrder->PayerStatus, 2, H.TxtPayerStatus, sizeof(H.TxtPayerStatus));
-				(temp_buf = 0).CatLongZ(pack->P_PaymOrder->PayerStatus, 2); // @v9.7.0
+				temp_buf.Z().CatLongZ(pack->P_PaymOrder->PayerStatus, 2); // @v9.7.0
 			}
 			STRNSCPY(H.TxtPayerStatus, temp_buf);
 		}

@@ -66,24 +66,25 @@ static int exitInnerExpression(int  * p_inner_string_types,
 // a = b+++/ptn/...
 // Putting a space between the '++' post-inc operator and the '+' binary op
 // fixes this, and is highly recommended for readability anyway.
-static bool FollowsPostfixOperator(StyleContext &sc, Accessor &styler) {
+static bool FollowsPostfixOperator(StyleContext &sc, Accessor &styler) 
+{
 	Sci_Position pos = (Sci_Position)sc.currentPos;
 	while(--pos > 0) {
 		char ch = styler[pos];
-		if(ch == '+' || ch == '-') {
+		if(oneof2(ch, '+', '-'))
 			return styler[pos - 1] == ch;
-		}
 	}
 	return false;
 }
 
-static bool followsKeyword(StyleContext &sc, Accessor &styler) {
+static bool followsKeyword(StyleContext &sc, Accessor &styler) 
+{
 	Sci_Position pos = (Sci_Position)sc.currentPos;
 	Sci_Position currentLine = styler.GetLine(pos);
 	Sci_Position lineStartPos = styler.LineStart(currentLine);
 	while(--pos > lineStartPos) {
 		char ch = styler.SafeGetCharAt(pos);
-		if(ch != ' ' && ch != '\t') {
+		if(!oneof2(ch, ' ', '\t')) {
 			break;
 		}
 	}
@@ -91,8 +92,8 @@ static bool followsKeyword(StyleContext &sc, Accessor &styler) {
 	return styler.StyleAt(pos) == SCE_COFFEESCRIPT_WORD;
 }
 
-static void ColouriseCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor &styler) {
+static void ColouriseCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler) 
+{
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
 	WordList &keywords4 = *keywordlists[3];
@@ -167,7 +168,7 @@ static void ColouriseCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length
 			    }
 			    break;
 			case SCE_COFFEESCRIPT_IDENTIFIER:
-			    if(!setWord.Contains(sc.ch) || (sc.ch == '.') || (sc.ch == '$')) {
+			    if(!setWord.Contains(sc.ch) || oneof2(sc.ch, '.', '$')) {
 				    char s[1000];
 				    sc.GetCurrent(s, sizeof(s));
 				    if(keywords.InList(s)) {

@@ -1953,7 +1953,7 @@ int TrfrItemDialog::checkQuantityVal(double * pExtraQtty)
 			PPBillPacket::cgrfShipmControl|PPBillPacket::cgrfQtty|PPBillPacket::cgrfModifCmplmnry, &cgr_ret_blk);
 		THROW(rc);
 		if(rc == 100) {
-			(msg_buf = 0).Cat(fabs(_qtty), MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatDiv(':', 2).Cat(cgr_ret_blk.ScpRange.low).
+			msg_buf.Z().Cat(fabs(_qtty), MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatDiv(':', 2).Cat(cgr_ret_blk.ScpRange.low).
 				CatCharN('.', 2).Cat(cgr_ret_blk.ScpRange.upp);
 			if(PPMessage(mfConf|mfYes|mfCancel, PPCFM_TRFRSHIPMCTRL, msg_buf) == cmYes)
 				ok = 1;

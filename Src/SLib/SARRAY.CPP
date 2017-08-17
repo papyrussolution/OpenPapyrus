@@ -1684,7 +1684,7 @@ int SLAPI TaggedStringArray::Get(long id, SString & rBuf, int binary) const
 	if(ok > 0)
 		rBuf = at(pos).Txt;
 	else
-		rBuf = 0;
+		rBuf.Z();
 	return ok;
 }
 
@@ -2191,7 +2191,7 @@ int SLAPI StrAssocArray::GetTextByPos(uint textPos, SString & rBuf) const
 		rBuf = (Pool.getBuf() + textPos);
 	}
 	else {
-		rBuf = 0;
+		rBuf.Z();
 		ok = 0;
 	}
 	return ok;
@@ -2301,7 +2301,7 @@ int SLAPI StrAssocArray::Get(long id, SString & rBuf) const
 	int    ok = 0;
 	long   str_pos = 0;
 	uint   pos;
-	rBuf = 0;
+	rBuf.Z();
 	if(Assoc.Search(id, &str_pos, &pos)) {
 		GetS(str_pos, rBuf);
 		ok = rBuf.NotEmpty() ? 1 : -1;
@@ -3420,7 +3420,7 @@ void FASTCALL STypArray::freeItem(void * pItem)
 
 SString & SLAPI STypArray::itemToString(uint idx, long fmt, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	const void * p = at(idx);
 	if(p) {
 		char   temp_buf[256];

@@ -274,14 +274,14 @@ long STextBrowser::Document::SetState(long st, int set)
 
 STextBrowser::STextBrowser() : TBaseBrowserWindow(WndClsName), SScEditorBase()
 {
-	P_SrDb = 0; // @v9.2.0
+	// @v9.7.11 P_SrDb = 0; // @v9.2.0
 	SpcMode = spcmNo; // @v9.2.0
 	Init(0);
 }
 
 STextBrowser::STextBrowser(const char * pFileName, int toolbarId) : TBaseBrowserWindow(WndClsName), SScEditorBase()
 {
-	P_SrDb = 0; // @v9.2.0
+	// @v9.7.11 P_SrDb = 0; // @v9.2.0
 	SpcMode = spcmNo; // @v9.2.0
 	Init(pFileName, toolbarId);
 }
@@ -298,30 +298,29 @@ STextBrowser::~STextBrowser()
 	}
 	P_Toolbar->DestroyHWND();
 	ZDELETE(P_Toolbar);
-	ZDELETE(P_SrDb); // @v9.2.0
+	// @v9.7.11 ZDELETE(P_SrDb); // @v9.2.0
 }
 
 int STextBrowser::SetSpecialMode(int spcm)
 {
 	int    ok = 1;
 	if(spcm == spcmSartrTest) {
-		if(!P_SrDb) {
-            //SString db_path;
-			//getExecPath(db_path);
-			//db_path.SetLastSlash().Cat("SARTRDB");
-			THROW_S(P_SrDb = new SrDatabase(), SLERR_NOMEM);
-			THROW(P_SrDb->Open(/*db_path*/0));
+		SrDatabase * p_srdb = DS.GetTLA().GetSrDatabase();
+		if(p_srdb) {
+			/*if(!P_SrDb) {
+				//SString db_path;
+				//getExecPath(db_path);
+				//db_path.SetLastSlash().Cat("SARTRDB");
+				THROW_S(P_SrDb = new SrDatabase(), SLERR_NOMEM);
+				THROW(P_SrDb->Open(0, 0)); // @todo Режим открытия
+			}*/
+			SpcMode = spcm;
 		}
-		SpcMode = spcm;
 	}
 	else {
-		ZDELETE(P_SrDb);
+		// @v9.7.11 ZDELETE(P_SrDb);
 		SpcMode = spcmNo;
 	}
-	CATCH
-		SpcMode = spcmNo;
-		ok = 0;
-	ENDCATCH
 	return ok;
 }
 
@@ -513,48 +512,51 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 							{
 								test_value = 1;
 								if(p_view->SpcMode == spcmSartrTest) {
-									const char * p_wb = " \t.,;:()[]{}/\\!@#$%^&*+=<>\n\r\"\'?";
-									const Sci_Position _start_pos = p_scn->position;
-									IntArray left, right;
-									Sci_Position _pos = _start_pos;
-									int    c;
-                                    while((c = p_view->CallFunc(SCI_GETCHARAT, _pos++, 0)) != 0) {
-										if(!strchr(p_wb, (uchar)c)) {
-											right.add(c);
-										}
-										else
-											break;
-                                    }
-                                    if(_start_pos > 0) {
-										_pos = _start_pos;
-										while((c = p_view->CallFunc(SCI_GETCHARAT, --_pos, 0)) != 0) {
+									SrDatabase * p_srdb = DS.GetTLA().GetSrDatabase();
+									if(p_srdb) {
+										const char * p_wb = " \t.,;:()[]{}/\\!@#$%^&*+=<>\n\r\"\'?";
+										const Sci_Position _start_pos = p_scn->position;
+										IntArray left, right;
+										Sci_Position _pos = _start_pos;
+										int    c;
+										while((c = p_view->CallFunc(SCI_GETCHARAT, _pos++, 0)) != 0) {
 											if(!strchr(p_wb, (uchar)c)) {
-												left.add(c);
+												right.add(c);
 											}
 											else
 												break;
 										}
-										left.reverse(0, left.getCount());
-                                    }
-                                    left.add(&right);
-                                    //SCI_CALLTIPSHOW(int posStart, const char *definition)
-                                    if(left.getCount()) {
-                                    	SString src_text, text_to_show;
-                                    	TSArray <SrWordInfo> info_list;
-                                        for(uint ti = 0; ti < left.getCount(); ti++)
-											src_text.CatChar((char)left.at(ti));
-										if(p_view->P_SrDb->GetWordInfo(src_text, 0, info_list) > 0) {
-											SString temp_buf;
-											for(uint j = 0; j < info_list.getCount(); j++) {
-												p_view->P_SrDb->WordInfoToStr(info_list.at(j), temp_buf);
-												if(j)
-													text_to_show.CR();
-												text_to_show.Cat(temp_buf);
+										if(_start_pos > 0) {
+											_pos = _start_pos;
+											while((c = p_view->CallFunc(SCI_GETCHARAT, --_pos, 0)) != 0) {
+												if(!strchr(p_wb, (uchar)c)) {
+													left.add(c);
+												}
+												else
+													break;
 											}
+											left.reverse(0, left.getCount());
 										}
-										if(text_to_show.Len())
-											p_view->CallFunc(SCI_CALLTIPSHOW, _start_pos, (int)(const char *)text_to_show);
-                                    }
+										left.add(&right);
+										//SCI_CALLTIPSHOW(int posStart, const char *definition)
+										if(left.getCount()) {
+                                    		SString src_text, text_to_show;
+                                    		TSArray <SrWordInfo> info_list;
+											for(uint ti = 0; ti < left.getCount(); ti++)
+												src_text.CatChar((char)left.at(ti));
+											if(p_srdb->GetWordInfo(src_text, 0, info_list) > 0) {
+												SString temp_buf;
+												for(uint j = 0; j < info_list.getCount(); j++) {
+													p_srdb->WordInfoToStr(info_list.at(j), temp_buf);
+													if(j)
+														text_to_show.CR();
+													text_to_show.Cat(temp_buf);
+												}
+											}
+											if(text_to_show.Len())
+												p_view->CallFunc(SCI_CALLTIPSHOW, _start_pos, (int)(const char *)text_to_show);
+										}
+									}
 								}
 							}
 							break;

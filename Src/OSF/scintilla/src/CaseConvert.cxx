@@ -18,7 +18,7 @@
 //#include <algorithm>
 //#include "StringCopy.h"
 #include "CaseConvert.h"
-#include "UniConversion.h"
+//#include "UniConversion.h"
 #include "UnicodeFromUTF8.h"
 
 #ifdef SCI_NAMESPACE
@@ -229,8 +229,7 @@ int symmetricCaseConversions[] = {
 
 // Characters that have complex case conversions are listed here.
 // This includes cases where more than one character is needed for a conversion,
-// folding is different to lowering, or (as appropriate) upper(lower(x)) != x or
-// lower(upper(x)) != x.
+// folding is different to lowering, or (as appropriate) upper(lower(x)) != x or lower(upper(x)) != x.
 
 const char * complexCaseConversions =
 // Original | Folded | Upper | Lower |

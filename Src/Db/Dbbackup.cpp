@@ -458,7 +458,7 @@ int SLAPI DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, long initPara
 								THROW_V(cp.SsFiles.add(spart), SDBERR_SLIB); // @v9.6.4
 								if(is_first) {
 									DBTable _tbl(item.Txt);
-									if(_tbl.isOpen()) {
+									if(_tbl.IsOpened()) {
 										int r2 = Btrieve::RemoveContinuous(_tbl.GetFileName());
 										if(r2) {
 											(msg_buf = "Remove continuous").CatDiv(':', 2).Cat("OK for file").Space().Cat(_tbl.GetFileName());

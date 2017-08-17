@@ -33,6 +33,8 @@ struct DBQ;
 class  KR;
 class  DBQuery;
 class  DbProvider;
+class  BDbEnv; // Окружение для BerkeleyDB
+class  BDbDatabase;
 
 #define THROW_D(expr,val)      {if(!(expr)){DBS.SetError(val);goto __scatch;}}
 #define THROW_D_S(expr,val,s)  {if(!(expr)){DBS.SetError(val, s);goto __scatch;}}
@@ -1362,7 +1364,7 @@ private:
 	int    FASTCALL findKey(int key) const;
 	int    FASTCALL findKeyByNumber(int keyNumber) const;
 	int    SLAPI getNumCells() const;
-	void * data;
+	void * P_Data;
 };
 //
 // Descr: Утилита, формирующая Alternate Collating Sequence (ACS),
@@ -1643,7 +1645,7 @@ public:
 	}
 	int    SLAPI open(const char * pTblName, const char * pFileName = 0, int openMode = omNormal);
 	int    SLAPI close();
-	int    SLAPI isOpen() const;
+	int    SLAPI IsOpened() const;
 	int    SLAPI getField(uint fldN, DBField *) const;
 	int    SLAPI getFieldByName(const char * pName, DBField *) const;
 	int    SLAPI getFieldValue(uint fldN, void * pVal, size_t * pSize) const;
@@ -2818,8 +2820,6 @@ private:
 	long   State;
 };
 
-class BDbEnv; // Окружение для BerkeleyDB
-
 #define BTR_RECLOCKDISABLE -12345 // Значение DbSession::Config::NWLockTries означающее запрет на блокировку записей
 
 class DbSession {
@@ -3794,7 +3794,7 @@ public:
 	}
 	int    SLAPI CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pInitKey, int initSpMode) const;
 private:
-	int    SLAPI Init(DBTable * pTbl, int idx, uint aBufSize);
+	void   SLAPI Init(DBTable * pTbl, int idx, uint aBufSize);
 	int    SLAPI search_first(const char * pInitKey, int initSpMode, int spMode);
 	int    FASTCALL _search(int spMode, uint16 signature);
 	int    SLAPI add_term(int link, int n);
@@ -3888,8 +3888,6 @@ struct __dbc; typedef struct __dbc DBC;
 struct __env; typedef struct __env ENV;
 struct __db_sequence; typedef struct __db_sequence DB_SEQUENCE;
 
-class BDbDatabase;
-
 class BDbTable {
 public:
 	friend class BDbDatabase;
@@ -3908,7 +3906,8 @@ public:
 		stError     = 0x0001,
 		stOpened    = 0x0002,
 		stIndex     = 0x0004, // Таблица является индексной. Поле P_MainT ссылается на основную таблицу.
-		stOwnSCtx   = 0x0008  // Has own instance of SSerializeContext (P_SCtx)
+		stOwnSCtx   = 0x0008, // Has own instance of SSerializeContext (P_SCtx)
+		stReadOnly  = 0x0010  // Таблица была открыта в режиме ofReadOnly
 	};
 	enum {
 		cfEncrypt  = 0x0001,
@@ -3916,6 +3915,12 @@ public:
 		cfNeedSCtx = 0x0004  // Таблице требуется контекст сериализации. Если объект
 			// создается с указателем на BDbDatabase, то контектс сериализации наследуется от
 			// BDbDatabase, в противном случае создается собственный контекст.
+	};
+	//
+	// Descr: Флаги открытия таблицы базы данных
+	//
+	enum {
+		ofReadOnly = 0x0001 // Только для чтения //
 	};
 	struct Config {
 		Config(const char * pName, int idxType, long flags, uint32 pageSize, uint32 cacheSizeKb);
@@ -4067,7 +4072,15 @@ public:
 	int    FASTCALL GetState(long stateFlag) const;
 	int    GetConfig(int idx, Config & rCfg);
 	int    Create(const char * pFileName, int createMode, BDbTable::Config * pCfg);
-	int    Open(const char * pFileName);
+	//
+	// Descr: Открывает таблицы базы данны с именем pFileName.
+	// ARG(pFileName IN): Имя таблицы данных
+	// ARG(flags     IN): Опции открытия таблицы (ofXXX see above).
+	// Returns:
+	//   >0 - таблица открыта успешно
+	//   0  - ошибка
+	//
+	int    Open(const char * pFileName, int flags);
 	int    Close();
 
 	int    Search(Buffer & rKey, Buffer & rData);
@@ -4086,7 +4099,15 @@ protected:
 	//   следует устанавливать специальное сравнение и 0 - если BDB должна применять сравнение по умолчанию.
 	//
 	virtual int Implement_Cmp(const BDbTable::Buffer * pKey1, const BDbTable::Buffer * pKey2);
-	int    InitInstance(BDbDatabase * pDb);
+	//
+	// Descr: Инициализирует экземпляр таблицы в контексте базы данных pDb.
+	// ARG(pDb   IN): Указатель на экземпляр базы данных, в контексте которой открывается таблица.
+	// ARG(flags IN): Флаги открытия таблицы (BDbTable::ofXXX).
+	// Returns:
+	//   >0 - таблица успешно инициализирована
+	//    0 - ошибка
+	//
+	int    InitInstance(BDbDatabase * pDb, int flags);
 	int    Helper_EndTransaction();
 	SSerializeContext * GetSCtx() const;
 	int    Helper_Search(Buffer & rKey, Buffer & rData, uint32 flags);
@@ -4199,7 +4220,16 @@ public:
 private:
 	int    Helper_Create(const char * pFileName, int createMode, BDbTable::Config * pCfg);
 	int    Helper_SetConfig(const char * pHomeDir, Config & rCfg);
-	void * Helper_Open(const char * pFileName, BDbTable * pTbl);
+	//
+	// Descr: Вспомогательная функция, реализующая открытие таблицы базы данных.
+	// ARG(pFileName IN): Имя таблицы 
+	// ARG(pTbl      IN): Предварительно созданный экземпляр таблицы
+	// ARG(flags     IN): Флаги открытия таблицы (BDbTable::ofXXX)
+	// Returns:
+	//   !0 - внутренний манипулятор таблицы
+	//   0  - ошибка
+	//
+	void * Helper_Open(const char * pFileName, BDbTable * pTbl, int flags);
 	int    Helper_Close(void * pH);
 	uint   FASTCALL SearchSequence(const char * pSeqName) const;
 	int    FASTCALL Helper_CloseSequence(uint pos);

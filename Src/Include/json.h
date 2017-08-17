@@ -238,7 +238,8 @@ void json_strip_white_spaces(char *text);
 // @param text a JSON formatted document
 // @return a pointer to a char string holding the formated document
 //
-char *json_format_string(const char *text);
+//char *json_format_string(const char *text);
+int json_format_string(const char * pText, SString & rBuf);
 //
 // Outputs a new UTF8 c-string which replaces all characters that must be escaped with their respective escaped versions
 // @param text an UTF8 char text string

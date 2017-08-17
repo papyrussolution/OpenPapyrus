@@ -445,7 +445,7 @@ SLAPI PPBaseFilt::~PPBaseFilt()
 
 int SLAPI PPBaseFilt::Describe(long flags, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	return 1;
 }
 
@@ -763,10 +763,10 @@ int SLAPI PPView::WriteFiltPtr(SBuffer & rBuf, PPBaseFilt * pFilt)
 		if(LoadResource(1, filt_id, rc))
 			rBuf.Write(rc.Symb);
 		else
-			rBuf.Write((temp_buf = 0).Cat(filt_id));
+			rBuf.Write(temp_buf.Z().Cat(filt_id));
 		pFilt->Write(rBuf, 0);
 	}
-	rBuf.Write((temp_buf = 0).CatTagBrace(P_FiltTag, 1));
+	rBuf.Write(temp_buf.Z().CatTagBrace(P_FiltTag, 1));
 	return ok;
 }
 
@@ -956,7 +956,7 @@ int SLAPI PPBaseFilt::Read(SBuffer & rBuf, long extraParam)
 				PPSetAddedMsgString(rc.Symb);
 			}
 			else {
-				(temp_buf = 0).Cat(Signature);
+				temp_buf.Z().Cat(Signature);
 				PPSetAddedMsgString(rc.Symb);
 			}
 		}

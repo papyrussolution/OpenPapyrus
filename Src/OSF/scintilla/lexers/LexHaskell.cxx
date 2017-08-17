@@ -32,7 +32,7 @@
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
 //#include "LexerModule.h"
-#include "CharacterCategory.h"
+//#include "CharacterCategory.h"
 #include "OptionSet.h"
 
 #ifdef SCI_NAMESPACE
@@ -167,10 +167,7 @@ static int HaskellIndentAmount(Accessor &styler, const Sci_Position line)
 
 	Sci_Position posPrev = inPrevPrefix ? styler.LineStart(line-1) : 0;
 
-	while((  ch == ' ' || ch == '\t'
-		    || IsCommentBlockStyle(style)
-		    || style == SCE_HA_LITERATE_CODEDELIM)
-	    && (pos < eol_pos)) {
+	while((oneof2(ch, ' ', '\t') || IsCommentBlockStyle(style) || style == SCE_HA_LITERATE_CODEDELIM) && (pos < eol_pos)) {
 		if(inPrevPrefix) {
 			char chPrev = styler[posPrev++];
 			if(chPrev != ' ' && chPrev != '\t') {
@@ -187,16 +184,9 @@ static int HaskellIndentAmount(Accessor &styler, const Sci_Position line)
 		ch = styler[pos];
 		style = styler.StyleAt(pos);
 	}
-
 	indent += SC_FOLDLEVELBASE;
 	// if completely empty line or the start of a comment or preprocessor...
-	if(styler.LineStart(line) == styler.Length()
-	    || ch == ' '
-	    || ch == '\t'
-	    || ch == '\n'
-	    || ch == '\r'
-	    || IsCommentStyle(style)
-	    || style == SCE_HA_PREPROCESSOR)
+	if(styler.LineStart(line) == styler.Length() || oneof4(ch, ' ', '\t', '\n', '\r') || IsCommentStyle(style) || style == SCE_HA_PREPROCESSOR)
 		return indent | SC_FOLDLEVELWHITEFLAG;
 	else
 		return indent;
@@ -541,7 +531,7 @@ void SCI_METHOD LexerHaskell::Lex(Sci_PositionU startPos, Sci_Position length, i
 		}
 		else if(literate && hs.lmode == LITERATE_BIRD && sc.atLineStart && (  sc.ch == ' ' || sc.ch == '\t' || sc.Match("\\begin{code}"))) {
 			sc.SetState(sc.state);
-			while((sc.ch == ' ' || sc.ch == '\t') && sc.More())
+			while(oneof2(sc.ch, ' ', '\t') && sc.More())
 				sc.Forward();
 			if(sc.Match("\\begin{code}")) {
 				sc.Forward(static_cast<int>(strlen("\\begin{code}")));

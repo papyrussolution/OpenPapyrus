@@ -60,16 +60,14 @@ static void ColouriseInnoDoc(Sci_PositionU startPos, Sci_Position length, int, W
 		}
 
 		isBOL = (chPrev == 0) || (chPrev == '\n') || (chPrev == '\r' && ch != '\n');
-		isBOLWS = (isBOL) ? 1 : (isBOLWS && (chPrev == ' ' || chPrev == '\t'));
+		isBOLWS = (isBOL) ? 1 : (isBOLWS && oneof2(chPrev, ' ', '\t'));
 		isEOL = (ch == '\n' || ch == '\r');
-		isWS = (ch == ' ' || ch == '\t');
-
+		isWS = oneof2(ch, ' ', '\t');
 		if((ch == '\r' && chNext != '\n') || (ch == '\n')) {
 			// Remember the line state for future incremental lexing
 			curLine = styler.GetLine(i);
 			styler.SetLineState(curLine, (isCode ? 1 : 0));
 		}
-
 		switch(state) {
 			case SCE_INNO_DEFAULT:
 			    if(!isCode && ch == ';' && isBOLWS) {
@@ -200,7 +198,7 @@ static void ColouriseInnoDoc(Sci_PositionU startPos, Sci_Position length, int, W
 				    }
 			    }
 			    else if(IsASCII(ch) && isalpha(ch)) {
-				    if(chPrev == '#' || chPrev == ' ' || chPrev == '\t')
+				    if(oneof3(chPrev, '#', ' ', '\t'))
 					    bufferCount = 0;
 				    buffer[bufferCount++] = static_cast<char>(tolower(ch));
 			    }

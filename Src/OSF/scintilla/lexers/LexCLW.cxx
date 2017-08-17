@@ -390,7 +390,7 @@ static void ColouriseClarionDoc(Sci_PositionU uiStartPos,
 			// or character is not a hexidecimal character (A-F)
 			// or character is not a . (point)
 			// or character is not a numberic base character (B,O,H)
-			if(!(isdigit(scDoc.ch)
+			if(!(isdec(scDoc.ch)
 				    || IsAHexCharacter(scDoc.ch, bCaseSensitive)
 				    || scDoc.ch == '.'
 				    || IsANumericBaseCharacter(scDoc.ch, bCaseSensitive))) {
@@ -464,7 +464,7 @@ static void ColouriseClarionDoc(Sci_PositionU uiStartPos,
 					scDoc.SetState(SCE_CLW_KEYWORD);
 				}
 				// else is a number
-				else if(isdigit(scDoc.ch)) {
+				else if(isdec(scDoc.ch)) {
 					// Set the state to Integer Constant and verify later
 					scDoc.SetState(SCE_CLW_INTEGER_CONSTANT);
 				}
@@ -548,7 +548,7 @@ static void FillBuffer(Sci_PositionU uiStart, Sci_PositionU uiEnd, Accessor &acc
 
 static int ClassifyClarionFoldPoint(int iLevel, const char* szString)
 {
-	if(!(isdigit(szString[0]) || (szString[0] == '.'))) {
+	if(!(isdec(szString[0]) || (szString[0] == '.'))) {
 		if(sstreq(szString, "PROCEDURE")) {
 			//		iLevel = SC_FOLDLEVELBASE + 1;
 		}

@@ -1,6 +1,6 @@
 // BNKEY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016
-// @codepage windows-1251
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <db.h>
 #pragma hdrstop
@@ -80,7 +80,8 @@ int SLAPI BNKey::setFieldID(int seg, int newID)
 		SEG(seg).fldID = newID;
 		return 1;
 	}
-	return 0;
+	else
+		return 0;
 }
 
 int SLAPI BNKey::setKeyParams(int keyNumber, int acsNumber)
@@ -161,8 +162,8 @@ int SLAPI BNKey::containsField(int fldID, int * pSeg) const
 */
 SLAPI BNKeyList::BNKeyList()
 {
-	if((data = SAlloc::M(sizeof(BNKeyCell))) != 0) {
-		BNKeyCell * cell = (BNKeyCell *)data;
+	if((P_Data = SAlloc::M(sizeof(BNKeyCell))) != 0) {
+		BNKeyCell * cell = (BNKeyCell *)P_Data;
 		cell->ih.numKeys = 0;
 		cell->ih.tblBackOffset = 0;
 	}
@@ -175,7 +176,7 @@ SLAPI BNKeyList::~BNKeyList()
 
 void SLAPI BNKeyList::reset()
 {
-	ZFREE(data);
+	ZFREE(P_Data);
 }
 
 BNKeyList & FASTCALL BNKeyList::operator = (const BNKeyList & s)
@@ -189,8 +190,8 @@ int FASTCALL BNKeyList::copy(const BNKeyList * src)
 	reset();
 	uint   sz = sizeof(BNKeyCell) * src->getNumCells();
 	if(sz)
-		if((data = SAlloc::M(sz)) != 0)
-			memcpy(data, src->data, sz);
+		if((P_Data = SAlloc::M(sz)) != 0)
+			memcpy(P_Data, src->P_Data, sz);
 		else
 			return 0;
 	return 1;
@@ -204,14 +205,14 @@ int SLAPI BNKeyList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 		sz = sizeof(BNKeyCell) * getNumCells();
 		THROW(rBuf.Write(sz));
 		if(sz)
-			THROW(rBuf.Write(data, sz));
+			THROW(rBuf.Write(P_Data, sz));
 	}
 	else if(dir < 0) {
 		reset();
 		THROW(rBuf.Read(sz));
 		if(sz) {
-			data = SAlloc::R(data, sz);
-			THROW(rBuf.Read(data, sz));
+			P_Data = SAlloc::R(P_Data, sz);
+			THROW(rBuf.Read(P_Data, sz));
 		}
 	}
 	CATCHZOK
@@ -221,8 +222,8 @@ int SLAPI BNKeyList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 int SLAPI BNKeyList::getNumCells() const
 {
 	int    count = 0;
-	if(data) {
-		const  BNKeyCell * cells = (const BNKeyCell *)data;
+	if(P_Data) {
+		const  BNKeyCell * cells = (const BNKeyCell *)P_Data;
 		int    num_keys = cells[count++].ih.numKeys;
 		for(int i = 0; i < num_keys; i++)
 			count += (cells[count].h.numSeg + 1);
@@ -233,8 +234,8 @@ int SLAPI BNKeyList::getNumCells() const
 int FASTCALL BNKeyList::findKeyByNumber(int keyNumber) const
 {
 	int    count = 0;
-	if(data) {
-#define cells ((BNKeyCell *)data)
+	if(P_Data) {
+#define cells ((BNKeyCell *)P_Data)
 		const int num_keys = cells[count++].ih.numKeys;
 		for(int i = 0; i < num_keys; i++)
 			if(keyNumber == cells[count].h.keyNumber)
@@ -249,8 +250,8 @@ int FASTCALL BNKeyList::findKeyByNumber(int keyNumber) const
 int FASTCALL BNKeyList::findKey(int key) const
 {
 	int    count = 0;
-	if(data) {
-#define cells ((BNKeyCell *)data)
+	if(P_Data) {
+#define cells ((BNKeyCell *)P_Data)
 		const int num_keys = cells[count++].ih.numKeys;
 		for(int i = 0; i < num_keys; i++)
 			if(key == i)
@@ -264,7 +265,7 @@ int FASTCALL BNKeyList::findKey(int key) const
 
 uint SLAPI BNKeyList::getNumKeys() const
 {
-	return data ? (uint)((BNKeyCell *)data)->ih.numKeys : 0;
+	return P_Data ? (uint)((BNKeyCell *)P_Data)->ih.numKeys : 0;
 }
 
 int FASTCALL BNKeyList::addKey(BNKey & key)
@@ -272,8 +273,8 @@ int FASTCALL BNKeyList::addKey(BNKey & key)
 	int    ok = 1;
 	BNKeyCell * kc = (BNKeyCell *)key.data;
 	if(kc) {
-		SArray ary(data, sizeof(BNKeyCell), getNumCells());
-		if(data == 0) {
+		SArray ary(P_Data, sizeof(BNKeyCell), getNumCells());
+		if(P_Data == 0) {
 			BNKeyCell cell;
 			cell.ih.numKeys = 0;
 			cell.ih.tblBackOffset = 0;
@@ -289,9 +290,9 @@ int FASTCALL BNKeyList::addKey(BNKey & key)
 				for(int j = i - 1; j >= 0; i--)	// Rollback work
 					ary.atFree(j);
 		}
-		data = ary.dataPtr();
+		P_Data = ary.dataPtr();
 		if(ok)
-			((BNKeyCell *)data)->ih.numKeys++;
+			((BNKeyCell *)P_Data)->ih.numKeys++;
 	}
 	else
 		ok = -1;
@@ -304,11 +305,11 @@ int SLAPI BNKeyList::removeKey(int key)
 	int    ok = 1;
 	int    pos = findKey(key);
 	if(pos) {
-		SArray ary(data, sizeof(BNKeyCell), getNumCells());
-		const int num_seg = ((BNKeyCell *)data)[pos].h.numSeg;
+		SArray ary(P_Data, sizeof(BNKeyCell), getNumCells());
+		const int num_seg = ((BNKeyCell *)P_Data)[pos].h.numSeg;
 		for(int i = 0; i < num_seg + 1; i++)
 			ary.atFree(pos);
-		data = ary.dataPtr();
+		P_Data = ary.dataPtr();
 	}
 	else
 		ok = 0;
@@ -319,28 +320,29 @@ BNKey FASTCALL BNKeyList::getKey(int key) const
 {
 	int    pos = findKey(key);
 	BNKey  k;
-	k.data = pos ? (((BNKeyCell *)data) + pos) : 0;
+	k.data = pos ? (((BNKeyCell *)P_Data) + pos) : 0;
 	return k;
 }
 
 void FASTCALL BNKeyList::setTableRef(uint ofs)
 {
-	if(data)
-		((BNKeyCell *)data)->ih.tblBackOffset = ofs;
+	if(P_Data)
+		((BNKeyCell *)P_Data)->ih.tblBackOffset = ofs;
 }
 
 DBTable * SLAPI BNKeyList::table() const
 {
-	return data ? (DBTable *)(((char *)this) - ((BNKeyCell *)data)->ih.tblBackOffset) : 0;
+	return P_Data ? (DBTable *)(((char *)this) - ((BNKeyCell *)P_Data)->ih.tblBackOffset) : 0;
 }
 
 const BNField & SLAPI BNKeyList::field(int key, int seg) const
 {
-	if(data) {
-		DBTable * p_tbl = (DBTable *)(((char *)this) - ((BNKeyCell *)data)->ih.tblBackOffset);
+	if(P_Data) {
+		DBTable * p_tbl = (DBTable *)(((char *)this) - ((BNKeyCell *)P_Data)->ih.tblBackOffset);
 		return p_tbl->fields[getKey(key).getFieldID(seg)];
 	}
-	return *(BNField *)0;
+	else
+		return *(BNField *)0;
 }
 
 uint FASTCALL BNKeyList::getKeySize(int key) const
@@ -375,8 +377,8 @@ uint SLAPI BNKeyList::getSegOffset(int key, int seg) const
 			uint   ofs = 0;
 			const int n = MIN(seg, k.getNumSeg()-1);
 			//
-			// Äëÿ óñêîðåíèÿ çàêëàäûâàåìñÿ íà òî, ÷òî â èíäåêñå îáû÷íî
-			// ìàëîå êîëè÷åñòâî ñåãìåíòîâ
+			// Ð”Ð»Ñ ÑƒÑÐºÐ¾Ñ€ÐµÐ½Ð¸Ñ Ð·Ð°ÐºÐ»Ð°Ð´Ñ‹Ð²Ð°ÐµÐ¼ÑÑ Ð½Ð° Ñ‚Ð¾, Ñ‡Ñ‚Ð¾ Ð² Ð¸Ð½Ð´ÐµÐºÑÐµ Ð¾Ð±Ñ‹Ñ‡Ð½Ð¾
+			// Ð¼Ð°Ð»Ð¾Ðµ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ ÑÐµÐ³Ð¼ÐµÐ½Ñ‚Ð¾Ð²
 			//
 			#define MAX_CASE_SEG 5
 			switch(n) {
@@ -456,9 +458,9 @@ int SLAPI BNKeyList::makeKey(int key, int seg, int cmp, const void * val, void *
 		ofs    = sizeof(I);
 	}
 	/*
-		Âòîðîé è ñëåäóþùèå ñåãìåíòû ìîãóò áûòü èñïîëüçîâàíû â ïîèñêå ïî êëþ÷ó òîëüêî
-		â òîì ñëó÷àå, åñëè ñóùåñòâóåò äâóñòîðîííåå îãðàíè÷åíèå, ïðè÷åì ïðåäûäóùèå
-		ñåãìåíòû ñ îáåèõ ñòîðîí ýòîãî îãðàíè÷åíèÿ ðàâíû ìåæäó ñîáîé
+		Ð’Ñ‚Ð¾Ñ€Ð¾Ð¹ Ð¸ ÑÐ»ÐµÐ´ÑƒÑŽÑ‰Ð¸Ðµ ÑÐµÐ³Ð¼ÐµÐ½Ñ‚Ñ‹ Ð¼Ð¾Ð³ÑƒÑ‚ Ð±Ñ‹Ñ‚ÑŒ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ð½Ñ‹ Ð² Ð¿Ð¾Ð¸ÑÐºÐµ Ð¿Ð¾ ÐºÐ»ÑŽÑ‡Ñƒ Ñ‚Ð¾Ð»ÑŒÐºÐ¾
+		Ð² Ñ‚Ð¾Ð¼ ÑÐ»ÑƒÑ‡Ð°Ðµ, ÐµÑÐ»Ð¸ ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÐµÑ‚ Ð´Ð²ÑƒÑÑ‚Ð¾Ñ€Ð¾Ð½Ð½ÐµÐµ Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð¸Ðµ, Ð¿Ñ€Ð¸Ñ‡ÐµÐ¼ Ð¿Ñ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰Ð¸Ðµ
+		ÑÐµÐ³Ð¼ÐµÐ½Ñ‚Ñ‹ Ñ Ð¾Ð±ÐµÐ¸Ñ… ÑÑ‚Ð¾Ñ€Ð¾Ð½ ÑÑ‚Ð¾Ð³Ð¾ Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð¸Ñ Ñ€Ð°Ð²Ð½Ñ‹ Ð¼ÐµÐ¶Ð´Ñƒ ÑÐ¾Ð±Ð¾Ð¹
 	*/
 	else if((h->low == _GT_ || h->low == _GE_) && (h->upp == _LT_ || h->upp == _LE_)) {
 		uint o = sizeof(I);

@@ -142,10 +142,10 @@ static int SLAPI StrToRentPeriod(const char * pBuf, short * pPeriod, short * pNu
 	short  prd = 0, numprds = 0;
 	char * p  = strip(STRNSCPY(temp, pBuf));
 	char * np = number;
-	if(isdigit(*p)) {
+	if(isdec(*p)) {
 		do
 			*np++ = *p++;
-		while(isdigit(*p));
+		while(isdec(*p));
 		*np = 0;
 		numprds = atoi(number);
 	}

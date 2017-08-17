@@ -267,7 +267,7 @@ SString & SLAPI PPObject::GetAcceptMsg(PPID objType, PPID objID, int upd, SStrin
 	PPGetSubStr(PPTXT_OBJACCEPTED, upd ? PPOBJACCP_OBJUPDATED : PPOBJACCP_OBJCREATED, fmt_buf);
 	GetObjectTitle(objType, obj_type_name);
 	GetObjectName(objType, objID, obj_name);
-	return rBuf.Printf(fmt_buf, (const char *)obj_type_name, objID, (const char *)obj_name);
+	return rBuf.Printf(fmt_buf, obj_type_name.cptr(), objID, obj_name.cptr());
 }
 
 //static
@@ -2247,7 +2247,7 @@ int SLAPI PPGlobalAccRights::Parse(const SString & rStr)
 			if(s1.Empty())
 				STRNSCPY(perm_rec.Scope, "@def");
 			else
-				STRNSCPY(perm_rec.Scope, (const char *)s1);
+				STRNSCPY(perm_rec.Scope, s1);
 			temp_buf = s2;
 		}
 		else {
@@ -2455,7 +2455,7 @@ void PPALDD_QuotArray::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStac
 				order_op_id = op_rec.ID;
 			if(rest_op_id)
 				BillObj->CalcDraftTransitRest(rest_op_id, order_op_id, goods_id, loc_id, 0, &rest, 0);
-			(temp_buf = 0).Cat(rest, MKSFMTD(0, 6, flags));
+			temp_buf.Z().Cat(rest, MKSFMTD(0, 6, flags));
 		}
 		_RET_STR = temp_buf;
 	}
@@ -2568,7 +2568,7 @@ int PPALDD_UhttCurRateArray::NextIteration(long iterId)
 			_tm.tm_mday = r_item.Ident.Dt.day();
 			__int64 ts = mktime(&_tm);
 			ts *= 1000;
-			(temp_buf = 0).Cat(ts);
+			temp_buf.Z().Cat(ts);
 			STRNSCPY(I.Ts, temp_buf);
 		}
 		I.Rate = r_item.Rate;

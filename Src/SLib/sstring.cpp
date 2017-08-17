@@ -175,7 +175,7 @@ int SStrScan::IsLegalUtf8() const
 
 int FASTCALL SStrScan::GetUtf8(SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    n = IsLegalUtf8();
 	if(n) {
 		rBuf.CatN(P_Buf+Offs, n);
@@ -204,8 +204,7 @@ SString & FASTCALL SStrScan::Get(SString & rBuf) const
 
 int FASTCALL SStrScan::GetQuotedString(SString & rBuf)
 {
-	if(!P_ReQuotedStr)
-		P_ReQuotedStr = new CRegExp("^\"[^\"]*\"");
+	SETIFZ(P_ReQuotedStr, new CRegExp("^\"[^\"]*\""));
 	if(P_ReQuotedStr->Find(this)) {
 		Offs++;   // "
 		Len -= 2; // ""
@@ -364,7 +363,7 @@ int FASTCALL SStrScan::GetDotPrefixedNumber(SString & rBuf)
 {
     int    ok = 0;
     const size_t preserve_offs = Offs;
-	rBuf = 0;
+	rBuf.Z();
     if(Is('.')) {
         Incr();
         SString temp_buf;
@@ -472,7 +471,7 @@ int SLAPI SStrScan::GetWord(const char * pDiv, SString & rBuf)
 {
 	const char * p_def_div = " \t\n\r.,;:()[]{}+=^&@!$%/"; // @v8.9.10 append '/'
 	SETIFZ(pDiv, p_def_div);
-	rBuf = 0;
+	rBuf.Z();
 	size_t p = Offs;
 	char   c = P_Buf[p];
 	while(c != 0 && !strchr(pDiv, c)) {
@@ -609,6 +608,35 @@ SStrScan & FASTCALL SStrScan::Skip(int ws)
 			p++;
 		Offs += (p - (P_Buf + Offs));
 	}
+	return *this;
+}
+
+SStrScan & SLAPI SStrScan::Skip(int ws, uint * pLineCount)
+{
+	uint   line_count = 0;
+	if(P_Buf && ws) {
+		size_t i = 0;
+		char   buf[16];
+		memzero(buf, sizeof(buf));
+		if(ws & wsSpace)
+			buf[i++] = ' ';
+		if(ws & wsTab)
+			buf[i++] = '\t';
+		if(ws & wsNewLine)
+			buf[i++] = '\n';
+		if(ws & wsComma)
+			buf[i++] = ',';
+		if(ws & wsSemicol)
+			buf[i++] = ';';
+		const char * p = (P_Buf+Offs);
+		while(memchr(buf, *p, i)) {
+			if(*p == '\n')
+				line_count++;
+			p++;
+		}
+		Offs += (p - (P_Buf + Offs));
+	}
+	ASSIGN_PTR(pLineCount, line_count);
 	return *this;
 }
 
@@ -765,7 +793,7 @@ int SLAPI SString::IsLatin() const
 int SLAPI SString::GetWord(size_t * pPos, SString & rBuf) const
 {
 	size_t pos = pPos ? *pPos : 0;
-	rBuf = 0;
+	rBuf.Z();
 	while(pos < Len()) {
 		char c = C(pos);
 		if(isalnum(c) || c == '_') {
@@ -804,13 +832,35 @@ int SLAPI SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) cons
 //
 //
 //
-SLAPI STokenizer::STokenizer(const Param * pParam) : T(1000000, 0)
+SLAPI STokenizer::Param::Param()
+{
+	Flags = 0;
+	Cp = 0;
+}
+
+SLAPI STokenizer::Param::Param(long flags, int cp, const char * pDelim) : Delim(pDelim)
+{
+	Flags = flags;
+	Cp = cp;
+}
+
+SLAPI STokenizer::STokenizer() : T(1000000, 0)
 {
 	Tc = 0;
 	RP = 0;
 	SO = 0;
 	P_ResourceIndex = 0;
-	SetParam(pParam);
+	SetParam(0);
+	TokenBuf.setDelta(128);
+}
+
+SLAPI STokenizer::STokenizer(const Param & rParam) : T(1000000, 0)
+{
+	Tc = 0;
+	RP = 0;
+	SO = 0;
+	P_ResourceIndex = 0;
+	SetParam(&rParam);
 	TokenBuf.setDelta(128);
 }
 
@@ -827,6 +877,10 @@ void SLAPI STokenizer::GetParam(Param * pParam) const
 int SLAPI STokenizer::SetParam(const Param * pParam)
 {
 	RVALUEPTR(P, pParam);
+	if(P.Cp == cpUTF8) {
+		SString temp_buf = P.Delim;
+		DelimU.CopyFromUtf8(temp_buf);
+	}
 	return 1;
 }
 
@@ -877,30 +931,40 @@ uint16 SLAPI STokenizer::NextChr()
 	uint16 result = 0;
 	if(S.Read(c)) {
 		if(P.Cp == cpUTF8) {
-			const size_t extra = SUtfConst::TrailingBytesForUTF8[c];
-			if(extra == 0)
-				result = c;
-			else if(extra == 1) {
-				union {
-					uchar  c2[2];
-					uint16 u;
-				};
-				c2[0] = c;
-				if(S.Read(c2[1]))
-					result = u;
+			uint8  set[8];
+			uint32 ch = 0;
+			uint16 extra = SUtfConst::TrailingBytesForUTF8[c];
+			size_t actual_size = 0;
+			set[0] = c;
+			if(extra) {
+				assert(extra <= 5);
+				actual_size = S.Read(set+1, extra);
 			}
-			else {
-				uchar  c8[8];
-				c8[0] = c;
-				S.Read(c8[1]);
-				if(extra >= 2) {
-					S.Read(c8[2]);
-					if(extra >= 3) {
-						S.Read(c8[3]);
-						assert(extra == 3);
+			if(actual_size == extra) {
+				size_t i = 0;
+				if(SUnicode::IsLegalUtf8(set, extra+1)) {
+					switch(extra) {
+						case 5: ch += set[i++]; ch <<= 6; // remember, illegal UTF-8
+						case 4: ch += set[i++]; ch <<= 6; // remember, illegal UTF-8
+						case 3: ch += set[i++]; ch <<= 6;
+						case 2: ch += set[i++]; ch <<= 6;
+						case 1: ch += set[i++]; ch <<= 6;
+						case 0: ch += set[i++];
 					}
+					ch -= SUtfConst::OffsetsFromUTF8[extra];
+					if(ch <= UNI_MAX_BMP) { // Target is a character <= 0xFFFF
+						if(ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_LOW_END) // UTF-16 surrogate values are illegal in UTF-32
+							result = (wchar_t)UNI_REPLACEMENT_CHAR;
+						else
+							result = (wchar_t)ch; // normal case
+					}
+					else if(ch > UNI_MAX_UTF16)
+						result = (wchar_t)UNI_REPLACEMENT_CHAR;
+					else // target is a character in range 0xFFFF - 0x10FFFF.
+						result = (wchar_t)UNI_REPLACEMENT_CHAR;
 				}
-				result = (uint16)'?';
+				else
+					result = (wchar_t)UNI_REPLACEMENT_CHAR;
 			}
 		}
 		else
@@ -912,8 +976,14 @@ uint16 SLAPI STokenizer::NextChr()
 int FASTCALL STokenizer::IsDelim(uint16 chr) const
 {
 	if(P.Delim.NotEmpty()) {
-		if(P.Delim.HasChr(chr))
-			return 1;
+		if(P.Cp == cpUTF8) {
+			if(DelimU.HasChr(chr))
+				return 1;
+		}
+		else {
+			if(P.Delim.HasChr(chr))
+				return 1;
+		}
 	}
 	else {
 		if(oneof4(chr, ' ', '\t', '\n', '\r'))
@@ -1223,8 +1293,16 @@ int SLAPI STokenizer::Run(uint * pIdxFirst, uint * pIdxCount)
 				THROW(AddToken(TokenBuf, tokDelim));
 			}
 			else if(P.Flags & fDivAlNum && prev_chr) {
-				const int is_dig = isdec((uint8)chr);
-				const int is_prev_dig = isdec((uint8)prev_chr);
+				int is_dig = 0;
+				int is_prev_dig = 0;
+				if(P.Cp == cpUTF8) {
+					is_dig = isdecw((wchar_t)chr);
+					is_prev_dig = isdecw((wchar_t)prev_chr);
+				}
+				else {
+					is_dig = isdec((char)chr);
+					is_prev_dig = isdec((char)prev_chr);
+				}
 				if(is_prev_dig != is_dig) {
 					THROW(AddToken(TokenBuf, tokWord));
 					THROW(AddToken(TokenBuf, tokDelim));
@@ -1274,7 +1352,7 @@ uint SLAPI STokenizer::GetCount() const
 
 int SLAPI STokenizer::GetTextById(uint txtId, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	return T.Get(txtId, rBuf);
 }
 
@@ -1631,6 +1709,24 @@ SString & FASTCALL SString::CopyFromOleStr(const BSTR s)
 	return *this;
 }
 
+SString & SLAPI SString::Z()
+{
+	//
+	// Функция вызывается экстремально часто. Потому максимально оптимизирована.
+	//
+	if(sizeof(uint32) <= Size || Alloc(sizeof(uint32))) {
+		*PTR32(P_Buf) = 0;
+		L = 1;
+	}
+	else if(P_Buf) {
+		P_Buf[0] = 0;
+		L = 1;
+	}
+	else
+		L = 0;
+	return *this;
+}
+
 SString & SLAPI SString::Quot(int leftQuotChar, int rightQuotChar)
 {
 	ShiftRight(1, leftQuotChar);
@@ -1871,184 +1967,6 @@ SString & SLAPI SString::ReplaceCR()
 	}
 	return *this;
 }
-
-#if 0 // {
-
-char * json_escape(const char * text)
-{
-	RcString * output;
-	size_t i, length;
-	char buffer[6];
-	// check if pre-conditions are met
-	assert(text != NULL);
-
-	// defining the temporary variables
-	length = strlen(text);
-	output = rcs_create(length);
-	if(!output)
-		return NULL;
-	for(i = 0; i < length; i++) {
-		if(text[i] == '\\')
-			rcs_catcs(output, "\\\\", 2);
-		else if(text[i] == '\"')
-			rcs_catcs(output, "\\\"", 2);
-		else if(text[i] == '/')
-			rcs_catcs(output, "\\/", 2);
-		else if(text[i] == '\b')
-			rcs_catcs(output, "\\b", 2);
-		else if(text[i] == '\f')
-			rcs_catcs(output, "\\f", 2);
-		else if(text[i] == '\n')
-			rcs_catcs(output, "\\n", 2);
-		else if(text[i] == '\r')
-			rcs_catcs(output, "\\r", 2);
-		else if(text[i] == '\t')
-			rcs_catcs(output, "\\t", 2);
-		else if(text[i] < 0) // non-BMP character
-			rcs_catc(output, text[i]);
-		else if(text[i] < 0x20) {
-			sprintf(buffer, "\\u%4.4x", text[i]);
-			rcs_catcs(output, buffer, 6);
-		}
-		else
-			rcs_catc(output, text[i]);
-	}
-	return rcs_unwrap(output);
-}
-
-char * json_unescape(char * text)
-{
-	char * result = (char *)SAlloc::M(strlen(text) + 1);
-	size_t r; // read cursor
-	size_t w; // write cursor
-	assert(text);
-	for(r = w = 0; text[r]; r++) {
-		switch(text[r]) {
-			case '\\':
-				switch(text[++r]) {
-					case '\"':
-					case '\\':
-					case '/':
-						// literal translation
-						result[w++] = text[r];
-						break;
-					case 'b':
-						result[w++] = '\b';
-						break;
-					case 'f':
-						result[w++] = '\f';
-						break;
-					case 'n':
-						result[w++] = '\n';
-						break;
-					case 'r':
-						result[w++] = '\r';
-						break;
-					case 't':
-						result[w++] = '\t';
-						break;
-					case 'u':
-					{
-						char buf[5];
-						__int64 unicode;
-
-						buf[0] = text[++r];
-						buf[1] = text[++r];
-						buf[2] = text[++r];
-						buf[3] = text[++r];
-						buf[4] = '\0';
-
-						unicode = strtol(buf, NULL, 16);
-
-						if(unicode < 0x80)
-							/* ASCII: map to UTF-8 literally */
-							result[w++] = (char)unicode;
-						else if(unicode < 0x800) {
-							/* two-byte-encoding */
-							char one = (char)0xC0; /* 110 00000 */
-							char two = (char)0x80; /* 10 000000 */
-							two += (char)(unicode & 0x3F);
-							unicode >>= 6;
-							one += (char)(unicode & 0x1F);
-							result[w++] = one;
-							result[w++] = two;
-						}
-						else if(unicode < 0x10000) {
-							if(unicode < 0xD800 || 0xDBFF < unicode) {
-								/* three-byte-encoding */
-								char one = (char)0xE0;   /* 1110 0000 */
-								char two = (char)0x80;   /* 10 000000 */
-								char three = (char)0x80; /* 10 000000 */
-								three += (char)(unicode & 0x3F);
-								unicode >>= 6;
-								two += (char)(unicode & 0x3F);
-								unicode >>= 6;
-								one += (char)(unicode & 0xF);
-
-								result[w++] = one;
-								result[w++] = two;
-								result[w++] = three;
-							}
-							else {
-								// unicode is a UTF-16 high surrogate, continue with the low surrogate
-								__int64 high_surrogate = unicode;	// 110110 00;00000000
-								__int64 low_surrogate;
-								char one   = (char)0xF0; // 11110 000
-								char two   = (char)0x80; // 10 000000
-								char three = (char)0x80; // 10 000000
-								char four  = (char)0x80; // 10 000000
-								if(text[++r] != '\\')
-									break;
-								if(text[++r] != 'u')
-									break;
-
-								buf[0] = text[++r];
-								buf[1] = text[++r];
-								buf[2] = text[++r];
-								buf[3] = text[++r];
-
-								low_surrogate = strtol(buf, NULL, 16); /* 110111 00;00000000 */
-
-								// strip surrogate markers
-								high_surrogate -= 0xD800; // 11011000;00000000
-								low_surrogate -= 0xDC00; // 11011100;00000000
-
-								unicode = (high_surrogate << 10) + (low_surrogate) + 0x10000;
-
-								// now encode into four-byte UTF-8 (as we are larger than 0x10000)
-								four += (char)(unicode & 0x3F);
-								unicode >>= 6;
-								three += (char)(unicode & 0x3F);
-								unicode >>= 6;
-								two += (char)(unicode & 0x3F);
-								unicode >>= 6;
-								one += (char)(unicode & 0x7);
-
-								result[w++] = one;
-								result[w++] = two;
-								result[w++] = three;
-								result[w++] = four;
-							}
-						}
-						else
-							fprintf (stderr, "JSON: unsupported unicode value: 0x%lX\n", unicode);
-						break;
-					}
-					default:
-						assert (0);
-						break;
-				}
-				break;
-			default:
-				result[w++] = text[r];
-				break;
-		}
-	}
-	result[w] = '\0';
-	return result;
-}
-
-#endif // } 0
 
 SString & SLAPI SString::Escape()
 {
@@ -3306,7 +3224,7 @@ ulong SLAPI SString::ToULong() const
 {
 	if(L > 1) {
 		const char * p = P_Buf;
-		while(*p == ' ' || *p == '\t')
+		while(oneof2(*p, ' ', '\t'))
 			p++;
 		char * p_end = 0;
 		if(p[0] == '0' && oneof2(p[1], 'x', 'X'))
@@ -3326,7 +3244,7 @@ long SLAPI SString::ToLong() const
 	if(L > 1) {
 		const char * _p = P_Buf;
 		size_t src_pos = 0;
-		while(_p[src_pos] == ' ' || _p[src_pos] == '\t')
+		while(oneof2(_p[src_pos], ' ', '\t'))
 			src_pos++;
 		//
 		int    is_neg = 0;
@@ -3359,7 +3277,7 @@ int64 SLAPI SString::ToInt64() const
 	/* @v9.6.1
 	if(L > 1) {
 		const char * p = P_Buf;
-		while(*p == ' ' || *p == '\t')
+		while(oneof2(*p, ' ', '\t'))
 			p++;
 		return _atoi64(p);
 	}
@@ -3371,7 +3289,7 @@ int64 SLAPI SString::ToInt64() const
 	if(L > 1) {
 		const char * _p = P_Buf;
 		size_t src_pos = 0;
-		while(_p[src_pos] == ' ' || _p[src_pos] == '\t')
+		while(oneof2(_p[src_pos], ' ', '\t'))
 			src_pos++;
 		//
 		int    is_neg = 0;
@@ -3488,7 +3406,7 @@ int SLAPI SString::ToIntRange(IntRange & rRange, long flags) const
 
 SString & SLAPI SString::Sub(size_t startPos, size_t len, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(startPos < Len()) {
 		const size_t len2 = MIN(len, Len()-startPos);
 		rBuf.CopyFromN(P_Buf+startPos, len2);
@@ -3771,6 +3689,24 @@ int FASTCALL SStringU::Cmp(const SStringU & rS) const
 		return wcscmp(P_Buf, rS.P_Buf);
 }
 
+int FASTCALL SStringU::HasChr(wchar_t c) const
+{
+	if(c == 0)
+		return 0;
+	else {
+		const wchar_t * p_buf = P_Buf;
+		switch(L) {
+			case 0:
+			case 1:  return 0;
+			case 2:  return (p_buf[0] == c);
+			case 3:  return (p_buf[0] == c || p_buf[1] == c);
+			case 4:  return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c);
+			case 5:  return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c || p_buf[3] == c);
+			default: return BIN(wmemchr(p_buf, c, L-1));
+		}
+	}
+}
+
 SStringU & FASTCALL SStringU::operator = (const SStringU & s)
 {
 	return CopyFrom(s);
@@ -3779,6 +3715,16 @@ SStringU & FASTCALL SStringU::operator = (const SStringU & s)
 SStringU & FASTCALL SStringU::operator = (const wchar_t * pS)
 {
 	return CopyFrom(pS);
+}
+
+SStringU & SLAPI SStringU::Z()
+{
+	const size_t new_len = 1;
+	if(new_len <= Size || Alloc(new_len)) {
+		P_Buf[0] = 0;
+		L = 1;
+	}
+	return *this;
 }
 
 SStringU & FASTCALL SStringU::Trim(size_t n)
@@ -3908,7 +3854,7 @@ SStringU & FASTCALL SStringU::CopyFromMb(int cp, const char * pS, size_t srcLen)
 
 int SLAPI SStringU::CopyToMb(int cp, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	int   ok = 1;
 	const size_t middle_buf_len = 2048;
 	char  mbtext[middle_buf_len];
@@ -3936,7 +3882,7 @@ int SLAPI SStringU::CopyToMb(int cp, SString & rBuf) const
 
 SStringU & SLAPI SStringU::Sub(size_t startPos, size_t len, SStringU & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(startPos < Len()) {
 		size_t len2 = MIN(len, Len()-startPos);
 		rBuf.CopyFromN(P_Buf+startPos, len2);
@@ -4170,7 +4116,7 @@ int FASTCALL SStringU::CopyToUtf8(SString & rBuf, int strictConversion) const
 {
 	return rBuf.CopyUtf8FromUnicode(P_Buf, Len(), strictConversion); // @v9.1.5
 #if 0 // @v9.1.5 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 1;
 	const  uint32 byteMask = 0xBF;
 	const  uint32 byteMark = 0x80;
@@ -4344,7 +4290,6 @@ int64 SLAPI SStringU::ToInt64() const
 SStringU & SLAPI SStringU::ToUpper()
 {
 	if(P_Buf && L > 1) {
-		// @v7.8.2 _wcsupr(P_Buf);
 		for(size_t i = 0; i < (L-1); i++) {
 			P_Buf[i] = UToUpperCase(P_Buf[i]);
 		}
@@ -4355,7 +4300,6 @@ SStringU & SLAPI SStringU::ToUpper()
 SStringU & SLAPI SStringU::ToLower()
 {
 	if(P_Buf) {
-		// @v7.8.2 _wcslwr(P_Buf);
 		for(size_t i = 0; i < (L-1); i++) {
 			P_Buf[i] = UToLowerCase(P_Buf[i]);
 		}
@@ -4482,7 +4426,7 @@ int SPathStruc::Merge(const SPathStruc * pPattern, long patternFlags, SString & 
 
 int SPathStruc::Merge(SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(Flags & fUNC)
 		rBuf.CatCharN('\\', 2);
 	int    last = Drv.Last();
@@ -4906,9 +4850,9 @@ int FASTCALL SStringPool::Free(const BitArray & rMap)
 #define UCHR_STATUS_T	0x04
 
 struct CaseFoldingItem {
-	wchar_t	Code;
-	wchar_t	ToCode;
-	int		Status;
+	wchar_t Code;
+	wchar_t ToCode;
+	uint8   Status_;
 };
 
 static const CaseFoldingItem u_case_folding_tbl[] = {
@@ -5930,7 +5874,6 @@ static const CaseFoldingItem u_case_folding_tbl[] = {
 	{ 0xFF39,	0xFF59,		UCHR_STATUS_C },	// # FULLWIDTH LATIN CAPITAL LETTER Y
 	{ 0xFF3A,	0xFF5A,		UCHR_STATUS_C }		// # FULLWIDTH LATIN CAPITAL LETTER Z
 };
-
 //
 // Создание вторичной таблицы (для перевода из строчной и заглавную букву)
 //
@@ -5946,7 +5889,7 @@ static const CaseFoldingItem * u_get_sec_table()
 						CaseFoldingItem item;
 						item.Code = u_case_folding_tbl[i].ToCode;
 						item.ToCode = u_case_folding_tbl[i].Code;
-						item.Status = u_case_folding_tbl[i].Status;
+						item.Status_ = u_case_folding_tbl[i].Status_;
 						tbl.insert(&item);
 					}
 					tbl.sort(PTR_CMPFUNC(int16));
@@ -6065,7 +6008,7 @@ SLTEST_R(SString)
 	SFile out(MakeOutputFilePath("SString_NumberToLat.txt"), SFile::mWrite);
 	for(uint i = 0; i < 1000; i++) {
 		(str = 0).NumberToLat(i);
-		out.WriteLine(out_buf.Printf("%u\t\t%s\n", i, (const char *)str));
+		out.WriteLine(out_buf.Printf("%u\t\t%s\n", i, str.cptr()));
 	}
 	//
 	// Тестирование функции CopyTo
@@ -6284,50 +6227,50 @@ SLTEST_R(SString)
 			LDATETIME dtm;
 			dtm.d.encode(29, 2, 2016);
 			dtm.t.encode(21, 17, 2, 250);
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_DMY), "29/02/16");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_DMY), "29/02/16");
 			SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY), dtm.d);
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_DMY|DATF_CENTURY), "29/02/2016");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_DMY|DATF_CENTURY), "29/02/2016");
 			SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY), dtm.d);
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_GERMAN|DATF_CENTURY), "29.02.2016");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_GERMAN|DATF_CENTURY), "29.02.2016");
 			SLTEST_CHECK_EQ(strtodate_(str, DATF_GERMAN), dtm.d);
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_AMERICAN|DATF_CENTURY), "02/29/2016");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_AMERICAN|DATF_CENTURY), "02/29/2016");
 			SLTEST_CHECK_EQ(strtodate_(str, DATF_AMERICAN), dtm.d);
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_ANSI|DATF_CENTURY), "2016.02.29");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ANSI|DATF_CENTURY), "2016.02.29");
 			SLTEST_CHECK_EQ(strtodate_(str, DATF_ANSI), dtm.d);
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_ITALIAN|DATF_CENTURY), "29-02-2016");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ITALIAN|DATF_CENTURY), "29-02-2016");
 			SLTEST_CHECK_EQ(strtodate_(str, DATF_ITALIAN), dtm.d);
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_ITALIAN), "29-02-16");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ITALIAN), "29-02-16");
 			SLTEST_CHECK_EQ(strtodate_(str, DATF_ITALIAN), dtm.d);
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_JAPAN), "16/02/29");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_JAPAN), "16/02/29");
 			SLTEST_CHECK_EQ(strtodate_(str, DATF_JAPAN), dtm.d);
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_ISO8601|DATF_CENTURY), "2016-02-29");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ISO8601|DATF_CENTURY), "2016-02-29");
 			SLTEST_CHECK_EQ(strtodate_(str, DATF_ISO8601), dtm.d);
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_ISO8601), "16-02-29");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ISO8601), "16-02-29");
 			SLTEST_CHECK_EQ(strtodate_(str, DATF_ISO8601), dtm.d);
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_AMERICAN|DATF_CENTURY|DATF_NODIV), "02292016");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_AMERICAN|DATF_CENTURY|DATF_NODIV), "02292016");
 			SLTEST_CHECK_EQ(strtodate_(str, DATF_AMERICAN|DATF_CENTURY|DATF_NODIV), dtm.d);
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_DMY|DATF_NODIV), "290216");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_DMY|DATF_NODIV), "290216");
 			SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY|DATF_NODIV), dtm.d);
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_SQL), "DATE '2016-02-29'");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_SQL), "DATE '2016-02-29'");
 			SLTEST_CHECK_EQ(strtodate_(str, DATF_SQL), dtm.d);
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.d, DATF_INTERNET), "Mon, 29 Feb 2016");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_INTERNET), "Mon, 29 Feb 2016");
 			// (Такой формат не распознается) SLTEST_CHECK_EQ(strtodate_(str, DATF_INTERNET), dtm.d);
-			SLTEST_CHECK_EQ((str = 0).Cat(ZERODATE, DATF_DMY), "");
+			SLTEST_CHECK_EQ(str.Z().Cat(ZERODATE, DATF_DMY), "");
 			SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY), ZERODATE);
-			SLTEST_CHECK_EQ((str = 0).Cat(ZERODATE, DATF_DMY|DATF_NOZERO), "");
+			SLTEST_CHECK_EQ(str.Z().Cat(ZERODATE, DATF_DMY|DATF_NOZERO), "");
 			SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY|DATF_NOZERO), ZERODATE);
 
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.t, TIMF_HMS), "21:17:02");
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.t, TIMF_HMS|TIMF_NODIV), "211702");
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.t, TIMF_HM), "21:17");
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.t, TIMF_HM|TIMF_NODIV), "2117");
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.t, TIMF_MS), "17:02");
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.t, TIMF_MS|TIMF_NODIV), "1702");
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm.t, TIMF_HMS|TIMF_MSEC), "21:17:02.250");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_HMS), "21:17:02");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_HMS|TIMF_NODIV), "211702");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_HM), "21:17");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_HM|TIMF_NODIV), "2117");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_MS), "17:02");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_MS|TIMF_NODIV), "1702");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_HMS|TIMF_MSEC), "21:17:02.250");
 
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), "2016-02-29T21:17:02");
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm, DATF_ISO8601, 0), "16-02-29T21:17:02");
-			SLTEST_CHECK_EQ((str = 0).Cat(dtm, DATF_MDY|DATF_CENTURY, TIMF_HMS|TIMF_MSEC), "02/29/2016 21:17:02.250");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), "2016-02-29T21:17:02");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm, DATF_ISO8601, 0), "16-02-29T21:17:02");
+			SLTEST_CHECK_EQ(str.Z().Cat(dtm, DATF_MDY|DATF_CENTURY, TIMF_HMS|TIMF_MSEC), "02/29/2016 21:17:02.250");
 		}
 		{
 			IntRange ir;

@@ -20,37 +20,38 @@ public:
 	virtual void InsertLine(int line)=0;
 	virtual void RemoveLine(int line)=0;
 };
-
 /**
  * The line vector contains information about each of the lines in a cell buffer.
  */
 class LineVector {
-
 	Partitioning starts;
 	PerLine *perLine;
-
 public:
-
 	LineVector();
 	~LineVector();
 	void Init();
 	void SetPerLine(PerLine *pl);
-
 	void InsertText(int line, int delta);
 	void InsertLine(int line, int position, bool lineStart);
 	void SetLineStart(int line, int position);
 	void RemoveLine(int line);
-	int Lines() const {
+	int Lines() const 
+	{
 		return starts.Partitions();
 	}
 	int LineFromPosition(int pos) const;
-	int LineStart(int line) const {
+	int LineStart(int line) const 
+	{
 		return starts.PositionFromPartition(line);
 	}
 };
 
-enum actionType { insertAction, removeAction, startAction, containerAction };
-
+enum actionType { 
+	insertAction, 
+	removeAction, 
+	startAction, 
+	containerAction 
+};
 /**
  * Actions are used to store all the information required to perform one undo/redo step.
  */
@@ -68,7 +69,6 @@ public:
 	void Destroy();
 	void Grab(Action *source);
 };
-
 /**
  *
  */

@@ -624,7 +624,7 @@ int SLAPI PPObjOprKind::PutPacket(PPID * pID, PPOprKindPacket * pack, int use_ta
 int SLAPI PPObjOprKind::GetExtStrData(PPID opID, int fldID, SString & rBuf)
 {
 	SString line_buf;
-	rBuf = 0;
+	rBuf.Z();
 	if(ref->GetPropVlrString(Obj, opID, OPKPRP_EXTSTRDATA, line_buf) > 0)
 		return PPGetExtStrData(fldID, OPKEXSTR_MEMO, line_buf, rBuf);
 	return -1;
@@ -1569,7 +1569,7 @@ int OprKindDialog::setAccTextToList(AcctID * acctid, long flgs, long accFixMask,
 	}
 	else {
 		ok = 0;
-		rBuf = 0;
+		rBuf.Z();
 	}
 	return ok;
 }

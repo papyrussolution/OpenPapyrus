@@ -561,7 +561,7 @@ static Sci_Position FindPhpStringDelimiter(char * phpStringDelimiter, const int 
 	Sci_Position j;
 	const Sci_Position beginning = i - 1;
 	bool isValidSimpleString = false;
-	while(i < lengthDoc && (styler[i] == ' ' || styler[i] == '\t'))
+	while(i < lengthDoc && oneof2(styler[i], ' ', '\t'))
 		i++;
 	char ch = styler.SafeGetCharAt(i);
 	const char chNext = styler.SafeGetCharAt(i + 1);
@@ -1737,7 +1737,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				    styler.ColourTo(i, statePrintForState(SCE_HJ_SYMBOLS, inScriptType));
 				    state = SCE_HJ_DEFAULT;
 			    }
-			    else if((ch == ' ') || (ch == '\t')) {
+			    else if(oneof2(ch, ' ', '\t')) {
 				    if(state == SCE_HJ_START) {
 					    styler.ColourTo(i - 1, StateToPrint);
 					    state = SCE_HJ_DEFAULT;
@@ -1887,7 +1887,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				    styler.ColourTo(i, statePrintForState(SCE_HB_DEFAULT, inScriptType));
 				    state = SCE_HB_DEFAULT;
 			    }
-			    else if((ch == ' ') || (ch == '\t')) {
+			    else if(oneof2(ch, ' ', '\t')) {
 				    if(state == SCE_HB_START) {
 					    styler.ColourTo(i - 1, StateToPrint);
 					    state = SCE_HB_DEFAULT;
@@ -1983,7 +1983,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				    styler.ColourTo(i - 1, StateToPrint);
 				    styler.ColourTo(i, statePrintForState(SCE_HP_OPERATOR, inScriptType));
 			    }
-			    else if((ch == ' ') || (ch == '\t')) {
+			    else if(oneof2(ch, ' ', '\t')) {
 				    if(state == SCE_HP_START) {
 					    styler.ColourTo(i - 1, StateToPrint);
 					    state = SCE_HP_DEFAULT;

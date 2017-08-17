@@ -332,7 +332,7 @@ int SLAPI ACS_PETROVICH::ExportData(int)
 		DbfRecord dbfr(p_out_tbl);
 		dbfr.empty();
 		//dbfr.put(1, info.ID);
-		(temp_buf = 0).Cat(info.ID+GoodsIdBias).Align(13, ALIGN_LEFT); // @v5.3.5
+		temp_buf.Z().Cat(info.ID+GoodsIdBias).Align(13, ALIGN_LEFT); // @v5.3.5
 		// @v5.3.5 intfmt(info.ID+GoodsIdBias, MKSFMT(13, ALIGN_LEFT), temp);
 		dbfr.put(2, temp_buf);
 		dbfr.put(3, info.Name);

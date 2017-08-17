@@ -384,7 +384,7 @@ int SLAPI ObjTransmContext::OutputAcceptErrMsg(uint msgID, PPID objID, const cha
 	SString msg_buf, err_msg, fmt_buf;
 	PPGetLastErrorMessage(1, err_msg);
 	PPLoadText(msgID, fmt_buf);
-	return OutReceivingMsg(msg_buf.Printf(fmt_buf, objID, pObjName, (const char *)err_msg));
+	return OutReceivingMsg(msg_buf.Printf(fmt_buf, objID, pObjName, err_msg.cptr()));
 }
 
 int SLAPI ObjTransmContext::OutputAcceptObjErrMsg(PPID objType, PPID objID, const char * pObjName)
@@ -393,7 +393,7 @@ int SLAPI ObjTransmContext::OutputAcceptObjErrMsg(PPID objType, PPID objID, cons
 	PPGetLastErrorMessage(1, err_msg);
 	PPLoadText(PPTXT_ERRACCEPTOBJECT, fmt_buf);
 	GetObjectTitle(objType, obj_title);
-	return OutReceivingMsg(msg_buf.Printf(fmt_buf, (const char *)obj_title, objID, pObjName, (const char *)err_msg));
+	return OutReceivingMsg(msg_buf.Printf(fmt_buf, obj_title.cptr(), objID, pObjName, err_msg.cptr()));
 }
 
 int SLAPI ObjTransmContext::OutputAcceptMsg(PPID objType, PPID objID, int upd)
@@ -608,9 +608,9 @@ int SLAPI PPObjectTransmit::CheckInHeader(const PPObjectTransmit::Header * pHdr,
 		SVerT cur_ver = DS.GetVersion();
 		int    mj, mn, r;
 		pHdr->MinDestVer.Get(&mj, &mn, &r);
-		THROW_PP_S(!cur_ver.IsLt(mj, mn, r), PPERR_RCVPACKETVER, (temp_buf = 0).CatDotTriplet(mj, mn, r));
+		THROW_PP_S(!cur_ver.IsLt(mj, mn, r), PPERR_RCVPACKETVER, temp_buf.Z().CatDotTriplet(mj, mn, r));
 		__MinCompatVer.Get(&mj, &mn, &r);
-		THROW_PP_S(!pHdr->SwVer.IsLt(mj, mn, r), PPERR_RCVPACKETSRCVER, (temp_buf = 0).CatDotTriplet(mj, mn, r));
+		THROW_PP_S(!pHdr->SwVer.IsLt(mj, mn, r), PPERR_RCVPACKETSRCVER, temp_buf.Z().CatDotTriplet(mj, mn, r));
 	}
 	CATCHZOK
 	return ok;
@@ -969,7 +969,7 @@ static int SLAPI ConvertInBill(ILBillPacket * pPack, ObjTransmContext * pCtx)
 					else {
 						PPLoadText(PPTXT_DIAG_WHTOOBJ657_FAIL, fmt_buf);
 					}
-					PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf.Printf(fmt_buf, (const char *)id_buf.Cat(loc_id)), LOGMSGF_TIME|LOGMSGF_USER);
+					PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf.Printf(fmt_buf, id_buf.Cat(loc_id).cptr()), LOGMSGF_TIME|LOGMSGF_USER);
 				}
 				// } @v6.5.7
 				for(uint p = 0; pPack->Lots.enumItems(&p, (void**)&p_ilti);) {
@@ -1093,7 +1093,7 @@ int SLAPI PPObjectTransmit::ReadFileStat(const char * pFileName, PacketStat & rS
 // static
 SString & SLAPI PPObjectTransmit::GetQueueFilePath(SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	PPGetPath(PPPATH_DAT, rBuf);
 	return rBuf.SetLastSlash().Cat("SYNCQUE").SetLastSlash();
 }
@@ -1157,7 +1157,7 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 				if(!P_Queue->AddFileRecord(&sys_file_id, fi, 0)) {
 					PPLoadText(PPTXT_LOG_ERRINSFILESYNCQUEUE, fmt_buf);
 					PPGetLastErrorMessage(1, err_msg);
-					Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, pInFileName, (const char *)err_msg));
+					Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, pInFileName, err_msg.cptr()));
 					CALLEXCEPT();
 				}
 			}
@@ -1188,7 +1188,7 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 						GetObjectTitle(ex_rec.ObjType, err_msg);
 						(obj_buf = 0).Cat(err_msg).CatDiv('-', 1).Cat(ex_rec.ObjID).CatDiv('-', 1).Cat(ex_rec.DBID);
 						PPGetLastErrorMessage(1, err_msg);
-						Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, (const char *)obj_buf, (const char *)err_msg));
+						Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, obj_buf.cptr(), err_msg.cptr()));
 						PPLogMessage(PPFILNAM_ERR_LOG, err_msg, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER); // @v8.5.5
 						//CALLEXCEPT();
 					}
@@ -1206,7 +1206,7 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 					GetObjectTitle(idx_rec.ObjType, err_msg);
 					(obj_buf = 0).Cat(err_msg).CatDiv('-', 1).Cat(idx_rec.ObjID).CatDiv('-', 1).Cat(idx_rec.DBID);
 					PPGetLastErrorMessage(1, err_msg);
-					Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, (const char *)obj_buf, (const char *)err_msg));
+					Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, obj_buf.cptr(), err_msg.cptr()));
 					PPLogMessage(PPFILNAM_ERR_LOG, err_msg, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER); // @v8.5.5
 					//CALLEXCEPT();
 				}
@@ -2087,7 +2087,7 @@ int SLAPI PPObjectTransmit::MakeTransmitFileName(SString & rFileName, S_GUID * p
 			THROW(DObj.GetCounter(db_div_id, &counter, 0));
 			(file_name = 0).CatLongZ(db_div_id, 4).CatLongZ(counter, 6).Cat(PPSEXT);
 			THROW(PPGetFilePath(PPPATH_OUT, file_name, rFileName));
-			PPWaitMsg((msg_buf = 0).Printf(fmt_buf, (const char *)rFileName)); // @v7.9.9
+			PPWaitMsg(msg_buf.Z().Printf(fmt_buf, rFileName.cptr()));
 		} while(fileExists(rFileName));
 		THROW(tra.Commit());
 	}
@@ -2951,7 +2951,7 @@ int SLAPI PPObjectTransmit::StartReceivingPacket(const char * pFileName, const v
 	}
 	else
 		temp_buf = SrcDbDivPack.Rec.Name;
-	msg_buf.Printf(buf, pFileName, (const char *)temp_buf);
+	msg_buf.Printf(buf, pFileName, temp_buf.cptr());
 	Ctx.OutReceivingMsg(msg_buf);
 	Ctx.P_SrcDbDivPack = &SrcDbDivPack;
 	if(ok > 0 && p_hdr->MinDestVer.V) {
@@ -2960,13 +2960,13 @@ int SLAPI PPObjectTransmit::StartReceivingPacket(const char * pFileName, const v
 		p_hdr->MinDestVer.Get(&mj, &mn, &r);
 		if(cur_ver.IsLt(mj, mn, r)) {
 			PPLoadText(PPTXT_RCVPACKETREJVER, buf);
-			Ctx.OutReceivingMsg(msg_buf.Printf(buf, (const char *)(temp_buf = 0).CatDotTriplet(mj, mn, r)));
+			Ctx.OutReceivingMsg(msg_buf.Printf(buf, temp_buf.Z().CatDotTriplet(mj, mn, r).cptr()));
 			ok = -1;
 		}
 		__MinCompatVer.Get(&mj, &mn, &r);
 		if(p_hdr->SwVer.IsLt(mj, mn, r)) {
 			PPLoadText(PPTXT_RCVPACKETREJSRCVER, buf);
-			Ctx.OutReceivingMsg(msg_buf.Printf(buf, (const char *)(temp_buf = 0).CatDotTriplet(mj, mn, r)));
+			Ctx.OutReceivingMsg(msg_buf.Printf(buf, temp_buf.Z().CatDotTriplet(mj, mn, r).cptr()));
 			ok = -1;
 		}
 	}

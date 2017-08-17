@@ -293,7 +293,7 @@ int SLAPI PPScaleDevice::GetAddedMsgLines(const ScalePLU * pPlu, uint maxLineLen
 		}
 		else {
 			while(line_count < maxLineCount) {
-				rLines.add((temp_buf = 0).Align(maxLineLen, ADJ_LEFT));
+				rLines.add(temp_buf.Z().Align(maxLineLen, ADJ_LEFT));
 				line_count++;
 			}
 		}
@@ -2076,7 +2076,7 @@ int SLAPI COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 			line_buf.CatChar('0').Semicol(); // tare
 			line_buf.CatChar(pScalePLU->GoodsID).Semicol(); // code
 			if(expiry_minutes) {
-				(temp_buf = 0).Cat(expiry, DATF_GERMAN|DATF_CENTURY).Space().Cat(encodetime(23, 0, 0, 0), TIMF_HMS);
+				temp_buf.Z().Cat(expiry, DATF_GERMAN|DATF_CENTURY).Space().Cat(encodetime(23, 0, 0, 0), TIMF_HMS);
 			}
 			else
 				temp_buf = 0;
@@ -3071,7 +3071,7 @@ int SLAPI DIGI::SetConnection()
 		IntGrpCode = Data.ID % 10000L;
 		scale_name = Data.Name;
 		scale_name.Trim(30);
-		out_rec.Printf("B%04ld0001%-30s\n", IntGrpCode, (const char *)scale_name);
+		out_rec.Printf("B%04ld0001%-30s\n", IntGrpCode, scale_name.cptr());
 		fputs(out_rec.Transf(CTRANSF_INNER_TO_OUTER), P_ScaleData);
 	}
 	else {
@@ -3237,8 +3237,7 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		} /*dif*/;
 		if(P_ScaleData && pScalePLU) {
 			out_rec.Printf("A%-07ld00000%015ld0001%04ld00%08.2lf%03ld0000%-80s\n",
-				pScalePLU->Barcode + 2000000L, pScalePLU->GoodsNo,
-				IntGrpCode, pScalePLU->Price, expiry, pScalePLU->GoodsName);
+				pScalePLU->Barcode + 2000000L, pScalePLU->GoodsNo, IntGrpCode, pScalePLU->Price, expiry, pScalePLU->GoodsName);
 			fputs(out_rec.Transf(CTRANSF_INNER_TO_OUTER), P_ScaleData);
 			ok = 1;
 		}
@@ -4072,8 +4071,8 @@ int SLAPI ShtrihCE::SetConnection()
 		THROW_SL(P_FOut->IsValid());
 		{
 			SString line_buf;
-			P_FOut->WriteLine((line_buf = 0).Cat("##@@&&").CR());
-			P_FOut->WriteLine((line_buf = 0).Cat("#").CR());
+			P_FOut->WriteLine(line_buf.Z().Cat("##@@&&").CR());
+			P_FOut->WriteLine(line_buf.Z().Cat("#").CR());
 		}
 	}
 	CATCH
@@ -4091,7 +4090,7 @@ int SLAPI ShtrihCE::CloseConnection()
 			if(MsgResLines.getCount()) {
 				for(uint i = 0; i < MsgResLines.getCount(); i++) {
 					StrAssocArray::Item item = MsgResLines.at(i);
-					(line_buf = 0).Cat("<R").Space();
+					line_buf.Z().Cat("<R").Space();
 					line_buf.Cat(item.Id).Semicol();
 					line_buf.Cat((long)1).Semicol();
 					line_buf.CatCharN(';', 19);          // #3-#21
@@ -4765,7 +4764,7 @@ int SLAPI PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 					char   ver_text[64];
 					PPVersionInfo vi = DS.GetVersionInfo();
 					vi.GetVersionText(ver_text, sizeof(ver_text));
-					(line_buf = 0).Cat(P_ScalePrepareFormatSignature).Space().Cat(ver_text).CR();
+					line_buf.Z().Cat(P_ScalePrepareFormatSignature).Space().Cat(ver_text).CR();
 					out_file.WriteLine(line_buf);
 				}
 				for(grv->InitIteration(PPViewGoodsRest::OrdByGoodsName); grv->NextIteration(&gr_item) > 0;) {

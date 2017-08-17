@@ -42,7 +42,8 @@ public:
 		image = NULL;
 		customDraw = NULL;
 	}
-	LineMarker(const LineMarker &) {
+	LineMarker(const LineMarker &) 
+	{
 		// Defined to avoid pxpm being blindly copied, not as a complete copy constructor
 		markType = SC_MARK_CIRCLE;
 		fore = ColourDesired(0,0,0);
@@ -53,11 +54,13 @@ public:
 		image = NULL;
 		customDraw = NULL;
 	}
-	~LineMarker() {
+	~LineMarker() 
+	{
 		delete pxpm;
 		delete image;
 	}
-	LineMarker &operator=(const LineMarker &other) {
+	LineMarker &operator=(const LineMarker &other) 
+	{
 		// Defined to avoid pxpm being blindly copied, not as a complete assignment operator
 		if (this != &other) {
 			markType = SC_MARK_CIRCLE;
@@ -65,10 +68,8 @@ public:
 			back = ColourDesired(0xff,0xff,0xff);
 			backSelected = ColourDesired(0xff,0x00,0x00);
 			alpha = SC_ALPHA_NOALPHA;
-			delete pxpm;
-			pxpm = NULL;
-			delete image;
-			image = NULL;
+			ZDELETE(pxpm);
+			ZDELETE(image);
 			customDraw = NULL;
 		}
 		return *this;

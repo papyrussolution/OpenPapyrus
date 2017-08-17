@@ -46,7 +46,7 @@ static void ColourisePlmDoc(Sci_PositionU startPos, Sci_Position length, int ini
 				styler.ColourTo(i - 1, state);
 				state = SCE_PLM_STRING;
 			}
-			else if(isdigit(ch)) {
+			else if(isdec(ch)) {
 				styler.ColourTo(i - 1, state);
 				state = SCE_PLM_NUMBER;
 			}
@@ -83,19 +83,18 @@ static void ColourisePlmDoc(Sci_PositionU startPos, Sci_Position length, int ini
 			}
 		}
 		else if(state == SCE_PLM_NUMBER) {
-			if(!isdigit(ch) && !isalpha(ch) && ch != '$') {
+			if(!isdec(ch) && !isalpha(ch) && ch != '$') {
 				i--;
 				styler.ColourTo(i, state);
 				state = SCE_PLM_DEFAULT;
 			}
 		}
 		else if(state == SCE_PLM_IDENTIFIER) {
-			if(!isdigit(ch) && !isalpha(ch) && ch != '$') {
+			if(!isdec(ch) && !isalpha(ch) && ch != '$') {
 				// Get the entire identifier.
 				char word[1024];
 				Sci_Position segmentStart = styler.GetStartSegment();
 				GetRange(segmentStart, i - 1, styler, word, sizeof(word));
-
 				i--;
 				if(keywordlists[0]->InList(word))
 					styler.ColourTo(i, SCE_PLM_KEYWORD);

@@ -36,7 +36,7 @@ struct _OrdArEntry {
 
 static SString & MakeOrderAutocreationTag(const _OrdArEntry & rEntry, LDATE dt, SString & rBuf)
 {
-    return (rBuf = 0).Cat("PCZ").CatChar('.').Cat(rEntry.ArID).CatChar('.').Cat(rEntry.GoodsGrpID).CatChar('.').
+    return rBuf.Z().Cat("PCZ").CatChar('.').Cat(rEntry.ArID).CatChar('.').Cat(rEntry.GoodsGrpID).CatChar('.').
 		Cat(rEntry.LocID).CatChar('.').Cat(rEntry.MngrID).CatChar('.').Cat(dt, MKSFMT(0, DATF_YMD|DATF_CENTURY|DATF_NODIV));
 }
 
@@ -94,7 +94,7 @@ int SLAPI PrcssrBillAutoCreate::CreateDraftBySupplOrders(const SStatFilt * pFilt
 						}
                     }
 					else {
-						GetArticleName(article_id, temp_buf = 0);
+						GetArticleName(article_id, temp_buf.Z());
 						msg_buf.Printf(PPLoadStringS(PPMSG_ERROR, PPERR_AUTOORDINVPARAM, fmt_buf), article_id, temp_buf.cptr());
 						log.Log(msg_buf);
 					}
@@ -196,7 +196,7 @@ struct TaBonusSupplItem {
 
 static SString & MakeTaAutocreationTag(PPID arID, PPID locID, LDATE dt, SString & rBuf)
 {
-    return (rBuf = 0).Cat("TAB").CatChar('.').Cat(arID).CatChar('.').Cat(locID).CatChar('.').
+    return rBuf.Z().Cat("TAB").CatChar('.').Cat(arID).CatChar('.').Cat(locID).CatChar('.').
 		Cat(dt, MKSFMT(0, DATF_YMD|DATF_CENTURY|DATF_NODIV));
 }
 

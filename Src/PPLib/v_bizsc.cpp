@@ -718,16 +718,16 @@ int BizScTemplDialog::setupList()
 		SString temp_buf;
 		StringSet ss(SLBColumnDelim);
 
-		(temp_buf = 0).Cat(i + 1);
+		temp_buf.Z().Cat(i + 1);
 		ss.add(temp_buf, 0);
 		if(GetSelList() == CTL_BIZSCT_LIST) {
 			PPBizScTemplCol * p_item = (PPBizScTemplCol*)p_list->at(i);
 
 			id = p_item->Id;
 			ss.add(temp_buf = p_item->Name, 0);
-			PPGetSubStr(types, p_item->Type, temp_buf = 0);
+			PPGetSubStr(types, p_item->Type, temp_buf.Z());
 			ss.add(temp_buf, 0);
-			(temp_buf = 0).Cat(p_item->DtLow).Dot().Dot().Cat(p_item->DtUp);
+			temp_buf.Z().Cat(p_item->DtLow).Dot().Dot().Cat(p_item->DtUp);
 			ss.add(temp_buf, 0);
 			//
 			// Добавление инфо о ячейке

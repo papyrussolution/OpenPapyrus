@@ -1040,7 +1040,7 @@ void SLAPI PPGdsClsFormula::Clear()
 
 int FASTCALL PPGdsClsFormula::PutToBuffer(SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	PPPutExtStrData(GDSCLS_EXTSTR_FROM_NAME, rBuf, Name);
 	PPPutExtStrData(GDSCLS_EXTSTR_FROM_FORM, rBuf, Formula);
 	PPPutExtStrData(GDSCLS_EXTSTR_FROM_PAR1, rBuf, Var1Name);

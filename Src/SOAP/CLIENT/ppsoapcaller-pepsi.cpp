@@ -242,8 +242,8 @@ extern "C" __declspec(dllexport) TSCollection <iSalesGoodsPacket> * iSalesGetGoo
 		period = *pPeriod;
 	else
 		period.Set(encodedate(1, 1, 2016), encodedate(20, 7, 2030));
-	InParamString arg_dtstart((temp_buf = 0).Cat(period.low, DATF_YMD|DATF_CENTURY|DATF_NODIV));
-	InParamString arg_dtend((temp_buf = 0).Cat(period.upp, DATF_YMD|DATF_CENTURY|DATF_NODIV));
+	InParamString arg_dtstart(temp_buf.Z().Cat(period.low, DATF_YMD|DATF_CENTURY|DATF_NODIV));
+	InParamString arg_dtend(temp_buf.Z().Cat(period.upp, DATF_YMD|DATF_CENTURY|DATF_NODIV));
 	param.dtFrom = arg_dtstart;
 	param.dtTo = arg_dtend;
 	THROW(PreprocessCall(proxi, rSess, proxi.ProductsTransfer(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));

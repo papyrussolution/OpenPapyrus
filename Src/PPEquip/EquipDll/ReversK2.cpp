@@ -782,7 +782,7 @@ int PPDrvWicket::Open(int commNum, int tm)
 		DRVS.Log((msg_buf = "Wicked: error opening").CatDiv('-', 1).Cat(commNum), 0xffff);
 	ENDCATCH;
 	ClosePort();
-	DRVS.Log((msg_buf = 0).CatEq("Wicked: open exec time", GetTickCount() - fn_exec_start).Space().Cat("ms"), 0xffff);
+	DRVS.Log(msg_buf.Z().CatEq("Wicked: open exec time", GetTickCount() - fn_exec_start).Space().Cat("ms"), 0xffff);
 	return r;
 }
 //

@@ -734,33 +734,23 @@ static CURLcode smtp_state_ehlo_resp(struct connectdata * conn, int smtpcode,
 			for(;; ) {
 				size_t llen;
 				uint mechbit;
-
-				while(len &&
-				    (*line == ' ' || *line == '\t' ||
-					    *line == '\r' || *line == '\n')) {
+				while(len && oneof4(*line, ' ', '\t', '\r', '\n')) {
 					line++;
 					len--;
 				}
-
 				if(!len)
 					break;
-
-				/* Extract the word */
-				for(wordlen = 0; wordlen < len && line[wordlen] != ' ' &&
-				    line[wordlen] != '\t' && line[wordlen] != '\r' &&
-				    line[wordlen] != '\n'; )
+				// Extract the word 
+				for(wordlen = 0; wordlen < len && !oneof4(line[wordlen], ' ', '\t', '\r', '\n'); )
 					wordlen++;
-
-				/* Test the word for a matching authentication mechanism */
+				// Test the word for a matching authentication mechanism 
 				mechbit = Curl_sasl_decode_mech(line, wordlen, &llen);
 				if(mechbit && llen == wordlen)
 					smtpc->sasl.authmechs |= mechbit;
-
 				line += wordlen;
 				len -= wordlen;
 			}
 		}
-
 		if(smtpcode != 1) {
 			if(data->set.use_ssl && !conn->ssl[FIRSTSOCKET].use) {
 				/* We don't have a SSL/TLS connection yet, but SSL is requested */

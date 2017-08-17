@@ -336,7 +336,7 @@ int FASTCALL PPQuot::GetValFromStr(const char * pStr)
 //static
 SString & PPQuot::PutValToStr(double val, long flags, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(flags & PPQuot::fZero)
 		rBuf.CatChar('Z');
 	else {
@@ -3187,7 +3187,7 @@ int SLAPI Quotation2Core::Verify()
 					else if(r < 0) {
 						absence_rel_tab.Add((ulong)RelT.data.ID);
 						absence_qk = 1;
-						(msg_buf = 0).Cat(qk_id);
+						msg_buf.Z().Cat(qk_id);
 						PPSetError(PPERR_QII_HANGQKREL, msg_buf);
 						logger.LogLastError();
 					}
@@ -3207,7 +3207,7 @@ int SLAPI Quotation2Core::Verify()
 				PPTransaction tra(1);
 				THROW(tra);
 				for(ulong u_rel_id = 0; absence_rel_tab.Enum(&u_rel_id) > 0;) {
-					(msg_buf = 0).Cat(++i).CatChar('/').Cat(_c);
+					msg_buf.Z().Cat(++i).CatChar('/').Cat(_c);
 					THROW(RemoveAllForRel((long)u_rel_id, 0, 0));
 				}
 				THROW(tra.Commit());
@@ -3229,7 +3229,7 @@ int SLAPI Quotation2Core::Verify()
 			}
 			else if(rec.Actual) {
 				if(goods_list.Has((ulong)rec.GoodsID)) {
-					(msg_buf = 0).CatChar('[').Cat(rec.RelID).CatDiv(';', 2).Cat(rec.GoodsID).CatChar(']');
+					msg_buf.Z().CatChar('[').Cat(rec.RelID).CatDiv(';', 2).Cat(rec.GoodsID).CatChar(']');
 					PPSetError(PPERR_QII_DUPACTUALTAG, msg_buf);
 					logger.LogLastError();
 				}

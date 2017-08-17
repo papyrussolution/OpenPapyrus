@@ -824,7 +824,7 @@ int SLAPI PPLotFaultArray::AddMessage()
 
 SString & SLAPI PPLotFaultArray::Message(uint p, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(p < getCount()) {
 		int    msg_id = PPERR_ELOT_UNKNOWN;
 		PPLotFault & f = at(p);

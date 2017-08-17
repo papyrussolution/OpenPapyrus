@@ -238,7 +238,7 @@ int SLAPI PPTableConversion::Convert()
 		}
 		{
 			THROW_MEM(p_cr_tbl = new DBTable(tbl_name, file_name));
-			THROW_DB(p_cr_tbl->isOpen());
+			THROW_DB(p_cr_tbl->IsOpened());
 			ZDELETE(p_cr_tbl);
 			THROW_MEM(p_tbl = CreateTableInstance(0));
 			p_tbl->flags |= XTF_DISABLEOUTOFTAMSG; // @v8.9.10

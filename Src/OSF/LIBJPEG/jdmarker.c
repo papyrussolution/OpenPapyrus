@@ -908,16 +908,15 @@ METHODDEF(boolean) save_marker(j_decompress_ptr cinfo)
 			bytes_read++;
 		}
 	}
-
-	/* Done reading what we want to read */
-	if(cur_marker != NULL) { /* will be NULL if bogus length word */
+	// Done reading what we want to read 
+	if(cur_marker) { /* will be NULL if bogus length word */
 		/* Add new marker to end of list */
 		if(cinfo->marker_list == NULL) {
 			cinfo->marker_list = cur_marker;
 		}
 		else {
 			jpeg_saved_marker_ptr prev = cinfo->marker_list;
-			while(prev->next != NULL)
+			while(prev->next)
 				prev = prev->next;
 			prev->next = cur_marker;
 		}

@@ -638,7 +638,7 @@ int FASTCALL Profile::FinishUserProfileFunc(uint handle)
 			if(do_log_finish) {
 				SString line_buf;
 				if(p_flash_accum_entry) {
-					(line_buf = 0).Cat(UPSB.LogItemPrefix).Semicol().Cat(p_flash_accum_entry->Seq).Semicol().
+					line_buf.Z().Cat(UPSB.LogItemPrefix).Semicol().Cat(p_flash_accum_entry->Seq).Semicol().
 						Cat(profile_entry.Fe.GetLoggedFuncId()).Semicol().Cat(p_flash_accum_entry->AccumClock).Semicol();
 					line_buf.Cat(p_flash_accum_entry->Accum);
 					p_flash_accum_entry->Accum = 0;
@@ -652,7 +652,7 @@ int FASTCALL Profile::FinishUserProfileFunc(uint handle)
 					}
 				}
 				else {
-					(line_buf = 0).Cat(UPSB.LogItemPrefix).Semicol().Cat(profile_entry.Seq).Semicol().
+					line_buf.Z().Cat(UPSB.LogItemPrefix).Semicol().Cat(profile_entry.Seq).Semicol().
 						Cat(profile_entry.Fe.GetLoggedFuncId()).Semicol().Cat(clock).Semicol();
 					if(profile_entry.Fe.FactorCount) {
 						assert(profile_entry.Fe.FactorCount <= SIZEOFARRAY(profile_entry.Factors));
@@ -681,7 +681,7 @@ int SLAPI Profile::FlashUserProfileAccumEntries()
 		for(uint i = 0; i < UserProfileAccum.getCount(); i++) {
 			UserProfileEntry & r_accum_entry = UserProfileAccum.at(i);
 			if(r_accum_entry.Accum > 0) {
-				(line_buf = 0).Cat(UPSB.LogItemPrefix).Semicol().Cat(r_accum_entry.Seq).Semicol().
+				line_buf.Z().Cat(UPSB.LogItemPrefix).Semicol().Cat(r_accum_entry.Seq).Semicol().
 					Cat(r_accum_entry.Fe.GetLoggedFuncId()).Semicol().Cat(r_accum_entry.AccumClock).Semicol();
 				line_buf.Cat(r_accum_entry.Accum);
 				r_accum_entry.Accum = 0;
@@ -702,7 +702,7 @@ int SLAPI Profile::FlashUserProfileAccumEntries()
 
 SString & SLAPI Profile::GetUserProfileFileName(int fk, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(oneof3(fk, fkSession, fkStart, fkFinish)) {
 		SString fname, temp_buf;
 		UPSB.DbUuid.ToStr(S_GUID::fmtIDL, temp_buf);
@@ -934,7 +934,7 @@ int PPUserProfileCore::StateBlock::Serialize(int dir, SBuffer & rBuf, SSerialize
 			THROW_SL(pCtx->Serialize(dir, r_int_item.SessOffs, rBuf));
 			THROW_SL(pCtx->Serialize(dir, r_int_item.StartOffs, rBuf));
 			THROW_SL(pCtx->Serialize(dir, r_int_item.FinishOffs, rBuf));
-			GetS(r_int_item.DbSymbP, temp_buf = 0);
+			GetS(r_int_item.DbSymbP, temp_buf.Z());
 			THROW_SL(pCtx->Serialize(dir, temp_buf, rBuf));
 		}
 	}

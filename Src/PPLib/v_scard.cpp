@@ -56,13 +56,13 @@ int SCardSelPrcssrParam::Validate(PPID srcSeriesID)
 		THROW(scs_obj.Fetch(NewSerID, &dest_scs_rec) > 0);
 		THROW_PP(src_scs_rec.GetType() == dest_scs_rec.GetType(), PPERR_UNABLEMOVSC_DIFFSERTYPE);
 	}
-	THROW_PP_S((FlagsSet   & ~valid_flags) == 0, PPERR_INVSCARDFLAGS, (msg_buf = 0).CatHex(FlagsSet));
-	THROW_PP_S((FlagsReset & ~valid_flags) == 0, PPERR_INVSCARDFLAGS, (msg_buf = 0).CatHex(FlagsReset));
+	THROW_PP_S((FlagsSet   & ~valid_flags) == 0, PPERR_INVSCARDFLAGS, msg_buf.Z().CatHex(FlagsSet));
+	THROW_PP_S((FlagsReset & ~valid_flags) == 0, PPERR_INVSCARDFLAGS, msg_buf.Z().CatHex(FlagsReset));
 
 	for(uint i = 0; i < 32; i++) {
 		const long t = (1 << i);
 		if(t & valid_flags) {
-			THROW_PP_S((FlagsSet & FlagsReset & t) == 0, PPERR_AMBIGSCARDSETRESETFLAGS, (msg_buf = 0).CatHex(FlagsSet).CatChar('-').CatHex(FlagsReset));
+			THROW_PP_S((FlagsSet & FlagsReset & t) == 0, PPERR_AMBIGSCARDSETRESETFLAGS, msg_buf.Z().CatHex(FlagsSet).CatChar('-').CatHex(FlagsReset));
 		}
 	}
 	THROW_PP(Discount >= 0.0 && Discount <= 100.0, PPERR_PERCENTINPUT);
@@ -2138,7 +2138,7 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 						}
 						else {
 							PPLoadText(PPTXT_LOG_INVSCARDSER, fmt_buf);
-							ideqvalstr(param.NewSerID, temp_buf = 0);
+							ideqvalstr(param.NewSerID, temp_buf.Z());
 							PPGetLastErrorMessage(1, temp_buf2);
 							msg_buf.Printf(fmt_buf, temp_buf.cptr(), scard_name.cptr(), temp_buf2.cptr());
 							if(pLog)
@@ -2509,7 +2509,7 @@ static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
 				}
 				if(!(D.Flags & D.fEdit))
 					ScObj.P_Tbl->GetRest(D.SCardID, MAXDATE, &SrcRest);
-				(temp_buf = 0).Cat(SrcRest - D.Amount, MKSFMTD(0, 2, NMBF_NOZERO));
+				temp_buf.Z().Cat(SrcRest - D.Amount, MKSFMTD(0, 2, NMBF_NOZERO));
 				setStaticText(CTL_SCARDOP_ST_REST, temp_buf);
 			}
 			if(Freezing) {
@@ -2524,7 +2524,7 @@ static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
 				}
 				if(!(D.Flags & D.fEdit))
 					ScObj.P_Tbl->GetRest(D.DestSCardID, MAXDATE, &DestRest);
-				(temp_buf = 0).Cat(DestRest + D.Amount, MKSFMTD(0, 2, NMBF_NOZERO));
+				temp_buf.Z().Cat(DestRest + D.Amount, MKSFMTD(0, 2, NMBF_NOZERO));
 				setStaticText(CTL_SCARDOP_ST_DESTREST, temp_buf);
 			}
 			enableCommand(cmSCardOpCheck, BIN(D.LinkOi.Obj == PPOBJ_CCHECK && D.LinkOi.Id));
@@ -2547,7 +2547,7 @@ static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
 			else {
 				getCtrlData(sel = CTL_SCARDOP_AMOUNT, &D.Amount);
 				THROW_PP(D.Amount != 0.0, PPERR_INVAMOUNT);
-				getCtrlString(sel = CTL_SCARDOP_DESTCARDNO, temp_buf = 0);
+				getCtrlString(sel = CTL_SCARDOP_DESTCARDNO, temp_buf.Z());
 				if(temp_buf.NotEmptyS()) {
 					SCardTbl::Rec sc_rec;
 					THROW(ScObj.SearchCode(0, temp_buf, &sc_rec) > 0);
@@ -2585,23 +2585,23 @@ static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
 							}
 							if(!(D.Flags & D.fEdit))
 								ScObj.P_Tbl->GetRest(D.DestSCardID, MAXDATE, &DestRest);
-							(temp_buf = 0).Cat(DestRest + D.Amount, MKSFMTD(0, 2, NMBF_NOZERO));
+							temp_buf.Z().Cat(DestRest + D.Amount, MKSFMTD(0, 2, NMBF_NOZERO));
 							setStaticText(CTL_SCARDOP_ST_DESTREST, temp_buf);
 						}
 						else {
 							D.DestSCardID = 0;
 							DestRest = 0.0;
-							setCtrlString(CTL_SCARDOP_DESTOWNER, temp_buf = 0);
+							setCtrlString(CTL_SCARDOP_DESTOWNER, temp_buf.Z());
 						}
 					}
 				}
 				else if(event.isCtlEvent(CTL_SCARDOP_AMOUNT)) {
 					D.Amount = getCtrlReal(CTL_SCARDOP_AMOUNT);
-					(temp_buf = 0).Cat(SrcRest + D.Amount, MKSFMTD(0, 2, NMBF_NOZERO)); // @v9.0.4 @fix (-D.Amount)-->(+D.Amount)
+					temp_buf.Z().Cat(SrcRest + D.Amount, MKSFMTD(0, 2, NMBF_NOZERO)); // @v9.0.4 @fix (-D.Amount)-->(+D.Amount)
 					setStaticText(CTL_SCARDOP_ST_REST, temp_buf);
 					temp_buf = 0;
 					if(D.DestSCardID) {
-						(temp_buf = 0).Cat(DestRest - D.Amount, MKSFMTD(0, 2, NMBF_NOZERO)); // @v9.0.4 @fix (+D.Amount)-->(-D.Amount)
+						temp_buf.Z().Cat(DestRest - D.Amount, MKSFMTD(0, 2, NMBF_NOZERO)); // @v9.0.4 @fix (+D.Amount)-->(-D.Amount)
 					}
 					setStaticText(CTL_SCARDOP_ST_DESTREST, temp_buf);
 				}
@@ -2815,7 +2815,7 @@ int SLAPI PPViewSCardOp::Recover()
 					{
 						// PPTXT_INVSCOPCHECKLINK      "Чек '@zstr', на который ссылается операция по карте '@scard' не содержит ссылку на эту карту"
 						PPLoadText(PPTXT_INVSCOPCHECKLINK, fmt_buf);
-						CCheckCore::MakeCodeString(&cc_pack.Rec, temp_buf = 0);
+						CCheckCore::MakeCodeString(&cc_pack.Rec, temp_buf.Z());
 						PPFormat(fmt_buf, &msg_buf, temp_buf.cptr(), sc_id);
 						logger.Log(msg_buf);
 					}
@@ -3060,7 +3060,7 @@ int PPALDD_SCard::InitData(PPFilt & rFilt, long rsrv)
 			H.UsageTmStart = p_ext->ScRec.UsageTmStart;
 			H.UsageTmEnd   = p_ext->ScRec.UsageTmEnd;
 			if(p_ext->ScRec.UsageTmStart || p_ext->ScRec.UsageTmEnd) {
-				(temp_buf = 0).Cat(p_ext->ScRec.UsageTmStart, TIMF_HM);
+				temp_buf.Z().Cat(p_ext->ScRec.UsageTmStart, TIMF_HM);
 				if(p_ext->ScRec.UsageTmEnd != p_ext->ScRec.UsageTmStart) {
 					temp_buf.CatCharN('.', 2);
 					if(p_ext->ScRec.UsageTmEnd)

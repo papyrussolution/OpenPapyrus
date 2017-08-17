@@ -244,7 +244,8 @@ int SLAPI CreatePrintableBarcode(const char * pBarcode, int codeType, char * pBu
 	char   code[64], buf[64];
 	int    chkdig;
 	int    calc_check_dig = 0;
-	size_t i, len = strlen(strnzcpy(code, pBarcode, sizeof(code)));
+	size_t i;
+	size_t len = strlen(strnzcpy(code, pBarcode, sizeof(code)));
 	ASSIGN_PTR(pBuf, 0);
 	buf[0] = 0;
 	if(codeType == 39) {
@@ -253,7 +254,7 @@ int SLAPI CreatePrintableBarcode(const char * pBarcode, int codeType, char * pBu
 		// Проверить код: либо цифры, либо латинские буквы A..Z
 		//
 		for(i = 0; i < len; i++) {
-			if(!isdigit(code[i]))
+			if(!isdec(code[i]))
 				if(isalpha(code[i]))
 					code[i] = toupper(code[i]);
 				else
@@ -274,7 +275,7 @@ int SLAPI CreatePrintableBarcode(const char * pBarcode, int codeType, char * pBu
 			return 0;
 		else {
 			for(i = 0; i < len; i++) {
-				if(!isdigit(code[i]))
+				if(!isdec(code[i]))
 					return 0;
 			}
 			if((len == 7 || len == 11) && code[0] == '0') { // UPC-A/UPC-E without check digit
@@ -341,7 +342,7 @@ int SLAPI CreatePrintableBarcode(const char * pBarcode, int codeType, char * pBu
 int FASTCALL GetGoodsNameR(PPID goodsID, SString & rBuf)
 {
 	int    ok = -1;
-	rBuf = 0;
+	rBuf.Z();
 	if(goodsID) {
 		PPObjGoods goods_obj(SConstructorLite); // @v8.1.1 SConstructorLite
 		Goods2Tbl::Rec goods_rec;
@@ -1111,10 +1112,10 @@ int GoodsCfgDialog::getDTS(PPGoodsConfig * pData, SString & rGoodsExTitles, PPOp
 	THROW_PP(Data.ACGI_Threshold >= 0 && Data.ACGI_Threshold <= 1461, PPERR_USERINPUT);
 	sel = CTL_GDSCFG_CODLEN;
 	for(p = strip(Data.BarCodeLen); *p; p++)
-		THROW_PP_S(isdigit(*p) || *p == ' ' || *p == ',' || *p == '+', PPERR_INVEXPR, Data.BarCodeLen);
+		THROW_PP_S(isdec(*p) || *p == ' ' || *p == ',' || *p == '+', PPERR_INVEXPR, Data.BarCodeLen);
 	sel = CTL_GDSCFG_WPRFX;
 	for(p = strip(Data.WghtPrefix); *p; p++)
-		THROW_PP_S(isdigit(*p), PPERR_INVEXPR, Data.WghtPrefix);
+		THROW_PP_S(isdec(*p), PPERR_INVEXPR, Data.WghtPrefix);
 	ASSIGN_PTR(pData, Data);
 	rGoodsExTitles = GoodsExTitles;
 	getCtrlData(CTL_GDSCFG_OWNACTMPL, rOwnAcCntr.Head.CodeTemplate);
@@ -1465,7 +1466,7 @@ int QuotListDialog::setupList()
 						ss.add(r_q.PutValToStr(temp_buf = 0));
 						realfmt(price, MKSFMTD(10, 2, NMBF_NOZERO), num_buf);
 						ss.add(num_buf);
-						ss.add((temp_buf = 0).Cat(r_q.Period, 1));
+						ss.add(temp_buf.Z().Cat(r_q.Period, 1));
 						intfmt(r_q.MinQtty, MKSFMTD(0, 0, NMBF_NOZERO), num_buf);
 						ss.add(num_buf);
 						THROW(addStringToList(j+1, ss.getBuf()));
@@ -1482,7 +1483,7 @@ int QuotListDialog::setupList()
 				realfmt(price, MKSFMTD(10, 2, NMBF_NOZERO), num_buf);
 				ss.add(num_buf);
 				DateRange empty_period;
-				ss.add((temp_buf = 0).Cat(empty_period.SetZero(), 1));
+				ss.add(temp_buf.Z().Cat(empty_period.SetZero(), 1));
 				intfmt(0, MKSFMTD(0, 0, NMBF_NOZERO), num_buf);
 				ss.add(num_buf);
 				THROW(addStringToList((1000000 + qk_id), ss.getBuf()));
@@ -1662,7 +1663,7 @@ private:
 					}
 				}
 				if(!used_entry) {
-					(temp_buf = 0).Space();
+					temp_buf.Z().Space();
 					disable_input = 1;
 				}
 				setLabelText(quotCtl(i), temp_buf);
@@ -2294,10 +2295,10 @@ void QuotationDialog::updatePage()
 				ss.clear(1);
 				const PPQuot & r_q = Data.at(i);
 				if(r_q.Kind == Spc.PredictCoeffID && r_q.LocID == SelLocID && !r_q.Period.IsZero()) {
-					ss.add((temp_buf = 0).Cat(r_q.Period, 1));
+					ss.add(temp_buf.Z().Cat(r_q.Period, 1));
 					r_q.PutValToStr(temp_buf = 0);
 					ss.add(temp_buf);
-					ss.add((temp_buf = 0).Cat(effect_val, MKSFMTD(0, 5, NMBF_NOZERO|NMBF_NOTRAILZ)));
+					ss.add(temp_buf.Z().Cat(effect_val, MKSFMTD(0, 5, NMBF_NOZERO|NMBF_NOTRAILZ)));
 					p_box->addItem(i+1, ss.getBuf());
 				}
 			}
@@ -2456,7 +2457,7 @@ int SLAPI PPSupplDeal::CheckCost(double c) const
 
 SString & FASTCALL PPSupplDeal::Format(SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(IsDisabled) {
 		rBuf.CatChar('X');
 	}
@@ -3049,7 +3050,7 @@ SString & FASTCALL PPBarcode::ConvertUpceToUpca(const char * pUpce, SString & rU
 //static
 int SLAPI PPBarcode::GetStdName(int bcstd, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 1;
     switch(bcstd) {
 		case BARCSTD_CODE11:      rBuf = "code11"; break;

@@ -21,7 +21,7 @@ using namespace Scintilla;
 static void ClassifyWordSol(Sci_PositionU start, Sci_PositionU end, WordList &keywords, Accessor &styler, char * prevWord)
 {
 	char s[100] = "";
-	bool wordIsNumber = isdigit(styler[start]) != 0;
+	bool wordIsNumber = isdec(styler[start]) != 0;
 	for(Sci_PositionU i = 0; i < end - start + 1 && i < 30; i++) {
 		s[i] = styler[start + i];
 		s[i + 1] = '\0';

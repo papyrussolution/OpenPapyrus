@@ -21,11 +21,10 @@
 //#include "jinclude.h"
 //#include "jpeglib.h"
 #include "jmemsys.h"            /* import the system-dependent declarations */
-
-#ifndef HAVE_STDLIB_H           /* <stdlib.h> should declare SAlloc::M(),free() */
-extern void * SAlloc::M JPP((size_t size));
-extern void free JPP((void* ptr));
-#endif
+/* @sobolev #ifndef HAVE_STDLIB_H // <stdlib.h> should declare SAlloc::M(),free() 
+	extern void * malloc(size_t size);
+	extern void free(void* ptr);
+#endif */
 /*
  * Memory allocation and freeing are controlled by the regular library routines malloc and free().
  */

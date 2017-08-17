@@ -855,7 +855,7 @@ static bool FASTCALL IsCommentLine(Sci_Position line, Accessor &styler)
 		char ch = styler[i];
 		if(ch == '#')
 			return true;
-		else if(ch != ' ' && ch != '\t')
+		else if(!oneof2(ch, ' ', '\t'))
 			return false;
 	}
 	return false;

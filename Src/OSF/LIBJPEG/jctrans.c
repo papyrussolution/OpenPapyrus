@@ -14,9 +14,9 @@
 #include "cdjpeg.h"
 #pragma hdrstop
 
-/* Forward declarations */
-static void transencode_master_selection JPP((j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays));
-static void transencode_coef_controller JPP((j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays));
+// Forward declarations
+static void transencode_master_selection(j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays);
+static void transencode_coef_controller(j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays);
 
 /*
  * Compression initialization for writing raw-coefficient data.
@@ -86,13 +86,11 @@ GLOBAL(void) jpeg_copy_critical_parameters(j_decompress_ptr srcinfo,
 	dstinfo->CCIR601_sampling = srcinfo->CCIR601_sampling;
 	/* Copy the source's quantization tables. */
 	for(tblno = 0; tblno < NUM_QUANT_TBLS; tblno++) {
-		if(srcinfo->quant_tbl_ptrs[tblno] != NULL) {
+		if(srcinfo->quant_tbl_ptrs[tblno]) {
 			qtblptr = &dstinfo->quant_tbl_ptrs[tblno];
 			if(*qtblptr == NULL)
 				*qtblptr = jpeg_alloc_quant_table((j_common_ptr)dstinfo);
-			MEMCOPY((*qtblptr)->quantval,
-			    srcinfo->quant_tbl_ptrs[tblno]->quantval,
-			    SIZEOF((*qtblptr)->quantval));
+			MEMCOPY((*qtblptr)->quantval, srcinfo->quant_tbl_ptrs[tblno]->quantval, SIZEOF((*qtblptr)->quantval));
 			(*qtblptr)->sent_table = FALSE;
 		}
 	}
@@ -101,10 +99,8 @@ GLOBAL(void) jpeg_copy_critical_parameters(j_decompress_ptr srcinfo,
 	 */
 	dstinfo->num_components = srcinfo->num_components;
 	if(dstinfo->num_components < 1 || dstinfo->num_components > MAX_COMPONENTS)
-		ERREXIT2(dstinfo, JERR_COMPONENT_COUNT, dstinfo->num_components,
-		    MAX_COMPONENTS);
-	for(ci = 0, incomp = srcinfo->comp_info, outcomp = dstinfo->comp_info;
-	    ci < dstinfo->num_components; ci++, incomp++, outcomp++) {
+		ERREXIT2(dstinfo, JERR_COMPONENT_COUNT, dstinfo->num_components, MAX_COMPONENTS);
+	for(ci = 0, incomp = srcinfo->comp_info, outcomp = dstinfo->comp_info; ci < dstinfo->num_components; ci++, incomp++, outcomp++) {
 		outcomp->component_id = incomp->component_id;
 		outcomp->h_samp_factor = incomp->h_samp_factor;
 		outcomp->v_samp_factor = incomp->v_samp_factor;
@@ -119,7 +115,7 @@ GLOBAL(void) jpeg_copy_critical_parameters(j_decompress_ptr srcinfo,
 			ERREXIT1(dstinfo, JERR_NO_QUANT_TABLE, tblno);
 		slot_quant = srcinfo->quant_tbl_ptrs[tblno];
 		c_quant = incomp->quant_table;
-		if(c_quant != NULL) {
+		if(c_quant) {
 			for(coefi = 0; coefi < DCTSIZE2; coefi++) {
 				if(c_quant->quantval[coefi] != slot_quant->quantval[coefi])
 					ERREXIT1(dstinfo, JERR_MISMATCHED_QUANT_TABLE, tblno);
@@ -206,25 +202,24 @@ typedef struct {
 } my_coef_controller;
 
 typedef my_coef_controller * my_coef_ptr;
-
+//
+// Reset within-iMCU-row counters for a new row 
+//
 static void start_iMCU_row(j_compress_ptr cinfo)
-/* Reset within-iMCU-row counters for a new row */
 {
 	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
-	/* In an interleaved scan, an MCU row is the same as an iMCU row.
-	 * In a noninterleaved scan, an iMCU row has v_samp_factor MCU rows.
-	 * But at the bottom of the image, process only what's left.
-	 */
-	if(cinfo->comps_in_scan > 1) {
+	// 
+	// In an interleaved scan, an MCU row is the same as an iMCU row.
+	// In a noninterleaved scan, an iMCU row has v_samp_factor MCU rows.
+	// But at the bottom of the image, process only what's left.
+	// 
+	if(cinfo->comps_in_scan > 1)
 		coef->MCU_rows_per_iMCU_row = 1;
-	}
-	else {
+	else
 		if(coef->iMCU_row_num < (cinfo->total_iMCU_rows-1))
 			coef->MCU_rows_per_iMCU_row = cinfo->cur_comp_info[0]->v_samp_factor;
 		else
 			coef->MCU_rows_per_iMCU_row = cinfo->cur_comp_info[0]->last_row_height;
-	}
-
 	coef->mcu_ctr = 0;
 	coef->MCU_vert_offset = 0;
 }

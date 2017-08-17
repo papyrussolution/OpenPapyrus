@@ -997,7 +997,7 @@ int SLAPI PPObjTag::MakeReserved(long flags)
 	THROW_PP(p_rez->findResource(ROD_TAG, PP_RCDATA), PPERR_RESFAULT);
 	THROW_PP(num_recs = p_rez->getUINT(), PPERR_RESFAULT);
 	if(do_make_doc) {
-		(line_buf = 0).CatChar('\\').Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
+		line_buf.Z().CatChar('\\').Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
 		doc_file.WriteLine(line_buf);
 	}
 	for(i = 0; i < num_recs; i++) {
@@ -1063,7 +1063,7 @@ int SLAPI PPObjTag::MakeReserved(long flags)
 		}
 	}
 	if(do_make_doc) {
-		(line_buf = 0).CatChar('\\').Cat("end").CatChar('{').Cat("description").CatChar('}').CR();
+		line_buf.Z().CatChar('\\').Cat("end").CatChar('{').Cat("description").CatChar('}').CR();
 		doc_file.WriteLine(line_buf);
 	}
 	CATCHZOK
@@ -1472,7 +1472,7 @@ StrAssocArray * SLAPI PPObjTag::MakeStrAssocList(void * extraPtr)
 			if(ot_filt.Flags & ObjTagFilt::fObjTypeRoots && parent_id == 0) {
 				parent_id = ObjTagFilt::MakeObjTypeRootIdent(rec.ObjTypeID);
 				if(obj_type_list.addUnique(rec.ObjTypeID) > 0) {
-					GetObjectTitle(rec.ObjTypeID, temp_buf = 0);
+					GetObjectTitle(rec.ObjTypeID, temp_buf.Z());
                     p_list->Add(parent_id, 0, temp_buf);
 				}
 			}
@@ -1581,7 +1581,7 @@ int SLAPI PPObjTag::GetWarnList(const ObjTagList * pTagList, StrAssocArray * pRe
 
 int SLAPI PPObjTag::GetCurrTagVal(const ObjTagItem * pItem, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	return pItem ? pItem->GetStr(rBuf) : -1;
 }
 

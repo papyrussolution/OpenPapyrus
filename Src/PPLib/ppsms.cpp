@@ -450,7 +450,7 @@ int SLAPI PPSmsAccPacket::SetPassword(const char * pPassword)
 
 int SLAPI PPSmsAccPacket::GetPassword(SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 1;
 	SString temp_buf;
 	PPGetExtStrData(SMEXTSTR_PASSWORD, ExtStr, temp_buf);
@@ -1926,7 +1926,7 @@ int SmsClient::SubmitSM(const StSubmitSMParam & rParam, const char * pMessage, b
 		if(rParam.DataCoding == UCS2) {
  			SString str;
 			SStringU ustr;
-			ustr.CopyFromUtf8((str = 0).Cat(pMessage).Transf(CTRANSF_INNER_TO_UTF8)); // Переводим сообщение в UTF-16
+			ustr.CopyFromUtf8(str.Z().Cat(pMessage).Transf(CTRANSF_INNER_TO_UTF8)); // Переводим сообщение в UTF-16
 			CopyUStrToStr(ustr, sbmt_pdu_body.ShortMessage);
 			// Длина сообщения (в байтах)
 			sbmt_pdu_body.MessageLen = (uchar)sbmt_pdu_body.ShortMessage.Len() + 1;
@@ -1947,7 +1947,7 @@ int SmsClient::SubmitSM(const StSubmitSMParam & rParam, const char * pMessage, b
 		if(rParam.DataCoding == UCS2) {
 			SString str;
 			SStringU ustr;
-			ustr.CopyFromUtf8((str = 0).Cat(pMessage).Transf(CTRANSF_INNER_TO_UTF8)); // Переводим сообщение в UTF-16
+			ustr.CopyFromUtf8(str.Z().Cat(pMessage).Transf(CTRANSF_INNER_TO_UTF8)); // Переводим сообщение в UTF-16
 			CopyUStrToStr(ustr, sbmt_extra.PayloadValue);
 			// Длина сообщения (в байтах)
 			message_len = sbmt_extra.PayloadValue.Len() + 1;
@@ -2492,7 +2492,7 @@ int SLAPI SmsClient::SendingSms_(PPID personID, const char * pPhone, const char 
 			THROW(ConnectionState == SMPP_BINDED || P_UhttCli); //
 			if(FormatPhone(org_phone, new_phone, msg_buf = 0)) {
 				THROW(SendSms(new_phone, pText, result = 0));
-				(msg_buf = 0).Cat(org_phone).Space().Cat(result);
+				msg_buf.Z().Cat(org_phone).Space().Cat(result);
 				CALLPTRMEMB(P_Logger, Log(msg_buf));
 				DS.LogAction(PPACN_SMSSENDED, PPOBJ_PERSON, personID, 0, 1); // @v8.0.0
 			}
@@ -2623,7 +2623,7 @@ void SendSmsDialog::FormatText(SString & rSrcMsg, SString & rDestMsg, PPID perso
 //static
 int SLAPI PPSmsSender::GetSubstVar(long p, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 1;
 	SString sub_str;
 	PPLoadText(PPTXT_SMSFIELDS_VARS, sub_str);
@@ -2631,7 +2631,7 @@ int SLAPI PPSmsSender::GetSubstVar(long p, SString & rBuf)
 		rBuf.PadLeft(1, '@');
 	}
 	else {
-		rBuf = 0;
+		rBuf.Z();
 		ok = 0;
 	}
 	return ok;

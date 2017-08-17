@@ -22,7 +22,7 @@ int SLAPI PPHolidays::GetKind(LDATE dt)
 // static
 SString & SLAPI PPHolidays::Format(LDATE dt, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    d, m, y;
 	decodedate(&d, &m, &y, &dt);
 	if(d >= 1 && d <= 7 && m == 0 && y == 0) { // day of week

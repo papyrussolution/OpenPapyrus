@@ -123,7 +123,7 @@ int SLAPI PPDbTableXmlExporter::Run(const char * pOutFileName)
 				n_tbl.PutAttrib("dbuuid", temp_buf);
 			}
 			if(Cntr.GetTotal()) {
-				(temp_buf = 0).Cat(Cntr.GetTotal());
+				temp_buf.Z().Cat(Cntr.GetTotal());
 				n_tbl.PutAttrib("count", temp_buf);
 			}
 			while(Next() > 0) {

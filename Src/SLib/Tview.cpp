@@ -483,7 +483,7 @@ void FASTCALL TView::PreprocessWindowCtrlText(HWND hWnd)
 int FASTCALL TView::SGetWindowClassName(HWND hWnd, SString & rBuf)
 {
 	int    ok = 1;
-	rBuf = 0;
+	rBuf.Z();
 #ifdef UNICODE
 	wchar_t buf[256];
 	int    buf_len = sizeof(buf) / sizeof(buf[0]);
@@ -510,7 +510,7 @@ int FASTCALL TView::SGetWindowClassName(HWND hWnd, SString & rBuf)
 //static
 int FASTCALL TView::SGetWindowText(HWND hWnd, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
     long  text_len = ::SendMessage(hWnd, WM_GETTEXTLENGTH, 0, 0);
     if(text_len > 0) {
     	void * p_text_ptr = 0;
@@ -918,7 +918,7 @@ SLAPI KeyDownCommand::KeyDownCommand()
 int SLAPI KeyDownCommand::GetKeyName(SString & rBuf, int onlySpecKeys) const
 {
 	int    ok = -1;
-	rBuf = 0;
+	rBuf.Z();
 	if(Code) {
 		int    is_func_key = BIN(Code >= VK_F1 && Code <= VK_F12);
 		if(!onlySpecKeys || is_func_key || State & stateAlt || State & stateCtrl) {

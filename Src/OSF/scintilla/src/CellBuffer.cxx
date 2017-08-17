@@ -14,7 +14,7 @@
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "CellBuffer.h"
-#include "UniConversion.h"
+//#include "UniConversion.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

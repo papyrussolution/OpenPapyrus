@@ -163,9 +163,9 @@ int ExcelDbFile::GetFldNames()
 		if(P_Sheet->GetValue(row, col, temp_buf = 0) > 0 && temp_buf.NotEmptyS())
 			FldNames.add(temp_buf.ToUpper());
 		else if(is_vert)
-			FldNames.add((temp_buf = 0).CatChar('$').Cat(row));
+			FldNames.add(temp_buf.Z().CatChar('$').Cat(row));
 		else
-			FldNames.add((temp_buf = 0).CatChar('$').Cat(col));
+			FldNames.add(temp_buf.Z().CatChar('$').Cat(col));
 		if(is_vert)
 			row++;
 		else
@@ -229,7 +229,7 @@ int ExcelDbFile::Scan()
 		row = is_vert ? 1 + P.HdrLinesCount : row;
 		col = is_vert ? col : 1 + P.ColumnsCount;
 		while(/*!found_data && */!end_rec) {
-			P_Sheet->GetValue(row, col, temp_buf = 0);
+			P_Sheet->GetValue(row, col, temp_buf.Z());
 			const  int is_empty = BIN(!temp_buf.NotEmpty());
 			if(!is_empty || end_str_decl)
 				empty_count = 0;

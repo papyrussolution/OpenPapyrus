@@ -1699,7 +1699,7 @@ int SLAPI PPObjStyloPalm::ReadInput(PPID id, PalmInputParam * pParam, long flags
 
 static SString & SLAPI MakeBillCode(const PPStyloPalm & rDvcRec, int orderCodeFormatType, const char * pSrcCode, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	const size_t max_len = sizeof(((BillTbl::Rec *)0)->Code)-1;
 	if(!oneof3(orderCodeFormatType, PPStyloPalmConfig::ordercodeIdHash, PPStyloPalmConfig::ordercodeSymbName, PPStyloPalmConfig::ordercodeNameSymb))
 		orderCodeFormatType = PPStyloPalmConfig::ordercodeSymbName;
@@ -1775,19 +1775,19 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 		ObjTagItem tag;
 		// Дата и время начала создания заказа
 		if(pSrcPack->Hdr.CreateDtm != ZERODATETIME) {
-			pack.BTagL.PutItemStr(PPTAG_BILL_CREATEDTM, (temp_buf = 0).Cat(pSrcPack->Hdr.CreateDtm));
+			pack.BTagL.PutItemStr(PPTAG_BILL_CREATEDTM, temp_buf.Z().Cat(pSrcPack->Hdr.CreateDtm));
 		}
 		// Дата и время окончания создания заказа
 		if(pSrcPack->Hdr.CreateDtmEnd != ZERODATETIME) {
-			pack.BTagL.PutItemStr(PPTAG_BILL_CREATEDTMEND, (temp_buf = 0).Cat(pSrcPack->Hdr.CreateDtmEnd));
+			pack.BTagL.PutItemStr(PPTAG_BILL_CREATEDTMEND, temp_buf.Z().Cat(pSrcPack->Hdr.CreateDtmEnd));
 		}
 		// Координаты начала создания заказа
 		if(pSrcPack->Hdr.Latitude != 0.0 || pSrcPack->Hdr.Longitude != 0.0) {
-			pack.BTagL.PutItemStr(PPTAG_BILL_GPSCOORD, (temp_buf = 0).Cat(pSrcPack->Hdr.Latitude).CatChar(',').Cat(pSrcPack->Hdr.Longitude));
+			pack.BTagL.PutItemStr(PPTAG_BILL_GPSCOORD, temp_buf.Z().Cat(pSrcPack->Hdr.Latitude).CatChar(',').Cat(pSrcPack->Hdr.Longitude));
 		}
 		// Координаты окончания создания заказа
 		if(pSrcPack->Hdr.LatitudeEnd != 0.0 || pSrcPack->Hdr.LongitudeEnd != 0.0) {
-			pack.BTagL.PutItemStr(PPTAG_BILL_GPSCOORDEND, (temp_buf = 0).Cat(pSrcPack->Hdr.LatitudeEnd).CatChar(',').Cat(pSrcPack->Hdr.LongitudeEnd));
+			pack.BTagL.PutItemStr(PPTAG_BILL_GPSCOORDEND, temp_buf.Z().Cat(pSrcPack->Hdr.LatitudeEnd).CatChar(',').Cat(pSrcPack->Hdr.LongitudeEnd));
 		}
 		// @v9.2.11 {
 		pack.BTagL.PutItemStr(PPTAG_BILL_EDICHANNEL, "STYLOAGENT");
@@ -1850,7 +1850,7 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 			ok = 1;
 			//accepted_ord_count++;
 			if(pLogger) { // Выведем подробную информацию о том, что заказ принят
-				(msg_buf = 0).Printf(PPLoadTextS(PPTXT_ORDACCEPTED, fmt_buf), pack.Rec.Code, (temp_buf = 0).Cat(pack.Rec.Dt).cptr(), palm_rec.Name);
+				msg_buf.Z().Printf(PPLoadTextS(PPTXT_ORDACCEPTED, fmt_buf), pack.Rec.Code, temp_buf.Z().Cat(pack.Rec.Dt).cptr(), palm_rec.Name);
 				pLogger->Log(msg_buf);
 			}
 		}
@@ -3366,7 +3366,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 	THROW(p_qk_tbl = Palm_CreateDbfTable(PPFILNAM_PALM_QUOTKIND, DBFS_PALM_QUOTKIND));
 	{
 		PPImpExpParam param_quots;
-		PPGetFilePath(PPPATH_OUT, PPFILNAM_PALM_QUOTS, temp_buf = 0);
+		PPGetFilePath(PPPATH_OUT, PPFILNAM_PALM_QUOTS, temp_buf.Z());
 		THROW(InitImpExpDbfParam(PPREC_PALMQUOT, &param_quots, temp_buf, 1));
 		THROW_MEM(p_ie_quots = new PPImpExp(&param_quots, 0));
 		THROW(p_ie_quots->OpenFileForWriting(0, 1));
@@ -3476,7 +3476,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 	if(pPack->Rec.Flags & PLMF_EXPBRAND) {
 		PPImpExpParam param_brand;
 		THROW(CreateBrandList(rBlk));
-		PPGetFilePath(PPPATH_OUT, PPFILNAM_PALM_BRAND, temp_buf = 0);
+		PPGetFilePath(PPPATH_OUT, PPFILNAM_PALM_BRAND, temp_buf.Z());
 		THROW(InitImpExpDbfParam(PPREC_SPIIBRAND, &param_brand, temp_buf, 1));
 		THROW_MEM(p_ie_brand = new PPImpExp(&param_brand, 0));
 		THROW(p_ie_brand->OpenFileForWriting(0, 1));
@@ -3498,7 +3498,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 	if(pPack->Rec.Flags & PLMF_EXPLOC) {
 		PPImpExpParam param_loc;
 		THROW(CreateWhList(rBlk));
-		PPGetFilePath(PPPATH_OUT, PPFILNAM_PALM_LOC, temp_buf = 0);
+		PPGetFilePath(PPPATH_OUT, PPFILNAM_PALM_LOC, temp_buf.Z());
 		THROW(InitImpExpDbfParam(PPREC_SPIILOC, &param_loc, temp_buf, 1));
 		THROW_MEM(p_ie_loc = new PPImpExp(&param_loc, 0));
 		THROW(p_ie_loc->OpenFileForWriting(0, 1));
@@ -4629,7 +4629,7 @@ int PPALDD_UhttStyloDevice::InitData(PPFilt & rFilt, long rsrv)
 		H.DeviceVer = r_blk.Pack.Rec.DeviceVer;
 		STRNSCPY(H.Name, r_blk.Pack.Rec.Name);
 		STRNSCPY(H.Symb, r_blk.Pack.Rec.Symb);
-        (temp_buf = 0).Cat(r_blk.Pack.Rec.RegisterTime, DATF_ISO8601|DATF_CENTURY, 0);
+        temp_buf.Z().Cat(r_blk.Pack.Rec.RegisterTime, DATF_ISO8601|DATF_CENTURY, 0);
         STRNSCPY(H.RegisterTime, temp_buf);
 		ok = DlRtm::InitData(rFilt, rsrv);
 	}
@@ -4669,7 +4669,7 @@ int PPALDD_UhttStyloDevice::Set(long iterId, int commit)
 			if(r_blk.Pack.Rec.Symb[0] && r_blk.SpObj.SearchBySymb(r_blk.Pack.Rec.Symb, &id_by_symb, 0) > 0) {
 			}
 			if(id_by_name) {
-				(temp_buf = 0).Cat(r_blk.Pack.Rec.Name).CatDiv(':', 1).Cat(r_blk.Pack.Rec.Symb);
+				temp_buf.Z().Cat(r_blk.Pack.Rec.Name).CatDiv(':', 1).Cat(r_blk.Pack.Rec.Symb);
 				THROW_PP_S(!id_by_name || !id_by_symb || id_by_name == id_by_symb, PPERR_STYLONAMESYMBCONFLICT, temp_buf);
 				r_blk.Pack.Rec.ID = id_by_name;
 			}

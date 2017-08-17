@@ -565,7 +565,7 @@ BarcodeFormatToken SLAPI BarcodeLabel::NextToken(char ** ppLine, char * pBuf, si
 						int    hc = 0;
 						if(isxdigit(*s)) {
 							int    h = toupper(*s);
-							if(isdigit(h))
+							if(isdec(h))
 								hc += (h-'0');
 							else if(h >= 'A' && h <= 'F')
 								hc += 10 + (h-'A');
@@ -573,7 +573,7 @@ BarcodeFormatToken SLAPI BarcodeLabel::NextToken(char ** ppLine, char * pBuf, si
 							if(isxdigit(*s)) {
 								hc *= 16;
 								h = toupper(*s);
-								if(isdigit(h))
+								if(isdec(h))
 									hc += (h-'0');
 								else if(h >= 'A' && h <= 'F')
 									hc += 10 + (h-'A');
@@ -624,7 +624,7 @@ BarcodeFormatToken SLAPI BarcodeLabel::NextToken(char ** ppLine, char * pBuf, si
 							size_t len = strlen(word);
 							tok = tokNumber;
 							for(size_t i = 0; tok != tokIdent && i < len; i++)
-								if(!isdigit(word[i]))
+								if(!isdec(word[i]))
 									tok = tokIdent;
 						}
 						break;

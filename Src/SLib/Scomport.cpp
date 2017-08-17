@@ -47,7 +47,7 @@ SString & SLAPI GetComDvcSymb(int comdvcs, int count, int option, SString & rBuf
 	const long   s_lpt = 0x0054504CL; // "LPT"
 	const long   s_prn = 0x004E5250L; // "PRN"
 	const long   s_con = 0x004E4F43L; // "CON"
-	rBuf = 0;
+	rBuf.Z();
 	if(option & 0x0001)
 		rBuf.CatCharN('\\', 2).Dot().CatChar('\\');
 	if(comdvcs == comdvcsPrn)

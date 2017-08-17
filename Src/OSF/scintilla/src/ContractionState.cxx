@@ -84,13 +84,13 @@ int ContractionState::DocFromDisplay(int lineDisplay) const
 	if(OneToOne()) {
 		return lineDisplay;
 	}
+	else if(lineDisplay <= 0) {
+		return 0;
+	}
+	else if(lineDisplay > LinesDisplayed()) {
+		return displayLines->PartitionFromPosition(LinesDisplayed());
+	}
 	else {
-		if(lineDisplay <= 0) {
-			return 0;
-		}
-		if(lineDisplay > LinesDisplayed()) {
-			return displayLines->PartitionFromPosition(LinesDisplayed());
-		}
 		int lineDoc = displayLines->PartitionFromPosition(lineDisplay);
 		PLATFORM_ASSERT(GetVisible(lineDoc));
 		return lineDoc;
@@ -152,10 +152,7 @@ void ContractionState::DeleteLines(int lineDoc, int lineCount)
 
 bool ContractionState::GetVisible(int lineDoc) const
 {
-	if(OneToOne())
-		return true;
-	else
-		return (lineDoc >= visible->Length()) ? true : (visible->ValueAt(lineDoc) == 1);
+	return OneToOne() ? true : ((lineDoc >= visible->Length()) ? true : (visible->ValueAt(lineDoc) == 1));
 }
 
 bool ContractionState::SetVisible(int lineDocStart, int lineDocEnd, bool isVisible)

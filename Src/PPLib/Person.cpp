@@ -581,7 +581,7 @@ int SLAPI PPELinkArray::GetItem(PPID kindID, SString & rBuf) const
 		return 1;
 	}
 	else {
-		rBuf = 0;
+		rBuf.Z();
 		return -1;
 	}
 }
@@ -606,7 +606,7 @@ int SLAPI PPELinkArray::GetListByType(PPID eLinkType, StringSet & rSs) const
 
 int SLAPI PPELinkArray::GetPhones(uint maxCount, SString & rBuf, long elinkType /* = ELNKRT_PHONE */) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	StringSet ss;
 	int    ok = GetListByType(elinkType, ss);
 	if(ok > 0) {
@@ -622,7 +622,7 @@ int SLAPI PPELinkArray::GetPhones(uint maxCount, SString & rBuf, long elinkType 
 
 int SLAPI PPELinkArray::GetSinglePhone(SString & rBuf, uint * pPos) const
 {
-	rBuf = 0;
+	rBuf.Z();
 
 	int    ok = -1;
 	uint   pos = 0;
@@ -653,7 +653,7 @@ int SLAPI PPELinkArray::GetSinglePhone(SString & rBuf, uint * pPos) const
 	if(ok > 0)
 		rBuf = at(pos).Addr;
 	else
-		rBuf = 0;
+		rBuf.Z();
 	ASSIGN_PTR(pPos, pos);
 	return ok;
 }
@@ -758,7 +758,7 @@ int SLAPI PPPersonPacket::GetRegNumber(PPID regTyp, SString & rBuf) const
 
 int SLAPI PPPersonPacket::GetSrchRegNumber(PPID * pRegTypeID, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 
 	int    ok = -1;
 	PPID   reg_type_id = 0;

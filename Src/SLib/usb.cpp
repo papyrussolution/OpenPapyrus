@@ -313,7 +313,7 @@ int FASTCALL SUsbDvcIfcData::Get(void * pHandle, SP_DEVICE_INTERFACE_DATA * pDvc
 
 int SUsbDvcIfcData::GetPropString(void * pHandle, int prop, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 
 	int    ok = 1;
 	uint8  __buffer[512];
@@ -869,7 +869,7 @@ int FASTCALL SRawInputData::Get(long rawInputHandle)
 
 int FASTCALL SRawInputData::GetDeviceName(SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 
 	int    ok = -1;
 	char   __buffer[512];

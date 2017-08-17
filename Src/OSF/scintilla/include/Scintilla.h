@@ -19,370 +19,6 @@
 #include <math.h>
 #include <assert.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-#if defined(_WIN32)
-	// Return false on failure: 
-	int Scintilla_RegisterClasses(void *hInstance);
-	int Scintilla_ReleaseResources(void);
-#endif
-int Scintilla_LinkLexers(void);
-
-#ifdef __cplusplus
-}
-#endif
-
-// Include header that defines basic numeric types.
-#if defined(_MSC_VER)
-	// Older releases of MSVC did not have stdint.h.
-	#include <stddef.h>
-#else
-	#include <stdint.h>
-#endif
-typedef uintptr_t uptr_t; // Define uptr_t, an unsigned integer type large enough to hold a pointer.
-typedef intptr_t  sptr_t; // Define sptr_t, a signed integer large enough to hold a pointer.
-
-//#include "Sci_Position.h"
-typedef int Sci_Position; // Basic signed type used throughout interface
-typedef uint Sci_PositionU; // Unsigned variant used for ILexer::Lex and ILexer::Fold
-typedef long Sci_PositionCR; // For Sci_CharacterRange  which is defined as long to be compatible with Win32 CHARRANGE
-#include "ILexer.h" // @sobolev
-#include "SciLexer.h" // @sobolev
-//#include "LexerModule.h"
-//#include "LexAccessor.h" // @sobolev
-//#include "Accessor.h" // @sobolev
-//#include "StyleContext.h" // @sobolev
-//#include "CharacterSet.h" // @sobolev
-//#include "PropSetSimple.h"
-//#include "Position.h"
-// 
-// A Position is a position within a document between two characters or at the beginning or end.
-// Sometimes used as a character index where it identifies the character after the position.
-// 
-namespace Sci {
-	typedef int Position;
-	// A later version (4.x) of this file may:
-	//#if defined(SCI_LARGE_FILE_SUPPORT)
-	//typedef std::ptrdiff_t Position;
-	// or may allow runtime choice between different position sizes.
-	const Position invalidPosition = -1;
-}
-
-//#include "StringCopy.h" // @sobolev
-//#include "WordList.h" // @sobolev
-
-#ifdef SCI_NAMESPACE
-namespace Scintilla {
-#endif
-	//#define ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
-	//
-	// Safer version of string copy functions like strcpy, wcsncpy, etc.
-	// Instantiate over fixed length strings of both char and wchar_t.
-	// May truncate if source doesn't fit into dest with room for NUL.
-	//
-	/* (все использования заменены на STRNSCPY) template <typename T, size_t count> void StringCopy(T(&dest)[count], const T* source)
-	{
-		for(size_t i = 0; i<count; i++) {
-			dest[i] = source[i];
-			if(!source[i])
-				break;
-		}
-		dest[count-1] = 0;
-	}*/
-	//
-	//
-	//
-	class CharacterSet {
-	private:
-		int    size;
-		bool   valueAfter;
-		bool * bset;
-	public:
-		enum setBase {
-			setNone = 0,
-			setLower = 1,
-			setUpper = 2,
-			setDigits = 4,
-			setAlpha = setLower|setUpper,
-			setAlphaNum = setAlpha|setDigits
-		};
-		CharacterSet(setBase base = setNone, const char * initialSet = "", int size_ = 0x80, bool valueAfter_ = false);
-		CharacterSet(const CharacterSet &other);
-		~CharacterSet();
-		CharacterSet & FASTCALL operator = (const CharacterSet &other);
-		void FASTCALL Add(int val);
-		void FASTCALL AddString(const char * setToAdd);
-		bool FASTCALL Contains(int val) const;
-	};
-	//
-	// Functions for classifying characters
-	//
-	bool FASTCALL IsASpace(int ch);
-	bool FASTCALL IsASpaceOrTab(int ch);
-	bool FASTCALL IsADigit(int ch);
-	bool FASTCALL IsADigit(int ch, int base);
-	bool FASTCALL IsASCII(int ch);
-	bool FASTCALL IsLowerCase(int ch);
-	bool FASTCALL IsUpperCase(int ch);
-	bool FASTCALL IsAlphaNumeric(int ch);
-	// 
-	// Check if a character is a space.
-	// This is ASCII specific but is safe with chars >= 0x80.
-	// 
-	bool FASTCALL isspacechar(int ch);
-	bool FASTCALL iswordchar(int ch);
-	bool FASTCALL iswordstart(int ch);
-	bool FASTCALL isoperator(int ch);
-	//
-	// Simple case functions for ASCII.
-	//
-	int FASTCALL MakeUpperCase(int ch);
-	int FASTCALL MakeLowerCase(int ch);
-
-	int CompareCaseInsensitive(const char * a, const char * b);
-	int CompareNCaseInsensitive(const char * a, const char * b, size_t len);
-	//
-	//
-	//
-	enum EncodingType { 
-		enc8bit, 
-		encUnicode, 
-		encDBCS 
-	};
-
-	class LexAccessor {
-	private:
-		IDocument * pAccess;
-		enum {
-			extremePosition = 0x7FFFFFFF
-		};
-		/** @a bufferSize is a trade off between time taken to copy the characters
-		 * and retrieval overhead.
-		 * @a slopSize positions the buffer before the desired position
-		 * in case there is some backtracking. */
-		enum {
-			bufferSize = 4000, 
-			slopSize = bufferSize/8
-		};
-		char buf[bufferSize+1];
-		Sci_Position startPos;
-		Sci_Position endPos;
-		int codePage;
-		enum EncodingType encodingType;
-		Sci_Position lenDoc;
-		char styleBuf[bufferSize];
-		Sci_Position validLen;
-		Sci_PositionU startSeg;
-		Sci_Position startPosStyling;
-		int documentVersion;
-
-		void FASTCALL Fill(Sci_Position position);
-	public:
-		explicit LexAccessor(IDocument * pAccess_);
-		char FASTCALL operator[] (Sci_Position position);
-		IDocumentWithLineEnd * MultiByteAccess() const;
-		//
-		// Safe version of operator[], returning a defined value for invalid position
-		//
-		char SafeGetCharAt(Sci_Position position, char chDefault = ' ');
-		bool FASTCALL IsLeadByte(char ch) const;
-		EncodingType Encoding() const;
-		bool Match(Sci_Position pos, const char * s);
-		char FASTCALL StyleAt(Sci_Position position) const;
-		Sci_Position FASTCALL GetLine(Sci_Position position) const;
-		Sci_Position FASTCALL LineStart(Sci_Position line) const;
-		Sci_Position FASTCALL LineEnd(Sci_Position line);
-		int FASTCALL LevelAt(Sci_Position line) const;
-		Sci_Position Length() const;
-		void Flush();
-		int FASTCALL GetLineState(Sci_Position line) const;
-		int SetLineState(Sci_Position line, int state);
-		// Style setting
-		void FASTCALL StartAt(Sci_PositionU start);
-		Sci_PositionU GetStartSegment() const;
-		void FASTCALL StartSegment(Sci_PositionU pos);
-		void ColourTo(Sci_PositionU pos, int chAttr);
-		void SetLevel(Sci_Position line, int level);
-		void IndicatorFill(Sci_Position start, Sci_Position end, int indicator, int value);
-		void ChangeLexerState(Sci_Position start, Sci_Position end);
-	};
-	//
-	//
-	//
-	enum { 
-		wsSpace=1, 
-		wsTab=2, 
-		wsSpaceTab=4, 
-		wsInconsistent=8 
-	};
-
-	class Accessor;
-	class WordList;
-	class PropSetSimple;
-
-	typedef bool (*PFNIsCommentLeader)(Accessor &styler, Sci_Position pos, Sci_Position len);
-
-	class Accessor : public LexAccessor {
-	public:
-		PropSetSimple *pprops;
-		Accessor(IDocument *pAccess_, PropSetSimple *pprops_);
-		int GetPropertyInt(const char *, int defaultValue=0) const;
-		int IndentAmount(Sci_Position line, int *flags, PFNIsCommentLeader pfnIsCommentLeader = 0);
-	};
-	//
-	// All languages handled so far can treat all characters >= 0x80 as one class
-	// which just continues the current token or starts an identifier if in default.
-	// DBCS treated specially as the second character can be < 0x80 and hence
-	// syntactically significant. UTF-8 avoids this as all trail bytes are >= 0x80
-	//
-	class StyleContext {
-	private:
-		LexAccessor & styler;
-		IDocumentWithLineEnd * multiByteAccess;
-		Sci_PositionU endPos;
-		Sci_PositionU lengthDocument;
-
-		// Used for optimizing GetRelativeCharacter
-		Sci_PositionU posRelative;
-		Sci_PositionU currentPosLastRelative;
-		Sci_Position offsetRelative;
-
-		StyleContext & operator = (const StyleContext &);
-
-		void   GetNextChar();
-	public:
-		Sci_PositionU currentPos;
-		Sci_Position currentLine;
-		Sci_Position lineDocEnd;
-		Sci_Position lineStartNext;
-		bool atLineStart;
-		bool atLineEnd;
-		int state;
-		int chPrev;
-		int ch;
-		Sci_Position width;
-		int chNext;
-		Sci_Position widthNext;
-
-		StyleContext(Sci_PositionU startPos, Sci_PositionU length, int initStyle, LexAccessor &styler_, char chMask = '\377');
-		void   Complete();
-		bool   More() const;
-		void   Forward();
-		void   FASTCALL Forward(Sci_Position nb);
-		void   FASTCALL ForwardBytes(Sci_Position nb);
-		void   FASTCALL ChangeState(int state_);
-		void   FASTCALL SetState(int state_);
-		void   FASTCALL ForwardSetState(int state_);
-		Sci_Position LengthCurrent() const;
-		int    FASTCALL GetRelative(Sci_Position n);
-		int    FASTCALL GetRelativeCharacter(Sci_Position n);
-		bool   FASTCALL Match(char ch0) const;
-		bool   FASTCALL Match(char ch0, char ch1) const;
-		bool   FASTCALL Match(const char * s);
-		// Non-inline
-		bool   FASTCALL MatchIgnoreCase(const char * s);
-		void   GetCurrent(char * s, Sci_PositionU len);
-		void   GetCurrentLowered(char * s, Sci_PositionU len);
-	};
-	//
-	//
-	//
-	class PropSetSimple {
-	private:
-		void * impl;
-		void   Set(const char *keyVal);
-	public:
-		PropSetSimple();
-		virtual ~PropSetSimple();
-		void   Set(const char *key, const char *val, int lenKey=-1, int lenVal=-1);
-		void   SetMultiple(const char *);
-		const  char *Get(const char *key) const;
-		int    GetExpanded(const char *key, char *result) const;
-		int    GetInt(const char *key, int defaultValue=0) const;
-	};
-
-	class WordList {
-	private:
-		// Each word contains at least one character - a empty word acts as sentinel at the end.
-		char ** words;
-		char * list;
-		int    len;
-		bool   onlyLineEnds; ///< Delimited by any white space or only line ends
-		int    starts[256];
-	public:
-		explicit WordList(bool onlyLineEnds_ = false);
-		~WordList();
-		operator bool() const;
-		bool   FASTCALL operator != (const WordList &other) const;
-		int    Length() const;
-		void   Clear();
-		void   FASTCALL Set(const char *s);
-		bool   FASTCALL InList(const char *s) const;
-		bool   InListAbbreviated(const char *s, const char marker) const;
-		bool   InListAbridged(const char *s, const char marker) const;
-		const char * FASTCALL WordAt(int n) const;
-	};
-
-	//class Accessor;
-	//class WordList;
-
-	typedef void (*LexerFunction)(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, WordList *keywordlists[], Accessor &styler);
-	typedef ILexer *(*LexerFactoryFunction)();
-	// 
-	// A LexerModule is responsible for lexing and folding a particular language.
-	// The class maintains a list of LexerModules which can be searched to find a
-	// module appropriate to a particular language.
-	// 
-	class LexerModule {
-	protected:
-		int language;
-		LexerFunction fnLexer;
-		LexerFunction fnFolder;
-		LexerFactoryFunction fnFactory;
-		const char * const * wordListDescriptions;
-	public:
-		const char *languageName;
-		LexerModule(int language_, LexerFunction fnLexer_, const char *languageName_=0, LexerFunction fnFolder_=0, const char * const wordListDescriptions_[] = NULL);
-		LexerModule(int language_, LexerFactoryFunction fnFactory_, const char *languageName_, const char * const wordListDescriptions_[] = NULL);
-		virtual ~LexerModule();
-		int GetLanguage() const { return language; }
-		// -1 is returned if no WordList information is available
-		int GetNumWordLists() const;
-		const char *GetWordListDescription(int index) const;
-		ILexer *Create() const;
-		virtual void Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor &styler) const;
-		virtual void Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor &styler) const;
-		friend class Catalogue;
-	};
-
-	class Catalogue {
-	public:
-		static const LexerModule * FASTCALL Find(int language);
-		static const LexerModule * FASTCALL Find(const char *languageName);
-		static void AddLexerModule(LexerModule *plm);
-	};
-
-	/*inline int Maximum(int a, int b) 
-	{
-		return (a > b) ? a : b;
-	}*/
-
-	// Shut up annoying Visual C++ warnings:
-	#ifdef _MSC_VER
-		#pragma warning(disable: 4244 4456 4457)
-	#endif
-	// Turn off shadow warnings for lexers as may be maintained by others
-	#if defined(__GNUC__)
-		#pragma GCC diagnostic ignored "-Wshadow"
-	#endif
-
-#ifdef SCI_NAMESPACE
-}
-#endif
-
-typedef sptr_t (*SciFnDirect)(sptr_t ptr, uint iMessage, uptr_t wParam, sptr_t lParam);
-
 /* ++Autogenerated -- start of section automatically generated from Scintilla.iface */
 #define INVALID_POSITION -1
 #define SCI_START 2000
@@ -1437,10 +1073,977 @@ typedef sptr_t (*SciFnDirect)(sptr_t ptr, uint iMessage, uptr_t wParam, sptr_t l
 #define SCN_MARGINRIGHTCLICK 2031
 /* --Autogenerated -- end of section automatically generated from Scintilla.iface */
 
-/* These structures are defined to be exactly the same shape as the Win32
- * CHARRANGE, TEXTRANGE, FINDTEXTEX, FORMATRANGE, and NMHDR structs.
- * So older code that treats Scintilla as a RichEdit will work. */
+#ifdef __cplusplus
+extern "C" {
+#endif
+#if defined(_WIN32)
+	// Return false on failure: 
+	int Scintilla_RegisterClasses(void *hInstance);
+	int Scintilla_ReleaseResources(void);
+#endif
+int Scintilla_LinkLexers(void);
 
+#ifdef __cplusplus
+}
+#endif
+
+// Include header that defines basic numeric types.
+#if defined(_MSC_VER)
+	// Older releases of MSVC did not have stdint.h.
+	#include <stddef.h>
+#else
+	#include <stdint.h>
+#endif
+typedef uintptr_t uptr_t; // Define uptr_t, an unsigned integer type large enough to hold a pointer.
+typedef intptr_t  sptr_t; // Define sptr_t, a signed integer large enough to hold a pointer.
+
+//#include "Sci_Position.h"
+typedef int Sci_Position; // Basic signed type used throughout interface
+typedef uint Sci_PositionU; // Unsigned variant used for ILexer::Lex and ILexer::Fold
+typedef long Sci_PositionCR; // For Sci_CharacterRange  which is defined as long to be compatible with Win32 CHARRANGE
+#include "ILexer.h" // @sobolev
+#include "SciLexer.h" // @sobolev
+//#include "LexerModule.h"
+//#include "LexAccessor.h" // @sobolev
+//#include "Accessor.h" // @sobolev
+//#include "StyleContext.h" // @sobolev
+//#include "CharacterSet.h" // @sobolev
+//#include "PropSetSimple.h"
+//#include "Position.h"
+// 
+// A Position is a position within a document between two characters or at the beginning or end.
+// Sometimes used as a character index where it identifies the character after the position.
+// 
+namespace Sci {
+	typedef int Position;
+	// A later version (4.x) of this file may:
+	//#if defined(SCI_LARGE_FILE_SUPPORT)
+	//typedef std::ptrdiff_t Position;
+	// or may allow runtime choice between different position sizes.
+	const Position invalidPosition = -1;
+}
+
+//#include "StringCopy.h" // @sobolev
+//#include "WordList.h" // @sobolev
+
+#ifdef SCI_NAMESPACE
+namespace Scintilla {
+#endif
+	typedef float XYPOSITION;
+	typedef double XYACCUMULATOR;
+	class Font;
+	class Accessor;
+	class WordList;
+	class PropSetSimple;
+	class ICaseConverter;
+	//
+	// Underlying the implementation of the platform classes are platform specific types.
+	// Sometimes these need to be passed around by client code so they are defined here
+	//
+	typedef void * FontID;
+	typedef void * SurfaceID;
+	typedef void * WindowID;
+	typedef void * MenuID;
+	typedef void * TickerID;
+	typedef void * Function;
+	typedef void * IdlerID;
+
+	inline int RoundXYPosition(XYPOSITION xyPos)
+	{
+		return int(xyPos + 0.5);
+	}
+	// 
+	// A geometric point class.
+	// Point is similar to the Win32 POINT and GTK+ GdkPoint types.
+	// 
+	class Point {
+	public:
+		XYPOSITION x;
+		XYPOSITION y;
+		explicit Point(XYPOSITION x_ = 0, XYPOSITION y_ = 0) : x(x_), y(y_)
+		{
+		}
+		static Point FromInts(int x_, int y_)
+		{
+			return Point(static_cast<XYPOSITION>(x_), static_cast<XYPOSITION>(y_));
+		}
+		// Other automatically defined methods (assignment, copy constructor, destructor) are fine
+		static Point FromLong(long lpoint);
+	};
+	/**
+	 * A geometric rectangle class.
+	 * PRectangle is similar to the Win32 RECT.
+	 * PRectangles contain their top and left sides, but not their right and bottom sides.
+	 */
+	class PRectangle {
+	public:
+		XYPOSITION left;
+		XYPOSITION top;
+		XYPOSITION right;
+		XYPOSITION bottom;
+
+		explicit PRectangle(XYPOSITION left_/*= 0*/, XYPOSITION top_/*= 0*/, XYPOSITION right_/*= 0*/, XYPOSITION bottom_/*= 0*/);
+		explicit PRectangle();
+		static PRectangle FromInts(int left_, int top_, int right_, int bottom_);
+		// Other automatically defined methods (assignment, copy constructor, destructor) are fine
+		bool FASTCALL operator == (const PRectangle & rc) const;
+		bool FASTCALL Contains(const Point & pt) const;
+		bool FASTCALL ContainsWholePixel(const Point & pt) const;
+		bool FASTCALL Contains(const PRectangle & rc) const;
+		bool FASTCALL Intersects(const PRectangle & other) const;
+		void Move(XYPOSITION xDelta, XYPOSITION yDelta);
+		XYPOSITION PRectangle::Width() const
+		{
+			return right - left;
+		}
+		XYPOSITION PRectangle::Height() const
+		{
+			return bottom - top;
+		}
+		bool Empty() const;
+	};
+	// 
+	// Holds a desired RGB colour.
+	// 
+	class ColourDesired {
+		long co;
+	public:
+		ColourDesired(long lcol = 0)
+		{
+			co = lcol;
+		}
+		ColourDesired(uint red, uint green, uint blue)
+		{
+			Set(red, green, blue);
+		}
+		bool FASTCALL operator == (const ColourDesired &other) const
+		{
+			return co == other.co;
+		}
+		void FASTCALL Set(long lcol)
+		{
+			co = lcol;
+		}
+		void Set(uint red, uint green, uint blue)
+		{
+			co = red | (green << 8) | (blue << 16);
+		}
+		static inline uint ValueOfHex(const char ch)
+		{
+			if(ch >= '0' && ch <= '9')
+				return ch - '0';
+			else if(ch >= 'A' && ch <= 'F')
+				return ch - 'A' + 10;
+			else if(ch >= 'a' && ch <= 'f')
+				return ch - 'a' + 10;
+			else
+				return 0;
+		}
+		void FASTCALL Set(const char * val)
+		{
+			if(*val == '#') {
+				val++;
+			}
+			uint r = ValueOfHex(val[0]) * 16 + ValueOfHex(val[1]);
+			uint g = ValueOfHex(val[2]) * 16 + ValueOfHex(val[3]);
+			uint b = ValueOfHex(val[4]) * 16 + ValueOfHex(val[5]);
+			Set(r, g, b);
+		}
+		long AsLong() const
+		{
+			return co;
+		}
+		uint GetRed() const
+		{
+			return co & 0xff;
+		}
+		uint GetGreen() const
+		{
+			return (co >> 8) & 0xff;
+		}
+		uint GetBlue() const
+		{
+			return (co >> 16) & 0xff;
+		}
+	};
+	// 
+	// A surface abstracts a place to draw.
+	// 
+	class Surface {
+	private:
+		// Private so Surface objects can not be copied
+		Surface(const Surface &)
+		{
+		}
+		Surface & operator= (const Surface &)
+		{
+			return *this;
+		}
+	public:
+		Surface()
+		{
+		}
+		virtual ~Surface()
+		{
+		}
+		static Surface * FASTCALL Allocate(int technology);
+
+		virtual void Init(WindowID wid) = 0;
+		virtual void Init(SurfaceID sid, WindowID wid) = 0;
+		virtual void InitPixMap(int width, int height, Surface * surface_, WindowID wid) = 0;
+
+		virtual void Release() = 0;
+		virtual bool Initialised() = 0;
+		virtual void PenColour(ColourDesired fore) = 0;
+		virtual int LogPixelsY() = 0;
+		virtual int DeviceHeightFont(int points) = 0;
+		virtual void MoveTo(int x_, int y_) = 0;
+		virtual void LineTo(int x_, int y_) = 0;
+		virtual void Polygon(Point * pts, int npts, ColourDesired fore, ColourDesired back) = 0;
+		virtual void RectangleDraw(PRectangle rc, ColourDesired fore, ColourDesired back) = 0;
+		virtual void FillRectangle(PRectangle rc, ColourDesired back) = 0;
+		virtual void FillRectangle(PRectangle rc, Surface &surfacePattern) = 0;
+		virtual void RoundedRectangle(PRectangle rc, ColourDesired fore, ColourDesired back) = 0;
+		virtual void AlphaRectangle(PRectangle rc, int cornerSize, ColourDesired fill, int alphaFill, ColourDesired outline, int alphaOutline, int flags) = 0;
+		virtual void DrawRGBAImage(PRectangle rc, int width, int height, const uchar * pixelsImage) = 0;
+		virtual void Ellipse(PRectangle rc, ColourDesired fore, ColourDesired back) = 0;
+		virtual void Copy(PRectangle rc, Point from, Surface &surfaceSource) = 0;
+
+		virtual void DrawTextNoClip(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back) = 0;
+		virtual void DrawTextClipped(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back) = 0;
+		virtual void DrawTextTransparent(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore) = 0;
+		virtual void MeasureWidths(Font &font_, const char * s, int len, XYPOSITION * positions) = 0;
+		virtual XYPOSITION WidthText(Font &font_, const char * s, int len) = 0;
+		virtual XYPOSITION WidthChar(Font &font_, char ch) = 0;
+		virtual XYPOSITION Ascent(Font &font_) = 0;
+		virtual XYPOSITION Descent(Font &font_) = 0;
+		virtual XYPOSITION InternalLeading(Font &font_) = 0;
+		virtual XYPOSITION ExternalLeading(Font &font_) = 0;
+		virtual XYPOSITION Height(Font &font_) = 0;
+		virtual XYPOSITION AverageCharWidth(Font &font_) = 0;
+
+		virtual void SetClip(PRectangle rc) = 0;
+		virtual void FlushCachedState() = 0;
+
+		virtual void SetUnicodeMode(bool unicodeMode_) = 0;
+		virtual void SetDBCSMode(int codePage) = 0;
+	};
+	// 
+	// A simple callback action passing one piece of untyped user data.
+	// 
+	typedef void (*CallBackAction)(void*);
+	// 
+	// Class to hide the details of window manipulation.
+	// Does not own the window which will normally have a longer life than this object.
+	// 
+	class Window {
+	protected:
+		WindowID wid;
+	public:
+		Window();
+		Window(const Window &source);
+		virtual ~Window();
+		Window & operator= (WindowID wid_)
+		{
+			wid = wid_;
+			return *this;
+		}
+		WindowID GetID() const
+		{
+			return wid;
+		}
+		bool Created() const
+		{
+			return wid != 0;
+		}
+		void Destroy();
+		bool HasFocus();
+		PRectangle GetPosition();
+		void SetPosition(PRectangle rc);
+		void SetPositionRelative(PRectangle rc, Window relativeTo);
+		PRectangle GetClientPosition();
+		void Show(bool show = true);
+		void InvalidateAll();
+		void InvalidateRectangle(PRectangle rc);
+		virtual void SetFont(Font &font);
+		enum Cursor { 
+			cursorInvalid, 
+			cursorText, 
+			cursorArrow, 
+			cursorUp, 
+			cursorWait, 
+			cursorHoriz, 
+			cursorVert, 
+			cursorReverseArrow, 
+			cursorHand 
+		};
+
+		void SetCursor(Cursor curs);
+		void SetTitle(const char * s);
+		PRectangle GetMonitorRect(Point pt);
+	private:
+		Cursor cursorLast;
+	};
+	// 
+	// Listbox management.
+	// 
+	class ListBox : public Window {
+	public:
+		ListBox();
+		virtual ~ListBox();
+		static ListBox * Allocate();
+
+		virtual void SetFont(Font &font) = 0;
+		virtual void Create(Window &parent, int ctrlID, Point location, int lineHeight_, bool unicodeMode_, int technology_) = 0;
+		virtual void SetAverageCharWidth(int width) = 0;
+		virtual void SetVisibleRows(int rows) = 0;
+		virtual int GetVisibleRows() const = 0;
+		virtual PRectangle GetDesiredRect() = 0;
+		virtual int CaretFromEdge() = 0;
+		virtual void Clear() = 0;
+		virtual void Append(char * s, int type = -1) = 0;
+		virtual int Length() = 0;
+		virtual void Select(int n) = 0;
+		virtual int GetSelection() = 0;
+		virtual int Find(const char * prefix) = 0;
+		virtual void GetValue(int n, char * value, int len) = 0;
+		virtual void RegisterImage(int type, const char * xpm_data) = 0;
+		virtual void RegisterRGBAImage(int type, int width, int height, const uchar * pixelsImage) = 0;
+		virtual void ClearRegisteredImages() = 0;
+		virtual void SetDoubleClickAction(CallBackAction, void *) = 0;
+		virtual void SetList(const char* list, char separator, char typesep) = 0;
+	};
+	// 
+	// Menu management.
+	// 
+	class Menu {
+		MenuID mid;
+	public:
+		Menu();
+		MenuID GetID() const
+		{
+			return mid;
+		}
+		void CreatePopUp();
+		void Destroy();
+		void Show(Point pt, Window &w);
+	};
+	//
+	//
+	//
+	class ElapsedTime {
+		long bigBit;
+		long littleBit;
+	public:
+		ElapsedTime();
+		double Duration(bool reset = false);
+	};
+	// 
+	// Dynamic Library (DLL/SO/...) loading
+	// 
+	class DynamicLibrary {
+	public:
+		virtual ~DynamicLibrary()
+		{
+		}
+		/// @return Pointer to function "name", or NULL on failure.
+		virtual Function FindFunction(const char * name) = 0;
+		/// @return true if the library was loaded successfully.
+		virtual bool IsValid() = 0;
+		/// @return An instance of a DynamicLibrary subclass with "modulePath" loaded.
+		static DynamicLibrary * Load(const char * modulePath);
+	};
+
+	#if defined(__clang__)
+		#if __has_feature(attribute_analyzer_noreturn)
+			#define CLANG_ANALYZER_NORETURN __attribute__((analyzer_noreturn))
+		#else
+			#define CLANG_ANALYZER_NORETURN
+		#endif
+	#else
+		#define CLANG_ANALYZER_NORETURN
+	#endif
+	// 
+	// Platform class used to retrieve system wide parameters such as double click speed
+	// and chrome colour. Not a creatable object, more of a module with several functions.
+	// 
+	class Platform {
+		// Private so Platform objects can not be copied
+		Platform(const Platform &)
+		{
+		}
+		Platform & operator = (const Platform &)
+		{
+			return *this;
+		}
+	public:
+		// Should be private because no new Platforms are ever created
+		// but gcc warns about this
+		Platform()
+		{
+		}
+		~Platform()
+		{
+		}
+		static ColourDesired Chrome();
+		static ColourDesired ChromeHighlight();
+		static const char * DefaultFont();
+		static int DefaultFontSize();
+		static uint DoubleClickTime();
+		static bool MouseButtonBounce();
+		static void DebugDisplay(const char * s);
+		static bool IsKeyDown(int key);
+		static long SendScintilla(WindowID w, uint msg, ulong wParam = 0, long lParam = 0);
+		static long SendScintillaPointer(WindowID w, uint msg, ulong wParam = 0, void * lParam = 0);
+		static bool IsDBCSLeadByte(int codePage, char ch);
+		static int DBCSCharLength(int codePage, const char * s);
+		static int DBCSCharMaxLength();
+
+		// These are utility functions not really tied to a platform
+		static int Minimum(int a, int b);
+		static int Maximum(int a, int b);
+		// Next three assume 16 bit shorts and 32 bit longs
+		static long LongFromTwoShorts(short a, short b)
+		{
+			return (a) | ((b) << 16);
+		}
+		static short HighShortFromLong(long x)
+		{
+			return static_cast<short>(x >> 16);
+		}
+		static short LowShortFromLong(long x)
+		{
+			return static_cast<short>(x & 0xffff);
+		}
+		static void DebugPrintf(const char * format, ...);
+		static bool ShowAssertionPopUps(bool assertionPopUps_);
+		static void Assert(const char * c, const char * file, int line) CLANG_ANALYZER_NORETURN;
+		static int Clamp(int val, int minVal, int maxVal);
+	};
+
+	#ifdef  NDEBUG
+		#define PLATFORM_ASSERT(c) ((void)0)
+	#else
+		#ifdef SCI_NAMESPACE
+			#define PLATFORM_ASSERT(c) ((c) ? (void)(0) : Scintilla::Platform::Assert(# c, __FILE__, __LINE__))
+		#else
+			#define PLATFORM_ASSERT(c) ((c) ? (void)(0) : Platform::Assert(# c, __FILE__, __LINE__))
+		#endif
+	#endif
+	// 
+	// Font management.
+	// 
+	struct FontParameters {
+		FontParameters(const char * faceName_, float size_ = 10, int weight_ = 400, bool italic_ = false, int extraFontFlag_ = 0, int technology_ = 0, int characterSet_ = 0);
+
+		const  char * faceName;
+		float  size;
+		int    weight;
+		bool   italic;
+		int    extraFontFlag;
+		int    technology;
+		int    characterSet;
+	};
+
+	class Font {
+	protected:
+		FontID fid;
+		// Private so Font objects can not be copied
+		Font(const Font &);
+		Font & operator = (const Font &);
+	public:
+		Font();
+		virtual ~Font();
+		virtual void Create(const FontParameters &fp);
+		virtual void Release();
+		FontID GetID()
+		{
+			return fid;
+		}
+		// Alias another font - caller guarantees not to Release
+		void SetID(FontID fid_)
+		{
+			fid = fid_;
+		}
+		friend class Surface;
+		friend class SurfaceImpl;
+	};
+
+	//#define ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
+	//
+	// Safer version of string copy functions like strcpy, wcsncpy, etc.
+	// Instantiate over fixed length strings of both char and wchar_t.
+	// May truncate if source doesn't fit into dest with room for NUL.
+	//
+	/* (все использования заменены на STRNSCPY) template <typename T, size_t count> void StringCopy(T(&dest)[count], const T* source)
+	{
+		for(size_t i = 0; i<count; i++) {
+			dest[i] = source[i];
+			if(!source[i])
+				break;
+		}
+		dest[count-1] = 0;
+	}*/
+	//
+	//
+	//
+	class CharacterSet {
+	private:
+		int    size;
+		bool   valueAfter;
+		bool * bset;
+	public:
+		enum setBase {
+			setNone = 0,
+			setLower = 1,
+			setUpper = 2,
+			setDigits = 4,
+			setAlpha = setLower|setUpper,
+			setAlphaNum = setAlpha|setDigits
+		};
+		CharacterSet(setBase base = setNone, const char * initialSet = "", int size_ = 0x80, bool valueAfter_ = false);
+		CharacterSet(const CharacterSet &other);
+		~CharacterSet();
+		CharacterSet & FASTCALL operator = (const CharacterSet &other);
+		void FASTCALL Add(int val);
+		void FASTCALL AddString(const char * setToAdd);
+		bool FASTCALL Contains(int val) const;
+	};
+	//
+	// Functions for classifying characters
+	//
+	bool FASTCALL IsASpace(int ch);
+	bool FASTCALL IsASpaceOrTab(int ch);
+	bool FASTCALL IsADigit(int ch);
+	bool FASTCALL IsADigit(int ch, int base);
+	bool FASTCALL IsASCII(int ch);
+	bool FASTCALL IsLowerCase(int ch);
+	bool FASTCALL IsUpperCase(int ch);
+	bool FASTCALL IsAlphaNumeric(int ch);
+	// 
+	// Check if a character is a space.
+	// This is ASCII specific but is safe with chars >= 0x80.
+	// 
+	bool FASTCALL isspacechar(int ch);
+	bool FASTCALL iswordchar(int ch);
+	bool FASTCALL iswordstart(int ch);
+	bool FASTCALL isoperator(int ch);
+	//
+	// Simple case functions for ASCII.
+	//
+	int FASTCALL MakeUpperCase(int ch);
+	int FASTCALL MakeLowerCase(int ch);
+
+	int CompareCaseInsensitive(const char * a, const char * b);
+	int CompareNCaseInsensitive(const char * a, const char * b, size_t len);
+	//
+	//
+	//
+	enum EncodingType { 
+		enc8bit, 
+		encUnicode, 
+		encDBCS 
+	};
+	//
+	// "CharacterCategory.h"
+	//
+	enum CharacterCategory {
+		ccLu, ccLl, ccLt, ccLm, ccLo,
+		ccMn, ccMc, ccMe,
+		ccNd, ccNl, ccNo,
+		ccPc, ccPd, ccPs, ccPe, ccPi, ccPf, ccPo,
+		ccSm, ccSc, ccSk, ccSo,
+		ccZs, ccZl, ccZp,
+		ccCc, ccCf, ccCs, ccCo, ccCn
+	};
+
+	CharacterCategory FASTCALL CategoriseCharacter(int character);
+	//
+	//
+	//
+	class LexAccessor {
+	private:
+		IDocument * pAccess;
+		enum {
+			extremePosition = 0x7FFFFFFF
+		};
+		/** @a bufferSize is a trade off between time taken to copy the characters
+		 * and retrieval overhead.
+		 * @a slopSize positions the buffer before the desired position
+		 * in case there is some backtracking. */
+		enum {
+			bufferSize = 4000, 
+			slopSize = bufferSize/8
+		};
+		char buf[bufferSize+1];
+		Sci_Position startPos;
+		Sci_Position endPos;
+		int codePage;
+		enum EncodingType encodingType;
+		Sci_Position lenDoc;
+		char styleBuf[bufferSize];
+		Sci_Position validLen;
+		Sci_PositionU startSeg;
+		Sci_Position startPosStyling;
+		int documentVersion;
+
+		void FASTCALL Fill(Sci_Position position);
+	public:
+		explicit LexAccessor(IDocument * pAccess_);
+		char FASTCALL operator[] (Sci_Position position);
+		IDocumentWithLineEnd * MultiByteAccess() const;
+		//
+		// Safe version of operator[], returning a defined value for invalid position
+		//
+		char SafeGetCharAt(Sci_Position position, char chDefault = ' ');
+		bool FASTCALL IsLeadByte(char ch) const;
+		EncodingType Encoding() const;
+		bool Match(Sci_Position pos, const char * s);
+		char FASTCALL StyleAt(Sci_Position position) const;
+		Sci_Position FASTCALL GetLine(Sci_Position position) const;
+		Sci_Position FASTCALL LineStart(Sci_Position line) const;
+		Sci_Position FASTCALL LineEnd(Sci_Position line);
+		int FASTCALL LevelAt(Sci_Position line) const;
+		Sci_Position Length() const;
+		void Flush();
+		int FASTCALL GetLineState(Sci_Position line) const;
+		int SetLineState(Sci_Position line, int state);
+		// Style setting
+		void FASTCALL StartAt(Sci_PositionU start);
+		Sci_PositionU GetStartSegment() const;
+		void FASTCALL StartSegment(Sci_PositionU pos);
+		void ColourTo(Sci_PositionU pos, int chAttr);
+		void SetLevel(Sci_Position line, int level);
+		void IndicatorFill(Sci_Position start, Sci_Position end, int indicator, int value);
+		void ChangeLexerState(Sci_Position start, Sci_Position end);
+	};
+	//
+	//
+	//
+	enum { 
+		wsSpace=1, 
+		wsTab=2, 
+		wsSpaceTab=4, 
+		wsInconsistent=8 
+	};
+
+	typedef bool (*PFNIsCommentLeader)(Accessor &styler, Sci_Position pos, Sci_Position len);
+
+	class Accessor : public LexAccessor {
+	public:
+		PropSetSimple *pprops;
+		Accessor(IDocument *pAccess_, PropSetSimple *pprops_);
+		int GetPropertyInt(const char *, int defaultValue=0) const;
+		int IndentAmount(Sci_Position line, int *flags, PFNIsCommentLeader pfnIsCommentLeader = 0);
+	};
+	//
+	// All languages handled so far can treat all characters >= 0x80 as one class
+	// which just continues the current token or starts an identifier if in default.
+	// DBCS treated specially as the second character can be < 0x80 and hence
+	// syntactically significant. UTF-8 avoids this as all trail bytes are >= 0x80
+	//
+	class StyleContext {
+	private:
+		LexAccessor & styler;
+		IDocumentWithLineEnd * multiByteAccess;
+		Sci_PositionU endPos;
+		Sci_PositionU lengthDocument;
+
+		// Used for optimizing GetRelativeCharacter
+		Sci_PositionU posRelative;
+		Sci_PositionU currentPosLastRelative;
+		Sci_Position offsetRelative;
+
+		StyleContext & operator = (const StyleContext &);
+
+		void   GetNextChar();
+	public:
+		Sci_PositionU currentPos;
+		Sci_Position currentLine;
+		Sci_Position lineDocEnd;
+		Sci_Position lineStartNext;
+		bool atLineStart;
+		bool atLineEnd;
+		int state;
+		int chPrev;
+		int ch;
+		Sci_Position width;
+		int chNext;
+		Sci_Position widthNext;
+
+		StyleContext(Sci_PositionU startPos, Sci_PositionU length, int initStyle, LexAccessor &styler_, char chMask = '\377');
+		void   Complete();
+		bool   More() const;
+		void   Forward();
+		void   FASTCALL Forward(Sci_Position nb);
+		void   FASTCALL ForwardBytes(Sci_Position nb);
+		void   FASTCALL ChangeState(int state_);
+		void   FASTCALL SetState(int state_);
+		void   FASTCALL ForwardSetState(int state_);
+		Sci_Position LengthCurrent() const;
+		int    FASTCALL GetRelative(Sci_Position n);
+		int    FASTCALL GetRelativeCharacter(Sci_Position n);
+		bool   FASTCALL Match(char ch0) const;
+		bool   FASTCALL Match(char ch0, char ch1) const;
+		bool   FASTCALL Match(const char * s);
+		// Non-inline
+		bool   FASTCALL MatchIgnoreCase(const char * s);
+		void   GetCurrent(char * s, Sci_PositionU len);
+		void   GetCurrentLowered(char * s, Sci_PositionU len);
+	};
+	//
+	//
+	//
+	class PropSetSimple {
+	private:
+		void * impl;
+		void   Set(const char *keyVal);
+	public:
+		PropSetSimple();
+		virtual ~PropSetSimple();
+		void   Set(const char *key, const char *val, int lenKey=-1, int lenVal=-1);
+		void   SetMultiple(const char *);
+		const  char *Get(const char *key) const;
+		int    GetExpanded(const char *key, char *result) const;
+		int    GetInt(const char *key, int defaultValue=0) const;
+	};
+
+	class WordList {
+	private:
+		// Each word contains at least one character - a empty word acts as sentinel at the end.
+		char ** words;
+		char * list;
+		int    len;
+		bool   onlyLineEnds; ///< Delimited by any white space or only line ends
+		int    starts[256];
+	public:
+		explicit WordList(bool onlyLineEnds_ = false);
+		~WordList();
+		operator bool() const;
+		bool   FASTCALL operator != (const WordList &other) const;
+		int    Length() const;
+		void   Clear();
+		void   FASTCALL Set(const char *s);
+		bool   FASTCALL InList(const char *s) const;
+		bool   InListAbbreviated(const char *s, const char marker) const;
+		bool   InListAbridged(const char *s, const char marker) const;
+		const char * FASTCALL WordAt(int n) const;
+	};
+
+	typedef void (*LexerFunction)(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, WordList *keywordlists[], Accessor &styler);
+	typedef ILexer *(*LexerFactoryFunction)();
+	// 
+	// A LexerModule is responsible for lexing and folding a particular language.
+	// The class maintains a list of LexerModules which can be searched to find a
+	// module appropriate to a particular language.
+	// 
+	class LexerModule {
+	protected:
+		int language;
+		LexerFunction fnLexer;
+		LexerFunction fnFolder;
+		LexerFactoryFunction fnFactory;
+		const char * const * wordListDescriptions;
+	public:
+		const char *languageName;
+		LexerModule(int language_, LexerFunction fnLexer_, const char *languageName_=0, LexerFunction fnFolder_=0, const char * const wordListDescriptions_[] = NULL);
+		LexerModule(int language_, LexerFactoryFunction fnFactory_, const char *languageName_, const char * const wordListDescriptions_[] = NULL);
+		virtual ~LexerModule();
+		int GetLanguage() const { return language; }
+		// -1 is returned if no WordList information is available
+		int GetNumWordLists() const;
+		const char *GetWordListDescription(int index) const;
+		ILexer *Create() const;
+		virtual void Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor &styler) const;
+		virtual void Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor &styler) const;
+		friend class Catalogue;
+	};
+
+	class Catalogue {
+	public:
+		static const LexerModule * FASTCALL Find(int language);
+		static const LexerModule * FASTCALL Find(const char *languageName);
+		static void AddLexerModule(LexerModule *plm);
+	};
+
+	// Shut up annoying Visual C++ warnings:
+	#ifdef _MSC_VER
+		#pragma warning(disable: 4244 4456 4457)
+	#endif
+	// Turn off shadow warnings for lexers as may be maintained by others
+	#if defined(__GNUC__)
+		#pragma GCC diagnostic ignored "-Wshadow"
+	#endif
+	//
+	// #include "CaseFolder.h" // @sobolev
+	//
+	class CaseFolder {
+	public:
+		virtual ~CaseFolder();
+		virtual size_t Fold(char *folded, size_t sizeFolded, const char *mixed, size_t lenMixed) = 0;
+	};
+
+	class CaseFolderTable : public CaseFolder {
+	protected:
+		char mapping[256];
+	public:
+		CaseFolderTable();
+		virtual ~CaseFolderTable();
+		virtual size_t Fold(char *folded, size_t sizeFolded, const char *mixed, size_t lenMixed);
+		void SetTranslation(char ch, char chTranslation);
+		void StandardASCII();
+	};
+
+	class CaseFolderUnicode : public CaseFolderTable {
+		ICaseConverter *converter;
+	public:
+		CaseFolderUnicode();
+		virtual size_t Fold(char *folded, size_t sizeFolded, const char *mixed, size_t lenMixed);
+	};
+	//
+	// #include "Style.h"
+	//
+	struct FontSpecification {
+		const char * fontName;
+		int    weight;
+		bool   italic;
+		int    size;
+		int    characterSet;
+		int    extraFontFlag;
+
+		FontSpecification() : fontName(0), weight(SC_WEIGHT_NORMAL), italic(false), size(10 * SC_FONT_SIZE_MULTIPLIER), characterSet(0), extraFontFlag(0) 
+		{
+		}
+		bool FASTCALL operator == (const FontSpecification &other) const;
+		bool FASTCALL operator < (const FontSpecification &other) const;
+	};
+	//
+	// Just like Font but only has a copy of the FontID so should not delete it
+	//
+	class FontAlias : public Font {
+	public:
+		FontAlias();
+		FontAlias(const FontAlias &);
+		virtual ~FontAlias();
+		void   MakeAlias(Font &fontOrigin);
+		void   ClearFont();
+	private:
+		// Private so FontAlias objects can not be assigned except for intiialization
+		FontAlias & operator = (const FontAlias &);
+	};
+
+	struct FontMeasurements {
+		FontMeasurements();
+		void   Clear();
+
+		uint   ascent;
+		uint   descent;
+		XYPOSITION aveCharWidth;
+		XYPOSITION spaceWidth;
+		int    sizeZoomed;
+	};
+	//
+	//
+	//
+	class Style : public FontSpecification, public FontMeasurements {
+	public:
+		ColourDesired fore;
+		ColourDesired back;
+		enum ecaseForced {
+			caseMixed, 
+			caseUpper, 
+			caseLower, 
+			caseCamel
+		};
+		ecaseForced caseForce;
+		/*bool   eolFilled;
+		bool   underline;
+		bool   visible;
+		bool   changeable;
+		bool   hotspot;*/
+
+		enum {
+			fEolFilled  = 0x0001,
+			fUnderline  = 0x0002,
+			fVisible    = 0x0004,
+			fChangeable = 0x0008,
+			fHotspot    = 0x0010
+		};
+		long   Flags;
+		
+		FontAlias font;
+
+		Style();
+		Style(const Style &source);
+		~Style();
+		Style &operator=(const Style &source);
+		//void Clear(ColourDesired fore_, ColourDesired back_, int size_, const char *fontName_, int characterSet_,
+		//	int weight_, bool italic_, bool eolFilled_, bool underline_, ecaseForced caseForce_, bool visible_, bool changeable_, bool hotspot_);
+		void Clear(ColourDesired fore_, ColourDesired back_, int size_, const char * fontName_, int characterSet_, int weight_, bool italic_, ecaseForced caseForce_, long flags);
+		void ClearTo(const Style &source);
+		void Copy(Font &font_, const FontMeasurements &fm_);
+		bool IsProtected() const 
+		{ 
+			//return !(changeable && visible);
+			return !(Flags & (fChangeable|fVisible));
+		}
+	};
+	//
+	// #include "UniConversion.h"
+	//
+	const int UTF8MaxBytes = 4;
+	const int unicodeReplacementChar = 0xFFFD;
+	extern int UTF8BytesOfLead[256];
+
+	enum { 
+		UTF8MaskWidth=0x7, 
+		UTF8MaskInvalid=0x8 
+	};
+	//
+	// Line separator is U+2028 \xe2\x80\xa8
+	// Paragraph separator is U+2029 \xe2\x80\xa9
+	//
+	const int UTF8SeparatorLength = 3;
+
+	// NEL is U+0085 \xc2\x85
+	const int UTF8NELLength = 2;
+
+	enum { SURROGATE_LEAD_FIRST = 0xD800 };
+	enum { SURROGATE_LEAD_LAST = 0xDBFF };
+	enum { SURROGATE_TRAIL_FIRST = 0xDC00 };
+	enum { SURROGATE_TRAIL_LAST = 0xDFFF };
+	enum { SUPPLEMENTAL_PLANE_FIRST = 0x10000 };
+
+	uint   UTF8Length(const wchar_t *uptr, uint tlen);
+	void   UTF8FromUTF16(const wchar_t *uptr, uint tlen, char *putf, uint len);
+	uint   UTF8CharLength(uchar ch);
+	size_t UTF16Length(const char *s, size_t len);
+	size_t UTF16FromUTF8(const char *s, size_t len, wchar_t *tbuf, size_t tlen);
+	uint   UTF32FromUTF8(const char *s, uint len, uint *tbuf, uint tlen);
+	uint   UTF16FromUTF32Character(uint val, wchar_t *tbuf);
+	void   UTF8BytesOfLeadInitialise();
+	int    FASTCALL UTF8Classify(const uchar *us, int len);
+	//
+	// Similar to UTF8Classify but returns a length of 1 for invalid bytes
+	// instead of setting the invalid flag
+	//
+	int    FASTCALL UTF8DrawBytes(const uchar *us, int len);
+	bool   FASTCALL UTF8IsTrailByte(int ch);
+	bool   FASTCALL UTF8IsAscii(int ch);
+	bool   FASTCALL UTF8IsSeparator(const uchar *us);
+	bool   FASTCALL UTF8IsNEL(const uchar *us);
+	uint   FASTCALL UTF16CharLength(wchar_t uch);
+
+#ifdef SCI_NAMESPACE
+}
+#endif
+
+typedef sptr_t (*SciFnDirect)(sptr_t ptr, uint iMessage, uptr_t wParam, sptr_t lParam);
+// 
+// These structures are defined to be exactly the same shape as the Win32
+// CHARRANGE, TEXTRANGE, FINDTEXTEX, FORMATRANGE, and NMHDR structs.
+// So older code that treats Scintilla as a RichEdit will work. */
+// 
 struct Sci_CharacterRange {
 	Sci_PositionCR cpMin;
 	Sci_PositionCR cpMax;
@@ -1448,22 +2051,22 @@ struct Sci_CharacterRange {
 
 struct Sci_TextRange {
 	struct Sci_CharacterRange chrg;
-	char *lpstrText;
+	char * lpstrText;
 };
 
 struct Sci_TextToFind {
 	struct Sci_CharacterRange chrg;
-	const char *lpstrText;
+	const  char *lpstrText;
 	struct Sci_CharacterRange chrgText;
 };
 
-typedef void *Sci_SurfaceID;
+typedef void * Sci_SurfaceID;
 
 struct Sci_Rectangle {
-	int left;
-	int top;
-	int right;
-	int bottom;
+	int    left;
+	int    top;
+	int    right;
+	int    bottom;
 };
 
 /* This structure is used in printing and requires some of the graphics types

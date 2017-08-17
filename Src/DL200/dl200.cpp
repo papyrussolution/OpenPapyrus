@@ -975,7 +975,7 @@ int SLAPI DL2_ObjList::ToString(int32 id, SString & rBuf) const
 {
 	int    ok = -1;
 	SString temp_buf;
-	rBuf = 0;
+	rBuf.Z();
 	for(uint i = 0; ok < 0 && i < getCount(); i++) {
 		const Item * p_item = (Item *)at(i);
 		if(p_item->Id == id) {
@@ -1071,7 +1071,7 @@ int SLAPI DL2_Score::ScanArg(SStrScan & rScan, SString & rBuf)
 {
 	int    ok = -1;
 	int    par = 0; // Счетчик внутренних скобок
-	rBuf = 0;
+	rBuf.Z();
 	rScan.Skip();
 	do {
 		char c = rScan[0];
@@ -1258,7 +1258,7 @@ int SLAPI DL2_Score::GetFromStr(const char * pStr, size_t * pOffs)
 int SLAPI DL2_Score::PutToStr(SString & rBuf) const
 {
 	int    ok = 1;
-	rBuf = 0;
+	rBuf.Z();
 	switch(Kind) {
 		case kBill: rBuf.Cat("@bill"); break;
 		case kPaym: rBuf.Cat("@paym"); break;
@@ -1385,9 +1385,9 @@ int SLAPI DL2_Acc::GetAcc(char ** ptr, int isCorr, int substAr)
 	dot[0] = '.';
 	dot[1] = 0;
 
-	if(isdigit(*p)) {
+	if(isdec(*p)) {
 		int aster_count = 0;
-		while(oneof3(*p, '.', ' ', '*') || isdigit(*p))
+		while(oneof3(*p, '.', ' ', '*') || isdec(*p))
 			acc_number[ap++] = *p++;
 		acc_number[ap] = 0;
 		strip(acc_number);
@@ -1474,7 +1474,7 @@ int SLAPI DL2_Acc::GetFromStr(const char * pStr, int substAr)
 			minus = 1;
 			p++;
 		}
-		while(isdigit(*p))
+		while(isdec(*p))
 			*p_n++ = *p++;
 		*p_n = 0;
 		PrdOfs = PRD_DAY;

@@ -768,14 +768,14 @@ public:
 			getCtrlData(CTL_WORKBOOK_KWC, &Data.Rec.KeywordCount);
 			getCtrlData(CTL_WORKBOOK_KWD, &Data.Rec.KeywordDilute);
 			// @v8.1.12 {
-			getCtrlString(CTL_WORKBOOK_KWSYN, temp_buf = 0);
+			getCtrlString(CTL_WORKBOOK_KWSYN, temp_buf.Z());
 			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KWSYN, temp_buf.Strip());
-			getCtrlString(CTL_WORKBOOK_KWLOC, temp_buf = 0);
+			getCtrlString(CTL_WORKBOOK_KWLOC, temp_buf.Z());
 			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KWLOC, temp_buf.Strip());
 			// } @v8.1.12
 		}
 		else {
-			getCtrlString(CTL_WORKBOOK_KEYWORDS, temp_buf = 0);
+			getCtrlString(CTL_WORKBOOK_KEYWORDS, temp_buf.Z());
 			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KEYWORDS, temp_buf.Strip());
 		}
 		{
@@ -800,7 +800,7 @@ public:
 			}
 		}
 		if(getCtrlView(CTL_WORKBOOK_DESCR)) {
-			getCtrlString(CTL_WORKBOOK_DESCR, temp_buf = 0);
+			getCtrlString(CTL_WORKBOOK_DESCR, temp_buf.Z());
 			Data.PutExtStrData(WBEXSTR_DESCRIPTION, temp_buf);
 		}
 		// @v8.2.0 {
@@ -820,30 +820,30 @@ private:
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmTags)) {
 			// @v8.1.12 {
-			getCtrlString(CTL_WORKBOOK_KWSYN, temp_buf = 0);
+			getCtrlString(CTL_WORKBOOK_KWSYN, temp_buf.Z());
 			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KWSYN, temp_buf.Strip());
-			getCtrlString(CTL_WORKBOOK_KWLOC, temp_buf = 0);
+			getCtrlString(CTL_WORKBOOK_KWLOC, temp_buf.Z());
 			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KWLOC, temp_buf.Strip());
 			// } @v8.1.12
-			getCtrlString(CTL_WORKBOOK_KEYWORDS, temp_buf = 0);
+			getCtrlString(CTL_WORKBOOK_KEYWORDS, temp_buf.Z());
 			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KEYWORDS, temp_buf.Strip());
 			Data.TagL.ObjType = PPOBJ_WORKBOOK;
 			EditObjTagValList(&Data.TagL, 0);
 			// @v8.1.12 {
 			if(getCtrlView(CTL_WORKBOOK_KWSYN)) {
 				const ObjTagItem * p_tag = Data.TagL.GetItem(PPTAG_WORKBOOK_KWSYN);
-				if(p_tag && p_tag->GetStr(temp_buf = 0))
+				if(p_tag && p_tag->GetStr(temp_buf.Z()))
 					setCtrlString(CTL_WORKBOOK_KWSYN, temp_buf);
 			}
 			if(getCtrlView(CTL_WORKBOOK_KWLOC)) {
 				const ObjTagItem * p_tag = Data.TagL.GetItem(PPTAG_WORKBOOK_KWLOC);
-				if(p_tag && p_tag->GetStr(temp_buf = 0))
+				if(p_tag && p_tag->GetStr(temp_buf.Z()))
 					setCtrlString(CTL_WORKBOOK_KWLOC, temp_buf);
 			}
 			// } @v8.1.12
 			if(getCtrlView(CTL_WORKBOOK_KEYWORDS)) {
 				const ObjTagItem * p_tag_kw = Data.TagL.GetItem(PPTAG_WORKBOOK_KEYWORDS);
-				if(p_tag_kw && p_tag_kw->GetStr(temp_buf = 0))
+				if(p_tag_kw && p_tag_kw->GetStr(temp_buf.Z()))
 					setCtrlString(CTL_WORKBOOK_KEYWORDS, temp_buf);
 			}
 		}
@@ -1298,7 +1298,7 @@ int SLAPI PPObjWorkbook::SelectLink(PPObjWorkbook::SelectLinkBlock * pData)
 
 int SLAPI PPObjWorkbook::MakeUniqueCode(SString & rBuf, int use_ta)
 {
-	rBuf = 0;
+	rBuf.Z();
 
 	int    ok = -1;
 	PPObjOpCounter opc_obj;
@@ -2027,7 +2027,7 @@ int SLAPI PPObjWorkbook::GetItemPath(PPID itemID, SString & rPath)
 		for(PPID id = itemID; id && Fetch(id, &rec) > 0; id = rec.ParentID) {
 			temp_buf = rPath;
 			if(temp_buf.NotEmptyS()) {
-				(rPath = 0).Cat(rec.Name).CatDiv('>', 1).Cat(temp_buf);
+				rPath.Z().Cat(rec.Name).CatDiv('>', 1).Cat(temp_buf);
 			}
 			else {
 				rPath = rec.Name;
@@ -2232,7 +2232,7 @@ LDATETIME SLAPI PPObjWorkbook::GetContentLastModifTime(PPID id)
 		SString temp_buf;
 		ObjLinkFiles _lf(PPOBJ_WORKBOOK);
 		_lf.Load(id, 0L);
-		if(_lf.At(0, temp_buf = 0)) {
+		if(_lf.At(0, temp_buf.Z())) {
 			SFile::GetTime(temp_buf, 0, 0, &mod_dtm);
 		}
 	}
@@ -2322,7 +2322,7 @@ int SLAPI PPObjWorkbook::Helper_CreatePacketByUhttList(PPID * pID, ProcessUhttIm
 		else {
 			temp_buf = p_item->Symb;
 			if(!temp_buf.NotEmptyS()) {
-				(temp_buf = 0).CatEq("UHTTID", (long)p_item->ID);
+				temp_buf.Z().CatEq("UHTTID", (long)p_item->ID);
 			}
 			PPID   ex_id = 0;
 			WorkbookTbl::Rec ex_rec;
@@ -2430,7 +2430,7 @@ int SLAPI PPObjWorkbook::InterchangeUhtt()
 									const UhttWorkbookItemPacket * p_item = result.at(i);
 									temp_buf = p_item->Symb;
 									if(!temp_buf.NotEmptyS())
-										(temp_buf = 0).CatEq("UHTTID", (long)p_item->ID);
+										temp_buf.Z().CatEq("UHTTID", (long)p_item->ID);
 									if(temp_buf == native_symb) {
 										const LDATETIME foreign_mod_dtm = p_item->ModifDtm;
 										const LDATETIME mod_dtm = GetLastModifTime(native_id);
@@ -2497,7 +2497,7 @@ int SLAPI PPObjWorkbook::Helper_ExportToUhtt(PPUhttClient & rUc, PPID id,
 				if(p_uhtt_item) {
 					temp_buf = p_uhtt_item->Symb;
 					if(!temp_buf.NotEmptyS()) {
-						(temp_buf = 0).CatEq("UHTTID", (long)p_uhtt_item->ID);
+						temp_buf.Z().CatEq("UHTTID", (long)p_uhtt_item->ID);
 					}
 					if(symb_buf.CmpNC(temp_buf) == 0) {
 						uhtt_pack.ParentID = p_uhtt_item->ID;
@@ -2524,7 +2524,7 @@ int SLAPI PPObjWorkbook::Helper_ExportToUhtt(PPUhttClient & rUc, PPID id,
 		LDATETIME mod_dtm = ZERODATETIME;
 		ObjLinkFiles _f(PPOBJ_WORKBOOK);
 		_f.Load(pack.Rec.ID, 0L);
-		if(_f.At(0, temp_buf = 0)) {
+		if(_f.At(0, temp_buf.Z())) {
 			if(fileExists(temp_buf)) {
 				attach_file_name = temp_buf;
 				SFile::GetTime(attach_file_name, 0, 0, &mod_dtm);
@@ -2595,7 +2595,7 @@ int SLAPI PPObjWorkbook::TestImportFromUhtt()
 		for(uint i = 0; i < result.getCount(); i++) {
             const UhttWorkbookItemPacket * p_item = result.at(i);
 			if(p_item) {
-				(line_buf = 0).Cat(p_item->ID).Tab().Cat(p_item->Symb).Tab().Cat(p_item->Dtm, DATF_ISO8601, 0).Tab().
+				line_buf.Z().Cat(p_item->ID).Tab().Cat(p_item->Symb).Tab().Cat(p_item->Dtm, DATF_ISO8601, 0).Tab().
 					Cat(p_item->Name);
 				PPLogMessage(PPFILNAM_DEBUG_LOG, line_buf, LOGMSGF_TIME);
 				//
@@ -2770,7 +2770,7 @@ static int SLAPI SelectWorkbookImpExpConfig(PPWorkbookImpExpParam * pParam, int 
 		PPIniFile ini_file(temp_buf, 0, 1, 1);
 		while(ok < 0 && ListBoxSelDialog(&list, import ? PPTXT_TITLE_WORKBOOKIMPCFG : PPTXT_TITLE_WORKBOOKEXPCFG, &id, 0) > 0) {
 			if(id) {
-				list.Get(id, temp_buf = 0);
+				list.Get(id, temp_buf.Z());
 				pParam->ProcessName(1, temp_buf);
 				pParam->ReadIni(&ini_file, temp_buf, 0);
 				ok = 1;
@@ -3003,7 +3003,7 @@ int SLAPI PPWorkbookExporter::ExportPacket(const PPWorkbookPacket * pPack)
 	{
 		ObjLinkFiles _lf(PPOBJ_WORKBOOK);
 		_lf.Load(pPack->Rec.ID, 0L);
-		if(_lf.At(0, temp_buf = 0)) {
+		if(_lf.At(0, temp_buf.Z())) {
 			if(DestFilesPath.NotEmpty() && !fileExists(DestFilesPath)) {
 				THROW_SL(::createDir(DestFilesPath));
 			}
@@ -3097,7 +3097,7 @@ int PPALDD_UhttWorkbook::InitData(PPFilt & rFilt, long rsrv)
 		STRNSCPY(H.Symb, r_blk.Pack.Rec.Symb);
 		STRNSCPY(H.Version, r_blk.Pack.Rec.Version); // @v8.2.0
 		{
-			r_blk.Pack.GetExtStrData(WBEXSTR_DESCRIPTION, temp_buf = 0);
+			r_blk.Pack.GetExtStrData(WBEXSTR_DESCRIPTION, temp_buf.Z());
 			STRNSCPY(H.Descr, temp_buf);
 		}
 		ok = DlRtm::InitData(rFilt, rsrv);
@@ -3160,7 +3160,7 @@ int PPALDD_UhttWorkbook::NextIteration(long iterId)
 			switch(p_item->TagDataType) {
 				case OTTYP_STRING:
 				case OTTYP_GUID:
-					p_item->GetStr((temp_buf = 0));
+					p_item->GetStr(temp_buf.Z());
 					// @v8.2.2 {
 					if(p_item->TagID == PPTAG_WORKBOOK_KWLOC) {
 						if(temp_buf.HasChr('@')) {

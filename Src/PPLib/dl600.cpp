@@ -1174,7 +1174,7 @@ _skip_switch:
 			}
 			else {
 				long fmt = ParseFormat(_ARG_STR(2), MKSTYPE(S_INT, 4));
-				(_RET_STR = 0).Cat(_ARG_INT(1), fmt);
+				_RET_STR.Z().Cat(_ARG_INT(1), fmt);
 				break;
 			}
 		case 90:
@@ -1186,7 +1186,7 @@ _skip_switch:
 			}
 			else {
 				long fmt = ParseFormat(_ARG_STR(2), MKSTYPE(S_FLOAT, 8));
-				(_RET_STR = 0).Cat(_ARG_DBL(1), fmt);
+				_RET_STR.Z().Cat(_ARG_DBL(1), fmt);
 				break;
 			}
 		case 91:
@@ -1198,7 +1198,7 @@ _skip_switch:
 			}
 			else {
 				long fmt = ParseFormat(_ARG_STR(2), MKSTYPE(S_ZSTRING, 0));
-				(_RET_STR = 0).Cat(_ARG_STR(1));
+				_RET_STR.Z().Cat(_ARG_STR(1));
 				break;
 			}
 		case 92:
@@ -1210,7 +1210,7 @@ _skip_switch:
 			}
 			else {
 				long fmt = ParseFormat(_ARG_STR(2), MKSTYPE(S_DATE, 4));
-				(_RET_STR = 0).Cat(*(LDATE *)_ARG1, fmt);
+				_RET_STR.Z().Cat(*(LDATE *)_ARG1, fmt);
 				break;
 			}
 		case 93:
@@ -1222,7 +1222,7 @@ _skip_switch:
 			}
 			else {
 				long fmt = ParseFormat(_ARG_STR(2), MKSTYPE(S_TIME, 4));
-				(_RET_STR = 0).Cat(*(LTIME *)_ARG1, fmt);
+				_RET_STR.Z().Cat(*(LTIME *)_ARG1, fmt);
 				break;
 			}
 		case 94:
@@ -1305,7 +1305,7 @@ _skip_switch:
 				#endif
 			}
 			else {
-				(_RET_STR = 0).Cat(_ARG_DT(1), MKSFMT(_ARG_UINT(2), DATF_DMY | ALIGN_LEFT));
+				_RET_STR.Z().Cat(_ARG_DT(1), MKSFMT(_ARG_UINT(2), DATF_DMY | ALIGN_LEFT));
 				break;
 			}
 		case 99:
@@ -2307,7 +2307,7 @@ int SLAPI DlContext::MakeClassName(const DlScope * pStruc, int fmt, SString & rB
 		else if(pStruc->IsKind(DlScope::kExpData))
 			(rBuf = "PPALDD").CatChar('_');
 		else
-			rBuf = 0;
+			rBuf.Z();
 		rBuf.Cat(pStruc->GetName());
 		if(pStruc->IsKind(DlScope::kDbTable))
 			rBuf.Cat("Tbl");
@@ -2326,7 +2326,7 @@ int SLAPI DlContext::MakeClassName(const DlScope * pStruc, int fmt, SString & rB
 		rBuf = pStruc->GetName();
 	}
 	else
-		rBuf = 0;
+		rBuf.Z();
 	return 1;
 }
 

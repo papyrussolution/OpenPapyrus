@@ -168,7 +168,7 @@ int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 				for(i = 0; i < gds_op_list.getCount(); i++) {
 					TempGoodsMov2Tbl::Rec * p_rec = (TempGoodsMov2Tbl::Rec*)gds_op_list.at(i);
 					STRNSCPY(p_rec->GoodsName, gr.Name);
-					gobj.FetchSingleBarcode(p_rec->GoodsID, temp_buf = 0); // @v7.0.0 GetSingleBarcode-->FetchSingleBarcode
+					gobj.FetchSingleBarcode(p_rec->GoodsID, temp_buf.Z()); // @v7.0.0 GetSingleBarcode-->FetchSingleBarcode
 					temp_buf.CopyTo(p_rec->Barcode, sizeof(p_rec->Barcode));
 					THROW_DB(bei.insert(p_rec));
 				}

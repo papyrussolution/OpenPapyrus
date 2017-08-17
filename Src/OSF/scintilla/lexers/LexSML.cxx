@@ -30,7 +30,7 @@ inline int issmlf(int c)
 
 inline int issmld(int c)
 {
-	return isdigit(c) || c == '_';
+	return isdec(c) || c == '_';
 }
 
 #ifdef SCI_NAMESPACE
@@ -68,13 +68,13 @@ static void ColouriseSMLDoc(Sci_PositionU startPos, Sci_Position length,
 				    state2 = SCE_SML_IDENTIFIER;
 			    else if(sc.Match('`') && issmlf(sc.chNext))
 				    state2 = SCE_SML_TAGNAME;
-			    else if(sc.Match('#')&&isdigit(sc.chNext))
+			    else if(sc.Match('#')&&isdec(sc.chNext))
 				    state2 = SCE_SML_LINENUM;
 			    else if(sc.Match('#', '\"')) {
 				    state2 = SCE_SML_CHAR, chLit = 0;
 				    sc.Forward();
 			    }
-			    else if(isdigit(sc.ch)) {
+			    else if(isdec(sc.ch)) {
 				    state2 = SCE_SML_NUMBER, chBase = 10;
 				    if(sc.Match('0') && strchr("xX", sc.chNext))
 					    chBase = 16, sc.Forward();
@@ -117,7 +117,7 @@ static void ColouriseSMLDoc(Sci_PositionU startPos, Sci_Position length,
 			    break;
 
 			case SCE_SML_LINENUM:
-			    if(!isdigit(sc.ch))
+			    if(!isdec(sc.ch))
 				    state2 = SCE_SML_DEFAULT, advance = false;
 			    break;
 

@@ -488,11 +488,11 @@ int XmlDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 						SETIFZ(p, strchr(p_fld_name, '\\'));
 						if(p) {
 							size_t pos = (p - p_fld_name);
-							(temp_buf = 0).CatN(p_fld_name, pos-start);
+							temp_buf.Z().CatN(p_fld_name, pos-start);
 							start = pos+1;
 						}
 						else {
-							(temp_buf = 0).Cat(p_fld_name);
+							temp_buf.Z().Cat(p_fld_name);
 							start = len;
 						}
 						fld_set.add(temp_buf);

@@ -121,8 +121,7 @@ LexerManager * LexerManager::GetInstance()
 /// Delete any LexerManager instance...
 void LexerManager::DeleteInstance()
 {
-	delete theInstance;
-	theInstance = NULL;
+	ZDELETE(theInstance);
 }
 
 /// protected constructor - this is a singleton...

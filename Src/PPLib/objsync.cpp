@@ -1,5 +1,5 @@
 // OBJSYNC.CPP
-// Copyright (c) A.Sobolev 1997-2001, 2002, 2003, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1997-2001, 2002, 2003, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017
 //
 // Поддержка синхронизации объектов в распределенной базе данных
 //
@@ -77,7 +77,7 @@ void FASTCALL PPCommSyncID::Get(TempSyncCmpTbl::Rec * pRec) const
 
 SString & PPCommSyncID::ToStr(long fmt, SString & rBuf) const
 {
-	return (rBuf = 0).Cat(P).CatChar('-').Cat(I);
+	return rBuf.Z().Cat(P).CatChar('-').Cat(I);
 }
 
 int FASTCALL PPCommSyncID::FromStr(const char * pStr)
@@ -294,7 +294,7 @@ static void LogRcvObjDiag(uint msgID, PPID obj, PPID id, PPCommSyncID commID)
 	SString msg_buf, fmt_buf, added_buf, temp_buf;
 	GetObjectTitle(obj, temp_buf);
 	added_buf.Cat(temp_buf).CatDiv('-', 1).Cat(commID.ToStr(0, temp_buf)).CatDiv('-', 1).Cat(id);
-	msg_buf.Printf(PPLoadTextS(msgID, fmt_buf), (const char *)added_buf);
+	msg_buf.Printf(PPLoadTextS(msgID, fmt_buf), added_buf.cptr());
 	PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 }
 
@@ -608,7 +608,7 @@ int SLAPI ObjSyncQueueCore::PrintDebugObjList(PPID objType)
     	if(!objType || data.ObjType == objType) {
 			PPCommSyncID commid;
 			commid = data;
-			commid.ToStr(0, temp_buf = 0);
+			commid.ToStr(0, temp_buf.Z());
 			if(buf.Empty())
 				buf.Cat("ObjSyncQueue Debug List").Space().CatEq("ObjType", objType).CR();
 			buf.CatEq("DBID", (long)data.DBID).Space().CatEq("ObjType", (long)data.ObjType).Space().CatEq("ObjID", data.ObjID).Space().

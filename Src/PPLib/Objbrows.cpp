@@ -538,14 +538,14 @@ int ObjRestrictListDialog::getObjName(PPID objID, long, SString & rBuf)
 		return 1;
 	}
 	else {
-		rBuf = 0;
+		rBuf.Z();
 		return -1;
 	}
 }
 
 void ObjRestrictListDialog::getExtText(PPID, long /*objFlags*/, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 }
 
 int ObjRestrictListDialog::setupList()

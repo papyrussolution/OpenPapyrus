@@ -261,11 +261,11 @@ int SdFieldCorrListDialog::setupList()
 		ss.add((sub = fld.Name).Transf(CTRANSF_OUTER_TO_INNER)); // @v7.0.3
 		ss.add(GetBaseTypeString(stbase(fld.T.Typ), BTSF_NATIVE|BTSF_OEM, sub));
 		len = SFMTLEN(fld.OuterFormat);
-		(sub = 0).Cat(len);
+		sub.Z().Cat(len);
 		if(SFMTPRC(fld.OuterFormat))
 			sub.Dot().Cat(SFMTPRC(fld.OuterFormat));
 		ss.add(sub);
-		ss.add((sub = 0).Cat(offs));
+		ss.add(sub.Z().Cat(offs));
 		offs += len;
 		if(!addStringToList(i, ss.getBuf()))
 			ok = 0;
@@ -632,7 +632,7 @@ int PPImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResult) 
 			if(ps.Nam.Search("#guid", 0, 1, &gp)) {
 				S_GUID guid;
 				guid.Generate();
-				guid.ToStr(S_GUID::fmtIDL, temp_buf = 0);
+				guid.ToStr(S_GUID::fmtIDL, temp_buf.Z());
 				ps.Nam.ReplaceStr("#guid", temp_buf, 0);
 				use_ps = 1;
 			}
@@ -993,7 +993,7 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	}
 	{
 		THROW(tsl_par.Retranslate(iefHdrLinesCount, symb_buf));
-		(temp_buf = 0).Cat(TdfParam.HdrLinesCount);
+		temp_buf.Z().Cat(TdfParam.HdrLinesCount);
 		THROW(pFile->AppendParam(pSect, symb_buf, temp_buf, 1));
 	}
 	{
@@ -1065,11 +1065,11 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		THROW(tsl_par.Retranslate(iefOneRecPerFile, symb_buf));
 		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XlsdfParam.Flags & ExcelDbFile::fOneRecPerFile)));
 		THROW(tsl_par.Retranslate(iefXlsHdrLinesCount, symb_buf));
-		THROW(pFile->AppendParam(pSect, symb_buf, (temp_buf = 0).Cat(XlsdfParam.HdrLinesCount), 1));
+		THROW(pFile->AppendParam(pSect, symb_buf, temp_buf.Z().Cat(XlsdfParam.HdrLinesCount), 1));
 		THROW(tsl_par.Retranslate(iefColumnsCount, symb_buf));
-		THROW(pFile->AppendParam(pSect, symb_buf, (temp_buf = 0).Cat(XlsdfParam.ColumnsCount), 1));
+		THROW(pFile->AppendParam(pSect, symb_buf, temp_buf.Z().Cat(XlsdfParam.ColumnsCount), 1));
 		THROW(tsl_par.Retranslate(iefSheetNum, symb_buf));
-		THROW(pFile->AppendParam(pSect, symb_buf, (temp_buf = 0).Cat(XlsdfParam.SheetNum), 1));
+		THROW(pFile->AppendParam(pSect, symb_buf, temp_buf.Z().Cat(XlsdfParam.SheetNum), 1));
 		THROW(tsl_par.Retranslate(iefSheetName, symb_buf));
 		THROW(pFile->AppendParam(pSect, symb_buf, XlsdfParam.SheetName_, 1));
 		THROW(tsl_par.Retranslate(iefEndStr, symb_buf));
@@ -1319,7 +1319,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 							THROW_SL(HdrOtrRec.AddField(&outer_fld.ID, &outer_fld));
 						}
 						else {
-							(msg_buf = 0).Cat(pSect).CatDiv(':', 1).Cat(ini_param);
+							msg_buf.Z().Cat(pSect).CatDiv(':', 1).Cat(ini_param);
 							CALLEXCEPT_PP_S(PPERR_INVFLDCORR, msg_buf);
 						}
 					}

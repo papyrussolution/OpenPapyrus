@@ -1408,12 +1408,12 @@ static int __CopyFile(const char * pSrcPath, const char * pDestPath, SpiiExchgCo
 			}
 			if(j) {
 				if(!r) {
-					(msg_buf = 0).Cat("ERR").CatDiv(':', 2).Cat("timeout for coping was expired").Space().
+					msg_buf.Z().Cat("ERR").CatDiv(':', 2).Cat("timeout for coping was expired").Space().
 						CatQStr(pSrcPath).CatDiv('>', 1).CatQStr(pDestPath);
 					SyncTable::LogMessage(rCtx.LogFile, msg_buf);
 				}
 				else {
-					(msg_buf = 0).Cat("WARN").CatDiv(':', 2).Cat("was delay").Space().Cat(j).Cat("sec").Space().Cat("on coping").
+					msg_buf.Z().Cat("WARN").CatDiv(':', 2).Cat("was delay").Space().Cat(j).Cat("sec").Space().Cat("on coping").
 						Space().CatQStr(pSrcPath).CatDiv('>', 1).CatQStr(pDestPath);
 					SyncTable::LogMessage(rCtx.LogFile, msg_buf);
 				}
@@ -1423,7 +1423,7 @@ static int __CopyFile(const char * pSrcPath, const char * pDestPath, SpiiExchgCo
 			r = 1;
 		if(r) {
 			if(!SCopyFile(pSrcPath, pDestPath, 0, FILE_SHARE_READ, 0)) {
-				(msg_buf = 0).Cat("ERR").CatDiv(':', 2).Cat("coping").
+				msg_buf.Z().Cat("ERR").CatDiv(':', 2).Cat("coping").
 					Space().CatQStr(pSrcPath).CatDiv('>', 1).CatQStr(pDestPath);
 				SyncTable::LogMessage(rCtx.LogFile, msg_buf);
 				ok = 0;

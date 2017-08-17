@@ -65,7 +65,7 @@ char * SLAPI DataType::tostr(const void *, long, char * b) const
 //virtual
 SString & SLAPI DataType::ToStr(const void * pData, long format, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	char    temp_buf[4096];
 	tostr(pData, format, temp_buf);
 	rBuf = temp_buf;
@@ -374,7 +374,7 @@ TYPEID IsSTypeName(SStrScan & rScan)
 //
 SString & GetBinaryTypeString(TYPEID typ, int style, SString & rBuf, const char * pFldName, size_t indent)
 {
-	rBuf = 0;
+	rBuf.Z();
 	size_t sz = stsize(typ);
 	size_t dim = 0;
 	SString type_text;

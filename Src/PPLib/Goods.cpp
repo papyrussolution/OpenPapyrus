@@ -151,7 +151,7 @@ int FASTCALL BarcodeArray::GetSingle(SString & rBuf) const
 		rBuf = p_single_item->Code;
 	}
 	else
-		rBuf = 0;
+		rBuf.Z();
 	return ok;
 }
 
@@ -1393,7 +1393,7 @@ int SLAPI GoodsCore::GetListByAr(PPID codeArID, PPIDArray * pList)
 
 int SLAPI GoodsCore::GetSingleBarcode(PPID goodsID, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	BarcodeArray codes;
 	return ReadBarcodes(goodsID, codes) ? codes.GetSingle(rBuf) : 0;
 }
@@ -1582,7 +1582,7 @@ int SLAPI GoodsCore::GetArCode(PPID arID, PPID goodsID, SString & rCode, int32 *
 
 static SString & FormatBarcode(const char * pPrfx, const char * pSfx, uint len, int64 n, SString & rBuf)
 {
-	return (rBuf = 0).Cat(pPrfx).CatLongZ(n, len).Cat(pSfx);
+	return rBuf.Z().Cat(pPrfx).CatLongZ(n, len).Cat(pSfx);
 }
 
 //int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const char * pPrfx, const char * pSfx, int len, long low, long upp, int addChkDig, SString & rBarcode)
@@ -1673,7 +1673,7 @@ int SLAPI GoodsCore::GetBarcodeByTemplate(PPID grp, /*const char * pWghtPrefix*/
 	if(*p) {
 		memzero(pfx, sizeof(pfx));
 		while(*p) {
-			if(isdigit(*p))
+			if(isdec(*p))
 				*c++ = *p++;
 			else if(strnicmp(p, (char*)&sGRP, 3) == 0 || strnicmp(p, (char*)&sGR, 3) == 0) {
 				if(GetSingleBarcode(grp, temp_buf) > 0) {
@@ -1697,7 +1697,7 @@ int SLAPI GoodsCore::GetBarcodeByTemplate(PPID grp, /*const char * pWghtPrefix*/
 			else if(*p == '%') {
 				SString sfx, barcode;
 				x_len = strlen(pfx);
-				for(++p, x = t; isdigit(*p);)
+				for(++p, x = t; isdec(*p);)
 					*x++ = *p++;
 				*x = 0;
 				r_len = atoi(t);
@@ -2509,7 +2509,7 @@ int SLAPI GoodsCache::GetStockExt(PPID goodsID, GoodsStockExt * pExt)
 int SLAPI GoodsCache::GetSingleBarcode(PPID goodsID, SString & rBuf)
 {
 	int    ok = 0;
-	rBuf = 0;
+	rBuf.Z();
 	if(goodsID == 0)
 		ok = -1;
 	else {

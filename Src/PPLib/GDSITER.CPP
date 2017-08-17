@@ -539,7 +539,7 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 		}
 		// @v8.2.12 {
 		{
-			Filt.GetExtssData(Filt.extssBarcodeText, temp_buf = 0);
+			Filt.GetExtssData(Filt.extssBarcodeText, temp_buf.Z());
 			if(temp_buf.NotEmptyS()) {
 				StringSet bc_ss(',', temp_buf);
 				BarcodeArray bc_list;
@@ -566,7 +566,7 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 			Counter.Init(P_List->getCount());
 		}
 		else {
-			Filt.GetExtssData(Filt.extssNameText, temp_buf = 0);
+			Filt.GetExtssData(Filt.extssNameText, temp_buf.Z());
 			if(temp_buf.NotEmptyS()) {
 				temp_list.clear();
 				THROW(GObj.P_Tbl->GetListBySubstring(temp_buf, &temp_list, BIN(Filt.Flags & GoodsFilt::fHidePassive)));
@@ -883,7 +883,7 @@ int SLAPI GoodsCore::MakeFullName(PPID id, PPID parentID, SString & rBuf)
 {
 	int    ok = -1;
 	Goods2Tbl::Rec grec;
-	rBuf = 0;
+	rBuf.Z();
 	if(Fetch(id, &grec) > 0 && grec.Kind == PPGDSK_GROUP) {
 		if(id == parentID || BelongToGroup(id, parentID) > 0) {
 			PPID   parent_id = 0;
@@ -982,7 +982,7 @@ int SLAPI GoodsGroupIterator::Init(PPID parentID, long flags)
 
 int SLAPI GoodsGroupIterator::Get(PPID id, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	//
 	uint   pos = 0;
 	if(List.lsearch(&id, &pos, CMPF_LONG)) {
@@ -1012,7 +1012,7 @@ int SLAPI GoodsGroupIterator::Next(PPID * pID, SString & rBuf)
 		if(Flags & fSortByCode)
 			(rBuf = ptr + sizeof(PPID)).ShiftLeftChr('@');
 		else
-			rBuf = 0;
+			rBuf.Z();
 		rBuf.CatDivIfNotEmpty('-', 1).Cat(ptr + sizeof(PPID) + GRPCODESIZE);
 		IterIndex++;
 		return 1;

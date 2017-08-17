@@ -112,7 +112,7 @@ int SLAPI STab::Row::Get(uint pos, double & rNumber) const
 
 int FASTCALL STab::Row::ToStr(SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	long   c = PosList.getCount();
 	rBuf.Cat(c).Space();
 	for(long i = 0; i < c; i++) {
@@ -385,7 +385,7 @@ int SLAPI STabFile::Helper_WriteTab(const char * pTabName, STab * pTab, SFile & 
 			STab::Row row;
 			THROW(rFile.WriteLine(line_buf.Cat("BEGIN").Space().Cat(pTabName).CR()));
 			for(uint i = 0; i < c; i++) {
-				(line_buf = 0).Tab();
+				line_buf.Z().Tab();
 				THROW(pTab->GetRow(i, row));
 				uint rc = row.GetCount();
 				for(uint j = 0; j < rc; j++) {
@@ -403,7 +403,7 @@ int SLAPI STabFile::Helper_WriteTab(const char * pTabName, STab * pTab, SFile & 
 				}
 				THROW(rFile.WriteLine(line_buf.CR()));
 			}
-			THROW(rFile.WriteLine((line_buf = 0).Cat("END").CR()));
+			THROW(rFile.WriteLine(line_buf.Z().Cat("END").CR()));
 		}
 	}
 	CATCH

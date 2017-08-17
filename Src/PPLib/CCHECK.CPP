@@ -1379,7 +1379,7 @@ const LocationTbl::Rec * SLAPI CCheckPacket::GetDlvrAddr() const
 
 SString & SLAPI CCheckPacket::MakeBarcodeIdent(SString & rBuf) const
 {
-    return (rBuf = 0).Cat("CA").CatLongZ(Rec.CashID, 4).CatLongZ(Rec.Code, 6);
+    return rBuf.Z().Cat("CA").CatLongZ(Rec.CashID, 4).CatLongZ(Rec.Code, 6);
 }
 
 //static
@@ -1407,9 +1407,9 @@ int SLAPI CCheckPacket::ParseBarcodeIdent(const char * pIdent, BarcodeIdentStruc
 		}
         if(s) {
 			SString temp_buf;
-			(temp_buf = 0).CatN(pIdent+2, 4);
+			temp_buf.Z().CatN(pIdent+2, 4);
 			result.PosId = temp_buf.ToLong();
-			(temp_buf = 0).CatN(pIdent+6, 6);
+			temp_buf.Z().CatN(pIdent+6, 6);
 			result.CcCode = temp_buf.ToLong();
 			if(result.PosId > 0 && result.CcCode > 0) {
 				ok = 1;
@@ -1445,7 +1445,7 @@ int FASTCALL CSessTotal::Add(const CSessTotal * pSubTotal)
 //static
 SString & SLAPI CCheckCore::MakeCodeString(const CCheckTbl::Rec * pRec, SString & rBuf)
 {
-	(rBuf = 0).Cat(pRec->Dt).CatDiv(':', 1);
+	rBuf.Z().Cat(pRec->Dt).CatDiv(':', 1);
 	if(pRec->Tm)
 		rBuf.Cat(pRec->Tm, MKSFMT(0, TIMF_HMS | TIMF_MSEC)).CatDiv(':', 1);
 	return rBuf.CatLongZ(pRec->CashID, 4).CatDiv(':', 1).Cat(pRec->Code);

@@ -73,7 +73,7 @@ int SLAPI PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 				if(sde.IsFolder() && !sde.IsSelf() && !sde.IsUpFolder()) {
 					int    need_remove = 1;
 					for(const char * p = sde.FileName; *p; p++)
-						if(!isdigit(*p)) {
+						if(!isdec(*p)) {
 							need_remove = 0;
 							break;
 						}

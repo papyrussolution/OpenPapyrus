@@ -101,7 +101,7 @@ static int IsGeoPosValid(double lat, double lon)
 
 static SString & GeoPosToStr(double lat, double lon, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(lat != 0.0 || lon != 0.0) {
 		rBuf.Cat(lat, MKSFMTD(0, 7, NMBF_NOTRAILZ)).CatDiv(',', 2).Cat(lon, MKSFMTD(0, 7, NMBF_NOTRAILZ));
 	}
@@ -504,26 +504,26 @@ int SLAPI SGeoGridTab::Save(const char * pFileName)
     SString line_buf;
     SFile f_out(pFileName, SFile::mWrite);
     THROW(f_out.IsValid());
-    THROW(f_out.WriteLine((line_buf = 0).CatBrackStr("pgcg-header").CR()));
-	THROW(f_out.WriteLine((line_buf = 0).CatEq("dim", Dim).CR()));
-	THROW(f_out.WriteLine((line_buf = 0).CatEq("srccount-lat", (int64)SrcCountLat).CR()));
-	THROW(f_out.WriteLine((line_buf = 0).CatEq("srccount-lon", (int64)SrcCountLon).CR()));
-	THROW(f_out.WriteLine((line_buf = 0).CatEq("gridcount-lat", LatIdx.getCount()).CR()));
-	THROW(f_out.WriteLine((line_buf = 0).CatEq("gridcount-lon", LonIdx.getCount()).CR()));
-	THROW(f_out.WriteLine((line_buf = 0).CR()));
+    THROW(f_out.WriteLine(line_buf.Z().CatBrackStr("pgcg-header").CR()));
+	THROW(f_out.WriteLine(line_buf.Z().CatEq("dim", Dim).CR()));
+	THROW(f_out.WriteLine(line_buf.Z().CatEq("srccount-lat", (int64)SrcCountLat).CR()));
+	THROW(f_out.WriteLine(line_buf.Z().CatEq("srccount-lon", (int64)SrcCountLon).CR()));
+	THROW(f_out.WriteLine(line_buf.Z().CatEq("gridcount-lat", LatIdx.getCount()).CR()));
+	THROW(f_out.WriteLine(line_buf.Z().CatEq("gridcount-lon", LonIdx.getCount()).CR()));
+	THROW(f_out.WriteLine(line_buf.Z().CR()));
 	{
-		THROW(f_out.WriteLine((line_buf = 0).CatBrackStr("pgcg-lat").CR()));
+		THROW(f_out.WriteLine(line_buf.Z().CatBrackStr("pgcg-lat").CR()));
 		for(uint i = 0; i < LatIdx.getCount(); i++) {
-			THROW(f_out.WriteLine((line_buf = 0).Cat(LatIdx.get(i)).CR()));
+			THROW(f_out.WriteLine(line_buf.Z().Cat(LatIdx.get(i)).CR()));
 		}
-		THROW(f_out.WriteLine((line_buf = 0).CR()));
+		THROW(f_out.WriteLine(line_buf.Z().CR()));
 	}
 	{
-		THROW(f_out.WriteLine((line_buf = 0).CatBrackStr("pgcg-lon").CR()));
+		THROW(f_out.WriteLine(line_buf.Z().CatBrackStr("pgcg-lon").CR()));
 		for(uint i = 0; i < LonIdx.getCount(); i++) {
-			THROW(f_out.WriteLine((line_buf = 0).Cat(LonIdx.get(i)).CR()));
+			THROW(f_out.WriteLine(line_buf.Z().Cat(LonIdx.get(i)).CR()));
 		}
-		THROW(f_out.WriteLine((line_buf = 0).CR()));
+		THROW(f_out.WriteLine(line_buf.Z().CR()));
 	}
     CATCHZOK
     return ok;

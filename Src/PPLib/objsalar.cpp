@@ -1264,12 +1264,12 @@ int StaffCalDialog::setupList()
 		}
 		else {
 			dt.v = rrec.DtVal;
-			(sub = 0).Cat(dt);
+			sub.Z().Cat(dt);
 		}
 		ss.add(sub);
 		LTIME tm;
 		tm.settotalsec(rrec.TmVal);
-		ss.add((sub = 0).Cat(tm, MKSFMT(0, TIMF_HMS)));
+		ss.add(sub.Z().Cat(tm, MKSFMT(0, TIMF_HMS)));
 		sub = 0;
 		if(rrec.Flags & STCALEF_SKIP)
 			sub.CatChar('X');

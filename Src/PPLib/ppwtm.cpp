@@ -1054,7 +1054,7 @@ int WhatmanObjectCafeTable::GetTextLayout(STextLayout & rTlo, int options) const
 	PPObjCashNode::GetCafeTableName(TableNo, temp_buf); // @v8.4.1
 	text.Space().Cat(temp_buf); // @v8.4.1 TableNo-->temp_buf
 	if(Status.Status == CTableStatus::sOrder) {
-		(temp_buf = 0).Cat("Order").Space();
+		temp_buf.Z().Cat("Order").Space();
 		Status.OrderTime.ToStr(temp_buf, STimeChunk::fmtOmitSec);
 		text.CR().Cat(temp_buf);
 	}

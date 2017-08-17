@@ -174,21 +174,16 @@ int FASTCALL LineMarkers::LineFromHandle(int markerHandle)
 
 void LineMarkers::MergeMarkers(int pos)
 {
-	if(markers[pos + 1] != NULL) {
-		if(markers[pos] == NULL)
-			markers[pos] = new MarkerHandleSet;
+	if(markers[pos + 1]) {
+		SETIFZ(markers[pos], new MarkerHandleSet);
 		markers[pos]->CombineWith(markers[pos + 1]);
-		delete markers[pos + 1];
-		markers[pos + 1] = NULL;
+		ZDELETE(markers[pos + 1]);
 	}
 }
 
 int LineMarkers::MarkValue(int line)
 {
-	if(markers.Length() && (line >= 0) && (line < markers.Length()) && markers[line])
-		return markers[line]->MarkValue();
-	else
-		return 0;
+	return (markers.Length() && (line >= 0) && (line < markers.Length()) && markers[line]) ? markers[line]->MarkValue() : 0;
 }
 
 int LineMarkers::MarkerNext(int lineStart, int mask) const
@@ -229,14 +224,12 @@ bool LineMarkers::DeleteMark(int line, int markerNum, bool all)
 	if(markers.Length() && (line >= 0) && (line < markers.Length()) && markers[line]) {
 		if(markerNum == -1) {
 			someChanges = true;
-			delete markers[line];
-			markers[line] = NULL;
+			ZDELETE(markers[line]);
 		}
 		else {
 			someChanges = markers[line]->RemoveNumber(markerNum, all);
 			if(markers[line]->Length() == 0) {
-				delete markers[line];
-				markers[line] = NULL;
+				ZDELETE(markers[line]);
 			}
 		}
 	}
@@ -249,8 +242,7 @@ void LineMarkers::DeleteMarkFromHandle(int markerHandle)
 	if(line >= 0) {
 		markers[line]->RemoveHandle(markerHandle);
 		if(markers[line]->Length() == 0) {
-			delete markers[line];
-			markers[line] = NULL;
+			ZDELETE(markers[line]);
 		}
 	}
 }

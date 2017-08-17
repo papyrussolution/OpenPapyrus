@@ -56,7 +56,7 @@ SString & S_GUID::ToStr(long fmt, SString & rBuf) const
 	char   temp_buf[64];
 	uint   i;
 	const uint8 * p_data = (const uint8 *)Data;
-	rBuf = 0;
+	rBuf.Z();
 	if(fmt == fmtIDL) {
 		rBuf.Cat(format_uuid_part(p_data, 4, temp_buf)).CatChar('-');
 		p_data += 4;
@@ -243,7 +243,7 @@ SString FASTCALL SVerT::ToStr(SString & rBuf) const
 {
 	int    j, n, r;
 	Get(&j, &n, &r);
-	return (rBuf = 0).CatDotTriplet(j, n, r);
+	return rBuf.Z().CatDotTriplet(j, n, r);
 }
 
 int FASTCALL SVerT::FromStr(const char * pStr)

@@ -116,7 +116,7 @@ int SLAPI BillSymbCache::Search(const char * pSymb, PPID * pID, SString & rBuf) 
 {
 	int    ok = 0;
 	SString s, f;
-	rBuf = 0;
+	rBuf.Z();
 	for(uint n = 0, pos = 0; !ok && SymbSet.get(&pos, s); n++)
 		if(stricmp866(s, pSymb) == 0) {
 			Data * p_entry = (Data *)SearchByPos(n, 0);
@@ -162,7 +162,7 @@ int SLAPI BillSymbCache::Fetch(const char * pSymb, PPID * pID, SString & rBuf)
 	Data   entry;
 	SString s, f;
 	PPErrCode = 0;
-	rBuf = 0;
+	rBuf.Z();
 	RwL.ReadLock();
 	StatData.Count.Incr();
 	ok = Search(pSymb, pID, rBuf);
@@ -908,7 +908,7 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 int SLAPI PPExprParser::ReadArgString(SString & rBuf, size_t * pOffs) const
 {
 	int    ok = 1;
-	rBuf = 0;
+	rBuf.Z();
 	const size_t pos = Pos ? (Pos-1) : Pos; // Pos является указателем на символ, следующий за PPExprParser::Cur
 	const char * p = &P_S[pos];
 	while(oneof4(*p, ' ', '\t', '\r', '\n'))

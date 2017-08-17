@@ -17,7 +17,7 @@
 //static
 SString & FASTCALL ObjTagItem::GetTypeString(int tagType, PPID enumId, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	switch(tagType) {
 		case OTTYP_GROUP:
 			PPLoadString("group", rBuf);
@@ -193,7 +193,7 @@ int SLAPI ObjTagItem::GetEnumData(long * pID, long * pParentID, SString * pTxt, 
 int FASTCALL ObjTagItem::GetStr(SString & rBuf) const
 {
 	int    ok = 1;
-	rBuf = 0;
+	rBuf.Z();
 	switch(TagDataType) {
 		case OTTYP_BOOL:
 			rBuf = Val.IntVal ? "True" : "False";
@@ -565,7 +565,7 @@ int SLAPI ObjTagItem::Put(PPID objType, PPID objID, long tagByObj, ObjTagTbl::Re
 			_lf.Replace(0, Val.PStr);
 		else
 			_lf.Remove(0);
-		(temp_buf = 0).Cat(pRec->ObjID);
+		temp_buf.Z().Cat(pRec->ObjID);
 		if(_lf.SaveSingle(pRec->TagID, temp_buf, 0, &result_fname) > 0)
 			result_fname.CopyTo(pRec->StrVal, sizeof(pRec->StrVal));
 		else
@@ -850,7 +850,7 @@ const ObjTagItem * FASTCALL ObjTagList::GetItem(PPID id) const
 
 int SLAPI ObjTagList::GetItemStr(PPID tagID, SString & rBuf) const
 {
-    rBuf = 0;
+    rBuf.Z();
     const ObjTagItem * p_item = GetItem(tagID);
     return (p_item && p_item->GetStr(rBuf) && rBuf.NotEmptyS()) ? 1 : -1;
 }
@@ -1106,7 +1106,7 @@ int SLAPI ObjTagCore::GetTag(PPID objType, PPID objID, PPID tagID, ObjTagItem * 
 int SLAPI ObjTagCore::GetTagStr(PPID objType, PPID objID, PPID tagID, SString & rBuf)
 {
 	int    ok = -1;
-	rBuf = 0;
+	rBuf.Z();
 	ObjTagItem item;
 	int    r = GetTag(objType, objID, tagID, &item);
 	if(r > 0 && item.GetStr(rBuf) && rBuf.NotEmptyS())

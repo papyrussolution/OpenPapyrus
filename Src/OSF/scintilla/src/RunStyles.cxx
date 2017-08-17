@@ -76,10 +76,8 @@ RunStyles::RunStyles()
 
 RunStyles::~RunStyles()
 {
-	delete starts;
-	starts = NULL;
-	delete styles;
-	styles = NULL;
+	ZDELETE(starts);
+	ZDELETE(styles);
 }
 
 int RunStyles::Length() const

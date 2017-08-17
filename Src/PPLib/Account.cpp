@@ -10,14 +10,14 @@
 int FASTCALL GetAcctName(Acct * acct, PPID curID, long fmt, SString & rBuf)
 {
 	AcctID acctid;
-	rBuf = 0;
+	rBuf.Z();
 	return (BillObj->atobj->ConvertAcct(acct, curID, &acctid, 0) > 0) ? GetAcctIDName(&acctid, fmt, rBuf) : -1;
 }
 
 int FASTCALL GetAcctIDName(AcctID * acctid, long, SString & rBuf)
 {
 	int    ok = -1;
-	rBuf = 0;
+	rBuf.Z();
 	if(acctid->ar) {
 		PPObjArticle ar_obj;
 		ArticleTbl::Rec ar_rec;
@@ -411,7 +411,7 @@ int SLAPI AccountCore::ParseString(const char * pStr, int tok[])
 	char * p = strtok(STRNSCPY(temp_buf, pStr), ".,");
 	if(p)
 		do {
-			if(i == 0 && (!isdigit(p[0]) || p[0] == '0'))
+			if(i == 0 && (!isdec(p[0]) || p[0] == '0'))
 				tok[i++] = (SearchCode(p, 0L, 0) > 0) ? data.Ac : 0;
 			else
 				tok[i++] = atoi(p);

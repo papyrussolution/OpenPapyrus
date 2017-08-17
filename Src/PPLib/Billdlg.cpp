@@ -2229,7 +2229,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	Flags &= ~(fModified|fCheckCreditLim|fCheckRetLim);
 	THROW(opkobj.GetPacket(P_Pack->Rec.OpID, &op_pack) > 0);
 	{
-		(temp_buf = 0).Cat(op_pack.Rec.Name).CatDiv(';', 1);
+		temp_buf.Z().Cat(op_pack.Rec.Name).CatDiv(';', 1);
 		GetObjectName(PPOBJ_LOCATION, P_Pack->Rec.LocID, temp_buf, 1);
 		setTitle(temp_buf);
 		GetObjectName(PPOBJ_BILLSTATUS, P_Pack->Rec.StatusID, temp_buf);
@@ -3339,10 +3339,10 @@ int PaymPlanDialog::setupList()
 	uint    i = 0;
 	while(Data.enumItems(&i, (void **)&p_item)) {
 		ss.clear();
-		ss.add((sub = 0).Cat(p_item->PayDate));
-		ss.add((sub = 0).Cat(p_item->Amount,   fmt));
-		ss.add((sub = 0).Cat(p_item->Interest, fmt));
-		ss.add((sub = 0).Cat(rest, fmt));
+		ss.add(sub.Z().Cat(p_item->PayDate));
+		ss.add(sub.Z().Cat(p_item->Amount,   fmt));
+		ss.add(sub.Z().Cat(p_item->Interest, fmt));
+		ss.add(sub.Z().Cat(rest, fmt));
 		THROW(addStringToList(i, ss.getBuf()));
 		total_amount += p_item->Amount;
 		total_interest += p_item->Interest;
@@ -3351,9 +3351,9 @@ int PaymPlanDialog::setupList()
 	if(Data.getCount()) {
 		ss.clear();
 		ss.add(PPGetWord(PPWORD_TOTAL, 0, sub));
-		ss.add((sub = 0).Cat(total_amount,   fmt));
-		ss.add((sub = 0).Cat(total_interest, fmt));
-		ss.add((sub = 0).Cat(rest, fmt));
+		ss.add(sub.Z().Cat(total_amount,   fmt));
+		ss.add(sub.Z().Cat(total_interest, fmt));
+		ss.add(sub.Z().Cat(rest, fmt));
 		THROW(addStringToList(Data.getCount()+1, ss.getBuf()));
 	}
 	CATCHZOK

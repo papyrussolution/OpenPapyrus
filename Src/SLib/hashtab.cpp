@@ -397,7 +397,7 @@ int SymbHashTable::Get(uint pos, SString & rBuf) const
 int SymbHashTable::GetByAssoc(uint val, SString & rBuf) const
 {
 	int    ok = 1;
-	rBuf = 0;
+	rBuf.Z();
 	if(Flags & fUseAssoc) {
 		long   p = 0;
 		if(Assoc.BSearch((long)val, &p, 0))

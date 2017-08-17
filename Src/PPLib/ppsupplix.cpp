@@ -1860,9 +1860,9 @@ int SLAPI PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, c
 									ArObj.P_Tbl->PersonToArticle(psn_rec.ID, acs_id, &ar_id);
 									MEMSZERO(sdr_saldo_aggr);
 									sdr_saldo_aggr.SaldoDate = _curdt; //           date                "Дата, за которую экспортируются данные"; // @v9.1.4
-									(temp_buf = 0).Cat(psn_rec.ID);
+									temp_buf.Z().Cat(psn_rec.ID);
 									STRNSCPY(sdr_saldo_aggr.CompanyId, temp_buf);
-									(temp_buf = 0).Cat(loc_id);
+									temp_buf.Z().Cat(loc_id);
 									STRNSCPY(sdr_saldo_aggr.AddressId, temp_buf); // zstring(24)         "Код клиента";
 									// @optional sdr_saldo_aggr.ProductId            zstring(24)         "Код продукта";
 									// @optional sdr_saldo_aggr.ProductName          zstring(128)        "Название продукта";
@@ -1903,9 +1903,9 @@ int SLAPI PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, c
 										BillTbl::Rec bill_rec;
 										if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 											MEMSZERO(sdr_saldo_doc);
-											(temp_buf = 0).Cat(psn_rec.ID);
+											temp_buf.Z().Cat(psn_rec.ID);
 											STRNSCPY(sdr_saldo_doc.CompanyId, temp_buf);
-											(temp_buf = 0).Cat(loc_id);
+											temp_buf.Z().Cat(loc_id);
 											STRNSCPY(sdr_saldo_doc.AddressId, temp_buf);
 											BillCore::GetCode(temp_buf = bill_rec.Code);
 											STRNSCPY(sdr_saldo_doc.DocumentNumber, temp_buf);
@@ -2310,7 +2310,7 @@ int SLAPI EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
 					// @v8.5.0 Data.TechID = suppl_agr.ExchCfg.TechID;
 					Data.PriceQuotID = suppl_agr.Ep.PriceQuotID;
 					// @v8.5.0 {
-					suppl_agr.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssClientCode, temp_buf = 0);
+					suppl_agr.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssClientCode, temp_buf.Z());
 					STRNSCPY(Data.ClientCode, temp_buf);
 					// } @v8.5.0
 					// @v8.5.0 STRNSCPY(Data.ClientCode, suppl_agr.ExchCfg.ClientCode);
@@ -2720,7 +2720,7 @@ int SLAPI iSalesPepsi::LogErrors(TSCollection <iSalesPepsi::ResultItem> & rResul
 	for(uint i = 0; i < rResultList.getCount(); i++) {
 		const ResultItem * p_result_item = rResultList.at(i);
 		if(p_result_item && p_result_item->Status == 0) {
-            (msg_buf = 0).Cat("ERR").Tab().Cat(p_result_item->ItemDescr).Tab().Cat(p_result_item->ErrMsg);
+            msg_buf.Z().Cat("ERR").Tab().Cat(p_result_item->ItemDescr).Tab().Cat(p_result_item->ErrMsg);
 			R_Logger.Log(msg_buf);
 		}
 	}
@@ -2881,7 +2881,7 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 			if(f_out.IsValid() && p_result->getCount()) {
 				SString line_buf;
 				SString ar_code;
-				(line_buf = 0).Cat("OuterCode").Tab().Cat("NativeCode").Tab().
+				line_buf.Z().Cat("OuterCode").Tab().Cat("NativeCode").Tab().
 					Cat("TypeOfProduct").Tab().Cat("UnitCode").Tab().Cat("VatRate").Tab().Cat("Name").Tab().Cat("Abbr").CatChar('|').
 					Cat("Uom.count").Tab().Cat("uom.Barcode").Tab().Cat("uom.Code").Tab().Cat("uom.Netto").Tab().
 					Cat("uom.Brutto").Tab().Cat("uom.Width").Tab().Cat("uom.Height").Tab().Cat("uom.Length").CatChar('|').
@@ -2905,7 +2905,7 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 								}
 							}
 						}
-						(line_buf = 0).Cat(p_item->OuterCode).Tab().Cat(p_item->NativeCode).Tab().
+						line_buf.Z().Cat(p_item->OuterCode).Tab().Cat(p_item->NativeCode).Tab().
 							Cat(p_item->TypeOfProduct).Tab().Cat(p_item->UnitCode).Tab().
 							Cat(p_item->VatRate).Tab().Cat(p_item->Name).Tab().Cat(p_item->Abbr).CatChar('|').Cat(p_item->UomList.getCount());
 						for(uint j = 0; j < p_item->UomList.getCount(); j++) {
@@ -3272,7 +3272,7 @@ int SLAPI iSalesPepsi::ReceiveUnclosedInvoices(TSCollection <iSalesBillDebt> & r
 			for(uint i = 0; i < p_result->getCount(); i++) {
 				const iSalesBillDebt * p_item = p_result->at(i);
 				if(p_item) {
-					(line_buf = 0).Cat(p_item->iSalesId).Tab().Cat(p_item->DocType).Tab().Cat(p_item->Code).Tab().
+					line_buf.Z().Cat(p_item->iSalesId).Tab().Cat(p_item->DocType).Tab().Cat(p_item->Code).Tab().
 						Cat(p_item->Dtm, DATF_DMY, TIMF_HMS).Tab().Cat(p_item->PayerCode).Tab().Cat(p_item->Amount, MKSFMTD(0, 2, 0)).Tab().
 						Cat(p_item->Debt, MKSFMTD(0, 2, 0)).Tab().Cat(p_item->ErrMsg);
 					line_buf.Transf(CTRANSF_INNER_TO_UTF8);
@@ -3318,7 +3318,7 @@ int SLAPI iSalesPepsi::ReceiveRouts(TSCollection <iSalesRoutePacket> & rResult)
 			for(uint i = 0; i < p_result->getCount(); i++) {
 				const iSalesRoutePacket * p_item = p_result->at(i);
 				if(p_item) {
-					(line_buf = 0).Cat(p_item->Ident).Tab().Cat(p_item->TypeOfRoute).Tab().
+					line_buf.Z().Cat(p_item->Ident).Tab().Cat(p_item->TypeOfRoute).Tab().
 						Cat(p_item->NativeAgentCode).Tab().Cat(p_item->Valid).Tab().Cat(p_item->ErrMsg).Tab().
 						Cat(p_item->VisitList.getCount());
 					for(uint j = 0; j < p_item->VisitList.getCount(); j++) {
@@ -4295,7 +4295,7 @@ int SLAPI iSalesPepsi::SendInvoices()
 			for(uint i = 0; i < outp_packet.getCount(); i++) {
 				const iSalesBillPacket * p_pack = outp_packet.at(i);
 				if(p_pack) {
-					(msg_buf = 0).
+					msg_buf.Z().
 						CatEq("NativeID", p_pack->NativeID).CatDiv(';', 0).
 						CatEq("iSalesId", p_pack->iSalesId).CatDiv(';', 0).
 						CatEq("DocType", (long)p_pack->DocType).CatDiv(';', 0).
@@ -5719,7 +5719,7 @@ int SLAPI PrcssrSupplInterchange::Run()
 		PPIniFile ini_file;
 		if(ini_file.IsValid()) {
 			ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SUPPLEXP_BILLFILEMAXSIZE, &max_size_kb);
-			ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SPECENCODESYMBS, temp_buf = 0);
+			ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SPECENCODESYMBS, temp_buf.Z());
 			P_Eb->P.PutExtStrData(SupplInterchangeFilt::extssEncodeStr, temp_buf);
 		}
 		P_Eb->P.MaxTransmitSize = (size_t)max_size_kb;
@@ -5728,7 +5728,7 @@ int SLAPI PrcssrSupplInterchange::Run()
 			PPWait(1);
 			THROW(s_e.Init(/*&filt*/));
 			if(P_Eb->P.Actions & SupplInterchangeFilt::opImportGoods) {
-				PPGetFilePath(PPPATH_OUT, "monolit-baltica.xml", temp_buf = 0);
+				PPGetFilePath(PPPATH_OUT, "monolit-baltica.xml", temp_buf.Z());
 				//
 				THROW(s_e.Import(temp_buf));
 				ok = 1;

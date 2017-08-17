@@ -232,7 +232,7 @@ int SLAPI PPViewStaffList::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					if(SlObj.Fetch(p_item->ID, &se) > 0)
 						temp_buf = se.Name;
 					else
-						ideqvalstr(p_item->ID, temp_buf = 0);
+						ideqvalstr(p_item->ID, temp_buf.Z());
 					pBlk->Set(temp_buf);
 				}
 				break;
@@ -260,7 +260,7 @@ int SLAPI PPViewStaffList::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					if(sc_obj.Fetch(p_item->ChargeGrpID, &sc_pack) > 0)
 						temp_buf = sc_pack.Rec.Name;
 					else
-						ideqvalstr(p_item->ChargeGrpID, temp_buf = 0);
+						ideqvalstr(p_item->ChargeGrpID, temp_buf.Z());
 				}
 				pBlk->Set(temp_buf);
 				break;
@@ -1030,8 +1030,8 @@ StrAssocArray * FastEditSumByDivDlg::MakeSumList(long divID)
 
 				THROW(ObjAmtT.Fetch(r_amt_e.AmtTypeID, &amtt_rec) > 0);
 				ss.add((sub = amtt_rec.Name));
-				ss.add((sub = 0).Cat(r_amt_e.Period));
-				ss.add((sub = 0).Cat(r_amt_e.Amt));
+				ss.add(sub.Z().Cat(r_amt_e.Period));
+				ss.add(sub.Z().Cat(r_amt_e.Amt));
 				p_ret_list->Add((long)i + AMOUNTTYPE_OFFS, ss.getBuf());
 			}
 			p_ret_list->SortByText();

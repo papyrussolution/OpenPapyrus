@@ -47,7 +47,7 @@ static void classifyWordLisp(Sci_PositionU start, Sci_PositionU end, WordList &k
 	for(i = 0; (i < end - start + 1) && (i < 99); i++) {
 		s[i] = styler[start + i];
 		s[i + 1] = '\0';
-		if(!isdigit(s[i]) && (s[i] != '.')) digit_flag = false;
+		if(!isdec(s[i]) && (s[i] != '.')) digit_flag = false;
 	}
 	char chAttr = SCE_LISP_IDENTIFIER;
 
@@ -140,7 +140,7 @@ static void ColouriseLispDoc(Sci_PositionU startPos, Sci_Position length, int in
 			}
 		}
 		else if(state == SCE_LISP_MACRO_DISPATCH) {
-			if(!(IsASCII(ch) && isdigit(ch))) {
+			if(!(IsASCII(ch) && isdec(ch))) {
 				if(ch != 'r' && ch != 'R' && (i - styler.GetStartSegment()) > 1) {
 					state = SCE_LISP_DEFAULT;
 				}

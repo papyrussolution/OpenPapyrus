@@ -80,7 +80,7 @@ static int classifyWordTACL(Sci_PositionU start,
 	getRange(start, end, styler, s, sizeof(s));
 
 	char chAttr = SCE_C_IDENTIFIER;
-	if(isdigit(s[0]) || (s[0] == '.')) {
+	if(isdec(s[0]) || (s[0] == '.')) {
 		chAttr = SCE_C_NUMBER;
 	}
 	else {

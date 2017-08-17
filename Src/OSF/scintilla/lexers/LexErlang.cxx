@@ -29,7 +29,7 @@ static int is_radix(int radix, int ch)
 	int digit;
 	if(36 < radix || 2 > radix)
 		return 0;
-	if(isdigit(ch)) {
+	if(isdec(ch)) {
 		digit = ch - '0';
 	}
 	else if(isalnum(ch)) {
@@ -323,7 +323,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 				/* Numerics ------------------------------------------------------*/
 				/* Simple integer */
 				case NUMERAL_START: {
-				    if(isdigit(sc.ch)) {
+				    if(isdec(sc.ch)) {
 					    radix_digits *= 10;
 					    radix_digits += sc.ch - '0';     // Assuming ASCII here!
 				    }
@@ -336,7 +336,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 						    parse_state = NUMERAL_BASE_VALUE;
 					    }
 				    }
-				    else if('.' == sc.ch && isdigit(sc.chNext)) {
+				    else if('.' == sc.ch && isdec(sc.chNext)) {
 					    radix_digits = 0;
 					    parse_state = NUMERAL_FLOAT;
 				    }
@@ -371,7 +371,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 					    exponent_digits = 0;
 					    parse_state = NUMERAL_EXPONENT;
 				    }
-				    else if(!isdigit(sc.ch)) {
+				    else if(!isdec(sc.ch)) {
 					    sc.ChangeState(SCE_ERLANG_NUMBER);
 					    sc.SetState(SCE_ERLANG_DEFAULT);
 					    parse_state = STATE_NULL;
@@ -381,10 +381,10 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 				/* Exponent, either integer or float (xEyy, x.yyEzzz) */
 				case NUMERAL_EXPONENT: {
 				    if(('-' == sc.ch || '+' == sc.ch)
-					    && (isdigit(sc.chNext))) {
+					    && (isdec(sc.chNext))) {
 					    sc.Forward();
 				    }
-				    else if(!isdigit(sc.ch)) {
+				    else if(!isdec(sc.ch)) {
 					    if(0 < exponent_digits)
 						    sc.ChangeState(SCE_ERLANG_NUMBER);
 					    sc.SetState(SCE_ERLANG_DEFAULT);
@@ -494,7 +494,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 			}
 
 			if(no_new_state) {
-				if(isdigit(sc.ch)) {
+				if(isdec(sc.ch)) {
 					parse_state = NUMERAL_START;
 					radix_digits = sc.ch - '0';
 					sc.SetState(SCE_ERLANG_UNKNOWN);

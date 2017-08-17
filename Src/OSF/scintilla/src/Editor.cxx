@@ -28,13 +28,13 @@
 #include "Indicator.h"
 #include "XPM.h"
 #include "LineMarker.h"
-#include "Style.h"
+//#include "Style.h"
 #include "ViewStyle.h"
 #include "CharClassify.h"
 #include "Decoration.h"
-#include "CaseFolder.h"
+//#include "CaseFolder.h"
 #include "Document.h"
-#include "UniConversion.h"
+//#include "UniConversion.h"
 #include "Selection.h"
 #include "PositionCache.h"
 #include "EditModel.h"
@@ -87,8 +87,8 @@ Idler::Idler() : state(false), idlerID(0)
 static bool FASTCALL IsAllSpacesOrTabs(const char * s, uint len)
 {
 	for(uint i = 0; i < len; i++) {
-		// This is safe because IsSpaceOrTab() will return false for null terminators
-		if(!IsSpaceOrTab(s[i]))
+		// This is safe because IsASpaceOrTab() will return false for null terminators
+		if(!IsASpaceOrTab(s[i]))
 			return false;
 	}
 	return true;
@@ -1459,7 +1459,7 @@ void Editor::InvalidateCaret()
 		InvalidateRange(posDrag.Position(), posDrag.Position() + 1);
 	}
 	else {
-		for(size_t r = 0; r<sel.Count(); r++) {
+		for(size_t r = 0; r < sel.Count(); r++) {
 			InvalidateRange(sel.Range(r).caret.Position(), sel.Range(r).caret.Position() + 1);
 		}
 	}
@@ -1499,8 +1499,7 @@ bool Editor::WrapOneLine(Surface * surface, int lineToWrap)
 		view.LayoutLine(*this, lineToWrap, surface, vs, ll, wrapWidth);
 		linesWrapped = ll->lines;
 	}
-	return cs.SetHeight(lineToWrap, linesWrapped +
-	    (vs.annotationVisible ? pdoc->AnnotationLines(lineToWrap) : 0));
+	return cs.SetHeight(lineToWrap, linesWrapped + (vs.annotationVisible ? pdoc->AnnotationLines(lineToWrap) : 0));
 }
 
 // Perform  wrapping for a subset of the lines needing wrapping.
@@ -4018,7 +4017,6 @@ public:
 	{
 		StandardASCII();
 	}
-
 	~CaseFolderASCII()
 	{
 	}
@@ -4143,7 +4141,8 @@ long Editor::SearchInTarget(const char * text, int length)
 			targetEnd = static_cast<int>(pos + lengthFound);
 		}
 		return pos;
-	} catch(RegexError &) {
+	} 
+	catch(RegexError &) {
 		errorStatus = SC_STATUS_WARN_REGEX;
 		return -1;
 	}
@@ -4151,10 +4150,8 @@ long Editor::SearchInTarget(const char * text, int length)
 
 void Editor::GoToLine(int lineNo)
 {
-	if(lineNo > pdoc->LinesTotal())
-		lineNo = pdoc->LinesTotal();
-	if(lineNo < 0)
-		lineNo = 0;
+	SETMIN(lineNo, pdoc->LinesTotal());
+	SETMAX(lineNo, 0);
 	SetEmptySelection(pdoc->LineStart(lineNo));
 	ShowCaretAtCurrentPosition();
 	EnsureCaretVisible();
@@ -4164,9 +4161,10 @@ static bool Close(Point pt1, Point pt2, Point threshold)
 {
 	if(std::abs(pt1.x - pt2.x) > threshold.x)
 		return false;
-	if(std::abs(pt1.y - pt2.y) > threshold.y)
+	else if(std::abs(pt1.y - pt2.y) > threshold.y)
 		return false;
-	return true;
+	else
+		return true;
 }
 
 std::string Editor::RangeText(int start, int end) const
@@ -4200,7 +4198,7 @@ void Editor::CopySelectionRange(SelectionText * ss, bool allowLineCopy)
 	}
 	else {
 		std::string text;
-		std::vector<SelectionRange> rangesInOrder = sel.RangesCopy();
+		std::vector <SelectionRange> rangesInOrder = sel.RangesCopy();
 		if(sel.selType == Selection::selRectangle)
 			std::sort(rangesInOrder.begin(), rangesInOrder.end());
 		for(size_t r = 0; r<rangesInOrder.size(); r++) {
@@ -4713,7 +4711,7 @@ void Editor::ButtonDown(Point pt, uint curTime, bool shift, bool ctrl, bool alt)
 
 bool Editor::PositionIsHotspot(int position) const
 {
-	return vs.styles[pdoc->StyleIndexAt(position)].hotspot;
+	return BIN(vs.styles[pdoc->StyleIndexAt(position)].Flags & Style::fHotspot);
 }
 
 bool Editor::PointIsHotspot(Point pt)
@@ -5763,7 +5761,8 @@ void Editor::StyleSetMessage(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    vs.styles[wParam].italic = lParam != 0;
 		    break;
 		case SCI_STYLESETEOLFILLED:
-		    vs.styles[wParam].eolFilled = lParam != 0;
+		    //vs.styles[wParam].eolFilled = lParam != 0;
+			SETFLAG(vs.styles[wParam].Flags, Style::fEolFilled, lParam);
 		    break;
 		case SCI_STYLESETSIZE:
 		    vs.styles[wParam].size = static_cast<int>(lParam * SC_FONT_SIZE_MULTIPLIER);
@@ -5777,7 +5776,8 @@ void Editor::StyleSetMessage(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    }
 		    break;
 		case SCI_STYLESETUNDERLINE:
-		    vs.styles[wParam].underline = lParam != 0;
+		    //vs.styles[wParam].underline = lParam != 0;
+			SETFLAG(vs.styles[wParam].Flags, Style::fUnderline, lParam);
 		    break;
 		case SCI_STYLESETCASE:
 		    vs.styles[wParam].caseForce = static_cast<Style::ecaseForced>(lParam);
@@ -5787,13 +5787,16 @@ void Editor::StyleSetMessage(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    pdoc->SetCaseFolder(NULL);
 		    break;
 		case SCI_STYLESETVISIBLE:
-		    vs.styles[wParam].visible = lParam != 0;
+		    //vs.styles[wParam].visible = lParam != 0;
+			SETFLAG(vs.styles[wParam].Flags, Style::fVisible, lParam);
 		    break;
 		case SCI_STYLESETCHANGEABLE:
-		    vs.styles[wParam].changeable = lParam != 0;
+		    //vs.styles[wParam].changeable = lParam != 0;
+			SETFLAG(vs.styles[wParam].Flags, Style::fChangeable, lParam);
 		    break;
 		case SCI_STYLESETHOTSPOT:
-		    vs.styles[wParam].hotspot = lParam != 0;
+		    //vs.styles[wParam].hotspot = lParam != 0;
+			SETFLAG(vs.styles[wParam].Flags, Style::fHotspot, lParam);
 		    break;
 	}
 	InvalidateStyleRedraw();
@@ -5808,16 +5811,26 @@ sptr_t Editor::StyleGetMessage(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_STYLEGETBOLD: return vs.styles[wParam].weight > SC_WEIGHT_NORMAL;
 		case SCI_STYLEGETWEIGHT: return vs.styles[wParam].weight;
 		case SCI_STYLEGETITALIC: return vs.styles[wParam].italic ? 1 : 0;
-		case SCI_STYLEGETEOLFILLED: return vs.styles[wParam].eolFilled ? 1 : 0;
+		case SCI_STYLEGETEOLFILLED: 
+			//return vs.styles[wParam].eolFilled ? 1 : 0;
+			return BIN(vs.styles[wParam].Flags & Style::fEolFilled);
 		case SCI_STYLEGETSIZE: return vs.styles[wParam].size / SC_FONT_SIZE_MULTIPLIER;
 		case SCI_STYLEGETSIZEFRACTIONAL: return vs.styles[wParam].size;
 		case SCI_STYLEGETFONT: return StringResult(lParam, vs.styles[wParam].fontName);
-		case SCI_STYLEGETUNDERLINE: return vs.styles[wParam].underline ? 1 : 0;
+		case SCI_STYLEGETUNDERLINE: 
+			//return vs.styles[wParam].underline ? 1 : 0;
+			return BIN(vs.styles[wParam].Flags & Style::fUnderline);
 		case SCI_STYLEGETCASE: return static_cast<int>(vs.styles[wParam].caseForce);
 		case SCI_STYLEGETCHARACTERSET: return vs.styles[wParam].characterSet;
-		case SCI_STYLEGETVISIBLE: return vs.styles[wParam].visible ? 1 : 0;
-		case SCI_STYLEGETCHANGEABLE: return vs.styles[wParam].changeable ? 1 : 0;
-		case SCI_STYLEGETHOTSPOT: return vs.styles[wParam].hotspot ? 1 : 0;
+		case SCI_STYLEGETVISIBLE: 
+			//return vs.styles[wParam].visible ? 1 : 0;
+			return BIN(vs.styles[wParam].Flags & Style::fVisible);
+		case SCI_STYLEGETCHANGEABLE: 
+			//return vs.styles[wParam].changeable ? 1 : 0;
+			return BIN(vs.styles[wParam].Flags & Style::fChangeable);
+		case SCI_STYLEGETHOTSPOT: 
+			//return vs.styles[wParam].hotspot ? 1 : 0;
+			return BIN(vs.styles[wParam].Flags & Style::fHotspot);
 	}
 	return 0;
 }

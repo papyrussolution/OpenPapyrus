@@ -167,7 +167,7 @@ int SLAPI PPGoodsStruc::GetKind() const
 
 int SLAPI PPGoodsStruc::GetTypeString(SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(Rec.ID)
 		rBuf.CatChar('E');
 	if(Rec.Flags & GSF_COMPL)
@@ -551,7 +551,7 @@ int SLAPI PPGoodsStruc::EnumItemsExt(uint * pPos, PPGoodsStrucItem * pItem, PPID
 
 SString & SLAPI PPGoodsStruc::MakeChildDefaultName(SString & rBuf) const
 {
-	(rBuf = 0).Cat("BOM").Space().CatChar('#').Cat(Childs.getCount()+1);
+	rBuf.Z().Cat("BOM").Space().CatChar('#').Cat(Childs.getCount()+1);
 	return rBuf;
 }
 
@@ -646,7 +646,7 @@ static int SLAPI IsNumber(const char * pStr, size_t * pPos)
 	}
 	while(pStr[pos] == ' ' || pStr[pos] == '\t')
 		pos++;
-	while(isdigit(pStr[pos]) || pStr[pos] == '.' || pStr[pos] == ',') {
+	while(isdec(pStr[pos]) || pStr[pos] == '.' || pStr[pos] == ',') {
 		if(pStr[pos] == '.' || pStr[pos] == ',') {
 			if(was_dot) {
 				ASSIGN_PTR(pPos, pos);
@@ -759,7 +759,7 @@ int SLAPI PPGoodsStrucItem::SetEstimationString(const char * pStr)
 
 SString & SLAPI PPGoodsStrucItem::GetEstimationString(SString & rBuf, long format)
 {
-	rBuf = 0;
+	rBuf.Z();
 	long   fmt = NZOR(format, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 	rBuf.Cat(Median, fmt);
 	if(Denom != 0 && Denom != 1)
@@ -1296,9 +1296,9 @@ int GSDialog::setupList()
 			Data.GetEstimationPrice(i-1, &price, &sum, 0);
 		t_netto += p_item->Netto;
 		t_sum   += sum;
-		ss.add((sub = 0).Cat(p_item->Netto, qtty_fmt));
-		ss.add((sub = 0).Cat(price, money_fmt));
-		ss.add((sub = 0).Cat(sum,   money_fmt));
+		ss.add(sub.Z().Cat(p_item->Netto, qtty_fmt));
+		ss.add(sub.Z().Cat(price, money_fmt));
+		ss.add(sub.Z().Cat(sum,   money_fmt));
 		sub = 0;
 		if(inner_struc.Rec.ID)
 			sub.CatChar('R');
@@ -1310,10 +1310,10 @@ int GSDialog::setupList()
 		StringSet ss(SLBColumnDelim);
 		PPGetWord(PPWORD_TOTAL, 0, sub);
 		ss.add(sub.ToLower());
-		ss.add((sub = 0).Cat(t_qtty,  qtty_fmt));
-		ss.add((sub = 0).Cat(t_netto, qtty_fmt));
+		ss.add(sub.Z().Cat(t_qtty,  qtty_fmt));
+		ss.add(sub.Z().Cat(t_netto, qtty_fmt));
 		ss.add(0, 0);
-		ss.add((sub = 0).Cat(t_sum, money_fmt));
+		ss.add(sub.Z().Cat(t_sum, money_fmt));
 		THROW(addStringToList(i+1, ss.getBuf()));
 	}
 	CATCHZOK

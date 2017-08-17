@@ -338,7 +338,7 @@ int SLAPI PPObjSCard::Import(int use_ta)
 									PPIDArray psn_list;
 									int64  icode = temp_buf.ToInt64();
 									if(icode) {
-										(temp_buf = 0).Cat(icode);
+										temp_buf.Z().Cat(icode);
 										if(psn_obj.GetListByRegNumber(reg_type_id, 0, temp_buf, psn_list) > 0)
 											sc_rec.PersonID = psn_list.getSingle();
 									}
@@ -1252,16 +1252,16 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 									}
 									if(val_buf[0]) {
 										if(stricmp1251(val_buf, "г") == 0 || stricmp1251(val_buf, "гр") == 0) {
-											(temp_buf2 = "кг").Transf(CTRANSF_OUTER_TO_INNER);
+											PPLoadString("munit_kg", temp_buf2);
 											STRNSCPY(val_buf, temp_buf2);
 											phperu /= 1000L;
 										}
 										else if(stricmp1251(val_buf, "л") == 0) {
-											(temp_buf2 = "Литр").Transf(CTRANSF_OUTER_TO_INNER);
+											PPLoadString("munit_liter", temp_buf2);
 											STRNSCPY(val_buf, temp_buf2);
 										}
 										else if(stricmp1251(val_buf, "мл") == 0) {
-											(temp_buf2 = "Литр").Transf(CTRANSF_OUTER_TO_INNER);
+											PPLoadString("munit_liter", temp_buf2);
 											STRNSCPY(val_buf, temp_buf2);
 											phperu /= 1000L;
 										}
@@ -1827,7 +1827,7 @@ int SLAPI ImportSpecSeries()
 								SpecSeriesCore::GetExField(&ss_tbl.data, SPCSNEXSTR_GOODSNAME, name1_buf);
 								SpecSeriesCore::GetExField(&ss_rec, SPCSNEXSTR_GOODSNAME, name2_buf);
 								if(name1_buf.CmpNC(name2_buf) == 0 && ss_rec.InfoDate == ss_tbl.data.InfoDate) {
-									(temp_buf = 0).Cat(name2_buf).CatDiv(':', 1).Cat(ss_rec.Serial).CatDiv(':', 1).Cat(ss_rec.InfoDate);
+									temp_buf.Z().Cat(name2_buf).CatDiv(':', 1).Cat(ss_rec.Serial).CatDiv(':', 1).Cat(ss_rec.InfoDate);
 									logger.LogString(PPTXT_IMPSPOIL_DUP, temp_buf);
 									dup = 1;
 								}
@@ -1835,7 +1835,7 @@ int SLAPI ImportSpecSeries()
 						if(!dup) {
 							THROW_DB(ss_tbl.insertRecBuf(&ss_rec));
 							SpecSeriesCore::GetExField(&ss_rec, SPCSNEXSTR_GOODSNAME, name2_buf);
-							(temp_buf = 0).Cat(name2_buf).CatDiv(':', 1).Cat(ss_rec.Serial).CatDiv(':', 1).Cat(ss_rec.InfoDate);
+							temp_buf.Z().Cat(name2_buf).CatDiv(':', 1).Cat(ss_rec.Serial).CatDiv(':', 1).Cat(ss_rec.InfoDate);
 							logger.LogString(PPTXT_IMPSPOIL_ACCEPT, temp_buf);
 							++accepted_count;
 						}
@@ -2892,15 +2892,15 @@ int PPPersonImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader &
 	THROW(PPImpExpParam::SerializeConfig(dir, rHdr, rTail, pSCtx));
 	if(dir > 0) {
 		if(DefKindID)
-			param_list.Add(IMPEXPPARAM_PERSON_DEFKINDID, (temp_buf = 0).Cat(DefKindID));
+			param_list.Add(IMPEXPPARAM_PERSON_DEFKINDID, temp_buf.Z().Cat(DefKindID));
 		if(DefCategoryID)
-			param_list.Add(IMPEXPPARAM_PERSON_DEFCATEGORYID, (temp_buf = 0).Cat(DefCategoryID));
+			param_list.Add(IMPEXPPARAM_PERSON_DEFCATEGORYID, temp_buf.Z().Cat(DefCategoryID));
 		if(DefCityID)
-			param_list.Add(IMPEXPPARAM_PERSON_DEFCITYID, (temp_buf = 0).Cat(DefCityID));
+			param_list.Add(IMPEXPPARAM_PERSON_DEFCITYID, temp_buf.Z().Cat(DefCityID));
 		if(SrchRegTypeID)
-			param_list.Add(IMPEXPPARAM_PERSON_SRCHREGTYPEID, (temp_buf = 0).Cat(SrchRegTypeID));
+			param_list.Add(IMPEXPPARAM_PERSON_SRCHREGTYPEID, temp_buf.Z().Cat(SrchRegTypeID));
 		if(Flags)
-			param_list.Add(IMPEXPPARAM_PERSON_FLAGS, (temp_buf = 0).Cat(Flags));
+			param_list.Add(IMPEXPPARAM_PERSON_FLAGS, temp_buf.Z().Cat(Flags));
 	}
 	THROW_SL(pSCtx->Serialize(dir, param_list, rTail));
 	if(dir < 0) {

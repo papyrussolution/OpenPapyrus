@@ -69,7 +69,7 @@ SString & Generator_CPP::CatIndent(SString & rBuf)
 
 SString & Generator_CPP::MakeClsfName(const char * pClsName, const char * pMembName, SString & rBuf) const
 {
-	return (rBuf = 0).Cat(pClsName).CatCharN(':', 2).Cat(pMembName);
+	return rBuf.Z().Cat(pClsName).CatCharN(':', 2).Cat(pMembName);
 }
 
 int Generator_CPP::Wr_Comment(const char * pBuf)

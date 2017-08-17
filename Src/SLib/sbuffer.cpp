@@ -288,7 +288,7 @@ size_t SLAPI SBuffer::ReadTerm(const char * pTerm, void * pBuf, size_t bufLen)
 
 size_t SLAPI SBuffer::ReadTermStr(const char * pTerm, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 
 	size_t sz = 0;
 	if(pTerm) {
@@ -462,7 +462,7 @@ int FASTCALL SBuffer::Read(SString & rBuf)
 	char * p_temp_buf = 0;
 	char   shrt_buf[512];
 
-	rBuf = 0;
+	rBuf.Z();
 	THROW(ReadV(&sz, sizeof(sz)));
 	if(sz > sizeof(shrt_buf)) {
 		THROW(p_temp_buf = (char *)SAlloc::M(sz));

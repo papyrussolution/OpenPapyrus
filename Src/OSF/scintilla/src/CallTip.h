@@ -11,47 +11,11 @@
 #ifdef SCI_NAMESPACE
 namespace Scintilla {
 #endif
-
-/**
- */
+//
+//
+//
 class CallTip {
-	int startHighlight;    // character offset to start and...
-	int endHighlight;      // ...end of highlighted text
-	std::string val;
-	Font font;
-	PRectangle rectUp;      // rectangle of last up angle in the tip
-	PRectangle rectDown;    // rectangle of last down arrow in the tip
-	int lineHeight;         // vertical line spacing
-	int offsetMain;         // The alignment point of the call tip
-	int tabSize;            // Tab size in pixels, <=0 no TAB expand
-	bool useStyleCallTip;   // if true, STYLE_CALLTIP should be used
-	bool above;		// if true, display calltip above text
-
-	// Private so CallTip objects can not be copied
-	CallTip(const CallTip &);
-	CallTip & FASTCALL operator = (const CallTip &);
-	void   DrawChunk(Surface *surface, int &x, const char *s, int posStart, int posEnd, int ytext, PRectangle rcClient, bool highlight, bool draw);
-	int    PaintContents(Surface *surfaceWindow, bool draw);
-	bool   IsTabCharacter(char c) const;
-	int    NextTabPos(int x) const;
 public:
-	Window wCallTip;
-	Window wDraw;
-	bool inCallTipMode;
-	int posStartCallTip;
-	ColourDesired colourBG;
-	ColourDesired colourUnSel;
-	ColourDesired colourSel;
-	ColourDesired colourShade;
-	ColourDesired colourLight;
-	int codePage;
-	int clickPlace;
-
-	int insetX; // text inset in x from calltip border
-	int widthArrow;
-	int borderHeight;
-	int verticalOffset; // pixel offset up or down of the calltip with respect to the line
-
 	CallTip();
 	~CallTip();
 	void PaintCT(Surface *surfaceWindow);
@@ -71,6 +35,47 @@ public:
 	bool UseStyleCallTip() const { return useStyleCallTip;}
 	// Modify foreground and background colours
 	void SetForeBack(const ColourDesired &fore, const ColourDesired &back);
+	bool IsInCollTipMode() const
+	{
+		return inCallTipMode;
+	}
+
+	Window wCallTip;
+	Window wDraw;
+	int posStartCallTip;
+	ColourDesired colourBG;
+	ColourDesired colourUnSel;
+	ColourDesired colourSel;
+	ColourDesired colourShade;
+	ColourDesired colourLight;
+	int codePage;
+	int clickPlace;
+	int insetX; // text inset in x from calltip border
+	int widthArrow;
+	int borderHeight;
+	int verticalOffset; // pixel offset up or down of the calltip with respect to the line
+private:
+	// Private so CallTip objects can not be copied
+	CallTip(const CallTip &);
+	CallTip & FASTCALL operator = (const CallTip &);
+	void   DrawChunk(Surface *surface, int &x, const char *s, int posStart, int posEnd, int ytext, PRectangle rcClient, bool highlight, bool draw);
+	int    PaintContents(Surface *surfaceWindow, bool draw);
+	bool   IsTabCharacter(char c) const;
+	int    NextTabPos(int x) const;
+
+	int startHighlight;    // character offset to start and...
+	int endHighlight;      // ...end of highlighted text
+	//std::string val;
+	SString Text;
+	Font font;
+	PRectangle rectUp;      // rectangle of last up angle in the tip
+	PRectangle rectDown;    // rectangle of last down arrow in the tip
+	int lineHeight;         // vertical line spacing
+	int offsetMain;         // The alignment point of the call tip
+	int tabSize;            // Tab size in pixels, <=0 no TAB expand
+	bool inCallTipMode;
+	bool useStyleCallTip;   // if true, STYLE_CALLTIP should be used
+	bool above;		// if true, display calltip above text
 };
 
 #ifdef SCI_NAMESPACE

@@ -219,9 +219,9 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length,
 				    state2 = SCE_CAML_IDENTIFIER;
 			    else if(!isSML && sc.Match('`') && iscamlf(sc.chNext))
 				    state2 = SCE_CAML_TAGNAME;
-			    else if(!isSML && sc.Match('#') && isdigit(sc.chNext))
+			    else if(!isSML && sc.Match('#') && isdec(sc.chNext))
 				    state2 = SCE_CAML_LINENUM;
-			    else if(isdigit(sc.ch)) {
+			    else if(isdec(sc.ch)) {
 				    // it's a number, assume base 10
 				    state2 = SCE_CAML_NUMBER, chBase = 10;
 				    if(sc.Match('0')) {
@@ -291,7 +291,7 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length,
 
 			case SCE_CAML_LINENUM:
 			    // [try to] interpret as [additional] linenum directive char
-			    if(!isdigit(sc.ch))
+			    if(!isdec(sc.ch))
 				    state2 = SCE_CAML_DEFAULT, advance = false;
 			    break;
 

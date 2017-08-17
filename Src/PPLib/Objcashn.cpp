@@ -284,7 +284,7 @@ int SLAPI PPSyncCashNode::GetPropString(int propId, SString & rBuf) const
 
 SString & SLAPI PPSyncCashNode::CTblListToString(SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	LongArray temp_list = CTblList;
 	const uint c = temp_list.getCount();
 	if(c) {
@@ -543,7 +543,7 @@ const int PPObjCashNode::SubstCTblID = 999; // Специализированный идентификатор 
 int  SLAPI PPObjCashNode::GetCafeTableName(int ctblN, SString & rBuf)
 {
 	int    ok = 0;
-	rBuf = 0;
+	rBuf.Z();
 	if(ctblN > 0) {
 		SString symb;
 		if(ctblN == SubstCTblID)
@@ -1010,11 +1010,11 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 					SString param_buf;
 					(param_buf = "LocalTouchScreen").CatChar(':').Cat(*pID);
 					if(reg_key.GetString(param_buf, temp_buf) && p_scn->LocalTouchScrID == 0) {
-						(temp_buf = 0).Cat(0);
+						temp_buf.Z().Cat(0);
 						reg_key.PutString(param_buf, temp_buf);
 					}
 					else if(p_scn->LocalTouchScrID) {
-						(temp_buf = 0).Cat(p_scn->LocalTouchScrID);
+						temp_buf.Z().Cat(p_scn->LocalTouchScrID);
 						reg_key.PutString(param_buf, temp_buf);
 					}
 				}
@@ -1223,7 +1223,7 @@ int SLAPI SelectPrinterFromWinPool(SString & rPrinter)
 		prn_list.swap(0, (uint)(def_prn_id-1));
 	//
 	for(uint j = 0; j < prn_list.getCount(); j++) {
-		(temp_buf = 0).Cat(prn_list.at(j).PrinterName).ToOem();
+		temp_buf.Z().Cat(prn_list.at(j).PrinterName).ToOem();
 		p_list->Add(j+1, temp_buf);
 	}
 	{

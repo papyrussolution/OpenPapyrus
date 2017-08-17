@@ -23,14 +23,10 @@ static int bn_new(ASN1_VALUE ** pval, const ASN1_ITEM * it);
 static int bn_secure_new(ASN1_VALUE ** pval, const ASN1_ITEM * it);
 static void bn_free(ASN1_VALUE ** pval, const ASN1_ITEM * it);
 
-static int bn_i2c(ASN1_VALUE ** pval, uchar * cont, int * putype,
-    const ASN1_ITEM * it);
-static int bn_c2i(ASN1_VALUE ** pval, const uchar * cont, int len,
-    int utype, char * free_cont, const ASN1_ITEM * it);
-static int bn_secure_c2i(ASN1_VALUE ** pval, const uchar * cont, int len,
-    int utype, char * free_cont, const ASN1_ITEM * it);
-static int bn_print(BIO * out, ASN1_VALUE ** pval, const ASN1_ITEM * it,
-    int indent, const ASN1_PCTX * pctx);
+static int bn_i2c(ASN1_VALUE ** pval, uchar * cont, int * putype, const ASN1_ITEM * it);
+static int bn_c2i(ASN1_VALUE ** pval, const uchar * cont, int len, int utype, char * free_cont, const ASN1_ITEM * it);
+static int bn_secure_c2i(ASN1_VALUE ** pval, const uchar * cont, int len, int utype, char * free_cont, const ASN1_ITEM * it);
+static int bn_print(BIO * out, ASN1_VALUE ** pval, const ASN1_ITEM * it, int indent, const ASN1_PCTX * pctx);
 
 static ASN1_PRIMITIVE_FUNCS bignum_pf = {
 	NULL, 0,
@@ -85,35 +81,34 @@ static void bn_free(ASN1_VALUE ** pval, const ASN1_ITEM * it)
 
 static int bn_i2c(ASN1_VALUE ** pval, uchar * cont, int * putype, const ASN1_ITEM * it)
 {
-	BIGNUM * bn;
-	int pad;
 	if(!*pval)
 		return -1;
-	bn = (BIGNUM*)*pval;
-	/* If MSB set in an octet we need a padding byte */
-	if(BN_num_bits(bn) & 0x7)
-		pad = 0;
-	else
-		pad = 1;
-	if(cont) {
-		if(pad)
-			*cont++ = 0;
-		BN_bn2bin(bn, cont);
+	else {
+		BIGNUM * bn = (BIGNUM*)*pval;
+		// If MSB set in an octet we need a padding byte 
+		int pad = (BN_num_bits(bn) & 0x7) ? 0 : 1;
+		if(cont) {
+			if(pad)
+				*cont++ = 0;
+			BN_bn2bin(bn, cont);
+		}
+		return pad + BN_num_bytes(bn);
 	}
-	return pad + BN_num_bytes(bn);
 }
 
 static int bn_c2i(ASN1_VALUE ** pval, const uchar * cont, int len, int utype, char * free_cont, const ASN1_ITEM * it)
 {
-	BIGNUM * bn;
 	if(*pval == NULL && !bn_new(pval, it))
 		return 0;
-	bn = (BIGNUM*)*pval;
-	if(!BN_bin2bn(cont, len, bn)) {
-		bn_free(pval, it);
-		return 0;
+	else {
+		BIGNUM * bn = (BIGNUM*)*pval;
+		if(!BN_bin2bn(cont, len, bn)) {
+			bn_free(pval, it);
+			return 0;
+		}
+		else
+			return 1;
 	}
-	return 1;
 }
 
 static int bn_secure_c2i(ASN1_VALUE ** pval, const uchar * cont, int len, int utype, char * free_cont, const ASN1_ITEM * it)
@@ -127,8 +122,9 @@ static int bn_print(BIO * out, ASN1_VALUE ** pval, const ASN1_ITEM * it, int ind
 {
 	if(!BN_print(out, *(BIGNUM**)pval))
 		return 0;
-	if(BIO_puts(out, "\n") <= 0)
+	else if(BIO_puts(out, "\n") <= 0)
 		return 0;
-	return 1;
+	else
+		return 1;
 }
 

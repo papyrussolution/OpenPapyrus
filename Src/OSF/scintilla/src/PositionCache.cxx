@@ -24,13 +24,13 @@
 #include "Indicator.h"
 #include "XPM.h"
 #include "LineMarker.h"
-#include "Style.h"
+//#include "Style.h"
 #include "ViewStyle.h"
 #include "CharClassify.h"
 #include "Decoration.h"
-#include "CaseFolder.h"
+//#include "CaseFolder.h"
 #include "Document.h"
-#include "UniConversion.h"
+//#include "UniConversion.h"
 #include "Selection.h"
 #include "PositionCache.h"
 
@@ -266,9 +266,7 @@ int LineLayout::EndLineStyle() const
 	return styles[numCharsBeforeEOL > 0 ? numCharsBeforeEOL-1 : 0];
 }
 
-LineLayoutCache::LineLayoutCache() :
-	level(0),
-	allInvalidated(false), styleClock(-1), useCount(0)
+LineLayoutCache::LineLayoutCache() : level(0), allInvalidated(false), styleClock(-1), useCount(0)
 {
 	Allocate(0);
 }
@@ -305,8 +303,7 @@ void LineLayoutCache::AllocateForLevel(int linesOnScreen, int linesInDoc)
 	else {
 		if(lengthForLevel < cache.size()) {
 			for(size_t i = lengthForLevel; i < cache.size(); i++) {
-				delete cache[i];
-				cache[i] = 0;
+				ZDELETE(cache[i]);
 			}
 		}
 		cache.resize(lengthForLevel);
@@ -374,41 +371,32 @@ LineLayout * LineLayoutCache::Retrieve(int lineNumber, int lineCaret, int maxCha
 		PLATFORM_ASSERT(useCount == 0);
 		if(!cache.empty() && (pos < static_cast<int>(cache.size()))) {
 			if(cache[pos]) {
-				if((cache[pos]->lineNumber != lineNumber) ||
-				    (cache[pos]->maxLineLength < maxChars)) {
-					delete cache[pos];
-					cache[pos] = 0;
+				if((cache[pos]->lineNumber != lineNumber) || (cache[pos]->maxLineLength < maxChars)) {
+					ZDELETE(cache[pos]);
 				}
 			}
-			if(!cache[pos]) {
-				cache[pos] = new LineLayout(maxChars);
-			}
+			SETIFZ(cache[pos], new LineLayout(maxChars));
 			cache[pos]->lineNumber = lineNumber;
 			cache[pos]->inCache = true;
 			ret = cache[pos];
 			useCount++;
 		}
 	}
-
 	if(!ret) {
 		ret = new LineLayout(maxChars);
 		ret->lineNumber = lineNumber;
 	}
-
 	return ret;
 }
 
 void LineLayoutCache::Dispose(LineLayout * ll)
 {
 	allInvalidated = false;
-	if(ll) {
-		if(!ll->inCache) {
+	if(ll)
+		if(!ll->inCache)
 			delete ll;
-		}
-		else {
+		else
 			useCount--;
-		}
-	}
 }
 
 // Simply pack the (maximum 4) character bytes into an int
@@ -450,11 +438,10 @@ void SpecialRepresentations::ClearRepresentation(const char * charBytes)
 const Representation * SpecialRepresentations::RepresentationFromCharacter(const char * charBytes, size_t len) const
 {
 	PLATFORM_ASSERT(len <= 4);
-	if(!startByteHasReprs[static_cast<uchar>(charBytes[0])])
-		return 0;
-	MapRepresentation::const_iterator it = mapReprs.find(KeyFromString(charBytes, len));
-	if(it != mapReprs.end()) {
-		return &(it->second);
+	if(startByteHasReprs[static_cast<uchar>(charBytes[0])]) {
+		MapRepresentation::const_iterator it = mapReprs.find(KeyFromString(charBytes, len));
+		if(it != mapReprs.end())
+			return &(it->second);
 	}
 	return 0;
 }
@@ -597,9 +584,8 @@ TextSegment BreakFinder::Next()
 			subBreak = -1;
 			return TextSegment(startSegment, nextBreak - startSegment);
 		}
-		else {
+		else
 			return TextSegment(startSegment, subBreak - startSegment);
-		}
 	}
 }
 
@@ -608,8 +594,7 @@ bool BreakFinder::More() const
 	return (subBreak >= 0) || (nextBreak < lineRange.end);
 }
 
-PositionCacheEntry::PositionCacheEntry() :
-	styleNumber(0), len(0), clock(0), positions(0)
+PositionCacheEntry::PositionCacheEntry() : styleNumber(0), len(0), clock(0), positions(0)
 {
 }
 
@@ -679,9 +664,8 @@ bool PositionCacheEntry::NewerThan(const PositionCacheEntry &other) const
 
 void PositionCacheEntry::ResetClock()
 {
-	if(clock > 0) {
+	if(clock > 0)
 		clock = 1;
-	}
 }
 
 PositionCache::PositionCache()
@@ -699,9 +683,8 @@ PositionCache::~PositionCache()
 void PositionCache::Clear()
 {
 	if(!allClear) {
-		for(size_t i = 0; i<pces.size(); i++) {
+		for(size_t i = 0; i<pces.size(); i++)
 			pces[i].Clear();
-		}
 	}
 	clock = 1;
 	allClear = true;

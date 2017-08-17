@@ -18,11 +18,11 @@ public:
 			LogFileEntry e;
 			MEMSZERO(e);
 			StringSet ss1(',', buf);
-			ss1.get(&j, (buf = 0));
+			ss1.get(&j, buf.Z());
 			e.ID = buf.ToLong();
-			ss1.get(&j, (buf = 0));
+			ss1.get(&j, buf.Z());
 			buf.CopyTo(e.LogName, sizeof(e.LogName));
-			ss1.get(&j, (buf = 0));
+			ss1.get(&j, buf.Z());
 			buf.CopyTo(e.FileName, sizeof(e.FileName));
 			LogsAry.insert(&e);
 		}

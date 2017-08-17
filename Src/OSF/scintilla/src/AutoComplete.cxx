@@ -50,8 +50,7 @@ AutoComplete::~AutoComplete()
 {
 	if(lb) {
 		lb->Destroy();
-		delete lb;
-		lb = 0;
+		ZDELETE(lb);
 	}
 }
 

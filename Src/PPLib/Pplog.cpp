@@ -1511,7 +1511,7 @@ int SLAPI TestLogWindow()
 	SString temp_buf;
 	for(uint i = 0; i < max_msg_count; i++) {
         PPLoadText((i & 1) ? PPTXT_TESTLOG_TEXT1 : PPTXT_TESTLOG_TEXT2, temp_buf);
-        (msg_buf = 0).Cat(i+1).CatDiv(':', 2).Cat(temp_buf);
+        msg_buf.Z().Cat(i+1).CatDiv(':', 2).Cat(temp_buf);
         logger.Log(msg_buf);
 	}
     return 1;

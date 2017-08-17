@@ -57,33 +57,32 @@ typedef struct {
 
 typedef my_coef_controller * my_coef_ptr;
 
-/* Forward declarations */
-METHODDEF(int) decompress_onepass JPP((j_decompress_ptr cinfo, JSAMPIMAGE output_buf));
+// Forward declarations
+METHODDEF(int) decompress_onepass(j_decompress_ptr cinfo, JSAMPIMAGE output_buf);
 #ifdef D_MULTISCAN_FILES_SUPPORTED
-	METHODDEF(int) decompress_data JPP((j_decompress_ptr cinfo, JSAMPIMAGE output_buf));
+	METHODDEF(int) decompress_data(j_decompress_ptr cinfo, JSAMPIMAGE output_buf);
 #endif
 #ifdef BLOCK_SMOOTHING_SUPPORTED
-	LOCAL(boolean) smoothing_ok JPP((j_decompress_ptr cinfo));
-	METHODDEF(int) decompress_smooth_data JPP((j_decompress_ptr cinfo, JSAMPIMAGE output_buf));
+	LOCAL(boolean) smoothing_ok(j_decompress_ptr cinfo);
+	METHODDEF(int) decompress_smooth_data(j_decompress_ptr cinfo, JSAMPIMAGE output_buf);
 #endif
-
+//
+// Reset within-iMCU-row counters for a new row (input side) 
+//
 static void start_iMCU_row(j_decompress_ptr cinfo)
-/* Reset within-iMCU-row counters for a new row (input side) */
 {
 	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
 	/* In an interleaved scan, an MCU row is the same as an iMCU row.
 	 * In a noninterleaved scan, an iMCU row has v_samp_factor MCU rows.
 	 * But at the bottom of the image, process only what's left.
 	 */
-	if(cinfo->comps_in_scan > 1) {
+	if(cinfo->comps_in_scan > 1)
 		coef->MCU_rows_per_iMCU_row = 1;
-	}
-	else {
+	else
 		if(cinfo->input_iMCU_row < (cinfo->total_iMCU_rows-1))
 			coef->MCU_rows_per_iMCU_row = cinfo->cur_comp_info[0]->v_samp_factor;
 		else
 			coef->MCU_rows_per_iMCU_row = cinfo->cur_comp_info[0]->last_row_height;
-	}
 	coef->MCU_ctr = 0;
 	coef->MCU_vert_offset = 0;
 }
@@ -103,7 +102,7 @@ METHODDEF(void) start_output_pass(j_decompress_ptr cinfo)
 #ifdef BLOCK_SMOOTHING_SUPPORTED
 	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
 	/* If multipass, check to see whether to use block smoothing on this pass */
-	if(coef->pub.coef_arrays != NULL) {
+	if(coef->pub.coef_arrays) {
 		if(cinfo->do_block_smoothing && smoothing_ok(cinfo))
 			coef->pub.decompress_data = decompress_smooth_data;
 		else

@@ -39,33 +39,21 @@ typedef struct {
 
 typedef my_post_controller * my_post_ptr;
 
-/* Forward declarations */
-METHODDEF(void) post_process_1pass JPP((j_decompress_ptr cinfo,
-	    JSAMPIMAGE input_buf, JDIMENSION *in_row_group_ctr,
-	    JDIMENSION in_row_groups_avail,
-	    JSAMPARRAY output_buf, JDIMENSION *out_row_ctr,
-	    JDIMENSION out_rows_avail));
+// Forward declarations
+METHODDEF(void) post_process_1pass(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION *in_row_group_ctr,
+	    JDIMENSION in_row_groups_avail, JSAMPARRAY output_buf, JDIMENSION *out_row_ctr, JDIMENSION out_rows_avail);
 #ifdef QUANT_2PASS_SUPPORTED
-METHODDEF(void) post_process_prepass JPP((j_decompress_ptr cinfo,
-	    JSAMPIMAGE input_buf, JDIMENSION *in_row_group_ctr,
-	    JDIMENSION in_row_groups_avail,
-	    JSAMPARRAY output_buf, JDIMENSION *out_row_ctr,
-	    JDIMENSION out_rows_avail));
-METHODDEF(void) post_process_2pass JPP((j_decompress_ptr cinfo,
-	    JSAMPIMAGE input_buf, JDIMENSION *in_row_group_ctr,
-	    JDIMENSION in_row_groups_avail,
-	    JSAMPARRAY output_buf, JDIMENSION *out_row_ctr,
-	    JDIMENSION out_rows_avail));
+METHODDEF(void) post_process_prepass(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION *in_row_group_ctr,
+	    JDIMENSION in_row_groups_avail, JSAMPARRAY output_buf, JDIMENSION *out_row_ctr, JDIMENSION out_rows_avail);
+METHODDEF(void) post_process_2pass(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION *in_row_group_ctr,
+	    JDIMENSION in_row_groups_avail, JSAMPARRAY output_buf, JDIMENSION *out_row_ctr, JDIMENSION out_rows_avail);
 #endif
-
 /*
  * Initialize for a processing pass.
  */
-
 METHODDEF(void) start_pass_dpost(j_decompress_ptr cinfo, J_BUF_MODE pass_mode)
 {
 	my_post_ptr post = (my_post_ptr)cinfo->post;
-
 	switch(pass_mode) {
 		case JBUF_PASS_THRU:
 		    if(cinfo->quantize_colors) {
@@ -76,9 +64,7 @@ METHODDEF(void) start_pass_dpost(j_decompress_ptr cinfo, J_BUF_MODE pass_mode)
 			     * allocate a strip buffer.  Use the virtual-array buffer as workspace.
 			     */
 			    if(post->buffer == NULL) {
-				    post->buffer = (*cinfo->mem->access_virt_sarray)
-					    ((j_common_ptr)cinfo, post->whole_image,
-				    (JDIMENSION)0, post->strip_height, TRUE);
+				    post->buffer = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, post->whole_image, (JDIMENSION)0, post->strip_height, TRUE);
 			    }
 		    }
 		    else {
@@ -108,24 +94,18 @@ METHODDEF(void) start_pass_dpost(j_decompress_ptr cinfo, J_BUF_MODE pass_mode)
 	}
 	post->starting_row = post->next_row = 0;
 }
-
 /*
  * Process some data in the one-pass (strip buffer) case.
  * This is used for color precision reduction as well as one-pass quantization.
  */
-
-METHODDEF(void) post_process_1pass(j_decompress_ptr cinfo,
-    JSAMPIMAGE input_buf, JDIMENSION *in_row_group_ctr,
-    JDIMENSION in_row_groups_avail,
-    JSAMPARRAY output_buf, JDIMENSION *out_row_ctr,
-    JDIMENSION out_rows_avail)
+METHODDEF(void) post_process_1pass(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION *in_row_group_ctr,
+    JDIMENSION in_row_groups_avail, JSAMPARRAY output_buf, JDIMENSION *out_row_ctr, JDIMENSION out_rows_avail)
 {
 	my_post_ptr post = (my_post_ptr)cinfo->post;
-	JDIMENSION num_rows, max_rows;
-
+	JDIMENSION num_rows;
 	/* Fill the buffer, but not more than what we can dump out in one go. */
 	/* Note we rely on the upsampler to detect bottom of image. */
-	max_rows = out_rows_avail - *out_row_ctr;
+	JDIMENSION max_rows = out_rows_avail - *out_row_ctr;
 	if(max_rows > post->strip_height)
 		max_rows = post->strip_height;
 	num_rows = 0;

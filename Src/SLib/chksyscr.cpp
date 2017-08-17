@@ -132,7 +132,7 @@ static int GenClientContext(_SysCrProcTable & rVt, PAUTH_SEQ pAS, PSEC_WINNT_AUT
 	if(!pAS->fInitialized) {
 		ss = rVt._AcquireCredentialsHandle(NULL, _T("NTLM"),
 			SECPKG_CRED_OUTBOUND, NULL, pAuthIdentity, NULL, NULL, &pAS->hcred, &tsExpiry);
-		SLS.SetAddedMsgString((msg_buf = 0).Cat(ss));
+		SLS.SetAddedMsgString(msg_buf.Z().Cat(ss));
 		THROW_V(ss >= 0, SLERR_WINSEC_ACQCREDHDL);
 		pAS->fHaveCredHandle = TRUE;
 	}
@@ -158,14 +158,14 @@ static int GenClientContext(_SysCrProcTable & rVt, PAUTH_SEQ pAS, PSEC_WINNT_AUT
 	}
 	ss = rVt._InitializeSecurityContext(&pAS->hcred, pAS->fInitialized ? &pAS->hctxt : NULL, NULL, 0, 0,
 		SECURITY_NATIVE_DREP, pAS->fInitialized ? &sbdIn : NULL, 0, &pAS->hctxt, &sbdOut, &fContextAttr, &tsExpiry);
-	SLS.SetAddedMsgString((msg_buf = 0).Cat(ss));
+	SLS.SetAddedMsgString(msg_buf.Z().Cat(ss));
 	THROW_V(ss >= 0, SLERR_WINSEC_INITSECCTX);
 	pAS->fHaveCtxtHandle = TRUE;
 	// If necessary, complete token
 	if(ss == SEC_I_COMPLETE_NEEDED || ss == SEC_I_COMPLETE_AND_CONTINUE) {
 		THROW_V(rVt._CompleteAuthToken, SLERR_WINSEC_COMPLAUTHTOKNSUPP);
 		ss = rVt._CompleteAuthToken(&pAS->hctxt, &sbdOut);
-		SLS.SetAddedMsgString((msg_buf = 0).Cat(ss));
+		SLS.SetAddedMsgString(msg_buf.Z().Cat(ss));
 		THROW_V(ss >= 0, SLERR_WINSEC_COMPLAUTHTOK);
 	}
 	*pcbOut = sbOut.cbBuffer;
@@ -199,7 +199,7 @@ static int GenServerContext(_SysCrProcTable & rVt, PAUTH_SEQ pAS, PVOID pIn,
 	SString msg_buf;
 	if(!pAS->fInitialized)  {
 		ss = rVt._AcquireCredentialsHandle(NULL, _T("NTLM"), SECPKG_CRED_INBOUND, 0, 0, 0, 0, &pAS->hcred, &tsExpiry);
-		SLS.SetAddedMsgString((msg_buf = 0).Cat(ss));
+		SLS.SetAddedMsgString(msg_buf.Z().Cat(ss));
 		THROW_V(ss >= 0, SLERR_WINSEC_ACQCREDHDL);
 		pAS->fHaveCredHandle = TRUE;
 	}
@@ -223,14 +223,14 @@ static int GenServerContext(_SysCrProcTable & rVt, PAUTH_SEQ pAS, PVOID pIn,
 	sbIn.pvBuffer = pIn;
 	ss = rVt._AcceptSecurityContext(&pAS->hcred, pAS->fInitialized ? &pAS->hctxt : 0, &sbdIn, 0,
 		SECURITY_NATIVE_DREP, &pAS->hctxt, &sbdOut, &fContextAttr, &tsExpiry);
-	SLS.SetAddedMsgString((msg_buf = 0).Cat(ss));
+	SLS.SetAddedMsgString(msg_buf.Z().Cat(ss));
 	THROW_V(ss >= 0, SLERR_WINSEC_ACCPTSECCTX);
 	pAS->fHaveCtxtHandle = TRUE;
 	// If necessary, complete token
 	if(oneof2(ss, SEC_I_COMPLETE_NEEDED, SEC_I_COMPLETE_AND_CONTINUE)) {
 		THROW_V(rVt._CompleteAuthToken, SLERR_WINSEC_COMPLAUTHTOKNSUPP);
 		ss = rVt._CompleteAuthToken(&pAS->hctxt, &sbdOut);
-		SLS.SetAddedMsgString((msg_buf = 0).Cat(ss));
+		SLS.SetAddedMsgString(msg_buf.Z().Cat(ss));
 		THROW_V(ss >= 0, SLERR_WINSEC_COMPLAUTHTOK);
 	}
 	*pcbOut = sbOut.cbBuffer;

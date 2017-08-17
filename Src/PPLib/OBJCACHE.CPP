@@ -90,7 +90,7 @@ int SLAPI ObjCache::ExtTextBlock::Fetch(PPID id, SString & rBuf, void * extraPtr
 //virtual 
 int SLAPI ObjCache::ExtTextBlock::Implement_Get(PPID id, SString & rBuf, void * extraPtr)
 {
-	rBuf = 0;
+	rBuf.Z();
 	return -1;
 }
 //

@@ -694,7 +694,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		i = 0;
 		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSALC, temp_buf);
 		StringSet ss(',', temp_buf);
-		ss.get(&i, temp_buf = 0);
+		ss.get(&i, temp_buf.Z());
 		if(obj_gdscls.SearchBySymb(temp_buf, &alc_cls_id) > 0) {
 			ss.get(&i, alc_proof);
 			ss.get(&i, alc_vol);
@@ -828,7 +828,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 						is_weight = gds_cfg.IsWghtPrefix(bc.Code);
 					AddCheckDigToBarcode(bc.Code);
 					p_writer->StartElement("bar-code", "code", bc.Code);
-					// p_writer->StartElement("price-entry", "price", (temp_buf = 0).Cat(prev_gds_info.Price));
+					// p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(prev_gds_info.Price));
 					// p_writer->PutElement("begin-date", beg_dtm);
 					// p_writer->PutElement("end-date", end_dtm);
 					// p_writer->EndElement();
@@ -856,11 +856,11 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 			else
 				p_writer->PutElement("product-type", "ProductPieceEntity");
 			long divn  = (cn_data.Flags & CASHF_EXPDIVN) ? prev_gds_info.DivN : 1;
-			p_writer->StartElement("price-entry", "price", (temp_buf = 0).Cat(prev_gds_info.Price, SFMT_MONEY));
+			p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(prev_gds_info.Price, SFMT_MONEY));
 			p_writer->PutElement("begin-date", beg_dtm);
 			p_writer->PutElement("end-date", end_dtm);
 			p_writer->PutElement("number", "1");
-			p_writer->StartElement("department", "number", (temp_buf = 0).Cat(divn));
+			p_writer->StartElement("department", "number", temp_buf.Z().Cat(divn));
 			p_writer->PutElement("name", temp_buf);
 			p_writer->EndElement();
 			p_writer->EndElement();
@@ -906,14 +906,14 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 			p_writer->EndElement();
 			{
 				if(country_id) {
-					p_writer->StartElement("country", "id", (temp_buf = 0).Cat(country_id));
-					GetObjectName(PPOBJ_WORLD, country_id, temp_buf = 0);
+					p_writer->StartElement("country", "id", temp_buf.Z().Cat(country_id));
+					GetObjectName(PPOBJ_WORLD, country_id, temp_buf.Z());
 					p_writer->PutElement("name", temp_buf);
 					p_writer->EndElement();
 				}
 				if(prev_gds_info.ManufID) {
-					p_writer->StartElement("manufacturer", "id", (temp_buf = 0).Cat(prev_gds_info.ManufID));
-					GetPersonName(prev_gds_info.ManufID, temp_buf = 0);
+					p_writer->StartElement("manufacturer", "id", temp_buf.Z().Cat(prev_gds_info.ManufID));
+					GetPersonName(prev_gds_info.ManufID, temp_buf.Z());
 					p_writer->PutElement("name", temp_buf);
 					p_writer->EndElement();
 				}
@@ -944,7 +944,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 				}
 				*/
 				if(agi.Proof != 0.0) { // @v9.0.9 proof-->agi.Proof
-					(temp_buf = 0).Cat(agi.Proof, MKSFMTD(0, 1, 0));
+					temp_buf.Z().Cat(agi.Proof, MKSFMTD(0, 1, 0));
 					p_writer->PutPlugin("alcoholic-content-percentage", temp_buf);
 				}
 				if(agi.StatusFlags & agi.stMarkWanted) {
@@ -1428,14 +1428,14 @@ public:
 
 static SString & GetDatetimeStrBeg(LDATE dt, int16 tm, SString & rBuf)
 {
-	(rBuf = 0).Cat(!dt ? encodedate(1, 1, 2000) : dt, DATF_GERMAN|DATF_CENTURY);
+	rBuf.Z().Cat(!dt ? encodedate(1, 1, 2000) : dt, DATF_GERMAN|DATF_CENTURY);
 	rBuf.Space().Cat(encodetime(*(char *)&tm, *(((char *)&tm) + 1), 0, 0), TIMF_HM);
 	return rBuf;
 }
 
 static SString & GetDatetimeStrEnd(LDATE dt, int16 tm, SString & rBuf)
 {
-	(rBuf = 0).Cat(!dt ? encodedate(1, 1, 2050) : dt, DATF_GERMAN|DATF_CENTURY);
+	rBuf.Z().Cat(!dt ? encodedate(1, 1, 2050) : dt, DATF_GERMAN|DATF_CENTURY);
 	rBuf.Space().Cat(encodetime(*(char *)&tm, *(((char *)&tm) + 1), 0, 0), TIMF_HM);
 	return rBuf;
 }
@@ -2213,17 +2213,17 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 						dbfrGGQD.put(8, quot_by_qtty.MinQtty - 1);       // Кол-во, больше которого применяется скидка
 						dbfrGGQD.put(9, -quot_by_qtty.Quot);             // Процент скидки на кол-во товара
 						if(qk_obj.Fetch(quot_by_qtty.Kind, &qk_rec) > 0) {
-							(dttm_str = 0).Cat((qk_rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_rec.Period.low, DATF_GERMAN|DATF_CENTURY);
+							dttm_str.Z().Cat((qk_rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_rec.Period.low, DATF_GERMAN|DATF_CENTURY);
 							dttm_str.Space().Cat(encodetime(PTR8(&qk_rec.BeginTm)[0], PTR8(&qk_rec.BeginTm)[1], 0, 0), TIMF_HM);
 							dbfrGGQD.put(10, dttm_str);
-							(dttm_str = 0).Cat((qk_rec.Period.upp == ZERODATE) ? encodedate(1, 1, 2050) : qk_rec.Period.upp, DATF_GERMAN|DATF_CENTURY);
+							dttm_str.Z().Cat((qk_rec.Period.upp == ZERODATE) ? encodedate(1, 1, 2050) : qk_rec.Period.upp, DATF_GERMAN|DATF_CENTURY);
 							dttm_str.Space().Cat(encodetime(PTR8(&qk_rec.EndTm)[0], PTR8(&qk_rec.EndTm)[1], 0, 0), TIMF_HM);
 							dbfrGGQD.put(11, dttm_str);
 						}
 						else {
-							(dttm_str = 0).Cat(encodedate(1, 1, 2000), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
+							dttm_str.Z().Cat(encodedate(1, 1, 2000), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
 							dbfrGGQD.put(10, dttm_str);
-							(dttm_str = 0).Cat(encodedate(1, 1, 2050), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
+							dttm_str.Z().Cat(encodedate(1, 1, 2050), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
 							dbfrGGQD.put(11, dttm_str);
 						}
 						THROW_PP(p_out_tbl_grpqtty_dscnt->appendRec(&dbfrGGQD), PPERR_DBFWRFAULT);
@@ -2321,17 +2321,17 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 							else
 								dbfrD.put(next_fld++, (long)(0x01000000 * old_dscnt_code_bias + gi.ID)); // Код скидки
 						if(qk_obj.Fetch(scard_quot_ary.at(i).Val, &qk_rec) > 0) {
-							(dttm_str = 0).Cat((qk_rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_rec.Period.low, DATF_GERMAN | DATF_CENTURY);
+							dttm_str.Z().Cat((qk_rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_rec.Period.low, DATF_GERMAN | DATF_CENTURY);
 							dttm_str.Space().Cat(encodetime(*(char *)&qk_rec.BeginTm,*(((char *)&qk_rec.BeginTm) + 1), 0, 0), TIMF_HM);
 							dbfrD.put(next_fld++, dttm_str);
-							(dttm_str = 0).Cat((qk_rec.Period.upp == ZERODATE) ? encodedate(1, 1, 2050) : qk_rec.Period.upp, DATF_GERMAN | DATF_CENTURY);
+							dttm_str.Z().Cat((qk_rec.Period.upp == ZERODATE) ? encodedate(1, 1, 2050) : qk_rec.Period.upp, DATF_GERMAN | DATF_CENTURY);
 							dttm_str.Space().Cat(encodetime(*(char *)&qk_rec.EndTm,*(((char *)&qk_rec.EndTm) + 1), 0, 0), TIMF_HM);
 							dbfrD.put(next_fld++, dttm_str);
 						}
 						else {
-							(dttm_str = 0).Cat(encodedate(1, 1, 2000), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
+							dttm_str.Z().Cat(encodedate(1, 1, 2000), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
 							dbfrD.put(next_fld++, encodedate(1, 1, 2000));
-							(dttm_str = 0).Cat(encodedate(1, 1, 2050), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
+							dttm_str.Z().Cat(encodedate(1, 1, 2050), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
 							dbfrD.put(next_fld, encodedate(1, 1, 2050));
 						}
 						THROW_PP(p_out_tbl_dscnt->appendRec(&dbfrD), PPERR_DBFWRFAULT);
@@ -2353,17 +2353,17 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 							dbfrGQD.put(4, quot_by_qtty.MinQtty);           // Кол-во, на которое применяется скидка
 							dbfrGQD.put(5, -quot_by_qtty.Quot);             // Процент скидки на кол-во товара
 							if(qk_obj.Fetch(quot_by_qtty.Kind, &qk_rec) > 0) {
-								(dttm_str = 0).Cat((qk_rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_rec.Period.low, DATF_GERMAN | DATF_CENTURY);
+								dttm_str.Z().Cat((qk_rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_rec.Period.low, DATF_GERMAN | DATF_CENTURY);
 								dttm_str.Space().Cat(encodetime(*(char *)&qk_rec.BeginTm,*(((char *)&qk_rec.BeginTm) + 1), 0, 0), TIMF_HM);
 								dbfrGQD.put(6, dttm_str);
-								(dttm_str = 0).Cat((qk_rec.Period.upp == ZERODATE) ? encodedate(1, 1, 2050) : qk_rec.Period.upp, DATF_GERMAN | DATF_CENTURY);
+								dttm_str.Z().Cat((qk_rec.Period.upp == ZERODATE) ? encodedate(1, 1, 2050) : qk_rec.Period.upp, DATF_GERMAN | DATF_CENTURY);
 								dttm_str.Space().Cat(encodetime(*(char *)&qk_rec.EndTm,*(((char *)&qk_rec.EndTm) + 1), 0, 0), TIMF_HM);
 								dbfrGQD.put(7, dttm_str);
 							}
 							else {
-								(dttm_str = 0).Cat(encodedate(1, 1, 2000), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
+								dttm_str.Z().Cat(encodedate(1, 1, 2000), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
 								dbfrGQD.put(6, dttm_str);
-								(dttm_str = 0).Cat(encodedate(1, 1, 2050), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
+								dttm_str.Z().Cat(encodedate(1, 1, 2050), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
 								dbfrGQD.put(7, dttm_str);
 							}
 							THROW_PP(p_out_tbl_gdsqtty_dscnt->appendRec(&dbfrGQD), PPERR_DBFWRFAULT);
@@ -4207,12 +4207,12 @@ int SLAPI ACS_CRCSHSRV::QueryFile(int filTyp, const char * pQueryBuf, LDATE quer
 
 SString & SLAPI ACS_CRCSHSRV::MakeQueryBuf(LDATE dt, SString & rBuf) const
 {
-	return (rBuf = 0).CatLongZ((long)dt.year(), 4).CatLongZ((long)dt.month(), 2).CatLongZ((long)dt.day(), 2);
+	return rBuf.Z().CatLongZ((long)dt.year(), 4).CatLongZ((long)dt.month(), 2).CatLongZ((long)dt.day(), 2);
 }
 
 SString & SLAPI ACS_CRCSHSRV::MakeQueryBufV10(LDATE dt, SString & rBuf, int isZRep) const
 {
-	return (rBuf = 0).Cat("date:").Space().Cat(dt).CR().Cat("report:").Space().Cat((isZRep) ? "Zreports" : "purchases");
+	return rBuf.Z().Cat("date:").Space().Cat(dt).CR().Cat("report:").Space().Cat((isZRep) ? "Zreports" : "purchases");
 }
 
 class XmlZRepReader {

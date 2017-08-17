@@ -338,12 +338,12 @@ private:
 		PPListDialog::handleEvent(event);
 		if(event.isCmd(cmTest)) {
 			SString temp_buf;
-			getCtrlString(CTL_GVR_LOWBFORM, temp_buf = 0);
+			getCtrlString(CTL_GVR_LOWBFORM, temp_buf.Z());
 			if(temp_buf.NotEmpty() && !PPObjGoodsValRestr::TestFormula(temp_buf)) {
 				PPErrorByDialog(this, CTL_GVR_LOWBFORM);
 			}
 			else {
-				getCtrlString(CTL_GVR_UPPBFORM, temp_buf = 0);
+				getCtrlString(CTL_GVR_UPPBFORM, temp_buf.Z());
 				if(temp_buf.NotEmpty() && !PPObjGoodsValRestr::TestFormula(temp_buf)) {
 					PPErrorByDialog(this, CTL_GVR_UPPBFORM);
 				}
@@ -412,7 +412,7 @@ int GoodsValRestrDialog::setupList()
 	for(uint i = 0; i < r_list.getCount(); i++) {
 		const ObjRestrictItem & r_item = r_list.at(i);
 		ss.clear(1);
-		GetArticleName(r_item.ObjID, temp_buf = 0);
+		GetArticleName(r_item.ObjID, temp_buf.Z());
 		ss.add(temp_buf);
 		{
 			switch(r_item.Flags) {
@@ -420,7 +420,7 @@ int GoodsValRestrDialog::setupList()
 				case PPGoodsValRestrPacket::barMainArDisable: PPLoadString("gvrbar_mainardisable", temp_buf); break;
 				case PPGoodsValRestrPacket::barExtArOnly:     PPLoadString("gvrbar_extaronly", temp_buf); break;
 				case PPGoodsValRestrPacket::barExtArDisable:  PPLoadString("gvrbar_extardisable", temp_buf); break;
-				default: (temp_buf = 0).Cat(r_item.Flags); break;
+				default: temp_buf.Z().Cat(r_item.Flags); break;
 			}
 			ss.add(temp_buf);
 		}

@@ -64,7 +64,7 @@ int SLAPI PPObjAccount::ParseString(const char * pStr, int tok[])
 	char * p = strtok(STRNSCPY(temp_buf, pStr), ".,");
 	if(p) {
 		do {
-			if(i == 0 && (!isdigit(p[0]) || p[0] == '0'))
+			if(i == 0 && (!isdec(p[0]) || p[0] == '0'))
 				tok[i++] = (SearchCode(p, 0L, &rec) > 0) ? rec.A.Ac : 0;
 			else
 				tok[i++] = atoi(p);
@@ -619,7 +619,7 @@ int GenAccountDialog::delItem(long pos, long id)
 
 int GenAccountDialog::getObjName(PPID objID, long objFlags, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	SString temp_buf;
 	PPAccount acc_rec;
 	if(abs(GetAcoByGenFlags(objFlags)) == ACO_3) {
@@ -651,7 +651,7 @@ int GenAccountDialog::getObjName(PPID objID, long objFlags, SString & rBuf)
 
 void GenAccountDialog::getExtText(PPID, long objFlags, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    aco = abs(GetAcoByGenFlags(objFlags));
 	if(aco == ACO_1)
 		rBuf.CatChar('g').CatChar('1');

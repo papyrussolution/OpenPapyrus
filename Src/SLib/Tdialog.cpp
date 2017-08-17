@@ -92,7 +92,7 @@ int TDialog::setupPosition()
 
 SString & TProgram::MakeModalStackDebugText(SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	SString temp_buf;
 	for(uint i = 0; i < ModalStack.getPointer(); i++) {
 		HWND _hs = *(HWND *)ModalStack.at(i);
@@ -252,7 +252,7 @@ int TDialog::SetCtlSymb(uint id, const char * pSymb)
 
 int TDialog::GetCtlSymb(uint id, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	return BIN(P_SymbList && P_SymbList->Get((long)id, rBuf) > 0);
 }
 

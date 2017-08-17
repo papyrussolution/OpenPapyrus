@@ -277,7 +277,7 @@ int LocTransfDialog::setDTS(const LocTransfTbl::Rec * pData)
 	setStaticText(CTL_LOCTRANSF_BILLTITLE, temp_buf);
 	setCtrlReal(CTL_LOCTRANSF_BILLQTTY, bill_qtty);
 	showCtrl(CTL_LOCTRANSF_BILLQTTY, bill_qtty != 0.0);
-	(temp_buf = 0).Cat(Data.Dt).Space().Cat(Data.Tm);
+	temp_buf.Z().Cat(Data.Dt).Space().Cat(Data.Tm);
 	setCtrlString(CTL_LOCTRANSF_TM, temp_buf);
 	{
 		ObjIdListFilt loc_list;

@@ -1,6 +1,6 @@
 // V_GREST.CPP
 // Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -345,7 +345,6 @@ int SLAPI PPViewGoodsRest::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-//int SLAPI PPViewGoodsRest::ViewLots(PPID goodsID, PPID locID, const char * pSerial, int orderLots)
 int SLAPI PPViewGoodsRest::ViewLots(PPID __id, const BrwHdr * pHdr, int orderLots)
 {
 	int    ok = -1;
@@ -478,9 +477,9 @@ int GoodsRestFiltDlg::setDTS(const GoodsRestFilt * pFilt)
 	SetClusterData(CTL_GOODSREST_DIFFBYLOC, Data.Flags);
 	/* @v8.2.3
 	//
-	// При установленном флаге GoodsRestFilt::barCode (экспорт данных)
-	// выбор остается только между первым и последним лотами, однако
-	// если по-уму, то перед экспортом данных следует сделать унификацию цен.
+	// РџСЂРё СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРј С„Р»Р°РіРµ GoodsRestFilt::barCode (СЌРєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С…)
+	// РІС‹Р±РѕСЂ РѕСЃС‚Р°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РјРµР¶РґСѓ РїРµСЂРІС‹Рј Рё РїРѕСЃР»РµРґРЅРёРј Р»РѕС‚Р°РјРё, РѕРґРЅР°РєРѕ
+	// РµСЃР»Рё РїРѕ-СѓРјСѓ, С‚Рѕ РїРµСЂРµРґ СЌРєСЃРїРѕСЂС‚РѕРј РґР°РЅРЅС‹С… СЃР»РµРґСѓРµС‚ СЃРґРµР»Р°С‚СЊ СѓРЅРёС„РёРєР°С†РёСЋ С†РµРЅ.
 	//
 	if(Data.Flags & GoodsRestFilt::fBarCode)
 		if(oneof2(Data.CalcMethod, 1, 2))
@@ -498,7 +497,7 @@ int GoodsRestFiltDlg::setDTS(const GoodsRestFilt * pFilt)
 	SetClusterData(CTL_GOODSREST_METHOD, Data.CalcMethod);
 	// } @v8.2.3
 	//
-	// В диалоге флаги расчета сумм НДС в цп и цр устанавливаются (снимаются) одновременно
+	// Р’ РґРёР°Р»РѕРіРµ С„Р»Р°РіРё СЂР°СЃС‡РµС‚Р° СЃСѓРјРј РќР”РЎ РІ С†Рї Рё С†СЂ СѓСЃС‚Р°РЅР°РІР»РёРІР°СЋС‚СЃСЏ (СЃРЅРёРјР°СЋС‚СЃСЏ) РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ
 	//
 	SETFLAG(Data.Flags, GoodsRestFilt::fCalcCVat, BIN(Data.Flags & (GoodsRestFilt::fCalcCVat|GoodsRestFilt::fCalcPVat)));
 	SETFLAG(Data.Flags, GoodsRestFilt::fCalcPVat, BIN(Data.Flags & (GoodsRestFilt::fCalcCVat|GoodsRestFilt::fCalcPVat)));
@@ -531,7 +530,15 @@ int GoodsRestFiltDlg::setDTS(const GoodsRestFilt * pFilt)
 	AddClusterAssoc(CTL_GOODSREST_SPLIT, 1, GoodsRestParam::_diffPrice);      // @v8.1.0 GoodsRestParam::diffByPrice-->GoodsRestParam::_diffPrice
 	AddClusterAssoc(CTL_GOODSREST_SPLIT, 2, GoodsRestParam::_diffPack);       // @v8.1.0 GoodsRestParam::diffByPack-->GoodsRestParam::_diffPack
 	AddClusterAssoc(CTL_GOODSREST_SPLIT, 3, GoodsRestParam::_diffSerial);     // @v8.1.0
+	AddClusterAssoc(CTL_GOODSREST_SPLIT, 4, GoodsRestParam::_diffLotTag);     // @v9.7.11
 	SetClusterData(CTL_GOODSREST_SPLIT, Data.DiffParam);
+	// @v9.7.11 {
+	{
+		ObjTagFilt lot_tag_filt(PPOBJ_LOT, ObjTagFilt::fOnlyTags);
+		SetupObjTagCombo(this, CTLSEL_GOODSREST_LOTTAG, Data.DiffLotTagID, 0, &lot_tag_filt);
+		disableCtrl(CTLSEL_GOODSREST_LOTTAG, Data.DiffParam != GoodsRestParam::_diffLotTag);
+	}
+	// } @v9.7.11
 	setWL(BIN(Data.Flags & GoodsRestFilt::fLabelOnly));
 	SetPeriodInput(this, CTL_GOODSREST_DRAFTPRD, &Data.DraftRcptPrd);
 	SetupCtrls();
@@ -574,7 +581,7 @@ int GoodsRestFiltDlg::getDTS(GoodsRestFilt * pFilt)
 	Data.CalcMethod = GetClusterData(CTL_GOODSREST_METHOD); // @v8.2.3
 	GetClusterData(CTL_GOODSREST_FLAGS,  &Data.Flags);
 	//
-	// В диалоге флаги расчета сумм НДС в цп и цр устанавливаются (снимаются) одновременно
+	// Р’ РґРёР°Р»РѕРіРµ С„Р»Р°РіРё СЂР°СЃС‡РµС‚Р° СЃСѓРјРј РќР”РЎ РІ С†Рї Рё С†СЂ СѓСЃС‚Р°РЅР°РІР»РёРІР°СЋС‚СЃСЏ (СЃРЅРёРјР°СЋС‚СЃСЏ) РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ
 	//
 	SETFLAG(Data.Flags, GoodsRestFilt::fCalcCVat, BIN(Data.Flags & (GoodsRestFilt::fCalcCVat|GoodsRestFilt::fCalcPVat)));
 	SETFLAG(Data.Flags, GoodsRestFilt::fCalcPVat, BIN(Data.Flags & (GoodsRestFilt::fCalcCVat|GoodsRestFilt::fCalcPVat)));
@@ -590,8 +597,14 @@ int GoodsRestFiltDlg::getDTS(GoodsRestFilt * pFilt)
 		Data.Flags |= GoodsRestFilt::fNullRest;
 	Data.DiffParam = GetClusterData(CTL_GOODSREST_SPLIT);
 	if(Data.Flags & GoodsRestFilt::fCalcOrder) {
-		Data.DiffParam &= ~(GoodsRestParam::_diffCost|GoodsRestParam::_diffPrice|GoodsRestParam::_diffPack|GoodsRestParam::_diffSerial);
+		Data.DiffParam &= ~(GoodsRestParam::_diffCost|GoodsRestParam::_diffPrice|GoodsRestParam::_diffPack|GoodsRestParam::_diffSerial|GoodsRestParam::_diffLotTag);
 	}
+	// @v9.7.11 {
+	if(Data.DiffParam == GoodsRestParam::_diffLotTag) {
+		getCtrlData(CTLSEL_GOODSREST_LOTTAG, &Data.DiffLotTagID);
+		THROW_PP(Data.DiffLotTagID, PPERR_LOTTAGNEEDED_DIFFPARAM);
+	}
+	// } @v9.7.11 
 	SETFLAG(Data.Flags, GoodsRestFilt::fLabelOnly, getWL());
 	Data.Flags2 &= ~GoodsRestFilt::f2CalcPrognosis; // @v9.5.8 CalcPrognosis-->Flags2
 	GetPeriodInput(this, CTL_GOODSREST_DRAFTPRD, &Data.DraftRcptPrd);
@@ -664,6 +677,12 @@ IMPL_HANDLE_EVENT(GoodsRestFiltDlg)
 		GetClusterData(CTL_GOODSREST_DIFFBYLOC, &Data.Flags);
 		SetupCrosstab();
 	}
+	// @v9.7.11 {
+	else if(event.isClusterClk(CTL_GOODSREST_SPLIT)) {
+		Data.DiffParam = GetClusterData(CTL_GOODSREST_SPLIT);
+		disableCtrl(CTLSEL_GOODSREST_LOTTAG, Data.DiffParam != GoodsRestParam::_diffLotTag);
+	}
+	// } @v9.7.11 
 	else if(event.isCmd(cmAdvOptions))
 		editAdvOptions();
 	else
@@ -709,7 +728,7 @@ int GoodsRestFiltDlg::editAdvOptions()
 		ok = 0;
 	delete p_dlg;
 	if(Data.Flags & GoodsRestFilt::fCalcDeficit) {
-		Data.DiffParam &= ~(GoodsRestParam::_diffCost|GoodsRestParam::_diffPrice|GoodsRestParam::_diffPack|GoodsRestParam::_diffSerial);
+		Data.DiffParam &= ~(GoodsRestParam::_diffCost|GoodsRestParam::_diffPrice|GoodsRestParam::_diffPack|GoodsRestParam::_diffSerial|GoodsRestParam::_diffLotTag);
 		SetClusterData(CTL_GOODSREST_SPLIT, Data.DiffParam);
 	}
 	SetupCtrls();
@@ -854,6 +873,15 @@ int SLAPI PPViewGoodsRest::Cache::GetCacheItemSerial(const PPViewGoodsRest::Cach
 	return GetS(rItem.SerialP, rBuf);
 }
 
+int SLAPI PPViewGoodsRest::Cache::SetupCacheItemLotTag(PPViewGoodsRest::CacheItem & rItem, const char * pTagVal)
+{
+	return AddS(pTagVal, &rItem.LotTagP);
+}
+
+int SLAPI PPViewGoodsRest::Cache::GetCacheItemLotTag(const PPViewGoodsRest::CacheItem & rItem, SString & rBuf) const
+{
+	return GetS(rItem.LotTagP, rBuf);
+}
 
 IMPL_CMPFUNC(GoodsRestCacheItem, _i1, _i2)
 {
@@ -862,18 +890,16 @@ IMPL_CMPFUNC(GoodsRestCacheItem, _i1, _i2)
 	return si;
 }
 
-int SLAPI PPViewGoodsRest::InitCache()
+void SLAPI PPViewGoodsRest::InitCache()
 {
 	MaxCacheItems = 128*1024;
 	CacheDelta = 4096;
 	MEMSZERO(CacheStat);
 	LastCacheCounter = 0;
 	CacheBuf.Clear();
-	return 1;
 }
 
 struct _lru_item_tag {
-	//int16  counter;
 	uint   counter;
 	uint   pos;
 };
@@ -1078,7 +1104,7 @@ int SLAPI PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRes
 					temp_buf.CopyTo(rec.BarCode, sizeof(rec.BarCode));
 				}
 				else {
-					GObj.FetchSingleBarcode(rec.GoodsID, temp_buf = 0);
+					GObj.FetchSingleBarcode(rec.GoodsID, temp_buf.Z());
 					temp_buf.CopyTo(rec.BarCode, sizeof(rec.BarCode));
 				}
 				rec.UnitPerPack = rItem.UnitPerPack;
@@ -1098,10 +1124,17 @@ int SLAPI PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRes
 				rec.PctAddedVal = 0.0f;
 			rec.SumCVat     = (Flags & fAccsCost) ? rItem.SumCVat : 0.0; // @v8.3.4
 			rec.SumPVat     = rItem.SumPVat; // @v8.3.4
-			// @v8.1.0 {
-			CacheBuf.GetCacheItemSerial(rItem, temp_buf);
-			temp_buf.CopyTo(rec.Serial, sizeof(rec.Serial));
-			// } @v8.1.0
+			// @v9.7.11 {
+			if(Filt.DiffParam & GoodsRestParam::_diffLotTag && Filt.DiffLotTagID) {
+				CacheBuf.GetCacheItemLotTag(rItem, temp_buf);
+				STRNSCPY(rec.Serial, temp_buf);
+			}
+			else { // } @v9.7.11 
+				// @v8.1.0 {
+				CacheBuf.GetCacheItemSerial(rItem, temp_buf);
+				STRNSCPY(rec.Serial, temp_buf);
+				// } @v8.1.0
+			}
 			if((Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) || Filt.Flags & GoodsRestFilt::fCalcSStatSales || Filt.PrgnTerm > 0) { // @v9.5.8 CalcPrognosis-->Flags2
 				int    can_trust = 0;
 				double predict = 0.0;
@@ -1284,9 +1317,14 @@ PROFILE_START
 	if(P_Tbl) {
 		uint   pos_ = 0, found = 0, i = 0;
 		SString serial, serial2;
+		SString tag_val, tag_val2;
 		CacheStat.SearchCount++;
 		CompFunc cf = (Filt.Flags & GoodsRestFilt::fEachLocation) ? PTR_CMPFUNC(_2long) : CMPF_LONG;
 		CacheBuf.GetCacheItemSerial(rItem, serial); // @v8.1.0
+		// @v9.7.11 {
+		if(Filt.DiffParam & GoodsRestParam::_diffLotTag && Filt.DiffLotTagID)
+			CacheBuf.GetCacheItemLotTag(rItem, tag_val); 
+		// } @v9.7.11
 		if(CacheBuf.bsearch(&rItem.GoodsID, &pos_, cf)) {
 			for(i = pos_; i > 0 && CompareNthCacheItem(i-1, &rItem);)
 				i--;
@@ -1304,6 +1342,13 @@ PROFILE_START
 					if(serial != serial2)
 						_eq = 0;
 				}
+				// @v9.7.11 {
+				else if(Filt.DiffParam & GoodsRestParam::_diffLotTag && Filt.DiffLotTagID) {
+					CacheBuf.GetCacheItemLotTag(r_grci, tag_val2); 
+					if(tag_val != tag_val2)
+						_eq = 0;
+				}
+				// } @v9.7.11 
 				if(_eq)
 					p_item = &r_grci;
 				else
@@ -1353,7 +1398,7 @@ PROFILE_START
 				CacheStat.DbMissesCount++;
 		}
 	}
-	const int lru_counter = 0; // Переключатель для сравнительного тестирования производительности
+	const int lru_counter = 0; // РџРµСЂРµРєР»СЋС‡Р°С‚РµР»СЊ РґР»СЏ СЃСЂР°РІРЅРёС‚РµР»СЊРЅРѕРіРѕ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚Рё
 	if(p_item) {
 		double sum_rest   = p_item->Rest   + rItem.Rest;
 		double sum_phrest = p_item->PhRest + rItem.PhRest;
@@ -1417,6 +1462,7 @@ int SLAPI PPViewGoodsRest::AddGoodsThruCache(PPID goodsID, PPID locID, int isSub
 	grci.Deficit  = pGRV->Deficit;
 	grci.DraftRcpt = pGRV->DraftRcpt;
 	CacheBuf.SetupCacheItemSerial(grci, pGRV->Serial); // @v8.1.0
+	CacheBuf.SetupCacheItemLotTag(grci, pGRV->LotTagText); // @v9.7.11
 	if(Filt.CalcMethod == GoodsRestParam::pcmMostRecent)
 		::GetCurGoodsPrice(goodsID, locID, GPRET_MOSTRECENT, &grci.Price, 0);
 	if(Filt.Flags & GoodsRestFilt::fCalcTotalOnly)
@@ -1586,7 +1632,7 @@ int SLAPI PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, PPIDArr
 		p.Total.DraftRcpt = GetDraftRcptByLocList(goods_id, &p.LocList, 0);
 	if(order || p.Total.Rest || min_stock > 0.0 || p.Total.DraftRcpt || (ff & GoodsRestFilt::fNullRest)) {
 		//
-		// Пассивный товар с нулевым остатком не учитываем
+		// РџР°СЃСЃРёРІРЅС‹Р№ С‚РѕРІР°СЂ СЃ РЅСѓР»РµРІС‹Рј РѕСЃС‚Р°С‚РєРѕРј РЅРµ СѓС‡РёС‚С‹РІР°РµРј
 		//
 		if(order == 0.0 && p.Total.Rest == 0.0 && min_stock <= 0.0 && GObj.CheckFlag(goods_id, GF_PASSIV))
 			return 1;
@@ -1594,7 +1640,7 @@ int SLAPI PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, PPIDArr
 		ReceiptTbl::Rec rrec;
 		GObj.GetPhUPerU(goods_id, 0, &ph_u_per_u);
 		if(p.Total.Rest == 0.0 && p.Total.DraftRcpt == 0.0) {
-			// В цикле для каждого склада Х
+			// Р’ С†РёРєР»Рµ РґР»СЏ РєР°Р¶РґРѕРіРѕ СЃРєР»Р°РґР° РҐ
 			// @v8.6.6 PPID   temp_loc_id = (ff & GoodsRestFilt::fNullRestsOnly) ? LocList.GetSingle() : 0L;
 			PPID   temp_loc_id = LocList.GetSingle(); // @v8.6.6
 			const  int llr = GetLastLot_(goodsID, temp_loc_id, rrec);
@@ -1687,8 +1733,8 @@ int SLAPI PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, PPIDArr
 								sgg_blk.LocID = item.LocID;
 								if(llr > 0)
 									sgg_blk.P_LotRec = &rrec;
-								// Здесь не следует точно идентифицировать лот в sgg_blk по скольку фактически лота нет (rrec -
-								// просто последний лот).
+								// Р—РґРµСЃСЊ РЅРµ СЃР»РµРґСѓРµС‚ С‚РѕС‡РЅРѕ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ Р»РѕС‚ РІ sgg_blk РїРѕ СЃРєРѕР»СЊРєСѓ С„Р°РєС‚РёС‡РµСЃРєРё Р»РѕС‚Р° РЅРµС‚ (rrec -
+								// РїСЂРѕСЃС‚Рѕ РїРѕСЃР»РµРґРЅРёР№ Р»РѕС‚).
 								THROW(GObj.SubstGoods(goodsID, &goods_id, Filt.Sgg, &sgg_blk, &Gsl));
 								is_subst = 1;
 							}
@@ -1709,8 +1755,8 @@ int SLAPI PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, PPIDArr
 								sgg_blk.LocID = item.LocID;
 								if(llr > 0)
 									sgg_blk.P_LotRec = &rrec;
-								// Здесь не следует точно идентифицировать лот в sgg_blk по скольку фактически лота нет (rrec -
-								// просто последний лот).
+								// Р—РґРµСЃСЊ РЅРµ СЃР»РµРґСѓРµС‚ С‚РѕС‡РЅРѕ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ Р»РѕС‚ РІ sgg_blk РїРѕ СЃРєРѕР»СЊРєСѓ С„Р°РєС‚РёС‡РµСЃРєРё Р»РѕС‚Р° РЅРµС‚ (rrec -
+								// РїСЂРѕСЃС‚Рѕ РїРѕСЃР»РµРґРЅРёР№ Р»РѕС‚).
 								THROW(GObj.SubstGoods(goodsID, &goods_id, Filt.Sgg, &sgg_blk, &Gsl));
 								is_subst = 1;
 							}
@@ -1825,7 +1871,7 @@ int SLAPI PPViewGoodsRest::InitProcessLotBlock(ProcessLotBlock & rBlk, const PPI
 	ZDELETE(rBlk.P_LpCache);
 	if(!(Filt.Flags & GoodsRestFilt::fZeroSupplAgent))
 		THROW(P_BObj->P_Tbl->GetBillListByExt(Filt.AgentID, 0L, rBlk.ExtBillList));
-	// @v8.1.0 (сортировку теперь выполняет GetBillListByExt) rBlk.ExtBillList.sort();
+	// @v8.1.0 (СЃРѕСЂС‚РёСЂРѕРІРєСѓ С‚РµРїРµСЂСЊ РІС‹РїРѕР»РЅСЏРµС‚ GetBillListByExt) rBlk.ExtBillList.sort();
 	if(Filt.Date) {
 		THROW_MEM(rBlk.P_LpCache = new Transfer::GetLotPricesCache(Filt.Date, &LocList.Get()));
 	}
@@ -1872,7 +1918,7 @@ int SLAPI PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl:
 	}
 	else if(!Filt.GoodsGrpID && GObj.IsAsset(labs(goods_id)) > 0)
 		ok = -1;
-	else if(goods_id > 0 && (Filt.AgentID || Filt.Flags & GoodsRestFilt::fZeroSupplAgent)) { // Агента поставщика не проверяем для лотов заказов
+	else if(goods_id > 0 && (Filt.AgentID || Filt.Flags & GoodsRestFilt::fZeroSupplAgent)) { // РђРіРµРЅС‚Р° РїРѕСЃС‚Р°РІС‰РёРєР° РЅРµ РїСЂРѕРІРµСЂСЏРµРј РґР»СЏ Р»РѕС‚РѕРІ Р·Р°РєР°Р·РѕРІ
 		THROW(P_BObj->trfr->Rcpt.GetOriginDate(&rRec, &org_lot_date, &org_lot_bill_id));
 		if(Filt.Flags & GoodsRestFilt::fZeroSupplAgent) {
 			PPBillExt b_ext;
@@ -1994,7 +2040,7 @@ int SLAPI PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl:
 			grci.GoodsID = labs(grci.GoodsID);
 			GObj.GetPhUPerU(grci.GoodsID, 0, &ph_u_per_u);
 			grci.PhRest = grci.Rest * ph_u_per_u;
-			grci.Deficit = GetDeficit(grci.GoodsID);        // AHTOXA
+			grci.Deficit = GetDeficit(grci.GoodsID);
 			// @v8.1.0 {
 			if(Filt.DiffParam & GoodsRestParam::_diffSerial) {
 				SString serial;
@@ -2009,6 +2055,20 @@ int SLAPI PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl:
 				CacheBuf.SetupCacheItemSerial(grci, serial);
 			}
 			// } @v8.1.0
+			// @v9.7.11 {
+			if(Filt.DiffParam == GoodsRestParam::_diffLotTag && Filt.DiffLotTagID) {
+				SString tag_val;
+				PPRef->Ot.GetTagStr(PPOBJ_LOT, rRec.ID, Filt.DiffLotTagID, tag_val);
+				/*
+				if(tag_val.Empty() && rRec.PrevLotID) {
+					ReceiptTbl::Rec org_lot_rec;
+					if(P_BObj->trfr->Rcpt.SearchOrigin(rRec.PrevLotID, 0, 0, &org_lot_rec))
+						P_BObj->GetSerialNumberByLot(org_lot_rec.ID, serial, 0);
+				}
+				*/
+				CacheBuf.SetupCacheItemLotTag(grci, tag_val);
+			}
+			// } @v9.7.11 
 			if(Filt.Sgg) {
 				PPObjGoods::SubstBlock sgg_blk;
 				sgg_blk.ExclParentID = Filt.GoodsGrpID;
@@ -2164,7 +2224,7 @@ int SLAPI PPViewGoodsRest::MakeLotQuery(LotQueryBlock & rBlk, int lcr, ulong low
 		else if(!oneof2(rBlk.Idx, 3, 7))
 			dbq = & (*dbq && r_t->Closed == 0L);
 	//
-	// Гарантируем, что Idx и SpMode инициализированы
+	// Р“Р°СЂР°РЅС‚РёСЂСѓРµРј, С‡С‚Рѕ Idx Рё SpMode РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅС‹
 	//
 	assert(rBlk.Idx != -1);
 	assert(rBlk.SpMode != -1);
@@ -2245,13 +2305,13 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 				if(r)
 					r_lot_rec.Rest = rest;
 				else
-					r_lot_rec.Rest = 0.0; // @err Такого не должно быть.
+					r_lot_rec.Rest = 0.0; // @err РўР°РєРѕРіРѕ РЅРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ.
 			}
 		}
 		{
 			//
-			// Открытые лоты, последняя операция по которым предшествовала дате Filt.Date.
-			// Такие лоты не входят в индекс.
+			// РћС‚РєСЂС‹С‚С‹Рµ Р»РѕС‚С‹, РїРѕСЃР»РµРґРЅСЏСЏ РѕРїРµСЂР°С†РёСЏ РїРѕ РєРѕС‚РѕСЂС‹Рј РїСЂРµРґС€РµСЃС‚РІРѕРІР°Р»Р° РґР°С‚Рµ Filt.Date.
+			// РўР°РєРёРµ Р»РѕС‚С‹ РЅРµ РІС…РѕРґСЏС‚ РІ РёРЅРґРµРєСЃ.
 			//
 			LotQueryBlock q_blk;
 			SString temp_buf;
@@ -2265,12 +2325,12 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 		}
 		if(Filt.Flags & GoodsRestFilt::fNullRest) {
 			//
-			// Товары с нулевым остатком придется обрабатывать специальным образом
+			// РўРѕРІР°СЂС‹ СЃ РЅСѓР»РµРІС‹Рј РѕСЃС‚Р°С‚РєРѕРј РїСЂРёРґРµС‚СЃСЏ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ СЃРїРµС†РёР°Р»СЊРЅС‹Рј РѕР±СЂР°Р·РѕРј
 			//
 			PPLoadText(PPTXT_GRESTNULLRESTPROCESS, WaitMsg);
 			PPWaitMsg(WaitMsg);
 			//
-			// Сначала извлекаем список товаров, которые когда-либо были на складе (складах)
+			// РЎРЅР°С‡Р°Р»Р° РёР·РІР»РµРєР°РµРј СЃРїРёСЃРѕРє С‚РѕРІР°СЂРѕРІ, РєРѕС‚РѕСЂС‹Рµ РєРѕРіРґР°-Р»РёР±Рѕ Р±С‹Р»Рё РЅР° СЃРєР»Р°РґРµ (СЃРєР»Р°РґР°С…)
 			//
 			UintHashTable full_goods_list;
 			const uint loc_count = LocList.GetCount();
@@ -2283,8 +2343,8 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 				THROW(P_BObj->trfr->GetLocGoodsList(0, full_goods_list));
 			if(pGrpGoodsList) {
 				//
-				// Если есть ограничение по списку товаров, то убираем из full_goods_list
-				// позиции, которые не входят в ограничивающий список.
+				// Р•СЃР»Рё РµСЃС‚СЊ РѕРіСЂР°РЅРёС‡РµРЅРёРµ РїРѕ СЃРїРёСЃРєСѓ С‚РѕРІР°СЂРѕРІ, С‚Рѕ СѓР±РёСЂР°РµРј РёР· full_goods_list
+				// РїРѕР·РёС†РёРё, РєРѕС‚РѕСЂС‹Рµ РЅРµ РІС…РѕРґСЏС‚ РІ РѕРіСЂР°РЅРёС‡РёРІР°СЋС‰РёР№ СЃРїРёСЃРѕРє.
 				//
 				for(ulong id_ = 0; full_goods_list.Enum(&id_);) {
 					if(!pGrpGoodsList->bsearch((long)id_))
@@ -2293,8 +2353,8 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 			}
 			{
 				//
-				// Далее, выбрасываем из full_goods_list те позиции, по которым есть ненулевые остатки
-				// в списке лотов.
+				// Р”Р°Р»РµРµ, РІС‹Р±СЂР°СЃС‹РІР°РµРј РёР· full_goods_list С‚Рµ РїРѕР·РёС†РёРё, РїРѕ РєРѕС‚РѕСЂС‹Рј РµСЃС‚СЊ РЅРµРЅСѓР»РµРІС‹Рµ РѕСЃС‚Р°С‚РєРё
+				// РІ СЃРїРёСЃРєРµ Р»РѕС‚РѕРІ.
 				//
 				const uint lc = lot_list.getCount();
 				for(uint i = 0; i < lc; i++) {
@@ -2306,7 +2366,7 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 			}
 			{
 				//
-				// Наконец, производим расчет по списку товаров, остаток по которым нулевой.
+				// РќР°РєРѕРЅРµС†, РїСЂРѕРёР·РІРѕРґРёРј СЂР°СЃС‡РµС‚ РїРѕ СЃРїРёСЃРєСѓ С‚РѕРІР°СЂРѕРІ, РѕСЃС‚Р°С‚РѕРє РїРѕ РєРѕС‚РѕСЂС‹Рј РЅСѓР»РµРІРѕР№.
 				//
 				PPIDArray goods_list;
 				for(ulong id_ = 0; full_goods_list.Enum(&id_);)
@@ -2363,7 +2423,7 @@ int SLAPI PPViewGoodsRest::GetTabTitle(long tabID, SString & rBuf)
 		if(LocObj.Search(tabID, &loc_rec) > 0)
 			rBuf.CopyFrom(loc_rec.Name);
 		else
-			(rBuf = 0).Cat(tabID);
+			rBuf.Z().Cat(tabID);
 	}
 	return 1;
 }
@@ -2450,7 +2510,7 @@ private:
 				if(p_total_item) {
 					rBlk.Result = 100.0 * fdivnz(p_total_item->NzMtxCount, p_total_item->MtxCount);
 					//
-					// @6.2.x AHTOXA (полагаемся на то, что все 3 колонки уже обработаны и обнуляем данные для след.строки)
+					// @6.2.x AHTOXA (РїРѕР»Р°РіР°РµРјСЃСЏ РЅР° С‚Рѕ, С‡С‚Рѕ РІСЃРµ 3 РєРѕР»РѕРЅРєРё СѓР¶Рµ РѕР±СЂР°Р±РѕС‚Р°РЅС‹ Рё РѕР±РЅСѓР»СЏРµРј РґР°РЅРЅС‹Рµ РґР»СЏ СЃР»РµРґ.СЃС‚СЂРѕРєРё)
 					//
 					p_total_item->NzMtxCount = p_total_item->MtxCount = 0;
 				}
@@ -2496,7 +2556,7 @@ int SLAPI PPViewGoodsRest::CreateTempTable(int use_ta, double * pPrfMeasure)
 	if(Filt.Flags & GoodsRestFilt::fCalcUncompleteSess) {
 		prf_measure_coeff *= 1.1;
 		CCheckTbl.GetActiveExpendByLocList(&LocList, &UncompleteSessQttyList);
-#if 0 // @v8.5.2 кассовые чеки полностью отражают текущие продажи - драфт-документы не нужны {
+#if 0 // @v8.5.2 РєР°СЃСЃРѕРІС‹Рµ С‡РµРєРё РїРѕР»РЅРѕСЃС‚СЊСЋ РѕС‚СЂР°Р¶Р°СЋС‚ С‚РµРєСѓС‰РёРµ РїСЂРѕРґР°Р¶Рё - РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚С‹ РЅРµ РЅСѓР¶РЅС‹ {
 		if(P_BObj) {
 			uint   i;
 			PPIDArray cashn_list, loc_list;
@@ -2542,7 +2602,7 @@ int SLAPI PPViewGoodsRest::CreateTempTable(int use_ta, double * pPrfMeasure)
 	{
 		PPTransaction tra(ppDbDependTransaction, use_ta);
 		THROW(tra);
-		THROW(InitCache());
+		InitCache();
 		if(!Filt.GoodsList.IsEmpty()) {
 			p_group_goods_list = &Filt.GoodsList.Get();
 			THROW(ProcessGroup(p_group_goods_list));
@@ -2573,7 +2633,7 @@ int SLAPI PPViewGoodsRest::CreateTempTable(int use_ta, double * pPrfMeasure)
 					goods_flt.CodeArID = Filt.SupplID;
 					if(!goods_flt.CodeArID)
 						goods_flt.Flags |= GoodsFilt::fShowOwnArCode;
-					goods_flt.SupplID = 0; // В случае ограничения по артикулу убираем ограничение по поставщику.
+					goods_flt.SupplID = 0; // Р’ СЃР»СѓС‡Р°Рµ РѕРіСЂР°РЅРёС‡РµРЅРёСЏ РїРѕ Р°СЂС‚РёРєСѓР»Сѓ СѓР±РёСЂР°РµРј РѕРіСЂР°РЅРёС‡РµРЅРёРµ РїРѕ РїРѕСЃС‚Р°РІС‰РёРєСѓ.
 				}
 				goods_flt.Flags |= GoodsFilt::fIncludeIntr;
 				THROW(GoodsIterator::GetListByFilt(&goods_flt, &group_goods_list));
@@ -2586,8 +2646,8 @@ int SLAPI PPViewGoodsRest::CreateTempTable(int use_ta, double * pPrfMeasure)
 					use_goods_iterator = 0;
 				p_group_goods_list = &group_goods_list;
 			}
-			// Условие Filt.Sgg != sggSuppl нужно из-за того, что
-			// при расчете остатков по товарам информация о поставщике теряется.
+			// РЈСЃР»РѕРІРёРµ Filt.Sgg != sggSuppl РЅСѓР¶РЅРѕ РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ
+			// РїСЂРё СЂР°СЃС‡РµС‚Рµ РѕСЃС‚Р°С‚РєРѕРІ РїРѕ С‚РѕРІР°СЂР°Рј РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ РїРѕСЃС‚Р°РІС‰РёРєРµ С‚РµСЂСЏРµС‚СЃСЏ.
 			if(Filt.Sgg != sggSuppl && (use_goods_iterator || (Filt.Flags &
 				(GoodsRestFilt::fNullRest|GoodsRestFilt::fShowDraftReceipt|GoodsRestFilt::fNoZeroOrderOnly|GoodsRestFilt::fUnderMinStock)))) {
 				THROW(ProcessGroup(p_group_goods_list));
@@ -2630,16 +2690,16 @@ int SLAPI PPViewGoodsRest::CreateTempTable(int use_ta, double * pPrfMeasure)
 		if(Filt.Flags & GoodsRestFilt::fCalcTotalOnly)
 			Flags |= fTotalInited;
 		//
-		// Здесь транзакцию завершаем. Создание кросс-таблицы осуществляется в собственной транзакции.
+		// Р—РґРµСЃСЊ С‚СЂР°РЅР·Р°РєС†РёСЋ Р·Р°РІРµСЂС€Р°РµРј. РЎРѕР·РґР°РЅРёРµ РєСЂРѕСЃСЃ-С‚Р°Р±Р»РёС†С‹ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РІ СЃРѕР±СЃС‚РІРµРЅРЅРѕР№ С‚СЂР°РЅР·Р°РєС†РёРё.
 		//
 		THROW(tra.Commit());
 		{
 			Flags |= fOnceInited;
 			//
-			// Предыдущий кросстаб можно будет разрушить только после успешного создания нового.
-			// В противном случае возникают побочные эффекты. Например, новая таблица кросстаба
-			// создается с идентификатором таким же, что и существующая. В результате появляются совершенно
-			// непонятные ошибки (из-за того, что новая таблица создается как клон существующей).
+			// РџСЂРµРґС‹РґСѓС‰РёР№ РєСЂРѕСЃСЃС‚Р°Р± РјРѕР¶РЅРѕ Р±СѓРґРµС‚ СЂР°Р·СЂСѓС€РёС‚СЊ С‚РѕР»СЊРєРѕ РїРѕСЃР»Рµ СѓСЃРїРµС€РЅРѕРіРѕ СЃРѕР·РґР°РЅРёСЏ РЅРѕРІРѕРіРѕ.
+			// Р’ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ РІРѕР·РЅРёРєР°СЋС‚ РїРѕР±РѕС‡РЅС‹Рµ СЌС„С„РµРєС‚С‹. РќР°РїСЂРёРјРµСЂ, РЅРѕРІР°СЏ С‚Р°Р±Р»РёС†Р° РєСЂРѕСЃСЃС‚Р°Р±Р°
+			// СЃРѕР·РґР°РµС‚СЃСЏ СЃ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј С‚Р°РєРёРј Р¶Рµ, С‡С‚Рѕ Рё СЃСѓС‰РµСЃС‚РІСѓСЋС‰Р°СЏ. Р’ СЂРµР·СѓР»СЊС‚Р°С‚Рµ РїРѕСЏРІР»СЏСЋС‚СЃСЏ СЃРѕРІРµСЂС€РµРЅРЅРѕ
+			// РЅРµРїРѕРЅСЏС‚РЅС‹Рµ РѕС€РёР±РєРё (РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ РЅРѕРІР°СЏ С‚Р°Р±Р»РёС†Р° СЃРѕР·РґР°РµС‚СЃСЏ РєР°Рє РєР»РѕРЅ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµР№).
 			//
 			Crosstab * p_prev_ct = P_Ct;
 			P_Ct = 0;
@@ -2728,9 +2788,9 @@ int SLAPI PPViewGoodsRest::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl
 				GObj.FetchNameR(p_t->data.GoodsGrp, grp_name); // @v9.5.5
 				grp_name.Trim(48);
 				if(ord == OrdByGrp_Price)
-					sprintf(ord_rec.Name, "%-48s%010.5lf", (const char *)grp_name, p_t->data.Price);
+					sprintf(ord_rec.Name, "%-48s%010.5lf", grp_name.cptr(), p_t->data.Price);
 				else if(ord == OrdByGrp_BarCode)
-					sprintf(ord_rec.Name, "%-48s%-15s", (const char *)grp_name, p_t->data.BarCode);
+					sprintf(ord_rec.Name, "%-48s%-15s", grp_name.cptr(), p_t->data.BarCode);
 			}
 			THROW_DB(p_bei->insert(&ord_rec));
 		}
@@ -2792,8 +2852,8 @@ int SLAPI PPViewGoodsRest::InitGroupNamesList()
 		init_parent_id = Filt.GoodsGrpID;
 		if(grp_rec.Flags & GF_FOLDER) {
 			//
-			// Если хотя бы одна группа в каталоге - альтернативная, то сортирующий список
-			// групп строим по всему множеству обыкновенных групп (init_parent_id = 0)
+			// Р•СЃР»Рё С…РѕС‚СЏ Р±С‹ РѕРґРЅР° РіСЂСѓРїРїР° РІ РєР°С‚Р°Р»РѕРіРµ - Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅР°СЏ, С‚Рѕ СЃРѕСЂС‚РёСЂСѓСЋС‰РёР№ СЃРїРёСЃРѕРє
+			// РіСЂСѓРїРї СЃС‚СЂРѕРёРј РїРѕ РІСЃРµРјСѓ РјРЅРѕР¶РµСЃС‚РІСѓ РѕР±С‹РєРЅРѕРІРµРЅРЅС‹С… РіСЂСѓРїРї (init_parent_id = 0)
 			//
 			PPIDArray term_grp_list;
 			GObj.P_Tbl->GetGroupTerminalList(Filt.GoodsGrpID, &term_grp_list, 0);
@@ -3318,7 +3378,7 @@ int SLAPI PPViewGoodsRest::PreprocessBrowser(PPViewBrowser * pBrw)
 			pBrw->InsColumn(1, "@warehouse", 25, 0, 0, 0); // @v9.0.2
 		}
 		// @v8.1.0 {
-		if(Filt.DiffParam & GoodsRestParam::_diffSerial) {
+		if(Filt.DiffParam & GoodsRestParam::_diffSerial || (Filt.DiffParam & GoodsRestParam::_diffLotTag && Filt.DiffLotTagID)) {
 			pBrw->InsColumnWord(1, PPWORD_SERIAL, 26, 0, 0, 0);
 		}
 		// } @v8.1.0
@@ -3712,9 +3772,9 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 								p_uhtt_qp->Value = view_item.Price;
 								if(view_item.Price == 0.0 && Filt.Flags & GoodsRestFilt::fPriceByQuot && Filt.QuotKindID > 0) {
 									//
-									// Если цена нулевая и определена по котировке, то необходимо убедиться, что
-									// на товар действительно установлена нулевая котировка, и, если это - так,
-									// то передать на сервер ноль вместе с флагом PPQuot::fZero.
+									// Р•СЃР»Рё С†РµРЅР° РЅСѓР»РµРІР°СЏ Рё РѕРїСЂРµРґРµР»РµРЅР° РїРѕ РєРѕС‚РёСЂРѕРІРєРµ, С‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ СѓР±РµРґРёС‚СЊСЃСЏ, С‡С‚Рѕ
+									// РЅР° С‚РѕРІР°СЂ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ СѓСЃС‚Р°РЅРѕРІР»РµРЅР° РЅСѓР»РµРІР°СЏ РєРѕС‚РёСЂРѕРІРєР°, Рё, РµСЃР»Рё СЌС‚Рѕ - С‚Р°Рє,
+									// С‚Рѕ РїРµСЂРµРґР°С‚СЊ РЅР° СЃРµСЂРІРµСЂ РЅРѕР»СЊ РІРјРµСЃС‚Рµ СЃ С„Р»Р°РіРѕРј PPQuot::fZero.
 									//
 									const QuotIdent qi(src_loc_id, Filt.QuotKindID);
 									double test_price = 0.0;
@@ -3746,8 +3806,8 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 								if(!(ref_list.SearchByVal(p_uhtt_item->GoodsID, &local_goods_id, 0) && local_goods_id > 0) || !uniq_id_list.bsearch(local_goods_id)) {
 									//
 									// @paranoic {
-									// Технически это не возможно, но проверим нет ли среди уже
-									// готовых элементов массива uhtt_quot_list того, у которого GoodsID равен добавляемому
+									// РўРµС…РЅРёС‡РµСЃРєРё СЌС‚Рѕ РЅРµ РІРѕР·РјРѕР¶РЅРѕ, РЅРѕ РїСЂРѕРІРµСЂРёРј РЅРµС‚ Р»Рё СЃСЂРµРґРё СѓР¶Рµ
+									// РіРѕС‚РѕРІС‹С… СЌР»РµРјРµРЅС‚РѕРІ РјР°СЃСЃРёРІР° uhtt_quot_list С‚РѕРіРѕ, Сѓ РєРѕС‚РѕСЂРѕРіРѕ GoodsID СЂР°РІРµРЅ РґРѕР±Р°РІР»СЏРµРјРѕРјСѓ
 									//
 									int    s = 0;
 									for(uint j = 0; !s && j < uhtt_quot_list.getCount(); j++) {
@@ -3822,7 +3882,7 @@ int SLAPI PPViewGoodsRest::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 				ok = -1;
 				if(pHdr && pBrw) {
 					char   init_char = ((const char *)pHdr)[0];
-					if(isdigit(init_char)) {
+					if(isdec(init_char)) {
 						Goods2Tbl::Rec goods_rec;
 						double qtty = 0.0;
 						if(GObj.SelectGoodsByBarcode(init_char, Filt.SupplID, &goods_rec, &qtty, 0) > 0) {

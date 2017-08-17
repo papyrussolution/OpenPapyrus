@@ -306,7 +306,7 @@ void DBDivDialog::SetupAddr(SString & rAddrList)
 	else {
 		setCtrlString(CTL_DBDIV_ADDR, temp_buf = rAddrList);
 		disableCtrl(CTL_DBDIV_ADDR, 0);
-		data.PutExtStrData(DBDIVEXSTR_GATEWAYLIST, temp_buf = 0);
+		data.PutExtStrData(DBDIVEXSTR_GATEWAYLIST, temp_buf.Z());
 	}
 }
 

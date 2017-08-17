@@ -1264,7 +1264,7 @@ int SLAPI PPVerHistory::Write(const char * pDataPath, const Info * pInfo)
 		rec.Dtm = getcurdatetime_();
 		rec.Ver = pInfo->CurVer;
 		DS.GetMachineID(&addr, 0);
-		addr.ToStr(temp_buf = 0).CopyTo(rec.Machine, sizeof(rec.Machine));
+		addr.ToStr(temp_buf.Z()).CopyTo(rec.Machine, sizeof(rec.Machine));
 		f.Seek(0, SEEK_END);
 		THROW_SL(f.Write(&rec, sizeof(rec)) > 0);
 		THROW_SL(f.CalcCRC(sizeof(hdr), &crc) > 0);

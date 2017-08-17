@@ -88,7 +88,7 @@ InventoryDialog::InventoryDialog(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 	PPGetSubStr(PPTXT_INVENTEXTINFO, substr_idx, temp_buf);
 	setStaticText(CTL_BILL_EXTINFO, temp_buf);
 	{
-		(temp_buf = 0).Cat(op_pack.Rec.Name).CatDiv(';', 1);
+		temp_buf.Z().Cat(op_pack.Rec.Name).CatDiv(';', 1);
 		GetObjectName(PPOBJ_LOCATION, P_Data->Rec.LocID, temp_buf, 1);
 		setTitle(temp_buf);
 	}
@@ -1236,7 +1236,7 @@ int SLAPI InventoryConversion::Run(PPID billID)
 									SString msg, temp_buf, goods_name;
 									PPLoadText(PPTXT_WROFFGOODS, temp_buf);
 									GetGoodsName(ir.GoodsID, goods_name);
-									msg.Printf(temp_buf, (const char *)goods_name, inv_rest - fabs(ir.UnwritedDiff), inv_rest);
+									msg.Printf(temp_buf, goods_name.cptr(), inv_rest - fabs(ir.UnwritedDiff), inv_rest);
 									logger.Log(msg);
 								}
 							}
@@ -1486,7 +1486,7 @@ int SLAPI PrcssrInvImport::Run()
 				else if(rec.GoodsID && GObj.Fetch(rec.GoodsID, &goods_rec) > 0) {
 					// @log Товар '%s' идентифицирован по идентификатору '%s'
 					PPLoadText(PPTXT_LOG_IMPINV_GOODSIDBYID, fmt_buf);
-					logger.Log(log_msg.Printf(fmt_buf, goods_rec.Name, (const char *)(temp_buf = 0).Cat(rec.GoodsID)));
+					logger.Log(log_msg.Printf(fmt_buf, goods_rec.Name, temp_buf.Z().Cat(rec.GoodsID).cptr()));
 					inv_item.GoodsID = rec.GoodsID;
 					r2 = 1;
 				}
@@ -1505,7 +1505,7 @@ int SLAPI PrcssrInvImport::Run()
 						if(GObj.Fetch(inv_item.GoodsID, 0) > 0) {
 							// @log Товар '%s' идентифицирован по идентификатору '%s'
 							PPLoadText(PPTXT_LOG_IMPINV_GOODSIDBYID, fmt_buf);
-							logger.Log(log_msg.Printf(fmt_buf, goods_rec.Name, (const char *)(temp_buf = 0).Cat(inv_item.GoodsID)));
+							logger.Log(log_msg.Printf(fmt_buf, goods_rec.Name, temp_buf.Z().Cat(inv_item.GoodsID).cptr()));
 							r2 = 1;
 						}
 					}
@@ -1554,7 +1554,7 @@ int SLAPI PrcssrInvImport::Run()
 				if(r2 == 0) {
 					// @log Строка не проведена: не удалось идентифицировать товар '%s'
 					PPLoadText(PPTXT_LOG_IMPINV_GOODSNOTIDD, fmt_buf);
-					(temp_buf = 0).CatEq("recno", cntr+1);
+					temp_buf.Z().CatEq("recno", cntr+1);
 					if(rec.GoodsName[0])
 						temp_buf.CatDiv(':', 1).Cat(rec.GoodsName);
 					if(rec.GoodsID)
@@ -1564,13 +1564,13 @@ int SLAPI PrcssrInvImport::Run()
 					if(rec.Serial[0])
 						temp_buf.CatDiv(':', 1).Cat(rec.Serial);
 					temp_buf.CatDiv(':', 1).CatEq("qtty", rec.Quantity);
-					logger.Log(log_msg.Printf(fmt_buf, (const char *)temp_buf));
+					logger.Log(log_msg.Printf(fmt_buf, temp_buf.cptr()));
 				}
 				else if(inv_item.Qtty < 0.0 || inv_item.Qtty > 1000000.) {
 					// @log Строка не проведена: для товара '%s' задано недопустимое значение количества '%s'
 					PPLoadText(PPTXT_LOG_IMPINV_INVQTTY, fmt_buf);
-					(temp_buf = 0).Cat(rec.Quantity, SFMT_QTTY);
-					log_msg.Printf(fmt_buf, goods_rec.Name, (const char *)temp_buf);
+					temp_buf.Z().Cat(rec.Quantity, SFMT_QTTY);
+					log_msg.Printf(fmt_buf, goods_rec.Name, temp_buf.cptr());
 					logger.Log(log_msg);
 				}
 				else {
@@ -1582,9 +1582,9 @@ int SLAPI PrcssrInvImport::Run()
 					}
 					// @log Строка '%s' проведена
 					PPLoadText(PPTXT_LOG_IMPINV_LINETURNED, fmt_buf);
-					(temp_buf = 0).Cat(goods_rec.Name).CatDiv('-', 1).Cat(inv_item.FinalQtty, SFMT_QTTY).
+					temp_buf.Z().Cat(goods_rec.Name).CatDiv('-', 1).Cat(inv_item.FinalQtty, SFMT_QTTY).
 						CatDiv('-', 1).Cat(inv_item.FinalPrice, SFMT_MONEY);
-					logger.Log(log_msg.Printf(fmt_buf, (const char *)temp_buf));
+					logger.Log(log_msg.Printf(fmt_buf, temp_buf.cptr()));
 					ok = 1;
 				}
 				MEMSZERO(rec);

@@ -505,7 +505,7 @@ protected:
 
 int SLAPI PPViewTrfrAnlz::GetTabTitle(long tabID, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(Filt.CtKind == TrfrAnlzFilt::ctDate) {
 		LDATE dt = ZERODATE;
 		dt.v = tabID;
@@ -922,7 +922,7 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 				P_Ct->AddTotalRow(total_list, 0, temp_buf);
 				uint ss_pos = 0;
 				for(uint i = 0; i < total_list.GetCount(); i++) {
-					total_title_list.get(&ss_pos, temp_buf = 0);
+					total_title_list.get(&ss_pos, temp_buf.Z());
 					P_Ct->AddTotalColumn(total_list.Get(i), 0, temp_buf);
 				}
 			}
@@ -4116,7 +4116,7 @@ int SLAPI PrcssrAlcReport::EditConfig()
 
 int SLAPI PrcssrAlcReport::GetCategoryNameByCodePos(uint codePos, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 0;
 	if(codePos > 0 && codePos <= CategoryNameList.getCount()) {
 		StrStrAssocArray::Item item = CategoryNameList.at(codePos-1);
@@ -4129,7 +4129,7 @@ int SLAPI PrcssrAlcReport::GetCategoryNameByCodePos(uint codePos, SString & rBuf
 int SLAPI PrcssrAlcReport::GetCategoryNameByCode(const char * pCode, SString & rBuf)
 {
 	int    ok = 0;
-	rBuf = 0;
+	rBuf.Z();
 	SString code = pCode;
 	if(code.NotEmptyS()) {
 		long  ncode = code.ToLong();
@@ -4249,7 +4249,7 @@ int SLAPI PrcssrAlcReport::GetEgaisCodeList(PPID goodsID, BarcodeArray & rList)
 static int FASTCALL Base36ToAlcoCode(const SString & rS, SString & rBuf)
 {
 	int    ok = 1;
-	rBuf = 0;
+	rBuf.Z();
 	uint64 result = 0;
 	const uint len = rS.Len();
 	for(uint i = 0; ok && i < len; i++) {
@@ -4285,7 +4285,7 @@ int FASTCALL PrcssrAlcReport::IsEgaisMark(const char * pMark, SString * pProcess
 			const char c = pMark[i];
 			if(!isdec(c) && !(c >= 'A' && c <= 'Z') && !(c >= 'a' && c <= 'z')) {
 				if(pProcessedMark) {
-					(temp_buf = 0).CatChar(c).Transf(CTRANSF_INNER_TO_OUTER);
+					temp_buf.Z().CatChar(c).Transf(CTRANSF_INNER_TO_OUTER);
 					KeyDownCommand kd;
 					uint   tc = kd.SetChar((uchar)temp_buf.C(0)) ? kd.GetChar() : 0; // Попытка транслировать латинский символ из локальной раскладки клавиатуры
 					if((tc >= 'A' && tc <= 'Z') || (tc >= 'a' && tc <= 'z')) {
@@ -4462,7 +4462,7 @@ int SLAPI PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const O
 			}
 			long  ncode = rItem.CategoryCode.ToLong();
 			if(ncode > 0 && ncode < 100) {
-				(temp_buf = 0).CatLongZ(ncode, 3);
+				temp_buf.Z().CatLongZ(ncode, 3);
 				rItem.CategoryCode = temp_buf;
 			}
 			if(ncode > 0 && ncode < 500 && !oneof3(ncode, /*260,*/ 261, 262, 263)) {
@@ -4480,23 +4480,23 @@ int SLAPI PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const O
 		// PPTXT_ALCREP_GOODSCLSNDEF   "Не определен класс у товара %s"
 		//
 		if(!(rItem.StatusFlags & GoodsItem::stClass)) {
-            (temp_buf = 0).CatChar('[').CatEq("id", goods_rec.ID).Space().CatEq("name", goods_rec.Name).CatChar(']');
-            (msg_buf = 0).Printf(PPLoadTextS(PPTXT_ALCREP_GOODSCLSNDEF, fmt_buf), temp_buf.cptr());
+            temp_buf.Z().CatChar('[').CatEq("id", goods_rec.ID).Space().CatEq("name", goods_rec.Name).CatChar(']');
+            msg_buf.Z().Printf(PPLoadTextS(PPTXT_ALCREP_GOODSCLSNDEF, fmt_buf), temp_buf.cptr());
             if(rItem.MsgPool.NotEmptyS())
 				rItem.MsgPool.Tab();
 			rItem.MsgPool.Cat(msg_buf);
 		}
 		if(!(rItem.StatusFlags & (GoodsItem::stCategoryCodeByLotTag|GoodsItem::stCategoryCodeByClsDim))) {
-            (temp_buf = 0).CatChar('[').CatEq("id", goods_rec.ID).Space().CatEq("name", goods_rec.Name).CatChar(']');
-            (msg_buf = 0).Printf(PPLoadTextS(PPTXT_ALCREP_CATNDEF, fmt_buf), temp_buf.cptr());
+            temp_buf.Z().CatChar('[').CatEq("id", goods_rec.ID).Space().CatEq("name", goods_rec.Name).CatChar(']');
+            msg_buf.Z().Printf(PPLoadTextS(PPTXT_ALCREP_CATNDEF, fmt_buf), temp_buf.cptr());
             if(rItem.MsgPool.NotEmptyS())
 				rItem.MsgPool.Tab();
 			rItem.MsgPool.Cat(msg_buf);
 			ok = 0;
 		}
 		if(!(rItem.StatusFlags & GoodsItem::stCategoryName)) {
-            (temp_buf = 0).CatChar('[').CatEq("id", goods_rec.ID).Space().CatEq("name", goods_rec.Name).Space().CatEq("code", rItem.CategoryCode).CatChar(']');
-			(msg_buf = 0).Printf(PPLoadTextS(PPTXT_ALCREP_CATNAMNDEF, fmt_buf), temp_buf.cptr());
+            temp_buf.Z().CatChar('[').CatEq("id", goods_rec.ID).Space().CatEq("name", goods_rec.Name).Space().CatEq("code", rItem.CategoryCode).CatChar(']');
+			msg_buf.Z().Printf(PPLoadTextS(PPTXT_ALCREP_CATNAMNDEF, fmt_buf), temp_buf.cptr());
             if(rItem.MsgPool.NotEmptyS())
 				rItem.MsgPool.Tab();
 			rItem.MsgPool.Cat(msg_buf);
@@ -4920,7 +4920,7 @@ int SLAPI PrcssrAlcReport::GetLotManufID(PPID lotID, PPID * pManufID, SString * 
 			else {
 				status = _stHangedLot;
 				//PPTXT_ALCREP_HANGEDLOT        "Обнаружен висячий идентификатор лота '%s'"
-				(temp_buf = 0).Cat(lotID);
+				temp_buf.Z().Cat(lotID);
 				msg_buf.Printf(PPLoadTextS(PPTXT_ALCREP_HANGEDLOT, fmt_buf), temp_buf.cptr());
 			}
 		}

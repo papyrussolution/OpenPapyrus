@@ -1557,7 +1557,7 @@ int SLAPI SFile::ReadLine(SString & rBuf)
 {
 	assert(InvariantC(0));
 	int    ok = 1;
-	rBuf = 0;
+	rBuf.Z();
 	THROW_S(T != tNullOutput, SLERR_SFILRDNULLOUTP);
 	if(T == tStdFile) {
 		THROW_S(F, SLERR_FILENOTOPENED);

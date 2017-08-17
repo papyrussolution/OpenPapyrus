@@ -80,7 +80,7 @@ int SLAPI PPDeclStrucProcessor::GetChar(int skipWS)
 		if(c == '\n')
 			Line++;
 		if(skipWS) {
-			while(c == ' ' || c == '\t' || c == '\n') {
+			while(oneof3(c, ' ', '\t', '\n')) {
 				c = fgetc(InStream);
 				if(c == '\n')
 					Line++;
@@ -155,7 +155,7 @@ int SLAPI PPDeclStrucProcessor::GetWord()
 
 int SLAPI PPDeclStrucProcessor::GetValue(SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	for(int c = GetChar(1); c != '\n' && c != ';';) {
 		if(c == '\\') {
 			c = GetChar(0);
@@ -292,7 +292,7 @@ int SLAPI PPDeclStrucProcessor::NextDecl(PPDeclStruc ** ppDecl, int dontAccept)
 		long   type_id = 0;
 		THROW_PP(GetWord(), PPERR_DS_UNEXPEOF);
 		THROW(GetTypeByName(WordBuf, &type_id) > 0);
-		PPWaitMsg(msg_buf.Printf(fmt_buf, (const char *)WordBuf));
+		PPWaitMsg(msg_buf.Printf(fmt_buf, WordBuf.cptr()));
 		THROW_PP(GetTerm() == ppdsLeftBrace, PPERR_DS_EXPLEFTBRACE);
 		THROW(p_decl = GetData(type_id, 0/*extraData*/, 0, dontAccept));
 		ok = 1;

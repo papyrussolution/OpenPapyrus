@@ -20,7 +20,7 @@ static int FASTCALL IsValidSpcSeriesExStrID(int id)
 int SLAPI SpecSeriesCore::GetExField(const SpecSeries2Tbl::Rec * pRec, int fldId, SString & rBuf)
 {
 	int    ok = -1;
-	rBuf = 0;
+	rBuf.Z();
 	if(IsValidSpcSeriesExStrID(fldId)) {
 		SString temp_buf = pRec->Tail;
 		ok = PPGetExtStrData(fldId, temp_buf, rBuf);

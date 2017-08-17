@@ -146,10 +146,10 @@ int SrGrammarTbl::Search(SrFlexiaModel * pFm, long * pID)
 //
 // {id;word-id;grammar-rule-id}
 //
-class SrWordGrammarTbl : public BDbTable {
+/*class SrWordGrammarTbl : public BDbTable {
 public:
 	SrWordGrammarTbl(BDbDatabase * pDb);
-};
+};*/
 
 SrWordTbl::SrWordTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("words.db->word", BDbTable::idxtypHash, 0, 0, 0), pDb)
 {
@@ -234,7 +234,7 @@ int SrWordTbl::Search(const char * pWordUtf8, LEXID * pID)
 int SrWordTbl::Search(LEXID id, SString & rBuf)
 {
 	int    ok = -1;
-	rBuf = 0;
+	rBuf.Z();
 	BDbTable::Buffer key_buf, data_buf;
 	key_buf.Set(&id, sizeof(id));
 	data_buf.Alloc(32);
@@ -471,6 +471,7 @@ int SrNGramTbl::Search(NGID id, SrNGram * pRec)
 		if(pRec) {
 			data_buf.Get(rec_buf);
 			THROW(SerializeRecBuf(-1, pRec, rec_buf));
+			pRec->ID = id; // @v9.7.11 @fix
 		}
 		ok = 1;
 	}
@@ -509,7 +510,7 @@ int SrNGramTbl::SearchByPrefix(const SrNGram & rKey, TSArray <NGID> & rList)
 		if(curs.Search(key_buf, data_buf, spGe)) {
 			do {
 				data_buf.Get(rec_buf);
-				THROW(SerializeRecBuf(+1, &rec, rec_buf));
+				THROW(SerializeRecBuf(-1, &rec, rec_buf)); // @v9.7.11 @fix +1-->-1
 				if(rec.WordIdList.getCount() >= key_count) {
 					int    eq_prefix = 1;
 					for(uint i = 0; eq_prefix && i < key_count; i++) {
@@ -1284,7 +1285,7 @@ int SLAPI SrGeoWayTbl::Search(uint64 id, PPOsm::Way * pW)
 int SrDatabase::MakeSpecialWord(int spcTag, const char * pWordUtf8, SString & rBuf)
 {
 	int    ok = 1;
-	rBuf = 0;
+	rBuf.Z();
 	switch(spcTag) {
 		case SrWordTbl::spcEmpty: rBuf.Cat("/#"); break;
 		case SrWordTbl::spcPrefix: rBuf.Cat(pWordUtf8).Cat("/-"); break;
@@ -1314,6 +1315,7 @@ SrDatabase::SrDatabase() : WordCache(128*1024, 0)
 	P_GnT = 0;
 	P_GwT = 0;
 	ZeroWordID = 0;
+	Flags = 0;
 }
 
 SrDatabase::~SrDatabase()
@@ -1321,7 +1323,7 @@ SrDatabase::~SrDatabase()
 	Close();
 }
 
-int SrDatabase::Open(const char * pDbPath)
+int SrDatabase::Open(const char * pDbPath, long flags)
 {
 	int    ok = 1;
 	BDbDatabase::Config cfg;
@@ -1334,6 +1336,9 @@ int SrDatabase::Open(const char * pDbPath)
 	//cfg.LogFileSize = 256*1024*1024;
 	//cfg.LogSubDir = "LOG";
 	cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove/*|cfg.fLogInMemory*/); // @v9.6.6
+	//
+	Flags |= (flags & oReadOnly); // @v9.7.11
+	//
 	Close();
 	{
 		SString db_path = pDbPath;
@@ -1420,7 +1425,6 @@ int SrDatabase::SearchConcept(const char * pSymbUtf8, CONCEPTID * pID)
 		else
 			ok = -2;
 	}
-	CATCHZOK
 	ASSIGN_PTR(pID, cid);
 	return ok;
 }
@@ -1843,7 +1847,7 @@ int SrDatabase::Transform_(const char * pWordUtf8, const SrWordForm & rDestForm,
 int SrDatabase::WordInfoToStr(const SrWordInfo & rWi, SString & rBuf)
 {
 	int    ok = 1;
-	rBuf = 0;
+	rBuf.Z();
 	SString temp_buf;
 	rBuf.CatChar('\'');
 	if(rWi.PrefixID) {
@@ -2213,7 +2217,7 @@ int SrDatabase::MakeConceptPropNg(const SrCPropDeclList & rPdl, const char * pPr
 
 int SrDatabase::FormatProp(const SrCProp & rCp, long flags, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(rCp.PropID) {
 		SString symb;
 		if(GetConceptSymb(rCp.PropID, symb) > 0)

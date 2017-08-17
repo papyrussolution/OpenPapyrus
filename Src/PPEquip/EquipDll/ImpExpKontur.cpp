@@ -266,7 +266,7 @@ void LogMessage(const char * pMsg)
 	SFile file(LogName, SFile::mAppend);
 	if(file.IsValid()) {
 		SString str;
-        file.WriteLine((str = 0).Cat(getcurdatetime_(), DATF_GERMAN|DATF_CENTURY, TIMF_HMS).Tab().Cat(pMsg).CR());
+        file.WriteLine(str.Z().Cat(getcurdatetime_(), DATF_GERMAN|DATF_CENTURY, TIMF_HMS).Tab().Cat(pMsg).CR());
 	}
 }
 
@@ -275,7 +275,7 @@ void SysLogMessage(const char * pMsg)
 	SFile  file(SysLogName, SFile::mAppend);
 	if(file.IsValid()) {
 		SString str;
-        file.WriteLine((str = 0).Cat(getcurdatetime_(), DATF_GERMAN|DATF_CENTURY, TIMF_HMS).Tab().Cat(pMsg).CR());
+        file.WriteLine(str.Z().Cat(getcurdatetime_(), DATF_GERMAN|DATF_CENTURY, TIMF_HMS).Tab().Cat(pMsg).CR());
 	}
 }
 
@@ -640,7 +640,7 @@ int ExportCls::OrderHeader()
 			SXml::WNode n_unh(P_XmlWriter, "UNH");
 			{
 				SegNum++;
-				n_unh.PutInner("E0062", (str = 0).Cat(ObjId)); // ИД сообщения
+				n_unh.PutInner("E0062", str.Z().Cat(ObjId)); // ИД сообщения
 				{
 					SXml::WNode n_s009(P_XmlWriter, "S009");
 					n_s009.PutInner("E0065", "ORDERS"); // Тип сообщения
@@ -676,7 +676,7 @@ int ExportCls::OrderHeader()
 				SegNum++;
 				SXml::WNode n_s507(P_XmlWriter, "C507");
 				n_s507.PutInner("E2005", "137"); // Квалификатор функции даты-времени (Дата/время документа/сообщения)
-				n_s507.PutInner("E2380", (str = 0).Cat(Bill.Date, DATF_YMD|DATF_CENTURY|DATF_NODIV)); // Дата или время, или период
+				n_s507.PutInner("E2380", str.Z().Cat(Bill.Date, DATF_YMD|DATF_CENTURY|DATF_NODIV)); // Дата или время, или период
 				n_s507.PutInner("E2379", ELEMENT_CODE_E2379_102); // Формат даты/времени (CCYYMMDD)
 			}
 		}
@@ -686,7 +686,7 @@ int ExportCls::OrderHeader()
 				SegNum++;
 				SXml::WNode n_s507(P_XmlWriter, "C507");
 				n_s507.PutInner("E2005", "2"); // Квалификатор функции даты-времени (Дата/время доставки)
-				n_s507.PutInner("E2380", (str = 0).Cat(NZOR(Bill.DueDate, Bill.Date), DATF_YMD|DATF_CENTURY|DATF_NODIV)); // Дата или время, или период
+				n_s507.PutInner("E2380", str.Z().Cat(NZOR(Bill.DueDate, Bill.Date), DATF_YMD|DATF_CENTURY|DATF_NODIV)); // Дата или время, или период
 				n_s507.PutInner("E2379", ELEMENT_CODE_E2379_102); // Формат даты/времени (CCYYMMDD)
 			}
 		}
@@ -838,7 +838,7 @@ int ExportCls::RecadvHeader()
 			SXml::WNode n_unh(P_XmlWriter, "UNH");
 			{
 				SegNum++;
-				n_unh.PutInner("E0062", (str = 0).Cat(ObjId)); // ИД сообщения
+				n_unh.PutInner("E0062", str.Z().Cat(ObjId)); // ИД сообщения
 				{
 					SXml::WNode n_s(P_XmlWriter, "S009");
 					n_s.PutInner("E0065", "RECADV"); // Тип сообщения
@@ -870,7 +870,7 @@ int ExportCls::RecadvHeader()
 				SegNum++;
 				SXml::WNode n_s(P_XmlWriter, "C507");
 				n_s.PutInner("E2005", "137"); // Квалификатор функции даты-времени документа/сообщения
-				n_s.PutInner("E2380", (str = 0).Cat(Bill.Date, DATF_YMD|DATF_CENTURY|DATF_NODIV)); // Дата или время, или период
+				n_s.PutInner("E2380", str.Z().Cat(Bill.Date, DATF_YMD|DATF_CENTURY|DATF_NODIV)); // Дата или время, или период
 				n_s.PutInner("E2379", "102"); // Формат даты/времени CCYYMMDD
 			}
 		}
@@ -880,7 +880,7 @@ int ExportCls::RecadvHeader()
 				SegNum++;
 				SXml::WNode n_s(P_XmlWriter, "C507");
 				n_s.PutInner("E2005", "50"); // Квалификатор функции даты-времени
-				n_s.PutInner("E2380", (str = 0).Cat(Bill.Date, DATF_YMD|DATF_CENTURY|DATF_NODIV)); // Дата или время, или период
+				n_s.PutInner("E2380", str.Z().Cat(Bill.Date, DATF_YMD|DATF_CENTURY|DATF_NODIV)); // Дата или время, или период
 				n_s.PutInner("E2379", "102"); // Формат даты/времени CCYYMMDD
 			}
 		}
@@ -900,7 +900,7 @@ int ExportCls::RecadvHeader()
 					{
 						SXml::WNode n_s(P_XmlWriter, "C507");
 						n_s.PutInner("E2005", "171"); // Квалификатор функции даты-времени документа DESADV
-						n_s.PutInner("E2380", (str = 0).Cat(Bill.DesadvBillDt, DATF_YMD|DATF_CENTURY|DATF_NODIV)); // Дата или время, или период
+						n_s.PutInner("E2380", str.Z().Cat(Bill.DesadvBillDt, DATF_YMD|DATF_CENTURY|DATF_NODIV)); // Дата или время, или период
 						n_s.PutInner("E2379", "102"); // Формат даты/времени CCYYMMDD
 					}
 				}
@@ -962,11 +962,11 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 			SXml::WNode n_lin(P_XmlWriter, "LIN");
 			SegNum++;
 			{
-				SXml::WNode n(P_XmlWriter, "E1082", (str = 0).Cat(Itr.GetCount() + 1)); // Номер строки заказа
+				SXml::WNode n(P_XmlWriter, "E1082", str.Z().Cat(Itr.GetCount() + 1)); // Номер строки заказа
 			}
 			{
 				SXml::WNode n_212(P_XmlWriter, "C212"); // Номерной идентификатор товара
-				n_212.PutInner("E7140", (str = 0).Cat(pBRow->Barcode)); // Штрих-код товара
+				n_212.PutInner("E7140", str.Z().Cat(pBRow->Barcode)); // Штрих-код товара
 				n_212.PutInner("E7143", "SRV"); // Тип штрихкода EAN.UCC
 			}
 		}
@@ -977,7 +977,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 			n_pia.PutInner("E4347", "1"); // Дополнительный идентификатор
 			{
 				SXml::WNode n_c212(P_XmlWriter, "C212");
-				n_c212.PutInner("E7140", (str = 0).Cat(pBRow->ArCode).Transf(CTRANSF_INNER_TO_UTF8)); // Артикул
+				n_c212.PutInner("E7140", str.Z().Cat(pBRow->ArCode).Transf(CTRANSF_INNER_TO_UTF8)); // Артикул
 				n_c212.PutInner("E7143", "SA"); // Идентификатор артикула поставщика
 			}
 		}
@@ -989,7 +989,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 				n_imd.PutInner("E7077", "F"); // Код формата описания (текст)
 				{
 					SXml::WNode n_c273(P_XmlWriter, "C273"); // Описание
-					n_c273.PutInner("E7008", SXml::WNode::CDATA((str = 0).Cat(pBRow->GoodsName).ToUtf8()));
+					n_c273.PutInner("E7008", SXml::WNode::CDATA(str.Z().Cat(pBRow->GoodsName).ToUtf8()));
 				}
 			}
 		}
@@ -999,7 +999,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 				SegNum++;
 				SXml::WNode n_c186(P_XmlWriter, "C186"); // Подробности
 				n_c186.PutInner("E6063", "194"); // Квалификатор типа количества (Принятое количество товара)
-				n_c186.PutInner("E6060", (str = 0).Cat(pBRow->Quantity)); // Количество
+				n_c186.PutInner("E6060", str.Z().Cat(pBRow->Quantity)); // Количество
 				(str = pBRow->UnitName).ToUpper1251();
 				if(str.CmpNC(UNIT_NAME_KG) == 0)
 					n_c186.PutInner("E6411", "KGM"); // Единицы измерения (Килограммы)
@@ -1013,7 +1013,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 				SegNum++;
 				SXml::WNode n_c186(P_XmlWriter, "C186"); // Подробности
 				n_c186.PutInner("E6063", "21"); // Квалификатор типа количества (Заказанное количество товара)
-				n_c186.PutInner("E6060", (str = 0).Cat(pBRow->Quantity)); // Количество
+				n_c186.PutInner("E6060", str.Z().Cat(pBRow->Quantity)); // Количество
 				(str = pBRow->UnitName).ToUpper1251();
 				if(str.CmpNC(UNIT_NAME_KG) == 0)
 					n_c186.PutInner("E6411", "KGM"); // Единицы измерения (Килограммы)
@@ -1082,7 +1082,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 					}
 					{
 						SXml::WNode n_c243(P_XmlWriter, "C243");
-						n_c243.PutInner("E5278", (str = 0).Cat(pBRow->VatRate)); // Ставка НДС
+						n_c243.PutInner("E5278", str.Z().Cat(pBRow->VatRate)); // Ставка НДС
 					}
 				}
 			}
@@ -1116,7 +1116,7 @@ int ExportCls::EndDoc()
 		{
 			SXml::WNode n2(P_XmlWriter, "C516");
 			{ SXml::WNode(P_XmlWriter, "E5025", "128"); } // Квалификатор суммы (Сумма документа с НДС)
-			{ SXml::WNode(P_XmlWriter, "E5004", (str = 0).Cat(Bill.Amount, MKSFMTD(0, 2, 0))); } // Сумма
+			{ SXml::WNode(P_XmlWriter, "E5004", str.Z().Cat(Bill.Amount, MKSFMTD(0, 2, 0))); } // Сумма
 		}
 	}
 	{
@@ -1125,7 +1125,7 @@ int ExportCls::EndDoc()
 		{
 			SXml::WNode n2(P_XmlWriter, "C516");
 			{ SXml::WNode(P_XmlWriter, "E5025", "98"); } // Квалификатор суммы (Сумма документа без НДС)
-			{ SXml::WNode(P_XmlWriter, "E5004", (str = 0).Cat(BillSumWithoutVat, MKSFMTD(0, 2, 0))); } // Сумма
+			{ SXml::WNode(P_XmlWriter, "E5004", str.Z().Cat(BillSumWithoutVat, MKSFMTD(0, 2, 0))); } // Сумма
 		}
 	}
 	{
@@ -1134,14 +1134,14 @@ int ExportCls::EndDoc()
 		{
 			SXml::WNode n2(P_XmlWriter, "C270");
 			{ SXml::WNode(P_XmlWriter, "E6069", "2"); } // Квалификатор типа итоговой информации (Количество товарных позиций в документе)
-			{ SXml::WNode(P_XmlWriter, "E6066", (str = 0).Cat(Itr.GetCount())); } // Значение
+			{ SXml::WNode(P_XmlWriter, "E6066", str.Z().Cat(Itr.GetCount())); } // Значение
 		}
 	}
 	{
 		SXml::WNode n(P_XmlWriter, "UNT"); // Окончание сообщения
 		SegNum++;
-		{ SXml::WNode(P_XmlWriter, "E0074", (str = 0).Cat(SegNum)); } // Общее число сегментов в сообщении
-		{ SXml::WNode(P_XmlWriter, "E0062", (str = 0).Cat(ObjId)); } // // Номер электронного сообщения (совпадает с указанным в заголовке)
+		{ SXml::WNode(P_XmlWriter, "E0074", str.Z().Cat(SegNum)); } // Общее число сегментов в сообщении
+		{ SXml::WNode(P_XmlWriter, "E0062", str.Z().Cat(ObjId)); } // // Номер электронного сообщения (совпадает с указанным в заголовке)
 	}
 	xmlTextWriterEndElement(P_XmlWriter); //ORDERS
 #else // }{
@@ -1174,14 +1174,14 @@ int ExportCls::EndDoc()
 				SegNum++;
 				SXml::WNode n_c270(P_XmlWriter, "C270");
 				n_c270.PutInner("E6069", "2"); // Квалификатор типа итоговой информации (Количество товарных позиций в документе)
-				n_c270.PutInner("E6066", (str = 0).Cat(Itr.GetCount())); // Значение
+				n_c270.PutInner("E6066", str.Z().Cat(Itr.GetCount())); // Значение
 			}
 		}
 		{
 			SegNum++;
 			SXml::WNode n_unt(P_XmlWriter, "UNT"); // Окончание сообщения
-			n_unt.PutInner("E0074", (str = 0).Cat(SegNum)); // Общее число сегментов в сообщении
-			n_unt.PutInner("E0062", (str = 0).Cat(ObjId)); // Номер электронного сообщения (совпадает с указанным в заголовке)
+			n_unt.PutInner("E0074", str.Z().Cat(SegNum)); // Общее число сегментов в сообщении
+			n_unt.PutInner("E0062", str.Z().Cat(ObjId)); // Номер электронного сообщения (совпадает с указанным в заголовке)
 		}
 	xmlTextWriterEndElement(P_XmlWriter); //ORDERS
 #endif
@@ -1246,7 +1246,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 	if(P_ExportCls && !P_ExportCls->Inited) {
 		if(pExpHeader) {
 			P_ExportCls->Header = *(Sdr_ImpExpHeader*)pExpHeader;
-			FormatLoginToLogin(P_ExportCls->Header.EdiLogin, temp_buf = 0);
+			FormatLoginToLogin(P_ExportCls->Header.EdiLogin, temp_buf.Z());
 			temp_buf.CopyTo(P_ExportCls->Header.EdiLogin, sizeof(P_ExportCls->Header.EdiLogin));
 		}
 		if(!isempty(pOutFileName)) {
@@ -1309,7 +1309,7 @@ EXPORT int SetExportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 		// Отправляем файл, сформированный в прошлый раз. Имя файла и номер документа еще не успели принять новые значения
 		if(!P_ExportCls->SendDoc()) {
 			SysLogMessage(SYSLOG_SETEXPORTOBJ);
-			GetErrorMsg(str = 0);
+			GetErrorMsg(str.Z());
 			SysLogMessage(str);
 			LogMessage(str);
 			ok = 0;
@@ -1331,7 +1331,7 @@ EXPORT int SetExportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 	}
 	CATCH
 		SysLogMessage(SYSLOG_SETEXPORTOBJ);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;
@@ -1349,7 +1349,7 @@ EXPORT int InitExportObjIter(uint idSess, uint objId)
 	P_ExportCls->Itr.Init();
 	CATCH
 		SysLogMessage(SYSLOG_INITEXPORTOBJITER);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;
@@ -1369,7 +1369,7 @@ EXPORT int NextExportObjIter(uint idSess, uint objId, void * pRow)
 	P_ExportCls->Itr.Next();
 	CATCH
 		SysLogMessage(SYSLOG_NEXTEXPORTOBJITER);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;
@@ -1391,7 +1391,7 @@ EXPORT int EnumExpReceipt(void * pReceipt)
 			// Делаем без THROW, чтобы у отправленных документов проставились тэги, но ошибку запомним
 			if(!P_ExportCls->SendDoc()) {
 				SysLogMessage(SYSLOG_ENUMEXPRECEIPT);
-				GetErrorMsg(str = 0);
+				GetErrorMsg(str.Z());
 				SysLogMessage(str);
 				LogMessage(str);
 				ok = 0;
@@ -1405,7 +1405,7 @@ EXPORT int EnumExpReceipt(void * pReceipt)
 	}
 	CATCH
 		SysLogMessage(SYSLOG_ENUMEXPRECEIPT);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;
@@ -1633,7 +1633,7 @@ int ImportCls::ParseFileName(const char * pFileName, PPEdiMessageEntry * pEntry)
 
 SString & ImportCls::GetFtpPath(const PPEdiMessageEntry & rEntry, SString & rBuf) const
 {
-	return (rBuf = 0).Cat(rEntry.Box).SetLastSlash().Cat(rEntry.SId);
+	return rBuf.Z().Cat(rEntry.Box).SetLastSlash().Cat(rEntry.SId);
 }
 
 SString & ImportCls::GetTempPath(const PPEdiMessageEntry & rEntry, SString & rBuf) const
@@ -2468,7 +2468,7 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 		SPathStruc inp_ps;
 		if(pImpHeader) {
 			P_ImportCls->Header = *(Sdr_ImpExpHeader*)pImpHeader;
-			FormatLoginToLogin(P_ImportCls->Header.EdiLogin, temp_buf = 0);
+			FormatLoginToLogin(P_ImportCls->Header.EdiLogin, temp_buf.Z());
 			temp_buf.CopyTo(P_ImportCls->Header.EdiLogin, sizeof(P_ImportCls->Header.EdiLogin));
 		}
 		if(!isempty(pInputFileName)) {
@@ -2556,7 +2556,7 @@ EXPORT int GetImportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 	}
 	CATCH
 		SysLogMessage(SYSLOG_GETIMPORTOBJ);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		LogMessage(str);
 		SysLogMessage(str);
 		ok = 0;
@@ -2574,7 +2574,7 @@ EXPORT int InitImportObjIter(uint idSess, uint objId)
 	P_ImportCls->Itr.Init();
 	CATCH
 		SysLogMessage(SYSLOG_INITIMPORTOBJITER);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		LogMessage(str);
 		SysLogMessage(str);
 		ok = 0;
@@ -2603,7 +2603,7 @@ EXPORT int NextImportObjIter(uint idSess, uint objId, void * pRow)
 	P_ImportCls->Itr.Next();
 	CATCH
 		SysLogMessage(SYSLOG_NEXTIMPORTOBJITER);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		LogMessage(str);
 		SysLogMessage(str);
 		ok = 0;
@@ -2626,7 +2626,7 @@ int ImportCls::ReplyImportObjStatus(uint idSess, uint objId, void * pObjStatus)
 		if(doc_status == docStatIsSuchDoc) {
 			if(r_eme.EdiOp == PPEDIOP_APERAK) {
 				// Что-нибудь делаем с этим статусом
-				(str = 0).Cat(AperakInfo.OrderNum.Transf(CTRANSF_INNER_TO_OUTER)).CatChar(':').Space().Cat(AperakInfo.Msg.Utf8ToChar());
+				str.Z().Cat(AperakInfo.OrderNum.Transf(CTRANSF_INNER_TO_OUTER)).CatChar(':').Space().Cat(AperakInfo.Msg.Utf8ToChar());
 				if(AperakInfo.AddedMsg.NotEmpty())
 					str.CatChar(':').Space().Cat(AperakInfo.AddedMsg.Utf8ToChar());
 				LogMessage(str);
@@ -2676,7 +2676,7 @@ int ImportCls::ReplyImportObjStatus(uint idSess, uint objId, void * pObjStatus)
 		}
 		if(!r) {
 			SysLogMessage(SYSLOG_REPLYIMPORTOBJSTATUS);
-			GetErrorMsg(str = 0);
+			GetErrorMsg(str.Z());
 			LogMessage(str);
 			SysLogMessage(str);
 		}
@@ -2713,7 +2713,7 @@ EXPORT int FinishImpExp()
 	}
 	CATCH
 		SysLogMessage(SYSLOG_FINISHIMPEXP);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;

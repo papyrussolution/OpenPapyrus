@@ -20,7 +20,7 @@
 //#include "StyleContext.h"
 //#include "CharacterSet.h"
 //#include "LexerModule.h"
-#include "CharacterCategory.h"
+//#include "CharacterCategory.h"
 #include "OptionSet.h"
 #include "SubStyles.h"
 

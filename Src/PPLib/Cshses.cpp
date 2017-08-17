@@ -1384,9 +1384,9 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 		PricesLookBackPeriod = 0;
 
 		uint   i = 0;
-		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSALC, temp_buf = 0);
+		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSALC, temp_buf.Z());
 		StringSet ss(',', temp_buf);
-		ss.get(&i, temp_buf = 0);
+		ss.get(&i, temp_buf.Z());
 		if(GcObj.SearchBySymb(temp_buf, &AlcoGoodsClsID) > 0) {
 			PPGdsClsPacket gc_pack;
 			ss.get(&i, AlcoProofExpr);
@@ -1400,10 +1400,10 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 			}
 		}
 		//
-		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSTOBACCO, temp_buf = 0);
+		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSTOBACCO, temp_buf.Z());
 		GcObj.SearchBySymb(temp_buf, &TobaccoGoodsClsID);
         //
-		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSGIFTCARD, temp_buf = 0);
+		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSGIFTCARD, temp_buf.Z());
 		GcObj.SearchBySymb(temp_buf, &GiftCardGoodsClsID);
 		//
 		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ACGIPRICELOOKBACKPERIOD, &PricesLookBackPeriod);
@@ -1944,7 +1944,7 @@ IMPL_INVARIANT_C(AsyncCashGoodsInfo)
 	size_t bc_len = strlen(BarCode);
 	S_ASSERT_P(bc_len < sizeof(BarCode), pInvP);
 	for(size_t i = 0; i < bc_len; i++) {
-		S_ASSERT_P(isdigit(BarCode[i]), pInvP);
+		S_ASSERT_P(isdec(BarCode[i]), pInvP);
 	}
 	S_INVARIANT_EPILOG(pInvP);
 }

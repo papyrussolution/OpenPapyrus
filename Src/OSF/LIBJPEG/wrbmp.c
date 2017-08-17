@@ -55,25 +55,22 @@ typedef struct {
 
 typedef bmp_dest_struct * bmp_dest_ptr;
 
-/* Forward declarations */
-static void write_colormap JPP((j_decompress_ptr cinfo, bmp_dest_ptr dest, int map_colors, int map_entry_size));
-
+// Forward declarations
+static void write_colormap(j_decompress_ptr cinfo, bmp_dest_ptr dest, int map_colors, int map_entry_size);
 /*
  * Write some pixel data.
  * In this module rows_supplied will always be 1.
  */
 
-METHODDEF(void) put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
-    JDIMENSION rows_supplied)
+METHODDEF(void) put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
 /* This version is for writing 24-bit pixels */
 {
 	bmp_dest_ptr dest = (bmp_dest_ptr)dinfo;
-	JSAMPARRAY image_ptr;
 	register JSAMPROW inptr, outptr;
 	register JDIMENSION col;
 	int pad;
 	/* Access next row in virtual array */
-	image_ptr = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, dest->whole_image, dest->cur_output_row, (JDIMENSION)1, TRUE);
+	JSAMPARRAY image_ptr = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, dest->whole_image, dest->cur_output_row, (JDIMENSION)1, TRUE);
 	dest->cur_output_row++;
 	/* Transfer data.  Note destination values must be in BGR order
 	 * (even though Microsoft's own documents say the opposite).
@@ -270,8 +267,7 @@ static void write_colormap(j_decompress_ptr cinfo, bmp_dest_ptr dest, int map_co
 	int num_colors = cinfo->actual_number_of_colors;
 	FILE * outfile = dest->pub.output_file;
 	int i;
-
-	if(colormap != NULL) {
+	if(colormap) {
 		if(cinfo->out_color_components == 3) {
 			/* Normal case with RGB colormap */
 			for(i = 0; i < num_colors; i++) {

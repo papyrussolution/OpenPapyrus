@@ -708,7 +708,7 @@ int SLAPI PPMailMsg::Init()
 
 SString & SLAPI PPMailMsg::MakeBoundaryCode(SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	uint16 hash[16];
 	rBuf.CatCharN('-', 10);
 	IdeaRandMem(hash, sizeof(hash));
@@ -728,7 +728,7 @@ SString & SLAPI PPMailMsg::MakeBoundaryCode(SString & rBuf) const
 
 SString & SLAPI PPMailMsg::GetBoundary(int start, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	const char * p_boundary = GetField(PPMailMsg::fldBoundary);
 	if(p_boundary) {
 		if(start == 1 || start == 2)
@@ -912,7 +912,7 @@ int SLAPI PPMailFile::GetFieldTitle(uint id, SString & rBuf) const
 
 int SLAPI PPMailFile::GetField(const char * pLine, uint fldID, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	SString fld_name;
 	if(GetFieldTitle(fldID, fld_name))
 		if(fld_name.CmpL(pLine, 1) == 0) {
@@ -1230,7 +1230,7 @@ static void PreprocessEncodedField(const char * pLine, SString & rResult)
 				char   mime_buf[1024];
 				size_t mime_len = 0;
 				temp_buf.DecodeMime64(mime_buf, sizeof(mime_buf), &mime_len);
-				(temp_buf = 0).CatN(mime_buf, mime_len);
+				temp_buf.Z().CatN(mime_buf, mime_len);
 				temp_buf.Utf8ToChar();
 			}
 			else {
@@ -1567,7 +1567,7 @@ static int SLAPI _PUTS(const char * pLine, FILE * out)
 
 int SLAPI PPMailSmtp::MakeMessageID(SString & rBuf)
 {
-	(rBuf = 0).CatChar('<');
+	rBuf.Z().CatChar('<');
 	SString temp_buf;
 	MailAcc.GetExtField(MAEXSTR_FROMADDRESS, temp_buf);
 	const char * p = temp_buf.StrChr('@', 0);
@@ -1619,7 +1619,7 @@ int SLAPI PPMailSmtp::SendMsgToFile(PPMailMsg * pMsg, SString & rFileName)
 	{
 		char   sd_buf[256];
 		datetimefmt(getcurdatetime_(), DATF_INTERNET, TIMF_HMS|TIMF_TIMEZONE, sd_buf, sizeof(sd_buf));
-		(temp_buf = 0).Cat("Date").CatDiv(':', 2).Cat(sd_buf);
+		temp_buf.Z().Cat("Date").CatDiv(':', 2).Cat(sd_buf);
 		_PUTS(temp_buf, out);
 	}
 	PutField(PPMAILFLD_FROM, pMsg->GetField(PPMailMsg::fldFrom), buf);
@@ -1628,7 +1628,7 @@ int SLAPI PPMailSmtp::SendMsgToFile(PPMailMsg * pMsg, SString & rFileName)
 		char   ver_text[64];
 		PPVersionInfo vi = DS.GetVersionInfo();
 		vi.GetVersionText(ver_text, sizeof(ver_text));
-		(temp_buf = 0).Cat("X-Mailer").CatDiv(':', 2).Cat("Papyrus").Space().CatChar('v').Cat(ver_text);
+		temp_buf.Z().Cat("X-Mailer").CatDiv(':', 2).Cat("Papyrus").Space().CatChar('v').Cat(ver_text);
 		_PUTS(temp_buf, out);
 	}
 	{
@@ -1749,7 +1749,7 @@ int SLAPI PPMailSmtp::SendMsgFromFile(PPMailMsg * pMsg, const char * pFileName, 
 	THROW_PP(in = fopen(pFileName, "rt"), PPERR_CANTOPENFILE);
 	is_attach = (pMsg->Flags & PPMailMsg::fMultipart) ? 1 : 0;
 
-	(temp_buf = 0).CatChar('<').Cat(pMsg->GetField(PPMailMsg::fldFrom)).CatChar('>');
+	temp_buf.Z().CatChar('<').Cat(pMsg->GetField(PPMailMsg::fldFrom)).CatChar('>');
 	THROW(SendCmd(SMTPCMD_MAIL, temp_buf, buf));
 	{
 		SString addr_buf;

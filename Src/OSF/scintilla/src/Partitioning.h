@@ -98,27 +98,21 @@ public:
 	{
 		Allocate(growSize);
 	}
-
 	~Partitioning()
 	{
-		delete body;
-		body = 0;
+		ZDELETE(body);
 	}
-
 	int Partitions() const
 	{
 		return body->Length()-1;
 	}
-
 	void InsertPartition(int partition, int pos)
 	{
-		if(stepPartition < partition) {
+		if(stepPartition < partition)
 			ApplyStep(partition);
-		}
 		body->Insert(partition, pos);
 		stepPartition++;
 	}
-
 	void SetPartitionStartPosition(int partition, int pos)
 	{
 		ApplyStep(partition+1);

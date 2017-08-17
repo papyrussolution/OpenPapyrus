@@ -14,8 +14,7 @@ namespace Scintilla {
 
 // SparseVector is similar to RunStyles but is more efficient for cases where values occur
 // for one position instead of over a range of positions.
-template <typename T>
-class SparseVector {
+template <typename T> class SparseVector {
 private:
 	Partitioning * starts;
 	SplitVector<T> * values;
@@ -25,7 +24,6 @@ private:
 	{
 		values->SetValueAt(partition, T());
 	}
-
 	void CommonSetValueAt(int position, T value)
 	{
 		// Do the work of setting the value to allow for specialization of SetValueAt.
@@ -58,7 +56,6 @@ private:
 			}
 		}
 	}
-
 public:
 	SparseVector()
 	{
@@ -68,31 +65,25 @@ public:
 	}
 	~SparseVector()
 	{
-		delete starts;
-		starts = NULL;
+		ZDELETE(starts);
 		// starts dead here but not used by ClearValue.
 		for(int part = 0; part < values->Length(); part++) {
 			ClearValue(part);
 		}
-		delete values;
-		values = NULL;
+		ZDELETE(values);
 	}
-
 	int Length() const
 	{
 		return starts->PositionFromPartition(starts->Partitions());
 	}
-
 	int Elements() const
 	{
 		return starts->Partitions();
 	}
-
 	int PositionOfElement(int element) const
 	{
 		return starts->PositionFromPartition(element);
 	}
-
 	T ValueAt(int position) const
 	{
 		assert(position < Length());
@@ -105,12 +96,10 @@ public:
 			return T();
 		}
 	}
-
 	void SetValueAt(int position, T value)
 	{
 		CommonSetValueAt(position, value);
 	}
-
 	void InsertSpace(int position, int insertLength)
 	{
 		assert(position <= Length());   // Only operation that works at end.
@@ -145,7 +134,6 @@ public:
 			starts->InsertText(partition, insertLength);
 		}
 	}
-
 	void DeletePosition(int position)
 	{
 		assert(position < Length());
@@ -170,7 +158,6 @@ public:
 		}
 		starts->InsertText(partition, -1);
 	}
-
 	void Check() const
 	{
 		if(Length() < 0) {
@@ -191,16 +178,14 @@ public:
 
 // The specialization for const char * makes copies and deletes them as needed.
 
-template <>
-inline void SparseVector<const char *>::ClearValue(int partition)
+template <> inline void SparseVector<const char *>::ClearValue(int partition)
 {
 	const char * value = values->ValueAt(partition);
 	delete []value;
 	values->SetValueAt(partition, 0);
 }
 
-template <>
-inline void SparseVector<const char *>::SetValueAt(int position, const char * value)
+template <> inline void SparseVector<const char *>::SetValueAt(int position, const char * value)
 {
 	// Make a copy of the string
 	if(value) {

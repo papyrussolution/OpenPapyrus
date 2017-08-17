@@ -304,7 +304,7 @@ static void ColouriseTCMDLine(char * lineBuffer,
 			}
 
 			// Check for Argument (%n) or (%*)
-			if(((isdigit(wordBuffer[1])) || (wordBuffer[1] == '*')) && (wordBuffer[wbo] != '%')) {
+			if(((isdec(wordBuffer[1])) || (wordBuffer[1] == '*')) && (wordBuffer[wbo] != '%')) {
 				while(( wordBuffer[n] ) && ( strchr("%0123456789*#$", wordBuffer[n]) != NULL ))
 					n++;
 ColorizeArg:

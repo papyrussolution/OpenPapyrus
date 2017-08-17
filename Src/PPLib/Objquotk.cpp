@@ -91,7 +91,7 @@ int SLAPI PPQuotKind2::SetAmtRange(const RealRange * pRange)
 int SLAPI PPQuotKind2::GetRestrText(SString & rBuf) const
 {
 	SString temp_buf;
-	rBuf = 0;
+	rBuf.Z();
 	if(!Period.IsZero()) {
 		rBuf.Cat(Period, 1);
 	}
@@ -1169,7 +1169,7 @@ int SLAPI PPObjQuotKind::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * 
 
 int SLAPI PPObjQuotKind::MakeCodeString(const PPQuot * pQuot, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(pQuot) {
 		PPQuotKind qk_rec;
 		SString temp_buf;
@@ -1189,9 +1189,9 @@ int SLAPI PPObjQuotKind::MakeCodeString(const PPQuot * pQuot, SString & rBuf)
 			PPObjCurrency cur_obj;
 			PPCurrency cur_rec;
 			if(cur_obj.Fetch(pQuot->CurID, &cur_rec) > 0)
-				(temp_buf = 0).Cat(cur_rec.Name);
+				temp_buf.Z().Cat(cur_rec.Name);
 			else
-				ideqvalstr(pQuot->CurID, temp_buf = 0);
+				ideqvalstr(pQuot->CurID, temp_buf.Z());
 			rBuf.CatDiv('-', 1).Cat(temp_buf);
 		}
 		rBuf.CatDiv('=', 1).Cat(pQuot->PutValToStr(temp_buf));

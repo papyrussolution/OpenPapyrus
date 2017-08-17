@@ -165,7 +165,7 @@ static void ColouriseMatlabOctaveDoc(Sci_PositionU startPos, Sci_Position length
 			}
 		}
 		else if(sc.state == SCE_MATLAB_NUMBER) {
-			if(!isdigit(sc.ch) && sc.ch != '.'
+			if(!isdec(sc.ch) && sc.ch != '.'
 			    && !(sc.ch == 'e' || sc.ch == 'E')
 			    && !((sc.ch == '+' || sc.ch == '-') && (sc.chPrev == 'e' || sc.chPrev == 'E'))) {
 				sc.SetState(SCE_MATLAB_DEFAULT);
@@ -262,7 +262,7 @@ static void ColouriseMatlabOctaveDoc(Sci_PositionU startPos, Sci_Position length
 			else if(sc.ch == '"') {
 				sc.SetState(SCE_MATLAB_DOUBLEQUOTESTRING);
 			}
-			else if(isdigit(sc.ch) || (sc.ch == '.' && isdigit(sc.chNext))) {
+			else if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_MATLAB_NUMBER);
 			}
 			else if(isalpha(sc.ch)) {

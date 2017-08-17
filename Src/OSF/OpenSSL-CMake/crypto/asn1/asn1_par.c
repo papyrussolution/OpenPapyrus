@@ -199,19 +199,15 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length, int offset, int
 			}
 			else if(tag == V_ASN1_OCTET_STRING) {
 				int i, printable = 1;
-
 				opp = op;
 				os = d2i_ASN1_OCTET_STRING(NULL, &opp, len + hl);
-				if(os != NULL && os->length > 0) {
+				if(os && os->length > 0) {
 					opp = os->data;
 					/*
 					 * testing whether the octet string is printable
 					 */
 					for(i = 0; i < os->length; i++) {
-						if(((opp[i] < ' ') &&
-							    (opp[i] != '\n') &&
-							    (opp[i] != '\r') &&
-							    (opp[i] != '\t')) || (opp[i] > '~')) {
+						if(((opp[i] < ' ') && (opp[i] != '\n') && (opp[i] != '\r') && (opp[i] != '\t')) || (opp[i] > '~')) {
 							printable = 0;
 							break;
 						}
@@ -240,12 +236,7 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length, int offset, int
 							if(BIO_write(bp, "\n", 1) <= 0)
 								goto end;
 						}
-						if(BIO_dump_indent(bp,
-							    (const char*)opp,
-							    ((dump == -1 || dump >
-									    os->
-									    length) ? os->length : dump),
-							    dump_indent) <= 0)
+						if(BIO_dump_indent(bp, (const char*)opp, ((dump == -1 || dump > os->length) ? os->length : dump), dump_indent) <= 0)
 							goto end;
 						nl = 1;
 					}
@@ -256,7 +247,6 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length, int offset, int
 			else if(tag == V_ASN1_INTEGER) {
 				ASN1_INTEGER * bs;
 				int i;
-
 				opp = op;
 				bs = d2i_ASN1_INTEGER(NULL, &opp, len + hl);
 				if(bs != NULL) {
@@ -356,22 +346,14 @@ end:
 const char * ASN1_tag2str(int tag)
 {
 	static const char * const tag2str[] = {
-		/* 0-4 */
-		"EOC", "BOOLEAN", "INTEGER", "BIT STRING", "OCTET STRING",
-		/* 5-9 */
-		"NULL", "OBJECT", "OBJECT DESCRIPTOR", "EXTERNAL", "REAL",
-		/* 10-13 */
-		"ENUMERATED", "<ASN1 11>", "UTF8STRING", "<ASN1 13>",
-		/* 15-17 */
-		"<ASN1 14>", "<ASN1 15>", "SEQUENCE", "SET",
-		/* 18-20 */
-		"NUMERICSTRING", "PRINTABLESTRING", "T61STRING",
-		/* 21-24 */
-		"VIDEOTEXSTRING", "IA5STRING", "UTCTIME", "GENERALIZEDTIME",
-		/* 25-27 */
-		"GRAPHICSTRING", "VISIBLESTRING", "GENERALSTRING",
-		/* 28-30 */
-		"UNIVERSALSTRING", "<ASN1 29>", "BMPSTRING"
+		"EOC", "BOOLEAN", "INTEGER", "BIT STRING", "OCTET STRING", /* 0-4 */
+		"NULL", "OBJECT", "OBJECT DESCRIPTOR", "EXTERNAL", "REAL", /* 5-9 */
+		"ENUMERATED", "<ASN1 11>", "UTF8STRING", "<ASN1 13>", /* 10-13 */
+		"<ASN1 14>", "<ASN1 15>", "SEQUENCE", "SET", /* 15-17 */
+		"NUMERICSTRING", "PRINTABLESTRING", "T61STRING", /* 18-20 */
+		"VIDEOTEXSTRING", "IA5STRING", "UTCTIME", "GENERALIZEDTIME", /* 21-24 */
+		"GRAPHICSTRING", "VISIBLESTRING", "GENERALSTRING", /* 25-27 */
+		"UNIVERSALSTRING", "<ASN1 29>", "BMPSTRING" /* 28-30 */
 	};
 	if((tag == V_ASN1_NEG_INTEGER) || (tag == V_ASN1_NEG_ENUMERATED))
 		tag &= ~0x100;

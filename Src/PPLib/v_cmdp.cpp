@@ -979,7 +979,7 @@ int SLAPI EditMenus(PPCommandGroup * pData, long initID, int isDesktop)
 		desks = *pData;
 	else {
 		THROW(p_mgr = GetCommandMngr(0, isDesktop, 0));
-		THROW(p_mgr->Load(&desks));
+		THROW(p_mgr->Load__(&desks));
 	}
 	p_dlg->setDTS(&desks);
 	if(ExecView(p_dlg) == cmOK) {
@@ -987,7 +987,7 @@ int SLAPI EditMenus(PPCommandGroup * pData, long initID, int isDesktop)
 		if(pData)
 			*pData = desks;
 		else {
-			THROW(p_mgr->Save_(&desks));
+			THROW(p_mgr->Save__(&desks));
 		}
 		ok = 1;
 	}
@@ -1006,12 +1006,12 @@ int SLAPI EditMenusFromFile()
 	if(PPOpenFile(PPTXT_FILPAT_MENU, path, 0, 0) > 0) {
 		{
 			THROW(p_mgr = GetCommandMngr(1, 0, path));
-			THROW(p_mgr->Load(&menus));
+			THROW(p_mgr->Load__(&menus));
 			ZDELETE(p_mgr);
 		}
 		if((ok = EditMenus(&menus, 0, 0)) > 0) {
 			THROW(p_mgr = GetCommandMngr(0, 0, path));
-			THROW(p_mgr->Save_(&menus));
+			THROW(p_mgr->Save__(&menus));
 			ZDELETE(p_mgr);
 			ok = 1;
 		}
@@ -1155,7 +1155,7 @@ HMENU SLAPI PPLoadMenu(TVRez * rez, long menuID, int fromRc, int * pNotFound)
 	if(!fromRc && menuID) {
 		PPCommandMngr * p_mgr = GetCommandMngr(1, 0);
 		PPCommandGroup menus;
-		if(p_mgr && p_mgr->Load(&menus) > 0) {
+		if(p_mgr && p_mgr->Load__(&menus) > 0) {
 			const PPCommandItem * p_item = menus.SearchByID(menuID, 0);
 			m = CreateMenu();
 			p_menu = (p_item && p_item->Kind == PPCommandItem::kFolder) ? (PPCommandFolder*)p_item->Dup() : 0;

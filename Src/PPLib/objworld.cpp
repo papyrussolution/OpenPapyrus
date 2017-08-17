@@ -594,7 +594,7 @@ int EditWorldDialog::setDTS(const PPWorldPacket * pData)
 	setCtrlData(CTL_WORLD_CODE, Data.Rec.Code);
 	setCtrlData(CTL_WORLD_ZIP,  Data.Rec.ZIP);
 	SetGeoCoord();
-	setStaticText(CTL_WORLD_ID, (temp_buf = 0).Cat(Data.Rec.ID));
+	setStaticText(CTL_WORLD_ID, temp_buf.Z().Cat(Data.Rec.ID));
 	SetupPPObjCombo(this, CTLSEL_WORLD_STATUS, PPOBJ_CITYSTATUS, Data.Rec.Status, OLW_CANINSERT, 0);
 	if(oneof2(Id, DLG_STREET, DLG_CITYAREA)) {
 		extra_ptr = PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0);
@@ -1580,7 +1580,7 @@ FiasObjCore::HouseCode & SLAPI FiasObjCore::HouseCode::Clear()
 SString & FASTCALL FiasObjCore::HouseCode::Encode(SString & rBuf) const
 {
 	SString temp_buf;
-	rBuf = 0;
+	rBuf.Z();
 	rBuf.Cat((temp_buf = HseNum).Strip());
 	rBuf.CatChar(':').Cat((temp_buf = BldNum).Strip());
 	rBuf.CatChar(':').Cat((temp_buf = StrNum).Strip());

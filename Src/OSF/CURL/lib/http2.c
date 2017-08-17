@@ -1808,23 +1808,18 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 	i = 3;
 	while(i < nheader) {
 		size_t hlen;
-
 		hdbuf = line_end + 2;
-
 		line_end = strstr(hdbuf, "\r\n");
 		if(line_end == hdbuf)
 			goto fail;
-
 		/* header continuation lines are not supported */
 		if(*hdbuf == ' ' || *hdbuf == '\t')
 			goto fail;
-
 		for(end = hdbuf; end < line_end && *end != ':'; ++end)
 			;
 		if(end == hdbuf || end == line_end)
 			goto fail;
 		hlen = end - hdbuf;
-
 		if(hlen == 4 && strncasecompare("host", hdbuf, 4)) {
 			authority_idx = i;
 			nva[i].name = (uchar*)":authority";
@@ -1876,15 +1871,10 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 #define MAX_ACC 60000  /* <64KB to account for some overhead */
 	{
 		size_t acc = 0;
-
 		for(i = 0; i < nheader; ++i) {
 			acc += nva[i].namelen + nva[i].valuelen;
-
-			DEBUGF(infof(conn->data, "h2 header: %.*s:%.*s\n",
-				    nva[i].namelen, nva[i].name,
-				    nva[i].valuelen, nva[i].value));
+			DEBUGF(infof(conn->data, "h2 header: %.*s:%.*s\n", nva[i].namelen, nva[i].name, nva[i].valuelen, nva[i].value));
 		}
-
 		if(acc > MAX_ACC) {
 			infof(conn->data, "http2_send: Warning: The cumulative length of all "
 			    "headers exceeds %zu bytes and that could cause the "
@@ -1913,34 +1903,26 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 		    stream_id = nghttp2_submit_request(h2, &pri_spec, nva, nheader,
 		    NULL, conn->data);
 	}
-
 	ZFREE(nva);
-
 	if(stream_id < 0) {
 		DEBUGF(infof(conn->data, "http2_send() send error\n"));
 		*err = CURLE_SEND_ERROR;
 		return -1;
 	}
-
-	infof(conn->data, "Using Stream ID: %x (easy handle %p)\n",
-	    stream_id, conn->data);
+	infof(conn->data, "Using Stream ID: %x (easy handle %p)\n", stream_id, conn->data);
 	stream->stream_id = stream_id;
-
 	/* this does not call h2_session_send() since there can not have been any
 	 * priority upodate since the nghttp2_submit_request() call above */
 	rv = nghttp2_session_send(h2);
-
 	if(rv != 0) {
 		*err = CURLE_SEND_ERROR;
 		return -1;
 	}
-
 	if(should_close_session(httpc)) {
 		DEBUGF(infof(conn->data, "http2_send: nothing to do in this session\n"));
 		*err = CURLE_HTTP2;
 		return -1;
 	}
-
 	if(stream->stream_id != -1) {
 		/* If whole HEADERS frame was sent off to the underlying socket,
 		   the nghttp2 library calls data_source_read_callback. But only

@@ -133,7 +133,7 @@ static int GetSendKey(const char * szLine, char * szKey)
 				// Save second portion into var...
 				szSpecial[nSpecPos++] = cTemp;
 				// check if Second portion is all numbers for repeat fuction
-				if(isdigit(cTemp) == false) {
+				if(isdec(cTemp) == false) {
 					nSpecNum = 0;
 				}
 			}

@@ -43,7 +43,7 @@ static int FindExeByExt(const char * pExt, char * pExe, size_t buflen, char * pA
 				while((p_chr = strchr(buf, ' ')) != NULL)
 					strcpy(p_chr, p_chr + 1);
 			}
-			(temp_buf = 0).CatChar('\\').Cat("shell").SetLastSlash().Cat("open").SetLastSlash().Cat("command");
+			temp_buf.Z().CatChar('\\').Cat("shell").SetLastSlash().Cat("open").SetLastSlash().Cat("command");
 			strcat(buf, temp_buf);
 			if(SHGetValue(HKEY_CLASSES_ROOT, buf, NULL, &v_type, buf, &bufsize) == ERROR_SUCCESS) { // @unicodeproblem
 				strip(buf);
@@ -287,7 +287,7 @@ int SLAPI SReport::readResource(TVRez * rez, uint resID)
 	int16  len;
 	SString msg_buf;
 	THROW(rez && !rez->error);
-	SLS.SetError(SLERR_REZNFOUND, (msg_buf = 0).Cat(resID));
+	SLS.SetError(SLERR_REZNFOUND, msg_buf.Z().Cat(resID));
 	THROW_SL(rez->findResource(resID, TV_REPORT));
 	rez->getString(Name, 0);
 	rez->getString(DataName, 0);
@@ -1052,7 +1052,7 @@ public:
 				PrnList.swap(0, (uint)(def_prn_id-1));
 			//
 			for(uint j = 0; j < PrnList.getCount(); j++) {
-				(temp_buf = 0).Cat(PrnList.at(j).PrinterName).ToOem();
+				temp_buf.Z().Cat(PrnList.at(j).PrinterName).ToOem();
 				list.Add(j+1, temp_buf);
 			}
 			SetupStrAssocCombo(this, CTLSEL_PRINT2_PRINTER, &list, sel_prn_id, 0);
@@ -1716,7 +1716,7 @@ int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const 
 		THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
 		const uint64 profile_end = DS.GetProfileTime();
 		{
-			(msg_buf = 0).CatEq("Report", pReportName);
+			msg_buf.Z().CatEq("Report", pReportName);
 			if(!isempty(pPrinter))
 				msg_buf.CatDiv(';', 2).CatEq("Printer", pPrinter);
 			if(numCopies > 1)
@@ -2466,7 +2466,7 @@ int SLAPI PPAlddPrint(int rptId, PView * pview, const PPReportEnv * pEnv)
 
 static int SLAPI Implement_ExportDL600DataToBuffer(const char * pDataName, long id, void * pPtr, SCodepageIdent cp, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 
 	int    ok = 1;
 	PPFilt f;

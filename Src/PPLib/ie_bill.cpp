@@ -77,7 +77,7 @@ int PPBillImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResu
 			if(ps.Nam.Search("#guid", 0, 1, &gp)) {
 				S_GUID guid;
 				guid.Generate();
-				guid.ToStr(S_GUID::fmtIDL, temp_buf = 0);
+				guid.ToStr(S_GUID::fmtIDL, temp_buf.Z());
 				ps.Nam.ReplaceStr("#guid", temp_buf, 0);
 				use_ps = 1;
 			}
@@ -198,21 +198,21 @@ int PPBillImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & r
 			if(op_rec.Symb[0])
 				temp_buf = op_rec.Symb;
 			else
-				(temp_buf = 0).Cat(ImpOpID);
+				temp_buf.Z().Cat(ImpOpID);
 		}
 		else
 			temp_buf = 0;
 		if(temp_buf.NotEmpty())
 			param_list.Add(IMPEXPPARAM_BILH_IMPOPSYMB, temp_buf);
 		if(Flags)
-			param_list.Add(IMPEXPPARAM_BILH_FLAGS, (temp_buf = 0).Cat(Flags));
+			param_list.Add(IMPEXPPARAM_BILH_FLAGS, temp_buf.Z().Cat(Flags));
 		if(Object1SrchCode.NotEmpty())
 			param_list.Add(IMPEXPPARAM_BILH_SRCHCODE1, (temp_buf = Object1SrchCode).Strip());
 		if(Object2SrchCode.NotEmpty())
 			param_list.Add(IMPEXPPARAM_BILH_SRCHCODE2, (temp_buf = Object2SrchCode).Strip());
 		// @v9.7.8 {
 		if(PredefFormat)
-			param_list.Add(IMPEXPPARAM_BILH_PREDEFFMT, (temp_buf = 0).Cat(PredefFormat));
+			param_list.Add(IMPEXPPARAM_BILH_PREDEFFMT, temp_buf.Z().Cat(PredefFormat));
 		// } @v9.7.8
 	}
 	THROW_SL(pSCtx->Serialize(dir, param_list, rTail));
@@ -541,10 +541,10 @@ public:
 				for(uint i = 0; ss.get(&i, buf);) {
 					uint j = 0;
 					StringSet ss1(',', buf);
-					ss1.get(&j, (buf = 0));
+					ss1.get(&j, buf.Z());
 					id = buf.ToLong();
-					ss1.get(&j, (buf = 0));
-					ss1.get(&j, (buf = 0));
+					ss1.get(&j, buf.Z());
+					ss1.get(&j, buf.Z());
 					HdrList.Add(id, buf);
 				}
 				P_Data->BillParam.ProcessName(2, sect = P_Data->CfgNameBill); // @vmiller (для отображения в фильтре иконки)
@@ -672,10 +672,10 @@ private:
 					for(uint i = 0; ss.get(&i, buf);) {
 						uint j = 0;
 						StringSet ss1(',', buf);
-						ss1.get(&j, (buf = 0));
+						ss1.get(&j, buf.Z());
 						id = buf.ToLong();
-						ss1.get(&j, (buf = 0));
-						ss1.get(&j, (buf = 0));
+						ss1.get(&j, buf.Z());
+						ss1.get(&j, buf.Z());
 						HdrList.Add(id, buf);
 					}
 					P_Data->BillParam.ProcessName(2, sect = P_Data->CfgNameBill); // @vmiller (для отображения в фильтре иконки)
@@ -3548,7 +3548,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 				edi_op = PPEDIOP_RECADV;
 			else if(edi_op_symb.CmpNC("ORDER") == 0)
 				edi_op = PPEDIOP_ORDER;
-			PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName, temp_buf = 0);
+			PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName, temp_buf.Z());
             pPack->Rec.EdiOp = edi_op; // @v8.6.12
 			THROW(BillRecToBill(pPack, &bill));
 			THROW_PP_S(edi_op != PPEDIOP_RECADV || bill.DesadvBillNo[0], PPERR_EDI_SPRRECADVWOTTN, temp_buf);
@@ -4048,12 +4048,12 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 						desadv_bill_id = desadv_bill_rec.ID;
 						(temp_buf = desadv_bill_rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
 						STRNSCPY(pBill->DesadvBillNo, temp_buf);
-						STRNSCPY(pBill->DesadvBillID, (temp_buf = 0).Cat(desadv_bill_rec.ID));
+						STRNSCPY(pBill->DesadvBillID, temp_buf.Z().Cat(desadv_bill_rec.ID));
 						pBill->DesadvBillDt = desadv_bill_rec.Dt;
 						if(desadv_bill_rec.LinkBillID && P_BObj->Search(desadv_bill_rec.LinkBillID, &ord_bill_rec) > 0) {
 							(temp_buf = ord_bill_rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
 							STRNSCPY(pBill->OrderBillNo, temp_buf);
-							STRNSCPY(pBill->OrderBillID, (temp_buf = 0).Cat(ord_bill_rec.ID));
+							STRNSCPY(pBill->OrderBillID, temp_buf.Z().Cat(ord_bill_rec.ID));
 							pBill->OrderDate = ord_bill_rec.Dt;
 						}
 					}
@@ -4067,7 +4067,7 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 						if(P_BObj->Search(ord_bill_id, &ord_bill_rec) > 0) {
 							(temp_buf = ord_bill_rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
 							STRNSCPY(pBill->OrderBillNo, temp_buf);
-							STRNSCPY(pBill->OrderBillID, (temp_buf = 0).Cat(ord_bill_rec.ID)); // @v8.6.9
+							STRNSCPY(pBill->OrderBillID, temp_buf.Z().Cat(ord_bill_rec.ID)); // @v8.6.9
 							pBill->OrderDate = ord_bill_rec.Dt; // @v8.6.9
 							break; // Даже если с отгрузкой связано более одного заказа, здесь мы можем сохранить ссылку лишь на один
 						}
@@ -4081,7 +4081,7 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 						if(P_BObj->Search(pPack->Rec.LinkBillID, &ord_bill_rec) > 0) {
 							(temp_buf = ord_bill_rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
 							STRNSCPY(pBill->OrderBillNo, temp_buf);
-							STRNSCPY(pBill->OrderBillID, (temp_buf = 0).Cat(ord_bill_rec.ID)); // @v8.6.9
+							STRNSCPY(pBill->OrderBillID, temp_buf.Z().Cat(ord_bill_rec.ID)); // @v8.6.9
 							pBill->OrderDate = ord_bill_rec.Dt; // @v8.6.9
 						}
 					}
@@ -4258,9 +4258,9 @@ public:
 			SString temp_buf;
 			N.PutAttrib("КНД", pK); // Код по Классификатору налоговой документации
 			if(!!rDtm) {
-				(temp_buf = 0).Cat(rDtm.d, DATF_GERMAN|DATF_CENTURY);
+				temp_buf.Z().Cat(rDtm.d, DATF_GERMAN|DATF_CENTURY);
                 N.PutAttrib("ДатаИнфЗак", temp_buf);
-				(temp_buf = 0).Cat(rDtm.t, TIMF_HMS);
+				temp_buf.Z().Cat(rDtm.t, TIMF_HMS);
                 N.PutAttrib("ВремИнфЗак", temp_buf);
 			}
 			if(!isempty(pSubj)) {
@@ -4280,7 +4280,7 @@ public:
 			SString temp_buf;
 			BillCore::GetCode(temp_buf = rBp.Rec.Code);
             N.PutAttrib("НомерСчФ", temp_buf);
-            (temp_buf = 0).Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY);
+            temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY);
             N.PutAttrib("ДатаСчФ", temp_buf);
             N.PutAttrib("КодОКВ", "643");
 		}
@@ -4298,9 +4298,9 @@ public:
 			const PPTransferItem & r_ti = rBp.ConstTI(item_idx);
 
 			SXml::WNode n_item(P_X, "СведТов");
-			(temp_buf = 0).Cat(r_ti.RByBill);
+			temp_buf.Z().Cat(r_ti.RByBill);
 			n_item.PutAttrib("НомСтр", temp_buf);
-			(temp_buf = 0).Cat(r_ti.Qtty(), MKSFMTD(0, 6, NMBF_NOTRAILZ));
+			temp_buf.Z().Cat(r_ti.Qtty(), MKSFMTD(0, 6, NMBF_NOTRAILZ));
 			n_item.PutAttrib("КолТов", temp_buf);
 			{
 				Goods2Tbl::Rec goods_rec;
@@ -4326,18 +4326,18 @@ public:
 				long   exclude_tax_flags = GTAXVF_SALESTAX;
 				vect.CalcTI(&r_ti, rBp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags);
 				double vat_rate = vect.GetTaxRate(GTAX_VAT, 0);
-				(temp_buf = 0).Cat(vat_rate, MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
+				temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
 				n_item.PutAttrib("НалСт", temp_buf);
 				//
 				double amt_wo_tax = vect.GetValue(GTAXVF_AFTERTAXES);
-				(temp_buf = 0).Cat(amt_wo_tax / fabs(r_ti.Quantity_), MKSFMTD(0, 11, NMBF_NOTRAILZ));
+				temp_buf.Z().Cat(amt_wo_tax / fabs(r_ti.Quantity_), MKSFMTD(0, 11, NMBF_NOTRAILZ));
 				n_item.PutAttrib("ЦенаТов", temp_buf);
 				//
-				(temp_buf = 0).Cat(amt_wo_tax, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+				temp_buf.Z().Cat(amt_wo_tax, MKSFMTD(0, 2, NMBF_NOTRAILZ));
 				n_item.PutAttrib("СтТовБезНДС", temp_buf);
 				//
 				double amt = vect.GetValue(GTAXVF_BEFORETAXES);
-				(temp_buf = 0).Cat(amt, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+				temp_buf.Z().Cat(amt, MKSFMTD(0, 2, NMBF_NOTRAILZ));
 				n_item.PutAttrib("СтТовУчНал", temp_buf);
 
 				vat_sum = vect.GetValue(GTAXVF_VAT);
@@ -4347,7 +4347,7 @@ public:
 				SXml::WNode n_e(P_X, "Акциз");
 				{
 					if(excise_sum != 0.0) {
-						(temp_buf = 0).Cat(fabs(excise_sum), MKSFMTD(0, 2, 0));
+						temp_buf.Z().Cat(fabs(excise_sum), MKSFMTD(0, 2, 0));
 						n_e.PutInner("СумАкциз", temp_buf);
 					}
 					else {
@@ -4359,7 +4359,7 @@ public:
 				SXml::WNode n_e(P_X, "СумНал");
 				{
 					if(vat_sum != 0.0) {
-						(temp_buf = 0).Cat(fabs(vat_sum), MKSFMTD(0, 2, 0));
+						temp_buf.Z().Cat(fabs(vat_sum), MKSFMTD(0, 2, 0));
 						n_e.PutInner("СумНал", temp_buf);
 					}
 					else {
@@ -4391,7 +4391,7 @@ public:
 			SXml::WNode n_i(P_X, "АдрРФ");
 			LocationCore::GetExField(&rP, LOCEXSTR_ZIP, temp_buf);
 			n_i.PutAttribSkipEmpty("Индекс", EncText(temp_buf));
-			(temp_buf = 0).CatLongZ(regionCode, 2);
+			temp_buf.Z().CatLongZ(regionCode, 2);
 			n_i.PutAttrib("КодРегион", temp_buf); // req
 			//n_i.PutAttrib("Район", "");
 			if(rP.CityID) {
@@ -4417,7 +4417,7 @@ public:
         THROW(PsnObj.GetPacket(personID, &psn_pack, PGETPCKF_USEINHERITENCE) > 0);
 		if(psn_pack.Regs.GetRegister(PPREGT_TPID, actualDate, 0, &reg_rec) > 0) {
 			(inn = reg_rec.Num).Strip();
-			inn.Sub(0, 2, temp_buf = 0);
+			inn.Sub(0, 2, temp_buf.Z());
 			region_code = temp_buf.ToLong();
 		}
 		if(psn_pack.Regs.GetRegister(PPREGT_KPP, actualDate, 0, &reg_rec) > 0)

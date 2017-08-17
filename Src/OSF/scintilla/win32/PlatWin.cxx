@@ -29,7 +29,7 @@
 //#include "Platform.h"
 ////#include "StringCopy.h"
 #include "XPM.h"
-#include "UniConversion.h"
+//#include "UniConversion.h"
 #include "FontQuality.h"
 #ifndef IDC_HAND
 	#define IDC_HAND MAKEINTRESOURCE(32649)
@@ -435,6 +435,13 @@ void FontCached::ReleaseId(FontID fid_)
 		pcur = &cur->next;
 	}
 	::LeaveCriticalSection(&crPlatformLock);
+}
+
+FontParameters::FontParameters(const char * faceName_, float size_, int weight_,
+	bool italic_, int extraFontFlag_, int technology_, int characterSet_) :
+	faceName(faceName_), size(size_), weight(weight_), italic(italic_), extraFontFlag(extraFontFlag_),
+	technology(technology_), characterSet(characterSet_)
+{
 }
 
 Font::Font()
@@ -1883,6 +1890,14 @@ Surface * FASTCALL Surface::Allocate(int technology)
 #endif
 }
 
+Window::Window() : wid(0), cursorLast(cursorInvalid)
+{
+}
+
+Window::Window(const Window &source) : wid(source.wid), cursorLast(cursorInvalid)
+{
+}
+
 Window::~Window()
 {
 }
@@ -2535,13 +2550,11 @@ void ListBoxX::Draw(DRAWITEMSTRUCT * pDrawItem)
 							pDCRT->EndDraw();
 							pDCRT->Release();
 						}
-						else {
+						else
 							delete surfaceItem;
-						}
 					}
-					else {
+					else
 						delete surfaceItem;
-					}
 #endif
 				}
 			}
@@ -3118,9 +3131,7 @@ void Menu::Destroy()
 
 void Menu::Show(Point pt, Window &w)
 {
-	::TrackPopupMenu(static_cast<HMENU>(mid),
-	    TPM_RIGHTBUTTON, static_cast<int>(pt.x - 4), static_cast<int>(pt.y), 0,
-	    static_cast<HWND>(w.GetID()), 0);
+	::TrackPopupMenu(static_cast<HMENU>(mid), TPM_RIGHTBUTTON, static_cast<int>(pt.x - 4), static_cast<int>(pt.y), 0, static_cast<HWND>(w.GetID()), 0);
 	Destroy();
 }
 

@@ -78,15 +78,12 @@ bool followsReturnKeyword(StyleContext &sc, LexAccessor &styler)
 	return !*s;
 }
 
-bool IsSpaceOrTab(int ch)
-{
-	return ch == ' ' || ch == '\t';
-}
+//static bool FASTCALL IsSpaceOrTab_Removed(int ch) { return oneof2(ch, ' ', '\t'); }
 
 bool OnlySpaceOrTab(const std::string &s)
 {
 	for(std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
-		if(!IsSpaceOrTab(*it))
+		if(!IsASpaceOrTab(*it))
 			return false;
 	}
 	return true;
@@ -1294,7 +1291,7 @@ void SCI_METHOD LexerCPP::Lex(Sci_PositionU startPos, Sci_Position length, int i
 				// Skip whitespace between # and preprocessor word
 				do {
 					sc.Forward();
-				} while((sc.ch == ' ' || sc.ch == '\t') && sc.More());
+				} while(oneof2(sc.ch, ' ', '\t') && sc.More());
 				if(sc.atLineEnd) {
 					sc.SetState(SCE_C_DEFAULT|activitySet);
 				}
@@ -1359,39 +1356,33 @@ void SCI_METHOD LexerCPP::Lex(Sci_PositionU startPos, Sci_Position length, int i
 							if(options.updatePreprocessor && !preproc.IsInactive()) {
 								std::string restOfLine = GetRestOfLine(styler, sc.currentPos + 6, true);
 								size_t startName = 0;
-								while((startName < restOfLine.length()) &&
-								    IsSpaceOrTab(restOfLine[startName]))
+								while((startName < restOfLine.length()) && IsASpaceOrTab(restOfLine[startName]))
 									startName++;
 								size_t endName = startName;
-								while((endName < restOfLine.length()) &&
-								    setWord.Contains(static_cast<uchar>(restOfLine[endName])))
+								while((endName < restOfLine.length()) && setWord.Contains(static_cast<uchar>(restOfLine[endName])))
 									endName++;
 								std::string key = restOfLine.substr(startName, endName-startName);
 								if((endName < restOfLine.length()) && (restOfLine.at(endName) == '(')) {
 									// Macro
 									size_t endArgs = endName;
-									while((endArgs < restOfLine.length()) &&
-									    (restOfLine[endArgs] != ')'))
+									while((endArgs < restOfLine.length()) && (restOfLine[endArgs] != ')'))
 										endArgs++;
 									std::string args = restOfLine.substr(endName + 1,
 									    endArgs - endName - 1);
 									size_t startValue = endArgs+1;
-									while((startValue < restOfLine.length()) &&
-									    IsSpaceOrTab(restOfLine[startValue]))
+									while((startValue < restOfLine.length()) && IsASpaceOrTab(restOfLine[startValue]))
 										startValue++;
 									std::string value;
 									if(startValue < restOfLine.length())
 										value = restOfLine.substr(startValue);
 									preprocessorDefinitions[key] = SymbolValue(value, args);
-									ppDefineHistory.push_back(PPDefinition(lineCurrent, key, value,
-										    false, args));
+									ppDefineHistory.push_back(PPDefinition(lineCurrent, key, value, false, args));
 									definitionsChanged = true;
 								}
 								else {
 									// Value
 									size_t startValue = endName;
-									while((startValue < restOfLine.length()) &&
-									    IsSpaceOrTab(restOfLine[startValue]))
+									while((startValue < restOfLine.length()) && IsASpaceOrTab(restOfLine[startValue]))
 										startValue++;
 									std::string value = restOfLine.substr(startValue);
 									preprocessorDefinitions[key] = value;
@@ -1769,8 +1760,8 @@ std::vector<std::string> LexerCPP::Tokenize(const std::string &expr) const
 				cp++;
 			}
 		}
-		else if(IsSpaceOrTab(*cp)) {
-			while(IsSpaceOrTab(*cp)) {
+		else if(IsASpaceOrTab(*cp)) {
+			while(IsASpaceOrTab(*cp)) {
 				word += *cp;
 				cp++;
 			}

@@ -81,7 +81,7 @@ int64 SLAPI SArchive::GetEntriesCount() const
 
 int FASTCALL SArchive::GetEntryName(int64 idx, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 1;
 	if(H) {
 		if(Type == tZip) {
@@ -200,7 +200,7 @@ int SLAPI SArchive::Helper_AddEntries(const SString & rRoot, const SString & rSu
 							(temp_buf = rSub).SetLastSlash().Cat(de.FileName);
 						}
 						else {
-							(temp_buf = 0).Cat(de.FileName);
+							temp_buf.Z().Cat(de.FileName);
 						}
 						SPathStruc::NormalizePath(temp_buf, SPathStruc::npfSlash, entry_name);
 						THROW(AddEntry(file_name, entry_name, flags | aefDirectory));
@@ -211,7 +211,7 @@ int SLAPI SArchive::Helper_AddEntries(const SString & rRoot, const SString & rSu
 						}
 						else {
 							(file_name = 0).Cat(de.FileName);
-							(temp_buf = 0).Cat(de.FileName);
+							temp_buf.Z().Cat(de.FileName);
 						}
 						SPathStruc::NormalizePath(temp_buf, SPathStruc::npfSlash, entry_name);
 						THROW(Helper_AddEntries(rRoot, file_name, rMask, flags)); // @recursion

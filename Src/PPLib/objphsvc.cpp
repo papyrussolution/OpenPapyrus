@@ -210,7 +210,7 @@ SLAPI PPPhoneServicePacket::PPPhoneServicePacket()
 int SLAPI PPPhoneServicePacket::GetExField(int fldId, SString & rBuf) const
 {
 	int    ok = -1;
-	rBuf = 0;
+	rBuf.Z();
 	if(oneof4(fldId, PHNSVCEXSTR_ADDR, PHNSVCEXSTR_PORT, PHNSVCEXSTR_USER, PHNSVCEXSTR_PASSWORD)) {
 		ok = PPGetExtStrData(fldId, Tail, rBuf);
 	}
@@ -235,7 +235,7 @@ int SLAPI PPPhoneServicePacket::GetPassword(SString & rBuf) const
 	GetExField(PHNSVCEXSTR_PASSWORD, temp_buf);
 	Reference::Helper_DecodeOtherPw(0, temp_buf, PHNSVC_PW_SIZE, rBuf);
 	/*
-	rBuf = 0;
+	rBuf.Z();
 	char   temp_pw[PHNSVC_PW_SIZE], temp_str[PHNSVC_PW_SIZE*3+8];
 	temp_buf.CopyTo(temp_str, sizeof(temp_str));
 	if(strlen(temp_str) == (PHNSVC_PW_SIZE*3)) {
@@ -318,7 +318,7 @@ public:
 		getCtrlString(CTL_PHNSVC_ADDR, temp_buf);
 		Data.SetExField(PHNSVCEXSTR_ADDR, temp_buf);
 		long   port = getCtrlLong(CTL_PHNSVC_PORT);
-		Data.SetExField(PHNSVCEXSTR_PORT, (temp_buf = 0).Cat(port));
+		Data.SetExField(PHNSVCEXSTR_PORT, temp_buf.Z().Cat(port));
 		getCtrlString(CTL_PHNSVC_USERNAME, temp_buf);
 		Data.SetExField(PHNSVCEXSTR_USER, temp_buf);
 		getCtrlString(CTL_PHNSVC_PASSWORD, temp_buf);
@@ -539,7 +539,7 @@ AsteriskAmiClient::AsteriskAmiStateStr AsteriskAmiClient::StateList[] = {
 int AsteriskAmiClient::GetStateText(long state, SString & rBuf)
 {
 	const long _st = (state & 0xffff);
-	rBuf = 0;
+	rBuf.Z();
 	for(uint i = 0; i < SIZEOFARRAY(AsteriskAmiClient::StateList); i++) {
 		if(AsteriskAmiClient::StateList[i].State == _st) {
 			rBuf = AsteriskAmiClient::StateList[i].P_Str;
@@ -711,7 +711,7 @@ int AsteriskAmiClient::Message::Convert(SString & rBuf) const
 {
 	int    ok = 1;
 	uint   c = 0;
-	rBuf = 0;
+	rBuf.Z();
 	SString temp_buf, tag, value;
 	for(uint p = 0; get(&p, temp_buf);) {
 		temp_buf.Divide(':', tag, value);
@@ -798,7 +798,7 @@ int AsteriskAmiClient::Message::ParseReply(const char * pReply)
 		scan.IncrLen(2);
 		if(temp_buf.Len()) {
 			if(temp_buf.Strip().Divide(':', left, right) > 0) {
-				(temp_buf = 0).Cat(left.Strip()).CatChar(':').Cat(right.Strip());
+				temp_buf.Z().Cat(left.Strip()).CatChar(':').Cat(right.Strip());
 				add(temp_buf);
 			}
 		}
@@ -852,7 +852,7 @@ int AsteriskAmiClient::ReadReply(Message & rOut)
 	THROW(S.RecvUntil(out_buf, "\xD\xA\xD\xA", &rcvd_size) > 0);
 	{
 		const char * p_reply = (const char *)out_buf.GetBuf(out_buf.GetRdOffs());
-		(temp_buf = 0).CatN(p_reply, rcvd_size);
+		temp_buf.Z().CatN(p_reply, rcvd_size);
 		Log(temp_buf);
 		rOut.ParseReply(temp_buf);
 	}
@@ -941,7 +941,7 @@ int SLAPI TestAsteriskAmiClient(PPID phnSvcID)
 				if(status_list.GetCount()) {
 					for(uint i = 0; i < status_list.GetCount(); i++) {
 						if(status_list.Get(i, cnl_status)) {
-							(temp_buf = 0).Cat(cnl_status.Channel).CatDiv(';', 2).
+							temp_buf.Z().Cat(cnl_status.Channel).CatDiv(';', 2).
 								Cat(cnl_status.State).CatDiv(';', 2).
 								Cat(cnl_status.Priority).CatDiv(';', 2).
 								Cat(cnl_status.Seconds).CatDiv(';', 2).

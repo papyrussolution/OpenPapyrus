@@ -63,7 +63,7 @@ int SLAPI PPObjTech::GenerateCode(int kind, SString & rBuf, int use_ta)
 	int    ok = 1;
 	long   c = 0;
 	PPProcessorConfig cfg;
-	rBuf = 0;
+	rBuf.Z();
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -467,7 +467,7 @@ struct CalcCapacity {
 	int    SLAPI SetNorma(double val);
 	SString & SLAPI ToText(SString & rBuf) const
 	{
-		return (rBuf = 0).Cat((long)Unit).CatDiv(';', 0).Cat((long)Flags);
+		return rBuf.Z().Cat((long)Unit).CatDiv(';', 0).Cat((long)Flags);
 	}
 	int    SLAPI FromText(const char *);
 

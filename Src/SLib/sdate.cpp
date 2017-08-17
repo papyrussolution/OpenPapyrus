@@ -210,7 +210,7 @@ static const char * SLAPI _selectVarPart(const char * word, int n, SString & rBu
 
 static SString & _getWordForm(const char * pPattern, long fmt, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	//char   temp[32];
 	//char * t = temp;
 	if(fmt & MONF_SHORT) {
@@ -234,7 +234,7 @@ static SString & _getWordForm(const char * pPattern, long fmt, SString & rBuf)
 
 SString & SLAPI SGetMonthText(int mon, long fmt, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(mon >= 1 && mon <= 12) {
 		_getWordForm(monthNames[mon-1], fmt, rBuf);
 		if(mon == 5 && fmt & MONF_SHORT) {
@@ -269,7 +269,7 @@ int SLAPI GetDayOfWeekByText(const char * pText)
 
 int SLAPI GetDayOfWeekText(int options, int dayOfWeek /* 1..7 */, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	if(dayOfWeek >= 1 && dayOfWeek <= 7 && options >= 1 && options <= 4) {
 		rBuf.GetSubFrom(P_WeekDays, ';', dayOfWeek-1);
 		rBuf.GetSubFrom(rBuf, ',', options-1);
@@ -1611,7 +1611,7 @@ int CALDATE::IsDate(LDATE dt) const
 
 SString & CALDATE::Format(int options, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    d, m, y;
 	decodedate(&d, &m, &y, this);
 	if(d >= 1 && d <= 7 && m == 0 && y == 0) { // day of week
@@ -2016,7 +2016,7 @@ int SLAPI DateRepeating::Next_(LDATE startDate, LDATE * pNextDate) const
 /*
 int SLAPI DateRepeating::Format(int fmt, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	switch(Prd) {
 		case PRD_DAY:
 			rBuf.Cat("DAYLY");
@@ -2088,7 +2088,7 @@ int SLAPI DateRepeating::LongToDtl(long v)
 
 SString & SLAPI DateRepeating::Format(int fmt, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	SString dowtxt;
 	switch(Prd) {
 		case PRD_DAY:
@@ -2226,7 +2226,7 @@ int SLAPI DateTimeRepeating::Next_(LDATETIME startDtm, LDATETIME * pNextDtm) con
 
 SString & SLAPI DateTimeRepeating::Format(int fmt, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	DateRepeating::Format(fmt, rBuf);
 	return rBuf.Cat(Time, TIMF_HMS);
 }

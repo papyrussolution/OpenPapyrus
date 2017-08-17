@@ -11,9 +11,9 @@
 //#include <stdexcept>
 //#include <vector>
 //#include <algorithm>
-#include "CaseFolder.h"
+//#include "CaseFolder.h"
 #include "CaseConvert.h"
-#include "UniConversion.h"
+//#include "UniConversion.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

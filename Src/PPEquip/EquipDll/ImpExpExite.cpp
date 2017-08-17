@@ -346,7 +346,7 @@ void LogMessage(const char * pMsg)
 	if(file.IsValid()) {
 		 getcurdate(&date);
 		 getcurtime(&time);
-		(str = 0).Cat(date.day()).Dot().Cat(date.month()).Dot().Cat(date.year()).Space().Cat(time.hour()).
+		str.Z().Cat(date.day()).Dot().Cat(date.month()).Dot().Cat(date.year()).Space().Cat(time.hour()).
 			CatChar(':').Cat(time.minut()).CatChar(':').Cat(time.sec()).Tab().Cat(pMsg).CR();
         file.WriteLine(str);
 	}
@@ -362,7 +362,7 @@ void SysLogMessage(const char * pMsg)
 	if(file.IsValid()) {
 		 getcurdate(&date);
 		 getcurtime(&time);
-		(str = 0).Cat(date.day()).Dot().Cat(date.month()).Dot().Cat(date.year()).Space().Cat(time.hour()).
+		str.Z().Cat(date.day()).Dot().Cat(date.month()).Dot().Cat(date.year()).Space().Cat(time.hour()).
 			CatChar(':').Cat(time.minut()).CatChar(':').Cat(time.sec()).Tab().Cat(pMsg).CR();
         file.WriteLine(str);
 	}
@@ -688,7 +688,7 @@ int ExportCls::OrderHeader()
 		xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_UNH);
 			SegNum++;
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E0062); // ИД сообщения
-				xmlTextWriterWriteString(P_XmlWriter, (str = 0).Cat(ObjId).ucptr());
+				xmlTextWriterWriteString(P_XmlWriter, str.Z().Cat(ObjId).ucptr());
 			xmlTextWriterEndElement(P_XmlWriter); //E0062
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_S009);
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E0065); // Тип сообщения
@@ -731,11 +731,11 @@ int ExportCls::OrderHeader()
 					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E2005_137); // Дата/время документа/сообщения
 				xmlTextWriterEndElement(P_XmlWriter); //E2005
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"E2380"); // Дата или время, или период
-					(fmt = 0).Cat(Bill.Date.month());
+					fmt.Z().Cat(Bill.Date.month());
 					if(fmt.Len() == 1)
 						fmt.PadLeft(1, '0');
-					(str = 0).Cat(Bill.Date.year()).Cat(fmt);
-					(fmt = 0).Cat(Bill.Date.day());
+					str.Z().Cat(Bill.Date.year()).Cat(fmt);
+					fmt.Z().Cat(Bill.Date.day());
 					if(fmt.Len() == 1)
 						fmt.PadLeft(1, '0');
                     str.Cat(fmt);
@@ -758,11 +758,11 @@ int ExportCls::OrderHeader()
 						date = Bill.DueDate;
 					else
 						date = Bill.Date;
-					(fmt = 0).Cat(date.month());
+					fmt.Z().Cat(date.month());
 					if(fmt.Len() == 1)
 						fmt.PadLeft(1, '0');
-					(str = 0).Cat(date.year()).Cat(fmt);
-					(fmt = 0).Cat(date.day());
+					str.Z().Cat(date.year()).Cat(fmt);
+					fmt.Z().Cat(date.day());
 					if(fmt.Len() == 1)
 						fmt.PadLeft(1, '0');
 					str.Cat(fmt);
@@ -794,8 +794,8 @@ int ExportCls::RecadvHeader()
 		xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_UNH);
 			SegNum++;
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E0062); // ИД сообщения
-				(str = 0).Cat(ObjId);
-				xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+				str.Z().Cat(ObjId);
+				xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 			xmlTextWriterEndElement(P_XmlWriter); //E0062
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_S009);
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E0065); // Тип сообщения
@@ -839,15 +839,15 @@ int ExportCls::RecadvHeader()
 					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E2005_137); // Дата/время документа/сообщения
 				xmlTextWriterEndElement(P_XmlWriter); //E2005
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"E2380"); // Дата или время, или период
-					(fmt = 0).Cat(Bill.Date.month());
+					fmt.Z().Cat(Bill.Date.month());
 					if(fmt.Len() == 1)
 						fmt.PadLeft(1, '0');
-					(str = 0).Cat(Bill.Date.year()).Cat(fmt);
-					(fmt = 0).Cat(Bill.Date.day());
+					str.Z().Cat(Bill.Date.year()).Cat(fmt);
+					fmt.Z().Cat(Bill.Date.day());
 					if(fmt.Len() == 1)
 						fmt.PadLeft(1, '0');
                     str.Cat(fmt);
-					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+					xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 				xmlTextWriterEndElement(P_XmlWriter); //E2380
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"E2379"); // Формат даты/времени
 					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E2379_102); // CCYYMMDD
@@ -861,15 +861,15 @@ int ExportCls::RecadvHeader()
 					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E2005_50); // Дата/время приемки
 				xmlTextWriterEndElement(P_XmlWriter); //E2005
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"E2380"); // Дата или время, или период
-					(fmt = 0).Cat(Bill.Date.month());
+					fmt.Z().Cat(Bill.Date.month());
 					if(fmt.Len() == 1)
 						fmt.PadLeft(1, '0');
-					(str = 0).Cat(Bill.Date.year()).Cat(fmt);
-					(fmt = 0).Cat(Bill.Date.day());
+					str.Z().Cat(Bill.Date.year()).Cat(fmt);
+					fmt.Z().Cat(Bill.Date.day());
 					if(fmt.Len() == 1)
 						fmt.PadLeft(1, '0');
                     str.Cat(fmt);
-					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+					xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 				xmlTextWriterEndElement(P_XmlWriter); //E2380
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"E2379"); // Формат даты/времени
 					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E2379_102); // CCYYMMDD
@@ -974,10 +974,10 @@ int ExportCls::DocPartiesAndCurrency()
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_C082); // Детали стороны
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E3039); // GLN стороны
 						if(!isempty(Bill.DlvrAddrCode))
-							(str = 0).Cat(Bill.DlvrAddrCode);
+							str.Z().Cat(Bill.DlvrAddrCode);
 						else
-							(str = 0).Cat(Bill.LocCode);
-						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+							str.Z().Cat(Bill.LocCode);
+						xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 					xmlTextWriterEndElement(P_XmlWriter); //E3039
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E3055); // Код ведущей организации
 						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E3055_9); // EAN (Международная ассоциация товарной нумерации)
@@ -1061,13 +1061,13 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_LIN);
 				SegNum++;
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E1082); // Номер товарной строки
-					(str = 0).Cat(Itr.GetCount() + 1);
-					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+					str.Z().Cat(Itr.GetCount() + 1);
+					xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 				xmlTextWriterEndElement(P_XmlWriter); //E1082
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_C212); // Номерной идентификатор товара
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E7140); // Штрих-код товара
-						(str = 0).Cat(pBRow->Barcode);
-						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+						str.Z().Cat(pBRow->Barcode);
+						xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 					xmlTextWriterEndElement(P_XmlWriter); //E7140
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E7143); // Тип штрихкода
 						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E7143_SRV); // EAN.UCC
@@ -1083,7 +1083,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_C212);
 						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E7140); // Артикул
 							(str = pBRow->ArCode).ToChar().ToUtf8();
-							xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); //E7140
 						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E7143); // Идентификатор типа артикула
 							xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E7143_SA); // Идентификатор артикула поставщика
@@ -1105,8 +1105,8 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 							{
 								SString str1;
 								(str1 = 0).Cat(pBRow->GoodsName).ToUtf8(); // Провайдер потребовал эту кодировку
-								(str = 0).Cat("<![CDATA[").Cat(str1).Cat("]]>"); // Делаем конструкцию <![CDATA[какая-то строка]]>, ибо благодаря этому спец символы воспринимаются системой как обычные
-								xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str); // Наименование товара
+								str.Z().Cat("<![CDATA[").Cat(str1).Cat("]]>"); // Делаем конструкцию <![CDATA[какая-то строка]]>, ибо благодаря этому спец символы воспринимаются системой как обычные
+								xmlTextWriterWriteString(P_XmlWriter, str.ucptr()); // Наименование товара
 							}
 							xmlTextWriterEndElement(P_XmlWriter); //E7008
 						xmlTextWriterEndElement(P_XmlWriter); //C273
@@ -1123,8 +1123,8 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 							xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E6063_194); // Принятое количество товара
 					xmlTextWriterEndElement(P_XmlWriter); //E6063
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E6060); // Количество
-						(str = 0).Cat(pBRow->Quantity);
-						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+						str.Z().Cat(pBRow->Quantity);
+						xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 					xmlTextWriterEndElement(P_XmlWriter); //E6060
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E6411); // Единицы измерения
 						(str = pBRow->UnitName).ToOem().ToUpper().ToChar();
@@ -1143,8 +1143,8 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E5025_128); //	Идентификатор суммы товарной позиции с НДС
 					xmlTextWriterEndElement(P_XmlWriter); //E5025
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E5004); // Сумма
-						(str = 0).Cat(pBRow->Cost * pBRow->Quantity);
-						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+						str.Z().Cat(pBRow->Cost * pBRow->Quantity);
+						xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 					xmlTextWriterEndElement(P_XmlWriter); //E5004
 				xmlTextWriterEndElement(P_XmlWriter); //C516
 			xmlTextWriterEndElement(P_XmlWriter); //MOA
@@ -1155,10 +1155,10 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E5025_203); //	Идентификатор суммы товарной позиции без НДС
 					xmlTextWriterEndElement(P_XmlWriter); //E5025
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E5004); // Сумма
-						//(str = 0).Cat((pBRow->Cost - (pBRow->Cost / (pBRow->VatRate + 100) * 100)) * pBRow->Quantity);
-						(str = 0).Cat((pBRow->Cost / (pBRow->VatRate + 100) * 100) * pBRow->Quantity);
+						//str.Z().Cat((pBRow->Cost - (pBRow->Cost / (pBRow->VatRate + 100) * 100)) * pBRow->Quantity);
+						str.Z().Cat((pBRow->Cost / (pBRow->VatRate + 100) * 100) * pBRow->Quantity);
 						BillSumWithoutVat += str.ToReal();
-						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+						xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 					xmlTextWriterEndElement(P_XmlWriter); //E5004
 				xmlTextWriterEndElement(P_XmlWriter); //C516
 			xmlTextWriterEndElement(P_XmlWriter); //MOA
@@ -1173,8 +1173,8 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 							xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E5125_AAE); // Цена без сборов и надбавок, но с налогом
 						xmlTextWriterEndElement(P_XmlWriter); //E5125
 						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E5118); // Цена
-							(str = 0).Cat(pBRow->Cost);
-							xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+							str.Z().Cat(pBRow->Cost);
+							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); //E5118
 					xmlTextWriterEndElement(P_XmlWriter); //C509
 				xmlTextWriterEndElement(P_XmlWriter); //PRI
@@ -1191,9 +1191,9 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 							xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E5125_AAA); // Чистая цена без налогов
 						xmlTextWriterEndElement(P_XmlWriter); //E5125
 						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E5118); // Цена
-							//(str = 0).Cat(pBRow->Cost - (pBRow->Cost / (pBRow->VatRate + 100) * 100));
-							(str = 0).Cat(pBRow->Cost / (pBRow->VatRate + 100) * 100);
-							xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+							//str.Z().Cat(pBRow->Cost - (pBRow->Cost / (pBRow->VatRate + 100) * 100));
+							str.Z().Cat(pBRow->Cost / (pBRow->VatRate + 100) * 100);
+							xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 						xmlTextWriterEndElement(P_XmlWriter); //E5118
 					xmlTextWriterEndElement(P_XmlWriter); //C509
 				xmlTextWriterEndElement(P_XmlWriter); //PRI
@@ -1212,8 +1212,8 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 								xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E1153_ABT); // Тип поля - ГТД
 							xmlTextWriterEndElement(P_XmlWriter); //E1153
 							xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E1154);
-								(str = 0).Cat(pBRow->CLB);
-								xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str); // ГТД
+								str.Z().Cat(pBRow->CLB);
+								xmlTextWriterWriteString(P_XmlWriter, str.ucptr()); // ГТД
 							xmlTextWriterEndElement(P_XmlWriter); //E1154
 						xmlTextWriterEndElement(P_XmlWriter); //C506
 					xmlTextWriterEndElement(P_XmlWriter); //RFF
@@ -1234,8 +1234,8 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 					xmlTextWriterEndElement(P_XmlWriter); //C241
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_C243);
 						xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E5278);
-							(str = 0).Cat(pBRow->VatRate);
-							xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str); // Ставка НДС
+							str.Z().Cat(pBRow->VatRate);
+							xmlTextWriterWriteString(P_XmlWriter, str.ucptr()); // Ставка НДС
 						xmlTextWriterEndElement(P_XmlWriter); //E5278
 					xmlTextWriterEndElement(P_XmlWriter); //C243
 				xmlTextWriterEndElement(P_XmlWriter); //TAX
@@ -1277,8 +1277,8 @@ int ExportCls::EndDoc()
 						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E5025_9); // Сумма документа с НДС
 					xmlTextWriterEndElement(P_XmlWriter); //E5025
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E5004); // Сумма
-						(str = 0).Cat(Bill.Amount);
-						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+						str.Z().Cat(Bill.Amount);
+						xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 					xmlTextWriterEndElement(P_XmlWriter); //E5004
 				xmlTextWriterEndElement(P_XmlWriter); //С516
 			xmlTextWriterEndElement(P_XmlWriter); //MOA
@@ -1289,8 +1289,8 @@ int ExportCls::EndDoc()
 						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E5025_98); // Сумма документа без НДС
 					xmlTextWriterEndElement(P_XmlWriter); //E5025
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E5004); // Сумма
-						(str = 0).Cat(BillSumWithoutVat);
-						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+						str.Z().Cat(BillSumWithoutVat);
+						xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 					xmlTextWriterEndElement(P_XmlWriter); //E5004
 				xmlTextWriterEndElement(P_XmlWriter); //С516
 			xmlTextWriterEndElement(P_XmlWriter); //MOA
@@ -1302,20 +1302,20 @@ int ExportCls::EndDoc()
 					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E6069_2); // Количество товарных позиций в документе
 				xmlTextWriterEndElement(P_XmlWriter); //E6069
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E6066); // Значение
-					(str = 0).Cat(Itr.GetCount());
-					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+					str.Z().Cat(Itr.GetCount());
+					xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 				xmlTextWriterEndElement(P_XmlWriter); //E6066
 			xmlTextWriterEndElement(P_XmlWriter); //C270
 		xmlTextWriterEndElement(P_XmlWriter); //CNT
 		xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_UNT); // Окончание сообщения
 			SegNum++;
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E0074); // Общее число сегментов в сообщении
-				(str = 0).Cat(SegNum);
-				xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+				str.Z().Cat(SegNum);
+				xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 			xmlTextWriterEndElement(P_XmlWriter); //E0074
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E0062); // Номер электронного сообщения (совпадает с указанным в заголовке)
-				(str = 0).Cat(ObjId);
-				xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)(const char *)str);
+				str.Z().Cat(ObjId);
+				xmlTextWriterWriteString(P_XmlWriter, str.ucptr());
 			xmlTextWriterEndElement(P_XmlWriter); //E0062
 		xmlTextWriterEndElement(P_XmlWriter); //UNT
 	xmlTextWriterEndElement(P_XmlWriter); //ORDERS/RECADV
@@ -1416,7 +1416,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 	THROWERR(P_ExportCls, IEERR_IMPEXPCLSNOTINTD);
 	CATCH
 		SysLogMessage(SYSLOG_INITEXPORT);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;
@@ -1446,7 +1446,7 @@ EXPORT int SetExportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 		// Отправляем файл, сформированный в прошлый раз. Имя файла и номер документа еще не успели принять новые значения
 		if(!P_ExportCls->SendDoc()) {
 			SysLogMessage(SYSLOG_SETEXPORTOBJ);
-			GetErrorMsg(str = 0);
+			GetErrorMsg(str.Z());
 			SysLogMessage(str);
 			LogMessage(str);
 			ok = 0;
@@ -1469,7 +1469,7 @@ EXPORT int SetExportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 
 	CATCH
 		SysLogMessage(SYSLOG_SETEXPORTOBJ);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;
@@ -1489,7 +1489,7 @@ EXPORT int InitExportObjIter(uint idSess, uint objId)
 
 	CATCH
 		SysLogMessage(SYSLOG_INITEXPORTOBJITER);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;
@@ -1509,7 +1509,7 @@ EXPORT int NextExportObjIter(uint idSess, uint objId, void * pRow)
 	P_ExportCls->Itr.Next();
 	CATCH
 		SysLogMessage(SYSLOG_NEXTEXPORTOBJITER);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;
@@ -1531,7 +1531,7 @@ EXPORT int EnumExpReceipt(void * pReceipt)
 			// Делаем без THROW, чтобы у отправленных документов проставились тэги, но ошибку запомним
 			if(!P_ExportCls->SendDoc()) {
 				SysLogMessage(SYSLOG_ENUMEXPRECEIPT);
-				GetErrorMsg(str = 0);
+				GetErrorMsg(str.Z());
 				SysLogMessage(str);
 				LogMessage(str);
 				ok = 0;
@@ -1545,7 +1545,7 @@ EXPORT int EnumExpReceipt(void * pReceipt)
 	}
 	CATCH
 		SysLogMessage(SYSLOG_ENUMEXPRECEIPT);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;
@@ -2328,7 +2328,7 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 
 	CATCH
 		SysLogMessage(SYSLOG_INITIMPORT);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok =0;
@@ -2376,7 +2376,7 @@ EXPORT int GetImportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 	}
 	CATCH
 		SysLogMessage(SYSLOG_GETIMPORTOBJ);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		LogMessage(str);
 		SysLogMessage(str);
 		ok = 0;
@@ -2396,7 +2396,7 @@ EXPORT int InitImportObjIter(uint idSess, uint objId)
 
 	CATCH
 		SysLogMessage(SYSLOG_INITIMPORTOBJITER);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		LogMessage(str);
 		SysLogMessage(str);
 		ok = 0;
@@ -2426,7 +2426,7 @@ EXPORT int NextImportObjIter(uint idSess, uint objId, void * pRow)
 
 	CATCH
 		SysLogMessage(SYSLOG_NEXTIMPORTOBJITER);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		LogMessage(str);
 		SysLogMessage(str);
 		ok = 0;
@@ -2445,7 +2445,7 @@ EXPORT int ReplyImportObjStatus(uint idSess, uint objId, void * pObjStatus)
 		if(P_ImportCls) {
 			if(P_ImportCls->MessageType == msgAperak) {
 				// Что-нибудь делаем с этим статусом
-				(str = 0).Cat(P_ImportCls->AperakInfo.OrderNum.ToChar()).CatChar(':').Space().Cat(P_ImportCls->AperakInfo.Msg.Utf8ToChar());
+				str.Z().Cat(P_ImportCls->AperakInfo.OrderNum.ToChar()).CatChar(':').Space().Cat(P_ImportCls->AperakInfo.Msg.Utf8ToChar());
 				if(P_ImportCls->AperakInfo.AddedMsg.NotEmpty())
 					str.CatChar(':').Space().Cat(P_ImportCls->AperakInfo.AddedMsg.Utf8ToChar());
 				LogMessage(str);
@@ -2493,7 +2493,7 @@ EXPORT int ReplyImportObjStatus(uint idSess, uint objId, void * pObjStatus)
 	}
 	if(!r) {
 		SysLogMessage(SYSLOG_REPLYIMPORTOBJSTATUS);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		LogMessage(str);
 		SysLogMessage(str);
 	}
@@ -2528,7 +2528,7 @@ EXPORT int FinishImpExp()
 	}
 	CATCH
 		SysLogMessage(SYSLOG_FINISHIMPEXP);
-		GetErrorMsg(str = 0);
+		GetErrorMsg(str.Z());
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;
@@ -2541,7 +2541,7 @@ EXPORT int FinishImpExp()
 EXPORT int GetErrorMessage(char * pMsg, uint bufLen)
 {
 	SString str = "";
-	GetErrorMsg(str = 0);
+	GetErrorMsg(str.Z());
 	memzero(pMsg, bufLen);
 	if(str.NotEmpty() && pMsg)
 		str.CopyTo(pMsg, bufLen < (str.Len() + 1) ? bufLen : (str.Len() + 1));

@@ -27,7 +27,6 @@ struct MarkerHandleNumber {
  */
 class MarkerHandleSet {
 	MarkerHandleNumber *root;
-
 public:
 	MarkerHandleSet();
 	~MarkerHandleSet();
@@ -41,11 +40,12 @@ public:
 };
 
 class LineMarkers : public PerLine {
-	SplitVector<MarkerHandleSet *> markers;
+	SplitVector <MarkerHandleSet *> markers;
 	/// Handles are allocated sequentially and should never have to be reused as 32 bit ints are very big.
 	int handleCurrent;
 public:
-	LineMarkers() : handleCurrent(0) {
+	LineMarkers() : handleCurrent(0) 
+	{
 	}
 	virtual ~LineMarkers();
 	virtual void Init();
@@ -91,9 +91,10 @@ public:
 };
 
 class LineAnnotation : public PerLine {
-	SplitVector<char *> annotations;
+	SplitVector <char *> annotations;
 public:
-	LineAnnotation() {
+	LineAnnotation() 
+	{
 	}
 	virtual ~LineAnnotation();
 	virtual void Init();

@@ -18,8 +18,7 @@ static void __LogDebugMessage(ObjTransmContext * pCtx, const char * pMsg)
 SLAPI ILTI::ILTI(const PPTransferItem * pTI)
 {
 	THISZERO();
-	if(pTI)
-		Init__(pTI);
+	Init(pTI);
 }
 
 int SLAPI ILTI::HasDeficit() const
@@ -50,43 +49,45 @@ int SLAPI ILTI::SetQtty(double qtty, double wtQtty, long flags)
 	return 1;
 }
 
-void FASTCALL ILTI::Init__(const PPTransferItem * ti)
+void FASTCALL ILTI::Init(const PPTransferItem * pTi)
 {
-	const double qtty = ti->Qtty();
-	BillID      = 0;
-	GoodsID     = ti->GoodsID;
-	//
-	// При необходимости поля LotSyncID и LotMirrID должны инициализироваться после вызова ILTI::Init
-	//
-	LotSyncID   = 0;
-	LotMirrID   = 0;
-	//
-	UnitPerPack = ti->UnitPerPack;
-	double nq   = R6(Quantity + qtty);
-	if(nq > 0.0) {
-		Cost = (Cost * Quantity + ti->Cost * qtty) / nq;
-		const double mp = Price * Quantity;
-		Price = (((ti->Flags & PPTFR_REVAL) ? ti->Price : ti->NetPrice()) * qtty + mp) / nq;
+	if(pTi) {
+		const double qtty = pTi->Qtty();
+		BillID      = 0;
+		GoodsID     = pTi->GoodsID;
+		//
+		// При необходимости поля LotSyncID и LotMirrID должны инициализироваться после вызова ILTI::Init
+		//
+		LotSyncID   = 0;
+		LotMirrID   = 0;
+		//
+		UnitPerPack = pTi->UnitPerPack;
+		double nq   = R6(Quantity + qtty);
+		if(nq > 0.0) {
+			Cost = (Cost * Quantity + pTi->Cost * qtty) / nq;
+			const double mp = Price * Quantity;
+			Price = (((pTi->Flags & PPTFR_REVAL) ? pTi->Price : pTi->NetPrice()) * qtty + mp) / nq;
+		}
+		else {
+			Cost = pTi->Cost;
+			Price = (pTi->Flags & PPTFR_REVAL) ? pTi->Price : pTi->NetPrice();
+		}
+		CurPrice   = pTi->CurPrice;
+		if(pTi->Flags & PPTFR_ORDER) {
+			QuotPrice = pTi->Price; // @v9.2.9 Для заказа в QuotPrice кладем базовую цену дабы на принимающей стороне вычленить скидку
+		}
+		else
+			QuotPrice  = pTi->QuotPrice;
+		Quantity  += qtty;
+   		Rest      += qtty;
+		Flags      = pTi->Flags;
+		Suppl      = pTi->Suppl;
+		QCert      = pTi->QCert;
+		Expiry     = pTi->Expiry;
+		InTaxGrpID = pTi->LotTaxGrpID;
+		RByBill    = pTi->RByBill; // @v8.0.3
+		memzero(Reserve, sizeof(Reserve)); // @v8.0.3
 	}
-	else {
-		Cost = ti->Cost;
-		Price = (ti->Flags & PPTFR_REVAL) ? ti->Price : ti->NetPrice();
-	}
-	CurPrice   = ti->CurPrice;
-	if(ti->Flags & PPTFR_ORDER) {
-		QuotPrice = ti->Price; // @v9.2.9 Для заказа в QuotPrice кладем базовую цену дабы на принимающей стороне вычленить скидку
-	}
-	else
-		QuotPrice  = ti->QuotPrice;
-	Quantity  += qtty;
-   	Rest      += qtty;
-	Flags      = ti->Flags;
-	Suppl      = ti->Suppl;
-	QCert      = ti->QCert;
-	Expiry     = ti->Expiry;
-	InTaxGrpID = ti->LotTaxGrpID;
-	RByBill    = ti->RByBill; // @v8.0.3
-	memzero(Reserve, sizeof(Reserve)); // @v8.0.3
 }
 //
 //
@@ -914,7 +915,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 			else {
 				if(flags & CILTIF_SYNC) {
 					if(flags & CILTIF_REPFULLSYNCPROBLEM) {
-						(temp_buf = 0).CatEq("deficit", qtty, MKSFMTD(0, 8, NMBF_NOTRAILZ));
+						temp_buf.Z().CatEq("deficit", qtty, MKSFMTD(0, 8, NMBF_NOTRAILZ));
 						_MakeNSyncMsg(ilti, msg_buf, temp_buf);
 						PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 					}
@@ -1347,7 +1348,7 @@ int SLAPI ILBillPacket::Load(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 					if((op_type_id == PPOPT_GOODSRECEIPT && cvt_op_typeid == PPOPT_GOODSEXPEND) || (op_type_id == PPOPT_GOODSEXPEND && cvt_op_typeid == PPOPT_GOODSRECEIPT))
 						ti.Init(&Rec, 0, 1);
 				}
-				ilti.Init__(&ti);
+				ilti.Init(&ti);
 				if(CConfig.Flags2 & CCFLG2_SYNCLOT && !cvt_to_opid) {
 					TransferTbl::Rec mirr_rec;
 					ilti.LotSyncID = ti.LotID;
@@ -1406,7 +1407,7 @@ static SString & __Debug_TraceLotSync(const ILBillPacket & rIPack, const PPBillP
 {
 	ILTI * p_ilti = 0;
 	LongArray pos_list;
-	(rBuf = 0).CatChar('{').Cat(rIPack.Rec.ID).CatChar('/');
+	rBuf.Z().CatChar('{').Cat(rIPack.Rec.ID).CatChar('/');
 	rBuf.Cat(pPack ? pPack->Rec.ID : (long)-1);
 	for(uint i = 0; rIPack.Lots.enumItems(&i, (void**)&p_ilti);) {
 		pos_list.clear();
@@ -1723,7 +1724,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 						r_ti.SrcIltiPos = i; // Сохраним соответствие номера строки в this со строками в rPack
 						/* @debug
 						{
-							(msg_buf = 0).CatEq("r_ti.SrcIltiPos", (long)r_ti.SrcIltiPos);
+							msg_buf.Z().CatEq("r_ti.SrcIltiPos", (long)r_ti.SrcIltiPos);
 							__LogDebugMessage(pCtx, msg_buf);
 						}
 						*/
@@ -2216,9 +2217,9 @@ int SLAPI BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 			for(uint i = 0; i < LocPeriodList.getCount(); i++) {
 				ss.clear(0);
 				const BillTransmDeficit::LocPeriod & r_item = LocPeriodList.at(i);
-				GetLocationName(r_item.LocID, temp_buf = 0);
+				GetLocationName(r_item.LocID, temp_buf.Z());
 				ss.add(temp_buf);
-				(temp_buf = 0).Cat(r_item.P.low, DATF_DMY);
+				temp_buf.Z().Cat(r_item.P.low, DATF_DMY);
 				ss.add(temp_buf);
 				THROW(addStringToList(i+1, ss.getBuf()));
 			}
@@ -2499,7 +2500,7 @@ int SLAPI PPObjBill::AcceptLotSync(const PPBillPacket & rBp, const ILBillPacket 
 			else {
 				// @debug {
 				SString msg_buf;
-				(msg_buf = 0).CatEq("r_ti.SrcIltiPos", (long)r_ti.SrcIltiPos).Space().Cat("out of packet.TI");
+				msg_buf.Z().CatEq("r_ti.SrcIltiPos", (long)r_ti.SrcIltiPos).Space().Cat("out of packet.TI");
 				__LogDebugMessage(pCtx, msg_buf); // !!!!!!!!!!!!!!
 				// } @debug
 			}

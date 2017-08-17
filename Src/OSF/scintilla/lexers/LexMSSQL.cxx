@@ -37,7 +37,7 @@ static char classifyWordSQL(Sci_PositionU start,
     uint prevState)
 {
 	char s[256];
-	bool wordIsNumber = isdigit(styler[start]) || (styler[start] == '.');
+	bool wordIsNumber = isdec(styler[start]) || (styler[start] == '.');
 
 	WordList &kwStatements          = *keywordlists[KW_MSSQL_STATEMENTS];
 	WordList &kwDataTypes           = *keywordlists[KW_MSSQL_DATA_TYPES];

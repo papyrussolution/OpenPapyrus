@@ -130,7 +130,7 @@ static void ColouriseCsoundDoc(Sci_PositionU startPos, Sci_Position length, int 
 			if(sc.ch == ';') {
 				sc.SetState(SCE_CSOUND_COMMENT);
 			}
-			else if(isdigit(sc.ch) || (sc.ch == '.' && isdigit(sc.chNext))) {
+			else if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_CSOUND_NUMBER);
 			}
 			else if(IsAWordStart(sc.ch)) {

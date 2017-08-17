@@ -136,39 +136,32 @@ inline bool HandleCommentLine(Sci_PositionU & cur, Sci_PositionU one_too_much, A
 			styler.ColourTo(cur - 1, SCE_OPAL_DEFAULT);
 			return false; // STOP
 		}
-
 		ch = styler.SafeGetCharAt(cur);
 		if(ch != '-') {
 			styler.ColourTo(cur - 1, SCE_OPAL_DEFAULT);
 			styler.StartSegment(cur);
 			return true;
 		}
-
 		cur++;
 		if(cur >= one_too_much) {
 			styler.ColourTo(cur - 1, SCE_OPAL_DEFAULT);
 			return false; // STOP
 		}
-
 		ch = styler.SafeGetCharAt(cur);
-		if( ( ch != ' ' ) && ( ch != '\t' ) ) {
+		if(!oneof2(ch, ' ', '\t')) {
 			styler.ColourTo(cur - 1, SCE_OPAL_DEFAULT);
 			styler.StartSegment(cur);
 			return true;
 		}
 	}
-
 	// Wait for end of line
 	bool fifteen_found = false;
-
 	for(;; ) {
 		cur++;
-
 		if(cur >= one_too_much) {
 			styler.ColourTo(cur - 1, SCE_OPAL_COMMENT_LINE);
 			return false; // STOP
 		}
-
 		ch = styler.SafeGetCharAt(cur);
 		if(fifteen_found) {
 /*
@@ -249,7 +242,7 @@ inline bool HandleInteger(Sci_PositionU & cur, Sci_PositionU one_too_much, Acces
 			return false; // STOP
 		}
 		ch = styler.SafeGetCharAt(cur);
-		if(!( IsASCII(ch) && isdigit(ch) ) ) {
+		if(!( IsASCII(ch) && isdec(ch) ) ) {
 			styler.ColourTo(cur - 1, SCE_OPAL_INTEGER);
 			styler.StartSegment(cur);
 			return true;
@@ -266,7 +259,7 @@ inline bool HandleWord(Sci_PositionU & cur, Sci_PositionU one_too_much, Accessor
 	for(;; ) {
 		ch = styler.SafeGetCharAt(cur);
 		if( ( ch != '_' ) && ( ch != '-' ) &&
-		    !( IsASCII(ch) && ( islower(ch) || isupper(ch) || isdigit(ch) ) ) ) break;
+		    !( IsASCII(ch) && ( islower(ch) || isupper(ch) || isdec(ch) ) ) ) break;
 
 		cur++;
 		if(cur >= one_too_much) {
@@ -421,7 +414,7 @@ static void ColouriseOpalDoc(Sci_PositionU startPos, Sci_Position length, int in
 				    default:
 				{
 					// Integer
-					if(IsASCII(ch) && isdigit(ch) ) {
+					if(IsASCII(ch) && isdec(ch) ) {
 						if(!HandleInteger(cur, one_too_much, styler) ) return;
 					}
 

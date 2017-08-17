@@ -279,8 +279,7 @@ static int RecogniseErrorListLine(const char * lineBuffer, Sci_PositionU lengthL
 				}
 			}
 			else if(state == stCtagsFile) {
-				if((lineBuffer[i - 1] == '\t') &&
-				    ((ch == '/' && chNext == '^') || Is0To9(ch))) {
+				if((lineBuffer[i - 1] == '\t') && ((ch == '/' && chNext == '^') || Is0To9(ch))) {
 					state = stCtags;
 					break;
 				}

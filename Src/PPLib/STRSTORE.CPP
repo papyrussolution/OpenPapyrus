@@ -30,7 +30,7 @@ StringStore2::LangStrCollItem::~LangStrCollItem()
 
 int StringStore2::LangStrCollItem::Get(long ident, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 0;
 	if(P_PositionHash) {
 		long   tpos = 0;
@@ -219,7 +219,7 @@ int SLAPI StringStore2::CreateHash(int doTest)
 int SLAPI StringStore2::Helper_GetDescription(long ident, SString & rBuf) // @noncost
 {
 	int    ok = -1;
-	rBuf = 0;
+	rBuf.Z();
 	const  int lang = SLS.GetUiLanguageId();
 	const  LangStrCollItem * p_item = GetList(lang);
 	long   offs = 0;
@@ -333,7 +333,7 @@ int SLAPI StringStore2::GetDescription(int group, int code, SString & rBuf) // @
 
 int SLAPI StringStore2::GetDescription(const char * pSignature, SString & rBuf) // @nonconst
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 0;
 	uint   pos = 0;
 	if(P_SignatureHash) {
@@ -377,7 +377,7 @@ int SLAPI StringStore2::ExpandString(SString & rBuf, int ctransf /*CTRANSF_XXX*/
 
 int SLAPI StringStore2::Helper_GetString(long ident, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 0;
 	const  int lang = SLS.GetUiLanguageId();
 	const  LangStrCollItem * p_item = GetList(lang);
@@ -400,7 +400,7 @@ int SLAPI StringStore2::GetString(int group, int code, SString & rBuf) const
 
 int SLAPI StringStore2::GetString(const char * pSignature, SString & rBuf) const
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 0;
 	uint   pos = 0;
 	if(P_SignatureHash) {
@@ -556,8 +556,8 @@ int SLAPI StringStore2::StoreState(const char * pFileName)
 	SString temp_buf;
     SIniFile ini_file(pFileName, 1, 1, 1);
     THROW(ini_file.IsValid());
-    ini_file.AppendParam("common", "LastAutoGrpCode",   (temp_buf = 0).Cat(P_Pb->LastAutoGrpCode), 1);
-    ini_file.AppendParam("common", "LastSignatureCode", (temp_buf = 0).Cat(P_Pb->LastSignatureCode), 1);
+    ini_file.AppendParam("common", "LastAutoGrpCode",   temp_buf.Z().Cat(P_Pb->LastAutoGrpCode), 1);
+    ini_file.AppendParam("common", "LastSignatureCode", temp_buf.Z().Cat(P_Pb->LastSignatureCode), 1);
     //
     temp_buf = 0;
     for(i = 0; i < P_Pb->LastAutoCodeList.getCount(); i++) {
@@ -570,17 +570,17 @@ int SLAPI StringStore2::StoreState(const char * pFileName)
 	//
 	for(i = 0; i < SignatureList.getCount(); i++) {
 		StrAssocArray::Item item = SignatureList.at(i);
-		ini_file.AppendParam("SignatureList", item.Txt, (temp_buf = 0).Cat((uint32)item.Id), 1);
+		ini_file.AppendParam("SignatureList", item.Txt, temp_buf.Z().Cat((uint32)item.Id), 1);
 	}
 	//
 	for(i = 0; i < /*P_Pb->*/GrpSymbList.getCount(); i++) {
 		StrAssocArray::Item item = /*P_Pb->*/GrpSymbList.at(i);
-		ini_file.AppendParam("GrpSymbList", item.Txt, (temp_buf = 0).Cat((uint32)item.Id), 1);
+		ini_file.AppendParam("GrpSymbList", item.Txt, temp_buf.Z().Cat((uint32)item.Id), 1);
 	}
 	//
 	for(i = 0; i < P_Pb->StrSymbList.getCount(); i++) {
 		StrAssocArray::Item item = P_Pb->StrSymbList.at(i);
-		ini_file.AppendParam("StrSymbList", item.Txt, (temp_buf = 0).Cat((uint32)item.Id), 1);
+		ini_file.AppendParam("StrSymbList", item.Txt, temp_buf.Z().Cat((uint32)item.Id), 1);
 	}
 	//
 	THROW(ini_file.FlashIniBuf());
@@ -596,14 +596,14 @@ int SLAPI StringStore2::RestoreState(const char * pFileName)
         StringSet ss;
         SIniFile ini_file(pFileName, 0, 1, 1);
 		THROW(ini_file.IsValid());
-		ini_file.GetParam("common", "LastAutoGrpCode", temp_buf = 0);
+		ini_file.GetParam("common", "LastAutoGrpCode", temp_buf.Z());
 		P_Pb->LastAutoGrpCode = temp_buf.ToLong();
-		ini_file.GetParam("common", "LastSignatureCode", temp_buf = 0);
+		ini_file.GetParam("common", "LastSignatureCode", temp_buf.Z());
 		P_Pb->LastSignatureCode = temp_buf.ToULong();
 		//
 		{
 			P_Pb->LastAutoCodeList.clear();
-			ini_file.GetParam("common", "LastAutoCodeList", temp_buf = 0);
+			ini_file.GetParam("common", "LastAutoCodeList", temp_buf.Z());
 			StringSet ss(';', temp_buf);
 			for(uint ssp = 0; ss.get(&ssp, item_buf);) {
 				if(item_buf.Divide(',', key_buf, val_buf) > 0) {
@@ -857,7 +857,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 							org_text.ReplaceStr("\\n\\003", " ", 0);
 							org_text.ReplaceStr("\003", "", 0);
 							org_text.ReplaceStr("\n", " ", 0);
-                            (temp_buf = 0).Cat("\t//#org").Space().Cat(org_text).CR();
+                            temp_buf.Z().Cat("\t//#org").Space().Cat(org_text).CR();
                             f_at.WriteLine(temp_buf);
                             //
                             temp_buf = 0;
@@ -1401,7 +1401,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 						rScan.Incr();
 						while((c = rScan[0]) != 0) {
 							if(!oneof5(c, ' ', '\t', '/', '=', '\"')) {
-								THROW_V((c >= 'A' && c <= 'Z') || isdigit(c) || c == '_', sc2eStxStrSymbChr);
+								THROW_V((c >= 'A' && c <= 'Z') || isdec(c) || c == '_', sc2eStxStrSymbChr);
 									// @str Символ строки должен содержать либо прописные латинские буквы либо цифры либо '_'
 								temp_buf.CatChar(c);
 								rScan.Incr();
@@ -1548,7 +1548,7 @@ int SLAPI StringStore2::GenerateRcFile(const char * pFileName, const char * pSrc
 				if(grp != last_grp) {
 					gen.Wr_Comment(0);
 					if(/*P_Pb->*/GrpSymbList.Get(grp, temp_buf) <= 0)
-						(temp_buf = 0).Cat(grp);
+						temp_buf.Z().Cat(grp);
 					gen.Wr_Comment(temp_buf);
 					gen.Wr_Comment(0);
 				}
@@ -1593,7 +1593,7 @@ int SLAPI StringStore2::GenerateHeaderFile(const char * pFileName, const char * 
 	for(i = 0; i < /*P_Pb->*/GrpSymbList.getCount(); i++) {
 		StrAssocArray::Item item = /*P_Pb->*/GrpSymbList.at(i);
 		if(strcmp(item.Txt, P_StrSt_EmptyCodeSymb) != 0)
-			gen.Wr_Define(item.Txt, (temp_buf = 0).Cat(item.Id));
+			gen.Wr_Define(item.Txt, temp_buf.Z().Cat(item.Id));
 	}
 	for(i = 0; i < P_Pb->StrSymbList.getCount(); i++) {
 		StrAssocArray::Item item = P_Pb->StrSymbList.at(i);
@@ -1603,7 +1603,7 @@ int SLAPI StringStore2::GenerateHeaderFile(const char * pFileName, const char * 
 			if(grp != last_grp) {
 				gen.Wr_Comment(0);
 				if(/*P_Pb->*/GrpSymbList.Get(grp, temp_buf) <= 0)
-					(temp_buf = 0).Cat(grp);
+					temp_buf.Z().Cat(grp);
 				gen.Wr_Comment(temp_buf);
 				gen.Wr_Comment(0);
 			}

@@ -594,7 +594,7 @@ int SLAPI PPCommandFolder::GetMenuList(const PPCommandGroup * pGrp, StrAssocArra
 		p_grp = pGrp;
 	else {
 		THROW(p_mgr = GetCommandMngr(1, isDesktop));
-		THROW(p_mgr->Load(&grp));
+		THROW(p_mgr->Load__(&grp));
 		p_grp = &grp;
 		ZDELETE(p_mgr);
 	}
@@ -1096,7 +1096,7 @@ int SLAPI PPCommandMngr::IsValid_() const
 	return F.IsValid() ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI PPCommandMngr::Save_(const PPCommandGroup * pCmdGrp)
+int SLAPI PPCommandMngr::Save__(const PPCommandGroup * pCmdGrp)
 {
 	int    ok = 1;
 	Hdr    hdr;
@@ -1118,7 +1118,7 @@ int SLAPI PPCommandMngr::Save_(const PPCommandGroup * pCmdGrp)
 	return ok;
 }
 
-int SLAPI PPCommandMngr::Load(PPCommandGroup * pCmdGrp)
+int SLAPI PPCommandMngr::Load__(PPCommandGroup * pCmdGrp)
 {
 	int    ok = 1, r = 0;
 	Hdr    hdr;
@@ -1729,7 +1729,7 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 							// Текст сообщения о том, что срок действия регистра истек
 							//
 							GetRegisterTypeName(reg_rec.RegTypeID, reg_buf);
-							warn.Printf(PPLoadTextS(PPTXT_PSNREGEXPIRED, buf), (const char *)reg_buf);
+							warn.Printf(PPLoadTextS(PPTXT_PSNREGEXPIRED, buf), reg_buf.cptr());
 							disable_op = 1;
 						}
 					}

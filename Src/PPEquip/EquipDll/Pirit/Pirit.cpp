@@ -1747,10 +1747,10 @@ int PiritEquip::GetDateTime(SYSTEMTIME sysDtTm, SString & rDateTime, int dt)
 {
 	switch(dt) {
 		case 0:
-			(rDateTime = 0).CatLongZ(sysDtTm.wDay, 2).CatLongZ(sysDtTm.wMonth, 2).Cat(sysDtTm.wYear % 100);
+			rDateTime.Z().CatLongZ(sysDtTm.wDay, 2).CatLongZ(sysDtTm.wMonth, 2).Cat(sysDtTm.wYear % 100);
 			break;
 		case 1:
-			(rDateTime = 0).CatLongZ(sysDtTm.wHour, 2).CatLongZ(sysDtTm.wMinute, 2).CatLongZ(sysDtTm.wSecond, 2);
+			rDateTime.Z().CatLongZ(sysDtTm.wHour, 2).CatLongZ(sysDtTm.wMinute, 2).CatLongZ(sysDtTm.wSecond, 2);
 			break;
 	}
 	return 1;
@@ -1759,21 +1759,21 @@ int PiritEquip::GetDateTime(SYSTEMTIME sysDtTm, SString & rDateTime, int dt)
 void PiritEquip::GetLastCmdName(SString & rName)
 {
 	if(LastCmd.CmpNC("CHECKSESSOVER") == 0)
-		(rName = 0).Cat(CHECKSESSOVER_STR);
+		rName.Z().Cat(CHECKSESSOVER_STR);
 	else if(LastCmd.CmpNC("ZREPORT") == 0)
-		(rName = 0).Cat(ZREPORT_STR);
+		rName.Z().Cat(ZREPORT_STR);
 	else if(LastCmd.CmpNC("XREPORT") == 0)
-		(rName = 0).Cat(XREPORT_STR);
+		rName.Z().Cat(XREPORT_STR);
 	else if(LastCmd.CmpNC("OPENCHECK") == 0)
-		(rName = 0).Cat(OPENCHECK_STR);
+		rName.Z().Cat(OPENCHECK_STR);
 	else if(LastCmd.CmpNC("CLOSECHECK") == 0)
-		(rName = 0).Cat(CLOSECHECK_STR);
+		rName.Z().Cat(CLOSECHECK_STR);
 	else if(LastCmd.CmpNC("PRINTFISCAL") == 0)
-		(rName = 0).Cat(PRINTFISCAL_STR);
+		rName.Z().Cat(PRINTFISCAL_STR);
 	else if(LastCmd.CmpNC("PRINTTEXT") == 0)
-		(rName = 0).Cat(PRINTTEXT_STR);
+		rName.Z().Cat(PRINTTEXT_STR);
 	else if(LastCmd.CmpNC("ANNULATE") == 0)
-		(rName = 0).Cat(ANNULATE_STR);
+		rName.Z().Cat(ANNULATE_STR);
 	else if(LastCmd.CmpNC("INCASHMENT") == 0)
-		(rName = 0).Cat(INCASHMENT_STR);
+		rName.Z().Cat(INCASHMENT_STR);
 }

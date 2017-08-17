@@ -280,7 +280,7 @@ private:
 			PPLoadString("rt_inherited", rBuf);
 		}
 		else {
-			rBuf = 0;
+			rBuf.Z();
 			rBuf.CatChar((objFlags & PPR_READ) ? 'R' : ' ');
 			rBuf.CatChar((objFlags & PPR_INS)  ? 'C' : ' ');
 			rBuf.CatChar((objFlags & PPR_MOD)  ? 'M' : ' ');

@@ -867,7 +867,7 @@ int VATBCfgDialog::setupList()
 	for(uint i = 0; i < Data.List.getCount(); i++) {
 		const VATBCfg::Item & r_item = Data.List.at(i);
 		ss.clear(1);
-		GetOpName(r_item.OpID, sub = 0);
+		GetOpName(r_item.OpID, sub.Z());
 		ss.add(sub);
 		sub = 0;
 		if(r_item.Flags & VATBCfg::fExclude)
@@ -2720,7 +2720,7 @@ int SLAPI PPViewVatBook::GetNalogRuOpIdent(const VatBookViewItem & rItem, SStrin
 	rBuf = rItem.TaxOpCode;
 	long _c = rBuf.ToLong();
 	if(rBuf.Len() != 2 || _c <= 0 || _c >= 100) {
-		rBuf = 0;
+		rBuf.Z();
 		if(rItem.OpID) {
 			long exp_symb_val = 0;
 			if(!TaxOpSymbAssoc.Search(rItem.OpID, &exp_symb_val, 0)) {
@@ -2788,7 +2788,7 @@ int SLAPI PPViewVatBook::Export()
 				}
 				else {
 					// @todo Вывод информации о недопустимой комбинации ИНН/КПП
-					(sender_ident = 0).CatCharN('0', 12);
+					sender_ident.Z().CatCharN('0', 12);
 				}
 			}
 			{
@@ -2813,13 +2813,13 @@ int SLAPI PPViewVatBook::Export()
 				}
 				else {
 					// @todo Вывод информации о недопустимом коде получателя налоговой отчетности
-                    (rcvr_ident = 0).CatCharN('0', 4).CatChar('_').CatCharN('0', 4);
+                    rcvr_ident.Z().CatCharN('0', 4).CatChar('_').CatCharN('0', 4);
 				}
 			}
 		}
 		if(sender_ident.Empty()) {
 			// @todo Вывод информации о недопустимой комбинации ИНН/КПП
-			(sender_ident = 0).CatCharN('0', 12);
+			sender_ident.Z().CatCharN('0', 12);
 		}
 		if(Filt.Kind == PPVTB_BUY) {
 			p_ledger_title = "КнигаПокуп";
@@ -2845,7 +2845,7 @@ int SLAPI PPViewVatBook::Export()
 			}
 			left = 0;
 		}
-		(out_file_name = 0).Cat(id_file).Dot().Cat("xml");
+		out_file_name.Z().Cat(id_file).Dot().Cat("xml");
 		PPGetFilePath(PPPATH_OUT, out_file_name, path);
 		THROW(p_writer = xmlNewTextWriterFilename(path, 0));
 		{
@@ -2907,21 +2907,21 @@ int SLAPI PPViewVatBook::Export()
 							sum_amount += _amount;
 						}
 						if(Filt.Kind == PPVTB_BUY) {
-							n_book.PutAttrib("СумНДСВсКПк", (temp_buf = 0).Cat(sum_svat, SFMT_MONEY));
+							n_book.PutAttrib("СумНДСВсКПк", temp_buf.Z().Cat(sum_svat, SFMT_MONEY));
 						}
 						else if(Filt.Kind == PPVTB_SELL) {
 							for(i = 0; i < 3; i++) {
 								if(PPObjVATBook::GetVatRate(i) == 18.0) {
-									n_book.PutAttrib("СтПродБезНДС18", (temp_buf = 0).Cat(sum_vatn[i]/*-sum_svatn[i]*/, SFMT_MONEY)); // Сумма продаж по ставке НДС 18% (без налога)
-									n_book.PutAttrib("СумНДСВсКПр18",  (temp_buf = 0).Cat(sum_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 18%
+									n_book.PutAttrib("СтПродБезНДС18", temp_buf.Z().Cat(sum_vatn[i]/*-sum_svatn[i]*/, SFMT_MONEY)); // Сумма продаж по ставке НДС 18% (без налога)
+									n_book.PutAttrib("СумНДСВсКПр18",  temp_buf.Z().Cat(sum_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 18%
 								}
 								else if(PPObjVATBook::GetVatRate(i) == 10.0) {
-									n_book.PutAttrib("СтПродБезНДС10", (temp_buf = 0).Cat(sum_vatn[i]/*-sum_svatn[i]*/, SFMT_MONEY)); // Сумма продаж по ставке НДС 10% (без налога)
-									n_book.PutAttrib("СумНДСВсКПр10",  (temp_buf = 0).Cat(sum_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 10%
+									n_book.PutAttrib("СтПродБезНДС10", temp_buf.Z().Cat(sum_vatn[i]/*-sum_svatn[i]*/, SFMT_MONEY)); // Сумма продаж по ставке НДС 10% (без налога)
+									n_book.PutAttrib("СумНДСВсКПр10",  temp_buf.Z().Cat(sum_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 10%
 								}
 							}
-							n_book.PutAttrib("СтПродБезНДС0", (temp_buf = 0).Cat(0.0, SFMT_MONEY)); // Всего стоимость продаж (без налога) по ставке 0%
-							n_book.PutAttrib("СтПродОсвВсКПр", (temp_buf = 0).Cat(sum_vat0, SFMT_MONEY)); // Сумма продаж, освобожденных от НДС
+							n_book.PutAttrib("СтПродБезНДС0", temp_buf.Z().Cat(0.0, SFMT_MONEY)); // Всего стоимость продаж (без налога) по ставке 0%
+							n_book.PutAttrib("СтПродОсвВсКПр", temp_buf.Z().Cat(sum_vat0, SFMT_MONEY)); // Сумма продаж, освобожденных от НДС
 						}
 						for(InitIteration(); NextIteration(&item) > 0;) {
 							SXml::WNode n_item(p_writer, p_ledger_line_title);
@@ -2933,39 +2933,39 @@ int SLAPI PPViewVatBook::Export()
 							const double _svat = _svatn[0] + _svatn[1] + _svatn[2];
 							const double _amount = MONEYTOLDBL(item.Amount);
                             {
-                            	n_item.PutAttrib("НомерПор", (temp_buf = 0).Cat(line_no));
+                            	n_item.PutAttrib("НомерПор", temp_buf.Z().Cat(line_no));
                             	n_item.PutAttrib("НомСчФПрод", (temp_buf = item.Code).Transf(CTRANSF_INNER_TO_OUTER));
-                            	n_item.PutAttrib("ДатаСчФПрод", (temp_buf = 0).Cat(item.InvcDt, DATF_GERMAN|DATF_CENTURY));
-                            	//n_item.PutAttrib("НомИспрСчФ", temp_buf = 0);
-                            	//n_item.PutAttrib("ДатаИспрСчФ", temp_buf = 0);
+                            	n_item.PutAttrib("ДатаСчФПрод", temp_buf.Z().Cat(item.InvcDt, DATF_GERMAN|DATF_CENTURY));
+                            	//n_item.PutAttrib("НомИспрСчФ", temp_buf.Z());
+                            	//n_item.PutAttrib("ДатаИспрСчФ", temp_buf.Z());
                             	if(item.CBillCode[0]) { // @v8.5.11
 									n_item.PutAttrib("НомКСчФПрод", item.CBillCode);
-									n_item.PutAttrib("ДатаКСчФПрод", (temp_buf = 0).Cat(item.CBillDt, DATF_GERMAN|DATF_CENTURY));
+									n_item.PutAttrib("ДатаКСчФПрод", temp_buf.Z().Cat(item.CBillDt, DATF_GERMAN|DATF_CENTURY));
                             	}
-                            	//n_item.PutAttrib("НомИспрКСчФ", temp_buf = 0);
-                            	//n_item.PutAttrib("ДатаИспрКСчФ", temp_buf = 0);
+                            	//n_item.PutAttrib("НомИспрКСчФ", temp_buf.Z());
+                            	//n_item.PutAttrib("ДатаИспрКСчФ", temp_buf.Z());
 								if(Filt.Kind == PPVTB_BUY) {
-									// n_item.PutAttrib("НомТД", temp_buf = 0); // Номер таможенной декларации
-									n_item.PutAttrib("ОКВ", (temp_buf = 0).CatLongZ(base_cur_code, 3)); // Код валюты по ОКВ
-									n_item.PutAttrib("СтоимПокупВ", (temp_buf = 0).Cat(_amount, SFMT_MONEY));
-									n_item.PutAttrib("СумНДСВыч", (temp_buf = 0).Cat(_svat, SFMT_MONEY));
+									// n_item.PutAttrib("НомТД", temp_buf.Z()); // Номер таможенной декларации
+									n_item.PutAttrib("ОКВ", temp_buf.Z().CatLongZ(base_cur_code, 3)); // Код валюты по ОКВ
+									n_item.PutAttrib("СтоимПокупВ", temp_buf.Z().Cat(_amount, SFMT_MONEY));
+									n_item.PutAttrib("СумНДСВыч", temp_buf.Z().Cat(_svat, SFMT_MONEY));
 								}
 								else if(Filt.Kind == PPVTB_SELL) {
-									n_item.PutAttrib("ОКВ", (temp_buf = 0).CatLongZ(base_cur_code, 3)); // Код валюты по ОКВ
-									n_item.PutAttrib("СтоимПродСФВ", (temp_buf = 0).Cat(_amount, SFMT_MONEY)); // Сумма продаж в валюте
-									n_item.PutAttrib("СтоимПродСФ",  (temp_buf = 0).Cat(_amount, SFMT_MONEY)); // Сумма продаж в рублях
+									n_item.PutAttrib("ОКВ", temp_buf.Z().CatLongZ(base_cur_code, 3)); // Код валюты по ОКВ
+									n_item.PutAttrib("СтоимПродСФВ", temp_buf.Z().Cat(_amount, SFMT_MONEY)); // Сумма продаж в валюте
+									n_item.PutAttrib("СтоимПродСФ",  temp_buf.Z().Cat(_amount, SFMT_MONEY)); // Сумма продаж в рублях
 									for(i = 0; i < 3; i++) {
 										if(PPObjVATBook::GetVatRate(i) == 18.0) {
-											n_item.PutAttrib("СтоимПродСФ18", (temp_buf = 0).Cat(_vatn[i], SFMT_MONEY)); // Сумма продаж по ставке НДС 18%
-											n_item.PutAttrib("СумНДССФ18", (temp_buf = 0).Cat(_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 18%
+											n_item.PutAttrib("СтоимПродСФ18", temp_buf.Z().Cat(_vatn[i], SFMT_MONEY)); // Сумма продаж по ставке НДС 18%
+											n_item.PutAttrib("СумНДССФ18", temp_buf.Z().Cat(_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 18%
 										}
 										else if(PPObjVATBook::GetVatRate(i) == 10.0) {
-											n_item.PutAttrib("СтоимПродСФ10", (temp_buf = 0).Cat(_vatn[i], SFMT_MONEY)); // Сумма продаж по ставке НДС 10%
-											n_item.PutAttrib("СумНДССФ10", (temp_buf = 0).Cat(_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 10%
+											n_item.PutAttrib("СтоимПродСФ10", temp_buf.Z().Cat(_vatn[i], SFMT_MONEY)); // Сумма продаж по ставке НДС 10%
+											n_item.PutAttrib("СумНДССФ10", temp_buf.Z().Cat(_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 10%
 										}
 									}
-									n_item.PutAttrib("СтоимПродСФ0", (temp_buf = 0).Cat(0.0, SFMT_MONEY)); // Сумма продаж по ставке НДС 0%
-									n_item.PutAttrib("СтоимПродОсв", (temp_buf = 0).Cat(_vat0, SFMT_MONEY)); // Сумма продаж, освобожденных от НДС
+									n_item.PutAttrib("СтоимПродСФ0", temp_buf.Z().Cat(0.0, SFMT_MONEY)); // Сумма продаж по ставке НДС 0%
+									n_item.PutAttrib("СтоимПродОсв", temp_buf.Z().Cat(_vat0, SFMT_MONEY)); // Сумма продаж, освобожденных от НДС
 								}
                             	{
                             		GetNalogRuOpIdent(item, temp_buf);
@@ -2973,7 +2973,7 @@ int SLAPI PPViewVatBook::Export()
                             	}
                            		if(Filt.Kind == PPVTB_BUY) {
 									{
-										SXml::WNode n(p_writer, "ДатаУчТов", (temp_buf = 0).Cat(item.Dt, DATF_GERMAN|DATF_CENTURY));
+										SXml::WNode n(p_writer, "ДатаУчТов", temp_buf.Z().Cat(item.Dt, DATF_GERMAN|DATF_CENTURY));
 									}
 									{
 										SXml::WNode n(p_writer, "СвПрод");

@@ -1,6 +1,6 @@
 // TRANSFER.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016
-// @codepage windows-1251
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
@@ -137,8 +137,8 @@ int SLAPI Transfer::IsCompletedLot(PPID lotID)
 inline int SLAPI Transfer::GetLotOprNo(LDATE date, long *oprno)
 	{ return IncDateKey(&Rcpt, 1, date, oprno); }
 //
-// Процедура AddLotItem при добавлении записи обнуляет текущий остаток.
-// Изменение остатка делает процедура _UpdateForward.
+// РџСЂРѕС†РµРґСѓСЂР° AddLotItem РїСЂРё РґРѕР±Р°РІР»РµРЅРёРё Р·Р°РїРёСЃРё РѕР±РЅСѓР»СЏРµС‚ С‚РµРєСѓС‰РёР№ РѕСЃС‚Р°С‚РѕРє.
+// РР·РјРµРЅРµРЅРёРµ РѕСЃС‚Р°С‚РєР° РґРµР»Р°РµС‚ РїСЂРѕС†РµРґСѓСЂР° _UpdateForward.
 //
 int SLAPI Transfer::AddLotItem(PPTransferItem * ti, PPID forceID)
 {
@@ -147,14 +147,14 @@ int SLAPI Transfer::AddLotItem(PPTransferItem * ti, PPID forceID)
 	PPID   prev_lot = ti->LotID;
 	ti->LotID = 0;
 	if(!forceID) {
-#if 0 // @v8.9.5 { Отключаем (временно) слияние при возврате на исходный склад (из-за ЕГАИС и справок Б)
+#if 0 // @v8.9.5 { РћС‚РєР»СЋС‡Р°РµРј (РІСЂРµРјРµРЅРЅРѕ) СЃР»РёСЏРЅРёРµ РїСЂРё РІРѕР·РІСЂР°С‚Рµ РЅР° РёСЃС…РѕРґРЅС‹Р№ СЃРєР»Р°Рґ (РёР·-Р·Р° Р•Р“РђРРЎ Рё СЃРїСЂР°РІРѕРє Р‘)
 		for(PPID id = prev_lot; id && !ti->LotID; id = lot_rec.PrevLotID) {
 			THROW(Rcpt.Search(id, &lot_rec) > 0);
 			if(!(ti->Flags & (PPTFR_PCKGGEN | PPTFR_PCKG))) {
 				//
-				// В случае циклической межскладской операции лот не генерируется,
-				// а происходит возврат в изначальный лот. Исключение составляет
-				// ситуация, при которой цены лота не совпадают с ценами операции.
+				// Р’ СЃР»СѓС‡Р°Рµ С†РёРєР»РёС‡РµСЃРєРѕР№ РјРµР¶СЃРєР»Р°РґСЃРєРѕР№ РѕРїРµСЂР°С†РёРё Р»РѕС‚ РЅРµ РіРµРЅРµСЂРёСЂСѓРµС‚СЃСЏ,
+				// Р° РїСЂРѕРёСЃС…РѕРґРёС‚ РІРѕР·РІСЂР°С‚ РІ РёР·РЅР°С‡Р°Р»СЊРЅС‹Р№ Р»РѕС‚. РСЃРєР»СЋС‡РµРЅРёРµ СЃРѕСЃС‚Р°РІР»СЏРµС‚
+				// СЃРёС‚СѓР°С†РёСЏ, РїСЂРё РєРѕС‚РѕСЂРѕР№ С†РµРЅС‹ Р»РѕС‚Р° РЅРµ СЃРѕРІРїР°РґР°СЋС‚ СЃ С†РµРЅР°РјРё РѕРїРµСЂР°С†РёРё.
 				//
 				if(lot_rec.LocID == ti->LocID) {
 					if(!dbl_cmp(lot_rec.Cost, ti->Cost) && !dbl_cmp(lot_rec.Price, ti->Price)) {
@@ -303,7 +303,7 @@ SLAPI Transfer::GetLotPricesCache::GetLotPricesCache(LDATE dt, const PPIDArray *
 {
 	Date = plusdate(dt, 1);
 	//
-	// Получаем список видов операции переоценки
+	// РџРѕР»СѓС‡Р°РµРј СЃРїРёСЃРѕРє РІРёРґРѕРІ РѕРїРµСЂР°С†РёРё РїРµСЂРµРѕС†РµРЅРєРё
 	//
 	PPIDArray op_list;
 	UintHashTable bill_list;
@@ -314,14 +314,14 @@ SLAPI Transfer::GetLotPricesCache::GetLotPricesCache(LDATE dt, const PPIDArray *
 	}
 	{
 		//
-		// Так как модификация может быть рекомплектацией с функцией переоценки, то
-		// придется учесть и это
+		// РўР°Рє РєР°Рє РјРѕРґРёС„РёРєР°С†РёСЏ РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂРµРєРѕРјРїР»РµРєС‚Р°С†РёРµР№ СЃ С„СѓРЅРєС†РёРµР№ РїРµСЂРµРѕС†РµРЅРєРё, С‚Рѕ
+		// РїСЂРёРґРµС‚СЃСЏ СѓС‡РµСЃС‚СЊ Рё СЌС‚Рѕ
 		//
 		for(SEnum en = PPRef->EnumByIdxVal(PPOBJ_OPRKIND, 1, PPOPT_GOODSMODIF); en.Next(&op_rec) > 0;)
 			op_list.addUnique(op_rec.ID);
 	}
 	//
-	// Находим список документов переоценки с датой, не превышающей Date
+	// РќР°С…РѕРґРёРј СЃРїРёСЃРѕРє РґРѕРєСѓРјРµРЅС‚РѕРІ РїРµСЂРµРѕС†РµРЅРєРё СЃ РґР°С‚РѕР№, РЅРµ РїСЂРµРІС‹С€Р°СЋС‰РµР№ Date
 	//
 	{
 		DateRange period;
@@ -334,7 +334,7 @@ SLAPI Transfer::GetLotPricesCache::GetLotPricesCache(LDATE dt, const PPIDArray *
 			}
 		}
 		/*
-		 Этот участок выполняетмя медленнее, чем тот, что выше.
+		 Р­С‚РѕС‚ СѓС‡Р°СЃС‚РѕРє РІС‹РїРѕР»РЅСЏРµС‚РјСЏ РјРµРґР»РµРЅРЅРµРµ, С‡РµРј С‚РѕС‚, С‡С‚Рѕ РІС‹С€Рµ.
 		for(uint i = 0; i < op_list.getCount(); i++) {
 			BillTbl::Rec bill_rec;
 			for(SEnum en = BillObj->tbl->EnumByOp(op_list.get(i), &period, 0); en.Next(&bill_rec) > 0;) {
@@ -345,8 +345,8 @@ SLAPI Transfer::GetLotPricesCache::GetLotPricesCache(LDATE dt, const PPIDArray *
 		*/
 	}
 	//
-	// По каждому документу извлекаем идентификаторы лотов и складываем их
-	// без дублирования в список RLotList
+	// РџРѕ РєР°Р¶РґРѕРјСѓ РґРѕРєСѓРјРµРЅС‚Сѓ РёР·РІР»РµРєР°РµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ Р»РѕС‚РѕРІ Рё СЃРєР»Р°РґС‹РІР°РµРј РёС…
+	// Р±РµР· РґСѓР±Р»РёСЂРѕРІР°РЅРёСЏ РІ СЃРїРёСЃРѕРє RLotList
 	//
 	{
 		Transfer * t = BillObj->trfr;
@@ -374,7 +374,7 @@ int SLAPI Transfer::GetLotPrices(ReceiptTbl::Rec * pLotRec, LDATE date, long opr
 {
 	int    r = -1;
 	if(oprno == 0)
-		plusdate(&date, 1, 0); // Новая цена вступает в силу на дату переоценки
+		plusdate(&date, 1, 0); // РќРѕРІР°СЏ С†РµРЅР° РІСЃС‚СѓРїР°РµС‚ РІ СЃРёР»Сѓ РЅР° РґР°С‚Сѓ РїРµСЂРµРѕС†РµРЅРєРё
 	TransferTbl::Key2 k;
 	BExtQuery q(this, 2, 16);
 	q.select(Flags, Cost, Price, 0L).where(LotID == pLotRec->ID && Dt >= date);
@@ -480,8 +480,8 @@ GoodsRestParam & FASTCALL GoodsRestParam::operator = (const GoodsRestParam & src
 	DiffLotTagID = src.DiffLotTagID;
 	LocList.copy(src.LocList);
 	//
-	// Копируем сам указатель, поскольку GoodsRestParam не является владельцем
-	// объекта, на который этот указатель ссылается.
+	// РљРѕРїРёСЂСѓРµРј СЃР°Рј СѓРєР°Р·Р°С‚РµР»СЊ, РїРѕСЃРєРѕР»СЊРєСѓ GoodsRestParam РЅРµ СЏРІР»СЏРµС‚СЃСЏ РІР»Р°РґРµР»СЊС†РµРј
+	// РѕР±СЉРµРєС‚Р°, РЅР° РєРѕС‚РѕСЂС‹Р№ СЌС‚РѕС‚ СѓРєР°Р·Р°С‚РµР»СЊ СЃСЃС‹Р»Р°РµС‚СЃСЏ.
 	//
 	P_SupplAgentBillList = src.P_SupplAgentBillList;
 	return *this;
@@ -567,45 +567,45 @@ int FASTCALL GoodsRestParam::CanMerge(const GoodsRestVal * v, const GoodsRestVal
 	*/
 }
 
-int SLAPI GoodsRestParam::AddToItem(int p, LDATE dt, long opn, GoodsRestVal * add)
+int SLAPI GoodsRestParam::AddToItem(int p, LDATE dt, long opn, GoodsRestVal * pAdd)
 {
 	if(p == -1) {
-		add->Count = 1;
-		if(!insert(add))
+		pAdd->Count = 1;
+		if(!insert(pAdd))
 			return PPSetErrorSLib();
 	}
 	else {
 		GoodsRestVal * v = (p >= 0) ? &at(p) : &Total;
-		int    uc = (v->Cost  != add->Cost);
-		int    up = (v->Price != add->Price);
-		double nr = v->Rest + add->Rest;
+		int    uc = (v->Cost  != pAdd->Cost);
+		int    up = (v->Price != pAdd->Price);
+		double nr = v->Rest + pAdd->Rest;
 		v->Count++;
-		v->UnitsPerPack = add->UnitsPerPack;
-		v->LocID = add->LocID;
+		v->UnitsPerPack = pAdd->UnitsPerPack;
+		v->LocID = pAdd->LocID;
 		if(up || uc) {
 			if(CalcMethod == pcmLastLot) {
    		        if(!Md_ || dt > Md_ || (dt == Md_ && opn >= Mo_)) {
-					v->LotID = add->LotID; // @v8.1.1
-					v->Cost  = add->Cost;
-				   	v->Price = add->Price;
+					v->LotID = pAdd->LotID; // @v8.1.1
+					v->Cost  = pAdd->Cost;
+				   	v->Price = pAdd->Price;
 					Md_ = dt;  // @v8.0.6
 					Mo_ = opn; // @v8.0.6
 			   	}
 			}
 			else if(CalcMethod == pcmFirstLot) {
 				if(!Md_ || dt < Md_ || (dt == Md_ && opn <= Mo_)) {
-					v->LotID = add->LotID; // @v8.1.1
-					v->Cost  = add->Cost;
-					v->Price = add->Price;
+					v->LotID = pAdd->LotID; // @v8.1.1
+					v->Cost  = pAdd->Cost;
+					v->Price = pAdd->Price;
 					Md_ = dt;  // @v8.0.6
 					Mo_ = opn; // @v8.0.6
 				}
 			}
 			else if(nr != 0.0) {
 				if(uc)
-					v->Cost  = (v->Cost  * v->Rest + add->Cost  * add->Rest) / nr;
+					v->Cost  = (v->Cost  * v->Rest + pAdd->Cost  * pAdd->Rest) / nr;
 			   	if(up)
-					v->Price = (v->Price * v->Rest + add->Price * add->Rest) / nr;
+					v->Price = (v->Price * v->Rest + pAdd->Price * pAdd->Rest) / nr;
    	        }
 		}
 		v->Rest = nr;
@@ -696,7 +696,7 @@ int SLAPI GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotR
 				ReceiptTbl::Rec org_lot_rec;
 				if(pTrfr->Rcpt.SearchOrigin(pLotRec->PrevLotID, 0, 0, &org_lot_rec)) {
 					if(p_bobj->GetSerialNumberByLot(org_lot_rec.ID, serial, 1) > 0)
-						serial.CopyTo(add.Serial, sizeof(add.Serial));
+						STRNSCPY(add.Serial, serial);
 				}
 			}
 			// } @v8.1.12
@@ -709,7 +709,10 @@ int SLAPI GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotR
 			if(tag_obj.FetchTag(pLotRec->ID, diff_tag_id, &tag_item) > 0) { // @v8.1.0
 			// @v8.1.0 if(PPRef->Ot.GetTag(PPOBJ_LOT, pLotRec->ID, diff_tag_id, &tag_item) > 0) {
 			   tag_item.GetStr(tag_buf);
-			   tag_buf.CopyTo(add.LotTagText, sizeof(add.LotTagText));
+			   STRNSCPY(add.LotTagText, tag_buf);
+			   if(!(DiffParam & _diffSerial)) {
+				   STRNSCPY(add.Serial, tag_buf);
+			   }
 			}
 		}
 		for(i = 0, merge = -1; merge == -1 && enumItems(&i, (void**)&p_val);) {
@@ -730,7 +733,7 @@ int SLAPI GoodsRestParam::CheckBill(const ReceiptTbl::Rec * pRec, LDATE * pOrgLo
 	LDATE  org_lot_date = ZERODATE;
 	PPID   org_bill_id = 0;
 	//
-	// Условия fLabelOnly и AgentID не проверяются для лотов заказов
+	// РЈСЃР»РѕРІРёСЏ fLabelOnly Рё AgentID РЅРµ РїСЂРѕРІРµСЂСЏСЋС‚СЃСЏ РґР»СЏ Р»РѕС‚РѕРІ Р·Р°РєР°Р·РѕРІ
 	//
 	if(pRec->GoodsID > 0 && ((Flags_ & (fLabelOnly|fZeroAgent)) || AgentID)) {
 		PPObjBill * p_bobj = BillObj;
@@ -918,12 +921,12 @@ int SLAPI Transfer::GetRest(GoodsRestParam * pGrParam)
 		pGrParam->InitVal();
 		do {
 			//
-			// Цикл do {} while(tag_closed == 0)
-			// реализован чтобы использовать индекс ReceiptTbl::Key3 в случае, если
-			// заданы одновременно (pGrParam->GoodsID > 0 && pGrParam->LocID). В этом случае
-			// придется пробежать сначала по открытым лотам (Closed==0), а потом по закрытым (Closed==1).
-			// Если (pGrParam->GoodsID > 0 && pGrParam->LocID) не выполняются, то tag_closed принимает
-			// значение -1, что автоматически выведет из цикла после первой итерации.
+			// Р¦РёРєР» do {} while(tag_closed == 0)
+			// СЂРµР°Р»РёР·РѕРІР°РЅ С‡С‚РѕР±С‹ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РёРЅРґРµРєСЃ ReceiptTbl::Key3 РІ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё
+			// Р·Р°РґР°РЅС‹ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ (pGrParam->GoodsID > 0 && pGrParam->LocID). Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ
+			// РїСЂРёРґРµС‚СЃСЏ РїСЂРѕР±РµР¶Р°С‚СЊ СЃРЅР°С‡Р°Р»Р° РїРѕ РѕС‚РєСЂС‹С‚С‹Рј Р»РѕС‚Р°Рј (Closed==0), Р° РїРѕС‚РѕРј РїРѕ Р·Р°РєСЂС‹С‚С‹Рј (Closed==1).
+			// Р•СЃР»Рё (pGrParam->GoodsID > 0 && pGrParam->LocID) РЅРµ РІС‹РїРѕР»РЅСЏСЋС‚СЃСЏ, С‚Рѕ tag_closed РїСЂРёРЅРёРјР°РµС‚
+			// Р·РЅР°С‡РµРЅРёРµ -1, С‡С‚Рѕ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РІС‹РІРµРґРµС‚ РёР· С†РёРєР»Р° РїРѕСЃР»Рµ РїРµСЂРІРѕР№ РёС‚РµСЂР°С†РёРё.
 			//
 			DBQ  * dbq = 0;
 			int    idx;
@@ -970,7 +973,7 @@ int SLAPI Transfer::GetRest(GoodsRestParam * pGrParam)
 			BExtQuery q(&Rcpt, idx);
 			q.select(Rcpt.ID, Rcpt.BillID, Rcpt.LocID, Rcpt.SupplID, Rcpt.PrevLotID, Rcpt.Dt, Rcpt.OprNo,
 				Rcpt.UnitPerPack, Rcpt.Cost, Rcpt.Price, Rcpt.Flags, Rcpt.InTaxGrpID, 0L).where(*dbq);
-			const long _oprno = (pGrParam->OprNo > 0) ? (pGrParam->OprNo-1) : MAXLONG; // (-1) потому, что GetRest берет остаток по условию spLe
+			const long _oprno = (pGrParam->OprNo > 0) ? (pGrParam->OprNo-1) : MAXLONG; // (-1) РїРѕС‚РѕРјСѓ, С‡С‚Рѕ GetRest Р±РµСЂРµС‚ РѕСЃС‚Р°С‚РѕРє РїРѕ СѓСЃР»РѕРІРёСЋ spLe
 			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
 				ReceiptTbl::Rec lot_rec;
 				Rcpt.copyBufTo(&lot_rec);
@@ -1123,9 +1126,9 @@ int SLAPI Transfer::UpdateForward(PPID lotID, LDATE dt, long oprno, int check, d
 			}
 			data.WtRest = (float)R6(data.WtRest + *pPhAdd);
 			//
-			// Если необходима проверка на неотрицательность
-			// остатка в физических единицах, то комментарии со следующего
-			// блока необходимо убрать
+			// Р•СЃР»Рё РЅРµРѕР±С…РѕРґРёРјР° РїСЂРѕРІРµСЂРєР° РЅР° РЅРµРѕС‚СЂРёС†Р°С‚РµР»СЊРЅРѕСЃС‚СЊ
+			// РѕСЃС‚Р°С‚РєР° РІ С„РёР·РёС‡РµСЃРєРёС… РµРґРёРЅРёС†Р°С…, С‚Рѕ РєРѕРјРјРµРЅС‚Р°СЂРёРё СЃРѕ СЃР»РµРґСѓСЋС‰РµРіРѕ
+			// Р±Р»РѕРєР° РЅРµРѕР±С…РѕРґРёРјРѕ СѓР±СЂР°С‚СЊ
 			//
 			/*
 			if(data.WtRest < 0) {
@@ -1174,8 +1177,8 @@ int SLAPI Transfer::UpdateForward(const TransferTbl::Rec & rRec, double addendum
 			if(rRec.LotID) {
 				int    r;
 				THROW(r = UpdateForward(rRec.LotID, dt, o, 0, &addendum, &phAddend));
-				if(r != 1) // r == 1 означает, что не было обнаружено ни одной операции > {dt; o}
-					last_op_date = data.Dt; // Дата последней операции
+				if(r != 1) // r == 1 РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ РЅРµ Р±С‹Р»Рѕ РѕР±РЅР°СЂСѓР¶РµРЅРѕ РЅРё РѕРґРЅРѕР№ РѕРїРµСЂР°С†РёРё > {dt; o}
+					last_op_date = data.Dt; // Р”Р°С‚Р° РїРѕСЃР»РµРґРЅРµР№ РѕРїРµСЂР°С†РёРё
 				const PPID goods_id = (rRec.Flags & PPTFR_SHADOW) ? -labs(rRec.GoodsID) : rRec.GoodsID;
 				THROW(UpdateCurRest(goods_id, rRec.LocID, addendum));
 				upd_lot_rest = 1;
@@ -1204,8 +1207,8 @@ int SLAPI Transfer::UpdateForward(const TransferTbl::Rec & rRec, double addendum
 				}
 				else if(!bad_lot) { // lot_rec.Rest == 0
 					//
-					// Без этого участка кода дата закрытия лота устанавливалась не верно в
-					// случае удаления операции, увеличивающей остаток.
+					// Р‘РµР· СЌС‚РѕРіРѕ СѓС‡Р°СЃС‚РєР° РєРѕРґР° РґР°С‚Р° Р·Р°РєСЂС‹С‚РёСЏ Р»РѕС‚Р° СѓСЃС‚Р°РЅР°РІР»РёРІР°Р»Р°СЃСЊ РЅРµ РІРµСЂРЅРѕ РІ
+					// СЃР»СѓС‡Р°Рµ СѓРґР°Р»РµРЅРёСЏ РѕРїРµСЂР°С†РёРё, СѓРІРµР»РёС‡РёРІР°СЋС‰РµР№ РѕСЃС‚Р°С‚РѕРє.
 					//
 					if(!last_op_date)
 						if(addendum < 0.0 && rRec.Quantity > 0.0 && Search(rRec.LotID, rRec.Dt, rRec.OprNo, spLt))
@@ -1259,9 +1262,9 @@ int SLAPI Transfer::GetLocGoodsList(PPID locID, UintHashTable & rList)
 int SLAPI Transfer::UpdateCurRest(PPID goodsID, PPID loc, double addendum)
 {
 	//
-	// @v6.6.11 Сделаны изменения для того, чтобы записи с нулевым остатком не
-	// удалялись. Они понадобятся для быстрой идентификации товаров, которые
-	// когда либо присутствовали на складе.
+	// @v6.6.11 РЎРґРµР»Р°РЅС‹ РёР·РјРµРЅРµРЅРёСЏ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ Р·Р°РїРёСЃРё СЃ РЅСѓР»РµРІС‹Рј РѕСЃС‚Р°С‚РєРѕРј РЅРµ
+	// СѓРґР°Р»СЏР»РёСЃСЊ. РћРЅРё РїРѕРЅР°РґРѕР±СЏС‚СЃСЏ РґР»СЏ Р±С‹СЃС‚СЂРѕР№ РёРґРµРЅС‚РёС„РёРєР°С†РёРё С‚РѕРІР°СЂРѕРІ, РєРѕС‚РѕСЂС‹Рµ
+	// РєРѕРіРґР° Р»РёР±Рѕ РїСЂРёСЃСѓС‚СЃС‚РІРѕРІР°Р»Рё РЅР° СЃРєР»Р°РґРµ.
 	//
 	int    ok = 1;
 	CurRestTbl::Key0 k;
@@ -1272,12 +1275,12 @@ int SLAPI Transfer::UpdateCurRest(PPID goodsID, PPID loc, double addendum)
 		if(CRest.data.Rest < 0.0) {
 			if(goodsID < 0) {
 				//
-				// Для заказов при достижении отрицательного текущего остатка
-				// не выдаем ошибку, но обнуляем результирующее значение.
-				// Такая "мягкость" связана с тем, что форсированно закрытые
-				// заказы не увеличивают текущие остатки, но имеют ненулевой
-				// остаток по лоту. При попытке же списать такой заказ можем
-				// нарваться на ошибку в данной точке.
+				// Р”Р»СЏ Р·Р°РєР°Р·РѕРІ РїСЂРё РґРѕСЃС‚РёР¶РµРЅРёРё РѕС‚СЂРёС†Р°С‚РµР»СЊРЅРѕРіРѕ С‚РµРєСѓС‰РµРіРѕ РѕСЃС‚Р°С‚РєР°
+				// РЅРµ РІС‹РґР°РµРј РѕС€РёР±РєСѓ, РЅРѕ РѕР±РЅСѓР»СЏРµРј СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РµРµ Р·РЅР°С‡РµРЅРёРµ.
+				// РўР°РєР°СЏ "РјСЏРіРєРѕСЃС‚СЊ" СЃРІСЏР·Р°РЅР° СЃ С‚РµРј, С‡С‚Рѕ С„РѕСЂСЃРёСЂРѕРІР°РЅРЅРѕ Р·Р°РєСЂС‹С‚С‹Рµ
+				// Р·Р°РєР°Р·С‹ РЅРµ СѓРІРµР»РёС‡РёРІР°СЋС‚ С‚РµРєСѓС‰РёРµ РѕСЃС‚Р°С‚РєРё, РЅРѕ РёРјРµСЋС‚ РЅРµРЅСѓР»РµРІРѕР№
+				// РѕСЃС‚Р°С‚РѕРє РїРѕ Р»РѕС‚Сѓ. РџСЂРё РїРѕРїС‹С‚РєРµ Р¶Рµ СЃРїРёСЃР°С‚СЊ С‚Р°РєРѕР№ Р·Р°РєР°Р· РјРѕР¶РµРј
+				// РЅР°СЂРІР°С‚СЊСЃСЏ РЅР° РѕС€РёР±РєСѓ РІ РґР°РЅРЅРѕР№ С‚РѕС‡РєРµ.
 				//
 				CRest.data.Rest = 0.0;
 			}
@@ -1316,11 +1319,11 @@ long FASTCALL MASK_TFR_FLAGS(long f)
 		PPTFR_CORRECTION | PPTFR_LOTSYNC)); // @v8.0.3 PPTFR_LOTSYNC
 }
 //
-// Ненулевое поле ti->RByBill является признаком зеркальной проводки
+// РќРµРЅСѓР»РµРІРѕРµ РїРѕР»Рµ ti->RByBill СЏРІР»СЏРµС‚СЃСЏ РїСЂРёР·РЅР°РєРѕРј Р·РµСЂРєР°Р»СЊРЅРѕР№ РїСЂРѕРІРѕРґРєРё
 //
-// Договоримся, что в случае межскладской передачи в любом случае первой из двух зеркальных проводок,
-// должна идти проводка по РАСХОДУ. Это очень важное замечание так как, в случае автоматического провода
-// зеркальной проводки знак количества меняется на противоположный.
+// Р”РѕРіРѕРІРѕСЂРёРјСЃСЏ, С‡С‚Рѕ РІ СЃР»СѓС‡Р°Рµ РјРµР¶СЃРєР»Р°РґСЃРєРѕР№ РїРµСЂРµРґР°С‡Рё РІ Р»СЋР±РѕРј СЃР»СѓС‡Р°Рµ РїРµСЂРІРѕР№ РёР· РґРІСѓС… Р·РµСЂРєР°Р»СЊРЅС‹С… РїСЂРѕРІРѕРґРѕРє,
+// РґРѕР»Р¶РЅР° РёРґС‚Рё РїСЂРѕРІРѕРґРєР° РїРѕ Р РђРЎРҐРћР”РЈ. Р­С‚Рѕ РѕС‡РµРЅСЊ РІР°Р¶РЅРѕРµ Р·Р°РјРµС‡Р°РЅРёРµ С‚Р°Рє РєР°Рє, РІ СЃР»СѓС‡Р°Рµ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРіРѕ РїСЂРѕРІРѕРґР°
+// Р·РµСЂРєР°Р»СЊРЅРѕР№ РїСЂРѕРІРѕРґРєРё Р·РЅР°Рє РєРѕР»РёС‡РµСЃС‚РІР° РјРµРЅСЏРµС‚СЃСЏ РЅР° РїСЂРѕС‚РёРІРѕРїРѕР»РѕР¶РЅС‹Р№.
 //
 int SLAPI Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 {
@@ -1344,9 +1347,9 @@ int SLAPI Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 			ti->RByBill = ++rByBill;
 			{
 				//
-				// Теоретически, в таблице Transfer не должно быть записей с ключем {ti->BillID, 0, ti->RByBill}.
-				// Однако, учитывая то, что механизм новый и за хранение последнего rByBill отвечает другая таблица (Bill)
-				// подстрахуемся использованием старого варианта.
+				// РўРµРѕСЂРµС‚РёС‡РµСЃРєРё, РІ С‚Р°Р±Р»РёС†Рµ Transfer РЅРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ Р·Р°РїРёСЃРµР№ СЃ РєР»СЋС‡РµРј {ti->BillID, 0, ti->RByBill}.
+				// РћРґРЅР°РєРѕ, СѓС‡РёС‚С‹РІР°СЏ С‚Рѕ, С‡С‚Рѕ РјРµС…Р°РЅРёР·Рј РЅРѕРІС‹Р№ Рё Р·Р° С…СЂР°РЅРµРЅРёРµ РїРѕСЃР»РµРґРЅРµРіРѕ rByBill РѕС‚РІРµС‡Р°РµС‚ РґСЂСѓРіР°СЏ С‚Р°Р±Р»РёС†Р° (Bill)
+				// РїРѕРґСЃС‚СЂР°С…СѓРµРјСЃСЏ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј СЃС‚Р°СЂРѕРіРѕ РІР°СЂРёР°РЅС‚Р°.
 				//
 				TransferTbl::Key0 k0;
 				k0.BillID  = ti->BillID;
@@ -1380,8 +1383,8 @@ int SLAPI Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 		}
 		// } @v8.0.3
 		//
-		// Следующий участок кода форсирует генерацию лота в том случае, если операция является приходной,
-		// не установлен флаг PPTFR_RECEIPT и лот операции нулевой либо его цены не совпадают с ценами операции.
+		// РЎР»РµРґСѓСЋС‰РёР№ СѓС‡Р°СЃС‚РѕРє РєРѕРґР° С„РѕСЂСЃРёСЂСѓРµС‚ РіРµРЅРµСЂР°С†РёСЋ Р»РѕС‚Р° РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РѕРїРµСЂР°С†РёСЏ СЏРІР»СЏРµС‚СЃСЏ РїСЂРёС…РѕРґРЅРѕР№,
+		// РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ С„Р»Р°Рі PPTFR_RECEIPT Рё Р»РѕС‚ РѕРїРµСЂР°С†РёРё РЅСѓР»РµРІРѕР№ Р»РёР±Рѕ РµРіРѕ С†РµРЅС‹ РЅРµ СЃРѕРІРїР°РґР°СЋС‚ СЃ С†РµРЅР°РјРё РѕРїРµСЂР°С†РёРё.
 		//
 		if(ti->IsUnlimWoLot()) {
 			MEMSZERO(lot_rec);
@@ -1417,7 +1420,7 @@ int SLAPI Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 				THROW_PP((ti->Flags & (PPTFR_ASSETEXPL|PPTFR_CORRECTION) || ti->Price != ti->Discount || ti->Cost != ti->RevalCost), PPERR_ZEROREVAL);
 			THROW(UpdateFwRevalCostAndPrice2(ti->LotID, dt, 0, ti->Cost, ti->Price, 0)); // @v9.5.10 UpdateFwRevalCostAndPrice-->UpdateFwRevalCostAndPrice2
 			if(ti->Flags & PPTFR_CORRECTION) {
-				THROW(Rcpt.Search(ti->LotID, &lot_rec) > 0); // @v8.9.0 @fix (перенесено снизу вверх)
+				THROW(Rcpt.Search(ti->LotID, &lot_rec) > 0); // @v8.9.0 @fix (РїРµСЂРµРЅРµСЃРµРЅРѕ СЃРЅРёР·Сѓ РІРІРµСЂС…)
 				THROW_PP(ti->Cost != ti->RevalCost || ti->Quantity_ != lot_rec.Quantity, PPERR_ZEROTICORRECTION);
 				THROW_PP(qtty >= 0.0, PPERR_INVQTTY);
 				// @v8.9.0 @fix THROW(Rcpt.Search(ti->LotID, &lot_rec) > 0);
@@ -1461,7 +1464,7 @@ int SLAPI Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 			THROW_PP(!(ti->Flags & PPTFR_UNLIM), PPERR_UNLIMINTROP);
 			ti->Price   -= ti->Discount;
 			ti->Discount = 0.0;
-			(msg_buf = 0).Cat(ti->CorrLoc);
+			msg_buf.Z().Cat(ti->CorrLoc);
 			THROW_PP_S(ti->CorrLoc && ti->CorrLoc != ti->LocID, PPERR_INVINTRCORRLOC, msg_buf);
 			if(ti->CorrLoc)
 				Exchange(&ti->LocID, &ti->CorrLoc);
@@ -1471,7 +1474,7 @@ int SLAPI Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 			ti->TFlags  &= ~PPTransferItem::tfForceNew; // @v8.0.3
 			INVERSEFLAG(ti->Flags, PPTFR_RECEIPT);
 			//
-			// Откладываем обработку ошибки в AddItem до восстановления значений ti
+			// РћС‚РєР»Р°РґС‹РІР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ РѕС€РёР±РєРё РІ AddItem РґРѕ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ Р·РЅР°С‡РµРЅРёР№ ti
 			//
 			r = AddItem(ti, rByBill, 0); // @recursion
 			INVERSEFLAG(ti->Flags, PPTFR_RECEIPT);
@@ -1520,11 +1523,11 @@ int Transfer::LcrBlock::InitLot(PPID lotID)
 int Transfer::LcrBlock::Update(PPID lotID, LDATE dt, double addendum)
 {
 	//
-	// Алгоритм, реализуемый функцией, обрабатывает записи по лоту lotID
-	// в хронологическом порядке:
-	// 1. Сначала, если необходимо, заполняются "дырки" от последней записи до даты (dt-1)
-	// 2. Затем модифицируется или добавляется запись на дату dt
-	// 3. Пересчитываются форвардные записи
+	// РђР»РіРѕСЂРёС‚Рј, СЂРµР°Р»РёР·СѓРµРјС‹Р№ С„СѓРЅРєС†РёРµР№, РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚ Р·Р°РїРёСЃРё РїРѕ Р»РѕС‚Сѓ lotID
+	// РІ С…СЂРѕРЅРѕР»РѕРіРёС‡РµСЃРєРѕРј РїРѕСЂСЏРґРєРµ:
+	// 1. РЎРЅР°С‡Р°Р»Р°, РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ, Р·Р°РїРѕР»РЅСЏСЋС‚СЃСЏ "РґС‹СЂРєРё" РѕС‚ РїРѕСЃР»РµРґРЅРµР№ Р·Р°РїРёСЃРё РґРѕ РґР°С‚С‹ (dt-1)
+	// 2. Р—Р°С‚РµРј РјРѕРґРёС„РёС†РёСЂСѓРµС‚СЃСЏ РёР»Рё РґРѕР±Р°РІР»СЏРµС‚СЃСЏ Р·Р°РїРёСЃСЊ РЅР° РґР°С‚Сѓ dt
+	// 3. РџРµСЂРµСЃС‡РёС‚С‹РІР°СЋС‚СЃСЏ С„РѕСЂРІР°СЂРґРЅС‹Рµ Р·Р°РїРёСЃРё
 	//
 	int    ok = 1;
 	if(Op == opUpdate && P_Tbl && addendum != 0.0) {
@@ -1534,10 +1537,10 @@ int Transfer::LcrBlock::Update(PPID lotID, LDATE dt, double addendum)
 		THROW(InitLot(lotID));
 		{
 			//
-			// Необходимо оглянуться назад. Если есть запись с остатком по этому лоту
-			// за дату, отстоящую от dt более чем на один день, то следует заполнить
-			// дырки (то есть дни, когда не было операций по лоту) остатком из той самой
-			// последеней записи.
+			// РќРµРѕР±С…РѕРґРёРјРѕ РѕРіР»СЏРЅСѓС‚СЊСЃСЏ РЅР°Р·Р°Рґ. Р•СЃР»Рё РµСЃС‚СЊ Р·Р°РїРёСЃСЊ СЃ РѕСЃС‚Р°С‚РєРѕРј РїРѕ СЌС‚РѕРјСѓ Р»РѕС‚Сѓ
+			// Р·Р° РґР°С‚Сѓ, РѕС‚СЃС‚РѕСЏС‰СѓСЋ РѕС‚ dt Р±РѕР»РµРµ С‡РµРј РЅР° РѕРґРёРЅ РґРµРЅСЊ, С‚Рѕ СЃР»РµРґСѓРµС‚ Р·Р°РїРѕР»РЅРёС‚СЊ
+			// РґС‹СЂРєРё (С‚Рѕ РµСЃС‚СЊ РґРЅРё, РєРѕРіРґР° РЅРµ Р±С‹Р»Рѕ РѕРїРµСЂР°С†РёР№ РїРѕ Р»РѕС‚Сѓ) РѕСЃС‚Р°С‚РєРѕРј РёР· С‚РѕР№ СЃР°РјРѕР№
+			// РїРѕСЃР»РµРґРµРЅРµР№ Р·Р°РїРёСЃРё.
 			//
 			k0.LotID = lotID;
 			k0.D = dti;
@@ -1552,7 +1555,7 @@ int Transfer::LcrBlock::Update(PPID lotID, LDATE dt, double addendum)
 		}
 		{
 			//
-			// Обрабатываем дату операции
+			// РћР±СЂР°Р±Р°С‚С‹РІР°РµРј РґР°С‚Сѓ РѕРїРµСЂР°С†РёРё
 			//
 			k0.LotID = lotID;
 			k0.D = dti;
@@ -1568,7 +1571,7 @@ int Transfer::LcrBlock::Update(PPID lotID, LDATE dt, double addendum)
 		}
 		{
 			//
-			// Обрабатываем форвардные записи
+			// РћР±СЂР°Р±Р°С‚С‹РІР°РµРј С„РѕСЂРІР°СЂРґРЅС‹Рµ Р·Р°РїРёСЃРё
 			//
 			k0.LotID = lotID;
 			k0.D = dti;
@@ -1613,7 +1616,7 @@ int Transfer::LcrBlock::FinishLot()
 {
 	int    ok = 1;
 	uint   i;
-	int    inner_bei = 0; // Признак того, что функция создала собственный экземпляр BExtInsert
+	int    inner_bei = 0; // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ С„СѓРЅРєС†РёСЏ СЃРѕР·РґР°Р»Р° СЃРѕР±СЃС‚РІРµРЅРЅС‹Р№ СЌРєР·РµРјРїР»СЏСЂ BExtInsert
 	BExtInsert * p_bei = 0;
 	if(LastDate && oneof2(Op, opRecalc, opTest)) {
 		THROW(AddItem(statusAddRec, LastDate, 0.0, LastRest));
@@ -1642,11 +1645,11 @@ int Transfer::LcrBlock::FinishLot()
 				}
 			}
 			//
-			// Проверка на наличие лишних записей.
-			// В массиве TestList у нас содержатся все необходимые записи.
-			// Извлекаем из базы данных все имеющиеся записи и ищем среди них те,
-			// которых нет в TestList - это и будут лишние записи. Вставляем их в TestList
-			// с кодом ошибки errWaste.
+			// РџСЂРѕРІРµСЂРєР° РЅР° РЅР°Р»РёС‡РёРµ Р»РёС€РЅРёС… Р·Р°РїРёСЃРµР№.
+			// Р’ РјР°СЃСЃРёРІРµ TestList Сѓ РЅР°СЃ СЃРѕРґРµСЂР¶Р°С‚СЃСЏ РІСЃРµ РЅРµРѕР±С…РѕРґРёРјС‹Рµ Р·Р°РїРёСЃРё.
+			// РР·РІР»РµРєР°РµРј РёР· Р±Р°Р·С‹ РґР°РЅРЅС‹С… РІСЃРµ РёРјРµСЋС‰РёРµСЃСЏ Р·Р°РїРёСЃРё Рё РёС‰РµРј СЃСЂРµРґРё РЅРёС… С‚Рµ,
+			// РєРѕС‚РѕСЂС‹С… РЅРµС‚ РІ TestList - СЌС‚Рѕ Рё Р±СѓРґСѓС‚ Р»РёС€РЅРёРµ Р·Р°РїРёСЃРё. Р’СЃС‚Р°РІР»СЏРµРј РёС… РІ TestList
+			// СЃ РєРѕРґРѕРј РѕС€РёР±РєРё errWaste.
 			//
 			BExtQuery q(P_Tbl, 0);
 			LotCurRestTbl::Key0 k0;
@@ -1660,7 +1663,7 @@ int Transfer::LcrBlock::FinishLot()
 					THROW(AddItem(statusWaste, dt, P_Tbl->data.Rest, 0.0));
 			}
 			//
-			// Наконец сортируем массив дабы клиенту было удобнее с ним работать
+			// РќР°РєРѕРЅРµС† СЃРѕСЂС‚РёСЂСѓРµРј РјР°СЃСЃРёРІ РґР°Р±С‹ РєР»РёРµРЅС‚Сѓ Р±С‹Р»Рѕ СѓРґРѕР±РЅРµРµ СЃ РЅРёРј СЂР°Р±РѕС‚Р°С‚СЊ
 			//
 			List.sort(CMPF_LONG);
 		}
@@ -1930,11 +1933,11 @@ int SLAPI Transfer::UpdateCascadeLot(PPID lotID, PPID ownBillID, TrUCL_Param * p
 					}
 					THROW_DB(updateRecBuf(&en_trfr_rec));
 					//
-					// Если изменилась цена поступления или цена реализации, то
-					// обновляем проводки по всем документам кроме собственно
-					// документа, по которому был приход. Здесь мы полагаемся на
-					// косвенные (но вполне надежные) признаки: предыдущий лот равен
-					// нулю и товарная проводка порождает лот.
+					// Р•СЃР»Рё РёР·РјРµРЅРёР»Р°СЃСЊ С†РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ РёР»Рё С†РµРЅР° СЂРµР°Р»РёР·Р°С†РёРё, С‚Рѕ
+					// РѕР±РЅРѕРІР»СЏРµРј РїСЂРѕРІРѕРґРєРё РїРѕ РІСЃРµРј РґРѕРєСѓРјРµРЅС‚Р°Рј РєСЂРѕРјРµ СЃРѕР±СЃС‚РІРµРЅРЅРѕ
+					// РґРѕРєСѓРјРµРЅС‚Р°, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ Р±С‹Р» РїСЂРёС…РѕРґ. Р—РґРµСЃСЊ РјС‹ РїРѕР»Р°РіР°РµРјСЃСЏ РЅР°
+					// РєРѕСЃРІРµРЅРЅС‹Рµ (РЅРѕ РІРїРѕР»РЅРµ РЅР°РґРµР¶РЅС‹Рµ) РїСЂРёР·РЅР°РєРё: РїСЂРµРґС‹РґСѓС‰РёР№ Р»РѕС‚ СЂР°РІРµРЅ
+					// РЅСѓР»СЋ Рё С‚РѕРІР°СЂРЅР°СЏ РїСЂРѕРІРѕРґРєР° РїРѕСЂРѕР¶РґР°РµС‚ Р»РѕС‚.
 					//
 					// @v9.0.10 if((flags & TRUCLF_UPDCP) && (!prev_lot_id || !(en_trfr_rec.Flags & PPTFR_RECEIPT))) { // @fix prev_lot_id-->!prev_lot_id
 					if(flags & TRUCLF_UPDCP) { // @v9.0.10
@@ -1989,11 +1992,11 @@ int SLAPI Transfer::UpdateReceipt(PPID lotID, PPTransferItem * ti, PPID prevLotI
 	THROW(Rcpt.Search(lotID, &lot_rec) > 0);
 	if(ti->CorrLoc && ti->BillID != lot_rec.BillID) {
 		//
-		// Если лот был создан документом, отличным от документа, которому соответствует параметр ti,
-		// то никаких модификаций лота не делаем. Эта ситуация возникает при циклическом межскладе,
-		// когда фактически лот не создается, а лишь меняется его остаток. Вообще метод, которым мы
-		// определяем такую ситуацию является косвенным (зато очень быстрым). Более корректным было-бы
-		// выяснить, существуют-ли проводки по этому лоту, сделанные до проводки, определяющей ti.
+		// Р•СЃР»Рё Р»РѕС‚ Р±С‹Р» СЃРѕР·РґР°РЅ РґРѕРєСѓРјРµРЅС‚РѕРј, РѕС‚Р»РёС‡РЅС‹Рј РѕС‚ РґРѕРєСѓРјРµРЅС‚Р°, РєРѕС‚РѕСЂРѕРјСѓ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РїР°СЂР°РјРµС‚СЂ ti,
+		// С‚Рѕ РЅРёРєР°РєРёС… РјРѕРґРёС„РёРєР°С†РёР№ Р»РѕС‚Р° РЅРµ РґРµР»Р°РµРј. Р­С‚Р° СЃРёС‚СѓР°С†РёСЏ РІРѕР·РЅРёРєР°РµС‚ РїСЂРё С†РёРєР»РёС‡РµСЃРєРѕРј РјРµР¶СЃРєР»Р°РґРµ,
+		// РєРѕРіРґР° С„Р°РєС‚РёС‡РµСЃРєРё Р»РѕС‚ РЅРµ СЃРѕР·РґР°РµС‚СЃСЏ, Р° Р»РёС€СЊ РјРµРЅСЏРµС‚СЃСЏ РµРіРѕ РѕСЃС‚Р°С‚РѕРє. Р’РѕРѕР±С‰Рµ РјРµС‚РѕРґ, РєРѕС‚РѕСЂС‹Рј РјС‹
+		// РѕРїСЂРµРґРµР»СЏРµРј С‚Р°РєСѓСЋ СЃРёС‚СѓР°С†РёСЋ СЏРІР»СЏРµС‚СЃСЏ РєРѕСЃРІРµРЅРЅС‹Рј (Р·Р°С‚Рѕ РѕС‡РµРЅСЊ Р±С‹СЃС‚СЂС‹Рј). Р‘РѕР»РµРµ РєРѕСЂСЂРµРєС‚РЅС‹Рј Р±С‹Р»Рѕ-Р±С‹
+		// РІС‹СЏСЃРЅРёС‚СЊ, СЃСѓС‰РµСЃС‚РІСѓСЋС‚-Р»Рё РїСЂРѕРІРѕРґРєРё РїРѕ СЌС‚РѕРјСѓ Р»РѕС‚Сѓ, СЃРґРµР»Р°РЅРЅС‹Рµ РґРѕ РїСЂРѕРІРѕРґРєРё, РѕРїСЂРµРґРµР»СЏСЋС‰РµР№ ti.
 		//
 	   	;
 	}
@@ -2059,24 +2062,24 @@ int SLAPI Transfer::UpdateReceipt(PPID lotID, PPTransferItem * ti, PPID prevLotI
 	return ok;
 }
 //
-// Функция UpdateItem может изменить только шесть полей структуры
+// Р¤СѓРЅРєС†РёСЏ UpdateItem РјРѕР¶РµС‚ РёР·РјРµРЅРёС‚СЊ С‚РѕР»СЊРєРѕ С€РµСЃС‚СЊ РїРѕР»РµР№ СЃС‚СЂСѓРєС‚СѓСЂС‹
 // PPTransferItem: UnitPerPack, Quantity, Cost, Price, Discount, GoodsID.
-// Наибольшую сложность представляет модификация поля Quantity, так как она требует
-// пересчета остатков (возможно форвардных). Все изменения делаются по всем необходимым
-// таблицам. Следует отметить, что модификация ценовых полей происходит просто как
-// изменение соответствующих полей таблиц данных, но не как операция переоценки.
-// В параметре ti должны быть корректно установлены поля BillID и RByBill.
-// По этим полям будет осуществляться первоначальный поиск модифицируемых записей.
-// В считанной записи TransferTbl::Rec проверяется поле Flags на флажок PPTFR_RECEIPT.
-// Если этот флажок установлен, то будет модифицироваться приходная запись.
+// РќР°РёР±РѕР»СЊС€СѓСЋ СЃР»РѕР¶РЅРѕСЃС‚СЊ РїСЂРµРґСЃС‚Р°РІР»СЏРµС‚ РјРѕРґРёС„РёРєР°С†РёСЏ РїРѕР»СЏ Quantity, С‚Р°Рє РєР°Рє РѕРЅР° С‚СЂРµР±СѓРµС‚
+// РїРµСЂРµСЃС‡РµС‚Р° РѕСЃС‚Р°С‚РєРѕРІ (РІРѕР·РјРѕР¶РЅРѕ С„РѕСЂРІР°СЂРґРЅС‹С…). Р’СЃРµ РёР·РјРµРЅРµРЅРёСЏ РґРµР»Р°СЋС‚СЃСЏ РїРѕ РІСЃРµРј РЅРµРѕР±С…РѕРґРёРјС‹Рј
+// С‚Р°Р±Р»РёС†Р°Рј. РЎР»РµРґСѓРµС‚ РѕС‚РјРµС‚РёС‚СЊ, С‡С‚Рѕ РјРѕРґРёС„РёРєР°С†РёСЏ С†РµРЅРѕРІС‹С… РїРѕР»РµР№ РїСЂРѕРёСЃС…РѕРґРёС‚ РїСЂРѕСЃС‚Рѕ РєР°Рє
+// РёР·РјРµРЅРµРЅРёРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёС… РїРѕР»РµР№ С‚Р°Р±Р»РёС† РґР°РЅРЅС‹С…, РЅРѕ РЅРµ РєР°Рє РѕРїРµСЂР°С†РёСЏ РїРµСЂРµРѕС†РµРЅРєРё.
+// Р’ РїР°СЂР°РјРµС‚СЂРµ ti РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РєРѕСЂСЂРµРєС‚РЅРѕ СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹ РїРѕР»СЏ BillID Рё RByBill.
+// РџРѕ СЌС‚РёРј РїРѕР»СЏРј Р±СѓРґРµС‚ РѕСЃСѓС‰РµСЃС‚РІР»СЏС‚СЊСЃСЏ РїРµСЂРІРѕРЅР°С‡Р°Р»СЊРЅС‹Р№ РїРѕРёСЃРє РјРѕРґРёС„РёС†РёСЂСѓРµРјС‹С… Р·Р°РїРёСЃРµР№.
+// Р’ СЃС‡РёС‚Р°РЅРЅРѕР№ Р·Р°РїРёСЃРё TransferTbl::Rec РїСЂРѕРІРµСЂСЏРµС‚СЃСЏ РїРѕР»Рµ Flags РЅР° С„Р»Р°Р¶РѕРє PPTFR_RECEIPT.
+// Р•СЃР»Рё СЌС‚РѕС‚ С„Р»Р°Р¶РѕРє СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ Р±СѓРґРµС‚ РјРѕРґРёС„РёС†РёСЂРѕРІР°С‚СЊСЃСЏ РїСЂРёС…РѕРґРЅР°СЏ Р·Р°РїРёСЃСЊ.
 //
 int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rByBill, long flags, int use_ta)
 {
 	return UpdateItem(ti, rByBill, 0, flags, use_ta);
 }
 //
-// Функция UpdateItem умеет выправлять несоответствующие зеркальные проводки.
-// Для этой цели необходимо параметр reverse установить в значение 1.
+// Р¤СѓРЅРєС†РёСЏ UpdateItem СѓРјРµРµС‚ РІС‹РїСЂР°РІР»СЏС‚СЊ РЅРµСЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРµ Р·РµСЂРєР°Р»СЊРЅС‹Рµ РїСЂРѕРІРѕРґРєРё.
+// Р”Р»СЏ СЌС‚РѕР№ С†РµР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ РїР°СЂР°РјРµС‚СЂ reverse СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РІ Р·РЅР°С‡РµРЅРёРµ 1.
 //
 int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, long flags, int use_ta)
 {
@@ -2169,8 +2172,8 @@ int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int revers
 				THROW(UpdateFwRevalCostAndPrice2(rec.LotID, plusdate(rec.Dt, 1), 0, ti->Cost, ti->Price, &uf)); // @v9.5.10 UpdateFwRevalCostAndPrice-->UpdateFwRevalCostAndPrice2
 				if(ti->Flags & PPTFR_INDEPPHQTTY && ti->IsRecomplete()) {
 					//
-					// При рекомплектации количество измениться не может, однако может измениться //
-					// независимое физическое количество.
+					// РџСЂРё СЂРµРєРѕРјРїР»РµРєС‚Р°С†РёРё РєРѕР»РёС‡РµСЃС‚РІРѕ РёР·РјРµРЅРёС‚СЊСЃСЏ РЅРµ РјРѕР¶РµС‚, РѕРґРЅР°РєРѕ РјРѕР¶РµС‚ РёР·РјРµРЅРёС‚СЊСЃСЏ //
+					// РЅРµР·Р°РІРёСЃРёРјРѕРµ С„РёР·РёС‡РµСЃРєРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ.
 					//
 					ph_qtty = new_ph_qtty - R6(rec.WtQtty);
 				}
@@ -2189,7 +2192,7 @@ int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int revers
 			THROW(SearchByBill(ti->BillID, 0, _rbb, 0) > 0);
 			data.LotID = ti->LotID;
 			//
-			// @v9.0.12 Из-за изменения техники каскадной модификации лотов это присвоение необходимо
+			// @v9.0.12 РР·-Р·Р° РёР·РјРµРЅРµРЅРёСЏ С‚РµС…РЅРёРєРё РєР°СЃРєР°РґРЅРѕР№ РјРѕРґРёС„РёРєР°С†РёРё Р»РѕС‚РѕРІ СЌС‚Рѕ РїСЂРёСЃРІРѕРµРЅРёРµ РЅРµРѕР±С…РѕРґРёРјРѕ
 			//
 			if(rec.Flags & PPTFR_RECEIPT) {
 				data.GoodsID = ti->GoodsID;
@@ -2216,7 +2219,7 @@ int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int revers
 			THROW(UpdateForward(rec, qtty, ph_qtty));
 		}
 		//
-		// Ищем зеркальную проводку
+		// РС‰РµРј Р·РµСЂРєР°Р»СЊРЅСѓСЋ РїСЂРѕРІРѕРґРєСѓ
 		//
 		_rbb = ti->RByBill;
 		if((r = SearchByBill(ti->BillID, 1, _rbb, &rec)) > 0) {
@@ -2252,16 +2255,16 @@ int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int revers
 			}
 			else if(rec.LotID) {
 				//
-				// Этот участок кода работает в случае, если зеркальная запись
-				// не генерирует собственный лот, а вливается в существующий
+				// Р­С‚РѕС‚ СѓС‡Р°СЃС‚РѕРє РєРѕРґР° СЂР°Р±РѕС‚Р°РµС‚ РІ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё Р·РµСЂРєР°Р»СЊРЅР°СЏ Р·Р°РїРёСЃСЊ
+				// РЅРµ РіРµРЅРµСЂРёСЂСѓРµС‚ СЃРѕР±СЃС‚РІРµРЅРЅС‹Р№ Р»РѕС‚, Р° РІР»РёРІР°РµС‚СЃСЏ РІ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№
 				//
 				ReceiptTbl::Rec tmp_lot_rec;
 				MEMSZERO(tmp_lot_rec);
 				tmp_lot_rec.ID = rec.LotID;
 				//
-				// Если цены изменились, то операция уже не может вливаться в
-				// существующий лот, а должна генерировать собственный.
-				// При этом мы удаляем запись и вставляем ее снова, но уже с признаком PPTFR_RECEIPT.
+				// Р•СЃР»Рё С†РµРЅС‹ РёР·РјРµРЅРёР»РёСЃСЊ, С‚Рѕ РѕРїРµСЂР°С†РёСЏ СѓР¶Рµ РЅРµ РјРѕР¶РµС‚ РІР»РёРІР°С‚СЊСЃСЏ РІ
+				// СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ Р»РѕС‚, Р° РґРѕР»Р¶РЅР° РіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ СЃРѕР±СЃС‚РІРµРЅРЅС‹Р№.
+				// РџСЂРё СЌС‚РѕРј РјС‹ СѓРґР°Р»СЏРµРј Р·Р°РїРёСЃСЊ Рё РІСЃС‚Р°РІР»СЏРµРј РµРµ СЃРЅРѕРІР°, РЅРѕ СѓР¶Рµ СЃ РїСЂРёР·РЅР°РєРѕРј PPTFR_RECEIPT.
 				//
 				THROW(Rcpt.Search(rec.LotID, &tmp_lot_rec) > 0);
 				THROW(GetLotPrices(&tmp_lot_rec, rec.Dt, rec.OprNo));
@@ -2285,7 +2288,7 @@ int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int revers
 						ti->Flags   &= ~PPTFR_UNITEINTR;
 						INVERSEFLAG(ti->Flags, PPTFR_RECEIPT);
 						//
-						// Откладываем обработку ошибки в AddItem до восстановления значений ti
+						// РћС‚РєР»Р°РґС‹РІР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ РѕС€РёР±РєРё РІ AddItem РґРѕ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ Р·РЅР°С‡РµРЅРёР№ ti
 						//
 						r = AddItem(ti, rRByBill, 0);
 						INVERSEFLAG(ti->Flags, PPTFR_RECEIPT);
@@ -2333,9 +2336,9 @@ int SLAPI Transfer::RemoveItem(PPID billID, int rByBill, int force, int use_ta)
 	return RemoveItem(billID, 0, rByBill, force, use_ta);
 }
 //
-// Функция _RemoveItem сделана с прицелом на удаление висячей
-// зеркальной записи. Для удаления такой записи необходимо
-// параметр reverse установить в значение 1.
+// Р¤СѓРЅРєС†РёСЏ _RemoveItem СЃРґРµР»Р°РЅР° СЃ РїСЂРёС†РµР»РѕРј РЅР° СѓРґР°Р»РµРЅРёРµ РІРёСЃСЏС‡РµР№
+// Р·РµСЂРєР°Р»СЊРЅРѕР№ Р·Р°РїРёСЃРё. Р”Р»СЏ СѓРґР°Р»РµРЅРёСЏ С‚Р°РєРѕР№ Р·Р°РїРёСЃРё РЅРµРѕР±С…РѕРґРёРјРѕ
+// РїР°СЂР°РјРµС‚СЂ reverse СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РІ Р·РЅР°С‡РµРЅРёРµ 1.
 //
 int SLAPI Transfer::RemoveItem(PPID bill, int reverse, short rByBill, int force, int use_ta)
 {
@@ -2354,10 +2357,10 @@ int SLAPI Transfer::RemoveItem(PPID bill, int reverse, short rByBill, int force,
 			if(rec.LotID) {
 				{
 					//
-					// Проверяем, чтобы не осталось ни одной операции по удаляемому лоту.
-					// Хотя функция UpdateForward косвенно выполняет такую проверку,
-					// она не может засечь оставшуюся форвардную переоценку. Именно на
-					// этот и подобные ему случаи и рассчитана данная проверка.
+					// РџСЂРѕРІРµСЂСЏРµРј, С‡С‚РѕР±С‹ РЅРµ РѕСЃС‚Р°Р»РѕСЃСЊ РЅРё РѕРґРЅРѕР№ РѕРїРµСЂР°С†РёРё РїРѕ СѓРґР°Р»СЏРµРјРѕРјСѓ Р»РѕС‚Сѓ.
+					// РҐРѕС‚СЏ С„СѓРЅРєС†РёСЏ UpdateForward РєРѕСЃРІРµРЅРЅРѕ РІС‹РїРѕР»РЅСЏРµС‚ С‚Р°РєСѓСЋ РїСЂРѕРІРµСЂРєСѓ,
+					// РѕРЅР° РЅРµ РјРѕР¶РµС‚ Р·Р°СЃРµС‡СЊ РѕСЃС‚Р°РІС€СѓСЋСЃСЏ С„РѕСЂРІР°СЂРґРЅСѓСЋ РїРµСЂРµРѕС†РµРЅРєСѓ. РРјРµРЅРЅРѕ РЅР°
+					// СЌС‚РѕС‚ Рё РїРѕРґРѕР±РЅС‹Рµ РµРјСѓ СЃР»СѓС‡Р°Рё Рё СЂР°СЃСЃС‡РёС‚Р°РЅР° РґР°РЅРЅР°СЏ РїСЂРѕРІРµСЂРєР°.
 					//
 					dt = rec.Dt;
 					oprno = rec.OprNo;
@@ -2371,8 +2374,8 @@ int SLAPI Transfer::RemoveItem(PPID bill, int reverse, short rByBill, int force,
 					THROW(r);
 				}
 				//
-				// Проверка на случай если по ошибке выставлен флаг PPTFR_RECEIPT, но
-				// строка ни к какому лоту не привязана
+				// РџСЂРѕРІРµСЂРєР° РЅР° СЃР»СѓС‡Р°Р№ РµСЃР»Рё РїРѕ РѕС€РёР±РєРµ РІС‹СЃС‚Р°РІР»РµРЅ С„Р»Р°Рі PPTFR_RECEIPT, РЅРѕ
+				// СЃС‚СЂРѕРєР° РЅРё Рє РєР°РєРѕРјСѓ Р»РѕС‚Сѓ РЅРµ РїСЂРёРІСЏР·Р°РЅР°
 				//
 				THROW(r = Rcpt.EnumRefs(rec.LotID, &(dt = ZERODATE), &(oprno = 0)));
 				THROW_PP(r < 0, PPERR_DELPARENTLOT);
@@ -2407,7 +2410,7 @@ int SLAPI Transfer::RemoveItem(PPID bill, int reverse, short rByBill, int force,
 					else
 						CALLEXCEPT_PP(PPERR_FWLOTRESTBOUND);
 				THROW(r = Rcpt.EnumRefs(rec.LotID, &(dt = ZERODATE), &(oprno = 0)));
-				// Если существует порожденный лот, то родителя не удаляем
+				// Р•СЃР»Рё СЃСѓС‰РµСЃС‚РІСѓРµС‚ РїРѕСЂРѕР¶РґРµРЅРЅС‹Р№ Р»РѕС‚, С‚Рѕ СЂРѕРґРёС‚РµР»СЏ РЅРµ СѓРґР°Р»СЏРµРј
 				if(r < 0)
 					remove_lot_id = rec.LotID;
 			}
@@ -2439,10 +2442,10 @@ int SLAPI Transfer::SubtractBillQtty(PPID billID, PPID lotID, double * pRest)
 	return 1;
 }
 //
-// Примитив для перемещения операции с одного лота на другой.
-// Производит минимум проверок. По заданным параметром param данным
-// перемещает операцию param->TrRec с лота SrcLot (SrcLotID == TrRec.LotID)
-// на лот DestLotID (DestLot.GoodsID == SrcLot.GoodsID).
+// РџСЂРёРјРёС‚РёРІ РґР»СЏ РїРµСЂРµРјРµС‰РµРЅРёСЏ РѕРїРµСЂР°С†РёРё СЃ РѕРґРЅРѕРіРѕ Р»РѕС‚Р° РЅР° РґСЂСѓРіРѕР№.
+// РџСЂРѕРёР·РІРѕРґРёС‚ РјРёРЅРёРјСѓРј РїСЂРѕРІРµСЂРѕРє. РџРѕ Р·Р°РґР°РЅРЅС‹Рј РїР°СЂР°РјРµС‚СЂРѕРј param РґР°РЅРЅС‹Рј
+// РїРµСЂРµРјРµС‰Р°РµС‚ РѕРїРµСЂР°С†РёСЋ param->TrRec СЃ Р»РѕС‚Р° SrcLot (SrcLotID == TrRec.LotID)
+// РЅР° Р»РѕС‚ DestLotID (DestLot.GoodsID == SrcLot.GoodsID).
 //
 int SLAPI Transfer::MoveOp(LotOpMovParam * param, int use_ta)
 {
@@ -2548,9 +2551,9 @@ int SLAPI Transfer::MoveLotOp(PPID srcLotID, LDATE dt, long oprno, PPID destLotI
 		if(Search(srcLotID, dt, oprno, spEq) > 0) {
 			if(srcLotID == 0 && data.Flags & PPTFR_RECEIPT) {
 				//
-				// Этот блок позволяет просто изменить значение поля LotID на destLotID в записи TransferTbl.
-				// Это бывает необходимо в связи с ошибками из-за которых запись, порождающая лот, потеряла
-				// ссылку на этот лот. Такая ошибка в частности возникла в v2.4.2
+				// Р­С‚РѕС‚ Р±Р»РѕРє РїРѕР·РІРѕР»СЏРµС‚ РїСЂРѕСЃС‚Рѕ РёР·РјРµРЅРёС‚СЊ Р·РЅР°С‡РµРЅРёРµ РїРѕР»СЏ LotID РЅР° destLotID РІ Р·Р°РїРёСЃРё TransferTbl.
+				// Р­С‚Рѕ Р±С‹РІР°РµС‚ РЅРµРѕР±С…РѕРґРёРјРѕ РІ СЃРІСЏР·Рё СЃ РѕС€РёР±РєР°РјРё РёР·-Р·Р° РєРѕС‚РѕСЂС‹С… Р·Р°РїРёСЃСЊ, РїРѕСЂРѕР¶РґР°СЋС‰Р°СЏ Р»РѕС‚, РїРѕС‚РµСЂСЏР»Р°
+				// СЃСЃС‹Р»РєСѓ РЅР° СЌС‚РѕС‚ Р»РѕС‚. РўР°РєР°СЏ РѕС€РёР±РєР° РІ С‡Р°СЃС‚РЅРѕСЃС‚Рё РІРѕР·РЅРёРєР»Р° РІ v2.4.2
 				//
 				THROW_PP(data.GoodsID == param.DestLot.GoodsID && data.LocID == param.DestLot.LocID, PPERR_INCOMPATLOTS);
 				data.LotID = destLotID;

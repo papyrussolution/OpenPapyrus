@@ -185,10 +185,9 @@ int SLAPI PPAdvBillItemList::Remove(uint pos)
 	return atFree(pos);
 }
 
-int SLAPI PPAdvBillItemList::Clear()
+void SLAPI PPAdvBillItemList::Clear()
 {
 	freeAll();
-	return 1;
 }
 
 int SLAPI PPAdvBillItemList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)

@@ -23,11 +23,12 @@ struct FontSpecification {
 	FontSpecification() : fontName(0), weight(SC_WEIGHT_NORMAL), italic(false), size(10 * SC_FONT_SIZE_MULTIPLIER), characterSet(0), extraFontFlag(0) 
 	{
 	}
-	bool operator==(const FontSpecification &other) const;
-	bool operator<(const FontSpecification &other) const;
+	bool operator == (const FontSpecification &other) const;
+	bool operator < (const FontSpecification &other) const;
 };
-
+//
 // Just like Font but only has a copy of the FontID so should not delete it
+//
 class FontAlias : public Font {
 	// Private so FontAlias objects can not be assigned except for intiialization
 	FontAlias & operator = (const FontAlias &);
@@ -48,9 +49,9 @@ struct FontMeasurements {
 	FontMeasurements();
 	void Clear();
 };
-
-/**
- */
+//
+//
+//
 class Style : public FontSpecification, public FontMeasurements {
 public:
 	ColourDesired fore;

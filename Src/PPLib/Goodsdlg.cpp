@@ -236,10 +236,10 @@ int SLAPI PPObjGoods::ViewUhttGoodsRestList(PPID goodsID)
 					ss.clear();
 					ss.add(temp_buf = p_item->Name);
 					ss.add(temp_buf = p_item->LocAddr);
-					ss.add((temp_buf = 0).Cat(p_item->Rest, MKSFMTD(0, 3, NMBF_NOZERO)));
-					ss.add((temp_buf = 0).Cat((LDATE)p_item->RestDtm, DATF_DMY));
-					ss.add((temp_buf = 0).Cat(p_item->Price, MKSFMTD(0, 2, NMBF_NOZERO)));
-					ss.add((temp_buf = 0).Cat((LDATE)p_item->PriceDtm, DATF_DMY));
+					ss.add(temp_buf.Z().Cat(p_item->Rest, MKSFMTD(0, 3, NMBF_NOZERO)));
+					ss.add(temp_buf.Z().Cat((LDATE)p_item->RestDtm, DATF_DMY));
+					ss.add(temp_buf.Z().Cat(p_item->Price, MKSFMTD(0, 2, NMBF_NOZERO)));
+					ss.add(temp_buf.Z().Cat((LDATE)p_item->PriceDtm, DATF_DMY));
 					THROW(addStringToList(i+1, ss.getBuf()));
 				}
 			}
@@ -285,7 +285,7 @@ int SLAPI PPObjGoods::SelectBarcode(int kind, PPID parentID, SString & rBuf)
 	int    ok = -1;
 	PPID   id = 0;
 	char   code[64];
-	rBuf = 0;
+	rBuf.Z();
 	if(kind == PPGDSK_GOODS) {
 		PPBarcodeStruc rec;
 		PPObjBarCodeStruc bcs_obj;
@@ -825,7 +825,7 @@ int ArGoodsCodeListDialog::setupList()
 		GetArticleName(p_item->ArID, sub);
 		ss.add(sub);
 		ss.add(p_item->Code);
-		(sub = 0).Cat(fdiv1000i(p_item->Pack), MKSFMTD(0, 3, NMBF_NOTRAILZ));
+		sub.Z().Cat(fdiv1000i(p_item->Pack), MKSFMTD(0, 3, NMBF_NOTRAILZ));
 		ss.add(sub);
 		if(!addStringToList(i, ss.getBuf()))
 			return 0;
@@ -2016,7 +2016,7 @@ IMPL_HANDLE_EVENT(GoodsVadDialog)
 					(title_buf = Data.Rec.Name).CatDiv('-', 1);
 				title_buf.Cat(temp_buf);
             }
-			getCtrlString(curr_id, temp_buf = 0);
+			getCtrlString(curr_id, temp_buf.Z());
 			if(BigTextDialog(MaxExtTextLen, title_buf, temp_buf) > 0) {
                 setCtrlString(curr_id, temp_buf);
 			}
@@ -3590,11 +3590,11 @@ int GoodsFiltDialog::setDTS(GoodsFilt * pFilt)
 		disableCtrl(CTLSEL_GOODSFLT_GRP, 1);
 	}
 	{
-		Data.GetExtssData(Data.extssNameText, temp_buf = 0);
+		Data.GetExtssData(Data.extssNameText, temp_buf.Z());
 		setCtrlString(CTL_GOODSFLT_NAMESTR, temp_buf);
 	}
 	{
-		Data.GetExtssData(Data.extssBarcodeText, temp_buf = 0);
+		Data.GetExtssData(Data.extssBarcodeText, temp_buf.Z());
 		setCtrlString(CTL_GOODSFLT_BARCODESTR, temp_buf);
 	}
 	setCtrlString(CTL_GOODSFLT_BCLEN, Data.BarcodeLen);

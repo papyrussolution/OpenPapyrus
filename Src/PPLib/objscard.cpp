@@ -1747,11 +1747,11 @@ int SLAPI PPObjSCard::Helper_GetListBySubstring(const char * pSubstr, PPID serie
 				if(flags & clsfFromBeg)
 					temp_buf = pSubstr;
 				else
-					(temp_buf = 0).CatChar('*').Cat(pSubstr);
+					temp_buf.Z().CatChar('*').Cat(pSubstr);
 				q.CatParStr(temp_buf).Space();
 			}
 			if(seriesID) {
-				q.Cat("SERIES").CatParStr((temp_buf = 0).Cat(seriesID)).Space();
+				q.Cat("SERIES").CatParStr(temp_buf.Z().Cat(seriesID)).Space();
 			}
 			q.Cat("FORMAT").Dot().Cat("BIN").CatParStr((const char *)0);
 			PPJobSrvReply reply;
@@ -2204,7 +2204,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 										if(ev_rec.Extra == bonus_period_idx) {
 											if(pLog) {
 												PPLoadText(PPTXT_LOG_SCBONUSCHARGEDUP, fmt_buf);
-												pLog->Log(msg_buf.Printf(fmt_buf, sc_rec.Code, (temp_buf = 0).Cat(bonus_period, 1).cptr()));
+												pLog->Log(msg_buf.Printf(fmt_buf, sc_rec.Code, temp_buf.Z().Cat(bonus_period, 1).cptr()));
 											}
 											skip = 1;
 										}
@@ -2288,9 +2288,9 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 								}
 								else {
 									PPLoadText(PPTXT_LOG_INVSCARDSER, fmt_buf);
-									ideqvalstr(entry.SeriesID, temp_buf = 0);
+									ideqvalstr(entry.SeriesID, temp_buf.Z());
 									PPGetLastErrorMessage(1, temp_buf2);
-									msg_buf.Printf(fmt_buf, (const char *)temp_buf, scard_name.cptr(), temp_buf2.cptr());
+									msg_buf.Printf(fmt_buf, temp_buf.cptr(), scard_name.cptr(), temp_buf2.cptr());
 									if(pLog)
 										pLog->Log(msg_buf);
 									else
@@ -2310,7 +2310,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 								// Вывод информации в текстовый журнал
 								//
 								PPLoadText(PPTXT_LOG_SCARDRULEAPPLY, fmt_buf);
-								msg_buf.Printf(fmt_buf, (const char *)scard_name, r_sct_item.DscntTrnovr).Space();
+								msg_buf.Printf(fmt_buf, scard_name.cptr(), r_sct_item.DscntTrnovr).Space();
 								if(upd_dis) {
 									PPLoadText(PPTXT_LOG_ADD_SCARDDISUPD, fmt_buf);
 									msg_buf.Cat(temp_buf.Printf(fmt_buf, fdiv100i(prev_pdis), new_pdis));
@@ -2407,7 +2407,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule(PPID seriesID, int prevTrnovrPrd, PPLog
 									if(ev_rec.Extra == period_idx) {
 										if(pLog) {
 											PPLoadText(PPTXT_LOG_SCBONUSCHARGEDUP, fmt_buf);
-											pLog->Log(msg_buf.Printf(fmt_buf, rec.Code, (const char *)(temp_buf = 0).Cat(period, 1)));
+											pLog->Log(msg_buf.Printf(fmt_buf, rec.Code, temp_buf.Z().Cat(period, 1).cptr()));
 										}
 										skip = 1;
 									}
@@ -2494,7 +2494,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule(PPID seriesID, int prevTrnovrPrd, PPLog
 								}
 								else {
 									PPLoadText(PPTXT_LOG_UNCOMPSCARDSER, fmt_buf);
-									msg_buf.Printf(fmt_buf, (const char *)scard_name, (const char *)mov_ser_rec.Name);
+									msg_buf.Printf(fmt_buf, scard_name.cptr(), (const char *)mov_ser_rec.Name);
 									if(pLog)
 										pLog->Log(msg_buf);
 									else
@@ -2504,9 +2504,9 @@ int SLAPI PPObjSCard::UpdateBySeriesRule(PPID seriesID, int prevTrnovrPrd, PPLog
 							}
 							else {
 								PPLoadText(PPTXT_LOG_INVSCARDSER, fmt_buf);
-								ideqvalstr(entry.SeriesID, temp_buf = 0);
+								ideqvalstr(entry.SeriesID, temp_buf.Z());
 								PPGetLastErrorMessage(1, temp_buf2);
-								msg_buf.Printf(fmt_buf, (const char *)temp_buf, (const char *)scard_name, (const char *)temp_buf2);
+								msg_buf.Printf(fmt_buf, temp_buf.cptr(), scard_name.cptr(), temp_buf2.cptr());
 								if(pLog)
 									pLog->Log(msg_buf);
 								else
@@ -2525,7 +2525,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule(PPID seriesID, int prevTrnovrPrd, PPLog
 							// Вывод информации в текстовый журнал
 							//
 							PPLoadText(PPTXT_LOG_SCARDRULEAPPLY, fmt_buf);
-							msg_buf.Printf(fmt_buf, (const char *)scard_name, trnovr).Space();
+							msg_buf.Printf(fmt_buf, scard_name.cptr(), trnovr).Space();
 							if(upd_dis) {
 								PPLoadText(PPTXT_LOG_ADD_SCARDDISUPD, fmt_buf);
 								msg_buf.Cat(temp_buf.Printf(fmt_buf, fdiv100i(prev_pdis), new_pdis));
@@ -4434,7 +4434,7 @@ int SLAPI PPObjSCard::FetchUhttEntry(const char * pCode, PPObjSCard::UhttEntry *
 
 int SLAPI PPObjSCard::FetchExtText(PPID id, int fldId, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	SCardCache * p_cache = GetDbLocalCachePtr <SCardCache> (PPOBJ_SCARD);
 	if(p_cache) {
 		SString ext_text;

@@ -19,8 +19,7 @@ public:
 	explicit SelectionPosition(int position_ = INVALID_POSITION, int virtualSpace_ = 0) : position(position_), virtualSpace(virtualSpace_)
 	{
 		PLATFORM_ASSERT(virtualSpace < 800000);
-		if(virtualSpace < 0)
-			virtualSpace = 0;
+		SETMAX(virtualSpace, 0);
 	}
 	void Reset()
 	{
@@ -156,15 +155,20 @@ struct SelectionRange {
 };
 
 class Selection {
-	std::vector<SelectionRange> ranges;
-	std::vector<SelectionRange> rangesSaved;
+	std::vector <SelectionRange> Ranges;
+	std::vector <SelectionRange> RangesSaved;
 	SelectionRange rangeRectangular;
 	size_t mainRange;
-	bool moveExtends;
-	bool tentativeMain;
+	bool   moveExtends;
+	bool   tentativeMain;
 public:
-	enum selTypes { noSel, selStream, selRectangle, selLines, selThin };
-
+	enum selTypes { 
+		noSel, 
+		selStream, 
+		selRectangle, 
+		selLines, 
+		selThin 
+	};
 	selTypes selType;
 
 	Selection();
@@ -211,10 +215,9 @@ public:
 	{
 		return tentativeMain;
 	}
-
-	std::vector<SelectionRange> RangesCopy() const
+	std::vector <SelectionRange> RangesCopy() const
 	{
-		return ranges;
+		return Ranges;
 	}
 };
 

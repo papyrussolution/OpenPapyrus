@@ -52,14 +52,14 @@
 #include "Indicator.h"
 #include "XPM.h"
 #include "LineMarker.h"
-#include "Style.h"
+//#include "Style.h"
 #include "ViewStyle.h"
 #include "CharClassify.h"
 #include "Decoration.h"
-#include "CaseFolder.h"
+//#include "CaseFolder.h"
 #include "Document.h"
 #include "CaseConvert.h"
-#include "UniConversion.h"
+//#include "UniConversion.h"
 #include "Selection.h"
 #include "PositionCache.h"
 #include "EditModel.h"
@@ -229,19 +229,14 @@ class ScintillaWin :
 	public ScintillaBase {
 	bool lastKeyDownConsumed;
 	wchar_t lastHighSurrogateChar;
-
 	bool capturedMouse;
 	bool trackedMouseLeave;
 	TrackMouseEventSig TrackMouseEventFn;
 	SetCoalescableTimerSig SetCoalescableTimerFn;
-
 	uint linesPerScroll;    ///< Intellimouse support
 	int wheelDelta; ///< Wheel delta from roll
-
 	HRGN hRgnUpdate;
-
 	bool hasOKText;
-
 	CLIPFORMAT cfColumnSelect;
 	CLIPFORMAT cfBorlandIDEBlockType;
 	CLIPFORMAT cfLineSelect;
@@ -376,7 +371,7 @@ public:
 	friend class DropTarget;
 	bool DragIsRectangularOK(CLIPFORMAT fmt) const
 	{
-		return drag.rectangular && (fmt == cfColumnSelect);
+		return (drag.IsRectangular() && (fmt == cfColumnSelect));
 	}
 private:
 	// For use in creating a system caret
@@ -885,7 +880,7 @@ bool ScintillaWin::KoreanIME()
 void ScintillaWin::MoveImeCarets(int offset)
 {
 	// Move carets relatively by bytes.
-	for(size_t r = 0; r<sel.Count(); r++) {
+	for(size_t r = 0; r < sel.Count(); r++) {
 		int positionInsert = sel.Range(r).Start().Position();
 		sel.Range(r).caret.SetPosition(positionInsert + offset);
 		sel.Range(r).anchor.SetPosition(positionInsert + offset);
@@ -898,13 +893,12 @@ void ScintillaWin::DrawImeIndicator(int indicator, int len)
 	// Draw an indicator on the character before caret by the character bytes of len
 	// so it should be called after addCharUTF().
 	// It does not affect caret positions.
-	if(indicator < 8 || indicator > INDIC_MAX) {
-		return;
-	}
-	pdoc->decorations.SetCurrentIndicator(indicator);
-	for(size_t r = 0; r<sel.Count(); r++) {
-		int positionInsert = sel.Range(r).Start().Position();
-		pdoc->DecorationFillRange(positionInsert - len, 1, len);
+	if(indicator >= 8 && indicator <= INDIC_MAX) {
+		pdoc->decorations.SetCurrentIndicator(indicator);
+		for(size_t r = 0; r<sel.Count(); r++) {
+			int positionInsert = sel.Range(r).Start().Position();
+			pdoc->DecorationFillRange(positionInsert - len, 1, len);
+		}
 	}
 }
 
@@ -2178,7 +2172,7 @@ public:
 	{
 		::SetClipboardData(uFormat, Unlock());
 	}
-	operator bool() const 
+	operator bool() const
 	{
 		return ptr != 0;
 	}
@@ -2322,12 +2316,12 @@ STDMETHODIMP FormatEnumerator_QueryInterface(FormatEnumerator * fe, REFIID riid,
 	return S_OK;
 }
 
-STDMETHODIMP_(ULONG) FormatEnumerator_AddRef(FormatEnumerator *fe) 
+STDMETHODIMP_(ULONG) FormatEnumerator_AddRef(FormatEnumerator *fe)
 {
 	return ++fe->ref;
 }
 
-STDMETHODIMP_(ULONG) FormatEnumerator_Release(FormatEnumerator *fe) 
+STDMETHODIMP_(ULONG) FormatEnumerator_Release(FormatEnumerator *fe)
 {
 	fe->ref--;
 	if(fe->ref > 0)
@@ -2338,7 +2332,7 @@ STDMETHODIMP_(ULONG) FormatEnumerator_Release(FormatEnumerator *fe)
 /// Implement IEnumFORMATETC
 STDMETHODIMP FormatEnumerator_Next(FormatEnumerator * fe, ULONG celt, FORMATETC * rgelt, ULONG * pceltFetched)
 {
-	if(rgelt == NULL) 
+	if(rgelt == NULL)
 		return E_POINTER;
 	uint putPos = 0;
 	while((fe->pos < fe->formats.size()) && (putPos < celt)) {
@@ -2403,10 +2397,12 @@ STDMETHODIMP DropSource_QueryInterface(DropSource * ds, REFIID riid, PVOID * ppv
 	return ds->sci->QueryInterface(riid, ppv);
 }
 
-STDMETHODIMP_(ULONG) DropSource_AddRef(DropSource *ds) {
+STDMETHODIMP_(ULONG) DropSource_AddRef(DropSource *ds) 
+{
 	return ds->sci->AddRef();
 }
-STDMETHODIMP_(ULONG) DropSource_Release(DropSource *ds) {
+STDMETHODIMP_(ULONG) DropSource_Release(DropSource *ds) 
+{
 	return ds->sci->Release();
 }
 
@@ -2415,9 +2411,10 @@ STDMETHODIMP DropSource_QueryContinueDrag(DropSource *, BOOL fEsc, DWORD grfKeyS
 {
 	if(fEsc)
 		return DRAGDROP_S_CANCEL;
-	if(!(grfKeyState & MK_LBUTTON))
+	else if(!(grfKeyState & MK_LBUTTON))
 		return DRAGDROP_S_DROP;
-	return S_OK;
+	else
+		return S_OK;
 }
 
 STDMETHODIMP DropSource_GiveFeedback(DropSource *, DWORD)
@@ -2446,10 +2443,12 @@ STDMETHODIMP DataObject_QueryInterface(DataObject * pd, REFIID riid, PVOID * ppv
 	return pd->sci->QueryInterface(riid, ppv);
 }
 
-STDMETHODIMP_(ULONG) DataObject_AddRef(DataObject *pd) {
+STDMETHODIMP_(ULONG) DataObject_AddRef(DataObject *pd) 
+{
 	return pd->sci->AddRef();
 }
-STDMETHODIMP_(ULONG) DataObject_Release(DataObject *pd) {
+STDMETHODIMP_(ULONG) DataObject_Release(DataObject *pd) 
+{
 	return pd->sci->Release();
 }
 /// Implement IDataObject
@@ -2466,23 +2465,13 @@ STDMETHODIMP DataObject_GetDataHere(DataObject *, FORMATETC *, STGMEDIUM *)
 
 STDMETHODIMP DataObject_QueryGetData(DataObject * pd, FORMATETC * pFE)
 {
-	if(pd->sci->DragIsRectangularOK(pFE->cfFormat) &&
-	    pFE->ptd == 0 &&
-	    (pFE->dwAspect & DVASPECT_CONTENT) != 0 &&
-	    pFE->lindex == -1 &&
-	    (pFE->tymed & TYMED_HGLOBAL) != 0
-	    ) {
+	if(pd->sci->DragIsRectangularOK(pFE->cfFormat) && pFE->ptd == 0 && (pFE->dwAspect & DVASPECT_CONTENT) != 0 &&
+	    pFE->lindex == -1 && (pFE->tymed & TYMED_HGLOBAL) != 0) {
 		return S_OK;
 	}
 
-	bool formatOK = (pFE->cfFormat == CF_TEXT) ||
-	    ((pFE->cfFormat == CF_UNICODETEXT) && pd->sci->IsUnicodeMode());
-	if(!formatOK ||
-	    pFE->ptd != 0 ||
-	    (pFE->dwAspect & DVASPECT_CONTENT) == 0 ||
-	    pFE->lindex != -1 ||
-	    (pFE->tymed & TYMED_HGLOBAL) == 0
-	    ) {
+	bool formatOK = (pFE->cfFormat == CF_TEXT) || ((pFE->cfFormat == CF_UNICODETEXT) && pd->sci->IsUnicodeMode());
+	if(!formatOK || pFE->ptd != 0 || (pFE->dwAspect & DVASPECT_CONTENT) == 0 || pFE->lindex != -1 || (pFE->tymed & TYMED_HGLOBAL) == 0) {
 		//Platform::DebugPrintf("DOB QueryGetData No %x\n",pFE->cfFormat);
 		//return DATA_E_FORMATETC;
 		return S_FALSE;
@@ -2494,10 +2483,7 @@ STDMETHODIMP DataObject_QueryGetData(DataObject * pd, FORMATETC * pFE)
 STDMETHODIMP DataObject_GetCanonicalFormatEtc(DataObject * pd, FORMATETC *, FORMATETC * pFEOut)
 {
 	//Platform::DebugPrintf("DOB GetCanon\n");
-	if(pd->sci->IsUnicodeMode())
-		pFEOut->cfFormat = CF_UNICODETEXT;
-	else
-		pFEOut->cfFormat = CF_TEXT;
+	pFEOut->cfFormat = pd->sci->IsUnicodeMode() ? CF_UNICODETEXT : CF_TEXT;
 	pFEOut->ptd = 0;
 	pFEOut->dwAspect = DVASPECT_CONTENT;
 	pFEOut->lindex = -1;
@@ -2584,10 +2570,12 @@ STDMETHODIMP DropTarget_QueryInterface(DropTarget * dt, REFIID riid, PVOID * ppv
 	return dt->sci->QueryInterface(riid, ppv);
 }
 
-STDMETHODIMP_(ULONG) DropTarget_AddRef(DropTarget *dt) {
+STDMETHODIMP_(ULONG) DropTarget_AddRef(DropTarget *dt) 
+{
 	return dt->sci->AddRef();
 }
-STDMETHODIMP_(ULONG) DropTarget_Release(DropTarget *dt) {
+STDMETHODIMP_(ULONG) DropTarget_Release(DropTarget *dt) 
+{
 	return dt->sci->Release();
 }
 
@@ -2623,8 +2611,7 @@ STDMETHODIMP DropTarget_DragLeave(DropTarget * dt)
 	return E_FAIL;
 }
 
-STDMETHODIMP DropTarget_Drop(DropTarget * dt, LPDATAOBJECT pIDataSource, DWORD grfKeyState,
-    POINTL pt, PDWORD pdwEffect)
+STDMETHODIMP DropTarget_Drop(DropTarget * dt, LPDATAOBJECT pIDataSource, DWORD grfKeyState, POINTL pt, PDWORD pdwEffect)
 {
 	try {
 		return dt->sci->Drop(pIDataSource, grfKeyState, pt, pdwEffect);
@@ -2778,57 +2765,56 @@ void ScintillaWin::GetIntelliMouseParameters()
 	::SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &linesPerScroll, 0);
 }
 
-void ScintillaWin::CopyToClipboard(const SelectionText &selectedText)
+void ScintillaWin::CopyToClipboard(const SelectionText & selectedText)
 {
-	if(!::OpenClipboardRetry(MainHWND())) {
-		return;
-	}
-	::EmptyClipboard();
-	GlobalMemory uniText;
-	// Default Scintilla behaviour in Unicode mode
-	if(IsUnicodeMode()) {
-		size_t uchars = UTF16Length(selectedText.Data(), static_cast<int>(selectedText.LengthWithTerminator()));
-		uniText.Allocate(2 * uchars);
+	if(::OpenClipboardRetry(MainHWND())) {
+		::EmptyClipboard();
+		GlobalMemory uniText;
+		// Default Scintilla behaviour in Unicode mode
+		if(IsUnicodeMode()) {
+			size_t uchars = UTF16Length(selectedText.Data(), static_cast<int>(selectedText.LengthWithTerminator()));
+			uniText.Allocate(2 * uchars);
+			if(uniText) {
+				UTF16FromUTF8(selectedText.Data(), selectedText.LengthWithTerminator(), static_cast<wchar_t *>(uniText.ptr), uchars);
+			}
+		}
+		else {
+			// Not Unicode mode
+			// Convert to Unicode using the current Scintilla code page
+			UINT cpSrc = CodePageFromCharSet(selectedText.GetCharSet(), selectedText.GetCp());
+			int uLen = ::MultiByteToWideChar(cpSrc, 0, selectedText.Data(), static_cast<int>(selectedText.LengthWithTerminator()), 0, 0);
+			uniText.Allocate(2 * uLen);
+			if(uniText) {
+				::MultiByteToWideChar(cpSrc, 0, selectedText.Data(), static_cast<int>(selectedText.LengthWithTerminator()), static_cast<wchar_t *>(uniText.ptr), uLen);
+			}
+		}
 		if(uniText) {
-			UTF16FromUTF8(selectedText.Data(), selectedText.LengthWithTerminator(), static_cast<wchar_t *>(uniText.ptr), uchars);
+			uniText.SetClip(CF_UNICODETEXT);
 		}
-	}
-	else {
-		// Not Unicode mode
-		// Convert to Unicode using the current Scintilla code page
-		UINT cpSrc = CodePageFromCharSet(selectedText.characterSet, selectedText.codePage);
-		int uLen = ::MultiByteToWideChar(cpSrc, 0, selectedText.Data(), static_cast<int>(selectedText.LengthWithTerminator()), 0, 0);
-		uniText.Allocate(2 * uLen);
-		if(uniText) {
-			::MultiByteToWideChar(cpSrc, 0, selectedText.Data(), static_cast<int>(selectedText.LengthWithTerminator()), static_cast<wchar_t *>(uniText.ptr), uLen);
+		else {
+			// There was a failure - try to copy at least ANSI text
+			GlobalMemory ansiText;
+			ansiText.Allocate(selectedText.LengthWithTerminator());
+			if(ansiText) {
+				memcpy(static_cast<char *>(ansiText.ptr), selectedText.Data(), selectedText.LengthWithTerminator());
+				ansiText.SetClip(CF_TEXT);
+			}
 		}
-	}
-	if(uniText) {
-		uniText.SetClip(CF_UNICODETEXT);
-	}
-	else {
-		// There was a failure - try to copy at least ANSI text
-		GlobalMemory ansiText;
-		ansiText.Allocate(selectedText.LengthWithTerminator());
-		if(ansiText) {
-			memcpy(static_cast<char *>(ansiText.ptr), selectedText.Data(), selectedText.LengthWithTerminator());
-			ansiText.SetClip(CF_TEXT);
+		if(selectedText.IsRectangular()) {
+			::SetClipboardData(cfColumnSelect, 0);
+			GlobalMemory borlandSelection;
+			borlandSelection.Allocate(1);
+			if(borlandSelection) {
+				static_cast<BYTE *>(borlandSelection.ptr)[0] = 0x02;
+				borlandSelection.SetClip(cfBorlandIDEBlockType);
+			}
 		}
-	}
-	if(selectedText.rectangular) {
-		::SetClipboardData(cfColumnSelect, 0);
-		GlobalMemory borlandSelection;
-		borlandSelection.Allocate(1);
-		if(borlandSelection) {
-			static_cast<BYTE *>(borlandSelection.ptr)[0] = 0x02;
-			borlandSelection.SetClip(cfBorlandIDEBlockType);
+		if(selectedText.IsLineCopy()) {
+			::SetClipboardData(cfLineSelect, 0);
+			::SetClipboardData(cfVSLineTag, 0);
 		}
+		::CloseClipboard();
 	}
-	if(selectedText.lineCopy) {
-		::SetClipboardData(cfLineSelect, 0);
-		::SetClipboardData(cfVSLineTag, 0);
-	}
-	::CloseClipboard();
 }
 
 void ScintillaWin::ScrollMessage(WPARAM wParam)
@@ -2948,7 +2934,7 @@ void ScintillaWin::FullPaintDC(HDC hdc)
 	paintState = notPainting;
 }
 
-static bool CompareDevCap(HDC hdc, HDC hOtherDC, int nIndex)
+static bool FASTCALL CompareDevCap(HDC hdc, HDC hOtherDC, int nIndex)
 {
 	return ::GetDeviceCaps(hdc, nIndex) == ::GetDeviceCaps(hOtherDC, nIndex);
 }
@@ -2956,12 +2942,8 @@ static bool CompareDevCap(HDC hdc, HDC hOtherDC, int nIndex)
 bool ScintillaWin::IsCompatibleDC(HDC hOtherDC)
 {
 	HDC hdc = ::GetDC(MainHWND());
-	bool isCompatible =
-	    CompareDevCap(hdc, hOtherDC, TECHNOLOGY) &&
-	    CompareDevCap(hdc, hOtherDC, LOGPIXELSY) &&
-	    CompareDevCap(hdc, hOtherDC, LOGPIXELSX) &&
-	    CompareDevCap(hdc, hOtherDC, BITSPIXEL) &&
-	    CompareDevCap(hdc, hOtherDC, PLANES);
+	bool isCompatible = CompareDevCap(hdc, hOtherDC, TECHNOLOGY) && CompareDevCap(hdc, hOtherDC, LOGPIXELSY) &&
+	    CompareDevCap(hdc, hOtherDC, LOGPIXELSX) && CompareDevCap(hdc, hOtherDC, BITSPIXEL) && CompareDevCap(hdc, hOtherDC, PLANES);
 	::ReleaseDC(MainHWND(), hdc);
 	return isCompatible;
 }

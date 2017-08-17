@@ -846,7 +846,7 @@ int SLAPI PPViewTSession::ViewTotal()
 				h = total.Duration / 3600;
 				m = (total.Duration % 3600) / 60;
 				s = (total.Duration % 60);
-				(temp_buf = 0).CatLongZ(h, 2).CatChar(':').CatLongZ(m, 2).CatChar(':').CatLongZ(s, 2);
+				temp_buf.Z().CatLongZ(h, 2).CatChar(':').CatLongZ(m, 2).CatChar(':').CatLongZ(s, 2);
 			}
 			dlg->setCtrlString(CTL_TSESSTOTAL_DURATION, temp_buf);
 		}
@@ -1157,7 +1157,7 @@ int SLAPI PPViewTSession::ExportUhtt()
 							uhtt_pack.FinTime = dtm.Set(pack.Rec.FinDt, pack.Rec.FinTm);
 							uhtt_pack.SetMemo(pack.Rec.Memo);
 							// @v8.8.0 {
-							pack.Ext.GetExtStrData(PRCEXSTR_DETAILDESCR, temp_buf = 0);
+							pack.Ext.GetExtStrData(PRCEXSTR_DETAILDESCR, temp_buf.Z());
 							uhtt_pack.SetDetail(temp_buf);
 							// } @v8.8.0
 							{
@@ -1204,14 +1204,14 @@ int SLAPI PPViewTSession::ExportUhtt()
 									p_new_item->Amount = r_item.Amount;
 									p_new_item->CCheckID = 0; //
 									p_new_item->SCardID = 0; // @todo
-									pack.CiList.GetMemo(i, temp_buf = 0);
+									pack.CiList.GetMemo(i, temp_buf.Z());
 									p_new_item->SetMemo(temp_buf);
 									p_new_item->SetPlaceCode(r_item.PlaceCode);
 									THROW_SL(uhtt_pack.Cips.insert(p_new_item));
 								}
 							}
 							{
-								uuid.ToStr(S_GUID::fmtIDL, temp_buf = 0);
+								uuid.ToStr(S_GUID::fmtIDL, temp_buf.Z());
 								UhttTagItem * p_new_item = new UhttTagItem("TSESSUUID", temp_buf);
 								THROW_MEM(p_new_item);
 								THROW_SL(uhtt_pack.TagList.insert(p_new_item));
@@ -1965,7 +1965,7 @@ int PPALDD_TSession::InitData(PPFilt & rFilt, long rsrv)
 				h = rec.PlannedTiming / 3600;
 				m = (rec.PlannedTiming % 3600) / 60;
 				s = (rec.PlannedTiming % 60);
-				(temp_buf = 0).CatLongZ(h, 2).CatChar(':').CatLongZ(m, 2).CatChar(':').CatLongZ(s, 2);
+				temp_buf.Z().CatLongZ(h, 2).CatChar(':').CatLongZ(m, 2).CatChar(':').CatLongZ(s, 2);
 			}
 			else
 				temp_buf = 0;
@@ -1974,7 +1974,7 @@ int PPALDD_TSession::InitData(PPFilt & rFilt, long rsrv)
 				h = act_timing / 3600;
 				m = (act_timing % 3600) / 60;
 				s = (act_timing % 60);
-				(temp_buf = 0).CatLongZ(h, 2).CatChar(':').CatLongZ(m, 2).CatChar(':').CatLongZ(s, 2);
+				temp_buf.Z().CatLongZ(h, 2).CatChar(':').CatLongZ(m, 2).CatChar(':').CatLongZ(s, 2);
 			}
 			else
 				temp_buf = 0;

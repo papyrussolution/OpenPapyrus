@@ -179,7 +179,7 @@ int SUnit::GetCls() const
 
 int SUnit::GetName(long flags, SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	const UnitEntry * p_entry = (const UnitEntry *)SearchEntry(Id);
 	if(p_entry) {
 		rBuf = p_entry->P_Name;

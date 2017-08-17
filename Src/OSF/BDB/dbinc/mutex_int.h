@@ -568,8 +568,8 @@ typedef uint32 tsl_t;
  *
  * gcc/ppc: 0 is clear, 1 is set.
  */
-static inline int
-MUTEX_SET(int *tsl)  {
+static inline int MUTEX_SET(int *tsl)  
+{
 	int __r;
 	__asm__ volatile (
 "0:                             \n\t"

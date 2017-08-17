@@ -60,14 +60,13 @@ PPVersionInfo & FASTCALL PPVersionInfo::operator = (const PPVersionInfo & s)
 	return *this;
 }
 
-int SLAPI PPVersionInfo::Clear()
+void SLAPI PPVersionInfo::Clear()
 {
 	if(P_Info_Pre9303) {
 		IdeaRandMem(P_Info_Pre9303, sizeof(__VerInfo));
 		ZFREE(P_Info_Pre9303);
 	}
 	ZDELETE(P_Info_);
-	return 1;
 }
 
 static const unsigned char VERDATA[] = {
@@ -181,7 +180,7 @@ int SLAPI PPVersionInfo::GetProductName(SString & rBuf)
 		return 1;
 	}
 	else {
-		rBuf = 0;
+		rBuf.Z();
 		return 0;
 	}
 }
@@ -331,7 +330,7 @@ int SLAPI PPVersionInfo::GetVersionText(char * pBuf, size_t bufSize)
 
 int SLAPI PPVersionInfo::GetDefaultEncrKey(SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 1;
 	if(Decrypt()) {
 		if(P_Info_)
@@ -347,7 +346,7 @@ int SLAPI PPVersionInfo::GetDefaultEncrKey(SString & rBuf)
 
 int SLAPI PPVersionInfo::GetMsftTranslAcc(SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 1;
 	if(Decrypt()) {
 		if(P_Info_)
@@ -374,7 +373,7 @@ long SLAPI PPVersionInfo::GetFlags()
 
 int SLAPI PPVersionInfo::GetCopyrightText(SString & rBuf)
 {
-	rBuf = 0;
+	rBuf.Z();
 	int    ok = 1;
 	if(Decrypt()) {
 		if(P_Info_Pre9303) {

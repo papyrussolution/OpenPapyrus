@@ -267,13 +267,13 @@ SLAPI SCS_SYNCCASH::~SCS_SYNCCASH()
 int ArrAdd(StrAssocArray & rArr, int pos, int val)
 {
 	SString str;
-	return rArr.Add(pos, (str = 0).Cat(val), 1) ? 1 : PPSetErrorSLib();
+	return rArr.Add(pos, str.Z().Cat(val), 1) ? 1 : PPSetErrorSLib();
 }
 
 int ArrAdd(StrAssocArray & rArr, int pos, double val)
 {
 	SString str;
-	return rArr.Add(pos, (str = 0).Cat(val), 1) ? 1 : PPSetErrorSLib();
+	return rArr.Add(pos, str.Z().Cat(val), 1) ? 1 : PPSetErrorSLib();
 }
 
 int ArrAdd(StrAssocArray & rArr, int pos, const char * str)

@@ -654,7 +654,7 @@ PPObjID & FASTCALL PPObjID::operator = (double oid)
 int SLAPI PPObjID::ToStr(int format, SString & rBuf) const
 {
 	int    ok = 0;
-	rBuf = 0;
+	rBuf.Z();
 	if(DS.GetObjectTypeSymb(Obj, rBuf)) {
 		if(Id)
 			rBuf.CatChar('(').Cat(Id).CatChar(')');

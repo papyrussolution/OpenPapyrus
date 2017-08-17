@@ -305,7 +305,7 @@ int SLAPI SCardCore::GetCodeRange(const char * pTemplate, SString & rLow, SStrin
 				*c++ = *p++;
 			else if(*p == '%') {
 				size_t r_len = 0;
-				for(++p, x = t; isdigit(*p);)
+				for(++p, x = t; isdec(*p);)
 					*x++ = *p++;
 				*x = 0;
 				r_len = atoi(t);
@@ -383,7 +383,7 @@ int SLAPI SCardCore::MakeCodeByTemplate(PPID seriesID, const char * pPattern, SS
 			*c++ = *p++;
 		else if(*p == '%') {
 			size_t r_len = 0;
-			for(++p, x = t; isdigit(*p);)
+			for(++p, x = t; isdec(*p);)
 				*x++ = *p++;
 			*x = 0;
 			r_len = atoi(t);
@@ -491,7 +491,7 @@ struct SCardCodeTemplate {
 					else if(c == '%') {
 						Prefix = temp_buf;
 						temp_buf = 0;
-						for(++i; isdigit(templ.C(i)); i++)
+						for(++i; isdec(templ.C(i)); i++)
 							temp_buf.CatChar(templ.C(i));
 						RLen = (uint)temp_buf.ToLong();
 						if(templ.C(i) == '[') {
@@ -517,7 +517,7 @@ struct SCardCodeTemplate {
 	int    Generate(long c, SString & rBuf) const
 	{
 		int    ok = -1;
-		rBuf = 0;
+		rBuf.Z();
 		if(RLen && c >= R.low && c <= R.upp) {
 			(rBuf = Prefix).CatLongZ(c, RLen);
 			/*
@@ -657,7 +657,7 @@ int SLAPI SCardCore::AutoFill(const PPSCardSeries * pSerRec, const char * pPatte
 				*c++ = *p++;
 			else if(*p == '%') {
 				size_t r_len = 0;
-				for(++p, x = t; isdigit(*p);)
+				for(++p, x = t; isdec(*p);)
 					*x++ = *p++;
 				*x = 0;
 				r_len = atoi(t);

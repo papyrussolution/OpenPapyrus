@@ -411,26 +411,20 @@ static std::string GetRestOfLine(LexAccessor &styler, Sci_Position start, bool a
 	return restOfLine;
 }
 
-static bool IsSpaceOrTab(int ch)
-{
-	return ch == ' ' || ch == '\t';
-}
+// static bool FASTCALL IsSpaceOrTab_Removed(int ch) { return oneof2(ch, ' ', '\t'); }
 
 void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess)
 {
 	LexAccessor styler(pAccess);
-
 	const int kwOther = 0, kwDot = 0x100, kwInput = 0x200, kwOutput = 0x300, kwInout = 0x400, kwProtected = 0x800;
 	int lineState = kwOther;
 	bool continuationLine = false;
-
 	Sci_Position curLine = styler.GetLine(startPos);
-	if(curLine > 0) lineState = styler.GetLineState(curLine - 1);
-
+	if(curLine > 0) 
+		lineState = styler.GetLineState(curLine - 1);
 	// Do not leak onto next line
 	if(initStyle == SCE_V_STRINGEOL)
 		initStyle = SCE_V_DEFAULT;
-
 	if((MaskActive(initStyle) == SCE_V_PREPROCESSOR) || (MaskActive(initStyle) == SCE_V_COMMENTLINE) || (MaskActive(initStyle) == SCE_V_COMMENTLINEBANG)) {
 		// Set continuationLine if last character of previous line is '\'
 		if(curLine > 0) {
@@ -440,23 +434,17 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 			}
 		}
 	}
-
 	StyleContext sc(startPos, length, initStyle, styler);
 	LinePPState preproc = vlls.ForLine(curLine);
-
 	bool definitionsChanged = false;
-
 	// Truncate ppDefineHistory before current line
-
 	if(!options.updatePreprocessor)
 		ppDefineHistory.clear();
-
 	std::vector<PPDefinition>::iterator itInvalid = std::find_if(ppDefineHistory.begin(), ppDefineHistory.end(), After(curLine-1));
 	if(itInvalid != ppDefineHistory.end()) {
 		ppDefineHistory.erase(itInvalid, ppDefineHistory.end());
 		definitionsChanged = true;
 	}
-
 	SymbolTable preprocessorDefinitions = preprocessorDefinitionsStart;
 	for(std::vector<PPDefinition>::iterator itDef = ppDefineHistory.begin(); itDef != ppDefineHistory.end(); ++itDef) {
 		if(itDef->isUndef)
@@ -646,7 +634,7 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 				// Skip whitespace between ` and preprocessor word
 				do {
 					sc.Forward();
-				} while((sc.ch == ' ' || sc.ch == '\t') && sc.More());
+				} while(oneof2(sc.ch, ' ', '\t') && sc.More());
 				if(sc.atLineEnd) {
 					sc.SetState(SCE_V_DEFAULT|activitySet);
 					styler.SetLineState(curLine, lineState);
@@ -718,7 +706,7 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 								std::string restOfLine = GetRestOfLine(styler, sc.currentPos + 6, true);
 								size_t startName = 0;
 								while((startName < restOfLine.length()) &&
-								    IsSpaceOrTab(restOfLine[startName]))
+								    IsASpaceOrTab(restOfLine[startName]))
 									startName++;
 								size_t endName = startName;
 								while((endName < restOfLine.length()) &&
@@ -735,7 +723,7 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 									    endArgs - endName - 1);
 									size_t startValue = endArgs+1;
 									while((startValue < restOfLine.length()) &&
-									    IsSpaceOrTab(restOfLine[startValue]))
+									    IsASpaceOrTab(restOfLine[startValue]))
 										startValue++;
 									std::string value;
 									if(startValue < restOfLine.length())
@@ -749,7 +737,7 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 									// Value
 									size_t startValue = endName;
 									while((startValue < restOfLine.length()) &&
-									    IsSpaceOrTab(restOfLine[startValue]))
+									    IsASpaceOrTab(restOfLine[startValue]))
 										startValue++;
 									std::string value = restOfLine.substr(startValue);
 									preprocessorDefinitions[key] = value;
@@ -843,8 +831,7 @@ static bool IsCommentLine(Sci_Position line, LexAccessor &styler)
 		char ch = styler[i];
 		char chNext = styler.SafeGetCharAt(i + 1);
 		int style = styler.StyleAt(i);
-		if(ch == '/' && chNext == '/' &&
-		    (style == SCE_V_COMMENTLINE || style == SCE_V_COMMENTLINEBANG)) {
+		if(ch == '/' && chNext == '/' && oneof2(style, SCE_V_COMMENTLINE, SCE_V_COMMENTLINEBANG)) {
 			return true;
 		}
 		else if(!IsASpaceOrTab(ch)) {
@@ -1137,8 +1124,8 @@ std::vector<std::string> LexerVerilog::Tokenize(const std::string &expr) const
 				cp++;
 			}
 		}
-		else if(IsSpaceOrTab(*cp)) {
-			while(IsSpaceOrTab(*cp)) {
+		else if(IsASpaceOrTab(*cp)) {
+			while(IsASpaceOrTab(*cp)) {
 				cp++;
 			}
 			continue;

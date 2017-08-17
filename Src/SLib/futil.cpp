@@ -264,12 +264,12 @@ SString & SLAPI MakeTempFileName(const char * pDir, const char * pPrefix, const 
 			strnzcpy(ext, pExt, sizeof(ext));
 	else
 		ext[0] = 0;
-	for(rBuf = 0; rBuf.Empty() && start < 9999999L;) {
+	for(rBuf.Z(); rBuf.Empty() && start < 9999999L;) {
 		if(pDir)
 			(rBuf = pDir).Strip().SetLastSlash();
 		rBuf.Cat(prefix).CatLongZ(start++, 8-prefix_len).Dot().Cat(ext);
 		if(fileExists(rBuf))
-			rBuf = 0;
+			rBuf.Z();
 	}
 	ASSIGN_PTR(pStart, start);
 	return rBuf;

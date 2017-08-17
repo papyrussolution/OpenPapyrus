@@ -179,21 +179,21 @@ public:
 		long id = 0;
 		uint pos = 0;
 		SString str;
-		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_METAVAR, str = 0);
+		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_METAVAR, str.Z());
 		Primitiv_List.Add(0, str);
-		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_BILL, str = 0);
+		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_BILL, str.Z());
 		Primitiv_List.Add(1, str);
-		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_PAYM, str = 0);
+		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_PAYM, str.Z());
 		Primitiv_List.Add(2, str);
-		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_CCHECK, str = 0);
+		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_CCHECK, str.Z());
 		Primitiv_List.Add(3, str);
-		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_GOODSREST, str = 0);
+		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_GOODSREST, str.Z());
 		Primitiv_List.Add(4, str);
-		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_PERSONEVENT, str = 0);
+		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_PERSONEVENT, str.Z());
 		Primitiv_List.Add(5, str);
-		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_DEBT, str = 0);
+		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_DEBT, str.Z());
 		Primitiv_List.Add(6, str);
-		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_BIZSCORE, str = 0);
+		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_BIZSCORE, str.Z());
 		Primitiv_List.Add(7, str);
 		//
 		id = (Primitiv_List.SearchByText(Primitiv_List.at(Data.Kind - 1).Txt, 1, &(pos = 0)) > 0) ? (uint)Primitiv_List.at(pos).Id : 0;
@@ -289,7 +289,7 @@ private:
 			long id = 0;
 			getCtrlData(CTLSEL_BIZPRCRT_PRIMITIV, &(id = 0));
 			Buf_Data.Kind = (int16)(id + 1);
-			Buf_Data.PutToStr(Str_Buf = 0);
+			Buf_Data.PutToStr(Str_Buf.Z());
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);
 			DisableControls(id);
 			clearEvent(event);
@@ -332,7 +332,7 @@ private:
 					Buf_Data.Sub = DL2_Score::subNone;
 					break;
 			}
-			Buf_Data.PutToStr(Str_Buf = 0);
+			Buf_Data.PutToStr(Str_Buf.Z());
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);
 			clearEvent(event);
 		}
@@ -359,13 +359,13 @@ private:
 					Buf_Data.Cmp = DL2_Score::cmpNone;
 					break;
 			}
-			Buf_Data.PutToStr(Str_Buf = 0);
+			Buf_Data.PutToStr(Str_Buf.Z());
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);
 			clearEvent(event);
 		}
 		if(event.isCtlEvent(CTL_BIZPRCRT_PERIOD)) {
 			GetPeriodInput(this, CTL_BIZPRCRT_PERIOD, &Buf_Data.Period);
-			Buf_Data.PutToStr(Str_Buf = 0);
+			Buf_Data.PutToStr(Str_Buf.Z());
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);
 			clearEvent(event);
 		}
@@ -381,19 +381,19 @@ private:
 			Buf_Data.P_Ctx->Oc.Set(PPOBJ_LOCATION, &Str_Set, &id);
 			Buf_Data.LocListID = id;
 
-			Buf_Data.PutToStr(Str_Buf = 0);
+			Buf_Data.PutToStr(Str_Buf.Z());
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);
 			clearEvent(event);
 		}
 		if(event.isCbSelected(CTLSEL_BIZPRCRT_GOODSGRP)) {
 			Buf_Data.GoodsGrpListID = getCtrlLong(CTL_BIZPRCRT_GOODSGRP);
-			Buf_Data.PutToStr(Str_Buf = 0);
+			Buf_Data.PutToStr(Str_Buf.Z());
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);
 			clearEvent(event);
 		}
 		if(event.isCtlEvent(CTL_BIZPRCRT_OPSYMB)) {
 			getCtrlData(CTL_BIZPRCRT_OPSYMB, &Buf_Data.OpCode);
-			Buf_Data.PutToStr(Str_Buf = 0);
+			Buf_Data.PutToStr(Str_Buf.Z());
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);
 			clearEvent(event);
 		}
@@ -632,7 +632,7 @@ private:
 				while(r <= 0 && ExecView(dlg) == cmOK)
 					if(dlg->getDTS(&score)) {
 						SString buf;
-						score.PutToStr(buf = 0);
+						score.PutToStr(buf.Z());
 						Data.Formula.Cat(buf);
 						setCtrlString(CTL_BIZSCORE_FORMULA, Data.Formula);
 						r = 1;
@@ -1336,7 +1336,7 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 				if(i == 0) {
 					SString    text;
 					text.Cat(p_bizsc_rec->Dtm).Cat("<br>");
-					PPGetWord(PPWORD_CALCDATE, 1, buf = 0);
+					PPGetWord(PPWORD_CALCDATE, 1, buf.Z());
 					text.Cat(buf).CatDiv(':', 1).Cat(p_bizsc_rec->ActualDate).Cat("<br>").CRB();
 					THROW(pSock->Send(text, text.Len(), 0));
 				}
@@ -1344,7 +1344,7 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 				if(strlen(p_bizsc_rec->StrVal))
 					val = p_bizsc_rec->StrVal;
 				else
-					(val = 0).Cat(p_bizsc_rec->Val);
+					val.Z().Cat(p_bizsc_rec->Val);
 				if(p_bizsc_rec->Flags & BISCVF_BOUNDLOW)
 					buf = "<FONT COLOR='#0000FF'>";
 				else if(p_bizsc_rec->Flags & BISCVF_BOUNDUPP)
@@ -1920,7 +1920,7 @@ int SLAPI PrcssrBizScore::Helper_Calc(LDATE actualDate, PPLogger & rLogger, int 
 		PPBizScorePacket bs_pack;
 		THROW(PPCheckUserBreak());
 		if(bs_obj.GetPacket(bzs_id, &bs_pack) > 0 && bs_pack.Formula.NotEmpty()) {
-			(msg_buf = 0).Cat(NZOR(actualDate, getcurdate_()));
+			msg_buf.Z().Cat(NZOR(actualDate, getcurdate_()));
 			msg_buf.CatDiv('-', 1).Cat(bs_pack.Rec.Name).CatDiv('-', 1).Cat(bs_pack.Formula);
 			PPWaitMsg(msg_buf);
 			double val = P_Resolver->Resolve(bs_pack.Formula);

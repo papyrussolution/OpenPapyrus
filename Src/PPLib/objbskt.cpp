@@ -922,8 +922,8 @@ int SLAPI SelBasketParam::StoreInReg(const char * pName) const
 		SString temp_buf;
 		WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefBasketSelSettings, 0);
 		StringSet ss(';', 0);
-		ss.add((temp_buf = 0).Cat(SelPrice));
-		ss.add((temp_buf = 0).Cat(SelReplace));
+		ss.add(temp_buf.Z().Cat(SelPrice));
+		ss.add(temp_buf.Z().Cat(SelReplace));
 		ok = reg_key.PutString(pName, ss.getBuf()) ? 1 : PPSetErrorSLib();
 	}
 	return ok;
@@ -1716,10 +1716,10 @@ int GBDialog::setupList()
 		goods_obj.Fetch(p_item->GoodsID, &goods_rec);
 		ss.clear();
 		ss.add(goods_rec.Name);
-		ss.add((sub = 0).Cat(p_item->Quantity, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
-		ss.add((sub = 0).Cat(p_item->Price, SFMT_MONEY));
+		ss.add(sub.Z().Cat(p_item->Quantity, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
+		ss.add(sub.Z().Cat(p_item->Price, SFMT_MONEY));
 		cur_sum = p_item->Price * p_item->Quantity;
-		ss.add((sub = 0).Cat(cur_sum, SFMT_MONEY));
+		ss.add(sub.Z().Cat(cur_sum, SFMT_MONEY));
 		sum_price += cur_sum;
 		THROW(addStringToList(i, ss.getBuf()));
 		if(goods_obj.GetStockExt(p_item->GoodsID, &gse, 1) > 0) {
@@ -2237,7 +2237,7 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 				PPLoadString("deficit", msg_buf); // @v9.1.11
 				msg_buf.CatDiv(':', 2);
 				// @v9.3.6 {
-				GObj.GetSingleBarcode(goods_rec.ID, temp_buf = 0);
+				GObj.GetSingleBarcode(goods_rec.ID, temp_buf.Z());
 				if(temp_buf.NotEmptyS())
 					msg_buf.Cat(temp_buf).CatDiv('-', 1);
 				// } @v9.3.6

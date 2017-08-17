@@ -133,24 +133,23 @@ void XPM::Init(const char * const * linesForm)
 
 void XPM::Draw(Surface * surface, PRectangle &rc)
 {
-	if(pixels.empty()) {
-		return;
-	}
-	// Centre the pixmap
-	int startY = static_cast<int>(rc.top + (rc.Height() - height) / 2);
-	int startX = static_cast<int>(rc.left + (rc.Width() - width) / 2);
-	for(int y = 0; y<height; y++) {
-		int prevCode = 0;
-		int xStartRun = 0;
-		for(int x = 0; x<width; x++) {
-			int code = pixels[y * width + x];
-			if(code != prevCode) {
-				FillRun(surface, prevCode, startX + xStartRun, startY + y, startX + x);
-				xStartRun = x;
-				prevCode = code;
+	if(!pixels.empty()) {
+		// Centre the pixmap
+		int startY = static_cast<int>(rc.top + (rc.Height() - height) / 2);
+		int startX = static_cast<int>(rc.left + (rc.Width() - width) / 2);
+		for(int y = 0; y<height; y++) {
+			int prevCode = 0;
+			int xStartRun = 0;
+			for(int x = 0; x<width; x++) {
+				int code = pixels[y * width + x];
+				if(code != prevCode) {
+					FillRun(surface, prevCode, startX + xStartRun, startY + y, startX + x);
+					xStartRun = x;
+					prevCode = code;
+				}
 			}
+			FillRun(surface, prevCode, startX + xStartRun, startY + y, startX + width);
 		}
-		FillRun(surface, prevCode, startX + xStartRun, startY + y, startX + width);
 	}
 }
 
@@ -159,15 +158,11 @@ void XPM::PixelAt(int x, int y, ColourDesired &colour, bool &transparent) const
 	if(pixels.empty() || (x<0) || (x >= width) || (y<0) || (y >= height)) {
 		colour = 0;
 		transparent = true;
-		return;
-	}
-	int code = pixels[y * width + x];
-	transparent = code == codeTransparent;
-	if(transparent) {
-		colour = 0;
 	}
 	else {
-		colour = ColourFromCode(code).AsLong();
+		int code = pixels[y * width + x];
+		transparent = code == codeTransparent;
+		colour = transparent ? 0 : ColourFromCode(code).AsLong();
 	}
 }
 
@@ -271,8 +266,7 @@ RGBAImageSet::~RGBAImageSet()
 void RGBAImageSet::Clear()
 {
 	for(ImageMap::iterator it = images.begin(); it != images.end(); ++it) {
-		delete it->second;
-		it->second = 0;
+		ZDELETE(it->second);
 	}
 	images.clear();
 	height = -1;

@@ -107,7 +107,7 @@ static bool FASTCALL IsAWordStart(const int ch)
 static bool FASTCALL IsAHexDigit(const int ch)
 {
 	int lch = tolower(ch);
-	return isdigit(lch) || lch == 'a' || lch == 'b' || lch == 'c'
+	return isdec(lch) || lch == 'a' || lch == 'b' || lch == 'c'
 	       || lch == 'd' || lch == 'e' || lch == 'f';
 }
 
@@ -123,8 +123,8 @@ static bool FASTCALL IsADirectiveChar(int ch)
 
 static bool FASTCALL IsANumberStart(StyleContext &sc)
 {
-	return isdigit(sc.ch)
-	       || (!isdigit(sc.chPrev) && sc.ch == '.' && isdigit(sc.chNext));
+	return isdec(sc.ch)
+	       || (!isdec(sc.chPrev) && sc.ch == '.' && isdec(sc.chNext));
 }
 
 inline static void ColouriseTADS3Operator(StyleContext &sc)
@@ -529,7 +529,7 @@ static void ColouriseTADS3Number(StyleContext &sc)
 				break;
 			}
 		}
-		else if(!isdigit(sc.ch)) {
+		else if(!isdec(sc.ch)) {
 			if(!seenE && tolower(sc.ch) == 'e') {
 				seenE = true;
 				seenDot = true;

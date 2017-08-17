@@ -190,7 +190,7 @@ Sci_Position SCI_METHOD LexerRust::WordListSet(int n, const char * wl)
 
 static bool IsWhitespace(int c)
 {
-	return c == ' ' || c == '\t' || c == '\r' || c == '\n';
+	return oneof4(c, ' ', '\t', '\r', '\n');
 }
 
 /* This isn't quite right for Unicode identifiers */

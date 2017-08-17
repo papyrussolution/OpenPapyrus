@@ -193,10 +193,10 @@ int SLAPI PapyrusPrivateBlock::WriteToSrc(const char * pFileName)
 			Generator_CPP gencpp(pFileName);
 			THROW(gencpp.IsValid());
 			gencpp.Wr_Comment(0);
-			gencpp.Wr_Comment((temp_buf = 0).Tab().Cat(pFileName));
-			gencpp.Wr_Comment((temp_buf = 0).Tab().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0));
-			gencpp.Wr_Comment((temp_buf = 0).Tab().Cat("Automaticaly generated file"));
-			gencpp.Wr_Comment((temp_buf = 0).Tab().Cat("Don't modify!"));
+			gencpp.Wr_Comment(temp_buf.Z().Tab().Cat(pFileName));
+			gencpp.Wr_Comment(temp_buf.Z().Tab().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0));
+			gencpp.Wr_Comment(temp_buf.Z().Tab().Cat("Automaticaly generated file"));
+			gencpp.Wr_Comment(temp_buf.Z().Tab().Cat("Don't modify!"));
 			gencpp.Wr_Comment(0);
 			gencpp.IndentInc();
 			//fprintf(p_out_file, "/*\n\t%s\n\tAutomaticaly generated file\n\tDon't modify !\n*/\n", pOutFileName);
@@ -251,25 +251,25 @@ static int SLAPI CreateVerRcFile2(const char * pInFileName, const char * pRcFile
 	ppb.Ver.Get(&maj, &min, &rev);
 	{
 		assembly_n = ppb.AssemblyN+1;
-		(temp_buf = 0).Cat(assembly_n);
+		temp_buf.Z().Cat(assembly_n);
 		WritePrivateProfileString("Version", "AssemblyVer", temp_buf, pInFileName);
 	}
 	if(!isempty(pInFileNameOpen) && fileExists(pInFileNameOpen)) {
 		int    min_maj, min_min, min_rev;
 		ppb.MinVer.Get(&min_maj, &min_min, &min_rev);
-		WritePrivateProfileString("Version", "MajorVer", (temp_buf = 0).Cat(maj), pInFileNameOpen);
-		WritePrivateProfileString("Version", "MinorVer", (temp_buf = 0).Cat(min), pInFileNameOpen);
-		WritePrivateProfileString("Version", "Revision", (temp_buf = 0).Cat(rev), pInFileNameOpen);
-		WritePrivateProfileString("Version", "MinMajorVer", (temp_buf = 0).Cat(min_maj), pInFileNameOpen);
-		WritePrivateProfileString("Version", "MinMinorVer", (temp_buf = 0).Cat(min_min), pInFileNameOpen);
-		WritePrivateProfileString("Version", "MinRevision", (temp_buf = 0).Cat(min_rev), pInFileNameOpen);
-		(temp_buf = 0).Cat(assembly_n);
+		WritePrivateProfileString("Version", "MajorVer", temp_buf.Z().Cat(maj), pInFileNameOpen);
+		WritePrivateProfileString("Version", "MinorVer", temp_buf.Z().Cat(min), pInFileNameOpen);
+		WritePrivateProfileString("Version", "Revision", temp_buf.Z().Cat(rev), pInFileNameOpen);
+		WritePrivateProfileString("Version", "MinMajorVer", temp_buf.Z().Cat(min_maj), pInFileNameOpen);
+		WritePrivateProfileString("Version", "MinMinorVer", temp_buf.Z().Cat(min_min), pInFileNameOpen);
+		WritePrivateProfileString("Version", "MinRevision", temp_buf.Z().Cat(min_rev), pInFileNameOpen);
+		temp_buf.Z().Cat(assembly_n);
 		WritePrivateProfileString("Version", "AssemblyVer", temp_buf, pInFileNameOpen);
 	}
 	{
 		SFile f_out(pRcFileName, SFile::mWrite);
 		THROW(f_out.IsValid());
-        (line_buf = 0).Cat("#include <afxres.h>").CR().CR();
+        line_buf.Z().Cat("#include <afxres.h>").CR().CR();
         line_buf.Cat("VS_VERSION_INFO").Space().Cat("VERSIONINFO").CR();
         line_buf.Cat("FILEVERSION").Space().Cat(maj).CatChar(',').Cat(min).CatChar(',').Cat(rev).CatChar(',').Cat(assembly_n).CR();
         line_buf.Cat("PRODUCTVERSION").Space().Cat(maj).CatChar(',').Cat(min).CatChar(',').Cat(rev).CatChar(',').Cat(assembly_n).CR();
@@ -293,7 +293,7 @@ static int SLAPI CreateVerRcFile2(const char * pInFileName, const char * pRcFile
 					line_buf.Tab(3).Cat("VALUE").Space().CatQStr("FileVersion").CatDiv(',', 2).CatQStr(ppb.Ver.ToStr(temp_buf = 0)).CR();
 					line_buf.Tab(3).Cat("VALUE").Space().CatQStr("InternalName").CatDiv(',', 2).CatQStr("pp").CR();
 					// fprintf(pF, "\t\t\tVALUE \"LegalCopyright\", \"Copyright %c %s %d - %d\"\n", ch, team, start, last);
-					(temp_buf = 0).Cat("Copyright").Space().CatChar(169).Space().Cat(ppb.Team).Space().
+					temp_buf.Z().Cat("Copyright").Space().CatChar(169).Space().Cat(ppb.Team).Space().
 						Cat(ppb.StartDevYear).CatDiv('-', 1).Cat(ppb.LastDevYear);
 					line_buf.Tab(3).Cat("VALUE").Space().CatQStr("LegalCopyright").CatDiv(',', 2).CatQStr(temp_buf).CR();
 					line_buf.Tab(3).Cat("VALUE").Space().CatQStr("OriginalFilename").CatDiv(',', 2).CatQStr("ppw.exe").CR();

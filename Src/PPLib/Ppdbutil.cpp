@@ -157,7 +157,7 @@ PPBackupScen::PPBackupScen()
 
 int SLAPI PPBackupScen::ToStr(SString & rBuf) const
 {
-	(rBuf = 0).Cat(DBName).CatDiv(',', 0).Cat(BackupPath).CatDiv(',', 0).
+	rBuf.Z().Cat(DBName).CatDiv(',', 0).Cat(BackupPath).CatDiv(',', 0).
 		Cat(Period).CatDiv(',', 0).Cat(Flags).CatDiv(',', 0).Cat(numCopies);
 	return 1;
 }
@@ -1324,23 +1324,23 @@ int ChangeDBListDialog::DoEditDB(PPID dbid)
 		server_type = (dlg->getCtrlUInt16(CTL_CREATEDB_SRVTYPE) == 1) ? sqlstORA : sqlstNone;
 		if(server_type == sqlstORA)
 			dlb.SetAttr(DbLoginBlock::attrServerType, "ORACLE");
-		dlg->getCtrlString(CTL_CREATEDB_ENTRYNAME, temp_buf = 0);
+		dlg->getCtrlString(CTL_CREATEDB_ENTRYNAME, temp_buf.Z());
 		if(!temp_buf.NotEmptyS())
 			PPErrorByDialog(dlg, CTL_CREATEDB_ENTRYNAME, PPERR_NAMENEEDED);
 		else {
 			dlb.SetAttr(DbLoginBlock::attrDbSymb, temp_buf);
-			dlg->getCtrlString(CTL_CREATEDB_NAME, temp_buf = 0);
+			dlg->getCtrlString(CTL_CREATEDB_NAME, temp_buf.Z());
 			dlb.SetAttr(DbLoginBlock::attrDbFriendlyName, temp_buf);
-			dlg->getCtrlString(CTL_CREATEDB_DICT, temp_buf = 0);
+			dlg->getCtrlString(CTL_CREATEDB_DICT, temp_buf.Z());
 			dlb.SetAttr(DbLoginBlock::attrDictPath, temp_buf);
-			dlg->getCtrlString(CTL_CREATEDB_DATA, temp_buf = 0);
+			dlg->getCtrlString(CTL_CREATEDB_DATA, temp_buf.Z());
 			dlb.SetAttr(DbLoginBlock::attrDbPath, temp_buf);
 			if(server_type == sqlstORA) {
-				dlg->getCtrlString(CTL_CREATEDB_DBNAME, temp_buf = 0);
+				dlg->getCtrlString(CTL_CREATEDB_DBNAME, temp_buf.Z());
 				dlb.SetAttr(DbLoginBlock::attrDbName, temp_buf);
-				dlg->getCtrlString(CTL_CREATEDB_DBUSER, temp_buf = 0);
+				dlg->getCtrlString(CTL_CREATEDB_DBUSER, temp_buf.Z());
 				dlb.SetAttr(DbLoginBlock::attrUserName, temp_buf);
-				dlg->getCtrlString(CTL_CREATEDB_DBUSERPW, temp_buf = 0);
+				dlg->getCtrlString(CTL_CREATEDB_DBUSERPW, temp_buf.Z());
 				dlb.SetAttr(DbLoginBlock::attrPassword, temp_buf);
 				temp_buf = 0;
 			}
@@ -2147,9 +2147,9 @@ static int SLAPI _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 					for(uint i = 0; P_Data->enumItems(&i, (void**)&p_item);) {
 						StringSet ss(SLBColumnDelim);
 						ss.add(p_item->TableName);
-						ss.add((sub = 0).Cat(p_item->ActNumRecs));
-						ss.add((sub = 0).Cat(p_item->OrgNumRecs));
-						ss.add((sub = 0).Cat(p_item->NotRcvrdNumRecs));
+						ss.add(sub.Z().Cat(p_item->ActNumRecs));
+						ss.add(sub.Z().Cat(p_item->OrgNumRecs));
+						ss.add(sub.Z().Cat(p_item->NotRcvrdNumRecs));
 						if(!addStringToList(i, ss.getBuf()))
 							return 0;
 					}
@@ -2230,7 +2230,7 @@ int SLAPI CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, int showDialog)
 			THROW(p_dlg = new TDialog(DLG_BUCHECK));
 			p_dlg->disableCtrls(1, CTL_BUCHECK_LASTMODIF, CTL_BUCHECK_SIZE, CTL_BUCHECK_DIR, 0L);
 			p_dlg->setCtrlData(CTL_BUCHECK_LASTMODIF, &copy_dt);
-			p_dlg->setCtrlString(CTL_BUCHECK_SIZE, (temp_buf = 0).Cat(copy_size));
+			p_dlg->setCtrlString(CTL_BUCHECK_SIZE, temp_buf.Z().Cat(copy_size));
 			p_dlg->setCtrlString(CTL_BUCHECK_DIR, copy_dir);
 			ExecViewAndDestroy(p_dlg);
 		}
@@ -3510,14 +3510,14 @@ int SLAPI PrcssrTestDb::Run()
 	for(long i = 0; i < P.NumTaSeries; i++) {
 		if(!CreateTa(1)) {
 			PPGetLastErrorMessage(1, err_msg_buf);
-			LogMessage(msg_buf.Printf("Error execution of PrcssrTestDb::CreateTa(): %s", (const char *)err_msg_buf));
+			LogMessage(msg_buf.Printf("Error execution of PrcssrTestDb::CreateTa(): %s", err_msg_buf.cptr()));
 			ok = 0;
 		}
 	}
 	if(ok) {
 		if(!AnalyzeAndUpdateTa()) {
 			PPGetLastErrorMessage(1, err_msg_buf);
-			LogMessage(msg_buf.Printf("Error execution of PrcssrTestDb::CreateTa(): %s", (const char *)err_msg_buf));
+			LogMessage(msg_buf.Printf("Error execution of PrcssrTestDb::CreateTa(): %s", err_msg_buf.cptr()));
 			ok = 0;
 		}
 	}

@@ -151,7 +151,7 @@ static bool FASTCALL checkKeyIdentOper(Accessor &styler, Sci_Position &curPos, S
 		return false;
 	char ch;
 	ch = styler.SafeGetCharAt(newPos);
-	while(isalpha(ch) || isdigit(ch) || ch == '_') {
+	while(isalpha(ch) || isdec(ch) || ch == '_') {
 		newPos++;
 		if(newPos >= endPos) return false;
 		ch = styler.SafeGetCharAt(newPos);
@@ -365,7 +365,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 					    for(i = 0; i < BUFLEN - 1; i++) {
 						    buf[i] = sc.GetRelative(i);
 						    if(!isalpha(buf[i]) &&
-						    !isdigit(buf[i]) &&
+						    !isdec(buf[i]) &&
 						    !(buf[i] == '_') )
 							    break;
 					    }
@@ -377,7 +377,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 					    continue;
 				    }
 			    }
-			    else if(isdigit(sc.ch) ) {
+			    else if(isdec(sc.ch) ) {
 				    sc.SetState(SCE_MODULA_NUMBER);
 				    continue;
 			    }
@@ -451,7 +451,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 			    buf[0] = sc.ch;
 			    for(i = 1; i < BUFLEN - 1; i++) {
 				    buf[i] = sc.GetRelative(i);
-				    if(!isdigit(buf[i]) )
+				    if(!isdec(buf[i]) )
 					    break;
 			    }
 			    kl = i;
@@ -508,9 +508,9 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 						kl++;
 
 						buf[0] = sc.GetRelative(kl);
-						if(isdigit(buf[0]) ) {
+						if(isdec(buf[0]) ) {
 							for(i = 0;; i++) {
-								if(!isdigit(sc.GetRelative(kl+i)) )
+								if(!isdec(sc.GetRelative(kl+i)) )
 									break;
 							}
 							kl += i;
@@ -530,9 +530,9 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 									    kl++;
 								    }
 								    buf[0] = sc.GetRelative(kl);
-								    if(isdigit(buf[0]) ) {
+								    if(isdec(buf[0]) ) {
 									    for(i = 0;; i++) {
-										    if(!isdigit(sc.GetRelative(kl+i)) ) {
+										    if(!isdec(sc.GetRelative(kl+i)) ) {
 											    buf[0] = sc.GetRelative(kl+i);
 											    break;
 										    }

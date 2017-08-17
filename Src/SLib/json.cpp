@@ -673,6 +673,7 @@ void json_strip_white_spaces(char * text)
 	text[out] = '\0';
 }
 
+#if 0 // {
 char * json_format_string(const char * text)
 {
 	size_t pos = 0;
@@ -680,7 +681,7 @@ char * json_format_string(const char * text)
 	uint i; // loop iterator variable
 	char loop;
 	size_t text_length = strlen(text);
-	RcString * output = rcs_create(text_length);
+	RcString * p_output = rcs_create(text_length);
 	while(pos < text_length) {
 		switch(text[pos]) {
 			case '\x20':
@@ -691,45 +692,45 @@ char * json_format_string(const char * text)
 				break;
 			case '{':
 				indentation++;
-				rcs_catcs(output, "{\n", 2);
+				rcs_catcs(p_output, "{\n", 2);
 				for(i = 0; i < indentation; i++)
-					rcs_catc(output, '\t');
+					rcs_catc(p_output, '\t');
 				pos++;
 				break;
 			case '}':
 				indentation--;
-				rcs_catc(output, '\n');
+				rcs_catc(p_output, '\n');
 				for(i = 0; i < indentation; i++)
-					rcs_catc(output, '\t');
-				rcs_catc(output, '}');
+					rcs_catc(p_output, '\t');
+				rcs_catc(p_output, '}');
 				pos++;
 				break;
 			case ':':
-				rcs_catcs(output, ": ", 2);
+				rcs_catcs(p_output, ": ", 2);
 				pos++;
 				break;
 			case ',':
-				rcs_catcs(output, ",\n", 2);
+				rcs_catcs(p_output, ",\n", 2);
 				for(i = 0; i < indentation; i++)
-					rcs_catc(output, '\t');
+					rcs_catc(p_output, '\t');
 				pos++;
 				break;
 			case '\"':	/* open string */
-				rcs_catc(output, text[pos]);
+				rcs_catc(p_output, text[pos]);
 				pos++;
 				loop = 1; // inner string loop trigger is enabled
 				while(loop) {
 					if(text[pos] == '\\') { // escaped sequence
-						rcs_catc(output, '\\');
+						rcs_catc(p_output, '\\');
 						pos++;
 						if(text[pos] == '\"') { // don't consider a \" escaped sequence as an end of string
-							rcs_catc(output, '\"');
+							rcs_catc(p_output, '\"');
 							pos++;
 						}
 					}
 					else if(text[pos] == '\"') // reached end of string
 						loop = 0;
-					rcs_catc(output, text[pos]);
+					rcs_catc(p_output, text[pos]);
 					pos++;
 					if(pos >= text_length)
 						loop = 0;
@@ -737,12 +738,85 @@ char * json_format_string(const char * text)
 				break;
 
 			default:
-				rcs_catc(output, text[pos]);
+				rcs_catc(p_output, text[pos]);
 				pos++;
 				break;
 		}
 	}
-	return rcs_unwrap(output);
+	return rcs_unwrap(p_output);
+}
+#endif // } 0
+
+int json_format_string(const char * pText, SString & rBuf)
+{
+	int    ok = 1;
+	size_t pos = 0;
+	uint indentation = 0; // the current indentation level
+	char loop;
+	size_t text_length = sstrlen(pText);
+	//RcString * p_output = rcs_create(text_length);
+	rBuf.Z();
+	while(pos < text_length) {
+		switch(pText[pos]) {
+			case '\x20':
+			case '\x09':
+			case '\x0A':
+			case '\x0D': // JSON insignificant white spaces
+				pos++;
+				break;
+			case '{':
+				indentation++;
+				rBuf.CatChar('{').CR();
+				rBuf.Tab(indentation);
+				pos++;
+				break;
+			case '}':
+				THROW(indentation > 0);
+				indentation--;
+				rBuf.CR();
+				rBuf.Tab(indentation);
+				rBuf.CatChar('}');
+				pos++;
+				break;
+			case ':':
+				rBuf.CatDiv(':', 2);
+				pos++;
+				break;
+			case ',':
+				rBuf.Comma().CR();
+				rBuf.Tab(indentation);
+				pos++;
+				break;
+			case '\"':	// open string 
+				rBuf.CatChar(pText[pos]);
+				pos++;
+				loop = 1; // inner string loop trigger is enabled
+				while(loop) {
+					if(pText[pos] == '\\') { // escaped sequence
+						rBuf.CatChar('\\');
+						pos++;
+						if(pText[pos] == '\"') { // don't consider a \" escaped sequence as an end of string
+							rBuf.CatChar('\"');
+							pos++;
+						}
+					}
+					else if(pText[pos] == '\"') // reached end of string
+						loop = 0;
+					rBuf.CatChar(pText[pos]);
+					pos++;
+					if(pos >= text_length)
+						loop = 0;
+				}
+				break;
+			default:
+				rBuf.CatChar(pText[pos]);
+				pos++;
+				break;
+		}
+	}
+	CATCHZOK
+	//return rcs_unwrap(p_output);
+	return ok;
 }
 
 #if 0 // @v9.7.10 @obsolte {

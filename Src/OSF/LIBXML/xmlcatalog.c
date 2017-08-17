@@ -85,20 +85,19 @@ static void usershell() {
 	char * argv[20];
 	int i, ret;
 	xmlChar * ans;
-
 	while(1) {
 		cmdline = xmlShellReadline("> ");
 		if(cmdline == NULL)
 			return;
-
 		/*
 		 * Parse the command itself
 		 */
 		cur = cmdline;
 		nbargs = 0;
-		while((*cur == ' ') || (*cur == '\t')) cur++;
+		while(oneof2(*cur, ' ', '\t')) 
+			cur++;
 		i = 0;
-		while((*cur != ' ') && (*cur != '\t') && (*cur != '\n') && (*cur != '\r')) {
+		while(!oneof4(*cur, ' ', '\t', '\n', '\r')) {
 			if(*cur == 0)
 				break;
 			command[i++] = *cur++;
@@ -112,7 +111,7 @@ static void usershell() {
 		 * Parse the argument string
 		 */
 		memzero(arg, sizeof(arg));
-		while((*cur == ' ') || (*cur == '\t'))
+		while(oneof2(*cur, ' ', '\t'))
 			cur++;
 		i = 0;
 		while((*cur != '\n') && (*cur != '\r') && (*cur != 0)) {
@@ -130,11 +129,13 @@ static void usershell() {
 		cur = arg;
 		memzero(argv, sizeof(argv));
 		while(*cur != 0) {
-			while((*cur == ' ') || (*cur == '\t')) cur++;
+			while(oneof2(*cur, ' ', '\t')) 
+				cur++;
 			if(*cur == '\'') {
 				cur++;
 				argv[i] = cur;
-				while((*cur != 0) && (*cur != '\'')) cur++;
+				while((*cur != 0) && (*cur != '\'')) 
+					cur++;
 				if(*cur == '\'') {
 					*cur = 0;
 					nbargs++;
@@ -155,7 +156,7 @@ static void usershell() {
 			}
 			else {
 				argv[i] = cur;
-				while((*cur != 0) && (*cur != ' ') && (*cur != '\t'))
+				while((*cur != 0) && !oneof2(*cur, ' ', '\t'))
 					cur++;
 				*cur = 0;
 				nbargs++;

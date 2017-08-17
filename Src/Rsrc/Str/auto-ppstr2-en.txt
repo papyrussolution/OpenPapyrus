@@ -71,98 +71,132 @@
 
 
 
-
 //1442 "Ошибка чтения из порта USB"
 //1443 "Ошибка записи в порт USB"
+//
+// Math exception messages
+//
+	//#org Программное математическое исключение (обратитесь к сопровождению)
+PPERR_FPE_EXPLICITGEN "Error autotranslation"
+	//#org Ошибка точности математической операции
+PPERR_FPE_INEXACT "Error autotranslation"
+	//#org Целочисленное деление на нуль
+PPERR_FPE_INTDIV0 "Error autotranslation"
+	//#org Переполнение в целочисленной операции
+PPERR_FPE_INTOVFLOW "Error autotranslation"
+	//#org Ошибочная операция с плавающей точкой (обратитесь к сопровождению)
+PPERR_FPE_INVALID "Error autotranslation"
+	//#org Переполнение в операции с плавающей точкой
+PPERR_FPE_OVERFLOW "Error autotranslation"
+	//#org Чрезвычайно малый результат в операции с плавающей точкой
+PPERR_FPE_UNDERFLOW "Error autotranslation"
+	//#org Деление на нуль в операции с плавающей точкой
+PPERR_FPE_ZERODIVIDE "Error autotranslation"
 
 	//#org Требуется Btrieve версии 6.00 или выше
-PPERR_DBVERSION "Require the Btrieve version 6.00 or higher"
+PPERR_DBVERSION "Error autotranslation"
 	//#org Неверное имя пользователя или пароль
-PPERR_INVUSERORPASSW "Invalid username or password"
+PPERR_INVUSERORPASSW "Error autotranslation"
 	//#org Ошибка библиотеки DB
-PPERR_DBLIB "The DB Library error"
+PPERR_DBLIB "Error autotranslation"
 	//#org Ошибка Btrieve (%s)
-PPERR_DBENGINE "Btrieve error (%s)"
+PPERR_DBENGINE "Error autotranslation"
 	//#org Ошибка библиотеки SLIB
-PPERR_SLIB "SLIB library error"
+PPERR_SLIB "Error autotranslation"
 	//#org Ошибка библиотеки DBQuery
-PPERR_DBQUERY "DBQuery library error"
+PPERR_DBQUERY "Error autotranslation"
 	//#org Ошибка загрузки меню
-PPERR_MENULOADFAULT "Error loading menu"
+PPERR_MENULOADFAULT "Error autotranslation"
 	//#org Ошибка загрузки строки состояния
-PPERR_STATUSLOADFAULT "Error loading status bar"
+PPERR_STATUSLOADFAULT "Error autotranslation"
 	//#org Ошибка загрузки диалога
-PPERR_DLGLOADFAULT "Error loading dialogue"
+PPERR_DLGLOADFAULT "Error autotranslation"
 	//#org Ошибка загрузки таблицы
-PPERR_BROLOADFAULT "Error loading table"
+PPERR_BROLOADFAULT "Error autotranslation"
 	//#org Не найден файл PPCONFIG.PP
-PPERR_INICFGNFOUND "PPCONFIG file not found. PP"
+PPERR_INICFGNFOUND "Error autotranslation"
 	//#org Невозможно открыть файл PPCONFIG.PP
-PPERR_UNABLEOPENINICFG "Cannot open file PPCONFIG. PP"
+PPERR_UNABLEOPENINICFG "Error autotranslation"
 	//#org Ошибка чтения файла PPCONFIG.PP
-PPERR_INVINICFG "Error reading file PPCONFIG. PP"
+PPERR_INVINICFG "Error autotranslation"
 	//#org Ошибка записи файла PPCONFIG.PP
-PPERR_INICFGWRITEFAULT "Error writing file PPCONFIG. PP"
+PPERR_INICFGWRITEFAULT "Error autotranslation"
 	//#org Недостаточно прав для операции (пользователь '%s')
-PPERR_NORIGHTS "Insufficient permissions for operations (user '%s')"
+PPERR_NORIGHTS "Error autotranslation"
 	//#org Идентификатор справочника занят %s
-PPERR_REFISBUSY "The identifier%s is busy Handbook"
+PPERR_REFISBUSY "Error autotranslation"
 	//#org Ошибка чтения объекта конфигурации %s
-PPERR_CFGOBJRDFAULT "Error reading configuration object%s"
+PPERR_CFGOBJRDFAULT "Error autotranslation"
 	//#org Пользователь должен принадлежать какой-либо группе
-PPERR_USRMUSTBELONGTOGRP "The user must belong to a group"
+PPERR_USRMUSTBELONGTOGRP "Error autotranslation"
 	//#org Необходимо указать вид операции
-PPERR_OPRKINDNEEDED "You must specify the type of operation"
+PPERR_OPRKINDNEEDED "Error autotranslation"
 	//#org Недоступная операция '%s'
-PPERR_OPNOTACCESSIBLE "Unavailable operation '%s'"
+PPERR_OPNOTACCESSIBLE "Error autotranslation"
 	//#org Для вида операции отсутствует требуемая привилегия '%s'
-PPERR_ISNTPRVLGFOROP "For the type of surgery lacked the required privilege to '%s'"
+PPERR_ISNTPRVLGFOROP "Error autotranslation"
 	//#org Недоступный склад
-PPERR_LOCNOTACCESSIBLE "Inaccessible warehouse"
+PPERR_LOCNOTACCESSIBLE "Error autotranslation"
 	//#org Заменяемые статьи принадлежат разным аналитическим таблицам
-PPERR_REPLARTNEQSHEET "Replaceable articles belong to different analytical tables"
+PPERR_REPLARTNEQSHEET "Error autotranslation"
 	//#org Ссылка на приватный объект уже синхронизирована с другим общим идентификатором
-PPERR_SYNCDUPPRIMID "A reference to a private object is already synchronized with another common ID"
+PPERR_SYNCDUPPRIMID "Error autotranslation"
 	//#org Нельзя заменить объект сам на себя
-PPERR_REPLSAMEOBJ "You cannot replace the object to itself"
+PPERR_REPLSAMEOBJ "Error autotranslation"
 	//#org Единица измерения товара допускает только целочисленные операции
-PPERR_INTVALUNIT "Unit of measure of goods allows only integer operations"
+PPERR_INTVALUNIT "Error autotranslation"
 	//#org Заданный период закрыт для доступа
-PPERR_NORTPERIOD "The specified period is closed for access"
+PPERR_NORTPERIOD "Error autotranslation"
 	//#org Заданная группа товаров не является альтернативной
-PPERR_NOTALTGRP "The specified group of products is not an alternative"
+PPERR_NOTALTGRP "Error autotranslation"
 	//#org Недопустимая длина штрихкода '%s'
-PPERR_INVBCODELEN "Invalid length barcode '%s'"
+PPERR_INVBCODELEN "Error autotranslation"
 	//#org Недопустимый префикс штрихкода
-PPERR_INVBCODEPRFX "Invalid barcode prefix"
+PPERR_INVBCODEPRFX "Error autotranslation"
 	//#org @{err_internal}: недопустимый параметр (обратитесь к сопровождению)
-PPERR_INVPARAM "@{err_internal}: invalid parameter (see maintenance)"
+PPERR_INVPARAM "Error autotranslation"
 	//#org Операция не принадлежит книге продаж/покупок
-PPERR_OPNOTBELONGTOVATB "The operation does not belong to book sales/purchases"
+PPERR_OPNOTBELONGTOVATB "Error autotranslation"
 	//#org Неверная дата в записи книги продаж/покупок
-PPERR_INVVATBDT "Invalid date in the record book sales/purchases"
+PPERR_INVVATBDT "Error autotranslation"
 	//#org В записи книги продаж/покупок необходим номер счета-фактуры
-PPERR_VATBCODENEEDED "In the record books sales/purchase invoice number is required"
+PPERR_VATBCODENEEDED "Error autotranslation"
 	//#org Несоответствие между выбранной операцией и таблицей статей
-PPERR_UNMATCHOPSHEET "The discrepancy between the selected operation and table articles"
+PPERR_UNMATCHOPSHEET "Error autotranslation"
 	//#org Противоречивые значения флагов
-PPERR_BILLFCONFLICT "Controversial flag values"
+PPERR_BILLFCONFLICT "Error autotranslation"
 	//#org Ошибка открытия файла для экспорта
-PPERR_EXPFOPENFAULT "Error opening file for export"
+PPERR_EXPFOPENFAULT "Error autotranslation"
 	//#org Незакрытый список для подстановки объектов в шаблоне проводки
-PPERR_UNTERMATTSUBST "An unclosed list to insert objects in a template posting"
+PPERR_UNTERMATTSUBST "Error autotranslation"
 	//#org Недопустимая переменная для подстановки в шаблоне проводки
-PPERR_INVATTSUBSTVAR "Invalid variable substitution in a template posting"
+PPERR_INVATTSUBSTVAR "Error autotranslation"
 	//#org Неопределенный символ '%s'
-PPERR_UNDEFSYMB "Undefined symbol '%s'"
+PPERR_UNDEFSYMB "Error autotranslation"
 	//#org Не допускается переоценка неограниченного ресурса
-PPERR_REVALONUNLIM "Not allowed a reassessment of the unlimited resource"
+PPERR_REVALONUNLIM "Error autotranslation"
 	//#org Межскладские операции над неограниченным ресурсом не допускаются
-PPERR_UNLIMINTROP "Mezhskladskie operation on an unlimited resource not allowed"
+PPERR_UNLIMINTROP "Error autotranslation"
 	//#org Буфер для прав доступа по объекту слишком мал (Обратитесь к сопровождению)
-PPERR_OBJRTBUFSIZ "Buffer for access rights on an object is too small (see maintenance)"
+PPERR_OBJRTBUFSIZ "Error autotranslation"
 	//#org Необходимо указать склад
-PPERR_LOCNEEDED "You must specify a warehouse"
+PPERR_LOCNEEDED "Error autotranslation"
+	//#org Неправильный ввод произвольной даты зачета
+PPERR_RECKON_INVUSRDT "Error autotranslation"
+	//#org Нельзя объединять строки пула, содержащего документы по разным операциям
+PPERR_GETERPOOLMERGE "Error autotranslation"
+	//#org Нельзя объединять строки пула переоценок
+PPERR_REVALPOOLMERGE "Error autotranslation"
+	//#org Выбранный лот не принадлежит документу на который ссылается
+PPERR_LOTNOTBELONGTOBILL "Error autotranslation"
+	//#org Дублирование типа налоговой суммы
+PPERR_DUPAMTTYPETAX "Error autotranslation"
+	//#org Дублирование имени объекта
+PPERR_DUPOBJNAME "Error autotranslation"
+	//#org Объект не найден '%s'
+PPERR_OBJNFOUND "Error autotranslation"
+	//#org Кассовый узел не определен - операция не доступна
+PPERR_UNDEFCASHNODE "Error autotranslation"
 //
 // Ошибки записей Accturn
 //
@@ -171,17 +205,17 @@ PPERR_LOCNEEDED "You must specify a warehouse"
 // BHT communication error
 //
 	//#org Нет ответа на установку соединения (%s)
-PPERR_BHT_NOHANDSHAKEACK "No response on the connection (%s)"
+PPERR_BHT_NOHANDSHAKEACK "Error autotranslation"
 	//#org Терминал отклоняет передачу данных
-PPERR_BHT_NAK "Terminal rejects data transfer"
+PPERR_BHT_NAK "Error autotranslation"
 	//#org Терминал не отвечает на передачу данных
-PPERR_BHT_NOREPLY "The Terminal is not responsible for data transmission"
+PPERR_BHT_NOREPLY "Error autotranslation"
 	//#org Терминал прервал передачу данных
-PPERR_BHT_EOT "Terminal interrupted data transfer"
+PPERR_BHT_EOT "Error autotranslation"
 	//#org Не удается завершить передачу данных (%s)
-PPERR_BHT_CLOSELINKFAULT "Unable to complete the data transfer (%s)"
+PPERR_BHT_CLOSELINKFAULT "Error autotranslation"
 	//#org Принимаемый символ не равен SOH и STX
-PPERR_BHT_NOTSOHSTXSYMB "Accepted symbol is not the SOH and STX"
+PPERR_BHT_NOTSOHSTXSYMB "Error autotranslation"
 //
 // StyloBHT errors
 //
@@ -192,39 +226,43 @@ PPERR_BHT_NOTSOHSTXSYMB "Accepted symbol is not the SOH and STX"
 
 
 
+	//#org Замечание по лоту %s: не имеет @{egaiscode}, в то время как товар имеет такой код
+PPERR_ELOT_NOEGAISCODE "Error autotranslation"
+	//#org Замечание по лоту %s: не имеет @{egaiscode}, в то время как товар имеет более одного такого кода
+PPERR_ELOT_NOEGAISCODEAMBIG "Error autotranslation"
 
 
 
 
 
 	//#org DL600 Попытка создать поле '%s' базы данных вне области таблицы базы данных
-PPERR_DL6_DBFLDNOTINDBSCOPE "DL600 attempt to create the '%s' database is beyond the scope of a database table"
+PPERR_DL6_DBFLDNOTINDBSCOPE "Error autotranslation"
 	//#org DL600 Недопустимое использование числовой размерности '%s'
-PPERR_DL6_INVDECDIMUSAGE "DL600 invalid use numeric dimension '%s'"
+PPERR_DL6_INVDECDIMUSAGE "Error autotranslation"
 	//#org DL600 Дублирование наименования индекса '%s'
-PPERR_DL6_DUPDBIDXNAME "DL600 Duplicate index name '%s'"
+PPERR_DL6_DUPDBIDXNAME "Error autotranslation"
 	//#org DL600 Поле '%s' сегмента индекса не принадлежит таблице
-PPERR_DL6_IDXSEGINVFLDNAME "DL600 field '%s' does not belong to table index segment"
+PPERR_DL6_IDXSEGINVFLDNAME "Error autotranslation"
 	//#org DL600 Неизвестная опция '%s' сегмента индекса
-PPERR_DL6_INVIDXSEGFLAG "DL600 Unknown option '%s' index segment"
+PPERR_DL6_INVIDXSEGFLAG "Error autotranslation"
 	//#org DL600 Для индекса одновременно определены опции UNIQUE и DUP
-PPERR_DL6_MISSIDXUNIQ "DL600 for index options are defined at the same time UNIQUE and DUP"
+PPERR_DL6_MISSIDXUNIQ "Error autotranslation"
 	//#org DL600 Недопустимый размер страницы файла данных (%s)
-PPERR_DL6_INVDBFILEPAGE "DL600 Invalid page size data file (%s)"
+PPERR_DL6_INVDBFILEPAGE "Error autotranslation"
 	//#org DL600 Неизвестная опция '%s' таблицы базы данных
-PPERR_DL6_INVDBFILEOPTION "DL600 Unknown option '%s' table in the database"
+PPERR_DL6_INVDBFILEOPTION "Error autotranslation"
 	//#org DL600 Неизвестная опция '%s' индекса базы данных
-PPERR_DL6_INVIDXFLAG "DL600 Unknown option '%s' database index"
+PPERR_DL6_INVIDXFLAG "Error autotranslation"
 	//#org DL600 Числовая размерность %s применена не к десятичному типу данных
-PPERR_DL6_DECMODONNONDECTYPE "DL600 Numeric dimension%s is not applied to the decimal data type"
+PPERR_DL6_DECMODONNONDECTYPE "Error autotranslation"
 	//#org DL600 Ошибка создания элемента словаря базы данных: %s
-PPERR_DL6_DDFENTRYCRFAULT "DL600 failed to create dictionary entry database% :s"
+PPERR_DL6_DDFENTRYCRFAULT "Error autotranslation"
 	//#org DL600 Ошибка создания файла Btrieve: %s
-PPERR_DL6_BTRFILECRFAULT "DL600 error creating Btrieve file% :s"
+PPERR_DL6_BTRFILECRFAULT "Error autotranslation"
 	//#org DL600 Ошибка открытия словаря данных '%s'
-PPERR_DL6_DBDICTOPENFAULT "DL600 error opening data dictionary '%s'"
+PPERR_DL6_DBDICTOPENFAULT "Error autotranslation"
 	//#org DL600 Не определен каталог словаря для создания таблиц базы данных
-PPERR_DL6_UNDEFDICTPATH "DL600 is not defined in the dictionary catalog to create database tables"
+PPERR_DL6_UNDEFDICTPATH "Error autotranslation"
 
 
 
@@ -234,21 +272,72 @@ PPERR_DL6_UNDEFDICTPATH "DL600 is not defined in the dictionary catalog to creat
 
 
 
-	//#org Не законченная конструкция 'PPERR_SC2_INVSLASHX "Not finished '"
-	//#org Не законченная конструкция 'PPERR_SC2_INVSLASHDIGIT "Not finished '"
+	//#org Не законченная конструкция 'PPERR_SC2_INVSLASHX "Error autotranslation"
+	//#org Не законченная конструкция 'PPERR_SC2_INVSLASHDIGIT "Error autotranslation"
 	//#org Номер корреспондирующего кассового узла должен быть больше нуля
-PPERR_APNCORR_N_INV "The number for the corresponding cash node must be greater than zero"
+PPERR_APNCORR_N_INV "Error autotranslation"
 	//#org Номер корреспондирующего кассового узла должен быть уникальным
-PPERR_APNCORR_N_DUP "The number for the corresponding cash site must be unique"
+PPERR_APNCORR_N_DUP "Error autotranslation"
 	//#org UUID корреспондирующего кассового узла должен быть уникальным
-PPERR_APNCORR_UUID_DUP "The UUID for the corresponding cash site must be unique"
+PPERR_APNCORR_UUID_DUP "Error autotranslation"
 //
 // Decl Struc Parsing
 //
 	//#org Слишком большой диапазон [%s]
-PPERR_TOOLARGERANGE "Too big a range [%s]"
+PPERR_TOOLARGERANGE "Error autotranslation"
 	//#org Недопустимый элемент списка номеров касс '%s'
-PPERR_INVPOSNUMBERITEM "Invalid item numbers list CASS '%s'"
+PPERR_INVPOSNUMBERITEM "Error autotranslation"
+	//#org Sartre: не определен путь к базе данных
+PPERR_SARTREDBUNDEF "Error autotranslation"
+	//#org Sartre: слово '%s' в базе данных не найдено
+PPERR_SR_WORDNFOUND "Error autotranslation"
+	//#org SartreConcept: неожиданное завершение файла
+PPERR_SR_C_ENEXPECTEDEOF "Error autotranslation"
+	//#org SartreConcept: не найден родительский оператор
+PPERR_SR_C_PAROPNFOUND "Error autotranslation"
+	//#org SartreConcept: закрытый текущий элемент перед ::concept
+PPERR_SR_C_CLOSEDCUR_2CC "Error autotranslation"
+	//#org SartreConcept: текущий элемент перед ::concept уже является субклассом
+PPERR_SR_C_HASSUBCLS_2CC "Error autotranslation"
+	//#org SartreConcept: закрытый текущий элемент перед =:concept
+PPERR_SR_C_CLOSEDCUR_2EC "Error autotranslation"
+	//#org SartreConcept: неожиданная конструкция после =:concept. Ожидается concept или word или '}' или space
+PPERR_SR_C_UNEXPAFTER_2EC "Error autotranslation"
+	//#org SartreConcept: ожидается ')' или ','
+PPERR_SR_C_RPARORCOMEXPECTED "Error autotranslation"
+	//#org SartreConcept: ожидается :concept
+PPERR_SR_C_CCONCEXPECTED "Error autotranslation"
+	//#org SartreConcept: не определенная концепция перед списком свойств +()
+PPERR_SR_C_UNDEFCONCEPT_PROP "Error autotranslation"
+	//#org Sartre: ожидается идентификатор свойства (%s)
+PPERR_SR_C_PROPIDEXPECTED "Error autotranslation"
+	//#org Sartre: ожидается идентификатор свойства или концепт (%s)
+PPERR_SR_C_PROPIDORCONCEXPECTED "Error autotranslation"
+	//#org Sartre: не допустимый специальный тег слова %s
+PPERR_SR_INVSPCWORDTAG "Error autotranslation"
+
+	//#org Sartre: ожидается идент концепции
+PPERR_SR_S_CONCEPTIDEXPECTED "Error autotranslation"
+	//#org Sartre: ожидается идент правила
+PPERR_SR_S_RULEIDEXPECTED "Error autotranslation"
+	//#org Sartre: ожидается оператор или операнд
+PPERR_SR_S_OPOROPDEXPECTED "Error autotranslation"
+	//#org Sartre: ошибка считывания литерала
+PPERR_SR_S_LITERAL "Error autotranslation"
+	//#org Sartre: неожиданный оператор (без предшествующего операнда)
+PPERR_SR_S_UNEXPOPERATOR "Error autotranslation"
+	//#org Sartre: ожидается ']'
+PPERR_SR_S_RBRACKEXPECTED "Error autotranslation"
+	//#org Sartre: ожидается ')'
+PPERR_SR_S_RPAREXPECTED "Error autotranslation"
+	//#org Sartre: ожидается ';'
+PPERR_SR_S_SEMICOLEXPECTED "Error autotranslation"
+	//#org Sartre: ожидается '='
+PPERR_SR_S_EQEXPECTED "Error autotranslation"
+	//#org Sartre: правило с именем '%s' уже существует
+PPERR_SR_RULENAMEEXISTS "Error autotranslation"
+	//#org Sartre: не допустимый морфологический признак '%s'
+PPERR_SR_INVMORPHTOKEN "Error autotranslation"
 // LastError
 
 [102] // confirmation
@@ -257,7 +346,9 @@ PPERR_INVPOSNUMBERITEM "Invalid item numbers list CASS '%s'"
 //
 
 	//#org Распечатать изображение?
-PPCFM_PRINTIMAGE "Print image?"
+PPCFM_PRINTIMAGE "Error autotranslation"
+	//#org Пометить чек '%s' как финишированный?
+PPCFM_SETCCASSPFINISHED "Error autotranslation"
 
 [103]
 
@@ -274,8 +365,6 @@ PPCFM_PRINTIMAGE "Print image?"
 
 
 // @v9.5.1 13,Кристалл-АЗС-->13,Unused
-
-
 
 
 
@@ -372,6 +461,9 @@ PPCFM_PRINTIMAGE "Print image?"
 
 // @v9.4.3 564 "@{objtype}"
 
+	//#org 1,Присвоить персоналии вид;2,Отозвать вид у персоналии;3,Установить тег персоналии;4,Снять тег у персоналии;5,Присвоить персоналии должность;6,Отозвать должность у персоналии;7,Присвоить персоналии регистр;8,Отозвать у персоналии регистр;9,Запись в календаре;10,Заполнить календарь от парной операции;11,Увеличить тег;12,Уменьшить тег;13,Установить календарь в протяженное состояние;14,Установить календарь в протяженное состояние пропуска;15,Отменить протяженное состояние календаря;16,Запись пропуска в календаре;17,Заполнить календарь пропусками от парной операции;18,Установить отношение со вторичной персоналией;19,Отозвать отношение со вторичной персоналией;20,Начисление на персональную карту;21,Списание с персональной карты;22,Команда на устройство;23,Информация на StyloDisplay;24,Звуковой сигнал;25,Проверка просроченности долга по документам
+PPTXT_POVERB "Error autotranslation"
+
 
 // UserInterfaceSettings::wndVKXXX Варианты отображения элементов пользовательского интерфейса
 // Типы счетов
@@ -382,24 +474,30 @@ PPCFM_PRINTIMAGE "Print image?"
 
 //PPTXT_WAIT_PALMIMPBILL          "Импорт документов"
 	//#org Импорт документов
-PPTXT_IMPBILL "Importing documents"
+PPTXT_IMPBILL "Error autotranslation"
 //PPTXT_WAIT_PALMIMPBLINE         "Импорт строк документов"
 	//#org Импорт строк документов
-PPTXT_IMPBILLLINE "Import strings instruments"
+PPTXT_IMPBILLLINE "Error autotranslation"
 //PPTXT_WAIT_PALMIMPGEOTRACK    "Импорт гео-треков"
 	//#org Импорт гео-треков
-PPTXT_IMPGEOTRACK "Import Geo tracks"
+PPTXT_IMPGEOTRACK "Error autotranslation"
 	//#org Импорт банков
-PPTXT_IMPBANK "Import banks"
+PPTXT_IMPBANK "Error autotranslation"
 	//#org Импорт видов котировок
-PPTXT_IMPQUOTKIND "Import species quotes"
+PPTXT_IMPQUOTKIND "Error autotranslation"
 	//#org Файлы изображений:*.jpg;*.jpeg;*.bmp;*.gif;*.png;*.svg,*.jpg:*.jpg;*.jpeg,*.bmp:*.bmp,*.gif:*.gif,*.png:*.png,*.svg:*.svg
-PPTXT_PICFILESEXTS "Image files: *.jpg; *.jpeg; *.bmp; *.gif; *.png; *.jpg, *.svg: *.jpg; *.jpeg, *.bmp, *.gif *.bmp:: *.gif, *.png: *.png, *.svg: *.svg"
+PPTXT_PICFILESEXTS "Error autotranslation"
 	//#org Файлы @{brand_openstreetmap} (osm):*.osm
-PPTXT_FILPAT_OSM "Files @{brand_openstreetmap} (osm):*. osm"
+PPTXT_FILPAT_OSM "Error autotranslation"
+	//#org Файлы TDDO (*.tddp):*.tddo
+PPTXT_FILPAT_TDDO "Error autotranslation"
 
 
 
+	//#org Драфт-документ по поставщику '%s' создан
+PPTXT_TADRAFTCREATED "Error autotranslation"
+	//#org Драфт-документ по поставщику '%s' был создан ранее
+PPTXT_TADRAFTEXISTS "Error autotranslation"
 
 
 
@@ -413,27 +511,27 @@ PPTXT_FILPAT_OSM "Files @{brand_openstreetmap} (osm):*. osm"
 
 
 	//#org OK    Copy: %s
-PPTXT_BACKUPLOG_SUC_COPY "OK Copy% :s"
+PPTXT_BACKUPLOG_SUC_COPY "Error autotranslation"
 	//#org ERROR Copy: %s
-PPTXT_BACKUPLOG_ERR_COPY "Copy ERROR% :s"
+PPTXT_BACKUPLOG_ERR_COPY "Error autotranslation"
 	//#org OK    Restore: %s
-PPTXT_BACKUPLOG_SUC_RESTORE "OK Restore% :s"
+PPTXT_BACKUPLOG_SUC_RESTORE "Error autotranslation"
 	//#org ERROR Restore: %s
-PPTXT_BACKUPLOG_ERR_RESTORE "Restore ERROR% :s"
+PPTXT_BACKUPLOG_ERR_RESTORE "Error autotranslation"
 	//#org START Backing up/restoring database: %s
-PPTXT_BACKUPLOG_BEGIN "START Backing up/restoring database% :s"
+PPTXT_BACKUPLOG_BEGIN "Error autotranslation"
 	//#org END   Backing up/restoring database: %s
-PPTXT_BACKUPLOG_END "END "Backing up/restoring database% :s"
+PPTXT_BACKUPLOG_END "Error autotranslation"
 	//#org (дополнительная информация отсутствует)
-PPTXT_BACKUPLOG_INVADVOPT "(additional information)"
+PPTXT_BACKUPLOG_INVADVOPT "Error autotranslation"
 	//#org ERROR Call DBBackup::GetFileParams(): %s
-PPTXT_BACKUPLOG_ERR_GETFILEPARAM "ERROR Call DBBackup: GetFileParams ()% :s"
+PPTXT_BACKUPLOG_ERR_GETFILEPARAM "Error autotranslation"
 	//#org ERROR Compress: %s
-PPTXT_BACKUPLOG_ERR_COMPRESS "Compress ERROR% :s"
+PPTXT_BACKUPLOG_ERR_COMPRESS "Error autotranslation"
 	//#org ERROR Decompress: %s
-PPTXT_BACKUPLOG_ERR_DECOMPRESS "Decompress ERROR% :s"
+PPTXT_BACKUPLOG_ERR_DECOMPRESS "Error autotranslation"
 	//#org Ошибка резервного копирования/восстановления: %s
-PPTXT_BACKUPLOG_ERROR "Backup/restore error% :s"
+PPTXT_BACKUPLOG_ERROR "Error autotranslation"
 
 
 
@@ -447,7 +545,7 @@ PPTXT_BACKUPLOG_ERROR "Backup/restore error% :s"
 // Подсказки в панели ввода чеков
 //
 	//#org Продажа по цене        = Цена + F4
-PPTXT_CHKPAN_HINT14 "Selling costs = Price + F4"
+PPTXT_CHKPAN_HINT14 "Error autotranslation"
 
 // @v9.2.4 PPTXT_GOODS                       "Товары"
 
@@ -468,62 +566,105 @@ PPTXT_CHKPAN_HINT14 "Selling costs = Price + F4"
 
 // @do_remove
 	//#org Для документа '%s' получен запрос на отмену проведения @{brand_egais}
-PPTXT_EGAIS_WBRPLREQACCEPTED "The document '%s' is a request to cancel spending @{brand_egais}"
+PPTXT_EGAIS_WBRPLREQACCEPTED "Error autotranslation"
 	//#org Запрос на отмену проведения @{brand_egais} '%s' не может быть акцептирован поскольку ему соответствует более одного документа в БД
-PPTXT_EGAIS_WBRPLREQMANYDOCS "Request to cancel spending @{brand_egais} '%s' could not be accepted because it matches more than one document in the database"
+PPTXT_EGAIS_WBRPLREQMANYDOCS "Error autotranslation"
 	//#org Запрос на отмену проведения @{brand_egais} '%s' не может быть акцептирован поскольку ему не соответствует ни одного документа в БД
-PPTXT_EGAIS_WBRPLREQNODOCS "Request to cancel spending @{brand_egais} '%s' could not be accepted because it does not match any document in database"
+PPTXT_EGAIS_WBRPLREQNODOCS "Error autotranslation"
 
 
 
+	//#org Единоразовое уведомление сервера @{brand_egais} о том, что вы готовы использовать 2-ю версию протокола обмена. Поле 'Параметр запроса' оставьте пустым
+PPTXT_HINT_EGAIS_NOTIFY_WBVER2 "Error autotranslation"
 	//#org Не удалость идентифицировать агента документа '@zstr' по коду @zstr
-PPTXT_LOG_SUPPLIX_AGENTNCODE "Failure to identify document agent ' @zstr ' @zstr code"
+PPTXT_LOG_SUPPLIX_AGENTNCODE "Error autotranslation"
 	//#org Для документа '@zstr' не удалось получить коды клиента и адреса, сопоставленные с поставщиком. Не экспортируется
-PPTXT_LOG_SUPPLIX_NOCLLCCODES "For the document ' @zstr ' failed to get client codes and addresses associated with the provider. Not exported"
+PPTXT_LOG_SUPPLIX_NOCLLCCODES "Error autotranslation"
 	//#org Документ '%s' при изменении, имея связанные заказы, имеет пустой пакет теневых записей
-PPTXT_LOG_BILLHASLORDEMPTYSHL "The document '%s' when you change, having related orders, has an empty package shadow records"
+PPTXT_LOG_BILLHASLORDEMPTYSHL "Error autotranslation"
 	//#org Документ '%s' при загрузке, имея связанные заказы, имеет пустой пакет теневых записей
-PPTXT_LOG_BILLHASLORDEMPTYSHL2 "The document '%s' when downloading, having related orders, has an empty package shadow records"
+PPTXT_LOG_BILLHASLORDEMPTYSHL2 "Error autotranslation"
 	//#org Доход полученный
-PPTXT_SMPLLEDGINC "Income received"
+PPTXT_SMPLLEDGINC "Error autotranslation"
 	//#org Доход для налогообложения
-PPTXT_SMPLLEDGINCV "Income for tax purposes"
+PPTXT_SMPLLEDGINCV "Error autotranslation"
 	//#org Расход для налогообложения
-PPTXT_SMPLLEDGEXPV "For the consumption taxation"
+PPTXT_SMPLLEDGEXPV "Error autotranslation"
 	//#org Успешно обработано %ld товаров Для %ld позиций встречены ошибки
-PPTXT_GOODSRMVALL "Successfully processed%ld To%ld commodities positions met errors"
+PPTXT_GOODSRMVALL "Error autotranslation"
 	//#org Передается сообщение
-PPTXT_SENDMAILWAITMSG "The message is passed to the"
+PPTXT_SENDMAILWAITMSG "Error autotranslation"
 	//#org Передача объекта CHARRY
-PPTXT_SENDCHARRYOBJ "Passing an object CHARRY"
+PPTXT_SENDCHARRYOBJ "Error autotranslation"
 	//#org ABC анализ
-PPTXT_ABCANLZPROCESSING "ABC analysis"
+PPTXT_ABCANLZPROCESSING "Error autotranslation"
 	//#org Товарный отчет
-PPTXT_GOODSOPRABC "Product report"
+PPTXT_GOODSOPRABC "Error autotranslation"
 	//#org Изменения цен при межскладском перемещении
-PPTXT_INTRREVABC "Price changes when moving mezhskladskom"
+PPTXT_INTRREVABC "Error autotranslation"
 	//#org Сортировка файла '%s' splitting
-PPTXT_SORTSPLIT "Sorting a file '%s' splitting"
+PPTXT_SORTSPLIT "Error autotranslation"
 	//#org Сортировка файла '%s' merging
-PPTXT_SORTMERGE "Sorting a file '%s' merging"
+PPTXT_SORTMERGE "Error autotranslation"
 	//#org Тест записи/чтения таблицы пропорциональное гео-решетки '@zstr' прошел успешно
-PPTXT_GEOGRIDTABWRRDSUCC "Read/write test table proportional geo-gratings ' @zstr ' was successful"
+PPTXT_GEOGRIDTABWRRDSUCC "Error autotranslation"
 	//#org Текст '%s' содержит недопустимые для кодировки UTF-8 символы
-PPTXT_TXTHASILLUTF8 "Text '%s' contains invalid UTF-8 characters"
+PPTXT_TXTHASILLUTF8 "Error autotranslation"
 	//#org Текст '%s' содержит подозрительные символы
-PPTXT_TXTHASSUSPCHR "Text '%s' contains suspicious characters"
+PPTXT_TXTHASSUSPCHR "Error autotranslation"
 	//#org Подсчет количества записей в файле '%s'
-PPTXT_FILELINECOUNTING "Count the number of records in the file '%s'"
+PPTXT_FILELINECOUNTING "Error autotranslation"
 	//#org Построение пропорциональной гео-координатной решетки '%s'
-PPTXT_BUILDINGGEOGRID "Build the geo-coordinates proportional to the lattice '%s'"
+PPTXT_BUILDINGGEOGRID "Error autotranslation"
 	//#org Код для проверки номера телефона
-PPTXT_PHONEVERIFYCODE "Code to check phone numbers"
+PPTXT_PHONEVERIFYCODE "Error autotranslation"
 	//#org С вашей карты '@zstr' списана сумма @real
-PPTXT_SCARDDRAW "Your card ' @zstr ' charged @real"
+PPTXT_SCARDDRAW "Error autotranslation"
 	//#org На вашу карту '@zstr' начислена сумма @real
-PPTXT_SCARDWITHDRAW "On your card ' @zstr ' credited @real"
+PPTXT_SCARDWITHDRAW "Error autotranslation"
 	//#org Суммарный дефицит при списании драфт-документов
-PPTXT_TOTALDRAFTWROFFDEFICIT "The total deficit when you decommission-draft documents"
+PPTXT_TOTALDRAFTWROFFDEFICIT "Error autotranslation"
+	//#org Тестовое сообщение для вывода в окно журнала
+PPTXT_TESTLOG_TEXT1 "Error autotranslation"
+	//#org Тестовый текст для вывода в окно журнала
+PPTXT_TESTLOG_TEXT2 "Error autotranslation"
+
+	//#org СУММА БЕЗ СКИДКИ
+PPTXT_CCFMT_AMTWODISCOUNT "Error autotranslation"
+	//#org КАРТА
+PPTXT_CCFMT_CARD "Error autotranslation"
+	//#org ВЛАДЕЛЕЦ
+PPTXT_CCFMT_CARDOWNER "Error autotranslation"
+	//#org СКИДКА
+PPTXT_CCFMT_DISCOUNT "Error autotranslation"
+	//#org НАЛОГ С ПРОДАЖ
+PPTXT_CCFMT_STAX "Error autotranslation"
+	//#org НСП
+PPTXT_CCFMT_STAX_S "Error autotranslation"
+	//#org СУММА ПО СТАВКЕ НДС
+PPTXT_CCFMT_AMTBYVATRATE "Error autotranslation"
+	//#org ПОЛУЧАТЕЛЬ
+PPTXT_CCFMT_RECEIVER "Error autotranslation"
+	//#org КОПИЯ ЧЕКА
+PPTXT_CCFMT_CHKCOPY "Error autotranslation"
+	//#org ПРОДАЖА
+PPTXT_CCFMT_SALE "Error autotranslation"
+	//#org ВОЗВРАТ ПРОДАЖИ
+PPTXT_CCFMT_RETURN "Error autotranslation"
+	//#org ИТОГ
+PPTXT_CCFMT_TOTAL "Error autotranslation"
+	//#org БЕЗНАЛИЧНАЯ ОПЛАТА
+PPTXT_CCFMT_CASHLESSPAYM "Error autotranslation"
+	//#org Режим
+PPTXT_CCFMT_MODE "Error autotranslation"
+
+	//#org @{op}: ТЕСТ СВЯЗИ
+PPTXT_BNKTRM_TESTCONN "Error autotranslation"
+	//#org @{op}: ЗАКРЫТИЕ ДНЯ @{processing}...
+PPTXT_BNKTRM_CLOSESESS "Error autotranslation"
+
+	//#org 1,Nalog.ru Счет-фактура (ON_SFAKT)
+PPTXT_PREDEFIMPEXPBILLFMT "Error autotranslation"
 //
 // LastText
 
@@ -548,6 +689,8 @@ PPTXT_TOTALDRAFTWROFFDEFICIT "The total deficit when you decommission-draft docu
 
 
 
+	//#org Недопустимый параметр функции (%s)
+96 "Error autotranslation"
 
 
 
@@ -556,8 +699,73 @@ PPTXT_TOTALDRAFTWROFFDEFICIT "The total deficit when you decommission-draft docu
 
 
 
+	//#org Не найден глобальный объект SLib по индексу %s
+218 "Error autotranslation"
+	//#org Не найден символ языка '%s'
+219 "Error autotranslation"
 
 
+
+	//#org Multi-disk zip archives not supported
+591 "Error autotranslation"
+	//#org Renaming temporary file failed
+592 "Error autotranslation"
+	//#org Closing zip archive failed
+593 "Error autotranslation"
+	//#org Seek error
+594 "Error autotranslation"
+	//#org Read error
+595 "Error autotranslation"
+	//#org Write error
+596 "Error autotranslation"
+	//#org CRC error
+597 "Error autotranslation"
+	//#org Containing zip archive was closed
+598 "Error autotranslation"
+	//#org No such file
+599 "Error autotranslation"
+	//#org File already exists
+600 "Error autotranslation"
+	//#org Can't open file
+601 "Error autotranslation"
+	//#org Failure to create temporary file
+602 "Error autotranslation"
+	//#org Zlib error
+603 "Error autotranslation"
+	//#org Malloc failure
+604 "Error autotranslation"
+	//#org Entry has been changed
+605 "Error autotranslation"
+	//#org Compression method not supported
+606 "Error autotranslation"
+	//#org Premature end of file
+607 "Error autotranslation"
+	//#org Invalid argument
+608 "Error autotranslation"
+	//#org Not a zip archive
+609 "Error autotranslation"
+	//#org Internal error
+610 "Error autotranslation"
+	//#org Zip archive inconsistent
+611 "Error autotranslation"
+	//#org Can't remove file
+612 "Error autotranslation"
+	//#org Entry has been deleted
+613 "Error autotranslation"
+	//#org Encryption method not supported
+614 "Error autotranslation"
+	//#org Read-only archive
+615 "Error autotranslation"
+	//#org No password provided
+616 "Error autotranslation"
+	//#org Wrong password provided
+617 "Error autotranslation"
+	//#org Operation not supported
+618 "Error autotranslation"
+	//#org Resource still in use
+619 "Error autotranslation"
+	//#org Tell error
+620 "Error autotranslation"
 
 [4]
 
@@ -570,6 +778,8 @@ PPTXT_TOTALDRAFTWROFFDEFICIT "The total deficit when you decommission-draft docu
 
 
 
+	//#org BDB: Не определен контекст синхронизации экземпляра BDbDatabase
+10014 "Error autotranslation"
 
 [342] // PPERR_CRYSTAL_REPORT
 
@@ -582,9 +792,15 @@ PPTXT_TOTALDRAFTWROFFDEFICIT "The total deficit when you decommission-draft docu
 [PPSTR_NAMEDTEXT]
 // @v9.2.5 @lbt_dlvrextflds       "6,R,@id;32,L,@appellation;54,L,@value"
 	//#org 40,L,@oprkind;10,L,@rights
-@lbt_accsoplist "40, L, @oprkind; 10, L, @rights"
+@lbt_accsoplist "Error autotranslation"
 	//#org 10,L,@number;42,L,@appellation;40,L,GUID
-@lbt_apncorlist "10, L, @number; 42, L, @appellation; 40, L, GUID"
+@lbt_apncorlist "Error autotranslation"
+	//#org 48,L,@posnode;8,L,Доступен
+@lbt_rtposlist "Error autotranslation"
+	//#org 48,L,@account;8,L,Доступен
+@lbt_rtacclist "Error autotranslation"
+	//#org 48,L,@quotkind;8,L,Доступен
+@lbt_rtquotkindlist "Error autotranslation"
 
 
 
@@ -594,43 +810,67 @@ PPTXT_TOTALDRAFTWROFFDEFICIT "The total deficit when you decommission-draft docu
 
 
 
+	//#org Обработка
+@processing "Error autotranslation"
 	//#org Размерность
-@dimension "Dimension"
+@dimension "Error autotranslation"
 	//#org Строки сессии
-@sessitem_pl "String session"
+@sessitem_pl "Error autotranslation"
+	//#org Максимум
+@maximum "Error autotranslation"
+	//#org Минимум
+@minimum "Error autotranslation"
+	//#org Среднее
+@average "Error autotranslation"
 	//#org Нет
-@none "No"
+@none "Error autotranslation"
+	//#org Пути
+@path_pl "Error autotranslation"
+	//#org Виды операций
+@oprkind_pl "Error autotranslation"
 	//#org Срок годности
-@expirationdate "Shelf life"
+@expirationdate "Error autotranslation"
+	//#org Время начала
+@timestart "Error autotranslation"
+	//#org Время окончания
+@timefinish "Error autotranslation"
 
 
 
 	//#org Код товара
-@goodscode "Product code"
+@goodscode "Error autotranslation"
 	//#org Код алкогольной продукции
-@goodsalcocode "Code of alcoholic products"
+@goodsalcocode "Error autotranslation"
 	//#org Класс товаров
-@goodsclass "Class of goods"
+@goodsclass "Error autotranslation"
 	//#org Базовая котировка
-@basequote "Base quote"
+@basequote "Error autotranslation"
 	//#org Код клиента
-@clientcode "The client code"
+@clientcode "Error autotranslation"
 	//#org Кол
-@qtty_short "Number"
+@qtty_short "Error autotranslation"
+	//#org Упаковок
+@packqtty_s "Error autotranslation"
 	//#org поступления и реализации
-@termcostandprice_sfx "income and implementation"
+@termcostandprice_sfx "Error autotranslation"
 	//#org Статьи
-@article_pl "Article"
+@article_pl "Error autotranslation"
 	//#org Группирующая статья
-@groupingarticle "The grouping article"
+@groupingarticle "Error autotranslation"
+	//#org Группа верхнего уровня
+@groupfolder "Error autotranslation"
+	//#org Группа по умолчанию
+@groupdefault "Error autotranslation"
+	//#org Исключить эту группу
+@excludegroup "Error autotranslation"
 	//#org Кассовый чек
-@poscheck "Cashier's Cheque"
+@poscheck "Error autotranslation"
 	//#org Печать чека
-@printcheck "Print cheque"
+@printcheck "Error autotranslation"
 	//#org Синхронный кассовый узел
-@posnode_sync "Simultaneous cash site"
+@posnode_sync "Error autotranslation"
 	//#org Асинхронный кассовый узел
-@posnode_async "Asynchronous cash site"
+@posnode_async "Error autotranslation"
 
 
 
@@ -647,26 +887,26 @@ PPTXT_TOTALDRAFTWROFFDEFICIT "The total deficit when you decommission-draft docu
 // Наименования печатных форм товарных документов
 //
 	//#org ТТН (транспортный раздел)
-@pb_ladingbill_frght "TTN (transport section)"
+@pb_ladingbill_frght "Error autotranslation"
 	//#org Акт выполненных работ
-@pb_srvcact "An act performed work"
+@pb_srvcact "Error autotranslation"
 	//#org Сальдо по отгруженной таре
-@pb_taresaldo "NET shipped containers"
+@pb_taresaldo "Error autotranslation"
 	//#org Наряд на складскую сборку
-@pb_locdisp "Warehouse order Assembly"
+@pb_locdisp "Error autotranslation"
 	//#org Изображения из тегов лотов
-@pb_lottagimg "Image tag lots"
+@pb_lottagimg "Error autotranslation"
 //
 // Наименования общих прав доступа
 //
 	//#org Унаследованные
-@rt_inherited "Inherited"
+@rt_inherited "Error autotranslation"
 
 //
 	//#org Доступный вид операции
-@rt_item_op "Available type of operation"
+@rt_item_op "Error autotranslation"
 	//#org Действуют общие права доступа к документам
-@rt_item_op_common "The general right of access to documents"
+@rt_item_op_common "Error autotranslation"
 //
 
 //
@@ -680,6 +920,8 @@ PPTXT_TOTALDRAFTWROFFDEFICIT "The total deficit when you decommission-draft docu
 //
 // Заголовки диалогов и таблиц, для которых не удалось использовать что-то стандартизованное
 //
+	//#org Подбор товара
+@ttl_selectionofgoods "Error autotranslation"
 //
 // Классы товарных котировок
 //
@@ -705,29 +947,40 @@ PPTXT_TOTALDRAFTWROFFDEFICIT "The total deficit when you decommission-draft docu
 // Наименование зарезервированных тегов
 //
 	//#org EDI запрос на отмену проведения документа
-@rtag_edibillrepealreq "EDI request to cancel spending document"
+@rtag_edibillrepealreq "Error autotranslation"
 	//#org UUID кассового узла
-@rtag_posnodeuuid "UUID teller"
+@rtag_posnodeuuid "Error autotranslation"
 	//#org UUID управляющего кассового узла
-@rtag_posnodehostuuid "UUID teller Manager"
+@rtag_posnodehostuuid "Error autotranslation"
+	//#org Ид государственного контракта
+@rtag_statecontractid "Error autotranslation"
 //
 // Текстовые представления view и filter
 //
 	//#org Строки документа
-@view_billitem "The document lines"
+@view_billitem "Error autotranslation"
 	//#org Строки товарного документа
-@view_billitem_goods "Commercial line of document"
+@view_billitem_goods "Error autotranslation"
 	//#org Строки товарного заказа
-@view_billitem_order "Merchandise your line"
+@view_billitem_order "Error autotranslation"
 
 	//#org Параметры обработки файла @{brand_openstreetmap}
-@filter_prcssrosm "File processing options @{brand_openstreetmap}"
+@filter_prcssrosm "Error autotranslation"
+	//#org Параметры автоматического создания документов
+@filter_billautocreateparam "Error autotranslation"
 //
 // Команды и popup-меню
 //
 	//#org Импорт справочника ФИАС
-@cmd_importfias "Import of FIAS Handbook"
+@cmd_importfias "Error autotranslation"
 //@cmd_selltrnovr 				          "Долги по покупателям"
+	//#org Тестирование окна вывода сообщений
+@cmd_testlogwindow "Error autotranslation"
+	//#org Импорт данных проекта Sartre (construction)
+@cmd_importsartre "Error autotranslation"
+	//#org Автоматическое создание документов (construction)
+@cmd_billautocreate "Error autotranslation"
+
 //@cmdpu_repair  				          "Правка"
 
 
@@ -737,187 +990,276 @@ PPTXT_TOTALDRAFTWROFFDEFICIT "The total deficit when you decommission-draft docu
 // Далее следует блок из каталога объектов Papyrus
 //
 
+	//#org Фильтр анализа счета
+@accanlz "Error autotranslation"
+	//#org Дополнение фильтра анализа счета
+@accanlz_addendum "Error autotranslation"
+	//#org Анализ счета
+@accanlz_aakndgeneric "Error autotranslation"
+	//#org Кассовая книга
+@accanlz_aakndcashbook "Error autotranslation"
+	//#org Обороты по поставщикам
+@accanlz_aakndsuppltrnovr "Error autotranslation"
+	//#org Группировка по счету
+@accanlz_aco "Error autotranslation"
+	//#org По счету
+@accanlz_aco_acc "Error autotranslation"
+	//#org По субсчету
+@accanlz_aco_subacc "Error autotranslation"
+	//#org Обороты по статьям
+@accanlz_ftrnovrbysheet "Error autotranslation"
+	//#org Не показывать нулевые обороты
+@accanlz_fspprztrnovr "Error autotranslation"
+	//#org Не показывать нулевые сальдо
+@accanlz_fspprzsaldo "Error autotranslation"
+	//#org Исключать взаимные обороты
+@accanlz_fexclinnertrnovr "Error autotranslation"
+	//#org Лист
+@accanlz_leafno "Error autotranslation"
+	//#org Подстановка по отношению
+@accanlz_substreltype "Error autotranslation"
+
+	//#org Обыкновенная
+@amounttype_kindregular "Error autotranslation"
+	//#org Вид суммы
+@amounttype_kind "Error autotranslation"
+	//#org Замещающая сумма
+@amounttype_replacement "Error autotranslation"
+	//#org Распределение себестоимости
+@amounttype_costdistribution "Error autotranslation"
+	//#org Учетная цена реализации
+@amounttype_ecalg_price "Error autotranslation"
+	//#org Физическое количество
+@amounttype_ecalg_phqtty "Error autotranslation"
+	//#org Масса брутто
+@amounttype_ecalg_brutto "Error autotranslation"
+	//#org Габаритный объем
+@amounttype_ecalg_volume "Error autotranslation"
+
+
+	//#org Очистить соглашение
+@article_clearagt "Error autotranslation"
+
+
 	//#org Параметры COM-порта
-@comportparams "COM port settings"
+@comportparams "Error autotranslation"
 	//#org Скорость COM-порта
-@comportparams_baudrate "COM port speed"
+@comportparams_baudrate "Error autotranslation"
 	//#org Контроль четности
-@comportparams_parity "Parity check"
+@comportparams_parity "Error autotranslation"
 	//#org Биты данных
-@comportparams_bytesize "Data bits"
+@comportparams_bytesize "Error autotranslation"
 
 	//#org Толщины полос штрихкодов (в точках)
-@bcodeprinter_bcpt "Strips thickness (in pixels) of the barcode"
+@bcodeprinter_bcpt "Error autotranslation"
 	//#org OEM-кодировка
-@bcodeprinter_cpoem "OEM-coding"
+@bcodeprinter_cpoem "Error autotranslation"
 
 	//#org Печать товарной этикетки
-@bcodelabelprintparam "Printing commodity labels"
+@bcodelabelprintparam "Error autotranslation"
 	//#org Текущая строка
-@bcodelabelprintparam_currentitemonly "Current row"
+@bcodelabelprintparam_currentitemonly "Error autotranslation"
 	//#org По всей выборке
-@bcodelabelprintparam_fprintall "For the full sample"
+@bcodelabelprintparam_fprintall "Error autotranslation"
 	//#org Количество экземпляров - по упаковкам
-@bcodelabelprintparam_fqttyaspack "Number of copies-in packages"
+@bcodelabelprintparam_fqttyaspack "Error autotranslation"
 	//#org Интерактивный режим
-@bcodelabelprintparam_finteractive "Interactive mode"
+@bcodelabelprintparam_finteractive "Error autotranslation"
 	//#org Экземпляров
-@bcodelabelprintparam_numcopies "Instances of"
+@bcodelabelprintparam_numcopies "Error autotranslation"
 
 
+	//#org Изменение атрибутов документа
+@billupdattributes "Error autotranslation"
+	//#org Изменить нумерацию начинаю со счетчика
+@billupdattributes_modcodestart "Error autotranslation"
 
 
 
 
 
 	//#org При вводе чеков показывать все товары
-@cashnode_cashf_selallgoods "When you enter checks show all products"
+@cashnode_cashf_selallgoods "Error autotranslation"
 	//#org Только для загрузки (не для списания)
-@cashnode_cashfx_glassocprintonly_async "Download-only (not for cancellation)"
+@cashnode_cashfx_glassocprintonly_async "Error autotranslation"
 	//#org Только для печати (не для списания)
-@cashnode_cashfx_glassocprintonly_sync "Print only (not for cancellation)"
+@cashnode_cashfx_glassocprintonly_sync "Error autotranslation"
 	//#org Обязательный ввод количества гостей после выбора стола
-@cashnode_cashfx_inpguestcftbl "Required enter the number of guests after selecting wallpaper"
+@cashnode_cashfx_inpguestcftbl "Error autotranslation"
 	//#org Разрешить проводить абстрактные товарные позиции
-@cashnode_cashfx_abstrgoodsallowed "Allow to carry out abstract commodity positions"
+@cashnode_cashfx_abstrgoodsallowed "Error autotranslation"
+	//#org Дополнительный узел как альтернативный принтер
+@cashnode_cashfx_fextnodeasalt "Error autotranslation"
 	//#org Параметры округления кассовых чеков
-@cashnode_rounding "Rounding options till receipts"
+@cashnode_rounding "Error autotranslation"
 	//#org Округление суммы
-@cashnode_amtrounding "Amount rounding"
+@cashnode_amtrounding "Error autotranslation"
 	//#org Округление скидки
-@cashnode_disrounding "Rounding-off discounts"
+@cashnode_disrounding "Error autotranslation"
 	//#org Использовать
-@cashnode_egaismode_use "Use"
+@cashnode_egaismode_use "Error autotranslation"
 	//#org Не использовать
-@cashnode_egaismode_dontuse "Do not use"
+@cashnode_egaismode_dontuse "Error autotranslation"
 	//#org Пути экспорта
-@cashnode_async_exppaths "Export path"
+@cashnode_async_exppaths "Error autotranslation"
 	//#org Файлы импорта
-@cashnode_async_impfiles "Import files"
+@cashnode_async_impfiles "Error autotranslation"
 	//#org Логические номера касс
-@cashnode_async_lognumlist "Logical rooms CASS"
+@cashnode_async_lognumlist "Error autotranslation"
 	//#org Дополнительные поля для загрузки
-@cashnode_async_addedmsgsign "Additional fields for download"
+@cashnode_async_addedmsgsign "Error autotranslation"
 	//#org Дополнительные устройства кассового узла
-@cashnode_sync_devices "Additional teller device"
+@cashnode_sync_devices "Error autotranslation"
 	//#org Расширеные параметры кассового узла
-@cashnode_sync_extension "Advanced options for cash site"
+@cashnode_sync_extension "Error autotranslation"
 	//#org Устройства
-@cashnode_sync_devices_sh "Device"
+@cashnode_sync_devices_sh "Error autotranslation"
 	//#org Сенсорный экран
-@cashnode_sync_touchscreen "Touch screen"
+@cashnode_sync_touchscreen "Error autotranslation"
 	//#org Спаренный кассовый узел
-@cashnode_sync_extcashnode "Twin cash site"
+@cashnode_sync_extcashnode "Error autotranslation"
+	//#org Альтернативный регистратор
+@cashnode_sync_altregister "Error autotranslation"
 	//#org Узел Papyrus
-@cashnode_sync_papyrusnode "Papyrus Site"
+@cashnode_sync_papyrusnode "Error autotranslation"
 	//#org Дисплей покупателя
-@cashnode_sync_custdisp "Customer display"
+@cashnode_sync_custdisp "Error autotranslation"
 	//#org Банковский терминал
-@cashnode_sync_bnkterm "Wire terminal"
+@cashnode_sync_bnkterm "Error autotranslation"
 	//#org Локальный сенсорный экран
-@cashnode_sync_localtouchscr "Local touch screen"
+@cashnode_sync_localtouchscr "Error autotranslation"
 	//#org Локальный экран применяется только для данного компьютера
-@cashnode_sync_localtouchscr_prompt "Local screen applies only for this computer"
+@cashnode_sync_localtouchscr_prompt "Error autotranslation"
 	//#org Максимальная доля бонуса при оплате чека, %
-@cashnode_sync_bonusmaxpart "The maximum share bonus when paying by cheque,%"
+@cashnode_sync_bonusmaxpart "Error autotranslation"
 	//#org Телефонный сервис
-@cashnode_sync_phnsvc "Phone service"
+@cashnode_sync_phnsvc "Error autotranslation"
 	//#org Параметры фильтрации отложенных чеков
-@cashnode_sync_scf "Filtering options pending checks"
+@cashnode_sync_scf "Error autotranslation"
 	//#org Период отображение отложенных чеков, дней
-@cashnode_sync_scf_days "Period display pending checks, days"
+@cashnode_sync_scf_days "Error autotranslation"
 	//#org Отображение чеков с доставкой
-@cashnode_sync_scf_dlvrt "Displaying checks with delivery"
+@cashnode_sync_scf_dlvrt "Error autotranslation"
 	//#org Не зависимо от признака
-@cashnode_sync_scf_dlvrt_any "Regardless of the indication"
+@cashnode_sync_scf_dlvrt_any "Error autotranslation"
 	//#org Только с признаком доставки
-@cashnode_sync_scf_dlvrt_only "Only sign of delivery"
+@cashnode_sync_scf_dlvrt_only "Error autotranslation"
 	//#org Только без признака доставки
-@cashnode_sync_scf_dlvrt_exclude "Only without sign of delivery"
+@cashnode_sync_scf_dlvrt_exclude "Error autotranslation"
+	//#org Закрытые без финишного признака
+@cashnode_sync_scf_notspfinished "Error autotranslation"
 	//#org Порт принтера чеков
-@cashnode_sync_printerport "Printer port checks"
+@cashnode_sync_printerport "Error autotranslation"
 	//#org Файл плана зала
-@cashnode_sync_tableselwhatman "Hall plan file"
+@cashnode_sync_tableselwhatman "Error autotranslation"
 	//#org Файл описания SLIP-отчетов
-@cashnode_sync_slipfmtpath "SLIP-description file reports"
+@cashnode_sync_slipfmtpath "Error autotranslation"
 	//#org Список номеров столов
-@cashnode_sync_ctbllist "List of tables"
+@cashnode_sync_ctbllist "Error autotranslation"
 	//#org Порт принтера отчетов
-@cashnode_scn_rptprnport "Printer port reports"
+@cashnode_scn_rptprnport "Error autotranslation"
 	//#org Заводской номер фискального принтера
-@cashnode_scn_manufserial "Serial number of the fiscal printer"
+@cashnode_scn_manufserial "Error autotranslation"
 	//#org Денежный ящик
-@cashnode_scn_cashdrawer "Cash drawer"
+@cashnode_scn_cashdrawer "Error autotranslation"
 	//#org Кухонный звонок
-@cashnode_scn_kitchenbell "Kitchen call"
+@cashnode_scn_kitchenbell "Error autotranslation"
+
+	//#org Финишированный чек
+@ccheck_cchkf_spfinished "Error autotranslation"
+	//#org Альтернативный регистратор
+@ccheck_cchkf_altreg "Error autotranslation"
 
 
+	//#org Идентифицировать алкоголь по классу
+@cfgalcreport_fdetectalcbyclass "Error autotranslation"
+	//#org Передача склад-шоп только по дефициту
+@cfgalcreport_fwhtoreg2bylacks "Error autotranslation"
+	//#org Использовать 2-ю версию протокола ЕГАИС
+@cfgalcreport_fegaisver2fmt "Error autotranslation"
+	//#org Способ списания с регистра 2
+@cfgalcreport_wroffshopway "Error autotranslation"
+	//#org Не списывать
+@cfgalcreport_woswnone "Error autotranslation"
+	//#org Уровнять с текущими остатками
+@cfgalcreport_woswbalancewithlots "Error autotranslation"
+	//#org Списать по кассовым чекам
+@cfgalcreport_woswbycchecks "Error autotranslation"
+	//#org Списать по документам
+@cfgalcreport_woswbybills "Error autotranslation"
 
-
+	//#org Конфигурация расценки документов
+@cfgbill_valuation "Error autotranslation"
+	//#org Дополнительные параметры конфигурации документов
+@cfgbill_ext "Error autotranslation"
 
 
 
 	//#org По флажкам операций
-@cfgcomm_incm_default "By flag operations"
+@cfgcomm_incm_default "Error autotranslation"
 	//#org По отгрузке
-@cfgcomm_incm_byshipment "On shipment"
+@cfgcomm_incm_byshipment "Error autotranslation"
 	//#org По оплате
-@cfgcomm_incm_bypayment "On payment"
+@cfgcomm_incm_bypayment "Error autotranslation"
+	//#org Товар для счет-фактуры на предоплату
+@cfgcomm_prepayinvoicegoods "Error autotranslation"
 
 
 
 
 
 	//#org Тег подтверждения передачи документа
-@cfgsupplixcfg_billacktag "Tag transfer confirmation document"
+@cfgsupplixcfg_billacktag "Error autotranslation"
 	//#org Группа устройств Stylo
-@cfgsupplixcfg_stylopalm "Device group Stylo"
+@cfgsupplixcfg_stylopalm "Error autotranslation"
 
+	//#org Цвета статусов
+@cfgtechsess_statuscolors_s "Error autotranslation"
 
 
 	//#org Система учета
-@cfgvatbook_acctgbasis "Accounting system"
+@cfgvatbook_acctgbasis "Error autotranslation"
 	//#org По отгрузке
-@cfgvatbook_acctgbasis_byshipment "On shipment"
+@cfgvatbook_acctgbasis_byshipment "Error autotranslation"
 	//#org По оплате
-@cfgvatbook_acctgbasis_bypayment "On payment"
+@cfgvatbook_acctgbasis_bypayment "Error autotranslation"
 	//#org Система учета на период
-@cfgvatbook_acctgbasisatperiod "The accounting system for the period"
+@cfgvatbook_acctgbasisatperiod "Error autotranslation"
 	//#org По отгрузке
-@cfgvatbook_acctgbasisatperiod_byshipment "On shipment"
+@cfgvatbook_acctgbasisatperiod_byshipment "Error autotranslation"
 	//#org По оплате
-@cfgvatbook_acctgbasisatperiod_bypayment "On payment"
+@cfgvatbook_acctgbasisatperiod_bypayment "Error autotranslation"
 	//#org Печатать с ГТД
-@cfgvatbook_hfiterateclb "Print with GTD"
+@cfgvatbook_hfiterateclb "Error autotranslation"
 	//#org Дата записи
-@cfgvatbook_hfd_recorddate "Date of record"
+@cfgvatbook_hfd_recorddate "Error autotranslation"
 	//#org Основная дата документа
-@cfgvatbook_hfd_billdate "The main document date"
+@cfgvatbook_hfd_billdate "Error autotranslation"
 	//#org Дата счета-фактуры
-@cfgvatbook_hfd_invcdate "Date of invoice"
+@cfgvatbook_hfd_invcdate "Error autotranslation"
 	//#org Наибольшая из двух
-@cfgvatbook_hfd_maxinvcbill "The largest of the two"
+@cfgvatbook_hfd_maxinvcbill "Error autotranslation"
 	//#org Не сторнировать зачеты
-@cfgvatbook_hfdontstornreckon "Not reversed credits"
+@cfgvatbook_hfdontstornreckon "Error autotranslation"
 
 	//#org Платежная запись
-@cfgvatbookitem_faspayment "Payment record"
+@cfgvatbookitem_faspayment "Error autotranslation"
 	//#org Доп объект как контрагент
-@cfgvatbookitem_fbyextobj "DOP object as counterparty"
+@cfgvatbookitem_fbyextobj "Error autotranslation"
 	//#org Исключенная операция
-@cfgvatbookitem_fexclude "Excluded operation"
+@cfgvatbookitem_fexclude "Error autotranslation"
 	//#org По доходным оплатам
-@cfgvatbookitem_fexpendbyfact "By type POS terminal"
+@cfgvatbookitem_fexpendbyfact "Error autotranslation"
 	//#org По доходным отгрузкам
-@cfgvatbookitem_ffactbyshipment "Shipments by type"
+@cfgvatbookitem_ffactbyshipment "Error autotranslation"
 	//#org Отрицательная запись
-@cfgvatbookitem_fnegative "Negative burn"
+@cfgvatbookitem_fnegative "Error autotranslation"
 	//#org Не облагаемая налогом
-@cfgvatbookitem_fvatfree "Non-taxable"
+@cfgvatbookitem_fvatfree "Error autotranslation"
 	//#org Налоги из зачетного документа
-@cfgvatbookitem_fvatfromreckon "Taxes from the original document"
+@cfgvatbookitem_fvatfromreckon "Error autotranslation"
 	//#org Тип замещения номинальной суммы
-@cfgvatbookitem_mainamttype "The replacement type nominal amount"
+@cfgvatbookitem_mainamttype "Error autotranslation"
 
 
 
@@ -936,6 +1278,15 @@ PPTXT_TOTALDRAFTWROFFDEFICIT "The total deficit when you decommission-draft docu
 
 
 
+	//#org Корректировка строк инвентаризации
+@invitemscorr "Error autotranslation"
+	//#org Учетные остатки
+@invitemscorr_rest "Error autotranslation"
+	//#org Учетные цены
+@invitemscorr_price "Error autotranslation"
+	//#org Аварийная корректировка
+@invitemscorr_emergency "Error autotranslation"
+
 
 
 
@@ -945,8 +1296,10 @@ PPTXT_TOTALDRAFTWROFFDEFICIT "The total deficit when you decommission-draft docu
 //
 // Параметры функции проверки и восстановления лотов
 //
+	//#org Переносить @{brand_egais}-код из товара в лот
+@lotrecoverparam_fsetalccodetolots "Error autotranslation"
 	//#org Действует только если в фильтре установлен склад
-@lotrecoverparam_minuscompensop_hint "Works only if you installed the filter warehouse"
+@lotrecoverparam_minuscompensop_hint "Error autotranslation"
 
 
 
@@ -956,24 +1309,42 @@ PPTXT_TOTALDRAFTWROFFDEFICIT "The total deficit when you decommission-draft docu
 //
 
 	//#org Опции печати документов
-@oprkind_prtoptions "Document printing options"
+@oprkind_prtoptions "Error autotranslation"
 	//#org Как печатать
-@oprkind_opkf_prt_how "How to print"
+@oprkind_opkf_prt_how "Error autotranslation"
 
 	//#org Сортировка товарных строк
-@oprkind_prnorder "Sort of product lines"
+@oprkind_prnorder "Error autotranslation"
 	//#org По товару
-@oprkind_prnorder_bygoods "By product"
+@oprkind_prnorder_bygoods "Error autotranslation"
 	//#org По группе и товару
-@oprkind_prnorder_bygrpgoods "Group and product"
+@oprkind_prnorder_bygrpgoods "Error autotranslation"
 	//#org По штрихкоду товара
-@oprkind_prnorder_bybarcode "Barcode of the product"
+@oprkind_prnorder_bybarcode "Error autotranslation"
 	//#org По поставщику
-@oprkind_prnorder_bysuppl "By vendor"
+@oprkind_prnorder_bysuppl "Error autotranslation"
 	//#org По складу
-@oprkind_prnorder_bylocation "In the warehouse"
+@oprkind_prnorder_bylocation "Error autotranslation"
 	//#org По месту хранения и группе
-@oprkind_prnorder_bystoreplacegrpgoods "By storage location and cluster"
+@oprkind_prnorder_bystoreplacegrpgoods "Error autotranslation"
+
+
+	//#org Ускоренный ввод строк
+@oprkind_invop_accelinputmode "Error autotranslation"
+	//#org По единице
+@oprkind_invop_accslicode "Error autotranslation"
+	//#org С вводом количества
+@oprkind_invop_accslicodeandqtty "Error autotranslation"
+	//#org По первому лоту
+@oprkind_invop_acmfifo "Error autotranslation"
+	//#org По среднему
+@oprkind_invop_acmavg "Error autotranslation"
+	//#org Товары с ненулевым остатком
+@oprkind_invop_afmpresents "Error autotranslation"
+	//#org Все товары
+@oprkind_invop_afmall "Error autotranslation"
+	//#org Из предыдущей ревизии
+@oprkind_invop_afmprev "Error autotranslation"
 
 
 
@@ -988,38 +1359,38 @@ PPTXT_TOTALDRAFTWROFFDEFICIT "The total deficit when you decommission-draft docu
 
 
 	//#org Чем выше ранг, тем выше приоритет котировки!
-@quotkind_rank_prompt "The higher the rank, the higher the precedence of the quotes!"
+@quotkind_rank_prompt "Error autotranslation"
 
 
 
 	//#org Извещать об изменении скидки
-@scard_scrdf_notifydiscount "Notify on change discounts"
+@scard_scrdf_notifydiscount "Error autotranslation"
 	//#org Извещать о начислении средств
-@scard_scrdf_notifydraw "Should funds be notify"
+@scard_scrdf_notifydraw "Error autotranslation"
 	//#org Извещать о списании средств
-@scard_scrdf_notifywithdraw "Notify about write-offs"
+@scard_scrdf_notifywithdraw "Error autotranslation"
 	//#org Опции извещений по карте
-@scard_notify_options "Notification options on a map"
+@scard_notify_options "Error autotranslation"
 
 	//#org Изменения выборки карт
-@scardupdselection "Change the sample cards"
+@scardupdselection "Error autotranslation"
 	//#org Изменение флагов
-@scardupdselection_flags "Edit flags"
+@scardupdselection_flags "Error autotranslation"
 	//#org Переместить в серию
-@scardupdselection_movetoser "Move in a series of"
+@scardupdselection_movetoser "Error autotranslation"
 	//#org Изменить дату окончания действия
-@scardupdselection_expiry "Change the expiration date of the"
+@scardupdselection_expiry "Error autotranslation"
 	//#org Очистить дату окончания действия
-@scardupdselection_zeroexpiry "Clear expiration date"
+@scardupdselection_zeroexpiry "Error autotranslation"
 
 	//#org Удаление выборки персональных карт
-@scardremoveall "Delete personal card sample"
+@scardremoveall "Error autotranslation"
 	//#org Переместить всю выборку в серию
-@scardremoveall_move "Move the entire sample in a series"
+@scardremoveall_move "Error autotranslation"
 	//#org Удалить всю выборку персональных карт
-@scardremoveall_remove "Remove all sample personal cards"
+@scardremoveall_remove "Error autotranslation"
 	//#org @{attention} Эта операция реализует необратимые действия над справочником карт. Подумайте дважды прежде, чем нажмете кнопку [OK]
-@scardremoveall_warn "@{attention} this operation implements the irreversible action on the directory maps. Think twice before clicking [OK]"
+@scardremoveall_warn "Error autotranslation"
 
 
 
@@ -1036,49 +1407,53 @@ PPTXT_TOTALDRAFTWROFFDEFICIT "The total deficit when you decommission-draft docu
 
 
 
+	//#org Фильтр чеков
+@ccheckfilt_s "Error autotranslation"
+	//#org Без признака специального финиша
+@ccheckfilt_fnotspfinished "Error autotranslation"
 
 
 
 	//#org Дополнительные опции
-@goodsfilt_addendum "Additional options"
+@goodsfilt_addendum "Error autotranslation"
 	//#org Товары, которых не было до периода поступления
-@goodsfilt_fnewlots "Goods, which was not until period income"
+@goodsfilt_fnewlots "Error autotranslation"
 	//#org Плюс то, что на остатке
-@goodsfilt_fnozerorestonlotperiod "Plus what on the balance"
+@goodsfilt_fnozerorestonlotperiod "Error autotranslation"
 	//#org Только то, что на остатке
-@goodsfilt_factualonly "Only that the balance"
+@goodsfilt_factualonly "Error autotranslation"
 	//#org Фильтр по признаку товаров
-@goodsfilt_selbyspecialprop "Filter based on goods"
+@goodsfilt_selbyspecialprop "Error autotranslation"
 	//#org Не использовать
-@goodsfilt_selbyspecialprop_nouse "Do not use"
+@goodsfilt_selbyspecialprop_nouse "Error autotranslation"
 	//#org Только пассивные
-@goodsfilt_fpassiveonly "Only passive"
+@goodsfilt_fpassiveonly "Error autotranslation"
 	//#org Только обобщенные
-@goodsfilt_fgengoodsonly "Only summary"
+@goodsfilt_fgengoodsonly "Error autotranslation"
 	//#org Только с ценой без налогов
-@goodsfilt_fwotaxgdsonly "Only with the price without taxes"
+@goodsfilt_fwotaxgdsonly "Error autotranslation"
 	//#org Только без скидки
-@goodsfilt_fnodisonly "Only without the discounts"
+@goodsfilt_fnodisonly "Error autotranslation"
 	//#org Период поступления товаров
-@goodsfilt_lotperiod "Period of receipt of goods"
+@goodsfilt_lotperiod "Error autotranslation"
 
 
 
 
 
 	//#org Дополнительные флаги
-@goodsrestfilt_flags2 "Additional flags"
+@goodsrestfilt_flags2 "Error autotranslation"
 	//#org Рассчитывать прогноз продаж
-@goodsrestfilt_f2calcprognosis "Expect sales forecast"
+@goodsrestfilt_f2calcprognosis "Error autotranslation"
 	//#org Котировку трактовать как цены поступления
-@goodsrestfilt_f2costbyquot "Quote interpreted as admission prices"
+@goodsrestfilt_f2costbyquot "Error autotranslation"
 
 	//#org Использование котировки
-@goodsrestfilt_quotusage "Use quotes"
+@goodsrestfilt_quotusage "Error autotranslation"
 	//#org Вместо цены реализации
-@goodsrestfilt_quotusage_asprice "Instead of selling prices"
+@goodsrestfilt_quotusage_asprice "Error autotranslation"
 	//#org Вместо цены поступления
-@goodsrestfilt_quotusage_ascost "Instead the proceeds rates"
+@goodsrestfilt_quotusage_ascost "Error autotranslation"
 
 
 
@@ -1093,52 +1468,65 @@ PPTXT_TOTALDRAFTWROFFDEFICIT "The total deficit when you decommission-draft docu
 
 
 	//#org Только закрытые
-@scardfilt_ft_closedonly "Only closed"
+@scardfilt_ft_closedonly "Error autotranslation"
 
 
 
 
 	//#org Экспорт продаж
-@supplixfilt_acn_expsales "Export sales"
+@supplixfilt_acn_expsales "Error autotranslation"
 	//#org Повторный процессинг обработанных данных
-@supplixfilt_frepeatprocessing "Repeated processing of processed data"
+@supplixfilt_frepeatprocessing "Error autotranslation"
 
 
 
 	//#org Показывать только отличия от документов списания
-@trfranlzfilt_fcomparewroff_diffonly "Show only the differences from the write-off documents"
+@trfranlzfilt_fcomparewroff_diffonly "Error autotranslation"
 
+
+	//#org Торговых единиц
+@trfranlzval_qtty "Error autotranslation"
+	//#org Физических единиц
+@trfranlzval_phqtty "Error autotranslation"
+	//#org Сальдо
+@trfranlzval_saldo "Error autotranslation"
+	//#org Торговых единиц
+@trfranlzval_saldoqtty "Error autotranslation"
+	//#org Дополнительный показатель
+@trfranlzval_extval1 "Error autotranslation"
 
 
 	//#org Сравнительный анализ цен
-@priceanlzfilt "Comparative analysis of prices"
+@priceanlzfilt "Error autotranslation"
 	//#org Алгоритм расчета фактической цены
-@priceanlzfilt_costalg "The algorithm for calculating actual price"
+@priceanlzfilt_costalg "Error autotranslation"
 	//#org По первому лоту
-@priceanlzfilt_cabyfirstlot "On the first lot"
+@priceanlzfilt_cabyfirstlot "Error autotranslation"
 	//#org Среднее по лотам
-@priceanlzfilt_cabyaveragelot "Average of lots"
+@priceanlzfilt_cabyaveragelot "Error autotranslation"
 	//#org Минимальная по лотам
-@priceanlzfilt_cabyminlot "Minimum lot"
+@priceanlzfilt_cabyminlot "Error autotranslation"
 	//#org Минимальная по складам
-@priceanlzfilt_cabyminloc "Minimum by location"
+@priceanlzfilt_cabyminloc "Error autotranslation"
 	//#org По одному из складов
-@priceanlzfilt_bcbyloc "One of the warehouses"
+@priceanlzfilt_bcbyloc "Error autotranslation"
 	//#org Контрактная
-@priceanlzfilt_bcbycontract "Contract"
+@priceanlzfilt_bcbycontract "Error autotranslation"
 	//#org Средняя по всем складам
-@priceanlzfilt_bcbyavglocs "Average for all warehouses"
+@priceanlzfilt_bcbyavglocs "Error autotranslation"
 	//#org Отклонение цен в процентах
-@priceanlzfilt_fshowdiffasprc "Price variance percentage"
+@priceanlzfilt_fshowdiffasprc "Error autotranslation"
 	//#org Исключать строки без контрактных цен
-@priceanlzfilt_fexclwocntrcost "Exclude rows without contract prices"
+@priceanlzfilt_fexclwocntrcost "Error autotranslation"
 	//#org Исключать строки с ценой=фактической или ценой=0
-@priceanlzfilt_fexclwocostorequalbasecost "Exclude rows with the price = actual or price = 0"
+@priceanlzfilt_fexclwocostorequalbasecost "Error autotranslation"
 	//#org Разбивать по поставщикам
-@priceanlzfilt_fdividebysuppl "Split by vendor"
+@priceanlzfilt_fdividebysuppl "Error autotranslation"
 	//#org Склад для расчета базовой цены
-@priceanlzfilt_baseloc "Warehouse for the calculation of the reference price"
+@priceanlzfilt_baseloc "Error autotranslation"
 
+	//#org Передать всю выборку объектов
+@objtransm_fqueryinmasstransmission "Error autotranslation"
 
 
 
@@ -1148,24 +1536,240 @@ PPTXT_TOTALDRAFTWROFFDEFICIT "The total deficit when you decommission-draft docu
 
 
 	//#org Элемент панели инструментов
-@wtmtoolitem "Toolbar element"
+@wtmtoolitem "Error autotranslation"
 	//#org Тип объекта ватмана
-@wtmtoolitem_wtmobjsymb "The type of the object of drawing paper"
+@wtmtoolitem_wtmobjsymb "Error autotranslation"
 	//#org Файл фигуры
-@wtmtoolitem_figpath "Shape file"
+@wtmtoolitem_figpath "Error autotranslation"
 	//#org Файл иконки
-@wtmtoolitem_picpath "File icons"
+@wtmtoolitem_picpath "Error autotranslation"
 	//#org Начальный размер фигуры
-@wtmtoolitem_figsize "The initial size of the shape"
+@wtmtoolitem_figsize "Error autotranslation"
 	//#org Размер иконки
-@wtmtoolitem_picsize "The size of the icons"
+@wtmtoolitem_picsize "Error autotranslation"
 	//#org Не увеличивать размер изображения
-@wtmtoolitem_fdontenlarge "Not to increase the size of the image"
+@wtmtoolitem_fdontenlarge "Error autotranslation"
 	//#org Не сохранять пропорции изображения
-@wtmtoolitem_fdontkeepratio "Do not keep the aspect ratio of the image"
+@wtmtoolitem_fdontkeepratio "Error autotranslation"
 	//#org Пробразовывать к черно-белому формату
-@wtmtoolitem_fgrayscale "Probrazovyvat' to black and white format"
+@wtmtoolitem_fgrayscale "Error autotranslation"
 
 	//#org Корректировка товаров
-@goodsrecoverparam "Adjustment of the goods"
-	//#org Проверять атрибуты алкогольной продукци
+@goodsrecoverparam "Error autotranslation"
+	//#org Проверять атрибуты алкогольной продукции
+@goodsrecoverparam_fcheckalcoattribs "Error autotranslation"
+
+	//#org Рассылка SMS-сообщений
+@smssendparam "Error autotranslation"
+	//#org Текст шаблона сообщения
+@smssendparam_text "Error autotranslation"
+	//#org Длина сообщения
+@smssendparam_symbolcount "Error autotranslation"
+	//#org Количество сообщений
+@smssendparam_smscount "Error autotranslation"
+	//#org не менее
+@smssendparam_notlessthan "Error autotranslation"
+	//#org Поле для вставки
+@smssendparam_fieldselection "Error autotranslation"
+	//#org Отправить
+@smssendparam_dosend "Error autotranslation"
+
+	//#org Параметры автоматической sms рассылки
+@autosmscfg "Error autotranslation"
+	//#org Путь к файлу шаблона сообщения
+@autosmscfg_tddopath "Error autotranslation"
+	//#org Дни недели для отправки
+@autosmscfg_allowedweekdays "Error autotranslation"
+	//#org Время начала рассылки
+@autosmscfg_allowedstarttm "Error autotranslation"
+	//#org Время окончания рассылки
+@autosmscfg_allowedendtm "Error autotranslation"
+
+	//#org Расчет сдачи
+@calcofchange "Error autotranslation"
+	//#org К оплате
+@calcofchange_topaym "Error autotranslation"
+	//#org Наличными
+@calcofchange_cash "Error autotranslation"
+	//#org Сдача
+@calcofchange_change "Error autotranslation"
+
+	//#org Печать чека по документу
+@ccbybill "Error autotranslation"
+	//#org Способ оплаты
+@ccbybill_paymtype "Error autotranslation"
+	//#org Наличными
+@ccbybill_paymtype_cash "Error autotranslation"
+	//#org Безналично
+@ccbybill_paymtype_bank "Error autotranslation"
+	//#org Номер отдела
+@ccbybill_paymtype_division "Error autotranslation"
+
+	//#org Процессинг данных @{brand_openstreetmap}
+@prcssrosm "Error autotranslation"
+	//#org Препроцессинг
+@prcssrosm_fpreprocess "Error autotranslation"
+	//#org Сортировка результатов
+@prcssrosm_fsortpreprcresults "Error autotranslation"
+	//#org Анализ результатов препроцессинга
+@prcssrosm_fanlzpreprcresults "Error autotranslation"
+	//#org Извлечение размеров объектов
+@prcssrosm_fextractsizes "Error autotranslation"
+
+	//#org Процессинг данных Sartre
+@prcssrsartre "Error autotranslation"
+	//#org Импортировать словоформы
+@prcssrosm_fimportflexia "Error autotranslation"
+	//#org Импортировать концепции
+@prcssrosm_fimportconcepts "Error autotranslation"
+	//#org Импортировать имена
+@prcssrosm_fimporthumnames "Error autotranslation"
+	//#org Тестировать словоформы
+@prcssrosm_ftestflexia "Error autotranslation"
+	//#org Тестировать концепции
+@prcssrosm_ftestconcepts "Error autotranslation"
+	//#org Тестировать синтаксический анализатор
+@prcssrosm_ftestsyntaxparser "Error autotranslation"
+
+	//#org Импорт инвентаризации
+@prcssrinvimp "Error autotranslation"
+	//#org Вид операции инвентаризации
+@prcssrinvimp_op "Error autotranslation"
+
+	//#org Импорт товаров
+@prcssrgoodsimp "Error autotranslation"
+
+	//#org Верификация телефонного номера по СМС
+@verifymphone "Error autotranslation"
+	//#org Телефонный номер
+@verifymphone_phonenumber "Error autotranslation"
+	//#org Код для проверки
+@verifymphone_checkcode "Error autotranslation"
+	//#org Отправить СМС
+@verifymphone_sendsms "Error autotranslation"
+
+	//#org Сборка версии системы
+@selfbuildparam "Error autotranslation"
+	//#org Создаваемая версия системы
+@selfbuildparam_ver "Error autotranslation"
+	//#org Суффикс версии
+@selfbuildparam_versuffix "Error autotranslation"
+	//#org Собрать проект Papyrus
+@selfbuildparam_fbuildclient "Error autotranslation"
+	//#org Собрать JobServer
+@selfbuildparam_fbuildserver "Error autotranslation"
+	//#org Собрать библиотеку интерфейсов
+@selfbuildparam_fbuildmtdll "Error autotranslation"
+	//#org Собрать драйверы устройств
+@selfbuildparam_fbuilddrv "Error autotranslation"
+	//#org Собрать библиотеку SOAP-клиентов
+@selfbuildparam_fbuildsoap "Error autotranslation"
+	//#org Построить дистрибутивы
+@selfbuildparam_fbuilddistrib "Error autotranslation"
+	//#org Отправить дистрибутивы на @{brand_uhtt}
+@selfbuildparam_fcopytouhtt "Error autotranslation"
+	//#org Путь к сборщику дистрибутива
+@selfbuildparam_nsispath "Error autotranslation"
+	//#org Путь к инструменту сборки проектов
+@selfbuildparam_compilerpath "Error autotranslation"
+	//#org Конфигурация сборки
+@selfbuildparam_config "Error autotranslation"
+
+	//#org Оплата покупки
+@pospaymblock "Error autotranslation"
+	//#org К оплате
+@pospaymblock_amount "Error autotranslation"
+	//#org Сумма с кредитной карты
+@pospaymblock_scamt "Error autotranslation"
+	//#org Дано наличными
+@pospaymblock_noteamt "Error autotranslation"
+	//#org Сдача
+@pospaymblock_deliveryamt "Error autotranslation"
+	//#org Использовать бонус
+@pospaymblock_fusebonus "Error autotranslation"
+	//#org Альтернативный регистратор
+@pospaymblock_altcashreg "Error autotranslation"
+
+	//#org Операции по кассе
+@posnodecmd "Error autotranslation"
+	//#org Синхронный кассовый узел
+@posnodecmd_sync "Error autotranslation"
+	//#org Асинхронный кассовый узел
+@posnodecmd_async "Error autotranslation"
+	//#org Открыть сессию
+@posnodecmd_async_opensess "Error autotranslation"
+	//#org Обновить сессию
+@posnodecmd_async_updsess "Error autotranslation"
+	//#org Закрыть сессию
+@posnodecmd_async_closesess "Error autotranslation"
+	//#org Получить чеки
+@posnodecmd_async_getsess "Error autotranslation"
+	//#org Излишки за день
+@posnodecmd_async_exc "Error autotranslation"
+	//#org Запрос
+@posnodecmd_async_query "Error autotranslation"
+	//#org Открыть сессию
+@posnodecmd_sync_opensess "Error autotranslation"
+	//#org Закрыть сессию
+@posnodecmd_sync_closesess "Error autotranslation"
+	//#org Блокировать ККМ
+@posnodecmd_sync_lock "Error autotranslation"
+	//#org Разблокировать ККМ
+@posnodecmd_sync_unlock "Error autotranslation"
+	//#org Снять X-отчет
+@posnodecmd_sync_xreport "Error autotranslation"
+	//#org Копия Z-отчета
+@posnodecmd_sync_zreportcopy "Error autotranslation"
+	//#org Инкассация
+@posnodecmd_sync_encashment "Error autotranslation"
+	//#org Открыть денежный ящик
+@posnodecmd_sync_opendrawer "Error autotranslation"
+	//#org Режим ввода чека-метки
+@posnodecmd_sync_markcheckmode "Error autotranslation"
+
+	//#org Автоматическое формирование документов
+@billautocreateparam "Error autotranslation"
+	//#org Что формировать
+@billautocreateparam_a "Error autotranslation"
+	//#org Драфт-документы по анализу товарных операций
+@billautocreateparam_adraftbytrfranlz "Error autotranslation"
+	//#org Драфт-документы по отложенным кассовым чекам
+@billautocreateparam_adraftbysuspcc "Error autotranslation"
+	//#org Документы закупки по прогнозу продаж
+@billautocreateparam_adraftbysupplorders "Error autotranslation"
+	//#org Документы по кассовым чекам
+@billautocreateparam_adraftbyccrule "Error autotranslation"
+	//#org Правило
+@billautocreateparam_rule "Error autotranslation"
+	//#org Группа правил
+@billautocreateparam_rulegrp "Error autotranslation"
+
+	//#org Введите пароль здесь
+@setpassword_input1 "Error autotranslation"
+	//#org А здесь повторите
+@setpassword_input2 "Error autotranslation"
+
+	//#org Стяжка базы данных
+@setdbchain "Error autotranslation"
+	//#org Установка стяжки увеличивает защищенность базы данных от взлома. Если вы хотите иметь возможность в дальнейшем удалить стяжку, то введите пароль. Снять стяжку можно будет только при вводе этого пароля. Если вы не введете пароль, то снять стяжку будет невозможно!
+@setdbchain_info "Error autotranslation"
+
+	//#org Снятие стяжки базы данных
+@resetdbchain "Error autotranslation"
+	//#org @{attention} После снятия стяжки база данных станет уязвима для взлома. Здесь необходимо ввести пароль, который был указан при установке стяжки. Если в тот раз пароль указан не был, то операция неосуществима!
+@resetdbchain_info "Error autotranslation"
+
+[121]
+
+
+
+
+	//#org Разбор xml файла @{brand_openstreetmap}
+72 "Error autotranslation"
+
+[122]
+
+[123:hash] // PPSTR_HASHTOKEN
+
+
+[124:hash] // PPSTR_HASHTOKEN_C

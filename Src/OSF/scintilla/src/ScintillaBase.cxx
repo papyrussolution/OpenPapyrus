@@ -33,11 +33,11 @@
 #include "Indicator.h"
 #include "XPM.h"
 #include "LineMarker.h"
-#include "Style.h"
+//#include "Style.h"
 #include "ViewStyle.h"
 #include "CharClassify.h"
 #include "Decoration.h"
-#include "CaseFolder.h"
+//#include "CaseFolder.h"
 #include "Document.h"
 #include "Selection.h"
 #include "PositionCache.h"
@@ -187,7 +187,7 @@ int ScintillaBase::KeyCommand(uint iMessage)
 			default: AutoCompleteCancel();
 		}
 	}
-	if(ct.inCallTipMode) {
+	if(ct.IsInCollTipMode()) {
 		if(!oneof7(iMessage, SCI_CHARLEFT, SCI_CHARLEFTEXTEND, SCI_CHARRIGHT, SCI_CHARRIGHTEXTEND, SCI_EDITTOGGLEOVERTYPE, SCI_DELETEBACK, SCI_DELETEBACKNOTLINE)) {
 			ct.CallTipCancel();
 		}
@@ -257,8 +257,7 @@ void ScintillaBase::AutoCompleteStart(int lenEntered, const char * list)
 			return;
 		}
 	}
-	ac.Start(wMain, idAutoComplete, sel.MainCaret(), PointMainCaret(),
-	    lenEntered, vs.lineHeight, IsUnicodeMode(), technology);
+	ac.Start(wMain, idAutoComplete, sel.MainCaret(), PointMainCaret(), lenEntered, vs.lineHeight, IsUnicodeMode(), technology);
 
 	PRectangle rcClient = GetClientRectangle();
 	Point pt = LocationFromPosition(sel.MainCaret() - lenEntered);
@@ -292,8 +291,7 @@ void ScintillaBase::AutoCompleteStart(int lenEntered, const char * list)
 		rcac.top = pt.y + vs.lineHeight;
 	}
 	rcac.right = rcac.left + widthLB;
-	rcac.bottom =
-	    static_cast<XYPOSITION>(Platform::Minimum(static_cast<int>(rcac.top) + heightLB, static_cast<int>(rcPopupBounds.bottom)));
+	rcac.bottom = static_cast<XYPOSITION>(Platform::Minimum(static_cast<int>(rcac.top) + heightLB, static_cast<int>(rcPopupBounds.bottom)));
 	ac.lb->SetPositionRelative(rcac, wMain);
 	ac.lb->SetFont(vs.styles[STYLE_DEFAULT].font);
 	uint aveCharWidth = static_cast<uint>(vs.styles[STYLE_DEFAULT].aveCharWidth);
@@ -683,42 +681,22 @@ const char * LexState::GetName() const
 
 void * LexState::PrivateCall(int operation, void * pointer)
 {
-	if(pdoc && instance) {
-		return instance->PrivateCall(operation, pointer);
-	}
-	else {
-		return 0;
-	}
+	return (pdoc && instance) ? instance->PrivateCall(operation, pointer) : 0;
 }
 
 const char * LexState::PropertyNames()
 {
-	if(instance) {
-		return instance->PropertyNames();
-	}
-	else {
-		return 0;
-	}
+	return instance ? instance->PropertyNames() : 0;
 }
 
 int LexState::PropertyType(const char * name)
 {
-	if(instance) {
-		return instance->PropertyType(name);
-	}
-	else {
-		return SC_TYPE_BOOLEAN;
-	}
+	return instance ? instance->PropertyType(name) : SC_TYPE_BOOLEAN;
 }
 
 const char * LexState::DescribeProperty(const char * name)
 {
-	if(instance) {
-		return instance->DescribeProperty(name);
-	}
-	else {
-		return 0;
-	}
+	return instance ? instance->DescribeProperty(name) : 0;
 }
 
 void LexState::PropSet(const char * key, const char * val)
@@ -726,9 +704,8 @@ void LexState::PropSet(const char * key, const char * val)
 	props.Set(key, val);
 	if(instance) {
 		int firstModification = instance->PropertySet(key, val);
-		if(firstModification >= 0) {
+		if(firstModification >= 0)
 			pdoc->ModifiedAt(firstModification);
-		}
 	}
 }
 
@@ -855,203 +832,112 @@ sptr_t ScintillaBase::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    listType = 0;
 		    AutoCompleteStart(static_cast<int>(wParam), reinterpret_cast<const char *>(lParam));
 		    break;
-
 		case SCI_AUTOCCANCEL:
 		    ac.Cancel();
 		    break;
-
-		case SCI_AUTOCACTIVE:
-		    return ac.Active();
-
-		case SCI_AUTOCPOSSTART:
-		    return ac.posStart;
-
 		case SCI_AUTOCCOMPLETE:
 		    AutoCompleteCompleted(0, SC_AC_COMMAND);
 		    break;
-
 		case SCI_AUTOCSETSEPARATOR:
 		    ac.SetSeparator(static_cast<char>(wParam));
 		    break;
-
-		case SCI_AUTOCGETSEPARATOR:
-		    return ac.GetSeparator();
-
 		case SCI_AUTOCSTOPS:
 		    ac.SetStopChars(reinterpret_cast<char *>(lParam));
 		    break;
-
 		case SCI_AUTOCSELECT:
 		    ac.Select(reinterpret_cast<char *>(lParam));
 		    break;
-
-		case SCI_AUTOCGETCURRENT:
-		    return AutoCompleteGetCurrent();
-
-		case SCI_AUTOCGETCURRENTTEXT:
-		    return AutoCompleteGetCurrentText(reinterpret_cast<char *>(lParam));
-
 		case SCI_AUTOCSETCANCELATSTART:
 		    ac.cancelAtStartPos = wParam != 0;
 		    break;
-
-		case SCI_AUTOCGETCANCELATSTART:
-		    return ac.cancelAtStartPos;
-
 		case SCI_AUTOCSETFILLUPS:
 		    ac.SetFillUpChars(reinterpret_cast<char *>(lParam));
 		    break;
-
 		case SCI_AUTOCSETCHOOSESINGLE:
 		    ac.chooseSingle = wParam != 0;
 		    break;
-
-		case SCI_AUTOCGETCHOOSESINGLE:
-		    return ac.chooseSingle;
-
 		case SCI_AUTOCSETIGNORECASE:
 		    ac.ignoreCase = wParam != 0;
 		    break;
-
-		case SCI_AUTOCGETIGNORECASE:
-		    return ac.ignoreCase;
-
 		case SCI_AUTOCSETCASEINSENSITIVEBEHAVIOUR:
 		    ac.ignoreCaseBehaviour = static_cast<uint>(wParam);
 		    break;
-
-		case SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR:
-		    return ac.ignoreCaseBehaviour;
-
 		case SCI_AUTOCSETMULTI:
 		    multiAutoCMode = static_cast<int>(wParam);
 		    break;
-
-		case SCI_AUTOCGETMULTI:
-		    return multiAutoCMode;
-
 		case SCI_AUTOCSETORDER:
 		    ac.autoSort = static_cast<int>(wParam);
 		    break;
-
-		case SCI_AUTOCGETORDER:
-		    return ac.autoSort;
-
 		case SCI_USERLISTSHOW:
 		    listType = static_cast<int>(wParam);
 		    AutoCompleteStart(0, reinterpret_cast<const char *>(lParam));
 		    break;
-
 		case SCI_AUTOCSETAUTOHIDE:
 		    ac.autoHide = wParam != 0;
 		    break;
-
-		case SCI_AUTOCGETAUTOHIDE:
-		    return ac.autoHide;
-
 		case SCI_AUTOCSETDROPRESTOFWORD:
 		    ac.dropRestOfWord = wParam != 0;
 		    break;
-
-		case SCI_AUTOCGETDROPRESTOFWORD:
-		    return ac.dropRestOfWord;
-
 		case SCI_AUTOCSETMAXHEIGHT:
 		    ac.lb->SetVisibleRows(static_cast<int>(wParam));
 		    break;
-
-		case SCI_AUTOCGETMAXHEIGHT:
-		    return ac.lb->GetVisibleRows();
-
 		case SCI_AUTOCSETMAXWIDTH:
 		    maxListWidth = static_cast<int>(wParam);
 		    break;
-
-		case SCI_AUTOCGETMAXWIDTH:
-		    return maxListWidth;
-
 		case SCI_REGISTERIMAGE:
 		    ac.lb->RegisterImage(static_cast<int>(wParam), reinterpret_cast<const char *>(lParam));
 		    break;
-
 		case SCI_REGISTERRGBAIMAGE:
 		    ac.lb->RegisterRGBAImage(static_cast<int>(wParam), static_cast<int>(sizeRGBAImage.x), static_cast<int>(sizeRGBAImage.y),
 		    reinterpret_cast<uchar *>(lParam));
 		    break;
-
 		case SCI_CLEARREGISTEREDIMAGES:
 		    ac.lb->ClearRegisteredImages();
 		    break;
-
 		case SCI_AUTOCSETTYPESEPARATOR:
 		    ac.SetTypesep(static_cast<char>(wParam));
 		    break;
-
-		case SCI_AUTOCGETTYPESEPARATOR:
-		    return ac.GetTypesep();
-
 		case SCI_CALLTIPSHOW:
-		    CallTipShow(LocationFromPosition(static_cast<int>(wParam)),
-		    reinterpret_cast<const char *>(lParam));
+		    CallTipShow(LocationFromPosition(static_cast<int>(wParam)), reinterpret_cast<const char *>(lParam));
 		    break;
-
 		case SCI_CALLTIPCANCEL:
 		    ct.CallTipCancel();
 		    break;
-
-		case SCI_CALLTIPACTIVE:
-		    return ct.inCallTipMode;
-
-		case SCI_CALLTIPPOSSTART:
-		    return ct.posStartCallTip;
-
 		case SCI_CALLTIPSETPOSSTART:
 		    ct.posStartCallTip = static_cast<int>(wParam);
 		    break;
-
 		case SCI_CALLTIPSETHLT:
 		    ct.SetHighlight(static_cast<int>(wParam), static_cast<int>(lParam));
 		    break;
-
 		case SCI_CALLTIPSETBACK:
 		    ct.colourBG = ColourDesired(static_cast<long>(wParam));
 		    vs.styles[STYLE_CALLTIP].back = ct.colourBG;
 		    InvalidateStyleRedraw();
 		    break;
-
 		case SCI_CALLTIPSETFORE:
 		    ct.colourUnSel = ColourDesired(static_cast<long>(wParam));
 		    vs.styles[STYLE_CALLTIP].fore = ct.colourUnSel;
 		    InvalidateStyleRedraw();
 		    break;
-
 		case SCI_CALLTIPSETFOREHLT:
 		    ct.colourSel = ColourDesired(static_cast<long>(wParam));
 		    InvalidateStyleRedraw();
 		    break;
-
 		case SCI_CALLTIPUSESTYLE:
 		    ct.SetTabSize(static_cast<int>(wParam));
 		    InvalidateStyleRedraw();
 		    break;
-
 		case SCI_CALLTIPSETPOSITION:
 		    ct.SetPosition(wParam != 0);
 		    InvalidateStyleRedraw();
 		    break;
-
 		case SCI_USEPOPUP:
 		    displayPopupMenu = static_cast<int>(wParam);
 		    break;
-
 #ifdef SCI_LEXER
 		case SCI_SETLEXER:
 		    DocumentLexState()->SetLexer(static_cast<int>(wParam));
 		    break;
-
-		case SCI_GETLEXER:
-		    return DocumentLexState()->lexLanguage;
-
 		case SCI_COLOURISE:
 		    if(DocumentLexState()->lexLanguage == SCLEX_CONTAINER) {
 			    pdoc->ModifiedAt(static_cast<int>(wParam));
@@ -1062,89 +948,60 @@ sptr_t ScintillaBase::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    }
 		    Redraw();
 		    break;
-
 		case SCI_SETPROPERTY:
-		    DocumentLexState()->PropSet(reinterpret_cast<const char *>(wParam),
-		    reinterpret_cast<const char *>(lParam));
+		    DocumentLexState()->PropSet(reinterpret_cast<const char *>(wParam), reinterpret_cast<const char *>(lParam));
 		    break;
-
-		case SCI_GETPROPERTY:
-		    return StringResult(lParam, DocumentLexState()->PropGet(reinterpret_cast<const char *>(wParam)));
-
-		case SCI_GETPROPERTYEXPANDED:
-		    return DocumentLexState()->PropGetExpanded(reinterpret_cast<const char *>(wParam),
-		    reinterpret_cast<char *>(lParam));
-
-		case SCI_GETPROPERTYINT:
-		    return DocumentLexState()->PropGetInt(reinterpret_cast<const char *>(wParam), static_cast<int>(lParam));
-
 		case SCI_SETKEYWORDS:
 		    DocumentLexState()->SetWordList(static_cast<int>(wParam), reinterpret_cast<const char *>(lParam));
 		    break;
-
 		case SCI_SETLEXERLANGUAGE:
 		    DocumentLexState()->SetLexerLanguage(reinterpret_cast<const char *>(lParam));
 		    break;
-
-		case SCI_GETLEXERLANGUAGE:
-		    return StringResult(lParam, DocumentLexState()->GetName());
-
-		case SCI_PRIVATELEXERCALL:
-		    return reinterpret_cast<sptr_t>(
-		    DocumentLexState()->PrivateCall(static_cast<int>(wParam), reinterpret_cast<void *>(lParam)));
-
-		case SCI_GETSTYLEBITSNEEDED:
-		    return 8;
-
-		case SCI_PROPERTYNAMES:
-		    return StringResult(lParam, DocumentLexState()->PropertyNames());
-
-		case SCI_PROPERTYTYPE:
-		    return DocumentLexState()->PropertyType(reinterpret_cast<const char *>(wParam));
-
-		case SCI_DESCRIBEPROPERTY:
-		    return StringResult(lParam,
-		    DocumentLexState()->DescribeProperty(reinterpret_cast<const char *>(wParam)));
-
-		case SCI_DESCRIBEKEYWORDSETS:
-		    return StringResult(lParam, DocumentLexState()->DescribeWordListSets());
-
-		case SCI_GETLINEENDTYPESSUPPORTED:
-		    return DocumentLexState()->LineEndTypesSupported();
-
-		case SCI_ALLOCATESUBSTYLES:
-		    return DocumentLexState()->AllocateSubStyles(static_cast<int>(wParam), static_cast<int>(lParam));
-
-		case SCI_GETSUBSTYLESSTART:
-		    return DocumentLexState()->SubStylesStart(static_cast<int>(wParam));
-
-		case SCI_GETSUBSTYLESLENGTH:
-		    return DocumentLexState()->SubStylesLength(static_cast<int>(wParam));
-
-		case SCI_GETSTYLEFROMSUBSTYLE:
-		    return DocumentLexState()->StyleFromSubStyle(static_cast<int>(wParam));
-
-		case SCI_GETPRIMARYSTYLEFROMSTYLE:
-		    return DocumentLexState()->PrimaryStyleFromStyle(static_cast<int>(wParam));
-
 		case SCI_FREESUBSTYLES:
 		    DocumentLexState()->FreeSubStyles();
 		    break;
-
 		case SCI_SETIDENTIFIERS:
-		    DocumentLexState()->SetIdentifiers(static_cast<int>(wParam),
-		    reinterpret_cast<const char *>(lParam));
+		    DocumentLexState()->SetIdentifiers(static_cast<int>(wParam), reinterpret_cast<const char *>(lParam));
 		    break;
-
-		case SCI_DISTANCETOSECONDARYSTYLES:
-		    return DocumentLexState()->DistanceToSecondaryStyles();
-
-		case SCI_GETSUBSTYLEBASES:
-		    return StringResult(lParam, DocumentLexState()->GetSubStyleBases());
+		case SCI_AUTOCGETCHOOSESINGLE: return ac.chooseSingle;
+		case SCI_AUTOCACTIVE: return ac.Active();
+		case SCI_AUTOCPOSSTART: return ac.posStart;
+		case SCI_AUTOCGETSEPARATOR: return ac.GetSeparator();
+		case SCI_AUTOCGETCURRENT: return AutoCompleteGetCurrent();
+		case SCI_AUTOCGETCURRENTTEXT: return AutoCompleteGetCurrentText(reinterpret_cast<char *>(lParam));
+		case SCI_AUTOCGETCANCELATSTART: return ac.cancelAtStartPos;
+		case SCI_AUTOCGETIGNORECASE: return ac.ignoreCase;
+		case SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR: return ac.ignoreCaseBehaviour;
+		case SCI_AUTOCGETMULTI: return multiAutoCMode;
+		case SCI_AUTOCGETORDER: return ac.autoSort;
+		case SCI_AUTOCGETAUTOHIDE: return ac.autoHide;
+		case SCI_AUTOCGETDROPRESTOFWORD: return ac.dropRestOfWord;
+		case SCI_AUTOCGETMAXHEIGHT: return ac.lb->GetVisibleRows();
+		case SCI_AUTOCGETMAXWIDTH: return maxListWidth;
+		case SCI_AUTOCGETTYPESEPARATOR: return ac.GetTypesep();
+		case SCI_CALLTIPACTIVE: return ct.IsInCollTipMode();
+		case SCI_CALLTIPPOSSTART: return ct.posStartCallTip;
+		case SCI_GETLEXER: return DocumentLexState()->lexLanguage;
+		case SCI_GETPROPERTY: return StringResult(lParam, DocumentLexState()->PropGet(reinterpret_cast<const char *>(wParam)));
+		case SCI_GETPROPERTYEXPANDED: return DocumentLexState()->PropGetExpanded(reinterpret_cast<const char *>(wParam), reinterpret_cast<char *>(lParam));
+		case SCI_GETPROPERTYINT: return DocumentLexState()->PropGetInt(reinterpret_cast<const char *>(wParam), static_cast<int>(lParam));
+		case SCI_GETLEXERLANGUAGE: return StringResult(lParam, DocumentLexState()->GetName());
+		case SCI_PRIVATELEXERCALL: return reinterpret_cast<sptr_t> (DocumentLexState()->PrivateCall(static_cast<int>(wParam), reinterpret_cast<void *>(lParam)));
+		case SCI_GETSTYLEBITSNEEDED: return 8;
+		case SCI_PROPERTYNAMES: return StringResult(lParam, DocumentLexState()->PropertyNames());
+		case SCI_PROPERTYTYPE: return DocumentLexState()->PropertyType(reinterpret_cast<const char *>(wParam));
+		case SCI_DESCRIBEPROPERTY: return StringResult(lParam, DocumentLexState()->DescribeProperty(reinterpret_cast<const char *>(wParam)));
+		case SCI_DESCRIBEKEYWORDSETS: return StringResult(lParam, DocumentLexState()->DescribeWordListSets());
+		case SCI_GETLINEENDTYPESSUPPORTED: return DocumentLexState()->LineEndTypesSupported();
+		case SCI_ALLOCATESUBSTYLES: return DocumentLexState()->AllocateSubStyles(static_cast<int>(wParam), static_cast<int>(lParam));
+		case SCI_GETSUBSTYLESSTART: return DocumentLexState()->SubStylesStart(static_cast<int>(wParam));
+		case SCI_GETSUBSTYLESLENGTH: return DocumentLexState()->SubStylesLength(static_cast<int>(wParam));
+		case SCI_GETSTYLEFROMSUBSTYLE: return DocumentLexState()->StyleFromSubStyle(static_cast<int>(wParam));
+		case SCI_GETPRIMARYSTYLEFROMSTYLE: return DocumentLexState()->PrimaryStyleFromStyle(static_cast<int>(wParam));
+		case SCI_DISTANCETOSECONDARYSTYLES: return DocumentLexState()->DistanceToSecondaryStyles();
+		case SCI_GETSUBSTYLEBASES: return StringResult(lParam, DocumentLexState()->GetSubStyleBases());
 #endif
-
-		default:
-		    return Editor::WndProc(iMessage, wParam, lParam);
+		default: return Editor::WndProc(iMessage, wParam, lParam);
 	}
 	return 0l;
 }

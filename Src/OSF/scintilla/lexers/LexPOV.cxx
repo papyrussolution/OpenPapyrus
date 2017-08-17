@@ -45,7 +45,7 @@ static bool FASTCALL IsANumberChar(int ch)
 	// Not exactly following number definition (several dots are seen as OK, etc.)
 	// but probably enough in most cases.
 	return (ch < 0x80) &&
-	       (isdigit(ch) || toupper(ch) == 'E' ||
+	       (isdec(ch) || toupper(ch) == 'E' ||
 	    ch == '.' || ch == '-' || ch == '+');
 }
 
@@ -146,7 +146,7 @@ static void ColourisePovDoc(Sci_PositionU startPos,
 				// Skip # and whitespace between # and directive word
 				do {
 					p++;
-				} while((*p == ' ' || *p == '\t') && *p != '\0');
+				} while(oneof2(*p, ' ', '\t'));
 				if(!keywords1.InList(p)) {
 					sc.ChangeState(SCE_POV_BADDIRECTIVE);
 				}
@@ -234,7 +234,7 @@ static void ColourisePovDoc(Sci_PositionU startPos,
 				// Skip whitespace between # and directive word
 				do {
 					sc.Forward();
-				} while((sc.ch == ' ' || sc.ch == '\t') && sc.More());
+				} while(oneof2(sc.ch, ' ', '\t') && sc.More());
 				if(sc.atLineEnd) {
 					sc.SetState(SCE_POV_DEFAULT);
 				}

@@ -133,7 +133,7 @@ static void ColouriseAsyDoc(Sci_PositionU startPos, Sci_Position length, int ini
 			else if(sc.ch == '#' && visibleChars == 0) {
 				do {
 					sc.Forward();
-				} while((sc.ch == ' ' || sc.ch == '\t') && sc.More());
+				} while(oneof2(sc.ch, ' ', '\t') && sc.More());
 				if(sc.atLineEnd) {
 					sc.SetState(SCE_ASY_DEFAULT);
 				}

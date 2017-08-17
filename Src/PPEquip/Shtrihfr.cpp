@@ -864,7 +864,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			THROW(PrintDiscountInfo(pPack, flags));
 			if(DeviceType == devtypeShtrih)
 				THROW(SetFR(UseJournalRibbon, TRUE));
-			(temp_buf = 0).CatCharN('=', CheckStrLen);
+			temp_buf.Z().CatCharN('=', CheckStrLen);
 			THROW(SetFR(StringForPrinting, temp_buf));
 		}
 		if(nonfiscal > 0.0) {
@@ -1359,18 +1359,18 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(CCheckPacket * pPack, const char * pForm
 			THROW(SetFR(StringForPrinting, prn_str));
 			THROW(ExecFRPrintOper(PrintString));
 			if(qtty != 1.0) {
-				(temp_buf = 0).Cat(qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatDiv('X', 1).Cat(price, SFMT_MONEY);
+				temp_buf.Z().Cat(qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatDiv('X', 1).Cat(price, SFMT_MONEY);
 				THROW(SetFR(StringForPrinting, (prn_str = 0).CatCharN(' ', CheckStrLen - temp_buf.Len()).Cat(temp_buf)));
 				THROW(ExecFRPrintOper(PrintString));
 			}
-			(temp_buf = 0).CatEq(0, qtty * price, SFMT_MONEY);
+			temp_buf.Z().CatEq(0, qtty * price, SFMT_MONEY);
 			THROW(SetFR(StringForPrinting, (prn_str = 0).CatCharN(' ', CheckStrLen - temp_buf.Len()).Cat(temp_buf)));
 			THROW(ExecFRPrintOper(PrintString));
 		}
 		THROW(PrintDiscountInfo(pPack, flags));
 		THROW(SetFR(StringForPrinting, (prn_str = 0).CatCharN('=', CheckStrLen)));
 		THROW(ExecFRPrintOper(PrintString));
-		(temp_buf = 0).CatEq(0, fabs(MONEYTOLDBL(pPack->Rec.Amount)), SFMT_MONEY);
+		temp_buf.Z().CatEq(0, fabs(MONEYTOLDBL(pPack->Rec.Amount)), SFMT_MONEY);
 		// @v9.7.1 prn_str = "хрнц"; // @cstr #12
 		PPLoadText(PPTXT_CCFMT_TOTAL, prn_str); // @v9.7.1
 		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
