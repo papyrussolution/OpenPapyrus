@@ -1,0 +1,716 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-access-accessors.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-access-standalone.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-arm-neon.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-arm-simd.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-arm.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-bits-image.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-combine-float.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-combine32.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-conical-gradient.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-edge-accessors.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-edge-standalone.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-fast-path.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-filter.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-general.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-glyph.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-gradient-walker.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-image.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-implementation.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-linear-gradient.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-matrix.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-mips-dspr2.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-mips.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-mmx.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-noop.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-ppc.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-radial-gradient.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-region16.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-region32.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-solid-fill.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-sse2.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-ssse3.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-timer.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-trap.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-utils.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman-x86.c" />
+    <ClCompile Include="..\Osf\Cairo\Pixman\pixman.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-analysis-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-arc.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-array.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-atomic.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-base64-stream.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-base85-stream.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-bentley-ottmann-rectangular.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-bentley-ottmann-rectilinear.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-bentley-ottmann.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-botor-scan-converter.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-boxes-intersect.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-boxes.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-cache.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-cff-subset.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-clip-boxes.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-clip-polygon.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-clip-region.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-clip-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-clip-tor-scan-converter.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-clip.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-color.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-composite-rectangles.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-contour.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-damage.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-debug.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-default-context.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-deflate-stream.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-device.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-directfb-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-egl-context.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-error.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-fallback-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-fixed.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-font-face-twin-data.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-font-face-twin.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-font-face.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-font-options.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-freed-pool.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-freelist.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-ft-font.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-gl-composite.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-gl-device.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-gl-dispatch.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-gl-glyphs.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-gl-gradient.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-gl-info.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-gl-msaa-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-gl-operand.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-gl-shaders.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-gl-source.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-gl-spans-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-gl-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-gl-traps-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-glx-context.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-gstate.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-hash.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-hull.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-image-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-image-info.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-image-source.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-image-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-line.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-lzw.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-mask-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-matrix.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-mempool.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-mesh-pattern-rasterizer.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-misc.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-mono-scan-converter.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-mutex.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-no-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-observer.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-output-stream.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-paginated-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-path-bounds.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-path-fill.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-path-fixed.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-path-in-fill.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-path-stroke-boxes.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-path-stroke-polygon.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-path-stroke-traps.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-path-stroke-tristrip.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-path-stroke.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-path.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-pattern.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-pch.cpp" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-pdf-operators.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-pdf-shading.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-pdf-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-pen.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-png.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-polygon-intersect.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-polygon-reduce.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-polygon.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-ps-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-qt-surface.cpp" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-quartz-font.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-quartz-image-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-quartz-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-raster-source-pattern.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-recording-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-rectangle.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-rectangular-scan-converter.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-region.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-rtree.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-scaled-font-subsets.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-scaled-font.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-script-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-shape-mask-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-slope.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-spans-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-spans.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-spline.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-stroke-dash.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-stroke-style.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-surface-clipper.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-surface-fallback.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-surface-observer.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-surface-offset.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-surface-snapshot.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-surface-subsurface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-surface-wrapper.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-svg-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-tee-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-time.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-tor-scan-converter.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-tor22-scan-converter.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-toy-font-face.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-traps-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-traps.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-tristrip.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-truetype-subset.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-type1-fallback.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-type1-glyph-names.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-type1-subset.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-type3-glyph-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-unicode.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-user-font.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-vg-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-wgl-context.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-wideint.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-win32-debug.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-win32-device.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-win32-display-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-win32-font.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-win32-gdi-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-win32-printing-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-win32-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-win32-system.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xcb-connection-core.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xcb-connection-render.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xcb-connection-shm.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xcb-connection.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xcb-resources.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xcb-screen.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xcb-shm.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xcb-surface-core.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xcb-surface-render.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xcb-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xlib-core-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xlib-display.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xlib-fallback-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xlib-render-compositor.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xlib-screen.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xlib-source.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xlib-surface-shm.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xlib-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xlib-visual.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xlib-xcb-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo-xml-surface.c" />
+    <ClCompile Include="..\Osf\Cairo\Src\1.14.2\cairo.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-analysis-surface-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-arc-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-array-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-atomic-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-backend-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-beos.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-boxes-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-box-inline.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-cache-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-clip-inline.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-clip-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-cogl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-cogl-context-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-cogl-gradient-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-cogl-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-cogl-utils-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-combsort-inline.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-compiler-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-composite-rectangles-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-compositor-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-contour-inline.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-contour-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-damage-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-default-context-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-deprecated.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-device-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-directfb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-drm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-drm-i915-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-drm-i965-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-drm-intel-brw-defines.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-drm-intel-brw-eu.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-drm-intel-brw-structs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-drm-intel-command-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-drm-intel-ioctl-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-drm-intel-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-drm-ioctl-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-drm-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-drm-radeon-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-error-inline.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-error-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-features.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-fixed-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-fixed-type-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-fontconfig-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-freed-pool-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-freelist-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-freelist-type-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-ft.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-ft-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-gl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-gl-dispatch-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-gl-ext-def-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-gl-gradient-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-gl-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-gstate-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-hash-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-image-info-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-image-surface-inline.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-image-surface-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairoint.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-line-inline.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-line-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-list-inline.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-list-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-malloc-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-mempool-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-mutex-impl-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-mutex-list-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-mutex-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-mutex-type-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-os2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-os2-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-output-stream-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-paginated-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-paginated-surface-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-path-fixed-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-path-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-pattern-inline.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-pattern-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-pdf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-pdf-operators-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-pdf-shading-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-pdf-surface-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-pixman-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-ps.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-ps-surface-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-qt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-quartz.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-quartz-image.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-quartz-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-recording-surface-inline.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-recording-surface-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-reference-count-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-region-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-rtree-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-scaled-font-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-scaled-font-subsets-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-script.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-script-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-skia.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-skia-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-slope-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-spans-compositor-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-spans-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-stroke-dash-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-backend-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-clipper-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-fallback-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-inline.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-observer-inline.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-observer-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-offset-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-snapshot-inline.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-snapshot-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-subsurface-inline.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-subsurface-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-wrapper-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-svg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-svg-surface-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-tee.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-tee-surface-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-time-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-traps-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-tristrip-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-truetype-subset-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-type1-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-type3-glyph-surface-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-types-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-user-font-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-version.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-vg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-wideint-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-wideint-type-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-win32.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-win32-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-xcb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-xcb-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-xlib.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-xlib-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-xlib-surface-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-xlib-xrender.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-xlib-xrender-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-xml.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\Pixman\loongson-mmintrin.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\Pixman\pixman.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\Pixman\pixman-accessor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\Pixman\pixman-arm-common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\Pixman\pixman-arm-neon-asm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\Pixman\pixman-arm-simd-asm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\Pixman\pixman-combine32.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\Pixman\pixman-compiler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\Pixman\pixman-edge-imp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\Pixman\pixman-inlines.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\Pixman\pixman-mips-dspr2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\Pixman\pixman-mips-dspr2-asm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\Pixman\pixman-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\Pixman\pixman-version.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\test-compositor-surface.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\test-compositor-surface-private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\test-null-compositor-surface.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Cairo\1_14_2\test-paginated-surface.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{abe554d6-9582-4188-b385-18c78594d2d9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

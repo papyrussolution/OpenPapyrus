@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\bio_ssl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\d1_lib.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\d1_msg.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\d1_srtp.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\methods.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\openssl-ssl-pch.cpp" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\pqueue.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\record\dtls1_bitmap.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\record\rec_layer_d1.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\record\rec_layer_s3.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\record\ssl3_buffer.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\record\ssl3_record.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s3_cbc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s3_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\s3_lib.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\s3_msg.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_asn1.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_cert.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_ciph.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\ssl_conf.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_err.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\ssl_init.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_lib.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\ssl_mcnf.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_rsa.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_sess.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_stat.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\ssl_txt.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\ssl_utst.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\statem\statem.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\statem\statem_clnt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\statem\statem_dtls.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\statem\statem_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\statem\statem_srvr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\t1_enc.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\t1_ext.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\t1_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\t1_reneg.c" />
+    <ClCompile Include="..\Osf\OpenSSL-CMake\ssl\t1_trce.c" />
+    <ClCompile Include="..\OSF\OpenSSL-CMake\ssl\tls_srp.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Osf\OpenSSL-CMake\include\openssl\asn1.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\OpenSSL-CMake\include\openssl\asn1_mac.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\OpenSSL-CMake\include\openssl\asn1t.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-CMake\include\openssl\conf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-CMake\ssl\dtls1.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-CMake\ssl\kssl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\OpenSSL-CMake\include\openssl\pem.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-CMake\ssl\srtp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-CMake\ssl\ssl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-CMake\ssl\ssl2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-CMake\ssl\ssl3.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-CMake\ssl\ssl23.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL-CMake\ssl\tls1.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{115963db-c98f-4ec0-bf8b-9a9fdff59bcd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

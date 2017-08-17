@@ -1,0 +1,510 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\osf\curl\lib\amigaos.c" />
+    <ClCompile Include="..\osf\curl\lib\asyn-ares.c" />
+    <ClCompile Include="..\osf\curl\lib\asyn-thread.c" />
+    <ClCompile Include="..\osf\curl\lib\base64.c" />
+    <ClCompile Include="..\osf\curl\lib\conncache.c" />
+    <ClCompile Include="..\osf\curl\lib\connect.c" />
+    <ClCompile Include="..\osf\curl\lib\content_encoding.c" />
+    <ClCompile Include="..\osf\curl\lib\cookie.c" />
+    <ClCompile Include="..\osf\curl\lib\curl_addrinfo.c" />
+    <ClCompile Include="..\osf\curl\lib\curl_des.c" />
+    <ClCompile Include="..\osf\curl\lib\curl_endian.c" />
+    <ClCompile Include="..\osf\curl\lib\curl_fnmatch.c" />
+    <ClCompile Include="..\osf\curl\lib\curl_gethostname.c" />
+    <ClCompile Include="..\osf\curl\lib\curl_gssapi.c" />
+    <ClCompile Include="..\osf\curl\lib\curl_memrchr.c" />
+    <ClCompile Include="..\osf\curl\lib\curl_multibyte.c" />
+    <ClCompile Include="..\osf\curl\lib\curl_ntlm_core.c" />
+    <ClCompile Include="..\osf\curl\lib\curl_ntlm_wb.c" />
+    <ClCompile Include="..\osf\curl\lib\curl_rtmp.c" />
+    <ClCompile Include="..\osf\curl\lib\curl_sasl.c" />
+    <ClCompile Include="..\osf\curl\lib\curl_sspi.c" />
+    <ClCompile Include="..\osf\curl\lib\curl_threads.c" />
+    <ClCompile Include="..\osf\curl\lib\dict.c" />
+    <ClCompile Include="..\osf\curl\lib\dotdot.c" />
+    <ClCompile Include="..\osf\curl\lib\easy.c" />
+    <ClCompile Include="..\osf\curl\lib\escape.c" />
+    <ClCompile Include="..\osf\curl\lib\file.c" />
+    <ClCompile Include="..\osf\curl\lib\fileinfo.c" />
+    <ClCompile Include="..\osf\curl\lib\formdata.c" />
+    <ClCompile Include="..\osf\curl\lib\ftp.c" />
+    <ClCompile Include="..\osf\curl\lib\ftplistparser.c" />
+    <ClCompile Include="..\osf\curl\lib\getenv.c" />
+    <ClCompile Include="..\osf\curl\lib\getinfo.c" />
+    <ClCompile Include="..\osf\curl\lib\gopher.c" />
+    <ClCompile Include="..\osf\curl\lib\hash.c" />
+    <ClCompile Include="..\osf\curl\lib\hmac.c" />
+    <ClCompile Include="..\osf\curl\lib\hostasyn.c" />
+    <ClCompile Include="..\osf\curl\lib\hostcheck.c" />
+    <ClCompile Include="..\osf\curl\lib\hostip.c" />
+    <ClCompile Include="..\osf\curl\lib\hostip4.c" />
+    <ClCompile Include="..\osf\curl\lib\hostip6.c" />
+    <ClCompile Include="..\osf\curl\lib\hostsyn.c" />
+    <ClCompile Include="..\osf\curl\lib\http.c" />
+    <ClCompile Include="..\osf\curl\lib\http2.c" />
+    <ClCompile Include="..\osf\curl\lib\http_chunks.c" />
+    <ClCompile Include="..\osf\curl\lib\http_digest.c" />
+    <ClCompile Include="..\osf\curl\lib\http_negotiate.c" />
+    <ClCompile Include="..\OSF\CURL\lib\http_ntlm.c" />
+    <ClCompile Include="..\osf\curl\lib\http_proxy.c" />
+    <ClCompile Include="..\osf\curl\lib\idn_win32.c" />
+    <ClCompile Include="..\osf\curl\lib\if2ip.c" />
+    <ClCompile Include="..\osf\curl\lib\imap.c" />
+    <ClCompile Include="..\osf\curl\lib\inet_ntop.c" />
+    <ClCompile Include="..\osf\curl\lib\inet_pton.c" />
+    <ClCompile Include="..\osf\curl\lib\krb5.c" />
+    <ClCompile Include="..\osf\curl\lib\ldap.c" />
+    <ClCompile Include="..\Osf\Curl\lib\libcurl-pch.cpp" />
+    <ClCompile Include="..\osf\curl\lib\llist.c" />
+    <ClCompile Include="..\osf\curl\lib\md4.c" />
+    <ClCompile Include="..\osf\curl\lib\md5.c" />
+    <ClCompile Include="..\osf\curl\lib\memdebug.c" />
+    <ClCompile Include="..\osf\curl\lib\mprintf.c" />
+    <ClCompile Include="..\osf\curl\lib\multi.c" />
+    <ClCompile Include="..\osf\curl\lib\netrc.c" />
+    <ClCompile Include="..\osf\curl\lib\non-ascii.c" />
+    <ClCompile Include="..\osf\curl\lib\nonblock.c" />
+    <ClCompile Include="..\osf\curl\lib\openldap.c" />
+    <ClCompile Include="..\osf\curl\lib\parsedate.c" />
+    <ClCompile Include="..\osf\curl\lib\pingpong.c" />
+    <ClCompile Include="..\osf\curl\lib\pipeline.c" />
+    <ClCompile Include="..\osf\curl\lib\pop3.c" />
+    <ClCompile Include="..\osf\curl\lib\progress.c" />
+    <ClCompile Include="..\OSF\CURL\lib\rand.c" />
+    <ClCompile Include="..\osf\curl\lib\rtsp.c" />
+    <ClCompile Include="..\osf\curl\lib\security.c" />
+    <ClCompile Include="..\osf\curl\lib\select.c" />
+    <ClCompile Include="..\osf\curl\lib\sendf.c" />
+    <ClCompile Include="..\osf\curl\lib\share.c" />
+    <ClCompile Include="..\osf\curl\lib\slist.c" />
+    <ClCompile Include="..\osf\curl\lib\smb.c" />
+    <ClCompile Include="..\osf\curl\lib\smtp.c" />
+    <ClCompile Include="..\osf\curl\lib\socks.c" />
+    <ClCompile Include="..\osf\curl\lib\socks_gssapi.c" />
+    <ClCompile Include="..\osf\curl\lib\socks_sspi.c" />
+    <ClCompile Include="..\osf\curl\lib\speedcheck.c" />
+    <ClCompile Include="..\osf\curl\lib\splay.c" />
+    <ClCompile Include="..\osf\curl\lib\ssh.c" />
+    <ClCompile Include="..\OSF\CURL\lib\strcase.c" />
+    <ClCompile Include="..\osf\curl\lib\strdup.c" />
+    <ClCompile Include="..\osf\curl\lib\strerror.c" />
+    <ClCompile Include="..\osf\curl\lib\strtok.c" />
+    <ClCompile Include="..\osf\curl\lib\strtoofft.c" />
+    <ClCompile Include="..\OSF\CURL\lib\system_win32.c" />
+    <ClCompile Include="..\osf\curl\lib\telnet.c" />
+    <ClCompile Include="..\osf\curl\lib\tftp.c" />
+    <ClCompile Include="..\osf\curl\lib\timeval.c" />
+    <ClCompile Include="..\osf\curl\lib\transfer.c" />
+    <ClCompile Include="..\osf\curl\lib\url.c" />
+    <ClCompile Include="..\OSF\CURL\lib\vauth\cleartext.c" />
+    <ClCompile Include="..\OSF\CURL\lib\vauth\cram.c" />
+    <ClCompile Include="..\OSF\CURL\lib\vauth\digest.c" />
+    <ClCompile Include="..\OSF\CURL\lib\vauth\digest_sspi.c" />
+    <ClCompile Include="..\OSF\CURL\lib\vauth\krb5_gssapi.c" />
+    <ClCompile Include="..\OSF\CURL\lib\vauth\krb5_sspi.c" />
+    <ClCompile Include="..\OSF\CURL\lib\vauth\ntlm.c" />
+    <ClCompile Include="..\OSF\CURL\lib\vauth\ntlm_sspi.c" />
+    <ClCompile Include="..\OSF\CURL\lib\vauth\oauth2.c" />
+    <ClCompile Include="..\OSF\CURL\lib\vauth\spnego_gssapi.c" />
+    <ClCompile Include="..\OSF\CURL\lib\vauth\spnego_sspi.c" />
+    <ClCompile Include="..\OSF\CURL\lib\vauth\vauth.c" />
+    <ClCompile Include="..\osf\curl\lib\version.c" />
+    <ClCompile Include="..\osf\curl\lib\vtls\axtls.c" />
+    <ClCompile Include="..\osf\curl\lib\vtls\cyassl.c" />
+    <ClCompile Include="..\osf\curl\lib\vtls\darwinssl.c" />
+    <ClCompile Include="..\osf\curl\lib\vtls\gskit.c" />
+    <ClCompile Include="..\osf\curl\lib\vtls\gtls.c" />
+    <ClCompile Include="..\OSF\CURL\lib\vtls\mbedtls.c" />
+    <ClCompile Include="..\osf\curl\lib\vtls\nss.c" />
+    <ClCompile Include="..\osf\curl\lib\vtls\openssl.c" />
+    <ClCompile Include="..\osf\curl\lib\vtls\polarssl.c" />
+    <ClCompile Include="..\osf\curl\lib\vtls\polarssl_threadlock.c" />
+    <ClCompile Include="..\osf\curl\lib\vtls\schannel.c" />
+    <ClCompile Include="..\osf\curl\lib\vtls\vtls.c" />
+    <ClCompile Include="..\osf\curl\lib\warnless.c" />
+    <ClCompile Include="..\osf\curl\lib\wildcard.c" />
+    <ClCompile Include="..\osf\curl\lib\x509asn1.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\curl\lib\amigaos.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\arpa_telnet.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\asyn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\vtls\axtls.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\config-win32.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\conncache.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\connect.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\content_encoding.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\cookie.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Curl\include\curl\curl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_addrinfo.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_base64.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_des.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_endian.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_fnmatch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_gethostname.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_gssapi.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_hmac.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_ldap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_md4.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_md5.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_memory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_memrchr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_multibyte.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_ntlm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_ntlm_core.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_ntlm_msgs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_ntlm_wb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_printf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_rtmp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_sasl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_sec.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_setup.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_setup_once.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_sspi.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curl_threads.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Curl\include\curl\curlbuild.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Curl\include\curl\curlrules.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Curl\include\curl\curlver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\curlx.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\vtls\cyassl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\vtls\darwinssl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\dict.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL\lib\vauth\digest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\dotdot.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Curl\include\curl\easy.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\easyif.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\escape.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\file.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\fileinfo.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\formdata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\ftp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\ftplistparser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\getinfo.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\gopher.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\vtls\gskit.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\vtls\gtls.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\hash.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\hostcheck.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\hostip.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\http.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\http_chunks.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\http_digest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\http_negotiate.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\http_proxy.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\http2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\if2ip.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\imap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\inet_ntop.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\inet_pton.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\llist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\memdebug.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Curl\include\curl\mprintf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Curl\include\curl\multi.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\multihandle.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\multiif.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\netrc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\non-ascii.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\nonblock.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\vtls\nssg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL\lib\vauth\ntlm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\vtls\openssl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\parsedate.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\pingpong.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\pipeline.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\vtls\polarssl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\vtls\polarssl_threadlock.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\pop3.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\progress.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\rawstr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\rtsp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\vtls\schannel.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\select.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\sendf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\setup-vms.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\share.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\sigpipe.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\slist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\smb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\smtp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\sockaddr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\socks.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\speedcheck.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\splay.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\ssh.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Curl\include\curl\stdcheaders.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\strdup.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\strequal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\strerror.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\strtok.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\strtoofft.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\telnet.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\tftp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\timeval.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\transfer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\Curl\include\curl\typecheck-gcc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\url.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\urldata.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL\lib\vauth\vauth.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\vtls\vtls.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\warnless.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\wildcard.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\curl\lib\x509asn1.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\osf\curl\lib\libcurl.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{9d63f969-66f6-441d-af86-8589c1a40854}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
