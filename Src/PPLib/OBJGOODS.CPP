@@ -1557,7 +1557,7 @@ SLAPI GoodsSubstList::GoodsSubstList(int saveAssoc)
 	P_Arp = 0;
 	P_Goa = 0;
 	SaveAssoc = saveAssoc;
-	StrPool.add("$", 0); // zero index - is empty string
+	StrPool.add("$"); // zero index - is empty string
 }
 
 SLAPI GoodsSubstList::~GoodsSubstList()
@@ -1660,7 +1660,7 @@ void SLAPI GoodsSubstList::Clear()
 	List.freeAll();
 	AsscList.freeAll();
 	StrPool.clear();
-	StrPool.add("$", 0); // zero index - is empty string
+	StrPool.add("$"); // zero index - is empty string
 }
 
 int SLAPI GoodsSubstList::AddToAssoc(PPID substID, const AssocItem & rAssocItem)
@@ -3237,7 +3237,7 @@ StrAssocArray * SLAPI PPObjGoods::CreateListByPrice(PPID locID, double price)
 		if(R2(rcpt->data.Price) == R2(price))
 			id_list.add(rcpt->data.GoodsID);
 	}
-	ZDELETE(p_q);
+	BExtQuery::ZDelete(&p_q);
 	if(GetConfig().ACGI_Threshold > 0) {
 		ReceiptTbl::Key1 k1;
 		LDATE  dt = plusdate(LConfig.OperDate, -Cfg.ACGI_Threshold);

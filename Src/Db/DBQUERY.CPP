@@ -1,6 +1,6 @@
 // DBQUERY.CPP
 // Copyright (c) Sobolev A. 1995, 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <db.h>
 #pragma hdrstop
@@ -45,18 +45,16 @@ SLAPI DBQuery::~DBQuery()
 	SAlloc::F(order);
 }
 
-int SLAPI DBQuery::setDestroyTablesMode(int set)
+void SLAPI DBQuery::setDestroyTablesMode(int set)
 {
 	SETFLAG(options, DBQuery::destroy_tables, set);
-	return 1;
 }
 
-int SLAPI DBQuery::setSearchForUpdateMode(int set)
+void SLAPI DBQuery::setSearchForUpdateMode(int set)
 {
 	for(uint i = 0; i < tblCount; i++) {
 		SETFLAG(tbls[i].flg, DBQTF_SEARCHFORUPDATE, set);
 	}
-	return 1;
 }
 
 static int FASTCALL _search_item(int count, int * array, int item)
@@ -110,81 +108,83 @@ int SLAPI DBQuery::arrangeTerms()
 //
 int SLAPI DBQuery::makeNode(int tblN, int * pNode, int option, int * pPos)
 {
+	int    result = 0;
 	if(*pNode == -1) {
 		if(option != TEST_ONLY)
 			*pPos = -1;
-		return NOTBIND;
+		result = NOTBIND;
 	}
-	int    left_child, right_child;
-	int    lv, rv, lp, rp;
-	int    result = 0;
-	DBTree * p_tree = &tbls[tblN].tree;
-	DBTree::T & t = w_restrict->tree->P_Items[*pNode];
-	if(t.link == 0) // Leaf
-		if(w_restrict->items[t.term].tblIdx == tblN)
-			if(option != TEST_ONLY) {
-				result = p_tree->addLeaf(t.term, t.flags, pPos) ? BIND : 0;
+	else {
+		int    left_child, right_child;
+		int    lv, rv, lp, rp;
+		DBTree * p_tree = &tbls[tblN].tree;
+		DBTree::T & t = w_restrict->tree->P_Items[*pNode];
+		if(t.link == 0) // Leaf
+			if(w_restrict->items[t.term].tblIdx == tblN)
+				if(option != TEST_ONLY) {
+					result = p_tree->addLeaf(t.term, t.flags, pPos) ? BIND : 0;
+					*pNode = -1;
+				}
+				else
+					result = BIND;
+			else if(option == GET_ALL) {
+				result = p_tree->addLeaf(t.term, t.flags, pPos) ? NOTBIND : 0;
 				*pNode = -1;
 			}
 			else
-				result = BIND;
-		else if(option == GET_ALL) {
-			result = p_tree->addLeaf(t.term, t.flags, pPos) ? NOTBIND : 0;
-			*pNode = -1;
-		}
-		else
-			result = NOTBIND;
-	else {
-		left_child  = t.left;
-		right_child = t.right;
-		if(t.link == _AND_) {
-			lv = makeNode(tblN, &left_child,  option, &lp);
-			rv = makeNode(tblN, &right_child, option, &rp);
-			if(lv && rv)
-				if(lv == rv)
-					if(lv == NOTBIND)
-						if(option == GET_ALL)
-							result = p_tree->addNode(t.link, lp, rp, pPos) ? NOTBIND : 0;
-						else
-							result = NOTBIND;
-					else if(option != TEST_ONLY)
-						result = p_tree->addNode(t.link, lp, rp, pPos) ? BIND : 0;
-					else
-						result = BIND;
-				else if(option == GET_ALL)
-					result = p_tree->addNode(t.link, lp, rp, pPos) ? BIND : 0;
-				else if(option == TEST_ONLY)
-					result = BIND;
-				else {
-					*pPos = (lv == BIND) ? lp : rp;
-					result = BIND;
-				}
-		}
-		else if(t.link == _OR_) {
-			lv = makeNode(tblN, &left_child,  TEST_ONLY, &lp);
-			rv = makeNode(tblN, &right_child, TEST_ONLY, &rp);
-			if(lv && rv)
-				if(lv == BIND || rv == BIND)
-					if(option != TEST_ONLY) {
-						lv = makeNode(tblN, &left_child,  GET_ALL, &lp);
-						rv = makeNode(tblN, &right_child, GET_ALL, &rp);
-						if(lv && rv)
+				result = NOTBIND;
+		else {
+			left_child  = t.left;
+			right_child = t.right;
+			if(t.link == _AND_) {
+				lv = makeNode(tblN, &left_child,  option, &lp);
+				rv = makeNode(tblN, &right_child, option, &rp);
+				if(lv && rv)
+					if(lv == rv)
+						if(lv == NOTBIND)
+							if(option == GET_ALL)
+								result = p_tree->addNode(t.link, lp, rp, pPos) ? NOTBIND : 0;
+							else
+								result = NOTBIND;
+						else if(option != TEST_ONLY)
 							result = p_tree->addNode(t.link, lp, rp, pPos) ? BIND : 0;
-					}
-					else
+						else
+							result = BIND;
+					else if(option == GET_ALL)
+						result = p_tree->addNode(t.link, lp, rp, pPos) ? BIND : 0;
+					else if(option == TEST_ONLY)
 						result = BIND;
-				else
-					result = NOTBIND;
-		}
-		else
-			;//CHECK(INVALID_DBTREE_ITEMS_LINK);
-		if(option != TEST_ONLY) {
-			t.left  = left_child;
-			t.right = right_child;
-			if(left_child == -1)
-				*pNode = right_child;
-			else if(right_child == -1)
-				*pNode = left_child;
+					else {
+						*pPos = (lv == BIND) ? lp : rp;
+						result = BIND;
+					}
+			}
+			else if(t.link == _OR_) {
+				lv = makeNode(tblN, &left_child,  TEST_ONLY, &lp);
+				rv = makeNode(tblN, &right_child, TEST_ONLY, &rp);
+				if(lv && rv)
+					if(lv == BIND || rv == BIND)
+						if(option != TEST_ONLY) {
+							lv = makeNode(tblN, &left_child,  GET_ALL, &lp);
+							rv = makeNode(tblN, &right_child, GET_ALL, &rp);
+							if(lv && rv)
+								result = p_tree->addNode(t.link, lp, rp, pPos) ? BIND : 0;
+						}
+						else
+							result = BIND;
+					else
+						result = NOTBIND;
+			}
+			else
+				;//CHECK(INVALID_DBTREE_ITEMS_LINK);
+			if(option != TEST_ONLY) {
+				t.left  = left_child;
+				t.right = right_child;
+				if(left_child == -1)
+					*pNode = right_child;
+				else if(right_child == -1)
+					*pNode = left_child;
+			}
 		}
 	}
 	return result;
@@ -1162,7 +1162,7 @@ void FASTCALL DBQuery::Frame::topByCur(int dir)
 	if(count == 0)
 		top = 0;
 	else if(dir == spNext) {
-		if(cur >= hight) { // @v6.2.0
+		if(cur >= hight) {
 			top = (count < hight) ? 0 : MIN(cur, count-hight);
 		}
 	}
@@ -1235,7 +1235,7 @@ int SLAPI DBQuery::searchOnPage(const void * pPattern, uint * pPos, CompFunc fcm
 				r = ary.imp_bsearch(pPattern, &_p, fcmp, ofs, pExtraData);
 				if((nxt == spNext && r > 0) || (nxt == spPrev && r < 0))
 					//
-					// При бинарном поиске больше ничего хорошего не ожидаетс
+					// При бинарном поиске больше ничего хорошего не ожидается //
 					//
 					return 0;
 				r = BIN(r == 0);
@@ -1309,7 +1309,7 @@ DBUpdateSet & FASTCALL DBUpdateSet::set(DBField f, DBItem & val)
 	}
 	else if(val.id == DBE_ID) {
 		item.Val.e = *(DBE *)&val;
-		delete (DBE *)&val; // @v6.3.6
+		delete (DBE *)&val;
 	}
 	else if(val.id > 0) {
 		item.Val.f = *(DBField *)&val;

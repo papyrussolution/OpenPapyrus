@@ -153,15 +153,28 @@ int SLAPI ListBoxDef::getCurData(void * b)
 }
 
 int SLAPI ListBoxDef::search(const void *, CompFunc, int srchMode)
-	{ return 0; }
+{ 
+	return 0; 
+}
+
 int SLAPI ListBoxDef::valid()
-	{ return 1; }
+{ 
+	return 1; 
+}
+
 int SLAPI ListBoxDef::addItem(long id, const char *, long * pPos)
-	{ return -1; }
+{ 
+	return -1; 
+}
+
 int SLAPI ListBoxDef::removeItem(long pos)
-	{ return -1; }
-int SLAPI ListBoxDef::freeAll()
-	{ return -1; }
+{ 
+	return -1; 
+}
+
+void SLAPI ListBoxDef::freeAll()
+{
+}
 
 #define RANGE(val,min,max) ((val)<(min)?(min):((val)>(max)?(max):(val)))
 
@@ -549,9 +562,9 @@ int SLAPI StrAssocListBoxDef::removeItem(long pos)
 	return (P_Data && pos >= 0) ? P_Data->atFree((uint)pos) : 0;
 }
 
-int SLAPI StrAssocListBoxDef::freeAll()
+void SLAPI StrAssocListBoxDef::freeAll()
 {
-	return P_Data ? (P_Data->Clear(), 1) : 0;
+	CALLPTRMEMB(P_Data, Clear());
 }
 //
 // StdTreeListBoxDef
@@ -857,9 +870,9 @@ int SLAPI StringListBoxDef::removeItem(long pos)
 	return (P_Data && pos >= 0) ? P_Data->atFree((uint)pos) : 0;
 }
 
-int SLAPI StringListBoxDef::freeAll()
+void SLAPI StringListBoxDef::freeAll()
 {
-	return P_Data ? (P_Data->freeAll(), 1) : 0;
+	CALLPTRMEMB(P_Data, freeAll());
 }
 //
 // DBQListBoxDef

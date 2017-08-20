@@ -1,6 +1,6 @@
 // SARRAY.CPP
 // Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -12,7 +12,7 @@
 #define _USERPTR_C(ptr)  ((flags&aryPtrContainer)?(*(const void **)(ptr)):(ptr))
 #define _INTRPTR(ptr)    ((flags&aryPtrContainer)?&(ptr):(ptr))
 
-SLAPI SArray::SArray(uint itemSize, uint aDelta, int o)
+SLAPI SVectorBase::SVectorBase(uint itemSize, uint aDelta, int o)
 {
 	isize = itemSize;
 	delta = aDelta;
@@ -23,161 +23,8 @@ SLAPI SArray::SArray(uint itemSize, uint aDelta, int o)
 	Limit = 0;
 }
 
-SLAPI SArray::SArray(uint itemSize)
+SLAPI SVectorBase::~SVectorBase()
 {
-	isize = itemSize;
-	delta = 8;
-	flags = O_ARRAY;
-	data  = 0;
-	count = 0;
-	pointer = 0;
-	Limit = 0;
-}
-
-SLAPI SArray::SArray(void * pData, uint itemSize, uint aCount, int o)
-{
-	isize = itemSize;
-	count = aCount;
-	Limit = aCount;
-	delta = 1;
-	flags = o;
-	data  = (uint8 *)pData;
-	pointer = 0;
-}
-
-SLAPI SArray::SArray(const SArray & src)
-{
-	data = 0;
-	copy(src);
-}
-
-SLAPI SArray::~SArray()
-{
-	if(flags & aryDataOwner && data) // @v8.7.5 (&& data) ради ускорения //
-		freeAll();
-}
-
-SArray & FASTCALL SArray::operator = (const SArray & src)
-{
-	copy(src);
-	return *this;
-}
-
-int FASTCALL SArray::copy(const SArray & src)
-{
-	int    ok = 1;
-	freeAll();
-	if(&src != 0) {
-		isize = src.isize;
-		delta = src.delta;
-		Limit = 0;
-		count = 0;
-		pointer = src.pointer;
-		flags = src.flags;
-		if(flags & aryDataOwner) {
-			data = 0;
-			if(expand(src.count)) {
-				count = src.count;
-				memcpy(data, src.data, isize * count);
-			}
-			else
-				ok = 0;
-		}
-		else {
-			Limit = src.Limit;
-			count = src.count;
-			data  = src.data;
-		}
-	}
-	return ok;
-}
-
-int FASTCALL SArray::IsEqual(const SArray & src) const
-{
-	const uint16 tf = (aryPtrContainer|aryEachItem);
-	if(!(flags & tf) && !(src.flags & tf))
-		if(count == src.count && isize == src.isize)
-			return BIN(memcmp(data, src.data, isize * count) == 0);
-	return 0;
-}
-
-uint SLAPI SArray::getFlag() const
-{
-	return flags;
-}
-
-void FASTCALL SArray::freeItem(void * pItem)
-{
-	if(flags & aryPtrContainer)
-		delete pItem;
-}
-
-void SLAPI SArray::setLimit(uint aLimit)
-{
-	Limit = aLimit;
-}
-
-void SLAPI SArray::setDelta(uint aDelta)
-{
-	delta = aDelta;
-}
-
-uint SLAPI SArray::getPointer() const
-{
-	return pointer;
-}
-
-uint FASTCALL SArray::setPointer(uint p)
-{
-	uint prev = pointer;
-	pointer = p;
-	return prev;
-}
-
-uint SLAPI SArray::incPointer()
-{
-	return pointer++;
-}
-
-uint FASTCALL SArray::incPointerSafe(int incr)
-{
-    const uint _prev = pointer;
-    if(incr > 0) {
-		pointer = MIN((pointer + incr), count-1);
-    }
-    else if(incr < 0) {
-		if((-incr) > (int)pointer)
-			pointer = 0;
-		else
-			pointer = pointer + incr;
-    }
-    return _prev;
-}
-
-void * SLAPI SArray::dataPtr() const
-{
-	return data;
-}
-
-void SLAPI SArray::setFlag(uint val, int set)
-{
-	SETFLAG(flags, val, set);
-}
-
-void * FASTCALL SArray::at(uint idx) const
-{
-	assert(idx < count);
-	return _USERPTR(data + idx * isize);
-}
-
-void * SLAPI SArray::next()
-{
-	if(pointer < count) {
-		pointer++;
-		return _USERPTR(data + (pointer-1) * isize);
-	}
-	else
-		return 0;
 }
 
 static size_t FASTCALL CalcArrayDelta(uint itemSize)
@@ -189,7 +36,7 @@ static size_t FASTCALL CalcArrayDelta(uint itemSize)
     return quant / itemSize;
 }
 
-int FASTCALL SArray::expand(uint numNewRecs)
+int FASTCALL SVectorBase::expand(uint numNewRecs)
 {
 	int    ok = 1;
 	uint   new_count = count + numNewRecs;
@@ -209,7 +56,7 @@ int FASTCALL SArray::expand(uint numNewRecs)
 	return ok;
 }
 
-int SLAPI SArray::shrink()
+int SLAPI SVectorBase::shrink()
 {
 	// @v9.1.1 const  uint _delta = delta;
 	const  uint _delta = CalcArrayDelta(isize); // @v9.1.1
@@ -221,7 +68,7 @@ int SLAPI SArray::shrink()
 	return 1;
 }
 
-int SLAPI SArray::atPut(uint idx, const void * pItem)
+int SLAPI SVectorBase::atPut(uint idx, const void * pItem)
 {
 	assert(idx < count);
 	memmove(data + idx * isize, _INTRPTR(pItem), isize);
@@ -229,15 +76,15 @@ int SLAPI SArray::atPut(uint idx, const void * pItem)
 	return 1;
 }
 //
-// Descr: Вставляет в середину блока памяти pDest новый блок pSrc.
-//   Размер блока pDest - destSize. Размер блока pSrc - blkSize.
-//   Вставка происходит по смещению (blkOffs * blkSize) байт от начала блока pDest.
-//   После операции вставки размер блока pDest становится destSize+blkSize.
-// ARG(pDest    IN): Указатель на блок-приемник
-// ARG(pSrc     IN): Указатель на вставляемый блок
-// ARG(blkOffs  IN): Смещение (в блоках blkSize) от указателя pDest по которому вставляется блок pSrc
-// ARG(blkSize  IN): Размер блока pSrc в байтах
-// ARG(destSize IN): Размер блока-приемника
+// Descr: Р’СЃС‚Р°РІР»СЏРµС‚ РІ СЃРµСЂРµРґРёРЅСѓ Р±Р»РѕРєР° РїР°РјСЏС‚Рё pDest РЅРѕРІС‹Р№ Р±Р»РѕРє pSrc.
+//   Р Р°Р·РјРµСЂ Р±Р»РѕРєР° pDest - destSize. Р Р°Р·РјРµСЂ Р±Р»РѕРєР° pSrc - blkSize.
+//   Р’СЃС‚Р°РІРєР° РїСЂРѕРёСЃС…РѕРґРёС‚ РїРѕ СЃРјРµС‰РµРЅРёСЋ (blkOffs * blkSize) Р±Р°Р№С‚ РѕС‚ РЅР°С‡Р°Р»Р° Р±Р»РѕРєР° pDest.
+//   РџРѕСЃР»Рµ РѕРїРµСЂР°С†РёРё РІСЃС‚Р°РІРєРё СЂР°Р·РјРµСЂ Р±Р»РѕРєР° pDest СЃС‚Р°РЅРѕРІРёС‚СЃСЏ destSize+blkSize.
+// ARG(pDest    IN): РЈРєР°Р·Р°С‚РµР»СЊ РЅР° Р±Р»РѕРє-РїСЂРёРµРјРЅРёРє
+// ARG(pSrc     IN): РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РІСЃС‚Р°РІР»СЏРµРјС‹Р№ Р±Р»РѕРє
+// ARG(blkOffs  IN): РЎРјРµС‰РµРЅРёРµ (РІ Р±Р»РѕРєР°С… blkSize) РѕС‚ СѓРєР°Р·Р°С‚РµР»СЏ pDest РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РІСЃС‚Р°РІР»СЏРµС‚СЃСЏ Р±Р»РѕРє pSrc
+// ARG(blkSize  IN): Р Р°Р·РјРµСЂ Р±Р»РѕРєР° pSrc РІ Р±Р°Р№С‚Р°С…
+// ARG(destSize IN): Р Р°Р·РјРµСЂ Р±Р»РѕРєР°-РїСЂРёРµРјРЅРёРєР°
 //
 static void SLAPI insmem(void * pDest, const void * pSrc, size_t blkOffs, size_t blkSize, size_t destSize)
 {
@@ -262,15 +109,15 @@ static void SLAPI insmem(void * pDest, const void * pSrc, size_t blkOffs, size_t
 	}
 }
 
-int FASTCALL SArray::insert(const void * pItem)
+int FASTCALL SVectorBase::insert(const void * pItem)
 {
 	//
-	// @v7.8.0 Так как данная функция очень часто вызывается, вместо вызова atInsert(count, pItem)
-	// сделаем прямую реализацию функции, дабы сэкономить немного времени.
+	// @v7.8.0 РўР°Рє РєР°Рє РґР°РЅРЅР°СЏ С„СѓРЅРєС†РёСЏ РѕС‡РµРЅСЊ С‡Р°СЃС‚Рѕ РІС‹Р·С‹РІР°РµС‚СЃСЏ, РІРјРµСЃС‚Рѕ РІС‹Р·РѕРІР° atInsert(count, pItem)
+	// СЃРґРµР»Р°РµРј РїСЂСЏРјСѓСЋ СЂРµР°Р»РёР·Р°С†РёСЋ С„СѓРЅРєС†РёРё, РґР°Р±С‹ СЃСЌРєРѕРЅРѕРјРёС‚СЊ РЅРµРјРЅРѕРіРѕ РІСЂРµРјРµРЅРё.
 	//
 	const  uint _c = count;
 	int    ok = 1;
-	if(_c < Limit || expand(1)) { // @v8.1.11 (count < limit ||) так быстрее ибо придется реже входить в функцию expand
+	if(_c < Limit || expand(1)) { // @v8.1.11 (count < limit ||) С‚Р°Рє Р±С‹СЃС‚СЂРµРµ РёР±Рѕ РїСЂРёРґРµС‚СЃСЏ СЂРµР¶Рµ РІС…РѕРґРёС‚СЊ РІ С„СѓРЅРєС†РёСЋ expand
 		const size_t quant = (size_t)isize;
 		//insmem(data, _INTRPTR(pItem), _c, quant, _c);
 		//static void SLAPI insmem(void * pDest, const void * pSrc, size_t blkOffs, size_t blkSize, size_t destSize)
@@ -296,12 +143,12 @@ int FASTCALL SArray::insert(const void * pItem)
 	return ok;
 }
 
-int FASTCALL SArray::atInsert(uint idx, const void * pItem)
+int FASTCALL SVectorBase::atInsert(uint idx, const void * pItem)
 {
 	int    ok = 1;
 	const  uint _c = count;
 	assert(idx <= _c);
-	if(_c < Limit || expand(1)) { // @v8.1.11 (count < limit ||) так быстрее ибо придется реже входить в функцию expand
+	if(_c < Limit || expand(1)) { // @v8.1.11 (count < limit ||) С‚Р°Рє Р±С‹СЃС‚СЂРµРµ РёР±Рѕ РїСЂРёРґРµС‚СЃСЏ СЂРµР¶Рµ РІС…РѕРґРёС‚СЊ РІ С„СѓРЅРєС†РёСЋ expand
 		insmem(data, _INTRPTR(pItem), idx, isize, _c);
 		count++;
 		flags &= ~arySorted;
@@ -311,7 +158,7 @@ int FASTCALL SArray::atInsert(uint idx, const void * pItem)
 	return ok;
 }
 
-int SLAPI SArray::insertChunk(uint numItemsToInsert, const void * pItems)
+int SLAPI SVectorBase::insertChunk(uint numItemsToInsert, const void * pItems)
 {
 	int    ok = 1;
 	if(expand(numItemsToInsert)) {
@@ -328,6 +175,162 @@ int SLAPI SArray::insertChunk(uint numItemsToInsert, const void * pItems)
 	return ok;
 }
 
+uint SLAPI SVectorBase::getFlags() const
+{
+	return flags;
+}
+
+void SLAPI SVectorBase::setFlag(uint val, int set)
+{
+	SETFLAG(flags, val, set);
+}
+
+void SLAPI SVectorBase::setLimit(uint aLimit)
+{
+	Limit = aLimit;
+}
+
+void SLAPI SVectorBase::setDelta(uint aDelta)
+{
+	delta = aDelta;
+}
+
+uint SLAPI SVectorBase::getPointer() const
+{
+	return pointer;
+}
+
+uint FASTCALL SVectorBase::setPointer(uint p)
+{
+	uint prev = pointer;
+	pointer = p;
+	return prev;
+}
+
+uint SLAPI SVectorBase::incPointer()
+{
+	return pointer++;
+}
+
+uint FASTCALL SVectorBase::incPointerSafe(int incr)
+{
+    const uint _prev = pointer;
+    if(incr > 0) {
+		pointer = MIN((pointer + incr), count-1);
+    }
+    else if(incr < 0) {
+		if((-incr) > (int)pointer)
+			pointer = 0;
+		else
+			pointer = pointer + incr;
+    }
+    return _prev;
+}
+
+void * SLAPI SVectorBase::dataPtr() const
+{
+	return data;
+}
+
+void * FASTCALL SVectorBase::at(uint idx) const
+{
+	assert(idx < count);
+	return _USERPTR(data + idx * isize);
+}
+
+void * SLAPI SVectorBase::next()
+{
+	if(pointer < count) {
+		pointer++;
+		return _USERPTR(data + (pointer-1) * isize);
+	}
+	else
+		return 0;
+}
+
+int FASTCALL SVectorBase::enumItems(uint * pIdx, void ** ppItem) const
+{
+	uint   i = *pIdx;
+	if(i < count) {
+		*ppItem = _USERPTR(data + i * isize);
+		*pIdx  = i+1;
+		return 1;
+	}
+	else
+		return 0;
+}
+
+int SLAPI SVectorBase::swap(uint p1, uint p2)
+{
+	int    ok = 1;
+	if(p1 != p2) {
+		const uint c = getCount();
+		if(p1 < c && p2 < c) {
+			void * ptr1 = (data + p1 * isize);
+			void * ptr2 = (data + p2 * isize);
+			memswap(ptr1, ptr2, isize);
+		}
+		else
+			ok = 0;
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+int SLAPI SVectorBase::reverse(uint pos, uint numItems)
+{
+	const  uint last_pos = pos+numItems-1;
+	uint   i = numItems/2;
+	if(i && pos < count && last_pos < count)
+		do {
+			--i;
+			memswap(at(pos+i), at(last_pos-i), isize);
+		} while(i);
+	return 1;
+}
+
+int SLAPI SVectorBase::moveItem(uint pos, int dir, uint * pNewPos)
+{
+	int    ok = 0;
+	uint   p2 = UINT_MAX;
+	if(dir == 0) {
+		if(checkirange(pos, 0, getCount()-2))
+			p2 = pos + 1;
+	}
+	else {
+		if(checkirange(pos, 1, getCount()-1))
+			p2 = pos - 1;
+	}
+	if(p2 != UINT_MAX) {
+		swap(pos, p2);
+		ASSIGN_PTR(pNewPos, p2);
+		ok = 1;
+	}
+	return ok;
+}
+
+int SLAPI SVectorBase::shuffle()
+{
+	int    ok = 1;
+	const uint cnt = getCount();
+	uint   c = cnt;
+	if(c) {
+		SRandGenerator & r_rg = SLS.GetTLA().Rg;
+		do {
+			const uint p = r_rg.GetUniformInt(--c);
+			if(p < cnt && p != c)
+				memswap(at(p), at(c), isize);
+		} while(c);
+	}
+	return ok;
+}
+
+int SLAPI SVectorBase::Helper_Cmp(const void * i1, const void * i2, CompFunc fcmp, void * pExtraData) const
+{
+	return (flags & aryPtrContainer) ? fcmp(*(void **)i1, *(void **)i2, pExtraData) : fcmp(i1, i2, pExtraData);
+}
+
 static int substFCMP(const void * i1, const void * i2)
 {
 #ifndef _WIN32_WCE
@@ -342,7 +345,7 @@ static int substFCMP(const void * i1, const void * i2)
 #endif
 }
 
-void SLAPI SArray::sort(CompFunc fcmp, void * pExtraData /*=0*/)
+void SLAPI SVectorBase::sort(CompFunc fcmp, void * pExtraData /*=0*/)
 {
 	if(count > 1) {
 #ifndef _WIN32_WCE
@@ -360,8 +363,8 @@ void SLAPI SArray::sort(CompFunc fcmp, void * pExtraData /*=0*/)
 	flags |= arySorted;
 }
 //
-// Реализация сортировки массива без вызова стандартной функции qsort.
-// Фактически, это - адаптированная реализация qsort, встроенная в класс.
+// Р РµР°Р»РёР·Р°С†РёСЏ СЃРѕСЂС‚РёСЂРѕРІРєРё РјР°СЃСЃРёРІР° Р±РµР· РІС‹Р·РѕРІР° СЃС‚Р°РЅРґР°СЂС‚РЅРѕР№ С„СѓРЅРєС†РёРё qsort.
+// Р¤Р°РєС‚РёС‡РµСЃРєРё, СЌС‚Рѕ - Р°РґР°РїС‚РёСЂРѕРІР°РЅРЅР°СЏ СЂРµР°Р»РёР·Р°С†РёСЏ qsort, РІСЃС‚СЂРѕРµРЅРЅР°СЏ РІ РєР»Р°СЃСЃ.
 //
 
 //
@@ -372,12 +375,7 @@ void SLAPI SArray::sort(CompFunc fcmp, void * pExtraData /*=0*/)
 #define CUTOFF 8         // testing shows that this is good value
 #define STKSIZ (8*sizeof(void*) - 2)
 
-int SLAPI SArray::Helper_Cmp(const void * i1, const void * i2, CompFunc fcmp, void * pExtraData) const
-{
-	return (flags & aryPtrContainer) ? fcmp(*(void **)i1, *(void **)i2, pExtraData) : fcmp(i1, i2, pExtraData);
-}
-
-void SLAPI SArray::sort2(CompFunc fcmp, void * pExtraData /*=0*/)
+void SLAPI SVectorBase::sort2(CompFunc fcmp, void * pExtraData /*=0*/)
 {
 	/*
 		Note: the number of stack entries required is no more than
@@ -593,11 +591,11 @@ recurse:
 }
 //
 // Returns:
-//   >0 - если элемент idx на выходе больше, чем key,
-//   <0 - если элемент idx на выходе меньше, чем key,
-//   0  - если поиск завершился успешно
+//   >0 - РµСЃР»Рё СЌР»РµРјРµРЅС‚ idx РЅР° РІС‹С…РѕРґРµ Р±РѕР»СЊС€Рµ, С‡РµРј key,
+//   <0 - РµСЃР»Рё СЌР»РµРјРµРЅС‚ idx РЅР° РІС‹С…РѕРґРµ РјРµРЅСЊС€Рµ, С‡РµРј key,
+//   0  - РµСЃР»Рё РїРѕРёСЃРє Р·Р°РІРµСЂС€РёР»СЃСЏ СѓСЃРїРµС€РЅРѕ
 //
-int SLAPI SArray::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const
+int SLAPI SVectorBase::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const
 {
 	int    cmp = 1;
 	uint   i  = 0;
@@ -606,8 +604,8 @@ int SLAPI SArray::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp, size
 		uint   up  = count - 1;
 		const  uint8 * p_org = data/* + ofs*/;
 		//
-		// Из-за популярности функции CMPF_LONG в простых массивах (без aryPtrContainer) выделяем в
-		// отдельную ветку такой случай - это даст значительное ускорение.
+		// РР·-Р·Р° РїРѕРїСѓР»СЏСЂРЅРѕСЃС‚Рё С„СѓРЅРєС†РёРё CMPF_LONG РІ РїСЂРѕСЃС‚С‹С… РјР°СЃСЃРёРІР°С… (Р±РµР· aryPtrContainer) РІС‹РґРµР»СЏРµРј РІ
+		// РѕС‚РґРµР»СЊРЅСѓСЋ РІРµС‚РєСѓ С‚Р°РєРѕР№ СЃР»СѓС‡Р°Р№ - СЌС‚Рѕ РґР°СЃС‚ Р·РЅР°С‡РёС‚РµР»СЊРЅРѕРµ СѓСЃРєРѕСЂРµРЅРёРµ.
 		//
 		if(fcmp == CMPF_LONG && !(flags & aryPtrContainer)) {
 			const long test = *(long *)key;
@@ -621,9 +619,9 @@ int SLAPI SArray::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp, size
 					up = i - 1;
 				else {
 					//
-					// На случай, если мы попали не на самый первый элемент, удовлетворяющий условию,
-					// перемещаемся "вниз" до тех пор, пока не наткнемся на первый
-					// "неудовлетворительный" элемент: мы у цели.
+					// РќР° СЃР»СѓС‡Р°Р№, РµСЃР»Рё РјС‹ РїРѕРїР°Р»Рё РЅРµ РЅР° СЃР°РјС‹Р№ РїРµСЂРІС‹Р№ СЌР»РµРјРµРЅС‚, СѓРґРѕРІР»РµС‚РІРѕСЂСЏСЋС‰РёР№ СѓСЃР»РѕРІРёСЋ,
+					// РїРµСЂРµРјРµС‰Р°РµРјСЃСЏ "РІРЅРёР·" РґРѕ С‚РµС… РїРѕСЂ, РїРѕРєР° РЅРµ РЅР°С‚РєРЅРµРјСЃСЏ РЅР° РїРµСЂРІС‹Р№
+					// "РЅРµСѓРґРѕРІР»РµС‚РІРѕСЂРёС‚РµР»СЊРЅС‹Р№" СЌР»РµРјРµРЅС‚: РјС‹ Сѓ С†РµР»Рё.
 					//
 					for(uint j = i; j > 0;) {
 						p -= isize;
@@ -647,9 +645,9 @@ int SLAPI SArray::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp, size
 					up = i - 1;
 				else {
 					//
-					// На случай, если мы попали не на самый первый элемент, удовлетворяющий условию,
-					// перемещаемся "вниз" до тех пор, пока не наткнемся на первый
-					// "неудовлетворительный" элемент: мы у цели.
+					// РќР° СЃР»СѓС‡Р°Р№, РµСЃР»Рё РјС‹ РїРѕРїР°Р»Рё РЅРµ РЅР° СЃР°РјС‹Р№ РїРµСЂРІС‹Р№ СЌР»РµРјРµРЅС‚, СѓРґРѕРІР»РµС‚РІРѕСЂСЏСЋС‰РёР№ СѓСЃР»РѕРІРёСЋ,
+					// РїРµСЂРµРјРµС‰Р°РµРјСЃСЏ "РІРЅРёР·" РґРѕ С‚РµС… РїРѕСЂ, РїРѕРєР° РЅРµ РЅР°С‚РєРЅРµРјСЃСЏ РЅР° РїРµСЂРІС‹Р№
+					// "РЅРµСѓРґРѕРІР»РµС‚РІРѕСЂРёС‚РµР»СЊРЅС‹Р№" СЌР»РµРјРµРЅС‚: РјС‹ Сѓ С†РµР»Рё.
 					//
 					for(uint j = i; j > 0;) {
 						p -= isize;
@@ -667,17 +665,17 @@ int SLAPI SArray::imp_bsearch(const void * key, uint * pIdx, CompFunc fcmp, size
 	return cmp;
 }
 
-int SLAPI SArray::bsearch(const void * key, uint * pIdx, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const
+int SLAPI SVectorBase::bsearch(const void * key, uint * pIdx, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const
 {
 	return (imp_bsearch(key, pIdx, fcmp, ofs, pExtraData) == 0) ? 1 : (SLibError = SLERR_ARYITEMNFOUND, 0);
 }
 
-int SLAPI SArray::bsearch(const void * key, uint * pIdx, CompFunc fcmp) const
+int SLAPI SVectorBase::bsearch(const void * key, uint * pIdx, CompFunc fcmp) const
 {
 	return (imp_bsearch(key, pIdx, fcmp, 0, 0) == 0) ? 1 : (SLibError = SLERR_ARYITEMNFOUND, 0);
 }
 
-int SLAPI SArray::isItemEq(const void * pKey, uint pos, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const
+int SLAPI SVectorBase::isItemEq(const void * pKey, uint pos, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const
 {
 	if(pos < count) {
 		const void * p_data = _USERPTR(data + pos * isize);
@@ -687,7 +685,7 @@ int SLAPI SArray::isItemEq(const void * pKey, uint pos, CompFunc fcmp, size_t of
 	return 0;
 }
 
-int SLAPI SArray::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const
+int SLAPI SVectorBase::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const
 {
 	uint   i = pIdx ? (*pIdx * isize) : 0;
 	const  uint    lim = count * isize;
@@ -703,8 +701,8 @@ int SLAPI SArray::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t
 		p_org += ofs;
 		if(fcmp == CMPF_LONG) {
 			//
-			// Так как функция сравнения 4-байтовых значений очень популярна,
-			// применяем для такого случая специальную обработку (без вызова, собственно, функции сравнения).
+			// РўР°Рє РєР°Рє С„СѓРЅРєС†РёСЏ СЃСЂР°РІРЅРµРЅРёСЏ 4-Р±Р°Р№С‚РѕРІС‹С… Р·РЅР°С‡РµРЅРёР№ РѕС‡РµРЅСЊ РїРѕРїСѓР»СЏСЂРЅР°,
+			// РїСЂРёРјРµРЅСЏРµРј РґР»СЏ С‚Р°РєРѕРіРѕ СЃР»СѓС‡Р°СЏ СЃРїРµС†РёР°Р»СЊРЅСѓСЋ РѕР±СЂР°Р±РѕС‚РєСѓ (Р±РµР· РІС‹Р·РѕРІР°, СЃРѕР±СЃС‚РІРµРЅРЅРѕ, С„СѓРЅРєС†РёРё СЃСЂР°РІРЅРµРЅРёСЏ).
 			//
 			const uint32 test = *PTR32(pcKey);
 			for(; i < lim; i += isize)
@@ -741,7 +739,7 @@ int SLAPI SArray::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t
 	return ((SLibError = SLERR_ARYITEMNFOUND), 0);
 }
 
-int SLAPI SArray::ordInsert(const void * item, uint * idx, CompFunc fcmp, void * pExtraData /*=0*/)
+int SLAPI SVectorBase::ordInsert(const void * item, uint * idx, CompFunc fcmp, void * pExtraData /*=0*/)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -769,71 +767,106 @@ int SLAPI SArray::ordInsert(const void * item, uint * idx, CompFunc fcmp, void *
 	}
 	return ok;
 }
+//
+//
+//
+SLAPI SArray::SArray(uint itemSize, uint aDelta, int o) : SVectorBase(itemSize, aDelta, o)
+{
+	/*isize = itemSize;
+	delta = aDelta;
+	flags = o;
+	data  = 0;
+	count = 0;
+	pointer = 0;
+	Limit = 0;*/
+}
 
-int SLAPI SArray::swap(uint p1, uint p2)
+SLAPI SArray::SArray(uint itemSize) : SVectorBase(itemSize, 8, O_ARRAY)
+{
+	/*isize = itemSize;
+	delta = 8;
+	flags = O_ARRAY;
+	data  = 0;
+	count = 0;
+	pointer = 0;
+	Limit = 0;*/
+}
+
+SLAPI SArray::SArray(void * pData, uint itemSize, uint aCount, int o) : SVectorBase(itemSize, 1, o)
+{
+	count = aCount;
+	Limit = aCount;
+	data = (uint8 *)pData;
+	/*isize = itemSize;
+	count = aCount;
+	Limit = aCount;
+	delta = 1;
+	flags = o;
+	data  = (uint8 *)pData;
+	pointer = 0;*/
+}
+
+SLAPI SArray::SArray(const SArray & src) : SVectorBase(src.isize, src.delta, src.flags)
+{
+	data = 0;
+	copy(src);
+}
+
+SLAPI SArray::~SArray()
+{
+	if(flags & aryDataOwner && data) // @v8.7.5 (&& data) СЂР°РґРё СѓСЃРєРѕСЂРµРЅРёСЏ //
+		freeAll();
+}
+
+SArray & FASTCALL SArray::operator = (const SArray & src)
+{
+	copy(src);
+	return *this;
+}
+
+int FASTCALL SArray::copy(const SArray & src)
 {
 	int    ok = 1;
-	if(p1 != p2) {
-		const uint c = getCount();
-		if(p1 < c && p2 < c) {
-			void * ptr1 = (data + p1 * isize);
-			void * ptr2 = (data + p2 * isize);
-			memswap(ptr1, ptr2, isize);
+	freeAll();
+	if(&src != 0) {
+		isize = src.isize;
+		delta = src.delta;
+		Limit = 0;
+		count = 0;
+		pointer = src.pointer;
+		flags = src.flags;
+		if(flags & aryDataOwner) {
+			data = 0;
+			if(expand(src.count)) {
+				count = src.count;
+				memcpy(data, src.data, isize * count);
+			}
+			else
+				ok = 0;
 		}
-		else
-			ok = 0;
-	}
-	else
-		ok = -1;
-	return ok;
-}
-
-int SLAPI SArray::reverse(uint pos, uint numItems)
-{
-	const  uint last_pos = pos+numItems-1;
-	uint   i = numItems/2;
-	if(i && pos < count && last_pos < count)
-		do {
-			--i;
-			memswap(at(pos+i), at(last_pos-i), isize);
-		} while(i);
-	return 1;
-}
-
-int SLAPI SArray::moveItem(uint pos, int dir, uint * pNewPos)
-{
-	int    ok = 0;
-	uint   p2 = UINT_MAX;
-	if(dir == 0) {
-		if(checkirange(pos, 0, getCount()-2))
-			p2 = pos + 1;
-	}
-	else {
-		if(checkirange(pos, 1, getCount()-1))
-			p2 = pos - 1;
-	}
-	if(p2 != UINT_MAX) {
-		swap(pos, p2);
-		ASSIGN_PTR(pNewPos, p2);
-		ok = 1;
+		else {
+			Limit = src.Limit;
+			count = src.count;
+			data  = src.data;
+		}
 	}
 	return ok;
 }
 
-int SLAPI SArray::shuffle()
+int FASTCALL SArray::IsEqual(const SArray & src) const
 {
-	int    ok = 1;
-	const uint cnt = getCount();
-	uint   c = cnt;
-	if(c) {
-		SRandGenerator & r_rg = SLS.GetTLA().Rg;
-		do {
-			const uint p = r_rg.GetUniformInt(--c);
-			if(p < cnt && p != c)
-				memswap(at(p), at(c), isize);
-		} while(c);
-	}
-	return ok;
+	const uint16 tf = (aryPtrContainer|aryEachItem);
+	if(!(flags & tf) && !(src.flags & tf))
+		if(count == src.count && isize == src.isize)
+			return BIN(memcmp(data, src.data, isize * count) == 0);
+	return 0;
+}
+
+//virtual
+void FASTCALL SArray::freeItem(void * pItem)
+{
+	if(flags & aryPtrContainer)
+		delete pItem;
 }
 
 int FASTCALL SArray::atFree(uint idx)
@@ -918,18 +951,6 @@ void SLAPI SArray::freeAll()
 	count = 0;
 	pointer = 0;
 	Limit = 0;
-}
-
-int FASTCALL SArray::enumItems(uint * pIdx, void ** ppItem) const
-{
-	uint   i = *pIdx;
-	if(i < count) {
-		*ppItem = _USERPTR(data + i * isize);
-		*pIdx  = i+1;
-		return 1;
-	}
-	else
-		return 0;
 }
 //
 // @construction
@@ -2038,7 +2059,7 @@ int SLAPI StrAssocArray::Add(long id, long parentId, const char * pStr, int repl
 			else
 				assc.Val = 0;
 			ok = Assoc.insert(&assc) ? 3 : 0;
-			// @todo Вставить родительский идентификатор (logic)
+			// @todo Р’СЃС‚Р°РІРёС‚СЊ СЂРѕРґРёС‚РµР»СЊСЃРєРёР№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ (logic)
 		}
 		else
 			ok = -1;
@@ -2281,8 +2302,8 @@ int SLAPI StrAssocArray::SearchByText(const char * pTxt, CompFunc fcmp, uint * p
 		}
 	}
 	/*
-	Этот вариант, увы, не правильно работает из-за того, что положение строки в пуле строк
-	может не совпадать (в относительном выражении) с положением элемента Assoc.
+	Р­С‚РѕС‚ РІР°СЂРёР°РЅС‚, СѓРІС‹, РЅРµ РїСЂР°РІРёР»СЊРЅРѕ СЂР°Р±РѕС‚Р°РµС‚ РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ РїРѕР»РѕР¶РµРЅРёРµ СЃС‚СЂРѕРєРё РІ РїСѓР»Рµ СЃС‚СЂРѕРє
+	РјРѕР¶РµС‚ РЅРµ СЃРѕРІРїР°РґР°С‚СЊ (РІ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕРј РІС‹СЂР°Р¶РµРЅРёРё) СЃ РїРѕР»РѕР¶РµРЅРёРµРј СЌР»РµРјРµРЅС‚Р° Assoc.
 	uint   pos = 0, next_pos = 0, assc_pos;
 	while(Pool.search(pTxt, fcmp, &pos, &next_pos)) {
 		if(Assoc.lsearch(&pos, &(assc_pos = 0), CMPF_LONG, offsetof(LAssoc, Val)) && assc_pos >= last_pos) {
@@ -2857,7 +2878,7 @@ int FASTCALL LongArray::bsearch(long i, uint * p) const
 int FASTCALL LongArray::bsearch(long i) const
 	{ return SArray::bsearch(&i, 0, CMPF_LONG); }
 //
-// @todo Ускорить функцию, закладываясь на особенности массива LongArray
+// @todo РЈСЃРєРѕСЂРёС‚СЊ С„СѓРЅРєС†РёСЋ, Р·Р°РєР»Р°РґС‹РІР°СЏСЃСЊ РЅР° РѕСЃРѕР±РµРЅРЅРѕСЃС‚Рё РјР°СЃСЃРёРІР° LongArray
 //
 int FASTCALL LongArray::lsearch(long k, uint * pIdx) const
 	{ return SArray::lsearch(&k, pIdx, CMPF_LONG); }
@@ -3231,10 +3252,10 @@ int SLAPI STimeChunkArray::Excise(const STimeChunk * pItem)
 							if(p_entry->Finish.d)
 								p_entry->Finish.addhs(-100);
 							//
-							// i опережает на единицу значение текущего индекса.
-							// Кроме того, нам необходо увеличить i для того, чтобы
-							// цикл не осматривал новый элемент (он не пересекается с pItem).
-							// В итоге: i++ (постфиксная форма существенна).
+							// i РѕРїРµСЂРµР¶Р°РµС‚ РЅР° РµРґРёРЅРёС†Сѓ Р·РЅР°С‡РµРЅРёРµ С‚РµРєСѓС‰РµРіРѕ РёРЅРґРµРєСЃР°.
+							// РљСЂРѕРјРµ С‚РѕРіРѕ, РЅР°Рј РЅРµРѕР±С…РѕРґРѕ СѓРІРµР»РёС‡РёС‚СЊ i РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹
+							// С†РёРєР» РЅРµ РѕСЃРјР°С‚СЂРёРІР°Р» РЅРѕРІС‹Р№ СЌР»РµРјРµРЅС‚ (РѕРЅ РЅРµ РїРµСЂРµСЃРµРєР°РµС‚СЃСЏ СЃ pItem).
+							// Р’ РёС‚РѕРіРµ: i++ (РїРѕСЃС‚С„РёРєСЃРЅР°СЏ С„РѕСЂРјР° СЃСѓС‰РµСЃС‚РІРµРЅРЅР°).
 							//
 							atInsert(i++, &next);
 						} // @v8.4.11
@@ -3464,7 +3485,7 @@ STree::Iter::Iter(uint32 parentP)
 
 void * STree::Iter::GetData() const
 {
-	return CurrP ? P_Data : 0; // Нулевая позиция дерева не может ссылаться на данные.
+	return CurrP ? P_Data : 0; // РќСѓР»РµРІР°СЏ РїРѕР·РёС†РёСЏ РґРµСЂРµРІР° РЅРµ РјРѕР¶РµС‚ СЃСЃС‹Р»Р°С‚СЊСЃСЏ РЅР° РґР°РЅРЅС‹Рµ.
 }
 
 uint32 STree::Iter::GetCurrentPos() const
@@ -3524,8 +3545,8 @@ int STree::SearchDataP(uint32 dataP, uint32 * pPos) const
 {
 	int    ok = 0;
 	//
-	// Поиск блока, ссылающегося на блок данных dataP начинаем
-	// с позиции 1, поскольку позиция 0 является эксклюзивной - корневой.
+	// РџРѕРёСЃРє Р±Р»РѕРєР°, СЃСЃС‹Р»Р°СЋС‰РµРіРѕСЃСЏ РЅР° Р±Р»РѕРє РґР°РЅРЅС‹С… dataP РЅР°С‡РёРЅР°РµРј
+	// СЃ РїРѕР·РёС†РёРё 1, РїРѕСЃРєРѕР»СЊРєСѓ РїРѕР·РёС†РёСЏ 0 СЏРІР»СЏРµС‚СЃСЏ СЌРєСЃРєР»СЋР·РёРІРЅРѕР№ - РєРѕСЂРЅРµРІРѕР№.
 	//
 	for(uint pos = 1; TreeList.lsearch(&dataP, &pos, CMPF_LONG); pos++) {
 		if(!SvcFreeList.Has(pos)) {
@@ -3549,7 +3570,7 @@ int STree::Search(const void * pKey, uint32 * pIdx, CompFunc fcmp, size_t ofs, v
 		if(!DatFreeList.Has(pos)) {
 			uint32 svc_pos = 0;
 			int    r = SearchDataP(pos, &svc_pos);
-			assert(r); // Невозможность найти ссылку на блок данных в дереве является признаком нарушения целостности дерева.
+			assert(r); // РќРµРІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РЅР°Р№С‚Рё СЃСЃС‹Р»РєСѓ РЅР° Р±Р»РѕРє РґР°РЅРЅС‹С… РІ РґРµСЂРµРІРµ СЏРІР»СЏРµС‚СЃСЏ РїСЂРёР·РЅР°РєРѕРј РЅР°СЂСѓС€РµРЅРёСЏ С†РµР»РѕСЃС‚РЅРѕСЃС‚Рё РґРµСЂРµРІР°.
 			if(r) {
 				ASSIGN_PTR(pIdx, svc_pos);
 				ok = 1;
@@ -3606,12 +3627,12 @@ int FASTCALL STree::Enum(Iter & rIter) const
 	else if(!(rIter.Flags & Iter::fOnlyParent)) {
 		uint32 p = 0;
 		//
-		// Находим на текущем уровне первый элемент, имеющий потомков (все последующие
-		// элементы с потомками на этом уровне будут пройдены после обхода потомков
-		// первого узла и возврата из стэка: см. следующий блок).
+		// РќР°С…РѕРґРёРј РЅР° С‚РµРєСѓС‰РµРј СѓСЂРѕРІРЅРµ РїРµСЂРІС‹Р№ СЌР»РµРјРµРЅС‚, РёРјРµСЋС‰РёР№ РїРѕС‚РѕРјРєРѕРІ (РІСЃРµ РїРѕСЃР»РµРґСѓСЋС‰РёРµ
+		// СЌР»РµРјРµРЅС‚С‹ СЃ РїРѕС‚РѕРјРєР°РјРё РЅР° СЌС‚РѕРј СѓСЂРѕРІРЅРµ Р±СѓРґСѓС‚ РїСЂРѕР№РґРµРЅС‹ РїРѕСЃР»Рµ РѕР±С…РѕРґР° РїРѕС‚РѕРјРєРѕРІ
+		// РїРµСЂРІРѕРіРѕ СѓР·Р»Р° Рё РІРѕР·РІСЂР°С‚Р° РёР· СЃС‚СЌРєР°: СЃРј. СЃР»РµРґСѓСЋС‰РёР№ Р±Р»РѕРє).
 		//
-		// @todo Этот цикл можно обойти если на этапе перебора элементов (@1) запомнить первый
-		// элемент, имеющий потомков.
+		// @todo Р­С‚РѕС‚ С†РёРєР» РјРѕР¶РЅРѕ РѕР±РѕР№С‚Рё РµСЃР»Рё РЅР° СЌС‚Р°РїРµ РїРµСЂРµР±РѕСЂР° СЌР»РµРјРµРЅС‚РѕРІ (@1) Р·Р°РїРѕРјРЅРёС‚СЊ РїРµСЂРІС‹Р№
+		// СЌР»РµРјРµРЅС‚, РёРјРµСЋС‰РёР№ РїРѕС‚РѕРјРєРѕРІ.
 		//
 		Item_ & r_par = TreeList.at(rIter.ParentP);
 		if(r_par.FirstChildP) {
@@ -3620,8 +3641,8 @@ int FASTCALL STree::Enum(Iter & rIter) const
 				p_item = ((p = p_item->NextP) != 0) ? &TreeList.at(p) : 0;
 		}
 		//
-		// Если на текущем уровне нет элементов с потомками, то возвращаемся не предыдущий уровень
-		// в поисках следующего элемента с потомками
+		// Р•СЃР»Рё РЅР° С‚РµРєСѓС‰РµРј СѓСЂРѕРІРЅРµ РЅРµС‚ СЌР»РµРјРµРЅС‚РѕРІ СЃ РїРѕС‚РѕРјРєР°РјРё, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµРјСЃСЏ РЅРµ РїСЂРµРґС‹РґСѓС‰РёР№ СѓСЂРѕРІРµРЅСЊ
+		// РІ РїРѕРёСЃРєР°С… СЃР»РµРґСѓСЋС‰РµРіРѕ СЌР»РµРјРµРЅС‚Р° СЃ РїРѕС‚РѕРјРєР°РјРё
 		//
 		while(!p_item && rIter.Stack.getPointer()) {
 			rIter.Stack.pop(p);
@@ -3632,9 +3653,9 @@ int FASTCALL STree::Enum(Iter & rIter) const
 				p_item = ((p = p_item->NextP) != 0) ? &TreeList.at(p) : 0;
 		}
 		//
-		// Если найден очередной элемент с потомками p_item, то спускаемся на следующий уровень,
-		// родителем которого является p_item. При этом в стэк Stack заносим информацию о том,
-		// с какого элемента мы спустились.
+		// Р•СЃР»Рё РЅР°Р№РґРµРЅ РѕС‡РµСЂРµРґРЅРѕР№ СЌР»РµРјРµРЅС‚ СЃ РїРѕС‚РѕРјРєР°РјРё p_item, С‚Рѕ СЃРїСѓСЃРєР°РµРјСЃСЏ РЅР° СЃР»РµРґСѓСЋС‰РёР№ СѓСЂРѕРІРµРЅСЊ,
+		// СЂРѕРґРёС‚РµР»РµРј РєРѕС‚РѕСЂРѕРіРѕ СЏРІР»СЏРµС‚СЃСЏ p_item. РџСЂРё СЌС‚РѕРј РІ СЃС‚СЌРє Stack Р·Р°РЅРѕСЃРёРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ С‚РѕРј,
+		// СЃ РєР°РєРѕРіРѕ СЌР»РµРјРµРЅС‚Р° РјС‹ СЃРїСѓСЃС‚РёР»РёСЃСЊ.
 		//
 		if(p_item) {
 			rIter.Stack.push(p);
@@ -3860,7 +3881,7 @@ struct TestFixtureSArray {
 		return sizeof(Sa) / sizeof(Sa[0]);
 	}
 	long   Sa[7000];
-	long   Tail[17]; // хвост, который не должен измениться ни при каких условиях
+	long   Tail[17]; // С…РІРѕСЃС‚, РєРѕС‚РѕСЂС‹Р№ РЅРµ РґРѕР»Р¶РµРЅ РёР·РјРµРЅРёС‚СЊСЃСЏ РЅРё РїСЂРё РєР°РєРёС… СѓСЃР»РѕРІРёСЏС…
 };
 
 SLTEST_FIXTURE(SArray, TestFixtureSArray)
@@ -3872,25 +3893,25 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 	const uint cs2 = cc1, cc2 = cc1 + F.GetSaCount() / 2;
 	const uint cs3 = cc2, cc3 = cc2 + F.GetSaCount() / 4;
 	//
-	// Четверть элементов вставляем в конец списка (самая простая и быстрая операция)
+	// Р§РµС‚РІРµСЂС‚СЊ СЌР»РµРјРµРЅС‚РѕРІ РІСЃС‚Р°РІР»СЏРµРј РІ РєРѕРЅРµС† СЃРїРёСЃРєР° (СЃР°РјР°СЏ РїСЂРѕСЃС‚Р°СЏ Рё Р±С‹СЃС‚СЂР°СЏ РѕРїРµСЂР°С†РёСЏ)
 	//
 	for(i = cs3; i < cc3; i++) {
 		SLTEST_CHECK_NZ(p_list->insert(&F.Sa[i]));
 	}
 	//
-	// Четверть элементов вставляем в начало списка (при этом предшествующая четверть будет постепенно сдвигаться)
+	// Р§РµС‚РІРµСЂС‚СЊ СЌР»РµРјРµРЅС‚РѕРІ РІСЃС‚Р°РІР»СЏРµРј РІ РЅР°С‡Р°Р»Рѕ СЃРїРёСЃРєР° (РїСЂРё СЌС‚РѕРј РїСЂРµРґС€РµСЃС‚РІСѓСЋС‰Р°СЏ С‡РµС‚РІРµСЂС‚СЊ Р±СѓРґРµС‚ РїРѕСЃС‚РµРїРµРЅРЅРѕ СЃРґРІРёРіР°С‚СЊСЃСЏ)
 	//
 	for(i = cs1; i < cc1; i++) {
 		SLTEST_CHECK_NZ(p_list->atInsert(i, &F.Sa[i]));
 	}
 	//
-	// Оставшуюся половину вставляем в середину списка (опять заставляет массив сдвигать хвостовые члены)
+	// РћСЃС‚Р°РІС€СѓСЋСЃСЏ РїРѕР»РѕРІРёРЅСѓ РІСЃС‚Р°РІР»СЏРµРј РІ СЃРµСЂРµРґРёРЅСѓ СЃРїРёСЃРєР° (РѕРїСЏС‚СЊ Р·Р°СЃС‚Р°РІР»СЏРµС‚ РјР°СЃСЃРёРІ СЃРґРІРёРіР°С‚СЊ С…РІРѕСЃС‚РѕРІС‹Рµ С‡Р»РµРЅС‹)
 	//
 	for(i = cs2; i < cc2; i++) {
 		SLTEST_CHECK_NZ(p_list->atInsert(i, &F.Sa[i]));
 	}
 	//
-	// Тестируем функцию incPointerSafe
+	// РўРµСЃС‚РёСЂСѓРµРј С„СѓРЅРєС†РёСЋ incPointerSafe
 	//
 	{
 		p_list->setPointer(0);
@@ -3902,7 +3923,7 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 		SLTEST_CHECK_EQ(p_list->getPointer(), p_list->getCount()-1);
 	}
 	//
-	// Теперь сравниваем элементы list с элементами F.Sa. Они должны быть в том же порядки и равны
+	// РўРµРїРµСЂСЊ СЃСЂР°РІРЅРёРІР°РµРј СЌР»РµРјРµРЅС‚С‹ list СЃ СЌР»РµРјРµРЅС‚Р°РјРё F.Sa. РћРЅРё РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РІ С‚РѕРј Р¶Рµ РїРѕСЂСЏРґРєРё Рё СЂР°РІРЅС‹
 	//
 	if(SLTEST_CHECK_EQ((ulong)p_list->getCount(), (ulong)F.GetSaCount())) {
 		for(i = 0; i < F.GetSaCount(); i++) {
@@ -3910,8 +3931,8 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 		}
 		long p;
 		//
-		// Далее, занимаемся поиском. Перебираем все значения от 0 до F.GetSaCount().
-		// Сколько раз они встречаются в F.Sa столько раз мы должны их найти в p_list
+		// Р”Р°Р»РµРµ, Р·Р°РЅРёРјР°РµРјСЃСЏ РїРѕРёСЃРєРѕРј. РџРµСЂРµР±РёСЂР°РµРј РІСЃРµ Р·РЅР°С‡РµРЅРёСЏ РѕС‚ 0 РґРѕ F.GetSaCount().
+		// РЎРєРѕР»СЊРєРѕ СЂР°Р· РѕРЅРё РІСЃС‚СЂРµС‡Р°СЋС‚СЃСЏ РІ F.Sa СЃС‚РѕР»СЊРєРѕ СЂР°Р· РјС‹ РґРѕР»Р¶РЅС‹ РёС… РЅР°Р№С‚Рё РІ p_list
 		//
 		for(p = 0; p < (long)F.GetSaCount(); p++) {
 			ulong ls_ss = 0;
@@ -3924,26 +3945,26 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 			SLTEST_CHECK_EQ(ls_ss, ls_sl);
 		}
 		//
-		// Реверс списка
+		// Р РµРІРµСЂСЃ СЃРїРёСЃРєР°
 		//
 		p_list->reverse(0, p_list->getCount());
 		for(i = 0; i < F.GetSaCount(); i++) {
 			SLTEST_CHECK_EQ(*(long *)p_list->at(i), F.Sa[F.GetSaCount()-i-1]);
 		}
 		//
-		// Сортируем список p_list и тестируем правильность сортировки
+		// РЎРѕСЂС‚РёСЂСѓРµРј СЃРїРёСЃРѕРє p_list Рё С‚РµСЃС‚РёСЂСѓРµРј РїСЂР°РІРёР»СЊРЅРѕСЃС‚СЊ СЃРѕСЂС‚РёСЂРѕРІРєРё
 		//
 		p_list->sort(CMPF_LONG);
 		for(i = 0; i < p_list->getCount()-1; i++) {
 			SLTEST_CHECK_LE(*(long *)p_list->at(i), *(long *)p_list->at(i+1));
 		}
 		//
-		// Перемешиваем элементы массива случайным образом
+		// РџРµСЂРµРјРµС€РёРІР°РµРј СЌР»РµРјРµРЅС‚С‹ РјР°СЃСЃРёРІР° СЃР»СѓС‡Р°Р№РЅС‹Рј РѕР±СЂР°Р·РѕРј
 		//
 		p_list->shuffle();
 		{
 			//
-			// Убеждаемся, что массив более не отсортирован
+			// РЈР±РµР¶РґР°РµРјСЃСЏ, С‡С‚Рѕ РјР°СЃСЃРёРІ Р±РѕР»РµРµ РЅРµ РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅ
 			//
 			int    sorted = 1;
 			for(i = 0; sorted && i < p_list->getCount()-1; i++) {
@@ -3953,14 +3974,14 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 			SLTEST_CHECK_EQ(sorted, (long)0);
 		}
 		//
-		// Теперь сортируем список p_list методом sort2 и тестируем правильность сортировки
+		// РўРµРїРµСЂСЊ СЃРѕСЂС‚РёСЂСѓРµРј СЃРїРёСЃРѕРє p_list РјРµС‚РѕРґРѕРј sort2 Рё С‚РµСЃС‚РёСЂСѓРµРј РїСЂР°РІРёР»СЊРЅРѕСЃС‚СЊ СЃРѕСЂС‚РёСЂРѕРІРєРё
 		//
 		p_list->sort2(CMPF_LONG);
 		for(i = 0; i < p_list->getCount()-1; i++) {
 			SLTEST_CHECK_LE(*(long *)p_list->at(i), *(long *)p_list->at(i+1));
 		}
 		//
-		// Тестируем бинарный поиск (алгоритм аналогичен тесту последовательного поиска)
+		// РўРµСЃС‚РёСЂСѓРµРј Р±РёРЅР°СЂРЅС‹Р№ РїРѕРёСЃРє (Р°Р»РіРѕСЂРёС‚Рј Р°РЅР°Р»РѕРіРёС‡РµРЅ С‚РµСЃС‚Сѓ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕРіРѕ РїРѕРёСЃРєР°)
 		//
 		for(p = 0; p < (long)F.GetSaCount(); p++) {
 			ulong bs_ss = 0;
@@ -3971,8 +3992,8 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 			if(p_list->bsearch(&p, &i, CMPF_LONG)) {
 				++bs_sl;
 				//
-				// Бинарный поиск может найти только самый первый элемент. Остальные элементы
-				// выискиваем последовательным перебором
+				// Р‘РёРЅР°СЂРЅС‹Р№ РїРѕРёСЃРє РјРѕР¶РµС‚ РЅР°Р№С‚Рё С‚РѕР»СЊРєРѕ СЃР°РјС‹Р№ РїРµСЂРІС‹Р№ СЌР»РµРјРµРЅС‚. РћСЃС‚Р°Р»СЊРЅС‹Рµ СЌР»РµРјРµРЅС‚С‹
+				// РІС‹РёСЃРєРёРІР°РµРј РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Рј РїРµСЂРµР±РѕСЂРѕРј
 				//
 				while(i < p_list->getCount() && *(long *)p_list->at(++i) == p)
 					++bs_sl;
@@ -3980,7 +4001,7 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 			SLTEST_CHECK_EQ(bs_ss, bs_sl);
 		}
 	}
-	// @todo Тест удаления элементов из массива
+	// @todo РўРµСЃС‚ СѓРґР°Р»РµРЅРёСЏ СЌР»РµРјРµРЅС‚РѕРІ РёР· РјР°СЃСЃРёРІР°
 	delete p_list;
 	return CurrentStatus;
 }

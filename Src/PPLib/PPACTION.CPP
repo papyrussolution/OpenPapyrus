@@ -437,7 +437,7 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 						PPGetLastErrorMessage(1, msg_buf);
 						(added_buf = 0).Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
 							Semicol().Cat(rsrv_rec.Extra).Semicol().Cat(msg_buf);
-						msg_buf.Z().Printf(fmt_buf, (const char *)added_buf);
+						msg_buf.Z().Printf(fmt_buf, added_buf.cptr());
 						if(pLogger)
 							pLogger->Log(msg_buf);
 						else
@@ -453,7 +453,7 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 						PPGetLastErrorMessage(1, msg_buf);
 						(added_buf = 0).Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
 							Semicol().Cat(rsrv_rec.Extra).Semicol().Cat(msg_buf);
-						msg_buf.Z().Printf(fmt_buf, (const char *)added_buf);
+						msg_buf.Z().Printf(fmt_buf, added_buf.cptr());
 						if(pLogger)
 							pLogger->Log(msg_buf);
 						else
@@ -472,7 +472,7 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 			SPathStruc ps;
 			ps.Split(fileName);
 			ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
-			msg_buf.Printf(fmt_buf, (const char *)temp_buf);
+			msg_buf.Printf(fmt_buf, temp_buf.cptr());
 			{
 				MEMSZERO(k);
 				BExtQuery q(this, 0);

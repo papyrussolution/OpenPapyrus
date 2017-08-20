@@ -111,7 +111,7 @@ int ObjSyncFiltDialog::getDTS(ObjSyncFilt * pFilt)
 	if(buf.NotEmptyS()) {
 		PPID  id;
 		PPIDArray  objid_list;
-		ids_set.setBuf((const char *)buf, buf.Len() + 1);
+		ids_set.setBuf(buf.cptr(), buf.Len() + 1);
 		for(pos = 0; ids_set.get(&pos, buf);) {
 			THROW(buf.Strip().IsDigit() && (id = buf.ToLong()) > 0);
 			objid_list.addUnique(id);
@@ -126,7 +126,7 @@ int ObjSyncFiltDialog::getDTS(ObjSyncFilt * pFilt)
 		LAssoc  comm_id;
 		LAssocArray  commid_list;
 		SString left, right;
-		ids_set.setBuf((const char *)buf, buf.Len() + 1);
+		ids_set.setBuf(buf.cptr(), buf.Len() + 1);
 		for(pos = 0; ids_set.get(&pos, buf);) {
 			THROW(buf.Strip().Divide('-', left, right) > 0 && left.Strip().IsDigit() && (comm_id.Key = left.ToLong()) > 0 &&
 				right.Strip().IsDigit() && (comm_id.Val = right.ToLong()) > 0);
@@ -160,7 +160,7 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempFile, ObjSync);
 int SLAPI PPViewObjSync::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TmpTbl);
 	THROW(Helper_InitBaseFilt(pFilt));
 	if(Filt.ObjIDList.getCount() > 0 || Filt.CommIDList.getCount() > 0) {
@@ -251,7 +251,7 @@ int SLAPI PPViewObjSync::InitIteration()
 	ObjSyncTbl * p_sync_tbl = P_TmpTbl ? P_TmpTbl : P_Tbl;
 	ObjSyncTbl::Key0 k;
 	MEMSZERO(k);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 
 	P_IterQuery = new BExtQuery(p_sync_tbl, 0);
 	P_IterQuery->selectAll();
@@ -523,7 +523,7 @@ int SLAPI PPViewObjSyncCmp::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	ObjReceiveParam param;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	THROW(Helper_InitBaseFilt(pFilt));
 	if(Filt.Flags & ObjSyncCmpFilt::fInitialize) {
 		ZDELETE(P_TmpTbl);
@@ -863,7 +863,7 @@ int SLAPI PPViewObjSyncQueue::EditBaseFilt(PPBaseFilt * pFilt)
 
 int SLAPI PPViewObjSyncQueue::Init_(const PPBaseFilt * pFilt)
 {
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	return Helper_InitBaseFilt(pFilt);
 }
 

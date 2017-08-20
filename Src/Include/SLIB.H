@@ -2907,8 +2907,8 @@ public:
 	//
 	FPoint SLAPI Combine(FPoint a, FPoint b) const;
 	FPoint SLAPI Swap() const;
-	int    SLAPI Write(SBuffer &) const;
-	int    SLAPI Read(SBuffer &);
+	int    FASTCALL Write(SBuffer &) const;
+	int    FASTCALL Read(SBuffer &);
 
 	float  X;
 	float  Y;
@@ -3174,7 +3174,7 @@ public:
 	SString & FASTCALL CopyFromOleStr(const BSTR s);
 	SString & SLAPI Z();
 
-	size_t SLAPI Len() const { return L ? (L-1) : 0; }
+	size_t SLAPI Len() const;
 	size_t SLAPI BufSize() const;
 	void   SLAPI Obfuscate();
 	const  char * SLAPI StrChr(int c, size_t * pPos = 0) const;
@@ -3555,7 +3555,7 @@ public:
 	SLAPI  SStringU(const SStringU &);
 	SLAPI  SStringU(const wchar_t *);
 	SLAPI ~SStringU();
-	size_t SLAPI Len() const { return L ? (L-1) : 0; }
+	size_t SLAPI Len() const;
 	operator const wchar_t * () const { return P_Buf; }
 	SStringU & FASTCALL operator = (const SStringU &);
 	SStringU & FASTCALL operator = (const wchar_t *);
@@ -3648,7 +3648,7 @@ public:
 	int    FASTCALL add(const char *, uint * pPos);
 	//
 	// Descr: Функция добавляет в конец набора новую строку pStr.
-	//   Главное отличие от add(const char *, uint *) только в отсутствии последнего параметра.
+	//   Единственное отличие от add(const char *, uint *) только в отсутствии последнего параметра.
 	//   Так как вызов add(str, 0) крайне популярен, то мы расчитываем получить некоторую
 	//   экономию в размере бинарного кода.
 	//
@@ -3772,7 +3772,7 @@ struct SPathStruc {
 	SPathStruc & Copy(const SPathStruc * pS, long flags);
 	SPathStruc & Clear();
 	void   FASTCALL Split(const char * pPath);
-	int    Merge(SString & rBuf) const;
+	int    FASTCALL Merge(SString & rBuf) const;
 	int    Merge(const SPathStruc * pPattern, long patternFlags, SString & rBuf);
 
 	enum {
@@ -5103,14 +5103,6 @@ int    EquipInputDecode(const void * pInput, size_t inputSize, int binaryFormat,
 //
 int SLAPI checkabort();
 int SLAPI enableabort(int); // 0 - disable, 1 - enable, (-1) - check status
-/*
-	Streaming functions
-	{ (uint16)strlen(pStr), pStr[] }
-	if(pStr == 0) then { (uint16)0 }
-*/
-int SLAPI WritePStrToFile(const char * pStr, FILE * pStream);
-int SLAPI ReadPStrFromFile(char ** ppStr, FILE * pStream);
-int SLAPI ReadPStrFromFile(SString & rStr, FILE * pStream);
 //
 //
 //
@@ -5258,117 +5250,23 @@ enum {
 		// производительности за счет большего объема используемой памяти
 };
 //
-// SArray
+// Descr: Базовый класс для векторов, коллекций и иных структур данных.
+//   Реализует минимальный набор функций, которые можно выполнить обходясь
+//   без виртуальных методов и знания природы элементов.
+// Note: Этот класс не умеет правильно удалять сложные элементы (для этого
+//   унаследованный SArray имеет виртуальный метод freeItem(void *).
+//   Другими словами, флаг aryEachItem этим объектом не обслуживается.
 //
-// @attention Функции вставки и удаления элементов массива могут изменить местоположение данных в памяти.
-// Если вы используете переменную, дублирующую адрес SArray::data, то ее следует актуализировать вызовом
-// функции SArray::dataPtr()
-//
-#if 0 // @construction {
-
-class SVector {
+class SVectorBase {
 public:
-	SLAPI  SVector(uint itemSize, int o = O_ARRAY);
-	SLAPI  SVector(void * pData, uint itemSize, uint aCount, int o = O_N_O_ARRAY);
-	SLAPI  SVector(const SVector & rS);
-	SLAPI ~SVector();
-	int    FASTCALL insert(const void * pItem);
-	SVector & FASTCALL operator = (const SVector &);
-	int    FASTCALL operator ! () const { return (count == 0); }
-	int    FASTCALL copy(const SVector & src);
-	//
-	// Descr: Побайтно сравнивает массив this с массивом src.
-	//   Если this->getCount() != src.getCount || this->getItemSize() != src.getItemSize(),
-	//   то считает, что объекты не равны. Если эта проверка успешна, то сравнивает
-	//   побайтно все элементы массивов.
-	//   Для массивов с признаками aryPtrContainer и aryEachItem возвращает 0 (считает, что
-	//   невозможно корректно побайтно сравнить такие объекты).
-	//
-	int    FASTCALL IsEqual(const SVector & src) const;
-	int    SLAPI atPut(uint, const void *);
-	int    FASTCALL atInsert(uint, const void *);
-	int    SLAPI ordInsert(const void *, uint *, CompFunc, void * pExtraData = 0);
-	//
-	// Descr: меняет местами элементы с индексами p1 и p2.
-	// Returns:
-	//   1 - обмен прошел успешно
-	//   0 - один из индексов выходит за пределы размеров массива
-	//
-	int    SLAPI swap(uint p1, uint p2);
-	//
-	// Descr: меняет порядок следования элементов массива [pos..pos+numItems-1].
-	//   То есть:
-	//      первый элемент становится последним, последний - первым
-	//      второй элемент становится предпоследним, предпоследний - вторым и т.д.
-	//
-	int    SLAPI reverse(uint pos, uint numItems);
-	//
-	// Descr: Перемешивает элементы массива случайным образом
-	//
-	int    SLAPI shuffle();
-	//
-	// Descr: перемещает элемент в позиции pos на одну позицию вниз или вверх
-	//   в зависимости от параметра dir.
-	// ARG(pos      IN): позиция, в которой находится элемент, который надо переместить
-	// ARG(dir      IN): направление перемещения: 0 - вниз, !0 - вверх
-	// ARG(pNewPos OUT): по этому указателю присваивается новая позиция перемещенного элемента
-	// Returns:
-	//   !0 - перемещение осуществлено успешно. По указателю pNewPos присвоено значение новой
-	//        позиции элемента, которых до этого находился в позиции pos.
-	//   0  - ошибка позиционирования: либо pos >= getCount(), либо (dir == 0 && pos == getCount()-1),
-	//        либо (dir != 0 && pos == 0).
-	//
-	int    SLAPI moveItem(uint pos, int dir, uint * pNewPos); // @>>SVector::swap
-	int    SLAPI bsearch(const void * key, uint * pIdx, CompFunc, uint ofs, void * pExtraData) const;
-	int    SLAPI bsearch(const void * key, uint * pIdx, CompFunc fcmp) const;
-	int    SLAPI lsearch(const void * key, uint * pIdx, CompFunc, uint ofs = 0, void * pExtraData = 0) const;
-	int    SLAPI sort(CompFunc fcmp, void * pExtraData = 0);
-	int    SLAPI sort2(CompFunc fcmp, void * pExtraData = 0);
-	//
-	// Descr: Удаляет элемент массива по индексу pos. При этом, все последующие элементы
-	//   сдвигаются на одну позицию вниз.
-	// Returns:
-	//   !0 - элемент успешно удален
-	//   0  - ошибка. Единственная возможная причина ошибки: pos >= getCount().
-	//      В этом случае код ошибки SLibError = SLERR_BOUNDS.
-	//
-	int    FASTCALL atFree(uint pos);
-	//
-	// Descr: Удаляет последний элемент массива.
-	//
-	int    SLAPI freeLast();
-	//
-	// Descr: удаляет все элементы массива и освобождает занятую под них память.
-	//
-	void   SLAPI freeAll();
-	//
-	// Descr: удаляет все элементы массива не освобождая при этом память, выделенную под data
-	//   ("глубокие" данные, разрушение которых определено функцией freeItem, освобождаются).
-	//
-	void   SLAPI clear();
-	void * SLAPI dataPtr() const;
-	void * FASTCALL at(uint) const;
-	int    FASTCALL enumItems(uint * pIdx, void ** ppItem) const;
-	//
-	// Descr: Возвращает указатель на элемент по индексу getPointer() если getPointer() < getCount().
-	//   В противном случае возвращает 0.
-	//   При каждом успешном завершении увеличивает значение внутреннего указателя (incPointer()).
-	//   В отличии от enumItems работает быстрее и не требует дополнительной переменной итератора.
-	//
-	// Snippet:
-	//
-	// ArrayItem * p_item;
-	// SVector array(sizeof(ArrayItem));
-	// ...
-	// for(array.setPointer(0); (p_item = (ArrayItem *)array.next()) != 0;) {
-	//    ...
-	// }
-	//
-	void * SLAPI next();
+	// @novtbl
+	SLAPI  SVectorBase(uint itemSize, uint aDelta, int o);
+	SLAPI ~SVectorBase();
+	int    SLAPI operator ! () const { return (count == 0); }
 	uint   SLAPI getCount() const { return count; }
 	int    SLAPI getEnd() const { return (int)(count-1); }
 	uint   SLAPI getItemSize() const { return isize; }
-	uint   SLAPI getFlag() const;
+	uint   SLAPI getFlags() const;
 	void   SLAPI setFlag(uint val, int set);
 	void   SLAPI setLimit(uint);
 	void   SLAPI setDelta(uint);
@@ -5389,25 +5287,43 @@ public:
 	//
 	uint   SLAPI incPointer();
 	//
-	// Descr: осуществляет бинарный поиск по всем записям массива.
-	//   Каждая запись просматривается со смещения ofs.
+	// Descr: Изменяет значение внутреннего указателя позиции на величину incr.
+	//   При этом не выходя за границы диапазона [0..getCount()-1].
+	//   Если incr < 0, то указатель уменьшается, в противном случае - увеличивается.
+	// Returns:
+	//   Предшествующее изменению значение позиции
 	//
-	int    SLAPI imp_bsearch(const void *, uint *, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
+	uint   FASTCALL incPointerSafe(int incr);
+	void * SLAPI dataPtr() const;
+	void * FASTCALL at(uint) const;
 	//
-	// Descr: осуществляет последовательный поиск по
-	//   всем записям массива, начиная с записи *pos. Каждая запись
-	//   просматривается со смещения ofs.
+	// Descr: Возвращает указатель на элемент по индексу getPointer() если getPointer() < getCount().
+	//   В противном случае возвращает 0.
+	//   При каждом успешном завершении увеличивает значение внутреннего указателя (incPointer()).
+	//   В отличии от enumItems работает быстрее и не требует дополнительной переменной итератора.
 	//
-	int    SLAPI imp_lsearch(const void *, uint * pos, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
+	// Snippet:
 	//
-	// Descr: Оптимизированная функция сложения real-поля по всем элементам массива
-	// @construction
+	// ArrayItem * p_item;
+	// SArray array(sizeof(ArrayItem));
+	// ...
+	// for(array.setPointer(0); (p_item = (ArrayItem *)array.next()) != 0;) {
+	//    ...
+	// }
 	//
-	double SLAPI calcSumDouble(size_t offs) const;
+	void * SLAPI next();
+	int    FASTCALL enumItems(uint * pIdx, void ** ppItem) const;
 	//
-	// Descr: Функция массовой вставки элементов в массив. Работает быстрее, чем
-	//   вставка по-одному, но требует большей тщательности в использовании.
-	//   Наибольшую сложность представляет вставка указателей на элементы (aryPtrContainer).
+	int    SLAPI atPut(uint, const void *);
+	int    FASTCALL atInsert(uint, const void *);
+	int    FASTCALL insert(const void * pItem);
+	//
+	// Descr: Функция массовой вставки элементов в массив.
+	// ARG(numItemsToInsert IN): количество новых элементов, добавляемых в массив.
+	// ARG(pItems IN): указатель на блок памяти, содержащий значения новых элементов.
+	//   Если pItems == 0, то все вновь распределенное пространство обнуляется.
+	// Note: Работает быстрее, чем вставка по-одному, но требует большей тщательности в использовании.
+	//   Наибольшую сложность представляет вставка указательей на элементы (aryPtrContainer).
 	//   В этом случае указатель pItems должен быть массивом указателей, которые должны
 	//   быть вставлены. Например:
 	//
@@ -5419,85 +5335,6 @@ public:
 	//   some_struct_list.insertChunk(32, p_ptr_list);
 	//
 	int    SLAPI insertChunk(uint numItemsToInsert, const void * pItems);
-	//
-	// Descr: Удаляет из массива диапазон элементов, начинающийся с позиции lowPos и до uppPos включетельно.
-	//   Если lowPos > uppPos или lowPos >= getCount(), то не делает ничего
-	//   Если lowPos == uppPod, то вызов эквивалентен freeItem(lowPos)
-	//   Если lowPos < getCount(), то удаляет все элементы от позиции lowPos до MIN(uppPos, getCount()-1)
-	// Note: Главное назначение функции - ускорить массовое удаление за счет сокращения издержек
-	//   на перемещение участков памяти при серии единичных удалений.
-	//
-	int    SLAPI freeChunk(uint lowPos, uint uppPos);
-	//
-	// Descr: Функция записывает массив в бинарный файл rFile.
-	//   Формат записи следующий:
-	//   uint32 isize
-	//   uint32 count
-	//   uint8  bytes[count * isize]
-	// Note:
-	//   Этой функцией не следует подменять унаследованныю функцию WriteSArrayToFile(const SArray *, FILE *)
-	//   поскольку формат записи этих функций различается.
-	//
-	int    SLAPI Write(SFile & rFile, long) const;
-	//
-	// Descr: Функция считывает массив из бинарного файла rFile. Формат считывания //
-	//   соответствует тому, что определен для функции SArray::Write(SFile &, long).
-	// Note: Если размер записи в файле не соответсвует размеру записи this->isize,
-	//   то функция возвращает ошибку.
-	//   Перед считыванием массив this очищается.
-	//   Этой функцией не следует подменять унаследованныю функцию ReadSArrayFromFile(SArray *, FILE *)
-	//   поскольку формат чтения этих функций различается.
-	//
-	int    SLAPI Read(SFile & rFile, long);
-protected:
-	//
-	// Descr: Аналог expand(numNewRecs, hsize). Из-за того, что в 99% (или большем) случаев
-	//   заголовок в массиве не используется или не меняется его размер, мы с'кономим на
-	//   передаче и проверке лишнего параметра. Учитывая, что функция вызывается очень часто
-	//   производительность операций вставки в массив улучшится.
-	//
-	int    FASTCALL expand(uint numNewRecs);
-	int    SLAPI shrink();
-	int    SLAPI Helper_Cmp(const void * i1, const void * i2, CompFunc fcmp, void * pExtraData) const;
-	int    SLAPI isItemEq(const void * pKey, uint pos, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const;
-
-	uint   Count;   // Количество элементов, находящихся в массиве
-	uint   Pointer; // Указатель на текущий элемент массива (используется в стеках и очередях)
-	uint   Limit;   // Максимальное количество элементов, которое может вместить буфер
-	uint16 ISize;   // Размер одного элемента (bytes)
-	uint16 BFlags;
-	void * P_Data;
-};
-
-#endif // } @construction
-
-class SArray {
-public:
-	SLAPI  SArray(uint itemSize, uint aDelta, int o /*= O_ARRAY*/);
-	//
-	// Descr: Создает простой массив (O_ARRAY) со значением delta по умолчанию (8)
-	//   и размером элемента - itemSize.
-	//
-	SLAPI  SArray(uint itemSize);
-	SLAPI  SArray(void * pData, uint itemSize, uint aCount, int o = O_N_O_ARRAY);
-	SLAPI  SArray(const SArray & rS);
-	virtual SLAPI ~SArray();
-	/* @v9.0.5 virtual */ int FASTCALL insert(const void * pItem);
-	SArray & FASTCALL operator = (const SArray &);
-	int    FASTCALL operator ! () const { return (count == 0); } // @v7.0.6
-	int    FASTCALL copy(const SArray & src);
-	//
-	// Descr: Побайтно сравнивает массив this с массивом src.
-	//   Если this->getCount() != src.getCount || this->getItemSize() != src.getItemSize(),
-	//   то считает, что объекты не равны. Если эта проверка успешна, то сравнивает
-	//   побайтно все элементы массивов.
-	//   Для массивов с признаками aryPtrContainer и aryEachItem возвращает 0 (считает, что
-	//   невозможно корректно побайтно сравнить такие объекты).
-	//
-	int    FASTCALL IsEqual(const SArray & src) const;
-	int    SLAPI atPut(uint, const void *);
-	int    FASTCALL atInsert(uint, const void *);
-	int    SLAPI ordInsert(const void *, uint *, CompFunc, void * pExtraData = 0);
 	//
 	// Descr: меняет местами элементы с индексами p1 и p2.
 	// Returns:
@@ -5529,11 +5366,67 @@ public:
 	//        либо (dir != 0 && pos == 0).
 	//
 	int    SLAPI moveItem(uint pos, int dir, uint * pNewPos); // @>>SArray::swap
+
+	int    SLAPI ordInsert(const void *, uint *, CompFunc, void * pExtraData = 0);
+	//
+	// Descr: осуществляет бинарный поиск по всем записям массива.
+	//   Каждая запись просматривается со смещения ofs.
+	//
+	int    SLAPI imp_bsearch(const void *, uint *, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
+	//
+	// Descr: осуществляет последовательный поиск по
+	//   всем записям массива, начиная с записи *pos. Каждая запись
+	//   просматривается со смещения ofs.
+	//
+	int    SLAPI imp_lsearch(const void *, uint * pos, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
 	int    SLAPI bsearch(const void * key, uint * pIdx, CompFunc, size_t ofs, void * pExtraData) const;
 	int    SLAPI bsearch(const void * key, uint * pIdx, CompFunc fcmp) const;
 	int    SLAPI lsearch(const void * key, uint * pIdx, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
 	void   SLAPI sort(CompFunc fcmp, void * pExtraData = 0);
 	void   SLAPI sort2(CompFunc fcmp, void * pExtraData = 0);
+protected:
+	int    FASTCALL expand(uint numNewRecs);
+	int    SLAPI shrink();
+	int    SLAPI Helper_Cmp(const void * i1, const void * i2, CompFunc fcmp, void * pExtraData) const;
+	int    SLAPI isItemEq(const void * pKey, uint pos, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const;
+
+	uint   count;   // Количество элементов, находящихся в массиве
+	uint   pointer; // Указатель на текущий элемент массива (используется в стеках и очередях)
+	uint   isize;   // Размер одного элемента (bytes)
+	uint   Limit;   // Максимальное количество элементов, которое может вместить буфер
+	uint16 flags;   //
+	uint16 delta;   //
+	uint8 * data;   //
+};
+//
+// SArray
+//
+// @attention Функции вставки и удаления элементов массива могут изменить местоположение данных в памяти.
+// Если вы используете переменную, дублирующую адрес SArray::data, то ее следует актуализировать вызовом
+// функции SArray::dataPtr()
+//
+class SArray : public SVectorBase {
+public:
+	SLAPI  SArray(uint itemSize, uint aDelta, int o /*= O_ARRAY*/);
+	//
+	// Descr: Создает простой массив (O_ARRAY) со значением delta по умолчанию (8)
+	//   и размером элемента - itemSize.
+	//
+	SLAPI  SArray(uint itemSize);
+	SLAPI  SArray(void * pData, uint itemSize, uint aCount, int o = O_N_O_ARRAY);
+	SLAPI  SArray(const SArray & rS);
+	virtual SLAPI ~SArray();
+	SArray & FASTCALL operator = (const SArray &);
+	int    FASTCALL copy(const SArray & src);
+	//
+	// Descr: Побайтно сравнивает массив this с массивом src.
+	//   Если this->getCount() != src.getCount || this->getItemSize() != src.getItemSize(),
+	//   то считает, что объекты не равны. Если эта проверка успешна, то сравнивает
+	//   побайтно все элементы массивов.
+	//   Для массивов с признаками aryPtrContainer и aryEachItem возвращает 0 (считает, что
+	//   невозможно корректно побайтно сравнить такие объекты).
+	//
+	int    FASTCALL IsEqual(const SArray & src) const;
 	//
 	// Descr: Удаляет элемент массива по индексу pos. При этом, все последующие элементы
 	//   сдвигаются на одну позицию вниз.
@@ -5556,56 +5449,6 @@ public:
 	//   ("глубокие" данные, разрушение которых определено функцией freeItem, освобождаются).
 	//
 	void   SLAPI clear();
-	void * SLAPI dataPtr() const;
-	void * FASTCALL at(uint) const;
-	int    FASTCALL enumItems(uint * pIdx, void ** ppItem) const;
-	//
-	// Descr: Возвращает указатель на элемент по индексу getPointer() если getPointer() < getCount().
-	//   В противном случае возвращает 0.
-	//   При каждом успешном завершении увеличивает значение внутреннего указателя (incPointer()).
-	//   В отличии от enumItems работает быстрее и не требует дополнительной переменной итератора.
-	//
-	// Snippet:
-	//
-	// ArrayItem * p_item;
-	// SArray array(sizeof(ArrayItem));
-	// ...
-	// for(array.setPointer(0); (p_item = (ArrayItem *)array.next()) != 0;) {
-	//    ...
-	// }
-	//
-	void * SLAPI next();
-	uint   SLAPI getCount() const { return count; }
-	int    SLAPI getEnd() const { return (int)(count-1); }
-	uint   SLAPI getItemSize() const { return isize; }
-	uint   SLAPI getFlag() const;
-	void   SLAPI setFlag(uint val, int set);
-	void   SLAPI setLimit(uint);
-	void   SLAPI setDelta(uint);
-	//
-	// Descr: Возвращает значение внутреннего указателя позиции
-	//
-	uint   SLAPI getPointer() const;
-	//
-	// Descr: Устанавливает значение внутреннего указателя позиции
-	// Returns:
-	//   Предшествующее изменению значение позиции
-	//
-	uint   FASTCALL setPointer(uint p);
-	//
-	// Descr: Увеличивает на единицу значение внутреннего указателя позиции
-	// Returns:
-	//   Предшествующее изменению значение позиции
-	//
-	uint   SLAPI incPointer();
-	//
-	// Descr: Изменяет значение внутреннего указателя позиции на величину incr.
-	//   При этом не выходя за границы диапазона [0..getCount()-1].
-	//   Если incr < 0, то указатель уменьшается, в противном случае - увеличивается.
-	// Returns:
-	//   Предшествующее изменению значение позиции
-	//
-	uint   FASTCALL incPointerSafe(int incr);
 	//
 	// Descr: Функция должна разрушить объект, по указателю p.
 	//   Эта функция вызывается при разрушении массива или удалении его элемента в случае,
@@ -5613,39 +5456,10 @@ public:
 	//
 	virtual	void FASTCALL freeItem(void * p);
 	//
-	// Descr: осуществляет бинарный поиск по всем записям массива.
-	//   Каждая запись просматривается со смещения ofs.
-	//
-	int    SLAPI imp_bsearch(const void *, uint *, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
-	//
-	// Descr: осуществляет последовательный поиск по
-	//   всем записям массива, начиная с записи *pos. Каждая запись
-	//   просматривается со смещения ofs.
-	//
-	int    SLAPI imp_lsearch(const void *, uint * pos, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
-	//
 	// Descr: Оптимизированная функция сложения real-поля по всем элементам массива
 	// @construction
 	//
 	double SLAPI calcSumDouble(size_t offs) const;
-	//
-	// Descr: Функция массовой вставки элементов в массив.
-	// ARG(numItemsToInsert IN): количество новых элементов, добавляемых в массив.
-	// ARG(pItems IN): указатель на блок памяти, содержащий значения новых элементов.
-	//   Если pItems == 0, то все вновь распределенное пространство обнуляется.
-	// Note: Работает быстрее, чем вставка по-одному, но требует большей тщательности в использовании.
-	//   Наибольшую сложность представляет вставка указательей на элементы (aryPtrContainer).
-	//   В этом случае указатель pItems должен быть массивом указателей, которые должны
-	//   быть вставлены. Например:
-	//
-	//   SomeStruct * p_ptr_list[32];
-	//   SCollection some_struct_list;
-	//   // Заполняем список p_ptr_list
-	//   for(uint i = 0; i < sizeof(p_ptr_list) / sizeof(p_ptr_list[0]); i++)
-	//      p_ptr_list[i] = new SomeStruct;
-	//   some_struct_list.insertChunk(32, p_ptr_list);
-	//
-	int    SLAPI insertChunk(uint numItemsToInsert, const void * pItems);
 	//
 	// Descr: Удаляет из массива диапазон элементов, начинающийся с позиции lowPos и до uppPos включетельно.
 	//   Если lowPos > uppPos или lowPos >= getCount(), то не делает ничего
@@ -5655,6 +5469,7 @@ public:
 	//   на перемещение участков памяти при серии единичных удалений.
 	//
 	int    SLAPI freeChunk(uint lowPos, uint uppPos);
+#ifndef _WIN32_WCE // {
 	//
 	// Descr: Функция записывает массив в бинарный файл rFile.
 	//   Формат записи следующий:
@@ -5665,7 +5480,6 @@ public:
 	//   Этой функцией не следует подменять унаследованныю функцию WriteSArrayToFile(const SArray *, FILE *)
 	//   поскольку формат записи этих функций различается.
 	//
-#ifndef _WIN32_WCE // {
 	int    SLAPI Write(SFile & rFile, long) const;
 	//
 	// Descr: Функция считывает массив из бинарного файла rFile. Формат считывания //
@@ -5679,31 +5493,27 @@ public:
 	int    SLAPI Read(SFile & rFile, long);
 #endif // } !_WIN32_WCE
 protected:
-	//
-	// Descr: Аналог expand(numNewRecs, hsize). Из-за того, что в 99% (или большем) случаев
-	//   заголовок в массиве не используется или не меняется его размер, мы с'кономим на
-	//   передаче и проверке лишнего параметра. Учитывая, что функция вызывается очень часто
-	//   производительность операций вставки в массив улучшится.
-	//
-	int    FASTCALL expand(uint numNewRecs);
-	int    SLAPI shrink();
-	int    SLAPI Helper_Cmp(const void * i1, const void * i2, CompFunc fcmp, void * pExtraData) const;
-	int    SLAPI isItemEq(const void * pKey, uint pos, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const;
-
-	uint   count;   // Количество элементов, находящихся в массиве
+	/* (now inherited from SVectorBase) uint   count;   // Количество элементов, находящихся в массиве
 	uint   pointer; // Указатель на текущий элемент массива (используется в стеках и очередях)
 	uint   isize;   // Размер одного элемента (bytes)
 	uint   Limit;   // Максимальное количество элементов, которое может вместить буфер
 	uint16 flags;
 	uint16 delta;   //
-	uint8 * data;
+	uint8 * data;*/
 };
 //
+// @v9.7.11 Все 5 методов элиминированы (фактически, перенесены как static в dl200.cpp поскольку только там и используются).
 // Streaming functions
+//   { (uint16)strlen(pStr), pStr[] }
+//   if(pStr == 0) then { (uint16)0 }
+// 
 // { (uint16)count; data[count*isize] }
 //
-int    SLAPI WriteSArrayToFile(const SArray * pAry, FILE * pStream);
-int    SLAPI ReadSArrayFromFile(SArray * pAry, FILE * pStream);
+//int    SLAPI WriteSArrayToFile(const SArray * pAry, FILE * pStream);
+//int    SLAPI ReadSArrayFromFile(SArray * pAry, FILE * pStream);
+//int SLAPI WritePStrToFile(const char * pStr, FILE * pStream);
+//int SLAPI ReadPStrFromFile(char ** ppStr, FILE * pStream);
+//int SLAPI ReadPStrFromFile(SString & rStr, FILE * pStream);
 //
 // SCollection
 //
@@ -6955,7 +6765,7 @@ public:
 	// Descr: Удаляет ассоцииации идентификаторов символов с позициями.
 	//   После вызова функции хэш теряет статус useAssoc.
 	//
-	int    ResetAssoc();
+	void   ResetAssoc();
 	//
 	// Descr: Перестраивает ассоцииации идентификаторов символов с позициями.
 	//   После вызова функции хэш получает статус useAssoc.
@@ -10675,9 +10485,18 @@ private:
 //
 class SProfile {
 public:
+	class Measure {
+	public:
+		SLAPI  Measure();
+		uint64 SLAPI Get();
+	private:
+		uint64 Start;
+	};
+	static __int64 SLAPI NSec100Clock();
+
 	SLAPI  SProfile(int singleThreaded = 0);
 	SLAPI ~SProfile();
-	uint64 SLAPI GetAbsTimeMicroseconds(); // @cs
+	uint64 SLAPI GetAbsTimeMicroseconds();
 protected:
 	uint64 SLAPI Helper_GetAbsTimeMicroseconds();
 
@@ -10693,9 +10512,7 @@ protected:
 		uint64 PrevHrc;        //
 		uint32 StartTick;      // start of GetTickCount()
 	};
-
 	GetTimeBlock Gtb;
-	SMtLock Lck;
 };
 //
 // Descr: Вспомогательные классы, реализующие автоматическое
@@ -10925,6 +10742,7 @@ public:
 	StringSet TempFileList;
 	SRandGenerator Rg;      // Генератор случайных чисел общего пользования. Инициализируется по моменту создания потока.
 	SGlobalSecureConfig Gsc; // Конфигурация SSL, шифрования и др. для секьюритизации глобального обмена данными
+	SProfile Prf;            // @v9.7.11 Локальный по отношению к потоку профайлер
 private:
 	TVRez * P_Rez;
 	HDC    FontDc;          // Искусственный глобальный контекст вывода для манипулирования шрифтами.
@@ -11033,6 +10851,11 @@ public:
 	{
 		return SSys;
 	}
+	//
+	// Descr: Возвращает абсолютное время в микросекундах для целей профилирования //
+	// Note: использует локальный для потока объект SlThreadLocalArea::Prf
+	//
+	uint64 SLAPI GetProfileTime();
 	//
 	// Descr: Устанавливает или снимает (в зависимости от параметра set) флаг пользовательского
 	//   интерфейса для текущего потока.
