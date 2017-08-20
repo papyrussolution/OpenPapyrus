@@ -2799,7 +2799,7 @@ static int Helper_JsonToXmlDOM(json_t * pNode, int superJsonType, SXml::WDoc & r
 			case json_t::tSTRING:
 			case json_t::tNUMBER:
 				{
-					SXml::WNode xn(rXmlDoc, Helper_JsonToXmlEncTag(p_cur->P_Text, "value", temp_buf));
+					SXml::WNode xn(rXmlDoc, Helper_JsonToXmlEncTag(p_cur->Text, "value", temp_buf));
 					if(p_cur->P_Child) {
 						THROW(Helper_JsonToXmlDOM(p_cur->P_Child, p_cur->Type, rXmlDoc));   // @recursion
 					}
@@ -2813,7 +2813,7 @@ static int Helper_JsonToXmlDOM(json_t * pNode, int superJsonType, SXml::WDoc & r
 					THROW(Helper_JsonToXmlDOM(p_cur->P_Child, p_cur->Type, rXmlDoc));   // @recursion
 				}
 				else {
-					SXml::WNode xn(rXmlDoc, Helper_JsonToXmlEncTag(p_cur->P_Text, "bool", temp_buf), "true");
+					SXml::WNode xn(rXmlDoc, Helper_JsonToXmlEncTag(p_cur->Text, "bool", temp_buf), "true");
 				}
 				break;
 			case json_t::tFALSE:
@@ -2821,7 +2821,7 @@ static int Helper_JsonToXmlDOM(json_t * pNode, int superJsonType, SXml::WDoc & r
 					THROW(Helper_JsonToXmlDOM(p_cur->P_Child, p_cur->Type, rXmlDoc));   // @recursion
 				}
 				else {
-					SXml::WNode xn(rXmlDoc, Helper_JsonToXmlEncTag(p_cur->P_Text, "bool", temp_buf), "false");
+					SXml::WNode xn(rXmlDoc, Helper_JsonToXmlEncTag(p_cur->Text, "bool", temp_buf), "false");
 				}
 				break;
 			case json_t::tNULL:
@@ -2829,7 +2829,7 @@ static int Helper_JsonToXmlDOM(json_t * pNode, int superJsonType, SXml::WDoc & r
 					THROW(Helper_JsonToXmlDOM(p_cur->P_Child, p_cur->Type, rXmlDoc));   // @recursion
 				}
 				else {
-					SXml::WNode xn(rXmlDoc, Helper_JsonToXmlEncTag(p_cur->P_Text, "null", temp_buf), "null");
+					SXml::WNode xn(rXmlDoc, Helper_JsonToXmlEncTag(p_cur->Text, "null", temp_buf), "null");
 				}
 				break;
 			default:

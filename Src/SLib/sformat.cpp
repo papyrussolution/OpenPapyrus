@@ -173,7 +173,9 @@ char * SLAPI _datefmt(int day, int mon, int year, int style, char * pBuf)
 		//const char * p_mon_txt[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Seb", "Oct", "Nov", "Dec"};
 		//strcat(pBuf, p_dow_txt[dow]);
 		//sprintf(pBuf, "%s, %d %s %d", p_dow_txt[dow%7], day, p_mon_txt[(mon >= 12) ? 11 : ((mon < 1) ? 0 : (mon-1))], year);
-		sprintf(pBuf, "%s, %d %s %d", STextConst::Get(STextConst::cDow_En_Sh, dow%7), day,
+		if(dow < 1 || dow > 7)
+			dow = 1;
+		sprintf(pBuf, "%s, %d %s %d", STextConst::Get(STextConst::cDow_En_Sh, dow-1), day,
 			STextConst::Get(STextConst::cMon_En_Sh, (mon >= 12) ? 11 : ((mon < 1) ? 0 : (mon-1))), year);
 	}
 	else if(day == 0 && mon == 0 && year == 0)
